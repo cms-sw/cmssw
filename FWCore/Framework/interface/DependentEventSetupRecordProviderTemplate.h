@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Sun May  1 16:59:49 EDT 2005
-// $Id: DependentEventSetupRecordProviderTemplate.h,v 1.1 2005/05/03 19:33:37 chrjones Exp $
+// $Id: DependentContextRecordProviderTemplate.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
 //
 
 // system include files
