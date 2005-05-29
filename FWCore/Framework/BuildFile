@@ -1,12 +1,12 @@
 <use name=boost>
 <use name=Foundation/PluginManager>
 <use name=Dictionary/Reflection>
-<use name = FWCore/ParameterSet>
-<use name = FWCore/EDProduct>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/EDProduct>
 <export>
  <lib name=CoreFramework>
- <use name = FWCore/ParameterSet>
- <use name = FWCore/EDProduct>
+ <use name=FWCore/ParameterSet>
+ <use name=FWCore/EDProduct>
  <use name=boost>
  <use name=Foundation/PluginManager>
  <use name=Dictionary/Reflection>
