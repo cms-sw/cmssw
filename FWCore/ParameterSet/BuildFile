@@ -1,0 +1,6 @@
+<use name=boost>
+<export>
+ <lib name=ParameterSet>
+ <use name=boost>
+</export>
+

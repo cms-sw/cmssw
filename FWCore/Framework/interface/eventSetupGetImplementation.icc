@@ -1,0 +1,36 @@
+#ifndef EDMCONTEXT_CONTEXTGETIMPLEMENTATION_TCC
+#define EDMCONTEXT_CONTEXTGETIMPLEMENTATION_TCC
+// -*- C++ -*-
+//
+// Package:     CoreFramework
+// Class  :     eventSetupGetImplementation
+// 
+// Implementation:
+//     <Notes on implementation>
+//
+// Author:      Chris Jones
+// Created:     Fri Mar 25 16:38:23 EST 2005
+//
+
+// system include files
+
+// user include files
+#include "FWCore/CoreFramework/interface/eventSetupGetImplementation.h"
+#include "FWCore/CoreFramework/interface/EventSetup.h"
+#include "FWCore/CoreFramework/interface/HCMethods.h"
+
+#include "FWCore/CoreFramework/interface/NoRecordException.h"
+
+namespace edm {
+   namespace eventsetup {
+      template< class T>
+      void eventSetupGetImplementation(EventSetup const& iEventSetup, T const*& iValue ) {
+         T const* temp = heterocontainer::find<EventSetupRecordKey, T const>( iEventSetup );
+         if( 0 == temp ) {
+            throw NoRecordException<T>();
+         }
+         iValue = temp;
+      }
+   }
+}
+#endif /* EDMCONTEXT_CONTEXTGETIMPLEMENTATION_TCC */

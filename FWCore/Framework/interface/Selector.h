@@ -1,0 +1,64 @@
+#ifndef EDM_SELECTOR_INCLUDED
+#define EDM_SELECTOR_INCLUDED
+
+/*----------------------------------------------------------------------
+  
+Selector: Base class for all "selector" objects, used to select
+EDProducts based on information in the associated Provenance.
+
+$Id: Selector.h,v 1.2 2005/03/23 20:29:43 paterno Exp $
+
+----------------------------------------------------------------------*/
+
+#include <string>
+
+#include "FWCore/CoreFramework/interface/Provenance.h"
+
+namespace edm
+{
+
+  // Abstract base class.
+  class Selector
+  {
+  public:
+    virtual ~Selector();
+    bool match(const Provenance& p) const;
+  private:
+    virtual bool doMatch(const Provenance& p) const = 0;
+  };
+
+
+  // Select based upon full description of EDProducer.
+  class ModuleDescriptionSelector : public Selector
+  {
+  public:
+    ModuleDescriptionSelector(const ModuleDescription& md):md_(md) {}
+    
+    bool doMatch(const Provenance& p) const
+    {
+      return p.module == md_;
+    }
+
+  private:
+    ModuleDescription md_;
+  };
+
+
+  // Select based on process name.
+  class ProcessNameSelector : public Selector
+  {
+  public:
+    ProcessNameSelector(const std::string& pn):pn_(pn) {}
+    
+    bool doMatch(const Provenance& p) const
+    {
+      return p.module.process_name == pn_;
+    }
+
+  private:
+    std::string pn_;
+  };
+
+}
+
+#endif //  EDM_SELECTOR_INCLUDED

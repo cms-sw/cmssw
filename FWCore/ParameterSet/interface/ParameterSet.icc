@@ -1,0 +1,159 @@
+// ----------------------------------------------------------------------
+// $Id: ParameterSet.icc,v 1.4 2005/05/19 15:53:08 chrjones Exp $
+//
+// declaration of non-intrusive interface to PSettype's values
+// ----------------------------------------------------------------------
+
+
+// ----------------------------------------------------------------------
+// prolog
+
+#ifndef  PARAMETERSET_T_H
+#define  PARAMETERSET_T_H
+
+
+// ----------------------------------------------------------------------
+// prerequisite source files and headers
+
+#include "FWCore/ParameterSet/interface/Entry.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <string>
+#include <vector>
+
+
+// ----------------------------------------------------------------------
+// contents
+
+namespace edm
+{
+  template< class T >
+  T
+    get( ParameterSet const&, std::string const& );
+
+  // specializations
+  template<>
+  bool
+    get<bool>( ParameterSet const&, std::string const& );
+  template<>
+  std::vector<bool>
+    get<std::vector<bool> >( ParameterSet const&, std::string const& );
+  template<>
+  int
+    get<int>( ParameterSet const&, std::string const& );
+  template<>
+  std::vector<int>
+    get<std::vector<int> >( ParameterSet const&, std::string const& );
+  template<>
+  unsigned
+    get<unsigned>( ParameterSet const&, std::string const& );
+  template<>
+  std::vector<unsigned>
+    get<std::vector<unsigned> >( ParameterSet const&, std::string const& );
+  template<>
+  double
+    get<double>( ParameterSet const&, std::string const& );
+  template<>
+  std::vector<double>
+    get<std::vector<double> >( ParameterSet const&, std::string const& );
+  template<>
+  std::string
+    get<std::string>( ParameterSet const&, std::string const& );
+  template<>
+  std::vector<std::string>
+    get<std::vector<std::string> >( ParameterSet const&, std::string const& );
+  template<>
+  ParameterSet
+    get<ParameterSet>( ParameterSet const&, std::string const& );
+  template<>
+  std::vector<ParameterSet>
+    get<std::vector<ParameterSet> >( ParameterSet const&, std::string const& );
+  template<>
+  Path
+    get<Path>( ParameterSet const&, std::string const& );
+
+}  // namespace edm
+
+
+// ----------------------------------------------------------------------
+// Bool, vBool
+
+template<>
+inline bool
+  edm::get<bool>( ParameterSet const& p, std::string const& name )
+{ return p.getBool(name); }
+
+
+// ----------------------------------------------------------------------
+// Int32, vInt32
+
+template<>
+inline int
+  edm::get<int>( ParameterSet const& p, std::string const& name )
+{ return p.getInt32(name); }
+
+template<>
+inline std::vector<int>
+  edm::get<std::vector<int> >( ParameterSet const& p, std::string const& name )
+{ return p.getVInt32(name); }
+
+
+// ----------------------------------------------------------------------
+// Uint32, vUint32
+
+template<>
+inline unsigned
+  edm::get<unsigned>( ParameterSet const& p, std::string const& name )
+{ return p.getUInt32(name); }
+
+template<>
+inline std::vector<unsigned>
+  edm::get<std::vector<unsigned> >( ParameterSet const& p, std::string const& name )
+{ return p.getVUInt32(name); }
+
+
+// ----------------------------------------------------------------------
+// Double, vDouble
+
+template<>
+inline double
+  edm::get<double>( ParameterSet const& p, std::string const& name )
+{ return p.getDouble(name); }
+
+template<>
+inline std::vector<double>
+  edm::get<std::vector<double> >( ParameterSet const& p, std::string const& name )
+{ return p.getVDouble(name); }
+
+
+// ----------------------------------------------------------------------
+// String, vString
+
+template<>
+inline std::string
+  edm::get<std::string>( ParameterSet const& p, std::string const& name )
+{ return p.getString(name); }
+
+template<>
+inline std::vector<std::string>
+  edm::get<std::vector<std::string> >( ParameterSet const& p, std::string const& name )
+{ return p.getVString(name); }
+
+
+// ----------------------------------------------------------------------
+// PSet, vPSet
+
+template<>
+inline edm::ParameterSet
+  edm::get<edm::ParameterSet>( ParameterSet const& p, std::string const& name )
+{ return p.getPSet(name); }
+
+template<>
+inline std::vector<edm::ParameterSet>
+  edm::get<std::vector<edm::ParameterSet> >( ParameterSet const& p, std::string const& name )
+{ return p.getVPSet(name); }
+
+
+// ----------------------------------------------------------------------
+// epilog
+
+#endif  // PARAMETERSET_T_H
