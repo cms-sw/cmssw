@@ -1,6 +1,7 @@
 <use name=boost>
 <use name=Foundation/PluginManager>
 <use name=Dictionary/Reflection>
+<use name=Dictionary/ReflectionBuilder>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/CoreFramework>
 <export>
@@ -10,5 +11,6 @@
  <use name=boost>
  <use name=Foundation/PluginManager>
  <use name=Dictionary/Reflection>
+ <use name=Dictionary/ReflectionBuilder>
 </export>
 
