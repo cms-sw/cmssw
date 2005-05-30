@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Fri Apr  8 11:50:21 CDT 2005
-// $Id: CallbackProxy.h,v 1.1 2005/04/18 20:16:16 chrjones Exp $
+// $Id: CallbackProxy.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
 //
 
 // system include files
@@ -58,8 +58,7 @@ template<class CallbackT, class RecordT, class DataT>
          return &(*data_) ;
       }
       void invalidateCache() {
-         DataT temp;
-         data_ = temp;
+         data_ = DataT();
          callback_->newRecordComing();
       }
    private:
