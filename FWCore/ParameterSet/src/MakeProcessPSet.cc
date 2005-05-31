@@ -63,6 +63,10 @@ namespace {
   {
     boost::shared_ptr<edm::pset::NodePtrList> nodelist = 
       edm::pset::parse(config.c_str());
+    if( 0 == nodelist.get() ) {
+       throw runtime_error("Unable to parse configuration file."
+                           "  Please check the error message reported earlier.");
+    }
     boost::shared_ptr<ProcessDesc> tmp =
       edm::pset::makeProcess(nodelist);
 
