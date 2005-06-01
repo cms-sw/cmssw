@@ -1,0 +1,14 @@
+inline int KtEvent::getNJets() const {return m_jets.size();}
+inline KtFloat KtEvent::getDMerge(int nJets) const {return m_dMerge[nJets];}
+inline KtFloat KtEvent::getYMerge(int nJets) const {return m_dMerge[nJets] * m_etsq;}
+inline int KtEvent::getNConstituents() const {return m_constituents.size();}
+inline  void KtEvent::setECut(KtFloat eCut) {
+  m_eCut = eCut;
+  m_etsq = 1/(eCut*eCut);
+}
+inline KtFloat KtEvent::getECut() const {return m_eCut;}
+inline KtFloat KtEvent::getETot() const {return m_eTot;}
+inline int KtEvent::getType() const {return m_type;}
+inline int KtEvent::getAngle() const {return m_angle;}
+inline int KtEvent::getRecom() const {return m_recom;}
+inline bool KtEvent::isInclusive() const {return m_inclusive;}

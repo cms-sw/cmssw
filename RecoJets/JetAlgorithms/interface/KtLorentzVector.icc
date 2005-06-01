@@ -1,0 +1,36 @@
+inline KtFloat KtLorentzVector::crapidity() const {
+  return m_crapidity;
+}
+
+inline int KtLorentzVector::getNConstituents() const {
+  return m_constituents.size();
+}
+
+inline const std::vector<const KtLorentzVector*> & KtLorentzVector::getConstituents() const {return m_constituents;}
+
+inline bool KtLorentzVector::isJet() const {return !m_isAtomic;} 
+
+inline bool KtLorentzVector::operator== (const KtLorentzVector& v2) const {
+  return (m_id == v2.m_id);
+}
+
+inline bool KtLorentzVector::operator!= (const KtLorentzVector& v2) const {
+  return (m_id != v2.m_id);
+}
+
+inline bool KtLorentzVector::operator< (const KtLorentzVector& v2) const {
+  return (m_id < v2.m_id);
+}
+
+inline bool KtLorentzVector::operator> (const KtLorentzVector& v2) const {
+  return (m_id > v2.m_id);
+}
+
+inline void KtLorentzVector::calcRapidity() {
+  const KtFloat etamax = 10;
+  if (fabs(this->pz())==this->e()) {
+    m_crapidity = (this->pz() > 0) ? (etamax+2) : -(etamax+2);
+  } else {
+    m_crapidity = HepLorentzVector::rapidity();
+  }
+}

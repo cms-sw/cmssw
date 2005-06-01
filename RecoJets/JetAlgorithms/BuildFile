@@ -1,0 +1,12 @@
+<use name=clhep>
+<use name=DataFormats/JetObjects>
+<use name=DataFormats/CaloObjects>
+<use name=FWCore/EDProduct>
+<export>
+ <lib name=JetAlgorithms>
+ <use name=DataFormats/JetObjects>
+ <use name=DataFormats/CaloObjects>
+ <use name=FWCore/EDProduct>
+ <use name=clhep>
+</export>
+

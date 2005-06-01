@@ -1,0 +1,14 @@
+<flags SEAL_PLUGIN_NAME="JetProducers">
+<use name=boost>
+<use name=RecoJets/JetAlgorithms>
+<use name=FWCore/EDProduct>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/CoreFramework>
+<export>
+ <use name=boost>
+ <lib name=JetProducers>
+ <use name=RecoJets/JetAlgorithms>
+ <use name=FWCore/EDProduct>
+ <use name=FWCore/ParameterSet>
+ <use name=FWCore/CoreFramework>
+</export>
