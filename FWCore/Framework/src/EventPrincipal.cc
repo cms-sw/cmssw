@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EventPrincipal.cc,v 1.21 2005/05/25 04:10:06 wmtan Exp $
+$Id: EventPrincipal.cc,v 1.1 2005/05/29 02:29:53 wmtan Exp $
 ----------------------------------------------------------------------*/
 //#include <iostream>
 #include <memory>
@@ -120,7 +120,7 @@ namespace edm {
   }
 
   EventPrincipal::BasicHandle
-  EventPrincipal::get(TypeID id, EDP_ID oid) const
+  EventPrincipal::get(EDP_ID oid) const
   {
     if (oid == EDP_ID())
       throw runtime_error("get: invalid EDP_ID supplied");
@@ -131,7 +131,7 @@ namespace edm {
       throw runtime_error("get: no product with given id");
 
     const SharedGroupPtr& g = groups_[slotNumber];
-    this->resolve_(id, *g);
+    this->resolve_(*g);
     return BasicHandle(g->product(), g->provenance());
   }
 
@@ -196,7 +196,7 @@ namespace edm {
 		throw runtime_error("get: too many products found");
 	      }
 	    found_slot = *ib;
-	    this->resolve_(id, *g);
+	    this->resolve_(*g);
 	    result = BasicHandle(g->product(), g->provenance());
 	  }
 	++ib;
@@ -238,7 +238,7 @@ namespace edm {
             assert(i->second >= 0);
             assert(unsigned(i->second) < groups_.size());
 	    SharedGroupPtr group = groups_[i->second];
-	    this->resolve_(id, *group);
+	    this->resolve_(*group);
 	    return BasicHandle(group->product(), group->provenance());    
 	  }
 	++iproc;
@@ -277,7 +277,7 @@ namespace edm {
 	const SharedGroupPtr& g = groups_[*ib];
 	if(sel.match(*g->provenance())) 
 	  {
-	    this->resolve_(id, *g);
+	    this->resolve_(*g);
 	    results.push_back(BasicHandle(g->product(), g->provenance()));
 	  }
 	++ib;
@@ -285,7 +285,7 @@ namespace edm {
   }
 
   void
-  EventPrincipal::resolve_(TypeID id, const Group& g) const
+  EventPrincipal::resolve_(const Group& g) const
   {
     if (!g.isAccessible())
       throw runtime_error("resolve_: product is not accessible");
@@ -294,7 +294,7 @@ namespace edm {
     
     // must attempt to load from persistent store
     const Provenance* prov = g.provenance();
-    BranchKey bk(id,prov->module.module_label,prov->module.process_name);
+    BranchKey bk(prov->friendly_product_type_name,prov->module.module_label,prov->module.process_name);
     auto_ptr<EDProduct> edp(store_->get(bk));
 
     // Now fixup the Group

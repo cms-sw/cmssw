@@ -6,7 +6,7 @@
 Event: This is the primary interface for accessing
 EDProducts from a single collision and inserting new derived products.
 
-$Id: Event.h,v 1.12 2005/05/25 04:10:57 wmtan Exp $
+$Id: Event.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
@@ -79,7 +79,7 @@ namespace edm {
     // from the EventPrincipal class.
 
     BasicHandle 
-    get_(TypeID id, EDP_ID oid) const;
+    get_(EDP_ID oid) const;
 
     BasicHandle 
     get_(TypeID id, const Selector&) const;

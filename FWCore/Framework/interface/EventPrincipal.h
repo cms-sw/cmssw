@@ -15,7 +15,7 @@ through shared pointers.
 The EventPrincipal returns Handle<EDProduct>, rather than a shared
 pointer to a Group, when queried.
 
-$Id: EventPrincipal.h,v 1.19 2005/05/25 04:09:40 wmtan Exp $
+$Id: EventPrincipal.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <map>
@@ -65,7 +65,7 @@ namespace edm {
     void put(std::auto_ptr<EDProduct> edp,
 	     std::auto_ptr<Provenance> prov);
 
-    BasicHandle  get(TypeID id, EDP_ID oid) const;
+    BasicHandle  get(EDP_ID oid) const;
 
     BasicHandle  getBySelector(TypeID id, const Selector& s) const;
 
@@ -153,7 +153,7 @@ namespace edm {
     // a cache, and so can be modified through the const reference.
     // We do not change the *number* of groups through this call, and so
     // *this is const.
-    void resolve_(TypeID id, const Group& g) const;
+    void resolve_(const Group& g) const;
 
   };
 }

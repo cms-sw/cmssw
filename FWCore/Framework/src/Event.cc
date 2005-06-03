@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: Event.cc,v 1.12 2005/05/25 04:10:28 wmtan Exp $
+$Id: Event.cc,v 1.1 2005/05/29 02:29:53 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -96,9 +96,9 @@ namespace edm {
   }
 
   Event::BasicHandle
-  Event::get_(TypeID id, EDP_ID oid) const
+  Event::get_(EDP_ID oid) const
   {
-    return ep_.get(id, oid);
+    return ep_.get(oid);
   }
 
   Event::BasicHandle
