@@ -54,7 +54,8 @@ namespace {
   }
 
   void fillPath(const WrapperNode* n, 
-		const SeqMap& sequences,  
+		const SeqMap& sequences,
+                Strs&   paths,  
 		ParameterSet* out)
   {
     Strs unsubst_names;
@@ -78,7 +79,9 @@ namespace {
       else names.push_back(*nameIt);		  
     }//
 
-    out->insert(true,"temporary_single_path",Entry(names,true));
+    out->insert(true,n->name(),Entry(names,true));
+    paths.push_back(n->name()); // add to the list of paths
+
   } // fillPath(..) 
 
   void fillSequence(const WrapperNode* n, 
@@ -116,6 +119,7 @@ namespace {
 
     // loop on path fragments
     ProcessDesc::PathContainer::iterator pathIt; 
+    Strs pathnames;
 
     for(pathIt= tmp->pathFragments_.begin();
 	pathIt!=tmp->pathFragments_.end();
@@ -125,9 +129,11 @@ namespace {
 	fillSequence((*pathIt).get(), sequences);
 
       if ((*pathIt)->type()=="path") fillPath((*pathIt).get(),
-					      sequences,&tmp->pset_);
+					      sequences,pathnames,&tmp->pset_);
     } // loop on path fragments
 
+    tmp->pset_.insert(true,"paths",Entry(pathnames,true));
+
     return boost::shared_ptr<edm::ParameterSet>(new ParameterSet(tmp->pset_));
-  }
-}
+  } // make ProcessPset
+}//namespace edm
