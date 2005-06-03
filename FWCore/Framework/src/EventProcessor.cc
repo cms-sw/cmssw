@@ -2,6 +2,7 @@
 #include "FWCore/CoreFramework/interface/EventProcessor.h"
 #include "FWCore/CoreFramework/src/Worker.h"
 #include "FWCore/CoreFramework/src/WorkerRegistry.h"
+#include "FWCore/CoreFramework/interface/ScheduleBuilder.h"
 #include "FWCore/CoreFramework/interface/ScheduleExecutor.h"
 #include "FWCore/CoreFramework/src/InputServiceFactory.h"
 #include "FWCore/CoreFramework/src/DebugMacros.h"
@@ -177,7 +178,8 @@ namespace edm {
 	    getVersion(), // this is not written for real yet
 	    0), // how is this specifified? Where does it come from?
     reg_(WorkerRegistry::get()),
-    workers_(tmpMakeSchedule(*params_,common_,*reg_)),
+    //workers_(tmpMakeSchedule(*params_,common_,*reg_)),
+    workers_(ScheduleBuilder(*params_).getPathList()),
     input_(makeInput(*params_,common_)),
     runner_(workers_)
   {
@@ -193,7 +195,8 @@ namespace edm {
 	    getVersion(), // this is not written for real yet
 	    0), // how is this specifified? Where does it come from?
     reg_(WorkerRegistry::get()),
-    workers_(tmpMakeSchedule(*params_,common_,*reg_)),
+    workers_(ScheduleBuilder(*params_).getPathList()), 
+    //workers_(tmpMakeSchedule(*params_,common_,*reg_)),
     input_(makeInput(*params_,common_)),
     runner_(workers_)
   {
@@ -209,7 +212,8 @@ namespace edm {
 	    getVersion(), // this is not written for real yet
 	    0), // how is this specifified? Where does it come from?
     reg_(WorkerRegistry::get()),
-    workers_(tmpMakeSchedule(*params_,common_,*reg_)),
+    //workers_(tmpMakeSchedule(*params_,common_,*reg_)),
+    workers_(ScheduleBuilder(*params_).getPathList()),
     input_(makeInput(*params_,common_)),
     runner_(workers_)
   {
