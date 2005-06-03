@@ -3,16 +3,18 @@
    Implementation of class ScheduleBuilder
 
    \author Stefano ARGIRO
-   \version $Id: ScheduleBuilder.cc,v 1.5 2005/05/26 08:28:53 argiro Exp $
+   \version $Id: ScheduleBuilder.cc,v 1.1 2005/05/29 02:29:54 wmtan Exp $
    \date 18 May 2005
 */
 
-static const char CVSId[] = "$Id: ScheduleBuilder.cc,v 1.5 2005/05/26 08:28:53 argiro Exp $";
+static const char CVSId[] = "$Id: ScheduleBuilder.cc,v 1.1 2005/05/29 02:29:54 wmtan Exp $";
 
 
 #include "FWCore/CoreFramework/interface/ScheduleBuilder.h"
 #include "FWCore/CoreFramework/src/WorkerRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "PluginManager/PluginManager.h"
+
 #include <iostream>
 
 using namespace edm;
@@ -21,37 +23,49 @@ using namespace std;
 ScheduleBuilder::ScheduleBuilder(ParameterSet const& processDesc): 
   m_processDesc(processDesc){
 
+
+  seal::PluginManager::get()->initialise();
+
   // fill PathList
-  // use the limited-scope function  makeProcessPSet
 
-  const vector<string>& modulenames = 
-    m_processDesc.getVString("temporary_single_path");
+  // get the list of available paths from the processDesc
+  const vector<string>& pathnames = 
+    m_processDesc.getVString("paths");
 
-  const std::string& processName =  m_processDesc.getString("process_name");
-
-  WorkerList workerList;
-
-  for (vector<string>::const_iterator nameIt=modulenames.begin();
-       nameIt!=modulenames.end(); 
-       ++nameIt){
-
-    ParameterSet const& module_pset= m_processDesc.getPSet(*nameIt);
+  // loop on paths
+  for (vector<string>::iterator pathIt = pathnames.begin();
+       pathIt != pathnames.end(); ++pathIt){
+  
+    const vector<string>& modulenames = 
+      m_processDesc.getVString(*pathIt);
     
+    const std::string& processName =  m_processDesc.getString("process_name");
+    
+    WorkerList workerList;
+    // loop on workers
+    for (vector<string>::const_iterator nameIt=modulenames.begin();
+	 nameIt!=modulenames.end(); 
+	 ++nameIt){
+           
+      ParameterSet const& module_pset= m_processDesc.getPSet(*nameIt);
+   
 #warning version and pass are hardcoded
-    unsigned long version = 1;
-    unsigned long pass    = 1;
+      unsigned long version = 1;
+      unsigned long pass    = 1;
     
-    Worker* worker= 
-      WorkerRegistry::get()->getWorker(module_pset,processName,version,pass);
+      Worker* worker= 
+	WorkerRegistry::get()->getWorker(module_pset,processName,version,pass);
+      
+      workerList.push_back(worker);
+      
+    }// for
     
-    workerList.push_back(worker);
-
-  }// for
-
-  m_PathList.push_back(workerList);
-
+    m_PathList.push_back(workerList);
+    
+  } // loop on paths
+  
   validate();
-
+  
 }
 
 
