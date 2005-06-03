@@ -2,10 +2,10 @@
 #include "FWCore/CoreFramework/src/Factory.h"
 #include "FWCore/CoreFramework/src/WorkerMaker.h"
 #include "FWCore/CoreFramework/src/DebugMacros.h"
+#include "FWCore/CoreFramework/interface/UnknownModuleException.h"
 
 #include <utility>
 #include <memory>
-#include <stdexcept>
 #include <iostream>
 
 using namespace std;
@@ -48,22 +48,15 @@ namespace edm {
       {
 	auto_ptr<Maker> wm(this->create(modtype));
 
-	if(wm.get()==0)
-	  {
-	    string tmp("Module Factory:\n Cannot find module type from ParameterSet: ");
-	    tmp+=modtype;
-	    tmp+="\n Perhaps your module type is mispelled or is not a SEAL Plugin?";
-	    tmp+="\n Try running SealPluginDump to obtain a list of available Plugins.";
-	    throw runtime_error(tmp);
-	  }
-
+	if(wm.get()==0) throw UnknownModuleException(modtype);
+	  
 	FDEBUG(1) << "Factory:  created worker of type " << modtype << endl;
 
 	pair<MakerMap::iterator,bool> ret =
 	  makers_.insert(make_pair<string,Maker*>(modtype,wm.get()));
 
-	if(ret.second==false)
-	  throw runtime_error("Worker Factory map insert failed");
+	//	if(ret.second==false)
+	//	  throw runtime_error("Worker Factory map insert failed");
 
 	it = ret.first;
 	wm.release();
