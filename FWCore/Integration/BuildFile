@@ -1,16 +1,8 @@
 <use name=boost>
-<use name=Foundation/PluginManager>
-<use name=Dictionary/Reflection>
-<use name=Dictionary/ReflectionBuilder>
-<use name=FWCore/ParameterSet>
 <use name=FWCore/CoreFramework>
 <export>
- <lib name=CoreFramework>
- <use name=FWCore/ParameterSet>
- <use name=FWCore/CoreFramework>
+ <lib name=FWCoreIntegration>
  <use name=boost>
- <use name=Foundation/PluginManager>
- <use name=Dictionary/Reflection>
- <use name=Dictionary/ReflectionBuilder>
+ <use name=FWCore/CoreFramework>
 </export>
 
