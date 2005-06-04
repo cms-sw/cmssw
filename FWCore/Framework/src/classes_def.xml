@@ -1,4 +1,10 @@
 <lcgdict>
+ <class name="edm::EventAux" id="8520BF40-D823-7A01-CA18-D737BDBF4C65"/>
+ <class name="edm::EventProvenance" id="D6EB7FBE-71C8-78B4-9DA6-766179171451"/>
+ <class name="std::vector<edm::Provenance>"/>
+ <class name="edm::Provenance"/>
+ <class name="edm::ModuleDescription"/>
+ <class name="edm::PS_ID"/>
  <class name="edmtest::DummyProduct"/>
  <class name="edmtest::IntProduct"/>
  <class name="edmtest::DoubleProduct"/>
