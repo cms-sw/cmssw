@@ -287,7 +287,7 @@ namespace edm {
 	runner_.runOneEvent(*pep.get(),c);
 	EventRegistry::instance()->removeEvent(pep->ID());
       }
-    
+
     return 0;
   }
 
