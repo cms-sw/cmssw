@@ -1,7 +1,7 @@
 #!/bin/sh
 
 #----------------------------------------------------------------------
-# $Id: run_all.sh,v 1.2 2005/05/26 20:27:51 paterno Exp $
+# $Id: run_all.sh,v 1.1 2005/05/29 02:29:54 wmtan Exp $
 #----------------------------------------------------------------------
 
 # Pass in name and status
@@ -14,8 +14,6 @@ do_or_die TypeID_t
 do_or_die EventPrincipal_t
 do_or_die maker_t
 do_or_die maker2_t
-do_or_die test_1
-do_or_die test_2
 do_or_die EventProcessor_t
 do_or_die EventProcessor2_t
 do_or_die ScheduleExecutorFromPSet_t
