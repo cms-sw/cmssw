@@ -17,6 +17,7 @@
 #include "FWCore/CoreFramework/interface/EventSetupProvider.h"
 #include "FWCore/CoreFramework/interface/SourceFactory.h"
 #include "FWCore/CoreFramework/interface/ModuleFactory.h"
+#include "FWCore/CoreFramework/interface/EventRegistry.h"
 
 #include "boost/shared_ptr.hpp"
 
@@ -284,6 +285,7 @@ namespace edm {
 	EventSetup const& c = cp_.eventSetupForInstance(ts);
 
 	runner_.runOneEvent(*pep.get(),c);
+	EventRegistry::instance()->removeEvent(pep->ID());
       }
     
     return 0;

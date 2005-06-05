@@ -3,11 +3,11 @@
    Implementation of class ScheduleBuilder
 
    \author Stefano ARGIRO
-   \version $Id: ScheduleBuilder.cc,v 1.1 2005/05/29 02:29:54 wmtan Exp $
+   \version $Id: ScheduleBuilder.cc,v 1.2 2005/06/03 13:34:06 argiro Exp $
    \date 18 May 2005
 */
 
-static const char CVSId[] = "$Id: ScheduleBuilder.cc,v 1.1 2005/05/29 02:29:54 wmtan Exp $";
+static const char CVSId[] = "$Id: ScheduleBuilder.cc,v 1.2 2005/06/03 13:34:06 argiro Exp $";
 
 
 #include "FWCore/CoreFramework/interface/ScheduleBuilder.h"
@@ -33,7 +33,7 @@ ScheduleBuilder::ScheduleBuilder(ParameterSet const& processDesc):
     m_processDesc.getVString("paths");
 
   // loop on paths
-  for (vector<string>::iterator pathIt = pathnames.begin();
+  for (vector<string>::const_iterator pathIt = pathnames.begin();
        pathIt != pathnames.end(); ++pathIt){
   
     const vector<string>& modulenames = 
