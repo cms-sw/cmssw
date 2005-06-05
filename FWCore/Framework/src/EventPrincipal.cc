@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EventPrincipal.cc,v 1.2 2005/06/03 04:04:47 wmtan Exp $
+$Id: EventPrincipal.cc,v 1.3 2005/06/05 04:16:50 wmtan Exp $
 ----------------------------------------------------------------------*/
 //#include <iostream>
 #include <memory>
@@ -37,7 +37,7 @@ namespace edm {
     aux_.process_history_ = nl;
     groups_.reserve(initial_size);
   }
-  
+ 
   EventPrincipal::~EventPrincipal()
   {
   }
