@@ -11,6 +11,7 @@ namespace edm
   struct EventAux {
     EventAux() : process_history_(), id_() {}
     explicit EventAux(CollisionID id) : process_history_(), id_(id) {}
+    ~EventAux() {}
     // most recently process that processed this event
     // is the last on the list, this defines what "latest" is
     ProcessNameList process_history_;

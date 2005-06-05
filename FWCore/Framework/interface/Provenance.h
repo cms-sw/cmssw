@@ -6,7 +6,7 @@
 Provenance: The full description of a product and how it came into
 existence.
 
-$Id: Provenance.h,v 1.6 2005/05/25 21:44:06 jbk Exp $
+$Id: Provenance.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <ostream>
 #include <string>
@@ -85,6 +85,8 @@ namespace edm {
 
     Provenance();
     explicit Provenance(const ModuleDescription& m);
+
+    ~Provenance() {}
 
     ModuleDescription module;
     EDP_ID product_id;
