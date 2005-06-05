@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EventPrincipal.cc,v 1.3 2005/06/05 04:16:50 wmtan Exp $
+$Id: EventPrincipal.cc,v 1.4 2005/06/05 04:27:38 wmtan Exp $
 ----------------------------------------------------------------------*/
 //#include <iostream>
 #include <memory>
@@ -7,6 +7,7 @@ $Id: EventPrincipal.cc,v 1.3 2005/06/05 04:16:50 wmtan Exp $
 #include <stdexcept>
 
 #include "FWCore/CoreFramework/interface/EventPrincipal.h"
+#include "FWCore/CoreFramework/interface/EventRegistry.h" // KLUDGE HACK (see destructor)
 using namespace std;
 
 namespace
@@ -40,6 +41,10 @@ namespace edm {
  
   EventPrincipal::~EventPrincipal()
   {
+    // This is a temporary expedient.
+    // The removal of the Event from the registry should be done in
+    // the EventProcessor class in the Framework.
+    EventRegistry::instance()->removeEvent(ID()); // KLUDGE HACK
   }
 
   CollisionID
