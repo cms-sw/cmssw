@@ -8,14 +8,12 @@
  *
  ************************************************************/
 
+#include "FWCore/CoreFramework/interface/CoreFrameworkFwd.h"
 #include "FWCore/CoreFramework/interface/EDProducer.h"
-
 #include "FWCore/FWCoreIntegration/test/ThingAlgorithm.h"
 
 namespace edm {
   class ParameterSet;
-  class Event;
-  class EventSetup;
 }
 
 namespace edmreftest {

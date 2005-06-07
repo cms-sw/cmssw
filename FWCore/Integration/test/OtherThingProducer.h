@@ -1,14 +1,12 @@
 #ifndef EDMREFTEST_OTHERTHINGPRODUCER_H
 #define EDMREFTEST_OTHERTHINGPRODUCER_H
 
+#include "FWCore/CoreFramework/interface/CoreFrameworkfwd.h"
 #include "FWCore/CoreFramework/interface/EDProducer.h"
-
 #include "FWCore/FWCoreIntegration/test/OtherThingAlgorithm.h"
 
 namespace edm {
   class ParameterSet;
-  class Event;
-  class EventSetup;
 }
 
 namespace edmreftest {

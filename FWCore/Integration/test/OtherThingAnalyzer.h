@@ -1,12 +1,11 @@
 #ifndef EDMREFTEST_OTHERTHINGANALYZER_H
 #define EDMREFTEST_OTHERTHINGANALYZER_H
 
+#include "FWCore/CoreFramework/interface/CoreFrameworkfwd.h"
 #include "FWCore/CoreFramework/interface/EDAnalyzer.h"
 
 namespace edm {
   class ParameterSet;
-  class Event;
-  class EventSetup;
 }
 
 namespace edmreftest {
