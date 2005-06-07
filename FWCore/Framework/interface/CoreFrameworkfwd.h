@@ -5,7 +5,7 @@
   
 Forward declarations of types in the EDM.
 
-$Id: CoreFrameworkfwd.h,v 1.7 2005/05/12 21:47:04 wmtan Exp $
+$Id: CoreFrameworkfwd.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -13,7 +13,6 @@ namespace edm
 {
 
   class BranchKey;
-  class EventSetup;
   class EDAnalyzer;
   class EDFilter;
   class EDProducer;
@@ -23,6 +22,7 @@ namespace edm
   class EventPrincipal;
   class EventProvenance;
   class EventRegistry;
+  class EventSetup;
   class InputService;
   class LuminositySection;
   class ModuleDescription;
@@ -37,7 +37,6 @@ namespace edm
   class Run;
   class RunHandler;
   class Selector;
-  class UntrackedParameterSet;
 
   template <class T> class EDCollection;
   template <class T> class Handle;
