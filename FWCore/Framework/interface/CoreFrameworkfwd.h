@@ -5,7 +5,7 @@
   
 Forward declarations of types in the EDM.
 
-$Id: CoreFrameworkfwd.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
+$Id: CoreFrameworkfwd.h,v 1.2 2005/06/07 23:15:09 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -24,6 +24,7 @@ namespace edm
   class EventRegistry;
   class EventSetup;
   class InputService;
+  class InputServiceDescription;
   class LuminositySection;
   class ModuleDescription;
   class ModuleDescriptionSelector;
