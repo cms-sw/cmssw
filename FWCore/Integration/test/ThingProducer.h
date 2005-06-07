@@ -8,7 +8,7 @@
  *
  ************************************************************/
 
-#include "FWCore/CoreFramework/interface/CoreFrameworkFwd.h"
+#include "FWCore/CoreFramework/interface/CoreFrameworkfwd.h"
 #include "FWCore/CoreFramework/interface/EDProducer.h"
 #include "FWCore/FWCoreIntegration/test/ThingAlgorithm.h"
 
