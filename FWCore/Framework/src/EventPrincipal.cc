@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EventPrincipal.cc,v 1.5 2005/06/05 04:57:38 wmtan Exp $
+$Id: EventPrincipal.cc,v 1.6 2005/06/07 21:05:01 wmtan Exp $
 ----------------------------------------------------------------------*/
 //#include <iostream>
 #include <memory>
@@ -51,6 +51,7 @@ namespace edm {
   void 
   EventPrincipal::addGroup(auto_ptr<Group> group)
   {
+    assert (!group->provenance()->full_product_type_name.empty());
     assert (!group->provenance()->friendly_product_type_name.empty());
     assert (!group->provenance()->module.module_label.empty());
     assert (!group->provenance()->module.process_name.empty());

@@ -6,7 +6,7 @@
 Provenance: The full description of a product and how it came into
 existence.
 
-$Id: Provenance.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
+$Id: Provenance.h,v 1.2 2005/06/05 04:15:06 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <ostream>
 #include <string>
@@ -97,6 +97,9 @@ namespace edm {
     // a single identifier that describes all the conditions used
     ConditionsID cid; // frame ID?
 
+    // the full name of the type of product this is
+    std::string full_product_type_name;
+
     // a readable name of the type of product this is
     std::string friendly_product_type_name;
 
@@ -132,8 +135,8 @@ namespace edm {
 //   {
 //     // key order: product_type_name -> module_label -> process_name -> pass_
 //     return
-//       a.friendly_product_type_name < b.friendly_product_type_name ? true :
-//       (a.friendly_product_type_name == b.friendly_product_type_name ?
+//       a.full_product_type_name < b.full_product_type_name ? true :
+//       (a.full_product_type_name == b.full_product_type_name ?
 //        (a.module_label < b.module_label ? true : 
 // 	(a.module_label == b.module_label ?
 // 	 (a.process_name < b.process_name ? true :

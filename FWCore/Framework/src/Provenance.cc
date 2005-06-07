@@ -2,7 +2,7 @@
 
 /*----------------------------------------------------------------------
 
-$Id: Provenance.cc,v 1.3 2005/03/25 16:59:14 paterno Exp $
+$Id: Provenance.cc,v 1.1 2005/05/29 02:29:54 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -13,6 +13,7 @@ namespace edm
     product_id(),
     parents(),
     cid(),
+    full_product_type_name(),
     friendly_product_type_name(),
     status(Success)
   { }
@@ -22,6 +23,7 @@ namespace edm
     product_id(),
     parents(),
     cid(),
+    full_product_type_name(),
     friendly_product_type_name(),
     status(Success)
   { }
@@ -40,7 +42,7 @@ namespace edm
     return
       a.module == b.module 
       && a.cid == b.cid
-      && a.friendly_product_type_name == b.friendly_product_type_name
+      && a.full_product_type_name == b.full_product_type_name
       && a.status == b.status
       && a.parents == b.parents;
   }
