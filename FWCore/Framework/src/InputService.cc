@@ -1,11 +1,10 @@
 /*----------------------------------------------------------------------
-$Id: InputService.cc,v 1.5 2005/05/20 16:55:46 paterno Exp $
+$Id: InputService.cc,v 1.1 2005/05/29 02:29:54 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <cassert>
 
 #include "FWCore/CoreFramework/interface/InputService.h"
 #include "FWCore/CoreFramework/interface/EventPrincipal.h"
-#include "FWCore/CoreFramework/interface/EventRegistry.h"
 
 namespace edm
 {
@@ -26,7 +25,6 @@ namespace edm
     std::auto_ptr<EventPrincipal> ep( this->read() );
     if ( ep.get() ) 
       {
-	EventRegistry::instance()->addEvent(ep->ID(), ep.get());
 	ep->addToProcessHistory(process_);
       }
     return ep;
