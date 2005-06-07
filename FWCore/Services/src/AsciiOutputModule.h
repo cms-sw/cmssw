@@ -1,13 +1,13 @@
 /*----------------------------------------------------------------------
-$Id: AsciiOutputModule.h,v 1.1 2005/05/28 05:10:04 wmtan Exp $
+$Id: AsciiOutputModule.h,v 1.1 2005/05/29 02:29:54 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <ostream>
 
+#include "FWCore/CoreFramework/interface/CoreFrameworkfwd.h"
 #include "FWCore/CoreFramework/interface/OutputModule.h"
 
 namespace edm {
-  class EventPrincipal;
   class ParameterSet;
   class AsciiOutputModule : public OutputModule {
   public:
