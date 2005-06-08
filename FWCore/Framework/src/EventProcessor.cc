@@ -17,6 +17,7 @@
 #include "FWCore/CoreFramework/interface/EventSetupProvider.h"
 #include "FWCore/CoreFramework/interface/SourceFactory.h"
 #include "FWCore/CoreFramework/interface/ModuleFactory.h"
+#include "FWCore/CoreFramework/interface/EventPrincipal.h"
 #include "FWCore/CoreFramework/interface/EventRegistry.h"
 
 #include "boost/shared_ptr.hpp"
