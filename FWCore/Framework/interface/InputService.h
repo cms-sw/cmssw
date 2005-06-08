@@ -39,17 +39,16 @@ Some examples of InputService subclasses may be:
  3) DAQInputService: creats EventPrincipals which contain raw data, as
     delivered by the L1 trigger and event builder. 
 
-$Id: InputService.h,v 1.3 2005/04/07 22:34:20 paterno Exp $
+$Id: InputService.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include <memory>
 #include <string>
 
-#include "FWCore/CoreFramework/interface/EventPrincipal.h"
-
 namespace edm
 {
+  class EventPrincipal;
   class InputService
   {
   public:

@@ -6,14 +6,13 @@
 OutputModule: The base class of all "modules" that write Events to an
 output stream.
 
-$Id: OutputModule.h,v 1.3 2005/04/21 04:21:38 jbk Exp $
+$Id: OutputModule.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
-#include "FWCore/CoreFramework/interface/EventPrincipal.h"
-
 namespace edm
 {
+  class EventPrincipal;
   class OutputModule
   {
   public:
