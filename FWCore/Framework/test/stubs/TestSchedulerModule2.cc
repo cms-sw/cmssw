@@ -3,11 +3,11 @@
    Test Module for testScheduler
 
    \author Stefano ARGIRO
-   \version $Id: TestSchedulerModule2.cc,v 1.1 2005/05/23 09:40:15 argiro Exp $
+   \version $Id: TestSchedulerModule2.cc,v 1.1 2005/05/29 02:29:54 wmtan Exp $
    \date 19 May 2005
 */
 
-static const char CVSId[] = "$Id: TestSchedulerModule2.cc,v 1.1 2005/05/23 09:40:15 argiro Exp $";
+static const char CVSId[] = "$Id: TestSchedulerModule2.cc,v 1.1 2005/05/29 02:29:54 wmtan Exp $";
 
 
 #include "FWCore/CoreFramework/interface/EDProducer.h"
@@ -17,29 +17,31 @@ static const char CVSId[] = "$Id: TestSchedulerModule2.cc,v 1.1 2005/05/23 09:40
 
 #include "FWCore/CoreFramework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include <iostream>
+#include "FWCore/CoreFramework/test/stubs/DummyProduct.h"
+#include <memory>
+#include <string>
 
 using namespace edm;
 
 class TestSchedulerModule2 : public EDProducer
 {
  public:
-  explicit TestSchedulerModule2(ParameterSet const& p);
+  explicit TestSchedulerModule2(ParameterSet const& p):pset_(p){}
 
   void produce(Event& e, EventSetup const&);
+
+ private:
+  ParameterSet pset_;
 };
 
-TestSchedulerModule2::TestSchedulerModule2(ParameterSet const& p)
-{
-  std::cerr << "TestSchedulerModule2 instance created: " << 
-    p.getString(std::string("module_label"))<< std::endl;
-}
 
 void TestSchedulerModule2::produce(Event& e, EventSetup const&)
 {
 
-  std::cout << "TestSchedulerModule2 Producing ..." << std::endl;
+  std::string myname = pset_.getString("module_name");
+  std::auto_ptr<edmtest::DummyProduct> product(new edmtest::DummyProduct);
+  product->setName(myname);
+  e.put(product);
 
 }
 
