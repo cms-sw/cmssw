@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: AsciiOutputModule.cc,v 1.1 2005/05/28 05:10:04 wmtan Exp $
+$Id: AsciiOutputModule.cc,v 1.1 2005/05/29 02:29:54 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -14,8 +14,8 @@ $Id: AsciiOutputModule.cc,v 1.1 2005/05/28 05:10:04 wmtan Exp $
 
 namespace edm {
 
-  AsciiOutputModule::AsciiOutputModule(ParameterSet const&, std::ostream* os) :
-    OutputModule(),
+  AsciiOutputModule::AsciiOutputModule(ParameterSet const& pset, std::ostream* os) :
+    OutputModule(pset),
     pout_(os)
   {}
 
@@ -37,8 +37,12 @@ namespace edm {
 //     EventPrincipal::const_iterator it(e.begin());
 //     EventPrincipal::const_iterator end(e.end());
 
-    std::copy(e.begin(),
-	      e.end(),
-	      std::ostream_iterator<EventPrincipal::GroupVec::value_type>(*pout_, "\n"));
+    for(EventPrincipal::const_iterator i = e.begin(); i != e.end(); ++i) {
+      Provenance const& prov = *(*i)->provenance();
+      std::string const& ml = prov.module.module_label;
+      if (selected(ml)) {
+        *pout_ << *i << '\n';
+      }
+    }
   }
 }

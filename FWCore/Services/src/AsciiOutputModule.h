@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: AsciiOutputModule.h,v 1.1 2005/05/29 02:29:54 wmtan Exp $
+$Id: AsciiOutputModule.h,v 1.2 2005/06/07 23:47:36 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <ostream>
@@ -12,7 +12,7 @@ namespace edm {
   class AsciiOutputModule : public OutputModule {
   public:
     // We do not take ownership of passed stream.
-    explicit AsciiOutputModule(ParameterSet const&, std::ostream* os = &std::cout);
+    explicit AsciiOutputModule(ParameterSet const& pset, std::ostream* os = &std::cout);
     virtual ~AsciiOutputModule();
     virtual void write(const EventPrincipal& e);
 
