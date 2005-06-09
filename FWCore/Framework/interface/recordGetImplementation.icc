@@ -1,5 +1,5 @@
-#ifndef EDMCONTEXT_RECORDGETIMPLEMENTATION_TCC
-#define EDMCONTEXT_RECORDGETIMPLEMENTATION_TCC
+#ifndef EVENTSETUP_RECORDGETIMPLEMENTATION_TCC
+#define EVENTSETUP_RECORDGETIMPLEMENTATION_TCC
 
 // -*- C++ -*-
 //
@@ -11,7 +11,7 @@
 //
 // Author:      Chris Jones
 // Created:     Fri Apr  1 15:29:14 EST 2005
-// $Id: recordGetImplementation.icc,v 1.1 2005/04/02 14:18:01 chrjones Exp $
+// $Id: recordGetImplementation.icc,v 1.1 2005/05/29 02:29:53 wmtan Exp $
 //
 
 // system include files
@@ -52,4 +52,4 @@ void recordGetImplementation( const RecordT& iRecord ,
 }
    }
 }
-#endif /* EDMCONTEXT_RECORDGETIMPLEMENTATION_TCC */
+#endif /* EVENTSETUP_RECORDGETIMPLEMENTATION_TCC */
