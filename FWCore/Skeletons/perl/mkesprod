@@ -1,0 +1,337 @@
+#!/usr/local/bin/perl
+#
+# $Id $
+###########################################################################
+#  simple little script to make event setup producer skeletons
+# 
+#  execution:  mkesprod producername recordname datatype1 [ [datatype2] ...]  
+# 
+#  output:  producername/
+#                         Buildfile
+#                         interface/
+#                         sr/producername.cc
+#                               producername_DONT_TOUCH.cc
+#                         doc/
+#                         test/
+#  required input:
+# 
+#  producername = name of the producer
+#  recordname   = name of the record to which the producer adds data
+#  datatype     = a list of the types of data created by the producer
+# 
+#  optional input:
+# 
+#  none
+# 
+#  example:
+#  mkesprod MyProducer  MyRecord MyData
+#        --> write  MyProducer/
+#                               Buildfile
+#                               interface/
+#                               src/MyProducer.cc
+#                               doc/
+#                               test/
+#  
+#   the script tries to read in
+#   a filename .tmpl in users HOME directory which contains the following lines
+#             First : your first name
+#             Last : your last name
+#   if .tmpl is not found and firstname and lastname are blank the
+#   enviroment variable LOGNAME is used to obtain the "real life" name
+#   from the output of finger.
+#
+#   Enviroment variable CMS_SKEL may point to a directory that
+#   contains the skeleton files.
+#
+#   mkesprod will not overwrite existing files
+#
+#   Skeleton Keywords (Case matters):
+#      prodname  :  overwritten with routine name
+#      John Doe  :  overwritten with author's name
+#      day-mon-xx:  overwritten with todays date
+#      RCS(key)  :  becomes $key$
+#
+#   author of the script: Chris Jones
+#                         (based on scripts used by the CLEO experiment)
+#   
+###########################################################################
+
+
+#  if the routine name is blank, 'h' or '?' go to help
+$name = "";
+$author1 = "";
+$author2 = "";
+$recordname = "";
+
+$commandFullPath = $0;
+
+&read_args(@ARGV);
+
+# environment variables
+$home = $ENV{"HOME"};
+$skel_dir = $ENV{"CMS_SKEL"};
+
+if( ! $skel_dir ) {
+    use File::Basename;
+    $skel_dir = dirname($commandFullPath);
+}
+
+
+$skeletons{"$skel_dir/ESProducer/esproducer.cc"} =
+    "$name/src/" . $name . '.cc';
+$skeletons{"$skel_dir/ESProducer/BuildFile.temp"} =
+    "$name/BuildFile";
+
+#based on the current directory, find the 'subsystem'
+my $cwd;
+chomp($cwd = `pwd`);
+#print "$cwd";
+my $gSUBSYS = "";
+($gROOT,$gSUBSYS) = ($cwd =~ m!/([^/]*)/([^/]*)$!);
+
+if ( ! $do_list )
+{
+    # create the directories
+    mkdir("$name", 0777) || die "can not make dir $name";
+    mkdir("$name/interface", 0777) || die "can not make dir $name/interface";
+    mkdir("$name/src", 0777) || die "can not make dir $name/src";
+    mkdir("$name/test", 0777) || die "can not make dir $name/test";
+    mkdir("$name/doc", 0777) || die "can not make dir $name/doc";
+
+    # make the source files from the skeletons
+    foreach $skeleton_key ( keys(%skeletons) )
+    {
+	&make_file($skeleton_key, $skeletons{$skeleton_key});
+    }
+}
+else
+{
+    &list_tokens;
+    exit 0;
+}
+
+# read the command line arguments
+sub read_args
+{
+    while ( @_ )
+    {
+	$curr_arg = shift @_;
+	if ( $curr_arg eq "\?" 
+	    || $curr_arg eq "h" 
+	    || $curr_arg eq "-h" 
+	    || $curr_arg eq "-help" )
+	{
+	    &wrt_help; 
+	}
+	elsif ( $curr_arg eq "-skeldir" )
+	{
+	    $next_arg = shift @_;
+	    die "$next_arg is not a directory\n"
+		unless ( -d $next_arg );
+	    $skel_dir = $next_arg;
+	}
+	elsif ( $curr_arg eq "-author" )
+	{
+	    $next_arg = shift @_;
+	    $author1 = $next_arg;
+	    $next_arg = shift @_;
+	    $author2 = $next_arg;
+	}
+	elsif ( $curr_arg =~ /^\w+$/ )
+	{
+	    if ( ! $name )
+	    {
+		$name = $curr_arg;
+
+		# Names must begin with capital letters.
+		if ( ! ( $name =~ /^[A-Z]/ ) )
+		{
+		    print "
+mkproc  E: ESProducer names must begin with capital letters, and each
+mkproc  E: separate 'word' in the name should also start with a capital
+mkproc  E: letter.  For example, MyTrackingTestProducer is a valid name,
+mkproc  E: but myTrackingTestProducer and MyTrackingtestProducer are not.\n\n";
+		    exit 1;
+		}
+	    } elsif( ! $recordname ) {
+		$recordname = $curr_arg;
+	    } else {
+		push(@datatypes, $curr_arg);
+	    }
+	}
+	elsif ( $curr_arg =~ /^-(\w+)=?(\w*)$/ )
+	{
+	    push(@magic_tokens,$1);
+	    if( $2 ) {
+		$magic_values{$1}=$2;
+	    }
+	}
+	else
+	{
+	    &wrt_help;
+	}
+    }
+    &wrt_help unless ( $name || $do_list );
+}
+
+# copy file
+sub copy_file {
+# first argument is file to be copied
+$skeleton = $_[0]; 
+# second argument is the name of the new file
+$outfile = $_[1];
+
+if (-s "$outfile") {
+    print "mkesprod  W: $outfile FILE ALREADY EXISTS WILL NOT OVERWRITE!!\n";
+    print "mkesprod  W: *****************************************************\n";
+} else {
+
+#   write out some stuff to the screen
+    print "mkesprod  I: copying file $skeleton to $outfile\n";
+
+#open the skeleton file and output file
+    open(IN,$skeleton)    or die "Opening $skeleton: $!\n";
+    open(OUT,">$outfile") or die "Opening $outfile: $!\n";
+
+# loop over lines in "skeleton" and overwrite where neccessary
+    while(<IN>) {
+	print OUT $_;
+    }
+    close(IN);   
+    close(OUT);
+}
+}
+
+
+# generate file
+sub make_file {
+# first argument is the skeleton file to use
+$skeleton = $_[0];
+# second argument is the name of the output file
+$outfile = $_[1];
+
+if (-s "$outfile") {
+    print "mkesprod  W: $outfile FILE ALREADY EXISTS WILL NOT OVERWRITE!!\n";
+    print "mkesprod  W: *****************************************************\n";
+} else {
+#  get the current date
+    $now = `date`;
+    chop($now);
+
+# get authors name from $HOME/.tmpl file
+
+    $afrom = "command line";
+    if ($author1 eq "" && -s "$home/.tmpl") {
+       open(IN,"$home/.tmpl");
+       $afrom = "users .tmpl file";
+       while(<IN>) {
+	  if (/First\w*/) {
+	     @words = split(/:/, $_);
+	     $author1 = $words[1]; 
+	     chop($author1);
+	  } elsif (/Last\w*/) {
+	     @words = split(/:/, $_);
+	     $author2 = $words[1];
+	     chop($author2);
+	  }
+       }
+       close(IN);
+       $author = "$author1 $author2";
+    }
+#
+# if author is still blank fill it in with REAL LIFE name in finger output
+#
+    if ($author1 eq "") {
+       $author1 = $ENV{"LOGNAME"};
+       foreach $_ (`finger -m -s "$author1"`) {
+	  if (/$ENV{"LOGNAME"}\s\w*/) {
+	     @words = split(/\s{2,}/, $_);
+	     $author = $words[1];
+	     chomp($author);
+	     $afrom = "the output finger cmnd";
+	     last;
+	  }
+       }
+    }
+#   write out some stuff to the screen
+    print "mkesprod  I: using skeleton: $skeleton \n";
+    print "mkesprod  I: authors name is: $author, determined by $afrom \n";
+    print "mkesprod  I: creating file: $outfile \n";
+
+#open the skeleton file and output file
+    open(IN,$skeleton)    or die "Opening $skeleton: $!\n";
+    open(OUT,">$outfile") or die "Opening $outfile: $!\n";
+
+# loop over lines in "skeleton" and overwrite where neccessary
+    while(<IN>) {
+#  Preserve case for lowercase
+	s/prodname/$name/g;
+	s/recordname/$recordname/g;
+	s/skelsubsys/$gSUBSYS/g;
+#  Map uppercase to uppercase
+	s/PRODNAME/\U$name/g;
+	s/John Doe/$author/;
+	s/day-mon-xx/$now/;
+#  Handle RCS keywords
+	s/RCS\((\w+)\)/\$$1\$/g;
+	#print $_;
+#  Handle embeded perl commands
+	if( /\@perl(.*)@\\perl/ ) {
+	    #print $1;
+	    eval "$1";
+	    #print $result;
+	    s/\@perl(.*)@\\perl/$result/;
+	}
+	print OUT $_;
+    }
+    close(IN);   
+    close(OUT);
+    if ($flag =~ /[bpC]/) {
+	chmod(0755,$outfile);
+    }
+}
+}
+
+# help package
+sub wrt_help {
+
+    print <<'ENDHELP';
+mkprod  h: simple little script to make producer skeletons
+mkprod  h:
+mkprod  h: execution:  mkprod producername  
+mkprod  h:
+mkprod  h: output:  producername/
+mkprod  h:                       Makefile
+mkprod  h:                       producername/producername.h
+mkprod  h:                                    Template/
+mkprod  h:                       Class/producername.cc
+mkprod  h:                             producername_DONT_TOUCH.cc
+mkprod  h:                       Instantiate/
+mkprod  h:                       Doc/
+mkprod  h:                       Test/
+mkprod  h:
+mkprod  h: required input:
+mkprod  h:
+mkprod  h: producername = name of the producer
+mkprod  h:
+mkprod  h: optional input:
+mkprod  h:
+mkprod  h: none
+mkprod  h:
+mkprod  h: example:
+mkprod  h: mkprod MyProducer 
+mkprod  h:       --> write  MyProducer/
+mkprod  h:                              Makefile
+mkprod  h:                              MyProducer/MyProducer.h
+mkprod  h:                              MyProducer/Template/
+mkprod  h:                              Class/MyProducer.cc
+mkprod  h:                              Class/MyProducer_DONT_TOUCH.cc
+mkprod  h:                              Instantiate/
+mkprod  h:                              Doc/
+mkprod  h:                              Test/
+ENDHELP
+
+    print "mkprod  Q: Please enter producer name: ";
+    $ARGV[0] = <STDIN>;
+    chop($ARGV[0]);
+}
