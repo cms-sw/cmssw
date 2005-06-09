@@ -17,6 +17,8 @@ namespace edm {
     delete v.second;
   }
 
+  Factory* Factory::singleInstance_=0;
+  
   Factory::~Factory()
   {
     for_each(makers_.begin(),makers_.end(),cleanup);
@@ -29,8 +31,10 @@ namespace edm {
 
   Factory* Factory::get()
   {
-    static Factory f;
-    return &f;
+    //static Factory f;
+    //return &f;
+    if(!singleInstance_) singleInstance_=new Factory;
+    return singleInstance_;
   }
 
   std::auto_ptr<Worker> Factory::makeWorker(ParameterSet const& conf,
