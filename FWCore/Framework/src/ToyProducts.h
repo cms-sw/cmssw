@@ -35,5 +35,12 @@ namespace edmtest
     
     double value;
   };
+
+  struct StringProduct :  public edm::EDProduct
+  {
+    explicit StringProduct(const std::string& s):name_(s){}
+    std::string name_;
+  };
+
 }
 #endif 

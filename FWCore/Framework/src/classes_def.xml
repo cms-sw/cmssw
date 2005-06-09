@@ -8,4 +8,5 @@
  <class name="edmtest::DummyProduct"/>
  <class name="edmtest::IntProduct"/>
  <class name="edmtest::DoubleProduct"/>
+ <class name="edmtest::StringProduct"/>
 </lcgdict>
