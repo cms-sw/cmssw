@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: types.h,v 1.3 2005/05/19 15:53:08 chrjones Exp $
+// $Id: types.h,v 1.1 2005/05/29 02:29:54 wmtan Exp $
 //
 // declaration of type encoding/decoding functions
 // ----------------------------------------------------------------------
@@ -74,10 +74,6 @@ namespace edm
   // vPSet
   bool  decode( std::vector<ParameterSet> &, std::string               const& );
   bool  encode( std::string               &, std::vector<ParameterSet> const& );
-
-  // Path
-  bool  decode( Path        &, std::string  const& );
-  bool  encode( std::string &, Path         const& );
 
 }  // namespace edm
 
