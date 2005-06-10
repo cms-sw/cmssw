@@ -1,15 +1,13 @@
-// $Id: GroupSelector.cc,v 1.3 2005/06/03 04:02:22 wmtan Exp $
+// $Id: GroupSelector.cc,v 1.1 2005/06/08 21:15:55 wmtan Exp $
 #include "FWCore/CoreFramework/interface/EventPrincipal.h"
 #include "FWCore/CoreFramework/interface/EventProvenance.h"
 #include "FWCore/CoreFramework/interface/GroupSelector.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.icc"
 #include <vector>
-
-using namespace std;
 
 namespace edm {
   GroupSelector::GroupSelector(ParameterSet const& pset) :
-    selectAllGroups_(true),
+    selectAllGroups_(false),
     select_() {
     selectProducts(pset);
   }
@@ -23,37 +21,35 @@ namespace edm {
   }
 
   void GroupSelector::selectProducts(ParameterSet const& pset) {
-    bool selectOnlySpecified = pset.getBool("keepOnlySpecifiedProducts");
-    if (selectOnlySpecified) {
-      selectNone();
-      vector<string> const keep = pset.getVString("keepProducts");
-      for(vector<string>::const_iterator it = keep.begin(); it != keep.end(); ++it) {
-        select(*it);
-      }
-    } else {
-      selectAll();
-      vector<string> const skip = pset.getVString("skipProducts");
-      for(vector<string>::const_iterator it = skip.begin(); it != skip.end(); ++it) {
-        unselect(*it);
+    std::string allString("*");
+    std::vector<std::string> all;
+    all.push_back(allString);
+    std::vector<std::string> none;
+
+    std::vector<std::string> keep = pset.getUntracked("productsSelected", all);
+
+    for(std::vector<std::string>::const_iterator it = keep.begin(); it != keep.end(); ++it) {
+      std::string const& label = *it;
+      if (allString == label) {
+        selectAllGroups_ = true;
+        select_.clear();
+        break;
+      } else {
+        select_[ label ] = true;
       }
     }
-  }
 
-  void GroupSelector::selectAll() {
-    selectAllGroups_ = true;
-    select_.clear();
-  }
+    std::vector<std::string> skip = pset.getUntracked("productsExcluded", none);
 
-  void GroupSelector::selectNone() {
-    selectAllGroups_ = false;
-    select_.clear();
-  }
-
-  void GroupSelector::select(std::string const& label) {
-    select_[ label ] = true;
-  }
-
-  void GroupSelector::unselect(std::string const& label) {
-    select_[ label ] = false;
+    for(std::vector<std::string>::const_iterator it = skip.begin(); it != skip.end(); ++it) {
+      std::string const& label = *it;
+      if (allString == label) {
+        selectAllGroups_ = false;
+        select_.clear();
+        break;
+      } else {
+        select_[ label ] = false;
+      }
+    }
   }
 }
