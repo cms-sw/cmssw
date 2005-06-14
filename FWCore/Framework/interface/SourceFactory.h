@@ -16,11 +16,12 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 18:01:38 EDT 2005
-// $Id: SourceFactory.h,v 1.3 2005/05/26 20:41:11 chrjones Exp $
+// $Id: SourceFactory.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
 //
 
 // system include files
 #include <string>
+#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/CoreFramework/interface/ComponentFactory.h"

@@ -21,6 +21,7 @@
 
 // system include files
 #include "boost/mpl/if.hpp"
+#include "boost/shared_ptr.hpp"
 #include "boost/type_traits/is_base_and_derived.hpp"
 // user include files
 #include "FWCore/CoreFramework/interface/EventSetupRecordProvider.h"

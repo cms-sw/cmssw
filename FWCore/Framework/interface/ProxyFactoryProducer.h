@@ -16,10 +16,12 @@
 //
 // Author:      Chris Jones
 // Created:     Thu Apr  7 17:14:58 CDT 2005
-// $Id: ProxyFactoryProducer.h,v 1.1 2005/04/18 20:16:16 chrjones Exp $
+// $Id: ProxyFactoryProducer.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
 //
 
 // system include files
+#include <map>
+#include "boost/shared_ptr.hpp"
 
 // user include files
 

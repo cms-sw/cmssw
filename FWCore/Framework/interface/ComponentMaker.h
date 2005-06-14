@@ -16,10 +16,12 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 16:56:05 EDT 2005
-// $Id: ComponentMaker.h,v 1.1 2005/05/26 01:54:41 chrjones Exp $
+// $Id: ComponentMaker.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
 //
 
 // system include files
+#include <string>
+#include "boost/shared_ptr.hpp"
 
 // user include files
 

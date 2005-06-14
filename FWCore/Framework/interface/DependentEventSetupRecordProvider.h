@@ -16,10 +16,12 @@
 //
 // Author:      Chris Jones
 // Created:     Sun May  1 16:30:01 EDT 2005
-// $Id: DependentEventSetupRecordProvider.h,v 1.1 2005/05/03 19:33:37 chrjones Exp $
+// $Id: DependentEventSetupRecordProvider.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
 //
 
 // system include files
+#include <vector>
+#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/CoreFramework/interface/EventSetupRecordProvider.h"

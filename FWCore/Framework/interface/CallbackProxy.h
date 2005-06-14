@@ -16,10 +16,11 @@
 //
 // Author:      Chris Jones
 // Created:     Fri Apr  8 11:50:21 CDT 2005
-// $Id: CallbackProxy.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
+// $Id: CallbackProxy.h,v 1.2 2005/05/30 04:10:52 wmtan Exp $
 //
 
 // system include files
+#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/CoreFramework/interface/DataProxyTemplate.h"
