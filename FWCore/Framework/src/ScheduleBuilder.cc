@@ -3,11 +3,11 @@
    Implementation of class ScheduleBuilder
 
    \author Stefano ARGIRO
-   \version $Id: ScheduleBuilder.cc,v 1.3 2005/06/05 04:16:50 wmtan Exp $
+   \version $Id: ScheduleBuilder.cc,v 1.4 2005/06/05 04:36:36 wmtan Exp $
    \date 18 May 2005
 */
 
-static const char CVSId[] = "$Id: ScheduleBuilder.cc,v 1.3 2005/06/05 04:16:50 wmtan Exp $";
+static const char CVSId[] = "$Id: ScheduleBuilder.cc,v 1.4 2005/06/05 04:36:36 wmtan Exp $";
 
 
 #include "FWCore/CoreFramework/interface/ScheduleBuilder.h"
@@ -30,16 +30,16 @@ ScheduleBuilder::ScheduleBuilder(ParameterSet const& processDesc):
 
   // get the list of available paths from the processDesc
   const vector<string>& pathnames = 
-    m_processDesc.getVString("paths");
+    getP<vector<string> >(m_processDesc, "paths");
 
   // loop on paths
   for (vector<string>::const_iterator pathIt = pathnames.begin(); 
        pathIt != pathnames.end(); ++pathIt){
   
     const vector<string>& modulenames = 
-      m_processDesc.getVString(*pathIt);
+      getP<vector<string> >(m_processDesc, *pathIt);
     
-    const std::string& processName =  m_processDesc.getString("process_name");
+    const std::string& processName = getP<string>(m_processDesc, "process_name");
     
     WorkerList workerList;
     // loop on workers
@@ -47,7 +47,7 @@ ScheduleBuilder::ScheduleBuilder(ParameterSet const& processDesc):
 	 nameIt!=modulenames.end(); 
 	 ++nameIt){
            
-      ParameterSet const& module_pset= m_processDesc.getPSet(*nameIt);
+      ParameterSet const& module_pset= getP<ParameterSet>(m_processDesc, *nameIt);
    
 #warning version and pass are hardcoded
       unsigned long version = 1;

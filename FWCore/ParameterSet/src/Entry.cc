@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: Entry.cc,v 1.1 2005/05/29 02:29:55 wmtan Exp $
+// $Id: Entry.cc,v 1.2 2005/06/10 03:53:51 wmtan Exp $
 //
 // definition of Entry's function members
 // ----------------------------------------------------------------------
@@ -10,7 +10,6 @@
 // ----------------------------------------------------------------------
 
 #include "FWCore/ParameterSet/interface/Entry.h"
-#include "FWCore/ParameterSet/interface/Entry.icc"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/types.h"

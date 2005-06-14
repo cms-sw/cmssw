@@ -62,8 +62,8 @@ namespace edm {
 
     ModuleDescription md;
     md.pid = PS_ID("oink"); // conf.id();
-    md.module_name = conf.getString("module_type");
-    md.module_label = conf.getString("module_label");
+    md.module_name = getP<std::string>(conf, "module_type");
+    md.module_label = getP<std::string>(conf, "module_label");
     md.version_number = vn;
     md.process_name = pn;
     md.pass = pass; 

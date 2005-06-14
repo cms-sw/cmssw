@@ -17,14 +17,14 @@ namespace cms
   // Constructor takes input parameters now: to be replaced with parameter set.
 
   MidpointJetProducer::MidpointJetProducer(edm::ParameterSet const& conf):
-    alg_(conf.getDouble("seedThreshold"),
-	 conf.getDouble("towerThreshold"),
-	 conf.getDouble("coneRadius"),
-	 conf.getDouble("coneAreaFraction"),
-	 conf.getInt32("maxPairSize"),
-	 conf.getInt32("maxIterations"),
-	 conf.getDouble("overlapThreshold"),
-	 conf.getInt32("debugLevel"))
+    alg_(edm::getP<double>(conf, "seedThreshold"),
+	 edm::getP<double>(conf, "towerThreshold"),
+	 edm::getP<double>(conf, "coneRadius"),
+	 edm::getP<double>(conf, "coneAreaFraction"),
+	 edm::getP<int>(conf, "maxPairSize"),
+	 edm::getP<int>(conf, "maxIterations"),
+	 edm::getP<double>(conf, "overlapThreshold"),
+	 edm::getUntrackedP<int>(conf, "debugLevel",0))
   {
   }
 

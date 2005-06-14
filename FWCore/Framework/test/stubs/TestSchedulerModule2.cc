@@ -3,11 +3,11 @@
    Test Module for testScheduler
 
    \author Stefano ARGIRO
-   \version $Id: TestSchedulerModule2.cc,v 1.2 2005/06/09 08:29:12 argiro Exp $
+   \version $Id: TestSchedulerModule2.cc,v 1.3 2005/06/09 15:58:10 argiro Exp $
    \date 19 May 2005
 */
 
-static const char CVSId[] = "$Id: TestSchedulerModule2.cc,v 1.2 2005/06/09 08:29:12 argiro Exp $";
+static const char CVSId[] = "$Id: TestSchedulerModule2.cc,v 1.3 2005/06/09 15:58:10 argiro Exp $";
 
 
 #include "FWCore/CoreFramework/interface/EDProducer.h"
@@ -38,7 +38,7 @@ namespace edm{
   void TestSchedulerModule2::produce(Event& e, EventSetup const&)
   {
 
-    std::string myname = pset_.getString("module_name");
+    std::string myname = getP<std::string>(pset_, "module_name");
     std::auto_ptr<edmtest::StringProduct> product(new edmtest::StringProduct(myname));
     e.put(product);
     

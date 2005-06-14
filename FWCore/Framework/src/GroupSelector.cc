@@ -1,8 +1,8 @@
-// $Id: GroupSelector.cc,v 1.1 2005/06/08 21:15:55 wmtan Exp $
+// $Id: GroupSelector.cc,v 1.2 2005/06/10 05:33:42 wmtan Exp $
 #include "FWCore/CoreFramework/interface/EventPrincipal.h"
 #include "FWCore/CoreFramework/interface/EventProvenance.h"
 #include "FWCore/CoreFramework/interface/GroupSelector.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.icc"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <vector>
 
 namespace edm {
@@ -26,7 +26,7 @@ namespace edm {
     all.push_back(allString);
     std::vector<std::string> none;
 
-    std::vector<std::string> keep = pset.getUntracked("productsSelected", all);
+    std::vector<std::string> keep = getUntrackedP<std::vector<std::string> >(pset, "productsSelected", all);
 
     for(std::vector<std::string>::const_iterator it = keep.begin(); it != keep.end(); ++it) {
       std::string const& label = *it;
@@ -39,7 +39,7 @@ namespace edm {
       }
     }
 
-    std::vector<std::string> skip = pset.getUntracked("productsExcluded", none);
+    std::vector<std::string> skip = getUntrackedP<std::vector<std::string> >(pset, "productsExcluded", none);
 
     for(std::vector<std::string>::const_iterator it = skip.begin(); it != skip.end(); ++it) {
       std::string const& label = *it;

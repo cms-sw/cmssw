@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.cc,v 1.1 2005/05/29 02:29:55 wmtan Exp $
+// $Id: ParameterSet.cc,v 1.2 2005/06/10 03:54:14 wmtan Exp $
 //
 // definition of ParameterSet's function members
 // ----------------------------------------------------------------------
@@ -9,7 +9,7 @@
 // ----------------------------------------------------------------------
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.icc"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/ParameterSet/interface/split.h"
 #include "FWCore/ParameterSet/interface/types.h"
@@ -159,98 +159,6 @@ namespace edm {
   
     return true;
   }  // from_string()
-  
-  // ----------------------------------------------------------------------
-  // value accessors
-  // ----------------------------------------------------------------------
-  
-  // ----------------------------------------------------------------------
-  // Bool
-  
-  bool
-  ParameterSet::getBool( std::string const& name ) const {
-    return retrieve(name).getBool();
-  }
-  
-  // ----------------------------------------------------------------------
-  // Int32
-  
-  int
-  ParameterSet::getInt32( std::string const& name ) const {
-    return retrieve(name).getInt32();
-  }
-  
-  // ----------------------------------------------------------------------
-  // vInt32
-  
-  std::vector<int>
-  ParameterSet::getVInt32( std::string const& name ) const {
-    return retrieve(name).getVInt32();
-  }
-  
-  // ----------------------------------------------------------------------
-  // Uint32
-  
-  unsigned int
-  ParameterSet::getUInt32( std::string const& name ) const {
-    return retrieve(name).getUInt32();
-  }
-  
-  // ----------------------------------------------------------------------
-  // vUint32
-  
-  std::vector<unsigned int>
-  ParameterSet::getVUInt32( std::string const& name ) const {
-    return retrieve(name).getVUInt32();
-  }
-  
-  // ----------------------------------------------------------------------
-  // Double
-  
-  double
-  ParameterSet::getDouble( std::string const& name ) const {
-    return retrieve(name).getDouble();
-  }
-  
-  // ----------------------------------------------------------------------
-  // vDouble
-  
-  std::vector<double>
-  ParameterSet::getVDouble( std::string const& name ) const {
-    return retrieve(name).getVDouble();
-  }
-  
-  // ----------------------------------------------------------------------
-  // String
-  
-  std::string
-  ParameterSet::getString( std::string const& name ) const {
-    return retrieve(name).getString();
-  }
-  
-  // ----------------------------------------------------------------------
-  // vString
-  
-  std::vector<std::string>
-  ParameterSet::getVString( std::string const& name ) const {
-    return retrieve(name).getVString();
-  }
-  
-  // ----------------------------------------------------------------------
-  // ParameterSet
-  
-  ParameterSet
-  ParameterSet::getPSet( std::string const& name ) const {
-    return retrieve(name).getPSet();
-  }
-  
-  // ----------------------------------------------------------------------
-  // vPSet
-  
-  std::vector<ParameterSet>
-  ParameterSet::getVPSet( std::string const& name ) const {
-    return retrieve(name).getVPSet();
-  }
   
 } // namespace edm
 // ----------------------------------------------------------------------
