@@ -66,14 +66,14 @@ namespace edm {
 
     PathList workers;
     // get temporary single path
-    StrVec tmp_path = getP<vector<string> >(params_, "temporary_single_path");
+    StrVec tmp_path = getParameter<vector<string> >(params_, "temporary_single_path");
     // call factory
     workers.push_back(WorkerList());
 
     StrVec::iterator pb(tmp_path.begin()),pe(tmp_path.end());
     for(;pb!=pe;++pb)
       {
-	ParameterSet p = getP<ParameterSet>(params_, *pb);
+	ParameterSet p = getParameter<ParameterSet>(params_, *pb);
 
 	// reference return from registry is bad
 	Worker* w = reg_.getWorker(p,
@@ -86,9 +86,9 @@ namespace edm {
 	if(w==0)
 	  {
 	    cerr << "Could not make worker type " 
-		 << getP<string>(p, "module_type")
+		 << getParameter<string>(p, "module_type")
 		 << " with label " 
-		 << getP<string>(p, "module_label")
+		 << getParameter<string>(p, "module_label")
 		 << endl;
 	    throw runtime_error("EventProcessor could not make module");
 	  }
@@ -106,7 +106,7 @@ namespace edm {
 					    const CommonParams& common)
   {
     // find single source
-    ParameterSet main_input = getP<ParameterSet>(params_, "main_input");
+    ParameterSet main_input = getParameter<ParameterSet>(params_, "main_input");
     InputServiceDescription isdesc(common.process_name_,common.pass_);
 
     boost::shared_ptr<InputService> input_
@@ -121,11 +121,11 @@ namespace edm {
   {
      using namespace std;
      using namespace edm::eventsetup;
-     vector<string> providers = getP<vector<string> >(params_, "allesmodules");
+     vector<string> providers = getParameter<vector<string> >(params_, "allesmodules");
      for( vector<string>::iterator itName = providers.begin();
           itName != providers.end();
           ++itName ) {
-        ParameterSet providerPSet = getP<ParameterSet>(params_, *itName);
+        ParameterSet providerPSet = getParameter<ParameterSet>(params_, *itName);
         ModuleFactory::get()->addTo( cp, 
                                      providerPSet, 
                                      common.process_name_, 
@@ -133,11 +133,11 @@ namespace edm {
                                      common.pass_);
      }
 
-     vector<string> sources = getP<vector<string> >(params_, "allessources");
+     vector<string> sources = getParameter<vector<string> >(params_, "allessources");
      for( vector<string>::iterator itName = sources.begin();
           itName != sources.end();
           ++itName ) {
-        ParameterSet providerPSet = getP<ParameterSet>(params_, *itName);
+        ParameterSet providerPSet = getParameter<ParameterSet>(params_, *itName);
         SourceFactory::get()->addTo( cp, 
                                      providerPSet, 
                                      common.process_name_, 
@@ -176,7 +176,7 @@ namespace edm {
     configstring_(readFile(args_)),
     params_(makeProcessPSet(configstring_)),
     common_(
-	    getP<string>(*params_, "process_name"),
+	    getParameter<string>(*params_, "process_name"),
 	    getVersion(), // this is not written for real yet
 	    0), // how is this specifified? Where does it come from?
     reg_(WorkerRegistry::get()),
@@ -193,7 +193,7 @@ namespace edm {
     configstring_(config),
     params_(makeProcessPSet(configstring_)),
     common_(
-	    getP<string>(*params_, "process_name"),
+	    getParameter<string>(*params_, "process_name"),
 	    getVersion(), // this is not written for real yet
 	    0), // how is this specifified? Where does it come from?
     reg_(WorkerRegistry::get()),
@@ -210,7 +210,7 @@ namespace edm {
     configstring_(config),
     params_(makeProcessPSet(configstring_)),
     common_(
-	    getP<string>(*params_, "process_name"),
+	    getParameter<string>(*params_, "process_name"),
 	    getVersion(), // this is not written for real yet
 	    0), // how is this specifified? Where does it come from?
     reg_(WorkerRegistry::get()),

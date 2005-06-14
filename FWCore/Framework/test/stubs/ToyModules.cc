@@ -26,7 +26,7 @@ namespace edmtest
   class IntProducer : public edm::EDProducer
   {
   public:
-    explicit IntProducer(edm::ParameterSet const& p) : value_(edm::getP<int>(p, "ivalue"))
+    explicit IntProducer(edm::ParameterSet const& p) : value_(edm::getParameter<int>(p, "ivalue"))
 	 { }
     explicit IntProducer(int i) : value_(i)
 	 { }
@@ -47,7 +47,7 @@ namespace edmtest
   class DoubleProducer : public edm::EDProducer
   {
   public:
-    explicit DoubleProducer(edm::ParameterSet const& p) : value_(edm::getP<double>(p, "dvalue"))
+    explicit DoubleProducer(edm::ParameterSet const& p) : value_(edm::getParameter<double>(p, "dvalue"))
 	 { }
     explicit DoubleProducer(double d) : value_(d)
 	 { }

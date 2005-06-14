@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EmptyInputService.cc,v 1.2 2005/06/02 20:18:46 wmtan Exp $
+$Id: EmptyInputService.cc,v 1.3 2005/06/14 00:01:26 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <stdexcept>
@@ -26,7 +26,7 @@ namespace edm {
 				       const InputServiceDescription& desc) :
     InputService(desc.process_name),
     nextID_(1),
-    remainingEvents_(getUntrackedP<int>(pset, "maxEvents", -1)),
+    remainingEvents_(getUntrackedParameter<int>(pset, "maxEvents", -1)),
     retriever_(new FakeRetriever())
   { }
 

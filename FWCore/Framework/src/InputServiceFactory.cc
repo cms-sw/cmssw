@@ -34,7 +34,7 @@ namespace edm {
 					) const
     
   {
-    string modtype = getP<string>(conf, "module_type");
+    string modtype = getParameter<string>(conf, "module_type");
     FDEBUG(1) << "InputServiceFactory: module_type = " << modtype << endl;
     auto_ptr<InputService> wm(this->create(modtype,conf,desc));
 

@@ -15,10 +15,10 @@ namespace cms
 
   // Constructor takes input parameters now: to be replaced with parameter set.
   KtJetProducer::KtJetProducer(const edm::ParameterSet& conf)
-  : alg_(edm::getP<int>(conf, "ktAngle"),
-	 edm::getP<int>(conf, "ktRecom"),
-	 edm::getP<double>(conf, "ktECut"),
-	 edm::getP<double>(conf, "ktRParam"))
+  : alg_(edm::getParameter<int>(conf, "ktAngle"),
+	 edm::getParameter<int>(conf, "ktRecom"),
+	 edm::getParameter<double>(conf, "ktECut"),
+	 edm::getParameter<double>(conf, "ktRParam"))
   { }
 
   // Virtual destructor needed.

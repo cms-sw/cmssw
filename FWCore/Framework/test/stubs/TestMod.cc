@@ -22,7 +22,7 @@ class TestMod : public EDProducer
 
 TestMod::TestMod(ParameterSet const& p)
 {
-  std::cerr << "TestMod instance created: " << getP<string>(p, "module_label")
+  std::cerr << "TestMod instance created: " << getParameter<string>(p, "module_label")
 	    << std::endl;
 }
 
