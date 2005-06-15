@@ -26,7 +26,7 @@
 #include "FWCore/CoreFramework/interface/ModuleFactory.h"
 #include "FWCore/CoreFramework/interface/ESProducer.h"
 
-@perl if( 1 lt scalar( @datatypes ) ) {$result="#include \"FWCore/CoreFramework/interface/ESProducts.h\""; } @\perl
+@perl if( 1 lt scalar( @::datatypes ) ) {$result="#include \"FWCore/CoreFramework/interface/ESProducts.h\""; } @\perl
 
 
 //
@@ -38,7 +38,7 @@ class prodname : public edm::eventsetup::ESProducer {
       prodname( const edm::ParameterSet& );
       ~prodname();
 
-      typedef @perl if( 1 eq scalar( @datatypes ) ) { $result="std::auto_ptr<$datatypes[0]>"; } else { $result="edm::eventsetup::ESProducts("; $line = 0; foreach $type ( @datatypes ) { if ($line) { $result = "$result, "; } $result= "$result $type";  $line =1;} $result="$result)"; }  @\perl ReturnType;
+      typedef @perl if( 1 eq scalar( @::datatypes ) ) { $result="std::auto_ptr<$::datatypes[0]>"; } else { $result="edm::eventsetup::ESProducts("; $line = 0; foreach $type ( @::datatypes ) { if ($line) { $result = "$result, "; } $result= "$result $type";  $line =1;} $result="$result)"; }  @\perl ReturnType;
 
       ReturnedType produce( const recordname& );
    private:
@@ -84,9 +84,9 @@ prodname::ReturnedType
 prodname::produce( const recordname& iRecord )
 {
    using namespace edm::eventsetup;
-@perl $result=""; foreach $type (@datatypes) {$result ="$result   std::auto_ptr<$type> p$type ;\n";} @\perl
+@perl $result=""; foreach $type (@::datatypes) {$result ="$result   std::auto_ptr<$type> p$type ;\n";} @\perl
 
-   return @perl if( 1 eq scalar( @datatypes ) ) { $result="p$datatypes[0]" } else { $result="products("; $line = 0; foreach $type ( @datatypes ) { if ($line) { $result = "$result,"; } $result= "$result $type"; $line +=1; } $result="$result)"; }  @\perl ;
+   return @perl if( 1 eq scalar( @::datatypes ) ) { $result="p$::datatypes[0]" } else { $result="products("; $line = 0; foreach $type ( @::datatypes ) { if ($line) { $result = "$result,"; } $result= "$result $type"; $line +=1; } $result="$result)"; }  @\perl ;
 }
 
 //define this as a plug-in
