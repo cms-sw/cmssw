@@ -1,0 +1,11 @@
+<use name=FWCore/CoreFramework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<export>
+<lib name=prodname>
+   <flags SEAL_PLUGIN_NAME="prodname">
+   <use name=FWCore/CoreFramework>
+   <use name=Foundation/PluginManager>
+   <use name=FWCore/ParameterSet>
+</lib>
+</export>
