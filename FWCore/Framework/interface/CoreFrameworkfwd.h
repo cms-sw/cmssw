@@ -5,7 +5,7 @@
   
 Forward declarations of types in the EDM.
 
-$Id: CoreFrameworkfwd.h,v 1.2 2005/06/07 23:15:09 wmtan Exp $
+$Id: CoreFrameworkfwd.h,v 1.3 2005/06/07 23:46:15 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -34,6 +34,7 @@ namespace edm
   class Provenance;
   class PS_ID;
   class RefBase;
+  class RefVectorBase;
   class Retriever;
   class Run;
   class RunHandler;
@@ -42,6 +43,7 @@ namespace edm
   template <class T> class EDCollection;
   template <class T> class Handle;
   template <class T> class Ref;
+  template <class T> class RefVector;
 }
 
 // The following are trivial enough so that the real headers can be included.
