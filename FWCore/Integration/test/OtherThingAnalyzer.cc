@@ -13,11 +13,19 @@ namespace edmreftest {
     std::cout << " --------------- next event ------------ " << std::endl;
     for (int i = 0; i < 20; ++i) {
       OtherThing const& otc =(*otherThings)[i];
-      Thing tc = *otc.ref;
-      if (tc.a == i) {
+      Thing const & tc = *otc.ref;
+      int const & x = otc.ref->a;
+      if (tc.a == i && x == i) {
         std::cout << " ITEM " << i << " dereferenced successfully. " << std::endl;
       } else {
         std::cout << "ERROR: ITEM " << i << " has incorrect value " << tc.a << '.' << std::endl;
+      }
+      Thing const & tcv = *otc.refVec[0];
+      int const & xv = otc.refVec[0]->a;
+      if (tcv.a == i && xv == i) {
+        std::cout << " VECTOR ITEM " << i << " dereferenced successfully. " << std::endl;
+      } else {
+        std::cout << "ERROR: VECTOR ITEM " << i << " has incorrect value " << tc.a << '.' << std::endl;
       }
     }
   }
