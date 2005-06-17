@@ -22,10 +22,26 @@ namespace edmreftest {
       }
       Thing const & tcv = *otc.refVec[0];
       int const & xv = otc.refVec[0]->a;
-      if (tcv.a == i && xv == i) {
-        std::cout << " VECTOR ITEM " << i << " dereferenced successfully. " << std::endl;
-      } else {
-        std::cout << "ERROR: VECTOR ITEM " << i << " has incorrect value " << tc.a << '.' << std::endl;
+      if (xv != tcv.a || xv != i) {
+        std::cout << "ERROR: VECTOR ITEM 0 " << i << " has incorrect value " << tcv.a << '.' << std::endl;
+      }
+      Thing const & tcv1 = *otc.refVec[1];
+      int const & xv1 = otc.refVec[1]->a;
+      if (xv1 != tcv1.a || xv1 != 19-i) {
+        std::cout << "ERROR: VECTOR ITEM 1 " << i << " has incorrect value " << tcv1.a << '.' << std::endl;
+      }
+      for (edm::RefVector<ThingCollection>::const_iterator it = otc.refVec.begin();
+          it != otc.refVec.end(); ++it) {
+        edm::Ref<ThingCollection> tcol = *it;
+        Thing const & ti = **it;
+        int const & xi = (*it)->a;
+	if (xi != ti.a) {
+          std::cout << "ERROR: iterator item " << ti.a << " " << xi << std::endl;
+        } else if (it == otc.refVec.begin() && xi != i) {
+          std::cout << "ERROR: iterator item 0" << xi << std::endl;
+        } else if (it != otc.refVec.begin() && xi != 19-i) {
+          std::cout << "ERROR: iterator item 1" << xi << std::endl;
+        }
       }
     }
   }

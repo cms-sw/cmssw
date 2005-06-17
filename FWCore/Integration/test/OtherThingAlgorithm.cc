@@ -14,6 +14,7 @@ namespace edmreftest {
       tc.a = i;
       tc.ref = edm::Ref<ThingCollection>(e.ID(), things->ID(), i);
       tc.refVec.push_back(tc.ref);
+      tc.refVec.push_back(edm::Ref<ThingCollection>(e.ID(), things->ID(), 19-i));
       otherThingCollection.push_back(tc);
     }
   }
