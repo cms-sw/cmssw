@@ -1,7 +1,7 @@
 #ifndef FWK_CMS_EXCEPTION_HH
 #define FWK_CMS_EXCEPTION_HH
 
-/*
+/**
   This a basic exception type expected to be thown by
   developer-written code.  We recommend that you use it directly.
   It can also be used as a base class if needed
@@ -57,7 +57,7 @@
   Fixed format Framework supplied context information will be
   specially tagged.  See the framework error section of the roadmap
   for details on the format and tags of framework suppied information.
- */
+ **/
 
 #include "SealBase/Error.h"
 
