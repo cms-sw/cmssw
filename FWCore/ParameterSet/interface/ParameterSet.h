@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.h,v 1.3 2005/06/13 23:59:09 wmtan Exp $
+// $Id: ParameterSet.h,v 1.4 2005/06/14 23:15:13 wmtan Exp $
 //
 // Declaration for ParameterSet(parameter set) and related types
 // ----------------------------------------------------------------------
@@ -60,6 +60,14 @@ namespace edm {
     std::string toString() const;
     std::string toStringOfTracked() const;
 
+    template< class T >
+    T
+    getParameter( std::string const& ) const;
+
+    template< class T >
+    T
+    getUntrackedParameter( std::string const&, T const& ) const;
+
 private:
     typedef std::map<std::string, Entry> table;
     table tbl;
@@ -82,268 +90,187 @@ private:
     return !(a == b);
   }
 
-  template< class T >
-  T
-  getParameter( ParameterSet const&, std::string const& );
-
-  template< class T >
-  T
-  getUntrackedParameter( ParameterSet const&, std::string const&, T const&);
-
   // specializations
+  // ----------------------------------------------------------------------
+  // Bool, vBool
+  
   template<>
-  bool
-  getParameter<bool>( ParameterSet const&, std::string const& );
+  inline bool
+  ParameterSet::getParameter<bool>( std::string const& name ) const {
+    return retrieve(name).getBool();
+  }
+  
+  // ----------------------------------------------------------------------
+  // Int32, vInt32
+  
   template<>
-  std::vector<bool>
-  getParameter<std::vector<bool> >( ParameterSet const&, std::string const& );
+  inline int
+  ParameterSet::getParameter<int>( std::string const& name ) const {
+    return retrieve(name).getInt32();
+  }
+  
   template<>
-  int
-  getParameter<int>( ParameterSet const&, std::string const& );
+  inline std::vector<int>
+  ParameterSet::getParameter<std::vector<int> >( std::string const& name ) const {
+    return retrieve(name).getVInt32();
+  }
+  
+  // ----------------------------------------------------------------------
+  // Uint32, vUint32
+  
   template<>
-  std::vector<int>
-  getParameter<std::vector<int> >( ParameterSet const&, std::string const& );
+  inline unsigned int
+  ParameterSet::getParameter<unsigned int>( std::string const& name ) const {
+    return retrieve(name).getUInt32();
+  }
+  
   template<>
-  unsigned int
-  getParameter<unsigned int>( ParameterSet const&, std::string const& );
+  inline std::vector<unsigned int>
+  ParameterSet::getParameter<std::vector<unsigned int> >( std::string const& name ) const {
+    return retrieve(name).getVUInt32();
+  }
+  
+  // ----------------------------------------------------------------------
+  // Double, vDouble
+  
   template<>
-  std::vector<unsigned int>
-  getParameter<std::vector<unsigned int> >( ParameterSet const&, std::string const& );
+  inline double
+  ParameterSet::getParameter<double>( std::string const& name ) const {
+    return retrieve(name).getDouble();
+  }
+  
   template<>
-  double
-  getParameter<double>( ParameterSet const&, std::string const& );
+  inline std::vector<double>
+  ParameterSet::getParameter<std::vector<double> >( std::string const& name ) const {
+    return retrieve(name).getVDouble();
+  }
+  
+  // ----------------------------------------------------------------------
+  // String, vString
+  
   template<>
-  std::vector<double>
-  getParameter<std::vector<double> >( ParameterSet const&, std::string const& );
+  inline std::string
+  ParameterSet::getParameter<std::string>( std::string const& name ) const {
+    return retrieve(name).getString();
+  }
+  
   template<>
-  std::string
-  getParameter<std::string>( ParameterSet const&, std::string const& );
+  inline std::vector<std::string>
+  ParameterSet::getParameter<std::vector<std::string> >( std::string const& name ) const {
+    return retrieve(name).getVString();
+  }
+  
+  // ----------------------------------------------------------------------
+  // PSet, vPSet
+  
   template<>
-  std::vector<std::string>
-  getParameter<std::vector<std::string> >( ParameterSet const&, std::string const& );
+  inline ParameterSet::ParameterSet
+  ParameterSet::getParameter<edm::ParameterSet>( std::string const& name ) const {
+    return retrieve(name).getPSet();
+  }
+  
   template<>
-  ParameterSet
-  getParameter<ParameterSet>( ParameterSet const&, std::string const& );
+  inline std::vector<ParameterSet::ParameterSet>
+  ParameterSet::getParameter<std::vector<edm::ParameterSet> >( std::string const& name ) const {
+    return retrieve(name).getVPSet();
+  }
+  
+  // untracked parameters
+  
+  // ----------------------------------------------------------------------
+  // Bool, vBool
+  
   template<>
-  std::vector<ParameterSet>
-  getParameter<std::vector<ParameterSet> >( ParameterSet const&, std::string const& );
-
+  inline bool
+  ParameterSet::getUntrackedParameter<bool>( std::string const& name, bool const& default_ ) const {
+    Entry const* entryPtr = retrieveUntracked(name);
+    return entryPtr == 0 ? default_ : entryPtr->getBool();
+  }
+  
+  // ----------------------------------------------------------------------
+  // Int32, vInt32
+  
   template<>
-  bool
-  getUntrackedParameter<bool>( ParameterSet const&, std::string const&, bool const& );
+  inline int
+  ParameterSet::getUntrackedParameter<int>( std::string const& name, int const& default_ ) const {
+    Entry const* entryPtr = retrieveUntracked(name);
+    return entryPtr == 0 ? default_ : entryPtr->getInt32();
+  }
+  
   template<>
-  std::vector<bool>
-  getUntrackedParameter<std::vector<bool> >( ParameterSet const&, std::string const&, std::vector<bool> const& );
+  inline std::vector<int>
+  ParameterSet::getUntrackedParameter<std::vector<int> >( std::string const& name, std::vector<int> const& default_ ) const {
+    Entry const* entryPtr = retrieveUntracked(name);
+    return entryPtr == 0 ? default_ : entryPtr->getVInt32();
+  }
+  
+  // ----------------------------------------------------------------------
+  // Uint32, vUint32
+  
   template<>
-  int
-  getUntrackedParameter<int>( ParameterSet const&, std::string const&, int const& );
+  inline unsigned int
+  ParameterSet::getUntrackedParameter<unsigned int>( std::string const& name, unsigned int const& default_ ) const {
+    Entry const* entryPtr = retrieveUntracked(name);
+    return entryPtr == 0 ? default_ : entryPtr->getUInt32();
+  }
+  
   template<>
-  std::vector<int>
-  getUntrackedParameter<std::vector<int> >( ParameterSet const&, std::string const&, std::vector<int> const& );
+  inline std::vector<unsigned int>
+  ParameterSet::getUntrackedParameter<std::vector<unsigned int> >( std::string const& name, std::vector<unsigned int> const& default_ ) const {
+    Entry const* entryPtr = retrieveUntracked(name);
+    return entryPtr == 0 ? default_ : entryPtr->getVUInt32();
+  }
+  
+  // ----------------------------------------------------------------------
+  // Double, vDouble
+  
   template<>
-  unsigned int
-  getUntrackedParameter<unsigned int>( ParameterSet const&, std::string const&, unsigned int const& );
+  inline double
+  ParameterSet::getUntrackedParameter<double>( std::string const& name, double const& default_ ) const {
+    Entry const* entryPtr = retrieveUntracked(name);
+    return entryPtr == 0 ? default_ : entryPtr->getDouble();
+  }
+  
   template<>
-  std::vector<unsigned int>
-  getUntrackedParameter<std::vector<unsigned int> >( ParameterSet const&, std::string const&, std::vector<unsigned int> const& );
+  inline std::vector<double>
+  ParameterSet::getUntrackedParameter<std::vector<double> >( std::string const& name, std::vector<double> const& default_ ) const {
+    Entry const* entryPtr = retrieveUntracked(name); return entryPtr == 0 ? default_ : entryPtr->getVDouble(); }
+  
+  // ----------------------------------------------------------------------
+  // String, vString
+  
   template<>
-  double
-  getUntrackedParameter<double>( ParameterSet const&, std::string const&, double const& );
+  inline std::string
+  ParameterSet::getUntrackedParameter<std::string>( std::string const& name, std::string const& default_ ) const {
+    Entry const* entryPtr = retrieveUntracked(name);
+    return entryPtr == 0 ? default_ : entryPtr->getString();
+  }
+  
   template<>
-  std::vector<double>
-  getUntrackedParameter<std::vector<double> >( ParameterSet const&, std::string const&, std::vector<double> const& );
+  inline std::vector<std::string>
+  ParameterSet::getUntrackedParameter<std::vector<std::string> >( std::string const& name, std::vector<std::string> const& default_ ) const {
+    Entry const* entryPtr = retrieveUntracked(name);
+    return entryPtr == 0 ? default_ : entryPtr->getVString();
+  }
+  
+  // ----------------------------------------------------------------------
+  // PSet, vPSet
+  
   template<>
-  std::string
-  getUntrackedParameter<std::string>( ParameterSet const&, std::string const&, std::string const& );
+  inline ParameterSet::ParameterSet
+  ParameterSet::getUntrackedParameter<edm::ParameterSet>( std::string const& name, edm::ParameterSet const& default_ ) const {
+    Entry const* entryPtr = retrieveUntracked(name);
+    return entryPtr == 0 ? default_ : entryPtr->getPSet();
+  }
+  
   template<>
-  std::vector<std::string>
-  getUntrackedParameter<std::vector<std::string> >( ParameterSet const&, std::string const&, std::vector<std::string> const& );
-  template<>
-  ParameterSet
-  getUntrackedParameter<ParameterSet>( ParameterSet const&, std::string const&, ParameterSet const& );
-  template<>
-  std::vector<ParameterSet>
-  getUntrackedParameter<std::vector<ParameterSet> >( ParameterSet const&, std::string const&, std::vector<ParameterSet> const& );
+  inline std::vector<ParameterSet::ParameterSet>
+  ParameterSet::getUntrackedParameter<std::vector<edm::ParameterSet> >( std::string const& name, std::vector<edm::ParameterSet> const& default_ ) const {
+    Entry const* entryPtr = retrieveUntracked(name);
+    return entryPtr == 0 ? default_ : entryPtr->getVPSet();
+  }
+  
 }  // namespace edm
-
-// ----------------------------------------------------------------------
-// Bool, vBool
-
-template<>
-inline bool
-edm::getParameter<bool>( ParameterSet const& p, std::string const& name ) {
-  return p.retrieve(name).getBool();
-}
-
-// ----------------------------------------------------------------------
-// Int32, vInt32
-
-template<>
-inline int
-edm::getParameter<int>( ParameterSet const& p, std::string const& name ) {
-  return p.retrieve(name).getInt32();
-}
-
-template<>
-inline std::vector<int>
-edm::getParameter<std::vector<int> >( ParameterSet const& p, std::string const& name ) {
-  return p.retrieve(name).getVInt32();
-}
-
-// ----------------------------------------------------------------------
-// Uint32, vUint32
-
-template<>
-inline unsigned int
-edm::getParameter<unsigned int>( ParameterSet const& p, std::string const& name ) {
-  return p.retrieve(name).getUInt32();
-}
-
-template<>
-inline std::vector<unsigned int>
-edm::getParameter<std::vector<unsigned int> >( ParameterSet const& p, std::string const& name ) {
-  return p.retrieve(name).getVUInt32();
-}
-
-// ----------------------------------------------------------------------
-// Double, vDouble
-
-template<>
-inline double
-edm::getParameter<double>( ParameterSet const& p, std::string const& name ) {
-  return p.retrieve(name).getDouble();
-}
-
-template<>
-inline std::vector<double>
-edm::getParameter<std::vector<double> >( ParameterSet const& p, std::string const& name ) {
-  return p.retrieve(name).getVDouble();
-}
-
-// ----------------------------------------------------------------------
-// String, vString
-
-template<>
-inline std::string
-edm::getParameter<std::string>( ParameterSet const& p, std::string const& name ) {
-  return p.retrieve(name).getString();
-}
-
-template<>
-inline std::vector<std::string>
-edm::getParameter<std::vector<std::string> >( ParameterSet const& p, std::string const& name ) {
-  return p.retrieve(name).getVString();
-}
-
-// ----------------------------------------------------------------------
-// PSet, vPSet
-
-template<>
-inline edm::ParameterSet
-edm::getParameter<edm::ParameterSet>( ParameterSet const& p, std::string const& name ) {
-  return p.retrieve(name).getPSet();
-}
-
-template<>
-inline std::vector<edm::ParameterSet>
-edm::getParameter<std::vector<edm::ParameterSet> >( ParameterSet const& p, std::string const& name ) {
-  return p.retrieve(name).getVPSet();
-}
-
-// untracked parameters
-
-// ----------------------------------------------------------------------
-// Bool, vBool
-
-template<>
-inline bool
-edm::getUntrackedParameter<bool>( ParameterSet const& p, std::string const& name, bool const& default_ ) {
-  Entry const* entryPtr = p.retrieveUntracked(name);
-  return entryPtr == 0 ? default_ : entryPtr->getBool();
-}
-
-// ----------------------------------------------------------------------
-// Int32, vInt32
-
-template<>
-inline int
-edm::getUntrackedParameter<int>( ParameterSet const& p, std::string const& name, int const& default_ ) {
-  Entry const* entryPtr = p.retrieveUntracked(name);
-  return entryPtr == 0 ? default_ : entryPtr->getInt32();
-}
-
-template<>
-inline std::vector<int>
-edm::getUntrackedParameter<std::vector<int> >( ParameterSet const& p, std::string const& name, std::vector<int> const& default_ ) {
-  Entry const* entryPtr = p.retrieveUntracked(name);
-  return entryPtr == 0 ? default_ : entryPtr->getVInt32();
-}
-
-// ----------------------------------------------------------------------
-// Uint32, vUint32
-
-template<>
-inline unsigned int
-edm::getUntrackedParameter<unsigned int>( ParameterSet const& p, std::string const& name, unsigned int const& default_ ) {
-  Entry const* entryPtr = p.retrieveUntracked(name);
-  return entryPtr == 0 ? default_ : entryPtr->getUInt32();
-}
-
-template<>
-inline std::vector<unsigned int>
-edm::getUntrackedParameter<std::vector<unsigned int> >( ParameterSet const& p, std::string const& name, std::vector<unsigned int> const& default_ ) {
-  Entry const* entryPtr = p.retrieveUntracked(name);
-  return entryPtr == 0 ? default_ : entryPtr->getVUInt32();
-}
-
-// ----------------------------------------------------------------------
-// Double, vDouble
-
-template<>
-inline double
-edm::getUntrackedParameter<double>( ParameterSet const& p, std::string const& name, double const& default_ ) {
-  Entry const* entryPtr = p.retrieveUntracked(name);
-  return entryPtr == 0 ? default_ : entryPtr->getDouble();
-}
-
-template<>
-inline std::vector<double>
-edm::getUntrackedParameter<std::vector<double> >( ParameterSet const& p, std::string const& name, std::vector<double> const& default_ ) {
-  Entry const* entryPtr = p.retrieveUntracked(name); return entryPtr == 0 ? default_ : entryPtr->getVDouble(); }
-
-// ----------------------------------------------------------------------
-// String, vString
-
-template<>
-inline std::string
-edm::getUntrackedParameter<std::string>( ParameterSet const& p, std::string const& name, std::string const& default_ ) {
-  Entry const* entryPtr = p.retrieveUntracked(name);
-  return entryPtr == 0 ? default_ : entryPtr->getString();
-}
-
-template<>
-inline std::vector<std::string>
-edm::getUntrackedParameter<std::vector<std::string> >( ParameterSet const& p, std::string const& name, std::vector<std::string> const& default_ ) {
-  Entry const* entryPtr = p.retrieveUntracked(name);
-  return entryPtr == 0 ? default_ : entryPtr->getVString();
-}
-
-// ----------------------------------------------------------------------
-// PSet, vPSet
-
-template<>
-inline edm::ParameterSet
-edm::getUntrackedParameter<edm::ParameterSet>( ParameterSet const& p, std::string const& name, edm::ParameterSet const& default_ ) {
-  Entry const* entryPtr = p.retrieveUntracked(name);
-  return entryPtr == 0 ? default_ : entryPtr->getPSet();
-}
-
-template<>
-inline std::vector<edm::ParameterSet>
-edm::getUntrackedParameter<std::vector<edm::ParameterSet> >( ParameterSet const& p, std::string const& name, std::vector<edm::ParameterSet> const& default_ ) {
-  Entry const* entryPtr = p.retrieveUntracked(name);
-  return entryPtr == 0 ? default_ : entryPtr->getVPSet();
-}
 
 // epilog
 

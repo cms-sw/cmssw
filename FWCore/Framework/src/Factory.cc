@@ -44,7 +44,7 @@ namespace edm {
 					    ) const
 
   {
-    string modtype = getParameter<string>(conf, "module_type");
+    string modtype = conf.getParameter<string>("module_type");
     FDEBUG(1) << "Factory: module_type = " << modtype << endl;
     MakerMap::iterator it = makers_.find(modtype);
 
