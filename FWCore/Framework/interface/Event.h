@@ -6,10 +6,11 @@
 Event: This is the primary interface for accessing
 EDProducts from a single collision and inserting new derived products.
 
-$Id: Event.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
+$Id: Event.h,v 1.2 2005/06/03 04:04:47 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
+#include <memory>
 
 #include "boost/shared_ptr.hpp"
 
