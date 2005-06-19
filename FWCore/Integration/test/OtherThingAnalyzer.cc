@@ -30,7 +30,7 @@ namespace edmreftest {
       if (xv1 != tcv1.a || xv1 != 19-i) {
         std::cout << "ERROR: VECTOR ITEM 1 " << i << " has incorrect value " << tcv1.a << '.' << std::endl;
       }
-      for (edm::RefVector<ThingCollection>::const_iterator it = otc.refVec.begin();
+      for (edm::RefVector<ThingCollection>::iterator it = otc.refVec.begin();
           it != otc.refVec.end(); ++it) {
         edm::Ref<ThingCollection> tcol = *it;
         Thing const & ti = **it;
