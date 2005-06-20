@@ -7,16 +7,66 @@
 // 
 /**\class ESProducer ESProducer.h Core/CoreFramework/interface/ESProducer.h
 
- Description: <one line class summary>
+ Description: An EventSetup algorithmic Provider that encapsulates the algorithm as a member method
 
  Usage:
-    <usage>
+    Inheriting from this class is the simplest way to create an algorithm which gets called when a new
+  data item is needed for the EventSetup.  This class is designed to call a member method of inheriting
+  classes each time the algorithm needs to be run.  (A more flexible system in which the algorithms can be
+  set at run-time instead of compile time can be obtained by inheriting from ProxyFactoryProducer instead.)
+
+    If only one algorithm is being encapsulated then the user needs to
+      1) add a method name 'produce' to the class.  The 'produce' takes as its argument a const reference
+         to the record that is to hold the data item being produced.  If only one data item is being produced,
+         the 'produce' method must return either an 'std::auto_ptr' or 'boost::shared_ptr' to the object being
+         produced.  (The choice depends on if the EventSetup or the ESProducer is managing the lifetime of 
+         the object).  If multiple items are being Produced they the 'produce' method must return an
+         ESProducts<> object which holds all of the items.
+      2) add 'setWhatProduced(this);' to their classes constructor
+
+Example: one algorithm creating only one object
+\code
+    class FooProd : public edm::eventsetup::ESProducer {
+       std::auto_ptr<Foo> produce( const FooRecord& );
+       ...
+    };
+    FooProd::FooProd( const edm::ParameterSet& ) {
+       setWhatProduced(this);
+       ...
+    }
+\endcode
+Example: one algorithm creating two objects
+\code
+   class FoosProd : public edm::eventsetup::ESProducer {
+      edm::eventsetup::ESProducts<std::auto_ptr<Foo1>, std::auto_ptr<Foo2> > produce( const FooRecord& );
+      ...
+   };
+\endcode
+
+  If multiple algorithms are being encapsulated then
+      1) like 1 above except the methods can have any names you want
+      2) add 'setWhatProduced(this, &<class name>::<method name>);' for each method in the class' constructor
+   NOTE: the algorithms can put data into the same record or into different records
+
+Example: two algorithms each creating only one objects
+\code
+   class FooBarProd : public edm::eventsetup::ESProducer {
+      std::auto_ptr<Foo> produceFoo( const FooRecord& );
+      std::auto_ptr<Bar> produceBar( const BarRecord& );
+      ...
+   };
+   FooBarProd::FooBarProd( const edm::ParameterSet& ) {
+      setWhatProduced(this,&FooBarProd::produceFoo);
+      setWhatProduced(this,&FooBarProd::produceBar);
+      ...
+   }
+\endcode
 
 */
 //
 // Author:      Chris Jones
 // Created:     Thu Apr  7 17:08:14 CDT 2005
-// $Id: .h,v 1.1 2005/04/18 20:16:16 chrjones Exp $
+// $Id: ESProducer.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
 //
 
 // system include files
@@ -46,7 +96,11 @@ class ESProducer : public ProxyFactoryProducer
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
-   protected:      
+   protected:
+         /** \param iThis the 'this' pointer to an inheriting class instance
+         The method determines the Record argument and return value of the 'produce'
+         method in order to do the registration with the EventSetup
+         */
          template<typename T >
          void setWhatProduced( T* iThis) {
             using namespace boost;
@@ -54,6 +108,11 @@ class ESProducer : public ProxyFactoryProducer
             setWhatProduced( iThis , &T::produce );
          }
       
+      /** \param iThis the 'this' pointer to an inheriting class instance
+         \param iMethod a member method of then inheriting class
+         The method determines the Record argument and return value of the iMethod argument
+         method in order to do the registration with the EventSetup
+         */
       template<typename T, typename TReturn, typename TRecord>
          void setWhatProduced( T* iThis, TReturn (T ::* iMethod)(const TRecord& ) ) {
             using namespace boost;
