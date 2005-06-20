@@ -3,11 +3,11 @@
    Implementation of class ScheduleValidator
 
    \author Stefano ARGIRO
-   \version $Id$
+   \version $Id: ScheduleValidator.cc,v 1.1 2005/06/20 15:21:39 argiro Exp $
    \date 10 Jun 2005
 */
 
-static const char CVSId[] = "$Id$";
+static const char CVSId[] = "$Id: ScheduleValidator.cc,v 1.1 2005/06/20 15:21:39 argiro Exp $";
 
 #include <FWCore/ParameterSet/src/ScheduleValidator.h>
 
@@ -150,7 +150,7 @@ ScheduleValidator::dependencies(const std::string& modulename) const{
     err<< "Error : dependecies for " << modulename << " were not calculated";
     throw std::runtime_error(err.str());
   }
-  const DependencyList& dep = (*depIt).second;
+
   ostringstream deplist;
   copy ( (*depIt).second.begin(),  (*depIt).second.end(), 
 	      ostream_iterator<string>(deplist,","));
