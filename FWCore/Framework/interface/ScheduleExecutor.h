@@ -3,7 +3,7 @@
    Declaration of class ScheduleExecutor
 
    \author Stefano ARGIRO
-   \version $Id: ScheduleExecutor.h,v 1.3 2005/05/25 16:14:46 argiro Exp $
+   \version $Id: ScheduleExecutor.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
    \date 18 May 2005
 */
 
@@ -11,7 +11,7 @@
 #define _edm_ScheduleExecutor_h_
 
 static const char CVSId_edm_ScheduleExecutor[] = 
-"$Id: ScheduleExecutor.h,v 1.3 2005/05/25 16:14:46 argiro Exp $";
+"$Id: ScheduleExecutor.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $";
 
 #include <list>
 
@@ -35,7 +35,7 @@ namespace edm {
     
     typedef std::list<std::list<Worker* > > PathList;
     typedef std::list<Worker* >  WorkerList;
-
+    ScheduleExecutor(){}
     ScheduleExecutor(const PathList& pathlist);
 
     /// pass @param event to all the workers for them to do the work
@@ -43,7 +43,7 @@ namespace edm {
     int  runOneEvent(EventPrincipal& eventPrincipal, EventSetup const& eventSetup);
 
   private:
-    const PathList m_pathlist;
+    PathList m_pathlist;
 
   }; // ScheduleExecutor
 
