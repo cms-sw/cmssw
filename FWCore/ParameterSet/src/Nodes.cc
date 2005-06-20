@@ -251,13 +251,14 @@ std::string makeOpName()
 
 // -------------------------
 
-OperatorNode::OperatorNode(const string& type,
-			   NodePtr left, NodePtr right,
-			   int line):
+OperatorNode::OperatorNode(const string& type,NodePtr left, NodePtr right,int line):
   type_(type),name_(makeOpName()),
   left_(left),right_(right),
+  parent_(0),
   line_(line)
-{
+{   
+   left_->setParent(this);
+   right_->setParent(this);
 }
 
 std::string OperatorNode::type() const { return type_; }
@@ -269,17 +270,22 @@ void OperatorNode::print(std::ostream& ost) const
   ost << "( " << left_ << " " << type_ << " " << right_ << " )";
 }
 
+
 void OperatorNode::accept(Visitor& v) const
 {
    v.visitOperator(*this);
   //throw runtime_error("OperatorNodes cannot be visited");
 }
+void OperatorNode::setParent(Node* parent){parent_=parent;}
+Node* OperatorNode::getParent(){return parent_;}
+
 
 // ----------------------------------
 
 OperandNode::OperandNode(const string& type, const string& name, int line):
   type_(type),name_(name),line_(line)
 {
+  
 }
 
 std::string OperandNode::type() const { return type_; }
@@ -290,6 +296,9 @@ void OperandNode::print(std::ostream& ost) const
 {
   ost << name_;
 }
+
+void  OperandNode::setParent(Node* parent){parent_=parent;}
+Node* OperandNode::getParent(){return parent_;}
 
 void OperandNode::accept(Visitor& v) const
 {

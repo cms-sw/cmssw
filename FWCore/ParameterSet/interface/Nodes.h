@@ -33,15 +33,22 @@ namespace edm {
 
 struct Visitor;
 
+
+
 struct Node
 {
+  typedef boost::shared_ptr<Node> Ptr;
+
   virtual std::string type() const = 0;
   virtual std::string name() const = 0;
+  virtual void   setParent(Node* parent){} 
+  virtual Node*  getParent(){return 0;} 
   virtual void print(std::ostream& ost) const = 0;
   virtual ~Node();
   virtual void accept(Visitor& v) const = 0;
 };
 
+typedef boost::shared_ptr<Node> NodePtr;
 
 /*
   -----------------------------------------
@@ -50,7 +57,6 @@ struct Node
 
 typedef std::vector<std::string> StringList;
 typedef boost::shared_ptr<StringList> StringListPtr;
-typedef boost::shared_ptr<Node> NodePtr;
 typedef std::list<NodePtr> NodePtrList;
 typedef boost::shared_ptr<NodePtrList> NodePtrListPtr;
 
@@ -255,8 +261,7 @@ std::string makeOpName();
 
 struct OperatorNode : public Node
 {
-  OperatorNode(const std::string& t, NodePtr left, NodePtr right,
-	       int line=-1);
+  OperatorNode(const std::string& t, NodePtr left, NodePtr right, int line=-1);
 
   virtual std::string type() const;
   virtual std::string name() const;
@@ -264,10 +269,14 @@ struct OperatorNode : public Node
 
   virtual void accept(Visitor& v) const;
 
+  virtual void  setParent(Node* parent);
+  virtual Node* getParent(); 
+
   std::string type_;
   std::string name_;
   NodePtr left_;
   NodePtr right_;
+  Node*   parent_;
   int line_;
 };
 
@@ -279,12 +288,17 @@ struct OperatorNode : public Node
 struct OperandNode : public Node
 {
   OperandNode(const std::string& type, const std::string& name, int line=-1);
+
   virtual std::string type() const;
   virtual std::string name() const;
   virtual void print(std::ostream& ost) const;
-
+  
   virtual void accept(Visitor& v) const;
 
+  virtual void    setParent(Node* parent); 
+  virtual Node*   getParent(); 
+
+  Node* parent_;
   std::string type_;
   std::string name_;
   int line_;
