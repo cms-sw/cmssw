@@ -5,7 +5,7 @@
 #<use name=FWCore/EDProduct>
 #<use name=FWCore/ParameterSet>
 <export>
- <lib name=FWUtilites>
+ <lib name=FWUtilities>
  <use name=boost>
  <use name=Foundation/PluginManager>
  <use name=Framework/SealKernel>

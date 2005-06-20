@@ -1,5 +1,5 @@
 
-#include "FWCore/FWUtilties/interface/Exception.h"
+#include "FWCore/FWUtilities/interface/Exception.h"
 
 #include <iostream>
 #include <string>
