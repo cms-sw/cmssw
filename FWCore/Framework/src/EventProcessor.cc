@@ -8,7 +8,7 @@
 #include "FWCore/CoreFramework/src/DebugMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/MakeProcessPSet.h"
+#include "FWCore/ParameterSet/interface/ProcessPSetBuilder.h"
 
 #include "PluginManager/PluginManager.h"
 
@@ -174,51 +174,63 @@ namespace edm {
   FwkImpl::FwkImpl(int argc, char* argv[]) :
     args_(fillArgs(argc,argv)),
     configstring_(readFile(args_)),
-    params_(makeProcessPSet(configstring_)),
-    common_(
-	    params_->getParameter<string>("process_name"),
-	    getVersion(), // this is not written for real yet
-	    0), // how is this specifified? Where does it come from?
-    reg_(WorkerRegistry::get()),
-    //workers_(tmpMakeSchedule(*params_,common_,*reg_)),
-    workers_(ScheduleBuilder(*params_).getPathList()),
-    input_(makeInput(*params_,common_)),
-    runner_(workers_)
+    reg_(WorkerRegistry::get())
   {
-       fillEventSetupProvider(cp_, *params_, common_);
+    
+    ProcessPSetBuilder builder(configstring_);
+    params_ = builder.getProcessPSet();
+    common_ = 
+      CommonParams((*params_).getParameter<string>("process_name"),
+		   getVersion(), // this is not written for real yet
+		   0); // how is this specifified? Where does it come from?
+ 
+    ScheduleBuilder sbuilder= ScheduleBuilder(*params_);
+    
+    workers_= (sbuilder.getPathList());
+    input_= makeInput(*params_,common_);
+    runner_ = ScheduleExecutor(workers_);
+    
+    fillEventSetupProvider(cp_, *params_, common_);
   }
 
   FwkImpl::FwkImpl(int argc, char* argv[], const string& config) :
     args_(fillArgs(argc,argv)),
     configstring_(config),
-    params_(makeProcessPSet(configstring_)),
-    common_(
-	    params_->getParameter<string>("process_name"),
-	    getVersion(), // this is not written for real yet
-	    0), // how is this specifified? Where does it come from?
-    reg_(WorkerRegistry::get()),
-    workers_(ScheduleBuilder(*params_).getPathList()), 
-    //workers_(tmpMakeSchedule(*params_,common_,*reg_)),
-    input_(makeInput(*params_,common_)),
-    runner_(workers_)
-  {
-       fillEventSetupProvider(cp_, *params_, common_);
+    reg_(WorkerRegistry::get()){
+    ProcessPSetBuilder builder(configstring_);
+    params_ = builder.getProcessPSet();
+    common_ = 
+      CommonParams((*params_).getParameter<string>("process_name"),
+		   getVersion(), // this is not written for real yet
+		   0); // how is this specifified? Where does it come from?
+ 
+    ScheduleBuilder sbuilder= ScheduleBuilder(*params_);
+    
+    workers_= (sbuilder.getPathList());
+    input_= makeInput(*params_,common_);
+    runner_ = ScheduleExecutor(workers_);
+    fillEventSetupProvider(cp_, *params_, common_);
+
   }
 
   FwkImpl::FwkImpl(const string& config) :
     args_(),
     configstring_(config),
-    params_(makeProcessPSet(configstring_)),
-    common_(
-	    params_->getParameter<string>("process_name"),
-	    getVersion(), // this is not written for real yet
-	    0), // how is this specifified? Where does it come from?
-    reg_(WorkerRegistry::get()),
-    //workers_(tmpMakeSchedule(*params_,common_,*reg_)),
-    workers_(ScheduleBuilder(*params_).getPathList()),
-    input_(makeInput(*params_,common_)),
-    runner_(workers_)
-  {
+    reg_(WorkerRegistry::get()){
+
+    ProcessPSetBuilder builder(configstring_);
+    params_ = builder.getProcessPSet();
+    common_ = 
+      CommonParams((*params_).getParameter<string>("process_name"),
+		   getVersion(), // this is not written for real yet
+		   0); // how is this specifified? Where does it come from?
+ 
+    ScheduleBuilder sbuilder= ScheduleBuilder(*params_);
+    
+    workers_= (sbuilder.getPathList());
+    input_= makeInput(*params_,common_);
+    runner_ = ScheduleExecutor(workers_);
+    
     FDEBUG(2) << params_->toString() << std::endl;
   }
 
