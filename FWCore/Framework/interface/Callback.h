@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Sun Apr 17 14:30:24 EDT 2005
-// $Id: Callback.h,v 1.1 2005/04/18 20:16:16 chrjones Exp $
+// $Id: Callback.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
 //
 
 // system include files
@@ -33,14 +33,29 @@ namespace edm {
       // type
       struct CallbackBase { virtual ~CallbackBase() {} };
       
-      template<typename T, typename TReturn, typename TRecord>
+      // The default decorator that does nothing
+      template< typename TRecord>
+      struct CallbackSimpleDecorator {
+         void pre( const TRecord& ) {}
+         void post( const TRecord& ) {}
+      };
+      
+      template<typename T,         //producer's type
+               typename TReturn,   //return type of the producer's method
+               typename TRecord,   //the record passed in as an argument
+               typename TDecorator //allows customization using pre/post calls 
+                             =CallbackSimpleDecorator<TRecord> >
       class Callback : public CallbackBase {
        public:
          typedef TReturn (T ::* method_type)(const TRecord& );
          
-         Callback( T* iProd, method_type iMethod ) :
+         Callback( T* iProd, 
+                   method_type iMethod,
+                   const TDecorator& iDec = TDecorator() ) :
             proxyData_(produce::size< TReturn >::value, static_cast<void*>(0) ),
-            producer_(iProd), method_(iMethod) {}
+            producer_(iProd), 
+            method_(iMethod),
+            decorator_(iDec) {}
          
          
          // ---------- const member functions ---------------------
@@ -52,8 +67,10 @@ namespace edm {
          
          void operator()(const TRecord& iRecord ) { 
             if( !wasCalledForThisRecord_ ) {
+               decorator_.pre( iRecord );
                storeReturnedValues( (producer_->*method_)( iRecord ) );                  
                wasCalledForThisRecord_ = true;
+               decorator_.post( iRecord );
             }
          }
          
@@ -95,6 +112,7 @@ namespace edm {
          T* producer_;
          method_type method_;
          bool wasCalledForThisRecord_;
+         TDecorator decorator_;
       };
    }
 }
