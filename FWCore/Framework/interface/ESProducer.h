@@ -66,7 +66,7 @@ Example: two algorithms each creating only one objects
 //
 // Author:      Chris Jones
 // Created:     Thu Apr  7 17:08:14 CDT 2005
-// $Id: ESProducer.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
+// $Id: ESProducer.h,v 1.2 2005/06/20 20:58:44 chrjones Exp $
 //
 
 // system include files
@@ -101,23 +101,42 @@ class ESProducer : public ProxyFactoryProducer
          The method determines the Record argument and return value of the 'produce'
          method in order to do the registration with the EventSetup
          */
-         template<typename T >
-         void setWhatProduced( T* iThis) {
+         template<typename T>
+         void setWhatProduced( T* iThis ) {
             using namespace boost;
             //BOOST_STATIC_ASSERT( (typename boost::is_base_and_derived<ED, T>::type) );
-            setWhatProduced( iThis , &T::produce );
+            setWhatProduced( iThis , &T::produce);
          }
       
+      template<typename T, typename TDecorator >
+         void setWhatProduced( T* iThis, const TDecorator& iDec ) {
+            using namespace boost;
+            //BOOST_STATIC_ASSERT( (typename boost::is_base_and_derived<ED, T>::type) );
+            setWhatProduced( iThis , &T::produce, iDec);
+         }
       /** \param iThis the 'this' pointer to an inheriting class instance
          \param iMethod a member method of then inheriting class
          The method determines the Record argument and return value of the iMethod argument
          method in order to do the registration with the EventSetup
          */
       template<typename T, typename TReturn, typename TRecord>
-         void setWhatProduced( T* iThis, TReturn (T ::* iMethod)(const TRecord& ) ) {
+         void setWhatProduced( T* iThis, 
+                               TReturn (T ::* iMethod)(const TRecord& ) ) {
+            setWhatProduced( iThis, iMethod, CallbackSimpleDecorator<TRecord>() );
+         }
+            /** \param iThis the 'this' pointer to an inheriting class instance
+         \param iMethod a member method of then inheriting class
+         \param iDecorator a class with 'pre'&'post' methods which are placed around the method call
+         The method determines the Record argument and return value of the iMethod argument
+         method in order to do the registration with the EventSetup
+         */
+      template<typename T, typename TReturn, typename TRecord, typename TDecorator>
+         void setWhatProduced( T* iThis, 
+                              TReturn (T ::* iMethod)(const TRecord& ),
+                              const TDecorator& iDec = CallbackSimpleDecorator<TRecord>()) {
             using namespace boost;
-            boost::shared_ptr<Callback<T,TReturn,TRecord> > callback( new
-                                                             Callback<T,TReturn,TRecord>( iThis, iMethod) );
+            boost::shared_ptr<Callback<T,TReturn,TRecord, TDecorator> > callback( new
+                                                             Callback<T,TReturn,TRecord, TDecorator>( iThis, iMethod, iDec) );
             registerProducts( callback,
                               static_cast<const typename produce::product_traits<TReturn>::type *>(0),
                               static_cast<const TRecord*>(0) );
