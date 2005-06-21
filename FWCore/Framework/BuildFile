@@ -4,6 +4,7 @@
 <use name=Dictionary/ReflectionBuilder>
 <use name=FWCore/EDProduct>
 <use name=FWCore/ParameterSet>
+<use name=FWCore/FWUtilities>
 <export>
  <lib name=CoreFramework>
  <use name=boost>
@@ -12,5 +13,6 @@
  <use name=Dictionary/ReflectionBuilder>
  <use name=FWCore/EDProduct>
  <use name=FWCore/ParameterSet>
+ <use name=FWCore/FWUtilities>
 </export>
 
