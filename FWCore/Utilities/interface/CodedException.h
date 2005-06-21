@@ -15,6 +15,8 @@ interface other than constructors specific to this derived type.
 #include <string>
 #include <map>
 
+#define EDM_MAP_ENTRY(ns, name) trans_[ns::name]=#name
+
 namespace edm
 {
   template <class Code>
@@ -43,7 +45,11 @@ namespace edm
 
     friend struct TableLoader;
     struct TableLoader
-    { TableLoader() { CodedException<Code>::loadtable(); } };
+    {
+      TableLoader()
+      { CodedException<Code>::loadTable(); c_=&trans_; }
+      CodeMap* c_;
+    };
 
     struct Entry
     {
@@ -71,24 +77,30 @@ namespace edm
   template <class Code>
   typename CodedException<Code>::TableLoader CodedException<Code>::loader_;
 
+#if 0
+  template <class Code>
+  void CodedException<Code>::loadTable() { }
+#endif
+
   template <class Code>
   std::string CodedException<Code>::codeToString(Code c)
   {
-    typename CodeMap::const_iterator i(trans_.find(c));
-    return i!=trans_.end() ? i->second : std::string("UnknownCode");
+    CodeMap* trans = loader_.c_;
+    typename CodeMap::const_iterator i(trans->find(c));
+    return i!=trans->end() ? i->second : std::string("UnknownCode");
   }
 
 
   template <class Code>
   CodedException<Code>::CodedException(Code category):
-    cms::Exception(Code::codeToString(category))
+    cms::Exception(codeToString(category))
   {
   }
 
   template <class Code>
   CodedException<Code>::CodedException(Code category,
 				       const std::string& message):
-    cms::Exception(Code::codeToString(category),message)
+    cms::Exception(codeToString(category),message)
   {
   }
 
@@ -96,7 +108,7 @@ namespace edm
   CodedException<Code>::CodedException(Code category,
 				       const std::string& message,
 				       const CodedException& another):
-    cms::Exception(Code::codeToString(category),message,another)
+    cms::Exception(codeToString(category),message,another)
   {
   }
 
