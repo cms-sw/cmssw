@@ -1,0 +1,7 @@
+
+<use name=DetectorDescription/DDParser>
+
+<export>
+ <lib name=DDRegressionTest>
+ <use name=DetectorDescription/DDParser>
+</export>

@@ -1,0 +1,7 @@
+
+<use name=DetectorDescription/DDCoreImpl>
+
+<export>
+ <lib name=DDCore>
+ <use name=DetectorDescription/DDCoreImpl>
+</export>

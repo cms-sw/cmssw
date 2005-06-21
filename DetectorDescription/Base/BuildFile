@@ -1,0 +1,10 @@
+<use name=clhep>
+<use name=seal>
+<use name=Foundation/SealUtil>
+<export>
+ <lib name=DDBase>
+ <use name=clhep>
+ <use name=seal>
+ <use name=Foundation/SealUtil>
+</export>
+
