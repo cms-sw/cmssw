@@ -1,0 +1,8 @@
+<use name=DetectorDescription/DDBase>
+
+<export>
+ <lib name=DDExprAlgo>
+ <use name=DetectorDescription/DDBase>
+</export>
+
+
