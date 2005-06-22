@@ -21,18 +21,39 @@ ostream& operator<<(ostream& os, const Thing& t)
   return os;
 }
 
+const char expected[] =   "---- InfiniteLoop BEGIN\n"
+			   "In func1\n"
+			   "---- DataCorrupt BEGIN\n"
+			   "This is just a test: \n"
+			   "double: 1.11111\n"
+			   "float:  2.22222\n"
+			   "ulong:  75\n"
+			   "string: a string\n"
+			   "char*:  a nonconst pointer\n"
+			   "char[]: a c-style array\n"
+			   "Thing:  Thing(4)\n"
+			   "\n"
+			   "double: 1.111110e+00\n"
+			   "float:  2.22e+00\n"
+			   "char*:  ..a nonconst pointer\n"
+			   "\n"
+			   "---- DataCorrupt END\n"
+			   "Gave up\n"
+			   "---- InfiniteLoop END\n";
+
 void func3()
 {
   double d = 1.11111;
   float f = 2.22222;
-  unsigned long l = std::numeric_limits<unsigned long>::max();
+  unsigned long l = 75UL;
   std::string s("a string");
   char* c1 = "a nonconst pointer";
   char c2[] = "a c-style array";
   Thing thing(4);
 
-  throw Exception("DataCorrupt") 
-    << "This is just a test: \n"
+  //  throw cms::Exception("DataCorrupt") 
+  cms::Exception e("DataCorrupt");
+  e << "This is just a test: \n"
     << "double: " << d << "\n"
     << "float:  " << f << "\n"
     << "ulong:  " << l << "\n"
@@ -43,12 +64,10 @@ void func3()
     << endl
     << "double: " << scientific << d << "\n"
     << "float:  " << setprecision(2) << f << "\n"
-    << "ulong:  " << l << "\n"
-    << "string: " << s << "\n"
     << "char*:  " << setfill('.') << setw(20) << c1 << "\n"
-    << "char[]: " << c2 << "\n"
-    << "Thing:  " << thing
     << endl;
+
+  throw e;
 }
 
 void func2()
@@ -64,35 +83,34 @@ void func1()
     }
   catch (Exception& e)
     {
-      throw Exception("InfiniteLoop","In func2",e) << "Gave up";
+      throw Exception("InfiniteLoop","In func1",e) << "Gave up";
     }
   
 }
 
-const char answer[] = 
-  "---- InfiniteLoop BEGIN\n"
-  "In func2\n"
-  "---- DataCorrupt BEGIN\n"
-  "This is just a test: \n" 
-  "double: 1.11111\n"
-  "float:  2.22222\n"
-  "ulong:  4294967295\n"
-  "string: a string\n"
-  "char*:  a nonconst pointer\n"
-  "char[]: a c-style array\n"
-  "Thing:  Thing(4)\n"
-  "\n"
-  "double: 1.111110e+00\n"
-  "float:  2.22e+00\n"
-  "ulong:  4294967295\n"
-  "string: a string\n"
-  "char*:  ..a nonconst pointer\n"
-  "char[]: a c-style array\n"
-  "Thing:  Thing(4)\n"
-  "---- DataCorrupt END\n"
-  "Gave up\n"
-  "---- InfiniteLoop END\n"
-  ;
+// const char answer[] = 
+//   "---- InfiniteLoop BEGIN\n"
+//   "In func2\n"
+//   "---- DataCorrupt BEGIN\n"
+//   "This is just a test: \n" 
+//   "double: 1.11111\n"
+//   "float:  2.22222\n"
+//   "ulong:  4294967295\n"
+//   "string: a string\n"
+//   "char*:  a nonconst pointer\n"
+//   "char[]: a c-style array\n"
+//   "Thing:  Thing(4)\n"
+//   "\n"
+//   "double: 1.111110e+00\n"
+//   "float:  2.22e+00\n"
+//   "ulong:  4294967295\n"
+//   "string: a string\n"
+//   "char*:  ..a nonconst pointer\n"
+//   "char[]: a c-style array\n"
+//   "Thing:  Thing(4)\n"
+//   "---- DataCorrupt END\n"
+//   "Gave up\n"
+//   "---- InfiniteLoop END\n"
 
 const char* correct[] = { "InfiniteLoop","DataCorrupt" };
 
@@ -109,21 +127,22 @@ int main()
 	   << "*** After exception output ***"
 	   << endl;
 
-      cerr << "\nCategory name list:\n";
 
-#if 1
-      if(e.what() != answer)
+      if(e.what() != expected)
 	{
-	  cerr << "not right answer\n(" << answer << ")\n"
+	  cerr << "not right answer\n(" << expected << ")\n"
 	       << endl;
 	  abort();
 	}
-#endif
+
+
+      cerr << "\nCategory name list:\n";
 
       Exception::CategoryList::const_iterator i(e.history().begin()),
 	b(e.history().end());
-
-      if(e.history().size() !=2) abort();
+      
+      //if(e.history().size() !=2) abort();
+      assert ( e.history().size() == 2 );
 
       for(int j=0;i!=b;++i,++j)
 	{
