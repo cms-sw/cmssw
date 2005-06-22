@@ -3,11 +3,11 @@
    Implementation of class ScheduleValidator
 
    \author Stefano ARGIRO
-   \version $Id: ScheduleValidator.cc,v 1.1 2005/06/20 15:21:39 argiro Exp $
+   \version $Id: ScheduleValidator.cc,v 1.2 2005/06/20 15:40:53 argiro Exp $
    \date 10 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ScheduleValidator.cc,v 1.1 2005/06/20 15:21:39 argiro Exp $";
+static const char CVSId[] = "$Id: ScheduleValidator.cc,v 1.2 2005/06/20 15:40:53 argiro Exp $";
 
 #include <FWCore/ParameterSet/src/ScheduleValidator.h>
 
@@ -73,6 +73,7 @@ void ScheduleValidator::validate(){
   for (leafIt=leaves_.begin(); leafIt!=leaves_.end(); ++leafIt ){
     
     DependencyList dep;
+
     // follow the tree up thru parent nodes  
     Node* p  = (*leafIt)->getParent();
     Node* son= (*leafIt).get();
@@ -81,7 +82,11 @@ void ScheduleValidator::validate(){
     
     while  (p){
       // if we got operator '&' continue
-      if (p->type()=="&") {p= p->getParent(); continue;}
+      if (p->type()=="&") {
+	son =p;
+	p= p->getParent(); 
+	continue;
+      }
 
       OperatorNode* node = dynamic_cast<OperatorNode*>(p);
       // make sure we don't redescend where we came from
