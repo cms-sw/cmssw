@@ -283,7 +283,7 @@ Node* OperatorNode::getParent(){return parent_;}
 // ----------------------------------
 
 OperandNode::OperandNode(const string& type, const string& name, int line):
-  type_(type),name_(name),line_(line)
+  type_(type),name_(name),line_(line), parent_(0)
 {
   
 }
