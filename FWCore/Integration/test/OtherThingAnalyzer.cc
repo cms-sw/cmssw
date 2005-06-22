@@ -43,6 +43,29 @@ namespace edmreftest {
           std::cout << "ERROR: iterator item 1" << xi << std::endl;
         }
       }
+      edm::RefVector<ThingCollection>::iterator it0 = otc.refVec.begin();
+      int zero = (*it0)->a;
+      edm::RefVector<ThingCollection>::iterator it1 = it0 + 1;
+      int one = (*it1)->a;
+      it1 = 1 + it0;
+      int x1 = (*it1)->a;
+      if (x1 != one) std::cout << "operator+ ITERATOR ERROR: " << x1 << " " << one << std::endl;
+      it0 = it1 - 1;
+      int x0 = (*it0)->a;
+      if (x0 != zero) std::cout << "operator- ITERATOR ERROR: " << x0 << " " << zero << std::endl;
+      x0 = (*(it0++))->a;
+      if (x0 != zero) std::cout << "operator++ ITERATOR ERROR: " << x0 << " " << zero << std::endl;
+      x1 = (*it0)->a;
+      if (x1 != one) std::cout << "operator++ ITERATOR ERROR 2: " << x1 << " " << one << std::endl;
+      x1 = (*(it0--))->a;
+      if (x1 != one) std::cout << "operator-- ITERATOR ERROR: " << x1 << " " << one << std::endl;
+      x0 = (*it0)->a;
+      if (x0 != zero) std::cout << "operator-- ITERATOR ERROR 2: " << x0 << " " << zero << std::endl;
+      x1 = it0[1]->a;
+      if (x1 != one) std::cout << "operator[] ITERATOR ERROR: " << x1 << " " << one << std::endl;
+      x1 = it1[0]->a;
+      if (x1 != one) std::cout << "operator[] ITERATOR ERROR 2: " << x1 << " " << one << std::endl;
+      std::cout << "EVENT " << it0->evtID() << std::endl;
     }
   }
 DEFINE_FWK_MODULE(OtherThingAnalyzer)
