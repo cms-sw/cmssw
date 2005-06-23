@@ -142,7 +142,7 @@ int main()
 	b(e.history().end());
       
       //if(e.history().size() !=2) abort();
-      assert ( e.history().size() == 2 );
+      assert (e.history().size() == 2);
 
       for(int j=0;i!=b;++i,++j)
 	{

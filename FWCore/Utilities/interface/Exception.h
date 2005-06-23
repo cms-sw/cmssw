@@ -14,7 +14,7 @@
 
    Example:
    try { func(); }
-   catch ( cms::Exception& e )
+   catch (cms::Exception& e)
    { throw cms::Exception("DataCorrupt","encountered while unpacking",e); }
 
    Information can be added to the Exception using the stream insertion
@@ -22,7 +22,7 @@
    manner:
 
    Example:
-   if ( (rc=func()) < 0 )
+   if ((rc=func()) < 0)
    {
    throw cms::Exception("DataCorrupt") << "I died with rc = " 
    << rc << endl;

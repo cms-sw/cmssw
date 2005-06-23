@@ -3,11 +3,11 @@
    Implementation of calss ProcessPSetBuilder
 
    \author Stefano ARGIRO
-   \version $Id$
+   \version $Id: ProcessPSetBuilder.cc,v 1.1 2005/06/20 15:22:03 argiro Exp $
    \date 17 Jun 2005
 */
 
-static const char CVSId[] = "$Id$";
+static const char CVSId[] = "$Id: ProcessPSetBuilder.cc,v 1.1 2005/06/20 15:22:03 argiro Exp $";
 
 
 #include <FWCore/ParameterSet/interface/ProcessPSetBuilder.h>
@@ -33,11 +33,11 @@ using namespace std;
 
 ProcessPSetBuilder::~ProcessPSetBuilder(){delete validator_;}
 
-ProcessPSetBuilder::ProcessPSetBuilder( const std::string& config){
+ProcessPSetBuilder::ProcessPSetBuilder(const std::string& config){
   
   boost::shared_ptr<edm::pset::NodePtrList> nodelist = 
     edm::pset::parse(config.c_str());
-  if( 0 == nodelist.get() ) {
+  if(0 == nodelist.get()) {
     throw runtime_error("Unable to parse configuration file."
 			"  Please check the error message reported earlier.");
   }
@@ -123,8 +123,8 @@ void ProcessPSetBuilder::sequenceSubstitution(NodePtr& node,
       onode->right_= seqIt->second->wrapped_; 
       onode->right_->setParent(onode);
     }
-    sequenceSubstitution( onode->left_, sequences);
-    sequenceSubstitution( onode->right_,sequences);
+    sequenceSubstitution(onode->left_, sequences);
+    sequenceSubstitution(onode->right_,sequences);
     
   }// else (operand)
   

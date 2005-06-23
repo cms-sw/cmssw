@@ -14,8 +14,8 @@ namespace edmtest {
   {
   public:
     explicit alg_2(const edm::ParameterSet& ps) :
-      flavor_( ps.getParameter<std::string>("flavor")),
-      debugLevel_( ps.getUntrackedParameter<int>("debug", 0) )
+      flavor_(ps.getParameter<std::string>("flavor")),
+      debugLevel_(ps.getUntrackedParameter<int>("debug", 0))
     { }
 
     std::string& flavor() { return flavor_; }
@@ -29,8 +29,8 @@ namespace edmtest {
   {
   public:
     explicit alg_1(const edm::ParameterSet& ps) : 
-      count_( ps.getParameter<int>("count") ),
-      inner_alg_( ps.getParameter<edm::ParameterSet>("nest_2"))
+      count_(ps.getParameter<int>("count")),
+      inner_alg_(ps.getParameter<edm::ParameterSet>("nest_2"))
     { }
 
   private:
