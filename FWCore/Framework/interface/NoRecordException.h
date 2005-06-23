@@ -17,7 +17,7 @@
     \code
     try {
       iEventSetup.get<MyRecord>()...;
-    } catch( eventsetup::NoRecordException& iException ) {
+    } catch(eventsetup::NoRecordException& iException) {
        //no record of type MyRecord found in EventSetup
        ...
     }
@@ -62,10 +62,10 @@ class NoRecordException : public std::exception
    
    private:
       // ---------- Constructors and destructor ----------------
-      //NoRecordException( const NoRecordException& ); // stop default
+      //NoRecordException(const NoRecordException&); // stop default
 
       // ---------- assignment operator(s) ---------------------
-      //const NoRecordException& operator=( const NoRecordException& ); // stop default
+      //const NoRecordException& operator=(const NoRecordException&); // stop default
 
       // ---------- data members -------------------------------
       std::string message_;

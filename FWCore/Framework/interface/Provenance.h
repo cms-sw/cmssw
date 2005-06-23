@@ -6,7 +6,7 @@
 Provenance: The full description of a product and how it came into
 existence.
 
-$Id: Provenance.h,v 1.2 2005/06/05 04:15:06 wmtan Exp $
+$Id: Provenance.h,v 1.3 2005/06/07 22:42:45 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <ostream>
 #include <string>
@@ -142,12 +142,12 @@ namespace edm {
 // 	 (a.process_name < b.process_name ? true :
 // 	  (a.process_name == b.process_name ?
 // 	   (a.pass < b.pass ? true : false
-// 	    ) : false
-// 	   ) : false
-// 	  ) : false
-// 	 ) : false
-// 	) : false
-//        )
+//) : false
+//) : false
+//) : false
+//) : false
+//) : false
+//)
 //       ;
 //   }
 

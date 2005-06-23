@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Thu Mar 31 12:45:32 EST 2005
-// $Id: DataProxyTemplate.h,v 1.1 2005/04/02 14:18:01 chrjones Exp $
+// $Id: DataProxyTemplate.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
 //
 
 // system include files
@@ -45,30 +45,30 @@ class DataProxyTemplate : public DataProxy
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
-      virtual const DataT* get( const RecordT& iRecord,
-                                const DataKey& iKey ) const {
-         if( !cacheIsValid() ) {
-            cache_ = const_cast<DataProxyTemplate<RecordT, DataT>*>(this)->make(iRecord, iKey );
+      virtual const DataT* get(const RecordT& iRecord,
+                                const DataKey& iKey) const {
+         if(!cacheIsValid()) {
+            cache_ = const_cast<DataProxyTemplate<RecordT, DataT>*>(this)->make(iRecord, iKey);
             const_cast<DataProxyTemplate<RecordT, DataT>*>(this)->setCacheIsValid();
          }
-         if( 0 == cache_ ) {
-            throwMakeException( iRecord, iKey );
+         if(0 == cache_) {
+            throwMakeException(iRecord, iKey);
          }
          return cache_;
       }
       
    protected:
-      virtual const DataT* make( const RecordT&, const DataKey&) = 0;
+      virtual const DataT* make(const RecordT&, const DataKey&) = 0;
       
-      virtual void throwMakeException( const RecordT& iRecord,
-                                       const DataKey& iKey ) const {
+      virtual void throwMakeException(const RecordT& iRecord,
+                                       const DataKey& iKey) const {
          throw MakeDataException<record_type, value_type>(iKey);
       }
 
    private:
-      DataProxyTemplate( const DataProxyTemplate& ); // stop default
+      DataProxyTemplate(const DataProxyTemplate&); // stop default
 
-      const DataProxyTemplate& operator=( const DataProxyTemplate& ); // stop default
+      const DataProxyTemplate& operator=(const DataProxyTemplate&); // stop default
 
       // ---------- member data --------------------------------
       mutable const DataT* cache_;

@@ -16,7 +16,7 @@ namespace edm {
       typedef std::map<std::string, boost::shared_ptr<edm::ParameterSet> > NamedPSets;
       boost::shared_ptr<edm::ParameterSet> makePSet(const NodePtrList& nodes,
                                             const NamedPSets& blocks =NamedPSets(),
-                                            const NamedPSets& psets=NamedPSets() );
+                                            const NamedPSets& psets=NamedPSets());
       boost::shared_ptr<edm::ProcessDesc> makeProcess(NodePtrListPtr nodes);
    }
 }

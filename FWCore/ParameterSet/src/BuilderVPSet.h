@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 18 15:38:32 EDT 2005
-// $Id: BuilderVPSet.h,v 1.1 2005/05/19 02:42:35 chrjones Exp $
+// $Id: BuilderVPSet.h,v 1.1 2005/05/29 02:29:55 wmtan Exp $
 //
 
 // system include files
@@ -36,7 +36,7 @@ struct BuilderVPSet : public Visitor
 {
    explicit BuilderVPSet(std::vector<ParameterSet>& fillme,
                          const NamedPSets& blocks,
-                         const NamedPSets& psets );
+                         const NamedPSets& psets);
    //virtual ~BuilderPSet();
    
    virtual void visitString(const StringNode&);

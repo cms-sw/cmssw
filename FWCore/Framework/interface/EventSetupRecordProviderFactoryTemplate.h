@@ -38,15 +38,14 @@ class EventSetupRecordProviderFactoryTemplate : public EventSetupRecordProviderF
       EventSetupRecordProviderFactoryTemplate() {
          EventSetupRecordProviderFactoryManager::instance().addFactory(
                *this,
-               EventSetupRecordKey::makeKey<T>() );
+               EventSetupRecordKey::makeKey<T>());
       }
       //virtual ~EventSetupRecordProviderFactoryTemplate();
 
       // ---------- const member functions ---------------------
       virtual std::auto_ptr<EventSetupRecordProvider> makeRecordProvider() const {
          return std::auto_ptr<EventSetupRecordProvider>(
-                     new EventSetupRecordProviderTemplate<T>()
-                                                     );
+                     new EventSetupRecordProviderTemplate<T>());
       }
 
       // ---------- static member functions --------------------
@@ -54,9 +53,9 @@ class EventSetupRecordProviderFactoryTemplate : public EventSetupRecordProviderF
       // ---------- member functions ---------------------------
 
    private:
-      EventSetupRecordProviderFactoryTemplate( const EventSetupRecordProviderFactoryTemplate& ); // stop default
+      EventSetupRecordProviderFactoryTemplate(const EventSetupRecordProviderFactoryTemplate&); // stop default
 
-      const EventSetupRecordProviderFactoryTemplate& operator=( const EventSetupRecordProviderFactoryTemplate& ); // stop default
+      const EventSetupRecordProviderFactoryTemplate& operator=(const EventSetupRecordProviderFactoryTemplate&); // stop default
 
       // ---------- member data --------------------------------
 

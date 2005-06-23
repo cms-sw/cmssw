@@ -40,8 +40,7 @@ namespace edm {
   std::auto_ptr<Worker> Factory::makeWorker(ParameterSet const& conf,
 					    std::string const& pn,
 					    unsigned long vn,
-					    unsigned long pass
-					    ) const
+					    unsigned long pass) const
 
   {
     string modtype = conf.getParameter<string>("module_type");

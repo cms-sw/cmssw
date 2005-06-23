@@ -24,7 +24,7 @@ struct BuilderPSet : public Visitor
 {
   explicit BuilderPSet(PSetPtr fillme,
                        const NamedPSets& blocks,
-                       const NamedPSets& psets );
+                       const NamedPSets& psets);
   virtual ~BuilderPSet();
 
   virtual void visitUsing(const UsingNode&);
@@ -69,16 +69,16 @@ void BuilderPSet::visitUsing(const UsingNode& n)
   // look for name_ in stack of PSets, then add its nodes into
   // the current pset we are building (top of stack)
   //cout << "using " << n.name_ << endl;
-   NamedPSets::const_iterator itToUse = blocks_.find( n.name_ );
-   if( itToUse == blocks_.end() ) {
-      itToUse = psets_.find( n.name_ );
-      if( itToUse == psets_.end() ) {
+   NamedPSets::const_iterator itToUse = blocks_.find(n.name_);
+   if(itToUse == blocks_.end()) {
+      itToUse = psets_.find(n.name_);
+      if(itToUse == psets_.end()) {
          ostringstream errStream;
          errStream <<"could not find a block or ParameterSet named '"<<n.name_<<"' used on line "<<n.line_;
-         throw runtime_error(errStream.str().c_str() );
+         throw runtime_error(errStream.str().c_str());
       }
    }
-   main_->augment( *(itToUse->second ) );
+   main_->augment(*(itToUse->second));
 }
 
 void BuilderPSet::visitString(const StringNode& n)
@@ -105,29 +105,29 @@ static string withoutQuotes(const string& from)
 
 void BuilderPSet::visitEntry(const EntryNode& n)
 {
- // main_->insert( false, n.name_, Entry( n.type_, n.value_, n.tracked_ ) );
+ // main_->insert(false, n.name_, Entry(n.type_, n.value_, n.tracked_));
  //cerr << "visitEntry: " << n.type_ << " " << n.value_ << " " << usethis
  //     << endl;
 
  if(n.type_=="string")
    {
      string usethis(withoutQuotes(n.value_));
-     main_->insert( false, n.name_, Entry( usethis, !n.tracked_ ) );
+     main_->insert(false, n.name_, Entry(usethis, !n.tracked_));
    }
  else if(n.type_=="double")
    {
      double d = strtod(n.value_.c_str(),0);
-     main_->insert( false, n.name_, Entry( d, !n.tracked_ ) );
+     main_->insert(false, n.name_, Entry(d, !n.tracked_));
    }
  else if(n.type_=="int32")
    {
      int d = atoi(n.value_.c_str());
-     main_->insert( false, n.name_, Entry( d, !n.tracked_ ) );
+     main_->insert(false, n.name_, Entry(d, !n.tracked_));
    }
  else if(n.type_=="uint32")
    {
      unsigned int d = strtoul(n.value_.c_str(),0,10);
-     main_->insert( false, n.name_, Entry( d, !n.tracked_ ) );
+     main_->insert(false, n.name_, Entry(d, !n.tracked_));
    }
  else if(n.type_=="bool")
    {
@@ -136,7 +136,7 @@ void BuilderPSet::visitEntry(const EntryNode& n)
 	n.value_=="1" || n.value_=="on" || n.value_=="On")
        d = true;
 
-     main_->insert( false, n.name_, Entry( d, !n.tracked_ ) );
+     main_->insert(false, n.name_, Entry(d, !n.tracked_));
    }
 } 
 
@@ -144,11 +144,11 @@ void BuilderPSet::visitEntry(const EntryNode& n)
 void BuilderPSet::visitVEntry(const VEntryNode& n)
 {
   /*
-   main_->insert( false, n.name_, 
+   main_->insert(false, n.name_, 
                   Entry(n.type_, 
                         std::vector<std::string>(n.value_->begin(),
                                                  n.value_->end()),
-                        n.tracked_ ) );
+                        n.tracked_));
   */
 
   vector<string>::const_iterator ib(n.value_->begin()),
@@ -158,38 +158,38 @@ void BuilderPSet::visitVEntry(const VEntryNode& n)
    {
      vector<string> usethis;
      for(;ib!=ie;++ib) usethis.push_back(withoutQuotes(*ib));
-     main_->insert( false, n.name_, Entry( usethis, !n.tracked_ ) );
+     main_->insert(false, n.name_, Entry(usethis, !n.tracked_));
    }
  else if(n.type_=="vdouble")
    {
      vector<double> d ;
      for(ib=k;ib!=ie;++ib) d.push_back(strtod(ib->c_str(),0));
-     main_->insert( false, n.name_, Entry( d, !n.tracked_ ) );
+     main_->insert(false, n.name_, Entry(d, !n.tracked_));
    }
  else if(n.type_=="vint32")
    {
      vector<int> d ;
      for(ib=k;ib!=ie;++ib) d.push_back(atoi(ib->c_str()));
-     main_->insert( false, n.name_, Entry( d, !n.tracked_ ) );
+     main_->insert(false, n.name_, Entry(d, !n.tracked_));
    }
  else if(n.type_=="vuint32")
    {
      vector<unsigned int> d ;
      for(ib=k;ib!=ie;++ib) d.push_back(strtoul(ib->c_str(),0,10));
-     main_->insert( false, n.name_, Entry( d, !n.tracked_ ) );
+     main_->insert(false, n.name_, Entry(d, !n.tracked_));
    }
 }
 
 void BuilderPSet::visitPSetRef(const PSetRefNode& n)
 {
   //cout << n.name_ << " " << n.value_ << endl;
-   NamedPSets::const_iterator itPSet = psets_.find( n.value_ );
-   if( itPSet == psets_.end() ) {
+   NamedPSets::const_iterator itPSet = psets_.find(n.value_);
+   if(itPSet == psets_.end()) {
       ostringstream errStream;
       errStream <<"could not find ParameterSet named '"<<n.name_<<"' used on line "<<n.line_;
-      throw runtime_error(errStream.str().c_str() );
+      throw runtime_error(errStream.str().c_str());
    }
-   main_->insert( false, n.name_, Entry(*(itPSet->second), true ) );
+   main_->insert(false, n.name_, Entry(*(itPSet->second), true));
 }
 
 void BuilderPSet::visitContents(const ContentsNode& n)
@@ -206,11 +206,11 @@ void BuilderPSet::visitPSet(const PSetNode& n)
     {
       throw runtime_error("ParameterSets cannot be empty");
     }
-   boost::shared_ptr<ParameterSet> newPSet = makePSet( *(n.value_.value_),
+   boost::shared_ptr<ParameterSet> newPSet = makePSet(*(n.value_.value_),
                                                   blocks_,
                                                   psets_);
    
-   main_->insert(false, n.name_, Entry( *newPSet, true) ); 
+   main_->insert(false, n.name_, Entry(*newPSet, true)); 
    //n.acceptForChildren(*this);
 }
 
@@ -220,14 +220,14 @@ void BuilderPSet::visitVPSet(const VPSetNode& n)
   //n.acceptForChildren(*this);
    std::vector<ParameterSet> sets;
    BuilderVPSet builder(sets, blocks_, psets_);
-   n.acceptForChildren( builder );
-   main_->insert( false, n.name_, Entry( sets, true ) );
+   n.acceptForChildren(builder);
+   main_->insert(false, n.name_, Entry(sets, true));
 }
 
 
 boost::shared_ptr<edm::ParameterSet> makePSet(const NodePtrList& nodes,
                                       const NamedPSets& blocks ,
-                                      const NamedPSets& psets )
+                                      const NamedPSets& psets)
 {
 #if 0
    // this used to be here - moved to caller
@@ -247,8 +247,8 @@ boost::shared_ptr<edm::ParameterSet> makePSet(const NodePtrList& nodes,
   BuilderPSet builder(pset, blocks, psets);
   
   typedef edm::pset::Node Node;
-  for_each( nodes.begin(), nodes.end(),
-            boost::bind( &Node::accept, _1, builder ) );
+  for_each(nodes.begin(), nodes.end(),
+            boost::bind(&Node::accept, _1, builder));
 
   return pset;
 }

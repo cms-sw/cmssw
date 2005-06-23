@@ -12,11 +12,14 @@
 //
 // Author:      Chris D Jones
 // Created:     Wed Sep 30 11:09:00 EDT 1998
-// $Id: HCTypeTagTemplate.icc,v 1.2 2005/04/18 15:36:58 chrjones Exp $
+// $Id: HCTypeTagTemplate.icc,v 1.1 2005/05/29 02:29:53 wmtan Exp $
 //
 // Revision history
 //
 // $Log: HCTypeTagTemplate.icc,v $
+// Revision 1.1  2005/05/29 02:29:53  wmtan
+// initial population
+//
 // Revision 1.2  2005/04/18 15:36:58  chrjones
 // classValue code moved to this file to allow control of exactly what compilation unit sees it
 //
@@ -63,7 +66,7 @@ namespace edm {
 template<class T, class Group >
 unsigned int 
 HCTypeTagTemplate<T,Group>::classValue() {
-   static unsigned int theValue = nextValue( className() );
+   static unsigned int theValue = nextValue(className());
    return theValue; 
 }
 }

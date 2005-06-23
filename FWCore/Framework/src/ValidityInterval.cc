@@ -28,8 +28,8 @@ namespace edm {
 // constructors and destructor
 //
    ValidityInterval::ValidityInterval() :
-   first_(Timestamp::invalidTimestamp() ),
-   last_(Timestamp::invalidTimestamp() )
+   first_(Timestamp::invalidTimestamp()),
+   last_(Timestamp::invalidTimestamp())
 {
 }
 
@@ -39,7 +39,7 @@ first_(iFirst), last_(iLast)
 {
 }
 
-// ValidityInterval::ValidityInterval( const ValidityInterval& rhs )
+// ValidityInterval::ValidityInterval(const ValidityInterval& rhs)
 // {
 //    // do actual copying here;
 // }
@@ -51,11 +51,11 @@ first_(iFirst), last_(iLast)
 //
 // assignment operators
 //
-// const ValidityInterval& ValidityInterval::operator=( const ValidityInterval& rhs )
+// const ValidityInterval& ValidityInterval::operator=(const ValidityInterval& rhs)
 // {
 //   //An exception safe implementation is
 //   ValidityInterval temp(rhs);
-//   swap( rhs );
+//   swap(rhs);
 //
 //   return *this;
 // }
@@ -68,7 +68,7 @@ first_(iFirst), last_(iLast)
 // const member functions
 //
 bool
-ValidityInterval::validFor(const Timestamp& iInstance ) const
+ValidityInterval::validFor(const Timestamp& iInstance) const
 {
    return first_ <= iInstance && iInstance <= last_;
 }

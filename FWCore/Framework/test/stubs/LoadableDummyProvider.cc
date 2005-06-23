@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Thu May 26 13:48:03 EDT 2005
-// $Id: LoadableDummyProvider.cc,v 1.1 2005/05/26 20:58:35 chrjones Exp $
+// $Id: LoadableDummyProvider.cc,v 1.1 2005/05/29 02:29:54 wmtan Exp $
 //
 
 // system include files
@@ -24,7 +24,7 @@ namespace edm {
 }
 class LoadableDummyProvider : public edm::eventsetup::test::DummyProxyProvider {
 public:
-   LoadableDummyProvider( const edm::ParameterSet& ) {}
+   LoadableDummyProvider(const edm::ParameterSet&) {}
 };
 
 DEFINE_FWK_EVENTSETUP_MODULE(LoadableDummyProvider)

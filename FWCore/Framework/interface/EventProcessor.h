@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
     edm::EventProcessor app(argc, argv);
     return app.run();
   }
-  catch ( ... )
+  catch (...)
   {
     std::cerr << "Failed to create framework object\n";
   }
@@ -61,7 +61,7 @@ problems:
   where does the pluginmanager initialise call go?
 
 
-$Id: EventProcessor.h,v 1.2 2005/05/25 18:44:27 jbk Exp $
+$Id: EventProcessor.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 

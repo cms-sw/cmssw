@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Thu Mar 31 12:49:19 EST 2005
-// $Id: DataProxy.cc,v 1.2 2005/04/08 06:42:48 wmtan Exp $
+// $Id: DataProxy.cc,v 1.1 2005/05/29 02:29:53 wmtan Exp $
 //
 
 // system include files
@@ -34,7 +34,7 @@ DataProxy::DataProxy() :
 {
 }
 
-// DataProxy::DataProxy( const DataProxy& rhs )
+// DataProxy::DataProxy(const DataProxy& rhs)
 // {
 //    // do actual copying here;
 // }
@@ -46,11 +46,11 @@ DataProxy::~DataProxy()
 //
 // assignment operators
 //
-// const DataProxy& DataProxy::operator=( const DataProxy& rhs )
+// const DataProxy& DataProxy::operator=(const DataProxy& rhs)
 // {
 //   //An exception safe implementation is
 //   DataProxy temp(rhs);
-//   swap( rhs );
+//   swap(rhs);
 //
 //   return *this;
 // }

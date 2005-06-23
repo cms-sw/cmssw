@@ -36,7 +36,7 @@ DataProxyProvider::DataProxyProvider()
 {
 }
 
-// DataProxyProvider::DataProxyProvider( const DataProxyProvider& rhs )
+// DataProxyProvider::DataProxyProvider(const DataProxyProvider& rhs)
 // {
 //    // do actual copying here;
 // }
@@ -48,11 +48,11 @@ DataProxyProvider::~DataProxyProvider()
 //
 // assignment operators
 //
-// const DataProxyProvider& DataProxyProvider::operator=( const DataProxyProvider& rhs )
+// const DataProxyProvider& DataProxyProvider::operator=(const DataProxyProvider& rhs)
 // {
 //   //An exception safe implementation is
 //   DataProxyProvider temp(rhs);
-//   swap( rhs );
+//   swap(rhs);
 //
 //   return *this;
 // }
@@ -68,13 +68,13 @@ DataProxyProvider::usingRecordWithKey(const EventSetupRecordKey& iKey)
 }
 
 void 
-DataProxyProvider::invalidateProxies( const EventSetupRecordKey& iRecordKey ) 
+DataProxyProvider::invalidateProxies(const EventSetupRecordKey& iRecordKey) 
 {
-   KeyedProxies& proxyList( (*(recordProxies_.find( iRecordKey ))).second ) ;
-   KeyedProxies::iterator finished( proxyList.end() ) ;
-   for ( KeyedProxies::iterator keyedProxy( proxyList.begin() ) ;
+   KeyedProxies& proxyList((*(recordProxies_.find(iRecordKey))).second) ;
+   KeyedProxies::iterator finished(proxyList.end()) ;
+   for (KeyedProxies::iterator keyedProxy(proxyList.begin()) ;
          keyedProxy != finished ;
-         ++keyedProxy ) {
+         ++keyedProxy) {
       (*((*keyedProxy).second)).invalidate() ;
    }
    
@@ -84,31 +84,31 @@ DataProxyProvider::invalidateProxies( const EventSetupRecordKey& iRecordKey )
 // const member functions
 //
 bool 
-DataProxyProvider::isUsingRecord( const EventSetupRecordKey& iKey) const
+DataProxyProvider::isUsingRecord(const EventSetupRecordKey& iKey) const
 {
-   return recordProxies_.end() != recordProxies_.find(iKey );
+   return recordProxies_.end() != recordProxies_.find(iKey);
 }
 
 std::set<EventSetupRecordKey> 
 DataProxyProvider::usingRecords() const
 {
    std::set<EventSetupRecordKey> returnValue;
-   for( RecordProxies::const_iterator itRecProxies = recordProxies_.begin();
+   for(RecordProxies::const_iterator itRecProxies = recordProxies_.begin();
         itRecProxies != recordProxies_.end();
-        ++itRecProxies ) {
-      returnValue.insert(returnValue.end(),  itRecProxies->first );
+        ++itRecProxies) {
+      returnValue.insert(returnValue.end(),  itRecProxies->first);
    }
-   //std::copy( keys_.begin(), keys_.end(), std::inserter(returnValue, returnValue.end()) );
+   //std::copy(keys_.begin(), keys_.end(), std::inserter(returnValue, returnValue.end()));
    return returnValue;
 }   
 
 const DataProxyProvider::KeyedProxies& 
-DataProxyProvider::keyedProxies( const EventSetupRecordKey& iRecordKey ) const
+DataProxyProvider::keyedProxies(const EventSetupRecordKey& iRecordKey) const
 {
    RecordProxies::const_iterator itFind = recordProxies_.find(iRecordKey);
-   assert( itFind != recordProxies_.end() );
+   assert(itFind != recordProxies_.end());
    
-   if( itFind->second.empty() ) {
+   if(itFind->second.empty()) {
       //delayed registration
       const_cast<DataProxyProvider*>(this)->registerProxies(iRecordKey,
                                                             const_cast<KeyedProxies&>(itFind->second));

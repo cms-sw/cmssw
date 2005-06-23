@@ -63,21 +63,21 @@ namespace edmtest
     // EventSetup is not used.
     // Get input
     edm::Handle<IntProduct> h;
-    assert( !h.isValid() );
+    assert(!h.isValid());
 
     try 
       {
 	std::string emptyLabel;
 	e.getByLabel(emptyLabel, h);
-	assert ( "Failed to throw necessary exception" == 0 );
+	assert ("Failed to throw necessary exception" == 0);
       }
-    catch ( std::runtime_error& x )
+    catch (std::runtime_error& x)
       {
 	assert(!h.isValid());
       }
-    catch ( ... )
+    catch (...)
       {
-	assert( "Threw wrong exception" == 0 );
+	assert("Threw wrong exception" == 0);
       }
 
     // Make output

@@ -42,14 +42,14 @@ class EventSetupRecordProviderFactoryManager
       static EventSetupRecordProviderFactoryManager& instance();
    
       // ---------- member functions ---------------------------
-      void addFactory( const EventSetupRecordProviderFactory&, 
-                       const EventSetupRecordKey& );
+      void addFactory(const EventSetupRecordProviderFactory&, 
+                       const EventSetupRecordKey&);
 
    private:
       EventSetupRecordProviderFactoryManager();
-      EventSetupRecordProviderFactoryManager( const EventSetupRecordProviderFactoryManager& ); // stop default
+      EventSetupRecordProviderFactoryManager(const EventSetupRecordProviderFactoryManager&); // stop default
 
-      const EventSetupRecordProviderFactoryManager& operator=( const EventSetupRecordProviderFactoryManager& ); // stop default
+      const EventSetupRecordProviderFactoryManager& operator=(const EventSetupRecordProviderFactoryManager&); // stop default
 
       // ---------- member data --------------------------------
       std::map<EventSetupRecordKey, const EventSetupRecordProviderFactory*> factories_;

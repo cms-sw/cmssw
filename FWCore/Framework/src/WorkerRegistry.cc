@@ -3,11 +3,11 @@
    Implementation of class WorkerRegistry
 
    \author Stefano ARGIRO
-   \version $Id: WorkerRegistry.cc,v 1.3 2005/05/26 08:28:13 argiro Exp $
+   \version $Id: WorkerRegistry.cc,v 1.1 2005/05/29 02:29:54 wmtan Exp $
    \date 18 May 2005
 */
 
-static const char CVSId[] = "$Id: WorkerRegistry.cc,v 1.3 2005/05/26 08:28:13 argiro Exp $";
+static const char CVSId[] = "$Id: WorkerRegistry.cc,v 1.1 2005/05/29 02:29:54 wmtan Exp $";
 
 
 #include "FWCore/CoreFramework/src/WorkerRegistry.h"
@@ -34,7 +34,7 @@ WorkerRegistry* WorkerRegistry::get(){
 
 WorkerRegistry:: ~WorkerRegistry(){
 
-  for ( WorkerMap::iterator workerIt = m_workerMap.begin();
+  for (WorkerMap::iterator workerIt = m_workerMap.begin();
 	 workerIt != m_workerMap.end() ; ++ workerIt)
     delete workerIt->second;
 
@@ -47,7 +47,7 @@ Worker* WorkerRegistry::getWorker(ParameterSet const& parameterSet,
 				  unsigned long pass){
 
   string workerid= 
-    mangleWorkerParameters( parameterSet, processName,versionNumber,pass);
+    mangleWorkerParameters(parameterSet, processName,versionNumber,pass);
 
   WorkerMap::iterator workerIt = m_workerMap.find(workerid);
   

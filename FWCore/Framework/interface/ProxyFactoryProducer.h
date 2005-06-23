@@ -23,8 +23,8 @@ Example: register one Factory that creates a proxy that takes no arguments
    class FooProxy : public edm::eventsetup::DataProxy { ... };
    class FooProd : public edm::eventsetup::ProxyFactoryProducer { ... };
 
-   FooProd::FooProd(const edm::ParameterSet& ) {
-      registerFactory( new edm::eventsetup::ProxyFactoryTemplate<FooProxy>() );
+   FooProd::FooProd(const edm::ParameterSet&) {
+      registerFactory(new edm::eventsetup::ProxyFactoryTemplate<FooProxy>());
    };
    
 \endcode
@@ -32,15 +32,14 @@ Example: register one Factory that creates a proxy that takes no arguments
 Example: register one Factory that creates a proxy that takes one argument
 \code
 class BarProxy : public edm::eventsetup::DataProxy { ...
-   BarProxy( const edm::ParameterSet& ) ;
+   BarProxy(const edm::ParameterSet&) ;
    ... };
 class BarProd : public edm::eventsetup::ProxyFactoryProducer { ... };
 
 BarProd::BarProd(const edm::ParameterSet& iPS) {
-   registerFactory( 
+   registerFactory(
       new edm::eventsetup::ProxyArgumentFactoryTemplate<FooProxy,
-                                                        edm::ParmeterSet>(iPS) 
-   );
+                                                        edm::ParmeterSet>(iPS));
 };
 
 \endcode
@@ -49,7 +48,7 @@ BarProd::BarProd(const edm::ParameterSet& iPS) {
 //
 // Author:      Chris Jones
 // Created:     Thu Apr  7 17:14:58 CDT 2005
-// $Id: ProxyFactoryProducer.h,v 1.2 2005/06/14 21:49:15 wmtan Exp $
+// $Id: ProxyFactoryProducer.h,v 1.3 2005/06/20 20:58:44 chrjones Exp $
 //
 
 // system include files
@@ -67,10 +66,10 @@ namespace edm {
       
       struct FactoryInfo {
          FactoryInfo() {}
-         FactoryInfo( const DataKey& iKey, 
-                      boost::shared_ptr<ProxyFactoryBase> iFactory )
-         : key_( iKey ), 
-         factory_( iFactory ) {} 
+         FactoryInfo(const DataKey& iKey, 
+                      boost::shared_ptr<ProxyFactoryBase> iFactory)
+         : key_(iKey), 
+         factory_(iFactory) {} 
          DataKey key_;
          boost::shared_ptr<ProxyFactoryBase> factory_;
       };
@@ -89,13 +88,13 @@ class ProxyFactoryProducer : public DataProxyProvider
 
       // ---------- member functions ---------------------------
       ///overrides DataProxyProvider method
-      virtual void newInterval( const EventSetupRecordKey& iRecordType,
-                                const ValidityInterval& iInterval ) ;
+      virtual void newInterval(const EventSetupRecordKey& iRecordType,
+                                const ValidityInterval& iInterval) ;
 
    protected:
       ///override DataProxyProvider method
-      virtual void registerProxies( const EventSetupRecordKey& iRecord ,
-                                    KeyedProxies& aProxyList ) ;
+      virtual void registerProxies(const EventSetupRecordKey& iRecord ,
+                                    KeyedProxies& aProxyList) ;
 
       /** \param iFactory auto_ptr holding a new instance of a Factory
          Producer takes ownership of the Factory and uses it create the appropriate
@@ -103,9 +102,9 @@ class ProxyFactoryProducer : public DataProxyProvider
          be called in inheriting class' constructor.
       */
       template< class TFactory>
-         void registerFactory(std::auto_ptr<TFactory> iFactory ) {
-            std::auto_ptr<ProxyFactoryBase> temp( iFactory.release() );
-            registerFactoryWithKey( 
+         void registerFactory(std::auto_ptr<TFactory> iFactory) {
+            std::auto_ptr<ProxyFactoryBase> temp(iFactory.release());
+            registerFactoryWithKey(
                EventSetupRecordKey::makeKey<typename TFactory::record_type>(),
                                     temp);
          }
@@ -115,18 +114,18 @@ class ProxyFactoryProducer : public DataProxyProvider
          be called in inheriting class' constructor.
          */
       template< class TFactory>
-         void registerFactory(TFactory* iFactory ) {
-            std::auto_ptr<TFactory> temp( iFactory);
-            registerFactory( temp );
+         void registerFactory(TFactory* iFactory) {
+            std::auto_ptr<TFactory> temp(iFactory);
+            registerFactory(temp);
          }
       
    private:
-      ProxyFactoryProducer( const ProxyFactoryProducer& ); // stop default
+      ProxyFactoryProducer(const ProxyFactoryProducer&); // stop default
 
-      const ProxyFactoryProducer& operator=( const ProxyFactoryProducer& ); // stop default
+      const ProxyFactoryProducer& operator=(const ProxyFactoryProducer&); // stop default
 
-      virtual void registerFactoryWithKey( const EventSetupRecordKey& iRecord ,
-                                          std::auto_ptr<ProxyFactoryBase>& iFactory );
+      virtual void registerFactoryWithKey(const EventSetupRecordKey& iRecord ,
+                                          std::auto_ptr<ProxyFactoryBase>& iFactory);
       
       // ---------- member data --------------------------------
       std::multimap< EventSetupRecordKey, FactoryInfo > record2Factories_;

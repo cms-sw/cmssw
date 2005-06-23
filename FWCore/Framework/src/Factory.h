@@ -24,8 +24,7 @@ namespace edm {
     std::auto_ptr<Worker> makeWorker(ParameterSet const&,
 				     std::string const& pn,
 				     unsigned long vn,
-				     unsigned long pass
-				     ) const;
+				     unsigned long pass) const;
 
 
   private:

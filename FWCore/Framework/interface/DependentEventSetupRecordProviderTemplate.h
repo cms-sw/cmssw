@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Sun May  1 16:59:49 EDT 2005
-// $Id: DependentContextRecordProviderTemplate.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
+// $Id: DependentEventSetupRecordProviderTemplate.h,v 1.1 2005/05/29 23:13:33 wmtan Exp $
 //
 
 // system include files
@@ -37,8 +37,8 @@ class DependentEventSetupRecordProviderTemplate : public DependentEventSetupReco
    public:
       typedef typename  T::list_type list_type;
 
-      DependentEventSetupRecordProviderTemplate( const EventSetupRecordKey& iKey) :
-      DependentEventSetupRecordProvider( iKey ) {}
+      DependentEventSetupRecordProviderTemplate(const EventSetupRecordKey& iKey) :
+      DependentEventSetupRecordProvider(iKey) {}
    //virtual ~DependentEventSetupRecordProviderTemplate();
 
       // ---------- const member functions ---------------------
@@ -46,7 +46,7 @@ class DependentEventSetupRecordProviderTemplate : public DependentEventSetupReco
          std::set<EventSetupRecordKey> returnValue;
          const  typename boost::mpl::begin<list_type>::type * begin(0);
          const  typename boost::mpl::end<list_type>::type * end(0);
-         addRecordToDependencies( begin, end, returnValue );
+         addRecordToDependencies(begin, end, returnValue);
          return returnValue;
       }
       // ---------- static member functions --------------------
@@ -55,20 +55,20 @@ class DependentEventSetupRecordProviderTemplate : public DependentEventSetupReco
 
    private:
       template< class TFirst, class TEnd>
-      void addRecordToDependencies( const TFirst*, const TEnd* iEnd, 
-                                    std::set<EventSetupRecordKey>& oSet ) const {
-         oSet.insert( EventSetupRecordKey::makeKey<typename boost::mpl::deref<TFirst>::type>());
+      void addRecordToDependencies(const TFirst*, const TEnd* iEnd, 
+                                    std::set<EventSetupRecordKey>& oSet) const {
+         oSet.insert(EventSetupRecordKey::makeKey<typename boost::mpl::deref<TFirst>::type>());
          const  typename boost::mpl::next< TFirst >::type * next(0);
-         addRecordToDependencies( next, iEnd, oSet );
+         addRecordToDependencies(next, iEnd, oSet);
       }
       
-         void addRecordToDependencies( const typename boost::mpl::end<list_type>::type*,
+         void addRecordToDependencies(const typename boost::mpl::end<list_type>::type*,
                                        const typename boost::mpl::end<list_type>::type*,
-                                       std::set<EventSetupRecordKey>& ) const { }
+                                       std::set<EventSetupRecordKey>&) const { }
          
-      DependentEventSetupRecordProviderTemplate( const DependentEventSetupRecordProviderTemplate& ); // stop default
+      DependentEventSetupRecordProviderTemplate(const DependentEventSetupRecordProviderTemplate&); // stop default
 
-      const DependentEventSetupRecordProviderTemplate& operator=( const DependentEventSetupRecordProviderTemplate& ); // stop default
+      const DependentEventSetupRecordProviderTemplate& operator=(const DependentEventSetupRecordProviderTemplate&); // stop default
 
       // ---------- member data --------------------------------
 

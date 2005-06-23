@@ -24,7 +24,7 @@ namespace edm {
    namespace eventsetup {
       namespace heterocontainer {
          template<class Type, class Key, class IdTag>
-         Key makeKey(const IdTag& );
+         Key makeKey(const IdTag&);
    
          template<class Type, class Key>
             Key makeKey();
@@ -39,16 +39,16 @@ namespace edm {
          };
    
          template<class Key, class ItemType, class Storage, class IdTag>
-            bool insert( Storage&, ItemType*, const IdTag& );
+            bool insert(Storage&, ItemType*, const IdTag&);
          
          template<class Key, class ItemType, class Storage>
-            bool insert( Storage&, ItemType*);
+            bool insert(Storage&, ItemType*);
          
          template<class Key, class ItemType, class Storage, class IdTag>
-            ItemType* find( const Storage&, const IdTag& );
+            ItemType* find(const Storage&, const IdTag&);
          
          template<class Key,class ItemType, class Storage>
-            ItemType* find( const Storage&);
+            ItemType* find(const Storage&);
       }
    }
 }

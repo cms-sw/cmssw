@@ -29,8 +29,7 @@ namespace edm {
     virtual std::auto_ptr<Worker> makeWorker(ParameterSet const&,
 					     std::string const& pn,
 					     unsigned long vn,
-					     unsigned long pass
-					     ) const = 0;
+					     unsigned long pass) const = 0;
   };
 
   template <class T>

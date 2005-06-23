@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: types.h,v 1.1 2005/05/29 02:29:54 wmtan Exp $
+// $Id: types.h,v 1.2 2005/06/10 04:07:15 wmtan Exp $
 //
 // declaration of type encoding/decoding functions
 // ----------------------------------------------------------------------
@@ -28,52 +28,52 @@ namespace edm
   //            destination    source
 
   // Bool
-  bool  decode( bool        &, std::string const& );
-  bool  encode( std::string &, bool                );
+  bool  decode(bool        &, std::string const&);
+  bool  encode(std::string &, bool);
 
   // vBool
-  bool  decode( std::vector<bool> &, std::string       const& );
-  bool  encode( std::string       &, std::vector<bool> const& );
+  bool  decode(std::vector<bool> &, std::string       const&);
+  bool  encode(std::string       &, std::vector<bool> const&);
 
   // Int32
-  bool  decode( int         &, std::string const& );
-  bool  encode( std::string &, int                 );
+  bool  decode(int         &, std::string const&);
+  bool  encode(std::string &, int);
 
   // vInt32
-  bool  decode( std::vector<int> &, std::string      const& );
-  bool  encode( std::string      &, std::vector<int> const& );
+  bool  decode(std::vector<int> &, std::string      const&);
+  bool  encode(std::string      &, std::vector<int> const&);
 
   // Uint32
-  bool  decode( unsigned    &, std::string const& );
-  bool  encode( std::string &, unsigned            );
+  bool  decode(unsigned    &, std::string const&);
+  bool  encode(std::string &, unsigned);
 
   // vUint32
-  bool  decode( std::vector<unsigned> &, std::string           const& );
-  bool  encode( std::string           &, std::vector<unsigned> const& );
+  bool  decode(std::vector<unsigned> &, std::string           const&);
+  bool  encode(std::string           &, std::vector<unsigned> const&);
 
   // Double
-  bool  decode( double      &, std::string const& );
-  bool  encode( std::string &, double              );
+  bool  decode(double      &, std::string const&);
+  bool  encode(std::string &, double);
 
   // vDouble
-  bool  decode( std::vector<double> &, std::string         const& );
-  bool  encode( std::string         &, std::vector<double> const& );
+  bool  decode(std::vector<double> &, std::string         const&);
+  bool  encode(std::string         &, std::vector<double> const&);
 
   // String
-  bool  decode( std::string &, std::string const& );
-  bool  encode( std::string &, std::string const& );
+  bool  decode(std::string &, std::string const&);
+  bool  encode(std::string &, std::string const&);
 
   // vString
-  bool  decode( std::vector<std::string> &, std::string              const& );
-  bool  encode( std::string              &, std::vector<std::string> const& );
+  bool  decode(std::vector<std::string> &, std::string              const&);
+  bool  encode(std::string              &, std::vector<std::string> const&);
 
   // ParameterSet
-  bool  decode( ParameterSet &, std::string  const& );
-  bool  encode( std::string  &, ParameterSet const& );
+  bool  decode(ParameterSet &, std::string  const&);
+  bool  encode(std::string  &, ParameterSet const&);
 
   // vPSet
-  bool  decode( std::vector<ParameterSet> &, std::string               const& );
-  bool  encode( std::string               &, std::vector<ParameterSet> const& );
+  bool  decode(std::vector<ParameterSet> &, std::string               const&);
+  bool  encode(std::string               &, std::vector<ParameterSet> const&);
 
 }  // namespace edm
 

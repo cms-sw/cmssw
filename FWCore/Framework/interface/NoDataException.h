@@ -20,14 +20,14 @@
     \code
     try {
       Item<DBEventHeader> eventHeader;
-      extract( iFrame.record(Stream::kBeginRun), eventHeader );
+      extract(iFrame.record(Stream::kBeginRun), eventHeader);
 
-      report(INFO, kFacilityString ) << "run # " << eventHeader->runNumber()
+      report(INFO, kFacilityString) << "run # " << eventHeader->runNumber()
                                      << "event # " << eventHeader->number()
 				     << endl;
 
-    } catch( NoDataException<Item<DBEventHeader>::contents> &iException ) {
-      report(WARNING, kFacilityString ) << iException.what() << endl;
+    } catch(NoDataException<Item<DBEventHeader>::contents> &iException) {
+      report(WARNING, kFacilityString) << iException.what() << endl;
     }
       
     \endcode
@@ -35,7 +35,7 @@
     To make it easier to catch exceptions, all of the FAXXX types provide
     C preprocessor macros of the form
     \code
-       NO_XXX_DATA_EXCEPTION( type )
+       NO_XXX_DATA_EXCEPTION(type)
     \endcode
      which are just shorthand ways of writing
      \code
@@ -43,7 +43,7 @@
      \endcode
     E.g.
        \code
-       NO_ITEM_DATA_EXCEPTION( DBEventHeader )
+       NO_ITEM_DATA_EXCEPTION(DBEventHeader)
        \endcode
        is the same as writing
        \code
@@ -60,7 +60,7 @@
 //
 // Author:      Chris D Jones
 // Created:     Tue Dec  7 09:10:34 EST 1999
-// $Id: NoDataException.h,v 1.2 2005/04/04 20:40:34 chrjones Exp $
+// $Id: NoDataException.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
 //
 
 // system include files
@@ -85,17 +85,17 @@ class NoDataException : public std::exception
       // ---------- constants, enums and typedefs --------------
 
       // ---------- Constructors and destructor ----------------
-      NoDataException( const EventSetupRecordKey& iRecordKey,
-			 const DataKey& iDataKey ) : 
-	 record_( iRecordKey ),
-	 dataKey_( iDataKey ),
+      NoDataException(const EventSetupRecordKey& iRecordKey,
+			 const DataKey& iDataKey) : 
+	 record_(iRecordKey),
+	 dataKey_(iDataKey),
 	 message_() {}
       virtual ~NoDataException() throw() {}
 
       // ---------- const member functions ---------------------
       const DataKey& dataKey() const { return dataKey_; }
       virtual const char* what () const throw() { 
-        if( message_.size() == 0 ) {
+        if(message_.size() == 0) {
           message_ = dataTypeMessage();
            message_+= std::string(" \n ")
                  +" A provider for this data exists, but it's unable to deliver the data for this "
@@ -112,7 +112,7 @@ class NoDataException : public std::exception
    
    protected:
       const std::string& dataTypeMessage () const { 
-	 if( dataTypeMessage_.size() == 0 ) {
+	 if(dataTypeMessage_.size() == 0) {
 
 	    dataTypeMessage_ = std::string("No data of type ") 
 	       +"\""
@@ -129,9 +129,9 @@ class NoDataException : public std::exception
 
    private:
       // ---------- Constructors and destructor ----------------
-      //NoDataException( const NoDataException& ) ; //allow default
+      //NoDataException(const NoDataException&) ; //allow default
 
-      //const NoDataException& operator=( const NoDataException& ); // allow default
+      //const NoDataException& operator=(const NoDataException&); // allow default
 
       // ---------- data members -------------------------------
       EventSetupRecordKey record_;

@@ -71,9 +71,9 @@ namespace {
       SeqMap::const_iterator sequenceIt = sequences.find(*nameIt);
       // if the name found is that of an existing sequence
       // then substitute the sequence for that name
-      if (sequenceIt != sequences.end() ) {
+      if (sequenceIt != sequences.end()) {
 	names.insert(names.end(),
-		     sequenceIt->second.begin(), sequenceIt->second.end() );
+		     sequenceIt->second.begin(), sequenceIt->second.end());
        
       }  
       else names.push_back(*nameIt);		  
@@ -105,7 +105,7 @@ namespace {
   {
     boost::shared_ptr<edm::pset::NodePtrList> nodelist = 
       edm::pset::parse(config.c_str());
-    if( 0 == nodelist.get() ) {
+    if(0 == nodelist.get()) {
        throw runtime_error("Unable to parse configuration file."
                            "  Please check the error message reported earlier.");
     }

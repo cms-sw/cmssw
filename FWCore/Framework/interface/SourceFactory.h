@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 18:01:38 EDT 2005
-// $Id: SourceFactory.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
+// $Id: SourceFactory.h,v 1.2 2005/06/14 21:49:15 wmtan Exp $
 //
 
 // system include files
@@ -34,13 +34,13 @@ namespace edm {
       class EventSetupRecordIntervalFinder;
       
       template<class T>
-         void addProviderTo( EventSetupProvider& iProvider, boost::shared_ptr<T> iComponent, const DataProxyProvider*) 
+         void addProviderTo(EventSetupProvider& iProvider, boost::shared_ptr<T> iComponent, const DataProxyProvider*) 
       {
-            boost::shared_ptr<DataProxyProvider> pProvider( iComponent );
-            iProvider.add( pProvider );
+            boost::shared_ptr<DataProxyProvider> pProvider(iComponent);
+            iProvider.add(pProvider);
       }
       template<class T>
-         void addProviderTo( EventSetupProvider& iProvider, boost::shared_ptr<T> iComponent, const void*) 
+         void addProviderTo(EventSetupProvider& iProvider, boost::shared_ptr<T> iComponent, const void*) 
       {
             //do nothing
       }
@@ -48,12 +48,12 @@ namespace edm {
       struct SourceMakerTraits {
          static std::string name();
          template<class T>
-            static void addTo( EventSetupProvider& iProvider, boost::shared_ptr<T> iComponent )
+            static void addTo(EventSetupProvider& iProvider, boost::shared_ptr<T> iComponent)
             {
                //a source does not always have to be a provider
-               addProviderTo( iProvider, iComponent, static_cast<const T*>(0) );
-               boost::shared_ptr<EventSetupRecordIntervalFinder> pFinder( iComponent );
-               iProvider.add( pFinder );
+               addProviderTo(iProvider, iComponent, static_cast<const T*>(0));
+               boost::shared_ptr<EventSetupRecordIntervalFinder> pFinder(iComponent);
+               iProvider.add(pFinder);
             }
                
       };

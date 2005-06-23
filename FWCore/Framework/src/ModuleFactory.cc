@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 19:27:44 EDT 2005
-// $Id: ModuleFactory.cc,v 1.1 2005/05/26 01:54:43 chrjones Exp $
+// $Id: ModuleFactory.cc,v 1.1 2005/05/29 02:29:54 wmtan Exp $
 //
 
 // system include files
@@ -27,10 +27,10 @@ namespace edm {
 // static member functions
 //
        std::string ModuleMakerTraits::name() { return "EventSetupModuleFactory"; }
-      void ModuleMakerTraits::addTo( EventSetupProvider& iProvider, boost::shared_ptr<DataProxyProvider> iComponent) 
+      void ModuleMakerTraits::addTo(EventSetupProvider& iProvider, boost::shared_ptr<DataProxyProvider> iComponent) 
       {
-         iProvider.add( iComponent );
+         iProvider.add(iComponent);
       }
    }
 }
-COMPONENTFACTORY_GET( edm::eventsetup::ModuleMakerTraits )
+COMPONENTFACTORY_GET(edm::eventsetup::ModuleMakerTraits)

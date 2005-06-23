@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Fri Apr  8 07:59:32 CDT 2005
-// $Id: ProxyFactoryTemplate.h,v 1.1 2005/04/18 20:16:16 chrjones Exp $
+// $Id: ProxyFactoryTemplate.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
 //
 
 // system include files
@@ -46,7 +46,7 @@ class ProxyFactoryTemplate : public ProxyFactoryBase
       
       
       virtual DataKey makeKey(const std::string& iName) const {
-         return DataKey(DataKey::makeTypeTag< typename T::value_type>(),iName.c_str() );
+         return DataKey(DataKey::makeTypeTag< typename T::value_type>(),iName.c_str());
       }
       
       // ---------- static member functions --------------------
@@ -54,9 +54,9 @@ class ProxyFactoryTemplate : public ProxyFactoryBase
       // ---------- member functions ---------------------------
 
    private:
-      ProxyFactoryTemplate( const ProxyFactoryTemplate& ); // stop default
+      ProxyFactoryTemplate(const ProxyFactoryTemplate&); // stop default
 
-      const ProxyFactoryTemplate& operator=( const ProxyFactoryTemplate& ); // stop default
+      const ProxyFactoryTemplate& operator=(const ProxyFactoryTemplate&); // stop default
 
       // ---------- member data --------------------------------
 

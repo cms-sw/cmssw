@@ -18,10 +18,10 @@ If you wish to explain the reason for the error, you can throw a
 MakeDataException from within your Proxy
 E.g.
 \code
-if( outOfBoundsValue ) {
+if(outOfBoundsValue) {
    throw MakeDataException<record_type, value_type>(
                                                     " value out of bounds",
-                                                    iDataKey );
+                                                    iDataKey);
 }
 \endcode
 
@@ -29,7 +29,7 @@ if( outOfBoundsValue ) {
 //
 // Author:      Chris Jones
 // Created:     Fri Apr  1 13:18:53 EST 2005
-// $Id: MakeDataException.h,v 1.3 2005/04/06 19:47:04 chrjones Exp $
+// $Id: MakeDataException.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
 //
 
 // system include files
@@ -50,11 +50,11 @@ class MakeDataException : public std::exception
 
    public:
       MakeDataException(const DataKey& iKey) : 
-        message_( standardMessage( iKey) ){}
+        message_(standardMessage(iKey)){}
 
       MakeDataException(const std::string& iAdditionalInfo,
                      const DataKey& iKey) : 
-        message_( messageWithInfo( iKey, iAdditionalInfo) ){}
+        message_(messageWithInfo(iKey, iAdditionalInfo)){}
 
       ~MakeDataException() throw() {}
 
@@ -64,7 +64,7 @@ class MakeDataException : public std::exception
       }
    
       // ---------- static member functions --------------------
-      static std::string standardMessage( const DataKey& iKey) {
+      static std::string standardMessage(const DataKey& iKey) {
          std::string returnValue = std::string("Error while making data ") 
          +"\""
          +heterocontainer::HCTypeTagTemplate<DataT,DataKey>::className() 
@@ -77,16 +77,16 @@ class MakeDataException : public std::exception
          return returnValue;
       }
    
-      static std::string messageWithInfo( const DataKey& iKey,
+      static std::string messageWithInfo(const DataKey& iKey,
                                           const std::string& iInfo) {
          return standardMessage(iKey) +"\n"+iInfo;
       }
    // ---------- member functions ---------------------------
 
    private:
-      //MakeDataException( const MakeDataException& ); // stop default
+      //MakeDataException(const MakeDataException&); // stop default
 
-      //const MakeDataException& operator=( const MakeDataException& ); // stop default
+      //const MakeDataException& operator=(const MakeDataException&); // stop default
 
       // ---------- member data --------------------------------
       std::string message_;

@@ -34,7 +34,7 @@ class EventSetupRecordKey
    typedef heterocontainer::HCTypeTag<EventSetupRecordKey> TypeTag;
       
       EventSetupRecordKey();
-      EventSetupRecordKey( const TypeTag& iType) :
+      EventSetupRecordKey(const TypeTag& iType) :
          type_(iType) {}
 
       //virtual ~EventSetupRecordKey();
@@ -42,10 +42,10 @@ class EventSetupRecordKey
       // ---------- const member functions ---------------------
       const TypeTag& type() const { return type_;}
       
-      bool operator< ( const EventSetupRecordKey& iRHS ) const {
+      bool operator< (const EventSetupRecordKey& iRHS) const {
          return type_ < iRHS.type_;
       }
-      bool operator==( const EventSetupRecordKey& iRHS ) const {
+      bool operator==(const EventSetupRecordKey& iRHS) const {
          return type_ == iRHS.type_;
       }
       
@@ -59,9 +59,9 @@ class EventSetupRecordKey
       // ---------- member functions ---------------------------
 
    private:
-      //EventSetupRecordKey( const EventSetupRecordKey& ); // allow default
+      //EventSetupRecordKey(const EventSetupRecordKey&); // allow default
 
-      //const EventSetupRecordKey& operator=( const EventSetupRecordKey& ); // allow default
+      //const EventSetupRecordKey& operator=(const EventSetupRecordKey&); // allow default
 
       // ---------- member data --------------------------------
       TypeTag type_;

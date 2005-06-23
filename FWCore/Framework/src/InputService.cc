@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: InputService.cc,v 1.1 2005/05/29 02:29:54 wmtan Exp $
+$Id: InputService.cc,v 1.2 2005/06/07 21:05:56 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <cassert>
 
@@ -11,7 +11,7 @@ namespace edm
   InputService::InputService(const std::string& process) :
     process_(process)
   { 
-    assert( !process.empty() );
+    assert(!process.empty());
   }
 
   InputService::~InputService() 
@@ -22,8 +22,8 @@ namespace edm
   {
     // Do we need any error handling (e.g. exception translation)
     // here?
-    std::auto_ptr<EventPrincipal> ep( this->read() );
-    if ( ep.get() ) 
+    std::auto_ptr<EventPrincipal> ep(this->read());
+    if (ep.get()) 
       {
 	ep->addToProcessHistory(process_);
       }

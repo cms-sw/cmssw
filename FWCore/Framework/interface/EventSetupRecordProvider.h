@@ -53,26 +53,26 @@ class EventSetupRecordProvider
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
-      virtual void addRecordTo(EventSetupProvider& ) = 0;
-      void addRecordToIfValid(EventSetupProvider&, const Timestamp& ) ;
+      virtual void addRecordTo(EventSetupProvider&) = 0;
+      void addRecordToIfValid(EventSetupProvider&, const Timestamp&) ;
 
-      void add( boost::shared_ptr<DataProxyProvider> );
+      void add(boost::shared_ptr<DataProxyProvider>);
       ///For now, only use one finder
-      void addFinder( boost::shared_ptr<EventSetupRecordIntervalFinder> );
-      void setValidityInterval( const ValidityInterval& );
+      void addFinder(boost::shared_ptr<EventSetupRecordIntervalFinder>);
+      void setValidityInterval(const ValidityInterval&);
       
       ///sets interval to this time and returns true if have a valid interval for time
-      bool setValidityIntervalFor( const Timestamp& );
+      bool setValidityIntervalFor(const Timestamp&);
 
       ///If the provided Record depends on other Records, here are the dependent Providers
-      virtual void setDependentProviders( const std::vector< boost::shared_ptr<EventSetupRecordProvider> >& );
+      virtual void setDependentProviders(const std::vector< boost::shared_ptr<EventSetupRecordProvider> >&);
 
    protected:
-      virtual void addProxiesToRecord( boost::shared_ptr<DataProxyProvider> ) = 0;
+      virtual void addProxiesToRecord(boost::shared_ptr<DataProxyProvider>) = 0;
    private:
-      EventSetupRecordProvider( const EventSetupRecordProvider& ); // stop default
+      EventSetupRecordProvider(const EventSetupRecordProvider&); // stop default
 
-      const EventSetupRecordProvider& operator=( const EventSetupRecordProvider& ); // stop default
+      const EventSetupRecordProvider& operator=(const EventSetupRecordProvider&); // stop default
 
       // ---------- member data --------------------------------
       const EventSetupRecordKey key_;

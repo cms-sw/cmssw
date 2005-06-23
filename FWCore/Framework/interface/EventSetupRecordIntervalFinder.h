@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Tue Mar 29 16:15:11 EST 2005
-// $Id: EventSetupRecordIntervalFinder.h,v 1.2 2005/04/03 20:24:10 chrjones Exp $
+// $Id: EventSetupRecordIntervalFinder.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
 //
 
 // system include files
@@ -47,25 +47,25 @@ class EventSetupRecordIntervalFinder
    /**returns the 'default constructed' ValidityInterval if no valid interval.
    If upperbound is not known, it should be set to Timestamp::invalidTimestamp()
    */
-   const ValidityInterval& findIntervalFor( const EventSetupRecordKey&,
-                                            const Timestamp& );
+   const ValidityInterval& findIntervalFor(const EventSetupRecordKey&,
+                                            const Timestamp&);
    
    protected:
-      virtual void setIntervalFor( const EventSetupRecordKey&,
+      virtual void setIntervalFor(const EventSetupRecordKey&,
                                    const Timestamp& , 
-                                   ValidityInterval& ) = 0;
+                                   ValidityInterval&) = 0;
 
       template< class T>
          void findingRecord() {
-            findingRecordWithKey( EventSetupRecordKey::makeKey<T>() );
+            findingRecordWithKey(EventSetupRecordKey::makeKey<T>());
          }
       
-      void findingRecordWithKey(const EventSetupRecordKey& );
+      void findingRecordWithKey(const EventSetupRecordKey&);
       
    private:
-      EventSetupRecordIntervalFinder( const EventSetupRecordIntervalFinder& ); // stop default
+      EventSetupRecordIntervalFinder(const EventSetupRecordIntervalFinder&); // stop default
 
-      const EventSetupRecordIntervalFinder& operator=( const EventSetupRecordIntervalFinder& ); // stop default
+      const EventSetupRecordIntervalFinder& operator=(const EventSetupRecordIntervalFinder&); // stop default
 
       // ---------- member data --------------------------------
       typedef  std::map<EventSetupRecordKey,ValidityInterval> Intervals;

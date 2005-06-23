@@ -77,7 +77,7 @@ class EventSetupRecord
       }
       
       
-      const DataProxy* find( const DataKey& aKey ) const ;
+      const DataProxy* find(const DataKey& aKey) const ;
 
       virtual EventSetupRecordKey key() const = 0;
       // ---------- static member functions --------------------
@@ -85,20 +85,20 @@ class EventSetupRecord
       // ---------- member functions ---------------------------
 
       // The following member functions should only be used by EventSetupRecordProvider
-      bool add( const DataKey& iKey ,
-                const DataProxy* iProxy ) ;      
+      bool add(const DataKey& iKey ,
+                const DataProxy* iProxy) ;      
       void removeAll() ;
-      void set( const ValidityInterval& );
-      void setEventSetup( const EventSetup* iEventSetup ) {eventSetup_ = iEventSetup; }
+      void set(const ValidityInterval&);
+      void setEventSetup(const EventSetup* iEventSetup) {eventSetup_ = iEventSetup; }
    protected:
 
       EventSetup const& eventSetup() const {
          return *eventSetup_;
       }
    private:
-      EventSetupRecord( const EventSetupRecord& ); // stop default
+      EventSetupRecord(const EventSetupRecord&); // stop default
 
-      const EventSetupRecord& operator=( const EventSetupRecord& ); // stop default
+      const EventSetupRecord& operator=(const EventSetupRecord&); // stop default
 
       // ---------- member data --------------------------------
       ValidityInterval validity_;

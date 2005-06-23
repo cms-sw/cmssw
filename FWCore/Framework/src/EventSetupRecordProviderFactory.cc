@@ -32,7 +32,7 @@ namespace edm {
 //{
 //}
 
-// EventSetupRecordProviderFactory::EventSetupRecordProviderFactory( const EventSetupRecordProviderFactory& rhs )
+// EventSetupRecordProviderFactory::EventSetupRecordProviderFactory(const EventSetupRecordProviderFactory& rhs)
 // {
 //    // do actual copying here;
 // }
@@ -44,11 +44,11 @@ EventSetupRecordProviderFactory::~EventSetupRecordProviderFactory()
 //
 // assignment operators
 //
-// const EventSetupRecordProviderFactory& EventSetupRecordProviderFactory::operator=( const EventSetupRecordProviderFactory& rhs )
+// const EventSetupRecordProviderFactory& EventSetupRecordProviderFactory::operator=(const EventSetupRecordProviderFactory& rhs)
 // {
 //   //An exception safe implementation is
 //   EventSetupRecordProviderFactory temp(rhs);
-//   swap( rhs );
+//   swap(rhs);
 //
 //   return *this;
 // }

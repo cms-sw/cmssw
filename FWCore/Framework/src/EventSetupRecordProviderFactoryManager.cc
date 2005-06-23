@@ -33,7 +33,7 @@ EventSetupRecordProviderFactoryManager::EventSetupRecordProviderFactoryManager()
 {
 }
 
-// EventSetupRecordProviderFactoryManager::EventSetupRecordProviderFactoryManager( const EventSetupRecordProviderFactoryManager& rhs )
+// EventSetupRecordProviderFactoryManager::EventSetupRecordProviderFactoryManager(const EventSetupRecordProviderFactoryManager& rhs)
 // {
 //    // do actual copying here;
 // }
@@ -45,11 +45,11 @@ EventSetupRecordProviderFactoryManager::~EventSetupRecordProviderFactoryManager(
 //
 // assignment operators
 //
-// const EventSetupRecordProviderFactoryManager& EventSetupRecordProviderFactoryManager::operator=( const EventSetupRecordProviderFactoryManager& rhs )
+// const EventSetupRecordProviderFactoryManager& EventSetupRecordProviderFactoryManager::operator=(const EventSetupRecordProviderFactoryManager& rhs)
 // {
 //   //An exception safe implementation is
 //   EventSetupRecordProviderFactoryManager temp(rhs);
-//   swap( rhs );
+//   swap(rhs);
 //
 //   return *this;
 // }
@@ -58,7 +58,7 @@ EventSetupRecordProviderFactoryManager::~EventSetupRecordProviderFactoryManager(
 // member functions
 //
 void 
-EventSetupRecordProviderFactoryManager::addFactory( const EventSetupRecordProviderFactory& iFactory, 
+EventSetupRecordProviderFactoryManager::addFactory(const EventSetupRecordProviderFactory& iFactory, 
                                                  const EventSetupRecordKey& iKey) {
    factories_[iKey] = &iFactory;
 }
@@ -72,11 +72,11 @@ EventSetupRecordProviderFactoryManager::makeRecordProvider(const EventSetupRecor
 {
    std::map<EventSetupRecordKey, const EventSetupRecordProviderFactory*>::const_iterator itFound= factories_.find(iKey);
    //should be impossible to have a key without a factory being available
-   assert( itFound != factories_.end() );
+   assert(itFound != factories_.end());
    
    const EventSetupRecordProviderFactory* factory = itFound->second;
-   assert( 0 != factory );
-   return std::auto_ptr<EventSetupRecordProvider>( factory->makeRecordProvider() );
+   assert(0 != factory);
+   return std::auto_ptr<EventSetupRecordProvider>(factory->makeRecordProvider());
 }
 
 //

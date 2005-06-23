@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Thu Mar 31 12:43:01 EST 2005
-// $Id: DataProxy.h,v 1.1 2005/04/02 14:18:01 chrjones Exp $
+// $Id: DataProxy.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
 //
 
 // system include files
@@ -55,9 +55,9 @@ class DataProxy
       void clearCacheIsValid() { cacheIsValid_ = false; }
       
    private:
-      DataProxy( const DataProxy& ); // stop default
+      DataProxy(const DataProxy&); // stop default
 
-      const DataProxy& operator=( const DataProxy& ); // stop default
+      const DataProxy& operator=(const DataProxy&); // stop default
 
       // ---------- member data --------------------------------
       bool cacheIsValid_;

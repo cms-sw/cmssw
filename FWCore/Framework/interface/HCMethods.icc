@@ -12,11 +12,14 @@
 //
 // Author:      Chris D. Jones
 // Created:     Sun Sep 20 16:03:32 EDT 1998
-// $Id: HCMethods.icc,v 1.2 2005/04/06 19:46:26 chrjones Exp $
+// $Id: HCMethods.icc,v 1.1 2005/05/29 02:29:53 wmtan Exp $
 //
 // Revision history
 //
 // $Log: HCMethods.icc,v $
+// Revision 1.1  2005/05/29 02:29:53  wmtan
+// initial population
+//
 // Revision 1.2  2005/04/06 19:46:26  chrjones
 // fixed typo
 //
@@ -43,45 +46,45 @@ namespace edm {
    namespace eventsetup {
       namespace heterocontainer {
          template< class Type, class Key, class IdTag >
-         Key makeKey( const IdTag& iIdTag) {
+         Key makeKey(const IdTag& iIdTag) {
             static HCTypeTag< Key > typeTag = HCTypeTagTemplate<Type, Key>();
-            return Key( typeTag, iIdTag );
+            return Key(typeTag, iIdTag);
          }
          
          template< class Type, class Key>
          Key makeKey() {
             static HCTypeTag< Key > typeTag = HCTypeTagTemplate<Type, Key>();
-            return Key( typeTag );
+            return Key(typeTag);
          }
          
          
          template<class Key, class ItemType, class Storage, class IdTag >
-         bool insert( Storage& iStorage, ItemType* iItem, const IdTag& iIdTag ) {
-            return iStorage.insert( makeKey< typename type_from_itemtype<Key, ItemType>::Type, 
-                                    Key>( iIdTag ) , iItem );
+         bool insert(Storage& iStorage, ItemType* iItem, const IdTag& iIdTag) {
+            return iStorage.insert(makeKey< typename type_from_itemtype<Key, ItemType>::Type, 
+                                    Key>(iIdTag) , iItem);
          }
          
          template<  class Key, class ItemType, class Storage>
-         bool insert( Storage& iStorage, ItemType* iItem) {
-            return iStorage.insert( makeKey<ItemType,
-                                    Key>() , iItem );
+         bool insert(Storage& iStorage, ItemType* iItem) {
+            return iStorage.insert(makeKey<ItemType,
+                                    Key>() , iItem);
          }
          
          
          template< class Key, class ItemType, class Storage, class IdTag >
-         ItemType* find( const Storage& iStorage, const IdTag& iIdTag ) {
+         ItemType* find(const Storage& iStorage, const IdTag& iIdTag) {
             //The cast should be safe since the Key tells us the type
-            return ( ItemType* ) iStorage.find( 
+            return (ItemType*) iStorage.find(
                                                 makeKey<typename type_from_itemtype<Key,
-                                                ItemType>::Type,Key>( iIdTag ) );
+                                                ItemType>::Type,Key>(iIdTag));
          }
          
          template< class Key, class ItemType, class Storage>
-         ItemType* find( const Storage& iStorage) {
+         ItemType* find(const Storage& iStorage) {
             //The cast should be safe since the Key tells us the type
-            return ( ItemType* ) iStorage.find( 
+            return (ItemType*) iStorage.find(
                                                 makeKey<typename type_from_itemtype<Key,
-                                                ItemType>::Type,Key>() );
+                                                ItemType>::Type,Key>());
          }
       }
    }

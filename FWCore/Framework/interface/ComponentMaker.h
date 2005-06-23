@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 16:56:05 EDT 2005
-// $Id: ComponentMaker.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
+// $Id: ComponentMaker.h,v 1.2 2005/06/14 21:49:44 wmtan Exp $
 //
 
 // system include files
@@ -35,11 +35,11 @@ namespace edm {
 template <class T>
       class ComponentMakerBase {
 public:
-         virtual void addTo( EventSetupProvider& iProvider,
+         virtual void addTo(EventSetupProvider& iProvider,
                      ParameterSet const& iConfiguration,
                      std::string const& iProcessName,
                      unsigned long iVersion,
-                     unsigned long iPass ) const = 0;
+                     unsigned long iPass) const = 0;
       };
       
 template <class T, class TComponent>
@@ -51,20 +51,20 @@ template <class T, class TComponent>
       //virtual ~ComponentMaker();
 
       // ---------- const member functions ---------------------
-   virtual void addTo( EventSetupProvider& iProvider,
+   virtual void addTo(EventSetupProvider& iProvider,
                        ParameterSet const& iConfiguration,
                        std::string const& iProcessName,
                        unsigned long iVersion,
-                       unsigned long iPass ) const;
+                       unsigned long iPass) const;
    
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
 
    private:
-      ComponentMaker( const ComponentMaker& ); // stop default
+      ComponentMaker(const ComponentMaker&); // stop default
 
-      const ComponentMaker& operator=( const ComponentMaker& ); // stop default
+      const ComponentMaker& operator=(const ComponentMaker&); // stop default
 
       // ---------- member data --------------------------------
 
@@ -72,15 +72,15 @@ template <class T, class TComponent>
 
 template< class T, class TComponent>
 void
-ComponentMaker<T,TComponent>:: addTo( EventSetupProvider& iProvider,
+ComponentMaker<T,TComponent>:: addTo(EventSetupProvider& iProvider,
                                         ParameterSet const& iConfiguration,
                                         std::string const& iProcessName,
                                         unsigned long iVersion,
-                                        unsigned long iPass ) const 
+                                        unsigned long iPass) const 
 {
-   boost::shared_ptr<TComponent> component( new TComponent(iConfiguration) );
+   boost::shared_ptr<TComponent> component(new TComponent(iConfiguration));
    
-   T::addTo( iProvider, component);
+   T::addTo(iProvider, component);
 }
    }
 }

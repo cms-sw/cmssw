@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: types.cc,v 1.6 2005/05/24 20:52:42 jbk Exp $
+// $Id: types.cc,v 1.1 2005/05/29 02:29:55 wmtan Exp $
 //
 // definition of type encoding/decoding functions
 // ----------------------------------------------------------------------
@@ -32,7 +32,7 @@ using namespace edm;
 // ----------------------------------------------------------------------
 
 static char
-  to_hex( unsigned i )
+  to_hex(unsigned i)
 {
   return i + (i < 10u ? '0' : ('A'-10));
 }
@@ -40,7 +40,7 @@ static char
 // ----------------------------------------------------------------------
 
 static unsigned
-  from_hex( char c )
+  from_hex(char c)
 {
   switch(c)  {
     case '0': case '1': case '2': case '3': case '4':
@@ -57,7 +57,7 @@ static unsigned
 
 
 static std::string
-  to_hex_rep( unsigned c )
+  to_hex_rep(unsigned c)
 {
   char rep[] = "xy";
   rep[0] = to_hex(c / 16u);
@@ -72,17 +72,17 @@ static std::string
 // ----------------------------------------------------------------------
 
 bool
-  edm::decode( bool & to, std::string const& from )
+  edm::decode(bool & to, std::string const& from)
 {
-  if     ( from == "true"  )  { to = true ; return true; }
-  else if( from == "false" )  { to = false; return true; }
+  if     (from == "true")  { to = true ; return true; }
+  else if(from == "false")  { to = false; return true; }
   else                        return false;
 }  // decode to bool
 
 // ----------------------------------------------------------------------
 
 bool
-  edm::encode( std::string & to, bool from )
+  edm::encode(std::string & to, bool from)
 {
   to = from ? "true" : "false";
   return true;
@@ -94,21 +94,19 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::decode( std::vector<bool> & to, std::string const& from )
+  edm::decode(std::vector<bool> & to, std::string const& from)
 {
   std::vector<std::string> temp;
-  if( ! split(std::back_inserter(temp), from, '{', ',', '}') )
+  if(! split(std::back_inserter(temp), from, '{', ',', '}'))
     return false;
 
   to.clear();
-  for( std::vector<std::string>::const_iterator  b = temp.begin()
+  for(std::vector<std::string>::const_iterator  b = temp.begin()
                                              ,  e = temp.end()
-      ; b != e
-      ; ++b
-      )
+      ; b != e ; ++b)
   {
     bool  val;
-    if( ! decode(val, *b) )
+    if(! decode(val, *b))
       return false;
     to.push_back(val);
   }
@@ -119,21 +117,19 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::encode( std::string & to, std::vector<bool> const& from )
+  edm::encode(std::string & to, std::vector<bool> const& from)
 {
   to = "{";
 
   std::string  converted;
-  for( std::vector<bool>::const_iterator b = from.begin()
+  for(std::vector<bool>::const_iterator b = from.begin()
                                        , e = from.end()
-     ; b != e
-     ; ++b
-     )
+     ; b != e ; ++b)
   {
-    if( ! encode(converted, *b) )
+    if(! encode(converted, *b))
       return false;
 
-    if( b != from.begin() ) 
+    if(b != from.begin()) 
       to += ",";
     to += converted;
   }
@@ -148,18 +144,18 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::decode( int & to, std::string const& from )
+  edm::decode(int & to, std::string const& from)
 {
   std::string::const_iterator  b = from.begin()
                             ,  e = from.end();
 
-  if( *b != '+' && *b != '-' )
+  if(*b != '+' && *b != '-')
     return false;
   int  sign = (*b == '+') ? +1 : -1;
 
   to = 0;
-  while( ++b != e )  {
-    if( ! std::isdigit(*b) )
+  while(++b != e)  {
+    if(! std::isdigit(*b))
       return false;
     to = 10 * to + (*b - '0');
   }
@@ -171,17 +167,17 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::encode( std::string & to, int from )
+  edm::encode(std::string & to, int from)
 {
   bool is_negative = (from < 0);
-  if( is_negative )
+  if(is_negative)
     from = - from;  // TODO: work around this for most negative integer
 
   to.clear();
   do  {
     to = static_cast<char>(from % 10 + '0') + to;
     from /= 10;
-  }  while( from > 0 );
+  }  while(from > 0);
   to = (is_negative ? '-' : '+') + to;
 
   return true;
@@ -193,21 +189,19 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::decode( std::vector<int> & to, std::string const& from )
+  edm::decode(std::vector<int> & to, std::string const& from)
 {
   std::vector<std::string> temp;
-  if( ! split(std::back_inserter(temp), from, '{', ',', '}') )
+  if(! split(std::back_inserter(temp), from, '{', ',', '}'))
     return false;
 
   to.clear();
-  for( std::vector<std::string>::const_iterator  b = temp.begin()
+  for(std::vector<std::string>::const_iterator  b = temp.begin()
                                              ,  e = temp.end()
-      ; b != e
-      ; ++b
-      )
+      ; b != e ; ++b)
   {
     int  val;
-    if( ! decode(val, *b) )
+    if(! decode(val, *b))
       return false;
     to.push_back(val);
   }
@@ -218,21 +212,19 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::encode( std::string & to, std::vector<int> const& from )
+  edm::encode(std::string & to, std::vector<int> const& from)
 {
   to = "{";
 
   std::string  converted;
-  for( std::vector<int>::const_iterator b = from.begin()
+  for(std::vector<int>::const_iterator b = from.begin()
                                       , e = from.end()
-     ; b != e
-     ; ++b
-     )
+     ; b != e ; ++b)
   {
-    if( ! encode(converted, *b) )
+    if(! encode(converted, *b))
       return false;
 
-    if( b != from.begin() ) 
+    if(b != from.begin()) 
       to += ",";
     to += converted;
   }
@@ -247,16 +239,16 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::decode( unsigned & to, std::string const& from )
+  edm::decode(unsigned & to, std::string const& from)
 {
   std::string::const_iterator  b = from.begin()
                             ,  e = from.end();
 
   to = 0u;
-  for( ; b != e; ++b )  {
-    if( *b == 'u' || *b == 'U' )
+  for(; b != e; ++b)  {
+    if(*b == 'u' || *b == 'U')
       return true;
-    if( ! std::isdigit(*b) )
+    if(! std::isdigit(*b))
       return false;
     to = 10u * to + (*b - '0');
   }
@@ -267,13 +259,13 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::encode( std::string & to, unsigned from )
+  edm::encode(std::string & to, unsigned from)
 {
   to.clear();
   do  {
     to = static_cast<char>(from % 10 + '0') + to;
     from /= 10u;
-  }  while( from > 0u );
+  }  while(from > 0u);
 
   return true;
 }  // encode from unsigned
@@ -284,21 +276,19 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::decode( std::vector<unsigned> & to, std::string const& from )
+  edm::decode(std::vector<unsigned> & to, std::string const& from)
 {
   std::vector<std::string> temp;
-  if( ! split(std::back_inserter(temp), from, '{', ',', '}') )
+  if(! split(std::back_inserter(temp), from, '{', ',', '}'))
     return false;
 
   to.clear();
-  for( std::vector<std::string>::const_iterator  b = temp.begin()
+  for(std::vector<std::string>::const_iterator  b = temp.begin()
                                              ,  e = temp.end()
-      ; b != e
-      ; ++b
-      )
+      ; b != e ; ++b)
   {
     unsigned  val;
-    if( ! decode(val, *b) )
+    if(! decode(val, *b))
       return false;
     to.push_back(val);
   }
@@ -309,21 +299,19 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::encode( std::string & to, std::vector<unsigned> const& from )
+  edm::encode(std::string & to, std::vector<unsigned> const& from)
 {
   to = "{";
 
   std::string  converted;
-  for( std::vector<unsigned>::const_iterator b = from.begin()
+  for(std::vector<unsigned>::const_iterator b = from.begin()
                                            , e = from.end()
-     ; b != e
-     ; ++b
-     )
+     ; b != e ; ++b)
   {
-    if( ! encode(converted, *b) )
+    if(! encode(converted, *b))
       return false;
 
-    if( b != from.begin() ) 
+    if(b != from.begin()) 
       to += ",";
     to += converted;
   }
@@ -338,15 +326,15 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::decode( double & to, std::string const& from )
+  edm::decode(double & to, std::string const& from)
 {
-  if( from == "NaN"  )
+  if(from == "NaN")
     to = std::numeric_limits<double>::quiet_NaN();
 
-  else if( from == "+inf" )
+  else if(from == "+inf")
     to = std::numeric_limits<double>::infinity();
 
-  else if( from == "-inf" )
+  else if(from == "-inf")
     to = - std::numeric_limits<double>::infinity();
 
   else  {
@@ -355,7 +343,7 @@ bool
       to = boost::lexical_cast<double>(from);
       // std::cerr << "to:" << to << std::endl;
     }
-    catch( boost::bad_lexical_cast & )  {
+    catch(boost::bad_lexical_cast &)  {
       return false;
     }
   }
@@ -366,7 +354,7 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::encode( std::string & to, double from )
+  edm::encode(std::string & to, double from)
 {
   std::ostringstream ost;
   ost.precision(std::numeric_limits<double>::digits10+1);
@@ -382,21 +370,19 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::decode( std::vector<double> & to, std::string const& from )
+  edm::decode(std::vector<double> & to, std::string const& from)
 {
   std::vector<std::string> temp;
-  if( ! split(std::back_inserter(temp), from, '{', ',', '}') )
+  if(! split(std::back_inserter(temp), from, '{', ',', '}'))
     return false;
 
   to.clear();
-  for( std::vector<std::string>::const_iterator  b = temp.begin()
+  for(std::vector<std::string>::const_iterator  b = temp.begin()
                                              ,  e = temp.end()
-      ; b != e
-      ; ++b
-      )
+      ; b != e ; ++b)
   {
     double  val;
-    if( ! decode(val, *b) )
+    if(! decode(val, *b))
       return false;
     to.push_back(val);
   }
@@ -407,21 +393,19 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::encode( std::string & to, std::vector<double> const& from )
+  edm::encode(std::string & to, std::vector<double> const& from)
 {
   to = "{";
 
   std::string  converted;
-  for( std::vector<double>::const_iterator b = from.begin()
+  for(std::vector<double>::const_iterator b = from.begin()
                                          , e = from.end()
-     ; b != e
-     ; ++b
-     )
+     ; b != e ; ++b)
   {
-    if( ! encode(converted, *b) )
+    if(! encode(converted, *b))
       return false;
 
-    if( b != from.begin() ) 
+    if(b != from.begin()) 
       to += ",";
     to += converted;
   }
@@ -436,7 +420,7 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::decode( std::string & to, std::string const& from )
+  edm::decode(std::string & to, std::string const& from)
 {
   /*std::cerr << "Decoding: " << from << '\n'; //DEBUG*/
   std::string::const_iterator  b = from.begin()
@@ -444,12 +428,10 @@ bool
 
   to = "";
   char  c = '\0';
-  for( bool  even_pos = true
-     ;  b != e
-     ; ++b, even_pos = ! even_pos
-     )
+  for(bool  even_pos = true
+     ;  b != e ; ++b, even_pos = ! even_pos)
   {
-    if( even_pos )  {
+    if(even_pos)  {
       /*std::cerr << "Even: |"
                 << *b
                 << "|   giving "
@@ -464,7 +446,7 @@ bool
                 << from_hex(*b)
                 << "\n"; //DEBUG*/
       c = static_cast<char>(c * 16 + from_hex(*b));
-      //      if( std::isalnum(c) )  {
+      //      if(std::isalnum(c))  {
         /*std::cerr << "Ans:  |" << c << "|\n"; //DEBUG*/
         to += c;
 	//}
@@ -482,7 +464,7 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::encode( std::string & to, std::string const& from )
+  edm::encode(std::string & to, std::string const& from)
 {
   std::string::const_iterator  b = from.begin()
                             ,  e = from.end();
@@ -496,11 +478,11 @@ bool
   escape_state  state = NONE;
   int code = 0;
   to = "";
-  for( ; b != e; ++b )  {
+  for(; b != e; ++b)  {
     /*std::cerr << "State: " << state << "; char = " << *b << '\n'; //DEBUG*/
     switch(state)  {
       case NONE:  {
-        if( *b == '\\' )  state = BACKSLASH;
+        if(*b == '\\')  state = BACKSLASH;
         else              to += to_hex_rep(*b);
         /*std::cerr << "To: |" << to << "|\n"; //DEBUG*/
         break;
@@ -593,21 +575,19 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::decode( std::vector<std::string> & to, std::string const& from )
+  edm::decode(std::vector<std::string> & to, std::string const& from)
 {
   std::vector<std::string> temp;
-  if( ! split(std::back_inserter(temp), from, '{', ',', '}') )
+  if(! split(std::back_inserter(temp), from, '{', ',', '}'))
     return false;
 
   to.clear();
-  for( std::vector<std::string>::const_iterator  b = temp.begin()
+  for(std::vector<std::string>::const_iterator  b = temp.begin()
                                              ,  e = temp.end()
-      ; b != e
-      ; ++b
-      )
+      ; b != e ; ++b)
   {
     std::string  val;
-    if( ! decode(val, *b) )
+    if(! decode(val, *b))
       return false;
     to.push_back(val);
   }
@@ -618,21 +598,19 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::encode( std::string & to, std::vector<std::string> const& from )
+  edm::encode(std::string & to, std::vector<std::string> const& from)
 {
   to = "{";
 
   std::string  converted;
-  for( std::vector<std::string>::const_iterator b = from.begin()
+  for(std::vector<std::string>::const_iterator b = from.begin()
                                               , e = from.end()
-     ; b != e
-     ; ++b
-     )
+     ; b != e ; ++b)
   {
-    if( ! encode(converted, *b) )
+    if(! encode(converted, *b))
       return false;
 
-    if( b != from.begin() ) 
+    if(b != from.begin()) 
       to += ",";
     to += converted;
   }
@@ -647,7 +625,7 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::decode( ParameterSet & to, std::string const& from )
+  edm::decode(ParameterSet & to, std::string const& from)
 {
   to = ParameterSet(from);
   return true;
@@ -656,7 +634,7 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::encode( std::string & to, ParameterSet const& from )
+  edm::encode(std::string & to, ParameterSet const& from)
 {
   to = from.toString();
   return true;
@@ -668,21 +646,19 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::decode( std::vector<ParameterSet> & to, std::string const& from )
+  edm::decode(std::vector<ParameterSet> & to, std::string const& from)
 {
   std::vector<std::string> temp;
-  if( ! split(std::back_inserter(temp), from, '{', ',', '}') )
+  if(! split(std::back_inserter(temp), from, '{', ',', '}'))
     return false;
 
   to.clear();
-  for( std::vector<std::string>::const_iterator  b = temp.begin()
+  for(std::vector<std::string>::const_iterator  b = temp.begin()
                                               ,  e = temp.end()
-      ; b != e
-      ; ++b
-      )
+      ; b != e ; ++b)
   {
     ParameterSet val;
-    if( ! decode(val, *b) )
+    if(! decode(val, *b))
       return false;
     to.push_back(val);
   }
@@ -693,21 +669,19 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::encode( std::string & to, std::vector<ParameterSet> const& from )
+  edm::encode(std::string & to, std::vector<ParameterSet> const& from)
 {
   to = "{";
 
   std::string  converted;
-  for( std::vector<ParameterSet>::const_iterator b = from.begin()
+  for(std::vector<ParameterSet>::const_iterator b = from.begin()
                                        , e = from.end()
-     ; b != e
-     ; ++b
-     )
+     ; b != e ; ++b)
   {
-    if( ! encode(converted, *b) )
+    if(! encode(converted, *b))
       return false;
 
-    if( b != from.begin() ) 
+    if(b != from.begin()) 
       to += ",";
     to += converted;
   }

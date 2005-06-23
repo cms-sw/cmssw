@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Fri Apr  1 14:47:35 EST 2005
-// $Id: ESHandle.h,v 1.1 2005/04/02 14:18:01 chrjones Exp $
+// $Id: ESHandle.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
 //
 
 // system include files
@@ -34,7 +34,7 @@ class ESHandle
       typedef T value_type;
    
       ESHandle() : data_(0) {}
-      ESHandle(const T* iData ) : data_(iData) {}
+      ESHandle(const T* iData) : data_(iData) {}
       //virtual ~ESHandle();
 
       // ---------- const member functions ---------------------
@@ -46,14 +46,14 @@ class ESHandle
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
-      void swap( ESHandle<T>& iOther) {
-         std::swap(data_, iOther.data_ );
+      void swap(ESHandle<T>& iOther) {
+         std::swap(data_, iOther.data_);
       }
       
    private:
-      //ESHandle( const ESHandle& ); // stop default
+      //ESHandle(const ESHandle&); // stop default
 
-      //const ESHandle& operator=( const ESHandle& ); // stop default
+      //const ESHandle& operator=(const ESHandle&); // stop default
 
       // ---------- member data --------------------------------
          const T* data_; 

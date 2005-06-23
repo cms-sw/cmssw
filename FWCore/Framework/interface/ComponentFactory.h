@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 15:21:05 EDT 2005
-// $Id: ComponentFactory.h,v 1.3 2005/06/14 23:15:13 wmtan Exp $
+// $Id: ComponentFactory.h,v 1.4 2005/06/18 02:18:10 wmtan Exp $
 //
 
 // system include files
@@ -40,17 +40,17 @@ class ComponentFactory : public seal::PluginFactory< ComponentMakerBase<T>* ()>
 
    public:
    ComponentFactory() : seal::PluginFactory<ComponentMakerBase<T>* () >(
-                                                                        T::name() ) {}
+                                                                        T::name()) {}
    //~ComponentFactory();
 
    typedef  ComponentMakerBase<T> Maker;
    typedef std::map<std::string, boost::shared_ptr<Maker> > MakerMap;
       // ---------- const member functions ---------------------
-      void addTo( EventSetupProvider& iProvider,
+      void addTo(EventSetupProvider& iProvider,
                   edm::ParameterSet const& iConfiguration,
                   std::string const& iProcessName,
                   unsigned long iVersion,
-                  unsigned long iPass ) const
+                  unsigned long iPass) const
       {
          using namespace std;
          string modtype = iConfiguration.template getParameter<string>("module_type");
@@ -86,9 +86,9 @@ class ComponentFactory : public seal::PluginFactory< ComponentMakerBase<T>* ()>
 
    private:
       
-      ComponentFactory( const ComponentFactory& ); // stop default
+      ComponentFactory(const ComponentFactory&); // stop default
 
-      const ComponentFactory& operator=( const ComponentFactory& ); // stop default
+      const ComponentFactory& operator=(const ComponentFactory&); // stop default
 
       // ---------- member data --------------------------------
       mutable MakerMap makers_;

@@ -30,8 +30,7 @@ namespace edm {
 
   std::auto_ptr<InputService>
   InputServiceFactory::makeInputService(ParameterSet const& conf,
-					InputServiceDescription const& desc
-					) const
+					InputServiceDescription const& desc) const
     
   {
     string modtype = conf.getParameter<string>("module_type");

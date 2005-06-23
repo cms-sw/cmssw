@@ -50,16 +50,16 @@ class EventSetup
          const T& get() const {
             //NOTE: this will catch the case where T does not inherit from EventSetupRecord
             //  HOWEVER the error message under gcc 3.x is awful
-            BOOST_STATIC_ASSERT( (boost::is_base_and_derived<edm::eventsetup::EventSetupRecord, T>::value));
+            BOOST_STATIC_ASSERT((boost::is_base_and_derived<edm::eventsetup::EventSetupRecord, T>::value));
             const T* value = 0;
             eventSetupGetImplementation(*this, value);
             //NOTE: by construction, eventSetupGetImplementation should thrown an exception rather than return a null value
-            assert(0 != value );
+            assert(0 != value);
             return *value;
          }
       /** can directly access data if data_default_record_trait<> is defined for this data type **/
       template< typename T>
-         void getData( T& iHolder ) const {
+         void getData(T& iHolder) const {
             typedef typename T::value_type data_type;
             typedef typename eventsetup::data_default_record_trait<data_type>::type RecordT;
             const RecordT& rec = this->get<RecordT>();
@@ -68,21 +68,21 @@ class EventSetup
       
       const Timestamp& timestamp() const { return timestamp_;}
 
-      const eventsetup::EventSetupRecord* find( const eventsetup::EventSetupRecordKey& ) const;
+      const eventsetup::EventSetupRecord* find(const eventsetup::EventSetupRecordKey&) const;
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
       template< typename T>
          void
-         getAvoidCompilerBug(const T*& iValue ) const {
-            iValue = &( get<T>() );
+         getAvoidCompilerBug(const T*& iValue) const {
+            iValue = &(get<T>());
          }
    protected:
       //Only called by EventSetupProvider
-      void setTimestamp( const Timestamp& );
+      void setTimestamp(const Timestamp&);
 
       template<typename T>
-         void add( const T& iRecord) {
+         void add(const T& iRecord) {
             insert(eventsetup::heterocontainer::makeKey<T, eventsetup::EventSetupRecordKey>(), &iRecord);
          }
       
@@ -91,12 +91,12 @@ class EventSetup
    private:
       EventSetup();
       
-      EventSetup( EventSetup const& ); // stop default
+      EventSetup(EventSetup const&); // stop default
 
-      EventSetup const& operator=( EventSetup const& ); // stop default
+      EventSetup const& operator=(EventSetup const&); // stop default
 
       void insert(const eventsetup::EventSetupRecordKey&,
-                  const eventsetup::EventSetupRecord* );
+                  const eventsetup::EventSetupRecord*);
 
       // ---------- member data --------------------------------
       Timestamp timestamp_;

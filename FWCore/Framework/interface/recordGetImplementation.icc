@@ -11,7 +11,7 @@
 //
 // Author:      Chris Jones
 // Created:     Fri Apr  1 15:29:14 EST 2005
-// $Id: recordGetImplementation.icc,v 1.1 2005/05/29 02:29:53 wmtan Exp $
+// $Id: recordGetImplementation.icc,v 1.2 2005/06/09 02:20:00 wmtan Exp $
 //
 
 // system include files
@@ -25,28 +25,28 @@
 namespace edm {
    namespace eventsetup {
 template < typename RecordT, typename T > 
-void recordGetImplementation( const RecordT& iRecord ,
+void recordGetImplementation(const RecordT& iRecord ,
                               T const *& iData ,
-                              const char* iName ) {
+                              const char* iName) {
    DataKey key(DataKey::makeTypeTag<T>(),
                iName,
                DataKey::kDoNotCopyMemory);
    
    const DataProxyTemplate<RecordT, T>* proxy = 
-      static_cast<const DataProxyTemplate<RecordT, T>* >( iRecord.find(key) );
+      static_cast<const DataProxyTemplate<RecordT, T>* >(iRecord.find(key));
    
    const T* hold = 0;
-   if( 0 != proxy ) {
+   if(0 != proxy) {
       // add data key to the stack
       //DAExceptionStackEntry stackEntry(d_key);
       
-      hold = proxy->get( iRecord, key );
+      hold = proxy->get(iRecord, key);
    } else {
       // add durable data key to the stack in order to catch it
       //DAExceptionStackEntry stackEntry(d_key,DAExceptionStackEntry::kUseDurable)
       ;
       
-      throw NoProxyException<T>(iRecord, key );
+      throw NoProxyException<T>(iRecord, key);
    }
    iData = hold;
 }

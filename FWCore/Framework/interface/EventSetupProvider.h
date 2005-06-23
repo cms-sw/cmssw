@@ -48,37 +48,37 @@ class EventSetupProvider
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
-      EventSetup const& eventSetupForInstance( const Timestamp& );
+      EventSetup const& eventSetupForInstance(const Timestamp&);
      
       //called by specializations of EventSetupRecordProviders
       template<class T>
-         void addRecordToEventSetup( T& iRecord) {
-            iRecord.setEventSetup( &eventSetup_ );
+         void addRecordToEventSetup(T& iRecord) {
+            iRecord.setEventSetup(&eventSetup_);
             eventSetup_.add(iRecord);
          }
       
-      void add( boost::shared_ptr<DataProxyProvider> );
-      void add( boost::shared_ptr<EventSetupRecordIntervalFinder> );
+      void add(boost::shared_ptr<DataProxyProvider>);
+      void add(boost::shared_ptr<EventSetupRecordIntervalFinder>);
       
       void finishConfiguration();
    protected:
 
       template <class T>
-         void insert( std::auto_ptr<T> iRecordProvider) {
-            std::auto_ptr<EventSetupRecordProvider> temp( iRecordProvider.release() );
-            insert( eventsetup::heterocontainer::makeKey<
+         void insert(std::auto_ptr<T> iRecordProvider) {
+            std::auto_ptr<EventSetupRecordProvider> temp(iRecordProvider.release());
+            insert(eventsetup::heterocontainer::makeKey<
                     typename T::RecordType, 
                        eventsetup::EventSetupRecordKey>(),
-                    temp );
+                    temp);
          }
       
    private:
-      EventSetupProvider( const EventSetupProvider& ); // stop default
+      EventSetupProvider(const EventSetupProvider&); // stop default
 
-      const EventSetupProvider& operator=( const EventSetupProvider& ); // stop default
+      const EventSetupProvider& operator=(const EventSetupProvider&); // stop default
 
 
-      void insert( const EventSetupRecordKey&, std::auto_ptr<EventSetupRecordProvider> );
+      void insert(const EventSetupRecordKey&, std::auto_ptr<EventSetupRecordProvider>);
       
       // ---------- member data --------------------------------
       EventSetup eventSetup_;

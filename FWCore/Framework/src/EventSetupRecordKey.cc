@@ -33,7 +33,7 @@ EventSetupRecordKey::EventSetupRecordKey()
 {
 }
 
-// EventSetupRecordKey::EventSetupRecordKey( const EventSetupRecordKey& rhs )
+// EventSetupRecordKey::EventSetupRecordKey(const EventSetupRecordKey& rhs)
 // {
 //    // do actual copying here;
 // }
@@ -45,11 +45,11 @@ EventSetupRecordKey::EventSetupRecordKey()
 //
 // assignment operators
 //
-// const EventSetupRecordKey& EventSetupRecordKey::operator=( const EventSetupRecordKey& rhs )
+// const EventSetupRecordKey& EventSetupRecordKey::operator=(const EventSetupRecordKey& rhs)
 // {
 //   //An exception safe implementation is
 //   EventSetupRecordKey temp(rhs);
-//   swap( rhs );
+//   swap(rhs);
 //
 //   return *this;
 // }

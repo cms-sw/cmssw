@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Thu Apr  7 21:50:36 CDT 2005
-// $Id: ProxyFactoryBase.h,v 1.1 2005/04/18 20:16:16 chrjones Exp $
+// $Id: ProxyFactoryBase.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
 //
 
 // system include files
@@ -45,9 +45,9 @@ class ProxyFactoryBase
       // ---------- member functions ---------------------------
 
    private:
-      ProxyFactoryBase( const ProxyFactoryBase& ); // stop default
+      ProxyFactoryBase(const ProxyFactoryBase&); // stop default
 
-      const ProxyFactoryBase& operator=( const ProxyFactoryBase& ); // stop default
+      const ProxyFactoryBase& operator=(const ProxyFactoryBase&); // stop default
 
       // ---------- member data --------------------------------
 

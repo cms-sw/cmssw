@@ -47,7 +47,7 @@ template<class T>
       DependentEventSetupRecordProviderTemplate<T>,
       EventSetupRecordProvider >::type    BaseType;
    
-   EventSetupRecordProviderTemplate() : BaseType(EventSetupRecordKey::makeKey<T>() ) {}
+   EventSetupRecordProviderTemplate() : BaseType(EventSetupRecordKey::makeKey<T>()) {}
       //virtual ~EventSetupRecordProviderTemplate();
 
       // ---------- const member functions ---------------------
@@ -55,27 +55,27 @@ template<class T>
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
-   virtual void addRecordTo(EventSetupProvider& iEventSetupProvider ) {
-      record_.set( this->validityInterval() );
-      iEventSetupProvider.addRecordToEventSetup( record_ );
+   virtual void addRecordTo(EventSetupProvider& iEventSetupProvider) {
+      record_.set(this->validityInterval());
+      iEventSetupProvider.addRecordToEventSetup(record_);
    }
    
 protected:
-      virtual void addProxiesToRecord( boost::shared_ptr<DataProxyProvider> iProvider) {
+      virtual void addProxiesToRecord(boost::shared_ptr<DataProxyProvider> iProvider) {
          typedef DataProxyProvider::KeyedProxies ProxyList ;
 
-         const ProxyList& keyedProxies( iProvider->keyedProxies( key() ) ) ;
-         ProxyList::const_iterator finishedProxyList( keyedProxies.end() ) ;
-         for ( ProxyList::const_iterator keyedProxy( keyedProxies.begin() ) ;
+         const ProxyList& keyedProxies(iProvider->keyedProxies(key())) ;
+         ProxyList::const_iterator finishedProxyList(keyedProxies.end()) ;
+         for (ProxyList::const_iterator keyedProxy(keyedProxies.begin()) ;
                keyedProxy != finishedProxyList ;
-               ++keyedProxy ) {
-            record_.add( (*keyedProxy).first , (*keyedProxy).second.get() ) ;
+               ++keyedProxy) {
+            record_.add((*keyedProxy).first , (*keyedProxy).second.get()) ;
          }
       }
    private:
-      EventSetupRecordProviderTemplate( const EventSetupRecordProviderTemplate& ); // stop default
+      EventSetupRecordProviderTemplate(const EventSetupRecordProviderTemplate&); // stop default
 
-      const EventSetupRecordProviderTemplate& operator=( const EventSetupRecordProviderTemplate& ); // stop default
+      const EventSetupRecordProviderTemplate& operator=(const EventSetupRecordProviderTemplate&); // stop default
 
       // ---------- member data --------------------------------
       T record_;

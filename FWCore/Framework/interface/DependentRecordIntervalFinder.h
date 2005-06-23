@@ -18,7 +18,7 @@
 //
 // Author:      Chris Jones
 // Created:     Sat Apr 30 19:36:59 EDT 2005
-// $Id: DependentRecordIntervalFinder.h,v 1.1 2005/05/03 19:33:37 chrjones Exp $
+// $Id: DependentRecordIntervalFinder.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
 //
 
 // system include files
@@ -37,7 +37,7 @@ class DependentRecordIntervalFinder : public EventSetupRecordIntervalFinder
 {
 
    public:
-      DependentRecordIntervalFinder(const EventSetupRecordKey& );
+      DependentRecordIntervalFinder(const EventSetupRecordKey&);
       virtual ~DependentRecordIntervalFinder();
 
       // ---------- const member functions ---------------------
@@ -45,17 +45,17 @@ class DependentRecordIntervalFinder : public EventSetupRecordIntervalFinder
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
-      void addProviderWeAreDependentOn( boost::shared_ptr<EventSetupRecordProvider> );
+      void addProviderWeAreDependentOn(boost::shared_ptr<EventSetupRecordProvider>);
       
    protected:
-      virtual void setIntervalFor( const EventSetupRecordKey&,
+      virtual void setIntervalFor(const EventSetupRecordKey&,
                                    const Timestamp& , 
-                                   ValidityInterval& );
+                                   ValidityInterval&);
       
    private:
-      DependentRecordIntervalFinder( const DependentRecordIntervalFinder& ); // stop default
+      DependentRecordIntervalFinder(const DependentRecordIntervalFinder&); // stop default
 
-      const DependentRecordIntervalFinder& operator=( const DependentRecordIntervalFinder& ); // stop default
+      const DependentRecordIntervalFinder& operator=(const DependentRecordIntervalFinder&); // stop default
 
       // ---------- member data --------------------------------
       typedef std::vector< boost::shared_ptr<EventSetupRecordProvider> > Providers;

@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Thu Apr  7 21:36:15 CDT 2005
-// $Id: ProxyFactoryProducer.cc,v 1.1 2005/04/18 20:16:08 chrjones Exp $
+// $Id: ProxyFactoryProducer.cc,v 1.1 2005/05/29 02:29:54 wmtan Exp $
 //
 
 // system include files
@@ -38,7 +38,7 @@ ProxyFactoryProducer::ProxyFactoryProducer()
 {
 }
 
-// ProxyFactoryProducer::ProxyFactoryProducer( const ProxyFactoryProducer& rhs )
+// ProxyFactoryProducer::ProxyFactoryProducer(const ProxyFactoryProducer& rhs)
 // {
 //    // do actual copying here;
 // }
@@ -50,11 +50,11 @@ ProxyFactoryProducer::~ProxyFactoryProducer()
 //
 // assignment operators
 //
-// const ProxyFactoryProducer& ProxyFactoryProducer::operator=( const ProxyFactoryProducer& rhs )
+// const ProxyFactoryProducer& ProxyFactoryProducer::operator=(const ProxyFactoryProducer& rhs)
 // {
 //   //An exception safe implementation is
 //   ProxyFactoryProducer temp(rhs);
-//   swap( rhs );
+//   swap(rhs);
 //
 //   return *this;
 // }
@@ -63,47 +63,45 @@ ProxyFactoryProducer::~ProxyFactoryProducer()
 // member functions
 //
 void
-ProxyFactoryProducer::registerProxies( const EventSetupRecordKey& iRecord,
-                                       KeyedProxies& iProxies )
+ProxyFactoryProducer::registerProxies(const EventSetupRecordKey& iRecord,
+                                       KeyedProxies& iProxies)
 {
    typedef Record2Factories::iterator Iterator;
-   std::pair< Iterator, Iterator > range = record2Factories_.equal_range( iRecord );
-   for( Iterator it = range.first; it != range.second; ++it ) {
+   std::pair< Iterator, Iterator > range = record2Factories_.equal_range(iRecord);
+   for(Iterator it = range.first; it != range.second; ++it) {
       
-      boost::shared_ptr<DataProxy> proxy ( it->second.factory_->makeProxy().release() );
-      if( 0 != proxy.get() ) {
-         iProxies.push_back( KeyedProxies::value_type( (*it).second.key_,
-                                         proxy )
-                             );
+      boost::shared_ptr<DataProxy> proxy (it->second.factory_->makeProxy().release());
+      if(0 != proxy.get()) {
+         iProxies.push_back(KeyedProxies::value_type((*it).second.key_,
+                                         proxy));
       }
    }
 }
 
 void
-ProxyFactoryProducer::registerFactoryWithKey( const EventSetupRecordKey& iRecord ,
-                                              std::auto_ptr<ProxyFactoryBase>& iFactory )
+ProxyFactoryProducer::registerFactoryWithKey(const EventSetupRecordKey& iRecord ,
+                                              std::auto_ptr<ProxyFactoryBase>& iFactory)
 {
-   if( 0 == iFactory.get() ) {
-      assert( false && "Factor pointer was null" );
-      ::exit( 1 );
+   if(0 == iFactory.get()) {
+      assert(false && "Factor pointer was null");
+      ::exit(1);
    }
    
-   usingRecordWithKey( iRecord );
+   usingRecordWithKey(iRecord);
    
-   boost::shared_ptr<ProxyFactoryBase> temp( iFactory.release() );
-   FactoryInfo info( temp->makeKey(""),
-                     temp );
+   boost::shared_ptr<ProxyFactoryBase> temp(iFactory.release());
+   FactoryInfo info(temp->makeKey(""),
+                     temp);
    
-   record2Factories_.insert( Record2Factories::value_type( iRecord,
-                                                            info ) 
-                              );
+   record2Factories_.insert(Record2Factories::value_type(iRecord,
+                                                            info));
 }
 
 void 
-ProxyFactoryProducer::newInterval( const EventSetupRecordKey& iRecordType,
-                                   const ValidityInterval& iInterval )
+ProxyFactoryProducer::newInterval(const EventSetupRecordKey& iRecordType,
+                                   const ValidityInterval& iInterval)
 {
-   invalidateProxies( iRecordType );
+   invalidateProxies(iRecordType);
 }
 
 //

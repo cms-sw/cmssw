@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Sat Apr 30 19:37:22 EDT 2005
-// $Id: DependentRecordIntervalFinder.cc,v 1.1 2005/05/03 19:33:40 chrjones Exp $
+// $Id: DependentRecordIntervalFinder.cc,v 1.1 2005/05/29 02:29:53 wmtan Exp $
 //
 
 // system include files
@@ -30,12 +30,12 @@ namespace edm {
 //
 // constructors and destructor
 //
-DependentRecordIntervalFinder::DependentRecordIntervalFinder(const EventSetupRecordKey& iKey )
+DependentRecordIntervalFinder::DependentRecordIntervalFinder(const EventSetupRecordKey& iKey)
 {
    findingRecordWithKey(iKey);
 }
 
-// DependentRecordIntervalFinder::DependentRecordIntervalFinder( const DependentRecordIntervalFinder& rhs )
+// DependentRecordIntervalFinder::DependentRecordIntervalFinder(const DependentRecordIntervalFinder& rhs)
 // {
 //    // do actual copying here;
 // }
@@ -47,11 +47,11 @@ DependentRecordIntervalFinder::~DependentRecordIntervalFinder()
 //
 // assignment operators
 //
-// const DependentRecordIntervalFinder& DependentRecordIntervalFinder::operator=( const DependentRecordIntervalFinder& rhs )
+// const DependentRecordIntervalFinder& DependentRecordIntervalFinder::operator=(const DependentRecordIntervalFinder& rhs)
 // {
 //   //An exception safe implementation is
 //   DependentRecordIntervalFinder temp(rhs);
-//   swap( rhs );
+//   swap(rhs);
 //
 //   return *this;
 // }
@@ -60,37 +60,37 @@ DependentRecordIntervalFinder::~DependentRecordIntervalFinder()
 // member functions
 //
 void 
-DependentRecordIntervalFinder::addProviderWeAreDependentOn( boost::shared_ptr<EventSetupRecordProvider> iProvider )
+DependentRecordIntervalFinder::addProviderWeAreDependentOn(boost::shared_ptr<EventSetupRecordProvider> iProvider)
 {
-   providers_.push_back(iProvider );
+   providers_.push_back(iProvider);
 }
 
 void 
-DependentRecordIntervalFinder::setIntervalFor( const EventSetupRecordKey&,
+DependentRecordIntervalFinder::setIntervalFor(const EventSetupRecordKey&,
                                                const Timestamp& iTime, 
                                                ValidityInterval& oInterval)
 {
    //I am assuming that an invalidTime is always less then the first valid time
-   assert( Timestamp::invalidTimestamp() < Timestamp::beginOfTime() );
-   if( providers_.size() == 0 ) {
+   assert(Timestamp::invalidTimestamp() < Timestamp::beginOfTime());
+   if(providers_.size() == 0) {
       oInterval = ValidityInterval::invalidInterval();
       return;
    }
-   ValidityInterval newInterval( Timestamp::beginOfTime(), Timestamp::endOfTime() );
+   ValidityInterval newInterval(Timestamp::beginOfTime(), Timestamp::endOfTime());
    for(Providers::iterator itProvider = providers_.begin();
        itProvider != providers_.end();
-       ++itProvider ) {
-      if( ! (*itProvider)->setValidityIntervalFor( iTime ) ) {
+       ++itProvider) {
+      if(! (*itProvider)->setValidityIntervalFor(iTime)) {
          //If one Finder has no valid time, then this record is also invalid for this time
          newInterval = ValidityInterval::invalidInterval();
          break;
       } else {
          ValidityInterval providerInterval = (*itProvider)->validityInterval();
-         if( newInterval.first() < providerInterval.first() ) {
-            newInterval.setFirst( providerInterval.first() );
+         if(newInterval.first() < providerInterval.first()) {
+            newInterval.setFirst(providerInterval.first());
          }
-         if( newInterval.last() > providerInterval.last() ) {
-            newInterval.setLast( providerInterval.last() );
+         if(newInterval.last() > providerInterval.last()) {
+            newInterval.setLast(providerInterval.last());
          }
       }
    }

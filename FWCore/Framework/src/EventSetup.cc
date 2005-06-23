@@ -33,7 +33,7 @@ namespace edm {
 {
 }
 
-// EventSetup::EventSetup( EventSetup const& rhs )
+// EventSetup::EventSetup(EventSetup const& rhs)
 // {
 //    // do actual copying here;
 // }
@@ -45,11 +45,11 @@ EventSetup::~EventSetup()
 //
 // assignment operators
 //
-// EventSetup const& EventSetup::operator=( EventSetup const& rhs )
+// EventSetup const& EventSetup::operator=(EventSetup const& rhs)
 // {
 //   //An exception safe implementation is
 //   EventSetup temp(rhs);
-//   swap( rhs );
+//   swap(rhs);
 //
 //   return *this;
 // }
@@ -58,7 +58,7 @@ EventSetup::~EventSetup()
 // member functions
 //
 void
-EventSetup::setTimestamp(const Timestamp& iTime ) {
+EventSetup::setTimestamp(const Timestamp& iTime) {
    //will ultimately build our list of records
    timestamp_ = iTime;
 }
@@ -79,11 +79,11 @@ EventSetup::clear()
 // const member functions
 //
 const eventsetup::EventSetupRecord* 
-EventSetup::find( const eventsetup::EventSetupRecordKey& iKey ) const
+EventSetup::find(const eventsetup::EventSetupRecordKey& iKey) const
 {
    std::map<eventsetup::EventSetupRecordKey, eventsetup::EventSetupRecord const *>::const_iterator itFind
-   = recordMap_.find( iKey );
-   if( itFind == recordMap_.end() ) {
+   = recordMap_.find(iKey);
+   if(itFind == recordMap_.end()) {
       return 0;
    }
    return itFind->second;

@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Thu Mar 31 14:31:03 EST 2005
-// $Id: DataKey.h,v 1.2 2005/04/04 20:38:02 chrjones Exp $
+// $Id: DataKey.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
 //
 
 // system include files
@@ -35,25 +35,25 @@ class DataKey
    enum DoNotCopyMemory { kDoNotCopyMemory };
    
       DataKey();
-      DataKey( const TypeTag& iType, 
-               const IdTags& iId ) :
+      DataKey(const TypeTag& iType, 
+               const IdTags& iId) :
          type_(iType),
          name_(iId) { makeCopyOfMemory();}
 
-      DataKey( const TypeTag& iType, 
+      DataKey(const TypeTag& iType, 
                const IdTags& iId,
-               DoNotCopyMemory ) :
+               DoNotCopyMemory) :
          type_(iType),
          name_(iId),
          ownMemory_(false) {}
       
-      DataKey( const DataKey& iRHS) : 
+      DataKey(const DataKey& iRHS) : 
          type_(iRHS.type_),
          name_(iRHS.name_) {
             makeCopyOfMemory();
          }
       
-      const DataKey& operator=( const DataKey& ); // stop default
+      const DataKey& operator=(const DataKey&); // stop default
       
       ~DataKey() { releaseMemory(); }
       
@@ -61,8 +61,8 @@ class DataKey
       const TypeTag& type() const { return type_; }
       const NameTag& name() const { return name_; }
       
-      bool operator==( const DataKey& iRHS ) const;
-      bool operator<( const DataKey& iRHS) const;
+      bool operator==(const DataKey& iRHS) const;
+      bool operator<(const DataKey& iRHS) const;
       
       // ---------- static member functions --------------------
       template<class T>
@@ -75,13 +75,13 @@ class DataKey
    private:
       void makeCopyOfMemory();
       void releaseMemory() {
-         if( ownMemory_ ) {
+         if(ownMemory_) {
             deleteMemory();
             ownMemory_ = false;
          }
       }
       void deleteMemory();
-      void swap(DataKey& );
+      void swap(DataKey&);
       
       // ---------- member data --------------------------------
       TypeTag type_;

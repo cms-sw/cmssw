@@ -24,9 +24,9 @@
 namespace edm {
    namespace eventsetup {
       template< class T>
-      void eventSetupGetImplementation(EventSetup const& iEventSetup, T const*& iValue ) {
-         T const* temp = heterocontainer::find<EventSetupRecordKey, T const>( iEventSetup );
-         if( 0 == temp ) {
+      void eventSetupGetImplementation(EventSetup const& iEventSetup, T const*& iValue) {
+         T const* temp = heterocontainer::find<EventSetupRecordKey, T const>(iEventSetup);
+         if(0 == temp) {
             throw NoRecordException<T>();
          }
          iValue = temp;

@@ -17,7 +17,7 @@
   from the EventSetup
 
   ESHandle<MyData> pMyData;
-  eventSetup.getData( pMyData );
+  eventSetup.getData(pMyData);
 
   which is just a short hand for
 
@@ -38,7 +38,7 @@
 //
 // Author:      Chris Jones
 // Created:     Thu Apr  7 07:59:56 CDT 2005
-// $Id: data_default_record_trait.h,v 1.1 2005/04/08 00:46:20 chrjones Exp $
+// $Id: data_default_record_trait.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
 //
 
 // system include files

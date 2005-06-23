@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Thu May 26 13:37:48 EDT 2005
-// $Id: DummyProxyProvider.h,v 1.1 2005/05/26 20:58:38 chrjones Exp $
+// $Id: DummyProxyProvider.h,v 1.1 2005/05/29 02:29:54 wmtan Exp $
 //
 
 // system include files
@@ -34,11 +34,11 @@ namespace edm {
       namespace test {
 class WorkingDummyProxy : public edm::eventsetup::DataProxyTemplate<DummyRecord, DummyData> {
 public:
-   WorkingDummyProxy( const DummyData* iDummy ) : data_(iDummy) {}
+   WorkingDummyProxy(const DummyData* iDummy) : data_(iDummy) {}
    
 protected:
    
-   const value_type* make( const record_type&, const DataKey&) {
+   const value_type* make(const record_type&, const DataKey&) {
       return data_ ;
    }
    void invalidateCache() {
@@ -54,15 +54,15 @@ public:
       //std::cout <<"constructed provider"<<std::endl;
       usingRecord<DummyRecord>();
    }
-   void newInterval( const eventsetup::EventSetupRecordKey& iRecordType,
-                     const ValidityInterval& iInterval ) {
+   void newInterval(const eventsetup::EventSetupRecordKey& iRecordType,
+                     const ValidityInterval& iInterval) {
       //do nothing
    }
 protected:
-   void registerProxies( const eventsetup::EventSetupRecordKey&, KeyedProxies& iProxies ) {
+   void registerProxies(const eventsetup::EventSetupRecordKey&, KeyedProxies& iProxies) {
       //std::cout <<"registered proxy"<<std::endl;
       
-      boost::shared_ptr<WorkingDummyProxy> pProxy( new WorkingDummyProxy(&dummy_) );
+      boost::shared_ptr<WorkingDummyProxy> pProxy(new WorkingDummyProxy(&dummy_));
       insertProxy(iProxies, pProxy);
    }
    

@@ -23,8 +23,7 @@ namespace edm {
 
     std::auto_ptr<InputService>
       makeInputService(ParameterSet const&,
-		       InputServiceDescription const&
-		       ) const;
+		       InputServiceDescription const&) const;
     
 
   private:

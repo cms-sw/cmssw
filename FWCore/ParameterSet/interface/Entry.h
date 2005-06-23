@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: Entry.h,v 1.1 2005/05/29 02:29:54 wmtan Exp $
+// $Id: Entry.h,v 1.2 2005/06/10 03:55:27 wmtan Exp $
 //
 // interface to edm::Entry and related types
 // ----------------------------------------------------------------------
@@ -30,8 +30,8 @@ namespace edm {
   
   class EntryError : public std::runtime_error {
   public:
-    explicit EntryError( std::string const& mesg )
-      : std::runtime_error( mesg ) {}
+    explicit EntryError(std::string const& mesg)
+      : std::runtime_error(mesg) {}
   
     virtual ~EntryError() throw() {}
   
@@ -42,8 +42,8 @@ namespace edm {
   
   class ValueError : public std::runtime_error {
   public:
-    explicit ValueError( std::string const& mesg )
-      : std::runtime_error( mesg ) {}
+    explicit ValueError(std::string const& mesg)
+      : std::runtime_error(mesg) {}
   
     virtual ~ValueError() throw() {}
   
@@ -58,54 +58,54 @@ namespace edm {
     Entry() : rep(), type('?'), tracked('?') {}
   
     // Bool
-    Entry( bool val, bool is_tracked );
+    Entry(bool val, bool is_tracked);
     bool  getBool() const;
   
     // Int32
-    Entry( int val, bool is_tracked );
+    Entry(int val, bool is_tracked);
     int  getInt32() const;
   
     // vInt32
-    Entry( std::vector<int> const& val, bool is_tracked );
+    Entry(std::vector<int> const& val, bool is_tracked);
     std::vector<int>  getVInt32() const;
   
     // Uint32
-    Entry( unsigned val, bool is_tracked );
+    Entry(unsigned val, bool is_tracked);
     unsigned  getUInt32() const;
   
     // vUint32
-    Entry( std::vector<unsigned> const& val, bool is_tracked );
+    Entry(std::vector<unsigned> const& val, bool is_tracked);
     std::vector<unsigned>  getVUInt32() const;
   
     // Double
-    Entry( double val, bool is_tracked );
+    Entry(double val, bool is_tracked);
     double getDouble() const;
   
     // vDouble
-    Entry( std::vector<double> const& val, bool is_tracked );
+    Entry(std::vector<double> const& val, bool is_tracked);
     std::vector<double> getVDouble() const;
   
     // String
-    Entry( std::string const& val, bool is_tracked );
+    Entry(std::string const& val, bool is_tracked);
     std::string getString() const;
   
     // vString
-    Entry( std::vector<std::string> const& val, bool is_tracked );
+    Entry(std::vector<std::string> const& val, bool is_tracked);
     std::vector<std::string>  getVString() const;
   
     // ParameterSet
-    Entry( ParameterSet const& val, bool is_tracked );
+    Entry(ParameterSet const& val, bool is_tracked);
     ParameterSet getPSet() const;
   
     // vPSet
-    Entry( std::vector<ParameterSet> const& val, bool is_tracked );
+    Entry(std::vector<ParameterSet> const& val, bool is_tracked);
   
     std::vector<ParameterSet>  getVPSet() const;
   
     // coded string
-    Entry( std::string const& );
-    Entry( std::string const& type, std::string const& value, bool is_tracked);
-    Entry( std::string const& type, std::vector<std::string> const& value, bool is_tracked);
+    Entry(std::string const&);
+    Entry(std::string const& type, std::string const& value, bool is_tracked);
+    Entry(std::string const& type, std::vector<std::string> const& value, bool is_tracked);
     
     // encode
     std::string  toString() const;
@@ -124,16 +124,16 @@ namespace edm {
     void validate() const;
   
     // decode
-    bool fromString( std::string::const_iterator b, std::string::const_iterator e);
+    bool fromString(std::string::const_iterator b, std::string::const_iterator e);
   };  // Entry
   
   inline bool
-  operator==( Entry const& a, Entry const& b ) {
+  operator==(Entry const& a, Entry const& b) {
     return a.toString() == b.toString();
   }
   
   inline bool
-  operator!=( Entry const& a, Entry const& b ) {
+  operator!=(Entry const& a, Entry const& b) {
     return !(a == b);
   }
 } // namespace edm

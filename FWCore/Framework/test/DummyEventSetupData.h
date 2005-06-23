@@ -13,7 +13,7 @@
 
 namespace edm {
    struct DummyEventSetupData { 
-      DummyEventSetupData( int iValue ) : value_(iValue) {}
+      DummyEventSetupData(int iValue) : value_(iValue) {}
       int value_; 
    };
 }

@@ -122,11 +122,11 @@ namespace edm {
      using namespace std;
      using namespace edm::eventsetup;
      vector<string> providers = params_.getParameter<vector<string> >("allesmodules");
-     for( vector<string>::iterator itName = providers.begin();
+     for(vector<string>::iterator itName = providers.begin();
           itName != providers.end();
-          ++itName ) {
+          ++itName) {
         ParameterSet providerPSet = params_.getParameter<ParameterSet>(*itName);
-        ModuleFactory::get()->addTo( cp, 
+        ModuleFactory::get()->addTo(cp, 
                                      providerPSet, 
                                      common.process_name_, 
                                      common.version_, 
@@ -134,11 +134,11 @@ namespace edm {
      }
 
      vector<string> sources = params_.getParameter<vector<string> >("allessources");
-     for( vector<string>::iterator itName = sources.begin();
+     for(vector<string>::iterator itName = sources.begin();
           itName != sources.end();
-          ++itName ) {
+          ++itName) {
         ParameterSet providerPSet = params_.getParameter<ParameterSet>(*itName);
-        SourceFactory::get()->addTo( cp, 
+        SourceFactory::get()->addTo(cp, 
                                      providerPSet, 
                                      common.process_name_, 
                                      common.version_, 
@@ -245,7 +245,7 @@ namespace edm {
   {
     string param_name("--parameter-set");
 
-    if(args.size()<3 || args[1]!=param_name )
+    if(args.size()<3 || args[1]!=param_name)
       {
  	cerr << "No input file argument given.\n"
  	     << "Usage: " << args[0] << " --parameter-set pset_file_name"
@@ -279,16 +279,16 @@ namespace edm {
   {
 
     // Setup the EventSetup
-    //    boost::shared_ptr<DummyEventSetupRecordRetriever> pRetriever( new DummyEventSetupRecordRetriever );
-    // cp.add( boost::shared_ptr<eventsetup::DataProxyProvider>(pRetriever) );
+    //    boost::shared_ptr<DummyEventSetupRecordRetriever> pRetriever(new DummyEventSetupRecordRetriever);
+    // cp.add(boost::shared_ptr<eventsetup::DataProxyProvider>(pRetriever));
     
-    // cp.add( boost::shared_ptr<eventsetup::EventSetupRecordIntervalFinder>(pRetriever) );
+    // cp.add(boost::shared_ptr<eventsetup::EventSetupRecordIntervalFinder>(pRetriever));
 
 
     bool runforever = numberToProcess==0;
     unsigned int eventcount=0;
 
-    while(runforever || eventcount<numberToProcess )
+    while(runforever || eventcount<numberToProcess)
       {
 	++eventcount;
 	FDEBUG(1) << eventcount << std::endl;

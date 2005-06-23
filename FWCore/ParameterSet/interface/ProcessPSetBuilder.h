@@ -4,7 +4,7 @@
    Declaration of class ProcessPSetBuilder
 
    \author Stefano ARGIRO
-   \version $Id$
+   \version $Id: ProcessPSetBuilder.h,v 1.1 2005/06/20 15:22:03 argiro Exp $
    \date 16 Jun 2005
 */
 
@@ -12,7 +12,7 @@
 #define _edm_ProcessPSetBuilder_h_
 
 static const char CVSId_edm_ProcessPSetBuilder[] = 
-"$Id$";
+"$Id: ProcessPSetBuilder.h,v 1.1 2005/06/20 15:22:03 argiro Exp $";
 
 #include <boost/shared_ptr.hpp>
 #include <string>
@@ -38,7 +38,7 @@ namespace edm {
 
   public:
     /// construct from the configuration language string
-    ProcessPSetBuilder( const std::string& config);
+    ProcessPSetBuilder(const std::string& config);
 
     ~ProcessPSetBuilder();
  

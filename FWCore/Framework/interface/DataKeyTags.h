@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Thu Mar 31 14:13:07 EST 2005
-// $Id: DataKeyTags.h,v 1.2 2005/04/04 20:41:17 chrjones Exp $
+// $Id: DataKeyTags.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
 //
 
 // system include files
@@ -34,10 +34,10 @@ namespace edm {
       
       class SimpleStringTag {
         public:
-         SimpleStringTag( const char* iString ) : tag_(iString ) {}
+         SimpleStringTag(const char* iString) : tag_(iString) {}
          SimpleStringTag() : tag_("") {}
-         bool operator==( const SimpleStringTag& iRHS ) const ;
-         bool operator<( const SimpleStringTag& iRHS ) const ;
+         bool operator==(const SimpleStringTag& iRHS) const ;
+         bool operator<(const SimpleStringTag& iRHS) const ;
          
          const char* value() const { return tag_; }
          
@@ -47,7 +47,7 @@ namespace edm {
 
       class NameTag : public SimpleStringTag {
        public:
-         NameTag( const char* iUsage ) : SimpleStringTag(iUsage) {}
+         NameTag(const char* iUsage) : SimpleStringTag(iUsage) {}
          NameTag() : SimpleStringTag() {}
       };
       

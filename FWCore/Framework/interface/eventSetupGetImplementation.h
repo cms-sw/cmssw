@@ -29,7 +29,7 @@ namespace edm {
       
       template< class T>
          void eventSetupGetImplementation(EventSetup const &,
-                                       T const *& );
+                                       T const *&);
    }
 }
 #endif /* EVENTSETUP_EVENTSETUPGETIMPLEMENTATION_H */

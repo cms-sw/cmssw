@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.cc,v 1.2 2005/06/10 03:54:14 wmtan Exp $
+// $Id: ParameterSet.cc,v 1.3 2005/06/13 23:59:17 wmtan Exp $
 //
 // definition of ParameterSet's function members
 // ----------------------------------------------------------------------
@@ -34,9 +34,9 @@ namespace edm {
   // ----------------------------------------------------------------------
   // coded string
   
-  ParameterSet::ParameterSet( std::string const& code ) : tbl() {
-    if( ! fromString(code) )
-      throw ParameterSetError( "bad encoded ParameterSet string " + code );
+  ParameterSet::ParameterSet(std::string const& code) : tbl() {
+    if(! fromString(code))
+      throw ParameterSetError("bad encoded ParameterSet string " + code);
     validate();
   }
   
@@ -45,23 +45,23 @@ namespace edm {
   // ----------------------------------------------------------------------
   
   Entry const&
-  ParameterSet::retrieve( std::string const& name ) const {
+  ParameterSet::retrieve(std::string const& name) const {
     table::const_iterator  it = tbl.find(name);
-    if( it == tbl.end() ) {
+    if(it == tbl.end()) {
       it = tbl.find("label");
-      if( it == tbl.end() )
-        throw ParameterSetError( "'" + name + "' is not known in this anonymous ParameterSet" );
+      if(it == tbl.end())
+        throw ParameterSetError("'" + name + "' is not known in this anonymous ParameterSet");
       else
-        throw ParameterSetError( "'" + name + "' is not known in ParameterSet '"
+        throw ParameterSetError("'" + name + "' is not known in ParameterSet '"
                         + it->second.getString() + "'");
     }
     return it->second;
   }  // retrieve()
   
   Entry const* const
-  ParameterSet::retrieveUntracked( std::string const& name ) const {
+  ParameterSet::retrieveUntracked(std::string const& name) const {
     table::const_iterator  it = tbl.find(name);
-    if( it == tbl.end() )  {
+    if(it == tbl.end())  {
       return 0;
     }
     return &it->second;
@@ -70,14 +70,14 @@ namespace edm {
   // ----------------------------------------------------------------------
   
   void
-  ParameterSet::insert( bool okay_to_replace, std::string const& name, Entry const& value ) {
+  ParameterSet::insert(bool okay_to_replace, std::string const& name, Entry const& value) {
     table::iterator  it = tbl.find(name);
   
-    if( it == tbl.end() )  {
-      if( ! tbl.insert( std::make_pair(name, value) ).second )
-        throw ParameterSetError( "can't insert" + name );
+    if(it == tbl.end())  {
+      if(! tbl.insert(std::make_pair(name, value)).second)
+        throw ParameterSetError("can't insert" + name);
     }
-    else if( okay_to_replace )  {
+    else if(okay_to_replace)  {
       it->second = value;
     }
   }  // insert()
@@ -87,11 +87,11 @@ namespace edm {
   // ----------------------------------------------------------------------
   
   void
-  ParameterSet::augment( ParameterSet const& from ) {
-    if( & from == this )
+  ParameterSet::augment(ParameterSet const& from) {
+    if(& from == this)
       return;
   
-    for( table::const_iterator b = from.tbl.begin(), e = from.tbl.end(); b != e; ++b ) {
+    for(table::const_iterator b = from.tbl.begin(), e = from.tbl.end(); b != e; ++b) {
       this->insert(false, b->first, b->second);
     }
   }  // augment()
@@ -103,8 +103,8 @@ namespace edm {
   std::string
   ParameterSet::toString() const {
     std::string rep;
-    for( table::const_iterator b = tbl.begin(), e = tbl.end(); b != e; ++b ) {
-      if( b != tbl.begin() )
+    for(table::const_iterator b = tbl.begin(), e = tbl.end(); b != e; ++b) {
+      if(b != tbl.begin())
         rep += ';';
       rep += (b->first + '=' + b->second.toString());
     }
@@ -118,9 +118,9 @@ namespace edm {
   ParameterSet::toStringOfTracked() const {
     std::string  rep = "<";
     bool need_sep = false;
-    for( table::const_iterator b = tbl.begin(), e = tbl.end(); b != e; ++b ) {
-      if( b->second.isTracked() )  {
-        if( need_sep )
+    for(table::const_iterator b = tbl.begin(), e = tbl.end(); b != e; ++b) {
+      if(b->second.isTracked())  {
+        if(need_sep)
           rep += ';';
         rep += (b->first + '=' + b->second.toString());
         need_sep = true;
@@ -133,27 +133,27 @@ namespace edm {
   // ----------------------------------------------------------------------
   
   bool
-  ParameterSet::fromString( std::string const& from ) {
+  ParameterSet::fromString(std::string const& from) {
     std::vector<std::string> temp;
-    if( ! split(std::back_inserter(temp), from, '<', ';', '>') )
+    if(! split(std::back_inserter(temp), from, '<', ';', '>'))
       return false;
   
     tbl.clear();  // precaution
-    for( std::vector<std::string>::const_iterator b = temp.begin(), e = temp.end(); b != e; ++b ) {
+    for(std::vector<std::string>::const_iterator b = temp.begin(), e = temp.end(); b != e; ++b) {
       // locate required name/value separator
       std::string::const_iterator  q
-        = std::find( b->begin(), b->end(), '=' );
-      if( q == b->end() )
+        = std::find(b->begin(), b->end(), '=');
+      if(q == b->end())
         return false;
   
       // form name unique to this ParameterSet
-      std::string  name = std::string( b->begin(), q );
-      if( tbl.find(name) != tbl.end() )
+      std::string  name = std::string(b->begin(), q);
+      if(tbl.find(name) != tbl.end())
         return false;
   
       // form value and insert name/value pair
-      Entry  value( std::string(q+1, b->end()) );
-      if( ! tbl.insert( std::make_pair(name, value) ).second )
+      Entry  value(std::string(q+1, b->end()));
+      if(! tbl.insert(std::make_pair(name, value)).second)
         return false;
     }
   

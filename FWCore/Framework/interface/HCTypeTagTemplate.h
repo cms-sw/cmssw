@@ -16,15 +16,18 @@
 //    easier to do this specialization.  To use the macro simple do
 //
 //    #include "interface/HCTypeTagTemplate.h"
-//    HCTYPETAGTEMPLATE_CLASS( Foo, MyGroup )
+//    HCTYPETAGTEMPLATE_CLASS(Foo, MyGroup)
 //     
 // Author:      Chris D. Jones
 // Created:     Sun Sep 20 15:31:56 EDT 1998
-// $Id: HCTypeTagTemplate.h,v 1.3 2005/04/18 15:35:59 chrjones Exp $
+// $Id: HCTypeTagTemplate.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
 //
 // Revision history
 //
 // $Log: HCTypeTagTemplate.h,v $
+// Revision 1.1  2005/05/29 02:29:53  wmtan
+// initial population
+//
 // Revision 1.3  2005/04/18 15:35:59  chrjones
 // classValue code now in .icc file to avoid problems with static function variables
 //
@@ -69,7 +72,7 @@ class HCTypeTagTemplate : public HCTypeTag< Group >
 
       // ---------- Constructors and destructor ---------------- 
       HCTypeTagTemplate() : 
-	 HCTypeTag<Group>( classValue(), className() ) {}
+	 HCTypeTag<Group>(classValue(), className()) {}
       //virtual ~HCTypeTagTemplate(); //not needed
 
       // ---------- static member functions --------------------
@@ -81,10 +84,10 @@ class HCTypeTagTemplate : public HCTypeTag< Group >
 
    private:
       // ---------- Constructors and destructor ----------------
-      //HCTypeTagTemplate( const HCTypeTagTemplate& ); // stop default
+      //HCTypeTagTemplate(const HCTypeTagTemplate&); // stop default
 
       // ---------- assignment operator(s) ---------------------
-      //const HCTypeTagTemplate& operator=( const HCTypeTagTemplate& ); // stop default
+      //const HCTypeTagTemplate& operator=(const HCTypeTagTemplate&); // stop default
 
 };
 
@@ -96,13 +99,13 @@ class HCTypeTagTemplate : public HCTypeTag< Group >
 // c preprocessor macros
 
 // easy way to custom build the className method
-#define HCTYPETAGTEMPLATE_CLASSNAME( Tname, group ) \
+#define HCTYPETAGTEMPLATE_CLASSNAME(Tname, group) \
 template <> \
 const char* \
 edm::eventsetup::heterocontainer::HCTypeTagTemplate< Tname, group >::className() \
 { return #Tname ; }
 
-#define HCTYPETAGTEMPLATE_CLASSNAME_1_COMMA( Tname1, Tname2, group ) \
+#define HCTYPETAGTEMPLATE_CLASSNAME_1_COMMA(Tname1, Tname2, group) \
 template <> \
 const char* \
 edm::eventsetup::heterocontainer::HCTypeTagTemplate< Tname1,Tname2 , group >::className() \

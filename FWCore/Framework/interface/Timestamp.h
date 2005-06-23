@@ -63,9 +63,9 @@ class Timestamp
       // ---------- member functions ---------------------------
 
    private:
-      //Timestamp( const Timestamp& ); // allow default
+      //Timestamp(const Timestamp&); // allow default
 
-      //const Timestamp& operator=( const Timestamp& ); // allow default
+      //const Timestamp& operator=(const Timestamp&); // allow default
 
       // ---------- member data --------------------------------
       unsigned long time_;

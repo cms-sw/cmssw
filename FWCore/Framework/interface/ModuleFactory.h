@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 18:01:31 EDT 2005
-// $Id: ModuleFactory.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
+// $Id: ModuleFactory.h,v 1.2 2005/06/14 21:49:15 wmtan Exp $
 //
 
 // system include files
@@ -33,7 +33,7 @@ namespace edm {
 
       struct ModuleMakerTraits {
          static std::string name();
-         static void addTo( EventSetupProvider& iProvider, boost::shared_ptr<DataProxyProvider> iComponent) ;
+         static void addTo(EventSetupProvider& iProvider, boost::shared_ptr<DataProxyProvider> iComponent) ;
       };
       template< class TType>
          struct ModuleMaker : public ComponentMaker<edm::eventsetup::ModuleMakerTraits,TType> {};

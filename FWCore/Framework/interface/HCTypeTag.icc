@@ -12,11 +12,14 @@
 //
 // Author:      Chris D. Jones
 // Created:     Sun Sep 20 15:27:25 EDT 1998
-// $Id: HCTypeTag.icc,v 1.2 2005/04/04 20:31:22 chrjones Exp $
+// $Id: HCTypeTag.icc,v 1.1 2005/05/29 02:29:53 wmtan Exp $
 //
 // Revision history
 //
 // $Log: HCTypeTag.icc,v $
+// Revision 1.1  2005/05/29 02:29:53  wmtan
+// initial population
+//
 // Revision 1.2  2005/04/04 20:31:22  chrjones
 // added namespace
 //
@@ -68,7 +71,7 @@ class HCTypeTagNameHolder {
 //{
 //}
 
-// HCTypeTag::HCTypeTag( const HCTypeTag& rhs )
+// HCTypeTag::HCTypeTag(const HCTypeTag& rhs)
 // {
 //    // do actual copying here; if you implemented
 //    // operator= correctly, you may be able to use just say      
@@ -82,11 +85,11 @@ class HCTypeTagNameHolder {
 //
 // assignment operators
 //
-// const HCTypeTag& HCTypeTag::operator=( const HCTypeTag& rhs )
+// const HCTypeTag& HCTypeTag::operator=(const HCTypeTag& rhs)
 // {
-//   if( this != &rhs ) {
+//   if(this != &rhs) {
 //      // do actual copying here, plus:
-//      // "SuperClass"::operator=( rhs );
+//      // "SuperClass"::operator=(rhs);
 //   }
 //
 //   return *this;
@@ -105,28 +108,28 @@ class HCTypeTagNameHolder {
 //
 template<class Group >
 HCTypeTag< Group >
-HCTypeTag< Group >::findType( const std::string& iTypeName )
+HCTypeTag< Group >::findType(const std::string& iTypeName)
 {
    std::map<std::string, unsigned int>::iterator itFind = HCTypeTagNameHolder<Group>::typeNameToValueMap().find(
-      iTypeName );
+      iTypeName);
    
-   if( itFind == HCTypeTagNameHolder<Group>::typeNameToValueMap().end() ) {
+   if(itFind == HCTypeTagNameHolder<Group>::typeNameToValueMap().end()) {
       return HCTypeTag< Group >();
    }
    
-   return HCTypeTag< Group >( (*itFind).second, (*itFind).first.c_str() );
+   return HCTypeTag< Group >((*itFind).second, (*itFind).first.c_str());
 }
 
 template< class Group >
 unsigned int
-HCTypeTag< Group >::nextValue(const char* iTypeName )
+HCTypeTag< Group >::nextValue(const char* iTypeName)
 {
    static unsigned int presentValue = kDefaultValue;
    unsigned int newValue = ++presentValue;
 
-   HCTypeTagNameHolder<Group>::typeNameToValueMap().insert( 
-    std::pair<std::string, unsigned int>( iTypeName,
-                                          newValue ) );
+   HCTypeTagNameHolder<Group>::typeNameToValueMap().insert(
+    std::pair<std::string, unsigned int>(iTypeName,
+                                          newValue));
    return newValue;
 }
 

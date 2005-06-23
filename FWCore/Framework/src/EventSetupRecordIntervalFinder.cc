@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed Mar 30 14:27:26 EST 2005
-// $Id: EventSetupRecordIntervalFinder.cc,v 1.3 2005/04/08 06:42:48 wmtan Exp $
+// $Id: EventSetupRecordIntervalFinder.cc,v 1.1 2005/05/29 02:29:53 wmtan Exp $
 //
 
 // system include files
@@ -33,7 +33,7 @@ namespace edm {
 //{
 //}
 
-// EventSetupRecordIntervalFinder::EventSetupRecordIntervalFinder( const EventSetupRecordIntervalFinder& rhs )
+// EventSetupRecordIntervalFinder::EventSetupRecordIntervalFinder(const EventSetupRecordIntervalFinder& rhs)
 // {
 //    // do actual copying here;
 // }
@@ -45,11 +45,11 @@ EventSetupRecordIntervalFinder::~EventSetupRecordIntervalFinder()
 //
 // assignment operators
 //
-// const EventSetupRecordIntervalFinder& EventSetupRecordIntervalFinder::operator=( const EventSetupRecordIntervalFinder& rhs )
+// const EventSetupRecordIntervalFinder& EventSetupRecordIntervalFinder::operator=(const EventSetupRecordIntervalFinder& rhs)
 // {
 //   //An exception safe implementation is
 //   EventSetupRecordIntervalFinder temp(rhs);
-//   swap( rhs );
+//   swap(rhs);
 //
 //   return *this;
 // }
@@ -58,20 +58,20 @@ EventSetupRecordIntervalFinder::~EventSetupRecordIntervalFinder()
 // member functions
 //
 const ValidityInterval& 
-EventSetupRecordIntervalFinder::findIntervalFor( const EventSetupRecordKey& iKey,
+EventSetupRecordIntervalFinder::findIntervalFor(const EventSetupRecordKey& iKey,
                                               const Timestamp& iInstance)
 {
-   Intervals::iterator itFound = intervals_.find( iKey );
-   assert( itFound != intervals_.end() ) ;
-   if( ! itFound->second.validFor( iInstance ) ) {
-      setIntervalFor( iKey, iInstance, itFound->second );
+   Intervals::iterator itFound = intervals_.find(iKey);
+   assert(itFound != intervals_.end()) ;
+   if(! itFound->second.validFor(iInstance)) {
+      setIntervalFor(iKey, iInstance, itFound->second);
    }
    return itFound->second;
 }
 
 void 
 EventSetupRecordIntervalFinder::findingRecordWithKey(const EventSetupRecordKey& iKey) {
-   intervals_.insert( Intervals::value_type(iKey, ValidityInterval() ) );
+   intervals_.insert(Intervals::value_type(iKey, ValidityInterval()));
 }
 
 //
@@ -85,8 +85,8 @@ EventSetupRecordIntervalFinder::findingForRecords() const
    Intervals::const_iterator itEnd = intervals_.end();
    for(Intervals::const_iterator itEntry = intervals_.begin();
        itEntry != itEnd;
-       ++itEntry ) {
-      returnValue.insert( returnValue.end(), itEntry->first );
+       ++itEntry) {
+      returnValue.insert(returnValue.end(), itEntry->first);
    }
    return returnValue;
 }

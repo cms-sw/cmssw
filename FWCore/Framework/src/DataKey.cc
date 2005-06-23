@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Thu Mar 31 14:31:13 EST 2005
-// $Id: DataKey.cc,v 1.3 2005/04/08 06:42:48 wmtan Exp $
+// $Id: DataKey.cc,v 1.1 2005/05/29 02:29:53 wmtan Exp $
 //
 
 // system include files
@@ -34,7 +34,7 @@ DataKey::DataKey(): ownMemory_(false)
 {
 }
 
-// DataKey::DataKey( const DataKey& rhs )
+// DataKey::DataKey(const DataKey& rhs)
 // {
 //    // do actual copying here;
 // }
@@ -46,11 +46,11 @@ DataKey::DataKey(): ownMemory_(false)
 //
 // assignment operators
 //
-const DataKey& DataKey::operator=( const DataKey& rhs )
+const DataKey& DataKey::operator=(const DataKey& rhs)
 {
    //An exception safe implementation is
    DataKey temp(rhs);
-   swap( temp );
+   swap(temp);
 
    return *this;
 }
@@ -59,11 +59,11 @@ const DataKey& DataKey::operator=( const DataKey& rhs )
 // member functions
 //
 void
-DataKey::swap( DataKey& iOther )
+DataKey::swap(DataKey& iOther)
 {
-   std::swap( ownMemory_, iOther.ownMemory_);
-   std::swap( type_, iOther.type_);
-   std::swap( name_, iOther.name_);
+   std::swap(ownMemory_, iOther.ownMemory_);
+   std::swap(type_, iOther.type_);
+   std::swap(name_, iOther.name_);
 }
 
 void 
@@ -77,12 +77,12 @@ DataKey::makeCopyOfMemory()
    // I should make sure that pName gets deleted in the case
    // where an exception is thrown
    std::auto_ptr<char> pNameHolder;
-   if( kBlank != name().value()[0] ) {
-      pName = new char[ std::strlen( name().value() ) + 1];
+   if(kBlank != name().value()[0]) {
+      pName = new char[ std::strlen(name().value()) + 1];
       pNameHolder = std::auto_ptr<char>(pName);
-      std::strcpy( pName, name().value() );
+      std::strcpy(pName, name().value());
    }
-   name_ = NameTag( pName );
+   name_ = NameTag(pName);
    ownMemory_ = true;
    pNameHolder.release();
 }
@@ -92,7 +92,7 @@ DataKey::deleteMemory()
 {
    static const char kBlank = '\0';
    
-   if( kBlank != name().value()[0] ) {
+   if(kBlank != name().value()[0]) {
       delete [] const_cast<char*>(name().value());
    }
 }
@@ -101,22 +101,22 @@ DataKey::deleteMemory()
 // const member functions
 //
 bool
-DataKey::operator==( const DataKey& iRHS ) const 
+DataKey::operator==(const DataKey& iRHS) const 
 {
-   return ( ( type_ == iRHS.type_ ) &&
-            ( name_ == iRHS.name_ ) );
+   return ((type_ == iRHS.type_) &&
+            (name_ == iRHS.name_));
 }
 
 bool
-DataKey::operator<( const DataKey& iRHS ) const 
+DataKey::operator<(const DataKey& iRHS) const 
 {
    return (type_ < iRHS.type_) ||
-   ( (type_ == iRHS.type_) && (name_ < iRHS.name_) );
+   ((type_ == iRHS.type_) && (name_ < iRHS.name_));
 /*
-   if( type_ < iRHS.type_ ) {
+   if(type_ < iRHS.type_) {
       return true;
-   } else if ( type_ == iRHS.type_ ) {
-      if( name_ < iRHS.name_ ) {
+   } else if (type_ == iRHS.type_) {
+      if(name_ < iRHS.name_) {
          return true;
    }
    return false;

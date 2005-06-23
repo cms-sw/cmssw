@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Fri Apr 15 10:25:20 EDT 2005
-// $Id: produce_helpers.h,v 1.2 2005/04/22 20:18:55 chrjones Exp $
+// $Id: produce_helpers.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
 //
 
 // system include files
@@ -89,7 +89,7 @@ namespace edm {
             enum {value = find_index_impl<typename container_type::head_type, typename container_type::tail_type, FindT>::value };
          };
          namespace test {
-            template<typename T> const char* name(const T* );
+            template<typename T> const char* name(const T*);
          }
          
       }

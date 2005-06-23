@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 19:27:37 EDT 2005
-// $Id: SourceFactory.cc,v 1.2 2005/05/26 16:37:45 chrjones Exp $
+// $Id: SourceFactory.cc,v 1.1 2005/05/29 02:29:54 wmtan Exp $
 //
 
 // system include files
@@ -28,4 +28,4 @@ namespace edm {
    }
 }
 
-COMPONENTFACTORY_GET( edm::eventsetup::SourceMakerTraits )
+COMPONENTFACTORY_GET(edm::eventsetup::SourceMakerTraits)

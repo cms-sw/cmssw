@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Fri Apr  1 15:29:02 EST 2005
-// $Id: recordGetImplementation.h,v 1.2 2005/04/21 15:47:17 chrjones Exp $
+// $Id: recordGetImplementation.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
 //
 
 // system include files
@@ -28,9 +28,9 @@
 namespace edm {
    namespace eventsetup {
       template < typename RecordT, typename T > 
-      void recordGetImplementation( const RecordT& iRecord ,
+      void recordGetImplementation(const RecordT& iRecord ,
                                     T const *& iData ,
-                                    const char* iName );
+                                    const char* iName);
    }
 }
 

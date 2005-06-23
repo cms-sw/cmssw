@@ -33,7 +33,7 @@ namespace edm {
 {
 }
 
-// Timestamp::Timestamp( const Timestamp& rhs )
+// Timestamp::Timestamp(const Timestamp& rhs)
 // {
 //    // do actual copying here;
 // }
@@ -45,11 +45,11 @@ Timestamp::~Timestamp()
 //
 // assignment operators
 //
-// const Timestamp& Timestamp::operator=( const Timestamp& rhs )
+// const Timestamp& Timestamp::operator=(const Timestamp& rhs)
 // {
 //   //An exception safe implementation is
 //   Timestamp temp(rhs);
-//   swap( rhs );
+//   swap(rhs);
 //
 //   return *this;
 // }

@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Sat Apr 16 10:19:37 EDT 2005
-// $Id: ESProducer.cc,v 1.2 2005/04/20 16:05:29 wmtan Exp $
+// $Id: ESProducer.cc,v 1.1 2005/05/29 02:29:53 wmtan Exp $
 //
 
 // system include files
@@ -33,7 +33,7 @@ ESProducer::ESProducer()
 {
 }
 
-// ESProducer::ESProducer( const ESProducer& rhs )
+// ESProducer::ESProducer(const ESProducer& rhs)
 // {
 //    // do actual copying here;
 // }
@@ -45,11 +45,11 @@ ESProducer::~ESProducer()
 //
 // assignment operators
 //
-// const ESProducer& ESProducer::operator=( const ESProducer& rhs )
+// const ESProducer& ESProducer::operator=(const ESProducer& rhs)
 // {
 //   //An exception safe implementation is
 //   ESProducer temp(rhs);
-//   swap( rhs );
+//   swap(rhs);
 //
 //   return *this;
 // }

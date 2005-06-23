@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: Group.cc,v 1.4 2005/05/01 16:24:18 wmtan Exp $
+$Id: Group.cc,v 1.1 2005/05/29 02:29:54 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/CoreFramework/src/Group.h"
@@ -44,7 +44,7 @@ namespace edm
   void 
   Group::setProduct(std::auto_ptr<EDProduct> prod) const
   {
-    assert (product() == 0 );
+    assert (product() == 0);
     product_ = prod.release();  // Group takes ownership
   }
   

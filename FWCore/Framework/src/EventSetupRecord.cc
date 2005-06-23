@@ -33,7 +33,7 @@ eventSetup_(0)
 {
 }
 
-// EventSetupRecord::EventSetupRecord( const EventSetupRecord& rhs )
+// EventSetupRecord::EventSetupRecord(const EventSetupRecord& rhs)
 // {
 //    // do actual copying here;
 // }
@@ -45,11 +45,11 @@ EventSetupRecord::~EventSetupRecord()
 //
 // assignment operators
 //
-// const EventSetupRecord& EventSetupRecord::operator=( const EventSetupRecord& rhs )
+// const EventSetupRecord& EventSetupRecord::operator=(const EventSetupRecord& rhs)
 // {
 //   //An exception safe implementation is
 //   EventSetupRecord temp(rhs);
-//   swap( rhs );
+//   swap(rhs);
 //
 //   return *this;
 // }
@@ -58,24 +58,24 @@ EventSetupRecord::~EventSetupRecord()
 // member functions
 //
 void
-EventSetupRecord::set( const ValidityInterval& iInterval ) 
+EventSetupRecord::set(const ValidityInterval& iInterval) 
 {
    validity_ = iInterval;
 }
 
 bool 
-EventSetupRecord::add( const DataKey& iKey ,
-                    const DataProxy* iProxy )
+EventSetupRecord::add(const DataKey& iKey ,
+                    const DataProxy* iProxy)
 {
    //
-   if ( 0 != find( iKey ) ) {
+   if (0 != find(iKey)) {
       //
       // we already know the field exist, so do not need to check against end()
       //
-      (*proxies_.find( iKey )).second = iProxy ;
+      (*proxies_.find(iKey)).second = iProxy ;
    }
    else {
-      proxies_.insert( Proxies::value_type( iKey , iProxy ) ) ;
+      proxies_.insert(Proxies::value_type(iKey , iProxy)) ;
    }
    return true ;
 }
@@ -89,10 +89,10 @@ EventSetupRecord::removeAll()
 // const member functions
 //
 const DataProxy* 
-EventSetupRecord::find( const DataKey& iKey ) const 
+EventSetupRecord::find(const DataKey& iKey) const 
 {
-   Proxies::const_iterator entry( proxies_.find( iKey ) ) ;
-   if ( entry != proxies_.end() ) {
+   Proxies::const_iterator entry(proxies_.find(iKey)) ;
+   if (entry != proxies_.end()) {
       return entry->second;
    }
    return 0;
