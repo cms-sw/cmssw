@@ -6,7 +6,7 @@
 Selector: Base class for all "selector" objects, used to select
 EDProducts based on information in the associated Provenance.
 
-$Id: Selector.h,v 1.2 2005/03/23 20:29:43 paterno Exp $
+$Id: Selector.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -14,12 +14,10 @@ $Id: Selector.h,v 1.2 2005/03/23 20:29:43 paterno Exp $
 
 #include "FWCore/CoreFramework/interface/Provenance.h"
 
-namespace edm
-{
+namespace edm {
 
   // Abstract base class.
-  class Selector
-  {
+  class Selector {
   public:
     virtual ~Selector();
     bool match(const Provenance& p) const;
@@ -29,13 +27,11 @@ namespace edm
 
 
   // Select based upon full description of EDProducer.
-  class ModuleDescriptionSelector : public Selector
-  {
+  class ModuleDescriptionSelector : public Selector {
   public:
     ModuleDescriptionSelector(const ModuleDescription& md):md_(md) {}
     
-    bool doMatch(const Provenance& p) const
-    {
+    virtual bool doMatch(const Provenance& p) const {
       return p.module == md_;
     }
 
@@ -45,13 +41,11 @@ namespace edm
 
 
   // Select based on process name.
-  class ProcessNameSelector : public Selector
-  {
+  class ProcessNameSelector : public Selector {
   public:
     ProcessNameSelector(const std::string& pn):pn_(pn) {}
     
-    bool doMatch(const Provenance& p) const
-    {
+    virtual bool doMatch(const Provenance& p) const {
       return p.module.process_name == pn_;
     }
 
