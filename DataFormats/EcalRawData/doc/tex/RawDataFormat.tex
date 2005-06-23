@@ -1,4 +1,4 @@
-
+ 
 \section{ECAL Data Format}\label{sec:ECAL}
 
 The ECAL data are composed by 54 event fragments processed in the Data
@@ -216,7 +216,7 @@ The TCC Blocks, added after the DCC Block Header, include the trigger data recei
 
 \begin{center}
 \begin{table}[H]
-\begin{tabular}{|c|c|} \hline
+\begin{tabular}{|c|l|} \hline
 {\bf TT Flag} &	Description \\ \hline
 000 &	Low interest TT (Tower Et is bellow low threshold) \\ \hline
 001 &	Mid-interest TT (Tower Et is between low and high thresholds) \\ \hline
@@ -254,9 +254,9 @@ The SRP Block, added after the TCC Blocks, includes the selective readout flags 
 001 &	Read FE channel with lv1 zero suppression   \\ \hline
 010 &	Read FE channel with lv2 zero suppression  \\ \hline
 011 &	Read FE channel without zero suppression  \\ \hline
-1xx &	xx action has been forced by an erroneous condition or by configuration  \\ \hline
-- &	TT flagged in forced readout mode (from TCC)  \\ \hline
-- &	Data transmission errors (TCC and Algorithm Board(AB) link errors)  \\ \hline
+1xx &	xx action has been forced by an erroneous condition or by configuration:  \\ 
+    & - TT flagged in forced readout mode (from TCC)  \\
+    & - Data transmission errors (TCC and Algorithm Board(AB) link errors)  \\ \hline
 \end{tabular}
 \caption{\sf Selective Readout flags description.}
 \label{tab:SRPFlag}
