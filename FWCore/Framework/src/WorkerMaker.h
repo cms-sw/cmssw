@@ -56,9 +56,9 @@ namespace edm {
 						   unsigned long vn,
 						   unsigned long pass) const
   {
-    typedef T user_type;
-    typedef typename user_type::module_type module_type;
-    typedef typename WorkerType<module_type>::worker_type  worker_type;
+    typedef T UserType;
+    typedef typename UserType::ModuleType ModuleType;
+    typedef typename WorkerType<ModuleType>::worker_type  worker_type;
 
     ModuleDescription md;
     md.pid = PS_ID("oink"); // conf.id();
@@ -68,7 +68,7 @@ namespace edm {
     md.process_name = pn;
     md.pass = pass; 
 
-    std::auto_ptr<module_type> module(new user_type(conf));
+    std::auto_ptr<ModuleType> module(new UserType(conf));
     std::auto_ptr<Worker> worker(new worker_type(module, md));
     return worker;
   }

@@ -9,7 +9,7 @@ feed them into the event.
 According to our current definition, a single producer can only
 appear in one worker.
 
-$Id: ProducerWorker.h,v 1.4 2005/04/21 04:21:38 jbk Exp $
+$Id: ProducerWorker.h,v 1.1 2005/05/29 02:29:54 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -40,7 +40,7 @@ namespace edm
   template <> 
   struct WorkerType<EDProducer>
   {
-    typedef EDProducer module_type;
+    typedef EDProducer ModuleType;
     typedef ProducerWorker worker_type;
   };
 

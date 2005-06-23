@@ -8,7 +8,7 @@ this object is to call the filter.
 According to our current definition, a single filter can only
 appear in one worker.
 
-$Id: FilterWorker.h,v 1.3 2005/04/21 04:21:38 jbk Exp $
+$Id: FilterWorker.h,v 1.1 2005/05/29 02:29:54 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -41,7 +41,7 @@ namespace edm
   template <> 
   struct WorkerType<EDFilter>
   {
-    typedef EDFilter module_type;
+    typedef EDFilter ModuleType;
     typedef FilterWorker worker_type;
   };
 

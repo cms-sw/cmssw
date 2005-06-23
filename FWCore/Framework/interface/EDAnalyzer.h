@@ -10,7 +10,7 @@ namespace edm
   class EDAnalyzer
     {
     public:
-      typedef EDAnalyzer module_type;
+      typedef EDAnalyzer ModuleType;
 
       virtual ~EDAnalyzer();
       virtual void analyze(Event const& e, EventSetup const& c) = 0;

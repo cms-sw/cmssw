@@ -6,7 +6,7 @@
 EDProducer: The base class of all "modules" that will insert new
 EDProducts into an Event.
 
-$Id: EDProducer.h,v 1.4 2005/04/21 04:21:38 jbk Exp $
+$Id: EDProducer.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -17,7 +17,7 @@ namespace edm
   class EDProducer
   {
   public:
-    typedef EDProducer module_type;
+    typedef EDProducer ModuleType;
 
     virtual ~EDProducer();
     virtual void produce(Event& e, EventSetup const& c) = 0;

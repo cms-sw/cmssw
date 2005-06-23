@@ -9,7 +9,7 @@ this object is to call the output module.
 According to our current definition, a single output module can only
 appear in one worker.
 
-$Id: OutputWorker.h,v 1.3 2005/04/21 04:21:38 jbk Exp $
+$Id: OutputWorker.h,v 1.1 2005/05/29 02:29:54 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -43,7 +43,7 @@ namespace edm
   template <> 
   struct WorkerType<OutputModule>
   {
-    typedef OutputModule module_type;
+    typedef OutputModule ModuleType;
     typedef OutputWorker worker_type;
   };
 }

@@ -9,7 +9,7 @@ feed them into the event.
 According to our current definition, a single producer can only
 appear in one worker.
 
-$Id: AnalyzerWorker.h,v 1.2 2005/04/21 04:21:38 jbk Exp $
+$Id: AnalyzerWorker.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -40,7 +40,7 @@ namespace edm
   template <> 
   struct WorkerType<EDAnalyzer>
   {
-    typedef EDAnalyzer module_type;
+    typedef EDAnalyzer ModuleType;
     typedef AnalyzerWorker worker_type;
   };
 
