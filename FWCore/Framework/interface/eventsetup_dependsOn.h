@@ -17,7 +17,7 @@
        MyProducer : public ESProducer { ... };
 
        MyProducer::MyProducer(...) {
-          setWhatProduced( this, eventsetup::dependsOn( &MyProducer::callWhenChanges ) );
+          setWhatProduced(this, eventsetup::dependsOn(&MyProducer::callWhenChanges));
           ...
       }
 \endcode
@@ -44,7 +44,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jun 23 14:06:56 EDT 2005
-// $Id$
+// $Id: eventsetup_dependsOn.h,v 1.1 2005/06/23 19:55:34 chrjones Exp $
 //
 
 // system include files
@@ -65,21 +65,21 @@ namespace edm {
       template<class T, class TRecord, class TDependsOnRecord, class TCallerChain >
       struct DependsOnCaller
    {
-      DependsOnCaller( T* iCallee, void(T::* iMethod)(const TDependsOnRecord&) , const TCallerChain& iChain ) : 
-      callee_(iCallee), method_(iMethod), chain_(iChain), time_(Timestamp::invalidTimestamp() ) {}
+      DependsOnCaller(T* iCallee, void(T::* iMethod)(const TDependsOnRecord&) , const TCallerChain& iChain) : 
+      callee_(iCallee), method_(iMethod), chain_(iChain), time_(Timestamp::invalidTimestamp()) {}
       
-      void operator() ( const TRecord& iRecord ) {
+      void operator() (const TRecord& iRecord) {
          const TDependsOnRecord& record = iRecord.template getRecord<TDependsOnRecord>();
-         if( record.validityInterval().first() != time_ ) {
+         if(record.validityInterval().first() != time_) {
             (callee_->*method_)(record);
             time_= record.validityInterval().first();
          }
          //call next 'functor' in our chain
-         chain_( iRecord );
+         chain_(iRecord);
       }
 private:
       T* callee_;
-      void (T::*method_)(const TDependsOnRecord& );
+      void (T::*method_)(const TDependsOnRecord&);
       TCallerChain chain_;
       Timestamp time_;
    };
@@ -87,14 +87,14 @@ private:
       //helper function to help create a DependsOnCaller
       template<class T, class TRecord, class TDependsOnRecord, class TCallerChain >
          DependsOnCaller<T,TRecord, TDependsOnRecord, TCallerChain>
-         createDependsOnCaller( T* iCallee, const TRecord*, void(T::*iMethod)(const TDependsOnRecord&), const TCallerChain& iChain) 
+         createDependsOnCaller(T* iCallee, const TRecord*, void(T::*iMethod)(const TDependsOnRecord&), const TCallerChain& iChain) 
       {
-            return DependsOnCaller<T,TRecord, TDependsOnRecord, TCallerChain>( iCallee, iMethod, iChain);
+            return DependsOnCaller<T,TRecord, TDependsOnRecord, TCallerChain>(iCallee, iMethod, iChain);
       }
       
       //A 'do nothing' functor that is used to terminate our chain of functors
       template<class TRecord>
-         struct DependsOnDoNothingCaller { void operator()(const TRecord& ) {} };
+         struct DependsOnDoNothingCaller { void operator()(const TRecord&) {} };
       
       //put implementation details used to get the dependsOn method to work into their own namespace
       namespace depends_on {
@@ -104,8 +104,8 @@ private:
             typedef T Prod_t;
             typedef TDependsOnRecord DependsOnRecord_t;
             
-            OneHolder( void (T::*iHoldee)(const TDependsOnRecord&) ) : holdee_(iHoldee) {}
-            void ( T::*holdee_)(const TDependsOnRecord& );
+            OneHolder(void (T::*iHoldee)(const TDependsOnRecord&)) : holdee_(iHoldee) {}
+            void (T::*holdee_)(const TDependsOnRecord&);
             
          };
          
@@ -114,15 +114,15 @@ private:
             struct TwoHolder {
                typedef T T1_t;
                typedef U T2_t;
-               TwoHolder(T i1, U i2 ) : h1_(i1), h2_(i2) {}
+               TwoHolder(T i1, U i2) : h1_(i1), h2_(i2) {}
                T h1_;
                U h2_;
             };
 
          //allows one to create the linked list by applying operator & to member method pointers
          template< class T, class U>
-            TwoHolder<T,U> operator&( const T& iT, const U& iU ) {
-               return TwoHolder<T,U>( iT, iU );
+            TwoHolder<T,U> operator&(const T& iT, const U& iU) {
+               return TwoHolder<T,U>(iT, iU);
             }
          
          //HolderToCaller is used to state how a OneHolder or TwoHolder is converted into the appropriate 
@@ -135,21 +135,21 @@ private:
                typedef DependsOnCaller<T,TRecord, TDependsOnRecord, DependsOnDoNothingCaller<TRecord> > Caller_t;
             };
          template< class TRecord, class T, class T1, class T2>
-            struct HolderToCaller< TRecord, TwoHolder<T1, void ( T::*)(const T2&) > > {
+            struct HolderToCaller< TRecord, TwoHolder<T1, void (T::*)(const T2&) > > {
                typedef DependsOnCaller<T, TRecord, T2 , typename HolderToCaller<TRecord,T1>::Caller_t > Caller_t;
             };
 
          //helper function to convert a OneHolder or TwoHolder into a DependsOnCaller.
          template<class T, class TDependsOnRecord, class TRecord>
             DependsOnCaller<T,TRecord, TDependsOnRecord, DependsOnDoNothingCaller<TRecord> >
-            makeCaller( T*iT, const TRecord* iRec, const OneHolder<T, TDependsOnRecord>& iHolder) {
-               return createDependsOnCaller( iT, iRec, iHolder.holdee_, DependsOnDoNothingCaller<TRecord>() );
+            makeCaller(T*iT, const TRecord* iRec, const OneHolder<T, TDependsOnRecord>& iHolder) {
+               return createDependsOnCaller(iT, iRec, iHolder.holdee_, DependsOnDoNothingCaller<TRecord>());
             }
          
          template<class T, class T1, class T2, class TRecord>
             DependsOnCaller<T,TRecord, T2, typename HolderToCaller<TRecord, T1>::Caller_t >
-            makeCaller( T*iT, const TRecord* iRec, const TwoHolder<T1, void (T::* )(const T2&)>& iHolder) {
-               return createDependsOnCaller( iT, iRec, iHolder.h2_, makeCaller(iT, iRec, iHolder.h1_ ) );
+            makeCaller(T*iT, const TRecord* iRec, const TwoHolder<T1, void (T::*)(const T2&)>& iHolder) {
+               return createDependsOnCaller(iT, iRec, iHolder.h2_, makeCaller(iT, iRec, iHolder.h1_));
             }
       }
       
@@ -165,10 +165,10 @@ private:
       
       template< typename T, typename TRecord, typename TDependsOnRecord >
          inline ESPreFunctorDecorator<TRecord,DependsOnCaller<T,TRecord, TDependsOnRecord, DependsOnDoNothingCaller<TRecord> > > 
-         createDecoratorFrom( T* iT, const TRecord*iRec, const depends_on::OneHolder<T,TDependsOnRecord>& iHolder ) {
+         createDecoratorFrom(T* iT, const TRecord*iRec, const depends_on::OneHolder<T,TDependsOnRecord>& iHolder) {
             DependsOnDoNothingCaller<TRecord> tCaller;
             ESPreFunctorDecorator<TRecord,DependsOnCaller<T,TRecord, TDependsOnRecord, DependsOnDoNothingCaller<TRecord> > >
-               temp( createDependsOnCaller(iT, iRec, iHolder.holdee_, tCaller ) );
+               temp(createDependsOnCaller(iT, iRec, iHolder.holdee_, tCaller));
             return temp;
          };
       
@@ -179,24 +179,24 @@ private:
          };
       template< typename T, typename TRecord, typename T1, typename T2>
          inline ESPreFunctorDecorator<TRecord,typename depends_on::HolderToCaller<TRecord, depends_on::TwoHolder<T1, T2> >::Caller_t >
-         createDecoratorFrom( T* iT, const TRecord*iRec, const depends_on::TwoHolder<T1,T2>& iHolder ) {
+         createDecoratorFrom(T* iT, const TRecord*iRec, const depends_on::TwoHolder<T1,T2>& iHolder) {
             return ESPreFunctorDecorator<TRecord, typename depends_on::HolderToCaller<TRecord,depends_on::TwoHolder< T1, T2> >::Caller_t >
-            ( createDependsOnCaller(iT, iRec, iHolder.h2_, makeCaller(iT, iRec, iHolder.h1_ ) ) );
+            (createDependsOnCaller(iT, iRec, iHolder.h2_, makeCaller(iT, iRec, iHolder.h1_)));
          };
       
       
       //The actual dependsOn functions which users call
       template <typename T, typename TDependsOnRecord>
          depends_on::OneHolder<T,TDependsOnRecord> 
-         dependsOn( void(T::*iT)(const TDependsOnRecord&) ) { return iT ; }
+         dependsOn(void(T::*iT)(const TDependsOnRecord&)) { return iT ; }
       
       template< typename T, typename T1, typename T2>
          depends_on::TwoHolder<depends_on::OneHolder<T,T1>, T2> 
-         dependsOn( void (T::* iT1)(const T1&), T2 iT2 ) { return depends_on::OneHolder<T, T1>(iT1) & iT2; }
+         dependsOn(void (T::* iT1)(const T1&), T2 iT2) { return depends_on::OneHolder<T, T1>(iT1) & iT2; }
       
       template< typename T, typename T1, typename T2, typename T3>
          depends_on::TwoHolder< depends_on::TwoHolder<depends_on::OneHolder<T,T1>, T2>, T3>
-         dependsOn( void(T::* iT1)(const T1&), T2 iT2, T3 iT3 ) { return depends_on::OneHolder<T,T1>(iT1) & iT2 & iT3; }
+         dependsOn(void(T::* iT1)(const T1&), T2 iT2, T3 iT3) { return depends_on::OneHolder<T,T1>(iT1) & iT2 & iT3; }
       
 
    }
