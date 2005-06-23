@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: AsciiOutputModule.cc,v 1.1 2005/05/29 02:29:54 wmtan Exp $
+$Id: AsciiOutputModule.cc,v 1.2 2005/06/09 01:53:38 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -31,7 +31,7 @@ namespace edm {
 	      std::ostream_iterator<EventPrincipal::ProcessNameList::value_type>(*pout_, " "));
 
     // ... collision id
-    *pout_ << '\n' << e.ID() << '\n';
+    *pout_ << '\n' << e.id() << '\n';
     
     // Loop over groups, and write some output for each...
 //     EventPrincipal::const_iterator it(e.begin());

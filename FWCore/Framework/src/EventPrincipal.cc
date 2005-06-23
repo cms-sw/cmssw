@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EventPrincipal.cc,v 1.6 2005/06/07 21:05:01 wmtan Exp $
+$Id: EventPrincipal.cc,v 1.7 2005/06/07 22:42:45 wmtan Exp $
 ----------------------------------------------------------------------*/
 //#include <iostream>
 #include <memory>
@@ -43,7 +43,7 @@ namespace edm {
   }
 
   CollisionID
-  EventPrincipal::ID() const
+  EventPrincipal::id() const
   {
     return aux_.id_;
   }

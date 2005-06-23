@@ -15,7 +15,7 @@ through shared pointers.
 The EventPrincipal returns Handle<EDProduct>, rather than a shared
 pointer to a Group, when queried.
 
-$Id: EventPrincipal.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
+$Id: EventPrincipal.h,v 1.2 2005/06/03 04:04:47 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <map>
@@ -56,7 +56,7 @@ namespace edm {
     EventPrincipal(const CollisionID& id, Retriever& r, const ProcessNameList& nl = ProcessNameList());
     ~EventPrincipal();
 
-    CollisionID ID() const;
+    CollisionID id() const;
 
     // next two will not be available for a little while...
     //      const Run& getRun() const; 

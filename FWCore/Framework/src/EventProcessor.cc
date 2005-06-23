@@ -297,9 +297,9 @@ namespace edm {
 	edm::Timestamp ts(eventcount);
 	EventSetup const& c = cp_.eventSetupForInstance(ts);
 
-	EventRegistry::instance()->addEvent(pep->ID(), pep.get());
+	EventRegistry::instance()->addEvent(pep->id(), pep.get());
 	runner_.runOneEvent(*pep.get(),c);
-	EventRegistry::instance()->removeEvent(pep->ID());
+	EventRegistry::instance()->removeEvent(pep->id());
       }
 
     return 0;
