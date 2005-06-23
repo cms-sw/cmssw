@@ -67,7 +67,7 @@ std::string EntryNode::name() const { return name_; }
 
 void EntryNode::print(std::ostream& ost) const
 {
-  const char* t = !tracked_?" ":"untracked ";
+  const char* t = !tracked_? "" : "untracked ";
   ost << t << type_ << " " << name_ << " = " << value_;
 }
 
@@ -90,7 +90,7 @@ std::string VEntryNode::name() const { return name_; }
 
 void VEntryNode::print(std::ostream& ost) const
 {
-  const char* t = !tracked_?" ":"untracked ";
+  const char* t = !tracked_ ? "" : "untracked ";
   ost << t << type_ << " " << name_ << " = {\n";
 
   if(!value_->empty())
@@ -123,7 +123,7 @@ std::string PSetRefNode::name() const { return name_; }
 
 void PSetRefNode::print(std::ostream& ost) const
 {
-  ost << " ParameterSet " << name_ << " = " << value_;
+  ost << "PSet " << name_ << " = " << value_;
 }
 
 void PSetRefNode::accept(Visitor& v) const
@@ -210,7 +210,7 @@ void VPSetNode::print(std::ostream& ost) const
 {
   if(value_==0) { std::cerr << "Badness" << endl; abort(); }
 
-  ost << type_ << " " << name_ << " = { \n";
+  ost << type_ << " " << name_ << " = {\n";
   if(!value_->empty())
     {
       //copy(value_->begin(),value_->end(),
@@ -283,7 +283,7 @@ Node* OperatorNode::getParent(){return parent_;}
 // ----------------------------------
 
 OperandNode::OperandNode(const string& type, const string& name, int line):
-  type_(type),name_(name),line_(line), parent_(0)
+  parent_(0), type_(type), name_(name), line_(line)
 {
   
 }
@@ -347,7 +347,7 @@ void ModuleNode::print(std::ostream& ost) const
 {
   ost << type_ << " " << name_ << " = " << class_ << "\n{\n";
   std::copy(nodes_->begin(),nodes_->end(),
-	    std::ostream_iterator<NodePtr>(ost,"\n  "));
+	    std::ostream_iterator<NodePtr>(ost,"\n"));
   ost << "\n}\n";
 }
 
