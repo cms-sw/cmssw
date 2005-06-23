@@ -5,7 +5,7 @@
 // Package:     CoreFramework
 // Class  :     ESProducer
 // 
-/**\class ESProducer ESProducer.h Core/CoreFramework/interface/ESProducer.h
+/**\class ESProducer ESProducer.h FWCore/CoreFramework/interface/ESProducer.h
 
  Description: An EventSetup algorithmic Provider that encapsulates the algorithm as a member method
 
@@ -66,7 +66,7 @@ Example: two algorithms each creating only one objects
 //
 // Author:      Chris Jones
 // Created:     Thu Apr  7 17:08:14 CDT 2005
-// $Id: ESProducer.h,v 1.2 2005/06/20 20:58:44 chrjones Exp $
+// $Id: ESProducer.h,v 1.3 2005/06/21 21:23:27 chrjones Exp $
 //
 
 // system include files
@@ -80,10 +80,20 @@ Example: two algorithms each creating only one objects
 #include "FWCore/CoreFramework/interface/Callback.h"
 #include "FWCore/CoreFramework/interface/produce_helpers.h"
 #include "FWCore/CoreFramework/interface/ESProducts.h"
+#include "FWCore/CoreFramework/interface/eventsetup_dependsOn.h"
 
 // forward declarations
 namespace edm {
    namespace eventsetup {      
+      
+      //used by ESProducer to create the proper Decorator based on the
+      //  argument type passed.  The default it to just 'pass through'
+      //  the argument as the decorator itself
+      template< typename T, typename TRecord, typename TDecorator >
+      inline const TDecorator& createDecoratorFrom( T*, const TRecord*, const TDecorator& iDec ) {
+         return iDec;
+      };
+      
 class ESProducer : public ProxyFactoryProducer
 {
 
@@ -97,11 +107,11 @@ class ESProducer : public ProxyFactoryProducer
 
       // ---------- member functions ---------------------------
    protected:
-         /** \param iThis the 'this' pointer to an inheriting class instance
+      /** \param iThis the 'this' pointer to an inheriting class instance
          The method determines the Record argument and return value of the 'produce'
          method in order to do the registration with the EventSetup
          */
-         template<typename T>
+      template<typename T>
          void setWhatProduced( T* iThis ) {
             using namespace boost;
             //BOOST_STATIC_ASSERT( (typename boost::is_base_and_derived<ED, T>::type) );
@@ -124,19 +134,27 @@ class ESProducer : public ProxyFactoryProducer
                                TReturn (T ::* iMethod)(const TRecord& ) ) {
             setWhatProduced( iThis, iMethod, CallbackSimpleDecorator<TRecord>() );
          }
-            /** \param iThis the 'this' pointer to an inheriting class instance
+      /** \param iThis the 'this' pointer to an inheriting class instance
          \param iMethod a member method of then inheriting class
          \param iDecorator a class with 'pre'&'post' methods which are placed around the method call
          The method determines the Record argument and return value of the iMethod argument
          method in order to do the registration with the EventSetup
          */
-      template<typename T, typename TReturn, typename TRecord, typename TDecorator>
+      template<typename T, typename TReturn, typename TRecord, typename TArg>
          void setWhatProduced( T* iThis, 
                               TReturn (T ::* iMethod)(const TRecord& ),
-                              const TDecorator& iDec = CallbackSimpleDecorator<TRecord>()) {
+                              const TArg& iDec ) {
             using namespace boost;
-            boost::shared_ptr<Callback<T,TReturn,TRecord, TDecorator> > callback( new
-                                                             Callback<T,TReturn,TRecord, TDecorator>( iThis, iMethod, iDec) );
+            boost::shared_ptr<Callback<T,TReturn,TRecord, typename DecoratorFromArg<T, TRecord, TArg>::Decorator_t > >
+                   callback( new Callback<T,
+                                          TReturn,
+                                          TRecord, 
+                                          typename DecoratorFromArg<T,TRecord,TArg>::Decorator_t>( 
+                                                               iThis, 
+                                                               iMethod, 
+                                                               createDecoratorFrom( iThis, 
+                                                                                    static_cast<const TRecord*>(0),
+                                                                                    iDec) ) );
             registerProducts( callback,
                               static_cast<const typename produce::product_traits<TReturn>::type *>(0),
                               static_cast<const TRecord*>(0) );
