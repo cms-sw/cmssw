@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
 
-$Id: PS_ID.cc,v 1.1 2005/05/29 02:29:54 wmtan Exp $
+$Id: PS_ID.cc,v 1.2 2005/06/23 19:59:48 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -21,13 +21,13 @@ namespace edm
   { }
 
   bool
-  PS_ID::operator< (const PS_ID& id) const
+  PS_ID::operator<(const PS_ID& id) const
   {
     return value_ < id.value_;
   }
 
   bool
-  PS_ID::operator== (const PS_ID& id) const
+  PS_ID::operator==(const PS_ID& id) const
   {
     return value_ == id.value_;
   }

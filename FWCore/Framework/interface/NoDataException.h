@@ -60,7 +60,7 @@
 //
 // Author:      Chris D Jones
 // Created:     Tue Dec  7 09:10:34 EST 1999
-// $Id: NoDataException.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
+// $Id: NoDataException.h,v 1.2 2005/06/23 19:59:30 wmtan Exp $
 //
 
 // system include files
@@ -94,7 +94,7 @@ class NoDataException : public std::exception
 
       // ---------- const member functions ---------------------
       const DataKey& dataKey() const { return dataKey_; }
-      virtual const char* what () const throw() { 
+      virtual const char* what() const throw() { 
         if(message_.size() == 0) {
           message_ = dataTypeMessage();
            message_+= std::string(" \n ")

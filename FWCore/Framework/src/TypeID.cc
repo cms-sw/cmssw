@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
   
-$Id: TypeID.cc,v 1.2 2005/04/06 12:27:10 paterno Exp $
+$Id: TypeID.cc,v 1.1 2005/05/29 02:29:54 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <ostream>
@@ -16,7 +16,7 @@ namespace edm
   }
 
   std::ostream&
-  operator<< (std::ostream& os, const TypeID& id)
+  operator<<(std::ostream& os, const TypeID& id)
   {
     id.print(os);
     return os;

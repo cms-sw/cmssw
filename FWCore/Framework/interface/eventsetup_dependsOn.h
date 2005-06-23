@@ -44,7 +44,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jun 23 14:06:56 EDT 2005
-// $Id: eventsetup_dependsOn.h,v 1.1 2005/06/23 19:55:34 chrjones Exp $
+// $Id: eventsetup_dependsOn.h,v 1.2 2005/06/23 20:35:42 wmtan Exp $
 //
 
 // system include files
@@ -68,7 +68,7 @@ namespace edm {
       DependsOnCaller(T* iCallee, void(T::* iMethod)(const TDependsOnRecord&) , const TCallerChain& iChain) : 
       callee_(iCallee), method_(iMethod), chain_(iChain), time_(Timestamp::invalidTimestamp()) {}
       
-      void operator() (const TRecord& iRecord) {
+      void operator()(const TRecord& iRecord) {
          const TDependsOnRecord& record = iRecord.template getRecord<TDependsOnRecord>();
          if(record.validityInterval().first() != time_) {
             (callee_->*method_)(record);

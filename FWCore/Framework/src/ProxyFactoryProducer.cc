@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Thu Apr  7 21:36:15 CDT 2005
-// $Id: ProxyFactoryProducer.cc,v 1.1 2005/05/29 02:29:54 wmtan Exp $
+// $Id: ProxyFactoryProducer.cc,v 1.2 2005/06/23 19:59:48 wmtan Exp $
 //
 
 // system include files
@@ -70,7 +70,7 @@ ProxyFactoryProducer::registerProxies(const EventSetupRecordKey& iRecord,
    std::pair< Iterator, Iterator > range = record2Factories_.equal_range(iRecord);
    for(Iterator it = range.first; it != range.second; ++it) {
       
-      boost::shared_ptr<DataProxy> proxy (it->second.factory_->makeProxy().release());
+      boost::shared_ptr<DataProxy> proxy(it->second.factory_->makeProxy().release());
       if(0 != proxy.get()) {
          iProxies.push_back(KeyedProxies::value_type((*it).second.key_,
                                          proxy));

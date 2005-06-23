@@ -15,7 +15,7 @@
 //
 // Author:      Valentine Kouznetsov
 // Created:     Wed Apr 23 10:58:26 EDT 2003
-// $Id: NoProxyException.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
+// $Id: NoProxyException.h,v 1.2 2005/06/23 19:59:30 wmtan Exp $
 //
 //
 
@@ -51,7 +51,7 @@ class NoProxyException : public NoDataException<T>
       // ---------- member functions ---------------------------
 
       // ---------- const member functions ---------------------
-      virtual const char* what () const throw() { 
+      virtual const char* what()const throw() { 
          /*
          std::stringstream m_stream1, m_stream2;
         // Evaluate more precisely what is going on with thrown exception

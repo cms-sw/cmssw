@@ -6,7 +6,7 @@
 Group: A collection of information related to a single EDProduct. This
 is the storage unit of such information.
 
-$Id: Group.h,v 1.6 2005/05/03 19:27:52 wmtan Exp $
+$Id: Group.h,v 1.1 2005/05/29 02:29:54 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -63,7 +63,7 @@ namespace edm
 
   inline
   std::ostream&
-  operator<< (std::ostream& os, const Group& g)
+  operator<<(std::ostream& os, const Group& g)
   {
     g.write(os);
     return os;

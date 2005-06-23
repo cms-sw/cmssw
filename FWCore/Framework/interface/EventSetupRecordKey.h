@@ -42,7 +42,7 @@ class EventSetupRecordKey
       // ---------- const member functions ---------------------
       const TypeTag& type() const { return type_;}
       
-      bool operator< (const EventSetupRecordKey& iRHS) const {
+      bool operator<(const EventSetupRecordKey& iRHS) const {
          return type_ < iRHS.type_;
       }
       bool operator==(const EventSetupRecordKey& iRHS) const {

@@ -167,23 +167,23 @@ namespace cms
     template <class E>
     friend
     typename detail::Desired<E, detail::is_derived_or_same<Exception,E>::value>::type &
-    operator<<(E& e, std::ostream& (*f)(std::ostream&));
+    operator<<(E& e, std::ostream&(*f)(std::ostream&));
 
     template <class E>
     friend
     typename detail::Desired<E, detail::is_derived_or_same<Exception,E>::value>::type const&
-    operator<<(E const& e, std::ostream& (*f)(std::ostream&));
+    operator<<(E const& e, std::ostream&(*f)(std::ostream&));
 
   
     template <class E>
     friend
     typename detail::Desired<E, detail::is_derived_or_same<Exception,E>::value>::type &
-    operator<<(E& e, std::ios_base& (*f)(std::ios_base&));
+    operator<<(E& e, std::ios_base&(*f)(std::ios_base&));
 
     template <class E>
     friend
     typename detail::Desired<E, detail::is_derived_or_same<Exception,E>::value>::type const&
-    operator<<(E const& e, std::ios_base& (*f)(std::ios_base&));
+    operator<<(E const& e, std::ios_base&(*f)(std::ios_base&));
 
     // The following two function templates should be included, to help
     // reduce the number of function templates instantiated. However,
@@ -247,7 +247,7 @@ namespace cms
   template <class E>
   inline 
   typename detail::Desired<E, detail::is_derived_or_same<Exception,E>::value>::type &
-  operator<<(E& e, std::ostream& (*f)(std::ostream&))
+  operator<<(E& e, std::ostream&(*f)(std::ostream&))
   {
     f(e.ost_);
     return e;
@@ -256,7 +256,7 @@ namespace cms
   template <class E>
   inline 
   typename detail::Desired<E, detail::is_derived_or_same<Exception,E>::value>::type const&
-  operator<<(E const& e, std::ostream& (*f)(std::ostream&))
+  operator<<(E const& e, std::ostream&(*f)(std::ostream&))
   {
     E& ref = const_cast<E&>(e);
     f(ref.ost_);
@@ -266,7 +266,7 @@ namespace cms
   template <class E>
   inline
   typename detail::Desired<E, detail::is_derived_or_same<Exception,E>::value>::type & 
-  operator<<(E& e, std::ios_base& (*f)(std::ios_base&))
+  operator<<(E& e, std::ios_base&(*f)(std::ios_base&))
   {
     f(e.ost_);
     return e;
@@ -276,7 +276,7 @@ namespace cms
   template <class E>
   inline
   typename detail::Desired<E, detail::is_derived_or_same<Exception,E>::value>::type const& 
-  operator<<(E const& e, std::ios_base& (*f)(std::ios_base&))
+  operator<<(E const& e, std::ios_base&(*f)(std::ios_base&))
   {
     E& ref = const_cast<E&>(e);
     f(ref.ost_);

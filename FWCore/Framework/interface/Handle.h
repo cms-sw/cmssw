@@ -19,7 +19,7 @@ Handles can have:
 
 To check validity, one can use the isValid() function.
 
-$Id: Handle.h,v 1.4 2005/05/03 19:27:52 wmtan Exp $
+$Id: Handle.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -50,7 +50,7 @@ namespace edm
     void swap(Handle<T>& other);
 
     
-    Handle<T>& operator= (const Handle<T>& rhs);
+    Handle<T>& operator=(const Handle<T>& rhs);
 
     // The following code is how I thought disable_if should be used ...
     // but this use fails, for reasons unknown to me.
@@ -60,7 +60,7 @@ namespace edm
     //     typename boost::disable_if_c<boost::is_same<T, EDProduct>::value
     //                                 , Handle<T>&
     //                                 >::type
-    //     operator= (const Handle<EDProduct>& rhs);
+    //     operator=(const Handle<EDProduct>& rhs);
 
     bool isValid() const;
 
@@ -112,7 +112,7 @@ namespace edm
 
   template <class T>
   Handle<T>&
-  Handle<T>::operator= (const Handle<T>& rhs)
+  Handle<T>::operator=(const Handle<T>& rhs)
   {
     Handle<T> temp(rhs);
     this->swap(temp);

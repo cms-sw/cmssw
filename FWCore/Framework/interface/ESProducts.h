@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Sun Apr 17 17:30:46 EDT 2005
-// $Id: ESProducts.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
+// $Id: ESProducts.h,v 1.2 2005/06/23 19:59:30 wmtan Exp $
 //
 
 // system include files
@@ -76,7 +76,7 @@ namespace edm {
             }
          template< typename T, typename U, typename V>
             MultiHolder< MultiHolder<T, U>, V >
-            operator<< (const MultiHolder<T,U>& iHolder, const V& iValue) {
+            operator<<(const MultiHolder<T,U>& iHolder, const V& iValue) {
                return MultiHolder< MultiHolder<T, U>, V> (iHolder, iValue);
             }
          

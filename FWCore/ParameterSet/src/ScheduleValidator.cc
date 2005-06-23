@@ -3,11 +3,11 @@
    Implementation of class ScheduleValidator
 
    \author Stefano ARGIRO
-   \version $Id: ScheduleValidator.cc,v 1.3 2005/06/22 08:29:27 argiro Exp $
+   \version $Id: ScheduleValidator.cc,v 1.4 2005/06/23 19:57:23 wmtan Exp $
    \date 10 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ScheduleValidator.cc,v 1.3 2005/06/22 08:29:27 argiro Exp $";
+static const char CVSId[] = "$Id: ScheduleValidator.cc,v 1.4 2005/06/23 19:57:23 wmtan Exp $";
 
 #include <FWCore/ParameterSet/src/ScheduleValidator.h>
 
@@ -109,9 +109,9 @@ void ScheduleValidator::validate(){
       if (old_deplist !=  dep) {
 
 	ostringstream err,olddepstr,newdepstr;
-	copy (old_deplist.begin(),  old_deplist.end(), 
+	copy(old_deplist.begin(), old_deplist.end(), 
 	      ostream_iterator<string>(olddepstr,","));
-	copy (dep.begin(),  dep.end(), 
+	copy(dep.begin(), dep.end(), 
 	      ostream_iterator<string>(newdepstr,","));
 
 	err<<"Inconsistent schedule for module " << (*leafIt)->name() <<"\n";
@@ -157,7 +157,7 @@ ScheduleValidator::dependencies(const std::string& modulename) const{
   }
 
   ostringstream deplist;
-  copy ((*depIt).second.begin(),  (*depIt).second.end(), 
+  copy((*depIt).second.begin(), (*depIt).second.end(), 
 	      ostream_iterator<string>(deplist,","));
   return deplist.str();
 

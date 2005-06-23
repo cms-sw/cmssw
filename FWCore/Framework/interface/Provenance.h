@@ -6,7 +6,7 @@
 Provenance: The full description of a product and how it came into
 existence.
 
-$Id: Provenance.h,v 1.3 2005/06/07 22:42:45 wmtan Exp $
+$Id: Provenance.h,v 1.4 2005/06/23 19:59:30 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <ostream>
 #include <string>
@@ -121,7 +121,7 @@ namespace edm {
   
   inline
   std::ostream&
-  operator<< (std::ostream& os, const Provenance& p)
+  operator<<(std::ostream& os, const Provenance& p)
   {
     p.write(os);
     return os;
