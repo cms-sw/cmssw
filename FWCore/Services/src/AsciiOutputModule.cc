@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: AsciiOutputModule.cc,v 1.2 2005/06/09 01:53:38 wmtan Exp $
+$Id: AsciiOutputModule.cc,v 1.3 2005/06/23 04:33:54 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -15,14 +15,28 @@ $Id: AsciiOutputModule.cc,v 1.2 2005/06/09 01:53:38 wmtan Exp $
 namespace edm {
 
   AsciiOutputModule::AsciiOutputModule(ParameterSet const& pset, std::ostream* os) :
-    OutputModule(pset),
+    OutputModule(pset.getUntrackedParameter("select", ParameterSet())),
+    prescale_(pset.getUntrackedParameter("prescale", 1)),
+    verbosity_(pset.getUntrackedParameter("verbosity", 1)),
+    counter_(0),
     pout_(os)
   {}
 
-  AsciiOutputModule::~AsciiOutputModule() {}
+  AsciiOutputModule::~AsciiOutputModule() {
+    *pout_ << ">>> processed " << counter_ << " events" << std::endl;
+  }
 
   void
   AsciiOutputModule::write(const EventPrincipal& e) {
+
+
+    if ((++counter_ % prescale_) != 0 || verbosity_ <= 0) return;
+
+    //  const Run & run = evt.getRun(); // this is still unused
+    *pout_ << ">>> processing event # " << e.id() << std::endl;
+
+    if (verbosity_ <= 1) return;
+
     // Write out non-EDProduct contents...
 
     // ... list of process-names
@@ -34,13 +48,10 @@ namespace edm {
     *pout_ << '\n' << e.id() << '\n';
     
     // Loop over groups, and write some output for each...
-//     EventPrincipal::const_iterator it(e.begin());
-//     EventPrincipal::const_iterator end(e.end());
 
     for(EventPrincipal::const_iterator i = e.begin(); i != e.end(); ++i) {
       Provenance const& prov = *(*i)->provenance();
-      std::string const& ml = prov.module.module_label;
-      if (selected(ml)) {
+      if (selected(prov)) {
         *pout_ << *i << '\n';
       }
     }

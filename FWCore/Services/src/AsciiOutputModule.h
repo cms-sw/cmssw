@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: AsciiOutputModule.h,v 1.2 2005/06/07 23:47:36 wmtan Exp $
+$Id: AsciiOutputModule.h,v 1.3 2005/06/09 01:53:38 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <ostream>
@@ -17,6 +17,9 @@ namespace edm {
     virtual void write(const EventPrincipal& e);
 
   private:
+    int prescale_;
+    int verbosity_;
+    int counter_;
     std::ostream* pout_;
   };
 }

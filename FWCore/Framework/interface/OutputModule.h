@@ -6,7 +6,7 @@
 OutputModule: The base class of all "modules" that write Events to an
 output stream.
 
-$Id: OutputModule.h,v 1.3 2005/06/08 21:15:55 wmtan Exp $
+$Id: OutputModule.h,v 1.4 2005/06/23 05:23:10 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -24,7 +24,7 @@ namespace edm
     explicit OutputModule(ParameterSet const& pset) : groupSelector_(pset) {}
     virtual ~OutputModule();
     virtual void write(const EventPrincipal& e) = 0;
-    bool selected(std::string const& label) const {return groupSelector_.selected(label);}
+    bool selected(Provenance const& prov) const {return groupSelector_.selected(prov);}
   private:
     GroupSelector groupSelector_;
   };
