@@ -1,7 +1,7 @@
 #!/bin/sh
 
 #----------------------------------------------------------------------
-# $Id: run_all.sh,v 1.2 2005/06/05 02:07:45 wmtan Exp $
+# $Id: run_all.sh,v 1.1 2005/06/22 22:22:30 paterno Exp $
 #----------------------------------------------------------------------
 
 # Pass in name and status
@@ -14,6 +14,7 @@ do_or_die Simple_t
 do_or_die Exception_t
 do_or_die ExceptionDerived_t
 do_or_die CodedException_t
+do_or_die EDMException_t
 
 
 
