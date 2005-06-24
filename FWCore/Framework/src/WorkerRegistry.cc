@@ -3,11 +3,11 @@
    Implementation of class WorkerRegistry
 
    \author Stefano ARGIRO
-   \version $Id: WorkerRegistry.cc,v 1.1 2005/05/29 02:29:54 wmtan Exp $
+   \version $Id: WorkerRegistry.cc,v 1.2 2005/06/23 19:59:48 wmtan Exp $
    \date 18 May 2005
 */
 
-static const char CVSId[] = "$Id: WorkerRegistry.cc,v 1.1 2005/05/29 02:29:54 wmtan Exp $";
+static const char CVSId[] = "$Id: WorkerRegistry.cc,v 1.2 2005/06/23 19:59:48 wmtan Exp $";
 
 
 #include "FWCore/CoreFramework/src/WorkerRegistry.h"
@@ -20,15 +20,9 @@ static const char CVSId[] = "$Id: WorkerRegistry.cc,v 1.1 2005/05/29 02:29:54 wm
 using namespace std;
 using namespace edm;
 
-WorkerRegistry* WorkerRegistry::m_singleInstance=0;
-
 WorkerRegistry* WorkerRegistry::get(){
-
-  if (!m_singleInstance){
-    m_singleInstance= new WorkerRegistry;
-  }
-  return m_singleInstance;
-
+  static WorkerRegistry m_singleInstance;
+  return & m_singleInstance;
 }
 
 
@@ -37,7 +31,6 @@ WorkerRegistry:: ~WorkerRegistry(){
   for (WorkerMap::iterator workerIt = m_workerMap.begin();
 	 workerIt != m_workerMap.end() ; ++ workerIt)
     delete workerIt->second;
-
 }
 
 

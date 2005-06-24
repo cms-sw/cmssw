@@ -3,14 +3,14 @@
    Declaration of class ModuleRegistry
 
    \author Stefano ARGIRO
-   \version $Id: WorkerRegistry.h,v 1.3 2005/05/26 08:28:13 argiro Exp $
+   \version $Id: WorkerRegistry.h,v 1.1 2005/05/29 02:29:54 wmtan Exp $
    \date 18 May 2005
 */
 
 #ifndef _edm_ModuleRegistry_h_
 #define _edm_ModuleRegistry_h_
 
-static const char CVSId_edm_ModuleRegistry[] = "$Id: WorkerRegistry.h,v 1.3 2005/05/26 08:28:13 argiro Exp $";
+static const char CVSId_edm_ModuleRegistry[] = "$Id: WorkerRegistry.h,v 1.1 2005/05/29 02:29:54 wmtan Exp $";
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <map>
@@ -54,9 +54,6 @@ namespace edm {
      
     WorkerRegistry(){}
   
-    /// single instance
-    static WorkerRegistry*  m_singleInstance;
-
     /// Get a unique name for the worker
     /** Form a string to be used as a key in the map of workers */
     std::string mangleWorkerParameters(ParameterSet const& parameterSet,
