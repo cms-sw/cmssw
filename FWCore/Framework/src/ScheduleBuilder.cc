@@ -3,11 +3,11 @@
    Implementation of class ScheduleBuilder
 
    \author Stefano ARGIRO
-   \version $Id: ScheduleBuilder.cc,v 1.6 2005/06/14 23:15:13 wmtan Exp $
+   \version $Id: ScheduleBuilder.cc,v 1.7 2005/06/18 02:18:10 wmtan Exp $
    \date 18 May 2005
 */
 
-static const char CVSId[] = "$Id: ScheduleBuilder.cc,v 1.6 2005/06/14 23:15:13 wmtan Exp $";
+static const char CVSId[] = "$Id: ScheduleBuilder.cc,v 1.7 2005/06/18 02:18:10 wmtan Exp $";
 
 
 #include "FWCore/CoreFramework/interface/ScheduleBuilder.h"
@@ -20,8 +20,9 @@ static const char CVSId[] = "$Id: ScheduleBuilder.cc,v 1.6 2005/06/14 23:15:13 w
 using namespace edm;
 using namespace std;
 
-ScheduleBuilder::ScheduleBuilder(ParameterSet const& processDesc): 
-  m_processDesc(processDesc){
+ScheduleBuilder::ScheduleBuilder(ParameterSet const& processDesc,
+				 WorkerRegistry * registry): 
+  m_processDesc(processDesc), m_registry(registry){
 
 
   seal::PluginManager::get()->initialise();
@@ -54,7 +55,7 @@ ScheduleBuilder::ScheduleBuilder(ParameterSet const& processDesc):
       unsigned long pass    = 1;
     
       Worker* worker= 
-	WorkerRegistry::get()->getWorker(module_pset,processName,version,pass);
+	m_registry->getWorker(module_pset,processName,version,pass);
       
       workerList.push_back(worker);
       
@@ -63,9 +64,7 @@ ScheduleBuilder::ScheduleBuilder(ParameterSet const& processDesc):
     m_PathList.push_back(workerList);
     
   } // loop on paths
-  
-  validate();
-  
+    
 }
 
 
@@ -74,8 +73,6 @@ const ScheduleBuilder::PathList& ScheduleBuilder::getPathList() const{
   return m_PathList;
 }
 
-
-bool  ScheduleBuilder::validate(){return true;}
 
 
 // Configure (x)emacs for this file ...
