@@ -3,14 +3,14 @@
    Declaration of class ModuleRegistry
 
    \author Stefano ARGIRO
-   \version $Id: WorkerRegistry.h,v 1.1 2005/05/29 02:29:54 wmtan Exp $
+   \version $Id: WorkerRegistry.h,v 1.2 2005/06/24 09:10:17 llista Exp $
    \date 18 May 2005
 */
 
 #ifndef _edm_ModuleRegistry_h_
 #define _edm_ModuleRegistry_h_
 
-static const char CVSId_edm_ModuleRegistry[] = "$Id: WorkerRegistry.h,v 1.1 2005/05/29 02:29:54 wmtan Exp $";
+static const char CVSId_edm_ModuleRegistry[] = "$Id: WorkerRegistry.h,v 1.2 2005/06/24 09:10:17 llista Exp $";
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <map>
@@ -35,10 +35,7 @@ namespace edm {
   class WorkerRegistry {
 
   public:
-    
-    /// retrieve the single instance
-    static WorkerRegistry* get();
-
+ 
     ~WorkerRegistry();
         
     /// Retrieve the particular instance of the worker
@@ -52,7 +49,6 @@ namespace edm {
     
   private:
      
-    WorkerRegistry(){}
   
     /// Get a unique name for the worker
     /** Form a string to be used as a key in the map of workers */

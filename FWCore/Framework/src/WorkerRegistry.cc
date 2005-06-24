@@ -3,11 +3,11 @@
    Implementation of class WorkerRegistry
 
    \author Stefano ARGIRO
-   \version $Id: WorkerRegistry.cc,v 1.2 2005/06/23 19:59:48 wmtan Exp $
+   \version $Id: WorkerRegistry.cc,v 1.3 2005/06/24 09:10:17 llista Exp $
    \date 18 May 2005
 */
 
-static const char CVSId[] = "$Id: WorkerRegistry.cc,v 1.2 2005/06/23 19:59:48 wmtan Exp $";
+static const char CVSId[] = "$Id: WorkerRegistry.cc,v 1.3 2005/06/24 09:10:17 llista Exp $";
 
 
 #include "FWCore/CoreFramework/src/WorkerRegistry.h"
@@ -20,10 +20,7 @@ static const char CVSId[] = "$Id: WorkerRegistry.cc,v 1.2 2005/06/23 19:59:48 wm
 using namespace std;
 using namespace edm;
 
-WorkerRegistry* WorkerRegistry::get(){
-  static WorkerRegistry m_singleInstance;
-  return & m_singleInstance;
-}
+
 
 
 WorkerRegistry:: ~WorkerRegistry(){
