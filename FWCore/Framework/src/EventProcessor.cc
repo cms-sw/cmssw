@@ -160,7 +160,7 @@ namespace edm {
     string                  configstring_;
     boost::shared_ptr<ParameterSet> params_;
     CommonParams            common_;
-    WorkerRegistry*         reg_;
+    WorkerRegistry          reg_;
     PathList                workers_;
 
     boost::shared_ptr<InputService> input_;
@@ -173,8 +173,7 @@ namespace edm {
   
   FwkImpl::FwkImpl(int argc, char* argv[]) :
     args_(fillArgs(argc,argv)),
-    configstring_(readFile(args_)),
-    reg_(WorkerRegistry::get())
+    configstring_(readFile(args_))
   {
     
     ProcessPSetBuilder builder(configstring_);
@@ -184,7 +183,7 @@ namespace edm {
 		   getVersion(), // this is not written for real yet
 		   0); // how is this specifified? Where does it come from?
  
-    ScheduleBuilder sbuilder= ScheduleBuilder(*params_);
+    ScheduleBuilder sbuilder= ScheduleBuilder(*params_,&reg_);
     
     workers_= (sbuilder.getPathList());
     input_= makeInput(*params_,common_);
@@ -195,8 +194,7 @@ namespace edm {
 
   FwkImpl::FwkImpl(int argc, char* argv[], const string& config) :
     args_(fillArgs(argc,argv)),
-    configstring_(config),
-    reg_(WorkerRegistry::get()){
+    configstring_(config){
     ProcessPSetBuilder builder(configstring_);
     params_ = builder.getProcessPSet();
     common_ = 
@@ -204,7 +202,7 @@ namespace edm {
 		   getVersion(), // this is not written for real yet
 		   0); // how is this specifified? Where does it come from?
  
-    ScheduleBuilder sbuilder= ScheduleBuilder(*params_);
+    ScheduleBuilder sbuilder= ScheduleBuilder(*params_,&reg_);
     
     workers_= (sbuilder.getPathList());
     input_= makeInput(*params_,common_);
@@ -215,8 +213,7 @@ namespace edm {
 
   FwkImpl::FwkImpl(const string& config) :
     args_(),
-    configstring_(config),
-    reg_(WorkerRegistry::get()){
+    configstring_(config){
 
     ProcessPSetBuilder builder(configstring_);
     params_ = builder.getProcessPSet();
@@ -225,7 +222,7 @@ namespace edm {
 		   getVersion(), // this is not written for real yet
 		   0); // how is this specifified? Where does it come from?
  
-    ScheduleBuilder sbuilder= ScheduleBuilder(*params_);
+    ScheduleBuilder sbuilder= ScheduleBuilder(*params_,&reg_);
     
     workers_= (sbuilder.getPathList());
     input_= makeInput(*params_,common_);
