@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: AsciiOutputModule.cc,v 1.3 2005/06/23 04:33:54 wmtan Exp $
+$Id: AsciiOutputModule.cc,v 1.4 2005/06/24 23:32:13 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -16,11 +16,12 @@ namespace edm {
 
   AsciiOutputModule::AsciiOutputModule(ParameterSet const& pset, std::ostream* os) :
     OutputModule(pset.getUntrackedParameter("select", ParameterSet())),
-    prescale_(pset.getUntrackedParameter("prescale", 1)),
-    verbosity_(pset.getUntrackedParameter("verbosity", 1)),
+    prescale_(pset.getUntrackedParameter("prescale", 1U)),
+    verbosity_(pset.getUntrackedParameter("verbosity", 1U)),
     counter_(0),
-    pout_(os)
-  {}
+    pout_(os) {
+    if (prescale_ == 0) prescale_ = 1;
+  }
 
   AsciiOutputModule::~AsciiOutputModule() {
     *pout_ << ">>> processed " << counter_ << " events" << std::endl;
