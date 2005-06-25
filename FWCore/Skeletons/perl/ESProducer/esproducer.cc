@@ -26,6 +26,8 @@
 #include "FWCore/CoreFramework/interface/ModuleFactory.h"
 #include "FWCore/CoreFramework/interface/ESProducer.h"
 
+#include "FWCore/CoreFramework/interface/ESHandle.h"
+
 @perl if( 1 lt scalar( @::datatypes ) ) {$result="#include \"FWCore/CoreFramework/interface/ESProducts.h\""; } @\perl
 
 
@@ -40,7 +42,7 @@ class prodname : public edm::eventsetup::ESProducer {
 
       typedef @perl if( 1 eq scalar( @::datatypes ) ) { $result="std::auto_ptr<$::datatypes[0]>"; } else { $result="edm::eventsetup::ESProducts("; $line = 0; foreach $type ( @::datatypes ) { if ($line) { $result = "$result, "; } $result= "$result $type";  $line =1;} $result="$result)"; }  @\perl ReturnType;
 
-      ReturnedType produce( const recordname& );
+      ReturnType produce( const recordname& );
    private:
       // ----------member data ---------------------------
 };
@@ -80,7 +82,7 @@ prodname::~prodname()
 //
 
 // ------------ method called to produce the data  ------------
-prodname::ReturnedType
+prodname::ReturnType
 prodname::produce( const recordname& iRecord )
 {
    using namespace edm::eventsetup;

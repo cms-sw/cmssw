@@ -40,7 +40,7 @@ class anlzrname : public edm::EDAnalyzer {
       ~anlzrname();
 
 
-      virtual void analyze( const Event&, const EventSetup& );
+      virtual void analyze( const edm::Event&, const edm::EventSetup& );
    private:
       // ----------member data ---------------------------
 };
@@ -87,7 +87,7 @@ anlzrname::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 #endif
 
 #ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
-   ESHandle<SetupData> pSetup;
+   eventsetup::ESHandle<SetupData> pSetup;
    iSetup.get<SetupRecord>().get( pSetup );
 #endif
 }
