@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 18:01:38 EDT 2005
-// $Id: SourceFactory.h,v 1.2 2005/06/14 21:49:15 wmtan Exp $
+// $Id: SourceFactory.h,v 1.3 2005/06/23 19:59:30 wmtan Exp $
 //
 
 // system include files
@@ -65,6 +65,9 @@ namespace edm {
 
 #define DEFINE_FWK_EVENTSETUP_SOURCE(type) \
 DEFINE_SEAL_MODULE (); \
+DEFINE_SEAL_PLUGIN (edm::eventsetup::SourceFactory,edm::eventsetup::SourceMaker<type>,#type);
+
+#define DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(type) \
 DEFINE_SEAL_PLUGIN (edm::eventsetup::SourceFactory,edm::eventsetup::SourceMaker<type>,#type);
 
 #endif /* EVENTSETUP_SOURCEFACTORY_H */
