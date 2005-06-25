@@ -65,6 +65,9 @@ $recordname = "";
 
 $commandFullPath = $0;
 
+use FindBin;
+use lib "$FindBin::Bin";
+
 &read_args(@ARGV);
 
 use SkelParser;

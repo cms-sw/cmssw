@@ -60,6 +60,9 @@ $author1 = "";
 $author2 = "";
 $recordname = "";
 
+use FindBin;
+use lib "$FindBin::Bin";
+
 $commandFullPath = $0;
 
 &read_args(@ARGV);
