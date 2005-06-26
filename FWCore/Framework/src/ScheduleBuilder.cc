@@ -3,11 +3,11 @@
    Implementation of class ScheduleBuilder
 
    \author Stefano ARGIRO
-   \version $Id: ScheduleBuilder.cc,v 1.7 2005/06/18 02:18:10 wmtan Exp $
+   \version $Id: ScheduleBuilder.cc,v 1.8 2005/06/24 14:55:07 argiro Exp $
    \date 18 May 2005
 */
 
-static const char CVSId[] = "$Id: ScheduleBuilder.cc,v 1.7 2005/06/18 02:18:10 wmtan Exp $";
+static const char CVSId[] = "$Id: ScheduleBuilder.cc,v 1.8 2005/06/24 14:55:07 argiro Exp $";
 
 
 #include "FWCore/CoreFramework/interface/ScheduleBuilder.h"
@@ -61,7 +61,7 @@ ScheduleBuilder::ScheduleBuilder(ParameterSet const& processDesc,
       
     }// for
     
-    m_PathList.push_back(workerList);
+    m_pathList.push_back(workerList);
     
   } // loop on paths
     
@@ -70,7 +70,7 @@ ScheduleBuilder::ScheduleBuilder(ParameterSet const& processDesc,
 
 const ScheduleBuilder::PathList& ScheduleBuilder::getPathList() const{
  
-  return m_PathList;
+  return m_pathList;
 }
 
 
