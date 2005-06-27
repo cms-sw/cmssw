@@ -121,7 +121,7 @@ namespace edm {
   {
      using namespace std;
      using namespace edm::eventsetup;
-     vector<string> providers = params_.getParameter<vector<string> >("allesmodules");
+     vector<string> providers = params_.getParameter<vector<string> >("all_esmodules");
      for(vector<string>::iterator itName = providers.begin();
           itName != providers.end();
           ++itName) {
@@ -133,7 +133,7 @@ namespace edm {
                                      common.pass_);
      }
 
-     vector<string> sources = params_.getParameter<vector<string> >("allessources");
+     vector<string> sources = params_.getParameter<vector<string> >("all_essources");
      for(vector<string>::iterator itName = sources.begin();
           itName != sources.end();
           ++itName) {
