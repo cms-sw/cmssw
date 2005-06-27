@@ -2,14 +2,14 @@
 #define FWK_CMS_EXCEPTION_HH
 
 /**
-   This a basic exception type expected to be thown by
+   This a basic exception type expected to be thrown by
    developer-written code.  We recommend that you use it directly.
    It can also be used as a base class if needed.
 
-   Each Exception is identified by a category string.  This is category
+   Each Exception is identified by a category string.  This category
    is a short word or phrase (no spaces) that described the problem
    that was encountered.  These category identifiers can be
-   concatenated if exceptions are and caught and rethrown and the
+   concatenated if exceptions are caught and rethrown and the
    entire list can be accessed using the history() call.
 
    Example:
@@ -62,7 +62,7 @@
 
    Fixed format Framework supplied context information will be
    specially tagged.  See the framework error section of the roadmap
-   for details on the format and tags of framework suppied information.
+   for details on the format and tags of framework supplied information.
 
 
    TODO: Update the example to match the final formatting, when that
@@ -140,7 +140,7 @@ namespace cms
     // classes.
     //
 
-    // We have provided versions of these template which accept, and
+    // We have provided versions of these templates which accept, and
     // return, reference-to-const objects of type E. These are needed
     // so that the expression:
     //
