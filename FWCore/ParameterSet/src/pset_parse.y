@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.1 2005/05/29 02:29:55 wmtan Exp $
+ * $Id: pset_parse.y,v 1.2 2005/06/23 21:36:54 paterno Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -125,6 +125,7 @@ inline string toString(char* arg) { string s(arg); free(arg); return s; }
 
 %left  AND_tok
 %token SOURCE_tok
+%token SECSOURCE_tok
 %token ES_SOURCE_tok
 %token PATH_tok
 %token SEQUENCE_tok
@@ -133,6 +134,8 @@ inline string toString(char* arg) { string s(arg); free(arg); return s; }
 %token USING_tok
 %token MODULE_tok
 %token ES_MODULE_tok
+%token MIXER_tok
+%token MIXERPATH_tok
 %token PROCESS_tok
 %token GROUP_START_tok
 %token GROUP_END_tok
@@ -154,7 +157,7 @@ main:            process
                  }
                ;
 
-/* return a NodePtrList pointer */
+/* Return a NodePtrList pointer */
 nodes:           nodes node
                  {
                    DBPRINT("nodes: nodes node");
@@ -179,7 +182,7 @@ nodes:           nodes node
                  }
                ;
 
-/* return a NodePtr pointer */
+/* Return a NodePtr pointer */
 node:            untracked TYPE_tok LETTERSTART_tok EQUAL_tok any
                  {
                    DBPRINT("node: TYPE");
@@ -236,10 +239,10 @@ node:            untracked TYPE_tok LETTERSTART_tok EQUAL_tok any
                  }
                ;
 
-/* return a PSetNode pointer */
+/* Return a PSetNode pointer */
 allpset:         PSET_tok LETTERSTART_tok EQUAL_tok scoped
                  {
-                   DBPRINT("node: PSET");
+                   DBPRINT("node: PSET (scoped)");
                    string name(toString($<str>2));
                    NodePtrListPtr value($<_NodePtrList>4);
                    PSetNode* en(new PSetNode("PSet",name,value,lines));
@@ -248,6 +251,7 @@ allpset:         PSET_tok LETTERSTART_tok EQUAL_tok scoped
                |
                  PSET_tok LETTERSTART_tok EQUAL_tok any
                  {
+		   DBPRINT("node: PSET (any)");
                    string name(toString($<str>2));
                    string value(toString($<str>4));
                    PSetRefNode* en(new PSetRefNode(name,value,lines));
@@ -262,7 +266,36 @@ allpset:         PSET_tok LETTERSTART_tok EQUAL_tok scoped
                    VPSetNode* en(new VPSetNode("VPSet",name,value,lines));
                    $<_Node>$ = en;
                  }
-               ;
+               |
+                 MIXER_tok LETTERSTART_tok EQUAL_tok LETTERSTART_tok scoped
+		 {
+		   DBPRINT("node: MIXER");
+                   string name(toString($<str>2));
+                   string type(toString($<str>4));
+                   NodePtrListPtr nodelist($<_NodePtrList>5);
+                   ModuleNode* wn(new ModuleNode("mixer",name,type,nodelist,lines));
+                   $<_Node>$ = wn;
+		 }
+	       |
+                 SECSOURCE_tok LETTERSTART_tok EQUAL_tok LETTERSTART_tok scoped		 
+	         {
+                   DBPRINT("node: SECSOURCE");
+                   string name(toString($<str>2));
+                   string type(toString($<str>4));
+                   NodePtrListPtr nodelist($<_NodePtrList>5);
+                   ModuleNode* wn(new ModuleNode("secsource",name,type,nodelist,lines));
+                   $<_Node>$ = wn;
+		 }
+	       |
+	         MIXERPATH_tok LETTERSTART_tok EQUAL_tok SCOPE_START_tok pathseq SCOPE_END_tok
+	         {
+                   DBPRINT("procnode: PATH");
+                   string name(toString($<str>2));
+                   NodePtr path($<_Node>5);
+                   WrapperNode* wn(new WrapperNode("mixer_path",name,path,lines));
+                   $<_Node>$ = wn;
+		 }
+	       ;
 
 /* Returns a NodePtrList pointer */
 nodesarray:      nodesarray COMMA_tok scoped
@@ -415,227 +448,231 @@ untracked:
                    $<_bool>$ = true;
                  }
                ;
+	       
+	       
+
+
 
 /*---------------------------------------------------- */
 /*      rules for process sections                     */
 /*---------------------------------------------------- */
 
-/* return a NodePtrList pointer */
+/* Return a NodePtrList pointer */
 process:         PROCESS_tok LETTERSTART_tok EQUAL_tok SCOPE_START_tok procnodes SCOPE_END_tok
                  {
-	           DBPRINT("process: processnodes");
-		   string name(toString($<str>2));
-		   NodePtrListPtr nodes($<_NodePtrList>5);
-		   NodePtr node(new PSetNode("process",name,nodes,lines));
-		   NodePtrList* p(new NodePtrList);
-		   p->push_back(node);
-		   $<_NodePtrList>$ = p;
-		 }
-	       ;
+                   DBPRINT("process: processnodes");
+                   string name(toString($<str>2));
+                   NodePtrListPtr nodes($<_NodePtrList>5);
+                   NodePtr node(new PSetNode("process",name,nodes,lines));
+                   NodePtrList* p(new NodePtrList);
+                   p->push_back(node);
+                   $<_NodePtrList>$ = p;
+                 }
+               ;
 
 /* Returns a NodePtrList pointer */
 procnodes:       procnodes procnode
                  {
-		   DBPRINT("procnodes: procnodes procnode");
-		   NodePtrList* p = $<_NodePtrList>1;
-		   NodePtr node($<_Node>2);
-		   p->push_back(node);
-		   $<_NodePtrList>$ = p;
-		 }
-	       |
-	         procnode
-		 {
-		   DBPRINT("procnodes: procnode");
-		   NodePtr node($<_Node>1);
-		   NodePtrList* p(new NodePtrList);
-		   p->push_back(node);
-		   $<_NodePtrList>$ = p;
-		 }
-	       ;
+                   DBPRINT("procnodes: procnodes procnode");
+                   NodePtrList* p = $<_NodePtrList>1;
+                   NodePtr node($<_Node>2);
+                   p->push_back(node);
+                   $<_NodePtrList>$ = p;
+                 }
+               |
+                 procnode
+                 {
+                   DBPRINT("procnodes: procnode");
+                   NodePtr node($<_Node>1);
+                   NodePtrList* p(new NodePtrList);
+                   p->push_back(node);
+                   $<_NodePtrList>$ = p;
+                 }
+               ;
 
 /* Returns a Node pointer */
 procnode:        allpset
                  {
-		   DBPRINT("procnode: PSET");
-		   $<_Node>$ = $<_Node>1;
-		 }
-	       |
-	         SOURCE_tok EQUAL_tok LETTERSTART_tok scoped
-		 {
-		   DBPRINT("procnode: initSOURCE");
-		   string type(toString($<str>3));
-		   NodePtrListPtr nodelist($<_NodePtrList>4);
-		   ModuleNode* wn(new ModuleNode("source","main_input",type,nodelist,lines));
-		   $<_Node>$ = wn;
-		 }
-	       |
-	         ES_SOURCE_tok EQUAL_tok LETTERSTART_tok scoped
-		 {
-		   DBPRINT("procnode: initES_SOURCE");
-		   string type(toString($<str>3));
-		   NodePtrListPtr nodelist($<_NodePtrList>4);
-		   ModuleNode* wn(new ModuleNode("es_source","main_es_input",type,nodelist,lines));
-		   $<_Node>$ = wn;
-		 }
-	       |
-	         SOURCE_tok LETTERSTART_tok EQUAL_tok LETTERSTART_tok scoped
-		 {
-		   DBPRINT("procnode: SOURCE");
-		   string name(toString($<str>2));
-		   string type(toString($<str>4));
-		   NodePtrListPtr nodelist($<_NodePtrList>5);
-		   ModuleNode* wn(new ModuleNode("source",name,type,nodelist,lines));
-		   $<_Node>$ = wn;
-		 }
-	       |
-	         ES_SOURCE_tok LETTERSTART_tok EQUAL_tok LETTERSTART_tok scoped
-		 {
-		   DBPRINT("procnode: SOURCE");
-		   string name(toString($<str>2));
-		   string type(toString($<str>4));
-		   NodePtrListPtr nodelist($<_NodePtrList>5);
-		   ModuleNode* wn(new ModuleNode("es_source",name,type,nodelist,lines));
-		   $<_Node>$ = wn;
-		 }
-	       |
-	         BLOCK_tok procinlinenodes
-		 {
-		   DBPRINT("procnode: BLOCK");
-		   $<_Node>$ = $<_PSetNode>2;
-		 }
-	       |
-	         MODULE_tok LETTERSTART_tok EQUAL_tok LETTERSTART_tok scoped
-		 {
-		   DBPRINT("procnode: MODULE");
-		   string name(toString($<str>2));
-		   string type(toString($<str>4));
-		   NodePtrListPtr nodelist($<_NodePtrList>5);
-		   ModuleNode* wn(new ModuleNode("module",name,type,nodelist,lines));
-		   $<_Node>$ = wn;
-		 }
-	       |
-	         ES_MODULE_tok LETTERSTART_tok EQUAL_tok LETTERSTART_tok scoped
-		 {
-		   DBPRINT("procnode: ES_MODULE");
-		   string name(toString($<str>2));
-		   string type(toString($<str>4));
-		   NodePtrListPtr nodelist($<_NodePtrList>5);
-		   ModuleNode* wn(new ModuleNode("es_module",name,type,nodelist,lines));
-		   $<_Node>$ = wn;
-		 }
-	       |
-	         ES_MODULE_tok EQUAL_tok LETTERSTART_tok scoped
-		 {
-		   DBPRINT("procnode: namelistES_MODULE");
-		   string type(toString($<str>3));
-		   NodePtrListPtr nodelist($<_NodePtrList>4);
-		   ModuleNode* wn(new ModuleNode("es_module","nameless",type,nodelist,lines));
-		   $<_Node>$ = wn;
-		 }
-	       |
-	         SEQUENCE_tok LETTERSTART_tok EQUAL_tok SCOPE_START_tok pathexp SCOPE_END_tok
-		 {
-		   DBPRINT("procnode: SEQ");
-		   string name(toString($<str>2));
-		   NodePtr path($<_Node>5);
-		   WrapperNode* wn(new WrapperNode("sequence",name,path,lines));
-		   $<_Node>$ = wn;
-		 }
-	       |
-	         PATH_tok LETTERSTART_tok EQUAL_tok SCOPE_START_tok pathexp SCOPE_END_tok
-		 {
-		   DBPRINT("procnode: PATH");
-		   string name(toString($<str>2));
-		   NodePtr path($<_Node>5);
-		   WrapperNode* wn(new WrapperNode("path",name,path,lines));
-		   $<_Node>$ = wn;
-		 }
-	       |
-	         ENDPATH_tok LETTERSTART_tok EQUAL_tok SCOPE_START_tok pathexp SCOPE_END_tok
-		 {
-		   DBPRINT("procnode: ENDPATH");
-		   string name(toString($<str>2));
-		   NodePtr path($<_Node>5);
-		   WrapperNode* wn(new WrapperNode("endpath",name,path,lines));
-		   $<_Node>$ = wn;
-		 }
-	       ;
+                   DBPRINT("procnode: PSET");
+                   $<_Node>$ = $<_Node>1;
+                 }
+               |
+                 SOURCE_tok EQUAL_tok LETTERSTART_tok scoped
+                 {
+                   DBPRINT("procnode: initSOURCE");
+                   string type(toString($<str>3));
+                   NodePtrListPtr nodelist($<_NodePtrList>4);
+                   ModuleNode* wn(new ModuleNode("source","main_input",type,nodelist,lines));
+                   $<_Node>$ = wn;
+                 }
+               |
+                 ES_SOURCE_tok EQUAL_tok LETTERSTART_tok scoped
+                 {
+                   DBPRINT("procnode: initES_SOURCE");
+                   string type(toString($<str>3));
+                   NodePtrListPtr nodelist($<_NodePtrList>4);
+                   ModuleNode* wn(new ModuleNode("es_source","main_es_input",type,nodelist,lines));
+                   $<_Node>$ = wn;
+                 }
+               |
+                 SOURCE_tok LETTERSTART_tok EQUAL_tok LETTERSTART_tok scoped
+                 {
+                   DBPRINT("procnode: SOURCE");
+                   string name(toString($<str>2));
+                   string type(toString($<str>4));
+                   NodePtrListPtr nodelist($<_NodePtrList>5);
+                   ModuleNode* wn(new ModuleNode("source",name,type,nodelist,lines));
+                   $<_Node>$ = wn;
+                 }
+               |
+                 ES_SOURCE_tok LETTERSTART_tok EQUAL_tok LETTERSTART_tok scoped
+                 {
+                   DBPRINT("procnode: SOURCE");
+                   string name(toString($<str>2));
+                   string type(toString($<str>4));
+                   NodePtrListPtr nodelist($<_NodePtrList>5);
+                   ModuleNode* wn(new ModuleNode("es_source",name,type,nodelist,lines));
+                   $<_Node>$ = wn;
+                 }
+               |
+                 BLOCK_tok procinlinenodes
+                 {
+                   DBPRINT("procnode: BLOCK");
+                   $<_Node>$ = $<_PSetNode>2;
+                 }
+               |
+                 MODULE_tok LETTERSTART_tok EQUAL_tok LETTERSTART_tok scoped
+                 {
+                   DBPRINT("procnode: MODULE");
+                   string name(toString($<str>2));
+                   string type(toString($<str>4));
+                   NodePtrListPtr nodelist($<_NodePtrList>5);
+                   ModuleNode* wn(new ModuleNode("module",name,type,nodelist,lines));
+                   $<_Node>$ = wn;
+                 }
+               |
+                 ES_MODULE_tok LETTERSTART_tok EQUAL_tok LETTERSTART_tok scoped
+                 {
+                   DBPRINT("procnode: ES_MODULE");
+                   string name(toString($<str>2));
+                   string type(toString($<str>4));
+                   NodePtrListPtr nodelist($<_NodePtrList>5);
+                   ModuleNode* wn(new ModuleNode("es_module",name,type,nodelist,lines));
+                   $<_Node>$ = wn;
+                 }
+               |
+                 ES_MODULE_tok EQUAL_tok LETTERSTART_tok scoped
+                 {
+                   DBPRINT("procnode: namelistES_MODULE");
+                   string type(toString($<str>3));
+                   NodePtrListPtr nodelist($<_NodePtrList>4);
+                   ModuleNode* wn(new ModuleNode("es_module","nameless",type,nodelist,lines));
+                   $<_Node>$ = wn;
+                 }
+               |
+                 SEQUENCE_tok LETTERSTART_tok EQUAL_tok SCOPE_START_tok pathexp SCOPE_END_tok
+                 {
+                   DBPRINT("procnode: SEQ");
+                   string name(toString($<str>2));
+                   NodePtr path($<_Node>5);
+                   WrapperNode* wn(new WrapperNode("sequence",name,path,lines));
+                   $<_Node>$ = wn;
+                 }
+               |
+                 PATH_tok LETTERSTART_tok EQUAL_tok SCOPE_START_tok pathexp SCOPE_END_tok
+                 {
+                   DBPRINT("procnode: PATH");
+                   string name(toString($<str>2));
+                   NodePtr path($<_Node>5);
+                   WrapperNode* wn(new WrapperNode("path",name,path,lines));
+                   $<_Node>$ = wn;
+                 }
+               |
+                 ENDPATH_tok LETTERSTART_tok EQUAL_tok SCOPE_START_tok pathexp SCOPE_END_tok
+                 {
+                   DBPRINT("procnode: ENDPATH");
+                   string name(toString($<str>2));
+                   NodePtr path($<_Node>5);
+                   WrapperNode* wn(new WrapperNode("endpath",name,path,lines));
+                   $<_Node>$ = wn;
+                 }
+               ;
 
 /* Returns a NodePtrList pointer */
 scoped:          SCOPE_START_tok nodes SCOPE_END_tok
                  {
-		   DBPRINT("scope: nodes");
-		   $<_NodePtrList>$ = $<_NodePtrList>2;
-		 }
-	       |
-	         SCOPE_START_tok SCOPE_END_tok
-		 {
-		   DBPRINT("scope: empty");
-		   NodePtrList* nodelist(new NodePtrList);
-		   $<_NodePtrList>$ = nodelist;
-		 }
-	       ;
+                   DBPRINT("scope: nodes");
+                   $<_NodePtrList>$ = $<_NodePtrList>2;
+                 }
+               |
+                 SCOPE_START_tok SCOPE_END_tok
+                 {
+                   DBPRINT("scope: empty");
+                   NodePtrList* nodelist(new NodePtrList);
+                   $<_NodePtrList>$ = nodelist;
+                 }
+               ;
 
 /* Returns a Node pointer */
 procinlinenodes: LETTERSTART_tok EQUAL_tok SCOPE_START_tok nodes SCOPE_END_tok
                  {
-		   DBPRINT("procinlinenodes:NAME");
-		   string name(toString($<str>1));
-		   NodePtrListPtr value($<_NodePtrList>4);
-		   PSetNode* en(new PSetNode("block",name,value,lines));
-		   $<_Node>$ = en;
-		 }
-	       ;
+                   DBPRINT("procinlinenodes:NAME");
+                   string name(toString($<str>1));
+                   NodePtrListPtr value($<_NodePtrList>4);
+                   PSetNode* en(new PSetNode("block",name,value,lines));
+                   $<_Node>$ = en;
+                 }
+               ;
 
 /* Returns a Node pointer */
 pathexp:         pathexp AND_tok pathseq
                  {
-		   DBPRINT("pathexp: AND");
-		   NodePtr nl($<_Node>1);
-		   NodePtr nr($<_Node>3);
-		   Node* op(new OperatorNode("&",nl,nr,lines));
-		   $<_Node>$ = op;
-		 }
-	       |
-	         pathseq
-		 {
-		   DBPRINT("pathexp: pathseq");
-		   $<_Node>$ = $<_Node>1;
-		 }
-	       ;
+                   DBPRINT("pathexp: AND");
+                   NodePtr nl($<_Node>1);
+                   NodePtr nr($<_Node>3);
+                   Node* op(new OperatorNode("&",nl,nr,lines));
+                   $<_Node>$ = op;
+                 }
+               |
+                 pathseq
+                 {
+                   DBPRINT("pathexp: pathseq");
+                   $<_Node>$ = $<_Node>1;
+                 }
+               ;
 
 /* Returns a Node pointer */
 pathseq:         pathseq COMMA_tok worker
                  {
-		   DBPRINT("pathseq: COMMA");
-		   NodePtr nl($<_Node>1);
-		   NodePtr nr($<_Node>3);
-		   Node* op(new OperatorNode(",",nl,nr,lines));
-		   $<_Node>$ = op;
-		 }
-	       |
-	         worker
-		 {
-		   DBPRINT("pathseq: worker");
-		   $<_Node>$ = $<_Node>1;
-		 }
-	       ;
+                   DBPRINT("pathseq: COMMA");
+                   NodePtr nl($<_Node>1);
+                   NodePtr nr($<_Node>3);
+                   Node* op(new OperatorNode(",",nl,nr,lines));
+                   $<_Node>$ = op;
+                 }
+               |
+                 worker
+                 {
+                   DBPRINT("pathseq: worker");
+                   $<_Node>$ = $<_Node>1;
+                 }
+               ;
 
 /* Returns a Node pointer */
 worker:          LETTERSTART_tok
                  {
-		   DBPRINT("worker: NAME");
-		   string name(toString($<str>1));
-		   OperandNode* op(new OperandNode("operand",name,lines));
-		   $<_Node>$ = op;
-		 }
-	       |
-	         GROUP_START_tok pathexp GROUP_END_tok
-		 {
-		   DBPRINT("worker: grouppath");
-		   $<_Node>$ = $<_Node>2;
-		 }
-	       ;
+                   DBPRINT("worker: NAME");
+                   string name(toString($<str>1));
+                   OperandNode* op(new OperandNode("operand",name,lines));
+                   $<_Node>$ = op;
+                 }
+               |
+                 GROUP_START_tok pathexp GROUP_END_tok
+                 {
+                   DBPRINT("worker: grouppath");
+                   $<_Node>$ = $<_Node>2;
+                 }
+               ;
 
 %%
 

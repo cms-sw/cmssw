@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 18 19:09:01 EDT 2005
-// $Id: MakersProcess.cc,v 1.1 2005/05/29 02:29:55 wmtan Exp $
+// $Id: MakersProcess.cc,v 1.2 2005/06/23 19:57:23 wmtan Exp $
 //
 
 // system include files
@@ -47,10 +47,10 @@ struct FillProcess : public edm::pset::Visitor
       handleTypes_[kESSource] = &FillProcess::handleESSource;
 
       assert(moduleTypes_.size() == handleTypes_.size());
-      namesToTypes_["allmodules"]=kModule;
-      namesToTypes_["allsources"]=kSource;
-      namesToTypes_["allesmodules"]=kESModule;
-      namesToTypes_["allessources"]=kESSource;
+      namesToTypes_["all_modules"]=kModule;
+      namesToTypes_["all_sources"]=kSource;
+      namesToTypes_["all_esmodules"]=kESModule;
+      namesToTypes_["all_essources"]=kESSource;
    }
 
    virtual void visitContents(const edm::pset::ContentsNode& iNode) {
