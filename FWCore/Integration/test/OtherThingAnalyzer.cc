@@ -20,6 +20,26 @@ namespace edmreftest {
       } else {
         std::cout << "ERROR: ITEM " << i << " has incorrect value " << tc.a << '.' << std::endl;
       }
+      bool shouldBeTrue = otc.refVec[0] != otc.refVec[1];
+      if (!shouldBeTrue) {
+        std::cout << "ERROR: COMPARISON has incorrect value" << std::endl;
+      }
+      shouldBeTrue = otc.refVec[0] == otc.refVec[0];
+      if (!shouldBeTrue) {
+        std::cout << "ERROR: COMPARISON has incorrect value" << std::endl;
+      }
+      shouldBeTrue = otc.refVec[0].isNonnull();
+      if (!shouldBeTrue) {
+        std::cout << "ERROR: non-null check has incorrect value" << std::endl;
+      }
+      shouldBeTrue = !(!otc.refVec[0]);
+      if (!shouldBeTrue) {
+        std::cout << "ERROR: ! has incorrect value" << std::endl;
+      }
+      shouldBeTrue = bool(otc.refVec[0]);
+      if (!shouldBeTrue) {
+        std::cout << "ERROR: bool() has incorrect value" << std::endl;
+      }
       Thing const & tcv = *otc.refVec[0];
       int const & xv = otc.refVec[0]->a;
       if (xv != tcv.a || xv != i) {
