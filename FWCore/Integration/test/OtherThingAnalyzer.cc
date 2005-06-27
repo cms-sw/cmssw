@@ -11,8 +11,9 @@ namespace edmreftest {
     edm::Handle<OtherThingCollection> otherThings;
     e.getByLabel("OtherThing", otherThings);
     std::cout << " --------------- next event ------------ " << std::endl;
-    for (int i = 0; i < 20; ++i) {
-      OtherThing const& otc =(*otherThings)[i];
+    int i = 0;
+    for (OtherThingCollection::const_iterator it = (*otherThings).begin(); it != (*otherThings).end(); ++it, ++i) {
+      OtherThing const& otc = *it;
       Thing const & tc = *otc.ref;
       int const & x = otc.ref->a;
       if (tc.a == i && x == i) {
