@@ -22,11 +22,11 @@ namespace edmreftest {
       }
       bool shouldBeTrue = otc.refVec[0] != otc.refVec[1];
       if (!shouldBeTrue) {
-        std::cout << "ERROR: COMPARISON has incorrect value" << std::endl;
+        std::cout << "ERROR: inequality has incorrect value" << std::endl;
       }
       shouldBeTrue = otc.refVec[0] == otc.refVec[0];
       if (!shouldBeTrue) {
-        std::cout << "ERROR: COMPARISON has incorrect value" << std::endl;
+        std::cout << "ERROR: equality has incorrect value" << std::endl;
       }
       shouldBeTrue = otc.refVec[0].isNonnull();
       if (!shouldBeTrue) {
@@ -39,6 +39,18 @@ namespace edmreftest {
       shouldBeTrue = bool(otc.refVec[0]);
       if (!shouldBeTrue) {
         std::cout << "ERROR: bool() has incorrect value" << std::endl;
+      }
+      shouldBeTrue = !otc.refVec.empty();
+      if (!shouldBeTrue) {
+        std::cout << "ERROR: empty() has incorrect value" << std::endl;
+      }
+      shouldBeTrue = (otc.refVec == otc.refVec);
+      if (!shouldBeTrue) {
+        std::cout << "ERROR: RefVector equality has incorrect value" << std::endl;
+      }
+      shouldBeTrue = !(otc.refVec != otc.refVec);
+      if (!shouldBeTrue) {
+        std::cout << "ERROR: RefVector inequality has incorrect value" << std::endl;
       }
       Thing const & tcv = *otc.refVec[0];
       int const & xv = otc.refVec[0]->a;
