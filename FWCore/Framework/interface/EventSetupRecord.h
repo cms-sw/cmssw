@@ -5,7 +5,7 @@
 // Package:     CoreFramework
 // Class  :     EventSetupRecord
 // 
-/**\class EventSetupRecord EventSetupRecord.h Core/CoreFramework/interface/EventSetupRecord.h
+/**\class EventSetupRecord EventSetupRecord.h FWCore/CoreFramework/interface/EventSetupRecord.h
 
  Description: Base class for all Records in a EventSetup.  Holds data with the same lifetime.
 
@@ -19,10 +19,6 @@ that the EventSetupRecordProvider/DataProxyProvider pair are responsible for
 "invalidating" Proxies in a Record.  When a Record
 becomes "invalid" the EventSetupRecordProvider must invalidate
 all the  Proxies which it does using the DataProxyProvider.
-CDJ :: REVIEW
-To recover a Proxy from a Record the 'find' function of RecordMethods should be
-used, which calls the 'find' of the Record.
-CDJ ::
 
 When the set of  Proxies for a Records changes, i.e. a
 DataProxyProvider is added of removed from the system, then the
@@ -36,7 +32,7 @@ The ValidityInterval is set by its EventSetupRecordProvider using the
 'set' function.  This quantity can be recovered
 through the 'validityInterval' method.
 
-For a Proxy to be able to derive its contents from a Frame, it
+For a Proxy to be able to derive its contents from the EventSetup, it
 must be able to access any Proxy (and thus any Record) in the
 EventSetup.  The 'make' function of a Proxy provides its
 containing Record as one of its arguments.  To be able to
@@ -78,7 +74,6 @@ class EventSetupRecord
       
       ///returns false if no data available for key
       virtual bool doGet(const DataKey& aKey) const = 0;
-      const DataProxy* find(const DataKey& aKey) const ;
 
       virtual EventSetupRecordKey key() const = 0;
       // ---------- static member functions --------------------
@@ -93,6 +88,8 @@ class EventSetupRecord
       void setEventSetup(const EventSetup* iEventSetup) {eventSetup_ = iEventSetup; }
    protected:
 
+      const DataProxy* find(const DataKey& aKey) const ;
+      
       EventSetup const& eventSetup() const {
          return *eventSetup_;
       }
