@@ -16,10 +16,11 @@
 //
 // Author:      Chris Jones
 // Created:     Thu Mar 31 12:45:32 EST 2005
-// $Id: DataProxyTemplate.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
+// $Id: DataProxyTemplate.h,v 1.2 2005/06/23 19:59:30 wmtan Exp $
 //
 
 // system include files
+#include <cassert>
 
 // user include files
 #include "FWCore/CoreFramework/interface/DataProxy.h"
@@ -57,6 +58,10 @@ class DataProxyTemplate : public DataProxy
          return cache_;
       }
       
+      void doGet( const EventSetupRecord& iRecord, const DataKey& iKey) const {
+         assert( iRecord.key() == RecordT::keyForClass() );
+         get(static_cast<const RecordT&>(iRecord), iKey );
+      }
    protected:
       virtual const DataT* make(const RecordT&, const DataKey&) = 0;
       

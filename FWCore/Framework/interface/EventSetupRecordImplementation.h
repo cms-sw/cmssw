@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Fri Apr  1 16:50:49 EST 2005
-// $Id: EventSetupRecordImplementation.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
+// $Id: EventSetupRecordImplementation.h,v 1.2 2005/06/23 19:59:30 wmtan Exp $
 //
 
 // system include files
@@ -56,7 +56,16 @@ class EventSetupRecordImplementation : public EventSetupRecord
    virtual EventSetupRecordKey key() const {
       return EventSetupRecordKey::makeKey<T>();
    }
-      // ---------- static member functions --------------------
+
+   virtual bool doGet(const DataKey& aKey) const {
+      const DataProxy* proxy = find(aKey);
+      if( 0 != proxy ) {
+         proxy->doGet( *this, aKey );
+      }
+      return 0 != proxy;
+   }
+   
+   // ---------- static member functions --------------------
    static EventSetupRecordKey keyForClass()  {
       return EventSetupRecordKey::makeKey<T>();
    }

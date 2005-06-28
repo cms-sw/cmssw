@@ -76,7 +76,8 @@ class EventSetupRecord
          return validity_;
       }
       
-      
+      ///returns false if no data available for key
+      virtual bool doGet(const DataKey& aKey) const = 0;
       const DataProxy* find(const DataKey& aKey) const ;
 
       virtual EventSetupRecordKey key() const = 0;

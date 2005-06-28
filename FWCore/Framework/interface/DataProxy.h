@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Thu Mar 31 12:43:01 EST 2005
-// $Id: DataProxy.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
+// $Id: DataProxy.h,v 1.2 2005/06/23 19:59:30 wmtan Exp $
 //
 
 // system include files
@@ -26,6 +26,8 @@
 // forward declarations
 namespace edm {
    namespace eventsetup {
+      class EventSetupRecord;
+      class DataKey;
       
 class DataProxy
 {
@@ -37,6 +39,7 @@ class DataProxy
       // ---------- const member functions ---------------------
       bool cacheIsValid() const { return cacheIsValid_; }
       
+      virtual void doGet( const EventSetupRecord& iRecord, const DataKey& iKey) const = 0;
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
