@@ -6,7 +6,7 @@
 EventRegistry: A singleton to keep track of active events.
 Event.
 
-$Id: EventRegistry.h,v 1.1 2005/05/12 20:38:18 wmtan Exp $
+$Id: EventRegistry.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -14,6 +14,7 @@ $Id: EventRegistry.h,v 1.1 2005/05/12 20:38:18 wmtan Exp $
 #include <stdexcept>
 #include <sstream>
 #include "FWCore/CoreFramework/interface/CoreFrameworkfwd.h"
+#include "FWCore/FWUtilities/interface/EDMException.h"
 
 namespace edm {
   class EventRegistry {
@@ -25,9 +26,9 @@ namespace edm {
     }
     void addEvent(CollisionID evtID, EventPrincipal const *evtPtr) {
       if (eventMap.find(evtID) != eventMap.end()) {
-	std::ostringstream out;
-        out << "EventRegistry::addEvent: An event with ID " << evtID << " is already in registry";
-        throw std::runtime_error(out.str());
+        throw edm::Exception(edm::errors::InsertFailure,"AlreadyPresent")
+	  << "EventRegistry::addEvent: An event with ID "
+	  << evtID << " is already in registry";
       }
       eventMap.insert(std::make_pair(evtID, evtPtr));
     }
@@ -37,9 +38,9 @@ namespace edm {
     EventPrincipal const * getEvent(CollisionID evtID) const {
       EventMap::const_iterator it = eventMap.find(evtID);
       if (it == eventMap.end()) {
-	std::ostringstream out;
-        out << "EventRegistry::getEvent: No event with ID " << evtID << " was found in the registry";
-        throw std::runtime_error(out.str());
+        throw edm::Exception(edm::errors::NotFound,"Find")
+	  << "EventRegistry::getEvent: No event with ID "
+	  << evtID << " was found in the registry";
       }
       return it->second;
     }

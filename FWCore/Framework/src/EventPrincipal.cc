@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EventPrincipal.cc,v 1.7 2005/06/07 22:42:45 wmtan Exp $
+$Id: EventPrincipal.cc,v 1.8 2005/06/23 04:33:54 wmtan Exp $
 ----------------------------------------------------------------------*/
 //#include <iostream>
 #include <memory>
@@ -7,6 +7,7 @@ $Id: EventPrincipal.cc,v 1.7 2005/06/07 22:42:45 wmtan Exp $
 #include <stdexcept>
 
 #include "FWCore/CoreFramework/interface/EventPrincipal.h"
+#include "FWCore/FWUtilities/interface/EDMException.h"
 using namespace std;
 
 namespace
@@ -68,7 +69,11 @@ namespace edm {
     if (labeled_dict_.find(bk) != labeled_dict_.end())
       {
 	// the products are lost at this point!
-	throw runtime_error("product already exists");
+	throw edm::Exception(edm::errors::InsertFailure,"AlreadyPresent")
+	  << "addGroup: Problem found while adding product provanence, "
+	  << "product already exists for ("
+	  << class_name << "," << module_label << "," << process_name
+	  << ")";
       }
 
     // a memory allocation failure in modifying the product
@@ -119,12 +124,14 @@ namespace edm {
   EventPrincipal::get(EDP_ID oid) const
   {
     if (oid == EDP_ID())
-      throw runtime_error("get: invalid EDP_ID supplied");
+      throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
+	<< "Event::get by product ID: invalid EDP_ID supplied";
 
     // Remember that the object in slot 0 has EDP_ID of 1.
     unsigned long slotNumber = oid-1;
     if (slotNumber >= groups_.size())
-      throw runtime_error("get: no product with given id");
+      throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
+	<< "Event::get by product ID: no product with given id";
 
     const SharedGroupPtr& g = groups_[slotNumber];
     this->resolve_(*g);
@@ -142,8 +149,8 @@ namespace edm {
 	// TODO: Perhaps stuff like this should go to some error
 	// logger?  Or do we want huge message inside the exception
 	// that is thrown?
-	ostringstream err;
-	err << "get: no products found of correct type\n";
+	edm::Exception err(edm::errors::ProductNotFound,"InvalidType");
+	err << "Event::getBySelector: no products found of correct type\n";
 	err << "No products found of correct type\n";
 	err << "We are looking for: '"
 	     << id
@@ -164,7 +171,7 @@ namespace edm {
 	      }
 	  }
 	err << ends;
-	throw runtime_error(err.str().c_str());
+	throw err;
       }
 
     const vector<int>& vint = i->second;
@@ -172,7 +179,9 @@ namespace edm {
     if (vint.empty())
       {
 	// should never happen!!
-	throw runtime_error("get: no products found (empty list)");
+	throw edm::Exception(edm::errors::ProductNotFound,"EmptyList")
+	  <<  "getBySelector: no products found for\n"
+	  << id;
       }
 
     int found_count = 0;
@@ -189,7 +198,11 @@ namespace edm {
 	    ++found_count;
 	    if (found_count > 1)
 	      {
-		throw runtime_error("get: too many products found");
+		throw edm::Exception(edm::errors::ProductNotFound,
+				     "TooManyMatches")
+		  << "getBySelector: too many products found, "
+		  << "expected one, got " << found_count << ", for\n"
+		  << id;
 	      }
 	    found_slot = *ib;
 	    this->resolve_(*g);
@@ -200,7 +213,9 @@ namespace edm {
 
     if (found_count == 0)
       {
-	throw runtime_error("get: too few products found");
+	throw edm::Exception(edm::errors::ProductNotFound,"TooFewProducts")
+	  << "getBySelector: too few products found (zero) for\n"
+	  << id;
       }
 
     return result;
@@ -241,7 +256,9 @@ namespace edm {
       }
     // We failed to find the product we're looking for, under *any*
     // process name... throw!
-    throw runtime_error("getByLabel: could not find a required product");
+    throw edm::Exception(errors::ProductNotFound,"NoMatch")
+      << "getByLabel: could not find a required product " << label
+      << "of type " << id;
   }
 
   void 
@@ -256,7 +273,8 @@ namespace edm {
 
     if(i==type_dict_.end())
       {
-	throw runtime_error("getMany: no products found of correct type");
+	throw edm::Exception(errors::ProductNotFound,"NoMatch")
+	  << "getMany: no products found of correct type " << id;
       }
 
     const vector<int>& vint = i->second;
@@ -264,7 +282,9 @@ namespace edm {
     if(vint.empty())
       {
 	// should never happen!!
-	throw runtime_error("getMany: no products found (empty list)");
+	throw edm::Exception(edm::errors::ProductNotFound,"EmptyList")
+	  <<  "getMany: no products found for\n"
+	  << id;
       }
 
     vector<int>::const_iterator ib(vint.begin()),ie(vint.end());
@@ -284,7 +304,9 @@ namespace edm {
   EventPrincipal::resolve_(const Group& g) const
   {
     if (!g.isAccessible())
-      throw runtime_error("resolve_: product is not accessible");
+      throw edm::Exception(errors::ProductNotFound,"InaccessibleProduct")
+	<< "resolve_: product is not accessible\n"
+	<< g.provenance();
 
     if (g.product()) return; // nothing to do.
     

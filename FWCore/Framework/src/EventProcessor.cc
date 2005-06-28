@@ -20,6 +20,8 @@
 #include "FWCore/CoreFramework/interface/EventPrincipal.h"
 #include "FWCore/CoreFramework/interface/EventRegistry.h"
 
+#include "FWCore/FWUtilities/interface/EDMException.h"
+
 #include "boost/shared_ptr.hpp"
 
 #include <algorithm>
@@ -85,19 +87,20 @@ namespace edm {
 	// if we change the return type from getWorker above
 	if(w==0)
 	  {
-	    cerr << "Could not make worker type " 
-		 << p.getParameter<string>("module_type")
-		 << " with label " 
-		 << p.getParameter<string>("module_label")
-		 << endl;
-	    throw runtime_error("EventProcessor could not make module");
+	    throw edm::Exception(errors::Configuration,"CreateModule")
+	      << "EventProcessor: Could not make worker type " 
+	      << p.getParameter<string>("module_type")
+	      << " with label " 
+	      << p.getParameter<string>("module_label")
+	      << endl;
 	  }
 
 	workers.front().push_back(w);
       }
     
     if(workers.empty())
-	throw runtime_error("No workers have been placed into the schedule");
+      throw edm::Exception(errors::Configuration,"NoWorkers")
+	<< "EventProcessor: No workers have been placed into the schedule";
 
     return workers;
   }
@@ -244,19 +247,20 @@ namespace edm {
 
     if(args.size()<3 || args[1]!=param_name)
       {
- 	cerr << "No input file argument given.\n"
- 	     << "Usage: " << args[0] << " --parameter-set pset_file_name"
- 	     << endl;
- 	throw runtime_error("No input pset given");
+ 	throw edm::Exception(errors::Configuration,"MissingArgument")
+	  << "No input file argument given (pset name).\n"
+	  << "Usage: " << args[0] << " --parameter-set pset_file_name"
+	  << endl;
       }
 
     ifstream ist(args[2].c_str());
     
     if(!ist)
       {
- 	cerr << "Input file " << args[2] << " could not be opened"
-	     << endl;
- 	throw runtime_error("pset input file could not be opened");
+ 	throw edm::Exception(errors::Configuration,"OpenFile")
+	  << "pset input file could not be opened\n"
+	  << "Input file " << args[2] << " could not be opened"
+	  << endl;
       }
 
     string configstring;

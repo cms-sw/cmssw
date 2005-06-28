@@ -19,18 +19,20 @@ Handles can have:
 
 To check validity, one can use the isValid() function.
 
-$Id: Handle.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
+$Id: Handle.h,v 1.2 2005/06/23 22:01:31 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include <algorithm>
 #include <stdexcept>
+#include <typeinfo>
 
 #include "boost/utility/enable_if.hpp"
 #include "boost/type_traits.hpp"
 
 #include "FWCore/CoreFramework/interface/CoreFrameworkfwd.h"
 #include "FWCore/EDProduct/interface/EDProduct.h"
+#include "FWCore/FWUtilities/interface/EDMException.h"
 
 namespace edm
 {
@@ -161,14 +163,17 @@ namespace edm
   //
 
   // Convert from handle-to-EDProduct to handle-to-T, if the dynamic
-  // type of the EDProduct is T. Throw and exception if the type does
+  // type of the EDProduct is T. Throw an exception if the type does
   // not match.
   template <class T>
   void convert_handle(const Handle<EDProduct>& orig,
 		      Handle<T>& result)
   {
     const T* prod = dynamic_cast<const T*>(orig.product());
-    if (prod == 0)  throw std::runtime_error("failed type conversion");
+    if (prod == 0)
+      throw edm::Exception(edm::errors::LogicError,"ConvertType")
+	<< "edm::Handle converting from EDProduct to "
+	<< typeid(orig.product()).name();
     Handle<T> h(prod, orig.provenance());
     h.swap(result);
   }

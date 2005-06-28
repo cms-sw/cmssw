@@ -7,9 +7,13 @@ namespace edm
 {
   template<> void Exception::loadTable()
   {
-    MAP_ENTRY(NotSuccess);
-    MAP_ENTRY(Badness);
-    MAP_ENTRY(GreatBadness);
+    MAP_ENTRY(Unknown);
+    MAP_ENTRY(ProductNotFound);
+    MAP_ENTRY(InsertFailure);
+    MAP_ENTRY(Configuration);
+    MAP_ENTRY(LogicError);
+    MAP_ENTRY(InvalidReference);
+    MAP_ENTRY(NotFound);
   }
  
 }

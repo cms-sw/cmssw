@@ -27,9 +27,13 @@ namespace errors
  {
    enum ErrorCodes
      {
-       NotSuccess=0,
-       Badness,
-       GreatBadness
+       Unknown=0,
+       ProductNotFound,
+       InsertFailure,
+       Configuration,
+       LogicError,
+       InvalidReference,
+       NotFound
      };
 
  }

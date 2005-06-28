@@ -2,6 +2,7 @@
 #include "FWCore/CoreFramework/src/InputServiceFactory.h"
 #include "FWCore/CoreFramework/src/WorkerMaker.h"
 #include "FWCore/CoreFramework/src/DebugMacros.h"
+#include "FWCore/FWUtilities/interface/EDMException.h"
 
 #include <utility>
 #include <memory>
@@ -39,11 +40,12 @@ namespace edm {
 
     if(wm.get()==0)
       {
-	string tmp("InputService Factory:\n Cannot find source type from ParameterSet: ");
-	tmp+=modtype;
-	tmp+="\n Perhaps your source type is mispelled or is not a SEAL Plugin?";
-	tmp+="\n Try running SealPluginDump to obtain a list of available Plugins.";
-	throw runtime_error(tmp);
+	throw edm::Exception(errors::Configuration,"NoSourceModule")
+	  << "InputService Factory:\n"
+	  << "Cannot find source type from ParameterSet: "
+	  << modtype << "\n"
+	  << "Perhaps your source type is mispelled or is not a SEAL Plugin?\n"
+	  << "Try running SealPluginDump to obtain a list of available Plugins.";
       }
 
     FDEBUG(1) << "InputServiceFactory: created input service "

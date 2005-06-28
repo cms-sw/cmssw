@@ -8,14 +8,14 @@ TypeID: A unique identifier for a C++ type.
 The identifier is unique within an entire program, but can not be
 persisted across invocations of the program.
 
-$Id: TypeID.h,v 1.2 2005/06/05 04:16:50 wmtan Exp $
+$Id: TypeID.h,v 1.3 2005/06/23 19:59:48 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <iosfwd>
 #include <typeinfo>
 #include <string>
 #include "Reflection/Class.h"
-#include <stdexcept>
+#include "FWCore/FWUtilities/interface/EDMException.h"
 
 namespace edm {
 
@@ -58,9 +58,8 @@ namespace edm {
     std::string reflectionClassName() const {
       seal::reflect::Class const * c = seal::reflect::Class::forTypeinfo(t_);
       if (c == 0) {
-	std::string error("No SEAL Reflection entry for class: ");
-	error +=  t_.name();
-	throw std::runtime_error(error.c_str());
+	throw edm::Exception(edm::errors::Configuration,"MissingType")
+	  << "No SEAL Reflection entry for class: " << t_.name();
       }
       return c->fullName();
     }

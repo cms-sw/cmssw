@@ -11,7 +11,7 @@ using namespace std;
 
 void func3()
 {
-  throw edm::Exception(edm::errors::GreatBadness)
+  throw edm::Exception(edm::errors::NotFound)
     << "This is just a test"
     << endl;
 }
@@ -30,29 +30,29 @@ void func1()
   catch (edm::Exception& e)
     {
       //cerr << "GOT HERE" << endl;
-      throw edm::Exception(edm::errors::Badness,"In func2",e)
+      throw edm::Exception(edm::errors::Unknown,"In func2",e)
 	<< "Gave up";
     }
   catch (cms::Exception& e)
     {
       //cerr << "GOT HERE2 " << typeid(e).name() << endl;
-      throw cms::Exception("edm::errors::Badness","In func2 bad place",e)
+      throw cms::Exception("edm::errors::Unknown","In func2 bad place",e)
 	<< "Gave up";
     }
   
 }
 
 const char answer[] = 
-  "---- Badness BEGIN\n"
+  "---- Unknown BEGIN\n"
   "In func2\n"
-  "---- GreatBadness BEGIN\n"
+  "---- NotFound BEGIN\n"
   "This is just a test\n" 
-  "---- GreatBadness END\n"
+  "---- NotFound END\n"
   "Gave up\n"
-  "---- Badness END\n"
+  "---- Unknown END\n"
   ;
 
-const char* correct[] = { "Badness","GreatBadness" };
+const char* correct[] = { "Unknown","NotFound" };
 
 int main()
 {

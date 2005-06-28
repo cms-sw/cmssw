@@ -71,7 +71,7 @@ namespace edmtest
 	e.getByLabel(emptyLabel, h);
 	assert ("Failed to throw necessary exception" == 0);
       }
-    catch (std::runtime_error& x)
+    catch (edm::Exception& x)
       {
 	assert(!h.isValid());
       }

@@ -1,6 +1,8 @@
 <use name=boost>
+<use name=FWCore/FWUtilities>
 <export>
  <lib name=ParameterSet>
+ <use name=FWCore/FWUtilities>
  <use name=boost>
 </export>
 

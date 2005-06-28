@@ -3,6 +3,7 @@
 #include "FWCore/CoreFramework/src/WorkerMaker.h"
 #include "FWCore/CoreFramework/src/DebugMacros.h"
 #include "FWCore/CoreFramework/interface/UnknownModuleException.h"
+#include "FWCore/FWUtilities/interface/EDMException.h"
 
 #include <utility>
 #include <memory>
@@ -51,7 +52,10 @@ namespace edm {
       {
 	auto_ptr<Maker> wm(this->create(modtype));
 
-	if(wm.get()==0) throw UnknownModuleException(modtype);
+	if(wm.get()==0)
+	  throw edm::Exception(errors::Configuration,"UnknownModule")
+	    << "module_name=" << modtype
+	    << " version=" << vn;
 	  
 	FDEBUG(1) << "Factory:  created worker of type " << modtype << endl;
 
