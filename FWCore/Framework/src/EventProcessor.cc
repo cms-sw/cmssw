@@ -59,51 +59,6 @@ namespace edm {
   // temporary function because we do not know how to do this
   unsigned long getVersion() { return 0; }
 
-  PathList tmpMakeSchedule(ParameterSet const& params_,
-			const CommonParams& common,
-			WorkerRegistry& reg_)
-  {
-    // can this fail? How?
-    seal::PluginManager::get()->initialise();
-
-    PathList workers;
-    // get temporary single path
-    StrVec tmp_path = params_.getParameter<vector<string> >("temporary_single_path");
-    // call factory
-    workers.push_back(WorkerList());
-
-    StrVec::iterator pb(tmp_path.begin()),pe(tmp_path.end());
-    for(;pb!=pe;++pb)
-      {
-	ParameterSet p = params_.getParameter<ParameterSet>(*pb);
-
-	// reference return from registry is bad
-	Worker* w = reg_.getWorker(p,
-				   common.process_name_,
-				   common.version_,
-				   common.pass_);
-
-	// this cannot happen right now - but is probably useful
-	// if we change the return type from getWorker above
-	if(w==0)
-	  {
-	    throw edm::Exception(errors::Configuration,"CreateModule")
-	      << "EventProcessor: Could not make worker type " 
-	      << p.getParameter<string>("module_type")
-	      << " with label " 
-	      << p.getParameter<string>("module_label")
-	      << endl;
-	  }
-
-	workers.front().push_back(w);
-      }
-    
-    if(workers.empty())
-      throw edm::Exception(errors::Configuration,"NoWorkers")
-	<< "EventProcessor: No workers have been placed into the schedule";
-
-    return workers;
-  }
 
   boost::shared_ptr<InputService> makeInput(ParameterSet const& params_,
 					    const CommonParams& common)
