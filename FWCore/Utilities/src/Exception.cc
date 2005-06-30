@@ -15,6 +15,11 @@ namespace cms {
     category_(1,category)
   {
     ost_ << message;
+    if(!message.empty())
+      {
+	unsigned sz = message.size()-1;
+	if(message[sz]!='\n' && message[sz]!=' ') ost_ << " ";
+      }
   }
 
   Exception::Exception(const std::string& category,
