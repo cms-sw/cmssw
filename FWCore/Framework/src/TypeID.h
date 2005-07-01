@@ -8,13 +8,12 @@ TypeID: A unique identifier for a C++ type.
 The identifier is unique within an entire program, but can not be
 persisted across invocations of the program.
 
-$Id: TypeID.h,v 1.3 2005/06/23 19:59:48 wmtan Exp $
+$Id: TypeID.h,v 1.4 2005/06/28 04:46:02 jbk Exp $
 
 ----------------------------------------------------------------------*/
 #include <iosfwd>
 #include <typeinfo>
 #include <string>
-#include "Reflection/Class.h"
 #include "FWCore/FWUtilities/interface/EDMException.h"
 
 namespace edm {
@@ -55,27 +54,12 @@ namespace edm {
     // the type.
     void print(std::ostream& os) const;
 
-    std::string reflectionClassName() const {
-      seal::reflect::Class const * c = seal::reflect::Class::forTypeinfo(t_);
-      if (c == 0) {
-	throw edm::Exception(edm::errors::Configuration,"MissingType")
-	  << "No SEAL Reflection entry for class: " << t_.name();
-      }
-      return c->fullName();
-    }
+    std::string reflectionClassName() const;
+
+    std::string userClassName() const;
 
     std::string friendlyClassName() const {
-      std::string name = reflectionClassName();
-      if (name.find("edm::EDCollection") == 0) {
-	std::string::size_type idx = name.find('<');
-	std::string::size_type idx2 = name.rfind('>');
-	assert (idx != std::string::npos);
-	assert (idx2 != std::string::npos);
-	++idx;
-	name = name.substr(idx, idx2 - idx);
-	name += "Collection";
-      }
-      return name;
+      return userClassName();
     }
 
   private:

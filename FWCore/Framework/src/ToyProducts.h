@@ -10,17 +10,15 @@ Toy EDProducts for testing purposes only.
 #include <stdexcept>
 #include <string>
 
-#include "FWCore/EDProduct/interface/EDProduct.h"
-
 namespace edmtest
 {
 
   // Toy products
 
-  struct DummyProduct : public edm::EDProduct
+  struct DummyProduct
   { };
 
-  struct IntProduct : public edm::EDProduct
+  struct IntProduct
   {
     explicit IntProduct(int i=0) : value(i) { }
     ~IntProduct() { }
@@ -28,7 +26,7 @@ namespace edmtest
     int value;
   };
 
-  struct DoubleProduct : public edm::EDProduct
+  struct DoubleProduct
   {
     explicit DoubleProduct(double d=2.2) : value(d) { }
     ~DoubleProduct() { }
@@ -36,7 +34,7 @@ namespace edmtest
     double value;
   };
 
-  struct StringProduct :  public edm::EDProduct
+  struct StringProduct
   {
     explicit StringProduct(const std::string& s):name_(s){}
     std::string name_;

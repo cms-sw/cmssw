@@ -9,4 +9,8 @@
  <class name="edmtest::IntProduct"/>
  <class name="edmtest::DoubleProduct"/>
  <class name="edmtest::StringProduct"/>
+ <class name="edm::Wrapper<edmtest::DummyProduct>"/>
+ <class name="edm::Wrapper<edmtest::IntProduct>"/>
+ <class name="edm::Wrapper<edmtest::DoubleProduct>"/>
+ <class name="edm::Wrapper<edmtest::StringProduct>"/>
 </lcgdict>

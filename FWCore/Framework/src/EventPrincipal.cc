@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EventPrincipal.cc,v 1.8 2005/06/23 04:33:54 wmtan Exp $
+$Id: EventPrincipal.cc,v 1.9 2005/06/28 04:46:02 jbk Exp $
 ----------------------------------------------------------------------*/
 //#include <iostream>
 #include <memory>
@@ -120,7 +120,7 @@ namespace edm {
     this->addGroup(g);
   }
 
-  EventPrincipal::BasicHandle
+  BasicHandle
   EventPrincipal::get(EDP_ID oid) const
   {
     if (oid == EDP_ID())
@@ -138,7 +138,7 @@ namespace edm {
     return BasicHandle(g->product(), g->provenance());
   }
 
-  EventPrincipal::BasicHandle
+  BasicHandle
   EventPrincipal::getBySelector(TypeID id, 
 				const Selector& sel) const
   {
@@ -222,7 +222,7 @@ namespace edm {
   }
 
     
-  EventPrincipal::BasicHandle
+  BasicHandle
   EventPrincipal::getByLabel(TypeID id, 
 			     const string& label) const
   {

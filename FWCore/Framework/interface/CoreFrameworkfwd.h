@@ -5,13 +5,13 @@
   
 Forward declarations of types in the EDM.
 
-$Id: CoreFrameworkfwd.h,v 1.3 2005/06/07 23:46:15 wmtan Exp $
+$Id: CoreFrameworkfwd.h,v 1.4 2005/06/16 20:33:24 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 namespace edm
 {
-
+  class BasicHandle;
   class BranchKey;
   class EDAnalyzer;
   class EDFilter;
@@ -40,7 +40,7 @@ namespace edm
   class RunHandler;
   class Selector;
 
-  template <class T> class EDCollection;
+  template <class T> class Wrapper;
   template <class T> class Handle;
   template <class T> class Ref;
   template <class T> class RefVector;
