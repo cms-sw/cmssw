@@ -9,7 +9,8 @@
 #include <vector>
 
 namespace edmreftest {
-  class ThingCollection;
+  class Thing;
+  typedef std::vector<Thing> ThingCollection;
 
   class ThingAlgorithm {
   public:

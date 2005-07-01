@@ -9,7 +9,8 @@ namespace edm {
   
 namespace edmreftest {
 
-  class OtherThingCollection;
+  class OtherThing;
+  typedef std::vector<OtherThing> OtherThingCollection;
   
   class OtherThingAlgorithm {
   public:

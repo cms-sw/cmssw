@@ -3,10 +3,8 @@
  <class name="edmreftest::OtherThing"/>
  <class name="std::vector<edmreftest::Thing>"/>
  <class name="std::vector<edmreftest::OtherThing>"/>
- <class name="edm::EDCollection<edmreftest::Thing>"/>
- <class name="edm::EDCollection<edmreftest::OtherThing>"/>
- <class name="edm::Ref<edmreftest::ThingCollection>"/>
- <class name="edm::RefVector<edmreftest::ThingCollection>"/>
- <class name="edmreftest::ThingCollection" id="E57D6C0C-4519-C8E8-09B2-3DA0D85DB351"/>
- <class name="edmreftest::OtherThingCollection" id="D74393BA-6324-8A51-3560-166E9AA65919"/>
+ <class name="edm::Ref<std::vector<edmreftest::Thing> >"/>
+ <class name="edm::RefVector<std::vector<edmreftest::Thing> >"/>
+ <class name="edm::Wrapper<std::vector<edmreftest::Thing> >" id="E57D6C0C-4519-C8E8-09B2-3DA0D85DB351"/>
+ <class name="edm::Wrapper<std::vector<edmreftest::OtherThing> >" id="D74393BA-6324-8A51-3560-166E9AA65919"/>
 </lcgdict>

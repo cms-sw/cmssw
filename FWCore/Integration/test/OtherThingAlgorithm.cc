@@ -12,9 +12,9 @@ namespace edmreftest {
     for (int i = 0; i < 20; ++i) {
       OtherThing tc;
       tc.a = i;
-      tc.ref = edm::Ref<ThingCollection>(e.id(), things->id(), i);
+      tc.ref = edm::Ref<ThingCollection>(e.id(), things.id(), i);
       tc.refVec.push_back(tc.ref);
-      tc.refVec.push_back(edm::Ref<ThingCollection>(e.id(), things->id(), 19-i));
+      tc.refVec.push_back(edm::Ref<ThingCollection>(e.id(), things.id(), 19-i));
       otherThingCollection.push_back(tc);
     }
   }
