@@ -19,7 +19,7 @@ Handles can have:
 
 To check validity, one can use the isValid() function.
 
-$Id: Handle.h,v 1.3 2005/06/28 04:46:02 jbk Exp $
+$Id: Handle.h,v 1.4 2005/07/01 00:05:37 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -82,7 +82,7 @@ namespace edm
 
   template <class T>
   Handle<T>::Handle(const Handle<T>& h) :
-    prod_(h.wrap_),
+    prod_(h.prod_),
     prov_(h.prov_),
     id_(h.id_)
   { }
