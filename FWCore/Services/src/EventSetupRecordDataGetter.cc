@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jun 28 11:10:24 EDT 2005
-// $Id$
+// $Id: EventSetupRecordDataGetter.cc,v 1.1 2005/06/28 19:35:49 chrjones Exp $
 //
 //
 
@@ -22,6 +22,7 @@
 #include <memory>
 #include <map>
 #include <vector>
+#include <iostream>
 
 // user include files
 #include "FWCore/FWCoreServices/src/EventSetupRecordDataGetter.h"

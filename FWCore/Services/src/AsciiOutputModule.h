@@ -1,8 +1,8 @@
 /*----------------------------------------------------------------------
-$Id: AsciiOutputModule.h,v 1.3 2005/06/09 01:53:38 wmtan Exp $
+$Id: AsciiOutputModule.h,v 1.4 2005/06/24 23:32:13 wmtan Exp $
 ----------------------------------------------------------------------*/
 
-#include <ostream>
+#include <iostream>
 
 #include "FWCore/CoreFramework/interface/CoreFrameworkfwd.h"
 #include "FWCore/CoreFramework/interface/OutputModule.h"
