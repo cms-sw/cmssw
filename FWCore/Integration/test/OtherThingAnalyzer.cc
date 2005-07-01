@@ -1,3 +1,4 @@
+#include <iostream>
 #include "FWCore/FWCoreIntegration/test/OtherThingAnalyzer.h"
 #include "FWCore/FWCoreIntegration/test/OtherThing.h"
 #include "FWCore/FWCoreIntegration/test/OtherThingCollection.h"
