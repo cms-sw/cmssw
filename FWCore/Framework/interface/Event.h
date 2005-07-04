@@ -6,7 +6,7 @@
 Event: This is the primary interface for accessing
 EDProducts from a single collision and inserting new derived products.
 
-$Id: Event.h,v 1.5 2005/06/23 19:59:30 wmtan Exp $
+$Id: Event.h,v 1.6 2005/07/01 00:05:37 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
@@ -219,7 +219,7 @@ namespace edm {
 
     while (it != end)
       {
-	got_product_ids_.push_back((*it)->id());
+	got_product_ids_.push_back((*it).id());
 	Handle<PROD> result;
 	convert_handle(*it, result);  // thrown on conversion error
 	products.push_back(result);
