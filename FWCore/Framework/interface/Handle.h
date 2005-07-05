@@ -19,7 +19,7 @@ Handles can have:
 
 To check validity, one can use the isValid() function.
 
-$Id: Handle.h,v 1.4 2005/07/01 00:05:37 wmtan Exp $
+$Id: Handle.h,v 1.5 2005/07/01 07:29:21 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -32,7 +32,6 @@ $Id: Handle.h,v 1.4 2005/07/01 00:05:37 wmtan Exp $
 
 #include "FWCore/CoreFramework/interface/CoreFrameworkfwd.h"
 #include "FWCore/CoreFramework/interface/BasicHandle.h"
-#include "FWCore/EDProduct/interface/Wrapper.h"
 #include "FWCore/FWUtilities/interface/EDMException.h"
 
 namespace edm
@@ -41,8 +40,6 @@ namespace edm
   class Handle
   {
   public:
-    typedef Wrapper<T> WrapT;
-
     // Default constructed handles are invalid.
     Handle();
 
