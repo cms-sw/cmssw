@@ -6,7 +6,7 @@
 Provenance: The full description of a product and how it came into
 existence.
 
-$Id: Provenance.h,v 1.5 2005/06/23 22:01:31 wmtan Exp $
+$Id: Provenance.h,v 1.6 2005/07/06 18:47:05 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <ostream>
 #include <string>
@@ -62,6 +62,9 @@ namespace edm {
     // a readable name of the type of product this is
     std::string friendly_product_type_name;
 
+    // a user-supplied name to distinguish multiple products of the same type
+    // that are produced by the same producer
+    std::string product_instance_name;
     // the last of these is not in the roadmap, but is on the board
 
     // if modules can or will place an object in the event

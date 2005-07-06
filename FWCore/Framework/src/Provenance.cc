@@ -2,7 +2,7 @@
 
 /*----------------------------------------------------------------------
 
-$Id: Provenance.cc,v 1.1 2005/05/29 02:29:54 wmtan Exp $
+$Id: Provenance.cc,v 1.2 2005/06/07 22:42:45 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -15,6 +15,7 @@ namespace edm
     cid(),
     full_product_type_name(),
     friendly_product_type_name(),
+    product_instance_name(),
     status(Success)
   { }
 
@@ -25,6 +26,7 @@ namespace edm
     cid(),
     full_product_type_name(),
     friendly_product_type_name(),
+    product_instance_name(),
     status(Success)
   { }
 
@@ -43,6 +45,7 @@ namespace edm
       a.module == b.module 
       && a.cid == b.cid
       && a.full_product_type_name == b.full_product_type_name
+      && a.product_instance_name == b.product_instance_name
       && a.status == b.status
       && a.parents == b.parents;
   }
