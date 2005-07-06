@@ -6,7 +6,7 @@
 Provenance: The full description of a product and how it came into
 existence.
 
-$Id: Provenance.h,v 1.4 2005/06/23 19:59:30 wmtan Exp $
+$Id: Provenance.h,v 1.5 2005/06/23 22:01:31 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <ostream>
 #include <string>
@@ -14,9 +14,7 @@ $Id: Provenance.h,v 1.4 2005/06/23 19:59:30 wmtan Exp $
 
 #include "FWCore/CoreFramework/interface/ConditionsID.h"
 #include "FWCore/EDProduct/interface/EDP_ID.h"
-#include "FWCore/CoreFramework/interface/PassID.h"
-#include "FWCore/CoreFramework/interface/PS_ID.h"
-#include "FWCore/CoreFramework/interface/VersionNumber.h"
+#include "FWCore/CoreFramework/interface/ModuleDescription.h"
 
 /*
   Provenance
@@ -30,45 +28,6 @@ $Id: Provenance.h,v 1.4 2005/06/23 19:59:30 wmtan Exp $
 */
 
 namespace edm {
-
-  // once a module is born, these parts of the module's product provenance
-  // are constant   (change to ModuleDescription)
-  struct ModuleDescription
-  {
-    // ID of parameter set of the creator
-    PS_ID pid;
-
-    // The class name of the creator
-    std::string module_name;    
-
-    // A human friendly string that uniquely identifies the EDProducer
-    // and becomes part of the identity of a product that it produces
-    std::string module_label;
-
-    // the release tag of the executable
-    VersionNumber version_number;
-
-    // the physical process that this program was part of (e.g. production)
-    std::string process_name;
-
-    // what the heck is this? I think its the version of the process_name
-    // e.g. second production pass
-    PassID pass;
-  };
-
-  inline
-  bool 
-  operator==(const ModuleDescription& a, const ModuleDescription& b)
-  {
-    return 
-      a.pid==b.pid
-      && a.module_name==b.module_name
-      && a.module_label==b.module_label 
-      && a.version_number==b.version_number
-      && a.process_name==b.process_name
-      && a.pass==b.pass;
-  } 
-
   // these parts of a provenance are used to compose a branch name
   struct BranchName
   {
@@ -150,7 +109,5 @@ namespace edm {
 //)
 //       ;
 //   }
-
-
 }
 #endif
