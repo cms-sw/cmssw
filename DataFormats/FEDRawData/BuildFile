@@ -1,0 +1,8 @@
+
+<use name=FWCore/EDProduct>
+
+<export>
+ <lib name=FEDRawData>
+ <use name=FWCore/EDProduct>	
+
+</export>
