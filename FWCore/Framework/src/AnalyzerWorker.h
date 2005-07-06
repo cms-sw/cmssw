@@ -9,7 +9,7 @@ feed them into the event.
 According to our current definition, a single producer can only
 appear in one worker.
 
-$Id: AnalyzerWorker.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
+$Id: AnalyzerWorker.h,v 1.2 2005/06/23 05:23:10 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -19,7 +19,7 @@ $Id: AnalyzerWorker.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
 
 #include "FWCore/CoreFramework/interface/CoreFrameworkfwd.h"
 #include "FWCore/CoreFramework/src/Worker.h"
-#include "FWCore/CoreFramework/interface/Provenance.h"
+#include "FWCore/CoreFramework/interface/ModuleDescription.h"
 
 namespace edm
 {

@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: FilterWorker.cc,v 1.2 2005/04/05 16:24:12 paterno Exp $
+$Id: FilterWorker.cc,v 1.1 2005/05/29 02:29:54 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <memory>
 
@@ -9,7 +9,7 @@ $Id: FilterWorker.cc,v 1.2 2005/04/05 16:24:12 paterno Exp $
 #include "FWCore/CoreFramework/interface/EventPrincipal.h"
 #include "FWCore/CoreFramework/interface/Event.h"
 #include "FWCore/CoreFramework/interface/EDFilter.h"
-#include "FWCore/CoreFramework/interface/Provenance.h"
+#include "FWCore/CoreFramework/interface/ModuleDescription.h"
 
 
 namespace edm

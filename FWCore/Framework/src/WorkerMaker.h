@@ -2,7 +2,7 @@
 #define WORKERMAKER_H
 
 #include "FWCore/CoreFramework/src/Worker.h"
-#include "FWCore/CoreFramework/interface/Provenance.h"
+#include "FWCore/CoreFramework/interface/ModuleDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // The following includes are temporary until a better

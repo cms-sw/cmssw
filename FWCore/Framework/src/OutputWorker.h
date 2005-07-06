@@ -9,7 +9,7 @@ this object is to call the output module.
 According to our current definition, a single output module can only
 appear in one worker.
 
-$Id: OutputWorker.h,v 1.1 2005/05/29 02:29:54 wmtan Exp $
+$Id: OutputWorker.h,v 1.2 2005/06/23 05:23:10 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -18,7 +18,7 @@ $Id: OutputWorker.h,v 1.1 2005/05/29 02:29:54 wmtan Exp $
 
 #include "FWCore/CoreFramework/interface/CoreFrameworkfwd.h"
 #include "FWCore/CoreFramework/interface/OutputModule.h"
-#include "FWCore/CoreFramework/interface/Provenance.h"
+#include "FWCore/CoreFramework/interface/ModuleDescription.h"
 
 #include "FWCore/CoreFramework/src/Worker.h"
 
