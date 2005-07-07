@@ -32,8 +32,7 @@ CPPUNIT_TEST(dependentConstructorTest);
 CPPUNIT_TEST(dependentFinder1Test);
 CPPUNIT_TEST(dependentFinder2Test);
 CPPUNIT_TEST(dependentSetproviderTest);
-CPPUNIT_TEST(getTest);
-//CPPUNIT_TEST_EXCEPTION(getTest,edm::eventsetup::NoRecordException<DepRecord>);
+CPPUNIT_TEST_EXCEPTION(getTest,edm::eventsetup::NoRecordException<DepRecord>);
 
 CPPUNIT_TEST_SUITE_END();
 public:
@@ -188,8 +187,7 @@ void testdependentrecord::getTest()
    }
    {
       const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::Timestamp(4));
-//      eventSetup.get<DepRecord>();
-      //BOOST_CHECK_THROW(eventSetup.get<DepRecord>(), edm::eventsetup::NoRecordException<DepRecord>);
+      eventSetup.get<DepRecord>();
    }
 }
 
