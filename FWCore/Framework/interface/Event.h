@@ -6,7 +6,7 @@
 Event: This is the primary interface for accessing
 EDProducts from a single collision and inserting new derived products.
 
-$Id: Event.h,v 1.7 2005/07/04 10:22:59 llista Exp $
+$Id: Event.h,v 1.8 2005/07/04 15:01:14 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
@@ -45,6 +45,10 @@ namespace edm {
 
     template <class PROD>
     void 
+    put(std::auto_ptr<PROD> product, const std::string & productInstanceName);
+
+    template <class PROD>
+    void 
     get(EDP_ID id, Handle<PROD>& result) const;
 
     template <class PROD>
@@ -64,7 +68,7 @@ namespace edm {
   private:
     typedef std::vector<EDP_ID>       EDP_IDVec;
     //typedef std::vector<const Group*> GroupPtrVec;
-    typedef std::vector<EDProduct*>   ProductPtrVec;
+    typedef std::vector<std::pair<EDProduct*, std::string> >   ProductPtrVec;
     typedef std::vector<BasicHandle>  BasicHandleVec;    
 
     //------------------------------------------------------------
@@ -152,13 +156,21 @@ namespace edm {
   //
 
   template <class PROD>
+  inline
   void 
   Event::put(std::auto_ptr<PROD> product)
+  {
+    put(product, std::string());
+  }
+
+  template <class PROD>
+  void 
+  Event::put(std::auto_ptr<PROD> product, const std::string & productInstanceName)
   {
     PROD* p = product.get();
     assert (p);                // null pointer is illegal
     edm::Wrapper<PROD> *wp(new Wrapper<PROD>(*p));
-    put_products_.push_back(wp);
+    put_products_.push_back(std::make_pair(wp, productInstanceName));
     product.release();
   }
 

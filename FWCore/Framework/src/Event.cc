@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: Event.cc,v 1.4 2005/06/23 04:33:54 wmtan Exp $
+$Id: Event.cc,v 1.5 2005/07/01 00:06:38 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -22,7 +22,7 @@ namespace edm {
 
   struct deleter
   {
-    void operator()(const EDProduct* p) const { delete p; }
+    void operator()(const std::pair<EDProduct*, std::string> p) const { delete p.first; }
   };
 
   Event::~Event()
@@ -76,9 +76,9 @@ namespace edm {
 
     while(pit!=pie)
       {
-	auto_ptr<EDProduct> pr(*pit);
+	auto_ptr<EDProduct> pr(pit->first);
 	// note: ownership has been passed - so clear the pointer!
-	*pit = 0;
+	pit->first = 0;
 	auto_ptr<Provenance> pv(new Provenance(md_));
 
 	// set parts of provenance
@@ -86,6 +86,7 @@ namespace edm {
 	// TODO: what is this supposed to be? this is a disgusting string.
 	pv->full_product_type_name = TypeID(*pr).userClassName();
 	pv->friendly_product_type_name = TypeID(*pr).friendlyClassName();
+	pv->product_instance_name = pit->second;
 	pv->status = Provenance::Success;
 	pv->parents = got_product_ids_;
 
