@@ -6,7 +6,7 @@
 Worker: this is a basic scheduling unit - an abstract base class to
 something that is really a producer or filter.
 
-$Id: Worker.h,v 1.5 2005/05/18 18:08:54 wmtan Exp $
+$Id: Worker.h,v 1.1 2005/05/29 02:29:54 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -19,6 +19,8 @@ namespace edm {
   public:
     virtual ~Worker();
     virtual bool doWork(EventPrincipal&, EventSetup const& c) = 0;
+    virtual void beginJob( EventSetup const& ) = 0;
+    virtual void endJob() = 0;
   };
 
   template <class WT>

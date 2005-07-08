@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
   
-$Id: EDProducer.cc,v 1.3 2005/03/25 16:59:14 paterno Exp $
+$Id: EDProducer.cc,v 1.1 2005/05/29 02:29:53 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -11,5 +11,10 @@ namespace edm
   EDProducer::~EDProducer()
   { }
 
+  void EDProducer::beginJob( EventSetup const& ) 
+  { }
+
+  void EDProducer::endJob()
+  { }
 }
   

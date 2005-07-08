@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
   
-$Id: EDAnalyzer.cc,v 1.1 2005/04/19 14:18:02 wmtan Exp $
+$Id: EDAnalyzer.cc,v 1.1 2005/05/29 02:29:53 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -11,5 +11,10 @@ namespace edm
   EDAnalyzer::~EDAnalyzer()
   { }
 
+  void EDAnalyzer::beginJob( EventSetup const& ) 
+  { }
+   
+  void EDAnalyzer::endJob()
+  { }
 }
   

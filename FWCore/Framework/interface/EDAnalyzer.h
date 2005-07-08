@@ -14,6 +14,8 @@ namespace edm
 
       virtual ~EDAnalyzer();
       virtual void analyze(Event const& e, EventSetup const& c) = 0;
+      virtual void beginJob( EventSetup const& ) ;
+      virtual void endJob() ;
     };
 }
 

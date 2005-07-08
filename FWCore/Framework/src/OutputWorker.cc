@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: OutputWorker.cc,v 1.2 2005/04/05 16:24:12 paterno Exp $
+$Id: OutputWorker.cc,v 1.1 2005/05/29 02:29:54 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/CoreFramework/interface/EventPrincipal.h"
@@ -30,4 +30,15 @@ namespace edm
     mod_->write(ep);
     return true;
   }
+
+  void 
+  OutputWorker::beginJob( EventSetup const& ) 
+  {
+  }
+
+  void 
+  OutputWorker::endJob() 
+  {
+  }
+   
 }

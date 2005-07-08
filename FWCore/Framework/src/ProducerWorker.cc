@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: ProducerWorker.cc,v 1.4 2005/04/05 16:24:12 paterno Exp $
+$Id: ProducerWorker.cc,v 1.1 2005/05/29 02:29:54 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/CoreFramework/src/ProducerWorker.h"
@@ -29,4 +29,15 @@ namespace edm
     e.commit_();
     return true;
   }
+
+  void ProducerWorker::beginJob( EventSetup const& es) 
+  {
+    producer_->beginJob(es);
+  }
+
+  void ProducerWorker::endJob() 
+  {
+    producer_->endJob();
+  }
+
 }

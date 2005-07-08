@@ -23,6 +23,8 @@
 #include "FWCore/FWUtilities/interface/EDMException.h"
 
 #include "boost/shared_ptr.hpp"
+#include "boost/bind.hpp"
+#include "boost/mem_fn.hpp"
 
 #include <algorithm>
 #include <fstream>
@@ -123,15 +125,18 @@ namespace edm {
 
     boost::shared_ptr<InputService> input_;
     ScheduleExecutor runner_;
-    edm::eventsetup::EventSetupProvider cp_;    
+    edm::eventsetup::EventSetupProvider esp_;    
 
+    bool emittedBeginJob_;
+    
     StrVec fillArgs(int argc, char* argv[]);
     string readFile(const StrVec& args);
   };
   
   FwkImpl::FwkImpl(int argc, char* argv[]) :
     args_(fillArgs(argc,argv)),
-    configstring_(readFile(args_))
+    configstring_(readFile(args_)),
+    emittedBeginJob_(false)
   {
     
     ProcessPSetBuilder builder(configstring_);
@@ -147,12 +152,13 @@ namespace edm {
     input_= makeInput(*params_,common_);
     runner_ = ScheduleExecutor(workers_);
     
-    fillEventSetupProvider(cp_, *params_, common_);
+    fillEventSetupProvider(esp_, *params_, common_);
   }
 
   FwkImpl::FwkImpl(int argc, char* argv[], const string& config) :
     args_(fillArgs(argc,argv)),
-    configstring_(config){
+    configstring_(config),
+    emittedBeginJob_(false) {
     ProcessPSetBuilder builder(configstring_);
     params_ = builder.getProcessPSet();
     common_ = 
@@ -165,13 +171,14 @@ namespace edm {
     workers_= (sbuilder.getPathList());
     input_= makeInput(*params_,common_);
     runner_ = ScheduleExecutor(workers_);
-    fillEventSetupProvider(cp_, *params_, common_);
+    fillEventSetupProvider(esp_, *params_, common_);
 
   }
 
   FwkImpl::FwkImpl(const string& config) :
     args_(),
-    configstring_(config){
+    configstring_(config),
+    emittedBeginJob_(false) {
 
     ProcessPSetBuilder builder(configstring_);
     params_ = builder.getProcessPSet();
@@ -230,19 +237,35 @@ namespace edm {
 
   // notice that exception catching is missing...
 
+  //need a wrapper to let me 'copy' references to EventSetup
+  namespace eventprocessor {
+     struct ESRefWrapper {
+        EventSetup const & es_;
+        ESRefWrapper(EventSetup const &iES) : es_(iES) {}
+        operator const EventSetup&() { return es_; }
+     };
+  }
+  using eventprocessor::ESRefWrapper;
+  
   EventProcessor::StatusCode
   FwkImpl::run(unsigned long numberToProcess)
   {
 
-    // Setup the EventSetup
-    //    boost::shared_ptr<DummyEventSetupRecordRetriever> pRetriever(new DummyEventSetupRecordRetriever);
-    // cp.add(boost::shared_ptr<eventsetup::DataProxyProvider>(pRetriever));
-    
-    // cp.add(boost::shared_ptr<eventsetup::EventSetupRecordIntervalFinder>(pRetriever));
-
-
     bool runforever = numberToProcess==0;
     unsigned int eventcount=0;
+
+    //NOTE:  This implementation assumes 'Job' means one call the EventProcessor::run
+    // If it really means once per 'application' then this code will have to be changed.
+    // Also have to deal with case where have 'run' then new Module added and do 'run'
+    // again.  In that case the newly added Module needs its 'beginJob' to be called.
+    EventSetup const& es = esp_.eventSetupForInstance(edm::Timestamp::beginOfTime());
+    PathList::iterator itWorkerList = workers_.begin();
+    PathList::iterator itEnd = workers_.end();
+    ESRefWrapper wrapper( es );
+    for( ; itWorkerList != itEnd; ++itEnd ) {
+       std::for_each( itWorkerList->begin(), itWorkerList->end(), 
+                      boost::bind( boost::mem_fn(&Worker::beginJob), _1, wrapper) );
+    }
 
     while(runforever || eventcount<numberToProcess)
       {
@@ -251,13 +274,23 @@ namespace edm {
 	auto_ptr<EventPrincipal> pep = input_->readEvent();
 	if(pep.get()==0) break;
 	edm::Timestamp ts(eventcount);
-	EventSetup const& c = cp_.eventSetupForInstance(ts);
+	EventSetup const& es = esp_.eventSetupForInstance(ts);
 
 	EventRegistry::instance()->addEvent(pep->id(), pep.get());
-	runner_.runOneEvent(*pep.get(),c);
+	runner_.runOneEvent(*pep.get(),es);
 	EventRegistry::instance()->removeEvent(pep->id());
       }
 
+    //NOTE: this is not done if an exception is thrown in the above loop.
+    // This was done intentionally.
+    {
+       PathList::const_iterator itWorkerList = workers_.begin();
+       PathList::const_iterator itEnd = workers_.end();
+       for( ; itWorkerList != itEnd; ++itEnd ) {
+          std::for_each( itWorkerList->begin(), itWorkerList->end(), 
+                         boost::mem_fn(&Worker::endJob) );
+       }
+    }
     return 0;
   }
 

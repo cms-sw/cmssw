@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: FilterWorker.cc,v 1.1 2005/05/29 02:29:54 wmtan Exp $
+$Id: FilterWorker.cc,v 1.2 2005/07/06 18:48:18 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <memory>
 
@@ -33,4 +33,17 @@ namespace edm
     // a filter cannot write into the event, so commit is not needed
     // although we do know about what it asked for
   }
+
+  void 
+  FilterWorker::beginJob( EventSetup const& es) 
+  {
+    filter_->beginJob(es);
+  }
+
+  void 
+  FilterWorker::endJob() 
+  {
+   filter_->endJob();
+  }
+
 }

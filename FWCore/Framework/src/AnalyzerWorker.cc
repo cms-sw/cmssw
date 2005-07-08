@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: AnalyzerWorker.cc,v 1.1 2005/04/05 16:23:42 paterno Exp $
+$Id: AnalyzerWorker.cc,v 1.1 2005/05/29 02:29:53 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/CoreFramework/src/AnalyzerWorker.h"
@@ -27,5 +27,15 @@ namespace edm
     Event e(ep,md_);
     analyzer_->analyze(e,c);
     return true;
+  }
+
+  void AnalyzerWorker::beginJob( EventSetup const& es) 
+  {
+    analyzer_->beginJob(es);
+  }
+
+  void AnalyzerWorker::endJob() 
+  {
+    analyzer_->endJob();
   }
 }
