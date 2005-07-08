@@ -5,7 +5,7 @@
   
 Forward declarations of types in the EDM.
 
-$Id: CoreFrameworkfwd.h,v 1.4 2005/06/16 20:33:24 wmtan Exp $
+$Id: CoreFrameworkfwd.h,v 1.5 2005/07/01 00:05:37 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -44,6 +44,7 @@ namespace edm
   template <class T> class Handle;
   template <class T> class Ref;
   template <class T> class RefVector;
+  template <class T> class RefVectorIterator;
 }
 
 // The following are trivial enough so that the real headers can be included.
