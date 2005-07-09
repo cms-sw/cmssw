@@ -23,5 +23,6 @@ namespace edmreftest {
     // Step D: Put outputs into event
     e.put(result);
   }
-DEFINE_FWK_MODULE(OtherThingProducer)
 }
+using edmreftest::OtherThingProducer;
+DEFINE_FWK_MODULE(OtherThingProducer)

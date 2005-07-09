@@ -16,6 +16,6 @@ namespace edmtest {
   void HierarchicalEDProducer::produce(edm::Event& e, edm::EventSetup const&) {
     // nothing to do ... is just a dummy!
   }
-
-DEFINE_FWK_MODULE(HierarchicalEDProducer)
 }
+using edmtest::HierarchicalEDProducer;
+DEFINE_FWK_MODULE(HierarchicalEDProducer)

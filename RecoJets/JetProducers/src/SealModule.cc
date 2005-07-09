@@ -6,8 +6,8 @@
 #include "RecoJets/JetProducers/interface/KtJetProducer.h"
 #include "RecoJets/JetProducers/interface/MidpointJetProducer.h"
 
-namespace cms {
-  DEFINE_SEAL_MODULE();
-  DEFINE_ANOTHER_FWK_MODULE(MidpointJetProducer)
-  DEFINE_ANOTHER_FWK_MODULE(KtJetProducer)
-}
+using cms::MidpointJetProducer;
+using cms::KtJetProducer;
+DEFINE_SEAL_MODULE();
+DEFINE_ANOTHER_FWK_MODULE(MidpointJetProducer)
+DEFINE_ANOTHER_FWK_MODULE(KtJetProducer)

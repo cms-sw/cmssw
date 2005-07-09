@@ -7,10 +7,12 @@
 #include "FWCore/CoreFramework/interface/SourceFactory.h"
 #include "FWCore/FWCoreServices/src/EventSetupRecordDataGetter.h"
 
-namespace edm {
-  DEFINE_SEAL_MODULE();
-  DEFINE_ANOTHER_FWK_INPUT_SERVICE(EmptyInputService);
-  DEFINE_ANOTHER_FWK_MODULE(AsciiOutputModule);
-  DEFINE_ANOTHER_FWK_MODULE(EventSetupRecordDataGetter);
-  DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(EmptyESSource);
-}
+using edm::EmptyInputService;
+using edm::AsciiOutputModule;
+using edm::EventSetupRecordDataGetter;
+using edm::EmptyESSource;
+DEFINE_SEAL_MODULE();
+DEFINE_ANOTHER_FWK_INPUT_SERVICE(EmptyInputService)
+DEFINE_ANOTHER_FWK_MODULE(AsciiOutputModule)
+DEFINE_ANOTHER_FWK_MODULE(EventSetupRecordDataGetter)
+DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(EmptyESSource)

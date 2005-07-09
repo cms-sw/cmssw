@@ -102,5 +102,6 @@ namespace edmreftest {
       std::cout << "EVENT " << it0->evtID() << std::endl;
     }
   }
-DEFINE_FWK_MODULE(OtherThingAnalyzer)
 }
+using edmreftest::OtherThingAnalyzer;
+DEFINE_FWK_MODULE(OtherThingAnalyzer)

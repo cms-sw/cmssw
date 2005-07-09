@@ -84,7 +84,9 @@ namespace edmtest
     std::auto_ptr<DoubleProduct> p(new DoubleProduct(value_));
     e.put(p);
   }
-
-  DEFINE_FWK_MODULE(IntProducer)
-  DEFINE_ANOTHER_FWK_MODULE(DoubleProducer)
 }
+using edmtest::IntProducer;
+using edmtest::DoubleProducer;
+DEFINE_SEAL_MODULE();
+DEFINE_ANOTHER_FWK_MODULE(IntProducer)
+DEFINE_ANOTHER_FWK_MODULE(DoubleProducer)
