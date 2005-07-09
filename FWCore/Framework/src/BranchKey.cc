@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
   
-$Id: BranchKey.cc,v 1.3 2005/05/18 20:34:58 wmtan Exp $
+$Id: BranchKey.cc,v 1.1 2005/05/29 02:29:53 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <ostream>
@@ -16,6 +16,7 @@ namespace edm
     os << "BranchKey("
        << bk.friendly_class_name << ", "
        << bk.module_label << ", "
+       << bk.product_instance_name << ", "
        << bk.process_name << ')';
     return os;
   }

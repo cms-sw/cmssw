@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EventPrincipal.cc,v 1.9 2005/06/28 04:46:02 jbk Exp $
+$Id: EventPrincipal.cc,v 1.10 2005/07/01 00:06:38 wmtan Exp $
 ----------------------------------------------------------------------*/
 //#include <iostream>
 #include <memory>
@@ -57,22 +57,26 @@ namespace edm {
     assert (!group->provenance()->module.module_label.empty());
     assert (!group->provenance()->module.process_name.empty());
     SharedGroupPtr g(group);
-    string class_name = g->provenance()->friendly_product_type_name;
-    string module_label = g->provenance()->module.module_label;
-    string process_name = g->provenance()->module.process_name;
 
-    BranchKey bk(class_name, module_label, process_name);
+    BranchKey bk(*g->provenance());
     //cerr << "addGroup DEBUG 2---> " << bk.friendly_class_name << endl;
     //cerr << "addGroup DEBUG 3---> " << bk << endl;
 
 
     if (labeled_dict_.find(bk) != labeled_dict_.end())
       {
+        string class_name = g->provenance()->friendly_product_type_name;
+        string module_label = g->provenance()->module.module_label;
+        string product_instance_name = g->provenance()->product_instance_name;
+        string process_name = g->provenance()->module.process_name;
 	// the products are lost at this point!
 	throw edm::Exception(edm::errors::InsertFailure,"AlreadyPresent")
 	  << "addGroup: Problem found while adding product provanence, "
 	  << "product already exists for ("
-	  << class_name << "," << module_label << "," << process_name
+	  << class_name << ","
+          << module_label << ","
+          << product_instance_name << ","
+          << process_name
 	  << ")";
       }
 
@@ -240,7 +244,7 @@ namespace edm {
     while (iproc != eproc)
       {
 	const string& process_name = *iproc;
-	BranchKey bk(id,label,process_name);
+	BranchKey bk(id, label, std::string(), process_name);
 	BranchDict::const_iterator i = labeled_dict_.find(bk);
 
 	if (i != labeled_dict_.end())
@@ -311,8 +315,7 @@ namespace edm {
     if (g.product()) return; // nothing to do.
     
     // must attempt to load from persistent store
-    const Provenance* prov = g.provenance();
-    BranchKey bk(prov->friendly_product_type_name,prov->module.module_label,prov->module.process_name);
+    BranchKey bk(*g.provenance());
     auto_ptr<EDProduct> edp(store_->get(bk));
 
     // Now fixup the Group
