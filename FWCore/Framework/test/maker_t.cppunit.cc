@@ -68,14 +68,17 @@ void testmaker::makerTest()
   catch(std::exception& e)
     {
       std::cerr << "std::Exception: " << e.what() << std::endl;
-    }
-  catch(seal::Exception& e)
-    {
-      std::cerr << "seal::Exception: " << e.what() << std::endl;
+      throw;
     }
   catch(seal::SharedLibraryError& e)
     {
-      std::cerr << "sharedliberror " << e.explainSelf() << std::endl;
+      std::cerr << "sharedliberror\n" << e.explainSelf() << std::endl;
+      throw;
+    }
+  catch(seal::Error& e)
+    {
+      std::cerr << "seal::Error\n" << e.explain() << std::endl;
+      throw;
     }
   catch(...)
     {

@@ -2,7 +2,6 @@
 #include "FWCore/CoreFramework/src/Factory.h"
 #include "FWCore/CoreFramework/src/WorkerMaker.h"
 #include "FWCore/CoreFramework/src/DebugMacros.h"
-#include "FWCore/CoreFramework/interface/UnknownModuleException.h"
 #include "FWCore/FWUtilities/interface/EDMException.h"
 
 #include <utility>
@@ -54,8 +53,13 @@ namespace edm {
 
 	if(wm.get()==0)
 	  throw edm::Exception(errors::Configuration,"UnknownModule")
-	    << "module_name=" << modtype
-	    << " version=" << vn;
+	    << "Module " << modtype
+	    << " with version " << vn
+	    << " was not registered.\n"
+	    << "Perhaps your module type is mispelled or is not a "
+	    << "framework plugin.\n"
+	    << "Try running SealPluginDump to obtain a list of "
+	    << "available Plugins.";
 	  
 	FDEBUG(1) << "Factory:  created worker of type " << modtype << endl;
 
