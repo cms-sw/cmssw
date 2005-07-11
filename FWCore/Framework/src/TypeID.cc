@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
   
-$Id: TypeID.cc,v 1.2 2005/06/23 22:01:31 wmtan Exp $
+$Id: TypeID.cc,v 1.3 2005/07/01 00:06:38 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <ostream>
@@ -11,7 +11,7 @@ $Id: TypeID.cc,v 1.2 2005/06/23 22:01:31 wmtan Exp $
 namespace edm {
   void
   TypeID::print(std::ostream& os) const {
-    os << t_.name();
+    os << reflectionClassName();
   }
 
   std::string

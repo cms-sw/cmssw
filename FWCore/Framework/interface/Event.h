@@ -6,7 +6,7 @@
 Event: This is the primary interface for accessing
 EDProducts from a single collision and inserting new derived products.
 
-$Id: Event.h,v 1.8 2005/07/04 15:01:14 wmtan Exp $
+$Id: Event.h,v 1.9 2005/07/08 19:24:56 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
@@ -45,7 +45,7 @@ namespace edm {
 
     template <class PROD>
     void 
-    put(std::auto_ptr<PROD> product, const std::string & productInstanceName);
+    put(std::auto_ptr<PROD> product, const std::string& productInstanceName);
 
     template <class PROD>
     void 
@@ -58,6 +58,10 @@ namespace edm {
     template <class PROD>
     void 
     getByLabel(const std::string& label, Handle<PROD>& result) const;
+
+    template <class PROD>
+    void 
+    getByLabel(const std::string& label, const std::string& productInstanceName, Handle<PROD>& result) const;
 
     template <class PROD>
     void 
@@ -92,7 +96,8 @@ namespace edm {
     
     BasicHandle 
     getByLabel_(TypeID id,
-		const std::string& label) const;
+		const std::string& label,
+		const std::string& productInstanceName) const;
 
     void 
     getMany_(TypeID id, 
@@ -165,7 +170,7 @@ namespace edm {
 
   template <class PROD>
   void 
-  Event::put(std::auto_ptr<PROD> product, const std::string & productInstanceName)
+  Event::put(std::auto_ptr<PROD> product, const std::string& productInstanceName)
   {
     PROD* p = product.get();
     assert (p);                // null pointer is illegal
@@ -194,11 +199,21 @@ namespace edm {
   }
   
   template <class PROD>
+  inline
   void
   Event::getByLabel(const std::string& label,
 		    Handle<PROD>& result) const
   {
-    BasicHandle bh = this->getByLabel_(TypeID(typeid(PROD)), label);
+    getByLabel(label, std::string(), result);
+  }
+
+  template <class PROD>
+  void
+  Event::getByLabel(const std::string& label,
+                    const std::string& productInstanceName,
+		    Handle<PROD>& result) const
+  {
+    BasicHandle bh = this->getByLabel_(TypeID(typeid(PROD)), label, productInstanceName);
     got_product_ids_.push_back(bh.id());
     convert_handle(bh, result);  // thrown on conversion error
   }

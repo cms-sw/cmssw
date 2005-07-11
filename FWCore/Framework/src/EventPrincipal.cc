@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EventPrincipal.cc,v 1.10 2005/07/01 00:06:38 wmtan Exp $
+$Id: EventPrincipal.cc,v 1.11 2005/07/09 02:08:15 wmtan Exp $
 ----------------------------------------------------------------------*/
 //#include <iostream>
 #include <memory>
@@ -228,7 +228,8 @@ namespace edm {
     
   BasicHandle
   EventPrincipal::getByLabel(TypeID id, 
-			     const string& label) const
+			     const string& label,
+			     const string& productInstanceName) const
   {
     // The following is not the most efficient way of doing this. It
     // is the simplest implementation of the required policy, given
@@ -244,7 +245,7 @@ namespace edm {
     while (iproc != eproc)
       {
 	const string& process_name = *iproc;
-	BranchKey bk(id, label, std::string(), process_name);
+	BranchKey bk(id, label, productInstanceName, process_name);
 	BranchDict::const_iterator i = labeled_dict_.find(bk);
 
 	if (i != labeled_dict_.end())
@@ -262,7 +263,8 @@ namespace edm {
     // process name... throw!
     throw edm::Exception(errors::ProductNotFound,"NoMatch")
       << "getByLabel: could not find a required product " << label
-      << "of type " << id;
+      << "\nof type " << id
+      << " with user tag " << (productInstanceName.empty() ? "\"\"" : productInstanceName);
   }
 
   void 

@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: Event.cc,v 1.5 2005/07/01 00:06:38 wmtan Exp $
+$Id: Event.cc,v 1.6 2005/07/08 19:24:56 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -112,9 +112,10 @@ namespace edm {
     
   BasicHandle
   Event::getByLabel_(TypeID id,
-		     const string& label) const
+		     const string& label,
+                     const string& productInstanceName) const
   {
-    return ep_.getByLabel(id, label);
+    return ep_.getByLabel(id, label, productInstanceName);
   }
 
   void 
