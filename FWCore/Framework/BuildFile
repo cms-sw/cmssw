@@ -6,7 +6,7 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/FWUtilities>
 <export>
- <lib name=CoreFramework>
+ <lib name=FWCoreCoreFramework>
  <use name=boost>
  <use name=Foundation/PluginManager>
  <use name=Framework/SealKernel>
