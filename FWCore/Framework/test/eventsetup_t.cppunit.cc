@@ -37,9 +37,11 @@ class testEventsetup: public CppUnit::TestFixture
 CPPUNIT_TEST_SUITE(testEventsetup);
 
 CPPUNIT_TEST(constructTest);
-CPPUNIT_TEST_EXCEPTION(getTest,edm::eventsetup::NoRecordException<DummyRecord>);
+CPPUNIT_TEST(getTest);
+CPPUNIT_TEST_EXCEPTION(getExcTest,edm::eventsetup::NoRecordException<DummyRecord>);
 CPPUNIT_TEST(recordProviderTest);
 CPPUNIT_TEST_EXCEPTION(recordValidityTest,edm::eventsetup::NoRecordException<DummyRecord>);
+CPPUNIT_TEST_EXCEPTION(recordValidityExcTest,edm::eventsetup::NoRecordException<DummyRecord>);
 CPPUNIT_TEST(proxyProviderTest);
 
 CPPUNIT_TEST_SUITE_END();
@@ -49,8 +51,10 @@ public:
 
   void constructTest();
   void getTest();
+  void getExcTest();
   void recordProviderTest();
   void recordValidityTest();
+  void recordValidityExcTest();
   void proxyProviderTest();
 };
 
@@ -72,7 +76,7 @@ void testEventsetup::getTest()
    eventsetup::EventSetupProvider provider;
    EventSetup const& eventSetup = provider.eventSetupForInstance(Timestamp::invalidTimestamp());
    CPPUNIT_ASSERT(&eventSetup != 0);
-   eventSetup.get<DummyRecord>();
+   //eventSetup.get<DummyRecord>();
    //BOOST_CHECK_THROW(eventSetup.get<DummyRecord>(), edm::eventsetup::NoRecordException<DummyRecord>);
    
    DummyRecord dummyRecord;
@@ -80,6 +84,15 @@ void testEventsetup::getTest()
    const DummyRecord& gottenRecord = eventSetup.get<DummyRecord>();
    CPPUNIT_ASSERT(0 != &gottenRecord);
    CPPUNIT_ASSERT(&dummyRecord == &gottenRecord);
+}
+
+void testEventsetup::getExcTest()
+{
+   eventsetup::EventSetupProvider provider;
+   EventSetup const& eventSetup = provider.eventSetupForInstance(Timestamp::invalidTimestamp());
+   CPPUNIT_ASSERT(&eventSetup != 0);
+   eventSetup.get<DummyRecord>();
+   //BOOST_CHECK_THROW(eventSetup.get<DummyRecord>(), edm::eventsetup::NoRecordException<DummyRecord>);
 }
 
 #include "FWCore/CoreFramework/interface/EventSetupRecordProviderTemplate.h"
@@ -149,8 +162,8 @@ void testEventsetup::recordValidityTest()
    
    {
       EventSetup const& eventSetup = provider.eventSetupForInstance(Timestamp(1));
-     // BOOST_CHECK_THROW(eventSetup.get<DummyRecord>(), edm::eventsetup::NoRecordException<DummyRecord>);
-   eventSetup.get<DummyRecord>();
+   // BOOST_CHECK_THROW(eventSetup.get<DummyRecord>(), edm::eventsetup::NoRecordException<DummyRecord>);
+   //eventSetup.get<DummyRecord>();
    }
 
    finder->setInterval(ValidityInterval(Timestamp(2), Timestamp(3)));
@@ -171,6 +184,24 @@ void testEventsetup::recordValidityTest()
    
 }
 
+void testEventsetup::recordValidityExcTest()
+{
+   DummyEventSetupProvider provider;
+   typedef eventsetup::EventSetupRecordProviderTemplate<DummyRecord> DummyRecordProvider;
+   std::auto_ptr<DummyRecordProvider > dummyRecordProvider(new DummyRecordProvider());
+
+   boost::shared_ptr<DummyFinder> finder(new DummyFinder);
+   dummyRecordProvider->addFinder(finder);
+   
+   provider.insert(dummyRecordProvider);
+   
+   {
+      EventSetup const& eventSetup = provider.eventSetupForInstance(Timestamp(1));
+   // BOOST_CHECK_THROW(eventSetup.get<DummyRecord>(), edm::eventsetup::NoRecordException<DummyRecord>);
+   eventSetup.get<DummyRecord>();
+   }
+
+}
 #include "FWCore/CoreFramework/interface/DataProxyProvider.h"
 
 class DummyProxyProvider : public eventsetup::DataProxyProvider {
