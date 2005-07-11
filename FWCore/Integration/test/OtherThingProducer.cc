@@ -21,7 +21,7 @@ namespace edmreftest {
     alg_.run(e, *result);
 
     // Step D: Put outputs into event
-    e.put(result);
+    e.put(result, std::string("testUserTag"));
   }
 }
 using edmreftest::OtherThingProducer;

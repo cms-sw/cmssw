@@ -10,7 +10,7 @@
 namespace edmreftest {
   void OtherThingAnalyzer::analyze(edm::Event const& e, edm::EventSetup const&) {
     edm::Handle<OtherThingCollection> otherThings;
-    e.getByLabel("OtherThing", otherThings);
+    e.getByLabel("OtherThing", "testUserTag", otherThings);
     std::cout << " --------------- next event ------------ " << std::endl;
     int i = 0;
     for (OtherThingCollection::const_iterator it = (*otherThings).begin(); it != (*otherThings).end(); ++it, ++i) {
