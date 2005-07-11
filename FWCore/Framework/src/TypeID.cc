@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
   
-$Id: TypeID.cc,v 1.3 2005/07/01 00:06:38 wmtan Exp $
+$Id: TypeID.cc,v 1.4 2005/07/11 21:55:14 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <ostream>
@@ -26,19 +26,46 @@ namespace edm {
 
   std::string 
   TypeID::userClassName() const {
-    char const space(' ');
     std::string name = reflectionClassName();
     if (name.find("edm::Wrapper") == 0) {
-	std::string::size_type idx = name.find('<');
-	std::string::size_type idx2 = name.rfind('>');
-	assert (idx != std::string::npos);
-	assert (idx2 != std::string::npos);
-        std::string::size_type idx3 = idx2;
-	while (space == name[--idx3]) --idx2;
-	++idx;
-	name = name.substr(idx, idx2 - idx);
+      stripTemplate(name);
     }
     return name;
+  }
+
+  std::string 
+  TypeID::friendlyClassName() const {
+    std::string name = userClassName();
+    while (stripTemplate(name)) {}
+    stripNamespace(name);
+    return name;
+  }
+
+  bool
+  TypeID::stripTemplate(std::string& name) {
+    std::string::size_type idx = name.find('<');
+    bool ret = (idx != std::string::npos);
+    if (ret) {
+      std::string::size_type idx2 = name.rfind('>');
+      assert (idx2 != std::string::npos);
+      std::string::size_type idx3 = idx2;
+      char const space(' ');
+      while (space == name[--idx3]) --idx2;
+      ++idx;
+      name = name.substr(idx, idx2 - idx);
+    }
+    return ret;
+  }
+
+  bool
+  TypeID::stripNamespace(std::string& name) {
+    std::string::size_type idx = name.rfind(':');
+    bool ret = (idx != std::string::npos);
+    if (ret) {
+      ++idx;
+      name = name.substr(idx);
+    }
+    return ret;
   }
 
   std::ostream&
