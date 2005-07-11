@@ -46,10 +46,13 @@ class testEventsetupRecord: public CppUnit::TestFixture
 CPPUNIT_TEST_SUITE(testEventsetupRecord);
 
 CPPUNIT_TEST(factoryTest);
-CPPUNIT_TEST_EXCEPTION(doGetTest,ExceptionType);
-CPPUNIT_TEST_EXCEPTION(get2Test,NoDataExceptionType);
-CPPUNIT_TEST_EXCEPTION(getTest,ExceptionType);
 CPPUNIT_TEST(proxyTest);
+CPPUNIT_TEST(getTest);
+CPPUNIT_TEST(doGetTest);
+
+CPPUNIT_TEST_EXCEPTION(getNodataExpTest,NoDataExceptionType);
+CPPUNIT_TEST_EXCEPTION(getExepTest,ExceptionType);
+CPPUNIT_TEST_EXCEPTION(doGetExepTest,ExceptionType);
 
 CPPUNIT_TEST_SUITE_END();
 public:
@@ -57,14 +60,18 @@ public:
   void tearDown(){}
 
   void factoryTest();
-  void getTest();
-  void get2Test();
-  void doGetTest();
   void proxyTest();
+  void getTest();
+  void doGetTest();
+
+  void getNodataExpTest();
+  void getExepTest();
+  void doGetExepTest();
 };
 
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testEventsetupRecord);
+
 void testEventsetupRecord::factoryTest()
 {
    std::auto_ptr<EventSetupRecordProvider> dummyProvider =
@@ -74,11 +81,6 @@ void testEventsetupRecord::factoryTest()
    CPPUNIT_ASSERT(0 != dynamic_cast<EventSetupRecordProviderTemplate<DummyRecord>*>(&(*dummyProvider)));
 
 }   
-
-//namespace eventsetuprecord_t {
- //  class Dummy {};
-//}
-//using eventsetuprecord_t::Dummy;
 
 template<>
 const char*
@@ -121,7 +123,6 @@ void testEventsetupRecord::proxyTest()
                               "");
    
    CPPUNIT_ASSERT(0 == dummyRecord.find(dummyDataKey));
-   //BOOST_CHECK_THROW(dummyRecord.get(dummyPtr), edm::eventsetup::MakeDataException<DummyRecord,Dummy>);
 
    
    dummyRecord.add(dummyDataKey,
@@ -154,46 +155,6 @@ void testEventsetupRecord::getTest()
    dummyRecord.add(dummyDataKey,
                     &dummyProxy);
 
-   typedef edm::eventsetup::MakeDataException<DummyRecord,Dummy> ExceptionType;
-   dummyRecord.get(dummyPtr);
-   //BOOST_CHECK_THROW(dummyRecord.get(dummyPtr), ExceptionType);
-
-   Dummy myDummy;
-   WorkingDummyProxy workingProxy(&myDummy);
-   
-   const DataKey workingDataKey(DataKey::makeTypeTag<WorkingDummyProxy::value_type>(),
-                              "working");
-
-   dummyRecord.add(workingDataKey,
-                    &workingProxy);
-
-   dummyRecord.get(dummyPtr, "working");
-   
-   CPPUNIT_ASSERT(&(*dummyPtr) == &myDummy);
-
-   const std::string workingString("working");
-   
-   dummyRecord.get(dummyPtr, workingString);
-   CPPUNIT_ASSERT(&(*dummyPtr) == &myDummy);
-   
-}
-
-void testEventsetupRecord::get2Test()
-{
-   DummyRecord dummyRecord;
-   FailingDummyProxy dummyProxy;
-
-   const DataKey dummyDataKey(DataKey::makeTypeTag<FailingDummyProxy::value_type>(),
-                              "");
-
-   ESHandle<Dummy> dummyPtr;
-   typedef edm::eventsetup::NoDataException<Dummy> NoDataExceptionType;
-   dummyRecord.get(dummyPtr);
-   //BOOST_CHECK_THROW(dummyRecord.get(dummyPtr), NoDataExceptionType) ;
-   
-   dummyRecord.add(dummyDataKey,
-                    &dummyProxy);
-
    //typedef edm::eventsetup::MakeDataException<DummyRecord,Dummy> ExceptionType;
    //dummyRecord.get(dummyPtr);
    //BOOST_CHECK_THROW(dummyRecord.get(dummyPtr), ExceptionType);
@@ -217,7 +178,67 @@ void testEventsetupRecord::get2Test()
    CPPUNIT_ASSERT(&(*dummyPtr) == &myDummy);
 }
 
+void testEventsetupRecord::getNodataExpTest()
+{
+   DummyRecord dummyRecord;
+   FailingDummyProxy dummyProxy;
+
+   const DataKey dummyDataKey(DataKey::makeTypeTag<FailingDummyProxy::value_type>(),"");
+
+   ESHandle<Dummy> dummyPtr;
+   typedef edm::eventsetup::NoDataException<Dummy> NoDataExceptionType;
+   dummyRecord.get(dummyPtr);
+   //BOOST_CHECK_THROW(dummyRecord.get(dummyPtr), NoDataExceptionType) ;
+
+}
+
+void testEventsetupRecord::getExepTest()
+{
+   DummyRecord dummyRecord;
+   FailingDummyProxy dummyProxy;
+
+   const DataKey dummyDataKey(DataKey::makeTypeTag<FailingDummyProxy::value_type>(),"");
+
+   ESHandle<Dummy> dummyPtr;
+   
+   dummyRecord.add(dummyDataKey,&dummyProxy);
+
+   typedef edm::eventsetup::MakeDataException<DummyRecord,Dummy> ExceptionType;
+   dummyRecord.get(dummyPtr);
+   //BOOST_CHECK_THROW(dummyRecord.get(dummyPtr), ExceptionType);
+}
+
 void testEventsetupRecord::doGetTest()
+{
+   DummyRecord dummyRecord;
+   FailingDummyProxy dummyProxy;
+   
+   const DataKey dummyDataKey(DataKey::makeTypeTag<FailingDummyProxy::value_type>(),
+                              "");
+   
+   CPPUNIT_ASSERT(!dummyRecord.doGet(dummyDataKey)) ;
+   
+   dummyRecord.add(dummyDataKey,
+                   &dummyProxy);
+   
+   //typedef edm::eventsetup::MakeDataException<DummyRecord,Dummy> ExceptionType;
+   //dummyRecord.doGet(dummyDataKey);
+   //BOOST_CHECK_THROW(dummyRecord.doGet(dummyDataKey), ExceptionType);
+   
+   Dummy myDummy;
+   WorkingDummyProxy workingProxy(&myDummy);
+   
+   const DataKey workingDataKey(DataKey::makeTypeTag<WorkingDummyProxy::value_type>(),
+                                "working");
+   
+   dummyRecord.add(workingDataKey,
+                   &workingProxy);
+   
+   CPPUNIT_ASSERT(dummyRecord.doGet(workingDataKey) );
+   
+}
+
+void testEventsetupRecord::doGetExepTest()
 {
    DummyRecord dummyRecord;
    FailingDummyProxy dummyProxy;
@@ -233,16 +254,5 @@ void testEventsetupRecord::doGetTest()
    typedef edm::eventsetup::MakeDataException<DummyRecord,Dummy> ExceptionType;
    dummyRecord.doGet(dummyDataKey);
    //BOOST_CHECK_THROW(dummyRecord.doGet(dummyDataKey), ExceptionType);
-   
-   Dummy myDummy;
-   WorkingDummyProxy workingProxy(&myDummy);
-   
-   const DataKey workingDataKey(DataKey::makeTypeTag<WorkingDummyProxy::value_type>(),
-                                "working");
-   
-   dummyRecord.add(workingDataKey,
-                   &workingProxy);
-   
-   CPPUNIT_ASSERT(dummyRecord.doGet(workingDataKey) );
    
 }
