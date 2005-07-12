@@ -2,7 +2,7 @@
 <use name=FWCore/EDProduct>
 
 <export>
- <lib name=FEDRawData>
+ <lib name=DataFormatsFEDRawData>
  <use name=FWCore/EDProduct>	
 
 </export>
