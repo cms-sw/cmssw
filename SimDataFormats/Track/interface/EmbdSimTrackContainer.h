@@ -2,7 +2,7 @@
 #define EmbdSimTrackContainer_H
 
 #include "FWCore/EDProduct/interface/EDProduct.h"
-#include "SimDataFormats/SimEvent/interface/EmbdSimTrack.h"
+#include "SimDataFormats/Track/interface/EmbdSimTrack.h"
 
 #include <vector>
 #include <string>

@@ -1,9 +1,9 @@
 <export>
+<lib name=SimDataFormatsTrackingHit>
 <use name=FWCore/EDProduct>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/CoreFramework>
 </export>
-<lib name=SimDataFormatsTrackingHit>
 <use name=FWCore/CoreFramework>
 <use name=FWCore/EDProduct>
 <use name=FWCore/ParameterSet>

@@ -1,5 +1,5 @@
-#include "SimDataFormats/SimCaloHit/interface/PCaloHit.h"
-#include "SimDataFormats/SimCaloHit/interface/PCaloHitContainer.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHit.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include <vector>
 #include <map>
 #include <string>

@@ -2,7 +2,7 @@
 #define EmbdSimVertexContainer_H
 
 #include "FWCore/EDProduct/interface/EDProduct.h"
-#include "SimDataFormats/SimEvent/interface/EmbdSimVertex.h"
+#include "SimDataFormats/Vertex/interface/EmbdSimVertex.h"
 
 #include <vector>
 #include <string>

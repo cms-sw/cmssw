@@ -1,4 +1,4 @@
-#include <SimDataFormats/SimTkHit/interface/PSimHitContainer.h>
+#include <SimDataFormats/TrackingHit/interface/PSimHitContainer.h>
 
 using namespace edm;
 

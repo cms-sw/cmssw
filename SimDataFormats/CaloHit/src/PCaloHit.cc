@@ -1,4 +1,4 @@
-#include "SimDataFormats/SimCaloHit/interface/PCaloHit.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include<iostream>
 
 std::ostream & operator<<(std::ostream& o,const PCaloHit& hit)

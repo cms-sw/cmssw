@@ -1,8 +1,8 @@
-#ifndef _SimDataFormats_SimCaloHit_PCaloHitContainer_h_
-#define _SimDataFormats_SimCaloHit_PCaloHitContainer_h_
+#ifndef SimDataFormats_PCaloHitContainer_H
+#define SimDataFormats_PCaloHitContainer_H_
 
 #include "FWCore/EDProduct/interface/EDProduct.h"
-#include "SimDataFormats/SimCaloHit/interface/PCaloHit.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include <vector>
 #include <map>
 #include <string>
@@ -24,5 +24,5 @@ namespace edm {
 } // edm
 
 
-#endif // _SimDataFormats_SimCaloHit_PCaloHitContainer_h_
+#endif
 

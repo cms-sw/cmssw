@@ -1,21 +1,20 @@
 using namespace std;
-#include "SimDataFormats/SimTkHit/interface/PSimHit.h"
-#include "SimDataFormats/SimTkHit/interface/PSimHitContainer.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include <vector>
 #include <map>
 #include <string>
-#include "FWGeneralUtilities/GeomVector/interface/LocalPoint.h"
-#include "FWGeneralUtilities/GeomVector/interface/Point2DBase.h"
-#include "FWGeneralUtilities/GeomVector/interface/Point3DBase.h"
-#include "FWGeneralUtilities/GeomVector/interface/LocalTag.h"
-#include "FWGeneralUtilities/GeomVector/interface/GlobalTag.h"
-#include "FWGeneralUtilities/GeomVector/interface/LocalTag.h"
-#include "FWGeneralUtilities/GeomVector/interface/MeasurementTag.h"
-#include "FWGeneralUtilities/GeomVector/interface/Point2DBase.h"
-#include "FWGeneralUtilities/GeomVector/interface/Point3DBase.h"
-#include "FWGeneralUtilities/GeomVector/interface/Vector2DBase.h"
-#include "FWGeneralUtilities/GeomVector/interface/Vector3DBase.h"
-
+#include "Geometry/Vector/interface/LocalPoint.h"
+#include "Geometry/Vector/interface/Point2DBase.h"
+#include "Geometry/Vector/interface/Point3DBase.h"
+#include "Geometry/Vector/interface/LocalTag.h"
+#include "Geometry/Vector/interface/GlobalTag.h"
+#include "Geometry/Vector/interface/LocalTag.h"
+#include "Geometry/Vector/interface/MeasurementTag.h"
+#include "Geometry/Vector/interface/Point2DBase.h"
+#include "Geometry/Vector/interface/Point3DBase.h"
+#include "Geometry/Vector/interface/Vector2DBase.h"
+#include "Geometry/Vector/interface/Vector3DBase.h"
 
 namespace {
   namespace {
@@ -38,7 +37,6 @@ namespace {
     Geom::Theta<double> dummy21;
     Basic2DVector<double> dummy22;
     Basic3DVector<double> dummy23;
-
 
     LocalTag d12;
 

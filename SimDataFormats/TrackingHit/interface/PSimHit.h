@@ -1,8 +1,8 @@
 #ifndef PSimHit_H
 #define PSimHit_H
 
-#include "FWGeneralUtilities/GeomVector/interface/LocalPoint.h"
-#include "FWGeneralUtilities/GeomVector/interface/LocalVector.h"
+#include "Geometry/Vector/interface/LocalPoint.h"
+#include "Geometry/Vector/interface/LocalVector.h"
 
 class TrackingSlaveSD; // for friend declaration only
 

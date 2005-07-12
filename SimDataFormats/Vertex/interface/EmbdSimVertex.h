@@ -1,7 +1,7 @@
 #ifndef EmbdSimVertex_H
 #define EmbdSimVertex_H
 
-#include "SimDataFormats/SimEvent/interface/CoreSimVertex.h"
+#include "SimDataFormats/Vertex/interface/CoreSimVertex.h"
 
 class EmbdSimVertex : public CoreSimVertex
 {

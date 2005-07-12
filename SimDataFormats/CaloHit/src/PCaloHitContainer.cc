@@ -1,5 +1,5 @@
 
-#include <SimDataFormats/SimCaloHit/interface/PCaloHitContainer.h>
+#include <SimDataFormats/CaloHit/interface/PCaloHitContainer.h>
 
 using namespace edm;
 void PCaloHitContainer::insertHits(std::string name, PCaloHitSingleContainer& p){

@@ -1,7 +1,7 @@
 #ifndef EmbdSimTrack_H
 #define EmbdSimTrack_H
 
-#include "SimDataFormats/SimEvent/interface/CoreSimTrack.h"
+#include "SimDataFormats/Track/interface/CoreSimTrack.h"
 
 class EmbdSimTrack : public CoreSimTrack
 {

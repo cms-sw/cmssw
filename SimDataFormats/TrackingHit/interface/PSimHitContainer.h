@@ -2,7 +2,7 @@
 #define SimDataFormats_SimTkHit_PSimHitContainer_H
 
 #include "FWCore/EDProduct/interface/EDProduct.h"
-#include "SimDataFormats/SimTkHit/interface/PSimHit.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
 #include <vector>
 #include <map>

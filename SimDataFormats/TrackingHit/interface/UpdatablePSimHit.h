@@ -7,7 +7,7 @@
  * maybe not the final solution
  */
 
-#include "SimDataFormats/SimTkHit/interface/PSimHit.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
 class UpdatablePSimHit : public PSimHit 
 {

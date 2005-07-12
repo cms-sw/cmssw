@@ -1,5 +1,5 @@
-#ifndef _SimDataFormats_SimCaloHit_PCaloHit_h_
-#define _SimDataFormats_SimCaloHit_PCaloHit_h_
+#ifndef SimDataFormats_PCaloHit_H
+#define SimDataFormats_PCaloHit_H
 
 
 /**

@@ -1,4 +1,4 @@
-#include "SimDataFormats/SimEvent/interface/EmbdSimVertex.h"
+#include "SimDataFormats/Vertex/interface/EmbdSimVertex.h"
 
 EmbdSimVertex::EmbdSimVertex() {}
  
