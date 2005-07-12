@@ -8,7 +8,7 @@
 <Flags SEAL_PLUGIN_NAME="DDParser">
 
 <export>
- <lib name=DDParser>
+ <lib name=DetectorDescriptionDDParser>
  <use name=xerces-c>
  <use name=boost>
  <use name=DetectorDescription/DDCore>

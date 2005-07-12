@@ -2,6 +2,6 @@
 <use name=DetectorDescription/DDCoreImpl>
 
 <export>
- <lib name=DDCore>
+ <lib name=DetectorDescriptionDDCore>
  <use name=DetectorDescription/DDCoreImpl>
 </export>

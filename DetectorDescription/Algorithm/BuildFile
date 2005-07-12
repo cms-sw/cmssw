@@ -3,7 +3,7 @@
 <use name=Framework/SealKernel>
 
 <export>
- <lib name=DDAlgorithm>
+ <lib name=DetectorDescriptionDDAlgorithm>
  <use name=DetectorDescription/DDCore>
  <use name=Framework/SealKernel>
 </export>
