@@ -11,6 +11,6 @@ nocap// Created:     day-mon-xx
 nocap// RCS(Id)
 nocap
 nocap#include "skelsubsys/skelpackage/interface/skelname.h"
-nocap#include "FWCore/CoreFramework/interface/eventsetuprecord_registration_macro.h"
+nocap#include "FWCore/Framework/interface/eventsetuprecord_registration_macro.h"
 nocap
 nocapEVENTSETUP_RECORD_REG(skelname);

@@ -19,7 +19,7 @@ nocap// Created:     day-mon-xx
 nocap// RCS(Id)
 nocap//
 nocap
-nocap#include "FWCore/CoreFramework/interface/EventSetupRecordImplementation.h"
+nocap#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 nocap
 nocapclass skelname : public edm::eventsetup::EventSetupRecordImplementation<skelname> {};
 nocap

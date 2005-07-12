@@ -23,12 +23,12 @@
 #include "boost/shared_ptr.hpp"
 
 // user include files
-#include "FWCore/CoreFramework/interface/ModuleFactory.h"
-#include "FWCore/CoreFramework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/Framework/interface/ESProducer.h"
 
-#include "FWCore/CoreFramework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
-@perl if( 1 lt scalar( @::datatypes ) ) {$result="#include \"FWCore/CoreFramework/interface/ESProducts.h\""; } @\perl
+@perl if( 1 lt scalar( @::datatypes ) ) {$result="#include \"FWCore/Framework/interface/ESProducts.h\""; } @\perl
 
 
 //

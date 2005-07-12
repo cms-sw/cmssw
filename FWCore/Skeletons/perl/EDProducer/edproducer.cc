@@ -22,11 +22,11 @@
 #include <memory>
 
 // user include files
-#include "FWCore/CoreFramework/interface/CoreFrameworkfwd.h"
-#include "FWCore/CoreFramework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDProducer.h"
 
-#include "FWCore/CoreFramework/interface/Event.h"
-#include "FWCore/CoreFramework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
