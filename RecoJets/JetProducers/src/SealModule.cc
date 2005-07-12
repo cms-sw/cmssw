@@ -1,7 +1,7 @@
 
 #include "PluginManager/ModuleDef.h"
 
-#include "FWCore/CoreFramework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "RecoJets/JetProducers/interface/KtJetProducer.h"
 #include "RecoJets/JetProducers/interface/MidpointJetProducer.h"

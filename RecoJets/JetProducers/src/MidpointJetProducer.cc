@@ -9,7 +9,7 @@
 #include "RecoJets/JetProducers/interface/MidpointJetProducer.h"
 #include "DataFormats/JetObjects/interface/CaloJetCollection.h"
 #include "DataFormats/CaloObjects/interface/CaloTowerCollection.h"
-#include "FWCore/CoreFramework/interface/Handle.h"
+#include "FWCore/Framework/interface/Handle.h"
 
 namespace cms
 {

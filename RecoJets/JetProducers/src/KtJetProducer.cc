@@ -8,7 +8,7 @@
 
 #include "RecoJets/JetProducers/interface/KtJetProducer.h"
 #include "DataFormats/JetObjects/interface/CaloJetCollection.h"
-#include "FWCore/CoreFramework/interface/Handle.h"
+#include "FWCore/Framework/interface/Handle.h"
 
 namespace cms
 {
