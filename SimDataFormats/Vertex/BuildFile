@@ -1,0 +1,6 @@
+<export>
+ <lib name=SimDataFormatsVertex>
+ <use name=clhep>
+</export>
+
+<use name=clhep>
