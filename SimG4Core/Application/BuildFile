@@ -1,0 +1,26 @@
+<flags SEAL_PLUGIN_NAME="Application">
+<use name=SimG4Core/Physics>
+<use name=SimG4Core/Generators>
+<use name=SimG4Core/Notification>
+<use name=SimG4Core/Geometry>
+<use name=SimDataFormats/SimEvent>
+<use name=SimDataFormats/SimTkHit>
+<use name=SimDataFormats/SimTkNumbering>
+<use name=SimHitMakers/TrackingHitsWriter>
+<use name=FWCore/EDProduct>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/CoreFramework>
+<export>
+<lib name=Application>
+<use name=SimG4Core/Physics>
+<use name=SimG4Core/Generators>
+<use name=SimG4Core/Notification>
+<use name=SimG4Core/Geometry>
+<use name=SimDataFormats/SimEvent>
+<use name=SimDataFormats/SimTkHit>
+<use name=SimDataFormats/SimTkNumbering>
+<use name=SimHitMakers/TrackingHitsWriter>
+</export>
+
+<use name=geant4>
+<use name=clhep>

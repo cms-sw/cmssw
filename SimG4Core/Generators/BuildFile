@@ -1,0 +1,6 @@
+<export>
+ <lib name=SimG4CoreGenerators>
+</export>
+
+<use name=geant4>
+<use name=clhep>

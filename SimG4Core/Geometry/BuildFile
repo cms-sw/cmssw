@@ -1,0 +1,16 @@
+<use name=FWCore/CoreFramework>
+<use name=DetectorDescription/DDParser>
+<use name=geant4>
+<use name=DataSvc>
+<use name=Collection>
+<use name=ImplicitCollection>
+<use name=Dictionary/Reflection>
+<use name=Framework/SealKernel>
+
+<export>
+ <lib name=SimG4CoreGeometry>
+ <use name=DetectorDescription/DDParser>
+ <use name=FWCore/CoreFramework>
+ <use name=Framework/SealKernel>
+</export>
+
