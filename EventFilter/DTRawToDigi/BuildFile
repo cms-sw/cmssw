@@ -1,12 +1,12 @@
 <flags SEAL_PLUGIN_NAME="EventFilterDTRawToDigi">
-<use name=FWCore/CoreFramework>
+<use name=FWCore/Framework>
 <use name=DataFormats/FEDRawData>
 <use name=DataFormats/DTDigis>
 <use name=boost>
 
 <export>
  <lib name=EventFilterDTRawToDigi>
- <use name=FWCore/CoreFramework>
+ <use name=FWCore/Framework>
  <use name=DataFormats/FEDRawData>	
  <use name=DataFormats/Digis>
  <use name=boost>	
