@@ -1,5 +1,5 @@
-#include "FWCore/FWCoreIntegration/test/ThingCollection.h"
-#include "FWCore/FWCoreIntegration/test/OtherThingCollection.h"
+#include "FWCore/Integration/test/ThingCollection.h"
+#include "FWCore/Integration/test/OtherThingCollection.h"
 #include "FWCore/EDProduct/interface/Wrapper.h"
 
 namespace {

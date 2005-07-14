@@ -2,10 +2,10 @@
 #define FWCOREINTEGRATION_GADGETRCD_H
 // -*- C++ -*-
 //
-// Package:     FWCoreIntegration
+// Package:     Integration
 // Class  :     GadgetRcd
 // 
-/**\class GadgetRcd GadgetRcd.h FWCore/FWCoreIntegration/interface/GadgetRcd.h
+/**\class GadgetRcd GadgetRcd.h FWCore/Integration/interface/GadgetRcd.h
 
  Description: <one line class summary>
 
@@ -16,10 +16,10 @@
 //
 // Author:      Chris Jones
 // Created:     Fri Jun 24 13:44:48 EDT 2005
-// $Id$
+// $Id: GadgetRcd.h,v 1.1 2005/06/25 01:20:41 chrjones Exp $
 //
 
-#include "FWCore/CoreFramework/interface/EventSetupRecordImplementation.h"
+#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
 class GadgetRcd : public edm::eventsetup::EventSetupRecordImplementation<GadgetRcd> {};
 

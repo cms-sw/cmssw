@@ -2,10 +2,10 @@
 #define FWCOREINTEGRATION_WHATSIT_H
 // -*- C++ -*-
 //
-// Package:     FWCoreIntegration
+// Package:     Integration
 // Class  :     WhatsIt
 // 
-/**\class WhatsIt WhatsIt.h FWCore/FWCoreIntegration/interface/WhatsIt.h
+/**\class WhatsIt WhatsIt.h FWCore/Integration/interface/WhatsIt.h
 
  Description: Dummy class used to test the EventSetup in the integration test
 
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 13:23:12 EDT 2005
-// $Id$
+// $Id: WhatsIt.h,v 1.1 2005/06/25 01:20:41 chrjones Exp $
 //
 
 // system include files

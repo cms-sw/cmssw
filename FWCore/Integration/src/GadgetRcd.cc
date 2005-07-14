@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Package:     FWCoreIntegration
+// Package:     Integration
 // Class  :     GadgetRcd
 // 
 // Implementation:
@@ -8,9 +8,9 @@
 //
 // Author:      Chris Jones
 // Created:     Fri Jun 24 13:44:48 EDT 2005
-// $Id$
+// $Id: GadgetRcd.cc,v 1.1 2005/06/25 01:20:41 chrjones Exp $
 
-#include "FWCore/FWCoreIntegration/src/GadgetRcd.h"
-#include "FWCore/CoreFramework/interface/eventsetuprecord_registration_macro.h"
+#include "FWCore/Integration/src/GadgetRcd.h"
+#include "FWCore/Framework/interface/eventsetuprecord_registration_macro.h"
 
 EVENTSETUP_RECORD_REG(GadgetRcd);

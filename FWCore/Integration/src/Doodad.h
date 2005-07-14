@@ -2,10 +2,10 @@
 #define FWCOREINTEGRATION_DOODAD_H
 // -*- C++ -*-
 //
-// Package:     FWCoreIntegration
+// Package:     Integration
 // Class  :     Doodad
 // 
-/**\class Doodad Doodad.h FWCore/FWCoreIntegration/interface/Doodad.h
+/**\class Doodad Doodad.h FWCore/Integration/interface/Doodad.h
 
  Description: Dummy class used to test the EventSetup in the integration test
 
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 13:23:03 EDT 2005
-// $Id$
+// $Id: Doodad.h,v 1.1 2005/06/25 01:20:41 chrjones Exp $
 //
 
 // system include files
