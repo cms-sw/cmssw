@@ -27,7 +27,7 @@ public:
     typedef std::vector<unsigned int> SimToG4VectorType;
 public:
     //EventAction(const edm::ParameterSet & ps);
-    EventAction();
+    EventAction(const edm::ParameterSet & ps);
     ~EventAction();
     void BeginOfEventAction(const G4Event * evt);
     void EndOfEventAction(const G4Event * evt);

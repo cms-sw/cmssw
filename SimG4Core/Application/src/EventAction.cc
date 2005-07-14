@@ -10,15 +10,11 @@
 using std::cout;
 using std::endl;
 
-// EventAction::EventAction(const edm::ParameterSet & p) 
-//     : m_trksForThisEvent(0),m_nVertices(0),
-//       m_collapsePrimaryVertices(p.getParameter<bool>("CollapsePrimaryVertices")),
-//       m_stopFile(p.getParameter<std::string>("StopFile")),m_debug(p.getParameter<bool>("debug"))
-// {}
-EventAction::EventAction() 
+EventAction::EventAction(const edm::ParameterSet & p) 
     : m_trksForThisEvent(0),m_nVertices(0),
-      m_collapsePrimaryVertices(false),
-      m_stopFile("carf.stop"),m_debug(false)
+      m_collapsePrimaryVertices(p.getParameter<bool>("CollapsePrimaryVertices")),
+      m_stopFile(p.getParameter<std::string>("StopFile")),
+      m_debug(p.getParameter<bool>("debug"))
 {}
 
 EventAction::~EventAction() {}

@@ -6,17 +6,11 @@
 using std::cout;
 using std::endl;
 
-// SteppingAction::SteppingAction(const edm::ParameterSet & p) 
-//     : killBeamPipe(p.getParameter<bool>("KillBeamPipe")),
-//       theCriticalEnergyForVacuum(p.getParameter<double>("CriticalEnergyForVacuum")*MeV),
-//       theCriticalDensity(p.getParameter<double>("CriticalDensity")*g/cm3),
-//       verbose(p.getParameter<int>("Verbosity"))
-// {}
-SteppingAction::SteppingAction() 
-    : killBeamPipe(true),
-      theCriticalEnergyForVacuum(2.0*MeV),
-      theCriticalDensity(1.e-25*g/cm3),
-      verbose(0)
+SteppingAction::SteppingAction(const edm::ParameterSet & p) 
+    : killBeamPipe(p.getParameter<bool>("KillBeamPipe")),
+      theCriticalEnergyForVacuum(p.getParameter<double>("CriticalEnergyForVacuum")*MeV),
+      theCriticalDensity(p.getParameter<double>("CriticalDensity")*g/cm3),
+      verbose(p.getParameter<int>("Verbosity"))
 {}
 
 SteppingAction::~SteppingAction() {}

@@ -131,10 +131,10 @@ void RunManager::initializeUserActions()
     eventManager->SetVerboseLevel(m_EvtMgrVerbosity);
     if (m_generator!=0)
     {
-        EventAction * userEventAction = new EventAction();
+        EventAction * userEventAction = new EventAction(m_pEventAction);
         eventManager->SetUserAction(userEventAction);
-        eventManager->SetUserAction(new TrackingAction(userEventAction));
-        eventManager->SetUserAction(new SteppingAction());
+        eventManager->SetUserAction(new TrackingAction(userEventAction,m_pTrackingAction));
+        eventManager->SetUserAction(new SteppingAction(m_pSteppingAction));
         if (m_Override)
         {
             std::cout << " RunManager: user StackingAction overridden " 
