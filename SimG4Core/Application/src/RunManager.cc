@@ -46,14 +46,15 @@ RunManager::RunManager(edm::ParameterSet const & p)
       m_EvtMgrVerbosity(p.getParameter<int>("G4EventManagerVerbosity")),
       m_Override(p.getParameter<bool>("OverrideUserStackingAction")),
       m_RunNumber(p.getParameter<int>("RunNumber")),
-      m_GeomFile(p.getParameter<std::string>("GeometryConfiguration")),
+      m_pGeometry(p.getParameter<edm::ParameterSet>("Geometry")),
       m_pGenerator(p.getParameter<edm::ParameterSet>("Generator")),
+      m_pPhysics(p.getParameter<edm::ParameterSet>("Physics")),
       m_pRunAction(p.getParameter<edm::ParameterSet>("RunAction")),      
       m_pEventAction(p.getParameter<edm::ParameterSet>("EventAction")),
       m_pTrackingAction(p.getParameter<edm::ParameterSet>("TrackingAction")),
       m_pSteppingAction(p.getParameter<edm::ParameterSet>("SteppingAction"))
 {    
-    //m_context = new seal::Context;
+    m_context = new seal::Context;
     m_kernel = G4RunManagerKernel::GetRunManagerKernel();
     if (m_kernel==0) m_kernel = new G4RunManagerKernel();
     std::cout << " Run Manager constructed " << std::endl;
@@ -67,10 +68,10 @@ RunManager::~RunManager()
 void RunManager::initG4(const edm::EventSetup & es)
 {
     if (m_managerInitialized) return;
-    DDDWorld * world = new DDDWorld(m_GeomFile);
-    m_generator = new Generator();
+    DDDWorld * world = new DDDWorld(m_pGeometry);
+    m_generator = new Generator(m_pGenerator);
     m_primaryTransformer = new PrimaryTransformer();
-    m_physics = new DummyPhysics();
+    m_physics = new DummyPhysics(m_pPhysics);
     m_kernel->SetPhysics(m_physics);
     m_kernel->InitializePhysics();
     if (m_kernel->RunInitialization()) m_managerInitialized = true;

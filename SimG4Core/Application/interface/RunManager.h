@@ -7,7 +7,7 @@
 #include "FWCore/CoreFramework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-//#include "SealKernel/Context.h"
+#include "SealKernel/Context.h"
 
 #include <memory>
 
@@ -43,7 +43,7 @@ protected:
 private:
     static RunManager * me;
     explicit RunManager(edm::ParameterSet const & p);
-    //seal::Handle<seal::Context> m_context;
+    seal::Handle<seal::Context> m_context;
     G4RunManagerKernel * m_kernel;
     Generator * m_generator;
     DummyPhysics * m_physics;
@@ -61,8 +61,9 @@ private:
     int m_EvtMgrVerbosity;
     bool m_Override;
     int m_RunNumber;
-    std::string m_GeomFile;
-    edm::ParameterSet m_pGenerator;      
+    edm::ParameterSet m_pGeometry;
+    edm::ParameterSet m_pGenerator;   
+    edm::ParameterSet m_pPhysics; 
     edm::ParameterSet m_pRunAction;      
     edm::ParameterSet m_pEventAction;
     edm::ParameterSet m_pTrackingAction;

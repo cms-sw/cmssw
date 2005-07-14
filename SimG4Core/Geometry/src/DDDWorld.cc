@@ -10,12 +10,12 @@
  
 using namespace edm;
 
-DDDWorld::DDDWorld(std::string & GeomConfiguration) 
+DDDWorld::DDDWorld(const edm::ParameterSet & p) 
 {
     EventSetupProvider provider;
   
     boost::shared_ptr<DDCompactViewXMLRetriever> 
-	pRetriever(new DDCompactViewXMLRetriever(GeomConfiguration));
+	pRetriever(new DDCompactViewXMLRetriever(p));
     boost::shared_ptr<DataProxyProvider> pProxyProv(pRetriever);
     provider.add(pProxyProv);
   

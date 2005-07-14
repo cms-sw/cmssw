@@ -18,36 +18,18 @@ using std::string;
 
 std::ifstream * inputFile;
 
-// Generator::Generator(const ParameterSet & p) : 
-//     fPtCuts(p.getParameter<bool>("ApplyPtCuts")),
-//     fEtaCuts(p.getParameter<bool>("ApplyEtaCuts")), 
-//     fPhiCuts(p.getParameter<bool>("ApplyPhiCuts")),
-//     theMinPhiCut(p.getParameter<double>("MinPhiCut")*deg),
-//     theMaxPhiCut(p.getParameter<double>("MaxPhiCut")*deg),
-//     theMinEtaCut(p.getParameter<double>("MinEtaCut")),
-//     theMaxEtaCut(p.getParameter<double>("MaxEtaCut")),
-//     theMinPtCut(p.getParameter<double>("MinPtCut")*MeV),
-//     theMaxPtCut(p.getParameter<double>("MaxPtCut")*MeV),
-//     inputFileName(p.getParameter<std::string>("InputFileName")),
-//     verbose(p.getParameter<int>("Verbosity")),
-//     evt_(0),vtx_(0),weight_(0),runNumber_(0)
-// {
-//     inputFile = new std::ifstream(inputFileName.c_str(),std::ios::in);
-//     std::cout << " Generator constructed " << std::endl;
-// }
-
-Generator::Generator() : 
-    fPtCuts(true),
-    fEtaCuts(true), 
-    fPhiCuts(false),
-    theMinPhiCut(0.*deg),
-    theMaxPhiCut(360.*deg),
-    theMinEtaCut(-5.5),
-    theMaxEtaCut(5.5),
-    theMinPtCut(40.*MeV),
-    theMaxPtCut(99999.*MeV),
-    inputFileName("SherpaWriteHepMC.dat"),
-    verbose(0),
+Generator::Generator(const ParameterSet & p) : 
+    fPtCuts(p.getParameter<bool>("ApplyPtCuts")),
+    fEtaCuts(p.getParameter<bool>("ApplyEtaCuts")), 
+    fPhiCuts(p.getParameter<bool>("ApplyPhiCuts")),
+    theMinPhiCut(p.getParameter<double>("MinPhiCut")*deg),
+    theMaxPhiCut(p.getParameter<double>("MaxPhiCut")*deg),
+    theMinEtaCut(p.getParameter<double>("MinEtaCut")),
+    theMaxEtaCut(p.getParameter<double>("MaxEtaCut")),
+    theMinPtCut(p.getParameter<double>("MinPtCut")*MeV),
+    theMaxPtCut(p.getParameter<double>("MaxPtCut")*MeV),
+    inputFileName(p.getParameter<std::string>("InputFileName")),
+    verbose(p.getParameter<int>("Verbosity")),
     evt_(0),vtx_(0),weight_(0),runNumber_(0)
 {
     inputFile = new std::ifstream(inputFileName.c_str(),std::ios::in);

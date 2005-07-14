@@ -1,14 +1,18 @@
 #ifndef SimG4Core_PhysicsList_H
 #define SimG4Core_PhysicsList_H
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include "G4VModularPhysicsList.hh"
 
 class PhysicsList : public G4VModularPhysicsList
 {
 public:
-    PhysicsList();
+    PhysicsList(const edm::ParameterSet & p);
     virtual ~PhysicsList();
     virtual void SetCuts();
+private:
+    edm::ParameterSet m_pPhysics; 
 };
 
 #endif
