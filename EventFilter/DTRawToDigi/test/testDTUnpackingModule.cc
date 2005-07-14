@@ -3,17 +3,17 @@
    Test suit for DTUnpackingModule
 
    \author Stefano ARGIRO
-   \version $Id: testDTUnpackingModule.cc,v 1.1 2005/07/13 09:06:50 argiro Exp $
+   \version $Id: testDTUnpackingModule.cc,v 1.2 2005/07/13 16:13:12 argiro Exp $
    \date 29 Jun 2005
 
    \note these tests are not testing anything but the thing not crashing
         
 */
 
-static const char CVSId[] = "$Id: testDTUnpackingModule.cc,v 1.1 2005/07/13 09:06:50 argiro Exp $";
+static const char CVSId[] = "$Id: testDTUnpackingModule.cc,v 1.2 2005/07/13 16:13:12 argiro Exp $";
 
 #include <cppunit/extensions/HelperMacros.h>
-#include "FWCore/CoreFramework/interface/EventProcessor.h"
+#include <FWCore/Framework/interface/EventProcessor.h>
 
 
 class testDTUnpackingModule: public CppUnit::TestFixture {
