@@ -1,6 +1,6 @@
 /* \file DTUnpackingModule.h
  *
- *  $Date: 2005/07/06 15:52:01 $
+ *  $Date: 2005/07/13 09:06:50 $
  *  $Revision: 1.1 $
  *  \author S. Argiro - N. Amapane 
  */
@@ -10,8 +10,8 @@
 #include <DataFormats/FEDRawData/interface/FEDRawData.h>
 #include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
 #include <DataFormats/DTDigis/interface/DTDigiCollection.h>
-#include <FWCore/CoreFramework/interface/Handle.h>
-#include <FWCore/CoreFramework/interface/Event.h>
+#include <FWCore/Framework/interface/Handle.h>
+#include <FWCore/Framework/interface/Event.h>
 
 using namespace raw;
 using namespace edm;
