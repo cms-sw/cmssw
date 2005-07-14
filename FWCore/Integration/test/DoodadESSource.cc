@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Package:     FWCoreIntegration
+// Package:     Integration
 // Class  :     DoodadESSource
 // 
 // Implementation:
@@ -8,19 +8,19 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 14:39:39 EDT 2005
-// $Id$
+// $Id: DoodadESSource.cc,v 1.1 2005/06/25 01:20:38 chrjones Exp $
 //
 
 // system include files
 
 // user include files
-#include "FWCore/CoreFramework/interface/EventSetupRecordIntervalFinder.h"
-#include "FWCore/CoreFramework/interface/ESProducer.h"
-#include "FWCore/CoreFramework/interface/SourceFactory.h"
+#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/SourceFactory.h"
 
 
-#include "FWCore/FWCoreIntegration/src/GadgetRcd.h"
-#include "FWCore/FWCoreIntegration/src/Doodad.h"
+#include "FWCore/Integration/src/GadgetRcd.h"
+#include "FWCore/Integration/src/Doodad.h"
 
 namespace edmreftest {
 class DoodadESSource :

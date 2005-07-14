@@ -1,8 +1,8 @@
 #ifndef EDMREFTEST_OTHERTHINGANALYZER_H
 #define EDMREFTEST_OTHERTHINGANALYZER_H
 
-#include "FWCore/CoreFramework/interface/CoreFrameworkfwd.h"
-#include "FWCore/CoreFramework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 
 namespace edm {
   class ParameterSet;

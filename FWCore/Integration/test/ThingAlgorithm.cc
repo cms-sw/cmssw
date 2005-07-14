@@ -1,6 +1,6 @@
-#include "FWCore/FWCoreIntegration/test/ThingAlgorithm.h"
-#include "FWCore/FWCoreIntegration/test/Thing.h"
-#include "FWCore/FWCoreIntegration/test/ThingCollection.h"
+#include "FWCore/Integration/test/ThingAlgorithm.h"
+#include "FWCore/Integration/test/Thing.h"
+#include "FWCore/Integration/test/ThingCollection.h"
 
 namespace edmreftest {
   void ThingAlgorithm::run(ThingCollection & thingCollection) {

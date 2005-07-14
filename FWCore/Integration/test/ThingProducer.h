@@ -8,9 +8,9 @@
  *
  ************************************************************/
 
-#include "FWCore/CoreFramework/interface/CoreFrameworkfwd.h"
-#include "FWCore/CoreFramework/interface/EDProducer.h"
-#include "FWCore/FWCoreIntegration/test/ThingAlgorithm.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Integration/test/ThingAlgorithm.h"
 
 namespace edm {
   class ParameterSet;

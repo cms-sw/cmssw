@@ -1,9 +1,9 @@
 #ifndef EDMREFTEST_OTHERTHINGPRODUCER_H
 #define EDMREFTEST_OTHERTHINGPRODUCER_H
 
-#include "FWCore/CoreFramework/interface/CoreFrameworkfwd.h"
-#include "FWCore/CoreFramework/interface/EDProducer.h"
-#include "FWCore/FWCoreIntegration/test/OtherThingAlgorithm.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Integration/test/OtherThingAlgorithm.h"
 
 namespace edm {
   class ParameterSet;

@@ -1,6 +1,6 @@
-#include "FWCore/CoreFramework/interface/Event.h"
-#include "FWCore/CoreFramework/interface/MakerMacros.h"
-#include "FWCore/FWCoreIntegration/test/HierarchicalEDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Integration/test/HierarchicalEDProducer.h"
 
 namespace edmtest {
 

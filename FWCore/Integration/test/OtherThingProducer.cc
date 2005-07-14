@@ -1,7 +1,7 @@
-#include "FWCore/FWCoreIntegration/test/OtherThingProducer.h"
-#include "FWCore/FWCoreIntegration/test/OtherThingCollection.h"
-#include "FWCore/CoreFramework/interface/Event.h"
-#include "FWCore/CoreFramework/interface/MakerMacros.h"
+#include "FWCore/Integration/test/OtherThingProducer.h"
+#include "FWCore/Integration/test/OtherThingCollection.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 
 namespace edmreftest {

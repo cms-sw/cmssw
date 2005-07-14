@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 19:13:25 EDT 2005
-// $Id$
+// $Id: WhatsItAnalyzer.cc,v 1.1 2005/06/25 01:20:38 chrjones Exp $
 //
 //
 
@@ -22,19 +22,19 @@
 #include <memory>
 
 // user include files
-#include "FWCore/CoreFramework/interface/CoreFrameworkfwd.h"
-#include "FWCore/CoreFramework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include "FWCore/CoreFramework/interface/Event.h"
-#include "FWCore/CoreFramework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "FWCore/FWCoreIntegration/src/WhatsIt.h"
-#include "FWCore/FWCoreIntegration/src/GadgetRcd.h"
+#include "FWCore/Integration/src/WhatsIt.h"
+#include "FWCore/Integration/src/GadgetRcd.h"
 
-#include "FWCore/CoreFramework/interface/ESHandle.h"
-#include "FWCore/CoreFramework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 //
 // class decleration
 //

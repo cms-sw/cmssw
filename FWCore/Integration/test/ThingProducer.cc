@@ -1,7 +1,7 @@
-#include "FWCore/FWCoreIntegration/test/ThingProducer.h"
-#include "FWCore/FWCoreIntegration/test/ThingCollection.h"
-#include "FWCore/CoreFramework/interface/Event.h"
-#include "FWCore/CoreFramework/interface/MakerMacros.h"
+#include "FWCore/Integration/test/ThingProducer.h"
+#include "FWCore/Integration/test/ThingCollection.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 namespace edmreftest {
   ThingProducer::ThingProducer(edm::ParameterSet const&): alg_() {}

@@ -8,9 +8,9 @@
  *
  ************************************************************/
 
-#include "FWCore/CoreFramework/interface/CoreFrameworkfwd.h"
-#include "FWCore/CoreFramework/interface/EDProducer.h"
-#include "FWCore/FWCoreIntegration/test/HierarchicalAlgorithms.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Integration/test/HierarchicalAlgorithms.h"
 
 namespace edm {
   class ParameterSet;

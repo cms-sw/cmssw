@@ -1,11 +1,11 @@
 #include <iostream>
-#include "FWCore/FWCoreIntegration/test/OtherThingAnalyzer.h"
-#include "FWCore/FWCoreIntegration/test/OtherThing.h"
-#include "FWCore/FWCoreIntegration/test/OtherThingCollection.h"
-#include "FWCore/FWCoreIntegration/test/ThingCollection.h"
-#include "FWCore/CoreFramework/interface/Event.h"
-#include "FWCore/CoreFramework/interface/Handle.h"
-#include "FWCore/CoreFramework/interface/MakerMacros.h"
+#include "FWCore/Integration/test/OtherThingAnalyzer.h"
+#include "FWCore/Integration/test/OtherThing.h"
+#include "FWCore/Integration/test/OtherThingCollection.h"
+#include "FWCore/Integration/test/ThingCollection.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Handle.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 namespace edmreftest {
   void OtherThingAnalyzer::analyze(edm::Event const& e, edm::EventSetup const&) {

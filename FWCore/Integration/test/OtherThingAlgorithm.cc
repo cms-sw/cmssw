@@ -1,9 +1,9 @@
-#include "FWCore/FWCoreIntegration/test/OtherThingAlgorithm.h"
-#include "FWCore/FWCoreIntegration/test/OtherThing.h"
-#include "FWCore/FWCoreIntegration/test/OtherThingCollection.h"
-#include "FWCore/FWCoreIntegration/test/ThingCollection.h"
-#include "FWCore/CoreFramework/interface/Event.h"
-#include "FWCore/CoreFramework/interface/Handle.h"
+#include "FWCore/Integration/test/OtherThingAlgorithm.h"
+#include "FWCore/Integration/test/OtherThing.h"
+#include "FWCore/Integration/test/OtherThingCollection.h"
+#include "FWCore/Integration/test/ThingCollection.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Handle.h"
 
 namespace edmreftest {
   void OtherThingAlgorithm::run(edm::Event &e, OtherThingCollection & otherThingCollection) {
