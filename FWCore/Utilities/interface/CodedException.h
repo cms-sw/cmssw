@@ -10,7 +10,7 @@ interface other than constructors specific to this derived type.
 
 **/
 
-#include "FWCore/FWUtilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <string>
 #include <map>

@@ -1,14 +1,9 @@
 <use name=boost>
 <use name=Foundation/PluginManager>
 <use name=Framework/SealKernel>
-#<use name=Dictionary/ReflectionBuilder>
-#<use name=FWCore/EDProduct>
-#<use name=FWCore/ParameterSet>
 <export>
- <lib name=FWCoreFWUtilities>
+ <lib name=FWCoreUtilities>
  <use name=boost>
  <use name=Foundation/PluginManager>
  <use name=Framework/SealKernel>
-# <use name=Dictionary/ReflectionBuilder>
 </export>
-

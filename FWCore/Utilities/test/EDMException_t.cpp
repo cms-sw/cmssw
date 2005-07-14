@@ -1,5 +1,5 @@
 
-#include "FWCore/FWUtilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 #include <iostream>
 #include <string>

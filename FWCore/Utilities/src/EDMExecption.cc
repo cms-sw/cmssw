@@ -1,5 +1,5 @@
 
-#include "FWCore/FWUtilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 #define MAP_ENTRY(name) trans_[edm::errors::name]=#name
 

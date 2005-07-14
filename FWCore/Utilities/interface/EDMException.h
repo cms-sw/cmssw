@@ -17,7 +17,7 @@
  Will ErrorCodes be used as return codes?  Unknown at this time.
 **/
 
-#include "FWCore/FWUtilities/interface/CodedException.h"
+#include "FWCore/Utilities/interface/CodedException.h"
 
 #include <string>
 
