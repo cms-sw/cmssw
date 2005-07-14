@@ -1,0 +1,9 @@
+<lcgdict>
+  <class name="CLHEP::HepLorentzVector"/>
+  <class name="CLHEP::Hep3Vector"/>
+  <class name="edm::EmbdSimTrackContainer"/>
+  <class name="std::vector<EmbdSimTrack>"/>
+  <class name="CoreSimTrack"/>
+  <class name="EmbdSimTrack"/>
+  <class name="edm::Wrapper<edm::EmbdSimTrackContainer>"/>
+</lcgdict>

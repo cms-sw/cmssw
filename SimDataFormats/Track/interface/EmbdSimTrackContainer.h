@@ -1,7 +1,6 @@
 #ifndef EmbdSimTrackContainer_H
 #define EmbdSimTrackContainer_H
 
-#include "FWCore/EDProduct/interface/EDProduct.h"
 #include "SimDataFormats/Track/interface/EmbdSimTrack.h"
 
 #include <vector>
@@ -9,11 +8,12 @@
  
 namespace edm 
 {
-    class EmbdSimTrackContainer: public EDProduct 
+    class EmbdSimTrackContainer 
     {
     public:
 	typedef std::vector<EmbdSimTrack> SimTrackContainer;
 	void insertTrack(EmbdSimTrack & t) { data.push_back(t); }
+	void clear() { data.clear(); }
     private:
 	SimTrackContainer data;
     };

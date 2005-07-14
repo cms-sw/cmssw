@@ -1,7 +1,6 @@
 #ifndef EmbdSimVertexContainer_H
 #define EmbdSimVertexContainer_H
 
-#include "FWCore/EDProduct/interface/EDProduct.h"
 #include "SimDataFormats/Vertex/interface/EmbdSimVertex.h"
 
 #include <vector>
@@ -9,11 +8,12 @@
  
 namespace edm 
 {
-    class EmbdSimVertexContainer: public EDProduct 
+    class EmbdSimVertexContainer 
     {
     public:
 	typedef std::vector<EmbdSimVertex> SimVertexContainer;
 	void insertVertex(EmbdSimVertex & v) { data.push_back(v); }
+	void clear() { data.clear(); }
     private:
 	SimVertexContainer data;
     };

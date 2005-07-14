@@ -1,5 +1,5 @@
 <export>
- <lib name=SimDataFormatsVertex>
+ <lib name=SimDataFormatsTrack>
  <use name=clhep>
 </export>
 
