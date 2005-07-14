@@ -2,10 +2,10 @@
 #define EVENTSETUP_EVENTSETUPRECORDINTERVALFINDER_H
 // -*- C++ -*-
 //
-// Package:     CoreFramework
+// Package:     Framework
 // Class  :     EventSetupRecordIntervalFinder
 // 
-/**\class EventSetupRecordIntervalFinder EventSetupRecordIntervalFinder.h Core/CoreFramework/interface/EventSetupRecordIntervalFinder.h
+/**\class EventSetupRecordIntervalFinder EventSetupRecordIntervalFinder.h FWCore/Framework/interface/EventSetupRecordIntervalFinder.h
 
  Description: <one line class summary>
 
@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Tue Mar 29 16:15:11 EST 2005
-// $Id: EventSetupRecordIntervalFinder.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
+// $Id: EventSetupRecordIntervalFinder.h,v 1.2 2005/06/23 19:59:30 wmtan Exp $
 //
 
 // system include files
@@ -24,8 +24,8 @@
 #include <set>
 
 // user include files
-#include "FWCore/CoreFramework/interface/ValidityInterval.h"
-#include "FWCore/CoreFramework/interface/EventSetupRecordKey.h"
+#include "FWCore/Framework/interface/ValidityInterval.h"
+#include "FWCore/Framework/interface/EventSetupRecordKey.h"
 
 // forward declarations
 namespace edm {

@@ -2,15 +2,15 @@
 
 Test of the EventProcessor class.
 
-$Id: EventProcessor_t.cpp,v 1.4 2005/06/28 04:46:02 jbk Exp $
+$Id: eventprocessor_t.cppunit.cc,v 1.1 2005/07/07 13:04:24 viji Exp $
 
 ----------------------------------------------------------------------*/  
 #include <exception>
 #include <iostream>
 #include <string>
 
-#include "FWCore/CoreFramework/interface/EventProcessor.h"
-#include "FWCore/FWUtilities/interface/Exception.h"
+#include "FWCore/Framework/interface/EventProcessor.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <cppunit/extensions/HelperMacros.h>
 

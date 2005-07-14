@@ -19,7 +19,7 @@ Handles can have:
 
 To check validity, one can use the isValid() function.
 
-$Id: Handle.h,v 1.5 2005/07/01 07:29:21 wmtan Exp $
+$Id: Handle.h,v 1.6 2005/07/05 17:39:04 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -30,9 +30,9 @@ $Id: Handle.h,v 1.5 2005/07/01 07:29:21 wmtan Exp $
 #include "boost/utility/enable_if.hpp"
 #include "boost/type_traits.hpp"
 
-#include "FWCore/CoreFramework/interface/CoreFrameworkfwd.h"
-#include "FWCore/CoreFramework/interface/BasicHandle.h"
-#include "FWCore/FWUtilities/interface/EDMException.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/BasicHandle.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 namespace edm
 {

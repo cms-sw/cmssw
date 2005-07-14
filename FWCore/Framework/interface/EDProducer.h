@@ -6,11 +6,11 @@
 EDProducer: The base class of all "modules" that will insert new
 EDProducts into an Event.
 
-$Id: EDProducer.h,v 1.2 2005/06/23 05:23:10 wmtan Exp $
+$Id: EDProducer.h,v 1.3 2005/07/08 00:09:38 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 
-#include "FWCore/CoreFramework/interface/CoreFrameworkfwd.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 
 namespace edm
 {

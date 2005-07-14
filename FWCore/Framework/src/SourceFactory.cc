@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Package:     CoreFramework
+// Package:     Framework
 // Class  :     SourceFactory
 // 
 // Implementation:
@@ -8,14 +8,14 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 19:27:37 EDT 2005
-// $Id: SourceFactory.cc,v 1.1 2005/05/29 02:29:54 wmtan Exp $
+// $Id: SourceFactory.cc,v 1.2 2005/06/23 19:59:48 wmtan Exp $
 //
 
 // system include files
 
 // user include files
-#include "FWCore/CoreFramework/interface/SourceFactory.h"
-#include "FWCore/CoreFramework/interface/EventSetupProvider.h"
+#include "FWCore/Framework/interface/SourceFactory.h"
+#include "FWCore/Framework/interface/EventSetupProvider.h"
 
 
 //

@@ -2,10 +2,10 @@
 #define EVENTSETUP_TIMESTAMP_H
 // -*- C++ -*-
 //
-// Package:     CoreFramework
+// Package:     Framework
 // Class:      Timestamp
 // 
-/**\class Timestamp Timestamp.h Core/CoreFramework/interface/Timestamp.h
+/**\class Timestamp Timestamp.h FWCore/Framework/interface/Timestamp.h
 
  Description: Defines an instance in time
 

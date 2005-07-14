@@ -2,10 +2,10 @@
 #define EVENTSETUP_VALIDITYINTERVAL_H
 // -*- C++ -*-
 //
-// Package:     CoreFramework
+// Package:     Framework
 // Class  :     ValidityInterval
 // 
-/**\class ValidityInterval ValidityInterval.h Core/CoreFramework/interface/ValidityInterval.h
+/**\class ValidityInterval ValidityInterval.h FWCore/Framework/interface/ValidityInterval.h
 
  Description: <one line class summary>
 
@@ -21,7 +21,7 @@
 // system include files
 
 // user include files
-#include "FWCore/CoreFramework/interface/Timestamp.h"
+#include "FWCore/Framework/interface/Timestamp.h"
 
 // forward declarations
 namespace edm {

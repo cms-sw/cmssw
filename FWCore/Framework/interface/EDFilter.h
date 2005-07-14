@@ -6,12 +6,12 @@
 EDFilter: The base class of all "modules" used to control the flow of
 processing in a processing path.
 
-$Id: EDFilter.h,v 1.2 2005/06/23 05:23:10 wmtan Exp $
+$Id: EDFilter.h,v 1.3 2005/07/08 00:09:38 chrjones Exp $
 
 ----------------------------------------------------------------------*/
-#include "FWCore/CoreFramework/interface/Event.h"
+#include "FWCore/Framework/interface/Event.h"
 
-#include "FWCore/CoreFramework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
 namespace edm
   {

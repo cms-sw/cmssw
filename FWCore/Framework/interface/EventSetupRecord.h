@@ -2,10 +2,10 @@
 #define EVENTSETUP_EVENTSETUPRECORD_H
 // -*- C++ -*-
 //
-// Package:     CoreFramework
+// Package:     Framework
 // Class  :     EventSetupRecord
 // 
-/**\class EventSetupRecord EventSetupRecord.h FWCore/CoreFramework/interface/EventSetupRecord.h
+/**\class EventSetupRecord EventSetupRecord.h FWCore/Framework/interface/EventSetupRecord.h
 
  Description: Base class for all Records in a EventSetup.  Holds data with the same lifetime.
 
@@ -51,8 +51,8 @@ using the 'setEventSetup' and 'clearEventSetup' functions.
 #include <map>
 
 // user include files
-#include "FWCore/CoreFramework/interface/ValidityInterval.h"
-#include "FWCore/CoreFramework/interface/DataKey.h"
+#include "FWCore/Framework/interface/ValidityInterval.h"
+#include "FWCore/Framework/interface/DataKey.h"
 
 // forward declarations
 namespace edm {

@@ -1,13 +1,13 @@
 
 /*----------------------------------------------------------------------
-$Id: OutputWorker.cc,v 1.1 2005/05/29 02:29:54 wmtan Exp $
+$Id: OutputWorker.cc,v 1.2 2005/07/08 00:09:42 chrjones Exp $
 ----------------------------------------------------------------------*/
 
-#include "FWCore/CoreFramework/interface/EventPrincipal.h"
-#include "FWCore/CoreFramework/interface/Event.h"
-#include "FWCore/CoreFramework/interface/OutputModule.h"
+#include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/OutputModule.h"
 
-#include "FWCore/CoreFramework/src/OutputWorker.h"
+#include "FWCore/Framework/src/OutputWorker.h"
 
 namespace edm
 {

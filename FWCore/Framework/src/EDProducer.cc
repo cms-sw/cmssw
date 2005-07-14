@@ -1,10 +1,10 @@
 /*----------------------------------------------------------------------
   
-$Id: EDProducer.cc,v 1.1 2005/05/29 02:29:53 wmtan Exp $
+$Id: EDProducer.cc,v 1.2 2005/07/08 00:09:42 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 
-#include "FWCore/CoreFramework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/EDProducer.h"
 
 namespace edm
 {

@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
 
-$Id: PS_ID.cc,v 1.2 2005/06/23 19:59:48 wmtan Exp $
+$Id: PS_ID.cc,v 1.3 2005/06/23 22:01:31 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -8,7 +8,7 @@ $Id: PS_ID.cc,v 1.2 2005/06/23 19:59:48 wmtan Exp $
 #include <istream>
 #include <ostream>
 
-#include "FWCore/CoreFramework/interface/PS_ID.h"
+#include "FWCore/Framework/interface/PS_ID.h"
 
 namespace edm
 {

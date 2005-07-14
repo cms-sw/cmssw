@@ -1,8 +1,8 @@
 /*----------------------------------------------------------------------
-$Id: OutputModule.cc,v 1.2 2005/03/25 16:59:14 paterno Exp $
+$Id: OutputModule.cc,v 1.1 2005/05/29 02:29:54 wmtan Exp $
 ----------------------------------------------------------------------*/
 
-#include "FWCore/CoreFramework/interface/OutputModule.h"
+#include "FWCore/Framework/interface/OutputModule.h"
 
 namespace edm
 {

@@ -2,10 +2,10 @@
 #define EVENTSETUP_NOPROXYEXCEPTION_H
 // -*- C++ -*-
 //
-// Package:     CoreFramework
+// Package:     Framework
 // Module:      NoProxyException
 // 
-/**\class NoProxyException NoProxyException.h Core/CoreFramework/interface/NoProxyException.h
+/**\class NoProxyException NoProxyException.h FWCore/Framework/interface/NoProxyException.h
 
  Description: An exception that is thrown whenever proxy was not available
               in the EventSetup, it is subset of NoDataException, see more details
@@ -15,7 +15,7 @@
 //
 // Author:      Valentine Kouznetsov
 // Created:     Wed Apr 23 10:58:26 EDT 2003
-// $Id: NoProxyException.h,v 1.2 2005/06/23 19:59:30 wmtan Exp $
+// $Id: NoProxyException.h,v 1.3 2005/06/23 22:01:31 wmtan Exp $
 //
 //
 
@@ -24,10 +24,10 @@
 #include <sstream>
 
 // user include files
-#include "FWCore/CoreFramework/interface/NoDataException.h"
+#include "FWCore/Framework/interface/NoDataException.h"
 //#include "DataHandler/interface/FrameRecordItr.h"
 //#include "DataHandler/interface/RecordKeyItr.h"
-#include "FWCore/CoreFramework/interface/EventSetupRecord.h"
+#include "FWCore/Framework/interface/EventSetupRecord.h"
 
 // forward declarations
 namespace edm {

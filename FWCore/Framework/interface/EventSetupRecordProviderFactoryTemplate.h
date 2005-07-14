@@ -2,10 +2,10 @@
 #define EVENTSETUP_EVENTSETUPRECORDFACTORYTEMPLATE_H
 // -*- C++ -*-
 //
-// Package:     CoreFramework
+// Package:     Framework
 // Class  :     EventSetupRecordProviderFactoryTemplate
 // 
-/**\class EventSetupRecordProviderFactoryTemplate EventSetupRecordProviderFactoryTemplate.h Core/CoreFramework/interface/EventSetupRecordProviderFactoryTemplate.h
+/**\class EventSetupRecordProviderFactoryTemplate EventSetupRecordProviderFactoryTemplate.h FWCore/Framework/interface/EventSetupRecordProviderFactoryTemplate.h
 
  Description: <one line class summary>
 
@@ -21,10 +21,10 @@
 // system include files
 
 // user include files
-#include "FWCore/CoreFramework/interface/EventSetupRecordProviderTemplate.h"
-#include "FWCore/CoreFramework/interface/EventSetupRecordProviderFactory.h"
-#include "FWCore/CoreFramework/interface/EventSetupRecordProviderFactoryManager.h"
-#include "FWCore/CoreFramework/interface/EventSetupRecordKey.h"
+#include "FWCore/Framework/interface/EventSetupRecordProviderTemplate.h"
+#include "FWCore/Framework/interface/EventSetupRecordProviderFactory.h"
+#include "FWCore/Framework/interface/EventSetupRecordProviderFactoryManager.h"
+#include "FWCore/Framework/interface/EventSetupRecordKey.h"
 
 // forward declarations
 namespace edm {

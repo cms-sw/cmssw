@@ -2,10 +2,10 @@
 #define EVENTSETUP_NORECORDEXCEPTION_H
 // -*- C++ -*-
 //
-// Package:     CoreFramework
+// Package:     Framework
 // Module:      NoRecordException
 // 
-/**\class NoRecordException NoRecordException.h CoreFramework/interface/NoRecordException.h
+/**\class NoRecordException NoRecordException.h Framework/interface/NoRecordException.h
 
  Description: An exception that is thrown whenever a EventSetup is asked to retrieve
               a Record it does not have.
@@ -32,7 +32,7 @@
 #include <string>
 #include <exception>
 // user include files
-#include "FWCore/CoreFramework/interface/HCTypeTagTemplate.h"
+#include "FWCore/Framework/interface/HCTypeTagTemplate.h"
 
 // forward declarations
 namespace edm {

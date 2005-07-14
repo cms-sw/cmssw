@@ -1,7 +1,7 @@
 #ifndef EDM_EVENTAUX_H
 #define EDM_EVENTAUX_H
 
-#include "FWCore/CoreFramework/interface/ProcessNameList.h"
+#include "FWCore/Framework/interface/ProcessNameList.h"
 #include "FWCore/EDProduct/interface/CollisionID.h"
 
 // Auxiliary event data that is persistent

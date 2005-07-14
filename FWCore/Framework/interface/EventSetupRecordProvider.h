@@ -2,10 +2,10 @@
 #define EVENTSETUP_EVENTSETUPRECORDPROVIDER_H
 // -*- C++ -*-
 //
-// Package:     CoreFramework
+// Package:     Framework
 // Class  :     EventSetupRecordProvider
 // 
-/**\class EventSetupRecordProvider EventSetupRecordProvider.h Core/CoreFramework/interface/EventSetupRecordProvider.h
+/**\class EventSetupRecordProvider EventSetupRecordProvider.h FWCore/Framework/interface/EventSetupRecordProvider.h
 
  Description: Coordinates all EventSetupDataProviders with the same 'interval of validity'
 
@@ -24,8 +24,8 @@
 #include "boost/shared_ptr.hpp"
 
 // user include files
-#include "FWCore/CoreFramework/interface/ValidityInterval.h"
-#include "FWCore/CoreFramework/interface/EventSetupRecordKey.h"
+#include "FWCore/Framework/interface/ValidityInterval.h"
+#include "FWCore/Framework/interface/EventSetupRecordKey.h"
 
 // forward declarations
 namespace edm {

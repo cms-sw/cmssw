@@ -2,10 +2,10 @@
 #define EVENTSETUP_MODULEFACTORY_H
 // -*- C++ -*-
 //
-// Package:     CoreFramework
+// Package:     Framework
 // Class  :     ModuleFactory
 // 
-/**\class ModuleFactory ModuleFactory.h Core/CoreFramework/interface/ModuleFactory.h
+/**\class ModuleFactory ModuleFactory.h FWCore/Framework/interface/ModuleFactory.h
 
  Description: Factory which is dynamically loadable and used to create an eventstore module
 
@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 18:01:31 EDT 2005
-// $Id: ModuleFactory.h,v 1.3 2005/06/23 19:59:30 wmtan Exp $
+// $Id: ModuleFactory.h,v 1.4 2005/06/25 22:28:50 chrjones Exp $
 //
 
 // system include files
@@ -24,7 +24,7 @@
 #include "boost/shared_ptr.hpp"
 
 // user include files
-#include "FWCore/CoreFramework/interface/ComponentFactory.h"
+#include "FWCore/Framework/interface/ComponentFactory.h"
 
 // forward declarations
 namespace edm {

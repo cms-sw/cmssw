@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Package:     CoreFramework
+// Package:     Framework
 // Class  :     ValidityInterval
 // 
 // Implementation:
@@ -13,7 +13,7 @@
 // system include files
 
 // user include files
-#include "FWCore/CoreFramework/interface/ValidityInterval.h"
+#include "FWCore/Framework/interface/ValidityInterval.h"
 
 namespace edm {
 //

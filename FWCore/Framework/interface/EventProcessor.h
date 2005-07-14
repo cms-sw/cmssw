@@ -23,7 +23,7 @@ creation.
 
 The simplest 'main' that uses this should look like:
 
-#include "FWCore/CoreFramework/interface/EventProcessor.h"
+#include "FWCore/Framework/interface/EventProcessor.h"
 int main(int argc, char* argv[])
 {
   edm::EventProcessor app(argc, argv);
@@ -35,7 +35,7 @@ thrown by the constructor, for this simple version of main.
 More friendly is:
 
 #include <iostream>
-#include "FWCore/CoreFramework/interface/EventProcessor.h"
+#include "FWCore/Framework/interface/EventProcessor.h"
 int main(int argc, char* argv[])
 {
   try 
@@ -61,7 +61,7 @@ problems:
   where does the pluginmanager initialise call go?
 
 
-$Id: EventProcessor.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
+$Id: EventProcessor.h,v 1.2 2005/06/23 19:59:30 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 

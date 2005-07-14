@@ -3,16 +3,16 @@
    Implementation of class WorkerRegistry
 
    \author Stefano ARGIRO
-   \version $Id: WorkerRegistry.cc,v 1.3 2005/06/24 09:10:17 llista Exp $
+   \version $Id: WorkerRegistry.cc,v 1.4 2005/06/24 14:53:53 argiro Exp $
    \date 18 May 2005
 */
 
-static const char CVSId[] = "$Id: WorkerRegistry.cc,v 1.3 2005/06/24 09:10:17 llista Exp $";
+static const char CVSId[] = "$Id: WorkerRegistry.cc,v 1.4 2005/06/24 14:53:53 argiro Exp $";
 
 
-#include "FWCore/CoreFramework/src/WorkerRegistry.h"
-#include "FWCore/CoreFramework/src/Worker.h"
-#include "FWCore/CoreFramework/src/Factory.h"
+#include "FWCore/Framework/src/WorkerRegistry.h"
+#include "FWCore/Framework/src/Worker.h"
+#include "FWCore/Framework/src/Factory.h"
 
 #include <iostream>
 #include <sstream>

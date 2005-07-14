@@ -6,7 +6,7 @@
 Event: This is the primary interface for accessing
 EDProducts from a single collision and inserting new derived products.
 
-$Id: Event.h,v 1.9 2005/07/08 19:24:56 wmtan Exp $
+$Id: Event.h,v 1.10 2005/07/11 21:55:14 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
@@ -14,15 +14,15 @@ $Id: Event.h,v 1.9 2005/07/08 19:24:56 wmtan Exp $
 
 #include "boost/shared_ptr.hpp"
 
-#include "FWCore/CoreFramework/interface/CoreFrameworkfwd.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/EDProduct/interface/Wrapper.h"
 
 #include "FWCore/EDProduct/interface/CollisionID.h"
-#include "FWCore/CoreFramework/interface/Handle.h"
-#include "FWCore/CoreFramework/interface/BasicHandle.h"
+#include "FWCore/Framework/interface/Handle.h"
+#include "FWCore/Framework/interface/BasicHandle.h"
 
-#include "FWCore/CoreFramework/src/Group.h"
-#include "FWCore/CoreFramework/src/TypeID.h"
+#include "FWCore/Framework/src/Group.h"
+#include "FWCore/Framework/src/TypeID.h"
 
 namespace edm {
 

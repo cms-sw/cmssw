@@ -1,5 +1,5 @@
 
-#include "FWCore/CoreFramework/src/DebugMacros.h"
+#include "FWCore/Framework/src/DebugMacros.h"
 
 #include <cstdlib>
 

@@ -6,7 +6,7 @@
  *
  */
 
-#include "FWCore/CoreFramework/test/DummyRecord.h"
-#include "FWCore/CoreFramework/interface/eventsetuprecord_registration_macro.h"
+#include "FWCore/Framework/test/DummyRecord.h"
+#include "FWCore/Framework/interface/eventsetuprecord_registration_macro.h"
 
 EVENTSETUP_RECORD_REG(DummyRecord);

@@ -7,15 +7,15 @@ BranchKey: The key used to identify a Group in the EventPrincipal. The
 name of the branch to which the related data product will be written
 is determined entirely from the BranchKey.
 
-$Id: BranchKey.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
+$Id: BranchKey.h,v 1.2 2005/07/09 02:08:15 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <iosfwd>
 #include <string>
 #include <utility>
 
-#include "FWCore/CoreFramework/src/TypeID.h"
-#include "FWCore/CoreFramework/interface/Provenance.h"
+#include "FWCore/Framework/src/TypeID.h"
+#include "FWCore/Framework/interface/Provenance.h"
 
 namespace edm
 {

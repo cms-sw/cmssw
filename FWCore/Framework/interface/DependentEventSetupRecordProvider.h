@@ -2,10 +2,10 @@
 #define EVENTSETUP_DEPENDENTEVENTSETUPRECORDPROVIDER_H
 // -*- C++ -*-
 //
-// Package:     CoreFramework
+// Package:     Framework
 // Class  :     DependentEventSetupRecordProvider
 // 
-/**\class DependentEventSetupRecordProvider DependentEventSetupRecordProvider.h Core/CoreFramework/interface/DependentEventSetupRecordProvider.h
+/**\class DependentEventSetupRecordProvider DependentEventSetupRecordProvider.h FWCore/Framework/interface/DependentEventSetupRecordProvider.h
 
  Description: <one line class summary>
 
@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Sun May  1 16:30:01 EDT 2005
-// $Id: DependentEventSetupRecordProvider.h,v 1.2 2005/06/14 21:49:15 wmtan Exp $
+// $Id: DependentEventSetupRecordProvider.h,v 1.3 2005/06/23 19:59:30 wmtan Exp $
 //
 
 // system include files
@@ -24,7 +24,7 @@
 #include "boost/shared_ptr.hpp"
 
 // user include files
-#include "FWCore/CoreFramework/interface/EventSetupRecordProvider.h"
+#include "FWCore/Framework/interface/EventSetupRecordProvider.h"
 
 // forward declarations
 namespace edm {

@@ -8,11 +8,11 @@
 */
 
 #include <cppunit/extensions/HelperMacros.h>
-#include "FWCore/CoreFramework/interface/ProxyFactoryProducer.h"
-#include "FWCore/CoreFramework/interface/ProxyFactoryTemplate.h"
-#include "FWCore/CoreFramework/interface/DataProxyTemplate.h"
-#include "FWCore/CoreFramework/test/DummyData.h"
-#include "FWCore/CoreFramework/test/DummyRecord.h"
+#include "FWCore/Framework/interface/ProxyFactoryProducer.h"
+#include "FWCore/Framework/interface/ProxyFactoryTemplate.h"
+#include "FWCore/Framework/interface/DataProxyTemplate.h"
+#include "FWCore/Framework/test/DummyData.h"
+#include "FWCore/Framework/test/DummyRecord.h"
 
 using edm::eventsetup::test::DummyData;
 using namespace edm::eventsetup;

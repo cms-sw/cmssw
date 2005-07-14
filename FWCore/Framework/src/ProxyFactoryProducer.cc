@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Package:     CoreFramework
+// Package:     Framework
 // Class  :     ProxyFactoryProducer
 // 
 // Implementation:
@@ -8,16 +8,16 @@
 //
 // Author:      Chris Jones
 // Created:     Thu Apr  7 21:36:15 CDT 2005
-// $Id: ProxyFactoryProducer.cc,v 1.2 2005/06/23 19:59:48 wmtan Exp $
+// $Id: ProxyFactoryProducer.cc,v 1.3 2005/06/23 22:01:31 wmtan Exp $
 //
 
 // system include files
 
 // user include files
-#include "FWCore/CoreFramework/interface/ProxyFactoryProducer.h"
-#include "FWCore/CoreFramework/interface/ProxyFactoryBase.h"
+#include "FWCore/Framework/interface/ProxyFactoryProducer.h"
+#include "FWCore/Framework/interface/ProxyFactoryBase.h"
 
-#include "FWCore/CoreFramework/interface/DataProxy.h"
+#include "FWCore/Framework/interface/DataProxy.h"
 
 //
 // constants, enums and typedefs

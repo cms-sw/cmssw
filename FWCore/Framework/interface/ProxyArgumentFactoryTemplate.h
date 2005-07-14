@@ -2,10 +2,10 @@
 #define EVENTSETUPPRODUCER_PROXYARGUMENTFACTORYTEMPLATE_H
 // -*- C++ -*-
 //
-// Package:     CoreFramework
+// Package:     Framework
 // Class  :     ProxyArgumentFactoryTemplate
 // 
-/**\class ProxyArgumentFactoryTemplate ProxyArgumentFactoryTemplate.h Core/CoreFramework/interface/ProxyArgumentFactoryTemplate.h
+/**\class ProxyArgumentFactoryTemplate ProxyArgumentFactoryTemplate.h FWCore/Framework/interface/ProxyArgumentFactoryTemplate.h
 
  Description: <one line class summary>
 
@@ -16,14 +16,14 @@
 //
 // Author:      Chris Jones
 // Created:     Mon Apr 11 16:20:52 CDT 2005
-// $Id: ProxyArgumentFactoryTemplate.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
+// $Id: ProxyArgumentFactoryTemplate.h,v 1.2 2005/06/23 19:59:30 wmtan Exp $
 //
 
 // system include files
 
 // user include files
-#include "FWCore/CoreFramework/interface/ProxyFactoryBase.h"
-#include "FWCore/CoreFramework/interface/DataKey.h"
+#include "FWCore/Framework/interface/ProxyFactoryBase.h"
+#include "FWCore/Framework/interface/DataKey.h"
 
 // forward declarations
 namespace edm {

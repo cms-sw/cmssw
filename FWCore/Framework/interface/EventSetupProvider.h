@@ -2,10 +2,10 @@
 #define EVENTSETUP_EVENTSETUPPROVIDER_H
 // -*- C++ -*-
 //
-// Package:     CoreFramework
+// Package:     Framework
 // Class:      EventSetupProvider
 // 
-/**\class EventSetupProvider EventSetupProvider.h Core/CoreFramework/interface/EventSetupProvider.h
+/**\class EventSetupProvider EventSetupProvider.h FWCore/Framework/interface/EventSetupProvider.h
 
  Description: Factory for a EventSetup
 
@@ -25,7 +25,7 @@
 #include "boost/shared_ptr.hpp"
 
 // user include files
-#include "FWCore/CoreFramework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
 // forward declarations
 namespace edm {

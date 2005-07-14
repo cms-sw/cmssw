@@ -2,10 +2,10 @@
 #define EVENTSETUPPRODUCER_PRODUCE_HELPERS_H
 // -*- C++ -*-
 //
-// Package:     CoreFramework
+// Package:     Framework
 // Class  :     produce_helpers
 // 
-/**\class produce_helpers produce_helpers.h Core/CoreFramework/interface/produce_helpers.h
+/**\class produce_helpers produce_helpers.h FWCore/Framework/interface/produce_helpers.h
 
  Description: <one line class summary>
 
@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Fri Apr 15 10:25:20 EDT 2005
-// $Id: produce_helpers.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
+// $Id: produce_helpers.h,v 1.2 2005/06/23 19:59:30 wmtan Exp $
 //
 
 // system include files

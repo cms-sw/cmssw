@@ -9,8 +9,8 @@
 
 #include <memory>
 #include <cppunit/extensions/HelperMacros.h>
-#include "FWCore/CoreFramework/interface/Callback.h"
-#include "FWCore/CoreFramework/interface/ESProducts.h"
+#include "FWCore/Framework/interface/Callback.h"
+#include "FWCore/Framework/interface/ESProducts.h"
 
 namespace callbacktest {
    struct Data {

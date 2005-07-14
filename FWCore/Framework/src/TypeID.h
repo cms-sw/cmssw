@@ -8,13 +8,13 @@ TypeID: A unique identifier for a C++ type.
 The identifier is unique within an entire program, but can not be
 persisted across invocations of the program.
 
-$Id: TypeID.h,v 1.6 2005/07/11 21:55:14 wmtan Exp $
+$Id: TypeID.h,v 1.7 2005/07/11 23:07:27 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <iosfwd>
 #include <typeinfo>
 #include <string>
-#include "FWCore/FWUtilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 namespace edm {
 

@@ -2,10 +2,10 @@
 #define EVENTSETUPPRODUCER_PROXYFACTORYPRODUCER_H
 // -*- C++ -*-
 //
-// Package:     CoreFramework
+// Package:     Framework
 // Class  :     ProxyFactoryProducer
 // 
-/**\class ProxyFactoryProducer ProxyFactoryProducer.h Core/CoreFramework/interface/ProxyFactoryProducer.h
+/**\class ProxyFactoryProducer ProxyFactoryProducer.h FWCore/Framework/interface/ProxyFactoryProducer.h
 
  Description: An EventSetup algorithmic Provider that manages Factories of Proxies
 
@@ -48,7 +48,7 @@ BarProd::BarProd(const edm::ParameterSet& iPS) {
 //
 // Author:      Chris Jones
 // Created:     Thu Apr  7 17:14:58 CDT 2005
-// $Id: ProxyFactoryProducer.h,v 1.3 2005/06/20 20:58:44 chrjones Exp $
+// $Id: ProxyFactoryProducer.h,v 1.4 2005/06/23 19:59:30 wmtan Exp $
 //
 
 // system include files
@@ -58,7 +58,7 @@ BarProd::BarProd(const edm::ParameterSet& iPS) {
 // user include files
 
 // forward declarations
-#include "FWCore/CoreFramework/interface/DataProxyProvider.h"
+#include "FWCore/Framework/interface/DataProxyProvider.h"
 
 namespace edm {
    namespace eventsetup {

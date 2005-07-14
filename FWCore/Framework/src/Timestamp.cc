@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Package:     CoreFramework
+// Package:     Framework
 // Module:      Timestamp
 // 
 // Description: <one line class summary>
@@ -15,7 +15,7 @@
 // system include files
 
 // user include files
-#include "FWCore/CoreFramework/interface/Timestamp.h"
+#include "FWCore/Framework/interface/Timestamp.h"
 
 namespace edm {
 //

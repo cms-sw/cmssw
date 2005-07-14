@@ -1,10 +1,10 @@
 
 /*----------------------------------------------------------------------
-$Id: Worker.cc,v 1.1 2005/03/25 16:59:14 paterno Exp $
+$Id: Worker.cc,v 1.1 2005/05/29 02:29:54 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 
-#include "FWCore/CoreFramework/src/Worker.h"
+#include "FWCore/Framework/src/Worker.h"
 
 namespace edm
 {

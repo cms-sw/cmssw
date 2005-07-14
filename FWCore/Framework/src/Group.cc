@@ -1,8 +1,8 @@
 /*----------------------------------------------------------------------
-$Id: Group.cc,v 1.1 2005/05/29 02:29:54 wmtan Exp $
+$Id: Group.cc,v 1.2 2005/06/23 19:59:48 wmtan Exp $
 ----------------------------------------------------------------------*/
 
-#include "FWCore/CoreFramework/src/Group.h"
+#include "FWCore/Framework/src/Group.h"
 
 namespace edm
 {

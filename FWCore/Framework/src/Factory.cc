@@ -1,8 +1,8 @@
 
-#include "FWCore/CoreFramework/src/Factory.h"
-#include "FWCore/CoreFramework/src/WorkerMaker.h"
-#include "FWCore/CoreFramework/src/DebugMacros.h"
-#include "FWCore/FWUtilities/interface/EDMException.h"
+#include "FWCore/Framework/src/Factory.h"
+#include "FWCore/Framework/src/WorkerMaker.h"
+#include "FWCore/Framework/src/DebugMacros.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 #include <utility>
 #include <memory>

@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Package:     CoreFramework
+// Package:     Framework
 // Class  :     DependentRecordIntervalFinder
 // 
 // Implementation:
@@ -8,14 +8,14 @@
 //
 // Author:      Chris Jones
 // Created:     Sat Apr 30 19:37:22 EDT 2005
-// $Id: DependentRecordIntervalFinder.cc,v 1.1 2005/05/29 02:29:53 wmtan Exp $
+// $Id: DependentRecordIntervalFinder.cc,v 1.2 2005/06/23 19:59:48 wmtan Exp $
 //
 
 // system include files
 
 // user include files
-#include "FWCore/CoreFramework/interface/DependentRecordIntervalFinder.h"
-#include "FWCore/CoreFramework/interface/EventSetupRecordProvider.h"
+#include "FWCore/Framework/interface/DependentRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordProvider.h"
 
 
 //

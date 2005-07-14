@@ -1,8 +1,8 @@
-#include "FWCore/CoreFramework/interface/Provenance.h"
+#include "FWCore/Framework/interface/Provenance.h"
 
 /*----------------------------------------------------------------------
 
-$Id: Provenance.cc,v 1.2 2005/06/07 22:42:45 wmtan Exp $
+$Id: Provenance.cc,v 1.3 2005/07/06 20:26:01 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 

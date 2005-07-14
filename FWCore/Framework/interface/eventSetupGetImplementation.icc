@@ -2,7 +2,7 @@
 #define EVENTSETUP_GETIMPLEMENTATION_TCC
 // -*- C++ -*-
 //
-// Package:     CoreFramework
+// Package:     Framework
 // Class  :     eventSetupGetImplementation
 // 
 // Implementation:
@@ -15,11 +15,11 @@
 // system include files
 
 // user include files
-#include "FWCore/CoreFramework/interface/eventSetupGetImplementation.h"
-#include "FWCore/CoreFramework/interface/EventSetup.h"
-#include "FWCore/CoreFramework/interface/HCMethods.h"
+#include "FWCore/Framework/interface/eventSetupGetImplementation.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/HCMethods.h"
 
-#include "FWCore/CoreFramework/interface/NoRecordException.h"
+#include "FWCore/Framework/interface/NoRecordException.h"
 
 namespace edm {
    namespace eventsetup {

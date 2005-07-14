@@ -4,15 +4,15 @@
 <use name=Dictionary/ReflectionBuilder>
 <use name=FWCore/EDProduct>
 <use name=FWCore/ParameterSet>
-<use name=FWCore/FWUtilities>
+<use name=FWCore/Utilities>
 <export>
- <lib name=FWCoreCoreFramework>
+ <lib name=FWCoreFramework>
  <use name=boost>
  <use name=Foundation/PluginManager>
  <use name=Framework/SealKernel>
  <use name=Dictionary/ReflectionBuilder>
  <use name=FWCore/EDProduct>
  <use name=FWCore/ParameterSet>
- <use name=FWCore/FWUtilities>
+ <use name=FWCore/Utilities>
 </export>
 

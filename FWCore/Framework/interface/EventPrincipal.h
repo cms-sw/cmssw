@@ -15,7 +15,7 @@ through shared pointers.
 The EventPrincipal returns BasicHandle, rather than a shared
 pointer to a Group, when queried.
 
-$Id: EventPrincipal.h,v 1.4 2005/07/01 00:05:37 wmtan Exp $
+$Id: EventPrincipal.h,v 1.5 2005/07/11 21:55:14 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <map>
@@ -26,18 +26,18 @@ $Id: EventPrincipal.h,v 1.4 2005/07/01 00:05:37 wmtan Exp $
 
 #include "boost/shared_ptr.hpp"
 
-#include "FWCore/CoreFramework/interface/BranchKey.h"
+#include "FWCore/Framework/interface/BranchKey.h"
 #include "FWCore/EDProduct/interface/CollisionID.h"
 #include "FWCore/EDProduct/interface/EDP_ID.h"
 #include "FWCore/EDProduct/interface/EDProduct.h"
-#include "FWCore/CoreFramework/interface/EventAux.h"
-#include "FWCore/CoreFramework/interface/BasicHandle.h"
-#include "FWCore/CoreFramework/interface/ProcessNameList.h"
-#include "FWCore/CoreFramework/interface/Retriever.h"
-#include "FWCore/CoreFramework/interface/Selector.h"
+#include "FWCore/Framework/interface/EventAux.h"
+#include "FWCore/Framework/interface/BasicHandle.h"
+#include "FWCore/Framework/interface/ProcessNameList.h"
+#include "FWCore/Framework/interface/Retriever.h"
+#include "FWCore/Framework/interface/Selector.h"
 
-#include "FWCore/CoreFramework/src/Group.h"
-#include "FWCore/CoreFramework/src/TypeID.h"
+#include "FWCore/Framework/src/Group.h"
+#include "FWCore/Framework/src/TypeID.h"
 
 namespace edm {
     

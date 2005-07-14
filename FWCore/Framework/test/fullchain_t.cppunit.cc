@@ -8,19 +8,19 @@
  *
  */
 #include <iostream>
-#include "FWCore/CoreFramework/interface/EventSetup.h"
-#include "FWCore/CoreFramework/interface/EventSetupProvider.h"
-#include "FWCore/CoreFramework/interface/Timestamp.h"
-#include "FWCore/CoreFramework/interface/DataProxyProvider.h"
-#include "FWCore/CoreFramework/interface/HCMethods.icc"
-#include "FWCore/CoreFramework/interface/recordGetImplementation.icc"
-#include "FWCore/CoreFramework/interface/ESHandle.h"
-#include "FWCore/CoreFramework/interface/DataProxyTemplate.h"
-#include "FWCore/CoreFramework/interface/EventSetupRecordIntervalFinder.h"
-#include "FWCore/CoreFramework/test/DummyRecord.h"
-#include "FWCore/CoreFramework/test/DummyData.h"
-#include "FWCore/CoreFramework/test/DummyFinder.h"
-#include "FWCore/CoreFramework/test/DummyProxyProvider.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/EventSetupProvider.h"
+#include "FWCore/Framework/interface/Timestamp.h"
+#include "FWCore/Framework/interface/DataProxyProvider.h"
+#include "FWCore/Framework/interface/HCMethods.icc"
+#include "FWCore/Framework/interface/recordGetImplementation.icc"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/DataProxyTemplate.h"
+#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/test/DummyRecord.h"
+#include "FWCore/Framework/test/DummyData.h"
+#include "FWCore/Framework/test/DummyFinder.h"
+#include "FWCore/Framework/test/DummyProxyProvider.h"
 #include <cppunit/extensions/HelperMacros.h>
 
 using namespace edm;

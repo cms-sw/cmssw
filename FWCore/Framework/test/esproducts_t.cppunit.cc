@@ -9,7 +9,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-#include "FWCore/CoreFramework/interface/ESProducts.h"
+#include "FWCore/Framework/interface/ESProducts.h"
 using namespace edm::eventsetup::produce;
 
 class testEsproducts: public CppUnit::TestFixture

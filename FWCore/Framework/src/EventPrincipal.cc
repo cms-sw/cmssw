@@ -1,13 +1,13 @@
 /*----------------------------------------------------------------------
-$Id: EventPrincipal.cc,v 1.11 2005/07/09 02:08:15 wmtan Exp $
+$Id: EventPrincipal.cc,v 1.12 2005/07/11 21:55:14 wmtan Exp $
 ----------------------------------------------------------------------*/
 //#include <iostream>
 #include <memory>
 #include <sstream>
 #include <stdexcept>
 
-#include "FWCore/CoreFramework/interface/EventPrincipal.h"
-#include "FWCore/FWUtilities/interface/EDMException.h"
+#include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 using namespace std;
 
 namespace

@@ -2,10 +2,10 @@
 #define EVENTSETUP_SOURCEFACTORY_H
 // -*- C++ -*-
 //
-// Package:     CoreFramework
+// Package:     Framework
 // Class  :     SourceFactory
 // 
-/**\class SourceFactory SourceFactory.h Core/CoreFramework/interface/SourceFactory.h
+/**\class SourceFactory SourceFactory.h FWCore/Framework/interface/SourceFactory.h
 
  Description: <one line class summary>
 
@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 18:01:38 EDT 2005
-// $Id: SourceFactory.h,v 1.3 2005/06/23 19:59:30 wmtan Exp $
+// $Id: SourceFactory.h,v 1.4 2005/06/25 22:28:50 chrjones Exp $
 //
 
 // system include files
@@ -24,8 +24,8 @@
 #include "boost/shared_ptr.hpp"
 
 // user include files
-#include "FWCore/CoreFramework/interface/ComponentFactory.h"
-#include "FWCore/CoreFramework/interface/EventSetupProvider.h"
+#include "FWCore/Framework/interface/ComponentFactory.h"
+#include "FWCore/Framework/interface/EventSetupProvider.h"
 // forward declarations
 
 namespace edm {

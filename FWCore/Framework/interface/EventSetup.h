@@ -2,10 +2,10 @@
 #define EVENTSETUP_EVENTSETUP_H
 // -*- C++ -*-
 //
-// Package:     CoreFramework
+// Package:     Framework
 // Class:      EventSetup
 // 
-/**\class EventSetup EventSetup.h Core/CoreFramework/interface/EventSetup.h
+/**\class EventSetup EventSetup.h FWCore/Framework/interface/EventSetup.h
 
  Description: Container for all Records dealing with non-RunState info
 
@@ -23,11 +23,11 @@
 #include "boost/static_assert.hpp"
 #include "boost/type_traits/is_base_and_derived.hpp"
 // user include files
-#include "FWCore/CoreFramework/interface/Timestamp.h"
-#include "FWCore/CoreFramework/interface/EventSetupRecordKey.h"
-#include "FWCore/CoreFramework/interface/HCMethods.h"
+#include "FWCore/Framework/interface/Timestamp.h"
+#include "FWCore/Framework/interface/EventSetupRecordKey.h"
+#include "FWCore/Framework/interface/HCMethods.h"
 
-#include "FWCore/CoreFramework/interface/eventSetupGetImplementation.h"
+#include "FWCore/Framework/interface/eventSetupGetImplementation.h"
 // forward declarations
 
 namespace edm {

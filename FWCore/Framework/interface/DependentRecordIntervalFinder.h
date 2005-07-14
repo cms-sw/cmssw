@@ -2,10 +2,10 @@
 #define EVENTSETUP_DEPENDENTRECORDINTERVALFINDER_H
 // -*- C++ -*-
 //
-// Package:     CoreFramework
+// Package:     Framework
 // Class  :     DependentRecordIntervalFinder
 // 
-/**\class DependentRecordIntervalFinder DependentRecordIntervalFinder.h Core/CoreFramework/interface/DependentRecordIntervalFinder.h
+/**\class DependentRecordIntervalFinder DependentRecordIntervalFinder.h FWCore/Framework/interface/DependentRecordIntervalFinder.h
 
  Description: Finds the intersection of the ValidityInterval for several Providers
 
@@ -18,7 +18,7 @@
 //
 // Author:      Chris Jones
 // Created:     Sat Apr 30 19:36:59 EDT 2005
-// $Id: DependentRecordIntervalFinder.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
+// $Id: DependentRecordIntervalFinder.h,v 1.2 2005/06/23 19:59:30 wmtan Exp $
 //
 
 // system include files
@@ -26,7 +26,7 @@
 #include "boost/shared_ptr.hpp"
 
 // user include files
-#include "FWCore/CoreFramework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 
 // forward declarations
 namespace edm {

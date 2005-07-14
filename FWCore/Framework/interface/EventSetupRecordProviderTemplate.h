@@ -2,10 +2,10 @@
 #define EVENTSETUP_EVENTSETUPRECORDPROVIDERTEMPLATE_H
 // -*- C++ -*-
 //
-// Package:     CoreFramework
+// Package:     Framework
 // Class  :     EventSetupRecordProviderTemplate
 // 
-/**\class EventSetupRecordProviderTemplate EventSetupRecordProviderTemplate.h Core/CoreFramework/interface/EventSetupRecordProviderTemplate.h
+/**\class EventSetupRecordProviderTemplate EventSetupRecordProviderTemplate.h FWCore/Framework/interface/EventSetupRecordProviderTemplate.h
 
  Description: <one line class summary>
 
@@ -24,11 +24,11 @@
 #include "boost/shared_ptr.hpp"
 #include "boost/type_traits/is_base_and_derived.hpp"
 // user include files
-#include "FWCore/CoreFramework/interface/EventSetupRecordProvider.h"
-#include "FWCore/CoreFramework/interface/DependentEventSetupRecordProviderTemplate.h"
-#include "FWCore/CoreFramework/interface/DependentRecordImplementation.h"
-#include "FWCore/CoreFramework/interface/EventSetupProvider.h"
-#include "FWCore/CoreFramework/interface/DataProxyProvider.h"
+#include "FWCore/Framework/interface/EventSetupRecordProvider.h"
+#include "FWCore/Framework/interface/DependentEventSetupRecordProviderTemplate.h"
+#include "FWCore/Framework/interface/DependentRecordImplementation.h"
+#include "FWCore/Framework/interface/EventSetupProvider.h"
+#include "FWCore/Framework/interface/DataProxyProvider.h"
 
 // forward declarations
 namespace edm {

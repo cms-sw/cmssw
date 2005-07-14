@@ -12,11 +12,14 @@
 //
 // Author:      Chris D. Jones
 // Created:     Sun Sep 20 16:03:32 EDT 1998
-// $Id: HCMethods.icc,v 1.1 2005/05/29 02:29:53 wmtan Exp $
+// $Id: HCMethods.icc,v 1.2 2005/06/23 19:59:30 wmtan Exp $
 //
 // Revision history
 //
 // $Log: HCMethods.icc,v $
+// Revision 1.2  2005/06/23 19:59:30  wmtan
+// fix rules violations found by rulechecker
+//
 // Revision 1.1  2005/05/29 02:29:53  wmtan
 // initial population
 //
@@ -39,8 +42,8 @@
 // system include files
 
 // user include files
-#include "FWCore/CoreFramework/interface/HCMethods.h"
-#include "FWCore/CoreFramework/interface/HCTypeTagTemplate.h"
+#include "FWCore/Framework/interface/HCMethods.h"
+#include "FWCore/Framework/interface/HCTypeTagTemplate.h"
 
 namespace edm {
    namespace eventsetup {

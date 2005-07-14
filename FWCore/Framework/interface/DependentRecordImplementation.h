@@ -2,10 +2,10 @@
 #define EVENTSETUP_DEPENDENTRECORDIMPLEMENTATION_H
 // -*- C++ -*-
 //
-// Package:     CoreFramework
+// Package:     Framework
 // Class  :     DependentRecordImplementation
 // 
-/**\class DependentRecordImplementation DependentRecordImplementation.h Core/CoreFramework/interface/DependentRecordImplementation.h
+/**\class DependentRecordImplementation DependentRecordImplementation.h FWCore/Framework/interface/DependentRecordImplementation.h
 
  Description: <one line class summary>
 
@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Fri Apr 29 10:03:54 EDT 2005
-// $Id: DependentRecordImplementation.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
+// $Id: DependentRecordImplementation.h,v 1.2 2005/06/23 19:59:30 wmtan Exp $
 //
 
 // system include files
@@ -25,8 +25,8 @@
 #include "boost/mpl/find.hpp"
 
 // user include files
-#include "FWCore/CoreFramework/interface/EventSetupRecordImplementation.h"
-#include "FWCore/CoreFramework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
 // forward declarations
 namespace edm {

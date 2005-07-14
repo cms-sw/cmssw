@@ -1,17 +1,17 @@
-#ifndef CoreFramework_ModuleDescription_h
-#define CoreFramework_ModuleDescription_h
+#ifndef Framework_ModuleDescription_h
+#define Framework_ModuleDescription_h
 
 /*----------------------------------------------------------------------
   
 ModuleDescription: The description of a producer module.
 
-$Id: ModuleDescription.h,v 1.0 2005/06/23 22:01:31 wmtan Exp $
+$Id: ModuleDescription.h,v 1.1 2005/07/06 18:47:05 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <string>
 
-#include "FWCore/CoreFramework/interface/PassID.h"
-#include "FWCore/CoreFramework/interface/PS_ID.h"
-#include "FWCore/CoreFramework/interface/VersionNumber.h"
+#include "FWCore/Framework/interface/PassID.h"
+#include "FWCore/Framework/interface/PS_ID.h"
+#include "FWCore/Framework/interface/VersionNumber.h"
 
 namespace edm {
 

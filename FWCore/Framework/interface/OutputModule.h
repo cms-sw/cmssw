@@ -6,11 +6,11 @@
 OutputModule: The base class of all "modules" that write Events to an
 output stream.
 
-$Id: OutputModule.h,v 1.4 2005/06/23 05:23:10 wmtan Exp $
+$Id: OutputModule.h,v 1.5 2005/06/24 23:32:13 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
-#include "FWCore/CoreFramework/interface/GroupSelector.h"
+#include "FWCore/Framework/interface/GroupSelector.h"
 
 namespace edm
 {

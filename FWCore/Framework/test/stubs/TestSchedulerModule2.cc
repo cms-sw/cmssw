@@ -3,21 +3,21 @@
    Test Module for testScheduler
 
    \author Stefano ARGIRO
-   \version $Id: TestSchedulerModule2.cc,v 1.6 2005/06/18 02:18:10 wmtan Exp $
+   \version $Id: TestSchedulerModule2.cc,v 1.7 2005/07/09 14:42:51 wmtan Exp $
    \date 19 May 2005
 */
 
-static const char CVSId[] = "$Id: TestSchedulerModule2.cc,v 1.6 2005/06/18 02:18:10 wmtan Exp $";
+static const char CVSId[] = "$Id: TestSchedulerModule2.cc,v 1.7 2005/07/09 14:42:51 wmtan Exp $";
 
 
-#include "FWCore/CoreFramework/interface/EDProducer.h"
-#include "FWCore/CoreFramework/interface/Event.h"
-#include "FWCore/CoreFramework/interface/Handle.h"
-#include "FWCore/CoreFramework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Handle.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/CoreFramework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/CoreFramework/src/ToyProducts.h"
+#include "FWCore/Framework/src/ToyProducts.h"
 #include <memory>
 #include <string>
 

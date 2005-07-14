@@ -2,10 +2,10 @@
 #define EVENTSETUP_EVENTSETUPRECORDKEY_H
 // -*- C++ -*-
 //
-// Package:     CoreFramework
+// Package:     Framework
 // Class  :     EventSetupRecordKey
 // 
-/**\class EventSetupRecordKey EventSetupRecordKey.h Core/CoreFramework/interface/EventSetupRecordKey.h
+/**\class EventSetupRecordKey EventSetupRecordKey.h FWCore/Framework/interface/EventSetupRecordKey.h
 
  Description: Key used to lookup a EventSetupRecord within the EventSetup
 
@@ -21,8 +21,8 @@
 // system include files
 
 // user include files
-#include "FWCore/CoreFramework/interface/HCTypeTag.h"
-#include "FWCore/CoreFramework/interface/HCMethods.h"
+#include "FWCore/Framework/interface/HCTypeTag.h"
+#include "FWCore/Framework/interface/HCMethods.h"
 
 // forward declarations
 namespace edm {

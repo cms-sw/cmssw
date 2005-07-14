@@ -1,9 +1,9 @@
 #include <vector>
-#include "FWCore/CoreFramework/interface/EventAux.h"
-#include "FWCore/CoreFramework/interface/Provenance.h"
-#include "FWCore/CoreFramework/interface/EventProvenance.h"
+#include "FWCore/Framework/interface/EventAux.h"
+#include "FWCore/Framework/interface/Provenance.h"
+#include "FWCore/Framework/interface/EventProvenance.h"
 #include "FWCore/EDProduct/interface/Wrapper.h"
-#include "FWCore/CoreFramework/src/ToyProducts.h"
+#include "FWCore/Framework/src/ToyProducts.h"
 
 namespace{
 namespace{

@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Package:     CoreFramework
+// Package:     Framework
 // Class  :     ESProducer
 // 
 // Implementation:
@@ -8,13 +8,13 @@
 //
 // Author:      Chris Jones
 // Created:     Sat Apr 16 10:19:37 EDT 2005
-// $Id: ESProducer.cc,v 1.1 2005/05/29 02:29:53 wmtan Exp $
+// $Id: ESProducer.cc,v 1.2 2005/06/23 19:59:48 wmtan Exp $
 //
 
 // system include files
 
 // user include files
-#include "FWCore/CoreFramework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/ESProducer.h"
 
 
 //

@@ -12,11 +12,14 @@
 //
 // Author:      Chris D. Jones
 // Created:     Sun Sep 20 15:27:25 EDT 1998
-// $Id: HCTypeTag.icc,v 1.1 2005/05/29 02:29:53 wmtan Exp $
+// $Id: HCTypeTag.icc,v 1.2 2005/06/23 19:59:30 wmtan Exp $
 //
 // Revision history
 //
 // $Log: HCTypeTag.icc,v $
+// Revision 1.2  2005/06/23 19:59:30  wmtan
+// fix rules violations found by rulechecker
+//
 // Revision 1.1  2005/05/29 02:29:53  wmtan
 // initial population
 //
@@ -39,7 +42,7 @@
 
 // user include files
 //#include "Logger/interface/report.h"
-#include "FWCore/CoreFramework/interface/HCTypeTag.h"
+#include "FWCore/Framework/interface/HCTypeTag.h"
 
 // STL classes
 

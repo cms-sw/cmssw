@@ -2,10 +2,10 @@
 #define EVENTSETUP_EVENTSETUPDATA_REGISTRATION_MACRO_H
 // -*- C++ -*-
 //
-// Package:     CoreFramework
+// Package:     Framework
 // Class  :     eventsetupdata_registration_macro
 // 
-/**\class eventsetupdata_registration_macro eventsetupdata_registration_macro.h Core/CoreFramework/interface/eventsetupdata_registration_macro.h
+/**\class eventsetupdata_registration_macro eventsetupdata_registration_macro.h FWCore/Framework/interface/eventsetupdata_registration_macro.h
 
  Description: CPP macro used to register a data item to be placed within a EventSetup Record
 
@@ -28,15 +28,15 @@ the file that uses the 'EVENTSETUP_DATA_REG' macro must be in the same library a
 //
 // Author:      Chris Jones
 // Created:     Wed Apr  6 15:21:58 EDT 2005
-// $Id: eventsetupdata_registration_macro.h,v 1.2 2005/04/18 15:41:17 chrjones Exp $
+// $Id: eventsetupdata_registration_macro.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
 //
 
 // system include files
 
 // user include files
 
-#include "FWCore/CoreFramework/interface/DataKey.h"
-#include "FWCore/CoreFramework/interface/HCTypeTagTemplate.icc"
+#include "FWCore/Framework/interface/DataKey.h"
+#include "FWCore/Framework/interface/HCTypeTagTemplate.icc"
 
 #define EVENTSETUP_DATA_REG(_dataclass_) template<> const char* \
 edm::eventsetup::heterocontainer::HCTypeTagTemplate<_dataclass_, edm::eventsetup::DataKey>::className() { return # _dataclass_; } \

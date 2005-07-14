@@ -6,13 +6,13 @@
  *  Changed by Viji Sundararajan on 28-Jun-05
  */
 #include <iostream>
-#include "FWCore/CoreFramework/interface/ESProducer.h"
-#include "FWCore/CoreFramework/test/DummyData.h"
-#include "FWCore/CoreFramework/test/DummyRecord.h"
-#include "FWCore/CoreFramework/test/DummyFinder.h"
-#include "FWCore/CoreFramework/test/DepRecord.h"
-#include "FWCore/CoreFramework/interface/EventSetupProvider.h"
-#include "FWCore/CoreFramework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/test/DummyData.h"
+#include "FWCore/Framework/test/DummyRecord.h"
+#include "FWCore/Framework/test/DummyFinder.h"
+#include "FWCore/Framework/test/DepRecord.h"
+#include "FWCore/Framework/interface/EventSetupProvider.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include <cppunit/extensions/HelperMacros.h>
 
 using edm::eventsetup::test::DummyData;

@@ -3,8 +3,8 @@
 
 #include "PluginManager/PluginFactory.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/CoreFramework/interface/InputServiceDescription.h"
-#include "FWCore/CoreFramework/interface/InputService.h"
+#include "FWCore/Framework/interface/InputServiceDescription.h"
+#include "FWCore/Framework/interface/InputService.h"
 
 #include <string>
 #include <memory>

@@ -3,8 +3,8 @@
 
 #include "PluginManager/PluginFactory.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/CoreFramework/src/Worker.h"
-#include "FWCore/CoreFramework/src/WorkerMaker.h"
+#include "FWCore/Framework/src/Worker.h"
+#include "FWCore/Framework/src/WorkerMaker.h"
 
 #include <map>
 #include <string>

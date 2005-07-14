@@ -2,10 +2,10 @@
 #define EVENTSETUP_DUMMYFINDER_H
 // -*- C++ -*-
 //
-// Package:     CoreFramework
+// Package:     Framework
 // Class  :     DummyFinder
 // 
-/**\class DummyFinder DummyFinder.h Core/CoreFramework/interface/DummyFinder.h
+/**\class DummyFinder DummyFinder.h FWCore/Framework/interface/DummyFinder.h
 
  Description: <one line class summary>
 
@@ -16,14 +16,14 @@
 //
 // Author:      Chris Jones
 // Created:     Sat Apr 16 18:47:04 EDT 2005
-// $Id: DummyFinder.h,v 1.1 2005/05/29 02:29:54 wmtan Exp $
+// $Id: DummyFinder.h,v 1.2 2005/06/23 20:01:12 wmtan Exp $
 //
 
 // system include files
 
 // user include files
-#include "FWCore/CoreFramework/interface/EventSetupRecordIntervalFinder.h"
-#include "FWCore/CoreFramework/test/DummyRecord.h"
+#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/test/DummyRecord.h"
 
 // forward declarations
 

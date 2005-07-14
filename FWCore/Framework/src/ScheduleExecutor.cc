@@ -3,17 +3,17 @@
    Implementation of ScheduleExecutor
 
    \author Stefano ARGIRO
-   \version $Id: ScheduleExecutor.cc,v 1.1 2005/05/29 02:29:54 wmtan Exp $
+   \version $Id: ScheduleExecutor.cc,v 1.2 2005/06/23 19:59:48 wmtan Exp $
    \date 19 May 2005
 */
 
-static const char CVSId[] = "$Id: ScheduleExecutor.cc,v 1.1 2005/05/29 02:29:54 wmtan Exp $";
+static const char CVSId[] = "$Id: ScheduleExecutor.cc,v 1.2 2005/06/23 19:59:48 wmtan Exp $";
 
 
-#include "FWCore/CoreFramework/interface/ScheduleExecutor.h"
-#include "FWCore/CoreFramework/interface/EventPrincipal.h"
-#include "FWCore/CoreFramework/src/Worker.h"
-#include "FWCore/CoreFramework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ScheduleExecutor.h"
+#include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/src/Worker.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
 using namespace edm;
 

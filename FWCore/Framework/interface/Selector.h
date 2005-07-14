@@ -6,13 +6,13 @@
 Selector: Base class for all "selector" objects, used to select
 EDProducts based on information in the associated Provenance.
 
-$Id: Selector.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
+$Id: Selector.h,v 1.2 2005/06/23 05:38:31 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include <string>
 
-#include "FWCore/CoreFramework/interface/Provenance.h"
+#include "FWCore/Framework/interface/Provenance.h"
 
 namespace edm {
 

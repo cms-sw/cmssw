@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Package:     CoreFramework
+// Package:     Framework
 // Class  :     DependentEventSetupRecordProvider
 // 
 // Implementation:
@@ -8,14 +8,14 @@
 //
 // Author:      Chris Jones
 // Created:     Sun May  1 17:15:52 EDT 2005
-// $Id: DependentEventSetupRecordProvider.cc,v 1.1 2005/05/29 02:29:53 wmtan Exp $
+// $Id: DependentEventSetupRecordProvider.cc,v 1.2 2005/06/23 19:59:48 wmtan Exp $
 //
 
 // system include files
 
 // user include files
-#include "FWCore/CoreFramework/interface/DependentEventSetupRecordProvider.h"
-#include "FWCore/CoreFramework/interface/DependentRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/DependentEventSetupRecordProvider.h"
+#include "FWCore/Framework/interface/DependentRecordIntervalFinder.h"
 
 #include "boost/bind.hpp"
 

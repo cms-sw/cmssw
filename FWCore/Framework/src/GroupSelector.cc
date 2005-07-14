@@ -1,6 +1,6 @@
-// $Id: GroupSelector.cc,v 1.6 2005/06/23 19:59:48 wmtan Exp $
-#include "FWCore/CoreFramework/interface/Provenance.h"
-#include "FWCore/CoreFramework/interface/GroupSelector.h"
+// $Id: GroupSelector.cc,v 1.7 2005/06/24 23:32:13 wmtan Exp $
+#include "FWCore/Framework/interface/Provenance.h"
+#include "FWCore/Framework/interface/GroupSelector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <vector>
 

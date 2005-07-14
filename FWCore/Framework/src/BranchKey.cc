@@ -1,11 +1,11 @@
 /*----------------------------------------------------------------------
   
-$Id: BranchKey.cc,v 1.1 2005/05/29 02:29:53 wmtan Exp $
+$Id: BranchKey.cc,v 1.2 2005/07/09 02:08:15 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <ostream>
 
-#include "FWCore/CoreFramework/interface/BranchKey.h"
+#include "FWCore/Framework/interface/BranchKey.h"
 
 
 namespace edm

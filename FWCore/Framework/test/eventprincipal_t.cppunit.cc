@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id: eventprincipal_t.cppunit.cc,v 1.1 2005/07/07 13:04:24 viji Exp $
+$Id: eventprincipal_t.cppunit.cc,v 1.2 2005/07/11 21:55:14 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <cassert>
@@ -12,15 +12,15 @@ $Id: eventprincipal_t.cppunit.cc,v 1.1 2005/07/07 13:04:24 viji Exp $
 #include <string>
 #include <typeinfo>
 
-#include "FWCore/FWUtilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/EDProduct/interface/EDP_ID.h"
-#include "FWCore/CoreFramework/interface/BasicHandle.h"
+#include "FWCore/Framework/interface/BasicHandle.h"
 #include "FWCore/EDProduct/interface/Wrapper.h"
-#include "FWCore/CoreFramework/interface/Selector.h"
-#include "FWCore/CoreFramework/src/TypeID.h"
-#include "FWCore/CoreFramework/src/ToyProducts.h"
+#include "FWCore/Framework/interface/Selector.h"
+#include "FWCore/Framework/src/TypeID.h"
+#include "FWCore/Framework/src/ToyProducts.h"
 
-#include "FWCore/CoreFramework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/EventPrincipal.h"
 #include <cppunit/extensions/HelperMacros.h>
 
 typedef edm::BasicHandle handle;

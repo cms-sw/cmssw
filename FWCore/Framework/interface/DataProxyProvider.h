@@ -2,10 +2,10 @@
 #define EVENTSETUP_DATAPROXYPROVIDER_H
 // -*- C++ -*-
 //
-// Package:     CoreFramework
+// Package:     Framework
 // Class  :     DataProxyProvider
 // 
-/**\class DataProxyProvider DataProxyProvider.h Core/CoreFramework/interface/DataProxyProvider.h
+/**\class DataProxyProvider DataProxyProvider.h FWCore/Framework/interface/DataProxyProvider.h
 
  Description: <one line class summary>
 
@@ -25,8 +25,8 @@
 #include "boost/shared_ptr.hpp"
 
 // user include files
-#include "FWCore/CoreFramework/interface/EventSetupRecordKey.h"
-#include "FWCore/CoreFramework/interface/DataKey.h"
+#include "FWCore/Framework/interface/EventSetupRecordKey.h"
+#include "FWCore/Framework/interface/DataKey.h"
 
 // forward declarations
 namespace edm {

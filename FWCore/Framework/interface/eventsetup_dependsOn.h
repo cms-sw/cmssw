@@ -2,10 +2,10 @@
 #define COREFRAMEWORK_EVENTSETUP_DEPENDSON_H
 // -*- C++ -*-
 //
-// Package:     CoreFramework
+// Package:     Framework
 // Class  :     eventsetup_dependsOn
 // 
-/**\class eventsetup_dependsOn eventsetup_dependsOn.h FWCore/CoreFramework/interface/eventsetup_dependsOn.h
+/**\class eventsetup_dependsOn eventsetup_dependsOn.h FWCore/Framework/interface/eventsetup_dependsOn.h
 
  Description: function used to set what methods to call when a dependent Record changes
 
@@ -44,14 +44,14 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jun 23 14:06:56 EDT 2005
-// $Id: eventsetup_dependsOn.h,v 1.2 2005/06/23 20:35:42 wmtan Exp $
+// $Id: eventsetup_dependsOn.h,v 1.3 2005/06/23 22:01:31 wmtan Exp $
 //
 
 // system include files
 
 // user include files
-#include "FWCore/CoreFramework/interface/ESPreFunctorDecorator.h"
-#include "FWCore/CoreFramework/interface/Timestamp.h"
+#include "FWCore/Framework/interface/ESPreFunctorDecorator.h"
+#include "FWCore/Framework/interface/Timestamp.h"
 
 // forward declarations
 

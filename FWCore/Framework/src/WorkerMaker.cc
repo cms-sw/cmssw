@@ -1,5 +1,5 @@
 
-#include "FWCore/CoreFramework/src/WorkerMaker.h"
+#include "FWCore/Framework/src/WorkerMaker.h"
 
 namespace edm {
 

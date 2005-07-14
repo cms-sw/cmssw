@@ -2,10 +2,10 @@
 #define EVENTSETUPPRODUCER_ESPRODUCER_H
 // -*- C++ -*-
 //
-// Package:     CoreFramework
+// Package:     Framework
 // Class  :     ESProducer
 // 
-/**\class ESProducer ESProducer.h FWCore/CoreFramework/interface/ESProducer.h
+/**\class ESProducer ESProducer.h FWCore/Framework/interface/ESProducer.h
 
  Description: An EventSetup algorithmic Provider that encapsulates the algorithm as a member method
 
@@ -66,21 +66,21 @@ Example: two algorithms each creating only one objects
 //
 // Author:      Chris Jones
 // Created:     Thu Apr  7 17:08:14 CDT 2005
-// $Id: ESProducer.h,v 1.6 2005/06/23 20:41:32 wmtan Exp $
+// $Id: ESProducer.h,v 1.7 2005/06/23 20:53:12 wmtan Exp $
 //
 
 // system include files
 #include <memory>
 
 // user include files
-#include "FWCore/CoreFramework/interface/ProxyFactoryProducer.h"
-#include "FWCore/CoreFramework/interface/ProxyArgumentFactoryTemplate.h"
+#include "FWCore/Framework/interface/ProxyFactoryProducer.h"
+#include "FWCore/Framework/interface/ProxyArgumentFactoryTemplate.h"
 
-#include "FWCore/CoreFramework/interface/CallbackProxy.h"
-#include "FWCore/CoreFramework/interface/Callback.h"
-#include "FWCore/CoreFramework/interface/produce_helpers.h"
-#include "FWCore/CoreFramework/interface/ESProducts.h"
-#include "FWCore/CoreFramework/interface/eventsetup_dependsOn.h"
+#include "FWCore/Framework/interface/CallbackProxy.h"
+#include "FWCore/Framework/interface/Callback.h"
+#include "FWCore/Framework/interface/produce_helpers.h"
+#include "FWCore/Framework/interface/ESProducts.h"
+#include "FWCore/Framework/interface/eventsetup_dependsOn.h"
 
 // forward declarations
 namespace edm {

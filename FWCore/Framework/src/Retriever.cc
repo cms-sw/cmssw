@@ -1,8 +1,8 @@
-#include "FWCore/CoreFramework/interface/Retriever.h"
+#include "FWCore/Framework/interface/Retriever.h"
 
 /*----------------------------------------------------------------------
   
-$Id: Retriever.cc,v 1.2 2005/03/23 17:50:19 paterno Exp $
+$Id: Retriever.cc,v 1.1 2005/05/29 02:29:54 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 

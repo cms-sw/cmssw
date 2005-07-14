@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Package:     CoreFramework
+// Package:     Framework
 // Class  :     EventSetupRecordProvider
 // 
 // Implementation:
@@ -13,9 +13,9 @@
 // system include files
 
 // user include files
-#include "FWCore/CoreFramework/interface/EventSetupRecordProvider.h"
-#include "FWCore/CoreFramework/interface/EventSetupRecordIntervalFinder.h"
-#include "FWCore/CoreFramework/interface/DataProxyProvider.h"
+#include "FWCore/Framework/interface/EventSetupRecordProvider.h"
+#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/DataProxyProvider.h"
 
 
 //

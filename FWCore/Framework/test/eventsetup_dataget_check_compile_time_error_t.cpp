@@ -6,10 +6,10 @@
  *
  */
 
-#include "FWCore/CoreFramework/interface/EventSetup.h"
-#include "FWCore/CoreFramework/interface/EventSetupProvider.h"
-#include "FWCore/CoreFramework/interface/Timestamp.h"
-#include "FWCore/CoreFramework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/EventSetupProvider.h"
+#include "FWCore/Framework/interface/Timestamp.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 using namespace edm;
 class DataWithNoDefaultRecord {};

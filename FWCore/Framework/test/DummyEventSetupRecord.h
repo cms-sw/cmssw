@@ -8,7 +8,7 @@
  *
  */
 
-#include "FWCore/CoreFramework/interface/EventSetupRecordImplementation.h"
+#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
 namespace edm {
    class DummyEventSetupRecord : 
@@ -16,7 +16,7 @@ namespace edm {
 }
 
 //NOTE: the following should really go into a DummyEventSetupRecord.cc file
-#include "FWCore/CoreFramework/interface/eventsetuprecord_registration_macro.h"
+#include "FWCore/Framework/interface/eventsetuprecord_registration_macro.h"
 EVENTSETUP_RECORD_REG(edm::DummyEventSetupRecord);
 
 #endif /*EVENTSETUP_TEST_DUMMYEVENTSETUPRECORD_H*/

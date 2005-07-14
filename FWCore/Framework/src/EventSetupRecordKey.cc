@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Package:     CoreFramework
+// Package:     Framework
 // Class  :     EventSetupRecordKey
 // 
 // Implementation:
@@ -13,7 +13,7 @@
 // system include files
 
 // user include files
-#include "FWCore/CoreFramework/interface/EventSetupRecordKey.h"
+#include "FWCore/Framework/interface/EventSetupRecordKey.h"
 
 
 //
@@ -67,6 +67,6 @@ EventSetupRecordKey::EventSetupRecordKey()
 //
    }
 }
-#include "FWCore/CoreFramework/interface/HCTypeTag.icc"
+#include "FWCore/Framework/interface/HCTypeTag.icc"
 
 template class edm::eventsetup::heterocontainer::HCTypeTag<edm::eventsetup::EventSetupRecordKey>;

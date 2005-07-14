@@ -2,10 +2,10 @@
 #define EVENTSETUP_MAKEDATAEXCEPTION_H
 // -*- C++ -*-
 //
-// Package:     CoreFramework
+// Package:     Framework
 // Class  :     MakeDataException
 // 
-/**\class MakeDataException MakeDataException.h Core/CoreFramework/interface/MakeDataException.h
+/**\class MakeDataException MakeDataException.h FWCore/Framework/interface/MakeDataException.h
 
 Description: An exception that is thrown whenever a Proxy had a problem with
 its algorithm.
@@ -29,7 +29,7 @@ if(outOfBoundsValue) {
 //
 // Author:      Chris Jones
 // Created:     Fri Apr  1 13:18:53 EST 2005
-// $Id: MakeDataException.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
+// $Id: MakeDataException.h,v 1.2 2005/06/23 19:59:30 wmtan Exp $
 //
 
 // system include files
@@ -37,9 +37,9 @@ if(outOfBoundsValue) {
 #include <exception>
 
 // user include files
-#include "FWCore/CoreFramework/interface/HCTypeTagTemplate.h"
-#include "FWCore/CoreFramework/interface/DataKey.h"
-#include "FWCore/CoreFramework/interface/EventSetupRecordKey.h"
+#include "FWCore/Framework/interface/HCTypeTagTemplate.h"
+#include "FWCore/Framework/interface/DataKey.h"
+#include "FWCore/Framework/interface/EventSetupRecordKey.h"
 
 // forward declarations
 namespace edm {

@@ -1,10 +1,10 @@
 /*----------------------------------------------------------------------
-$Id: InputService.cc,v 1.2 2005/06/07 21:05:56 wmtan Exp $
+$Id: InputService.cc,v 1.3 2005/06/23 19:59:48 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <cassert>
 
-#include "FWCore/CoreFramework/interface/InputService.h"
-#include "FWCore/CoreFramework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/InputService.h"
+#include "FWCore/Framework/interface/EventPrincipal.h"
 
 namespace edm
 {

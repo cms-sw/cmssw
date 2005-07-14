@@ -6,13 +6,13 @@
 Retriever: The abstract interface through which the EventPrincipal
 uses input services to retrieve EDProducts from external storage.
 
-$Id: Retriever.h,v 1.3 2005/05/03 19:27:52 wmtan Exp $
+$Id: Retriever.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include <memory>
 
-#include "FWCore/CoreFramework/interface/BranchKey.h"
+#include "FWCore/Framework/interface/BranchKey.h"
 #include "FWCore/EDProduct/interface/EDProduct.h"
 
 

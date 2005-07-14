@@ -6,15 +6,15 @@
 EventRegistry: A singleton to keep track of active events.
 Event.
 
-$Id: EventRegistry.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
+$Id: EventRegistry.h,v 1.2 2005/06/28 04:46:02 jbk Exp $
 
 ----------------------------------------------------------------------*/
 
 #include <map>
 #include <stdexcept>
 #include <sstream>
-#include "FWCore/CoreFramework/interface/CoreFrameworkfwd.h"
-#include "FWCore/FWUtilities/interface/EDMException.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 namespace edm {
   class EventRegistry {

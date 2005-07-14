@@ -2,8 +2,8 @@
 #define EDM_MAKERMACROS_H
 
 #include "PluginManager/ModuleDef.h"
-#include "FWCore/CoreFramework/src/Factory.h"
-#include "FWCore/CoreFramework/src/WorkerMaker.h"
+#include "FWCore/Framework/src/Factory.h"
+#include "FWCore/Framework/src/WorkerMaker.h"
 
 #define DEFINE_FWK_MODULE(type) \
   DEFINE_SEAL_MODULE (); \

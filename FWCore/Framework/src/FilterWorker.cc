@@ -1,15 +1,15 @@
 
 /*----------------------------------------------------------------------
-$Id: FilterWorker.cc,v 1.2 2005/07/06 18:48:18 wmtan Exp $
+$Id: FilterWorker.cc,v 1.3 2005/07/08 00:09:42 chrjones Exp $
 ----------------------------------------------------------------------*/
 #include <memory>
 
-#include "FWCore/CoreFramework/src/FilterWorker.h"
+#include "FWCore/Framework/src/FilterWorker.h"
 
-#include "FWCore/CoreFramework/interface/EventPrincipal.h"
-#include "FWCore/CoreFramework/interface/Event.h"
-#include "FWCore/CoreFramework/interface/EDFilter.h"
-#include "FWCore/CoreFramework/interface/ModuleDescription.h"
+#include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/ModuleDescription.h"
 
 
 namespace edm

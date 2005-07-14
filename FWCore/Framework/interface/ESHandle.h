@@ -2,10 +2,10 @@
 #define EVENTSETUP_ESHANDLE_H
 // -*- C++ -*-
 //
-// Package:     CoreFramework
+// Package:     Framework
 // Class  :     ESHandle
 // 
-/**\class ESHandle ESHandle.h FWCore/CoreFramework/interface/ESHandle.h
+/**\class ESHandle ESHandle.h FWCore/Framework/interface/ESHandle.h
 
  Description: <one line class summary>
 
@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Fri Apr  1 14:47:35 EST 2005
-// $Id: ESHandle.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
+// $Id: ESHandle.h,v 1.2 2005/06/23 19:59:30 wmtan Exp $
 //
 
 // system include files

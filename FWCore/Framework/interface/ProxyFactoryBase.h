@@ -2,10 +2,10 @@
 #define EVENTSETUPPRODUCER_PROXYFACTORYBASE_H
 // -*- C++ -*-
 //
-// Package:     CoreFramework
+// Package:     Framework
 // Class  :     ProxyFactoryBase
 // 
-/**\class ProxyFactoryBase ProxyFactoryBase.h Core/CoreFramework/interface/ProxyFactoryBase.h
+/**\class ProxyFactoryBase ProxyFactoryBase.h FWCore/Framework/interface/ProxyFactoryBase.h
 
  Description: <one line class summary>
 
@@ -16,14 +16,14 @@
 //
 // Author:      Chris Jones
 // Created:     Thu Apr  7 21:50:36 CDT 2005
-// $Id: ProxyFactoryBase.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
+// $Id: ProxyFactoryBase.h,v 1.2 2005/06/23 19:59:30 wmtan Exp $
 //
 
 // system include files
 #include <memory>
 
 // user include files
-#include "FWCore/CoreFramework/interface/DataKey.h"
+#include "FWCore/Framework/interface/DataKey.h"
 
 // forward declarations
 namespace edm {

@@ -2,10 +2,10 @@
 #define EVENTSETUP_EVENTSETUPGETIMPLEMENTATION_H
 // -*- C++ -*-
 //
-// Package:     CoreFramework
+// Package:     Framework
 // Class  :     eventSetupGetImplementation
 // 
-/**\class eventSetupGetImplementation eventSetupGetImplementation.h Core/CoreFramework/interface/eventSetupGetImplementation.h
+/**\class eventSetupGetImplementation eventSetupGetImplementation.h FWCore/Framework/interface/eventSetupGetImplementation.h
 
  Description: decleration of the template function that implements the EventSetup::get method
 

@@ -9,7 +9,7 @@
  */
 
 //used to set the default record
-#include "FWCore/CoreFramework/test/DummyRecord.h"
+#include "FWCore/Framework/test/DummyRecord.h"
 
 namespace edm {
    namespace eventsetup {
@@ -23,7 +23,7 @@ namespace edm {
    }
 }
 
-#include "FWCore/CoreFramework/interface/data_default_record_trait.h"
+#include "FWCore/Framework/interface/data_default_record_trait.h"
 EVENTSETUP_DATA_DEFAULT_RECORD(edm::eventsetup::test::DummyData, DummyRecord);
 
 #endif /* EVENTSETUP_TEST_DUMMYDATA_H */

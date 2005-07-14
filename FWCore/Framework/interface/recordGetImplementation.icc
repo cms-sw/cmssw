@@ -3,7 +3,7 @@
 
 // -*- C++ -*-
 //
-// Package:     CoreFramework
+// Package:     Framework
 // Class  :     recordGetImplementation
 // 
 // Implementation:
@@ -11,16 +11,16 @@
 //
 // Author:      Chris Jones
 // Created:     Fri Apr  1 15:29:14 EST 2005
-// $Id: recordGetImplementation.icc,v 1.3 2005/06/23 19:59:30 wmtan Exp $
+// $Id: recordGetImplementation.icc,v 1.4 2005/06/28 14:42:10 chrjones Exp $
 //
 
 // system include files
 
 // user include files
-#include "FWCore/CoreFramework/interface/EventSetupRecordImplementation.h"
-#include "FWCore/CoreFramework/interface/DataKey.h"
-#include "FWCore/CoreFramework/interface/DataProxyTemplate.h"
-#include "FWCore/CoreFramework/interface/NoProxyException.h"
+#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
+#include "FWCore/Framework/interface/DataKey.h"
+#include "FWCore/Framework/interface/DataProxyTemplate.h"
+#include "FWCore/Framework/interface/NoProxyException.h"
 
 namespace edm {
    namespace eventsetup {

@@ -2,10 +2,10 @@
 #define EVENTSETUP_COMPONENTMAKER_H
 // -*- C++ -*-
 //
-// Package:     CoreFramework
+// Package:     Framework
 // Class  :     ComponentMaker
 // 
-/**\class ComponentMaker ComponentMaker.h Core/CoreFramework/interface/ComponentMaker.h
+/**\class ComponentMaker ComponentMaker.h FWCore/Framework/interface/ComponentMaker.h
 
  Description: <one line class summary>
 
@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 16:56:05 EDT 2005
-// $Id: ComponentMaker.h,v 1.2 2005/06/14 21:49:44 wmtan Exp $
+// $Id: ComponentMaker.h,v 1.3 2005/06/23 19:59:30 wmtan Exp $
 //
 
 // system include files

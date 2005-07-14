@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Package:     CoreFramework
+// Package:     Framework
 // Module:      EventSetup
 // 
 // Description: <one line class summary>
@@ -15,7 +15,7 @@
 // system include files
 
 // user include files
-#include "FWCore/CoreFramework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
 namespace edm {
 //

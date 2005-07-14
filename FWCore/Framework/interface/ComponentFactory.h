@@ -2,10 +2,10 @@
 #define EVENTSETUP_COMPONENTFACTORY_H
 // -*- C++ -*-
 //
-// Package:     CoreFramework
+// Package:     Framework
 // Class  :     ComponentFactory
 // 
-/**\class ComponentFactory ComponentFactory.h Core/CoreFramework/interface/ComponentFactory.h
+/**\class ComponentFactory ComponentFactory.h FWCore/Framework/interface/ComponentFactory.h
 
  Description: Factory for building the Factories for the various 'plug-in' components needed for the EventSetup
 
@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 15:21:05 EDT 2005
-// $Id: ComponentFactory.h,v 1.4 2005/06/18 02:18:10 wmtan Exp $
+// $Id: ComponentFactory.h,v 1.5 2005/06/23 19:59:30 wmtan Exp $
 //
 
 // system include files
@@ -27,7 +27,7 @@
 // user include files
 #include "PluginManager/PluginFactory.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/CoreFramework/interface/ComponentMaker.h"
+#include "FWCore/Framework/interface/ComponentMaker.h"
 
 // forward declarations
 namespace edm {

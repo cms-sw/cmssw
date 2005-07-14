@@ -1,15 +1,15 @@
 /*----------------------------------------------------------------------
-$Id: Event.cc,v 1.6 2005/07/08 19:24:56 wmtan Exp $
+$Id: Event.cc,v 1.7 2005/07/11 21:55:14 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
 #include <vector>
 #include <algorithm>
 
-#include "FWCore/CoreFramework/interface/Event.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/EDProduct/interface/EDP_ID.h"
-#include "FWCore/CoreFramework/interface/EventPrincipal.h"
-#include "FWCore/CoreFramework/src/Group.h"
+#include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/src/Group.h"
 
 using namespace std;
 

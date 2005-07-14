@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Package:     CoreFramework
+// Package:     Framework
 // Class  :     EventSetupRecordProviderFactory
 // 
 // Implementation:
@@ -13,7 +13,7 @@
 // system include files
 
 // user include files
-#include "FWCore/CoreFramework/interface/EventSetupRecordProviderFactory.h"
+#include "FWCore/Framework/interface/EventSetupRecordProviderFactory.h"
 
 namespace edm {
    namespace eventsetup {

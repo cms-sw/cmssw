@@ -6,10 +6,10 @@
 InputServiceDescription : the stuff that is needed to configure an
 input service that does not come in through the ParameterSet  
 
-$Id: InputServiceDescription.h,v 1.1 2005/05/25 21:44:06 jbk Exp $
+$Id: InputServiceDescription.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <string>
-#include "FWCore/CoreFramework/interface/PassID.h"
+#include "FWCore/Framework/interface/PassID.h"
 
 namespace edm
 {

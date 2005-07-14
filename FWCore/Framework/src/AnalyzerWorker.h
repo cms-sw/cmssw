@@ -9,7 +9,7 @@ feed them into the event.
 According to our current definition, a single producer can only
 appear in one worker.
 
-$Id: AnalyzerWorker.h,v 1.3 2005/07/06 18:48:18 wmtan Exp $
+$Id: AnalyzerWorker.h,v 1.4 2005/07/08 00:09:42 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -17,9 +17,9 @@ $Id: AnalyzerWorker.h,v 1.3 2005/07/06 18:48:18 wmtan Exp $
 
 #include "boost/shared_ptr.hpp"
 
-#include "FWCore/CoreFramework/interface/CoreFrameworkfwd.h"
-#include "FWCore/CoreFramework/src/Worker.h"
-#include "FWCore/CoreFramework/interface/ModuleDescription.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/src/Worker.h"
+#include "FWCore/Framework/interface/ModuleDescription.h"
 
 namespace edm
 {

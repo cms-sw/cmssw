@@ -1,8 +1,8 @@
 #ifndef WORKERMAKER_H
 #define WORKERMAKER_H
 
-#include "FWCore/CoreFramework/src/Worker.h"
-#include "FWCore/CoreFramework/interface/ModuleDescription.h"
+#include "FWCore/Framework/src/Worker.h"
+#include "FWCore/Framework/interface/ModuleDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // The following includes are temporary until a better
@@ -12,10 +12,10 @@
 // implementation file (one every for each XXXWorker) and
 // then include all the relevent worker headers in the 
 // implementation file only.
-#include "FWCore/CoreFramework/src/ProducerWorker.h"
-#include "FWCore/CoreFramework/src/FilterWorker.h"
-#include "FWCore/CoreFramework/src/AnalyzerWorker.h"
-#include "FWCore/CoreFramework/src/OutputWorker.h"
+#include "FWCore/Framework/src/ProducerWorker.h"
+#include "FWCore/Framework/src/FilterWorker.h"
+#include "FWCore/Framework/src/AnalyzerWorker.h"
+#include "FWCore/Framework/src/OutputWorker.h"
 
 #include <memory>
 #include <string>

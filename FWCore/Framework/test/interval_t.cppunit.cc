@@ -8,8 +8,8 @@
  *
  */
 
-#include "FWCore/CoreFramework/interface/Timestamp.h"
-#include "FWCore/CoreFramework/interface/ValidityInterval.h"
+#include "FWCore/Framework/interface/Timestamp.h"
+#include "FWCore/Framework/interface/ValidityInterval.h"
 #include <cppunit/extensions/HelperMacros.h>
 
 using edm::Timestamp;

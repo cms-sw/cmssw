@@ -2,10 +2,10 @@
 #define EVENTSETUP_CALLBACK_H
 // -*- C++ -*-
 //
-// Package:     CoreFramework
+// Package:     Framework
 // Class  :     Callback
 // 
-/**\class Callback Callback.h Core/CoreFramework/interface/Callback.h
+/**\class Callback Callback.h FWCore/Framework/interface/Callback.h
 
  Description: Functional object used as the 'callback' for the CallbackProxy
 
@@ -16,13 +16,13 @@
 //
 // Author:      Chris Jones
 // Created:     Sun Apr 17 14:30:24 EDT 2005
-// $Id: Callback.h,v 1.2 2005/06/21 21:19:10 chrjones Exp $
+// $Id: Callback.h,v 1.3 2005/06/23 19:59:30 wmtan Exp $
 //
 
 // system include files
 #include <vector>
 // user include files
-#include "FWCore/CoreFramework/interface/produce_helpers.h"
+#include "FWCore/Framework/interface/produce_helpers.h"
 
 // forward declarations
 namespace edm {

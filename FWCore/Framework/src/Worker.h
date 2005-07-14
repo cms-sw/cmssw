@@ -6,11 +6,11 @@
 Worker: this is a basic scheduling unit - an abstract base class to
 something that is really a producer or filter.
 
-$Id: Worker.h,v 1.1 2005/05/29 02:29:54 wmtan Exp $
+$Id: Worker.h,v 1.2 2005/07/08 00:09:42 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 
-#include "FWCore/CoreFramework/interface/CoreFrameworkfwd.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 
 namespace edm {
 

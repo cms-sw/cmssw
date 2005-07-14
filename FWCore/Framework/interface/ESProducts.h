@@ -2,10 +2,10 @@
 #define EVENTSETUPPRODUCER_ESPRODUCTS_H
 // -*- C++ -*-
 //
-// Package:     CoreFramework
+// Package:     Framework
 // Class  :     ESProducts
 // 
-/**\class ESProducts ESProducts.h Core/CoreFramework/interface/ESProducts.h
+/**\class ESProducts ESProducts.h FWCore/Framework/interface/ESProducts.h
 
  Description: <one line class summary>
 
@@ -16,13 +16,13 @@
 //
 // Author:      Chris Jones
 // Created:     Sun Apr 17 17:30:46 EDT 2005
-// $Id: ESProducts.h,v 1.2 2005/06/23 19:59:30 wmtan Exp $
+// $Id: ESProducts.h,v 1.3 2005/06/23 22:01:31 wmtan Exp $
 //
 
 // system include files
 
 // user include files
-#include "FWCore/CoreFramework/interface/produce_helpers.h"
+#include "FWCore/Framework/interface/produce_helpers.h"
 
 // forward declarations
 namespace edm {

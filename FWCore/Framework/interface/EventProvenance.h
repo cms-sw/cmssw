@@ -5,11 +5,11 @@
   
 EventProvenance: The Provenance of all the products in an event.
 
-$Id: EventProvenance.h,v 1.1 2005/04/04 23:26:21 wmtan Exp $
+$Id: EventProvenance.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <vector>
 
-#include "FWCore/CoreFramework/interface/Provenance.h"
+#include "FWCore/Framework/interface/Provenance.h"
 namespace edm {
 
   struct EventProvenance {

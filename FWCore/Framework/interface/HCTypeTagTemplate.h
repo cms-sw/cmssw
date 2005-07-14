@@ -20,11 +20,14 @@
 //     
 // Author:      Chris D. Jones
 // Created:     Sun Sep 20 15:31:56 EDT 1998
-// $Id: HCTypeTagTemplate.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
+// $Id: HCTypeTagTemplate.h,v 1.2 2005/06/23 19:59:30 wmtan Exp $
 //
 // Revision history
 //
 // $Log: HCTypeTagTemplate.h,v $
+// Revision 1.2  2005/06/23 19:59:30  wmtan
+// fix rules violations found by rulechecker
+//
 // Revision 1.1  2005/05/29 02:29:53  wmtan
 // initial population
 //
@@ -59,7 +62,7 @@
 // system include files
 
 // user include files
-#include "FWCore/CoreFramework/interface/HCTypeTag.h"
+#include "FWCore/Framework/interface/HCTypeTag.h"
 
 // forward declarations
 namespace edm {

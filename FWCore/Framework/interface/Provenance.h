@@ -6,15 +6,15 @@
 Provenance: The full description of a product and how it came into
 existence.
 
-$Id: Provenance.h,v 1.6 2005/07/06 18:47:05 wmtan Exp $
+$Id: Provenance.h,v 1.7 2005/07/06 20:26:01 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <ostream>
 #include <string>
 #include <vector>
 
-#include "FWCore/CoreFramework/interface/ConditionsID.h"
+#include "FWCore/Framework/interface/ConditionsID.h"
 #include "FWCore/EDProduct/interface/EDP_ID.h"
-#include "FWCore/CoreFramework/interface/ModuleDescription.h"
+#include "FWCore/Framework/interface/ModuleDescription.h"
 
 /*
   Provenance

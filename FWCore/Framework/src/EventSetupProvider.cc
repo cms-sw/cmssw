@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Package:     CoreFramework
+// Package:     Framework
 // Module:      EventSetupProvider
 // 
 // Description: <one line class summary>
@@ -16,11 +16,11 @@
 #include <set>
 
 // user include files
-#include "FWCore/CoreFramework/interface/EventSetupProvider.h"
-#include "FWCore/CoreFramework/interface/EventSetupRecordProvider.h"
-#include "FWCore/CoreFramework/interface/EventSetupRecordProviderFactoryManager.h"
-#include "FWCore/CoreFramework/interface/DataProxyProvider.h"
-#include "FWCore/CoreFramework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupProvider.h"
+#include "FWCore/Framework/interface/EventSetupRecordProvider.h"
+#include "FWCore/Framework/interface/EventSetupRecordProviderFactoryManager.h"
+#include "FWCore/Framework/interface/DataProxyProvider.h"
+#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 
 namespace edm {
    namespace eventsetup {

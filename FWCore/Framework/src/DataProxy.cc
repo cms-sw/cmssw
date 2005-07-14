@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Package:     CoreFramework
+// Package:     Framework
 // Class  :     DataProxy
 // 
 // Implementation:
@@ -8,13 +8,13 @@
 //
 // Author:      Chris Jones
 // Created:     Thu Mar 31 12:49:19 EST 2005
-// $Id: DataProxy.cc,v 1.1 2005/05/29 02:29:53 wmtan Exp $
+// $Id: DataProxy.cc,v 1.2 2005/06/23 19:59:48 wmtan Exp $
 //
 
 // system include files
 
 // user include files
-#include "FWCore/CoreFramework/interface/DataProxy.h"
+#include "FWCore/Framework/interface/DataProxy.h"
 
 
 //

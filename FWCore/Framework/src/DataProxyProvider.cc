@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Package:     CoreFramework
+// Package:     Framework
 // Class  :     DataProxyProvider
 // 
 // Implementation:
@@ -16,8 +16,8 @@
 #include <cassert>
 
 // user include files
-#include "FWCore/CoreFramework/interface/DataProxyProvider.h"
-#include "FWCore/CoreFramework/interface/DataProxy.h"
+#include "FWCore/Framework/interface/DataProxyProvider.h"
+#include "FWCore/Framework/interface/DataProxy.h"
 
 namespace edm {
    namespace eventsetup {

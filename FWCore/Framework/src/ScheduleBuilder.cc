@@ -3,15 +3,15 @@
    Implementation of class ScheduleBuilder
 
    \author Stefano ARGIRO
-   \version $Id: ScheduleBuilder.cc,v 1.8 2005/06/24 14:55:07 argiro Exp $
+   \version $Id: ScheduleBuilder.cc,v 1.9 2005/06/26 02:22:39 wmtan Exp $
    \date 18 May 2005
 */
 
-static const char CVSId[] = "$Id: ScheduleBuilder.cc,v 1.8 2005/06/24 14:55:07 argiro Exp $";
+static const char CVSId[] = "$Id: ScheduleBuilder.cc,v 1.9 2005/06/26 02:22:39 wmtan Exp $";
 
 
-#include "FWCore/CoreFramework/interface/ScheduleBuilder.h"
-#include "FWCore/CoreFramework/src/WorkerRegistry.h"
+#include "FWCore/Framework/interface/ScheduleBuilder.h"
+#include "FWCore/Framework/src/WorkerRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "PluginManager/PluginManager.h"
 

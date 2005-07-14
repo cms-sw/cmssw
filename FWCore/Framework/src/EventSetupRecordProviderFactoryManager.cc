@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Package:     CoreFramework
+// Package:     Framework
 // Class  :     EventSetupRecordProviderFactoryManager
 // 
 // Implementation:
@@ -13,8 +13,8 @@
 // system include files
 
 // user include files
-#include "FWCore/CoreFramework/interface/EventSetupRecordProviderFactoryManager.h"
-#include "FWCore/CoreFramework/interface/EventSetupRecordProviderFactory.h"
+#include "FWCore/Framework/interface/EventSetupRecordProviderFactoryManager.h"
+#include "FWCore/Framework/interface/EventSetupRecordProviderFactory.h"
 
 
 //

@@ -1,10 +1,10 @@
 /*----------------------------------------------------------------------
   
-$Id: EDAnalyzer.cc,v 1.1 2005/05/29 02:29:53 wmtan Exp $
+$Id: EDAnalyzer.cc,v 1.2 2005/07/08 00:09:42 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 
-#include "FWCore/CoreFramework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 
 namespace edm
 {
