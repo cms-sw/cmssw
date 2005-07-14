@@ -1,16 +1,16 @@
 /*----------------------------------------------------------------------
-$Id: EmptyInputService.cc,v 1.5 2005/06/18 02:18:10 wmtan Exp $
+$Id: EmptyInputService.cc,v 1.6 2005/06/23 20:01:20 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <stdexcept>
 #include <memory>
 #include <string>
 
-#include "FWCore/FWCoreServices/src/EmptyInputService.h"
+#include "FWCore/Services/src/EmptyInputService.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/CoreFramework/interface/InputServiceDescription.h"
-#include "FWCore/CoreFramework/interface/InputService.h"
-#include "FWCore/CoreFramework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/InputServiceDescription.h"
+#include "FWCore/Framework/interface/InputService.h"
+#include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/EDProduct/interface/CollisionID.h"
 
 namespace edm {

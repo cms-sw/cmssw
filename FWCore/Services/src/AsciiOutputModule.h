@@ -1,11 +1,11 @@
 /*----------------------------------------------------------------------
-$Id: AsciiOutputModule.h,v 1.4 2005/06/24 23:32:13 wmtan Exp $
+$Id: AsciiOutputModule.h,v 1.5 2005/07/01 00:01:30 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <iostream>
 
-#include "FWCore/CoreFramework/interface/CoreFrameworkfwd.h"
-#include "FWCore/CoreFramework/interface/OutputModule.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/OutputModule.h"
 
 namespace edm {
   class ParameterSet;

@@ -1,11 +1,11 @@
 #include "PluginManager/ModuleDef.h"
-#include "FWCore/CoreFramework/interface/InputServiceMacros.h"
-#include "FWCore/CoreFramework/interface/MakerMacros.h"
-#include "FWCore/FWCoreServices/src/EmptyInputService.h"
-#include "FWCore/FWCoreServices/src/AsciiOutputModule.h"
-#include "FWCore/FWCoreServices/src/EmptyESSource.h"
-#include "FWCore/CoreFramework/interface/SourceFactory.h"
-#include "FWCore/FWCoreServices/src/EventSetupRecordDataGetter.h"
+#include "FWCore/Framework/interface/InputServiceMacros.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Services/src/EmptyInputService.h"
+#include "FWCore/Services/src/AsciiOutputModule.h"
+#include "FWCore/Services/src/EmptyESSource.h"
+#include "FWCore/Framework/interface/SourceFactory.h"
+#include "FWCore/Services/src/EventSetupRecordDataGetter.h"
 
 using edm::EmptyInputService;
 using edm::AsciiOutputModule;

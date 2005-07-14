@@ -1,12 +1,12 @@
 /*----------------------------------------------------------------------
-$Id: EmptyInputService.h,v 1.1 2005/05/29 02:29:54 wmtan Exp $
+$Id: EmptyInputService.h,v 1.2 2005/06/07 23:47:36 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
 
-#include "FWCore/CoreFramework/interface/CoreFrameworkfwd.h"
-#include "FWCore/CoreFramework/interface/Retriever.h"
-#include "FWCore/CoreFramework/interface/InputService.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/Retriever.h"
+#include "FWCore/Framework/interface/InputService.h"
 #include "FWCore/EDProduct/interface/CollisionID.h"
 
 namespace edm {
