@@ -26,7 +26,8 @@ public:
     typedef std::map<unsigned int,unsigned int> G4ToSimMapType;
     typedef std::vector<unsigned int> SimToG4VectorType;
 public:
-    EventAction(const edm::ParameterSet & ps);
+    //EventAction(const edm::ParameterSet & ps);
+    EventAction();
     ~EventAction();
     void BeginOfEventAction(const G4Event * evt);
     void EndOfEventAction(const G4Event * evt);

@@ -11,7 +11,8 @@ class TrackWithHistory;
 class TrackingAction : public G4UserTrackingAction
 {
 public:
-    explicit TrackingAction(EventAction * ea, const edm::ParameterSet & ps);
+    // TrackingAction(EventAction * ea, const edm::ParameterSet & ps);
+    TrackingAction(EventAction * ea);
     virtual ~TrackingAction();
     virtual void PreUserTrackingAction(const G4Track * aTrack);
     virtual void PostUserTrackingAction(const G4Track * aTrack);

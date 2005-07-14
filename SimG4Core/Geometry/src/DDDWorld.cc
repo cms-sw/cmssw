@@ -10,12 +10,12 @@
  
 using namespace edm;
 
-DDDWorld::DDDWorld(const edm::ParameterSet & ps) 
+DDDWorld::DDDWorld(std::string & GeomConfiguration) 
 {
     EventSetupProvider provider;
   
     boost::shared_ptr<DDCompactViewXMLRetriever> 
-	pRetriever(new DDCompactViewXMLRetriever(ps));
+	pRetriever(new DDCompactViewXMLRetriever(GeomConfiguration));
     boost::shared_ptr<DataProxyProvider> pProxyProv(pRetriever);
     provider.add(pProxyProv);
   
@@ -37,5 +37,6 @@ void DDDWorld::SetAsWorld(G4VPhysicalVolume * pv)
 {
     G4RunManagerKernel * kernel = G4RunManagerKernel::GetRunManagerKernel();
     if (kernel != 0) kernel->DefineWorldVolume(pv);
+    std::cout << " World volume defined " << std::endl;
 }
 

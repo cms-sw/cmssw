@@ -24,7 +24,8 @@ class Generator
 public:
     typedef std::map<HepMC::GenParticle *,HepMCParticle *> ParticleMapType;
     typedef ParticleMapType::const_iterator PMT;     
-    Generator(const edm::ParameterSet & ps);
+    // Generator(const edm::ParameterSet & ps);
+    Generator();
     virtual ~Generator();
     const HepMC::GenEvent * generateEvent();
     void HepMC2G4(const HepMC::GenEvent * g,G4Event * e);

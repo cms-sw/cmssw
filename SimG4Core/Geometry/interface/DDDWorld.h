@@ -9,7 +9,7 @@ class G4VPhysicalVolume;
 class DDDWorld
 {
 public:
-    DDDWorld(const edm::ParameterSet & ps);
+    DDDWorld(std::string & GeomConf);
     ~DDDWorld();
     void SetAsWorld(G4VPhysicalVolume * pv);
 private:

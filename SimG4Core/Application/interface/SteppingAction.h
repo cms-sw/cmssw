@@ -8,7 +8,8 @@
 class SteppingAction: public G4UserSteppingAction
 {
 public:
-    SteppingAction(const edm::ParameterSet & ps);
+    //SteppingAction(const edm::ParameterSet & ps);
+    SteppingAction();
     ~SteppingAction();
     void UserSteppingAction(const G4Step * aStep);
 private:

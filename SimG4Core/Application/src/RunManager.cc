@@ -1,6 +1,3 @@
-#include "SimDataFormats/Track/interface/EmbdSimTrackContainer.h"
-#include "SimDataFormats/Vertex/interface/EmbdSimVertexContainer.h"
-
 #include "SimG4Core/Application/interface/RunManager.h"
 #include "SimG4Core/Application/interface/PrimaryTransformer.h"
 #include "SimG4Core/Application/interface/RunAction.h"
@@ -12,7 +9,8 @@
 
 #include "SimG4Core/Geometry/interface/DDDWorld.h"
 #include "SimG4Core/Generators/interface/Generator.h"
-#include "SimG4Core/Physics/interface/PhysicsManager.h"
+#include "SimG4Core/DummyPhysics/interface/DummyPhysics.h"
+#include "SimG4Core/Notification/interface/DispatcherObserver.h"
 
 #include "G4StateManager.hh"
 #include "G4ApplicationState.hh"
@@ -26,15 +24,12 @@
 #include <iostream>
 #include <memory>
 
-using std::cout;
-using std::endl;
-using std::auto_ptr;
-
 RunManager * RunManager::me = 0;
 RunManager * RunManager::init(edm::ParameterSet const & p)
 {
     if (me != 0) abort();
     me = new RunManager(p);
+    return me;
 }
 
 RunManager * RunManager::instance() 
@@ -44,16 +39,24 @@ RunManager * RunManager::instance()
 }
 
 RunManager::RunManager(edm::ParameterSet const & p) 
-    : m_paramSet(p), m_generator(0), m_primaryTransformer(0), 
-      m_managerInitialized(false), 
+    : m_generator(0), m_primaryTransformer(0), m_managerInitialized(false), 
       m_geometryInitialized(true), m_physicsInitialized(true),
       m_runInitialized(false), m_runTerminated(false), m_runAborted(false),
-      m_currentRun(0), m_currentEvent(0), m_simEvent(0), m_userRunAction(0)
+      m_currentRun(0), m_currentEvent(0), m_simEvent(0), 
+      m_EvtMgrVerbosity(p.getParameter<int>("G4EventManagerVerbosity")),
+      m_Override(p.getParameter<bool>("OverrideUserStackingAction")),
+      m_RunNumber(p.getParameter<int>("RunNumber")),
+      m_GeomFile(p.getParameter<std::string>("GeometryConfiguration")),
+      m_pGenerator(p.getParameter<edm::ParameterSet>("Generator")),
+      m_pRunAction(p.getParameter<edm::ParameterSet>("RunAction")),      
+      m_pEventAction(p.getParameter<edm::ParameterSet>("EventAction")),
+      m_pTrackingAction(p.getParameter<edm::ParameterSet>("TrackingAction")),
+      m_pSteppingAction(p.getParameter<edm::ParameterSet>("SteppingAction"))
 {    
-    m_context = new seal::Context;
+    //m_context = new seal::Context;
     m_kernel = G4RunManagerKernel::GetRunManagerKernel();
     if (m_kernel==0) m_kernel = new G4RunManagerKernel();
-    cout << " Run Manager c-ted " << endl;
+    std::cout << " Run Manager constructed " << std::endl;
 }
 
 RunManager::~RunManager() 
@@ -61,40 +64,15 @@ RunManager::~RunManager()
     if (m_kernel!=0) delete m_kernel; 
 }
 
-void RunManager::maybeInitializeManager(const edm::EventSetup & es)
+void RunManager::initG4(const edm::EventSetup & es)
 {
-    // If already initialized, skip
     if (m_managerInitialized) return;
- 
-    edm::ParameterSet geometrySet
-          = m_paramSet.getParameter<edm::ParameterSet> ("Geometry");
-    DDDWorld * world = new DDDWorld(geometrySet);
-    // Create geometry manager which takes care of instantiating
-    // the geometry, attaching sensitive detectors and all that
-    // GeometryManager * geometryManager = new GeometryManager(m_context.get(),geometrySet);
- 
-    // Create generator
-    edm::ParameterSet generatorSet
-          = m_paramSet.getParameter<edm::ParameterSet> ("Generator");
-    Generator * m_generator = new Generator(generatorSet);
-    
-//     seal::Handle<Generator> generator = GeneratorFactory::get()->create
-//         (generatorSet.getParameter<std::string> ("type"), m_context, generatorSet);
-
-    // Create physics manager which handles physics list, cuts
-    edm::ParameterSet physicsSet
-          = m_paramSet.getParameter<edm::ParameterSet> ("Physics");
-    PhysicsManager * physicsManager = new PhysicsManager(m_context.get(),physicsSet);
-
-    // Create primary transformer
-//     edm::ParameterSet & transformerSet
-//           = m_paramSet.getParameter<edm::ParameterSet> ("PrimaryTransformer");
-//     seal::Handle<PrimaryTransformer> transform = PrimaryTransformerFactory::get->create
-//          (transformSet.getParameter<std::string> ("type"), context, transformSet);
-
-    // Dispatch geometry
-//     geometryManager->finish();
-     
+    DDDWorld * world = new DDDWorld(m_GeomFile);
+    m_generator = new Generator();
+    m_primaryTransformer = new PrimaryTransformer();
+    m_physics = new DummyPhysics();
+    m_kernel->SetPhysics(m_physics);
+    m_kernel->InitializePhysics();
     if (m_kernel->RunInitialization()) m_managerInitialized = true;
     initializeUserActions();
     initializeRun();
@@ -102,50 +80,38 @@ void RunManager::maybeInitializeManager(const edm::EventSetup & es)
 
 void RunManager::produce(const edm::EventSetup & es)
 {
-    std::cout << " inside RunManager produce " << std::endl;
+    static int i = 0;
+    m_currentEvent = generateEvent(i);
+    i++;
     
-    maybeInitializeManager(es);
+    m_simEvent = new G4SimEvent;
+    m_simEvent->hepEvent(m_generator->genEvent());
+    m_simEvent->weight(m_generator->eventWeight());
+    m_simEvent->collisionPoint(HepLorentzVector(m_generator->genVertex().vect()/centimeter,
+                                                m_generator->genVertex().t()/second));
  
-//     static int i = 0;
-//     m_currentEvent = generateEvent(i);
-//     i++;
+    if (m_currentEvent->GetNumberOfPrimaryVertex()==0)
+    {
+       std::cout << " RunManager::produce event " << i
+            << " with no G4PrimaryVertices " << std::endl;
+       std::cout << " Aborting run " << std::endl;
+       abortRun(false);
+    }
+    else
+        m_kernel->GetEventManager()->ProcessOneEvent(m_currentEvent);
+                                                                                                                      
+    std::cout << " saved : Event  " << i << " of weight " << m_simEvent->weight()
+         << " with " << m_simEvent->nTracks() << " tracks and " << m_simEvent->nVertices()
+         << " vertices, generated by " << m_simEvent->nGenParts() << " particles " << std::endl;
 
-//     m_simEvent = new G4SimEvent;
-//     m_simEvent->hepEvent(m_generator->genEvent());
-//     m_simEvent->weight(m_generator->eventWeight());
-//     m_simEvent->collisionPoint(HepLorentzVector(m_generator->genVertex().vect()/centimeter,
-//                                                 m_generator->genVertex().t()/second));
-
-//     if (m_currentEvent->GetNumberOfPrimaryVertex()==0)
-//     {
-//        cout << " RunManager::produce event " << i
-//             << " with no G4PrimaryVertices " << endl;
-//        cout << " Aborting run " << endl;
-//        abortRun(false);
-//     }
-//     else
-//         m_kernel->GetEventManager()->ProcessOneEvent(m_currentEvent);
-     
-//     cout << " saved : Event  " << i << " of weight " << m_simEvent->weight()
-//          << " with " << m_simEvent->nTracks() << " tracks and " << m_simEvent->nVertices()
-//          << " vertices, generated by " << m_simEvent->nGenParts() << " particles " << endl;
-     
-//     auto_ptr<edm::EmbdSimTrackContainer> p1(new edm::EmbdSimTrackContainer);
-//     m_simEvent->load(*p1);
-//     e.put(p1);
-//     auto_ptr<edm::EmbdSimVertexContainer> p2(new edm::EmbdSimVertexContainer);
-//     m_simEvent->load(*p2);
-//     e.put(p2);
-
-//     if (m_currentEvent!=0) delete m_currentEvent;
-//     m_currentEvent = 0;
-//     if (m_simEvent!=0) delete m_simEvent;
-//     m_simEvent = 0;
 }
  
-
 G4Event * RunManager::generateEvent(int i)
 {                       
+    if (m_currentEvent!=0) delete m_currentEvent;
+    m_currentEvent = 0;
+    if (m_simEvent!=0) delete m_simEvent;
+    m_simEvent = 0;
     G4Event * e = new G4Event(i);
     const HepMC::GenEvent * g = m_generator->generateEvent();
     m_generator->HepMC2G4(g,e);
@@ -160,33 +126,31 @@ void RunManager::abortEvent()
 
 void RunManager::initializeUserActions()
 {
-    m_userRunAction = new RunAction(m_paramSet.getParameter<edm::ParameterSet>("RunAction"));
+    m_userRunAction = new RunAction(m_pRunAction);
     G4EventManager * eventManager = m_kernel->GetEventManager();
-    eventManager->SetVerboseLevel(m_paramSet.getParameter<int>("G4EventManagerVerbosity"));
+    eventManager->SetVerboseLevel(m_EvtMgrVerbosity);
     if (m_generator!=0)
     {
-        EventAction * userEventAction =
-            new EventAction(m_paramSet.getParameter<edm::ParameterSet>("EventAction"));
+        EventAction * userEventAction = new EventAction();
         eventManager->SetUserAction(userEventAction);
-        eventManager->SetUserAction(new TrackingAction(userEventAction,
-		 m_paramSet.getParameter<edm::ParameterSet>("TrackingAction")));
-        eventManager->SetUserAction(new SteppingAction
-	         (m_paramSet.getParameter<edm::ParameterSet>("SteppingAction")));
-        if (m_paramSet.getParameter<bool>("OverrideUserStackingAction"))
+        eventManager->SetUserAction(new TrackingAction(userEventAction));
+        eventManager->SetUserAction(new SteppingAction());
+        if (m_Override)
         {
-            cout << " RunManager: user defined StackingAction overridden " << endl;
+            std::cout << " RunManager: user StackingAction overridden " 
+		      << std::endl;
             eventManager->SetUserAction(new StackingAction);
-            cout << " RunManager:SimG4Application StackingAction registered " << endl;
         }
     }
-    else cout << " WARNING: No event generator; initialized only RunAction!" << endl;
+    else std::cout << " WARNING: No generator; initialized only RunAction!" 
+		   << std::endl;
 }
 
 void RunManager::initializeRun()
 {
     m_runInitialized = false;
     if (m_currentRun==0) m_currentRun = new G4Run();
-    m_currentRun->SetRunID(m_paramSet.getParameter<int>("RunNumber"));
+    m_currentRun->SetRunID(m_RunNumber);
     G4StateManager::GetStateManager()->SetNewState(G4State_GeomClosed);
     if (m_userRunAction!=0) m_userRunAction->BeginOfRunAction(m_currentRun);
     m_runAborted = false;

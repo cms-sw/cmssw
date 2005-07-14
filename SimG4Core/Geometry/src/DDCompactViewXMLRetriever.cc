@@ -11,15 +11,15 @@
 
 using namespace edm::eventsetup;
 
-DDCompactViewXMLRetriever::DDCompactViewXMLRetriever(const edm::ParameterSet & p) 
+DDCompactViewXMLRetriever::DDCompactViewXMLRetriever(std::string & configfile) 
 {
-    std::string configfile = p.getParameter<std::string>("SimConfiguration");
-    AlgoInit();
     DDLParser * parser = DDLParser::instance();
+    AlgoInit();
     DDLConfiguration cf;
-    cf.readConfig(configfile);
-    int result = parser->parse(cf);
-    if (result != 0) 
+    int result1 = cf.readConfig(configfile);
+    int result2 = parser->parse(cf);
+    std::cout << " and parsed " << std::endl;    
+    if (result2 != 0) 
       throw DDException("DDD-Parser: parsing failed!");
     setWhatProduced(this);
     findingRecord<PerfectGeometryRecord>();

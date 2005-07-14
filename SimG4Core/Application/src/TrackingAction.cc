@@ -11,9 +11,13 @@
  
 #include "G4TrackingManager.hh"
 
-TrackingAction::TrackingAction(EventAction * e, const edm::ParameterSet & p) 
+// TrackingAction::TrackingAction(EventAction * e, const edm::ParameterSet & p) 
+// : eventAction_(e),currentTrack_(0),
+//   detailedTiming(p.getParameter<bool>("DetailedTiming")) {}
+
+TrackingAction::TrackingAction(EventAction * e) 
 : eventAction_(e),currentTrack_(0),
-  detailedTiming(p.getParameter<bool>("DetailedTiming")) {}
+  detailedTiming(false) {}
 
 TrackingAction::~TrackingAction() {}
 

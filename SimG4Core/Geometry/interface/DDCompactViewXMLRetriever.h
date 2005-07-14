@@ -14,7 +14,7 @@ class DDCompactViewXMLRetriever : public edm::eventsetup::ESProducer,
                                   public edm::eventsetup::EventSetupRecordIntervalFinder
 {
 public:
-    DDCompactViewXMLRetriever(const edm::ParameterSet & ps);
+    DDCompactViewXMLRetriever(std::string & GeomConfig);
     virtual ~DDCompactViewXMLRetriever(); 
     const DDCompactView * produce(const PerfectGeometryRecord &);
 protected:
