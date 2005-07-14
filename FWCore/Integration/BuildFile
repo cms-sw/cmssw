@@ -1,8 +1,8 @@
 <use name=boost>
-<use name=FWCore/CoreFramework>
+<use name=FWCore/Framework>
 <export>
- <lib name=FWCoreFWCoreIntegration>
+ <lib name=FWCoreIntegration>
  <use name=boost>
- <use name=FWCore/CoreFramework>
+ <use name=FWCore/Framework>
 </export>
 
