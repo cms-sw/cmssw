@@ -5,8 +5,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
 #include "FWCore/ParameterSet/interface/Entry.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 #include "boost/shared_ptr.hpp"
+
 #include <string>
 #include <vector>
 #include <map>
@@ -28,11 +30,17 @@ namespace {
   void checkOnePath(const WNodes& n)
   {
     if(n.empty())
-      throw runtime_error("No Path information given");
+      throw edm::Exception(errors::Configuration,"PathError")
+	<< "ParemeterSet: problem processing path.\n"
+	<< "No Path information given in checkOnePath";
     if(n.size()>1)
-      throw runtime_error("Only one Path expression allowed at this time");
+      throw edm::Exception(errors::Configuration,"PathError")
+	<< "ParemeterSet: problem processing path.\n"
+	<< "Only one Path expression allowed at this time";
     if(n[0]->type() != "path")
-      throw runtime_error("Only Path expressions are allowed at this time");
+      throw edm::Exception(errors::Configuration,"PathError")
+	<< "ParemeterSet: problem processing path.\n"
+	<< "Only Path expressions are allowed at this time";
   }
 
   void getNames(const Node* n, Strs& out)
@@ -43,7 +51,9 @@ namespace {
       }
     else if(n->type()=="&")
       {
-	throw logic_error("Only comma operators in Path expressions are allowed at this time");
+	throw edm::Exception(errors::LogicError,"PathError")
+	  << "Only comma operators in Path expressions are allowed "
+	  << "at this time";
       }
     else
       {
@@ -106,8 +116,9 @@ namespace {
     boost::shared_ptr<edm::pset::NodePtrList> nodelist = 
       edm::pset::parse(config.c_str());
     if(0 == nodelist.get()) {
-       throw runtime_error("Unable to parse configuration file."
-                           "  Please check the error message reported earlier.");
+      throw edm::Exception(errors::Configuration,"MakeProcessError")
+	<< "Unable to parse configuration file.\n"
+	<< "Please check the error message reported earlier.";
     }
     boost::shared_ptr<ProcessDesc> tmp =
       edm::pset::makeProcess(nodelist);

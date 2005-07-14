@@ -1,0 +1,14 @@
+
+14-07-05 jbk
+Changed the exceptions from std::runtime_error to edm::Exception.
+It is still unclear what the best route is for identifying
+exceptions from this package.  Currently nearly all types
+are edm::Exception with category "Configuration".  The constructor
+message string includes "Invalid" or a string related to the 
+place where the error occurred.  Another approach could be to
+just use cms::Exception in a derived class, where the category
+would be the derived class name and the message string could
+be from a constructor argument.  This class could include
+information in the message about the fact that this is
+the parameterset package.  Currently many of the throw
+exceptions include this information in the thrown data.

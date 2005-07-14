@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 18 19:09:01 EDT 2005
-// $Id: MakersProcess.cc,v 1.2 2005/06/23 19:57:23 wmtan Exp $
+// $Id: MakersProcess.cc,v 1.3 2005/06/27 16:35:01 paterno Exp $
 //
 
 // system include files
@@ -17,6 +17,7 @@
 // user include files
 #include "FWCore/ParameterSet/src/BuilderVPSet.h"
 #include "FWCore/ParameterSet/interface/Makers.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 using namespace std;
 //
@@ -68,7 +69,9 @@ struct FillProcess : public edm::pset::Visitor
       if(iNode.type() == kPSet) {
 	if(iNode.value_.value_->empty()==true)
 	{
-		throw runtime_error("Empty ParameterSets not allowed");
+	  throw edm::Exception(errors::Configuration,"EmptySet")
+	    << "ParameterSet: Empty ParameterSets are not allowed.\n"
+	    << "name = " << iNode.name();
 	}
          pSets_.insert(make_pair(iNode.name(), makePSet(*(iNode.value_.value_),
                                                           usingBlocks_,
@@ -76,7 +79,9 @@ struct FillProcess : public edm::pset::Visitor
       } else if (iNode.type() == kBlock) {
 	if(iNode.value_.value_->empty()==true)
 	{
-		throw runtime_error("Empty Blocks not allowed");
+	  throw edm::Exception(errors::Configuration,"EmptySet")
+	    << "ParameterSet: Empty Blocks are not allowed.\n"
+	    << "name = " << iNode.name();
 	}
          usingBlocks_.insert(make_pair(iNode.name(), makePSet(*(iNode.value_.value_),
                                                                 usingBlocks_,
@@ -177,7 +182,11 @@ struct BuildProcess : public edm::pset::Visitor
       //print(cout, "PSet", iNode);
       //endPrint(cout);
       if("process" != iNode.type()) {
-         throw std::runtime_error("The configuration does not start with a 'process' block.");
+	throw edm::Exception(errors::Configuration,"InvalidType")
+	  << "ParameterSet: "
+	  << "The configuration does not start with a 'process' block.\n"
+	  << "found type " << iNode.type()
+	  << " with name " << iNode.name();
       }
       procDesc_->pset_.insert(true, "process_name", edm::Entry(iNode.name(), true));
       

@@ -3,11 +3,11 @@
    Implementation of calss ProcessPSetBuilder
 
    \author Stefano ARGIRO
-   \version $Id: ProcessPSetBuilder.cc,v 1.1 2005/06/20 15:22:03 argiro Exp $
+   \version $Id: ProcessPSetBuilder.cc,v 1.2 2005/06/23 21:15:24 wmtan Exp $
    \date 17 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ProcessPSetBuilder.cc,v 1.1 2005/06/20 15:22:03 argiro Exp $";
+static const char CVSId[] = "$Id: ProcessPSetBuilder.cc,v 1.2 2005/06/23 21:15:24 wmtan Exp $";
 
 
 #include <FWCore/ParameterSet/interface/ProcessPSetBuilder.h>
@@ -19,6 +19,7 @@ static const char CVSId[] = "$Id: ProcessPSetBuilder.cc,v 1.1 2005/06/20 15:22:0
 #include "FWCore/ParameterSet/interface/Entry.h"
 
 #include "FWCore/ParameterSet/src/ScheduleValidator.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 #include "boost/shared_ptr.hpp"
 #include <vector>
@@ -38,8 +39,9 @@ ProcessPSetBuilder::ProcessPSetBuilder(const std::string& config){
   boost::shared_ptr<edm::pset::NodePtrList> nodelist = 
     edm::pset::parse(config.c_str());
   if(0 == nodelist.get()) {
-    throw runtime_error("Unable to parse configuration file."
-			"  Please check the error message reported earlier.");
+    throw edm::Exception(errors::Configuration,"FileOpen")
+      << "Unable to parse configuration file.\n"
+      << "Please check the error message reported earlier.";
   }
   
   processDesc_= edm::pset::makeProcess(nodelist);

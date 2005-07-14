@@ -3,13 +3,14 @@
    Implementation of class ScheduleValidator
 
    \author Stefano ARGIRO
-   \version $Id: ScheduleValidator.cc,v 1.4 2005/06/23 19:57:23 wmtan Exp $
+   \version $Id: ScheduleValidator.cc,v 1.5 2005/06/23 22:03:44 wmtan Exp $
    \date 10 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ScheduleValidator.cc,v 1.4 2005/06/23 19:57:23 wmtan Exp $";
+static const char CVSId[] = "$Id: ScheduleValidator.cc,v 1.5 2005/06/23 22:03:44 wmtan Exp $";
 
-#include <FWCore/ParameterSet/src/ScheduleValidator.h>
+#include "FWCore/ParameterSet/src/ScheduleValidator.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 #include <sstream>
 
@@ -108,17 +109,19 @@ void ScheduleValidator::validate(){
       // then we have an inconsitency
       if (old_deplist !=  dep) {
 
-	ostringstream err,olddepstr,newdepstr;
+	ostringstream olddepstr,newdepstr;
 	copy(old_deplist.begin(), old_deplist.end(), 
 	      ostream_iterator<string>(olddepstr,","));
 	copy(dep.begin(), dep.end(), 
 	      ostream_iterator<string>(newdepstr,","));
 
-	err<<"Inconsistent schedule for module " << (*leafIt)->name() <<"\n";
-	err<<"Depends on " << olddepstr.str() 
-	   <<" but also on " << newdepstr.str()<<"\n";
-      
-	throw std::runtime_error(err.str());
+	throw edm::Exception(errors::Configuration,"InconsistentSchedule")
+	  << "Inconsistent schedule for module "
+	  << (*leafIt)->name()
+	  << "\n"
+	  << "Depends on " << olddepstr.str() 
+	  << " but also on " << newdepstr.str()
+	  << "\n";
       }
     }
     else {
@@ -152,8 +155,9 @@ ScheduleValidator::dependencies(const std::string& modulename) const{
   Dependencies::const_iterator depIt = dependencies_.find(modulename);
   if (depIt== dependencies_.end()){
     ostringstream err;
-    err<< "Error : dependecies for " << modulename << " were not calculated";
-    throw std::runtime_error(err.str());
+    throw edm::Exception(errors::Configuration,"ScheduleDependencies")
+      << "Error : Dependecies for "
+      << modulename << " were not calculated";
   }
 
   ostringstream deplist;

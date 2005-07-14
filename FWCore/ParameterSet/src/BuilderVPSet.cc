@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 18 15:43:02 EDT 2005
-// $Id: BuilderVPSet.cc,v 1.1 2005/05/29 02:29:55 wmtan Exp $
+// $Id: BuilderVPSet.cc,v 1.2 2005/06/23 19:57:22 wmtan Exp $
 //
 
 // system include files
@@ -17,6 +17,7 @@
 // user include files
 #include "FWCore/ParameterSet/src/BuilderVPSet.h"
 #include "FWCore/ParameterSet/interface/Makers.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 using namespace std;
 //
@@ -67,9 +68,10 @@ void BuilderVPSet::visitString(const StringNode& n)
    //cout << " n.value_ " << endl;
    NamedPSets::const_iterator itPSet = psets_.find(n.value_);
    if(itPSet == psets_.end()) {
-      ostringstream errStream;
-      errStream <<"could not find ParameterSet named '"<<n.value_<<"' used on line "<<n.line_;
-      throw runtime_error(errStream.str().c_str());
+      throw edm::Exception(errors::Configuration,"StringError")
+	<< "ParameterSet: problem processing string names.\n"
+	<< "Could not find ParameterSet named '"
+	<< n.value_ << "' used on line " << n.line_;
    }
    main_.push_back(*(itPSet->second));
 }

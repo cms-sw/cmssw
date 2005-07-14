@@ -2,6 +2,8 @@
 #include "FWCore/ParameterSet/interface/Makers.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/src/BuilderVPSet.h"
+#include "FWCore/Utilities/interface/EDMException.h"
+
 #include "boost/shared_ptr.hpp"
 #include "boost/bind.hpp"
 
@@ -60,10 +62,11 @@ void BuilderPSet::visitUsing(const UsingNode& n)
   // to test if first char is not '/' and not "0x"
   if(n.name_[0]=='/' || (n.name_[0]=='0'&&n.name_[1]=='x'))
     {
-      cerr << "line: " << n.line_ << "\n"
-	   << "using currently only supports local names"
-	   << endl;
-      throw runtime_error("using: unsupported name used");
+      throw edm::Exception(errors::Configuration,"UsingError")
+	<< "ParameterSet: found problem while processing a using statement.\n"
+	<< "at line: " << n.line_ << " with name " << n.name() << "\n"
+	<< "'using' currently only supports local names"
+	<< endl;
     }
 
   // look for name_ in stack of PSets, then add its nodes into
@@ -73,9 +76,10 @@ void BuilderPSet::visitUsing(const UsingNode& n)
    if(itToUse == blocks_.end()) {
       itToUse = psets_.find(n.name_);
       if(itToUse == psets_.end()) {
-         ostringstream errStream;
-         errStream <<"could not find a block or ParameterSet named '"<<n.name_<<"' used on line "<<n.line_;
-         throw runtime_error(errStream.str().c_str());
+         throw edm::Exception(errors::Configuration,"UsingError")
+	   << "Parameter: found problem while processing a using statement.\n"
+	   << "could not find a Block or ParameterSet named '"
+	   << n.name_ << "' used on line " << n.line_;
       }
    }
    main_->augment(*(itToUse->second));
@@ -185,9 +189,10 @@ void BuilderPSet::visitPSetRef(const PSetRefNode& n)
   //cout << n.name_ << " " << n.value_ << endl;
    NamedPSets::const_iterator itPSet = psets_.find(n.value_);
    if(itPSet == psets_.end()) {
-      ostringstream errStream;
-      errStream <<"could not find ParameterSet named '"<<n.name_<<"' used on line "<<n.line_;
-      throw runtime_error(errStream.str().c_str());
+      throw edm::Exception(errors::Configuration,"PSetRefError")
+	<< "ParameterSet: problem processing reference.\n"
+	<< "could not find ParameterSet named '"
+	<< n.name_ << "' used on line " << n.line_;
    }
    main_->insert(false, n.name_, Entry(*(itPSet->second), true));
 }
@@ -204,7 +209,10 @@ void BuilderPSet::visitPSet(const PSetNode& n)
   //cout << n.type_ << " " << n.name_ << " ";
   if(n.value_.value_->empty()==true)
     {
-      throw runtime_error("ParameterSets cannot be empty");
+      throw edm::Exception(errors::Configuration,"PSetError")
+	<< "ParameterSets: problem processing parameter set.\n"
+	<< "A parameter cannot be empty."
+	<< " name = " << n.name();
     }
    boost::shared_ptr<ParameterSet> newPSet = makePSet(*(n.value_.value_),
                                                   blocks_,
@@ -240,7 +248,9 @@ boost::shared_ptr<edm::ParameterSet> makePSet(const NodePtrList& nodes,
   // this is a cheesy way to check this
   if(nodes.empty()==false && nodes.front()->type()=="process")
     {
-      throw runtime_error("Attempt to convert process input to ParameterSet");
+      throw edm::Exception(errors::Configuration,"PSetError")
+	<< "ParameterSet: problem with making a parameter set.\n"
+	<< "Attempt to convert process input to ParameterSet";
     }
 
   PSetPtr pset(new ParameterSet);

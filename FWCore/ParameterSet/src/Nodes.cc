@@ -1,5 +1,6 @@
 
 #include "FWCore/ParameterSet/interface/Nodes.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 #include <iostream>
 #include <stdexcept>
@@ -370,29 +371,29 @@ void ModuleNode::acceptForChildren(Visitor& v) const
 Visitor::~Visitor() { }
 
 void Visitor::visitUsing(const UsingNode&)
-{ throw runtime_error("attempt to visit UsingNode"); }
+{ throw edm::Exception(errors::LogicError,"attempt to visit UsingNode"); }
 void Visitor::visitString(const StringNode&)
-{ throw runtime_error("attempt to visit StringNode"); }
+{ throw edm::Exception(errors::LogicError,"attempt to visit StringNode"); }
 void Visitor::visitEntry(const EntryNode&)
-{ throw runtime_error("attempt to visit EntryNode"); }
+{ throw edm::Exception(errors::LogicError,"attempt to visit EntryNode"); }
 void Visitor::visitVEntry(const VEntryNode&)
-{ throw runtime_error("attempt to visit VEntryNode"); }
+{ throw edm::Exception(errors::LogicError,"attempt to visit VEntryNode"); }
 void Visitor::visitPSetRef(const PSetRefNode&)
-{ throw runtime_error("attempt to visit PSetRefNode"); }
+{ throw edm::Exception(errors::LogicError,"attempt to visit PSetRefNode"); }
 void Visitor::visitContents(const ContentsNode&)
-{ throw runtime_error("attempt to visit ContentsNode"); }
+{ throw edm::Exception(errors::LogicError,"attempt to visit ContentsNode"); }
 void Visitor::visitPSet(const PSetNode&)
-{ throw runtime_error("attempt to visit PSetNode"); }
+{ throw edm::Exception(errors::LogicError,"attempt to visit PSetNode"); }
 void Visitor::visitVPSet(const VPSetNode&)
-{ throw runtime_error("attempt to visit VPSetNode"); }
+{ throw edm::Exception(errors::LogicError,"attempt to visit VPSetNode"); }
 void Visitor::visitModule(const ModuleNode&)
-{ throw runtime_error("attempt to visit ModuleNode"); }
+{ throw edm::Exception(errors::LogicError,"attempt to visit ModuleNode"); }
 void Visitor::visitWrapper(const WrapperNode&)
-{ throw runtime_error("attempt to visit WrapperNode"); }
+{ throw edm::Exception(errors::LogicError,"attempt to visit WrapperNode"); }
 void Visitor::visitOperator(const OperatorNode&)
-{ throw runtime_error("attempt to visit OperatorNode"); }
+{ throw edm::Exception(errors::LogicError,"attempt to visit OperatorNode"); }
 void Visitor::visitOperand(const OperandNode&)
-{ throw runtime_error("attempt to visit OperandNode"); }
+{ throw edm::Exception(errors::LogicError,"attempt to visit OperandNode"); }
 
    }
 }

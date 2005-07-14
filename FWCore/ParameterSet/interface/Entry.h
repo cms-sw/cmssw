@@ -1,7 +1,12 @@
 // ----------------------------------------------------------------------
-// $Id: Entry.h,v 1.2 2005/06/10 03:55:27 wmtan Exp $
+// $Id: Entry.h,v 1.3 2005/06/23 19:57:22 wmtan Exp $
 //
 // interface to edm::Entry and related types
+//
+//
+// The functions here are expected to go away.  The exception
+// processing is not ideal and is not a good model to follow.
+//
 // ----------------------------------------------------------------------
 
 // ----------------------------------------------------------------------
@@ -18,6 +23,8 @@
 #include <vector>
 #include <map>
 
+#include "FWCore/Utilities/interface/Exception.h"
+
 // ----------------------------------------------------------------------
 // contents
 
@@ -28,10 +35,10 @@ namespace edm {
   // ----------------------------------------------------------------------
   // EntryError
   
-  class EntryError : public std::runtime_error {
+  class EntryError : public cms::Exception {
   public:
     explicit EntryError(std::string const& mesg)
-      : std::runtime_error(mesg) {}
+      : cms::Exception("EntryError",mesg) {}
   
     virtual ~EntryError() throw() {}
   
@@ -40,10 +47,10 @@ namespace edm {
   // ----------------------------------------------------------------------
   // ValueError
   
-  class ValueError : public std::runtime_error {
+  class ValueError : public cms::Exception {
   public:
     explicit ValueError(std::string const& mesg)
-      : std::runtime_error(mesg) {}
+      : cms::Exception("ValueError",mesg) {}
   
     virtual ~ValueError() throw() {}
   
