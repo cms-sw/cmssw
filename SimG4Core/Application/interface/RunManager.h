@@ -16,6 +16,8 @@ class Generator;
 class DummyPhysics;
 class G4SimEvent;
 
+class DDDWorld;
+
 class G4RunManagerKernel;
 class G4Run;
 class G4Event;
@@ -38,6 +40,7 @@ public:
     const Generator * generator() const { return m_generator; }
     const G4Event * currentEvent() const { return m_currentEvent; }
     G4SimEvent * simEvent() { return m_simEvent; }
+    void dispatch(DDDWorld * world);
 protected:
     G4Event * generateEvent(int evt);
 private:
