@@ -21,7 +21,7 @@
   ghost@aladdin.com
 
  */
-/* $Id: md5.c,v 1.6 2002/04/13 19:20:28 lpd Exp $ */
+/* $Id: md5.c,v 1.1 2005/07/06 19:47:28 paterno Exp $ */
 /*
   Independent implementation of MD5 (RFC 1321).
 
@@ -51,7 +51,7 @@
   1999-05-03 lpd Original version.
  */
 
-#include "FWCore/FWUtilities/interface/md5.h"
+#include "FWCore/Utilities/interface/md5.h"
 #include <string.h>
 
 #undef BYTE_ORDER	/* 1 = big-endian, -1 = little-endian, 0 = unknown */
