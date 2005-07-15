@@ -2,10 +2,10 @@
 #define FWCORESERVICES_EVENTSETUPRECORDDATAGETTER_H
 // -*- C++ -*-
 //
-// Package:     FWCoreServices
+// Package:     Services
 // Class  :     EventSetupRecordDataGetter
 // 
-/**\class EventSetupRecordDataGetter EventSetupRecordDataGetter.h FWCore/FWCoreServices/interface/EventSetupRecordDataGetter.h
+/**\class EventSetupRecordDataGetter EventSetupRecordDataGetter.h FWCore/Services/interface/EventSetupRecordDataGetter.h
 
  Description: Can be configured to 'get' any Data in any EventSetup Record.  Primarily used for testing.
 
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jun 28 13:45:06 EDT 2005
-// $Id$
+// $Id: EventSetupRecordDataGetter.h,v 1.1 2005/06/28 19:35:49 chrjones Exp $
 //
 
 // system include files
@@ -25,12 +25,12 @@
 #include <boost/shared_ptr.hpp>
 
 // user include files
-#include "FWCore/CoreFramework/interface/CoreFrameworkfwd.h"
-#include "FWCore/CoreFramework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "FWCore/CoreFramework/interface/EventSetupRecord.h"
-#include "FWCore/CoreFramework/interface/Timestamp.h"
+#include "FWCore/Framework/interface/EventSetupRecord.h"
+#include "FWCore/Framework/interface/Timestamp.h"
 
 // forward declarations
 namespace edm {

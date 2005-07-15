@@ -1,10 +1,10 @@
-<use name=FWCore/CoreFramework>
+<use name=FWCore/Framework>
 <use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
 <flags SEAL_PLUGIN_NAME="fltrname">
 <export>
    <lib name=fltrname>
-   <use name=FWCore/CoreFramework>
+   <use name=FWCore/Framework>
    <use name=Foundation/PluginManager>
    <use name=FWCore/ParameterSet>
 </export>

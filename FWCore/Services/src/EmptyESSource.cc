@@ -2,9 +2,9 @@
 #include <algorithm>
 #include <sstream>
 
-#include "FWCore/CoreFramework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/FWCoreServices/src/EmptyESSource.h"
+#include "FWCore/Services/src/EmptyESSource.h"
 
 namespace edm {
 

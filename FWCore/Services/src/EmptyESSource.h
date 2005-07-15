@@ -2,10 +2,10 @@
 #define FWCORESERVICES_EMPTYESSOURCE_H
 // -*- C++ -*-
 //
-// Package:     FWCoreServices
+// Package:     Services
 // Class  :     EmptyESSource
 // 
-/**\class EmptyESSource EmptyESSource.h FWCore/FWCoreServices/src/EmptyESSource.h
+/**\class EmptyESSource EmptyESSource.h FWCore/Services/src/EmptyESSource.h
 
  Description: <one line class summary>
 
@@ -16,14 +16,14 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jun 25 17:23:12 EDT 2005
-// $Id$
+// $Id: EmptyESSource.h,v 1.1 2005/06/25 22:30:35 chrjones Exp $
 //
 
 // system include files
 #include <set>
 
 // user include files
-#include "FWCore/CoreFramework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 
 // forward declarations
 namespace edm {
