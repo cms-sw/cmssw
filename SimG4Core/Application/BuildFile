@@ -1,4 +1,5 @@
 <flags SEAL_PLUGIN_NAME="SimG4CoreApplication">
+<use name=Utilities/Notification>
 <use name=SimG4Core/Physics>
 <use name=SimG4Core/DummyPhysics>
 <use name=SimG4Core/Generators>
@@ -13,6 +14,7 @@
 <use name=FWCore/CoreFramework>
 <export>
 <lib name=SimG4CoreApplication>
+<use name=Utilities/Notification>
 <use name=SimG4Core/Physics>
 <use name=SimG4Core/DummyPhysics>
 <use name=SimG4Core/Generators>

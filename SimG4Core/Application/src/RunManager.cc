@@ -6,11 +6,12 @@
 #include "SimG4Core/Application/interface/TrackingAction.h"
 #include "SimG4Core/Application/interface/SteppingAction.h"
 #include "SimG4Core/Application/interface/G4SimEvent.h"
+#include "SimG4Core/Application/interface/DDDWorldObserver.h"
 
 #include "SimG4Core/Geometry/interface/DDDWorld.h"
 #include "SimG4Core/Generators/interface/Generator.h"
 #include "SimG4Core/DummyPhysics/interface/DummyPhysics.h"
-#include "SimG4Core/Notification/interface/DispatcherObserver.h"
+#include "Utilities/Notification/interface/DispatcherObserver.h"
 
 #include "G4StateManager.hh"
 #include "G4ApplicationState.hh"
@@ -85,15 +86,18 @@ void RunManager::dispatch(DDDWorld * world)
     MyConfigurator c0(*m_context.get());
     c0.nameIt("c0");
     c0.addDispatcher<DDDWorld>();
+    frappe::Client cl0(c0.context());
+    DDDWorldObserver w(&c0.context(),"DDDWorld");
+    cl0.component<frappe::Dispatcher<DDDWorld> >()(world);
+    std::cout << " DDDWorld dispatched " << std::endl;
     std::vector< seal::IHandle< frappe::LazyComponent<frappe::Fanout<DDDWorld> > > > matches;
     frappe::queryInChildren (c0.context(), matches);
     std::cout << "total number of fanout " << matches.size() << std::endl;
-    frappe::Client cl0(c0.context());
-    cl0.component<frappe::Dispatcher<DDDWorld> >()(world);
 }
 
 void RunManager::produce(const edm::EventSetup & es)
 {
+    
     static int i = 0;
     m_currentEvent = generateEvent(i);
     i++;

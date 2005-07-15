@@ -41,6 +41,7 @@ public:
     const G4Event * currentEvent() const { return m_currentEvent; }
     G4SimEvent * simEvent() { return m_simEvent; }
     void dispatch(DDDWorld * world);
+    seal::Handle<seal::Context> runContext() { return m_context; }
 protected:
     G4Event * generateEvent(int evt);
 private:
