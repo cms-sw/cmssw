@@ -4,24 +4,25 @@
 The ECAL data are composed by 54 event fragments processed in the Data
 Concentrator Card (DCC) boards~\cite{LECC03,CALOR04} (36 for the ECAL Barrel (EB) and 18 for
 the ECAL End-Cap (EE)). 
-The ECAL raw data format is shown in Figure~\ref{fig:ECAL}. 
+The ECAL raw data format is shown in Table~\ref{tab:ECAL}. 
 Each Event is composed of five block types:
 \begin{itemize}
-\item	DCC Header Block
-\item	TCC Block
-\item	SR Block
-\item	Tower Block
-\item	Crystal Block
+\item   DCC Header Block
+\item   TCC Block
+\item   SR Block
+\item   Tower Block
+\item   Crystal Block
 \end{itemize}
 These blocks are organized in 64 bit words and are enclosed by the standard CMS DAQ header and trailer. Each block is characterized by a unique bit field identifier, which helps to track possible data formatting errors.
 
-\begin{figure}[htp]
-\begin{center}
+\begin{table}[htp]
+\caption{The ECAL data format.}
+\label{tab:ECAL}
+  \hspace{-0.11\linewidth}
+  \begin{minipage}{1.22\linewidth}
   \epsfig{file=ECAL,width=\linewidth}
-  \caption{The ECAL data format.}
-  \label{fig:ECAL}
- \end{center}
-\end{figure}
+  \end{minipage}
+\end{table}
 
 The data structure starts with the standard CMS DAQ header followed by the specific ECAL DCC Header Block. Trigger data received from the Trigger Concentrator Card (TCC)~\cite{CALOR04} are grouped in the TCC Blocks. The number of TCC Blocks depends on the detector geometry, being one in the EB and four in the EE. 
 Front-End (FE) data must be reduced by a factor of near 20. ECAL data filtering is based on a Selective Readout algorithm finding ECAL areas of interest, which should be readout with low zero suppression or without zero suppression at all. The other areas can be suppressed or readout with a higher zero suppression level. For each readout unit, comprising a Trigger Tower in the EB geometry or a Super Crystal in the EE geometry, there is a flag identifying the level of data suppression that must be applied to the input data. These flags are processed in the Selective Readout Processor (SRP)~\cite{CALOR04,IEEE04} and grouped in the SR Block.
@@ -38,7 +39,7 @@ The DCC Header Block is composed by eight words characterized by a block identif
 Table~\ref{tab:DCCerror}.
 \item {\bf RUN NUMBER}: Sequential run number or encoded run conditions as written in the DCC Run ID register.
 \item {\bf Hi}: Header word count identifier.
-\item {\bf RUN TYPE}: Field (Figure~\ref{}) encoded by the DCC supervisor software in local data taking mode and written into the DCC Run Type register.
+\item {\bf RUN TYPE}: Field (Table~\ref{tab:ECAL_RunType}) encoded by the DCC supervisor software in local data taking mode and written into the DCC Run Type register.
 \begin{description}
 \item[-] {\bf RT\_DCCID}:  The DCC ID;
 \item[-] {\bf RT\_HALF}: Part of the Super module to be readout (Table~\ref{tab:RT_HALF}).
@@ -46,7 +47,7 @@ Table~\ref{tab:DCCerror}.
 \item[-] {\bf SEQUENCE}: The operation sequence during a local run. The SEQUENCE encoding depends on the RT\_TYPE and its description is shown in Table~\ref{tab:SEQUENCE}.
 \item[-] {\bf MGPA GAIN}: The MPGA operation gain mode during the local run (Table~\ref{tab:MGPAG}).
 \item[-] {\bf MEM GAIN}: The MEM channels operation gain mode during the local run (Table~\ref{tab:MGPAM}).
-\item[-] {\bf CYCLE SETTINGS}: The cycle operation settings applied during the local run. The CYCLE SETTINGS encoding depends on the SEQUENCE and is shown in Figure 2. The POWER, FILTER, DELAY, VINJ, MGPA CONTENT and OFFSET fields are binary representations of configuration parameters for each SEQUENCE type. The RT\_WL field encodes the Laser/LED wavelength according to Table~\ref{tab:RT_WL}.
+\item[-] {\bf CYCLE SETTINGS}: The cycle operation settings applied during the local run. The CYCLE SETTINGS encoding depends on the SEQUENCE and is shown in Table~\ref{tab:ECAL_RunType}. The POWER, FILTER, DELAY, VINJ, MGPA CONTENT and OFFSET fields are binary representations of configuration parameters for each SEQUENCE type. The RT\_WL field encodes the Laser/LED wavelength according to Table~\ref{tab:RT_WL}.
 \end{description}
 \item {\bf DETAILED TRIGGER TYPE}: A Timing and Trigger Control (TTC)~\cite{ELHC00}
   long command that is written in the DCC header during calibration triggers
@@ -65,137 +66,149 @@ Table~\ref{tab:DCCerror}.
 \item {\bf FE\_CHSTATUS\#i}:  FE input channel \#i status (Table~\ref{tab:CHSTATUS}).
 \end{description}
 
+\begin{table}[htp]
 \begin{center}
-\begin{table}[H]
-\begin{tabular}{|c|l|} \hline
-{\bf DCC Error} (binary) &	{\bf Description} \\ \hline
-00000000 &	No Errors \\ \hline
-00000001 &	Empty event produced : 
- DAQ header + the first two DCC header words + DAQ trailer \\ \hline
-xxxxxx1x &	Data timeout : at least one channel has a data presence
-timeout \\ \hline
-0xxxx1xx &	Channel error: at least one channel on error \\ \hline
-? &	To be defined \\ \hline
-1xxxxxxx &	No error  check performed \\ \hline
-\end{tabular}
-\caption{\sf DCC error description. }
+\caption{DCC error description.}
 \label{tab:DCCerror}
-\end{table}
+\begin{tabular}{|c|l|} \hline
+{\bf DCC Error} (binary) &      {\bf Description} \\ \hline
+00000000 &      No Errors \\ \hline
+00000001 &      Empty event produced : 
+ DAQ header + the first two DCC header words + DAQ trailer \\ \hline
+xxxxxx1x &      Data timeout : at least one channel has a data presence
+timeout \\ \hline
+0xxxx1xx &      Channel error: at least one channel on error \\ \hline
+? &     To be defined \\ \hline
+1xxxxxxx &      No error  check performed \\ \hline
+\end{tabular}
 \end{center}
+\end{table}
  
-Figure 2. The Run Type word format. The CYCLE SETTINGS encoding depends on the selected SEQUENCE.
-
+\begin{table}[htp]
 \begin{center}
-\begin{table}[H]
-\begin{tabular}{|c|l|} \hline 
-{\bf RT\_HALF}  (binary)	& {\bf Description} \\ \hline
-01 &	First super module half  \\ \hline
-10 &	Second super module half \\ \hline
-11 &	Full super module \\ \hline
-\end{tabular}
-\caption{\sf RT\_HALF description.}
+  \caption{The Run Type word format. The CYCLE SETTINGS encoding depends on the selected SEQUENCE.}
+  \label{tab:ECAL_RunType}
+  \epsfig{file=ECAL_RunType,width=\linewidth}
+ \end{center}
+\end{table}
+
+\begin{table}[htp]
+\begin{center}
+\caption{RT\_HALF description.}
 \label{tab:RT_HALF}
-\end{table}
-\end{center}
-
-\begin{center}
-\begin{table}[H]
-\begin{tabular}{|c|l|}  \hline
-{\bf RT\_TYPE}  (binary)	& Description \\ \hline
-001 &	Laser \\ \hline
-010 &	Test Pulse \\ \hline
-011 &	Pedestal \\ \hline
-100 &	LED \\ \hline
+\begin{tabular}{|c|l|} \hline 
+{\bf RT\_HALF}  (binary)        & {\bf Description} \\ \hline
+01 &    First super module half  \\ \hline
+10 &    Second super module half \\ \hline
+11 &    Full super module \\ \hline
 \end{tabular}
-\caption{\sf RT\_TYPE description.}
+\end{center}
+\end{table}
+
+\begin{table}[htp]
+\begin{center}
+\caption{RT\_TYPE description.}
 \label{tab:RT_TYPE}
-\end{table}
-\end{center}
-
-\begin{center}
-\begin{table}[H]
-\begin{tabular}{|c|l|}  \hline 
-{\bf SEQUENCE} (binary)	& Description  \\ \hline
-\multicolumn{2}{l}{If  RT\_TYPE is Laser Trigger} \\ \hline
-000 &	Standard Laser  \\ \hline
-001 &	Laser Power Scan  \\ \hline
-010 &	Delay Scan  \\ \hline
-\multicolumn{2}{l}{If RT\_TYPE is Test Pulse Trigger} \\ \hline
-000 &	Scan MEM \\ \hline
-001 &	MGPA \\ \hline
-\multicolumn{2}{l}{If RT\_TYPE is Pedestal} \\ \hline
-000 &	Standard Pedestal \\ \hline
-001 &	Pedestal Offset Scan \\ \hline
-\multicolumn{2}{l}{If RT\_TYPE is LED} \\ \hline
-000 &	Standard LED \\ \hline
+\begin{tabular}{|c|l|}  \hline
+{\bf RT\_TYPE}  (binary)        & Description \\ \hline
+001 &   Laser \\ \hline
+010 &   Test Pulse \\ \hline
+011 &   Pedestal \\ \hline
+100 &   LED \\ \hline
 \end{tabular}
-\caption{\sf SEQUENCE description.}
+\end{center}
+\end{table}
+
+\begin{table}[htp]
+\begin{center}
+\caption{SEQUENCE description.}
 \label{tab:SEQUENCE}
-\end{table}
-\end{center}
-
-\begin{center}
-\begin{table}[H]
-\begin{tabular}{|c|l|}   \hline  
-{\bf MGPA} (binary) &	Description \\ \hline
-00 &	Free gain (default) \\ \hline
-01 &	Forced gain 12 \\ \hline
-10 &	Forced gain 6 \\ \hline
-11 &	Forced gain 1 \\ \hline
+\begin{tabular}{|c|l|}  \hline 
+{\bf SEQUENCE} (binary) & Description  \\ \hline
+\multicolumn{2}{l}{If  RT\_TYPE is Laser Trigger} \\ \hline
+000 &   Standard Laser  \\ \hline
+001 &   Laser Power Scan  \\ \hline
+010 &   Delay Scan  \\ \hline
+\multicolumn{2}{l}{If RT\_TYPE is Test Pulse Trigger} \\ \hline
+000 &   Scan MEM \\ \hline
+001 &   MGPA \\ \hline
+\multicolumn{2}{l}{If RT\_TYPE is Pedestal} \\ \hline
+000 &   Standard Pedestal \\ \hline
+001 &   Pedestal Offset Scan \\ \hline
+\multicolumn{2}{l}{If RT\_TYPE is LED} \\ \hline
+000 &   Standard LED \\ \hline
 \end{tabular}
-\caption{\sf  MGPA gain description.}
+\end{center}
+\end{table}
+
+\begin{table}[htp]
+\begin{center}
+\caption{MGPA gain description.}
 \label{tab:MGPAG}
-\end{table}
-\end{center}
-
-\begin{center}
-\begin{table}[H]
-\begin{tabular}{|c|l|}   \hline 
-{\bf MEM} (binary) &	Description \\ \hline
-0 &	MEM forced gain 1 \\ \hline
-1 &	MEM forced gain 16 (default) \\ \hline
-\end{tabular}
-\caption{\sf  MEM gain description.}
-\label{tab:MGPAM}
-\end{table}
-\end{center}
-
-\begin{center}
-\begin{table}[H]
-\begin{tabular}{|c|l|}   \hline 
-{\bf RT\_WL} (binary) &	Description \\ \hline
-001 &	Red (Laser) \\ \hline
-010 &	Blue (Laser) \\ \hline
-011 &	Infra-Red (Laser) \\ \hline
-100 &	Green (Laser) \\ \hline
-101 &	$\lambda$1 (LED) \\ \hline
-110 &	$\lambda$2 (LED) \\ \hline
-\end{tabular}
-\caption{\sf  The RT\_WL description.}
-\label{tab:RT_WL}
-\end{table}
-\end{center}
-
-Figure 3. Detailed trigger type word format.
-
-\begin{center}
-\begin{table}[H]
 \begin{tabular}{|c|l|}   \hline  
-{\bf CHSTATUS } & 	Description \\ \hline
-0000 &	Channel enabled and no errors identified   \\ \hline
-0001 &	Channel disabled by configuration \\ \hline
-0010 &	Channel data ignored in response to a data presence timeout \\ \hline
-0011 &	Header identifier mismatch \\ \hline
-0100 &	Block word count mismatch \\ \hline
-10xx &	Sync error (bit 0: LV1 , bit 1: BX) \\ \hline
-11xx &	Parity error  (bit 0: horizontal parity , bit 1 : vertical parity) \\ \hline
+{\bf MGPA} (binary) &   Description \\ \hline
+00 &    Free gain (default) \\ \hline
+01 &    Forced gain 12 \\ \hline
+10 &    Forced gain 6 \\ \hline
+11 &    Forced gain 1 \\ \hline
 \end{tabular}
-\caption{\sf DCC Channel status description. If multiple errors are
+\end{center}
+\end{table}
+
+\begin{table}[htp]
+\begin{center}
+\caption{MEM gain description.}
+\label{tab:MGPAM}
+\begin{tabular}{|c|l|}   \hline 
+{\bf MEM} (binary) &    Description \\ \hline
+0 &     MEM forced gain 1 \\ \hline
+1 &     MEM forced gain 16 (default) \\ \hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\begin{table}[htp]
+\begin{center}
+\caption{ The RT\_WL description.}
+\label{tab:RT_WL}
+\begin{tabular}{|c|l|}   \hline 
+{\bf RT\_WL} (binary) & Description \\ \hline
+001 &   Red (Laser) \\ \hline
+010 &   Blue (Laser) \\ \hline
+011 &   Infra-Red (Laser) \\ \hline
+100 &   Green (Laser) \\ \hline
+101 &   $\lambda$1 (LED) \\ \hline
+110 &   $\lambda$2 (LED) \\ \hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\begin{table}[htp]
+\begin{center}
+  \caption{Detailed trigger type word format.}
+  \label{tab:ECAL_detailedTriggerType}
+  \epsfig{file=ECAL_detailedTriggerType,width=0.75\linewidth}
+\end{center}
+\end{table}
+
+\begin{table}[htp]
+\begin{center}
+\caption{DCC Channel status description. If multiple errors are
   identified the channel status is set according to its priority 
 (a lower channel status value implies a higher priority).}
 \label{tab:CHSTATUS}
-\end{table}
+\begin{tabular}{|c|l|}   \hline  
+{\bf CHSTATUS } &       Description \\ \hline
+0000 &  Channel enabled and no errors identified   \\ \hline
+0001 &  Channel disabled by configuration \\ \hline
+0010 &  Channel data ignored in response to a data presence timeout \\ \hline
+0011 &  Header identifier mismatch \\ \hline
+0100 &  Block word count mismatch \\ \hline
+10xx &  Sync error (bit 0: LV1 , bit 1: BX) \\ \hline
+11xx &  Parity error  (bit 0: horizontal parity , bit 1 : vertical parity) \\ \hline
+\end{tabular}
 \end{center}
+\end{table}
 
 \subsection{TCC Block}
  
@@ -214,22 +227,22 @@ The TCC Blocks, added after the DCC Block Header, include the trigger data recei
 \item {\bf TTF\#i}: TT flag (Table~\ref{tab:TTFlag}) sent from the TCC to the SRP and included in the DCC for debugging proposes. The first two bit flags characterize the TT energetic state, while the third bit is enabled if the TT flag was produced with erroneous conditions. 
 \end{description}
 
+\begin{table}[htp]
 \begin{center}
-\begin{table}[H]
-\begin{tabular}{|c|l|} \hline
-{\bf TT Flag} &	Description \\ \hline
-000 &	Low interest TT (Tower Et is bellow low threshold) \\ \hline
-001 &	Mid-interest TT (Tower Et is between low and high thresholds) \\ \hline
-010 &	Not used \\ \hline
-011 &	High-interest TT (Tower Et is above high threshold) \\ \hline
-100 &	Force TT readout (Agilent sync link error ) \\ \hline
-101 &	Force TT readout (Hamming code error ) \\ \hline
-11x &	Force TT readout (Other error conditions )  \\ \hline
-\end{tabular}
-\caption{\sf Trigger tower flags description.}
+\caption{Trigger tower flags description.}
 \label{tab:TTFlag}
-\end{table}
+\begin{tabular}{|c|l|} \hline
+{\bf TT Flag} & Description \\ \hline
+000 &   Low interest TT (Tower Et is bellow low threshold) \\ \hline
+001 &   Mid-interest TT (Tower Et is between low and high thresholds) \\ \hline
+010 &   Not used \\ \hline
+011 &   High-interest TT (Tower Et is above high threshold) \\ \hline
+100 &   Force TT readout (Agilent sync link error ) \\ \hline
+101 &   Force TT readout (Hamming code error ) \\ \hline
+11x &   Force TT readout (Other error conditions )  \\ \hline
+\end{tabular}
 \end{center}
+\end{table}
 
 \subsection{SRP Block}
  
@@ -246,22 +259,22 @@ The SRP Block, added after the TCC Blocks, includes the selective readout flags 
 \item {\bf SR\#i}: 3 bits coding the SR flags for each FE channel (Table~\ref{tab:SRPFlag}). The first two bit flags characterize the SRP algorithm flag, while the third bit is used to indicate if the flag was produced in erroneous conditions.
 \end{description}
 
+\begin{table}[htp]
 \begin{center}
-\begin{table}[H]
+\caption{Selective Readout flags description.}
+\label{tab:SRPFlag}
 \begin{tabular}{|c|l|}   \hline 
-{\bf SR Flag} &	Description  \\ \hline
-000 &	Suppress FE channel  \\ \hline
-001 &	Read FE channel with lv1 zero suppression   \\ \hline
-010 &	Read FE channel with lv2 zero suppression  \\ \hline
-011 &	Read FE channel without zero suppression  \\ \hline
-1xx &	xx action has been forced by an erroneous condition or by configuration:  \\ 
+{\bf SR Flag} & Description  \\ \hline
+000 &   Suppress FE channel  \\ \hline
+001 &   Read FE channel with lv1 zero suppression   \\ \hline
+010 &   Read FE channel with lv2 zero suppression  \\ \hline
+011 &   Read FE channel without zero suppression  \\ \hline
+1xx &   xx action has been forced by an erroneous condition or by configuration:  \\ 
     & - TT flagged in forced readout mode (from TCC)  \\
     & - Data transmission errors (TCC and Algorithm Board(AB) link errors)  \\ \hline
 \end{tabular}
-\caption{\sf Selective Readout flags description.}
-\label{tab:SRPFlag}
-\end{table}
 \end{center}
+\end{table}
 
 \subsection{Tower Header and Crystal Blocks}
 
@@ -296,7 +309,7 @@ The crystal numbering in the DCC raw data format follows the FE numbering scheme
 The CMS DAQ Header and trailer~\cite{TRIDAS} are respectively the first and last word of the ECAL event represented in Figure~\ref{fig:ECAL}.
 
 The DAQ Header includes the fields:
-\begin{description}	
+\begin{description}     
 \item {\bf \$}: Bit used by the S-Link 64 hardware.
 \item {\bf H}: Header bit. When set to '0', the current header word is the last one. When set to '1', other header word can follow (in the ECAL DCC, H is set to ´1´ ). 
 \item {\bf FOV}: Version identifier of the FED/DCC data format.
@@ -308,25 +321,25 @@ The DAQ Header includes the fields:
 \item {\bf BOE}: Begin of event bit field identifier with value B('0101').
 \end{description}
 
+\begin{table}[htp]
 \begin{center}
-\begin{table}[H]
-\begin{tabular}{|c|l|}   \hline 
-{\bf TRIGGER TYPE} &	Description \\ \hline
-0001 &	Physics trigger \\ \hline
-0010 &	Calibration trigger \\ \hline
-0011 &	Test trigger \\ \hline
-0100 &	Technical trigger (external trigger) \\ \hline
-0101 &	Simulated events (reserved for DAQ usage) \\ \hline
-0110 &	Traced events (reserved for DAQ usage) \\ \hline
-1111 &	Error \\ \hline
-\end{tabular}
-\caption{\sf The TRIGGER TYPE description.}
+\caption{The TRIGGER TYPE description.}
 \label{tab:TRIGGER_TYPE}
-\end{table}
+\begin{tabular}{|c|l|}   \hline 
+{\bf TRIGGER TYPE} &    Description \\ \hline
+0001 &  Physics trigger \\ \hline
+0010 &  Calibration trigger \\ \hline
+0011 &  Test trigger \\ \hline
+0100 &  Technical trigger (external trigger) \\ \hline
+0101 &  Simulated events (reserved for DAQ usage) \\ \hline
+0110 &  Traced events (reserved for DAQ usage) \\ \hline
+1111 &  Error \\ \hline
+\end{tabular}
 \end{center}
+\end{table}
 
 The DAQ Trailer includes the fields:
-\begin{description}	
+\begin{description}     
 \item {\bf \$}: Bit used by the S-Link 64 hardware.
 \item {\bf T}: Trailer bit. When set to '0', the current trailer word is the last one. When set to ´1´, other trailler words can fallow, (in the ECAL DCC, T is set to 0 ).
 \item {\bf TTS}: Current Trigger Throttling System bits. 
@@ -371,21 +384,21 @@ Raw data blocks are characterized by a set of bit fields. Each bit field is defi
 The information about the blocks that need to be created is stored in the data itself. The DCCEventBlock decodes the DCC header bit fields identifying the enabled channels. In a first stage the blocks associated to the enabled TCC and SR channels are created. The DCCTowerBlock instantiation is based on the enabled FE channels and on the SR flags that indicate the rejected channels. The size of the DCCTowerBlock and the knowledge of the number of time samples per crystal allow the determination of the number of readout crystals in each tower or super crystal. For each crystal is instantiated a DCCXtalBlock object. The parsing ends up with the decoding of the DCC trailer. The software includes methods that allow the event raw data display in function of the defined bit fields.
 The package describing the 2004 H4 Test Beam ECAL raw data is implemented and is included in ORCA\_8\_8\_0~\cite{ORCA} (Calorimetry/EcalBarrelTBDaqDigiFormat). The package is responsible by decoding the raw data and by generating the Calo Data Samples Frames.
 
+\begin{table}[htp]
 \begin{center}
-\begin{table}[H]
+\caption{Error checks performed during parsing.}
+\label{tab:error_check}
 \begin{tabular}{|c|l|}   \hline  
-{\bf Data Block} &	Error check description \\ \hline
-DCCEventBlock &	Begin Of Event, header identifiers and block identifier \\ \hline
-DCCTCCBlock &	Channel id, synchronization and block identifiers \\ \hline
-DCCSRPBlock &	Channel id, synchronization and block identifiers \\ \hline
-DCCTowerBlock &	Channel id, synchronization, block identifiers and block size (based on the readout conditions and number of crystal samples) \\ \hline
-DCCCrystalBlock	& Crystal and strip ids and block identifiers \\ \hline
+{\bf Data Block} &      Error check description \\ \hline
+DCCEventBlock & Begin Of Event, header identifiers and block identifier \\ \hline
+DCCTCCBlock &   Channel id, synchronization and block identifiers \\ \hline
+DCCSRPBlock &   Channel id, synchronization and block identifiers \\ \hline
+DCCTowerBlock & Channel id, synchronization, block identifiers and block size (based on the readout conditions and number of crystal samples) \\ \hline
+DCCCrystalBlock & Crystal and strip ids and block identifiers \\ \hline
 DCCTraillerBlock & End Of Event, event size and CRC \\ \hline
 \end{tabular}
-\caption{\sf Error checks performed during parsing.}
-\label{tab:error_check}
-\end{table}
 \end{center}
+\end{table}
 
 
 
