@@ -1,7 +1,7 @@
-#ifndef SimG4Core_DispatcherObserver_H
-#define SimG4Core_DispatcherObserver_H
+#ifndef Utilities_DispatcherObserver_H
+#define Utilities_DispatcherObserver_H
 
-#include "SimG4Core/Notification/interface/GenericComponent.h"
+#include "Utilities/Notification/interface/GenericComponent.h"
  
 #include "SealBase/Signal.h"
  

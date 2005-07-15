@@ -1,19 +1,16 @@
-#ifndef Frappe_GenericComponent_h 
-#define Frappe_GenericComponent_h 
+#ifndef Utilities_GenericComponent_h 
+#define Utilities_GenericComponent_h 
 
 #include "SealKernel/Component.h"
 #include "SealKernel/Context.h"
 #include "SealKernel/ComponentLoader.h"
-# include "PluginManager/PluginFactory.h"
+#include "PluginManager/PluginFactory.h"
 
 #include <typeinfo>
-#include<memory>
-
-#include<iostream>
+#include <memory>
+#include <iostream>
 
 namespace frappe {
-
-
 
   template <class S>
   inline void queryInChildren (const seal::Context & c, std::vector< seal::IHandle<S> > &matches)
@@ -40,8 +37,6 @@ namespace frappe {
     seal::ContextKey ck;
   };
 
-
-  
   class ComponentFactory : public seal::PluginFactory< seal::Component* ( seal::Context&, const std::string&) > {
   public:
     static ComponentFactory * get (void) {
@@ -311,11 +306,6 @@ namespace frappe {
     std::auto_ptr<B>  t;
   };
 
-
-
-
 }
-
-
 
 #endif
