@@ -12,3 +12,10 @@ be from a constructor argument.  This class could include
 information in the message about the fact that this is
 the parameterset package.  Currently many of the throw
 exceptions include this information in the thrown data.
+
+18-07-05 jbk
+Changed the process pset visit function that creates a pset
+that is contained within a process section of the configuration file.
+(visitPSet)  Now this function adds the the child pset to the 
+process pset.
+

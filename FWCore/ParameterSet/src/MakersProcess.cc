@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 18 19:09:01 EDT 2005
-// $Id: MakersProcess.cc,v 1.3 2005/06/27 16:35:01 paterno Exp $
+// $Id: MakersProcess.cc,v 1.4 2005/07/14 16:17:23 jbk Exp $
 //
 
 // system include files
@@ -61,8 +61,9 @@ struct FillProcess : public edm::pset::Visitor
       //visitChildren(iNode);
    }
    virtual void visitPSet(const edm::pset::PSetNode& iNode) {
-      //print(cout, "PSet", iNode);
-      //endPrint(cout);
+      // print(cout, "PSet", iNode);
+      // endPrint(cout);
+      cout << "in visitPSet: " << iNode.type() << " " << iNode.name() << endl;
       
       static const std::string kPSet("PSet");
       static const std::string kBlock("block");
@@ -73,9 +74,15 @@ struct FillProcess : public edm::pset::Visitor
 	    << "ParameterSet: Empty ParameterSets are not allowed.\n"
 	    << "name = " << iNode.name();
 	}
-         pSets_.insert(make_pair(iNode.name(), makePSet(*(iNode.value_.value_),
-                                                          usingBlocks_,
-                                                          pSets_)));
+
+         boost::shared_ptr<edm::ParameterSet> tmp_pset = 
+            makePSet(*(iNode.value_.value_),usingBlocks_,pSets_)
+         ;
+
+         pSets_.insert(make_pair(iNode.name(), tmp_pset));
+
+         pset_.insert(true, iNode.name() , Entry(*tmp_pset,true));
+
       } else if (iNode.type() == kBlock) {
 	if(iNode.value_.value_->empty()==true)
 	{
