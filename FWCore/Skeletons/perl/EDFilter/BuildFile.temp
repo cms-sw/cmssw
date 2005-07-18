@@ -1,9 +1,9 @@
 <use name=FWCore/Framework>
 <use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
-<flags SEAL_PLUGIN_NAME="fltrname">
+<flags SEAL_PLUGIN_NAME="skelsubsysfltrname">
 <export>
-   <lib name=fltrname>
+   <lib name=skelsubsysfltrname>
    <use name=FWCore/Framework>
    <use name=Foundation/PluginManager>
    <use name=FWCore/ParameterSet>
