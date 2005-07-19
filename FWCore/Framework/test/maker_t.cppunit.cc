@@ -46,7 +46,7 @@ void testmaker::makerTest()
     "string module_type = \"TestMod\" "
     "string module_label = \"t2\"";
     
-  try {
+  /*try {
 
     //seal::SharedLibrary* lib = seal::SharedLibrary::load("libTestMod.so");
     seal::PluginManager::get()->initialise();
@@ -86,5 +86,5 @@ void testmaker::makerTest()
       throw;
     }
 
-//  return 0;
+  return 0;*/
 }
