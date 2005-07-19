@@ -1,0 +1,5 @@
+<lcgdict>
+  <class name="HcalElectronicsId"/>
+  <class name="HcalDetId"/>
+  <class name="HcalTrigTowerDetId"/>
+</lcgdict>

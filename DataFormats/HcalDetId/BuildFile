@@ -1,0 +1,5 @@
+<use name=DataFormats/DetId>
+<export>
+   <lib name=DataFormatsHcalDetId>
+   <use name=DataFormats/DetId>
+</export>
