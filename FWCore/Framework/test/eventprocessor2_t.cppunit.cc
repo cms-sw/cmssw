@@ -2,7 +2,7 @@
 
 Test of the EventProcessor class.
 
-$Id: eventprocessor2_t.cppunit.cc,v 1.2 2005/07/14 22:50:53 wmtan Exp $
+$Id: eventprocessor2_t.cppunit.cc,v 1.3 2005/07/19 16:26:23 viji Exp $
 
 ----------------------------------------------------------------------*/  
 #include <exception>
@@ -45,8 +45,8 @@ void work()
 void testeventprocessor2::eventprocessor2Test()
 //int main()
 {
-  int rc = -1;                // we should never return this value!
   /*try { work(); rc = 0;}
+  int rc = -1;                // we should never return this value!
   catch (seal::Error& e)
     {
       std::cerr << "Application exception caught: "
