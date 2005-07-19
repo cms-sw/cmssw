@@ -1,0 +1,5 @@
+<use name=boost>
+<export>
+   <lib name=DataFormatsDetId>
+   <use name=boost>
+</export>
