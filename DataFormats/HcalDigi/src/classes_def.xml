@@ -1,0 +1,16 @@
+<lcgdict>
+   <class name="HcalQIESample"/>
+   <class name="HBHEDataFrame"/>
+   <class name="HODataFrame"/>
+   <class name="HFDataFrame"/>
+   <class name="HcalTriggerPrimitiveSample"/>
+   <class name="HcalTriggerPrimitiveDigi"/>
+   <class name="std::vector<HBHEDataFrame>"/>
+   <class name="std::vector<HODataFrame>"/>
+   <class name="std::vector<HFDataFrame>"/>
+   <class name="std::vector<HcalTriggerPrimitiveDigi>"/>
+   <class name="edm::Wrapper<std::vector<HBHEDataFrame> >" id="87B65223-D978-3A0C-E8A0-9B13ED4D7ACC"/>
+   <class name="edm::Wrapper<std::vector<HODataFrame> >" id="3E361287-1DEA-F9BA-C080-228D1E1BD207"/>
+   <class name="edm::Wrapper<std::vector<HFDataFrame> >" id="1ED234EA-A911-0E42-83AF-1C85DFD66B4A"/>
+   <class name="edm::Wrapper<std::vector<HcalTriggerPrimitiveDigi> >" id="A90293C5-D215-758E-6171-D4886E44803F"/>
+</lcgdict>
