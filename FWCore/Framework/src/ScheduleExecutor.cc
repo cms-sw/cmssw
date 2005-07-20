@@ -3,23 +3,31 @@
    Implementation of ScheduleExecutor
 
    \author Stefano ARGIRO
-   \version $Id: ScheduleExecutor.cc,v 1.2 2005/06/23 19:59:48 wmtan Exp $
+   \version $Id: ScheduleExecutor.cc,v 1.3 2005/07/14 22:50:53 wmtan Exp $
    \date 19 May 2005
 */
 
-static const char CVSId[] = "$Id: ScheduleExecutor.cc,v 1.2 2005/06/23 19:59:48 wmtan Exp $";
+static const char CVSId[] = "$Id: ScheduleExecutor.cc,v 1.3 2005/07/14 22:50:53 wmtan Exp $";
 
 
 #include "FWCore/Framework/interface/ScheduleExecutor.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/src/Worker.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Actions.h"
+#include "FWCore/Utilities/interface/EDMException.h"
+
+#include <iostream>
 
 using namespace edm;
+using namespace std;
 
 
-ScheduleExecutor::ScheduleExecutor(const ScheduleExecutor::PathList& pathlist):
-  m_pathlist(pathlist){}
+ScheduleExecutor::ScheduleExecutor(const ScheduleExecutor::PathList& pathlist,
+				   const ActionTable& tab):
+  m_pathlist(pathlist),
+  m_actions(&tab)
+{}
 
 
 int 
@@ -37,8 +45,39 @@ ScheduleExecutor::runOneEvent(EventPrincipal& eventPrincipal,
 	 workerIt != pathIt->end(); 
 	 ++workerIt){
 
-      // need error handling
-      if (!(*workerIt)->doWork(eventPrincipal, eventSetup)) return 1;
+      try
+	{
+	  // stop this path if worker returns false
+	  if (!(*workerIt)->doWork(eventPrincipal, eventSetup)) break;
+	}
+      catch(cms::Exception& e)
+	{
+	  actions::ActionCodes code = m_actions->find(e.rootCause());
+
+	  if(code==actions::IgnoreCompletely)
+	    {
+	      // change to error logger - print the path name FIXME
+	      cerr << "Ignoring exception from event " << eventPrincipal.id()
+		   << " in path XXX"
+		   << "\nmessage:\n" << e.what()
+		   << endl;
+	      continue;
+	    }
+	  else if(code==actions::FailPath)
+	    {
+	      // mark path as failed FIXME
+	      cerr << "Exception caused path end from event "
+		   << eventPrincipal.id()
+		   << " in path XXX"
+		   << "\nmessage:\n" << e.what()
+		   << endl;
+	      break;
+	    }
+	  else
+	    throw edm::Exception(errors::ScheduleExecutionFailure,
+				 "ProcessingStopped",e);
+	  
+	}
       
     } // for
   }// for path

@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: FilterWorker.cc,v 1.3 2005/07/08 00:09:42 chrjones Exp $
+$Id: FilterWorker.cc,v 1.4 2005/07/14 22:50:53 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <memory>
 
@@ -10,14 +10,22 @@ $Id: FilterWorker.cc,v 1.3 2005/07/08 00:09:42 chrjones Exp $
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/ModuleDescription.h"
+#include "FWCore/Framework/interface/Actions.h"
+#include "FWCore/Framework/src/WorkerParams.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
+#include <iostream>
+
+using namespace std;
 
 namespace edm
 {
   FilterWorker::FilterWorker(std::auto_ptr<EDFilter> ed,
-			     const ModuleDescription& md):
+			     const ModuleDescription& md,
+			     const WorkerParams& wp):
    md_(md),
-   filter_(ed)
+   filter_(ed),
+   actions_(wp.actions_)
   {
   }
 
@@ -28,10 +36,73 @@ namespace edm
   bool 
   FilterWorker::doWork(EventPrincipal& ep, EventSetup const& c)
   {
-    Event e(ep,md_);
-    return filter_->filter(e, c);
-    // a filter cannot write into the event, so commit is not needed
-    // although we do know about what it asked for
+    bool rc = false;
+    try
+      {
+	Event e(ep,md_);
+	rc = filter_->filter(e, c);
+	// a filter cannot write into the event, so commit is not needed
+	// although we do know about what it asked for
+      }
+    catch(cms::Exception& e)
+      {
+	e << "A cms::Exception is going through EDFilter:\n"
+	  << filter_;
+
+	switch(actions_->find(e.rootCause()))
+	  {
+	  case actions::IgnoreCompletely:
+	    {
+	      rc=true;
+	      cerr << "Filter ignored an exception for event " << ep.id()
+		   << "\nmessage from exception:\n" << e.what()
+		   << endl;
+	      break;
+	    }
+	  case actions::FailModule:
+	    {
+	      cerr << "Filter failed due to exception for event " << ep.id()
+		   << "\nmessage from exception:\n" << e.what()
+		   << endl;
+	      break;
+	    }
+	  default: throw;
+	  }
+
+      }
+    catch(seal::Error& e)
+      {
+	cerr << "A seal::Error is going through EDFilter:\n"
+	     << filter_
+	     << endl;
+	throw;
+      }
+    catch(std::exception& e)
+      {
+	cerr << "An std::exception is going through EDFilter:\n"
+	     << filter_
+	     << endl;
+	throw;
+      }
+    catch(std::string& s)
+      {
+	throw cms::Exception("BadExceptionType","std::string") 
+	  << "string = " << s << "\n"
+	  << filter_ ;
+      }
+    catch(const char* c)
+      {
+	throw cms::Exception("BadExceptionType","const char*") 
+	  << "cstring = " << c << "\n"
+	  << filter_ ;
+      }
+    catch(...)
+      {
+	cerr << "An unknown Exception occured in:\n" << filter_;
+	throw;
+      }
+
+    return rc;
   }
 
   void 

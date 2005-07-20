@@ -1,0 +1,49 @@
+
+18-07-05
+
+First version of assert handling and plugin manager feedback handling 
+designed to improve the error messages coming from the framework
+when really bad thing happen in the seal utilities.  All the
+processing is in the ProblemTracker class and the example use is
+in cmsRun.  This ProblemTracker class may need to be enhanced so 
+framework code can add/subtract context information.
+
+The first version of exception processing controls have been added.
+The parameter set file can contain directives to indicate the
+action that is supposed to happen when an exception is encountered.
+See Actions.h for the currently supported list.  The roadmap will
+contain the instructions for use.
+
+Converted the EventSetup-related exception to use cms::Exception.
+Since what is assumed virtual in these classes and the behavior
+has been changed so that the constructor generates the message,
+I suspect that we may see redundant information from derived
+classes (the what function is no longer solely in charge of
+adding data to the final message).
+
+This first version has catches for all the various sorts of 
+interesting thing in all the *Worker*.h classes.  This is where
+the framework calls developer-written code.  Currently the 
+exceptions that we cannot process are just repropagated and a
+message is sent to cerr indicating the context.  The cerr will
+turn into a message logger call when that interface is defined.
+The caught exceptions will probably be changed into new types
+and the beginning of the history will be used for altering program
+control.  Weird exceptions are mapped into cms::Exceptions.
+
+Converted the factory, worker registry, and maker classes to use
+a single struct WorkerParams instead of many individual arguments.
+This will hopefully help minimize changes to the factory interface
+in the future - although the struct data members still will need
+to be populated.
+
+Added a contained class to EventRegistry to automate the add/remove
+of an event to make sure the operation is exception safe.  Converted
+the EventProcessor to use this class.
+
+Currently there is a lot of redundency in the exception processing
+code in the Worker cc files.  Each of them look very similar.
+This code needs to be factored out.
+
+The printing of the path name is missing in most of the output
+message from exception and from printouts from ignored exceptions.

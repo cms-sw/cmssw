@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/ScheduleExecutor.h"
 #include "FWCore/Framework/src/InputServiceFactory.h"
 #include "FWCore/Framework/src/DebugMacros.h"
+#include "FWCore/Framework/interface/Actions.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ProcessPSetBuilder.h"
@@ -105,6 +106,9 @@ namespace edm {
                                      common.pass_);
      }
   }
+
+  // -------------------------------------------------------------------
+  //              implementation class
   // right now we only support a pset string from constructor or
   // pset read from file
 
@@ -128,10 +132,13 @@ namespace edm {
     edm::eventsetup::EventSetupProvider esp_;    
 
     bool emittedBeginJob_;
+    ActionTable act_table_;
     
     StrVec fillArgs(int argc, char* argv[]);
     string readFile(const StrVec& args);
   };
+
+  // ---------------------------------------------------------------
   
   FwkImpl::FwkImpl(int argc, char* argv[]) :
     args_(fillArgs(argc,argv)),
@@ -141,16 +148,18 @@ namespace edm {
     
     ProcessPSetBuilder builder(configstring_);
     params_ = builder.getProcessPSet();
+    // this organization leads to unnecessary copies being made
+    act_table_ = ActionTable(*params_);
     common_ = 
       CommonParams((*params_).getParameter<string>("process_name"),
 		   getVersion(), // this is not written for real yet
 		   0); // how is this specifified? Where does it come from?
  
-    ScheduleBuilder sbuilder= ScheduleBuilder(*params_,&reg_);
+    ScheduleBuilder sbuilder= ScheduleBuilder(*params_,&reg_,&act_table_);
     
     workers_= (sbuilder.getPathList());
     input_= makeInput(*params_,common_);
-    runner_ = ScheduleExecutor(workers_);
+    runner_ = ScheduleExecutor(workers_,act_table_);
     
     fillEventSetupProvider(esp_, *params_, common_);
   }
@@ -161,16 +170,17 @@ namespace edm {
     emittedBeginJob_(false) {
     ProcessPSetBuilder builder(configstring_);
     params_ = builder.getProcessPSet();
+    act_table_ = ActionTable(*params_);
     common_ = 
       CommonParams((*params_).getParameter<string>("process_name"),
 		   getVersion(), // this is not written for real yet
 		   0); // how is this specifified? Where does it come from?
  
-    ScheduleBuilder sbuilder= ScheduleBuilder(*params_,&reg_);
+    ScheduleBuilder sbuilder= ScheduleBuilder(*params_,&reg_,&act_table_);
     
     workers_= (sbuilder.getPathList());
     input_= makeInput(*params_,common_);
-    runner_ = ScheduleExecutor(workers_);
+    runner_ = ScheduleExecutor(workers_,act_table_);
     fillEventSetupProvider(esp_, *params_, common_);
 
   }
@@ -182,16 +192,17 @@ namespace edm {
 
     ProcessPSetBuilder builder(configstring_);
     params_ = builder.getProcessPSet();
+    act_table_ = ActionTable(*params_);
     common_ = 
       CommonParams((*params_).getParameter<string>("process_name"),
 		   getVersion(), // this is not written for real yet
 		   0); // how is this specifified? Where does it come from?
  
-    ScheduleBuilder sbuilder= ScheduleBuilder(*params_,&reg_);
+    ScheduleBuilder sbuilder= ScheduleBuilder(*params_,&reg_,&act_table_);
     
     workers_= (sbuilder.getPathList());
     input_= makeInput(*params_,common_);
-    runner_ = ScheduleExecutor(workers_);
+    runner_ = ScheduleExecutor(workers_,act_table_);
     
     FDEBUG(2) << params_->toString() << std::endl;
   }
@@ -276,9 +287,33 @@ namespace edm {
 	edm::Timestamp ts(eventcount);
 	EventSetup const& es = esp_.eventSetupForInstance(ts);
 
-	EventRegistry::instance()->addEvent(pep->id(), pep.get());
-	runner_.runOneEvent(*pep.get(),es);
-	EventRegistry::instance()->removeEvent(pep->id());
+	try
+	  {
+	    EventRegistry::Operate oper(pep->id(),pep.get());
+	    runner_.runOneEvent(*pep.get(),es);
+	  }
+	catch(cms::Exception& e)
+	  {
+	    actions::ActionCodes code = act_table_.find(e.rootCause());
+	    if(code==actions::IgnoreCompletely)
+	      {
+		// change to error logger!
+		cerr << "Ignoring exception from Event ID=" << pep->id()
+		     << ", message:\n" << e.what()
+		     << endl;
+		continue;
+	      }
+	    else if(code==actions::SkipEvent)
+	      {
+		cerr << "Skipping Event ID=" << pep->id()
+		     << ", message:\n" << e.what()
+		     << endl;
+		continue;
+	      }
+	    else
+	      throw edm::Exception(errors::EventProcessorFailure,
+				   "EventProcessingStopped",e);
+	  }
       }
 
     //NOTE: this is not done if an exception is thrown in the above loop.

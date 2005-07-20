@@ -37,13 +37,9 @@ namespace edm {
     return singleInstance_;
   }
 
-  std::auto_ptr<Worker> Factory::makeWorker(ParameterSet const& conf,
-					    std::string const& pn,
-					    unsigned long vn,
-					    unsigned long pass) const
-
+  std::auto_ptr<Worker> Factory::makeWorker(const WorkerParams& p) const
   {
-    string modtype = conf.getParameter<string>("module_type");
+    string modtype = p.pset_->getParameter<string>("module_type");
     FDEBUG(1) << "Factory: module_type = " << modtype << endl;
     MakerMap::iterator it = makers_.find(modtype);
 
@@ -54,7 +50,7 @@ namespace edm {
 	if(wm.get()==0)
 	  throw edm::Exception(errors::Configuration,"UnknownModule")
 	    << "Module " << modtype
-	    << " with version " << vn
+	    << " with version " << p.version_number_
 	    << " was not registered.\n"
 	    << "Perhaps your module type is mispelled or is not a "
 	    << "framework plugin.\n"
@@ -73,7 +69,7 @@ namespace edm {
 	wm.release();
       }
 
-    std::auto_ptr<Worker> w(it->second->makeWorker(conf,pn,vn,pass));
+    std::auto_ptr<Worker> w(it->second->makeWorker(p));
     return w;
   }
 

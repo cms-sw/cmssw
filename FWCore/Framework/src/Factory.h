@@ -5,6 +5,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/src/Worker.h"
 #include "FWCore/Framework/src/WorkerMaker.h"
+#include "FWCore/Framework/src/WorkerParams.h"
 
 #include <map>
 #include <string>
@@ -21,10 +22,7 @@ namespace edm {
 
     static Factory* get();
 
-    std::auto_ptr<Worker> makeWorker(ParameterSet const&,
-				     std::string const& pn,
-				     unsigned long vn,
-				     unsigned long pass) const;
+    std::auto_ptr<Worker> makeWorker(const WorkerParams&) const;
 
 
   private:

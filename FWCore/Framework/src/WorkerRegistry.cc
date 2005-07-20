@@ -3,11 +3,11 @@
    Implementation of class WorkerRegistry
 
    \author Stefano ARGIRO
-   \version $Id: WorkerRegistry.cc,v 1.4 2005/06/24 14:53:53 argiro Exp $
+   \version $Id: WorkerRegistry.cc,v 1.5 2005/07/14 22:50:53 wmtan Exp $
    \date 18 May 2005
 */
 
-static const char CVSId[] = "$Id: WorkerRegistry.cc,v 1.4 2005/06/24 14:53:53 argiro Exp $";
+static const char CVSId[] = "$Id: WorkerRegistry.cc,v 1.5 2005/07/14 22:50:53 wmtan Exp $";
 
 
 #include "FWCore/Framework/src/WorkerRegistry.h"
@@ -31,13 +31,11 @@ WorkerRegistry:: ~WorkerRegistry(){
 }
 
 
-Worker* WorkerRegistry::getWorker(ParameterSet const& parameterSet,
-				  std::string const& processName,
-				  unsigned long versionNumber,
-				  unsigned long pass){
+Worker* WorkerRegistry::getWorker(const WorkerParams& p) {
 
   string workerid= 
-    mangleWorkerParameters(parameterSet, processName,versionNumber,pass);
+    mangleWorkerParameters(*p.pset_, p.process_name_,
+			   p.version_number_,p.pass_);
 
   WorkerMap::iterator workerIt = m_workerMap.find(workerid);
   
@@ -45,7 +43,7 @@ Worker* WorkerRegistry::getWorker(ParameterSet const& parameterSet,
   if (workerIt == m_workerMap.end()){
     
     std::auto_ptr<Worker> workerPtr=
-      Factory::get()->makeWorker(parameterSet,processName,versionNumber,pass);
+      Factory::get()->makeWorker(p);
     
     Worker* w =  workerPtr.release(); // take ownership
     m_workerMap[workerid] = w;

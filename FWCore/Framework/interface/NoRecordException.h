@@ -33,6 +33,7 @@
 #include <exception>
 // user include files
 #include "FWCore/Framework/interface/HCTypeTagTemplate.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 // forward declarations
 namespace edm {
@@ -40,21 +41,20 @@ namespace edm {
       class EventSetupRecordKey;
 //NOTE: when EDM gets own exception hierarchy, will need to change inheritance
 template <class T>
-class NoRecordException : public std::exception
+class NoRecordException : public cms::Exception
 {
-   public:
-      // ---------- Constructors and destructor ----------------
-      NoRecordException() {
-	    message_ = std::string("No ") +
-         heterocontainer::HCTypeTagTemplate<T,EventSetupRecordKey>::className() +
-	       " Record found in the EventSetup";
-      }
+ public:
+  // ---------- Constructors and destructor ----------------
+  NoRecordException():cms::Exception("NoRecord")
+  {
+    (*this)
+      << "No " 
+      << heterocontainer::HCTypeTagTemplate<T,EventSetupRecordKey>::className()
+      << " Record found in the EventSetup";
+  }
       virtual ~NoRecordException() throw() {}
 
       // ---------- const member functions ---------------------
-      const char* what() const throw() {
-	 return message_.c_str();
-      }
 
       // ---------- static member functions --------------------
 
@@ -68,8 +68,6 @@ class NoRecordException : public std::exception
       //const NoRecordException& operator=(const NoRecordException&); // stop default
 
       // ---------- data members -------------------------------
-      std::string message_;
-
 };
 
 // inline function definitions

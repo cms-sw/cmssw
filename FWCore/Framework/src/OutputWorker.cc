@@ -1,20 +1,28 @@
 
 /*----------------------------------------------------------------------
-$Id: OutputWorker.cc,v 1.2 2005/07/08 00:09:42 chrjones Exp $
+$Id: OutputWorker.cc,v 1.3 2005/07/14 22:50:53 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/OutputModule.h"
-
+#include "FWCore/Framework/interface/Actions.h"
+#include "FWCore/Framework/src/WorkerParams.h"
 #include "FWCore/Framework/src/OutputWorker.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
+#include <iostream>
+
+using namespace std;
 
 namespace edm
 {
   OutputWorker::OutputWorker(std::auto_ptr<OutputModule> mod,
-			     const ModuleDescription& md):
+			     const ModuleDescription& md,
+			     const WorkerParams& wp):
     md_(md),
-    mod_(mod)
+    mod_(mod),
+    actions_(wp.actions_)
   {
   }
 
@@ -27,8 +35,72 @@ namespace edm
   {
     // EventSetup is not (yet) used. Should it be passed to the
     // OutputModule?
-    mod_->write(ep);
-    return true;
+    bool rc = false;
+
+    try
+      {
+	mod_->write(ep);
+	rc=true;
+      }
+    catch(cms::Exception& e)
+      {
+	e << "A cms::Exception is going through OutputModule:\n"
+	  << mod_;
+
+	switch(actions_->find(e.rootCause()))
+	  {
+	  case actions::IgnoreCompletely:
+	    {
+	      rc=true;
+	      cerr << "Output module ignored exception for event " << ep.id()
+		   << "\nmessage from exception:\n" << e.what()
+		   << endl;
+	      break;
+	    }
+	  case actions::FailModule:
+	    {
+	      cerr << "Output module failed due to exception for event " << ep.id()
+		   << "\nmessage from exception:\n" << e.what()
+		   << endl;
+	      break;
+	    }
+	  default: throw;
+	  }
+
+      }
+    catch(seal::Error& e)
+      {
+	cerr << "A seal::Error is going through OutputModule:\n"
+	     << mod_
+	     << endl;
+	throw;
+      }
+    catch(std::exception& e)
+      {
+	cerr << "An std::exception is going through OutputModule:\n"
+	     << mod_
+	     << endl;
+	throw;
+      }
+    catch(std::string& s)
+      {
+	throw cms::Exception("BadExceptionType","std::string") 
+	  << "string = " << s << "\n"
+	  << mod_ ;
+      }
+    catch(const char* c)
+      {
+	throw cms::Exception("BadExceptionType","const char*") 
+	  << "cstring = " << c << "\n"
+	  << mod_ ;
+      }
+    catch(...)
+      {
+	cerr << "An unknown Exception occured in\n" << mod_;
+	throw;
+      }
+
+    return rc;
   }
 
   void 

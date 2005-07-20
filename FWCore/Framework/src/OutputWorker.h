@@ -9,7 +9,7 @@ this object is to call the output module.
 According to our current definition, a single output module can only
 appear in one worker.
 
-$Id: OutputWorker.h,v 1.4 2005/07/08 00:09:42 chrjones Exp $
+$Id: OutputWorker.h,v 1.5 2005/07/14 22:50:53 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -24,12 +24,15 @@ $Id: OutputWorker.h,v 1.4 2005/07/08 00:09:42 chrjones Exp $
 
 namespace edm
 {
+  class WorkerParams;
+  class ActionTable;
 
   class OutputWorker : public Worker
   {
   public:
     OutputWorker(std::auto_ptr<OutputModule> mod, 
-		 const ModuleDescription&);
+		 const ModuleDescription&,
+		 const WorkerParams&);
 
     virtual ~OutputWorker();
 
@@ -41,6 +44,7 @@ namespace edm
     
     ModuleDescription               md_;
     boost::shared_ptr<OutputModule> mod_;
+    const ActionTable* actions_; // memory assumed to be managed elsewhere
   };
 
   template <> 

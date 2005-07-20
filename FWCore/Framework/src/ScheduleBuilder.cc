@@ -3,15 +3,16 @@
    Implementation of class ScheduleBuilder
 
    \author Stefano ARGIRO
-   \version $Id: ScheduleBuilder.cc,v 1.9 2005/06/26 02:22:39 wmtan Exp $
+   \version $Id: ScheduleBuilder.cc,v 1.10 2005/07/14 22:50:53 wmtan Exp $
    \date 18 May 2005
 */
 
-static const char CVSId[] = "$Id: ScheduleBuilder.cc,v 1.9 2005/06/26 02:22:39 wmtan Exp $";
+static const char CVSId[] = "$Id: ScheduleBuilder.cc,v 1.10 2005/07/14 22:50:53 wmtan Exp $";
 
 
 #include "FWCore/Framework/interface/ScheduleBuilder.h"
 #include "FWCore/Framework/src/WorkerRegistry.h"
+#include "FWCore/Framework/src/WorkerParams.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "PluginManager/PluginManager.h"
 
@@ -21,7 +22,8 @@ using namespace edm;
 using namespace std;
 
 ScheduleBuilder::ScheduleBuilder(ParameterSet const& processDesc,
-				 WorkerRegistry * registry): 
+				 WorkerRegistry * registry,
+				 ActionTable* actions): 
   m_processDesc(processDesc), m_registry(registry){
 
 
@@ -53,9 +55,10 @@ ScheduleBuilder::ScheduleBuilder(ParameterSet const& processDesc,
 //#warning version and pass are hardcoded
       unsigned long version = 1;
       unsigned long pass    = 1;
+
+      WorkerParams params(module_pset,0,actions,processName,version,pass);
     
-      Worker* worker= 
-	m_registry->getWorker(module_pset,processName,version,pass);
+      Worker* worker= m_registry->getWorker(params);
       
       workerList.push_back(worker);
       

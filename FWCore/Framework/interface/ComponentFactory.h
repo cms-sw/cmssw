@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 15:21:05 EDT 2005
-// $Id: ComponentFactory.h,v 1.5 2005/06/23 19:59:30 wmtan Exp $
+// $Id: ComponentFactory.h,v 1.6 2005/07/14 22:50:52 wmtan Exp $
 //
 
 // system include files
@@ -28,6 +28,7 @@
 #include "PluginManager/PluginFactory.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ComponentMaker.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 // forward declarations
 namespace edm {
@@ -62,7 +63,7 @@ class ComponentFactory : public seal::PluginFactory< ComponentMakerBase<T>* ()>
             boost::shared_ptr<Maker> wm(this->create(modtype));
             
             if(wm.get()==0) {
-               throw runtime_error((T::name()+ " failed to create a " + modtype).c_str());
+	      throw edm::Exception(errors::Configuration,(T::name()+ " failed to create a " + modtype).c_str());
             }
             
             //cerr << "Factory: created the worker" << endl;
@@ -71,7 +72,7 @@ class ComponentFactory : public seal::PluginFactory< ComponentMakerBase<T>* ()>
                makers_.insert(make_pair<string,boost::shared_ptr<Maker> >(modtype,wm));
             
             if(ret.second==false)
-               throw runtime_error("Maker Factory map insert failed");
+	      throw edm::Exception(errors::Configuration,"Maker Factory map insert failed");
             
             it = ret.first;
          }

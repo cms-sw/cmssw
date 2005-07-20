@@ -3,16 +3,17 @@
    Declaration of class ModuleRegistry
 
    \author Stefano ARGIRO
-   \version $Id: WorkerRegistry.h,v 1.2 2005/06/24 09:10:17 llista Exp $
+   \version $Id: WorkerRegistry.h,v 1.3 2005/06/24 14:53:53 argiro Exp $
    \date 18 May 2005
 */
 
 #ifndef _edm_ModuleRegistry_h_
 #define _edm_ModuleRegistry_h_
 
-static const char CVSId_edm_ModuleRegistry[] = "$Id: WorkerRegistry.h,v 1.2 2005/06/24 09:10:17 llista Exp $";
+static const char CVSId_edm_ModuleRegistry[] = "$Id: WorkerRegistry.h,v 1.3 2005/06/24 14:53:53 argiro Exp $";
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/src/WorkerParams.h"
 #include <map>
 #include <string>
 
@@ -42,10 +43,7 @@ namespace edm {
     /** If the worker with that set of parameters does not exist,
         create it
         @note Workers are owned by this class, do not delete them*/
-    Worker*  getWorker(ParameterSet const& parameterSet,
-		       std::string const& processName,
-		       unsigned long versionNumber,
-		       unsigned long pass);
+    Worker*  getWorker(const WorkerParams&);
     
   private:
      

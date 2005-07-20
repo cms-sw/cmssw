@@ -5,9 +5,10 @@
   
 ModuleDescription: The description of a producer module.
 
-$Id: ModuleDescription.h,v 1.1 2005/07/06 18:47:05 wmtan Exp $
+$Id: ModuleDescription.h,v 1.2 2005/07/14 22:50:52 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <string>
+#include <iostream>
 
 #include "FWCore/Framework/interface/PassID.h"
 #include "FWCore/Framework/interface/PS_ID.h"
@@ -50,5 +51,15 @@ namespace edm {
       && a.process_name == b.process_name
       && a.pass == b.pass;
   } 
+
+  inline
+  std::ostream& operator<<(std::ostream& ost, const ModuleDescription& md)
+  {
+    ost << "Module type=" << md.module_name << ", "
+	<< "Module label=" << md.module_label << ", "
+	<< "Process name=" << md.process_name;
+
+    return ost;
+  }
 }
 #endif

@@ -15,7 +15,7 @@
 //
 // Author:      Valentine Kouznetsov
 // Created:     Wed Apr 23 10:58:26 EDT 2003
-// $Id: NoProxyException.h,v 1.3 2005/06/23 22:01:31 wmtan Exp $
+// $Id: NoProxyException.h,v 1.4 2005/07/14 22:50:52 wmtan Exp $
 //
 //
 
@@ -28,6 +28,7 @@
 //#include "DataHandler/interface/FrameRecordItr.h"
 //#include "DataHandler/interface/RecordKeyItr.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 // forward declarations
 namespace edm {
@@ -43,15 +44,19 @@ class NoProxyException : public NoDataException<T>
       // ---------- Constructors and destructor ----------------
       NoProxyException(const EventSetupRecord& iRecord,
 			  const DataKey& iDataKey) :
-	 NoDataException<T>(iRecord.key(), iDataKey), 
+	NoDataException<T>(iRecord.key(), iDataKey,"NoProxyException"), 
 	 record_(iRecord),
-	 message_() {}
+	 message_()
+       {
+	 this->append(this->myMessage());
+       }
       virtual ~NoProxyException() throw() {}
 
       // ---------- member functions ---------------------------
 
+   private:
       // ---------- const member functions ---------------------
-      virtual const char* what()const throw() { 
+      const char* myMessage()const throw() { 
          /*
          std::stringstream m_stream1, m_stream2;
         // Evaluate more precisely what is going on with thrown exception
@@ -98,6 +103,11 @@ class NoProxyException : public NoDataException<T>
         }
         */
         if(message_.size() == 0) {
+
+	  // since dataTypeMessage is a member of the base class,
+	  // I suspect that the information will included twice
+	  // in the final "what" message because the base class
+	  // already appends this information.
           message_ = this->dataTypeMessage();
           /*
           if(o_record_proxy.size()) {
@@ -119,7 +129,6 @@ class NoProxyException : public NoDataException<T>
 
       // ---------- static member functions --------------------
 
-   private:
       // ---------- Constructors and destructor ----------------
       //NoProxyException(const NoProxyException&) ; //allow default
 

@@ -29,7 +29,7 @@ if(outOfBoundsValue) {
 //
 // Author:      Chris Jones
 // Created:     Fri Apr  1 13:18:53 EST 2005
-// $Id: MakeDataException.h,v 1.2 2005/06/23 19:59:30 wmtan Exp $
+// $Id: MakeDataException.h,v 1.3 2005/07/14 22:50:52 wmtan Exp $
 //
 
 // system include files
@@ -40,26 +40,34 @@ if(outOfBoundsValue) {
 #include "FWCore/Framework/interface/HCTypeTagTemplate.h"
 #include "FWCore/Framework/interface/DataKey.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 // forward declarations
 namespace edm {
    namespace eventsetup {
 template< class RecordT, class DataT>
-class MakeDataException : public std::exception
+class MakeDataException : public cms::Exception
 {
 
    public:
       MakeDataException(const DataKey& iKey) : 
-        message_(standardMessage(iKey)){}
+	cms::Exception("MakeDataException"),
+        message_(standardMessage(iKey))
+      {
+	this->append(myMessage());
+      }
 
       MakeDataException(const std::string& iAdditionalInfo,
                      const DataKey& iKey) : 
-        message_(messageWithInfo(iKey, iAdditionalInfo)){}
+        message_(messageWithInfo(iKey, iAdditionalInfo))
+      {
+	this->append(this->myMessage());
+      }
 
       ~MakeDataException() throw() {}
 
       // ---------- const member functions ---------------------
-      const char* what() const throw() {
+      const char* myMessage() const throw() {
          return message_.c_str();
       }
    

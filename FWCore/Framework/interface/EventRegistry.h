@@ -6,7 +6,7 @@
 EventRegistry: A singleton to keep track of active events.
 Event.
 
-$Id: EventRegistry.h,v 1.2 2005/06/28 04:46:02 jbk Exp $
+$Id: EventRegistry.h,v 1.3 2005/07/14 22:50:52 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -44,6 +44,19 @@ namespace edm {
       }
       return it->second;
     }
+
+    class Operate
+    {
+    public:
+      Operate(CollisionID id, EventPrincipal const* ptr):
+	id_(id),reg_(EventRegistry::instance())
+      { reg_->addEvent(id_,ptr); }
+      ~Operate()
+      { reg_->removeEvent(id_); }
+    private:
+      CollisionID id_;
+      EventRegistry* reg_;
+    };
   private:
     EventMap eventMap;
   };

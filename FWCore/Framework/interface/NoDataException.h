@@ -60,7 +60,7 @@
 //
 // Author:      Chris D Jones
 // Created:     Tue Dec  7 09:10:34 EST 1999
-// $Id: NoDataException.h,v 1.3 2005/06/23 22:01:31 wmtan Exp $
+// $Id: NoDataException.h,v 1.4 2005/07/14 22:50:52 wmtan Exp $
 //
 
 // system include files
@@ -71,13 +71,14 @@
 #include "FWCore/Framework/interface/DataKey.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/Framework/interface/HCTypeTagTemplate.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 // forward declarations
 namespace edm {
    namespace eventsetup {
 
 template <class T>
-class NoDataException : public std::exception
+ class NoDataException : public cms::Exception
 {
       // ---------- friend classes and functions ---------------
 
@@ -86,15 +87,20 @@ class NoDataException : public std::exception
 
       // ---------- Constructors and destructor ----------------
       NoDataException(const EventSetupRecordKey& iRecordKey,
-			 const DataKey& iDataKey) : 
-	 record_(iRecordKey),
-	 dataKey_(iDataKey),
-	 message_() {}
+		      const DataKey& iDataKey,
+		      const char* category_name = "NoDataException") : 
+	cms::Exception(category_name),
+	record_(iRecordKey),
+	dataKey_(iDataKey),
+	message_()
+      {
+	this->append(this->myMessage());
+      }
       virtual ~NoDataException() throw() {}
 
       // ---------- const member functions ---------------------
       const DataKey& dataKey() const { return dataKey_; }
-      virtual const char* what() const throw() { 
+      virtual const char* myMessage() const throw() { 
         if(message_.size() == 0) {
           message_ = dataTypeMessage();
            message_+= std::string(" \n ")
