@@ -4,10 +4,12 @@
 #include <boost/cstdint.hpp>
 #include <ostream>
 
+namespace cms {
+
 /** \class DetId
     
-   $Date: $
-   $Revision: $
+   $Date: 2005/07/19 18:21:57 $
+   $Revision: 1.1 $
 */
 class DetId {
 public:
@@ -42,6 +44,7 @@ protected:
   uint32_t id_;
 };
 
+}
 
 //std::ostream& operator<<(std::ostream& s, const DetId& id);
 
