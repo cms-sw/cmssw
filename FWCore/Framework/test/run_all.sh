@@ -1,12 +1,12 @@
 #!/bin/sh
 
 #----------------------------------------------------------------------
-# $Id: run_all.sh,v 1.4 2005/07/20 03:00:36 jbk Exp $
+# $Id: run_all.sh,v 1.5 2005/07/20 05:23:01 wmtan Exp $
 #----------------------------------------------------------------------
 
 # no way to easily locate the test directory and the architecture/compiler
 # from environment variables.  hardcoded for now
-DIR=../../../../test/slc3_ia32_gcc323_dbg
+DIR=../../../../test/slc3_ia32_gcc323
 
 # Pass in name and status
 function die { echo $1: status $2 ;  exit $2; }
