@@ -4,10 +4,12 @@
 #include <boost/cstdint.hpp>
 #include <ostream>
 
+namespace cms {
+
 /** \class HcalTriggerPrimitiveSample
     
-   $Date: $
-   $Revision: $
+   $Date: 2005/07/19 18:46:28 $
+   $Revision: 1.1 $
    \author J. Mans - Minnesota
 */
 class HcalTriggerPrimitiveSample {
@@ -33,6 +35,8 @@ private:
   uint16_t theSample;
 };
 
-std::ostream& operator<<(std::ostream& s, const HcalTriggerPrimitiveSample& samp);
+}
+
+std::ostream& operator<<(std::ostream& s, const cms::HcalTriggerPrimitiveSample& samp);
 
 #endif

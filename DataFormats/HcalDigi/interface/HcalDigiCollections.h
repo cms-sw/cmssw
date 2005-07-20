@@ -7,9 +7,13 @@
 #include "DataFormats/HcalDigi/interface/HFDataFrame.h"
 #include "DataFormats/HcalDigi/interface/HcalTriggerPrimitiveDigi.h"
 
+namespace cms {
+
 typedef std::vector<HBHEDataFrame> HBHEDigiCollection;
 typedef std::vector<HODataFrame> HODigiCollection;
 typedef std::vector<HFDataFrame> HFDigiCollection;
 typedef std::vector<HcalTriggerPrimitiveDigi> HcalTrigPrimDigiCollection;
+
+}
 
 #endif

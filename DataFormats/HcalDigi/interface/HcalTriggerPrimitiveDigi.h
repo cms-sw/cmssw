@@ -5,10 +5,12 @@
 #include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
 #include "DataFormats/HcalDigi/interface/HcalTriggerPrimitiveSample.h"
 
+namespace cms {
+
 /** \class HcalTriggerPrimitiveDigi
     
-   $Date: $
-   $Revision: $
+   $Date: 2005/07/19 18:46:28 $
+   $Revision: 1.1 $
    \author J. Mans - Minnesota
 */
 class HcalTriggerPrimitiveDigi {
@@ -36,6 +38,8 @@ private:
   HcalTriggerPrimitiveSample data_[10];
 };
 
-std::ostream& operator<<(std::ostream& s, const HcalTriggerPrimitiveDigi& digi);
+}
+
+std::ostream& operator<<(std::ostream& s, const cms::HcalTriggerPrimitiveDigi& digi);
 
 #endif

@@ -1,5 +1,7 @@
 #include "DataFormats/HcalDigi/interface/HFDataFrame.h"
 
+namespace cms {
+
 HFDataFrame::HFDataFrame() : id_(0), 
 				 size_(0),
 				 hcalPresamples_(0) {
@@ -24,7 +26,10 @@ void HFDataFrame::setPresamples(int ps) {
 void HFDataFrame::setReadoutIds(const HcalElectronicsId& eid) {
   electronicsId_=eid;
 }
-std::ostream& operator<<(std::ostream& s, const HFDataFrame& digi) {
+
+}
+
+std::ostream& operator<<(std::ostream& s, const cms::HFDataFrame& digi) {
   s << digi.id() << " " << digi.size() << " samples " << std::endl;
   for (int i=0; i<digi.size(); i++) 
     s << "  " << digi.sample(i) << std::endl;

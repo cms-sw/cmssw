@@ -1,5 +1,7 @@
 #include "DataFormats/HcalDigi/interface/HcalTriggerPrimitiveDigi.h"
 
+namespace cms {
+
 HcalTriggerPrimitiveDigi::HcalTriggerPrimitiveDigi() : size_(0), hcalPresamples_(0) {
 }
 HcalTriggerPrimitiveDigi::HcalTriggerPrimitiveDigi(const HcalTrigTowerDetId& id) : id_(id),
@@ -17,7 +19,9 @@ void HcalTriggerPrimitiveDigi::setPresamples(int ps) {
   else hcalPresamples_=ps;
 }
 
-std::ostream& operator<<(std::ostream& s, const HcalTriggerPrimitiveDigi& digi) {
+}
+
+std::ostream& operator<<(std::ostream& s, const cms::HcalTriggerPrimitiveDigi& digi) {
   s << digi.id() << " " << digi.size() << " samples " << std::endl;
   for (int i=0; i<digi.size(); i++) 
     s << "  " << digi.sample(i) << std::endl;

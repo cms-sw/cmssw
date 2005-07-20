@@ -6,13 +6,14 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
+namespace cms {
 
 /** \class HcalTrigTowerDetId
     
 Cell id for an Calo Trigger tower
 
-   $Date: $
-   $Revision: $
+   $Date: 2005/07/19 18:23:34 $
+   $Revision: 1.1 $
    \author J. Mans - Minnesota
 */
 class HcalTrigTowerDetId : public DetId {
@@ -44,6 +45,8 @@ public:
 
 };
 
-std::ostream& operator<<(std::ostream&,const HcalTrigTowerDetId& id);
+}
+
+std::ostream& operator<<(std::ostream&,const cms::HcalTrigTowerDetId& id);
 
 #endif

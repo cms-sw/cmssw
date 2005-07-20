@@ -1,5 +1,7 @@
 #include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
 
+namespace cms {
+
 HcalElectronicsId::HcalElectronicsId() {
   hcalElectronicsId_=0xffffffffu;
 }
@@ -18,7 +20,9 @@ void HcalElectronicsId::setHTR(int crate, int slot, int tb) {
   hcalElectronicsId_|=((tb&0x1)<<19) | ((slot&0x1f)<<14) | ((crate&0x3f)<<20);
 }
 
-std::ostream& operator<<(std::ostream& os,const HcalElectronicsId& id) {
+}
+
+std::ostream& operator<<(std::ostream& os,const cms::HcalElectronicsId& id) {
   return os << id.dccid() << ',' << id.spigot() << ',' << id.fiberIndex() << ',' << id.fiberChanId() << " (HTR "
 	    << id.readoutVMECrateId() << ":" << id.htrSlot() << ((id.htrTopBottom()==1)?('t'):('b')) << ')'; 
 }

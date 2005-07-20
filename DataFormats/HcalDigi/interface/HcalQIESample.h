@@ -4,11 +4,13 @@
 #include <ostream>
 #include <boost/cstdint.hpp>
 
+namespace cms {
+
 /** \class HcalQIESample
  *  Simple container/packer/unpacker for a single QIE data word
  *
  *
- *  $Date: 2005/06/06 19:35:59 $
+ *  $Date: 2005/07/19 18:46:28 $
  *  $Revision: 1.1 $
  *  \author J. Mans - Minnesota
  */
@@ -40,6 +42,8 @@ private:
   uint16_t theSample;
 };
 
-std::ostream& operator<<(std::ostream&, const HcalQIESample&);
+}
+
+std::ostream& operator<<(std::ostream&, const cms::HcalQIESample&);
 
 #endif

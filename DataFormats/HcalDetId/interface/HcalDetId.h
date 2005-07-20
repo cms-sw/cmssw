@@ -6,11 +6,13 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
+namespace cms {
+
 /** \class HcalDetId
  *  Cell identifier class for the HCAL subdetectors
  *
- *  $Date: 2005/06/06 19:13:55 $
- *  $Revision: 1.5 $
+ *  $Date: 2005/07/19 18:23:34 $
+ *  $Revision: 1.1 $
  *  \author J. Mans - Minnesota
  */
 class HcalDetId : public DetId {
@@ -51,6 +53,8 @@ public:
 
 };
 
-std::ostream& operator<<(std::ostream&,const HcalDetId& id);
+}
+
+std::ostream& operator<<(std::ostream&,const cms::HcalDetId& id);
 
 #endif

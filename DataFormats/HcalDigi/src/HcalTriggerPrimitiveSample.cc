@@ -1,5 +1,7 @@
 #include "DataFormats/HcalDigi/interface/HcalTriggerPrimitiveSample.h"
 
+namespace cms {
+
 HcalTriggerPrimitiveSample::HcalTriggerPrimitiveSample() : theSample(0) { }
 HcalTriggerPrimitiveSample::HcalTriggerPrimitiveSample(uint16_t data) : theSample(data) { }
 
@@ -8,6 +10,8 @@ HcalTriggerPrimitiveSample::HcalTriggerPrimitiveSample(int encodedEt, bool fineG
     ((fineGrain)?(0x100):(0));
 }
 
-std::ostream& operator<<(std::ostream& s, const HcalTriggerPrimitiveSample& samp) {
+}
+
+std::ostream& operator<<(std::ostream& s, const cms::HcalTriggerPrimitiveSample& samp) {
   return s << "ET=" << samp.compressedEt() << ", FG=" << samp.fineGrain();
 }

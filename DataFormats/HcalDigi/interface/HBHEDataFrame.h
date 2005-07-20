@@ -6,6 +6,8 @@
 #include "DataFormats/HcalDigi/interface/HcalQIESample.h"
 #include <iostream>
 
+namespace cms {
+
 class HBHEDataFrame {
 public:
   HBHEDataFrame(); // for persistence
@@ -34,6 +36,8 @@ private:
   HcalQIESample data_[10];
 };
 
-std::ostream& operator<<(std::ostream&, const HBHEDataFrame&);
+}
+
+std::ostream& operator<<(std::ostream&, const cms::HBHEDataFrame&);
 
 #endif

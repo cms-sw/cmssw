@@ -7,20 +7,20 @@
 
 namespace {
   namespace {
-    std::vector<HBHEDataFrame> vHBHE_;
-    std::vector<HODataFrame> vHO_;
-    std::vector<HFDataFrame> vHF_;
-    std::vector<HcalTriggerPrimitiveDigi> vHTP_;
+    std::vector<cms::HBHEDataFrame> vHBHE_;
+    std::vector<cms::HODataFrame> vHO_;
+    std::vector<cms::HFDataFrame> vHF_;
+    std::vector<cms::HcalTriggerPrimitiveDigi> vHTP_;
 
-    HBHEDigiCollection theHBHE_;
-    HODigiCollection theHO_;
-    HFDigiCollection theHF_;
-    HcalTrigPrimDigiCollection theHTP_;
+    cms::HBHEDigiCollection theHBHE_;
+    cms::HODigiCollection theHO_;
+    cms::HFDigiCollection theHF_;
+    cms::HcalTrigPrimDigiCollection theHTP_;
 
-    edm::Wrapper<HBHEDigiCollection> theHBHEw_;
-    edm::Wrapper<HODigiCollection> theHOw_;
-    edm::Wrapper<HFDigiCollection> theHFw_;
-    edm::Wrapper<HcalTrigPrimDigiCollection> theHTPw_; 
+    edm::Wrapper<cms::HBHEDigiCollection> theHBHEw_;
+    edm::Wrapper<cms::HODigiCollection> theHOw_;
+    edm::Wrapper<cms::HFDigiCollection> theHFw_;
+    edm::Wrapper<cms::HcalTrigPrimDigiCollection> theHTPw_; 
  }
 }
 

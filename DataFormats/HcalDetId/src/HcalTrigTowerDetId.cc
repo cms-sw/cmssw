@@ -1,5 +1,7 @@
 #include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
 
+namespace cms {
+
 HcalTrigTowerDetId::HcalTrigTowerDetId() {
 }
 
@@ -27,6 +29,8 @@ HcalTrigTowerDetId& HcalTrigTowerDetId::operator=(const DetId& gen) {
   return *this;
 }
 
-std::ostream& operator<<(std::ostream& s,const HcalTrigTowerDetId& id) {
+}
+
+std::ostream& operator<<(std::ostream& s,const cms::HcalTrigTowerDetId& id) {
   return s << "(HcalTrigTower " << id.ieta() << ',' << id.iphi() << ')';
 }
