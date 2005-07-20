@@ -30,7 +30,7 @@ namespace edm
 
     CodedException(Code category,
 		   const std::string& message,
-		   const CodedException& another);
+		   const cms::Exception& another);
 
     CodedException(const CodedException& other);
 
@@ -93,28 +93,32 @@ namespace edm
 
   template <class Code>
   CodedException<Code>::CodedException(Code category):
-    cms::Exception(codeToString(category))
+    cms::Exception(codeToString(category)),
+    category_(category)
   {
   }
 
   template <class Code>
   CodedException<Code>::CodedException(Code category,
 				       const std::string& message):
-    cms::Exception(codeToString(category),message)
+    cms::Exception(codeToString(category),message),
+    category_(category)
   {
   }
 
   template <class Code>
   CodedException<Code>::CodedException(Code category,
 				       const std::string& message,
-				       const CodedException& another):
-    cms::Exception(codeToString(category),message,another)
+				       const cms::Exception& another):
+    cms::Exception(codeToString(category),message,another),
+    category_(category)
   {
   }
 
   template <class Code>
   CodedException<Code>::CodedException(const CodedException& other):
-    cms::Exception(other)
+    cms::Exception(other),
+    category_(other.category_)
   {
   }
 

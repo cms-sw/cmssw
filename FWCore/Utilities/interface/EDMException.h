@@ -33,6 +33,11 @@ namespace errors
        Configuration,
        LogicError,
        InvalidReference,
+
+       ModuleFailure,
+       ScheduleExecutionFailure,
+       EventProcessorFailure,
+
        NotFound
      };
 

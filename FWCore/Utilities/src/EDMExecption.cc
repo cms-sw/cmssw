@@ -13,6 +13,9 @@ namespace edm
     MAP_ENTRY(Configuration);
     MAP_ENTRY(LogicError);
     MAP_ENTRY(InvalidReference);
+    MAP_ENTRY(ModuleFailure);
+    MAP_ENTRY(ScheduleExecutionFailure);
+    MAP_ENTRY(EventProcessorFailure);
     MAP_ENTRY(NotFound);
   }
  

@@ -128,6 +128,7 @@ namespace cms
     std::string category() const;
 
     const CategoryList& history() const;
+    std::string rootCause() const;
 
     void append(const Exception& another);
     void append(const std::string& more_information);

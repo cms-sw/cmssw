@@ -72,6 +72,11 @@ namespace cms {
     return category_.front();
   }
   
+  std::string Exception::rootCause() const
+  {
+    return category_.back();
+  }
+  
   void Exception::append(const Exception& another)
   {
     ost_ << another.what();
