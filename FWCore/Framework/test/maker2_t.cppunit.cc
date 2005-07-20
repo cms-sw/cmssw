@@ -5,8 +5,10 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Actions.h"
 #include "FWCore/Framework/src/WorkerMaker.h"
 #include "FWCore/Framework/src/Factory.h"
+#include "FWCore/Framework/src/WorkerParams.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/parse.h"
@@ -64,8 +66,13 @@ void testmaker2::maker2Test()
   if(p1==0) cerr << "failed to make p1" << endl;
   if(p2==0) cerr << "failed to make p2" << endl;
 
-  auto_ptr<Worker> w1 = f->makeWorker(*p1,"PROD",0,0);
-  auto_ptr<Worker> w2 = f->makeWorker(*p2,"PROD",0,0);
+  edm::ActionTable table;
+
+  edm::WorkerParams params1(*p1,0,&table,"PROD",0,0);
+  edm::WorkerParams params2(*p1,0,&table,"PROD",0,0);
+
+  auto_ptr<Worker> w1 = f->makeWorker(params1);
+  auto_ptr<Worker> w2 = f->makeWorker(params2);
 
 //  return 0;
 }

@@ -5,7 +5,9 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/Actions.h"
 #include "FWCore/Framework/src/Factory.h"
+#include "FWCore/Framework/src/WorkerParams.h"
 
 #include "PluginManager/PluginManager.h"
 #include "FWCore/Framework/interface/EventSetup.h"
