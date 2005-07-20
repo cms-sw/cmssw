@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: FilterWorker.cc,v 1.4 2005/07/14 22:50:53 wmtan Exp $
+$Id: FilterWorker.cc,v 1.5 2005/07/20 03:00:36 jbk Exp $
 ----------------------------------------------------------------------*/
 #include <memory>
 
@@ -47,7 +47,7 @@ namespace edm
     catch(cms::Exception& e)
       {
 	e << "A cms::Exception is going through EDFilter:\n"
-	  << filter_;
+	  << md_;
 
 	switch(actions_->find(e.rootCause()))
 	  {
@@ -73,14 +73,14 @@ namespace edm
     catch(seal::Error& e)
       {
 	cerr << "A seal::Error is going through EDFilter:\n"
-	     << filter_
+	     << md_
 	     << endl;
 	throw;
       }
     catch(std::exception& e)
       {
 	cerr << "An std::exception is going through EDFilter:\n"
-	     << filter_
+	     << md_
 	     << endl;
 	throw;
       }
@@ -88,17 +88,17 @@ namespace edm
       {
 	throw cms::Exception("BadExceptionType","std::string") 
 	  << "string = " << s << "\n"
-	  << filter_ ;
+	  << md_ ;
       }
     catch(const char* c)
       {
 	throw cms::Exception("BadExceptionType","const char*") 
 	  << "cstring = " << c << "\n"
-	  << filter_ ;
+	  << md_ ;
       }
     catch(...)
       {
-	cerr << "An unknown Exception occured in:\n" << filter_;
+	cerr << "An unknown Exception occured in:\n" << md_;
 	throw;
       }
 

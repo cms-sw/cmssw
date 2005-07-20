@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: AnalyzerWorker.cc,v 1.3 2005/07/14 22:50:53 wmtan Exp $
+$Id: AnalyzerWorker.cc,v 1.4 2005/07/20 03:00:36 jbk Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/src/AnalyzerWorker.h"
@@ -43,7 +43,7 @@ namespace edm
     catch(cms::Exception& e)
       {
 	e << "A cms::Exception is going through EDAnalyzer:\n"
-	  << analyzer_;
+	  << md_;
 
 	switch(actions_->find(e.rootCause()))
 	  {
@@ -68,14 +68,14 @@ namespace edm
     catch(seal::Error& e)
       {
 	cerr << "A seal::Error is going through EDAnalyzer:\n"
-	     << analyzer_
+	     << md_
 	     << endl;
 	throw;
       }
     catch(std::exception& e)
       {
 	cerr << "An std::exception is going through EDAnalyzer:\n"
-	     << analyzer_
+	     << md_
 	     << endl;
 	throw;
       }
@@ -83,17 +83,17 @@ namespace edm
       {
 	throw cms::Exception("BadExceptionType","std::string") 
 	  << "string = " << s << "\n"
-	  << analyzer_ ;
+	  << md_;
       }
     catch(const char* c)
       {
 	throw cms::Exception("BadExceptionType","const char*") 
 	  << "cstring = " << c << "\n"
-	  << analyzer_ ;
+	  << md_ ;
       }
     catch(...)
       {
-	cerr << "An unknown Exception occured in\n" << analyzer_;
+	cerr << "An unknown Exception occured in\n" << md_;
 	throw;
       }
 
