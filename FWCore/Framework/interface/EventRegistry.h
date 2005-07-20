@@ -6,47 +6,25 @@
 EventRegistry: A singleton to keep track of active events.
 Event.
 
-$Id: EventRegistry.h,v 1.3 2005/07/14 22:50:52 wmtan Exp $
+$Id: EventRegistry.h,v 1.4 2005/07/20 03:00:36 jbk Exp $
 
 ----------------------------------------------------------------------*/
 
 #include <map>
-#include <stdexcept>
-#include <sstream>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Utilities/interface/EDMException.h"
 
 namespace edm {
   class EventRegistry {
   public:
     typedef std::map<CollisionID, EventPrincipal const *> EventMap;
-    static EventRegistry *instance() {
-      static EventRegistry me;
-      return &me;
-    }
-    void addEvent(CollisionID evtID, EventPrincipal const *evtPtr) {
-      if (eventMap.find(evtID) != eventMap.end()) {
-        throw edm::Exception(edm::errors::InsertFailure,"AlreadyPresent")
-	  << "EventRegistry::addEvent: An event with ID "
-	  << evtID << " is already in registry";
-      }
-      eventMap.insert(std::make_pair(evtID, evtPtr));
-    }
+    static EventRegistry *instance();
+    void addEvent(CollisionID evtID, EventPrincipal const *evtPtr);
     void removeEvent(CollisionID evtID) {
       eventMap.erase(evtID);
     }
-    EventPrincipal const * getEvent(CollisionID evtID) const {
-      EventMap::const_iterator it = eventMap.find(evtID);
-      if (it == eventMap.end()) {
-        throw edm::Exception(edm::errors::NotFound,"Find")
-	  << "EventRegistry::getEvent: No event with ID "
-	  << evtID << " was found in the registry";
-      }
-      return it->second;
-    }
+    EventPrincipal const * getEvent(CollisionID evtID) const;
 
-    class Operate
-    {
+    class Operate {
     public:
       Operate(CollisionID id, EventPrincipal const* ptr):
 	id_(id),reg_(EventRegistry::instance())
