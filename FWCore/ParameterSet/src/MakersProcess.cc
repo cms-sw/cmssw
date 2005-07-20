@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 18 19:09:01 EDT 2005
-// $Id: MakersProcess.cc,v 1.4 2005/07/14 16:17:23 jbk Exp $
+// $Id: MakersProcess.cc,v 1.5 2005/07/18 12:15:41 jbk Exp $
 //
 
 // system include files
@@ -63,7 +63,7 @@ struct FillProcess : public edm::pset::Visitor
    virtual void visitPSet(const edm::pset::PSetNode& iNode) {
       // print(cout, "PSet", iNode);
       // endPrint(cout);
-      cout << "in visitPSet: " << iNode.type() << " " << iNode.name() << endl;
+      // cout << "in visitPSet: " << iNode.type() << " " << iNode.name() << endl;
       
       static const std::string kPSet("PSet");
       static const std::string kBlock("block");
