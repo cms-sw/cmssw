@@ -1,22 +1,33 @@
 
 #include "FWCore/Utilities/interface/EDMException.h"
 
-#define MAP_ENTRY(name) trans_[edm::errors::name]=#name
-
 namespace edm
 {
-  template<> void Exception::loadTable()
+  namespace errors {
+    struct FilledMap
+    {
+      FilledMap()
+      {
+	EDM_MAP_ENTRY_NONS(trans_,Unknown);
+	EDM_MAP_ENTRY_NONS(trans_,ProductNotFound);
+	EDM_MAP_ENTRY_NONS(trans_,InsertFailure);
+	EDM_MAP_ENTRY_NONS(trans_,Configuration);
+	EDM_MAP_ENTRY_NONS(trans_,LogicError);
+	EDM_MAP_ENTRY_NONS(trans_,InvalidReference);
+	EDM_MAP_ENTRY_NONS(trans_,ModuleFailure);
+	EDM_MAP_ENTRY_NONS(trans_,ScheduleExecutionFailure);
+	EDM_MAP_ENTRY_NONS(trans_,EventProcessorFailure);
+	EDM_MAP_ENTRY_NONS(trans_,NotFound);
+      }
+
+      edm::Exception::CodeMap trans_;
+    };
+  }
+
+  void getCodeTable(edm::Exception::CodeMap*& setme)
   {
-    MAP_ENTRY(Unknown);
-    MAP_ENTRY(ProductNotFound);
-    MAP_ENTRY(InsertFailure);
-    MAP_ENTRY(Configuration);
-    MAP_ENTRY(LogicError);
-    MAP_ENTRY(InvalidReference);
-    MAP_ENTRY(ModuleFailure);
-    MAP_ENTRY(ScheduleExecutionFailure);
-    MAP_ENTRY(EventProcessorFailure);
-    MAP_ENTRY(NotFound);
+    static errors::FilledMap fm;
+    setme = &fm.trans_;
   }
  
 }

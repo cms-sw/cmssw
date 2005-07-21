@@ -15,7 +15,8 @@ interface other than constructors specific to this derived type.
 #include <string>
 #include <map>
 
-#define EDM_MAP_ENTRY(ns, name) trans_[ns::name]=#name
+#define EDM_MAP_ENTRY(map, ns, name) map[ns::name]=#name
+#define EDM_MAP_ENTRY_NONS(map, name) map[name]=#name
 
 namespace edm
 {
@@ -43,24 +44,7 @@ namespace edm
     typedef std::map<Code,std::string> CodeMap; 
   private:
 
-    friend struct TableLoader;
-    struct TableLoader
-    {
-      TableLoader()
-      { CodedException<Code>::loadTable(); c_=&trans_; }
-      CodeMap* c_;
-    };
-
-    struct Entry
-    {
-      int code;
-      char* name;
-    };
-
     Code category_;
-    static CodeMap trans_;
-    static TableLoader loader_;
-    static void loadTable();
   };
 
   template <class Code>
@@ -72,11 +56,6 @@ namespace edm
 
   /// -------------- implementation details ------------------
 
-  template <class Code>
-  typename CodedException<Code>::CodeMap CodedException<Code>::trans_;
-  template <class Code>
-  typename CodedException<Code>::TableLoader CodedException<Code>::loader_;
-
 #if 0
   template <class Code>
   void CodedException<Code>::loadTable() { }
@@ -85,7 +64,9 @@ namespace edm
   template <class Code>
   std::string CodedException<Code>::codeToString(Code c)
   {
-    CodeMap* trans = loader_.c_;
+    extern void getCodeTable(CodeMap*&);
+    CodeMap* trans;
+    getCodeTable(trans);
     typename CodeMap::const_iterator i(trans->find(c));
     return i!=trans->end() ? i->second : std::string("UnknownCode");
   }
