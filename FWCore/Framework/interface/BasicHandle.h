@@ -82,10 +82,6 @@ namespace edm {
 
     EDP_ID id() const {return wrap_->id();}
 
-    void nullHandle() const;
-
-    void invalidHandle(char const* typeName) const;
-
   private:
     EDProduct const* wrap_;
     Provenance const* prov_;    
