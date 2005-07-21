@@ -19,19 +19,19 @@ namespace edm
   struct WorkerParams
   {
     WorkerParams(): 
-      pset_(),desc_(),actions_(),
+      pset_(),reg_(),actions_(),
       process_name_(),version_number_(),pass_() { }
 
     WorkerParams(ParameterSet const& pset,
-		 ProductRegistry* desc,
+		 ProductRegistry* reg,
 		 ActionTable* actions,
 		 const std::string& pn,
 		 unsigned long vn=0, unsigned long pass=0):
-      pset_(&pset),desc_(desc),actions_(actions),
+      pset_(&pset),reg_(reg),actions_(actions),
       process_name_(pn),version_number_(vn),pass_(pass) { }
 
     const ParameterSet* pset_;
-    ProductRegistry* desc_;
+    ProductRegistry* reg_;
     ActionTable* actions_;
     std::string process_name_;
     unsigned long version_number_;
