@@ -1,5 +1,5 @@
-#include "DetectorDescription/DDRegressionTest/src/SaxToDom.h"
-#include "DetectorDescription/DDRegressionTest/src/StrX.h"
+#include "DetectorDescription/RegressionTest/src/SaxToDom.h"
+#include "DetectorDescription/RegressionTest/src/StrX.h"
 
 #include <xercesc/sax2/Attributes.hpp>
 #include <xercesc/sax/SAXParseException.hpp>

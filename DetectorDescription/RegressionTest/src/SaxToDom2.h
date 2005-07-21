@@ -2,10 +2,10 @@
 #define x_SaxToDom2_h
 
 #include "xercesc/sax2/DefaultHandler.hpp"
-#include "DetectorDescription/DDCore/interface/adjgraph.h"
-#include "DetectorDescription/DDCore/interface/graphwalker.h"
+#include "DetectorDescription/Core/interface/adjgraph.h"
+#include "DetectorDescription/Core/interface/graphwalker.h"
 
-#include "DetectorDescription/DDRegressionTest/src/TinyDom2.h"
+#include "DetectorDescription/RegressionTest/src/TinyDom2.h"
 
 #include <string>
 #include <map>

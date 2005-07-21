@@ -5,8 +5,8 @@
 #include <vector>
 #include <map>
 #include <memory>
-#include "DetectorDescription/DDCore/interface/DDValuePair.h"
-#include "DetectorDescription/DDBase/interface/Ptr.h"
+#include "DetectorDescription/Core/interface/DDValuePair.h"
+#include "DetectorDescription/Base/interface/Ptr.h"
 
 using std::string;
 using std::vector;

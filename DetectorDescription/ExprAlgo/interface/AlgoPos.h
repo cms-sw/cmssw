@@ -5,10 +5,10 @@
 #include <vector>
 #include <string>
 
-#include "DetectorDescription/DDBase/interface/DDAlgoPar.h"
-#include "DetectorDescription/DDBase/interface/DDTranslation.h"
-#include "DetectorDescription/DDBase/interface/DDRotationMatrix.h"
-//#include "DetectorDescription/DDCore/src/DDNamedObject.h"
+#include "DetectorDescription/Base/interface/DDAlgoPar.h"
+#include "DetectorDescription/Base/interface/DDTranslation.h"
+#include "DetectorDescription/Base/interface/DDRotationMatrix.h"
+//#include "DetectorDescription/Core/src/DDNamedObject.h"
 
 
 class AlgoImpl;

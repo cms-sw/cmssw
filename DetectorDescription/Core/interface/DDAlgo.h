@@ -2,11 +2,11 @@
 #define DDAlgo_h
 
 #include <iostream>
-//#include "DetectorDescription/DDCore/interface/DDRegistered.h"
-#include "DetectorDescription/DDCore/interface/DDTransform.h"
-#include "DetectorDescription/DDBase/interface/DDAlgoPar.h"
-#include "DetectorDescription/DDCore/interface/DDName.h"
-#include "DetectorDescription/DDCore/interface/DDBase.h"
+//#include "DetectorDescription/Core/interface/DDRegistered.h"
+#include "DetectorDescription/Core/interface/DDTransform.h"
+#include "DetectorDescription/Base/interface/DDAlgoPar.h"
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDBase.h"
 
 // Let's take AlgoPos to be the implementation class of DDAlgo-interface
 //#include "DetectorDescription/ExprAlgo/interface/AlgoPos.h"

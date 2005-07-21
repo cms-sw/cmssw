@@ -10,12 +10,12 @@ namespace std{} using namespace std;
 // -------------------------------------------------------------------------
 // Includes
 // -------------------------------------------------------------------------
-#include "DetectorDescription/DDParser/interface/DDXMLElement.h"
-#include "DetectorDescription/DDParser/interface/DDLSAX2FileHandler.h"
+#include "DetectorDescription/Parser/interface/DDXMLElement.h"
+#include "DetectorDescription/Parser/interface/DDLSAX2FileHandler.h"
 
 // DDCore dependencies
-#include "DetectorDescription/DDBase/interface/DDdebug.h"
-#include "DetectorDescription/DDBase/interface/DDException.h"
+#include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Base/interface/DDException.h"
 
 #include <string>
 #include <algorithm>

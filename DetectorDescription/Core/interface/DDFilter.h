@@ -5,9 +5,9 @@
 #include <string>
 #include <utility>
 
-#include "DetectorDescription/DDCore/interface/DDScope.h"
-#include "DetectorDescription/DDCore/interface/DDsvalues.h"
-//#include "DetectorDescription/DDCore/interface/tree.h"
+#include "DetectorDescription/Core/interface/DDScope.h"
+#include "DetectorDescription/Core/interface/DDsvalues.h"
+//#include "DetectorDescription/Core/interface/tree.h"
 
 class DDQuery;
 class DDExpandedView;
@@ -30,8 +30,8 @@ public:
   
 };
 
-#include "DetectorDescription/DDCore/interface/DDValue.h"
-#include "DetectorDescription/DDCore/interface/DDValuePair.h"
+#include "DetectorDescription/Core/interface/DDValue.h"
+#include "DetectorDescription/Core/interface/DDValuePair.h"
 
 
 

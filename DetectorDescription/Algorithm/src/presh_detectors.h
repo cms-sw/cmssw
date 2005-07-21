@@ -1,7 +1,7 @@
 #ifndef DDAlgorithm_presh_detectors_h
 #define DDAlgorithm_presh_detectors_h
 
-#include "DetectorDescription/DDExprAlgo/interface/AlgoImpl.h"
+#include "DetectorDescription/ExprAlgo/interface/AlgoImpl.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #define MAX_DOUBLE DBL_MAX
 //#include <climits>
@@ -13,8 +13,8 @@
 using std::string;
 using std::vector;
 using std::ostream;
-#include "DetectorDescription/DDExprAlgo/interface/ExprEvalSingleton.h"
-#include "DetectorDescription/DDCore/interface/DDTransform.h"
+#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
+#include "DetectorDescription/Core/interface/DDTransform.h"
 
 class AlgoPos;
 
@@ -59,7 +59,7 @@ private:
 };
 
 
-#include "DetectorDescription/DDExprAlgo/interface/AlgoCheck.h"
+#include "DetectorDescription/ExprAlgo/interface/AlgoCheck.h"
 
 class presh_detectorsChecker : public AlgoCheck
 {

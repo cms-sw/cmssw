@@ -1,4 +1,4 @@
-#include "DetectorDescription/DDRegressionTest/src/TinyDom.h"
+#include "DetectorDescription/RegressionTest/src/TinyDom.h"
 #include <string>
 
 using namespace std;

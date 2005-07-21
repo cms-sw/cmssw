@@ -5,13 +5,13 @@
 #include <set>
 #include <string>
 
-#include "DetectorDescription/DDCore/interface/DDLogicalPart.h"
-#include "DetectorDescription/DDCore/interface/DDMaterial.h"
-#include "DetectorDescription/DDCore/interface/DDSolid.h"
-#include "DetectorDescription/DDCore/interface/DDTransform.h"
-#include "DetectorDescription/DDCore/interface/DDSpecifics.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDMaterial.h"
+#include "DetectorDescription/Core/interface/DDSolid.h"
+#include "DetectorDescription/Core/interface/DDTransform.h"
+#include "DetectorDescription/Core/interface/DDSpecifics.h"
 //=================
-#include "DetectorDescription/DDBase/interface/Singleton.h"
+#include "DetectorDescription/Base/interface/Singleton.h"
 typedef DDI::Singleton<map<string,set<DDLogicalPart> > > lp_err;
 typedef DDI::Singleton<map<string,set<DDMaterial> > >    ma_err;
 typedef DDI::Singleton<map<string,set<DDSolid> > >       so_err;

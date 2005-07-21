@@ -1,1 +1,1 @@
-#include "DetectorDescription/DDCore/interface/DDLDocumentProvider.h"
+#include "DetectorDescription/Core/interface/DDLDocumentProvider.h"

@@ -14,23 +14,23 @@
 namespace std{} using namespace std;
 
 // Parser parts
-#include "DetectorDescription/DDParser/interface/DDLSpecPar.h"
-#include "DetectorDescription/DDParser/interface/DDLElementRegistry.h"
-#include "DetectorDescription/DDParser/interface/DDXMLElement.h"
+#include "DetectorDescription/Parser/interface/DDLSpecPar.h"
+#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
+#include "DetectorDescription/Parser/interface/DDXMLElement.h"
 
 // DDCore dependencies
-#include "DetectorDescription/DDCore/interface/DDName.h"
-#include "DetectorDescription/DDCore/interface/DDSolid.h"
-#include "DetectorDescription/DDCore/interface/DDPartSelection.h"
-#include "DetectorDescription/DDCore/interface/DDSpecifics.h"
-#include "DetectorDescription/DDBase/interface/DDdebug.h"
-#include "DetectorDescription/DDCore/interface/DDValue.h"
-#include "DetectorDescription/DDCore/interface/DDValuePair.h"
-#include "DetectorDescription/DDBase/interface/DDException.h"
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDSolid.h"
+#include "DetectorDescription/Core/interface/DDPartSelection.h"
+#include "DetectorDescription/Core/interface/DDSpecifics.h"
+#include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Core/interface/DDValue.h"
+#include "DetectorDescription/Core/interface/DDValuePair.h"
+#include "DetectorDescription/Base/interface/DDException.h"
 
 // CLHEP dependencies
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "DetectorDescription/DDExprAlgo/interface/ExprEvalSingleton.h"
+#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
 #include <string>
 #include <sstream>

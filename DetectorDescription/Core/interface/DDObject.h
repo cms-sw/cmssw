@@ -4,11 +4,11 @@
 #include <string>
 #include <map>
 #include "Utilities/Loki/interface/TypeManip.h"
-#include "DetectorDescription/DDCore/interface/DDName.h"
-#include "DetectorDescription/DDBase/interface/Singleton.h"
-#include "DetectorDescription/DDBase/interface/Ptr.h"
-#include "DetectorDescription/DDBase/interface/DDException.h"
-#include "DetectorDescription/DDCore/interface/DDRegistry.h"
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Base/interface/Singleton.h"
+#include "DetectorDescription/Base/interface/Ptr.h"
+#include "DetectorDescription/Base/interface/DDException.h"
+#include "DetectorDescription/Core/interface/DDRegistry.h"
 
 
 template<class T>

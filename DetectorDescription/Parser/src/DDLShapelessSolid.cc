@@ -16,13 +16,13 @@ namespace std{} using namespace std;
 // -------------------------------------------------------------------------
 // Includes
 // -------------------------------------------------------------------------
-#include "DetectorDescription/DDParser/interface/DDLShapelessSolid.h"
-#include "DetectorDescription/DDParser/interface/DDLElementRegistry.h"
+#include "DetectorDescription/Parser/interface/DDLShapelessSolid.h"
+#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
 
 // DDCore dependencies
-#include "DetectorDescription/DDCore/interface/DDName.h"
-#include "DetectorDescription/DDCore/interface/DDSolid.h"
-#include "DetectorDescription/DDBase/interface/DDdebug.h"
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDSolid.h"
+#include "DetectorDescription/Base/interface/DDdebug.h"
 
 //#include <strstream>
 #include <string>

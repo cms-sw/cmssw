@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 //  Includes
 // ---------------------------------------------------------------------------
-#include "DetectorDescription/DDParser/interface/DDLSAX2Handler.h"
+#include "DetectorDescription/Parser/interface/DDLSAX2Handler.h"
 
 #include <vector>
 #include <string>

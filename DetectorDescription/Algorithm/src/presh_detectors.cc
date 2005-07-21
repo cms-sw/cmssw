@@ -1,14 +1,14 @@
 namespace std {} using namespace std;
 #include <vector>
 #include <cmath>
-#include "DetectorDescription/DDBase/interface/DDdebug.h"
-#include "DetectorDescription/DDCore/interface/DDVector.h"
+#include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Core/interface/DDVector.h"
 
-#include "DetectorDescription/DDAlgorithm/src/presh_detectors.h"
-#include "DetectorDescription/DDCore/interface/DDLogicalPart.h"
-#include "DetectorDescription/DDCore/interface/DDConstant.h"
-#include "DetectorDescription/DDCore/interface/DDCurrentNamespace.h"
-#include "DetectorDescription/DDCore/interface/DDPosPart.h"
+#include "DetectorDescription/Algorithm/src/presh_detectors.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDConstant.h"
+#include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
+#include "DetectorDescription/Core/interface/DDPosPart.h"
 
 namespace std { } using namespace std;
 

@@ -2,8 +2,8 @@
 #define DDLogicalPart_h
 
 /* remove 
-//#include "DetectorDescription/DDCore/interface/DDMaterial.h"
-//#include "DetectorDescription/DDCore/interface/DDSolid.h"
+//#include "DetectorDescription/Core/interface/DDMaterial.h"
+//#include "DetectorDescription/Core/interface/DDSolid.h"
 //class DDCompactViewImpl;
 //class DDSpecificsImpl;
 */ 
@@ -11,12 +11,12 @@
 #include <vector>
 #include <string>
 #include <map>
-#include "DetectorDescription/DDCore/interface/DDName.h"
-#include "DetectorDescription/DDCore/interface/DDBase.h"
-#include "DetectorDescription/DDCore/interface/DDEnums.h"
-#include "DetectorDescription/DDBase/interface/Singleton.h"
-#include "DetectorDescription/DDCore/interface/DDsvalues.h"
-//#include "DetectorDescription/DDCore/interface/DDPartSelection.h"
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDBase.h"
+#include "DetectorDescription/Core/interface/DDEnums.h"
+#include "DetectorDescription/Base/interface/Singleton.h"
+#include "DetectorDescription/Core/interface/DDsvalues.h"
+//#include "DetectorDescription/Core/interface/DDPartSelection.h"
 
 namespace DDI { class LogicalPart; }
 class DDMaterial;

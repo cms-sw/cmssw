@@ -1,14 +1,14 @@
 #ifndef ExprEvalSingleton_h
 #define ExprEvalSingleton_h
 
-#include "DetectorDescription/DDBase/interface/Singleton.h"
+#include "DetectorDescription/Base/interface/Singleton.h"
 
 //////////////////////////////////////////////////////////////////////////////
 // Choose the Evaluator here:
 //  The concrete evaluator must be a subclass of class ExprEvalInterface, which
 //  defines the interface (which can be used to write Evaluator-implementation-
 //  independent code !
-   #include "DetectorDescription/DDExprAlgo/interface/ClhepEvaluator.h"
+   #include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
    typedef ClhepEvaluator UseThisEvaluator;
 //////////////////////////////////////////////////////////////////////////////
 

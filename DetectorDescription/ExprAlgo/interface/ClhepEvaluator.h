@@ -4,7 +4,7 @@
 
 #include <vector>
 #include <string>
-#include "DetectorDescription/DDExprAlgo/interface/ExprEvalInterface.h"
+#include "DetectorDescription/ExprAlgo/interface/ExprEvalInterface.h"
 #include "CLHEP/Evaluator/Evaluator.h"
 
 

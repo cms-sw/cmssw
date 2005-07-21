@@ -7,7 +7,7 @@ namespace std{} using namespace std;
 #include <set>
 #include <vector>
 #include <iostream>
-#include "DetectorDescription/DDCore/interface/adjgraph.h"
+#include "DetectorDescription/Core/interface/adjgraph.h"
 
 template <class N, class E>
 class GraphPath

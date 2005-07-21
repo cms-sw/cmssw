@@ -1,6 +1,6 @@
-#include "DetectorDescription/DDRegressionTest/src/TinyDomTest2.h"
-#include "DetectorDescription/DDRegressionTest/src/TinyDom2.h"
-#include "DetectorDescription/DDCore/interface/adjgraph.h"
+#include "DetectorDescription/RegressionTest/src/TinyDomTest2.h"
+#include "DetectorDescription/RegressionTest/src/TinyDom2.h"
+#include "DetectorDescription/Core/interface/adjgraph.h"
 #include <vector>
 #include <iostream>
 

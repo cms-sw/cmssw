@@ -1,6 +1,6 @@
 namespace std{} 
 using namespace std;
-#include "DetectorDescription/DDExprAlgo/interface/ExprEvalInterface.h"
+#include "DetectorDescription/ExprAlgo/interface/ExprEvalInterface.h"
 
 
 ExprEvalInterface::~ExprEvalInterface()

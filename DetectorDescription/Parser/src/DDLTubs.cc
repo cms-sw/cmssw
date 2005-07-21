@@ -18,16 +18,16 @@ namespace std{} using namespace std;
 // -------------------------------------------------------------------------
 
 // Parser parts
-#include "DetectorDescription/DDParser/interface/DDLTubs.h"
-#include "DetectorDescription/DDParser/interface/DDLElementRegistry.h"
+#include "DetectorDescription/Parser/interface/DDLTubs.h"
+#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
 
 // DDCore dependencies
-#include "DetectorDescription/DDCore/interface/DDName.h"
-#include "DetectorDescription/DDCore/interface/DDSolid.h"
-#include "DetectorDescription/DDBase/interface/DDdebug.h"
-#include "DetectorDescription/DDBase/interface/DDException.h"
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDSolid.h"
+#include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Base/interface/DDException.h"
 
-#include "DetectorDescription/DDExprAlgo/interface/ExprEvalSingleton.h"
+#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include <string>

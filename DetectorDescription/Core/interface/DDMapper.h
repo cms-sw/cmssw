@@ -10,7 +10,7 @@ using std::cout;
 using std::endl;
 using std::vector;
 
-#include "DetectorDescription/DDCore/interface/DDsvalues.h"
+#include "DetectorDescription/Core/interface/DDsvalues.h"
 
 template<class KeyType, class ValueType>
 class DDMapper

@@ -14,20 +14,20 @@
 namespace std{} using namespace std;
 
 // Parser parts
-#include "DetectorDescription/DDParser/interface/DDLAlgoPosPart.h"
-#include "DetectorDescription/DDParser/interface/DDLElementRegistry.h"
-#include "DetectorDescription/DDParser/interface/DDXMLElement.h"
+#include "DetectorDescription/Parser/interface/DDLAlgoPosPart.h"
+#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
+#include "DetectorDescription/Parser/interface/DDXMLElement.h"
 
 // DDCore dependencies
-#include "DetectorDescription/DDCore/interface/DDalgoPosPart.h"
-#include "DetectorDescription/DDCore/interface/DDName.h"
-#include "DetectorDescription/DDCore/interface/DDLogicalPart.h"
-#include "DetectorDescription/DDCore/interface/DDAlgo.h"
-#include "DetectorDescription/DDBase/interface/DDAlgoPar.h"
-#include "DetectorDescription/DDBase/interface/DDdebug.h"
-#include "DetectorDescription/DDBase/interface/DDException.h"
+#include "DetectorDescription/Core/interface/DDalgoPosPart.h"
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDAlgo.h"
+#include "DetectorDescription/Base/interface/DDAlgoPar.h"
+#include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Base/interface/DDException.h"
 
-#include "DetectorDescription/DDExprAlgo/interface/ExprEvalSingleton.h"
+#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
 #include <string>
 #include <iostream>

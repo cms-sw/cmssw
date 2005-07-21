@@ -1,9 +1,9 @@
 #ifndef DD_DDMap_h
 #define DD_DDMap_h
 
-#include "DetectorDescription/DDCore/interface/DDBase.h"
-#include "DetectorDescription/DDCore/interface/DDName.h"
-#include "DetectorDescription/DDBase/interface/DDReadMapType.h"
+#include "DetectorDescription/Core/interface/DDBase.h"
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Base/interface/DDReadMapType.h"
 #include <string>
 #include <iostream>
 

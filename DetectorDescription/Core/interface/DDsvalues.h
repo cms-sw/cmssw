@@ -1,11 +1,11 @@
 #ifndef DD_DDsvalues_type_h
 #define DD_DDsvalues_type_h
 
-//#include "DetectorDescription/DDCore/interface/DDAlgoPar.h"
+//#include "DetectorDescription/Core/interface/DDAlgoPar.h"
 #include <iostream>
 #include <map>
 //#include <vector>
-#include "DetectorDescription/DDCore/interface/DDValue.h"
+#include "DetectorDescription/Core/interface/DDValue.h"
 
 //typedef parS_type svalues_type;
 

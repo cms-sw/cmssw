@@ -1,9 +1,9 @@
 
-<use name=DetectorDescription/DDCore>
+<use name=DetectorDescription/Core>
 <use name=Framework/SealKernel>
 
 <export>
- <lib name=DetectorDescriptionDDAlgorithm>
- <use name=DetectorDescription/DDCore>
+ <lib name=DetectorDescriptionAlgorithm>
+ <use name=DetectorDescription/Core>
  <use name=Framework/SealKernel>
 </export>

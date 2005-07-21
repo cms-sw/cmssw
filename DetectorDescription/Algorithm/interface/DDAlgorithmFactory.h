@@ -3,7 +3,7 @@
 
 //<<<<<< INCLUDES                                                       >>>>>>
 
-#include "DetectorDescription/DDAlgorithm/interface/DDAlgorithm.h"
+#include "DetectorDescription/Algorithm/interface/DDAlgorithm.h"
 #include "PluginManager/PluginFactory.h"
 
 //<<<<<< PUBLIC DEFINES                                                 >>>>>>

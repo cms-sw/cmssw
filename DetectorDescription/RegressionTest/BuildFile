@@ -1,7 +1,7 @@
 
-<use name=DetectorDescription/DDParser>
+<use name=DetectorDescription/Parser>
 
 <export>
- <lib name=DetectorDescriptionDDRegressionTest>
- <use name=DetectorDescription/DDParser>
+ <lib name=DetectorDescriptionRegressionTest>
+ <use name=DetectorDescription/Parser>
 </export>

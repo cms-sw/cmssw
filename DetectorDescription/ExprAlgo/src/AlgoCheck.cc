@@ -1,7 +1,7 @@
 namespace std{} 
 using namespace std;
-#include "DetectorDescription/DDBase/interface/DDdebug.h"
-#include "DetectorDescription/DDExprAlgo/interface/AlgoCheck.h"
+#include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/ExprAlgo/interface/AlgoCheck.h"
 
 bool AlgoCheck::check(parS_type & ps, parE_type & pe, string & err)
 {

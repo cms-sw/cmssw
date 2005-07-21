@@ -1,10 +1,10 @@
 namespace std{} 
 using namespace std;
 
-#include "DetectorDescription/DDExprAlgo/interface/AlgoPos.h"
-#include "DetectorDescription/DDExprAlgo/interface/AlgoImpl.h"
-#include "DetectorDescription/DDExprAlgo/interface/AlgoCheck.h"
-#include "DetectorDescription/DDBase/interface/DDException.h"
+#include "DetectorDescription/ExprAlgo/interface/AlgoPos.h"
+#include "DetectorDescription/ExprAlgo/interface/AlgoImpl.h"
+#include "DetectorDescription/ExprAlgo/interface/AlgoCheck.h"
+#include "DetectorDescription/Base/interface/DDException.h"
 
 
 AlgoPos::AlgoPos(AlgoCheck * check)

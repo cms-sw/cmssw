@@ -4,9 +4,9 @@ namespace CLHEP{}
 using namespace CLHEP;
 
 #include <iostream>
-#include "DetectorDescription/DDExprAlgo/interface/ClhepEvaluator.h"
-#include "DetectorDescription/DDBase/interface/DDException.h"
-#include "DetectorDescription/DDBase/interface/DDdebug.h"
+#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
+#include "DetectorDescription/Base/interface/DDException.h"
+#include "DetectorDescription/Base/interface/DDdebug.h"
 
 //Timing
 #include "SealUtil/SealTimer.h"

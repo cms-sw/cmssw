@@ -2,7 +2,7 @@
 #define DDCore_DDScope_h
 
 #include <vector>
-#include "DetectorDescription/DDCore/interface/DDExpandedNode.h"
+#include "DetectorDescription/Core/interface/DDExpandedNode.h"
 
 enum dd_scope_class { different_branch, subtree, supertree, delete_action };
 

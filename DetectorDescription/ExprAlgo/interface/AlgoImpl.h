@@ -1,9 +1,9 @@
 #ifndef ExpAlgo_AlgoImpl_h
 #define ExpAlgo_AlgoImpl_h
 
-#include "DetectorDescription/DDBase/interface/DDRotationMatrix.h"
-#include "DetectorDescription/DDBase/interface/DDTranslation.h"
-#include "DetectorDescription/DDBase/interface/DDAlgoPar.h"
+#include "DetectorDescription/Base/interface/DDRotationMatrix.h"
+#include "DetectorDescription/Base/interface/DDTranslation.h"
+#include "DetectorDescription/Base/interface/DDAlgoPar.h"
 #include <string>
 
 

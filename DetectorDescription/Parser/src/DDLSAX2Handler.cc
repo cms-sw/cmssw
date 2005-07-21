@@ -14,9 +14,9 @@
 // ---------------------------------------------------------------------------
 //  Includes
 // ---------------------------------------------------------------------------
-#include "DetectorDescription/DDParser/interface/DDLSAX2Handler.h"
-#include "DetectorDescription/DDParser/interface/StrX.h"
-#include "DetectorDescription/DDBase/interface/DDException.h"
+#include "DetectorDescription/Parser/interface/DDLSAX2Handler.h"
+#include "DetectorDescription/Parser/interface/StrX.h"
+#include "DetectorDescription/Base/interface/DDException.h"
 
 // Xerces C++ dependencies
 #include <xercesc/sax2/Attributes.hpp>

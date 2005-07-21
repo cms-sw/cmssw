@@ -5,8 +5,8 @@
 
 namespace std{} namespace std{} using namespace std;
 #include "AlgoInit.h"
-#include "DetectorDescription/DDCore/interface/DDAlgo.h"
-#include "DetectorDescription/DDExprAlgo/interface/AlgoPos.h"
+#include "DetectorDescription/Core/interface/DDAlgo.h"
+#include "DetectorDescription/ExprAlgo/interface/AlgoPos.h"
 // include all from XML generated algorithms
 
 
@@ -19,7 +19,7 @@ namespace std{} namespace std{} using namespace std;
 #include "global_simpleAngular.h"
 
 
-#include "DetectorDescription/DDAlgorithm/src/presh_detectors.h"
+#include "DetectorDescription/Algorithm/src/presh_detectors.h"
 
 
 

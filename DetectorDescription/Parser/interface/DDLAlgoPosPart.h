@@ -3,7 +3,7 @@
 /***************************************************************************
  ***************************************************************************/
 
-#include "DetectorDescription/DDParser/interface/DDXMLElement.h"
+#include "DetectorDescription/Parser/interface/DDXMLElement.h"
 
 #include <string>
 

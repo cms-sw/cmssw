@@ -2,7 +2,7 @@
 #define DDNodes_h
 
 #include <vector>
-#include "DetectorDescription/DDCore/interface/DDExpandedView.h"
+#include "DetectorDescription/Core/interface/DDExpandedView.h"
 
 class DDNodes : public vector<DDExpandedNode>
 {

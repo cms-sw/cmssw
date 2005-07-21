@@ -9,7 +9,7 @@
 #include <set>
 #include <vector>
 
-#include "DetectorDescription/DDRegressionTest/interface/DDErrorDetection.h"
+#include "DetectorDescription/RegressionTest/interface/DDErrorDetection.h"
 
 
 class DDHtmlFormatter;

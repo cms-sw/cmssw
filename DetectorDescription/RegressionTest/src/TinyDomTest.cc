@@ -1,4 +1,4 @@
-#include "DetectorDescription/DDRegressionTest/src/TinyDomTest.h"
+#include "DetectorDescription/RegressionTest/src/TinyDomTest.h"
 
 
 TinyDomTest::TinyDomTest(const TinyDom & d) 

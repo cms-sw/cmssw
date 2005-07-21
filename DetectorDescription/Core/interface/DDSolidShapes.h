@@ -1,6 +1,6 @@
 #ifndef DDSolidShapes_h
 #define DDSolidShapes_h
-#include "DetectorDescription/DDBase/interface/DDException.h"
+#include "DetectorDescription/Base/interface/DDException.h"
 
 enum DDSolidShape { dd_not_init,
                     ddbox, ddtubs, ddtrap, ddcons,

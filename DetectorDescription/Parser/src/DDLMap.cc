@@ -13,15 +13,15 @@ namespace boost { namespace spirit {} } using namespace boost::spirit;
 #include "boost/spirit/core.hpp"
 
 // Parser parts
-#include "DetectorDescription/DDParser/interface/DDLMap.h"
-#include "DetectorDescription/DDParser/interface/DDLElementRegistry.h"
+#include "DetectorDescription/Parser/interface/DDLMap.h"
+#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
 
 // other DD parts
-#include "DetectorDescription/DDCore/interface/DDMap.h"
-#include "DetectorDescription/DDBase/interface/DDdebug.h"
-#include "DetectorDescription/DDBase/interface/DDException.h"
+#include "DetectorDescription/Core/interface/DDMap.h"
+#include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Base/interface/DDException.h"
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "DetectorDescription/DDExprAlgo/interface/ExprEvalSingleton.h"
+#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
 #include <map>
 #include <string>

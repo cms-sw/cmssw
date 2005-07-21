@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 //  Includes
 // ---------------------------------------------------------------------------
-#include "DetectorDescription/DDParser/interface/DDLDocumentProvider.h"
+#include "DetectorDescription/Parser/interface/DDLDocumentProvider.h"
 
 class DDLParser;
 

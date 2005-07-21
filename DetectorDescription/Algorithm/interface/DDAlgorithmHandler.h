@@ -2,8 +2,8 @@
 #define DD_DDALGORITHMHANDLER_H
 
 #include <string>
-#include "DetectorDescription/DDAlgorithm/interface/DDAlgorithm.h"
-#include "DetectorDescription/DDBase/interface/DDException.h"
+#include "DetectorDescription/Algorithm/interface/DDAlgorithm.h"
+#include "DetectorDescription/Base/interface/DDException.h"
 
 //! wrapper around a DDAlgorithm
 /** used from DDParser for setting up, initializing, and executing an DDAlgorithm */

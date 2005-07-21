@@ -1,7 +1,7 @@
 namespace std { } using namespace std;
 
 #include <iostream>
-#include "DetectorDescription/DDBase/interface/DDTypes.h"
+#include "DetectorDescription/Base/interface/DDTypes.h"
 ////////// output operator for printing the arguments of an algorithm
 
 std::ostream & operator<<(std::ostream & os, const DDNumericArguments & t)

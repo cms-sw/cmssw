@@ -2,9 +2,9 @@
 #define DD_ALGO_PLUGIN_DD_ALGORITHM_H
 
 #include <vector>
-#include "DetectorDescription/DDCore/interface/DDLogicalPart.h"
-#include "DetectorDescription/DDBase/interface/DDException.h"
-#include "DetectorDescription/DDBase/interface/DDTypes.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Base/interface/DDException.h"
+#include "DetectorDescription/Base/interface/DDTypes.h"
 
 class DDAlgorithmHandler;
 

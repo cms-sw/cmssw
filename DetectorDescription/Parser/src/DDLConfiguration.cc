@@ -15,14 +15,14 @@
 //  Includes
 //--------------------------------------------------------------------------
 // Parser parts
-#include "DetectorDescription/DDParser/interface/DDLParser.h"
-#include "DetectorDescription/DDParser/interface/DDLConfiguration.h"
-#include "DetectorDescription/DDParser/interface/DDLSAX2ConfigHandler.h"
+#include "DetectorDescription/Parser/interface/DDLParser.h"
+#include "DetectorDescription/Parser/interface/DDLConfiguration.h"
+#include "DetectorDescription/Parser/interface/DDLSAX2ConfigHandler.h"
 
 // DDCore Dependencies
-#include "DetectorDescription/DDBase/interface/DDdebug.h"
-#include "DetectorDescription/DDBase/interface/DDException.h"
-#include "DetectorDescription/DDParser/interface/StrX.h"
+#include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Base/interface/DDException.h"
+#include "DetectorDescription/Parser/interface/StrX.h"
 
 // Xerces dependencies
 #include <xercesc/util/PlatformUtils.hpp>

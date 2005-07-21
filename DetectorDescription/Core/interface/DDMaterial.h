@@ -4,8 +4,8 @@
 #include <iostream>
 #include <vector>
 #include <utility>
-#include "DetectorDescription/DDCore/interface/DDName.h"
-#include "DetectorDescription/DDCore/interface/DDBase.h"
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDBase.h"
 namespace DDI { class Material; }
 using std::ostream;
 //using DDI::Material;

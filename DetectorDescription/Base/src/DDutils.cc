@@ -1,4 +1,4 @@
-#include "DetectorDescription/DDBase/interface/DDutils.h"
+#include "DetectorDescription/Base/interface/DDutils.h"
 #include <fstream>
 #include <cmath>
 

@@ -1,6 +1,6 @@
-#include "DetectorDescription/DDBase/interface/DDdebug.h"
-#include "DetectorDescription/DDExprAlgo/interface/AlgoImpl.h"
-#include "DetectorDescription/DDExprAlgo/interface/AlgoPos.h"
+#include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/ExprAlgo/interface/AlgoImpl.h"
+#include "DetectorDescription/ExprAlgo/interface/AlgoPos.h"
 
 AlgoImpl::AlgoImpl(AlgoPos * al, std::string label)
  : ParS_(al->ParS_),

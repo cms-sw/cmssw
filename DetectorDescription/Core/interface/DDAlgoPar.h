@@ -1,7 +1,7 @@
 #ifndef deprecated_AlgoPar_h
 #define deprecated_AlgoPar_h
 
-#include "DetectorDescription/DDBase/interface/DDAlgoPar.h"
+#include "DetectorDescription/Base/interface/DDAlgoPar.h"
 
 struct DEPRECATED_INCLUDE__DDAlgoPar_moved_to_DDBase_interface
 {

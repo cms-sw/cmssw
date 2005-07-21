@@ -16,14 +16,14 @@ namespace std{} using namespace std;
 // -------------------------------------------------------------------------
 // Includes
 // -------------------------------------------------------------------------
-#include "DetectorDescription/DDParser/interface/DDLRotationByAxis.h"
-#include "DetectorDescription/DDParser/interface/DDLElementRegistry.h"
+#include "DetectorDescription/Parser/interface/DDLRotationByAxis.h"
+#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
 
 // DDCore dependencies
-#include "DetectorDescription/DDCore/interface/DDTransform.h"
-#include "DetectorDescription/DDBase/interface/DDdebug.h"
-#include "DetectorDescription/DDBase/interface/DDException.h"
-#include "DetectorDescription/DDExprAlgo/interface/ExprEvalSingleton.h"
+#include "DetectorDescription/Core/interface/DDTransform.h"
+#include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Base/interface/DDException.h"
+#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
 // CLHEP dependencies
 #include "CLHEP/Geometry/Transform3D.h"

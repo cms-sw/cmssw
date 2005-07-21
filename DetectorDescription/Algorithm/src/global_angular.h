@@ -4,7 +4,7 @@
 #ifndef DDAlgorithm_global_angular_h
 #define DDAlgorithm_global_angular_h
 
-#include "DetectorDescription/DDExprAlgo/interface/AlgoImpl.h"
+#include "DetectorDescription/ExprAlgo/interface/AlgoImpl.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 // I tried the following on CERN lxplus and still no MAX_DOUBLE was defined.
 // so I tried DBL_MAX which does exist, but I do not know the source of this.
@@ -19,7 +19,7 @@
 using std::string;
 using std::vector;
 using std::ostream;
-#include "DetectorDescription/DDExprAlgo/interface/ExprEvalSingleton.h"
+#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 /**
 
 	     theta, phi, angle ... axis of rotation. Object will be placed in a plane going through
@@ -76,7 +76,7 @@ public:
  
 ***************************************************************************/
 
-#include "DetectorDescription/DDExprAlgo/interface/AlgoCheck.h"
+#include "DetectorDescription/ExprAlgo/interface/AlgoCheck.h"
 
 class global_angular_Check : public AlgoCheck
 {

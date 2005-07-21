@@ -1,7 +1,7 @@
 #ifndef deprecated_DDdebug_h
 #define deprecated_DDdebug_h
 
-#include "DetectorDescription/DDBase/interface/DDdebug.h"
+#include "DetectorDescription/Base/interface/DDdebug.h"
 
 struct DEPRECATED_INCLUDE__DDdebug_moved_to_DDBase_interface
 {

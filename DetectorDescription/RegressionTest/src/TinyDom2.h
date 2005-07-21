@@ -1,9 +1,9 @@
 #ifndef x_TinyDom2_h
 #define x_TinyDom2_h
 
-#include "DetectorDescription/DDRegressionTest/src/TagName.h"
-#include "DetectorDescription/DDCore/interface/adjgraph.h"
-#include "DetectorDescription/DDCore/interface/graphwalker.h"
+#include "DetectorDescription/RegressionTest/src/TagName.h"
+#include "DetectorDescription/Core/interface/adjgraph.h"
+#include "DetectorDescription/Core/interface/graphwalker.h"
 #include <string>
 #include <map>
 #include <iostream>

@@ -1,8 +1,8 @@
 #ifndef DDString_h
 #define DDString_h
 
-#include "DetectorDescription/DDCore/interface/DDBase.h"
-#include "DetectorDescription/DDCore/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDBase.h"
+#include "DetectorDescription/Core/interface/DDName.h"
 #include <string>
 #include <iostream>
 

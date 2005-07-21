@@ -13,30 +13,30 @@
 
 namespace std{} using namespace std;
 
-#include "DetectorDescription/DDParser/interface/DDLElementRegistry.h"
-#include "DetectorDescription/DDParser/interface/DDLDivision.h"
-#include "DetectorDescription/DDParser/interface/DDXMLElement.h"
-#include "DetectorDescription/DDParser/interface/DDDividedBox.h"
-#include "DetectorDescription/DDParser/interface/DDDividedTubs.h"
-#include "DetectorDescription/DDParser/interface/DDDividedTrd.h"
-#include "DetectorDescription/DDParser/interface/DDDividedCons.h"
-#include "DetectorDescription/DDParser/interface/DDDividedPolycone.h"
-#include "DetectorDescription/DDParser/interface/DDDividedPolyhedra.h"
-#include "DetectorDescription/DDParser/interface/DDDividedGeometryObject.h"
+#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
+#include "DetectorDescription/Parser/interface/DDLDivision.h"
+#include "DetectorDescription/Parser/interface/DDXMLElement.h"
+#include "DetectorDescription/Parser/interface/DDDividedBox.h"
+#include "DetectorDescription/Parser/interface/DDDividedTubs.h"
+#include "DetectorDescription/Parser/interface/DDDividedTrd.h"
+#include "DetectorDescription/Parser/interface/DDDividedCons.h"
+#include "DetectorDescription/Parser/interface/DDDividedPolycone.h"
+#include "DetectorDescription/Parser/interface/DDDividedPolyhedra.h"
+#include "DetectorDescription/Parser/interface/DDDividedGeometryObject.h"
 
-#include "DetectorDescription/DDCore/interface/DDName.h"
-#include "DetectorDescription/DDCore/interface/DDAxes.h"
-#include "DetectorDescription/DDCore/interface/DDSolid.h"
-#include "DetectorDescription/DDCore/interface/DDSolidShapes.h"
-#include "DetectorDescription/DDCore/interface/DDDivision.h"
-#include "DetectorDescription/DDCore/interface/DDLogicalPart.h"
-#include "DetectorDescription/DDBase/interface/DDdebug.h"
-#include "DetectorDescription/DDCore/interface/DDMaterial.h"
-#include "DetectorDescription/DDBase/interface/DDException.h"
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDAxes.h"
+#include "DetectorDescription/Core/interface/DDSolid.h"
+#include "DetectorDescription/Core/interface/DDSolidShapes.h"
+#include "DetectorDescription/Core/interface/DDDivision.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Core/interface/DDMaterial.h"
+#include "DetectorDescription/Base/interface/DDException.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
 
-#include "DetectorDescription/DDExprAlgo/interface/ExprEvalSingleton.h"
+#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
 #include <string>
 

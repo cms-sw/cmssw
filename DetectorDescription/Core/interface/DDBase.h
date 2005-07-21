@@ -3,10 +3,10 @@
 
 #include <utility>
 #include <string>
-#include "DetectorDescription/DDBase/interface/Singleton.h"
-#include "DetectorDescription/DDBase/interface/DDException.h"
-#include "DetectorDescription/DDBase/interface/Store.h"
-#include "DetectorDescription/DDBase/interface/rep_type.h"
+#include "DetectorDescription/Base/interface/Singleton.h"
+#include "DetectorDescription/Base/interface/DDException.h"
+#include "DetectorDescription/Base/interface/Store.h"
+#include "DetectorDescription/Base/interface/rep_type.h"
 
 using std::string;
 

@@ -3,6 +3,6 @@
 
 // the DDNumeric is typedef'd to DDConstant
 
-#include "DetectorDescription/DDCore/interface/DDConstant.h"
+#include "DetectorDescription/Core/interface/DDConstant.h"
 
 #endif //DD_DDNUMERIC_H

@@ -3,21 +3,21 @@
 // 25.04.04 - M. Case ddd-ize G4ParameterisationBox*
 // ********************************************************************
 
-#include "DetectorDescription/DDParser/interface/DDDividedBox.h"
+#include "DetectorDescription/Parser/interface/DDDividedBox.h"
 
-#include "DetectorDescription/DDCore/interface/DDLogicalPart.h"
-#include "DetectorDescription/DDCore/interface/DDName.h"
-#include "DetectorDescription/DDCore/interface/DDPosPart.h"
-#include "DetectorDescription/DDCore/interface/DDAxes.h"
-#include "DetectorDescription/DDCore/interface/DDSolid.h"
-#include "DetectorDescription/DDCore/interface/DDSolidShapes.h"
-#include "DetectorDescription/DDCore/interface/DDMaterial.h"
-#include "DetectorDescription/DDCore/interface/DDDivision.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDPosPart.h"
+#include "DetectorDescription/Core/interface/DDAxes.h"
+#include "DetectorDescription/Core/interface/DDSolid.h"
+#include "DetectorDescription/Core/interface/DDSolidShapes.h"
+#include "DetectorDescription/Core/interface/DDMaterial.h"
+#include "DetectorDescription/Core/interface/DDDivision.h"
 
-#include "DetectorDescription/DDBase/interface/DDdebug.h"
-#include "DetectorDescription/DDBase/interface/DDException.h"
-#include "DetectorDescription/DDBase/interface/DDRotationMatrix.h"
-#include "DetectorDescription/DDBase/interface/DDTranslation.h"
+#include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Base/interface/DDException.h"
+#include "DetectorDescription/Base/interface/DDRotationMatrix.h"
+#include "DetectorDescription/Base/interface/DDTranslation.h"
 
 #include <iomanip>
 

@@ -3,14 +3,14 @@ using namespace std;
 #include <cmath>
 #include "CLHEP/Units/SystemOfUnits.h"
 
-#include "DetectorDescription/DDCore/interface/DDRoot.h"
-#include "DetectorDescription/DDCore/interface/DDLogicalPart.h"
-#include "DetectorDescription/DDCore/interface/DDMaterial.h"
-#include "DetectorDescription/DDCore/interface/DDSolid.h"
-#include "DetectorDescription/DDCore/interface/DDTransform.h"
-#include "DetectorDescription/DDCore/interface/DDPosPart.h"
+#include "DetectorDescription/Core/interface/DDRoot.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDMaterial.h"
+#include "DetectorDescription/Core/interface/DDSolid.h"
+#include "DetectorDescription/Core/interface/DDTransform.h"
+#include "DetectorDescription/Core/interface/DDPosPart.h"
 
-#include "DetectorDescription/DDExprAlgo/interface/ExprEvalSingleton.h"
+#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
 
 /*
@@ -189,8 +189,8 @@ void regressionTest_first() {
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include "DetectorDescription/DDCore/interface/DDCompactView.h"
-#include "DetectorDescription/DDCore/interface/DDExpandedView.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/Core/interface/DDExpandedView.h"
 void output(string filename) 
 {
   ostream & os(cout);
@@ -217,8 +217,8 @@ void output(string filename)
   }
 }
 
-#include "DetectorDescription/DDParser/interface/DDLParser.h"
-#include "DetectorDescription/DDAlgorithm/src/AlgoInit.h"
+#include "DetectorDescription/Parser/interface/DDLParser.h"
+#include "DetectorDescription/Algorithm/src/AlgoInit.h"
 void testParser()
 {
   try {

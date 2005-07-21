@@ -1,8 +1,8 @@
 #ifndef x_graph_util_h
 #define x_graph_util_h
 
-#include "DetectorDescription/DDCore/interface/adjgraph.h"
-#include "DetectorDescription/DDCore/interface/graphwalker.h"
+#include "DetectorDescription/Core/interface/adjgraph.h"
+#include "DetectorDescription/Core/interface/graphwalker.h"
 #include <iostream>
 #include <string>
 using std::cout;

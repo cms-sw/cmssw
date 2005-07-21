@@ -5,7 +5,7 @@
 //  Includes
 // ---------------------------------------------------------------------------
 // Parser parts.
-#include "DetectorDescription/DDParser/interface/DDLSAX2FileHandler.h"
+#include "DetectorDescription/Parser/interface/DDLSAX2FileHandler.h"
 
 // Xerces dependencies
 #include <xercesc/sax2/Attributes.hpp>

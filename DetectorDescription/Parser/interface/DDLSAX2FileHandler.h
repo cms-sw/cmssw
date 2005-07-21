@@ -5,10 +5,10 @@
 //  Includes
 // ---------------------------------------------------------------------------
 // Parser parts.
-#include "DetectorDescription/DDParser/interface/DDLSAX2Handler.h"
+#include "DetectorDescription/Parser/interface/DDLSAX2Handler.h"
 
 // DDCore parts
-#include "DetectorDescription/DDCore/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDName.h"
 
 // Xerces dependencies
 #include <xercesc/sax2/Attributes.hpp>

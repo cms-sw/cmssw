@@ -3,10 +3,10 @@ namespace std { } using namespace std;
 #include <sys/types.h>
 #include <fstream>
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "DetectorDescription/DDRegressionTest/interface/DDHtmlFormatter.h"
+#include "DetectorDescription/RegressionTest/interface/DDHtmlFormatter.h"
 
-#include "DetectorDescription/DDCore/interface/DDLogicalPart.h"
-#include "DetectorDescription/DDCore/interface/DDSpecifics.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDSpecifics.h"
 
 ostream & operator<<(ostream & o, const DDHtmlFormatter & f)
 {

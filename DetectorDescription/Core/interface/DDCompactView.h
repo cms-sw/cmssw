@@ -4,15 +4,15 @@
 //namespace std{} using namespace std;
 
 #include <vector>
-//#include "DetectorDescription/DDCore/interface/tree.h"
-#include "DetectorDescription/DDCore/interface/DDLogicalPart.h"
-#include "DetectorDescription/DDCore/interface/DDPosPart.h"
-//#include "DetectorDescription/DDCore/interface/DDPosData.h"
-#include "DetectorDescription/DDBase/interface/Ptr.h"
-#include "DetectorDescription/DDCoreImpl/src/DDCompactViewImpl.h"
-//#include "DetectorDescription/DDCore/interface/DDPath.h"
-#include "DetectorDescription/DDCore/interface/adjgraph.h" 
-#include "DetectorDescription/DDCore/interface/graphwalker.h"
+//#include "DetectorDescription/Core/interface/tree.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDPosPart.h"
+//#include "DetectorDescription/Core/interface/DDPosData.h"
+#include "DetectorDescription/Base/interface/Ptr.h"
+#include "DetectorDescription/CoreImpl/src/DDCompactViewImpl.h"
+//#include "DetectorDescription/Core/interface/DDPath.h"
+#include "DetectorDescription/Core/interface/adjgraph.h" 
+#include "DetectorDescription/Core/interface/graphwalker.h"
 
 
 class DDPartSelector;

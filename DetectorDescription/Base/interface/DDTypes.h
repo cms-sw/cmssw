@@ -5,7 +5,7 @@
 #include <vector>
 #include <map>
 #include <iostream>
-#include "DetectorDescription/DDBase/interface/DDReadMapType.h"
+#include "DetectorDescription/Base/interface/DDReadMapType.h"
 
 //! corresponds to a collection of named doubles 
 /** in XML: a set of <Numeric name="n" value="1"/> */

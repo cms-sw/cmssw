@@ -14,17 +14,17 @@
 // ---------------------------------------------------------------------------
 //  Includes
 // ---------------------------------------------------------------------------
-#include "DetectorDescription/DDParser/interface/DDLSAX2FileHandler.h"
-#include "DetectorDescription/DDParser/interface/DDLParser.h"
-#include "DetectorDescription/DDParser/interface/StrX.h"
-#include "DetectorDescription/DDParser/interface/DDLElementRegistry.h"
-#include "DetectorDescription/DDParser/interface/DDXMLElement.h"
+#include "DetectorDescription/Parser/interface/DDLSAX2FileHandler.h"
+#include "DetectorDescription/Parser/interface/DDLParser.h"
+#include "DetectorDescription/Parser/interface/StrX.h"
+#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
+#include "DetectorDescription/Parser/interface/DDXMLElement.h"
 
 // DDCore dependencies
-#include "DetectorDescription/DDBase/interface/DDdebug.h"
-#include "DetectorDescription/DDBase/interface/DDException.h"
-#include "DetectorDescription/DDCore/interface/DDConstant.h"
-#include "DetectorDescription/DDCore/interface/DDCurrentNamespace.h"
+#include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Base/interface/DDException.h"
+#include "DetectorDescription/Core/interface/DDConstant.h"
+#include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 
 // Xerces C++ dependencies
 #include <xercesc/sax2/Attributes.hpp>

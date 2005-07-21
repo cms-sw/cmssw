@@ -1,8 +1,8 @@
 #ifndef DDStrVector_h
 #define DDStrVector_h
 
-#include "DetectorDescription/DDCore/interface/DDBase.h"
-#include "DetectorDescription/DDCore/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDBase.h"
+#include "DetectorDescription/Core/interface/DDName.h"
 #include <vector>
 #include <iostream>
 

@@ -4,19 +4,19 @@
 // CLHEP
 #include "CLHEP/Units/SystemOfUnits.h"
 
-#include "DetectorDescription/DDBase/interface/DDException.h"
+#include "DetectorDescription/Base/interface/DDException.h"
 
-#include "DetectorDescription/DDBase/interface/DDTypes.h"
-#include "DetectorDescription/DDCore/interface/DDConstant.h"
-#include "DetectorDescription/DDCore/interface/DDString.h"
-#include "DetectorDescription/DDCore/interface/DDVector.h"
-#include "DetectorDescription/DDCore/interface/DDMap.h"
-#include "DetectorDescription/DDCore/interface/DDLParserI.h"
-#include "DetectorDescription/DDCore/interface/DDPosPart.h"
-#include "DetectorDescription/DDCore/interface/DDName.h"
-#include "DetectorDescription/DDCore/interface/DDLogicalPart.h"
-#include "DetectorDescription/DDCore/interface/DDMaterial.h"
-#include "DetectorDescription/DDCore/interface/DDSolid.h"
+#include "DetectorDescription/Base/interface/DDTypes.h"
+#include "DetectorDescription/Core/interface/DDConstant.h"
+#include "DetectorDescription/Core/interface/DDString.h"
+#include "DetectorDescription/Core/interface/DDVector.h"
+#include "DetectorDescription/Core/interface/DDMap.h"
+#include "DetectorDescription/Core/interface/DDLParserI.h"
+#include "DetectorDescription/Core/interface/DDPosPart.h"
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDMaterial.h"
+#include "DetectorDescription/Core/interface/DDSolid.h"
 
 
 namespace DD {

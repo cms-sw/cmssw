@@ -1,7 +1,7 @@
 #ifndef DDD_DDINumberingScheme
 #define DDD_DDINumberingScheme
 
-#include "DetectorDescription/DDCore/interface/DDExpandedNode.h"
+#include "DetectorDescription/Core/interface/DDExpandedNode.h"
 
 /** abstract interface for a numbering scheme */
 class DDINumberingScheme

@@ -1,7 +1,7 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 
 //#include "Utilities/Configuration/interface/Architecture.h"
-#include "DetectorDescription/DDAlgorithm/interface/DDAlgorithm.h"
+#include "DetectorDescription/Algorithm/interface/DDAlgorithm.h"
 
 //<<<<<< PRIVATE DEFINES                                                >>>>>>
 //<<<<<< PRIVATE CONSTANTS                                              >>>>>>

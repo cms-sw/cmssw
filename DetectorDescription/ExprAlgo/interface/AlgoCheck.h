@@ -3,7 +3,7 @@
 
 #include <string>
 #include <map>
-#include "DetectorDescription/DDBase/interface/DDAlgoPar.h"
+#include "DetectorDescription/Base/interface/DDAlgoPar.h"
 
 using std::map;
 using std::string;

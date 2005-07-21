@@ -5,7 +5,7 @@
 #include <string>
 #include <map>
 
-#include "DetectorDescription/DDBase/interface/DDException.h"
+#include "DetectorDescription/Base/interface/DDException.h"
 
 //! a map<string,YourType> that offers a const operator[key]; if key is not stored in the map, a DDException is thrown 
 /** otherwise, the ReadMapType works the same as std::map<std::string,YourType> */

@@ -16,10 +16,10 @@ namespace std{} using namespace std;
 // -------------------------------------------------------------------------
 // Includes
 // -------------------------------------------------------------------------
-#include "DetectorDescription/DDParser/interface/DDXMLElementRegistry.h"
+#include "DetectorDescription/Parser/interface/DDXMLElementRegistry.h"
 
 // DDCore dependencies
-#include "DetectorDescription/DDBase/interface/DDdebug.h"
+#include "DetectorDescription/Base/interface/DDdebug.h"
 
 #include <string>
 #include <algorithm>

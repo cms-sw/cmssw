@@ -1,4 +1,4 @@
-#include "DetectorDescription/DDParser/interface/DDLParser.h"
+#include "DetectorDescription/Parser/interface/DDLParser.h"
 //#include "Utilities/GenUtil/interface/ServiceDef.h"
 
 

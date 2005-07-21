@@ -9,15 +9,15 @@
 namespace std{} using namespace std;
 
 // Parser parts
-#include "DetectorDescription/DDParser/interface/DDLNumeric.h"
-#include "DetectorDescription/DDParser/interface/DDLElementRegistry.h"
+#include "DetectorDescription/Parser/interface/DDLNumeric.h"
+#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
 
 // other DD parts
-#include "DetectorDescription/DDCore/interface/DDNumeric.h"
-#include "DetectorDescription/DDBase/interface/DDdebug.h"
-#include "DetectorDescription/DDBase/interface/DDException.h"
+#include "DetectorDescription/Core/interface/DDNumeric.h"
+#include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Base/interface/DDException.h"
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "DetectorDescription/DDExprAlgo/interface/ExprEvalSingleton.h"
+#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
 #include <map>
 #include <string>

@@ -6,10 +6,10 @@
 #include <vector>
 #include <utility>
 
-#include "DetectorDescription/DDCore/interface/DDName.h"
-#include "DetectorDescription/DDCore/interface/DDBase.h"
-#include "DetectorDescription/DDCore/interface/DDSolidShapes.h"
-#include "DetectorDescription/DDCore/interface/DDTransform.h"
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDBase.h"
+#include "DetectorDescription/Core/interface/DDSolidShapes.h"
+#include "DetectorDescription/Core/interface/DDTransform.h"
 namespace DDI { class Solid; }
 namespace DDI { class Reflection; }
 namespace DDI { class BooleanSolid; }

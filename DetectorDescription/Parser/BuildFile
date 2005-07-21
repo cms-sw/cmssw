@@ -1,18 +1,18 @@
 <use name=xerces-c>
 <use name=boost>
-<use name=DetectorDescription/DDCore>
-<use name=DetectorDescription/DDAlgorithm>
+<use name=DetectorDescription/Core>
+<use name=DetectorDescription/Algorithm>
 <use name=Framework/SealKernel>
 <use name=Foundation/PluginManager>
 
 <Flags SEAL_PLUGIN_NAME="DDParser">
 
 <export>
- <lib name=DetectorDescriptionDDParser>
+ <lib name=DetectorDescriptionParser>
  <use name=xerces-c>
  <use name=boost>
- <use name=DetectorDescription/DDCore>
- <use name=DetectorDescription/DDAlgorithm>
+ <use name=DetectorDescription/Core>
+ <use name=DetectorDescription/Algorithm>
  <use name=Framework/SealKernel>
  <use name=Foundation/PluginManager>
 </export>

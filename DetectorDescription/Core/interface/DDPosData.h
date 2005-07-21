@@ -1,9 +1,9 @@
 #ifndef DDPosData_h
 #define DDPosData_h
 
-#include "DetectorDescription/DDCore/interface/DDTransform.h"
-#include "DetectorDescription/DDBase/interface/DDException.h"
-#include "DetectorDescription/DDCore/interface/DDDivision.h"
+#include "DetectorDescription/Core/interface/DDTransform.h"
+#include "DetectorDescription/Base/interface/DDException.h"
+#include "DetectorDescription/Core/interface/DDDivision.h"
 
 //! Relative position of a child-volume inside a parent-volume
 /**

@@ -1,7 +1,7 @@
 #ifndef DDL_PosPart_H
 #define DDL_PosPart_H
 
-#include "DetectorDescription/DDParser/interface/DDXMLElement.h"
+#include "DetectorDescription/Parser/interface/DDXMLElement.h"
 
 #include <string>
 

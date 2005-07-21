@@ -4,8 +4,8 @@
 #include <vector>
 #include <utility>
 
-#include "DetectorDescription/DDCore/interface/DDExpandedView.h"
-#include "DetectorDescription/DDCore/interface/DDFilter.h"
+#include "DetectorDescription/Core/interface/DDExpandedView.h"
+#include "DetectorDescription/Core/interface/DDFilter.h"
 
 //class DDCompactView;
 

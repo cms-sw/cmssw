@@ -1,9 +1,9 @@
-#include "DetectorDescription/DDRegressionTest/src/ddstats.h"
-#include "DetectorDescription/DDCore/interface/DDCompactView.h"
-#include "DetectorDescription/DDCore/interface/DDMaterial.h"
-#include "DetectorDescription/DDCore/interface/DDSolid.h"
-#include "DetectorDescription/DDCore/interface/DDTransform.h"
-#include "DetectorDescription/DDCore/interface/DDExpandedView.h"
+#include "DetectorDescription/RegressionTest/src/ddstats.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/Core/interface/DDMaterial.h"
+#include "DetectorDescription/Core/interface/DDSolid.h"
+#include "DetectorDescription/Core/interface/DDTransform.h"
+#include "DetectorDescription/Core/interface/DDExpandedView.h"
 void ddstats(ostream & os)
 {
 

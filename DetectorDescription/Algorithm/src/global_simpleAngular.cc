@@ -1,5 +1,5 @@
 
-#include "DetectorDescription/DDBase/interface/DDdebug.h"
+#include "DetectorDescription/Base/interface/DDdebug.h"
 // GENERATED FILE. DO NOT MODIFY!
 #include "global_simpleAngular.h"
 // I tried the following on CERN lxplus and still no MAX_DOUBLE was defined.
@@ -10,7 +10,7 @@
 #include <cfloat>
 
 
-#include "DetectorDescription/DDCore/interface/DDTransform.h"
+#include "DetectorDescription/Core/interface/DDTransform.h"
 #include "CLHEP/Geometry/Transform3D.h"
                                   
 
@@ -160,7 +160,7 @@ void global_simpleAngular_0::stream(ostream & os) const
 }
 
 
-#include "DetectorDescription/DDCore/interface/DDTransform.h"
+#include "DetectorDescription/Core/interface/DDTransform.h"
 
 
 // always the same ctor
@@ -306,7 +306,7 @@ void global_simpleAngular_1::stream(ostream & os) const
 }
 
 
-#include "DetectorDescription/DDCore/interface/DDTransform.h"
+#include "DetectorDescription/Core/interface/DDTransform.h"
 
 
 // always the same ctor

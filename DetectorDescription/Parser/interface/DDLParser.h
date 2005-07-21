@@ -4,10 +4,10 @@
 // ---------------------------------------------------------------------------
 //  Includes
 // ---------------------------------------------------------------------------
-#include "DetectorDescription/DDCore/interface/DDLParserI.h"
+#include "DetectorDescription/Core/interface/DDLParserI.h"
 
-#include "DetectorDescription/DDParser/interface/DDLSAX2ConfigHandler.h"
-#include "DetectorDescription/DDParser/interface/DDLSAX2FileHandler.h"
+#include "DetectorDescription/Parser/interface/DDLSAX2ConfigHandler.h"
+#include "DetectorDescription/Parser/interface/DDLSAX2FileHandler.h"
 
 // Xerces C++ dependencies
 #include <xercesc/util/PlatformUtils.hpp>

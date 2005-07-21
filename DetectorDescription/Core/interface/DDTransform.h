@@ -2,10 +2,10 @@
 #define DDTransform_h
 
 /*! \file */
-#include "DetectorDescription/DDCore/interface/DDBase.h"
-#include "DetectorDescription/DDCore/interface/DDName.h"
-#include "DetectorDescription/DDBase/interface/DDRotationMatrix.h"
-#include "DetectorDescription/DDBase/interface/DDTranslation.h"
+#include "DetectorDescription/Core/interface/DDBase.h"
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Base/interface/DDRotationMatrix.h"
+#include "DetectorDescription/Base/interface/DDTranslation.h"
 
 class DDRotation;
 

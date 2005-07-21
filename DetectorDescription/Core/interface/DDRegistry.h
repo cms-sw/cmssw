@@ -2,8 +2,8 @@
 #define DDD_DDRegistry_h
 
 #include <map>
-//#include "DetectorDescription/DDBase/interface/Singleton.h"
-#include "DetectorDescription/DDCore/interface/DDName.h"
+//#include "DetectorDescription/Base/interface/Singleton.h"
+#include "DetectorDescription/Core/interface/DDName.h"
 
 template <class T>
 class DDRegistry : public std::map<DDName,T>

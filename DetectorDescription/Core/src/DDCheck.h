@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <vector>
-#include "DetectorDescription/DDCore/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDName.h"
 #include <map>
 // some self-consistency checks
 

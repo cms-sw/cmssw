@@ -53,11 +53,11 @@
     DDAlgorithm (i.e. load up the appropriate parameters and put run the DDAlgorithm.
 */
 
-#include "DetectorDescription/DDCore/interface/DDName.h"
-#include "DetectorDescription/DDCore/interface/DDLogicalPart.h"
-#include "DetectorDescription/DDCore/interface/DDBase.h"
-#include "DetectorDescription/DDCore/interface/DDAxes.h"
-#include "DetectorDescription/DDBase/interface/Singleton.h"
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDBase.h"
+#include "DetectorDescription/Core/interface/DDAxes.h"
+#include "DetectorDescription/Base/interface/Singleton.h"
 
 namespace DDI { class Division; }
 

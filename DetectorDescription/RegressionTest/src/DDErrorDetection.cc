@@ -1,8 +1,8 @@
 namespace std { } using namespace std;
 
-#include "DetectorDescription/DDRegressionTest/interface/DDErrorDetection.h"
-#include "DetectorDescription/DDCore/interface/DDCompactView.h"
-#include "DetectorDescription/DDCore/src/DDCheck.h"
+#include "DetectorDescription/RegressionTest/interface/DDErrorDetection.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/Core/src/DDCheck.h"
 #include <iostream>
 #include <fstream>
 

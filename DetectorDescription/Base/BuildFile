@@ -2,7 +2,7 @@
 <use name=seal>
 <use name=Foundation/SealUtil>
 <export>
- <lib name=DetectorDescriptionDDBase>
+ <lib name=DetectorDescriptionBase>
  <use name=clhep>
  <use name=seal>
  <use name=Foundation/SealUtil>

@@ -14,28 +14,28 @@
 namespace std{} using namespace std;
 
 // Parser parts
-#include "DetectorDescription/DDParser/interface/DDLAlgorithm.h"
-#include "DetectorDescription/DDParser/interface/DDLVector.h"
-#include "DetectorDescription/DDParser/interface/DDLMap.h"
-#include "DetectorDescription/DDParser/interface/DDLElementRegistry.h"
-#include "DetectorDescription/DDParser/interface/DDXMLElement.h"
+#include "DetectorDescription/Parser/interface/DDLAlgorithm.h"
+#include "DetectorDescription/Parser/interface/DDLVector.h"
+#include "DetectorDescription/Parser/interface/DDLMap.h"
+#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
+#include "DetectorDescription/Parser/interface/DDXMLElement.h"
 
 // DDCore dependencies
-#include "DetectorDescription/DDCore/interface/DDName.h"
-#include "DetectorDescription/DDCore/interface/DDSolid.h"
-#include "DetectorDescription/DDBase/interface/DDdebug.h"
-#include "DetectorDescription/DDCore/interface/DDNumeric.h"
-#include "DetectorDescription/DDCore/interface/DDString.h"
-#include "DetectorDescription/DDCore/interface/DDVector.h"
-#include "DetectorDescription/DDCore/interface/DDMap.h"
-#include "DetectorDescription/DDAlgorithm/interface/DDAlgorithm.h"
-#include "DetectorDescription/DDBase/interface/DDException.h"
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDSolid.h"
+#include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Core/interface/DDNumeric.h"
+#include "DetectorDescription/Core/interface/DDString.h"
+#include "DetectorDescription/Core/interface/DDVector.h"
+#include "DetectorDescription/Core/interface/DDMap.h"
+#include "DetectorDescription/Algorithm/interface/DDAlgorithm.h"
+#include "DetectorDescription/Base/interface/DDException.h"
 
-#include "DetectorDescription/DDAlgorithm/interface/DDAlgorithmHandler.h"
+#include "DetectorDescription/Algorithm/interface/DDAlgorithmHandler.h"
 
 // CLHEP dependencies
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "DetectorDescription/DDExprAlgo/interface/ExprEvalSingleton.h"
+#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
 #include <string>
 #include <sstream>

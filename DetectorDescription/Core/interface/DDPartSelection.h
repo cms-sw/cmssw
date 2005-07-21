@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
-#include "DetectorDescription/DDCore/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
 
 #include <boost/spirit.hpp>
 

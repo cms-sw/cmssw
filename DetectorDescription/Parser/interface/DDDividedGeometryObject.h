@@ -6,11 +6,11 @@
 //            DDD version
 //---------------------------------------------------------------------
 
-#include "DetectorDescription/DDCore/interface/DDAxes.h"
-#include "DetectorDescription/DDCore/interface/DDDivision.h"
+#include "DetectorDescription/Core/interface/DDAxes.h"
+#include "DetectorDescription/Core/interface/DDDivision.h"
 
-#include "DetectorDescription/DDBase/interface/DDRotationMatrix.h"
-#include "DetectorDescription/DDBase/interface/DDTranslation.h"
+#include "DetectorDescription/Base/interface/DDRotationMatrix.h"
+#include "DetectorDescription/Base/interface/DDTranslation.h"
 
 enum DivisionType { DivNDIVandWIDTH, DivNDIV, DivWIDTH };
 

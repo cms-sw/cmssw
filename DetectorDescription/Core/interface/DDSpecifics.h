@@ -6,12 +6,12 @@
 #include <string>
 #include <vector>
 
-#include "DetectorDescription/DDCore/interface/DDName.h"
-#include "DetectorDescription/DDCore/interface/DDBase.h"
-#include "DetectorDescription/DDCore/interface/DDsvalues.h"
-#include "DetectorDescription/DDCore/interface/DDExpandedView.h"
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDBase.h"
+#include "DetectorDescription/Core/interface/DDsvalues.h"
+#include "DetectorDescription/Core/interface/DDExpandedView.h"
 
-//#include "DetectorDescription/DDCore/interface/DDExpandedView.h"
+//#include "DetectorDescription/Core/interface/DDExpandedView.h"
 
 class DDSpecifics;
 class DDPartSelection;

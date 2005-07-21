@@ -14,14 +14,14 @@
 // ---------------------------------------------------------------------------
 //  Includes
 // ---------------------------------------------------------------------------
-#include "DetectorDescription/DDParser/interface/DDLSAX2ExpressionHandler.h"
-#include "DetectorDescription/DDParser/interface/DDLParser.h"
-#include "DetectorDescription/DDParser/interface/StrX.h"
+#include "DetectorDescription/Parser/interface/DDLSAX2ExpressionHandler.h"
+#include "DetectorDescription/Parser/interface/DDLParser.h"
+#include "DetectorDescription/Parser/interface/StrX.h"
 
 // DDCore dependencies
-#include "DetectorDescription/DDBase/interface/DDdebug.h"
+#include "DetectorDescription/Base/interface/DDdebug.h"
 
-#include "DetectorDescription/DDExprAlgo/interface/ExprEvalSingleton.h"
+#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
 // Xerces C++ dependencies
 #include <xercesc/sax2/Attributes.hpp>

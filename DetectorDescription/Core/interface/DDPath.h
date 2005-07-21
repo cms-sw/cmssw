@@ -6,8 +6,8 @@ namespace std{} using namespace std;
 #include <vector>
 #include <utility>
 #include <string>
-#include "DetectorDescription/DDCore/interface/DDLogicalPart.h"
-#include "DetectorDescription/DDCore/interface/DDPartSelection.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDPartSelection.h"
 
 //enum typ_t { ddunknown, ddanynode, ddanychild, ddanylogp, ddanyposp, ddchildlogp,  ddchildposp };
 typedef ddselection_type typ_t;

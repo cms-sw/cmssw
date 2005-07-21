@@ -5,8 +5,8 @@ namespace std { } using namespace std;
 #include <set>
 #include <algorithm>
 #include <string>
-#include "DetectorDescription/DDRegressionTest/interface/DDExpandedViewDump.h"
-#include "DetectorDescription/DDCore/interface/DDExpandedView.h"
+#include "DetectorDescription/RegressionTest/interface/DDExpandedViewDump.h"
+#include "DetectorDescription/Core/interface/DDExpandedView.h"
 
 void DDExpandedViewDump(ostream & os, DDExpandedView & ex, size_t skip, size_t sto)
 {

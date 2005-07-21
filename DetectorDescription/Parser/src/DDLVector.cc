@@ -10,18 +10,18 @@ namespace std{} using namespace std;
 namespace boost { namespace spirit {} } using namespace boost::spirit;
 
 // Parser parts
-#include "DetectorDescription/DDParser/interface/DDLVector.h"
-#include "DetectorDescription/DDParser/interface/DDLElementRegistry.h"
+#include "DetectorDescription/Parser/interface/DDLVector.h"
+#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
 
 // other DD parts
-#include "DetectorDescription/DDCore/interface/DDVector.h"
-#include "DetectorDescription/DDCore/interface/DDStrVector.h"
-#include "DetectorDescription/DDBase/interface/DDdebug.h"
-#include "DetectorDescription/DDBase/interface/DDException.h"
-#include "DetectorDescription/DDBase/interface/DDTypes.h"
+#include "DetectorDescription/Core/interface/DDVector.h"
+#include "DetectorDescription/Core/interface/DDStrVector.h"
+#include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Base/interface/DDException.h"
+#include "DetectorDescription/Base/interface/DDTypes.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "DetectorDescription/DDExprAlgo/interface/ExprEvalSingleton.h"
+#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
 #include <map>
 #include <string>

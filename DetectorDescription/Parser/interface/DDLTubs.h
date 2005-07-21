@@ -1,7 +1,7 @@
 #ifndef DDLTUBS_H
 #define DDLTUBS_H
 
-#include "DetectorDescription/DDParser/interface/DDLSolid.h"
+#include "DetectorDescription/Parser/interface/DDLSolid.h"
 
 #include <string>
 #include <vector>

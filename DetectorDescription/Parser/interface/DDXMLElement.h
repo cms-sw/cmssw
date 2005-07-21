@@ -15,10 +15,10 @@
 #include <string>
 #include <vector>
 
-#include "DetectorDescription/DDCore/interface/DDName.h"
-#include "DetectorDescription/DDBase/interface/DDException.h"
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Base/interface/DDException.h"
 
-#include "DetectorDescription/DDParser/interface/DDLParser.h"
+#include "DetectorDescription/Parser/interface/DDLParser.h"
 
 // -------------------------------------------------------------------------
 // Class declaration

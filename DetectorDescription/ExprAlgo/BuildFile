@@ -1,8 +1,8 @@
-<use name=DetectorDescription/DDBase>
+<use name=DetectorDescription/Base>
 
 <export>
- <lib name=DetectorDescriptionDDExprAlgo>
- <use name=DetectorDescription/DDBase>
+ <lib name=DetectorDescriptionExprAlgo>
+ <use name=DetectorDescription/Base>
 </export>
 
 

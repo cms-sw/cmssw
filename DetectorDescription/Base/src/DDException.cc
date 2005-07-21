@@ -1,5 +1,5 @@
 namespace std {} using namespace std;
-#include "DetectorDescription/DDBase/interface/DDException.h"
+#include "DetectorDescription/Base/interface/DDException.h"
 #include "SealBase/Error.h"
 
 // "regular" constructor

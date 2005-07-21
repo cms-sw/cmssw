@@ -3,8 +3,8 @@
 
 #include <vector>
 #include <iostream>
-#include "DetectorDescription/DDCore/interface/DDTransform.h"
-#include "DetectorDescription/DDCore/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDTransform.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
 class DDExpandedView;
 class DDPosData;
 struct DDExpandedNodeLess;

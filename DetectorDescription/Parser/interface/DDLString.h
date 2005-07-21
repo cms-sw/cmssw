@@ -4,9 +4,9 @@
 // -------------------------------------------------------------------------
 // Includes
 // -------------------------------------------------------------------------
-#include "DetectorDescription/DDParser/interface/DDXMLElement.h"
-#include "DetectorDescription/DDCore/interface/DDString.h"
-#include "DetectorDescription/DDBase/interface/DDTypes.h"
+#include "DetectorDescription/Parser/interface/DDXMLElement.h"
+#include "DetectorDescription/Core/interface/DDString.h"
+#include "DetectorDescription/Base/interface/DDTypes.h"
 
 #include <string>
 #include <vector>

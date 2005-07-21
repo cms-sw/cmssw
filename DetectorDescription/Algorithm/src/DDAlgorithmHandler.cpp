@@ -1,9 +1,9 @@
 //namespace std { } using namespace std;
 //#include "Utilities/Configuration/interface/Architecture.h"
 #include "PluginManager/PluginManager.h"
-#include "DetectorDescription/DDAlgorithm/interface/DDAlgorithmHandler.h"
-#include "DetectorDescription/DDAlgorithm/interface/DDAlgorithmFactory.h"
-#include "DetectorDescription/DDCore/interface/DDSplit.h"
+#include "DetectorDescription/Algorithm/interface/DDAlgorithmHandler.h"
+#include "DetectorDescription/Algorithm/interface/DDAlgorithmFactory.h"
+#include "DetectorDescription/Core/interface/DDSplit.h"
 
 namespace std { } using namespace std;
 

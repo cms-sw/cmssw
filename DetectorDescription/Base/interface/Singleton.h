@@ -1,6 +1,6 @@
 #ifndef DDI_Singleton_h
 #define DDI_Singleton_h
-#include "DetectorDescription/DDBase/interface/Ptr.h"
+#include "DetectorDescription/Base/interface/Ptr.h"
 
 namespace DDI {
  template <class I> 

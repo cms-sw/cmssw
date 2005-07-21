@@ -16,8 +16,8 @@ namespace std{} using namespace std;
 // ---------------------------------------------------------------------------
 //  Includes
 // ---------------------------------------------------------------------------
-#include "DetectorDescription/DDParser/interface/DDLParser.h"
-#include "DetectorDescription/DDParser/interface/DDLSAX2ConfigHandler.h"
+#include "DetectorDescription/Parser/interface/DDLParser.h"
+#include "DetectorDescription/Parser/interface/DDLSAX2ConfigHandler.h"
 
 // Xerces C++ dependencies.
 #include <xercesc/sax2/Attributes.hpp>
@@ -25,11 +25,11 @@ namespace std{} using namespace std;
 #include <xercesc/sax/SAXException.hpp>
 
 // DDCore dependencies
-#include "DetectorDescription/DDBase/interface/DDdebug.h"
+#include "DetectorDescription/Base/interface/DDdebug.h"
 //  This is frustrating.  I only need DDInit at this level to get a handle on DDRootDef.
-//#include "DetectorDescription/DDCore/interface/DDInit.h"
-#include "DetectorDescription/DDCore/interface/DDRoot.h"
-#include "DetectorDescription/DDCore/interface/DDLogicalPart.h"
+//#include "DetectorDescription/Core/interface/DDInit.h"
+#include "DetectorDescription/Core/interface/DDRoot.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
 
 #include <iostream>
 #include <string>

@@ -6,8 +6,8 @@ namespace std{} using namespace std;
 
 #include <string>
 #include <iostream>
-#include "DetectorDescription/DDCore/interface/DDName.h"
-#include "DetectorDescription/DDCore/interface/DDTransform.h"
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDTransform.h"
 
 class DDLogicalPart;
 class DDRotation;

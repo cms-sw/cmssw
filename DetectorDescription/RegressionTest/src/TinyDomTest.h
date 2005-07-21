@@ -2,7 +2,7 @@
 #define x_TinyDomTest_h
 
 
-#include "DetectorDescription/DDRegressionTest/src/TinyDom.h"
+#include "DetectorDescription/RegressionTest/src/TinyDom.h"
 #include <vector>
 using std::vector;
 

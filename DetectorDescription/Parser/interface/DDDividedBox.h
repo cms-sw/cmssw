@@ -6,8 +6,8 @@
 // 25.04.04 - M. Case ddd-ize G4ParametarisationBox*
 // ********************************************************************
 
-#include "DetectorDescription/DDParser/interface/DDDividedGeometryObject.h"
-#include "DetectorDescription/DDBase/interface/DDTranslation.h"
+#include "DetectorDescription/Parser/interface/DDDividedGeometryObject.h"
+#include "DetectorDescription/Base/interface/DDTranslation.h"
 
 class DDLogicalPart;
 class DDRotation;

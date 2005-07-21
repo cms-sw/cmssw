@@ -4,7 +4,7 @@
 #ifndef DDAlgorithm_global_simpleAngular_h
 #define DDAlgorithm_global_simpleAngular_h
 
-#include "DetectorDescription/DDExprAlgo/interface/AlgoImpl.h"
+#include "DetectorDescription/ExprAlgo/interface/AlgoImpl.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 // I tried the following on CERN lxplus and still no MAX_DOUBLE was defined.
 // so I tried DBL_MAX which does exist, but I do not know the source of this.
@@ -129,7 +129,7 @@ public:
  
 ***************************************************************************/
 
-#include "DetectorDescription/DDExprAlgo/interface/AlgoCheck.h"
+#include "DetectorDescription/ExprAlgo/interface/AlgoCheck.h"
 
 class global_simpleAngular_Check : public AlgoCheck
 {

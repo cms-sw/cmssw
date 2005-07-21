@@ -6,12 +6,12 @@
 #include <string>
 #include <map>
 
-#include "DetectorDescription/DDCore/interface/DDTransform.h"
-#include "DetectorDescription/DDCore/interface/DDCompactView.h"
-#include "DetectorDescription/DDCore/interface/DDLogicalPart.h"
-#include "DetectorDescription/DDCore/interface/DDPosData.h"
-#include "DetectorDescription/DDCore/interface/DDExpandedNode.h"
-#include "DetectorDescription/DDCore/interface/DDsvalues.h"
+#include "DetectorDescription/Core/interface/DDTransform.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDPosData.h"
+#include "DetectorDescription/Core/interface/DDExpandedNode.h"
+#include "DetectorDescription/Core/interface/DDsvalues.h"
 
 class DDFilteredView;
 

@@ -4,7 +4,7 @@
 // -------------------------------------------------------------------------
 // Includes
 // -------------------------------------------------------------------------
-#include "DetectorDescription/DDParser/interface/DDLRotationByAxis.h"
+#include "DetectorDescription/Parser/interface/DDLRotationByAxis.h"
 
 #include <string>
 
