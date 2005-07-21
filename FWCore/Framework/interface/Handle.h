@@ -19,12 +19,11 @@ Handles can have:
 
 To check validity, one can use the isValid() function.
 
-$Id: Handle.h,v 1.6 2005/07/05 17:39:04 wmtan Exp $
+$Id: Handle.h,v 1.7 2005/07/14 22:50:52 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include <algorithm>
-#include <stdexcept>
 #include <typeinfo>
 
 #include "boost/utility/enable_if.hpp"
@@ -32,7 +31,6 @@ $Id: Handle.h,v 1.6 2005/07/05 17:39:04 wmtan Exp $
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/BasicHandle.h"
-#include "FWCore/Utilities/interface/EDMException.h"
 
 namespace edm
 {
@@ -173,14 +171,13 @@ namespace edm
 		      Handle<T>& result)
   {
     EDProduct const* originalWrap = orig.wrapper();
-    if (originalWrap == 0)
-      throw edm::Exception(edm::errors::InvalidReference,"NullPointer")
-      << "edm::BasicHandle has null pointer to Wrapper";
+    if (originalWrap == 0) {
+      orig.nullHandle();
+    }
     Wrapper<T> const* wrap = dynamic_cast<Wrapper<T> const*>(originalWrap);
-    if (wrap == 0)
-      throw edm::Exception(edm::errors::LogicError,"ConvertType")
-      << "edm::Wrapper converting from EDProduct to "
-      << typeid(originalWrap).name();
+    if (wrap == 0) {
+      orig.invalidHandle(typeid(originalWrap).name());
+    }
 
     Handle<T> h(wrap->product(), orig.provenance(), wrap->id());
     h.swap(result);

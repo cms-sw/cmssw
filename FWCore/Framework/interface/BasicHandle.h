@@ -19,7 +19,7 @@ Handles can have:
 
 To check validity, one can use the isValid() function.
 
-$Id: BasicHandle.h,v 1.1 2005/07/01 00:05:37 wmtan Exp $
+$Id: BasicHandle.h,v 1.2 2005/07/14 22:50:52 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -81,6 +81,10 @@ namespace edm {
     }
 
     EDP_ID id() const {return wrap_->id();}
+
+    void nullHandle() const;
+
+    void invalidHandle(char const* typeName) const;
 
   private:
     EDProduct const* wrap_;
