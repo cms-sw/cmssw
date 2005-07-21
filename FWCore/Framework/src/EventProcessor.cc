@@ -20,7 +20,7 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/EventRegistry.h"
-
+#include "FWCore/Framework/interface/ProductRegistry.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 #include "boost/shared_ptr.hpp"
@@ -64,11 +64,12 @@ namespace edm {
 
 
   boost::shared_ptr<InputService> makeInput(ParameterSet const& params_,
-					    const CommonParams& common)
+					    const CommonParams& common,
+					    ProductRegistry* preg)
   {
     // find single source
     ParameterSet main_input = params_.getParameter<ParameterSet>("main_input");
-    InputServiceDescription isdesc(common.process_name_,common.pass_);
+    InputServiceDescription isdesc(common.process_name_,common.pass_,preg);
 
     boost::shared_ptr<InputService> input_
       (InputServiceFactory::get()->makeInputService(main_input,isdesc).release());
@@ -124,7 +125,8 @@ namespace edm {
     string                  configstring_;
     boost::shared_ptr<ParameterSet> params_;
     CommonParams            common_;
-    WorkerRegistry          reg_;
+    WorkerRegistry          wreg_;
+    ProductRegistry         preg_;
     PathList                workers_;
 
     boost::shared_ptr<InputService> input_;
@@ -155,15 +157,16 @@ namespace edm {
 		   getVersion(), // this is not written for real yet
 		   0); // how is this specifified? Where does it come from?
  
-    ScheduleBuilder sbuilder= ScheduleBuilder(*params_,&reg_,&act_table_);
+    ScheduleBuilder sbuilder= 
+      ScheduleBuilder(*params_,&wreg_,&preg_,&act_table_);
     
     workers_= (sbuilder.getPathList());
-    input_= makeInput(*params_,common_);
+    input_= makeInput(*params_,common_,&preg_);
     runner_ = ScheduleExecutor(workers_,act_table_);
     
     fillEventSetupProvider(esp_, *params_, common_);
   }
-
+  
   FwkImpl::FwkImpl(int argc, char* argv[], const string& config) :
     args_(fillArgs(argc,argv)),
     configstring_(config),
@@ -176,10 +179,11 @@ namespace edm {
 		   getVersion(), // this is not written for real yet
 		   0); // how is this specifified? Where does it come from?
  
-    ScheduleBuilder sbuilder= ScheduleBuilder(*params_,&reg_,&act_table_);
+    ScheduleBuilder sbuilder= 
+      ScheduleBuilder(*params_,&wreg_,&preg_,&act_table_);
     
     workers_= (sbuilder.getPathList());
-    input_= makeInput(*params_,common_);
+    input_= makeInput(*params_,common_,&preg_);
     runner_ = ScheduleExecutor(workers_,act_table_);
     fillEventSetupProvider(esp_, *params_, common_);
 
@@ -198,10 +202,11 @@ namespace edm {
 		   getVersion(), // this is not written for real yet
 		   0); // how is this specifified? Where does it come from?
  
-    ScheduleBuilder sbuilder= ScheduleBuilder(*params_,&reg_,&act_table_);
+    ScheduleBuilder sbuilder= 
+      ScheduleBuilder(*params_,&wreg_,&preg_,&act_table_);
     
     workers_= (sbuilder.getPathList());
-    input_= makeInput(*params_,common_);
+    input_= makeInput(*params_,common_,&preg_);
     runner_ = ScheduleExecutor(workers_,act_table_);
     
     FDEBUG(2) << params_->toString() << std::endl;
