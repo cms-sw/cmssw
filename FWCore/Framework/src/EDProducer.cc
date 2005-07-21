@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
   
-$Id: EDProducer.cc,v 1.2 2005/07/08 00:09:42 chrjones Exp $
+$Id: EDProducer.cc,v 1.3 2005/07/14 22:50:53 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -16,5 +16,8 @@ namespace edm
 
   void EDProducer::endJob()
   { }
+  const EDProducer::TypeLabelList& EDProducer::getTypeLabelList() const{
+    return productList_;
+  }
 }
   
