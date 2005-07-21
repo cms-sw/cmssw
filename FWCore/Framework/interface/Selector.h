@@ -6,7 +6,7 @@
 Selector: Base class for all "selector" objects, used to select
 EDProducts based on information in the associated Provenance.
 
-$Id: Selector.h,v 1.2 2005/06/23 05:38:31 wmtan Exp $
+$Id: Selector.h,v 1.3 2005/07/14 22:50:53 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -32,7 +32,7 @@ namespace edm {
     ModuleDescriptionSelector(const ModuleDescription& md):md_(md) {}
     
     virtual bool doMatch(const Provenance& p) const {
-      return p.module == md_;
+      return p.product.module == md_;
     }
 
   private:
@@ -46,7 +46,7 @@ namespace edm {
     ProcessNameSelector(const std::string& pn):pn_(pn) {}
     
     virtual bool doMatch(const Provenance& p) const {
-      return p.module.process_name == pn_;
+      return p.product.module.process_name == pn_;
     }
 
   private:

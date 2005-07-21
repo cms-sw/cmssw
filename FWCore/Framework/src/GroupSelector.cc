@@ -1,4 +1,4 @@
-// $Id: GroupSelector.cc,v 1.7 2005/06/24 23:32:13 wmtan Exp $
+// $Id: GroupSelector.cc,v 1.8 2005/07/14 22:50:53 wmtan Exp $
 #include "FWCore/Framework/interface/Provenance.h"
 #include "FWCore/Framework/interface/GroupSelector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -12,7 +12,7 @@ namespace edm {
   }
 
   bool GroupSelector::selected(Provenance const& prov) const {
-      SelectMap::const_iterator s = select_.find(prov.module.module_label);
+      SelectMap::const_iterator s = select_.find(prov.product.module.module_label);
       bool const sel = selectAllGroups_ ?
 	s == select_.end() || s->second : // select all branches, except those marked "select == false"
 	s != select_.end() && s->second;  // select only branches marked "select == true"

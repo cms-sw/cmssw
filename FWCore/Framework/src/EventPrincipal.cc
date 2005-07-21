@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EventPrincipal.cc,v 1.12 2005/07/11 21:55:14 wmtan Exp $
+$Id: EventPrincipal.cc,v 1.13 2005/07/14 22:50:53 wmtan Exp $
 ----------------------------------------------------------------------*/
 //#include <iostream>
 #include <memory>
@@ -52,10 +52,10 @@ namespace edm {
   void 
   EventPrincipal::addGroup(auto_ptr<Group> group)
   {
-    assert (!group->provenance()->full_product_type_name.empty());
-    assert (!group->provenance()->friendly_product_type_name.empty());
-    assert (!group->provenance()->module.module_label.empty());
-    assert (!group->provenance()->module.process_name.empty());
+    assert (!group->provenance()->product.full_product_type_name.empty());
+    assert (!group->provenance()->product.friendly_product_type_name.empty());
+    assert (!group->provenance()->product.module.module_label.empty());
+    assert (!group->provenance()->product.module.process_name.empty());
     SharedGroupPtr g(group);
 
     BranchKey bk(*g->provenance());
@@ -65,10 +65,10 @@ namespace edm {
 
     if (labeled_dict_.find(bk) != labeled_dict_.end())
       {
-        string class_name = g->provenance()->friendly_product_type_name;
-        string module_label = g->provenance()->module.module_label;
-        string product_instance_name = g->provenance()->product_instance_name;
-        string process_name = g->provenance()->module.process_name;
+        string class_name = g->provenance()->product.friendly_product_type_name;
+        string module_label = g->provenance()->product.module.module_label;
+        string product_instance_name = g->provenance()->product.product_instance_name;
+        string process_name = g->provenance()->product.module.process_name;
 	// the products are lost at this point!
 	throw edm::Exception(edm::errors::InsertFailure,"AlreadyPresent")
 	  << "addGroup: Problem found while adding product provanence, "
