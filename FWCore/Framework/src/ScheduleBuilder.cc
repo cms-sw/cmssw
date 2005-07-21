@@ -3,15 +3,16 @@
    Implementation of class ScheduleBuilder
 
    \author Stefano ARGIRO
-   \version $Id: ScheduleBuilder.cc,v 1.10 2005/07/14 22:50:53 wmtan Exp $
+   \version $Id: ScheduleBuilder.cc,v 1.11 2005/07/20 03:00:36 jbk Exp $
    \date 18 May 2005
 */
 
-static const char CVSId[] = "$Id: ScheduleBuilder.cc,v 1.10 2005/07/14 22:50:53 wmtan Exp $";
+static const char CVSId[] = "$Id: ScheduleBuilder.cc,v 1.11 2005/07/20 03:00:36 jbk Exp $";
 
 
 #include "FWCore/Framework/interface/ScheduleBuilder.h"
 #include "FWCore/Framework/src/WorkerRegistry.h"
+#include "FWCore/Framework/interface/ProductRegistry.h"
 #include "FWCore/Framework/src/WorkerParams.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "PluginManager/PluginManager.h"
@@ -22,9 +23,10 @@ using namespace edm;
 using namespace std;
 
 ScheduleBuilder::ScheduleBuilder(ParameterSet const& processDesc,
-				 WorkerRegistry * registry,
+				 WorkerRegistry * wregistry,
+				 ProductRegistry* pregistry,
 				 ActionTable* actions): 
-  m_processDesc(processDesc), m_registry(registry){
+  m_processDesc(processDesc){
 
 
   seal::PluginManager::get()->initialise();
@@ -56,9 +58,10 @@ ScheduleBuilder::ScheduleBuilder(ParameterSet const& processDesc,
       unsigned long version = 1;
       unsigned long pass    = 1;
 
-      WorkerParams params(module_pset,0,actions,processName,version,pass);
+      WorkerParams params(module_pset,pregistry,actions,
+			  processName,version,pass);
     
-      Worker* worker= m_registry->getWorker(params);
+      Worker* worker= wregistry->getWorker(params);
       
       workerList.push_back(worker);
       
