@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: ProducerWorker.cc,v 1.4 2005/07/20 03:00:36 jbk Exp $
+$Id: ProducerWorker.cc,v 1.5 2005/07/20 04:11:41 jbk Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/src/ProducerWorker.h"
@@ -10,11 +10,12 @@ $Id: ProducerWorker.cc,v 1.4 2005/07/20 03:00:36 jbk Exp $
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Actions.h"
 #include "FWCore/Framework/src/WorkerParams.h"
+#include "FWCore/Framework/interface/ProductDescription.h"
+#include "FWCore/Framework/interface/ProductRegistry.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include <string>
 #include <sstream>
-#include <iostream>
 
 using namespace std;
 
@@ -24,10 +25,35 @@ namespace edm
   ProducerWorker::ProducerWorker(std::auto_ptr<EDProducer> ed,
 				 const ModuleDescription& md,
 				 const WorkerParams& wp):
+
     md_(md),
     producer_(ed),
     actions_(wp.actions_)
   {
+    
+    const EDProducer::TypeLabelList& plist= producer_->getTypeLabelList();
+
+    EDProducer::TypeLabelList::const_iterator p;
+    // loop on products declared by the User Module
+    // and register them with ProductRegistry
+    for(p=plist.begin(); p!=plist.end(); ++p){
+           
+ 
+      ProductDescription pdesc;
+      pdesc.product_id = EDP_ID();
+      pdesc.module = md;
+      pdesc.full_product_type_name =  p->first.userClassName();
+      pdesc.friendly_product_type_name =  p->first.friendlyClassName();
+      pdesc.product_instance_name =   p->second;
+      /*
+      ProductDescription pdesc(EDP_ID(),md,
+			       p->first.userClassName(),
+			       p->first.friendlyClassName(), 
+			       p->second);
+      */
+      wp.reg_->addProduct(pdesc);
+    }//for
+
   }
 
   ProducerWorker::~ProducerWorker()

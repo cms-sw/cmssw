@@ -9,7 +9,7 @@ feed them into the event.
 According to our current definition, a single producer can only
 appear in one worker.
 
-$Id: ProducerWorker.h,v 1.5 2005/07/14 22:50:53 wmtan Exp $
+$Id: ProducerWorker.h,v 1.6 2005/07/20 03:00:36 jbk Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -32,6 +32,7 @@ namespace edm
     ProducerWorker(std::auto_ptr<EDProducer>,
 		   const ModuleDescription&,
 		   const WorkerParams&);
+
     virtual ~ProducerWorker();
 
   private:
