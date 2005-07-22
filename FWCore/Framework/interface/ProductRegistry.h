@@ -3,21 +3,19 @@
    Implementation of ProductRegistry
 
    \author Stefano ARGIRO
-   \version $Id$
+   \version $Id: ProductRegistry.h,v 1.1 2005/07/21 20:47:28 argiro Exp $
    \date 19 Jul 2005
 */
 
-#ifndef _edm_ProductRegistry_h_
-#define _edm_ProductRegistry_h_
+#ifndef Framework_ProductRegistry_h
+#define Framework_ProductRegistry_h
 
 static const char CVSId_edm_ProductRegistry[] = 
-"$Id$";
+"$Id: ProductRegistry.h,v 1.1 2005/07/21 20:47:28 argiro Exp $";
 
 #include <FWCore/Framework/interface/ProductDescription.h>
-#include <list>
+#include <vector>
 namespace edm {
-
-  
 
   /**
      \class ProductRegistry ProductRegistry.h "edm/ProductRegistry.h"
@@ -31,15 +29,14 @@ namespace edm {
 
   public:
   
-    typedef std::list<ProductDescription> ProductList;
+    typedef std::vector<ProductDescription> ProductList;
 
-    void addProduct(const ProductDescription& productdesc);
+    void addProduct(ProductDescription const& productdesc);
 
-    const ProductList& getProductList() const;
-    
+    ProductList const& productList() const;
     
   private:
-    std::list<ProductDescription> productList_;
+    std::vector<ProductDescription> productList_;
     
   };
 } // edm
