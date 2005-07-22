@@ -5,7 +5,9 @@
 
 
 namespace edmreftest {
-  OtherThingProducer::OtherThingProducer(edm::ParameterSet const&): alg_() {}
+  OtherThingProducer::OtherThingProducer(edm::ParameterSet const&): alg_() {
+    produces<OtherThingCollection>();
+  }
 
   // Virtual destructor needed.
   OtherThingProducer::~OtherThingProducer() {}  

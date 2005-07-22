@@ -4,7 +4,9 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 namespace edmreftest {
-  ThingProducer::ThingProducer(edm::ParameterSet const&): alg_() {}
+  ThingProducer::ThingProducer(edm::ParameterSet const&): alg_() {
+    produces<ThingCollection>();
+  }
 
   // Virtual destructor needed.
   ThingProducer::~ThingProducer() { }  
