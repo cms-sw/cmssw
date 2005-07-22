@@ -19,7 +19,9 @@ namespace cms
 	 conf.getParameter<int>("ktRecom"),
 	 conf.getParameter<double>("ktECut"),
 	 conf.getParameter<double>("ktRParam"))
-  { }
+  {
+    produces<CaloJetCollection>();
+  }
 
   // Virtual destructor needed.
   KtJetProducer::~KtJetProducer() { }  

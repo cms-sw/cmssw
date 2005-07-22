@@ -26,6 +26,7 @@ namespace cms
 	 conf.getParameter<double>("overlapThreshold"),
 	 conf.getUntrackedParameter<int>("debugLevel",0))
   {
+    produces<CaloJetCollection>();
   }
 
   // Virtual destructor needed.
