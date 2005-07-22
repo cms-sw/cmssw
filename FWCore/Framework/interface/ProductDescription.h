@@ -6,12 +6,12 @@
 ProductDescription: The full description of a product and how it came into
 existence.
 
-$Id: ProductDescription.h,v 1.8 2005/07/14 22:50:52 wmtan Exp $
+$Id: ProductDescription.h,v 1.1 2005/07/20 14:06:47 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <ostream>
 #include <string>
 
-#include "FWCore/EDProduct/interface/EDP_ID.h"
+#include "FWCore/EDProduct/interface/ProductID.h"
 #include "FWCore/Framework/interface/ModuleDescription.h"
 
 /*
@@ -39,7 +39,7 @@ namespace edm {
 
     ModuleDescription module;
 
-    EDP_ID product_id;
+    ProductID product_id;
 
     // the full name of the type of product this is
     std::string full_product_type_name;
