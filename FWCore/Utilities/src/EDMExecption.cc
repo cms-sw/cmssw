@@ -10,6 +10,7 @@ namespace edm
       {
 	EDM_MAP_ENTRY_NONS(trans_,Unknown);
 	EDM_MAP_ENTRY_NONS(trans_,ProductNotFound);
+	EDM_MAP_ENTRY_NONS(trans_,NoProductSpecified);
 	EDM_MAP_ENTRY_NONS(trans_,InsertFailure);
 	EDM_MAP_ENTRY_NONS(trans_,Configuration);
 	EDM_MAP_ENTRY_NONS(trans_,LogicError);

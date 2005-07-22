@@ -33,6 +33,7 @@ namespace errors
        Configuration,
        LogicError,
        InvalidReference,
+       NoProductSpecified,
 
        ModuleFailure,
        ScheduleExecutionFailure,

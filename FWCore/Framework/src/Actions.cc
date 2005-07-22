@@ -94,6 +94,8 @@ namespace edm {
       actions::Rethrow;
     map_[edm::Exception::codeToString(errors::ProductNotFound)]=
       actions::SkipEvent;
+    map_[edm::Exception::codeToString(errors::NoProductSpecified)]=
+      actions::Rethrow;
     map_[edm::Exception::codeToString(errors::InsertFailure)]=
       actions::SkipEvent;
     map_[edm::Exception::codeToString(errors::Configuration)]=
