@@ -19,17 +19,17 @@ Toy EDProducers and EDProducts for testing purposes only.
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-namespace edmtest
-{
+namespace edmtest {
   // Toy producers
   
-  class IntProducer : public edm::EDProducer
-  {
+  class IntProducer : public edm::EDProducer {
   public:
-    explicit IntProducer(edm::ParameterSet const& p) : value_(p.getParameter<int>("ivalue"))
-	 { }
-    explicit IntProducer(int i) : value_(i)
-	 { }
+    explicit IntProducer(edm::ParameterSet const& p) : value_(p.getParameter<int>("ivalue")) {
+      produces<int>();
+    }
+    explicit IntProducer(int i) : value_(i) {
+      produces<int>();
+    }
     virtual ~IntProducer() { }
     virtual void produce(edm::Event& e, const edm::EventSetup& c);
   private:
@@ -37,20 +37,20 @@ namespace edmtest
   };
 
   void
-    IntProducer::produce(edm::Event& e, const edm::EventSetup&)
-  {
+  IntProducer::produce(edm::Event& e, const edm::EventSetup&) {
     // EventSetup is not used.
     std::auto_ptr<IntProduct> p(new IntProduct(value_));
     e.put(p);
   }
   
-  class DoubleProducer : public edm::EDProducer
-  {
+  class DoubleProducer : public edm::EDProducer {
   public:
-    explicit DoubleProducer(edm::ParameterSet const& p) : value_(p.getParameter<double>("dvalue"))
-	 { }
-    explicit DoubleProducer(double d) : value_(d)
-	 { }
+    explicit DoubleProducer(edm::ParameterSet const& p) : value_(p.getParameter<double>("dvalue")) {
+      produces<double>();
+    }
+    explicit DoubleProducer(double d) : value_(d) {
+      produces<double>();
+    }
     virtual ~DoubleProducer() { }
     virtual void produce(edm::Event& e, const edm::EventSetup& c);
   private:
@@ -58,27 +58,23 @@ namespace edmtest
   };
 
   void
-  DoubleProducer::produce(edm::Event& e, const edm::EventSetup&)
-  {
+  DoubleProducer::produce(edm::Event& e, const edm::EventSetup&) {
     // EventSetup is not used.
     // Get input
     edm::Handle<IntProduct> h;
     assert(!h.isValid());
 
-    try 
-      {
+    try {
 	std::string emptyLabel;
 	e.getByLabel(emptyLabel, h);
 	assert ("Failed to throw necessary exception" == 0);
-      }
-    catch (edm::Exception& x)
-      {
+    }
+    catch (edm::Exception& x) {
 	assert(!h.isValid());
-      }
-    catch (...)
-      {
+    }
+    catch (...) {
 	assert("Threw wrong exception" == 0);
-      }
+    }
 
     // Make output
     std::auto_ptr<DoubleProduct> p(new DoubleProduct(value_));
