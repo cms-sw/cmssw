@@ -1,0 +1,21 @@
+<use name=Dictionary/Reflection>
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=CondFormats/DataRecord>
+<use name=CondFormats/Alignment>
+<use name=CondFormats/Calibration>
+<use name=CondCore/IOVService>
+<use name=CondCore/MetaDataService>
+<use name=DataSvc>
+<export>
+ <use name=Dictionary/Reflection>
+ <use name=FWCore/Framework>
+ <use name=FWCore/ParameterSet>
+ <use name=CondFormats/DataRecord>
+ <use name=CondFormats/Alignment>
+ <use name=CondFormats/Calibration>
+ <use name=CondCore/IOVService>
+ <use name=CondCore/MetaDataService>
+ <use name=DataSvc>
+ <lib name=CondCoreESSources>
+</export>

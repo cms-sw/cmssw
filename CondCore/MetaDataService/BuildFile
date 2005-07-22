@@ -3,5 +3,5 @@
 <export>
   <use name=Framework/SealKernel>
   <use name=RelationalAccess>
-  <lib name=MetaDataService>
+  <lib name=CondCoreMetaDataService>
 </export>

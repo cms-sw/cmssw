@@ -1,7 +1,5 @@
-<use name=Dictionary/Reflection>
 <use name=Dictionary/ReflectionBuilder>
 <export>
- <use name=Dictionary/Reflection>
  <use name=Dictionary/ReflectionBuilder>
- <lib name=IOVService>
+ <lib name=CondCoreIOVService>
 </export>
