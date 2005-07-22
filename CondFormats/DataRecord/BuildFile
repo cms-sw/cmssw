@@ -1,0 +1,5 @@
+<use name=FWCore/Framework>
+<export>
+  <use name=FWCore/Framework>
+  <lib name=CondFormats/DataRecord>
+</export>

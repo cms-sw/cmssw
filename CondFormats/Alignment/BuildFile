@@ -1,10 +1,8 @@
 <flags LCGDICT_ARGS=="--">
 <use name=clhep>
 <use name=Dictionary/ReflectionBuilder>
-<use name=FWCore/Framework>
 <export>
   <use name=clhep>
   <use name=Dictionary/ReflectionBuilder>
-  <use name=FWCore/Framework>
   <lib name=CondFormatsAlignment>
 </export>
