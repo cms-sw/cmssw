@@ -1,0 +1,6 @@
+<lcgdict>
+ <class name="std::basic_string<char>"/>
+ <class name="std::map<int,std::basic_string<char> >"/>
+ <class name="IOV" id="2F16F0A9-79D5-4881-CE0B-A271DD84A7F1"/>
+ <class pattern="*iterator*"/>
+</lcgdict>   
