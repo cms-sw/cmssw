@@ -1,32 +1,31 @@
 /*----------------------------------------------------------------------
-$Id: InputService.cc,v 1.3 2005/06/23 19:59:48 wmtan Exp $
+$Id: InputService.cc,v 1.4 2005/07/14 22:50:53 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <cassert>
 
 #include "FWCore/Framework/interface/InputService.h"
+#include "FWCore/Framework/interface/InputServiceDescription.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 
-namespace edm
-{
-  InputService::InputService(const std::string& process) :
-    process_(process)
-  { 
-    assert(!process.empty());
+namespace edm {
+
+  InputService::InputService(InputServiceDescription const& desc) :
+      process_(desc.process_name),
+      preg_(desc.preg_) { 
+    assert(!process_.empty());
+    assert(preg_ != 0);
   }
 
-  InputService::~InputService() 
-  { }
+  InputService::~InputService() {}
 
   std::auto_ptr<EventPrincipal>
-  InputService::readEvent()
-  {
+  InputService::readEvent() {
     // Do we need any error handling (e.g. exception translation)
     // here?
     std::auto_ptr<EventPrincipal> ep(this->read());
-    if (ep.get()) 
-      {
+    if (ep.get()) {
 	ep->addToProcessHistory(process_);
-      }
+    }
     return ep;
   }
 }
