@@ -1,7 +1,7 @@
 #!/bin/sh
 
 #----------------------------------------------------------------------
-# $Id: run_all.sh,v 1.6 2005/07/20 05:24:14 wmtan Exp $
+# $Id: run_all.sh,v 1.7 2005/07/22 20:51:13 wmtan Exp $
 #----------------------------------------------------------------------
 
 # no way to easily locate the test directory and the architecture/compiler
@@ -20,7 +20,7 @@ do_or_die maker_t
 do_or_die maker2_t
 do_or_die EventProcessor_t
 do_or_die EventProcessor2_t
-do_or_die ScheduleExecutorFromPSet_t
+#do_or_die ScheduleExecutorFromPSet_t
 do_or_die core_eventsetup_producer_t.exe
 do_or_die core_eventsetup_proxyfactoryproducer_t.exe
 do_or_die core_eventsetup_callback_t.exe

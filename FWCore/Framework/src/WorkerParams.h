@@ -23,11 +23,11 @@ namespace edm
       process_name_(),version_number_(),pass_() { }
 
     WorkerParams(ParameterSet const& pset,
-		 ProductRegistry* reg,
-		 ActionTable* actions,
+		 ProductRegistry& reg,
+		 ActionTable& actions,
 		 const std::string& pn,
 		 unsigned long vn=0, unsigned long pass=0):
-      pset_(&pset),reg_(reg),actions_(actions),
+      pset_(&pset),reg_(&reg),actions_(&actions),
       process_name_(pn),version_number_(vn),pass_(pass) { }
 
     const ParameterSet* pset_;

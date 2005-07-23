@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Actions.h"
+#include "FWCore/Framework/interface/ProductRegistry.h"
 #include "FWCore/Framework/src/Factory.h"
 #include "FWCore/Framework/src/WorkerParams.h"
 
@@ -64,8 +65,13 @@ void testmaker::makerTest()
     boost::shared_ptr<ParameterSet> p2 = makePSet(*edm::pset::parse(param2.c_str()));;
 
     cerr << p1->getParameter<std::string>("module_type");
-    auto_ptr<Worker> w1 = f->makeWorker(*p1,"PROD",0,0);
-    auto_ptr<Worker> w2 = f->makeWorker(*p2,"PROD",0,0);
+
+    edm::ActionTable table;
+
+    edm::ProductRegistry preg;
+
+    auto_ptr<Worker> w1 = f->makeWorker(*p1, preg, table, "PROD", 0, 0);
+    auto_ptr<Worker> w2 = f->makeWorker(*p2, preg, table, "PROD", 0, 0);
   }
   catch(std::exception& e)
     {

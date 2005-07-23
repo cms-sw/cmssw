@@ -65,14 +65,14 @@ namespace edm {
 
   boost::shared_ptr<InputService> makeInput(ParameterSet const& params_,
 					    const CommonParams& common,
-					    ProductRegistry* preg)
+					    ProductRegistry& preg)
   {
     // find single source
     ParameterSet main_input = params_.getParameter<ParameterSet>("main_input");
     InputServiceDescription isdesc(common.process_name_,common.pass_,preg);
 
     boost::shared_ptr<InputService> input_
-      (InputServiceFactory::get()->makeInputService(main_input,isdesc).release());
+      (InputServiceFactory::get()->makeInputService(main_input, isdesc).release());
     
     return input_;
   }
@@ -158,11 +158,11 @@ namespace edm {
 		   0); // how is this specifified? Where does it come from?
  
     ScheduleBuilder sbuilder= 
-      ScheduleBuilder(*params_,&wreg_,&preg_,&act_table_);
+      ScheduleBuilder(*params_, wreg_, preg_, act_table_);
     
     workers_= (sbuilder.getPathList());
-    input_= makeInput(*params_,common_,&preg_);
-    runner_ = ScheduleExecutor(workers_,act_table_);
+    input_= makeInput(*params_, common_, preg_);
+    runner_ = ScheduleExecutor(workers_, act_table_);
     
     fillEventSetupProvider(esp_, *params_, common_);
   }
@@ -180,10 +180,10 @@ namespace edm {
 		   0); // how is this specifified? Where does it come from?
  
     ScheduleBuilder sbuilder= 
-      ScheduleBuilder(*params_,&wreg_,&preg_,&act_table_);
+      ScheduleBuilder(*params_, wreg_, preg_, act_table_);
     
     workers_= (sbuilder.getPathList());
-    input_= makeInput(*params_,common_,&preg_);
+    input_= makeInput(*params_, common_, preg_);
     runner_ = ScheduleExecutor(workers_,act_table_);
     fillEventSetupProvider(esp_, *params_, common_);
 
@@ -203,11 +203,11 @@ namespace edm {
 		   0); // how is this specifified? Where does it come from?
  
     ScheduleBuilder sbuilder= 
-      ScheduleBuilder(*params_,&wreg_,&preg_,&act_table_);
+      ScheduleBuilder(*params_, wreg_, preg_, act_table_);
     
     workers_= (sbuilder.getPathList());
-    input_= makeInput(*params_,common_,&preg_);
-    runner_ = ScheduleExecutor(workers_,act_table_);
+    input_= makeInput(*params_, common_, preg_);
+    runner_ = ScheduleExecutor(workers_, act_table_);
     
     FDEBUG(2) << params_->toString() << std::endl;
   }

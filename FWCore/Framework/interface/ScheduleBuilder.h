@@ -3,7 +3,7 @@
    Declaration of class ScheduleBuilder
 
    \author Stefano ARGIRO
-   \version $Id: ScheduleBuilder.h,v 1.4 2005/07/20 03:00:36 jbk Exp $
+   \version $Id: ScheduleBuilder.h,v 1.5 2005/07/21 20:49:33 argiro Exp $
    \date 18 May 2005
 */
 
@@ -11,7 +11,7 @@
 #define _edm_ScheduleBuilder_h_
 
 static const char CVSId_edm_ScheduleBuilder[] = 
-"$Id: ScheduleBuilder.h,v 1.4 2005/07/20 03:00:36 jbk Exp $";
+"$Id: ScheduleBuilder.h,v 1.5 2005/07/21 20:49:33 argiro Exp $";
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -37,9 +37,9 @@ namespace edm {
 
   public:
     ScheduleBuilder(ParameterSet const& processDesc,
-		    WorkerRegistry * wregistry,
-		    ProductRegistry* pregistry,
-		    ActionTable* actions);
+		    WorkerRegistry& wregistry,
+		    ProductRegistry& pregistry,
+		    ActionTable& actions);
     
     typedef std::list<Worker*>    WorkerList;
     typedef std::list<WorkerList> PathList;
