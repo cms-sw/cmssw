@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: OutputWorker.cc,v 1.4 2005/07/20 03:00:36 jbk Exp $
+$Id: OutputWorker.cc,v 1.5 2005/07/20 04:11:41 jbk Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/EventPrincipal.h"
@@ -15,102 +15,87 @@ $Id: OutputWorker.cc,v 1.4 2005/07/20 03:00:36 jbk Exp $
 
 using namespace std;
 
-namespace edm
-{
+namespace edm {
   OutputWorker::OutputWorker(std::auto_ptr<OutputModule> mod,
-			     const ModuleDescription& md,
-			     const WorkerParams& wp):
-    md_(md),
-    mod_(mod),
-    actions_(wp.actions_)
-  {
+			     ModuleDescription const& md,
+			     WorkerParams const& wp):
+      md_(md),
+      mod_(mod),
+      actions_(wp.actions_) {
+    assert(wp.reg_ != 0);
+    mod_->setProductRegistry(wp.reg_);
   }
 
-  OutputWorker::~OutputWorker()
-  {
+  OutputWorker::~OutputWorker() {
   }
 
   bool 
-  OutputWorker::doWork(EventPrincipal& ep, EventSetup const&)
-  {
+  OutputWorker::doWork(EventPrincipal& ep, EventSetup const&) {
     // EventSetup is not (yet) used. Should it be passed to the
     // OutputModule?
     bool rc = false;
 
-    try
-      {
+    try {
 	mod_->write(ep);
 	rc=true;
-      }
-    catch(cms::Exception& e)
-      {
+    }
+    catch(cms::Exception& e) {
 	e << "A cms::Exception is going through OutputModule:\n"
 	  << md_;
 
-	switch(actions_->find(e.rootCause()))
-	  {
-	  case actions::IgnoreCompletely:
-	    {
+	switch(actions_->find(e.rootCause())) {
+	  case actions::IgnoreCompletely: {
 	      rc=true;
 	      cerr << "Output module ignored exception for event " << ep.id()
 		   << "\nmessage from exception:\n" << e.what()
 		   << endl;
 	      break;
-	    }
-	  case actions::FailModule:
-	    {
+	  }
+	  case actions::FailModule: {
 	      cerr << "Output module failed due to exception for event " << ep.id()
 		   << "\nmessage from exception:\n" << e.what()
 		   << endl;
 	      break;
-	    }
-	  default: throw;
 	  }
-
-      }
-    catch(seal::Error& e)
-      {
+	  default: throw;
+	}
+    }
+    catch(seal::Error& e) {
 	cerr << "A seal::Error is going through OutputModule:\n"
 	     << md_
 	     << endl;
 	throw;
-      }
-    catch(std::exception& e)
-      {
+    }
+    catch(std::exception& e) {
 	cerr << "An std::exception is going through OutputModule:\n"
 	     << md_
 	     << endl;
 	throw;
-      }
-    catch(std::string& s)
-      {
+    }
+    catch(std::string& s) {
 	throw cms::Exception("BadExceptionType","std::string") 
 	  << "string = " << s << "\n"
 	  << md_ ;
-      }
-    catch(const char* c)
-      {
+    }
+    catch(char const* c) {
 	throw cms::Exception("BadExceptionType","const char*") 
 	  << "cstring = " << c << "\n"
 	  << md_ ;
-      }
-    catch(...)
-      {
+    }
+    catch(...) {
 	cerr << "An unknown Exception occured in\n" << md_;
 	throw;
-      }
+    }
 
     return rc;
   }
 
   void 
-  OutputWorker::beginJob( EventSetup const& ) 
-  {
+  OutputWorker::beginJob(EventSetup const&) {
   }
 
   void 
-  OutputWorker::endJob() 
-  {
+  OutputWorker::endJob() {
   }
    
 }
