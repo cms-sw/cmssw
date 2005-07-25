@@ -20,8 +20,6 @@ namespace edm{
   class ParameterSet;
 };
 
-namespace cond{
-  
   class PedestalRetriever : public edm::eventsetup::ESProducer, 
 			    public edm::eventsetup::EventSetupRecordIntervalFinder
   {
@@ -48,5 +46,4 @@ namespace cond{
     std::auto_ptr<pool::IFileCatalog> cat_;
     std::auto_ptr<pool::IDataSvc> svc_;
   };
-}
 #endif 

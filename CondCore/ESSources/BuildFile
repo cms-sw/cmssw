@@ -1,3 +1,4 @@
+<flags SEAL_PLUGIN_NAME="CondCoreESSources">
 <use name=Dictionary/Reflection>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>

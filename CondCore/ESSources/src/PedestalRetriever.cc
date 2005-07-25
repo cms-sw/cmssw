@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Mon Apr 18 16:43:35 EDT 2005
-// $Id: PedestalRetriever.cc,v 1.1 2005/07/22 14:24:58 xiezhen Exp $
+// $Id: PedestalRetriever.cc,v 1.2 2005/07/25 09:41:03 xiezhen Exp $
 //
 
 // system include files
@@ -47,7 +47,7 @@
   
   using namespace edm::eventsetup;
 
-cond::PedestalRetriever::PedestalRetriever( const edm::ParameterSet&  pset)
+PedestalRetriever::PedestalRetriever( const edm::ParameterSet&  pset)
 {         
   //  std::cout<<"PedestalRetriever::PedestalRetriever"<<std::endl;
   //Tell Producer what we produce
@@ -65,6 +65,7 @@ cond::PedestalRetriever::PedestalRetriever( const edm::ParameterSet&  pset)
   
   try{
     pool::POOLContext::loadComponent( "SEAL/Services/MessageService" );
+    pool::POOLContext::setMessageVerbosityLevel( seal::Msg::Error );
     // needed to connect to oracle
     pool::POOLContext::loadComponent( "POOL/Services/EnvironmentAuthenticationService" );
     
@@ -100,7 +101,7 @@ cond::PedestalRetriever::PedestalRetriever( const edm::ParameterSet&  pset)
   }
 }
   
-cond::PedestalRetriever::~PedestalRetriever()
+PedestalRetriever::~PedestalRetriever()
 {
   std::cout<<"PedestalRetriever::~PedestalRetriever"<<std::endl;
   svc_->transaction().commit();
@@ -112,7 +113,7 @@ cond::PedestalRetriever::~PedestalRetriever()
 // member functions
 //
 const Pedestals*
-cond::PedestalRetriever::produce( const CalibrationRecord& )
+PedestalRetriever::produce( const CalibrationRecord& )
 {
   std::cout<<"PedestalRetriever::produce"<<std::endl;
   try{
@@ -130,7 +131,7 @@ cond::PedestalRetriever::produce( const CalibrationRecord& )
 }
 
 void
-cond::PedestalRetriever::setIntervalFor( const EventSetupRecordKey&,
+PedestalRetriever::setIntervalFor( const EventSetupRecordKey&,
 				   const edm::Timestamp& iTime, 
 				   edm::ValidityInterval& oValidity)
 {

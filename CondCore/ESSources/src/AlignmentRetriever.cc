@@ -7,7 +7,7 @@
 //
 // Author:      Chris Jones
 // Created:     Mon Apr 18 16:43:35 EDT 2005
-// $Id: AlignmentRetriever.cc,v 1.1 2005/07/22 14:24:58 xiezhen Exp $
+// $Id: AlignmentRetriever.cc,v 1.2 2005/07/25 09:41:03 xiezhen Exp $
 //
 
 // system include files
@@ -43,13 +43,12 @@
 //#include "FWCore/Framework/interface/SourceFactory.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
 #include "CondFormats/DataRecord/interface/AlignmentRecord.h"
-//DEFINE_FWK_EVENTSETUP_SOURCE(cond::AlignmentRetriever)
 
   using namespace edm::eventsetup;
 //
 // constructors and destructor
 //
-cond::AlignmentRetriever::AlignmentRetriever( const edm::ParameterSet&  pset)
+AlignmentRetriever::AlignmentRetriever( const edm::ParameterSet&  pset)
 {         
   std::cout<<"AlignmentRetriever::AlignmentRetriever"<<std::endl;
   //Tell Producer what we produce
@@ -107,7 +106,7 @@ cond::AlignmentRetriever::AlignmentRetriever( const edm::ParameterSet&  pset)
   }
 }
   
-cond::AlignmentRetriever::~AlignmentRetriever()
+AlignmentRetriever::~AlignmentRetriever()
 {
   std::cout<<"AlignmentRetriever::~AlignmentRetriever"<<std::endl;
   svc_->transaction().commit();
@@ -120,7 +119,7 @@ cond::AlignmentRetriever::~AlignmentRetriever()
 // member functions
 //
 const Alignments*
-cond::AlignmentRetriever::produce( const AlignmentRecord& )
+AlignmentRetriever::produce( const AlignmentRecord& )
 {
   std::cout<<"AlignmentRetriever::produce"<<std::endl;
   try{
@@ -138,7 +137,7 @@ cond::AlignmentRetriever::produce( const AlignmentRecord& )
 }
 
 void
-cond::AlignmentRetriever::setIntervalFor( const EventSetupRecordKey&,
+AlignmentRetriever::setIntervalFor( const EventSetupRecordKey&,
 					  const edm::Timestamp& iTime, 
 					  edm::ValidityInterval& oValidity)
 {
