@@ -6,7 +6,7 @@
 Group: A collection of information related to a single EDProduct. This
 is the storage unit of such information.
 
-$Id: Group.h,v 1.2 2005/06/23 22:01:31 wmtan Exp $
+$Id: Group.h,v 1.3 2005/07/14 22:50:53 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -15,10 +15,8 @@ $Id: Group.h,v 1.2 2005/06/23 22:01:31 wmtan Exp $
 #include "FWCore/EDProduct/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Provenance.h"
 
-namespace edm
-{
-  class Group
-  {
+namespace edm {
+  class Group {
   public:
     explicit Group(std::auto_ptr<Provenance> prov);
 
@@ -38,9 +36,11 @@ namespace edm
     // these and not hidden and data will be populated if retrieved
     bool isAccessible() const;
 
-    const EDProduct* product() const { return product_; }
+    EDProduct const* product() const { return product_; }
 
-    const Provenance* provenance() const { return provenance_; }
+    Provenance const& provenance() const { return *provenance_; }
+
+    ProductDescription const& productDescription() const { return provenance_->product; }
 
     void setID(EDP_ID id);
 
@@ -63,8 +63,7 @@ namespace edm
 
   inline
   std::ostream&
-  operator<<(std::ostream& os, const Group& g)
-  {
+  operator<<(std::ostream& os, Group const& g) {
     g.write(os);
     return os;
   }
