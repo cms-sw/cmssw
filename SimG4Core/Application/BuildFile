@@ -2,10 +2,13 @@
 <use name=Utilities/Notification>
 <use name=SimG4Core/Physics>
 <use name=SimG4Core/DummyPhysics>
-<use name=SimG4Core/Generators>
+<use name=SimG4Core/SensitiveDetector>                                                                                                                              
+<use name=Foundation/PluginManager>                                                                                                                                                                <use name=SimG4Core/Generators>
+<use name=SimG4Core/Geometry>                                                                                                                                                                      
 <use name=SimG4Core/Notification>
 <use name=SimG4Core/Geometry>
 <use name=SimDataFormats/Track>
+<use name=seal>
 <use name=SimDataFormats/Vertex>
 <use name=SimDataFormats/TrackingHit>
 <use name=SimDataFormats/CaloHit>
@@ -19,6 +22,7 @@
 <use name=SimG4Core/DummyPhysics>
 <use name=SimG4Core/Generators>
 <use name=SimG4Core/Notification>
+<use name=SimG4Core/SensitiveDetector>                                                                                                                                              
 <use name=SimG4Core/Geometry>
 <use name=SimDataFormats/Track>
 <use name=SimDataFormats/Vertex>

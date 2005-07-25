@@ -2,14 +2,20 @@
 #define SimG4Core_RunManager_H
 
 #include "FWCore/EDProduct/interface/EDProduct.h"
-#include "FWCore/CoreFramework/interface/Event.h"
-#include "FWCore/CoreFramework/interface/Handle.h"
-#include "FWCore/CoreFramework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Handle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "SimG4Core/SensitiveDetector/interface/AttachSD.h"
+#include "SimG4Core/SensitiveDetector/interface/SensitiveDetector.h"
+#include "SimG4Core/SensitiveDetector/interface/SensitiveTkDetector.h"
+#include "SimG4Core/SensitiveDetector/interface/SensitiveCaloDetector.h"
 
 #include "SealKernel/Context.h"
 
 #include <memory>
+
+
 
 class PrimaryTransformer;
 class Generator;
@@ -42,6 +48,10 @@ public:
     G4SimEvent * simEvent() { return m_simEvent; }
     void dispatch(DDDWorld * world);
     seal::Handle<seal::Context> runContext() { return m_context; }
+
+    std::vector<SensitiveTkDetector*>& sensTkDetectors(){return sensTkDets;}
+    std::vector<SensitiveCaloDetector*>& sensCaloDetectors(){return sensCaloDets;}
+
 protected:
     G4Event * generateEvent(int evt);
 private:
@@ -72,6 +82,11 @@ private:
     edm::ParameterSet m_pEventAction;
     edm::ParameterSet m_pTrackingAction;
     edm::ParameterSet m_pSteppingAction;
+
+    AttachSD* attach_;
+    std::vector<SensitiveTkDetector*> sensTkDets;
+    std::vector<SensitiveCaloDetector*> sensCaloDets;
+
 };
 
 #endif

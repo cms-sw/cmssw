@@ -9,6 +9,7 @@
 #include "SimG4Core/Application/interface/DDDWorldObserver.h"
 
 #include "SimG4Core/Geometry/interface/DDDWorld.h"
+#include "SimG4Core/SensitiveDetector/interface/AttachSD.h"
 #include "SimG4Core/Generators/interface/Generator.h"
 #include "SimG4Core/DummyPhysics/interface/DummyPhysics.h"
 #include "Utilities/Notification/interface/DispatcherObserver.h"
@@ -71,6 +72,32 @@ void RunManager::initG4(const edm::EventSetup & es)
     if (m_managerInitialized) return;
     DDDWorld * world = new DDDWorld(m_pGeometry);
     dispatch(world);
+    //
+    // do it by hand ... call AttachSD
+    //
+    attach_ = new AttachSD;
+    
+    std::vector<SensitiveDetector*> sensDets = attach_->create(*world);
+
+    //
+    // split it in Tk and Calo types
+    //
+    sensTkDets.clear();
+    sensCaloDets.clear();
+
+    for (std::vector<SensitiveDetector*>::iterator it = sensDets.begin();
+	 it != sensDets.end(); it++){
+      if (dynamic_cast<SensitiveTkDetector*>(*it)){
+	sensTkDets.push_back(dynamic_cast<SensitiveTkDetector*>(*it));
+      }
+      if (dynamic_cast<SensitiveCaloDetector*>(*it)){
+	sensCaloDets.push_back(dynamic_cast<SensitiveCaloDetector*>(*it));
+      }
+    }
+
+    std::cout <<" Sensitive Detector uilding Finished; found "<<sensTkDets.size()<<
+      " Tk type Producers, and "<<sensCaloDets.size()<<" Calo type producers."<<std::endl;
+
     m_generator = new Generator(m_pGenerator);
     m_primaryTransformer = new PrimaryTransformer();
     m_physics = new DummyPhysics(m_pPhysics);

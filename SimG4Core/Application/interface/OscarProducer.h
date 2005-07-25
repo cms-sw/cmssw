@@ -1,12 +1,12 @@
 #ifndef SimG4Core_OscarProducer_H
 #define SimG4Core_OscarProducer_H
 
-#include "FWCore/CoreFramework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/EDProduct/interface/EDProduct.h"
-#include "FWCore/CoreFramework/interface/Event.h"
-#include "FWCore/CoreFramework/interface/Handle.h"
-#include "FWCore/CoreFramework/interface/MakerMacros.h"
-#include "FWCore/CoreFramework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Handle.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
 #include "SimG4Core/Application/interface/RunManager.h"
  
