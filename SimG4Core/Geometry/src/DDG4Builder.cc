@@ -1,4 +1,4 @@
-#include "DetectorDescription/DDBase/interface/DDdebug.h"
+#include "DetectorDescription/DDCore/interface/DDdebug.h"
 #include "DetectorDescription/DDCore/interface/DDCompactView.h"
 #include "DetectorDescription/DDCore/interface/DDSpecifics.h"
 
@@ -6,9 +6,10 @@
 #include "SimG4Core/Geometry/interface/DDG4SolidConverter.h"
 #include "SimG4Core/Geometry/interface/SDCatalog.h"
 #include "SimG4Core/Geometry/interface/G4LogicalVolumeToDDLogicalPartMapper.h"
+#include "SimG4Core/Geometry/interface/DDG4SensitiveConverter.h"
 
-#include "FWCore/CoreFramework/interface/ESHandle.h"
-#include "FWCore/CoreFramework/interface/recordGetImplementation.icc"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/recordGetImplementation.icc"
 #include "SimG4Core/Geometry/interface/PerfectGeometryRecord.h"
 
 #include "G4VSolid.hh"
@@ -180,6 +181,13 @@ G4LogicalVolume * DDG4Builder::BuildGeometry()
     }
       
     G4LogicalVolume * world = logs_[DDCompactView().root()];
+
+    //
+    // dispatch it to the sensitive ... for the moment call it directly
+    //
+    DDG4SensitiveConverter conv_;
+    conv_.upDate(*theVectorOfDDG4Dispatchables_);
+
     return world;    
 }
 

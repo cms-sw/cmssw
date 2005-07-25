@@ -1,5 +1,5 @@
-#include "FWCore/CoreFramework/interface/EventSetupProvider.h"
-#include "FWCore/CoreFramework/interface/recordGetImplementation.icc"
+#include "FWCore/Framework/interface/EventSetupProvider.h"
+#include "FWCore/Framework/interface/recordGetImplementation.icc"
  
 #include "SimG4Core/Geometry/interface/DDDWorld.h"
 #include "SimG4Core/Geometry/interface/DDCompactViewXMLRetriever.h"

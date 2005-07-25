@@ -1,6 +1,6 @@
 #include "SimG4Core/Geometry/interface/DDCompactViewXMLRetriever.h"
 
-#include "DetectorDescription/DDBase/interface/DDdebug.h"
+#include "DetectorDescription/DDCore/interface/DDdebug.h"
 #include "DetectorDescription/DDParser/interface/DDLParser.h"
 #include "DetectorDescription/DDCore/interface/DDCompactView.h"
 #include "DetectorDescription/DDCore/interface/DDSpecifics.h"

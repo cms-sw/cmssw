@@ -1,8 +1,8 @@
 #ifndef SimG4Core_DDCompactViewXMLRetriever_H
 #define SimG4Core_DDCompactViewXMLRetriever_H
 
-#include "FWCore/CoreFramework/interface/ESProducer.h"
-#include "FWCore/CoreFramework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DetectorDescription/DDCore/interface/DDCompactView.h"

@@ -7,7 +7,7 @@
 #include "DetectorDescription/DDCore/interface/DDMaterial.h"
 #include "DetectorDescription/DDCore/interface/DDSolid.h"
 
-#include "FWCore/CoreFramework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
 #include <map>
 #include <vector>
