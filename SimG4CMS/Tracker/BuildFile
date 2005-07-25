@@ -1,0 +1,13 @@
+
+<use name=Foundation/PluginManager>
+<use name=SimG4Core/SensitiveDetector>
+<use name=SimG4Core/Notification> 
+<use name=boost>
+<use name=geant4>
+<use name=SimHitMakers/TrackingHitsWriter>
+<use name=seal>
+<export>
+ <lib name=SimG4CMSTracker>
+</export>
+
+<Flags SEAL_PLUGIN_NAME="SimG4CMSTracker">
