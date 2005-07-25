@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EventPrincipal.cc,v 1.13 2005/07/14 22:50:53 wmtan Exp $
+$Id: EventPrincipal.cc,v 1.14 2005/07/21 16:47:32 wmtan Exp $
 ----------------------------------------------------------------------*/
 //#include <iostream>
 #include <memory>
@@ -10,9 +10,8 @@ $Id: EventPrincipal.cc,v 1.13 2005/07/14 22:50:53 wmtan Exp $
 #include "FWCore/Utilities/interface/EDMException.h"
 using namespace std;
 
-namespace
-{
-  const unsigned long initial_size = 200;  // optimization guess...
+namespace {
+  unsigned long const initial_size = 200;  // optimization guess...
 } 
 
 namespace edm {
@@ -27,8 +26,8 @@ namespace edm {
     groups_.reserve(initial_size);
   }
 
-  EventPrincipal::EventPrincipal(const CollisionID& id,
-				 Retriever& r, const ProcessNameList& nl) :
+  EventPrincipal::EventPrincipal(CollisionID const& id,
+				 Retriever& r, ProcessNameList const& nl) :
     aux_(id),
     groups_(),
     labeled_dict_(),
@@ -39,36 +38,32 @@ namespace edm {
     groups_.reserve(initial_size);
   }
  
-  EventPrincipal::~EventPrincipal()
-  {
+  EventPrincipal::~EventPrincipal() {
   }
 
   CollisionID
-  EventPrincipal::id() const
-  {
+  EventPrincipal::id() const {
     return aux_.id_;
   }
 
   void 
-  EventPrincipal::addGroup(auto_ptr<Group> group)
-  {
-    assert (!group->provenance()->product.full_product_type_name.empty());
-    assert (!group->provenance()->product.friendly_product_type_name.empty());
-    assert (!group->provenance()->product.module.module_label.empty());
-    assert (!group->provenance()->product.module.process_name.empty());
+  EventPrincipal::addGroup(auto_ptr<Group> group) {
+    assert (!group->productDescription().full_product_type_name.empty());
+    assert (!group->productDescription().friendly_product_type_name.empty());
+    assert (!group->productDescription().module.module_label.empty());
+    assert (!group->productDescription().module.process_name.empty());
     SharedGroupPtr g(group);
 
-    BranchKey bk(*g->provenance());
+    BranchKey bk(g->productDescription());
     //cerr << "addGroup DEBUG 2---> " << bk.friendly_class_name << endl;
     //cerr << "addGroup DEBUG 3---> " << bk << endl;
 
 
-    if (labeled_dict_.find(bk) != labeled_dict_.end())
-      {
-        string class_name = g->provenance()->product.friendly_product_type_name;
-        string module_label = g->provenance()->product.module.module_label;
-        string product_instance_name = g->provenance()->product.product_instance_name;
-        string process_name = g->provenance()->product.module.process_name;
+    if (labeled_dict_.find(bk) != labeled_dict_.end()) {
+        string class_name = g->productDescription().friendly_product_type_name;
+        string module_label = g->productDescription().module.module_label;
+        string product_instance_name = g->productDescription().product_instance_name;
+        string process_name = g->productDescription().module.process_name;
 	// the products are lost at this point!
 	throw edm::Exception(edm::errors::InsertFailure,"AlreadyPresent")
 	  << "addGroup: Problem found while adding product provanence, "
@@ -78,7 +73,7 @@ namespace edm {
           << product_instance_name << ","
           << process_name
 	  << ")";
-      }
+    }
 
     // a memory allocation failure in modifying the product
     // data structures will cause things to be out of sync
@@ -88,7 +83,7 @@ namespace edm {
     groups_.push_back(g);
     // The ID we assign is the size *after* the Group has been pushed
     // into the vector. This means the Group in slot 0 has ID 1, etc.
-    unsigned long slotNumber = g->provenance()->product_id - 1;
+    unsigned long slotNumber = g->provenance().product_id - 1;
 
     labeled_dict_[bk] = slotNumber;
 
@@ -100,21 +95,18 @@ namespace edm {
   }
 
   void
-  EventPrincipal::addToProcessHistory(const string& processName)
-  {
+  EventPrincipal::addToProcessHistory(string const& processName) {
     aux_.process_history_.push_back(processName);
   }
 
-  const ProcessNameList&
-  EventPrincipal::processHistory() const
-  {
+  ProcessNameList const&
+  EventPrincipal::processHistory() const {
     return aux_.process_history_;
   }
 
   void 
   EventPrincipal::put(auto_ptr<EDProduct> edp,
-		      auto_ptr<Provenance> prov)
-  {
+		      auto_ptr<Provenance> prov) {
     // Group assumes ownership
     auto_ptr<Group> g(new Group(edp, prov));
     // The ID we assign is the size *after* the Group has been pushed
@@ -125,8 +117,7 @@ namespace edm {
   }
 
   BasicHandle
-  EventPrincipal::get(EDP_ID oid) const
-  {
+  EventPrincipal::get(EDP_ID oid) const {
     if (oid == EDP_ID())
       throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
 	<< "Event::get by product ID: invalid EDP_ID supplied";
@@ -137,19 +128,17 @@ namespace edm {
       throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
 	<< "Event::get by product ID: no product with given id";
 
-    const SharedGroupPtr& g = groups_[slotNumber];
+    SharedGroupPtr const& g = groups_[slotNumber];
     this->resolve_(*g);
-    return BasicHandle(g->product(), g->provenance());
+    return BasicHandle(g->product(), &g->provenance());
   }
 
   BasicHandle
   EventPrincipal::getBySelector(TypeID id, 
-				const Selector& sel) const
-  {
+				Selector const& sel) const {
     TypeDict::const_iterator i = type_dict_.find(id.friendlyClassName());
 
-    if(i==type_dict_.end())
-      {
+    if(i==type_dict_.end()) {
 	// TODO: Perhaps stuff like this should go to some error
 	// logger?  Or do we want huge message inside the exception
 	// that is thrown?
@@ -159,34 +148,29 @@ namespace edm {
 	err << "We are looking for: '"
 	     << id
 	     << "'\n";
-	if (type_dict_.empty())
-	  {
+	if (type_dict_.empty()) {
 	    err << "type_dict_ is empty!\n";
-	  }
-	else
-	  {
+	} else {
 	    err << "We found only the following:\n";
 	    TypeDict::const_iterator i = type_dict_.begin();
 	    TypeDict::const_iterator e = type_dict_.end();
-	    while (i != e)
-	      {
+	    while (i != e) {
 		err << "...\t" << i->first << '\n';
 		++i;
-	      }
-	  }
+	    }
+	}
 	err << ends;
 	throw err;
-      }
+    }
 
-    const vector<int>& vint = i->second;
+    vector<int> const& vint = i->second;
 
-    if (vint.empty())
-      {
+    if (vint.empty()) {
 	// should never happen!!
 	throw edm::Exception(edm::errors::ProductNotFound,"EmptyList")
 	  <<  "getBySelector: no products found for\n"
 	  << id;
-      }
+    }
 
     int found_count = 0;
     int found_slot = -1; // not a legal value!
@@ -194,33 +178,29 @@ namespace edm {
 
     BasicHandle result;
 
-    while(ib!=ie)
-      {
-	const SharedGroupPtr& g = groups_[*ib];
-	if(sel.match(*g->provenance()))
-	  {
+    while(ib!=ie) {
+	SharedGroupPtr const& g = groups_[*ib];
+	if(sel.match(g->provenance())) {
 	    ++found_count;
-	    if (found_count > 1)
-	      {
+	    if (found_count > 1) {
 		throw edm::Exception(edm::errors::ProductNotFound,
 				     "TooManyMatches")
 		  << "getBySelector: too many products found, "
 		  << "expected one, got " << found_count << ", for\n"
 		  << id;
-	      }
+	    }
 	    found_slot = *ib;
 	    this->resolve_(*g);
-	    result = BasicHandle(g->product(), g->provenance());
-	  }
+	    result = BasicHandle(g->product(), &g->provenance());
+	}
 	++ib;
-      }
+    }
 
-    if (found_count == 0)
-      {
+    if (found_count == 0) {
 	throw edm::Exception(edm::errors::ProductNotFound,"TooFewProducts")
 	  << "getBySelector: too few products found (zero) for\n"
 	  << id;
-      }
+    }
 
     return result;
   }
@@ -228,9 +208,8 @@ namespace edm {
     
   BasicHandle
   EventPrincipal::getByLabel(TypeID id, 
-			     const string& label,
-			     const string& productInstanceName) const
-  {
+			     string const& label,
+			     string const& productInstanceName) const {
     // The following is not the most efficient way of doing this. It
     // is the simplest implementation of the required policy, given
     // the current organization of the EventPrincipal. This should be
@@ -242,23 +221,21 @@ namespace edm {
 
     ProcessNameList::const_reverse_iterator iproc = aux_.process_history_.rbegin();
     ProcessNameList::const_reverse_iterator eproc = aux_.process_history_.rend();
-    while (iproc != eproc)
-      {
-	const string& process_name = *iproc;
+    while (iproc != eproc) {
+	string const& process_name = *iproc;
 	BranchKey bk(id, label, productInstanceName, process_name);
 	BranchDict::const_iterator i = labeled_dict_.find(bk);
 
-	if (i != labeled_dict_.end())
-	  {
+	if (i != labeled_dict_.end()) {
 	    // We found what we want.
             assert(i->second >= 0);
             assert(unsigned(i->second) < groups_.size());
 	    SharedGroupPtr group = groups_[i->second];
 	    this->resolve_(*group);
-	    return BasicHandle(group->product(), group->provenance());    
-	  }
+	    return BasicHandle(group->product(), &group->provenance());    
+	}
 	++iproc;
-      }
+    }
     // We failed to find the product we're looking for, under *any*
     // process name... throw!
     throw edm::Exception(errors::ProductNotFound,"NoMatch")
@@ -269,46 +246,40 @@ namespace edm {
 
   void 
   EventPrincipal::getMany(TypeID id, 
-			  const Selector& sel,
-			  BasicHandleVec& results) const
-  {
+			  Selector const& sel,
+			  BasicHandleVec& results) const {
     // We make no promise that the input 'fill_me_up' is unchanged if
     // an exception is thrown. If such a promise is needed, then more
     // care needs to be taken.
     TypeDict::const_iterator i = type_dict_.find(id.friendlyClassName());
 
-    if(i==type_dict_.end())
-      {
+    if(i==type_dict_.end()) {
 	throw edm::Exception(errors::ProductNotFound,"NoMatch")
 	  << "getMany: no products found of correct type " << id;
-      }
+    }
 
-    const vector<int>& vint = i->second;
+    vector<int> const& vint = i->second;
 
-    if(vint.empty())
-      {
+    if(vint.empty()) {
 	// should never happen!!
 	throw edm::Exception(edm::errors::ProductNotFound,"EmptyList")
 	  <<  "getMany: no products found for\n"
 	  << id;
-      }
+    }
 
     vector<int>::const_iterator ib(vint.begin()),ie(vint.end());
-    while(ib!=ie)
-      {
-	const SharedGroupPtr& g = groups_[*ib];
-	if(sel.match(*g->provenance())) 
-	  {
+    while(ib!=ie) {
+	SharedGroupPtr const& g = groups_[*ib];
+	if(sel.match(g->provenance())) {
 	    this->resolve_(*g);
-	    results.push_back(BasicHandle(g->product(), g->provenance()));
-	  }
+	    results.push_back(BasicHandle(g->product(), &g->provenance()));
+	}
 	++ib;
-      }
+    }
   }
 
   void
-  EventPrincipal::resolve_(const Group& g) const
-  {
+  EventPrincipal::resolve_(Group const& g) const {
     if (!g.isAccessible())
       throw edm::Exception(errors::ProductNotFound,"InaccessibleProduct")
 	<< "resolve_: product is not accessible\n"
@@ -317,12 +288,11 @@ namespace edm {
     if (g.product()) return; // nothing to do.
     
     // must attempt to load from persistent store
-    BranchKey bk(*g.provenance());
+    BranchKey bk(g.productDescription());
     auto_ptr<EDProduct> edp(store_->get(bk));
 
     // Now fixup the Group
     g.setProduct(edp);
   }
-  
 
 }
