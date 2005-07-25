@@ -2,9 +2,9 @@
 #include <SimDataFormats/CaloHit/interface/PCaloHitContainer.h>
 
 using namespace edm;
-void PCaloHitContainer::insertHits(std::string name, PCaloHitSingleContainer& p){
-  _data[name]=p;
+void PCaloHitContainer::insertHits(PCaloHitSingleContainer& p){
+  _data=p;
 }
-void PCaloHitContainer::insertHit(std::string name, PCaloHit& p){
-  _data[name].push_back(p);
+void PCaloHitContainer::insertHit(PCaloHit& p){
+  _data.push_back(p);
 }

@@ -2,7 +2,5 @@
   <class name="PCaloHit"/>
   <class name="std::vector<PCaloHit>"/>
   <class name="edm::PCaloHitContainer"/>
-  <class name="std::map<std::string,std::vector<PCaloHit> >"/>
-  <class name="std::pair<std::string,std::vector<PCaloHit> >"/>
 
 </lcgdict>

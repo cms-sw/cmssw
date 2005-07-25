@@ -2,18 +2,18 @@
 
 using namespace edm;
 
-void PSimHitContainer::insertHits(std::string name, PSimHitSingleContainer& p){
-  _data[name]=p;
+void PSimHitContainer::insertHits(PSimHitSingleContainer& p){
+  _data=p;
 }
 
-void PSimHitContainer::insertHit(std::string name, const PSimHit& p){
-  _data[name].push_back(p);
+void PSimHitContainer::insertHit(const PSimHit& p){
+  _data.push_back(p);
 }
 
-void PSimHitContainer::clear(std::string name){
-  _data[name].clear();
+void PSimHitContainer::clear(){
+  _data.clear();
 }
 
-unsigned int PSimHitContainer::size(std::string name){
-  return _data[name].size();
+unsigned int PSimHitContainer::size(){
+  return _data.size();
 }

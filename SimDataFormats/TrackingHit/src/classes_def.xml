@@ -39,6 +39,5 @@
 
   <class name="PSimHit"/>
   <class name="std::vector<PSimHit>"/>
-  <class name="std::map<std::string,std::vector<PSimHit> >"/>
   <class name="edm::PSimHitContainer"/>
 </lcgdict>

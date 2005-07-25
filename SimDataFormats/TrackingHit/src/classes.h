@@ -43,7 +43,5 @@ namespace {
     PSimHit dummy444;
     edm::PSimHitContainer sdummy777;
     std::vector<PSimHit> sdummy7;
-    std::pair<int,std::vector<PSimHit> > sdummy3;
-    std::map<std::string,std::vector<PSimHit> >  v1; 
   }
 }
