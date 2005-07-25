@@ -1,4 +1,4 @@
-<flags LCGDICT_ARGS=="--">
+<flags LCGDICT_ARGS="--">
 <use name=Dictionary/ReflectionBuilder>
 <use name=FWCore/Framework>
 <export>

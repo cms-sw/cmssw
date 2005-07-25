@@ -7,7 +7,7 @@
 //
 // Author:      Chris Jones
 // Created:     Mon Apr 18 16:43:35 EDT 2005
-// $Id: DDCompactViewXMLRetriever.cc,v 1.1 2005/04/29 12:03:14 maya Exp $
+// $Id: AlignmentRetriever.cc,v 1.1 2005/07/22 14:24:58 xiezhen Exp $
 //
 
 // system include files
@@ -143,7 +143,7 @@ cond::AlignmentRetriever::setIntervalFor( const EventSetupRecordKey&,
 					  edm::ValidityInterval& oValidity)
 {
   std::cout<<"AlignmentRetriever::setIntervalFor "<< iTime.value()<<std::endl;
-  typedef std::map<unsigned long, std::string> IOVMap;
+  typedef std::map<int, std::string> IOVMap;
   typedef IOVMap::const_iterator iterator;
   try{
     unsigned long abtime=iTime.value()-edm::Timestamp::beginOfTime().value();

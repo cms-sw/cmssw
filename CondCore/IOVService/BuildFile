@@ -1,3 +1,4 @@
+<flags LCGDICT_ARGS="--">
 <use name=Dictionary/ReflectionBuilder>
 <export>
  <use name=Dictionary/ReflectionBuilder>
