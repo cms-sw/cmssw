@@ -29,8 +29,7 @@ class TestMod : public EDProducer
 };
 
 TestMod::TestMod(ParameterSet const& p)
-{
-}
+{ produces<int>();}
 
 void TestMod::produce(Event& e, EventSetup const&)
 {
