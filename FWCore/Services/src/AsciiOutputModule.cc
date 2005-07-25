@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: AsciiOutputModule.cc,v 1.5 2005/06/25 00:01:15 wmtan Exp $
+$Id: AsciiOutputModule.cc,v 1.6 2005/07/14 21:32:14 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -51,7 +51,7 @@ namespace edm {
     // Loop over groups, and write some output for each...
 
     for(EventPrincipal::const_iterator i = e.begin(); i != e.end(); ++i) {
-      Provenance const& prov = *(*i)->provenance();
+      Provenance const& prov = (*i)->provenance();
       if (selected(prov)) {
         *pout_ << *i << '\n';
       }
