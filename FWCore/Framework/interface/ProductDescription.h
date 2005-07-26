@@ -6,7 +6,7 @@
 ProductDescription: The full description of a product and how it came into
 existence.
 
-$Id: ProductDescription.h,v 1.3 2005/07/26 04:42:28 wmtan Exp $
+$Id: ProductDescription.h,v 1.4 2005/07/26 20:16:21 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <ostream>
 #include <string>
@@ -55,6 +55,10 @@ namespace edm {
     void init() const;
 
     void write(std::ostream& os) const;
+
+    bool operator<(ProductDescription const& rh) const;
+
+    bool operator==(ProductDescription const& rh) const;
   };
   
   inline
@@ -62,16 +66,6 @@ namespace edm {
   operator<<(std::ostream& os, const ProductDescription& p) {
     p.write(os);
     return os;
-  }
-
-  inline
-  bool
-  operator==(const ProductDescription& a, const ProductDescription& b) {
-    return
-      a.module == b.module 
-      && a.full_product_type_name == b.full_product_type_name
-      && a.friendly_product_type_name == b.friendly_product_type_name
-      && a.product_instance_name == b.product_instance_name;
   }
 }
 #endif

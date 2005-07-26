@@ -5,7 +5,7 @@
   
 ModuleDescription: The description of a producer module.
 
-$Id: ModuleDescription.h,v 1.2 2005/07/14 22:50:52 wmtan Exp $
+$Id: ModuleDescription.h,v 1.3 2005/07/20 03:00:36 jbk Exp $
 ----------------------------------------------------------------------*/
 #include <string>
 #include <iostream>
@@ -39,22 +39,14 @@ namespace edm {
     // what the heck is this? I think its the version of the process_name
     // e.g. second production pass
     PassID pass;
+
+    bool operator<(ModuleDescription const& rh) const;
+
+    bool operator==(ModuleDescription const& rh) const;
   };
 
   inline
-  bool operator==(ModuleDescription const& a, ModuleDescription const& b) {
-    return 
-      a.pid == b.pid
-      && a.module_name == b.module_name
-      && a.module_label == b.module_label 
-      && a.version_number == b.version_number
-      && a.process_name == b.process_name
-      && a.pass == b.pass;
-  } 
-
-  inline
-  std::ostream& operator<<(std::ostream& ost, const ModuleDescription& md)
-  {
+  std::ostream& operator<<(std::ostream& ost, const ModuleDescription& md) {
     ost << "Module type=" << md.module_name << ", "
 	<< "Module label=" << md.module_label << ", "
 	<< "Process name=" << md.process_name;
