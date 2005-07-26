@@ -3,27 +3,31 @@
    class impl
 
    \author Stefano ARGIRO
-   \version $Id: ProductRegistry.cc,v 1.1 2005/07/21 20:47:28 argiro Exp $
+   \co-author William Tanenbaum
+   \version $Id: ProductRegistry.cc,v 1.2 2005/07/23 05:10:32 wmtan Exp $
    \date 19 Jul 2005
 */
 
-static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.1 2005/07/21 20:47:28 argiro Exp $";
+static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.2 2005/07/23 05:10:32 wmtan Exp $";
 
 
 #include <FWCore/Framework/interface/ProductRegistry.h>
+#include <algorithms>
 
 using namespace edm;
 
-void ProductRegistry::addProduct(ProductDescription& productDesc) {
+void
+ProductRegistry::addProduct(ProductDescription& productDesc) {
   productDesc.product_id.id_ = productList_.size();
   productList_.push_back(productDesc);
+  sorted_ = false;
 }
 
-const ProductRegistry::ProductList& ProductRegistry::productList() const {
-  return productList_;
+void
+ProductRegistry::reallySort() {
+  std::sort(productList_.begin(), productList_.end());
+  sorted_ = true;
 }
-
-
 
 // Configure (x)emacs for this file ...
 // Local Variables:
