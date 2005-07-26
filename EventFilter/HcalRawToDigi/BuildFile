@@ -1,0 +1,24 @@
+<flags SEAL_PLUGIN_NAME="EventFilterHcalRawToDigi">
+<use name=DataFormats/HcalDetId>
+<use name=DataFormats/HcalDigi>
+<use name=DataFormats/FEDRawData>
+<use name=CondFormats/HcalMapping>
+<use name=FWCore/Framework>
+<use name=FWCore/EDProduct>
+<use name=boost>
+<use name=Dictionary/Reflection>
+<use name=Framework/SealKernel>
+
+<export>
+  <lib name=EventFilterHcalRawToDigi>
+  <use name=DataFormats/HcalDetId>
+  <use name=DataFormats/HcalDigi>
+  <use name=DataFormats/FEDRawData>
+  <use name=CondFormats/HcalMapping>
+  <use name=FWCore/Framework>
+  <use name=FWCore/EDProduct>
+  <use name=boost>
+  <use name=Dictionary/Reflection>
+  <use name=Framework/SealKernel>
+</export>
+
