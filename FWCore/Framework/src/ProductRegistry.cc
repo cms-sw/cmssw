@@ -4,15 +4,15 @@
 
    \author Stefano ARGIRO
    \co-author William Tanenbaum
-   \version $Id: ProductRegistry.cc,v 1.2 2005/07/23 05:10:32 wmtan Exp $
+   \version $Id: ProductRegistry.cc,v 1.3 2005/07/26 23:03:52 wmtan Exp $
    \date 19 Jul 2005
 */
 
-static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.2 2005/07/23 05:10:32 wmtan Exp $";
+static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.3 2005/07/26 23:03:52 wmtan Exp $";
 
 
 #include <FWCore/Framework/interface/ProductRegistry.h>
-#include <algorithms>
+#include <algorithm>
 
 using namespace edm;
 
