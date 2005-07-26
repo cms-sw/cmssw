@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: Event.cc,v 1.8 2005/07/14 22:50:53 wmtan Exp $
+$Id: Event.cc,v 1.9 2005/07/21 16:47:32 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -9,6 +9,7 @@ $Id: Event.cc,v 1.8 2005/07/14 22:50:53 wmtan Exp $
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/EDProduct/interface/EDP_ID.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/ProductDescription.h"
 #include "FWCore/Framework/src/Group.h"
 
 using namespace std;
@@ -20,13 +21,11 @@ namespace edm {
     md_(md)
   {  }
 
-  struct deleter
-  {
+  struct deleter {
     void operator()(const std::pair<EDProduct*, std::string> p) const { delete p.first; }
   };
 
-  Event::~Event()
-  {
+  Event::~Event() {
     // anything left here must be the result of a failure
     // let's record them as failed attempts in the event principal
     std::for_each(put_products_.begin(),put_products_.end(),deleter());
@@ -68,31 +67,30 @@ namespace edm {
   }
 
   void 
-  Event::commit_()
-  {
+  Event::commit_() {
     // fill in guts of provenance here
     ProductPtrVec::iterator pit(put_products_.begin());
     ProductPtrVec::iterator pie(put_products_.end());
 
-    while(pit!=pie)
-      {
+    while(pit!=pie) {
 	auto_ptr<EDProduct> pr(pit->first);
 	// note: ownership has been passed - so clear the pointer!
 	pit->first = 0;
-	auto_ptr<Provenance> pv(new Provenance(md_));
+	ProductDescription desc(md_,
+			TypeID(*pr).userClassName(),
+			TypeID(*pr).friendlyClassName(),
+			pit->second);
+
+	auto_ptr<Provenance> pv(new Provenance(desc));
 
 	// set parts of provenance
 	pv->cid = 0; // TODO: what is this supposed to be?
-	// TODO: what is this supposed to be? this is a disgusting string.
-	pv->product.full_product_type_name = TypeID(*pr).userClassName();
-	pv->product.friendly_product_type_name = TypeID(*pr).friendlyClassName();
-	pv->product.product_instance_name = pit->second;
 	pv->status = Provenance::Success;
 	pv->parents = got_product_ids_;
 
 	ep_.put(pr,pv);
 	++pit;
-      }
+    }
 
     // the cleanup is all or none
     put_products_.clear();

@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: ProducerWorker.cc,v 1.7 2005/07/22 22:20:05 wmtan Exp $
+$Id: ProducerWorker.cc,v 1.8 2005/07/22 23:51:51 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/src/ProducerWorker.h"
@@ -46,18 +46,10 @@ namespace edm
     for(p=plist.begin(); p!=plist.end(); ++p) {
            
  
-      ProductDescription pdesc;
-      pdesc.product_id = ProductID();
-      pdesc.module = md;
-      pdesc.full_product_type_name =  p->first.userClassName();
-      pdesc.friendly_product_type_name =  p->first.friendlyClassName();
-      pdesc.product_instance_name =   p->second;
-      /*
-      ProductDescription pdesc(ProductID(), md,
-			       p->first.userClassName(),
-			       p->first.friendlyClassName(), 
-			       p->second);
-      */
+      ProductDescription pdesc(md,
+	       p->first.userClassName(),
+	       p->first.friendlyClassName(), 
+	       p->second);
       wp.reg_->addProduct(pdesc);
     }//for
 

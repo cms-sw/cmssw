@@ -6,14 +6,13 @@
 Provenance: The full description of a product and how it came into
 existence.
 
-$Id: Provenance.h,v 1.8 2005/07/14 22:50:52 wmtan Exp $
+$Id: Provenance.h,v 1.9 2005/07/21 16:47:31 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <ostream>
 #include <vector>
 
 #include "FWCore/Framework/interface/ConditionsID.h"
 #include "FWCore/EDProduct/interface/EDP_ID.h"
-#include "FWCore/Framework/interface/ModuleDescription.h"
 #include "FWCore/Framework/interface/ProductDescription.h"
 
 /*
@@ -34,7 +33,7 @@ namespace edm {
 			 InfrastructureFailure };
 
     Provenance();
-    explicit Provenance(const ModuleDescription& m);
+    explicit Provenance(ProductDescription const& p);
 
     ~Provenance() {}
 

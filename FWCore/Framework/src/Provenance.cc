@@ -2,7 +2,7 @@
 
 /*----------------------------------------------------------------------
 
-$Id: Provenance.cc,v 1.4 2005/07/14 22:50:53 wmtan Exp $
+$Id: Provenance.cc,v 1.5 2005/07/21 16:47:32 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -15,8 +15,8 @@ namespace edm {
     status(Success)
   { }
 
-  Provenance::Provenance(const ModuleDescription& m) :
-    product(m),
+  Provenance::Provenance(ProductDescription const& p) :
+    product(p),
     product_id(),
     parents(),
     cid(),

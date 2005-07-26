@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EventPrincipal.cc,v 1.14 2005/07/21 16:47:32 wmtan Exp $
+$Id: EventPrincipal.cc,v 1.15 2005/07/25 04:01:48 wmtan Exp $
 ----------------------------------------------------------------------*/
 //#include <iostream>
 #include <memory>
@@ -54,24 +54,20 @@ namespace edm {
     assert (!group->productDescription().module.process_name.empty());
     SharedGroupPtr g(group);
 
-    BranchKey bk(g->productDescription());
+    BranchKey const& bk = g->productDescription().branchKey;
     //cerr << "addGroup DEBUG 2---> " << bk.friendly_class_name << endl;
     //cerr << "addGroup DEBUG 3---> " << bk << endl;
 
 
     if (labeled_dict_.find(bk) != labeled_dict_.end()) {
-        string class_name = g->productDescription().friendly_product_type_name;
-        string module_label = g->productDescription().module.module_label;
-        string product_instance_name = g->productDescription().product_instance_name;
-        string process_name = g->productDescription().module.process_name;
 	// the products are lost at this point!
 	throw edm::Exception(edm::errors::InsertFailure,"AlreadyPresent")
 	  << "addGroup: Problem found while adding product provanence, "
 	  << "product already exists for ("
-	  << class_name << ","
-          << module_label << ","
-          << product_instance_name << ","
-          << process_name
+	  << bk.friendly_class_name << ","
+          << bk.module_label << ","
+          << bk.product_instance_name << ","
+          << bk.process_name
 	  << ")";
     }
 
@@ -288,7 +284,7 @@ namespace edm {
     if (g.product()) return; // nothing to do.
     
     // must attempt to load from persistent store
-    BranchKey bk(g.productDescription());
+    BranchKey const& bk = g.productDescription().branchKey;
     auto_ptr<EDProduct> edp(store_->get(bk));
 
     // Now fixup the Group

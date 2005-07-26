@@ -6,13 +6,14 @@
 ProductDescription: The full description of a product and how it came into
 existence.
 
-$Id: ProductDescription.h,v 1.1 2005/07/20 14:06:47 wmtan Exp $
+$Id: ProductDescription.h,v 1.2 2005/07/22 23:48:14 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <ostream>
 #include <string>
 
 #include "FWCore/EDProduct/interface/ProductID.h"
 #include "FWCore/Framework/interface/ModuleDescription.h"
+#include "FWCore/Framework/interface/BranchKey.h"
 
 /*
   ProductDescription
@@ -23,17 +24,12 @@ $Id: ProductDescription.h,v 1.1 2005/07/20 14:06:47 wmtan Exp $
 */
 
 namespace edm {
-  // these parts of a provenance are used to compose a branch name
-  struct BranchName {
-    std::string module_label;
-    std::string process_name;
-    std::string friendly_product_type_name;
-    std::string product_instance_name;
-  };
-
   struct ProductDescription {
+
     ProductDescription();
-    explicit ProductDescription(const ModuleDescription& m);
+
+    explicit ProductDescription(ModuleDescription const& m,
+      std::string const& name, std::string const& fName, std::string const& pin);
 
     ~ProductDescription() {}
 
@@ -51,6 +47,10 @@ namespace edm {
     // that are produced by the same producer
     std::string product_instance_name;
     // the last of these is not in the roadmap, but is on the board
+
+    mutable BranchKey branchKey;
+
+    void init() const;
 
     void write(std::ostream& os) const;
   };
