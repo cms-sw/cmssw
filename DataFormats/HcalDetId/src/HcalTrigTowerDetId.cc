@@ -29,8 +29,8 @@ HcalTrigTowerDetId& HcalTrigTowerDetId::operator=(const DetId& gen) {
   return *this;
 }
 
-}
-
 std::ostream& operator<<(std::ostream& s,const cms::HcalTrigTowerDetId& id) {
   return s << "(HcalTrigTower " << id.ieta() << ',' << id.iphi() << ')';
+}
+
 }

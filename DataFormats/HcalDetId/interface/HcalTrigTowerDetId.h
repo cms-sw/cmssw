@@ -12,8 +12,8 @@ namespace cms {
     
 Cell id for an Calo Trigger tower
 
-   $Date: 2005/07/19 18:23:34 $
-   $Revision: 1.1 $
+   $Date: 2005/07/20 00:10:52 $
+   $Revision: 1.2 $
    \author J. Mans - Minnesota
 */
 class HcalTrigTowerDetId : public DetId {
@@ -45,8 +45,8 @@ public:
 
 };
 
-}
+std::ostream& operator<<(std::ostream&,const HcalTrigTowerDetId& id);
 
-std::ostream& operator<<(std::ostream&,const cms::HcalTrigTowerDetId& id);
+}
 
 #endif

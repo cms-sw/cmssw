@@ -63,8 +63,9 @@ private:
   uint32_t hcalElectronicsId_;
 };
 
+std::ostream& operator<<(std::ostream&,const HcalElectronicsId&);
+
 }
 
-std::ostream& operator<<(std::ostream&,const cms::HcalElectronicsId&);
 
 #endif

@@ -11,8 +11,8 @@ namespace cms {
 /** \class HcalDetId
  *  Cell identifier class for the HCAL subdetectors
  *
- *  $Date: 2005/07/19 18:23:34 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/07/20 00:10:52 $
+ *  $Revision: 1.2 $
  *  \author J. Mans - Minnesota
  */
 class HcalDetId : public DetId {
@@ -53,8 +53,8 @@ public:
 
 };
 
-}
+std::ostream& operator<<(std::ostream&,const HcalDetId& id);
 
-std::ostream& operator<<(std::ostream&,const cms::HcalDetId& id);
+}
 
 #endif

@@ -47,14 +47,14 @@ int HcalDetId::hashedIndex() const {
   }
 }
 
-}
 
-std::ostream& operator<<(std::ostream& s,const cms::HcalDetId& id) {
+std::ostream& operator<<(std::ostream& s,const HcalDetId& id) {
   switch (id.subdet()) {
-  case(cms::HcalBarrel) : return s << "(HB " << id.ieta() << ',' << id.iphi() << ',' << id.depth() << ')';
-  case(cms::HcalEndcap) : return s << "(HE " << id.ieta() << ',' << id.iphi() << ',' << id.depth() << ')';
-  case(cms::HcalForward) : return s << "(HF " << id.ieta() << ',' << id.iphi() << ',' << id.depth() << ')';
-  case(cms::HcalOuter) : return s << "(HO " << id.ieta() << ',' << id.iphi() << ')';
+  case(HcalBarrel) : return s << "(HB " << id.ieta() << ',' << id.iphi() << ',' << id.depth() << ')';
+  case(HcalEndcap) : return s << "(HE " << id.ieta() << ',' << id.iphi() << ',' << id.depth() << ')';
+  case(HcalForward) : return s << "(HF " << id.ieta() << ',' << id.iphi() << ',' << id.depth() << ')';
+  case(HcalOuter) : return s << "(HO " << id.ieta() << ',' << id.iphi() << ')';
   default : return s << id.rawId();
   }
+}
 }
