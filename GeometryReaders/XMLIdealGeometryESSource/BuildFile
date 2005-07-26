@@ -1,0 +1,6 @@
+<export>
+<lib name=GeometryReadersXMLIdealGeometryESSource>
+<use name=DetectorDescription/DDCore>
+</export>
+<use name=DetectorDescription/DDCore>
+<use name=xerces-c>
