@@ -1,5 +1,5 @@
 <use name=DataFormats/DetId>
 <export>
-   <lib name=DataFormats/EcalDetId>
+   <lib name=DataFormatsEcalDetId>
    <use name=DataFormats/DetId>
 </export>
