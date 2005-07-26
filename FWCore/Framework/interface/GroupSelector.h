@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: GroupSelector.h,v 1.3 2005/06/24 23:32:13 wmtan Exp $
+// $Id: GroupSelector.h,v 1.4 2005/07/14 22:50:52 wmtan Exp $
 //
 // Class GroupSelector. Class for user to select specific groups in event.
 //
@@ -24,7 +24,7 @@ namespace edm {
   public:
     explicit GroupSelector(ParameterSet const& ps);
     ~GroupSelector() {}
-    bool selected(Provenance const& prov) const;
+    bool selected(ProductDescription const& desc) const;
 
   private:
     typedef std::map<std::string, bool> SelectMap;

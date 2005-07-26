@@ -1,5 +1,5 @@
-// $Id: GroupSelector.cc,v 1.8 2005/07/14 22:50:53 wmtan Exp $
-#include "FWCore/Framework/interface/Provenance.h"
+// $Id: GroupSelector.cc,v 1.9 2005/07/21 16:47:32 wmtan Exp $
+#include "FWCore/Framework/interface/ProductDescription.h"
 #include "FWCore/Framework/interface/GroupSelector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <vector>
@@ -11,8 +11,8 @@ namespace edm {
     selectProducts(pset);
   }
 
-  bool GroupSelector::selected(Provenance const& prov) const {
-      SelectMap::const_iterator s = select_.find(prov.product.module.module_label);
+  bool GroupSelector::selected(ProductDescription const& desc) const {
+      SelectMap::const_iterator s = select_.find(desc.module.module_label);
       bool const sel = selectAllGroups_ ?
 	s == select_.end() || s->second : // select all branches, except those marked "select == false"
 	s != select_.end() && s->second;  // select only branches marked "select == true"
