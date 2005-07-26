@@ -1,4 +1,4 @@
-#include "GeometryReaders/XMLIdealGeometryESSource/interface/DDCompactViewXMLRetriever.h"
+#include "GeometryReaders/XMLIdealGeometryESSource/interface/XMLIdealGeometryESSource.h"
 
 #include "DetectorDescription/DDCore/interface/DDdebug.h"
 #include "DetectorDescription/DDParser/interface/DDLParser.h"
@@ -11,7 +11,7 @@
 
 using namespace edm::eventsetup;
 
-DDCompactViewXMLRetriever::DDCompactViewXMLRetriever(const edm::ParameterSet & p) 
+XMLIdealGeometryESSource::XMLIdealGeometryESSource(const edm::ParameterSet & p) 
 {
     DDLParser * parser = DDLParser::instance();
     AlgoInit();
@@ -24,17 +24,24 @@ DDCompactViewXMLRetriever::DDCompactViewXMLRetriever(const edm::ParameterSet & p
     findingRecord<IdealGeometryRecord>();
 }
 
-DDCompactViewXMLRetriever::~DDCompactViewXMLRetriever() {}
+XMLIdealGeometryESSource::~XMLIdealGeometryESSource() {}
 
 const DDCompactView *
-DDCompactViewXMLRetriever::produce(const IdealGeometryRecord &)
+XMLIdealGeometryESSource::produce(const IdealGeometryRecord &)
 { return new DDCompactView(); }
 
-void DDCompactViewXMLRetriever::setIntervalFor(const EventSetupRecordKey &,
+void XMLIdealGeometryESSource::setIntervalFor(const EventSetupRecordKey &,
 					       const edm::Timestamp &, 
 					       edm::ValidityInterval & oValidity)
 {
    edm::ValidityInterval infinity(edm::Timestamp(1), edm::Timestamp::endOfTime());
    oValidity = infinity;
 }
+
+
+#include "FWCore/Framework/interface/SourceFactory.h"
+
+
+DEFINE_FWK_EVENTSETUP_SOURCE(XMLIdealGeometryESSource)
+
 

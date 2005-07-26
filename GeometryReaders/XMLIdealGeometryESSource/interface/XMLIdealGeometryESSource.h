@@ -1,5 +1,5 @@
-#ifndef SimG4Core_DDCompactViewXMLRetriever_H
-#define SimG4Core_DDCompactViewXMLRetriever_H
+#ifndef GeometryReaders_XMLIdealGeometryESSource_XMLIdealGeometryESSource_H
+#define GeometryReaders_XMLIdealGeometryESSource_XMLIdealGeometryESSource_H
 
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
@@ -10,19 +10,19 @@
 
 #include <string>
 
-class DDCompactViewXMLRetriever : public edm::eventsetup::ESProducer, 
+class XMLIdealGeometryESSource : public edm::eventsetup::ESProducer, 
                                   public edm::eventsetup::EventSetupRecordIntervalFinder
 {
 public:
-    DDCompactViewXMLRetriever(const edm::ParameterSet & p);
-    virtual ~DDCompactViewXMLRetriever(); 
+    XMLIdealGeometryESSource(const edm::ParameterSet & p);
+    virtual ~XMLIdealGeometryESSource(); 
     const DDCompactView * produce(const IdealGeometryRecord &);
 protected:
     virtual void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
 				const edm::Timestamp &,edm::ValidityInterval &);
 private:
-    DDCompactViewXMLRetriever(const DDCompactViewXMLRetriever &);
-    const DDCompactViewXMLRetriever & operator=(const DDCompactViewXMLRetriever &);
+    XMLIdealGeometryESSource(const XMLIdealGeometryESSource &);
+    const XMLIdealGeometryESSource & operator=(const XMLIdealGeometryESSource &);
 };
 
 

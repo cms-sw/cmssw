@@ -1,0 +1,10 @@
+process GeometryTest = {
+# empty input service, fire 10 events
+        source = EmptyInputService {untracked int32 maxEvents = 2}
+        es_source = XMLIdealGeometryESSource {string GeometryConfiguration="ORCAconfiguration.xml"}
+	module print = AsciiOutputModule {}
+        module prod = PerfectGeometryAnalyzer {}
+#provide a scheduler path
+        path p1 = { print&prod}      
+}
+
