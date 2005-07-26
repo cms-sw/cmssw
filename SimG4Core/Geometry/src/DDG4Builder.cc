@@ -9,8 +9,7 @@
 #include "SimG4Core/Geometry/interface/DDG4SensitiveConverter.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/recordGetImplementation.icc"
-#include "SimG4Core/Geometry/interface/PerfectGeometryRecord.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "G4VSolid.hh"
 #include "G4Box.hh"
@@ -117,7 +116,7 @@ G4Material * DDG4Builder::convertMaterial(const DDMaterial & material)
 G4LogicalVolume * DDG4Builder::BuildGeometry()
 {
     ESHandle<DDCompactView> pView;
-    eventSetup.get<PerfectGeometryRecord>().get(pView);
+    eventSetup.get<IdealGeometryRecord>().get(pView);
  
     G4ReflectionFactory * refFact = G4ReflectionFactory::Instance();
     refFact->SetScalePrecision(100.*refFact->GetScalePrecision());

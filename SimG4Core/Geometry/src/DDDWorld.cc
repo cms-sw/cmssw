@@ -2,7 +2,7 @@
 #include "FWCore/Framework/interface/recordGetImplementation.icc"
  
 #include "SimG4Core/Geometry/interface/DDDWorld.h"
-#include "SimG4Core/Geometry/interface/DDCompactViewXMLRetriever.h"
+#include "GeometryReaders/XMLIdealGeometryESSource/interface/DDCompactViewXMLRetriever.h"
 #include "SimG4Core/Geometry/interface/DDG4Builder.h"
 
 #include "G4RunManagerKernel.hh"

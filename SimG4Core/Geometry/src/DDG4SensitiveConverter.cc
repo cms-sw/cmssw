@@ -14,6 +14,8 @@ DDG4SensitiveConverter::~DDG4SensitiveConverter() {}
 
 void DDG4SensitiveConverter::upDate(const DDG4DispContainer & ddg4s) 
 {
+  std::cout<<" IN DDG4SensitiveConverter::upDate"<<std::endl;
+
     for (int i=0; i<ddg4s.size(); i++)
     {
 	DDG4Dispatchable * ddg4 = ddg4s[i];
