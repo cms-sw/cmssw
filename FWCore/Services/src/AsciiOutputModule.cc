@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: AsciiOutputModule.cc,v 1.6 2005/07/14 21:32:14 wmtan Exp $
+$Id: AsciiOutputModule.cc,v 1.7 2005/07/25 04:03:02 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -51,8 +51,8 @@ namespace edm {
     // Loop over groups, and write some output for each...
 
     for(EventPrincipal::const_iterator i = e.begin(); i != e.end(); ++i) {
-      Provenance const& prov = (*i)->provenance();
-      if (selected(prov)) {
+      ProductDescription const& desc = (*i)->productDescription();
+      if (selected(desc)) {
         *pout_ << *i << '\n';
       }
     }
