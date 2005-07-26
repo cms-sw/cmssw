@@ -2,8 +2,11 @@
 #include "FWCore/Framework/interface/EventAux.h"
 #include "FWCore/Framework/interface/Provenance.h"
 #include "FWCore/Framework/interface/EventProvenance.h"
+#include "FWCore/Framework/interface/ProductDescription.h"
+#include "FWCore/Framework/interface/ProductRegistry.h"
 #include "FWCore/EDProduct/interface/Wrapper.h"
 #include "FWCore/Framework/src/ToyProducts.h"
+#include <vector>
 
 namespace{
 namespace{

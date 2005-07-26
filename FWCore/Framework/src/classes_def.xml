@@ -1,7 +1,11 @@
 <lcgdict>
  <class name="edm::EventAux" id="8520BF40-D823-7A01-CA18-D737BDBF4C65"/>
  <class name="edm::EventProvenance" id="D6EB7FBE-71C8-78B4-9DA6-766179171451"/>
+ <class name="edm::ProductRegistry" id="51660A92-41A67-618-13DB-3D73F982E667">
+   <field name="sorted_" transient="true"/>
+ </class>
  <class name="std::vector<edm::Provenance>"/>
+ <class name="std::vector<edm::ProductDescription>"/>
  <class name="edm::Provenance"/>
  <class name="edm::ModuleDescription"/>
  <class name="edm::ProductDescription">
