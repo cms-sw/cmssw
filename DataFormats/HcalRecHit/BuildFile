@@ -1,0 +1,13 @@
+<use name=FWCore/EDProduct>
+<use name=DataFormats/HcalDetId>
+<use name=DataFormats/CaloRecHit>
+<use name=boost>
+
+<export>
+   <lib name=DataFormatsHcalRecHit>
+   <use name=DataFormats/HcalDetId>
+   <use name=DataFormats/CaloRecHit>
+   <use name=FWCore/EDProduct>
+   <use name=boost>
+</export>
+
