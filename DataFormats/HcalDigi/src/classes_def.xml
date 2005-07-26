@@ -5,12 +5,14 @@
    <class name="cms::HFDataFrame"/>
    <class name="cms::HcalTriggerPrimitiveSample"/>
    <class name="cms::HcalTriggerPrimitiveDigi"/>
+   <class name="std::vector<cms::HcalQIESample>"/>
+   <class name="std::vector<cms::HcalTriggerPrimitiveSample>"/>
    <class name="std::vector<cms::HBHEDataFrame>"/>
    <class name="std::vector<cms::HODataFrame>"/>
    <class name="std::vector<cms::HFDataFrame>"/>
    <class name="std::vector<cms::HcalTriggerPrimitiveDigi>"/>
-   <class name="edm::Wrapper<std::vector<cms::HBHEDataFrame> >" id="87B65223-D978-3A0C-E8A0-9B13ED4D7ACC"/>
-   <class name="edm::Wrapper<std::vector<cms::HODataFrame> >" id="3E361287-1DEA-F9BA-C080-228D1E1BD207"/>
-   <class name="edm::Wrapper<std::vector<cms::HFDataFrame> >" id="1ED234EA-A911-0E42-83AF-1C85DFD66B4A"/>
-   <class name="edm::Wrapper<std::vector<cms::HcalTriggerPrimitiveDigi> >" id="A90293C5-D215-758E-6171-D4886E44803F"/>
+   <class name="edm::Wrapper<std::vector<cms::HBHEDataFrame> >" id="BB45767F-ADBB-BA48-40A0-1D23A8679810"/>
+   <class name="edm::Wrapper<std::vector<cms::HODataFrame> >" id="0C483481-31A5-1A2E-33E7-221A15E97593"/>
+   <class name="edm::Wrapper<std::vector<cms::HFDataFrame> >" id="82FB24CA-1EDE-B62B-AF76-D9902613D295"/>
+   <class name="edm::Wrapper<std::vector<cms::HcalTriggerPrimitiveDigi> >" id="B0A42DE2-C779-ACA0-BA4A-FD77983208D1"/>
 </lcgdict>

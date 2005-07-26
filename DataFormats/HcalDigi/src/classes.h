@@ -7,6 +7,9 @@
 
 namespace {
   namespace {
+    std::vector<cms::HcalQIESample> vQIE_;
+    std::vector<cms::HcalTriggerPrimitiveSample> vTPS_;
+
     std::vector<cms::HBHEDataFrame> vHBHE_;
     std::vector<cms::HODataFrame> vHO_;
     std::vector<cms::HFDataFrame> vHF_;
