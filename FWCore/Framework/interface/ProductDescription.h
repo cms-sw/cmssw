@@ -6,7 +6,7 @@
 ProductDescription: The full description of a product and how it came into
 existence.
 
-$Id: ProductDescription.h,v 1.2 2005/07/22 23:48:14 wmtan Exp $
+$Id: ProductDescription.h,v 1.3 2005/07/26 04:42:28 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <ostream>
 #include <string>
@@ -49,6 +49,8 @@ namespace edm {
     // the last of these is not in the roadmap, but is on the board
 
     mutable BranchKey branchKey;
+
+    mutable std::string branchName;
 
     void init() const;
 

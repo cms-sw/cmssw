@@ -6,6 +6,7 @@
  <class name="edm::ModuleDescription"/>
  <class name="edm::ProductDescription">
    <field name="branchKey" transient="true"/>
+   <field name="branchName" transient="true"/>
  </class>
  <class name="edm::PS_ID"/>
  <class name="edmtest::DummyProduct"/>
