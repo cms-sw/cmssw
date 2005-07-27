@@ -4,11 +4,11 @@
 
    \author Stefano ARGIRO
    \co-author William Tanenbaum
-   \version $Id: ProductRegistry.cc,v 1.4 2005/07/26 23:08:32 wmtan Exp $
+   \version $Id: ProductRegistry.cc,v 1.5 2005/07/27 04:33:48 wmtan Exp $
    \date 19 Jul 2005
 */
 
-static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.4 2005/07/26 23:08:32 wmtan Exp $";
+static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.5 2005/07/27 04:33:48 wmtan Exp $";
 
 
 #include <FWCore/Framework/interface/ProductRegistry.h>
@@ -21,6 +21,15 @@ ProductRegistry::addProduct(ProductDescription& productDesc) {
   productDesc.product_id.id_ = nextID_++;
   productList_.push_back(productDesc);
   sorted_ = false;
+}
+
+void
+ProductRegistry::copyProduct(ProductDescription const& productDesc) {
+  productList_.push_back(productDesc);
+  sorted_ = true;
+  if (productDesc.product_id.id_ >= nextID_) {
+    nextID_ = productDesc.product_id.id_ + 1;
+  }
 }
 
 void
