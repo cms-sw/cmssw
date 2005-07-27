@@ -1,0 +1,10 @@
+<use name=DataFormats/DetId>
+<use name=CalibFormats/CaloObjects>
+<use name=boost>
+<export>
+   <lib name=CalibFormatsHcalObjects>
+   <use name=boost>
+   <use name=DataFormats/DetId>
+   <use name=CalibFormats/CaloObjects>
+</export>
+
