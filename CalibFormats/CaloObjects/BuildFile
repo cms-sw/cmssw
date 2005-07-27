@@ -1,0 +1,8 @@
+<use name=DataFormats/DetId>
+<use name=boost>
+<export>
+   <lib name=CalibFormatsCaloObjects>
+   <use name=boost>
+   <use name=DataFormats/DetId>
+</export>
+
