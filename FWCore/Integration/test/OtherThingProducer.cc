@@ -6,7 +6,7 @@
 
 namespace edmreftest {
   OtherThingProducer::OtherThingProducer(edm::ParameterSet const&): alg_() {
-    produces<OtherThingCollection>();
+    produces<OtherThingCollection>("testUserTag");
   }
 
   // Virtual destructor needed.
