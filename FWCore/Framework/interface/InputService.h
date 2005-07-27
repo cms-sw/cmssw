@@ -39,7 +39,7 @@ Some examples of InputService subclasses may be:
  3) DAQInputService: creats EventPrincipals which contain raw data, as
     delivered by the L1 trigger and event builder. 
 
-$Id: InputService.h,v 1.2 2005/06/08 18:38:02 wmtan Exp $
+$Id: InputService.h,v 1.3 2005/07/23 05:53:33 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -61,6 +61,10 @@ namespace edm {
 
     ProductRegistry & productRegistry() const {return *preg_;}
     
+  protected:
+    // A pointer to the ProductRegistry;
+    ProductRegistry * preg_;
+
   private:
     // Indicate inability to get a new event by returning a null
     // auto_ptr.
@@ -68,9 +72,6 @@ namespace edm {
 
     // The process name we add to each EventPrincipal.
     std::string const process_;
-
-    // A pointer to the ProductRegistry;
-    ProductRegistry * const preg_;
   };
 }
 

@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: InputService.cc,v 1.4 2005/07/14 22:50:53 wmtan Exp $
+$Id: InputService.cc,v 1.5 2005/07/23 05:53:33 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <cassert>
 
@@ -10,10 +10,10 @@ $Id: InputService.cc,v 1.4 2005/07/14 22:50:53 wmtan Exp $
 namespace edm {
 
   InputService::InputService(InputServiceDescription const& desc) :
-      process_(desc.process_name),
-      preg_(desc.preg_) { 
-    assert(!process_.empty());
+      preg_(desc.preg_),
+      process_(desc.process_name) {
     assert(preg_ != 0);
+    assert(!process_.empty());
   }
 
   InputService::~InputService() {}
