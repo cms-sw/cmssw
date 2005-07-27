@@ -2,7 +2,7 @@
 
 /*----------------------------------------------------------------------
 
-$Id: ProductDescription.cc,v 1.3 2005/07/26 20:16:21 wmtan Exp $
+$Id: ProductDescription.cc,v 1.4 2005/07/26 23:09:40 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -13,7 +13,8 @@ namespace edm {
     full_product_type_name(),
     friendly_product_type_name(),
     product_instance_name(),
-    branchKey()
+    branchKey(),
+    group(0)
   { }
 
   ProductDescription::ProductDescription(ModuleDescription const& md,
@@ -23,7 +24,8 @@ namespace edm {
     full_product_type_name(name),
     friendly_product_type_name(fName),
     product_instance_name(pin),
-    branchKey() {
+    branchKey(),
+    group(0) {
       init();
     }
 

@@ -6,7 +6,7 @@
 ProductDescription: The full description of a product and how it came into
 existence.
 
-$Id: ProductDescription.h,v 1.4 2005/07/26 20:16:21 wmtan Exp $
+$Id: ProductDescription.h,v 1.5 2005/07/26 23:11:23 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <ostream>
 #include <string>
@@ -14,6 +14,7 @@ $Id: ProductDescription.h,v 1.4 2005/07/26 20:16:21 wmtan Exp $
 #include "FWCore/EDProduct/interface/ProductID.h"
 #include "FWCore/Framework/interface/ModuleDescription.h"
 #include "FWCore/Framework/interface/BranchKey.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 
 /*
   ProductDescription
@@ -51,6 +52,8 @@ namespace edm {
     mutable BranchKey branchKey;
 
     mutable std::string branchName;
+
+    mutable Group *group;
 
     void init() const;
 
