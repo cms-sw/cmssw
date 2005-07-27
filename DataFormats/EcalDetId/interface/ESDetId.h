@@ -9,7 +9,7 @@
 
    Det id for a preshower (endcap) strip
     
-   $Id: $
+   $Id: ESDetId.h,v 1.1 2005/07/25 15:30:14 meridian Exp $
 */
 namespace cms
 {
@@ -29,7 +29,7 @@ namespace cms
     /// get the subdetector
     EcalSubdetector subdet() const { return EcalSubdetector(subdetId()); }
     /** get the zside */
-    int zside() const { return (id_&0x4000)?(1):(-1); }
+    int zside() const { return (id_&0x40000)?(1):(-1); }
     /** get the plane */
     int plane() const { return (id_>>17)&0x1; }
     /** get the sensor ix */
