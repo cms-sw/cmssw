@@ -1,0 +1,15 @@
+<lcgdict>
+   <class name="cms::EcalMGPASample"/>
+   <class name="cms::EBDataFrame"/>
+   <class name="cms::EEDataFrame"/>
+   <class name="cms::EcalTriggerPrimitiveSample"/>
+   <class name="cms::EcalTriggerPrimitiveDigi"/>
+   <class name="std::vector<cms::EcalMGPASample>"/>
+   <class name="std::vector<cms::EcalTriggerPrimitiveSample>"/>
+   <class name="std::vector<cms::EBDataFrame>"/>
+   <class name="std::vector<cms::EEDataFrame>"/>
+   <class name="std::vector<cms::EcalTriggerPrimitiveDigi>"/>
+   <class name="edm::Wrapper<std::vector<cms::EBDataFrame> >"/>
+   <class name="edm::Wrapper<std::vector<cms::EEDataFrame> >"/>
+   <class name="edm::Wrapper<std::vector<cms::EcalTriggerPrimitiveDigi> >"/>
+</lcgdict>

@@ -1,0 +1,11 @@
+<use name=FWCore/EDProduct>
+<use name=DataFormats/EcalDetId>
+<use name=boost>
+
+<export>
+   <lib name=DataFormatsEcalDigi>
+   <use name=DataFormats/EcalDetId>
+   <use name=FWCore/EDProduct>
+   <use name=boost>
+</export>
+
