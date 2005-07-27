@@ -9,7 +9,7 @@
    <class name="std::vector<cms::EBDataFrame>"/>
    <class name="std::vector<cms::EEDataFrame>"/>
    <class name="std::vector<cms::EcalTriggerPrimitiveDigi>"/>
-   <class name="edm::Wrapper<std::vector<cms::EBDataFrame> >"/>
-   <class name="edm::Wrapper<std::vector<cms::EEDataFrame> >"/>
-   <class name="edm::Wrapper<std::vector<cms::EcalTriggerPrimitiveDigi> >"/>
+   <class name="edm::Wrapper<std::vector<cms::EBDataFrame> >" id="F0B06679-18A5-3D32-25EB-39EE2BC754CD"/>
+   <class name="edm::Wrapper<std::vector<cms::EEDataFrame> >" id="1BACF93F-EE6E-A387-6C0C-B654F011BDAB"/>
+   <class name="edm::Wrapper<std::vector<cms::EcalTriggerPrimitiveDigi> >"id="D932A444-CBDD-A27C-4D85-BFED25EFBCF8"/>
 </lcgdict>
