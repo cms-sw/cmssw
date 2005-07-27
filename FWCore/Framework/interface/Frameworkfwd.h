@@ -5,7 +5,7 @@
   
 Forward declarations of types in the EDM.
 
-$Id: Frameworkfwd.h,v 1.2 2005/07/14 22:50:52 wmtan Exp $
+$Id: Frameworkfwd.h,v 1.3 2005/07/26 23:12:53 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -23,6 +23,7 @@ namespace edm
   class EventProvenance;
   class EventRegistry;
   class EventSetup;
+  class Group;
   class InputService;
   class InputServiceDescription;
   class LuminositySection;
