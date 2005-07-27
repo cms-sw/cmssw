@@ -5,7 +5,7 @@
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DetectorDescription/DDCore/interface/DDCompactView.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include <string>

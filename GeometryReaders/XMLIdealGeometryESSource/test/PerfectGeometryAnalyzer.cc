@@ -13,7 +13,7 @@
 //
 // Original Author:  Tommaso Boccali
 //         Created:  Tue Jul 26 08:47:57 CEST 2005
-// $Id$
+// $Id: PerfectGeometryAnalyzer.cc,v 1.1 2005/07/26 16:03:14 chrjones Exp $
 //
 //
 
@@ -31,8 +31,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DetectorDescription/DDCore/interface/DDCompactView.h"
-#include "DetectorDescription/DDCore/interface/DDExpandedView.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 //
 // class decleration

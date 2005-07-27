@@ -1,14 +1,14 @@
 <export>
 <lib name=GeometryReadersXMLIdealGeometryESSource>
-<use name=DetectorDescription/DDCore>
-<use name=DetectorDescription/DDParser>
+<use name=DetectorDescription/Core>
+<use name=DetectorDescription/Parser>
 <use name=Geometry/Records>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet> 
 </export>
 <flags SEAL_PLUGIN_NAME="GeometryReadersXMLIdealGeometryESSource">
-<use name=DetectorDescription/DDCore>
-<use name=DetectorDescription/DDParser>
+<use name=DetectorDescription/Core>
+<use name=DetectorDescription/Parser>
 <use name=Geometry/Records>
 <use name=xerces-c>
 <use name=FWCore/Framework>

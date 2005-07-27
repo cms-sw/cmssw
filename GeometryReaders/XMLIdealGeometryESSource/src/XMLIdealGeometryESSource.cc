@@ -1,11 +1,11 @@
 #include "GeometryReaders/XMLIdealGeometryESSource/interface/XMLIdealGeometryESSource.h"
 
-#include "DetectorDescription/DDCore/interface/DDdebug.h"
-#include "DetectorDescription/DDParser/interface/DDLParser.h"
-#include "DetectorDescription/DDCore/interface/DDCompactView.h"
-#include "DetectorDescription/DDCore/interface/DDSpecifics.h"
-#include "DetectorDescription/DDParser/interface/DDLConfiguration.h"
-#include "DetectorDescription/DDAlgorithm/src/AlgoInit.h"
+#include "DetectorDescription/Core/interface/DDdebug.h"
+#include "DetectorDescription/Parser/interface/DDLParser.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/Core/interface/DDSpecifics.h"
+#include "DetectorDescription/Parser/interface/DDLConfiguration.h"
+#include "DetectorDescription/Algorithm/src/AlgoInit.h"
 
 #include <memory>
 
