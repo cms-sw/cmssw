@@ -1,8 +1,10 @@
 
 #include "FWCore/ParameterSet/interface/Makers.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/MakeProcessPSet.h"
 #include "FWCore/ParameterSet/src/BuilderVPSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+
 
 #include "boost/shared_ptr.hpp"
 #include "boost/bind.hpp"
@@ -37,6 +39,7 @@ struct BuilderPSet : public Visitor
   virtual void visitContents(const ContentsNode&);
   virtual void visitPSet(const PSetNode&);
   virtual void visitVPSet(const VPSetNode&);
+  virtual void visitModule(const ModuleNode&);
 
   PSetPtr main_;
 
@@ -49,8 +52,10 @@ struct BuilderPSet : public Visitor
 
 BuilderPSet::BuilderPSet(PSetPtr fillme,
                          const NamedPSets& blocks,
-                         const NamedPSets& psets):main_(fillme),blocks_(blocks),
-psets_(psets)
+                         const NamedPSets& psets) :
+  main_(fillme),
+  blocks_(blocks),
+  psets_(psets)
 {}
 
 BuilderPSet::~BuilderPSet()
@@ -87,8 +92,8 @@ void BuilderPSet::visitUsing(const UsingNode& n)
 
 void BuilderPSet::visitString(const StringNode& n)
 {
-  // this is always a pset name wi.h a VPSet.
-  // the pset would have already been build, so go locate it
+  // this is always a pset name with a VPSet.
+  // the pset would have already been built, so go locate it
   // to get its ID to store in the current pset array. huh?
   cout << " n.value_ " << endl;
 }
@@ -231,6 +236,36 @@ void BuilderPSet::visitVPSet(const VPSetNode& n)
    n.acceptForChildren(builder);
    main_->insert(false, n.name_, Entry(sets, true));
 }
+
+  void BuilderPSet::visitModule(const ModuleNode& iNode) 
+  {
+
+    // Make sure the node is of type 'source' (which comes from a
+    // 'secsource' entry.
+    if ( iNode.type() != "source" )
+      {
+	throw edm::Exception(errors::Configuration,"PSetError")
+	  << "An illegal entry has been found within a module declaration"
+	  << "\ntype: " << iNode.type()
+	  << "\nname: " << iNode.name();
+      }
+
+    edm::pset::NamedPSets dummyBlocks;
+    edm::pset::NamedPSets dummyPSets;
+      
+    boost::shared_ptr<ParameterSet> modulePSet = makePSet(*iNode.nodes_,
+							  dummyBlocks,
+							  dummyPSets);
+
+//     std::cerr << "..... module_type is: " << iNode.class_ << '\n';
+//     std::cerr << "..... module_label is: " << iNode.name_ << '\n';
+
+    modulePSet->insert(false, "module_type", Entry(iNode.class_, true));
+    modulePSet->insert(false, "module_label", Entry(iNode.name_, true));
+
+    main_->insert(false, iNode.name(), Entry(*modulePSet, true));
+   }
+
 
 
 boost::shared_ptr<edm::ParameterSet> makePSet(const NodePtrList& nodes,

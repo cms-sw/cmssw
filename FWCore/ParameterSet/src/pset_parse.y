@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.2 2005/06/23 21:36:54 paterno Exp $
+ * $Id: pset_parse.y,v 1.3 2005/06/27 16:35:01 paterno Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -283,7 +283,7 @@ allpset:         PSET_tok LETTERSTART_tok EQUAL_tok scoped
                    string name(toString($<str>2));
                    string type(toString($<str>4));
                    NodePtrListPtr nodelist($<_NodePtrList>5);
-                   ModuleNode* wn(new ModuleNode("secsource",name,type,nodelist,lines));
+                   ModuleNode* wn(new ModuleNode("source",name,type,nodelist,lines));
                    $<_Node>$ = wn;
 		 }
 	       |

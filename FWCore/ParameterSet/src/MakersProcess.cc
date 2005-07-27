@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 18 19:09:01 EDT 2005
-// $Id: MakersProcess.cc,v 1.5 2005/07/18 12:15:41 jbk Exp $
+// $Id: MakersProcess.cc,v 1.6 2005/07/20 03:45:12 jbk Exp $
 //
 
 // system include files
@@ -38,6 +38,7 @@ struct FillProcess : public edm::pset::Visitor
       static const std::string kESModule("es_module");
       static const std::string kSource("source");
       static const std::string kESSource("es_source");
+
       moduleTypes_[kModule];
       moduleTypes_[kESModule];
       moduleTypes_[kSource];
