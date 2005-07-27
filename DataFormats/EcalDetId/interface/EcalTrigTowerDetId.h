@@ -11,7 +11,7 @@
     
    Cell id for an Calo Trigger tower
 
-   $Id: $
+   $Id: EcalTrigTowerDetId.h,v 1.1 2005/07/25 15:30:14 meridian Exp $
 */
 namespace cms
 {
@@ -49,8 +49,8 @@ namespace cms
     static const int MAX_IPHI = 72;
   };
 
-}
+  std::ostream& operator<<(std::ostream&,const EcalTrigTowerDetId& id);
 
-std::ostream& operator<<(std::ostream&,const cms::EcalTrigTowerDetId& id);
+}
 
 #endif

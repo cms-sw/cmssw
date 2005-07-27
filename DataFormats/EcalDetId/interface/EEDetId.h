@@ -10,7 +10,7 @@
  *  Crystal/cell identifier class for the ECAL endcap
  *
  *
- *  $Id: $
+ *  $Id: EEDetId.h,v 1.1 2005/07/25 15:30:14 meridian Exp $
  */
 
 namespace cms
@@ -46,8 +46,10 @@ namespace cms
     static const int IY_MAX=100;
   };
 
+
+  std::ostream& operator<<(std::ostream& s,const EEDetId& id);
+
 }
 
-std::ostream& operator<<(std::ostream& s,const cms::EEDetId& id);
 
 #endif

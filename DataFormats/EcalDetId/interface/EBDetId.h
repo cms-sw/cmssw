@@ -9,7 +9,7 @@
  *  Crystal identifier class for the ECAL barrel
  *
  *
- *  $Id: $
+ *  $Id: EBDetId.h,v 1.1 2005/07/25 15:30:14 meridian Exp $
  */
 
 namespace cms
@@ -53,8 +53,9 @@ namespace cms
     static const int MAX_IPHI = 360;
   };
 
+  std::ostream& operator<<(std::ostream& s,const EBDetId& id);
+
 }
 
-std::ostream& operator<<(std::ostream& s,const cms::EBDetId& id);
 
 #endif

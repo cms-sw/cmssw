@@ -9,7 +9,7 @@
 
    Det id for a preshower (endcap) strip
     
-   $Id: ESDetId.h,v 1.1 2005/07/25 15:30:14 meridian Exp $
+   $Id: ESDetId.h,v 1.2 2005/07/27 10:23:11 meridian Exp $
 */
 namespace cms
 {
@@ -50,8 +50,9 @@ namespace cms
 
   };
 
+  std::ostream& operator<<(std::ostream&,const ESDetId& id);
+
 }
 
-std::ostream& operator<<(std::ostream&,const cms::ESDetId& id);
 
 #endif
