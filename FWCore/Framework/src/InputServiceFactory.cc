@@ -23,10 +23,16 @@ namespace edm {
   {
   }
 
+  InputServiceFactory* InputServiceFactory::singleInstance_ = 0;
+
   InputServiceFactory* InputServiceFactory::get()
   {
-    static InputServiceFactory f;
-    return &f;
+    // will not work with plugin factories
+    //static InputServiceFactory f;
+    //return &f;
+
+    if(!singleInstance_) singleInstance_ = new InputServiceFactory;
+    return singleInstance_;
   }
 
   std::auto_ptr<InputService>

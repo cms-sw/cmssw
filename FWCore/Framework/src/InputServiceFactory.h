@@ -28,6 +28,7 @@ namespace edm {
 
   private:
     InputServiceFactory();
+    static InputServiceFactory* singleInstance_;
   };
 
 }
