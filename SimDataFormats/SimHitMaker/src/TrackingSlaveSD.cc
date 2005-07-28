@@ -1,4 +1,6 @@
-#include "SimHitMakers/TrackingHitsWriter/interface/TrackingSlaveSD.h"
+#include "SimDataFormats/SimHitMaker/interface/TrackingSlaveSD.h"
+
+#include <iostream>
 
 using std::cout;
 using std::endl;
