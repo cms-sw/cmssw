@@ -2,8 +2,8 @@
 <lib name=SimDataFormatsTrackingHit>
 <use name=FWCore/EDProduct>
 <use name=FWCore/ParameterSet>
-<use name=FWCore/CoreFramework>
+<use name=FWCore/Framework>
 </export>
-<use name=FWCore/CoreFramework>
+<use name=FWCore/Framework>
 <use name=FWCore/EDProduct>
 <use name=FWCore/ParameterSet>
