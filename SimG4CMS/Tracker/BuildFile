@@ -4,7 +4,8 @@
 <use name=SimG4Core/Notification> 
 <use name=boost>
 <use name=geant4>
-<use name=SimHitMakers/TrackingHitsWriter>
+<use name=SimDataFormats/SimHitMaker>
+#<use name=SimHitMakers/TrackingHitsWriter>
 <use name=seal>
 <export>
  <lib name=SimG4CMSTracker>
