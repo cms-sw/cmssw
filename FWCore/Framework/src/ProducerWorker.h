@@ -9,7 +9,7 @@ feed them into the event.
 According to our current definition, a single producer can only
 appear in one worker.
 
-$Id: ProducerWorker.h,v 1.6 2005/07/20 03:00:36 jbk Exp $
+$Id: ProducerWorker.h,v 1.7 2005/07/21 20:53:21 argiro Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -19,12 +19,13 @@ $Id: ProducerWorker.h,v 1.6 2005/07/20 03:00:36 jbk Exp $
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/src/Worker.h"
+#include "FWCore/Framework/src/WorkerParams.h"
 #include "FWCore/Framework/interface/ModuleDescription.h"
 
 namespace edm
 {
   class ActionTable;
-  class WorkerParams;
+  class ParameterSet;
 
   class ProducerWorker : public Worker
   {
@@ -35,6 +36,9 @@ namespace edm
 
     virtual ~ProducerWorker();
 
+    template <class ModType>
+    static std::auto_ptr<EDProducer> makeOne(const ModuleDescription& md,
+					     const WorkerParams& wp);
   private:
     virtual bool doWork(EventPrincipal& e, EventSetup const& c);
 
@@ -52,6 +56,13 @@ namespace edm
     typedef EDProducer ModuleType;
     typedef ProducerWorker worker_type;
   };
+
+  template <class ModType>
+  std::auto_ptr<EDProducer> ProducerWorker::makeOne(const ModuleDescription& md,
+						const WorkerParams& wp)
+  {
+    return std::auto_ptr<EDProducer>(new ModType(*wp.pset_));
+  }
 
 }
 

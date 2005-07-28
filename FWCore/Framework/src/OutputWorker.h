@@ -9,7 +9,7 @@ this object is to call the output module.
 According to our current definition, a single output module can only
 appear in one worker.
 
-$Id: OutputWorker.h,v 1.5 2005/07/14 22:50:53 wmtan Exp $
+$Id: OutputWorker.h,v 1.6 2005/07/20 03:00:36 jbk Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -19,12 +19,12 @@ $Id: OutputWorker.h,v 1.5 2005/07/14 22:50:53 wmtan Exp $
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/OutputModule.h"
 #include "FWCore/Framework/interface/ModuleDescription.h"
-
 #include "FWCore/Framework/src/Worker.h"
+#include "FWCore/Framework/src/WorkerParams.h"
 
 namespace edm
 {
-  class WorkerParams;
+  class ParameterSet;
   class ActionTable;
 
   class OutputWorker : public Worker
@@ -36,6 +36,9 @@ namespace edm
 
     virtual ~OutputWorker();
 
+    template <class ModType>
+    static std::auto_ptr<OutputModule> makeOne(const ModuleDescription& md,
+					const WorkerParams& wp);
   private:
     virtual bool doWork(EventPrincipal& e, EventSetup const& c);
 
@@ -53,6 +56,14 @@ namespace edm
     typedef OutputModule ModuleType;
     typedef OutputWorker worker_type;
   };
+
+  template <class ModType>
+  std::auto_ptr<OutputModule> OutputWorker::makeOne(const ModuleDescription& md,
+						    const WorkerParams& wp)
+  {
+    return std::auto_ptr<OutputModule>(new ModType(*wp.pset_));
+  }
+
 }
 
 #endif

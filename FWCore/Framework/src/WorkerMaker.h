@@ -60,7 +60,7 @@ namespace edm {
     md.process_name = p.process_name_;;
     md.pass = p.pass_; 
 
-    std::auto_ptr<ModuleType> module(new UserType(conf));
+    std::auto_ptr<ModuleType> module(worker_type::template makeOne<UserType>(md,p));
     std::auto_ptr<Worker> worker(new worker_type(module, md, p));
     return worker;
   }

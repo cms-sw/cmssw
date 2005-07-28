@@ -8,7 +8,7 @@ this object is to call the filter.
 According to our current definition, a single filter can only
 appear in one worker.
 
-$Id: FilterWorker.h,v 1.5 2005/07/14 22:50:53 wmtan Exp $
+$Id: FilterWorker.h,v 1.6 2005/07/20 03:00:36 jbk Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -18,6 +18,7 @@ $Id: FilterWorker.h,v 1.5 2005/07/14 22:50:53 wmtan Exp $
 
 #include "FWCore/Framework/src/Worker.h"
 #include "FWCore/Framework/interface/ModuleDescription.h"
+#include "FWCore/Framework/src/WorkerParams.h"
 
 namespace edm
 {
@@ -25,7 +26,7 @@ namespace edm
   class ModuleDescription;
   class EDFilter;
   class ActionTable;
-  class WorkerParams;
+  class ParameterSet;
 
   class FilterWorker : public Worker
   {
@@ -34,6 +35,10 @@ namespace edm
 		 const ModuleDescription&,
 		 const WorkerParams&);
     virtual ~FilterWorker();
+
+    template <class ModType>
+    static std::auto_ptr<EDFilter> makeOne(const ModuleDescription&,
+					   const WorkerParams&);
 
   private:
     virtual bool doWork(EventPrincipal& e, EventSetup const& c);
@@ -51,6 +56,13 @@ namespace edm
     typedef EDFilter ModuleType;
     typedef FilterWorker worker_type;
   };
+
+  template <class ModType>
+  std::auto_ptr<EDFilter> FilterWorker::makeOne(const ModuleDescription& md,
+						const WorkerParams& wp)
+  {
+    return std::auto_ptr<EDFilter>(new ModType(*wp.pset_));
+  }
 
 }
 

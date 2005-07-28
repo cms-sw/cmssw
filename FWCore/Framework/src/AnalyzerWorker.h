@@ -9,7 +9,7 @@ feed them into the event.
 According to our current definition, a single producer can only
 appear in one worker.
 
-$Id: AnalyzerWorker.h,v 1.5 2005/07/14 22:50:53 wmtan Exp $
+$Id: AnalyzerWorker.h,v 1.6 2005/07/20 03:00:36 jbk Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -19,12 +19,13 @@ $Id: AnalyzerWorker.h,v 1.5 2005/07/14 22:50:53 wmtan Exp $
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/src/Worker.h"
+#include "FWCore/Framework/src/WorkerParams.h"
 #include "FWCore/Framework/interface/ModuleDescription.h"
 
 namespace edm
 {
   class ActionTable;
-  class WorkerParams;
+  class ParameterSet;
 
   class AnalyzerWorker : public Worker
   {
@@ -33,6 +34,10 @@ namespace edm
 		   const ModuleDescription&,
 		   const WorkerParams&);
     virtual ~AnalyzerWorker();
+
+  template <class ModType>
+  static std::auto_ptr<EDAnalyzer> makeOne(const ModuleDescription& md,
+					   const WorkerParams& wp);
 
   private:
     virtual bool doWork(EventPrincipal& e, EventSetup const& c);
@@ -52,6 +57,12 @@ namespace edm
     typedef AnalyzerWorker worker_type;
   };
 
+  template <class ModType>
+  std::auto_ptr<EDAnalyzer> AnalyzerWorker::makeOne(const ModuleDescription& md,
+						    const WorkerParams& wp)
+  {
+    return std::auto_ptr<EDAnalyzer>(new ModType(*wp.pset_));
+  }
 }
 
 #endif // EDM_EDANALYZERWORKER_INCLUDED
