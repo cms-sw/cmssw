@@ -1,16 +1,17 @@
-<use name=FWCore/CoreFramework>
-<use name=DetectorDescription/DDParser>
+<use name=FWCore/Framework>
+<use name=DetectorDescription/Parser>
 <use name=geant4>
 <use name=DataSvc>
 <use name=Collection>
 <use name=ImplicitCollection>
 <use name=Dictionary/Reflection>
 <use name=Framework/SealKernel>
-
+<use name=GeometryReaders/XMLIdealGeometryESSource>
 <export>
  <lib name=SimG4CoreGeometry>
- <use name=DetectorDescription/DDParser>
- <use name=FWCore/CoreFramework>
+ <use name=DetectorDescription/Parser>
+ <use name=FWCore/Framework>
  <use name=Framework/SealKernel>
+ <use name=GeometryReaders/XMLIdealGeometryESSource>
 </export>
 

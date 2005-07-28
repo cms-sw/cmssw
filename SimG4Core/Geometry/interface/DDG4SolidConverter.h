@@ -1,7 +1,7 @@
 #ifndef SimG4Core_DDG4SolidConverter_h
 #define SimG4Core_DDG4SolidConverter_h
 
-#include "DetectorDescription/DDCore/interface/DDSolidShapes.h"
+#include "DetectorDescription/Core/interface/DDSolidShapes.h"
 
 #include <map>
 #include <vector>

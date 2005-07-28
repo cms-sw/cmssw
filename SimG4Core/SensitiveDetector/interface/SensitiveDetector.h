@@ -29,16 +29,14 @@ public:
     enum coordinates {WorldCoordinates, LocalCoordinates};
     Local3DPoint InitialStepPosition(G4Step * s, coordinates);
     Local3DPoint FinalStepPosition(G4Step * s, coordinates);
-    Local3DPoint ConvertToLocal3DPoint(G4ThreeVector point);
-    
-    std::string nameOfSD(){return name;}
-
-    virtual std::vector<std::string> getNames() {
-      std::vector<std::string> temp;
-      temp.push_back(nameOfSD());
-      return temp;
+    Local3DPoint ConvertToLocal3DPoint(G4ThreeVector point);    
+    std::string nameOfSD() { return name; }
+    virtual std::vector<std::string> getNames() 
+    {
+	std::vector<std::string> temp;
+	temp.push_back(nameOfSD());
+	return temp;
     }
-
 private:
     std::string name;
     G4Step * currentStep;

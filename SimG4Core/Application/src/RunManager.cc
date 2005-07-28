@@ -11,8 +11,7 @@
 #include "SimG4Core/Geometry/interface/DDDWorld.h"
 #include "SimG4Core/SensitiveDetector/interface/AttachSD.h"
 #include "SimG4Core/Generators/interface/Generator.h"
-#include "SimG4Core/DummyPhysics/interface/DummyPhysics.h"
-#include "Utilities/Notification/interface/DispatcherObserver.h"
+#include "SimG4Core/Physics/interface/PhysicsListFactory.h"
 
 #include "G4StateManager.hh"
 #include "G4ApplicationState.hh"
@@ -41,7 +40,8 @@ RunManager * RunManager::instance()
 }
 
 RunManager::RunManager(edm::ParameterSet const & p) 
-    : m_generator(0), m_primaryTransformer(0), m_managerInitialized(false), 
+    : m_context (new seal::Context), m_configurator (*m_context.get()),
+      m_generator(0), m_primaryTransformer(0), m_managerInitialized(false), 
       m_geometryInitialized(true), m_physicsInitialized(true),
       m_runInitialized(false), m_runTerminated(false), m_runAborted(false),
       m_currentRun(0), m_currentEvent(0), m_simEvent(0), 
@@ -56,9 +56,10 @@ RunManager::RunManager(edm::ParameterSet const & p)
       m_pTrackingAction(p.getParameter<edm::ParameterSet>("TrackingAction")),
       m_pSteppingAction(p.getParameter<edm::ParameterSet>("SteppingAction"))
 {    
-    m_context = new seal::Context;
     m_kernel = G4RunManagerKernel::GetRunManagerKernel();
     if (m_kernel==0) m_kernel = new G4RunManagerKernel();
+    frappe::Dispatcher<DDDWorld>::addDispatcher(m_configurator);
+    frappe::Dispatcher<EventAction>::addDispatcher(m_configurator);
     std::cout << " Run Manager constructed " << std::endl;
 }
 
@@ -71,60 +72,39 @@ void RunManager::initG4(const edm::EventSetup & es)
 {
     if (m_managerInitialized) return;
     DDDWorld * world = new DDDWorld(m_pGeometry);
-    dispatch(world);
-    //
-    // do it by hand ... call AttachSD
-    //
-    attach_ = new AttachSD;
-    
-    std::vector<SensitiveDetector*> sensDets = attach_->create(*world);
+    m_configurator.component< frappe::Dispatcher<DDDWorld> >() (world);
 
-    //
-    // split it in Tk and Calo types
-    //
-    sensTkDets.clear();
-    sensCaloDets.clear();
+    m_attach = new AttachSD;
+    std::vector<SensitiveDetector*> sensDets = m_attach->create(*world);
+    m_sensTkDets.clear();
+    m_sensCaloDets.clear();
 
     for (std::vector<SensitiveDetector*>::iterator it = sensDets.begin();
-	 it != sensDets.end(); it++){
-      if (dynamic_cast<SensitiveTkDetector*>(*it)){
-	sensTkDets.push_back(dynamic_cast<SensitiveTkDetector*>(*it));
-      }
-      if (dynamic_cast<SensitiveCaloDetector*>(*it)){
-	sensCaloDets.push_back(dynamic_cast<SensitiveCaloDetector*>(*it));
-      }
+	 it != sensDets.end(); it++)
+    {
+	if (dynamic_cast<SensitiveTkDetector*>(*it))
+	    m_sensTkDets.push_back(dynamic_cast<SensitiveTkDetector*>(*it));
+	if (dynamic_cast<SensitiveCaloDetector*>(*it))
+	    m_sensCaloDets.push_back(dynamic_cast<SensitiveCaloDetector*>(*it));
     }
-
-    std::cout <<" Sensitive Detector uilding Finished; found "<<sensTkDets.size()<<
-      " Tk type Producers, and "<<sensCaloDets.size()<<" Calo type producers."<<std::endl;
+    std::cout << " Sensitive Detector building finished; found " << m_sensTkDets.size()
+	      << " Tk type Producers, and " << m_sensCaloDets.size() 
+	      << " Calo type producers " << std::endl;
 
     m_generator = new Generator(m_pGenerator);
     m_primaryTransformer = new PrimaryTransformer();
-    m_physics = new DummyPhysics(m_pPhysics);
-    m_kernel->SetPhysics(m_physics);
+    
+    seal::Handle<PhysicsList> physics = PhysicsListFactory::get()->create
+	(m_pPhysics.getParameter<std::string> ("type"),m_context.get(),m_pPhysics);
+    m_kernel->SetPhysics(physics.get());
     m_kernel->InitializePhysics();
     if (m_kernel->RunInitialization()) m_managerInitialized = true;
     initializeUserActions();
     initializeRun();
 }
 
-void RunManager::dispatch(DDDWorld * world)
-{
-    MyConfigurator c0(*m_context.get());
-    c0.nameIt("c0");
-    c0.addDispatcher<DDDWorld>();
-    frappe::Client cl0(c0.context());
-    DDDWorldObserver w(&c0.context(),"DDDWorld");
-    cl0.component<frappe::Dispatcher<DDDWorld> >()(world);
-    std::cout << " DDDWorld dispatched " << std::endl;
-    std::vector< seal::IHandle< frappe::LazyComponent<frappe::Fanout<DDDWorld> > > > matches;
-    frappe::queryInChildren (c0.context(), matches);
-    std::cout << "total number of fanout " << matches.size() << std::endl;
-}
-
 void RunManager::produce(const edm::EventSetup & es)
 {
-    
     static int i = 0;
     m_currentEvent = generateEvent(i);
     i++;
@@ -171,12 +151,14 @@ void RunManager::abortEvent()
 
 void RunManager::initializeUserActions()
 {
+    DDDWorldObserver(m_context.get(), "DDDWorld"); 
     m_userRunAction = new RunAction(m_pRunAction);
     G4EventManager * eventManager = m_kernel->GetEventManager();
     eventManager->SetVerboseLevel(m_EvtMgrVerbosity);
     if (m_generator!=0)
     {
         EventAction * userEventAction = new EventAction(m_pEventAction);
+	m_configurator.component< frappe::Dispatcher<EventAction> >() (userEventAction);
         eventManager->SetUserAction(userEventAction);
         eventManager->SetUserAction(new TrackingAction(userEventAction,m_pTrackingAction));
         eventManager->SetUserAction(new SteppingAction(m_pSteppingAction));

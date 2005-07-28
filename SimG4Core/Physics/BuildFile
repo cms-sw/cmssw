@@ -1,6 +1,8 @@
+<Flags SEAL_PLUGIN_NAME="SimG4CorePhysics">
 <export>
  <lib name=SimG4CorePhysics>
 </export>
 
+<use name=Framework/SealKernel>
 <use name=geant4>
 <use name=boost>

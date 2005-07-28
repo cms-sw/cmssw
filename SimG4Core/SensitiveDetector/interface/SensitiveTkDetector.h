@@ -10,9 +10,8 @@
 class SensitiveTkDetector : public SensitiveDetector
 {
 public:
-  SensitiveTkDetector(std::string & iname) : SensitiveDetector(iname) {}
-
-  virtual void fillHits(edm::PSimHitContainer&, std::string name = 0) = 0;
+    SensitiveTkDetector(std::string & iname) : SensitiveDetector(iname) {}
+    virtual void fillHits(edm::PSimHitContainer &, std::string name = 0) = 0;
 };
 
 #endif

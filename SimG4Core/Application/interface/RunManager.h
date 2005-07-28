@@ -6,6 +6,8 @@
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "Utilities/Notification/interface/DispatcherObserver.h"
+
 #include "SimG4Core/SensitiveDetector/interface/AttachSD.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveDetector.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveTkDetector.h"
@@ -14,8 +16,6 @@
 #include "SealKernel/Context.h"
 
 #include <memory>
-
-
 
 class PrimaryTransformer;
 class Generator;
@@ -46,18 +46,16 @@ public:
     const Generator * generator() const { return m_generator; }
     const G4Event * currentEvent() const { return m_currentEvent; }
     G4SimEvent * simEvent() { return m_simEvent; }
-    void dispatch(DDDWorld * world);
     seal::Handle<seal::Context> runContext() { return m_context; }
-
-    std::vector<SensitiveTkDetector*>& sensTkDetectors(){return sensTkDets;}
-    std::vector<SensitiveCaloDetector*>& sensCaloDetectors(){return sensCaloDets;}
-
+    std::vector<SensitiveTkDetector*>& sensTkDetectors() { return m_sensTkDets; }
+    std::vector<SensitiveCaloDetector*>& sensCaloDetectors() { return m_sensCaloDets; }
 protected:
     G4Event * generateEvent(int evt);
 private:
     static RunManager * me;
     explicit RunManager(edm::ParameterSet const & p);
     seal::Handle<seal::Context> m_context;
+    frappe::Configurator m_configurator;
     G4RunManagerKernel * m_kernel;
     Generator * m_generator;
     DummyPhysics * m_physics;
@@ -82,11 +80,9 @@ private:
     edm::ParameterSet m_pEventAction;
     edm::ParameterSet m_pTrackingAction;
     edm::ParameterSet m_pSteppingAction;
-
-    AttachSD* attach_;
-    std::vector<SensitiveTkDetector*> sensTkDets;
-    std::vector<SensitiveCaloDetector*> sensCaloDets;
-
+    AttachSD * m_attach;
+    std::vector<SensitiveTkDetector*> m_sensTkDets;
+    std::vector<SensitiveCaloDetector*> m_sensCaloDets;
 };
 
 #endif

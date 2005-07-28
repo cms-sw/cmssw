@@ -1,6 +1,6 @@
-#include "DetectorDescription/DDCore/interface/DDdebug.h"
-#include "DetectorDescription/DDCore/interface/DDCompactView.h"
-#include "DetectorDescription/DDCore/interface/DDSpecifics.h"
+#include "DetectorDescription/Core/interface/DDdebug.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/Core/interface/DDSpecifics.h"
 
 #include "SimG4Core/Geometry/interface/DDG4Builder.h"
 #include "SimG4Core/Geometry/interface/DDG4SolidConverter.h"

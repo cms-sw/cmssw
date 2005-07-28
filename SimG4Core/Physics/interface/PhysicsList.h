@@ -5,13 +5,17 @@
 
 #include "G4VModularPhysicsList.hh"
 
-class PhysicsList : public G4VModularPhysicsList
+#include "SealKernel/Component.h"
+ 
+class PhysicsList : public G4VModularPhysicsList, public seal::Component
 {
+    DECLARE_SEAL_COMPONENT;
 public:
-    PhysicsList(const edm::ParameterSet & p);
+    PhysicsList(seal::Context * c, const edm::ParameterSet & p);
     virtual ~PhysicsList();
     virtual void SetCuts();
 private:
+    seal::Context * m_context;
     edm::ParameterSet m_pPhysics; 
 };
 

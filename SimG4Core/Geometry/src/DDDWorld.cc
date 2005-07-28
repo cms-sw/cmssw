@@ -2,7 +2,7 @@
 #include "FWCore/Framework/interface/recordGetImplementation.icc"
  
 #include "SimG4Core/Geometry/interface/DDDWorld.h"
-#include "GeometryReaders/XMLIdealGeometryESSource/interface/DDCompactViewXMLRetriever.h"
+#include "GeometryReaders/XMLIdealGeometryESSource/interface/XMLIdealGeometryESSource.h"
 #include "SimG4Core/Geometry/interface/DDG4Builder.h"
 
 #include "G4RunManagerKernel.hh"
@@ -14,8 +14,8 @@ DDDWorld::DDDWorld(const edm::ParameterSet & p)
 {
     EventSetupProvider provider;
   
-    boost::shared_ptr<DDCompactViewXMLRetriever> 
-	pRetriever(new DDCompactViewXMLRetriever(p));
+    boost::shared_ptr<XMLIdealGeometryESSource> 
+	pRetriever(new XMLIdealGeometryESSource(p));
     boost::shared_ptr<DataProxyProvider> pProxyProv(pRetriever);
     provider.add(pProxyProv);
   

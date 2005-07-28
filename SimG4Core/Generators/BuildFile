@@ -1,6 +1,7 @@
 <export>
  <lib name=SimG4CoreGenerators>
 </export>
-
+<use name=FWCore/ParameterSet>
+<use name=boost>
 <use name=geant4>
 <use name=clhep>

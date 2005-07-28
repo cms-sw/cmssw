@@ -3,9 +3,9 @@ using namespace std;
 #include "SimG4Core/Geometry/interface/DDG4SolidConverter.h"
 #include "G4VSolid.hh"
 
-#include "DetectorDescription/DDCore/interface/DDdebug.h"
-#include "DetectorDescription/DDBase/interface/DDException.h"
-#include "DetectorDescription/DDCore/interface/DDSolid.h"
+#include "DetectorDescription/Core/interface/DDdebug.h"
+#include "DetectorDescription/Base/interface/DDException.h"
+#include "DetectorDescription/Core/interface/DDSolid.h"
 
 const vector<double> * DDG4SolidConverter::par_ = 0; 
 

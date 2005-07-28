@@ -3,9 +3,9 @@
 
 #include "SimG4Core/Notification/interface/DDG4DispContainer.h"
 
-#include "DetectorDescription/DDCore/interface/DDLogicalPart.h"
-#include "DetectorDescription/DDCore/interface/DDMaterial.h"
-#include "DetectorDescription/DDCore/interface/DDSolid.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDMaterial.h"
+#include "DetectorDescription/Core/interface/DDSolid.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 

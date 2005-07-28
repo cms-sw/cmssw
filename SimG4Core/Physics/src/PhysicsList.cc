@@ -1,7 +1,10 @@
 #include "SimG4Core/Physics/interface/PhysicsList.h"
 
-PhysicsList::PhysicsList(const edm::ParameterSet & p) 
-    : G4VModularPhysicsList(), m_pPhysics(p) {}
+DEFINE_SEAL_COMPONENT (PhysicsList, "SimG4Core/Physics/PhysicsList");
+ 
+PhysicsList::PhysicsList(seal::Context * c, const edm::ParameterSet & p) 
+    : G4VModularPhysicsList(), Component(c, classContextKey()),
+      m_context(c), m_pPhysics(p) {}
  
 PhysicsList::~PhysicsList() {}
 

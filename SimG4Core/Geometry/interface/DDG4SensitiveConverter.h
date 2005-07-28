@@ -2,7 +2,7 @@
 #define SimG4Core_DDG4SensitiveConverter_h
 
 #include "SimG4Core/Notification/interface/DDG4DispContainer.h"
-#include "DetectorDescription/DDCore/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
 
 #include <iostream>
 #include <vector>

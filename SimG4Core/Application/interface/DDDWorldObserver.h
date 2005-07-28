@@ -7,12 +7,18 @@
 class DDDWorldObserver : private frappe::Observer<DDDWorld> 
 {
 public:
-  typedef frappe::Observer<DDDWorld> super;
-  DDDWorldObserver(seal::Context* ic, const std::string& iname) :super(ic) 
-  { std::cout << " DDDWorldObserver constructed " << std::endl; initialize(); }
+    typedef frappe::Observer<DDDWorld> super;
+    DDDWorldObserver(seal::Context * ic, const std::string & iname) :super(ic) 
+    { 
+	initialize(); 
+	std::cout << " DDDWorldObserver initialized " << std::endl; 
+    }
 private:
-  virtual void update(const DDDWorld * w) 
-  { std::cout << " in update " << std::endl; if (w!=0) std::cout << " got DDDWorld " << std::endl; }
+    virtual void update(const DDDWorld * w) 
+    { 
+	std::cout << " in update " << std::endl; 
+	if (w!=0) std::cout << " got DDDWorld " << std::endl; 
+    }
 };
 
 #endif

@@ -1,7 +1,7 @@
 #ifndef SimG4Core_DDG4Dispatchable_H
 #define SimG4Core_DDG4Dispatchable_H
 
-#include "DetectorDescription/DDCore/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
 
 #include "G4LogicalVolume.hh"
 
