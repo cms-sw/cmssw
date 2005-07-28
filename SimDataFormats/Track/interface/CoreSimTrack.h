@@ -21,7 +21,7 @@ public:
     /// particle info...
     //const HepParticleData * particleInfo() const;
     /// four momentum
-    HepLorentzVector momentum() const 
+    const HepLorentzVector & momentum() const 
     { return theMomentum; }
     /// particle type (HEP PDT convension)
     int type() const { return thePID;}
