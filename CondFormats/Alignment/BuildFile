@@ -1,4 +1,4 @@
-<flags LCGDICT_ARGS=="--">
+<flags LCGDICT_ARGS="--">
 <use name=clhep>
 <use name=FWCore/Framework>
 <use name=Dictionary/ReflectionBuilder>
