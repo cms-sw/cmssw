@@ -27,7 +27,7 @@ namespace edm {
 
   private:
     Factory();
-    static Factory * singleInstance_;
+    static Factory singleInstance_;
     mutable MakerMap makers_;
   };
 

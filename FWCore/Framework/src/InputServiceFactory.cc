@@ -23,7 +23,7 @@ namespace edm {
   {
   }
 
-  InputServiceFactory* InputServiceFactory::singleInstance_ = 0;
+  InputServiceFactory InputServiceFactory::singleInstance_;
 
   InputServiceFactory* InputServiceFactory::get()
   {
@@ -31,8 +31,7 @@ namespace edm {
     //static InputServiceFactory f;
     //return &f;
 
-    if(!singleInstance_) singleInstance_ = new InputServiceFactory;
-    return singleInstance_;
+    return &singleInstance_;
   }
 
   std::auto_ptr<InputService>
