@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: OutputWorker.cc,v 1.6 2005/07/23 07:32:57 wmtan Exp $
+$Id: OutputWorker.cc,v 1.7 2005/07/27 04:40:41 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/EventPrincipal.h"
@@ -23,7 +23,6 @@ namespace edm {
       mod_(mod),
       actions_(wp.actions_) {
     assert(wp.reg_ != 0);
-    mod_->setProductRegistry(*wp.reg_);
   }
 
   OutputWorker::~OutputWorker() {

@@ -9,7 +9,7 @@ this object is to call the output module.
 According to our current definition, a single output module can only
 appear in one worker.
 
-$Id: OutputWorker.h,v 1.6 2005/07/20 03:00:36 jbk Exp $
+$Id: OutputWorker.h,v 1.7 2005/07/28 18:48:28 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -61,7 +61,7 @@ namespace edm
   std::auto_ptr<OutputModule> OutputWorker::makeOne(const ModuleDescription& md,
 						    const WorkerParams& wp)
   {
-    return std::auto_ptr<OutputModule>(new ModType(*wp.pset_));
+    return std::auto_ptr<OutputModule>(new ModType(*wp.pset_, *wp.reg_));
   }
 
 }

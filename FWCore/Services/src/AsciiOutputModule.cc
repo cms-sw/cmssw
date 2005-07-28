@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: AsciiOutputModule.cc,v 1.7 2005/07/25 04:03:02 wmtan Exp $
+$Id: AsciiOutputModule.cc,v 1.8 2005/07/26 23:00:16 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -10,12 +10,13 @@ $Id: AsciiOutputModule.cc,v 1.7 2005/07/25 04:03:02 wmtan Exp $
 #include "FWCore/Services/src/AsciiOutputModule.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/OutputModule.h"
+#include "FWCore/Framework/interface/ProductRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 namespace edm {
 
-  AsciiOutputModule::AsciiOutputModule(ParameterSet const& pset, std::ostream* os) :
-    OutputModule(pset.getUntrackedParameter("select", ParameterSet())),
+  AsciiOutputModule::AsciiOutputModule(ParameterSet const& pset, ProductRegistry const& reg, std::ostream* os) :
+    OutputModule(pset.getUntrackedParameter("select", ParameterSet()), reg),
     prescale_(pset.getUntrackedParameter("prescale", 1U)),
     verbosity_(pset.getUntrackedParameter("verbosity", 1U)),
     counter_(0),
