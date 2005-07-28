@@ -1,6 +1,9 @@
 <export>
  <lib name=UtilitiesNotification>
+ <use name=Dictionary/Reflex>	
+ <use name=boost>
 </export>
 
-<use name=seal>
+<use name=Dictionary/Reflex>
 <use name=boost>
+
