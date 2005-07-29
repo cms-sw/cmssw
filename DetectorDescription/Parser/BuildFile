@@ -3,9 +3,6 @@
 <use name=DetectorDescription/Core>
 <use name=DetectorDescription/Algorithm>
 <use name=Framework/SealKernel>
-<use name=Foundation/PluginManager>
-
-<Flags SEAL_PLUGIN_NAME="DDParser">
 
 <export>
  <lib name=DetectorDescriptionParser>
@@ -14,5 +11,4 @@
  <use name=DetectorDescription/Core>
  <use name=DetectorDescription/Algorithm>
  <use name=Framework/SealKernel>
- <use name=Foundation/PluginManager>
 </export>
