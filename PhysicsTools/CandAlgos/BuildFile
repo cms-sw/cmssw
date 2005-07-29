@@ -1,0 +1,12 @@
+<flags SEAL_PLUGIN_NAME="PhysicsToolsCandAlgos">
+<use name=PhysicsTools/DSTCandUtils>
+<use name=PhysicsTools/DSTCandidate>
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<export>
+  <lib name=PhysicsToolsCandAlgos>
+  <use name=PhysicsTools/DSTCandUtils>
+  <use name=PhysicsTools/DSTCandidate>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
+</export>
