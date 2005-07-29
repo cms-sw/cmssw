@@ -4,5 +4,6 @@
 </export>
 
 <use name=Framework/SealKernel>
+<use name=FWCore/ParameterSet>
 <use name=geant4>
 <use name=boost>
