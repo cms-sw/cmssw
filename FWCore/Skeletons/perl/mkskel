@@ -1,6 +1,6 @@
-#!/usr/local/bin/perl
+#!/usr/bin/env perl
 #
-# $Id: mkskel,v 1.1 2005/06/09 00:17:44 chrjones Exp $
+# $Id: mkskel,v 1.1 2005/06/09 02:43:53 wmtan Exp $
 ###########################################################################
 #  simple little script to make fortran skeletons and include skeletons
 #

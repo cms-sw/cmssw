@@ -1,6 +1,6 @@
-#!/usr/local/bin/perl
+#!/usr/bin/env perl
 #
-# $Id: mkrecord,v 1.1 2005/06/09 00:17:44 chrjones Exp $
+# $Id: mkrecord,v 1.1 2005/06/09 02:43:53 wmtan Exp $
 ###########################################################################
 #  simple little script to make record skeleton files
 #
