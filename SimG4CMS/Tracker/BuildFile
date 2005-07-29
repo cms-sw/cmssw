@@ -5,8 +5,8 @@
 <use name=boost>
 <use name=geant4>
 <use name=SimDataFormats/SimHitMaker>
-#<use name=SimHitMakers/TrackingHitsWriter>
-<use name=seal>
+<use name=SimG4Core/Application>
+
 <export>
  <lib name=SimG4CMSTracker>
 </export>
