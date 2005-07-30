@@ -1,18 +1,16 @@
 /*----------------------------------------------------------------------
-$Id: EventPrincipal.cc,v 1.15 2005/07/25 04:01:48 wmtan Exp $
+$Id: EventPrincipal.cc,v 1.16 2005/07/26 04:42:28 wmtan Exp $
 ----------------------------------------------------------------------*/
 //#include <iostream>
 #include <memory>
 #include <sstream>
 #include <stdexcept>
+#include <algorithm>
 
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/ProductRegistry.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 using namespace std;
-
-namespace {
-  unsigned long const initial_size = 200;  // optimization guess...
-} 
 
 namespace edm {
 
@@ -21,21 +19,22 @@ namespace edm {
     groups_(),
     labeled_dict_(),
     type_dict_(),
-    store_(0)
+    store_(0),
+    preg_(0)
   {
-    groups_.reserve(initial_size);
   }
 
   EventPrincipal::EventPrincipal(CollisionID const& id,
-				 Retriever& r, ProcessNameList const& nl) :
+	 Retriever& r, ProductRegistry const& reg, ProcessNameList const& nl) :
     aux_(id),
     groups_(),
     labeled_dict_(),
     type_dict_(),
-    store_(&r)
+    store_(&r),
+    preg_(&reg)
   {
     aux_.process_history_ = nl;
-    groups_.reserve(initial_size);
+    groups_.reserve(reg.productList().size());
   }
  
   EventPrincipal::~EventPrincipal() {
@@ -54,7 +53,7 @@ namespace edm {
     assert (!group->productDescription().module.process_name.empty());
     SharedGroupPtr g(group);
 
-    BranchKey const& bk = g->productDescription().branchKey;
+    BranchKey const bk = BranchKey(g->productDescription());
     //cerr << "addGroup DEBUG 2---> " << bk.friendly_class_name << endl;
     //cerr << "addGroup DEBUG 3---> " << bk << endl;
 
@@ -77,9 +76,8 @@ namespace edm {
     // and the indices are updated
 
     groups_.push_back(g);
-    // The ID we assign is the size *after* the Group has been pushed
-    // into the vector. This means the Group in slot 0 has ID 1, etc.
-    unsigned long slotNumber = g->provenance().product_id - 1;
+
+    unsigned long slotNumber = g->productDescription().product_id.id_;
 
     labeled_dict_[bk] = slotNumber;
 
@@ -103,23 +101,26 @@ namespace edm {
   void 
   EventPrincipal::put(auto_ptr<EDProduct> edp,
 		      auto_ptr<Provenance> prov) {
+    prov->product.init();
+    ProductRegistry::ProductList const& pl = preg_->productList();
+    BranchKey const bk(prov->product);
+    ProductRegistry::ProductList::const_iterator it = pl.find(bk);
+    assert (it != pl.end());
+    prov->product.product_id = it->second.product_id;
+    ProductID id = it->second.product_id;
     // Group assumes ownership
     auto_ptr<Group> g(new Group(edp, prov));
-    // The ID we assign is the size *after* the Group has been pushed
-    // into the vector. This means the Group in slot 0 has ID 1, etc.
-    GroupVec::size_type sz = groups_.size()+1;
-    g->setID(sz);
+    g->setID(id);
     this->addGroup(g);
   }
 
   BasicHandle
-  EventPrincipal::get(EDP_ID oid) const {
-    if (oid == EDP_ID())
+  EventPrincipal::get(ProductID oid) const {
+    if (oid == ProductID())
       throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
-	<< "Event::get by product ID: invalid EDP_ID supplied";
+	<< "Event::get by product ID: invalid ProductID supplied";
 
-    // Remember that the object in slot 0 has EDP_ID of 1.
-    unsigned long slotNumber = oid-1;
+    unsigned long slotNumber = oid.id_;
     if (slotNumber >= groups_.size())
       throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
 	<< "Event::get by product ID: no product with given id";
@@ -284,7 +285,7 @@ namespace edm {
     if (g.product()) return; // nothing to do.
     
     // must attempt to load from persistent store
-    BranchKey const& bk = g.productDescription().branchKey;
+    BranchKey const bk = BranchKey(g.productDescription());
     auto_ptr<EDProduct> edp(store_->get(bk));
 
     // Now fixup the Group
