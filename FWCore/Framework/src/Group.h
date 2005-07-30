@@ -6,7 +6,7 @@
 Group: A collection of information related to a single EDProduct. This
 is the storage unit of such information.
 
-$Id: Group.h,v 1.3 2005/07/14 22:50:53 wmtan Exp $
+$Id: Group.h,v 1.4 2005/07/25 03:58:34 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -42,7 +42,7 @@ namespace edm {
 
     ProductDescription const& productDescription() const { return provenance_->product; }
 
-    void setID(EDP_ID id);
+    void setID(ProductID id);
 
     // The following is const because we can add an EDProduct to the
     // cache after creation of the Group, without changing the meaning
