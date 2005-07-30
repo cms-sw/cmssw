@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id: eventprincipal_t.cppunit.cc,v 1.4 2005/07/21 17:25:38 wmtan Exp $
+$Id: eventprincipal_t.cppunit.cc,v 1.5 2005/07/26 04:42:28 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <cassert>
@@ -13,8 +13,11 @@ $Id: eventprincipal_t.cppunit.cc,v 1.4 2005/07/21 17:25:38 wmtan Exp $
 #include <typeinfo>
 
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/EDProduct/interface/EDP_ID.h"
+#include "FWCore/EDProduct/interface/ProductID.h"
 #include "FWCore/Framework/interface/BasicHandle.h"
+#include "FWCore/Services/src/EmptyInputService.h"
+#include "FWCore/Framework/interface/ProductRegistry.h"
+#include "FWCore/Framework/interface/ProductDescription.h"
 #include "FWCore/EDProduct/interface/Wrapper.h"
 #include "FWCore/Framework/interface/Selector.h"
 #include "FWCore/Framework/src/TypeID.h"
@@ -59,7 +62,7 @@ void testeventprincipal::failgetbyIdTest()
   ep.addToProcessHistory("PROD");
   try
     {
-      edm::EDP_ID id(1);
+      edm::ProductID id;
       handle h = ep.get(id);
       assert("Failed to throw required exception" == 0);
     }
@@ -140,9 +143,6 @@ void testeventprincipal::failgetManyTest()
 
 void testeventprincipal::failgetbyInvalidIdTest()
 {
-  edm::EventPrincipal ep;
-  ep.addToProcessHistory("PROD");
-
   typedef edmtest::DummyProduct DP;
   typedef edm::Wrapper<DP> WDP;
   DP * pr = new DP;
@@ -159,12 +159,21 @@ void testeventprincipal::failgetbyInvalidIdTest()
   pprov->product.module.module_label = label;
   pprov->product.module.process_name = processName;
   pprov->product.init();
+
+  edm::ProductRegistry preg;
+  preg.addProduct(pprov->product);
+  edm::CollisionID col(1L);
+  edm::FakeRetriever fake;
+  edm::EventPrincipal ep(col, fake, preg);
+  ep.addToProcessHistory("PROD");
+
   ep.put(pprod, pprov);
-  edm::EDP_ID id(1);
+
+  edm::ProductID id;
 
   try
     {
-      handle h = ep.get(id-1);
+      handle h = ep.get(id);
       assert("Failed to throw required exception" == 0);      
     }
   catch (edm::Exception& x)
@@ -181,8 +190,6 @@ void testeventprincipal::failgetbyInvalidIdTest()
 void testeventprincipal::getbyIdTest()
 {
   std::string processName = "PROD";
-  edm::EventPrincipal ep;
-  ep.addToProcessHistory(processName);
 
   typedef edmtest::DummyProduct DP;
   typedef edm::Wrapper<DP> WDP;
@@ -200,9 +207,17 @@ void testeventprincipal::getbyIdTest()
   pprov->product.module.module_label = label;
   pprov->product.module.process_name = processName;
   pprov->product.init();
+
+  edm::ProductRegistry preg;
+  preg.addProduct(pprov->product);
+  edm::CollisionID col(1L);
+  edm::FakeRetriever fake;
+  edm::EventPrincipal ep(col, fake, preg);
+  ep.addToProcessHistory("PROD");
+
   ep.put(pprod, pprov);
 
-  edm::EDP_ID id(1);
+  edm::ProductID id(0);
   
   try
     {
@@ -224,9 +239,7 @@ void testeventprincipal::getbyIdTest()
 
 void testeventprincipal::getbyLabelTest()
 {
-  edm::EventPrincipal ep;
   std::string processName = "PROD";
-  ep.addToProcessHistory(processName);
 
   typedef edmtest::DummyProduct DP;
   typedef edm::Wrapper<DP> WDP;
@@ -248,6 +261,14 @@ void testeventprincipal::getbyLabelTest()
   pprov->product.product_instance_name = productInstanceName;
   pprov->product.module.process_name = processName;
   pprov->product.init();
+
+  edm::ProductRegistry preg;
+  preg.addProduct(pprov->product);
+  edm::CollisionID col(1L);
+  edm::FakeRetriever fake;
+  edm::EventPrincipal ep(col, fake, preg);
+  ep.addToProcessHistory("PROD");
+
   ep.put(pprod, pprov);
   
   try
@@ -275,9 +296,7 @@ void testeventprincipal::getbyLabelTest()
 
 void testeventprincipal::getbySelectorTest()
 {
-  edm::EventPrincipal ep;
   std::string processName("PROD");
-  ep.addToProcessHistory(processName);
 
   typedef edmtest::DummyProduct DP;
   typedef edm::Wrapper<DP> WDP;
@@ -296,6 +315,14 @@ void testeventprincipal::getbySelectorTest()
   pprov->product.module.module_label = label;
   pprov->product.module.process_name = processName;
   pprov->product.init();
+
+  edm::ProductRegistry preg;
+  preg.addProduct(pprov->product);
+  edm::CollisionID col(1L);
+  edm::FakeRetriever fake;
+  edm::EventPrincipal ep(col, fake, preg);
+  ep.addToProcessHistory("PROD");
+
   ep.put(pprod, pprov);
 
   try
