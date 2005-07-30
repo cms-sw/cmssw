@@ -6,7 +6,7 @@
 Provenance: The full description of a product and how it came into
 existence.
 
-$Id: Provenance.h,v 1.10 2005/07/26 04:42:28 wmtan Exp $
+$Id: Provenance.h,v 1.11 2005/07/30 04:33:03 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <ostream>
 #include <vector>
@@ -38,7 +38,7 @@ namespace edm {
     ~Provenance() {}
 
     ProductDescription product;
-    ProductID product_id;
+    ProductID productID_;
 
     // The EDProduct IDs of the parents
     std::vector<ProductID> parents;

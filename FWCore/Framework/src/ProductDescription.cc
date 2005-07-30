@@ -2,28 +2,26 @@
 
 /*----------------------------------------------------------------------
 
-$Id: ProductDescription.cc,v 1.5 2005/07/27 04:39:23 wmtan Exp $
+$Id: ProductDescription.cc,v 1.6 2005/07/30 04:42:49 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 namespace edm {
   ProductDescription::ProductDescription() :
     module(),
-    product_id(),
-    full_product_type_name(),
-    friendly_product_type_name(),
-    product_instance_name(),
-    group(0)
+    productID_(),
+    fullClassName_(),
+    friendlyClassName_(),
+    productInstanceName_()
   { }
 
   ProductDescription::ProductDescription(ModuleDescription const& md,
       std::string const& name, std::string const& fName, std::string const& pin) :
     module(md),
-    product_id(),
-    full_product_type_name(name),
-    friendly_product_type_name(fName),
-    product_instance_name(pin),
-    group(0) {
+    productID_(),
+    fullClassName_(name),
+    friendlyClassName_(fName),
+    productInstanceName_(pin) {
       init();
     }
 
@@ -33,17 +31,17 @@ namespace edm {
     char const period('.');
     std::string const prod("PROD");
 
-    if (module.process_name == prod) {
-      if (product_instance_name.empty()) {
-        branchName = friendly_product_type_name + underscore + module.module_label + period;
+    if (module.processName_ == prod) {
+      if (productInstanceName_.empty()) {
+        branchName_ = friendlyClassName_ + underscore + module.moduleLabel_ + period;
         return;
       }
-      branchName = friendly_product_type_name + underscore + module.module_label + underscore +
-        product_instance_name + period;
+      branchName_ = friendlyClassName_ + underscore + module.moduleLabel_ + underscore +
+        productInstanceName_ + period;
       return;
     }
-    branchName = friendly_product_type_name + underscore + module.module_label + underscore +
-      product_instance_name + underscore + module.process_name + period;
+    branchName_ = friendlyClassName_ + underscore + module.moduleLabel_ + underscore +
+      productInstanceName_ + underscore + module.processName_ + period;
   }
 
   void
@@ -53,15 +51,15 @@ namespace edm {
 
   bool
   ProductDescription::operator<(ProductDescription const& rh) const {
-    if (friendly_product_type_name < rh.friendly_product_type_name) return true;
-    if (rh.friendly_product_type_name < friendly_product_type_name) return false;
-    if (product_instance_name < rh.product_instance_name) return true;
-    if (rh.product_instance_name < product_instance_name) return false;
+    if (friendlyClassName_ < rh.friendlyClassName_) return true;
+    if (rh.friendlyClassName_ < friendlyClassName_) return false;
+    if (productInstanceName_ < rh.productInstanceName_) return true;
+    if (rh.productInstanceName_ < productInstanceName_) return false;
     if (module < rh.module) return true;
     if (rh.module < module) return false;
-    if (full_product_type_name < rh.full_product_type_name) return true;
-    if (rh.full_product_type_name < full_product_type_name) return false;
-    if (product_id < rh.product_id) return true;
+    if (fullClassName_ < rh.fullClassName_) return true;
+    if (rh.fullClassName_ < fullClassName_) return false;
+    if (productID_ < rh.productID_) return true;
     return false;
   }
 

@@ -1,4 +1,4 @@
-// $Id: GroupSelector.cc,v 1.9 2005/07/21 16:47:32 wmtan Exp $
+// $Id: GroupSelector.cc,v 1.10 2005/07/26 23:10:51 wmtan Exp $
 #include "FWCore/Framework/interface/ProductDescription.h"
 #include "FWCore/Framework/interface/GroupSelector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -12,7 +12,7 @@ namespace edm {
   }
 
   bool GroupSelector::selected(ProductDescription const& desc) const {
-      SelectMap::const_iterator s = select_.find(desc.module.module_label);
+      SelectMap::const_iterator s = select_.find(desc.module.moduleLabel_);
       bool const sel = selectAllGroups_ ?
 	s == select_.end() || s->second : // select all branches, except those marked "select == false"
 	s != select_.end() && s->second;  // select only branches marked "select == true"

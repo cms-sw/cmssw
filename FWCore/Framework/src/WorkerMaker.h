@@ -54,10 +54,10 @@ namespace edm {
     const ParameterSet& conf = *p.pset_;
     ModuleDescription md;
     md.pid = PS_ID("oink"); // conf.id();
-    md.module_name = conf.template getParameter<std::string>("module_type");
-    md.module_label = conf.template getParameter<std::string>("module_label");
-    md.version_number = p.version_number_;
-    md.process_name = p.process_name_;;
+    md.moduleName_ = conf.template getParameter<std::string>("module_type");
+    md.moduleLabel_ = conf.template getParameter<std::string>("module_label");
+    md.versionNumber_ = p.versionNumber__;
+    md.processName_ = p.processName_;;
     md.pass = p.pass_; 
 
     std::auto_ptr<ModuleType> module(worker_type::template makeOne<UserType>(md,p));

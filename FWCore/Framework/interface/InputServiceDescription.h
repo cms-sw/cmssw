@@ -6,7 +6,7 @@
 InputServiceDescription : the stuff that is needed to configure an
 input service that does not come in through the ParameterSet  
 
-$Id: InputServiceDescription.h,v 1.3 2005/07/21 20:45:47 argiro Exp $
+$Id: InputServiceDescription.h,v 1.4 2005/07/23 05:19:44 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <string>
 #include "FWCore/Framework/interface/PassID.h"
@@ -15,16 +15,16 @@ namespace edm {
   class ProductRegistry;
 
   struct InputServiceDescription {
-    InputServiceDescription() : process_name(), pass(), preg_(0) { }
+    InputServiceDescription() : processName_(), pass(), preg_(0) { }
     InputServiceDescription(std::string const& name, PassID pid, 
 			    ProductRegistry& preg) :
-      process_name(name),
+      processName_(name),
       pass(pid),
       preg_(&preg)
 	 
     {}
 
-    std::string const process_name;
+    std::string const processName_;
     PassID      pass;
     ProductRegistry * preg_;
   };

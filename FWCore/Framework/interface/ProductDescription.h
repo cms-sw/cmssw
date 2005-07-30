@@ -6,7 +6,7 @@
 ProductDescription: The full description of a product and how it came into
 existence.
 
-$Id: ProductDescription.h,v 1.6 2005/07/27 04:35:52 wmtan Exp $
+$Id: ProductDescription.h,v 1.7 2005/07/30 04:34:18 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <ostream>
 #include <string>
@@ -35,22 +35,20 @@ namespace edm {
 
     ModuleDescription module;
 
-    ProductID product_id;
+    ProductID productID_;
 
     // the full name of the type of product this is
-    std::string full_product_type_name;
+    std::string fullClassName_;
 
     // a readable name of the type of product this is
-    std::string friendly_product_type_name;
+    std::string friendlyClassName_;
 
     // a user-supplied name to distinguish multiple products of the same type
     // that are produced by the same producer
-    std::string product_instance_name;
+    std::string productInstanceName_;
     // the last of these is not in the roadmap, but is on the board
 
-    mutable std::string branchName;
-
-    mutable Group *group;
+    mutable std::string branchName_;
 
     void init() const;
 

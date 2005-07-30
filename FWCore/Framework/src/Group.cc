@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: Group.cc,v 1.3 2005/07/14 22:50:53 wmtan Exp $
+$Id: Group.cc,v 1.4 2005/07/30 04:43:27 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/src/Group.h"
@@ -38,7 +38,7 @@ namespace edm
   Group::setID(ProductID id)
     {
       product_->setID(id);
-      provenance_->product_id = id;
+      provenance_->productID_ = id;
     }
 
   void 

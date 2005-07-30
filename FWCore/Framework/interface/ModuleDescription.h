@@ -5,7 +5,7 @@
   
 ModuleDescription: The description of a producer module.
 
-$Id: ModuleDescription.h,v 1.3 2005/07/20 03:00:36 jbk Exp $
+$Id: ModuleDescription.h,v 1.4 2005/07/26 23:12:02 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <string>
 #include <iostream>
@@ -24,19 +24,19 @@ namespace edm {
     PS_ID pid;
 
     // The class name of the creator
-    std::string module_name;    
+    std::string moduleName_;    
 
     // A human friendly string that uniquely identifies the EDProducer
     // and becomes part of the identity of a product that it produces
-    std::string module_label;
+    std::string moduleLabel_;
 
     // the release tag of the executable
-    VersionNumber version_number;
+    VersionNumber versionNumber_;
 
     // the physical process that this program was part of (e.g. production)
-    std::string process_name;
+    std::string processName_;
 
-    // what the heck is this? I think its the version of the process_name
+    // what the heck is this? I think its the version of the processName_
     // e.g. second production pass
     PassID pass;
 
@@ -47,9 +47,9 @@ namespace edm {
 
   inline
   std::ostream& operator<<(std::ostream& ost, const ModuleDescription& md) {
-    ost << "Module type=" << md.module_name << ", "
-	<< "Module label=" << md.module_label << ", "
-	<< "Process name=" << md.process_name;
+    ost << "Module type=" << md.moduleName_ << ", "
+	<< "Module label=" << md.moduleLabel_ << ", "
+	<< "Process name=" << md.processName_;
 
     return ost;
   }

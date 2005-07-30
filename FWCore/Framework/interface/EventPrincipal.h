@@ -15,7 +15,7 @@ through shared pointers.
 The EventPrincipal returns BasicHandle, rather than a shared
 pointer to a Group, when queried.
 
-$Id: EventPrincipal.h,v 1.6 2005/07/14 22:50:52 wmtan Exp $
+$Id: EventPrincipal.h,v 1.7 2005/07/30 04:36:47 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <map>
@@ -41,18 +41,18 @@ $Id: EventPrincipal.h,v 1.6 2005/07/14 22:50:52 wmtan Exp $
 
 namespace edm {
     
-  class EventPrincipal
-  {
+  class EventPrincipal {
   public:
     typedef std::vector<boost::shared_ptr<Group> > GroupVec;
     typedef GroupVec::const_iterator               const_iterator;
     typedef std::vector<std::string>               ProcessNameList;
-    typedef ProcessNameList::const_iterator        process_name_const_iterator;
+    typedef ProcessNameList::const_iterator        ProcessNameConstIterator;
     typedef boost::shared_ptr<Group>               SharedGroupPtr;
     typedef std::vector<BasicHandle>               BasicHandleVec;
     
     EventPrincipal();
-    EventPrincipal(CollisionID const& id, Retriever& r, ProductRegistry const& reg, ProcessNameList const& nl = ProcessNameList());
+    EventPrincipal(CollisionID const& id, Retriever& r, ProductRegistry const& reg,
+      ProcessNameList const& nl = ProcessNameList());
     ~EventPrincipal();
 
     CollisionID id() const;
@@ -81,11 +81,13 @@ namespace edm {
     const_iterator begin() const { return groups_.begin(); }
     const_iterator end() const { return groups_.end(); }
 
-    process_name_const_iterator beginProcess() const 
-    { return aux_.process_history_.begin(); }
+    ProcessNameConstIterator beginProcess() const {
+      return aux_.process_history_.begin();
+    }
 
-    process_name_const_iterator endProcess() const 
-    { return aux_.process_history_.end(); }
+    ProcessNameConstIterator endProcess() const {
+      return aux_.process_history_.end();
+    }
 
     const ProcessNameList& processHistory() const;    
 
@@ -113,14 +115,17 @@ namespace edm {
 
     // users need to vary the info in the BranchKey object
     // to store the output of different code versions for the
-    // same configured module (e.g. change process_name)
+    // same configured module (e.g. change processName_)
 
     // indices are to product/provenance slot
-    typedef std::map<BranchKey,int> BranchDict;
-    BranchDict labeled_dict_; // 1->1
+    typedef std::map<BranchKey, int> BranchDict;
+    BranchDict branchDict_; // 1->1
+
+    typedef std::map<ProductID, int> ProductDict;
+    ProductDict productDict_; // 1->1
 
     typedef std::map<std::string, std::vector<int> > TypeDict;
-    TypeDict type_dict_; // 1->many
+    TypeDict typeDict_; // 1->many
 
     // it is probably straightforward to load the BranchKey
     // dictionary above with information from the input source - 

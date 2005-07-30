@@ -6,7 +6,7 @@
 Event: This is the primary interface for accessing
 EDProducts from a single collision and inserting new derived products.
 
-$Id: Event.h,v 1.11 2005/07/14 22:50:52 wmtan Exp $
+$Id: Event.h,v 1.12 2005/07/30 04:37:13 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
@@ -119,11 +119,11 @@ namespace edm {
     // which they point.
     ProductPtrVec            put_products_;
 
-    // got_product_ids_ must be mutable because it records all 'gets',
-    // which do not logically modify the Event. got_product_ids_ is
+    // gotProductIDs_ must be mutable because it records all 'gets',
+    // which do not logically modify the Event. gotProductIDs_ is
     // merely a cache reflecting what has been retreived from the
     // EventPrincipal.
-    mutable ProductIDVec        got_product_ids_;
+    mutable ProductIDVec        gotProductIDs_;
 
     // Each Event must have an associated EventPrincipal, used as the
     // source of all 'gets' and the target of 'puts'.
@@ -184,7 +184,7 @@ namespace edm {
   Event::get(ProductID id, Handle<PROD>& result) const
   {
     BasicHandle bh = this->get_(TypeID(typeid(PROD)), id);
-    got_product_ids_.push_back(bh.id());
+    gotProductIDs_.push_back(bh.id());
     convert_handle(bh, result);  // thrown on conversion error
   }
 
@@ -194,7 +194,7 @@ namespace edm {
 	     Handle<PROD>& result) const
   {
     BasicHandle bh = this->get_(TypeID(typeid(PROD)),sel);
-    got_product_ids_.push_back(bh.id());
+    gotProductIDs_.push_back(bh.id());
     convert_handle(bh, result);  // thrown on conversion error
   }
   
@@ -214,7 +214,7 @@ namespace edm {
 		    Handle<PROD>& result) const
   {
     BasicHandle bh = this->getByLabel_(TypeID(typeid(PROD)), label, productInstanceName);
-    got_product_ids_.push_back(bh.id());
+    gotProductIDs_.push_back(bh.id());
     convert_handle(bh, result);  // thrown on conversion error
   }
 
@@ -228,7 +228,7 @@ namespace edm {
     
     // Go through the returned handles; for each element,
     //   1. create a Handle<PROD> and
-    //   2. record the ProductID in got_product_ids
+    //   2. record the ProductID in gotProductIDs
     //
     // This function presents an exception safety difficulty. If an
     // exception is thrown when converting a handle, the "got
@@ -246,7 +246,7 @@ namespace edm {
 
     while (it != end)
       {
-	got_product_ids_.push_back((*it).id());
+	gotProductIDs_.push_back((*it).id());
 	Handle<PROD> result;
 	convert_handle(*it, result);  // thrown on conversion error
 	products.push_back(result);

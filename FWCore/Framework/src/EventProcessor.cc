@@ -46,9 +46,9 @@ namespace edm {
   {
     CommonParams():version_(),pass_() { }
     CommonParams(const string& name,unsigned long ver,unsigned long pass):
-      process_name_(name),version_(ver),pass_(pass) { }
+      processName_(name),version_(ver),pass_(pass) { }
 
-    string                  process_name_;
+    string                  processName_;
     unsigned long           version_;
     unsigned long           pass_;
   };
@@ -69,7 +69,7 @@ namespace edm {
   {
     // find single source
     ParameterSet main_input = params_.getParameter<ParameterSet>("main_input");
-    InputServiceDescription isdesc(common.process_name_,common.pass_,preg);
+    InputServiceDescription isdesc(common.processName_,common.pass_,preg);
 
     boost::shared_ptr<InputService> input_
       (InputServiceFactory::get()->makeInputService(main_input, isdesc).release());
@@ -90,7 +90,7 @@ namespace edm {
         ParameterSet providerPSet = params_.getParameter<ParameterSet>(*itName);
         ModuleFactory::get()->addTo(cp, 
                                      providerPSet, 
-                                     common.process_name_, 
+                                     common.processName_, 
                                      common.version_, 
                                      common.pass_);
      }
@@ -102,7 +102,7 @@ namespace edm {
         ParameterSet providerPSet = params_.getParameter<ParameterSet>(*itName);
         SourceFactory::get()->addTo(cp, 
                                      providerPSet, 
-                                     common.process_name_, 
+                                     common.processName_, 
                                      common.version_, 
                                      common.pass_);
      }

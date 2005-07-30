@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: ProducerWorker.cc,v 1.8 2005/07/22 23:51:51 wmtan Exp $
+$Id: ProducerWorker.cc,v 1.9 2005/07/26 04:42:28 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/src/ProducerWorker.h"
@@ -32,7 +32,7 @@ namespace edm
     EDProducer::TypeLabelList const& plist= producer_->getTypeLabelList();
     if (plist.empty()) {
       throw edm::Exception(errors::NoProductSpecified,"Producer")
-        << "Module " << md.module_name
+        << "Module " << md.moduleName_
         << " did not specify that it produces a product.\n"
         << "The module constructor must call 'produces<T>(instanceName)'"
         << " for each product it produces.\nT is the product type.\n"

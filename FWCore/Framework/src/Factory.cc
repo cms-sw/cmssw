@@ -47,7 +47,7 @@ namespace edm {
 	if(wm.get()==0)
 	  throw edm::Exception(errors::Configuration,"UnknownModule")
 	    << "Module " << modtype
-	    << " with version " << p.version_number_
+	    << " with version " << p.versionNumber__
 	    << " was not registered.\n"
 	    << "Perhaps your module type is mispelled or is not a "
 	    << "framework plugin.\n"
