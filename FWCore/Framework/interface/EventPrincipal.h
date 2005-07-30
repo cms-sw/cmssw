@@ -15,7 +15,7 @@ through shared pointers.
 The EventPrincipal returns BasicHandle, rather than a shared
 pointer to a Group, when queried.
 
-$Id: EventPrincipal.h,v 1.5 2005/07/11 21:55:14 wmtan Exp $
+$Id: EventPrincipal.h,v 1.6 2005/07/14 22:50:52 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <map>
@@ -28,7 +28,7 @@ $Id: EventPrincipal.h,v 1.5 2005/07/11 21:55:14 wmtan Exp $
 
 #include "FWCore/Framework/interface/BranchKey.h"
 #include "FWCore/EDProduct/interface/CollisionID.h"
-#include "FWCore/EDProduct/interface/EDP_ID.h"
+#include "FWCore/EDProduct/interface/ProductID.h"
 #include "FWCore/EDProduct/interface/EDProduct.h"
 #include "FWCore/Framework/interface/EventAux.h"
 #include "FWCore/Framework/interface/BasicHandle.h"
@@ -52,7 +52,7 @@ namespace edm {
     typedef std::vector<BasicHandle>               BasicHandleVec;
     
     EventPrincipal();
-    EventPrincipal(const CollisionID& id, Retriever& r, const ProcessNameList& nl = ProcessNameList());
+    EventPrincipal(CollisionID const& id, Retriever& r, ProductRegistry const& reg, ProcessNameList const& nl = ProcessNameList());
     ~EventPrincipal();
 
     CollisionID id() const;
@@ -64,7 +64,7 @@ namespace edm {
     void put(std::auto_ptr<EDProduct> edp,
 	     std::auto_ptr<Provenance> prov);
 
-    BasicHandle  get(EDP_ID oid) const;
+    BasicHandle  get(ProductID oid) const;
 
     BasicHandle  getBySelector(TypeID id, const Selector& s) const;
 
@@ -93,7 +93,7 @@ namespace edm {
 
     void put(std::auto_ptr<Provenance> prov, bool accessible);
 
-    const Provenance* getProvenance(EDP_ID id) const;
+    const Provenance* getProvenance(ProductID id) const;
 
 
     // ----- Add a new Group
@@ -108,7 +108,7 @@ namespace edm {
   private:
     EventAux aux_;	// persistent
 
-    // EDP_ID is the index into these vectors
+    // ProductID is the index into these vectors
     GroupVec groups_; // products and provenances are persistent
 
     // users need to vary the info in the BranchKey object
@@ -148,6 +148,10 @@ namespace edm {
     // Pointer to the 'service' that will be used to obtain EDProducts
     // from the persistent store.
     Retriever* store_;
+
+    // Pointer to the product registry. There is one entry in the registry
+    // for each EDProduct in the event.
+    ProductRegistry const* preg_;
 
     // Make my Retriever get the EDProduct for a Group.  The Group is
     // a cache, and so can be modified through the const reference.

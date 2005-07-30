@@ -19,7 +19,7 @@ Handles can have:
 
 To check validity, one can use the isValid() function.
 
-$Id: Handle.h,v 1.7 2005/07/14 22:50:52 wmtan Exp $
+$Id: Handle.h,v 1.9 2005/07/21 18:26:03 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -30,6 +30,7 @@ $Id: Handle.h,v 1.7 2005/07/14 22:50:52 wmtan Exp $
 #include "boost/utility/enable_if.hpp"
 #include "boost/type_traits.hpp"
 
+#include "FWCore/EDProduct/interface/ProductID.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/BasicHandle.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -45,7 +46,7 @@ namespace edm
 
     Handle(const Handle<T>& h);
 
-    Handle(T const* prod, Provenance const* prov, EDP_ID id);
+    Handle(T const* prod, Provenance const* prov, ProductID id);
 
     ~Handle();
 
@@ -62,12 +63,12 @@ namespace edm
 
     Provenance const* provenance() const;
 
-    EDP_ID id() const;
+    ProductID id() const;
 
   private:
     T const* prod_;
     Provenance const* prov_;    
-    EDP_ID id_;
+    ProductID id_;
   };
 
   template <class T>
@@ -85,14 +86,14 @@ namespace edm
   { }
 
   template <class T>
-  Handle<T>::Handle(T const* product, Provenance const* prov, EDP_ID id) :
+  Handle<T>::Handle(T const* product, Provenance const* prov, ProductID id) :
     prod_(product),
     prov_(prov),
     id_(id)
     { 
       assert(prod_);
       assert(prov_);
-      assert(id_);
+      assert(id_ != ProductID());
     }
 
   template <class T>
@@ -157,7 +158,7 @@ namespace edm
   }
 
   template <class T>
-  EDP_ID 
+  ProductID 
   Handle<T>::id() const
   {
     return id_;

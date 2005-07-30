@@ -5,7 +5,7 @@
   
 Forward declarations of types in the EDM.
 
-$Id: Frameworkfwd.h,v 1.3 2005/07/26 23:12:53 wmtan Exp $
+$Id: Frameworkfwd.h,v 1.4 2005/07/27 04:36:26 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -33,6 +33,7 @@ namespace edm
   class ParameterSet;
   class ProcessNameSelector;
   class ProductDescription;
+  class ProductID;
   class ProductRegistry;
   class Provenance;
   class PS_ID;
@@ -53,7 +54,6 @@ namespace edm
 // The following are trivial enough so that the real headers can be included.
 #include "FWCore/EDProduct/interface/CollisionID.h"
 #include "FWCore/Framework/interface/ConditionsID.h"
-#include "FWCore/EDProduct/interface/EDP_ID.h"
 #include "FWCore/Framework/interface/PassID.h"
 #include "FWCore/Framework/interface/VersionNumber.h"
 

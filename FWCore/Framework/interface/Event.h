@@ -6,7 +6,7 @@
 Event: This is the primary interface for accessing
 EDProducts from a single collision and inserting new derived products.
 
-$Id: Event.h,v 1.10 2005/07/11 21:55:14 wmtan Exp $
+$Id: Event.h,v 1.11 2005/07/14 22:50:52 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
@@ -49,7 +49,7 @@ namespace edm {
 
     template <class PROD>
     void 
-    get(EDP_ID id, Handle<PROD>& result) const;
+    get(ProductID id, Handle<PROD>& result) const;
 
     template <class PROD>
     void 
@@ -67,10 +67,10 @@ namespace edm {
     void 
     getMany(const Selector&, std::vector<Handle<PROD> >& results) const;
 
-    const Provenance* get(EDP_ID id) const;
+    const Provenance* get(ProductID id) const;
 
   private:
-    typedef std::vector<EDP_ID>       EDP_IDVec;
+    typedef std::vector<ProductID>       ProductIDVec;
     //typedef std::vector<const Group*> GroupPtrVec;
     typedef std::vector<std::pair<EDProduct*, std::string> >   ProductPtrVec;
     typedef std::vector<BasicHandle>  BasicHandleVec;    
@@ -89,7 +89,7 @@ namespace edm {
     // from the EventPrincipal class.
 
     BasicHandle 
-    get_(EDP_ID oid) const;
+    get_(ProductID oid) const;
 
     BasicHandle 
     get_(TypeID id, const Selector&) const;
@@ -123,7 +123,7 @@ namespace edm {
     // which do not logically modify the Event. got_product_ids_ is
     // merely a cache reflecting what has been retreived from the
     // EventPrincipal.
-    mutable EDP_IDVec        got_product_ids_;
+    mutable ProductIDVec        got_product_ids_;
 
     // Each Event must have an associated EventPrincipal, used as the
     // source of all 'gets' and the target of 'puts'.
@@ -181,7 +181,7 @@ namespace edm {
 
   template <class PROD>
   void
-  Event::get(EDP_ID id, Handle<PROD>& result) const
+  Event::get(ProductID id, Handle<PROD>& result) const
   {
     BasicHandle bh = this->get_(TypeID(typeid(PROD)), id);
     got_product_ids_.push_back(bh.id());
@@ -228,7 +228,7 @@ namespace edm {
     
     // Go through the returned handles; for each element,
     //   1. create a Handle<PROD> and
-    //   2. record the EDP_ID in got_product_ids
+    //   2. record the ProductID in got_product_ids
     //
     // This function presents an exception safety difficulty. If an
     // exception is thrown when converting a handle, the "got

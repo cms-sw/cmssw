@@ -6,13 +6,13 @@
 Provenance: The full description of a product and how it came into
 existence.
 
-$Id: Provenance.h,v 1.9 2005/07/21 16:47:31 wmtan Exp $
+$Id: Provenance.h,v 1.10 2005/07/26 04:42:28 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <ostream>
 #include <vector>
 
 #include "FWCore/Framework/interface/ConditionsID.h"
-#include "FWCore/EDProduct/interface/EDP_ID.h"
+#include "FWCore/EDProduct/interface/ProductID.h"
 #include "FWCore/Framework/interface/ProductDescription.h"
 
 /*
@@ -38,10 +38,10 @@ namespace edm {
     ~Provenance() {}
 
     ProductDescription product;
-    EDP_ID product_id;
+    ProductID product_id;
 
     // The EDProduct IDs of the parents
-    std::vector<EDP_ID> parents;
+    std::vector<ProductID> parents;
 
     // a single identifier that describes all the conditions used
     ConditionsID cid; // frame ID?
