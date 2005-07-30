@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EventPrincipal.cc,v 1.16 2005/07/26 04:42:28 wmtan Exp $
+$Id: EventPrincipal.cc,v 1.17 2005/07/30 04:45:46 wmtan Exp $
 ----------------------------------------------------------------------*/
 //#include <iostream>
 #include <memory>
@@ -17,8 +17,8 @@ namespace edm {
   EventPrincipal::EventPrincipal() :
     aux_(),
     groups_(),
-    labeled_dict_(),
-    type_dict_(),
+    branchDict_(),
+    typeDict_(),
     store_(0),
     preg_(0)
   {
@@ -28,8 +28,8 @@ namespace edm {
 	 Retriever& r, ProductRegistry const& reg, ProcessNameList const& nl) :
     aux_(id),
     groups_(),
-    labeled_dict_(),
-    type_dict_(),
+    branchDict_(),
+    typeDict_(),
     store_(&r),
     preg_(&reg)
   {
@@ -47,26 +47,25 @@ namespace edm {
 
   void 
   EventPrincipal::addGroup(auto_ptr<Group> group) {
-    assert (!group->productDescription().full_product_type_name.empty());
-    assert (!group->productDescription().friendly_product_type_name.empty());
-    assert (!group->productDescription().module.module_label.empty());
-    assert (!group->productDescription().module.process_name.empty());
+    assert (!group->productDescription().fullClassName_.empty());
+    assert (!group->productDescription().friendlyClassName_.empty());
+    assert (!group->productDescription().module.moduleLabel_.empty());
+    assert (!group->productDescription().module.processName_.empty());
     SharedGroupPtr g(group);
 
     BranchKey const bk = BranchKey(g->productDescription());
-    //cerr << "addGroup DEBUG 2---> " << bk.friendly_class_name << endl;
+    //cerr << "addGroup DEBUG 2---> " << bk.friendlyClassName_ << endl;
     //cerr << "addGroup DEBUG 3---> " << bk << endl;
 
-
-    if (labeled_dict_.find(bk) != labeled_dict_.end()) {
+    if (branchDict_.find(bk) != branchDict_.end()) {
 	// the products are lost at this point!
 	throw edm::Exception(edm::errors::InsertFailure,"AlreadyPresent")
 	  << "addGroup: Problem found while adding product provanence, "
 	  << "product already exists for ("
-	  << bk.friendly_class_name << ","
-          << bk.module_label << ","
-          << bk.product_instance_name << ","
-          << bk.process_name
+	  << bk.friendlyClassName_ << ","
+          << bk.moduleLabel_ << ","
+          << bk.productInstanceName_ << ","
+          << bk.processName_
 	  << ")";
     }
 
@@ -75,15 +74,16 @@ namespace edm {
     // we do not have any rollback capabilities as products 
     // and the indices are updated
 
+    unsigned long slotNumber = groups_.size();
     groups_.push_back(g);
 
-    unsigned long slotNumber = g->productDescription().product_id.id_;
+    branchDict_[bk] = slotNumber;
 
-    labeled_dict_[bk] = slotNumber;
+    productDict_[g->productDescription().productID_] = slotNumber;
 
-    //cerr << "addGroup DEBUG 4---> " << bk.friendly_class_name << endl;
+    //cerr << "addGroup DEBUG 4---> " << bk.friendlyClassName_ << endl;
 
-    vector<int>& vint = type_dict_[bk.friendly_class_name];
+    vector<int>& vint = typeDict_[bk.friendlyClassName_];
 
     vint.push_back(slotNumber);
   }
@@ -105,9 +105,18 @@ namespace edm {
     ProductRegistry::ProductList const& pl = preg_->productList();
     BranchKey const bk(prov->product);
     ProductRegistry::ProductList::const_iterator it = pl.find(bk);
-    assert (it != pl.end());
-    prov->product.product_id = it->second.product_id;
-    ProductID id = it->second.product_id;
+    if (it == pl.end()) {
+	throw edm::Exception(edm::errors::InsertFailure,"Not Registered")
+	  << "put: Problem found while adding product. "
+	  << "No product is registered for ("
+	  << bk.friendlyClassName_ << ","
+          << bk.moduleLabel_ << ","
+          << bk.productInstanceName_ << ","
+          << bk.processName_
+	  << ")";
+    }
+    prov->product.productID_ = it->second.productID_;
+    ProductID id = it->second.productID_;
     // Group assumes ownership
     auto_ptr<Group> g(new Group(edp, prov));
     g->setID(id);
@@ -120,10 +129,14 @@ namespace edm {
       throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
 	<< "Event::get by product ID: invalid ProductID supplied";
 
-    unsigned long slotNumber = oid.id_;
-    if (slotNumber >= groups_.size())
+    ProductDict::const_iterator i = productDict_.find(oid);
+    if (i == productDict_.end()) {
       throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
 	<< "Event::get by product ID: no product with given id";
+    }
+
+    unsigned long slotNumber = i->second;
+    assert(slotNumber < groups_.size());
 
     SharedGroupPtr const& g = groups_[slotNumber];
     this->resolve_(*g);
@@ -133,9 +146,9 @@ namespace edm {
   BasicHandle
   EventPrincipal::getBySelector(TypeID id, 
 				Selector const& sel) const {
-    TypeDict::const_iterator i = type_dict_.find(id.friendlyClassName());
+    TypeDict::const_iterator i = typeDict_.find(id.friendlyClassName());
 
-    if(i==type_dict_.end()) {
+    if(i==typeDict_.end()) {
 	// TODO: Perhaps stuff like this should go to some error
 	// logger?  Or do we want huge message inside the exception
 	// that is thrown?
@@ -145,12 +158,12 @@ namespace edm {
 	err << "We are looking for: '"
 	     << id
 	     << "'\n";
-	if (type_dict_.empty()) {
-	    err << "type_dict_ is empty!\n";
+	if (typeDict_.empty()) {
+	    err << "typeDict_ is empty!\n";
 	} else {
 	    err << "We found only the following:\n";
-	    TypeDict::const_iterator i = type_dict_.begin();
-	    TypeDict::const_iterator e = type_dict_.end();
+	    TypeDict::const_iterator i = typeDict_.begin();
+	    TypeDict::const_iterator e = typeDict_.end();
 	    while (i != e) {
 		err << "...\t" << i->first << '\n';
 		++i;
@@ -219,11 +232,11 @@ namespace edm {
     ProcessNameList::const_reverse_iterator iproc = aux_.process_history_.rbegin();
     ProcessNameList::const_reverse_iterator eproc = aux_.process_history_.rend();
     while (iproc != eproc) {
-	string const& process_name = *iproc;
-	BranchKey bk(id, label, productInstanceName, process_name);
-	BranchDict::const_iterator i = labeled_dict_.find(bk);
+	string const& processName_ = *iproc;
+	BranchKey bk(id, label, productInstanceName, processName_);
+	BranchDict::const_iterator i = branchDict_.find(bk);
 
-	if (i != labeled_dict_.end()) {
+	if (i != branchDict_.end()) {
 	    // We found what we want.
             assert(i->second >= 0);
             assert(unsigned(i->second) < groups_.size());
@@ -248,9 +261,9 @@ namespace edm {
     // We make no promise that the input 'fill_me_up' is unchanged if
     // an exception is thrown. If such a promise is needed, then more
     // care needs to be taken.
-    TypeDict::const_iterator i = type_dict_.find(id.friendlyClassName());
+    TypeDict::const_iterator i = typeDict_.find(id.friendlyClassName());
 
-    if(i==type_dict_.end()) {
+    if(i==typeDict_.end()) {
 	throw edm::Exception(errors::ProductNotFound,"NoMatch")
 	  << "getMany: no products found of correct type " << id;
     }
