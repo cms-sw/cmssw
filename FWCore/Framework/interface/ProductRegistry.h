@@ -3,7 +3,8 @@
    Implementation of ProductRegistry
 
    \author Stefano ARGIRO
-   \version $Id: ProductRegistry.h,v 1.5 2005/07/27 04:33:23 wmtan Exp $
+   \co-author Bill Tanenbaum
+   \version $Id: ProductRegistry.h,v 1.6 2005/07/27 23:39:11 wmtan Exp $
    \date 19 Jul 2005
 */
 
@@ -11,10 +12,10 @@
 #define Framework_ProductRegistry_h
 
 static const char CVSId_edm_ProductRegistry[] = 
-"$Id: ProductRegistry.h,v 1.5 2005/07/27 04:33:23 wmtan Exp $";
+"$Id: ProductRegistry.h,v 1.6 2005/07/27 23:39:11 wmtan Exp $";
 
-#include <FWCore/Framework/interface/ProductDescription.h>
-#include <vector>
+#include "FWCore/Framework/interface/BranchKey.h"
+#include "FWCore/Framework/interface/ProductDescription.h"
 namespace edm {
 
   /**
@@ -23,16 +24,17 @@ namespace edm {
      \brief 
 
      \author Stefano ARGIRO
+     \co-author Bill Tanenbaum
      \date 19 Jul 2005
   */
   class ProductRegistry {
 
   public:
-    ProductRegistry() : productList_(), nextID_(0), sorted_(false) {}
+    ProductRegistry() : productList_(), nextID_(0) {}
 
     ~ProductRegistry() {}
   
-    typedef std::vector<ProductDescription> ProductList;
+    typedef std::map<BranchKey, ProductDescription> ProductList;
 
     void addProduct(ProductDescription& productdesc);
 
@@ -40,20 +42,16 @@ namespace edm {
 
     ProductList const& productList() const {return productList_;}
     
-    void sort() {
-      if(sorted_) return;
-      reallySort();
-    }
+    unsigned long nextID() const {return nextID_;}
+
+    void setNextID(unsigned long next) {nextID_ = next;}
 
   private:
-    void reallySort() ;
-
     ProductList productList_;
     unsigned long nextID_;
-    bool sorted_;
   };
 } // edm
 
 
-#endif // _edm_ProductRegistry_h_
+#endif
 
