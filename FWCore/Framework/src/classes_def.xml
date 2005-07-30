@@ -6,10 +6,10 @@
  <class name="std::map<edm::BranchKey, edm::ProductDescription>"/>
  <class name="edm::BranchKey"/>
  <class name="edm::Provenance"/>
+ <class name="std::vector<edm::ProductID>"/>
  <class name="edm::ModuleDescription"/>
  <class name="edm::ProductDescription">
    <field name="branchName" transient="true"/>
-   <field name="group" transient="true"/>
  </class>
  <class name="edm::PS_ID"/>
  <class name="edmtest::DummyProduct"/>
