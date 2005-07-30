@@ -2,7 +2,7 @@
 
 /*----------------------------------------------------------------------
 
-$Id: ProductDescription.cc,v 1.4 2005/07/26 23:09:40 wmtan Exp $
+$Id: ProductDescription.cc,v 1.5 2005/07/27 04:39:23 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -13,7 +13,6 @@ namespace edm {
     full_product_type_name(),
     friendly_product_type_name(),
     product_instance_name(),
-    branchKey(),
     group(0)
   { }
 
@@ -24,16 +23,12 @@ namespace edm {
     full_product_type_name(name),
     friendly_product_type_name(fName),
     product_instance_name(pin),
-    branchKey(),
     group(0) {
       init();
     }
 
   void
   ProductDescription::init() const {
-    branchKey = BranchKey(friendly_product_type_name, module.module_label,
-       product_instance_name, module.process_name); 
-
     char const underscore('_');
     char const period('.');
     std::string const prod("PROD");

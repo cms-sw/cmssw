@@ -6,14 +6,13 @@
 ProductDescription: The full description of a product and how it came into
 existence.
 
-$Id: ProductDescription.h,v 1.5 2005/07/26 23:11:23 wmtan Exp $
+$Id: ProductDescription.h,v 1.6 2005/07/27 04:35:52 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <ostream>
 #include <string>
 
 #include "FWCore/EDProduct/interface/ProductID.h"
 #include "FWCore/Framework/interface/ModuleDescription.h"
-#include "FWCore/Framework/interface/BranchKey.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 /*
@@ -48,8 +47,6 @@ namespace edm {
     // that are produced by the same producer
     std::string product_instance_name;
     // the last of these is not in the roadmap, but is on the board
-
-    mutable BranchKey branchKey;
 
     mutable std::string branchName;
 
