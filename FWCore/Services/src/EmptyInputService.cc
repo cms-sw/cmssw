@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EmptyInputService.cc,v 1.7 2005/07/14 21:34:44 wmtan Exp $
+$Id: EmptyInputService.cc,v 1.8 2005/07/23 05:53:33 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <stdexcept>
@@ -39,7 +39,7 @@ namespace edm {
     std::auto_ptr<EventPrincipal> result(0);
     
     if (remainingEvents_-- != 0) {
-      result = std::auto_ptr<EventPrincipal>(new EventPrincipal(nextID_++, *retriever_));
+      result = std::auto_ptr<EventPrincipal>(new EventPrincipal(nextID_++, *retriever_, *preg_));
     }
     return result;
   }
