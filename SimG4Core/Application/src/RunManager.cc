@@ -13,6 +13,8 @@
 #include "SimG4Core/Generators/interface/Generator.h"
 #include "SimG4Core/Physics/interface/PhysicsListFactory.h"
 
+#include "SimG4Core/Notification/interface/SimG4Exception.h"
+
 #include "G4StateManager.hh"
 #include "G4ApplicationState.hh"
 #include "G4RunManagerKernel.hh"
@@ -22,8 +24,14 @@
 #include "G4Run.hh"
 #include "G4Event.hh"
 
+#include "CLHEP/Random/JamesRandom.h"
+ 
+#include "Randomize.hh"
+
 #include <iostream>
 #include <memory>
+#include <strstream>
+#include <fstream>
 
 RunManager * RunManager::me = 0;
 RunManager * RunManager::init(edm::ParameterSet const & p)
@@ -41,10 +49,15 @@ RunManager * RunManager::instance()
 
 RunManager::RunManager(edm::ParameterSet const & p) 
     : m_context (new seal::Context), m_configurator (*m_context.get()),
-      m_generator(0), m_primaryTransformer(0), m_managerInitialized(false), 
+      m_generator(0), m_primaryTransformer(0), m_engine(0), m_managerInitialized(false), 
       m_geometryInitialized(true), m_physicsInitialized(true),
       m_runInitialized(false), m_runTerminated(false), m_runAborted(false),
       m_currentRun(0), m_currentEvent(0), m_simEvent(0), 
+      m_rndmStore(p.getParameter<bool>("StoreRndmSeeds")),
+      m_rndmRestore(p.getParameter<bool>("RestoreRndmSeeds")),
+      m_PhysicsTablesDir(p.getParameter<std::string>("PhysicsTablesDirectory")),
+      m_StorePhysicsTables(p.getParameter<bool>("StorePhysicsTables")),
+      m_RestorePhysicsTables(p.getParameter<bool>("RestorePhysicsTables")),
       m_EvtMgrVerbosity(p.getParameter<int>("G4EventManagerVerbosity")),
       m_Override(p.getParameter<bool>("OverrideUserStackingAction")),
       m_RunNumber(p.getParameter<int>("RunNumber")),
@@ -60,6 +73,7 @@ RunManager::RunManager(edm::ParameterSet const & p)
     if (m_kernel==0) m_kernel = new G4RunManagerKernel();
     frappe::Dispatcher<DDDWorld>::addDispatcher(m_configurator);
     frappe::Dispatcher<EventAction>::addDispatcher(m_configurator);
+    m_engine= dynamic_cast<HepJamesRandom*>(HepRandom::getTheEngine());
     std::cout << " Run Manager constructed " << std::endl;
 }
 
@@ -96,9 +110,27 @@ void RunManager::initG4(const edm::EventSetup & es)
     
     seal::Handle<PhysicsList> physics = PhysicsListFactory::get()->create
 	(m_pPhysics.getParameter<std::string> ("type"),m_context.get(),m_pPhysics);
+    if (physics.get()==0) throw SimG4Exception("Physics list construction failed!");
     m_kernel->SetPhysics(physics.get());
     m_kernel->InitializePhysics();
+
+    physics->ResetStoredInAscii();
+    std::string tableDir = m_PhysicsTablesDir;
+    if (m_RestorePhysicsTables) physics->SetPhysicsTableRetrieved(tableDir);
+ 
     if (m_kernel->RunInitialization()) m_managerInitialized = true;
+    else throw SimG4Exception("G4RunManagerKernel initialization failed!");
+     
+    if (m_StorePhysicsTables)
+    {
+	std::ostrstream dir;
+	dir << tableDir << '\0';
+	std::string cmd = std::string("/control/shell mkdir -p ")+tableDir;
+	if (!std::ifstream(dir.str(), std::ios::in))
+	    G4UImanager::GetUIpointer()->ApplyCommand(cmd);
+	physics->StorePhysicsTable(tableDir);
+    }
+ 
     initializeUserActions();
     initializeRun();
 }
@@ -181,6 +213,8 @@ void RunManager::initializeRun()
     G4StateManager::GetStateManager()->SetNewState(G4State_GeomClosed);
     if (m_userRunAction!=0) m_userRunAction->BeginOfRunAction(m_currentRun);
     m_runAborted = false;
+    if (m_rndmStore) runRNDMstore(m_RunNumber);
+    if (m_rndmRestore) runRNDMrestore(m_RunNumber);
     m_runInitialized = true;
 }
  
@@ -206,3 +240,60 @@ void RunManager::abortRun(bool softAbort)
     m_runInitialized = false;
     m_runAborted = true;
 }
+
+void RunManager::runRNDMstore(int run)
+{
+    std::ostrstream dir;
+    dir << "Run" << run << '\0';
+    std::string cmd = std::string("/control/shell mkdir -p ")+dir.str();
+    G4UImanager::GetUIpointer()->ApplyCommand(cmd);
+    std::ostrstream os;
+    os << "Run" << run << "/run" << run << ".rndm" << '\0';
+    m_engine->saveStatus(os.str());
+    std::cout << "Random number status saved in: " << os.str() << std::endl;
+    m_engine->showStatus();
+}
+ 
+void RunManager::runRNDMrestore(int run)
+{
+    std::ostrstream os;
+    os << "Run" << run << "/run" << run << ".rndm" << '\0';
+    if (!std::ifstream(os.str(), std::ios::in))
+    {
+        std::cout << " rndm directory does not exist for run " << run << std::endl;
+        return;
+    }
+    m_engine->restoreStatus(os.str());
+    std::cout << "Random number status restored from: " << os.str() << std::endl;
+    m_engine->showStatus();
+}
+ 
+void RunManager::eventRNDMstore(int run, int event)
+{
+    std::ostrstream os;
+    os << "Run" << run << "/evt" << event << ".rndm" << '\0';
+    m_engine->saveStatus(os.str());
+//     if (verbosity>2)
+//     {
+//         std::cout << " random numbers saved in: " << os.str() << std::endl;
+//         m_engine->showStatus();
+//     }
+}
+                                                                                                                                                
+void RunManager::eventRNDMrestore(int run, int event)
+{
+    std::ostrstream os;
+    os << "Run" << run << "/evt" << event << ".rndm" << '\0';
+    if (!std::ifstream(os.str(), std::ios::in))
+    {
+        std::cout << " rndm file does not exist for event " << event << std::endl;
+        return;
+    }
+    m_engine->restoreStatus(os.str());
+//     if (verbosity>2)
+//     {
+//         std::cout << "Random number status restored from: " << os.str() <<std:: endl;
+//         m_engine->showStatus();
+//     }
+}
+ 
