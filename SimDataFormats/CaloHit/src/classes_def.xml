@@ -2,5 +2,5 @@
   <class name="PCaloHit"/>
   <class name="std::vector<PCaloHit>"/>
   <class name="edm::PCaloHitContainer"/>
-
+  <class name="edm::Wrapper<edm::PCaloHitContainer>"/>
 </lcgdict>

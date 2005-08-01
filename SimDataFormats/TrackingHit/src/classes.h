@@ -15,6 +15,7 @@ using namespace std;
 #include "Geometry/Vector/interface/Point3DBase.h"
 #include "Geometry/Vector/interface/Vector2DBase.h"
 #include "Geometry/Vector/interface/Vector3DBase.h"
+#include "FWCore/EDProduct/interface/Wrapper.h"
 
 namespace {
   namespace {
@@ -41,7 +42,8 @@ namespace {
     LocalTag d12;
 
     PSimHit dummy444;
-    edm::PSimHitContainer sdummy777;
     std::vector<PSimHit> sdummy7;
+    edm::PSimHitContainer sdummy777;
+    edm::Wrapper<edm::PSimHitContainer> dummy7777;
   }
 }
