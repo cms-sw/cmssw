@@ -40,7 +40,7 @@ class prodname : public edm::eventsetup::ESProducer {
       prodname( const edm::ParameterSet& );
       ~prodname();
 
-      typedef @perl if( 1 eq scalar( @::datatypes ) ) { $result="std::auto_ptr<$::datatypes[0]>"; } else { $result="edm::eventsetup::ESProducts("; $line = 0; foreach $type ( @::datatypes ) { if ($line) { $result = "$result, "; } $result= "$result $type";  $line =1;} $result="$result)"; }  @\perl ReturnType;
+      typedef @perl if( 1 eq scalar( @::datatypes ) ) { $result="std::auto_ptr<$::datatypes[0]>"; } else { $result="edm::eventsetup::ESProducts<"; $line = 0; foreach $type ( @::datatypes ) { if ($line) { $result = "$result, "; } $result= "$result $type";  $line =1;} $result="$result>"; }  @\perl ReturnType;
 
       ReturnType produce( const recordname& );
    private:
