@@ -2,5 +2,12 @@
  <class name="Pedestals::Item"/>
  <class name="std::vector<Pedestals::Item>"/>
  <class name="Pedestals" id="2F16F0A9-79D5-4881-CE0B-C271DD84A7F1"/>
+ <class name="DTT0" id="FAEFE9C5-2A00-DA11-89E6-000E0C4DE431"/>
+ <class name="DTT0::CellData" />
+ <class name="DTT0::SLData" />
+ <class name="DTT0::ChamberData" />
+ <class name="std::vector<DTT0::CellData>"/>
+ <class name="std::vector<DTT0::SLData>"/>
+ <class name="std::vector<DTT0::ChamberData>"/>
  <class pattern="*iterator*"/>
 </lcgdict>   
