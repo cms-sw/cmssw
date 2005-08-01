@@ -1,0 +1,5 @@
+<use name=DataSvc>
+<export>
+  <use name=DataSvc>
+  <lib name=CondCoreDBCommon>
+</export>
