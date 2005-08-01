@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.cc,v 1.4 2005/06/23 19:57:23 wmtan Exp $
+// $Id: ParameterSet.cc,v 1.5 2005/07/14 16:17:23 jbk Exp $
 //
 // definition of ParameterSet's function members
 // ----------------------------------------------------------------------
@@ -58,12 +58,12 @@ namespace edm {
       if(it == tbl.end())
         throw edm::Exception(errors::Configuration,"InvalidName")
 	  << "The name '" << name 
-	  << "' is not known in an anonymous ParameterSet";
+	  << "' is not known in an anonymous ParameterSet.\n";
       else
         throw edm::Exception(errors::Configuration,"InvalidName")
 	  << "The name '" << name
 	  << "' is not known in ParameterSet '"
-	  << it->second.getString() << "'";
+	  << it->second.getString() << "'\n";
     }
     return it->second;
   }  // retrieve()
@@ -87,7 +87,7 @@ namespace edm {
       if(! tbl.insert(std::make_pair(name, value)).second)
         throw edm::Exception(errors::Configuration,"InsertFailure")
 	  << "cannot insert " << name
-	  << " into a ParmeterSet";
+	  << " into a ParmeterSet\n";
     }
     else if(okay_to_replace)  {
       it->second = value;
