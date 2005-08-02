@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: ProducerWorker.cc,v 1.9 2005/07/26 04:42:28 wmtan Exp $
+$Id: ProducerWorker.cc,v 1.10 2005/07/30 23:47:52 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/src/ProducerWorker.h"
@@ -29,7 +29,7 @@ namespace edm
     producer_(ed),
     actions_(wp.actions_) {
     
-    EDProducer::TypeLabelList const& plist= producer_->getTypeLabelList();
+    EDProducer::TypeLabelList const& plist = producer_->typeLabelList();
     if (plist.empty()) {
       throw edm::Exception(errors::NoProductSpecified,"Producer")
         << "Module " << md.moduleName_
@@ -46,12 +46,13 @@ namespace edm
     for(p=plist.begin(); p!=plist.end(); ++p) {
            
  
-      ProductDescription pdesc(md,
-	       p->first.userClassName(),
-	       p->first.friendlyClassName(), 
-	       p->second);
-      wp.reg_->addProduct(pdesc);
-    }//for
+     ProductDescription pdesc(md,
+       p->typeID_.userClassName(),
+       p->typeID_.friendlyClassName(), 
+       p->productInstanceName_,
+       p->productPtr_);
+       wp.reg_->addProduct(pdesc);
+     }//for
 
   }
 

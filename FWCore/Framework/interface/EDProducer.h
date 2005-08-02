@@ -1,12 +1,12 @@
-#ifndef EDM_EDPRODUCER_INCLUDED
-#define EDM_EDPRODUCER_INCLUDED
+#ifndef Framework_EDProducer_h
+#define Framework_EDProducer_h
 
 /*----------------------------------------------------------------------
   
 EDProducer: The base class of all "modules" that will insert new
 EDProducts into an Event.
 
-$Id: EDProducer.h,v 1.5 2005/07/21 20:42:52 argiro Exp $
+$Id: EDProducer.h,v 1.6 2005/07/22 23:53:18 wmtan Exp $
 
 
 ----------------------------------------------------------------------*/
@@ -25,6 +25,14 @@ namespace edm {
     virtual void beginJob(EventSetup const&);
     virtual void endJob();
  
+    struct TypeLabelItem {
+      TypeLabelItem (TypeID const& tid, std::string const& pin, EDProduct * edp) :
+        typeID_(tid), productInstanceName_(pin), productPtr_(edp) {}
+      TypeID typeID_;
+      std::string productInstanceName_;
+      EDProduct *productPtr_; // pointer to a default constructed Wrapper<T>.
+    };
+
     /// declare what type of product will make and with which optional label 
     /** the statement
         \code
@@ -35,7 +43,9 @@ namespace edm {
     template <class ProductType> 
     void produces(std::string const& instanceName) {
       ProductType aproduct;
-      productList_.push_back(std::make_pair(TypeID(aproduct), instanceName));
+      TypeID tid(aproduct);
+      TypeLabelItem tli(tid, instanceName, new Wrapper<ProductType>);
+      typeLabelList_.push_back(tli);
     }
 
     template <class ProductType> 
@@ -43,12 +53,13 @@ namespace edm {
       produces<ProductType>(std::string());
     }
 
-    typedef std::list<std::pair<TypeID,std::string> > TypeLabelList;
+    typedef std::list<TypeLabelItem> TypeLabelList;
+
     /// used by the fwk to register the list of products of this module 
-    TypeLabelList const& getTypeLabelList() const;
+    TypeLabelList typeLabelList() const;
 
   private:
-    TypeLabelList productList_;
+    TypeLabelList typeLabelList_;
   };
 
 
