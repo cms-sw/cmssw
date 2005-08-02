@@ -6,7 +6,7 @@
 Provenance: The full description of a product and how it came into
 existence.
 
-$Id: Provenance.h,v 1.11 2005/07/30 04:33:03 wmtan Exp $
+$Id: Provenance.h,v 1.12 2005/07/30 23:44:24 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <ostream>
 #include <vector>
@@ -30,7 +30,8 @@ namespace edm {
   struct Provenance {
     enum CreatorStatus { Success = 0,
 			 ApplicationFailure,
-			 InfrastructureFailure };
+			 InfrastructureFailure,
+			 CreatorNotRun };
 
     Provenance();
     explicit Provenance(ProductDescription const& p);
