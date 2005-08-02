@@ -6,7 +6,7 @@
 ProductDescription: The full description of a product and how it came into
 existence.
 
-$Id: ProductDescription.h,v 1.7 2005/07/30 04:34:18 wmtan Exp $
+$Id: ProductDescription.h,v 1.8 2005/07/30 23:44:24 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <ostream>
 #include <string>
@@ -29,7 +29,7 @@ namespace edm {
     ProductDescription();
 
     explicit ProductDescription(ModuleDescription const& m,
-      std::string const& name, std::string const& fName, std::string const& pin);
+      std::string const& name, std::string const& fName, std::string const& pin, EDProduct const* edp);
 
     ~ProductDescription() {}
 
@@ -46,8 +46,12 @@ namespace edm {
     // a user-supplied name to distinguish multiple products of the same type
     // that are produced by the same producer
     std::string productInstanceName_;
-    // the last of these is not in the roadmap, but is on the board
 
+    // A pointer to a default constructed Wrapper<T>, where T is the product type.
+    // If T is a user-defined class, the Wrapper contains a null T*.
+    EDProduct * productPtr_;
+
+    // The branch name, which is currently derivable fron the other attributes. 
     mutable std::string branchName_;
 
     void init() const;

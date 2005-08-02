@@ -2,7 +2,7 @@
 
 /*----------------------------------------------------------------------
 
-$Id: ProductDescription.cc,v 1.6 2005/07/30 04:42:49 wmtan Exp $
+$Id: ProductDescription.cc,v 1.7 2005/07/30 23:47:52 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -12,16 +12,18 @@ namespace edm {
     productID_(),
     fullClassName_(),
     friendlyClassName_(),
-    productInstanceName_()
+    productInstanceName_(),
+    productPtr_(0)
   { }
 
   ProductDescription::ProductDescription(ModuleDescription const& md,
-      std::string const& name, std::string const& fName, std::string const& pin) :
+      std::string const& name, std::string const& fName, std::string const& pin, EDProduct const* edp) :
     module(md),
     productID_(),
     fullClassName_(name),
     friendlyClassName_(fName),
-    productInstanceName_(pin) {
+    productInstanceName_(pin),
+    productPtr_(edp) {
       init();
     }
 
