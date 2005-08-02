@@ -3,16 +3,19 @@
 
 /** \class HcalCalibrations
     
-    Abstract interface for retrieving calibration 
-    constants for HCAL
+    Container for retrieved calibration constants for HCAL
    $Author: ratnikov
-   $Date: 2005/07/27 19:44:31 $
+   $Date: 2005/08/01 21:47:49 $
    $Revision: 1.1 $
 */
 class HcalCalibrations {
  public:
-  virtual double gain (int fCapId) const = 0;
-  virtual double pedestal (int fCapId) const = 0;
+  HcalCalibrations (double fGain [4], double fPedestal [4]);
+  double gain (int fCapId) const {return mGain [fCapId];}
+  double pedestal (int fCapId) const {return mPedestal [fCapId];}
+ private:
+  double mGain [4];
+  double mPedestal [4];
 };
 
 #endif
