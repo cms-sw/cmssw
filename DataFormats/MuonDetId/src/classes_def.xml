@@ -1,0 +1,4 @@
+<lcgdict>
+  <class name="DTDetId"/>
+  <class name="CSCDetId"/>
+</lcgdict>
