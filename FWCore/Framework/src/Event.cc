@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: Event.cc,v 1.11 2005/07/30 04:44:28 wmtan Exp $
+$Id: Event.cc,v 1.12 2005/07/30 23:47:52 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -79,7 +79,8 @@ namespace edm {
 	ProductDescription desc(md_,
 			TypeID(*pr).userClassName(),
 			TypeID(*pr).friendlyClassName(),
-			pit->second);
+			pit->second,
+			pr.get());
 
 	auto_ptr<Provenance> pv(new Provenance(desc));
 
