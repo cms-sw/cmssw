@@ -1,0 +1,12 @@
+<export>
+ <lib name=SimG4CoreMagneticField>
+ <use name=Foundation/PluginManager>
+ <use name=SimG4Core/Notification>
+ <use name=boost>
+ <use name=geant4>
+</export>
+<use name=Foundation/PluginManager>
+<use name=SimG4Core/Geometry>
+<use name=SimG4Core/Notification>
+<use name=boost>
+<use name=geant4>
