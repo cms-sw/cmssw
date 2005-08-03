@@ -1,13 +1,12 @@
 #ifndef SimDataFormats_PCaloHitContainer_H
 #define SimDataFormats_PCaloHitContainer_H
 
-#include "FWCore/EDProduct/interface/EDProduct.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include <vector>
 #include <string>
 
 namespace edm {
-  class PCaloHitContainer: public EDProduct {
+  class PCaloHitContainer {
   public:
     typedef std::vector<PCaloHit> PCaloHitSingleContainer;
 
