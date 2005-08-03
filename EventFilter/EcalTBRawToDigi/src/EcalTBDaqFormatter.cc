@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2005/08/03 15:27:47 $
+ *  $Revision: 1.1 $
  *  \author  N. Marinelli IASA 
  *
  *
@@ -66,13 +66,13 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData , EBDigiCol
   //cout << "i)"<< i << " " << hex<< (*temp) << dec << endl;
   
   vector< DCCEventBlock * > &   dccEventBlocks = theParser_->dccEvents();
-  cout << " EcalTBDaqFormatter::interpretRawData  dccDataBlocks size " << dccEventBlocks.size() << endl;
+  //  cout << " EcalTBDaqFormatter::interpretRawData  dccDataBlocks size " << dccEventBlocks.size() << endl;
     
   // Access each DCC block
   for( vector< DCCEventBlock * >::iterator itEventBlock = dccEventBlocks.begin(); itEventBlock != dccEventBlocks.end(); itEventBlock++){
-    cout << " DCC ID " <<  (*itEventBlock)->getDataField("FED/DCC ID") << endl; 
+    //cout << " DCC ID " <<  (*itEventBlock)->getDataField("FED/DCC ID") << endl; 
     vector< DCCTowerBlock * > dccTowerBlocks = (*itEventBlock)->towerBlocks();
-    cout << " EcalTBDaqFormatter::unFormatMe dccTowerBlocks size " << dccTowerBlocks.size() << endl;
+    //cout << " EcalTBDaqFormatter::unFormatMe dccTowerBlocks size " << dccTowerBlocks.size() << endl;
 
 
     // Access the Tower block
@@ -80,11 +80,11 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData , EBDigiCol
     for( vector< DCCTowerBlock * >::iterator itTowerBlock = dccTowerBlocks.begin(); itTowerBlock!= dccTowerBlocks.end(); itTowerBlock++){
       tower=(*itTowerBlock)->towerID();
  
-      cout << " Tower ID " << (*itTowerBlock)->towerID() << endl;
+      //      cout << " Tower ID " << (*itTowerBlock)->towerID() << endl;
       vector<DCCXtalBlock * > & xtalDataBlocks = (*itTowerBlock)->xtalBlocks();
       // Access the Xstal data
       for( vector< DCCXtalBlock * >::iterator itXtalBlock = xtalDataBlocks.begin(); itXtalBlock!= xtalDataBlocks.end(); itXtalBlock++){
-      cout << " Xtal ID " << (*itXtalBlock)->xtalID() << " Strip ID " << (*itXtalBlock)->stripID() <<   endl;
+	//cout << " Xtal ID " << (*itXtalBlock)->xtalID() << " Strip ID " << (*itXtalBlock)->stripID() <<   endl;
       strip= (*itXtalBlock)->stripID();
       ch=(*itXtalBlock)->xtalID();
 
@@ -125,7 +125,7 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData , EBDigiCol
 pair<int,int>  EcalTBDaqFormatter::cellIndex(int tower_id, int strip, int ch) {
  
   int xtal= (strip-1)*5+ch-1;
-  cout << " cellIndex input xtal " << xtal << endl;
+  //  cout << " cellIndex input xtal " << xtal << endl;
   pair<int,int> ind;
 
   int eta = (tower_id - 1)/kTowersInPhi*kCardsPerTower;
@@ -147,7 +147,7 @@ pair<int,int>  EcalTBDaqFormatter::cellIndex(int tower_id, int strip, int ch) {
   ind.first =eta+1;  
   ind.second=phi+1; 
 
-  cout << "  EcalTBDaqFormatter::cell_index eta " << ind.first << " phi " << ind.second << " " << endl;
+  //  cout << "  EcalTBDaqFormatter::cell_index eta " << ind.first << " phi " << ind.second << " " << endl;
 
   return ind;
 
