@@ -40,7 +40,7 @@ class prodname : public edm::EDProducer {
       ~prodname();
 
 
-      virtual void produce( Event&, const EventSetup& );
+      virtual void produce( edm::Event&, const edm::EventSetup& );
    private:
       // ----------member data ---------------------------
 };
@@ -58,7 +58,15 @@ class prodname : public edm::EDProducer {
 //
 prodname::prodname( const edm::ParameterSet& iConfig )
 {
-   //now do what ever initialization is needed
+   //register your products
+#ifdef THIS_IS_AN_EVENT_EXAMPLE
+   produces<ExampleData2>();
+
+   //if do put with a label
+   produces<ExampleData2>("label");
+#endif
+
+   //now do what ever other initialization is needed
 
 }
 
