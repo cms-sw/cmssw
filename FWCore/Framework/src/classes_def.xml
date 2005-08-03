@@ -8,6 +8,7 @@
  <class name="edm::Provenance"/>
  <class name="std::vector<edm::ProductID>"/>
  <class name="edm::ModuleDescription"/>
+ <class name="edm::EventProductDescription"/>
  <class name="edm::ProductDescription">
    <field name="branchName_" transient="true"/>
    <field name="productPtr_" transient="true"/>

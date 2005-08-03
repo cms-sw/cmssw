@@ -2,41 +2,32 @@
 
 /*----------------------------------------------------------------------
 
-$Id: Provenance.cc,v 1.6 2005/07/26 04:42:28 wmtan Exp $
+$Id: Provenance.cc,v 1.7 2005/07/30 23:47:52 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 namespace edm {
   Provenance::Provenance() :
     product(),
-    productID_(),
-    parents(),
-    cid(),
-    status(Success)
+    event()
   { }
 
   Provenance::Provenance(ProductDescription const& p) :
     product(p),
-    productID_(),
-    parents(),
-    cid(),
-    status(Success)
+    event()
   { }
 
   void
   Provenance::write(std::ostream& os) const {
     // This is grossly inadequate, but it is not critical for the
     // first pass.
-    os << "Provenance for: " << cid;
   }
 
     
-  bool operator==(const Provenance& a, const Provenance& b) {
+  bool operator==(Provenance const& a, Provenance const& b) {
     return
       a.product == b.product
-      && a.cid == b.cid
-      && a.status == b.status
-      && a.parents == b.parents;
+      && a.event == b.event;
   }
 
 }
