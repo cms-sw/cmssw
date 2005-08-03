@@ -1,0 +1,11 @@
+
+<flags SEAL_PLUGIN_NAME="IORawDataEcalTBInputService">
+<use name=FWCore/Framework>
+<use name=DataFormats/FEDRawData>
+
+<export>
+ <lib name=IORawDataEcalTBInputService>
+ <use name=FWCore/Framework>
+ <use name=DataFormats/FEDRawData>
+</export>
+
