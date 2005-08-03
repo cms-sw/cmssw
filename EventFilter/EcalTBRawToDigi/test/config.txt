@@ -1,9 +1,9 @@
  process TEST = { 
      module ecalEBunpacker = EcalDCCUnpackingModule{ }
 
-     module hit = EcalDummyHitFinder{ }
+     module digi = EcalDigiDumperModule { }
      
-     path p = {ecalEBunpacker, hit}	
+     path p = {ecalEBunpacker, digi}	
 
      source = DAQEcalTBInputService{ 
                untracked   string fileName = 'new_dcc_format.raw' 
