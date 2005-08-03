@@ -5,7 +5,9 @@
  <class name="std::vector<edm::Provenance>"/>
  <class name="std::map<edm::BranchKey, edm::ProductDescription>"/>
  <class name="edm::BranchKey"/>
- <class name="edm::Provenance"/>
+ <class name="edm::Provenance">
+   <field name="product" transient="true"/>
+ </class>
  <class name="std::vector<edm::ProductID>"/>
  <class name="edm::ModuleDescription"/>
  <class name="edm::EventProductDescription"/>
