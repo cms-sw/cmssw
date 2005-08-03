@@ -1,0 +1,14 @@
+ process TEST = { 
+     module ecalEBunpacker = EcalDCCUnpackingModule{ }
+
+     module hit = EcalDummyHitFinder{ }
+     
+     path p = {ecalEBunpacker, hit}	
+
+     source = DAQEcalTBInputService{ 
+               untracked   string fileName = 'new_dcc_format.raw' 
+               untracked int32 maxEvents = 6	  
+
+    }
+
+}
