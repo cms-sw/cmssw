@@ -16,7 +16,7 @@
 #include "SealKernel/Exception.h"
 #include <algorithm>
 
-cond::DBWriter::DBWriter( const std::string& con ):m_con(con),m_cat(new pool::IFileCatalog),m_svc( pool::DataSvcFactory::instance(m_cat) ), m_placement(new pool::Placement), m_writecreate(true){
+cond::DBWriter::DBWriter( const std::string& con ):m_con(con),m_cat(new pool::IFileCatalog),m_svc( pool::DataSvcFactory::instance(m_cat) ), m_placement(new pool::Placement){
   //seal::PluginManager::get()->initialise();//should not be called by me!!
   //pool::POOLContext::loadComponent( "POOL/Services/EnvironmentAuthenticationService" );
   pool::URIParser p;
@@ -61,10 +61,16 @@ bool cond::DBWriter::containerExists(const std::string& containerName){
       db->connectForRead();
     }catch( const seal::Exception& er){
       std::cout << er.what() << std::endl;    
+      transaction.commit();
+      return false;
     }catch ( const std::exception& er ) {
       std::cout << er.what() << std::endl;
+      transaction.commit();
+      return false;
     }catch ( ... ) {
       std::cout << "Funny error" << std::endl;
+      transaction.commit();
+      return false;
     }
     std::vector< std::string > containers = db->containers();
     transaction.commit();
@@ -75,12 +81,9 @@ bool cond::DBWriter::containerExists(const std::string& containerName){
 void cond::DBWriter::openContainer( const std::string& containerName ){
   m_placement->setContainerName(containerName);
   pool::DatabaseConnectionPolicy policy;
-  // policy.setWriteModeForNonExisting(pool::DatabaseConnectionPolicy::CREATE);
-  // policy.setWriteModeForExisting(pool::DatabaseConnectionPolicy::OVERWRITE);
   policy.setWriteModeForExisting(pool::DatabaseConnectionPolicy::UPDATE); 
   m_svc->session().setDefaultConnectionPolicy(policy);
   m_placement->setDatabase(m_con, pool::DatabaseSpecification::PFN); 
-  m_writecreate=false;
 }
 
 void cond::DBWriter::createContainer( const std::string& containerName ){
@@ -90,5 +93,4 @@ void cond::DBWriter::createContainer( const std::string& containerName ){
   policy.setWriteModeForExisting(pool::DatabaseConnectionPolicy::UPDATE); 
   m_svc->session().setDefaultConnectionPolicy(policy);
   m_placement->setDatabase(m_con, pool::DatabaseSpecification::PFN); 
-  m_writecreate=true;
 }
