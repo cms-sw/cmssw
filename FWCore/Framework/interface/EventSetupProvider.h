@@ -29,7 +29,7 @@
 
 // forward declarations
 namespace edm {
-   class Timestamp;
+   class IOVSyncValue;
    
    namespace eventsetup {
       class EventSetupRecordProvider;
@@ -48,7 +48,7 @@ class EventSetupProvider
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
-      EventSetup const& eventSetupForInstance(const Timestamp&);
+      EventSetup const& eventSetupForInstance(const IOVSyncValue&);
      
       //called by specializations of EventSetupRecordProviders
       template<class T>

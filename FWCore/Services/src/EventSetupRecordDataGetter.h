@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jun 28 13:45:06 EDT 2005
-// $Id: EventSetupRecordDataGetter.h,v 1.1 2005/06/28 19:35:49 chrjones Exp $
+// $Id: EventSetupRecordDataGetter.h,v 1.2 2005/07/15 01:49:34 wmtan Exp $
 //
 
 // system include files
@@ -30,7 +30,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Framework/interface/EventSetupRecord.h"
-#include "FWCore/Framework/interface/Timestamp.h"
+#include "FWCore/Framework/interface/IOVSyncValue.h"
 
 // forward declarations
 namespace edm {
@@ -47,9 +47,9 @@ private:
       
       typedef std::map<edm::eventsetup::EventSetupRecordKey, std::vector<edm::eventsetup::DataKey> > RecordToDataKeys;
       RecordToDataKeys recordToDataKeys_;
-      //NOTE: forced to use shared_ptr<Timestamp> instead of just Timestamp since insertion into the map
-      //  requires the presence of a default constructor which Timestamp does not have
-      std::map<eventsetup::EventSetupRecordKey, boost::shared_ptr<edm::Timestamp> > recordToTimestamp_;
+      //NOTE: forced to use shared_ptr<IOVSyncValue> instead of just IOVSyncValue since insertion into the map
+      //  requires the presence of a default constructor which IOVSyncValue does not have
+      std::map<eventsetup::EventSetupRecordKey, boost::shared_ptr<edm::IOVSyncValue> > recordToIOVSyncValue_;
       bool verbose_;
    };
 }

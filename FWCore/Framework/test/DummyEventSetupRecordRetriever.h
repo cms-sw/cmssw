@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Fri Apr 22 14:14:09 EDT 2005
-// $Id: DummyEventSetupRecordRetriever.h,v 1.2 2005/06/23 20:01:12 wmtan Exp $
+// $Id: DummyEventSetupRecordRetriever.h,v 1.3 2005/07/14 22:50:53 wmtan Exp $
 //
 
 // system include files
@@ -48,10 +48,10 @@ namespace edm {
    protected:
 
       virtual void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                                   const edm::Timestamp& iTime, 
+                                   const edm::IOVSyncValue& iTime, 
                                    edm::ValidityInterval& iInterval) {
-         iInterval = edm::ValidityInterval(Timestamp(1),
-                                            Timestamp::endOfTime());
+         iInterval = edm::ValidityInterval(IOVSyncValue(1),
+                                            IOVSyncValue::endOfTime());
       }
 
    private:

@@ -153,9 +153,9 @@ EventSetupProvider::finishConfiguration()
 // const member functions
 //
 EventSetup const&
-EventSetupProvider::eventSetupForInstance(const Timestamp& iValue)
+EventSetupProvider::eventSetupForInstance(const IOVSyncValue& iValue)
 {
-   eventSetup_.setTimestamp(iValue);
+   eventSetup_.setIOVSyncValue(iValue);
 
    eventSetup_.clear();
    if(mustFinishConfiguration_) {

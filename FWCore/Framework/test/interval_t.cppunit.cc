@@ -8,11 +8,11 @@
  *
  */
 
-#include "FWCore/Framework/interface/Timestamp.h"
+#include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "FWCore/Framework/interface/ValidityInterval.h"
 #include <cppunit/extensions/HelperMacros.h>
 
-using edm::Timestamp;
+using edm::IOVSyncValue;
 using edm::ValidityInterval;
 
 class testinterval: public CppUnit::TestFixture
@@ -39,13 +39,13 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testinterval);
 
 void testinterval::comparisonTest()
 {
-   const Timestamp invalid(Timestamp::invalidTimestamp());
+   const IOVSyncValue invalid(IOVSyncValue::invalidIOVSyncValue());
    
-   const Timestamp one(1);
-   const Timestamp two(2);
+   const IOVSyncValue one(1);
+   const IOVSyncValue two(2);
    
-   CPPUNIT_ASSERT(invalid == Timestamp::invalidTimestamp());
-   CPPUNIT_ASSERT(one == Timestamp(1));
+   CPPUNIT_ASSERT(invalid == IOVSyncValue::invalidIOVSyncValue());
+   CPPUNIT_ASSERT(one == IOVSyncValue(1));
    
    CPPUNIT_ASSERT(invalid != one);
 
@@ -65,9 +65,9 @@ void testinterval::comparisonTest()
 
 void testinterval::timestampAssignmentTest()
 {
-   const Timestamp one(1);
+   const IOVSyncValue one(1);
    
-   Timestamp temp(Timestamp::invalidTimestamp());
+   IOVSyncValue temp(IOVSyncValue::invalidIOVSyncValue());
    CPPUNIT_ASSERT(temp != one);
    temp = one;
    CPPUNIT_ASSERT(temp == one);
@@ -76,7 +76,7 @@ void testinterval::timestampAssignmentTest()
 void testinterval::intervalAssignmentTest()
 {
    ValidityInterval temp;
-   const ValidityInterval oneAndTwo(Timestamp(1), Timestamp(2));
+   const ValidityInterval oneAndTwo(IOVSyncValue(1), IOVSyncValue(2));
    
    CPPUNIT_ASSERT(temp != oneAndTwo);
    CPPUNIT_ASSERT(! (temp == oneAndTwo));

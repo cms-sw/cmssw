@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jun 28 11:10:24 EDT 2005
-// $Id: EventSetupRecordDataGetter.cc,v 1.2 2005/07/01 00:01:30 wmtan Exp $
+// $Id: EventSetupRecordDataGetter.cc,v 1.3 2005/07/14 21:36:21 wmtan Exp $
 //
 //
 
@@ -100,7 +100,7 @@ EventSetupRecordDataGetter::analyze( const edm::Event& iEvent, const edm::EventS
             dataKeys.push_back( datumKey ); 
          }
          recordToDataKeys_.insert( std::make_pair( recordKey, dataKeys ) );
-         recordToTimestamp_.insert( std::make_pair( recordKey, new Timestamp( Timestamp::invalidTimestamp() ) ) );
+         recordToIOVSyncValue_.insert( std::make_pair( recordKey, new IOVSyncValue( IOVSyncValue::invalidIOVSyncValue() ) ) );
       }
    }
    
@@ -114,8 +114,8 @@ EventSetupRecordDataGetter::analyze( const edm::Event& iEvent, const edm::EventS
         ++itRecord ) {
       const EventSetupRecord* pRecord = iSetup.find( itRecord->first );
       
-      if( 0 != pRecord && pRecord->validityInterval().first() != *(recordToTimestamp_[itRecord->first])) {
-         *(recordToTimestamp_[itRecord->first]) = pRecord->validityInterval().first();
+      if( 0 != pRecord && pRecord->validityInterval().first() != *(recordToIOVSyncValue_[itRecord->first])) {
+         *(recordToIOVSyncValue_[itRecord->first]) = pRecord->validityInterval().first();
          typedef std::vector< DataKey > Keys;
          const Keys& keys = itRecord->second;
          for( Keys::const_iterator itKey = keys.begin();

@@ -10,7 +10,7 @@
 #include <iostream>
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
-#include "FWCore/Framework/interface/Timestamp.h"
+#include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "FWCore/Framework/interface/DataProxyProvider.h"
 #include "FWCore/Framework/interface/HCMethods.icc"
 #include "FWCore/Framework/interface/recordGetImplementation.icc"
@@ -56,7 +56,7 @@ void testfullChain::getfromDataproxyproviderTest()
 
    pFinder->setInterval(ValidityInterval(1,5));
    for(unsigned int iTime=1; iTime != 6; ++iTime) {
-      EventSetup const& eventSetup = provider.eventSetupForInstance(Timestamp(iTime));
+      EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue(iTime));
       ESHandle<DummyData> pDummy;
       eventSetup.get<DummyRecord>().get(pDummy);
       CPPUNIT_ASSERT(0 != &(*pDummy));

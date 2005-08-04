@@ -94,7 +94,7 @@ EventSetupRecordProvider::setDependentProviders(const std::vector< boost::shared
 
 void 
 EventSetupRecordProvider::addRecordToIfValid(EventSetupProvider& iEventSetupProvider,
-                                          const Timestamp& iTime)
+                                          const IOVSyncValue& iTime)
 {
    if(setValidityIntervalFor(iTime)) {
       addRecordTo(iEventSetupProvider);
@@ -102,7 +102,7 @@ EventSetupRecordProvider::addRecordToIfValid(EventSetupProvider& iEventSetupProv
 }
 
 bool 
-EventSetupRecordProvider::setValidityIntervalFor(const Timestamp& iTime)
+EventSetupRecordProvider::setValidityIntervalFor(const IOVSyncValue& iTime)
 {
    if(validityInterval_.validFor(iTime)) {
       return true;
@@ -110,11 +110,11 @@ EventSetupRecordProvider::setValidityIntervalFor(const Timestamp& iTime)
    bool returnValue = false;
    //need to see if we get a new interval
    if(0 != finder_.get()) {
-      Timestamp oldFirst(validityInterval_.first());
+      IOVSyncValue oldFirst(validityInterval_.first());
       
       validityInterval_ = finder_->findIntervalFor(key_, iTime);
       //are we in a valid range?
-      if(validityInterval_.first() != Timestamp::invalidTimestamp()) {
+      if(validityInterval_.first() != IOVSyncValue::invalidIOVSyncValue()) {
          returnValue = true;
          //did we actually change?
          if(oldFirst != validityInterval_.first()) {

@@ -8,7 +8,7 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
-#include "FWCore/Framework/interface/Timestamp.h"
+#include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 using namespace edm;
@@ -16,7 +16,7 @@ class DataWithNoDefaultRecord {};
 
 int main() {
    eventsetup::EventSetupProvider provider;
-   EventSetup const& eventSetup = provider.eventSetupForInstance(Timestamp(0));
+   EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue(0));
    //This should cause a compile time failure since DataWithNoDefaultRecord
    /// does not have a default record assigned
    ESHandle<DataWithNoDefaultRecord> pData;

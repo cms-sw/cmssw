@@ -109,15 +109,15 @@ void testdependentrecord::dependentFinder1Test()
    DependentRecordIntervalFinder finder(depRecordKey);
    finder.addProviderWeAreDependentOn(dummyProvider);
    
-   CPPUNIT_ASSERT(definedInterval == finder.findIntervalFor(depRecordKey, edm::Timestamp(2))); 
+   CPPUNIT_ASSERT(definedInterval == finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(2))); 
 
    dummyFinder->setInterval(edm::ValidityInterval::invalidInterval());
-   CPPUNIT_ASSERT(edm::ValidityInterval::invalidInterval() == finder.findIntervalFor(depRecordKey, edm::Timestamp(4)));
+   CPPUNIT_ASSERT(edm::ValidityInterval::invalidInterval() == finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(4)));
    
-   const edm::ValidityInterval unknownedEndInterval(5,edm::Timestamp::invalidTimestamp());
+   const edm::ValidityInterval unknownedEndInterval(5,edm::IOVSyncValue::invalidIOVSyncValue());
    dummyFinder->setInterval(unknownedEndInterval);
 
-   CPPUNIT_ASSERT(unknownedEndInterval == finder.findIntervalFor(depRecordKey, edm::Timestamp(5)));
+   CPPUNIT_ASSERT(unknownedEndInterval == finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(5)));
 
 }
 
@@ -144,7 +144,7 @@ void testdependentrecord::dependentFinder2Test()
    finder.addProviderWeAreDependentOn(dummyProvider1);
    finder.addProviderWeAreDependentOn(dummyProvider2);
    
-   CPPUNIT_ASSERT(overlapInterval == finder.findIntervalFor(depRecordKey, edm::Timestamp(4)));
+   CPPUNIT_ASSERT(overlapInterval == finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(4)));
 }
 
 
@@ -180,13 +180,13 @@ void testdependentrecord::getTest()
    boost::shared_ptr<edm::eventsetup::DataProxyProvider> depProv(new DepRecordProxyProvider());
    provider.add(depProv);
    {
-      const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::Timestamp(1));
+      const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(1));
       const DepRecord& depRecord = eventSetup.get<DepRecord>();
 
       depRecord.getRecord<DummyRecord>();
    }
    {
-      const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::Timestamp(4));
+      const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(4));
       eventSetup.get<DepRecord>();
    }
 }

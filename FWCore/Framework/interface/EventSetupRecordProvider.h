@@ -54,7 +54,7 @@ class EventSetupRecordProvider
 
       // ---------- member functions ---------------------------
       virtual void addRecordTo(EventSetupProvider&) = 0;
-      void addRecordToIfValid(EventSetupProvider&, const Timestamp&) ;
+      void addRecordToIfValid(EventSetupProvider&, const IOVSyncValue&) ;
 
       void add(boost::shared_ptr<DataProxyProvider>);
       ///For now, only use one finder
@@ -62,7 +62,7 @@ class EventSetupRecordProvider
       void setValidityInterval(const ValidityInterval&);
       
       ///sets interval to this time and returns true if have a valid interval for time
-      bool setValidityIntervalFor(const Timestamp&);
+      bool setValidityIntervalFor(const IOVSyncValue&);
 
       ///If the provided Record depends on other Records, here are the dependent Providers
       virtual void setDependentProviders(const std::vector< boost::shared_ptr<EventSetupRecordProvider> >&);

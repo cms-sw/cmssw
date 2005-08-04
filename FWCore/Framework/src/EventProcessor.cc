@@ -13,7 +13,7 @@
 
 #include "PluginManager/PluginManager.h"
 
-#include "FWCore/Framework/interface/Timestamp.h"
+#include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
@@ -274,7 +274,7 @@ namespace edm {
     // If it really means once per 'application' then this code will have to be changed.
     // Also have to deal with case where have 'run' then new Module added and do 'run'
     // again.  In that case the newly added Module needs its 'beginJob' to be called.
-    EventSetup const& es = esp_.eventSetupForInstance(edm::Timestamp::beginOfTime());
+    EventSetup const& es = esp_.eventSetupForInstance(edm::IOVSyncValue::beginOfTime());
     PathList::iterator itWorkerList = workers_.begin();
     PathList::iterator itEnd = workers_.end();
     ESRefWrapper wrapper( es );
@@ -289,7 +289,7 @@ namespace edm {
 	FDEBUG(1) << eventcount << std::endl;
 	auto_ptr<EventPrincipal> pep = input_->readEvent();
 	if(pep.get()==0) break;
-	edm::Timestamp ts(eventcount);
+	edm::IOVSyncValue ts(eventcount);
 	EventSetup const& es = esp_.eventSetupForInstance(ts);
 
 	try

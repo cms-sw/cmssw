@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Tue Mar 29 16:15:11 EST 2005
-// $Id: EventSetupRecordIntervalFinder.h,v 1.2 2005/06/23 19:59:30 wmtan Exp $
+// $Id: EventSetupRecordIntervalFinder.h,v 1.3 2005/07/14 22:50:52 wmtan Exp $
 //
 
 // system include files
@@ -45,14 +45,14 @@ class EventSetupRecordIntervalFinder
 
       // ---------- member functions ---------------------------
    /**returns the 'default constructed' ValidityInterval if no valid interval.
-   If upperbound is not known, it should be set to Timestamp::invalidTimestamp()
+   If upperbound is not known, it should be set to IOVSyncValue::invalidIOVSyncValue()
    */
    const ValidityInterval& findIntervalFor(const EventSetupRecordKey&,
-                                            const Timestamp&);
+                                            const IOVSyncValue&);
    
    protected:
       virtual void setIntervalFor(const EventSetupRecordKey&,
-                                   const Timestamp& , 
+                                   const IOVSyncValue& , 
                                    ValidityInterval&) = 0;
 
       template< class T>

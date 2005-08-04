@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Sat Apr 30 19:37:22 EDT 2005
-// $Id: DependentRecordIntervalFinder.cc,v 1.2 2005/06/23 19:59:48 wmtan Exp $
+// $Id: DependentRecordIntervalFinder.cc,v 1.3 2005/07/14 22:50:53 wmtan Exp $
 //
 
 // system include files
@@ -67,16 +67,16 @@ DependentRecordIntervalFinder::addProviderWeAreDependentOn(boost::shared_ptr<Eve
 
 void 
 DependentRecordIntervalFinder::setIntervalFor(const EventSetupRecordKey&,
-                                               const Timestamp& iTime, 
+                                               const IOVSyncValue& iTime, 
                                                ValidityInterval& oInterval)
 {
    //I am assuming that an invalidTime is always less then the first valid time
-   assert(Timestamp::invalidTimestamp() < Timestamp::beginOfTime());
+   assert(IOVSyncValue::invalidIOVSyncValue() < IOVSyncValue::beginOfTime());
    if(providers_.size() == 0) {
       oInterval = ValidityInterval::invalidInterval();
       return;
    }
-   ValidityInterval newInterval(Timestamp::beginOfTime(), Timestamp::endOfTime());
+   ValidityInterval newInterval(IOVSyncValue::beginOfTime(), IOVSyncValue::endOfTime());
    for(Providers::iterator itProvider = providers_.begin();
        itProvider != providers_.end();
        ++itProvider) {

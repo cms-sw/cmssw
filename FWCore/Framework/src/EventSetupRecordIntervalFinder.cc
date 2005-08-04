@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed Mar 30 14:27:26 EST 2005
-// $Id: EventSetupRecordIntervalFinder.cc,v 1.2 2005/06/23 19:59:48 wmtan Exp $
+// $Id: EventSetupRecordIntervalFinder.cc,v 1.3 2005/07/14 22:50:53 wmtan Exp $
 //
 
 // system include files
@@ -59,7 +59,7 @@ EventSetupRecordIntervalFinder::~EventSetupRecordIntervalFinder()
 //
 const ValidityInterval& 
 EventSetupRecordIntervalFinder::findIntervalFor(const EventSetupRecordKey& iKey,
-                                              const Timestamp& iInstance)
+                                              const IOVSyncValue& iInstance)
 {
    Intervals::iterator itFound = intervals_.find(iKey);
    assert(itFound != intervals_.end()) ;

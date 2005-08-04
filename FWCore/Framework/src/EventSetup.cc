@@ -29,7 +29,7 @@ namespace edm {
 //
 // constructors and destructor
 //
-   EventSetup::EventSetup() : timestamp_(Timestamp::invalidTimestamp())
+   EventSetup::EventSetup() : syncValue_(IOVSyncValue::invalidIOVSyncValue())
 {
 }
 
@@ -58,9 +58,9 @@ EventSetup::~EventSetup()
 // member functions
 //
 void
-EventSetup::setTimestamp(const Timestamp& iTime) {
+EventSetup::setIOVSyncValue(const IOVSyncValue& iTime) {
    //will ultimately build our list of records
-   timestamp_ = iTime;
+   syncValue_ = iTime;
 }
 
 void 

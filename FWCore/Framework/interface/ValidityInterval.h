@@ -21,7 +21,7 @@
 // system include files
 
 // user include files
-#include "FWCore/Framework/interface/Timestamp.h"
+#include "FWCore/Framework/interface/IOVSyncValue.h"
 
 // forward declarations
 namespace edm {
@@ -30,15 +30,15 @@ class ValidityInterval
 
    public:
       ValidityInterval();
-      ValidityInterval(const Timestamp& iFirst,
-                       const Timestamp& iLast);
+      ValidityInterval(const IOVSyncValue& iFirst,
+                       const IOVSyncValue& iLast);
       //virtual ~ValidityInterval();
 
       // ---------- const member functions ---------------------
-      bool validFor(const Timestamp&) const;
+      bool validFor(const IOVSyncValue&) const;
       
-      const Timestamp& first() const { return first_; }
-      const Timestamp& last() const { return last_; }
+      const IOVSyncValue& first() const { return first_; }
+      const IOVSyncValue& last() const { return last_; }
       
       bool operator==(const ValidityInterval& iRHS) const {
          return iRHS.first_ == first_ && 
@@ -52,10 +52,10 @@ class ValidityInterval
       static const ValidityInterval& invalidInterval();
       
       // ---------- member functions ---------------------------
-      void setFirst(const Timestamp& iTime) {
+      void setFirst(const IOVSyncValue& iTime) {
          first_ = iTime;
       }
-      void setLast(const Timestamp& iTime) {
+      void setLast(const IOVSyncValue& iTime) {
          last_ = iTime;
       }
       
@@ -65,8 +65,8 @@ class ValidityInterval
       //const ValidityInterval& operator=(const ValidityInterval&); // stop default
 
       // ---------- member data --------------------------------
-      Timestamp first_;
-      Timestamp last_;
+      IOVSyncValue first_;
+      IOVSyncValue last_;
 };
 
 }

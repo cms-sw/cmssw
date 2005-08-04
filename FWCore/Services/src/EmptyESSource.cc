@@ -12,7 +12,12 @@ EmptyESSource::EmptyESSource(const edm::ParameterSet & pset) :
    recordName_(pset.getParameter<std::string>("recordname"))
 {
    std::vector<unsigned int> temp( pset.getParameter< std::vector<unsigned int> >("firstvalid") );
-   std::copy( temp.begin(), temp.end(), inserter(setOfIOV_ , setOfIOV_.end()));
+   for( std::vector<unsigned int>::iterator itValue = temp.begin();
+        itValue != temp.end();
+        ++itValue ) {
+      setOfIOV_.insert( IOVSyncValue( *itValue) );
+   }
+   //std::copy( temp.begin(), temp.end(), inserter(setOfIOV_ , setOfIOV_.end()));
    
    
    eventsetup::EventSetupRecordKey recordKey = eventsetup::EventSetupRecordKey::TypeTag::findType( recordName_ );
@@ -27,7 +32,7 @@ EmptyESSource::EmptyESSource(const edm::ParameterSet & pset) :
   
 void 
 EmptyESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
-                               const edm::Timestamp& iTime, 
+                               const edm::IOVSyncValue& iTime, 
                                edm::ValidityInterval& oInterval ) {
    oInterval = edm::ValidityInterval::invalidInterval();
    //if no intervals given, fail immediately
@@ -35,17 +40,17 @@ EmptyESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
       return;
    }
    
-   std::pair< std::set<edm::Timestamp>::iterator, 
-      std::set<edm::Timestamp>::iterator > itFound = setOfIOV_.equal_range( iTime );
+   std::pair< std::set<edm::IOVSyncValue>::iterator, 
+      std::set<edm::IOVSyncValue>::iterator > itFound = setOfIOV_.equal_range( iTime );
    
    if ( itFound.first == setOfIOV_.end() ) {
       return;
    }
    
-   edm::Timestamp endOfInterval = edm::Timestamp::endOfTime();
+   edm::IOVSyncValue endOfInterval = edm::IOVSyncValue::endOfTime();
    
    if( itFound.second != setOfIOV_.end() ) { 
-      endOfInterval = (itFound.second->value()) -1;
+      endOfInterval = edm::IOVSyncValue( (itFound.second->collisionID()) -1 );
    }
    oInterval = edm::ValidityInterval( *(itFound.first), endOfInterval);
 }

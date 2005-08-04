@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Sat Apr 16 18:47:04 EDT 2005
-// $Id: DummyFinder.h,v 1.2 2005/06/23 20:01:12 wmtan Exp $
+// $Id: DummyFinder.h,v 1.3 2005/07/14 22:50:53 wmtan Exp $
 //
 
 // system include files
@@ -38,13 +38,13 @@ public:
    }
 protected:
    virtual void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                                const edm::Timestamp& iTime, 
+                                const edm::IOVSyncValue& iTime, 
                                 edm::ValidityInterval& iInterval) {
       if(interval_.validFor(iTime)) {
          iInterval = interval_;
       } else {
-         if(interval_.last() == edm::Timestamp::invalidTimestamp() &&
-             interval_.first() != edm::Timestamp::invalidTimestamp() &&
+         if(interval_.last() == edm::IOVSyncValue::invalidIOVSyncValue() &&
+             interval_.first() != edm::IOVSyncValue::invalidIOVSyncValue() &&
              interval_.first() <= iTime) {
             iInterval = interval_;
          }else {

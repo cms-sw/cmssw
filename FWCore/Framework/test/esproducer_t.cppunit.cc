@@ -99,7 +99,7 @@ void testEsproducer::getFromTest()
    
    for(int iTime=1; iTime != 6; ++iTime) {
       pFinder->setInterval(edm::ValidityInterval(iTime,iTime));
-      const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::Timestamp(iTime));
+      const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(iTime));
       ESHandle<DummyData> pDummy;
       eventSetup.get<DummyRecord>().get(pDummy);
       CPPUNIT_ASSERT(0 != &(*pDummy));
@@ -120,7 +120,7 @@ void testEsproducer::getfromShareTest()
    
    for(int iTime=1; iTime != 6; ++iTime) {
       pFinder->setInterval(edm::ValidityInterval(iTime,iTime));
-      const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::Timestamp(iTime));
+      const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(iTime));
       ESHandle<DummyData> pDummy;
       eventSetup.get<DummyRecord>().get(pDummy);
       CPPUNIT_ASSERT(0 != &(*pDummy));
@@ -172,7 +172,7 @@ void testEsproducer::decoratorTest()
    
    for(int iTime=1; iTime != 6; ++iTime) {
       pFinder->setInterval(edm::ValidityInterval(iTime,iTime));
-      const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::Timestamp(iTime));
+      const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(iTime));
       ESHandle<DummyData> pDummy;
       
       CPPUNIT_ASSERT(iTime - 1 == TestDecorator::s_pre);
@@ -226,7 +226,7 @@ void testEsproducer::dependsOnTest()
    
    for(int iTime=1; iTime != 6; ++iTime) {
       pFinder->setInterval(edm::ValidityInterval(iTime,iTime));
-      const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::Timestamp(iTime));
+      const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(iTime));
       ESHandle<DummyData> pDummy;
       
       eventSetup.get<DepRecord>().get(pDummy);

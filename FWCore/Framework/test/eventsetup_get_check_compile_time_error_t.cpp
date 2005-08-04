@@ -9,14 +9,14 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
-#include "FWCore/Framework/interface/Timestamp.h"
+#include "FWCore/Framework/interface/IOVSyncValue.h"
 
 using namespace edm;
 class NotAGoodRecord {};
 
 int main() {
    eventsetup::EventSetupProvider provider;
-   EventSetup const& eventSetup = provider.eventSetupForInstance(Timestamp(0));
+   EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue(0));
    //This should cause a compile time failure since NotAGoodRecord
    /// does not inherit from edm::eventsetup::EventSetupRecord
    eventSetup.get<NotAGoodRecord>();

@@ -28,13 +28,13 @@ namespace edm {
 // constructors and destructor
 //
    ValidityInterval::ValidityInterval() :
-   first_(Timestamp::invalidTimestamp()),
-   last_(Timestamp::invalidTimestamp())
+   first_(IOVSyncValue::invalidIOVSyncValue()),
+   last_(IOVSyncValue::invalidIOVSyncValue())
 {
 }
 
-ValidityInterval::ValidityInterval(const Timestamp& iFirst,
-                                   const Timestamp& iLast) :
+ValidityInterval::ValidityInterval(const IOVSyncValue& iFirst,
+                                   const IOVSyncValue& iLast) :
 first_(iFirst), last_(iLast)
 {
 }
@@ -68,7 +68,7 @@ first_(iFirst), last_(iLast)
 // const member functions
 //
 bool
-ValidityInterval::validFor(const Timestamp& iInstance) const
+ValidityInterval::validFor(const IOVSyncValue& iInstance) const
 {
    return first_ <= iInstance && iInstance <= last_;
 }

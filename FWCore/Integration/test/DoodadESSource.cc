@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 14:39:39 EDT 2005
-// $Id: DoodadESSource.cc,v 1.1 2005/06/25 01:20:38 chrjones Exp $
+// $Id: DoodadESSource.cc,v 1.2 2005/07/14 22:20:57 wmtan Exp $
 //
 
 // system include files
@@ -36,7 +36,7 @@ public:
 protected:
    
    virtual void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
-                                const edm::Timestamp& iTime, 
+                                const edm::IOVSyncValue& iTime, 
                                 edm::ValidityInterval& iInterval);
    
 private:
@@ -84,13 +84,13 @@ DoodadESSource::produce( const GadgetRcd& ) {
 
 void 
 DoodadESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
-                                const edm::Timestamp& iTime, 
+                                const edm::IOVSyncValue& iTime, 
                                 edm::ValidityInterval& iInterval) {
    //Be valid for 3 time steps
-   unsigned long newTime = (iTime.value() - 1 ) - ((iTime.value() - 1 ) %3) +1;
-   unsigned long endTime = newTime + 2;
-   iInterval = edm::ValidityInterval( edm::Timestamp( newTime),
-                                      edm::Timestamp(endTime) );
+   edm::CollisionID newTime = (iTime.collisionID() - 1 ) - ((iTime.collisionID() - 1 ) %3) +1;
+   edm::CollisionID endTime = newTime + 2;
+   iInterval = edm::ValidityInterval( edm::IOVSyncValue( newTime),
+                                      edm::IOVSyncValue(endTime) );
 }
 
 //

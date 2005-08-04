@@ -23,7 +23,7 @@
 #include "boost/static_assert.hpp"
 #include "boost/type_traits/is_base_and_derived.hpp"
 // user include files
-#include "FWCore/Framework/interface/Timestamp.h"
+#include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/Framework/interface/HCMethods.h"
 
@@ -66,7 +66,7 @@ class EventSetup
             rec.get(iHolder);
          }
       
-      const Timestamp& timestamp() const { return timestamp_;}
+      const IOVSyncValue& iovSyncValue() const { return syncValue_;}
 
       const eventsetup::EventSetupRecord* find(const eventsetup::EventSetupRecordKey&) const;
       // ---------- static member functions --------------------
@@ -79,7 +79,7 @@ class EventSetup
          }
    protected:
       //Only called by EventSetupProvider
-      void setTimestamp(const Timestamp&);
+      void setIOVSyncValue(const IOVSyncValue&);
 
       template<typename T>
          void add(const T& iRecord) {
@@ -99,7 +99,7 @@ class EventSetup
                   const eventsetup::EventSetupRecord*);
 
       // ---------- member data --------------------------------
-      Timestamp timestamp_;
+      IOVSyncValue syncValue_;
       
       //NOTE: the records are not owned
       std::map<eventsetup::EventSetupRecordKey, eventsetup::EventSetupRecord const *> recordMap_;
