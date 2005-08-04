@@ -1,0 +1,11 @@
+<flags SEAL_PLUGIN_NAME="RecoMETMETAlgorithms">
+<use name=DataFormats/METObjects>
+<use name=DataFormats/CaloObjects>
+<use name=FWCore/EDProduct>
+<export>
+ <lib name=RecoMETMETAlgorithms>
+ <use name=DataFormats/METObjects>
+ <use name=DataFormats/CaloObjects>
+ <use name=FWCore/EDProduct>
+</export>
+
