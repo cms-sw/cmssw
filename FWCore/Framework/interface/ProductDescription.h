@@ -6,7 +6,7 @@
 ProductDescription: The full description of a product and how it came into
 existence.
 
-$Id: ProductDescription.h,v 1.8 2005/07/30 23:44:24 wmtan Exp $
+$Id: ProductDescription.h,v 1.9 2005/08/02 22:19:05 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <ostream>
 #include <string>
@@ -49,7 +49,7 @@ namespace edm {
 
     // A pointer to a default constructed Wrapper<T>, where T is the product type.
     // If T is a user-defined class, the Wrapper contains a null T*.
-    EDProduct * productPtr_;
+    EDProduct const * productPtr_;
 
     // The branch name, which is currently derivable fron the other attributes. 
     mutable std::string branchName_;
