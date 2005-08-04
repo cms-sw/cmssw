@@ -6,7 +6,7 @@
 <use name=CondFormats/Alignment>
 <use name=CondFormats/Calibration>
 <use name=CondFormats/TrackerMapping>
-<use name=CondFormats/MuonMapping>
+<use name=CondFormats/DTMapping>
 <use name=CondCore/IOVService>
 <use name=CondCore/MetaDataService>
 <use name=DataSvc>
@@ -18,7 +18,7 @@
  <use name=CondFormats/Alignment>
  <use name=CondFormats/Calibration>
  <use name=CondFormats/TrackerMapping>
- <use name=CondFormats/MuonMapping> 
+ <use name=CondFormats/DTMapping> 
  <use name=CondCore/IOVService>
  <use name=CondCore/MetaDataService>
  <use name=DataSvc>

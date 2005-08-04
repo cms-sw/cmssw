@@ -10,7 +10,7 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 
-#include "CondFormats/MuonMapping/interface/DTReadOutMapping.h"
+#include "CondFormats/DTMapping/interface/DTReadOutMapping.h"
 #include "CondCore/IOVService/interface/IOV.h"
 
 // forward declarations
