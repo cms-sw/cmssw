@@ -50,7 +50,8 @@ private:
   static EcalTBDaqFileReader * instance_;
   ifstream inputFile;
 
-  static const int maxEventSizeInBytes_=41544;
+  //static const int maxEventSizeInBytes_=42640;
+  static const int maxEventSizeInBytes_=100000;
   static const int EOE_=10;
   static const int BOE_=5;
   //ulong* buf;
