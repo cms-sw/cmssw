@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2005/08/03 15:27:47 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/08/03 18:49:47 $
+ *  $Revision: 1.2 $
  *  \author  N. Marinelli IASA 
  *
  *
@@ -62,8 +62,6 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData , EBDigiCol
   theParser_->parseBuffer( reinterpret_cast<ulong*>(pData), static_cast<ulong>(length), shit );
   
   ulong * temp = (ulong*)(pData);
-  // for ( int i=0; i<length/4; ++i, temp++) 
-  //cout << "i)"<< i << " " << hex<< (*temp) << dec << endl;
   
   vector< DCCEventBlock * > &   dccEventBlocks = theParser_->dccEvents();
   //  cout << " EcalTBDaqFormatter::interpretRawData  dccDataBlocks size " << dccEventBlocks.size() << endl;
@@ -72,16 +70,20 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData , EBDigiCol
   for( vector< DCCEventBlock * >::iterator itEventBlock = dccEventBlocks.begin(); itEventBlock != dccEventBlocks.end(); itEventBlock++){
     //cout << " DCC ID " <<  (*itEventBlock)->getDataField("FED/DCC ID") << endl; 
     vector< DCCTowerBlock * > dccTowerBlocks = (*itEventBlock)->towerBlocks();
-    //cout << " EcalTBDaqFormatter::unFormatMe dccTowerBlocks size " << dccTowerBlocks.size() << endl;
-
+    cout << " EcalTBDaqFormatter::unFormatMe dccTowerBlocks size " << dccTowerBlocks.size() << endl;
 
     // Access the Tower block
     
     for( vector< DCCTowerBlock * >::iterator itTowerBlock = dccTowerBlocks.begin(); itTowerBlock!= dccTowerBlocks.end(); itTowerBlock++){
       tower=(*itTowerBlock)->towerID();
- 
-      //      cout << " Tower ID " << (*itTowerBlock)->towerID() << endl;
+      if (  (*itTowerBlock)->towerID() > 68 ) continue;  // The last two towers does not contain Xtal data. Do not store in the digis
+
+
+      cout << " Tower ID " << (*itTowerBlock)->towerID() << endl;
       vector<DCCXtalBlock * > & xtalDataBlocks = (*itTowerBlock)->xtalBlocks();
+      
+
+      
       // Access the Xstal data
       for( vector< DCCXtalBlock * >::iterator itXtalBlock = xtalDataBlocks.begin(); itXtalBlock!= xtalDataBlocks.end(); itXtalBlock++){
 	//cout << " Xtal ID " << (*itXtalBlock)->xtalID() << " Strip ID " << (*itXtalBlock)->stripID() <<   endl;
