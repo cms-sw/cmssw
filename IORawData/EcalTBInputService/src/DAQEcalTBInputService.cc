@@ -1,6 +1,6 @@
 /*
- *  $Date: 2005/07/13 14:21:01 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/08/03 14:59:53 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -85,18 +85,18 @@ DAQEcalTBInputService::read() {
   result = auto_ptr<EventPrincipal>(new EventPrincipal(id, *retriever_));
   
 
-   
+
     ModuleDescription      mdesc;
     mdesc.pid = PS_ID("DAQEcalTBInputService");
     mdesc.module_name = "DAQEcalTBInputService";
-   
+
     mdesc.module_label = "EcalDaqRawData";
 
 #warning version number is hardcoded
 
     mdesc.version_number = 1UL;
     mdesc.process_name = description_.process_name;
-    mdesc.pass = description_.pass;  
+    mdesc.pass = description_.pass;
 
     edm::Wrapper<FEDRawDataCollection> *wrapped_product = 
       new edm::Wrapper<FEDRawDataCollection> (*bare_product);
