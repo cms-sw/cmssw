@@ -14,6 +14,6 @@ void PSimHitContainer::clear(){
   _data.clear();
 }
 
-unsigned int PSimHitContainer::size(){
+unsigned int PSimHitContainer::size() const {
   return _data.size();
 }
