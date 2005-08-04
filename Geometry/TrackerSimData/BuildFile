@@ -1,0 +1,9 @@
+
+<use name=DetectorDescription/Parser>
+
+# Build a SEAL plugin:
+<Flags SEAL_PLUGIN_NAME="GeometryTrackerSimData">
+
+<export>
+<lib name=GeometryTrackerSimData>
+</export>
