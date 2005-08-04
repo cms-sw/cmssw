@@ -33,6 +33,12 @@ namespace cms
     for (unsigned int i=0; i<fedUnpackList_.size(); i++) 
       std::cout << fedUnpackList_[i] << " ";
     std::cout << std::endl;
+    
+    // products produced...
+    produces<HBHEDigiCollection>();
+    produces<HFDigiCollection>();
+    produces<HODigiCollection>();
+    produces<HcalTrigPrimDigiCollection>();
   }
 
   // Virtual destructor needed.
@@ -87,10 +93,15 @@ namespace cms
     }
 
     // Step D: Put outputs into event
+    /*
     if (lookedAtHBHE) e.put(hbhe);
     if (lookedAtHO) e.put(ho);
-    if (lookedAtHF) e.put(hf);
-    //    e.put(htp);
+    if (lookedAtHF)
+    */
+      e.put(hbhe);
+      e.put(ho);
+      e.put(hf);
+    e.put(htp);
   }
 
 }
