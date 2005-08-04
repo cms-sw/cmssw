@@ -2,28 +2,18 @@
 #include "FWCore/Framework/interface/recordGetImplementation.icc"
  
 #include "SimG4Core/Geometry/interface/DDDWorld.h"
-#include "GeometryReaders/XMLIdealGeometryESSource/interface/XMLIdealGeometryESSource.h"
 #include "SimG4Core/Geometry/interface/DDG4Builder.h"
+
+#include "DetectorDescription/Core/interface/DDCompactView.h"
 
 #include "G4RunManagerKernel.hh"
 #include "G4PVPlacement.hh"
  
 using namespace edm;
 
-DDDWorld::DDDWorld(const edm::ParameterSet & p) 
+DDDWorld::DDDWorld(const DDCompactView* cpv) 
 {
-    EventSetupProvider provider;
-  
-    boost::shared_ptr<XMLIdealGeometryESSource> 
-	pRetriever(new XMLIdealGeometryESSource(p));
-    boost::shared_ptr<DataProxyProvider> pProxyProv(pRetriever);
-    provider.add(pProxyProv);
-  
-    provider.add(boost::shared_ptr<EventSetupRecordIntervalFinder>(pRetriever));
-    const EventSetup & eventsetup = 
-	provider.eventSetupForInstance(Timestamp(1));
-  
-    std::auto_ptr<DDG4Builder> theBuilder(new DDG4Builder(eventsetup));
+    std::auto_ptr<DDG4Builder> theBuilder(new DDG4Builder(cpv));
 
     G4LogicalVolume * world = theBuilder->BuildGeometry();
     G4VPhysicalVolume * pv = 

@@ -1,5 +1,4 @@
 #include "DetectorDescription/Core/interface/DDdebug.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDSpecifics.h"
 
 #include "SimG4Core/Geometry/interface/DDG4Builder.h"
@@ -7,9 +6,7 @@
 #include "SimG4Core/Geometry/interface/SDCatalog.h"
 #include "SimG4Core/Geometry/interface/G4LogicalVolumeToDDLogicalPartMapper.h"
 #include "SimG4Core/Geometry/interface/DDG4SensitiveConverter.h"
-
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
 
 #include "G4VSolid.hh"
 #include "G4Box.hh"
@@ -33,8 +30,8 @@ DDG4DispContainer * DDG4Builder::theVectorOfDDG4Dispatchables_ = 0;
 DDG4DispContainer * DDG4Builder::theVectorOfDDG4Dispatchables() 
 { return theVectorOfDDG4Dispatchables_; }
 
-DDG4Builder::DDG4Builder(const EventSetup& e) : 
-    solidConverter_(new DDG4SolidConverter), eventSetup(e) 
+DDG4Builder::DDG4Builder(const DDCompactView* cpv) : 
+  solidConverter_(new DDG4SolidConverter), compactView(cpv)
 { theVectorOfDDG4Dispatchables_ = new DDG4DispContainer(); }
 
 DDG4Builder::~DDG4Builder() { delete solidConverter_; }
@@ -115,13 +112,10 @@ G4Material * DDG4Builder::convertMaterial(const DDMaterial & material)
 
 G4LogicalVolume * DDG4Builder::BuildGeometry()
 {
-    ESHandle<DDCompactView> pView;
-    eventSetup.get<IdealGeometryRecord>().get(pView);
- 
     G4ReflectionFactory * refFact = G4ReflectionFactory::Instance();
     refFact->SetScalePrecision(100.*refFact->GetScalePrecision());
 
-    const graph_type & gra = pView->graph();
+    const graph_type & gra = compactView->graph();
     typedef graph_type::const_adj_iterator adjl_iterator;
     adjl_iterator git = gra.begin();
     adjl_iterator gend = gra.end();    

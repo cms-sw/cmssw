@@ -5,11 +5,12 @@
 
 class DDG4Builder;
 class G4VPhysicalVolume;
-    
+class DDCompactView;    
+
 class DDDWorld
 {
 public:
-    DDDWorld(const edm::ParameterSet & p);
+    DDDWorld( const DDCompactView*);
     ~DDDWorld();
     void SetAsWorld(G4VPhysicalVolume * pv);
 private:

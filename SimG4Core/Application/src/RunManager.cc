@@ -15,6 +15,10 @@
 
 #include "SimG4Core/Notification/interface/SimG4Exception.h"
 
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+
 #include "G4StateManager.hh"
 #include "G4ApplicationState.hh"
 #include "G4RunManagerKernel.hh"
@@ -61,7 +65,6 @@ RunManager::RunManager(edm::ParameterSet const & p)
       m_EvtMgrVerbosity(p.getParameter<int>("G4EventManagerVerbosity")),
       m_Override(p.getParameter<bool>("OverrideUserStackingAction")),
       m_RunNumber(p.getParameter<int>("RunNumber")),
-      m_pGeometry(p.getParameter<edm::ParameterSet>("Geometry")),
       m_pGenerator(p.getParameter<edm::ParameterSet>("Generator")),
       m_pPhysics(p.getParameter<edm::ParameterSet>("Physics")),
       m_pRunAction(p.getParameter<edm::ParameterSet>("RunAction")),      
@@ -85,7 +88,14 @@ RunManager::~RunManager()
 void RunManager::initG4(const edm::EventSetup & es)
 {
     if (m_managerInitialized) return;
-    DDDWorld * world = new DDDWorld(m_pGeometry);
+    //
+    // do it in the correct way: get the DDCV from the ES and use it to build the World
+    //
+    edm::eventsetup::ESHandle<DDCompactView> pDD;
+    es.get<IdealGeometryRecord>().get( pDD );
+   
+    DDDWorld * world = new DDDWorld(&(*pDD));
+
     m_configurator.component< frappe::Dispatcher<DDDWorld> >() (world);
 
     m_attach = new AttachSD;

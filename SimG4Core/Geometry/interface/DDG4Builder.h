@@ -7,8 +7,6 @@
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 
-#include "FWCore/Framework/interface/EventSetup.h"
-
 #include <map>
 #include <vector>
 #include <string>
@@ -23,14 +21,12 @@ class G4VPhysicalVolume;
 class G4Material;
 class G4VSolid;
 
-using namespace edm::eventsetup;
-using edm::EventSetup;
-using edm::Timestamp;
+class DDCompactView;
 
 class DDG4Builder 
 {
 public:
-    DDG4Builder(const EventSetup&);  
+    DDG4Builder(const DDCompactView*);  
     ~DDG4Builder(); 
     G4LogicalVolume * BuildGeometry();
     static DDG4DispContainer * theVectorOfDDG4Dispatchables();
@@ -46,7 +42,7 @@ protected:
     std::map<DDSolid,G4VSolid*> sols_;    
     std::map<DDLogicalPart,G4LogicalVolume*> logs_;
 private:
-    const EventSetup& eventSetup;
+    DDCompactView* compactView;
     static DDG4DispContainer * theVectorOfDDG4Dispatchables_;
 };
 
