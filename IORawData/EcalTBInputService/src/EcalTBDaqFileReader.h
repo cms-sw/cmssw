@@ -16,6 +16,11 @@ class DaqInputEvent;
 class DaqFEDRawData;
 namespace raw {class FEDRawDataCollection; }
 
+struct FedDataPair {
+  unsigned char* fedData;
+  int len;
+};
+
 class EcalTBDaqFileReader  {
 
  public:
@@ -37,7 +42,7 @@ class EcalTBDaqFileReader  {
   // Override virtual methods from DaqFileReader
   virtual void initialize(const std::string & filename);
   virtual bool fillDaqEventData(edm::CollisionID & cID, raw::FEDRawDataCollection& data);
-  virtual void getEventTrailer();
+  virtual FedDataPair getEventTrailer();
   virtual bool checkEndOfEvent();
   virtual bool checkEndOfFile();
 
@@ -48,19 +53,14 @@ private:
   static const int maxEventSizeInBytes_=41544;
   static const int EOE_=10;
   static const int BOE_=5;
-  ulong* buf;
-  int len;
-  ulong* tmp;
-  unsigned char* fedData;
-  
+  //ulong* buf;
+  //int len;
+  //ulong* tmp;
+  //unsigned char* fedData;
 
 protected:
 
   bool initialized_;
   //std::ifstream * input_;
-
-
-
 };
-
 #endif
