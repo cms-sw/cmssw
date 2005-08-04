@@ -65,10 +65,10 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testEventsetup);
 void testEventsetup::constructTest()
 {
    eventsetup::EventSetupProvider provider;
-   const IOVSyncValue timestamp = 1;
+   const IOVSyncValue timestamp( 1 );
    EventSetup const& eventSetup = provider.eventSetupForInstance(timestamp);
    CPPUNIT_ASSERT(&eventSetup != 0);
-   CPPUNIT_ASSERT(eventSetup.timestamp() == timestamp);
+   CPPUNIT_ASSERT(eventSetup.iovSyncValue() == timestamp);
 }
 
 void testEventsetup::getTest()

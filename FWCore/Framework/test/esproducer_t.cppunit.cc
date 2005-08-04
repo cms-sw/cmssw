@@ -98,7 +98,7 @@ void testEsproducer::getFromTest()
    provider.add(boost::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
    
    for(int iTime=1; iTime != 6; ++iTime) {
-      pFinder->setInterval(edm::ValidityInterval(iTime,iTime));
+      pFinder->setInterval(edm::ValidityInterval( edm::IOVSyncValue(iTime) , edm::IOVSyncValue(iTime) ));
       const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(iTime));
       ESHandle<DummyData> pDummy;
       eventSetup.get<DummyRecord>().get(pDummy);
@@ -119,7 +119,7 @@ void testEsproducer::getfromShareTest()
    provider.add(boost::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
    
    for(int iTime=1; iTime != 6; ++iTime) {
-      pFinder->setInterval(edm::ValidityInterval(iTime,iTime));
+      pFinder->setInterval(edm::ValidityInterval( edm::IOVSyncValue(iTime) , edm::IOVSyncValue(iTime) ));
       const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(iTime));
       ESHandle<DummyData> pDummy;
       eventSetup.get<DummyRecord>().get(pDummy);
@@ -171,7 +171,7 @@ void testEsproducer::decoratorTest()
    provider.add(boost::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
    
    for(int iTime=1; iTime != 6; ++iTime) {
-      pFinder->setInterval(edm::ValidityInterval(iTime,iTime));
+      pFinder->setInterval(edm::ValidityInterval( edm::IOVSyncValue(iTime), edm::IOVSyncValue(iTime) ));
       const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(iTime));
       ESHandle<DummyData> pDummy;
       
@@ -225,7 +225,7 @@ void testEsproducer::dependsOnTest()
    provider.add(boost::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
    
    for(int iTime=1; iTime != 6; ++iTime) {
-      pFinder->setInterval(edm::ValidityInterval(iTime,iTime));
+      pFinder->setInterval(edm::ValidityInterval( edm::IOVSyncValue(iTime), edm::IOVSyncValue(iTime) ));
       const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(iTime));
       ESHandle<DummyData> pDummy;
       

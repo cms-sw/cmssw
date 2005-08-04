@@ -100,7 +100,7 @@ void testdependentrecord::dependentFinder1Test()
                                                           EventSetupRecordProviderFactoryManager::instance()
                                                               .makeRecordProvider(DummyRecord::keyForClass()).release());
    
-   const edm::ValidityInterval definedInterval(1,3);
+   const edm::ValidityInterval definedInterval( edm::IOVSyncValue(1), edm::IOVSyncValue(3) );
    boost::shared_ptr<DummyFinder> dummyFinder(new DummyFinder);
    dummyFinder->setInterval(definedInterval);
    dummyProvider->addFinder(dummyFinder);
@@ -114,7 +114,7 @@ void testdependentrecord::dependentFinder1Test()
    dummyFinder->setInterval(edm::ValidityInterval::invalidInterval());
    CPPUNIT_ASSERT(edm::ValidityInterval::invalidInterval() == finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(4)));
    
-   const edm::ValidityInterval unknownedEndInterval(5,edm::IOVSyncValue::invalidIOVSyncValue());
+   const edm::ValidityInterval unknownedEndInterval( edm::IOVSyncValue(5) ,edm::IOVSyncValue::invalidIOVSyncValue());
    dummyFinder->setInterval(unknownedEndInterval);
 
    CPPUNIT_ASSERT(unknownedEndInterval == finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(5)));
@@ -126,13 +126,13 @@ void testdependentrecord::dependentFinder2Test()
    boost::shared_ptr<EventSetupRecordProvider> dummyProvider1(EventSetupRecordProviderFactoryManager::instance()
                                                               .makeRecordProvider(DummyRecord::keyForClass()).release());
    
-   const edm::ValidityInterval definedInterval1(1,5);
+   const edm::ValidityInterval definedInterval1( edm::IOVSyncValue(1), edm::IOVSyncValue(5));
    dummyProvider1->setValidityInterval(definedInterval1);
    
    boost::shared_ptr<EventSetupRecordProvider> dummyProvider2(EventSetupRecordProviderFactoryManager::instance()
                                                               .makeRecordProvider(DummyRecord::keyForClass()).release());
    
-   const edm::ValidityInterval definedInterval2(2,6);
+   const edm::ValidityInterval definedInterval2( edm::IOVSyncValue(2), edm::IOVSyncValue(6) );
    dummyProvider2->setValidityInterval(definedInterval2);
 
    const edm::ValidityInterval overlapInterval(std::max(definedInterval1.first(), definedInterval2.first()),
@@ -157,7 +157,7 @@ void testdependentrecord::dependentSetproviderTest()
        EventSetupRecordProviderFactoryManager::instance().makeRecordProvider(DummyRecord::keyForClass()).release());
 
    boost::shared_ptr<DummyFinder> dummyFinder(new DummyFinder);
-   dummyFinder->setInterval(edm::ValidityInterval(1, 3));
+   dummyFinder->setInterval(edm::ValidityInterval( edm::IOVSyncValue(1), edm::IOVSyncValue(3) ));
    dummyProvider->addFinder(dummyFinder);
    
    CPPUNIT_ASSERT(*(depProvider->dependentRecords().begin()) == dummyProvider->key());
@@ -174,7 +174,7 @@ void testdependentrecord::getTest()
    provider.add(dummyProv);
 
    boost::shared_ptr<DummyFinder> dummyFinder(new DummyFinder);
-   dummyFinder->setInterval(edm::ValidityInterval(1, 3));
+   dummyFinder->setInterval(edm::ValidityInterval( edm::IOVSyncValue(1), edm::IOVSyncValue(3) ));
    provider.add(boost::shared_ptr<edm::eventsetup::EventSetupRecordIntervalFinder>(dummyFinder));
    
    boost::shared_ptr<edm::eventsetup::DataProxyProvider> depProv(new DepRecordProxyProvider());
