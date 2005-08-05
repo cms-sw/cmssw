@@ -33,7 +33,7 @@ public:
 protected:
   //overriding from ContextRecordIntervalFinder
   virtual void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
-			       const edm::Timestamp& , 
+			       const edm::IOVSyncValue& , 
 			       edm::ValidityInterval& ) ;
 private:
   DTReadOutMappingRetriever( const DTReadOutMappingRetriever& ); // stop default

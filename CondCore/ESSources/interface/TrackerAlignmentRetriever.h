@@ -30,7 +30,7 @@ public:
   
 protected:
   virtual void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
-				 const edm::Timestamp& , 
+				 const edm::IOVSyncValue& , 
 			       edm::ValidityInterval& ) ;
 private:
   TrackerAlignmentRetriever( const TrackerAlignmentRetriever& ); // stop default

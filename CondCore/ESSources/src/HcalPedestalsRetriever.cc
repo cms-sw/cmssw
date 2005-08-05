@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Mon Apr 18 16:43:35 EDT 2005
-// $Id: EcalPedestalsRetriever.cc,v 1.1 2005/07/27 19:48:22 xiezhen Exp $
+// $Id: HcalPedestalsRetriever.cc,v 1.1 2005/08/01 13:10:20 xiezhen Exp $
 //
 
 // system include files
@@ -84,12 +84,12 @@ HcalPedestalsRetriever::HcalPedestalsRetriever( const edm::ParameterSet&  pset)
     // policy.setWriteModeForExisting(pool::DatabaseConnectionPolicy::OVERWRITE);
     //policy.setWriteModeForExisting(pool::DatabaseConnectionPolicy::UPDATE);
     svc_->session().setDefaultConnectionPolicy(policy);
-    std::cout<<"iovAToken "<<iovAToken_<<std::endl;
+    //std::cout<<"iovAToken "<<iovAToken_<<std::endl;
     svc_->transaction().start(pool::ITransaction::READ);
-    std::cout<<"Reading "<<std::endl;
+    //std::cout<<"Reading "<<std::endl;
     pool::Ref<cond::IOV> iovped(svc_.get(),iovAToken_);
     iovped_=iovped;
-    std::cout<<"about to get out"<<std::endl;
+    //std::cout<<"about to get out"<<std::endl;
   }catch(seal::Exception& e){
     std::cout << e.what() << std::endl;
   } catch ( std::exception& e ) {
@@ -130,33 +130,27 @@ HcalPedestalsRetriever::produce( const HCalPedestalsRcd& )
 
 void
 HcalPedestalsRetriever::setIntervalFor( const EventSetupRecordKey&,
-				   const edm::Timestamp& iTime, 
+				   const edm::IOVSyncValue& iTime, 
 				   edm::ValidityInterval& oValidity)
 {
-  std::cout<<"HcalPedestalsRetriever::setIntervalFor "<< iTime.value()<<std::endl;
   typedef std::map<int, std::string> IOVMap;
   typedef IOVMap::const_iterator iterator;
   try{
-    unsigned long abtime=iTime.value()-edm::Timestamp::beginOfTime().value();
-    std::cout<<"abtime "<<abtime<<std::endl;
+    unsigned long abtime=iTime.collisionID()-edm::IOVSyncValue::beginOfTime().collisionID();
     iterator iEnd = iovped_->iov.lower_bound( abtime );
     if( iEnd == iovped_->iov.end() ||  (*iEnd).second.empty() ) {
       //no valid data
-      oValidity = edm::ValidityInterval(edm::Timestamp::endOfTime(),edm::Timestamp::endOfTime());
-      std::cout<<"set to infinity"<<std::endl;
+      oValidity = edm::ValidityInterval(edm::IOVSyncValue::endOfTime(),edm::IOVSyncValue::endOfTime());
     } else {
-      edm::Timestamp start=edm::Timestamp::beginOfTime();
-      std::cout<<"beginoftime "<<start.value()<<std::endl;
+      unsigned long starttime=edm::IOVSyncValue::beginOfTime().collisionID();
       if (iEnd != iovped_->iov.begin()) {
 	iterator iStart(iEnd); iStart--;
-      	start = (*iStart).first+edm::Timestamp::beginOfTime().value();
+      	starttime = (*iStart).first+edm::IOVSyncValue::beginOfTime().collisionID();
       }
-      std::cout<<"new start "<<start.value()<<std::endl;
       pedCid_ = (*iEnd).second;
-      edm::Timestamp stop = (*iEnd).first+edm::Timestamp::beginOfTime().value();
+      edm::IOVSyncValue start( starttime );
+      edm::IOVSyncValue stop ((*iEnd).first+edm::IOVSyncValue::beginOfTime().collisionID());
       oValidity = edm::ValidityInterval( start, stop );
-      std::cout<<"set to "<<start.value()<<" "<<stop.value()<<std::endl;
-      std::cout << "ped Cid " << pedCid_ << " valid from " << start.value() << " to " << stop.value() << std::endl;  
     }
   }catch(seal::Exception& e){
     std::cout << e.what() << std::endl;
@@ -165,5 +159,4 @@ HcalPedestalsRetriever::setIntervalFor( const EventSetupRecordKey&,
   } catch ( ... ) {
     std::cout << "Funny error" << std::endl;
   }
-  std::cout<<"end PedestalRetriever::setIntervalFor"<<std::endl;
 }
