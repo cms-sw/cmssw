@@ -6,8 +6,8 @@
  *
  *  For the time being, reuses the services of DaqFileReader from DaqPrototype.
  *
- *  $Date: $
- *  $Revision:$
+ *  $Date: 2005/08/03 14:59:57 $
+ *  $Revision: 1.1 $
  *  \author N. Marinelli
  */
 
@@ -15,6 +15,7 @@
 #include <FWCore/Framework/interface/InputServiceMacros.h>
 #include <FWCore/Framework/interface/InputService.h>
 #include <FWCore/Framework/interface/InputServiceDescription.h>
+#include <FWCore/Framework/interface/ProductDescription.h>
 #include <string>
 
 class EcalTBDaqFileReader;
@@ -42,7 +43,8 @@ namespace edm {
     //void clear();
 
     edm::InputServiceDescription description_;
-    
+    edm::ProductDescription fedrawdataDescription_;
+     
     edm::Retriever*  retriever_;
     EcalTBDaqFileReader * reader_;
     std::string filename_;
