@@ -35,7 +35,7 @@ public:
   void setPhi(double Phi) { mdata.phi = Phi; }
 
   // Getters
-  char *getLabel() const { return mdata.label; }
+  char *getLabel() { return mdata.label; }
 
   double getMET() const { return mdata.met; }
   double getMETx() const { return mdata.metx; }
