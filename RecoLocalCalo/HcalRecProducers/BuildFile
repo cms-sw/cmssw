@@ -1,0 +1,20 @@
+<flags SEAL_PLUGIN_NAME="RecoLocalCaloHcalRecProducers">
+<use name=CalibFormats/HcalObjects>
+<use name=RecoLocalCalo/HcalRecAlgos>
+<use name=FWCore/Framework>
+<use name=FWCore/EDProduct>
+<use name=boost>
+<use name=Dictionary/Reflection>
+<use name=Framework/SealKernel>
+
+<export>
+  <lib name="RecoLocalCaloHcalRecProducers">
+  <use name=CalibFormats/HcalObjects>
+  <use name=RecoLocalCalo/HcalRecAlgos>
+  <use name=FWCore/Framework>
+  <use name=FWCore/EDProduct>
+  <use name=boost>
+  <use name=Dictionary/Reflection>
+  <use name=Framework/SealKernel>
+</export>
+
