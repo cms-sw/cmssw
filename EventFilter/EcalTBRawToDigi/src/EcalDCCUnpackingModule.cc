@@ -1,7 +1,7 @@
 /* \file EcalDCCUnpackingModule.h
  *
- *  $Date: 2005/08/03 15:23:18 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/08/03 15:26:43 $
+ *  $Revision: 1.2 $
  *  \author N. Marinelli 
  */
 
@@ -22,7 +22,13 @@ using namespace cms;
 #include <iostream>
 
 EcalDCCUnpackingModule::EcalDCCUnpackingModule(const edm::ParameterSet& pset) : 
-  formatter(new EcalTBDaqFormatter()) {}
+  formatter(new EcalTBDaqFormatter()) {
+
+  produces<EBDigiCollection>();
+
+
+}
+
 
 EcalDCCUnpackingModule::~EcalDCCUnpackingModule(){
   delete formatter;
