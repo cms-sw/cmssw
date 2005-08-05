@@ -1,0 +1,6 @@
+<flags SEAL_PLUGIN_NAME="DataFormatsMETObjects">
+<use name=FWCore/EDProduct>
+<export>
+ <lib name=DataFormatsMETObjects>
+ <use name=FWCore/EDProduct>
+</export>
