@@ -1,0 +1,9 @@
+<lcgdict>
+  <class name="StripDigi::Packing"/>
+  <class name="StripDigi"/>
+  <class name="std::vector<StripDigi>"/>
+  <class name="std::pair<unsigned int, unsigned int>"/>
+  <class name="std::map<unsigned int, std::pair<unsigned int, unsigned int> >"/>
+  <class name="StripDigiCollection"/>
+  <class name="edm::Wrapper<StripDigiCollection>" id="AD149B57-09AB-00FC-306B-DA571F26707F"/>
+</lcgdict>
