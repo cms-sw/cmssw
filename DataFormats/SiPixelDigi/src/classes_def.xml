@@ -1,0 +1,9 @@
+<lcgdict>
+  <class name="PixelDigi::Packing"/>
+  <class name="PixelDigi"/>
+  <class name="std::vector<PixelDigi>"/>
+  <class name="std::pair<unsigned int, unsigned int>"/>
+  <class name="std::map<unsigned int, std::pair<unsigned int, unsigned int> >"/>
+  <class name="PixelDigiCollection"/>
+  <class name="edm::Wrapper<PixelDigiCollection>" id="171C6DB3-6F7A-A3C3-24E6-698CD34DC3BD"/>
+</lcgdict>
