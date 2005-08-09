@@ -1,0 +1,4 @@
+<lcgdict>
+  <class name="cms::PXBDetId"/>
+  <class name="cms::PXFDetId"/>
+</lcgdict>
