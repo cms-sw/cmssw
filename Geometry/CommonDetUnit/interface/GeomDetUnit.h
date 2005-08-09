@@ -3,6 +3,7 @@
 
 //#include "Utilities/GenUtil/interface/ReferenceCountingPointer.h"
 #include "Geometry/Surface/interface/BoundPlane.h"
+#include "DataFormats/DetId/interface/DetId.h"
 
 class Topology;
 //class Readout;
@@ -23,7 +24,7 @@ public:
   virtual const GeomDetType& type() const = 0;
 
 
-  virtual int geographicalId() const = 0;
+  virtual cms::DetId geographicalId() const = 0;
 
 private:
 

@@ -2,3 +2,4 @@
  <lib name=GeometryCommonTopologies>
  <use name=Geometry/CommonDetAlgo>
 </export>
+<use name=DataFormats/SiPixelDigi>

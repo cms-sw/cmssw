@@ -1,6 +1,7 @@
 <use name=FWCore/Utilities>
 <use name=FWCore/Framework>
 <use name=clhep>
+<use name=boost>
 <export>
    <lib name=GeometryRecords>
    <use name=FWCore/Framework>

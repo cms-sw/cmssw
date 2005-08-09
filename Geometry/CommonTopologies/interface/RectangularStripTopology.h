@@ -1,5 +1,5 @@
-#ifndef _TRACKER_RECTANGULAR_STRIP_TOPOLOGY_H_
-#define _TRACKER_RECTANGULAR_STRIP_TOPOLOGY_H_
+#ifndef Geometry_CommonTopologies_RectangularStripTopology_H
+#define Geometry_CommonTopologies_RectangularStripTopology_H
 
 /** Specialised strip topology for rectangular barrel detectors.
  *  The strips are parallel to the local Y axis, so X is the precisely

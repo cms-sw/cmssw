@@ -1,5 +1,5 @@
-#ifndef _TRACKER_TOPOLOGY_H_
-#define _TRACKER_TOPOLOGY_H_
+#ifndef Geometry_CommonTopologies_Topology_H
+#define Geometry_CommonTopologies_Topology_H
 
 
 #include "Geometry/CommonDetAlgo/interface/LocalError.h"
@@ -7,7 +7,7 @@
 #include "Geometry/CommonDetAlgo/interface/MeasurementPoint.h"
 #include "Geometry/CommonDetAlgo/interface/MeasurementError.h"
 
-class DetType;
+class GeomDetType;
 
 /** Abstract component defining the conversion between the local frame of
  *  a detector and the frame defined by the readout channels ,

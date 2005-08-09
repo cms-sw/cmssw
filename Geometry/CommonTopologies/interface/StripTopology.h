@@ -1,5 +1,5 @@
-#ifndef _TRACKER_STRIP_TOPOLOGY_H_
-#define _TRACKER_STRIP_TOPOLOGY_H_
+#ifndef Geometry_CommonTopologies_StripTopology_H
+#define Geometry_CommonTopologies_StripTopology_H
 
 #include "Geometry/CommonTopologies/interface/Topology.h"
 
@@ -7,6 +7,8 @@
  *  Extends the Topology interface with methods relevant for
  *  strip or wire detectors.
  */
+class Topology;
+
 
 class StripTopology : public Topology {
 public:
