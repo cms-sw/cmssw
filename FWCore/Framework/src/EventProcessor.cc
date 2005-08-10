@@ -289,7 +289,7 @@ namespace edm {
 	FDEBUG(1) << eventcount << std::endl;
 	auto_ptr<EventPrincipal> pep = input_->readEvent();
 	if(pep.get()==0) break;
-	edm::IOVSyncValue ts(eventcount);
+	edm::IOVSyncValue ts(pep->id(), pep->time());
 	EventSetup const& es = esp_.eventSetupForInstance(ts);
 
 	try
