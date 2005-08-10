@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EmptyInputService.cc,v 1.9 2005/07/30 04:27:03 wmtan Exp $
+$Id: EmptyInputService.cc,v 1.10 2005/08/10 02:29:27 chrjones Exp $
 ----------------------------------------------------------------------*/
 
 #include <stdexcept>
@@ -22,12 +22,21 @@ namespace edm {
     throw std::runtime_error("FakeRetriever::get called");
   }
 
+  //used for defaults
+  static const unsigned long kNanoSecPerSec = 1000000000;
+  static const unsigned long kAveEventPerSec = 200;
+  
   EmptyInputService::EmptyInputService(ParameterSet const& pset,
 				       InputServiceDescription const& desc) :
     InputService(desc),
-    nextID_(EventID::firstValidEvent() ),
     remainingEvents_(pset.getUntrackedParameter<int>("maxEvents", -1)),
-    retriever_(new FakeRetriever())
+    retriever_(new FakeRetriever()),
+    numberEventsInRun_(pset.getUntrackedParameter<unsigned int>("numberEventsInRun", remainingEvents_+1)),
+    presentRun_( pset.getUntrackedParameter<unsigned int>("firstRun",1)  ),
+    nextTime_(pset.getUntrackedParameter<unsigned int>("firstTime",1)),  //time in ns
+    timeBetweenEvents_(pset.getUntrackedParameter<unsigned int>("timeBetweenEvents",kNanoSecPerSec/kAveEventPerSec) ),
+    numberEventsInThisRun_(0),
+    nextID_(presentRun_, 1 )   
   { }
 
   EmptyInputService::~EmptyInputService() {
@@ -39,8 +48,14 @@ namespace edm {
     std::auto_ptr<EventPrincipal> result(0);
     
     if (remainingEvents_-- != 0) {
-      result = std::auto_ptr<EventPrincipal>(new EventPrincipal(nextID_, *retriever_, *preg_));
-      nextID_ = nextID_.next();
+      result = std::auto_ptr<EventPrincipal>(new EventPrincipal(nextID_, Timestamp(nextTime_),*retriever_, *preg_));
+      if( ++numberEventsInThisRun_ < numberEventsInRun_ ) {
+        nextID_ = nextID_.next();
+      } else {
+        nextID_ = nextID_.nextRunFirstEvent();
+        numberEventsInThisRun_ = 0;
+      }
+      nextTime_ += timeBetweenEvents_;
     }
     return result;
   }

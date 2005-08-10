@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EmptyInputService.h,v 1.3 2005/07/14 21:34:44 wmtan Exp $
+$Id: EmptyInputService.h,v 1.4 2005/08/10 02:29:28 chrjones Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -19,9 +19,17 @@ namespace edm {
   private:
     std::auto_ptr<EventPrincipal> read();
     
-    EventID nextID_;
     int remainingEvents_;
     Retriever* retriever_;
+    
+    unsigned long numberEventsInRun_;
+    unsigned long presentRun_;
+    unsigned long long nextTime_;
+    unsigned long timeBetweenEvents_;
+
+    unsigned long numberEventsInThisRun_;
+    EventID nextID_;
+
   };
 
 
