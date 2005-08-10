@@ -12,6 +12,7 @@
 #include "FWCore/Framework/interface/ValidityInterval.h"
 #include <cppunit/extensions/HelperMacros.h>
 
+using edm::Timestamp;
 using edm::IOVSyncValue;
 using edm::ValidityInterval;
 
@@ -41,11 +42,13 @@ void testinterval::comparisonTest()
 {
    const IOVSyncValue invalid(IOVSyncValue::invalidIOVSyncValue());
    
-   const IOVSyncValue one(1);
-   const IOVSyncValue two(2);
+   const Timestamp t_1(1);
+   const IOVSyncValue one( t_1);
+   const Timestamp t_2(2);
+   const IOVSyncValue two(t_2);
    
    CPPUNIT_ASSERT(invalid == IOVSyncValue::invalidIOVSyncValue());
-   CPPUNIT_ASSERT(one == IOVSyncValue(1));
+   CPPUNIT_ASSERT(one == IOVSyncValue(t_1));
    
    CPPUNIT_ASSERT(invalid != one);
 
@@ -65,7 +68,8 @@ void testinterval::comparisonTest()
 
 void testinterval::timestampAssignmentTest()
 {
-   const IOVSyncValue one(1);
+   const Timestamp t_1(1);
+   const IOVSyncValue one(t_1);
    
    IOVSyncValue temp(IOVSyncValue::invalidIOVSyncValue());
    CPPUNIT_ASSERT(temp != one);
@@ -76,7 +80,9 @@ void testinterval::timestampAssignmentTest()
 void testinterval::intervalAssignmentTest()
 {
    ValidityInterval temp;
-   const ValidityInterval oneAndTwo(IOVSyncValue(1), IOVSyncValue(2));
+   const Timestamp t_1(1);
+   const IOVSyncValue s_1(t_1);
+   const ValidityInterval oneAndTwo(s_1, IOVSyncValue( Timestamp(2) ));
    
    CPPUNIT_ASSERT(temp != oneAndTwo);
    CPPUNIT_ASSERT(! (temp == oneAndTwo));

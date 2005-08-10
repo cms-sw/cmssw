@@ -65,7 +65,8 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testEventsetup);
 void testEventsetup::constructTest()
 {
    eventsetup::EventSetupProvider provider;
-   const IOVSyncValue timestamp( 1 );
+   const Timestamp time(1);
+   const IOVSyncValue timestamp( time );
    EventSetup const& eventSetup = provider.eventSetupForInstance(timestamp);
    CPPUNIT_ASSERT(&eventSetup != 0);
    CPPUNIT_ASSERT(eventSetup.iovSyncValue() == timestamp);
@@ -161,22 +162,24 @@ void testEventsetup::recordValidityTest()
    provider.insert(dummyRecordProvider);
    
    {
-      EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue(1));
+      Timestamp time_1(1);
+      EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue(time_1));
    // BOOST_CHECK_THROW(eventSetup.get<DummyRecord>(), edm::eventsetup::NoRecordException<DummyRecord>);
    //eventSetup.get<DummyRecord>();
    }
 
-   finder->setInterval(ValidityInterval(IOVSyncValue(2), IOVSyncValue(3)));
+   const Timestamp time_2(2);
+   finder->setInterval(ValidityInterval(IOVSyncValue(time_2), IOVSyncValue( Timestamp(3) )));
    {
-      EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue(2));
+      EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue(time_2));
       eventSetup.get<DummyRecord>();
    }
    {
-      EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue(3));
+      EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue( Timestamp(3) ));
       eventSetup.get<DummyRecord>();
    }
    {
-      EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue(4));
+      EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue( Timestamp(4) ));
    //   BOOST_CHECK_THROW(eventSetup.get<DummyRecord>(), edm::eventsetup::NoRecordException<DummyRecord>);
    eventSetup.get<DummyRecord>();
    }
@@ -196,7 +199,7 @@ void testEventsetup::recordValidityExcTest()
    provider.insert(dummyRecordProvider);
    
    {
-      EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue(1));
+      EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue( Timestamp(1) ));
    // BOOST_CHECK_THROW(eventSetup.get<DummyRecord>(), edm::eventsetup::NoRecordException<DummyRecord>);
    eventSetup.get<DummyRecord>();
    }
