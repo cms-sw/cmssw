@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: AnalyzerWorker.cc,v 1.4 2005/07/20 03:00:36 jbk Exp $
+$Id: AnalyzerWorker.cc,v 1.5 2005/07/20 04:11:41 jbk Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/src/AnalyzerWorker.h"
@@ -50,7 +50,7 @@ namespace edm
 	  case actions::IgnoreCompletely:
 	    {
 	      rc=true;
-	      cerr << "Analzer ignored an exception for event " << ep.id()
+	      cerr << "Analyzer ignored an exception for event " << ep.id()
 		   << "\nmessage from exception:\n" << e.what()
 		   << endl;
 	      break;
