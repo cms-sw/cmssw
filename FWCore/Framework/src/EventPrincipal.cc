@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EventPrincipal.cc,v 1.18 2005/07/30 23:45:20 wmtan Exp $
+$Id: EventPrincipal.cc,v 1.19 2005/08/01 19:25:53 wmtan Exp $
 ----------------------------------------------------------------------*/
 //#include <iostream>
 #include <memory>
@@ -24,7 +24,7 @@ namespace edm {
   {
   }
 
-  EventPrincipal::EventPrincipal(CollisionID const& id,
+  EventPrincipal::EventPrincipal(EventID const& id,
 	 Retriever& r, ProductRegistry const& reg, ProcessNameList const& nl) :
     aux_(id),
     groups_(),
@@ -36,15 +36,33 @@ namespace edm {
     aux_.process_history_ = nl;
     groups_.reserve(reg.productList().size());
   }
- 
+
+  EventPrincipal::EventPrincipal(EventID const& id, Timestamp const& time,
+                                 Retriever& r, ProductRegistry const& reg, ProcessNameList const& nl) :
+   aux_(id,time),
+   groups_(),
+   branchDict_(),
+   typeDict_(),
+   store_(&r),
+   preg_(&reg)
+  {
+    aux_.process_history_ = nl;
+    groups_.reserve(reg.productList().size());
+  }
+
   EventPrincipal::~EventPrincipal() {
   }
 
-  CollisionID
+  EventID
   EventPrincipal::id() const {
     return aux_.id_;
   }
 
+  Timestamp
+  EventPrincipal::time() const {
+    return aux_.time_;
+  }
+   
   void 
   EventPrincipal::addGroup(auto_ptr<Group> group) {
     assert (!group->productDescription().fullClassName_.empty());

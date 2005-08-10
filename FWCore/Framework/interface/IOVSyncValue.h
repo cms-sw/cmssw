@@ -16,14 +16,15 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Aug  3 18:35:24 EDT 2005
-// $Id$
+// $Id: IOVSyncValue.h,v 1.1 2005/08/04 14:25:47 chrjones Exp $
 //
 
 // system include files
 #include <functional>
 
 // user include files
-#include "FWCore/EDProduct/interface/CollisionID.h"
+#include "FWCore/EDProduct/interface/EventID.h"
+#include "FWCore/EDProduct/interface/Timestamp.h"
 
 // forward declarations
 
@@ -34,38 +35,32 @@ class IOVSyncValue
    public:
       IOVSyncValue();
       //virtual ~IOVSyncValue();
-      explicit IOVSyncValue(const CollisionID& iID) : collisionID_(iID) {} 
-      //explicit IOVSyncValue( const Timestamp& iID)
-      //IOVSyncValue( const CollisionID& iID, const Timestamp& iID)
+      explicit IOVSyncValue(const EventID& iID);
+      explicit IOVSyncValue( const Timestamp& iTime);
+      IOVSyncValue( const EventID& iID, const Timestamp& iID);
 
       // ---------- const member functions ---------------------
-      const CollisionID& collisionID() const { return collisionID_;}
-      //const Timestamp& time() const {return time_; }
+      const EventID& eventID() const { return eventID_;}
+      const Timestamp& time() const {return time_; }
       
       bool operator==(const IOVSyncValue& iRHS) const {
          return doOp<std::equal_to>( iRHS);
-         //return collisionID_ == iRHS.collisionID_;
       }
       bool operator!=(const IOVSyncValue& iRHS) const {
          return doOp<std::not_equal_to>( iRHS);
-         //return collisionID_ != iRHS.collisionID_;
       }
       
       bool operator<(const IOVSyncValue& iRHS) const {
          return doOp<std::less>( iRHS);
-         //return collisionID_ < iRHS.collisionID_;
       }
       bool operator<=(const IOVSyncValue& iRHS) const {
          return doOp<std::less_equal>( iRHS);
-         //return collisionID_ <= iRHS.collisionID_;
       }
       bool operator>(const IOVSyncValue& iRHS) const {
          return doOp<std::greater>( iRHS);
-         //return collisionID_ > iRHS.collisionID_;
       }
       bool operator>=(const IOVSyncValue& iRHS) const {
          return doOp<std::greater_equal>( iRHS);
-         //return collisionID_ >= iRHS.collisionID_;
       }
       
       // ---------- static member functions --------------------
@@ -82,23 +77,23 @@ class IOVSyncValue
       template< template <typename> class Op >
          bool doOp(const IOVSyncValue& iRHS ) const {
             bool returnValue = false;
-            //if( haveID_ && iRHS.haveID_ ) {
-               Op<CollisionID> op;
-               returnValue = op(collisionID_, iRHS.collisionID_);
-            //} else if ( haveTime_ && iRHS.haveTime_ ) {
-            //   Op<Timestamp> op;
-            //   returnValue = op(time_, iRHS.time_);
-            //} else {
+            if( haveID_ && iRHS.haveID_ ) {
+               Op<EventID> op;
+               returnValue = op(eventID_, iRHS.eventID_);
+            } else if ( haveTime_ && iRHS.haveTime_ ) {
+               Op<Timestamp> op;
+               returnValue = op(time_, iRHS.time_);
+            } else {
                //error
-            //}
+            }
             return returnValue;
          }
          
       // ---------- member data --------------------------------
-      CollisionID collisionID_;
-      //Timestamp time_;
-      //bool haveID_;
-      //bool haveTime_;
+      EventID eventID_;
+      Timestamp time_;
+      bool haveID_;
+      bool haveTime_;
 };
 
 }

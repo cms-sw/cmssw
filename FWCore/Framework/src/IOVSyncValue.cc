@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Aug  3 18:35:35 EDT 2005
-// $Id$
+// $Id: IOVSyncValue.cc,v 1.1 2005/08/04 14:25:45 chrjones Exp $
 //
 
 // system include files
@@ -30,9 +30,26 @@ namespace edm {
 //
 // constructors and destructor
 //
-//IOVSyncValue::IOVSyncValue()
-//{
-//}
+IOVSyncValue::IOVSyncValue(): haveID_(true), haveTime_(true)
+{
+}
+
+IOVSyncValue::IOVSyncValue(const EventID& iID): eventID_(iID),
+haveID_(true), haveTime_(false)
+{
+}
+
+IOVSyncValue::IOVSyncValue(const Timestamp& iTime): time_(iTime),
+haveID_(false), haveTime_(true)
+{
+}
+
+IOVSyncValue::IOVSyncValue(const EventID& iID, const Timestamp& iTime): 
+
+eventID_(iID), time_(iTime),
+haveID_(true), haveTime_(true)
+{
+}
 
 // IOVSyncValue::IOVSyncValue( const IOVSyncValue& rhs )
 // {
@@ -68,17 +85,18 @@ namespace edm {
 //
 const IOVSyncValue&
 IOVSyncValue::invalidIOVSyncValue() {
-   static IOVSyncValue s_invalid(0);
+   static IOVSyncValue s_invalid;
    return s_invalid;
 }
 const IOVSyncValue&
 IOVSyncValue::endOfTime() {
-   static IOVSyncValue s_endOfTime(0xFFFFFFFFUL);
+   static IOVSyncValue s_endOfTime(EventID(0xFFFFFFFFUL, EventID::maxEventNumber()),
+                                   Timestamp::endOfTime() );
    return s_endOfTime;
 }
 const IOVSyncValue&
 IOVSyncValue::beginOfTime() {
-   static IOVSyncValue s_beginOfTime(1);
+   static IOVSyncValue s_beginOfTime( EventID(1,0), Timestamp::beginOfTime() );
    return s_beginOfTime;
 }
    }

@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: Event.cc,v 1.13 2005/08/02 22:28:28 wmtan Exp $
+$Id: Event.cc,v 1.14 2005/08/03 05:31:53 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -60,10 +60,16 @@ namespace edm {
 #endif
   }
 
-  CollisionID
+  EventID
   Event::id() const
   {
     return ep_.id();
+  }
+
+  Timestamp
+  Event::time() const
+  {
+    return ep_.time();
   }
 
   void 
