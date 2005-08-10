@@ -6,7 +6,7 @@
 Event: This is the primary interface for accessing
 EDProducts from a single collision and inserting new derived products.
 
-$Id: Event.h,v 1.12 2005/07/30 04:37:13 wmtan Exp $
+$Id: Event.h,v 1.13 2005/07/30 23:44:24 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
@@ -17,7 +17,8 @@ $Id: Event.h,v 1.12 2005/07/30 04:37:13 wmtan Exp $
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/EDProduct/interface/Wrapper.h"
 
-#include "FWCore/EDProduct/interface/CollisionID.h"
+#include "FWCore/EDProduct/interface/EventID.h"
+#include "FWCore/EDProduct/interface/Timestamp.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/BasicHandle.h"
 
@@ -33,8 +34,9 @@ namespace edm {
     ~Event();
 
     // these must come from the ep.
-    CollisionID id() const;
-
+    EventID id() const;
+    Timestamp time() const;
+    
     // How do these get set in the first place?
     const LuminositySection& getLuminositySection() const;
     const Run& getRun() const;
