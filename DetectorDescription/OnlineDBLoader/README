@@ -1,0 +1,16 @@
+README FOR CMS Detector Gemoetry Dtabase (DGD)
+
+The steps to create CMS DGD database is below:
+(1) run CMS_DTCTR_GEOMETRY_OWNER.sql under any sqlplus.
+(2a) run asciidump.py on any linux machine that has python 2.3 or above installed.
+    Make sure you have a correct configuration.xml that lists all the 
+    subdetectors' XML files. And these are avaiable to you.
+(2b)run COBRA_8_4_0/src/DDD/DDRegressionTest/test/physicalparts_table.cpp with 
+    a correct configuration.xml to generate data for tables NOMINALPLACEMENTS and 
+    PHYSICALPARTSTREE.
+(3) Correctly setup oracle on any linux machine. Run load_all_tables.sh script
+    to generat the rest of data.
+
+Note We have data generated from the XMLs listed in the configuration.xml file 
+in the CVS. So one can load these data and scape step 2. If you think the XML
+files are changed, you should use the new XML files to generated the new data.
