@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: AsciiOutputModule.cc,v 1.8 2005/07/26 23:00:16 wmtan Exp $
+$Id: AsciiOutputModule.cc,v 1.9 2005/07/28 19:35:57 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -35,7 +35,8 @@ namespace edm {
     if ((++counter_ % prescale_) != 0 || verbosity_ <= 0) return;
 
     //  const Run & run = evt.getRun(); // this is still unused
-    *pout_ << ">>> processing event # " << e.id() << std::endl;
+    *pout_ << ">>> processing event # " << e.id() <<" time " <<e.time().value()
+           << std::endl;
 
     if (verbosity_ <= 1) return;
 
