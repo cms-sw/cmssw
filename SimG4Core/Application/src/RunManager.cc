@@ -88,11 +88,10 @@ RunManager::~RunManager()
 void RunManager::initG4(const edm::EventSetup & es)
 {
     if (m_managerInitialized) return;
-    //
-    // do it in the correct way: get the DDCV from the ES and use it to build the World
-    //
+
+    // DDDWorld: get the DDCV from the ES and use it to build the World
     edm::eventsetup::ESHandle<DDCompactView> pDD;
-    es.get<IdealGeometryRecord>().get( pDD );
+    es.get<IdealGeometryRecord>().get(pDD);
    
     DDDWorld * world = new DDDWorld(&(*pDD));
 
@@ -193,7 +192,6 @@ void RunManager::abortEvent()
 
 void RunManager::initializeUserActions()
 {
-    DDDWorldObserver(m_context.get(), "DDDWorld"); 
     m_userRunAction = new RunAction(m_pRunAction);
     G4EventManager * eventManager = m_kernel->GetEventManager();
     eventManager->SetVerboseLevel(m_EvtMgrVerbosity);
@@ -283,13 +281,13 @@ void RunManager::eventRNDMstore(int run, int event)
     std::ostrstream os;
     os << "Run" << run << "/evt" << event << ".rndm" << '\0';
     m_engine->saveStatus(os.str());
-//     if (verbosity>2)
-//     {
-//         std::cout << " random numbers saved in: " << os.str() << std::endl;
-//         m_engine->showStatus();
-//     }
+    if (m_EvtMgrVerbosity>2)
+    {
+        std::cout << " random numbers saved in: " << os.str() << std::endl;
+        m_engine->showStatus();
+    }
 }
-                                                                                                                                                
+
 void RunManager::eventRNDMrestore(int run, int event)
 {
     std::ostrstream os;
@@ -300,10 +298,10 @@ void RunManager::eventRNDMrestore(int run, int event)
         return;
     }
     m_engine->restoreStatus(os.str());
-//     if (verbosity>2)
-//     {
-//         std::cout << "Random number status restored from: " << os.str() <<std:: endl;
-//         m_engine->showStatus();
-//     }
+    if (m_EvtMgrVerbosity>2)
+    {
+        std::cout << "Random number status restored from: " << os.str() <<std:: endl;
+        m_engine->showStatus();
+    }
 }
  
