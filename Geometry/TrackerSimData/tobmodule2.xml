@@ -1,0 +1,106 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
+
+<ConstantsSection label="tobmodule2.xml" eval="true">
+ <Constant name="zero"          value="0.0*fm"/>
+</ConstantsSection>
+
+<LogicalPartSection label="tobmodule2.xml">
+ <LogicalPart name="TOBModule2" category="unspecified">
+  <rSolid name="tobmodpar:TOBModule"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
+ <LogicalPart name="TOBHybrid2" category="unspecified">
+  <rSolid name="tobmodpar:TOBHybrid"/>
+  <rMaterial name="tobmaterial:TOB_ele7"/>
+ </LogicalPart>
+ <LogicalPart name="TOBWaferRphi2" category="unspecified">
+  <rSolid name="tobmodpar:TOBWaferRphi"/>
+  <rMaterial name="materials:Silicon"/>
+ </LogicalPart>
+ <LogicalPart name="TOBActiveRphi2" category="unspecified">
+  <rSolid name="tobmodpar:TOBActiveRphi"/>
+  <rMaterial name="materials:Silicon"/>
+ </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="tobmodule2.xml">
+ <PosPart copyNumber="1">
+   <rParent name="tobmodule2:TOBActiveRphi2"/>
+   <rChild name="tobmodpar:TOBInactive"/>
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="tobmodule2:TOBWaferRphi2"/>
+   <rChild name="tobmodule2:TOBActiveRphi2"/>
+ </PosPart>
+
+ <PosPart copyNumber="1">
+   <rParent name="tobmodule2:TOBModule2"/>
+   <rChild name="tobmodule2:TOBWaferRphi2"/>
+  <rRotation name="tobmodpar:Rphi"/>
+  <Translation x="[zero]"                 y="-[tobmodpar:WaferY]" 
+               z="-[tobmodpar:WaferZ]" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="tobmodule2:TOBModule2"/>
+   <rChild name="tobmodule2:TOBHybrid2"/>
+  <Translation x="[zero]"                 y="-[tobmodpar:HybridY]" 
+               z="[tobmodpar:HybridZ]"  />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="tobmodule2:TOBModule2"/>
+   <rChild name="tobmodpar:TOBPA1"/>
+  <Translation x="[zero]"                 y="-[tobmodpar:PAY]" 
+               z="[tobmodpar:PAZ]"  />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="tobmodule2:TOBModule2"/>
+   <rChild name="tobmodpar:TOBSideRailL"/>
+  <Translation x="-[tobmodpar:SideRailX]" y="-[tobmodpar:SideRailY]" 
+               z="-[tobmodpar:SideRailZ]" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="tobmodule2:TOBModule2"/>
+   <rChild name="tobmodpar:TOBSideRailR"/>
+  <Translation x="[tobmodpar:SideRailX]"  y="-[tobmodpar:SideRailY]" 
+               z="-[tobmodpar:SideRailZ]" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="tobmodule2:TOBModule2"/>
+   <rChild name="tobmodpar:TOBFrame"/>
+  <Translation x="[zero]"                 y="-[tobmodpar:FrameY]" 
+               z="[tobmodpar:FrameZ]"  />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="tobmodule2:TOBModule2"/>
+   <rChild name="tobmodpar:TOBHybSup"/>
+  <Translation x="[zero]"                 y="-[tobmodpar:HybSupY]" 
+               z="[tobmodpar:HybSupZ]"  />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="tobmodule2:TOBModule2"/>
+   <rChild name="tobmodpar:TOBModCool1"/>
+  <Translation x="-[tobmodpar:ModCool1X]" y="-[tobmodpar:ModCool1Y]" 
+               z="-[tobmodpar:ModCool1Z]" />
+ </PosPart>
+ <PosPart copyNumber="2">
+   <rParent name="tobmodule2:TOBModule2"/>
+   <rChild name="tobmodpar:TOBModCool1"/>
+  <Translation x="[tobmodpar:ModCool1X]" y="-[tobmodpar:ModCool1Y]" 
+               z="-[tobmodpar:ModCool1Z]" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="tobmodule2:TOBModule2"/>
+   <rChild name="tobmodpar:TOBModCool2"/>
+  <Translation x="-[tobmodpar:ModCool2X]" y="-[tobmodpar:ModCool2Y]" 
+               z="[tobmodpar:ModCool2Z]"  />
+ </PosPart>
+ <PosPart copyNumber="2">
+   <rParent name="tobmodule2:TOBModule2"/>
+   <rChild name="tobmodpar:TOBModCool2"/>
+  <Translation x="[tobmodpar:ModCool2X]"  y="-[tobmodpar:ModCool2Y]" 
+               z="[tobmodpar:ModCool2Z]"  />
+ </PosPart>
+</PosPartSection>
+
+</DDDefinition>

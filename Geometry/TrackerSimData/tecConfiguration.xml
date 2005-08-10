@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<Configuration xmlns="." xmlns:xsi="." xsi:schemaLocation= "." name="CMSConfiguration" version="0">
+<Include name="test">
+      <File name="Materials/materials.xml"                   url="../../../"/>
+      <File name="tecmaterial.xml"                           url="."/>
+      <File name="tecmodpar.xml"                             url="."/>
+      <File name="tecmodule0.xml"                            url="."/>
+      <File name="tecmodule1.xml"                            url="."/>
+      <File name="tecmodule2.xml"                            url="."/>
+      <File name="tecmodule3.xml"                            url="."/>
+      <File name="tecmodule4.xml"                            url="."/>
+      <File name="tecmodule5.xml"                            url="."/>
+      <File name="tecmodule6.xml"                            url="."/>
+      <File name="tecpetpar.xml"                             url="."/>
+      <File name="tecring0.xml"                              url="."/>
+      <File name="tecring1.xml"                              url="."/>
+      <File name="tecring2.xml"                              url="."/>
+      <File name="tecring3.xml"                              url="."/>
+      <File name="tecring4.xml"                              url="."/>
+      <File name="tecring5.xml"                              url="."/>
+      <File name="tecring6.xml"                              url="."/>
+      <File name="tecring0f.xml"                             url="."/>
+      <File name="tecring1f.xml"                             url="."/>
+      <File name="tecring2f.xml"                             url="."/>
+      <File name="tecring3f.xml"                             url="."/>
+      <File name="tecring4f.xml"                             url="."/>
+      <File name="tecring5f.xml"                             url="."/>
+      <File name="tecring6f.xml"                             url="."/>
+      <File name="tecring0b.xml"                             url="."/>
+      <File name="tecring1b.xml"                             url="."/>
+      <File name="tecring2b.xml"                             url="."/>
+      <File name="tecring3b.xml"                             url="."/>
+      <File name="tecring4b.xml"                             url="."/>
+      <File name="tecring5b.xml"                             url="."/>
+      <File name="tecring6b.xml"                             url="."/>
+      <File name="tecpetalf.xml"                             url="."/>
+      <File name="tecpetalb.xml"                             url="."/>
+      <File name="tecpetal0.xml"                             url="."/>
+      <File name="tecpetal0f.xml"                            url="."/>
+      <File name="tecpetal0b.xml"                            url="."/>
+      <File name="tecpetal3.xml"                             url="."/>
+      <File name="tecpetal3f.xml"                            url="."/>
+      <File name="tecpetal3b.xml"                            url="."/>
+      <File name="tecpetal6f.xml"                            url="."/>
+      <File name="tecpetal6b.xml"                            url="."/>
+      <File name="tecpetal8f.xml"                            url="."/>
+      <File name="tecpetal8b.xml"                            url="."/>
+      <File name="tecwheel.xml"                              url="."/>
+      <File name="tecwheela.xml"                             url="."/>
+      <File name="tecwheelb.xml"                             url="."/>
+      <File name="tecwheelc.xml"                             url="."/>
+      <File name="tecwheeld.xml"                             url="."/>
+      <File name="tec.xml"                                   url="."/>
+ </Include>
+ <Root fileName="tec.xml"     logicalPartName="TEC"/>
+</Configuration>

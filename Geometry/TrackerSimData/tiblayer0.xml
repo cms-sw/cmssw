@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
+
+<ConstantsSection label="tiblayer0.xml" eval="true">
+ <Constant name="RadiusUp"       value="([tiblayerpar:RadiusLo0]+
+                                         [tiblayerpar:DRUpLo])"/>
+</ConstantsSection>
+
+<Algorithm name="track:DDTIBLayerAlgo">
+  <rParent name="tiblayer0:TIBLayer0"/>
+  <String name="GeneralMaterial"    value="materials:Air"/>
+  <Numeric name="DetectorTilt"      value="[tiblayerpar:DetTilt]"/>
+  <Numeric name="LayerL"            value="[tibstringpar:StringL]"/>
+  <Numeric name="LayerTolerance"    value="[tiblayerpar:Tolerance]"/>
+  <Numeric name="DetectorWidth"     value="2*[tibmodpar:ModuleDx]"/>
+  <Numeric name="DetectorThickness" value="2*[tibmodpar:ModuleDy]"/>
+  <Numeric name="CoolTubeWidth"     value="[tibstringpar:CoolTubeW]"/>
+  <Numeric name="CoolTubeThickness" value="[tibstringpar:CoolTubeD]"/>
+  <Numeric name="RadiusLo"          value="[tiblayerpar:RadiusLo0]"/>
+  <Numeric name="PhiOffsetLo"       value="7.294*deg"/>
+  <Numeric name="StringsLo"         value="26"/>
+  <String name="StringDetLoName"    value="tibstring0:TIBString0Lo1"/>
+  <Numeric name="ROffsetDetLo"      value="[tiblayerpar:ROffDet]"/>
+  <String name="StringCabLoName"    value="tibstring0:TIBString0Lo2"/>
+  <Numeric name="ROffsetCabLo"      value="[tiblayerpar:ROffCable]"/>
+  <Numeric name="RadiusUp"          value="[tiblayer0:RadiusUp]"/>
+  <Numeric name="PhiOffsetUp"       value="6.428*deg"/>
+  <Numeric name="StringsUp"         value="30"/>
+  <String name="StringDetUpName"    value="tibstring0:TIBString0Up1"/>
+  <Numeric name="ROffsetDetUp"      value="-[tiblayerpar:ROffDet]"/>
+  <String name="StringCabUpName"    value="tibstring0:TIBString0Up2"/>
+  <Numeric name="ROffsetCabUp"      value="-[tiblayerpar:ROffCable]"/>
+  <Numeric name="CylinderThickness" value="[tiblayerpar:CylinderT]"/>
+  <String name="CylinderMaterial"   value="tibmaterial:TIB_cylinder"/>
+  <Numeric name="SupportWidth"      value="[tiblayerpar:SupportW]"/>
+  <Numeric name="SupportThickness"  value="[tiblayerpar:SupportT]"/>
+  <String name="SupportMaterial"    value="tibmaterial:TIB_cent_supp"/>
+  <String name="RibMaterial"        value="tibmaterial:TIB_Rib_in1"/>
+  <Vector name="RibWidth" type="numeric" nEntries="6">
+   [tiblayerpar:RibWidth1], [tiblayerpar:RibWidth2], [tiblayerpar:RibWidth2], 
+   [tiblayerpar:RibWidth1], [tiblayerpar:RibWidth2], [tiblayerpar:RibWidth2] 
+  </Vector>
+  <Vector name="RibPhi" type="numeric" nEntries="6">
+   0*deg, 51.4*deg, 128.6*deg, 180.0*deg, 231.4*deg, 308.6*deg
+  </Vector>
+</Algorithm>
+
+</DDDefinition>

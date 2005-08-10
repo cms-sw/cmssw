@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
+
+<ConstantsSection label="tecring1b.xml" eval="true">
+ <Constant name="Modules"   value="1"/>
+ <Constant name="DPhi"      value="360*deg/[tecring1:NPhi]"/>
+ <Constant name="Phi"       value="([Modules]-1)*[DPhi]"/>
+ <Constant name="Phi0"      value="-[Phi]/2"/>
+ <Constant name="RminICC"   value="35.50*cm"/>
+ <Constant name="RmaxICC"   value="39.10*cm"/>
+ <Constant name="AngleHyb0" value="-10.0*deg"/>
+ <Constant name="AngleHyb1" value="10.0*deg"/>
+ <Constant name="Bridges"   value="0"/>
+ <Constant name="PhiBridge" value="[Phi0]"/>
+ <Constant name="CoolIns0"  value="3333"/>
+</ConstantsSection>
+
+<SolidSection label="tecring1b.xml">
+ <Tubs name="TECICC1B1"              rMin="[RminICC]" 
+       rMax="[RmaxICC]"              dz="[tecpetpar:ICCThick]/2" 
+       startPhi="-11.3*deg"          deltaPhi="22.6*deg"/>
+</SolidSection>
+
+<LogicalPartSection label="tecring1b.xml">
+ <LogicalPart name="TECRing1B" category="unspecified">
+  <rSolid name="tecring1:TECRing1"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
+ <LogicalPart name="TECICC1B1" category="unspecified">
+  <rSolid name="tecring1b:TECICC1B1"/>
+  <rMaterial name="tecmaterial:TEC_ICC22"/>
+ </LogicalPart>
+ <LogicalPart name="TECRing1BridgeB" category="unspecified">
+  <rSolid name="tecring1:TECRing1Bridge"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
+</LogicalPartSection>
+
+<Algorithm name="track:DDTECPhiAltAlgo">
+  <rParent name="tecring1b:TECRing1B"/>
+  <String name="ChildName"    value="tecmodule1:TECModule1"/>
+  <Numeric name="StartAngle"  value="[Phi0]"/>
+  <Numeric name="IncrAngle"   value="[DPhi]"/>
+  <Numeric name="Radius"      value="[tecring1:RPos]"/>
+  <Numeric name="ZIn"         value="-[tecpetpar:ModuleZ]"/>
+  <Numeric name="ZOut"        value="[tecpetpar:ModuleZ]"/>
+  <Numeric name="Number"      value="[Modules]"/>
+  <Numeric name="StartCopyNo" value="3"/>
+  <Numeric name="IncrCopyNo"  value="1"/>
+</Algorithm>
+
+</DDDefinition>

@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<Configuration xmlns="." xmlns:xsi="." xsi:schemaLocation= "." name="CMSConfiguration" version="0">
+<Include name="test">
+      <File name="Materials/materials.xml"                   url="../../../"/>
+      <File name="pixbarmaterial.xml"                        url="."/>
+      <File name="pixbarladder.xml"                          url="."/>
+      <File name="pixbarladderfull.xml"                      url="."/>
+      <File name="pixbarladderhalf.xml"                      url="."/>
+      <File name="pixbarlayer.xml"                           url="."/>
+      <File name="pixbarlayer0.xml"                          url="."/>
+      <File name="pixbarlayer1.xml"                          url="."/>
+      <File name="pixbarlayer2.xml"                          url="."/>
+      <File name="pixbar.xml"                                url="."/>
+ </Include>
+ <Root fileName="pixbar.xml"  logicalPartName="PixelBarrel"/>
+</Configuration>

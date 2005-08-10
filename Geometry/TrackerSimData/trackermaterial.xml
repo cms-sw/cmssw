@@ -1,0 +1,159 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
+
+<MaterialSection label="trackermaterial.xml">
+  <CompositeMaterial name="active_screen" density="11.197*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.025418913">
+      <rMaterial name="materials:Hydrogen"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.085235146">
+      <rMaterial name="materials:Oxygen"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.50483588">
+      <rMaterial name="materials:Carbon"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.38451007">
+      <rMaterial name="materials:Fluorine"/>
+    </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="Tk_panels_in" density="1.69*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.84491305">
+      <rMaterial name="materials:Carbon"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.042542086">
+      <rMaterial name="materials:Hydrogen"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.11254487">
+      <rMaterial name="materials:Oxygen"/>
+    </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="Tk_panels_mid1" density="369*mg/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.12124824">
+      <rMaterial name="materials:Carbon"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.00033635314">
+      <rMaterial name="materials:Silicon"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.00086357577">
+      <rMaterial name="materials:Manganese"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="3.600347e-05">
+      <rMaterial name="materials:Sulfur"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="2.5802572e-05">
+      <rMaterial name="materials:Phosphor"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="1.9132278e-05">
+      <rMaterial name="materials:Nickel"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.47867812">
+      <rMaterial name="materials:Copper"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.00014071562">
+      <rMaterial name="materials:Aluminium"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.19944978">
+      <rMaterial name="materials:Iron"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.18738748">
+      <rMaterial name="materials:Fluorine"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.011797875">
+      <rMaterial name="materials:Hydrogen"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="1.6923178e-05">
+      <rMaterial name="materials:Oxygen"/>
+    </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="Tk_panels_mid2" density="194*mg/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.63349108">
+      <rMaterial name="materials:Copper"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.23866723">
+      <rMaterial name="materials:Carbon"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.034156593">
+      <rMaterial name="materials:Hydrogen"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="1.3230116e-05">
+      <rMaterial name="materials:Silicon"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.093671872">
+      <rMaterial name="materials:Oxygen"/>
+    </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="Tk_panels_mid3" density="465*mg/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.072455151">
+      <rMaterial name="materials:Aluminium"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.72006357">
+      <rMaterial name="materials:Copper"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.16472761">
+      <rMaterial name="materials:Carbon"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.027041069">
+      <rMaterial name="materials:Hydrogen"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.0060907501">
+      <rMaterial name="materials:Silver"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.0096218514">
+      <rMaterial name="materials:Oxygen"/>
+    </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="Tk_panels_out" density="1*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.84491305">
+      <rMaterial name="materials:Carbon"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.042542086">
+      <rMaterial name="materials:Hydrogen"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.11254487">
+      <rMaterial name="materials:Oxygen"/>
+    </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="Tk_panels_up" density="233.6*mg/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.079290126">
+      <rMaterial name="materials:Aluminium"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.51267495">
+      <rMaterial name="materials:Copper"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.16108645">
+      <rMaterial name="materials:Carbon"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.022334414">
+      <rMaterial name="materials:Hydrogen"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.0065359956">
+      <rMaterial name="materials:Silver"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.001623786">
+      <rMaterial name="materials:Silicon"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.0016453917">
+      <rMaterial name="materials:Oxygen"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.00048175454">
+      <rMaterial name="materials:Manganese"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="2.0084902e-05">
+      <rMaterial name="materials:Sulfur"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="1.4394228e-05">
+      <rMaterial name="materials:Phosphor"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="1.0673136e-05">
+      <rMaterial name="materials:Nickel"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.11126509">
+      <rMaterial name="materials:Iron"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.10301689">
+      <rMaterial name="materials:Fluorine"/>
+    </MaterialFraction>
+  </CompositeMaterial>
+</MaterialSection>
+
+</DDDefinition>

@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
+
+<ConstantsSection label="tiblayerpar.xml" eval="true">
+ <Constant name="DetTilt"        value="-9.00*deg"/>
+ <Constant name="Tolerance"      value="0.25*cm"/>
+ <Constant name="ROffDet"        value="0.015*cm"/>
+ <Constant name="ROffCable"      value="0.302*cm"/>
+ <Constant name="CylinderT"      value="0.80*cm"/>
+ <Constant name="SupportW"       value="1.00*cm"/>
+ <Constant name="SupportT"       value="0.044*cm"/>
+ <Constant name="RibWidth1"      value="3.50*cm"/>
+ <Constant name="RibWidth2"      value="0.13*cm"/>
+ <Constant name="RadiusLo0"      value="23.90*cm"/>
+ <Constant name="RadiusLo1"      value="32.30*cm"/>
+ <Constant name="RadiusLo2"      value="40.25*cm"/>
+ <Constant name="RadiusLo3"      value="48.20*cm"/>
+ <Constant name="DRUpLo"         value="3.20*cm"/>
+</ConstantsSection>
+
+</DDDefinition>

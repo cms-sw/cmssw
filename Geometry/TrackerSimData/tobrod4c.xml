@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
+
+<ConstantsSection label="tobrod4c.xml" eval="true">
+ <Constant name="zero"          value="0.0*fm"/>
+</ConstantsSection>
+
+<SolidSection label="tobrod4c.xml">
+ <Tubs name="TOBSideCool4"               rMin="[zero]" 
+       rMax="[tobrodpar:SideCoolLightR]" dz="[tobrodpar:SideCoolL]" 
+       startPhi="0*deg"                  deltaPhi="360*deg"/>
+ <Tubs name="TOBEndCool4"                rMin="[zero]" 
+       rMax="[tobrodpar:SideCoolLightR]" dz="[tobrodpar:EndCoolL]" 
+       startPhi="0*deg"                  deltaPhi="360*deg"/>
+ <Tubs name="TOBOptFibre4"               rMin="[zero]" 
+       rMax="[tobrodpar:OptFibreR]"      dz="[tobrodpar:OptFibreL]" 
+       startPhi="0*deg"                  deltaPhi="360*deg"/>
+ <Box name="TOBPlate41"                  dx="[tobrodpar:SideClampDx]" 
+      dy="[tobrodpar:SideClampDy]"       dz="[tobrodpar:SideClampLDz]"/>
+ <Box name="TOBPlate42"                  dx="[tobrodpar:SideClampDx]" 
+      dy="[tobrodpar:SideClampDy]"       dz="[tobrodpar:SideClampLDz]"/>
+</SolidSection>
+
+<LogicalPartSection label="tobrod4c.xml">
+ <LogicalPart name="TOBSideCool4" category="unspecified">
+  <rSolid name="TOBSideCool4"/>
+  <rMaterial name="tobmaterial:TOB_cool_SS"/>
+ </LogicalPart>
+ <LogicalPart name="TOBEndCool4" category="unspecified">
+  <rSolid name="TOBEndCool4"/>
+  <rMaterial name="tobmaterial:TOB_cool_SS"/>
+ </LogicalPart>
+ <LogicalPart name="TOBOptFibre4" category="unspecified">
+  <rSolid name="TOBOptFibre4"/>
+  <rMaterial name="tobmaterial:TOB_optfib_SS"/>
+ </LogicalPart>
+ <LogicalPart name="TOBPlate41" category="unspecified">
+  <rSolid name="TOBPlate41"/>
+  <rMaterial name="tobmaterial:TOB_plate_B"/>
+ </LogicalPart>
+ <LogicalPart name="TOBPlate42" category="unspecified">
+  <rSolid name="TOBPlate42"/>
+  <rMaterial name="tobmaterial:TOB_plate_C"/>
+ </LogicalPart>
+ <LogicalPart name="TOBICC41" category="unspecified">
+  <rSolid name="tobrodpar:TOBICC1"/>
+  <rMaterial name="tobmaterial:TOB_ICC5"/>
+ </LogicalPart>
+ <LogicalPart name="TOBICC42" category="unspecified">
+  <rSolid name="tobrodpar:TOBICC2"/>
+  <rMaterial name="tobmaterial:TOB_ICC6"/>
+ </LogicalPart>
+ <LogicalPart name="TOBConn4" category="unspecified">
+  <rSolid name="tobrodpar:TOBConn"/>
+  <rMaterial name="tobmaterial:TOB_CONN3"/>
+ </LogicalPart>
+ <LogicalPart name="TOBCCUM4" category="unspecified">
+  <rSolid name="tobrodpar:TOBCCUM"/>
+  <rMaterial name="tobmaterial:TOB_CCUM3"/>
+ </LogicalPart>
+</LogicalPartSection>
+ 
+</DDDefinition>

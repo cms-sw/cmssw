@@ -1,0 +1,110 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
+
+<ConstantsSection label="tibstring3ul.xml" eval="true">
+ <Constant name="zero"         value="0.0*fm"/>
+ <Constant name="MotherCableL" value="53.00*cm"/>
+ <Constant name="CoolL"        value="68.80*cm"/>
+ <Constant name="Det0Z"        value="-54.38745*cm"/>
+ <Constant name="Det1Z"        value="-31.61305*cm"/>
+ <Constant name="Det2Z"        value="-8.80975*cm"/>
+ <Constant name="ICC0Z"        value="-65.220*cm"/>
+ <Constant name="ICC1Z"        value="-43.000*cm"/>
+ <Constant name="ICC2Z"        value="-20.210*cm"/>
+ <Constant name="Shift"        value="[tibstring3c:StringUpPlsL]/2"/>
+</ConstantsSection>
+
+<SolidSection label="tibstring3ul.xml">
+ <Box name="TIBString3UpMin1"            dx="[tibmodpar:ModuleDx]"    
+      dy="[tibmodpar:ModuleDy]"          dz="[tibstring3c:StringUpMinL]/2"/>
+ <Box name="TIBString3UpMin2"            dx="[tibstringpar:CoolTubeW]/2"    
+      dy="[tibstringpar:CoolTubeD]/2"    dz="[tibstring3c:StringUpMinL]/2"/>
+ <Box name="TIBString3UpMinCable"        dx="[tibstringpar:MotherCableW]/2"    
+      dy="[tibstringpar:MotherCableT]/2" dz="[MotherCableL]/2"/>
+ <Tubs name="TIBString3UpMinCoolS"       rMin="[zero]"      
+       rMax="[tibstringpar:CoolTubeD]/2" dz="[CoolL]/2"
+       startPhi="0*deg"                  deltaPhi="360*deg"/>
+ <Tubs name="TIBString3UpMinCoolW"       rMin="[zero]"      
+       rMax="[tibstringpar:CoolTubeD]/2" dz="[tibstringpar:CoolTubeW]/2"
+       startPhi="0*deg"                  deltaPhi="360*deg"/>
+ </SolidSection>
+
+<LogicalPartSection label="tibstring3ul.xml">
+ <LogicalPart name="TIBString3UpMin1" category="unspecified">
+  <rSolid name="TIBString3UpMin1"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
+ <LogicalPart name="TIBString3UpMin2" category="unspecified">
+  <rSolid name="TIBString3UpMin2"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
+ <LogicalPart name="TIBString3UpMinCable" category="unspecified">
+  <rSolid name="TIBString3UpMinCable"/>
+  <rMaterial name="tibmaterial:TIB_mother_cable"/>
+ </LogicalPart>
+ <LogicalPart name="TIBString3UpMinCoolS" category="unspecified">
+  <rSolid name="TIBString3UpMinCoolS"/>
+  <rMaterial name="tibmaterial:TIB_mod_cool"/>
+ </LogicalPart>
+ <LogicalPart name="TIBString3UpMinCoolW" category="unspecified">
+  <rSolid name="TIBString3UpMinCoolW"/>
+  <rMaterial name="tibmaterial:TIB_mod_cool"/>
+ </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="tibstring3ul.xml">
+ <PosPart copyNumber="8">
+   <rParent name="tibstring3ul:TIBString3UpMin1"/>
+   <rChild name="tibstringpar:TIBCCUM"/>
+  <Translation x="[zero]"   y="[zero]"  z="(-[tibstringpar:CCUMZ]+[Shift])" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="tibstring3ul:TIBString3UpMin2"/>
+   <rChild name="tibstring3ul:TIBString3UpMinCable"/>
+  <Translation x="[zero]"   y="-[tibstringpar:MotherCableY]"  
+               z="-([tibstring3c:StringUpMinL]-[MotherCableL])/2" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="tibstring3ul:TIBString3UpMin2"/>
+   <rChild name="tibstring3ul:TIBString3UpMinCoolS"/>
+  <Translation x="-[tibstringpar:CoolTubeSep]/2"   y="[zero]"  
+               z="-([tibstring3c:StringUpMinL]-[CoolL])/2" />
+ </PosPart>
+ <PosPart copyNumber="2">
+   <rParent name="tibstring3ul:TIBString3UpMin2"/>
+   <rChild name="tibstring3ul:TIBString3UpMinCoolS"/>
+  <Translation x="[tibstringpar:CoolTubeSep]/2"    y="[zero]"  
+               z="-([tibstring3c:StringUpMinL]-[CoolL])/2" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="tibstring3ul:TIBString3UpMin2"/>
+   <rChild name="tibstring3ul:TIBString3UpMinCoolW"/>
+  <rRotation name="tibstringpar:90XD"/>
+  <Translation x="[zero]"   y="[zero]"  z="([CoolL]-
+               ([tibstring3c:StringUpMinL]-[tibstringpar:CoolTubeD])/2)" />
+ </PosPart>
+</PosPartSection>
+
+<Algorithm name="track:DDTrackerZPosAlgo">
+  <rParent name="tibstring3ul:TIBString3UpMin1"/>
+  <String name="ChildName"    value="tibmodule2:TIBModule2"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo"  value="1" />
+  <Vector name="ZPositions" type="numeric" nEntries="3">
+  ([Det0Z]+[Shift]), ([Det1Z]+[Shift]), ([Det2Z]+[Shift]) </Vector>
+  <Vector name="Rotations" type="string" nEntries="3">
+  tibstringpar:NULL, tibstringpar:NULL, tibstringpar:NULL</Vector>
+</Algorithm>
+
+<Algorithm name="track:DDTrackerZPosAlgo">
+  <rParent name="tibstring3ul:TIBString3UpMin1"/>
+  <String name="ChildName"    value="tibstringss:TIBICCBoxSS"/>
+  <Numeric name="StartCopyNo" value="2"/>
+  <Numeric name="IncrCopyNo"  value="1" />
+  <Vector name="ZPositions" type="numeric" nEntries="3">
+  ([ICC0Z]+[Shift]), ([ICC1Z]+[Shift]), ([ICC2Z]+[Shift]) </Vector>
+  <Vector name="Rotations" type="string" nEntries="3">
+  tibstringpar:NULL, tibstringpar:NULL, tibstringpar:NULL</Vector>
+</Algorithm>
+ 
+</DDDefinition>

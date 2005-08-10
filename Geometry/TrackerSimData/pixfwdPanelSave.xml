@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
+
+<!-- Victoria Martin 11May05 -->
+
+
+<ConstantsSection label="pixfwdPanelSave.xml" eval="true">
+   <Constant name="zero"                value="0.0*fm"/>
+   <Constant name="PanelLength"        value="90.*mm"/>
+   <Constant name="PanelThickness"     value="0.0503*mm"/>
+   <Constant name="PanelWidth1"        value="34*mm"/>
+   <Constant name="PanelWidth2"        value="55*mm"/>
+   <Constant name="PanelMotherT"       value="[PanelThickness]+[pixfwdplaq:PlaquetteT]"/>
+   <Constant name="PanelY"             value="([PanelThickness]-[PanelMotherT])/2"/>
+   <Constant name="PlaquetteY"          value="([PanelMotherT]-[pixfwdplaq:PlaquetteT])/2"/>
+   <Constant name="PlaquetteZ1"         value="([PanelLength]/2-16.409*mm)"/>
+   <Constant name="PlaquetteZ2"         value="([PanelLength]/2-45.723*mm)"/>
+   <Constant name="PlaquetteZ3"         value="([PanelLength]/2-75.081*mm)"/>
+</ConstantsSection>
+
+
+<SolidSection label="pixfwdPanelSave.xml">
+   <Trd1 name = "pixfwdPanelMother"
+              dx1  = "[PanelWidth1]/2"
+              dx2  = "[PanelWidth2]/2"
+              dy1  = "[PanelMotherT]/2"
+              dy2  = "[PanelMotherT]/2"
+              dz   = "[PanelLength]/2"
+               />
+   <Trd1 name = "Panel3LX"
+              dx1  = "[PanelWidth1]/2"
+              dx2  = "[PanelWidth2]/2"
+              dy1  = "[PanelThickness]/2"
+              dy2  = "[PanelThickness]/2"
+              dz   = "[PanelLength]/2"
+               />
+</SolidSection>
+
+<LogicalPartSection label="pixfwdPanelSave.xml">
+   <LogicalPart name =     "pixfwdPanelMother" 
+                category = "unspecified">
+      <rSolid name="pixfwdPanelMother"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+   <LogicalPart name =     "FowardPixelPanel3LX" 
+                category = "unspecified">
+      <rSolid name="Panel3LX"/>
+      <rMaterial name="materials:Beryllium"/>
+    </LogicalPart>
+</LogicalPartSection>
+
+<RotationSection label="pixfwdPanelSave.xml">
+ <Rotation name="PlaquetteRot" thetaX="90*deg" phiX="180*deg" 
+ thetaY="0*deg" phiY="0*deg" thetaZ="90*deg" phiZ="90*deg" />
+</RotationSection>
+
+<PosPartSection label="pixfwdPanelSave.xml">
+ <PosPart copyNumber="1">
+   <rParent name="pixfwdPanelMother"/>
+   <rChild name="FowardPixelPanel3LX"/>
+   <Translation x="[zero]" y="[PanelY]" z="[zero]" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="pixfwdPanelMother"/>
+   <rChild name="pixfwdplaq2x5:PixelForwardPlaquette2x5"/>
+   <rRotation name="pixfwdPanelSave:PlaquetteRot"/>
+   <Translation x="[zero]" y="[PlaquetteY]" z="[PlaquetteZ1]" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="pixfwdPanelMother"/>
+   <rChild name="pixfwdplaq2x4:PixelForwardPlaquette2x4"/>
+   <rRotation name="pixfwdPanelSave:PlaquetteRot"/>
+   <Translation x="[zero]" y="[PlaquetteY]" z="[PlaquetteZ2]" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="pixfwdPanelMother"/>
+   <rChild name="pixfwdplaq2x3:PixelForwardPlaquette2x3"/>
+   <rRotation name="pixfwdPanelSave:PlaquetteRot"/>
+   <Translation x="[zero]" y="[PlaquetteY]" z="[PlaquetteZ3]" />
+ </PosPart>
+</PosPartSection>
+
+</DDDefinition>

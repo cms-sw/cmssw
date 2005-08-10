@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
+
+<!-- Victoria Martin 11May05 -->
+
+
+<ConstantsSection label="pixfwdPanel4RX.xml" eval="true">
+   <Constant name="zero"               value="0.0*fm"/>
+   <Constant name="PanelMotherT"       value="[pixfwdPanel:PanelThickness]+[pixfwdplaq:PlaquetteT]"/>
+   <Constant name="PanelY"             value="([pixfwdPanel:PanelThickness]-[PanelMotherT])/2"/>
+   <Constant name="PlaquetteY"         value="([PanelMotherT]-[pixfwdplaq:PlaquetteT])/2"/>
+   <Constant name="PlaquetteZ1"        value="([pixfwdPanel:PanelLength]/2-10.990*mm)"/>
+   <Constant name="PlaquetteZ2"        value="([pixfwdPanel:PanelLength]/2-33.373*mm)"/>
+   <Constant name="PlaquetteZ3"        value="([pixfwdPanel:PanelLength]/2-62.107*mm)"/>
+   <Constant name="PlaquetteZ4"        value="([pixfwdPanel:PanelLength]/2-81.000*mm)"/> <!-- Moved to get in on pannel was 84.527-->
+</ConstantsSection>
+
+
+<SolidSection label="pixfwdPanel4RX.xml">
+      <Trd1 name = "PixelForwardPanel4RX"
+              dx1  = "[pixfwdPanel:PanelWidth1]/2"
+              dx2  = "[pixfwdPanel:PanelWidth2]/2"
+              dy1  = "[PanelMotherT]/2"
+              dy2  = "[PanelMotherT]/2"
+              dz   = "[pixfwdPanel:PanelLength]/2"
+               />
+</SolidSection>
+
+<LogicalPartSection label="pixfwdPanel4RX.xml">
+      <LogicalPart name =     "PixelForwardPanel4RX" 
+                category = "unspecified">
+      <rSolid name="PixelForwardPanel4RX"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+</LogicalPartSection>
+
+
+<RotationSection label="pixfwdPanel4RX.xml">
+ <Rotation name="PlaquetteRot" thetaX="90*deg" phiX="180*deg" 
+ thetaY="0*deg" phiY="0*deg" thetaZ="90*deg" phiZ="90*deg" />
+</RotationSection>
+
+
+<PosPartSection label="pixfwdPanel4RX.xml">
+ <PosPart copyNumber="1">
+   <rParent name="PixelForwardPanel4RX"/>
+   <rChild name="pixfwdPanel:PixelForwardPanel"/>
+   <Translation x="[zero]" y="[PanelY]" z="[zero]" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="PixelForwardPanel4RX"/>
+   <rChild name="pixfwdplaq1x5:PixelForwardPlaquette1x5"/>
+   <rRotation name="pixfwdPanel4RX:PlaquetteRot"/>
+   <Translation x="[zero]" y="[PlaquetteY]" z="[PlaquetteZ1]" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="PixelForwardPanel4RX"/>
+   <rChild name="pixfwdplaq2x4:PixelForwardPlaquette2x4"/>
+   <rRotation name="pixfwdPanel4RX:PlaquetteRot"/>
+   <Translation x="[zero]" y="[PlaquetteY]" z="[PlaquetteZ2]" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="PixelForwardPanel4RX"/>
+   <rChild name="pixfwdplaq2x3:PixelForwardPlaquette2x3"/>
+   <rRotation name="pixfwdPanel4RX:PlaquetteRot"/>
+   <Translation x="[zero]" y="[PlaquetteY]" z="[PlaquetteZ3]" />
+ </PosPart>
+ <PosPart copyNumber="1"> 
+   <rParent name="PixelForwardPanel4RX"/> 
+   <rChild name="pixfwdplaq1x2:PixelForwardPlaquette1x2"/> 
+   <rRotation name="pixfwdPanel4RX:PlaquetteRot"/> 
+   <Translation x="[zero]" y="[PlaquetteY]" z="[PlaquetteZ4]" /> 
+ </PosPart> 
+</PosPartSection>
+
+</DDDefinition>

@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
+
+<ConstantsSection label="tecring3.xml" eval="true">
+ <Constant name="Rin"            value="50.00*cm"/>
+ <Constant name="Rout"           value="66.24*cm"/>
+ <Constant name="Rmin"           value="50.30*cm"/>
+ <Constant name="NPhi"           value="56"/>
+ <Constant name="RPos"           value="[Rmin]+
+           ([tecmodule3:FullHeight]+[tecmodpar:TopFrameHeight])/2"/>
+ <Constant name="BridgeR"        value="[Rmin]+[tecmodule3:FullHeight]/2"/>
+ <Constant name="BridgeZ"        value="([tecpetpar:BridgeThick]-
+           [tecmodule3:BridgeThick])/2"/>
+</ConstantsSection>
+
+<SolidSection label="tecring3.xml">
+ <Tubs name="TECRing3"                rMin="[Rin]" 
+       rMax="[Rout]"                  dz="[tecpetpar:ModuleThick]/2" 
+       startPhi="-[tecpetpar:PetalContWidth]/2"
+       deltaPhi="[tecpetpar:PetalContWidth]"/>
+ <Tubs name="TECRing3Bridge"          rMin="[Rin]" 
+       rMax="[Rout]"                  dz="[tecpetpar:BridgeThick]/2" 
+       startPhi="-[tecpetpar:PetalContWidth]/2"
+       deltaPhi="[tecpetpar:PetalContWidth]"/>
+</SolidSection>
+
+</DDDefinition>

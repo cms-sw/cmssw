@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<Configuration xmlns="." xmlns:xsi="." xsi:schemaLocation= "." name="CMSConfiguration" version="0">
+<Include name="test">
+      <File name="Materials/materials.xml"                   url="../../../"/>
+      <File name="tidmaterial.xml"                           url="."/>
+      <File name="tidmodpar.xml"                             url="."/>
+      <File name="tidmodule0.xml"                            url="."/>
+      <File name="tidmodule1.xml"                            url="."/>
+      <File name="tidmodule2.xml"                            url="."/>
+      <File name="tidringpar.xml"                            url="."/>
+      <File name="tidring0.xml"                              url="."/>
+      <File name="tidring1.xml"                              url="."/>
+      <File name="tidring2.xml"                              url="."/>
+      <File name="tid.xml"                                   url="."/>
+ </Include>
+ <Root fileName="tid.xml"          logicalPartName="TID"/>
+</Configuration>
