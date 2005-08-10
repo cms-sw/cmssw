@@ -15,7 +15,7 @@ EmptyESSource::EmptyESSource(const edm::ParameterSet & pset) :
    for( std::vector<unsigned int>::iterator itValue = temp.begin();
         itValue != temp.end();
         ++itValue ) {
-      setOfIOV_.insert( IOVSyncValue( *itValue) );
+      setOfIOV_.insert( IOVSyncValue( EventID(*itValue, 0 ) ) );
    }
    //std::copy( temp.begin(), temp.end(), inserter(setOfIOV_ , setOfIOV_.end()));
    
@@ -50,7 +50,7 @@ EmptyESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
    edm::IOVSyncValue endOfInterval = edm::IOVSyncValue::endOfTime();
    
    if( itFound.second != setOfIOV_.end() ) { 
-      endOfInterval = edm::IOVSyncValue( (itFound.second->collisionID()) -1 );
+      endOfInterval = edm::IOVSyncValue( itFound.second->eventID().previousRunLastEvent() );
    }
    oInterval = edm::ValidityInterval( *(itFound.first), endOfInterval);
 }

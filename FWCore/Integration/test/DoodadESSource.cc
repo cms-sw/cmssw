@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 14:39:39 EDT 2005
-// $Id: DoodadESSource.cc,v 1.2 2005/07/14 22:20:57 wmtan Exp $
+// $Id: DoodadESSource.cc,v 1.3 2005/08/04 15:04:24 chrjones Exp $
 //
 
 // system include files
@@ -86,9 +86,9 @@ void
 DoodadESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
                                 const edm::IOVSyncValue& iTime, 
                                 edm::ValidityInterval& iInterval) {
-   //Be valid for 3 time steps
-   edm::CollisionID newTime = (iTime.collisionID() - 1 ) - ((iTime.collisionID() - 1 ) %3) +1;
-   edm::CollisionID endTime = newTime + 2;
+   //Be valid for 3 runs 
+   edm::EventID newTime = edm::EventID( (iTime.eventID().run() - 1 ) - ((iTime.eventID().run() - 1 ) %3) +1);
+   edm::EventID endTime = newTime.nextRun().nextRun().nextRun().previousRunLastEvent();
    iInterval = edm::ValidityInterval( edm::IOVSyncValue( newTime),
                                       edm::IOVSyncValue(endTime) );
 }

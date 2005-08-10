@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id: eventprincipal_t.cppunit.cc,v 1.6 2005/07/30 04:40:33 wmtan Exp $
+$Id: eventprincipal_t.cppunit.cc,v 1.7 2005/07/30 23:42:08 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <cassert>
@@ -162,7 +162,7 @@ void testeventprincipal::failgetbyInvalidIdTest()
 
   edm::ProductRegistry preg;
   preg.addProduct(pprov->product);
-  edm::CollisionID col(1L);
+  edm::EventID col(1L);
   edm::FakeRetriever fake;
   edm::EventPrincipal ep(col, fake, preg);
   ep.addToProcessHistory("PROD");
@@ -210,7 +210,7 @@ void testeventprincipal::getbyIdTest()
 
   edm::ProductRegistry preg;
   preg.addProduct(pprov->product);
-  edm::CollisionID col(1L);
+  edm::EventID col(1L);
   edm::FakeRetriever fake;
   edm::EventPrincipal ep(col, fake, preg);
   ep.addToProcessHistory("PROD");
@@ -264,7 +264,7 @@ void testeventprincipal::getbyLabelTest()
 
   edm::ProductRegistry preg;
   preg.addProduct(pprov->product);
-  edm::CollisionID col(1L);
+  edm::EventID col(1L);
   edm::FakeRetriever fake;
   edm::EventPrincipal ep(col, fake, preg);
   ep.addToProcessHistory("PROD");
@@ -318,7 +318,7 @@ void testeventprincipal::getbySelectorTest()
 
   edm::ProductRegistry preg;
   preg.addProduct(pprov->product);
-  edm::CollisionID col(1L);
+  edm::EventID col(1L);
   edm::FakeRetriever fake;
   edm::EventPrincipal ep(col, fake, preg);
   ep.addToProcessHistory("PROD");

@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EmptyInputService.h,v 1.2 2005/06/07 23:47:36 wmtan Exp $
+$Id: EmptyInputService.h,v 1.3 2005/07/14 21:34:44 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -7,7 +7,7 @@ $Id: EmptyInputService.h,v 1.2 2005/06/07 23:47:36 wmtan Exp $
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Retriever.h"
 #include "FWCore/Framework/interface/InputService.h"
-#include "FWCore/EDProduct/interface/CollisionID.h"
+#include "FWCore/EDProduct/interface/EventID.h"
 
 namespace edm {
   class ParameterSet;
@@ -19,7 +19,7 @@ namespace edm {
   private:
     std::auto_ptr<EventPrincipal> read();
     
-    CollisionID nextID_;
+    EventID nextID_;
     int remainingEvents_;
     Retriever* retriever_;
   };
