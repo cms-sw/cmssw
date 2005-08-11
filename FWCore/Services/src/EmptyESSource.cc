@@ -9,13 +9,18 @@
 namespace edm {
 
 EmptyESSource::EmptyESSource(const edm::ParameterSet & pset) :
-   recordName_(pset.getParameter<std::string>("recordname"))
+   recordName_(pset.getParameter<std::string>("recordName")),
+   iovIsTime_(!pset.getParameter<bool>("iovIsRunNotTime") )
 {
-   std::vector<unsigned int> temp( pset.getParameter< std::vector<unsigned int> >("firstvalid") );
+   std::vector<unsigned int> temp( pset.getParameter< std::vector<unsigned int> >("firstValid") );
    for( std::vector<unsigned int>::iterator itValue = temp.begin();
         itValue != temp.end();
         ++itValue ) {
-      setOfIOV_.insert( IOVSyncValue( EventID(*itValue, 0 ) ) );
+      if( iovIsTime_ ) {
+         setOfIOV_.insert( IOVSyncValue( Timestamp(*itValue) ) );
+      } else {
+         setOfIOV_.insert( IOVSyncValue( EventID(*itValue, 0 ) ) );
+      }
    }
    //std::copy( temp.begin(), temp.end(), inserter(setOfIOV_ , setOfIOV_.end()));
    
@@ -49,8 +54,12 @@ EmptyESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
    
    edm::IOVSyncValue endOfInterval = edm::IOVSyncValue::endOfTime();
    
-   if( itFound.second != setOfIOV_.end() ) { 
-      endOfInterval = edm::IOVSyncValue( itFound.second->eventID().previousRunLastEvent() );
+   if( itFound.second != setOfIOV_.end() ) {
+      if(iovIsTime_ ) {
+         endOfInterval = edm::IOVSyncValue( Timestamp( itFound.second->time().value()-1 ) );
+      } else {
+         endOfInterval = edm::IOVSyncValue( itFound.second->eventID().previousRunLastEvent() );
+      }
    }
    oInterval = edm::ValidityInterval( *(itFound.first), endOfInterval);
 }

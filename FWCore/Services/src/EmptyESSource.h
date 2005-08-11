@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jun 25 17:23:12 EDT 2005
-// $Id: EmptyESSource.h,v 1.2 2005/07/15 01:49:34 wmtan Exp $
+// $Id: EmptyESSource.h,v 1.3 2005/08/04 15:04:11 chrjones Exp $
 //
 
 // system include files
@@ -53,7 +53,7 @@ class EmptyESSource : public  eventsetup::EventSetupRecordIntervalFinder
       // ---------- member data --------------------------------
       std::string recordName_;
       std::set <edm::IOVSyncValue> setOfIOV_;
-      
+      bool iovIsTime_;
 };
 }
 
