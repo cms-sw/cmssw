@@ -1,5 +1,5 @@
-#ifndef GEOMETRY_RECORDS_TRACKERCONNECTIONRECORD_H
-#define GEOMETRY_RECORDS_TRACKERCONNECTIONRECORD_H
+#ifndef CALIBTRACKER_RECORDS_TRACKERCONNECTIONRECORD_H
+#define CALIBTRACKER_RECORDS_TRACKERCONNECTIONRECORD_H
 // -*- C++ -*-
 //
 // Package:     Records
@@ -16,7 +16,7 @@
 //
 // Author:      
 // Created:     Wed Aug 10 08:13:43 CEST 2005
-// $Id$
+// $Id: TrackerConnectionRecord.h,v 1.1 2005/08/11 15:45:42 dutta Exp $
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
