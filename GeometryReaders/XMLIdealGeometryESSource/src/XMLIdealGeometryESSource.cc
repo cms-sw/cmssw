@@ -31,10 +31,10 @@ XMLIdealGeometryESSource::produce(const IdealGeometryRecord &)
 { return new DDCompactView(); }
 
 void XMLIdealGeometryESSource::setIntervalFor(const EventSetupRecordKey &,
-					       const edm::Timestamp &, 
+					       const edm::IOVSyncValue &, 
 					       edm::ValidityInterval & oValidity)
 {
-   edm::ValidityInterval infinity(edm::Timestamp(1), edm::Timestamp::endOfTime());
+   edm::ValidityInterval infinity(edm::IOVSyncValue(1), edm::IOVSyncValue::endOfTime());
    oValidity = infinity;
 }
 

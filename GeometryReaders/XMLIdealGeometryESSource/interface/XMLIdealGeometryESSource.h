@@ -19,7 +19,7 @@ public:
     const DDCompactView * produce(const IdealGeometryRecord &);
 protected:
     virtual void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
-				const edm::Timestamp &,edm::ValidityInterval &);
+				const edm::IOVSyncValue &,edm::ValidityInterval &);
 private:
     XMLIdealGeometryESSource(const XMLIdealGeometryESSource &);
     const XMLIdealGeometryESSource & operator=(const XMLIdealGeometryESSource &);
