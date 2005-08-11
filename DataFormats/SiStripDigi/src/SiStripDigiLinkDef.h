@@ -15,7 +15,6 @@
 #pragma extra_include "FWCore/EDProduct/interface/Wrapper.h";
 #pragma extra_include "DataFormats/SiStripDigi/interface/StripDigi.h";
 #pragma extra_include "DataFormats/SiStripDigi/interface/StripDigiCollection.h";
-#pragma link C++ class StripDigi::Packing+;
 #pragma link C++ class StripDigi+;
 #pragma link C++ class std::vector<StripDigi>+;
 #pragma link C++ class std::pair<unsigned int, unsigned int>+;
