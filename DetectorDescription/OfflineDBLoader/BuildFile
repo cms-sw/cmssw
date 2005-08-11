@@ -1,0 +1,22 @@
+<use name=DetectorDescription/Core>
+<use name=DetectorDescription/Parser>
+<use name=DetectorDescription/PersistentDDDObjects>
+<use name=DetectorDescription/DBReader>
+<use name=pool>
+<use name=seal>
+<use name=DataSvc>
+<use name=RelationalAccess>
+<use name=Foundation/SealUtil>
+
+<export>
+ <lib name=DetectorDescriptionOfflineDBLoader>
+ <use name=DetectorDescription/Parser>
+ <use name=DetectorDescription/Core>
+ <use name=DetectorDescription/PersistentDDDObjects>
+ <use name=DetectorDescription/DBReader>
+ <use name=pool>
+ <use name=seal>
+ <use name=DataSvc>
+ <use name=RelationalAccess>
+ <use name=Foundation/SealUtil>
+</export>
