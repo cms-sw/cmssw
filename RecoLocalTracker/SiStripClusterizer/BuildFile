@@ -1,0 +1,9 @@
+<flags SEAL_PLUGIN_NAME="RecoLocalTrackerSiStripClusterizer">
+<use name=FWCore/EDProduct>
+<use name=DataFormats/SiStripCluster>
+
+<export>
+ <lib name=RecoLocalTrackerSiStripClusterizer>
+ <use name=FWCore/EDProduct>
+ <use name=clhep>
+</export>
