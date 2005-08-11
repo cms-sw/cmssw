@@ -1,0 +1,11 @@
+<flags SEAL_PLUGIN_NAME="DataFormatsSiStripCluster">
+<use name=clhep>
+<use name=root>
+<use name=dataFormats/SiPixelDigi>
+<use name=FWCore/EDProduct>
+<export>
+ <lib name=DataFormatsSiStripCluster>
+ <use name=FWCore/EDProduct>
+ <use name=clhep>
+ <use name=root>
+</export>
