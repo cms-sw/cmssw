@@ -1,0 +1,6 @@
+<export>
+ <lib name=SimDataFormatsSimHitMaker>
+ <use name=SimDataFormats/TrackingHit>
+</export>
+
+<use name=SimDataFormats/TrackingHit>
