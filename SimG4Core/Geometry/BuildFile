@@ -1,4 +1,5 @@
 <use name=FWCore/Framework>
+<use name=DetectorDescription/Core>
 <use name=DetectorDescription/Parser>
 <use name=geant4>
 <use name=DataSvc>
@@ -7,11 +8,14 @@
 <use name=Dictionary/Reflection>
 <use name=Framework/SealKernel>
 <use name=GeometryReaders/XMLIdealGeometryESSource>
+<use name=Geometry/Records>
 <export>
  <lib name=SimG4CoreGeometry>
+ <use name=DetectorDescription/Core>
  <use name=DetectorDescription/Parser>
  <use name=FWCore/Framework>
  <use name=Framework/SealKernel>
  <use name=GeometryReaders/XMLIdealGeometryESSource>
+ <use name=Geometry/Records>
 </export>
 
