@@ -4,6 +4,8 @@
 
 #include "CLHEP/Units/SystemOfUnits.h"
 
+DEFINE_SEAL_COMPONENT (Field, "SimG4Core/MagneticField/Field");
+
 Field * Field::theField = 0;
 
 Field * Field::instance() { return theField; }
@@ -12,11 +14,14 @@ G4Mag_UsualEqRhs * Field::theFieldEquation = 0;
 
 G4Mag_UsualEqRhs * Field::fieldEquation() { return theFieldEquation; }
 
-Field::Field() : G4MagneticField()
+Field::Field(seal::Context * c, const edm::ParameterSet & p) 
+    : G4MagneticField(), Component(c, classContextKey()), m_context(c)
 { 
     theField = this; 
     bool timerOn = false;
 }
+
+Field::~Field() {}
 
 void Field::GetFieldValue(const double xyz[3],double bfield[3]) const 
 { 

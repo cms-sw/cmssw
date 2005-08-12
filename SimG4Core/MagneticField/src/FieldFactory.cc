@@ -6,10 +6,13 @@
 #include "G4FieldManager.hh"
 #include "G4TransportationManager.hh"
 
-FieldFactory::FieldFactory(seal::Context * ic, const std::string & iname) 
-    : super(ic), theLocalFM(0)
-{ 
-    initialize(); 
+FieldFactory FieldFactory::s_instance;
+
+FieldFactory * FieldFactory::get() { return & s_instance; }
+
+FieldFactory::FieldFactory() : seal::PluginFactory<Field * 
+(seal::Context *,const edm::ParameterSet &)>("Sim Field Plugins")
+{
     std::cout << " FieldFactory initialized " << std::endl; 
     theFieldBuilder = FieldBuilder::instance();
 }
@@ -20,7 +23,7 @@ FieldFactory::~FieldFactory()
     if (theLocalFM != 0) delete theLocalFM;
 }
 
-void FieldFactory::update(const DDDWorld * d)
+void FieldFactory::build()
 {
     bool useMagneticField = true;
     bool useLocalManagers = false;

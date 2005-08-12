@@ -1,22 +1,23 @@
 #ifndef SimG4Core_FieldFactory_H
 #define SimG4Core_FieldFactory_H
 
-#include "Utilities/Notification/interface/DispatcherObserver.h"
-#include "SimG4Core/Geometry/interface/DDDWorld.h"
+#include "SealKernel/Component.h"
+#include "PluginManager/PluginFactory.h"
 
 class FieldBuilder;
 class LocalFieldManager;
 class G4FieldManager;
 
-class FieldFactory : private frappe::Observer<DDDWorld>
+class FieldFactory : public seal::PluginFactory<
+    Field * (seal::Context *,const edm::ParameterSet & p) >
 {
 public:
-    typedef frappe::Observer<DDDWorld> super;
-    FieldFactory(seal::Context * ic, const std::string & iname);
-    ~FieldFactory();
-protected:
-    virtual void update(const DDDWorld * w);    
+    virtual ~FieldFactory();
+    static FieldFactory * get(); 
+    void build();
 private:
+    static FieldFactory s_instance;
+    FieldFactory();
     FieldBuilder * theFieldBuilder;
     LocalFieldManager * theLocalFM;
 };

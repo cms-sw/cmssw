@@ -1,10 +1,15 @@
+<Flags SEAL_PLUGIN_NAME="SimG4CoreMagneticField">
 <export>
  <lib name=SimG4CoreMagneticField>
+ <use name=Framework/SealKernel>
+ <use name=FWCore/ParameterSet>
  <use name=Foundation/PluginManager>
  <use name=SimG4Core/Notification>
  <use name=boost>
  <use name=geant4>
 </export>
+<use name=Framework/SealKernel>
+<use name=FWCore/ParameterSet>
 <use name=Foundation/PluginManager>
 <use name=SimG4Core/Geometry>
 <use name=SimG4Core/Notification>
