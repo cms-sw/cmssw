@@ -15,7 +15,7 @@ namespace edm {
       void insertHits(PSimHitSingleContainer&);
       void insertHit(const PSimHit&);
       void clear();
-      //changed by UB
+      // changed by UB
       unsigned int size() const;
       PSimHit operator [] (int i)const  {return _data[i];}
   private:
