@@ -68,13 +68,23 @@ namespace edm {
 					    ProductRegistry& preg)
   {
     // find single source
-    ParameterSet main_input = params_.getParameter<ParameterSet>("main_input");
-    InputServiceDescription isdesc(common.processName_,common.pass_,preg);
+    try {
+      ParameterSet main_input = params_.getParameter<ParameterSet>("main_input");
+      InputServiceDescription isdesc(common.processName_,common.pass_,preg);
 
-    boost::shared_ptr<InputService> input_
+      boost::shared_ptr<InputService> input_
       (InputServiceFactory::get()->makeInputService(main_input, isdesc).release());
     
-    return input_;
+      return input_;
+    } catch(const edm::Exception& iException ) {
+       if( errors::Configuration == iException.categoryCode() ) {
+          throw edm::Exception(errors::Configuration, "NoInputService")
+          <<"No main input service found in configuration.  Please add an input service via 'source = ...' in the configuration file.\n";
+       } else {
+          throw;
+       }
+    }
+    return boost::shared_ptr<InputService>();
   }
   
   void fillEventSetupProvider(eventsetup::EventSetupProvider& cp,
