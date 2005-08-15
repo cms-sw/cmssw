@@ -142,12 +142,6 @@ public:
     me.addComponent(new frappe::ContextName(iname));
   }
 
-  // configurator depends on concrete stream, clients do not
-  // void makeLocalStream() {
-  //  me.addComponent<frappe::LogStreams>(ExMain::newCout( context(),me.component<frappe::ContextName>(),false));
-  // }
-
-
   template<typename Event>
   void addDispatcher() {
     frappe::Dispatcher<Event>::addDispatcher(me);
@@ -158,7 +152,7 @@ public:
     me.addComponent(new frappe::Reflector<Event> (&context()));
   }
 
-  // use name (parsing config file
+  // use name (parsing config file)
   bool configure(const std::string & bname, const std::string & sname){
     return me.configure(bname,sname);
   }
