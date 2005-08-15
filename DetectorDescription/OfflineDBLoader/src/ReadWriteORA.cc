@@ -4,7 +4,7 @@
 #include "DetectorDescription/Parser/interface/DDLConfiguration.h"
 #include "DetectorDescription/Base/interface/DDException.h"
 #include "DetectorDescription/PersistentDDDObjects/interface/PersistentDDDObjects.h"
-#include "DetectorDescription/PersistentDDDObjects/interface/IOVMeta.h"
+#include "CondCore/MetaDataService/interface/MetaData.h"
 #include "DetectorDescription/DBReader/interface/DDORAReader.h"
 #include "DetectorDescription/PersistentDDDObjects/interface/DDDToPersFactory.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
@@ -26,6 +26,8 @@
 #include "SealBase/ShellEnvironment.h"
 
 #include<string>
+
+using cond::MetaData;
 
 ReadWriteORA::ReadWriteORA ( const std::string& dbConnectString
 			     , const std::string& xmlConfiguration 
@@ -95,7 +97,7 @@ bool ReadWriteORA::writeDB ( ) {
     // This will also register the file. For this to occur, the placement object must use a PFN.
     pgeom.markWrite(geomPlace);
 
-    std::string iovtoken=pgeom.toString();
+    std::string token=pgeom.toString();
 
     // Grab the DDD compact view that is in memory and write it on out!
     DDCompactView cpv;
@@ -209,14 +211,14 @@ bool ReadWriteORA::writeDB ( ) {
     svc->session().disconnectAll();
     std::cout << "disconnected" << endl;
 
-    // using IOVMeta to translate name to token.
-    IOVMeta meta (dbConnectString_);
-    std::cout << "Pool token = \"" << iovtoken << "\"" << std::endl;
-    if ( meta.getIOVToken(name_) != "" ) {
+    // using MetaData to translate name to token.
+    MetaData meta (dbConnectString_);
+    std::cout << "Pool token = \"" << token << "\"" << std::endl;
+    if ( meta.getToken(name_) != "" ) {
       std::cout<<"Mapping exists!  WARNING: Nothing done, map remains as it was." << std::endl;
       std::cout<<"TABLE IOVMETA contains an un-named token.  You can copy the token down and fix the DB."<<std::endl;
     }else{
-      meta.addMapping(name_, iovtoken);
+      meta.addMapping(name_, token);
     }
 
     delete svc;
@@ -258,13 +260,13 @@ bool ReadWriteORA::readFromXML ( ) {
 /// Read back from the persistent objects
 bool ReadWriteORA::readFromDB ( ) {
 
-  IOVMeta meta(dbConnectString_);
+  MetaData meta(dbConnectString_);
 
   cout << "Looking for ..." << name_ << endl;
-  std::string iovAToken= meta.getIOVToken(name_);
+  std::string aToken= meta.getToken(name_);
   seal::SealTimer timer("ReadWriteORA::readFromDB");
   DDORAReader ddorar( "cms:OCMS", 
-		      iovAToken,
+		      aToken,
 		      userName_, 
 		      password_,
 		      dbConnectString_ );

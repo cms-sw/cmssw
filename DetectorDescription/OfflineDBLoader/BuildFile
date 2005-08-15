@@ -2,6 +2,7 @@
 <use name=DetectorDescription/Parser>
 <use name=DetectorDescription/PersistentDDDObjects>
 <use name=DetectorDescription/DBReader>
+<use name=CondCore/MetaDataService>
 <use name=pool>
 <use name=seal>
 <use name=DataSvc>
@@ -14,6 +15,7 @@
  <use name=DetectorDescription/Core>
  <use name=DetectorDescription/PersistentDDDObjects>
  <use name=DetectorDescription/DBReader>
+ <use name=CondCore/MetaDataService>
  <use name=pool>
  <use name=seal>
  <use name=DataSvc>
