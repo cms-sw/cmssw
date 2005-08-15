@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 19:27:44 EDT 2005
-// $Id: ModuleFactory.cc,v 1.2 2005/06/23 19:59:48 wmtan Exp $
+// $Id: ModuleFactory.cc,v 1.3 2005/07/14 22:50:53 wmtan Exp $
 //
 
 // system include files
@@ -26,7 +26,7 @@ namespace edm {
 //
 // static member functions
 //
-       std::string ModuleMakerTraits::name() { return "EventSetupModuleFactory"; }
+       std::string ModuleMakerTraits::name() { return "CMS EDM Framework ESModule"; }
       void ModuleMakerTraits::addTo(EventSetupProvider& iProvider, boost::shared_ptr<DataProxyProvider> iComponent) 
       {
          iProvider.add(iComponent);

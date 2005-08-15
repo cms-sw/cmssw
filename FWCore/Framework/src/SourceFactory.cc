@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 19:27:37 EDT 2005
-// $Id: SourceFactory.cc,v 1.2 2005/06/23 19:59:48 wmtan Exp $
+// $Id: SourceFactory.cc,v 1.3 2005/07/14 22:50:53 wmtan Exp $
 //
 
 // system include files
@@ -23,7 +23,7 @@
 //
 namespace edm {
    namespace eventsetup {
-      std::string SourceMakerTraits::name() { return "EventSetupSourceFactory"; }
+      std::string SourceMakerTraits::name() { return "CMS EDM Framework ESSource"; }
       
    }
 }

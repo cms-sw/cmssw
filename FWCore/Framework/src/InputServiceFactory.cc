@@ -19,7 +19,7 @@ namespace edm {
   }
 
   InputServiceFactory::InputServiceFactory(): 
-    seal::PluginFactory<ISFunc>("InputServiceFactory")
+    seal::PluginFactory<ISFunc>("CMS EDM Framework InputService")
   {
   }
 
