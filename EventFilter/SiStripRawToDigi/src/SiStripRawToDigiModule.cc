@@ -50,15 +50,14 @@ void SiStripRawToDigiModule::beginJob( const edm::EventSetup& iSetup ) {
   if (verbosity_>2) cout << "[SiStripRawToDigiModule::beginJob] "
 			 << "creating utility object, connections map, RawToDigi converter..." << endl;
 
-  // create instance of utility class
-  utility_ = new SiStripUtility( iSetup );
-
+  //@@ cannot presently retrieve connections map from SeventSetup!
   //   // retrieve cabling map (ESProduct) 
   //   ESHandle<SiStripConnection> connections;
   //   iSetup.get<TrackerConnectionRecord>().get( connections );
   //   cabling_.reset( connections.product() );
 
-  // retrieve "dummy" connections map
+  // retrieve "dummy" connections map from utility object
+  utility_ = new SiStripUtility( iSetup );
   SiStripConnection connections;
   utility_->siStripConnection( connections );
 
