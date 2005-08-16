@@ -4,6 +4,7 @@
 
 #include <map>
 #include <string>
+#include <vector>
 
 #include "FWCore/Framework/interface/InputService.h"
 #include "FWCore/Framework/interface/Retriever.h"
@@ -21,12 +22,14 @@
 class TFile;
 class TTree;
 class CDFChunk;
+class CDFEventInfo;
+
 namespace cms {
   namespace hcal {
 
 /** \class HcalTBInputService
     
-   $Date: 2005/07/19 23:26:19 $
+   $Date: 2005/08/04 17:11:44 $
    $Revision: 1.1 $
    \author J. Mans - Minnesota
 */
@@ -35,16 +38,21 @@ public:
 explicit HcalTBInputService(const edm::ParameterSet & pset, edm::InputServiceDescription const& desc);
 private:
   virtual std::auto_ptr<edm::EventPrincipal> read();
-  void initThis();
-  std::string file_;
+  void unpackSetup(const std::vector<std::string>& params);
+  void openFile(const std::string& filename);
+  std::vector<std::string> files_;
   edm::Retriever* retriever_;
   TTree* m_tree;
   TFile* m_file;
-  int m_i, m_imax;
-  int m_hcalFedOffset;
-  int m_duplicateChunkAs;
+  int fileCounter_;
+  int m_i, m_imax, m_itotal;
+  //  int m_duplicateChunkAs;
   int n_chunks;
-  CDFChunk* m_chunks[1024];
+  static const int CHUNK_COUNT=64; // MAX Chunks
+  CDFChunk* m_chunks[CHUNK_COUNT];
+  int m_chunkIds[CHUNK_COUNT];
+  std::map<std::string,int> m_sourceIdRemap;
+  CDFEventInfo* m_eventInfo;
   edm::ProductDescription prodDesc_;
 };
 
