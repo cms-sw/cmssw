@@ -41,6 +41,8 @@ SiStripDigiToRawModule::SiStripDigiToRawModule( const edm::ParameterSet& conf ) 
 SiStripDigiToRawModule::~SiStripDigiToRawModule() {
   if (verbosity_>1) cout << "[SiStripDigiToRawModule] "
 			 << "destructing DigiToRaw module..." << endl;
+  if ( digiToRaw_ ) delete digiToRaw_;
+  if ( utility_ ) delete utility_; 
 }
 
 // -----------------------------------------------------------------------------

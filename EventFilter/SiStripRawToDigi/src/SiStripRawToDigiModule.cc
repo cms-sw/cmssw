@@ -41,7 +41,8 @@ SiStripRawToDigiModule::SiStripRawToDigiModule( const edm::ParameterSet& conf ) 
 SiStripRawToDigiModule::~SiStripRawToDigiModule() {
   if (verbosity_>1) cout << "[SiStripRawToDigiModule] "
 			 << "destructing RawToDigi module..." << endl;
-  // anything here? close files, deallocate resources, etc?
+  if ( rawToDigi_ ) delete rawToDigi_;
+  if ( utility_ ) delete utility_; 
 }
 
 // -----------------------------------------------------------------------------
