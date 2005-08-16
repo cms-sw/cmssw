@@ -30,6 +30,7 @@ extern void G__set_cpp_environmentCDFChunk_dict();
 #include "TROOT.h"
 #include "TMemberInspector.h"
 #include "CDFChunk.h"
+#include "CDFEventInfo.h"
 #include <algorithm>
 namespace std { }
 using namespace std;
@@ -45,5 +46,6 @@ extern G__linked_taginfo G__CDFChunk_dictLN_vectorlETStreamerInfomUcOallocatorlE
 extern G__linked_taginfo G__CDFChunk_dictLN_reverse_iteratorlEvectorlETStreamerInfomUcOallocatorlETStreamerInfomUgRsPgRcLcLiteratorgR;
 extern G__linked_taginfo G__CDFChunk_dictLN_TString;
 extern G__linked_taginfo G__CDFChunk_dictLN_CDFChunk;
+extern G__linked_taginfo G__CDFChunk_dictLN_CDFEventInfo;
 
 /* STUB derived class for protected member access */
