@@ -7,12 +7,16 @@
 
 /**
    \class SiStripDigiToRaw
-   \brief Short description here.
+
+   \brief Takes a StripDigiCollection as input and creates a
+   FEDRawDataCollection.
    \author M.Wingham, R.Bainbridge
    \version 0.1
    \date 09/08/05
    
-   Long description here.
+   Takes a StripDigiCollection as input and creates a
+   FEDRawDataCollection.
+
 */
 class SiStripDigiToRaw {
   
@@ -23,7 +27,8 @@ class SiStripDigiToRaw {
   /** */
   ~SiStripDigiToRaw();
   
-  /** */
+  /** Takes a StripDigiCollection as input and creates a
+      FEDRawDataCollection. */
   void createFedBuffers( StripDigiCollection& digis, 
 			 raw::FEDRawDataCollection& fed_buffers );
   

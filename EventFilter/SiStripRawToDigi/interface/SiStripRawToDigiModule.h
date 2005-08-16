@@ -1,5 +1,5 @@
-#ifndef SiStripDigiToRawModule_H
-#define SiStripDigiToRawModule_H
+#ifndef SiStripRawToDigiModule_H
+#define SiStripRawToDigiModule_H
 
 // system include files
 #include <memory>
@@ -12,44 +12,45 @@
 //
 #include <string>
 
-class SiStripDigiToRaw;
+class SiStripRawToDigi;
 class SiStripUtility;
 
 /**
-   \class SiStripDigiToRawModule 
-   \brief A plug-in EDProducer module that takes a StripDigiCollection
-   as input and creates an EDProduct in the form of a
-   FEDRawDataCollection. 
+   \class SiStripRawToDigiModule 
+   \brief A plug-in EDProducer module that takes a
+   FEDRawDataCollection as input and creates an EDProduct in the form
+   of a StripDigiCollection. 
    \author R.Bainbridge
    \version 0.1
    \date 09/08/05
-   A plug-in EDProducer module that takes a StripDigiCollection as
+   
+   A plug-in EDProducer module that takes a FEDRawDataCollection as
    input and creates an EDProduct in the form of a
-   FEDRawDataCollection. 
+   StripDigiCollection. 
    Nota bene: this is a PROTOTYPE IMPLEMENTATION!
 */
-class SiStripDigiToRawModule : public edm::EDProducer {
+class SiStripRawToDigiModule : public edm::EDProducer {
   
 public:
   
   /** */
-  explicit SiStripDigiToRawModule( const edm::ParameterSet& );
+  explicit SiStripRawToDigiModule( const edm::ParameterSet& );
   /** */
-  ~SiStripDigiToRawModule();
+  ~SiStripRawToDigiModule();
 
   /** */
   virtual void beginJob( const edm::EventSetup& );
   /** */
   virtual void endJob();
   
-  /** method that retrieves a StripDigiCollection from the Event and
-      creates an EDProduct in the form of a FEDRawDataCollection. */
+  /** method that retrieves a FEDRawDataCollection from the Event and
+      creates an EDProduct in the form of a StripDigiCollection. */
   virtual void produce( edm::Event&, const edm::EventSetup& );
   
 private:
   
-  /** object that converts StripDigi's to FEDRawData objects */
-  SiStripDigiToRaw* digiToRaw_;
+  /** object that converts FEDRawData objects to StripDigi's */
+  SiStripRawToDigi* rawToDigi_;
   /** utility class providing dummy Digis, FED buffers, cabling map */
   SiStripUtility* utility_;
 
@@ -63,5 +64,5 @@ private:
   
 };
 
-#endif // SiStripDigiToRawModule_H
+#endif // SiStripRawToDigiModule_H
 

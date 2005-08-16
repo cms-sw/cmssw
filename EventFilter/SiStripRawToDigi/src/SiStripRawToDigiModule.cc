@@ -1,5 +1,5 @@
-#include "EventFilter/SiStripRawToDigi/interface/SiStripDigiToRawModule.h"
-#include "EventFilter/SiStripRawToDigi/interface/SiStripDigiToRaw.h"
+#include "EventFilter/SiStripRawToDigi/interface/SiStripRawToDigiModule.h"
+#include "EventFilter/SiStripRawToDigi/interface/SiStripRawToDigi.h"
 // handle to EventSetup
 #include "FWCore/Framework/interface/ESHandle.h"
 // data collections
@@ -23,89 +23,90 @@ using namespace raw;
 
 // -----------------------------------------------------------------------------
 // constructor
-SiStripDigiToRawModule::SiStripDigiToRawModule( const edm::ParameterSet& conf ) :
-  digiToRaw_(0),
+SiStripRawToDigiModule::SiStripRawToDigiModule( const edm::ParameterSet& conf ) :
+  rawToDigi_(0),
   utility_(0),
   event_(0),
   fedReadoutPath_( conf.getParameter<string>("FedReadoutPath") ),
   verbosity_( conf.getParameter<int>("Verbosity") )
 {
-  if (verbosity_>1) cout << "[SiStripDigiToRawModule] "
-			 << "constructing DigiToRaw module..." << endl;
+  if (verbosity_>1) cout << "[SiStripRawToDigiModule] "
+			 << "constructing RawToDigi module..." << endl;
   // specify product type
-  produces<FEDRawDataCollection>("FEDRawDataCollection_from_StripDigis");
+  produces<StripDigiCollection>("StripDigiCollection_from_FEDRawData");
 }
 
 // -----------------------------------------------------------------------------
 // destructor
-SiStripDigiToRawModule::~SiStripDigiToRawModule() {
-  if (verbosity_>1) cout << "[SiStripDigiToRawModule] "
-			 << "destructing DigiToRaw module..." << endl;
+SiStripRawToDigiModule::~SiStripRawToDigiModule() {
+  if (verbosity_>1) cout << "[SiStripRawToDigiModule] "
+			 << "destructing RawToDigi module..." << endl;
+  // anything here? close files, deallocate resources, etc?
 }
 
 // -----------------------------------------------------------------------------
 //
-void SiStripDigiToRawModule::beginJob( const edm::EventSetup& iSetup ) {
-  if (verbosity_>2) cout << "[SiStripDigiToRawModule::beginJob] "
-			 << "creating utility object, connections map, DigiToRaw converter..." << endl;
+void SiStripRawToDigiModule::beginJob( const edm::EventSetup& iSetup ) {
+  if (verbosity_>2) cout << "[SiStripRawToDigiModule::beginJob] "
+			 << "creating utility object, connections map, RawToDigi converter..." << endl;
 
-  //@@ cannot presently retrieve connections map from SeventSetup!
+  // create instance of utility class
+  utility_ = new SiStripUtility( iSetup );
+
   //   // retrieve cabling map (ESProduct) 
   //   ESHandle<SiStripConnection> connections;
   //   iSetup.get<TrackerConnectionRecord>().get( connections );
   //   cabling_.reset( connections.product() );
 
-  // retrieve "dummy" connections map from utility object 
-  utility_ = new SiStripUtility( iSetup );
+  // retrieve "dummy" connections map
   SiStripConnection connections;
   utility_->siStripConnection( connections );
 
-  // create instance of DigiToRaw converter
-  digiToRaw_ = new SiStripDigiToRaw( connections );
-  // digiToRaw_->fedReadoutMode( fedReadoutMode_ );
-  // digiToRaw_->fedReadoutPath( fedReadoutPath_ );
+  // create instance of RawToDigi converter
+  rawToDigi_ = new SiStripRawToDigi( connections );
+  // rawToDigi_->fedReadoutPath( fedReadoutPath_ );
 
 }
 
 // -----------------------------------------------------------------------------
 //
-void SiStripDigiToRawModule::endJob() { 
-  if (verbosity_>2) cout << "[SiStripDigiToRawModule::endJob] "
+void SiStripRawToDigiModule::endJob() { 
+  if (verbosity_>2) cout << "[SiStripRawToDigiModule::endJob] "
 			 << "cuurently does nothing..." << endl;
 }
 
 // -----------------------------------------------------------------------------
 // produces a FEDRawDataCollection
-void SiStripDigiToRawModule::produce( edm::Event& iEvent, 
+void SiStripRawToDigiModule::produce( edm::Event& iEvent, 
 				      const edm::EventSetup& iSetup ) {
-  if (verbosity_>2) cout << "[SiStripDigiToRawModule::produce] "
-			 << "creates \"dummy\" StripDigiCollection as " << endl
-			 << "input to DigiToRaw converter and writes "
-			 << "\"FedRawDataCollection\" product to Event ..." << endl;
+  if (verbosity_>2) cout << "[SiStripRawToDigiModule::produce] "
+			 << "creates \"dummy\" FedRawDataCollection as " << endl
+			 << "input to RawToDigi converter and writes "
+			 << "\"StripDigiCollection\" product to Event ..." << endl;
   
   event_++; // increment event counter
-  if (verbosity_>0) cout << "[SiStripDigiToRawModule::produce] "
+  if (verbosity_>0) cout << "[SiStripRawToDigiModule::produce] "
 			 << "event number: " << event_ << endl;
   
   //   // retrieve collection of StripDigi's from Event
   //   edm::Handle<StripDigiCollection> input;
   //   e.getByLabel("StripDigiConverter", input);
   
-  // retrieve "dummy" collection of StripDigi from utility object
-  StripDigiCollection digis;
-  utility_->stripDigiCollection( digis );
-
-  // create product
+  // retrieve "dummy" collection of FEDRawData from utility object
   FEDRawDataCollection fed_buffers;
+  utility_->fedRawDataCollection( fed_buffers );
 
-  // use DigiToRaw converter to fill FEDRawDataCollection
-  digiToRaw_->createFedBuffers( digis, fed_buffers );
+  // create product 
+  StripDigiCollection digis;
 
-  // write FEDRawDataCollection to the Event
-  // iEvent.put( &fed_buffers );
+  // use RawToDigi converter to fill FEDRawDataCollection
+  rawToDigi_->createDigis( fed_buffers, digis );
+
+  // write StripDigiCollection to the Event
+  // iEvent.put( &digis );
 
 }
 
 // -----------------------------------------------------------------------------
-// define the class SiStripDigiToRawModule as a plug-in
-//DEFINE_FWK_MODULE(SiStripDigiToRawModule)
+// define the class SiStripRawToDigiModule as a plug-in
+//DEFINE_FWK_MODULE(SiStripRawToDigiModule)
