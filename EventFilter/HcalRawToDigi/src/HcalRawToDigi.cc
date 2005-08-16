@@ -49,7 +49,7 @@ namespace cms
   {
     // Step A: Get Inputs 
     edm::Handle<FEDRawDataCollection> rawraw;  
-    edm::ProcessNameSelector s("DaqProd"); // HACK!
+    edm::ProcessNameSelector s("PROD"); // HACK!
     e.get(s, rawraw);           
 
     // Step B: Create empty output  : three vectors for three classes...
