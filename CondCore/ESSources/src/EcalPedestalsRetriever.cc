@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Mon Apr 18 16:43:35 EDT 2005
-// $Id: EcalPedestalsRetriever.cc,v 1.1 2005/07/27 19:48:22 xiezhen Exp $
+// $Id: EcalPedestalsRetriever.cc,v 1.2 2005/08/05 12:46:44 xiezhen Exp $
 //
 
 // system include files
@@ -129,27 +129,27 @@ EcalPedestalsRetriever::produce( const ECalPedestalsRcd& )
 
 void
 EcalPedestalsRetriever::setIntervalFor( const EventSetupRecordKey&,
-				   const edm::IOVSyncValue& iTime, 
-				   edm::ValidityInterval& oValidity)
+					const edm::IOVSyncValue& iTime, 
+					edm::ValidityInterval& oValidity)
 {
   typedef std::map<int, std::string> IOVMap;
   typedef IOVMap::const_iterator iterator;
   try{
-    unsigned long abtime=iTime.collisionID()-edm::IOVSyncValue::beginOfTime().collisionID();
+    unsigned long abtime=iTime.eventID().run()-edm::IOVSyncValue::beginOfTime().eventID().run();
     iterator iEnd = iovped_->iov.lower_bound( abtime );
     if( iEnd == iovped_->iov.end() ||  (*iEnd).second.empty() ) {
       //no valid data
-      oValidity = edm::ValidityInterval(edm::IOVSyncValue::endOfTime(),edm::IOVSyncValue::endOfTime());
+      oValidity = edm::ValidityInterval(edm::IOVSyncValue::endOfTime(), edm::IOVSyncValue::endOfTime());
     } else {
-      unsigned long starttime=edm::IOVSyncValue::beginOfTime().collisionID();
+      unsigned long starttime=edm::IOVSyncValue::beginOfTime().eventID().run();
       if (iEnd != iovped_->iov.begin()) {
 	iterator iStart(iEnd); iStart--;
-      	starttime = (*iStart).first+edm::IOVSyncValue::beginOfTime().collisionID();
+      	starttime = (*iStart).first+edm::IOVSyncValue::beginOfTime().eventID().run();
       }
       //std::cout<<"new start "<<start<<std::endl;
       pedCid_ = (*iEnd).second;
-      edm::IOVSyncValue start( starttime );
-      edm::IOVSyncValue stop ((*iEnd).first+edm::IOVSyncValue::beginOfTime().collisionID());
+      edm::IOVSyncValue start( edm::EventID(starttime,0) );
+      edm::IOVSyncValue stop ( edm::EventID((*iEnd).first+edm::IOVSyncValue::beginOfTime().eventID().run(),0) );
       oValidity = edm::ValidityInterval( start, stop );
       //std::cout<<"set to "<<start.value()<<" "<<stop.value()<<std::endl;
       //std::cout << "ped Cid " << pedCid_ << " valid from " << start.value() << " to " << stop.value() << std::endl;  

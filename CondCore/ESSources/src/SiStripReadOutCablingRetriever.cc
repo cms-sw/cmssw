@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Mon Apr 18 16:43:35 EDT 2005
-// $Id: SiStripReadOutCablingRetriever.cc,v 1.1 2005/08/01 13:10:20 xiezhen Exp $
+// $Id: SiStripReadOutCablingRetriever.cc,v 1.2 2005/08/05 12:46:44 xiezhen Exp $
 //
 
 // system include files
@@ -137,20 +137,20 @@ SiStripReadOutCablingRetriever::setIntervalFor( const EventSetupRecordKey&,
   typedef std::map<int, std::string> IOVMap;
   typedef IOVMap::const_iterator iterator;
   try{
-    unsigned long abtime=iTime.collisionID()-edm::IOVSyncValue::beginOfTime().collisionID();
+    unsigned long abtime=iTime.eventID().run()-edm::IOVSyncValue::beginOfTime().eventID().run();
     iterator iEnd = iovped_->iov.lower_bound( abtime );
     if( iEnd == iovped_->iov.end() ||  (*iEnd).second.empty() ) {
       //no valid data
       oValidity = edm::ValidityInterval(edm::IOVSyncValue::endOfTime(),edm::IOVSyncValue::endOfTime());
     } else {
-      unsigned long starttime = edm::IOVSyncValue::beginOfTime().collisionID();
+      unsigned long starttime = edm::IOVSyncValue::beginOfTime().eventID().run();
       if (iEnd != iovped_->iov.begin()) {
 	iterator iStart(iEnd); iStart--;
-      	starttime = (*iStart).first+edm::IOVSyncValue::beginOfTime().collisionID();
+      	starttime = (*iStart).first+edm::IOVSyncValue::beginOfTime().eventID().run();
       }
       pedCid_ = (*iEnd).second;
-      edm::IOVSyncValue start( starttime );
-      edm::IOVSyncValue stop ((*iEnd).first+edm::IOVSyncValue::beginOfTime().collisionID());
+      edm::IOVSyncValue start( edm::EventID(starttime,0) );
+      edm::IOVSyncValue stop ( edm::EventID((*iEnd).first+edm::IOVSyncValue::beginOfTime().eventID().run(),0) );
       oValidity = edm::ValidityInterval( start, stop );
     }
   }catch(seal::Exception& e){
