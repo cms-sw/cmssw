@@ -42,3 +42,9 @@
  <use name=Fed9UUtils>
  <use name=ICUtils>
 </export>
+
+
+# Nota bene: EventFilter/SiStripRawToDigi has dependencies on (Fed9U) 
+# packages external to ORCA. Prior to building, run the script below 
+# to install ToolFiles required by scramv1 for linking to these libs:
+# ~bainbrid/public/OrcaCustomtoolFiles/CustomToolFiles.tcsh
