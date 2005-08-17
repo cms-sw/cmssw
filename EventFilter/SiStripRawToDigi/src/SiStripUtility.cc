@@ -87,16 +87,24 @@ void SiStripUtility::fedRawDataCollection( FEDRawDataCollection& collection ) {
     } else {
       cout << "WARNING : UNKNOWN readout mode"<<endl;
     }
+ 
+    //     // generate FED buffer and pass to Daq
+    //     Fed9U::Fed9UBufferGenerator generator( creator );
+    //     generator.generateFed9UBuffer( adc );
+    //     vector<unsigned char> buffer = generator.getBuffer(); //@@ getBuffer() method not efficient at all!!!
+    //     FEDRawData data = FEDRawData( buffer.size() ); 
+    //     data.data( buffer ); 
+    //     delete creator;
 
-    // generate FED buffer and pass to Daq
+    // generate FED buffer and copy to FEDRawData object
     Fed9U::Fed9UBufferGenerator generator( creator );
     generator.generateFed9UBuffer( adc );
-    vector<unsigned char> buffer = generator.getBuffer(); //@@ getBuffer() method not efficient at all!!!
-    FEDRawData data = FEDRawData( buffer.size() ); 
-    data.data( buffer ); 
+    unsigned int nbytes = 4 * generator.getBufferSize();
+    FEDRawData data = FEDRawData( nbytes ); 
+    generator.getBuffer( reinterpret_cast<unsigned int*>(const_cast<unsigned char*>(data.data())) );
     delete creator;
-    collection.put( data, ifed );
-
+    //collection.put( data, ifed );
+    
   }
 }
 
