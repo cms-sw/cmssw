@@ -1,5 +1,4 @@
 <lcgdict>
-  <class name="StripDigi::Packing"/>
   <class name="StripDigi"/>
   <class name="std::vector<StripDigi>"/>
   <class name="std::pair<unsigned int, unsigned int>"/>
