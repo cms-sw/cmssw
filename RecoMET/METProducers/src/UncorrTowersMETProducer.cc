@@ -14,9 +14,13 @@ using namespace std;
 namespace cms {
 
   UncorrTowersMETProducer::UncorrTowersMETProducer(ParameterSet const& conf):
-    alg_(false) {}
+    alg_(false) {
+    produces<TowerMETCollection>(); 
+  }
   UncorrTowersMETProducer::UncorrTowersMETProducer():
-    alg_(false) {}
+    alg_(false) {
+    produces<TowerMETCollection>(); 
+  }
 
   UncorrTowersMETProducer::~UncorrTowersMETProducer() {}
 
