@@ -1,0 +1,9 @@
+<lcgdict>
+  <class name="SiStripCluster"/>
+  <class name="std::vector<short>"/>
+  <class name="std::vector<SiStripCluster>"/>
+  <class name="std::pair<unsigned int, unsigned int>"/>
+  <class name="std::map<unsigned int, std::pair<unsigned int, unsigned int> >"/>
+  <class name="SiStripClusterCollection"/>
+  <class name="edm::Wrapper<SiStripClusterCollection>" id="C4D8A21B-7FB4-C5CC-EC4C-3DF86655814C"/>
+</lcgdict>
