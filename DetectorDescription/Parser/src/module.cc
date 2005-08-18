@@ -1,4 +1,5 @@
 #include "DetectorDescription/Parser/interface/DDLParser.h"
+#include "PluginManager/ModuleDef.h"
 //#include "Utilities/GenUtil/interface/ServiceDef.h"
 
 
