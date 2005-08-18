@@ -5,4 +5,5 @@
   <class name="edm::Wrapper<BaseMET>"/>
   <class name="edm::Wrapper<TowerMET>" id="83414CC1-1BDD-0922-4752-1589391CBC4B"/>
   <class name="edm::Wrapper<std::vector<TowerMET> >"/>
+  <class name="std::vector<TowerMET>"/>
 </lcgdict>
