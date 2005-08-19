@@ -13,7 +13,7 @@
 //
 // Original Author:  Fedor Ratnikov
 //         Created:  Wed Aug 10 15:40:06 CDT 2005
-// $Id$
+// $Id: HcalDbSourceHardcode.cc,v 1.1 2005/08/18 23:45:05 fedor Exp $
 //
 //
 
@@ -52,12 +52,11 @@
  				      const edm::IOVSyncValue& iTime, 
  				      edm::ValidityInterval& iInterval) {
    //Be valid for 3 time steps
-   edm::CollisionID newTime = (iTime.collisionID() - 1 ) - ((iTime.collisionID() - 1 ) %3) +1;
-   edm::CollisionID endTime = newTime + 2;
+   edm::EventID newTime = edm::EventID( (iTime.eventID().run() - 1 ) - ((iTime.eventID().run() - 1 ) %3) +1);
+   edm::EventID endTime = newTime.nextRun().nextRun().nextRun().previousRunLastEvent();
    iInterval = edm::ValidityInterval( edm::IOVSyncValue( newTime),
 				      edm::IOVSyncValue(endTime) );
  }
-
 
 //define this as a plug-in
 // DEFINE_FWK_EVENTSETUP_SOURCE(HcalDbSourceHardcode)
