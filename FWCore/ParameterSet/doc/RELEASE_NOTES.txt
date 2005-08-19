@@ -1,4 +1,13 @@
 
+12-08-05 mfp Added member template to ParameterSet to allow adding
+parameters to an existing ParameterSet object.
+
+NOTE: ParameterSets don't seem to deal well with 'infinity' as a value
+of a double; see the commented-out line in ps_t.cppunit.cc that causes
+a failed test. Similarly, ParameterSets don't deal well with NaN as a
+value for a double.
+
+
 14-07-05 jbk
 Changed the exceptions from std::runtime_error to edm::Exception.
 It is still unclear what the best route is for identifying

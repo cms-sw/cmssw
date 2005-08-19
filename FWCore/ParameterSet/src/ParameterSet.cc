@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.cc,v 1.5 2005/07/14 16:17:23 jbk Exp $
+// $Id: ParameterSet.cc,v 1.6 2005/08/01 19:24:37 wmtan Exp $
 //
 // definition of ParameterSet's function members
 // ----------------------------------------------------------------------
@@ -7,6 +7,8 @@
 // ----------------------------------------------------------------------
 // prerequisite source files and headers
 // ----------------------------------------------------------------------
+
+#include "SealZip/MD5Digest.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -25,18 +27,49 @@
 namespace edm {
 
   void
-  ParameterSet::validate() const {
+  ParameterSet::validate() const 
+  {
+    std::string stringrep = this->toStringOfTracked();
+    seal::MD5Digest md5alg;
+    md5alg.update(stringrep.data(), stringrep.size());
+    id_ = ParameterSetID(md5alg.format());
   }  // ParameterSet::validate()
+
+  void
+  ParameterSet::invalidate() const
+  {
+    id_ = ParameterSetID();
+  }
   
   
   // ----------------------------------------------------------------------
   // constructors
   // ----------------------------------------------------------------------
+
+  ParameterSet::ParameterSet() :
+    tbl_(),
+    id_()
+  {
+    validate();
+  }
+
+
+  // ----------------------------------------------------------------------
+  // identification
+  ParameterSetID
+  ParameterSet::id() const
+  {
+    if (!id_.isValid()) validate();
+    return id_;
+  }
   
   // ----------------------------------------------------------------------
   // coded string
   
-  ParameterSet::ParameterSet(std::string const& code) : tbl() {
+  ParameterSet::ParameterSet(std::string const& code) : 
+    tbl_(),
+    id_()
+  {
     if(! fromString(code))
       throw edm::Exception(errors::Configuration,"InvalidInput")
 	<< "The encoded configuration string "
@@ -52,10 +85,10 @@ namespace edm {
   
   Entry const&
   ParameterSet::retrieve(std::string const& name) const {
-    table::const_iterator  it = tbl.find(name);
-    if(it == tbl.end()) {
-      it = tbl.find("label");
-      if(it == tbl.end())
+    table::const_iterator  it = tbl_.find(name);
+    if(it == tbl_.end()) {
+      it = tbl_.find("label");
+      if(it == tbl_.end())
         throw edm::Exception(errors::Configuration,"InvalidName")
 	  << "The name '" << name 
 	  << "' is not known in an anonymous ParameterSet.\n";
@@ -70,8 +103,8 @@ namespace edm {
   
   Entry const* const
   ParameterSet::retrieveUntracked(std::string const& name) const {
-    table::const_iterator  it = tbl.find(name);
-    if(it == tbl.end())  {
+    table::const_iterator  it = tbl_.find(name);
+    if(it == tbl_.end())  {
       return 0;
     }
     return &it->second;
@@ -80,11 +113,17 @@ namespace edm {
   // ----------------------------------------------------------------------
   
   void
-  ParameterSet::insert(bool okay_to_replace, std::string const& name, Entry const& value) {
-    table::iterator  it = tbl.find(name);
-  
-    if(it == tbl.end())  {
-      if(! tbl.insert(std::make_pair(name, value)).second)
+  ParameterSet::insert(bool okay_to_replace, std::string const& name, Entry const& value) 
+  {
+    // This preemptive invalidation may be more agressive than necessary.
+    invalidate();
+
+    // We should probably get rid of 'okay_to_replace', which will
+    // simplify the logic in this function.
+    table::iterator  it = tbl_.find(name);
+
+    if(it == tbl_.end())  {
+      if(! tbl_.insert(std::make_pair(name, value)).second)
         throw edm::Exception(errors::Configuration,"InsertFailure")
 	  << "cannot insert " << name
 	  << " into a ParmeterSet\n";
@@ -100,10 +139,13 @@ namespace edm {
   
   void
   ParameterSet::augment(ParameterSet const& from) {
+    // This preemptive invalidation may be more agressive than necessary.
+    invalidate();
+
     if(& from == this)
       return;
   
-    for(table::const_iterator b = from.tbl.begin(), e = from.tbl.end(); b != e; ++b) {
+    for(table::const_iterator b = from.tbl_.begin(), e = from.tbl_.end(); b != e; ++b) {
       this->insert(false, b->first, b->second);
     }
   }  // augment()
@@ -115,8 +157,8 @@ namespace edm {
   std::string
   ParameterSet::toString() const {
     std::string rep;
-    for(table::const_iterator b = tbl.begin(), e = tbl.end(); b != e; ++b) {
-      if(b != tbl.begin())
+    for(table::const_iterator b = tbl_.begin(), e = tbl_.end(); b != e; ++b) {
+      if(b != tbl_.begin())
         rep += ';';
       rep += (b->first + '=' + b->second.toString());
     }
@@ -130,7 +172,7 @@ namespace edm {
   ParameterSet::toStringOfTracked() const {
     std::string  rep = "<";
     bool need_sep = false;
-    for(table::const_iterator b = tbl.begin(), e = tbl.end(); b != e; ++b) {
+    for(table::const_iterator b = tbl_.begin(), e = tbl_.end(); b != e; ++b) {
       if(b->second.isTracked())  {
         if(need_sep)
           rep += ';';
@@ -146,11 +188,14 @@ namespace edm {
   
   bool
   ParameterSet::fromString(std::string const& from) {
+    // This preemptive invalidation may be more agressive than necessary.
+    invalidate();
+
     std::vector<std::string> temp;
     if(! split(std::back_inserter(temp), from, '<', ';', '>'))
       return false;
   
-    tbl.clear();  // precaution
+    tbl_.clear();  // precaution
     for(std::vector<std::string>::const_iterator b = temp.begin(), e = temp.end(); b != e; ++b) {
       // locate required name/value separator
       std::string::const_iterator  q
@@ -160,12 +205,12 @@ namespace edm {
   
       // form name unique to this ParameterSet
       std::string  name = std::string(b->begin(), q);
-      if(tbl.find(name) != tbl.end())
+      if(tbl_.find(name) != tbl_.end())
         return false;
   
       // form value and insert name/value pair
       Entry  value(std::string(q+1, b->end()));
-      if(! tbl.insert(std::make_pair(name, value)).second)
+      if(! tbl_.insert(std::make_pair(name, value)).second)
         return false;
     }
   

@@ -1,8 +1,13 @@
 <use name=boost>
+<use name=Foundation/SealZip>
 <use name=FWCore/Utilities>
+<use name=FWCore/EDProduct>
+
 <export>
  <lib name=FWCoreParameterSet>
  <use name=FWCore/Utilities>
+ <use name=FWCore/EDProduct>
  <use name=boost>
+ <use name=Foundation/SealZip>
 </export>
 
