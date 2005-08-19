@@ -1,5 +1,5 @@
 <use name=boost>
-<use name=frontier>
+#<use name=frontier>
 <use name=FWCore/Framework>
 <use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
@@ -7,7 +7,7 @@
 <export>
    <lib name=CalibCalorimetryHcalAlgos>
    <use name=boost>
-   <use name=frontier>
+#   <use name=frontier>
    <use name=FWCore/Framework>
    <use name=Foundation/PluginManager>
    <use name=FWCore/ParameterSet>

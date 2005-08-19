@@ -13,7 +13,7 @@
 //
 // Original Author:  Fedor Ratnikov
 //         Created:  Tue Aug  9 19:10:10 CDT 2005
-// $Id$
+// $Id: HcalDbProducer.cc,v 1.1 2005/08/18 23:45:05 fedor Exp $
 //
 //
 
@@ -24,7 +24,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbServiceHardcode.h"
-#include "CalibCalorimetry/HcalAlgos/interface/HcalDbServiceFrontier.h"
+//Frontier #include "CalibCalorimetry/HcalAlgos/interface/HcalDbServiceFrontier.h"
 
 #include "HcalDbProducer.h"
 
@@ -74,15 +74,16 @@ HcalDbProducer::produce( const HcalDbRecord& fRecord )
     fRecord.get (serviceHardcode);
     service = serviceHardcode.product();
   }
-  else if (mDbSourceName == name_frontier) {
-    edm::eventsetup::ESHandle <HcalDbServiceFrontier> serviceFrontier;
-    fRecord.get (serviceFrontier);
-    service = serviceFrontier.product();
-  }
+//Frontier  else if (mDbSourceName == name_frontier) {
+//Frontier    edm::eventsetup::ESHandle <HcalDbServiceFrontier> serviceFrontier;
+//Frontier    fRecord.get (serviceFrontier);
+//Frontier    service = serviceFrontier.product();
+//Frontier  }
   else {
     std::cerr << "HcalDbProducer::produce-> Unknown service " << mDbSourceName
 	      << ". Use one of: "  
-	      << name_hardcode << ", " << name_frontier  
+	      << name_hardcode 
+//Frontier	      << ", " << name_frontier  
 	      << std::endl;
   }
   std::auto_ptr<HcalDbServiceHandle> pHcalDbServiceHandle (new HcalDbServiceHandle (service));
