@@ -1,7 +1,7 @@
 #!/bin/sh
 
 #----------------------------------------------------------------------
-# $Id: run_all.sh,v 1.3 2005/07/06 19:47:28 paterno Exp $
+# $Id: run_all.sh,v 1.4 2005/07/21 14:05:51 jbk Exp $
 #----------------------------------------------------------------------
 
 ARC=../../../../test/`scramv1 arch`
@@ -17,7 +17,7 @@ do_or_die Exception_t
 do_or_die ExceptionDerived_t
 do_or_die CodedException_t
 do_or_die EDMException_t
-do_or_die Digest_t
+
 
 
 
