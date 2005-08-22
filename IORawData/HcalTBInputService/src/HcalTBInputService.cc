@@ -65,7 +65,10 @@ namespace hcal {
 	remapTo=atoi(i->c_str()+pos+1);
       
       m_sourceIdRemap.insert(std::pair<std::string,int>(streamName,remapTo));
-      cout << streamName << " --> " << remapTo << endl;
+      if (remapTo!=-1) 
+	cout << streamName << " --> " << remapTo << endl;
+      else
+	cout << streamName << " using fedid in file" << endl;
     }
   }
 
