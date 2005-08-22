@@ -88,22 +88,20 @@ void SiStripUtility::fedRawDataCollection( FEDRawDataCollection& collection ) {
       cout << "WARNING : UNKNOWN readout mode"<<endl;
     }
  
-    //     // generate FED buffer and pass to Daq
-    //     Fed9U::Fed9UBufferGenerator generator( creator );
-    //     generator.generateFed9UBuffer( adc );
-    //     vector<unsigned char> buffer = generator.getBuffer(); //@@ getBuffer() method not efficient at all!!!
-    //     FEDRawData data = FEDRawData( buffer.size() ); 
-    //     data.data( buffer ); 
-    //     delete creator;
-
-    // generate FED buffer and copy to FEDRawData object
+    // create Fed9UBufferGenerator object (that uses Fed9UBufferCreator)
     Fed9U::Fed9UBufferGenerator generator( creator );
+    // generate FED buffer using vector<unsigned short> that holds adc values
     generator.generateFed9UBuffer( adc );
-    unsigned int nbytes = 4 * generator.getBufferSize();
-    FEDRawData data = FEDRawData( nbytes ); 
-    generator.getBuffer( reinterpret_cast<unsigned int*>(const_cast<unsigned char*>(data.data())) );
-    delete creator;
-    //collection.put( data, ifed );
+    // retrieve FEDRawData struct from collection for appropriate fed
+    FEDRawData& fed_data = collection.FEDData( ifed ); 
+    // calculate size of FED buffer in units of bytes (unsigned char)
+    int nbytes = generator.getBufferSize() * 4;
+    // resize (public) "data_" member of struct FEDRawData
+    (fed_data.data_).resize( nbytes );
+    // copy FED buffer to struct FEDRawData using Fed9UBufferGenerator
+    unsigned char* chars = const_cast<unsigned char*>( fed_data.data() );
+    unsigned int* ints = reinterpret_cast<unsigned int*>( chars );
+    generator.getBuffer( ints );
     
   }
 }
@@ -116,10 +114,10 @@ void SiStripUtility::siStripConnection( SiStripConnection& connections ) {
   for ( int idet = 0; idet < nDets_; idet++ ) { 
     pair<unsigned short, unsigned short> fed; 
     pair<cms::DetId,unsigned short> det; 
-    fed = pair<unsigned short, unsigned short>( (nDets_/48)+50, nDets_%48 );
+    fed = pair<unsigned short, unsigned short>( (idet/48), idet%48 );
     det = pair<cms::DetId,unsigned short>( idet, 0 );
     connections.setPair( fed, det );
-    fed = pair<unsigned short, unsigned short>( (nDets_/48)+50, (nDets_%48)+1 );
+    fed = pair<unsigned short, unsigned short>( (idet/48), (idet%48)+1 );
     det = pair<cms::DetId,unsigned short>( idet, 1 );
     connections.setPair( fed, det );
   }
