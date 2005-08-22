@@ -3,7 +3,7 @@
 
 #include "IORawData/EcalTBInputService/src/EcalTBDaqFileReader.h"
 
-#include <FWCore/EDProduct/interface/CollisionID.h>
+#include <FWCore/EDProduct/interface/EventID.h>
 #include <iosfwd>
 #include <string>
 #include <fstream>
@@ -41,7 +41,7 @@ class EcalTBDaqFileReader  {
 
   // Override virtual methods from DaqFileReader
   virtual void initialize(const std::string & filename);
-  virtual bool fillDaqEventData(edm::CollisionID & cID, raw::FEDRawDataCollection& data);
+  virtual bool fillDaqEventData(edm::EventID & cID, raw::FEDRawDataCollection& data);
   virtual FedDataPair getEventTrailer();
   virtual bool checkEndOfEvent();
   virtual bool checkEndOfFile();

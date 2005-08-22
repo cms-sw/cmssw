@@ -1,6 +1,6 @@
 /*
- *  $Date: 2005/08/04 17:11:04 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/08/05 14:31:49 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -14,7 +14,7 @@
 #include "IORawData/EcalTBInputService/src/EcalTBDaqFileReader.h"
 #include "FakeRetriever.h"
 
-#include <FWCore/EDProduct/interface/CollisionID.h>
+#include <FWCore/EDProduct/interface/EventID.h>
 #include <FWCore/EDProduct/interface/EDProduct.h>
 #include <FWCore/EDProduct/interface/Wrapper.h>
 #include <FWCore/Framework/src/TypeID.h> 
@@ -93,7 +93,7 @@ auto_ptr<EventPrincipal> DAQEcalTBInputService::read() {
 
   //  clear();
 
-  CollisionID id=0;
+  EventID id=0;
 
   FEDRawDataCollection* bare_product = new FEDRawDataCollection;
 

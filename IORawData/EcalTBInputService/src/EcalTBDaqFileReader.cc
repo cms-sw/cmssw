@@ -122,7 +122,7 @@ EcalTBDaqFileReader::getEventTrailer() {
 }
 
 
-bool EcalTBDaqFileReader::fillDaqEventData(edm::CollisionID & cID, FEDRawDataCollection& data ) {
+bool EcalTBDaqFileReader::fillDaqEventData(edm::EventID & cID, FEDRawDataCollection& data ) {
   //  cout<< "EcalTBDaqFileReader::fillDaqEventData() beginning " << endl;      
   const int MAXFEDID = 1024;
 
