@@ -4,7 +4,7 @@
 #include "CDFChunk.h"
 #include "CDFEventInfo.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-#include "FWCore/EDProduct/interface/CollisionID.h"
+#include "FWCore/EDProduct/interface/EventID.h"
 #include "FWCore/EDProduct/interface/Wrapper.h"
 #include "PluginManager/PluginCapabilities.h"
 #include <iostream>
@@ -119,10 +119,7 @@ std::auto_ptr<edm::EventPrincipal> HcalTBInputService::read() {
   m_i++;
   m_itotal++;
 
-  CollisionID id=((m_eventInfo==0)?(fileCounter_*1000000+m_i-1):
-    (m_eventInfo->getRunNumber()*100000+m_eventInfo->getEventNumber())); // update to use run number soon
-
-  //  cout << id << " " << m_eventInfo->getRunNumber() << " " << m_eventInfo->getEventNumber() << endl;
+  EventID id=((m_eventInfo==0)?(EventID(fileCounter_,m_i-1)):(EventID(m_eventInfo->getRunNumber(),m_eventInfo->getEventNumber())));
 
   auto_ptr<EventPrincipal> result = auto_ptr<EventPrincipal>(new EventPrincipal(id,  *retriever_,*preg_));
  
