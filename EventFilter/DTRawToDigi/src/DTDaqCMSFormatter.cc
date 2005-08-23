@@ -3,7 +3,7 @@
  *  
  * 
  *
- *  $Date: 2005/07/06 15:52:01 $
+ *  $Date: 2005/07/13 09:06:50 $
  *  $Revision: 1.1 $
  *  \author G. Bruno - CERN, EP Division
  */
@@ -21,6 +21,7 @@
 //#include "Utilities/Notification/interface/Verbose.h"
 
 #include <DataFormats/DTDigis/interface/DTDigi.h>
+#include <DataFormats/MuonDetId/interface/DTDetId.h>
 #include <DataFormats/DTDigis/interface/DTDigiCollection.h>
 #include <iostream>
 
@@ -84,7 +85,7 @@ void DTDaqCMSFormatter::interpretRawData(const FEDRawData & fedData,
 
 #warning Fake mapping of layer !
 
-	  DTLayerId layer(1,               //wheel
+	  DTDetId   layer(1,               //wheel
 			  readoutindex,    //station
 			  readoutindex *2, //sector
 			  readoutindex *3, //slayer

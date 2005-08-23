@@ -9,18 +9,19 @@
  *  to create raw data out of simulated detector digis written on a 
  *  DataBase (method formatData).
  *
- *  $Date: 2005/07/06 15:52:01 $
+ *  $Date: 2005/07/13 09:06:50 $
  *  $Revision: 1.1 $
  *  \author G. Bruno - CERN, EP Division
  */
 
 // #include "CommonDet/DaqDetInterface/interface/DaqFEDFormatterSingleDigi.h"
 // #include "Muon/MBDetector/interface/MuBarBaseReadout.h"
+#include <DataFormats/DTDigis/interface/DTDigiCollection.h>
 #include <string>
 //#include <DataFormats/Digis/interface/DTDigiCollection.h>
 
 namespace raw {class FEDRawData;}
-class 	DTDigiCollection;
+
 
 class DTDaqCMSFormatter {
 
