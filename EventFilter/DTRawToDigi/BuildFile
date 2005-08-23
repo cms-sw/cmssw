@@ -8,6 +8,6 @@
  <lib name=EventFilterDTRawToDigi>
  <use name=FWCore/Framework>
  <use name=DataFormats/FEDRawData>	
- <use name=DataFormats/Digis>
+ <use name=DataFormats/DTDigis>
  <use name=boost>	
 </export>
