@@ -3,14 +3,14 @@
    Test suit for DTUnpackingModule
 
    \author Stefano ARGIRO
-   \version $Id: testDTUnpackingModule.cc,v 1.4 2005/08/23 09:32:00 argiro Exp $
+   \version $Id: testDTUnpackingModule.cc,v 1.5 2005/08/23 10:07:53 argiro Exp $
    \date 29 Jun 2005
 
    \note these tests are not testing anything but the thing not crashing
         
 */
 
-static const char CVSId[] = "$Id: testDTUnpackingModule.cc,v 1.4 2005/08/23 09:32:00 argiro Exp $";
+static const char CVSId[] = "$Id: testDTUnpackingModule.cc,v 1.5 2005/08/23 10:07:53 argiro Exp $";
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <FWCore/Framework/interface/EventProcessor.h>
@@ -49,12 +49,27 @@ public:
   void testUnpacker();
   void writeOut();
   void testPoolIO();
- 
+  int  runIt(const std::string& config);
 }; 
 
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testDTUnpackingModule);
 
+int testDTUnpackingModule::runIt(const std::string& config){
+
+  edm::AssertHandler ah;
+  int rc=0;
+  try {
+    edm::EventProcessor proc(config);
+    proc.run();
+  } catch (seal::Error& e){
+    std::cerr << "Exception caught:  " 
+	      << e.explainSelf()
+	      << std::endl;
+    rc=1;
+  }
+  return rc;
+}
 
 void testDTUnpackingModule::testUnpacker(){
 
@@ -66,19 +81,7 @@ void testDTUnpackingModule::testUnpacker(){
      "source = DAQFileInputService{ string fileName =\""  + testfileLocation+ "dtraw.raw" +"\" }\n"
     "}\n";
  
-  edm::AssertHandler ah;
-  int rc=0;
-
-  try{
-    edm::EventProcessor proc(config);
-    proc.run();
-  } catch (seal::Error& e){
-    std::cerr << "Exception caught: "
-	      << e.explainSelf()
-	      << std::endl;
-    rc=1;
-  }
-  
+  int rc = runIt(config);
   CPPUNIT_ASSERT(rc==0);
 
 }
@@ -93,18 +96,8 @@ void testDTUnpackingModule::writeOut(){
      "path p = {dtunpacker, out}\n" 
      "source = DAQFileInputService{ string fileName =\""  + testfileLocation+ "dtraw.raw" +"\" }\n"
     "}\n";
- edm::AssertHandler ah;
- int rc=0;
- try {
-   edm::EventProcessor proc(config);
-   proc.run();
- } catch (seal::Error& e){
-   std::cerr << "Exception caught:  " 
-	     << e.explainSelf()
-	      << std::endl;
-   rc=1;
- }
- 
+
+ int rc = runIt(config);
  CPPUNIT_ASSERT(rc==0);
 
 }
@@ -119,17 +112,7 @@ void testDTUnpackingModule::testPoolIO(){
     " path p = {hit}\n"
     " source = PoolInputService{ string fileName =\""  + testfileLocation+ "dtdigis.root" +"\"} \n"
     "}\n";
-   edm::AssertHandler ah;
-   int rc=0;
-   try{
-     edm::EventProcessor proc(config);
-     proc.run();
-   } catch (seal::Error& e){
-     std::cerr << "Exception caught: "
-	       << e.explainSelf()
-	       << std::endl;
-     rc=1;
-   }
-   
+
+   int rc = runIt(config);
    CPPUNIT_ASSERT(rc==0);
 }
