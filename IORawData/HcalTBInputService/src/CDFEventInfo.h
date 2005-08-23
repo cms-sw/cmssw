@@ -21,7 +21,7 @@ public:
   /// get the Bunch number (from TTC)
   inline UInt_t getBunchNumber() const { return fBunchNumber; }
   /// setter routine
-  void Set(UInt_t runNo, const char* seqid, ULong64_t eventNo, UInt_t l1aNo, ULong64_t orbitNo, UInt_t bunchNo);
+//  void Set(UInt_t runNo, const char* seqid, ULong64_t eventNo, UInt_t l1aNo, ULong64_t orbitNo, UInt_t bunchNo);
   /// Get the revision of the CDFROOT library which this file was written with
   inline float getCDFRevisionEvent() const { return fCDFRevision; }
   /// Get the revision of the CDFROOT library which is in current use
