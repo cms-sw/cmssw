@@ -1,0 +1,9 @@
+<use name=FWCore/EDProduct>
+<use name=boost>
+
+<export>
+   <lib name=TBDataFormatsHcalTBObjects>
+   <use name=FWCore/EDProduct>
+   <use name=boost>
+</export>
+

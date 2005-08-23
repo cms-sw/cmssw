@@ -1,0 +1,10 @@
+<lcgdict>
+   <class name="hcaltb::HcalTBTriggerData"/>
+   <class name="hcaltb::HcalTBRunData"/>
+   <class name="hcaltb::HcalTBEventPosition"/>
+   <class name="hcaltb::HcalTBTiming"/>
+   <class name="edm::Wrapper<hcaltb::HcalTBTriggerData>" id="9C57A2EF-3435-C9BB-532D-0E9F8FC544B3"/>
+   <class name="edm::Wrapper<hcaltb::HcalTBRunData>" id="91FCECF3-1717-8587-C41A-2AEF8671D8EE"/>
+   <class name="edm::Wrapper<hcaltb::HcalTBEventPosition>" id="06B77237-D85E-D643-8577-91D486CBFA12"/>
+   <class name="edm::Wrapper<hcaltb::HcalTBTiming>" id="A32659ED-B1A2-DBE0-34A8-0C67E229CFDD"/>
+</lcgdict>
