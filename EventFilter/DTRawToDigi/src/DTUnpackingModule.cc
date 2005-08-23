@@ -1,7 +1,7 @@
 /* \file DTUnpackingModule.h
  *
- *  $Date: 2005/07/13 09:06:50 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/07/14 08:00:50 $
+ *  $Revision: 1.2 $
  *  \author S. Argiro - N. Amapane 
  */
 
@@ -20,7 +20,9 @@ using namespace std;
 #include <iostream>
 
 DTUnpackingModule::DTUnpackingModule(const edm::ParameterSet& pset) : 
-  formatter(new DTDaqCMSFormatter()) {}
+  formatter(new DTDaqCMSFormatter()) {
+  produces<DTDigiCollection>();
+}
 
 DTUnpackingModule::~DTUnpackingModule(){
   delete formatter;
