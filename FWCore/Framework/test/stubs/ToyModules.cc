@@ -25,10 +25,10 @@ namespace edmtest {
   class IntProducer : public edm::EDProducer {
   public:
     explicit IntProducer(edm::ParameterSet const& p) : value_(p.getParameter<int>("ivalue")) {
-      produces<int>();
+      produces<IntProduct>();
     }
     explicit IntProducer(int i) : value_(i) {
-      produces<int>();
+      produces<IntProduct>();
     }
     virtual ~IntProducer() { }
     virtual void produce(edm::Event& e, const edm::EventSetup& c);
@@ -46,10 +46,10 @@ namespace edmtest {
   class DoubleProducer : public edm::EDProducer {
   public:
     explicit DoubleProducer(edm::ParameterSet const& p) : value_(p.getParameter<double>("dvalue")) {
-      produces<double>();
+      produces<DoubleProduct>();
     }
     explicit DoubleProducer(double d) : value_(d) {
-      produces<double>();
+      produces<DoubleProduct>();
     }
     virtual ~DoubleProducer() { }
     virtual void produce(edm::Event& e, const edm::EventSetup& c);
