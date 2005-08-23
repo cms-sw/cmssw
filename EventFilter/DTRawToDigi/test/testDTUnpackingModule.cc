@@ -3,18 +3,20 @@
    Test suit for DTUnpackingModule
 
    \author Stefano ARGIRO
-   \version $Id: testDTUnpackingModule.cc,v 1.2 2005/07/13 16:13:12 argiro Exp $
+   \version $Id: testDTUnpackingModule.cc,v 1.3 2005/07/14 13:34:04 argiro Exp $
    \date 29 Jun 2005
 
    \note these tests are not testing anything but the thing not crashing
         
 */
 
-static const char CVSId[] = "$Id: testDTUnpackingModule.cc,v 1.2 2005/07/13 16:13:12 argiro Exp $";
+static const char CVSId[] = "$Id: testDTUnpackingModule.cc,v 1.3 2005/07/14 13:34:04 argiro Exp $";
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <FWCore/Framework/interface/EventProcessor.h>
-
+#include "FWCore/Framework/interface/ProblemTracker.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include <iostream>
 
 class testDTUnpackingModule: public CppUnit::TestFixture {
 
@@ -49,10 +51,21 @@ void testDTUnpackingModule::testUnpacker(){
      "path p = {dtunpacker, hit}\n"
      "source = DAQFileInputService{ string fileName = \"dtraw.raw\"} \n"
     "}\n";
+  edm::AssertHandler ah;
+  int rc=0;
+
+  try{
+    edm::EventProcessor proc(config);
+    proc.run();
+  } catch (seal::Error& e){
+    std::cerr << "Exception caught: "
+	      << e.explainSelf()
+	      << std::endl;
+    rc=1;
+  }
   
-  
-  edm::EventProcessor proc(config);
-  proc.run();
+  CPPUNIT_ASSERT(rc==0);
+
 }
 
 void testDTUnpackingModule::writeOut(){
@@ -65,9 +78,20 @@ void testDTUnpackingModule::writeOut(){
      "path p = {dtunpacker, out}\n" 
      "source = DAQFileInputService{ string fileName = \"dtraw.raw\"} \n"
     "}\n";
-
+ edm::AssertHandler ah;
+ int rc=0;
+ try {
    edm::EventProcessor proc(config);
-   proc.run();   
+   proc.run();
+ } catch (seal::Error& e){
+   std::cerr << "Exception caught:  " 
+	     << e.explainSelf()
+	      << std::endl;
+   rc=1;
+ }
+ 
+ CPPUNIT_ASSERT(rc==0);
+
 }
 
 void testDTUnpackingModule::testPoolIO(){
@@ -80,8 +104,17 @@ void testDTUnpackingModule::testPoolIO(){
     " path p = {hit}\n"
     " source = PoolInputService{ string fileName = \"dtdigis.root\"} \n"
     "}\n";
-  
-
-  edm::EventProcessor proc(config);
-  proc.run();
+   edm::AssertHandler ah;
+   int rc=0;
+   try{
+     edm::EventProcessor proc(config);
+     proc.run();
+   } catch (seal::Error& e){
+     std::cerr << "Exception caught: "
+	       << e.explainSelf()
+	       << std::endl;
+     rc=1;
+   }
+   
+   CPPUNIT_ASSERT(rc==0);
 }
