@@ -1,9 +1,9 @@
-/**
+n/**
    \file
    Declaration of class DTDetId
 
    \author Stefano ARGIRO
-   \version $Id$
+   \version $Id: DTDetId.h,v 1.1 2005/08/02 15:46:33 argiro Exp $
    \date 27 Jul 2005
 */
 
@@ -16,7 +16,7 @@
 #include <iosfwd>
 
 static const char CVSId__DTDetId[] = 
-"$Id$";
+"$Id: DTDetId.h,v 1.1 2005/08/02 15:46:33 argiro Exp $";
 
   /**
      \class DTDetId DTDetId.h "/DTDetId.h"
@@ -31,7 +31,8 @@ static const char CVSId__DTDetId[] =
   class DTDetId :public cms::DetId {
 
   public:
-
+      
+    DTDetId();
 
     /// Construct from fully qualified identifier but wire
     DTDetId(int wheel, 

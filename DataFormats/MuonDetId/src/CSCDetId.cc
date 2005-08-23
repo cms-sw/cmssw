@@ -1,7 +1,7 @@
 // This is MuEndDetectorId.cc
 
 
-#include <DataFormats/DetId/interface/CSCDetId.h>
+#include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include <iostream>
 
 using namespace std;

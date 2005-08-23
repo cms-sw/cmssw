@@ -1,0 +1,6 @@
+<use name=DataFormats/DetId>
+
+<export>
+ <lib name=DataFormatsMuonDetId>
+ <use name=DataFormats/DetId>	
+</export>
