@@ -3,20 +3,27 @@
    Test suit for DTUnpackingModule
 
    \author Stefano ARGIRO
-   \version $Id: testDTUnpackingModule.cc,v 1.3 2005/07/14 13:34:04 argiro Exp $
+   \version $Id: testDTUnpackingModule.cc,v 1.4 2005/08/23 09:32:00 argiro Exp $
    \date 29 Jun 2005
 
    \note these tests are not testing anything but the thing not crashing
         
 */
 
-static const char CVSId[] = "$Id: testDTUnpackingModule.cc,v 1.3 2005/07/14 13:34:04 argiro Exp $";
+static const char CVSId[] = "$Id: testDTUnpackingModule.cc,v 1.4 2005/08/23 09:32:00 argiro Exp $";
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <FWCore/Framework/interface/EventProcessor.h>
 #include "FWCore/Framework/interface/ProblemTracker.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include <iostream>
+#include <cstdlib>
+
+using namespace std;
+
+
+string releasetop(getenv("SCRAMRT_LOCALRT"));
+string testfileLocation= releasetop + "/src/EventFilter/DTRawToDigi/test/";
 
 class testDTUnpackingModule: public CppUnit::TestFixture {
 
@@ -30,7 +37,14 @@ class testDTUnpackingModule: public CppUnit::TestFixture {
 public:
 
 
-  void setUp(){}
+  void setUp(){
+    char * ret = getenv("SCRAMRT_LOCALRT");
+    if (!ret) {
+      cerr<< "env variable SCRAMRT_LOCALRT not set, try eval `scramv1 runt -csh`"<< endl;
+      exit(1);
+    }
+  }
+
   void tearDown(){}  
   void testUnpacker();
   void writeOut();
@@ -49,8 +63,9 @@ void testDTUnpackingModule::testUnpacker(){
      "module dtunpacker = DTUnpackingModule{ }\n"
      "module hit = DummyHitFinderModule{ }\n"
      "path p = {dtunpacker, hit}\n"
-     "source = DAQFileInputService{ string fileName = \"dtraw.raw\"} \n"
+     "source = DAQFileInputService{ string fileName =\""  + testfileLocation+ "dtraw.raw" +"\" }\n"
     "}\n";
+ 
   edm::AssertHandler ah;
   int rc=0;
 
@@ -74,9 +89,9 @@ void testDTUnpackingModule::writeOut(){
     "process TEST = { \n"
      "module dtunpacker = DTUnpackingModule{ }\n"
      "module out = PoolOutputModule {\n"
-     "                   untracked string fileName = 'dtdigis.root'}\n"
+     "                   untracked string fileName =\"" + testfileLocation+ "dtdigis.root" +"\"} \n"
      "path p = {dtunpacker, out}\n" 
-     "source = DAQFileInputService{ string fileName = \"dtraw.raw\"} \n"
+     "source = DAQFileInputService{ string fileName =\""  + testfileLocation+ "dtraw.raw" +"\" }\n"
     "}\n";
  edm::AssertHandler ah;
  int rc=0;
@@ -102,7 +117,7 @@ void testDTUnpackingModule::testPoolIO(){
     "process TEST = { \n"
     " module hit = DummyHitFinderModule{ }\n"
     " path p = {hit}\n"
-    " source = PoolInputService{ string fileName = \"dtdigis.root\"} \n"
+    " source = PoolInputService{ string fileName =\""  + testfileLocation+ "dtdigis.root" +"\"} \n"
     "}\n";
    edm::AssertHandler ah;
    int rc=0;
