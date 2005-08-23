@@ -1,9 +1,9 @@
-n/**
+/**
    \file
    Declaration of class DTDetId
 
    \author Stefano ARGIRO
-   \version $Id: DTDetId.h,v 1.1 2005/08/02 15:46:33 argiro Exp $
+   \version $Id: DTDetId.h,v 1.2 2005/08/23 09:11:28 argiro Exp $
    \date 27 Jul 2005
 */
 
@@ -16,7 +16,7 @@ n/**
 #include <iosfwd>
 
 static const char CVSId__DTDetId[] = 
-"$Id: DTDetId.h,v 1.1 2005/08/02 15:46:33 argiro Exp $";
+"$Id: DTDetId.h,v 1.2 2005/08/23 09:11:28 argiro Exp $";
 
   /**
      \class DTDetId DTDetId.h "/DTDetId.h"
