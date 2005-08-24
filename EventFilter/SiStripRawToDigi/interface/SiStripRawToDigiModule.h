@@ -57,10 +57,14 @@ private:
   /** event counter */
   unsigned long event_;
 
+  /** defines the FED readout mode: ZS, VR, PR or SM */
+  std::string fedReadoutMode_;
   /** defines the FED readout path: VME or SLINK */
   std::string fedReadoutPath_;
   /** defines level of verbosity for this class (0=silent -> 3=debug) */
   int verbosity_;
+
+  long ndigis_;
   
 };
 

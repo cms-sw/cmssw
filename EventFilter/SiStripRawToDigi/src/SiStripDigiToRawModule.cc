@@ -24,22 +24,27 @@ SiStripDigiToRawModule::SiStripDigiToRawModule( const edm::ParameterSet& conf ) 
   digiToRaw_(0),
   utility_(0),
   event_(0),
+  //fedReadoutMode_( conf.getParameter<string>("FedReadoutMode") ),
   fedReadoutPath_( conf.getParameter<string>("FedReadoutPath") ),
-  verbosity_( conf.getParameter<int>("Verbosity") )
+  verbosity_( conf.getParameter<int>("Verbosity") ),
+  ndigis_(0)
 {
-  if (verbosity_>1) std::cout << "[SiStripDigiToRawModule] "
+  if (verbosity_>1) std::cout << "[SiStripDigiToRawModule::SiStripDigiToRawModule] "
 			      << "constructing DigiToRaw module..." << endl;
   // specify product type
-  produces<raw::FEDRawDataCollection>("FEDRawDataCollection_from_StripDigis");
+  produces<raw::FEDRawDataCollection>();
 }
 
 // -----------------------------------------------------------------------------
 // destructor
 SiStripDigiToRawModule::~SiStripDigiToRawModule() {
-  if (verbosity_>1) std::cout << "[SiStripDigiToRawModule] "
+  if (verbosity_>1) std::cout << "[SiStripDigiToRawModule::~SiStripDigiToRawModule] "
 			      << "destructing DigiToRaw module..." << endl;
   if ( digiToRaw_ ) delete digiToRaw_;
   if ( utility_ ) delete utility_; 
+
+  std::cout << "[SiStripDigiToRawModule::~SiStripDigiToRawModule] Total number of digis: " << ndigis_ << endl;
+
 }
 
 // -----------------------------------------------------------------------------
@@ -59,18 +64,18 @@ void SiStripDigiToRawModule::beginJob( const edm::EventSetup& iSetup ) {
   SiStripConnection connections;
   utility_->siStripConnection( connections );
   
-  // some debug:
-  vector<unsigned short> feds;
-  map<unsigned short, cms::DetId> partitions;
-  connections.getConnectedFedNumbers( feds );
-  connections.getDetPartitions( partitions );
-  std::cout << "number of feds: " << feds.size() 
-	    << ", number of partitions: " << partitions.size() << endl;
+//   // some debug
+//   vector<unsigned short> feds;
+//   map<unsigned short, cms::DetId> partitions;
+//   connections.getConnectedFedNumbers( feds );
+//   connections.getDetPartitions( partitions );
+//   std::cout << "number of feds: " << feds.size() 
+// 	    << ", number of partitions: " << partitions.size() << endl;
 
   // create instance of DigiToRaw converter
   digiToRaw_ = new SiStripDigiToRaw( connections );
-  // digiToRaw_->fedReadoutMode( fedReadoutMode_ );
   // digiToRaw_->fedReadoutPath( fedReadoutPath_ );
+  // digiToRaw_->fedReadoutMode( fedReadoutMode_ );
 
 }
 
@@ -94,36 +99,34 @@ void SiStripDigiToRawModule::produce( edm::Event& iEvent,
   if (verbosity_>0) std::cout << "[SiStripDigiToRawModule::produce] "
 			      << "event number: " << event_ << endl;
   
-  //   // retrieve collection of StripDigi's from Event
-  //   edm::Handle<StripDigiCollection> input;
-  //   e.getByLabel("StripDigiConverter", input);
+//   // retrieve collection of StripDigi's from Event
+//   edm::Handle<StripDigiCollection> handle;
+//   //iEvent.getByLabel( "write_digis", handle );
+//   iEvent.getByLabel( "RawToDigi", handle );
+//   StripDigiCollection digis = const_cast<StripDigiCollection&>( *handle );
   
   // retrieve "dummy" collection of StripDigi from utility object
   StripDigiCollection digis;
   utility_->stripDigiCollection( digis );
-  
-//   // some debug:
-//   std::vector<unsigned int> dets = digis.detIDs();
-//   for ( unsigned int idet = 0; idet < dets.size(); idet++ ) {
-//     const StripDigiCollection::Range digi_range = dets.get( idet ); 
-//     StripDigiCollection::ContainerIterator idigi;
-//     int ndigi = 0;
-//     for ( idigi = digi_range.first; idigi != digi_range.second; idigi++ ) { ndigi++; }
-//     if ( !ndigi ) { std::cout << "DET " << idet << " has zero digis!" << endl; }
-//     else { std::cout << "DET " << idet << " has " << ndigi << " digis" << endl; }
-//   }
+
+  // count number of digis
+  std::vector<unsigned int> dets = digis.detIDs();
+  for ( unsigned int idet = 0; idet < dets.size(); idet++ ) {
+    const StripDigiCollection::Range digi_range = digis.get( idet ); 
+    StripDigiCollection::ContainerIterator idigi;
+    int ndigi = 0;
+    for ( idigi = digi_range.first; idigi != digi_range.second; idigi++ ) { ndigis_++; ndigi++; }
+    //if ( !ndigi ) { std::cout << "DET " << idet << " has zero digis!" << endl; }
+    //else { std::cout << "DET " << idet << " has " << ndigi << " digis" << endl; }
+  }
   
   // create product
-  raw::FEDRawDataCollection fed_buffers;
+  std::auto_ptr<raw::FEDRawDataCollection> fed_buffers( new raw::FEDRawDataCollection );
 
   // use DigiToRaw converter to fill FEDRawDataCollection
-  digiToRaw_->createFedBuffers( digis, fed_buffers );
+  digiToRaw_->createFedBuffers( digis, *(fed_buffers.get()) );
 
   // write FEDRawDataCollection to the Event
-  // iEvent.put( &fed_buffers );
+  iEvent.put( fed_buffers );
 
 }
-
-// -----------------------------------------------------------------------------
-// define the class SiStripDigiToRawModule as a plug-in
-//DEFINE_FWK_MODULE(SiStripDigiToRawModule)

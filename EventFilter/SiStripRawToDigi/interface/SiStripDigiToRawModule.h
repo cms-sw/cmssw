@@ -60,6 +60,8 @@ private:
   std::string fedReadoutPath_;
   /** defines level of verbosity for this class (0=silent -> 3=debug) */
   int verbosity_;
+
+  long ndigis_;
   
 };
 
