@@ -41,7 +41,7 @@ struct Node
 
   virtual std::string type() const = 0;
   virtual std::string name() const = 0;
-  virtual void   setParent(Node* parent){} 
+  virtual void   setParent(Node* /* parent */){} 
   virtual Node*  getParent(){return 0;} 
   virtual void print(std::ostream& ost) const = 0;
   virtual ~Node();

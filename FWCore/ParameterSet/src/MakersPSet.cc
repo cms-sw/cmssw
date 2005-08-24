@@ -95,7 +95,7 @@ void BuilderPSet::visitString(const StringNode& n)
   // this is always a pset name with a VPSet.
   // the pset would have already been built, so go locate it
   // to get its ID to store in the current pset array. huh?
-  cout << " n.value_ " << endl;
+  cout << n.value_ << endl;
 }
 
 static string withoutQuotes(const string& from)

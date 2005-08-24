@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: split.h,v 1.1 2005/05/29 02:29:54 wmtan Exp $
+// $Id: split.h,v 1.2 2005/06/23 19:57:22 wmtan Exp $
 //
 // definition of split() and related templates
 // ----------------------------------------------------------------------
@@ -70,7 +70,7 @@ FwdIter
 template< class FwdIter >
 FwdIter
   edm::contextual_find_not(FwdIter b, FwdIter e
-                          , char first, char sep, char last)
+                          , char /* first */ , char sep, char /* last */)
 {
   for(;  b != e;  ++b)  {
     if(*b != sep)

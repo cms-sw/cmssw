@@ -113,7 +113,7 @@ void VEntryNode::accept(Visitor& v) const
 // -------------------
 
 PSetRefNode::PSetRefNode(const string& name, const string& value,
-			 int line):
+			 int /* line */):
   name_(name), value_(value)
 {
 }
