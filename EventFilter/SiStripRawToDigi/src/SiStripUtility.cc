@@ -5,14 +5,15 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "CalibTracker/SiStripConnectivity/interface/SiStripConnection.h"
 #include "DataFormats/DetId/interface/DetId.h"
-
+//
 #include "Fed9UUtils.hh"
-
+//
 #include <vector>
 #include <string>
+//
+#include <cstdlib>
+#include <ctime>
 
-using namespace std;
-using namespace raw;
 
 // -----------------------------------------------------------------------------
 // constructor
@@ -20,11 +21,15 @@ SiStripUtility::SiStripUtility( const edm::EventSetup& iSetup ) :
   nDets_(0)
 {
   cout << "[SiStripUtility] : constructing class..." << endl;
-  // get geometry 
-//   edm::eventsetup::ESHandle<CmsDigiTracker> pDD;
-//   iSetup.get<TrackerDigiGeometryRecord>().get( pDD );
-//   vector<GeomDetUnit*> dets = pDD->dets();
+
+  //   // get geometry 
+  //   edm::eventsetup::ESHandle<CmsDigiTracker> pDD;
+  //   iSetup.get<TrackerDigiGeometryRecord>().get( pDD );
+  //   vector<GeomDetUnit*> dets = pDD->dets();
   nDets_ = 15000; // pDD->dets().size();
+
+  // initialise random number generator "rand()" with different seed
+  srand( time(NULL) );
 }
 
 // -----------------------------------------------------------------------------
@@ -40,7 +45,8 @@ void SiStripUtility::stripDigiCollection( StripDigiCollection& collection ) {
   // loop through detectors
   for ( int idet = 0; idet < nDets_; idet++ ) { 
     // some random numbers
-    int ndigi = rand()%20, strip = rand()%512, value = rand()%50;
+    int ndigi = rand()%20, strip = rand()%512, value = rand()%50; 
+    //cout << "idet: " << idet << ", nidigi: " << ndigi << endl;
     // temorary digi container
     vector<StripDigi> digis; 
     // create digis
@@ -54,7 +60,7 @@ void SiStripUtility::stripDigiCollection( StripDigiCollection& collection ) {
 
 // -----------------------------------------------------------------------------
 //
-void SiStripUtility::fedRawDataCollection( FEDRawDataCollection& collection ) {
+void SiStripUtility::fedRawDataCollection( raw::FEDRawDataCollection& collection ) {
   cout << "[SiStripUtility::fedRawDataCollection]" << endl;
 
   // calculate number of FEDs for given number of detectors 
@@ -92,13 +98,13 @@ void SiStripUtility::fedRawDataCollection( FEDRawDataCollection& collection ) {
     Fed9U::Fed9UBufferGenerator generator( creator );
     // generate FED buffer using vector<unsigned short> that holds adc values
     generator.generateFed9UBuffer( adc );
-    // retrieve FEDRawData struct from collection for appropriate fed
-    FEDRawData& fed_data = collection.FEDData( ifed ); 
+    // retrieve raw::FEDRawData struct from collection for appropriate fed
+    raw::FEDRawData& fed_data = collection.FEDData( ifed ); 
     // calculate size of FED buffer in units of bytes (unsigned char)
     int nbytes = generator.getBufferSize() * 4;
-    // resize (public) "data_" member of struct FEDRawData
+    // resize (public) "data_" member of struct raw::FEDRawData
     (fed_data.data_).resize( nbytes );
-    // copy FED buffer to struct FEDRawData using Fed9UBufferGenerator
+    // copy FED buffer to struct raw::FEDRawData using Fed9UBufferGenerator
     unsigned char* chars = const_cast<unsigned char*>( fed_data.data() );
     unsigned int* ints = reinterpret_cast<unsigned int*>( chars );
     generator.getBuffer( ints );
