@@ -2,7 +2,7 @@
 
 Test of the EventProcessor class.
 
-$Id: eventprocessor_t.cppunit.cc,v 1.3 2005/07/19 16:25:59 viji Exp $
+$Id: eventprocessor_t.cppunit.cc,v 1.4 2005/07/19 16:34:00 viji Exp $
 
 ----------------------------------------------------------------------*/  
 #include <exception>
@@ -17,12 +17,14 @@ $Id: eventprocessor_t.cppunit.cc,v 1.3 2005/07/19 16:25:59 viji Exp $
 class testeventprocessor: public CppUnit::TestFixture
 {
 CPPUNIT_TEST_SUITE(testeventprocessor);
-CPPUNIT_TEST(eventprocessorTest);
+CPPUNIT_TEST(parseTest);
+CPPUNIT_TEST(prepostTest);
 CPPUNIT_TEST_SUITE_END();
 public:
   void setUp(){}
   void tearDown(){}
-  void eventprocessorTest();
+  void parseTest();
+  void prepostTest();
 private:
 void work()
 {
@@ -41,28 +43,53 @@ void work()
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testeventprocessor);
 
-void testeventprocessor::eventprocessorTest()
-//int main()
+void testeventprocessor::parseTest()
 {
-  /*try { work(); rc = 0;}
   int rc = -1;                // we should never return this value!
+  try { work(); rc = 0;}
   catch (seal::Error& e)
     {
       std::cerr << "Application exception caught: "
 		<< e.explainSelf() << std::endl;
-      rc = 1;
+      CPPUNIT_ASSERT( "Caught seal::Error " == 0 );
     }
   catch (std::exception& e)
     {
       std::cerr << "Standard library exception caught: "
 		<< e.what() << std::endl;
-      rc = 1;
+     CPPUNIT_ASSERT( "Caught std::exception " == 0 );
     }
   catch (...)
     {
-      std::cerr << "Unknown exception caught" << std::endl;
-      rc = 2;
+     CPPUNIT_ASSERT( "Caught unknown exception " == 0 );
     }
-  return rc;*/
+}
 
+static int g_pre = 0;
+static int g_post = 0;
+static
+void doPre(const edm::Event&, const edm::EventSetup& ) 
+{
+   ++g_pre;
+}
+static
+void doPost(const edm::Event&, const edm::EventSetup& ) 
+{
+   CPPUNIT_ASSERT( g_pre == ++g_post );
+}
+
+void testeventprocessor::prepostTest()
+{
+   std::string configuration("process p = {\n"
+                             "source = EmptyInputService { untracked int32 maxEvents = 5 }\n"
+                             "module m1 = TestMod { int32 ivalue = -3 }\n"
+                             "path p1 = { m1 }\n"
+                             "}\n");
+   edm::EventProcessor proc(configuration);
+   
+   proc.preProcessEventSignal.connect( &doPre );
+   proc.postProcessEventSignal.connect( &doPost );
+   proc.run(0);
+   CPPUNIT_ASSERT( 5 == g_pre );
+   CPPUNIT_ASSERT( 5 == g_post );
 }
