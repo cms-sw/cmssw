@@ -4,6 +4,7 @@
 namespace cms {
 
   Exception::Exception(const std::string& category):
+    seal::Error(),
     ost_(),
     category_(1,category)
   {
@@ -11,6 +12,7 @@ namespace cms {
 
   Exception::Exception(const std::string& category,
 		       const std::string& message):
+    seal::Error(),
     ost_(),
     category_(1,category)
   {
@@ -25,6 +27,7 @@ namespace cms {
   Exception::Exception(const std::string& category,
 		       const std::string& message,
 		       const Exception& another):
+    seal::Error(),
     ost_(),
     category_(1,category)
   {
@@ -37,6 +40,7 @@ namespace cms {
   }
 
   Exception::Exception(const Exception& other):
+    seal::Error(),
     ost_(),
     category_(other.category_)
   {
