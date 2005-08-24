@@ -40,5 +40,5 @@
   <class name="PSimHit"/>
   <class name="std::vector<PSimHit>"/>
   <class name="edm::PSimHitContainer"/>
-  <class name="edm::Wrapper<edm::PSimHitContainer>"/>
+  <class name="edm::Wrapper<edm::PSimHitContainer>" id="9B228D09-A609-35A4-24E8-96837A1C243F"/>
 </lcgdict>
