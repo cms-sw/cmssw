@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 16:56:05 EDT 2005
-// $Id: ComponentMaker.h,v 1.3 2005/06/23 19:59:30 wmtan Exp $
+// $Id: ComponentMaker.h,v 1.4 2005/07/14 22:50:52 wmtan Exp $
 //
 
 // system include files
@@ -74,9 +74,9 @@ template< class T, class TComponent>
 void
 ComponentMaker<T,TComponent>:: addTo(EventSetupProvider& iProvider,
                                         ParameterSet const& iConfiguration,
-                                        std::string const& iProcessName,
-                                        unsigned long iVersion,
-                                        unsigned long iPass) const 
+                                        std::string const& /*iProcessName*/,
+                                        unsigned long /*iVersion*/,
+                                        unsigned long /*iPass*/) const 
 {
    boost::shared_ptr<TComponent> component(new TComponent(iConfiguration));
    

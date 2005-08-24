@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Thu Apr  7 21:36:15 CDT 2005
-// $Id: ProxyFactoryProducer.cc,v 1.3 2005/06/23 22:01:31 wmtan Exp $
+// $Id: ProxyFactoryProducer.cc,v 1.4 2005/07/14 22:50:53 wmtan Exp $
 //
 
 // system include files
@@ -99,7 +99,7 @@ ProxyFactoryProducer::registerFactoryWithKey(const EventSetupRecordKey& iRecord 
 
 void 
 ProxyFactoryProducer::newInterval(const EventSetupRecordKey& iRecordType,
-                                   const ValidityInterval& iInterval)
+                                   const ValidityInterval& /*iInterval*/)
 {
    invalidateProxies(iRecordType);
 }

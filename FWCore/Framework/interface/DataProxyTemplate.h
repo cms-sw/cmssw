@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Thu Mar 31 12:45:32 EST 2005
-// $Id: DataProxyTemplate.h,v 1.3 2005/06/28 13:15:44 chrjones Exp $
+// $Id: DataProxyTemplate.h,v 1.4 2005/07/14 22:50:52 wmtan Exp $
 //
 
 // system include files
@@ -65,7 +65,7 @@ class DataProxyTemplate : public DataProxy
    protected:
       virtual const DataT* make(const RecordT&, const DataKey&) = 0;
       
-      virtual void throwMakeException(const RecordT& iRecord,
+      virtual void throwMakeException(const RecordT& /*iRecord*/,
                                        const DataKey& iKey) const {
          throw MakeDataException<record_type, value_type>(iKey);
       }

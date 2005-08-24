@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 19:13:25 EDT 2005
-// $Id: WhatsItAnalyzer.cc,v 1.1 2005/06/25 01:20:38 chrjones Exp $
+// $Id: WhatsItAnalyzer.cc,v 1.2 2005/07/14 22:20:57 wmtan Exp $
 //
 //
 
@@ -63,7 +63,7 @@ class WhatsItAnalyzer : public edm::EDAnalyzer {
 //
 // constructors and destructor
 //
-WhatsItAnalyzer::WhatsItAnalyzer( const edm::ParameterSet& iConfig )
+WhatsItAnalyzer::WhatsItAnalyzer( const edm::ParameterSet& /*iConfig*/ )
 {
    //now do what ever initialization is needed
 
@@ -85,7 +85,7 @@ WhatsItAnalyzer::~WhatsItAnalyzer()
 
 // ------------ method called to produce the data  ------------
 void
-WhatsItAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
+WhatsItAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup )
 {
    using namespace edm;
    eventsetup::ESHandle<WhatsIt> pSetup;

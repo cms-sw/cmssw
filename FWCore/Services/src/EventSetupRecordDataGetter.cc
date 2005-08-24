@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jun 28 11:10:24 EDT 2005
-// $Id: EventSetupRecordDataGetter.cc,v 1.3 2005/07/14 21:36:21 wmtan Exp $
+// $Id: EventSetupRecordDataGetter.cc,v 1.4 2005/08/04 15:04:11 chrjones Exp $
 //
 //
 
@@ -71,7 +71,7 @@ EventSetupRecordDataGetter::~EventSetupRecordDataGetter()
 
 // ------------ method called to produce the data  ------------
 void
-EventSetupRecordDataGetter::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
+EventSetupRecordDataGetter::analyze( const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup )
 {
    if( 0 == recordToDataKeys_.size() ) {
       typedef std::vector< ParameterSet > Parameters;

@@ -163,7 +163,7 @@ void testEventsetup::recordValidityTest()
    
    {
       Timestamp time_1(1);
-      EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue(time_1));
+      /*EventSetup const& eventSetup = */ provider.eventSetupForInstance(IOVSyncValue(time_1));
    // BOOST_CHECK_THROW(eventSetup.get<DummyRecord>(), edm::eventsetup::NoRecordException<DummyRecord>);
    //eventSetup.get<DummyRecord>();
    }
@@ -212,12 +212,12 @@ public:
    DummyProxyProvider() {
       usingRecord<DummyRecord>();
    }
-   void newInterval(const eventsetup::EventSetupRecordKey& iRecordType,
-                     const ValidityInterval& iInterval) {
+   void newInterval(const eventsetup::EventSetupRecordKey& /*iRecordType*/,
+                     const ValidityInterval& /*iInterval*/) {
       //do nothing
    }
 protected:
-   void registerProxies(const eventsetup::EventSetupRecordKey&, KeyedProxies& iHolder) {
+   void registerProxies(const eventsetup::EventSetupRecordKey&, KeyedProxies& /*iHolder*/) {
    }
 
 };

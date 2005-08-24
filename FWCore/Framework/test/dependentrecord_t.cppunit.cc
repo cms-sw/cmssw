@@ -56,12 +56,12 @@ public:
    DummyProxyProvider() {
       usingRecord<DummyRecord>();
    }
-   void newInterval(const edm::eventsetup::EventSetupRecordKey& iRecordType,
-                     const edm::ValidityInterval& iInterval) {
+   void newInterval(const edm::eventsetup::EventSetupRecordKey& /*iRecordType*/,
+                     const edm::ValidityInterval& /*iInterval*/) {
       //do nothing
    }
 protected:
-   void registerProxies(const edm::eventsetup::EventSetupRecordKey&, KeyedProxies& iHolder) {
+   void registerProxies(const edm::eventsetup::EventSetupRecordKey&, KeyedProxies& /*iHolder*/) {
    }
    
 };
@@ -73,12 +73,12 @@ public:
    DepRecordProxyProvider() {
       usingRecord<DepRecord>();
    }
-   void newInterval(const edm::eventsetup::EventSetupRecordKey& iRecordType,
-                     const edm::ValidityInterval& iInterval) {
+   void newInterval(const edm::eventsetup::EventSetupRecordKey& /*iRecordType*/,
+                     const edm::ValidityInterval& /*iInterval*/) {
       //do nothing
    }
 protected:
-   void registerProxies(const edm::eventsetup::EventSetupRecordKey&, KeyedProxies& iHolder) {
+   void registerProxies(const edm::eventsetup::EventSetupRecordKey&, KeyedProxies& /*iHolder*/) {
    }
    
 };

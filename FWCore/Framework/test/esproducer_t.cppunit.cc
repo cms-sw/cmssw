@@ -46,7 +46,7 @@ public:
       data_.value_ = 0;
       setWhatProduced(this);
    }
-   const DummyData* produce(const DummyRecord& iRecord) {
+   const DummyData* produce(const DummyRecord& /*iRecord*/) {
       ++data_.value_;
       std::cout <<"produce called "<<data_.value_<<std::endl;
       return &data_;
@@ -61,7 +61,7 @@ public:
       ptr_->value_ = 0;
       setWhatProduced(this);
    }
-   boost::shared_ptr<DummyData> produce(const DummyRecord& iRecord) {
+   boost::shared_ptr<DummyData> produce(const DummyRecord& /*iRecord*/) {
       ++ptr_->value_;
       std::cout <<"produce called "<<ptr_->value_<<std::endl;
       return ptr_;
@@ -153,7 +153,7 @@ public:
       ptr_->value_ = 0;
       setWhatProduced(this, TestDecorator());
    }
-   boost::shared_ptr<DummyData> produce(const DummyRecord& iRecord) {
+   boost::shared_ptr<DummyData> produce(const DummyRecord& /*iRecord*/) {
       ++ptr_->value_;
       std::cout <<"produce called "<<ptr_->value_<<std::endl;
       return ptr_;
@@ -197,7 +197,7 @@ public:
                                         &DepProducer::callWhenDummyChanges2,
                                         &DepProducer::callWhenDummyChanges3));
    }
-   boost::shared_ptr<DummyData> produce(const DepRecord& iRecord) {
+   boost::shared_ptr<DummyData> produce(const DepRecord& /*iRecord*/) {
       return ptr_;
    }
    void callWhenDummyChanges(const DummyRecord&) {

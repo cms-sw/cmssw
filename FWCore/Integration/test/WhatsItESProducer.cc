@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 14:33:04 EDT 2005
-// $Id: WhatsItESProducer.cc,v 1.1 2005/06/25 01:20:38 chrjones Exp $
+// $Id: WhatsItESProducer.cc,v 1.2 2005/07/14 22:20:57 wmtan Exp $
 //
 //
 
@@ -60,7 +60,7 @@ class WhatsItESProducer : public edm::eventsetup::ESProducer {
 //
 // constructors and destructor
 //
-WhatsItESProducer::WhatsItESProducer( const edm::ParameterSet& iConfig )
+WhatsItESProducer::WhatsItESProducer( const edm::ParameterSet& /*iConfig*/ )
 {
    //the following line is needed to tell the framework what
    // data is being produced

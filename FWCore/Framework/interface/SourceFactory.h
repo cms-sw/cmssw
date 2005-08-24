@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 18:01:38 EDT 2005
-// $Id: SourceFactory.h,v 1.4 2005/06/25 22:28:50 chrjones Exp $
+// $Id: SourceFactory.h,v 1.5 2005/07/14 22:50:53 wmtan Exp $
 //
 
 // system include files
@@ -40,7 +40,7 @@ namespace edm {
             iProvider.add(pProvider);
       }
       template<class T>
-         void addProviderTo(EventSetupProvider& iProvider, boost::shared_ptr<T> iComponent, const void*) 
+         void addProviderTo(EventSetupProvider& iProvider, boost::shared_ptr<T> /*iComponent*/, const void*) 
       {
             //do nothing
       }

@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Thu May 26 13:37:48 EDT 2005
-// $Id: DummyProxyProvider.h,v 1.2 2005/06/23 20:01:12 wmtan Exp $
+// $Id: DummyProxyProvider.h,v 1.3 2005/07/14 22:50:53 wmtan Exp $
 //
 
 // system include files
@@ -54,8 +54,8 @@ public:
       //std::cout <<"constructed provider"<<std::endl;
       usingRecord<DummyRecord>();
    }
-   void newInterval(const eventsetup::EventSetupRecordKey& iRecordType,
-                     const ValidityInterval& iInterval) {
+   void newInterval(const eventsetup::EventSetupRecordKey& /*iRecordType*/,
+                     const ValidityInterval& /*iInterval*/) {
       //do nothing
    }
 protected:
