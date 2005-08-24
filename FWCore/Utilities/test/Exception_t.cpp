@@ -47,7 +47,7 @@ void func3()
   float f = 2.22222;
   unsigned long l = 75UL;
   std::string s("a string");
-  char* c1 = "a nonconst pointer";
+  char* c1 = const_cast<char *>("a nonconst pointer");
   char c2[] = "a c-style array";
   Thing thing(4);
 
