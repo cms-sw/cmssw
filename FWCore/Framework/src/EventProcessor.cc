@@ -22,6 +22,7 @@
 #include "FWCore/Framework/interface/EventRegistry.h"
 #include "FWCore/Framework/interface/ProductRegistry.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Framework/interface/Event.h"
 
 #include "boost/shared_ptr.hpp"
 #include "boost/bind.hpp"
@@ -148,6 +149,10 @@ namespace edm {
     
     StrVec fillArgs(int argc, char* argv[]);
     string readFile(const StrVec& args);
+    
+    boost::signal<void (const Event&, const EventSetup&)> preProcessEventSignal;
+    boost::signal<void (const Event&, const EventSetup&)> postProcessEventSignal;
+
   };
 
   // ---------------------------------------------------------------
@@ -298,14 +303,22 @@ namespace edm {
 	++eventcount;
 	FDEBUG(1) << eventcount << std::endl;
 	auto_ptr<EventPrincipal> pep = input_->readEvent();
+        
 	if(pep.get()==0) break;
 	edm::IOVSyncValue ts(pep->id(), pep->time());
 	EventSetup const& es = esp_.eventSetupForInstance(ts);
 
 	try
 	  {
+            ModuleDescription dummy;
+            {
+              preProcessEventSignal(Event(*pep.get(), dummy), es);
+            }
 	    EventRegistry::Operate oper(pep->id(),pep.get());
 	    runner_.runOneEvent(*pep.get(),es);
+            {
+              postProcessEventSignal(Event(*pep.get(),dummy) , es);
+            }
 	  }
 	catch(cms::Exception& e)
 	  {
@@ -347,19 +360,28 @@ namespace edm {
 
   // ------------------------------------------
 
+  static void connectSigs( EventProcessor* iEP, FwkImpl* iImpl) {
+     //When the FwkImpl signals are given, pass them to the appropriate EventProcessor
+     // signals so that the outside world can see the signal
+     iImpl->preProcessEventSignal.connect( iEP->preProcessEventSignal );
+     iImpl->postProcessEventSignal.connect( iEP->postProcessEventSignal );
+  }
   EventProcessor::EventProcessor(int argc, char* argv[]):
     impl_(new FwkImpl(argc,argv))
   {
+       connectSigs( this, impl_ );
   } 
   
   EventProcessor::EventProcessor(const string& config):
     impl_(new FwkImpl(config))
   {
+       connectSigs( this, impl_ );
   } 
   
   EventProcessor::EventProcessor(int argc, char* argv[], const string& config):
     impl_(new FwkImpl(argc,argv,config))
   {
+       connectSigs( this, impl_ );
   }
 
   EventProcessor::~EventProcessor()

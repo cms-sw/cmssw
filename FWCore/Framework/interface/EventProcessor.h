@@ -61,15 +61,18 @@ problems:
   where does the pluginmanager initialise call go?
 
 
-$Id: EventProcessor.h,v 1.2 2005/06/23 19:59:30 wmtan Exp $
+$Id: EventProcessor.h,v 1.3 2005/07/14 22:50:52 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include <string>
+#include "boost/signal.hpp"
 
 namespace edm {
 
   class FwkImpl;
+  class Event;
+  class EventSetup;
 
   class EventProcessor
   {
@@ -105,6 +108,9 @@ namespace edm {
     // sources are exhausted.
     StatusCode run(unsigned long numberToProcess = 0);
 
+    boost::signal<void (const Event&, const EventSetup&)> preProcessEventSignal;
+    boost::signal<void (const Event&, const EventSetup&)> postProcessEventSignal;
+    
   private:
     FwkImpl* impl_;
   };
