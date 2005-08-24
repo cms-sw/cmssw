@@ -54,6 +54,8 @@ bool ReadWriteORA::writeDB ( ) {
   seal::PluginManager::get()->initialise();
   seal::SealTimer t("ReadWriteORA::WriteFromMemoryToDB");
 
+  string token;
+
   try {
 
     //       seal::ShellEnvironment senv;
@@ -97,7 +99,7 @@ bool ReadWriteORA::writeDB ( ) {
     // This will also register the file. For this to occur, the placement object must use a PFN.
     pgeom.markWrite(geomPlace);
 
-    std::string token=pgeom.toString();
+    token=pgeom.toString();
 
     // Grab the DDD compact view that is in memory and write it on out!
     DDCompactView cpv;
@@ -211,31 +213,36 @@ bool ReadWriteORA::writeDB ( ) {
     svc->session().disconnectAll();
     std::cout << "disconnected" << endl;
 
-    // using MetaData to translate name to token.
-    MetaData meta (dbConnectString_);
-    std::cout << "Pool token = \"" << token << "\"" << std::endl;
-    if ( meta.getToken(name_) != "" ) {
-      std::cout<<"Mapping exists!  WARNING: Nothing done, map remains as it was." << std::endl;
-      std::cout<<"TABLE IOVMETA contains an un-named token.  You can copy the token down and fix the DB."<<std::endl;
-    }else{
-      meta.addMapping(name_, token);
-    }
-
     delete svc;
 
   }
   catch ( seal::Exception& e ) {
-    std::cout << e.what() << std::endl;
+    std::cout << "ReadWriteORA::writeDB caught seal::Exception -> " << e.what() << std::endl;
     return false;
   }
   catch ( std::exception& e ) {
-    std::cout << e.what() << std::endl;
+    std::cout << "ReadWriteORA::writeDB caught std::exception -> " << e.what() << std::endl;
     return false;
   }
   catch ( ... ) {
-    std::cout << "Funny error" << std::endl;
+    std::cout << "ReadWriteORA::writeDB caught ( ... ) , i.e. unknown, exception -> " << "Funny error" << std::endl;
     return false;
   }
+
+    // using MetaData to translate name to token.
+    MetaData meta (dbConnectString_);
+    std::cout << "Pool token = \"" << token << "\"" << std::endl;
+    try {
+      if ( meta.getToken(name_) != "" ) {
+	std::cout<<"Mapping exists!  WARNING: Nothing done, map remains as it was." << std::endl;
+	std::cout<<"TABLE IOVMETA contains an un-named token.  You can copy the token down and fix the DB."<<std::endl;
+      }
+    } catch ( seal::Exception& e ) {
+      std::cout << "ReadWriteORA::writeDB caught seal::Exception -> " << e.what() << std::endl;
+      cout << "ASSUMPTION: the error allows me to proceed... about to add a mapping..." << endl;
+      meta.addMapping(name_, token);
+    }
+    cout << meta.getToken(name_) << endl;
 
   return true;
 }
