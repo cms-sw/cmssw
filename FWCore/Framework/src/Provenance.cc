@@ -2,7 +2,7 @@
 
 /*----------------------------------------------------------------------
 
-$Id: Provenance.cc,v 1.7 2005/07/30 23:47:52 wmtan Exp $
+$Id: Provenance.cc,v 1.8 2005/08/03 05:31:53 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -18,7 +18,7 @@ namespace edm {
   { }
 
   void
-  Provenance::write(std::ostream& os) const {
+  Provenance::write(std::ostream&) const {
     // This is grossly inadequate, but it is not critical for the
     // first pass.
   }

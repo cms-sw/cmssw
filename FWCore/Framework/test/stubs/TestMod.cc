@@ -27,7 +27,7 @@ TestMod::TestMod(ParameterSet const& p)
 	    << std::endl;
 }
 
-void TestMod::produce(Event& e, EventSetup const&)
+void TestMod::produce(Event&, EventSetup const&)
 {
   std::cerr << "Hi" << std::endl;
 }

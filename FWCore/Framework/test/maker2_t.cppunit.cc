@@ -28,10 +28,10 @@ class TestMod : public EDProducer
   void produce(Event& e, EventSetup const&);
 };
 
-TestMod::TestMod(ParameterSet const& p)
+TestMod::TestMod(ParameterSet const&)
 { produces<int>();}
 
-void TestMod::produce(Event& e, EventSetup const&)
+void TestMod::produce(Event&, EventSetup const&)
 {
 }
 

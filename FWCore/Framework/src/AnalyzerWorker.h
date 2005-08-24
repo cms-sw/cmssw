@@ -9,7 +9,7 @@ feed them into the event.
 According to our current definition, a single producer can only
 appear in one worker.
 
-$Id: AnalyzerWorker.h,v 1.6 2005/07/20 03:00:36 jbk Exp $
+$Id: AnalyzerWorker.h,v 1.7 2005/07/28 18:48:28 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -58,7 +58,7 @@ namespace edm
   };
 
   template <class ModType>
-  std::auto_ptr<EDAnalyzer> AnalyzerWorker::makeOne(const ModuleDescription& md,
+  std::auto_ptr<EDAnalyzer> AnalyzerWorker::makeOne(const ModuleDescription&,
 						    const WorkerParams& wp)
   {
     return std::auto_ptr<EDAnalyzer>(new ModType(*wp.pset_));
