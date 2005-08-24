@@ -8,49 +8,67 @@
 //
 #include "Fed9UUtils.hh"
 //
-#include <vector>
-#include <string>
-//
 #include <cstdlib>
 #include <ctime>
-
+#include <vector>
 
 // -----------------------------------------------------------------------------
 // constructor
 SiStripUtility::SiStripUtility( const edm::EventSetup& iSetup ) :
-  nDets_(0)
+  nDets_(0),
+  fedReadoutMode_("ZERO_SUPPRESSED"),
+  verbose_(false)
 {
-  cout << "[SiStripUtility] : constructing class..." << endl;
-
+  if (verbose_) std::cout << "[SiStripUtility::SiStripUtility] "
+			  << "constructing class..." << std::endl;
   //   // get geometry 
   //   edm::eventsetup::ESHandle<CmsDigiTracker> pDD;
   //   iSetup.get<TrackerDigiGeometryRecord>().get( pDD );
-  //   vector<GeomDetUnit*> dets = pDD->dets();
-  nDets_ = 15000; // pDD->dets().size();
-
-  // initialise random number generator "rand()" with different seed
-  srand( time(NULL) );
+  //   std::vector<GeomDetUnit*> dets = pDD->dets();
+  //   nDets_ = pDD->dets().size();
+  nDets_ = 15000; 
+  // provide seed for random number generator
+  srand( time( NULL ) ); 
 }
 
 // -----------------------------------------------------------------------------
 // destructor
 SiStripUtility::~SiStripUtility() {
-  cout << "[SiStripUtility] : destructing class..." << endl;
+  if (verbose_) std::cout << "[SiStripUtility~SiStripUtility] : destructing class..." << std::endl;
  }
+
+
+// -----------------------------------------------------------------------------
+//
+void SiStripUtility::siStripConnection( SiStripConnection& connections ) {
+  if (verbose_) std::cout << "[SiStripUtility::siStripConnection]" << std::endl;
+  // loop through detectors
+  for ( int idet = 0; idet < nDets_; idet++ ) { 
+    pair<unsigned short, unsigned short> fed; 
+    pair<cms::DetId,unsigned short> det; 
+    fed = pair<unsigned short, unsigned short>( (idet/48), 2*(idet%48) );
+    det = pair<cms::DetId,unsigned short>( idet, 0 );
+    connections.setPair( fed, det );
+    fed = pair<unsigned short, unsigned short>( (idet/48), 2*(idet%48)+1 );
+    det = pair<cms::DetId,unsigned short>( idet, 1 );
+    connections.setPair( fed, det );
+  }
+}
 
 // -----------------------------------------------------------------------------
 //
 void SiStripUtility::stripDigiCollection( StripDigiCollection& collection ) {
-  cout << "[SiStripUtility::stripDigiCollection]" << endl;
+  if (verbose_) std::cout << "[SiStripUtility::stripDigiCollection]" << std::endl;
   // loop through detectors
   for ( int idet = 0; idet < nDets_; idet++ ) { 
-    // some random numbers
-    int ndigi = rand()%20, strip = rand()%512, value = rand()%50; 
-    //cout << "idet: " << idet << ", nidigi: " << ndigi << endl;
-    // temorary digi container
-    vector<StripDigi> digis; 
-    // create digis
-    for ( int idigi = 0; idigi < ndigi; idigi++ ) { digis.push_back( StripDigi(strip,value) ); }
+    int ndigi = rand() % 16; // number of hits per det (~3% occupancy)
+    std::vector<StripDigi> digis; // temp container
+    // loop through and create digis
+    for ( int idigi = 0; idigi < ndigi; idigi++ ) { 
+      int strip = rand() % 512; // strip position of hit
+      int value = rand() % 50; // adc value
+      digis.push_back( StripDigi(strip,value) ); 
+    }
     // digi range
     StripDigiCollection::Range range = StripDigiCollection::Range( digis.begin(), digis.end() );
     // put digis in collection
@@ -61,42 +79,45 @@ void SiStripUtility::stripDigiCollection( StripDigiCollection& collection ) {
 // -----------------------------------------------------------------------------
 //
 void SiStripUtility::fedRawDataCollection( raw::FEDRawDataCollection& collection ) {
-  cout << "[SiStripUtility::fedRawDataCollection]" << endl;
+  if (verbose_) std::cout << "[SiStripUtility::fedRawDataCollection]" << std::endl;
 
   // calculate number of FEDs for given number of detectors 
-  unsigned int nFeds = nDets_/48 ? (nDets_/48)+1 : (nDets_/48);
+  unsigned int nFeds = nDets_%48 ? (nDets_/48)+1 : (nDets_/48);
 
   // loop over FEDs
   for ( unsigned int ifed = 0; ifed < nFeds; ifed++ ) { 
 
     // temp container for adc values
-    vector<unsigned short> adc(96*256,0);
+    std::vector<unsigned short> adc(96*256,0);
     // loop through FED channels
     for ( int ichan = 0; ichan < 96; ichan++ ) { 
       // some random numbers
-      int ndigi = rand()%10, strip = rand()%256, value = rand()%50;
+      int ndigi = rand() % 8; // number of hits per FED channel (~3% occupancy)
       // write adc values to temporary adc container
-      for ( int idigi = 0; idigi < ndigi; idigi++ ) { adc[ichan*256+strip] = value; }
+      for ( int idigi = 0; idigi < ndigi; idigi++ ) { 
+	int strip = rand() % 256; // strip position of hit
+	int value = rand() % 50; // adc value
+	adc[ichan*256+strip] = value; 
+      }
     }
-
-    // instantiate appropriate buffer creator object depending on readout mode
+    
+    // instantiate appropriate buffer creator object depending on FED readout mode
     Fed9U::Fed9UBufferCreator* creator = 0;
-    string readout_mode = "VIRGIN_RAW";
-    if ( readout_mode == "SCOPE_MODE" ) {
-      cout << "WARNING : SCOPE_MODE not implemented yet!" << endl;
-    } else if ( readout_mode == "VIRGIN_RAW" ) {
+    if ( fedReadoutMode_ == "SCOPE_MODE" ) {
+      std::cout << "WARNING : SCOPE_MODE not implemented yet!" << std::endl;
+    } else if ( fedReadoutMode_ == "VIRGIN_RAW" ) {
       creator = new Fed9U::Fed9UBufferCreatorRaw();
-    } else if ( readout_mode == "PROCESSED_RAW" ) {
+    } else if ( fedReadoutMode_ == "PROCESSED_RAW" ) {
       creator = new Fed9U::Fed9UBufferCreatorProcRaw();
-  } else if ( readout_mode == "ZERO_SUPPRESSED" ) {
+    } else if ( fedReadoutMode_ == "ZERO_SUPPRESSED" ) {
       creator = new Fed9U::Fed9UBufferCreatorZS();
     } else {
-      cout << "WARNING : UNKNOWN readout mode"<<endl;
+      std::cout << "WARNING : UNKNOWN readout mode" << std::endl;
     }
  
     // create Fed9UBufferGenerator object (that uses Fed9UBufferCreator)
     Fed9U::Fed9UBufferGenerator generator( creator );
-    // generate FED buffer using vector<unsigned short> that holds adc values
+    // generate FED buffer using std::vector<unsigned short> that holds adc values
     generator.generateFed9UBuffer( adc );
     // retrieve raw::FEDRawData struct from collection for appropriate fed
     raw::FEDRawData& fed_data = collection.FEDData( ifed ); 
@@ -109,22 +130,5 @@ void SiStripUtility::fedRawDataCollection( raw::FEDRawDataCollection& collection
     unsigned int* ints = reinterpret_cast<unsigned int*>( chars );
     generator.getBuffer( ints );
     
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-void SiStripUtility::siStripConnection( SiStripConnection& connections ) {
-  cout << "[SiStripUtility::siStripConnection]" << endl;
-  // loop through detectors
-  for ( int idet = 0; idet < nDets_; idet++ ) { 
-    pair<unsigned short, unsigned short> fed; 
-    pair<cms::DetId,unsigned short> det; 
-    fed = pair<unsigned short, unsigned short>( (idet/48), idet%48 );
-    det = pair<cms::DetId,unsigned short>( idet, 0 );
-    connections.setPair( fed, det );
-    fed = pair<unsigned short, unsigned short>( (idet/48), (idet%48)+1 );
-    det = pair<cms::DetId,unsigned short>( idet, 1 );
-    connections.setPair( fed, det );
   }
 }

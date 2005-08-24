@@ -23,47 +23,51 @@ class SiStripUtility;
    \author R.Bainbridge
    \version 0.1
    \date 09/08/05
-   
-   A plug-in EDProducer module that takes a FEDRawDataCollection as
-   input and creates an EDProduct in the form of a
-   StripDigiCollection. 
-   Nota bene: this is a PROTOTYPE IMPLEMENTATION!
+
+   A plug-in EDProducer module that performs RawToDigi
+   conversion. Input (from Event): FEDRawDataCollection. Output
+   (EDProduct): StripDigiCollection. Nota bene: this is a PROTOTYPE
+   IMPLEMENTATION!
 */
 class SiStripRawToDigiModule : public edm::EDProducer {
   
 public:
   
-  /** */
+  /** Constructor. */
   explicit SiStripRawToDigiModule( const edm::ParameterSet& );
-  /** */
+  /** Destructor. */
   ~SiStripRawToDigiModule();
 
-  /** */
+  /** Some initialisation. Retrieves cabling map from
+      EventSetup. Creates RawToDigi converter object. */
   virtual void beginJob( const edm::EventSetup& );
-  /** */
+  /** Currently does nothing. */
   virtual void endJob();
   
-  /** method that retrieves a FEDRawDataCollection from the Event and
-      creates an EDProduct in the form of a StripDigiCollection. */
+  /** Retrieves a FEDRawDataCollection from the Event, creates a
+      StripDigiCollection (EDProduct) using the RawToDigi converter,
+      and attaches it to the Event. */
   virtual void produce( edm::Event&, const edm::EventSetup& );
   
 private:
   
-  /** object that converts FEDRawData objects to StripDigi's */
+  /** RawToDigi converter that creates StripDigis based on the input
+      of FEDRawData objects that contain FED buffers. */
   SiStripRawToDigi* rawToDigi_;
-  /** utility class providing dummy Digis, FED buffers, cabling map */
+  /** Utility class providing dummy digis, FED buffers, cabling map. */
   SiStripUtility* utility_;
 
-  /** event counter */
+  /** Event counter. */
   unsigned long event_;
 
-  /** defines the FED readout mode: ZS, VR, PR or SM */
+  /** defines the FED readout mode: ZS, VR, PR or SM. */
   std::string fedReadoutMode_;
-  /** defines the FED readout path: VME or SLINK */
+  /** Defines the FED readout path: VME or SLINK. */
   std::string fedReadoutPath_;
-  /** defines level of verbosity for this class (0=silent -> 3=debug) */
+  /** Defines level of verbosity for this class (0=silent -> 3=debug). */
   int verbosity_;
 
+  /** Digi counter. */
   long ndigis_;
   
 };

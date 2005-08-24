@@ -3,11 +3,10 @@
 
 // system include files
 #include <memory>
-// user include files
+//
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-//#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 //
 #include <string>
@@ -17,50 +16,57 @@ class SiStripUtility;
 
 /**
    \class SiStripDigiToRawModule 
-   \brief A plug-in EDProducer module that takes a StripDigiCollection
-   as input and creates an EDProduct in the form of a
-   FEDRawDataCollection. 
+   \brief A plug-in EDProducer module that performs DigiToRaw
+   conversion.
    \author R.Bainbridge
    \version 0.1
    \date 09/08/05
-   A plug-in EDProducer module that takes a StripDigiCollection as
-   input and creates an EDProduct in the form of a
-   FEDRawDataCollection. 
-   Nota bene: this is a PROTOTYPE IMPLEMENTATION!
+
+   A plug-in EDProducer module that performs DigiToRaw
+   conversion. Input (from Event): StripDigiCollection. Output
+   (EDProduct): FEDRawDataCollection. Nota bene: this is a PROTOTYPE
+   IMPLEMENTATION!
 */
 class SiStripDigiToRawModule : public edm::EDProducer {
   
 public:
   
-  /** */
+  /** Constructor. */
   explicit SiStripDigiToRawModule( const edm::ParameterSet& );
-  /** */
+  /** Destructor. */
   ~SiStripDigiToRawModule();
 
-  /** */
+  /** Some initialisation. Retrieves cabling map from
+      EventSetup. Creates DigiToRaw converter object. */
   virtual void beginJob( const edm::EventSetup& );
-  /** */
+  /** Currently does nothing. */
   virtual void endJob();
   
-  /** method that retrieves a StripDigiCollection from the Event and
-      creates an EDProduct in the form of a FEDRawDataCollection. */
+  /** Retrieves a StripDigiCollection from the Event, creates a
+      FEDRawDataCollection (EDProduct) using the DigiToRaw converter,
+      and attaches it to the Event. */
   virtual void produce( edm::Event&, const edm::EventSetup& );
   
 private:
   
-  /** object that converts StripDigi's to FEDRawData objects */
+  /** DigiToRaw converter that creates FEDRawData objects containing
+      FED buffers, based on the input of StripDigis. */
   SiStripDigiToRaw* digiToRaw_;
-  /** utility class providing dummy Digis, FED buffers, cabling map */
+  /** Utility class providing dummy digis, FED buffers, cabling map. */
   SiStripUtility* utility_;
 
-  /** event counter */
+  /** Event counter. */
   unsigned long event_;
 
-  /** defines the FED readout path: VME or SLINK */
+  /** Defines the FED readout mode: ZS, VR, PR or SM. */
+  std::string fedReadoutMode_;
+  /** Defines the FED readout path: VME or SLINK. */
   std::string fedReadoutPath_;
-  /** defines level of verbosity for this class (0=silent -> 3=debug) */
+
+  /** Defines level of verbosity for this class (0=silent -> 3=debug). */
   int verbosity_;
 
+  /** Digi counter. */
   long ndigis_;
   
 };

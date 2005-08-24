@@ -24,13 +24,13 @@ SiStripDigiToRawModule::SiStripDigiToRawModule( const edm::ParameterSet& conf ) 
   digiToRaw_(0),
   utility_(0),
   event_(0),
-  //fedReadoutMode_( conf.getParameter<string>("FedReadoutMode") ),
-  fedReadoutPath_( conf.getParameter<string>("FedReadoutPath") ),
+  fedReadoutMode_( conf.getParameter<std::string>("FedReadoutMode") ),
+  fedReadoutPath_( conf.getParameter<std::string>("FedReadoutPath") ),
   verbosity_( conf.getParameter<int>("Verbosity") ),
   ndigis_(0)
 {
   if (verbosity_>1) std::cout << "[SiStripDigiToRawModule::SiStripDigiToRawModule] "
-			      << "constructing DigiToRaw module..." << endl;
+			      << "constructing DigiToRaw module..." << std::endl;
   // specify product type
   produces<raw::FEDRawDataCollection>();
 }
@@ -39,43 +39,39 @@ SiStripDigiToRawModule::SiStripDigiToRawModule( const edm::ParameterSet& conf ) 
 // destructor
 SiStripDigiToRawModule::~SiStripDigiToRawModule() {
   if (verbosity_>1) std::cout << "[SiStripDigiToRawModule::~SiStripDigiToRawModule] "
-			      << "destructing DigiToRaw module..." << endl;
+			      << "destructing DigiToRaw module..." << std::endl;
   if ( digiToRaw_ ) delete digiToRaw_;
   if ( utility_ ) delete utility_; 
-
-  std::cout << "[SiStripDigiToRawModule::~SiStripDigiToRawModule] Total number of digis: " << ndigis_ << endl;
-
+  
+  if (verbosity_>2) std::cout << "[SiStripDigiToRawModule::~SiStripDigiToRawModule] "
+			      << "Total number of digis: " << ndigis_ << std::endl;
+  
 }
 
 // -----------------------------------------------------------------------------
 //
 void SiStripDigiToRawModule::beginJob( const edm::EventSetup& iSetup ) {
   if (verbosity_>2) std::cout << "[SiStripDigiToRawModule::beginJob] "
-			      << "creating utility object, connections map, DigiToRaw converter..." << endl;
+			      << "creating utility object, connections map, "
+			      << "DigiToRaw converter..." << std::endl;
 
-  //@@ cannot presently retrieve connections map from EventSetup!
   //   // retrieve cabling map (ESProduct) 
   //   ESHandle<SiStripConnection> connections;
   //   iSetup.get<TrackerConnectionRecord>().get( connections );
   //   cabling_.reset( connections.product() );
+
+  //@@ cannot presently retrieve connections map from EventSetup, so use below!
   
-  // retrieve "dummy" connections map from utility object 
+  // create utility object and retrieve "dummy" connections map
   utility_ = new SiStripUtility( iSetup );
+  if (verbosity_>1) utility_->verbose(true);
   SiStripConnection connections;
   utility_->siStripConnection( connections );
   
-//   // some debug
-//   vector<unsigned short> feds;
-//   map<unsigned short, cms::DetId> partitions;
-//   connections.getConnectedFedNumbers( feds );
-//   connections.getDetPartitions( partitions );
-//   std::cout << "number of feds: " << feds.size() 
-// 	    << ", number of partitions: " << partitions.size() << endl;
-
   // create instance of DigiToRaw converter
   digiToRaw_ = new SiStripDigiToRaw( connections );
-  // digiToRaw_->fedReadoutPath( fedReadoutPath_ );
-  // digiToRaw_->fedReadoutMode( fedReadoutMode_ );
+  digiToRaw_->fedReadoutPath( fedReadoutPath_ );
+  digiToRaw_->fedReadoutMode( fedReadoutMode_ );
 
 }
 
@@ -83,7 +79,7 @@ void SiStripDigiToRawModule::beginJob( const edm::EventSetup& iSetup ) {
 //
 void SiStripDigiToRawModule::endJob() { 
   if (verbosity_>2) std::cout << "[SiStripDigiToRawModule::endJob] "
-			      << "cuurently does nothing..." << endl;
+			      << "cuurently does nothing..." << std::endl;
 }
 
 // -----------------------------------------------------------------------------
@@ -91,33 +87,33 @@ void SiStripDigiToRawModule::endJob() {
 void SiStripDigiToRawModule::produce( edm::Event& iEvent, 
 				      const edm::EventSetup& iSetup ) {
   if (verbosity_>2) std::cout << "[SiStripDigiToRawModule::produce] "
-			      << "creates \"dummy\" StripDigiCollection as " << endl
+			      << "creates \"dummy\" StripDigiCollection as " << std::endl
 			      << "input to DigiToRaw converter and writes "
-			      << "\"FedRawDataCollection\" product to Event ..." << endl;
+			      << "\"FedRawDataCollection\" product to Event ..." << std::endl;
   
   event_++; // increment event counter
+
   if (verbosity_>0) std::cout << "[SiStripDigiToRawModule::produce] "
-			      << "event number: " << event_ << endl;
+			      << "event number: " << event_ << std::endl;
   
-//   // retrieve collection of StripDigi's from Event
-//   edm::Handle<StripDigiCollection> handle;
-//   //iEvent.getByLabel( "write_digis", handle );
-//   iEvent.getByLabel( "RawToDigi", handle );
-//   StripDigiCollection digis = const_cast<StripDigiCollection&>( *handle );
+  //   // retrieve collection of StripDigi's from Event
+  //   edm::Handle<StripDigiCollection> handle;
+  //   //iEvent.getByLabel( "write_digis", handle );
+  //   iEvent.getByLabel( "RawToDigi", handle );
+  //   StripDigiCollection digis = const_cast<StripDigiCollection&>( *handle );
+
+  //@@ cannot retrieve digis from Event based on simulated events, so use below!
   
   // retrieve "dummy" collection of StripDigi from utility object
   StripDigiCollection digis;
   utility_->stripDigiCollection( digis );
-
-  // count number of digis
+  
+  // count digis
   std::vector<unsigned int> dets = digis.detIDs();
   for ( unsigned int idet = 0; idet < dets.size(); idet++ ) {
     const StripDigiCollection::Range digi_range = digis.get( idet ); 
     StripDigiCollection::ContainerIterator idigi;
-    int ndigi = 0;
-    for ( idigi = digi_range.first; idigi != digi_range.second; idigi++ ) { ndigis_++; ndigi++; }
-    //if ( !ndigi ) { std::cout << "DET " << idet << " has zero digis!" << endl; }
-    //else { std::cout << "DET " << idet << " has " << ndigi << " digis" << endl; }
+    for ( idigi = digi_range.first; idigi != digi_range.second; idigi++ ) { ndigis_++; }
   }
   
   // create product

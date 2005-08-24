@@ -31,6 +31,9 @@ class SiStripDigiToRaw {
       FEDRawDataCollection. */
   void createFedBuffers( StripDigiCollection& digis, 
 			 raw::FEDRawDataCollection& fed_buffers );
+
+  void fedReadoutMode( string ) {;}
+  void fedReadoutPath( string ) {;}
   
  private:
 
