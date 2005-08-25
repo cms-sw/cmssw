@@ -1,0 +1,14 @@
+<use name=boost>
+<use name=root>
+<use name=rootcore>
+<use name=pool>
+<use name=DataSvc>
+<export>
+ <lib name=IOPoolStreamer>
+ <use name=boost>
+<use name=root>
+<use name=rootcore>
+<use name=pool>
+ <use name=DataSvc>
+</export>
+

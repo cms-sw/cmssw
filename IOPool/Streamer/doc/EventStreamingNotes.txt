@@ -1,0 +1,24 @@
+
+22-8-05 jbk:
+
+Things that need to be done for the event streaming output/input modules:
+
+The TBuffer needs to become a data member of the class and SetBuffer
+needs to be called for each event.
+
+The input module is hard coded to read the streamed events from a file.
+It needs to be converted to work like the output module - where the
+network protocol driver is a template parameter.
+
+The "AuxEvent" and the process history and not handled at all.
+
+Each product in an event gets a copy of all the provenance information.
+In the future, we may be able to send a table in the event header that
+contains all the common provenance information and then reference it in
+the per-product provenance information.
+
+The StreamCopy/JunkCopy test configurations still do not run.  This
+may be an environment issue, because JunkCopy test just uses the 
+POOL output modules and input modules to do its work.
+
+
