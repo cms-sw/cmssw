@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id$
+$Id: EventStreamInput.cc,v 1.1 2005/08/25 02:03:03 jbk Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Streamer/interface/EventStreamInput.h"
@@ -45,7 +45,7 @@ namespace edm
   {
     ProductRegistry& pr = productRegistry();
     std::vector<char> inbuf(100*1000);
-    TClass* prog_reg = getTClass(typeid(SendDescs));
+    TClass* prog_reg = getTClass(typeid(SendJobHeader));
     int len;
 
     // we must first read the list of product in from the front of the file and
@@ -57,7 +57,8 @@ namespace edm
     ist_.read(&inbuf[0],len);
 
     TBuffer rootbuf(TBuffer::kRead,inbuf.size(),&inbuf[0],kFALSE);
-    auto_ptr<SendDescs> sd((SendDescs*)rootbuf.ReadObjectAny(prog_reg));
+    auto_ptr<SendJobHeader> 
+      sd((SendJobHeader*)rootbuf.ReadObjectAny(prog_reg));
 
     if(sd.get()==0)
       {
@@ -65,7 +66,7 @@ namespace edm
 	  << "Could not read the initial product registry list\n";
       }
 
-    SendDescs::iterator i(sd->begin()),e(sd->end());
+    SendDescs::iterator i(sd->descs_.begin()),e(sd->descs_.end());
 
     // the next line seems to be not good.  what if the productdesc is
     // already there? it looks like I replace it.  maybe that it correct

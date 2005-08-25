@@ -1,7 +1,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id$
+// $Id: EventStreamOutput.cc,v 1.1 2005/08/25 02:03:03 jbk Exp $
 //
 // Class EventStreamOutput module
 //
@@ -91,8 +91,8 @@ namespace edm
 
   void EventStreamerImpl::serializeRegistry(ProductRegistry const& reg)
   {
-    TClass* prog_reg = getTClass(typeid(SendDescs));
-    SendDescs sd;
+    TClass* prog_reg = getTClass(typeid(SendJobHeader));
+    SendJobHeader sd;
 
     typedef ProductRegistry::ProductList Prods;
     const Prods& prods = reg.productList();
@@ -102,7 +102,7 @@ namespace edm
     for(;i!=e;++i) 
       {
 	//cout << " " << i->second.fullClassName_ << endl;
-	sd.push_back(i->second);
+	sd.descs_.push_back(i->second);
       }
 
     TBuffer rootbuf(TBuffer::kWrite,

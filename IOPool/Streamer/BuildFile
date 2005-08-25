@@ -1,8 +1,14 @@
+<flags SEAL_PLUGIN_NAME="IOPoolStreamer">
 <use name=boost>
 <use name=root>
 <use name=rootcore>
 <use name=pool>
 <use name=DataSvc>
+ <use name=FWCore/Framework>
+ <use name=FWCore/Services>
+ <use name=FWCore/Utilities>
+ <use name=FWCore/EDProduct>
+ <use name=FWCore/ParameterSet>
 <export>
  <lib name=IOPoolStreamer>
  <use name=boost>
@@ -10,5 +16,10 @@
 <use name=rootcore>
 <use name=pool>
  <use name=DataSvc>
+ <use name=FWCore/Framework>
+ <use name=FWCore/Services>
+ <use name=FWCore/Utilities>
+ <use name=FWCore/EDProduct>
+ <use name=FWCore/ParameterSet>
 </export>
 

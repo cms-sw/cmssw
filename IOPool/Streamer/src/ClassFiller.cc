@@ -163,6 +163,7 @@ namespace edm {
     loadClass(cl,typeid(SendProds));
     loadClass(cl,typeid(SendEvent));
     loadClass(cl,typeid(SendDescs));
+    loadClass(cl,typeid(SendJobHeader));
     loadClass(cl,typeid(ProductDescription));
     loadClass(cl,typeid(EventProductDescription));
   }
