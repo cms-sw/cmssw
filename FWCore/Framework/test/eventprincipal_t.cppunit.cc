@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id: eventprincipal_t.cppunit.cc,v 1.7 2005/07/30 23:42:08 wmtan Exp $
+$Id: eventprincipal_t.cppunit.cc,v 1.8 2005/08/10 02:33:06 chrjones Exp $
 
 ----------------------------------------------------------------------*/  
 #include <cassert>
@@ -162,6 +162,7 @@ void testeventprincipal::failgetbyInvalidIdTest()
 
   edm::ProductRegistry preg;
   preg.addProduct(pprov->product);
+  preg.setProductIDs();
   edm::EventID col(1L);
   edm::FakeRetriever fake;
   edm::EventPrincipal ep(col, fake, preg);
@@ -210,6 +211,7 @@ void testeventprincipal::getbyIdTest()
 
   edm::ProductRegistry preg;
   preg.addProduct(pprov->product);
+  preg.setProductIDs();
   edm::EventID col(1L);
   edm::FakeRetriever fake;
   edm::EventPrincipal ep(col, fake, preg);
@@ -264,6 +266,7 @@ void testeventprincipal::getbyLabelTest()
 
   edm::ProductRegistry preg;
   preg.addProduct(pprov->product);
+  preg.setProductIDs();
   edm::EventID col(1L);
   edm::FakeRetriever fake;
   edm::EventPrincipal ep(col, fake, preg);
@@ -318,6 +321,7 @@ void testeventprincipal::getbySelectorTest()
 
   edm::ProductRegistry preg;
   preg.addProduct(pprov->product);
+  preg.setProductIDs();
   edm::EventID col(1L);
   edm::FakeRetriever fake;
   edm::EventPrincipal ep(col, fake, preg);
