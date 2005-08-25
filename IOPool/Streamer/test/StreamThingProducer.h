@@ -12,6 +12,9 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include <string>
+#include <vector>
+
 namespace edmtest_thing
 {
   class StreamThingProducer : public edm::EDProducer
@@ -25,6 +28,8 @@ namespace edmtest_thing
 
   private:
     int size_;
+    int inst_count_;
+    std::vector<std::string> names_;
   };
 }
 #endif

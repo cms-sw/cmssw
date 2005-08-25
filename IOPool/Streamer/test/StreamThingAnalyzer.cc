@@ -15,6 +15,22 @@
 using namespace std;
 using namespace edmtestprod;
 
+namespace 
+{
+  
+  class AllSelector : public edm::Selector {
+  public:
+    AllSelector(const std::string& name):name_(name) {}
+    
+    virtual bool doMatch(const edm::Provenance& p) const {
+      return p.product.module.moduleLabel_==name_;
+    }
+
+  private:
+    string name_;
+  };
+}
+
 namespace edmtest_thing
 {
   StreamThingAnalyzer::StreamThingAnalyzer(edm::ParameterSet const& ps):
@@ -31,9 +47,13 @@ namespace edmtest_thing
   void StreamThingAnalyzer::analyze(edm::Event const& e,
 				    edm::EventSetup const&)
   {
-    edm::Handle<StreamTestThing> prod;
-    e.getByLabel(name_, prod);
-    total_ = accumulate(prod->data_.begin(),prod->data_.end(),total_);
+    AllSelector all(name_);
+    typedef vector<edm::Handle<StreamTestThing> > ProdList;
+    ProdList prod;
+    e.getMany(all, prod);
+    ProdList::iterator i(prod.begin()),end(prod.end());
+    for(;i!=end;++i)
+      total_ = accumulate((*i)->data_.begin(),(*i)->data_.end(),total_);
     //cout << tot << endl;
   }
 }

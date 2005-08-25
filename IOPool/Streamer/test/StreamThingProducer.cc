@@ -4,15 +4,25 @@
 #include "IOPool/Streamer/interface/StreamTestThing.h"
 #include "IOPool/Streamer/test/StreamThingProducer.h"
 
+#include <sstream>
+
 using namespace std;
 using namespace edmtestprod;
+
 
 namespace edmtest_thing
 {
   StreamThingProducer::StreamThingProducer(edm::ParameterSet const& ps):
-    size_(ps.getParameter<int>("array_size"))
+    size_(ps.getParameter<int>("array_size")),
+    inst_count_(ps.getParameter<int>("instance_count"))
   {
-    produces<edmtestprod::StreamTestThing>();
+    for(int i=0;i<inst_count_;++i)
+      {
+	ostringstream ost;
+	ost << i;
+	names_.push_back(ost.str());
+	produces<edmtestprod::StreamTestThing>(ost.str());
+      }
   }
 
   StreamThingProducer::~StreamThingProducer()
@@ -22,8 +32,11 @@ namespace edmtest_thing
   // Functions that gets called by framework every event
   void StreamThingProducer::produce(edm::Event& e, edm::EventSetup const&)
   {
-    std::auto_ptr<StreamTestThing> result(new StreamTestThing(size_));
-    e.put(result);
+    for(int i=0;i<inst_count_;++i)
+      {
+	std::auto_ptr<StreamTestThing> result(new StreamTestThing(size_));
+	e.put(result,names_[i]);
+      }
   }
 }
 
