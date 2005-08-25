@@ -4,7 +4,7 @@
 
    \author Stefano ARGIRO
    \co-author Bill Tanenbaum
-   \version $Id: ProductRegistry.h,v 1.6 2005/07/27 23:39:11 wmtan Exp $
+   \version $Id: ProductRegistry.h,v 1.7 2005/07/30 04:33:39 wmtan Exp $
    \date 19 Jul 2005
 */
 
@@ -12,7 +12,7 @@
 #define Framework_ProductRegistry_h
 
 static const char CVSId_edm_ProductRegistry[] = 
-"$Id: ProductRegistry.h,v 1.6 2005/07/27 23:39:11 wmtan Exp $";
+"$Id: ProductRegistry.h,v 1.7 2005/07/30 04:33:39 wmtan Exp $";
 
 #include "FWCore/Framework/interface/BranchKey.h"
 #include "FWCore/Framework/interface/ProductDescription.h"
@@ -36,9 +36,11 @@ namespace edm {
   
     typedef std::map<BranchKey, ProductDescription> ProductList;
 
-    void addProduct(ProductDescription& productdesc);
+    void addProduct(ProductDescription const& productdesc);
 
     void copyProduct(ProductDescription const& productdesc);
+
+    void setProductIDs();
 
     ProductList const& productList() const {return productList_;}
     

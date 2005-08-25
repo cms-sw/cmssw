@@ -285,6 +285,9 @@ namespace edm {
     bool runforever = numberToProcess==0;
     unsigned int eventcount=0;
 
+    // Set the product ID's in the product registry
+    preg_.setProductIDs();
+
     //NOTE:  This implementation assumes 'Job' means one call the EventProcessor::run
     // If it really means once per 'application' then this code will have to be changed.
     // Also have to deal with case where have 'run' then new Module added and do 'run'
