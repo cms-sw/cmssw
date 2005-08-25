@@ -8,7 +8,7 @@ this object is to call the filter.
 According to our current definition, a single filter can only
 appear in one worker.
 
-$Id: FilterWorker.h,v 1.6 2005/07/20 03:00:36 jbk Exp $
+$Id: FilterWorker.h,v 1.7 2005/07/28 18:48:28 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -42,7 +42,7 @@ namespace edm
 
   private:
     virtual bool doWork(EventPrincipal& e, EventSetup const& c);
-    virtual void beginJob( EventSetup const& ) ;
+    virtual void beginJob(EventSetup const&) ;
     virtual void endJob() ;
 
     ModuleDescription md_;
