@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: OutputModule.cc,v 1.4 2005/07/28 19:35:38 wmtan Exp $
+$Id: OutputModule.cc,v 1.5 2005/07/30 04:42:21 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/OutputModule.h"
@@ -18,4 +18,9 @@ namespace edm {
   OutputModule::~OutputModule() {
   }
 
+  void OutputModule::beginJob(EventSetup const&) {
+  }
+
+  void OutputModule::endJob() {
+  }
 }
