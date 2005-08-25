@@ -35,3 +35,13 @@ StreamTestThing cannot be found.  There may be a problem with putting
 the test EDProducts into the plugin library.  I should probably move them
 elsewhere.
 
+25-8-05 jbk:
+
+The event stream test modules now can write many instances of the 
+StreamTestThing of a configured size in order to be load testing.
+
+The filtering of products based on type is not yet in place.
+
+The filtering of products based on provenance or trigger bits is not
+in place.
+
