@@ -5,7 +5,7 @@
 
 Event streaming input service
 
-$Id$
+$Id: EventStreamInput.h,v 1.1 2005/08/25 02:03:03 jbk Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -14,6 +14,7 @@ $Id$
 #include <string>
 #include <fstream>
 
+#include "IOPool/Streamer/interface/EventBuffer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/InputService.h"
 #include "FWCore/Framework/interface/Retriever.h"
@@ -29,8 +30,9 @@ class TClass;
 
 namespace edm {
 
-  class EventStreamInput : public InputService
+  class EventStreamerInputImpl
   {
+  public:
     //------------------------------------------------------------
     // Nested class PoolRetriever: pretends to support file reading.
     //
@@ -43,26 +45,77 @@ namespace edm {
 
     //------------------------------------------------------------
 
-  public:
-    explicit EventStreamInput(ParameterSet const& pset,
-			      InputServiceDescription const& desc);
-    virtual ~EventStreamInput();
+    EventStreamerInputImpl(ParameterSet const& pset,
+		     InputServiceDescription const& desc,
+		     EventBuffer* bufs);
+    ~EventStreamerInputImpl();
 
+    std::auto_ptr<EventPrincipal> reconstitute();
+    
+    std::vector<char>& registryBuffer() { return regbuf_; }
+    void decodeRegistry();
   private:
-    typedef std::vector<char> Buffer;
-
-    int buffer_size_;
-    Buffer event_buffer_;
-
-    std::string const file_;
-    std::ifstream ist_;
-    StreamRetriever store_;
+    std::vector<char> regbuf_;
+    EventBuffer* bufs_;
+    ProductRegistry* pr_;
     TClass* send_event_;
+    StreamRetriever store_;
 
-    virtual std::auto_ptr<EventPrincipal> read();
     void init();
 
     // EventAux not handled
   };
+
+  template <class Producer>
+  class EventStreamInput : public InputService
+  {
+  public:
+    EventStreamInput(ParameterSet const& pset,
+		     InputServiceDescription const& desc);
+    virtual ~EventStreamInput();
+
+    virtual std::auto_ptr<EventPrincipal> read();
+  private:
+    EventBuffer* bufs_;
+    EventStreamerInputImpl es_;
+    Producer p_;
+  };
+
+  // --------------------------------
+
+  template <class Producer>
+  EventStreamInput<Producer>::EventStreamInput(ParameterSet const& ps,
+					       InputServiceDescription const& reg):
+    InputService(reg),
+    bufs_(getEventBuffer(ps.template getParameter<int>("max_event_size"),
+			 ps.template getParameter<int>("max_queue_depth"))),
+    es_(ps,reg,bufs_),
+    p_(ps.template getParameter<ParameterSet>("producer_config"),*reg.preg_,bufs_)
+  {
+    p_.getRegistry(es_.registryBuffer());
+    es_.decodeRegistry();
+  }
+
+  template <class Producer>
+  EventStreamInput<Producer>::~EventStreamInput()
+  {
+    try {
+      p_.stop(); // should not throw !
+    }
+    catch(...)
+      {
+	std::cerr << "EventStreamInput: stopping the producer caused "
+		  << "an exception!\n"
+		  << "Igoring the exception." << std::endl;
+      }
+  }
+
+  template <class Producer>
+  std::auto_ptr<EventPrincipal> EventStreamInput<Producer>::read()
+  {
+    p_.needBuffer();
+    return es_.reconstitute();
+  }
+  
 }
 #endif

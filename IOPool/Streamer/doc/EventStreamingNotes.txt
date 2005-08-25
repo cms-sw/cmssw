@@ -21,4 +21,17 @@ The StreamCopy/JunkCopy test configurations still do not run.  This
 may be an environment issue, because JunkCopy test just uses the 
 POOL output modules and input modules to do its work.
 
+23-8-05 jbk:
+
+Converted input service to use a similar protocol object for doing the
+transfer or save of the streamed events as the streaming output module.
+
+Still have not checked for memory leaks in input or output modules.
+
+The StreamCopy operations ran for a while until a made a bunch of 
+changes.  A fresh rebuild seems to fix the problem.  The problem is
+that a warning appears that indicates that the dictionary for the
+StreamTestThing cannot be found.  There may be a problem with putting
+the test EDProducts into the plugin library.  I should probably move them
+elsewhere.
 

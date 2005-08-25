@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EventStreamInput.cc,v 1.1 2005/08/25 02:03:03 jbk Exp $
+$Id: EventStreamInput.cc,v 1.2 2005/08/25 03:31:06 jbk Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Streamer/interface/EventStreamInput.h"
@@ -16,53 +16,39 @@ $Id: EventStreamInput.cc,v 1.1 2005/08/25 02:03:03 jbk Exp $
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <iostream>
+#include <cassert>
 
 using namespace std;
 
 namespace edm
 {
 
-  EventStreamInput::EventStreamInput(ParameterSet const& pset,
-				     InputServiceDescription const& desc) :
-    InputService(desc),
-    buffer_size_(pset.getParameter<int>("buffer_size")),
-    event_buffer_(buffer_size_),
-    file_(pset.getParameter<std::string>("fileName")),
-    ist_(file_.c_str(),ios_base::binary | ios_base::in),
-    store_()
+  EventStreamerInputImpl::EventStreamerInputImpl(ParameterSet const& pset,
+						 InputServiceDescription const& desc,
+						 EventBuffer* bufs) :
+    regbuf_(1000*1000),
+    bufs_(bufs),
+    pr_(desc.preg_),
+    send_event_()
   {
-    if(!ist_)
-      {
-	throw cms::Exception("Configuration","TestProducer")
-	  << "cannot open file " << file_;
-      }
-
     loadExtraClasses();
     init();
   }
 
-  void EventStreamInput::init()
+  void EventStreamerInputImpl::init()
   {
-    ProductRegistry& pr = productRegistry();
-    std::vector<char> inbuf(100*1000);
+  }
+
+  void EventStreamerInputImpl::decodeRegistry()
+  {
     TClass* prog_reg = getTClass(typeid(SendJobHeader));
-    int len;
-
-    // we must first read the list of product in from the front of the file and
-    // add them to the desc and load there dictionaries and other stuff
-
-    // look out for byte ordering here - this is really a test
-
-    ist_.read((char*)&len,sizeof(int));
-    ist_.read(&inbuf[0],len);
-
-    TBuffer rootbuf(TBuffer::kRead,inbuf.size(),&inbuf[0],kFALSE);
+    TBuffer rootbuf(TBuffer::kRead,regbuf_.size(),&regbuf_[0],kFALSE);
     auto_ptr<SendJobHeader> 
       sd((SendJobHeader*)rootbuf.ReadObjectAny(prog_reg));
 
     if(sd.get()==0)
       {
-	throw cms::Exception("Init","ReadProductList")
+	throw cms::Exception("Init","DecodeProductList")
 	  << "Could not read the initial product registry list\n";
       }
 
@@ -74,15 +60,17 @@ namespace edm
     for(;i!=e;++i)
       {
 	//cout << " " << i->fullClassName_ << endl;
-	pr.copyProduct(*i);
+	pr_->copyProduct(*i);
       }
 
-    fillStreamers(pr);
+    fillStreamers(*pr_);
 
+    // this is not good - delay setting send_event_ until now,
+    // so this class cannot be used properly without the header
     send_event_ = getTClass(typeid(SendEvent));
   }
 
-  EventStreamInput::~EventStreamInput()
+  EventStreamerInputImpl::~EventStreamerInputImpl()
   {
   }
 
@@ -101,21 +89,16 @@ namespace edm
   //
 
   auto_ptr<EventPrincipal>
-  EventStreamInput::read()
+  EventStreamerInputImpl::reconstitute()
   {
-    int len;
+    assert(send_event_!=0);
 
-    // we must first read the list of product in from the front of the file and
-    // add them to the desc and load there dictionaries and other stuff
+    EventBuffer::ConsumerBuffer pb(*bufs_);
 
-    // look out for byte ordering here - this is really a test
+    if(pb.size()==0) return auto_ptr<EventPrincipal>();
 
-    ist_.read((char*)&len,sizeof(int));
-    if(!ist_ || len==0) return auto_ptr<EventPrincipal>();
-    ist_.read(&event_buffer_[0],len);
-
-    TBuffer rootbuf(TBuffer::kRead,event_buffer_.size(),
-		    &event_buffer_[0],kFALSE);
+    TBuffer rootbuf(TBuffer::kRead,pb.size(),
+		    (char*)pb.buffer(),kFALSE);
     auto_ptr<SendEvent> sd((SendEvent*)rootbuf.ReadObjectAny(send_event_));
 
     if(sd.get()==0)
@@ -129,7 +112,7 @@ namespace edm
     auto_ptr<EventPrincipal> ep(new EventPrincipal(sd->id_,
 						   sd->time_,
 						   store_,
-						   productRegistry()));
+						   *pr_));
     // no process name list handling
 
     SendProds::iterator spi(sd->prods_.begin()),spe(sd->prods_.end());
@@ -172,11 +155,10 @@ namespace edm
     return ep;
   }
 
-
-  EventStreamInput::StreamRetriever::~StreamRetriever() {}
+  EventStreamerInputImpl::StreamRetriever::~StreamRetriever() {}
 
   auto_ptr<EDProduct>
-  EventStreamInput::StreamRetriever::get(BranchKey const& k)
+  EventStreamerInputImpl::StreamRetriever::get(BranchKey const& k)
   {
     throw cms::Exception("LogicError","StreamRetriever")
       << "Got into EventStreamInput::StreamRetriever for branchkey: "
@@ -184,4 +166,5 @@ namespace edm
 
     return auto_ptr<EDProduct>();
   }
+
 }
