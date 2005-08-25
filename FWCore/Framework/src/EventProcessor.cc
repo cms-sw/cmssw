@@ -265,11 +265,6 @@ namespace edm {
     // If it really means once per 'application' then this code will have to be changed.
     // Also have to deal with case where have 'run' then new Module added and do 'run'
     // again.  In that case the newly added Module needs its 'beginJob' to be called.
-
-    // First, we must set the product ID's in the product registry.  This must be done after
-    // all producers are constructed, but before any 'beginJob' call.
-    preg_.setProductIDs();
-
     EventSetup const& es = esp_.eventSetupForInstance(edm::IOVSyncValue::beginOfTime());
     PathList::iterator itWorkerList = workers_.begin();
     PathList::iterator itEnd = workers_.end();

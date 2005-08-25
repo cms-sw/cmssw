@@ -3,11 +3,11 @@
    Implementation of class ScheduleBuilder
 
    \author Stefano ARGIRO
-   \version $Id: ScheduleBuilder.cc,v 1.12 2005/07/21 20:53:54 argiro Exp $
+   \version $Id: ScheduleBuilder.cc,v 1.13 2005/07/23 05:20:12 wmtan Exp $
    \date 18 May 2005
 */
 
-static const char CVSId[] = "$Id: ScheduleBuilder.cc,v 1.12 2005/07/21 20:53:54 argiro Exp $";
+static const char CVSId[] = "$Id: ScheduleBuilder.cc,v 1.13 2005/07/23 05:20:12 wmtan Exp $";
 
 
 #include "FWCore/Framework/interface/ScheduleBuilder.h"
@@ -71,6 +71,7 @@ ScheduleBuilder::ScheduleBuilder(ParameterSet const& processDesc,
     
   } // loop on paths
     
+  pregistry.setProductIDs();
 }
 
 
