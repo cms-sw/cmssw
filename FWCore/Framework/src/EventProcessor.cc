@@ -77,8 +77,8 @@ namespace edm {
       (InputServiceFactory::get()->makeInputService(main_input, isdesc).release());
     
       return input_;
-    } catch(const edm::Exception& iException ) {
-       if( errors::Configuration == iException.categoryCode() ) {
+    } catch(const edm::Exception& iException) {
+       if(errors::Configuration == iException.categoryCode()) {
           throw edm::Exception(errors::Configuration, "NoInputService")
           <<"No main input service found in configuration.  Please add an input service via 'source = ...' in the configuration file.\n";
        } else {
@@ -285,20 +285,22 @@ namespace edm {
     bool runforever = numberToProcess==0;
     unsigned int eventcount=0;
 
-    // Set the product ID's in the product registry
-    preg_.setProductIDs();
-
     //NOTE:  This implementation assumes 'Job' means one call the EventProcessor::run
     // If it really means once per 'application' then this code will have to be changed.
     // Also have to deal with case where have 'run' then new Module added and do 'run'
     // again.  In that case the newly added Module needs its 'beginJob' to be called.
+
+    // First, we must set the product ID's in the product registry.  This must be done after
+    // all producers are constructed, but before any 'beginJob' call.
+    preg_.setProductIDs();
+
     EventSetup const& es = esp_.eventSetupForInstance(edm::IOVSyncValue::beginOfTime());
     PathList::iterator itWorkerList = workers_.begin();
     PathList::iterator itEnd = workers_.end();
-    ESRefWrapper wrapper( es );
-    for( ; itWorkerList != itEnd; ++itEnd ) {
-       std::for_each( itWorkerList->begin(), itWorkerList->end(), 
-                      boost::bind( boost::mem_fn(&Worker::beginJob), _1, wrapper) );
+    ESRefWrapper wrapper(es);
+    for(; itWorkerList != itEnd; ++itEnd) {
+       std::for_each(itWorkerList->begin(), itWorkerList->end(), 
+                      boost::bind(boost::mem_fn(&Worker::beginJob), _1, wrapper));
     }
 
     while(runforever || eventcount<numberToProcess)
@@ -352,9 +354,9 @@ namespace edm {
     {
        PathList::const_iterator itWorkerList = workers_.begin();
        PathList::const_iterator itEnd = workers_.end();
-       for( ; itWorkerList != itEnd; ++itEnd ) {
-          std::for_each( itWorkerList->begin(), itWorkerList->end(), 
-                         boost::mem_fn(&Worker::endJob) );
+       for(; itWorkerList != itEnd; ++itEnd) {
+          std::for_each(itWorkerList->begin(), itWorkerList->end(), 
+                         boost::mem_fn(&Worker::endJob));
        }
     }
     return 0;
@@ -363,28 +365,28 @@ namespace edm {
 
   // ------------------------------------------
 
-  static void connectSigs( EventProcessor* iEP, FwkImpl* iImpl) {
+  static void connectSigs(EventProcessor* iEP, FwkImpl* iImpl) {
      //When the FwkImpl signals are given, pass them to the appropriate EventProcessor
      // signals so that the outside world can see the signal
-     iImpl->preProcessEventSignal.connect( iEP->preProcessEventSignal );
-     iImpl->postProcessEventSignal.connect( iEP->postProcessEventSignal );
+     iImpl->preProcessEventSignal.connect(iEP->preProcessEventSignal);
+     iImpl->postProcessEventSignal.connect(iEP->postProcessEventSignal);
   }
   EventProcessor::EventProcessor(int argc, char* argv[]):
     impl_(new FwkImpl(argc,argv))
   {
-       connectSigs( this, impl_ );
+       connectSigs(this, impl_);
   } 
   
   EventProcessor::EventProcessor(const string& config):
     impl_(new FwkImpl(config))
   {
-       connectSigs( this, impl_ );
+       connectSigs(this, impl_);
   } 
   
   EventProcessor::EventProcessor(int argc, char* argv[], const string& config):
     impl_(new FwkImpl(argc,argv,config))
   {
-       connectSigs( this, impl_ );
+       connectSigs(this, impl_);
   }
 
   EventProcessor::~EventProcessor()
