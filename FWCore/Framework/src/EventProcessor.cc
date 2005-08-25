@@ -150,80 +150,56 @@ namespace edm {
     StrVec fillArgs(int argc, char* argv[]);
     string readFile(const StrVec& args);
     
+    
     boost::signal<void (const Event&, const EventSetup&)> preProcessEventSignal;
     boost::signal<void (const Event&, const EventSetup&)> postProcessEventSignal;
+
+    private:
+       void initialize();
 
   };
 
   // ---------------------------------------------------------------
+  void FwkImpl::initialize()
+  {    
+     ProcessPSetBuilder builder(configstring_);
+     params_ = builder.getProcessPSet();
+     act_table_ = ActionTable(*params_);
+     common_ = 
+        CommonParams((*params_).getParameter<string>("process_name"),
+                     getVersion(), // this is not written for real yet
+                     0); // how is this specifified? Where does it come from?
+     
+     input_= makeInput(*params_, common_, preg_);
+     ScheduleBuilder sbuilder= 
+        ScheduleBuilder(*params_, wreg_, preg_, act_table_);
+     
+     workers_= (sbuilder.getPathList());
+     runner_ = ScheduleExecutor(workers_,act_table_);
+     
+     fillEventSetupProvider(esp_, *params_, common_);
+  }
   
   FwkImpl::FwkImpl(int argc, char* argv[]) :
     args_(fillArgs(argc,argv)),
     configstring_(readFile(args_)),
     emittedBeginJob_(false)
   {
-    
-    ProcessPSetBuilder builder(configstring_);
-    params_ = builder.getProcessPSet();
-    // this organization leads to unnecessary copies being made
-    act_table_ = ActionTable(*params_);
-    common_ = 
-      CommonParams((*params_).getParameter<string>("process_name"),
-		   getVersion(), // this is not written for real yet
-		   0); // how is this specifified? Where does it come from?
- 
-    input_= makeInput(*params_, common_, preg_);
-    ScheduleBuilder sbuilder= 
-      ScheduleBuilder(*params_, wreg_, preg_, act_table_);
-    
-    workers_= (sbuilder.getPathList());
-    runner_ = ScheduleExecutor(workers_, act_table_);
-    
-    fillEventSetupProvider(esp_, *params_, common_);
+    initialize();
   }
   
   FwkImpl::FwkImpl(int argc, char* argv[], const string& config) :
     args_(fillArgs(argc,argv)),
     configstring_(config),
     emittedBeginJob_(false) {
-    ProcessPSetBuilder builder(configstring_);
-    params_ = builder.getProcessPSet();
-    act_table_ = ActionTable(*params_);
-    common_ = 
-      CommonParams((*params_).getParameter<string>("process_name"),
-		   getVersion(), // this is not written for real yet
-		   0); // how is this specifified? Where does it come from?
- 
-    input_= makeInput(*params_, common_, preg_);
-    ScheduleBuilder sbuilder= 
-      ScheduleBuilder(*params_, wreg_, preg_, act_table_);
-    
-    workers_= (sbuilder.getPathList());
-    runner_ = ScheduleExecutor(workers_,act_table_);
-    fillEventSetupProvider(esp_, *params_, common_);
-
+    initialize();
   }
 
   FwkImpl::FwkImpl(const string& config) :
     args_(),
     configstring_(config),
     emittedBeginJob_(false) {
-
-    ProcessPSetBuilder builder(configstring_);
-    params_ = builder.getProcessPSet();
-    act_table_ = ActionTable(*params_);
-    common_ = 
-      CommonParams((*params_).getParameter<string>("process_name"),
-		   getVersion(), // this is not written for real yet
-		   0); // how is this specifified? Where does it come from?
- 
-    input_= makeInput(*params_, common_, preg_);
-    ScheduleBuilder sbuilder= 
-      ScheduleBuilder(*params_, wreg_, preg_, act_table_);
-    
-    workers_= (sbuilder.getPathList());
-    runner_ = ScheduleExecutor(workers_, act_table_);
-    
+    initialize();
     FDEBUG(2) << params_->toString() << std::endl;
   }
 
