@@ -45,3 +45,9 @@ The filtering of products based on type is not yet in place.
 The filtering of products based on provenance or trigger bits is not
 in place.
 
+The streaming output module needs to be converted immediately to use the
+BeginJob member function to do the product registry writing and 
+manupulations.  This is because the fixed IDs for products are not finalized
+until all constructors have run and are likely to be zero before that
+time.
+
