@@ -1,7 +1,15 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+
+#if 1
 #include "IOPool/Streamer/interface/StreamTestThing.h"
+typedef edmtestprod::StreamTestThing WriteThis;
+#else
+#include "FWCore/Integration/interface/IntArray.h"
+typedef edmtestprod::IntArray WriteThis;
+#endif
+
 #include "IOPool/Streamer/test/StreamThingProducer.h"
 
 #include <sstream>
@@ -21,7 +29,7 @@ namespace edmtest_thing
 	ostringstream ost;
 	ost << i;
 	names_.push_back(ost.str());
-	produces<edmtestprod::StreamTestThing>(ost.str());
+	produces<WriteThis>(ost.str());
       }
   }
 
@@ -34,7 +42,7 @@ namespace edmtest_thing
   {
     for(int i=0;i<inst_count_;++i)
       {
-	std::auto_ptr<StreamTestThing> result(new StreamTestThing(size_));
+	std::auto_ptr<WriteThis> result(new WriteThis(size_));
 	e.put(result,names_[i]);
       }
   }

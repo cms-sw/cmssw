@@ -87,7 +87,7 @@ namespace edm
     releaseProducerBuffer(v);
   }
 
-  void EventBuffer::commitConsumerBuffer(void* v, int size)
+  void EventBuffer::commitConsumerBuffer(void* v, int)
   {
     releaseProducerBuffer(v);
   }

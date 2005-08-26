@@ -61,6 +61,10 @@ namespace edm {
       {
 	string name = i->second.fullClassName_;
 	
+    	string fname("LCGDict/");
+    	fname+=name;
+    	seal::PluginCapabilities::get()->load(fname);
+
 	if(cl->loadClass(name)!=pool::DbStatus::SUCCESS)
 	  {
 	    cerr << "EventStreamImpl: "

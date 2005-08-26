@@ -51,3 +51,12 @@ manupulations.  This is because the fixed IDs for products are not finalized
 until all constructors have run and are likely to be zero before that
 time.
 
+26-8-05 jbk:
+
+Now the streaming output module uses beginJob for initialization
+and writing the registry.  This means it requires a FWCore tag > pre8.
+
+A memory leak checker has not been run on this code.  It is important
+to do so because other packages are manipulating blocks of memory used
+by this package.
+

@@ -46,7 +46,7 @@ namespace edmtestp
   // ----------------------------------
 
   TestProducer::TestProducer(edm::ParameterSet const& ps, 
-			     edm::ProductRegistry const& reg,
+			     edm::ProductRegistry const&,
 			     edm::EventBuffer* buf):
     worker_(new Worker(ps.getParameter<string>("fileName"))),
     bufs_(buf)

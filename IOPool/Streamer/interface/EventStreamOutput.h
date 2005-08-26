@@ -46,12 +46,12 @@ namespace edm
     ~EventStreamerImpl();
 
     void serialize(EventPrincipal const& e);
+    void serializeRegistry(ProductRegistry const& reg);
 
     void* registryBuffer() const { return (void*)&prod_reg_buf_[0]; }
     int registryBufferSize() const { return prod_reg_len_; }
 
   private:
-    void serializeRegistry(ProductRegistry const& reg);
 
     EventBuffer* bufs_;
     TClass* tc_; // for SendEvent
@@ -70,7 +70,7 @@ namespace edm
 
     virtual ~EventStreamingModule();
     virtual void write(EventPrincipal const& e);
-
+    virtual void beginJob(EventSetup const&);
   private:
     // bufs_ needs to live until the end of all threads using it (end of job)
     EventBuffer* bufs_;
@@ -97,7 +97,9 @@ namespace edm
     es_(ps,reg,bufs_),
     c_(ps.template getParameter<ParameterSet>("consumer_config"),reg,bufs_)
   {
-    c_.sendRegistry(es_.registryBuffer(),es_.registryBufferSize());
+    // temporary hack
+    //EventSetup* setu=0;
+    //this->beginJob(*setu);
   }
 
   template <class Consumer>
@@ -123,6 +125,17 @@ namespace edm
     es_.serialize(e);
     c_.bufferReady();
   }
+
+  template <class Consumer>
+  void EventStreamingModule<Consumer>::beginJob(EventSetup const&)
+  {
+    //std::cerr << "In beginJob" << std::endl;
+
+    es_.serializeRegistry(*preg_);
+    c_.sendRegistry(es_.registryBuffer(),es_.registryBufferSize());
+
+  }
+
 
 }
 

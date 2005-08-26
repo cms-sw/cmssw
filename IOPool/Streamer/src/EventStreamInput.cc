@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EventStreamInput.cc,v 1.2 2005/08/25 03:31:06 jbk Exp $
+$Id: EventStreamInput.cc,v 1.3 2005/08/25 05:17:22 jbk Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Streamer/interface/EventStreamInput.h"
@@ -23,7 +23,7 @@ using namespace std;
 namespace edm
 {
 
-  EventStreamerInputImpl::EventStreamerInputImpl(ParameterSet const& pset,
+  EventStreamerInputImpl::EventStreamerInputImpl(ParameterSet const&,
 						 InputServiceDescription const& desc,
 						 EventBuffer* bufs) :
     regbuf_(1000*1000),

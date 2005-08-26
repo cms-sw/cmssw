@@ -2,7 +2,14 @@
 #include <iostream>
 
 #include "IOPool/Streamer/test/StreamThingAnalyzer.h"
+
+#if 1
 #include "IOPool/Streamer/interface/StreamTestThing.h"
+typedef edmtestprod::StreamTestThing WriteThis;
+#else
+#include "FWCore/Integration/interface/IntArray.h"
+typedef edmtestprod::IntArray WriteThis;
+#endif
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Handle.h"
@@ -48,7 +55,7 @@ namespace edmtest_thing
 				    edm::EventSetup const&)
   {
     AllSelector all(name_);
-    typedef vector<edm::Handle<StreamTestThing> > ProdList;
+    typedef vector<edm::Handle<WriteThis> > ProdList;
     ProdList prod;
     e.getMany(all, prod);
     ProdList::iterator i(prod.begin()),end(prod.end());

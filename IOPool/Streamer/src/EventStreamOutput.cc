@@ -1,7 +1,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: EventStreamOutput.cc,v 1.1 2005/08/25 02:03:03 jbk Exp $
+// $Id: EventStreamOutput.cc,v 1.2 2005/08/25 03:31:06 jbk Exp $
 //
 // Class EventStreamOutput module
 //
@@ -34,7 +34,7 @@ using namespace std;
 
 namespace edm
 {
-  static void test_read(void* buf, int len, TClass* send_event_)
+  void event_stream_output_test_read(void* buf, int len, TClass* send_event_)
   {
     //gDebug=10;
     TBuffer rootbuf(TBuffer::kRead,len,buf,kFALSE);
@@ -71,7 +71,7 @@ namespace edm
 
   // -------------------------------------
 
-  EventStreamerImpl::EventStreamerImpl(ParameterSet const& ps,
+  EventStreamerImpl::EventStreamerImpl(ParameterSet const&,
 				       ProductRegistry const& reg,
 				       EventBuffer* bufs):
     bufs_(bufs),
@@ -82,7 +82,7 @@ namespace edm
     fillStreamers(reg);
     loadExtraClasses();
     tc_ = getTClass(typeid(SendEvent));
-    serializeRegistry(reg);
+    // serializeRegistry(reg); // now called directed from beginJob()
   }
 
   EventStreamerImpl::~EventStreamerImpl()
