@@ -19,11 +19,11 @@ namespace hcaltb {
     s4hits_() {
   }
 
-  void HcalTBTiming::setTimes (double trigger_time,
-			       double ttc_l1a_time,
-			       double beam_coincidence,
-			       double laser_flash,
-			       double qie_phase) {
+  void HcalTBTiming::setTimes (const double trigger_time,
+			       const double ttc_l1a_time,
+			       const double beam_coincidence,
+			       const double laser_flash,
+			       const double qie_phase) {
     triggerTime_     = trigger_time;
     ttcL1Atime_      = ttc_l1a_time;
     beamCoincidence_ = beam_coincidence;
@@ -31,13 +31,13 @@ namespace hcaltb {
     qiePhase_        = qie_phase;
   }
 
-  void HcalTBTiming::setHits  (std::vector<double> m1hits,
-			       std::vector<double> m2hits,
-			       std::vector<double> m3hits,
-			       std::vector<double> s1hits,
-			       std::vector<double> s2hits,
-			       std::vector<double> s3hits,
-			       std::vector<double> s4hits) {
+  void HcalTBTiming::setHits  (const std::vector<double>& m1hits,
+			       const std::vector<double>& m2hits,
+			       const std::vector<double>& m3hits,
+			       const std::vector<double>& s1hits,
+			       const std::vector<double>& s2hits,
+			       const std::vector<double>& s3hits,
+			       const std::vector<double>& s4hits) {
     m1hits_ = m1hits;
     m2hits_ = m2hits;
     m3hits_ = m3hits;
@@ -49,7 +49,6 @@ namespace hcaltb {
   }
 
   ostream& operator<<(ostream& s, const HcalTBTiming& htbtmg) {
-    char str[80];
 
     s << "Trigger time     = " << htbtmg.triggerTime() << endl;
     s << "TTC L1A time     = " << htbtmg.ttcL1Atime() << endl;

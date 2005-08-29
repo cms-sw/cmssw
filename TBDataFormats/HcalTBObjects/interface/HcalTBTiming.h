@@ -9,8 +9,8 @@
 namespace hcaltb {
   /** \class HcalTBTiming
       
-  $Date: $
-  $Revision: $
+  $Date: 2005/08/23 01:07:18 $
+  $Revision: 1.1 $
   \author P. Dudero - Minnesota
   */
   class HcalTBTiming {
@@ -43,19 +43,19 @@ namespace hcaltb {
     double S4Hits(int index) const { return s4hits_[index];   }
 
     // Setter methods
-    void   setTimes (double trigger_time,
-		     double ttc_l1a_time,
-		     double beam_coincidence,
-		     double laser_flash,
-		     double qie_phase);
+    void   setTimes (const double trigger_time,
+		     const double ttc_l1a_time,
+		     const double beam_coincidence,
+		     const double laser_flash,
+		     const double qie_phase);
 
-    void   setHits  (std::vector<double> m1hits,
-		     std::vector<double> m2hits,
-		     std::vector<double> m3hits,
-		     std::vector<double> s1hits,
-		     std::vector<double> s2hits,
-		     std::vector<double> s3hits,
-		     std::vector<double> s4hits);
+    void   setHits  (const std::vector<double>& m1hits,
+		     const std::vector<double>& m2hits,
+		     const std::vector<double>& m3hits,
+		     const std::vector<double>& s1hits,
+		     const std::vector<double>& s2hits,
+		     const std::vector<double>& s3hits,
+		     const std::vector<double>& s4hits);
 
   private:
     double triggerTime_;
