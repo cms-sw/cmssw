@@ -7,7 +7,6 @@
 #include <iostream>
 
 //#define DEBUG
-//#define G4v7
 
 G4ProcessTypeEnumerator::G4ProcessTypeEnumerator(){
   mapProcesses["Undefined"] = "Undefined";
@@ -51,19 +50,11 @@ G4ProcessTypeEnumerator::G4ProcessTypeEnumerator(){
   mapProcesses["eIoni"] = "EIoni";
   mapProcesses["hIoni"] = "HIoni";
   mapProcesses["ionIoni"] = "HIoni";
-#ifdef G4v7
   mapProcesses["muIoni"] = "MuIoni";
-#else
-  mapProcesses["MuIoni"] = "MuIoni";
-#endif
   // Annihilation
   mapProcesses["annihil"] = "Annihilation";
   // MuBrem
-#ifdef G4v7
   mapProcesses["muBrems"] = "MuBrem";
-#else
-  mapProcesses["MuBrems"] = "MuBrem";
-#endif
   // MuNucl
   mapProcesses["MuonMinusCaptureAtRest"] = "MuNucl";
   mapProcesses["MuonPlusCaptureAtRest"] = "MuNucl";
@@ -74,11 +65,7 @@ G4ProcessTypeEnumerator::G4ProcessTypeEnumerator(){
   // Decay
   mapProcesses["Decay"] = "Decay";
   // PairProd
-#ifdef G4v7
   mapProcesses["muPairProd"] = "MuPairProd";
-#else
-  mapProcesses["MuPairProd"] = "MuPairProd";
-#endif
   // Photon
   mapProcesses["phot"] = "Photon";
   // Sync
