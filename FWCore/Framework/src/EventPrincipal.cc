@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EventPrincipal.cc,v 1.19 2005/08/01 19:25:53 wmtan Exp $
+$Id: EventPrincipal.cc,v 1.20 2005/08/10 02:21:48 chrjones Exp $
 ----------------------------------------------------------------------*/
 //#include <iostream>
 #include <memory>
@@ -295,14 +295,76 @@ namespace edm {
 	  << id;
     }
 
-    vector<int>::const_iterator ib(vint.begin()),ie(vint.end());
-    while(ib!=ie) {
+    vector<int>::const_iterator ib(vint.begin()), ie(vint.end());
+    while(ib != ie) {
 	SharedGroupPtr const& g = groups_[*ib];
 	if(sel.match(g->provenance())) {
 	    this->resolve_(*g);
 	    results.push_back(BasicHandle(g->product(), &g->provenance()));
 	}
 	++ib;
+    }
+  }
+
+  BasicHandle
+  EventPrincipal::getByType(TypeID id) const {
+
+    TypeDict::const_iterator i = typeDict_.find(id.friendlyClassName());
+
+    if(i==typeDict_.end()) {
+      throw edm::Exception(errors::ProductNotFound,"NoMatch")
+        << "getByType: no product found of correct type\n" << id;
+    }
+
+    vector<int> const& vint = i->second;
+
+    if(vint.empty()) {
+      // should never happen!!
+      throw edm::Exception(edm::errors::ProductNotFound,"EmptyList")
+        <<  "getByType: no product found for\n"
+        << id;
+    }
+
+    if(vint.size() > 1) {
+      throw edm::Exception(edm::errors::ProductNotFound, "TooManyMatches")
+        << "getByType: too many products found, "
+        << "expected one, got " << vint.size() << ", for\n"
+        << id;
+    }
+
+    SharedGroupPtr const& g = groups_[vint[0]];
+    this->resolve_(*g);
+    return BasicHandle(g->product(), &g->provenance());
+  }
+
+  void 
+  EventPrincipal::getManyByType(TypeID id, 
+			  BasicHandleVec& results) const {
+    // We make no promise that the input 'fill_me_up' is unchanged if
+    // an exception is thrown. If such a promise is needed, then more
+    // care needs to be taken.
+    TypeDict::const_iterator i = typeDict_.find(id.friendlyClassName());
+
+    if(i==typeDict_.end()) {
+      throw edm::Exception(errors::ProductNotFound,"NoMatch")
+        << "getManyByType: no products found of correct type\n" << id;
+    }
+
+    vector<int> const& vint = i->second;
+
+    if(vint.empty()) {
+      // should never happen!!
+      throw edm::Exception(edm::errors::ProductNotFound,"EmptyList")
+        <<  "getManyByType: no products found for\n"
+        << id;
+    }
+
+    vector<int>::const_iterator ib(vint.begin()), ie(vint.end());
+    while(ib != ie) {
+      SharedGroupPtr const& g = groups_[*ib];
+      this->resolve_(*g);
+      results.push_back(BasicHandle(g->product(), &g->provenance()));
+      ++ib;
     }
   }
 

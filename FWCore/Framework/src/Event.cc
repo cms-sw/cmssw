@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: Event.cc,v 1.14 2005/08/03 05:31:53 wmtan Exp $
+$Id: Event.cc,v 1.15 2005/08/10 02:22:01 chrjones Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -29,35 +29,6 @@ namespace edm {
     // anything left here must be the result of a failure
     // let's record them as failed attempts in the event principal
     std::for_each(put_products_.begin(),put_products_.end(),deleter());
-
-#if 0
-    // this is not good enough (the code below) - it only covered part of the 
-    // problem.  We must know how many thing were to be produced,
-    // and there TypeID, so that we can leave around a bit of
-    // provenance indicating bad status (and isacessibility)
-
-    ProductVec::iterator i(put_products_.begin()),e(put_products_.end());
-
-    while(i!=e)
-    {
-      auto_ptr<EDProduct> pr(*pit);
-      // note: ownership has been past - so clear the pointer!
-      *pit = 0;
-      auto_ptr<Provenance> pv(new Provenance(md_));
-      
-      // set parts of provenance
-      pv->cid = 0; // what is this supposed to be?
-      // what is this supposed to be? this is a disgusting string.
-      pv->fullClassName_ = TypeID(*pr).userClassName();
-      pv->friendlyClassName_ = TypeID(*pr).friendlyClassName();
-      pv->status = Provenance::Success;
-      pv->parents = idlist;
-
-	ep_.put(pr,pv);
-      
-      ++i;
-    }
-#endif
   }
 
   EventID
@@ -129,6 +100,19 @@ namespace edm {
 		  BasicHandleVec& results) const
   {
     ep_.getMany(id, sel, results);
+  }
+
+  BasicHandle
+  Event::getByType_(TypeID id) const
+  {
+    return ep_.getByType(id);
+  }
+
+  void 
+  Event::getManyByType_(TypeID id, 
+		  BasicHandleVec& results) const
+  {
+    ep_.getManyByType(id, results);
   }
 
 }

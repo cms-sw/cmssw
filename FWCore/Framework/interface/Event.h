@@ -6,7 +6,7 @@
 Event: This is the primary interface for accessing
 EDProducts from a single collision and inserting new derived products.
 
-$Id: Event.h,v 1.13 2005/07/30 23:44:24 wmtan Exp $
+$Id: Event.h,v 1.14 2005/08/10 02:19:52 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
@@ -69,7 +69,15 @@ namespace edm {
     void 
     getMany(const Selector&, std::vector<Handle<PROD> >& results) const;
 
-    const Provenance* get(ProductID id) const;
+    template <class PROD>
+    void
+    getByType(Handle<PROD>& result) const;
+
+    template <class PROD>
+    void 
+    getManyByType(const Selector&, std::vector<Handle<PROD> >& results) const;
+
+    // const Provenance* get(ProductID id) const;
 
   private:
     typedef std::vector<ProductID>       ProductIDVec;
@@ -104,6 +112,13 @@ namespace edm {
     void 
     getMany_(TypeID id, 
 	     const Selector& sel, 
+	     BasicHandleVec& results) const;
+
+    BasicHandle 
+    getByType_(TypeID id) const;
+
+    void 
+    getManyByType_(TypeID id, 
 	     BasicHandleVec& results) const;
 
     //------------------------------------------------------------
@@ -187,7 +202,7 @@ namespace edm {
   {
     BasicHandle bh = this->get_(TypeID(typeid(PROD)), id);
     gotProductIDs_.push_back(bh.id());
-    convert_handle(bh, result);  // thrown on conversion error
+    convert_handle(bh, result);  // throws on conversion error
   }
 
   template <class PROD>
@@ -197,7 +212,7 @@ namespace edm {
   {
     BasicHandle bh = this->get_(TypeID(typeid(PROD)),sel);
     gotProductIDs_.push_back(bh.id());
-    convert_handle(bh, result);  // thrown on conversion error
+    convert_handle(bh, result);  // throws on conversion error
   }
   
   template <class PROD>
@@ -217,7 +232,7 @@ namespace edm {
   {
     BasicHandle bh = this->getByLabel_(TypeID(typeid(PROD)), label, productInstanceName);
     gotProductIDs_.push_back(bh.id());
-    convert_handle(bh, result);  // thrown on conversion error
+    convert_handle(bh, result);  // throws on conversion error
   }
 
   template <class PROD>
@@ -246,15 +261,60 @@ namespace edm {
     BasicHandleVec::const_iterator it = bhv.begin();
     BasicHandleVec::const_iterator end = bhv.end();
 
-    while (it != end)
-      {
+    while (it != end) {
 	gotProductIDs_.push_back((*it).id());
 	Handle<PROD> result;
-	convert_handle(*it, result);  // thrown on conversion error
+	convert_handle(*it, result);  // throws on conversion error
 	products.push_back(result);
 	++it;
-      }
+    }
     results.swap(products);
   }
+
+  template <class PROD>
+  void
+  Event::getByType(Handle<PROD>& result) const
+  {
+    BasicHandle bh = this->getByType_(TypeID(typeid(PROD)));
+    gotProductIDs_.push_back(bh.id());
+    convert_handle(bh, result);  // throws on conversion error
+  }
+
+  template <class PROD>
+  void 
+  Event::getManyByType(const Selector& sel,
+		 std::vector<Handle<PROD> >& results) const
+  { 
+    BasicHandleVec bhv;
+    this->getManyByType_(TypeID(typeid(PROD)), bhv);
+    
+    // Go through the returned handles; for each element,
+    //   1. create a Handle<PROD> and
+    //   2. record the ProductID in gotProductIDs
+    //
+    // This function presents an exception safety difficulty. If an
+    // exception is thrown when converting a handle, the "got
+    // products" record will be wrong.
+    //
+    // Since EDProducers are not allowed to use this function,
+    // the problem does not seem too severe.
+    //
+    // Question: do we even need to keep track of the "got products"
+    // for this function, since it is *not* to be used by EDProducers?
+    std::vector<Handle<PROD> > products;
+
+    BasicHandleVec::const_iterator it = bhv.begin();
+    BasicHandleVec::const_iterator end = bhv.end();
+
+    while (it != end) {
+	gotProductIDs_.push_back((*it).id());
+	Handle<PROD> result;
+	convert_handle(*it, result);  // throws on conversion error
+	products.push_back(result);
+	++it;
+    }
+    results.swap(products);
+  }
+
 }
 #endif

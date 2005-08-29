@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id: eventprincipal_t.cppunit.cc,v 1.8 2005/08/10 02:33:06 chrjones Exp $
+$Id: eventprincipal_t.cppunit.cc,v 1.9 2005/08/25 23:14:58 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <cassert>
@@ -35,10 +35,13 @@ CPPUNIT_TEST(failgetbyIdTest);
 CPPUNIT_TEST(failgetbySelectorTest);
 CPPUNIT_TEST(failgetbyLabelTest);
 CPPUNIT_TEST(failgetManyTest);
+CPPUNIT_TEST(failgetbyTypeTest);
+CPPUNIT_TEST(failgetManybyTypeTest);
 CPPUNIT_TEST(failgetbyInvalidIdTest);
 CPPUNIT_TEST(getbyIdTest);
 CPPUNIT_TEST(getbySelectorTest);
 CPPUNIT_TEST(getbyLabelTest);
+CPPUNIT_TEST(getbyTypeTest);
 CPPUNIT_TEST_SUITE_END();
 public:
   void setUp(){}
@@ -47,10 +50,13 @@ public:
   void failgetbySelectorTest();
   void failgetbyLabelTest();
   void failgetManyTest();
+  void failgetbyTypeTest();
+  void failgetManybyTypeTest();
   void failgetbyInvalidIdTest();
   void getbyIdTest();
   void getbySelectorTest();
   void getbyLabelTest();
+  void getbyTypeTest();
 };
 
 ///registration of the test so that the runner can find it
@@ -128,6 +134,48 @@ void testeventprincipal::failgetManyTest()
       edm::ProcessNameSelector sel("PROD");
       std::vector<handle> handles;
       ep.getMany(tid, sel, handles);
+      assert("Failed to throw required exception" == 0);      
+    }
+  catch (edm::Exception& x)
+    {
+      // nothing to do
+    }
+  catch (...)
+    {
+      assert("Threw wrong kind of exception" == 0);
+    }
+
+}
+
+void testeventprincipal::failgetbyTypeTest()
+{
+  edm::EventPrincipal ep;
+  ep.addToProcessHistory("PROD");
+  try
+    {
+      edm::TypeID tid(ep);   // sure not to match any product
+      handle h = ep.getByType(tid);
+      assert("Failed to throw required exception" == 0);      
+    }
+  catch (edm::Exception& x)
+    {
+      // nothing to do
+    }
+  catch (...)
+    {
+      assert("Threw wrong kind of exception" == 0);
+    }
+}
+
+void testeventprincipal::failgetManybyTypeTest()
+{
+  edm::EventPrincipal ep;
+  ep.addToProcessHistory("PROD");
+  try
+    {
+      edm::TypeID tid(ep);   // sure not to match any product
+      std::vector<handle> handles;
+      ep.getManyByType(tid, handles);
       assert("Failed to throw required exception" == 0);      
     }
   catch (edm::Exception& x)
@@ -295,8 +343,6 @@ void testeventprincipal::getbyLabelTest()
     }
 }
 
-
-
 void testeventprincipal::getbySelectorTest()
 {
   std::string processName("PROD");
@@ -350,3 +396,61 @@ void testeventprincipal::getbySelectorTest()
       assert("Threw exception unexpectedly" == 0);
     }
 }
+
+void testeventprincipal::getbyTypeTest()
+{
+  std::string processName = "PROD";
+
+  typedef edmtest::DummyProduct DP;
+  typedef edm::Wrapper<DP> WDP;
+  DP * pr = new DP;
+  std::auto_ptr<edm::EDProduct> pprod(new WDP(*pr));
+  std::auto_ptr<edm::Provenance> pprov(new edm::Provenance);
+  std::string label("fred");
+  std::string productInstanceName("Rick");
+
+  edmtest::DummyProduct dp;
+  edm::TypeID dummytype(dp);
+  std::string className = dummytype.friendlyClassName();
+
+  pprov->product.fullClassName_ = dummytype.userClassName();
+  pprov->product.friendlyClassName_ = className;
+
+
+  pprov->product.module.moduleLabel_ = label;
+  pprov->product.productInstanceName_ = productInstanceName;
+  pprov->product.module.processName_ = processName;
+  pprov->product.init();
+
+  edm::ProductRegistry preg;
+  preg.addProduct(pprov->product);
+  preg.setProductIDs();
+  edm::EventID col(1L);
+  edm::FakeRetriever fake;
+  edm::EventPrincipal ep(col, fake, preg);
+  ep.addToProcessHistory("PROD");
+
+  ep.put(pprod, pprov);
+  
+  try
+    {
+      edmtest::DummyProduct example;
+      edm::TypeID tid(example);
+
+      handle h = ep.getByType(tid);
+      assert(h.isValid());
+      assert(h.provenance()->product.module.moduleLabel_ == label);
+    }
+  catch (edm::Exception& x)
+    {
+      std::cerr << x.what()<< std::endl;
+      assert("Threw exception unexpectedly" == 0);
+    }
+  catch (...)
+    {
+      std::cerr << "Unknown exception type\n";
+      assert("Threw exception unexpectedly" == 0);
+    }
+}
+
+
