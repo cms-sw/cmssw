@@ -1,0 +1,20 @@
+<flags SEAL_PLUGIN_NAME="RecoTBCaloHcalTBObjectUnpacker">
+<use name=TBDataFormats/HcalTBObjects>
+<use name=DataFormats/FEDRawData>
+<use name=FWCore/Framework>
+<use name=FWCore/EDProduct>
+<use name=boost>
+<use name=Dictionary/Reflection>
+<use name=Framework/SealKernel>
+
+<export>
+  <lib name=RecoTBCaloHcalTBObjectUnpacker>
+  <use name=TBDataFormats/HcalTBObjects>
+  <use name=DataFormats/FEDRawData>
+  <use name=FWCore/Framework>
+  <use name=FWCore/EDProduct>
+  <use name=boost>
+  <use name=Dictionary/Reflection>
+  <use name=Framework/SealKernel>
+</export>
+
