@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jul 23 14:57:44 EDT 2005
-// $Id$
+// $Id: PoolDBESSource.cc,v 1.1 2005/08/29 08:57:59 xiezhen Exp $
 //
 //
 
@@ -122,20 +122,21 @@ void PoolDBESSource::initPool(){
     pool::DatabaseConnectionPolicy policy;
     policy.setWriteModeForNonExisting(pool::DatabaseConnectionPolicy::CREATE);
     m_svc->session().setDefaultConnectionPolicy(policy);
-    //m_svc->transaction().start(pool::ITransaction::READ);
+    m_svc->transaction().start(pool::ITransaction::READ);
   }catch(seal::Exception& e){
-    std::cout << e.what() << std::endl;
+    std::cerr << e.what() << std::endl;
   } catch ( std::exception& e ) {
-    std::cout << e.what() << std::endl;
+    std::cerr << e.what() << std::endl;
   } catch ( ... ) {
-    std::cout << "Funny error" << std::endl;
+    std::cerr << "Funny error" << std::endl;
   }
 }
 
 void PoolDBESSource::closePool(){
+  m_svc->transaction().commit();
+  m_svc->session().disconnectAll();
   m_cat->commit();
   m_cat->disconnect();
-  m_svc->session().disconnectAll();
   if(m_svc) delete m_svc;
 }
 
@@ -154,9 +155,8 @@ bool PoolDBESSource::initIOV(){
     std::cerr<<e.what()<<std::endl;
     return false;
   }
-  m_svc->transaction().start(pool::ITransaction::READ);
   pool::Ref<cond::IOV> iov(m_svc, iovToken);
-  m_svc->transaction().commit();
+  std::pair<int,std::string> iovpair=*iov->iov.lower_bound(7);
   m_iov=iov;
   return true;
 }
@@ -169,7 +169,6 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   m_tag(iConfig.getParameter<std::string>("tag") ),
   m_timetype(iConfig.getParameter<std::string>("timetype") )
 {
-  std::cout<<"PoolDBESSource::PoolDBESSource"<<std::endl;
   using namespace std;
   using namespace edm;
   using namespace edm::eventsetup;
@@ -180,10 +179,12 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
     for(RecordToTypes::iterator itRec = m_recordToTypes.begin();itRec != m_recordToTypes.end();	++itRec ) {
       m_proxyToToken.insert( make_pair(buildName(itRec->first, itRec->second ),"") );//fill in dummy tokens now, change in setIntervalFor
       pProxyToToken pos=m_proxyToToken.find(buildName(itRec->first, itRec->second));
+      //m_svc->transaction().start(pool::ITransaction::READ);
       boost::shared_ptr<DataProxy> proxy(cond::ProxyFactory::get()->create( buildName(itRec->first, itRec->second),m_svc,pos));
+      //m_svc->transaction().commit();
     }
   }else{
-    std::cout<<"what else?"<<std::endl;
+    std::cerr<<"what else?"<<std::endl;
     throw cms::Exception("Unsupported operation.");
   }
   
@@ -223,7 +224,7 @@ PoolDBESSource::~PoolDBESSource()
 //
 void 
 PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey, const edm::IOVSyncValue& iTime, edm::ValidityInterval& oInterval ) {
-  std::cout<<" PoolDBESSource::setIntervalFor"<<std::endl;
+  //std::cout<<" PoolDBESSource::setIntervalFor"<<std::endl;
   RecordToTypes::iterator itRec= m_recordToTypes.find( iKey.name() );
   if( itRec == m_recordToTypes.end() ) {
     //no valid record
@@ -245,6 +246,7 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
       starttime = (*iStart).first+edm::IOVSyncValue::beginOfTime().eventID().run();
     }
     payloadToken = (*iEnd).second;
+    //std::cout<<"payloadToken "<<payloadToken<<std::endl;
     edm::IOVSyncValue start( edm::EventID(starttime,0) );
     edm::IOVSyncValue stop ( edm::EventID((*iEnd).first+edm::IOVSyncValue::beginOfTime().eventID().run(),0) );
     oInterval = edm::ValidityInterval( start, stop );
@@ -269,7 +271,9 @@ PoolDBESSource::registerProxies(const edm::eventsetup::EventSetupRecordKey& iRec
      //std::cout<<"default type "<<std::string(defaultType.name())<<std::endl;
      if( type != defaultType ) {
        pProxyToToken pos=m_proxyToToken.find(buildName(iRecordKey.name(), type.name()));
+       //m_svc->transaction().start(pool::ITransaction::READ);
        boost::shared_ptr<DataProxy> proxy(cond::ProxyFactory::get()->create( buildName(iRecordKey.name(), type.name() ), m_svc, pos));
+       //m_svc->transaction().commit();
        cout <<string("   ") + type.name() ;
        if(0 != proxy.get()) {
 	 eventsetup::DataKey key( type, "");
