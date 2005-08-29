@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jul 23 14:57:44 EDT 2005
-// $Id: PoolDBESSource.cc,v 1.1 2005/08/29 08:57:59 xiezhen Exp $
+// $Id: PoolDBESSource.cc,v 1.2 2005/08/29 17:36:33 xiezhen Exp $
 //
 //
 
@@ -174,7 +174,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   using namespace edm::eventsetup;
   if( iConfig.getParameter<bool>("loadAll") ) {
     m_recordToTypes.insert(make_pair(string("EcalPedestalsRcd"), string("EcalPedestals"))) ;
-    m_recordToTypes.insert(make_pair(string("HcalPedestalsRcd"), string("HcalPedestals"))) ;
+    //m_recordToTypes.insert(make_pair(string("HcalPedestalsRcd"), string("HcalPedestals"))) ;
     //by forcing this to load, we also load the definition of the Records which //will allow EventSetupRecordKey::TypeTag::findType(...) method to find them
     for(RecordToTypes::iterator itRec = m_recordToTypes.begin();itRec != m_recordToTypes.end();	++itRec ) {
       m_proxyToToken.insert( make_pair(buildName(itRec->first, itRec->second ),"") );//fill in dummy tokens now, change in setIntervalFor
