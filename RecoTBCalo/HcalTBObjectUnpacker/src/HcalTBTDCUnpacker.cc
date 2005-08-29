@@ -1,4 +1,4 @@
-#include "RecoCalorimetry/HcalTBObjectUnpacker/interface/HcalTBTDCUnpacker.h"
+#include "RecoTBCalo/HcalTBObjectUnpacker/interface/HcalTBTDCUnpacker.h"
 
 // Timing channels
 static const int lcTriggerTime     = 1;
