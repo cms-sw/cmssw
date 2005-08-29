@@ -1,0 +1,8 @@
+<lcgdict>
+ <class name="EcalPedestals" id="2F16F0A9-79D5-4881-CE0B-C271DD84A7F1"/>
+ <class name="EcalPedestals::Item"/>
+ <class name="std::pair<const int, EcalPedestals::Item>"/>
+ <class name="std::pair<int, EcalPedestals::Item>"/>
+ <class pattern="*map*"/>
+ <class pattern="*iterator*"/>
+</lcgdict>   
