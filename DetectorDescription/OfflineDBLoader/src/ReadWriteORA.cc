@@ -158,6 +158,7 @@ bool ReadWriteORA::writeDB ( ) {
     for (; git != gend; ++git) 
       {
 	const DDLogicalPart & ddLP = gra.nodeData(git);
+	//	cout << ddLP << endl;
 	plp = DDDToPersFactory::logicalPart ( ddLP  );
 	pgeom->pLogicalParts.push_back( *plp );
 	delete plp;
