@@ -13,7 +13,7 @@ namespace edmtest {
   HierarchicalEDProducer::~HierarchicalEDProducer() {}  
 
   // Functions that gets called by framework every event
-  void HierarchicalEDProducer::produce(edm::Event& e, edm::EventSetup const&) {
+  void HierarchicalEDProducer::produce(edm::Event&, edm::EventSetup const&) {
     // nothing to do ... is just a dummy!
   }
 }

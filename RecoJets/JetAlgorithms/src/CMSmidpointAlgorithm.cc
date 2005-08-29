@@ -95,7 +95,7 @@ void CMSmidpointAlgorithm::findStableConesFromSeeds(CaloTowerHelper& theHelper,
 // Iterate the proto-jet center until it is stable
 // -----------------------------------------------
  void CMSmidpointAlgorithm::iterateCone(CaloTowerHelper& theHelper,
-					const CaloTowerCollection* theCtcp,
+					const CaloTowerCollection* /* theCtcp */,
 					double startRapidity, double startPhi, 
 					double startE, bool reduceConeSize, vector<ProtoJet> & stableCones){
 //  The workhorse of the algorithm.
@@ -260,8 +260,8 @@ void CMSmidpointAlgorithm::addClustersToPairs(CaloTowerHelper& theHelper,
 
 // Split and merge the proto-jets, assigning each tower in the protojets to one and only one final jet.
 // ----------------------------------------------------------------------------------------------------
-void CMSmidpointAlgorithm::splitAndMerge(CaloTowerHelper& theHelper,
-					 const CaloTowerCollection* theCtcp,
+void CMSmidpointAlgorithm::splitAndMerge(CaloTowerHelper& /* theHelper */,
+					 const CaloTowerCollection* /* theCtcp */,
 					 vector<ProtoJet>& stableCones, vector<ProtoJet>& finalJets)
 {
 //
