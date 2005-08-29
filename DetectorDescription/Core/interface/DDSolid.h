@@ -152,7 +152,7 @@ public:
    double x2() const;
    //! half length along y on -z
    double y1() const;
-   //! half length along x on +z
+   //! half length along y on +z
    double y2() const;   
    //! radius of the cut-out (neg.) or rounding (pos.)
    double radius() const;
