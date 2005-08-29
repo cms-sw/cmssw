@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jul 23 19:40:27 EDT 2005
-// $Id$
+// $Id: DataProxy.h,v 1.1 2005/08/29 08:52:52 xiezhen Exp $
 //
 
 // system include files
@@ -25,6 +25,7 @@
 // user include files
 #include "FWCore/Framework/interface/DataProxyTemplate.h"
 #include "DataSvc/Ref.h"
+#include "DataSvc/RefException.h"
 // forward declarations
 
 namespace pool{
@@ -50,15 +51,17 @@ namespace cond{
     
   protected:
     virtual const DataT* make(const RecordT&, const edm::eventsetup::DataKey&) {
-      std::cout<<"DataProxy::make"<<std::endl;
-      std::cout<<"my token is "<<m_pProxyToToken->second<<std::endl;
-      pool::Ref<DataT> mydata(m_svc,m_pProxyToToken->second);
-      std::cout<<"hello" <<std::endl;
-      return &(*mydata);
+      m_data=*(new pool::Ref<DataT>(m_svc,m_pProxyToToken->second));
+      try{
+	*m_data;
+      }catch( const pool::RefException& er){
+	std::cerr<<"caught RefException "<<er.what()<<std::endl;
+      }
+      return &(*m_data);
     }
     
     virtual void invalidateCache() {
-      std::cout<<"DataProxy::invalidateCache, do nothing"<<std::endl;
+      m_data.clear();
     }
   private:
     //DataProxy(); // stop default
@@ -66,6 +69,7 @@ namespace cond{
     // ---------- member data --------------------------------
     pool::IDataSvc* m_svc;
     std::map<std::string,std::string>::iterator m_pProxyToToken;
+    pool::Ref<DataT> m_data;
   };
 }
 
