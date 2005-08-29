@@ -1,10 +1,5 @@
 /*
- *  makepset_t.cc
- *
- *  Created by Chris Jones on 5/18/05.
- *  Changed by Viji Sundararajan on 11-Jul-05.
- *
- * $Id: makepset_t.cppunit.cc,v 1.3 2005/07/27 22:28:57 paterno Exp $
+ * $Id: ps_t.cppunit.cc,v 1.1 2005/08/19 13:39:04 paterno Exp $
  */
 
 #include <iostream>
@@ -20,6 +15,7 @@ class testps: public CppUnit::TestFixture
 {
   //CPPUNIT_TEST_EXCEPTION(emptyTest,edm::Exception);
   CPPUNIT_TEST_SUITE(testps);
+  CPPUNIT_TEST(untrackedTest);
   CPPUNIT_TEST(emptyTest);
   CPPUNIT_TEST(boolTest);
   CPPUNIT_TEST(intTest);
@@ -36,6 +32,7 @@ public:
   void setUp(){}
   void tearDown(){}
 
+  void untrackedTest();
   void emptyTest();
   void boolTest();
   void intTest();
@@ -91,6 +88,28 @@ void testbody(T value)
       std::cerr << "Unrecognized exception type thrown\n"
 		<< "no details available\n";
       throw;	
+    }
+}
+
+void testps::untrackedTest()
+{
+  edm::ParameterSet p1;
+  p1.addUntrackedParameter<bool>("x", false);
+  CPPUNIT_ASSERT ( p1.getUntrackedParameter<bool>("x") == false );
+  try
+    {
+      // The next line should throw edm::Exception
+      p1.getUntrackedParameter<bool>("does not exist");
+      CPPUNIT_ASSERT ( "failed to throw a required exception" );
+    }
+  catch (cms::Exception& x)
+    {
+      // OK, this is expected
+    }
+  catch ( ... )
+    {
+      // Failure!
+      CPPUNIT_ASSERT( "threw the wrong kind of exception" );
     }
 }
 

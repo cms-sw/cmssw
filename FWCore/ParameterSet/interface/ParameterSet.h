@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.h,v 1.6 2005/06/23 19:57:22 wmtan Exp $
+// $Id: ParameterSet.h,v 1.7 2005/08/19 13:39:04 paterno Exp $
 //
 // Declaration for ParameterSet(parameter set) and related types
 // ----------------------------------------------------------------------
@@ -65,6 +65,18 @@ namespace edm {
     T
     getUntrackedParameter(std::string const&, T const&) const;
 
+    template< class T >
+    T
+    getUntrackedParameter(std::string const&) const;
+
+    template< class T >
+    void
+    addUntrackedParameter(std::string const& name, T value)
+    {
+      // No need to invalidate: this is modifying an untracked parameter!
+      insert(true, name, Entry(value, true));
+    }
+
 private:
     typedef std::map<std::string, Entry> table;
     table tbl_;
@@ -85,6 +97,11 @@ private:
 
     // decode
     bool fromString(std::string const&);
+
+    // get the untracked Entry object, throwing an exception if it is
+    // not found.
+    Entry const* getEntryPointerOrThrow_(std::string const& name) const;
+
 
   };  // ParameterSet
 
@@ -210,6 +227,14 @@ private:
     Entry const* entryPtr = retrieveUntracked(name);
     return entryPtr == 0 ? defaultValue : entryPtr->getBool();
   }
+
+  template<>
+  inline
+  bool
+  ParameterSet::getUntrackedParameter<bool>(std::string const& name) const {
+    return getEntryPointerOrThrow_(name)->getBool();
+  }
+  
   
   // ----------------------------------------------------------------------
   // Int32, vInt32
@@ -221,13 +246,27 @@ private:
     Entry const* entryPtr = retrieveUntracked(name);
     return entryPtr == 0 ? defaultValue : entryPtr->getInt32();
   }
-  
+
+  template<>
+  inline
+  int
+  ParameterSet::getUntrackedParameter<int>(std::string const& name) const {
+    return getEntryPointerOrThrow_(name)->getInt32();
+  }
+
   template<>
   inline 
   std::vector<int>
   ParameterSet::getUntrackedParameter<std::vector<int> >(std::string const& name, std::vector<int> const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
     return entryPtr == 0 ? defaultValue : entryPtr->getVInt32();
+  }
+
+  template<>
+  inline
+  std::vector<int>
+  ParameterSet::getUntrackedParameter<std::vector<int> >(std::string const& name) const {
+    return getEntryPointerOrThrow_(name)->getVInt32();
   }
   
   // ----------------------------------------------------------------------
@@ -240,6 +279,13 @@ private:
     Entry const* entryPtr = retrieveUntracked(name);
     return entryPtr == 0 ? defaultValue : entryPtr->getUInt32();
   }
+
+  template<>
+  inline
+  unsigned int
+  ParameterSet::getUntrackedParameter<unsigned int>(std::string const& name) const {
+    return getEntryPointerOrThrow_(name)->getUInt32();
+  }
   
   template<>
   inline 
@@ -248,6 +294,14 @@ private:
     Entry const* entryPtr = retrieveUntracked(name);
     return entryPtr == 0 ? defaultValue : entryPtr->getVUInt32();
   }
+
+  template<>
+  inline
+  std::vector<unsigned int>
+  ParameterSet::getUntrackedParameter<std::vector<unsigned int> >(std::string const& name) const {
+    return getEntryPointerOrThrow_(name)->getVUInt32();
+  }
+
   
   // ----------------------------------------------------------------------
   // Double, vDouble
@@ -259,12 +313,28 @@ private:
     Entry const* entryPtr = retrieveUntracked(name);
     return entryPtr == 0 ? defaultValue : entryPtr->getDouble();
   }
+
+
+  template<>
+  inline
+  double
+  ParameterSet::getUntrackedParameter<double>(std::string const& name) const {
+    return getEntryPointerOrThrow_(name)->getDouble();
+  }  
   
   template<>
   inline 
   std::vector<double>
   ParameterSet::getUntrackedParameter<std::vector<double> >(std::string const& name, std::vector<double> const& defaultValue) const {
-    Entry const* entryPtr = retrieveUntracked(name); return entryPtr == 0 ? defaultValue : entryPtr->getVDouble(); }
+    Entry const* entryPtr = retrieveUntracked(name); return entryPtr == 0 ? defaultValue : entryPtr->getVDouble(); 
+  }
+
+  template<>
+  inline
+  std::vector<double>
+  ParameterSet::getUntrackedParameter<std::vector<double> >(std::string const& name) const {
+    return getEntryPointerOrThrow_(name)->getVDouble();
+  }
   
   // ----------------------------------------------------------------------
   // String, vString
@@ -276,6 +346,13 @@ private:
     Entry const* entryPtr = retrieveUntracked(name);
     return entryPtr == 0 ? defaultValue : entryPtr->getString();
   }
+
+  template<>
+  inline
+  std::string
+  ParameterSet::getUntrackedParameter<std::string>(std::string const& name) const {
+    return getEntryPointerOrThrow_(name)->getString();
+  }
   
   template<>
   inline 
@@ -284,6 +361,15 @@ private:
     Entry const* entryPtr = retrieveUntracked(name);
     return entryPtr == 0 ? defaultValue : entryPtr->getVString();
   }
+
+
+  template<>
+  inline
+  std::vector<std::string>
+  ParameterSet::getUntrackedParameter<std::vector<std::string> >(std::string const& name) const {
+    return getEntryPointerOrThrow_(name)->getVString();
+  }
+
   
   // ----------------------------------------------------------------------
   // PSet, vPSet
@@ -295,14 +381,29 @@ private:
     Entry const* entryPtr = retrieveUntracked(name);
     return entryPtr == 0 ? defaultValue : entryPtr->getPSet();
   }
-  
+
+  template<>
+  inline
+  ParameterSet
+  ParameterSet::getUntrackedParameter<edm::ParameterSet>(std::string const& name) const {
+    return getEntryPointerOrThrow_(name)->getPSet();
+  }
+
   template<>
   inline 
-  std::vector<ParameterSet::ParameterSet>
+  std::vector<edm::ParameterSet>
   ParameterSet::getUntrackedParameter<std::vector<edm::ParameterSet> >(std::string const& name, std::vector<edm::ParameterSet> const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
     return entryPtr == 0 ? defaultValue : entryPtr->getVPSet();
   }
+
+  template<>
+  inline
+  std::vector<edm::ParameterSet>
+  ParameterSet::getUntrackedParameter<std::vector<edm::ParameterSet> >(std::string const& name) const {
+    return getEntryPointerOrThrow_(name)->getVPSet();
+  }
+
   
 }  // namespace edm
 

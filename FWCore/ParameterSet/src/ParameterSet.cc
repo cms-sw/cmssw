@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.cc,v 1.6 2005/08/01 19:24:37 wmtan Exp $
+// $Id: ParameterSet.cc,v 1.7 2005/08/19 13:39:04 paterno Exp $
 //
 // definition of ParameterSet's function members
 // ----------------------------------------------------------------------
@@ -78,10 +78,25 @@ namespace edm {
 
     validate();
   }
+
+
   
   // ----------------------------------------------------------------------
   // Entry-handling
   // ----------------------------------------------------------------------
+
+  Entry const*
+  ParameterSet::getEntryPointerOrThrow_(std::string const& name) const {
+    Entry const* result = retrieveUntracked(name);
+    if (result == 0) 
+      throw edm::Exception(errors::Configuration, "InvalidName")
+	<< "The name '" << name
+	<< "' is not known in an anonymous ParameterSet.\n";
+    return result;
+  }
+
+
+
   
   Entry const&
   ParameterSet::retrieve(std::string const& name) const {
