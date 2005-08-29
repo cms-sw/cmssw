@@ -1,5 +1,5 @@
-#ifndef UTILITIES_GENERAL_GENTIMER_H
-#define UTILITIES_GENERAL_GENTIMER_H
+#ifndef UTILITIES_TIMING_GENTIMER_H
+#define UTILITIES_TIMING_GENTIMER_H
 //
 //   V 0.0 
 //
@@ -153,4 +153,4 @@ struct DummyTime {
 
 typedef GenTimer<DummyTime> DummyTimer; 
 
-#endif // UTILITIES_GENERAL_GENTIMER_H
+#endif // UTILITIES_TIMING_GENTIMER_H

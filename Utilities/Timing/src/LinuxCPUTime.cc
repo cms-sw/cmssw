@@ -1,5 +1,5 @@
 #ifdef __linux__
-#include "Utilities/General/interface/LinuxCPUTime.h"
+#include "Utilities/Timing/interface/LinuxCPUTime.h"
 #include <iostream>
 #include <fstream>
 #include <limits>
@@ -83,7 +83,7 @@ std::ostream * LinuxElapsedTime::dout = &std::cout;
 
 LinuxElapsedTime::~LinuxElapsedTime() {
   LinuxCPUTime end;
-  out << name << " CPU elapsed time " 
+  out << "\n" << name << " CPU elapsed time " 
       << end.utime()-begin.utime() << "u "
       << end.stime()-begin.stime() << "s"
       << std::endl;

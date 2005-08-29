@@ -1,15 +1,15 @@
-#ifndef UTILITIES_GENERAL_LINUXCPUTIME_H
-#define UTILITIES_GENERAL_LINUXCPUTIME_H
+#ifndef UTILITIES_TIMING_LINUXCPUTIME_H
+#define UTILITIES_TIMING_LINUXCPUTIME_H
 //
 //   V 0.0 
 //
 #ifdef __linux__
+
 #include <iosfwd>
 #include <string>
 #include <fstream>
 #include "Utilities/General/interface/Proc.h"
-// FIXME: Move to Utilities/Timing?
-#include "Utilities/General/interface/GenTimer.h"
+#include "Utilities/Timing/interface/GenTimer.h"
 
 /**
  */
@@ -82,4 +82,4 @@ typedef GenTimer<LCPUTime> LinuxCPUTimer;
 
 #endif // __linux__
 
-#endif // UTILITIES_GENERAL_LINUXCPUTIME_H
+#endif // UTILITIES_TIMING_LINUXCPUTIME_H
