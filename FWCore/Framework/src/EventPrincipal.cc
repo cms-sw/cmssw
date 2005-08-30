@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EventPrincipal.cc,v 1.20 2005/08/10 02:21:48 chrjones Exp $
+$Id: EventPrincipal.cc,v 1.21 2005/08/29 22:50:58 wmtan Exp $
 ----------------------------------------------------------------------*/
 //#include <iostream>
 #include <memory>
@@ -145,12 +145,12 @@ namespace edm {
   EventPrincipal::get(ProductID oid) const {
     if (oid == ProductID())
       throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
-	<< "Event::get by product ID: invalid ProductID supplied\n";
+	<< "get by product ID: invalid ProductID supplied\n";
 
     ProductDict::const_iterator i = productDict_.find(oid);
     if (i == productDict_.end()) {
       throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
-	<< "Event::get by product ID: no product with given id\n";
+	<< "get by product ID: no product with given id\n";
     }
 
     unsigned long slotNumber = i->second;
@@ -171,7 +171,7 @@ namespace edm {
 	// logger?  Or do we want huge message inside the exception
 	// that is thrown?
 	edm::Exception err(edm::errors::ProductNotFound,"InvalidType");
-	err << "Event::getBySelector: no products found of correct type\n";
+	err << "getBySelector: no products found of correct type\n";
 	err << "No products found of correct type\n";
 	err << "We are looking for: '"
 	     << id
@@ -365,6 +365,33 @@ namespace edm {
       this->resolve_(*g);
       results.push_back(BasicHandle(g->product(), &g->provenance()));
       ++ib;
+    }
+  }
+
+  Provenance const&
+  EventPrincipal::getProvenance(ProductID oid) const {
+    if (oid == ProductID())
+      throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
+	<< "getProvenance: invalid ProductID supplied\n";
+
+    ProductDict::const_iterator i = productDict_.find(oid);
+    if (i == productDict_.end()) {
+      throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
+	<< "getProvenance: no product with given id\n";
+    }
+
+    unsigned long slotNumber = i->second;
+    assert(slotNumber < groups_.size());
+
+    SharedGroupPtr const& g = groups_[slotNumber];
+    return g->provenance();
+  }
+
+  void
+  EventPrincipal::getAllProvenance(std::vector<Provenance const*> provenances) const {
+    provenances.clear();
+    for (EventPrincipal::const_iterator i = groups_.begin(); i != groups_.end(); ++i) {
+      provenances.push_back(&(*i)->provenance());
     }
   }
 

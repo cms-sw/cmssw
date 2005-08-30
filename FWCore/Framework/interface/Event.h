@@ -6,7 +6,7 @@
 Event: This is the primary interface for accessing
 EDProducts from a single collision and inserting new derived products.
 
-$Id: Event.h,v 1.14 2005/08/10 02:19:52 chrjones Exp $
+$Id: Event.h,v 1.15 2005/08/29 22:50:57 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
@@ -77,7 +77,11 @@ namespace edm {
     void 
     getManyByType(const Selector&, std::vector<Handle<PROD> >& results) const;
 
-    // const Provenance* get(ProductID id) const;
+    Provenance const&
+    getProvenance(ProductID id) const;
+
+    void
+    getAllProvenance(std::vector<Provenance const*> provenances) const;
 
   private:
     typedef std::vector<ProductID>       ProductIDVec;

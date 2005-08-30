@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: Event.cc,v 1.15 2005/08/10 02:22:01 chrjones Exp $
+$Id: Event.cc,v 1.16 2005/08/29 22:50:57 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -115,4 +115,15 @@ namespace edm {
     ep_.getManyByType(id, results);
   }
 
+  Provenance const&
+  Event::getProvenance(ProductID oid) const
+  {
+    return ep_.getProvenance(oid);
+  }
+
+  void
+  Event::getAllProvenance(std::vector<Provenance const*> provenances) const
+  {
+    ep_.getAllProvenance(provenances);
+  }
 }
