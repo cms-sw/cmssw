@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: Event.cc,v 1.16 2005/08/29 22:50:57 wmtan Exp $
+$Id: Event.cc,v 1.17 2005/08/30 18:46:26 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -122,7 +122,7 @@ namespace edm {
   }
 
   void
-  Event::getAllProvenance(std::vector<Provenance const*> provenances) const
+  Event::getAllProvenance(std::vector<Provenance const*> & provenances) const
   {
     ep_.getAllProvenance(provenances);
   }

@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EventPrincipal.cc,v 1.21 2005/08/29 22:50:58 wmtan Exp $
+$Id: EventPrincipal.cc,v 1.22 2005/08/30 18:46:26 wmtan Exp $
 ----------------------------------------------------------------------*/
 //#include <iostream>
 #include <memory>
@@ -388,7 +388,7 @@ namespace edm {
   }
 
   void
-  EventPrincipal::getAllProvenance(std::vector<Provenance const*> provenances) const {
+  EventPrincipal::getAllProvenance(std::vector<Provenance const*> & provenances) const {
     provenances.clear();
     for (EventPrincipal::const_iterator i = groups_.begin(); i != groups_.end(); ++i) {
       provenances.push_back(&(*i)->provenance());
