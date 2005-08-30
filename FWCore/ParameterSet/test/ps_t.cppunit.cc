@@ -1,5 +1,5 @@
 /*
- * $Id: ps_t.cppunit.cc,v 1.1 2005/08/19 13:39:04 paterno Exp $
+ * $Id: ps_t.cppunit.cc,v 1.2 2005/08/29 22:01:20 paterno Exp $
  */
 
 #include <iostream>
@@ -15,7 +15,6 @@ class testps: public CppUnit::TestFixture
 {
   //CPPUNIT_TEST_EXCEPTION(emptyTest,edm::Exception);
   CPPUNIT_TEST_SUITE(testps);
-  CPPUNIT_TEST(untrackedTest);
   CPPUNIT_TEST(emptyTest);
   CPPUNIT_TEST(boolTest);
   CPPUNIT_TEST(intTest);
@@ -32,7 +31,6 @@ public:
   void setUp(){}
   void tearDown(){}
 
-  void untrackedTest();
   void emptyTest();
   void boolTest();
   void intTest();
@@ -60,7 +58,7 @@ void testps::emptyTest()
 }
 
 template <class T>
-void testbody(T value)
+void trackedTestbody(T value)
 {
   try {
     edm::ParameterSet p1;
@@ -91,26 +89,53 @@ void testbody(T value)
     }
 }
 
-void testps::untrackedTest()
+template <class T>
+void
+untrackedTestbody(T value)
 {
-  edm::ParameterSet p1;
-  p1.addUntrackedParameter<bool>("x", false);
-  CPPUNIT_ASSERT ( p1.getUntrackedParameter<bool>("x") == false );
+  edm::ParameterSet p;
+  p.template addUntrackedParameter<T>("x", value);
+  CPPUNIT_ASSERT( p.template getUntrackedParameter<T>("x") == value );
+
+  // TODO: When CPPUNIT 1.10.2 arrives, uncomment the following code block.
+
+  //-------------------------------------------------------------------------
+  // CPPUNIT_ASSERT_THROW(p.template getUntrackedParameter<T>("does not exist"), 
+  // 		       cms::Exception);
+  //-------------------------------------------------------------------------
+
+  //-------------------------------------------------------------------------
+  // TODO: When CPPUNIT 1.10.2 arrvies, remove this code block.
   try
     {
       // The next line should throw edm::Exception
-      p1.getUntrackedParameter<bool>("does not exist");
-      CPPUNIT_ASSERT ( "failed to throw a required exception" );
-    }
-  catch (cms::Exception& x)
-    {
-      // OK, this is expected
-    }
-  catch ( ... )
-    {
-      // Failure!
-      CPPUNIT_ASSERT( "threw the wrong kind of exception" );
-    }
+      p.template getUntrackedParameter<T>("does not exist");
+      // We can't use CPPUNIT_ASSERT, because it throws, and that
+      // makes it impossible to check for the right exception below.
+      assert ( 0 == "failed to throw a required exception" );
+     }
+   catch (cms::Exception& x)
+     {
+       // ok, this is expected
+     }
+   catch ( ... )
+     {
+       // Failure!
+
+      // Don't want to use CPPUNIT_ASSERT here, because it throws, and
+      // that makes understanding the handling of this catch block too
+      // hard for passers-by.
+       assert ( 0 == "threw the wrong kind of exception" );
+     }
+  //-------------------------------------------------------------------------
+}
+
+template <class T>
+void
+testbody(T value)
+{
+  trackedTestbody<T>(value);
+  untrackedTestbody<T>(value);
 }
 
 void testps::boolTest()
