@@ -18,7 +18,7 @@ the ESProducer's 'produce' method.
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Jun 22 11:40:41 EDT 2005
-// $Id: ESPreFunctorDecorator.h,v 1.2 2005/06/23 20:35:42 wmtan Exp $
+// $Id: ESPreFunctorDecorator.h,v 1.3 2005/07/14 22:50:52 wmtan Exp $
 //
 
 // system include files
@@ -48,7 +48,7 @@ class ESPreFunctorDecorator
          caller_(iRecord);
       }
    
-      void post(const TRecord& iRecord) {
+      void post(const TRecord&) {
       }
    
    private:
