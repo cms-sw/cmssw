@@ -1,4 +1,4 @@
-// $Id: DSTPreOutput.cc,v 1.5 2005/07/14 11:45:30 llista Exp $
+// $Id: DSTPreOutput.cc,v 1.1 2005/07/29 07:22:52 llista Exp $
 
 #include "PhysicsTools/CandAlgos/src/DSTPreOutput.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -24,7 +24,7 @@ DSTPreOutput::DSTPreOutput( const edm::ParameterSet & parms ) {
   for( const string * tag = names; tag != names + n; ++ tag ) {
     try {
       tags[ * tag ] = parms.getParameter<vector<string> >( * tag ); 
-    } catch ( edm::ParameterSetError e ) {
+    } catch ( edm::Exception e ) {
       cerr << ">>> no collection defined for " << tag  << endl;
     }
   }

@@ -1,4 +1,4 @@
-// $Id$
+// $Id: TrackCandidateProducer.cc,v 1.1 2005/07/29 07:22:52 llista Exp $
 
 #include "PhysicsTools/CandAlgos/src/TrackCandidateProducer.h"
 #include "PhysicsTools/DSTCandidate/interface/DSTCandidate.h"
@@ -34,8 +34,8 @@ void TrackCandidateProducer::produce( Event& evt, const EventSetup& ) {
   
   typedef Candidate::collection Candidates;
   auto_ptr<Candidates> cands( new Candidates );
-  const edm::CollisionID cid = evt.id();
-  const edm::EDP_ID pid = tracks.provenance()->product_id;
+  const edm::EventID cid = evt.id();
+  const edm::ProductID pid = tracks.provenance()->product.productID_;
   int idx = 0;
   for( Tracks::const_iterator trk = tracks->begin(); trk != tracks->end(); ++ trk ) {
     const Track::Vector3D & p = trk->momentumAtVertex();
