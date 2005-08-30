@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EventStreamInput.cc,v 1.3 2005/08/25 05:17:22 jbk Exp $
+$Id: EventStreamInput.cc,v 1.4 2005/08/26 20:57:16 jbk Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Streamer/interface/EventStreamInput.h"
@@ -74,18 +74,11 @@ namespace edm
   {
   }
 
-  // read() is responsible for creating, and setting up, the
+  // reconstitute() is responsible for creating, and setting up, the
   // EventPrincipal.
   //
-  //   1. create an EventPrincipal with a unique CollisionID
-  //   2. put in one Group, holding the Provenance for the EDProduct
-  //      it would be associated with.
-  //   3. set up the caches in the EventPrincipal to know about this
-  //      Group.
-  //
-  // In the future, we will *not* create the EDProduct instance (the equivalent
-  // of reading the branch containing this EDProduct. That will be done by the
-  // Retriever, when it is asked to do so.
+  // All products are reconstituted.
+  // 
   //
 
   auto_ptr<EventPrincipal>
