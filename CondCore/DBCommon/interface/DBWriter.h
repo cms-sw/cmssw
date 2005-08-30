@@ -20,15 +20,16 @@ namespace cond{
     /** commit transaction
      */
     void commitTransaction();
-    bool containerExists(const std::string& containerName);
-    void openContainer( const std::string& containerName );
-    void createContainer( const std::string& containerName );    
+    //bool containerExists(const std::string& containerName);
+    //void openContainer( const std::string& containerName );
+    //void createContainer( const std::string& containerName );    
     /**pin the object into the object cache
      */
     template<typename ObjType>
-    std::string write( ObjType* obj ){
+    std::string write( ObjType* obj, const std::string& containerName){
       pool::Ref<ObjType> myref(m_svc, obj);
       try{
+	m_placement->setContainerName(containerName);
 	myref.markWrite(*m_placement);
       }catch( const seal::Exception& er){
 	std::cout << er.what() << std::endl;    
