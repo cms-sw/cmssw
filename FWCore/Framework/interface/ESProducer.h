@@ -66,7 +66,7 @@ Example: two algorithms each creating only one objects
 //
 // Author:      Chris Jones
 // Created:     Thu Apr  7 17:08:14 CDT 2005
-// $Id: ESProducer.h,v 1.7 2005/06/23 20:53:12 wmtan Exp $
+// $Id: ESProducer.h,v 1.8 2005/07/14 22:50:52 wmtan Exp $
 //
 
 // system include files
@@ -196,7 +196,7 @@ class ESProducer : public ProxyFactoryProducer
       
       
       template<typename T, typename TProduct, typename TRecord>
-         void registerProduct(boost::shared_ptr<T> iCallback, const TProduct* iProd, const TRecord*) {
+         void registerProduct(boost::shared_ptr<T> iCallback, const TProduct*, const TRecord*) {
             registerFactory(new ProxyArgumentFactoryTemplate<
                              CallbackProxy<T, TRecord, TProduct>, boost::shared_ptr<T> >(iCallback));
          };
