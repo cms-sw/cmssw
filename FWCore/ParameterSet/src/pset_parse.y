@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.3 2005/06/27 16:35:01 paterno Exp $
+ * $Id: pset_parse.y,v 1.4 2005/07/27 22:28:57 paterno Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -61,7 +61,7 @@ using namespace edm::pset;
     returns 1.
 */
 
-static int yyerror(char* msg);
+static int yyerror(char const* msg);
 
 int yylex();
 
@@ -677,7 +677,7 @@ worker:          LETTERSTART_tok
 %%
 
 extern char *pset_text;
-int yyerror(char* msg)
+int yyerror(char const* msg)
 {
   cerr << "Parse error on line: " << lines << " token: " << pset_text << endl;
   cerr << "message: " << msg << endl;
