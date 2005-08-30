@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jul 23 14:57:44 EDT 2005
-// $Id: PoolDBESSource.cc,v 1.2 2005/08/29 17:36:33 xiezhen Exp $
+// $Id: PoolDBESSource.cc,v 1.3 2005/08/29 18:01:56 xiezhen Exp $
 //
 //
 
@@ -156,7 +156,7 @@ bool PoolDBESSource::initIOV(){
     return false;
   }
   pool::Ref<cond::IOV> iov(m_svc, iovToken);
-  std::pair<int,std::string> iovpair=*iov->iov.lower_bound(7);
+  //std::pair<int,std::string> iovpair=*iov->iov.lower_bound(7);
   m_iov=iov;
   return true;
 }
@@ -174,6 +174,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   using namespace edm::eventsetup;
   if( iConfig.getParameter<bool>("loadAll") ) {
     m_recordToTypes.insert(make_pair(string("EcalPedestalsRcd"), string("EcalPedestals"))) ;
+    m_recordToTypes.insert(make_pair(string("EcalMappingRcd"), string("EcalMapping"))) ;
     //m_recordToTypes.insert(make_pair(string("HcalPedestalsRcd"), string("HcalPedestals"))) ;
     //by forcing this to load, we also load the definition of the Records which //will allow EventSetupRecordKey::TypeTag::findType(...) method to find them
     for(RecordToTypes::iterator itRec = m_recordToTypes.begin();itRec != m_recordToTypes.end();	++itRec ) {
@@ -224,7 +225,7 @@ PoolDBESSource::~PoolDBESSource()
 //
 void 
 PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey, const edm::IOVSyncValue& iTime, edm::ValidityInterval& oInterval ) {
-  //std::cout<<" PoolDBESSource::setIntervalFor"<<std::endl;
+  std::cout<<" PoolDBESSource::setIntervalFor"<<std::endl;
   RecordToTypes::iterator itRec= m_recordToTypes.find( iKey.name() );
   if( itRec == m_recordToTypes.end() ) {
     //no valid record
@@ -232,10 +233,20 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
     return;
   }
   std::string payloadToken;
+  //infinity check
+  if( m_iov->iov.size()!=0 && m_iov->iov.begin()->first==edm::IOVSyncValue::endOfTime().eventID().run() ){
+    std::cout<<"infinite IOV"<<std::endl;
+    payloadToken = m_iov->iov.begin()->second;
+    oInterval = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
+    m_proxyToToken[buildName(itRec->first ,itRec->second)]=payloadToken; 
+    return;
+  }
+  //valid time check
   typedef std::map<int, std::string> IOVMap;
   typedef IOVMap::const_iterator iterator;
   unsigned long abtime=iTime.eventID().run()-edm::IOVSyncValue::beginOfTime().eventID().run();
   iterator iEnd = m_iov->iov.lower_bound( abtime );
+  
   if( iEnd == m_iov->iov.end() ||  (*iEnd).second.empty() ) {
     //no valid data
     oInterval = edm::ValidityInterval(edm::IOVSyncValue::endOfTime(), edm::IOVSyncValue::endOfTime());
