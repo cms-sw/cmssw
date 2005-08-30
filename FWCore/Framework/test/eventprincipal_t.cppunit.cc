@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id: eventprincipal_t.cppunit.cc,v 1.10 2005/08/29 22:50:58 wmtan Exp $
+$Id: eventprincipal_t.cppunit.cc,v 1.11 2005/08/30 18:46:37 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <cassert>
@@ -43,6 +43,7 @@ CPPUNIT_TEST(getbySelectorTest);
 CPPUNIT_TEST(getbyLabelTest);
 CPPUNIT_TEST(getbyTypeTest);
 CPPUNIT_TEST(getProvenanceTest);
+CPPUNIT_TEST(getAllProvenanceTest);
 CPPUNIT_TEST_SUITE_END();
 public:
   void setUp(){}
@@ -60,6 +61,7 @@ public:
   void getbyLabelTest();
   void getbyTypeTest();
   void getProvenanceTest();
+  void getAllProvenanceTest();
 };
 
 ///registration of the test so that the runner can find it
@@ -464,6 +466,55 @@ void testeventprincipal::getProvenanceTest() {
   try {
     edm::Provenance const& prov = ep.getProvenance(id);
     assert(prov.product.productID_ == id);
+  }
+  catch (edm::Exception& x) {
+    std::cerr << x.what()<< std::endl;
+    assert("Threw exception unexpectedly" == 0);
+  }
+  catch (...) {
+    std::cerr << "Unknown exception type\n";
+    assert("Threw exception unexpectedly" == 0);
+  }
+}
+
+void testeventprincipal::getAllProvenanceTest() {
+  std::string processName = "PROD";
+
+  typedef edmtest::DummyProduct DP;
+  typedef edm::Wrapper<DP> WDP;
+  DP * pr = new DP;
+  std::auto_ptr<edm::EDProduct> pprod(new WDP(*pr));
+  std::auto_ptr<edm::Provenance> pprov(new edm::Provenance);
+  std::string label("fred");
+
+  edmtest::DummyProduct dp;
+  edm::TypeID dummytype(dp);
+  std::string className = dummytype.friendlyClassName();
+
+  pprov->product.fullClassName_ = dummytype.userClassName();
+  pprov->product.friendlyClassName_ = className;
+  pprov->product.module.moduleLabel_ = label;
+  pprov->product.module.processName_ = processName;
+  pprov->product.init();
+
+  edm::ProductRegistry preg;
+  preg.addProduct(pprov->product);
+  preg.setProductIDs();
+  edm::EventID col(1L);
+  edm::FakeRetriever fake;
+  edm::EventPrincipal ep(col, fake, preg);
+  ep.addToProcessHistory("PROD");
+
+  ep.put(pprod, pprov);
+
+  edm::ProductID id(1);
+  
+  std::vector<edm::Provenance const*> provenances;
+  try {
+    ep.getAllProvenance(provenances);
+    std::cout << provenances.size() << std::endl;
+    assert(provenances.size() == 1);
+    assert(provenances[0]->product.productID_ == id);
   }
   catch (edm::Exception& x) {
     std::cerr << x.what()<< std::endl;
