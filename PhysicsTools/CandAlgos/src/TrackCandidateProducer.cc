@@ -1,4 +1,4 @@
-// $Id: TrackCandidateProducer.cc,v 1.1 2005/07/29 07:22:52 llista Exp $
+// $Id: TrackCandidateProducer.cc,v 1.2 2005/08/30 08:42:55 llista Exp $
 
 #include "PhysicsTools/CandAlgos/src/TrackCandidateProducer.h"
 #include "PhysicsTools/DSTCandidate/interface/DSTCandidate.h"
@@ -20,6 +20,7 @@ const double TrackCandidateProducer::defaultMass = 0.13956995;
 TrackCandidateProducer::TrackCandidateProducer( const ParameterSet & p ) :
   source( p.getParameter<string>( "src" ) ),
   massSqr( p.getUntrackedParameter<double>( "mass", defaultMass ) ) {
+  produces<Candidates>();
   massSqr *= massSqr;
 }
 	  
@@ -32,7 +33,6 @@ void TrackCandidateProducer::produce( Event& evt, const EventSetup& ) {
     cerr << "Error: can't get collection " << source << endl;
   }
   
-  typedef Candidate::collection Candidates;
   auto_ptr<Candidates> cands( new Candidates );
   const edm::EventID cid = evt.id();
   const edm::ProductID pid = tracks.provenance()->product.productID_;

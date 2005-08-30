@@ -2,7 +2,7 @@
 #define PHYSICSTOOLS_SELECTORPRODUCER_H
 /*----------------------------------------------------------
 
-$Id: SelectorProducer.h,v 1.6 2005/07/15 10:53:56 llista Exp $
+$Id: SelectorProducer.h,v 1.1 2005/07/29 07:22:52 llista Exp $
 
   class template SelectorProducer
  
@@ -31,8 +31,12 @@ namespace phystools {
   class SelectorProducer : public edm::EDProducer {
   public:
     SelectorProducer( const edm::ParameterSet & );
+
   private:
+    typedef Candidate::collection Candidates;
+
     virtual void produce( edm::Event&, const edm::EventSetup& );
+
     std::string source;
     S selector;
   };
@@ -41,11 +45,11 @@ namespace phystools {
   SelectorProducer<S>::SelectorProducer( const edm::ParameterSet & parms ) :
     source( parms.template getParameter<std::string>( "src" ) ),
     selector( parms ) {
+    produces<Candidates>();
   }
   
   template<typename S>
   void SelectorProducer<S>::produce( edm::Event& evt, const edm::EventSetup& ) {
-    typedef Candidate::collection Candidates;
     edm::Handle<Candidates> cands;
     try {
       evt.getByLabel( source, cands );
