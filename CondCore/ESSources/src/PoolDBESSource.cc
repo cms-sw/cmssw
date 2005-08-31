@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jul 23 14:57:44 EDT 2005
-// $Id: PoolDBESSource.cc,v 1.4 2005/08/30 16:40:13 xiezhen Exp $
+// $Id: PoolDBESSource.cc,v 1.5 2005/08/31 09:20:43 xiezhen Exp $
 //
 //
 
@@ -149,6 +149,9 @@ bool PoolDBESSource::initIOV( const std::vector< std::pair < std::string, std::s
       if( iovToken.empty() ){
 	return false;
       }
+      //std::cout<<"initIOV record: "<<it->first<<std::endl;
+      //std::cout<<"initIOV tag: "<<it->second<<std::endl;
+      //std::cout<<"initIOV iovToken: "<<iovToken<<std::endl;
       pool::Ref<cond::IOV> iov(m_svc, iovToken);
       m_recordToIOV.insert(std::make_pair(it->first,iov));
     }
@@ -241,20 +244,23 @@ PoolDBESSource::~PoolDBESSource()
 //
 void 
 PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey, const edm::IOVSyncValue& iTime, edm::ValidityInterval& oInterval ) {
-  std::cout<<" PoolDBESSource::setIntervalFor"<<std::endl;
   RecordToTypes::iterator itRec = m_recordToTypes.find( iKey.name() );
-  RecordToIOV::iterator itIOV = m_recordToIOV.find( iKey.name() );
-  if( itRec == m_recordToTypes.end() || itIOV == m_recordToIOV.end() ) {
+  if( itRec == m_recordToTypes.end() ) {
     //no valid record
-    std::cout<<"no valid record "<<std::endl;
+    //std::cout<<"no valid record "<<std::endl;
+    oInterval = edm::ValidityInterval::invalidInterval();
+    return;
+  }
+  RecordToIOV::iterator itIOV = m_recordToIOV.find( iKey.name() );
+  if( itIOV == m_recordToIOV.end() ){
+    //std::cout<<"no valid IOV found for record "<<iKey.name()<<std::endl;
     oInterval = edm::ValidityInterval::invalidInterval();
     return;
   }
   pool::Ref<cond::IOV> myiov = itIOV->second;
   std::string payloadToken;
-  //infinity check
+  //infinity check, need improvement!!!
   if( myiov->iov.size()!=0 && myiov->iov.begin()->first==edm::IOVSyncValue::endOfTime().eventID().run() ){
-    std::cout<<"infinite IOV"<<std::endl;
     payloadToken = myiov->iov.begin()->second;
     oInterval = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
     m_proxyToToken[buildName(itRec->first ,itRec->second)]=payloadToken; 
