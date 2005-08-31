@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jul 23 14:57:44 EDT 2005
-// $Id: PoolDBESSource.cc,v 1.3 2005/08/29 18:01:56 xiezhen Exp $
+// $Id: PoolDBESSource.cc,v 1.4 2005/08/30 16:40:13 xiezhen Exp $
 //
 //
 
@@ -79,15 +79,15 @@ private:
   ProxyToToken m_proxyToToken;
   typedef ProxyToToken::iterator pProxyToToken;
   std::string m_con;
-  std::string m_tag;
+  typedef std::map<std::string, pool::Ref<cond::IOV> > RecordToIOV;
+  RecordToIOV m_recordToIOV;
   std::string m_timetype;
   std::auto_ptr<pool::IFileCatalog> m_cat;
   pool::IDataSvc* m_svc;
-  pool::Ref<cond::IOV> m_iov;
 private:
   void initPool();
   void closePool();
-  bool initIOV();
+  bool initIOV( const std::vector< std::pair<std::string,std::string> >& record2tag );
 };
 
 //
@@ -140,13 +140,17 @@ void PoolDBESSource::closePool(){
   if(m_svc) delete m_svc;
 }
 
-bool PoolDBESSource::initIOV(){
+bool PoolDBESSource::initIOV( const std::vector< std::pair < std::string, std::string> >& recordToTag ){
   cond::MetaData meta(m_con);
-  std::string iovToken("");
+  std::vector< std::pair<std::string, std::string> >::const_iterator it;
   try{
-    iovToken=meta.getToken(m_tag);
-    if( iovToken.empty() ){
-      return false;
+    for(it=recordToTag.begin(); it!=recordToTag.end(); ++it){
+      std::string iovToken=meta.getToken(it->second);
+      if( iovToken.empty() ){
+	return false;
+      }
+      pool::Ref<cond::IOV> iov(m_svc, iovToken);
+      m_recordToIOV.insert(std::make_pair(it->first,iov));
     }
   }catch( const pool::RelationalTableNotFound& e ){
     std::cerr<<e.what()<<std::endl;
@@ -155,9 +159,9 @@ bool PoolDBESSource::initIOV(){
     std::cerr<<e.what()<<std::endl;
     return false;
   }
-  pool::Ref<cond::IOV> iov(m_svc, iovToken);
+  //pool::Ref<cond::IOV> iov(m_svc, iovToken);
   //std::pair<int,std::string> iovpair=*iov->iov.lower_bound(7);
-  m_iov=iov;
+  //m_iov=iov;
   return true;
 }
 
@@ -166,7 +170,6 @@ bool PoolDBESSource::initIOV(){
 //
 PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   m_con(iConfig.getParameter<std::string>("connect") ),
-  m_tag(iConfig.getParameter<std::string>("tag") ),
   m_timetype(iConfig.getParameter<std::string>("timetype") )
 {
   using namespace std;
@@ -180,9 +183,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
     for(RecordToTypes::iterator itRec = m_recordToTypes.begin();itRec != m_recordToTypes.end();	++itRec ) {
       m_proxyToToken.insert( make_pair(buildName(itRec->first, itRec->second ),"") );//fill in dummy tokens now, change in setIntervalFor
       pProxyToToken pos=m_proxyToToken.find(buildName(itRec->first, itRec->second));
-      //m_svc->transaction().start(pool::ITransaction::READ);
       boost::shared_ptr<DataProxy> proxy(cond::ProxyFactory::get()->create( buildName(itRec->first, itRec->second),m_svc,pos));
-      //m_svc->transaction().commit();
     }
   }else{
     std::cerr<<"what else?"<<std::endl;
@@ -204,12 +205,27 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
       usingRecordWithKey( recordKey );
     }
   }
+  //parsing record to tag
+  std::vector< std::pair<std::string,std::string> > recordToTag;
+  typedef std::vector< ParameterSet > Parameters;
+  Parameters toGet = iConfig.getParameter<Parameters>("toGet");
+  for(Parameters::iterator itToGet = toGet.begin(); itToGet != toGet.end(); ++itToGet ) {
+    std::string recordName = itToGet->getParameter<std::string>("record");
+    std::string tagName = itToGet->getParameter<std::string>("tag");
+    eventsetup::EventSetupRecordKey recordKey(eventsetup::EventSetupRecordKey::TypeTag::findType( recordName ) );
+    if( recordKey.type() == eventsetup::EventSetupRecordKey::TypeTag() ) {
+      //record not found
+      std::cout <<"Record \""<< recordName <<"\" does not exist "<<std::endl;
+      continue;
+    }
+    recordToTag.push_back(std::make_pair(recordName, tagName));
+  }
   ///
   //now do what ever other initialization is needed
   ///
   this->initPool();
-  if( !this->initIOV() ){
-    throw cms::Exception("IOV not found for "+m_tag);
+  if( !this->initIOV(recordToTag) ){
+    throw cms::Exception("IOV not found for requested records");
   }
 }
 
@@ -226,17 +242,20 @@ PoolDBESSource::~PoolDBESSource()
 void 
 PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey, const edm::IOVSyncValue& iTime, edm::ValidityInterval& oInterval ) {
   std::cout<<" PoolDBESSource::setIntervalFor"<<std::endl;
-  RecordToTypes::iterator itRec= m_recordToTypes.find( iKey.name() );
-  if( itRec == m_recordToTypes.end() ) {
+  RecordToTypes::iterator itRec = m_recordToTypes.find( iKey.name() );
+  RecordToIOV::iterator itIOV = m_recordToIOV.find( iKey.name() );
+  if( itRec == m_recordToTypes.end() || itIOV == m_recordToIOV.end() ) {
     //no valid record
+    std::cout<<"no valid record "<<std::endl;
     oInterval = edm::ValidityInterval::invalidInterval();
     return;
   }
+  pool::Ref<cond::IOV> myiov = itIOV->second;
   std::string payloadToken;
   //infinity check
-  if( m_iov->iov.size()!=0 && m_iov->iov.begin()->first==edm::IOVSyncValue::endOfTime().eventID().run() ){
+  if( myiov->iov.size()!=0 && myiov->iov.begin()->first==edm::IOVSyncValue::endOfTime().eventID().run() ){
     std::cout<<"infinite IOV"<<std::endl;
-    payloadToken = m_iov->iov.begin()->second;
+    payloadToken = myiov->iov.begin()->second;
     oInterval = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
     m_proxyToToken[buildName(itRec->first ,itRec->second)]=payloadToken; 
     return;
@@ -245,14 +264,14 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
   typedef std::map<int, std::string> IOVMap;
   typedef IOVMap::const_iterator iterator;
   unsigned long abtime=iTime.eventID().run()-edm::IOVSyncValue::beginOfTime().eventID().run();
-  iterator iEnd = m_iov->iov.lower_bound( abtime );
+  iterator iEnd = myiov->iov.lower_bound( abtime );
   
-  if( iEnd == m_iov->iov.end() ||  (*iEnd).second.empty() ) {
+  if( iEnd == myiov->iov.end() ||  (*iEnd).second.empty() ) {
     //no valid data
     oInterval = edm::ValidityInterval(edm::IOVSyncValue::endOfTime(), edm::IOVSyncValue::endOfTime());
   } else {
     unsigned long starttime=edm::IOVSyncValue::beginOfTime().eventID().run();
-    if (iEnd != m_iov->iov.begin()) {
+    if (iEnd != myiov->iov.begin()) {
       iterator iStart(iEnd); iStart--;
       starttime = (*iStart).first+edm::IOVSyncValue::beginOfTime().eventID().run();
     }
