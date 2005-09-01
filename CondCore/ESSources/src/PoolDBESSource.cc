@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jul 23 14:57:44 EDT 2005
-// $Id: PoolDBESSource.cc,v 1.5 2005/08/31 09:20:43 xiezhen Exp $
+// $Id: PoolDBESSource.cc,v 1.6 2005/08/31 10:10:40 xiezhen Exp $
 //
 //
 
@@ -123,12 +123,14 @@ void PoolDBESSource::initPool(){
     policy.setWriteModeForNonExisting(pool::DatabaseConnectionPolicy::CREATE);
     m_svc->session().setDefaultConnectionPolicy(policy);
     m_svc->transaction().start(pool::ITransaction::READ);
-  }catch(seal::Exception& e){
+  }catch( const seal::Exception& e){
     std::cerr << e.what() << std::endl;
-  } catch ( std::exception& e ) {
+    throw cms::Exception( e.what() );
+  } catch ( const std::exception& e ) {
     std::cerr << e.what() << std::endl;
+    throw cms::Exception( e.what() );
   } catch ( ... ) {
-    std::cerr << "Funny error" << std::endl;
+    throw cms::Exception("Funny error");
   }
 }
 
@@ -156,11 +158,14 @@ bool PoolDBESSource::initIOV( const std::vector< std::pair < std::string, std::s
       m_recordToIOV.insert(std::make_pair(it->first,iov));
     }
   }catch( const pool::RelationalTableNotFound& e ){
-    std::cerr<<e.what()<<std::endl;
-    return false;
+    std::cerr<<"Caught pool::RelationalTableNotFound Exception"<<std::endl;
+    throw cms::Exception( e.what() );
   }catch(const seal::Exception&e ){
+    std::cerr<<"Caught seal exception"<<std::endl;
     std::cerr<<e.what()<<std::endl;
-    return false;
+    throw cms::Exception( e.what() );
+  }catch(...){
+    throw cms::Exception( "Funny error" );
   }
   //pool::Ref<cond::IOV> iov(m_svc, iovToken);
   //std::pair<int,std::string> iovpair=*iov->iov.lower_bound(7);

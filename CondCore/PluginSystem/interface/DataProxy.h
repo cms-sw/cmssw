@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jul 23 19:40:27 EDT 2005
-// $Id: DataProxy.h,v 1.1 2005/08/29 08:52:52 xiezhen Exp $
+// $Id: DataProxy.h,v 1.2 2005/08/29 17:42:59 xiezhen Exp $
 //
 
 // system include files
@@ -26,6 +26,7 @@
 #include "FWCore/Framework/interface/DataProxyTemplate.h"
 #include "DataSvc/Ref.h"
 #include "DataSvc/RefException.h"
+
 // forward declarations
 
 namespace pool{
@@ -56,6 +57,12 @@ namespace cond{
 	*m_data;
       }catch( const pool::RefException& er){
 	std::cerr<<"caught RefException "<<er.what()<<std::endl;
+	throw cms::Exception( er.what() );
+      }catch( const seal::Exception& er ){
+	std::cerr<<"caught seal Exception "<<er.what()<<std::endl;
+	throw cms::Exception( er.what() );
+      }catch( ... ){
+	throw cms::Exception( "Funny error" );
       }
       return &(*m_data);
     }
