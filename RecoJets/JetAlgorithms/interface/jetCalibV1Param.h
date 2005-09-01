@@ -17,7 +17,7 @@ float responseCross=0.67;                     // The value of the response at th
 //float fitLoPt=24.;                          //The lowest Pt value included in the fit
 float extrapLoPt=10.;                         //The lowest Pt value to extrapolate to
 float fitHiPt=4000.;                          // The highest Pt value included in the fit
-float ptParam( float );                       // Declaration of parameterization vs pt
+float ptParam(float);                       // Declaration of parameterization vs pt
 
 // Parameterizations of the response vs reconstructed |eta| relative to the resonse for |eta|<1.0.
 // Independent parameterizations for each pt interval: pt0 to pt8.

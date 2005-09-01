@@ -1,5 +1,5 @@
-#ifndef KTJET_KTUTIL_H
-#define KTJET_KTUTIL_H
+#ifndef JetAlgorithms_KtUtil_h
+#define JetAlgorithms_KtUtil_h
 
 #ifndef CLHEP_CLHEP_H
 #include "CLHEP/config/CLHEP.h"

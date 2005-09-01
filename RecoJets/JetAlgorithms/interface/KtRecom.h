@@ -1,5 +1,5 @@
-#ifndef KTJET_KTRECOM_H
-#define KTJET_KTRECOM_H
+#ifndef JetAlgorithms_KtRecom_h
+#define JetAlgorithms_KtRecom_h
 
 #ifndef STD_STRING_H
 #include <string>

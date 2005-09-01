@@ -1,5 +1,5 @@
-#ifndef KTJET_KTRECOMINTERFACE_H
-#define KTJET_KTRECOMINTERFACE_H
+#ifndef JetAlgorithms_KtRecomInterface_h
+#define JetAlgorithms_KtRecomInterface_h
 
 
 #ifndef STD_STRING_H

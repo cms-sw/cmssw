@@ -136,7 +136,7 @@ double ProtoJet::phi() const {
   double py_pos=fabs(m_py);
   double phi= 0.;
 
-  phi = atan( py_pos / (px_pos + 1.e-20));
+  phi = atan(py_pos / (px_pos + 1.e-20));
 
   if(signum(m_px)==-1 && signum(m_py)== 1)
     phi = PI - phi;

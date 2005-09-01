@@ -48,7 +48,7 @@ float jetCalibV1(float jetPt, float jetEta)
   float etaResponse = etaParam(jetPt,jetEta); //Response vs |eta|, relative to |eta|<1.0
   corPt = jetPt/etaResponse;                  //Correct the jet back to |eta|<1.0
   float ptResponse;
-  for( int i=1; i<=5; i++ ){ 
+  for(int i=1; i<=5; i++){ 
     ptResponse = ptParam(corPt);        //Response vs pt for |eta|<1.0
     corPt=jetPt/(ptResponse*etaResponse);     //The corrected Pt 
     //cout << "pass " << i << ", pt Response = " << ptResponse << endl; 
@@ -67,19 +67,19 @@ float ptParam(float jetPt)
   // rose with decreasing Pt.  The parameterizations are constrained to the same value
   // at the cross point in Pt where the parameterizations meet.
   float response;
-  if( jetPt<extrapLoPt ){
+  if(jetPt<extrapLoPt){
     // if jet Pt beneath extrapolation region, hold correction at lowest point of extrapolation region.
     response=responseCross +  ptLoPar[0]*log(extrapLoPt/ptCross)+ptLoPar[1]*pow(log(extrapLoPt/ptCross),2);
   }
-  else if( jetPt>=extrapLoPt && jetPt<ptCross ){
+  else if(jetPt>=extrapLoPt && jetPt<ptCross){
     // jet Pt in region of lower Pt paramaterization
     response=responseCross + ptLoPar[0]*log(jetPt/ptCross)+ptLoPar[1]*pow(log(jetPt/ptCross),2);
   }
-  else if( jetPt>=ptCross && jetPt<fitHiPt ){
+  else if(jetPt>=ptCross && jetPt<fitHiPt){
     // jet Pt in region of higher Pt paramaterization
     response=responseCross + ptHiPar[0]*log(jetPt/ptCross)+ptHiPar[1]*pow(log(jetPt/ptCross),2);
   }
-  else if( jetPt>=fitHiPt ){
+  else if(jetPt>=fitHiPt){
     // jet Pt above fitted region, hold correction at highest fitted point.
     response=responseCross + ptHiPar[0]*log(fitHiPt/ptCross)+ptHiPar[1]*pow(log(fitHiPt/ptCross),2);
   }
@@ -102,44 +102,44 @@ float etaParam(float jetPt, float jetEta)
    int nextBin;
    float firstResponse;
    float nextResponse;
-   if( jetPt < meanPt[0] ){         firstBin=0;     nextBin=1;
-     firstResponse=polynomial( etaParPt0, min(abs(jetEta),etaMaxPt0) );
+   if(jetPt < meanPt[0]){         firstBin=0;     nextBin=1;
+     firstResponse=polynomial(etaParPt0, min(abs(jetEta),etaMaxPt0));
      nextResponse=firstResponse;
    }
-   else if( jetPt < meanPt[1] ){     firstBin=0;     nextBin=1;
-     firstResponse=polynomial( etaParPt0, min(abs(jetEta),etaMaxPt0) );
-     nextResponse=polynomial( etaParPt1, min(abs(jetEta),etaMaxPt1) );
+   else if(jetPt < meanPt[1]){     firstBin=0;     nextBin=1;
+     firstResponse=polynomial(etaParPt0, min(abs(jetEta),etaMaxPt0));
+     nextResponse=polynomial(etaParPt1, min(abs(jetEta),etaMaxPt1));
    }
-   else if( jetPt < meanPt[2] ){     firstBin=1;     nextBin=2;
-     firstResponse=polynomial( etaParPt1, min(abs(jetEta),etaMaxPt1) );
-     nextResponse=polynomial( etaParPt2, min(abs(jetEta),etaMaxPt2) );
+   else if(jetPt < meanPt[2]){     firstBin=1;     nextBin=2;
+     firstResponse=polynomial(etaParPt1, min(abs(jetEta),etaMaxPt1));
+     nextResponse=polynomial(etaParPt2, min(abs(jetEta),etaMaxPt2));
    }
-   else if( jetPt < meanPt[3] ){     firstBin=2;     nextBin=3;
-     firstResponse=polynomial( etaParPt2, min(abs(jetEta),etaMaxPt2) );
-     nextResponse=polynomial( etaParPt3, min(abs(jetEta),etaMaxPt3) );
+   else if(jetPt < meanPt[3]){     firstBin=2;     nextBin=3;
+     firstResponse=polynomial(etaParPt2, min(abs(jetEta),etaMaxPt2));
+     nextResponse=polynomial(etaParPt3, min(abs(jetEta),etaMaxPt3));
    }
-   else if( jetPt < meanPt[4] ){     firstBin=3;     nextBin=4;
-     firstResponse=polynomial( etaParPt3, min(abs(jetEta),etaMaxPt3) );
-     nextResponse=polynomial( etaParPt4, min(abs(jetEta),etaMaxPt4) );
+   else if(jetPt < meanPt[4]){     firstBin=3;     nextBin=4;
+     firstResponse=polynomial(etaParPt3, min(abs(jetEta),etaMaxPt3));
+     nextResponse=polynomial(etaParPt4, min(abs(jetEta),etaMaxPt4));
    }
-   else if( jetPt < meanPt[5] ){     firstBin=4;     nextBin=5;
-     firstResponse=polynomial( etaParPt4, min(abs(jetEta),etaMaxPt4) );
-     nextResponse=polynomial( etaParPt5, min(abs(jetEta),etaMaxPt5) );
+   else if(jetPt < meanPt[5]){     firstBin=4;     nextBin=5;
+     firstResponse=polynomial(etaParPt4, min(abs(jetEta),etaMaxPt4));
+     nextResponse=polynomial(etaParPt5, min(abs(jetEta),etaMaxPt5));
    }
-   else if( jetPt < meanPt[6] ){     firstBin=5;     nextBin=6;
-     firstResponse=polynomial( etaParPt5, min(abs(jetEta),etaMaxPt5) );
-     nextResponse=polynomial( etaParPt6, min(abs(jetEta),etaMaxPt6) );
+   else if(jetPt < meanPt[6]){     firstBin=5;     nextBin=6;
+     firstResponse=polynomial(etaParPt5, min(abs(jetEta),etaMaxPt5));
+     nextResponse=polynomial(etaParPt6, min(abs(jetEta),etaMaxPt6));
    }
-   else if( jetPt < meanPt[7] ){     firstBin=6;     nextBin=7;
-     firstResponse=polynomial( etaParPt6, min(abs(jetEta),etaMaxPt6) );
-     nextResponse=polynomial( etaParPt7, min(abs(jetEta),etaMaxPt7) );
+   else if(jetPt < meanPt[7]){     firstBin=6;     nextBin=7;
+     firstResponse=polynomial(etaParPt6, min(abs(jetEta),etaMaxPt6));
+     nextResponse=polynomial(etaParPt7, min(abs(jetEta),etaMaxPt7));
    }
-   else if( jetPt < meanPt[8] ){     firstBin=7;     nextBin=8;
-     firstResponse=polynomial( etaParPt7, min(abs(jetEta),etaMaxPt7) );
-     nextResponse=polynomial( etaParPt8, min(abs(jetEta),etaMaxPt8) );
+   else if(jetPt < meanPt[8]){     firstBin=7;     nextBin=8;
+     firstResponse=polynomial(etaParPt7, min(abs(jetEta),etaMaxPt7));
+     nextResponse=polynomial(etaParPt8, min(abs(jetEta),etaMaxPt8));
    }
    else                        {     firstBin=8;     nextBin=7;
-     firstResponse=polynomial( etaParPt8, min(abs(jetEta),etaMaxPt8) );
+     firstResponse=polynomial(etaParPt8, min(abs(jetEta),etaMaxPt8));
      nextResponse=firstResponse;
    }
    response= firstResponse + (nextResponse-firstResponse)*(jetPt-meanPt[firstBin])/(meanPt[nextBin]-meanPt[firstBin]);     

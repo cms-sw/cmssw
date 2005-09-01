@@ -1,5 +1,5 @@
-#ifndef JETALGORITHMS_PROTOJET_H
-#define JETALGORITHMS_PROTOJET_H
+#ifndef JetAlgorithms_ProtoJet_h
+#define JetAlgorithms_ProtoJet_h
 
 /** \class ProtoJet
  *
@@ -138,4 +138,4 @@ private:
   void calculateLorentzVector();
 };
 
-#endif // JETALGORITHMS_PROTOJET_H
+#endif // JetAlgorithms_ProtoJet_h

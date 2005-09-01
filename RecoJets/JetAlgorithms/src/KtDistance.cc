@@ -10,7 +10,7 @@ namespace KtJet {
 
 KtDistance* getDistanceScheme(int angle, int collision_type) {
   if (angle == 1)      return new KtDistanceAngle(collision_type);
-  else if( angle == 2) return new KtDistanceDeltaR(collision_type);
+  else if(angle == 2) return new KtDistanceDeltaR(collision_type);
   else if (angle == 3) return new KtDistanceQCD(collision_type);
   else{
     std::cout << "[Jets] WARNING, unreconised distance scheme specified!" << std::endl;

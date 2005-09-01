@@ -1,5 +1,5 @@
-#ifndef PROTOJETCOMPARISONS_H
-#define PROTOJETCOMPARISONS_H
+#ifndef JetAlgorithms_ProtoJetComparisons_h
+#define JetAlgorithms_ProtoJetComparisons_h
 #include "RecoJets/JetAlgorithms/interface/ProtoJet.h"
 
 class ProtoJetPtGreater

@@ -1,5 +1,5 @@
-#ifndef JETALGORITHMS_MAKECALOJET_H
-#define JETALGORITHMS_MAKECALOJET_H
+#ifndef JetAlgorithms_MakeCaloJet_h
+#define JetAlgorithms_MakeCaloJet_h
 
 #include <vector>
 class ProtoJet;
@@ -8,4 +8,4 @@ class ProtoJet;
 
 void MakeCaloJet(const CaloTowerCollection &ctc, const std::vector<ProtoJet>& protoJets, CaloJetCollection &caloJets);
 
-#endif // JETALGORITHMS_MAKECALOJET_H
+#endif // JetAlgorithms_MakeCaloJet_h

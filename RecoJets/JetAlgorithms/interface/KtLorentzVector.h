@@ -1,5 +1,5 @@
-#ifndef KTJET_KTLORENTZVECTOR_H
-#define KTJET_KTLORENTZVECTOR_H
+#ifndef JetAlgorithm_KtLorentzVector_h
+#define JetAlgorithm_KtLorentzVector_h
 
 
 #ifndef STD_VECTOR_H
