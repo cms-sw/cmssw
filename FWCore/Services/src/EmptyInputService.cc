@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EmptyInputService.cc,v 1.10 2005/08/10 02:29:27 chrjones Exp $
+$Id: EmptyInputService.cc,v 1.11 2005/08/10 15:28:12 chrjones Exp $
 ----------------------------------------------------------------------*/
 
 #include <stdexcept>
@@ -32,11 +32,11 @@ namespace edm {
     remainingEvents_(pset.getUntrackedParameter<int>("maxEvents", -1)),
     retriever_(new FakeRetriever()),
     numberEventsInRun_(pset.getUntrackedParameter<unsigned int>("numberEventsInRun", remainingEvents_+1)),
-    presentRun_( pset.getUntrackedParameter<unsigned int>("firstRun",1)  ),
+    presentRun_(pset.getUntrackedParameter<unsigned int>("firstRun",1)),
     nextTime_(pset.getUntrackedParameter<unsigned int>("firstTime",1)),  //time in ns
-    timeBetweenEvents_(pset.getUntrackedParameter<unsigned int>("timeBetweenEvents",kNanoSecPerSec/kAveEventPerSec) ),
+    timeBetweenEvents_(pset.getUntrackedParameter<unsigned int>("timeBetweenEvents",kNanoSecPerSec/kAveEventPerSec)),
     numberEventsInThisRun_(0),
-    nextID_(presentRun_, 1 )   
+    nextID_(presentRun_, 1)   
   { }
 
   EmptyInputService::~EmptyInputService() {
@@ -49,7 +49,7 @@ namespace edm {
     
     if (remainingEvents_-- != 0) {
       result = std::auto_ptr<EventPrincipal>(new EventPrincipal(nextID_, Timestamp(nextTime_),*retriever_, *preg_));
-      if( ++numberEventsInThisRun_ < numberEventsInRun_ ) {
+      if(++numberEventsInThisRun_ < numberEventsInRun_) {
         nextID_ = nextID_.next();
       } else {
         nextID_ = nextID_.nextRunFirstEvent();

@@ -1,5 +1,5 @@
-#ifndef EDM_CODEDEXCEPTION_HH
-#define EDM_CODEEXCEPTION_HH
+#ifndef Utilities_CodedException_h
+#define Utilities_CodedException_h
 
 /**
 

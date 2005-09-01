@@ -1,5 +1,5 @@
-#ifndef EDM_EDMEXCEPTION_HH
-#define EDM_EDMEXCEPTION_HH
+#ifndef Utilities_EDMException_h
+#define Utilities_EDMException_h
 
 /**
 

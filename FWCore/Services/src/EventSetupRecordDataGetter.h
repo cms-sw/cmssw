@@ -1,5 +1,5 @@
-#ifndef FWCORESERVICES_EVENTSETUPRECORDDATAGETTER_H
-#define FWCORESERVICES_EVENTSETUPRECORDDATAGETTER_H
+#ifndef Services_EventSetupRecordDataGetter_h
+#define Services_EventSetupRecordDataGetter_h
 // -*- C++ -*-
 //
 // Package:     Services
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jun 28 13:45:06 EDT 2005
-// $Id: EventSetupRecordDataGetter.h,v 1.2 2005/07/15 01:49:34 wmtan Exp $
+// $Id: EventSetupRecordDataGetter.h,v 1.3 2005/08/04 15:04:11 chrjones Exp $
 //
 
 // system include files
@@ -36,11 +36,11 @@
 namespace edm {
    class EventSetupRecordDataGetter : public edm::EDAnalyzer {
 public:
-      explicit EventSetupRecordDataGetter( const edm::ParameterSet& );
+      explicit EventSetupRecordDataGetter(const edm::ParameterSet&);
       ~EventSetupRecordDataGetter();
       
       
-      virtual void analyze( const edm::Event&, const edm::EventSetup& );
+      virtual void analyze(const edm::Event&, const edm::EventSetup&);
 private:
          // ----------member data ---------------------------
       ParameterSet pSet_;
@@ -55,4 +55,4 @@ private:
 }
 
 
-#endif /* FWCORESERVICES_EVENTSETUPRECORDDATAGETTER_H */
+#endif

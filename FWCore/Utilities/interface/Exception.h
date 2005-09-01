@@ -1,5 +1,5 @@
-#ifndef FWK_CMS_EXCEPTION_HH
-#define FWK_CMS_EXCEPTION_HH
+#ifndef Utilities_Exception_h
+#define Utilities_Exception_h
 
 /**
    This a basic exception type expected to be thrown by

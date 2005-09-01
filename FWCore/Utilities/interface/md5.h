@@ -1,3 +1,6 @@
+#ifndef Utilities_md5_h
+#define Utilities_md5_h
+
 /*
   Copyright (C) 1999, 2002 Aladdin Enterprises.  All rights reserved.
 
@@ -21,7 +24,7 @@
   ghost@aladdin.com
 
  */
-/* $Id: md5.h,v 1.4 2002/04/13 19:20:28 lpd Exp $ */
+/* $Id: md5.h,v 1.1 2005/07/06 19:47:28 paterno Exp $ */
 /*
   Independent implementation of MD5 (RFC 1321).
 
@@ -46,9 +49,6 @@
 	Purschke <purschke@bnl.gov>.
   1999-05-03 lpd Original version.
  */
-
-#ifndef md5_INCLUDED
-#  define md5_INCLUDED
 
 /*
  * This package supports both compile-time and run-time determination of CPU
@@ -88,5 +88,5 @@ void md5_finish(md5_state_t *pms, md5_byte_t digest[16]);
 }  /* end extern "C" */
 #endif
 
-#endif /* md5_INCLUDED */
+#endif
 
