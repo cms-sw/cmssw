@@ -1,5 +1,5 @@
-#ifndef EDMREFTEST_OTHERTHINGANALYZER_H
-#define EDMREFTEST_OTHERTHINGANALYZER_H
+#ifndef Integration_OtherThingAnalyzer_h
+#define Integration_OtherThingAnalyzer_h
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"

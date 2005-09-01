@@ -1,5 +1,5 @@
-#ifndef FWCOREINTEGRATION_WHATSIT_H
-#define FWCOREINTEGRATION_WHATSIT_H
+#ifndef Integration_WhatsIt_h
+#define Integration_WhatsIt_h
 // -*- C++ -*-
 //
 // Package:     Integration
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 13:23:12 EDT 2005
-// $Id: WhatsIt.h,v 1.1 2005/06/25 01:20:41 chrjones Exp $
+// $Id: WhatsIt.h,v 1.2 2005/07/14 21:57:26 wmtan Exp $
 //
 
 // system include files
@@ -33,4 +33,4 @@ struct WhatsIt
 };
 }
 
-#endif /* FWCOREINTEGRATION_WHATSIT_H */
+#endif /* Integration_WhatsIt_h */

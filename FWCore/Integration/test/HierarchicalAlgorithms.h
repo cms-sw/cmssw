@@ -1,5 +1,5 @@
-#ifndef FWCORE_INTEGRATION_TEST_HIERARCHICAL_ALGIRHTMS_H
-#define FWCORE_INTEGRATION_TEST_HIERARCHICAL_ALGIRHTMS_H
+#ifndef Integration_HierarchicalAlgorithms_h
+#define Integration_HierarchicalAlgorithms_h
 
 /** \class alg_1 and alg_2
  *

@@ -1,5 +1,5 @@
-#ifndef EDMREFTEST_OTHERTHINGPRODUCER_H
-#define EDMREFTEST_OTHERTHINGPRODUCER_H
+#ifndef Integration_OtherThingProducer_h
+#define Integration_OtherThingProducer_h
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"

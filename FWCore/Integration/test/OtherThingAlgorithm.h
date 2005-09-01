@@ -1,5 +1,5 @@
-#ifndef EDMREFTEST_OTHERTHINGALGORITHM_H
-#define EDMREFTEST_OTHERTHINGALGORITHM_H
+#ifndef Integration_OtherThingAlgorithm_h
+#define Integration_OtherThingAlgorithm_h
 
 #include <vector>
 

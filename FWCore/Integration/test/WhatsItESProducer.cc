@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 14:33:04 EDT 2005
-// $Id: WhatsItESProducer.cc,v 1.2 2005/07/14 22:20:57 wmtan Exp $
+// $Id: WhatsItESProducer.cc,v 1.3 2005/08/24 21:43:27 chrjones Exp $
 //
 //
 
@@ -39,12 +39,12 @@ namespace edmreftest {
 
 class WhatsItESProducer : public edm::eventsetup::ESProducer {
    public:
-      WhatsItESProducer( const edm::ParameterSet& );
+      WhatsItESProducer(const edm::ParameterSet&);
       ~WhatsItESProducer();
 
       typedef std::auto_ptr<WhatsIt> ReturnType;
 
-      ReturnType produce( const GadgetRcd & );
+      ReturnType produce(const GadgetRcd &);
    private:
       // ----------member data ---------------------------
 };
@@ -60,7 +60,7 @@ class WhatsItESProducer : public edm::eventsetup::ESProducer {
 //
 // constructors and destructor
 //
-WhatsItESProducer::WhatsItESProducer( const edm::ParameterSet& /*iConfig*/ )
+WhatsItESProducer::WhatsItESProducer(const edm::ParameterSet& /*iConfig*/)
 {
    //the following line is needed to tell the framework what
    // data is being produced
@@ -85,15 +85,15 @@ WhatsItESProducer::~WhatsItESProducer()
 
 // ------------ method called to produce the data  ------------
 WhatsItESProducer::ReturnType
-WhatsItESProducer::produce( const GadgetRcd& iRecord )
+WhatsItESProducer::produce(const GadgetRcd& iRecord)
 {
    using namespace edm::eventsetup;
    using namespace edmreftest;
 
    ESHandle<Doodad> doodad;
-   iRecord.get( doodad );
+   iRecord.get(doodad);
    
-   std::auto_ptr<WhatsIt> pWhatsIt( new WhatsIt ) ;
+   std::auto_ptr<WhatsIt> pWhatsIt(new WhatsIt) ;
 
    pWhatsIt->a = doodad->a;
 

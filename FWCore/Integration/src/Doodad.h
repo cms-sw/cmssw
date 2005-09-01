@@ -1,5 +1,5 @@
-#ifndef FWCOREINTEGRATION_DOODAD_H
-#define FWCOREINTEGRATION_DOODAD_H
+#ifndef Integration_Doodad_h
+#define Integration_Doodad_h
 // -*- C++ -*-
 //
 // Package:     Integration
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 13:23:03 EDT 2005
-// $Id: Doodad.h,v 1.1 2005/06/25 01:20:41 chrjones Exp $
+// $Id: Doodad.h,v 1.2 2005/07/14 21:57:26 wmtan Exp $
 //
 
 // system include files
@@ -32,4 +32,4 @@ struct Doodad
 };
 }
 
-#endif /* FWCOREINTEGRATION_DOODAD_H */
+#endif /* Integration_Doodad_h */

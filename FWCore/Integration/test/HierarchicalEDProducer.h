@@ -1,5 +1,5 @@
-#ifndef FWCORE_INTEGRATION_TEST_HIERARCHICAL_EDPRODUCER_H
-#define FWCORE_INTEGRATION_TEST_HIERARCHICAL_EDPRODUCER_H
+#ifndef Integration_HierarchicalEDProducer_h
+#define Integration_HierarchicalEDProducer_h
 
 /** \class HierarchicalEDProducer
  *

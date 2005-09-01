@@ -1,5 +1,5 @@
-#ifndef FWCOREINTEGRATION_GADGETRCD_H
-#define FWCOREINTEGRATION_GADGETRCD_H
+#ifndef Integration_GadgetRcd_h
+#define Integration_GadgetRcd_h
 // -*- C++ -*-
 //
 // Package:     Integration
@@ -16,12 +16,12 @@
 //
 // Author:      Chris Jones
 // Created:     Fri Jun 24 13:44:48 EDT 2005
-// $Id: GadgetRcd.h,v 1.1 2005/06/25 01:20:41 chrjones Exp $
+// $Id: GadgetRcd.h,v 1.2 2005/07/14 21:57:26 wmtan Exp $
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
 class GadgetRcd : public edm::eventsetup::EventSetupRecordImplementation<GadgetRcd> {};
 
-#endif /* FWCOREINTEGRATION_GADGETRCD_H */
+#endif /* Integration_GadgetRcd_h */
 

@@ -1,5 +1,5 @@
-#ifndef EDMREFTEST_THINGPRODUCER_H
-#define EDMREFTEST_THINGPRODUCER_H
+#ifndef Integration_ThingProducer_h
+#define Integration_ThingProducer_h
 
 /** \class ThingProducer
  *

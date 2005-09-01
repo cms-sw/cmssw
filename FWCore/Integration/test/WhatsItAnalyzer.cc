@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 19:13:25 EDT 2005
-// $Id: WhatsItAnalyzer.cc,v 1.2 2005/07/14 22:20:57 wmtan Exp $
+// $Id: WhatsItAnalyzer.cc,v 1.3 2005/08/24 21:43:27 chrjones Exp $
 //
 //
 
@@ -43,11 +43,11 @@ namespace edmreftest {
 
 class WhatsItAnalyzer : public edm::EDAnalyzer {
    public:
-      explicit WhatsItAnalyzer( const edm::ParameterSet& );
+      explicit WhatsItAnalyzer(const edm::ParameterSet&);
       ~WhatsItAnalyzer();
 
 
-      virtual void analyze( const edm::Event&, const edm::EventSetup& );
+      virtual void analyze(const edm::Event&, const edm::EventSetup&);
    private:
       // ----------member data ---------------------------
 };
@@ -63,7 +63,7 @@ class WhatsItAnalyzer : public edm::EDAnalyzer {
 //
 // constructors and destructor
 //
-WhatsItAnalyzer::WhatsItAnalyzer( const edm::ParameterSet& /*iConfig*/ )
+WhatsItAnalyzer::WhatsItAnalyzer(const edm::ParameterSet& /*iConfig*/)
 {
    //now do what ever initialization is needed
 
@@ -85,11 +85,11 @@ WhatsItAnalyzer::~WhatsItAnalyzer()
 
 // ------------ method called to produce the data  ------------
 void
-WhatsItAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup )
+WhatsItAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
 {
    using namespace edm;
    eventsetup::ESHandle<WhatsIt> pSetup;
-   iSetup.get<GadgetRcd>().get( pSetup );
+   iSetup.get<GadgetRcd>().get(pSetup);
 }
 
 }

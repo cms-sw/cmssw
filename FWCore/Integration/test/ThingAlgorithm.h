@@ -1,5 +1,5 @@
-#ifndef EDMREFTEST_THINGALGORITHM_H
-#define EDMREFTEST_THINGALGORITHM_H
+#ifndef Integration_ThingAlgorithm_h
+#define Integration_ThingAlgorithm_h
 
 /** \class ThingAlgorithm
  *
