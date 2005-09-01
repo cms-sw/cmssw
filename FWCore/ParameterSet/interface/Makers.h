@@ -1,5 +1,5 @@
-#ifndef PARAMETERSET_MAKERS_HPP
-#define PARAMETERSET_MAKERS_HPP
+#ifndef ParameterSet_Makers_h
+#define ParameterSet_Makers_h
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"

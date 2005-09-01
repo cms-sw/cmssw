@@ -1,5 +1,5 @@
-#ifndef PARAMETERSET_NODES_H
-#define PARAMETERSET_NODES_H
+#ifndef ParameterSet_Nodes_h
+#define ParameterSet_Nodes_h
 
 /*
   The parser output is a tree of Nodes containing unprocessed strings.

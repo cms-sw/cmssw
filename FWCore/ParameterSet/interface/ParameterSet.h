@@ -1,5 +1,8 @@
+#ifndef  ParameterSet_ParameterSet_h
+#define  ParameterSet_ParameterSet_h
+
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.h,v 1.7 2005/08/19 13:39:04 paterno Exp $
+// $Id: ParameterSet.h,v 1.8 2005/08/29 22:01:20 paterno Exp $
 //
 // Declaration for ParameterSet(parameter set) and related types
 // ----------------------------------------------------------------------
@@ -7,10 +10,6 @@
 
 // ----------------------------------------------------------------------
 // prolog
-
-#ifndef  PARAMETERSET_H
-#define  PARAMETERSET_H
-
 
 // ----------------------------------------------------------------------
 // prerequisite source files and headers
@@ -409,4 +408,4 @@ private:
 
 // epilog
 
-#endif  // PARAMETERSET_H
+#endif  // ParameterSet_ParameterSet_h

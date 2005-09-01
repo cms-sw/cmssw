@@ -1,5 +1,5 @@
-#ifndef PARAMETERSET_PARSE_H
-#define PARAMETERSET_PARSE_H
+#ifndef ParameterSet_parse_h
+#define ParameterSet_parse_h
 
 #include "boost/shared_ptr.hpp"
 

@@ -1,5 +1,5 @@
-#ifndef PARAMETERSET_MAKE_RPOC_PSET_HHPP
-#define PARAMETERSET_MAKE_RPOC_PSET_HHPP
+#ifndef ParametetSet_MakeProcessPSet_h
+#define ParametetSet_MakeProcessPSet_h
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "boost/shared_ptr.hpp"

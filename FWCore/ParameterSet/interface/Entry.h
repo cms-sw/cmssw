@@ -1,5 +1,8 @@
+#ifndef ParameterSet_Entry_h
+#define ParameterSet_Entry_h
+
 // ----------------------------------------------------------------------
-// $Id: Entry.h,v 1.3 2005/06/23 19:57:22 wmtan Exp $
+// $Id: Entry.h,v 1.4 2005/07/14 16:17:23 jbk Exp $
 //
 // interface to edm::Entry and related types
 //
@@ -11,9 +14,6 @@
 
 // ----------------------------------------------------------------------
 // prolog
-
-#ifndef  ENTRY_H
-#define  ENTRY_H
 
 // ----------------------------------------------------------------------
 // prerequisite source files and headers
@@ -147,4 +147,4 @@ namespace edm {
   // ----------------------------------------------------------------------
   // epilog
   
-#endif  // ENTRY_H
+#endif

@@ -1,5 +1,5 @@
-#ifndef EDM_PARAMETERSET_PROCESS_DESC_INC
-#define EDM_PARAMETERSET_PROCESS_DESC_INC
+#ifndef ParameterSet_ProcessDesc_h
+#define ParameterSet_ProcessDesc_h
 
 #include "boost/shared_ptr.hpp"
 #include <vector>
