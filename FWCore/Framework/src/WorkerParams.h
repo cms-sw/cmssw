@@ -1,5 +1,5 @@
-#ifndef FWK_WORKER_PARAMS_H
-#define FWK_WORKER_PARAMS_H
+#ifndef Framework_WorkerParams_h
+#define Framework_WorkerParams_h
 
 /** ----------------------
 

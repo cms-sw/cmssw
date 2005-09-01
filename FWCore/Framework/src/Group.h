@@ -1,12 +1,12 @@
-#ifndef EDM_GROUP_HH
-#define EDM_GROUP_HH
+#ifndef Framework_GROUP_h
+#define Framework_GROUP_h
 
 /*----------------------------------------------------------------------
   
 Group: A collection of information related to a single EDProduct. This
 is the storage unit of such information.
 
-$Id: Group.h,v 1.4 2005/07/25 03:58:34 wmtan Exp $
+$Id: Group.h,v 1.5 2005/07/30 04:43:27 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -69,4 +69,4 @@ namespace edm {
   }
 
 }
-#endif //  EDM_GROUP_HH
+#endif //  Framework_GROUP_h

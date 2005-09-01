@@ -1,5 +1,5 @@
-#ifndef EDM_DEBUGMACROS_HH
-#define EDM_DEBUGMACROS_HH
+#ifndef Framework_DebugMacros_h
+#define Framework_DebugMacros_h
 
 namespace edm
 {

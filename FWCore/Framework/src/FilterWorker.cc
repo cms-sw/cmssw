@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: FilterWorker.cc,v 1.5 2005/07/20 03:00:36 jbk Exp $
+$Id: FilterWorker.cc,v 1.6 2005/07/20 04:11:41 jbk Exp $
 ----------------------------------------------------------------------*/
 #include <memory>
 
@@ -106,7 +106,7 @@ namespace edm
   }
 
   void 
-  FilterWorker::beginJob( EventSetup const& es) 
+  FilterWorker::beginJob(EventSetup const& es) 
   {
     filter_->beginJob(es);
   }

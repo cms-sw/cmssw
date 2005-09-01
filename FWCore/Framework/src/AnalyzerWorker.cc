@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: AnalyzerWorker.cc,v 1.5 2005/07/20 04:11:41 jbk Exp $
+$Id: AnalyzerWorker.cc,v 1.6 2005/08/10 02:27:09 chrjones Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/src/AnalyzerWorker.h"
@@ -100,7 +100,7 @@ namespace edm
     return rc;
   }
 
-  void AnalyzerWorker::beginJob( EventSetup const& es) 
+  void AnalyzerWorker::beginJob(EventSetup const& es) 
   {
     analyzer_->beginJob(es);
   }

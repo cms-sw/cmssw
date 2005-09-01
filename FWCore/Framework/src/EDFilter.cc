@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
   
-$Id: EDFilter.cc,v 1.2 2005/07/08 00:09:42 chrjones Exp $
+$Id: EDFilter.cc,v 1.3 2005/07/14 22:50:53 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -11,7 +11,7 @@ namespace edm
   EDFilter::~EDFilter()
   { }
 
-  void EDFilter::beginJob( EventSetup const& ) 
+  void EDFilter::beginJob(EventSetup const&) 
   { }
    
   void EDFilter::endJob()

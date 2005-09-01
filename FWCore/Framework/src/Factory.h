@@ -1,5 +1,5 @@
-#ifndef EDM_FACTORY_H
-#define EDM_FACTORY_H
+#ifndef Framework_Factory_h
+#define Framework_Factory_h
 
 #include "PluginManager/PluginFactory.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

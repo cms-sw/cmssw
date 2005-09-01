@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: ProducerWorker.cc,v 1.10 2005/07/30 23:47:52 wmtan Exp $
+$Id: ProducerWorker.cc,v 1.11 2005/08/02 22:24:11 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/src/ProducerWorker.h"
@@ -119,7 +119,7 @@ namespace edm
     return rc;
   }
 
-  void ProducerWorker::beginJob( EventSetup const& es) {
+  void ProducerWorker::beginJob(EventSetup const& es) {
     producer_->beginJob(es);
   }
 

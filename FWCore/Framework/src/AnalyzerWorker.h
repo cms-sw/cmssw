@@ -1,5 +1,5 @@
-#ifndef EDM_EDANALYZERWORKER_INCLUDED
-#define EDM_EDANALYZERWORKER_INCLUDED
+#ifndef Framework_EDAnalyzerWorker_h
+#define Framework_EDAnalyzerWorker_h
 
 /*----------------------------------------------------------------------
   
@@ -9,7 +9,7 @@ feed them into the event.
 According to our current definition, a single producer can only
 appear in one worker.
 
-$Id: AnalyzerWorker.h,v 1.8 2005/08/24 19:24:01 wmtan Exp $
+$Id: AnalyzerWorker.h,v 1.9 2005/08/25 20:24:52 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -65,4 +65,4 @@ namespace edm
   }
 }
 
-#endif // EDM_EDANALYZERWORKER_INCLUDED
+#endif // Framework_EDAnalyzerWorker_h

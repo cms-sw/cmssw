@@ -1,5 +1,5 @@
-#ifndef WORKERMAKER_H
-#define WORKERMAKER_H
+#ifndef Framework_WorkerMaker_h
+#define Framework_WorkerMaker_h
 
 #include "FWCore/Framework/src/Worker.h"
 #include "FWCore/Framework/interface/ModuleDescription.h"

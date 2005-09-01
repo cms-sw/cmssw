@@ -1,5 +1,5 @@
-#ifndef EDM_EDOUTPUTWORKED_INCLUDED
-#define EDM_EDOUTPUTWORKED_INCLUDED
+#ifndef Framework_OutputWorker_h
+#define Framework_OutputWorker_h
 
 /*----------------------------------------------------------------------
   
@@ -9,7 +9,7 @@ this object is to call the output module.
 According to our current definition, a single output module can only
 appear in one worker.
 
-$Id: OutputWorker.h,v 1.9 2005/08/24 19:24:01 wmtan Exp $
+$Id: OutputWorker.h,v 1.10 2005/08/25 20:24:53 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>

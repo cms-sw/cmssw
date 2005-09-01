@@ -1,5 +1,5 @@
-#ifndef EDM_TYPEID_H
-#define EDM_TYPEID_H
+#ifndef Framework_TypeID_h
+#define Framework_TypeID_h
 
 /*----------------------------------------------------------------------
   
@@ -8,7 +8,7 @@ TypeID: A unique identifier for a C++ type.
 The identifier is unique within an entire program, but can not be
 persisted across invocations of the program.
 
-$Id: TypeID.h,v 1.7 2005/07/11 23:07:27 wmtan Exp $
+$Id: TypeID.h,v 1.8 2005/07/14 22:50:53 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <iosfwd>

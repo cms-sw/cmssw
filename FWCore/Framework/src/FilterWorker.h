@@ -1,5 +1,5 @@
-#ifndef EDM_EDFILTERWORKER_INCLUDED
-#define EDM_EDFILTERWORKER_INCLUDED
+#ifndef Framework_EDFilterWorker_h
+#define Framework_EDFilterWorker_h
 
 /*----------------------------------------------------------------------
   
@@ -8,7 +8,7 @@ this object is to call the filter.
 According to our current definition, a single filter can only
 appear in one worker.
 
-$Id: FilterWorker.h,v 1.7 2005/07/28 18:48:28 wmtan Exp $
+$Id: FilterWorker.h,v 1.8 2005/08/25 20:24:52 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 

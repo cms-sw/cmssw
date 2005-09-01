@@ -1,5 +1,5 @@
-#ifndef EDM_EDPRODUCERWORKER_INCLUDED
-#define EDM_EDPRODUCERWORKER_INCLUDED
+#ifndef Framework_EDProducerWorker_h
+#define Framework_EDProducerWorker_h
 
 /*----------------------------------------------------------------------
   
@@ -9,7 +9,7 @@ feed them into the event.
 According to our current definition, a single producer can only
 appear in one worker.
 
-$Id: ProducerWorker.h,v 1.8 2005/07/28 18:48:28 wmtan Exp $
+$Id: ProducerWorker.h,v 1.9 2005/08/24 19:24:01 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -42,7 +42,7 @@ namespace edm
   private:
     virtual bool doWork(EventPrincipal& e, EventSetup const& c);
 
-    virtual void beginJob( EventSetup const& ) ;
+    virtual void beginJob(EventSetup const&) ;
     virtual void endJob() ;
     
     ModuleDescription md_;
@@ -66,4 +66,4 @@ namespace edm
 
 }
 
-#endif // EDM_EDPRODUCERWORKER_INCLUDED
+#endif // Framework_EDProducerWorker_h
