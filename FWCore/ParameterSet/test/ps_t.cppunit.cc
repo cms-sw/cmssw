@@ -1,5 +1,5 @@
 /*
- * $Id: ps_t.cppunit.cc,v 1.2 2005/08/29 22:01:20 paterno Exp $
+ * $Id: ps_t.cppunit.cc,v 1.3 2005/08/30 12:53:21 paterno Exp $
  */
 
 #include <iostream>
@@ -95,7 +95,7 @@ untrackedTestbody(T value)
 {
   edm::ParameterSet p;
   p.template addUntrackedParameter<T>("x", value);
-  CPPUNIT_ASSERT( p.template getUntrackedParameter<T>("x") == value );
+  CPPUNIT_ASSERT(p.template getUntrackedParameter<T>("x") == value);
 
   // TODO: When CPPUNIT 1.10.2 arrives, uncomment the following code block.
 
@@ -112,20 +112,20 @@ untrackedTestbody(T value)
       p.template getUntrackedParameter<T>("does not exist");
       // We can't use CPPUNIT_ASSERT, because it throws, and that
       // makes it impossible to check for the right exception below.
-      assert ( 0 == "failed to throw a required exception" );
+      assert (0 == "failed to throw a required exception");
      }
    catch (cms::Exception& x)
      {
        // ok, this is expected
      }
-   catch ( ... )
+   catch (...)
      {
        // Failure!
 
       // Don't want to use CPPUNIT_ASSERT here, because it throws, and
       // that makes understanding the handling of this catch block too
       // hard for passers-by.
-       assert ( 0 == "threw the wrong kind of exception" );
+       assert (0 == "threw the wrong kind of exception");
      }
   //-------------------------------------------------------------------------
 }
@@ -257,10 +257,10 @@ void testps::mapByIdTest()
   psets.insert(std::make_pair(id_d, d));
 
   // query map
-  CPPUNIT_ASSERT( psets.size() == 4 );
-  CPPUNIT_ASSERT( psets[id_a] == a );
-  CPPUNIT_ASSERT( psets[id_b] == b );
-  CPPUNIT_ASSERT( psets[id_c] == c );
-  CPPUNIT_ASSERT( psets[id_d] == d );
+  CPPUNIT_ASSERT(psets.size() == 4);
+  CPPUNIT_ASSERT(psets[id_a] == a);
+  CPPUNIT_ASSERT(psets[id_b] == b);
+  CPPUNIT_ASSERT(psets[id_c] == c);
+  CPPUNIT_ASSERT(psets[id_d] == d);
 }
 

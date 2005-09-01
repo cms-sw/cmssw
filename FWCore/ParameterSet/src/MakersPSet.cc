@@ -242,7 +242,7 @@ namespace edm {
 
           // Make sure the node is of type 'source' (which comes from a
           // 'secsource' entry.
-          if ( iNode.type() != "source" )
+          if (iNode.type() != "source")
             {
               throw edm::Exception(errors::Configuration,"PSetError")
                 << "An illegal entry has been found within a module declaration"
