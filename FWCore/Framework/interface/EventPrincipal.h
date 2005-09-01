@@ -15,7 +15,7 @@ through shared pointers.
 The EventPrincipal returns BasicHandle, rather than a shared
 pointer to a Group, when queried.
 
-$Id: EventPrincipal.h,v 1.13 2005/08/30 21:21:35 wmtan Exp $
+$Id: EventPrincipal.h,v 1.14 2005/09/01 05:37:43 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <map>
@@ -73,25 +73,25 @@ namespace edm {
     void put(std::auto_ptr<EDProduct> edp,
 	     std::auto_ptr<Provenance> prov);
 
-    BasicHandle  get(ProductID oid) const;
+    BasicHandle  get(ProductID const& oid) const;
 
-    BasicHandle  getBySelector(TypeID id, const Selector& s) const;
+    BasicHandle  getBySelector(TypeID const& id, Selector const& s) const;
 
-    BasicHandle  getByLabel(TypeID id,
-			    const std::string& label,
+    BasicHandle  getByLabel(TypeID const& id,
+			    std::string const& label,
                             const std::string& productInstanceName) const;
 
-    void getMany(TypeID id, 
-		 const Selector&,
+    void getMany(TypeID const& id, 
+		 Selector const&,
 		 BasicHandleVec& results) const;
 
-    BasicHandle  getByType(TypeID id) const;
+    BasicHandle  getByType(TypeID const& id) const;
 
-    void getManyByType(TypeID id, 
+    void getManyByType(TypeID const& id, 
 		 BasicHandleVec& results) const;
 
     Provenance const&
-    getProvenance(ProductID oid) const;
+    getProvenance(ProductID const& oid) const;
 
     void
     getAllProvenance(std::vector<Provenance const *> & provenances) const;

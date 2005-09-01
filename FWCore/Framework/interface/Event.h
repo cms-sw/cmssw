@@ -6,7 +6,7 @@
 Event: This is the primary interface for accessing
 EDProducts from a single collision and inserting new derived products.
 
-$Id: Event.h,v 1.17 2005/08/30 21:21:35 wmtan Exp $
+$Id: Event.h,v 1.18 2005/09/01 05:38:02 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
@@ -51,23 +51,23 @@ namespace edm {
 
     template <class PROD>
     void 
-    get(ProductID id, Handle<PROD>& result) const;
+    get(ProductID const& id, Handle<PROD>& result) const;
 
     template <class PROD>
     void 
-    get(const Selector&, Handle<PROD>& result) const;
+    get(Selector const&, Handle<PROD>& result) const;
   
     template <class PROD>
     void 
-    getByLabel(const std::string& label, Handle<PROD>& result) const;
+    getByLabel(std::string const& label, Handle<PROD>& result) const;
 
     template <class PROD>
     void 
-    getByLabel(const std::string& label, const std::string& productInstanceName, Handle<PROD>& result) const;
+    getByLabel(std::string const& label, const std::string& productInstanceName, Handle<PROD>& result) const;
 
     template <class PROD>
     void 
-    getMany(const Selector&, std::vector<Handle<PROD> >& results) const;
+    getMany(Selector const&, std::vector<Handle<PROD> >& results) const;
 
     template <class PROD>
     void
@@ -75,10 +75,10 @@ namespace edm {
 
     template <class PROD>
     void 
-    getManyByType(const Selector&, std::vector<Handle<PROD> >& results) const;
+    getManyByType(Selector const&, std::vector<Handle<PROD> >& results) const;
 
     Provenance const&
-    getProvenance(ProductID id) const;
+    getProvenance(ProductID const& id) const;
 
     void
     getAllProvenance(std::vector<Provenance const*> &provenances) const;
@@ -103,26 +103,26 @@ namespace edm {
     // from the EventPrincipal class.
 
     BasicHandle 
-    get_(ProductID oid) const;
+    get_(ProductID const& oid) const;
 
     BasicHandle 
-    get_(TypeID id, const Selector&) const;
+    get_(TypeID const& id, Selector const&) const;
     
     BasicHandle 
-    getByLabel_(TypeID id,
-		const std::string& label,
+    getByLabel_(TypeID const& id,
+		std::string const& label,
 		const std::string& productInstanceName) const;
 
     void 
-    getMany_(TypeID id, 
-	     const Selector& sel, 
+    getMany_(TypeID const& id, 
+	     Selector const& sel, 
 	     BasicHandleVec& results) const;
 
     BasicHandle 
-    getByType_(TypeID id) const;
+    getByType_(TypeID const& id) const;
 
     void 
-    getManyByType_(TypeID id, 
+    getManyByType_(TypeID const& id, 
 	     BasicHandleVec& results) const;
 
     //------------------------------------------------------------
@@ -202,7 +202,7 @@ namespace edm {
 
   template <class PROD>
   void
-  Event::get(ProductID id, Handle<PROD>& result) const
+  Event::get(ProductID const& id, Handle<PROD>& result) const
   {
     BasicHandle bh = this->get_(TypeID(typeid(PROD)), id);
     gotProductIDs_.push_back(bh.id());
@@ -211,7 +211,7 @@ namespace edm {
 
   template <class PROD>
   void 
-  Event::get(const Selector& sel,
+  Event::get(Selector const& sel,
 	     Handle<PROD>& result) const
   {
     BasicHandle bh = this->get_(TypeID(typeid(PROD)),sel);
@@ -222,7 +222,7 @@ namespace edm {
   template <class PROD>
   inline
   void
-  Event::getByLabel(const std::string& label,
+  Event::getByLabel(std::string const& label,
 		    Handle<PROD>& result) const
   {
     getByLabel(label, std::string(), result);
@@ -230,7 +230,7 @@ namespace edm {
 
   template <class PROD>
   void
-  Event::getByLabel(const std::string& label,
+  Event::getByLabel(std::string const& label,
                     const std::string& productInstanceName,
 		    Handle<PROD>& result) const
   {
@@ -241,7 +241,7 @@ namespace edm {
 
   template <class PROD>
   void 
-  Event::getMany(const Selector& sel,
+  Event::getMany(Selector const& sel,
 		 std::vector<Handle<PROD> >& results) const
   { 
     BasicHandleVec bhv;
@@ -286,7 +286,7 @@ namespace edm {
 
   template <class PROD>
   void 
-  Event::getManyByType(const Selector& sel,
+  Event::getManyByType(Selector const& sel,
 		 std::vector<Handle<PROD> >& results) const
   { 
     BasicHandleVec bhv;

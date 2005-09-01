@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EventPrincipal.cc,v 1.22 2005/08/30 18:46:26 wmtan Exp $
+$Id: EventPrincipal.cc,v 1.23 2005/08/30 21:21:35 wmtan Exp $
 ----------------------------------------------------------------------*/
 //#include <iostream>
 #include <memory>
@@ -142,7 +142,7 @@ namespace edm {
   }
 
   BasicHandle
-  EventPrincipal::get(ProductID oid) const {
+  EventPrincipal::get(ProductID const& oid) const {
     if (oid == ProductID())
       throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
 	<< "get by product ID: invalid ProductID supplied\n";
@@ -162,7 +162,7 @@ namespace edm {
   }
 
   BasicHandle
-  EventPrincipal::getBySelector(TypeID id, 
+  EventPrincipal::getBySelector(TypeID const& id, 
 				Selector const& sel) const {
     TypeDict::const_iterator i = typeDict_.find(id.friendlyClassName());
 
@@ -235,7 +235,7 @@ namespace edm {
 
     
   BasicHandle
-  EventPrincipal::getByLabel(TypeID id, 
+  EventPrincipal::getByLabel(TypeID const& id, 
 			     string const& label,
 			     string const& productInstanceName) const {
     // The following is not the most efficient way of doing this. It
@@ -273,7 +273,7 @@ namespace edm {
   }
 
   void 
-  EventPrincipal::getMany(TypeID id, 
+  EventPrincipal::getMany(TypeID const& id, 
 			  Selector const& sel,
 			  BasicHandleVec& results) const {
     // We make no promise that the input 'fill_me_up' is unchanged if
@@ -307,7 +307,7 @@ namespace edm {
   }
 
   BasicHandle
-  EventPrincipal::getByType(TypeID id) const {
+  EventPrincipal::getByType(TypeID const& id) const {
 
     TypeDict::const_iterator i = typeDict_.find(id.friendlyClassName());
 
@@ -338,7 +338,7 @@ namespace edm {
   }
 
   void 
-  EventPrincipal::getManyByType(TypeID id, 
+  EventPrincipal::getManyByType(TypeID const& id, 
 			  BasicHandleVec& results) const {
     // We make no promise that the input 'fill_me_up' is unchanged if
     // an exception is thrown. If such a promise is needed, then more
@@ -369,7 +369,7 @@ namespace edm {
   }
 
   Provenance const&
-  EventPrincipal::getProvenance(ProductID oid) const {
+  EventPrincipal::getProvenance(ProductID const& oid) const {
     if (oid == ProductID())
       throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
 	<< "getProvenance: invalid ProductID supplied\n";

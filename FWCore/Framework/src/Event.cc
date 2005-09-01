@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: Event.cc,v 1.17 2005/08/30 18:46:26 wmtan Exp $
+$Id: Event.cc,v 1.18 2005/08/30 21:21:35 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -75,19 +75,19 @@ namespace edm {
   }
 
   BasicHandle
-  Event::get_(ProductID oid) const
+  Event::get_(ProductID const& oid) const
   {
     return ep_.get(oid);
   }
 
   BasicHandle
-  Event::get_(TypeID id, const Selector& sel) const
+  Event::get_(TypeID const& id, Selector const& sel) const
   {
     return ep_.getBySelector(id, sel);
   }
     
   BasicHandle
-  Event::getByLabel_(TypeID id,
+  Event::getByLabel_(TypeID const& id,
 		     const string& label,
                      const string& productInstanceName) const
   {
@@ -95,28 +95,28 @@ namespace edm {
   }
 
   void 
-  Event::getMany_(TypeID id, 
-		  const Selector& sel,
+  Event::getMany_(TypeID const& id, 
+		  Selector const& sel,
 		  BasicHandleVec& results) const
   {
     ep_.getMany(id, sel, results);
   }
 
   BasicHandle
-  Event::getByType_(TypeID id) const
+  Event::getByType_(TypeID const& id) const
   {
     return ep_.getByType(id);
   }
 
   void 
-  Event::getManyByType_(TypeID id, 
+  Event::getManyByType_(TypeID const& id, 
 		  BasicHandleVec& results) const
   {
     ep_.getManyByType(id, results);
   }
 
   Provenance const&
-  Event::getProvenance(ProductID oid) const
+  Event::getProvenance(ProductID const& oid) const
   {
     return ep_.getProvenance(oid);
   }
