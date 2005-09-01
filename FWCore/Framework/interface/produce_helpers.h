@@ -1,5 +1,5 @@
-#ifndef EVENTSETUPPRODUCER_PRODUCE_HELPERS_H
-#define EVENTSETUPPRODUCER_PRODUCE_HELPERS_H
+#ifndef Framework_produce_helpers_h
+#define Framework_produce_helpers_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Fri Apr 15 10:25:20 EDT 2005
-// $Id: produce_helpers.h,v 1.2 2005/06/23 19:59:30 wmtan Exp $
+// $Id: produce_helpers.h,v 1.3 2005/07/14 22:50:53 wmtan Exp $
 //
 
 // system include files
@@ -96,4 +96,4 @@ namespace edm {
    }
 }
 
-#endif /* EVENTSETUPPRODUCER_PRODUCE_HELPERS_H */
+#endif /* Framework_produce_helpers_h */

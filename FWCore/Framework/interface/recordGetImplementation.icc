@@ -1,5 +1,5 @@
-#ifndef EVENTSETUP_RECORDGETIMPLEMENTATION_ICC
-#define EVENTSETUP_RECORDGETIMPLEMENTATION_ICC
+#ifndef Framework_recordGetImplementation_icc
+#define Framework_recordGetImplementation_icc
 
 // -*- C++ -*-
 //
@@ -11,7 +11,7 @@
 //
 // Author:      Chris Jones
 // Created:     Fri Apr  1 15:29:14 EST 2005
-// $Id: recordGetImplementation.icc,v 1.4 2005/06/28 14:42:10 chrjones Exp $
+// $Id: recordGetImplementation.icc,v 1.5 2005/07/14 22:50:53 wmtan Exp $
 //
 
 // system include files
@@ -55,4 +55,4 @@ EventSetupRecordImplementation<T>::getImplementation(DataT const *& iData ,
 
    }
 }
-#endif /* EVENTSETUP_RECORDGETIMPLEMENTATION_TCC */
+#endif /* Framework_recordGetImplementation_icc */
