@@ -36,11 +36,11 @@
 
 class fltrname : public edm::EDFilter {
    public:
-      explicit fltrname( const edm::ParameterSet& );
+      explicit fltrname(const edm::ParameterSet&);
       ~fltrname();
 
 
-      virtual bool filter( const Event&, const EventSetup& );
+      virtual bool filter(const Event&, const EventSetup&);
    private:
       // ----------member data ---------------------------
 };
@@ -56,7 +56,7 @@ class fltrname : public edm::EDFilter {
 //
 // constructors and destructor
 //
-fltrname::fltrname( const edm::ParameterSet& iConfig )
+fltrname::fltrname(const edm::ParameterSet& iConfig)
 {
    //now do what ever initialization is needed
 
@@ -78,7 +78,7 @@ fltrname::~fltrname()
 
 // ------------ method called to produce the data  ------------
 bool
-fltrname::filter( const edm::Event& iEvent, const edm::EventSetup& iSetup )
+fltrname::filter(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
 #ifdef THIS_IS_AN_EVENT_EXAMPLE
@@ -88,7 +88,7 @@ fltrname::filter( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 
 #ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
    ESHandle<SetupData> pSetup;
-   iSetup.get<SetupRecord>().get( pSetup );
+   iSetup.get<SetupRecord>().get(pSetup);
 #endif
    return true;
 }

@@ -36,11 +36,11 @@
 
 class anlzrname : public edm::EDAnalyzer {
    public:
-      explicit anlzrname( const edm::ParameterSet& );
+      explicit anlzrname(const edm::ParameterSet&);
       ~anlzrname();
 
 
-      virtual void analyze( const edm::Event&, const edm::EventSetup& );
+      virtual void analyze(const edm::Event&, const edm::EventSetup&);
    private:
       // ----------member data ---------------------------
 };
@@ -56,7 +56,7 @@ class anlzrname : public edm::EDAnalyzer {
 //
 // constructors and destructor
 //
-anlzrname::anlzrname( const edm::ParameterSet& iConfig )
+anlzrname::anlzrname(const edm::ParameterSet& iConfig)
 {
    //now do what ever initialization is needed
 
@@ -78,7 +78,7 @@ anlzrname::~anlzrname()
 
 // ------------ method called to produce the data  ------------
 void
-anlzrname::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
+anlzrname::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
 #ifdef THIS_IS_AN_EVENT_EXAMPLE
@@ -88,7 +88,7 @@ anlzrname::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 
 #ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
    eventsetup::ESHandle<SetupData> pSetup;
-   iSetup.get<SetupRecord>().get( pSetup );
+   iSetup.get<SetupRecord>().get(pSetup);
 #endif
 }
 

@@ -36,11 +36,11 @@
 
 class prodname : public edm::EDProducer {
    public:
-      explicit prodname( const edm::ParameterSet& );
+      explicit prodname(const edm::ParameterSet&);
       ~prodname();
 
 
-      virtual void produce( edm::Event&, const edm::EventSetup& );
+      virtual void produce(edm::Event&, const edm::EventSetup&);
    private:
       // ----------member data ---------------------------
 };
@@ -56,7 +56,7 @@ class prodname : public edm::EDProducer {
 //
 // constructors and destructor
 //
-prodname::prodname( const edm::ParameterSet& iConfig )
+prodname::prodname(const edm::ParameterSet& iConfig)
 {
    //register your products
 #ifdef THIS_IS_AN_EVENT_EXAMPLE
@@ -86,20 +86,20 @@ prodname::~prodname()
 
 // ------------ method called to produce the data  ------------
 void
-prodname::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
+prodname::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
 #ifdef THIS_IS_AN_EVENT_EXAMPLE
    Handle<ExampleData> pIn;
    iEvent.getByLabel("example",pIn);
 
-   auto_ptr<ExampleData2> pOut( new ExampleData2() );
-   iEvent.put( pOut );
+   auto_ptr<ExampleData2> pOut(new ExampleData2());
+   iEvent.put(pOut);
 #endif
 
 #ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
    ESHandle<SetupData> pSetup;
-   iSetup.get<SetupRecord>().get( pSetup );
+   iSetup.get<SetupRecord>().get(pSetup);
 #endif
 }
 

@@ -1,5 +1,5 @@
-nocap#ifndef SKELPACKAGE_SKELNAME_H
-nocap#define SKELPACKAGE_SKELNAME_H
+nocap#ifndef skelpackage_skelname_h
+nocap#define skelpackage_skelname_h
 nocap// -*- C++ -*-
 nocap//
 nocap// Package:     skelpackage
@@ -39,13 +39,13 @@ nocap
 nocap      // ---------- member functions ---------------------------
 nocap
 nocap   private:
-nocap      skelname( const skelname& ); // stop default
+nocap      skelname(const skelname&); // stop default
 nocap
-nocap      const skelname& operator=( const skelname& ); // stop default
+nocap      const skelname& operator=(const skelname&); // stop default
 nocap
 nocap      // ---------- member data --------------------------------
 nocap
 nocap};
 nocap
 nocap
-nocap#endif /* SKELPACKAGE_SKELNAME_H */
+nocap#endif /* skelpackage_skelname_h */

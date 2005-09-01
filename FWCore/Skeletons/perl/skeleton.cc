@@ -32,7 +32,7 @@ nocapskelname::skelname()
 nocap{
 nocap}
 nocap
-nocap// skelname::skelname( const skelname& rhs )
+nocap// skelname::skelname(const skelname& rhs)
 nocap// {
 nocap//    // do actual copying here;
 nocap// }
@@ -44,11 +44,11 @@ nocap
 nocap//
 nocap// assignment operators
 nocap//
-nocap// const skelname& skelname::operator=( const skelname& rhs )
+nocap// const skelname& skelname::operator=(const skelname& rhs)
 nocap// {
 nocap//   //An exception safe implementation is
 nocap//   skelname temp(rhs);
-nocap//   swap( rhs );
+nocap//   swap(rhs);
 nocap//
 nocap//   return *this;
 nocap// }
