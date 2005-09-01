@@ -1,5 +1,5 @@
-#ifndef EVENTSETUPPRODUCER_PROXYFACTORYBASE_H
-#define EVENTSETUPPRODUCER_PROXYFACTORYBASE_H
+#ifndef Framework_ProxyFactoryBase_h
+#define Framework_ProxyFactoryBase_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Thu Apr  7 21:50:36 CDT 2005
-// $Id: ProxyFactoryBase.h,v 1.2 2005/06/23 19:59:30 wmtan Exp $
+// $Id: ProxyFactoryBase.h,v 1.3 2005/07/14 22:50:52 wmtan Exp $
 //
 
 // system include files
@@ -56,4 +56,4 @@ class ProxyFactoryBase
    }
 }
 
-#endif /* EVENTSETUPPRODUCER_PROXYFACTORYBASE_H */
+#endif /* Framework_ProxyFactoryBase_h */

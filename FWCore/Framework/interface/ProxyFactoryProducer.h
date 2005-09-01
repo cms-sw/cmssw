@@ -1,5 +1,5 @@
-#ifndef EVENTSETUPPRODUCER_PROXYFACTORYPRODUCER_H
-#define EVENTSETUPPRODUCER_PROXYFACTORYPRODUCER_H
+#ifndef Framework_ProxyFactoryProducer_h
+#define Framework_ProxyFactoryProducer_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -48,7 +48,7 @@ BarProd::BarProd(const edm::ParameterSet& iPS) {
 //
 // Author:      Chris Jones
 // Created:     Thu Apr  7 17:14:58 CDT 2005
-// $Id: ProxyFactoryProducer.h,v 1.4 2005/06/23 19:59:30 wmtan Exp $
+// $Id: ProxyFactoryProducer.h,v 1.5 2005/07/14 22:50:52 wmtan Exp $
 //
 
 // system include files
@@ -135,4 +135,4 @@ class ProxyFactoryProducer : public DataProxyProvider
    }
 }
 
-#endif /* EVENTSETUPPRODUCER_PROXYFACTORYPRODUCER_H */
+#endif /* Framework_ProxyFactoryProducer_h */

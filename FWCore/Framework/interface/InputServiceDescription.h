@@ -1,12 +1,12 @@
-#ifndef INPUTSERVICEDESCRIPTION_H
-#define INPUTSERVICEDESCRIPTION_H
+#ifndef Framework_InputServiceDescription_h
+#define Framework_InputServiceDescription_h
 
 /*----------------------------------------------------------------------
 
 InputServiceDescription : the stuff that is needed to configure an
 input service that does not come in through the ParameterSet  
 
-$Id: InputServiceDescription.h,v 1.4 2005/07/23 05:19:44 wmtan Exp $
+$Id: InputServiceDescription.h,v 1.5 2005/07/30 23:44:24 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <string>
 #include "FWCore/Framework/interface/PassID.h"

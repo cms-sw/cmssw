@@ -1,12 +1,12 @@
-#ifndef EDM_RETRIEVER_HH
-#define EDM_RETRIEVER_HH
+#ifndef Framework_Retriever_h
+#define Framework_Retriever_h
 
 /*----------------------------------------------------------------------
   
 Retriever: The abstract interface through which the EventPrincipal
 uses input services to retrieve EDProducts from external storage.
 
-$Id: Retriever.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
+$Id: Retriever.h,v 1.2 2005/07/14 22:50:52 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 

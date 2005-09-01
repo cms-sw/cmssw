@@ -1,5 +1,5 @@
-#ifndef EDM_MAKERMACROS_H
-#define EDM_MAKERMACROS_H
+#ifndef Framework_MakerMacros_h
+#define Framework_MakerMacros_h
 
 #include "PluginManager/ModuleDef.h"
 #include "FWCore/Framework/src/Factory.h"

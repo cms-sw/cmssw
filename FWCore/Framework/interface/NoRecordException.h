@@ -1,5 +1,5 @@
-#if !defined(EVENTSETUP_NORECORDEXCEPTION_H)
-#define EVENTSETUP_NORECORDEXCEPTION_H
+#ifndef Framework_NoRecordException_h
+#define Framework_NoRecordException_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -73,4 +73,4 @@ class NoRecordException : public cms::Exception
 // inline function definitions
    }
 }
-#endif /* EVENTSETUP_NORECORDEXCEPTION_H */
+#endif /* Framework_NoRecordException_h */

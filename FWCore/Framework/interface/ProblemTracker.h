@@ -1,5 +1,5 @@
-#ifndef FWK_PROBLEMTRACKER_H
-#define FWK_PROBLEMTRACKER_H
+#ifndef Framework_ProblemTracker_h
+#define Framework_ProblemTracker_h
 
 /**
 

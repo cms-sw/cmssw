@@ -1,5 +1,5 @@
-#ifndef EDM_ISMACROS_H
-#define EDM_ISMACROS_H
+#ifndef Framework_InputServiceMacros_h
+#define Framework_InputServiceMacros_h
 
 #include "PluginManager/ModuleDef.h"
 #include "FWCore/Framework/src/InputServiceFactory.h"

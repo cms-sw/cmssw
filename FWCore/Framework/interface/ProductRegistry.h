@@ -1,18 +1,18 @@
+#ifndef Framework_ProductRegistry_h
+#define Framework_ProductRegistry_h
+
 /**
    \file
    Implementation of ProductRegistry
 
    \author Stefano ARGIRO
    \co-author Bill Tanenbaum
-   \version $Id: ProductRegistry.h,v 1.7 2005/07/30 04:33:39 wmtan Exp $
+   \version $Id: ProductRegistry.h,v 1.8 2005/08/25 20:30:54 wmtan Exp $
    \date 19 Jul 2005
 */
 
-#ifndef Framework_ProductRegistry_h
-#define Framework_ProductRegistry_h
-
 static const char CVSId_edm_ProductRegistry[] = 
-"$Id: ProductRegistry.h,v 1.7 2005/07/30 04:33:39 wmtan Exp $";
+"$Id: ProductRegistry.h,v 1.8 2005/08/25 20:30:54 wmtan Exp $";
 
 #include "FWCore/Framework/interface/BranchKey.h"
 #include "FWCore/Framework/interface/ProductDescription.h"

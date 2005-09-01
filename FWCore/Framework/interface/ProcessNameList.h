@@ -1,5 +1,5 @@
-#ifndef EDM_PROCESSNAMELIST_H
-#define EDM_PROCESSNAMELIST_H
+#ifndef Framework_ProcessNameList_h
+#define Framework_ProcessNameList_h
 
 #include <string>
 #include <vector>

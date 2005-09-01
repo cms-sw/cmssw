@@ -1,5 +1,5 @@
-#if !defined(HETEROCONTAINER_HCTYPETAG_CC)
-#define HETEROCONTAINER_HCTYPETAG_CC
+#ifndef Framework_HCTypeTag_icc
+#define Framework_HCTypeTag_icc
 // -*- C++ -*-
 //
 // Package:     HeteroContainer
@@ -12,11 +12,14 @@
 //
 // Author:      Chris D. Jones
 // Created:     Sun Sep 20 15:27:25 EDT 1998
-// $Id: HCTypeTag.icc,v 1.2 2005/06/23 19:59:30 wmtan Exp $
+// $Id: HCTypeTag.icc,v 1.3 2005/07/14 22:50:52 wmtan Exp $
 //
 // Revision history
 //
 // $Log: HCTypeTag.icc,v $
+// Revision 1.3  2005/07/14 22:50:52  wmtan
+// Rename packages
+//
 // Revision 1.2  2005/06/23 19:59:30  wmtan
 // fix rules violations found by rulechecker
 //
@@ -140,4 +143,4 @@ HCTypeTag< Group >::nextValue(const char* iTypeName)
 }
 }
 
-#endif /* HETEROCONTAINER_HCTYPETAG_CC */
+#endif /* Framework_HCTypeTag_icc */

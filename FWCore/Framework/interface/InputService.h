@@ -1,5 +1,5 @@
-#ifndef EDM_INPUTSERVICE_H
-#define EDM_INPUTSERVICE_H
+#ifndef Framework_InputService_h
+#define Framework_InputService_h
 
 
 /*----------------------------------------------------------------------
@@ -39,7 +39,7 @@ Some examples of InputService subclasses may be:
  3) DAQInputService: creats EventPrincipals which contain raw data, as
     delivered by the L1 trigger and event builder. 
 
-$Id: InputService.h,v 1.3 2005/07/23 05:53:33 wmtan Exp $
+$Id: InputService.h,v 1.4 2005/07/27 23:38:22 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 

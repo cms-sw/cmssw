@@ -1,5 +1,5 @@
-#if !defined(EVENTSETUP_NODATAEXCEPTION_H)
-#define EVENTSETUP_NODATAEXCEPTION_H
+#ifndef Framework_NoDataException_h
+#define Framework_NoDataException_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -60,7 +60,7 @@
 //
 // Author:      Chris D Jones
 // Created:     Tue Dec  7 09:10:34 EST 1999
-// $Id: NoDataException.h,v 1.4 2005/07/14 22:50:52 wmtan Exp $
+// $Id: NoDataException.h,v 1.5 2005/07/20 03:00:36 jbk Exp $
 //
 
 // system include files
@@ -149,4 +149,4 @@ template <class T>
 
    }
 }
-#endif /* EVENTSETUP_NODATAEXCEPTION_H */
+#endif /* Framework_NoDataException_h */

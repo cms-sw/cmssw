@@ -1,12 +1,12 @@
-#ifndef EDM_OUTPUTMODULE_H
-#define EDM_OUTPUTMODULE_H
+#ifndef Framework_OutputModule_h
+#define Framework_OutputModule_h
 
 /*----------------------------------------------------------------------
   
 OutputModule: The base class of all "modules" that write Events to an
 output stream.
 
-$Id: OutputModule.h,v 1.11 2005/07/31 14:25:09 wmtan Exp $
+$Id: OutputModule.h,v 1.12 2005/08/25 20:26:43 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 

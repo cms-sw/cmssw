@@ -1,11 +1,11 @@
-#ifndef EDM_PSID_H
-#define EDM_PSID_H
+#ifndef Framework_PS_ID_h
+#define Framework_PS_ID_h
 
 /*----------------------------------------------------------------------
   
 PS_ID: A unique identifier for ParameterSet objects.
 
-$Id: PS_ID.h,v 1.2 2005/05/18 20:34:58 wmtan Exp $
+$Id: PS_ID.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 

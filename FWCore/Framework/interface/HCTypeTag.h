@@ -1,5 +1,5 @@
-#if !defined(HETEROCONTAINER_HCTYPETAG_H)
-#define HETEROCONTAINER_HCTYPETAG_H
+#ifndef Framework_HCTypeTag_h
+#define Framework_HCTypeTag_h
 // -*- C++ -*-
 //
 // Package:     HeteroContainer
@@ -18,7 +18,7 @@
 //
 // Author:      Chris D. Jones
 // Created:     Sun Sep 20 15:05:10 EDT 1998
-// $Id: HCTypeTag.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
+// $Id: HCTypeTag.h,v 1.2 2005/06/23 19:59:30 wmtan Exp $
 //
 //
 
@@ -93,4 +93,4 @@ class HCTypeTag
       }
    }
 }
-#endif /* HETEROCONTAINER_HCTYPETAG_H */
+#endif /* Framework_HCTypeTag_h */

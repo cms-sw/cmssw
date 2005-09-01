@@ -1,5 +1,5 @@
-#ifndef EVENTSETUP_MODULEFACTORY_H
-#define EVENTSETUP_MODULEFACTORY_H
+#ifndef Framework_ModuleFactory_h
+#define Framework_ModuleFactory_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 18:01:31 EDT 2005
-// $Id: ModuleFactory.h,v 1.4 2005/06/25 22:28:50 chrjones Exp $
+// $Id: ModuleFactory.h,v 1.5 2005/07/14 22:50:52 wmtan Exp $
 //
 
 // system include files
@@ -49,5 +49,5 @@ DEFINE_SEAL_PLUGIN (edm::eventsetup::ModuleFactory,edm::eventsetup::ModuleMaker<
 #define DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(type) \
 DEFINE_SEAL_PLUGIN (edm::eventsetup::ModuleFactory,edm::eventsetup::ModuleMaker<type>,#type);
 
-#endif /* EVENTSETUP_MODULEFACTORY_H */
+#endif /* Framework_ModuleFactory_h */
 

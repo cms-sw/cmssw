@@ -1,5 +1,5 @@
-#ifndef EDM_PASSID_H
-#define EDM_PASSID_H
+#ifndef Framework_PassID_h
+#define Framework_PassID_h
 
 namespace edm
 {

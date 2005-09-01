@@ -1,5 +1,5 @@
-#ifndef EVENTSETUP_MAKEDATAEXCEPTION_H
-#define EVENTSETUP_MAKEDATAEXCEPTION_H
+#ifndef Framework_MakeDataException_h
+#define Framework_MakeDataException_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -29,7 +29,7 @@ if(outOfBoundsValue) {
 //
 // Author:      Chris Jones
 // Created:     Fri Apr  1 13:18:53 EST 2005
-// $Id: MakeDataException.h,v 1.3 2005/07/14 22:50:52 wmtan Exp $
+// $Id: MakeDataException.h,v 1.4 2005/07/20 03:00:36 jbk Exp $
 //
 
 // system include files
@@ -103,4 +103,4 @@ class MakeDataException : public cms::Exception
 
    }
 }
-#endif /* EVENTSETUP_MAKEDATAEXCEPTION_H */
+#endif /* Framework_MakeDataException_h */

@@ -1,5 +1,5 @@
-#if !defined(HETEROCONTAINER_HCTYPETAGTEMPLATE_H)
-#define HETEROCONTAINER_HCTYPETAGTEMPLATE_H
+#ifndef Framework_HCTypeTagTemplate_h
+#define Framework_HCTypeTagTemplate_h
 // -*- C++ -*-
 //
 // Package:     HeteroContainer
@@ -20,11 +20,14 @@
 //     
 // Author:      Chris D. Jones
 // Created:     Sun Sep 20 15:31:56 EDT 1998
-// $Id: HCTypeTagTemplate.h,v 1.2 2005/06/23 19:59:30 wmtan Exp $
+// $Id: HCTypeTagTemplate.h,v 1.3 2005/07/14 22:50:52 wmtan Exp $
 //
 // Revision history
 //
 // $Log: HCTypeTagTemplate.h,v $
+// Revision 1.3  2005/07/14 22:50:52  wmtan
+// Rename packages
+//
 // Revision 1.2  2005/06/23 19:59:30  wmtan
 // fix rules violations found by rulechecker
 //
@@ -114,4 +117,4 @@ const char* \
 edm::eventsetup::heterocontainer::HCTypeTagTemplate< Tname1,Tname2 , group >::className() \
 { return #Tname1 "," #Tname2 ; }
 
-#endif /* HETEROCONTAINER_HCTYPETAGTEMPLATE_H */
+#endif /* Framework_HCTypeTagTemplate_h */

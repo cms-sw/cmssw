@@ -1,5 +1,5 @@
-#ifndef FRAMEWORK_IOVSYNCVALUE_H
-#define FRAMEWORK_IOVSYNCVALUE_H
+#ifndef Framework_IOVSyncValue_h
+#define Framework_IOVSyncValue_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Aug  3 18:35:24 EDT 2005
-// $Id: IOVSyncValue.h,v 1.1 2005/08/04 14:25:47 chrjones Exp $
+// $Id: IOVSyncValue.h,v 1.2 2005/08/10 02:23:06 chrjones Exp $
 //
 
 // system include files
@@ -36,31 +36,31 @@ class IOVSyncValue
       IOVSyncValue();
       //virtual ~IOVSyncValue();
       explicit IOVSyncValue(const EventID& iID);
-      explicit IOVSyncValue( const Timestamp& iTime);
-      IOVSyncValue( const EventID& iID, const Timestamp& iID);
+      explicit IOVSyncValue(const Timestamp& iTime);
+      IOVSyncValue(const EventID& iID, const Timestamp& iID);
 
       // ---------- const member functions ---------------------
       const EventID& eventID() const { return eventID_;}
       const Timestamp& time() const {return time_; }
       
       bool operator==(const IOVSyncValue& iRHS) const {
-         return doOp<std::equal_to>( iRHS);
+         return doOp<std::equal_to>(iRHS);
       }
       bool operator!=(const IOVSyncValue& iRHS) const {
-         return doOp<std::not_equal_to>( iRHS);
+         return doOp<std::not_equal_to>(iRHS);
       }
       
       bool operator<(const IOVSyncValue& iRHS) const {
-         return doOp<std::less>( iRHS);
+         return doOp<std::less>(iRHS);
       }
       bool operator<=(const IOVSyncValue& iRHS) const {
-         return doOp<std::less_equal>( iRHS);
+         return doOp<std::less_equal>(iRHS);
       }
       bool operator>(const IOVSyncValue& iRHS) const {
-         return doOp<std::greater>( iRHS);
+         return doOp<std::greater>(iRHS);
       }
       bool operator>=(const IOVSyncValue& iRHS) const {
-         return doOp<std::greater_equal>( iRHS);
+         return doOp<std::greater_equal>(iRHS);
       }
       
       // ---------- static member functions --------------------
@@ -71,16 +71,16 @@ class IOVSyncValue
       // ---------- member functions ---------------------------
 
    private:
-      //IOVSyncValue( const IOVSyncValue& ); // stop default
+      //IOVSyncValue(const IOVSyncValue&); // stop default
 
-      //const IOVSyncValue& operator=( const IOVSyncValue& ); // stop default
+      //const IOVSyncValue& operator=(const IOVSyncValue&); // stop default
       template< template <typename> class Op >
-         bool doOp(const IOVSyncValue& iRHS ) const {
+         bool doOp(const IOVSyncValue& iRHS) const {
             bool returnValue = false;
-            if( haveID_ && iRHS.haveID_ ) {
+            if(haveID_ && iRHS.haveID_) {
                Op<EventID> op;
                returnValue = op(eventID_, iRHS.eventID_);
-            } else if ( haveTime_ && iRHS.haveTime_ ) {
+            } else if (haveTime_ && iRHS.haveTime_) {
                Op<Timestamp> op;
                returnValue = op(time_, iRHS.time_);
             } else {
@@ -98,4 +98,4 @@ class IOVSyncValue
 
 }
 
-#endif /* FRAMEWORK_IOVSYNCVALUE_H */
+#endif /* Framework_IOVSyncValue_h */

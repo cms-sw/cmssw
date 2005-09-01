@@ -1,5 +1,5 @@
-#if !defined(EVENTSETUP_NOPROXYEXCEPTION_H)
-#define EVENTSETUP_NOPROXYEXCEPTION_H
+#ifndef Framework_NoProxyException_h
+#define Framework_NoProxyException_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -15,7 +15,7 @@
 //
 // Author:      Valentine Kouznetsov
 // Created:     Wed Apr 23 10:58:26 EDT 2003
-// $Id: NoProxyException.h,v 1.4 2005/07/14 22:50:52 wmtan Exp $
+// $Id: NoProxyException.h,v 1.5 2005/07/20 03:00:36 jbk Exp $
 //
 //
 
@@ -143,4 +143,4 @@ class NoProxyException : public NoDataException<T>
 }
 // inline function definitions
 
-#endif /* EVENTSETUP_NOPROXYEXCEPTION_H */
+#endif /* Framework_NoProxyException_h */
