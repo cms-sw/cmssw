@@ -1,5 +1,5 @@
-#ifndef EVENTSETUP_EVENTSETUPDATA_REGISTRATION_MACRO_H
-#define EVENTSETUP_EVENTSETUPDATA_REGISTRATION_MACRO_H
+#ifndef Framework_eventsetupdata_registration_macro_h
+#define Framework_eventsetupdata_registration_macro_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -28,7 +28,7 @@ the file that uses the 'EVENTSETUP_DATA_REG' macro must be in the same library a
 //
 // Author:      Chris Jones
 // Created:     Wed Apr  6 15:21:58 EDT 2005
-// $Id: eventsetupdata_registration_macro.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
+// $Id: eventsetupdata_registration_macro.h,v 1.2 2005/07/14 22:50:53 wmtan Exp $
 //
 
 // system include files
@@ -43,4 +43,4 @@ edm::eventsetup::heterocontainer::HCTypeTagTemplate<_dataclass_, edm::eventsetup
 template class edm::eventsetup::heterocontainer::HCTypeTagTemplate<_dataclass_, edm::eventsetup::DataKey>;
 
 
-#endif /* EVENTSETUP_EVENTSETUPDATA_REGISTRATION_MACRO_H */
+#endif

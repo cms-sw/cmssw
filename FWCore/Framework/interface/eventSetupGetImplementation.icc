@@ -1,5 +1,5 @@
-#ifndef EVENTSETUP_GETIMPLEMENTATION_TCC
-#define EVENTSETUP_GETIMPLEMENTATION_TCC
+#ifndef Framework_eventSetupGetImplementation_icc
+#define Framework_eventSetupGetImplementation_icc
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -33,4 +33,4 @@ namespace edm {
       }
    }
 }
-#endif /* EVENTSETUP_CONTEXTGETIMPLEMENTATION_TCC */
+#endif

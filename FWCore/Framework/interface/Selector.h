@@ -1,12 +1,12 @@
-#ifndef EDM_SELECTOR_INCLUDED
-#define EDM_SELECTOR_INCLUDED
+#ifndef Framework_Selector_h
+#define Framework_Selector_h
 
 /*----------------------------------------------------------------------
   
 Selector: Base class for all "selector" objects, used to select
 EDProducts based on information in the associated Provenance.
 
-$Id: Selector.h,v 1.4 2005/07/21 16:47:32 wmtan Exp $
+$Id: Selector.h,v 1.5 2005/07/30 23:44:24 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -55,4 +55,4 @@ namespace edm {
 
 }
 
-#endif //  EDM_SELECTOR_INCLUDED
+#endif //  Framework_Selector_h

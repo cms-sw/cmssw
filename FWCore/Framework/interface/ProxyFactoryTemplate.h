@@ -1,5 +1,5 @@
-#ifndef EVENTSETUPPRODUCER_PROXYFACTORYTEMPLATE_H
-#define EVENTSETUPPRODUCER_PROXYFACTORYTEMPLATE_H
+#ifndef Framework_ProxyFactoryTemplate_h
+#define Framework_ProxyFactoryTemplate_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Fri Apr  8 07:59:32 CDT 2005
-// $Id: ProxyFactoryTemplate.h,v 1.2 2005/06/23 19:59:30 wmtan Exp $
+// $Id: ProxyFactoryTemplate.h,v 1.3 2005/07/14 22:50:52 wmtan Exp $
 //
 
 // system include files
@@ -65,4 +65,4 @@ class ProxyFactoryTemplate : public ProxyFactoryBase
    }
 }
 
-#endif /* EVENTSETUPPRODUCER_PROXYFACTORYTEMPLATE_H */
+#endif

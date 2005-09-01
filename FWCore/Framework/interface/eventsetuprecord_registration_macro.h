@@ -1,5 +1,5 @@
-#ifndef EVENTSETUP_EVENTSETUPRECORD_REGISTRATION_MACRO_H
-#define EVENTSETUP_EVENTSETUPRECORD_REGISTRATION_MACRO_H
+#ifndef Framework_eventsetuprecord_registration_macro_h
+#define Framework_eventsetuprecord_registration_macro_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -23,7 +23,7 @@ macro EVENTSETUP_RECORD_REG is used to create that code.
 //
 // Author:      Chris Jones
 // Created:     Wed Apr  6 14:33:32 EDT 2005
-// $Id: eventsetuprecord_registration_macro.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
+// $Id: eventsetuprecord_registration_macro.h,v 1.2 2005/07/14 22:50:53 wmtan Exp $
 //
 
 // system include files
@@ -47,4 +47,4 @@ template  edm::eventsetup::EventSetupRecordKey edm::eventsetup::heterocontainer:
 template class edm::eventsetup::heterocontainer::HCTypeTagTemplate<_recordclassname_, edm::eventsetup::EventSetupRecordKey>;
 
 
-#endif /* EVENTSETUP_EVENTSETUPRECORD_REGISTRATION_MACRO_H */
+#endif

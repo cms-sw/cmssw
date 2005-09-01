@@ -1,5 +1,5 @@
-#ifndef EVENTSETUP_SOURCEFACTORY_H
-#define EVENTSETUP_SOURCEFACTORY_H
+#ifndef Framework_SourceFactory_h
+#define Framework_SourceFactory_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 18:01:38 EDT 2005
-// $Id: SourceFactory.h,v 1.6 2005/08/24 21:43:24 chrjones Exp $
+// $Id: SourceFactory.h,v 1.7 2005/08/29 21:21:00 wmtan Exp $
 //
 
 // system include files
@@ -67,7 +67,7 @@ namespace edm {
 DEFINE_SEAL_MODULE (); \
 DEFINE_SEAL_PLUGIN (edm::eventsetup::SourceFactory,edm::eventsetup::SourceMaker<type>,#type);
 
-#define DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(type) \
+#define DEFINE_ANOTHER_FWK_Framework_SOURCE(type) \
 DEFINE_SEAL_PLUGIN (edm::eventsetup::SourceFactory,edm::eventsetup::SourceMaker<type>,#type);
 
-#endif /* EVENTSETUP_SOURCEFACTORY_H */
+#endif /* Framework_SourceFactory_h */

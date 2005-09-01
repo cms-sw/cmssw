@@ -1,5 +1,5 @@
-#ifndef EDM_VERSIONNUMBER_H
-#define EDM_VERSIONNUMBER_H
+#ifndef Framework_VersionNumber_h
+#define Framework_VersionNumber_h
 
 namespace edm
 {

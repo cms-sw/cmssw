@@ -1,5 +1,5 @@
-#ifndef EVENTSETUP_EVENTSETUPGETIMPLEMENTATION_H
-#define EVENTSETUP_EVENTSETUPGETIMPLEMENTATION_H
+#ifndef Framework_eventSetupGetImplementation_h
+#define Framework_eventSetupGetImplementation_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -32,4 +32,4 @@ namespace edm {
                                        T const *&);
    }
 }
-#endif /* EVENTSETUP_EVENTSETUPGETIMPLEMENTATION_H */
+#endif /* Framework_eventSetupGetImplementation_h */

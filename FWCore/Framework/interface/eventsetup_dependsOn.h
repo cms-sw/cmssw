@@ -1,5 +1,5 @@
-#ifndef COREFRAMEWORK_EVENTSETUP_DEPENDSON_H
-#define COREFRAMEWORK_EVENTSETUP_DEPENDSON_H
+#ifndef Framework_eventsetup_dependsOn_h
+#define Framework_eventsetup_dependsOn_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -44,7 +44,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jun 23 14:06:56 EDT 2005
-// $Id: eventsetup_dependsOn.h,v 1.4 2005/07/14 22:50:53 wmtan Exp $
+// $Id: eventsetup_dependsOn.h,v 1.5 2005/08/04 15:04:21 chrjones Exp $
 //
 
 // system include files
@@ -202,4 +202,4 @@ private:
    }
 }
 
-#endif /* COREFRAMEWORK_EVENTSETUP_DEPENDSON_H */
+#endif

@@ -1,5 +1,5 @@
-#ifndef EVENTSETUP_VALIDITYINTERVAL_H
-#define EVENTSETUP_VALIDITYINTERVAL_H
+#ifndef Framework_ValidityInterval_h
+#define Framework_ValidityInterval_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -70,4 +70,4 @@ class ValidityInterval
 };
 
 }
-#endif /* EVENTSETUP_VALIDITYINTERVAL_H */
+#endif /* Framework_ValidityInterval_h */
