@@ -19,19 +19,9 @@
 #define CLHEP_LORENTZVECTOR_H
 #endif
 
-#ifndef KTJET_KTUTIL_H
 #include "RecoJets/JetAlgorithms/interface/KtUtil.h"
-#define KTJET_KTUTIL_H
-#endif
-#ifndef KTJET_KTLORENTZVECTOR_H
 #include "RecoJets/JetAlgorithms/interface/KtLorentzVector.h"
-#define KTJET_KTLORENTZVECTOR_H
-#endif
-#ifndef KTJET_KTRECOMINTERFACE_H
 #include "RecoJets/JetAlgorithms/interface/KtRecomInterface.h"
-#define KTJET_KTRECOMINTERFACE_H
-#endif
-
 
 namespace KtJet {
 /**

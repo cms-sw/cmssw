@@ -24,9 +24,6 @@
 #endif
 
 #include "RecoJets/JetAlgorithms/interface/KtUtil.h"
-#endif
-
-
 
 namespace KtJet {
 /**
