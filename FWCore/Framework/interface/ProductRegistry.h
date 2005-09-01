@@ -7,15 +7,13 @@
 
    \author Stefano ARGIRO
    \co-author Bill Tanenbaum
-   \version $Id: ProductRegistry.h,v 1.8 2005/08/25 20:30:54 wmtan Exp $
+   \version $Id: ProductRegistry.h,v 1.9 2005/09/01 05:08:50 wmtan Exp $
    \date 19 Jul 2005
 */
 
-static const char CVSId_edm_ProductRegistry[] = 
-"$Id: ProductRegistry.h,v 1.8 2005/08/25 20:30:54 wmtan Exp $";
-
 #include "FWCore/Framework/interface/BranchKey.h"
 #include "FWCore/Framework/interface/ProductDescription.h"
+
 namespace edm {
 
   /**

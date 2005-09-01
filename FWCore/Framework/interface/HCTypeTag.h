@@ -18,7 +18,7 @@
 //
 // Author:      Chris D. Jones
 // Created:     Sun Sep 20 15:05:10 EDT 1998
-// $Id: HCTypeTag.h,v 1.2 2005/06/23 19:59:30 wmtan Exp $
+// $Id: HCTypeTag.h,v 1.3 2005/09/01 05:20:56 wmtan Exp $
 //
 //
 
@@ -93,4 +93,4 @@ class HCTypeTag
       }
    }
 }
-#endif /* Framework_HCTypeTag_h */
+#endif

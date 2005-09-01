@@ -73,4 +73,4 @@ class NoRecordException : public cms::Exception
 // inline function definitions
    }
 }
-#endif /* Framework_NoRecordException_h */
+#endif

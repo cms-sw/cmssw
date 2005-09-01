@@ -6,7 +6,7 @@
 Selector: Base class for all "selector" objects, used to select
 EDProducts based on information in the associated Provenance.
 
-$Id: Selector.h,v 1.5 2005/07/30 23:44:24 wmtan Exp $
+$Id: Selector.h,v 1.6 2005/09/01 05:04:19 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -55,4 +55,4 @@ namespace edm {
 
 }
 
-#endif //  Framework_Selector_h
+#endif

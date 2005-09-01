@@ -1,17 +1,14 @@
+#ifndef Framework_ScheduleExecutor_h
+#define Framework_ScheduleExecutor_h
+
 /**
    \file
    Declaration of class ScheduleExecutor
 
    \author Stefano ARGIRO
-   \version $Id: ScheduleExecutor.h,v 1.3 2005/06/23 19:59:30 wmtan Exp $
+   \version $Id: ScheduleExecutor.h,v 1.4 2005/07/20 03:00:36 jbk Exp $
    \date 18 May 2005
 */
-
-#ifndef _edm_ScheduleExecutor_h_
-#define _edm_ScheduleExecutor_h_
-
-static const char CVSId_edm_ScheduleExecutor[] = 
-"$Id: ScheduleExecutor.h,v 1.3 2005/06/23 19:59:30 wmtan Exp $";
 
 #include <list>
 
@@ -53,4 +50,4 @@ namespace edm {
 } // edm
 
 
-#endif // _edm_ScheduleExecutor_h_
+#endif

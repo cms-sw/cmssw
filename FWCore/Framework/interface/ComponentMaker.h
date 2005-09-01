@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 16:56:05 EDT 2005
-// $Id: ComponentMaker.h,v 1.5 2005/08/24 21:43:24 chrjones Exp $
+// $Id: ComponentMaker.h,v 1.6 2005/09/01 05:44:00 wmtan Exp $
 //
 
 // system include files
@@ -84,4 +84,4 @@ ComponentMaker<T,TComponent>:: addTo(EventSetupProvider& iProvider,
 }
    }
 }
-#endif /* Framework_ComponentMaker_h */
+#endif

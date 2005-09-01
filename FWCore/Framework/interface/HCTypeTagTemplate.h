@@ -20,11 +20,14 @@
 //     
 // Author:      Chris D. Jones
 // Created:     Sun Sep 20 15:31:56 EDT 1998
-// $Id: HCTypeTagTemplate.h,v 1.3 2005/07/14 22:50:52 wmtan Exp $
+// $Id: HCTypeTagTemplate.h,v 1.4 2005/09/01 05:20:05 wmtan Exp $
 //
 // Revision history
 //
 // $Log: HCTypeTagTemplate.h,v $
+// Revision 1.4  2005/09/01 05:20:05  wmtan
+// Fix Rules violations found by RuleChecker
+//
 // Revision 1.3  2005/07/14 22:50:52  wmtan
 // Rename packages
 //
@@ -117,4 +120,4 @@ const char* \
 edm::eventsetup::heterocontainer::HCTypeTagTemplate< Tname1,Tname2 , group >::className() \
 { return #Tname1 "," #Tname2 ; }
 
-#endif /* Framework_HCTypeTagTemplate_h */
+#endif

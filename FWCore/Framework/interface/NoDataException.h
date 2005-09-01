@@ -60,7 +60,7 @@
 //
 // Author:      Chris D Jones
 // Created:     Tue Dec  7 09:10:34 EST 1999
-// $Id: NoDataException.h,v 1.5 2005/07/20 03:00:36 jbk Exp $
+// $Id: NoDataException.h,v 1.6 2005/09/01 05:13:35 wmtan Exp $
 //
 
 // system include files
@@ -149,4 +149,4 @@ template <class T>
 
    }
 }
-#endif /* Framework_NoDataException_h */
+#endif

@@ -1,5 +1,5 @@
-#ifndef Framework_DEPRecord_h
-#define Framework_DEPRecord_h
+#ifndef Framework_DepRecord_h
+#define Framework_DepRecord_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Jun 22 19:46:32 EDT 2005
-// $Id: DepRecord.h,v 1.2 2005/07/14 22:50:53 wmtan Exp $
+// $Id: DepRecord.h,v 1.3 2005/09/01 04:24:28 wmtan Exp $
 //
 
 // system include files
@@ -33,4 +33,4 @@ class DepRecord
 {
 };
 
-#endif /* Framework_DEPRecord_h */
+#endif

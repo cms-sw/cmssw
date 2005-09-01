@@ -1,8 +1,8 @@
-#ifndef  ParameterSet_ParameterSet_h
-#define  ParameterSet_ParameterSet_h
+#ifndef ParameterSet_ParameterSet_h
+#define ParameterSet_ParameterSet_h
 
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.h,v 1.8 2005/08/29 22:01:20 paterno Exp $
+// $Id: ParameterSet.h,v 1.9 2005/09/01 03:51:57 wmtan Exp $
 //
 // Declaration for ParameterSet(parameter set) and related types
 // ----------------------------------------------------------------------
@@ -408,4 +408,4 @@ private:
 
 // epilog
 
-#endif  // ParameterSet_ParameterSet_h
+#endif

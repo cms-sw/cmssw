@@ -19,4 +19,3 @@ extern debugvalue debugit;
 #define FDEBUG(lev) if(lev <= debugit()) std::cerr
 
 #endif
-

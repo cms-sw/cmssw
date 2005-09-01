@@ -89,4 +89,4 @@ class EventSetupProvider
 
    }
 }
-#endif /* Framework_EventSetupProvider_h */
+#endif

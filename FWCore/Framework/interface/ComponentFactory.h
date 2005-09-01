@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 15:21:05 EDT 2005
-// $Id: ComponentFactory.h,v 1.7 2005/07/20 03:00:36 jbk Exp $
+// $Id: ComponentFactory.h,v 1.8 2005/09/01 05:44:18 wmtan Exp $
 //
 
 // system include files
@@ -99,4 +99,4 @@ class ComponentFactory : public seal::PluginFactory< ComponentMakerBase<T>* ()>
 }
 #define COMPONENTFACTORY_GET(_type_) static edm::eventsetup::ComponentFactory<_type_> s_dummyfactory; template<> edm::eventsetup::ComponentFactory<_type_>* edm::eventsetup::ComponentFactory<_type_>::get() { return &s_dummyfactory; }
 
-#endif /* Framework_ComponentFactory_h */
+#endif

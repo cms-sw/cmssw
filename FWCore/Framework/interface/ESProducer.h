@@ -66,7 +66,7 @@ Example: two algorithms each creating only one objects
 //
 // Author:      Chris Jones
 // Created:     Thu Apr  7 17:08:14 CDT 2005
-// $Id: ESProducer.h,v 1.9 2005/08/30 20:29:48 wmtan Exp $
+// $Id: ESProducer.h,v 1.10 2005/09/01 05:38:45 wmtan Exp $
 //
 
 // system include files
@@ -208,4 +208,4 @@ class ESProducer : public ProxyFactoryProducer
 };
    }
 }
-#endif /* Framework_ESProducer_h */
+#endif

@@ -15,7 +15,7 @@
 //
 // Author:      Valentine Kouznetsov
 // Created:     Wed Apr 23 10:58:26 EDT 2003
-// $Id: NoProxyException.h,v 1.5 2005/07/20 03:00:36 jbk Exp $
+// $Id: NoProxyException.h,v 1.6 2005/09/01 05:13:14 wmtan Exp $
 //
 //
 
@@ -143,4 +143,4 @@ class NoProxyException : public NoDataException<T>
 }
 // inline function definitions
 
-#endif /* Framework_NoProxyException_h */
+#endif

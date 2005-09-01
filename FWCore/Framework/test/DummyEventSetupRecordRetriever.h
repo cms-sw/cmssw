@@ -1,5 +1,5 @@
-#ifndef Framework_DummyEventSetupRecordRETRIEVER_h
-#define Framework_DummyEventSetupRecordRETRIEVER_h
+#ifndef Framework_DummyEventSetupRecordRetriever_h
+#define Framework_DummyEventSetupRecordRetriever_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Fri Apr 22 14:14:09 EDT 2005
-// $Id: DummyEventSetupRecordRetriever.h,v 1.6 2005/08/24 21:43:15 chrjones Exp $
+// $Id: DummyEventSetupRecordRetriever.h,v 1.7 2005/09/01 04:24:28 wmtan Exp $
 //
 
 // system include files
@@ -63,4 +63,4 @@ namespace edm {
 
 };
 }
-#endif /* Framework_DummyEventSetupRecordRETRIEVER_h */
+#endif

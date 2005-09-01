@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 13:23:03 EDT 2005
-// $Id: Doodad.h,v 1.2 2005/07/14 21:57:26 wmtan Exp $
+// $Id: Doodad.h,v 1.3 2005/09/01 03:58:31 wmtan Exp $
 //
 
 // system include files
@@ -32,4 +32,4 @@ struct Doodad
 };
 }
 
-#endif /* Integration_Doodad_h */
+#endif

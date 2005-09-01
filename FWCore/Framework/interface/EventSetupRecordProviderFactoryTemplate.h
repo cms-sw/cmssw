@@ -62,4 +62,4 @@ class EventSetupRecordProviderFactoryTemplate : public EventSetupRecordProviderF
 };
    }
 }
-#endif /* Framework_EventSetupRecordProviderFactoryTemplate_h */
+#endif

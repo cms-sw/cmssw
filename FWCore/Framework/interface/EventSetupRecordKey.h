@@ -70,4 +70,4 @@ class EventSetupRecordKey
    }
 }
 
-#endif /* Framework_EventSetupRecordKey_h */
+#endif

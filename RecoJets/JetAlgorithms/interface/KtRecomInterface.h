@@ -30,4 +30,4 @@ namespace KtJet {
   
 }
 
-#endif //end of namespace
+#endif

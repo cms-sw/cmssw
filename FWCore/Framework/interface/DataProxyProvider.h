@@ -98,4 +98,4 @@ inline void insertProxy(DataProxyProvider::KeyedProxies& iList,
 
    }
 }
-#endif /* Framework_DataProxyProvider_h */
+#endif

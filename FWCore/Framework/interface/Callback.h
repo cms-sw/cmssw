@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Sun Apr 17 14:30:24 EDT 2005
-// $Id: Callback.h,v 1.4 2005/07/14 22:50:52 wmtan Exp $
+// $Id: Callback.h,v 1.5 2005/09/01 05:44:55 wmtan Exp $
 //
 
 // system include files
@@ -117,4 +117,4 @@ namespace edm {
    }
 }
 
-#endif /* Framework_Callback_h */
+#endif

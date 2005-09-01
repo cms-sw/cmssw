@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Sun Apr 17 17:30:46 EDT 2005
-// $Id: ESProducts.h,v 1.4 2005/07/14 22:50:52 wmtan Exp $
+// $Id: ESProducts.h,v 1.5 2005/09/01 05:38:45 wmtan Exp $
 //
 
 // system include files
@@ -170,4 +170,4 @@ namespace edm {
 }
 
 
-#endif /* Framework_ESProducts_h */
+#endif

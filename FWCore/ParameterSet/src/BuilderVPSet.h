@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 18 15:38:32 EDT 2005
-// $Id: BuilderVPSet.h,v 1.2 2005/06/23 19:57:22 wmtan Exp $
+// $Id: BuilderVPSet.h,v 1.3 2005/09/01 03:43:38 wmtan Exp $
 //
 
 // system include files
@@ -50,4 +50,4 @@ struct BuilderVPSet : public Visitor
    }
 }
 
-#endif /* ParameterSet_BuilderVPSet_h */
+#endif

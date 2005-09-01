@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Sun May  1 16:59:49 EDT 2005
-// $Id: DependentEventSetupRecordProviderTemplate.h,v 1.3 2005/07/14 22:50:52 wmtan Exp $
+// $Id: DependentEventSetupRecordProviderTemplate.h,v 1.4 2005/09/01 05:41:28 wmtan Exp $
 //
 
 // system include files
@@ -76,4 +76,4 @@ class DependentEventSetupRecordProviderTemplate : public DependentEventSetupReco
 
 }
    }
-#endif /* Framework_DependentEventSetupRecordProviderTemplate_h */
+#endif

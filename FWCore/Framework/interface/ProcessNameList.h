@@ -8,4 +8,4 @@ namespace edm
   typedef std::vector<std::string>  ProcessNameList;
 }
 
-#endif 
+#endif

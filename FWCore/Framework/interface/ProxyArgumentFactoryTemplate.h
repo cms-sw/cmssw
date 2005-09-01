@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Mon Apr 11 16:20:52 CDT 2005
-// $Id: ProxyArgumentFactoryTemplate.h,v 1.3 2005/07/14 22:50:52 wmtan Exp $
+// $Id: ProxyArgumentFactoryTemplate.h,v 1.4 2005/09/01 05:08:50 wmtan Exp $
 //
 
 // system include files
@@ -63,4 +63,4 @@ class ProxyArgumentFactoryTemplate : public ProxyFactoryBase
 
    }
 }
-#endif /* Framework_ProxyArgumentFactoryTemplate_h */
+#endif

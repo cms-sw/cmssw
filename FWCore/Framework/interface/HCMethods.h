@@ -52,4 +52,4 @@ namespace edm {
       }
    }
 }
-#endif /* Framework_HCMethods_h */
+#endif

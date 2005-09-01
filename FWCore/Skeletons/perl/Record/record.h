@@ -23,5 +23,4 @@ nocap#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 nocap
 nocapclass skelname : public edm::eventsetup::EventSetupRecordImplementation<skelname> {};
 nocap
-nocap#endif /* skelpackage_skelname_h */
-
+nocap#endif

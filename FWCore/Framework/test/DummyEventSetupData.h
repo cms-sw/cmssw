@@ -25,5 +25,5 @@ EVENTSETUP_DATA_DEFAULT_RECORD(edm::DummyEventSetupData, edm::DummyEventSetupRec
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 EVENTSETUP_DATA_REG(edm::DummyEventSetupData);
 
-#endif /* EventSETUP_TEST_DummyEventSETUPData_h */
+#endif
 

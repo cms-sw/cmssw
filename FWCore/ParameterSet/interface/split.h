@@ -1,8 +1,8 @@
-#ifndef  ParameterSet_split_h
-#define  ParameterSet_split_h
+#ifndef ParameterSet_split_h
+#define ParameterSet_split_h
 
 // ----------------------------------------------------------------------
-// $Id: split.h,v 1.3 2005/08/24 19:11:10 wmtan Exp $
+// $Id: split.h,v 1.4 2005/09/01 03:51:57 wmtan Exp $
 //
 // definition of split() and related templates
 // ----------------------------------------------------------------------
@@ -124,4 +124,4 @@ bool
 // ----------------------------------------------------------------------
 // epilog
 
-#endif  // ParameterSet_Split_h
+#endif

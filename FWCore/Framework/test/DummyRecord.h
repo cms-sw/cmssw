@@ -13,4 +13,4 @@
 
 class DummyRecord : public edm::eventsetup::EventSetupRecordImplementation<DummyRecord> {};
 
-#endif /*EventSetup_TEST_DummyRecord_h*/
+#endif

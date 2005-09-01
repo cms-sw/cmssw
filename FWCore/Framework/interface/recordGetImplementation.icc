@@ -11,7 +11,7 @@
 //
 // Author:      Chris Jones
 // Created:     Fri Apr  1 15:29:14 EST 2005
-// $Id: recordGetImplementation.icc,v 1.5 2005/07/14 22:50:53 wmtan Exp $
+// $Id: recordGetImplementation.icc,v 1.6 2005/09/01 04:47:49 wmtan Exp $
 //
 
 // system include files
@@ -55,4 +55,4 @@ EventSetupRecordImplementation<T>::getImplementation(DataT const *& iData ,
 
    }
 }
-#endif /* Framework_recordGetImplementation_icc */
+#endif

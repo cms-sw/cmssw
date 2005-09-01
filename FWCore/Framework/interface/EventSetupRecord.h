@@ -106,4 +106,4 @@ class EventSetupRecord
 
    }
 }
-#endif /* Framework_EventSetupRecord_h */
+#endif

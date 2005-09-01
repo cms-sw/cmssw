@@ -1,16 +1,14 @@
+#ifndef Framework_WorkerRegistry_h
+#define Framework_WorkerRegistry_h
+
 /**
    \file
    Declaration of class ModuleRegistry
 
    \author Stefano ARGIRO
-   \version $Id: WorkerRegistry.h,v 1.3 2005/06/24 14:53:53 argiro Exp $
+   \version $Id: WorkerRegistry.h,v 1.4 2005/07/20 03:00:36 jbk Exp $
    \date 18 May 2005
 */
-
-#ifndef _edm_ModuleRegistry_h_
-#define _edm_ModuleRegistry_h_
-
-static const char CVSId_edm_ModuleRegistry[] = "$Id: WorkerRegistry.h,v 1.3 2005/06/24 14:53:53 argiro Exp $";
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/src/WorkerParams.h"
@@ -67,5 +65,4 @@ namespace edm {
 } // edm
 
 
-#endif // _edm_WorkerRegistry_h_
-
+#endif

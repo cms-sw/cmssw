@@ -12,11 +12,14 @@
 //
 // Author:      Chris D. Jones
 // Created:     Sun Sep 20 15:27:25 EDT 1998
-// $Id: HCTypeTag.icc,v 1.3 2005/07/14 22:50:52 wmtan Exp $
+// $Id: HCTypeTag.icc,v 1.4 2005/09/01 05:20:56 wmtan Exp $
 //
 // Revision history
 //
 // $Log: HCTypeTag.icc,v $
+// Revision 1.4  2005/09/01 05:20:56  wmtan
+// Fix Rules violations found by RuleChecker
+//
 // Revision 1.3  2005/07/14 22:50:52  wmtan
 // Rename packages
 //
@@ -143,4 +146,4 @@ HCTypeTag< Group >::nextValue(const char* iTypeName)
 }
 }
 
-#endif /* Framework_HCTypeTag_icc */
+#endif

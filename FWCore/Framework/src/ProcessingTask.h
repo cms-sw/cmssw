@@ -8,4 +8,4 @@ namespace edm
   typedef std::string ProcessingTask;
 }
 
-#endif //  Framework_ProcessingTask_h
+#endif

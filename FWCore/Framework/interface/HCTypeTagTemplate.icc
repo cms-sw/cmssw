@@ -12,11 +12,14 @@
 //
 // Author:      Chris D Jones
 // Created:     Wed Sep 30 11:09:00 EDT 1998
-// $Id: HCTypeTagTemplate.icc,v 1.3 2005/07/14 22:50:52 wmtan Exp $
+// $Id: HCTypeTagTemplate.icc,v 1.4 2005/09/01 05:19:45 wmtan Exp $
 //
 // Revision history
 //
 // $Log: HCTypeTagTemplate.icc,v $
+// Revision 1.4  2005/09/01 05:19:45  wmtan
+// Fix Rules violations found by RuleChecker
+//
 // Revision 1.3  2005/07/14 22:50:52  wmtan
 // Rename packages
 //
@@ -78,4 +81,4 @@ HCTypeTagTemplate<T,Group>::classValue() {
 }
 }
 }
-#endif /* Framework_HCTypeTagTemplate_icc */
+#endif

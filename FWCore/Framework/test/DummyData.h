@@ -26,5 +26,4 @@ namespace edm {
 #include "FWCore/Framework/interface/data_default_record_trait.h"
 EVENTSETUP_DATA_DEFAULT_RECORD(edm::eventsetup::test::DummyData, DummyRecord);
 
-#endif /* Framework_DummyData_h */
-
+#endif

@@ -1,11 +1,11 @@
-#ifndef Frameworkfwd_h
-#define Frameworkfwd_h
+#ifndef Framework_Frameworkfwd_h
+#define Framework_Frameworkfwd_h
 
 /*----------------------------------------------------------------------
   
 Forward declarations of types in the EDM.
 
-$Id: Frameworkfwd.h,v 1.6 2005/08/10 02:28:38 chrjones Exp $
+$Id: Frameworkfwd.h,v 1.7 2005/09/01 05:28:23 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 

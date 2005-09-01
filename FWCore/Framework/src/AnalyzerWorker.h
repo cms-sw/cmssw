@@ -9,7 +9,7 @@ feed them into the event.
 According to our current definition, a single producer can only
 appear in one worker.
 
-$Id: AnalyzerWorker.h,v 1.10 2005/09/01 04:30:51 wmtan Exp $
+$Id: AnalyzerWorker.h,v 1.11 2005/09/01 04:32:41 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -65,4 +65,4 @@ namespace edm
   }
 }
 
-#endif // Framework_AnalyzerWorker_h
+#endif

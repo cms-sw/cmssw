@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Fri Apr  1 16:50:49 EST 2005
-// $Id: EventSetupRecordImplementation.h,v 1.5 2005/07/14 22:50:52 wmtan Exp $
+// $Id: EventSetupRecordImplementation.h,v 1.6 2005/09/01 05:35:23 wmtan Exp $
 //
 
 // system include files
@@ -145,4 +145,4 @@ EventSetupRecordImplementation<T>::getImplementation(DataT const *& iData ,
 }
 #include "FWCore/Framework/interface/recordGetImplementation.icc"
 
-#endif /* Framework_EventSetupRecordImplementation_h */
+#endif

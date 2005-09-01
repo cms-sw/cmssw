@@ -18,7 +18,7 @@
 //
 // Author:      Chris Jones
 // Created:     Sat Apr 30 19:36:59 EDT 2005
-// $Id: DependentRecordIntervalFinder.h,v 1.4 2005/08/04 15:04:21 chrjones Exp $
+// $Id: DependentRecordIntervalFinder.h,v 1.5 2005/09/01 05:40:41 wmtan Exp $
 //
 
 // system include files
@@ -64,4 +64,4 @@ class DependentRecordIntervalFinder : public EventSetupRecordIntervalFinder
 
    }
 }
-#endif /* Framework_DependentRecordIntervalFinder_h */
+#endif

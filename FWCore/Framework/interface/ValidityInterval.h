@@ -70,4 +70,4 @@ class ValidityInterval
 };
 
 }
-#endif /* Framework_ValidityInterval_h */
+#endif

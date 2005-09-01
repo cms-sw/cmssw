@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: types.h,v 1.3 2005/06/23 19:57:22 wmtan Exp $
+// $Id: types.h,v 1.4 2005/09/01 03:51:57 wmtan Exp $
 //
 // declaration of type encoding/decoding functions
 // ----------------------------------------------------------------------
@@ -8,8 +8,8 @@
 // ----------------------------------------------------------------------
 // prolog
 
-#ifndef  ParameterSet_types_h
-#define  ParameterSet_types_h
+#ifndef ParameterSet_types_h
+#define ParameterSet_types_h
 
 
 // ----------------------------------------------------------------------
@@ -81,4 +81,4 @@ namespace edm
 // ----------------------------------------------------------------------
 // epilog
 
-#endif  // ParameterSet_types_h
+#endif

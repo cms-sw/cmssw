@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 18:01:31 EDT 2005
-// $Id: ModuleFactory.h,v 1.5 2005/07/14 22:50:52 wmtan Exp $
+// $Id: ModuleFactory.h,v 1.6 2005/09/01 05:14:38 wmtan Exp $
 //
 
 // system include files
@@ -49,5 +49,5 @@ DEFINE_SEAL_PLUGIN (edm::eventsetup::ModuleFactory,edm::eventsetup::ModuleMaker<
 #define DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(type) \
 DEFINE_SEAL_PLUGIN (edm::eventsetup::ModuleFactory,edm::eventsetup::ModuleMaker<type>,#type);
 
-#endif /* Framework_ModuleFactory_h */
+#endif
 

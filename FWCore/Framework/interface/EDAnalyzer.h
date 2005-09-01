@@ -19,4 +19,4 @@ namespace edm
     };
 }
 
-#endif // Framework_EDAnalyzer_h
+#endif

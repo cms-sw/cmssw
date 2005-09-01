@@ -16,12 +16,12 @@
 //
 // Author:      Chris Jones
 // Created:     Fri Jun 24 13:44:48 EDT 2005
-// $Id: GadgetRcd.h,v 1.2 2005/07/14 21:57:26 wmtan Exp $
+// $Id: GadgetRcd.h,v 1.3 2005/09/01 03:58:12 wmtan Exp $
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
 class GadgetRcd : public edm::eventsetup::EventSetupRecordImplementation<GadgetRcd> {};
 
-#endif /* Integration_GadgetRcd_h */
+#endif
 

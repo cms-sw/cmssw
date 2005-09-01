@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Thu Mar 31 12:45:32 EST 2005
-// $Id: DataProxyTemplate.h,v 1.5 2005/08/24 21:43:24 chrjones Exp $
+// $Id: DataProxyTemplate.h,v 1.6 2005/09/01 05:42:17 wmtan Exp $
 //
 
 // system include files
@@ -81,4 +81,4 @@ class DataProxyTemplate : public DataProxy
 
    }
 }
-#endif /* Framework_DataProxyTemplate_h */
+#endif

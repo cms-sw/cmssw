@@ -48,4 +48,4 @@ nocap
 nocap};
 nocap
 nocap
-nocap#endif /* skelpackage_skelname_h */
+nocap#endif

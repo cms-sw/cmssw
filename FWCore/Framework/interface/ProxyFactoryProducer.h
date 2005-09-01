@@ -48,7 +48,7 @@ BarProd::BarProd(const edm::ParameterSet& iPS) {
 //
 // Author:      Chris Jones
 // Created:     Thu Apr  7 17:14:58 CDT 2005
-// $Id: ProxyFactoryProducer.h,v 1.5 2005/07/14 22:50:52 wmtan Exp $
+// $Id: ProxyFactoryProducer.h,v 1.6 2005/09/01 05:08:06 wmtan Exp $
 //
 
 // system include files
@@ -135,4 +135,4 @@ class ProxyFactoryProducer : public DataProxyProvider
    }
 }
 
-#endif /* Framework_ProxyFactoryProducer_h */
+#endif

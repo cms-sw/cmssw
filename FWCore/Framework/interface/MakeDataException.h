@@ -29,7 +29,7 @@ if(outOfBoundsValue) {
 //
 // Author:      Chris Jones
 // Created:     Fri Apr  1 13:18:53 EST 2005
-// $Id: MakeDataException.h,v 1.4 2005/07/20 03:00:36 jbk Exp $
+// $Id: MakeDataException.h,v 1.5 2005/09/01 05:16:52 wmtan Exp $
 //
 
 // system include files
@@ -103,4 +103,4 @@ class MakeDataException : public cms::Exception
 
    }
 }
-#endif /* Framework_MakeDataException_h */
+#endif

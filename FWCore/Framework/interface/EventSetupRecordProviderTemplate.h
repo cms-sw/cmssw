@@ -83,4 +83,4 @@ protected:
 
    }
 }
-#endif /* Framework_EventSetupRecordProviderTemplate_h */
+#endif

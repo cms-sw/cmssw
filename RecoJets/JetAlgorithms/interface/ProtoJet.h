@@ -138,4 +138,4 @@ private:
   void calculateLorentzVector();
 };
 
-#endif // JetAlgorithms_ProtoJet_h
+#endif

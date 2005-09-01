@@ -1,17 +1,14 @@
+#ifndef Framework_ScheduleBuilder_h
+#define Framework_ScheduleBuilder_h
+
 /**
    \file
    Declaration of class ScheduleBuilder
 
    \author Stefano ARGIRO
-   \version $Id: ScheduleBuilder.h,v 1.5 2005/07/21 20:49:33 argiro Exp $
+   \version $Id: ScheduleBuilder.h,v 1.6 2005/07/23 05:19:44 wmtan Exp $
    \date 18 May 2005
 */
-
-#ifndef _edm_ScheduleBuilder_h_
-#define _edm_ScheduleBuilder_h_
-
-static const char CVSId_edm_ScheduleBuilder[] = 
-"$Id: ScheduleBuilder.h,v 1.5 2005/07/21 20:49:33 argiro Exp $";
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -57,5 +54,4 @@ namespace edm {
 } // edm
 
 
-#endif // _edm_ScheduleBuilder_h_
-
+#endif

@@ -1,17 +1,14 @@
+#ifndef Framework_ScheduleValidator_h
+#define Framework_ScheduleValidator_h
+
 /**
    \file
    Declaration of class ScheduleValidator
 
    \author Stefano ARGIRO
-   \version $Id$
+   \version $Id: ScheduleValidator.h,v 1.1 2005/06/20 15:21:39 argiro Exp $
    \date 10 Jun 2005
 */
-
-#ifndef _edm_ScheduleValidator_h_
-#define _edm_ScheduleValidator_h_
-
-static const char CVSId_edm_ScheduleValidator[] = 
-"$Id$";
 
 #include <string>
 #include <list>
@@ -82,10 +79,4 @@ namespace edm {
 } // edm
 
 
-#endif // _edm_ScheduleValidator_h_
-
-// Configure (x)emacs for this file ...
-// Local Variables:
-// mode:c++
-// compile-command: "make -C .. -k"
-// End:
+#endif

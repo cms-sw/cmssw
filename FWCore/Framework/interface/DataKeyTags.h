@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Thu Mar 31 14:13:07 EST 2005
-// $Id: DataKeyTags.h,v 1.3 2005/07/14 22:50:52 wmtan Exp $
+// $Id: DataKeyTags.h,v 1.4 2005/09/01 05:43:13 wmtan Exp $
 //
 
 // system include files
@@ -54,4 +54,4 @@ namespace edm {
       typedef NameTag IdTags;
    }
 }
-#endif /* Framework_DataKeyTags_h */
+#endif

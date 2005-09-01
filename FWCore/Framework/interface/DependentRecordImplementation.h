@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Fri Apr 29 10:03:54 EDT 2005
-// $Id: DependentRecordImplementation.h,v 1.3 2005/07/14 22:50:52 wmtan Exp $
+// $Id: DependentRecordImplementation.h,v 1.4 2005/09/01 05:40:58 wmtan Exp $
 //
 
 // system include files
@@ -74,4 +74,4 @@ class DependentRecordImplementation : public EventSetupRecordImplementation<Reco
   }
 }
 
-#endif /* Framework_DependentRecordImplementation_h */
+#endif

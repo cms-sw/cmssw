@@ -32,4 +32,4 @@ namespace edm {
                                        T const *&);
    }
 }
-#endif /* Framework_eventSetupGetImplementation_h */
+#endif

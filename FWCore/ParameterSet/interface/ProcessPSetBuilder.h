@@ -1,18 +1,15 @@
+#ifndef Framework_ProcessPSetBuilder_h
+#define Framework_ProcessPSetBuilder_h
+
 
 /**
    \file
    Declaration of class ProcessPSetBuilder
 
    \author Stefano ARGIRO
-   \version $Id: ProcessPSetBuilder.h,v 1.1 2005/06/20 15:22:03 argiro Exp $
+   \version $Id: ProcessPSetBuilder.h,v 1.2 2005/06/23 19:57:22 wmtan Exp $
    \date 16 Jun 2005
 */
-
-#ifndef _edm_ProcessPSetBuilder_h_
-#define _edm_ProcessPSetBuilder_h_
-
-static const char CVSId_edm_ProcessPSetBuilder[] = 
-"$Id: ProcessPSetBuilder.h,v 1.1 2005/06/20 15:22:03 argiro Exp $";
 
 #include <boost/shared_ptr.hpp>
 #include <string>
@@ -81,9 +78,4 @@ namespace edm {
 } // edm
 
 
-#endif // _edm_ProcessPSetBuilder_h_
-
-
-
-
-
+#endif

@@ -51,4 +51,4 @@ class EventSetupRecordProviderFactory
    }
 }
 
-#endif /* Framework_EventSetupRecordProviderFactory_h */
+#endif

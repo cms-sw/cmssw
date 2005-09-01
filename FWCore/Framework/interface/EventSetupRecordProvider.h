@@ -83,4 +83,4 @@ class EventSetupRecordProvider
    }
 }
 
-#endif /* Framework_EventSetupRecordProvider_h */
+#endif

@@ -106,4 +106,4 @@ class EventSetup
 };
 
 }
-#endif /* Framework_EventSetup_h */
+#endif

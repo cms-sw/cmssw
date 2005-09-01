@@ -8,4 +8,4 @@ class ProtoJet;
 
 void MakeCaloJet(const CaloTowerCollection &ctc, const std::vector<ProtoJet>& protoJets, CaloJetCollection &caloJets);
 
-#endif // JetAlgorithms_MakeCaloJet_h
+#endif

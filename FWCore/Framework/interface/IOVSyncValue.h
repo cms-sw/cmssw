@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Aug  3 18:35:24 EDT 2005
-// $Id: IOVSyncValue.h,v 1.2 2005/08/10 02:23:06 chrjones Exp $
+// $Id: IOVSyncValue.h,v 1.3 2005/09/01 05:18:37 wmtan Exp $
 //
 
 // system include files
@@ -98,4 +98,4 @@ class IOVSyncValue
 
 }
 
-#endif /* Framework_IOVSyncValue_h */
+#endif

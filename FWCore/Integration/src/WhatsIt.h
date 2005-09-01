@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 13:23:12 EDT 2005
-// $Id: WhatsIt.h,v 1.2 2005/07/14 21:57:26 wmtan Exp $
+// $Id: WhatsIt.h,v 1.3 2005/09/01 03:57:34 wmtan Exp $
 //
 
 // system include files
@@ -33,4 +33,4 @@ struct WhatsIt
 };
 }
 
-#endif /* Integration_WhatsIt_h */
+#endif

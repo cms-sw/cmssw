@@ -19,4 +19,4 @@ namespace edm {
 #include "FWCore/Framework/interface/eventsetuprecord_registration_macro.h"
 EVENTSETUP_RECORD_REG(edm::DummyEventSetupRecord);
 
-#endif /*EventSetup_TEST_DummyEventSetupRecord_h*/
+#endif
