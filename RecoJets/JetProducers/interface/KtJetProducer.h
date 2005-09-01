@@ -1,5 +1,5 @@
-#ifndef KtJetProducer_h
-#define KtJetProducer_h
+#ifndef JetProducers_KtJetProducer_h
+#define JetProducers_KtJetProducer_h
 
 /** \class KtJetProducer
  *

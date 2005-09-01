@@ -1,5 +1,5 @@
-#ifndef MidpointJetProducer_h
-#define MidpointJetProducer_h
+#ifndef JetProducers_MidpointJetProducer_h
+#define JetProducers_MidpointJetProducer_h
 
 /** \class MidpointJetProducer
  *
