@@ -1,5 +1,5 @@
-#ifndef EDM_ACTIONCODES_HH
-#define EDM_ACTIONCODES_HH
+#ifndef Framework_Actions_h
+#define Framework_Actions_h
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 

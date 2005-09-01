@@ -1,5 +1,5 @@
-#ifndef EVENTSETUP_EVENTSETUPRECORDFACTORYMANAGER_H
-#define EVENTSETUP_EVENTSETUPRECORDFACTORYMANAGER_H
+#ifndef Framework_EventSetupRecordProviderFactoryManager_h
+#define Framework_EventSetupRecordProviderFactoryManager_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -57,4 +57,4 @@ class EventSetupRecordProviderFactoryManager
 
    }
 }
-#endif /* EVENTSETUP_EVENTSETUPRECORDFACTORYMANAGER_H */
+#endif /* Framework_EventSetupRecordProviderFactoryManager_h */

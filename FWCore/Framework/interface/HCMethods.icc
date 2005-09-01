@@ -1,5 +1,5 @@
-#if !defined(HETEROCONTAINER_HCMETHODS_CC)
-#define HETEROCONTAINER_HCMETHODS_CC
+#ifndef Framework_HCMethods_icc
+#define Framework_HCMethods_icc
 // -*- C++ -*-
 //
 // Package:     <HeteroContainer>
@@ -12,11 +12,14 @@
 //
 // Author:      Chris D. Jones
 // Created:     Sun Sep 20 16:03:32 EDT 1998
-// $Id: HCMethods.icc,v 1.2 2005/06/23 19:59:30 wmtan Exp $
+// $Id: HCMethods.icc,v 1.3 2005/07/14 22:50:52 wmtan Exp $
 //
 // Revision history
 //
 // $Log: HCMethods.icc,v $
+// Revision 1.3  2005/07/14 22:50:52  wmtan
+// Rename packages
+//
 // Revision 1.2  2005/06/23 19:59:30  wmtan
 // fix rules violations found by rulechecker
 //
@@ -92,4 +95,4 @@ namespace edm {
       }
    }
 }
-#endif /* HETEROCONTAINER_HCMETHODS_CC */
+#endif /* Framework_HCMethods_icc */

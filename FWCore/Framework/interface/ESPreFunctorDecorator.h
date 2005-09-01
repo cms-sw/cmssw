@@ -1,5 +1,5 @@
-#ifndef COREFRAMEWORK_ESPREFUNCTORDECORATOR_H
-#define COREFRAMEWORK_ESPREFUNCTORDECORATOR_H
+#ifndef Framework_ESPreFunctorDecorator_h
+#define Framework_ESPreFunctorDecorator_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -18,7 +18,7 @@ the ESProducer's 'produce' method.
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Jun 22 11:40:41 EDT 2005
-// $Id: ESPreFunctorDecorator.h,v 1.3 2005/07/14 22:50:52 wmtan Exp $
+// $Id: ESPreFunctorDecorator.h,v 1.4 2005/08/30 21:28:16 wmtan Exp $
 //
 
 // system include files
@@ -63,4 +63,4 @@ class ESPreFunctorDecorator
    }
 }
 
-#endif /* COREFRAMEWORK_ESPREFUNCTORDECORATOR_H */
+#endif /* Framework_ESPreFunctorDecorator_h */

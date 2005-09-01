@@ -1,5 +1,5 @@
-#ifndef EVENTSETUP_DATAPROXYTEMPLATE_H
-#define EVENTSETUP_DATAPROXYTEMPLATE_H
+#ifndef Framework_DataProxyTemplate_h
+#define Framework_DataProxyTemplate_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Thu Mar 31 12:45:32 EST 2005
-// $Id: DataProxyTemplate.h,v 1.4 2005/07/14 22:50:52 wmtan Exp $
+// $Id: DataProxyTemplate.h,v 1.5 2005/08/24 21:43:24 chrjones Exp $
 //
 
 // system include files
@@ -58,9 +58,9 @@ class DataProxyTemplate : public DataProxy
          return cache_;
       }
       
-      void doGet( const EventSetupRecord& iRecord, const DataKey& iKey) const {
-         assert( iRecord.key() == RecordT::keyForClass() );
-         get(static_cast<const RecordT&>(iRecord), iKey );
+      void doGet(const EventSetupRecord& iRecord, const DataKey& iKey) const {
+         assert(iRecord.key() == RecordT::keyForClass());
+         get(static_cast<const RecordT&>(iRecord), iKey);
       }
    protected:
       virtual const DataT* make(const RecordT&, const DataKey&) = 0;
@@ -81,4 +81,4 @@ class DataProxyTemplate : public DataProxy
 
    }
 }
-#endif /* EVENTSETUP_DATAPROXYTEMPLATE_H */
+#endif /* Framework_DataProxyTemplate_h */

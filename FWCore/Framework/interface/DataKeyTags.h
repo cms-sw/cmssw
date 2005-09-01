@@ -1,5 +1,5 @@
-#ifndef EVENTSETUP_DATAKEYTAGS_H
-#define EVENTSETUP_DATAKEYTAGS_H
+#ifndef Framework_DataKeyTags_h
+#define Framework_DataKeyTags_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Thu Mar 31 14:13:07 EST 2005
-// $Id: DataKeyTags.h,v 1.2 2005/06/23 19:59:30 wmtan Exp $
+// $Id: DataKeyTags.h,v 1.3 2005/07/14 22:50:52 wmtan Exp $
 //
 
 // system include files
@@ -54,4 +54,4 @@ namespace edm {
       typedef NameTag IdTags;
    }
 }
-#endif /* EVENTSETUP_DATAKEYTAGS_H */
+#endif /* Framework_DataKeyTags_h */

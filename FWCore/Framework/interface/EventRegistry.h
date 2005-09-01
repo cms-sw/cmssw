@@ -1,12 +1,12 @@
-#ifndef EDM_EVENT_REGISTRY_H
-#define EDM_EVENT_REGISTRY_H
+#ifndef Framework_EventRegistry_h
+#define Framework_EventRegistry_h
 
 /*----------------------------------------------------------------------
   
 EventRegistry: A singleton to keep track of active events.
 Event.
 
-$Id: EventRegistry.h,v 1.5 2005/07/20 23:36:03 wmtan Exp $
+$Id: EventRegistry.h,v 1.6 2005/08/10 02:28:38 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 

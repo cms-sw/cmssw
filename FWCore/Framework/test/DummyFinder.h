@@ -1,5 +1,5 @@
-#ifndef Framework_DummyDinder_h
-#define Framework_DummyDinder_h
+#ifndef Framework_DummyFinder_h
+#define Framework_DummyFinder_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Sat Apr 16 18:47:04 EDT 2005
-// $Id: DummyFinder.h,v 1.4 2005/08/04 15:04:08 chrjones Exp $
+// $Id: DummyFinder.h,v 1.5 2005/09/01 04:24:28 wmtan Exp $
 //
 
 // system include files
@@ -57,4 +57,4 @@ private:
 };
 
 
-#endif /* EventSetup_DummyDinder_h */
+#endif /* EventSetup_DummyFinder_h */

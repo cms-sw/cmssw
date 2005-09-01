@@ -1,5 +1,5 @@
-#ifndef EVENTSETUPPRODUCER_ESPRODUCER_H
-#define EVENTSETUPPRODUCER_ESPRODUCER_H
+#ifndef Framework_ESProducer_h
+#define Framework_ESProducer_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -66,7 +66,7 @@ Example: two algorithms each creating only one objects
 //
 // Author:      Chris Jones
 // Created:     Thu Apr  7 17:08:14 CDT 2005
-// $Id: ESProducer.h,v 1.8 2005/07/14 22:50:52 wmtan Exp $
+// $Id: ESProducer.h,v 1.9 2005/08/30 20:29:48 wmtan Exp $
 //
 
 // system include files
@@ -208,4 +208,4 @@ class ESProducer : public ProxyFactoryProducer
 };
    }
 }
-#endif /* EVENTSETUPPRODUCER_ESPRODUCER_H */
+#endif /* Framework_ESProducer_h */

@@ -6,7 +6,7 @@
 EDProducer: The base class of all "modules" that will insert new
 EDProducts into an Event.
 
-$Id: EDProducer.h,v 1.6 2005/07/22 23:53:18 wmtan Exp $
+$Id: EDProducer.h,v 1.7 2005/08/02 22:20:47 wmtan Exp $
 
 
 ----------------------------------------------------------------------*/
@@ -65,4 +65,4 @@ namespace edm {
 
 }
 
-#endif // EDM_EDPRODUCER_INCLUDED
+#endif // Framework_EDProducer_h

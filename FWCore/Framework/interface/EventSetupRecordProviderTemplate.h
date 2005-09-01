@@ -1,5 +1,5 @@
-#ifndef EVENTSETUP_EVENTSETUPRECORDPROVIDERTEMPLATE_H
-#define EVENTSETUP_EVENTSETUPRECORDPROVIDERTEMPLATE_H
+#ifndef Framework_EventSetupRecordProviderTemplate_h
+#define Framework_EventSetupRecordProviderTemplate_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -83,4 +83,4 @@ protected:
 
    }
 }
-#endif /* EVENTSETUP_EVENTSETUPRECORDPROVIDERTEMPLATE_H */
+#endif /* Framework_EventSetupRecordProviderTemplate_h */

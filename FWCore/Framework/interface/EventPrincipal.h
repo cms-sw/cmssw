@@ -1,5 +1,5 @@
-#ifndef EDM_EVENT_PRINCIPAL_HH
-#define EDM_EVENT_PRINCIPAL_HH
+#ifndef Framework_EventPrincipal_h
+#define Framework_EventPrincipal_h
 
 /*----------------------------------------------------------------------
   
@@ -15,7 +15,7 @@ through shared pointers.
 The EventPrincipal returns BasicHandle, rather than a shared
 pointer to a Group, when queried.
 
-$Id: EventPrincipal.h,v 1.12 2005/08/30 18:46:19 wmtan Exp $
+$Id: EventPrincipal.h,v 1.13 2005/08/30 21:21:35 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <map>

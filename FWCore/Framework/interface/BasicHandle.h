@@ -1,5 +1,5 @@
-#ifndef EDM_BASICHANDLE_H
-#define EDM_BASICHANDLE_H
+#ifndef Framework_BasicHandle_h
+#define Framework_BasicHandle_h
 
 /*----------------------------------------------------------------------
   
@@ -19,7 +19,7 @@ Handles can have:
 
 To check validity, one can use the isValid() function.
 
-$Id: BasicHandle.h,v 1.4 2005/07/21 18:26:02 wmtan Exp $
+$Id: BasicHandle.h,v 1.5 2005/07/30 04:37:50 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 

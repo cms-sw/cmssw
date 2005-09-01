@@ -1,5 +1,5 @@
-#ifndef EVENTSETUP_DATAKEY_H
-#define EVENTSETUP_DATAKEY_H
+#ifndef Framework_DataKey_h
+#define Framework_DataKey_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Thu Mar 31 14:31:03 EST 2005
-// $Id: DataKey.h,v 1.2 2005/06/23 19:59:30 wmtan Exp $
+// $Id: DataKey.h,v 1.3 2005/07/14 22:50:52 wmtan Exp $
 //
 
 // system include files
@@ -91,4 +91,4 @@ class DataKey
 
    }
 }
-#endif /* EVENTSETUP_DATAKEY_H */
+#endif /* Framework_DataKey_h */

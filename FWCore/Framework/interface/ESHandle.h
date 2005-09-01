@@ -1,5 +1,5 @@
-#ifndef EVENTSETUP_ESHANDLE_H
-#define EVENTSETUP_ESHANDLE_H
+#ifndef Framework_ESHandle_h
+#define Framework_ESHandle_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Fri Apr  1 14:47:35 EST 2005
-// $Id: ESHandle.h,v 1.2 2005/06/23 19:59:30 wmtan Exp $
+// $Id: ESHandle.h,v 1.3 2005/07/14 22:50:52 wmtan Exp $
 //
 
 // system include files
@@ -61,4 +61,4 @@ class ESHandle
 
    }
 }
-#endif /* EVENTSETUP_ESHANDLE_H */
+#endif /* Framework_ESHandle_h */

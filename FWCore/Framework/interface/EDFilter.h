@@ -1,12 +1,12 @@
-#ifndef EDM_EDFILTER_INCLUDED
-#define EDM_EDFILTER_INCLUDED
+#ifndef Framework_EDFilter_h
+#define Framework_EDFilter_h
 
 /*----------------------------------------------------------------------
   
 EDFilter: The base class of all "modules" used to control the flow of
 processing in a processing path.
 
-$Id: EDFilter.h,v 1.3 2005/07/08 00:09:38 chrjones Exp $
+$Id: EDFilter.h,v 1.4 2005/07/14 22:50:52 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include "FWCore/Framework/interface/Event.h"
@@ -22,7 +22,7 @@ namespace edm
 
       virtual ~EDFilter();
       virtual bool filter(Event const& e, EventSetup const& c) = 0;
-      virtual void beginJob( EventSetup const& ) ;
+      virtual void beginJob(EventSetup const&) ;
       virtual void endJob() ;
       
       

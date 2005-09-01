@@ -1,5 +1,5 @@
-#ifndef EVENTSETUP_DEPENDENTRECORDINTERVALFINDER_H
-#define EVENTSETUP_DEPENDENTRECORDINTERVALFINDER_H
+#ifndef Framework_DependentRecordIntervalFinder_h
+#define Framework_DependentRecordIntervalFinder_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -18,7 +18,7 @@
 //
 // Author:      Chris Jones
 // Created:     Sat Apr 30 19:36:59 EDT 2005
-// $Id: DependentRecordIntervalFinder.h,v 1.3 2005/07/14 22:50:52 wmtan Exp $
+// $Id: DependentRecordIntervalFinder.h,v 1.4 2005/08/04 15:04:21 chrjones Exp $
 //
 
 // system include files
@@ -64,4 +64,4 @@ class DependentRecordIntervalFinder : public EventSetupRecordIntervalFinder
 
    }
 }
-#endif /* EVENTSETUP_DEPENDENTRECORDINTERVALFINDER_H */
+#endif /* Framework_DependentRecordIntervalFinder_h */

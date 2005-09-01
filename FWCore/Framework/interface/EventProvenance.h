@@ -1,11 +1,11 @@
-#ifndef EDM_EVENTPROVENANCE_H
-#define EDM_EVENTPROVENANCE_H
+#ifndef Framework_EventProvenance_h
+#define Framework_EventProvenance_h
 
 /*----------------------------------------------------------------------
   
 EventProvenance: The Provenance of all the products in an event.
 
-$Id: EventProvenance.h,v 1.1 2005/05/29 02:29:53 wmtan Exp $
+$Id: EventProvenance.h,v 1.2 2005/07/14 22:50:52 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <vector>
 

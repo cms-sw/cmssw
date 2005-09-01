@@ -1,5 +1,5 @@
-#ifndef EVENTSETUP_CALLBACK_H
-#define EVENTSETUP_CALLBACK_H
+#ifndef Framework_Callback_h
+#define Framework_Callback_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Sun Apr 17 14:30:24 EDT 2005
-// $Id: Callback.h,v 1.3 2005/06/23 19:59:30 wmtan Exp $
+// $Id: Callback.h,v 1.4 2005/07/14 22:50:52 wmtan Exp $
 //
 
 // system include files
@@ -117,4 +117,4 @@ namespace edm {
    }
 }
 
-#endif /* EVENTSETUP_CALLBACK_H */
+#endif /* Framework_Callback_h */

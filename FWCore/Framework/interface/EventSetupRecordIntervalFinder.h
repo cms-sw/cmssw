@@ -1,5 +1,5 @@
-#ifndef EVENTSETUP_EVENTSETUPRECORDINTERVALFINDER_H
-#define EVENTSETUP_EVENTSETUPRECORDINTERVALFINDER_H
+#ifndef Framework_EventSetupRecordIntervalFinder_h
+#define Framework_EventSetupRecordIntervalFinder_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Tue Mar 29 16:15:11 EST 2005
-// $Id: EventSetupRecordIntervalFinder.h,v 1.3 2005/07/14 22:50:52 wmtan Exp $
+// $Id: EventSetupRecordIntervalFinder.h,v 1.4 2005/08/04 15:04:21 chrjones Exp $
 //
 
 // system include files
@@ -75,4 +75,4 @@ class EventSetupRecordIntervalFinder
 
    }
 }
-#endif /* EVENTSETUP_EVENTSETUPRECORDINTERVALFINDER_H */
+#endif /* Framework_EventSetupRecordIntervalFinder_h */

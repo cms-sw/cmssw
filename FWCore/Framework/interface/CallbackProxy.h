@@ -1,5 +1,5 @@
-#ifndef EVENTSETUPPRODUCER_CALLBACKPROXY_H
-#define EVENTSETUPPRODUCER_CALLBACKPROXY_H
+#ifndef Framework_CallbackProxy_h
+#define Framework_CallbackProxy_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Fri Apr  8 11:50:21 CDT 2005
-// $Id: CallbackProxy.h,v 1.4 2005/06/23 19:59:30 wmtan Exp $
+// $Id: CallbackProxy.h,v 1.5 2005/07/14 22:50:52 wmtan Exp $
 //
 
 // system include files
@@ -75,4 +75,4 @@ template<class CallbackT, class RecordT, class DataT>
    }
 }
 
-#endif /* EVENTSETUPPRODUCER_CALLBACKPROXY_H */
+#endif

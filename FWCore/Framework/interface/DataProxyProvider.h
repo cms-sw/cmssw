@@ -1,5 +1,5 @@
-#ifndef EVENTSETUP_DATAPROXYPROVIDER_H
-#define EVENTSETUP_DATAPROXYPROVIDER_H
+#ifndef Framework_DataProxyProvider_h
+#define Framework_DataProxyProvider_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -98,4 +98,4 @@ inline void insertProxy(DataProxyProvider::KeyedProxies& iList,
 
    }
 }
-#endif /* EVENTSETUP_DATAPROXYPROVIDER_H */
+#endif /* Framework_DataProxyProvider_h */

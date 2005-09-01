@@ -1,5 +1,5 @@
-#ifndef EVENTSETUP_EVENTSETUPRECORD_H
-#define EVENTSETUP_EVENTSETUPRECORD_H
+#ifndef Framework_EventSetupRecord_h
+#define Framework_EventSetupRecord_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -106,4 +106,4 @@ class EventSetupRecord
 
    }
 }
-#endif /* EVENTSETUP_EVENTSETUPRECORD_H */
+#endif /* Framework_EventSetupRecord_h */

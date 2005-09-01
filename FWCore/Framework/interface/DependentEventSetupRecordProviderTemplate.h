@@ -1,5 +1,5 @@
-#ifndef EVENTSETUP_DEPENDENTEVENTSETUPRECORDPROVIDERTEMPLATE_H
-#define EVENTSETUP_DEPENDENTEVENTSETUPRECORDPROVIDERTEMPLATE_H
+#ifndef Framework_DependentEventSetupRecordProviderTemplate_h
+#define Framework_DependentEventSetupRecordProviderTemplate_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Sun May  1 16:59:49 EDT 2005
-// $Id: DependentEventSetupRecordProviderTemplate.h,v 1.2 2005/06/23 19:59:30 wmtan Exp $
+// $Id: DependentEventSetupRecordProviderTemplate.h,v 1.3 2005/07/14 22:50:52 wmtan Exp $
 //
 
 // system include files
@@ -76,4 +76,4 @@ class DependentEventSetupRecordProviderTemplate : public DependentEventSetupReco
 
 }
    }
-#endif /* EVENTSETUP_DEPENDENTEVENTSETUPRECORDPROVIDERTEMPLATE_H */
+#endif /* Framework_DependentEventSetupRecordProviderTemplate_h */

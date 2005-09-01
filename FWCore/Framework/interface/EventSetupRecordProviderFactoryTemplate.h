@@ -1,5 +1,5 @@
-#ifndef EVENTSETUP_EVENTSETUPRECORDFACTORYTEMPLATE_H
-#define EVENTSETUP_EVENTSETUPRECORDFACTORYTEMPLATE_H
+#ifndef Framework_EventSetupRecordProviderFactoryTemplate_h
+#define Framework_EventSetupRecordProviderFactoryTemplate_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -62,4 +62,4 @@ class EventSetupRecordProviderFactoryTemplate : public EventSetupRecordProviderF
 };
    }
 }
-#endif /* EVENTSETUP_EVENTSETUPRECORDFACTORYTEMPLATE_H */
+#endif /* Framework_EventSetupRecordProviderFactoryTemplate_h */

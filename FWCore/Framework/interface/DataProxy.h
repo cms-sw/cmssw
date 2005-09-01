@@ -1,5 +1,5 @@
-#ifndef EVENTSETUP_DATAPROXY_H
-#define EVENTSETUP_DATAPROXY_H
+#ifndef Framework_DataProxy_h
+#define Framework_DataProxy_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Thu Mar 31 12:43:01 EST 2005
-// $Id: DataProxy.h,v 1.3 2005/06/28 13:15:44 chrjones Exp $
+// $Id: DataProxy.h,v 1.4 2005/07/14 22:50:52 wmtan Exp $
 //
 
 // system include files
@@ -39,7 +39,7 @@ class DataProxy
       // ---------- const member functions ---------------------
       bool cacheIsValid() const { return cacheIsValid_; }
       
-      virtual void doGet( const EventSetupRecord& iRecord, const DataKey& iKey) const = 0;
+      virtual void doGet(const EventSetupRecord& iRecord, const DataKey& iKey) const = 0;
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
@@ -67,4 +67,4 @@ class DataProxy
 };
    }
 }
-#endif /* EVENTSETUP_DATAPROXY_H */
+#endif /* Framework_DataProxy_h */

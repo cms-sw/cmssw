@@ -1,12 +1,12 @@
-#ifndef EDM_EVENT_HH
-#define EDM_EVENT_HH
+#ifndef Framework_Event_h
+#define Framework_Event_h
 
 /*----------------------------------------------------------------------
 
 Event: This is the primary interface for accessing
 EDProducts from a single collision and inserting new derived products.
 
-$Id: Event.h,v 1.16 2005/08/30 18:46:19 wmtan Exp $
+$Id: Event.h,v 1.17 2005/08/30 21:21:35 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>

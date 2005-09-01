@@ -1,5 +1,5 @@
-#ifndef EDM_EDANALYZER_INCLUDED
-#define EDM_EDANALYZER_INCLUDED
+#ifndef Framework_EDAnalyzer_h
+#define Framework_EDAnalyzer_h
 
 // EDAnalyzer is the base class for all reconstruction "modules".
 
@@ -14,9 +14,9 @@ namespace edm
 
       virtual ~EDAnalyzer();
       virtual void analyze(Event const& e, EventSetup const& c) = 0;
-      virtual void beginJob( EventSetup const& ) ;
+      virtual void beginJob(EventSetup const&) ;
       virtual void endJob() ;
     };
 }
 
-#endif // EDM_EDANALYZER_INCLUDED
+#endif // Framework_EDAnalyzer_h

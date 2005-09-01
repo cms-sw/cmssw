@@ -1,5 +1,5 @@
-#ifndef EVENTSETUP_DEPENDENTRECORDIMPLEMENTATION_H
-#define EVENTSETUP_DEPENDENTRECORDIMPLEMENTATION_H
+#ifndef Framework_DependentRecordImplementation_h
+#define Framework_DependentRecordImplementation_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Fri Apr 29 10:03:54 EDT 2005
-// $Id: DependentRecordImplementation.h,v 1.2 2005/06/23 19:59:30 wmtan Exp $
+// $Id: DependentRecordImplementation.h,v 1.3 2005/07/14 22:50:52 wmtan Exp $
 //
 
 // system include files
@@ -74,4 +74,4 @@ class DependentRecordImplementation : public EventSetupRecordImplementation<Reco
   }
 }
 
-#endif /* EVENTSETUP_DEPENDENTRECORDIMPLEMENTATION_H */
+#endif /* Framework_DependentRecordImplementation_h */

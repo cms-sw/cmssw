@@ -1,5 +1,5 @@
-#ifndef EVENTSETUPPRODUCER_ESPRODUCTS_H
-#define EVENTSETUPPRODUCER_ESPRODUCTS_H
+#ifndef Framework_ESProducts_h
+#define Framework_ESProducts_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Sun Apr 17 17:30:46 EDT 2005
-// $Id: ESProducts.h,v 1.3 2005/06/23 22:01:31 wmtan Exp $
+// $Id: ESProducts.h,v 1.4 2005/07/14 22:50:52 wmtan Exp $
 //
 
 // system include files
@@ -170,4 +170,4 @@ namespace edm {
 }
 
 
-#endif /* EVENTSETUPPRODUCER_PRODUCTS_H */
+#endif /* Framework_ESProducts_h */

@@ -1,5 +1,5 @@
-#ifndef EVENTSETUP_COMPONENTMAKER_H
-#define EVENTSETUP_COMPONENTMAKER_H
+#ifndef Framework_ComponentMaker_h
+#define Framework_ComponentMaker_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 16:56:05 EDT 2005
-// $Id: ComponentMaker.h,v 1.4 2005/07/14 22:50:52 wmtan Exp $
+// $Id: ComponentMaker.h,v 1.5 2005/08/24 21:43:24 chrjones Exp $
 //
 
 // system include files
@@ -84,4 +84,4 @@ ComponentMaker<T,TComponent>:: addTo(EventSetupProvider& iProvider,
 }
    }
 }
-#endif /* EVENTSETUP_COMPONENTMAKER_H */
+#endif /* Framework_ComponentMaker_h */

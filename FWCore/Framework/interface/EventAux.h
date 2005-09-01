@@ -1,5 +1,5 @@
-#ifndef EDM_EVENTAUX_H
-#define EDM_EVENTAUX_H
+#ifndef Framework_EventAux_h
+#define Framework_EventAux_h
 
 #include "FWCore/Framework/interface/ProcessNameList.h"
 #include "FWCore/EDProduct/interface/EventID.h"

@@ -1,5 +1,5 @@
-#if !defined(HETEROCONTAINER_HCMETHODS_H)
-#define HETEROCONTAINER_HCMETHODS_H
+#ifndef Framework_HCMethods_h
+#define Framework_HCMethods_h
 // -*- C++ -*-
 //
 // Package:     HeteroContainer
@@ -52,4 +52,4 @@ namespace edm {
       }
    }
 }
-#endif /* HETEROCONTAINER_HCMETHODS_H */
+#endif /* Framework_HCMethods_h */

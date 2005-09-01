@@ -1,5 +1,5 @@
-#ifndef EVENTSETUP_EVENTSETUPPROVIDER_H
-#define EVENTSETUP_EVENTSETUPPROVIDER_H
+#ifndef Framework_EventSetupProvider_h
+#define Framework_EventSetupProvider_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -89,4 +89,4 @@ class EventSetupProvider
 
    }
 }
-#endif /* EVENTSETUP_EVENTSETUPPROVIDER_H */
+#endif /* Framework_EventSetupProvider_h */

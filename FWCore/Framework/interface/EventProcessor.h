@@ -1,5 +1,5 @@
-#ifndef EDM_EVENTPROC_H
-#define EDM_EVENTPROC_H
+#ifndef Framework_EventProcessor_h
+#define Framework_EventProcessor_h
 
 /*----------------------------------------------------------------------
 
@@ -61,7 +61,7 @@ problems:
   where does the pluginmanager initialise call go?
 
 
-$Id: EventProcessor.h,v 1.4 2005/08/24 00:28:50 chrjones Exp $
+$Id: EventProcessor.h,v 1.5 2005/08/24 20:05:45 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 
