@@ -1,11 +1,11 @@
-#ifndef EDM_POOLINPUTSERVICE_H
-#define EDM_YPOOLINPUTSERVICE_H
+#ifndef Streamer_EventStreamInput_h
+#define Streamer_EventStreamInput_h
 
 /*----------------------------------------------------------------------
 
 Event streaming input service
 
-$Id: EventStreamInput.h,v 1.1 2005/08/25 02:03:03 jbk Exp $
+$Id: EventStreamInput.h,v 1.2 2005/08/25 05:17:22 jbk Exp $
 
 ----------------------------------------------------------------------*/
 

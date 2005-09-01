@@ -1,5 +1,5 @@
-#ifndef EDMREFTEST_THING_H
-#define EDMREFTEST_THING_H
+#ifndef Streamer_StreamTestThing_h
+#define Streamer_StreamTestThing_h
 
 #include <vector>
 

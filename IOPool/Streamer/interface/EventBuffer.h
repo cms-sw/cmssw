@@ -1,5 +1,5 @@
-#ifndef FWK_BOUND_QUEUE_HPP
-#define FWK_BOUND_QUEUE_HPP 1
+#ifndef Streamer_EventBuffer_h
+#define Streamer_EventBuffer_h
 
 /*
  A bounded queue for use in a multi-threaded producer/consumer application.

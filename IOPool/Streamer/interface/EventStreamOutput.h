@@ -1,5 +1,5 @@
-#ifndef FWK_EVENTSTREAMOUTPUT_H
-#define FWK_EVENTSTREAMOUTPUT_H
+#ifndef Streamer_EventStreamOutput_h
+#define Streamer_EventStreamOutput_h
 
 /*
   If the consumer is multithreaded and the destructor of the

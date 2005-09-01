@@ -1,5 +1,5 @@
-#ifndef EDMREFTEST_THINGPRODUCER_H
-#define EDMREFTEST_THINGPRODUCER_H
+#ifndef Streamer_StreamThingProducer_h
+#define Streamer_StreamThingProducer_h
 
 /** \class ThingProducer
  *

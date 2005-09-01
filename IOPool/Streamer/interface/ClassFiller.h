@@ -1,5 +1,5 @@
-#ifndef IOPOOL_CLASSFILLER_H
-#define IOPOOL_CLASSFILLER_H
+#ifndef StreamerClassFiller_h
+#define StreamerClassFiller_h
 
 #include "FWCore/Framework/interface/ProductRegistry.h"
 #include "StorageSvc/IClassLoader.h"

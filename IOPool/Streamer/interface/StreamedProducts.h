@@ -1,5 +1,5 @@
-#ifndef FWK_PRODPAIR_H
-#define FWK_PRODPAIR_H
+#ifndef Streamer_StreamedProducts_h
+#define Streamer_StreamedProducts_h
 
 /*
   Simple packaging of all the event data that is needed to be serialized

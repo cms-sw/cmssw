@@ -1,5 +1,5 @@
-#ifndef IOP_THINGANALYZER_H
-#define IOP_THINGANALYZER_H
+#ifndef Streamer_ThingAnalyzer_h
+#define Streamer_ThingAnalyzer_h
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"

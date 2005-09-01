@@ -1,5 +1,5 @@
-#ifndef IOP_TESTPRODUCER_H
-#define IOP_TESTPRODUCER_H
+#ifndef Streamer_TestProducer_h
+#define Streamer_TestProducer_h
 
 #include "IOPool/Streamer/interface/EventBuffer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

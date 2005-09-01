@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EventStreamInput.cc,v 1.4 2005/08/26 20:57:16 jbk Exp $
+$Id: EventStreamInput.cc,v 1.5 2005/08/30 17:13:39 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Streamer/interface/EventStreamInput.h"
@@ -140,7 +140,7 @@ namespace edm
 	aprov->product = *(adesc.get());
 	
 	//cerr << "addgroup next" << endl;
-	ep->addGroup( auto_ptr<Group>(new Group(aprod,aprov)) );
+	ep->addGroup(auto_ptr<Group>(new Group(aprod,aprov)));
 	//cerr << "addgroup done" << endl;
 	spi->clear();
       }

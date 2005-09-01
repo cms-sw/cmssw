@@ -1,5 +1,5 @@
-#ifndef IOPOOL_BUFFER_AREA_H
-#define IOPOOL_BUFFER_AREA_H
+#ifndef Streamer_BufferArea_h
+#define Streamer_BufferArea_h
 
 #include "IOPool/Streamer/interface/EventBuffer.h"
 
