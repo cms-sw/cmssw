@@ -1,5 +1,5 @@
-#ifndef EVENTSETUP_TEST_DUMMYDATA_H
-#define EVENTSETUP_TEST_DUMMYDATA_H
+#ifndef Framework_DummyData_h
+#define Framework_DummyData_h
 /*
  *  DummyData.h
  *  EDMProto
@@ -26,5 +26,5 @@ namespace edm {
 #include "FWCore/Framework/interface/data_default_record_trait.h"
 EVENTSETUP_DATA_DEFAULT_RECORD(edm::eventsetup::test::DummyData, DummyRecord);
 
-#endif /* EVENTSETUP_TEST_DUMMYDATA_H */
+#endif /* Framework_DummyData_h */
 

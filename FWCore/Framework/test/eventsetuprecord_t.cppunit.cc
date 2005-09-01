@@ -17,8 +17,8 @@ using namespace edm;
 using namespace edm::eventsetup;
 
 class DummyRecord : public edm::eventsetup::EventSetupRecordImplementation<DummyRecord> { public:
-   const DataProxy* find(const edm::eventsetup::DataKey& iKey ) const {
-      return edm::eventsetup::EventSetupRecord::find( iKey );
+   const DataProxy* find(const edm::eventsetup::DataKey& iKey) const {
+      return edm::eventsetup::EventSetupRecord::find(iKey);
    }
 };
 
@@ -234,7 +234,7 @@ void testEventsetupRecord::doGetTest()
    dummyRecord.add(workingDataKey,
                    &workingProxy);
    
-   CPPUNIT_ASSERT(dummyRecord.doGet(workingDataKey) );
+   CPPUNIT_ASSERT(dummyRecord.doGet(workingDataKey));
    
 }
 

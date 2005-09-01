@@ -1,5 +1,5 @@
-#ifndef EVENTSETUP_DUMMYPROVIDER_H
-#define EVENTSETUP_DUMMYPROVIDER_H
+#ifndef Framework_DummyProvider_h
+#define Framework_DummyProvider_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Thu May 26 13:37:48 EDT 2005
-// $Id: DummyProxyProvider.h,v 1.3 2005/07/14 22:50:53 wmtan Exp $
+// $Id: DummyProxyProvider.h,v 1.4 2005/08/24 21:43:15 chrjones Exp $
 //
 
 // system include files
@@ -73,4 +73,4 @@ private:
       }
    }
 }
-#endif /* EVENTSETUP_DUMMYPROVIDER_H */
+#endif /* EventSetup_DummyProvider_h */

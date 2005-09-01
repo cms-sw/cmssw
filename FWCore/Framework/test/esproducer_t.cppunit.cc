@@ -99,7 +99,7 @@ void testEsproducer::getFromTest()
    
    for(int iTime=1; iTime != 6; ++iTime) {
       const edm::Timestamp time(iTime);
-      pFinder->setInterval(edm::ValidityInterval( edm::IOVSyncValue(time) , edm::IOVSyncValue(time) ));
+      pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time) , edm::IOVSyncValue(time)));
       const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(time));
       ESHandle<DummyData> pDummy;
       eventSetup.get<DummyRecord>().get(pDummy);
@@ -121,7 +121,7 @@ void testEsproducer::getfromShareTest()
    
    for(int iTime=1; iTime != 6; ++iTime) {
       const edm::Timestamp time(iTime);
-      pFinder->setInterval(edm::ValidityInterval( edm::IOVSyncValue(time) , edm::IOVSyncValue(time) ));
+      pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time) , edm::IOVSyncValue(time)));
       const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(time));
       ESHandle<DummyData> pDummy;
       eventSetup.get<DummyRecord>().get(pDummy);
@@ -174,7 +174,7 @@ void testEsproducer::decoratorTest()
    
    for(int iTime=1; iTime != 6; ++iTime) {
       const edm::Timestamp time(iTime);
-      pFinder->setInterval(edm::ValidityInterval( edm::IOVSyncValue(time), edm::IOVSyncValue(time) ));
+      pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time), edm::IOVSyncValue(time)));
       const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(time));
       ESHandle<DummyData> pDummy;
       
@@ -229,7 +229,7 @@ void testEsproducer::dependsOnTest()
    
    for(int iTime=1; iTime != 6; ++iTime) {
       const edm::Timestamp time(iTime);
-      pFinder->setInterval(edm::ValidityInterval( edm::IOVSyncValue(time), edm::IOVSyncValue(time) ));
+      pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time), edm::IOVSyncValue(time)));
       const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(time));
       ESHandle<DummyData> pDummy;
       

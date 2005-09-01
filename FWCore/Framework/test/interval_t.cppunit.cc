@@ -43,7 +43,7 @@ void testinterval::comparisonTest()
    const IOVSyncValue invalid(IOVSyncValue::invalidIOVSyncValue());
    
    const Timestamp t_1(1);
-   const IOVSyncValue one( t_1);
+   const IOVSyncValue one(t_1);
    const Timestamp t_2(2);
    const IOVSyncValue two(t_2);
    
@@ -82,7 +82,7 @@ void testinterval::intervalAssignmentTest()
    ValidityInterval temp;
    const Timestamp t_1(1);
    const IOVSyncValue s_1(t_1);
-   const ValidityInterval oneAndTwo(s_1, IOVSyncValue( Timestamp(2) ));
+   const ValidityInterval oneAndTwo(s_1, IOVSyncValue(Timestamp(2)));
    
    CPPUNIT_ASSERT(temp != oneAndTwo);
    CPPUNIT_ASSERT(! (temp == oneAndTwo));

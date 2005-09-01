@@ -41,61 +41,61 @@ void testIOVSyncValue::constructTest()
 {
    const EventID t(2,0);
 
-   IOVSyncValue temp( t);
+   IOVSyncValue temp(t);
    
-   CPPUNIT_ASSERT( temp.eventID() == t );
+   CPPUNIT_ASSERT(temp.eventID() == t);
    
-   CPPUNIT_ASSERT( IOVSyncValue::invalidIOVSyncValue() < IOVSyncValue::beginOfTime() );
-   CPPUNIT_ASSERT( IOVSyncValue::beginOfTime() < IOVSyncValue::endOfTime() );
+   CPPUNIT_ASSERT(IOVSyncValue::invalidIOVSyncValue() < IOVSyncValue::beginOfTime());
+   CPPUNIT_ASSERT(IOVSyncValue::beginOfTime() < IOVSyncValue::endOfTime());
 
-   CPPUNIT_ASSERT( IOVSyncValue::invalidIOVSyncValue() != temp );
-   CPPUNIT_ASSERT( !(IOVSyncValue::invalidIOVSyncValue() == temp) );
-   CPPUNIT_ASSERT( IOVSyncValue::beginOfTime() < temp );
-   CPPUNIT_ASSERT( IOVSyncValue::endOfTime() > temp );
+   CPPUNIT_ASSERT(IOVSyncValue::invalidIOVSyncValue() != temp);
+   CPPUNIT_ASSERT(!(IOVSyncValue::invalidIOVSyncValue() == temp));
+   CPPUNIT_ASSERT(IOVSyncValue::beginOfTime() < temp);
+   CPPUNIT_ASSERT(IOVSyncValue::endOfTime() > temp);
 }
 
 void testIOVSyncValue::constructTimeTest()
 {
    const Timestamp t(2);
    
-   IOVSyncValue temp( t);
+   IOVSyncValue temp(t);
    
-   CPPUNIT_ASSERT( temp.time() == t );
+   CPPUNIT_ASSERT(temp.time() == t);
    
-   CPPUNIT_ASSERT( IOVSyncValue::invalidIOVSyncValue() < IOVSyncValue::beginOfTime() );
-   CPPUNIT_ASSERT( IOVSyncValue::beginOfTime() < IOVSyncValue::endOfTime() );
+   CPPUNIT_ASSERT(IOVSyncValue::invalidIOVSyncValue() < IOVSyncValue::beginOfTime());
+   CPPUNIT_ASSERT(IOVSyncValue::beginOfTime() < IOVSyncValue::endOfTime());
    
-   CPPUNIT_ASSERT( IOVSyncValue::invalidIOVSyncValue() != temp );
-   CPPUNIT_ASSERT( !(IOVSyncValue::invalidIOVSyncValue() == temp) );
-   CPPUNIT_ASSERT( IOVSyncValue::beginOfTime() < temp );
-   CPPUNIT_ASSERT( IOVSyncValue::endOfTime() > temp );
+   CPPUNIT_ASSERT(IOVSyncValue::invalidIOVSyncValue() != temp);
+   CPPUNIT_ASSERT(!(IOVSyncValue::invalidIOVSyncValue() == temp));
+   CPPUNIT_ASSERT(IOVSyncValue::beginOfTime() < temp);
+   CPPUNIT_ASSERT(IOVSyncValue::endOfTime() > temp);
 }
 
 void testIOVSyncValue::comparisonTest()
 {
-   const IOVSyncValue small( EventID(1,1));
-   const IOVSyncValue med( EventID(2,2) );
+   const IOVSyncValue small(EventID(1,1));
+   const IOVSyncValue med(EventID(2,2));
    
-   CPPUNIT_ASSERT( small < med);
-   CPPUNIT_ASSERT( small <= med);
-   CPPUNIT_ASSERT( !(small == med) );
-   CPPUNIT_ASSERT( small != med);
-   CPPUNIT_ASSERT( !(small > med) );
-   CPPUNIT_ASSERT( !(small >= med) );
+   CPPUNIT_ASSERT(small < med);
+   CPPUNIT_ASSERT(small <= med);
+   CPPUNIT_ASSERT(!(small == med));
+   CPPUNIT_ASSERT(small != med);
+   CPPUNIT_ASSERT(!(small > med));
+   CPPUNIT_ASSERT(!(small >= med));
    
 }
 
 
 void testIOVSyncValue::comparisonTimeTest()
 {
-   const IOVSyncValue small( Timestamp(1));
-   const IOVSyncValue med( Timestamp(2) );
+   const IOVSyncValue small(Timestamp(1));
+   const IOVSyncValue med(Timestamp(2));
    
-   CPPUNIT_ASSERT( small < med);
-   CPPUNIT_ASSERT( small <= med);
-   CPPUNIT_ASSERT( !(small == med) );
-   CPPUNIT_ASSERT( small != med);
-   CPPUNIT_ASSERT( !(small > med) );
-   CPPUNIT_ASSERT( !(small >= med) );
+   CPPUNIT_ASSERT(small < med);
+   CPPUNIT_ASSERT(small <= med);
+   CPPUNIT_ASSERT(!(small == med));
+   CPPUNIT_ASSERT(small != med);
+   CPPUNIT_ASSERT(!(small > med));
+   CPPUNIT_ASSERT(!(small >= med));
 
 }

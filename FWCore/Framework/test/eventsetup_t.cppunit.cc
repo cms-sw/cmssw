@@ -66,7 +66,7 @@ void testEventsetup::constructTest()
 {
    eventsetup::EventSetupProvider provider;
    const Timestamp time(1);
-   const IOVSyncValue timestamp( time );
+   const IOVSyncValue timestamp(time);
    EventSetup const& eventSetup = provider.eventSetupForInstance(timestamp);
    CPPUNIT_ASSERT(&eventSetup != 0);
    CPPUNIT_ASSERT(eventSetup.iovSyncValue() == timestamp);
@@ -169,17 +169,17 @@ void testEventsetup::recordValidityTest()
    }
 
    const Timestamp time_2(2);
-   finder->setInterval(ValidityInterval(IOVSyncValue(time_2), IOVSyncValue( Timestamp(3) )));
+   finder->setInterval(ValidityInterval(IOVSyncValue(time_2), IOVSyncValue(Timestamp(3))));
    {
       EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue(time_2));
       eventSetup.get<DummyRecord>();
    }
    {
-      EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue( Timestamp(3) ));
+      EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue(Timestamp(3)));
       eventSetup.get<DummyRecord>();
    }
    {
-      EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue( Timestamp(4) ));
+      EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue(Timestamp(4)));
    //   BOOST_CHECK_THROW(eventSetup.get<DummyRecord>(), edm::eventsetup::NoRecordException<DummyRecord>);
    eventSetup.get<DummyRecord>();
    }
@@ -199,7 +199,7 @@ void testEventsetup::recordValidityExcTest()
    provider.insert(dummyRecordProvider);
    
    {
-      EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue( Timestamp(1) ));
+      EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue(Timestamp(1)));
    // BOOST_CHECK_THROW(eventSetup.get<DummyRecord>(), edm::eventsetup::NoRecordException<DummyRecord>);
    eventSetup.get<DummyRecord>();
    }

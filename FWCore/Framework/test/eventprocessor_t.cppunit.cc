@@ -2,7 +2,7 @@
 
 Test of the EventProcessor class.
 
-$Id: eventprocessor_t.cppunit.cc,v 1.4 2005/07/19 16:34:00 viji Exp $
+$Id: eventprocessor_t.cppunit.cc,v 1.5 2005/08/24 00:29:27 chrjones Exp $
 
 ----------------------------------------------------------------------*/  
 #include <exception>
@@ -51,31 +51,31 @@ void testeventprocessor::parseTest()
     {
       std::cerr << "Application exception caught: "
 		<< e.explainSelf() << std::endl;
-      CPPUNIT_ASSERT( "Caught seal::Error " == 0 );
+      CPPUNIT_ASSERT("Caught seal::Error " == 0);
     }
   catch (std::exception& e)
     {
       std::cerr << "Standard library exception caught: "
 		<< e.what() << std::endl;
-     CPPUNIT_ASSERT( "Caught std::exception " == 0 );
+     CPPUNIT_ASSERT("Caught std::exception " == 0);
     }
   catch (...)
     {
-     CPPUNIT_ASSERT( "Caught unknown exception " == 0 );
+     CPPUNIT_ASSERT("Caught unknown exception " == 0);
     }
 }
 
 static int g_pre = 0;
 static int g_post = 0;
 static
-void doPre(const edm::Event&, const edm::EventSetup& ) 
+void doPre(const edm::Event&, const edm::EventSetup&) 
 {
    ++g_pre;
 }
 static
-void doPost(const edm::Event&, const edm::EventSetup& ) 
+void doPost(const edm::Event&, const edm::EventSetup&) 
 {
-   CPPUNIT_ASSERT( g_pre == ++g_post );
+   CPPUNIT_ASSERT(g_pre == ++g_post);
 }
 
 void testeventprocessor::prepostTest()
@@ -87,9 +87,9 @@ void testeventprocessor::prepostTest()
                              "}\n");
    edm::EventProcessor proc(configuration);
    
-   proc.preProcessEventSignal.connect( &doPre );
-   proc.postProcessEventSignal.connect( &doPost );
+   proc.preProcessEventSignal.connect(&doPre);
+   proc.postProcessEventSignal.connect(&doPost);
    proc.run(0);
-   CPPUNIT_ASSERT( 5 == g_pre );
-   CPPUNIT_ASSERT( 5 == g_post );
+   CPPUNIT_ASSERT(5 == g_pre);
+   CPPUNIT_ASSERT(5 == g_post);
 }

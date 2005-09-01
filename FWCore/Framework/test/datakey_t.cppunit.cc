@@ -47,36 +47,36 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testDataKey);
 void testDataKey::nametagConstructionTest()
 {
    const NameTag defaultTag;
-   CPPUNIT_ASSERT( 0 == std::strcmp("", defaultTag.value() ) );
+   CPPUNIT_ASSERT(0 == std::strcmp("", defaultTag.value()));
    
    const NameTag namedTag("fred");
-   CPPUNIT_ASSERT( 0 == std::strcmp("fred", namedTag.value() ) );
+   CPPUNIT_ASSERT(0 == std::strcmp("fred", namedTag.value()));
 }
 
 void testDataKey::nametagComparisonTest()
 {
    const NameTag defaultTag;
-   CPPUNIT_ASSERT( defaultTag == defaultTag );
+   CPPUNIT_ASSERT(defaultTag == defaultTag);
    
    const NameTag fredTag("fred");
-   CPPUNIT_ASSERT( fredTag == fredTag );
+   CPPUNIT_ASSERT(fredTag == fredTag);
    
-   CPPUNIT_ASSERT( ! (defaultTag == fredTag ) );
+   CPPUNIT_ASSERT(! (defaultTag == fredTag));
    
    const NameTag barneyTag("barney");
    
-   CPPUNIT_ASSERT( barneyTag < fredTag );
+   CPPUNIT_ASSERT(barneyTag < fredTag);
 }
 
 void testDataKey::nametagCopyTest()
 {
    const NameTag defaultTag;
-   NameTag tester( defaultTag );
-   CPPUNIT_ASSERT( tester == defaultTag );
+   NameTag tester(defaultTag);
+   CPPUNIT_ASSERT(tester == defaultTag);
    
    const NameTag fredTag("fred");
    tester = fredTag;
-   CPPUNIT_ASSERT( tester == fredTag );
+   CPPUNIT_ASSERT(tester == fredTag);
 }
 
 namespace datakey_t {
@@ -102,75 +102,75 @@ edm::eventsetup::heterocontainer::HCTypeTagTemplate<Dummy2, edm::eventsetup::Dat
 void testDataKey::ConstructionTest()
 {
    DataKey defaultKey;
-   CPPUNIT_ASSERT( TypeTag() == defaultKey.type() );
-   CPPUNIT_ASSERT( 0 == std::strcmp( "", defaultKey.name().value() ) );
+   CPPUNIT_ASSERT(TypeTag() == defaultKey.type());
+   CPPUNIT_ASSERT(0 == std::strcmp("", defaultKey.name().value()));
 
-   DataKey dummyKey( DataKey::makeTypeTag<Dummy>(), "");
-   CPPUNIT_ASSERT( DataKey::makeTypeTag<Dummy>() == dummyKey.type() );
-   CPPUNIT_ASSERT( 0 == std::strcmp( "", dummyKey.name().value() ) );
+   DataKey dummyKey(DataKey::makeTypeTag<Dummy>(), "");
+   CPPUNIT_ASSERT(DataKey::makeTypeTag<Dummy>() == dummyKey.type());
+   CPPUNIT_ASSERT(0 == std::strcmp("", dummyKey.name().value()));
 
-   DataKey namedDummyKey( DataKey::makeTypeTag<Dummy>(), "fred");
-   CPPUNIT_ASSERT( DataKey::makeTypeTag<Dummy>() == namedDummyKey.type() );
-   CPPUNIT_ASSERT( 0 == std::strcmp( "fred", namedDummyKey.name().value() ) );
+   DataKey namedDummyKey(DataKey::makeTypeTag<Dummy>(), "fred");
+   CPPUNIT_ASSERT(DataKey::makeTypeTag<Dummy>() == namedDummyKey.type());
+   CPPUNIT_ASSERT(0 == std::strcmp("fred", namedDummyKey.name().value()));
 }
 
 void testDataKey::ComparisonTest()
 {
    const DataKey defaultKey;
-   CPPUNIT_ASSERT( defaultKey == defaultKey );
-   CPPUNIT_ASSERT( !( defaultKey < defaultKey ) );
+   CPPUNIT_ASSERT(defaultKey == defaultKey);
+   CPPUNIT_ASSERT(!(defaultKey < defaultKey));
    
-   const DataKey dummyKey( DataKey::makeTypeTag<Dummy>(), "");
-   const DataKey fredDummyKey( DataKey::makeTypeTag<Dummy>(), "fred");
-   const DataKey barneyDummyKey( DataKey::makeTypeTag<Dummy>(), "barney");
+   const DataKey dummyKey(DataKey::makeTypeTag<Dummy>(), "");
+   const DataKey fredDummyKey(DataKey::makeTypeTag<Dummy>(), "fred");
+   const DataKey barneyDummyKey(DataKey::makeTypeTag<Dummy>(), "barney");
 
-   CPPUNIT_ASSERT( ! ( defaultKey == dummyKey ) );
-   CPPUNIT_ASSERT( dummyKey == dummyKey );
-   CPPUNIT_ASSERT( ! (dummyKey == fredDummyKey ) );
+   CPPUNIT_ASSERT(! (defaultKey == dummyKey));
+   CPPUNIT_ASSERT(dummyKey == dummyKey);
+   CPPUNIT_ASSERT(! (dummyKey == fredDummyKey));
    
-   CPPUNIT_ASSERT( barneyDummyKey == barneyDummyKey );
-   CPPUNIT_ASSERT( barneyDummyKey < fredDummyKey );
-   CPPUNIT_ASSERT( !( fredDummyKey < barneyDummyKey ) );
-   CPPUNIT_ASSERT( !(barneyDummyKey == fredDummyKey ) );
+   CPPUNIT_ASSERT(barneyDummyKey == barneyDummyKey);
+   CPPUNIT_ASSERT(barneyDummyKey < fredDummyKey);
+   CPPUNIT_ASSERT(!(fredDummyKey < barneyDummyKey));
+   CPPUNIT_ASSERT(!(barneyDummyKey == fredDummyKey));
    
-   const DataKey dummy2Key( DataKey::makeTypeTag<Dummy2>(), "");
+   const DataKey dummy2Key(DataKey::makeTypeTag<Dummy2>(), "");
 
-   CPPUNIT_ASSERT( ! (dummy2Key == dummyKey ) );
+   CPPUNIT_ASSERT(! (dummy2Key == dummyKey));
 }
 
 void testDataKey::CopyTest()
 {
    const DataKey defaultKey;
    DataKey tester(defaultKey);
-   CPPUNIT_ASSERT( tester == defaultKey );
+   CPPUNIT_ASSERT(tester == defaultKey);
    
-   const DataKey dummyKey( DataKey::makeTypeTag<Dummy>(), "");
+   const DataKey dummyKey(DataKey::makeTypeTag<Dummy>(), "");
    tester = dummyKey;
-   CPPUNIT_ASSERT( tester == dummyKey );
-   const DataKey fredDummyKey( DataKey::makeTypeTag<Dummy>(), "fred");
+   CPPUNIT_ASSERT(tester == dummyKey);
+   const DataKey fredDummyKey(DataKey::makeTypeTag<Dummy>(), "fred");
    tester = fredDummyKey;
-   CPPUNIT_ASSERT( tester == fredDummyKey );
+   CPPUNIT_ASSERT(tester == fredDummyKey);
 
-   DataKey tester2( fredDummyKey );
-   CPPUNIT_ASSERT( tester2 == fredDummyKey );
+   DataKey tester2(fredDummyKey);
+   CPPUNIT_ASSERT(tester2 == fredDummyKey);
 }
 
 void testDataKey::nocopyConstructionTest()
 {
-   const DataKey fredDummyKey( DataKey::makeTypeTag<Dummy>(), "fred");
-   const DataKey noCopyFredDummyKey( DataKey::makeTypeTag<Dummy>(), "fred", DataKey::kDoNotCopyMemory );
+   const DataKey fredDummyKey(DataKey::makeTypeTag<Dummy>(), "fred");
+   const DataKey noCopyFredDummyKey(DataKey::makeTypeTag<Dummy>(), "fred", DataKey::kDoNotCopyMemory);
 
-   CPPUNIT_ASSERT( fredDummyKey == noCopyFredDummyKey );
+   CPPUNIT_ASSERT(fredDummyKey == noCopyFredDummyKey);
    
-   const DataKey copyFredDummyKey( noCopyFredDummyKey );
-   CPPUNIT_ASSERT( copyFredDummyKey == noCopyFredDummyKey );
+   const DataKey copyFredDummyKey(noCopyFredDummyKey);
+   CPPUNIT_ASSERT(copyFredDummyKey == noCopyFredDummyKey);
    
    DataKey copy2FredDummyKey;
    copy2FredDummyKey = noCopyFredDummyKey;
-   CPPUNIT_ASSERT( copy2FredDummyKey == noCopyFredDummyKey );
+   CPPUNIT_ASSERT(copy2FredDummyKey == noCopyFredDummyKey);
    
-   DataKey noCopyBarneyDummyKey( DataKey::makeTypeTag<Dummy>(), "barney", DataKey::kDoNotCopyMemory );
+   DataKey noCopyBarneyDummyKey(DataKey::makeTypeTag<Dummy>(), "barney", DataKey::kDoNotCopyMemory);
 
    noCopyBarneyDummyKey = noCopyFredDummyKey;
-   CPPUNIT_ASSERT( noCopyBarneyDummyKey == noCopyFredDummyKey );
+   CPPUNIT_ASSERT(noCopyBarneyDummyKey == noCopyFredDummyKey);
 }

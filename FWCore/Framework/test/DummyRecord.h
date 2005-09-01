@@ -1,5 +1,5 @@
-#ifndef EVENTSETUP_TEST_DUMMYRECORD_H
-#define EVENTSETUP_TEST_DUMMYRECORD_H
+#ifndef Framework_DummyRecord_h
+#define Framework_DummyRecord_h
 /*
  *  DummyRecord.h
  *  EDMProto
@@ -13,4 +13,4 @@
 
 class DummyRecord : public edm::eventsetup::EventSetupRecordImplementation<DummyRecord> {};
 
-#endif /*EVENTSETUP_TEST_DUMMYRECORD_H*/
+#endif /*EventSetup_TEST_DummyRecord_h*/

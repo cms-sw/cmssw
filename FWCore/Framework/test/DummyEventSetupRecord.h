@@ -1,5 +1,5 @@
-#ifndef EVENTSETUP_TEST_DUMMYEVENTSETUPRECORD_H
-#define EVENTSETUP_TEST_DUMMYEVENTSETUPRECORD_H
+#ifndef Framework_DummyEventSetupRecord_h
+#define Framework_DummyEventSetupRecord_h
 /*
  *  DummyEventSetupRecord.h
  *  EDMProto
@@ -19,4 +19,4 @@ namespace edm {
 #include "FWCore/Framework/interface/eventsetuprecord_registration_macro.h"
 EVENTSETUP_RECORD_REG(edm::DummyEventSetupRecord);
 
-#endif /*EVENTSETUP_TEST_DUMMYEVENTSETUPRECORD_H*/
+#endif /*EventSetup_TEST_DummyEventSetupRecord_h*/

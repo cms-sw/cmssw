@@ -55,10 +55,10 @@ void testfullChain::getfromDataproxyproviderTest()
    provider.add(boost::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
 
    const Timestamp time_1(1);
-   const IOVSyncValue sync_1( time_1 );
-   pFinder->setInterval(ValidityInterval( sync_1, IOVSyncValue( Timestamp(5) ) ));
+   const IOVSyncValue sync_1(time_1);
+   pFinder->setInterval(ValidityInterval(sync_1, IOVSyncValue(Timestamp(5))));
    for(unsigned int iTime=1; iTime != 6; ++iTime) {
-      const Timestamp time( iTime );
+      const Timestamp time(iTime);
       EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue(time));
       ESHandle<DummyData> pDummy;
       eventSetup.get<DummyRecord>().get(pDummy);

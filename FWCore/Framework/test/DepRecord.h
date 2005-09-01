@@ -1,5 +1,5 @@
-#ifndef COREFRAMEWORK_DEPRECORD_H
-#define COREFRAMEWORK_DEPRECORD_H
+#ifndef Framework_DEPRecord_h
+#define Framework_DEPRecord_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Jun 22 19:46:32 EDT 2005
-// $Id: DepRecord.h,v 1.1 2005/06/23 19:48:45 chrjones Exp $
+// $Id: DepRecord.h,v 1.2 2005/07/14 22:50:53 wmtan Exp $
 //
 
 // system include files
@@ -33,4 +33,4 @@ class DepRecord
 {
 };
 
-#endif /* COREFRAMEWORK_DEPRECORD_H */
+#endif /* Framework_DEPRecord_h */
