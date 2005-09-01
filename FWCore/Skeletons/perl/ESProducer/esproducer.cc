@@ -37,12 +37,12 @@
 
 class prodname : public edm::eventsetup::ESProducer {
    public:
-      prodname( const edm::ParameterSet& );
+      prodname(const edm::ParameterSet&);
       ~prodname();
 
       typedef @perl if( 1 eq scalar( @::datatypes ) ) { $result="std::auto_ptr<$::datatypes[0]>"; } else { $result="edm::eventsetup::ESProducts<"; $line = 0; foreach $type ( @::datatypes ) { if ($line) { $result = "$result, "; } $result= "$result $type";  $line =1;} $result="$result>"; }  @\perl ReturnType;
 
-      ReturnType produce( const recordname& );
+      ReturnType produce(const recordname&);
    private:
       // ----------member data ---------------------------
 };
@@ -58,7 +58,7 @@ class prodname : public edm::eventsetup::ESProducer {
 //
 // constructors and destructor
 //
-prodname::prodname( const edm::ParameterSet& iConfig )
+prodname::prodname(const edm::ParameterSet& iConfig)
 {
    //the following line is needed to tell the framework what
    // data is being produced
@@ -83,7 +83,7 @@ prodname::~prodname()
 
 // ------------ method called to produce the data  ------------
 prodname::ReturnType
-prodname::produce( const recordname& iRecord )
+prodname::produce(const recordname& iRecord)
 {
    using namespace edm::eventsetup;
 @perl $result=""; foreach $type (@::datatypes) {$result ="$result   std::auto_ptr<$type> p$type ;\n";} @\perl
