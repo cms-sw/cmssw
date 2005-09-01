@@ -1,5 +1,5 @@
-#ifndef EDM_TEST_TOYPRODUCTS_H
-#define EDM_TEST_TOYPRODUCTS_H
+#ifndef Framework_ToyProducts_h
+#define Framework_ToyProducts_h
 
 /*----------------------------------------------------------------------
 

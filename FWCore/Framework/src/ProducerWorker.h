@@ -1,5 +1,5 @@
-#ifndef Framework_EDProducerWorker_h
-#define Framework_EDProducerWorker_h
+#ifndef Framework_ProducerWorker_h
+#define Framework_ProducerWorker_h
 
 /*----------------------------------------------------------------------
   
@@ -9,7 +9,7 @@ feed them into the event.
 According to our current definition, a single producer can only
 appear in one worker.
 
-$Id: ProducerWorker.h,v 1.9 2005/08/24 19:24:01 wmtan Exp $
+$Id: ProducerWorker.h,v 1.10 2005/09/01 04:30:52 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -66,4 +66,4 @@ namespace edm
 
 }
 
-#endif // Framework_EDProducerWorker_h
+#endif // Framework_ProducerWorker_h

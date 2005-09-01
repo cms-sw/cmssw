@@ -2,7 +2,7 @@
 
 /*----------------------------------------------------------------------
 
-$Id: ProductDescription.cc,v 1.7 2005/07/30 23:47:52 wmtan Exp $
+$Id: ProductDescription.cc,v 1.8 2005/08/02 22:21:35 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -47,7 +47,7 @@ namespace edm {
   }
 
   void
-  ProductDescription::write(std::ostream& ) const {
+  ProductDescription::write(std::ostream&) const {
     // To be filled in later.
   }
 

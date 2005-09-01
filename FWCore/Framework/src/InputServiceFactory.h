@@ -1,5 +1,5 @@
-#ifndef Framework_ISFactory_h
-#define Framework_ISFactory_h
+#ifndef Framework_InputServiceFactory_h
+#define Framework_InputServiceFactory_h
 
 #include "PluginManager/PluginFactory.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
