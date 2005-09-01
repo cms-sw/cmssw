@@ -1,10 +1,7 @@
-#ifndef KTJET_KTDISTANCE_H
-#define KTJET_KTDISTANCE_H
+#ifndef JetAlgorithms_KtDistance_h
+#define JetAlgorithms_KtDistance_h
 
-#ifndef KTJET_KTDISTANCEINTERFACE_H
 #include "RecoJets/JetAlgorithms/interface/KtDistanceInterface.h"
-#define KTJET_KTDISTANCEINTERFACE_H
-#endif
 
 #ifndef STD_STRING_H
 #include <string>
@@ -26,17 +23,8 @@
 #define CLHEP_LORENTZVECTOR_H
 #endif
 
-#ifndef KTJET_KTUTIL_H
 #include "RecoJets/JetAlgorithms/interface/KtUtil.h"
-#define KTJET_KTUTIL_H
-#endif
-
-#ifndef KTJET_KTLORENTZVECTOR_H
 #include "RecoJets/JetAlgorithms/interface/KtLorentzVector.h"
-#define KTJET_KTLORENTZVECTOR_H
-#endif
-
-
 
 namespace KtJet {
 /**

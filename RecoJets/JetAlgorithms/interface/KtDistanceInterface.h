@@ -1,14 +1,11 @@
-#ifndef KTJET_KTDISTANCEINTERFACE_H
-#define KTJET_KTDISTANCEINTERFACE_H
+#ifndef JetAlgorithms_KtDistanceInterface_h
+#define JetAlgorithms_KtDistanceInterface_h
 
 #ifndef STD_STRING_H
 #include <string>
 #define STD_STRING_H
 #endif
-#ifndef KTJET_KTUTIL_H
 #include "RecoJets/JetAlgorithms/interface/KtUtil.h"
-#define KTJET_KTUTIL_H
-#endif
 
 namespace KtJet {
 /**

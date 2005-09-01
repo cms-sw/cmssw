@@ -1,5 +1,5 @@
-#ifndef JetAlgorithm_KtLorentzVector_h
-#define JetAlgorithm_KtLorentzVector_h
+#ifndef JetAlgorithms_KtLorentzVector_h
+#define JetAlgorithms_KtLorentzVector_h
 
 
 #ifndef STD_VECTOR_H
@@ -23,9 +23,7 @@
 #define CLHEP_LORENTZVECTOR_H
 #endif
 
-#ifndef KTJET_KTUTIL_H
 #include "RecoJets/JetAlgorithms/interface/KtUtil.h"
-#define KTJET_KTUTIL_H
 #endif
 
 

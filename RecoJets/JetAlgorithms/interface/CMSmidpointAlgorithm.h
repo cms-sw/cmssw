@@ -1,5 +1,5 @@
-#ifndef CMSmidpointAlgorithm_h
-#define CMSmidpointAlgorithm_h
+#ifndef JetAlgorithms_CMSmidpointAlgorithm_h
+#define JetAlgorithms_CMSmidpointAlgorithm_h
 
 /** \class CMSmidpointAlgorithm
  *
@@ -97,7 +97,7 @@ class CMSmidpointAlgorithm
   /// Called by run, but public method to allow testing and studies.
   void findStableConesFromSeeds(CaloTowerHelper& theHelper,
 				const CaloTowerCollection* theCtcp,
-				std::vector<ProtoJet> & protoJets );
+				std::vector<ProtoJet> & protoJets);
 
   /// Iterate the proto-jet center until it is stable.  
   /// Called by findStableConesFromSeeds and findStableConesFromMidPoints but public method to allow testing and studies.

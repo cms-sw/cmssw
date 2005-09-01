@@ -1,18 +1,9 @@
-#ifndef KTJET_KTJETTABLE_H
-#define KTJET_KTJETTABLE_H
+#ifndef JetAlgorithms_KtJetTable_h
+#define JetAlgorithms_KtJetTable_h
 
-#ifndef KTJET_KTLORENTZVECTOR_H
 #include "RecoJets/JetAlgorithms/interface/KtLorentzVector.h"
-#define KTJET_KTLORENTZVECTOR_H
-#endif
-#ifndef KTJET_KTDISTANCEINTERFACE_H
 #include "RecoJets/JetAlgorithms/interface/KtDistanceInterface.h"
-#define KTJET_KTDISTANCEINTERFACE_H
-#endif
-#ifndef KTJET_KTRECOMINTERFACE_H
 #include "RecoJets/JetAlgorithms/interface/KtRecomInterface.h"
-#define KTJET_KTRECOMINTERFACE_H
-#endif
 #ifndef STD_VECTOR_H
 #include <vector>
 #define STD_VECTOR_H

@@ -1,5 +1,5 @@
-#ifndef KtJetAlgorithm_h
-#define KtJetAlgorithm_h
+#ifndef JetAlgorithms_CMSKtJetAlgorithm_h
+#define JetAlgorithms_CMSKtJetAlgorithm_h
 
 /** \class CMSKtJetAlgorithm
  *
