@@ -4,7 +4,7 @@ This is a generic main that can be used with any plugin and a
 PSet script.   See notes in EventProcessor.cpp for details about
 it.
 
-$Id: cmsRun.cpp,v 1.4 2005/07/20 03:00:36 jbk Exp $
+$Id: cmsRun.cpp,v 1.1 2005/07/20 05:23:01 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 
@@ -32,8 +32,13 @@ int main(int argc, char* argv[])
   try
     {
       edm::EventProcessor proc(argc,argv);
+      proc.beginJob();
       proc.run();
-      rc = 0;
+      if(proc.endJob()) {
+        rc = 0;
+      } else {
+        rc = 1;
+      }
     }
   catch (seal::Error& e)
     {
