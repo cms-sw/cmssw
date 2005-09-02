@@ -84,7 +84,7 @@ void KtLorentzVector::add(const KtLorentzVector &p) {
   this->operator+=(p);
 }
 
-KtLorentzVector & KtLorentzVector::operator+= (const KtLorentzVector &p){
+KtLorentzVector & KtLorentzVector::operator+=(const KtLorentzVector &p){
   if (m_isAtomic) { // ???
     std::cout << "[Jets] Tried to add to atomic KtLorentzVector. You shouldn't do that!" << std::endl;
     //    exit(1);

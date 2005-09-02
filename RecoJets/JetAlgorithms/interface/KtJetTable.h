@@ -79,9 +79,9 @@ class KtJetTable {
     /** Set size to hold nParticles particles */
     void resize(int nParticles);            
     /** Return reference to allow Kt value to be set */
-    KtFloat & operator() (int i, int j);         
+    KtFloat & operator()(int i, int j);         
     /** Return Kt by value */
-    KtFloat operator() (int i, int j) const;      
+    KtFloat operator()(int i, int j) const;      
     /** Find position of minimum Kt in table */
     std::pair<int,int> getMin() const;           
     /** Decrement number of jets */

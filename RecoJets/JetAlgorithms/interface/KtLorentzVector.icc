@@ -10,19 +10,19 @@ inline const std::vector<const KtLorentzVector*> & KtLorentzVector::getConstitue
 
 inline bool KtLorentzVector::isJet() const {return !m_isAtomic;} 
 
-inline bool KtLorentzVector::operator== (const KtLorentzVector& v2) const {
+inline bool KtLorentzVector::operator==(const KtLorentzVector& v2) const {
   return (m_id == v2.m_id);
 }
 
-inline bool KtLorentzVector::operator!= (const KtLorentzVector& v2) const {
+inline bool KtLorentzVector::operator!=(const KtLorentzVector& v2) const {
   return (m_id != v2.m_id);
 }
 
-inline bool KtLorentzVector::operator< (const KtLorentzVector& v2) const {
+inline bool KtLorentzVector::operator<(const KtLorentzVector& v2) const {
   return (m_id < v2.m_id);
 }
 
-inline bool KtLorentzVector::operator> (const KtLorentzVector& v2) const {
+inline bool KtLorentzVector::operator>(const KtLorentzVector& v2) const {
   return (m_id > v2.m_id);
 }
 

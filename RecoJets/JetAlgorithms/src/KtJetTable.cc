@@ -157,7 +157,7 @@ void KtJetTable::DijTable::print() const {
   std::cout << std::endl;
 }
 
-KtFloat & KtJetTable::DijTable::operator() (int ii, int jj) {
+KtFloat & KtJetTable::DijTable::operator()(int ii, int jj) {
   int i = std::min(ii,jj);
   int j = std::max(ii,jj);
   if (i<0 || j<0 || i>=m_nJets || j>=m_nJets || i>=j) {
@@ -169,7 +169,7 @@ KtFloat & KtJetTable::DijTable::operator() (int ii, int jj) {
 }
 
 
-KtFloat KtJetTable::DijTable::operator() (int i, int j) const {
+KtFloat KtJetTable::DijTable::operator()(int i, int j) const {
   if (i<0 || j<0 || i>=m_nJets || j>=m_nJets) {
     std::cout << "[Jets] ERROR in KtJetTable::DijTable::operator() const";
     std::cout << "[Jets]   Attempt to access element (" << i << "," << j << ") in table with nJets, nRows = "

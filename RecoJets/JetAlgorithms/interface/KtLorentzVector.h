@@ -66,12 +66,12 @@ public:
   /**  is it a Jet, not single particle */
   inline bool isJet() const;
   /** Add particle to jet using E scheme (4-vector addition) to merge 4-momenta */
-  KtLorentzVector & operator+= (const KtLorentzVector &);
+  KtLorentzVector & operator+=(const KtLorentzVector &);
   /** Compare IDs of objects */
-  inline bool operator== (const KtLorentzVector &) const;
-  inline bool operator!= (const KtLorentzVector &) const;
-  inline bool operator< (const KtLorentzVector &) const;
-  inline bool operator> (const KtLorentzVector &) const;
+  inline bool operator==(const KtLorentzVector &) const;
+  inline bool operator!=(const KtLorentzVector &) const;
+  inline bool operator<(const KtLorentzVector &) const;
+  inline bool operator>(const KtLorentzVector &) const;
 private:
   /** rapidity, only valid if haven't called other methods since last call to add() */
   inline KtFloat crapidity() const;
