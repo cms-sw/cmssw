@@ -12,7 +12,7 @@ namespace edm
   struct EventAux {
     EventAux() : process_history_(), id_() {}
     //FIXME: keep temporarily for backwards compatibility
-    explicit EventAux(EventID id) : process_history_(), id_(id) {}
+    explicit EventAux(EventID const& id) : process_history_(), id_(id) {}
     EventAux(EventID id, Timestamp const& time) : process_history_(), id_(id), time_(time) {}
     ~EventAux() {}
     // most recently process that processed this event

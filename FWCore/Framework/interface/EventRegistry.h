@@ -6,7 +6,7 @@
 EventRegistry: A singleton to keep track of active events.
 Event.
 
-$Id: EventRegistry.h,v 1.6 2005/08/10 02:28:38 chrjones Exp $
+$Id: EventRegistry.h,v 1.7 2005/09/01 05:36:25 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -18,15 +18,15 @@ namespace edm {
   public:
     typedef std::map<EventID, EventPrincipal const *> EventMap;
     static EventRegistry *instance();
-    void addEvent(EventID evtID, EventPrincipal const *evtPtr);
-    void removeEvent(EventID evtID) {
+    void addEvent(EventID const& evtID, EventPrincipal const *evtPtr);
+    void removeEvent(EventID const& evtID) {
       eventMap.erase(evtID);
     }
-    EventPrincipal const * getEvent(EventID evtID) const;
+    EventPrincipal const * getEvent(EventID const& evtID) const;
 
     class Operate {
     public:
-      Operate(EventID id, EventPrincipal const* ptr):
+      Operate(EventID const& id, EventPrincipal const* ptr):
 	id_(id),reg_(EventRegistry::instance())
       { reg_->addEvent(id_,ptr); }
       ~Operate()

@@ -12,7 +12,7 @@ namespace edm {
   }
 
   void
-  EventRegistry::addEvent(EventID evtID, EventPrincipal const *evtPtr) {
+  EventRegistry::addEvent(EventID const& evtID, EventPrincipal const *evtPtr) {
     if (eventMap.find(evtID) != eventMap.end()) {
       throw edm::Exception(edm::errors::InsertFailure,"AlreadyPresent")
 	<< "EventRegistry::addEvent: An event with ID "
@@ -22,7 +22,7 @@ namespace edm {
     }
 
   EventPrincipal const *
-  EventRegistry::getEvent(EventID evtID) const {
+  EventRegistry::getEvent(EventID const& evtID) const {
     EventMap::const_iterator it = eventMap.find(evtID);
     if (it == eventMap.end()) {
       throw edm::Exception(edm::errors::NotFound,"Find")
