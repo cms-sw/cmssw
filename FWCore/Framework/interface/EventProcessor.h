@@ -61,7 +61,7 @@ problems:
   where does the pluginmanager initialise call go?
 
 
-$Id: EventProcessor.h,v 1.5 2005/08/24 20:05:45 chrjones Exp $
+$Id: EventProcessor.h,v 1.6 2005/09/01 05:37:43 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -100,6 +100,16 @@ namespace edm {
 
     ~EventProcessor();
 
+    /**This should be called before the first call to 'run'
+       If this is not called in time, it will automatically be called
+       the first time 'run' is called
+       */
+    void beginJob();
+
+    /**This should be called before the EventProcessor is destroyed
+       returns false if any module's endJob throws an exception
+       */
+    bool endJob();
     // Invoke event processing.  We will process a total of
     // 'numberToProcess' events. If numberToProcess is zero, we will
     // process events intil the input sources are exhausted. If it is

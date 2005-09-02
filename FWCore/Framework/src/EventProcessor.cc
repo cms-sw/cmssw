@@ -131,7 +131,9 @@ namespace edm {
     explicit FwkImpl(const string& config);
 
     EventProcessor::StatusCode run(unsigned long numberToProcess);
-   
+    void beginJob();
+    bool endJob();
+    
     StrVec                  args_;
     string                  configstring_;
     boost::shared_ptr<ParameterSet> params_;
@@ -253,6 +255,55 @@ namespace edm {
      };
   }
   using eventprocessor::ESRefWrapper;
+
+  void
+  FwkImpl::beginJob() 
+  {
+     if(! emittedBeginJob_) {
+        //NOTE:  This implementation assumes 'Job' means one call the EventProcessor::run
+        // If it really means once per 'application' then this code will have to be changed.
+        // Also have to deal with case where have 'run' then new Module added and do 'run'
+        // again.  In that case the newly added Module needs its 'beginJob' to be called.
+        EventSetup const& es = esp_.eventSetupForInstance(edm::IOVSyncValue::beginOfTime());
+        PathList::iterator itWorkerList = workers_.begin();
+        PathList::iterator itEnd = workers_.end();
+        ESRefWrapper wrapper(es);
+        
+        for(; itWorkerList != itEnd; ++itEnd) {
+           std::for_each(itWorkerList->begin(), itWorkerList->end(), 
+                         boost::bind(boost::mem_fn(&Worker::beginJob), _1, wrapper));
+        }
+        emittedBeginJob_ = true;
+     }
+  }
+
+  bool
+  FwkImpl::endJob() 
+  {
+    bool returnValue = true;
+     PathList::const_iterator itWorkerList = workers_.begin();
+     PathList::const_iterator itEnd = workers_.end();
+     for(; itWorkerList != itEnd; ++itEnd) {
+        for(WorkerList::const_iterator itWorker = itWorkerList->begin();
+            itWorker != itWorkerList->end();
+            ++itWorker) {
+           try {
+              (*itWorker)->endJob();
+           } catch(cms::Exception& iException) {
+              cerr<<"Caught cms::Exception in endJob: "<< iException.what()<<endl;
+              returnValue = false;
+           } catch(std::exception& iException) {
+              cerr<<"Caught std::exception in endJob: "<< iException.what()<<endl;
+              cerr<<endl;
+              returnValue = false;
+           } catch(...) {
+              cerr<<"Caught unknown exception in endJob."<<endl;
+              returnValue = false;
+           }
+        }
+     }     
+     return returnValue;
+  }
   
   EventProcessor::StatusCode
   FwkImpl::run(unsigned long numberToProcess)
@@ -261,18 +312,8 @@ namespace edm {
     bool runforever = numberToProcess==0;
     unsigned int eventcount=0;
 
-    //NOTE:  This implementation assumes 'Job' means one call the EventProcessor::run
-    // If it really means once per 'application' then this code will have to be changed.
-    // Also have to deal with case where have 'run' then new Module added and do 'run'
-    // again.  In that case the newly added Module needs its 'beginJob' to be called.
-    EventSetup const& es = esp_.eventSetupForInstance(edm::IOVSyncValue::beginOfTime());
-    PathList::iterator itWorkerList = workers_.begin();
-    PathList::iterator itEnd = workers_.end();
-    ESRefWrapper wrapper(es);
-    for(; itWorkerList != itEnd; ++itEnd) {
-       std::for_each(itWorkerList->begin(), itWorkerList->end(), 
-                      boost::bind(boost::mem_fn(&Worker::beginJob), _1, wrapper));
-    }
+    //make sure this was called
+    beginJob();
 
     while(runforever || eventcount<numberToProcess)
       {
@@ -320,16 +361,6 @@ namespace edm {
 	  }
       }
 
-    //NOTE: this is not done if an exception is thrown in the above loop.
-    // This was done intentionally.
-    {
-       PathList::const_iterator itWorkerList = workers_.begin();
-       PathList::const_iterator itEnd = workers_.end();
-       for(; itWorkerList != itEnd; ++itEnd) {
-          std::for_each(itWorkerList->begin(), itWorkerList->end(), 
-                         boost::mem_fn(&Worker::endJob));
-       }
-    }
     return 0;
   }
 
@@ -369,5 +400,17 @@ namespace edm {
   EventProcessor::run(unsigned long numberToProcess)
   {
     return impl_->run(numberToProcess);
+  }
+  
+  void
+  EventProcessor::beginJob() 
+  {
+    impl_->beginJob();
+  }
+
+  bool
+  EventProcessor::endJob() 
+  {
+    return impl_->endJob();
   }
 }
