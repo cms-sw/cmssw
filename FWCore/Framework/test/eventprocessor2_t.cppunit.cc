@@ -2,7 +2,7 @@
 
 Test of the EventProcessor class.
 
-$Id: eventprocessor2_t.cppunit.cc,v 1.3 2005/07/19 16:26:23 viji Exp $
+$Id: eventprocessor2_t.cppunit.cc,v 1.4 2005/07/19 16:34:00 viji Exp $
 
 ----------------------------------------------------------------------*/  
 #include <exception>
@@ -38,8 +38,9 @@ void work()
                     "path p1 = { m1,m2,out }\n"
 		    "}\n");
   edm::EventProcessor proc(configuration);
-
+  proc.beginJob();
   proc.run(0);
+  proc.endJob();
 }
 
 void testeventprocessor2::eventprocessor2Test()
