@@ -2,7 +2,7 @@
 
 Test of the EventProcessor class.
 
-$Id: eventprocessor_t.cppunit.cc,v 1.5 2005/08/24 00:29:27 chrjones Exp $
+$Id: eventprocessor_t.cppunit.cc,v 1.6 2005/09/01 04:24:28 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <exception>
@@ -11,6 +11,7 @@ $Id: eventprocessor_t.cppunit.cc,v 1.5 2005/08/24 00:29:27 chrjones Exp $
 
 #include "FWCore/Framework/interface/EventProcessor.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Framework/test/stubs/TestBeginEndJobAnalyzer.h"
 
 #include <cppunit/extensions/HelperMacros.h>
 
@@ -19,12 +20,14 @@ class testeventprocessor: public CppUnit::TestFixture
 CPPUNIT_TEST_SUITE(testeventprocessor);
 CPPUNIT_TEST(parseTest);
 CPPUNIT_TEST(prepostTest);
+CPPUNIT_TEST(beginEndJobTest);
 CPPUNIT_TEST_SUITE_END();
 public:
   void setUp(){}
   void tearDown(){}
   void parseTest();
   void prepostTest();
+  void beginEndJobTest();
 private:
 void work()
 {
@@ -35,8 +38,9 @@ void work()
                             "path p1 = { m1,m2 }\n"
 			    "}\n");
   edm::EventProcessor proc(configuration);
-
+  proc.beginJob();
   proc.run(0);
+  proc.endJob();
 }
 };
 
@@ -89,7 +93,47 @@ void testeventprocessor::prepostTest()
    
    proc.preProcessEventSignal.connect(&doPre);
    proc.postProcessEventSignal.connect(&doPost);
+   proc.beginJob();
    proc.run(0);
+   proc.endJob();
    CPPUNIT_ASSERT(5 == g_pre);
    CPPUNIT_ASSERT(5 == g_post);
+}
+
+void testeventprocessor::beginEndJobTest()
+{
+   std::string configuration("process p = {\n"
+                             "source = EmptyInputService { untracked int32 maxEvents = 2 }\n"
+                             "module m1 = TestBeginEndJobAnalyzer { }\n"
+                             "path p1 = { m1 }\n"
+                             "}\n");
+   {
+      edm::EventProcessor proc(configuration);
+      
+      CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::beginJobCalled);
+      proc.beginJob();
+      CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::beginJobCalled);
+      CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::endJobCalled);
+      proc.endJob();
+      CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::endJobCalled);
+   }
+   {
+      TestBeginEndJobAnalyzer::beginJobCalled = false;
+      TestBeginEndJobAnalyzer::endJobCalled = false;
+
+      edm::EventProcessor proc(configuration);
+      //run should call beginJob if it hasn't happened already
+      CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::beginJobCalled);
+      proc.run(1);
+      CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::beginJobCalled);
+
+      //second call to run should NOT call beginJob
+      TestBeginEndJobAnalyzer::beginJobCalled = false;
+      proc.run(1);
+      CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::beginJobCalled);
+
+   }
+   //In this case, endJob should not have been called since was not done explicitly
+   CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::endJobCalled);
+   
 }
