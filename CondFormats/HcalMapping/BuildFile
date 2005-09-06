@@ -4,5 +4,6 @@
    <lib name=CondFormatsHcalMapping>
    <use name=boost>
    <use name=DataFormats/HcalDetId>
+   <use name=FWCore/Utilities> 
 </export>
 

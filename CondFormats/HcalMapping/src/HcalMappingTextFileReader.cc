@@ -1,4 +1,6 @@
 #include "CondFormats/HcalMapping/interface/HcalMappingTextFileReader.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
 #include <stdio.h>
 #include <iostream> 
 using namespace std;
@@ -16,6 +18,11 @@ HcalMapping HcalMappingTextFileReader::readFromFile(const char* filename, bool m
   int ieta, iphi, depth;
 
   FILE* f=fopen(filename,"r");
+
+  if (f==0) {
+    cerr << "Unable to open '" << filename << "'" << endl;
+    throw cms::Exception("FileNotFound") << "Unable to open '" << filename << "'" << endl;
+  }
 
   while (f!=0 && !feof(f)) {
     buffer[0]=0;
