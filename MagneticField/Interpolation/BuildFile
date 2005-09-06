@@ -1,0 +1,7 @@
+
+<use name=MagneticField/VolumeGeometry>
+
+<export>
+ <lib name=MagneticFieldInterpolation>
+ <use name=MagneticField/VolumeGeometry>
+</export>

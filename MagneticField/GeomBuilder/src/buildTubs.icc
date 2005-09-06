@@ -1,0 +1,50 @@
+void MagGeoBuilderFromDDD::volumeHandle::buildTubs(const DDExpandedView &fv) {
+  if (bldVerb.debugOut) cout << "Building tubs surfaces...: " <<endl;
+
+  DDTubs tubs(solid);
+
+  double  zhalf    = tubs.zhalf()/cm;
+  double  rIn      = tubs.rIn()/cm;
+  double  rOut     = tubs.rOut()/cm;
+  double  startPhi = tubs.startPhi();
+  double  deltaPhi = tubs.deltaPhi();
+
+  if (bldVerb.debugOut) cout << "zhalf    " << zhalf    << endl
+		  << "rIn      " << rIn      << endl
+		  << "rOut     " << rOut     << endl
+		  << "startPhi " << startPhi << endl
+		  << "deltaPhi " << deltaPhi << endl;
+
+  // recalculate center: (for a DDTubs, DDD gives 0,0,Z)
+  double rCentr   = (rIn+rOut)/2.;
+  Geom::Phi<double> phiCenter(startPhi + deltaPhi/2.);
+  center_ = refPlane->toGlobal(LocalPoint(rCentr*cos(phiCenter),
+					  rCentr*sin(phiCenter), 0.));
+  // For cons and tubs RN = R.
+  theRN = rCentr;
+
+  // FIXME: use builder
+  surfaces[outer] = new Cylinder(Surface::PositionType(0,0,center_.z()),
+				    Surface::RotationType(),
+				    rOut);
+  
+  surfaces[inner] = new Cylinder(Surface::PositionType(0,0,center_.z()),
+				    Surface::RotationType(),
+				    rIn);
+  
+  // All other surfaces
+  buildPhiZSurf(startPhi, deltaPhi, zhalf, rCentr);
+
+  // Check ordering.
+  if (bldVerb.debugOut) {  
+    if (dynamic_cast<const Cylinder*>(&(*surfaces[outer]))->radius() <
+	dynamic_cast<const Cylinder*>(&(*surfaces[inner]))->radius()){
+      cout << "*** WARNING: pos_outer < pos_inner " << endl;
+    }
+  }
+  
+  // Save volume boundaries
+  theRMin = rIn;
+  theRMax = rOut;
+
+}

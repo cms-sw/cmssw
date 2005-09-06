@@ -1,0 +1,16 @@
+
+<export>
+ <lib name=MagneticFieldGeomBuilder>
+ <use name=clhep>
+ <use name=boost>
+ <use name=MagneticField/Layers>
+ <use name=MagneticField/Interpolation>
+ <use name=DetectorDescription/Core>
+</export>
+
+<use name=clhep>
+<use name=boost>
+<use name=MagneticField/Layers>
+<use name=MagneticField/Interpolation>
+<use name=DetectorDescription/Core>
+#<Flags SEAL_PLUGIN_NAME="GeomBuilder">
