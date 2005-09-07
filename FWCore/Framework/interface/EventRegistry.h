@@ -6,14 +6,15 @@
 EventRegistry: A singleton to keep track of active events.
 Event.
 
-$Id: EventRegistry.h,v 1.7 2005/09/01 05:36:25 wmtan Exp $
+$Id: EventRegistry.h,v 1.8 2005/09/02 05:17:49 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include <map>
-#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/EDProduct/interface/EventID.h"
 
 namespace edm {
+  class EventPrincipal;
   class EventRegistry {
   public:
     typedef std::map<EventID, EventPrincipal const *> EventMap;
