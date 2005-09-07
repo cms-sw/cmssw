@@ -1,12 +1,12 @@
 /*----------------------------------------------------------------------
-$Id: EmptyInputService.cc,v 1.11 2005/08/10 15:28:12 chrjones Exp $
+$Id: EmptyInputService.cc,v 1.12 2005/09/01 03:12:50 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <stdexcept>
 #include <memory>
 #include <string>
 
-#include "FWCore/Services/src/EmptyInputService.h"
+#include "FWCore/Framework/src/EmptyInputService.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/InputServiceDescription.h"
 #include "FWCore/Framework/interface/InputService.h"

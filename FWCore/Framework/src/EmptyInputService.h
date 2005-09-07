@@ -1,5 +1,8 @@
+#ifndef Framework_EmptyInputService_h
+#define Framework_EmptyInputService_h
+
 /*----------------------------------------------------------------------
-$Id: EmptyInputService.h,v 1.4 2005/08/10 02:29:28 chrjones Exp $
+$Id: EmptyInputService.h,v 1.5 2005/08/10 15:28:12 chrjones Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -38,3 +41,4 @@ namespace edm {
     virtual std::auto_ptr<EDProduct> get(BranchKey const& k);
   };
 }
+#endif
