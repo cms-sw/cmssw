@@ -1,0 +1,14 @@
+<use name=boost>
+<use name=Foundation/PluginManager>
+<use name=Framework/SealKernel>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/Utilities>
+<export>
+ <lib name=FWCoreServiceRegistry>
+ <use name=boost>
+ <use name=Foundation/PluginManager>
+ <use name=Framework/SealKernel>
+ <use name=FWCore/ParameterSet>
+ <use name=FWCore/Utilities>
+</export>
+
