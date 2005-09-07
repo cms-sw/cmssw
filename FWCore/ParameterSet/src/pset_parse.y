@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.4 2005/07/27 22:28:57 paterno Exp $
+ * $Id: pset_parse.y,v 1.5 2005/08/30 21:41:49 wmtan Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -133,6 +133,7 @@ inline string toString(char* arg) { string s(arg); free(arg); return s; }
 %token ENDPATH_tok
 %token USING_tok
 %token MODULE_tok
+%token SERVICE_tok
 %token ES_MODULE_tok
 %token MIXER_tok
 %token MIXERPATH_tok
@@ -551,6 +552,16 @@ procnode:        allpset
                    $<_Node>$ = wn;
                  }
                |
+                 SERVICE_tok EQUAL_tok LETTERSTART_tok scoped
+                 {
+                   DBPRINT("procnode: SERVICE");
+                   string type(toString($<str>3));
+                   NodePtrListPtr nodelist($<_NodePtrList>4);
+                   ModuleNode* wn(new ModuleNode("service", "nameless",type,nodelist,lines));
+                   $<_Node>$ = wn;
+                 }
+               |
+
                  ES_MODULE_tok LETTERSTART_tok EQUAL_tok LETTERSTART_tok scoped
                  {
                    DBPRINT("procnode: ES_MODULE");

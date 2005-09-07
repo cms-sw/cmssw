@@ -24,7 +24,7 @@ using namespace edm::pset;
   char* stringDup(const char*);
   char* stringDupQuoted(const char* s,char quotetype);
 /*
- * $Id: pset_lex.l,v 1.1 2005/05/29 02:29:55 wmtan Exp $
+ * $Id: pset_lex.l,v 1.2 2005/06/27 16:35:01 paterno Exp $
  * Author: Us
  * Date: 4/28/05
  * History:
@@ -76,6 +76,7 @@ comment2 "//".*[\n]?
 "endpath"       { return ENDPATH_tok; }
 "using"         { return USING_tok; }
 "module"        { return MODULE_tok; }
+"service"       { return SERVICE_tok; }
 "es_module"     { return ES_MODULE_tok; }
 "mixer"         { return MIXER_tok; }
 "mixer_path"    { return MIXERPATH_tok; }
