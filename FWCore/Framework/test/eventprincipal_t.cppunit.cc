@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id: eventprincipal_t.cppunit.cc,v 1.1 2005/09/06 21:05:35 wmtan Exp $
+$Id: eventprincipal_t.cppunit.cc,v 1.12 2005/08/30 21:21:01 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <cassert>
@@ -15,6 +15,7 @@ $Id: eventprincipal_t.cppunit.cc,v 1.1 2005/09/06 21:05:35 wmtan Exp $
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/EDProduct/interface/ProductID.h"
 #include "FWCore/Framework/interface/BasicHandle.h"
+#include "FWCore/Framework/src/EmptyInputService.h"
 #include "FWCore/Framework/interface/ProductRegistry.h"
 #include "FWCore/Framework/interface/ProductDescription.h"
 #include "FWCore/EDProduct/interface/Wrapper.h"
@@ -26,16 +27,6 @@ $Id: eventprincipal_t.cppunit.cc,v 1.1 2005/09/06 21:05:35 wmtan Exp $
 #include <cppunit/extensions/HelperMacros.h>
 
 typedef edm::BasicHandle handle;
-
-namespace edmtest {
-  struct FakeRetriever : public edm::Retriever {
-    virtual ~FakeRetriever() {}
-    virtual std::auto_ptr<edm::EDProduct> get(edm::BranchKey const&) {
-      assert("Fake retriever got called" == 0);
-      return std::auto_ptr<edm::EDProduct>();
-    }
-  };
-}
 
 class testeventprincipal: public CppUnit::TestFixture {
 CPPUNIT_TEST_SUITE(testeventprincipal);
@@ -201,7 +192,7 @@ void testeventprincipal::failgetbyInvalidIdTest() {
   preg.addProduct(pprov->product);
   preg.setProductIDs();
   edm::EventID col(1L);
-  edmtest::FakeRetriever fake;
+  edm::FakeRetriever fake;
   edm::EventPrincipal ep(col, fake, preg);
   ep.addToProcessHistory("PROD");
 
@@ -263,7 +254,7 @@ void testeventprincipal::getbyIdTest() {
   preg.addProduct(pprov->product);
   preg.setProductIDs();
   edm::EventID col(1L);
-  edmtest::FakeRetriever fake;
+  edm::FakeRetriever fake;
   edm::EventPrincipal ep(col, fake, preg);
   ep.addToProcessHistory("PROD");
 
@@ -314,7 +305,7 @@ void testeventprincipal::getbyLabelTest() {
   preg.addProduct(pprov->product);
   preg.setProductIDs();
   edm::EventID col(1L);
-  edmtest::FakeRetriever fake;
+  edm::FakeRetriever fake;
   edm::EventPrincipal ep(col, fake, preg);
   ep.addToProcessHistory("PROD");
 
@@ -363,7 +354,7 @@ void testeventprincipal::getbySelectorTest() {
   preg.addProduct(pprov->product);
   preg.setProductIDs();
   edm::EventID col(1L);
-  edmtest::FakeRetriever fake;
+  edm::FakeRetriever fake;
   edm::EventPrincipal ep(col, fake, preg);
   ep.addToProcessHistory("PROD");
 
@@ -416,7 +407,7 @@ void testeventprincipal::getbyTypeTest() {
   preg.addProduct(pprov->product);
   preg.setProductIDs();
   edm::EventID col(1L);
-  edmtest::FakeRetriever fake;
+  edm::FakeRetriever fake;
   edm::EventPrincipal ep(col, fake, preg);
   ep.addToProcessHistory("PROD");
 
@@ -464,7 +455,7 @@ void testeventprincipal::getProvenanceTest() {
   preg.addProduct(pprov->product);
   preg.setProductIDs();
   edm::EventID col(1L);
-  edmtest::FakeRetriever fake;
+  edm::FakeRetriever fake;
   edm::EventPrincipal ep(col, fake, preg);
   ep.addToProcessHistory("PROD");
 
@@ -510,7 +501,7 @@ void testeventprincipal::getAllProvenanceTest() {
   preg.addProduct(pprov->product);
   preg.setProductIDs();
   edm::EventID col(1L);
-  edmtest::FakeRetriever fake;
+  edm::FakeRetriever fake;
   edm::EventPrincipal ep(col, fake, preg);
   ep.addToProcessHistory("PROD");
 
