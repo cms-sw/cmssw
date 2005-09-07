@@ -1,5 +1,5 @@
-#ifndef Framework_ProcessPSetBuilder_h
-#define Framework_ProcessPSetBuilder_h
+#ifndef ParameterSet_ProcessPSetBuilder_h
+#define ParameterSet_ProcessPSetBuilder_h
 
 
 /**
@@ -7,7 +7,7 @@
    Declaration of class ProcessPSetBuilder
 
    \author Stefano ARGIRO
-   \version $Id: ProcessPSetBuilder.h,v 1.2 2005/06/23 19:57:22 wmtan Exp $
+   \version $Id: ProcessPSetBuilder.h,v 1.3 2005/09/01 23:30:49 wmtan Exp $
    \date 16 Jun 2005
 */
 

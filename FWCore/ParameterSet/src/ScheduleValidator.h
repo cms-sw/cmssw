@@ -1,12 +1,12 @@
-#ifndef Framework_ScheduleValidator_h
-#define Framework_ScheduleValidator_h
+#ifndef ParameterSet_ScheduleValidator_h
+#define ParameterSet_ScheduleValidator_h
 
 /**
    \file
    Declaration of class ScheduleValidator
 
    \author Stefano ARGIRO
-   \version $Id: ScheduleValidator.h,v 1.1 2005/06/20 15:21:39 argiro Exp $
+   \version $Id: ScheduleValidator.h,v 1.2 2005/09/01 23:30:49 wmtan Exp $
    \date 10 Jun 2005
 */
 
