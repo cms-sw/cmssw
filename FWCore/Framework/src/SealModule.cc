@@ -1,6 +1,6 @@
 #include "PluginManager/ModuleDef.h"
 #include "FWCore/Framework/interface/InputServiceMacros.h"
-#include "FWCore/Services/src/EmptyInputService.h"
+#include "FWCore/Framework/src/EmptyInputService.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
 
 using edm::EmptyInputService;
