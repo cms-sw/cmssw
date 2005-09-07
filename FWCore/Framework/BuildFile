@@ -1,3 +1,4 @@
+<flags SEAL_PLUGIN_NAME="FWCoreFramework">
 <use name=boost>
 <use name=Foundation/PluginManager>
 <use name=Framework/SealKernel>
