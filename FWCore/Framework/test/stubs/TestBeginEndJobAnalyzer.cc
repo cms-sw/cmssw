@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Sep  2 13:54:17 EDT 2005
-// $Id$
+// $Id: TestBeginEndJobAnalyzer.cc,v 1.1 2005/09/02 19:26:08 chrjones Exp $
 //
 //
 
@@ -47,7 +47,7 @@
 //
 // constructors and destructor
 //
-TestBeginEndJobAnalyzer::TestBeginEndJobAnalyzer(const edm::ParameterSet& iConfig)
+TestBeginEndJobAnalyzer::TestBeginEndJobAnalyzer(const edm::ParameterSet& /* iConfig */)
 {
    //now do what ever initialization is needed
 
@@ -87,7 +87,7 @@ TestBeginEndJobAnalyzer::endJob()
 
 
 void
-TestBeginEndJobAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+TestBeginEndJobAnalyzer::analyze(const edm::Event& /* iEvent */, const edm::EventSetup& /* iSetup */)
 {
 }
 
