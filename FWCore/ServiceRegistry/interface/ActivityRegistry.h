@@ -16,15 +16,19 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 19:53:09 EDT 2005
-// $Id: ActivityRegistry.h,v 1.1 2005/09/07 21:58:16 chrjones Exp $
+// $Id: ActivityRegistry.h,v 1.2 2005/09/08 07:17:57 chrjones Exp $
 //
 
 // system include files
 #include "boost/signal.hpp"
+#include "boost/bind.hpp"
+#include "boost/mem_fn.hpp"
 
 // user include files
 
-#define AR_WATCH_USING_METHOD(method) template<class TClass, class TMethod> void method (TClass* iObject, TMethod iMethod) { method (boost::bind(iMethod, iObject, _1)); }
+#define AR_WATCH_USING_METHOD_0(method) template<class TClass, class TMethod> void method (TClass* iObject, TMethod iMethod) { method (boost::bind(boost::mem_fn(iMethod), iObject)); }
+#define AR_WATCH_USING_METHOD_1(method) template<class TClass, class TMethod> void method (TClass* iObject, TMethod iMethod) { method (boost::bind(boost::mem_fn(iMethod), iObject, _1)); }
+#define AR_WATCH_USING_METHOD_2(method) template<class TClass, class TMethod> void method (TClass* iObject, TMethod iMethod) { method (boost::bind(boost::mem_fn(iMethod), iObject, _1,_2)); }
 // forward declarations
 namespace edm {
    class EventID;
@@ -45,7 +49,7 @@ namespace edm {
       void watchPostBeginJob(const PostBeginJob::slot_type& iSlot) {
          postBeginJobSignal_.connect(iSlot);
       }
-      AR_WATCH_USING_METHOD(watchPostBeginJob)
+      AR_WATCH_USING_METHOD_0(watchPostBeginJob)
 
       typedef boost::signal<void ()> PostEndJob;
       ///signal is emitted after all modules have gotten their endJob called
@@ -53,7 +57,7 @@ namespace edm {
       void watchPostEndJob(const PostEndJob::slot_type& iSlot) {
          postEndJobSignal_.connect(iSlot);
       }
-      AR_WATCH_USING_METHOD(watchPostEndJob)
+      AR_WATCH_USING_METHOD_0(watchPostEndJob)
 
       
       typedef boost::signal<void (const edm::EventID&, const edm::Timestamp&)> PreProcessEvent;
@@ -62,6 +66,7 @@ namespace edm {
       void watchPreProcessEvent(const PreProcessEvent::slot_type& iSlot) {
          preProcessEventSignal_.connect(iSlot);
       }
+      AR_WATCH_USING_METHOD_2(watchPreProcessEvent)
       
       typedef boost::signal<void (const Event&, const EventSetup&)> PostProcessEvent;
       /// signal is emitted after all modules have finished processing the Event
@@ -69,6 +74,7 @@ namespace edm {
       void watchPostProcessEvent(const PostProcessEvent::slot_type& iSlot) {
          postProcessEventSignal_.connect(iSlot);
       }
+      AR_WATCH_USING_METHOD_2(watchPostProcessEvent)
 
       /// signal is emitted before the module starts processing the Event
       typedef boost::signal<void (const ModuleDescription&)> PreModule;
@@ -76,7 +82,7 @@ namespace edm {
       void watchPreModule(const PreModule::slot_type& iSlot) {
          preModuleSignal_.connect(iSlot);
       }
-      AR_WATCH_USING_METHOD(watchPreModule)
+      AR_WATCH_USING_METHOD_1(watchPreModule)
          
       /// signal is emitted after the module finished processing the Event
       typedef boost::signal<void (const ModuleDescription&)> PostModule;
@@ -84,7 +90,7 @@ namespace edm {
       void watchPostModule(const PostModule::slot_type& iSlot) {
          postModuleSignal_.connect(iSlot);
       }
-      AR_WATCH_USING_METHOD(watchPostModule)
+      AR_WATCH_USING_METHOD_1(watchPostModule)
          
       // ---------- member functions ---------------------------
 
