@@ -196,6 +196,9 @@ namespace edm {
      
      workers_= (sbuilder.getPathList());
      runner_ = std::auto_ptr<ScheduleExecutor>(new ScheduleExecutor(workers_,act_table_));
+     runner_->preModuleSignal.connect( activityRegistry_.preModuleSignal_);
+     runner_->postModuleSignal.connect( activityRegistry_.postModuleSignal_);
+     
      
      fillEventSetupProvider(esp_, *params_, common_);
   }
