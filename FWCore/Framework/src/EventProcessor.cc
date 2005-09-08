@@ -24,6 +24,9 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Framework/interface/Event.h"
 
+#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
+#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+
 #include "boost/shared_ptr.hpp"
 #include "boost/bind.hpp"
 #include "boost/mem_fn.hpp"
@@ -142,6 +145,9 @@ namespace edm {
     ProductRegistry         preg_;
     PathList                workers_;
 
+    ActivityRegistry activityRegistry_;
+    ServiceToken serviceToken_;
+    
     boost::shared_ptr<InputService> input_;
     ScheduleExecutor runner_;
     edm::eventsetup::EventSetupProvider esp_;    
@@ -153,9 +159,6 @@ namespace edm {
     string readFile(const StrVec& args);
     
     
-    boost::signal<void (const Event&, const EventSetup&)> preProcessEventSignal;
-    boost::signal<void (const Event&, const EventSetup&)> postProcessEventSignal;
-
     private:
        void initialize();
 
@@ -165,6 +168,14 @@ namespace edm {
   void FwkImpl::initialize()
   {    
      ProcessPSetBuilder builder(configstring_);
+
+     //create the services
+     serviceToken_ = ServiceRegistry::createSet(*(builder.getServicesPSets()));
+     serviceToken_.connectTo( activityRegistry_);
+     
+     //make the services available
+     ServiceRegistry::Operate operate(serviceToken_);
+     
      params_ = builder.getProcessPSet();
      act_table_ = ActionTable(*params_);
      common_ = 
@@ -259,6 +270,9 @@ namespace edm {
   void
   FwkImpl::beginJob() 
   {
+     //make the services available
+     ServiceRegistry::Operate operate(serviceToken_);
+
      if(! emittedBeginJob_) {
         //NOTE:  This implementation assumes 'Job' means one call the EventProcessor::run
         // If it really means once per 'application' then this code will have to be changed.
@@ -274,13 +288,17 @@ namespace edm {
                          boost::bind(boost::mem_fn(&Worker::beginJob), _1, wrapper));
         }
         emittedBeginJob_ = true;
+        activityRegistry_.postBeginJobSignal_();
      }
   }
 
   bool
   FwkImpl::endJob() 
   {
-    bool returnValue = true;
+     //make the services available
+     ServiceRegistry::Operate operate(serviceToken_);
+     
+     bool returnValue = true;
      PathList::const_iterator itWorkerList = workers_.begin();
      PathList::const_iterator itEnd = workers_.end();
      for(; itWorkerList != itEnd; ++itEnd) {
@@ -302,12 +320,16 @@ namespace edm {
            }
         }
      }     
+     
+     activityRegistry_.postEndJobSignal_();
      return returnValue;
   }
   
   EventProcessor::StatusCode
   FwkImpl::run(unsigned long numberToProcess)
   {
+    //make the services available
+    ServiceRegistry::Operate operate(serviceToken_);
 
     bool runforever = numberToProcess==0;
     unsigned int eventcount=0;
@@ -329,12 +351,12 @@ namespace edm {
 	  {
             ModuleDescription dummy;
             {
-              preProcessEventSignal(Event(*pep.get(), dummy), es);
+              activityRegistry_.preProcessEventSignal_(pep->id(),pep->time() );
             }
 	    EventRegistry::Operate oper(pep->id(),pep.get());
 	    runner_.runOneEvent(*pep.get(),es);
             {
-              postProcessEventSignal(Event(*pep.get(),dummy) , es);
+              activityRegistry_.postProcessEventSignal_(Event(*pep.get(),dummy) , es);
             }
 	  }
 	catch(cms::Exception& e)
@@ -370,8 +392,8 @@ namespace edm {
   static void connectSigs(EventProcessor* iEP, FwkImpl* iImpl) {
      //When the FwkImpl signals are given, pass them to the appropriate EventProcessor
      // signals so that the outside world can see the signal
-     iImpl->preProcessEventSignal.connect(iEP->preProcessEventSignal);
-     iImpl->postProcessEventSignal.connect(iEP->postProcessEventSignal);
+     iImpl->activityRegistry_.preProcessEventSignal_.connect(iEP->preProcessEventSignal);
+     iImpl->activityRegistry_.postProcessEventSignal_.connect(iEP->postProcessEventSignal);
   }
   EventProcessor::EventProcessor(int argc, char* argv[]):
     impl_(new FwkImpl(argc,argv))
