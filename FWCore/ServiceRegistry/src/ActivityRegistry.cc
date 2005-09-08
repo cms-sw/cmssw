@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep  6 10:26:49 EDT 2005
-// $Id$
+// $Id: ActivityRegistry.cc,v 1.1 2005/09/07 21:58:20 chrjones Exp $
 //
 
 // system include files
@@ -58,6 +58,14 @@
 void 
 edm::ActivityRegistry::connect(ActivityRegistry& iOther)
 {
+   postBeginJobSignal_.connect(iOther.postBeginJobSignal_);
+   postEndJobSignal_.connect(iOther.postEndJobSignal_);
+
+   preProcessEventSignal_.connect(iOther.preProcessEventSignal_);
+   postProcessEventSignal_.connect(iOther.postProcessEventSignal_);
+
+   preModuleSignal_.connect(iOther.preModuleSignal_);
+   postModuleSignal_.connect(iOther.postModuleSignal_);
 }
 
 //

@@ -10,13 +10,13 @@
  Description: Registry holding the boost::signals that Services can subscribe to
 
  Usage:
-    <usage>
+    Services can connect to the signals distributed by the ActivityRegistry in order to monitor the activity of the application.
 
 */
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 19:53:09 EDT 2005
-// $Id$
+// $Id: ActivityRegistry.h,v 1.1 2005/09/07 21:58:16 chrjones Exp $
 //
 
 // system include files
@@ -24,14 +24,68 @@
 
 // user include files
 
+#define AR_WATCH_USING_METHOD(method) template<class TClass, class TMethod> void method (TClass* iObject, TMethod iMethod) { method (boost::bind(iMethod, iObject, _1)); }
 // forward declarations
 namespace edm {
+   class EventID;
+   class Timestamp;
+   class ModuleDescription;
+   class Event;
+   class EventSetup;
+   
    struct ActivityRegistry
    {
       ActivityRegistry() {}
+
       // ---------- signals ------------------------------------
+      typedef boost::signal<void ()> PostBeginJob;
+      ///signal is emitted after all modules have gotten their beginJob called
+      PostBeginJob postBeginJobSignal_;
+      ///convenience function for attaching to signal
+      void watchPostBeginJob(const PostBeginJob::slot_type& iSlot) {
+         postBeginJobSignal_.connect(iSlot);
+      }
+      AR_WATCH_USING_METHOD(watchPostBeginJob)
+
+      typedef boost::signal<void ()> PostEndJob;
+      ///signal is emitted after all modules have gotten their endJob called
+      PostEndJob postEndJobSignal_;
+      void watchPostEndJob(const PostEndJob::slot_type& iSlot) {
+         postEndJobSignal_.connect(iSlot);
+      }
+      AR_WATCH_USING_METHOD(watchPostEndJob)
 
       
+      typedef boost::signal<void (const edm::EventID&, const edm::Timestamp&)> PreProcessEvent;
+      /// signal is emitted after the Event has been created by the InputService but before any modules have seen the Event
+      PreProcessEvent preProcessEventSignal_;
+      void watchPreProcessEvent(const PreProcessEvent::slot_type& iSlot) {
+         preProcessEventSignal_.connect(iSlot);
+      }
+      
+      typedef boost::signal<void (const Event&, const EventSetup&)> PostProcessEvent;
+      /// signal is emitted after all modules have finished processing the Event
+      PostProcessEvent postProcessEventSignal_;
+      void watchPostProcessEvent(const PostProcessEvent::slot_type& iSlot) {
+         postProcessEventSignal_.connect(iSlot);
+      }
+
+      /// signal is emitted before the module starts processing the Event
+      typedef boost::signal<void (const ModuleDescription&)> PreModule;
+      PreModule preModuleSignal_;
+      void watchPreModule(const PreModule::slot_type& iSlot) {
+         preModuleSignal_.connect(iSlot);
+      }
+      AR_WATCH_USING_METHOD(watchPreModule)
+         
+      /// signal is emitted after the module finished processing the Event
+      typedef boost::signal<void (const ModuleDescription&)> PostModule;
+      PostModule postModuleSignal_;
+      void watchPostModule(const PostModule::slot_type& iSlot) {
+         postModuleSignal_.connect(iSlot);
+      }
+      AR_WATCH_USING_METHOD(watchPostModule)
+         
       // ---------- member functions ---------------------------
 
       ///forwards our signals to slots connected to iOther
@@ -43,7 +97,8 @@ namespace edm {
       const ActivityRegistry& operator=(const ActivityRegistry&); // stop default
 
       // ---------- member data --------------------------------
-
+      
    };
 }
+#undef AR_WATCH_USING_METHOD
 #endif
