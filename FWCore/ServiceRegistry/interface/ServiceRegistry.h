@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 13:33:00 EDT 2005
-// $Id$
+// $Id: ServiceRegistry.h,v 1.1 2005/09/07 21:58:16 chrjones Exp $
 //
 
 // system include files
@@ -27,7 +27,7 @@
 
 // forward declarations
 namespace edm {
-   class EventProcessor;
+   class FwkImpl;
    class ServiceRegistry
    {
 
@@ -49,7 +49,7 @@ namespace edm {
          ServiceToken oldToken_;
       };
       
-      friend class edm::EventProcessor;
+      friend class edm::FwkImpl;
       friend int main(int argc, char* argv[]);
       friend class Operate;
 
