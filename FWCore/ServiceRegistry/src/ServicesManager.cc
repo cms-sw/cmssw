@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 13:33:19 EDT 2005
-// $Id$
+// $Id: ServicesManager.cc,v 1.1 2005/09/07 21:58:20 chrjones Exp $
 //
 
 // system include files
@@ -229,7 +229,7 @@ ServicesManager::createServices()
    }
    
    //No longer need the makers
-   type2Maker_.release();
+   type2Maker_.reset();
    
 }   
 //
