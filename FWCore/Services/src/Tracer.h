@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Sep  8 14:35:45 EDT 2005
-// $Id$
+// $Id: Tracer.h,v 1.1 2005/09/08 20:20:08 chrjones Exp $
 //
 
 // system include files
@@ -43,6 +43,9 @@ public:
          
          void preModule(const ModuleDescription&);
          void postModule(const ModuleDescription&);
+private:
+         std::string indention_;
+         
       };
    }
 }

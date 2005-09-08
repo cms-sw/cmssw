@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Sep  8 14:17:58 EDT 2005
-// $Id$
+// $Id: Tracer.cc,v 1.1 2005/09/08 20:20:08 chrjones Exp $
 //
 
 // system include files
@@ -32,7 +32,8 @@ using namespace edm::service;
 //
 // constructors and destructor
 //
-Tracer::Tracer(const ParameterSet&, ActivityRegistry&iRegistry)
+Tracer::Tracer(const ParameterSet& iPS, ActivityRegistry&iRegistry):
+indention_( iPS.getUntrackedParameter<std::string>("indention","++") )
 {
    iRegistry.watchPostBeginJob(this,&Tracer::postBeginJob);
    iRegistry.watchPostEndJob(this,&Tracer::postEndJob);
@@ -71,35 +72,35 @@ Tracer::Tracer(const ParameterSet&, ActivityRegistry&iRegistry)
 void 
 Tracer::postBeginJob()
 {
-   std::cout <<"++ Job started"<<std::endl;
+   std::cout <<indention_<<" Job started"<<std::endl;
 }
 void 
 Tracer::postEndJob()
 {
-   std::cout <<"++ Job ended"<<std::endl;
+   std::cout <<indention_<<" Job ended"<<std::endl;
 }
 
 void 
 Tracer::preEventProcessing(const edm::EventID& iID, const edm::Timestamp& iTime)
 {
-   std::cout <<"++++ processing event:"<< iID<<" time:"<<iTime.value()<< std::endl;
+   std::cout <<indention_<<indention_<<" processing event:"<< iID<<" time:"<<iTime.value()<< std::endl;
 }
 void 
 Tracer::postEventProcessing(const Event&, const EventSetup&)
 {
-   std::cout <<"++++ finished event:"<<std::endl;
+   std::cout <<indention_<<indention_<<" finished event:"<<std::endl;
 }
 
 void 
 Tracer::preModule(const ModuleDescription& iDescription)
 {
-   std::cout <<"++++++ module:" <<iDescription.moduleLabel_<<std::endl;
+   std::cout <<indention_<<indention_<<indention_<<" module:" <<iDescription.moduleLabel_<<std::endl;
 }
 
 void 
 Tracer::postModule(const ModuleDescription&)
 {
-   std::cout <<"++++++ finished"<<std::endl;
+   std::cout <<indention_<<indention_<<indention_<<" finished"<<std::endl;
 }
 
 //
