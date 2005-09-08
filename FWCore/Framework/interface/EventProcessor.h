@@ -61,7 +61,7 @@ problems:
   where does the pluginmanager initialise call go?
 
 
-$Id: EventProcessor.h,v 1.6 2005/09/01 05:37:43 wmtan Exp $
+$Id: EventProcessor.h,v 1.7 2005/09/02 19:29:58 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -73,7 +73,9 @@ namespace edm {
   class FwkImpl;
   class Event;
   class EventSetup;
-
+  class EventID;
+  class Timestamp;
+  
   class EventProcessor
   {
   public:
@@ -119,7 +121,7 @@ namespace edm {
     StatusCode run(unsigned long numberToProcess = 0);
 
     /// signal is emitted after the Event has been created by the InputService but before any modules have seen the Event
-    boost::signal<void (const Event&, const EventSetup&)> preProcessEventSignal;
+    boost::signal<void (const EventID&, const Timestamp&)> preProcessEventSignal;
     /// signal is emitted after all modules have finished processing the Event
     boost::signal<void (const Event&, const EventSetup&)> postProcessEventSignal;
     

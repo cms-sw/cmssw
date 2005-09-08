@@ -2,7 +2,7 @@
 
 Test of the EventProcessor class.
 
-$Id: eventprocessor_t.cppunit.cc,v 1.6 2005/09/01 04:24:28 wmtan Exp $
+$Id: eventprocessor_t.cppunit.cc,v 1.7 2005/09/02 19:31:17 chrjones Exp $
 
 ----------------------------------------------------------------------*/  
 #include <exception>
@@ -72,7 +72,7 @@ void testeventprocessor::parseTest()
 static int g_pre = 0;
 static int g_post = 0;
 static
-void doPre(const edm::Event&, const edm::EventSetup&) 
+void doPre(const edm::EventID&, const edm::Timestamp&) 
 {
    ++g_pre;
 }
