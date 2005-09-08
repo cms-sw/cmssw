@@ -3,11 +3,11 @@
    Implementation of calss ProcessPSetBuilder
 
    \author Stefano ARGIRO
-   \version $Id: ProcessPSetBuilder.cc,v 1.3 2005/07/14 16:17:23 jbk Exp $
+   \version $Id: ProcessPSetBuilder.cc,v 1.4 2005/09/08 04:34:06 jbk Exp $
    \date 17 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ProcessPSetBuilder.cc,v 1.3 2005/07/14 16:17:23 jbk Exp $";
+static const char CVSId[] = "$Id: ProcessPSetBuilder.cc,v 1.4 2005/09/08 04:34:06 jbk Exp $";
 
 
 #include <FWCore/ParameterSet/interface/ProcessPSetBuilder.h>
@@ -84,6 +84,9 @@ ProcessPSetBuilder::ProcessPSetBuilder(const std::string& config){
    
    processPSet_= 
      shared_ptr<edm::ParameterSet>(new ParameterSet(processDesc_->pset_));
+   servicePSets_=
+      shared_ptr<std::vector<edm::ParameterSet> >( 
+               new std::vector<edm::ParameterSet>(processDesc_->services_));
 }
 
 
@@ -167,3 +170,9 @@ ProcessPSetBuilder::getProcessPSet() const{
   return processPSet_;
 
 }
+
+boost::shared_ptr<std::vector<ParameterSet> > 
+ProcessPSetBuilder::getServicesPSets() const{
+   return servicePSets_;
+}
+

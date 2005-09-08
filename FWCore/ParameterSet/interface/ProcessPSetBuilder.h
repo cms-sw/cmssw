@@ -7,7 +7,7 @@
    Declaration of class ProcessPSetBuilder
 
    \author Stefano ARGIRO
-   \version $Id: ProcessPSetBuilder.h,v 1.3 2005/09/01 23:30:49 wmtan Exp $
+   \version $Id: ProcessPSetBuilder.h,v 1.4 2005/09/07 20:59:00 wmtan Exp $
    \date 16 Jun 2005
 */
 
@@ -47,6 +47,9 @@ namespace edm {
       * names of the modules on which modulename depends*/
     std::string  getDependencies(const std::string& modulename);
 
+    /// get the descriptions of the services
+    boost::shared_ptr<std::vector<ParameterSet> > getServicesPSets() const;
+    
   private:
     
     typedef boost::shared_ptr<pset::WrapperNode> WrapperNodePtr;
@@ -74,6 +77,8 @@ namespace edm {
     boost::shared_ptr<ProcessDesc>   processDesc_;
 
     boost::shared_ptr<ParameterSet> processPSet_;
+
+    boost::shared_ptr<std::vector<ParameterSet> > servicePSets_;
   };
 } // edm
 

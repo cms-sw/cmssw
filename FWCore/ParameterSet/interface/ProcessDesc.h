@@ -17,6 +17,7 @@ namespace edm
     typedef std::vector< WrapperNodePtr > PathContainer;
     PathContainer pathFragments_;
     ParameterSet pset_;
+    std::vector< ParameterSet> services_;
   };
 }
 

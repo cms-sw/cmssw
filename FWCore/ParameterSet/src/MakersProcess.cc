@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 18 19:09:01 EDT 2005
-// $Id: MakersProcess.cc,v 1.7 2005/07/27 22:28:57 paterno Exp $
+// $Id: MakersProcess.cc,v 1.8 2005/09/08 04:34:06 jbk Exp $
 //
 
 // system include files
@@ -43,21 +43,26 @@ struct FragSort
 
 struct FillProcess : public edm::pset::Visitor
 {
-   FillProcess(edm::ParameterSet& oToFill, std::vector< boost::shared_ptr<edm::pset::WrapperNode> >& oPathSegments) :
-   pset_(oToFill), wrappers_(oPathSegments) {
+   FillProcess(edm::ParameterSet& oToFill, 
+               std::vector< boost::shared_ptr<edm::pset::WrapperNode> >& oPathSegments,
+               std::vector< edm::ParameterSet>& oServicesToFill ) :
+   pset_(oToFill), wrappers_(oPathSegments), services_(oServicesToFill) {
       static const std::string kModule("module");
       static const std::string kESModule("es_module");
       static const std::string kSource("source");
       static const std::string kESSource("es_source");
+      static const std::string kService("service");
 
       moduleTypes_[kModule];
       moduleTypes_[kESModule];
       moduleTypes_[kSource];
       moduleTypes_[kESSource];
+      moduleTypes_[kService];
       handleTypes_[kModule] = &FillProcess::handleModule;
       handleTypes_[kSource] = &FillProcess::handleModule;
       handleTypes_[kESModule] = &FillProcess::handleESModule;
       handleTypes_[kESSource] = &FillProcess::handleESSource;
+      handleTypes_[kService] = &FillProcess::handleService;
 
       assert(moduleTypes_.size() == handleTypes_.size());
       namesToTypes_["all_modules"]=kModule;
@@ -129,8 +134,12 @@ struct FillProcess : public edm::pset::Visitor
                                                      usingBlocks_,
                                                      pSets_);
       std::string name = (this->*(handleTypes_[iNode.type_]))(iNode, *modulePSet);
-      pset_.insert(true, name , Entry(*modulePSet,true));
-      itFound->second.push_back(name);
+      if( name != "service") {
+         pset_.insert(true, name , Entry(*modulePSet,true));
+         itFound->second.push_back(name);
+      } else {
+         services_.push_back( *modulePSet );
+      }
       
       //visitChildren(iNode);
    }
@@ -165,6 +174,10 @@ private:
       oPSet.insert(true, "module_type", Entry(iNode.class_,true));
       return iNode.class_+"@"+label;
    }
+   std::string handleService(const edm::pset::ModuleNode&iNode, edm::ParameterSet& oPSet) {
+      oPSet.insert(true, "service_type", Entry(iNode.class_,true));
+      return "service";
+   }
    std::string handleESSource(const edm::pset::ModuleNode&iNode, edm::ParameterSet& oPSet) {
       std::string label("");
       if(iNode.name_ != "main_es_input") {
@@ -176,6 +189,8 @@ private:
    }
    edm::ParameterSet& pset_;
    std::vector< boost::shared_ptr<edm::pset::WrapperNode> >& wrappers_;
+   std::vector< edm::ParameterSet>& services_;
+   
    std::map< std::string, boost::shared_ptr<edm::ParameterSet> > usingBlocks_;
    std::map< std::string, boost::shared_ptr<edm::ParameterSet> > pSets_;
    typedef std::map<std::string, std::vector<std::string> > ModuleTypes;
@@ -209,7 +224,7 @@ struct BuildProcess : public edm::pset::Visitor
       }
       procDesc_->pset_.insert(true, "process_name", edm::Entry(iNode.name(), true));
       
-      FillProcess handleChildren(procDesc_->pset_, procDesc_->pathFragments_);
+      FillProcess handleChildren(procDesc_->pset_, procDesc_->pathFragments_, procDesc_->services_);
       
       handleChildren.fillFrom(iNode);
       // sort the pathFragments so endpaths are last
