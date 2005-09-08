@@ -149,7 +149,7 @@ namespace edm {
     ServiceToken serviceToken_;
     
     boost::shared_ptr<InputService> input_;
-    ScheduleExecutor runner_;
+    std::auto_ptr<ScheduleExecutor> runner_;
     edm::eventsetup::EventSetupProvider esp_;    
 
     bool emittedBeginJob_;
@@ -188,7 +188,7 @@ namespace edm {
         ScheduleBuilder(*params_, wreg_, preg_, act_table_);
      
      workers_= (sbuilder.getPathList());
-     runner_ = ScheduleExecutor(workers_,act_table_);
+     runner_ = std::auto_ptr<ScheduleExecutor>(new ScheduleExecutor(workers_,act_table_));
      
      fillEventSetupProvider(esp_, *params_, common_);
   }
@@ -354,7 +354,7 @@ namespace edm {
               activityRegistry_.preProcessEventSignal_(pep->id(),pep->time() );
             }
 	    EventRegistry::Operate oper(pep->id(),pep.get());
-	    runner_.runOneEvent(*pep.get(),es);
+	    runner_->runOneEvent(*pep.get(),es);
             {
               activityRegistry_.postProcessEventSignal_(Event(*pep.get(),dummy) , es);
             }
