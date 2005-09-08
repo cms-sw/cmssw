@@ -6,6 +6,7 @@
 <use name=FWCore/EDProduct>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Utilities>
+<use name=FWCore/ServiceRegistry>
 <export>
  <lib name=FWCoreFramework>
  <use name=boost>
@@ -15,5 +16,6 @@
  <use name=FWCore/EDProduct>
  <use name=FWCore/ParameterSet>
  <use name=FWCore/Utilities>
+ <use name=FWCore/ServiceRegistry>
 </export>
 
