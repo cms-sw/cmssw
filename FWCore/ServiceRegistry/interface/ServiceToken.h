@@ -18,7 +18,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep  6 18:31:44 EDT 2005
-// $Id$
+// $Id: ServiceToken.h,v 1.1 2005/09/07 21:58:16 chrjones Exp $
 //
 
 // system include files
@@ -29,6 +29,7 @@
 // forward declarations
 namespace edm {
    class ServiceRegistry;
+   class ActivityRegistry;
    
    namespace serviceregistry {
       class ServicesManager;
@@ -47,7 +48,8 @@ namespace edm {
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
-
+      void connectTo(ActivityRegistry&);
+      
     private:
       ServiceToken(boost::shared_ptr<edm::serviceregistry::ServicesManager>  iManager):
       manager_(iManager) {}
