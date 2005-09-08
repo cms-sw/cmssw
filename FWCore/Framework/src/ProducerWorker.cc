@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: ProducerWorker.cc,v 1.11 2005/08/02 22:24:11 wmtan Exp $
+$Id: ProducerWorker.cc,v 1.12 2005/09/01 04:30:52 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/src/ProducerWorker.h"
@@ -25,7 +25,7 @@ namespace edm
   ProducerWorker::ProducerWorker(std::auto_ptr<EDProducer> ed,
 				 const ModuleDescription& md,
 				 const WorkerParams& wp):
-    md_(md),
+    Worker(md),
     producer_(ed),
     actions_(wp.actions_) {
     
@@ -63,7 +63,7 @@ namespace edm
     bool rc = false;
 
     try {
-      Event e(ep,md_);
+      Event e(ep,description());
       producer_->produce(e,c);
       e.commit_();
       rc=true;
@@ -71,7 +71,7 @@ namespace edm
     catch(cms::Exception& e) {
 	// should event id be included?
 	e << "A cms::Exception is going through EDProducer:\n"
-	  << md_;
+	  << description();
 
 	switch(actions_->find(e.rootCause())) {
 	  case actions::IgnoreCompletely: {
@@ -92,28 +92,28 @@ namespace edm
     }
     catch(seal::Error& e) {
 	cerr << "A seal::Error is going through EDProducer:\n"
-	     << md_
+	     << description()
 	     << endl;
 	throw;
     }
     catch(std::exception& e) {
 	cerr << "An std::exception is going through EDProducer:\n"
-	     << md_
+	     << description()
 	     << endl;
 	throw;
     }
     catch(std::string& s) {
 	throw cms::Exception("BadExceptionType","std::string") 
 	  << "string = " << s << "\n"
-	  << md_ ;
+	  << description() ;
     }
     catch(const char* c) {
 	throw cms::Exception("BadExceptionType","const char*") 
 	  << "cstring = " << c << "\n"
-	  << md_ ;
+	  << description() ;
     }
     catch(...) {
-	cerr << "An unknown Exception occured in\n" << md_;
+	cerr << "An unknown Exception occured in\n" << description();
 	throw;
     }
     return rc;

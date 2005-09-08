@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: FilterWorker.cc,v 1.6 2005/07/20 04:11:41 jbk Exp $
+$Id: FilterWorker.cc,v 1.7 2005/09/01 04:30:51 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <memory>
 
@@ -23,7 +23,7 @@ namespace edm
   FilterWorker::FilterWorker(std::auto_ptr<EDFilter> ed,
 			     const ModuleDescription& md,
 			     const WorkerParams& wp):
-   md_(md),
+   Worker(md),
    filter_(ed),
    actions_(wp.actions_)
   {
@@ -39,7 +39,7 @@ namespace edm
     bool rc = false;
     try
       {
-	Event e(ep,md_);
+	Event e(ep,description());
 	rc = filter_->filter(e, c);
 	// a filter cannot write into the event, so commit is not needed
 	// although we do know about what it asked for
@@ -47,7 +47,7 @@ namespace edm
     catch(cms::Exception& e)
       {
 	e << "A cms::Exception is going through EDFilter:\n"
-	  << md_;
+	  << description();
 
 	switch(actions_->find(e.rootCause()))
 	  {
@@ -73,14 +73,14 @@ namespace edm
     catch(seal::Error& e)
       {
 	cerr << "A seal::Error is going through EDFilter:\n"
-	     << md_
+	     << description()
 	     << endl;
 	throw;
       }
     catch(std::exception& e)
       {
 	cerr << "An std::exception is going through EDFilter:\n"
-	     << md_
+	     << description()
 	     << endl;
 	throw;
       }
@@ -88,17 +88,17 @@ namespace edm
       {
 	throw cms::Exception("BadExceptionType","std::string") 
 	  << "string = " << s << "\n"
-	  << md_ ;
+	  << description() ;
       }
     catch(const char* c)
       {
 	throw cms::Exception("BadExceptionType","const char*") 
 	  << "cstring = " << c << "\n"
-	  << md_ ;
+	  << description() ;
       }
     catch(...)
       {
-	cerr << "An unknown Exception occured in:\n" << md_;
+	cerr << "An unknown Exception occured in:\n" << description();
 	throw;
       }
 

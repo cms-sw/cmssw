@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: OutputWorker.cc,v 1.8 2005/07/28 19:35:38 wmtan Exp $
+$Id: OutputWorker.cc,v 1.9 2005/08/25 20:26:19 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/EventPrincipal.h"
@@ -19,7 +19,7 @@ namespace edm {
   OutputWorker::OutputWorker(std::auto_ptr<OutputModule> mod,
 			     ModuleDescription const& md,
 			     WorkerParams const& wp):
-      md_(md),
+      Worker(md),
       mod_(mod),
       actions_(wp.actions_) {
     assert(wp.reg_ != 0);
@@ -40,7 +40,7 @@ namespace edm {
     }
     catch(cms::Exception& e) {
 	e << "A cms::Exception is going through OutputModule:\n"
-	  << md_;
+	  << description();
 
 	switch(actions_->find(e.rootCause())) {
 	  case actions::IgnoreCompletely: {
@@ -61,28 +61,28 @@ namespace edm {
     }
     catch(seal::Error& e) {
 	cerr << "A seal::Error is going through OutputModule:\n"
-	     << md_
+	     << description()
 	     << endl;
 	throw;
     }
     catch(std::exception& e) {
 	cerr << "An std::exception is going through OutputModule:\n"
-	     << md_
+	     << description()
 	     << endl;
 	throw;
     }
     catch(std::string& s) {
 	throw cms::Exception("BadExceptionType","std::string") 
 	  << "string = " << s << "\n"
-	  << md_ ;
+	  << description() ;
     }
     catch(char const* c) {
 	throw cms::Exception("BadExceptionType","const char*") 
 	  << "cstring = " << c << "\n"
-	  << md_ ;
+	  << description() ;
     }
     catch(...) {
-	cerr << "An unknown Exception occured in\n" << md_;
+	cerr << "An unknown Exception occured in\n" << description();
 	throw;
     }
 

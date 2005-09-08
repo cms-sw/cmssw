@@ -9,7 +9,7 @@ feed them into the event.
 According to our current definition, a single producer can only
 appear in one worker.
 
-$Id: AnalyzerWorker.h,v 1.11 2005/09/01 04:32:41 wmtan Exp $
+$Id: AnalyzerWorker.h,v 1.12 2005/09/01 23:30:49 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -45,7 +45,6 @@ namespace edm
     virtual void beginJob(EventSetup const&) ;
     virtual void endJob() ;
     
-    ModuleDescription md_;
     boost::shared_ptr<EDAnalyzer> analyzer_;
     const ActionTable* actions_; // memory assumed to be managed elsewhere
   };

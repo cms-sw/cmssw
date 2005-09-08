@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: AnalyzerWorker.cc,v 1.6 2005/08/10 02:27:09 chrjones Exp $
+$Id: AnalyzerWorker.cc,v 1.7 2005/09/01 04:30:51 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/src/AnalyzerWorker.h"
@@ -21,7 +21,7 @@ namespace edm
   AnalyzerWorker::AnalyzerWorker(std::auto_ptr<EDAnalyzer> ed,
 				 const ModuleDescription& md,
 				 const WorkerParams& wp):
-    md_(md),
+    Worker(md),
     analyzer_(ed),
     actions_(wp.actions_)
   {
@@ -36,14 +36,14 @@ namespace edm
     bool rc = false;
     try
       {
-	Event e(ep,md_);
+	Event e(ep,description());
 	analyzer_->analyze(e,c);
 	rc = true;
       }
     catch(cms::Exception& e)
       {
 	e << "A cms::Exception is going through EDAnalyzer:\n"
-	  << md_;
+	  << description();
 
 	switch(actions_->find(e.rootCause()))
 	  {
@@ -68,14 +68,14 @@ namespace edm
     catch(seal::Error& e)
       {
 	cerr << "A seal::Error is going through EDAnalyzer:\n"
-	     << md_
+	     << description()
 	     << endl;
 	throw;
       }
     catch(std::exception& e)
       {
 	cerr << "An std::exception is going through EDAnalyzer:\n"
-	     << md_
+	     << description()
 	     << endl;
 	throw;
       }
@@ -83,17 +83,17 @@ namespace edm
       {
 	throw cms::Exception("BadExceptionType","std::string") 
 	  << "string = " << s << "\n"
-	  << md_;
+	  << description();
       }
     catch(const char* c)
       {
 	throw cms::Exception("BadExceptionType","const char*") 
 	  << "cstring = " << c << "\n"
-	  << md_ ;
+	  << description() ;
       }
     catch(...)
       {
-	cerr << "An unknown Exception occured in\n" << md_;
+	cerr << "An unknown Exception occured in\n" << description();
 	throw;
       }
 

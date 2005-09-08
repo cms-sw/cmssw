@@ -8,7 +8,7 @@ this object is to call the filter.
 According to our current definition, a single filter can only
 appear in one worker.
 
-$Id: FilterWorker.h,v 1.9 2005/09/01 04:30:51 wmtan Exp $
+$Id: FilterWorker.h,v 1.10 2005/09/01 04:34:42 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -17,7 +17,6 @@ $Id: FilterWorker.h,v 1.9 2005/09/01 04:30:51 wmtan Exp $
 #include "boost/shared_ptr.hpp"
 
 #include "FWCore/Framework/src/Worker.h"
-#include "FWCore/Framework/interface/ModuleDescription.h"
 #include "FWCore/Framework/src/WorkerParams.h"
 
 namespace edm
@@ -45,7 +44,6 @@ namespace edm
     virtual void beginJob(EventSetup const&) ;
     virtual void endJob() ;
 
-    ModuleDescription md_;
     boost::shared_ptr<EDFilter> filter_;
     const ActionTable* actions_; // memory assumed to be managed elsewhere
   };

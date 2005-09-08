@@ -9,7 +9,7 @@ feed them into the event.
 According to our current definition, a single producer can only
 appear in one worker.
 
-$Id: ProducerWorker.h,v 1.11 2005/09/01 04:38:22 wmtan Exp $
+$Id: ProducerWorker.h,v 1.12 2005/09/01 23:30:49 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -20,7 +20,6 @@ $Id: ProducerWorker.h,v 1.11 2005/09/01 04:38:22 wmtan Exp $
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/src/Worker.h"
 #include "FWCore/Framework/src/WorkerParams.h"
-#include "FWCore/Framework/interface/ModuleDescription.h"
 
 namespace edm
 {
@@ -45,7 +44,6 @@ namespace edm
     virtual void beginJob(EventSetup const&) ;
     virtual void endJob() ;
     
-    ModuleDescription md_;
     boost::shared_ptr<EDProducer> producer_;
     const ActionTable* actions_; // memory assumed to be managed elsewhere
   };
