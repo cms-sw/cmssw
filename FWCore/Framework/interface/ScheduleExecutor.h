@@ -6,11 +6,12 @@
    Declaration of class ScheduleExecutor
 
    \author Stefano ARGIRO
-   \version $Id: ScheduleExecutor.h,v 1.4 2005/07/20 03:00:36 jbk Exp $
+   \version $Id: ScheduleExecutor.h,v 1.5 2005/09/01 23:30:49 wmtan Exp $
    \date 18 May 2005
 */
 
 #include <list>
+#include "boost/signal.hpp"
 
 namespace edm {
  
@@ -18,6 +19,7 @@ namespace edm {
   class EventSetup;
   class Worker;
   class ActionTable;
+  class ModuleDescription;
 
   /**
      \class ScheduleExecutor ScheduleExecutor.h "edm/ScheduleExecutor.h"
@@ -33,12 +35,15 @@ namespace edm {
     
     typedef std::list<std::list<Worker* > > PathList;
     typedef std::list<Worker* >  WorkerList;
-    ScheduleExecutor(){}
+    //ScheduleExecutor(){}
     ScheduleExecutor(const PathList& pathlist, const ActionTable& actions);
 
     /// pass @param event to all the workers for them to do the work
     /** return 0 on success (need to define codes) */
     int  runOneEvent(EventPrincipal& eventPrincipal, EventSetup const& eventSetup);
+
+    boost::signal<void (const ModuleDescription&)> preModuleSignal;
+    boost::signal<void (const ModuleDescription&)> postModuleSignal;
 
   private:
     PathList m_pathlist;

@@ -3,11 +3,11 @@
    Implementation of ScheduleExecutor
 
    \author Stefano ARGIRO
-   \version $Id: ScheduleExecutor.cc,v 1.3 2005/07/14 22:50:53 wmtan Exp $
+   \version $Id: ScheduleExecutor.cc,v 1.4 2005/07/20 03:00:36 jbk Exp $
    \date 19 May 2005
 */
 
-static const char CVSId[] = "$Id: ScheduleExecutor.cc,v 1.3 2005/07/14 22:50:53 wmtan Exp $";
+static const char CVSId[] = "$Id: ScheduleExecutor.cc,v 1.4 2005/07/20 03:00:36 jbk Exp $";
 
 
 #include "FWCore/Framework/interface/ScheduleExecutor.h"
@@ -48,7 +48,10 @@ ScheduleExecutor::runOneEvent(EventPrincipal& eventPrincipal,
       try
 	{
 	  // stop this path if worker returns false
-	  if (!(*workerIt)->doWork(eventPrincipal, eventSetup)) break;
+          preModuleSignal((*workerIt)->description());
+          bool workerResult = (*workerIt)->doWork(eventPrincipal, eventSetup);
+          postModuleSignal((*workerIt)->description());
+	  if (!workerResult) break;
 	}
       catch(cms::Exception& e)
 	{
