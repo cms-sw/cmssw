@@ -1,5 +1,5 @@
-#ifndef CALOID_CALOTRIGTOWERCELLID_H
-#define CALOID_CALOTRIGTOWERCELLID_H
+#ifndef DATAFORMATS_HCALDETID_HCALTRIGTOWERDETID_H
+#define DATAFORMATS_HCALDETID_HCALTRIGTOWERDETID_H 1
 
 #include <ostream>
 #include <boost/cstdint.hpp>
@@ -12,8 +12,8 @@ namespace cms {
     
 Cell id for an Calo Trigger tower
 
-   $Date: 2005/07/20 00:10:52 $
-   $Revision: 1.2 $
+   $Date: 2005/07/26 14:44:30 $
+   $Revision: 1.3 $
    \author J. Mans - Minnesota
 */
 class HcalTrigTowerDetId : public DetId {

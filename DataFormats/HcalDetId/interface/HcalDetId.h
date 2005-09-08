@@ -1,5 +1,5 @@
-#ifndef CALOID_HCALCELLID_H
-#define CALOID_HCALCELLID_H
+#ifndef DATAFORMATS_HCALDETID_HCALDETID_H
+#define DATAFORMATS_HCALDETID_HCALDETID_H 1
 
 #include <ostream>
 #include <boost/cstdint.hpp>
@@ -11,8 +11,8 @@ namespace cms {
 /** \class HcalDetId
  *  Cell identifier class for the HCAL subdetectors
  *
- *  $Date: 2005/07/20 00:10:52 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/07/26 14:44:30 $
+ *  $Revision: 1.3 $
  *  \author J. Mans - Minnesota
  */
 class HcalDetId : public DetId {
