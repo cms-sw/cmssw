@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 13:33:19 EDT 2005
-// $Id$
+// $Id: ServiceRegistry.cc,v 1.1 2005/09/07 21:58:20 chrjones Exp $
 //
 
 // system include files
@@ -88,6 +88,15 @@ edm::ServiceRegistry::createSet(const std::vector<ParameterSet>& iPS)
 {
    using namespace edm::serviceregistry;
    boost::shared_ptr<ServicesManager> returnValue(new ServicesManager(iPS));
+   return edm::ServiceToken(returnValue);
+}
+edm::ServiceToken 
+edm::ServiceRegistry::createSet(const std::vector<ParameterSet>& iPS,
+                                ServiceToken iToken,
+                                serviceregistry::ServiceLegacy iLegacy)
+{
+   using namespace edm::serviceregistry;
+   boost::shared_ptr<ServicesManager> returnValue(new ServicesManager(iToken,iLegacy,iPS));
    return edm::ServiceToken(returnValue);
 }
 

@@ -16,13 +16,14 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 13:33:00 EDT 2005
-// $Id: ServiceRegistry.h,v 1.1 2005/09/07 21:58:16 chrjones Exp $
+// $Id: ServiceRegistry.h,v 1.2 2005/09/08 09:06:00 chrjones Exp $
 //
 
 // system include files
 
 // user include files
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
+#include "FWCore/ServiceRegistry/interface/ServiceLegacy.h"
 #include "FWCore/ServiceRegistry/interface/ServicesManager.h"
 
 // forward declarations
@@ -78,6 +79,8 @@ namespace edm {
    private:
 
       static ServiceToken createSet(const std::vector<ParameterSet>&);
+      static ServiceToken createSet(const std::vector<ParameterSet>&,
+                                    ServiceToken,serviceregistry::ServiceLegacy);
       
       //returns old token
       ServiceToken setContext(const ServiceToken& iNewToken);

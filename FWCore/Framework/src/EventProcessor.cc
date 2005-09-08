@@ -129,9 +129,15 @@ namespace edm {
 
   struct FwkImpl
   {
-    FwkImpl(int argc, char* argv[]);
-    FwkImpl(int argc, char* argv[], const string& config);
-    explicit FwkImpl(const string& config);
+    FwkImpl(int argc, char* argv[],
+            const ServiceToken& = ServiceToken(),
+            serviceregistry::ServiceLegacy=serviceregistry::kOverlapIsError);
+    FwkImpl(int argc, char* argv[], const string& config,
+            const ServiceToken& = ServiceToken(),
+            serviceregistry::ServiceLegacy=serviceregistry::kOverlapIsError);
+    explicit FwkImpl(const string& config,
+                     const ServiceToken& = ServiceToken(),
+                     serviceregistry::ServiceLegacy=serviceregistry::kOverlapIsError);
 
     EventProcessor::StatusCode run(unsigned long numberToProcess);
     void beginJob();
@@ -160,17 +166,18 @@ namespace edm {
     
     
     private:
-       void initialize();
+       void initialize(const ServiceToken& iToken, serviceregistry::ServiceLegacy iLegacy);
 
   };
 
   // ---------------------------------------------------------------
-  void FwkImpl::initialize()
+  void FwkImpl::initialize(const ServiceToken& iToken, serviceregistry::ServiceLegacy iLegacy)
   {    
      ProcessPSetBuilder builder(configstring_);
 
      //create the services
-     serviceToken_ = ServiceRegistry::createSet(*(builder.getServicesPSets()));
+     serviceToken_ = ServiceRegistry::createSet(*(builder.getServicesPSets()),
+                                                iToken,iLegacy);
      serviceToken_.connectTo( activityRegistry_);
      
      //make the services available
@@ -193,26 +200,29 @@ namespace edm {
      fillEventSetupProvider(esp_, *params_, common_);
   }
   
-  FwkImpl::FwkImpl(int argc, char* argv[]) :
+  FwkImpl::FwkImpl(int argc, char* argv[],
+     const ServiceToken& iToken, serviceregistry::ServiceLegacy iLegacy):
     args_(fillArgs(argc,argv)),
     configstring_(readFile(args_)),
     emittedBeginJob_(false)
   {
-    initialize();
+    initialize(iToken,iLegacy);
   }
   
-  FwkImpl::FwkImpl(int argc, char* argv[], const string& config) :
+  FwkImpl::FwkImpl(int argc, char* argv[], const string& config,
+                   const ServiceToken& iToken, serviceregistry::ServiceLegacy iLegacy):
     args_(fillArgs(argc,argv)),
     configstring_(config),
     emittedBeginJob_(false) {
-    initialize();
+    initialize(iToken,iLegacy);
   }
 
-  FwkImpl::FwkImpl(const string& config) :
+  FwkImpl::FwkImpl(const string& config,
+                   const ServiceToken& iToken, serviceregistry::ServiceLegacy iLegacy):
     args_(),
     configstring_(config),
     emittedBeginJob_(false) {
-    initialize();
+    initialize(iToken,iLegacy);
     FDEBUG(2) << params_->toString() << std::endl;
   }
 
@@ -413,6 +423,27 @@ namespace edm {
        connectSigs(this, impl_);
   }
 
+  EventProcessor::EventProcessor(int argc, char* argv[],
+                                 const ServiceToken&,serviceregistry::ServiceLegacy):
+     impl_(new FwkImpl(argc,argv))
+  {
+        connectSigs(this, impl_);
+  } 
+  
+  EventProcessor::EventProcessor(const string& config,
+                                 const ServiceToken&,serviceregistry::ServiceLegacy):
+     impl_(new FwkImpl(config))
+  {
+        connectSigs(this, impl_);
+  } 
+  
+  EventProcessor::EventProcessor(int argc, char* argv[], const string& config,
+                                 const ServiceToken&,serviceregistry::ServiceLegacy):
+     impl_(new FwkImpl(argc,argv,config))
+  {
+        connectSigs(this, impl_);
+  }
+  
   EventProcessor::~EventProcessor()
   {
     delete impl_;
