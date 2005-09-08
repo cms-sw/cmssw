@@ -28,3 +28,10 @@ that is contained within a process section of the configuration file.
 (visitPSet)  Now this function adds the the child pset to the 
 process pset.
 
+07-09-05 jbk
+Found out that endpath was not implemented! Now it is.  Many
+endpaths can be specified.  I was careful to sort them to the
+end and retain the relative order of path and endpath 
+statements from the original file.  The testing is woefully
+inadequate.
+

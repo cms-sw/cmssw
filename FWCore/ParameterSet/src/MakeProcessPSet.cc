@@ -141,6 +141,15 @@ namespace {
 
       if ((*pathIt)->type()=="path") fillPath((*pathIt).get(),
 					      sequences,pathnames,&tmp->pset_);
+
+       //cout << "path name = " << (*pathIt)->type() << endl;
+      if ((*pathIt)->type()=="endpath")
+	{
+	   //cout << "processing endpath " << endl;
+      	   //(*pathIt)->print(cout);
+	   fillPath((*pathIt).get(),
+	      sequences,pathnames,&tmp->pset_);
+	}
     } // loop on path fragments
 
     tmp->pset_.insert(true,"paths",Entry(pathnames,true));

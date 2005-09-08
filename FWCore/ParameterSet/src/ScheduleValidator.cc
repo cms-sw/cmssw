@@ -3,11 +3,11 @@
    Implementation of class ScheduleValidator
 
    \author Stefano ARGIRO
-   \version $Id: ScheduleValidator.cc,v 1.5 2005/06/23 22:03:44 wmtan Exp $
+   \version $Id: ScheduleValidator.cc,v 1.6 2005/07/14 16:17:23 jbk Exp $
    \date 10 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ScheduleValidator.cc,v 1.5 2005/06/23 22:03:44 wmtan Exp $";
+static const char CVSId[] = "$Id: ScheduleValidator.cc,v 1.6 2005/07/14 16:17:23 jbk Exp $";
 
 #include "FWCore/ParameterSet/src/ScheduleValidator.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -38,18 +38,26 @@ ScheduleValidator::ScheduleValidator(const ScheduleValidator::PathContainer&
 
 
 NodePtr ScheduleValidator::findPathHead(string pathName){
-  
+  // cout << "in findPathHead" << endl;
   for (PathContainer::iterator pathIt= nodes_.begin();
        pathIt!=nodes_.end();++pathIt){
-    if ((*pathIt)->type()!="path") continue;
+//cout << "  looking at " << (*pathIt)->type() << " " << (*pathIt)->name() << endl;
+    if ((*pathIt)->type()!="path" &&
+        (*pathIt)->type()!="endpath") continue;
     if ((*pathIt)->name()==pathName) return ((*pathIt)->wrapped_);
 
   }// for
+  //cout << "did not find " << pathName << endl;
+  // This can only cause a problem and should probably throw
+  // an exception - jbk
   NodePtr ret;
   return ret;
 }
 
 void ScheduleValidator::gatherLeafNodes(NodePtr& basenode){
+
+//cout << "gatherLeafNodes " << basenode.get() << endl;
+//basenode->print(cout);
 
   if (basenode->type()=="," || basenode->type() =="&"){
     OperatorNode* onode = dynamic_cast<OperatorNode*>(basenode.get());

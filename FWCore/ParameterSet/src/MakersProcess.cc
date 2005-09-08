@@ -8,11 +8,12 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 18 19:09:01 EDT 2005
-// $Id: MakersProcess.cc,v 1.6 2005/07/20 03:45:12 jbk Exp $
+// $Id: MakersProcess.cc,v 1.7 2005/07/27 22:28:57 paterno Exp $
 //
 
 // system include files
 #include <iostream>
+#include <algorithm>
 
 // user include files
 #include "FWCore/ParameterSet/src/BuilderVPSet.h"
@@ -29,6 +30,16 @@ using namespace std;
 //
 namespace edm {
    namespace pset {
+
+struct FragSort
+{
+  bool operator()(WrapperNodePtr a, WrapperNodePtr b) const 
+  {
+    //  type: sequence < path < endpath,
+    //  retain order within group
+    return b->type()<a->type();
+  }
+};
 
 struct FillProcess : public edm::pset::Visitor
 {
@@ -125,8 +136,8 @@ struct FillProcess : public edm::pset::Visitor
    }
    virtual void visitWrapper(const edm::pset::WrapperNode& iNode) {
       //std::cout <<" Found Path Fragment "<<std::endl;
-      //print(cout, "Wrapper", iNode);
-      //endPrint(cout);
+      //iNode.print(cout);
+      // endPrint(cout);
       wrappers_.push_back(boost::shared_ptr<edm::pset::WrapperNode>(new edm::pset::WrapperNode(iNode)));
    }
    
@@ -201,6 +212,10 @@ struct BuildProcess : public edm::pset::Visitor
       FillProcess handleChildren(procDesc_->pset_, procDesc_->pathFragments_);
       
       handleChildren.fillFrom(iNode);
+      // sort the pathFragments so endpaths are last
+      std::stable_sort(procDesc_->pathFragments_.begin(),
+	        procDesc_->pathFragments_.end(),
+                FragSort());
    }
    
 private:

@@ -3,11 +3,11 @@
    Implementation of calss ProcessPSetBuilder
 
    \author Stefano ARGIRO
-   \version $Id: ProcessPSetBuilder.cc,v 1.2 2005/06/23 21:15:24 wmtan Exp $
+   \version $Id: ProcessPSetBuilder.cc,v 1.3 2005/07/14 16:17:23 jbk Exp $
    \date 17 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ProcessPSetBuilder.cc,v 1.2 2005/06/23 21:15:24 wmtan Exp $";
+static const char CVSId[] = "$Id: ProcessPSetBuilder.cc,v 1.3 2005/07/14 16:17:23 jbk Exp $";
 
 
 #include <FWCore/ParameterSet/interface/ProcessPSetBuilder.h>
@@ -64,6 +64,14 @@ ProcessPSetBuilder::ProcessPSetBuilder(const std::string& config){
        sequenceSubstitution((*pathIt)->wrapped_, sequences);
        fillPath((*pathIt),pathnames,&processDesc_->pset_);
      }
+
+     if ((*pathIt)->type()=="endpath") {
+	//cout << "got endpath = " << (*pathIt)->name() << endl;
+	//cout << "pointer = " << typeid(*(*pathIt)->wrapped_.get()).name() << endl;
+       sequenceSubstitution((*pathIt)->wrapped_, sequences);
+       fillPath((*pathIt),pathnames,&processDesc_->pset_);
+     }
+     
      
    } // loop on path fragments
    
