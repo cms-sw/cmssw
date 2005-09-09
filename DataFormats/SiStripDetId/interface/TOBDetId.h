@@ -52,13 +52,55 @@ namespace cms
       num.push_back(((id_>>rodStartBit_) & rodMask_));
       return num ;}
 
-    /// det id
+    /// detector id
     unsigned int det() const 
       { return ((id_>>detStartBit_)& detMask_) ;}
 
-    /// stereo id
+
+    /// glued
+    /**
+     * glued() = 0 it's not a glued module
+     * glued() = 1 it's a glued module
+     */
+    unsigned int glued() const
+      {
+	if(((id_>>sterStartBit_)& sterMask_) == 1 ||
+	   ((id_>>sterStartBit_)& sterMask_) == 2){
+	  return 1;
+	}else{
+	return 0;
+	}
+      }
+
+
+    /// stereo 
+    /**
+     * stereo() = 0 it's not a stereo module
+     * stereo() = 1 it's a stereo module
+     */
     unsigned int stereo() const 
-      { return ((id_>>sterStartBit_)& sterMask_) ;}
+      {
+	if(((id_>>sterStartBit_)& sterMask_)==1){
+	  return ((id_>>sterStartBit_)& sterMask_);
+	}else{
+	return 0;
+	}
+      }
+
+    /**
+     * If the DetId identify a glued module return 
+     * the DetId of your partner otherwise return 0
+     */
+    unsigned int partnerDetId() const
+      {
+	if(((id_>>sterStartBit_)& sterMask_)==1){
+	  return (id_ + 1);
+	}else if(((id_>>sterStartBit_)& sterMask_)==2){
+	  return (id_ - 1);
+	}else{
+	  return 0;
+	}
+      }
 
   private:
     /// two bits would be enough, but  we could use the number "0" as a wildcard
