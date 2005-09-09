@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Sep  8 04:26:12 EDT 2005
-// $Id$
+// $Id: ServiceToken.cc,v 1.1 2005/09/08 09:04:59 chrjones Exp $
 //
 
 // system include files
@@ -64,7 +64,14 @@ edm::ServiceToken::connectTo(edm::ActivityRegistry& iConnectTo)
       manager_->connectTo(iConnectTo);
    }
 }
-   
+void
+edm::ServiceToken::connect(edm::ActivityRegistry& iConnectTo)
+{
+   if(0!=manager_.get()){
+      manager_->connect(iConnectTo);
+   }
+}
+
 //
 // const member functions
 //

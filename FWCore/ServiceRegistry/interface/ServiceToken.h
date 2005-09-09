@@ -18,7 +18,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep  6 18:31:44 EDT 2005
-// $Id: ServiceToken.h,v 1.1 2005/09/07 21:58:16 chrjones Exp $
+// $Id: ServiceToken.h,v 1.2 2005/09/08 09:04:56 chrjones Exp $
 //
 
 // system include files
@@ -48,7 +48,11 @@ namespace edm {
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
+
+      ///the argument's signals are propagated to the Service's held by the token
       void connectTo(ActivityRegistry&);
+      ///the argument's signals will forward the token's signals
+      void connect(ActivityRegistry&);
       
     private:
       ServiceToken(boost::shared_ptr<edm::serviceregistry::ServicesManager>  iManager):
