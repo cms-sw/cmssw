@@ -2,12 +2,19 @@
 
 Test of the EventProcessor class.
 
-$Id: eventprocessor_t.cppunit.cc,v 1.7 2005/09/02 19:31:17 chrjones Exp $
+$Id: eventprocessor_t.cppunit.cc,v 1.8 2005/09/08 09:08:17 chrjones Exp $
 
 ----------------------------------------------------------------------*/  
 #include <exception>
 #include <iostream>
 #include <string>
+
+//I need to open a 'back door' in order to test the functionality
+#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#define private public
+#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
+#undef private
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Framework/interface/EventProcessor.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -21,6 +28,7 @@ CPPUNIT_TEST_SUITE(testeventprocessor);
 CPPUNIT_TEST(parseTest);
 CPPUNIT_TEST(prepostTest);
 CPPUNIT_TEST(beginEndJobTest);
+CPPUNIT_TEST(activityRegistryTest);
 CPPUNIT_TEST_SUITE_END();
 public:
   void setUp(){}
@@ -28,6 +36,7 @@ public:
   void parseTest();
   void prepostTest();
   void beginEndJobTest();
+  void activityRegistryTest();
 private:
 void work()
 {
@@ -136,4 +145,88 @@ void testeventprocessor::beginEndJobTest()
    //In this case, endJob should not have been called since was not done explicitly
    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::endJobCalled);
    
+}
+
+namespace {
+   struct Listener{
+      Listener(edm::ActivityRegistry& iAR) :
+      postBeginJob_(false),
+      postEndJob_(false),
+      preEventProcessing_(false),
+      postEventProcessing_(false),
+      preModule_(false),
+      postModule_(false){
+         iAR.watchPostBeginJob(this,&Listener::postBeginJob);
+         iAR.watchPostEndJob(this,&Listener::postEndJob);
+
+         iAR.watchPreProcessEvent(this,&Listener::preEventProcessing);
+         iAR.watchPostProcessEvent(this,&Listener::postEventProcessing);
+
+         iAR.watchPreModule(this, &Listener::preModule);
+         iAR.watchPostModule(this, &Listener::postModule);
+      }
+         
+      void postBeginJob() {postBeginJob_=true;}
+      void postEndJob() {postEndJob_=true;}
+      
+      void preEventProcessing(const edm::EventID&, const edm::Timestamp&){
+         preEventProcessing_=true;}
+      void postEventProcessing(const edm::Event&, const edm::EventSetup&){
+         postEventProcessing_=true;}
+      
+      void preModule(const edm::ModuleDescription&){
+         preModule_=true;
+      }
+      void postModule(const edm::ModuleDescription&){
+         postModule_=true;
+      }
+      
+      bool allCalled() const {
+         return postBeginJob_&&postEndJob_
+         &&preEventProcessing_&&postEventProcessing_
+         &&preModule_&&postModule_;
+      }
+      
+      bool postBeginJob_;
+      bool postEndJob_;
+      bool preEventProcessing_;
+      bool postEventProcessing_;
+      bool preModule_;
+      bool postModule_;      
+   };
+}
+
+void 
+testeventprocessor::activityRegistryTest()
+{
+   std::string configuration("process p = {\n"
+                             "source = EmptyInputService { untracked int32 maxEvents = 5 }\n"
+                             "module m1 = TestMod { int32 ivalue = -3 }\n"
+                             "path p1 = { m1 }\n"
+                             "}\n");
+   
+   //We don't want any services, we just want an ActivityRegistry to be created
+   // We then use this ActivityRegistry to 'spy on' the signals being produced
+   // inside the EventProcessor
+   std::vector<edm::ParameterSet> serviceConfigs;
+   edm::ServiceToken token = edm::ServiceRegistry::createSet(serviceConfigs);
+
+   edm::ActivityRegistry ar;
+   token.connect(ar);
+   Listener listener(ar);
+   
+   edm::EventProcessor proc(configuration,token, edm::serviceregistry::kOverlapIsError);
+   
+   proc.beginJob();
+   proc.run(0);
+   proc.endJob();
+   
+   CPPUNIT_ASSERT(listener.postBeginJob_);
+   CPPUNIT_ASSERT(listener.postEndJob_);
+   CPPUNIT_ASSERT(listener.preEventProcessing_);
+   CPPUNIT_ASSERT(listener.postEventProcessing_);
+   CPPUNIT_ASSERT(listener.preModule_);
+   CPPUNIT_ASSERT(listener.postModule_);      
+   
+   CPPUNIT_ASSERT(listener.allCalled());
 }
