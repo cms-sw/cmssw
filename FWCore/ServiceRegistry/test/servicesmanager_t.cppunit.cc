@@ -157,7 +157,7 @@ testServicesManager::legacyTest()
    using namespace edm::serviceregistry;
    
    edm::AssertHandler ah;
-   
+
    std::vector<edm::ParameterSet> pss;
    
    edm::ParameterSet ps;
@@ -218,6 +218,26 @@ testServicesManager::legacyTest()
       
       CPPUNIT_ASSERT(2 == sm.get<TestService>().value());
    }
+   {
+      try {
+         std::vector<edm::ParameterSet> pss;
+         
+         ServicesManager sm(legacyToken, kOverlapIsError, pss);
+         
+         CPPUNIT_ASSERT(!sm.get<TestService>().beginJobCalled());
+         edm::ActivityRegistry ar;
+         sm.connectTo(ar);
+         ar.postBeginJobSignal_();
+         
+         CPPUNIT_ASSERT(sm.get<TestService>().beginJobCalled());
+      }catch(const edm::Exception& iException) {
+         std::cout<<iException.what()<<std::endl;
+         throw;
+      }catch(const std::exception& iException) {
+         std::cout<<iException.what()<<std::endl;
+         throw;
+      }
+   }
 }   
 
 void
@@ -271,5 +291,6 @@ testServicesManager::dependencyTest()
       ServicesManager sm(pss);
       
       CPPUNIT_ASSERT(1 == sm.get<testserviceregistry::DependsOnDummyService>().value());
+      
    }
 }   
