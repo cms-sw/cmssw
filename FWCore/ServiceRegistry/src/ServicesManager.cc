@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 13:33:19 EDT 2005
-// $Id: ServicesManager.cc,v 1.1 2005/09/07 21:58:20 chrjones Exp $
+// $Id: ServicesManager.cc,v 1.2 2005/09/08 07:17:02 chrjones Exp $
 //
 
 // system include files
@@ -91,36 +91,39 @@ associatedManager_(iToken.manager_)
                             tokenTypes.begin(), tokenTypes.end(),
                             inserter(intersection, intersection.end()));
       
-      if(!intersection.empty()) {
-         switch( iLegacy ) {
-            case kOverlapIsError :
+      switch( iLegacy ) {
+         case kOverlapIsError :
+            if(!intersection.empty()) {
                throw edm::Exception(errors::Configuration, "Service")
                <<"the Service "<<(*type2Maker_).find(*(intersection.begin()))->second.pset_->getParameter<std::string>("service_type")
                <<" already has an instance of that type of Service";
-               break;
-            case kTokenOverrides :
+            } else {
                //get all the services from Token
                type2Service_ = associatedManager_->type2Service_;
-               
-               //remove from type2Maker the overlapping services so we never try to make them
-               for(IntersectionType::iterator itType = intersection.begin();
-                   itType != intersection.end();
-                   ++itType) {
-                  type2Maker_->erase( type2Maker_->find( *itType ) ); 
-               }
-               break;
-            case kConfigurationOverrides:
-               //get all the services from Token
-               type2Service_ = associatedManager_->type2Service_;
-               
-               //now remove the ones we do not want
-               for(IntersectionType::iterator itType = intersection.begin();
-                   itType != intersection.end();
-                   ++itType) {
-                  type2Service_.erase( type2Service_.find( *itType ) ); 
-               }
-               break;
-         }
+            }
+            break;
+         case kTokenOverrides :
+            //get all the services from Token
+            type2Service_ = associatedManager_->type2Service_;
+            
+            //remove from type2Maker the overlapping services so we never try to make them
+            for(IntersectionType::iterator itType = intersection.begin();
+                itType != intersection.end();
+                ++itType) {
+               type2Maker_->erase( type2Maker_->find( *itType ) ); 
+            }
+            break;
+         case kConfigurationOverrides:
+            //get all the services from Token
+            type2Service_ = associatedManager_->type2Service_;
+            
+            //now remove the ones we do not want
+            for(IntersectionType::iterator itType = intersection.begin();
+                itType != intersection.end();
+                ++itType) {
+               type2Service_.erase( type2Service_.find( *itType ) ); 
+            }
+            break;
       }
    }
    createServices();
