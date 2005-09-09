@@ -4,7 +4,7 @@ This is a generic main that can be used with any plugin and a
 PSet script.   See notes in EventProcessor.cpp for details about
 it.
 
-$Id: cmsRun.cpp,v 1.1 2005/07/20 05:23:01 wmtan Exp $
+$Id: cmsRun.cpp,v 1.2 2005/09/02 19:30:46 chrjones Exp $
 
 ----------------------------------------------------------------------*/  
 
@@ -14,7 +14,7 @@ $Id: cmsRun.cpp,v 1.1 2005/07/20 05:23:01 wmtan Exp $
 #include <vector>
 
 #include "FWCore/Framework/interface/EventProcessor.h"
-#include "FWCore/Framework/interface/ProblemTracker.h"
+#include "FWCore/Utilities/interface/ProblemTracker.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 using namespace std;

@@ -83,7 +83,7 @@ testServicesManager::putGetTest()
    CPPUNIT_ASSERT(!sm.put( ptrWrapper ) );
 }
 
-#include "FWCore/Framework/interface/ProblemTracker.h"
+#include "FWCore/Utilities/interface/ProblemTracker.h"
 
 void
 testServicesManager::loadTest()
