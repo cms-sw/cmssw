@@ -427,22 +427,22 @@ namespace edm {
   }
 
   EventProcessor::EventProcessor(int argc, char* argv[],
-                                 const ServiceToken&,serviceregistry::ServiceLegacy):
-     impl_(new FwkImpl(argc,argv))
+                                 const ServiceToken& iToken,serviceregistry::ServiceLegacy iLegacy):
+     impl_(new FwkImpl(argc,argv,iToken,iLegacy))
   {
         connectSigs(this, impl_);
   } 
   
   EventProcessor::EventProcessor(const string& config,
-                                 const ServiceToken&,serviceregistry::ServiceLegacy):
-     impl_(new FwkImpl(config))
+                                 const ServiceToken& iToken,serviceregistry::ServiceLegacy iLegacy):
+     impl_(new FwkImpl(config,iToken,iLegacy))
   {
         connectSigs(this, impl_);
   } 
   
   EventProcessor::EventProcessor(int argc, char* argv[], const string& config,
-                                 const ServiceToken&,serviceregistry::ServiceLegacy):
-     impl_(new FwkImpl(argc,argv,config))
+                                 const ServiceToken& iToken,serviceregistry::ServiceLegacy iLegacy):
+     impl_(new FwkImpl(argc,argv,config,iToken,iLegacy))
   {
         connectSigs(this, impl_);
   }
