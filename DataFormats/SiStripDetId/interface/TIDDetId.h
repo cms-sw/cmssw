@@ -58,8 +58,8 @@ namespace cms
      */
     std::vector<unsigned int> det() const
       { std::vector<unsigned int> num;
-      num[0]=((id_>>det_fw_bwStartBit_) & det_fw_bwMask_);
-      num[1]=((id_>>detStartBit_) & detMask_);
+      num.push_back(((id_>>det_fw_bwStartBit_) & det_fw_bwMask_));
+      num.push_back(((id_>>detStartBit_) & detMask_));
       return num ;}
 
     /// stereo id

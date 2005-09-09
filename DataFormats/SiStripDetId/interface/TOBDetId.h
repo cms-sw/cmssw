@@ -48,8 +48,8 @@ namespace cms
      */
     std::vector<unsigned int> rod() const
       { std::vector<unsigned int> num;
-      num[0]=((id_>>rod_fw_bwStartBit_) & rod_fw_bwMask_);
-      num[1]=((id_>>rodStartBit_) & rodMask_);
+      num.push_back(((id_>>rod_fw_bwStartBit_) & rod_fw_bwMask_));
+      num.push_back(((id_>>rodStartBit_) & rodMask_));
       return num ;}
 
     /// det id

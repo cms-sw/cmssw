@@ -52,9 +52,9 @@ namespace cms
      */
     std::vector<unsigned int> string() const
       { std::vector<unsigned int> num;
-      num[0]=((id_>>str_fw_bwStartBit_) & str_fw_bwMask_);
-      num[1]=((id_>>str_int_extStartBit_) & str_int_extMask_);
-      num[2]=((id_>>strStartBit_) & strMask_);
+      num.push_back(((id_>>str_fw_bwStartBit_) & str_fw_bwMask_));
+      num.push_back(((id_>>str_int_extStartBit_) & str_int_extMask_));
+      num.push_back(((id_>>strStartBit_) & strMask_));
       return num ;}
     
     /// detector id
