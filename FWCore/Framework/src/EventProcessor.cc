@@ -449,6 +449,9 @@ namespace edm {
   
   EventProcessor::~EventProcessor()
   {
+    //make the service's available while everything is being deleted
+    ServiceToken token = impl_->serviceToken_;
+    ServiceRegistry::Operate op(token); 
     delete impl_;
   }
 
