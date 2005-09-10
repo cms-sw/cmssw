@@ -11,7 +11,7 @@ namespace { namespace {
   edm::SendEvent dummy3;
   edm::SendDescs dummy4;
   edm::ProductDescription dummy5;
-  edm::EventProductDescription dummy6;
+  edm::BranchEntryDescription dummy6;
   edmtestprod::StreamTestThing dummy7;
   edm::Wrapper<edmtestprod::StreamTestThing> dummy8;
   edm::SendJobHeader dummy9;

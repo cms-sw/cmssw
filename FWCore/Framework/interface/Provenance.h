@@ -6,11 +6,11 @@
 Provenance: The full description of a product and how it came into
 existence.
 
-$Id: Provenance.h,v 1.13 2005/08/02 22:16:39 wmtan Exp $
+$Id: Provenance.h,v 1.14 2005/08/03 05:31:10 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <ostream>
 
-#include "FWCore/Framework/interface/EventProductDescription.h"
+#include "FWCore/Framework/interface/BranchEntryDescription.h"
 #include "FWCore/EDProduct/interface/ProductID.h"
 #include "FWCore/Framework/interface/ProductDescription.h"
 
@@ -33,7 +33,7 @@ namespace edm {
     ~Provenance() {}
 
     ProductDescription product;
-    EventProductDescription event;
+    BranchEntryDescription event;
 
     void write(std::ostream& os) const;
   };

@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: Event.cc,v 1.18 2005/08/30 21:21:35 wmtan Exp $
+$Id: Event.cc,v 1.19 2005/09/01 23:56:11 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -63,7 +63,7 @@ namespace edm {
 
 	// set parts of provenance
 	pv->event.cid = 0; // TODO: what is this supposed to be?
-	pv->event.status = EventProductDescription::Success;
+	pv->event.status = BranchEntryDescription::Success;
 	pv->event.parents = gotProductIDs_;
 
 	ep_.put(pr,pv);

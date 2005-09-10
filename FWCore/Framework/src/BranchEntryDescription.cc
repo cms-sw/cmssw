@@ -1,13 +1,13 @@
-#include "FWCore/Framework/interface/EventProductDescription.h"
+#include "FWCore/Framework/interface/BranchEntryDescription.h"
 
 /*----------------------------------------------------------------------
 
-$Id: EventProductDescription.cc,v 1.7 2005/07/30 23:47:52 wmtan Exp $
+$Id: BranchEntryDescription.cc,v 1.1 2005/08/03 07:03:18 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 namespace edm {
-  EventProductDescription::EventProductDescription() :
+  BranchEntryDescription::BranchEntryDescription() :
     productID_(),
     parents(),
     cid(),
@@ -15,15 +15,15 @@ namespace edm {
   { }
 
   void
-  EventProductDescription::write(std::ostream& os) const {
+  BranchEntryDescription::write(std::ostream& os) const {
     // This is grossly inadequate, but it is not critical for the
     // first pass.
-    os << "EventProductDescription for: " << cid;
+    os << "BranchEntryDescription for: " << cid;
   }
 
     
   bool
-  EventProductDescription::operator==(EventProductDescription const& b) const {
+  BranchEntryDescription::operator==(BranchEntryDescription const& b) const {
     return
       productID_ == b.productID_
       && cid == b.cid

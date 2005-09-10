@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: Group.cc,v 1.6 2005/08/03 05:31:53 wmtan Exp $
+$Id: Group.cc,v 1.7 2005/09/01 23:30:49 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/src/Group.h"
@@ -29,7 +29,7 @@ namespace edm
   Group::isAccessible() const { 
       return 
 	accessible_ and
-	(provenance_->event.status == EventProductDescription::Success);
+	(provenance_->event.status == BranchEntryDescription::Success);
   }
 
   void 

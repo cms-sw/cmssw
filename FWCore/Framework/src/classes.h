@@ -3,7 +3,7 @@
 #include "FWCore/Framework/interface/Provenance.h"
 #include "FWCore/Framework/interface/EventProvenance.h"
 #include "FWCore/Framework/interface/ProductDescription.h"
-#include "FWCore/Framework/interface/EventProductDescription.h"
+#include "FWCore/Framework/interface/BranchEntryDescription.h"
 #include "FWCore/Framework/interface/ProductRegistry.h"
 #include "FWCore/Framework/interface/BranchKey.h"
 #include "FWCore/EDProduct/interface/Wrapper.h"

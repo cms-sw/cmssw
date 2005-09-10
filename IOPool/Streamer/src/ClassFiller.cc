@@ -169,7 +169,7 @@ namespace edm {
     loadClass(cl,typeid(SendDescs));
     loadClass(cl,typeid(SendJobHeader));
     loadClass(cl,typeid(ProductDescription));
-    loadClass(cl,typeid(EventProductDescription));
+    loadClass(cl,typeid(BranchEntryDescription));
   }
   
   

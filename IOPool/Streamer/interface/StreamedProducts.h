@@ -36,14 +36,14 @@ namespace edm {
       prov_(&prov->event),
       desc_(&prov->product) { }
 
-    const EventProductDescription* prov() const { return prov_; }
+    const BranchEntryDescription* prov() const { return prov_; }
     const EDProduct* prod() const { return prod_; }
     const ProductDescription* desc() const { return desc_; }
 
     void clear() { prod_=0; prov_=0; desc_=0; }
 
     const EDProduct* prod_;
-    const EventProductDescription* prov_;
+    const BranchEntryDescription* prov_;
     const ProductDescription* desc_;
   };
 
