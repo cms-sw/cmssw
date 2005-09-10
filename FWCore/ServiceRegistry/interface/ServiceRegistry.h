@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 13:33:00 EDT 2005
-// $Id: ServiceRegistry.h,v 1.2 2005/09/08 09:06:00 chrjones Exp $
+// $Id: ServiceRegistry.h,v 1.3 2005/09/08 18:08:45 chrjones Exp $
 //
 
 // system include files
@@ -37,16 +37,16 @@ namespace edm {
       class Operate {
         public:
          Operate(const ServiceToken& iToken) : 
-         oldToken_( ServiceRegistry::instance().setContext( iToken ) )
+         oldToken_(ServiceRegistry::instance().setContext(iToken))
          {}
          ~Operate() {
-            ServiceRegistry::instance().unsetContext( oldToken_ );
+            ServiceRegistry::instance().unsetContext(oldToken_);
          }
          
          //override operator new to stop use on heap?
         private:
          Operate(const Operate&); //stop default
-         const Operate& operator=( const Operate&); //stop default
+         const Operate& operator=(const Operate&); //stop default
          ServiceToken oldToken_;
       };
       

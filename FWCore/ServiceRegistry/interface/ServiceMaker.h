@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 13:33:00 EDT 2005
-// $Id$
+// $Id: ServiceMaker.h,v 1.1 2005/09/07 21:58:16 chrjones Exp $
 //
 
 // system include files
@@ -46,27 +46,27 @@ namespace edm {
          struct AllArgsMaker : public MakerBase<T,TConcrete> {
          
          std::auto_ptr<T> make(const edm::ParameterSet& iPS,
-                               edm::ActivityRegistry& iAR ) const 
+                               edm::ActivityRegistry& iAR) const 
          {
-            return std::auto_ptr<T>( new TConcrete(iPS, iAR ) );
+            return std::auto_ptr<T>(new TConcrete(iPS, iAR));
          }
       };
 
       template< class T, class TConcrete = T>
       struct ParameterSetMaker : public MakerBase<T,TConcrete> {
          std::auto_ptr<T> make(const edm::ParameterSet& iPS,
-                               edm::ActivityRegistry& iAR ) const 
+                               edm::ActivityRegistry& iAR) const 
          {
-            return std::auto_ptr<T>( new TConcrete(iPS) );
+            return std::auto_ptr<T>(new TConcrete(iPS));
          }
       };
 
       template< class T, class TConcrete = T>
       struct NoArgsMaker : public MakerBase<T,TConcrete> {
          std::auto_ptr<T> make(const edm::ParameterSet& iPS,
-                               edm::ActivityRegistry& iAR ) const 
+                               edm::ActivityRegistry& iAR) const 
          {
-            return std::auto_ptr<T>( new TConcrete() );
+            return std::auto_ptr<T>(new TConcrete());
          }
       };
       
@@ -87,9 +87,9 @@ public:
                            ServicesManager& oSM) const 
          {
             TMaker maker;
-            std::auto_ptr<T> pService( maker.make(iPS, iAR ) );
-            boost::shared_ptr<ServiceWrapper<T> > ptr( new ServiceWrapper<T>(pService) );
-            return oSM.put( ptr );
+            std::auto_ptr<T> pService(maker.make(iPS, iAR));
+            boost::shared_ptr<ServiceWrapper<T> > ptr(new ServiceWrapper<T>(pService));
+            return oSM.put(ptr);
          }
          
          // ---------- static member functions --------------------

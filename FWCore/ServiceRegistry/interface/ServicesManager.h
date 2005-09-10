@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 13:33:01 EDT 2005
-// $Id$
+// $Id: ServicesManager.h,v 1.1 2005/09/07 21:58:15 chrjones Exp $
 //
 
 // system include files
@@ -72,24 +72,24 @@ public:
          // ---------- const member functions ---------------------
          template<class T>
          T& get() const {
-            Type2Service::const_iterator itFound = type2Service_.find( typeid(T) );
+            Type2Service::const_iterator itFound = type2Service_.find(typeid(T));
             Type2Maker::const_iterator itFoundMaker ;
-            if( itFound == type2Service_.end() ) {
+            if(itFound == type2Service_.end()) {
                //do on demand building of the service
-               if( 0 == type2Maker_.get() || 
-                   type2Maker_->end() == ( itFoundMaker = type2Maker_->find(typeid(T)) ) ) {
+               if(0 == type2Maker_.get() || 
+                   type2Maker_->end() == (itFoundMaker = type2Maker_->find(typeid(T)))) {
                       throw edm::Exception(edm::errors::NotFound,"Service Request") 
                       <<" unable to find requested service";
                } else {
-                  itFoundMaker->second.add( const_cast<ServicesManager&>(*this) );
-                  itFound = type2Service_.find( typeid(T) );
+                  itFoundMaker->second.add(const_cast<ServicesManager&>(*this));
+                  itFound = type2Service_.find(typeid(T));
                   //the 'and()' should have put the service into the list
-                  assert( itFound != type2Service_.end() );
+                  assert(itFound != type2Service_.end());
                }
             }
             //convert it to its actual type
-            boost::shared_ptr<ServiceWrapper<T> > ptr( boost::dynamic_pointer_cast<ServiceWrapper<T> >(itFound->second) );
-            assert( 0 != ptr.get() );
+            boost::shared_ptr<ServiceWrapper<T> > ptr(boost::dynamic_pointer_cast<ServiceWrapper<T> >(itFound->second));
+            assert(0 != ptr.get());
             return ptr->get();
          }
                
@@ -98,9 +98,9 @@ public:
          // ---------- member functions ---------------------------
          ///returns false if put fails because a service of this type already exists
          template<class T>
-            bool put( boost::shared_ptr<ServiceWrapper<T> > iPtr ) {
-               Type2Service::const_iterator itFound = type2Service_.find( typeid(T) );
-               if( itFound != type2Service_.end() ) {
+            bool put(boost::shared_ptr<ServiceWrapper<T> > iPtr) {
+               Type2Service::const_iterator itFound = type2Service_.find(typeid(T));
+               if(itFound != type2Service_.end()) {
                   return false;
                }
                type2Service_[ typeid(T) ] = iPtr;
@@ -117,7 +117,7 @@ private:
          
          const ServicesManager& operator=(const ServicesManager&); // stop default
          
-         void fillListOfMakers( const std::vector<edm::ParameterSet>&);
+         void fillListOfMakers(const std::vector<edm::ParameterSet>&);
          void createServices();
 
          // ---------- member data --------------------------------

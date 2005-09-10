@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 19:52:01 EDT 2005
-// $Id$
+// $Id: DependsOnDummyService.cc,v 1.1 2005/09/09 17:23:39 chrjones Exp $
 //
 
 // system include files
@@ -32,7 +32,7 @@ using namespace testserviceregistry;
 // constructors and destructor
 //
 DependsOnDummyService::DependsOnDummyService():
-value_( edm::Service<DummyService>()->value() )
+value_(edm::Service<DummyService>()->value())
 {
 }
 

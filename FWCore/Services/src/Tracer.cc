@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Sep  8 14:17:58 EDT 2005
-// $Id: Tracer.cc,v 1.1 2005/09/08 20:20:08 chrjones Exp $
+// $Id: Tracer.cc,v 1.2 2005/09/08 20:37:18 chrjones Exp $
 //
 
 // system include files
@@ -33,7 +33,7 @@ using namespace edm::service;
 // constructors and destructor
 //
 Tracer::Tracer(const ParameterSet& iPS, ActivityRegistry&iRegistry):
-indention_( iPS.getUntrackedParameter<std::string>("indention","++") )
+indention_(iPS.getUntrackedParameter<std::string>("indention","++"))
 {
    iRegistry.watchPostBeginJob(this,&Tracer::postBeginJob);
    iRegistry.watchPostEndJob(this,&Tracer::postEndJob);

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 13:33:00 EDT 2005
-// $Id$
+// $Id: ServiceMakerBase.h,v 1.1 2005/09/07 21:58:15 chrjones Exp $
 //
 
 // system include files
@@ -45,7 +45,7 @@ public:
       
          virtual bool make(const edm::ParameterSet&,
                            edm::ActivityRegistry&,
-                           ServicesManager& ) const = 0;
+                           ServicesManager&) const = 0;
 
          // ---------- static member functions --------------------
          

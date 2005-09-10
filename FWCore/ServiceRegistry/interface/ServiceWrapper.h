@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 13:33:01 EDT 2005
-// $Id$
+// $Id: ServiceWrapper.h,v 1.1 2005/09/07 21:58:16 chrjones Exp $
 //
 
 // system include files
@@ -36,8 +36,8 @@ namespace edm {
       {
 
 public:
-         ServiceWrapper(std::auto_ptr<T> iService ) :
-         service_( iService ) {}
+         ServiceWrapper(std::auto_ptr<T> iService) :
+         service_(iService) {}
          //virtual ~ServiceWrapper();
          
          // ---------- const member functions ---------------------

@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 18 19:09:01 EDT 2005
-// $Id: MakersProcess.cc,v 1.8 2005/09/08 04:34:06 jbk Exp $
+// $Id: MakersProcess.cc,v 1.9 2005/09/08 07:15:49 chrjones Exp $
 //
 
 // system include files
@@ -45,7 +45,7 @@ struct FillProcess : public edm::pset::Visitor
 {
    FillProcess(edm::ParameterSet& oToFill, 
                std::vector< boost::shared_ptr<edm::pset::WrapperNode> >& oPathSegments,
-               std::vector< edm::ParameterSet>& oServicesToFill ) :
+               std::vector< edm::ParameterSet>& oServicesToFill) :
    pset_(oToFill), wrappers_(oPathSegments), services_(oServicesToFill) {
       static const std::string kModule("module");
       static const std::string kESModule("es_module");
@@ -134,11 +134,11 @@ struct FillProcess : public edm::pset::Visitor
                                                      usingBlocks_,
                                                      pSets_);
       std::string name = (this->*(handleTypes_[iNode.type_]))(iNode, *modulePSet);
-      if( name != "service") {
+      if(name != "service") {
          pset_.insert(true, name , Entry(*modulePSet,true));
          itFound->second.push_back(name);
       } else {
-         services_.push_back( *modulePSet );
+         services_.push_back(*modulePSet);
       }
       
       //visitChildren(iNode);

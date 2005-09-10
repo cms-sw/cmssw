@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 19:52:01 EDT 2005
-// $Id$
+// $Id: ValueExample.cc,v 1.1 2005/09/08 10:05:38 chrjones Exp $
 //
 
 // system include files
@@ -29,7 +29,7 @@
 // constructors and destructor
 //
 ValueExample::ValueExample(const edm::ParameterSet& iPSet):
-value_( iPSet.getParameter<int>("value") )
+value_(iPSet.getParameter<int>("value"))
 {
 }
 

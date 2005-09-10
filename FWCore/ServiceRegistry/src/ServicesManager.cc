@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 13:33:19 EDT 2005
-// $Id: ServicesManager.cc,v 1.2 2005/09/08 07:17:02 chrjones Exp $
+// $Id: ServicesManager.cc,v 1.3 2005/09/09 14:53:08 chrjones Exp $
 //
 
 // system include files
@@ -31,7 +31,7 @@ ServicesManager::MakerHolder::MakerHolder(boost::shared_ptr<ServiceMakerBase> iM
                                           const edm::ParameterSet& iPSet,
                                           edm::ActivityRegistry& iRegistry) :
 maker_(iMaker),
-pset_( &iPSet ),
+pset_(&iPSet),
 registry_(&iRegistry),
 wasAdded_(false)
 {}
@@ -39,8 +39,8 @@ wasAdded_(false)
 bool 
 ServicesManager::MakerHolder::add(ServicesManager& oManager) const
 {
-   if(!wasAdded_ ) {
-      return wasAdded_ = maker_->make( *pset_, *registry_, oManager );
+   if(!wasAdded_) {
+      return wasAdded_ = maker_->make(*pset_, *registry_, oManager);
    }
    return wasAdded_;
 }
@@ -52,18 +52,18 @@ ServicesManager::MakerHolder::add(ServicesManager& oManager) const
 //
 // constructors and destructor
 //
-ServicesManager::ServicesManager( const std::vector<edm::ParameterSet>& iConfiguration) :
-type2Maker_( new Type2Maker )
+ServicesManager::ServicesManager(const std::vector<edm::ParameterSet>& iConfiguration) :
+type2Maker_(new Type2Maker)
 {
    //First create the list of makers
-   fillListOfMakers( iConfiguration);
+   fillListOfMakers(iConfiguration);
    
    createServices();
 }
 ServicesManager::ServicesManager(ServiceToken iToken,
                                  ServiceLegacy iLegacy,
                                  const std::vector<edm::ParameterSet>& iConfiguration):
-type2Maker_( new Type2Maker ),
+type2Maker_(new Type2Maker),
 associatedManager_(iToken.manager_)
 {
    fillListOfMakers(iConfiguration);
@@ -78,7 +78,7 @@ associatedManager_(iToken.manager_)
    }
 
    TypeSet tokenTypes;
-   if( 0 != associatedManager_.get() ) {
+   if(0 != associatedManager_.get()) {
       for(Type2Service::iterator itType = associatedManager_->type2Service_.begin();
           itType != associatedManager_->type2Service_.end();
           ++itType) {
@@ -91,7 +91,7 @@ associatedManager_(iToken.manager_)
                             tokenTypes.begin(), tokenTypes.end(),
                             inserter(intersection, intersection.end()));
       
-      switch( iLegacy ) {
+      switch(iLegacy) {
          case kOverlapIsError :
             if(!intersection.empty()) {
                throw edm::Exception(errors::Configuration, "Service")
@@ -110,7 +110,7 @@ associatedManager_(iToken.manager_)
             for(IntersectionType::iterator itType = intersection.begin();
                 itType != intersection.end();
                 ++itType) {
-               type2Maker_->erase( type2Maker_->find( *itType ) ); 
+               type2Maker_->erase(type2Maker_->find(*itType)); 
             }
             break;
          case kConfigurationOverrides:
@@ -121,7 +121,7 @@ associatedManager_(iToken.manager_)
             for(IntersectionType::iterator itType = intersection.begin();
                 itType != intersection.end();
                 ++itType) {
-               type2Service_.erase( type2Service_.find( *itType ) ); 
+               type2Service_.erase(type2Service_.find(*itType)); 
             }
             break;
       }
@@ -129,8 +129,8 @@ associatedManager_(iToken.manager_)
    createServices();
 
    //make sure our signals are propagated to our 'inherited' Services
-   if( 0 != associatedManager_.get() ) {
-      registry_.connect( associatedManager_->registry_);
+   if(0 != associatedManager_.get()) {
+      registry_.connect(associatedManager_->registry_);
    }
 }
 
@@ -161,39 +161,38 @@ associatedManager_(iToken.manager_)
 void 
 ServicesManager::connect(ActivityRegistry& iOther)
 {
-   registry_.connect( iOther );
+   registry_.connect(iOther);
 }   
 
 void 
 ServicesManager::connectTo(ActivityRegistry& iOther)
 {
-   iOther.connect( registry_ );
+   iOther.connect(registry_);
 }
 
 void
-ServicesManager::fillListOfMakers( const std::vector<edm::ParameterSet>& iConfiguration )
+ServicesManager::fillListOfMakers(const std::vector<edm::ParameterSet>& iConfiguration)
 {
-   for( std::vector<edm::ParameterSet>::const_iterator itParam = iConfiguration.begin();
+   for(std::vector<edm::ParameterSet>::const_iterator itParam = iConfiguration.begin();
         itParam != iConfiguration.end();
-        ++itParam ) {
+        ++itParam) {
       boost::shared_ptr<ServiceMakerBase> base(
-                                               ServicePluginFactory::get()->create( itParam->getParameter<std::string>("service_type") )
-                                               );
-      if( 0 == base.get() ) {
+                                               ServicePluginFactory::get()->create(itParam->getParameter<std::string>("service_type")));
+      if(0 == base.get()) {
          throw edm::Exception(edm::errors::Configuration, "Service")
          <<"could not find a service named "
          << itParam->getParameter<std::string>("service_type")
          <<". Please check spelling.";
       }
-      Type2Maker::iterator itFound = type2Maker_->find( base->serviceType() );
-      if( itFound != type2Maker_->end() ) {
+      Type2Maker::iterator itFound = type2Maker_->find(base->serviceType());
+      if(itFound != type2Maker_->end()) {
          throw edm::Exception(edm::errors::Configuration,"Service") 
          <<" the service "<< itParam->getParameter<std::string>("service_type") 
          <<" provides the same service as "
          << itFound->second.pset_->getParameter<std::string>("service_type")
          <<"\n Please reconfigure job to only use one of these services.";
       }
-      type2Maker_->insert( Type2Maker::value_type(base->serviceType(),
+      type2Maker_->insert(Type2Maker::value_type(base->serviceType(),
                                                   MakerHolder(base,
                                                               *itParam,
                                                               registry_)));
@@ -215,20 +214,20 @@ ServicesManager::createServices()
    //create a shared_ptr of 'this' that will not delete us
    boost::shared_ptr<ServicesManager> shareThis(this, NoOp());
    
-   ServiceToken token( shareThis );
+   ServiceToken token(shareThis);
    
    //Now make our services to ones obtained via ServiceRegistry
    // when this goes out of scope, it will revert back to the previous Service set
-   ServiceRegistry::Operate operate( token );
+   ServiceRegistry::Operate operate(token);
    
    //Now, make each Service.  If a service depends on a service that has yet to be
    // created, that other service will automatically be made
    
    
-   for( Type2Maker::iterator itMaker = type2Maker_->begin();
+   for(Type2Maker::iterator itMaker = type2Maker_->begin();
         itMaker != type2Maker_->end();
-        ++itMaker ) {
-      itMaker->second.add( *this );
+        ++itMaker) {
+      itMaker->second.add(*this);
    }
    
    //No longer need the makers

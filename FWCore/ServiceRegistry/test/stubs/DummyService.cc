@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 19:52:01 EDT 2005
-// $Id$
+// $Id: DummyService.cc,v 1.1 2005/09/09 17:23:39 chrjones Exp $
 //
 
 // system include files
@@ -30,7 +30,7 @@ using namespace testserviceregistry;
 // constructors and destructor
 //
 DummyService::DummyService(const edm::ParameterSet& iPSet,edm::ActivityRegistry&iAR):
-value_( iPSet.getParameter<int>("value") ),
+value_(iPSet.getParameter<int>("value")),
 beginJobCalled_(false)
 {
    iAR.watchPostBeginJob(this,&DummyService::doOnBeginJob);

@@ -178,7 +178,7 @@ namespace edm {
      //create the services
      serviceToken_ = ServiceRegistry::createSet(*(builder.getServicesPSets()),
                                                 iToken,iLegacy);
-     serviceToken_.connectTo( activityRegistry_);
+     serviceToken_.connectTo(activityRegistry_);
      
      //make the services available
      ServiceRegistry::Operate operate(serviceToken_);
@@ -196,8 +196,8 @@ namespace edm {
      
      workers_= (sbuilder.getPathList());
      runner_ = std::auto_ptr<ScheduleExecutor>(new ScheduleExecutor(workers_,act_table_));
-     runner_->preModuleSignal.connect( activityRegistry_.preModuleSignal_);
-     runner_->postModuleSignal.connect( activityRegistry_.postModuleSignal_);
+     runner_->preModuleSignal.connect(activityRegistry_.preModuleSignal_);
+     runner_->postModuleSignal.connect(activityRegistry_.postModuleSignal_);
      
      
      fillEventSetupProvider(esp_, *params_, common_);
@@ -364,7 +364,7 @@ namespace edm {
 	  {
             ModuleDescription dummy;
             {
-              activityRegistry_.preProcessEventSignal_(pep->id(),pep->time() );
+              activityRegistry_.preProcessEventSignal_(pep->id(),pep->time());
             }
 	    EventRegistry::Operate oper(pep->id(),pep.get());
 	    runner_->runOneEvent(*pep.get(),es);

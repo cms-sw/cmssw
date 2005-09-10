@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Chris D Jones
 //         Created:  Thu Sep  8 03:55:42 EDT 2005
-// $Id$
+// $Id: UseValueExampleAnalyzer.cc,v 1.1 2005/09/08 10:05:38 chrjones Exp $
 //
 //
 
@@ -40,11 +40,11 @@ Implementation:
 
 class UseValueExampleAnalyzer : public edm::EDAnalyzer {
 public:
-   explicit UseValueExampleAnalyzer( const edm::ParameterSet& );
+   explicit UseValueExampleAnalyzer(const edm::ParameterSet&);
    ~UseValueExampleAnalyzer();
    
    
-   virtual void analyze( const edm::Event&, const edm::EventSetup& );
+   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 private:
       // ----------member data ---------------------------
 };
@@ -60,7 +60,7 @@ private:
 //
 // constructors and destructor
 //
-UseValueExampleAnalyzer::UseValueExampleAnalyzer( const edm::ParameterSet& iConfig )
+UseValueExampleAnalyzer::UseValueExampleAnalyzer(const edm::ParameterSet& /* iConfig */)
 {
    //now do what ever initialization is needed
    
@@ -82,7 +82,7 @@ UseValueExampleAnalyzer::~UseValueExampleAnalyzer()
 
 // ------------ method called to produce the data  ------------
 void
-UseValueExampleAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
+UseValueExampleAnalyzer::analyze(const edm::Event& /* iEvent */, const edm::EventSetup& /* iSetup*/)
 {   
    std::cout<<" value from service "<< edm::Service<ValueExample>()->value()<<std::endl; 
 }

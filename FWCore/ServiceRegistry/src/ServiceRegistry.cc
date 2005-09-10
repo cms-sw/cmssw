@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 13:33:19 EDT 2005
-// $Id: ServiceRegistry.cc,v 1.1 2005/09/07 21:58:20 chrjones Exp $
+// $Id: ServiceRegistry.cc,v 1.2 2005/09/08 18:08:49 chrjones Exp $
 //
 
 // system include files
@@ -60,7 +60,7 @@ edm::ServiceRegistry::~ServiceRegistry()
 edm::ServiceToken 
 edm::ServiceRegistry::setContext(const edm::ServiceToken& iNewToken)
 {
-   edm::ServiceToken returnValue( manager_ );
+   edm::ServiceToken returnValue(manager_);
    manager_ = iNewToken.manager_;
    return returnValue;
 }
@@ -105,7 +105,7 @@ edm::ServiceRegistry::instance()
 {
    static boost::thread_specific_ptr<ServiceRegistry> s_registry;
    if(0 == s_registry.get()){
-      s_registry.reset( new ServiceRegistry );
+      s_registry.reset(new ServiceRegistry);
    }
    return *s_registry;
 }

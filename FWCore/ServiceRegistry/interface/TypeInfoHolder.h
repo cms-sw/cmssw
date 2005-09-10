@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 14:38:42 EDT 2005
-// $Id$
+// $Id: TypeInfoHolder.h,v 1.1 2005/09/07 21:58:16 chrjones Exp $
 //
 
 // system include files
@@ -33,7 +33,7 @@ namespace edm {
          const std::type_info& info() const { return m_info;}
          
          bool operator<(const TypeInfoHolder& iRHS) const {
-            return m_info.before( iRHS.m_info ) ;
+            return m_info.before(iRHS.m_info) ;
          }
         private:
          const std::type_info& m_info;

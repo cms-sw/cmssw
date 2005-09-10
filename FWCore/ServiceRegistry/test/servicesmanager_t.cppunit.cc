@@ -46,7 +46,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testServicesManager);
 namespace {
    struct DummyService {
       //DummyService(const edm::ParameterSet&,
-      //             edm::ActivityRegistry& ) {}
+      //             edm::ActivityRegistry&) {}
    };
 }
 
@@ -68,19 +68,19 @@ testServicesManager::putGetTest()
    try {
       sm.get<DummyService>();
       exceptionThrown = false;
-   } catch( const edm::Exception& ) {
+   } catch(const edm::Exception&) {
    }
-   CPPUNIT_ASSERT( exceptionThrown );
+   CPPUNIT_ASSERT(exceptionThrown);
    
-   std::auto_ptr< DummyService > pService( new DummyService );
+   std::auto_ptr< DummyService > pService(new DummyService);
    boost::shared_ptr< ServiceWrapper<DummyService> > 
-      ptrWrapper ( new ServiceWrapper<DummyService>( pService ) );
+      ptrWrapper (new ServiceWrapper<DummyService>(pService));
 
-   CPPUNIT_ASSERT(sm.put( ptrWrapper ) );
+   CPPUNIT_ASSERT(sm.put(ptrWrapper));
    
    sm.get<DummyService>();
 
-   CPPUNIT_ASSERT(!sm.put( ptrWrapper ) );
+   CPPUNIT_ASSERT(!sm.put(ptrWrapper));
 }
 
 #include "FWCore/Utilities/interface/ProblemTracker.h"
@@ -167,10 +167,10 @@ testServicesManager::legacyTest()
    ps.addParameter("value", value);
    pss.push_back(ps);
    
-   boost::shared_ptr<ServicesManager>  legacy( new ServicesManager(pss) );
+   boost::shared_ptr<ServicesManager>  legacy(new ServicesManager(pss));
    CPPUNIT_ASSERT(1 == legacy->get<TestService>().value());
    
-   edm::ServiceToken legacyToken( legacy );
+   edm::ServiceToken legacyToken(legacy);
    {
       std::vector<edm::ParameterSet> pss;
       
