@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Sun Apr 17 17:30:46 EDT 2005
-// $Id: ESProducts.h,v 1.5 2005/09/01 05:38:45 wmtan Exp $
+// $Id: ESProducts.h,v 1.6 2005/09/01 23:30:48 wmtan Exp $
 //
 
 // system include files
@@ -32,43 +32,61 @@ namespace edm {
          
          template< typename T> struct OneHolder {
             OneHolder() {}
-            OneHolder(const T& iValue) : value(iValue) {}
+            OneHolder(const T& iValue) : value_(iValue) {}
+
             template<typename S>
             void setFromRecursive(S& iGiveValues) {
-               iGiveValues.setFrom(value);
+               iGiveValues.setFrom(value_);
             }
             
-            void assignTo(T& oValue) { oValue = value;}
-            T value;
+            void assignTo(T& oValue) { oValue = value_;}
+            T value_;
             typedef T tail_type;
             typedef Null head_type;
          };
+
+         template< typename T> struct OneHolder< std::auto_ptr<T> > {
+            typedef std::auto_ptr<T> Type;
+            OneHolder() {}
+            OneHolder(const OneHolder<Type>& iOther): value_(const_cast<OneHolder<Type>& >(iOther).value_) {}
+            OneHolder(Type iPtr): value_(iPtr) {}
+            
+            
+            const OneHolder<Type> & operator=(OneHolder<Type> iRHS) { value_ =iRHS.value_; return *this; }
+            template<typename S>
+            void setFromRecursive(S& iGiveValues) {
+               iGiveValues.setFrom(value_);
+            }
+            
+            void assignTo(Type& oValue) { oValue = value_;}
+            mutable Type value_; //mutable needed for std::auto_ptr
+            typedef Type tail_type;
+            typedef Null head_type;
+         };
          
-         template<typename T> OneHolder<T> operator<<(const Produce&, const T& iValue) {
+         template<typename T> OneHolder<T> operator<<(const Produce&, T iValue) {
             return OneHolder<T>(iValue);
          }
-         
+
          template<typename T, typename U> struct MultiHolder {
-            MultiHolder(const T& iT, const U& iValue) {
-               value = iValue;
-               head = iT;
+            MultiHolder(const T& iT, U iValue): value_(iValue), head_(iT) {
             }
             
             template<typename TTaker>
             void setFromRecursive(TTaker& iGiveValues) {
-               iGiveValues.setFrom(value);
-               head.setFromRecursive(iGiveValues);
+               iGiveValues.setFrom(value_);
+               head_.setFromRecursive(iGiveValues);
             }
             
             
-            void assignTo(U& oValue) { oValue = value;}
-            U value;
-            T head;
+            void assignTo(U& oValue) { oValue = value_;}
+            U value_;
+            T head_;
             
             typedef U tail_type;
             typedef T head_type;
          };
-         
+
          template<typename T, typename S>
             MultiHolder<OneHolder<T>, S> operator<<(const OneHolder<T>& iHolder,
                                                      const S& iValue) {
