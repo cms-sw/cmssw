@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 13:33:00 EDT 2005
-// $Id: ServiceMaker.h,v 1.1 2005/09/07 21:58:16 chrjones Exp $
+// $Id: ServiceMaker.h,v 1.2 2005/09/10 02:08:47 wmtan Exp $
 //
 
 // system include files
@@ -55,7 +55,7 @@ namespace edm {
       template< class T, class TConcrete = T>
       struct ParameterSetMaker : public MakerBase<T,TConcrete> {
          std::auto_ptr<T> make(const edm::ParameterSet& iPS,
-                               edm::ActivityRegistry& iAR) const 
+                               edm::ActivityRegistry& /* iAR */) const 
          {
             return std::auto_ptr<T>(new TConcrete(iPS));
          }
@@ -63,8 +63,8 @@ namespace edm {
 
       template< class T, class TConcrete = T>
       struct NoArgsMaker : public MakerBase<T,TConcrete> {
-         std::auto_ptr<T> make(const edm::ParameterSet& iPS,
-                               edm::ActivityRegistry& iAR) const 
+         std::auto_ptr<T> make(const edm::ParameterSet& /* iPS */,
+                               edm::ActivityRegistry& /* iAR */) const 
          {
             return std::auto_ptr<T>(new TConcrete());
          }
