@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Sep  7 15:17:17 EDT 2005
-// $Id$
+// $Id: Service.h,v 1.1 2005/09/07 21:58:16 chrjones Exp $
 //
 
 // system include files
@@ -43,6 +43,15 @@ namespace edm {
    T& operator*() const {
       return ServiceRegistry::instance().template get<T>();
    }
+   
+   bool isAvailable() const {
+      return ServiceRegistry::instance().template isAvailable<T>();
+   }
+   
+   operator bool() const {
+      return isAvailable();
+   }
+   
    // ---------- static member functions --------------------
    
    // ---------- member functions ---------------------------
