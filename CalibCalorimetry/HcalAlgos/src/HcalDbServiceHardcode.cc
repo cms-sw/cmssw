@@ -35,7 +35,7 @@ double HcalDbServiceHardcode::adcShapeBin (int fCount) const {
   // pedestal  
 double HcalDbServiceHardcode::pedestal (const cms::HcalDetId& fCell, int fCapId) const {
   // return 0.75; // 750MeV
-  double result = fCell.subdet () == cms::HcalForward ? 4. : 0.75; // GeV. Corresponds to Jeremy's constant 
+  double result = fCell.subdet () == cms::HcalForward ? 4.*2.6 : 0.75; // GeV. Corresponds to Jeremy's constant 
   //  std::cout << "HcalDbServiceHardcode::pedestal-> " << fCell << " / " << fCapId << ": " << result << std::endl;
   return result;
 }
