@@ -2,6 +2,7 @@
 //
 // F.Ratnikov (UMd), Jul. 19, 2005
 //
+#include <iostream>
 
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbServiceHardcode.h"
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
@@ -33,7 +34,10 @@ double HcalDbServiceHardcode::adcShapeBin (int fCount) const {
 }
   // pedestal  
 double HcalDbServiceHardcode::pedestal (const cms::HcalDetId& fCell, int fCapId) const {
-  return 0.75; // 750MeV
+  // return 0.75; // 750MeV
+  double result = fCell.subdet () == cms::HcalForward ? 4. : 0.75; // GeV. Corresponds to Jeremy's constant 
+  //  std::cout << "HcalDbServiceHardcode::pedestal-> " << fCell << " / " << fCapId << ": " << result << std::endl;
+  return result;
 }
   // pedestal width
 double HcalDbServiceHardcode::pedestalError (const cms::HcalDetId& fCell, int fCapId) const {
@@ -41,7 +45,10 @@ double HcalDbServiceHardcode::pedestalError (const cms::HcalDetId& fCell, int fC
 }
   // gain
 double HcalDbServiceHardcode::gain (const cms::HcalDetId& fCell, int fCapId) const {
-  return 0.125; // GeV/fC 
+  //  return fCell.subdet () == cms::HcalForward ? 0.150 : 0.177; // GeV/fC 
+  double result = fCell.subdet () == cms::HcalForward ? 0.2 / 2.6 : 0.177; // GeV/fC Corresponds to Jeremy's constant 
+  //  std::cout << "HcalDbServiceHardcode::gain-> " << fCell << " / " << fCapId << ": " << result << std::endl;
+  return result;
 }
   // gain width
 double HcalDbServiceHardcode::gainError (const cms::HcalDetId& fCell, int fCapId) const {
@@ -53,7 +60,7 @@ double HcalDbServiceHardcode::offset (const cms::HcalDetId& fCell, int fCapId, i
 }
 // slope for the (cell,capId,range)
 double HcalDbServiceHardcode::slope (const cms::HcalDetId& fCell, int fCapId, int fRange) const {
-  return 1;
+  return fCell.subdet () == cms::HcalForward ? 2.6 : 1.; 
 }
 
 HcalDbService* HcalDbServiceHardcode::clone () const {
