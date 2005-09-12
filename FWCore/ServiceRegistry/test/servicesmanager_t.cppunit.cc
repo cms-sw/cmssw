@@ -64,6 +64,7 @@ testServicesManager::putGetTest()
    ServicesManager sm(ps);
    
 
+   CPPUNIT_ASSERT(!sm.isAvailable<DummyService>());
    bool exceptionThrown = true;
    try {
       sm.get<DummyService>();
@@ -77,7 +78,9 @@ testServicesManager::putGetTest()
       ptrWrapper (new ServiceWrapper<DummyService>(pService));
 
    CPPUNIT_ASSERT(sm.put(ptrWrapper));
-   
+
+   CPPUNIT_ASSERT(sm.isAvailable<DummyService>());
+
    sm.get<DummyService>();
 
    CPPUNIT_ASSERT(!sm.put(ptrWrapper));
