@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 13:33:00 EDT 2005
-// $Id: ServiceRegistry.h,v 1.3 2005/09/08 18:08:45 chrjones Exp $
+// $Id: ServiceRegistry.h,v 1.4 2005/09/10 02:08:48 wmtan Exp $
 //
 
 // system include files
@@ -66,6 +66,14 @@ namespace edm {
             return manager_-> template get<T>();
          }
       
+      template<class T>
+         bool isAvailable() const {
+            if(0 == manager_.get()) {
+               throw edm::Exception(edm::errors::NotFound,"Service")
+               <<" no ServiceRegistry has been set for this thread";
+            }
+            return manager_-> template isAvailable<T>();
+         }
       /** The token can be passed to another thread in order to have the
          same services available in the other thread.
          */
