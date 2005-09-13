@@ -21,11 +21,11 @@ namespace cms
      /**Construct from generic DetId */
     PXFDetId(const DetId& id); 
 
-    PXFDetId(uint32_t pos_neg,
+    PXFDetId(uint32_t side,
 	     uint32_t disk,
 	     uint32_t blade,
 	     uint32_t det) : DetId(cms::DetId::Tracker,PixelSubdetector::PixelEndcap){
-      id_ |= (pos_neg& pos_negMask_)  << pos_negStartBit_   |
+      id_ |= (side& sideMask_)  << sideStartBit_   |
 	     (disk& diskMask_)        << diskStartBit_      |
 	     (blade& bladeMask_)      << bladeStartBit_     |
 	     (det& detMask_)          << detStartBit_  ;
@@ -33,8 +33,8 @@ namespace cms
  
 
     /// positive or negative id
-    unsigned int posNeg() const{
-      return int((id_>>pos_negStartBit_) & pos_negMask_);
+    unsigned int side() const{
+      return int((id_>>sideStartBit_) & sideMask_);
     }
 
     /// disk id
@@ -52,13 +52,13 @@ namespace cms
 
   private:
     /// two bits would be enough, but  we could use the number "0" as a wildcard
-    static const unsigned int pos_negStartBit_=  23;
+    static const unsigned int sideStartBit_=  23;
     static const unsigned int diskStartBit_=     16;
     static const unsigned int bladeStartBit_=     8;
     static const unsigned int detStartBit_=       2;
     /// two bits would be enough, but  we could use the number "0" as a wildcard
 
-    static const unsigned int pos_negMask_=     0x3;
+    static const unsigned int sideMask_=     0x3;
     static const unsigned int diskMask_=        0xF;
     static const unsigned int bladeMask_=       0xFF;
     static const unsigned int detMask_=         0x3F;

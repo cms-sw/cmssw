@@ -22,7 +22,7 @@ namespace cms
     /**Construct from generic DetId */
     TECDetId(const DetId& id); 
 
-    TECDetId(uint32_t pos_neg,
+    TECDetId(uint32_t side,
 	     uint32_t wheel,
 	     uint32_t petal_fw_bw,
 	     uint32_t petal,
@@ -30,7 +30,7 @@ namespace cms
 	     uint32_t det_fw_bw,
 	     uint32_t det,
 	     uint32_t ster) : DetId(cms::DetId::Tracker,StripSubdetector::TEC){
-      id_ |= (pos_neg& pos_negMask_)         << pos_negStartBit_ |
+      id_ |= (side& sideMask_)         << sideStartBit_ |
 	     (wheel& wheelMask_)             << wheelStartBit_ |
 	     (petal_fw_bw& petal_fw_bwMask_) << petal_fw_bwStartBit_ |
 	     (petal& petalMask_)             << petalStartBit_ |
@@ -43,11 +43,11 @@ namespace cms
 
     /// positive or negative id
     /**
-     * posNeg() = 1 The DetId identify a module in the negative part
-     * posNeg() = 2 The DetId identify a module in the positive part
+     * side() = 1 The DetId identify a module in the negative part
+     * side() = 2 The DetId identify a module in the positive part
      */
-    unsigned int posNeg() const{
-      return int((id_>>pos_negStartBit_) & pos_negMask_);
+    unsigned int side() const{
+      return int((id_>>sideStartBit_) & sideMask_);
     }
 
     /// wheel id
@@ -128,7 +128,7 @@ namespace cms
 
   private:
     /// two bits would be enough, but  we could use the number "0" as a wildcard
-    static const unsigned int pos_negStartBit_=           23;
+    static const unsigned int sideStartBit_=           23;
     static const unsigned int wheelStartBit_=             16;  
     static const unsigned int petal_fw_bwStartBit_=       15;
     static const unsigned int petalStartBit_=             8;
@@ -137,7 +137,7 @@ namespace cms
     static const unsigned int detStartBit_=               2;
     static const unsigned int sterStartBit_=              0;
     /// two bits would be enough, but  we could use the number "0" as a wildcard
-    static const unsigned int pos_negMask_=       0x3;
+    static const unsigned int sideMask_=       0x3;
     static const unsigned int wheelMask_=         0xF;
     static const unsigned int petal_fw_bwMask_=   0x1;
     static const unsigned int petalMask_=         0x7F;
