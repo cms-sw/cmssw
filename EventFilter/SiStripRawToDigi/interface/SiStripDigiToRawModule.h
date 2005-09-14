@@ -1,14 +1,11 @@
 #ifndef SiStripDigiToRawModule_H
 #define SiStripDigiToRawModule_H
 
-// system include files
-#include <memory>
-//
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-//
+//#include <memory>
 #include <string>
 
 class SiStripDigiToRaw;
@@ -16,16 +13,15 @@ class SiStripUtility;
 
 /**
    \class SiStripDigiToRawModule 
-   \brief A plug-in EDProducer module that performs DigiToRaw
-   conversion.
+   \brief A plug-in module that performs DigiToRaw conversion.
    \author R.Bainbridge
    \version 0.1
-   \date 09/08/05
+   \date 05/09/05
 
-   A plug-in EDProducer module that performs DigiToRaw
-   conversion. Input (from Event): StripDigiCollection. Output
-   (EDProduct): FEDRawDataCollection. Nota bene: this is a PROTOTYPE
-   IMPLEMENTATION!
+   A plug-in module that performs DigiToRaw conversion. 
+   Input (from Event): StripDigiCollection. 
+   Output (EDProduct): FEDRawDataCollection. 
+   Nota bene: this is a PROTOTYPE IMPLEMENTATION!
 */
 class SiStripDigiToRawModule : public edm::EDProducer {
   
@@ -58,16 +54,13 @@ private:
   /** Event counter. */
   unsigned long event_;
 
-  /** Defines the FED readout mode: ZS, VR, PR or SM. */
+  /** Defines the FED readout mode (ZS, VR, PR or SM). */
   std::string fedReadoutMode_;
-  /** Defines the FED readout path: VME or SLINK. */
+  /** Defines the FED readout path (VME or SLINK). */
   std::string fedReadoutPath_;
-
-  /** Defines level of verbosity for this class (0=silent -> 3=debug). */
+  
+  /** Defines verbosity level for this class (0=silent -> 3=debug). */
   int verbosity_;
-
-  /** Digi counter. */
-  long ndigis_;
   
 };
 

@@ -2,7 +2,9 @@
 #define SiStripDigiToRaw_H
 
 #include "CalibTracker/SiStripConnectivity/interface/SiStripConnection.h"
+//
 #include "DataFormats/SiStripDigi/interface/StripDigiCollection.h"
+#include "DataFormats/SiStripDigi/interface/StripDigi.h"
 //
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
@@ -12,22 +14,21 @@
 /**
    \class SiStripDigiToRaw
 
-   \brief Takes a StripDigiCollection as input and creates a
-   FEDRawDataCollection.
+   \brief Input: StripDigiCollection. Output: FEDRawDataCollection.
    \author M.Wingham, R.Bainbridge
    \version 0.1
-   \date 09/08/05
+   \date 05/09/05
    
-   Takes a StripDigiCollection as input and creates a
-   FEDRawDataCollection.
-
+   Input: StripDigiCollection. 
+   Output: FEDRawDataCollection.
 */
 class SiStripDigiToRaw {
   
  public: // ----- public interface -----
   
   /** */
-  SiStripDigiToRaw( SiStripConnection& conns );
+  SiStripDigiToRaw( SiStripConnection& conns,
+		    unsigned short verbosity = 0 );
   /** */
   ~SiStripDigiToRaw();
   
@@ -37,10 +38,10 @@ class SiStripDigiToRaw {
 			 raw::FEDRawDataCollection& fed_buffers );
 
   /** */
-  inline void fedReadoutPath(std::string rpath);
+  inline void fedReadoutPath( std::string rpath );
   /** */
-  inline void fedReadoutMode(std::string rmode);
-  
+  inline void fedReadoutMode( std::string rmode );
+
  private: // ----- private methods -----
 
   /** private default constructor */
@@ -54,12 +55,20 @@ class SiStripDigiToRaw {
   unsigned short verbosity_;
 
   /** */
-  std::string readoutPath;
+  std::string readoutPath_;
   /** */
-  std::string readoutMode;
+  std::string readoutMode_;
 
-  /** */
-  vector<unsigned short> fedids;
+
+  /** FED identifiers. */
+  vector<unsigned short> fedids_;
+
+  // some debug counters
+  vector<unsigned int> position_;
+  vector<unsigned int> landau_;
+  unsigned long nFeds_;
+  unsigned long nDets_;
+  unsigned long nDigis_;
 
 };
 
@@ -67,10 +76,10 @@ class SiStripDigiToRaw {
 
 // inline methods 
 
-inline void SiStripDigiToRaw::fedReadoutPath(std::string rpath) { 
-  readoutPath = rpath;
+inline void SiStripDigiToRaw::fedReadoutPath( std::string rpath ) { 
+  readoutPath_ = rpath;
 }
 
-inline void SiStripDigiToRaw::fedReadoutMode(std::string rmode) { 
-  readoutMode = rmode;
+inline void SiStripDigiToRaw::fedReadoutMode( std::string rmode ) { 
+  readoutMode_ = rmode;
 }

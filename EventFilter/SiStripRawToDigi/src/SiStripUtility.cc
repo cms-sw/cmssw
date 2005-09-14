@@ -11,6 +11,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <vector>
+#include <algorithm>
 
 // -----------------------------------------------------------------------------
 // constructor
@@ -37,7 +38,6 @@ SiStripUtility::~SiStripUtility() {
   if (verbose_) std::cout << "[SiStripUtility~SiStripUtility] : destructing class..." << std::endl;
  }
 
-
 // -----------------------------------------------------------------------------
 //
 void SiStripUtility::siStripConnection( SiStripConnection& connections ) {
@@ -45,13 +45,16 @@ void SiStripUtility::siStripConnection( SiStripConnection& connections ) {
   // loop through detectors
   for ( int idet = 0; idet < nDets_; idet++ ) { 
     pair<unsigned short, unsigned short> fed; 
-    pair<cms::DetId,unsigned short> det; 
-    fed = pair<unsigned short, unsigned short>( (idet/48), 2*(idet%48) );
-    det = pair<cms::DetId,unsigned short>( idet, 0 );
-    connections.setPair( fed, det );
-    fed = pair<unsigned short, unsigned short>( (idet/48), 2*(idet%48)+1 );
-    det = pair<cms::DetId,unsigned short>( idet, 1 );
-    connections.setPair( fed, det );
+    pair<cms::DetId,unsigned short> det_pair; 
+    cms::DetId det = cms::DetId(idet);
+    // first channel
+    fed = pair<unsigned short, unsigned short>( 50+(idet/48), 2*(idet%48) );
+    det_pair = pair<cms::DetId,unsigned short>( det, 0 );
+    connections.setPair( fed, det_pair );
+    // second channel
+    fed = pair<unsigned short, unsigned short>( 50+(idet/48), 2*(idet%48)+1 );
+    det_pair = pair<cms::DetId,unsigned short>( det, 1 );
+    connections.setPair( fed, det_pair );
   }
 }
 
@@ -62,17 +65,23 @@ void SiStripUtility::stripDigiCollection( StripDigiCollection& collection ) {
   // loop through detectors
   for ( int idet = 0; idet < nDets_; idet++ ) { 
     int ndigi = rand() % 16; // number of hits per det (~3% occupancy)
-    std::vector<StripDigi> digis; // temp container
+    std::vector<int> strips; strips.reserve(ndigi);
+    std::vector<int>::iterator iter;
+    std::vector<StripDigi> digis; digis.reserve(ndigi);
     // loop through and create digis
     for ( int idigi = 0; idigi < ndigi; idigi++ ) { 
       int strip = rand() % 512; // strip position of hit
-      int value = rand() % 50; // adc value
-      digis.push_back( StripDigi(strip,value) ); 
+      int value = rand() % 99 + 1; // adc value
+      iter = find( strips.begin(), strips.end(), strip );
+      if ( iter == strips.end() ) { 
+	strips.push_back( strip ); 
+	digis.push_back( StripDigi(strip,value) ); 
+      }
     }
     // digi range
     StripDigiCollection::Range range = StripDigiCollection::Range( digis.begin(), digis.end() );
     // put digis in collection
-    collection.put(range, idet);
+    if ( !digis.empty() ) { collection.put(range, idet); }
   }
 }
 

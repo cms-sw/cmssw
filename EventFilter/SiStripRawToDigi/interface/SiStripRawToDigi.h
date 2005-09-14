@@ -2,7 +2,9 @@
 #define SiStripRawToDigi_H
 
 #include "CalibTracker/SiStripConnectivity/interface/SiStripConnection.h"
+//
 #include "DataFormats/SiStripDigi/interface/StripDigiCollection.h"
+#include "DataFormats/SiStripDigi/interface/StripDigi.h"
 //
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
@@ -11,21 +13,21 @@
 
 /**
    \class SiStripRawToDigi
-   \brief Takes a FEDRawDataCollection as input and creates a
-   StripDigiCollection.
+   \brief Input: FEDRawDataCollection. Output: StripDigiCollection.
    \author M.Wingham, R.Bainbridge
    \version 0.1
-   \date 09/08/05
+   \date 05/09/05
 
-   Takes a FEDRawDataCollection as input and creates a
-   StripDigiCollection.
+   Input: FEDRawDataCollection. 
+   Output: StripDigiCollection.
 */
 class SiStripRawToDigi {
   
  public: // ----- public interface -----
   
   /** */
-  SiStripRawToDigi( SiStripConnection& conns );
+  SiStripRawToDigi( SiStripConnection& conns,
+		    unsigned short verbosity = 0 );
   /** */
   ~SiStripRawToDigi();
   
@@ -43,21 +45,20 @@ class SiStripRawToDigi {
   
   /** private default constructor */
   SiStripRawToDigi() {;}
+
+  /** */
+  void zeroSuppr( unsigned short fed_id,
+		  StripDigiCollection& digis );
+  /** */
+  void scopeMode( unsigned short fed_id,
+		  StripDigiCollection& digis );
+  /** */
+  void virginRaw( unsigned short fed_id,
+		  StripDigiCollection& digis );
+  /** */
+  void procRaw( unsigned short fed_id, 
+		StripDigiCollection& digis );
   
-  /** */
-  inline Fed9U::Fed9UEvent* fed9UEvent();
-  /** */
-  inline Fed9U::Fed9UDescription* fed9UDescription();
-
-  /** */
-  void ZSMode(StripDigiCollection& digis, raw::FEDRawData& FEDBuffer, unsigned short fed_id);
-  /** */
-  void scopeMode(StripDigiCollection& digis, raw::FEDRawData& FEDBuffer, unsigned short fed_id);
-  /** */
-  void virginRaw(StripDigiCollection& digis, raw::FEDRawData& FEDBuffer, unsigned short fed_id);
-  /** */
-  void processedRaw(StripDigiCollection& digis, raw::FEDRawData& FEDBuffer, unsigned short fed_id);
-
   /** */
   inline int readoutOrder( int physical_order );
   /** */
@@ -66,8 +67,13 @@ class SiStripRawToDigi {
   /** */
   void extractHeaderInfo() {;} //@@ needs implementing!
   /** */
-  void debug();
-
+  void debug() {;}
+  
+  /** */
+  void dumpFedBuffer( unsigned short fed, 
+		      unsigned char* start, 
+		      unsigned long size );
+    
  private: // ----- private data members -----
   
   /** */
@@ -81,14 +87,16 @@ class SiStripRawToDigi {
   Fed9U::Fed9UEvent* fedEvent_;
 
   /** */
-  std::string readoutPath;
+  std::string readoutPath_;
   /** */
-  Fed9U::Fed9UDaqMode readoutMode;
+  std::string readoutMode_; // unsigned short readoutMode_;
 
-  // some debug 
-  vector<unsigned int> position;
-  vector<unsigned int> landau;
-  vector<unsigned short> fedids;
+  /** FED identifiers. */
+  vector<unsigned short> fedids_;
+
+  // some debug counters
+  vector<unsigned int> position_;
+  vector<unsigned int> landau_;
   unsigned long nFeds_;
   unsigned long nDets_;
   unsigned long nDigis_;
@@ -99,21 +107,13 @@ class SiStripRawToDigi {
 
 // inline methods
 
-inline Fed9U::Fed9UEvent* SiStripRawToDigi::fed9UEvent() {
-  return fedEvent_;
+inline void SiStripRawToDigi::fedReadoutPath( std::string rpath ) {
+  readoutPath_ = rpath;
 }
 
-inline Fed9U::Fed9UDescription* SiStripRawToDigi::fed9UDescription() {
-  return description_;
-}
-
-inline void SiStripRawToDigi::fedReadoutPath(std::string rpath) {
-  readoutPath = rpath;
-}
-
-inline void SiStripRawToDigi::fedReadoutMode(std::string rmode) {
-  /* does nothing presently */
-}
+inline void SiStripRawToDigi::fedReadoutMode( std::string rmode ) { 
+  readoutMode_ = rmode;
+} 
 
 inline int SiStripRawToDigi::readoutOrder( int physical_order ) {
   return ( 4*((static_cast<int>((static_cast<float>(physical_order)/8.0)))%4) + 
