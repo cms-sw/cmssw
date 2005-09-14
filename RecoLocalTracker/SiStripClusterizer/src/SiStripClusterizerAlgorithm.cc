@@ -76,7 +76,10 @@ void SiStripClusterizerAlgorithm::run(const StripDigiCollection* input, SiStripC
 	number_localstriprechits += collector.size();
       }
     }
-    cout << "[SiStripClusterizerAlgorithm] execution in mode " << clusterMode_ << " generating " << number_localstriprechits << " SiStripClusters in " << number_detunits << " DetUnits." << endl; 
+
+    if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 0 ) {
+      cout << "[SiStripClusterizerAlgorithm] execution in mode " << clusterMode_ << " generating " << number_localstriprechits << " SiStripClusters in " << number_detunits << " DetUnits." << endl; 
+    }
   }
   
 
