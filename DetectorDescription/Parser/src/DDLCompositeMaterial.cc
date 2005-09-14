@@ -44,7 +44,7 @@ DDLCompositeMaterial::~DDLCompositeMaterial()
 
 // to initialize the CompositeMaterial, clear all rMaterials in case some other 
 // rMaterial was used for some other element.
-void DDLCompositeMaterial::preProcessElement (const string& type, const string& nmspace)
+void DDLCompositeMaterial::preProcessElement (const std::string& type, const std::string& nmspace)
 {
   // fyi: no need to clear MaterialFraction because it is cleared at the end of each
   // CompositeMaterial
@@ -61,7 +61,7 @@ void DDLCompositeMaterial::preProcessElement (const string& type, const string& 
 // processElement (i.e. removed from this class entirely).
 // if it is not deemed necessary to see all the details of 
 // the components after the CompositeMaterial is built.
-void DDLCompositeMaterial::processElement (const string& type, const string& nmspace)
+void DDLCompositeMaterial::processElement (const std::string& type, const std::string& nmspace)
 {
   DCOUT_V('P', "DDLCompositeMaterial::processElement started");
 
@@ -75,7 +75,7 @@ void DDLCompositeMaterial::processElement (const string& type, const string& nms
   try {
     mat = DDMaterial(ddn, ev.eval(nmspace, atts.find("density")->second));
   } catch (DDException& e) {
-    string msg = e.what();
+    std::string msg = e.what();
     msg += "\nDDLCompositeMaterial failed to create a DDMaterial.\n";
     throwError(msg);
   }
@@ -99,7 +99,7 @@ void DDLCompositeMaterial::processElement (const string& type, const string& nms
 
   if (myMF->size() != myrMaterial->size())
     {
-      string msg = "/nDDLCompositeMaterial::processElement found that the ";
+      std::string msg = "/nDDLCompositeMaterial::processElement found that the ";
       msg += "number of MaterialFractions does not match the number ";
       msg += "of rMaterial names.";
       throwError(msg);
@@ -112,11 +112,11 @@ void DDLCompositeMaterial::processElement (const string& type, const string& nms
 			, ev.eval(nmspace, atts.find("fraction")->second));
       }
   } catch (DDException & e) {
-    string msg = e.what();
+    std::string msg = e.what();
     msg += "\nDDLCompositeMaterial failed to add one or more MaterialFractions.";
     throwError(msg);
   } catch ( ... ) {
-    string msg = "\nDDLCompositeMaterial UNKNOWN failure when trying to add one or more MaterialFractions.";
+    std::string msg = "\nDDLCompositeMaterial UNKNOWN failure when trying to add one or more MaterialFractions.";
     throwError(msg);
   }
 

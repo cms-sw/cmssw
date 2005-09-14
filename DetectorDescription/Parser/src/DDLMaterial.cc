@@ -41,7 +41,7 @@ DDLMaterial::~DDLMaterial()
 }
 
 // Upon ending a Box element, call DDCore giving the box name, and dimensions.
-void DDLMaterial::setReference (const string& nmspace)
+void DDLMaterial::setReference (const std::string& nmspace)
 {
   // in case it there were any rMaterials
   DDLElementRegistry::getElement("rMaterial")->clear();
@@ -50,8 +50,8 @@ void DDLMaterial::setReference (const string& nmspace)
   if (DDLElementRegistry::getElement("LogicalPart")->size() > 0)
     {
       DDXMLElement* refmat = DDLElementRegistry::getElement("rMaterial");
-      vector<string> names;
-      vector<string> values;
+      std::vector<std::string> names;
+      std::vector<std::string> values;
       names.push_back("name");
       DDXMLAttribute atts = getAttributeSet();
       values.push_back(atts.find("name")->second);

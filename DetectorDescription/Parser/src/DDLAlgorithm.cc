@@ -48,13 +48,13 @@ DDLAlgorithm::~DDLAlgorithm()
 {
 }
 
-void DDLAlgorithm::preProcessElement (const string& name, const string& nmspace)
+void DDLAlgorithm::preProcessElement (const std::string& name, const std::string& nmspace)
 {
   DDLElementRegistry::getElement("Vector")->clear();
 }
 
 
-void DDLAlgorithm::processElement (const string& name, const string& nmspace)
+void DDLAlgorithm::processElement (const std::string& name, const std::string& nmspace)
 {
   DCOUT_V('P',"DDLAlgorithm::processElement started");
 
@@ -93,7 +93,7 @@ void DDLAlgorithm::processElement (const string& name, const string& nmspace)
     handler.execute();
   }
   catch (const DDException & e) {
-    string msg = e.what();
+    std::string msg = e.what();
     msg += "\nDDLParser (DDLAlgorithm) caught DDException.";
     msg += "\nReference: <" + name + " name=\"" + (atts.find("name")->second);
     msg += "\">";
@@ -101,7 +101,7 @@ void DDLAlgorithm::processElement (const string& name, const string& nmspace)
     throwError(msg);  
   }
   catch ( ... ) {
-    string msg("DDLParser (DDLAlgorithm) failed with unknown error.");
+    std::string msg("DDLParser (DDLAlgorithm) failed with unknown error.");
     msg+= "Reference: <" + name + " name=\"" + atts.find("name")->second;
     msg+= "\" nEntries=\"" + atts.find("nEntries")->second + "\">";
     msg+= " in namespace " + nmspace + "\n";

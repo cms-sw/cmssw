@@ -1,11 +1,11 @@
-//namespace std { } using namespace std;
+//
 //#include "Utilities/Configuration/interface/Architecture.h"
 #include "PluginManager/PluginManager.h"
 #include "DetectorDescription/Algorithm/interface/DDAlgorithmHandler.h"
 #include "DetectorDescription/Algorithm/interface/DDAlgorithmFactory.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
 
-namespace std { } using namespace std;
+
 
 DDAlgorithmHandler::DDAlgorithmHandler()
 : algo_(0)
@@ -21,16 +21,16 @@ void DDAlgorithmHandler::initialize(const std::string & algoName,
 		  const DDStringArguments & sArgs,
 		  const DDStringVectorArguments & svArgs) throw (DDException)
 {
-  pair<string,string> algoNmNs = DDSplit(algoName);
+  std::pair<std::string,std::string> algoNmNs = DDSplit(algoName);
   algoname_ = algoName;
   try {
     seal::PluginManager::get()->initialise();
   }
   catch(...) {
-    cout << "FATAL!!! Could not initialize the PluginManager!!!" << endl;
+    std::cout << "FATAL!!! Could not initialize the PluginManager!!!" << std::endl;
   }
   algo_ = DDAlgorithmFactory::get()->create(algoNmNs.first);
-  cout << "ALGO: name=" << algoNmNs.first << " algo=" << algo_ << endl;
+  std::cout << "ALGO: name=" << algoNmNs.first << " algo=" << algo_ << std::endl;
   if (!algo_) {
     algo_ = DDAlgorithmFactory::get()->create(algoname_);
   }
@@ -43,12 +43,12 @@ void DDAlgorithmHandler::initialize(const std::string & algoName,
       throw;
     }
     catch(...) {
-      string message("initialization of algorithm name=\"" + algoName + "\" failed");
+      std::string message("initialization of algorithm name=\"" + algoName + "\" failed");
       throw DDException(message);
     }
   }
   else {
-    string message("no algorithm with name=\"" + algoName + "\" found.");
+    std::string message("no algorithm with name=\"" + algoName + "\" found.");
     throw DDException(message);
   }
 }
@@ -62,7 +62,7 @@ void DDAlgorithmHandler::execute() throw (DDException)
     throw;
   }
   catch(...) {
-    string message("execution of algorithm name=\"" + algoname_ + "\" failed!");
+    std::string message("execution of algorithm name=\"" + algoname_ + "\" failed!");
     throw DDException(message);
   }
 }

@@ -16,9 +16,9 @@
 #include <iostream>
 #include <vector>
 #include <string>
-using std::string;
-using std::vector;
-using std::ostream;
+
+;
+;
 #include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 /**
 
@@ -39,7 +39,7 @@ using std::ostream;
 class global_angular_0 : public AlgoImpl
 {
 public:
-  global_angular_0(AlgoPos*,string label);
+  global_angular_0(AlgoPos*,std::string label);
   ~global_angular_0();
   
   bool checkParameters();
@@ -51,10 +51,10 @@ public:
   int copyno() const;
   void checkTermination();
 // no XML counterpart, but usefull.
-  void stream(ostream  &) const;
+  void stream(std::ostream  &) const;
   
   // parameters according to XML-attribute 'name' in <Parameter> tags 
-  vector<double> rotate_, center_, rotateSolid_;
+  std::vector<double> rotate_, center_, rotateSolid_;
   bool alignSolid_;
   int n_,startCopyNo_,incrCopyNo_;
   double startAngle_, rangeAngle_, radius_;

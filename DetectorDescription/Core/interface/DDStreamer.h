@@ -86,7 +86,7 @@ public:
   //! set the istream for DDStreamer::read()
   void setInput(std::istream & i) { i_ = &i; }
   
-  //! set the ostream for DDStreamer::write()
+  //! set the std::ostream for DDStreamer::write()
   void setOutput(std::ostream & o) { o_ = &o; }
   
 protected:  
@@ -140,7 +140,7 @@ protected:
 
 private:  
   const DDCompactView * cpv_;/**< not used */
-  std::ostream * o_; /**< ostream target for writing DDD objects */
+  std::ostream * o_; /**< std::ostream target for writing DDD objects */
   std::istream * i_; /**< istream target for reading DDD objects */
 };
 #endif

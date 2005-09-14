@@ -36,7 +36,7 @@ class DDLRotationAndReflection : public DDXMLElement
   ~DDLRotationAndReflection();
 
   /// returns 1 = left handed rotation matrix, 0 = right-handed, -1 = not orthonormal.
-  int isLeftHanded(Hep3Vector x, Hep3Vector y, Hep3Vector z, const string & nmspace);
+  int isLeftHanded(Hep3Vector x, Hep3Vector y, Hep3Vector z, const std::string & nmspace);
 
   void processElement (const std::string& name, const std::string& nmspace);
 

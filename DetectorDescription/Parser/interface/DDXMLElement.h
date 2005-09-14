@@ -35,12 +35,12 @@
  *  It is designed to accumulate this information unless cleared.  In other
  *  words, it accumulates sets of attributes, and allows the appending of
  *  text indefinitely, as opposed to, say, creating another class which
- *  is designed to hold a vector of single element information. This is 
+ *  is designed to hold a std::vector of single element information. This is 
  *  contrary to the way that XML normally defines an element, but for
  *  DDL, this works fine.
  *
  *  One of the things that one needs to build in to each subclass is when
- *  an element needs to be cleared.  For some, emptying the vectors should
+ *  an element needs to be cleared.  For some, emptying the std::vectors should
  *  happen at the end (of the processElement method).  For some, clearing
  *  is ONLY done by the parent.  For example, SpecPar and its child PartSelector.
  *  or Polyhedra and its child ZSection.  In some cases elements can be in one
@@ -75,7 +75,7 @@ class DDXMLElement
   /**
    * The loadAttributes method loads the attributes of the element into a
    * std::map<std::string, std::string> which is used to store Name-Value pairs.  It takes
-   * as input two std::vectors of std::strings containing "synchronized" names and
+   * as input two std::vectors of strings containing "synchronized" names and
    * values.
    * 
    * In the SAX2 based calling process, this is done on a startElement event.
@@ -90,8 +90,8 @@ class DDXMLElement
   /**
    *
    * At the current time this is done simply as a way for the user of this
-   * class to accumulate text and/or comments as vector of strings, each one
-   * matching the vector of attributes.  Therefore loadText starts a new 
+   * class to accumulate text and/or comments as std::vector of strings, each one
+   * matching the std::vector of attributes.  Therefore loadText starts a new 
    * text storage.
    *
    */
@@ -115,7 +115,7 @@ class DDXMLElement
   /// Get a "row" of attributes, i.e. one attribute set
   virtual const DDXMLAttribute& getAttributeSet(size_t aIndex = 0) const;
 
-  const virtual DDName getDDName(const std::string& defaultNS, const std::string& attname = string("name"), size_t aIndex = 0);
+  const virtual DDName getDDName(const std::string& defaultNS, const std::string& attname = std::string("name"), size_t aIndex = 0);
 
   /// Gets the value of the name part of an attribute of the form ns:name.
   const virtual std::string getName(const std::string& attname, size_t aIndex = 0);
@@ -126,7 +126,7 @@ class DDXMLElement
   /// Returns a specific value from the aIndex set of attributes.
   virtual const std::string & get(const std::string& name, size_t aIndex = 0) const;
 
-  /// Returns a set of values as a std::vector of std::strings, given the attribute name.
+  /// Returns a set of values as a std::vector of strings, given the attribute name.
   virtual std::vector<std::string> getVectorAttribute(const std::string& name);
 
   /// Number of elements accumulated.
@@ -162,16 +162,16 @@ class DDXMLElement
   virtual void preProcessElement (const std::string& name, const std::string& nmspace);
 
   /// Allow for the elements to have their own streaming method, but also provide a default.
-  virtual void stream(ostream & os) const;
+  virtual void stream(std::ostream & os) const;
 
   /// Allow the elements of this type to be iterated over using ++ operator.
-  vector<DDXMLAttribute>::const_iterator& operator++(int inc);
+  std::vector<DDXMLAttribute>::const_iterator& operator++(int inc);
 
   /// Have any elements of this type been encountered but not processed?
   virtual bool isEmpty() const;
 
-  /// format string for throw an error.
-  void throwError(const string& keyMessage, DDException* e = 0) const;
+  /// format std::string for throw an error.
+  void throwError(const std::string& keyMessage, DDException* e = 0) const;
 
   // protected:
   /// WARNING: abused by other classes in this system: yet another conversion from int to std::string...
@@ -181,7 +181,7 @@ class DDXMLElement
   /// behind the scenes appending to pAttributes...
   void appendAttributes(std::vector<std::string> & tv, const std::string& name);
 
-  std::vector<DDXMLAttribute> attributes_; // vector of name-value map (i.e. multiple elements of the same type.
+  std::vector<DDXMLAttribute> attributes_; // std::vector of name-value std::map (i.e. multiple elements of the same type.
   std::vector<std::string> text_; // accumulates text.. one per element of this type.
   AttrAccumType attributeAccumulator_;  // temporary holder for most recent accessed attributes_... remove later!
   bool autoClear_;

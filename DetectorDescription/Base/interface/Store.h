@@ -5,7 +5,7 @@
 #include <iostream>
 #include "rep_type.h"
 
-//using std::pair;
+//;
 //FIXME: Store : implement readOnly-behaviour ..
 namespace DDI {
 
@@ -14,23 +14,21 @@ namespace DDI {
    by there name of type N. The objects themselves can be accessed indirectly
    by the prep_type of the Store like
    
-   namespace std{} namespace std{} using namespace DDI;
-   namespace std{} namespace std{} using namespace std;
-   typedef Store<string,double> NamedDouble;
+   typedef Store<std::string,double> NamedDouble;
    NamedDouble::prep_type d = NamedDouble("Four", new double(4.));
    double val  = *(d->second);
-   string name = d->first;
+   std::string name = d->first;
 
    K is the key_type which is used as an index in the storage.
    It must fulfill all requirements for a key in a sorted associative container.
-   N is the user-friendly name_type, which must be mapped uniquely
+   N is the user-fristd::endly name_type, which must be std::mapped uniquely
    to the key_type and vice versa. N itself must also fulfill all requirements
    of a key in a sorted associative container.
    The reason to provide K is that one might save some memory by compacting
    common parts of information contained in different instances of N, e.g.
-   if N is a pair<string,string>, the first string being a 'namespace' the 
-   second a 'name' then K could be a pair<int,string> thus compacting the
-   namespace-string to a simple int.
+   if N is a pair<std::string,std::string>, the first std::string being a 'namespace' the 
+   second a 'name' then K could be a pair<int,std::string> thus compacting the
+   namespace-std::string to a simple int.
    K and N must support following unique conversions:
    - from N to K, thus N(const K &)
    - from K to N, thus K(const N &)
@@ -120,7 +118,7 @@ Store<N,I,K>::clear()
  {
    prep_type tmp = 0;
    std::pair<typename registry_type::iterator,bool> result 
-     = reg_.insert(make_pair(n,tmp));
+     = reg_.insert(std::make_pair(n,tmp));
    if (result.second) {
      result.first->second = new Rep_type(n,(I)0);
    }
@@ -135,7 +133,7 @@ Store<N,I,K>::clear()
  {					  
    prep_type tmp = 0;
      std::pair<typename registry_type::iterator,bool> result 
-       = reg_.insert(make_pair(n,tmp));
+       = reg_.insert(std::make_pair(n,tmp));
      if (!result.second) {
        delete result.first->second->second;
        result.first->second->second = p;

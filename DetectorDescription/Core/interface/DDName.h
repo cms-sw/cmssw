@@ -15,7 +15,7 @@ class DDStreamer;
 //! DDName is used to identify DDD entities uniquely.
 /** A DDName consists of a \a name and a \a namespace. Both are represented as std::string.
 */
-class DDName // : public std::pair<string,string>
+class DDName // : public std::pair<std::string,std::string>
 {
   friend class DStreamer; // intrusive!
   

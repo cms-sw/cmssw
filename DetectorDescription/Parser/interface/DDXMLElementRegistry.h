@@ -52,7 +52,7 @@ class DDXMLElementRegistry
   /// Get the name given a pointer.  This may not be needed...
   std::string getElementName(DDXMLElement* theElement);
 
-  void stream(ostream & os) const;
+  void stream(std::ostream & os) const;
 
  protected:
  

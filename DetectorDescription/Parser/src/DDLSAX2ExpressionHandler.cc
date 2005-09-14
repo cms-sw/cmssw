@@ -65,22 +65,22 @@ void DDLSAX2ExpressionHandler::startElement(const XMLCh* const uri
   attrCount_ += attrs.getLength();
 
   char * tmpc = XMLString::transcode(qname);
-  pElementName = string(tmpc);
+  pElementName = std::string(tmpc);
   delete[] tmpc; tmpc=0;
 
   if (pElementName == "Constant") // && pInConstantsSection)
     {
       ++elementTypeCounter_[pElementName];
-      DCOUT_V('P', string("DDLSAX2ExpressionHandler: start ") + pElementName);
+      DCOUT_V('P', std::string("DDLSAX2ExpressionHandler: start ") + pElementName);
       unsigned int numAtts = attrs.getLength();
-      string varName, varValue;
+      std::string varName, varValue;
       for (unsigned int i = 0; i < numAtts; i++)
 	{
-	  string myattname = string(XMLString::transcode(attrs.getLocalName(i)));
-	  string myvalue = string(XMLString::transcode(attrs.getValue(i)));
+	  std::string myattname = std::string(XMLString::transcode(attrs.getLocalName(i)));
+	  std::string myvalue = std::string(XMLString::transcode(attrs.getValue(i)));
 
-	  string myQName = string(XMLString::transcode(attrs.getQName(i)));
-	  DCOUT_V('P', string("DDLSAX2ExpressionHandler: ") + "getLocalName = " + myattname + "  getValue = " +  myvalue + "   getQName = " + myQName);
+	  std::string myQName = std::string(XMLString::transcode(attrs.getQName(i)));
+	  DCOUT_V('P', std::string("DDLSAX2ExpressionHandler: ") + "getLocalName = " + myattname + "  getValue = " +  myvalue + "   getQName = " + myQName);
 
 	  // attributes unit and quantity are not used right now.
 	  if (myattname == "name")
@@ -89,7 +89,7 @@ void DDLSAX2ExpressionHandler::startElement(const XMLCh* const uri
 	    varValue = myvalue;
 	}
       DDLParser* beingParsed = DDLParser::instance();
-      string nmspace = getnmspace(extractFileName( beingParsed->getCurrFileName()));
+      std::string nmspace = getnmspace(extractFileName( beingParsed->getCurrFileName()));
       ExprEvalInterface & ev = ExprEvalSingleton::instance();
       ev.set(nmspace, varName, varValue);
     }

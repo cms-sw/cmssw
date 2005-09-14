@@ -9,7 +9,7 @@
 #include <string>
 #include <vector>
 
-namespace std{} using namespace std;
+
 
 /** @class DDLPseudoTrap
  * @author Michael Case

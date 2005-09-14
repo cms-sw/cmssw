@@ -5,8 +5,8 @@
 #include <map>
 #include "DetectorDescription/Base/interface/DDAlgoPar.h"
 
-using std::map;
-using std::string;
+;
+
 
 //! base class for generated checking code for algorithm parameters. 
 class AlgoCheck
@@ -53,23 +53,23 @@ public:
   };
   
   //! returns true if the check was successfull (parameters conform to XML specification)
-  bool check(parS_type & ps, parE_type & pe, string & err);
+  bool check(parS_type & ps, parE_type & pe, std::string & err);
   
-  typedef std::map<string,ConstraintE> constraintsE_type;
-  typedef std::map<string,ConstraintS> constraintsS_type;
+  typedef std::map<std::string,ConstraintE> constraintsE_type;
+  typedef std::map<std::string,ConstraintS> constraintsS_type;
 
 protected:
   bool checkBounds(parE_type::iterator pit, // current parameter to be checked
                             constraintsE_type::iterator cit, // corresponding constraints
-			    std::string & err // error string
+			    std::string & err // error std::string
 			    );
   bool checkStrings(parS_type::iterator sit, // current parameter to be checked
 		 constraintsS_type::iterator cit, // corresponding constraints
-		 string & err // error string
+		 std::string & err // error std::string
 		 );
 
-  //! ahh, converts a double into a string ... yet another one of this kind!
-  static string d2s(double x);
+  //! ahh, converts a double into a std::string ... yet another one of this kind!
+  static std::string d2s(double x);
   
   //! format: "ParameterName" -> ConstraintE
   constraintsE_type constraintsE_;  

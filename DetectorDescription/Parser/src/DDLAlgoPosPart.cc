@@ -47,7 +47,7 @@ DDLAlgoPosPart::~DDLAlgoPosPart()
 // Upon encountering the end tag of the AlgoPosPart we should have in the meantime
 // hit two rLogicalPart calls and one of Rotation or rRotation and a Translation.
 // So, retrieve them and make the call to DDCore.
-void DDLAlgoPosPart::processElement (const string& type, const string& nmspace)
+void DDLAlgoPosPart::processElement (const std::string& type, const std::string& nmspace)
 {
   DCOUT_V('P', "DDLAlgoPosPart::processElement started");
   
@@ -76,10 +76,10 @@ void DDLAlgoPosPart::processElement (const string& type, const string& nmspace)
   DDAlgo algo( getDDName(nmspace, "algo" ));
   if (!(algo.isDefined().second)) 
     {
-      string  msg = string("\n\tDDLParser, algo requested is not defined.  Either AlgoInit() or check algo spelling.\n ")
-	+ "\n\t\talgo=" + string(getDDName(nmspace, "algo" ))
-	+ "\n\t\tparent=" + string(myParent->getDDName(nmspace))
-	+ "\n\t\tself=" + string(myChild->getDDName(nmspace));
+      std::string  msg = std::string("\n\tDDLParser, algo requested is not defined.  Either AlgoInit() or check algo spelling.\n ")
+	+ "\n\t\talgo=" + std::string(getDDName(nmspace, "algo" ))
+	+ "\n\t\tparent=" + std::string(myParent->getDDName(nmspace))
+	+ "\n\t\tself=" + std::string(myChild->getDDName(nmspace));
       throwError(msg);
     }
 
@@ -93,14 +93,14 @@ void DDLAlgoPosPart::processElement (const string& type, const string& nmspace)
       // find vname in ParE.
       parE_type::iterator existingName=parE.find(atts.find("name")->second);
       
-      // if found, get vector, then add this value to it.
+      // if found, get std::vector, then add this value to it.
       // if not found, add this var, then add a value to it.
       if (existingName != parE.end())
 	existingName->second.push_back(ev.eval(nmspace,atts.find("value")->second));
       //	tvect = existingName->second;
       else
 	{
-	  vector<double> tvect;
+	  std::vector<double> tvect;
 	  tvect.push_back(ev.eval(nmspace,atts.find("value")->second));
 	  parE[atts.find("name")->second] = tvect;
 	}
@@ -116,14 +116,14 @@ void DDLAlgoPosPart::processElement (const string& type, const string& nmspace)
       // find vname in ParS.
       parS_type::iterator existingName=parS.find(atts.find("name")->second);
       
-      // if found, get vector, then add this value to it.
+      // if found, get std::vector, then add this value to it.
       // if not found, add this var, then add a value to it.
 
       if (existingName != parS.end())
 	existingName->second.push_back(atts.find("value")->second);
       else
 	{
-	  vector<string> tvect;
+	  std::vector<std::string> tvect;
 	  tvect.push_back(atts.find("value")->second);
 	  parS[atts.find("name")->second] = tvect;
 	}
@@ -134,16 +134,16 @@ void DDLAlgoPosPart::processElement (const string& type, const string& nmspace)
   }
   catch (DDException& e)
     {
-      string msg(e.what());
-      msg += string("\n\tDDLParser, algo.setParameters failed ")
-	+ "\n\t\talgo=" +  string(getDDName(nmspace, "algo" ))
-	+ "\n\t\tparent=" + string(myParent->getDDName(nmspace))
-	+ "\n\t\tself=" + string(myChild->getDDName(nmspace));
+      std::string msg(e.what());
+      msg += std::string("\n\tDDLParser, algo.setParameters failed ")
+	+ "\n\t\talgo=" +  std::string(getDDName(nmspace, "algo" ))
+	+ "\n\t\tparent=" + std::string(myParent->getDDName(nmspace))
+	+ "\n\t\tself=" + std::string(myChild->getDDName(nmspace));
       throwError(msg);
 
     }
   catch (...) {
-    string msg = "Unknown error (...) caught in DDLAlgoPosPart.";
+    std::string msg = "Unknown error (...) caught in DDLAlgoPosPart.";
     throwError(msg);
   }
 
@@ -153,15 +153,15 @@ void DDLAlgoPosPart::processElement (const string& type, const string& nmspace)
     }
   catch (DDException& e)
     {
-      string msg(e.what());
-      msg += string("\n\tDDLParser, DDalgoPosPart failed")
-	+ "\n\t\talgo=" + string(getDDName(nmspace, "algo"))
-	+ "\n\t\tparent=" + string(myParent->getDDName(nmspace))
-	+ "\n\t\tself=" + string(myChild->getDDName(nmspace));
+      std::string msg(e.what());
+      msg += std::string("\n\tDDLParser, DDalgoPosPart failed")
+	+ "\n\t\talgo=" + std::string(getDDName(nmspace, "algo"))
+	+ "\n\t\tparent=" + std::string(myParent->getDDName(nmspace))
+	+ "\n\t\tself=" + std::string(myChild->getDDName(nmspace));
       throwError(msg);
     }
   catch (...) {
-    cout << "something really bad happened in DDalgoPosPart call." << endl;
+    std::cout << "something really bad happened in DDalgoPosPart call." << std::endl;
   }
 
   // clear all "children" and attributes

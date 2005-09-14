@@ -15,7 +15,7 @@ public:
   typedef typename RegistryMap::const_iterator const_iterator;
   typedef typename RegistryMap::value_type value_type;
   typedef typename RegistryMap::key_type key_type;
-  typedef typename RegistryMap::mapped_type mapped_type;
+  typedef typename RegistryMap::std::mapped_type std::mapped_type;
 */  
 private:
   //RegMap reg_;  	

@@ -5,8 +5,8 @@
 #include <vector>
 #include <map>
 #include <iostream>
-using std::cout;
-using std::endl;
+
+;
 
 // Adjecencylist graph
 
@@ -52,7 +52,7 @@ public:
 
     void operator++() {
       while(vt_.gr_.size() > vt_.a_){
-       // cout << "                   it++: ait=" << vt_.a_ << "  eit=" << vt_.e_ << endl;      
+       // std::cout << "                   it++: ait=" << vt_.a_ << "  eit=" << vt_.e_ << std::endl;      
         index_type i = vt_.gr_.adjl_[vt_.a_].size();
         if (i > vt_.e_+1) {
   	   ++vt_.e_;
@@ -117,7 +117,7 @@ public:
   typedef std::vector<N> node_list;
   typedef std::vector<E> edge_store;
   
-  // (vector of edge_types for the adj_list)
+  // (std::vector of edge_types for the adj_list)
   typedef std::vector<edge_type> edge_list;
 
   // (node-index -> edge_list) the adjacency-list
@@ -213,10 +213,10 @@ private:
   // adjacency list
   adj_list adjl_;
   
-  // mapping of index to node
+  // std::mapping of index to node
   node_list nodes_;
   
-  // mapping of indes to edge
+  // std::mapping of indes to edge
   edge_store edges_;
   
   // indexer for N and E
@@ -382,17 +382,17 @@ bool graph<N,E>::replaceEdge(const E & oldEdge, const E & newEdge)
   typename edge_store::size_type it = 0;
   typename edge_store::size_type ed = edges_.size();
   bool result = false;
-  //cout << "newedge=" << newEdge << endl;
+  //std::cout << "newedge=" << newEdge << std::endl;
   for (; it < ed; ++it) {
-    //cout << "edge=" << edges_[it] << " ";
+    //std::cout << "edge=" << edges_[it] << " ";
     if ( edges_[it] == oldEdge ) {
-      //cout << "FOUND!" << endl;
+      //std::cout << "FOUND!" << std::endl;
       result = true;
       edges_[it] = newEdge;
       break;
     }
   }
-  //cout << endl;
+  //std::cout << std::endl;
   return result;
 }
 
@@ -408,12 +408,12 @@ void graph<N,E>::clear()
 template<class N, class E>
 void graph<N,E>::dump_graph() const
 {
-  cout << adjl_ << endl;
+  std::cout << adjl_ << std::endl;
 /*
-   cout << "Nodes and their indices:" << endl;
+   std::cout << "Nodes and their indices:" << std::endl;
    typename indexer_type::const_iterator it = indexer_.begin();
    for (; it != indexer_.end(); ++it) {
-      cout << ' ' << it->first << ' ' << it->second << endl;
+      std::cout << ' ' << it->first << ' ' << it->second << std::endl;
    }
 */   
 }
@@ -447,7 +447,7 @@ template<typename T> std::ostream & operator<<(std::ostream & o, const std::vect
   for (; it != ed; ++it) {
     typename i_t::const_iterator iit(it->begin()), ied(it->end());
     for(; iit != ied; ++iit) {
-      o << iit->first << ':' << iit->second << endl;
+      o << iit->first << ':' << iit->second << std::endl;
     }
   }
   return o;

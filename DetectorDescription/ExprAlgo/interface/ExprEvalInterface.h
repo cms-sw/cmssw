@@ -14,26 +14,26 @@ public:
 
   //! put a new variable named 'namespace:name' into the dictionary of the evaluator
   virtual 
-  void set(const string & ns, //< current namespace
-           const string & name, //< name of variable inside current namespace
-           const string & valueExpr
+  void set(const std::string & ns, //< current namespace
+           const std::string & name, //< name of variable inside current namespace
+           const std::string & valueExpr
 	   ) = 0;
   
   //! evaluate an expression expr inside the local namespace
   virtual 
-  double eval(const string & ns, //< current namespace
-              const string & expr //< expression to be evaluated inside current namespace
+  double eval(const std::string & ns, //< current namespace
+              const std::string & expr //< expression to be evaluated inside current namespace
 	     ) = 0;
   
   //! check whether a variable is already defined or not
   virtual
-  bool isDefined(const string & ns, //< current namespace
-                 const string & name //< name of the variable inside current namespace
+  bool isDefined(const std::string & ns, //< current namespace
+                 const std::string & name //< name of the variable inside current namespace
 		 ) = 0;
 
   //! access to the dictionary (namespace,name)->value
   /** if not implemented in a sub-class it returns 0 and does nothing to result*/
-  //virtual size_t dictionary(vector<pair<string,string>,double> & result) const; 
+  //virtual size_t dictionary(std::vector<pair<std::string,std::string>,double> & result) const; 
   
   //! clear the dictionary of the evaluator
   virtual

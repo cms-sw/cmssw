@@ -8,7 +8,7 @@ ExprEvalInterface::~ExprEvalInterface()
 
 
 /*
-size_t dictionary(vector<pair<string,string>,double> & r) const 
+size_t dictionary(std::vector<std::pair<std::string,std::string>,double> & r) const 
 {
   return 0;
 }

@@ -15,7 +15,7 @@
 struct DDPosData
 {
   //! Creates a new relative position
-  /** \arg \c t relative translation vector
+  /** \arg \c t relative translation std::vector
       \arg \c r relative rotation matrix
       \arg \c c copy number
       
@@ -38,8 +38,8 @@ struct DDPosData
   const DDDivision & div() const { return *div_; }
   const DDDivision & division() const { return *div_; }
   
-  //const DDTranslation & trans_; /**< relative translation vector */
-  DDTranslation trans_; /**< relative translation vector */
+  //const DDTranslation & trans_; /**< relative translation std::vector */
+  DDTranslation trans_; /**< relative translation std::vector */
   
   DDRotation rot_; /**< relative rotation matrix */
   //FIXME: DDPosData: replication_ provide a design!

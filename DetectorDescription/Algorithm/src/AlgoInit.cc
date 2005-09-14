@@ -3,7 +3,7 @@
 // GENERATED FILE, DO NOT MODIFY
 ///////////////////////////////////////////////////////////////////////////
 
-namespace std{} namespace std{} using namespace std;
+
 #include "AlgoInit.h"
 #include "DetectorDescription/Core/interface/DDAlgo.h"
 #include "DetectorDescription/ExprAlgo/interface/AlgoPos.h"

@@ -15,9 +15,9 @@
  *  email: case@ucdhep.ucdavis.edu
  *
  *  The PolyGenerator element uses RZPoint elements.  The DDLRZPoint
- *  can return the r and z vectors with the points needed to form the
+ *  can return the r and z std::vectors with the points needed to form the
  *  polycone.  The RZPoint "accumulator" is also used by the Polyhedra
- *  and Polycone elements, and could be used anywhere a pair of vectors
+ *  and Polycone elements, and could be used anywhere a pair of std::vectors
  *  of r and z values are needed.
  *
  */

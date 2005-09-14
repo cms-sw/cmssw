@@ -12,8 +12,8 @@
 #include <cfloat>
 #include <string>
 #include <iostream>
-using std::string;
-using std::ostream;
+
+;
 #define MAX_DOUBLE DBL_MAX
 //#include <climits>
 
@@ -32,9 +32,9 @@ using std::ostream;
       number ... number of times to position within the range
       rotate ... boolean text, T or F, True or False, 1 or zero.  Use this
                  to indicate if the self logical part should be rotated.
-                 Since the DDD uses double or string, I'm using string.
+                 Since the DDD uses double or std::string, I'm using std::string.
                  default = "T"
-      orientation ... string: rotation matrix name to be used to orient the
+      orientation ... std::string: rotation matrix name to be used to orient the
                       part within the mother.  This is a DDLrRotation.
 
       The algorithm has (at least) two implementations.
@@ -57,7 +57,7 @@ using std::ostream;
 class global_simpleAngular_0 : public AlgoImpl
 {
 public:
-  global_simpleAngular_0(AlgoPos*,string label);
+  global_simpleAngular_0(AlgoPos*,std::string label);
   ~global_simpleAngular_0();
   
   bool checkParameters();
@@ -70,7 +70,7 @@ public:
 
   void checkTermination();
 // no XML counterpart, but usefull.
-  void stream(ostream  &) const;
+  void stream(std::ostream  &) const;
 
 };
 
@@ -78,7 +78,7 @@ public:
 class global_simpleAngular_1 : public AlgoImpl
 {
 public:
-  global_simpleAngular_1(AlgoPos*,string label);
+  global_simpleAngular_1(AlgoPos*,std::string label);
   ~global_simpleAngular_1();
   
   bool checkParameters();
@@ -91,7 +91,7 @@ public:
 
   void checkTermination();
 // no XML counterpart, but usefull.
-  void stream(ostream  &) const;
+  void stream(std::ostream  &) const;
 
 };
 
@@ -99,7 +99,7 @@ public:
 class global_simpleAngular_2 : public AlgoImpl
 {
 public:
-  global_simpleAngular_2(AlgoPos*,string label);
+  global_simpleAngular_2(AlgoPos*,std::string label);
   ~global_simpleAngular_2();
   
   bool checkParameters();
@@ -112,7 +112,7 @@ public:
 
   void checkTermination();
 // no XML counterpart, but usefull.
-  void stream(ostream  &) const;
+  void stream(std::ostream  &) const;
 
 };
 

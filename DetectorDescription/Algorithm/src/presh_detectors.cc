@@ -1,22 +1,20 @@
-namespace std {} using namespace std;
+#include "DetectorDescription/Algorithm/src/presh_detectors.h"
+
 #include <vector>
 #include <cmath>
+
 #include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDVector.h"
-
-#include "DetectorDescription/Algorithm/src/presh_detectors.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDConstant.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDPosPart.h"
 
-namespace std { } using namespace std;
-
-typedef vector<double> dbl_t;
+typedef std::vector<double> dbl_t;
 void preshPrepareTubs();
 //void preshDefineConstants();
 
-presh_detectors::presh_detectors(AlgoPos* p,string label) 
+presh_detectors::presh_detectors(AlgoPos* p,std::string label) 
  : AlgoImpl(p,label)
 { 
 }
@@ -98,7 +96,7 @@ void presh_detectors::topHalfXPlane()
    
 }
     
-void presh_detectors::stream(ostream & os) const
+void presh_detectors::stream(std::ostream & os) const
 {
   os << "algorithm to place wedges & silicon strip detectors of the ecal preshower";
 }
@@ -107,8 +105,8 @@ void presh_detectors::stream(ostream & os) const
 // The constants defined here should come from the XML ....
 void presh_detectors::defineConstants()
 {
-   vector<double> & gmx = *(new vector<double>(21,19));
-   vector<double> & gmn = *(new vector<double>(21,1));
+   std::vector<double> & gmx = *(new std::vector<double>(21,19));
+   std::vector<double> & gmn = *(new std::vector<double>(21,1));
    
    gmx[1] = 5;
    gmx[2] = 7;

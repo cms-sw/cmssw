@@ -27,7 +27,7 @@ std::ostream & operator<<(std::ostream & os, const DDVectorArguments & t)
   DDVectorArguments::const_iterator it(t.begin()), ed(t.end());
   for(; it != ed; ++it) {
     os << it->first << ": ";
-    vector<double>::const_iterator vit(it->second.begin()), ved(it->second.end());
+    std::vector<double>::const_iterator vit(it->second.begin()), ved(it->second.end());
     for(;vit!=ved;++vit) {
       os << *vit << ' ';
     }
@@ -41,7 +41,7 @@ std::ostream & operator<<(std::ostream & os, const DDMapArguments & t)
   DDMapArguments::const_iterator it(t.begin()), ed(t.end());
   for(; it != ed; ++it) {
     os << it->first << ": ";
-    map<string,double>::const_iterator mit(it->second.begin()), med(it->second.end());
+    map<std::string,double>::const_iterator mit(it->second.begin()), med(it->second.end());
     for(;mit!=med;++mit) {
       os << mit->first << '=' << mit->second << ' ';
     }
@@ -55,7 +55,7 @@ std::ostream & operator<<(std::ostream & os, const DDStringVectorArguments & t)
   DDStringVectorArguments::const_iterator it(t.begin()), ed(t.end());
   for(; it != ed; ++it) {
     os << it->first << ": ";
-    vector<string>::const_iterator vit(it->second.begin()), ved(it->second.end());
+    std::vector<std::string>::const_iterator vit(it->second.begin()), ved(it->second.end());
     for(; vit!=ved; ++vit) {
      os << *vit << ' '; 
     }

@@ -32,7 +32,7 @@ DDDividedGeometryObject::DDDividedGeometryObject( const DDDivision & div )
       else 
 	divisionType_ = DivWIDTH;
     } 
-  DCOUT_V('P', " DDDividedGeometryObject Divisions " << div_ << endl);
+  DCOUT_V('P', " DDDividedGeometryObject Divisions " << div_ << std::endl);
 }
 
 //--------------------------------------------------------------------------
@@ -53,7 +53,7 @@ int
 DDDividedGeometryObject::
 calculateNDiv( double motherDim, double width, double offset ) const
 {
-  DCOUT_V('P', " DDDividedGeometryObject::calculateNDiv: " << ( motherDim - offset ) / width << " Motherdim: " <<  motherDim << ", Offset: " << offset << ", Width: " << width << endl);
+  DCOUT_V('P', " DDDividedGeometryObject::calculateNDiv: " << ( motherDim - offset ) / width << " Motherdim: " <<  motherDim << ", Offset: " << offset << ", Width: " << width << std::endl);
   return int( ( motherDim - offset ) / width );
 }
 
@@ -62,7 +62,7 @@ double
 DDDividedGeometryObject::
 calculateWidth( double motherDim, int nDiv, double offset ) const
 { 
-  DCOUT_V('P', " DDDividedGeometryObject::calculateWidth: " << ( motherDim - offset ) / nDiv << ", Motherdim: " << motherDim << ", Offset: " << offset << ", Number of divisions: " << nDiv << endl);
+  DCOUT_V('P', " DDDividedGeometryObject::calculateWidth: " << ( motherDim - offset ) / nDiv << ", Motherdim: " << motherDim << ", Offset: " << offset << ", Number of divisions: " << nDiv << std::endl);
 
   return ( motherDim - offset ) / nDiv;
 }
@@ -74,7 +74,7 @@ void DDDividedGeometryObject::checkParametersValidity()
   checkOffset( maxPar );
   checkNDivAndWidth( maxPar );
   if (!div_.parent().isDefined().second) {
-    string s = "DDDividedGeometryObject::checkParametersValidity() :";
+    std::string s = "DDDividedGeometryObject::checkParametersValidity() :";
     s+= "\n ERROR - the LogicalPart of the parent must be ";
     s+= "\n         defined before a division can occur.";
     throw DDException(s);
@@ -88,7 +88,7 @@ void DDDividedGeometryObject::checkOffset( double maxPar )
   if( div_.offset() >= maxPar )
   {
     DCOUT_V('P', "DDDividedGeometryObject::checkOffset() Division of LogicalPart " << div_.parent() << " offset=" << div_.offset() << " maxPar=" << maxPar << "\n");
-    string s = "DDDividedGeometryObject::checkOffset() IllegalConstruct";
+    std::string s = "DDDividedGeometryObject::checkOffset() IllegalConstruct";
     s += "\nERROR - DDDividedGeometryObject::checkOffset()";
     s += "\n        failed.";
     s += "  Too big an offset.";
@@ -102,11 +102,11 @@ void DDDividedGeometryObject::checkNDivAndWidth( double maxPar )
   if( (divisionType_ == DivNDIVandWIDTH)
       && (div_.offset() + compWidth_*compNDiv_ - maxPar > tolerance() ) )
   {
-    string s = "ERROR - DDDividedGeometryObject::checkNDivAndWidth()";
+    std::string s = "ERROR - DDDividedGeometryObject::checkNDivAndWidth()";
     s+= "\n        Division of LogicalPart " + div_.parent();
     s+= " has too big an offset.";
     DCOUT_V('P', "DDDividedGeometryObject::checkNDivAndWidth has computed div_.offset() + compWidth_*compNDiv_ - maxPar =" << div_.offset() + compWidth_*compNDiv_ - maxPar << " and tolerance()=" << tolerance());
-    cout << compWidth_ << endl;
+    std::cout << compWidth_ << std::endl;
     throw DDException(s);
   }
 }
@@ -118,26 +118,26 @@ const double DDDividedGeometryObject::tolerance()
   return tol;
 }
 
-void DDDividedGeometryObject::setType( const string& s) 
+void DDDividedGeometryObject::setType( const std::string& s) 
 {
   ftype_ = s;
 }
 
-const string& DDDividedGeometryObject::getType() const
+const std::string& DDDividedGeometryObject::getType() const
 {
   return ftype_;
 }
 
 void DDDividedGeometryObject::execute()
 {
-  cout << "about to make " <<  compNDiv_ << " divisions." << endl;
+  std::cout << "about to make " <<  compNDiv_ << " divisions." << std::endl;
   for (int i = theVoluFirstCopyNo_; i < compNDiv_+theVoluFirstCopyNo_; i++)
     {
-      cout << "Parent Volume: " << div_.parent() << endl;
-      cout << "Child Volume: " << makeDDLogicalPart(i) << endl;
-      cout << "   copyNo:" << i << endl;
-      cout << "   Translation: " << makeDDTranslation(i) << endl;
-      cout << "   rotation=" << makeDDRotation(i) << endl;
+      std::cout << "Parent Volume: " << div_.parent() << std::endl;
+      std::cout << "Child Volume: " << makeDDLogicalPart(i) << std::endl;
+      std::cout << "   copyNo:" << i << std::endl;
+      std::cout << "   Translation: " << makeDDTranslation(i) << std::endl;
+      std::cout << "   rotation=" << makeDDRotation(i) << std::endl;
 
       DDpos( makeDDLogicalPart(i)
 	     , div_.parent()

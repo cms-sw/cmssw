@@ -40,12 +40,12 @@ DDLSAX2Handler::DDLSAX2Handler() :
   , spaceCount_(0)
   , sawErrors_(false)
 {
-  //  cout << " DDLSAX2Handler constructed " << endl;
+  //  std::cout << " DDLSAX2Handler constructed " << std::endl;
 }
 
 DDLSAX2Handler::~DDLSAX2Handler()
 {
-  //  cout << " DDLSAX2Handler destructed " << endl;
+  //  std::cout << " DDLSAX2Handler destructed " << std::endl;
 }
 
 // ---------------------------------------------------------------------------
@@ -94,15 +94,15 @@ void DDLSAX2Handler::resetDocument()
   spaceCount_ = 0;
 }
 
-void DDLSAX2Handler::dumpStats(const string& fname)
+void DDLSAX2Handler::dumpStats(const std::string& fname)
 {
 
-  cout << "DDLSAX2Handler::dumpStats, file: " 
+  std::cout << "DDLSAX2Handler::dumpStats, file: " 
        << fname << " ("
        << getElementCount() << " elems, "
        << getAttrCount() << " attrs, "
        << getSpaceCount() << " spaces, "
-       << getCharacterCount() << " chars)" << endl;
+       << getCharacterCount() << " chars)" << std::endl;
 
 }
 
@@ -112,39 +112,39 @@ void DDLSAX2Handler::dumpStats(const string& fname)
 void DDLSAX2Handler::error(const SAXParseException& e)
 {
   sawErrors_ = true;
-  cout << "\nError at file " << StrX(e.getSystemId())
+  std::cout << "\nError at file " << StrX(e.getSystemId())
        << ", line " << e.getLineNumber()
        << ", char " << e.getColumnNumber()
-       << "\n  Message: " << StrX(e.getMessage()) << endl;
+       << "\n  Message: " << StrX(e.getMessage()) << std::endl;
 }
 
 void DDLSAX2Handler::fatalError(const SAXParseException& e)
 {
   sawErrors_ = true;
-  cout << "\nFatal Error at file " << StrX(e.getSystemId())
+  std::cout << "\nFatal Error at file " << StrX(e.getSystemId())
        << ", line " << e.getLineNumber()
        << ", char " << e.getColumnNumber()
        << "\n  Message: " 
-    << StrX(e.getMessage()) << endl;
-//   cout << "Continue (1=yes,0=no)? ";
+    << StrX(e.getMessage()) << std::endl;
+//   std::cout << "Continue (1=yes,0=no)? ";
 //   int i;
 //   cin >> i;
 //  if (!i)
-    throw DDException(string("Unrecoverable Error: ") + string(StrX(e.getMessage()).localForm()));     
+    throw DDException(std::string("Unrecoverable Error: ") + std::string(StrX(e.getMessage()).localForm()));     
 }
 
 void DDLSAX2Handler::warning(const SAXParseException& e)
 {
-  cout << "\nWarning at file " << StrX(e.getSystemId())
+  std::cout << "\nWarning at file " << StrX(e.getSystemId())
        << ", line " << e.getLineNumber()
        << ", char " << e.getColumnNumber()
-       << "\n  Message: " << StrX(e.getMessage()) << endl;
+       << "\n  Message: " << StrX(e.getMessage()) << std::endl;
 }
 
-string DDLSAX2Handler::getnmspace(const string& fname)
+std::string DDLSAX2Handler::getnmspace(const std::string& fname)
 {
   size_t j = 0;
-  string ret="";
+  std::string ret="";
   while (j < fname.size() && fname[j] != '.')
     j++;
   if (j < fname.size() && fname[j] == '.')

@@ -10,9 +10,9 @@
 class DDMap;
 
 //! output operator for printing ...
-ostream & operator<<(ostream & o, const DDMap & cons);
+std::ostream & operator<<(std::ostream & o, const DDMap & cons);
 
-//! simply a map<string,double> supporting an addional operator[] const
+//! simply a std::map<std::string,double> supporting an addional operator[] const
 typedef ReadMapType<double> dd_map_type;
 
 //! a named constant corresponding to the DDL-XML tag <Constant> and <ConstantsVector>
@@ -62,7 +62,7 @@ public:
    //! read-only iterator poining one place after the stored values
    value_type::const_iterator mapEnd() const { return rep().end(); }
    
-   //! convert to a vector<double>
+   //! convert to a std::vector<double>
    //operator dd_map_type() const { return rep(); }
 };
 #endif // DD_DDMap_h

@@ -45,7 +45,7 @@ DDLTubs::~DDLTubs()
 }
 
 // Upon encountering the end of a Tubs element, call DDCore.
-void DDLTubs::processElement (const string& name, const string& nmspace)
+void DDLTubs::processElement (const std::string& name, const std::string& nmspace)
 {
   DCOUT_V('P', "DDLTubs::processElement started");
 
@@ -87,13 +87,13 @@ void DDLTubs::processElement (const string& name, const string& nmspace)
       }
     else
       {
-	string msg = "\nDDLTubs::processElement could not process element.";
+	std::string msg = "\nDDLTubs::processElement could not process element.";
 	throwError(msg);
       }
   } catch (DDException& e)
     {
-      string msg(e.what());
-      msg += string("\nDDLTubs call failed to DDSolidFactory.");
+      std::string msg(e.what());
+      msg += std::string("\nDDLTubs call failed to DDSolidFactory.");
       throwError(msg);
     }
   DDLSolid::setReference(nmspace);

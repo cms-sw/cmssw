@@ -37,16 +37,16 @@ DDLPolyGenerator::~DDLPolyGenerator()
 {
 }
 
-void DDLPolyGenerator::preProcessElement (const string& name, const string& nmspace)
+void DDLPolyGenerator::preProcessElement (const std::string& name, const std::string& nmspace)
 {
   DDLElementRegistry::getElement("RZPoint")->clear();
   DDLElementRegistry::getElement("ZSection")->clear();
 }
 
 // Upon encountering an end Polycone or Polyhedra tag, process the RZPoints
-// element and extract the r and z vectors to feed into DDCore.  Then, clear
+// element and extract the r and z std::vectors to feed into DDCore.  Then, clear
 // the RZPoints and clear this element.
-void DDLPolyGenerator::processElement (const string& name, const string& nmspace)
+void DDLPolyGenerator::processElement (const std::string& name, const std::string& nmspace)
 {
   DCOUT_V('P', "DDLPolyGenerator::processElement started");
 
@@ -57,7 +57,7 @@ void DDLPolyGenerator::processElement (const string& name, const string& nmspace
   DDXMLAttribute atts;
 
   // get z and r
-  vector<double> z, r;
+  std::vector<double> z, r;
   for (size_t i = 0; i < myRZPoints->size(); i++)
     {
       atts = myRZPoints->getAttributeSet(i);
@@ -73,7 +73,7 @@ void DDLPolyGenerator::processElement (const string& name, const string& nmspace
        // get zSection information, note, we already have a z declared above
        // and we will use r for rmin.  In this case, no use "trying" because
        // it better be there!
-       vector<double> rMax;
+       std::vector<double> rMax;
 
        for (size_t i = 0; i < myZSection->size(); i++)
 	 {
@@ -129,11 +129,11 @@ void DDLPolyGenerator::processElement (const string& name, const string& nmspace
      }
    else
      {
-       string msg = "\nDDLPolyGenerator::processElement was called with incorrect name of solid: " + name;
+       std::string msg = "\nDDLPolyGenerator::processElement was called with incorrect name of solid: " + name;
        throwError(msg);
      }
   } catch (DDException & e) {
-    string msg("\nDDLPolyGenerator failed when calling the DDSolidFactory.");
+    std::string msg("\nDDLPolyGenerator failed when calling the DDSolidFactory.");
     throwError(msg);
   }
   DDLSolid::setReference(nmspace);

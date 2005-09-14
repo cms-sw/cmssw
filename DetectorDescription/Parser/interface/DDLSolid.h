@@ -34,7 +34,7 @@ class DDLSolid : public DDXMLElement
   /// Destructor
   ~DDLSolid();
 
-  void setReference (const string& nmspace);
+  void setReference (const std::string& nmspace);
 
 };
 #endif

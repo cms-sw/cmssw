@@ -25,11 +25,11 @@ std::ostream & operator<<(std::ostream &, const DDSpecifics &);
 
 /**
   used to attach specific (user defined) data to nodes in the expanded view.
-  - only a map<string,string> (map of name,value) 
+  - only a std::map<std::string,std::string> (std::map of name,value) 
 
 */
 //! Interface to attach user specific data to nodes in the expanded-view
-/** User data (currently only of type a \c map<string,string> ) can be attached
+/** User data (currently only of type a \c std::map<std::string,std::string> ) can be attached
     to single nodes or set of nodes in the detector tree (represented in DDExpandedView).
     Nodes where user data has to be attached are selected by a very simplified XPath similar 
     notation.
@@ -60,7 +60,7 @@ public:
       \arg \c partSelections collection of selection-strings which select expanded-nodes
       \arg \c svalues user data attached to nodes selected by \a partSelections
       
-      <h3> Syntax of the selection string </h3>
+      <h3> Syntax of the selection std::string </h3>
       bla, bla, bla
   */
   DDSpecifics(const DDName & name,
@@ -71,7 +71,7 @@ public:
   ~DDSpecifics();
   
   //! Gives a reference to the collection of part-selections
-  const vector<DDPartSelection> & selection() const;
+  const std::vector<DDPartSelection> & selection() const;
   
   //! Reference to the user-data attached to all nodes selected by the selections-strings given through selection
   const DDsvalues_type & specifics() const;
@@ -80,7 +80,7 @@ public:
   bool nodes(DDNodes & nds) const;
   
   //! Calculates the geometrical history of a fully specified PartSelector
-  pair<bool,DDExpandedView> node() const;
+  std::pair<bool,DDExpandedView> node() const;
   
   static void clear();
 };

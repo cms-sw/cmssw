@@ -15,12 +15,12 @@ public:
   
   ~ClhepEvaluator();
   
-  void set(const string & ns, const string & name, const string & exprValue);
+  void set(const std::string & ns, const std::string & name, const std::string & exprValue);
    
-  double eval(const string & ns, const string & expr);
+  double eval(const std::string & ns, const std::string & expr);
   
-  bool isDefined(const string & ns, //< current namespace
-                 const string & name //< name of the variable inside current namespace
+  bool isDefined(const std::string & ns, //< current namespace
+                 const std::string & name //< name of the variable inside current namespace
 		 );
 
   //! access to the clhep-implementation of the dictionary variables
@@ -32,7 +32,7 @@ public:
   double eval(const char * expression);
   
   //! filling the clhep-implementation of the dictionary
-  void set(const string & name, const string & value);
+  void set(const std::string & name, const std::string & value);
   
   void clear();
 

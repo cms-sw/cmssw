@@ -5,10 +5,10 @@
 #include "DetectorDescription/Core/interface/graphwalker.h"
 #include <iostream>
 #include <string>
-using std::cout;
-using std::endl;
-using std::string;
-using std::ostream;
+
+;
+
+;
 
 template<class N, class E>
 void output(const graph<N,E> & g, const N & root)
@@ -16,10 +16,10 @@ void output(const graph<N,E> & g, const N & root)
   graphwalker<N,E> w(g,root);
   bool go=true;
   while(go) {
-    cout << w.current().first << ' ';
+    std::cout << w.current().first << ' ';
     go=w.next();
   }
-  cout << endl;
+  std::cout << std::endl;
 }
 
 template<class N, class E>
@@ -38,7 +38,7 @@ void graph_combine(const graph<N,E> & g1, const graph<N,E> & g2,
     N child  = walker.current().first;
     E edge   = walker.current().second;
     */
-    //cout << parent << ' ' << walker.current().first << ' ' << walker.current().second<< endl;
+    //std::cout << parent << ' ' << walker.current().first << ' ' << walker.current().second<< std::endl;
     result.addEdge(parent, walker.current().first, walker.current().second);
     //result.addEdge(parent,child,edge);
     //result.dump_graph();
@@ -57,7 +57,7 @@ void graph_tree_output(const graph<N,E> & g, const N & root, std::ostream & os)
    unsigned int depth=0;
    while (go) {
      std::string s(2*depth,' ');
-     os << ' ' << s << w.current().first << '(' << w.current().second << ')' << endl;
+     os << ' ' << s << w.current().first << '(' << w.current().second << ')' << std::endl;
      if (go=w.firstChild()) {
        depth++;
      }

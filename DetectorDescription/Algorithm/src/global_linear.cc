@@ -14,12 +14,12 @@
 
 		#include <cmath>
 		#include "CLHEP/Units/SystemOfUnits.h"
-		namespace std{} namespace std{} namespace std{} namespace std{} using namespace std;
+		 
 	                
 
 
 // always the same ctor
-global_linear_0::global_linear_0(AlgoPos * a,string label)
+global_linear_0::global_linear_0(AlgoPos * a,std::string label)
  : AlgoImpl(a,label)
 { }
 
@@ -83,7 +83,7 @@ DDRotationMatrix global_linear_0::rotation()
 
 
 
-void global_linear_0::stream(ostream & os) const
+void global_linear_0::stream(std::ostream & os) const
 {
   os << "global_linear_0::stream(): not implemented.";
 }
@@ -92,12 +92,12 @@ void global_linear_0::stream(ostream & os) const
 
 		#include <cmath>
 		#include "CLHEP/Units/SystemOfUnits.h"
-		namespace std{} namespace std{} namespace std{} namespace std{} using namespace std;
+		 
 	                
 
 
 // always the same ctor
-global_linear_1::global_linear_1(AlgoPos * a,string label)
+global_linear_1::global_linear_1(AlgoPos * a,std::string label)
  : AlgoImpl(a,label)
 { }
 
@@ -164,7 +164,7 @@ DDRotationMatrix global_linear_1::rotation()
 
 
 
-void global_linear_1::stream(ostream & os) const
+void global_linear_1::stream(std::ostream & os) const
 {
   os << "global_linear_0::stream(): not implemented.";
 }

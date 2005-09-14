@@ -33,7 +33,7 @@ class DDLMaterial : public DDXMLElement
   /// Destructor
   virtual ~DDLMaterial();
 
-  virtual void setReference (const string& nmspace);
+  virtual void setReference (const std::string& nmspace);
 
 };
 #endif

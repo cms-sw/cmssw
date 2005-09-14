@@ -8,26 +8,19 @@
 #include "DetectorDescription/Core/interface/DDValuePair.h"
 #include "DetectorDescription/Base/interface/Ptr.h"
 
-using std::string;
-using std::vector;
-using std::ostream;
-using std::pair;
-using std::map;
-//using DDI::Ptr;
-
 class DDValue;
 class DDSpecifics;
 class DDLSpecPar;
 
-//ostream & operator<< ( ostream &, const DDValue &);
-/** A DDValue maps a vector of DDValuePair (string,double) to a name. Names of DDValues are stored
- transiently. Furthermore, an ID is assigned mapping to the name.
+//std::ostream & operator<< ( std::ostream &, const DDValue &);
+/** A DDValue std::maps a std::vector of DDValuePair (std::string,double) to a name. Names of DDValues are stored
+ transiently. Furthermore, an ID is assigned std::mapping to the name.
  If a particular DDValue is not used anymore, use DDValue::clear() to free the internally
  allocated memory. Use DDValue::setEvalState(true) to indicate whether the double numbers stored in
  the DDValuePair make sense, otherwise an exception will be thrown when trying to get access
  to these values via DDValue::doubles() or DDValue::operator[].
 */
-class DDValue //: public vector<DDValuePair>
+class DDValue //: public std::vector<DDValuePair>
 {
   friend class DDSpecifics;
   friend class DDLSpecPar;
@@ -36,19 +29,19 @@ public:
   DDValue() : id_(0), vecPair_(0) { } ;
   
   //! create a named empty value
-  DDValue(const string &);
+  DDValue(const std::string &);
   
-  //! creates a named DDValue initialized with a vector of values 
-  explicit DDValue(const string &, const vector<DDValuePair>&);
+  //! creates a named DDValue initialized with a std::vector of values 
+  explicit DDValue(const std::string &, const std::vector<DDValuePair>&);
   
-  //! creates a single double valued named DDValue. The corresponding string-value is an empty string
-  explicit DDValue(const string &, double);
+  //! creates a single double valued named DDValue. The corresponding std::string-value is an empty std::string
+  explicit DDValue(const std::string &, double);
   
-  /** creates a single string & numerical-valued named DDValue.  */
-  explicit DDValue(const string &, const string &, double);
+  /** creates a single std::string & numerical-valued named DDValue.  */
+  explicit DDValue(const std::string &, const std::string &, double);
   
-  /** creates a single string-valued named DDValue */
-  explicit DDValue(const string & name, const string & val);
+  /** creates a single std::string-valued named DDValue */
+  explicit DDValue(const std::string & name, const std::string & val);
   
   explicit DDValue(unsigned int);
   //~DDValue() { destroy(); }
@@ -65,20 +58,20 @@ public:
   operator unsigned int() const { return id_; }
   
   //! the name of the DDValue
-  const string & name() const { return names()[id_]; }
+  const std::string & name() const { return names()[id_]; }
   
   /** access to the values stored in DDValue by an index. Note, that
    the index is not checked for bounds excess! */
   DDValuePair operator[](unsigned int i) const; 
    
-  //! a reference to the string-valued values stored in the given instance of DDValue
-  const vector<string> & strings() const { return vecPair_->second.first; }
+  //! a reference to the std::string-valued values stored in the given instance of DDValue
+  const std::vector<std::string> & strings() const { return vecPair_->second.first; }
   
   //! a reference to the double-valued values stored in the given instance of DDValue
-  const vector<double> & doubles() const;
+  const std::vector<double> & doubles() const;
   //const DDValuePair & operator[](unsigned int i) const { return (*valPairs_)[i]  ; }
   
-  //! the size of the stored value-pairs (string,double)
+  //! the size of the stored value-pairs (std::string,double)
   unsigned int size() const { 
    return vecPair_ ? vecPair_->second.first.size() : 0 ; 
   } 
@@ -95,22 +88,22 @@ public:
   
   //! Two DDValues are equal only if their id() is equal AND their values are equal
   /** If the DDValue::isEvalued() == true, the numerical representation is taken for comparison,
-      else the string representation */
+      else the std::string representation */
   inline bool operator==(const DDValue &) const;
   
   //! A DDValue a is smaller than a DDValue b if (a.id()<b.id()) OR (a.id()==b.id() and value(a)<value(b))
   inline bool operator<(const DDValue &) const;
   
 private:  
-  typedef pair<bool, pair<vector<string>, vector<double> > >vecpair_type;
-  static vector<string>& names();
-  static map<string,unsigned int>& indexer();
-  static vector<vecpair_type*>& mem(vecpair_type*);
+  typedef std::pair<bool, std::pair<std::vector<std::string>, std::vector<double> > >vecpair_type;
+  static std::vector<std::string>& names();
+  static std::map<std::string,unsigned int>& indexer();
+  static std::vector<vecpair_type*>& mem(vecpair_type*);
   //DDValue(const DDValue &);
   //DDValue & operator=(const DDValue &);
   //void destroy() { delete vecPair_;} //delete valPairs_; }
   
-  //static vector<map<string,unsigned int>::const_iterator> names_;
+  //static std::vector<std::map<std::string,unsigned int>::const_iterator> names_;
   unsigned int id_;
   
   //Ptr<vecpair_type>  vecPair_;
@@ -120,9 +113,9 @@ public:
 public:  
   //bool isEvaluated_;
   //auto_ptr<vecpair_type> vecPair_;
-  //vector<DDValuePair> * valPairs_;
+  //std::vector<DDValuePair> * valPairs_;
 };
 
 
-ostream & operator<<(ostream & o, const DDValue & v);
+std::ostream & operator<<(std::ostream & o, const DDValue & v);
 #endif // DDValue_h

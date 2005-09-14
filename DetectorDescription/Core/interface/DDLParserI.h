@@ -1,7 +1,7 @@
 #ifndef DDL_ParserI_H
 #define DDL_ParserI_H
-#include<vector>
-#include<string>
+#include <vector>
+#include <string>
 #include<iosfwd> 
 
 namespace seal {

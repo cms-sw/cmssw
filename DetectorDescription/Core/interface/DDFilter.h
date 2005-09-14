@@ -84,10 +84,10 @@ public:
   };
   
 protected:  
-  typedef pair<bool, SpecificCriterion >  criterion_type;  
-  typedef vector<criterion_type> criteria_type;
-  typedef vector<log_op> logops_type;
-  // descision tree: logical-operation are the nodes, index to the criteria-vector the edges
+  typedef std::pair<bool, SpecificCriterion >  criterion_type;  
+  typedef std::vector<criterion_type> criteria_type;
+  typedef std::vector<log_op> logops_type;
+  // descision tree: logical-operation are the nodes, index to the criteria-std::vector the edges
   // typedef TreeNode<criterion_type,log_op> dectree_type;
   // result of one SpecificCriterion comparison is stored in the bool of the pair
   // dectree_type * decTree_; // decissiontree
@@ -102,9 +102,9 @@ protected:
  inline bool sfd_compare(const DDSpecificsFilter::SpecificCriterion & crit,
                   const DDsvalues_type & sv);		  
  inline bool sfs_compare_nm(const DDSpecificsFilter::SpecificCriterion & crit,
-			    const vector<const DDsvalues_type *> & specs);
+			    const std::vector<const DDsvalues_type *> & specs);
  inline bool sfd_compare_nm(const DDSpecificsFilter::SpecificCriterion & crit,
-			    const vector<const DDsvalues_type *> & specs);
+			    const std::vector<const DDsvalues_type *> & specs);
  std::ostream & operator<<(std::ostream & os, const DDSpecificsFilter & f);
 #endif
 

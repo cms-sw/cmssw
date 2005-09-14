@@ -25,7 +25,7 @@ public:
     sCopyno_(0), 
     absResult_(true) 
     { 
-      // it makes only sense to compare if both vectors have at least one entry each.
+      // it makes only sense to compare if both std::vectors have at least one entry each.
       if (hMax_>0 && sMax_>0 ) {
 	hLp_ = hist_[0].logicalPart();
 	sLp_ = partsel_[0].lp_;
@@ -33,7 +33,7 @@ public:
       else  {
 	absResult_=false;
       }
-      //cout << endl << endl << "COMPARATOR CREATED" << endl << endl;
+      //std::cout << std::endl << std::endl << "COMPARATOR CREATED" << std::endl << std::endl;
       //DCOUT('U', "Comparator():\n  hist=" << h << "\n  PartSel=" << s);
     }
 

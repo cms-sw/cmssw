@@ -122,8 +122,8 @@ class DDDivision : public DDBase<DDName, DDI::Division*>
 
 // mike copied from DDLogicalPart
 // some helpers .... (not very clean, redesign!! according to martin :-))
-// left this analogy out for now (mec) : pair<bool,string> DDIsValid(const string & ns, const string & name, vector<DDDivision> & result,bool doRegex=true);
-// maps name to vector of namespaces
+// left this analogy out for now (mec) : pair<bool,std::string> DDIsValid(const std::string & ns, const std::string & name, std::vector<DDDivision> & result,bool doRegex=true);
+// std::maps name to std::vector of namespaces
 typedef DDI::Singleton<std::map<std::string,std::vector<DDName> > > DIVNAMES;
 void DD_NDC(const DDName &);
 #endif

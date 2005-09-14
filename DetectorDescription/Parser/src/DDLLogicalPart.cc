@@ -50,7 +50,7 @@ DDLLogicalPart::~DDLLogicalPart()
 }
 
 // upon initialization, we want to clear rMaterial and rSolid.
-void DDLLogicalPart::preProcessElement (const string& type, const string& nmspace)
+void DDLLogicalPart::preProcessElement (const std::string& type, const std::string& nmspace)
 {
   DDLElementRegistry::getElement("rMaterial")->clear();
   DDLElementRegistry::getElement("rSolid")->clear();
@@ -68,7 +68,7 @@ void DDLLogicalPart::preProcessElement (const string& type, const string& nmspac
 // by retrieving the rMaterial and the rSolid it actually will be handling
 // Material and Solid subelements as well.
 
-void DDLLogicalPart::processElement (const string& type, const string& nmspace)
+void DDLLogicalPart::processElement (const std::string& type, const std::string& nmspace)
 {
   DCOUT_V('P', "DDLLogicalPart::processElement started");
 
@@ -82,7 +82,7 @@ void DDLLogicalPart::processElement (const string& type, const string& nmspace)
   // validation of the XML should PREVENT this.
 //    if (myrSolid->size() > 1)
 //      {
-//        string s = "DDLLogicalPart::processElement:  When looking at rSolid, found more than one. ";
+//        std::string s = "DDLLogicalPart::processElement:  When looking at rSolid, found more than one. ";
 //        s += " Logical part name was: ";
 //        s += atts.find("name")->second;
 //        throw DDException(s);
@@ -101,7 +101,7 @@ void DDLLogicalPart::processElement (const string& type, const string& nmspace)
   try {
     DDLogicalPart lp(getDDName(nmspace), myMaterial, mySolid, cat);
   } catch (DDException& e) {
-    string msg = e.what();
+    std::string msg = e.what();
     msg += "\nDDLLogicalPart failed to create DDLogicalPart.\n";
     msg += "\n\tname: " + atts.find("name")->second;
     msg += "\n\tsolid: " + (myrSolid->getDDName(nmspace)).ns() 

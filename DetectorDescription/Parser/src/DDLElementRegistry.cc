@@ -60,7 +60,7 @@ namespace std{} using namespace std;
 
 // Note that an XML element can not be all spaces or all asterisks, etc. :-) 
 // so we are safe to use this.
-//string DDLElementRegistry::defaultElement_ = "*****";
+//std::string DDLElementRegistry::defaultElement_ = "*****";
 
 // -------------------------------------------------------------------------
 // Constructor/Destructor
@@ -79,7 +79,7 @@ DDLElementRegistry::~DDLElementRegistry()
 // This initializes and acts as the singleton instance of DDLElementRegistry.
 DDLElementRegistry* DDLElementRegistry::instance()
 {
-  //static string defaultElement = "******";
+  //static std::string defaultElement = "******";
   static DDLElementRegistry reg;
   static bool isInit=false;
   if (!isInit) {
@@ -99,7 +99,7 @@ DDLElementRegistry* DDLElementRegistry::instance()
   */  
 }
 
-DDXMLElement* DDLElementRegistry::getElement(const string& name)
+DDXMLElement* DDLElementRegistry::getElement(const std::string& name)
 {
   DCOUT_V('P',"DDLElementRegistry::getElementRegistry(" << name << ")"); 
 
@@ -234,7 +234,7 @@ DDXMLElement* DDLElementRegistry::getElement(const string& name)
 	{
     	  myret = instance()->DDXMLElementRegistry::getElement("***");
 	  DCOUT_V('P',  "WARNING:  The default (DDLElementRegistry)  was used for "
-		  << name << " since there was no specific handler." << endl);
+		  << name << " since there was no specific handler." << std::endl);
     	}
       
       // Actually register the thing

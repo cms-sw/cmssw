@@ -1,7 +1,7 @@
 #ifndef DDPath_h
 #define DDPath_h
 
-namespace std{} using namespace std;
+
 
 #include <vector>
 #include <utility>
@@ -24,6 +24,6 @@ struct   DDPathLevel {
 };
 
 
-typedef vector< DDPathLevel > DDPath;
+typedef std::vector< DDPathLevel > DDPath;
 
 #endif

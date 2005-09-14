@@ -14,7 +14,7 @@
 #include <xercesc/sax2/XMLReaderFactory.hpp>
 #include <xercesc/sax2/SAX2XMLReader.hpp>
 
-namespace std{} using namespace std;
+
 
 /** @class StrX
  * @author Apache Xerces C++ Example
@@ -58,7 +58,7 @@ class StrX
     //  Private data members
     //
     //  fLocalForm
-    //      This is the local code page form of the string.
+    //      This is the local code page form of the std::string.
     // -----------------------------------------------------------------------
     char*   fLocalForm;
 };

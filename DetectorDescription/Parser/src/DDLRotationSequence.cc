@@ -41,13 +41,13 @@ DDLRotationSequence::~DDLRotationSequence()
 {
 }
 
-void DDLRotationSequence::preProcessElement (const string& name, const string& nmspace)
+void DDLRotationSequence::preProcessElement (const std::string& name, const std::string& nmspace)
 {
   DDLElementRegistry::getElement("RotationByAxis")->clear();
 }
 
 
-void DDLRotationSequence::processElement (const string& name, const string& nmspace)
+void DDLRotationSequence::processElement (const std::string& name, const std::string& nmspace)
 {
 
   DCOUT_V('P', "DDLRotationSequence::processElement started " << name);
@@ -70,7 +70,7 @@ void DDLRotationSequence::processElement (const string& name, const string& nmsp
     DDRotationMatrix* ddr = new DDRotationMatrix(R);
     DDRotation rot = DDrot(getDDName(nmspace), ddr);
   } catch (DDException & e) {
-    string msg(e.what());
+    std::string msg(e.what());
     msg += "\nDDLRotationSequence failed to build and create DDrot.";
     throwError(msg);
   }

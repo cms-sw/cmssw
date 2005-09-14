@@ -15,7 +15,7 @@
 
 
 // always the same ctor
-global_angular_0::global_angular_0(AlgoPos * a,string label)
+global_angular_0::global_angular_0(AlgoPos * a,std::string label)
  : AlgoImpl(a,label),
    rotate_(0), center_(3), rotateSolid_(0),
    alignSolid_(true), n_(1), startCopyNo_(1), incrCopyNo_(1),
@@ -196,7 +196,7 @@ void global_angular_0::checkTermination()
 }
 
 
-void global_angular_0::stream(ostream & os) const
+void global_angular_0::stream(std::ostream & os) const
 {
   os << "global_angular_0::stream(): not implemented.";
 }

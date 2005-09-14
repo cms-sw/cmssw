@@ -41,7 +41,7 @@ DDLBox::~DDLBox()
 }
 
 // Upon ending a Box element, call DDCore giving the box name, and dimensions.
-void DDLBox::processElement (const string& type, const string& nmspace)
+void DDLBox::processElement (const std::string& type, const std::string& nmspace)
 {
   DCOUT_V('P', "DDLBox::processElement started");
   
@@ -58,8 +58,8 @@ void DDLBox::processElement (const string& type, const string& nmspace)
     DDLSolid::setReference(nmspace);
   } catch (DDException& e)
     {
-      string msg(e.what());
-      msg += string("\n\tDDLParser, Call failed to DDSolidFactory.");
+      std::string msg(e.what());
+      msg += std::string("\n\tDDLParser, Call failed to DDSolidFactory.");
       throwError(msg);
     }
 

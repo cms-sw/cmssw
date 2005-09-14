@@ -3,7 +3,7 @@ using namespace std;
 #include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/ExprAlgo/interface/AlgoCheck.h"
 
-bool AlgoCheck::check(parS_type & ps, parE_type & pe, string & err)
+bool AlgoCheck::check(parS_type & ps, parE_type & pe, std::string & err)
 {
   bool nok = false; // not ok - flag, negative logic inside the function!
   
@@ -18,7 +18,7 @@ bool AlgoCheck::check(parS_type & ps, parE_type & pe, string & err)
         nok |= checkBounds(pit,e_it,err);
       }
       else { // missing required parameter
-        err += string("\tmissing required parameter: ") + e_it->first + string("\n");
+        err += std::string("\tmissing required parameter: ") + e_it->first + std::string("\n");
 	nok |= true;
       }
       	
@@ -45,8 +45,8 @@ bool AlgoCheck::check(parS_type & ps, parE_type & pe, string & err)
   
   }
   
-  // then string parameters
-  // FIXME: implement AlgoCheck::check string-valued parameter checks! 
+  // then std::string parameters
+  // FIXME: implement AlgoCheck::check std::string-valued parameter checks! 
 
   constraintsS_type::iterator s_it = constraintsS_.begin();
   for (; s_it != constraintsS_.end(); ++s_it) {
@@ -58,7 +58,7 @@ bool AlgoCheck::check(parS_type & ps, parE_type & pe, string & err)
 	nok |= checkStrings(sit, s_it, err);
       }
       else { // missing required parameter
-        err += string("\tmissing required parameter: ") + s_it->first + string("\n");
+        err += std::string("\tmissing required parameter: ") + s_it->first + std::string("\n");
 	nok |= true;
       }
     }
@@ -78,7 +78,7 @@ bool AlgoCheck::check(parS_type & ps, parE_type & pe, string & err)
 // checks occurences and bounds; returns true, if it is NOT OK !
 bool AlgoCheck::checkBounds(parE_type::iterator pit, 
                             constraintsE_type::iterator cit, 
-			    string & err 
+			    std::string & err 
 			    )
 {
    bool nok = false;
@@ -90,8 +90,8 @@ bool AlgoCheck::checkBounds(parE_type::iterator pit,
    // occurences
    if (cit->second.minOccurs_ > int(pit->second.size()) ) {
      err += "\tpar. " + cit->first 
-	 +  " occurs=" + d2s(pit->second.size()) + string(" < minOccurs; minOccurs=")
-	 +  d2s(cit->second.minOccurs_) + string(" maxOccurs=") 
+	 +  " occurs=" + d2s(pit->second.size()) + std::string(" < minOccurs; minOccurs=")
+	 +  d2s(cit->second.minOccurs_) + std::string(" maxOccurs=") 
 	 +  d2s(cit->second.maxOccurs_)
 	 +  "\n";
      nok |= true; 
@@ -100,8 +100,8 @@ bool AlgoCheck::checkBounds(parE_type::iterator pit,
    //if (!nok) {
      if (cit->second.maxOccurs_ < int(pit->second.size()) ) {
      err += "\tpar. " + cit->first 
-	 +  " occurs=" + d2s(pit->second.size()) + string(" > maxOccurs; minOccurs=")
-	 +  d2s(cit->second.minOccurs_) + string(" maxOccurs=") 
+	 +  " occurs=" + d2s(pit->second.size()) + std::string(" > maxOccurs; minOccurs=")
+	 +  d2s(cit->second.minOccurs_) + std::string(" maxOccurs=") 
 	 +  d2s(cit->second.maxOccurs_)
 	 +  "\n";
        nok |= true;   
@@ -116,16 +116,16 @@ bool AlgoCheck::checkBounds(parE_type::iterator pit,
      int m=int(pit->second.size());
      for (;i<m;++i) {
        if (pit->second[i] < cit->second.min_) {
-         err += "\tpar. " + cit->first + string("[") + d2s(i) + string("]=")
-	     +  d2s(pit->second[i]) + string(" < min; min=")
-	     +  d2s(cit->second.min_) + string(" max=") +  d2s(cit->second.max_)
+         err += "\tpar. " + cit->first + std::string("[") + d2s(i) + std::string("]=")
+	     +  d2s(pit->second[i]) + std::string(" < min; min=")
+	     +  d2s(cit->second.min_) + std::string(" max=") +  d2s(cit->second.max_)
 	     +  "\n";
          c++; // error count
        }
        if (pit->second[i] > cit->second.max_) {
-         err += "\tpar. " + cit->first + string("[") + d2s(i) + string("]=")
-	     +  d2s(pit->second[i]) + string(" > max; min=")
-	     +  d2s(cit->second.min_) + string(" max=") +  d2s(cit->second.max_)
+         err += "\tpar. " + cit->first + std::string("[") + d2s(i) + std::string("]=")
+	     +  d2s(pit->second[i]) + std::string(" > max; min=")
+	     +  d2s(cit->second.min_) + std::string(" max=") +  d2s(cit->second.max_)
 	     +  "\n";
          c++; // error count       
        }
@@ -138,23 +138,23 @@ bool AlgoCheck::checkBounds(parE_type::iterator pit,
 
 
 #include <cstdio>
-string AlgoCheck::d2s(double x)
+std::string AlgoCheck::d2s(double x)
 {
   char buffer [25]; 
   /*int n =*/ sprintf(buffer,"%g",x);
-  return string(buffer);
+  return std::string(buffer);
 }
 
 bool AlgoCheck::checkStrings(parS_type::iterator sit, 
 			  constraintsS_type::iterator cit, 
-			  string & err)
+			  std::string & err)
 {
    // occurences
    bool nok = false;
    if (cit->second.minOccurs_ > int(sit->second.size()) ) {
      err += "\tpar. " + cit->first 
-	 +  " occurs=" + d2s(sit->second.size()) + string(" < minOccurs; minOccurs=")
-	 +  d2s(cit->second.minOccurs_) + string(" maxOccurs=") 
+	 +  " occurs=" + d2s(sit->second.size()) + std::string(" < minOccurs; minOccurs=")
+	 +  d2s(cit->second.minOccurs_) + std::string(" maxOccurs=") 
 	 +  d2s(cit->second.maxOccurs_)
 	 +  "\n";
      nok |= true; 
@@ -163,8 +163,8 @@ bool AlgoCheck::checkStrings(parS_type::iterator sit,
    //if (!nok) {
      if (cit->second.maxOccurs_ < int(sit->second.size()) ) {
      err += "\tpar. " + cit->first 
-	 +  " occurs=" + d2s(sit->second.size()) + string(" > maxOccurs; minOccurs=")
-	 +  d2s(cit->second.minOccurs_) + string(" maxOccurs=") 
+	 +  " occurs=" + d2s(sit->second.size()) + std::string(" > maxOccurs; minOccurs=")
+	 +  d2s(cit->second.minOccurs_) + std::string(" maxOccurs=") 
 	 +  d2s(cit->second.maxOccurs_)
 	 +  "\n";
        nok |= true;   
@@ -176,7 +176,7 @@ bool AlgoCheck::checkStrings(parS_type::iterator sit,
   int m = int(sit->second.size());  
   for (; i<m;++i){
 
-    string s = sit->second[i];
+    std::string s = sit->second[i];
     int ss = int(s.size());
 
     int j = 0;
@@ -185,9 +185,9 @@ bool AlgoCheck::checkStrings(parS_type::iterator sit,
 	break;
       }
       if (j == ss && s[j] == ' ') {
-	err += "\tpar. " + cit->first + string("[") + d2s(i) + string("] is blank");
+	err += "\tpar. " + cit->first + std::string("[") + d2s(i) + std::string("] is blank");
 	nok |= true;
-	DCOUT('e', "                         VIOLATION of requiring non-blank strings");
+	DCOUT('e', "                         VIOLATION of requiring non-blank std::strings");
       }
     }
   }

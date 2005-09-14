@@ -10,9 +10,9 @@
 #include <iostream>
 #include <vector>
 #include <string>
-using std::string;
-using std::vector;
-using std::ostream;
+
+;
+;
 #include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
 
@@ -30,7 +30,7 @@ public:
     placing the wedges & sensitive detectors inside the two 'active' layers of
     the preshower
   */
-  presh_detectors(AlgoPos*,string label);
+  presh_detectors(AlgoPos*,std::string label);
   
   //! your comment here ...
   ~presh_detectors();
@@ -45,7 +45,7 @@ public:
   
   //void checkTermination();
   
-  void stream(ostream &) const;
+  void stream(std::ostream &) const;
   
 private:
   void defineConstants();
@@ -55,7 +55,7 @@ private:
   double waf_active_, wedge_length_, wedge_offset_, zwedge_ceramic_diff_;
   DDRotation rot_;
   double y_offset_, z_offset_;
-  vector<int> IQUAD_MAX_, IQUAD_MIN_;
+  std::vector<int> IQUAD_MAX_, IQUAD_MIN_;
 };
 
 

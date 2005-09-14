@@ -43,16 +43,16 @@ DDXMLElement::~DDXMLElement()
 // -------------------------------------------------------------------------
 
 // For pre-processing, after attributes are loaded.  Default, do nothing!
-void DDXMLElement::preProcessElement(const string& name, const string& nmspace)
+void DDXMLElement::preProcessElement(const std::string& name, const std::string& nmspace)
 {
   DCOUT_V('P', "DDXMLElement::preProcessElementBase default, do nothing) started-completed.");
 }
 
-// This loads the attributes into the attributes_ vector.
-void DDXMLElement::loadAttributes (const string& elemName
-				     , const vector<string> & names
-				     , const vector<string> & values
-				     , const string& nmspace)
+// This loads the attributes into the attributes_ std::vector.
+void DDXMLElement::loadAttributes (const std::string& elemName
+				     , const std::vector<std::string> & names
+				     , const std::vector<std::string> & values
+				     , const std::string& nmspace)
 {
 
   attributes_.resize(attributes_.size()+1);
@@ -79,7 +79,7 @@ void DDXMLElement::clear()
 }
 
 // Access to current attributes by name.
-const std::string & DDXMLElement::getAttribute(const string& name) const
+const std::string & DDXMLElement::getAttribute(const std::string& name) const
 {
   static const std::string ldef;
   if (attributes_.size())
@@ -94,24 +94,24 @@ const DDXMLAttribute& DDXMLElement::getAttributeSet(size_t aIndex) const
 }
 
 
-const DDName DDXMLElement::getDDName(const string& defaultNS, const string& attname, size_t aIndex)
+const DDName DDXMLElement::getDDName(const std::string& defaultNS, const std::string& attname, size_t aIndex)
 {
   if (aIndex < attributes_.size()
       && attributes_[aIndex].find(attname) != attributes_[aIndex].end()) { 
-    string ns = defaultNS;
+    std::string ns = defaultNS;
     const std::string & name = attributes_[aIndex].find(attname)->second;
-    string rn = name;
+    std::string rn = name;
     size_t foundColon= name.find(':');
     if (foundColon != std::string::npos) {
       ns = name.substr(0,foundColon);
       rn = name.substr(foundColon+1);
 
     }
-    //    cout << "Name: " << rn << " Namespace: " << ns << endl;
+    //    std::cout << "Name: " << rn << " Namespace: " << ns << std::endl;
     return DDName(rn, ns);
   }
-  //  cout << "no " << attname <<  " default namespace: " << defaultNS << " at index " << aIndex << endl;
-  string msg = "DDXMLElement:getDDName failed.  It was asked to make ";
+  //  std::cout << "no " << attname <<  " default namespace: " << defaultNS << " at index " << aIndex << std::endl;
+  std::string msg = "DDXMLElement:getDDName failed.  It was asked to make ";
   msg += "a DDName using attribute: " + attname;
   msg += " in position: " + itostr(int(aIndex)) + ".  There are ";
   msg += itostr(int(attributes_.size())) + " entries in the element.";
@@ -120,11 +120,11 @@ const DDName DDXMLElement::getDDName(const string& defaultNS, const string& attn
   // the method will compile with some compilers that are picky.
 } 
 
-string DDXMLElement::getNameSpace(const string& defaultNS, const string& attname
+std::string DDXMLElement::getNameSpace(const std::string& defaultNS, const std::string& attname
 				  , size_t aIndex)
 {
-  cout << "DEPRECATED: PLEASE DO NOT USE getNameSpace ANYMORE!" << endl;
-  string ns;
+  std::cout << "DEPRECATED: PLEASE DO NOT USE getNameSpace ANYMORE!" << std::endl;
+  std::string ns;
   const std::string & name = get(attname, aIndex);
   size_t foundColon= name.find(':');
   if (foundColon != std::string::npos)
@@ -136,11 +136,11 @@ string DDXMLElement::getNameSpace(const string& defaultNS, const string& attname
   return ns;
 }
 
-const string DDXMLElement::getName(const string& attname
+const std::string DDXMLElement::getName(const std::string& attname
 			     , size_t aIndex)
 {
-  cout << "DEPRECATED: PLEASE DO NOT USE getName ANYMORE!!" << endl;
-  string rn;
+  std::cout << "DEPRECATED: PLEASE DO NOT USE getName ANYMORE!!" << std::endl;
+  std::string rn;
   const std::string & name = get(attname, aIndex);
   size_t foundColon= name.find(':');
   if (foundColon != std::string::npos)
@@ -152,21 +152,21 @@ const string DDXMLElement::getName(const string& attname
 }
 
 // Returns a specific value from the aIndex set of attributes.
-const std::string & DDXMLElement::get(const string& name, const size_t aIndex ) const
+const std::string & DDXMLElement::get(const std::string& name, const size_t aIndex ) const
 {
-  static const string sts;
+  static const std::string sts;
   if (aIndex < attributes_.size())
     {
       DDXMLAttribute::const_iterator it = attributes_[aIndex].find(name);
       if (attributes_[aIndex].end() == it)
         {
-          DCOUT_V('P', "WARNING: DDXMLElement::get did not find the requested attribute: "  << name << endl << *this);
+          DCOUT_V('P', "WARNING: DDXMLElement::get did not find the requested attribute: "  << name << std::endl << *this);
           return sts;
         }
       else
       	return (it->second);
     }
-  string msg = "DDXMLElement:get failed.  It was asked for attribute " + name;
+  std::string msg = "DDXMLElement:get failed.  It was asked for attribute " + name;
   msg += " in position " + itostr(int(aIndex)) + " when there are only ";
   msg += itostr(int(attributes_.size())) + " in the element storage.\n";
   throwError(msg);
@@ -175,15 +175,15 @@ const std::string & DDXMLElement::get(const string& name, const size_t aIndex ) 
 
 }
 
-// Returns a specific set of values as a vector of strings,
+// Returns a specific set of values as a std::vector of std::strings,
 // given the attribute name.
-vector<string> DDXMLElement::getVectorAttribute(const string& name)
+std::vector<std::string> DDXMLElement::getVectorAttribute(const std::string& name)
 {
 
   //  The idea here is that the attributeAccumulator_ is a cache of
-  //  on-the-fly generation from the vector<DDXMLAttribute> and the 
+  //  on-the-fly generation from the std::vector<DDXMLAttribute> and the 
   //  reason is simply to speed things up if it is requested more than once.
-  vector<string> tv;
+  std::vector<std::string> tv;
   AttrAccumType::const_iterator ita = attributeAccumulator_.find(name);
   if (ita != attributeAccumulator_.end())
     {
@@ -202,7 +202,7 @@ vector<string> DDXMLElement::getVectorAttribute(const string& name)
 	}
       else
 	{
-      DCOUT_V('P', "DDXMLAttributeAccumulator::getAttribute was asked to provide a vector of values for an attribute named " << name << " but there was no such attribute.");
+      DCOUT_V('P', "DDXMLAttributeAccumulator::getAttribute was asked to provide a std::vector of values for an attribute named " << name << " but there was no such attribute.");
 	      //      throw DDException(msg);
 	}
     } 
@@ -210,21 +210,21 @@ vector<string> DDXMLElement::getVectorAttribute(const string& name)
 }
 
 // Default do-nothing processElementBases.
-void DDXMLElement::processElement(const string& name, const string& nmspace)
+void DDXMLElement::processElement(const std::string& name, const std::string& nmspace)
 {
   DCOUT_V('P', "DDXMLElement::processElementBase (default, do nothing) started-completed");
-  loadText(string());
+  loadText(std::string());
   if ( autoClear_ ) clear(); 
   
 }
 
-void DDXMLElement::loadText(const string& inText)
+void DDXMLElement::loadText(const std::string& inText)
 {
   text_.push_back(inText);
-  //  cout << "just put a string using loadText. size is now: " << text_.size() << endl;
+  //  std::cout << "just put a std::string using loadText. size is now: " << text_.size() << std::endl;
 }
 
-void DDXMLElement::appendText(const string& inText)
+void DDXMLElement::appendText(const std::string& inText)
 {
   static const std::string cr("\n");
   if (text_.size() > 0) {
@@ -232,15 +232,15 @@ void DDXMLElement::appendText(const string& inText)
     text_[text_.size() - 1] += inText ;
   } else
     {
-      string msg = "DDXMLElement::appendText could not append to non-existent text.";
+      std::string msg = "DDXMLElement::appendText could not append to non-existent text.";
       throwError(msg);
     }
 }
 
-const string DDXMLElement::getText(size_t tindex) const
+const std::string DDXMLElement::getText(size_t tindex) const
 {
   if (tindex > text_.size()) {
-    string msg = "DDXMLElement::getText tindex is greater than text_.size()).";
+    std::string msg = "DDXMLElement::getText tindex is greater than text_.size()).";
     throwError(msg);
   }
   return text_[tindex];
@@ -261,19 +261,19 @@ ostream & operator<<(ostream & os, const DDXMLElement & element)
 
 void DDXMLElement::stream(ostream & os) const
 {
-  os << "Output of current element attributes:" << endl;
-  for (vector<DDXMLAttribute>::const_iterator itv = attributes_.begin();
+  os << "Output of current element attributes:" << std::endl;
+  for (std::vector<DDXMLAttribute>::const_iterator itv = attributes_.begin();
        itv != attributes_.end(); itv++)
     {
       for (DDXMLAttribute::const_iterator it = itv->begin(); 
 	   it != itv->end(); it++)
 	os << it->first <<  " = " << it->second << "\t";
-      os << endl;
+      os << std::endl;
     }
 }			 
 
-void DDXMLElement::appendAttributes(vector<string> & tv
-					      , const string& name)
+void DDXMLElement::appendAttributes(std::vector<std::string> & tv
+					      , const std::string& name)
 {
   for (size_t i = tv.size(); i < attributes_.size(); i++)
     {
@@ -291,34 +291,34 @@ size_t DDXMLElement::size() const
   return attributes_.size();
 }
 
-vector<DDXMLAttribute>::const_iterator DDXMLElement::begin()
+std::vector<DDXMLAttribute>::const_iterator DDXMLElement::begin()
 {
   myIter_ = attributes_.begin();
   return attributes_.begin();
 }
 
-vector<DDXMLAttribute>::const_iterator DDXMLElement::end()
+std::vector<DDXMLAttribute>::const_iterator DDXMLElement::end()
 {
   myIter_ = attributes_.end();
   return attributes_.end();
 }
 
-vector<DDXMLAttribute>::const_iterator& DDXMLElement::operator++(int inc)
+std::vector<DDXMLAttribute>::const_iterator& DDXMLElement::operator++(int inc)
 {
   myIter_ = myIter_ + inc;
   return myIter_;
 }
 
 
-const string& DDXMLElement::parent() const {
+const std::string& DDXMLElement::parent() const {
   DDLSAX2FileHandler* s2han = DDLParser::instance()->getDDLSAX2FileHandler();
   return s2han->parent();
 }
 
 // yet another :-)
-string DDXMLElement::itostr(int i)
+std::string DDXMLElement::itostr(int i)
 {
-  if (i < 0) return string("-") + itostr(i * -1);
+  if (i < 0) return std::string("-") + itostr(i * -1);
 
   if (i > 9)
     return itostr(i/10) + itostr(i % 10);
@@ -327,47 +327,47 @@ string DDXMLElement::itostr(int i)
       switch (i)
 	{
 	case 0: 
-	  return string("0");
+	  return std::string("0");
 	  break;
 	
 	case 1: 
-	  return string("1");
+	  return std::string("1");
 	  break;
 	
 	case 2: 
-	  return string("2");
+	  return std::string("2");
 	  break;
 	
 	case 3: 
-	  return string("3");
+	  return std::string("3");
 	  break;
 	
 	case 4: 
-	  return string("4");
+	  return std::string("4");
 	  break;
 	
 	case 5: 
-	  return string("5");
+	  return std::string("5");
 	  break;
 	
 	case 6: 
-	  return string("6");
+	  return std::string("6");
 	  break;
 	
 	case 7: 
-	  return string("7");
+	  return std::string("7");
 	  break;
 	
 	case 8: 
-	  return string("8");
+	  return std::string("8");
 	  break;
 	
 	case 9: 
-	  return string("9");
+	  return std::string("9");
 	  break;
 	
 	default:
-	  return string(" ");
+	  return std::string(" ");
 	}
     }
 }
@@ -377,10 +377,10 @@ bool DDXMLElement::isEmpty () const
   return (attributes_.size() == 0 ? true : false);
 }
 
-void DDXMLElement::throwError(const string& keyMessage, DDException * e) const 
+void DDXMLElement::throwError(const std::string& keyMessage, DDException * e) const 
 {
   //FIXME someday see if this will fly...  if (e == 0) { 
-    string msg = keyMessage + "\n";
+    std::string msg = keyMessage + "\n";
     msg += " Element " + DDLParser::instance()->getDDLSAX2FileHandler()->self() +"\n";
     msg += " File " + DDLParser::instance()->getCurrFileName() + ".\n";
     throw DDException(msg);

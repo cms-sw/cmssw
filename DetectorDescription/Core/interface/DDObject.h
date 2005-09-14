@@ -16,7 +16,7 @@ class DDObject
 {
 public:
   typedef Ptr<T> pointer;
-  //! maps a DDName to the pointer to be wrapped
+  //! std::maps a DDName to the pointer to be wrapped
   typedef DDRegistry<pointer> RegistryType; 
   //! iterator
   typedef typename RegistryType::iterator iterator;
@@ -84,7 +84,7 @@ private:
     return reg_;
   }
   
-  //! representation of the wrapped object is a pointer into a registry-map
+  //! representation of the wrapped object is a pointer into a registry-std::map
   typename RegistryType::iterator rep_;
   
 };

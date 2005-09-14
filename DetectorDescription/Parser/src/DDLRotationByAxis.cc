@@ -54,12 +54,12 @@ void DDLRotationByAxis::processElement (const std::string& name
 {
   DCOUT_V('P', "DDLRotationByAxis::processElement started " << name);
 
-  //  cout << "my parent is : " << parent() << endl;
+  //  std::cout << "my parent is : " << parent() << std::endl;
   DDXMLAttribute atts = getAttributeSet();
   if (parent() != "RotationSequence")
     {
-      string axis = atts.find("axis")->second;
-      string angle = atts.find("angle")->second;
+      std::string axis = atts.find("axis")->second;
+      std::string angle = atts.find("angle")->second;
       
       HepRotation R;
       R = processOne(R, axis, angle);
@@ -70,13 +70,13 @@ void DDLRotationByAxis::processElement (const std::string& name
 	  //how do we make up a ddname! damn_it!
           DDXMLElement * myRealParent = DDLElementRegistry::instance()->getElement(parent());
 	  DDName pName = myRealParent->getDDName(nmspace);
-	  string tn = pName.name() + string("Rotation");
-	  vector<string> names;
+	  std::string tn = pName.name() + std::string("Rotation");
+	  std::vector<std::string> names;
 	  names.push_back("name");
 	  //no need, used already names.push_back("axis");
 	  //no need, used already names.push_back("angle");
 
-	  vector<string> values;
+	  std::vector<std::string> values;
 	  values.push_back(tn);
 	  //no need, used already values.push_back(atts.find("axis")->second);
 	  //no need, used already values.push_back(atts.find("angle")->second);
@@ -86,7 +86,7 @@ void DDLRotationByAxis::processElement (const std::string& name
       try {	
 	DDRotation rot = DDrot(getDDName(nmspace), ddr);
       } catch (DDException & e) {
-	string msg(e.what());
+	std::string msg(e.what());
 	msg += "\nDDLRotationByAxis failed to create a DDrot.";
 	throwError(msg);
       }
@@ -98,7 +98,7 @@ void DDLRotationByAxis::processElement (const std::string& name
   DCOUT_V('P', "DDLRotationByAxis::processElement completed");
 }
 
-HepRotation DDLRotationByAxis::processOne (HepRotation R, string& axis, string& angle)
+HepRotation DDLRotationByAxis::processOne (HepRotation R, std::string& axis, std::string& angle)
 {
   /** Get the name, axis and angle of the RotationByAxis and do it. 
    */
@@ -118,7 +118,7 @@ HepRotation DDLRotationByAxis::processOne (HepRotation R, string& axis, string& 
       R.rotateZ(dAngle);
   else
     {
-      string msg = "\nDDLRotationByAxis invalid axis... you must not have validated XML sources!  Element is ";
+      std::string msg = "\nDDLRotationByAxis invalid axis... you must not have validated XML sources!  Element is ";
       msg += pName;
       throwError(msg);
     }

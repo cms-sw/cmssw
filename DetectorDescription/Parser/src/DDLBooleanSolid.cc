@@ -37,7 +37,7 @@ DDLBooleanSolid::DDLBooleanSolid()
 DDLBooleanSolid::~DDLBooleanSolid() { }
 
 // Clear out rSolids.
-void DDLBooleanSolid::preProcessElement (const string& name, const string& nmspace)
+void DDLBooleanSolid::preProcessElement (const std::string& name, const std::string& nmspace)
 {
   DDLElementRegistry::getElement("rSolid")->clear();
 }
@@ -45,7 +45,7 @@ void DDLBooleanSolid::preProcessElement (const string& name, const string& nmspa
 // To process a BooleanSolid we should have in the meantime
 // hit two rSolid calls and possibly one rRotation and one Translation.
 // So, retrieve them and make the call to DDCore.
-void DDLBooleanSolid::processElement (const string& name, const string& nmspace)
+void DDLBooleanSolid::processElement (const std::string& name, const std::string& nmspace)
 {
   DCOUT_V('P', "DDLBooleanSolid::processElement started");
 
@@ -75,7 +75,7 @@ void DDLBooleanSolid::processElement (const string& name, const string& nmspace)
       }
       catch ( ... )
 	{
-	  string msg("Problem with BooleanSolid. ");
+	  std::string msg("Problem with BooleanSolid. ");
 	  msg+= nmspace + " The element in question reads:\n";
 	  msg+= dumpBooleanSolid(name, nmspace);
 	  throwError(msg);
@@ -89,7 +89,7 @@ void DDLBooleanSolid::processElement (const string& name, const string& nmspace)
 	ddn2 = myrSolid->getDDName(nmspace, "name", 1);
       }
       catch ( DDException& e) {
-	  string msg = string(e.what());
+	  std::string msg = std::string(e.what());
 	  msg+="\nProblem with BooleanSolid. ";
 	  msg+="  The element in question reads: \n";
 	  msg+= dumpBooleanSolid(name, nmspace);
@@ -143,7 +143,7 @@ void DDLBooleanSolid::processElement (const string& name, const string& nmspace)
 					     );	       
     }
   } catch(DDException& e) {
-    string msg = e.what();
+    std::string msg = e.what();
     msg += "\nDDLBooleanSolid failed call to DDSolidFactory.\n";
     throwError(msg);
   }
@@ -162,12 +162,12 @@ void DDLBooleanSolid::processElement (const string& name, const string& nmspace)
 }
 
 // This only happens on error, so I don't care how "slow" it is :-)
-string DDLBooleanSolid::dumpBooleanSolid (const std::string& name, const std::string& nmspace)
+std::string DDLBooleanSolid::dumpBooleanSolid (const std::string& name, const std::string& nmspace)
 {
-  string s;
+  std::string s;
   DDXMLAttribute atts = getAttributeSet();
 
-  s = string ("\n<") + name + " name=\"" + atts.find("name")->second + "\"";
+  s = std::string ("\n<") + name + " name=\"" + atts.find("name")->second + "\"";
 
   if (atts.find("firstSolid") != atts.end()) s+= " firstSolid=\"" + atts.find("firstSolid")->second + "\"";
   if (atts.find("secondSolid") != atts.end()) s+= " secondSolid=\"" + atts.find("secondSolid")->second + "\"";

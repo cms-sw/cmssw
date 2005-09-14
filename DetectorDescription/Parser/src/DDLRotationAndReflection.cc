@@ -46,7 +46,7 @@ DDLRotationAndReflection::~DDLRotationAndReflection()
 {
 }
 
-void DDLRotationAndReflection::processElement (const string& name, const string& nmspace)
+void DDLRotationAndReflection::processElement (const std::string& name, const std::string& nmspace)
 {
 
   DCOUT_V('P', "DDLRotationAndReflection::processElement started " << name);
@@ -64,16 +64,16 @@ void DDLRotationAndReflection::processElement (const string& name, const string&
        R.rotateAxes(x, y, z);      
        DDRotationMatrix* ddr = new DDRotationMatrix(R);
        DDRotation ddrot = DDrot(getDDName(nmspace), ddr);
-       DCOUT_V ('p', "Rotation created: " << ddrot << endl);
+       DCOUT_V ('p', "Rotation created: " << ddrot << std::endl);
      }
    else if ((name == "Rotation")  && isLeftHanded(x, y, z, nmspace) == 1)
      {
-       string msg("\nDDLRotationAndReflection attempted to make a");
+       std::string msg("\nDDLRotationAndReflection attempted to make a");
        msg += " left-handed rotation with a Rotation element. If";
        msg += " you meant to make a reflection, use ReflectionRotation";
        msg += " elements, otherwise, please check your matrix.  Other";
        msg += " errors may follow.  Rotation  matrix not created.";
-       cout << msg << endl; // this could become a throwWarning or something.
+       std::cout << msg << std::endl; // this could become a throwWarning or something.
      }
    else if (name == "ReflectionRotation" && isLeftHanded(x, y, z, nmspace) == 1) 
      {
@@ -86,25 +86,25 @@ void DDLRotationAndReflection::processElement (const string& name, const string&
 		      , ev.eval(nmspace, atts.find("phiY")->second)
 		      , ev.eval(nmspace, atts.find("thetaZ")->second)
 		      , ev.eval(nmspace, atts.find("phiZ")->second));
-       DCOUT_V ('p', "Rotation created: " << ddrot << endl);
+       DCOUT_V ('p', "Rotation created: " << ddrot << std::endl);
      }
    else if (name == "ReflectionRotation" && isLeftHanded(x, y, z, nmspace) == 0)
      {
-       string msg("WARNING:  Attempted to make a right-handed");
+       std::string msg("WARNING:  Attempted to make a right-handed");
        msg += " rotation using a ReflectionRotation element. ";
        msg += " If you meant to make a Rotation, use Rotation";
        msg += " elements, otherwise, please check your matrix.";
        msg += "  Other errors may follow.  ReflectionRotation";
        msg += " matrix not created.";
-       cout << msg << endl; // this could be a throwWarning or something.
+       std::cout << msg << std::endl; // this could be a throwWarning or something.
      }
    else
      {
-       string msg = "\nDDLRotationAndReflection::processElement tried to process wrong element.";
+       std::string msg = "\nDDLRotationAndReflection::processElement tried to process wrong element.";
        throwError(msg);
      }
   } catch (DDException & e) {
-    string msg(e.what());
+    std::string msg(e.what());
     msg += "\nDDLRotationAndReflection failed to created requested DD object.";
     throwError(msg);
   }
@@ -127,7 +127,7 @@ void DDLRotationAndReflection::processElement (const string& name, const string&
 // did the rest.
 //
 
-int DDLRotationAndReflection::isLeftHanded (Hep3Vector x, Hep3Vector y, Hep3Vector z, const string & nmspace)
+int DDLRotationAndReflection::isLeftHanded (Hep3Vector x, Hep3Vector y, Hep3Vector z, const std::string & nmspace)
 {
   DCOUT_V('P', "DDLRotation::isLeftHanded started");
 
@@ -139,7 +139,7 @@ int DDLRotationAndReflection::isLeftHanded (Hep3Vector x, Hep3Vector y, Hep3Vect
  
   http://atlassw1.phy.bnl.gov/lxr/source/external/geant4.3.1/source/g3tog4/src/G4gsrotm.cc
 
- 48         // Construct unit vectors 
+ 48         // Construct unit std::vectors 
  49     
  50     G4ThreeVector x(sin(th1r)*cos(phi1r), sin(th1r)*sin(phi1r), cos(th1r)->second;
  51     G4ThreeVector y(sin(th2r)*cos(phi2r), sin(th2r)*sin(phi2r), cos(th2r));
@@ -153,19 +153,19 @@ int DDLRotationAndReflection::isLeftHanded (Hep3Vector x, Hep3Vector y, Hep3Vect
  59     if (1-abs(check)>tol) {
  60         G4cerr << "Coordinate axes forming rotation matrix "
  61                << irot << " are not orthonormal.(" << 1-abs(check) << ")" 
- 62          << G4endl;
+ 62          << G4std::endl;
  63         G4cerr << " thetaX=" << theta1;
  64         G4cerr << " phiX=" << phi1;
  65         G4cerr << " thetaY=" << theta2;
  66         G4cerr << " phiY=" << phi2;
  67         G4cerr << " thetaZ=" << theta3;
  68         G4cerr << " phiZ=" << phi3;
- 69         G4cerr << G4endl;
+ 69         G4cerr << G4std::endl;
  70         G4Exception("G4gsrotm error");
  71     }
  72     else if (1+check<=tol) {
  73         G4cerr << "G4gsrotm warning: coordinate axes forming rotation "
- 74                << "matrix " << irot << " are left-handed" << G4endl;
+ 74                << "matrix " << irot << " are left-handed" << G4std::endl;
  75     }   
  76
  77     G3toG4RotationMatrix* rotp = new G3toG4RotationMatrix;
@@ -183,25 +183,25 @@ int DDLRotationAndReflection::isLeftHanded (Hep3Vector x, Hep3Vector y, Hep3Vect
   DDXMLAttribute atts = getAttributeSet();
   
   if (1-abs(check)>tol) {
-    cout << "DDLRotationAndReflection Coordinate axes forming rotation matrix "
+    std::cout << "DDLRotationAndReflection Coordinate axes forming rotation matrix "
 	 << getDDName(nmspace) 
 	 << " are not orthonormal.(tolerance=" << tol 
 	 << " check=" << abs(check)  << ")" 
-	 << endl
+	 << std::endl
 	 << " thetaX=" << (atts.find("thetaX")->second) 
-	 << ' ' << ev.eval(nmspace, atts.find("thetaX")->second)/deg << endl
+	 << ' ' << ev.eval(nmspace, atts.find("thetaX")->second)/deg << std::endl
 	 << " phiX=" << (atts.find("phiX")->second) 
-	 << ' ' << ev.eval(nmspace, atts.find("phiX")->second)/deg << endl
+	 << ' ' << ev.eval(nmspace, atts.find("phiX")->second)/deg << std::endl
 	 << " thetaY=" << (atts.find("thetaY")->second) 
-	 << ' ' << ev.eval(nmspace, atts.find("thetaY")->second)/deg << endl
+	 << ' ' << ev.eval(nmspace, atts.find("thetaY")->second)/deg << std::endl
 	 << " phiY=" << (atts.find("phiY")->second)
-	 << ' ' << ev.eval(nmspace, atts.find("phiY")->second)/deg << endl
+	 << ' ' << ev.eval(nmspace, atts.find("phiY")->second)/deg << std::endl
 	 << " thetaZ=" << (atts.find("thetaZ")->second)
-	 << ' ' << ev.eval(nmspace, atts.find("thetaZ")->second)/deg << endl
+	 << ' ' << ev.eval(nmspace, atts.find("thetaZ")->second)/deg << std::endl
 	 << " phiZ=" << (atts.find("phiZ")->second)
 	 << ' ' << ev.eval(nmspace, atts.find("phiZ")->second)/deg 
-	 << endl
-	 << "  WAS NOT CREATED!" << endl;
+	 << std::endl
+	 << "  WAS NOT CREATED!" << std::endl;
     ret = -1;
   }
   else if (1+check<=tol) {
@@ -211,7 +211,7 @@ int DDLRotationAndReflection::isLeftHanded (Hep3Vector x, Hep3Vector y, Hep3Vect
   return ret;
 }
 
-Hep3Vector DDLRotationAndReflection::makeX(string nmspace)
+Hep3Vector DDLRotationAndReflection::makeX(std::string nmspace)
 {
   Hep3Vector x = 0;
   DDXMLAttribute atts = getAttributeSet();
@@ -228,7 +228,7 @@ Hep3Vector DDLRotationAndReflection::makeX(string nmspace)
   return x;
 }
 
-Hep3Vector DDLRotationAndReflection::makeY(string nmspace)
+Hep3Vector DDLRotationAndReflection::makeY(std::string nmspace)
 {
   Hep3Vector y = 0;
   DDXMLAttribute atts = getAttributeSet();
@@ -246,7 +246,7 @@ Hep3Vector DDLRotationAndReflection::makeY(string nmspace)
   return y;
 }
 
-Hep3Vector DDLRotationAndReflection::makeZ(string nmspace)
+Hep3Vector DDLRotationAndReflection::makeZ(std::string nmspace)
 {
   Hep3Vector z = 0;
   DDXMLAttribute atts = getAttributeSet();

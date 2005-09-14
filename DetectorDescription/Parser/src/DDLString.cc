@@ -30,11 +30,11 @@ DDLString::~DDLString()
 {
 }
  
-void DDLString::preProcessElement (const string& name, const string& nmspace)
+void DDLString::preProcessElement (const std::string& name, const std::string& nmspace)
 {
 }
 
-void DDLString::processElement (const string& name, const string& nmspace)
+void DDLString::processElement (const std::string& name, const std::string& nmspace)
 {
   DCOUT_V('P', "DDLString::processElement started");
   if (parent() == "ConstantsSection" || parent() == "DDDefinition")
@@ -42,13 +42,13 @@ void DDLString::processElement (const string& name, const string& nmspace)
       // I do not like "newing" things without my control.  But this is
       // the only way I was able to get this to work.
       try {
-	string * ts = new string((getAttributeSet().find("value"))->second);
+	std::string * ts = new std::string((getAttributeSet().find("value"))->second);
 	DDName ddn = getDDName(nmspace);
 	DDString (ddn 
 		  , ts
 		  );
       } catch (DDException & e) {
-	string msg(e.what());
+	std::string msg(e.what());
         msg += "\nDDLString failed to create a DDString.";
 	throwError(msg);
       }

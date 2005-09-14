@@ -71,7 +71,7 @@ DDTranslation DDDividedTrdX::makeDDTranslation ( const int copyNo ) const
   }
   else
   { 
-    string s = "ERROR - DDDividedTrdX::makeDDTranslation()";
+    std::string s = "ERROR - DDDividedTrdX::makeDDTranslation()";
     s += "\n        Axis is along ";
     s += DDAxesNames::name(div_.axis());
     s += " !\n" ;
@@ -147,7 +147,7 @@ void DDDividedTrdX::checkParametersValidity()
   if ( abs(mpDx1 - mpDx2) > tolerance()  || abs(mpDx3 - mpDx4) > tolerance()
        || abs(mpDx1 - mpDx4) > tolerance())
     {
-      string s = "ERROR - DDDividedTrdX::checkParametersValidity()";
+      std::string s = "ERROR - DDDividedTrdX::checkParametersValidity()";
       s+= "\n        Making a division of a TRD along axis X,";
       s+= "\n        while the X half lengths are not equal,";
       s+= "\n        is not (yet) supported. It will result";
@@ -156,7 +156,7 @@ void DDDividedTrdX::checkParametersValidity()
     }
 //    if (abs(mpDy1 - mpDy2) > tolerance())
 //      {
-//        string s = "ERROR - DDDividedTrdX::checkParametersValidity()";
+//        std::string s = "ERROR - DDDividedTrdX::checkParametersValidity()";
 //        s+= "\n        Making a division of a TRD along axis X,";
 //        s+= "\n        while the Y half lengths are not equal,";
 //        s+= "\n        is not (yet) supported. It will result";
@@ -167,7 +167,7 @@ void DDDividedTrdX::checkParametersValidity()
   // to make sure it is only a trd (I think! :-))
   if (mpAlpha1 != 0.*deg || mpAlpha2 != 0.*deg || mpTheta != 0.*deg || mpPhi != 0.*deg)
     {
-      string s = "ERROR - DDDividedTrdX::checkParametersValidity()";
+      std::string s = "ERROR - DDDividedTrdX::checkParametersValidity()";
       s+= "\n        Making a division of a TRD along axis X,";
       s+= "\n        while the theta, phi and aplhpa2 are not zero,";
       s+= "\n        is not (yet) supported. It will result";
@@ -194,7 +194,7 @@ DDDividedTrdY::DDDividedTrdY ( const DDDivision & div )
       compWidth_ = calculateWidth( 2 * mtrd.y1(), div_.nReplicas(), div_.offset() );
     }
 
-  DCOUT_V ('P', " DDDividedTrdY no divisions " << compNDiv_ << " = " << div_.nReplicas() << "\n Offset " << div_.offset() << "\n width " << compWidth_ << " = " << div_.width() << endl);
+  DCOUT_V ('P', " DDDividedTrdY no divisions " << compNDiv_ << " = " << div_.nReplicas() << "\n Offset " << div_.offset() << "\n width " << compWidth_ << " = " << div_.width() << std::endl);
   
 }
 
@@ -227,7 +227,7 @@ DDTranslation DDDividedTrdY::makeDDTranslation( const int copyNo ) const
   }
   else
   { 
-    string s = "ERROR - DDDividedTrdY::makeDDTranslation()";
+    std::string s = "ERROR - DDDividedTrdY::makeDDTranslation()";
     s += "\n        Axis is along ";
     s += DDAxesNames::name(div_.axis());
     s += " !\n" ;
@@ -299,7 +299,7 @@ void DDDividedTrdY::checkParametersValidity()
 
   if( abs(mpDy1 - mpDy2) > tolerance() )
   {
-    string s= "ERROR - DDDividedTrdY::checkParametersValidity()";
+    std::string s= "ERROR - DDDividedTrdY::checkParametersValidity()";
     s += "\n        Making a division of a TRD along axis Y while";
     s += "\n        the Y half lengths are not equal is not (yet)";
     s += "\n        supported. It will result in non-equal";
@@ -310,7 +310,7 @@ void DDDividedTrdY::checkParametersValidity()
   // to make sure it is only a trd (I think! :-))
   if (mpAlpha1 != 0.*deg || mpAlpha2 != 0.*deg || mpTheta != 0.*deg || mpPhi != 0.*deg)
     {
-      string s = "ERROR - DDDividedTrdY::checkParametersValidity()";
+      std::string s = "ERROR - DDDividedTrdY::checkParametersValidity()";
       s+= "\n        Making a division of a TRD along axis X,";
       s+= "\n        while the theta, phi and aplhpa2 are not zero,";
       s+= "\n        is not (yet) supported. It will result";
@@ -335,7 +335,7 @@ DDDividedTrdZ::DDDividedTrdZ( const DDDivision & div )
   {
     compWidth_ = calculateWidth( 2*mtrd.halfZ(), div_.nReplicas(), div_.offset() );
   }
-  DCOUT_V ('P', " DDDividedTrdY no divisions " << compNDiv_ << " = " << div_.nReplicas() << "\n Offset " << div_.offset() << "\n width " << compWidth_ << " = " << div_.width() << endl);
+  DCOUT_V ('P', " DDDividedTrdY no divisions " << compNDiv_ << " = " << div_.nReplicas() << "\n Offset " << div_.offset() << "\n width " << compWidth_ << " = " << div_.width() << std::endl);
 }
 
 //------------------------------------------------------------------------
@@ -367,7 +367,7 @@ DDTranslation DDDividedTrdZ::makeDDTranslation ( const int copyNo ) const
   }
   else
   { 
-    string s = "ERROR - DDDividedTrdZ::makeDDTranslation()";
+    std::string s = "ERROR - DDDividedTrdZ::makeDDTranslation()";
     s += "\n        Axis is along ";
     s += DDAxesNames::name(div_.axis());
     s += " !\n" ;
@@ -445,7 +445,7 @@ void DDDividedTrdZ::checkParametersValidity()
   // to make sure it is only a trd (I think! :-))
   if (mpAlpha1 != 0.*deg || mpAlpha2 != 0.*deg || mpTheta != 0.*deg || mpPhi != 0.*deg)
     {
-      string s = "ERROR - DDDividedTrdZ::checkParametersValidity()";
+      std::string s = "ERROR - DDDividedTrdZ::checkParametersValidity()";
       s+= "\n        Making a division of a TRD along axis X,";
       s+= "\n        while the theta, phi and aplhpa2 are not zero,";
       s+= "\n        is not (yet) supported. It will result";

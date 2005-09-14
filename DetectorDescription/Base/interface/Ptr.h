@@ -74,9 +74,9 @@ template<class T> Ptr<T>::~Ptr()
                 delete refptr;
 /*
 		if (p)
-		  cout << "DC:\t\tPtr deleted: " << endl;
+		  std::cout << "DC:\t\tPtr deleted: " << std::endl;
 		else
-		  cout << "DC: \t\tPtr deleted: dangling" << endl;  
+		  std::cout << "DC: \t\tPtr deleted: dangling" << std::endl;  
                 delete p;
 */		
         }

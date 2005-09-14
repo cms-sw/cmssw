@@ -15,11 +15,11 @@ typedef ReadMapType<double> DDNumericArguments;
 /** in XML: a set of <String name="n" value="val"/> */
 typedef ReadMapType<std::string> DDStringArguments;
 
-//! corresponds to a collection of named vectors of doubles */
+//! corresponds to a collection of named std::vectors of doubles */
 /** in XML: a set of <Vector name="n"> 1,2,3,4 </Vector> */
 typedef ReadMapType<std::vector<double> > DDVectorArguments;
 
-//! corresponds to a collection of named maps of strings to double */
+//! corresponds to a collection of named std::maps of strings to double */
 /** in XML: a set of <Map name="n"> val:1, val_2:2 </Map> */
 typedef ReadMapType<std::map<std::string,double> > DDMapArguments;
 

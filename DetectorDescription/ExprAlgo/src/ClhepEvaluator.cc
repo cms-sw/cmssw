@@ -32,11 +32,11 @@ ClhepEvaluator::~ClhepEvaluator()
   clear();
 }
 
-void dd_exchange_value(vector<string> & vars, vector<string> & vals, 
-  const string & var, const string & val)
+void dd_exchange_value(std::vector<std::string> & vars, std::vector<std::string> & vals, 
+  const std::string & var, const std::string & val)
 {
-   vector<string>::iterator it(vars.begin()), ed(vals.end());
-   vector<string>::size_type count(0);
+   std::vector<std::string>::iterator it(vars.begin()), ed(vals.end());
+   std::vector<std::string>::size_type count(0);
    for (; it != ed; ++it) {
       if ( *it == var) {
          // a potential memory leak below! But CLHEP::Evaluator should take care about it!!
@@ -48,12 +48,12 @@ void dd_exchange_value(vector<string> & vars, vector<string> & vals,
 } 
       
   
-void ClhepEvaluator::set(const string & ns, const string & name, const string & exprValue)
+void ClhepEvaluator::set(const std::string & ns, const std::string & name, const std::string & exprValue)
 {
    checkname(ns); // fancy characters in ns or name ??
    checkname(name);
-   string newVar;
-   string newVal;
+   std::string newVar;
+   std::string newVal;
    prepare(ns,name,exprValue,newVar,newVal);
    DCOUT_V('C', "ClhepEvaluator: " 
         << "  in: " << ns << " " << name << " " << exprValue 
@@ -71,13 +71,13 @@ void ClhepEvaluator::set(const string & ns, const string & name, const string & 
       values_.push_back(newVal);
       break;
     default:
-      cout << "set-var: ns=" << ns << " nm=" << name << " val=" << exprValue << endl;
+      std::cout << "set-var: ns=" << ns << " nm=" << name << " val=" << exprValue << std::endl;
       evaluator_.print_error();
       throwex(ns,name,exprValue,"can't set parameter !");
     }
 }
   
-void ClhepEvaluator::set(const string & n, const string & v)
+void ClhepEvaluator::set(const std::string & n, const std::string & v)
 {
   evaluator_.setVariable(n.c_str(),v.c_str());
    switch(evaluator_.status()) {
@@ -91,34 +91,34 @@ void ClhepEvaluator::set(const string & n, const string & v)
       values_.push_back(v);
       break;
     default:
-      cout << "set-varname=" << n << " val=" << v << endl;
+      std::cout << "set-varname=" << n << " val=" << v << std::endl;
       evaluator_.print_error();
       throwex("",n,v,"can't set parameter !");
     }  
 }
 
         
-double ClhepEvaluator::eval(const string & ns, const string & expr)
+double ClhepEvaluator::eval(const std::string & ns, const std::string & expr)
 {
 
   //   static TimerProxy timer_("ClhepEvaluator::eval(...)");
    static seal::SealTimer tEval("ClhepEvaluator::eval(...)");
 
-   // eval does not store strings in the values_!
+   // eval does not store std::strings in the values_!
    // eval throws if it can't evaluate!
-   string pseudo("(evaluating)");
-   string prepared;
+   std::string pseudo("(evaluating)");
+   std::string prepared;
    
    prepare(ns,pseudo,expr, pseudo,prepared);
    
    double result = evaluator_.evaluate(prepared.c_str());
    if(evaluator_.status()!=HepTool::Evaluator::OK) {
-      cout << "expr: " << prepared << endl;
-      cout << "------";
-      for (int i=0; i<evaluator_.error_position(); i++) cout << "-";
-      cout << "^" << std::endl;
+      std::cout << "expr: " << prepared << std::endl;
+      std::cout << "------";
+      for (int i=0; i<evaluator_.error_position(); i++) std::cout << "-";
+      std::cout << "^" << std::endl;
       evaluator_.print_error();
-      throwex(ns,prepared,expr,"can't evaluate: " + expr + string("!"));
+      throwex(ns,prepared,expr,"can't evaluate: " + expr + std::string("!"));
     }
    
    return result;
@@ -128,22 +128,22 @@ double ClhepEvaluator::eval(const char * expression)
 {
    double result = evaluator_.evaluate(expression);
    if (evaluator_.status()!=HepTool::Evaluator::OK) {
-      cout << "expr: " << expression << endl;
-      cout << "------";
-      for (int i=0; i<evaluator_.error_position(); i++) cout << "-";
-      cout << "^" << std::endl;
+      std::cout << "expr: " << expression << std::endl;
+      std::cout << "------";
+      for (int i=0; i<evaluator_.error_position(); i++) std::cout << "-";
+      std::cout << "^" << std::endl;
       evaluator_.print_error();
-      throwex("",expression,"","can't evaluate: " + string(expression) + string("!"));   
+      throwex("",expression,"","can't evaluate: " + std::string(expression) + std::string("!"));   
    }
    return result;
 }
 
-bool ClhepEvaluator::isDefined(const string & ns, //< current namespace
-                 const string & name //< name of the variable inside current namespace
+bool ClhepEvaluator::isDefined(const std::string & ns, //< current namespace
+                 const std::string & name //< name of the variable inside current namespace
 		 ) 
 {
-   string newVar; 
-   string newVal;
+   std::string newVar; 
+   std::string newVal;
    prepare(ns,name,"0", newVar,newVal);
    return evaluator_.findVariable(newVar.c_str());
 }		 
@@ -160,32 +160,32 @@ void ClhepEvaluator::clear()
 }
 
 
-void ClhepEvaluator::prepare(const string & ns, 
-                             const string & name, 
-			     const string & exprValue,
-                             string & nameResult, 
-			     string & valResult) const
+void ClhepEvaluator::prepare(const std::string & ns, 
+                             const std::string & name, 
+			     const std::string & exprValue,
+                             std::string & nameResult, 
+			     std::string & valResult) const
 {
-   static const string sep("___"); // separator between ns and name
+   static const std::string sep("___"); // separator between ns and name
    // SOME SPAGHETTI CODE ...
    //  break it down into some addional member functions ... 
    
    // the name and namespaces are not checked for 'forbidden' symbols like [,],: ...
    nameResult = ns + sep + name;
    
-   // scan the expression string and remove [ ], and insert the current namespace if it's missing
-   string temp;
+   // scan the expression std::string and remove [ ], and insert the current namespace if it's missing
+   std::string temp;
    
    // 2 pass for simplicity (which is NOT efficient ...)
    // pass 1: find variables without namespace, e.g. [abcd], and mark them
    // pass 2: remove [ ] & ( exchange ':' with '_' | add the namespace at marked variables )
    
-   string::size_type sz = exprValue.size();
-   string::size_type idx =0;
+   std::string::size_type sz = exprValue.size();
+   std::string::size_type idx =0;
    bool insideBracket = false;
    bool nsFound = false;
    int varCount=0; // count the variables from 1,2,3,...
-   vector<int> hasNs(1); // marked[i]=1 ... variable number i has a namespace attached with ':'
+   std::vector<int> hasNs(1); // marked[i]=1 ... variable number i has a namespace attached with ':'
    
    while(idx<sz) {
      switch(exprValue[idx]) {
@@ -266,26 +266,26 @@ void ClhepEvaluator::prepare(const string & ns,
 	       
 	
 
- void ClhepEvaluator::throwex(const string & ns, 
-                              const string & name, 
-	                      const string & expr,
-	                      const string & reason,
+ void ClhepEvaluator::throwex(const std::string & ns, 
+                              const std::string & name, 
+	                      const std::string & expr,
+	                      const std::string & reason,
 	                      int idx) const
 {
-   string er = string("ClhepEvaluator ERROR: ") + reason + string("\n")
-	           + string(" nmspace=") + ns 
-		   + string("\n varname=") + name
-		   + string("\n exp=") + expr
-		   + string("\n  at=") + expr.substr(0,idx);
+   std::string er = std::string("ClhepEvaluator ERROR: ") + reason + std::string("\n")
+	           + std::string(" nmspace=") + ns 
+		   + std::string("\n varname=") + name
+		   + std::string("\n exp=") + expr
+		   + std::string("\n  at=") + expr.substr(0,idx);
 	 throw DDException(er);	   
 
 }			      
 
 
- void ClhepEvaluator::checkname(const string & s) const
+ void ClhepEvaluator::checkname(const std::string & s) const
  {
    // '['   ']'   ' '  ':'   are forbidden for names and namespaces of parameters
-   string::size_type sz = s.size();
+   std::string::size_type sz = s.size();
    while(sz) {
      sz--;
      //bool stop = false;
@@ -303,8 +303,8 @@ void ClhepEvaluator::prepare(const string & ns,
      case '-':
      case '/':
      case '^':
-       string e = string("ClhepEvaluator ERROR: forbidden character '")
-                + s[sz] + string("' found in '") + s + string("' !");
+       std::string e = std::string("ClhepEvaluator ERROR: forbidden character '")
+                + s[sz] + std::string("' found in '") + s + std::string("' !");
        throw DDException(e);         
        break;  
      }

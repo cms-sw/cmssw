@@ -32,9 +32,9 @@ class DDDividedGeometryObject //: public DDDivision
   virtual DDRotation    makeDDRotation   ( const int copyNo ) const ;
   virtual DDLogicalPart makeDDLogicalPart( const int copyNo ) const;
 
-  virtual const string& getType() const;
+  virtual const std::string& getType() const;
 
-  virtual void setType(const string& type);
+  virtual void setType(const std::string& type);
 
   int volumeFirstCopyNo() const;
 
@@ -59,7 +59,7 @@ class DDDividedGeometryObject //: public DDDivision
 
  protected:
     DDDivision div_;
-    string ftype_;
+    std::string ftype_;
     int compNDiv_;
     double compWidth_;
     DivisionType divisionType_;

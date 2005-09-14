@@ -14,7 +14,7 @@
 #include <vector>
 #include <iostream>
 
-namespace std{} using namespace std;
+
 namespace xercesc_2_3{} using namespace xercesc_2_3;
 
 ///  DDLSAX2Handler inherits from Xerces C++ DefaultHandler.
@@ -95,7 +95,7 @@ class DDLSAX2Handler : public DefaultHandler
   virtual void warning(const SAXParseException& exception);
   virtual void error(const SAXParseException& exception);
   virtual void fatalError(const SAXParseException& exception);
-  virtual void dumpStats(const string& fname);
+  virtual void dumpStats(const std::string& fname);
 
  protected:
 

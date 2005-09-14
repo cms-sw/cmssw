@@ -28,7 +28,7 @@ class DDScope
   friend std::ostream & operator<<(std::ostream &, const DDScope &);
   
 public:
-  typedef vector<DDGeoHistory> scope_type;
+  typedef std::vector<DDGeoHistory> scope_type;
   
   //! empty scope
   DDScope();
@@ -59,7 +59,7 @@ protected:
   int depth_;
 };
 
-ostream & operator<<(ostream &, const DDScope &);
+std::ostream & operator<<(std::ostream &, const DDScope &);
 
 //! compare two DDGeoHistory
 /**

@@ -26,7 +26,7 @@ public:
 protected:  
   virtual ~AlgoImpl();
   
-  //! subclass must calculate a translation vector
+  //! subclass must calculate a translation std::vector
   /**
     depending on the current position curr_ in the range [start_,end_,incr_]
     and the user supplied parameters ParE_, ParS_
@@ -47,7 +47,7 @@ protected:
     If the parameters are correct by should not select this particular
     algorithm, checkParamters must return false otherwise true.
     
-    The string err_ is to be used to be extended with error information in
+    The std::string err_ is to be used to be extended with error information in
     case any errors have been detected. Error information must be attached
     to err_ because of the possibility of already contained error information.
     
@@ -106,7 +106,7 @@ protected:
   */
   virtual void checkTermination();
    
-  //! ahh, converts a double into a string ... yet another one of this kind!
+  //! ahh, converts a double into a std::string ... yet another one of this kind!
   static std::string d2s(double x);
  
   parS_type & ParS_; 

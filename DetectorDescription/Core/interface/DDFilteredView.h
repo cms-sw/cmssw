@@ -41,7 +41,7 @@ public:
   nav_type copyNumbers() const;
    
   //! User specific data attached to the current node
-  vector<const DDsvalues_type * > specifics() const;
+  std::vector<const DDsvalues_type * > specifics() const;
   DDsvalues_type mergedSpecifics() const;
   
   //! Copy number associated with the current node  
@@ -75,7 +75,7 @@ public:
   
   void print();
   
-  const vector<DDGeoHistory> & history() const;
+  const std::vector<DDGeoHistory> & history() const;
      
 private:
   bool filter();
@@ -83,13 +83,13 @@ private:
 private:
   DDExpandedView epv_;
   const DDScope * scope_;
-  typedef pair<bool, DDFilter *> criterion_type;
-  typedef vector<criterion_type> criteria_type;
-  typedef vector<log_op> logops_type;
+  typedef std::pair<bool, DDFilter *> criterion_type;
+  typedef std::vector<criterion_type> criteria_type;
+  typedef std::vector<log_op> logops_type;
   
   criteria_type criteria_; // one filter and the result on the current node
   logops_type logOps_; // logical operation for merging the result of 2 filters
-  vector<DDGeoHistory> parents_; // filtered-parents
+  std::vector<DDGeoHistory> parents_; // filtered-parents
 
 };
 

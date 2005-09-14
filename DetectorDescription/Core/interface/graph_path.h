@@ -1,7 +1,7 @@
 #ifndef graph_path_h
 #define graph_path_h
 
-namespace std{} using namespace std;
+
 
 #include <map>
 #include <set>
@@ -15,17 +15,17 @@ class GraphPath
 public:
   typedef pair<N,N> segment_type;
   //FIXME: GraphPath: find memory optimized representation of type paths_type ...
-  typedef map< segment_type, set< segment_type > > paths_type;
-  typedef set< vector<N> > paths_set;
-  typedef vector< pair<N,N> > chain_type;
-  typedef vector<vector<segment_type> > result_type;
+  typedef std::map< segment_type, set< segment_type > > paths_type;
+  typedef set< std::vector<N> > paths_set;
+  typedef std::vector< pair<N,N> > chain_type;
+  typedef std::vector<std::vector<segment_type> > result_type;
   GraphPath(const graph<N,E> & g, const N & root);
   ~GraphPath() {}
-  bool fromTo(const N & from, const N & to, vector< vector<N> > & result) const;
+  bool fromTo(const N & from, const N & to, std::vector< std::vector<N> > & result) const;
   
   void calcPaths(const graph<N,E>& g, const N & root);
   void findSegments(const N & n, set< segment_type >& result);
-  void stream(ostream&);
+  void stream(std::ostream&);
   
   /**
     - false, if no (directed!) path between fromTo.first and fromTo.second, p = empty set
@@ -40,34 +40,34 @@ public:
 
 
 template <class N, class M>
-ostream & operator<<(ostream & os, const pair<N,M> & p)
+std::ostream & operator<<(std::ostream & os, const pair<N,M> & p)
 {
   os << p.first << ":" << p.second;
 }
 
 /*
 template <class N>
-ostream & operator<<(ostream & os, const vector<N> & v)
+std::ostream & operator<<(std::ostream & os, const std::vector<N> & v)
 {
-  typename vector<N>::const_iterator it = v.begin();
+  typename std::vector<N>::const_iterator it = v.begin();
   os << '[';
   for(; it != v.end(); ++it)
     os << *it << ' ';
-  os << ']' <<  endl;  
+  os << ']' <<  std::endl;  
   return os;
 }
 
 */
 /*
 template <class N>
-ostream & operator<<(ostream & os, const vector< vector< N > > & p)
+std::ostream & operator<<(std::ostream & os, const std::vector< std::vector< N > > & p)
 {
-   vector< vector<N> >::const_iterator paths_it = p.begin();
+   std::vector< std::vector<N> >::const_iterator paths_it = p.begin();
    for(; paths_it != p.end(); ++paths_it) {
-     vector<N>::const_iterator path_it = paths_it->begin();
+     std::vector<N>::const_iterator path_it = paths_it->begin();
      for(; path_it != paths_it->end(); ++paths_it)
        os << *path_it << '-';
-     os << endl;  
+     os << std::endl;  
    }
    
    return os;
@@ -75,14 +75,14 @@ ostream & operator<<(ostream & os, const vector< vector< N > > & p)
 
 
 template <class N>
-ostream & operator<<(ostream & os, const vector< vector< pair<N,N> > > & p)
+std::ostream & operator<<(std::ostream & os, const std::vector< std::vector< pair<N,N> > > & p)
 {
-   vector< vector<pair<N,N> > >::const_iterator paths_it = p.begin();
+   std::vector< std::vector<pair<N,N> > >::const_iterator paths_it = p.begin();
    for(; paths_it != p.end(); ++paths_it) {
-     vector<pair<N,N> >::const_iterator path_it = paths_it->begin();
+     std::vector<pair<N,N> >::const_iterator path_it = paths_it->begin();
      for(; path_it != paths_it->end(); ++paths_it)
        os << '[' << path_it->first << ' ' << path_it->second  << "]-";
-     os << endl;  
+     os << std::endl;  
    }
    
    return os;
@@ -91,25 +91,25 @@ ostream & operator<<(ostream & os, const vector< vector< pair<N,N> > > & p)
 
 
 template <class N, class E>
-bool GraphPath<N,E>::fromTo(const N & from, const N & to, vector< vector<N> > & result) const
+bool GraphPath<N,E>::fromTo(const N & from, const N & to, std::vector< std::vector<N> > & result) const
 {
    result_type tres;
    bool rslt=false;
    if (paths2(segment_type(from,to),tres)) {
-     typename result_type::iterator rit = tres.begin(); // iterator over vector< vector<seg_t> >
+     typename result_type::iterator rit = tres.begin(); // iterator over std::vector< std::vector<seg_t> >
      for (; rit!=tres.end(); rit++) {
        N & target = (*rit)[0].second;
-       typename vector<segment_type>::reverse_iterator pit = rit->rbegin();
-       typename vector<segment_type>::reverse_iterator pend = rit->rend(); 
+       typename std::vector<segment_type>::reverse_iterator pit = rit->rbegin();
+       typename std::vector<segment_type>::reverse_iterator pend = rit->rend(); 
        pend--;
-       vector<N> v(1,(*rit)[0].first); // <A,X> -> <A>
-       //cout << pit->first << '-';
+       std::vector<N> v(1,(*rit)[0].first); // <A,X> -> <A>
+       //std::cout << pit->first << '-';
        pit++;
        for(; pit!=pend; ++pit) {
          v.push_back(pit->second);
-	 //cout << pit->second << '-';
+	 //std::cout << pit->second << '-';
        }  	 
-       //cout << target << endl;
+       //std::cout << target << std::endl;
        v.push_back(target);
        result.push_back(v);	 
      }
@@ -130,9 +130,9 @@ bool GraphPath<N,E>::paths2(const segment_type & ft, result_type& result) const
     return false;
   }
   
-  vector<segment_type> v;
+  std::vector<segment_type> v;
   v.push_back(git->first);
-  result.push_back(v); // starting point; the set will be enlarged & the vectors inside
+  result.push_back(v); // starting point; the set will be enlarged & the std::vectors inside
                     // get pushed_back as new path-segments appear ...
   
   // find a possible direct-connetion:
@@ -154,17 +154,17 @@ bool GraphPath<N,E>::paths2(const segment_type & ft, result_type& result) const
     }
     goOn = bool(cntdwn);
     
-    //cout << "0.--: cntdwn=" << cntdwn << endl;
+    //std::cout << "0.--: cntdwn=" << cntdwn << std::endl;
     /* PRINT THE RESULT
     result_type::iterator rit = result.begin();
     for(; rit!=result.end(); ++rit) {
-      vector<segment_type>::iterator pit = rit->begin();
+      std::vector<segment_type>::iterator pit = rit->begin();
       for(; pit!=rit->end(); ++pit) {
-        cout << "[" << pit->first << "," << pit->second << "] ";
+        std::cout << "[" << pit->first << "," << pit->second << "] ";
       }
-      cout << endl;
+      std::cout << std::endl;
     }  
-    cout << "===========" << endl;
+    std::cout << "===========" << std::endl;
     */
   }    
   return true;
@@ -175,23 +175,23 @@ template <class N, class E>
 void GraphPath<N,E>::update(segment_type & s, result_type & result, int u) const
 {
    // s ...      segment, which is used to find its children
-   // result ... vector of path-vectors
+   // result ... std::vector of path-std::vectors
    // u ...      path in result which is currently under observation, s is it's 'back'
    const set<segment_type> & segs = paths_.find(s)->second;
    typename set<segment_type>::const_iterator segit = segs.begin();
 
    if (segs.size()==0)  {
-     cerr << "you should never get here: GraphPath::update(...)" << endl;
+     cerr << "you should never get here: GraphPath::update(...)" << std::endl;
      exit(1);
    }  
    /*
-   cout << "1. s=" << s.first << " " << s.second 
-        << " aseg=" << segit->first << " " << segit->second << endl;
+   std::cout << "1. s=" << s.first << " " << s.second 
+        << " aseg=" << segit->first << " " << segit->second << std::endl;
    */
-   vector<segment_type>  temp_pth = result[u];
+   std::vector<segment_type>  temp_pth = result[u];
    segit++;
    for (; segit!=segs.end(); segit++) { // create new pathes (whenever a the path-tree is branching)
-     vector<segment_type> v = temp_pth;
+     std::vector<segment_type> v = temp_pth;
      v.push_back(*segit);
      result.push_back(v);     
    }
@@ -210,7 +210,7 @@ GraphPath<N,E>::GraphPath(const graph<N,E>& g, const N & root)
   creates a lookup-table of starting-points of pathes between nodes n A and B
   A->B: A->X, A->Y, B->B  (B->B denotes a direct connectino between A and B,
                            A->X means that B can be reached from X directly while X can be reached from A)
-  the lookup-table is stored in a map< pair<n,n>, set< pair<n,n> > (could be a multimap..)			   
+  the lookup-table is stored in a std::map< pair<n,n>, set< pair<n,n> > (could be a multistd::map..)			   
 */  
 template <class N, class E>
 void GraphPath<N,E>::calcPaths(const graph<N,E>& g, const N & n)
@@ -236,7 +236,7 @@ void GraphPath<N,E>::calcPaths(const graph<N,E>& g, const N & n)
      temp.insert(direct); // add direct connection as first member of set,
                           // but not as <A,B> but as <B,B> to mark a direct connection
      //if(n != *cit) {			  
-       paths_.insert(make_pair(key,temp));
+       paths_.insert(std::make_pair(key,temp));
        findSegments(n,temp); // look for previous segments leading to n
        typename set< segment_type >::iterator sit = temp.begin();
        for (; sit!=temp.end(); ++sit) { // iterator over already linked segments
@@ -264,7 +264,7 @@ void GraphPath<N,E>::findSegments(const N & n, set< segment_type >& result)
 }
 
 template <class N, class E>
-void GraphPath<N,E>::stream(ostream & os)
+void GraphPath<N,E>::stream(std::ostream & os)
 {
   typename paths_type::iterator it = paths_.begin();
   for(; it!=paths_.end(); ++it) {
@@ -274,7 +274,7 @@ void GraphPath<N,E>::stream(ostream & os)
     for(; sit!=it->second.end();++sit) {
       os << " [" << sit->first << "->" << sit->second << "] ";
     }  
-    os << " >" << endl;  
+    os << " >" << std::endl;  
     
   }
 }

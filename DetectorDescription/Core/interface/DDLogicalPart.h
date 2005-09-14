@@ -58,7 +58,7 @@ std::ostream & operator<<( std::ostream &, const DDLogicalPart &);
     An \b initialized reference object is a reference object which was created
     first using only the constructor taking a single DDName as an argument. It's
     comparable to a variable declaration with default initialization (like 
-    \c vector \c < \c int \c > \c v). The default object is registered using
+    \c std::vector \c < \c int \c > \c v). The default object is registered using
     the DDName as index in some from the user hidden registry.
     After an \b initialized reference object
     has been created it can be used (copied, assigned to, beeing assigned to, ..)
@@ -125,21 +125,21 @@ public:
   double & weight();
   
   //! returns the specific-data attached to the LogicalPart only (not to a DDExpandedNode)
-  vector<const DDsvalues_type *> specifics() const;
+  std::vector<const DDsvalues_type *> specifics() const;
   
   //! returns the merged-specifics, i.e. the last specified specifics of this logical-part
   DDsvalues_type mergedSpecifics() const;
   
   //! \b don't \b use, internal only /todo make it private
-  void addSpecifics(const pair<DDPartSelection*,DDsvalues_type*> &);
-  void removeSpecifics(const pair<DDPartSelection*,DDsvalues_type*> &);
-  const vector< pair<DDPartSelection*,DDsvalues_type*> > & attachedSpecifics() const;
+  void addSpecifics(const std::pair<DDPartSelection*,DDsvalues_type*> &);
+  void removeSpecifics(const std::pair<DDPartSelection*,DDsvalues_type*> &);
+  const std::vector< std::pair<DDPartSelection*,DDsvalues_type*> > & attachedSpecifics() const;
   bool hasDDValue(const DDValue &) const;
   //const std::vector<DDPartSelection*> & partSelections(const DDValue &) const;
   //! \b don't \b use, internal usage only /todo make it private
-  //const vector<DDSpecifics> & specifics() const;
+  //const std::vector<DDSpecifics> & specifics() const;
   
-  //vector<DDPosPart>& posParts() const { return rep_->posParts(); }
+  //std::vector<DDPosPart>& posParts() const { return rep_->posParts(); }
   static void clear();
   
 private:  
@@ -151,8 +151,8 @@ private:
 
 
 // some helpers .... (not very clean, redesign!!)
-pair<bool,string> DDIsValid(const string & ns, const string & name, vector<DDLogicalPart> & result,bool doRegex=true);
-// maps name to vector of namespaces
+std::pair<bool,std::string> DDIsValid(const std::string & ns, const std::string & name, std::vector<DDLogicalPart> & result,bool doRegex=true);
+// std::maps name to std::vector of namespaces
 typedef DDI::Singleton<std::map<std::string,std::vector<DDName> > > LPNAMES;
 void DD_NC(const DDName &);
 

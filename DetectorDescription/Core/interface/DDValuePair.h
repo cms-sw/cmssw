@@ -3,18 +3,16 @@
 
 #include <string>
 #include <utility>
-using std::string;
-using std::pair;
 
-struct DDValuePair : public pair<string,double>
+struct DDValuePair : public std::pair<std::string,double>
 {
   DDValuePair() { }
-  DDValuePair(const string & s, double d) : pair<string,double>(s,d) { }
-  DDValuePair(const string & s) : pair<string,double>(s,0) { }
-  DDValuePair(double d) : pair<string,double>("",d) { }
+  DDValuePair(const std::string & s, double d) : std::pair<std::string,double>(s,d) { }
+  DDValuePair(const std::string & s) : std::pair<std::string,double>(s,0) { }
+  DDValuePair(double d) : std::pair<std::string,double>("",d) { }
   
-  operator const string&() const { return first; }
-  operator string&() { return first; }
+  operator const std::string&() const { return first; }
+  operator std::string&() { return first; }
   operator const double&() const { return second; }
   operator double&() { return second; }
   

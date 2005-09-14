@@ -1,7 +1,7 @@
 #ifndef DDException_h
 #define DDException_h
 
-#include<string>
+#include <string>
 #include<iostream>
 //#include "Utilities/GenUtil/interface/CMSexception.h"
 #include "SealBase/Error.h"
@@ -9,7 +9,7 @@
 //! An exception for DDD errors
 /** @class DDException DDException.h
  *
- *  @author:  Martin Liendl               Initial Version
+ *  @author:  Martin Listd::endl               Initial Version
  *  @version: 0.0
  *  @date:    
  * 
@@ -24,7 +24,7 @@
 class DDException : public seal::Error //: public Genexception
 {
 public: 
-  //! constructor takes simply an error message via a string
+  //! constructor takes simply an error message via a std::string
   explicit DDException(const std::string & s);
   DDException(const DDException& dde);
 

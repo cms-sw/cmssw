@@ -78,7 +78,7 @@ class DDLSAX2FileHandler : public DDLSAX2Handler
     void createDDConstants() const; 
     //  Map that holds name and number of elements processed.
     std::map < std::string, int> elementTypeCounter_;
-    //std::stack < std::string > names_;
+    //std::tack < std::string > names_;
     std::map < std::string, std::string* > namesMap_;
     std::vector < std::string* > names_;
     seal::TimingReport t_;

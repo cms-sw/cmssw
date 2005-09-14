@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-namespace std{} using namespace std;
+
 
 /// DDLTubs processes Tubs elements.
 /** @class DDLTubs

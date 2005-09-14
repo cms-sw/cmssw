@@ -16,7 +16,7 @@ AlgoPos::AlgoPos(AlgoCheck * check)
 AlgoPos::~AlgoPos()
 { 
   //FIXME: delete all registered AlgoImpls!!!
-  vector<AlgoImpl*>::iterator it = regAlgos_.begin();
+  std::vector<AlgoImpl*>::iterator it = regAlgos_.begin();
   for (; it != regAlgos_.end(); ++it) {
     delete *it;
   }  
@@ -37,7 +37,7 @@ void AlgoPos::setParameters(int start, int end, int incr,
   count_ = 1;
 
   // now check mandatory parameters, then let the algorithm check all parametes itself.
-  // collect all error messages in string err_
+  // collect all error messages in std::string err_
   
   bool check = true;
   if (incr) {
@@ -171,12 +171,12 @@ bool AlgoPos::select()
   
   
   if (result) { // select an algorithm-implementation only if the parameters are ok
-    vector<AlgoImpl*>::iterator it = regAlgos_.begin();
+    std::vector<AlgoImpl*>::iterator it = regAlgos_.begin();
     for (; it != regAlgos_.end(); ++it) {
-      string::size_type s = err_.size();
+      std::string::size_type s = err_.size();
       result = (*it)->checkParameters();
-      if (s!=err_.size()) { // uups, error-string was modified! tell it, where:
-        err_ += string("\tin algo.implementation labeled \"") + (*it)->label_ + string("\"\n");
+      if (s!=err_.size()) { // uups, error-std::string was modified! tell it, where:
+        err_ += std::string("\tin algo.implementation labeled \"") + (*it)->label_ + std::string("\"\n");
       }
       if (result) { // select the algorithm
         selAlgo_ = *it;
@@ -187,8 +187,8 @@ bool AlgoPos::select()
   // parameters are not ok, put something into the error message
   /*
   if (!result) { 
-   err_ += "\tin algorithm named " + string("[") 
-        +  ns() + string(":") + name() + string("]\n");
+   err_ += "\tin algorithm named " + std::string("[") 
+        +  ns() + std::string(":") + name() + std::string("]\n");
   }	
   */   
   
@@ -198,21 +198,21 @@ bool AlgoPos::select()
 // stream information about the alog-parameters
 void AlgoPos::stream(ostream & os) const
 {
-  os <<  "start=" << start_ << " end=" << end_ << " incr=" << incr_ << endl;
+  os <<  "start=" << start_ << " end=" << end_ << " incr=" << incr_ << std::endl;
   parE_type::const_iterator eit = ParE_.begin();
   for (; eit != ParE_.end() ; ++eit) {
-    vector<double>::const_iterator sit = eit->second.begin();
+    std::vector<double>::const_iterator sit = eit->second.begin();
     os << "parE name=" << eit->first;
     for (; sit != eit->second.end(); ++sit) {
-       os << " val=" << *sit << endl;
+       os << " val=" << *sit << std::endl;
     }
   }
   parS_type::const_iterator stit = ParS_.begin();
   for (; stit != ParS_.end() ; ++stit) {
-    vector<string>::const_iterator sit = stit->second.begin();
+    std::vector<std::string>::const_iterator sit = stit->second.begin();
     os << "parS name=" << stit->first;
     for (; sit != stit->second.end(); ++sit) {
-       os << " val=" << *sit << endl;
+       os << " val=" << *sit << std::endl;
     }
   }
 }

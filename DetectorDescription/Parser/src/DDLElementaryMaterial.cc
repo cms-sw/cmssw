@@ -41,7 +41,7 @@ DDLElementaryMaterial::~DDLElementaryMaterial()
 }
 
 // Upon encountering an end of an ElementaryMaterial element, we call DDCore
-void DDLElementaryMaterial::processElement (const string& type, const string& nmspace)
+void DDLElementaryMaterial::processElement (const std::string& type, const std::string& nmspace)
 {
   DCOUT_V('P', "DDLElementaryMaterial::processElement started");
 
@@ -53,7 +53,7 @@ void DDLElementaryMaterial::processElement (const string& type, const string& nm
       , ev.eval(nmspace, atts.find("atomicWeight")->second)
       , ev.eval(nmspace, atts.find("density")->second));
   } catch (DDException & e) {
-    string msg = e.what();
+    std::string msg = e.what();
     msg += "\nDDLElementaryMaterial failed to make DDMaterial.";
     throwError(msg);
   }

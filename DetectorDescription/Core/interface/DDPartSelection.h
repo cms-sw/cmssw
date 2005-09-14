@@ -24,7 +24,7 @@ enum ddselection_type { ddunknown,   //   ->    (should never appear!)
 
 struct DDPartSelRegExpLevel
 {
-  DDPartSelRegExpLevel(const string & ns, const string & nm, int cpn, ddselection_type t, bool isRegex=false)
+  DDPartSelRegExpLevel(const std::string & ns, const std::string & nm, int cpn, ddselection_type t, bool isRegex=false)
   : ns_(ns), nm_(nm), copyno_(cpn), selectionType_(t), isRegex_(isRegex) { }
   std::string ns_, nm_;
   int copyno_;
@@ -42,17 +42,17 @@ struct DDPartSelectionLevel
 };
 
 
-class DDPartSelection : public vector<DDPartSelectionLevel>
+class DDPartSelection : public std::vector<DDPartSelectionLevel>
 {
 public:
-  DDPartSelection() : vector<DDPartSelectionLevel>() { }
+  DDPartSelection() : std::vector<DDPartSelectionLevel>() { }
 };
 /*
-class DDPartSelection : public vector<DDPartSelectionLevel>
+class DDPartSelection : public std::vector<DDPartSelectionLevel>
 {
 public:
   DDPartSelection() { }; // to use it in stl-containers
-  DDPartSelection(const string & selectionstring);
+  DDPartSelection(const std::string & selectionString);
   
   ~DDPartSelection() { }
   
@@ -60,11 +60,11 @@ public:
 */
 
 
-ostream & operator<<(ostream &, const DDPartSelection &);
-ostream & operator<<(ostream &, const vector<DDPartSelection> &);
+std::ostream & operator<<(std::ostream &, const DDPartSelection &);
+std::ostream & operator<<(std::ostream &, const std::vector<DDPartSelection> &);
 
-void DDTokenize2(const string & selectionstring, vector<DDPartSelRegExpLevel> & result);
-void DDTokenize(const string & selectionstring, vector<DDPartSelRegExpLevel> & result);
-ostream & operator<<(ostream &, const DDPartSelection &);
+void DDTokenize2(const std::string & selectionString, std::vector<DDPartSelRegExpLevel> & result);
+void DDTokenize(const std::string & selectionString, std::vector<DDPartSelRegExpLevel> & result);
+std::ostream & operator<<(std::ostream &, const DDPartSelection &);
 
 #endif

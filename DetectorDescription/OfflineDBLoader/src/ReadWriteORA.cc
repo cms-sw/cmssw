@@ -54,7 +54,7 @@ bool ReadWriteORA::writeDB ( ) {
   seal::PluginManager::get()->initialise();
   seal::SealTimer t("ReadWriteORA::WriteFromMemoryToDB");
 
-  string token;
+  std::string token;
 
   try {
 
@@ -63,9 +63,9 @@ bool ReadWriteORA::writeDB ( ) {
     //       senv.set( "POOL_AUTH_PASSWORD", password_ );
     //       if ( senv.has("DDWriteConnectString") ) {
     // 	dbConnectString_ = senv.get("DDWriteConnectString");
-    // 	cout << "Environment variable DDWriteConnectString was used for connection. ";
+    // 	std::cout << "Environment variable DDWriteConnectString was used for connection. ";
     //       }
-    //       cout << "Connection String is: "  << dbConnectString_ << endl;
+    //       std::cout << "Connection String is: "  << dbConnectString_ << std::endl;
       
     // Loads the seal message stream
     pool::POOLContext::loadComponent( "SEAL/Services/MessageService" );
@@ -112,12 +112,12 @@ bool ReadWriteORA::writeDB ( ) {
     //     const DDSpecifics & sp = *it;
     //     //    os << "--Spec: @ ";
     //     nameout(os,sp.name());
-    //     //    os << ' ' << sp.selection().size() << endl;
+    //     //    os << ' ' << sp.selection().size() << std::endl;
     //     vector<DDPartSelection>::const_iterator sit(sp.selection().begin()), sed(sp.selection().end());
     //     for (; sit != sed; ++sit) {
-    //       os << *sit << endl;
+    //       os << *sit << std::endl;
     //     }
-    //     os << sp.specifics().size() << endl;
+    //     os << sp.specifics().size() << std::endl;
     //     DDsvalues_type::const_iterator vit(sp.specifics().begin()), ved(sp.specifics().end());
     //     for (; vit != ved; ++vit) {
     //       const DDValue & v = vit->second;
@@ -144,7 +144,7 @@ bool ReadWriteORA::writeDB ( ) {
     // 	  os << '"' << vs[i] << '"' << ' ';
     //         }
     //       }
-    //       os << endl;
+    //       os << std::endl;
       
     //     }
     //   }  
@@ -158,7 +158,7 @@ bool ReadWriteORA::writeDB ( ) {
     for (; git != gend; ++git) 
       {
 	const DDLogicalPart & ddLP = gra.nodeData(git);
-	//	cout << ddLP << endl;
+	//	std::cout << ddLP << std::endl;
 	plp = DDDToPersFactory::logicalPart ( ddLP  );
 	pgeom->pLogicalParts.push_back( *plp );
 	delete plp;
@@ -212,7 +212,7 @@ bool ReadWriteORA::writeDB ( ) {
     svc->transaction().commit();
     std::cout << "committed" << std::endl;
     svc->session().disconnectAll();
-    std::cout << "disconnected" << endl;
+    std::cout << "disconnected" << std::endl;
 
     delete svc;
 
@@ -240,10 +240,10 @@ bool ReadWriteORA::writeDB ( ) {
       }
     } catch ( seal::Exception& e ) {
       std::cout << "ReadWriteORA::writeDB caught seal::Exception -> " << e.what() << std::endl;
-      cout << "ASSUMPTION: the error allows me to proceed... about to add a mapping..." << endl;
+      std::cout << "ASSUMPTION: the error allows me to proceed... about to add a mapping..." << std::endl;
       meta.addMapping(name_, token);
     }
-    cout << meta.getToken(name_) << endl;
+    std::cout << meta.getToken(name_) << std::endl;
 
   return true;
 }
@@ -253,7 +253,7 @@ bool ReadWriteORA::readFromXML ( ) {
   seal::SealTimer t("ReadWriteORA::readFromXML");
   DDLParser* myP = DDLParser::instance();
   DDLConfiguration dp;
-  cout << "About to read configuration file: " << xmlConfiguration_ << endl; 
+  std::cout << "About to read configuration file: " << xmlConfiguration_ << std::endl; 
   int success = dp.readConfig(xmlConfiguration_);
   if ( success != 0) {
     throw DDException("Failed to read configuration.");
@@ -270,7 +270,7 @@ bool ReadWriteORA::readFromDB ( ) {
 
   MetaData meta(dbConnectString_);
 
-  cout << "Looking for ..." << name_ << endl;
+  std::cout << "Looking for ..." << name_ << std::endl;
   std::string aToken= meta.getToken(name_);
   seal::SealTimer timer("ReadWriteORA::readFromDB");
   DDORAReader ddorar( "cms:OCMS", 

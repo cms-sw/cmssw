@@ -32,10 +32,10 @@ DDDividedConsRho( const DDDivision & div )
 
   if( msol.rInPlusZ() == 0. )
     {
-      cout << "WARNING - DDDividedConsRho, rOutMinusZ = 0. "
-	   << endl 
+      std::cout << "WARNING - DDDividedConsRho, rOutMinusZ = 0. "
+	   << std::endl 
 	   << "          Width is calculated as that of rOutMinusZ !"
-	   << endl;
+	   << std::endl;
     } 
       
   if( divisionType_ == DivWIDTH )

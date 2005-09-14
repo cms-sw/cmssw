@@ -15,7 +15,7 @@
                                   
 
 // always the same ctor
-global_simpleAngular_0::global_simpleAngular_0(AlgoPos * a,string label)
+global_simpleAngular_0::global_simpleAngular_0(AlgoPos * a,std::string label)
  : AlgoImpl(a,label)
 { }
 
@@ -57,7 +57,7 @@ DDTranslation global_simpleAngular_0::translation()
   double offset  = ParE_["offset"][0]/rad;
   double delta   = ParE_["delta"][0]/rad;
   double radius  = ParE_["radius"][0];
-//  cout << "x = " << radius * cos(offset + delta * (count_ - 1)) << "  y = " << radius * sin(offset + delta * (count_ - 1)) << endl;
+//  std::cout << "x = " << radius * cos(offset + delta * (count_ - 1)) << "  y = " << radius * sin(offset + delta * (count_ - 1)) << std::endl;
   DDTranslation trans(radius * cos(offset + delta * (count_ - 1)),
 		      radius * sin(offset + delta * (count_ - 1)),
 		      0. );
@@ -68,7 +68,7 @@ DDTranslation global_simpleAngular_0::translation()
 
 DDRotationMatrix global_simpleAngular_0::rotation()
 {
-  cout << "ParS_[\"rotate\"][0] = " << ParS_["rotate"][0] << endl; 
+  std::cout << "ParS_[\"rotate\"][0] = " << ParS_["rotate"][0] << std::endl; 
   if (ParS_["rotate"][0] == "T" || ParS_["rotate"][0] == "1"
       || ParS_["rotate"][0] == "True")
     {
@@ -76,10 +76,10 @@ DDRotationMatrix global_simpleAngular_0::rotation()
       DDRotationMatrix rm1;
       if (ParS_["orientation"].size() != 0)
 	{
-	  string name=ParS_["orientation"][0];
+	  std::string name=ParS_["orientation"][0];
 	  size_t foundColon = 0;
-	  string rn = "";
-	  string ns = "";
+	  std::string rn = "";
+	  std::string ns = "";
 	  while (foundColon < name.size() && name[foundColon] != ':')
 	    foundColon++;
 	  if (foundColon != name.size())
@@ -95,8 +95,8 @@ DDRotationMatrix global_simpleAngular_0::rotation()
 	      rm1 = *(myDDRotation.rotation());
 	    }
 	  else
-	    cout << "MAJOR PROBLEM: expected a fully qualified DDName but got :" 
-		 << name << endl;
+	    std::cout << "MAJOR PROBLEM: expected a fully qualified DDName but got :" 
+		 << name << std::endl;
 	}
       DDRotationMatrix rm(Hep3Vector(0., 0., 1.),  angle);
 
@@ -105,10 +105,10 @@ DDRotationMatrix global_simpleAngular_0::rotation()
   else if (ParS_["orientation"].size() != 0)
     {
       // return the orientation matrix
-      string name=ParS_["orientation"][0];
+      std::string name=ParS_["orientation"][0];
       size_t foundColon = 0;
-      string rn = "";
-      string ns = "";
+      std::string rn = "";
+      std::string ns = "";
       while (foundColon < name.size() && name[foundColon] != ':')
 	foundColon++;
       if (foundColon != name.size())
@@ -123,13 +123,13 @@ DDRotationMatrix global_simpleAngular_0::rotation()
 	  
 	  DDRotation myDDRotation(DDName(rn, ns));
 	  DDRotationMatrix rm = *(myDDRotation.rotation());
-	  cout << "about to return *(myDDRotation.rotation())" << endl;
-	  cout << *myDDRotation.rotation() << endl;
+	  std::cout << "about to return *(myDDRotation.rotation())" << std::endl;
+	  std::cout << *myDDRotation.rotation() << std::endl;
 	  return *(myDDRotation.rotation());
 	}
       else
-	cout << "MAJOR PROBLEM: expected a fully qualified DDName but got " 
-	     << name << " therefore could not look up the rotation." << endl;
+	std::cout << "MAJOR PROBLEM: expected a fully qualified DDName but got " 
+	     << name << " therefore could not look up the rotation." << std::endl;
       return DDRotationMatrix();
     }
   else
@@ -154,7 +154,7 @@ void global_simpleAngular_0::checkTermination()
 }
 
 
-void global_simpleAngular_0::stream(ostream & os) const
+void global_simpleAngular_0::stream(std::ostream & os) const
 {
   os << "global_simplesimpleAngular_0::stream(): not implemented.";
 }
@@ -164,7 +164,7 @@ void global_simpleAngular_0::stream(ostream & os) const
 
 
 // always the same ctor
-global_simpleAngular_1::global_simpleAngular_1(AlgoPos * a,string label)
+global_simpleAngular_1::global_simpleAngular_1(AlgoPos * a,std::string label)
  : AlgoImpl(a,label)
 { }
 
@@ -205,7 +205,7 @@ DDTranslation global_simpleAngular_1::translation()
   double number = ParE_["number"][0];
   double delta = (360.0 / number) * deg;
   double radius  = ParE_["radius"][0];
-//  cout << "x = " << radius * cos(offset + delta * (count_ - 1)) << "  y = " << radius * sin(offset + delta * (count_ - 1)) << endl;
+//  std::cout << "x = " << radius * cos(offset + delta * (count_ - 1)) << "  y = " << radius * sin(offset + delta * (count_ - 1)) << std::endl;
   DDTranslation trans(radius * cos(offset + delta * (count_ - 1)),
 		      radius * sin(offset + delta * (count_ - 1)),
 		      0. );
@@ -226,10 +226,10 @@ DDRotationMatrix global_simpleAngular_1::rotation()
       DDRotationMatrix rm1;
       if (ParS_["orientation"].size() != 0)
 	{
-	  string name=ParS_["orientation"][0];
+	  std::string name=ParS_["orientation"][0];
 	  size_t foundColon = 0;
-	  string rn = "";
-	  string ns = "";
+	  std::string rn = "";
+	  std::string ns = "";
 	  while (foundColon < name.size() && name[foundColon] != ':')
 	    foundColon++;
 	  if (foundColon != name.size())
@@ -245,8 +245,8 @@ DDRotationMatrix global_simpleAngular_1::rotation()
 	      rm1 = *(myDDRotation.rotation());
 	    }
 	  else
-	    cout << "MAJOR PROBLEM: expected a fully qualified DDName but got :" 
-		 << name << " therefore could not look up the rotation." << endl;
+	    std::cout << "MAJOR PROBLEM: expected a fully qualified DDName but got :" 
+		 << name << " therefore could not look up the rotation." << std::endl;
 	}
 
       DDRotationMatrix rm(Hep3Vector(0., 0., 1.),  angle);
@@ -254,10 +254,10 @@ DDRotationMatrix global_simpleAngular_1::rotation()
     }
   else if (ParS_["orientation"].size() != 0)
     {
-      string name=ParS_["orientation"][0];
+      std::string name=ParS_["orientation"][0];
       size_t foundColon = 0;
-      string rn = "";
-      string ns = "";
+      std::string rn = "";
+      std::string ns = "";
       while (foundColon < name.size() && name[foundColon] != ':')
 	foundColon++;
       if (foundColon != name.size())
@@ -275,8 +275,8 @@ DDRotationMatrix global_simpleAngular_1::rotation()
 	  return *(myDDRotation.rotation());
 	}
       else
-	cout << "MAJOR PROBLEM: expected a fully qualified DDName but got " 
-	     << name << " therefore could not look up the rotation." << endl;
+	std::cout << "MAJOR PROBLEM: expected a fully qualified DDName but got " 
+	     << name << " therefore could not look up the rotation." << std::endl;
 
       return DDRotationMatrix();
     }
@@ -300,7 +300,7 @@ void global_simpleAngular_1::checkTermination()
 }
 
 
-void global_simpleAngular_1::stream(ostream & os) const
+void global_simpleAngular_1::stream(std::ostream & os) const
 {
   os << "global_simpleAngular_0::stream(): not implemented.";
 }
@@ -310,7 +310,7 @@ void global_simpleAngular_1::stream(ostream & os) const
 
 
 // always the same ctor
-global_simpleAngular_2::global_simpleAngular_2(AlgoPos * a,string label)
+global_simpleAngular_2::global_simpleAngular_2(AlgoPos * a,std::string label)
  : AlgoImpl(a,label)
 { }
 
@@ -363,7 +363,7 @@ DDTranslation global_simpleAngular_2::translation()
 //  double number = ParE_["number"][0];
   double delta = ParE_["delta"][0];
   double radius  = ParE_["radius"][0];
-//  cout << "x = " << radius * cos(offset + delta * (count_ - 1)) << "  y = " << radius * sin(offset + delta * (count_ - 1)) << endl;
+//  std::cout << "x = " << radius * cos(offset + delta * (count_ - 1)) << "  y = " << radius * sin(offset + delta * (count_ - 1)) << std::endl;
   DDTranslation trans(radius * cos(offset + delta * (count_ - 1)),
 		      radius * sin(offset + delta * (count_ - 1)),
 		      0. );
@@ -384,10 +384,10 @@ DDRotationMatrix global_simpleAngular_2::rotation()
       DDRotationMatrix rm1;
       if (ParS_["orientation"].size() != 0)
 	{
-	  string name=ParS_["orientation"][0];
+	  std::string name=ParS_["orientation"][0];
 	  size_t foundColon = 0;
-	  string rn = "";
-	  string ns = "";
+	  std::string rn = "";
+	  std::string ns = "";
 	  while (foundColon < name.size() && name[foundColon] != ':')
 	    foundColon++;
 	  if (foundColon != name.size())
@@ -403,8 +403,8 @@ DDRotationMatrix global_simpleAngular_2::rotation()
 	      rm1 = *(myDDRotation.rotation());
 	    }
 	  else
-	    cout << "MAJOR PROBLEM: expected a fully qualified DDName but got :" 
-		 << name << endl;
+	    std::cout << "MAJOR PROBLEM: expected a fully qualified DDName but got :" 
+		 << name << std::endl;
 	}
       DDRotationMatrix rm(Hep3Vector(0., 0., 1.),  angle);
 
@@ -413,10 +413,10 @@ DDRotationMatrix global_simpleAngular_2::rotation()
   else if (ParS_["orientation"].size() != 0)
     {
       // return the orientation matrix
-      string name=ParS_["orientation"][0];
+      std::string name=ParS_["orientation"][0];
       size_t foundColon = 0;
-      string rn = "";
-      string ns = "";
+      std::string rn = "";
+      std::string ns = "";
       while (foundColon < name.size() && name[foundColon] != ':')
 	foundColon++;
       if (foundColon != name.size())
@@ -434,8 +434,8 @@ DDRotationMatrix global_simpleAngular_2::rotation()
 	  return *(myDDRotation.rotation());
 	}
       else
-	cout << "MAJOR PROBLEM: expected a fully qualified DDName but got " 
-	     << name << " therefore could not look up the rotation." << endl;
+	std::cout << "MAJOR PROBLEM: expected a fully qualified DDName but got " 
+	     << name << " therefore could not look up the rotation." << std::endl;
       return DDRotationMatrix();
     }
   else
@@ -458,7 +458,7 @@ void global_simpleAngular_2::checkTermination()
 }
 
 
-void global_simpleAngular_2::stream(ostream & os) const
+void global_simpleAngular_2::stream(std::ostream & os) const
 {
   os << "global_simpleAngular_0::stream(): not implemented.";
 }

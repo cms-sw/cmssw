@@ -4,7 +4,7 @@
 #include <vector>
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
 
-class DDNodes : public vector<DDExpandedNode>
+class DDNodes : public std::vector<DDExpandedNode>
 {
 public:
   DDNodes()  { }

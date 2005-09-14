@@ -8,7 +8,7 @@
 #include "DetectorDescription/Base/interface/Store.h"
 #include "DetectorDescription/Base/interface/rep_type.h"
 
-using std::string;
+
 
 /**
   your comment here
@@ -88,7 +88,7 @@ public:
   
   const N & ddname() const { return prep_->name(); }
   
-  string toString() const { return prep_->name(); }
+  std::string toString() const { return prep_->name(); }
     
   const typename DDI::rep_traits<N,C>::reference rep() const 
     { return *(prep_->second); }
@@ -97,12 +97,12 @@ public:
     { return *(prep_->second); }
     
   const typename DDI::rep_traits<N,C>::reference val() const
-    { if (!isValid()) throw DDException(string("undefined: ") + string(name())); 
+    { if (!isValid()) throw DDException(std::string("undefined: ") + std::string(name())); 
       return rep();
     };  
 
   const typename DDI::rep_traits<N,C>::reference val() 
-    { if (!isValid()) throw DDException(string("undefined: ") + string(name())); 
+    { if (!isValid()) throw DDException(std::string("undefined: ") + std::string(name())); 
       return rep();
     };  
   
@@ -119,9 +119,9 @@ public:
   def_type isDefined() const 
    {
      return prep_ ?
-                    make_pair(&(prep_->name()), bool(prep_->second))
+                    std::make_pair(&(prep_->name()), bool(prep_->second))
 		  :
-		    make_pair((const N *)0,false);  
+		    std::make_pair((const N *)0,false);  
    } 
    
   //! true, if the  wrapped pointer is valid

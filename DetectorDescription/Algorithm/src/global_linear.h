@@ -12,8 +12,8 @@
 #include <cfloat>
 #include <string>
 #include <iostream>
-using std::string;
-using std::ostream;
+
+;
 #define MAX_DOUBLE DBL_MAX
 //#include <climits>
 
@@ -22,7 +22,7 @@ using std::ostream;
 
 	    Linear positioning according to the formula:
 	     c = {s, s+i, s+2*i, .. <=e} ... current number in alg.range
-	     dir[theta,phi] ... unit-vector in direction theta,phi
+	     dir[theta,phi] ... unit-std::vector in direction theta,phi
 	     offset ... an offset distance in direction dir(theta,phi)
 	     delta ... distance between two subsequent positions along dir[theta,phi]
 	     base ... a 3d-point where the offset is calculated from
@@ -44,7 +44,7 @@ using std::ostream;
 class global_linear_0 : public AlgoImpl
 {
 public:
-  global_linear_0(AlgoPos*,string label);
+  global_linear_0(AlgoPos*,std::string label);
   ~global_linear_0();
   
   bool checkParameters();
@@ -58,7 +58,7 @@ public:
   
 
 // no XML counterpart, but usefull.
-  void stream(ostream  &) const;
+  void stream(std::ostream  &) const;
 
 };
 
@@ -66,7 +66,7 @@ public:
 class global_linear_1 : public AlgoImpl
 {
 public:
-  global_linear_1(AlgoPos*,string label);
+  global_linear_1(AlgoPos*,std::string label);
   ~global_linear_1();
   
   bool checkParameters();
@@ -80,7 +80,7 @@ public:
   
 
 // no XML counterpart, but usefull.
-  void stream(ostream  &) const;
+  void stream(std::ostream  &) const;
 
 };
 

@@ -41,7 +41,7 @@ DDLTrapezoid::~DDLTrapezoid()
 }
 
 // Upon encountering an end of the tag, call DDCore's Trap.
-void DDLTrapezoid::processElement (const string& name, const string& nmspace)
+void DDLTrapezoid::processElement (const std::string& name, const std::string& nmspace)
 {
   DCOUT_V('P', "DDLTrapezoid::processElement started");
 
@@ -102,14 +102,14 @@ void DDLTrapezoid::processElement (const string& name, const string& nmspace)
       }
     else
       {
-        string msg = "\nDDLTrapezoid::processElement failed to process element of name: " 
+        std::string msg = "\nDDLTrapezoid::processElement failed to process element of name: " 
 	  + name
 	  + ".  It can only process Trapezoid and Trd1.";
         throwError(msg);
       }
   } catch (DDException& e) {
-    string msg = e.what();
-    msg += string("\nDDLParser, Call failed to DDSolidFactory.");
+    std::string msg = e.what();
+    msg += std::string("\nDDLParser, Call failed to DDSolidFactory.");
     throwError(msg);
   }
 

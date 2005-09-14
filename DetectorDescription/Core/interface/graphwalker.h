@@ -128,7 +128,7 @@ typename graphwalker<N,E>::value_type graphwalker<N,E>::current_bfs() const
 template<class N, class E>
 void graphwalker<N,E>::reset()
 {
-  //cout << "graphwalker::reset" << endl;
+  //std::cout << "graphwalker::reset" << std::endl;
   stack_.clear();
   stack_.push_back(edge_range(root_.begin(),root_.end()));
   queue_.clear();
@@ -170,7 +170,7 @@ typename graphwalker<N,E>::result_type graphwalker<N,E>::nextSibling()
 template<class N, class E>
 typename graphwalker<N,E>::result_type graphwalker<N,E>::parent()
 {
-   //cout << "graphwalker::parent()" << endl;
+   //std::cout << "graphwalker::parent()" << std::endl;
    result_type result = false;
    if (stack_.size()>1) {
      stack_.pop_back();

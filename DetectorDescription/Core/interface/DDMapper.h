@@ -6,9 +6,9 @@
 #include <vector>
 
 #include <iostream>
-using std::cout;
-using std::endl;
-using std::vector;
+
+;
+;
 
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 
@@ -39,7 +39,7 @@ public:
   bool value(const KeyType & key, ValueType & result);
   
   //! fetch a key given a value
-  //bool keys(const ValueType & value, vector<KeyType> & result);
+  //bool keys(const ValueType & value, std::vector<KeyType> & result);
     
   //! the number of specific parameters which are named 'name'
   unsigned int noSpecifics(const KeyType & key, const std::string & name) const;
@@ -52,27 +52,27 @@ public:
        alternatively 'pos' can be used to address another value (note: pos=0 -> first value) */     
   unsigned int toDouble(const std::string & name, const KeyType & key, double & value, unsigned int pos=0) const;
   
-  //! same as toDouble but for string-valued values of named parameters
+  //! same as toDouble but for std::string-valued values of named parameters
   unsigned int toString(const std::string & name, const KeyType & key, std::string & value, unsigned int pos=0) const;
 
   unsigned int toDouble(const std::string & name, const ValueType & key, double & value, unsigned int pos=0) const;
   
-  //! same as toDouble but for string-valued values of named parameters
+  //! same as toDouble but for std::string-valued values of named parameters
   unsigned int toString(const std::string & name, const ValueType & key, std::string & value, unsigned int pos=0) const;
     
-  //! get all mapped instances which have a specific 'name' with value 'value'
+  //! get all std::mapped instances which have a specific 'name' with value 'value'
   Vector all(const std::string & name, const std::string & value) const;
   
-  //! get all mapped instances which have a specific 'name' with value 'value'
+  //! get all std::mapped instances which have a specific 'name' with value 'value'
   Vector all(const std::string & name, const double & value) const;
 
-  //! get all mapped instances which have a specific 'name'
+  //! get all std::mapped instances which have a specific 'name'
   Vector all(const std::string & name) const;
 
 
 private:
   std::map<KeyType, ValueType> keyToValue_;
-  std::multimap<ValueType, KeyType> valueToKey_;  
+  std::multistd::map<ValueType, KeyType> valueToKey_;  
 };
 
 
@@ -80,7 +80,7 @@ template<class K, class V>
 void DDMapper<K,V>::insert(const K & key, const V & value)
 {
    keyToValue_[key] = value;
-   valueToKey_.insert(make_pair(value,key));
+   valueToKey_.insert(std::make_pair(value,key));
    //   valueToKey_[value] = key;
 }
 
@@ -98,7 +98,7 @@ bool DDMapper<K,V>::value(const K & key, V & value)
 }
 
 template<class K, class V>
-unsigned int DDMapper<K,V>::noSpecifics(const K & key, const string & name) const
+unsigned int DDMapper<K,V>::noSpecifics(const K & key, const std::string & name) const
 {
   typedef std::vector<const DDsvalues_type *> sv_type;
   unsigned int result = 0;
@@ -192,12 +192,12 @@ unsigned int DDMapper<K,V>::toString(const std::string & name, const K & key, st
     sv_type::const_iterator svIt = sv.begin();
     sv_type::const_iterator svEd = sv.end();
     DDValue v(name);
-    //cout << "DDValue=" << name << endl;
+    //std::cout << "DDValue=" << name << std::endl;
     for (; svIt != svEd; ++svIt) {
-      //cout << "looping..." << **svIt << endl;
+      //std::cout << "looping..." << **svIt << std::endl;
       if (DDfetch(*svIt,v)) {
         result = v.size();
-	 //cout << "found!" << endl;
+	 //std::cout << "found!" << std::endl;
         value = v.strings()[pos];
 	 break;
       }	
@@ -218,22 +218,22 @@ std::vector<std::pair<K,V> > DDMapper<K,V>::all(const std::string & name, const 
   // loop over all registered ValueTypes
   for (; it != ed; ++it) {
      sv_type sv = it->first.specifics();
-     //cout << "now at: " << it->first.name() << endl;
+     //std::cout << "now at: " << it->first.name() << std::endl;
      sv_type::const_iterator svIt = sv.begin();
      sv_type::const_iterator svEd = sv.end();
      DDValue v(name);
      for (; svIt != svEd; ++svIt) {
        if (DDfetch(*svIt,v)) {
-         //cout << "found: ";
-         const std::vector<string> & s = v.strings();
+         //std::cout << "found: ";
+         const std::vector<std::string> & s = v.strings();
   	  if (s.size()) {
-	    //cout << s[0];
+	    //std::cout << s[0];
 	    if (s[0]==value) {
 	      result.push_back(std::make_pair(it->second,it->first));
 	      break;
 	    }
 	  }	  
-	 //cout << endl; 
+	 //std::cout << std::endl; 
        }
      }  
   }
@@ -252,22 +252,22 @@ std::vector<std::pair<K,V> > DDMapper<K,V>::all(const std::string & name, const 
   // loop over all registered ValueTypes
   for (; it != ed; ++it) {
      sv_type sv = it->first.specifics();
-     //cout << "now at: " << it->first.name() << endl;
+     //std::cout << "now at: " << it->first.name() << std::endl;
      sv_type::const_iterator svIt = sv.begin();
      sv_type::const_iterator svEd = sv.end();
      DDValue v(name);
      for (; svIt != svEd; ++svIt) {
        if (DDfetch(*svIt,v)) {
-         //cout << "found: ";
+         //std::cout << "found: ";
          const std::vector<double> & s = v.doubles();
   	  if (s.size()) {
-	    //cout << s[0];
+	    //std::cout << s[0];
 	    if (s[0]==value) {
 	      result.push_back(std::make_pair(it->second,it->first));
 	      break;
 	    }
 	  }	  
-	 //cout << endl; 
+	 //std::cout << std::endl; 
        }
      }  
   }
@@ -286,7 +286,7 @@ std::vector<std::pair<K,V> > DDMapper<K,V>::all(const std::string & name) const
   // loop over all registered ValueTypes
   for (; it != ed; ++it) {
      sv_type sv = it->first.specifics();
-     //cout << "now at: " << it->first.name() << endl;
+     //std::cout << "now at: " << it->first.name() << std::endl;
      sv_type::const_iterator svIt = sv.begin();
      sv_type::const_iterator svEd = sv.end();
      DDValue v(name);

@@ -152,10 +152,10 @@ protected:
   */
   int count_;
   
-  //! string valued parameters passed to the algorithm 
+  //! std::string valued parameters passed to the algorithm 
   /** 
     Before the first invocation of the algorithm ParS_ will be filled
-    with the string-valued parameters passed to the algorithm implementation object
+    with the std::string-valued parameters passed to the algorithm implementation object
     AlgoImpl.     
   */  
   parS_type ParS_;
@@ -163,7 +163,7 @@ protected:
   //! double valued parameters passed to the algorithm 
   /**
     Before the first invocation of the algorithm ParS_ will be filled
-    with the string-valued parameters passed to the algorithm implementation object
+    with the std::string-valued parameters passed to the algorithm implementation object
     AlgoImpl.     
   */
   parE_type ParE_;
@@ -171,7 +171,7 @@ protected:
   //! flag to signal whether the algorithm has finished (true) 
   bool terminate_;
   
-  //! string to hold potential error messages found inside checkParameters()
+  //! std::string to hold potential error messages found inside checkParameters()
   std::string err_;
   
   //! registry of algorithm implementation objects

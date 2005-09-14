@@ -65,18 +65,18 @@ void DDLSAX2ConfigHandler::startElement(const XMLCh* const uri
   elementCount_++;
   attrCount_ += attrs.getLength();
 
-  string myelemname = string(XMLString::transcode(qname));
+  std::string myelemname = std::string(XMLString::transcode(qname));
   DCOUT_V('P', "DDLSAX2ConfigHandler::startElement" << myelemname << " started...");
 
   unsigned int numAtts = attrs.getLength();
   unsigned int i = 0;
   if (myelemname == "File")
     {
-      string name="", url="";
+      std::string name="", url="";
       while ( i < numAtts )
 	{
-          string myattname = string(XMLString::transcode(attrs.getLocalName(i)));
-          string myvalue = string(XMLString::transcode(attrs.getValue(i)));
+          std::string myattname = std::string(XMLString::transcode(attrs.getLocalName(i)));
+          std::string myvalue = std::string(XMLString::transcode(attrs.getValue(i)));
 
           if (myattname == "name")
 	    name=myvalue;
@@ -100,11 +100,11 @@ void DDLSAX2ConfigHandler::startElement(const XMLCh* const uri
     }
   else if (myelemname == "Root")
     {
-      string fileName="", logicalPartName="";
+      std::string fileName="", logicalPartName="";
       while ( i < numAtts )
 	{
-          string myattname = string(XMLString::transcode(attrs.getLocalName(i)));
-          string myvalue = string(XMLString::transcode(attrs.getValue(i)));
+          std::string myattname = std::string(XMLString::transcode(attrs.getLocalName(i)));
+          std::string myvalue = std::string(XMLString::transcode(attrs.getValue(i)));
 
 	  if (myattname == "fileName")
 	    fileName = myvalue;
@@ -114,19 +114,19 @@ void DDLSAX2ConfigHandler::startElement(const XMLCh* const uri
 	}
 
       fileName = fileName.substr(0, fileName.find("."));
-      cout << fileName << ":" << logicalPartName << " is the ROOT" << endl;
+      std::cout << fileName << ":" << logicalPartName << " is the ROOT" << std::endl;
       DDLogicalPart root;
       DDRootDef::instance().set(DDName(logicalPartName, fileName));
 
-      DCOUT_V('P', string("DDLSAX2ConfigHandler::startElement.  Setting DDRoot LogicalPart=") + logicalPartName + string(" in ") + fileName);  
+      DCOUT_V('P', std::string("DDLSAX2ConfigHandler::startElement.  Setting DDRoot LogicalPart=") + logicalPartName + std::string(" in ") + fileName);  
 
     }
   else if (myelemname == "Schema")
     {
       while ( i < numAtts )
 	{
-          string myattname = string(XMLString::transcode(attrs.getLocalName(i)));
-          string myvalue = string(XMLString::transcode(attrs.getValue(i)));
+          std::string myattname = std::string(XMLString::transcode(attrs.getLocalName(i)));
+          std::string myvalue = std::string(XMLString::transcode(attrs.getValue(i)));
 	  if (myattname == "schemaLocation")
 	    schemaLocation_ = myvalue;
           else if (myattname == "validation")
@@ -137,17 +137,17 @@ void DDLSAX2ConfigHandler::startElement(const XMLCh* const uri
   DCOUT_V('P', "DDLSAX2ConfigHandler::startElement" << myelemname << " completed...");
 }
 
-vector<string>& DDLSAX2ConfigHandler::getFileNames()
+std::vector<std::string>& DDLSAX2ConfigHandler::getFileNames()
 {
   return files_;
 }
 
-vector<string>& DDLSAX2ConfigHandler::getURLs()
+std::vector<std::string>& DDLSAX2ConfigHandler::getURLs()
 {
   return urls_;
 }
 
-string DDLSAX2ConfigHandler::getSchemaLocation()
+std::string DDLSAX2ConfigHandler::getSchemaLocation()
 {
   return schemaLocation_;
 }

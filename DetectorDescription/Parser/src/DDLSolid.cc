@@ -40,7 +40,7 @@ DDLSolid::~DDLSolid()
 {
 }
 
-void DDLSolid::setReference (const string& nmspace)
+void DDLSolid::setReference (const std::string& nmspace)
 {
   // in case it was a BooleanSolid or a ReflectionSolid, clear rSolid.
   DDXMLElement* myrSolid = DDLElementRegistry::getElement("rSolid");
@@ -50,8 +50,8 @@ void DDLSolid::setReference (const string& nmspace)
   if (parent() == "LogicalPart")
     {
       DDXMLElement* refsol = DDLElementRegistry::getElement("rSolid");
-      vector<string> names;
-      vector<string> values;
+      std::vector<std::string> names;
+      std::vector<std::string> values;
       names.push_back("name");
       values.push_back(getAttributeSet().find("name")->second);
       refsol->loadAttributes("rSolid", names, values, nmspace);

@@ -7,12 +7,12 @@
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDBase.h"
 namespace DDI { class Material; }
-using std::ostream;
+;
 //using DDI::Material;
 class DDMaterial;
 
 
-ostream & operator<<(ostream &, const DDMaterial &);
+std::ostream & operator<<(std::ostream &, const DDMaterial &);
 
 //! DDMaterial is used to define and access material information
 /**
@@ -45,7 +45,7 @@ ostream & operator<<(ostream &, const DDMaterial &);
 */
 class DDMaterial : public DDBase<DDName,DDI::Material*>
 {
-  //typedef vector< pair<DDMaterial,double> > Fractions;
+  //typedef std::vector< pair<DDMaterial,double> > Fractions;
   friend std::ostream & operator<<(std::ostream &, const DDMaterial &);
   
   

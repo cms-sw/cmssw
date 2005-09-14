@@ -44,7 +44,7 @@ DDLPosPart::~DDLPosPart()
 // that it is cleared.  
 // I commented out the others because the last element
 // that made use of them should have cleared them.
-void DDLPosPart::preProcessElement (const string& type, const string& nmspace)
+void DDLPosPart::preProcessElement (const std::string& type, const std::string& nmspace)
 {
   DCOUT_V('P', "DDLPosPart::preProcessElement started");
 
@@ -58,7 +58,7 @@ void DDLPosPart::preProcessElement (const string& type, const string& nmspace)
 // Upon encountering the end tag of the PosPart we should have in the meantime
 // hit two rLogicalPart calls and one of Rotation or rRotation and a Translation.
 // So, retrieve them and make the call to DDCore.
-void DDLPosPart::processElement (const string& type, const string& nmspace)
+void DDLPosPart::processElement (const std::string& type, const std::string& nmspace)
 {
   DCOUT_V('P', "DDLPosPart::processElement started");
   
@@ -138,7 +138,7 @@ void DDLPosPart::processElement (const string& type, const string& nmspace)
   {
     // DDPosPart pospart = 
     const DDXMLAttribute & atts = getAttributeSet();
-    string copyno = "";
+    std::string copyno = "";
     if (atts.find("copyNumber") != atts.end())
       copyno = atts.find("copyNumber")->second;
     
@@ -149,7 +149,7 @@ void DDLPosPart::processElement (const string& type, const string& nmspace)
 	    , myDDTranslation
 	    , myDDRotation);
     } catch (DDException & e) {
-      string msg(e.what());
+      std::string msg(e.what());
       msg += "\nDDLPosPart failed to make a DDPosPart.";
       throwError(msg);
     }

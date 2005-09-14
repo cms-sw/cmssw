@@ -47,7 +47,7 @@ class DDLDocumentProvider;
  *  how one would get a CompactView from the DDD.
  *  
  *  Modification:
- *    2003-02-13: Michael Case, Stepan Wynhoff and Martin Liendl
+ *    2003-02-13: Michael Case, Stepan Wynhoff and Martin Listd::endl
  *    2003-02-24: same.
  *         DDLParser will use DDLDocumentProvider (abstract).  One of these
  *         and will be defaulted to DDLConfiguration.  This will read

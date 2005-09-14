@@ -12,7 +12,7 @@
 #include <string>
 
 namespace boost { namespace spirit {} } using namespace boost::spirit;
-// Boost parser, spirit, for parsing the vector elements.
+// Boost parser, spirit, for parsing the std::vector elements.
 #include "boost/spirit/core.hpp"
 
 class Mapper : public grammar<Mapper> {
@@ -53,7 +53,7 @@ class MapMakeDouble {
  *  email: case@ucdhep.ucdavis.edu
  *
  *
- *  This is the Map container.  It is a c++ stye map <string, double> and
+ *  This is the Map container.  It is a c++ stye std::map <std::string, double> and
  *  has a name associated with the Map for the DDD name-reference system.
  *
  */

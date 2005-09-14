@@ -7,13 +7,13 @@
 #include <iostream>
 
 class DDString;
-using std::string;
+
 
 //! output operator for printing ...
-ostream & operator<<(ostream & o, const DDString & cons);
+std::ostream & operator<<(std::ostream & o, const DDString & cons);
 
 //! a named constant corresponding to the DDL-XML tag <Constant> and <ConstantsVector>
-class DDString : public DDBase<DDName, string * >
+class DDString : public DDBase<DDName, std::string * >
 {
 public:
    //! an uninitialized constant; one can assign an initialized constant to make it valid
@@ -23,13 +23,13 @@ public:
    DDString(const DDName & name);
    
    //! creation of a new named constant; if it already existed with the given name, it's overwritten with new values
-   DDString(const DDName & name, string* value);
+   DDString(const DDName & name, std::string* value);
       
    //! return the first stored value; does not check boundaries!
-   const string & value() const { return rep(); }
+   const std::string & value() const { return rep(); }
       
-   //! convert to a string
-   operator string() const { return rep(); }
+   //! convert to a std::string
+   operator std::string() const { return rep(); }
 };
 
 #endif

@@ -30,11 +30,11 @@ DDLNumeric::~DDLNumeric()
 {
 }
  
-void DDLNumeric::preProcessElement (const string& name, const string& nmspace)
+void DDLNumeric::preProcessElement (const std::string& name, const std::string& nmspace)
 {
 }
 
-void DDLNumeric::processElement (const string& name, const string& nmspace)
+void DDLNumeric::processElement (const std::string& name, const std::string& nmspace)
 {
   DCOUT_V('P', "DDLNumeric::processElement started");
 
@@ -43,7 +43,7 @@ void DDLNumeric::processElement (const string& name, const string& nmspace)
       try {
 	DDNumeric ddnum ( getDDName(nmspace), new double(ExprEvalSingleton::instance().eval(nmspace, getAttributeSet().find("value")->second)) );
       } catch (DDException & e) {
-	string msg(e.what());
+	std::string msg(e.what());
 	msg += "\nDDLNumeric failed to create a DDNumeric.";
 	throwError(msg);
       }  

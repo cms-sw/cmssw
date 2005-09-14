@@ -41,13 +41,13 @@ DDLReflectionSolid::~DDLReflectionSolid()
 }
 
 // Upon starting a ReflectionSolid element, we need to clear all rSolids.
-void DDLReflectionSolid::preProcessElement(const string& name, const string& nmspace)
+void DDLReflectionSolid::preProcessElement(const std::string& name, const std::string& nmspace)
 {
   DDLElementRegistry::getElement("rSolid")->clear();
 }
 
 // Upon ending a ReflectionSolid element, call DDCore giving the solid name, and dimensions.
-void DDLReflectionSolid::processElement (const string& name, const string& nmspace)
+void DDLReflectionSolid::processElement (const std::string& name, const std::string& nmspace)
 {
   DCOUT_V('P', "DDLReflectionSolid::processElement started");
 
@@ -56,16 +56,16 @@ void DDLReflectionSolid::processElement (const string& name, const string& nmspa
 
   if (myrSolid->size() != 1)
     {
-      cout << "WARNING:  A ReflectionSolid had more than one rSolid.  "
-	   << "The first one was used." << endl;
-      cout << "The element to look for is " << getDDName(nmspace) << endl;
+      std::cout << "WARNING:  A ReflectionSolid had more than one rSolid.  "
+	   << "The first one was used." << std::endl;
+      std::cout << "The element to look for is " << getDDName(nmspace) << std::endl;
     }
 
   try {
     DDSolid solid = DDSolid(myrSolid->getDDName(nmspace));
     DDSolid ddreflsol = DDSolidFactory::reflection(getDDName(nmspace), solid);
   } catch (DDException & e) {
-    string msg(e.what());
+    std::string msg(e.what());
     msg += "\nDDLReflectionSolid failed call to DDSolidFactory.";
     throwError(msg);
   }

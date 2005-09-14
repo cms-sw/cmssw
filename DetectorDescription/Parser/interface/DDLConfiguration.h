@@ -7,6 +7,8 @@
 #include "DetectorDescription/Parser/interface/DDLDocumentProvider.h"
 
 class DDLParser;
+class DDLSAX2Handler;
+class DDLSAX2ConfigHandler;
 
 #include <string>
 #include <vector>
@@ -35,10 +37,10 @@ class DDLConfiguration : public DDLDocumentProvider {
   /// Read in the configuration file.
   int readConfig(const std::string& filename);
 
-  /// Return a list of files as a vector of strings.
+  /// Return a list of files as a std::vector of strings.
   virtual const std::vector < std::string >&  getFileList(void) const;
 
-  /// Return a list of urls as a vector of strings.
+  /// Return a list of urls as a std::vector of strings.
   virtual const std::vector < std::string >&  getURLList(void) const;
 
   /// Print out the list of files.

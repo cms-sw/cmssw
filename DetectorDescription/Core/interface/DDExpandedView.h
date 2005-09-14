@@ -36,8 +36,8 @@ class DDExpandedView
   friend class DDFilteredView;
   
 public:
-  //! vector of sibling numbers
-  typedef vector<int> nav_type;
+  //! std::vector of sibling numbers
+  typedef std::vector<int> nav_type;
   
   //! Constructs an expanded-view based on the compact-view
   DDExpandedView(const DDCompactView &);
@@ -66,8 +66,8 @@ public:
   nav_type copyNumbers() const;
   
   //! User specific data attached to the current node
-  vector<const DDsvalues_type * > specifics() const;
-  void specificsV(vector<const DDsvalues_type * > & vc ) const;
+  std::vector<const DDsvalues_type * > specifics() const;
+  void specificsV(std::vector<const DDsvalues_type * > & vc ) const;
 
   DDsvalues_type mergedSpecifics() const;
   void mergedSpecificsV(DDsvalues_type & res) const;
@@ -126,13 +126,13 @@ protected:
   DDCompactView::walker_type w2_;
   const DDTranslation trans_;
   const DDRotationMatrix rot_;
-  DDGeoHistory history_; //!< vector of DDExpandedNode
+  DDGeoHistory history_; //!< std::vector of DDExpandedNode
   DDGeoHistory scope_; //!< scope of the expanded view
   unsigned int depth_; //!< depth of the scope, 0==unrestricted depth
   DDPosData * worldpos_ ; //!< ???
-  vector<nav_type> nextBStack_;
-  //map<string,string> dummySpecifics_;    
+  std::vector<nav_type> nextBStack_;
+  //std::map<std::string,std::string> dummySpecifics_;    
 };
 
-ostream & operator<<(ostream &, const DDExpandedView::nav_type &);
+std::ostream & operator<<(std::ostream &, const DDExpandedView::nav_type &);
 #endif

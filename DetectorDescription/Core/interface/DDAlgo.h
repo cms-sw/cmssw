@@ -43,8 +43,8 @@ public:
   /*! copy-number calculation */
   int copyno() const;
   
-  /*! copy-number delivered as string */
-  string label() const;
+  /*! copy-number delivered as std::string */
+  std::string label() const;
   
   /*! prepare the algorithm for its next iteration or set its state to
       'terminate'  in case all iterations have already been done */
@@ -62,7 +62,7 @@ public:
   /*! the 'incr' parameter */
   int incr() const;
   
-  /*! string valued user parameter */
+  /*! std::string valued user parameter */
   const parS_type & parS() const;
   
   /*! double valued user parameter, values already evaluated from expressions*/

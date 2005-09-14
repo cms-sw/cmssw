@@ -1,7 +1,7 @@
 #ifndef DDCompactView_h
 #define DDCompactView_h
 
-//namespace std{} using namespace std;
+//
 
 #include <vector>
 //#include "DetectorDescription/Core/interface/tree.h"
@@ -17,7 +17,7 @@
 
 class DDPartSelector;
 class DDPhysicalPart;
-using std::vector;
+;
 
 /**
   Navigation through the compact view of the detector ...
@@ -66,13 +66,13 @@ class DDCompactView
  
 public:
   //! container-type of children of a given node in the compact-view
-  typedef vector<DDLogicalPart> logchild_type;
+  typedef std::vector<DDLogicalPart> logchild_type;
   
   //! container-type of pairs of children nodes and their relative position data of a given node in the compact-view
-  typedef vector< pair<DDLogicalPart,DDPosData*> > poschildren_type;
+  typedef std::vector< std::pair<DDLogicalPart,DDPosData*> > poschildren_type;
   
   //! pair ...
-  typedef pair<DDLogicalPart,DDPosData*> pos_type;
+  typedef std::pair<DDLogicalPart,DDPosData*> pos_type;
   
   //! not used
   //:typedef GraphWalker<DDLogicalPart,DDPosData*> walker_type;
@@ -104,7 +104,7 @@ public:
   void optimize();
   
   //! preliminary printing ...  
-  void print(ostream & os) const;   
+  void print(std::ostream & os) const;   
   
   //! Prototype version of calculating the weight of a detector component
   double weight(const DDLogicalPart & p) const;
@@ -118,7 +118,7 @@ public:
   void clear();
   
   /*      
-  pair<bool,DDPhysicalPart> goTo(const DDPartSelector & path) const 
+  std::pair<bool,DDPhysicalPart> goTo(const DDPartSelector & path) const 
    { return rep_->goTo(path); }
   */
 

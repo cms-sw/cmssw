@@ -70,8 +70,8 @@ DDLParser::DDLParser(seal::Context* ) : nFiles_(0) //, handler_(0)
 
   catch (const XMLException& toCatch)
     {
-      string e("\nDDLParser(): Error during initialization! Message:");
-      e += string(StrX(toCatch.getMessage()).localForm()) + string ("\n");
+      std::string e("\nDDLParser(): Error during initialization! Message:");
+      e += std::string(StrX(toCatch.getMessage()).localForm()) + std::string ("\n");
       throw (DDException(e));
     }
 
@@ -142,7 +142,7 @@ void DDLParser::setInstance( DDLParser* p ) {
   if ( instance_ == 0 ) {
     instance_ = p;
   } else {
-    cout << "DDL Parser instance already set!!" << endl;
+    std::cout << "DDL Parser instance already set!!" << std::endl;
   }
 }
 
@@ -156,14 +156,14 @@ DDLSAX2FileHandler* DDLParser::getDDLSAX2FileHandler() { return dynamic_cast < D
 
 // Set the filename for the config file.
 // Remove this soon!
-int DDLParser::SetConfig (const string& filename)
+int DDLParser::SetConfig (const std::string& filename)
 {
-  cout << "DDLParser::SetConfig IS DEPRECATED.  Please check interface." << endl;
+  std::cout << "DDLParser::SetConfig IS DEPRECATED.  Please check interface." << std::endl;
   configFileName_ = filename;
   return 0;
 }
 
-size_t DDLParser::isFound(const string& filename)
+size_t DDLParser::isFound(const std::string& filename)
 {
   FileNameHolder::const_iterator it = fileNames_.begin();
   size_t i = 0;
@@ -182,7 +182,7 @@ size_t DDLParser::isFound(const string& filename)
   return 0;
 }
 
-bool DDLParser::isParsed(const string& filename)
+bool DDLParser::isParsed(const std::string& filename)
 {
   size_t found = isFound(filename);
   if (found)
@@ -190,7 +190,7 @@ bool DDLParser::isParsed(const string& filename)
   return false;
 }
 
-bool DDLParser::parseOneFile(const string& filename, const string& url)
+bool DDLParser::parseOneFile(const std::string& filename, const std::string& url)
 {
   size_t foundFile = isFound(filename);
 
@@ -198,11 +198,11 @@ bool DDLParser::parseOneFile(const string& filename, const string& url)
     {
 
       int fIndex = foundFile;
-      //cout << "fIndex= " << fIndex << endl;
+      //std::cout << "fIndex= " << fIndex << std::endl;
       if (!foundFile) //parsed_[foundFile])
 	{
 	  seal::SealTimer tddlfname("DDLParser:"+filename.substr(filename.rfind('/')+1));
-	  pair <string, string> pss;
+	  pair <std::string, std::string> pss;
 	  pss.first = filename;
 	  if (url.size() && url.substr(url.size() - 1, 1) == "/")
 	    pss.second = url+filename;
@@ -212,20 +212,20 @@ bool DDLParser::parseOneFile(const string& filename, const string& url)
 	  fileNames_[fIndex] = pss;
 	  parsed_[fIndex] = false;
 	}
-      //cout << "fIndex= " << fIndex << endl;
+      //std::cout << "fIndex= " << fIndex << std::endl;
       DDLSAX2ExpressionHandler* myExpHandler(0);
       currFileName_ = fileNames_[fIndex].second;
       try
 	{
 	  myExpHandler = new DDLSAX2ExpressionHandler;
 	  SAX2Parser_->setContentHandler(myExpHandler);
-	  cout << "Parsing: " << fileNames_[fIndex].second << endl;
+	  std::cout << "Parsing: " << fileNames_[fIndex].second << std::endl;
 	  parseFile ( fIndex );
 
 	  delete myExpHandler;
 	}
       catch (const XMLException& toCatch) {
-	cout << "\nDDLParser::ParseOneFile, PASS1: XMLException while processing files... \n"
+	std::cout << "\nDDLParser::ParseOneFile, PASS1: XMLException while processing files... \n"
 	     << "Exception message is: \n"
 	     << StrX(toCatch.getMessage()) << "\n" ;
 	if (myExpHandler) delete myExpHandler;
@@ -247,7 +247,7 @@ bool DDLParser::parseOneFile(const string& filename, const string& url)
 
 	  // No need to validate (regardless of user's doValidation
 	  // because the files have already been validated on the first pass.
-	  // This optimization suggested by Martin Liendl.
+	  // This optimization suggested by Martin Listd::endl.
 	  SAX2Parser_->setFeature(XMLString::transcode("http://xml.org/sax/features/validation"), false);   // optional
 	  SAX2Parser_->setFeature(XMLString::transcode("http://xml.org/sax/features/namespaces"), false);   // optional
 	  SAX2Parser_->setFeature(XMLString::transcode("http://apache.org/xml/features/validation/dynamic"), false);
@@ -258,7 +258,7 @@ bool DDLParser::parseOneFile(const string& filename, const string& url)
 	  delete myFileHandler;
 	}
       catch (const XMLException& toCatch) {
-	cout << "\nDDLParser::ParseOneFile, PASS2: XMLException while processing files... \n"
+	std::cout << "\nDDLParser::ParseOneFile, PASS2: XMLException while processing files... \n"
 	     << "Exception message is: \n"
 	     << StrX(toCatch.getMessage()) << "\n" ;
 	if (myFileHandler) delete myFileHandler;
@@ -275,18 +275,18 @@ bool DDLParser::parseOneFile(const string& filename, const string& url)
   return false;
 }
 
-vector < string >  DDLParser::getFileList(void) 
+std::vector < std::string >  DDLParser::getFileList(void) 
 {
-  //  cout << "start getFileList" << endl;
-  vector<string> flist;
+  //  std::cout << "start getFileList" << std::endl;
+  std::vector<std::string> flist;
   for (FileNameHolder::const_iterator fit = fileNames_.begin(); fit != fileNames_.end(); fit++)
     {
-      //      cout << "about to push_back " << endl;
-      //      cout << "fit->second.second = " << fit->second.second << endl;
-      //      cout << "fit->second.first = " << fit->second.first << endl;
+      //      std::cout << "about to push_back " << std::endl;
+      //      std::cout << "fit->second.second = " << fit->second.second << std::endl;
+      //      std::cout << "fit->second.first = " << fit->second.first << std::endl;
       flist.push_back(fit->second.first); // was .second (mec: 2003:02:19
     }
-  //  cout << "about to return the list" << endl;
+  //  std::cout << "about to return the list" << std::endl;
   return flist;
 }
 
@@ -295,19 +295,19 @@ void DDLParser::dumpFileList(void) {
 }
 
 void DDLParser::dumpFileList(ostream& co) {
-  co << "File List:" << endl;
+  co << "File List:" << std::endl;
   for (FileNameHolder::const_iterator it = fileNames_.begin(); it != fileNames_.end(); it++)
-    co << it->second.second << endl;
+    co << it->second.second << std::endl;
 }
 
 // Deprecated. One implication is that I may not NEED configFileName_ and should not 
 // keep it around any how, once this is gone!
 int DDLParser::StartParsing()
 {
-  string tconfig = configFileName_;
+  std::string tconfig = configFileName_;
   if (tconfig.size() == 0)
     {
-      DDException e(string("DDLParser::StartParsing() can not be called without first DDLParser::SetConfig(...)"));
+      DDException e(std::string("DDLParser::StartParsing() can not be called without first DDLParser::SetConfig(...)"));
       throw(e);
     }
   else
@@ -326,16 +326,16 @@ int DDLParser::StartParsing()
 
 int DDLParser::parse(const DDLDocumentProvider& dp)
 {
-  cout << "Start Parsing.  Validation is set to " << dp.doValidation() << "." << endl;
+  std::cout << "Start Parsing.  Validation is set to " << dp.doValidation() << "." << std::endl;
   // prep for pass 1 through DDD XML
   DDLSAX2Handler* errHandler = new DDLSAX2Handler;
   SAX2Parser_->setErrorHandler(errHandler);
-  //  cout << "after setErrorHandler)" << endl;
+  //  std::cout << "after setErrorHandler)" << std::endl;
   if (dp.doValidation())
     { 
       seal::SealTimer t("DDLParser:Validation");
 
-      string tval=dp.getSchemaLocation();
+      std::string tval=dp.getSchemaLocation();
       const char* tch = tval.c_str();
       SAX2Parser_->setProperty(XMLString::transcode("http://apache.org/xml/properties/schema/external-schemaLocation"),XMLString::transcode(tch));
       SAX2Parser_->setFeature(XMLString::transcode("http://xml.org/sax/features/validation"), true);   // optional
@@ -353,22 +353,22 @@ int DDLParser::parse(const DDLDocumentProvider& dp)
   //  This need be only done once, so might as well to it here.
   DDLSAX2ExpressionHandler* myExpHandler = new DDLSAX2ExpressionHandler;
   size_t fileIndex = 0;
-  vector<string> fullFileName;
+  std::vector<std::string> fullFileName;
 
   for (; fileIndex < (dp.getFileList()).size(); fileIndex++)
     { 
-      string ts = dp.getURLList()[fileIndex];
-      string tf = dp.getFileList()[fileIndex];
+      std::string ts = dp.getURLList()[fileIndex];
+      std::string tf = dp.getFileList()[fileIndex];
       if (ts[ts.size() - 1] == '/')
 	fullFileName.push_back( ts + tf );
       else
 	fullFileName.push_back( ts + "/" + tf );
-      //      cout << "full file name" << fullFileName[fileIndex] << endl;
+      //      std::cout << "full file name" << fullFileName[fileIndex] << std::endl;
     }
 
     seal::SealTimer * t = new seal::SealTimer("DDLParser1");
 
-    for (vector<string>::const_iterator fnit = fullFileName.begin(); 
+    for (std::vector<std::string>::const_iterator fnit = fullFileName.begin(); 
 	 fnit != fullFileName.end();
 	 fnit++)
       {
@@ -387,7 +387,7 @@ int DDLParser::parse(const DDLDocumentProvider& dp)
 	// 	}
 	if (!foundFile)
 	  {
-	    pair <string, string> pss;
+	    pair <std::string, std::string> pss;
 	    pss.first = myExpHandler->extractFileName( *fnit );
 	    pss.second = *fnit;
 	    fileNames_[nFiles_++] = pss;
@@ -395,8 +395,8 @@ int DDLParser::parse(const DDLDocumentProvider& dp)
 	  }
 	//       else if (parsed_[foundFile])
 	// 	{
-	// 	  cout << "INFO:  DDLParser::Parse File " << *fnit << " was already processed as " 
-	// 	       << fileNames_[foundFile].second << endl;
+	// 	  std::cout << "INFO:  DDLParser::Parse File " << *fnit << " was already processed as " 
+	// 	       << fileNames_[foundFile].second << std::endl;
 	// 	}
       }
     
@@ -415,20 +415,20 @@ int DDLParser::parse(const DDLDocumentProvider& dp)
   try
     {
       SAX2Parser_->setContentHandler(myExpHandler);
-      //cout << "1st PASS: Parsing " << fileNames_.size() << " files." << endl;
-      //vector<string>::const_iterator currFile = fileNames_.begin(); currFile != fileNames_.end(); currFile++)
+      //std::cout << "1st PASS: Parsing " << fileNames_.size() << " files." << std::endl;
+      //std::vector<std::string>::const_iterator currFile = fileNames_.begin(); currFile != fileNames_.end(); currFile++)
       for (size_t i = 0; i < fileNames_.size(); i++)
 	{
 	  if (!parsed_[i])
 	    {
-	      //cout << "Parsing: " << fileNames_[i].second << endl;
+	      //std::cout << "Parsing: " << fileNames_[i].second << std::endl;
 	      parseFile(i);
 	    }
 	}
       myExpHandler->dumpElementTypeCounter();
     }
   catch (const XMLException& toCatch) {
-    cout << "\nPASS1: XMLException while processing files... \n"
+    std::cout << "\nPASS1: XMLException while processing files... \n"
 	 << "Exception message is: \n"
 	 << StrX(toCatch.getMessage()) << "\n" ;
     if (myExpHandler) delete myExpHandler;
@@ -437,8 +437,8 @@ int DDLParser::parse(const DDLDocumentProvider& dp)
     return -1;
   }
   catch (DDException& e) {
-    cout << "unexpected: " << endl;
-    cout << e << endl;
+    std::cout << "unexpected: " << std::endl;
+    std::cout << e << std::endl;
     if (myExpHandler) delete myExpHandler;
     // FIX use this after DEPRECATED stuff removed    throw(e);
     return 4;
@@ -459,29 +459,29 @@ int DDLParser::parse(const DDLDocumentProvider& dp)
 
       // No need to validate (regardless of user's doValidation
       // because the files have already been validated on the first pass.
-      // This optimization suggested by Martin Liendl.
+      // This optimization suggested by Martin Listd::endl.
       SAX2Parser_->setFeature(XMLString::transcode("http://xml.org/sax/features/validation"), false);   // optional
       SAX2Parser_->setFeature(XMLString::transcode("http://xml.org/sax/features/namespaces"), false);   // optional
       SAX2Parser_->setFeature(XMLString::transcode("http://apache.org/xml/features/validation/dynamic"), false);
 
       // Process files again.
-      //cout << "Parsing " << fileNames_.size() << " files." << endl;
+      //std::cout << "Parsing " << fileNames_.size() << " files." << std::endl;
       for (size_t i = 0; i < fileNames_.size(); i++)
-	//vector<string>::const_iterator currFile = fileNames_.begin(); currFile != fileNames_.end(); currFile++)
+	//std::vector<std::string>::const_iterator currFile = fileNames_.begin(); currFile != fileNames_.end(); currFile++)
 	{
 	  parseFile(i);
 	  parsed_[i] = true;
-	  pair<string, string> namePair = fileNames_[i];
-	  cout << "Completed parsing file " << namePair.second << "." << endl;
+	  pair<std::string, std::string> namePair = fileNames_[i];
+	  std::cout << "Completed parsing file " << namePair.second << "." << std::endl;
 	}
       //myFileHandler->dumpElementTypeCounter();
 
       delete myFileHandler;
     }
   catch (DDException& e) {
-    string s(e.what());
+    std::string s(e.what());
     s+="\n\t see above:  DDLParser::parse  Exception " ;
-    cout << s << endl;
+    std::cout << s << std::endl;
     if (myFileHandler) delete myFileHandler;
     // remove/fix after DEPRECATED stuff...
     delete errHandler;
@@ -489,7 +489,7 @@ int DDLParser::parse(const DDLDocumentProvider& dp)
     //    throw(e);
   }
   catch (const XMLException& toCatch) {
-    cout << "\nPASS2: XMLException while processing files... \n"
+    std::cout << "\nPASS2: XMLException while processing files... \n"
 	 << "Exception message is: \n"
 	 << StrX(toCatch.getMessage()) << "\n" ;
     if (myFileHandler) delete myFileHandler;
@@ -509,7 +509,7 @@ void DDLParser::parseFile(const int& numtoproc)
   
   if (!parsed_[numtoproc])
     {
-      const string & fname = fileNames_[numtoproc].second;
+      const std::string & fname = fileNames_[numtoproc].second;
       seal::SealTimer t("DDLParser:"+fname.substr(fname.rfind('/')+1));
 
       try
@@ -519,15 +519,15 @@ void DDLParser::parseFile(const int& numtoproc)
 	}
       catch (const XMLException& toCatch)
 	{
-	  string e("\nWARNING: DDLParser::parseFile, File: '");
+	  std::string e("\nWARNING: DDLParser::parseFile, File: '");
 	  e += currFileName_ + "'\n"
 	    + "Exception message is: \n"
-	    + string(StrX(toCatch.getMessage()).localForm()) + "\n";
+	    + std::string(StrX(toCatch.getMessage()).localForm()) + "\n";
 	  throw(DDException(e));
 	}
       catch (DDException& e)
 	{
-	  string s(e.what());
+	  std::string s(e.what());
 	  s += "\nERROR: Unexpected exception during parsing: '"
 	    + currFileName_ + "'\n"
 	    + "Exception message is shown above.\n";
@@ -548,7 +548,7 @@ void DDLParser::parseFile(const int& numtoproc)
 }
 
 // Return the name of the Current file being processed by the parser.
-string DDLParser::getCurrFileName()
+std::string DDLParser::getCurrFileName()
 {
   return currFileName_;
 }

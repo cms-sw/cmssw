@@ -15,14 +15,13 @@
 //  Includes
 //--------------------------------------------------------------------------
 // Parser parts
-#include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "DetectorDescription/Parser/interface/DDLConfiguration.h"
+#include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "DetectorDescription/Parser/interface/DDLSAX2ConfigHandler.h"
-
-// DDCore Dependencies
+#include "DetectorDescription/Parser/interface/StrX.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Base/interface/DDException.h"
-#include "DetectorDescription/Parser/interface/StrX.h"
+
 
 // Xerces dependencies
 #include <xercesc/util/PlatformUtils.hpp>
@@ -50,8 +49,8 @@ DDLConfiguration::DDLConfiguration()
   m_parser = DDLParser::instance(); // I just want to make sure Xerces gets initialized!
   sch_ = new DDLSAX2ConfigHandler;
   errHandler_ = new DDLSAX2Handler;
-  //  cout << "made a DDLSAX2ConfigHandler at " << sch_ << endl;
-  //  cout << "made a DDLSAX2Handler at " << errHandler_ << endl;
+  //  std::cout << "made a DDLSAX2ConfigHandler at " << sch_ << std::endl;
+  //  std::cout << "made a DDLSAX2Handler at " << errHandler_ << std::endl;
 }
 
 DDLConfiguration::DDLConfiguration(DDLParser * ip)
@@ -59,30 +58,30 @@ DDLConfiguration::DDLConfiguration(DDLParser * ip)
   m_parser = ip; //
   sch_ = new DDLSAX2ConfigHandler;
   errHandler_ = new DDLSAX2Handler;
-  //  cout << "made a DDLSAX2ConfigHandler at " << sch_ << endl;
-  //  cout << "made a DDLSAX2Handler at " << errHandler_ << endl;
+  //  std::cout << "made a DDLSAX2ConfigHandler at " << sch_ << std::endl;
+  //  std::cout << "made a DDLSAX2Handler at " << errHandler_ << std::endl;
 }
 
-const vector<string>&  DDLConfiguration::getFileList(void) const
+const std::vector<std::string>&  DDLConfiguration::getFileList(void) const
 {
   return sch_->getFileNames();
 }
 
-const vector<string>&  DDLConfiguration::getURLList(void) const
+const std::vector<std::string>&  DDLConfiguration::getURLList(void) const
 {
   return sch_->getURLs();
 }
 
 bool DDLConfiguration::doValidation() const { return sch_->doValidation(); }
 
-string DDLConfiguration::getSchemaLocation() const { return sch_->getSchemaLocation(); }
+std::string DDLConfiguration::getSchemaLocation() const { return sch_->getSchemaLocation(); }
 
 void DDLConfiguration::dumpFileList(void) const {
-  cout << "File List:" << endl;
-  vector<string> vst = getFileList();  // why do I need to do this?
-  cout << "  number of files=" << vst.size() << endl;
-  for (vector<string>::const_iterator it = vst.begin(); it != vst.end(); it++)
-    cout << *it << endl;
+  std::cout << "File List:" << std::endl;
+  std::vector<std::string> vst = getFileList();  // why do I need to do this?
+  std::cout << "  number of files=" << vst.size() << std::endl;
+  for (std::vector<std::string>::const_iterator it = vst.begin(); it != vst.end(); it++)
+    std::cout << *it << std::endl;
 }
 
 //-----------------------------------------------------------------------
@@ -94,7 +93,7 @@ void DDLConfiguration::dumpFileList(void) const {
 //  repeat files.  It is the Parser which checks for maintains a list of real
 //  files.
 //-----------------------------------------------------------------------
-int DDLConfiguration::readConfig(const string& filename)
+int DDLConfiguration::readConfig(const std::string& filename)
 {
   DCOUT('P', "DDLConfiguration::ReadConfig(): started");
 
@@ -109,20 +108,20 @@ int DDLConfiguration::readConfig(const string& filename)
     m_parser->getXMLParser()->parse(filename.c_str());
   }
   catch (const XMLException& toCatch) {
-    cout << "\nXMLException: parsing '" << filename << "'\n"
+    std::cout << "\nXMLException: parsing '" << filename << "'\n"
 	 << "Exception message is: \n"
-	 << string(StrX(toCatch.getMessage()).localForm()) << "\n" ;
+	 << std::string(StrX(toCatch.getMessage()).localForm()) << "\n" ;
     return -1;
   }
   catch (...)
     {
-      cout << "\nUnexpected exception during parsing: '" << filename << "'\n";
+      std::cout << "\nUnexpected exception during parsing: '" << filename << "'\n";
       return 4;
     }
 
-//   vector<string> fnames = sch_->getFileNames();
-//   cout << "there are " << fnames.size() << " files." << endl;
+//   std::vector<std::string> fnames = sch_->getFileNames();
+//   std::cout << "there are " << fnames.size() << " files." << std::endl;
 //   for (size_t i = 0; i < fnames.size(); i++)
-//     cout << "url=" << sch_->getURLs()[i] << " file=" << sch_->getFileNames()[i] << endl;
+//     std::cout << "url=" << sch_->getURLs()[i] << " file=" << sch_->getFileNames()[i] << std::endl;
   return 0;
 }

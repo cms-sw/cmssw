@@ -49,12 +49,12 @@ DDLDivision::~DDLDivision()
 }
 
 
-void DDLDivision::preProcessElement (const string& type, const string& nmspace)
+void DDLDivision::preProcessElement (const std::string& type, const std::string& nmspace)
 {
 
 }
 
-void DDLDivision::processElement (const string& type, const string& nmspace)
+void DDLDivision::processElement (const std::string& type, const std::string& nmspace)
 {
   DCOUT_V('P', "DDLDivision::processElement started");
 
@@ -102,7 +102,7 @@ void DDLDivision::processElement (const string& type, const string& nmspace)
     dg->execute();
     delete dg; // i think :-)
   } catch (DDException& e) {
-    string msg = e.what();
+    std::string msg = e.what();
     msg += "\nDDLDivision failed to create DDDivision.\n";
     msg += "\n\tname: " + atts.find("name")->second;
     throwError(msg);
@@ -145,7 +145,7 @@ DDDividedGeometryObject* DDLDivision::makeDivider(const DDDivision & div)
       else if (div.axis() == z )
 	dg = new DDDividedTrdZ(div);
       else {
-	string s = "DDDividedAlgorithm can not divide a trap or trd on axis ";
+	std::string s = "DDDividedAlgorithm can not divide a trap or trd on axis ";
 	s += DDAxesNames::name(div.axis());
 	s += ".\n";
 	throw DDException(s);
@@ -169,7 +169,7 @@ DDDividedGeometryObject* DDLDivision::makeDivider(const DDDivision & div)
       else if (div.axis() == z)
 	dg = new DDDividedPolyconeZ(div);
       else {
-	string s = "DDDividedAlgorithm can not divide a polycone_rrz on axis ";
+	std::string s = "DDDividedAlgorithm can not divide a polycone_rrz on axis ";
 	s += DDAxesNames::name(div.axis());
 	s += ".\n";
 	throw DDException(s);
@@ -184,7 +184,7 @@ DDDividedGeometryObject* DDLDivision::makeDivider(const DDDivision & div)
       else if (div.axis() == z)
 	dg = new DDDividedPolyhedraZ(div);
       else {
-	string s = "DDDividedAlgorithm can not divide a polyhedra_rrz on axis ";
+	std::string s = "DDDividedAlgorithm can not divide a polyhedra_rrz on axis ";
 	s += DDAxesNames::name(div.axis());
 	s += ".\n";
 	throw DDException(s);
@@ -193,7 +193,7 @@ DDDividedGeometryObject* DDLDivision::makeDivider(const DDDivision & div)
 
     case ddpolycone_rz:
     case ddpolyhedra_rz: {
-      string s = "ERROR:  A Polycone can not be divided on any axis if it's\n";
+      std::string s = "ERROR:  A Polycone can not be divided on any axis if it's\n";
       s += "original definition used r and z instead of ZSections. This has\n";
       s += "not (yet) been implemented.\n";
       throw DDException(s);
@@ -208,7 +208,7 @@ DDDividedGeometryObject* DDLDivision::makeDivider(const DDDivision & div)
     case ddpseudotrap: 
     case ddtrunctubs:
     case dd_not_init: {
-      string s = "DDDividedAlgorithm can not divide a ";
+      std::string s = "DDDividedAlgorithm can not divide a ";
       s += DDSolidShapesName::name(div.parent().solid().shape());
       s += " at all (yet?).  Requested axis was ";
       s += DDAxesNames::name(div.axis());

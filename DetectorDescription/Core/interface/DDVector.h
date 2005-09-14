@@ -9,23 +9,23 @@
 class DDVector;
 
 //! output operator for printing ...
-ostream & operator<<(ostream & o, const DDVector & cons);
+std::ostream & operator<<(std::ostream & o, const DDVector & cons);
 
 //typedef std::vector<double> dd_constant_type;
 
 //! a named constant corresponding to the DDL-XML tag <Constant> and <ConstantsVector>
-class DDVector : public DDBase<DDName, vector<double>* >
+class DDVector : public DDBase<DDName, std::vector<double>* >
 {
 public:
 
    //! size type for the size of the stored values
-   typedef vector<double>::size_type size_t;
+   typedef std::vector<double>::size_type size_t;
    
    //! iterator for read-only acces to stored values
-   //typedef vector<double>::const_iterator const_iterator;
+   //typedef std::vector<double>::const_iterator const_iterator;
    
    //! value type of the managed object
-   typedef vector<double> value_type;
+   typedef std::vector<double> value_type;
    
    //! an uninitialized constant; one can assign an initialized constant to make it valid
    DDVector();
@@ -34,7 +34,7 @@ public:
    DDVector(const DDName & name);
    
    //! creation of a new named constant; if it already existed with the given name, it's overwritten with new values
-   DDVector(const DDName & name, vector<double>* value);
+   DDVector(const DDName & name, std::vector<double>* value);
       
    //! the size of the array of values 
    size_t size() const { return rep().size(); }
@@ -57,10 +57,10 @@ public:
    //! convert to a double
    operator double() const { return rep()[0]; }
    
-   //! convert to a vector<double>
-   operator vector<double>() const { return rep(); }
+   //! convert to a std::vector<double>
+   operator std::vector<double>() const { return rep(); }
    
-   //! convert to a vector<int> (expensive!)
-   operator vector<int>() const;
+   //! convert to a std::vector<int> (expensive!)
+   operator std::vector<int>() const;
 };
 #endif

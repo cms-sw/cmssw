@@ -19,7 +19,7 @@ class DDAlgorithm
         by processing the provided parameters. Typically, data members of the
         derived algorithm are given meaningfull values. 
         Examples:\code double offset = nArgs["z-offset"];
-                 \code vector<double> vec = vArgs["X-Positions"];*/
+                 \code std::vector<double> vec = vArgs["X-Positions"];*/
     virtual void initialize(const DDNumericArguments & nArgs,
                             const DDVectorArguments & vArgs,
                             const DDMapArguments & mArgs,

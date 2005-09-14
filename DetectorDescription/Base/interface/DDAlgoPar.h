@@ -5,7 +5,7 @@
 #include <vector>
 #include <string>
 
-/*! type for passing string-valued parameters to DDAlgo */
+/*! type for passing std::string-valued parameters to DDAlgo */
 typedef std::map<std::string, std::vector<std::string> > parS_type;
 
 /*! type for passing double-valued parameters to DDAlgo */

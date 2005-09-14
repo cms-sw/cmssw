@@ -28,14 +28,14 @@ DDDividedPolyconeRho::DDDividedPolyconeRho( const DDDivision & div )
 {
   checkParametersValidity();
   DDPolycone msol = (DDPolycone)(div_.parent().solid());
-  vector<double> localrMaxVec = msol.rMaxVec();
-  vector<double> localrMinVec = msol.rMinVec();
+  std::vector<double> localrMaxVec = msol.rMaxVec();
+  std::vector<double> localrMinVec = msol.rMinVec();
 
   setType( "DivisionPolyconeRho" );
 
   // in DDD we only have ONE representation
   // in the case when rMinVec and rMaxVec
-  // are empty rVec and zVec are the r and z vectors.
+  // are empty rVec and zVec are the r and z std::vectors.
   // G4PolyconeHistorical* origparamMother = msol->GetOriginalParameters();
 
   if( divisionType_ == DivWIDTH )
@@ -68,23 +68,23 @@ void DDDividedPolyconeRho::checkParametersValidity()
 
   if( divisionType_ == DivNDIVandWIDTH || divisionType_ == DivWIDTH )
     {
-      cout << "WARNING - "
+      std::cout << "WARNING - "
 	   << "DDDividedPolyconeRho::checkParametersValidity()"
-	   << endl
-	   << "          Solid " << msol << endl
+	   << std::endl
+	   << "          Solid " << msol << std::endl
 	   << "          Division along r will be done with a width "
-	   << "different for each solid section." << endl
-	   << "          WIDTH will not be used !" << endl;
+	   << "different for each solid section." << std::endl
+	   << "          WIDTH will not be used !" << std::endl;
     }
   if( div_.offset() != 0. )
     {
-      cout << "WARNING - "
+      std::cout << "WARNING - "
 	   << "DDDividedPolyconeRho::checkParametersValidity()"
-	   << endl
-	   << "          Solid " << msol << endl
+	   << std::endl
+	   << "          Solid " << msol << std::endl
 	   << "          Division along  R will be done with a width "
-	   << "different for each solid section." << endl
-	   << "          OFFSET will not be used !" << endl;
+	   << "different for each solid section." << std::endl
+	   << "          OFFSET will not be used !" << std::endl;
     }
 
 }
@@ -93,8 +93,8 @@ void DDDividedPolyconeRho::checkParametersValidity()
 double DDDividedPolyconeRho::getMaxParameter() const
 {
   DDPolycone msol = (DDPolycone)(div_.parent().solid());
-  vector<double> localrMaxVec = msol.rMaxVec();
-  vector<double> localrMinVec = msol.rMinVec();
+  std::vector<double> localrMaxVec = msol.rMaxVec();
+  std::vector<double> localrMinVec = msol.rMinVec();
 
   return localrMaxVec[0] - localrMinVec[0];
 
@@ -123,16 +123,16 @@ DDLogicalPart DDDividedPolyconeRho::makeDDLogicalPart( const int copyNo ) const
   DDMaterial usemat(div_.parent().material());
 
   DDPolycone msol = (DDPolycone)(div_.parent().solid());
-  vector<double> localrMaxVec = msol.rMaxVec();
-  vector<double> localrMinVec = msol.rMinVec();
-  vector<double> localzVec = msol.zVec();
+  std::vector<double> localrMaxVec = msol.rMaxVec();
+  std::vector<double> localrMinVec = msol.rMinVec();
+  std::vector<double> localzVec = msol.zVec();
 
   //       G4PolyconeHistorical* origparamMother = msol->GetOriginalParameters();
   //       G4PolyconeHistorical origparam( *origparamMother );
   int nZplanes = localzVec.size();
 
-  vector<double> newrMinVec;
-  vector<double> newrMaxVec;
+  std::vector<double> newrMinVec;
+  std::vector<double> newrMaxVec;
 
   double width = 0.;
   for( int ii = 0; ii < nZplanes; ii++ )
@@ -245,9 +245,9 @@ DDLogicalPart DDDividedPolyconePhi::makeDDLogicalPart( const int copyNo ) const
   DDMaterial usemat(div_.parent().material());
 
   DDPolycone msol = (DDPolycone)(div_.parent().solid());
-  vector<double> localrMaxVec = msol.rMaxVec();
-  vector<double> localrMinVec = msol.rMinVec();
-  vector<double> localzVec = msol.zVec();
+  std::vector<double> localrMaxVec = msol.rMaxVec();
+  std::vector<double> localrMinVec = msol.rMinVec();
+  std::vector<double> localzVec = msol.zVec();
   //       G4PolyconeHistorical* origparamMother = msol->GetOriginalParameters();
   //       G4PolyconeHistorical origparam( *origparamMother );
   //       origparam.Start_angle = msol.Start_angle;
@@ -275,9 +275,9 @@ DDDividedPolyconeZ::DDDividedPolyconeZ( const DDDivision & div )
 {
   checkParametersValidity();
   DDPolycone msol = (DDPolycone)(div_.parent().solid());
-  vector<double> localrMaxVec = msol.rMaxVec();
-  vector<double> localrMinVec = msol.rMinVec();
-  vector<double> localzVec = msol.zVec();
+  std::vector<double> localrMaxVec = msol.rMaxVec();
+  std::vector<double> localrMinVec = msol.rMinVec();
+  std::vector<double> localzVec = msol.zVec();
 
   if( divisionType_ == DivWIDTH )
     {
@@ -308,7 +308,7 @@ void DDDividedPolyconeZ::checkParametersValidity()
   DDDividedGeometryObject::checkParametersValidity();
 
   DDPolycone msol = (DDPolycone)(div_.parent().solid());
-  vector<double> localzVec = msol.zVec();
+  std::vector<double> localzVec = msol.zVec();
   // CHANGE FROM G4 a polycone can be divided in Z by specifying
   // nReplicas IF they happen to coincide with the number of 
   // z plans.
@@ -319,7 +319,7 @@ void DDDividedPolyconeZ::checkParametersValidity()
 			      , div_.offset() );
   if ((msol.zVec().size() - 1) != tempNDiv)
     { 
-      string s = "ERROR - DDDividedPolyconeZ::checkParametersValidity()";
+      std::string s = "ERROR - DDDividedPolyconeZ::checkParametersValidity()";
       s += "\n\tDivision along Z will be done splitting in the defined";
       s += "\n\tz_planes, i.e, the number of division would be :";
       s += "\n\t" + DDXMLElement::itostr( msol.zVec().size() - 1 );
@@ -333,7 +333,7 @@ void DDDividedPolyconeZ::checkParametersValidity()
 double DDDividedPolyconeZ::getMaxParameter() const
 {
   DDPolycone msol = (DDPolycone)(div_.parent().solid());
-  vector<double> localzVec = msol.zVec();
+  std::vector<double> localzVec = msol.zVec();
   // G4: G4PolyconeHistorical* origparamMother = msol->GetOriginalParameters();  
   // G4: return (msol->Z_values[msol->Num_z_planes-1]-msol->Z_values[0]);
   return (localzVec[ localzVec.size() - 1] - localzVec[0]);
@@ -352,7 +352,7 @@ DDTranslation DDDividedPolyconeZ::makeDDTranslation( const int copyNo ) const
 {
   DDTranslation translation;
   DDPolycone msol = (DDPolycone)(div_.parent().solid());
-  vector<double> localzVec = msol.zVec();
+  std::vector<double> localzVec = msol.zVec();
   //  G4PolyconeHistorical* origparamMother = msol->GetOriginalParameters();
   //  double posi = (msol.Z_values[copyNo]+ msol.Z_values[copyNo+1])/2;
   double posi = (localzVec[copyNo] + localzVec[copyNo+1]) / 2;
@@ -369,9 +369,9 @@ DDLogicalPart DDDividedPolyconeZ::makeDDLogicalPart( const int copyNo ) const
   DDMaterial usemat(div_.parent().material());
 
   DDPolycone msol = (DDPolycone)(div_.parent().solid());
-  vector<double> localrMaxVec = msol.rMaxVec();
-  vector<double> localrMinVec = msol.rMinVec();
-  vector<double> localzVec = msol.zVec();
+  std::vector<double> localrMaxVec = msol.rMaxVec();
+  std::vector<double> localrMinVec = msol.rMinVec();
+  std::vector<double> localzVec = msol.zVec();
 
   //         G4PolyconeHistorical* origparamMother = msol->GetOriginalParameters();
   //   G4PolyconeHistorical origparam( *origparamMother );

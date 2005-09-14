@@ -41,7 +41,7 @@ DDLPseudoTrap::~DDLPseudoTrap()
 }
 
 // Upon encountering an end of the tag, call DDCore's Trap.
-void DDLPseudoTrap::processElement (const string& type, const string& nmspace)
+void DDLPseudoTrap::processElement (const std::string& type, const std::string& nmspace)
 {
   DCOUT_V('P', "DDLPseudoTrap::processElement started");
 
@@ -59,7 +59,7 @@ void DDLPseudoTrap::processElement (const string& type, const string& nmspace)
 		      , (atts.find("atMinusZ")->second == "true") ? true : false
 		      );
   } catch (DDException & e) {
-    string msg(e.what());
+    std::string msg(e.what());
     msg += "\nDDLPseudoTrap failed call to DDSolidFactory.";
     throwError(msg);
   }

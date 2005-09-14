@@ -26,7 +26,7 @@ namespace boost { namespace spirit {} } using namespace boost::spirit;
 #include <map>
 #include <string>
 
-// Boost parser, spirit, for parsing the vector elements.
+// Boost parser, spirit, for parsing the std::vector elements.
 #include "boost/spirit/core.hpp"
 
 struct VectorMakeDouble
@@ -83,14 +83,14 @@ DDLVector::~DDLVector()
 {
 }
  
-void DDLVector::preProcessElement (const string& name, const string& nmspace)
+void DDLVector::preProcessElement (const std::string& name, const std::string& nmspace)
 {
   pVector.clear();
   pStrVector.clear();
   pNameSpace = nmspace;
 }
 
-void DDLVector::processElement (const string& name, const string& nmspace)
+void DDLVector::processElement (const std::string& name, const std::string& nmspace)
 {
   DCOUT_V('P', "DDLVector::processElement started");
 
@@ -99,9 +99,9 @@ void DDLVector::processElement (const string& name, const string& nmspace)
 		 || atts.find("type")->second == "numeric")
 		?  true : false);
   bool isStringVec((!isNumVec && atts.find("type") != atts.end() 
-		    && atts.find("type")->second == "string")
+		    && atts.find("type")->second == "std::string")
 		   ? true : false);
-  string tTextToParse = getText();
+  std::string tTextToParse = getText();
   if (tTextToParse.size() == 0) {
     errorOut(" EMPTY STRING ");
   }
@@ -111,37 +111,37 @@ void DDLVector::processElement (const string& name, const string& nmspace)
       errorOut(tTextToParse.c_str());
     }
   }
-  else if (isStringVec) { //(atts.find("type")->second == "string") {
+  else if (isStringVec) { //(atts.find("type")->second == "std::string") {
     if (!parse_strings(tTextToParse.c_str())) {
       errorOut(tTextToParse.c_str());
     }
   }
   else {
-    errorOut("Unexpected vector type. Only \"numeric\" and \"string\" are allowed.");
+    errorOut("Unexpected std::vector type. Only \"numeric\" and \"std::string\" are allowed.");
   }
 
 
   if (parent() == "Algorithm" || parent() == "SpecPar")
     {
       if (isNumVec) { //(atts.find("type") != atts.end() || atts.find("type")->second == "numeric") {
-	//	cout << "adding to pVecMap name= " << atts.find("name")->second << endl;
-	//	for (vector<double>::const_iterator it = pVector.begin(); it != pVector.end(); it++)
-	//	  cout << *it << "\t" << endl;
+	//	std::cout << "adding to pVecMap name= " << atts.find("name")->second << std::endl;
+	//	for (std::vector<double>::const_iterator it = pVector.begin(); it != pVector.end(); it++)
+	//	  std::cout << *it << "\t" << std::endl;
 	pVecMap[atts.find("name")->second] = pVector;
-	//	cout << "size: " << pVecMap.size() << endl;
+	//	std::cout << "size: " << pVecMap.size() << std::endl;
       }
-      else if (isStringVec) { //(atts.find("type")->second == "string") {
+      else if (isStringVec) { //(atts.find("type")->second == "std::string") {
 	pStrVecMap[atts.find("name")->second] = pStrVector;
       }
       size_t expNEntries = 0;
       if (atts.find("nEntries") != atts.end()) {
-	string nEntries = atts.find("nEntries")->second;
+	std::string nEntries = atts.find("nEntries")->second;
 	expNEntries = size_t (ExprEvalSingleton::instance().eval(pNameSpace, nEntries));
       }
       if (isNumVec && pVector.size() != expNEntries
 	  || isStringVec && pStrVector.size() != expNEntries)
 	{
-	  string msg ("Number of entries found in Vector text does not match number in attribute nEntries.");
+	  std::string msg ("Number of entries found in Vector text does not match number in attribute nEntries.");
 	  msg += "\n\tnEntries = " + atts.find("nEntries")->second;
 	  msg += "\n------------------text---------\n";
 	  msg += tTextToParse;
@@ -152,35 +152,35 @@ void DDLVector::processElement (const string& name, const string& nmspace)
   else if (parent() == "ConstantsSection" || parent() == "DDDefinition")
     {
       if (atts.find("type") == atts.end() || atts.find("type")->second == "numeric") {
-	DDVector v(getDDName(nmspace), new vector<double>(pVector));
+	DDVector v(getDDName(nmspace), new std::vector<double>(pVector));
       }
       else {
-	DDStrVector v(getDDName(nmspace), new vector<string>(pStrVector));
+	DDStrVector v(getDDName(nmspace), new std::vector<std::string>(pStrVector));
       }
     }
   clear();
   DCOUT_V('P', "DDLVector::processElement completed");
 }
 
-ReadMapType< vector<double> > & DDLVector::getMapOfVectors() 
+ReadMapType< std::vector<double> > & DDLVector::getMapOfVectors() 
 {
   return pVecMap;
 }
 
-ReadMapType< vector<string> > & DDLVector::getMapOfStrVectors()
+ReadMapType< std::vector<std::string> > & DDLVector::getMapOfStrVectors()
 {
   return pStrVecMap;
 }
 
 void DDLVector::do_makeDouble(char const* str, char const* end)
 {
-  string ts(str, end);
+  std::string ts(str, end);
   try {
     double td = ExprEvalSingleton::instance().eval(pNameSpace, ts);
     pVector.push_back(td);
   }
   catch ( ... ) {
-    string e("\n\tIn makeDouble of DDLVector failed to evaluate ");
+    std::string e("\n\tIn makeDouble of DDLVector failed to evaluate ");
     e+= ts;
     errorOut(ts.c_str());
   }
@@ -188,14 +188,14 @@ void DDLVector::do_makeDouble(char const* str, char const* end)
 
 void DDLVector::do_makeString(char const* str, char const* end)
 {
-  string ts(str, end);
+  std::string ts(str, end);
   pStrVector.push_back(ts);
 }
 
 void DDLVector::errorOut(const char* str) const
 {
-     string e("Failed to parse the following: \n");
-     e+= string(str);
+     std::string e("Failed to parse the following: \n");
+     e+= std::string(str);
      e+="\n as a Vector element (comma separated list).";
      throwError (e);
 }

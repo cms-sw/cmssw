@@ -96,9 +96,9 @@ struct DDExpandedNodeLess
 
 
 //! Geometrical 'path' of the current node up to the root-node
-typedef vector<DDExpandedNode> DDGeoHistory; 
+typedef std::vector<DDExpandedNode> DDGeoHistory; 
 
-ostream & operator<<(ostream &, const DDExpandedNode &);
-ostream & operator<<(ostream &, const DDGeoHistory &);
+std::ostream & operator<<(std::ostream &, const DDExpandedNode &);
+std::ostream & operator<<(std::ostream &, const DDGeoHistory &);
 #endif 
 

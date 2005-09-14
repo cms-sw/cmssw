@@ -50,7 +50,7 @@ DDDividedBoxX::DDDividedBoxX( const DDDivision & div) :
   //  	    );
   //      }
 
-  DCOUT_V ('P', " DDDividedBoxX:DDDividedBoxX"  << endl);
+  DCOUT_V ('P', " DDDividedBoxX:DDDividedBoxX"  << std::endl);
 }
 
 //------------------------------------------------------------------------
@@ -138,7 +138,7 @@ DDDividedBoxY::DDDividedBoxY( const DDDivision & div) :
   //  	    );
   //      }
 
-  DCOUT_V ('P', " DDDividedBoxY:DDDividedBoxY"  << endl);
+  DCOUT_V ('P', " DDDividedBoxY:DDDividedBoxY"  << std::endl);
 }
 
 //------------------------------------------------------------------------
@@ -225,7 +225,7 @@ DDDividedBoxZ::DDDividedBoxZ( const DDDivision & div) :
   //  	    );
   //      }
 
-  DCOUT_V ('P', " DDDividedBoxZ:DDDividedBoxZ"  << endl);
+  DCOUT_V ('P', " DDDividedBoxZ:DDDividedBoxZ"  << std::endl);
 }
 
 //------------------------------------------------------------------------

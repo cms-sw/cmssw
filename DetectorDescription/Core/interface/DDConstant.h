@@ -9,7 +9,7 @@
 class DDConstant;
 
 //! output operator for printing ...
-ostream & operator<<(ostream & o, const DDConstant & cons);
+std::ostream & operator<<(std::ostream & o, const DDConstant & cons);
 
 //! a named constant corresponding to the DDL-XML tag <Constant> and <ConstantsVector>
 class DDConstant : public DDBase<DDName, double * >
@@ -34,7 +34,7 @@ public:
    operator double() const { return rep(); }
 };
 
-//! maps the XML naming convention, i.e. <Numeric name='foo' value='4711'/> -> DDNumeric 
+//! std::maps the XML naming convention, i.e. <Numeric name='foo' value='4711'/> -> DDNumeric 
 typedef DDConstant DDNumeric;
 
 #endif

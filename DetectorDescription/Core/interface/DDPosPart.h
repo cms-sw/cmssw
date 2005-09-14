@@ -2,7 +2,7 @@
 #define DDPosPart_h
 /** \file Interface for construction geometrical hierarchies
 */
-namespace std{} using namespace std;
+
 
 #include <string>
 #include <iostream>
