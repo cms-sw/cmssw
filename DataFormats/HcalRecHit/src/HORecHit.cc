@@ -6,13 +6,10 @@ namespace cms {
   }
 
   HORecHit::HORecHit(const HcalDetId& id, float energy, float time) :
-    CaloRecHit(energy,time),
-    id_(id) {
+    CaloRecHit(id,energy,time){
   }
-  
-  DetId HORecHit::genericId() const { return id_; }
 
   std::ostream& operator<<(std::ostream& s, const HORecHit& hit) {
-    return s << hit.id() << ": " << hit.energy() << " GeV, " << hit.time() << " ns";
+    return s << hit.hcal_id() << ": " << hit.energy() << " GeV, " << hit.time() << " ns";
   }
 }

@@ -5,14 +5,14 @@ namespace cms {
   CaloRecHit::CaloRecHit() : energy_(0), time_(0) {
   }
   
-  CaloRecHit::CaloRecHit(float energy, float time) : energy_(energy), time_(time) {
+  CaloRecHit::CaloRecHit(const DetId& id, float energy, float time) : id_(id),energy_(energy), time_(time) {
   }
   
   CaloRecHit::~CaloRecHit() {
   }
 
   std::ostream& operator<<(std::ostream& s, const CaloRecHit& hit) {
-    return s << hit.genericId().rawId() << ", " << hit.energy() << " GeV, " << hit.time() << " ns";
+    return s << hit.id().rawId() << ", " << hit.energy() << " GeV, " << hit.time() << " ns";
   }
 
 }

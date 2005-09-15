@@ -8,8 +8,8 @@ namespace cms {
 
   /** \class HBHERecHit
       
-  $Date: $
-  $Revision: $
+  $Date: 2005/07/26 15:52:19 $
+  $Revision: 1.1 $
   \author J. Mans - Minnesota
   */
   class HBHERecHit : public CaloRecHit {
@@ -17,11 +17,7 @@ namespace cms {
     HBHERecHit();
     HBHERecHit(const HcalDetId& id, float energy, float time);
     /// get the id
-    const HcalDetId& id() const { return id_; }
-    /// get the id for generic use
-    virtual DetId genericId() const;
-  private:
-    HcalDetId id_;
+    HcalDetId hcal_id() const { return HcalDetId(id()); }
   };
 
   std::ostream& operator<<(std::ostream& s, const HBHERecHit& hit);

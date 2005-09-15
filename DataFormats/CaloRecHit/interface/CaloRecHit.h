@@ -8,19 +8,20 @@ namespace cms {
 
   /** \class CaloRecHit
     
-  $Date: $
-  $Revision: $
+  $Date: 2005/07/26 15:51:28 $
+  $Revision: 1.1 $
   \author J. Mans - Minnesota
   */
   class CaloRecHit {
   public:
     CaloRecHit(); // for persistence
-    explicit CaloRecHit(float energy, float time);
+    explicit CaloRecHit(const DetId& id, float energy, float time);
     virtual ~CaloRecHit();
     float energy() const { return energy_; }
     float time() const { return time_; }
-    virtual DetId genericId() const = 0;
+    const DetId& id() const { return id_; }
   private:
+    DetId id_;
     float energy_;
     float time_;
   };
