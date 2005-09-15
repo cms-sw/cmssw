@@ -6,6 +6,7 @@
  <use name=MagneticField/Layers>
  <use name=MagneticField/Interpolation>
  <use name=DetectorDescription/Core>
+ <use name=Geometry/Surface>
 </export>
 
 <use name=clhep>
@@ -13,4 +14,5 @@
 <use name=MagneticField/Layers>
 <use name=MagneticField/Interpolation>
 <use name=DetectorDescription/Core>
+<use name=Geometry/Surface>
 #<Flags SEAL_PLUGIN_NAME="GeomBuilder">

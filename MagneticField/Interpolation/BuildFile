@@ -1,7 +1,10 @@
 
-<use name=MagneticField/VolumeGeometry>
-
 <export>
  <lib name=MagneticFieldInterpolation>
  <use name=MagneticField/VolumeGeometry>
+ <use name=Geometry/Surface>
 </export>
+
+<use name=MagneticField/VolumeGeometry>
+<use name=Geometry/Surface>
+

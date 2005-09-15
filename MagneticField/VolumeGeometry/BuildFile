@@ -1,10 +1,13 @@
-<use name=Utilities/General>
-<use name=DetectorDescription/Core>
-<use name=boost>
 
 <export>
  <lib name=MagneticFieldVolumeGeometry>
  <use name=Utilities/General>
  <use name=DetectorDescription/Core>
+ <use name=Geometry/Surface>
  <use name=boost>
 </export>
+
+<use name=Utilities/General>
+<use name=DetectorDescription/Core>
+<use name=Geometry/Surface>
+<use name=boost>
