@@ -2,4 +2,5 @@
   <class name="cms::HcalElectronicsId"/>
   <class name="cms::HcalDetId"/>
   <class name="cms::HcalTrigTowerDetId"/>
+  <class name="cms::HcalCompositeDetId"/>
 </lcgdict>
