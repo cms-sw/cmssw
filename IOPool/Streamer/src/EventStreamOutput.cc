@@ -1,7 +1,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: EventStreamOutput.cc,v 1.2 2005/08/25 03:31:06 jbk Exp $
+// $Id: EventStreamOutput.cc,v 1.3 2005/08/26 20:57:16 jbk Exp $
 //
 // Class EventStreamOutput module
 //
@@ -9,6 +9,7 @@
 
 #include "FWCore/Framework/interface/Provenance.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/src/DebugMacros.h"
 #include "IOPool/Streamer/interface/EventStreamOutput.h"
 #include "IOPool/Streamer/interface/StreamedProducts.h"
 #include "IOPool/Streamer/interface/ClassFiller.h"
@@ -36,10 +37,10 @@ namespace edm
 {
   void event_stream_output_test_read(void* buf, int len, TClass* send_event_)
   {
-    //gDebug=10;
     TBuffer rootbuf(TBuffer::kRead,len,buf,kFALSE);
+    if(10<debugit()) gDebug=10;
     auto_ptr<SendEvent> sd((SendEvent*)rootbuf.ReadObjectAny(send_event_));
-    //gDebug=0;
+    if(10<debugit()) gDebug=0;
 
     if(sd.get()==0)
       {
@@ -79,6 +80,7 @@ namespace edm
     prod_reg_buf_(100 * 1000),
     prod_reg_len_()
   {
+    FDEBUG(6) << "StreamOutput constructor" << endl;
     fillStreamers(reg);
     loadExtraClasses();
     tc_ = getTClass(typeid(SendEvent));
@@ -91,6 +93,7 @@ namespace edm
 
   void EventStreamerImpl::serializeRegistry(ProductRegistry const& reg)
   {
+    FDEBUG(6) << "StreamOutput: serializeRegistry" << endl;
     TClass* prog_reg = getTClass(typeid(SendJobHeader));
     SendJobHeader sd;
 
@@ -103,12 +106,16 @@ namespace edm
       {
 	//cout << " " << i->second.fullClassName_ << endl;
 	sd.descs_.push_back(i->second);
+	FDEBUG(9) << "StreamOutput got product = " << i->second.fullClassName_
+		  << endl;
       }
 
     TBuffer rootbuf(TBuffer::kWrite,
 		    prod_reg_buf_.size(),&prod_reg_buf_[0],
 		    kFALSE);
+    if(10<debugit()) gDebug=10;
     int bres = rootbuf.WriteObjectAny((char*)&sd,prog_reg);
+    if(10<debugit()) gDebug=0;
     
     switch(bres)
       {
@@ -183,8 +190,9 @@ namespace edm
     EventBuffer::ProducerBuffer b(*bufs_);
     //gDebug=10;
     TBuffer rootbuf(TBuffer::kWrite,b.size(),b.buffer(),kFALSE);
+    if(10<debugit()) gDebug=10;
     int bres = rootbuf.WriteObjectAny(&se,tc_);
-    //gDebug=0;
+    if(10<debugit()) gDebug=0;
     
     switch(bres)
       {

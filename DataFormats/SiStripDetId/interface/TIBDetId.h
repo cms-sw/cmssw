@@ -52,60 +52,18 @@ namespace cms
      */
     std::vector<unsigned int> string() const
       { std::vector<unsigned int> num;
-      num.push_back(((id_>>str_fw_bwStartBit_) & str_fw_bwMask_));
-      num.push_back(((id_>>str_int_extStartBit_) & str_int_extMask_));
-      num.push_back(((id_>>strStartBit_) & strMask_));
+      num[0]=((id_>>str_fw_bwStartBit_) & str_fw_bwMask_);
+      num[1]=((id_>>str_int_extStartBit_) & str_int_extMask_);
+      num[2]=((id_>>strStartBit_) & strMask_);
       return num ;}
     
     /// detector id
     unsigned int det() const 
       { return ((id_>>detStartBit_)& detMask_) ;}
 
-
-    /// glued
-    /**
-     * glued() = 0 it's not a glued module
-     * glued() = 1 it's a glued module
-     */
-    unsigned int glued() const
-      {
-	if(((id_>>sterStartBit_)& sterMask_) == 1 ||
-	   ((id_>>sterStartBit_)& sterMask_) == 2){
-	  return 1;
-	}else{
-	return 0;
-	}
-      }
-
-
-    /// stereo 
-    /**
-     * stereo() = 0 it's not a stereo module
-     * stereo() = 1 it's a stereo module
-     */
+    /// stereo id
     unsigned int stereo() const 
-      {
-	if(((id_>>sterStartBit_)& sterMask_)==1){
-	  return ((id_>>sterStartBit_)& sterMask_);
-	}else{
-	return 0;
-	}
-      }
-
-    /**
-     * If the DetId identify a glued module return 
-     * the DetId of your partner otherwise return 0
-     */
-    unsigned int partnerDetId() const
-      {
-	if(((id_>>sterStartBit_)& sterMask_)==1){
-	  return (id_ + 1);
-	}else if(((id_>>sterStartBit_)& sterMask_)==2){
-	  return (id_ - 1);
-	}else{
-	  return 0;
-	}
-      }
+      { return ((id_>>sterStartBit_)& sterMask_) ;}
 
   private:
     /// two bits would be enough, but  we could use the number "0" as a wildcard

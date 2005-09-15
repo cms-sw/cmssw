@@ -4,6 +4,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/ProductRegistry.h"
 #include "FWCore/Framework/interface/ProductDescription.h"
+#include "FWCore/Framework/src/DebugMacros.h"
 
 #include "PluginManager/PluginCapabilities.h"
 #include "RootStorageSvc/CINTType.h"
@@ -11,6 +12,7 @@
 #include "StorageSvc/IClassLoader.h"
 #include "StorageSvc/DbType.h"
 
+#include "Reflection/Class.h"
 #include "TClass.h"
 
 #include <iostream>
@@ -18,10 +20,14 @@
 #include <memory>
 #include <string>
 #include <typeinfo>
+#include <algorithm>
+#include <iterator>
 
 using namespace std;
 
 namespace edm {
+
+  TClass* loadClass(pool::IClassLoader* cl, const std::type_info& ti);
 
   // ---------------------
   pool::IClassLoader* getClassLoader()
@@ -49,39 +55,114 @@ namespace edm {
   }
 
   // ---------------------
+  void fillChildren(pool::IClassLoader* cl, const seal::reflect::Class* cc)
+  {
+    FDEBUG(9) << "JBK: parent - " << cc->fullName() << endl;
+
+    if(cc->isContainer())
+      {
+        const seal::reflect::Class* ct = cc->getComponentType();
+	if(ct->isPrimitive()==false) fillChildren(cl,ct);
+      }
+
+    std::vector<const seal::reflect::Field*> fs =
+      cc->fields(seal::reflect::PRIVATE);
+    std::vector<const seal::reflect::Field*> fs2 =
+      cc->fields(seal::reflect::PUBLIC);
+    copy(fs2.begin(),fs2.end(),back_inserter(fs));
+
+    std::vector<const seal::reflect::Field*>::iterator
+      beg(fs.begin()),end(fs.end());
+
+    for(;beg!=end;++beg)
+      {
+	const seal::reflect::Class* ft = (*beg)->type();
+	
+	// check for isPrimitive() here
+	if(ft->isPrimitive()) continue;
+
+	if(ft==0)
+	  {
+	    cerr << "Error: could not find Class object for "
+		 << ft->fullName() << endl;
+	    return;
+	  }
+
+        FDEBUG(9) << "JBK: child - " << ft->fullName() << endl;
+	fillChildren(cl, ft);
+
+	
+      }
+
+    if(cl->loadClass(cc->fullName())!=pool::DbStatus::SUCCESS)
+      {
+	cerr << "Error: could not loadClass for " << cc->fullName() << endl;
+	return;
+      }
+
+    TClass* ttest = TClass::GetClass(cc->fullName().c_str());
+
+    if(ttest==0)
+      {
+        cerr << "EventStreamImpl: "
+             << "Could not get the TClass for " << cc->fullName()
+             << endl;
+	return;
+      }
+
+    FDEBUG(9) << "JBK: parent complete loadClass - " << cc->fullName() << endl;
+
+  }
+
+
+  static void loadCap(const string& name)
+  {
+   // string name = i->second.fullClassName_;
+	
+   string fname("LCGDict/");
+   fname+=name;
+   FDEBUG(7) << "JBK: cap loading " << fname << endl;
+   seal::PluginCapabilities::get()->load(fname);
+	
+   const seal::reflect::Class* cc = seal::reflect::Class::forName(name);
+
+   if(cc==0)
+     {
+       cerr << "Error: could not find Class object for " << name << endl;
+       return;
+     }
+  }
+
+  // ---------------------
   void fillStreamers(ProductRegistry const& reg)
   {
+    FDEBUG(5) << "In fillStreamers" << endl;
     pool::IClassLoader* cl = getClassLoader();
 
     typedef ProductRegistry::ProductList Prods;
     const Prods& prods = reg.productList();
     Prods::const_iterator i(prods.begin()),e(prods.end());
 
+    // first go through and load all capabilities
+
     for(;i!=e;++i)
       {
-	string name = i->second.fullClassName_;
-	
-    	string fname("LCGDict/");
-    	fname+=name;
-    	seal::PluginCapabilities::get()->load(fname);
+        loadCap(i->second.fullClassName_);
+      }
 
-	if(cl->loadClass(name)!=pool::DbStatus::SUCCESS)
+    for(i=prods.begin();i!=e;++i)
+      {
+	string name = i->second.fullClassName_;
+	FDEBUG(7) << "JBK: class loading " << name << endl;
+	const seal::reflect::Class* cc = seal::reflect::Class::forName(name);
+
+        if(cc==0)
 	  {
-	    cerr << "EventStreamImpl: "
-		 << "Could not loadClass for " << name
-		 << endl;
+	    cerr << "Error: could not find Class object for " << name << endl;
 	    continue;
 	  }
-	
-	TClass* ttest = TClass::GetClass(name.c_str());
-	
-	if(ttest==0)
-	  {
-	    cerr << "EventStreamImpl: "
-		 << "Could not get the TClass for " << name
-		 << endl;
-	    continue;
-	  }
+
+        fillChildren(cl,cc);
       }
   }
 

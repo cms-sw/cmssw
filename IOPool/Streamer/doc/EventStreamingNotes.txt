@@ -60,3 +60,19 @@ A memory leak checker has not been run on this code.  It is important
 to do so because other packages are manipulating blocks of memory used
 by this package.
 
+15-9-05 jbk:
+
+Changes the streamer declaration code in ClassFiller to use a different
+algorithm.  First all products have "load capabilities" run on them.
+It then goes though each product in the registry and declares 
+the root streamers bottom-up.  All the types contained within each
+product have the root streamers declared starting at the inner-most
+leaf types.
+
+The code in ClassFiller is sort of messy and needs to be cleaned up.
+
+Setting environment variable PROC_DEBUG=9 will print a trace of what
+the event stream input and output objects are doing to declare the 
+product.  Setting this variable to 11 will cause the ROOT debug level
+to be set to 10 during I/O operations.
+

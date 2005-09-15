@@ -176,7 +176,16 @@ namespace edm {
      ProcessPSetBuilder builder(configstring_);
 
      //create the services
-     serviceToken_ = ServiceRegistry::createSet(*(builder.getServicesPSets()),
+     boost::shared_ptr< std::vector<edm::ParameterSet> > pServiceSets(builder.getServicesPSets());
+     //NOTE: FIX WHEN POOL BUG FIXED
+     // we force in the LoadAllDictionaries service in order to work around a bug in POOL
+     {
+        edm::ParameterSet ps;
+        std::string type("LoadAllDictionaries");
+        ps.addParameter("service_type",type);
+        pServiceSets->push_back( ps );
+     }
+     serviceToken_ = ServiceRegistry::createSet(*pServiceSets,
                                                 iToken,iLegacy);
      serviceToken_.connectTo(activityRegistry_);
      

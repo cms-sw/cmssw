@@ -9,6 +9,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "CalibFormats/HcalObjects/interface/HcalCoder.h"
+#include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSimpleRecAlgo.h"
 
 namespace cms {
@@ -16,8 +18,8 @@ namespace cms {
 
     /** \class HcalSimpleReconstructor
 	
-    $Date: 2005/08/05 19:50:01 $
-    $Revision: 1.1 $
+    $Date: $
+    $Revision: $
     \author J. Mans - Minnesota
     */
     class HcalSimpleReconstructor : public edm::EDProducer {
@@ -26,6 +28,7 @@ namespace cms {
       virtual ~HcalSimpleReconstructor();
       virtual void produce(edm::Event& e, const edm::EventSetup& c);
     private:
+      HcalCoder* coder_;
       HcalSimpleRecAlgo reco_;
       HcalSubdetector subdet_;
     };
