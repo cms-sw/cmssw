@@ -1,0 +1,4 @@
+<lcgdict>
+  <class name="cms::CaloTowerDetId"/>
+  <class name="cms::CaloTower"/>
+</lcgdict>
