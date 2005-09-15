@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EventStreamInput.cc,v 1.6 2005/09/01 01:05:15 wmtan Exp $
+$Id: EventStreamInput.cc,v 1.7 2005/09/10 03:26:42 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Streamer/interface/EventStreamInput.h"
@@ -7,6 +7,7 @@ $Id: EventStreamInput.cc,v 1.6 2005/09/01 01:05:15 wmtan Exp $
 #include "IOPool/Streamer/interface/ClassFiller.h"
 
 #include "FWCore/EDProduct/interface/EDProduct.h"
+#include "FWCore/Framework/src/DebugMacros.h"
 #include "FWCore/Framework/interface/BranchKey.h"
 #include "FWCore/Framework/interface/EventAux.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
@@ -41,10 +42,14 @@ namespace edm
 
   void EventStreamerInputImpl::decodeRegistry()
   {
+    FDEBUG(6) << "StreamInput: decodeRegistry" << endl;
+
     TClass* prog_reg = getTClass(typeid(SendJobHeader));
     TBuffer rootbuf(TBuffer::kRead,regbuf_.size(),&regbuf_[0],kFALSE);
+    if(10<debugit()) gDebug=10;
     auto_ptr<SendJobHeader> 
       sd((SendJobHeader*)rootbuf.ReadObjectAny(prog_reg));
+    if(10<debugit()) gDebug=0;
 
     if(sd.get()==0)
       {
@@ -61,6 +66,7 @@ namespace edm
       {
 	//cout << " " << i->fullClassName_ << endl;
 	pr_->copyProduct(*i);
+	FDEBUG(6) << "StreamInput product = " << i->fullClassName_ << endl;
       }
 
     fillStreamers(*pr_);
@@ -92,7 +98,9 @@ namespace edm
 
     TBuffer rootbuf(TBuffer::kRead,pb.size(),
 		    (char*)pb.buffer(),kFALSE);
+    if(10<debugit()) gDebug=10;
     auto_ptr<SendEvent> sd((SendEvent*)rootbuf.ReadObjectAny(send_event_));
+    if(10<debugit()) gDebug=0;
 
     if(sd.get()==0)
       {
