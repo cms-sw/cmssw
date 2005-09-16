@@ -34,7 +34,8 @@ SiStripCluster::SiStripCluster( unsigned int detid, const StripDigiRange& range)
   float temp_barycenter = sumx / static_cast<float>(suma);
   barycenter_ =  temp_barycenter + 0.5;
   barycenter_error_ = sumx2 / static_cast<float>(suma) - (temp_barycenter * temp_barycenter);
-  barycenter_error_ = sqrt(barycenter_error_);
+  // error is given squared
+//   barycenter_error_ = sqrt(barycenter_error_);
   if ( amplitudes_.size() == 1 ) {
     // FIXME: if only one amplitude forms the cluster, set the error to a strip
     barycenter_error_ = 1.0;
