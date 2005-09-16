@@ -77,15 +77,15 @@ void SiStrip1DLocalMeasurementConverterAlgorithm::run(const SiStripClusterCollec
 	GeomDetUnit *det = tracker.idToDet(cluster.geographicalId());
 	const Topology& top = det->topology();
 	
-	// fill cluster in localpoint structure
-	const LocalPoint localP(cluster.barycenter(),0.,0.);
-	const LocalError localE(cluster.barycenter_error(),0.,0.);
+	// fill cluster in measurementpoint structure
+	const MeasurementPoint measurementP(cluster.barycenter(),0.);
+	const MeasurementError measurementE(cluster.barycenter_error(),0.,0.);
 	
 	// convert
-	const MeasurementPoint measurementP = top.measurementPosition(localP);
-	const MeasurementError measurementE = top.measurementError(localP,localE);
-      
-	collector.push_back(SiStrip1DLocalMeasurement(cluster.geographicalId(),measurementP.x(),measurementE.uu()));
+	const LocalPoint localP = top.localPosition(measurementP);
+	const LocalError localE = top.localError(measurementP,measurementE);
+	
+	collector.push_back(SiStrip1DLocalMeasurement(cluster.geographicalId(),localP.x(),localE.xx()));
       }
     }
 
