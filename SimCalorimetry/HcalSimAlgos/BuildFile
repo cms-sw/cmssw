@@ -1,0 +1,9 @@
+<export>
+  <lib name=SimCalorimetryHcalSimAlgos>
+  <use name=SimCalorimetry/CaloSimAlgos>
+  <use name=CalibCalorimetry/HcalAlgos>
+</export>
+
+<use name=SimCalorimetry/CaloSimAlgos>
+<use name=CalibCalorimetry/HcalAlgos>
+

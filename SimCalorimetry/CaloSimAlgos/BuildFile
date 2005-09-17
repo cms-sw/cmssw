@@ -1,0 +1,9 @@
+<export>
+  <lib name=SimCalorimetryCaloSimAlgos>
+  <use name=CalibFormats/CaloObjects>
+  <use name=DataFormats/CaloId>
+</export>
+
+<use name=CalibFormats/CaloObjects>
+<use name=DataFormats/CaloId>
+
