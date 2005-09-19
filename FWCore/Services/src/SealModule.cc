@@ -6,6 +6,7 @@
 #include "FWCore/Services/src/EventSetupRecordDataGetter.h"
 #include "FWCore/Services/src/Tracer.h"
 #include "FWCore/Services/src/LoadAllDictionaries.h"
+#include "FWCore/Services/src/EventContentAnalyzer.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 
 using edm::AsciiOutputModule;
@@ -19,3 +20,4 @@ DEFINE_ANOTHER_FWK_MODULE(EventSetupRecordDataGetter)
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(EmptyESSource)
 DEFINE_ANOTHER_FWK_SERVICE(Tracer)
 DEFINE_ANOTHER_FWK_SERVICE_MAKER(LoadAllDictionaries,edm::serviceregistry::NoArgsMaker<LoadAllDictionaries>)
+DEFINE_ANOTHER_FWK_MODULE(EventContentAnalyzer)
