@@ -73,7 +73,7 @@ namespace edm {
   {
     // find single source
     try {
-      ParameterSet main_input = params_.getParameter<ParameterSet>("main_input");
+      ParameterSet main_input = params_.getParameter<ParameterSet>("@main_input");
       InputServiceDescription isdesc(common.processName_,common.pass_,preg);
 
       boost::shared_ptr<InputService> input_
@@ -97,7 +97,7 @@ namespace edm {
   {
      using namespace std;
      using namespace edm::eventsetup;
-     vector<string> providers = params_.getParameter<vector<string> >("all_esmodules");
+     vector<string> providers = params_.getParameter<vector<string> >("@all_esmodules");
      for(vector<string>::iterator itName = providers.begin();
           itName != providers.end();
           ++itName) {
@@ -109,7 +109,7 @@ namespace edm {
                                      common.pass_);
      }
 
-     vector<string> sources = params_.getParameter<vector<string> >("all_essources");
+     vector<string> sources = params_.getParameter<vector<string> >("@all_essources");
      for(vector<string>::iterator itName = sources.begin();
           itName != sources.end();
           ++itName) {
@@ -182,7 +182,7 @@ namespace edm {
      {
         edm::ParameterSet ps;
         std::string type("LoadAllDictionaries");
-        ps.addParameter("service_type",type);
+        ps.addParameter("@service_type",type);
         pServiceSets->push_back( ps );
      }
      serviceToken_ = ServiceRegistry::createSet(*pServiceSets,
@@ -195,7 +195,7 @@ namespace edm {
      params_ = builder.getProcessPSet();
      act_table_ = ActionTable(*params_);
      common_ = 
-        CommonParams((*params_).getParameter<string>("process_name"),
+        CommonParams((*params_).getParameter<string>("@process_name"),
                      getVersion(), // this is not written for real yet
                      0); // how is this specifified? Where does it come from?
      

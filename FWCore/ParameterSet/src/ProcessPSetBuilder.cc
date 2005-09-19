@@ -3,11 +3,11 @@
    Implementation of calss ProcessPSetBuilder
 
    \author Stefano ARGIRO
-   \version $Id: ProcessPSetBuilder.cc,v 1.5 2005/09/08 07:15:49 chrjones Exp $
+   \version $Id: ProcessPSetBuilder.cc,v 1.6 2005/09/10 02:08:47 wmtan Exp $
    \date 17 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ProcessPSetBuilder.cc,v 1.5 2005/09/08 07:15:49 chrjones Exp $";
+static const char CVSId[] = "$Id: ProcessPSetBuilder.cc,v 1.6 2005/09/10 02:08:47 wmtan Exp $";
 
 
 #include <FWCore/ParameterSet/interface/ProcessPSetBuilder.h>
@@ -75,7 +75,7 @@ ProcessPSetBuilder::ProcessPSetBuilder(const std::string& config){
      
    } // loop on path fragments
    
-   processDesc_->pset_.insert(true,"paths",Entry(pathnames,true));
+   processDesc_->pset_.insert(true,"@paths",Entry(pathnames,true));
    
    validator_= 
      new ScheduleValidator(processDesc_->pathFragments_,processDesc_->pset_); 

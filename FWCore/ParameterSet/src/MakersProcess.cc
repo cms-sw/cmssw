@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 18 19:09:01 EDT 2005
-// $Id: MakersProcess.cc,v 1.9 2005/09/08 07:15:49 chrjones Exp $
+// $Id: MakersProcess.cc,v 1.10 2005/09/10 02:08:46 wmtan Exp $
 //
 
 // system include files
@@ -65,10 +65,10 @@ struct FillProcess : public edm::pset::Visitor
       handleTypes_[kService] = &FillProcess::handleService;
 
       assert(moduleTypes_.size() == handleTypes_.size());
-      namesToTypes_["all_modules"]=kModule;
-      namesToTypes_["all_sources"]=kSource;
-      namesToTypes_["all_esmodules"]=kESModule;
-      namesToTypes_["all_essources"]=kESSource;
+      namesToTypes_["@all_modules"]=kModule;
+      namesToTypes_["@all_sources"]=kSource;
+      namesToTypes_["@all_esmodules"]=kESModule;
+      namesToTypes_["@all_essources"]=kESSource;
    }
 
    virtual void visitContents(const edm::pset::ContentsNode& iNode) {
@@ -161,8 +161,8 @@ struct FillProcess : public edm::pset::Visitor
    }
 private:
    std::string handleModule(const edm::pset::ModuleNode&iNode , edm::ParameterSet& oPSet) {
-      oPSet.insert(true, "module_label", Entry(iNode.name_, true));
-      oPSet.insert(true, "module_type", Entry(iNode.class_,true));
+      oPSet.insert(true, "@module_label", Entry(iNode.name_, true));
+      oPSet.insert(true, "@module_type", Entry(iNode.class_,true));
       return iNode.name_;
    }
    std::string handleESModule(const edm::pset::ModuleNode&iNode, edm::ParameterSet& oPSet) {
@@ -170,12 +170,12 @@ private:
       if(iNode.name_ != "nameless") {
          label = iNode.name_;
       }
-      oPSet.insert(true, "module_label", Entry(label, true));
-      oPSet.insert(true, "module_type", Entry(iNode.class_,true));
+      oPSet.insert(true, "@module_label", Entry(label, true));
+      oPSet.insert(true, "@module_type", Entry(iNode.class_,true));
       return iNode.class_+"@"+label;
    }
    std::string handleService(const edm::pset::ModuleNode&iNode, edm::ParameterSet& oPSet) {
-      oPSet.insert(true, "service_type", Entry(iNode.class_,true));
+      oPSet.insert(true, "@service_type", Entry(iNode.class_,true));
       return "service";
    }
    std::string handleESSource(const edm::pset::ModuleNode&iNode, edm::ParameterSet& oPSet) {
@@ -183,8 +183,8 @@ private:
       if(iNode.name_ != "main_es_input") {
          label = iNode.name_;
       }
-      oPSet.insert(true, "module_label", Entry(label, true));
-      oPSet.insert(true, "module_type", Entry(iNode.class_,true));
+      oPSet.insert(true, "@module_label", Entry(label, true));
+      oPSet.insert(true, "@module_type", Entry(iNode.class_,true));
       return iNode.class_+"@"+label;
    }
    edm::ParameterSet& pset_;
@@ -222,7 +222,7 @@ struct BuildProcess : public edm::pset::Visitor
 	  << "found type " << iNode.type()
 	  << " with name " << iNode.name();
       }
-      procDesc_->pset_.insert(true, "process_name", edm::Entry(iNode.name(), true));
+      procDesc_->pset_.insert(true, "@process_name", edm::Entry(iNode.name(), true));
       
       FillProcess handleChildren(procDesc_->pset_, procDesc_->pathFragments_, procDesc_->services_);
       

@@ -36,7 +36,7 @@ namespace edm {
 
   std::auto_ptr<Worker> Factory::makeWorker(const WorkerParams& p) const
   {
-    string modtype = p.pset_->getParameter<string>("module_type");
+    string modtype = p.pset_->getParameter<string>("@module_type");
     FDEBUG(1) << "Factory: module_type = " << modtype << endl;
     MakerMap::iterator it = makers_.find(modtype);
 

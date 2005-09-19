@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 15:21:05 EDT 2005
-// $Id: ComponentFactory.h,v 1.8 2005/09/01 05:44:18 wmtan Exp $
+// $Id: ComponentFactory.h,v 1.9 2005/09/01 23:30:48 wmtan Exp $
 //
 
 // system include files
@@ -54,7 +54,7 @@ class ComponentFactory : public seal::PluginFactory< ComponentMakerBase<T>* ()>
                   unsigned long iPass) const
       {
          using namespace std;
-         string modtype = iConfiguration.template getParameter<string>("module_type");
+         string modtype = iConfiguration.template getParameter<string>("@module_type");
          //cerr << "Factory: module_type = " << modtype << endl;
          typename MakerMap::iterator it = makers_.find(modtype);
          

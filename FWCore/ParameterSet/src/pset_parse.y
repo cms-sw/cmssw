@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.5 2005/08/30 21:41:49 wmtan Exp $
+ * $Id: pset_parse.y,v 1.6 2005/09/07 16:31:06 paterno Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -503,7 +503,7 @@ procnode:        allpset
                    DBPRINT("procnode: initSOURCE");
                    string type(toString($<str>3));
                    NodePtrListPtr nodelist($<_NodePtrList>4);
-                   ModuleNode* wn(new ModuleNode("source","main_input",type,nodelist,lines));
+                   ModuleNode* wn(new ModuleNode("source","@main_input",type,nodelist,lines));
                    $<_Node>$ = wn;
                  }
                |

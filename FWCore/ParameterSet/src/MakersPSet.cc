@@ -260,8 +260,8 @@ namespace edm {
       //     std::cerr << "..... module_type is: " << iNode.class_ << '\n';
       //     std::cerr << "..... module_label is: " << iNode.name_ << '\n';
 
-          modulePSet->insert(false, "module_type", Entry(iNode.class_, true));
-          modulePSet->insert(false, "module_label", Entry(iNode.name_, true));
+          modulePSet->insert(false, "@module_type", Entry(iNode.class_, true));
+          modulePSet->insert(false, "@module_label", Entry(iNode.name_, true));
 
           main_->insert(false, iNode.name(), Entry(*modulePSet, true));
          }

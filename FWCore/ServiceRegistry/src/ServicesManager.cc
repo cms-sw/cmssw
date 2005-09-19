@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 13:33:19 EDT 2005
-// $Id: ServicesManager.cc,v 1.3 2005/09/09 14:53:08 chrjones Exp $
+// $Id: ServicesManager.cc,v 1.4 2005/09/10 02:08:48 wmtan Exp $
 //
 
 // system include files
@@ -95,7 +95,7 @@ associatedManager_(iToken.manager_)
          case kOverlapIsError :
             if(!intersection.empty()) {
                throw edm::Exception(errors::Configuration, "Service")
-               <<"the Service "<<(*type2Maker_).find(*(intersection.begin()))->second.pset_->getParameter<std::string>("service_type")
+               <<"the Service "<<(*type2Maker_).find(*(intersection.begin()))->second.pset_->getParameter<std::string>("@service_type")
                <<" already has an instance of that type of Service";
             } else {
                //get all the services from Token
@@ -177,19 +177,19 @@ ServicesManager::fillListOfMakers(const std::vector<edm::ParameterSet>& iConfigu
         itParam != iConfiguration.end();
         ++itParam) {
       boost::shared_ptr<ServiceMakerBase> base(
-                                               ServicePluginFactory::get()->create(itParam->getParameter<std::string>("service_type")));
+                                               ServicePluginFactory::get()->create(itParam->getParameter<std::string>("@service_type")));
       if(0 == base.get()) {
          throw edm::Exception(edm::errors::Configuration, "Service")
          <<"could not find a service named "
-         << itParam->getParameter<std::string>("service_type")
+         << itParam->getParameter<std::string>("@service_type")
          <<". Please check spelling.";
       }
       Type2Maker::iterator itFound = type2Maker_->find(base->serviceType());
       if(itFound != type2Maker_->end()) {
          throw edm::Exception(edm::errors::Configuration,"Service") 
-         <<" the service "<< itParam->getParameter<std::string>("service_type") 
+         <<" the service "<< itParam->getParameter<std::string>("@service_type") 
          <<" provides the same service as "
-         << itFound->second.pset_->getParameter<std::string>("service_type")
+         << itFound->second.pset_->getParameter<std::string>("@service_type")
          <<"\n Please reconfigure job to only use one of these services.";
       }
       type2Maker_->insert(Type2Maker::value_type(base->serviceType(),

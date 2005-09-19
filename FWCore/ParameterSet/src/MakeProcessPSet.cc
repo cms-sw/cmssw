@@ -152,7 +152,7 @@ namespace {
 	}
     } // loop on path fragments
 
-    tmp->pset_.insert(true,"paths",Entry(pathnames,true));
+    tmp->pset_.insert(true,"@paths",Entry(pathnames,true));
 
     return boost::shared_ptr<edm::ParameterSet>(new ParameterSet(tmp->pset_));
   } // make ProcessPset

@@ -64,7 +64,7 @@ void testmaker::makerTest()
     boost::shared_ptr<ParameterSet> p1 = makePSet(*edm::pset::parse(param1.c_str()));;
     boost::shared_ptr<ParameterSet> p2 = makePSet(*edm::pset::parse(param2.c_str()));;
 
-    cerr << p1->getParameter<std::string>("module_type");
+    cerr << p1->getParameter<std::string>("@module_type");
 
     edm::ActionTable table;
 

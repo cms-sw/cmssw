@@ -9,7 +9,7 @@
 // Author:      Chris Jones
 // Created:     Thu May 26 11:01:19 EDT 2005
 // Changed:     Viji Sundararajan 28-Jun-2005
-// $Id: eventsetupplugin_t.cppunit.cc,v 1.1 2005/07/06 15:40:08 viji Exp $
+// $Id: eventsetupplugin_t.cppunit.cc,v 1.2 2005/07/14 22:50:53 wmtan Exp $
 //
 
 // system include files
@@ -55,13 +55,13 @@ void testEventsetupplugin::finderTest()
    EventSetupProvider provider;
    
    edm::ParameterSet dummyFinderPSet;
-   dummyFinderPSet.insert(true, "module_type", edm::Entry(std::string("LoadableDummyFinder"), true));
-   dummyFinderPSet.insert(true, "module_label", edm::Entry(std::string(""), true));
+   dummyFinderPSet.insert(true, "@module_type", edm::Entry(std::string("LoadableDummyFinder"), true));
+   dummyFinderPSet.insert(true, "@module_label", edm::Entry(std::string(""), true));
    SourceFactory::get()->addTo(provider, dummyFinderPSet, "RECO", 1, 1);
    
    edm::ParameterSet dummyProviderPSet;
-   dummyProviderPSet.insert(true, "module_type", edm::Entry(std::string("LoadableDummyProvider"), true));
-   dummyProviderPSet.insert(true, "module_label", edm::Entry(std::string(""), true));
+   dummyProviderPSet.insert(true, "@module_type", edm::Entry(std::string("LoadableDummyProvider"), true));
+   dummyProviderPSet.insert(true, "@module_label", edm::Entry(std::string(""), true));
    ModuleFactory::get()->addTo(provider, dummyProviderPSet, "RECO", 1, 1);
    
 }

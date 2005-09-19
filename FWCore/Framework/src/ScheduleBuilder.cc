@@ -3,11 +3,11 @@
    Implementation of class ScheduleBuilder
 
    \author Stefano ARGIRO
-   \version $Id: ScheduleBuilder.cc,v 1.13 2005/07/23 05:20:12 wmtan Exp $
+   \version $Id: ScheduleBuilder.cc,v 1.14 2005/08/25 23:29:34 wmtan Exp $
    \date 18 May 2005
 */
 
-static const char CVSId[] = "$Id: ScheduleBuilder.cc,v 1.13 2005/07/23 05:20:12 wmtan Exp $";
+static const char CVSId[] = "$Id: ScheduleBuilder.cc,v 1.14 2005/08/25 23:29:34 wmtan Exp $";
 
 
 #include "FWCore/Framework/interface/ScheduleBuilder.h"
@@ -35,7 +35,7 @@ ScheduleBuilder::ScheduleBuilder(ParameterSet const& processDesc,
 
   // get the list of available paths from the processDesc
   const vector<string>& pathnames = 
-    m_processDesc.getParameter<vector<string> >("paths");
+    m_processDesc.getParameter<vector<string> >("@paths");
 
   // loop on paths
   for (vector<string>::const_iterator pathIt = pathnames.begin(); 
@@ -44,7 +44,7 @@ ScheduleBuilder::ScheduleBuilder(ParameterSet const& processDesc,
     const vector<string>& modulenames = 
       m_processDesc.getParameter<vector<string> >(*pathIt);
     
-    const std::string& processName = m_processDesc.getParameter<string>("process_name");
+    const std::string& processName = m_processDesc.getParameter<string>("@process_name");
     
     WorkerList workerList;
     // loop on workers
