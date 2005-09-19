@@ -18,7 +18,7 @@ namespace edmreftest {
   
     /// Runs the algorithm and returns a list of OtherThings
     /// The user declares the vector and calls this method.
-    void run(edm::Event & e, OtherThingCollection& otherThingCollection);
+    void run(const edm::Event & e, OtherThingCollection& otherThingCollection);
   
   private:
     int    theDebugLevel;
