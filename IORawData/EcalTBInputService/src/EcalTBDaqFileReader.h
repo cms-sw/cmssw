@@ -45,6 +45,13 @@ class EcalTBDaqFileReader  {
   virtual FedDataPair getEventTrailer();
   virtual bool checkEndOfEvent();
   virtual bool checkEndOfFile();
+  void getFEDHeader(unsigned long* buf);
+  int getFedId() {return headValues_[0];}
+  int getEventNumber() {return headValues_[1];}
+  int getEventLength() {return headValues_[2];}
+  int getRunNumber() {return headValues_[3];}
+
+  
 
 private:
   static EcalTBDaqFileReader * instance_;
@@ -54,6 +61,8 @@ private:
   static const int maxEventSizeInBytes_=100000;
   static const int EOE_=10;
   static const int BOE_=5;
+  vector<int> headValues_;
+  
   //ulong* buf;
   //int len;
   //ulong* tmp;

@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2005/08/03 18:49:47 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/08/04 16:49:10 $
+ *  $Revision: 1.3 $
  *  \author  N. Marinelli IASA 
  *
  *
@@ -61,14 +61,23 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData , EBDigiCol
   
   theParser_->parseBuffer( reinterpret_cast<ulong*>(pData), static_cast<ulong>(length), shit );
   
+  /// just for debug
+  /*
   ulong * temp = (ulong*)(pData);
-  
+  for ( int i=0; i<20; ++i, temp++)
+    cout << "i)"<< i << " " << hex<<(*temp)<< dec << endl;
+  */
+
+
+
   vector< DCCEventBlock * > &   dccEventBlocks = theParser_->dccEvents();
   //  cout << " EcalTBDaqFormatter::interpretRawData  dccDataBlocks size " << dccEventBlocks.size() << endl;
     
   // Access each DCC block
   for( vector< DCCEventBlock * >::iterator itEventBlock = dccEventBlocks.begin(); itEventBlock != dccEventBlocks.end(); itEventBlock++){
-    //cout << " DCC ID " <<  (*itEventBlock)->getDataField("FED/DCC ID") << endl; 
+    //  cout << " DCC ID " <<  (*itEventBlock)->getDataField("FED/DCC ID") << endl; 
+    //cout << " BX number " << (*itEventBlock)->getDataField("BX") << endl;
+    //cout << " RUN NUMBER  " <<  (*itEventBlock)->getDataField("RUN NUMBER") << endl;
     vector< DCCTowerBlock * > dccTowerBlocks = (*itEventBlock)->towerBlocks();
     cout << " EcalTBDaqFormatter::unFormatMe dccTowerBlocks size " << dccTowerBlocks.size() << endl;
 

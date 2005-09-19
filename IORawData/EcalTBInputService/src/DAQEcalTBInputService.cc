@@ -1,6 +1,6 @@
 /*
- *  $Date: 2005/08/05 14:31:49 $
- *  $Revision: 1.3 $
+ *  $Date: 2005/08/22 18:17:04 $
+ *  $Revision: 1.4 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -91,9 +91,8 @@ auto_ptr<EventPrincipal> DAQEcalTBInputService::read() {
 
   auto_ptr<EventPrincipal> result(0);
 
-  //  clear();
-
-  EventID id=0;
+ 
+  EventID id;
 
   FEDRawDataCollection* bare_product = new FEDRawDataCollection;
 
@@ -102,6 +101,7 @@ auto_ptr<EventPrincipal> DAQEcalTBInputService::read() {
   if (remainingEvents_-- == 0 || !reader_->fillDaqEventData(id, *bare_product)   )
     return result;
 
+  cout << " DAQEcalTBInputService::read run " << id.run() << " ev " << id.event() << endl;
 
   result = auto_ptr<EventPrincipal>(new EventPrincipal(id, *retriever_, *preg_));
   

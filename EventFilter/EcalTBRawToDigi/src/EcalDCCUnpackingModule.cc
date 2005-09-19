@@ -1,7 +1,7 @@
 /* \file EcalDCCUnpackingModule.h
  *
- *  $Date: 2005/08/03 15:26:43 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/08/05 14:32:55 $
+ *  $Revision: 1.3 $
  *  \author N. Marinelli 
  */
 
@@ -44,11 +44,10 @@ void EcalDCCUnpackingModule::produce(Event & e, const EventSetup& c){
   auto_ptr<EBDigiCollection> product(new EBDigiCollection);
 
   for (unsigned int id= 0; id<=FEDRawDataCollection::lastfedid; ++id){ 
-    
-    if ( id != 1 ) continue;
-    cout << "EcalDCCUnpackingModule::Got FED ID "<<id <<" ";
+      
+    // cout << "EcalDCCUnpackingModule::Got FED ID "<< id <<" ";
     const FEDRawData& data = rawdata->FEDData(id);
-    cout << " Fed data size " << data.data_.size() << endl;
+    // cout << " Fed data size " << data.data_.size() << endl;
     
     if (data.data_.size()){
       

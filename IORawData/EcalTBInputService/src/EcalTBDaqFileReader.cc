@@ -1,5 +1,6 @@
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+
 #include "EcalTBDaqFileReader.h"
 
 
@@ -75,8 +76,7 @@ void EcalTBDaqFileReader::initialize(const string & filename){
   initialized_ = true;
 }
 
-FedDataPair 
-EcalTBDaqFileReader::getEventTrailer() {
+FedDataPair EcalTBDaqFileReader::getEventTrailer() {
 
   //  cout << " EcalTBDaqFileReader getEvent Trailer  " << endl;
   string myWord;
@@ -89,7 +89,9 @@ EcalTBDaqFileReader::getEventTrailer() {
     inputFile >> myWord;
     sscanf( myWord.c_str(),"%x",buf);
     int val= *buf >> 28;
+
     //    cout << " myWord " << myWord << " myWord >> 28 " << val << endl;
+
 
     if ( len%2!=0 ) {
 
@@ -106,6 +108,7 @@ EcalTBDaqFileReader::getEventTrailer() {
 
   //  cout << " Number of 32 words in the event " << len << endl;
   len*=4;
+  //cout << " Length in bytes " << len << endl;
 
   FedDataPair aPair;
   aPair.len = len;
@@ -125,11 +128,14 @@ EcalTBDaqFileReader::getEventTrailer() {
 bool EcalTBDaqFileReader::fillDaqEventData(edm::EventID & cID, FEDRawDataCollection& data ) {
   //  cout<< "EcalTBDaqFileReader::fillDaqEventData() beginning " << endl;      
   const int MAXFEDID = 1024;
+  int evtNumber=0;
+  int runNumber=0;
+
 
   pair<int,int> fedInfo;  //int =FED id, int = event data length 
-  fedInfo.first=1;  //FAKE
 
-  int fedId=fedInfo.first;
+  int fedId=0;
+
 
   try {
 
@@ -140,6 +146,21 @@ bool EcalTBDaqFileReader::fillDaqEventData(edm::EventID & cID, FEDRawDataCollect
     FedDataPair aPair = getEventTrailer();
     fedInfo.second = aPair.len;
 
+
+    //    unsigned char* tmp = new unsigned char [fedInfo.second];
+    unsigned long* tmp = new unsigned long [fedInfo.second];
+    tmp= reinterpret_cast<unsigned long*>(aPair.fedData);
+    getFEDHeader(tmp);
+    fedInfo.first=getFedId();
+    fedId=fedInfo.first; 
+
+    cout << " fillDaqEventData Fed Id " << fedId << " getEventLength() " << getEventLength() << " run " << getRunNumber() << " Ev " << getEventNumber() << endl;
+    
+   
+    EventID ev( getRunNumber(), getEventNumber() );
+    cID=ev;
+
+
     if(fedId<0){
       cerr<<"DaqEvent::addFEDRawData - ERROR : negative FED Id. Adding no data"<<endl;
     } else if (fedId>MAXFEDID){
@@ -147,7 +168,7 @@ bool EcalTBDaqFileReader::fillDaqEventData(edm::EventID & cID, FEDRawDataCollect
     }  else {
 
       //if ( infoV ) cout<<"DaqEvent: adding DaqFEDRawData of FED"<< fedId << endl;
-      cout<<"DaqEvent: adding DaqFEDRawData of FED"<< fedId << endl;
+      cout<<"DaqEvent: adding DaqFEDRawData of FED "<< fedId << endl;
 
       FEDRawData& eventfeddata = data.FEDData( fedInfo.first  );
       eventfeddata.data_.resize(fedInfo.second);
@@ -166,6 +187,60 @@ bool EcalTBDaqFileReader::fillDaqEventData(edm::EventID & cID, FEDRawDataCollect
     return false;
   }
 }
+
+
+void  EcalTBDaqFileReader::getFEDHeader(unsigned long* data) {
+
+  cout<<"getting FED Header "<<  endl;
+  int headsize=16;
+
+  int fedId=0;
+  int fedDataSize=0;
+
+  //  int headsize = DaqFEDHeaderFormat::getSizeInBytes();
+  unsigned long * buf = new unsigned long[headsize]; 
+
+  copy(data, data + headsize , buf);
+  
+  
+  //for ( int i=0; i<4; ++i, buf++)
+  // cout << "i)"<< i << " " << hex<<(*buf)<< dec << endl;
+
+  int val=0;
+  for ( int i=0; i< headsize/4; ++i) {
+    if ( i==0) {    
+      headValues_.push_back((*buf>>8)&0xFFF);      
+      headValues_.push_back( *buf>> 20);   
+      //      val = *buf>> 20;
+      //      cout << " bx " << val << " Fed ID " << ((*buf>>8)&0xFFF) <<  endl; 
+
+    } else if ( i==2) {
+      headValues_.push_back( ((*buf)&0xFFFFFF)*8 );
+      //      cout << " Event length " << ((*buf)&0xFFFFFF)*8 << endl;
+    } else if ( i==3) {
+      int runN= (*buf)&0xFFFFFF;
+      //cout << " runN " << val << endl; 
+      headValues_.push_back( (*buf)&0xFFFFFF);
+
+    }
+
+
+    buf+=1;
+  }
+
+    
+
+
+}
+
+
+
+
+
+
+
+
+
 
 bool EcalTBDaqFileReader::checkEndOfFile() {
 
