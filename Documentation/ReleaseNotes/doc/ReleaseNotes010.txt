@@ -1,4 +1,4 @@
-$Id$
+$Id: ReleaseNotes010.txt,v 1.1 2005/09/20 14:37:49 argiro Exp $
 
 CMSSW 0-1-0 Release Notes
 -------------------------
@@ -28,6 +28,12 @@ However, we do provide some working examples and skeletons that should allow get
 
 - EventFilter/*RawToDigi/test
   Examples of conversions from raw to digi. Run cmsRun --parameter-set *.txt
+
+- RecoJets/JetProducers/test/Midpoint.txt  is the official CMSSW jets example.
+    Run "cmsRun --parameter-set Midpoint.txt "
+
+- RecoJets/JetProducers/test/Kt.txt        is an example for Kt jets. 
+    Run "cmsRun --parameter-set Kt.txt "
 
 
 1.3 Bug Reports
