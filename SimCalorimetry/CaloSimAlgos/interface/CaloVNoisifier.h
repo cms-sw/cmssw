@@ -7,6 +7,10 @@
    \brief adds noise to the given frame
 
 */
+namespace CLHEP {
+  class RandGaussQ;
+}
+
 class CaloSamples;
 
 namespace cms {
@@ -14,11 +18,13 @@ namespace cms {
   class CaloVNoisifier
   {
   public:
-
-    virtual ~CaloVNoisifier(){}
+    CaloVNoisifier();
+    virtual ~CaloVNoisifier();
 
     virtual void noisify(CaloSamples & frame) const=0;
 
+  protected:
+    CLHEP::RandGaussQ * theRandGaussian;
   };
 }
 
