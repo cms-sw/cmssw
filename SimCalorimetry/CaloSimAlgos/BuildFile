@@ -1,9 +1,10 @@
 <export>
   <lib name=SimCalorimetryCaloSimAlgos>
   <use name=CalibFormats/CaloObjects>
-  <use name=DataFormats/CaloId>
+  <use name=DataFormats/DetId>
 </export>
 
 <use name=CalibFormats/CaloObjects>
-<use name=DataFormats/CaloId>
+<use name=DataFormats/DetId>
+<use name=clhep>
 
