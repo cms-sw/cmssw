@@ -61,7 +61,7 @@ void EcalTBDaqFileReader::initialize(const string & filename){
     cout << "EcalTB DaqFileReader was already initialized... reinitializing it " << endl;
     if(inputFile) {
       inputFile.close();
-      //delete input_;
+
     }
 
   }
@@ -193,9 +193,7 @@ void  EcalTBDaqFileReader::getFEDHeader(unsigned long* data) {
 
   cout<<"getting FED Header "<<  endl;
   int headsize=16;
-
-  int fedId=0;
-  int fedDataSize=0;
+  headValues_.clear();;
 
   //  int headsize = DaqFEDHeaderFormat::getSizeInBytes();
   unsigned long * buf = new unsigned long[headsize]; 
@@ -209,18 +207,18 @@ void  EcalTBDaqFileReader::getFEDHeader(unsigned long* data) {
   int val=0;
   for ( int i=0; i< headsize/4; ++i) {
     if ( i==0) {    
-      headValues_.push_back((*buf>>8)&0xFFF);      
-      headValues_.push_back( *buf>> 20);   
-      //      val = *buf>> 20;
-      //      cout << " bx " << val << " Fed ID " << ((*buf>>8)&0xFFF) <<  endl; 
-
+      headValues_.push_back((*buf>>8)&0xFFF);   // DCC id    
+     
+    } else if ( i==1) {
+      headValues_.push_back( (*buf)&0xFFFFFF);      // Lv1 number
+      //      cout << " LV1  " << ((*buf)&0xFFFFFF) << endl;
     } else if ( i==2) {
-      headValues_.push_back( ((*buf)&0xFFFFFF)*8 );
+      headValues_.push_back( ((*buf)&0xFFFFFF)*8 ); // Event length
       //      cout << " Event length " << ((*buf)&0xFFFFFF)*8 << endl;
     } else if ( i==3) {
       int runN= (*buf)&0xFFFFFF;
-      //cout << " runN " << val << endl; 
-      headValues_.push_back( (*buf)&0xFFFFFF);
+      //cout << " runN " << runN << endl; 
+      headValues_.push_back( (*buf)&0xFFFFFF); // Run NUmber
 
     }
 
@@ -228,7 +226,6 @@ void  EcalTBDaqFileReader::getFEDHeader(unsigned long* data) {
     buf+=1;
   }
 
-    
 
 
 }
