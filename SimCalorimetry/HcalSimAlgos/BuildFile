@@ -6,4 +6,5 @@
 
 <use name=SimCalorimetry/CaloSimAlgos>
 <use name=CalibCalorimetry/HcalAlgos>
+<use name=clhep>
 
