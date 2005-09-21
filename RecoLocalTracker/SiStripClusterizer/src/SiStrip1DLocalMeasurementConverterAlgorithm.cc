@@ -22,7 +22,7 @@
 #include "Geometry/CommonDetAlgo/interface/MeasurementPoint.h"
 #include "Geometry/CommonDetAlgo/interface/MeasurementError.h"
 
-#include "Geometry/TrackerSimAlgo/interface/CmsDigiTracker.h"
+#include "Geometry/TrackerSimAlgo/interface/TrackerGeom.h"
 #include "Geometry/TrackerSimAlgo/interface/StripGeomDetUnit.h"
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -46,9 +46,9 @@ void SiStrip1DLocalMeasurementConverterAlgorithm::run(const SiStripClusterCollec
   int number_local1dmeasurements = 0;
 
   // get geometry
-  edm::eventsetup::ESHandle<CmsDigiTracker> pDD;
+  edm::eventsetup::ESHandle<TrackerGeom> pDD;
   es.get<TrackerDigiGeometryRecord>().get(pDD);
-  const CmsDigiTracker& tracker(*pDD);
+  const TrackerGeom& tracker(*pDD);
 
 
   // get vector of detunit ids
