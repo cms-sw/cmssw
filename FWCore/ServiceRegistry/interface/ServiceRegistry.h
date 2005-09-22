@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 13:33:00 EDT 2005
-// $Id: ServiceRegistry.h,v 1.5 2005/09/12 19:08:20 chrjones Exp $
+// $Id: ServiceRegistry.h,v 1.6 2005/09/22 07:33:46 chrjones Exp $
 //
 
 // system include files
@@ -104,11 +104,35 @@ namespace edm {
             manager->put(wrapper);
             return manager;
          }
+      template<class T>
+         static ServiceToken createContaining(std::auto_ptr<T> iService,
+                                              ServiceToken iToken,
+                                              serviceregistry::ServiceLegacy iLegacy){
+            std::vector<edm::ParameterSet> config;
+            boost::shared_ptr<serviceregistry::ServicesManager> manager( new serviceregistry::ServicesManager(iToken,
+                                                                                                              iLegacy,
+                                                                                                              config) );
+            boost::shared_ptr<serviceregistry::ServiceWrapper<T> >
+            wrapper(new serviceregistry::ServiceWrapper<T>(iService));
+            manager->put(wrapper);
+            return manager;
+         }
       /// create a service token that holds the service held by iWrapper
       template<class T>
          static ServiceToken createContaining(boost::shared_ptr<serviceregistry::ServiceWrapper<T> > iWrapper) {
             std::vector<edm::ParameterSet> config;
             boost::shared_ptr<serviceregistry::ServicesManager> manager( new serviceregistry::ServicesManager(config) );
+            manager->put(iWrapper);
+            return manager;
+         }
+      template<class T>
+         static ServiceToken createContaining(boost::shared_ptr<serviceregistry::ServiceWrapper<T> > iWrapper,
+                                              ServiceToken iToken,
+                                              serviceregistry::ServiceLegacy iLegacy){
+            std::vector<edm::ParameterSet> config;
+            boost::shared_ptr<serviceregistry::ServicesManager> manager( new serviceregistry::ServicesManager(iToken,
+                                                                                                              iLegacy,
+                                                                                                              config) );
             manager->put(iWrapper);
             return manager;
          }
