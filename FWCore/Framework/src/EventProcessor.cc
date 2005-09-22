@@ -21,6 +21,7 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/EventRegistry.h"
 #include "FWCore/Framework/interface/ProductRegistry.h"
+#include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Framework/interface/Event.h"
 
@@ -148,7 +149,7 @@ namespace edm {
     boost::shared_ptr<ParameterSet> params_;
     CommonParams            common_;
     WorkerRegistry          wreg_;
-    serviceregistry::ServiceWrapper<ProductRegistry> preg_;
+    ProductRegistry preg_;
     PathList                workers_;
 
     ActivityRegistry activityRegistry_;
@@ -171,13 +172,6 @@ namespace edm {
   };
 
   // ---------------------------------------------------------------
-  //Used to allow ProductRegistry to be temporarily added as a Service
-  //  this is OK since the ProductRegistry lives longer than the Service is made available
-  namespace {
-     struct DoNotDelete {
-        void operator()(serviceregistry::ServiceWrapper<ProductRegistry>*) {}
-     };
-  }
   void FwkImpl::initialize(const ServiceToken& iToken, serviceregistry::ServiceLegacy iLegacy)
   {    
      ProcessPSetBuilder builder(configstring_);
@@ -197,8 +191,9 @@ namespace edm {
      serviceToken_.connectTo(activityRegistry_);
      
      //add the ProductRegistry as a service ONLY for the construction phase
-     DoNotDelete doNotDelete;
-     boost::shared_ptr<serviceregistry::ServiceWrapper<ProductRegistry> > reg(&preg_, doNotDelete );
+     boost::shared_ptr<serviceregistry::ServiceWrapper<ConstProductRegistry> > 
+        reg(new serviceregistry::ServiceWrapper<ConstProductRegistry>( 
+                   std::auto_ptr<ConstProductRegistry>(new ConstProductRegistry(preg_))));
      ServiceToken tempToken( ServiceRegistry::createContaining(reg, serviceToken_, serviceregistry::kOverlapIsError));
      //make the services available
      ServiceRegistry::Operate operate(tempToken);
@@ -210,9 +205,9 @@ namespace edm {
                      getVersion(), // this is not written for real yet
                      0); // how is this specifified? Where does it come from?
      
-     input_= makeInput(*params_, common_, preg_.get());
+     input_= makeInput(*params_, common_, preg_);
      ScheduleBuilder sbuilder= 
-        ScheduleBuilder(*params_, wreg_, preg_.get(), act_table_);
+        ScheduleBuilder(*params_, wreg_, preg_, act_table_);
      
      workers_= (sbuilder.getPathList());
      runner_ = std::auto_ptr<ScheduleExecutor>(new ScheduleExecutor(workers_,act_table_));
@@ -227,7 +222,6 @@ namespace edm {
      const ServiceToken& iToken, serviceregistry::ServiceLegacy iLegacy):
     args_(fillArgs(argc,argv)),
     configstring_(readFile(args_)),
-    preg_(std::auto_ptr<ProductRegistry>(new ProductRegistry)),
     emittedBeginJob_(false)
   {
     initialize(iToken,iLegacy);
@@ -237,7 +231,6 @@ namespace edm {
                    const ServiceToken& iToken, serviceregistry::ServiceLegacy iLegacy):
     args_(fillArgs(argc,argv)),
     configstring_(config),
-    preg_(std::auto_ptr<ProductRegistry>(new ProductRegistry)),
     emittedBeginJob_(false) {
     initialize(iToken,iLegacy);
   }
@@ -246,7 +239,6 @@ namespace edm {
                    const ServiceToken& iToken, serviceregistry::ServiceLegacy iLegacy):
     args_(),
     configstring_(config),
-    preg_(std::auto_ptr<ProductRegistry>(new ProductRegistry)),
     emittedBeginJob_(false) {
     initialize(iToken,iLegacy);
     FDEBUG(2) << params_->toString() << std::endl;
