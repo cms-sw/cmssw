@@ -148,7 +148,7 @@ namespace edm {
     boost::shared_ptr<ParameterSet> params_;
     CommonParams            common_;
     WorkerRegistry          wreg_;
-    ProductRegistry         preg_;
+    serviceregistry::ServiceWrapper<ProductRegistry> preg_;
     PathList                workers_;
 
     ActivityRegistry activityRegistry_;
@@ -171,6 +171,13 @@ namespace edm {
   };
 
   // ---------------------------------------------------------------
+  //Used to allow ProductRegistry to be temporarily added as a Service
+  //  this is OK since the ProductRegistry lives longer than the Service is made available
+  namespace {
+     struct DoNotDelete {
+        void operator()(serviceregistry::ServiceWrapper<ProductRegistry>*) {}
+     };
+  }
   void FwkImpl::initialize(const ServiceToken& iToken, serviceregistry::ServiceLegacy iLegacy)
   {    
      ProcessPSetBuilder builder(configstring_);
@@ -189,8 +196,12 @@ namespace edm {
                                                 iToken,iLegacy);
      serviceToken_.connectTo(activityRegistry_);
      
+     //add the ProductRegistry as a service ONLY for the construction phase
+     DoNotDelete doNotDelete;
+     boost::shared_ptr<serviceregistry::ServiceWrapper<ProductRegistry> > reg(&preg_, doNotDelete );
+     ServiceToken tempToken( ServiceRegistry::createContaining(reg, serviceToken_, serviceregistry::kOverlapIsError));
      //make the services available
-     ServiceRegistry::Operate operate(serviceToken_);
+     ServiceRegistry::Operate operate(tempToken);
      
      params_ = builder.getProcessPSet();
      act_table_ = ActionTable(*params_);
@@ -199,9 +210,9 @@ namespace edm {
                      getVersion(), // this is not written for real yet
                      0); // how is this specifified? Where does it come from?
      
-     input_= makeInput(*params_, common_, preg_);
+     input_= makeInput(*params_, common_, preg_.get());
      ScheduleBuilder sbuilder= 
-        ScheduleBuilder(*params_, wreg_, preg_, act_table_);
+        ScheduleBuilder(*params_, wreg_, preg_.get(), act_table_);
      
      workers_= (sbuilder.getPathList());
      runner_ = std::auto_ptr<ScheduleExecutor>(new ScheduleExecutor(workers_,act_table_));
@@ -216,6 +227,7 @@ namespace edm {
      const ServiceToken& iToken, serviceregistry::ServiceLegacy iLegacy):
     args_(fillArgs(argc,argv)),
     configstring_(readFile(args_)),
+    preg_(std::auto_ptr<ProductRegistry>(new ProductRegistry)),
     emittedBeginJob_(false)
   {
     initialize(iToken,iLegacy);
@@ -225,6 +237,7 @@ namespace edm {
                    const ServiceToken& iToken, serviceregistry::ServiceLegacy iLegacy):
     args_(fillArgs(argc,argv)),
     configstring_(config),
+    preg_(std::auto_ptr<ProductRegistry>(new ProductRegistry)),
     emittedBeginJob_(false) {
     initialize(iToken,iLegacy);
   }
@@ -233,6 +246,7 @@ namespace edm {
                    const ServiceToken& iToken, serviceregistry::ServiceLegacy iLegacy):
     args_(),
     configstring_(config),
+    preg_(std::auto_ptr<ProductRegistry>(new ProductRegistry)),
     emittedBeginJob_(false) {
     initialize(iToken,iLegacy);
     FDEBUG(2) << params_->toString() << std::endl;
