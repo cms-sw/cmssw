@@ -1,12 +1,17 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include<iostream>
 
-std::ostream & operator<<(std::ostream& o,const PCaloHit& hit)
-{
-  o << "0x"<<std::hex<< hit.id() << std::dec
-    << ": Energy " << hit.energy() << " GeV "
-    << " Tof " << hit.time() << " ns "
-    << " Geant track #" << hit.geantTrackId();
+//PG namespace cms
+//PG {
 
-  return o;
-}
+  std::ostream & operator<<(std::ostream& o,const PCaloHit& hit)
+  {
+    o << "0x"<<std::hex<< hit.id() << std::dec
+      << ": Energy " << hit.energy() << " GeV "
+      << " Tof " << hit.time() << " ns "
+      << " Geant track #" << hit.geantTrackId();
+
+    return o;
+  }
+
+//PG } //PG namespace cms

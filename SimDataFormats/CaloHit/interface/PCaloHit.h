@@ -9,86 +9,90 @@
    Simple class to encapsulate a Geant hit for ORCA.
 */
 
-class PCaloHit 
-{ 
-public: 
+//PG namespace cms
+//PG {
 
-  /** 
-      \fn PCaloHit(float e, float t, int i)
+  class PCaloHit 
+  { 
+  public: 
 
-      \brief Default constructor, which
-      takes myEnergy(e), time of the hit(t) and track number(i)
-  */
-  PCaloHit(float e = 0., float t = 0., int i = 0) : 
-    myEnergy (e), myTime (t), myItra (i) { }
+    /** 
+        \fn PCaloHit(float e, float t, int i)
 
-  PCaloHit(unsigned int id, float e = 0., float t = 0., int i = 0) : 
-    myEnergy (e), myTime (t), myItra (i), myId(id) { }
+        \brief Default constructor, which
+        takes myEnergy(e), time of the hit(t) and track number(i)
+    */
+    PCaloHit(float e = 0., float t = 0., int i = 0) : 
+      myEnergy (e), myTime (t), myItra (i) { }
 
-
-  //Names
-  static const char *name() { return "Hit"; }
-
-  /** 
-      \fn char *getName() const
-
-      \brief Name of the hit (default "Hit") 
-  */
-  const char * getName() const { return name (); }
-
-  //Energy deposit of the Hit
-  double energy() const { return myEnergy; }
-
-  //Time of the deposit
-  double time() const { return myTime; }
-
-  //G3 track number
-  
-  /** 
-      \fn int g3itra() const
-
-      \brief Geant 3 track number
-  */
-  int geantTrackId() const { return myItra; }
+    PCaloHit(unsigned int id, float e = 0., float t = 0., int i = 0) : 
+      myEnergy (e), myTime (t), myItra (i), detId(id) { }
 
 
-  unsigned int  id() const { return myId; }
-  
+    //Names
+    static const char *name() { return "Hit"; }
 
-  //Comaprisons
+    /** 
+        \fn char *getName() const
 
-  /** 
-      \fn bool operator<(const PCaloHit &) const
+        \brief Name of the hit (default "Hit") 
+    */
+    const char * getName() const { return name (); }
 
-      \brief Askes, whether hit energy is smaller than the one provided.
+    //Energy deposit of the Hit
+    double energy() const { return myEnergy; }
 
-      Useful for sorting in energy.
-  */
-  bool operator<(const PCaloHit &d) const 
-  { return myEnergy < d.myEnergy; }
-  
-  //Same Hit (by value)
-  /** 
-      \fn bool operator==(const PCaloHit &) const
-      
-      \brief Compares by value on equality.
+    //Time of the deposit
+    double time() const { return myTime; }
 
-      
-  */
-  bool operator==(const PCaloHit &d) const 
-  { return myEnergy == d.myEnergy && myId == d.myId; }
-  
+    //G3 track number
+
+    /** 
+        \fn int g3itra() const
+
+        \brief Geant 3 track number
+    */
+    int geantTrackId() const { return myItra; }
 
 
-protected: 
-  float myEnergy; 
-  float myTime; 
-  int myItra; 
-  unsigned int myId; 
-}; 
+    unsigned int  id() const { return detId; }
 
-#include<iosfwd>
-std::ostream &operator<<(std::ostream &, const PCaloHit &); 
 
+    //Comaprisons
+
+    /** 
+        \fn bool operator<(const PCaloHit &) const
+
+        \brief Askes, whether hit energy is smaller than the one provided.
+
+        Useful for sorting in energy.
+    */
+    bool operator<(const PCaloHit &d) const 
+    { return myEnergy < d.myEnergy; }
+
+    //Same Hit (by value)
+    /** 
+        \fn bool operator==(const PCaloHit &) const
+
+        \brief Compares by value on equality.
+
+
+    */
+    bool operator==(const PCaloHit &d) const 
+    { return myEnergy == d.myEnergy && detId == d.detId; }
+
+
+
+  protected: 
+    float myEnergy; 
+    float myTime; 
+    int myItra; 
+    unsigned int detId; 
+  }; 
+
+  #include<iosfwd>
+  std::ostream &operator<<(std::ostream &, const PCaloHit &); 
+
+//PG } //PG namespace cms
 
 #endif // _SimDataFormats_SimCaloHit_PCaloHit_h_
