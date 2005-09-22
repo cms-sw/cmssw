@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 13:33:00 EDT 2005
-// $Id: ServiceRegistry.h,v 1.4 2005/09/10 02:08:48 wmtan Exp $
+// $Id: ServiceRegistry.h,v 1.5 2005/09/12 19:08:20 chrjones Exp $
 //
 
 // system include files
@@ -29,6 +29,10 @@
 // forward declarations
 namespace edm {
    class FwkImpl;
+   namespace serviceregistry {
+      template< typename T> class ServiceWrapper;
+   }
+   
    class ServiceRegistry
    {
 
@@ -88,7 +92,27 @@ namespace edm {
 
       static ServiceToken createSet(const std::vector<ParameterSet>&);
       static ServiceToken createSet(const std::vector<ParameterSet>&,
-                                    ServiceToken,serviceregistry::ServiceLegacy);
+                                    ServiceToken,
+                                    serviceregistry::ServiceLegacy);
+      /// create a service token that holds the service defined by iService
+      template<class T>
+         static ServiceToken createContaining(std::auto_ptr<T> iService){
+            std::vector<edm::ParameterSet> config;
+            boost::shared_ptr<serviceregistry::ServicesManager> manager( new serviceregistry::ServicesManager(config) );
+            boost::shared_ptr<serviceregistry::ServiceWrapper<T> >
+               wrapper(new serviceregistry::ServiceWrapper<T>(iService));
+            manager->put(wrapper);
+            return manager;
+         }
+      /// create a service token that holds the service held by iWrapper
+      template<class T>
+         static ServiceToken createContaining(boost::shared_ptr<serviceregistry::ServiceWrapper<T> > iWrapper) {
+            std::vector<edm::ParameterSet> config;
+            boost::shared_ptr<serviceregistry::ServicesManager> manager( new serviceregistry::ServicesManager(config) );
+            manager->put(iWrapper);
+            return manager;
+         }
+      
       
       //returns old token
       ServiceToken setContext(const ServiceToken& iNewToken);
