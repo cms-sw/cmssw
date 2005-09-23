@@ -68,15 +68,9 @@ namespace edm {
 
     FDEBUG(9) << "JBK: parent - " << cc->fullName() << endl;
 
-    // this probably need to be adjusted to go through the type
-    // behind the pointer (JBK)
-    if(cc->isPointer())
+    while(cc->isPointer() == true)
       {
-	cerr << "Dictionary generation note: \n"
-	     << "   pointer processing not available for "
-	     << cc->fullName()
-	     << endl;
-	return;
+	cc = cc->deref();
       }
 
     // this probably need to be corrected also (JBK)
@@ -85,9 +79,9 @@ namespace edm {
 	static bool has_printed = false;
 	if(has_printed==false)
 	  {
-	    cerr << "Dictionary generation: "
-		 << "do not know how to deal with " << cc->fullName()
-		 << endl;
+	    //cerr << "Dictionary generation: "
+	    // << "do not know how to deal with " << cc->fullName()
+	    // << endl;
 	    has_printed = true;
 	  }
 	return;
