@@ -33,6 +33,8 @@ namespace edm {
   pool::IClassLoader* getClassLoader()
   {
     pool::IOODatabaseFactory* dbf = pool::IOODatabaseFactory::get();
+
+    // does 'db' in the next line need to be cleaned up? (JBK)
     pool::IOODatabase* db=dbf->create(pool::ROOT_StorageType.storageName());
 
     if(db==0)
@@ -57,7 +59,39 @@ namespace edm {
   // ---------------------
   void fillChildren(pool::IClassLoader* cl, const seal::reflect::Class* cc)
   {
+    if(cc==0)
+      {
+	cerr << "Warning: nothing to process in dictionary fill"
+	     << endl;
+	return;
+      }
+
     FDEBUG(9) << "JBK: parent - " << cc->fullName() << endl;
+
+    // this probably need to be adjusted to go through the type
+    // behind the pointer (JBK)
+    if(cc->isPointer())
+      {
+	cerr << "Dictionary generation note: \n"
+	     << "   pointer processing not available for "
+	     << cc->fullName()
+	     << endl;
+	return;
+      }
+
+    // this probably need to be corrected also (JBK)
+    if(cc->fullName() == "std::basic_string<char>")
+      {
+	static bool has_printed = false;
+	if(has_printed==false)
+	  {
+	    cerr << "Dictionary generation: "
+		 << "do not know how to deal with " << cc->fullName()
+		 << endl;
+	    has_printed = true;
+	  }
+	return;
+      }
 
     if(cc->isContainer())
       {
@@ -76,17 +110,22 @@ namespace edm {
 
     for(;beg!=end;++beg)
       {
+        FDEBUG(9) << "JBK: child field - " << (*beg)->toString() << endl;
+
+	if( (*beg)->isTransient() || (*beg)->isStatic() )
+	  continue;
+
 	const seal::reflect::Class* ft = (*beg)->type();
 	
-	// check for isPrimitive() here
-	if(ft->isPrimitive()) continue;
-
 	if(ft==0)
 	  {
-	    cerr << "Error: could not find Class object for "
-		 << ft->fullName() << endl;
-	    return;
+	    cerr << "Warning: could not find Class object for "
+		 << (*beg)->toString() << endl;
+	    continue;
 	  }
+
+	// check for isPrimitive() here
+	if(ft->isPrimitive()) continue;
 
         FDEBUG(9) << "JBK: child - " << ft->fullName() << endl;
 	fillChildren(cl, ft);
@@ -222,11 +261,24 @@ namespace edm {
   // ---------------------
   TClass* loadClass(pool::IClassLoader* cl, const std::type_info& ti)
   {
+    // this seems strange to get the reflect class first and then
+    // load the cababilities.  Seems like it should fail if the
+    // capabilities are not yet loaded.   This may need to be 
+    // adjusted to take a class name.
     seal::reflect::Class const * typ = getReflectClass(ti);
+
+    if(typ==0)
+      {
+	throw cms::Exception("Configuration")
+	  << "Warning: cannot get reflect::Class for type: "
+	  << ti.name();
+      }
 
     string fname("LCGDict/");
     fname+=typ->fullName();
     seal::PluginCapabilities::get()->load(fname);
+
+    fillChildren(cl,typ);
 
     if(cl->loadClass(typ->fullName())!=pool::DbStatus::SUCCESS)
       {
@@ -243,6 +295,9 @@ namespace edm {
 
   void loadExtraClasses()
   {
+    // should a list of class typeid be given, so that all the
+    // capabilities can be loaded first?
+
     pool::IClassLoader* cl = getClassLoader();
     loadClass(cl,typeid(ProdPair));
     loadClass(cl,typeid(SendProds));
