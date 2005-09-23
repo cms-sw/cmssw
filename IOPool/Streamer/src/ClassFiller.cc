@@ -73,6 +73,11 @@ namespace edm {
 	cc = cc->deref();
       }
 
+    if(cc->isPrimitive())
+      {
+	return;
+      }
+
     // this probably need to be corrected also (JBK)
     if(cc->fullName() == "std::basic_string<char>")
       {
@@ -89,8 +94,13 @@ namespace edm {
 
     if(cc->isContainer())
       {
+	FDEBUG(9) << "JBK: Got container " << cc->fullName() << endl;
         const seal::reflect::Class* ct = cc->getComponentType();
 	if(ct->isPrimitive()==false) fillChildren(cl,ct);
+      }
+    else
+      {
+	FDEBUG(9) << "JBK: Got not container " << cc->fullName() << endl;
       }
 
     std::vector<const seal::reflect::Field*> fs =
@@ -102,30 +112,43 @@ namespace edm {
     std::vector<const seal::reflect::Field*>::iterator
       beg(fs.begin()),end(fs.end());
 
-    for(;beg!=end;++beg)
-      {
-        FDEBUG(9) << "JBK: child field - " << (*beg)->toString() << endl;
+    FDEBUG(9) << "JBK: Starting field loop size = " << fs.size()
+	      << " " << cc->fullName() << endl;
 
+    for(int cnt=0;beg!=end;++beg,++cnt)
+      {
+	FDEBUG(9) << "JBK: Field loop  " << cnt
+		  << " " << cc->fullName() << endl;
+	if( (*beg)==0 )
+	  {
+	    cerr << "Dictionary generation: Got a null field" << endl;
+	    continue;
+	  }
 	if( (*beg)->isTransient() || (*beg)->isStatic() )
 	  continue;
+
+        FDEBUG(9) << "JBK: child field - " << (*beg)->typeAsString() << endl;
 
 	const seal::reflect::Class* ft = (*beg)->type();
 	
 	if(ft==0)
 	  {
 	    cerr << "Warning: could not find Class object for "
-		 << (*beg)->toString() << endl;
+		 << (*beg)->typeAsString() << endl;
 	    continue;
 	  }
 
 	// check for isPrimitive() here
 	if(ft->isPrimitive()) continue;
 
-        FDEBUG(9) << "JBK: child - " << ft->fullName() << endl;
+        FDEBUG(9) << "JBK: child before fillChildren- "
+		  << ft->fullName() << endl;
 	fillChildren(cl, ft);
-
-	
+        FDEBUG(9) << "JBK: child after fillChildren- "
+		  << ft->fullName() << endl;
       }
+
+    FDEBUG(9) << "JBK: after field loop " << cc->fullName() << endl;
 
     if(cl->loadClass(cc->fullName())!=pool::DbStatus::SUCCESS)
       {
@@ -259,7 +282,9 @@ namespace edm {
     // load the cababilities.  Seems like it should fail if the
     // capabilities are not yet loaded.   This may need to be 
     // adjusted to take a class name.
+    FDEBUG(9) << "JBK: loadClass typeid name = " << ti.name() << endl;
     seal::reflect::Class const * typ = getReflectClass(ti);
+    FDEBUG(9) << "JBK: loadClass Class name = " << typ->fullName() << endl;
 
     if(typ==0)
       {
