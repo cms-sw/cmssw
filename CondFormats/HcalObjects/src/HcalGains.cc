@@ -1,5 +1,5 @@
 /** 
-\class HcalPedestals
+\class HcalGains
 \author Fedor Ratnikov (UMd)
 POOL object to store pedestal values 4xCapId
 $Author: ratnikov
@@ -9,14 +9,14 @@ $Revision: 1.2 $
 
 #include <iostream>
 
-#include "CondFormats/HcalObjects/interface/HcalPedestals.h"
+#include "CondFormats/HcalObjects/interface/HcalGains.h"
 
-HcalPedestals::HcalPedestals() 
+HcalGains::HcalGains() 
   : mSorted (false) {}
 
-HcalPedestals::~HcalPedestals(){}
+HcalGains::~HcalGains(){}
 
-const float* HcalPedestals::getValues (int fId) const {
+const float* HcalGains::getValues (int fId) const {
   Item target;
   target.mId = fId;
   std::vector<Item>::const_iterator cell;
@@ -31,7 +31,7 @@ const float* HcalPedestals::getValues (int fId) const {
   return &(cell->mValue1);
 }
 
-float HcalPedestals::getValue (int fId, int fCapId) const {
+float HcalGains::getValue (int fId, int fCapId) const {
   const float* values;
   if (fCapId > 0 && fCapId <= 4) {
     values = getValues (fId);
@@ -43,11 +43,11 @@ float HcalPedestals::getValue (int fId, int fCapId) const {
   return -1;
 }
 
-bool HcalPedestals::addValue (int fId, const float fValues [4]) {
+bool HcalGains::addValue (int fId, const float fValues [4]) {
   return addValue (fId, fValues [0], fValues [1], fValues [2], fValues [3]);
 }
 
-bool HcalPedestals::addValue (int fId, float fValue1, float fValue2, float fValue3, float fValue4) {
+bool HcalGains::addValue (int fId, float fValue1, float fValue2, float fValue3, float fValue4) {
   Item item;
   item.mId = fId;
   item.mValue1 = fValue1;
@@ -59,7 +59,7 @@ bool HcalPedestals::addValue (int fId, float fValue1, float fValue2, float fValu
   return true;
 }
 
-std::vector<int> HcalPedestals::getAllChannels () const {
+std::vector<int> HcalGains::getAllChannels () const {
   std::vector<int> result;
   for (std::vector<Item>::const_iterator item = mItems.begin (); item != mItems.end (); item++) {
     result.push_back (item->mId);
@@ -68,7 +68,7 @@ std::vector<int> HcalPedestals::getAllChannels () const {
 }
 
 
-void HcalPedestals::sort () {
+void HcalGains::sort () {
   if (!mSorted) {
     std::sort (mItems.begin(), mItems.end());
     mSorted = true;

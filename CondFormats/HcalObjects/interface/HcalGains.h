@@ -1,10 +1,10 @@
-#ifndef HcalPedestals_h
-#define HcalPedestals_h
+#ifndef HcalGains_h
+#define HcalGains_h
 
 /** 
-\class HcalPedestal
+\class HcalGains
 \author Fedor Ratnikov (UMd)
-POOL object to store pedestal values 4xCapId
+POOL object to store gain values 4xCapId
 $Author: ratnikov
 $Date: 2005/08/02 01:31:24 $
 $Revision: 1.2 $
@@ -14,10 +14,10 @@ $Revision: 1.2 $
 #include <algorithm>
 
 // 
-class HcalPedestals {
+class HcalGains {
  public:
-  HcalPedestals();
-  ~HcalPedestals();
+  HcalGains();
+  ~HcalGains();
   /// get array of values for 4 capIds
   const float* getValues (int fId) const;
   /// get value for given capId = 1..4
