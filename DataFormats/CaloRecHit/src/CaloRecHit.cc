@@ -12,7 +12,7 @@ namespace cms {
   }
 
   std::ostream& operator<<(std::ostream& s, const CaloRecHit& hit) {
-    return s << hit.id().rawId() << ", " << hit.energy() << " GeV, " << hit.time() << " ns";
+    return s << hit.detid().rawId() << ", " << hit.energy() << " GeV, " << hit.time() << " ns";
   }
 
 }

@@ -8,8 +8,8 @@ namespace cms {
 
   /** \class HcalTriggerPrimitiveRecHit
       
-  $Date: 2005/07/26 15:52:19 $
-  $Revision: 1.1 $
+  $Date: 2005/09/15 14:44:25 $
+  $Revision: 1.2 $
   \author J. Mans - Minnesota
   */
   class HcalTriggerPrimitiveRecHit : public CaloRecHit {
@@ -18,7 +18,7 @@ namespace cms {
     explicit HcalTriggerPrimitiveRecHit(const HcalTrigTowerDetId& id, float energy, float time, int bunch=0, int index=0, int n=1);
 
     /// get the id
-    HcalTrigTowerDetId trig_id() const { return HcalTrigTowerDetId(id()); }
+    HcalTrigTowerDetId id() const { return HcalTrigTowerDetId(detid()); }
     /// get the number of trigger primitive rec hits in this event for this tower
     int towerCount() const { return count_; }
     /// get the index of this trigger primitive rec hit in this event

@@ -8,8 +8,8 @@ namespace cms {
 
   /** \class CaloRecHit
     
-  $Date: 2005/07/26 15:51:28 $
-  $Revision: 1.1 $
+  $Date: 2005/09/15 14:44:25 $
+  $Revision: 1.2 $
   \author J. Mans - Minnesota
   */
   class CaloRecHit {
@@ -19,7 +19,7 @@ namespace cms {
     virtual ~CaloRecHit();
     float energy() const { return energy_; }
     float time() const { return time_; }
-    const DetId& id() const { return id_; }
+    const DetId& detid() const { return id_; }
   private:
     DetId id_;
     float energy_;

@@ -14,6 +14,6 @@ namespace cms {
   }
 
   std::ostream& operator<<(std::ostream& s, const HcalTriggerPrimitiveRecHit& hit) {
-    return s << hit.trig_id() << ": " << hit.energy() << " GeV, " << hit.time() << " ns";
+    return s << hit.id() << ": " << hit.energy() << " GeV, " << hit.time() << " ns";
   }
 }

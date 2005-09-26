@@ -8,8 +8,8 @@ namespace cms {
 
   /** \class HORecHit
       
-  $Date: 2005/07/26 15:52:19 $
-  $Revision: 1.1 $
+  $Date: 2005/09/15 14:44:25 $
+  $Revision: 1.2 $
   \author J. Mans - Minnesota
   */
   class HORecHit : public CaloRecHit {
@@ -17,7 +17,7 @@ namespace cms {
     HORecHit();
     HORecHit(const HcalDetId& id, float energy, float time);
     /// get the id
-    HcalDetId hcal_id() const { return HcalDetId(id()); }
+    HcalDetId id() const { return HcalDetId(detid()); }
   };
 
   std::ostream& operator<<(std::ostream& s, const HORecHit& hit);
