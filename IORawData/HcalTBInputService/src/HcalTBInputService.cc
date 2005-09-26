@@ -31,7 +31,8 @@ namespace hcal {
     edm::InputService(desc),
     files_( pset.getParameter<std::vector<std::string> >("fileNames") ),
     retriever_( new TBFakeRetriever() ),
-    m_imax( pset.getParameter<int>("maxEvents") )
+    m_imax( pset.getParameter<int>("maxEvents") ),
+    m_quiet( pset.getUntrackedParameter<bool>("quiet",true))
   {
   m_tree=0;
   m_file=0;
@@ -85,9 +86,22 @@ namespace hcal {
       cout << "Unable to open " << filename << endl;
       m_tree=0;
       return;
-    }
+    } 
+
     m_tree=(TTree*)m_file->Get("CMSRAW");
-        TObjArray* lb=m_tree->GetListOfBranches();
+
+    if (m_tree==0) {
+      m_file->Close();
+      m_file=0;
+      cout << "Unable to find CMSRAW tree" << endl;
+      return;
+    }
+    
+    if (!m_quiet) {
+      cout << "Opening '" << filename << "' with " << m_tree->GetEntries() << " events.\n";
+    }
+
+    TObjArray* lb=m_tree->GetListOfBranches();
     n_chunks=0;
     for (int i=0; i<lb->GetSize(); i++) {
       TBranch* b=(TBranch*)lb->At(i);
@@ -99,7 +113,7 @@ namespace hcal {
 	if (strcmp(b->GetClassName(),"CDFChunk")) continue;
 	if (m_sourceIdRemap.find(b->GetName())==m_sourceIdRemap.end()) continue;
 	
-	m_chunks[n_chunks]=new CDFChunk();
+	m_chunks[n_chunks]=0; // allow ROOT to allocate 
 	b->SetAddress(&(m_chunks[n_chunks]));
 	m_chunkIds[n_chunks]=m_sourceIdRemap[b->GetName()];
 	n_chunks++;
@@ -145,7 +159,8 @@ std::auto_ptr<edm::EventPrincipal> HcalTBInputService::read() {
       header[0]=(header[0]&0xFFF000FFu)|(id<<8);
       // TODO: patch CRC after this change!
     }
-    std::cout << "Reading " << len << " bytes for FED " << id << std::endl;
+    if (!m_quiet) 
+      std::cout << "Reading " << len << " bytes for FED " << id << std::endl;
 
     // chunk duplication ( for HO testing, mostly )
     /*

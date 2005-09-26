@@ -29,8 +29,8 @@ namespace cms {
 
 /** \class HcalTBInputService
     
-   $Date: 2005/08/04 17:11:44 $
-   $Revision: 1.1 $
+   $Date: 2005/08/16 18:54:42 $
+   $Revision: 1.2 $
    \author J. Mans - Minnesota
 */
 class HcalTBInputService : public edm::InputService {
@@ -47,6 +47,7 @@ private:
   int fileCounter_;
   int m_i, m_imax, m_itotal;
   //  int m_duplicateChunkAs;
+  bool m_quiet;
   int n_chunks;
   static const int CHUNK_COUNT=64; // MAX Chunks
   CDFChunk* m_chunks[CHUNK_COUNT];
