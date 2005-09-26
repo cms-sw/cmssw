@@ -4,15 +4,15 @@
 /** \class MagGeometry
  *  Entry point to the geometry of magnetic volumes.
  *
- *  $Date: 2004/06/22 17:05:10 $
- *  $Revision: 1.5 $
+ *  $Date: 2005/09/06 15:48:07 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - INFN Torino
  */
 
 #include "Geometry/Surface/interface/BoundPlane.h"
 #include "MagneticField/Layers/src/MagBinFinders.h"
 /* #include "Utilities/Notification/interface/Singleton.h" */
-#include "DetectorDescription/Base/interface/Singleton.h"
+//#include "DetectorDescription/Base/interface/Singleton.h"
 #include <vector>
 
 class MagBLayer;
@@ -26,6 +26,9 @@ public:
 
   typedef Surface::GlobalVector   GlobalVector;
   typedef Surface::GlobalPoint    GlobalPoint;
+
+  /// Constructor
+  MagGeometry();
 
   /// Destructor
   ~MagGeometry();
@@ -41,9 +44,7 @@ public:
   const std::vector<MagVolume6Faces*> & endcapVolumes() {return theEVolumes;}
 
 private:
-  /// Constructor; allow construction from a Singleton only.
-  MagGeometry();
-  friend class DDI::Singleton<MagGeometry>;
+//  friend class DDI::Singleton<MagGeometry>;
 
   friend class MagGeometryExerciser; // for debug purposes
 

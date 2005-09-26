@@ -3,13 +3,13 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2005/04/11 17:17:05 $
- *  $Revision: 1.4 $
+ *  $Date: 2005/09/06 15:48:28 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - INFN Torino
  */
 
 #include "MagneticField/GeomBuilder/src/eSector.h"
-#include "ClassReuse/BinningTools/interface/ClusterizingHistogram.h"
+#include "Utilities/BinningTools/interface/ClusterizingHistogram.h"
 #include "MagneticField/Layers/interface/MagESector.h"
 #include "MagneticField/Layers/interface/MagVerbosity.h"
 
@@ -17,7 +17,7 @@ using namespace SurfaceOrientation;
 using namespace std;
 
 #include <algorithm>
-#include "MagneticField/GeomBuilder/src/precomputed_value_sort.h"
+#include "Utilities/General/interface/precomputed_value_sort.h"
 
 // The ctor is in charge of finding layers inside the sector.
 MagGeoBuilderFromDDD::eSector::eSector(handles::const_iterator begin,

@@ -1,7 +1,7 @@
 #ifndef PeriodicBinFinderInPhi_H
 #define PeriodicBinFinderInPhi_H
 
-#include "ClassReuse/BinningTools/interface/BaseBinFinder.h"
+#include "Utilities/BinningTools/interface/BaseBinFinder.h"
 
 #include <cmath>
 

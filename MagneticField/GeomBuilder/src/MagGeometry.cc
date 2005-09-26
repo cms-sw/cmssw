@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2004/09/09 17:27:25 $
- *  $Revision: 1.6 $
+ *  $Date: 2005/09/06 15:48:28 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -17,7 +17,7 @@
 
 // #include "Utilities/Notification/interface/TimingReport.h"
 // #include "Utilities/UI/interface/SimpleConfigurable.h"
-#include "ClassReuse/BinningTools/interface/PeriodicBinFinderInPhi.h"
+#include "Utilities/BinningTools/interface/PeriodicBinFinderInPhi.h"
 
 #include "MagneticField/Layers/interface/MagVerbosity.h"
 

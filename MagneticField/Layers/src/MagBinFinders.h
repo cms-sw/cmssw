@@ -15,12 +15,12 @@ namespace MagBinFinders {
 /** \class GeneralBinFinderInR
  *  A R binfinder for a non-periodic group of detectors.
  *
- *  $Date: 2004/05/26 13:56:42 $
+ *  $Date: 2005/09/06 15:49:19 $
  *  $Revision: 1.1 $
  *  \author N. Amapane - INFN Torino
  */
 
-#include "ClassReuse/BinningTools/interface/BaseBinFinder.h"
+#include "Utilities/BinningTools/interface/BaseBinFinder.h"
 //#include "CommonReco/DetLayers/interface/RBorderFinder.h"
 #include <cmath>
 #include <vector>
@@ -108,7 +108,7 @@ private:
  * It is not particularily suited for very few bins...
  */
 
-#include "ClassReuse/BinningTools/interface/BaseBinFinder.h"
+#include "Utilities/BinningTools/interface/BaseBinFinder.h"
 #include <cmath>
 
 template <class T>

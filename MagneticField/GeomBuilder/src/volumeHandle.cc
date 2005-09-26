@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2005/07/29 13:49:20 $
- *  $Revision: 1.7 $
+ *  $Date: 2005/09/06 15:48:29 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -18,9 +18,6 @@
 #include "Geometry/Surface/interface/Plane.h"
 #include "Geometry/Surface/interface/Cylinder.h"
 #include "Geometry/Surface/interface/Cone.h"
-// #include "ClassReuse/SurfaceGeometry/interface/SimpleCylinderBounds.h"
-// #include "ClassReuse/SurfaceGeometry/interface/SimpleCylinderBounds.h"
-// #include "ClassReuse/SurfaceGeometry/interface/SimpleConeBounds.h"
 #include "Geometry/Vector/interface/CoordinateSets.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"

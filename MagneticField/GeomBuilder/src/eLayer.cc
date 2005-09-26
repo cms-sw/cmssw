@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2005/07/29 13:18:00 $
- *  $Revision: 1.7 $
+ *  $Date: 2005/09/06 15:48:28 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -12,7 +12,7 @@
 #include "MagneticField/VolumeGeometry/interface/MagVolume6Faces.h"
 #include "MagneticField/Layers/interface/MagELayer.h"
 
-#include "MagneticField/GeomBuilder/src/precomputed_value_sort.h"
+#include "Utilities/General/interface/precomputed_value_sort.h"
 
 using namespace SurfaceOrientation;
 using namespace std;

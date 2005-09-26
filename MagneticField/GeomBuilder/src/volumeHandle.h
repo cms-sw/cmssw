@@ -7,10 +7,8 @@
  * One instance is created for each DDVolume. The parameters of the 
  * boundary surfaces are calculated during construction.
  *
- *  $Date: 2005/07/29 13:49:20 $
- *  $Revision: 1.9 $
- *  $Date: 2005/07/29 13:49:20 $
- *  $Revision: 1.9 $
+ *  $Date: 2005/09/06 15:48:29 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - INFN Torino
  */
 
