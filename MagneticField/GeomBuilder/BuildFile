@@ -8,6 +8,8 @@
  <use name=DetectorDescription/Core>
  <use name=Geometry/Surface>
  <use name=Utilities/BinningTools>
+ <use name=Utilities/Timing>
+ <use name=FWCore/ParameterSet>
 </export>
 
 <use name=clhep>
@@ -17,5 +19,6 @@
 <use name=DetectorDescription/Core>
 <use name=Geometry/Surface>
 <use name=Utilities/BinningTools>
-
+<use name=Utilities/Timing>
+<use name=FWCore/ParameterSet>
 #<Flags SEAL_PLUGIN_NAME="GeomBuilder">

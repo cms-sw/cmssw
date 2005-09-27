@@ -2,27 +2,21 @@
 #define MagDebug_H
 
 /*
- *  Verbosity flag to be shared between several classes
+ *  Hack while we wait for logging in the framework
  *
- *  $Date: 2004/09/09 14:20:24 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/09/06 15:49:29 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - INFN Torino
  */
 
-/* #include "Utilities/UI/interface/Verbosity.h" */
 
-namespace {
-/*   static const UserVerbosity bldVerb("MagGeomBuilder","silent","MagneticField"); */
-/*   static const UserVerbosity verbose("MagGeometry","silent","MagneticField"); */
-
-  class UserVerbosity {
-  public:
-    UserVerbosity() {debugOut = false;}
-    bool debugOut;
-
-  };
-  static const UserVerbosity bldVerb;
-  static const UserVerbosity verbose;
+struct bldVerb {
+  static bool debugOut;
 };
+  
+struct verbose {
+  static bool debugOut;
+};
+
 #endif
 

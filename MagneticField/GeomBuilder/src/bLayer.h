@@ -5,12 +5,12 @@
  *  A layer of barrel volumes. Holds a list of volumes and 12 sectors.
  *  It is assumed that the geometry is 12-fold periodic in phi!
  *
- *  $Date: 2005/04/14 17:35:05 $
- *  $Revision: 1.3 $
+ *  $Date: 2005/09/06 15:48:28 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - INFN Torino
  */
 
-#include "MagneticField/GeomBuilder/interface/MagGeoBuilderFromDDD.h"
+#include "MagneticField/GeomBuilder/src/MagGeoBuilderFromDDD.h"
 #include "MagneticField/GeomBuilder/src/volumeHandle.h"
 #include "MagneticField/GeomBuilder/src/bSector.h"
 

@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2005/09/06 15:48:28 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/09/26 14:47:13 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -32,7 +32,7 @@ MagGeoBuilderFromDDD::bRod::bRod(handles::const_iterator begin,
   float zmax = volumes.back()->center().z()+resolution;
   ClusterizingHistogram  hisZ( int((zmax-zmin)/resolution) + 1, zmin, zmax);
 
-  if (bldVerb.debugOut) std::cout << "     Z slabs: " << zmin << " " << zmax << std::endl;
+  if (bldVerb::debugOut) std::cout << "     Z slabs: " << zmin << " " << zmax << std::endl;
 
   handles::const_iterator first = volumes.begin();
   handles::const_iterator last = volumes.end();  
@@ -42,7 +42,7 @@ MagGeoBuilderFromDDD::bRod::bRod(handles::const_iterator begin,
   }
   std::vector<float> zClust = hisZ.clusterize(resolution);
 
-  if (bldVerb.debugOut) std::cout << "     Found " << zClust.size() << " clusters in Z, "
+  if (bldVerb::debugOut) std::cout << "     Found " << zClust.size() << " clusters in Z, "
 		  << " slabs: " << std::endl;
 
   handles::const_iterator slabStart = first;
@@ -51,7 +51,7 @@ MagGeoBuilderFromDDD::bRod::bRod(handles::const_iterator begin,
   for (unsigned int i=0; i<zClust.size() - 1; i++) {
     float zSepar = (zClust[i] + zClust[i+1])/2.f;
     while ((*separ)->center().z() < zSepar) separ++;
-    if (bldVerb.debugOut) {
+    if (bldVerb::debugOut) {
       std::cout << "     Slab at: " << zClust[i]
 	   << " elements: " << separ-slabStart << " unique volumes: ";
       volumeHandle::printUniqueNames(slabStart, separ);
@@ -61,7 +61,7 @@ MagGeoBuilderFromDDD::bRod::bRod(handles::const_iterator begin,
     slabStart = separ;
   }
   {
-    if (bldVerb.debugOut) {
+    if (bldVerb::debugOut) {
       std::cout << "     Slab at: " << zClust.back() <<" elements: " << last-separ
 	   << " unique volumes: ";
       volumeHandle::printUniqueNames(separ,last);
@@ -76,7 +76,7 @@ MagGeoBuilderFromDDD::bRod::bRod(handles::const_iterator begin,
   for (i++; i!= slabs.end(); i++) { 
     if(fabs(phimax - (*i).maxPhi()) > 0.01 ||
        fabs(phimin - (*i).minPhi()) > 0.01){
-      if (bldVerb.debugOut) std::cout << "*** WARNING: slabs in this rod have different dphi!" <<std::endl;
+      if (bldVerb::debugOut) std::cout << "*** WARNING: slabs in this rod have different dphi!" <<std::endl;
     }
   }
 }

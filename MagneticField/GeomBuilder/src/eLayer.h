@@ -4,12 +4,12 @@
 /** \class MagGeoBuilderFromDDD::eLayer
  *  A layer of volumes in an endcap sector.
  *
- *  $Date: 2004/06/22 17:05:11 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/09/06 15:48:28 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - INFN Torino
  */
 
-#include "MagneticField/GeomBuilder/interface/MagGeoBuilderFromDDD.h"
+#include "MagneticField/GeomBuilder/src/MagGeoBuilderFromDDD.h"
 #include "MagneticField/GeomBuilder/src/volumeHandle.h"
 #include "MagneticField/GeomBuilder/src/bSector.h"
 

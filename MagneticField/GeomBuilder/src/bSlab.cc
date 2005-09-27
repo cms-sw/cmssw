@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2005/09/06 15:48:28 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/09/26 14:47:13 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -29,7 +29,7 @@ MagGeoBuilderFromDDD::bSlab::bSlab(handles::const_iterator begin, handles::const
     precomputed_value_sort(volumes.begin(), volumes.end(),
 			   ExtractPhiMax(), LessDPhi());
 
-  if (bldVerb.debugOut) cout << "        Slab has " << volumes.size()
+  if (bldVerb::debugOut) cout << "        Slab has " << volumes.size()
 		  << " volumes" << endl;
 
     // Check that all volumes have the same dZ
@@ -42,7 +42,7 @@ MagGeoBuilderFromDDD::bSlab::bSlab(handles::const_iterator begin, handles::const
       const float epsilon = 0.001;      
       if (fabs(Zmax - (*i)->surface(zplus).position().z()) > epsilon ||
 	  fabs(Zmin - (*i)->surface(zminus).position().z()) > epsilon) {
-	if (bldVerb.debugOut) cout << "*** WARNING: slabs Z coords not matching: D_Zmax = "
+	if (bldVerb::debugOut) cout << "*** WARNING: slabs Z coords not matching: D_Zmax = "
 			<< fabs(Zmax - (*i)->surface(zplus).position().z())
 			<< " D_Zmin = " 
 			<< fabs(Zmin - (*i)->surface(zminus).position().z())

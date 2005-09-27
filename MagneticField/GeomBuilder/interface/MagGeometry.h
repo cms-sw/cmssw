@@ -4,8 +4,8 @@
 /** \class MagGeometry
  *  Entry point to the geometry of magnetic volumes.
  *
- *  $Date: 2005/09/06 15:48:07 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/09/26 14:47:13 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -20,6 +20,7 @@ class MagESector;
 class MagVolume;
 class MagVolume6Faces;
 template <class T> class PeriodicBinFinderInPhi;
+namespace edm {class ParameterSet;}
 
 class MagGeometry {
 public:
@@ -28,7 +29,7 @@ public:
   typedef Surface::GlobalPoint    GlobalPoint;
 
   /// Constructor
-  MagGeometry();
+  MagGeometry(const edm::ParameterSet& config);
 
   /// Destructor
   ~MagGeometry();
@@ -68,6 +69,9 @@ private:
   MagBinFinders::GeneralBinFinderInR<double>* theBarrelBinFinder;
   PeriodicBinFinderInPhi<float> * theEndcapBinFinder;
 
+  double tolerance;
+  bool cacheLastVolume;
+  bool timerOn;
 };
 #endif
 

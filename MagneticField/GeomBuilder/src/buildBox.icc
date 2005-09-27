@@ -1,20 +1,20 @@
 /*
  *  Compute parameters for a box 
  *
- *  $Date: 2005/07/29 13:49:20 $
- *  $Revision: 1.4 $
+ *  $Date: 2005/09/06 15:48:28 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - INFN Torino
  */
 
 void MagGeoBuilderFromDDD::volumeHandle::buildBox(const DDExpandedView &fv) {
-  if (bldVerb.debugOut) cout << "Building box surfaces...: " <<endl;
+  if (bldVerb::debugOut) cout << "Building box surfaces...: " <<endl;
 
   DDBox box(solid);
   double halfX = box.halfX()/cm;
   double halfY = box.halfY()/cm;
   double halfZ = box.halfZ()/cm;
 
-  if (bldVerb.debugOut) cout << " halfX: " << halfX 
+  if (bldVerb::debugOut) cout << " halfX: " << halfX 
 		  << " halfY: " << halfY 
 		  << " halfZ: " << halfZ <<endl;
 
@@ -29,7 +29,7 @@ void MagGeoBuilderFromDDD::volumeHandle::buildBox(const DDExpandedView &fv) {
   GlobalPoint pos_phiplus(refPlane->toGlobal(LocalPoint(-halfX,0.,0.)));
   GlobalPoint pos_phiminus(refPlane->toGlobal(LocalPoint(halfX,0.,0.)));
 
-  if (bldVerb.debugOut) cout << "pos_outer    " << pos_outer << " "
+  if (bldVerb::debugOut) cout << "pos_outer    " << pos_outer << " "
 		  << pos_outer.perp() << " " << pos_outer.phi() << endl 
 		  << "pos_inner    " << pos_inner << " "
 		  << pos_inner.perp() << " " << pos_inner.phi() << endl
@@ -43,7 +43,7 @@ void MagGeoBuilderFromDDD::volumeHandle::buildBox(const DDExpandedView &fv) {
 		  << pos_phiminus.perp() << " " << pos_phiminus.phi() <<endl;
 
   // Check ordering.
-  if (bldVerb.debugOut) {
+  if (bldVerb::debugOut) {
     if (pos_outer.perp() < pos_inner.perp()) {
       cout << "*** WARNING: pos_outer < pos_inner " << endl;
     }
@@ -67,7 +67,7 @@ void MagGeoBuilderFromDDD::volumeHandle::buildBox(const DDExpandedView &fv) {
   surfaces[phiplus]  = new Plane(pos_phiplus, rot_phi);
   surfaces[phiminus] = new Plane(pos_phiminus, rot_phi);
 
-  if (bldVerb.debugOut) {
+  if (bldVerb::debugOut) {
     cout << "rot_R " << surfaces[outer]->toGlobal(LocalVector(0.,0.,1.)) <<endl
 	 << "rot_Z " << surfaces[zplus]->toGlobal(LocalVector(0.,0.,1.)) <<endl
 	 << "rot_phi " << surfaces[phiplus]->toGlobal(LocalVector(0.,0.,1.))

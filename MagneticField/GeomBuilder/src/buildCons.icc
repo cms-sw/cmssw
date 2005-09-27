@@ -1,15 +1,15 @@
 /*
  *  Compute parameters for a cone section 
  *
- *  $Date: 2005/07/29 13:49:20 $
- *  $Revision: 1.4 $
+ *  $Date: 2005/09/06 15:48:28 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - INFN Torino
  */
 
 #include "Geometry/Surface/interface/SimpleConeBounds.h"
 
 void MagGeoBuilderFromDDD::volumeHandle::buildCons(const DDExpandedView &fv) {
-  if (bldVerb.debugOut) cout << "Building cons surfaces...: " <<endl;
+  if (bldVerb::debugOut) cout << "Building cons surfaces...: " <<endl;
   
   DDCons cons(solid);
   
@@ -21,7 +21,7 @@ void MagGeoBuilderFromDDD::volumeHandle::buildCons(const DDExpandedView &fv) {
   double startPhi   = cons.phiFrom();
   double deltaPhi   = cons.deltaPhi();
 
-  if (bldVerb.debugOut) cout << "zhalf      " << zhalf      << endl
+  if (bldVerb::debugOut) cout << "zhalf      " << zhalf      << endl
 		  << "rInMinusZ  " << rInMinusZ  << endl
 		  << "rOutMinusZ " << rOutMinusZ << endl
 		  << "rInPlusZ   " << rInPlusZ   << endl

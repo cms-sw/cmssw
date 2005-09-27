@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2005/09/06 15:48:28 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/09/26 14:47:13 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -36,7 +36,7 @@ MagGeoBuilderFromDDD::eSector::eSector(handles::const_iterator begin,
   float zmax = theVolumes.back()->center().z()+resolution;
   ClusterizingHistogram  hisZ( int((zmax-zmin)/resolution) + 1, zmin, zmax);
 
-  if (bldVerb.debugOut) cout << "     Z layers: " << zmin << " " << zmax << endl;
+  if (bldVerb::debugOut) cout << "     Z layers: " << zmin << " " << zmax << endl;
 
   handles::const_iterator first = theVolumes.begin();
   handles::const_iterator last = theVolumes.end();  
@@ -46,7 +46,7 @@ MagGeoBuilderFromDDD::eSector::eSector(handles::const_iterator begin,
   }
   vector<float> zClust = hisZ.clusterize(resolution);
 
-  if (bldVerb.debugOut) cout << "     Found " << zClust.size() << " clusters in Z, "
+  if (bldVerb::debugOut) cout << "     Found " << zClust.size() << " clusters in Z, "
 		  << " layers: " << endl;
 
   handles::const_iterator layStart = first;
@@ -55,7 +55,7 @@ MagGeoBuilderFromDDD::eSector::eSector(handles::const_iterator begin,
   for (unsigned int i=0; i<zClust.size() - 1; i++) {
     float zSepar = (zClust[i] + zClust[i+1])/2.f;
     while ((*separ)->center().z() < zSepar) separ++;
-    if (bldVerb.debugOut) {
+    if (bldVerb::debugOut) {
       cout << "     Layer at: " << zClust[i]
 	   << " elements: " << separ-layStart << " unique volumes: ";
       volumeHandle::printUniqueNames(layStart, separ);
@@ -65,7 +65,7 @@ MagGeoBuilderFromDDD::eSector::eSector(handles::const_iterator begin,
     layStart = separ;
   }
   {
-    if (bldVerb.debugOut) {
+    if (bldVerb::debugOut) {
       cout << "     Layer at: " << zClust.back() <<" elements: " << last-separ
 	   << " unique volumes: ";
       volumeHandle::printUniqueNames(separ,last);

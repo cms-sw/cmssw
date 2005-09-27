@@ -1,14 +1,14 @@
 /*
  *  Compute parameters for a trapezoid 
  *
- *  $Date: 2005/07/29 13:49:20 $
- *  $Revision: 1.4 $
+ *  $Date: 2005/09/06 15:48:28 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - INFN Torino
  */
 
 
 void MagGeoBuilderFromDDD::volumeHandle::buildTrap(const DDExpandedView &fv) {
-  if (bldVerb.debugOut) cout << "Building trapezoid surfaces...: " <<endl;
+  if (bldVerb::debugOut) cout << "Building trapezoid surfaces...: " <<endl;
 
   DDTrap trap(solid); //FIXME
   
@@ -24,7 +24,7 @@ void MagGeoBuilderFromDDD::volumeHandle::buildTrap(const DDExpandedView &fv) {
   double alpha1 =  trap.alpha1(); 
   double alpha2 =  trap.alpha2();
 
-  if (bldVerb.debugOut) cout << "x1 " << x1    << endl
+  if (bldVerb::debugOut) cout << "x1 " << x1    << endl
 		  << "x2 " << x2    << endl
 		  << "x3 " << x3    << endl
 		  << "x4 " << x4    << endl
@@ -37,7 +37,7 @@ void MagGeoBuilderFromDDD::volumeHandle::buildTrap(const DDExpandedView &fv) {
 		  << "alpha2 " << alpha2 << endl;
  
   // Just check assumptions on parameters...
-  if (bldVerb.debugOut) {
+  if (bldVerb::debugOut) {
     const double epsilon = 1e-5;
     if ( theta > epsilon ||
 	 phi  > epsilon ||
@@ -62,7 +62,7 @@ void MagGeoBuilderFromDDD::volumeHandle::buildTrap(const DDExpandedView &fv) {
   GlobalPoint pos_phiplus(refPlane->toGlobal(LocalPoint(-halfX,0.,0.)));
   GlobalPoint pos_phiminus(refPlane->toGlobal(LocalPoint(halfX,0.,0.)));
 
-  if (bldVerb.debugOut) cout << "pos_outer    " << pos_outer << " "
+  if (bldVerb::debugOut) cout << "pos_outer    " << pos_outer << " "
 		  << pos_outer.perp() << " " << pos_outer.phi() << endl 
 		  << "pos_inner    " << pos_inner << " "
 		  << pos_inner.perp() << " " << pos_inner.phi() << endl
@@ -76,7 +76,7 @@ void MagGeoBuilderFromDDD::volumeHandle::buildTrap(const DDExpandedView &fv) {
 		  << pos_phiminus.perp() << " " << pos_phiminus.phi() <<endl;
 
   // Check ordering.
-  if (bldVerb.debugOut) {
+  if (bldVerb::debugOut) {
     if (pos_outer.perp() < pos_inner.perp()) {
       cout << "*** WARNING: pos_outer < pos_inner " << endl;
     }
@@ -94,7 +94,7 @@ void MagGeoBuilderFromDDD::volumeHandle::buildTrap(const DDExpandedView &fv) {
   GlobalVector y_phiminus =
     (refPlane->toGlobal(LocalVector((tan(alpha1)*y1+(x2-x1)/2.),y1,0.))).unit();
 
-  if (bldVerb.debugOut) {  
+  if (bldVerb::debugOut) {  
     cout << "y_phiplus " << y_phiplus << endl;
     cout << "y_phiminus " << y_phiminus << endl;
   }
@@ -112,7 +112,7 @@ void MagGeoBuilderFromDDD::volumeHandle::buildTrap(const DDExpandedView &fv) {
   surfaces[phiplus]  = new Plane(pos_phiplus, rot_phiplus);
   surfaces[phiminus] = new Plane(pos_phiminus, rot_phiminus);
 
-  if (bldVerb.debugOut) {
+  if (bldVerb::debugOut) {
     cout << "rot_R " << surfaces[outer]->toGlobal(LocalVector(0.,0.,1.)) << endl
 	 << "rot_Z " << surfaces[zplus]->toGlobal(LocalVector(0.,0.,1.)) << endl
 	 << "rot_phi+ " << surfaces[phiplus]->toGlobal(LocalVector(0.,0.,1.))

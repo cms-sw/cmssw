@@ -7,13 +7,13 @@
  *  +phi(-X)                   +X
  *  +Z                         +Y
  *
- *  $Date: 2005/07/29 13:49:20 $
- *  $Revision: 1.4 $
+ *  $Date: 2005/09/06 15:48:28 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - INFN Torino
  */
 
 void MagGeoBuilderFromDDD::volumeHandle::buildPseudoTrap(const DDExpandedView &fv) {
-  if (bldVerb.debugOut) cout << "Building PseudoTrap surfaces...: " <<endl;
+  if (bldVerb::debugOut) cout << "Building PseudoTrap surfaces...: " <<endl;
 
   DDPseudoTrap ptrap(solid);
 
@@ -26,7 +26,7 @@ void MagGeoBuilderFromDDD::volumeHandle::buildPseudoTrap(const DDExpandedView &f
   bool   atMinusZ = ptrap.atMinusZ();
 
  
-  if (bldVerb.debugOut) cout << "halfZ     " << halfZ    << endl
+  if (bldVerb::debugOut) cout << "halfZ     " << halfZ    << endl
 		  << "x1        " << x1       << endl
 		  << "x2        " << x2       << endl
 		  << "y1        " << y1       << endl
@@ -36,7 +36,7 @@ void MagGeoBuilderFromDDD::volumeHandle::buildPseudoTrap(const DDExpandedView &f
 
   // Just check assumptions on parameters...
   const double epsilon = 1e-5;
-  if (bldVerb.debugOut) {  
+  if (bldVerb::debugOut) {  
     if ( y1-y2 > epsilon ) {
       cout << "*** WARNING: unexpected pseudotrapezoid parameters." << endl;
     }
@@ -75,7 +75,7 @@ void MagGeoBuilderFromDDD::volumeHandle::buildPseudoTrap(const DDExpandedView &f
   if(atMinusZ) rcheck = refPlane->toGlobal(LocalPoint(x1,0.,-halfZ)).perp();
   else         rcheck = refPlane->toGlobal(LocalPoint(x2,0.,+halfZ)).perp();
 
-  if (bldVerb.debugOut) {
+  if (bldVerb::debugOut) {
     if ( fabs(rcheck - fR) > 100.*epsilon){ //FIXME! 
       cout << setprecision(10);
       cout << "*** WARNING: Cylinder surface not centered on beam axis "
@@ -84,7 +84,7 @@ void MagGeoBuilderFromDDD::volumeHandle::buildPseudoTrap(const DDExpandedView &f
     }
   }
 
-  if (bldVerb.debugOut) {
+  if (bldVerb::debugOut) {
     cout << "pos_Rplane    " << pos_Rplane << " "
 	 << pos_Rplane.perp() << " " << pos_Rplane.phi() << endl 
 	 << "pos_zplus    " << pos_zplus << " "
@@ -114,7 +114,7 @@ void MagGeoBuilderFromDDD::volumeHandle::buildPseudoTrap(const DDExpandedView &f
   GlobalVector z_phiminus =
     (refPlane->toGlobal(LocalVector(-(x2-x1)/2.,0.,halfZ))).unit();
 
-  if (bldVerb.debugOut) {
+  if (bldVerb::debugOut) {
     cout << "z_phiplus " << z_phiplus << " " << z_phiplus.phi() << endl;
     cout << "z_phiminus " << z_phiminus << " " << z_phiminus.phi() << endl;
   }
@@ -135,7 +135,7 @@ void MagGeoBuilderFromDDD::volumeHandle::buildPseudoTrap(const DDExpandedView &f
   surfaces[phiplus]  = new Plane(pos_phiplus, rot_phiplus);
   surfaces[phiminus] = new Plane(pos_phiminus, rot_phiminus);
 
-  if (bldVerb.debugOut) {
+  if (bldVerb::debugOut) {
     cout << "rot_R " << surfaces[plane_side]->toGlobal(LocalVector(0.,0.,1.)) << endl
 	 << "rot_Z " << surfaces[zplus]->toGlobal(LocalVector(0.,0.,1.)) << endl
 	 << "rot_phi+ " << surfaces[phiplus]->toGlobal(LocalVector(0.,0.,1.))
