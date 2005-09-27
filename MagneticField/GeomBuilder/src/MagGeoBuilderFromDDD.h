@@ -6,8 +6,8 @@
  *  shared surfaces. Build MagVolume6Faces and organise them in a hierarchical
  *  structure. Build MagGeometry out of it.
  *
- *  $Date: 2005/07/29 10:37:18 $
- *  $Revision: 1.7 $
+ *  $Date: 2005/09/06 15:48:07 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - INFN Torino
  */
 //#include "Utilities/Notification/interface/DispatcherObserver.h"
@@ -21,7 +21,6 @@
 #include <iostream>
 #include <map>
 
-class G3SetUp;
 class Surface;
 class MagBLayer;
 class MagESector;
@@ -29,7 +28,6 @@ class MagVolume6Faces;
 
 
 class MagGeoBuilderFromDDD  {
-/* class MagGeoBuilderFromDDD : private frappe::Observer<G3SetUp*> { */
 public:
   /// Constructor
   MagGeoBuilderFromDDD();
@@ -46,10 +44,8 @@ public:
 private:
   typedef ConstReferenceCountingPointer<Surface> RCPS;
 
-  virtual void upDate(G3SetUp* setup);
-
   // Build the geometry. 
-  virtual void build(G3SetUp* setup);
+  virtual void build();
 
   // FIXME: only for temporary tests and debug, to be removed
   friend class TestMagVolume;
