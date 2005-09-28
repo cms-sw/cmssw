@@ -2,7 +2,7 @@
 
 /*----------------------------------------------------------------------
 
-$Id: ProductDescription.cc,v 1.8 2005/08/02 22:21:35 wmtan Exp $
+$Id: ProductDescription.cc,v 1.9 2005/09/01 04:30:52 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -47,8 +47,12 @@ namespace edm {
   }
 
   void
-  ProductDescription::write(std::ostream&) const {
-    // To be filled in later.
+  ProductDescription::write(std::ostream& os) const {
+    os << module << std::endl;
+    os << "Product ID = " << productID_ << '\n';
+    os << "Class Name = " << fullClassName_ << '\n';
+    os << "Friendly Class Name = " << friendlyClassName_ << '\n';
+    os << "Product Instance Name = " << productInstanceName_ << std::endl;
   }
 
   bool
