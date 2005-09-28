@@ -23,7 +23,7 @@ POOL output modules and input modules to do its work.
 
 23-8-05 jbk:
 
-Converted input service to use a similar protocol object for doing the
+Converted input source to use a similar protocol object for doing the
 transfer or save of the streamed events as the streaming output module.
 
 Still have not checked for memory leaks in input or output modules.
