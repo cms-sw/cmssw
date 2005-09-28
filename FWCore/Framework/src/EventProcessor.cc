@@ -4,7 +4,7 @@
 #include "FWCore/Framework/src/WorkerRegistry.h"
 #include "FWCore/Framework/interface/ScheduleBuilder.h"
 #include "FWCore/Framework/interface/ScheduleExecutor.h"
-#include "FWCore/Framework/src/InputServiceFactory.h"
+#include "FWCore/Framework/src/InputSourceFactory.h"
 #include "FWCore/Framework/src/DebugMacros.h"
 #include "FWCore/Framework/interface/Actions.h"
 
@@ -68,28 +68,28 @@ namespace edm {
   unsigned long getVersion() { return 0; }
 
 
-  boost::shared_ptr<InputService> makeInput(ParameterSet const& params_,
+  boost::shared_ptr<InputSource> makeInput(ParameterSet const& params_,
 					    const CommonParams& common,
 					    ProductRegistry& preg)
   {
     // find single source
     try {
       ParameterSet main_input = params_.getParameter<ParameterSet>("@main_input");
-      InputServiceDescription isdesc(common.processName_,common.pass_,preg);
+      InputSourceDescription isdesc(common.processName_,common.pass_,preg);
 
-      boost::shared_ptr<InputService> input_
-      (InputServiceFactory::get()->makeInputService(main_input, isdesc).release());
+      boost::shared_ptr<InputSource> input_
+      (InputSourceFactory::get()->makeInputSource(main_input, isdesc).release());
     
       return input_;
     } catch(const edm::Exception& iException) {
        if(errors::Configuration == iException.categoryCode()) {
-          throw edm::Exception(errors::Configuration, "NoInputService")
-          <<"No main input service found in configuration.  Please add an input service via 'source = ...' in the configuration file.\n";
+          throw edm::Exception(errors::Configuration, "NoInputSource")
+          <<"No main input source found in configuration.  Please add an input source via 'source = ...' in the configuration file.\n";
        } else {
           throw;
        }
     }
-    return boost::shared_ptr<InputService>();
+    return boost::shared_ptr<InputSource>();
   }
   
   void fillEventSetupProvider(eventsetup::EventSetupProvider& cp,
@@ -155,7 +155,7 @@ namespace edm {
     ActivityRegistry activityRegistry_;
     ServiceToken serviceToken_;
     
-    boost::shared_ptr<InputService> input_;
+    boost::shared_ptr<InputSource> input_;
     std::auto_ptr<ScheduleExecutor> runner_;
     edm::eventsetup::EventSetupProvider esp_;    
 
