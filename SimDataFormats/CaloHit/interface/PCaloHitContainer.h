@@ -6,6 +6,7 @@
 #include <string>
 
 namespace edm {
+
   class PCaloHitContainer {
   public:
     typedef std::vector<PCaloHit> PCaloHitSingleContainer ;
