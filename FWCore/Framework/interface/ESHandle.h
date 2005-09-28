@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Fri Apr  1 14:47:35 EST 2005
-// $Id: ESHandle.h,v 1.4 2005/09/01 05:39:14 wmtan Exp $
+// $Id: ESHandle.h,v 1.5 2005/09/01 23:30:48 wmtan Exp $
 //
 
 // system include files
@@ -25,7 +25,6 @@
 
 // forward declarations
 namespace edm {
-   namespace eventsetup {
 template< class T>
 class ESHandle
 {
@@ -59,6 +58,5 @@ class ESHandle
          const T* data_; 
 };
 
-   }
 }
 #endif

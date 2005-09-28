@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 19:13:25 EDT 2005
-// $Id: WhatsItAnalyzer.cc,v 1.3 2005/08/24 21:43:27 chrjones Exp $
+// $Id: WhatsItAnalyzer.cc,v 1.4 2005/09/01 03:59:29 wmtan Exp $
 //
 //
 
@@ -88,7 +88,7 @@ void
 WhatsItAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
 {
    using namespace edm;
-   eventsetup::ESHandle<WhatsIt> pSetup;
+   ESHandle<WhatsIt> pSetup;
    iSetup.get<GadgetRcd>().get(pSetup);
 }
 

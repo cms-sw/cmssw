@@ -87,7 +87,7 @@ anlzrname::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 #endif
 
 #ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
-   eventsetup::ESHandle<SetupData> pSetup;
+   ESHandle<SetupData> pSetup;
    iSetup.get<SetupRecord>().get(pSetup);
 #endif
 }

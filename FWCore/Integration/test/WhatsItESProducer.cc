@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 14:33:04 EDT 2005
-// $Id: WhatsItESProducer.cc,v 1.3 2005/08/24 21:43:27 chrjones Exp $
+// $Id: WhatsItESProducer.cc,v 1.4 2005/09/01 03:59:08 wmtan Exp $
 //
 //
 
@@ -87,10 +87,9 @@ WhatsItESProducer::~WhatsItESProducer()
 WhatsItESProducer::ReturnType
 WhatsItESProducer::produce(const GadgetRcd& iRecord)
 {
-   using namespace edm::eventsetup;
    using namespace edmreftest;
 
-   ESHandle<Doodad> doodad;
+   edm::ESHandle<Doodad> doodad;
    iRecord.get(doodad);
    
    std::auto_ptr<WhatsIt> pWhatsIt(new WhatsIt) ;
