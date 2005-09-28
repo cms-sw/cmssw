@@ -61,7 +61,7 @@ problems:
   where does the pluginmanager initialise call go?
 
 
-$Id: EventProcessor.h,v 1.8 2005/09/08 09:08:20 chrjones Exp $
+$Id: EventProcessor.h,v 1.9 2005/09/08 18:08:55 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -131,7 +131,7 @@ namespace edm {
     // sources are exhausted.
     StatusCode run(unsigned long numberToProcess = 0);
 
-    /// signal is emitted after the Event has been created by the InputService but before any modules have seen the Event
+    /// signal is emitted after the Event has been created by the InputSource but before any modules have seen the Event
     boost::signal<void (const EventID&, const Timestamp&)> preProcessEventSignal;
     /// signal is emitted after all modules have finished processing the Event
     boost::signal<void (const Event&, const EventSetup&)> postProcessEventSignal;
