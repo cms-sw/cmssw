@@ -7,8 +7,8 @@ Added Product Registration mechanism.
               registers to an internal list, that then is read by the Worker 
               that wraps the EDProducter
 
-- InputServiceDescription: the ctor takes a  ptr to ProductRegistry, that can
-              then be accessed by the InputService 
+- InputSourceDescription: the ctor takes a  ptr to ProductRegistry, that can
+              then be accessed by the InputSource
 
 - ProductRegistry: Added ProductRegistry, a list of ProductDescription objects,
                    describing the products of all modules
@@ -18,7 +18,7 @@ Added Product Registration mechanism.
 
 - EventProcessor: FwkImpl now has in its data members a ProductRegistry object,
                   and passes it to ScheduleBuilder and
-                  InputService thru InputServiceDesc
+                  InputSource thru InputSourceDesc
 
 - ProoducerWorker: Modified for ProductRegister machanism .Takes product infor-
                   mations from the EDProducer and fills the ProductRegistry
