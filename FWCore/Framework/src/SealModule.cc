@@ -1,8 +1,8 @@
 #include "PluginManager/ModuleDef.h"
-#include "FWCore/Framework/interface/InputServiceMacros.h"
-#include "FWCore/Framework/src/EmptyInputService.h"
+#include "FWCore/Framework/interface/InputSourceMacros.h"
+#include "FWCore/Framework/src/EmptySource.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
 
-using edm::EmptyInputService;
+using edm::EmptySource;
 DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_INPUT_SERVICE(EmptyInputService)
+DEFINE_ANOTHER_FWK_INPUT_SOURCE(EmptySource)

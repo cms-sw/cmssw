@@ -2,7 +2,7 @@
 
 Test of the EventProcessor class.
 
-$Id: eventprocessor_t.cppunit.cc,v 1.8 2005/09/08 09:08:17 chrjones Exp $
+$Id: eventprocessor_t.cppunit.cc,v 1.9 2005/09/09 14:56:50 chrjones Exp $
 
 ----------------------------------------------------------------------*/  
 #include <exception>
@@ -41,7 +41,7 @@ private:
 void work()
 {
   std::string configuration("process p = {\n"
-			    "source = EmptyInputService { untracked int32 maxEvents = 5 }\n"
+			    "source = EmptySource { untracked int32 maxEvents = 5 }\n"
 			    "module m1 = TestMod { int32 ivalue = 10 }\n"
 			    "module m2 = TestMod { int32 ivalue = -3 }\n"
                             "path p1 = { m1,m2 }\n"
@@ -94,7 +94,7 @@ void doPost(const edm::Event&, const edm::EventSetup&)
 void testeventprocessor::prepostTest()
 {
    std::string configuration("process p = {\n"
-                             "source = EmptyInputService { untracked int32 maxEvents = 5 }\n"
+                             "source = EmptySource { untracked int32 maxEvents = 5 }\n"
                              "module m1 = TestMod { int32 ivalue = -3 }\n"
                              "path p1 = { m1 }\n"
                              "}\n");
@@ -112,7 +112,7 @@ void testeventprocessor::prepostTest()
 void testeventprocessor::beginEndJobTest()
 {
    std::string configuration("process p = {\n"
-                             "source = EmptyInputService { untracked int32 maxEvents = 2 }\n"
+                             "source = EmptySource { untracked int32 maxEvents = 2 }\n"
                              "module m1 = TestBeginEndJobAnalyzer { }\n"
                              "path p1 = { m1 }\n"
                              "}\n");
@@ -200,7 +200,7 @@ void
 testeventprocessor::activityRegistryTest()
 {
    std::string configuration("process p = {\n"
-                             "source = EmptyInputService { untracked int32 maxEvents = 5 }\n"
+                             "source = EmptySource { untracked int32 maxEvents = 5 }\n"
                              "module m1 = TestMod { int32 ivalue = -3 }\n"
                              "path p1 = { m1 }\n"
                              "}\n");
