@@ -1,36 +1,29 @@
 /*----------------------------------------------------------------------
-$Id: EmptyInputService.cc,v 1.12 2005/09/01 03:12:50 wmtan Exp $
+$Id: EmptySource.cc,v 1.1 2005/09/07 19:09:26 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <stdexcept>
 #include <memory>
 #include <string>
 
-#include "FWCore/Framework/src/EmptyInputService.h"
+
+#include "FWCore/Framework/src/EmptySource.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/InputServiceDescription.h"
-#include "FWCore/Framework/interface/InputService.h"
+#include "FWCore/Framework/interface/InputSourceDescription.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/EDProduct/interface/EventID.h"
 
 namespace edm {
   class BranchKey;
-  FakeRetriever::~FakeRetriever() {}
-
-  std::auto_ptr<EDProduct>
-  FakeRetriever::get(BranchKey const&) {
-    throw std::runtime_error("FakeRetriever::get called");
-  }
 
   //used for defaults
   static const unsigned long kNanoSecPerSec = 1000000000;
   static const unsigned long kAveEventPerSec = 200;
   
-  EmptyInputService::EmptyInputService(ParameterSet const& pset,
-				       InputServiceDescription const& desc) :
-    InputService(desc),
+  EmptySource::EmptySource(ParameterSet const& pset,
+				       InputSourceDescription const& desc) :
+    RandomAccessInputSource(desc),
     remainingEvents_(pset.getUntrackedParameter<int>("maxEvents", -1)),
-    retriever_(new FakeRetriever()),
     numberEventsInRun_(pset.getUntrackedParameter<unsigned int>("numberEventsInRun", remainingEvents_+1)),
     presentRun_(pset.getUntrackedParameter<unsigned int>("firstRun",1)),
     nextTime_(pset.getUntrackedParameter<unsigned int>("firstTime",1)),  //time in ns
@@ -39,16 +32,15 @@ namespace edm {
     nextID_(presentRun_, 1)   
   { }
 
-  EmptyInputService::~EmptyInputService() {
-    delete retriever_;
+  EmptySource::~EmptySource() {
   }
 
   std::auto_ptr<EventPrincipal>
-  EmptyInputService::read() {
+  EmptySource::read() {
     std::auto_ptr<EventPrincipal> result(0);
     
     if (remainingEvents_-- != 0) {
-      result = std::auto_ptr<EventPrincipal>(new EventPrincipal(nextID_, Timestamp(nextTime_),*retriever_, *preg_));
+      result = std::auto_ptr<EventPrincipal>(new EventPrincipal(nextID_, Timestamp(nextTime_), *preg_));
       if(++numberEventsInThisRun_ < numberEventsInRun_) {
         nextID_ = nextID_.next();
       } else {
@@ -58,5 +50,23 @@ namespace edm {
       nextTime_ += timeBetweenEvents_;
     }
     return result;
+  }
+
+  std::auto_ptr<EventPrincipal>
+  EmptySource::read(EventID const& id) {
+    nextID_ = id;
+    presentRun_ = nextID_.run();
+    return read();
+  }
+
+  void
+  EmptySource::skip(int offset) {
+    for(; offset < 0; ++offset) {
+      nextID_ = nextID_.previous();
+    }
+    for(; offset > 0; --offset) {
+      nextID_ = nextID_.next();
+    }
+    presentRun_ = nextID_.run();
   }
 }
