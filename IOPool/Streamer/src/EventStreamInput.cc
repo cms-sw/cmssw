@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EventStreamInput.cc,v 1.7 2005/09/10 03:26:42 wmtan Exp $
+$Id: EventStreamInput.cc,v 1.8 2005/09/15 16:02:44 jbk Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Streamer/interface/EventStreamInput.h"
@@ -13,7 +13,7 @@ $Id: EventStreamInput.cc,v 1.7 2005/09/10 03:26:42 wmtan Exp $
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/EventProvenance.h"
 #include "FWCore/Framework/interface/ProductRegistry.h"
-#include "FWCore/Framework/interface/InputServiceDescription.h"
+#include "FWCore/Framework/interface/InputSourceDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <iostream>
@@ -25,7 +25,7 @@ namespace edm
 {
 
   EventStreamerInputImpl::EventStreamerInputImpl(ParameterSet const&,
-						 InputServiceDescription const& desc,
+						 InputSourceDescription const& desc,
 						 EventBuffer* bufs) :
     regbuf_(1000*1000),
     bufs_(bufs),
@@ -112,7 +112,6 @@ namespace edm
 
     auto_ptr<EventPrincipal> ep(new EventPrincipal(sd->id_,
 						   sd->time_,
-						   store_,
 						   *pr_));
     // no process name list handling
 
@@ -155,17 +154,4 @@ namespace edm
 
     return ep;
   }
-
-  EventStreamerInputImpl::StreamRetriever::~StreamRetriever() {}
-
-  auto_ptr<EDProduct>
-  EventStreamerInputImpl::StreamRetriever::get(BranchKey const& k)
-  {
-    throw cms::Exception("LogicError","StreamRetriever")
-      << "Got into EventStreamInput::StreamRetriever for branchkey: "
-      << k << "\n";
-
-    return auto_ptr<EDProduct>();
-  }
-
 }

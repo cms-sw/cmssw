@@ -3,9 +3,9 @@
 
 /*----------------------------------------------------------------------
 
-Event streaming input service
+Event streaming input source
 
-$Id: EventStreamInput.h,v 1.2 2005/08/25 05:17:22 jbk Exp $
+$Id: EventStreamInput.h,v 1.3 2005/09/01 01:05:14 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -16,8 +16,8 @@ $Id: EventStreamInput.h,v 1.2 2005/08/25 05:17:22 jbk Exp $
 
 #include "IOPool/Streamer/interface/EventBuffer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/InputService.h"
-#include "FWCore/Framework/interface/Retriever.h"
+#include "FWCore/Framework/interface/InputSource.h"
+#include "FWCore/Framework/interface/DelayedReader.h"
 #include "FWCore/EDProduct/interface/EDProduct.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/BranchKey.h"
@@ -34,19 +34,9 @@ namespace edm {
   {
   public:
     //------------------------------------------------------------
-    // Nested class PoolRetriever: pretends to support file reading.
-    //
-    class StreamRetriever : public Retriever
-    {
-    public:
-      virtual ~StreamRetriever();
-      virtual std::auto_ptr<EDProduct> get(BranchKey const& k);
-    };
-
-    //------------------------------------------------------------
 
     EventStreamerInputImpl(ParameterSet const& pset,
-		     InputServiceDescription const& desc,
+		     InputSourceDescription const& desc,
 		     EventBuffer* bufs);
     ~EventStreamerInputImpl();
 
@@ -59,7 +49,6 @@ namespace edm {
     EventBuffer* bufs_;
     ProductRegistry* pr_;
     TClass* send_event_;
-    StreamRetriever store_;
 
     void init();
 
@@ -67,11 +56,11 @@ namespace edm {
   };
 
   template <class Producer>
-  class EventStreamInput : public InputService
+  class EventStreamInput : public InputSource
   {
   public:
     EventStreamInput(ParameterSet const& pset,
-		     InputServiceDescription const& desc);
+		     InputSourceDescription const& desc);
     virtual ~EventStreamInput();
 
     virtual std::auto_ptr<EventPrincipal> read();
@@ -85,8 +74,8 @@ namespace edm {
 
   template <class Producer>
   EventStreamInput<Producer>::EventStreamInput(ParameterSet const& ps,
-					       InputServiceDescription const& reg):
-    InputService(reg),
+					       InputSourceDescription const& reg):
+    InputSource(reg),
     bufs_(getEventBuffer(ps.template getParameter<int>("max_event_size"),
 			 ps.template getParameter<int>("max_queue_depth"))),
     es_(ps,reg,bufs_),
