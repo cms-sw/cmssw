@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 19:53:09 EDT 2005
-// $Id: ActivityRegistry.h,v 1.2 2005/09/08 07:17:57 chrjones Exp $
+// $Id: ActivityRegistry.h,v 1.3 2005/09/08 20:18:18 chrjones Exp $
 //
 
 // system include files
@@ -61,7 +61,7 @@ namespace edm {
 
       
       typedef boost::signal<void (const edm::EventID&, const edm::Timestamp&)> PreProcessEvent;
-      /// signal is emitted after the Event has been created by the InputService but before any modules have seen the Event
+      /// signal is emitted after the Event has been created by the InputSource but before any modules have seen the Event
       PreProcessEvent preProcessEventSignal_;
       void watchPreProcessEvent(const PreProcessEvent::slot_type& iSlot) {
          preProcessEventSignal_.connect(iSlot);
