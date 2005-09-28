@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EventPrincipal.cc,v 1.23 2005/08/30 21:21:35 wmtan Exp $
+$Id: EventPrincipal.cc,v 1.24 2005/09/01 23:56:11 wmtan Exp $
 ----------------------------------------------------------------------*/
 //#include <iostream>
 #include <memory>
@@ -19,32 +19,22 @@ namespace edm {
     groups_(),
     branchDict_(),
     typeDict_(),
-    store_(0),
-    preg_(0)
+    preg_(0),
+    store_()
   {
   }
 
   EventPrincipal::EventPrincipal(EventID const& id,
-	 Retriever& r, ProductRegistry const& reg, ProcessNameList const& nl) :
-    aux_(id),
-    groups_(),
-    branchDict_(),
-    typeDict_(),
-    store_(&r),
-    preg_(&reg)
-  {
-    aux_.process_history_ = nl;
-    groups_.reserve(reg.productList().size());
-  }
-
-  EventPrincipal::EventPrincipal(EventID const& id, Timestamp const& time,
-                                 Retriever& r, ProductRegistry const& reg, ProcessNameList const& nl) :
+				 Timestamp const& time,
+                                 ProductRegistry const& reg,
+				 ProcessNameList const& nl,
+				 boost::shared_ptr<DelayedReader> rtrv) :
    aux_(id,time),
    groups_(),
    branchDict_(),
    typeDict_(),
-   store_(&r),
-   preg_(&reg)
+   preg_(&reg),
+   store_(rtrv)
   {
     aux_.process_history_ = nl;
     groups_.reserve(reg.productList().size());
