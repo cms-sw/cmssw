@@ -3,7 +3,7 @@
    test for ProductRegistry 
 
    \author Stefano ARGIRO
-   \version $Id$
+   \version $Id: productregistry.cppunit.cc,v 1.1 2005/07/21 21:07:14 argiro Exp $
    \date 21 July 2005
 */
 
@@ -40,7 +40,7 @@ void  testProductRegistry:: testProductRegistration(){
       "module m1 = TestPRegisterModule1{ } \n"
       "module m2 = TestPRegisterModule2{ } \n" 
       "path p = {m1,m2}\n"
-      "source = TestInputService4ProductRegistry{ }\n"
+      "source = TestInputSource4ProductRegistry{ }\n"
     "}\n";
 
    edm::EventProcessor proc(config);
