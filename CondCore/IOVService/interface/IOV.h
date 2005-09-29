@@ -8,7 +8,7 @@ namespace cond{
   public:
     IOV(){}
     virtual ~IOV(){}
-    std::map<int,std::string> iov;
+    std::map<unsigned long,std::string> iov;
   };
 }
 #endif
