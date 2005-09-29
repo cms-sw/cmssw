@@ -1,11 +1,10 @@
-// $Id: TrackCandidateProducer.cc,v 1.3 2005/08/30 10:44:40 llista Exp $
+// $Id: TrackCandidateProducer.cc,v 1.4 2005/09/29 00:23:33 llista Exp $
 
 #include "PhysicsTools/CandAlgos/src/TrackCandidateProducer.h"
 #include "PhysicsTools/DSTCandidate/interface/DSTCandidate.h"
 #include "DataFormats/DSTTrack/interface/Track.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/EDProduct/interface/EDCollection.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <iostream>
 #include <cmath>
@@ -25,7 +24,7 @@ TrackCandidateProducer::TrackCandidateProducer( const ParameterSet & p ) :
 }
 	  
 void TrackCandidateProducer::produce( Event& evt, const EventSetup& ) {
-  typedef EDCollection<Track> Tracks;
+  typedef vector<Track> Tracks;
   Handle<Tracks> tracks;
   try {
     evt.getByLabel( source, tracks );
