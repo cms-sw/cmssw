@@ -5,7 +5,7 @@
 #include "FWCore/Framework/interface/ScheduleBuilder.h"
 #include "FWCore/Framework/interface/ScheduleExecutor.h"
 #include "FWCore/Framework/src/InputSourceFactory.h"
-#include "FWCore/Framework/src/DebugMacros.h"
+#include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Framework/interface/Actions.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
