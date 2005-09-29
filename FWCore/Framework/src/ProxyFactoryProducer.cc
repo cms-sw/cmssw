@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Thu Apr  7 21:36:15 CDT 2005
-// $Id: ProxyFactoryProducer.cc,v 1.4 2005/07/14 22:50:53 wmtan Exp $
+// $Id: ProxyFactoryProducer.cc,v 1.5 2005/08/24 21:43:21 chrjones Exp $
 //
 
 // system include files
@@ -80,7 +80,8 @@ ProxyFactoryProducer::registerProxies(const EventSetupRecordKey& iRecord,
 
 void
 ProxyFactoryProducer::registerFactoryWithKey(const EventSetupRecordKey& iRecord ,
-                                              std::auto_ptr<ProxyFactoryBase>& iFactory)
+                                             std::auto_ptr<ProxyFactoryBase>& iFactory,
+                                             const std::string& iLabel )
 {
    if(0 == iFactory.get()) {
       assert(false && "Factor pointer was null");
@@ -90,11 +91,11 @@ ProxyFactoryProducer::registerFactoryWithKey(const EventSetupRecordKey& iRecord 
    usingRecordWithKey(iRecord);
    
    boost::shared_ptr<ProxyFactoryBase> temp(iFactory.release());
-   FactoryInfo info(temp->makeKey(""),
-                     temp);
+   FactoryInfo info(temp->makeKey(iLabel),
+                    temp);
    
    record2Factories_.insert(Record2Factories::value_type(iRecord,
-                                                            info));
+                                                         info));
 }
 
 void 

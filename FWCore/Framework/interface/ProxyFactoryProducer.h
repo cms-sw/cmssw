@@ -48,7 +48,7 @@ BarProd::BarProd(const edm::ParameterSet& iPS) {
 //
 // Author:      Chris Jones
 // Created:     Thu Apr  7 17:14:58 CDT 2005
-// $Id: ProxyFactoryProducer.h,v 1.6 2005/09/01 05:08:06 wmtan Exp $
+// $Id: ProxyFactoryProducer.h,v 1.7 2005/09/01 23:30:49 wmtan Exp $
 //
 
 // system include files
@@ -97,26 +97,31 @@ class ProxyFactoryProducer : public DataProxyProvider
                                     KeyedProxies& aProxyList) ;
 
       /** \param iFactory auto_ptr holding a new instance of a Factory
+         \param iLabel extra string label used to get data (optional)
          Producer takes ownership of the Factory and uses it create the appropriate
          Proxy which is then registered with the EventSetup.  If used, this method should
          be called in inheriting class' constructor.
       */
       template< class TFactory>
-         void registerFactory(std::auto_ptr<TFactory> iFactory) {
+         void registerFactory(std::auto_ptr<TFactory> iFactory,
+                              const std::string& iLabel = std::string()) {
             std::auto_ptr<ProxyFactoryBase> temp(iFactory.release());
             registerFactoryWithKey(
                EventSetupRecordKey::makeKey<typename TFactory::record_type>(),
-                                    temp);
+                                   temp,
+                                   iLabel);
          }
       /** \param iFactory pointer to a new instance of a Factory
+         \param iLabel extra string label used to get data (optional)
          Producer takes ownership of the Factory and uses it create the appropriate
          Proxy which is then registered with the EventSetup. If used, this method should
          be called in inheriting class' constructor.
          */
       template< class TFactory>
-         void registerFactory(TFactory* iFactory) {
+         void registerFactory(TFactory* iFactory,
+                              const std::string& iLabel = std::string()) {
             std::auto_ptr<TFactory> temp(iFactory);
-            registerFactory(temp);
+            registerFactory(temp,iLabel);
          }
       
    private:
@@ -125,7 +130,8 @@ class ProxyFactoryProducer : public DataProxyProvider
       const ProxyFactoryProducer& operator=(const ProxyFactoryProducer&); // stop default
 
       virtual void registerFactoryWithKey(const EventSetupRecordKey& iRecord ,
-                                          std::auto_ptr<ProxyFactoryBase>& iFactory);
+                                          std::auto_ptr<ProxyFactoryBase>& iFactory,
+                                          const std::string& iLabel= std::string() );
       
       // ---------- member data --------------------------------
       std::multimap< EventSetupRecordKey, FactoryInfo > record2Factories_;
