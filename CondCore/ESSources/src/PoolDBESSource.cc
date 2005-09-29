@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jul 23 14:57:44 EDT 2005
-// $Id: PoolDBESSource.cc,v 1.7 2005/09/01 09:27:52 xiezhen Exp $
+// $Id: PoolDBESSource.cc,v 1.8 2005/09/09 13:15:00 xiezhen Exp $
 //
 //
 
@@ -186,7 +186,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   if( iConfig.getParameter<bool>("loadAll") ) {
     m_recordToTypes.insert(make_pair(string("EcalPedestalsRcd"), string("EcalPedestals"))) ;
     m_recordToTypes.insert(make_pair(string("EcalMappingRcd"), string("EcalMapping"))) ;
-    m_recordToTypes.insert(make_pair(string("HcalPedestalsRcd"), string("HcalPedestals"))) ;
+    m_recordToTypes.insert(make_pair(string("HcalPedestalsRcd"), string("HcalPedestals"))) ;    
     //by forcing this to load, we also load the definition of the Records which //will allow EventSetupRecordKey::TypeTag::findType(...) method to find them
     for(RecordToTypes::iterator itRec = m_recordToTypes.begin();itRec != m_recordToTypes.end();	++itRec ) {
       m_proxyToToken.insert( make_pair(buildName(itRec->first, itRec->second ),"") );//fill in dummy tokens now, change in setIntervalFor
@@ -265,14 +265,16 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
   pool::Ref<cond::IOV> myiov = itIOV->second;
   std::string payloadToken;
   //infinity check, need improvement!!!
-  if( myiov->iov.size()!=0 && myiov->iov.begin()->first==edm::IOVSyncValue::endOfTime().eventID().run() ){
+  /*if( myiov->iov.size()!=0 && myiov->iov.begin()->first==edm::IOVSyncValue::endOfTime().eventID().run() ){
     payloadToken = myiov->iov.begin()->second;
     oInterval = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
     m_proxyToToken[buildName(itRec->first ,itRec->second)]=payloadToken; 
     return;
-  }
+    }
+  */
+  
   //valid time check
-  typedef std::map<int, std::string> IOVMap;
+  typedef std::map<unsigned long, std::string> IOVMap;
   typedef IOVMap::const_iterator iterator;
   unsigned long abtime=iTime.eventID().run()-edm::IOVSyncValue::beginOfTime().eventID().run();
   iterator iEnd = myiov->iov.lower_bound( abtime );
