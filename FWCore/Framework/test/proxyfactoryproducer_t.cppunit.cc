@@ -38,11 +38,21 @@ public:
    }
 };
 
+class TestLabelProducer : public ProxyFactoryProducer {
+public:
+   TestLabelProducer() {
+      std::auto_ptr<ProxyFactoryTemplate<DummyProxy> > pFactory(new 
+                                                                ProxyFactoryTemplate<DummyProxy>());
+      registerFactory(pFactory,"fred");
+   }
+};
+
 class testProxyfactor: public CppUnit::TestFixture
 {
 CPPUNIT_TEST_SUITE(testProxyfactor);
 
 CPPUNIT_TEST(registerProxyfactorytemplateTest);
+CPPUNIT_TEST(labelTest);
 
 CPPUNIT_TEST_SUITE_END();
 public:
@@ -50,6 +60,7 @@ public:
   void tearDown(){}
 
   void registerProxyfactorytemplateTest();
+  void labelTest();
 };
 
 ///registration of the test so that the runner can find it
@@ -66,4 +77,19 @@ void testProxyfactor::registerProxyfactorytemplateTest()
 
    CPPUNIT_ASSERT(keyedProxies.size() == 1);
    CPPUNIT_ASSERT(0 != dynamic_cast<DummyProxy*>(&(*(keyedProxies.front().second))));
+}
+
+void testProxyfactor::labelTest()
+{
+   TestLabelProducer testProd;
+   EventSetupRecordKey dummyRecordKey = EventSetupRecordKey::makeKey<DummyRecord>();
+   CPPUNIT_ASSERT(testProd.isUsingRecord(dummyRecordKey));
+   
+   const DataProxyProvider::KeyedProxies& keyedProxies =
+      testProd.keyedProxies(dummyRecordKey);
+   
+   CPPUNIT_ASSERT(keyedProxies.size() == 1);
+   CPPUNIT_ASSERT(0 != dynamic_cast<DummyProxy*>(&(*(keyedProxies.front().second))));
+   const std::string kFred("fred");
+   CPPUNIT_ASSERT(kFred == keyedProxies.front().first.name().value());
 }
