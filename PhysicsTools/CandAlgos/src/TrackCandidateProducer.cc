@@ -1,4 +1,4 @@
-// $Id: TrackCandidateProducer.cc,v 1.2 2005/08/30 08:42:55 llista Exp $
+// $Id: TrackCandidateProducer.cc,v 1.3 2005/08/30 10:44:40 llista Exp $
 
 #include "PhysicsTools/CandAlgos/src/TrackCandidateProducer.h"
 #include "PhysicsTools/DSTCandidate/interface/DSTCandidate.h"
@@ -38,7 +38,7 @@ void TrackCandidateProducer::produce( Event& evt, const EventSetup& ) {
   const edm::ProductID pid = tracks.provenance()->product.productID_;
   int idx = 0;
   for( Tracks::const_iterator trk = tracks->begin(); trk != tracks->end(); ++ trk ) {
-    const Track::Vector3D & p = trk->momentumAtVertex();
+    const Track::Vector & p = trk->inner().momentum();
     double x = p.x(), y = p.y(), z = p.z();
     double t = sqrt( massSqr + p.mag2() );
     DSTCandidate * c = new DSTCandidate( Candidate::LorentzVector( x, y, z, t ), trk->charge() );
