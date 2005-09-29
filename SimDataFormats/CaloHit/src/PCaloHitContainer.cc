@@ -9,7 +9,7 @@ void PCaloHitContainer::insertHits (PCaloHitSingleContainer & p)
 }
 
 
-void PCaloHitContainer::insertHit (PCaloHit & p)
+void PCaloHitContainer::insertHit (const PCaloHit & p)
 {
   m_data.push_back (p) ;
 }

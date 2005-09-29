@@ -6,14 +6,13 @@
 #include <string>
 
 namespace edm {
-
   class PCaloHitContainer {
   public:
     typedef std::vector<PCaloHit> PCaloHitSingleContainer ;
 
     /// insert a digi for a given layer
     void insertHits (PCaloHitSingleContainer &) ;
-    void insertHit (PCaloHit &) ;
+    void insertHit (const PCaloHit &) ;
     // changed by PG
     void clear () ;
 
