@@ -4,7 +4,6 @@
 // ---------------------------------------------------------------------------
 //  Includes
 // ---------------------------------------------------------------------------
-#include "DetectorDescription/Parser/interface/DDLSAX2Handler.h"
 
 // Xerces C++ Dependencies
 #include <xercesc/sax2/Attributes.hpp>

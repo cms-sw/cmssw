@@ -2,7 +2,8 @@
 #define DDValuePair_h
 
 #include <string>
-#include <utility>
+#include <map>
+//#include <utility>
 
 struct DDValuePair : public std::pair<std::string,double>
 {

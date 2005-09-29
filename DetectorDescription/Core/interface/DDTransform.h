@@ -5,7 +5,7 @@
 #include "DetectorDescription/Core/interface/DDBase.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Base/interface/DDRotationMatrix.h"
-#include "DetectorDescription/Base/interface/DDTranslation.h"
+//#include "DetectorDescription/Base/interface/DDTranslation.h"
 
 class DDRotation;
 

@@ -1,11 +1,13 @@
 #ifndef DDCore_DDQuery_h
 #define DDCore_DDQuery_h
 
-#include <vector>
-#include <utility>
-
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
+#include "DetectorDescription/Core/interface/DDScope.h"
+
+#include <map>
+#include <vector>
+#include <utility>
 
 //class DDCompactView;
 
@@ -31,7 +33,7 @@ protected:
   //const DDCompactView & cpv_;
   DDExpandedView epv_;  
   const DDScope * scope_;
-  typedef pair<bool, DDFilter *> criterion_type;
+  typedef std::pair<bool, DDFilter *> criterion_type;
   typedef std::vector<criterion_type> criteria_type;
   typedef std::vector<log_op> logops_type;
   

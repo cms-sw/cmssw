@@ -1,5 +1,5 @@
 
-#include "DetectorDescription/Base/interface/DDdebug.h"
+//#include "DetectorDescription/Base/interface/DDdebug.h"
 // GENERATED FILE. DO NOT MODIFY!
 #include "global_linear.h"
 // I tried the following on CERN lxplus and still no MAX_DOUBLE was defined.

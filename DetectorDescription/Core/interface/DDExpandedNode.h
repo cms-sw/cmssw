@@ -4,6 +4,7 @@
 #include <vector>
 #include <iostream>
 #include "DetectorDescription/Core/interface/DDTransform.h"
+#include "DetectorDescription/Base/interface/DDTranslation.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 class DDExpandedView;
 class DDPosData;

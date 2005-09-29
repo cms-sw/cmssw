@@ -2,13 +2,14 @@
 
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "DetectorDescription/Parser/interface/DDLConfiguration.h"
-#include "DetectorDescription/Base/interface/DDException.h"
+//#include "DetectorDescription/Base/interface/DDException.h"
 #include "DetectorDescription/PersistentDDDObjects/interface/PersistentDDDObjects.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
 #include "DetectorDescription/DBReader/interface/DDORAReader.h"
 #include "DetectorDescription/PersistentDDDObjects/interface/DDDToPersFactory.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDRoot.h"
+#include "DetectorDescription/Core/interface/DDSolid.h"
 
 #include "POOLCore/POOLContext.h"
 #include "PluginManager/PluginManager.h"

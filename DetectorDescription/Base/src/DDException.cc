@@ -1,4 +1,4 @@
-namespace std {} using namespace std;
+
 #include "DetectorDescription/Base/interface/DDException.h"
 #include "SealBase/Error.h"
 
@@ -33,7 +33,7 @@ const char* DDException::what() const {
   return explainSelf().c_str();
 }
 
-ostream & operator<<(ostream & os, const DDException & ex)
+std::ostream & operator<<(std::ostream & os, const DDException & ex)
 {
   os << ex.what();
   return os;

@@ -6,7 +6,7 @@
 #include <iostream>
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 
-#include <boost/spirit.hpp>
+//#include <boost/spirit.hpp>
 
 
 class DDLogicalPart;

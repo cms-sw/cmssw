@@ -1,6 +1,7 @@
 #include "GeometryReaders/XMLIdealGeometryESSource/interface/XMLIdealGeometryESSource.h"
 
 #include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Base/interface/DDException.h"
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDSpecifics.h"

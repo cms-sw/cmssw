@@ -10,6 +10,7 @@
 
 // Let's take AlgoPos to be the implementation class of DDAlgo-interface
 //#include "DetectorDescription/ExprAlgo/interface/AlgoPos.h"
+#include "DetectorDescription/Base/interface/DDTranslation.h"
 
 class DDAlgo;
 class AlgoPos;

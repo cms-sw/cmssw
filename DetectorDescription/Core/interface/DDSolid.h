@@ -10,6 +10,8 @@
 #include "DetectorDescription/Core/interface/DDBase.h"
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
+#include "DetectorDescription/Base/interface/DDTranslation.h"
+
 namespace DDI { class Solid; }
 namespace DDI { class Reflection; }
 namespace DDI { class BooleanSolid; }

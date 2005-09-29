@@ -8,6 +8,7 @@
 #include <iostream>
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
+#include "DetectorDescription/Base/interface/DDTranslation.h"
 
 class DDLogicalPart;
 class DDRotation;

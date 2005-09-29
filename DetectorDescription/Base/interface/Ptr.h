@@ -1,9 +1,10 @@
 #ifndef GUARD_Ptr_h
 #define GUARD_Ptr_h
 
-#include <cstddef>
 #include <stdexcept>
+#include <cstddef>
 #include <iostream>
+#include <utility>
 
 template<class T> class Ptr {
 public:

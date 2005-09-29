@@ -7,7 +7,8 @@
 #include <iostream>
 #include <map>
 #include <vector>
-#include "DetectorDescription/Base/interface/Singleton.h"
+#include <stdexcept>
+//#include "DetectorDescription/Base/interface/Singleton.h"
 
 class DDCurrentNamespace;
 class DDStreamer;

@@ -1,11 +1,12 @@
 #ifndef x_graphwalker_h
 #define x_graphwalker_h
 
-#include "adjgraph.h"
+#include "DetectorDescription/Core/interface/adjgraph.h"
 
 #include <vector>
 #include <queue>
-#include <iostream> // debug
+
+//#include <iostream> // debug
 
 /** a walker for an acyclic directed multigraph */
 template <class N, class E>

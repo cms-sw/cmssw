@@ -5,7 +5,7 @@
 #include <string>
 #include <utility>
 
-#include "DetectorDescription/Core/interface/DDScope.h"
+//#include "DetectorDescription/Core/interface/DDScope.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 //#include "DetectorDescription/Core/interface/tree.h"
 

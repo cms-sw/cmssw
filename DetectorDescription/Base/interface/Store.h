@@ -2,8 +2,8 @@
 #define DDI_Store_h
 
 #include <map>
-#include <iostream>
-#include "rep_type.h"
+/* #include <iostream> */
+#include "DetectorDescription/Base/interface/rep_type.h"
 
 //;
 //FIXME: Store : implement readOnly-behaviour ..

@@ -7,6 +7,7 @@
 #include <map>
 
 #include "DetectorDescription/Core/interface/DDTransform.h"
+#include "DetectorDescription/Base/interface/DDTranslation.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDPosData.h"

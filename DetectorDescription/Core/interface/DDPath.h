@@ -1,13 +1,12 @@
 #ifndef DDPath_h
 #define DDPath_h
 
-
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDPartSelection.h"
 
 #include <vector>
 #include <utility>
 #include <string>
-#include "DetectorDescription/Core/interface/DDLogicalPart.h"
-#include "DetectorDescription/Core/interface/DDPartSelection.h"
 
 //enum typ_t { ddunknown, ddanynode, ddanychild, ddanylogp, ddanyposp, ddchildlogp,  ddchildposp };
 typedef ddselection_type typ_t;

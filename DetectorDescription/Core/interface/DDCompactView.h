@@ -5,13 +5,13 @@
 
 #include <vector>
 //#include "DetectorDescription/Core/interface/tree.h"
-#include "DetectorDescription/Core/interface/DDLogicalPart.h"
-#include "DetectorDescription/Core/interface/DDPosPart.h"
+//#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+//#include "DetectorDescription/Core/interface/DDPosPart.h"
 //#include "DetectorDescription/Core/interface/DDPosData.h"
 #include "DetectorDescription/Base/interface/Ptr.h"
 #include "DetectorDescription/CoreImpl/src/DDCompactViewImpl.h"
 //#include "DetectorDescription/Core/interface/DDPath.h"
-#include "DetectorDescription/Core/interface/adjgraph.h" 
+//#include "DetectorDescription/Core/interface/adjgraph.h" 
 #include "DetectorDescription/Core/interface/graphwalker.h"
 
 

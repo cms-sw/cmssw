@@ -3,8 +3,9 @@
 
 #include <utility>
 #include <string>
+#include <stdexcept>
 #include "DetectorDescription/Base/interface/Singleton.h"
-#include "DetectorDescription/Base/interface/DDException.h"
+//#include "DetectorDescription/Base/interface/DDException.h"
 #include "DetectorDescription/Base/interface/Store.h"
 #include "DetectorDescription/Base/interface/rep_type.h"
 

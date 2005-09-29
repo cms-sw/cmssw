@@ -1,7 +1,7 @@
 #ifndef DDException_h
 #define DDException_h
 
-#include <string>
+/* #include <string> */
 #include<iostream>
 //#include "Utilities/GenUtil/interface/CMSexception.h"
 #include "SealBase/Error.h"

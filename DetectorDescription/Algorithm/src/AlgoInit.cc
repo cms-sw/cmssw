@@ -4,7 +4,7 @@
 ///////////////////////////////////////////////////////////////////////////
 
 
-#include "AlgoInit.h"
+#include "DetectorDescription/Algorithm/src/AlgoInit.h"
 #include "DetectorDescription/Core/interface/DDAlgo.h"
 #include "DetectorDescription/ExprAlgo/interface/AlgoPos.h"
 // include all from XML generated algorithms

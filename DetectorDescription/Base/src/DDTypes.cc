@@ -1,4 +1,4 @@
-namespace std { } using namespace std;
+
 
 #include <iostream>
 #include "DetectorDescription/Base/interface/DDTypes.h"
@@ -31,7 +31,7 @@ std::ostream & operator<<(std::ostream & os, const DDVectorArguments & t)
     for(;vit!=ved;++vit) {
       os << *vit << ' ';
     }
-    os << endl;
+    os << std::endl;
   }
   return os;
 }
@@ -41,11 +41,11 @@ std::ostream & operator<<(std::ostream & os, const DDMapArguments & t)
   DDMapArguments::const_iterator it(t.begin()), ed(t.end());
   for(; it != ed; ++it) {
     os << it->first << ": ";
-    map<std::string,double>::const_iterator mit(it->second.begin()), med(it->second.end());
+    std::map<std::string,double>::const_iterator mit(it->second.begin()), med(it->second.end());
     for(;mit!=med;++mit) {
       os << mit->first << '=' << mit->second << ' ';
     }
-    os << endl;
+    os << std::endl;
   }
   return os;
 }
@@ -59,7 +59,7 @@ std::ostream & operator<<(std::ostream & os, const DDStringVectorArguments & t)
     for(; vit!=ved; ++vit) {
      os << *vit << ' '; 
     }
-    os << endl;
+    os << std::endl;
   }
   return os;
 }
