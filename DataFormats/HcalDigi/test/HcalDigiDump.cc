@@ -13,8 +13,8 @@ namespace cms {
 
   /** \class HcalDigiDump
       
-  $Date: $
-  $Revision: $
+  $Date: 2005/08/04 18:14:11 $
+  $Revision: 1.1 $
   \author J. Mans - Minnesota
   */
   class HcalDigiDump : public edm::EDAnalyzer {
@@ -22,18 +22,6 @@ namespace cms {
     explicit HcalDigiDump(edm::ParameterSet const& conf);
     virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
   };
-
-
-
- class HDHHappySelector : public edm::Selector {
-  public:
-    HDHHappySelector() { }
-  private:
-    virtual bool doMatch(const edm::Provenance& p) const {
-      //      cout << p << endl;
-      return true;
-    }
- };
 
 
   HcalDigiDump::HcalDigiDump(edm::ParameterSet const& conf) {
@@ -44,10 +32,8 @@ namespace cms {
     std::vector<edm::Handle<HODigiCollection> > ho;
     std::vector<edm::Handle<HFDigiCollection> > hf;
     
-    HDHHappySelector s;
-    
     try {
-      e.getMany(s,hbhe);
+      e.getManyByType(hbhe);
       //      cout << "Selected " << hbhe.size() << endl;
       std::vector<edm::Handle<HBHEDigiCollection> >::iterator i;
       for (i=hbhe.begin(); i!=hbhe.end(); i++) {
@@ -61,7 +47,7 @@ namespace cms {
     }
     
     try {
-      e.getMany(s,hf);
+      e.getManyByType(hf);
       //      cout << "Selected " << hf.size() << endl;
       std::vector<edm::Handle<HFDigiCollection> >::iterator i;
       for (i=hf.begin(); i!=hf.end(); i++) {
@@ -75,7 +61,7 @@ namespace cms {
     }
     
     try {
-      e.getMany(s,ho);
+      e.getManyByType(ho);
       //      cout << "Selected " << ho.size() << endl;
       std::vector<edm::Handle<HODigiCollection> >::iterator i;
       for (i=ho.begin(); i!=ho.end(); i++) {

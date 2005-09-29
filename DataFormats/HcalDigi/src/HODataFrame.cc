@@ -15,7 +15,7 @@ namespace cms {
     hcalPresamples_(0),
     data_(MAXSAMPLES)
   {
-    // TODO : test id for HcalForward
+    // TODO : test id for HcalOuter
   }
   
   void HODataFrame::setSize(int size) {
@@ -30,6 +30,19 @@ namespace cms {
   void HODataFrame::setReadoutIds(const HcalElectronicsId& eid) {
     electronicsId_=eid;
   }
+
+  bool HODataFrame::validate(int firstSample, int nSamples) const {
+    int capid=-1;
+    bool ok=true;
+    for (int i=0; ok && i<nSamples && i+firstSample<size_; i++) {
+      if (data_[i+firstSample].er() || !data_[i+firstSample].dv()) ok=false;
+      if (i==0) capid=data_[i+firstSample].capid();
+      if (capid!=data_[i+firstSample].capid()) ok=false;
+      capid=(capid+1)%4;
+    }
+    return ok;
+  }
+
   
   std::ostream& operator<<(std::ostream& s, const HODataFrame& digi) {
     s << digi.id() << " " << digi.size() << " samples " << std::endl;
