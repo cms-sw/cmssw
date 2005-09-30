@@ -80,9 +80,51 @@ namespace edmtest {
     std::auto_ptr<DoubleProduct> p(new DoubleProduct(value_));
     e.put(p);
   }
+
+  class SCSimpleProducer : public edm::EDProducer {
+  public:
+    explicit SCSimpleProducer(edm::ParameterSet const& p) : size_(p.getParameter<int>("size")) {
+      produces<SCSimpleProduct>();
+    }
+
+    explicit SCSimpleProducer(int i) : size_(i) {
+      produces<SCSimpleProduct>();
+    }
+
+    virtual ~SCSimpleProducer() { }
+    virtual void produce(edm::Event& e, const edm::EventSetup& c);
+    
+  private:
+    int size_;  // number of Simples to put in the collection
+  };
+
+
+  void
+  SCSimpleProducer::produce(edm::Event& e, const edm::EventSetup& /* unused */) {
+    std::auto_ptr<SCSimpleProduct> p(new SCSimpleProduct(size_));
+
+    SCSimpleProduct::iterator i = p->begin();
+    SCSimpleProduct::iterator e = p->end();
+    int idx = size_;
+
+    // Fill up the collection so that it is sorted *backwards*.
+    while ( i != e )
+      {
+	i->key = 100 + size_;
+	i->value = 1.5 * i->key;
+	--idx;	  
+	++i;
+      }
+    
+    // Put the product into the Event, thus sorting it.
+    e.put(p);
+  }
 }
+
 using edmtest::IntProducer;
 using edmtest::DoubleProducer;
+using edmtest::SCSimpleProducer;
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(IntProducer)
 DEFINE_ANOTHER_FWK_MODULE(DoubleProducer)
+DEFINE_ANOTHER_FWK_MODULE(SCSimpleProducer)
