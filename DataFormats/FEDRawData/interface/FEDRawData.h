@@ -6,8 +6,8 @@
  *  corresponding to a given FED is stored. 
  *
  *
- *  $Date: 2005/07/06 16:37:54 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/09/30 08:12:56 $
+ *  $Revision: 1.2 $
  *  \author G. Bruno - CERN, EP Division
  *  \author S. Argiro - CERN and INFN - 
  *                      Refactoring and Modifications to fit into CMSSW
@@ -31,7 +31,8 @@ namespace raw{
 
     size_t size() const {return data_.size();}
     
-    // Resize to size bytes
+    /// Resize to the specified size in bytes. It is required that 
+    /// the size is a multiple of the size of a FED word (8 bytes)
     void resize(size_t size);
 
   private:
