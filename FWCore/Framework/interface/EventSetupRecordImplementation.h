@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Fri Apr  1 16:50:49 EST 2005
-// $Id: EventSetupRecordImplementation.h,v 1.6 2005/09/01 05:35:23 wmtan Exp $
+// $Id: EventSetupRecordImplementation.h,v 1.7 2005/09/01 23:30:48 wmtan Exp $
 //
 
 // system include files
@@ -42,14 +42,20 @@ class EventSetupRecordImplementation : public EventSetupRecord
 
       // ---------- const member functions ---------------------
       template< typename HolderT>
-         void get(HolderT& iHolder, const char* iName = "") const {
+         void get(HolderT& iHolder) const {
             const typename HolderT::value_type* value;
-            this->getImplementation(value, iName);
+            this->getImplementation(value, "");
             iHolder = HolderT(value);
          }
 
    template< typename HolderT>
-   void get(HolderT& iHolder, const std::string& iName) const {
+   void get(const char* iName, HolderT& iHolder) const {
+      const typename HolderT::value_type* value;
+      this->getImplementation(value, iName);
+      iHolder = HolderT(value);
+   }
+   template< typename HolderT>
+   void get(const std::string& iName, HolderT& iHolder) const {
       const typename HolderT::value_type* value;
       this->getImplementation(value, iName.c_str());
       iHolder = HolderT(value);
