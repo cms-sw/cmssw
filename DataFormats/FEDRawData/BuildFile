@@ -3,6 +3,5 @@
 
 <export>
  <lib name=DataFormatsFEDRawData>
- <use name=FWCore/EDProduct>	
-
+ <use name=FWCore/EDProduct>
 </export>
