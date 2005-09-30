@@ -125,7 +125,7 @@ namespace edmtest {
     e.put(p);
 
     // Get the product back out; it should be sorted.
-    Handle<SCSimpleProduct> h;
+    edm::Handle<SCSimpleProduct> h;
     e.getByType(h);
     assert( h.isValid() );
 
