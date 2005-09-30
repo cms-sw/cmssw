@@ -1,0 +1,12 @@
+<export>
+  <lib name=GeometryHcalTowerAlgo>
+  <use name=Geometry/CaloGeometry>
+  <use name=Geometry/CaloTopology>
+  <use name=DataFormats/HcalDetId>
+</export>
+
+<use name=Geometry/CaloGeometry>
+<use name=Geometry/CaloTopology>
+<use name=DataFormats/HcalDetId>
+<use name=clhep>
+
