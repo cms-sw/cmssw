@@ -1,0 +1,7 @@
+<use name=DataFormats/HcalDetId>
+<use name=boost>
+
+<export>
+   <lib name=GeometryCaloTopology>
+   <use name=DataFormats/HcalDetId>
+</export>
