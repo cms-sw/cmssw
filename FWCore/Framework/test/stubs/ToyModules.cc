@@ -4,9 +4,10 @@
 Toy EDProducers and EDProducts for testing purposes only.
 
 ----------------------------------------------------------------------*/
-
+#include <cassert>
 #include <stdexcept>
 #include <string>
+#include <vector>
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/EDProduct/interface/EDProduct.h"
@@ -85,10 +86,12 @@ namespace edmtest {
   public:
     explicit SCSimpleProducer(edm::ParameterSet const& p) : size_(p.getParameter<int>("size")) {
       produces<SCSimpleProduct>();
+      assert ( size_ > 1 );
     }
 
     explicit SCSimpleProducer(int i) : size_(i) {
       produces<SCSimpleProduct>();
+      assert ( size_ > 1 );
     }
 
     virtual ~SCSimpleProducer() { }
@@ -101,23 +104,43 @@ namespace edmtest {
 
   void
   SCSimpleProducer::produce(edm::Event& e, const edm::EventSetup& /* unused */) {
-    std::auto_ptr<SCSimpleProduct> p(new SCSimpleProduct(size_));
 
-    SCSimpleProduct::iterator i = p->begin();
-    SCSimpleProduct::iterator end = p->end();
-    int idx = size_;
-
-    // Fill up the collection so that it is sorted *backwards*.
-    while ( i != end )
+    // Fill up a collection so that it is sorted *backwards*.
+    std::vector<Simple> guts(size_);
+    for (int i = 0; i < size_; ++i)
       {
-	i->key = 100 + size_;
-	i->value = 1.5 * i->key;
-	--idx;	  
-	++i;
+	guts[i].key = size_ - i;
+	guts[i].value = 1.5 * i;
       }
+
+    // Verify that the vector is not sorted -- in fact, it is sorted backwards!
+    for (int i = 1; i < size_; ++i)
+      {
+	assert( guts[i-1].id() > guts[i].id());
+      }
+
+    std::auto_ptr<SCSimpleProduct> p(new SCSimpleProduct(guts));
     
     // Put the product into the Event, thus sorting it.
     e.put(p);
+
+    // Get the product back out; it should be sorted.
+    Handle<SCSimpleProduct> h;
+    e.getByType(h);
+    assert( h.isValid() );
+
+    // Check the sorting. DO NOT DO THIS IN NORMAL CODE; we are
+    // copying all the values out of the SortedCollection so we can
+    // manipulate them via an interface different from
+    // SortedCollection, just so that we can make sure the collection
+    // is sorted.
+    std::vector<Simple> after( h->begin(), h->end() );
+
+    // Verify that the vector is not sorted.
+    for (int i = 1; i < size_; ++i)
+      {
+	assert( after[i-1].id() < after[i].id());
+      }    
   }
 }
 
