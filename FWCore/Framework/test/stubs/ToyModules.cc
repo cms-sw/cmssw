@@ -104,11 +104,11 @@ namespace edmtest {
     std::auto_ptr<SCSimpleProduct> p(new SCSimpleProduct(size_));
 
     SCSimpleProduct::iterator i = p->begin();
-    SCSimpleProduct::iterator e = p->end();
+    SCSimpleProduct::iterator end = p->end();
     int idx = size_;
 
     // Fill up the collection so that it is sorted *backwards*.
-    while ( i != e )
+    while ( i != end )
       {
 	i->key = 100 + size_;
 	i->value = 1.5 * i->key;
