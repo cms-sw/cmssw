@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.1 2005/09/28 05:57:01 wmtan Exp $
+$Id: PoolSource.cc,v 1.2 2005/09/30 05:01:37 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/EDProduct/interface/EDProduct.h"
@@ -23,7 +23,7 @@ using std::auto_ptr;
 #include <iostream>
 
 namespace edm {
-  PoolSource::PoolSource(ParameterSet const& pset, InputSourceDescription const& desc) :
+  PoolRASource::PoolRASource(ParameterSet const& pset, InputSourceDescription const& desc) :
     RandomAccessInputSource(desc),
     file_(pset.getUntrackedParameter<std::string>("fileName")),
     remainingEvents_(pset.getUntrackedParameter<int>("maxEvents", -1)),
@@ -35,7 +35,7 @@ namespace edm {
     init();
   }
 
-  void PoolSource::init() {
+  void PoolRASource::init() {
     ClassFiller();
 
     std::string const wrapperBegin("edm::Wrapper<");
@@ -84,7 +84,7 @@ namespace edm {
     }
   }
 
-  PoolSource::~PoolSource() {
+  PoolRASource::~PoolRASource() {
   }
 
   // read() is responsible for creating, and setting up, the
@@ -101,7 +101,7 @@ namespace edm {
   //  when it is asked to do so.
   //
   auto_ptr<EventPrincipal>
-  PoolSource::read() {
+  PoolRASource::read() {
     // If we're done, or out of range, return a null auto_ptr
     if (remainingEvents_ == 0 || entryNumber_ >= entries_ || entryNumber_ < 0) {
       return auto_ptr<EventPrincipal>(0);
@@ -146,7 +146,7 @@ namespace edm {
   }
 
   auto_ptr<EventPrincipal>
-  PoolSource::read(EventID const& id) {
+  PoolRASource::read(EventID const& id) {
     // For now, don't support multiple runs.
     assert (id.run() == eventID_.run());
     // For now, assume EventID's are all there.
@@ -156,14 +156,14 @@ namespace edm {
   }
 
   void
-  PoolSource::skip(int offset) {
+  PoolRASource::skip(int offset) {
     entryNumber_ += offset;
   }
 
-  PoolSource::PoolDelayedReader::~PoolDelayedReader() {}
+  PoolRASource::PoolDelayedReader::~PoolDelayedReader() {}
 
   auto_ptr<EDProduct>
-  PoolSource::PoolDelayedReader::get(BranchKey const& k) const {
+  PoolRASource::PoolDelayedReader::get(BranchKey const& k) const {
     TBranch *br = branches().find(k)->second.second;
     TClass *cp = gROOT->GetClass(branches().find(k)->second.first.c_str());
     auto_ptr<EDProduct> p(static_cast<EDProduct *>(cp->New()));

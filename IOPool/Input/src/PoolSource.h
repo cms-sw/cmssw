@@ -5,7 +5,7 @@
 
 PoolSource: This is an InputSource
 
-$Id: PoolSource.h,v 1.11 2005/09/15 16:33:09 wmtan Exp $
+$Id: PoolSource.h,v 1.1 2005/09/28 05:57:01 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -28,7 +28,7 @@ namespace seal { class Status; }
 namespace edm {
 
   class ParameterSet;
-  class PoolSource : public RandomAccessInputSource {
+  class PoolRASource : public RandomAccessInputSource {
   public:
     typedef std::map<BranchKey, std::pair<std::string, TBranch *> > BranchMap;
     typedef Long64_t EntryNumber;
@@ -39,20 +39,20 @@ namespace edm {
 
     class PoolDelayedReader : public DelayedReader {
     public:
-      PoolDelayedReader(EntryNumber const& entry, PoolSource const& serv) : entryNumber_(entry), inputSource(&serv) {}
+      PoolDelayedReader(EntryNumber const& entry, PoolRASource const& serv) : entryNumber_(entry), inputSource(&serv) {}
       virtual ~PoolDelayedReader();
       virtual std::auto_ptr<EDProduct> get(BranchKey const& k) const;
       BranchMap const& branches() const {return inputSource->branches_;}
     private:
       EntryNumber const entryNumber_;
-      PoolSource const* inputSource;
-    }; // class PoolSource::PoolDelayedReader
+      PoolRASource const* inputSource;
+    }; // class PoolRASource::PoolDelayedReader
     //------------------------------------------------------------
 
   public:
     friend class PoolDelayedReader;
-    explicit PoolSource(ParameterSet const& pset, InputSourceDescription const& desc);
-    virtual ~PoolSource();
+    explicit PoolRASource(ParameterSet const& pset, InputSourceDescription const& desc);
+    virtual ~PoolRASource();
 
   private:
     std::map<ProductID, ProductDescription> productMap;
@@ -69,6 +69,6 @@ namespace edm {
     virtual std::auto_ptr<EventPrincipal> read(EventID const& id);
     virtual void skip(int offset);
     void init();
-  }; // class PoolSource
+  }; // class PoolRASource
 }
 #endif
