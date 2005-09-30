@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EventStreamInput.cc,v 1.8 2005/09/15 16:02:44 jbk Exp $
+$Id: EventStreamInput.cc,v 1.9 2005/09/28 05:38:11 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Streamer/interface/EventStreamInput.h"
@@ -7,7 +7,7 @@ $Id: EventStreamInput.cc,v 1.8 2005/09/15 16:02:44 jbk Exp $
 #include "IOPool/Streamer/interface/ClassFiller.h"
 
 #include "FWCore/EDProduct/interface/EDProduct.h"
-#include "FWCore/Framework/src/DebugMacros.h"
+#include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Framework/interface/BranchKey.h"
 #include "FWCore/Framework/interface/EventAux.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
@@ -69,7 +69,7 @@ namespace edm
 	FDEBUG(6) << "StreamInput product = " << i->fullClassName_ << endl;
       }
 
-    fillStreamers(*pr_);
+    // fillStreamers(*pr_);
 
     // this is not good - delay setting send_event_ until now,
     // so this class cannot be used properly without the header

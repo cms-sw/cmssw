@@ -1,7 +1,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: EventStreamOutput.cc,v 1.3 2005/08/26 20:57:16 jbk Exp $
+// $Id: EventStreamOutput.cc,v 1.4 2005/09/15 16:02:44 jbk Exp $
 //
 // Class EventStreamOutput module
 //
@@ -9,7 +9,7 @@
 
 #include "FWCore/Framework/interface/Provenance.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
-#include "FWCore/Framework/src/DebugMacros.h"
+#include "FWCore/Utilities/interface/DebugMacros.h"
 #include "IOPool/Streamer/interface/EventStreamOutput.h"
 #include "IOPool/Streamer/interface/StreamedProducts.h"
 #include "IOPool/Streamer/interface/ClassFiller.h"
@@ -17,7 +17,6 @@
 #include "PluginManager/PluginCapabilities.h"
 #include "SealBase/SharedLibrary.h"
 
-#include "RootStorageSvc/CINTType.h"
 #include "StorageSvc/IOODatabaseFactory.h"
 #include "StorageSvc/IClassLoader.h"
 #include "StorageSvc/DbType.h"
@@ -81,7 +80,7 @@ namespace edm
     prod_reg_len_()
   {
     FDEBUG(6) << "StreamOutput constructor" << endl;
-    fillStreamers(reg);
+    //fillStreamers(reg);
     loadExtraClasses();
     tc_ = getTClass(typeid(SendEvent));
     // serializeRegistry(reg); // now called directed from beginJob()
