@@ -168,13 +168,13 @@ void testEventsetupRecord::getTest()
    dummyRecord.add(workingDataKey,
                     &workingProxy);
 
-   dummyRecord.get(dummyPtr, "working");
+   dummyRecord.get("working",dummyPtr);
    
    CPPUNIT_ASSERT(&(*dummyPtr) == &myDummy);
 
    const std::string workingString("working");
    
-   dummyRecord.get(dummyPtr, workingString);
+   dummyRecord.get(workingString,dummyPtr);
    CPPUNIT_ASSERT(&(*dummyPtr) == &myDummy);
 }
 
