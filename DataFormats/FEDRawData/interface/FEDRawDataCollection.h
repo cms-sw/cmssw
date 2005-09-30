@@ -6,8 +6,8 @@
  *  
  *  Reference: DaqPrototype/DaqPersistentData/interface/DaqFedOpaqueData.h
  *
- *  $Date: 2005/04/11 14:34:45 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/07/06 16:37:54 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -20,10 +20,6 @@ namespace raw{
 
   class FEDRawDataCollection  {
   public:
-
-    // obviously will need to get this parameter from somewhere
-    static const unsigned int lastfedid = 1023;
-
     FEDRawDataCollection();
 
     virtual ~FEDRawDataCollection();
