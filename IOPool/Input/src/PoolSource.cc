@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.27 2005/09/15 16:33:09 wmtan Exp $
+$Id: PoolSource.cc,v 1.1 2005/09/28 05:57:01 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/EDProduct/interface/EDProduct.h"
@@ -10,7 +10,7 @@ $Id: PoolSource.cc,v 1.27 2005/09/15 16:33:09 wmtan Exp $
 #include "FWCore/Framework/interface/ProductRegistry.h"
 #include "IOPool/Input/src/PoolSource.h"
 #include "IOPool/CommonService/interface/PoolNames.h"
-#include "IOPool/Streamer/interface/ClassFiller.h"
+#include "IOPool/CommonService/interface/ClassFiller.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "TFile.h"
@@ -36,13 +36,7 @@ namespace edm {
   }
 
   void PoolSource::init() {
-    loadClass(getClassLoader(), typeid(EventAux));
-    loadClass(getClassLoader(), typeid(BranchKey));
-    loadClass(getClassLoader(), typeid(ProductDescription));
-    loadClass(getClassLoader(), typeid(EventProductDescription));
-    loadClass(getClassLoader(), typeid(Provenance));
-    loadClass(getClassLoader(), typeid(EventProvenance));
-    loadClass(getClassLoader(), typeid(ProductRegistry));
+    ClassFiller();
 
     std::string const wrapperBegin("edm::Wrapper<");
     std::string const wrapperEnd1(">");
@@ -83,7 +77,6 @@ namespace edm {
       std::string const className = wrapperBegin + name + wrapperEnd;
       branches_.insert(std::make_pair(it->first, std::make_pair(className, branch)));
     }
-    fillStreamers(*preg_);
 
     for (ProductRegistry::ProductList::const_iterator it = preg_->productList().begin();
          it != preg_->productList().end(); ++it) {

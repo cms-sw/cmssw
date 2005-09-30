@@ -1,13 +1,13 @@
 <flags SEAL_PLUGIN_NAME="IOPoolSecondaryInput">
 <use name=FWCore/Framework>
-<use name=IOPool/Streamer>
+<use name=IOPool/CommonService>
 <use name=boost>
 <use name=root>
 <use name=rootcore>
 <export>
  <lib name=IOPoolSecondaryInput>
  <use name=FWCore/Framework>
- <use name=IOPool/Streamer>
+ <use name=IOPool/CommonService>
  <use name=boost>
  <use name=root>
  <use name=rootcore>

@@ -1,7 +1,6 @@
 <flags SEAL_PLUGIN_NAME="IOPoolInput">
 <use name=FWCore/Framework>
 <use name=IOPool/CommonService>
-<use name=IOPool/Streamer>
 <use name=boost>
 <use name=root>
 <use name=rootcore>
@@ -9,7 +8,6 @@
  <lib name=IOPoolInputService>
  <use name=FWCore/Framework>
  <use name=IOPool/CommonService>
- <use name=IOPool/Streamer>
  <use name=boost>
  <use name=root>
  <use name=rootcore>
