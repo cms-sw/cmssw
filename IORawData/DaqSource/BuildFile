@@ -1,0 +1,12 @@
+<export>
+ <lib name=IORawDataDaqSource>
+ <use name=FWCore/Framework>
+ <use name=DataFormats/FEDRawData>
+</export>
+
+<use name=FWCore/Framework>
+<use name=DataFormats/FEDRawData>
+<use name=CLHEP>
+
+
+<flags SEAL_PLUGIN_NAME="IORawDataDaqSource">
