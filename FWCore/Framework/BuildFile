@@ -2,7 +2,7 @@
 <use name=boost>
 <use name=Foundation/PluginManager>
 <use name=Framework/SealKernel>
-<use name=Dictionary/ReflectionBuilder>
+<use name=Dictionary/Reflex>
 <use name=FWCore/EDProduct>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Utilities>
@@ -12,7 +12,7 @@
  <use name=boost>
  <use name=Foundation/PluginManager>
  <use name=Framework/SealKernel>
- <use name=Dictionary/ReflectionBuilder>
+ <use name=Dictionary/Reflex>
  <use name=FWCore/EDProduct>
  <use name=FWCore/ParameterSet>
  <use name=FWCore/Utilities>
