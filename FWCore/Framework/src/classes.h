@@ -16,5 +16,6 @@ namespace{
 	edm::Wrapper<edmtest::IntProduct> dummy1;
 	edm::Wrapper<edmtest::DoubleProduct> dummy2;
 	edm::Wrapper<edmtest::StringProduct> dummy3;
+	edm::Wrapper<edmtest::SCSimpleProduct> dummy4;
 }
 }

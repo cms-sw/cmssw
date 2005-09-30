@@ -20,8 +20,11 @@
  <class name="edmtest::IntProduct"/>
  <class name="edmtest::DoubleProduct"/>
  <class name="edmtest::StringProduct"/>
+ <class name="edmtest::Simple"/>
+ <class name="edm::SortedCollection<edmtest::Simple, edm::StrictWeakOrdering<edmtest::Simple> >"/>
  <class name="edm::Wrapper<edmtest::DummyProduct>" id="2F54CDD5-1291-5872-9E23-1A5316972B07"/>
  <class name="edm::Wrapper<edmtest::IntProduct>" id="4C40AEA5-732D-1A3B-997F-F9B0050E7434"/>
  <class name="edm::Wrapper<edmtest::DoubleProduct>" id="328376BF-A2BE-9808-0517-5370C57B7E5F"/>
  <class name="edm::Wrapper<edmtest::StringProduct>" id="DB678ADB-1C12-CF11-1844-D7CE2BAFA892"/>
+ <class name="edm::Wrapper<edm::SortedCollection<edmtest::Simple, edm::StrictWeakOrdering<edmtest::Simple> > >" id="DB678ADB-1C12-CF11-1844-D7CE2BCFA892"/>
 </lcgdict>

@@ -6,7 +6,7 @@
 Event: This is the primary interface for accessing
 EDProducts from a single collision and inserting new derived products.
 
-$Id: Event.h,v 1.19 2005/09/01 23:56:11 wmtan Exp $
+$Id: Event.h,v 1.20 2005/09/02 23:08:30 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
@@ -19,8 +19,11 @@ $Id: Event.h,v 1.19 2005/09/01 23:56:11 wmtan Exp $
 
 #include "FWCore/EDProduct/interface/EventID.h"
 #include "FWCore/EDProduct/interface/Timestamp.h"
+#include "FWCore/EDProduct/interface/traits.h"
+
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/BasicHandle.h"
+
 
 #include "FWCore/Framework/src/Group.h"
 #include "FWCore/Framework/src/TypeID.h"
@@ -176,6 +179,89 @@ namespace edm {
 
 
   //------------------------------------------------------------
+  // Metafunction support for compile-time selection of code used in
+  // Event::put member template.
+  //
+
+  // has_postinsert is a metafunction of one argument, the type T.  As
+  // with many metafunctions, it is implemented as a class with a data
+  // member 'value', which contains the value 'returned' by the
+  // metafunction.
+  //
+  // has_postinsert<T>::value is 'true' if T has the post_insert
+  // member function (with the right signature), and 'false' if T has
+  // no such member function.
+
+  namespace detail 
+  {
+  //------------------------------------------------------------
+  // WHEN WE MOVE to a newer compiler version, the following code
+  // should be activated. This code causes compilation failures under
+  // GCC 3.2.3, because of a compiler error in dealing with our
+  // application of SFINAE. GCC 3.4.2 is known to deal with this code
+  // correctly.
+  //------------------------------------------------------------
+#if 0
+    typedef char (& no_tag )[1]; // type indicating FALSE
+    typedef char (& yes_tag)[2]; // type indicating TRUE
+
+    // Definitions forthe following struct and function templates are
+    // not needed; we only require the declarations.
+    template <typename T, void (T::*)()>  struct ptmf_helper;
+    template <typename T> no_tag  has_postinsert_helper(...);
+    template <typename T> yes_tag has_postinsert_helper(ptmf_helper<T, &T::post_insert> * p);
+
+    template< typename T >
+    struct has_postinsert
+    {
+      static bool const value = 
+	sizeof(has_postinsert_helper<T>(0)) == sizeof(yes_tag);
+    };
+#else
+    //------------------------------------------------------------
+    // THE FOLLOWING SHOULD BE REMOVED when we move to a newer
+    // compiler; see the note above.
+    //------------------------------------------------------------
+
+    //------------------------------------------------------------
+    // The definition of the primary template should be in its own
+    // header, in EDProduct; this is because anyone who specializes
+    // this template has to include the declaration of the primary
+    // template.
+    //------------------------------------------------------------
+
+
+    template< typename T >
+    struct has_postinsert
+    {
+      static bool const value = has_postinsert_trait<T>::value;	
+    };
+
+#endif
+  }
+
+
+
+  //------------------------------------------------------------
+
+  // The following function objects are used by Event::put, under the
+  // control of a metafunction if, to either call the given object's
+  // post_insert function (if it has one), or to do nothing (if it
+  // does not have a post_insert function).
+  template <class T>
+  struct DoPostInsert
+  {
+    void operator()(T* p) const { p->post_insert(); }
+  };
+
+  template <class T>
+  struct DoNothing
+  {
+    void operator()(T*) const { }
+  };
+
+
+  //------------------------------------------------------------
   //
   // Implementation of  Event  member templates. See  Event.cc for the
   // implementation of non-template members.
@@ -195,6 +281,14 @@ namespace edm {
   {
     PROD* p = product.get();
     assert (p);                // null pointer is illegal
+
+    // The following will call post_insert if T has such a function,
+    // and do nothing if T has no such function.
+    typename boost::mpl::if_c<detail::has_postinsert<PROD>::value, 
+                              DoPostInsert<PROD>, 
+                              DoNothing<PROD> >::type maybe_inserter;
+    maybe_inserter(p);
+
     edm::Wrapper<PROD> *wp(new Wrapper<PROD>(*p));
     put_products_.push_back(std::make_pair(wp, productInstanceName));
     product.release();

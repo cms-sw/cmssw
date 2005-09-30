@@ -10,6 +10,8 @@ Toy EDProducts for testing purposes only.
 #include <stdexcept>
 #include <string>
 
+#include "FWCore/EDProduct/interface/SortedCollection.h"
+
 namespace edmtest
 {
 
@@ -40,6 +42,16 @@ namespace edmtest
     explicit StringProduct(const std::string& s):name_(s){}
     std::string name_;
   };
+
+  struct Simple
+  {
+    typedef int key_type;
+    key_type    key;
+    double      value;
+    key_type id() const { return key; }
+  };
+
+  typedef edm::SortedCollection<Simple> SCSimpleProduct;
 
 }
 #endif

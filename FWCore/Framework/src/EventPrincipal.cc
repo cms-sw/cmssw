@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EventPrincipal.cc,v 1.24 2005/09/01 23:56:11 wmtan Exp $
+$Id: EventPrincipal.cc,v 1.25 2005/09/28 05:12:28 wmtan Exp $
 ----------------------------------------------------------------------*/
 //#include <iostream>
 #include <memory>
@@ -21,8 +21,8 @@ namespace edm {
     typeDict_(),
     preg_(0),
     store_()
-  {
-  }
+  { }
+
 
   EventPrincipal::EventPrincipal(EventID const& id,
 				 Timestamp const& time,
@@ -51,6 +51,11 @@ namespace edm {
   Timestamp
   EventPrincipal::time() const {
     return aux_.time_;
+  }
+
+  unsigned long
+  EventPrincipal::numEDProducts() const {
+    return groups_.size();
   }
    
   void 

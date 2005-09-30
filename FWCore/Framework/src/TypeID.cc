@@ -1,11 +1,11 @@
 /*----------------------------------------------------------------------
   
-$Id: TypeID.cc,v 1.6 2005/07/14 22:50:53 wmtan Exp $
+$Id: TypeID.cc,v 1.7 2005/09/30 04:59:45 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <ostream>
 #include "FWCore/Framework/src/TypeID.h"
-#include "Reflex/Type.h"
+#include "Reflection/Class.h"
 #include <string>
 
 namespace edm {
@@ -16,8 +16,12 @@ namespace edm {
 
   std::string
   TypeID::reflectionClassName() const {
-    seal::reflex::Type t = seal::reflex::Type::byTypeInfo(t_);
-    return t.name(seal::reflex::SCOPED);
+    seal::reflect::Class const * c = seal::reflect::Class::forTypeinfo(t_);
+    if (c == 0) {
+      throw edm::Exception(edm::errors::Configuration,"MissingType")
+	<< "No SEAL Reflection entry for class: " << t_.name();
+    }
+    return c->fullName();
   }
 
   std::string 
