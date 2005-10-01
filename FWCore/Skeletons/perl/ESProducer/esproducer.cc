@@ -35,12 +35,12 @@
 // class decleration
 //
 
-class prodname : public edm::eventsetup::ESProducer {
+class prodname : public edm::ESProducer {
    public:
       prodname(const edm::ParameterSet&);
       ~prodname();
 
-      typedef @perl if( 1 eq scalar( @::datatypes ) ) { $result="std::auto_ptr<$::datatypes[0]>"; } else { $result="edm::eventsetup::ESProducts<"; $line = 0; foreach $type ( @::datatypes ) { if ($line) { $result = "$result, "; } $result= "$result $type";  $line =1;} $result="$result>"; }  @\perl ReturnType;
+      typedef @perl if( 1 eq scalar( @::datatypes ) ) { $result="std::auto_ptr<$::datatypes[0]>"; } else { $result="edm::ESProducts<"; $line = 0; foreach $type ( @::datatypes ) { if ($line) { $result = "$result, "; } $result= "$result $type";  $line =1;} $result="$result>"; }  @\perl ReturnType;
 
       ReturnType produce(const recordname&);
    private:
@@ -85,7 +85,7 @@ prodname::~prodname()
 prodname::ReturnType
 prodname::produce(const recordname& iRecord)
 {
-   using namespace edm::eventsetup;
+   using namespace edm::es;
 @perl $result=""; foreach $type (@::datatypes) {$result ="$result   std::auto_ptr<$type> p$type ;\n";} @\perl
 
    return @perl if( 1 eq scalar( @::datatypes ) ) { $result="p$::datatypes[0]" } else { $result="products("; $line = 0; foreach $type ( @::datatypes ) { if ($line) { $result = "$result,"; } $result= "$result $type"; $line +=1; } $result="$result)"; }  @\perl ;
