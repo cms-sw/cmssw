@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Sat Apr 16 10:19:37 EDT 2005
-// $Id: ESProducer.cc,v 1.2 2005/06/23 19:59:48 wmtan Exp $
+// $Id: ESProducer.cc,v 1.3 2005/07/14 22:50:53 wmtan Exp $
 //
 
 // system include files
@@ -21,7 +21,6 @@
 // constants, enums and typedefs
 //
 namespace edm {
-   namespace eventsetup {
 //
 // static data member definitions
 //
@@ -65,5 +64,4 @@ ESProducer::~ESProducer()
 //
 // static member functions
 //
-   }
 }

@@ -26,7 +26,7 @@
 
 Example: one algorithm creating only one object
 \code
-    class FooProd : public edm::eventsetup::ESProducer {
+    class FooProd : public edm::ESProducer {
        std::auto_ptr<Foo> produce(const FooRecord&);
        ...
     };
@@ -37,8 +37,8 @@ Example: one algorithm creating only one object
 \endcode
 Example: one algorithm creating two objects
 \code
-   class FoosProd : public edm::eventsetup::ESProducer {
-      edm::eventsetup::ESProducts<std::auto_ptr<Foo1>, std::auto_ptr<Foo2> > produce(const FooRecord&);
+   class FoosProd : public edm::ESProducer {
+      edm::ESProducts<std::auto_ptr<Foo1>, std::auto_ptr<Foo2> > produce(const FooRecord&);
       ...
    };
 \endcode
@@ -66,7 +66,7 @@ Example: two algorithms each creating only one objects
 //
 // Author:      Chris Jones
 // Created:     Thu Apr  7 17:08:14 CDT 2005
-// $Id: ESProducer.h,v 1.11 2005/09/01 23:30:48 wmtan Exp $
+// $Id: ESProducer.h,v 1.12 2005/09/30 20:48:10 chrjones Exp $
 //
 
 // system include files
@@ -94,8 +94,8 @@ namespace edm {
       inline const TDecorator& createDecoratorFrom(T*, const TRecord*, const TDecorator& iDec) {
          return iDec;
       };
-      
-class ESProducer : public ProxyFactoryProducer
+   }
+class ESProducer : public eventsetup::ProxyFactoryProducer
 {
 
    public:
@@ -147,7 +147,7 @@ class ESProducer : public ProxyFactoryProducer
          void setWhatProduced(T* iThis, 
                               TReturn (T ::* iMethod)(const TRecord&),
                               const es::Label& iLabel = es::Label()) {
-            setWhatProduced(iThis, iMethod, CallbackSimpleDecorator<TRecord>(),iLabel);
+            setWhatProduced(iThis, iMethod, eventsetup::CallbackSimpleDecorator<TRecord>(),iLabel);
          }
       /** \param iThis the 'this' pointer to an inheriting class instance
          \param iMethod a member method of then inheriting class
@@ -161,18 +161,18 @@ class ESProducer : public ProxyFactoryProducer
                               const TArg& iDec,
                               const es::Label& iLabel = es::Label()) {
             using namespace boost;
-            boost::shared_ptr<Callback<T,TReturn,TRecord, typename DecoratorFromArg<T, TRecord, TArg>::Decorator_t > >
-                   callback(new Callback<T,
+            boost::shared_ptr<eventsetup::Callback<T,TReturn,TRecord, typename eventsetup::DecoratorFromArg<T, TRecord, TArg>::Decorator_t > >
+            callback(new eventsetup::Callback<T,
                                           TReturn,
                                           TRecord, 
-                                          typename DecoratorFromArg<T,TRecord,TArg>::Decorator_t>(
+                                          typename eventsetup::DecoratorFromArg<T,TRecord,TArg>::Decorator_t>(
                                                                iThis, 
                                                                iMethod, 
                                                                createDecoratorFrom(iThis, 
                                                                                     static_cast<const TRecord*>(0),
                                                                                     iDec)));
             registerProducts(callback,
-                             static_cast<const typename produce::product_traits<TReturn>::type *>(0),
+                             static_cast<const typename eventsetup::produce::product_traits<TReturn>::type *>(0),
                              static_cast<const TRecord*>(0),
                              iLabel);
             //BOOST_STATIC_ASSERT((boost::is_base_and_derived<ED, T>::type));
@@ -208,15 +208,15 @@ class ESProducer : public ProxyFactoryProducer
             registerProducts(iCallback, static_cast<const typename TList::head_type*>(0), iRecord, iLabel);
          };
       template<typename T, typename TRecord>
-         void registerProducts(boost::shared_ptr<T>, const produce::Null*, const TRecord*,const es::Label&) {
+         void registerProducts(boost::shared_ptr<T>, const eventsetup::produce::Null*, const TRecord*,const es::Label&) {
             //do nothing
          };
       
       
       template<typename T, typename TProduct, typename TRecord>
          void registerProduct(boost::shared_ptr<T> iCallback, const TProduct*, const TRecord*,const es::Label& iLabel) {
-            registerFactory(new ProxyArgumentFactoryTemplate<
-                            CallbackProxy<T, TRecord, TProduct>, boost::shared_ptr<T> >(iCallback),
+            registerFactory(new eventsetup::ProxyArgumentFactoryTemplate<
+                            eventsetup::CallbackProxy<T, TRecord, TProduct>, boost::shared_ptr<T> >(iCallback),
                             iLabel.default_);
          };
       
@@ -227,8 +227,8 @@ class ESProducer : public ProxyFactoryProducer
                throw edm::Exception(errors::Configuration, "Unnamed Label")
                <<"the index "<<IIndex<<" was never assigned a name in the 'setWhatProduced' method";
             }
-            registerFactory(new ProxyArgumentFactoryTemplate<
-                            CallbackProxy<T, TRecord, es::L<TProduct,IIndex> >, boost::shared_ptr<T> >(iCallback),
+            registerFactory(new eventsetup::ProxyArgumentFactoryTemplate<
+                            eventsetup::CallbackProxy<T, TRecord, es::L<TProduct,IIndex> >, boost::shared_ptr<T> >(iCallback),
                             iLabel.labels_[IIndex]);
          };
       
@@ -237,6 +237,5 @@ class ESProducer : public ProxyFactoryProducer
       //std::vector<boost::shared_ptr<CallbackBase> > callbacks_;
       
 };
-   }
 }
 #endif
