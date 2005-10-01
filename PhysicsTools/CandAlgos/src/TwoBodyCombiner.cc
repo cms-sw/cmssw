@@ -1,4 +1,4 @@
-// $Id: TwoBodyCombiner.cc,v 1.1 2005/07/29 07:22:52 llista Exp $
+// $Id: TwoBodyCombiner.cc,v 1.2 2005/08/30 10:44:40 llista Exp $
 
 #include "PhysicsTools/CandAlgos/src/TwoBodyCombiner.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -11,7 +11,7 @@ TwoBodyCombiner::TwoBodyCombiner( const ParameterSet & p ) :
   mass2max( p.getParameter<double>( "massMax" ) ),
   checkCharge( p.getParameter<bool>( "checkCharge" ) ),
   charge( 0 ),
-  overlap( TrackOverlapChecker() ) {
+  overlap() {
   produces<Candidates>();
   if ( checkCharge ) charge = p.getParameter<int>( "charge" );
   mass2min *= mass2min;

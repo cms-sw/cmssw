@@ -1,10 +1,10 @@
 #ifndef PHYSICSTOOLS_TWOBODYCOMBINER_H
 #define PHYSICSTOOLS_TWOBODYCOMBINER_H
-// $Id: TwoBodyCombiner.h,v 1.1 2005/07/14 11:49:08 llista Exp $
+// $Id: TwoBodyCombiner.h,v 1.1 2005/07/29 07:22:52 llista Exp $
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "PhysicsTools/Candidate/interface/Candidate.h"
+#include "PhysicsTools/Candidate/interface/Overlap.h"
 #include "PhysicsTools/CandUtils/interface/AddFourMomenta.h"
-#include "PhysicsTools/DSTCandUtils/interface/TrackOverlap.h"
 
 namespace edm {
   class ParameterSet;
@@ -28,7 +28,7 @@ namespace phystools {
     bool checkCharge;
     int charge;
     AddFourMomenta addp4;
-    TrackOverlap overlap;
+    Overlap overlap;
   };
 }
 
