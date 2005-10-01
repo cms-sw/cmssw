@@ -57,8 +57,8 @@ namespace callbacktest {
    };
    
    struct PtrProductsProd {
-      edm::eventsetup::produce::ESProducts<const Data*, const Double*> method(const Record&) {
-         using namespace edm::eventsetup::produce;
+      edm::ESProducts<const Data*, const Double*> method(const Record&) {
+         using namespace edm::es;
          const Data* dataT = &data_;
          const Double* doubleT = &double_;
          ++data_.value_;
@@ -195,7 +195,7 @@ void testCallback::sharedPtrTest()
    
 }
 
-typedef Callback<PtrProductsProd, edm::eventsetup::produce::ESProducts<const Data*, const Double*>, Record> PtrProductsCallback;
+typedef Callback<PtrProductsProd, edm::ESProducts<const Data*, const Double*>, Record> PtrProductsCallback;
 
 void testCallback::ptrProductsTest()
 {
