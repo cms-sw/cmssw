@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 14:33:04 EDT 2005
-// $Id: WhatsItESProducer.cc,v 1.4 2005/09/01 03:59:08 wmtan Exp $
+// $Id: WhatsItESProducer.cc,v 1.5 2005/09/28 23:41:43 wmtan Exp $
 //
 //
 
@@ -37,7 +37,7 @@
 //
 namespace edmreftest {
 
-class WhatsItESProducer : public edm::eventsetup::ESProducer {
+class WhatsItESProducer : public edm::ESProducer {
    public:
       WhatsItESProducer(const edm::ParameterSet&);
       ~WhatsItESProducer();
