@@ -18,6 +18,7 @@
 
 using edm::eventsetup::test::DummyData;
 using namespace edm::eventsetup;
+using edm::ESProducer;
 
 class testEsproducer: public CppUnit::TestFixture 
 {
@@ -76,7 +77,7 @@ private:
 class LabelledProducer : public ESProducer {
 public:
    enum {kFi, kFum};
-   typedef edm::eventsetup::produce::ESProducts< edm::es::L<DummyData,kFi>, edm::es::L<DummyData,kFum> > ReturnProducts;
+   typedef edm::ESProducts< edm::es::L<DummyData,kFi>, edm::es::L<DummyData,kFum> > ReturnProducts;
    LabelledProducer(): ptr_(new DummyData), fi_(new DummyData){
       ptr_->value_ = 0;
       fi_->value_=0;
@@ -98,7 +99,7 @@ public:
       L<DummyData,kFum> fum( new DummyData);
       fum->value_ = fi_->value_;
       
-      return edm::eventsetup::produce::products(fum, es::l<kFi>(fi_) );
+      return edm::es::products(fum, es::l<kFi>(fi_) );
    }
 private:
    boost::shared_ptr<DummyData> ptr_;
