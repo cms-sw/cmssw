@@ -7,16 +7,18 @@
 // 
 /**\class ESProducts ESProducts.h FWCore/Framework/interface/ESProducts.h
 
- Description: <one line class summary>
+ Description: Container for multiple products created by an ESProducer
 
  Usage:
-    <usage>
+    This is used as a return type from the produce method of an ESProducer.  Users are not anticipated to ever need
+ to directly use this class.  Instead, to create an instance of the class at method return time, they should call
+ the helper function es::products or 'output' the values to es::produced via the '<<' operator.
 
 */
 //
 // Author:      Chris Jones
 // Created:     Sun Apr 17 17:30:46 EDT 2005
-// $Id: ESProducts.h,v 1.6 2005/09/01 23:30:48 wmtan Exp $
+// $Id: ESProducts.h,v 1.7 2005/09/12 19:54:20 chrjones Exp $
 //
 
 // system include files
@@ -28,7 +30,7 @@
 namespace edm {
    namespace eventsetup {      
       namespace produce {
-         extern struct Produce {} produced;
+         struct Produce {};
          
          template< typename T> struct OneHolder {
             OneHolder() {}
@@ -161,28 +163,41 @@ namespace edm {
                typedef Null tail_type;
                typedef Null head_type;
             };
-         
-         template<typename T1, typename T2 = Null, typename T3 = Null >
-            struct ESProducts : public ProductHolder<T1, T2, T3> {
-               template<typename S1, typename S2, typename S3>
-               ESProducts(const ESProducts<S1, S2, S3>& iProducts) {
-                  setAllValues(const_cast<ESProducts<S1, S2, S3>&>(iProducts));
-               }
-               template<typename T>
-               explicit ESProducts(const T& iValues) {
-                  setAllValues(const_cast<T&>(iValues));
-               }
-            };
-         
-         template<typename T, typename S>
-            ESProducts<T,S> products(const T& i1, const S& i2) {
-               return ESProducts<T,S>(produced << i1 << i2);
-            }
+      }
+   }
+   template<typename T1, typename T2 = eventsetup::produce::Null, typename T3 = eventsetup::produce::Null >
+   struct ESProducts : public eventsetup::produce::ProductHolder<T1, T2, T3> {
+      template<typename S1, typename S2, typename S3>
+      ESProducts(const ESProducts<S1, S2, S3>& iProducts) {
+         setAllValues(const_cast<ESProducts<S1, S2, S3>&>(iProducts));
+      }
+      template<typename T>
+      /*explicit*/ ESProducts(const T& iValues) {
+         setAllValues(const_cast<T&>(iValues));
+      }
+   };
+
+   namespace es {
+      extern eventsetup::produce::Produce produced;
+
+      template<typename T, typename S>
+      ESProducts<T,S> products(const T& i1, const S& i2) {
+         return ESProducts<T,S>(produced << i1 << i2);
+      }
+
+      template<typename T, typename S, typename U>
+         ESProducts<T,S, U> products(const T& i1, const S& i2, const U& i3) {
+            return ESProducts<T,S,U>(produced << i1 << i2 << i3);
+         }
+   }
+   
+   namespace eventsetup {
+      namespace produce {
          template<typename T1, typename T2, typename T3, typename ToT> 
-            void copyFromTo(ESProducts<T1,T2,T3>& iFrom,
-                            ToT& iTo) {
-               iFrom.assignTo(iTo);
-            }
+         void copyFromTo(ESProducts<T1,T2,T3>& iFrom,
+                         ToT& iTo) {
+            iFrom.assignTo(iTo);
+         }
       }
    }
 }
