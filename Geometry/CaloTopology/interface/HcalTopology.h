@@ -3,11 +3,10 @@
 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
-namespace cms {
 /** \class HcalTopology
     
-   $Date: $
-   $Revision: $
+   $Date: 2005/09/30 03:16:11 $
+   $Revision: 1.2 $
    \author J. Mans - Minnesota
 */
 class HcalTopology {
@@ -75,6 +74,5 @@ private:
 
 };
 
-}
 
 #endif

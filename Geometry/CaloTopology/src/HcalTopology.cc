@@ -2,7 +2,6 @@
 #include <cmath>
 #include <iostream>
 
-namespace cms {
 
   static const int IPHI_MAX=72;
 
@@ -14,7 +13,7 @@ namespace cms {
     firstHFRing_(29),
     lastHFRing_(41),
     firstHORing_(1),
-    lastHORing_(16),
+    lastHORing_(15),
     firstHEDoublePhiRing_(21),
     firstHETripleDepthRing_(27),
     singlePhiBins_(72),
@@ -41,7 +40,7 @@ namespace cms {
      ieta=40-41 have 18 in iphi
      all have two depths
 
-  HO has 15 towers in ieta and 72 in iphi and depth = 1
+  HO has 15 towers in ieta and 72 in iphi and depth = 4 (one value)
   */
 
   /** Is this a valid cell id? */
@@ -67,7 +66,7 @@ namespace cms {
 	    ((aieta==27 || aieta==28) && depth>3) ||
 	    (aieta>=21 && (iphi%2)==0)) ok=false;
       } else if (subdet==HcalOuter) {
-	if (aieta>15 || iphi>IPHI_MAX || depth!=1) ok=false;
+	if (aieta>15 || iphi>IPHI_MAX || depth!=4) ok=false;
       } else if (subdet==HcalForward) {
 	if (aieta<29 || aieta>41 ||
 	    ((iphi%2)==0) ||
@@ -205,18 +204,31 @@ namespace cms {
 
     return n;
   }
-}
 
-void cms::HcalTopology::depthBinInformation(HcalSubdetector subdet, int etaRing,
+
+void HcalTopology::depthBinInformation(HcalSubdetector subdet, int etaRing,
                                        int & nDepthBins, int & startingBin) const {
   if(subdet == HcalBarrel) {
-    nDepthBins = 1;
-    startingBin = 1;
+    if (etaRing<=14) {
+      nDepthBins = 1;
+      startingBin = 1;
+    } else {
+      nDepthBins = 2;
+      startingBin = 1;
+    }
   }
 
   else if(subdet == HcalEndcap) {
-    nDepthBins = (etaRing >= firstHETripleDepthRing_) ? 3 : 2;
-    startingBin = 1;
+    if (etaRing==16) {
+      nDepthBins = 1;
+      startingBin = 3;
+    } if (etaRing==17) {
+      nDepthBins = 1;
+      startingBin = 1;
+    } else {
+      nDepthBins = (etaRing >= firstHETripleDepthRing_) ? 3 : 2;
+      startingBin = 1;
+    }
   }
 
   else if(subdet == HcalForward) {
@@ -235,7 +247,7 @@ void cms::HcalTopology::depthBinInformation(HcalSubdetector subdet, int etaRing,
 }
 
 
-int cms::HcalTopology::nPhiBins(int etaRing) const {
+int HcalTopology::nPhiBins(int etaRing) const {
   int lastPhiBin = (etaRing < firstHEDoublePhiRing_) ? singlePhiBins_ : doublePhiBins_;
   return std::min(lastPhiBin, max_iphi_) - std::max(min_iphi_, 1) + 1;
 }
