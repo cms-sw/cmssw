@@ -13,7 +13,7 @@
     Inheriting from this class is the simplest way to create an algorithm which gets called when a new
   data item is needed for the EventSetup.  This class is designed to call a member method of inheriting
   classes each time the algorithm needs to be run.  (A more flexible system in which the algorithms can be
-  set at run-time instead of compile time can be obtained by inheriting from ProxyFactoryProducer instead.)
+  set at run-time instead of compile time can be obtained by inheriting from ESProxyFactoryProducer instead.)
 
     If only one algorithm is being encapsulated then the user needs to
       1) add a method name 'produce' to the class.  The 'produce' takes as its argument a const reference
@@ -66,14 +66,14 @@ Example: two algorithms each creating only one objects
 //
 // Author:      Chris Jones
 // Created:     Thu Apr  7 17:08:14 CDT 2005
-// $Id: ESProducer.h,v 1.12 2005/09/30 20:48:10 chrjones Exp $
+// $Id: ESProducer.h,v 1.13 2005/10/01 21:10:51 chrjones Exp $
 //
 
 // system include files
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/ProxyFactoryProducer.h"
+#include "FWCore/Framework/interface/ESProxyFactoryProducer.h"
 #include "FWCore/Framework/interface/ProxyArgumentFactoryTemplate.h"
 
 #include "FWCore/Framework/interface/CallbackProxy.h"
@@ -95,7 +95,7 @@ namespace edm {
          return iDec;
       };
    }
-class ESProducer : public eventsetup::ProxyFactoryProducer
+class ESProducer : public ESProxyFactoryProducer
 {
 
    public:
