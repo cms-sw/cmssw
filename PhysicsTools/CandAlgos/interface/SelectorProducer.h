@@ -2,7 +2,7 @@
 #define PHYSICSTOOLS_SELECTORPRODUCER_H
 /*----------------------------------------------------------
 
-$Id: SelectorProducer.h,v 1.1 2005/07/29 07:22:52 llista Exp $
+$Id: SelectorProducer.h,v 1.2 2005/08/30 10:44:40 llista Exp $
 
   class template SelectorProducer
  
@@ -25,48 +25,44 @@ the follwoing interface:
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <iostream>
 
-namespace phystools {
-
-  template<typename S>
-  class SelectorProducer : public edm::EDProducer {
-  public:
-    SelectorProducer( const edm::ParameterSet & );
-
-  private:
-    typedef Candidate::collection Candidates;
-
-    virtual void produce( edm::Event&, const edm::EventSetup& );
-
-    std::string source;
-    S selector;
-  };
-
-  template<typename S>
-  SelectorProducer<S>::SelectorProducer( const edm::ParameterSet & parms ) :
-    source( parms.template getParameter<std::string>( "src" ) ),
-    selector( parms ) {
-    produces<Candidates>();
-  }
+template<typename S>
+class SelectorProducer : public edm::EDProducer {
+public:
+  SelectorProducer( const edm::ParameterSet & );
   
-  template<typename S>
-  void SelectorProducer<S>::produce( edm::Event& evt, const edm::EventSetup& ) {
-    edm::Handle<Candidates> cands;
-    try {
-      evt.getByLabel( source, cands );
-    } catch ( std::exception e ) {
-      std::cerr << "Error: can't get collection " << source << std::endl;
-      return;
-    }    
-    
-    std::auto_ptr<Candidates> selected( new Candidates );
-    for( Candidates::const_iterator i = cands->begin(); i != cands->end(); ++ i ) {
-      const Candidate * cand = * i;
-      if ( selector( cand ) )
-	selected->push_back( cand->clone() );
-    }
-    evt.put( selected );
-  }
+private:
+  typedef phystools::Candidate::collection Candidates;
+  
+  virtual void produce( edm::Event&, const edm::EventSetup& );
+  
+  std::string source;
+  S selector;
+};
 
+template<typename S>
+SelectorProducer<S>::SelectorProducer( const edm::ParameterSet & parms ) :
+  source( parms.template getParameter<std::string>( "src" ) ),
+  selector( parms ) {
+  produces<Candidates>();
+}
+
+template<typename S>
+void SelectorProducer<S>::produce( edm::Event& evt, const edm::EventSetup& ) {
+  edm::Handle<Candidates> cands;
+  try {
+    evt.getByLabel( source, cands );
+  } catch ( std::exception e ) {
+    std::cerr << "Error: can't get collection " << source << std::endl;
+    return;
+  }    
+  
+  std::auto_ptr<Candidates> selected( new Candidates );
+  for( Candidates::const_iterator i = cands->begin(); i != cands->end(); ++ i ) {
+    const phystools::Candidate * cand = * i;
+    if ( selector( cand ) )
+      selected->push_back( cand->clone() );
+  }
+  evt.put( selected );
 }
 
 #endif
