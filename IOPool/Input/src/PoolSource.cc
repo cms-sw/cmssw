@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.3 2005/09/30 20:31:18 wmtan Exp $
+$Id: PoolSource.cc,v 1.4 2005/10/03 19:00:28 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/EDProduct/interface/EDProduct.h"
@@ -120,8 +120,8 @@ namespace edm {
     boost::shared_ptr<DelayedReader> store_(new PoolDelayedReader(entryNumber_, *this));
     auto_ptr<EventPrincipal> thisEvent(new EventPrincipal(evAux.id_, evAux.time_, *preg_, evAux.process_history_, store_));
     // Loop over provenance
-    std::vector<Provenance>::iterator pit = evProv.data_.begin();
-    std::vector<Provenance>::iterator pitEnd = evProv.data_.end();
+    std::vector<BranchEntryDescription>::iterator pit = evProv.data_.begin();
+    std::vector<BranchEntryDescription>::iterator pitEnd = evProv.data_.end();
     for (; pit != pitEnd; ++pit) {
       // BEGIN These lines read all branches
       // TBranch *br = branches_.find(poolNames::keyName(*pit))->second;
@@ -134,7 +134,7 @@ namespace edm {
       // END These lines read all branches
       // BEGIN These lines defer reading branches
       auto_ptr<Provenance> prov(new Provenance);
-      prov->event = pit->event;
+      prov->event = *pit;
       prov->product = productMap[prov->event.productID_];
       auto_ptr<Group> g(new Group(prov));
       // END These lines defer reading branches

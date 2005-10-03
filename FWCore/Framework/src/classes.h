@@ -1,6 +1,5 @@
 #include <vector>
 #include "FWCore/Framework/interface/EventAux.h"
-#include "FWCore/Framework/interface/Provenance.h"
 #include "FWCore/Framework/interface/EventProvenance.h"
 #include "FWCore/Framework/interface/BranchDescription.h"
 #include "FWCore/Framework/interface/BranchEntryDescription.h"

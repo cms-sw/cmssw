@@ -3,17 +3,17 @@
 
 /*----------------------------------------------------------------------
   
-EventProvenance: The Provenance of all the products in an event.
+EventProvenance: The Event dependent Provenance of all the products in an event.
 
-$Id: EventProvenance.h,v 1.2 2005/07/14 22:50:52 wmtan Exp $
+$Id: EventProvenance.h,v 1.3 2005/09/01 05:36:45 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <vector>
 
-#include "FWCore/Framework/interface/Provenance.h"
+#include "FWCore/Framework/interface/BranchEntryDescription.h"
 namespace edm {
 
   struct EventProvenance {
-    std::vector<Provenance> data_;  // One entry per EDProduct
+    std::vector<BranchEntryDescription> data_;  // One entry per EDProduct
   };
 }
 #endif
