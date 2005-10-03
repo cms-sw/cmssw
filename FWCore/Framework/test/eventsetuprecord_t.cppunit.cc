@@ -15,29 +15,30 @@
 
 using namespace edm;
 using namespace edm::eventsetup;
-
+namespace eventsetuprecord_t {
 class DummyRecord : public edm::eventsetup::EventSetupRecordImplementation<DummyRecord> { public:
    const DataProxy* find(const edm::eventsetup::DataKey& iKey) const {
       return edm::eventsetup::EventSetupRecord::find(iKey);
    }
 };
-
+}
 #include "FWCore/Framework/interface/HCMethods.icc"
 #include "FWCore/Framework/interface/HCTypeTagTemplate.icc"
 //HCMethods<T, T, EventSetup, EventSetupRecordKey, EventSetupRecordKey::IdTag >
 template<>
 const char*
-edm::eventsetup::heterocontainer::HCTypeTagTemplate<DummyRecord, edm::eventsetup::EventSetupRecordKey>::className() {
+edm::eventsetup::heterocontainer::HCTypeTagTemplate<eventsetuprecord_t::DummyRecord, edm::eventsetup::EventSetupRecordKey>::className() {
    return "DummyRecord";
 }
 
 //create an instance of the factory
-static eventsetup::EventSetupRecordProviderFactoryTemplate<DummyRecord> s_factory;
+static eventsetup::EventSetupRecordProviderFactoryTemplate<eventsetuprecord_t::DummyRecord> s_factory;
 
 namespace eventsetuprecord_t {
 class Dummy {};
 }
 using eventsetuprecord_t::Dummy;
+using eventsetuprecord_t::DummyRecord;
 typedef edm::eventsetup::MakeDataException<DummyRecord,Dummy> ExceptionType;
 typedef edm::eventsetup::NoDataException<Dummy> NoDataExceptionType;
 
