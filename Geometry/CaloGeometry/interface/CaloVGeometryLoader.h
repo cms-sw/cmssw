@@ -1,19 +1,15 @@
 #ifndef CaloVGeometryLoader_h
 #define CaloVGeometryLoader_h
 
-#include<vector>
-#include<map>
+#include "DataFormats/DetId/interface/DetId.h"
+#include <memory>
 
-namespace cms {
-class DetId;
-class CaloCellGeometry;
+class CaloSubdetectorGeometry;
 
 class CaloVGeometryLoader {
 public:
-  virtual void fill(std::vector<DetId> & detIds, std::map<DetId, const CaloCellGeometry*> geometries) = 0;
+  virtual std::auto_ptr<CaloSubdetectorGeometry> load(DetId::Detector det, int subdet) = 0;
 };
-
-}
 
 #endif
 
