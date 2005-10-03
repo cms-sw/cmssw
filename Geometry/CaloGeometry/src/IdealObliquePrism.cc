@@ -4,7 +4,7 @@
 namespace calogeom {
 
   IdealObliquePrism::IdealObliquePrism(const GlobalPoint& faceCenter, float widthEta, float widthPhi, float thickness, bool parallelToZaxis) : 
-  cms::CaloCellGeometry(faceCenter),
+  CaloCellGeometry(faceCenter),
   hwidthEta_(widthEta/2),
   hwidthPhi_(widthPhi/2),
   thickness_((parallelToZaxis)?(thickness):(-thickness))
@@ -24,7 +24,7 @@ namespace calogeom {
   }
   
   IdealObliquePrism::IdealObliquePrism(float eta, float phi, float radialDistanceToFront, float widthEta, float widthPhi, float thickness, bool parallelToZaxis) :
-    cms::CaloCellGeometry(etaPhiR(eta,phi,radialDistanceToFront)),
+    CaloCellGeometry(etaPhiR(eta,phi,radialDistanceToFront)),
     hwidthEta_(widthEta/2),
     hwidthPhi_(widthPhi/2),
   thickness_((parallelToZaxis)?(thickness):(-thickness))

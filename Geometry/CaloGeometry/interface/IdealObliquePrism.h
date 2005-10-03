@@ -24,11 +24,11 @@ namespace calogeom {
   is encoded in the sign of the thickness.  (positive = parallel to
   z-axis, negative = perpendicular)
 
-  $Date: $
-  $Revision: $
+  $Date: 2005/09/30 13:42:44 $
+  $Revision: 1.1 $
   \author J. Mans - Minnesota
   */
-  class IdealObliquePrism : public cms::CaloCellGeometry {
+  class IdealObliquePrism : public CaloCellGeometry {
   public:
     IdealObliquePrism(const GlobalPoint& faceCenter, float widthEta, float widthPhi, float thickness, bool parallelToZaxis);
     IdealObliquePrism(float eta, float phi, float radialDistanceToFront, float widthEta, float widthPhi, float thickness, bool parallelToZaxis);

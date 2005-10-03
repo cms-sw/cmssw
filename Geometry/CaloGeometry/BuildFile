@@ -1,6 +1,11 @@
 <use name=DataFormats/DetId>
+<use name=FWCore/Framework>
+<use name=Geometry/Records>
+<flags SEAL_PLUGIN_NAME="GeometryCaloGeometry">
 
 <export>
   <lib name=GeometryCaloGeometry>
   <use name=DataFormats/DetId>
+  <use name=FWCore/Framework>
+  <use name=Geometry/Records>
 </export>
