@@ -8,7 +8,7 @@
 */
 
 #include <cppunit/extensions/HelperMacros.h>
-#include "FWCore/Framework/interface/ProxyFactoryProducer.h"
+#include "FWCore/Framework/interface/ESProxyFactoryProducer.h"
 #include "FWCore/Framework/interface/ProxyFactoryTemplate.h"
 #include "FWCore/Framework/interface/DataProxyTemplate.h"
 #include "FWCore/Framework/test/DummyData.h"
@@ -16,6 +16,7 @@
 
 using edm::eventsetup::test::DummyData;
 using namespace edm::eventsetup;
+using edm::ESProxyFactoryProducer;
 
 class DummyProxy : public DataProxyTemplate<DummyRecord, DummyData> {
 public:
@@ -29,7 +30,7 @@ protected:
 private:
 };
 
-class Test1Producer : public ProxyFactoryProducer {
+class Test1Producer : public ESProxyFactoryProducer {
 public:
    Test1Producer() {
       std::auto_ptr<ProxyFactoryTemplate<DummyProxy> > pFactory(new 
@@ -38,7 +39,7 @@ public:
    }
 };
 
-class TestLabelProducer : public ProxyFactoryProducer {
+class TestLabelProducer : public ESProxyFactoryProducer {
 public:
    TestLabelProducer() {
       std::auto_ptr<ProxyFactoryTemplate<DummyProxy> > pFactory(new 
