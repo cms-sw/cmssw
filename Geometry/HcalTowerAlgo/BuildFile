@@ -3,8 +3,16 @@
   <use name=Geometry/CaloGeometry>
   <use name=Geometry/CaloTopology>
   <use name=DataFormats/HcalDetId>
+  <use name=FWCore/Framework>
+  <use name=Foundation/PluginManager>
+  <use name=FWCore/ParameterSet>
+  <use name=Geometry/Records>
 </export>
-
+<flags SEAL_PLUGIN_NAME="GeometryHcalTowerAlgo">
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/Framework>
+<use name=Geometry/Records>
 <use name=Geometry/CaloGeometry>
 <use name=Geometry/CaloTopology>
 <use name=DataFormats/HcalDetId>
