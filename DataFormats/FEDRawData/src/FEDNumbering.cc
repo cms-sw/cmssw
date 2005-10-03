@@ -2,8 +2,8 @@
  *  See header file for a description of this class.
  *
  *
- *  $Date: 2005/09/15 09:00:48 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/09/30 08:15:45 $
+ *  $Revision: 1.1 $
  *  \author G. Bruno  - CERN, EP Division
  */
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
@@ -33,12 +33,8 @@ const int FEDNumbering::MAXRPCFEDID=795;
 const int FEDNumbering::MINPreShowerFEDID=550;
 const int FEDNumbering::MAXPreShowerFEDID=596;
 
-const int FEDNumbering::MINECALBarrelFEDID=620;
-const int FEDNumbering::MAXECALBarrelFEDID=655;
-
-const int FEDNumbering::MINECALEndcapFEDID=656;
-const int FEDNumbering::MAXECALEndcapFEDID=673;
-
+const int FEDNumbering::MINECALFEDID=600;
+const int FEDNumbering::MAXECALFEDID=670;
 
 const int FEDNumbering::MINHCALFEDID=700;
 const int FEDNumbering::MAXHCALFEDID=731;
@@ -90,17 +86,12 @@ pair<int,int> FEDNumbering::getPreShowerFEDIds(){
 }
 
 
-pair<int,int> FEDNumbering::getEcalBarrelFEDIds(){
+pair<int,int> FEDNumbering::getEcalFEDIds(){
 
-  return pair<int,int> (MINECALBarrelFEDID, MAXECALBarrelFEDID);
-
-}
-
-pair<int,int> FEDNumbering::getEcalEndcapFEDIds(){
-
-  return pair<int,int> (MINECALEndcapFEDID, MAXECALEndcapFEDID);
+  return pair<int,int> (MINECALFEDID, MAXECALFEDID);
 
 }
+
 
 pair<int,int> FEDNumbering::getHcalFEDIds(){
 

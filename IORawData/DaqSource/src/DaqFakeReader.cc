@@ -1,8 +1,8 @@
 
 /* \file DaqFakeReader.cc
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2005/09/30 08:17:48 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - CERN
  */
 
@@ -48,8 +48,7 @@ bool DaqFakeReader::fillRawData(EventID& eID,
   fillFEDs(FEDNumbering::getMuEndFEDIds(), eID, tstamp, data, meansize, width);
   fillFEDs(FEDNumbering::getMRpcFEDIds(), eID, tstamp, data, meansize, width);
 
-  fillFEDs(FEDNumbering::getEcalBarrelFEDIds(), eID, tstamp, data, meansize, width);
-  fillFEDs(FEDNumbering::getEcalEndcapFEDIds(), eID, tstamp, data, meansize, width);
+  fillFEDs(FEDNumbering::getEcalFEDIds(), eID, tstamp, data, meansize, width);
   fillFEDs(FEDNumbering::getHcalFEDIds(), eID, tstamp, data, meansize, width);
 
   return true;

@@ -6,8 +6,8 @@
  *  No two feds should have the same id. Each subdetector has a reserved range.
  *  Gaps between range give flexibility to the numbering.
  *
- *  $Date: 2005/09/15 09:00:10 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/09/30 08:15:45 $
+ *  $Revision: 1.1 $
  *  \author G. Bruno - CERN, EP Division
  */   
 
@@ -30,8 +30,7 @@ class FEDNumbering {
 
   static std::pair<int,int> getPreShowerFEDIds();
 
-  static std::pair<int,int> getEcalBarrelFEDIds();
-  static std::pair<int,int> getEcalEndcapFEDIds();
+  static std::pair<int,int> getEcalFEDIds();
 
   static std::pair<int,int> getHcalFEDIds();
 
@@ -62,12 +61,8 @@ class FEDNumbering {
   static const int MINPreShowerFEDID;
   static const int MAXPreShowerFEDID;
 
-  static const int MINECALBarrelFEDID;
-  static const int MAXECALBarrelFEDID;
-  
-  static const int MINECALEndcapFEDID;
-  static const int MAXECALEndcapFEDID;
-
+  static const int MINECALFEDID;
+  static const int MAXECALFEDID;
   
   static const int MINHCALFEDID;
   static const int MAXHCALFEDID;
