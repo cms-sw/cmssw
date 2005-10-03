@@ -1,15 +1,11 @@
-// $Id$
-
+// $Id: helicityAngle.cc,v 1.1 2005/07/29 07:05:57 llista Exp $
 #include "PhysicsTools/CandUtils/interface/helicityAngle.h"
 #include "PhysicsTools/Candidate/interface/Candidate.h"
 #include "PhysicsTools/CandUtils/interface/Booster.h"
-#include <memory>
-#include <iostream>
-
-using namespace phystools;
+using namespace aod;
 using namespace std;
 
-double phystools::helicityAngle( const Candidate & cand ) {
+double helicityAngle( const Candidate & cand ) {
   assert( cand.numberOfDaughters() == 2 );
   Particle::Vector boost = - cand.p4().boostVector(); 
   Particle::LorentzVector dp = cand[ 0 ]->p4();

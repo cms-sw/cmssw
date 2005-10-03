@@ -1,6 +1,6 @@
-// $Id: TwoBodyCombiner.cc,v 1.3 2005/10/01 22:16:59 llista Exp $
+// $Id: TwoBodyCombiner.cc,v 1.1 2005/10/03 09:17:45 llista Exp $
 #include "PhysicsTools/CandUtils/interface/TwoBodyCombiner.h"
-using namespace phystools;
+using namespace aod;
 
 TwoBodyCombiner::TwoBodyCombiner( double massMin, double massMax, 
 				  bool ck, int q ) :
@@ -28,6 +28,6 @@ Candidate * TwoBodyCombiner::combine( const Candidate & c1, const Candidate & c2
   CompositeCandidate * cmp( new CompositeCandidate );
   cmp->addDaughter( c1 );
   cmp->addDaughter( c2 );
-  cmp->setup( addp4 );
+  cmp->set( addp4 );
   return cmp;
 }

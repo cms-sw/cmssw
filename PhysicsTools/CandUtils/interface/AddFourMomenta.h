@@ -1,17 +1,12 @@
 #ifndef PHYSICSTOOLS_ADDFOURMOMENTA_H
 #define PHYSICSTOOLS_ADDFOURMOMENTA_H
-// $Id$
+// $Id: AddFourMomenta.h,v 1.1 2005/07/29 07:05:57 llista Exp $
 #include "PhysicsTools/Candidate/interface/CompositeCandidate.h"
-#include "PhysicsTools/Candidate/interface/Setup.h"
 
-namespace phystools {
-
-  struct AddFourMomenta : public Setup {
-    AddFourMomenta() : Setup( setupCharge( true ), setupP4( true ) ) { }
-    virtual ~AddFourMomenta();
-    void setup( Candidate& c );
-  };
-  
-}
+struct AddFourMomenta : public aod::Candidate::setup {
+  AddFourMomenta() : aod::Candidate::setup( setupCharge( true ), setupP4( true ) ) { }
+  virtual ~AddFourMomenta();
+  void set( aod::Candidate& c );
+};
 
 #endif

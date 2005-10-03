@@ -1,9 +1,9 @@
-// $Id: TwoDifferentBodyCombiner.cc,v 1.1 2005/07/29 07:22:52 llista Exp $
+// $Id: TwoDifferentBodyProducer.cc,v 1.1 2005/10/03 09:17:31 llista Exp $
 #include "PhysicsTools/CandAlgos/src/TwoDifferentBodyProducer.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-using namespace phystools;
+using namespace aod;
 using namespace edm;
 using namespace std;
 

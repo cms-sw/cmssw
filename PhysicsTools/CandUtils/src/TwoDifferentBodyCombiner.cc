@@ -1,6 +1,6 @@
-// $Id: TwoDifferentBodyCombiner.cc,v 1.1 2005/07/29 07:22:52 llista Exp $
+// $Id: TwoDifferentBodyCombiner.cc,v 1.1 2005/10/03 09:17:45 llista Exp $
 #include "PhysicsTools/CandUtils/interface/TwoDifferentBodyCombiner.h"
-using namespace phystools;
+using namespace aod;
 using namespace std;
 
 TwoDifferentBodyCombiner::TwoDifferentBodyCombiner( double massMin, double massMax, 

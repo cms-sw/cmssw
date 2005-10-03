@@ -1,11 +1,10 @@
 #ifndef PHYSICSTOOLS_HELICITYANGLE_H
 #define PHYSICSTOOLS_HELICITYANGLE_H
 
-namespace phystools {
-
+namespace aod {
   class Candidate;
-
-  double helicityAngle( const Candidate & c );
 }
+
+double helicityAngle( const aod::Candidate & c );
 
 #endif
