@@ -6,13 +6,12 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
-namespace cms {
 
 /** \class HcalDetId
- *  Cell identifier class for the HCAL subdetectors
+ *  Cell identifier class for the HCAL subdetectors, precision readout cells only
  *
- *  $Date: 2005/07/26 14:44:30 $
- *  $Revision: 1.3 $
+ *  $Date: 2005/09/08 15:54:59 $
+ *  $Revision: 1.4 $
  *  \author J. Mans - Minnesota
  */
 class HcalDetId : public DetId {
@@ -50,11 +49,8 @@ public:
   int crystal_iphi_high() const { return ((iphi()-1)*5)+5; }
   /// compact index for arrays, etc [assumes ieta/iphi/depth sufficient to fully id tower]
   int hashedIndex() const;
-
 };
 
 std::ostream& operator<<(std::ostream&,const HcalDetId& id);
-
-}
 
 #endif

@@ -4,20 +4,24 @@
 #include <boost/cstdint.hpp>
 #include <ostream>
 
-namespace cms {
-
 /** \class DetId
-    
-   $Date: 2005/07/19 18:21:57 $
-   $Revision: 1.1 $
+
+Parent class for all detector ids in CMS.  The DetId is a 32-bit
+unsigned integer.  The four most significant bits ([31:28]) identify
+the large-scale detector (e.g. Tracker or Ecal) while the next three
+bits ([27:25]) identify a part of the detector (such as HcalBarrel
+(HB) for Hcal).
+
+$Date: 2005/07/20 00:10:24 $
+$Revision: 1.2 $
 */
 class DetId {
 public:
   enum Detector { Tracker=1,Muon=2,Ecal=3,Hcal=4 };
-  /// Create an empty or null id (also for persitence)
+  /// Create an empty or null id (also for persistence)
   DetId();
   /// Create an id from a raw number
-  DetId(uint32_t id);
+  explicit DetId(uint32_t id);
   /// Create an id, filling the detector and subdetector fields as specified
   DetId(Detector det, int subdet);
 
@@ -43,8 +47,6 @@ public:
 protected:
   uint32_t id_;
 };
-
-}
 
 //std::ostream& operator<<(std::ostream& s, const DetId& id);
 

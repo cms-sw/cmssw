@@ -4,8 +4,6 @@
 #include <boost/cstdint.hpp>
 #include <ostream>
 
-namespace cms {
-
 /** \brief Readout chain identification for Hcal
     [31:25] Unused (so far)
     [24:20] Readout Crate Id
@@ -64,8 +62,6 @@ private:
 };
 
 std::ostream& operator<<(std::ostream&,const HcalElectronicsId&);
-
-}
 
 
 #endif

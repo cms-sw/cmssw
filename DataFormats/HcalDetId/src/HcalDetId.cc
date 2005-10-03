@@ -1,6 +1,5 @@
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
-namespace cms {
 
 HcalDetId::HcalDetId() : DetId() {
 }
@@ -57,4 +56,4 @@ std::ostream& operator<<(std::ostream& s,const HcalDetId& id) {
   default : return s << id.rawId();
   }
 }
-}
+

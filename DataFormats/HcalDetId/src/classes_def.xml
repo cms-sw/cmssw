@@ -1,6 +1,6 @@
 <lcgdict>
-  <class name="cms::HcalElectronicsId"/>
-  <class name="cms::HcalDetId"/>
-  <class name="cms::HcalTrigTowerDetId"/>
-  <class name="cms::HcalCompositeDetId"/>
+  <class name="HcalElectronicsId"/>
+  <class name="HcalDetId"/>
+  <class name="HcalTrigTowerDetId"/>
+  <class name="HcalCompositeDetId"/>
 </lcgdict>
