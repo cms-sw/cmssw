@@ -3,7 +3,6 @@
  <class name="edm::ProdPair"/>
  <class name="std::vector<edm::ProdPair>"/>
  <class name="edm::SendEvent"/>
- <class name="std::vector<edm::ProductDescription>"/>
  <class name="edmtestprod::StreamTestThing"/>
  <class name="std::vector<int>"/>
  <class name="edm::SendJobHeader"/>
