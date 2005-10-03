@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Sat Apr 16 18:47:04 EDT 2005
-// $Id: DummyFinder.h,v 1.6 2005/09/01 05:46:29 wmtan Exp $
+// $Id: DummyFinder.h,v 1.7 2005/09/01 23:30:49 wmtan Exp $
 //
 
 // system include files
@@ -27,7 +27,7 @@
 
 // forward declarations
 
-class DummyFinder : public edm::eventsetup::EventSetupRecordIntervalFinder {
+class DummyFinder : public edm::EventSetupRecordIntervalFinder {
 public:
    DummyFinder() {
       this->findingRecord<DummyRecord>();

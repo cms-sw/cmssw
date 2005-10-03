@@ -19,6 +19,7 @@
 using edm::eventsetup::test::DummyData;
 using namespace edm::eventsetup;
 using edm::ESProducer;
+using edm::EventSetupRecordIntervalFinder;
 
 class testEsproducer: public CppUnit::TestFixture 
 {

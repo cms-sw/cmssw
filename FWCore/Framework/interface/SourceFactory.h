@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 18:01:38 EDT 2005
-// $Id: SourceFactory.h,v 1.9 2005/09/01 05:16:52 wmtan Exp $
+// $Id: SourceFactory.h,v 1.10 2005/09/01 23:30:49 wmtan Exp $
 //
 
 // system include files
@@ -29,9 +29,10 @@
 // forward declarations
 
 namespace edm {
+   class EventSetupRecordIntervalFinder;
+
    namespace eventsetup {
       class DataProxyProvider;
-      class EventSetupRecordIntervalFinder;
       
       template<class T>
          void addProviderTo(EventSetupProvider& iProvider, boost::shared_ptr<T> iComponent, const DataProxyProvider*) 

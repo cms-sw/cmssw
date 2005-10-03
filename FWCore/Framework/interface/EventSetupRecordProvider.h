@@ -29,10 +29,11 @@
 
 // forward declarations
 namespace edm {
+   class EventSetupRecordIntervalFinder;
+
    namespace eventsetup {
       class EventSetupProvider;
       class DataProxyProvider;
-      class EventSetupRecordIntervalFinder;
       
 class EventSetupRecordProvider
 {

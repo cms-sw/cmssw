@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed Mar 30 14:27:26 EST 2005
-// $Id: EventSetupRecordIntervalFinder.cc,v 1.3 2005/07/14 22:50:53 wmtan Exp $
+// $Id: EventSetupRecordIntervalFinder.cc,v 1.4 2005/08/04 15:04:15 chrjones Exp $
 //
 
 // system include files
@@ -20,8 +20,8 @@
 //
 // constants, enums and typedefs
 //
+using namespace edm::eventsetup;
 namespace edm {
-   namespace eventsetup {
 //
 // static data member definitions
 //
@@ -94,5 +94,4 @@ EventSetupRecordIntervalFinder::findingForRecords() const
 //
 // static member functions
 //
-   }
 }

@@ -30,11 +30,11 @@
 // forward declarations
 namespace edm {
    class IOVSyncValue;
+   class EventSetupRecordIntervalFinder;
    
    namespace eventsetup {
       class EventSetupRecordProvider;
       class DataProxyProvider;
-      class EventSetupRecordIntervalFinder;
       
 class EventSetupProvider
 {

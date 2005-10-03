@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Fri Apr 22 14:14:09 EDT 2005
-// $Id: DummyEventSetupRecordRetriever.h,v 1.8 2005/09/01 23:30:49 wmtan Exp $
+// $Id: DummyEventSetupRecordRetriever.h,v 1.9 2005/10/01 21:17:47 chrjones Exp $
 //
 
 // system include files
@@ -31,7 +31,7 @@
 // forward declarations
 namespace edm {
    class DummyEventSetupRecordRetriever :
-     public eventsetup::EventSetupRecordIntervalFinder, 
+     public EventSetupRecordIntervalFinder, 
      public ESProducer
    {
    

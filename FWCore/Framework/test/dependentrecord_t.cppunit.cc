@@ -191,7 +191,7 @@ void testdependentrecord::getTest()
    boost::shared_ptr<DummyFinder> dummyFinder(new DummyFinder);
    dummyFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(edm::EventID(1)), 
                                                    edm::IOVSyncValue(edm::EventID(3))));
-   provider.add(boost::shared_ptr<edm::eventsetup::EventSetupRecordIntervalFinder>(dummyFinder));
+   provider.add(boost::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
    
    boost::shared_ptr<edm::eventsetup::DataProxyProvider> depProv(new DepRecordProxyProvider());
    provider.add(depProv);

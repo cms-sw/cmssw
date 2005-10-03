@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 14:39:39 EDT 2005
-// $Id: DoodadESSource.cc,v 1.5 2005/09/01 04:03:19 wmtan Exp $
+// $Id: DoodadESSource.cc,v 1.6 2005/10/01 21:16:51 chrjones Exp $
 //
 
 // system include files
@@ -24,7 +24,7 @@
 
 namespace edmreftest {
 class DoodadESSource :
-   public edm::eventsetup::EventSetupRecordIntervalFinder, 
+   public edm::EventSetupRecordIntervalFinder, 
    public edm::ESProducer
 {
    

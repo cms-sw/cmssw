@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jun 25 17:23:12 EDT 2005
-// $Id: EmptyESSource.h,v 1.4 2005/08/11 19:48:20 chrjones Exp $
+// $Id: EmptyESSource.h,v 1.5 2005/09/01 03:12:50 wmtan Exp $
 //
 
 // system include files
@@ -29,7 +29,7 @@
 namespace edm {
 class ParameterSet;
    
-class EmptyESSource : public  eventsetup::EventSetupRecordIntervalFinder
+class EmptyESSource : public  EventSetupRecordIntervalFinder
 {
 
    public:

@@ -126,7 +126,7 @@ void testEventsetup::recordProviderTest()
 
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 
-class DummyFinder : public eventsetup::EventSetupRecordIntervalFinder {
+class DummyFinder : public EventSetupRecordIntervalFinder {
 public:
    DummyFinder() {
       this->findingRecord<DummyRecord>();
