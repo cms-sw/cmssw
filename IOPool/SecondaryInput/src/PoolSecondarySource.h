@@ -5,7 +5,7 @@
 
 PoolSecondarySource: This is a SecondaryInputSource
 
-$Id: PoolSecondarySource.h,v 1.11 2005/09/15 16:33:09 wmtan Exp $
+$Id: PoolSecondarySource.h,v 1.1 2005/09/28 06:11:47 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -56,7 +56,7 @@ namespace edm {
     virtual ~PoolSecondarySource();
 
   private:
-    std::map<ProductID, ProductDescription> productMap;
+    std::map<ProductID, BranchDescription> productMap;
     std::string const file_;
     EntryNumber entries_;
     BranchMap branches_;

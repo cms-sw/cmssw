@@ -16,7 +16,7 @@
 
 #include "FWCore/EDProduct/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Provenance.h"
-#include "FWCore/Framework/interface/ProductDescription.h"
+#include "FWCore/Framework/interface/BranchDescription.h"
 #include "FWCore/EDProduct/interface/Timestamp.h"
 #include "FWCore/EDProduct/interface/EventID.h"
 
@@ -38,13 +38,13 @@ namespace edm {
 
     const BranchEntryDescription* prov() const { return prov_; }
     const EDProduct* prod() const { return prod_; }
-    const ProductDescription* desc() const { return desc_; }
+    const BranchDescription* desc() const { return desc_; }
 
     void clear() { prod_=0; prov_=0; desc_=0; }
 
     const EDProduct* prod_;
     const BranchEntryDescription* prov_;
-    const ProductDescription* desc_;
+    const BranchDescription* desc_;
   };
 
   // ------------------------------------------
@@ -65,7 +65,7 @@ namespace edm {
     // other tables necessary for provenance lookup
   };
 
-  typedef std::vector<ProductDescription> SendDescs;
+  typedef std::vector<BranchDescription> SendDescs;
 
   struct SendJobHeader
   {

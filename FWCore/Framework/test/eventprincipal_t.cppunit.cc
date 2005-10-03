@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id: eventprincipal_t.cppunit.cc,v 1.15 2005/09/07 19:15:56 wmtan Exp $
+$Id: eventprincipal_t.cppunit.cc,v 1.16 2005/09/28 04:46:35 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <cassert>
@@ -16,7 +16,7 @@ $Id: eventprincipal_t.cppunit.cc,v 1.15 2005/09/07 19:15:56 wmtan Exp $
 #include "FWCore/EDProduct/interface/ProductID.h"
 #include "FWCore/Framework/interface/BasicHandle.h"
 #include "FWCore/Framework/interface/ProductRegistry.h"
-#include "FWCore/Framework/interface/ProductDescription.h"
+#include "FWCore/Framework/interface/BranchDescription.h"
 #include "FWCore/EDProduct/interface/Timestamp.h"
 #include "FWCore/EDProduct/interface/Wrapper.h"
 #include "FWCore/Framework/interface/Selector.h"

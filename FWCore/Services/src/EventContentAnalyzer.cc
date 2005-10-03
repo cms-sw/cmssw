@@ -12,7 +12,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep 19 11:47:28 CEST 2005
-// $Id$
+// $Id: EventContentAnalyzer.cc,v 1.1 2005/09/19 12:16:05 chrjones Exp $
 //
 //
 
@@ -24,7 +24,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ProductDescription.h"
+#include "FWCore/Framework/interface/BranchDescription.h"
 #include "FWCore/Framework/interface/Provenance.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

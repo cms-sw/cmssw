@@ -5,7 +5,7 @@
   
 Forward declarations of types in the EDM.
 
-$Id: Frameworkfwd.h,v 1.8 2005/09/01 23:30:48 wmtan Exp $
+$Id: Frameworkfwd.h,v 1.9 2005/09/28 05:29:45 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -33,7 +33,7 @@ namespace edm
   class OutputModule;
   class ParameterSet;
   class ProcessNameSelector;
-  class ProductDescription;
+  class BranchDescription;
   class ProductID;
   class ProductRegistry;
   class Provenance;

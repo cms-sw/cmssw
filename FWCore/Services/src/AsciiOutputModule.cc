@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: AsciiOutputModule.cc,v 1.9 2005/07/28 19:35:57 wmtan Exp $
+$Id: AsciiOutputModule.cc,v 1.10 2005/08/10 15:27:47 chrjones Exp $
 ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -53,7 +53,7 @@ namespace edm {
     // Loop over groups, and write some output for each...
 
     for(EventPrincipal::const_iterator i = e.begin(); i != e.end(); ++i) {
-      ProductDescription const& desc = (*i)->productDescription();
+      BranchDescription const& desc = (*i)->productDescription();
       if (selected(desc)) {
         *pout_ << *i << '\n';
       }

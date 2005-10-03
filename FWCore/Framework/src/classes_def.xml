@@ -3,7 +3,7 @@
  <class name="edm::EventProvenance" id="D6EB7FBE-71C8-78B4-9DA6-766179171451"/>
  <class name="edm::ProductRegistry" id="51660A92-41A6-7618-13DB-3D73F982E667"/>
  <class name="std::vector<edm::Provenance>"/>
- <class name="std::map<edm::BranchKey, edm::ProductDescription>"/>
+ <class name="std::map<edm::BranchKey, edm::BranchDescription>"/>
  <class name="edm::BranchKey"/>
  <class name="edm::Provenance">
    <field name="product" transient="true"/>
@@ -11,7 +11,7 @@
  <class name="std::vector<edm::ProductID>"/>
  <class name="edm::ModuleDescription"/>
  <class name="edm::BranchEntryDescription"/>
- <class name="edm::ProductDescription">
+ <class name="edm::BranchDescription">
    <field name="branchName_" transient="true"/>
    <field name="productPtr_" transient="true"/>
  </class>

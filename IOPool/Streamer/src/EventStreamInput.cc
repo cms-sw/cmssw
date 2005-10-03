@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EventStreamInput.cc,v 1.9 2005/09/28 05:38:11 wmtan Exp $
+$Id: EventStreamInput.cc,v 1.10 2005/09/30 05:26:18 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Streamer/interface/EventStreamInput.h"
@@ -139,8 +139,8 @@ namespace edm
 	  aprod(const_cast<EDProduct*>(spi->prod()));
 	auto_ptr<BranchEntryDescription> 
 	  aedesc(const_cast<BranchEntryDescription*>(spi->prov()));
-	auto_ptr<ProductDescription> 
-	  adesc(const_cast<ProductDescription*>(spi->desc()));
+	auto_ptr<BranchDescription> 
+	  adesc(const_cast<BranchDescription*>(spi->desc()));
 
 	auto_ptr<Provenance> aprov(new Provenance);
 	aprov->event   = *(aedesc.get());

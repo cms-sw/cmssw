@@ -3,7 +3,7 @@
    test for ProductRegistry 
 
    \author Stefano ARGIRO
-   \version $Id: productregistry.cppunit.cc,v 1.2 2005/09/28 04:44:29 wmtan Exp $
+   \version $Id: productregistry.cppunit.cc,v 1.3 2005/09/28 17:32:52 chrjones Exp $
    \date 21 July 2005
 */
 
@@ -46,7 +46,7 @@ namespace {
    struct Listener {
       int* heard_;
       Listener(int& hear) :heard_(&hear) {}
-      void operator()(const edm::ProductDescription&){
+      void operator()(const edm::BranchDescription&){
          ++(*heard_);
       }
    };
@@ -60,10 +60,10 @@ namespace {
       {
         iConstReg.watchProductAdditions(this, &Responder::respond);
       }
-      void respond(const edm::ProductDescription& iDesc){
+      void respond(const edm::BranchDescription& iDesc){
          edm::ModuleDescription modDesc;
          modDesc.moduleLabel_ = name_;
-         edm::ProductDescription prod(iDesc);
+         edm::BranchDescription prod(iDesc);
          prod.productInstanceName_ = prod.productInstanceName_+"-"+prod.module.moduleLabel_;
          prod.module = modDesc;
          reg_->addProduct(prod);
@@ -80,7 +80,7 @@ void  testProductRegistry:: testSignal(){
    reg.productAddedSignal_.connect(listening);
    
    ModuleDescription modDesc;
-   ProductDescription prod(modDesc, "int", "int", "int",0);
+   BranchDescription prod(modDesc, "int", "int", "int",0);
    
    reg.addProduct(prod);
    CPPUNIT_ASSERT(1==hear);
@@ -100,7 +100,7 @@ void  testProductRegistry:: testWatch(){
    Responder two("two",constReg, reg);
                  
    ModuleDescription modDesc;
-   ProductDescription prod(modDesc, "int", "int", "int",0);
+   BranchDescription prod(modDesc, "int", "int", "int",0);
    
    reg.addProduct(prod);
    //Should be 5 products

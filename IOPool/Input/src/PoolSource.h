@@ -5,7 +5,7 @@
 
 PoolSource: This is an InputSource
 
-$Id: PoolSource.h,v 1.1 2005/09/28 05:57:01 wmtan Exp $
+$Id: PoolSource.h,v 1.2 2005/09/30 20:31:18 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -55,7 +55,7 @@ namespace edm {
     virtual ~PoolRASource();
 
   private:
-    std::map<ProductID, ProductDescription> productMap;
+    std::map<ProductID, BranchDescription> productMap;
     std::string const file_;
     EntryNumber remainingEvents_;
     EntryNumber entryNumber_;

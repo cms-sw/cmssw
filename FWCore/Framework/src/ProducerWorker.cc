@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: ProducerWorker.cc,v 1.12 2005/09/01 04:30:52 wmtan Exp $
+$Id: ProducerWorker.cc,v 1.13 2005/09/08 10:57:35 chrjones Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/src/ProducerWorker.h"
@@ -10,7 +10,7 @@ $Id: ProducerWorker.cc,v 1.12 2005/09/01 04:30:52 wmtan Exp $
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Actions.h"
 #include "FWCore/Framework/src/WorkerParams.h"
-#include "FWCore/Framework/interface/ProductDescription.h"
+#include "FWCore/Framework/interface/BranchDescription.h"
 #include "FWCore/Framework/interface/ProductRegistry.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -46,7 +46,7 @@ namespace edm
     for(p=plist.begin(); p!=plist.end(); ++p) {
            
  
-     ProductDescription pdesc(md,
+     BranchDescription pdesc(md,
        p->typeID_.userClassName(),
        p->typeID_.friendlyClassName(), 
        p->productInstanceName_,

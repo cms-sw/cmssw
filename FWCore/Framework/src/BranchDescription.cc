@@ -1,13 +1,13 @@
-#include "FWCore/Framework/interface/ProductDescription.h"
+#include "FWCore/Framework/interface/BranchDescription.h"
 
 /*----------------------------------------------------------------------
 
-$Id: ProductDescription.cc,v 1.9 2005/09/01 04:30:52 wmtan Exp $
+$Id: BranchDescription.cc,v 1.10 2005/09/28 04:53:20 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 namespace edm {
-  ProductDescription::ProductDescription() :
+  BranchDescription::BranchDescription() :
     module(),
     productID_(),
     fullClassName_(),
@@ -16,7 +16,7 @@ namespace edm {
     productPtr_(0)
   { }
 
-  ProductDescription::ProductDescription(ModuleDescription const& md,
+  BranchDescription::BranchDescription(ModuleDescription const& md,
       std::string const& name, std::string const& fName, std::string const& pin, EDProduct const* edp) :
     module(md),
     productID_(),
@@ -28,7 +28,7 @@ namespace edm {
     }
 
   void
-  ProductDescription::init() const {
+  BranchDescription::init() const {
     char const underscore('_');
     char const period('.');
     std::string const prod("PROD");
@@ -47,7 +47,7 @@ namespace edm {
   }
 
   void
-  ProductDescription::write(std::ostream& os) const {
+  BranchDescription::write(std::ostream& os) const {
     os << module << std::endl;
     os << "Product ID = " << productID_ << '\n';
     os << "Class Name = " << fullClassName_ << '\n';
@@ -56,7 +56,7 @@ namespace edm {
   }
 
   bool
-  ProductDescription::operator<(ProductDescription const& rh) const {
+  BranchDescription::operator<(BranchDescription const& rh) const {
     if (friendlyClassName_ < rh.friendlyClassName_) return true;
     if (rh.friendlyClassName_ < friendlyClassName_) return false;
     if (productInstanceName_ < rh.productInstanceName_) return true;
@@ -70,7 +70,7 @@ namespace edm {
   }
 
   bool
-  ProductDescription::operator==(ProductDescription const& rh) const {
+  BranchDescription::operator==(BranchDescription const& rh) const {
     return !((*this) < rh || rh < (*this));
   }
 }

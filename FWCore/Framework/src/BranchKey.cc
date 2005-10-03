@@ -1,17 +1,17 @@
 /*----------------------------------------------------------------------
   
-$Id: BranchKey.cc,v 1.4 2005/07/30 04:44:03 wmtan Exp $
+$Id: BranchKey.cc,v 1.5 2005/07/30 23:47:52 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <ostream>
 
 #include "FWCore/Framework/interface/BranchKey.h"
-#include "FWCore/Framework/interface/ProductDescription.h"
+#include "FWCore/Framework/interface/BranchDescription.h"
 
 
 namespace edm
 {
-  BranchKey::BranchKey(ProductDescription const& desc) :
+  BranchKey::BranchKey(BranchDescription const& desc) :
     friendlyClassName_(desc.friendlyClassName_),
     moduleLabel_(desc.module.moduleLabel_),
     productInstanceName_(desc.productInstanceName_),

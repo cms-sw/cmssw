@@ -2,7 +2,7 @@
 
 /*----------------------------------------------------------------------
 
-$Id: Provenance.cc,v 1.9 2005/08/24 19:24:01 wmtan Exp $
+$Id: Provenance.cc,v 1.10 2005/09/28 04:52:41 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -12,7 +12,7 @@ namespace edm {
     event()
   { }
 
-  Provenance::Provenance(ProductDescription const& p) :
+  Provenance::Provenance(BranchDescription const& p) :
     product(p),
     event()
   { }

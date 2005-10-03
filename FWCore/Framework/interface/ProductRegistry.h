@@ -7,12 +7,12 @@
 
    \author Stefano ARGIRO
    \co-author Bill Tanenbaum
-   \version $Id: ProductRegistry.h,v 1.9 2005/09/01 05:08:50 wmtan Exp $
+   \version $Id: ProductRegistry.h,v 1.10 2005/09/01 23:30:49 wmtan Exp $
    \date 19 Jul 2005
 */
 
 #include "FWCore/Framework/interface/BranchKey.h"
-#include "FWCore/Framework/interface/ProductDescription.h"
+#include "FWCore/Framework/interface/BranchDescription.h"
 
 namespace edm {
 
@@ -32,11 +32,11 @@ namespace edm {
 
     ~ProductRegistry() {}
   
-    typedef std::map<BranchKey, ProductDescription> ProductList;
+    typedef std::map<BranchKey, BranchDescription> ProductList;
 
-    void addProduct(ProductDescription const& productdesc);
+    void addProduct(BranchDescription const& productdesc);
 
-    void copyProduct(ProductDescription const& productdesc);
+    void copyProduct(BranchDescription const& productdesc);
 
     void setProductIDs();
 

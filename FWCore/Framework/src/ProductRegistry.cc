@@ -4,11 +4,11 @@
 
    \author Stefano ARGIRO
    \co-author Bill Tanenbaum
-   \version $Id: ProductRegistry.cc,v 1.9 2005/08/03 20:51:11 wmtan Exp $
+   \version $Id: ProductRegistry.cc,v 1.10 2005/08/25 20:30:54 wmtan Exp $
    \date 19 Jul 2005
 */
 
-static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.9 2005/08/03 20:51:11 wmtan Exp $";
+static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.10 2005/08/25 20:30:54 wmtan Exp $";
 
 
 #include <FWCore/Framework/interface/ProductRegistry.h>
@@ -17,13 +17,13 @@ static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.9 2005/08/03 20:51:11 w
 using namespace edm;
 
 void
-ProductRegistry::addProduct(ProductDescription const& productDesc) {
+ProductRegistry::addProduct(BranchDescription const& productDesc) {
   productDesc.init();
   productList_.insert(std::make_pair(BranchKey(productDesc), productDesc));
 }
 
 void
-ProductRegistry::copyProduct(ProductDescription const& productDesc) {
+ProductRegistry::copyProduct(BranchDescription const& productDesc) {
   productDesc.init();
   productList_.insert(std::make_pair(BranchKey(productDesc), productDesc));
   if (productDesc.productID_.id_ >= nextID_) {

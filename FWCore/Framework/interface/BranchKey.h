@@ -7,7 +7,7 @@ BranchKey: The key used to identify a Group in the EventPrincipal. The
 name of the branch to which the related data product will be written
 is determined entirely from the BranchKey.
 
-$Id: BranchKey.h,v 1.8 2005/07/30 23:44:24 wmtan Exp $
+$Id: BranchKey.h,v 1.9 2005/09/02 05:17:49 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <iosfwd>
@@ -17,7 +17,7 @@ $Id: BranchKey.h,v 1.8 2005/07/30 23:44:24 wmtan Exp $
 #include "FWCore/Framework/src/TypeID.h"
 
 namespace edm {
-  class ProductDescription;
+  class BranchDescription;
 
   struct BranchKey {
     BranchKey() : friendlyClassName_(), moduleLabel_(), productInstanceName_(), processName_()
@@ -38,7 +38,7 @@ namespace edm {
       processName_(pn) 
     {}
 
-    explicit BranchKey(ProductDescription const& desc);
+    explicit BranchKey(BranchDescription const& desc);
 
     std::string friendlyClassName_;
     std::string moduleLabel_;

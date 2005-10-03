@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSecondarySource.cc,v 1.1 2005/09/28 06:11:47 wmtan Exp $
+$Id: PoolSecondarySource.cc,v 1.2 2005/09/30 05:02:18 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/EDProduct/interface/EDProduct.h"
@@ -61,7 +61,7 @@ namespace edm {
     ProductRegistry::ProductList const& prodList = pReg_->productList();
     for (ProductRegistry::ProductList::const_iterator it = prodList.begin();
         it != prodList.end(); ++it) {
-      ProductDescription const& prod = it->second;
+      BranchDescription const& prod = it->second;
       prod.init();
       pReg_->copyProduct(prod);
       TBranch * branch = eventTree->GetBranch(prod.branchName_.c_str());
