@@ -2,11 +2,10 @@
 
 /*----------------------------------------------------------------------
 
-$Id: BranchEntryDescription.cc,v 1.1 2005/09/10 03:26:42 wmtan Exp $
+$Id: BranchEntryDescription.cc,v 1.2 2005/09/12 23:32:13 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
-/*
 namespace edm {
   BranchEntryDescription::BranchEntryDescription() :
     productID_(),
@@ -33,5 +32,3 @@ namespace edm {
   }
 
 }
-*/
-
