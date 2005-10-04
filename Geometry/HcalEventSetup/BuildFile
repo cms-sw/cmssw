@@ -1,6 +1,8 @@
 <export>
-  <lib name=GeometryHcalTowerAlgo>
+  <lib name=GeometryHcalEventSetup>
   <use name=Geometry/CaloGeometry>
+  <use name=Geometry/HcalTowerAlgo>
+  <use name=Geometry/CaloEventSetup>
   <use name=DataFormats/HcalDetId>
   <use name=FWCore/Framework>
   <use name=Foundation/PluginManager>
@@ -13,6 +15,8 @@
 <use name=FWCore/Framework>
 <use name=Geometry/Records>
 <use name=Geometry/CaloGeometry>
+<use name=Geometry/HcalTowerAlgo>
+<use name=Geometry/CaloEventSetup>
 <use name=DataFormats/HcalDetId>
 <use name=clhep>
 
