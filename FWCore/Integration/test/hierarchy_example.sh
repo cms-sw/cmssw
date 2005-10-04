@@ -1,4 +1,4 @@
 #!/bin/sh
 
-cmsRun --parameter-set hierarchy_example.txt
+cmsRun --parameter-set hierarchy_example.cfg
 
