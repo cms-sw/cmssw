@@ -1,26 +1,26 @@
-#ifndef HFRECHIT_H
-#define HFRECHIT_H 1
+#ifndef DATAFORMATS_HCALRECHIT_HFRECHIT_H
+#define DATAFORMATS_HCALRECHIT_HFRECHIT_H 1
 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/CaloRecHit/interface/CaloRecHit.h"
 
-namespace cms {
 
-  /** \class HFRecHit
-      
-  $Date: 2005/09/15 14:44:25 $
-  $Revision: 1.2 $
-  \author J. Mans - Minnesota
-  */
-  class HFRecHit : public CaloRecHit {
-  public:
-    HFRecHit();
-    HFRecHit(const HcalDetId& id, float energy, float time);
-    /// get the id
-    HcalDetId id() const { return HcalDetId(detid()); }
-  };
+/** \class HFRecHit
+ *  
+ * $Date: 2005/09/26 14:10:28 $
+ * $Revision: 1.3 $
+ *\author J. Mans - Minnesota
+ */
+class HFRecHit : public CaloRecHit {
+public:
+  typedef HcalDetId key_type;
 
-  std::ostream& operator<<(std::ostream& s, const HFRecHit& hit);
-}
+  HFRecHit();
+  HFRecHit(const HcalDetId& id, float energy, float time);
+  /// get the id
+  HcalDetId id() const { return HcalDetId(detid()); }
+};
+
+std::ostream& operator<<(std::ostream& s, const HFRecHit& hit);
 
 #endif
