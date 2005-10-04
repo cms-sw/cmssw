@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    HcalDbSourceHardcode
-// Class:      HcalDbSourceHardcode
+// Package:    HcalDbSource
+// Class:      HcalDbSource
 // 
-/**\class HcalDbSourceHardcode HcalDbSourceHardcode.h CalibFormats/HcalDbSourceHardcode/interface/HcalDbSourceHardcode.h
+/**\class HcalDbSource HcalDbSource.h CalibFormats/HcalDbSource/interface/HcalDbSource.h
 
  Description: <one line class summary>
 
@@ -13,7 +13,7 @@
 //
 // Original Author:  Fedor Ratnikov
 //         Created:  Wed Aug 10 15:40:06 CDT 2005
-// $Id$
+// $Id: HcalDbSource.h,v 1.1 2005/08/18 23:45:05 fedor Exp $
 //
 //
 
@@ -29,32 +29,24 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
-#include "CalibCalorimetry/HcalAlgos/interface/HcalDbServiceHardcode.h"
-
-
 
 //
 // class decleration
 //
 
-class HcalDbSourceHardcode : 
-  public edm::eventsetup::EventSetupRecordIntervalFinder, 
-  public edm::eventsetup::ESProducer 
+class HcalDbSource : 
+  public edm::eventsetup::EventSetupRecordIntervalFinder 
 {
 public:
-  HcalDbSourceHardcode( const edm::ParameterSet& );
-  ~HcalDbSourceHardcode();
+  HcalDbSource( const edm::ParameterSet& );
+  ~HcalDbSource();
   
-  typedef std::auto_ptr<HcalDbServiceHardcode> ReturnType;
-  
-  ReturnType produce( const HcalDbRecord& );
-
 protected:
    virtual void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
                                 const edm::IOVSyncValue& iTime, 
                                 edm::ValidityInterval& iInterval);
 private:
-  HcalDbSourceHardcode (const HcalDbSourceHardcode&);
-  const HcalDbSourceHardcode& operator= (const HcalDbSourceHardcode&);
+  HcalDbSource (const HcalDbSource&);
+  const HcalDbSource& operator= (const HcalDbSource&);
       // ----------member data ---------------------------
 };

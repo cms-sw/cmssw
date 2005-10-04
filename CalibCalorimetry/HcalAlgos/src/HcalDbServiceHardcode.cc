@@ -31,33 +31,53 @@ double HcalDbServiceHardcode::adcShape (int fCount) const {
 double HcalDbServiceHardcode::adcShapeBin (int fCount) const {
   return binMin[fCount+1] - binMin[fCount];
 }
-  // pedestal  
-double HcalDbServiceHardcode::pedestal (const cms::HcalDetId& fCell, int fCapId) const {
-  return 0.75; // 750MeV
+// pedestal  
+const float* HcalDbServiceHardcode::pedestals (const cms::HcalDetId& fCell) const {
+  int i = 4;
+  while (--i >= 0) pedestal [i] = 0.75; // 750MeV
+  return pedestal;
 }
-  // pedestal width
-double HcalDbServiceHardcode::pedestalError (const cms::HcalDetId& fCell, int fCapId) const {
-  return 0.; // none
+// pedestal width
+const float* HcalDbServiceHardcode::pedestalErrors (const cms::HcalDetId& fCell) const {
+  int i = 4;
+  while (--i >= 0) pError [i] = 0.; // none
+  return pError;
 }
-  // gain
-double HcalDbServiceHardcode::gain (const cms::HcalDetId& fCell, int fCapId) const {
-  return fCell.subdet () == cms::HcalForward ? 0.150 : 0.177; // GeV/fC 
+// gain
+const float* HcalDbServiceHardcode::gains (const cms::HcalDetId& fCell) const {
+  int i = 4;
+  while (--i >= 0) gain [i] = fCell.subdet () == cms::HcalForward ? 0.150 : 0.177; // GeV/fC
+  return gain;
 }
-  // gain width
-double HcalDbServiceHardcode::gainError (const cms::HcalDetId& fCell, int fCapId) const {
-  return 0.; // none
+// gain width
+const float* HcalDbServiceHardcode::gainErrors (const cms::HcalDetId& fCell) const {
+  int i = 4;
+  while (--i >= 0) gError [i] = 0.; // none
+  return gError;
 }
 // offset for the (cell,capId,range)
-double HcalDbServiceHardcode::offset (const cms::HcalDetId& fCell, int fCapId, int fRange) const {
-  return 0;
+const float* HcalDbServiceHardcode::offsets (const cms::HcalDetId& fCell) const {
+  int i = 4;
+  while (--i >= 0) {
+    int irange = 4;
+    while (irange <= 0) {
+      offset [HcalDbServiceBase::index (i, irange)] = 0.; // none
+    }
+  }
+  return offset;
 }
 // slope for the (cell,capId,range)
-double HcalDbServiceHardcode::slope (const cms::HcalDetId& fCell, int fCapId, int fRange) const {
-  return fCell.subdet () == cms::HcalForward ? 2.6 : 1.; 
+const float* HcalDbServiceHardcode::slopes (const cms::HcalDetId& fCell) const {
+  int i = 4;
+  while (--i >= 0) {
+    int irange = 4;
+    while (irange <= 0) {
+      slope [HcalDbServiceBase::index (i, irange)] = fCell.subdet () == cms::HcalForward ? 2.6 : 1.;
+    }
+  }
+  return slope;
 }
 
-HcalDbService* HcalDbServiceHardcode::clone () const {
-  return (HcalDbService*) new HcalDbServiceHardcode ();
+HcalDbServiceBase* HcalDbServiceHardcode::clone () const {
+  return (HcalDbServiceBase*) new HcalDbServiceHardcode ();
 }
-
-EVENTSETUP_DATA_REG(HcalDbServiceHardcode);

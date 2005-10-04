@@ -13,7 +13,7 @@
 //
 // Original Author:  Fedor Ratnikov
 //         Created:  Tue Aug  9 19:10:10 CDT 2005
-// $Id: HcalDbProducer.cc,v 1.1 2005/08/18 23:45:05 fedor Exp $
+// $Id: HcalDbProducer.cc,v 1.2 2005/08/19 17:52:10 fedor Exp $
 //
 //
 
@@ -23,8 +23,17 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
+#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbServiceHardcode.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalDbServicePool.h"
 //Frontier #include "CalibCalorimetry/HcalAlgos/interface/HcalDbServiceFrontier.h"
+
+#include "CondFormats/DataRecord/interface/HcalPedestalsRcd.h"
+#include "CondFormats/DataRecord/interface/HcalPedestalWidthsRcd.h"
+#include "CondFormats/DataRecord/interface/HcalGainsRcd.h"
+#include "CondFormats/DataRecord/interface/HcalGainWidthsRcd.h"
+
 
 #include "HcalDbProducer.h"
 
@@ -36,13 +45,22 @@ namespace {
 
 HcalDbProducer::HcalDbProducer( const edm::ParameterSet& iConfig )
   :
-  mDbSourceName (iConfig.getUntrackedParameter<std::string>("dbSource", name_hardcode))
+  mDbSourceName (iConfig.getUntrackedParameter<std::string>("dbSource", name_hardcode)),
+  mPedestals (0),
+  mPedestalWidths (0),
+  mGains (0),
+  mGainWidths (0)
 {
    //the following line is needed to tell the framework what
    // data is being produced
   std::cout << "HcalDbProducer::HcalDbProducer... Will use dbSource " 
 	    << mDbSourceName << std::endl;
-   setWhatProduced(this);
+   setWhatProduced (this);
+   setWhatProduced (this, (dependsOn (&HcalDbProducer::poolPedestalsCallback) &
+			   &HcalDbProducer::poolPedestalWidthsCallback &
+			   &HcalDbProducer::poolGainsCallback &
+			   &HcalDbProducer::poolGainWidthsCallback)
+		    ); 
 
    //now do what ever other initialization is needed
 }
@@ -68,27 +86,63 @@ HcalDbProducer::produce( const HcalDbRecord& fRecord )
   std::cout << "HcalDbProducer::produce..." << std::endl;
 
   
-  const HcalDbService* service = 0;
+  const HcalDbServiceBase* service = 0;
   if (mDbSourceName == name_hardcode) {
-    edm::eventsetup::ESHandle <HcalDbServiceHardcode> serviceHardcode;
-    fRecord.get (serviceHardcode);
-    service = serviceHardcode.product();
+    service = new HcalDbServiceHardcode ();
   }
-//Frontier  else if (mDbSourceName == name_frontier) {
-//Frontier    edm::eventsetup::ESHandle <HcalDbServiceFrontier> serviceFrontier;
-//Frontier    fRecord.get (serviceFrontier);
-//Frontier    service = serviceFrontier.product();
-//Frontier  }
+  else if (mDbSourceName == name_pool) {
+    HcalDbServicePool* poolService = new HcalDbServicePool ();
+    service = poolService;
+    if (mPedestals) poolService->setPedestals (mPedestals);
+    if (mPedestalWidths) poolService->setPedestalWidths (mPedestalWidths);
+    if (mGains) poolService->setGains (mGains);
+    if (mGainWidths) poolService->setGainWidths (mGainWidths);
+  }
   else {
     std::cerr << "HcalDbProducer::produce-> Unknown service " << mDbSourceName
 	      << ". Use one of: "  
 	      << name_hardcode 
-//Frontier	      << ", " << name_frontier  
 	      << std::endl;
   }
-  std::auto_ptr<HcalDbServiceHandle> pHcalDbServiceHandle (new HcalDbServiceHandle (service));
+  std::auto_ptr<HcalDbService> pHcalDbService (new HcalDbService (service));
 
-  std::cout << "HcalDbProducer::produce-> got service " << pHcalDbServiceHandle->service()->name () << std::endl;
-  return pHcalDbServiceHandle ;
+  std::cout << "HcalDbProducer::produce-> got service " << pHcalDbService->service()->name () << std::endl;
+  return pHcalDbService;
 }
+
+void HcalDbProducer::poolPedestalsCallback (const HcalPedestalsRcd& fRecord) {
+  std::cout << "HcalDbProducer::poolPedestalsCallback->..." << std::endl;
+  if (mDbSourceName != name_pool) return;
+  edm::eventsetup::ESHandle <HcalPedestals> item;
+  fRecord.get (item);
+  mPedestals = item.product ();
+}
+
+  void HcalDbProducer::poolPedestalWidthsCallback (const HcalPedestalWidthsRcd& fRecord) {
+  std::cout << "HcalDbProducer::poolPedestalWidthsCallback->..." << std::endl;
+  if (mDbSourceName != name_pool) return;
+  edm::eventsetup::ESHandle <HcalPedestalWidths> item;
+  fRecord.get (item);
+  mPedestalWidths = item.product ();
+}
+
+
+  void HcalDbProducer::poolGainsCallback (const HcalGainsRcd& fRecord) {
+  std::cout << "HcalDbProducer::poolGainsCallback->..." << std::endl;
+  if (mDbSourceName != name_pool) return;
+  edm::eventsetup::ESHandle <HcalGains> item;
+  fRecord.get (item);
+  mGains = item.product ();
+}
+
+
+  void HcalDbProducer::poolGainWidthsCallback (const HcalGainWidthsRcd& fRecord) {
+  std::cout << "HcalDbProducer::poolGainWidthsCallback->..." << std::endl;
+  if (mDbSourceName != name_pool) return;
+  edm::eventsetup::ESHandle <HcalGainWidths> item;
+  fRecord.get (item);
+  mGainWidths = item.product ();
+}
+
+
 

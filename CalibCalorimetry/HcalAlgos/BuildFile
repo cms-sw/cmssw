@@ -4,6 +4,7 @@
 <use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=CalibFormats/HcalObjects>
+<use name=CondFormats/HcalObjects>
 <export>
    <lib name=CalibCalorimetryHcalAlgos>
    <use name=boost>
@@ -12,4 +13,5 @@
    <use name=Foundation/PluginManager>
    <use name=FWCore/ParameterSet>
    <use name=CalibFormats/HcalObjects>
+   <use name=CondFormats/HcalObjects>
 </export>

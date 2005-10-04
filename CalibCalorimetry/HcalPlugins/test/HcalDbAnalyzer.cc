@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 19:13:25 EDT 2005
-// $Id: WhatsItAnalyzer.cc,v 1.2 2005/07/14 22:20:57 wmtan Exp $
+// $Id: HcalDbAnalyzer.cc,v 1.1 2005/08/18 23:45:05 fedor Exp $
 //
 //
 
@@ -33,8 +33,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#include "CalibFormats/HcalObjects/interface/HcalDbServiceHandle.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbServiceBase.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 
 
@@ -62,6 +62,7 @@ class HcalDbAnalyzer : public edm::EDAnalyzer {
 //
 HcalDbAnalyzer::HcalDbAnalyzer( const edm::ParameterSet& iConfig )
 {
+  std::cout << "HcalDbAnalyzer::HcalDbAnalyzer->..." << std::endl;
    //now do what ever initialization is needed
 
 }
@@ -84,14 +85,15 @@ HcalDbAnalyzer::~HcalDbAnalyzer()
 void
 HcalDbAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
-   edm::eventsetup::ESHandle<HcalDbServiceHandle> pSetup;
+  std::cout << "HcalDbAnalyzer::analyze->..." << std::endl;
+   edm::eventsetup::ESHandle<HcalDbService> pSetup;
    iSetup.get<HcalDbRecord>().get( pSetup );
    std::cout << "HcalDbAnalyzer::analyze-> got HcalDbRecord: " << pSetup->service()->name() << std::endl;
    std::cout << "HcalDbAnalyzer::analyze-> getting information for HB channel eta=1, phi=1, depth=1..." << std::endl;
    cms::HcalDetId cell (cms::HcalBarrel, 1, 1, 1);
-   const HcalCalibrations* calibrations = pSetup->getHcalCalibrations (cell);
-   const HcalCalibrationWidths* widths = pSetup->getHcalCalibrationWidths (cell);
-   const HcalChannelCoder* coder = pSetup->getChannelCoder (cell);
+   std::auto_ptr<HcalCalibrations> calibrations = pSetup->getHcalCalibrations (cell);
+   std::auto_ptr<HcalCalibrationWidths> widths = pSetup->getHcalCalibrationWidths (cell);
+   std::auto_ptr<HcalChannelCoder> coder = pSetup->getChannelCoder (cell);
    const QieShape* shape = pSetup->getBasicShape ();
    
    std::cout << "Values-> pedestals: " 
@@ -117,13 +119,13 @@ HcalDbAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
 	     << widths->gain (3) 
 	     << std::endl;
 
-   std::cout << "QIE shape:" << std::endl;
+   // std::cout << "QIE shape:" << std::endl;
    for (int i = 0; i < 128; i++) {
      double q0 = coder->charge (*shape, i, 0);
      double q1 = coder->charge (*shape, i, 1);
      double q2 = coder->charge (*shape, i, 2);
      double q3 = coder->charge (*shape, i, 3);
-     std::cout << ' ' << i << ':' << q0 << '/' << q1 << '/' << q2 << '/' << q3;
+     // std::cout << ' ' << i << ':' << q0 << '/' << q1 << '/' << q2 << '/' << q3;
    }
 
 }
