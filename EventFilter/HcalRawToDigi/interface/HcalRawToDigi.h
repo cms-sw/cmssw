@@ -25,22 +25,19 @@
 #include "EventFilter/HcalRawToDigi/interface/HcalUnpacker.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalDataFrameFilter.h"
 
-namespace cms
+class HcalRawToDigi : public edm::EDProducer
 {
-  class HcalRawToDigi : public edm::EDProducer
- {
-  public:
-    explicit HcalRawToDigi(const edm::ParameterSet& ps);
-    virtual ~HcalRawToDigi();
-    virtual void produce(edm::Event& e, const edm::EventSetup& c);
-  private:
-   HcalUnpacker unpacker_;
-   cms::hcal::HcalMapping readoutMap_;
-   cms::hcal::HcalDataFrameFilter filter_;
-   std::string readoutMapSource_;
-   std::vector<int> fedUnpackList_;
-   int firstFED_;
-  };
-}
+public:
+  explicit HcalRawToDigi(const edm::ParameterSet& ps);
+  virtual ~HcalRawToDigi();
+  virtual void produce(edm::Event& e, const edm::EventSetup& c);
+private:
+  HcalUnpacker unpacker_;
+  std::auto_ptr<HcalMapping> readoutMap_;
+  HcalDataFrameFilter filter_;
+  std::string readoutMapSource_;
+  std::vector<int> fedUnpackList_;
+  int firstFED_;
+};
 
 #endif
