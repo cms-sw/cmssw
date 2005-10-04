@@ -1,21 +1,19 @@
 /* -*- C++ -*- */
-#ifndef HcalTBInputService_h_included
-#define HcalTBInputService_h_included 1
+#ifndef HcalTBSource_h_included
+#define HcalTBSource_h_included 1
 
 #include <map>
 #include <string>
 #include <vector>
 
-#include "FWCore/Framework/interface/InputService.h"
-#include "FWCore/Framework/interface/Retriever.h"
+#include "FWCore/Framework/interface/InputSource.h"
 #include "FWCore/EDProduct/interface/EDProduct.h"
 #include "FWCore/Framework/interface/BranchKey.h"
 #include "FWCore/Framework/interface/EventProvenance.h"
 #include "FWCore/Framework/interface/EventAux.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
-#include "FWCore/Framework/interface/InputServiceDescription.h"
+#include "FWCore/Framework/interface/InputSourceDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/Retriever.h"
 #include "FWCore/Framework/interface/ProductRegistry.h"
 #include "FWCore/Framework/interface/ProductDescription.h"
 
@@ -24,24 +22,21 @@ class TTree;
 class CDFChunk;
 class CDFEventInfo;
 
-namespace cms {
-  namespace hcal {
 
-/** \class HcalTBInputService
+/** \class HcalTBSource
     
-   $Date: 2005/08/16 18:54:42 $
-   $Revision: 1.2 $
+   $Date: 2005/09/26 17:59:59 $
+   $Revision: 1.3 $
    \author J. Mans - Minnesota
 */
-class HcalTBInputService : public edm::InputService {
+class HcalTBSource : public edm::InputSource {
 public:
-explicit HcalTBInputService(const edm::ParameterSet & pset, edm::InputServiceDescription const& desc);
+explicit HcalTBSource(const edm::ParameterSet & pset, edm::InputSourceDescription const& desc);
 private:
   virtual std::auto_ptr<edm::EventPrincipal> read();
   void unpackSetup(const std::vector<std::string>& params);
   void openFile(const std::string& filename);
   std::vector<std::string> files_;
-  edm::Retriever* retriever_;
   TTree* m_tree;
   TFile* m_file;
   int fileCounter_;
@@ -57,7 +52,6 @@ private:
   edm::ProductDescription prodDesc_;
 };
 
-}
-}
 
-#endif // HcalTBInputService_h_included
+
+#endif // HcalTBSource_h_included
