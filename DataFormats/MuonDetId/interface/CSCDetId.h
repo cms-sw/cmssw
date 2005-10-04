@@ -54,7 +54,7 @@ class CSCDetId;
 
 std::ostream& operator<<( std::ostream& os, const CSCDetId& id );
 
-class CSCDetId:public cms::DetId {
+class CSCDetId:public DetId {
 
   //@@ Unnecessary?
   //  friend ostream& operator<<( ostream& os, const CSCDetectorId& id ); 
@@ -68,7 +68,7 @@ public:
   CSCDetId( unsigned int iendcap=0, unsigned int istation=0, 
 		    unsigned int iring=0, unsigned int ichamber=0, 
                      unsigned int ilayer=0 ) 
-     : DetId(cms::DetId::Muon, MuonSubdetId::CSC )
+     : DetId(DetId::Muon, MuonSubdetId::CSC )
     {id_ |= init(iendcap, istation, iring, ichamber, ilayer);  }
 
   /** Copy ctor.

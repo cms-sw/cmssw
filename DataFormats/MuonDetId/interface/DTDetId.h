@@ -3,7 +3,7 @@
    Declaration of class DTDetId
 
    \author Stefano ARGIRO
-   \version $Id: DTDetId.h,v 1.2 2005/08/23 09:11:28 argiro Exp $
+   \version $Id: DTDetId.h,v 1.3 2005/08/23 09:17:35 argiro Exp $
    \date 27 Jul 2005
 */
 
@@ -16,7 +16,7 @@
 #include <iosfwd>
 
 static const char CVSId__DTDetId[] = 
-"$Id: DTDetId.h,v 1.2 2005/08/23 09:11:28 argiro Exp $";
+"$Id: DTDetId.h,v 1.3 2005/08/23 09:17:35 argiro Exp $";
 
   /**
      \class DTDetId DTDetId.h "/DTDetId.h"
@@ -28,7 +28,7 @@ static const char CVSId__DTDetId[] =
      \date 27 Jul 2005
 
   */
-  class DTDetId :public cms::DetId {
+  class DTDetId :public DetId {
 
   public:
       
@@ -40,7 +40,7 @@ static const char CVSId__DTDetId[] =
 	    unsigned int sector,
 	    unsigned int superlayer,
 	    unsigned int layer) :
-      DetId(cms::DetId::Muon, MuonSubdetId::DT ){
+      DetId(DetId::Muon, MuonSubdetId::DT ){
  
       unsigned int tmpwheelid = (unsigned int)(wheel- minWheelId +1);
       id_ |= (tmpwheelid& wheelMask_)  << wheelStartBit_     |
