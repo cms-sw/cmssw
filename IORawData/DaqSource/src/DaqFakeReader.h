@@ -4,8 +4,8 @@
 /** \class DaqFakeReader
  *  No description available.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2005/09/30 08:17:48 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - CERN
  */
 
@@ -23,13 +23,13 @@ class DaqFakeReader : public DaqBaseReader {
   // Generate raw data for a full event
   virtual bool fillRawData(edm::EventID& eID,
 			   edm::Timestamp& tstamp, 
-			   raw::FEDRawDataCollection& data);
+			   FEDRawDataCollection& data);
 
  private:
   void fillFEDs(const std::pair<int,int>& fedRange,
 		edm::EventID& eID,
 		edm::Timestamp& tstamp, 
-		raw::FEDRawDataCollection& data,
+		FEDRawDataCollection& data,
 		float meansize,
 		float width);
 

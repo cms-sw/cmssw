@@ -4,8 +4,8 @@
 /** \class DaqSource
  *  An input service for raw data
  *
- *  $Date: 2005/08/04 15:56:38 $
- *  $Revision: 1.4 $
+ *  $Date: 2005/09/30 08:17:48 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -13,7 +13,7 @@
 #include <FWCore/Framework/interface/ProductDescription.h>
 #include <string>
 
-namespace raw {class FEDRawData;}
+class FEDRawData;
 namespace edm {class ParameterSet; class InputSourceDescription;} 
 class DaqBaseReader;
 

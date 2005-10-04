@@ -6,12 +6,12 @@
  *
  *  Derived classes must have a constructor accepting a
  *  parameter (const edm::ParameterSet& pset).
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2005/09/30 08:17:47 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - CERN
  */
 
-namespace raw {class FEDRawDataCollection; }
+class FEDRawDataCollection;
 namespace edm {class EventID; class Timestamp;   class ParameterSet;}
 
 class DaqBaseReader {
@@ -26,7 +26,7 @@ public:
   /// Fill in the raw data 
   virtual bool fillRawData(edm::EventID& eID,
 			   edm::Timestamp& tstamp, 
-			   raw::FEDRawDataCollection& data) = 0;  
+			   FEDRawDataCollection& data) = 0;  
 
 private:
 

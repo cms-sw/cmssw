@@ -1,8 +1,8 @@
 
 /* \file DaqFUReader.cc
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2005/09/30 08:17:48 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - CERN
  */
 
@@ -14,7 +14,6 @@
 
 using namespace std;
 using namespace edm;
-using namespace raw;
 
 
 DaqFUReader::DaqFUReader(const ParameterSet& pset){}

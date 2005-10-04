@@ -4,8 +4,8 @@
 /** \class DaqFUReader
  *  No description available.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2005/09/30 08:17:48 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - CERN
  */
 
@@ -23,7 +23,7 @@ public:
   // Read in a full event
   virtual bool fillRawData(edm::EventID& eID,
 			   edm::Timestamp& tstamp, 
-			   raw::FEDRawDataCollection& data);
+			   FEDRawDataCollection& data);
 
 private:
 

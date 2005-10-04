@@ -1,8 +1,8 @@
 
 /* \file DaqFakeReader.cc
  *
- *  $Date: 2005/09/30 08:17:48 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/10/03 14:09:34 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - CERN
  */
 
@@ -22,7 +22,6 @@
    
 using namespace std;
 using namespace edm;
-using namespace raw;
 
 
 DaqFakeReader::DaqFakeReader(const edm::ParameterSet& pset){

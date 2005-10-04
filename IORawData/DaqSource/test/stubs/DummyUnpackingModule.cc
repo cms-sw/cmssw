@@ -3,8 +3,8 @@
  * dummy module  for the test of  DaqFileInputService
  *   
  * 
- * $Date: 2005/08/05 13:45:53 $
- * $Revision: 1.3 $
+ * $Date: 2005/09/30 08:17:48 $
+ * $Revision: 1.1 $
  * \author N. Amapane - S. Argiro'
  *
 */
@@ -22,7 +22,6 @@
 #include <iostream>
 
 using namespace edm;
-using namespace raw;
 using namespace std;
 
 namespace test{

@@ -1,6 +1,6 @@
 /*
- *  $Date: 2005/08/23 09:25:32 $
- *  $Revision: 1.7 $
+ *  $Date: 2005/09/30 08:17:48 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -26,7 +26,6 @@
 
 using namespace edm;
 using namespace std;
-using namespace raw;
 
 
 DaqSource::DaqSource(const ParameterSet& pset, 
