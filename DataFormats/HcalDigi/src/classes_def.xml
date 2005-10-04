@@ -11,8 +11,12 @@
    <class name="std::vector<HODataFrame>"/>
    <class name="std::vector<HFDataFrame>"/>
    <class name="std::vector<HcalTriggerPrimitiveDigi>"/>
-   <class name="edm::Wrapper<std::vector<HBHEDataFrame> >" id="BB45767F-ADBB-BA48-40A0-1D23A8679810"/>
-   <class name="edm::Wrapper<std::vector<HODataFrame> >" id="0C483481-31A5-1A2E-33E7-221A15E97593"/>
-   <class name="edm::Wrapper<std::vector<HFDataFrame> >" id="82FB24CA-1EDE-B62B-AF76-D9902613D295"/>
-   <class name="edm::Wrapper<std::vector<HcalTriggerPrimitiveDigi> >" id="B0A42DE2-C779-ACA0-BA4A-FD77983208D1"/>
+   <class name="edm::SortedCollection<HBHEDataFrame,edm::StrictWeakOrdering<HBHEDataFrame> >"/>
+   <class name="edm::SortedCollection<HODataFrame,edm::StrictWeakOrdering<HODataFrame> >"/>
+   <class name="edm::SortedCollection<HFDataFrame,edm::StrictWeakOrdering<HFDataFrame> >"/>
+   <class name="edm::SortedCollection<HcalTriggerPrimitiveDigi,edm::StrictWeakOrdering<HcalTriggerPrimitiveDigi> >"/>
+   <class name="edm::Wrapper<edm::SortedCollection<HBHEDataFrame,edm::StrictWeakOrdering<HBHEDataFrame> > >" id="02547F61-D115-DB9D-08CF-D8C9C1B5BBE3"/>
+   <class name="edm::Wrapper<edm::SortedCollection<HODataFrame,edm::StrictWeakOrdering<HODataFrame> > >" id="580E7EF3-AFFA-8254-EB18-AD160AB1894B"/>
+   <class name="edm::Wrapper<edm::SortedCollection<HFDataFrame,edm::StrictWeakOrdering<HFDataFrame> > >" id="8163A4BD-37F1-5506-9BE8-BEA1F1208557"/>
+   <class name="edm::Wrapper<edm::SortedCollection<HcalTriggerPrimitiveDigi,edm::StrictWeakOrdering<HcalTriggerPrimitiveDigi> > >" id="03698ADD-E2CC-64FE-25AF-6D451CD91C3A"/>
 </lcgdict>
