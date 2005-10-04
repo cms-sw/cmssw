@@ -48,6 +48,15 @@ EmptyESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
    std::pair< std::set<edm::IOVSyncValue>::iterator, 
       std::set<edm::IOVSyncValue>::iterator > itFound = setOfIOV_.equal_range(iTime);
    
+   //we have overshot
+   if(itFound.first==itFound.second){
+      if(itFound.first == setOfIOV_.begin()){
+         //request is before first valid interval, so fail
+         return;
+      }
+      //go back one step
+      --itFound.first;
+   }
    if (itFound.first == setOfIOV_.end()) {
       return;
    }
