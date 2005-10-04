@@ -1,4 +1,4 @@
-<flags LCGDICT_ARGS="--reflex">
+<flags LCGDICT_ARGS="--">
 <use name=Dictionary/Reflex>
 <export>
  <use name=Dictionary/Reflex>
