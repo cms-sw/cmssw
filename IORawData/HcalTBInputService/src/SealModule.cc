@@ -1,9 +1,8 @@
 #include "PluginManager/ModuleDef.h"
-#include "FWCore/Framework/interface/InputServiceMacros.h"
+#include "FWCore/Framework/interface/InputSourceMacros.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "IORawData/HcalTBInputService/interface/HcalTBInputService.h"
+#include "IORawData/HcalTBInputService/interface/HcalTBSource.h"
 
-using namespace cms::hcal;
 
 DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_INPUT_SERVICE(HcalTBInputService)
+DEFINE_ANOTHER_FWK_INPUT_SOURCE(HcalTBSource)
