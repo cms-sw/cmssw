@@ -7,20 +7,20 @@
 
 namespace {
   namespace {
-    std::vector<cms::HBHERecHit> vHBHE_;
-    std::vector<cms::HORecHit> vHO_;
-    std::vector<cms::HFRecHit> vHF_;
-    std::vector<cms::HcalTriggerPrimitiveRecHit> vHTP_;
+    std::vector<HBHERecHit> vHBHE_;
+    std::vector<HORecHit> vHO_;
+    std::vector<HFRecHit> vHF_;
+    std::vector<HcalTriggerPrimitiveRecHit> vHTP_;
 
-    cms::HBHERecHitCollection theHBHE_;
-    cms::HORecHitCollection theHO_;
-    cms::HFRecHitCollection theHF_;
-    cms::HcalTrigPrimRecHitCollection theHTP_;
+    HBHERecHitCollection theHBHE_;
+    HORecHitCollection theHO_;
+    HFRecHitCollection theHF_;
+    HcalTrigPrimRecHitCollection theHTP_;
 
-    edm::Wrapper<cms::HBHERecHitCollection> theHBHEw_;
-    edm::Wrapper<cms::HORecHitCollection> theHOw_;
-    edm::Wrapper<cms::HFRecHitCollection> theHFw_;
-    edm::Wrapper<cms::HcalTrigPrimRecHitCollection> theHTPw_; 
+    edm::Wrapper<HBHERecHitCollection> theHBHEw_;
+    edm::Wrapper<HORecHitCollection> theHOw_;
+    edm::Wrapper<HFRecHitCollection> theHFw_;
+    edm::Wrapper<HcalTrigPrimRecHitCollection> theHTPw_; 
  }
 }
 

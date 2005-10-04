@@ -1,14 +1,18 @@
 <lcgdict>
-   <class name="cms::HBHERecHit"/>
-   <class name="cms::HORecHit"/>
-   <class name="cms::HFRecHit"/>
-   <class name="cms::HcalTriggerPrimitiveRecHit"/>
-   <class name="std::vector<cms::HBHERecHit>"/>
-   <class name="std::vector<cms::HORecHit>"/>
-   <class name="std::vector<cms::HFRecHit>"/>
-   <class name="std::vector<cms::HcalTriggerPrimitiveRecHit>"/>
-   <class name="edm::Wrapper<std::vector<cms::HBHERecHit> >" id="009E6B28-40A4-6436-942D-BA750B9DAE90"/>
-   <class name="edm::Wrapper<std::vector<cms::HORecHit> >" id="E5D9483E-60C1-D594-B0F5-074BF88D1157"/>
-   <class name="edm::Wrapper<std::vector<cms::HFRecHit> >" id="7D9FA577-58D7-A4A2-B9E2-CD442581513E"/>
-   <class name="edm::Wrapper<std::vector<cms::HcalTriggerPrimitiveRecHit> >" id="13D51261-2E35-8FFB-ACA8-8C9B1E684403"/>
+   <class name="HBHERecHit"/>
+   <class name="HORecHit"/>
+   <class name="HFRecHit"/>
+   <class name="HcalTriggerPrimitiveRecHit"/>
+   <class name="std::vector<HBHERecHit>"/>
+   <class name="std::vector<HORecHit>"/>
+   <class name="std::vector<HFRecHit>"/>
+   <class name="std::vector<HcalTriggerPrimitiveRecHit>"/>
+   <class name="edm::SortedCollection<HBHERecHit,edm::StrictWeakOrdering<HBHERecHit> >"/>
+   <class name="edm::SortedCollection<HORecHit,edm::StrictWeakOrdering<HORecHit> >"/>
+   <class name="edm::SortedCollection<HFRecHit,edm::StrictWeakOrdering<HFRecHit> >"/>
+   <class name="edm::SortedCollection<HcalTriggerPrimitiveRecHit,edm::StrictWeakOrdering<HcalTriggerPrimitiveRecHit> >"/>
+   <class name="edm::Wrapper<edm::SortedCollection<HBHERecHit,edm::StrictWeakOrdering<HBHERecHit> > >" id="009E6B28-40A4-6436-942D-BA750B9DAE90"/>
+   <class name="edm::Wrapper<edm::SortedCollection<HORecHit,edm::StrictWeakOrdering<HORecHit> > >" id="E5D9483E-60C1-D594-B0F5-074BF88D1157"/>
+   <class name="edm::Wrapper<edm::SortedCollection<HFRecHit,edm::StrictWeakOrdering<HFRecHit> > >" id="7D9FA577-58D7-A4A2-B9E2-CD442581513E"/>
+   <class name="edm::Wrapper<edm::SortedCollection<HcalTriggerPrimitiveRecHit,edm::StrictWeakOrdering<HcalTriggerPrimitiveRecHit> > >" id="13D51261-2E35-8FFB-ACA8-8C9B1E684403"/>
 </lcgdict>
