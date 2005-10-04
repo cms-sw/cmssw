@@ -1,3 +1,4 @@
 <lcgdict>
   <class name="DetId"/>
+  <class name="std::vector<DetId>"/>
 </lcgdict>
