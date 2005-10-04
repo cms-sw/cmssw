@@ -6,7 +6,7 @@
 
 namespace HcalUnpacker_impl {
   template <class HcalDataFrame> 
-  void unpack(const raw::FEDRawData& raw, const cms::hcal::HcalMapping& emap, std::vector<HcalDataFrame>& cont, std::vector<cms::HcalTriggerPrimitiveDigi>& tpcont, const int startSample, const int endSample, const int sourceIdOffset) {
+  void unpack(const FEDRawData& raw, const HcalMapping& emap, std::vector<HcalDataFrame>& cont, std::vector<HcalTriggerPrimitiveDigi>& tpcont, const int startSample, const int endSample, const int sourceIdOffset) {
 
     // get the DCC header
     const HcalDCCHeader* dccHeader=(const HcalDCCHeader*)(raw.data());
@@ -17,8 +17,8 @@ namespace HcalUnpacker_impl {
     // walk through the HTR data...
     HcalHTRData htr;
     const unsigned short* daq_first, *daq_last, *tp_first, *tp_last;
-    const cms::HcalQIESample* qie_begin, *qie_end, *qie_work;
-    const cms::HcalTriggerPrimitiveSample *tp_begin, *tp_end, *tp_work; 
+    const HcalQIESample* qie_begin, *qie_end, *qie_work;
+    const HcalTriggerPrimitiveSample *tp_begin, *tp_end, *tp_work; 
     for (int spigot=0; spigot<HcalDCCHeader::SPIGOT_COUNT; spigot++) {
       if (!dccHeader->getSpigotPresent(spigot)) continue;
 
@@ -34,8 +34,8 @@ namespace HcalUnpacker_impl {
       // get pointers
       htr.dataPointers(&daq_first,&daq_last,&tp_first,&tp_last);
 
-      tp_begin=(cms::HcalTriggerPrimitiveSample*)tp_first;
-      tp_end=(cms::HcalTriggerPrimitiveSample*)(tp_last+1); // one beyond last..
+      tp_begin=(HcalTriggerPrimitiveSample*)tp_first;
+      tp_end=(HcalTriggerPrimitiveSample*)(tp_last+1); // one beyond last..
 
       /// work through the samples
       int currFiberChan=0x3F; // invalid fiber+channel...
@@ -47,14 +47,14 @@ namespace HcalUnpacker_impl {
 	if (tp_work->fiberAndChan()!=currFiberChan) { // start new set
 	  currFiberChan=tp_work->fiberAndChan();
 	  // lookup the right channel
-	  cms::HcalElectronicsId eid(tp_work->fiberChan(),tp_work->fiber(),spigot,dccid);
-	  cms::HcalTrigTowerDetId id=emap.lookupTrigger(eid);
+	  HcalElectronicsId eid(tp_work->fiberChan(),tp_work->fiber(),spigot,dccid);
+	  HcalTrigTowerDetId id=emap.lookupTrigger(eid);
 	  if (id.null()) {
 	    //	    std::cerr << "No match found for " << eid << std::endl;
 	    valid=false;
 	    continue;
 	  } 
-	  tpcont.push_back(cms::HcalTriggerPrimitiveDigi(id));
+	  tpcont.push_back(HcalTriggerPrimitiveDigi(id));
 	  // set the various bits
 	  tpcont.back().setPresamples(nps);
 	  // no hits recorded for current
@@ -70,8 +70,8 @@ namespace HcalUnpacker_impl {
       }
 
 
-      qie_begin=(cms::HcalQIESample*)daq_first;
-      qie_end=(cms::HcalQIESample*)(daq_last+1); // one beyond last..
+      qie_begin=(HcalQIESample*)daq_first;
+      qie_end=(HcalQIESample*)(daq_last+1); // one beyond last..
 
       /// work through the samples
       currFiberChan=0x3F; // invalid fiber+channel...
@@ -83,8 +83,8 @@ namespace HcalUnpacker_impl {
 	if (qie_work->fiberAndChan()!=currFiberChan) { // start new set
 	  currFiberChan=qie_work->fiberAndChan();
 	  // lookup the right channel
-	  cms::HcalElectronicsId eid(qie_work->fiberChan(),qie_work->fiber(),spigot,dccid);
-	  cms::HcalDetId id=emap.lookup(eid);
+	  HcalElectronicsId eid(qie_work->fiberChan(),qie_work->fiber(),spigot,dccid);
+	  HcalDetId id=emap.lookup(eid);
 	  if (id.null()) {
 	    //	    std::cerr << "No match found for " << eid << std::endl;
 	    valid=false;
@@ -109,14 +109,14 @@ namespace HcalUnpacker_impl {
   }
 }
 
-void HcalUnpacker::unpack(const raw::FEDRawData& raw, const cms::hcal::HcalMapping& emap, std::vector<cms::HBHEDataFrame>& container, std::vector<cms::HcalTriggerPrimitiveDigi>& tp) {
-  HcalUnpacker_impl::unpack<cms::HBHEDataFrame>(raw,emap,container,tp,startSample_,endSample_, sourceIdOffset_);
+void HcalUnpacker::unpack(const FEDRawData& raw, const HcalMapping& emap, std::vector<HBHEDataFrame>& container, std::vector<HcalTriggerPrimitiveDigi>& tp) {
+  HcalUnpacker_impl::unpack<HBHEDataFrame>(raw,emap,container,tp,startSample_,endSample_, sourceIdOffset_);
 }
 
-void HcalUnpacker::unpack(const raw::FEDRawData& raw, const cms::hcal::HcalMapping& emap, std::vector<cms::HODataFrame>& container, std::vector<cms::HcalTriggerPrimitiveDigi>& tp) {
-  HcalUnpacker_impl::unpack<cms::HODataFrame>(raw,emap,container,tp,startSample_,endSample_, sourceIdOffset_);
+void HcalUnpacker::unpack(const FEDRawData& raw, const HcalMapping& emap, std::vector<HODataFrame>& container, std::vector<HcalTriggerPrimitiveDigi>& tp) {
+  HcalUnpacker_impl::unpack<HODataFrame>(raw,emap,container,tp,startSample_,endSample_, sourceIdOffset_);
 }
 
-void HcalUnpacker::unpack(const raw::FEDRawData& raw, const cms::hcal::HcalMapping& emap, std::vector<cms::HFDataFrame>& container, std::vector<cms::HcalTriggerPrimitiveDigi>& tp) {
-  HcalUnpacker_impl::unpack<cms::HFDataFrame>(raw,emap,container,tp,startSample_,endSample_, sourceIdOffset_);
+void HcalUnpacker::unpack(const FEDRawData& raw, const HcalMapping& emap, std::vector<HFDataFrame>& container, std::vector<HcalTriggerPrimitiveDigi>& tp) {
+  HcalUnpacker_impl::unpack<HFDataFrame>(raw,emap,container,tp,startSample_,endSample_, sourceIdOffset_);
 }

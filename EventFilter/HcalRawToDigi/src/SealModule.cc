@@ -3,7 +3,5 @@
 
 #include "EventFilter/HcalRawToDigi/interface/HcalRawToDigi.h"
 
-using namespace cms;
-
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(HcalRawToDigi)
