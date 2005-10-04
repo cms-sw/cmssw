@@ -1,8 +1,6 @@
 #include "DataFormats/HcalDigi/interface/HcalQIESample.h"
 
-namespace cms {
-
-  static const float nominal_adc2fc[128] = {-0.5f,0.5f,1.5f,2.5f,3.5f,4.5f,5.5f,6.5f,7.5f,8.5f,9.5f,10.5f,11.5f,12.5f,13.5f,
+static const float nominal_adc2fc[128] = {-0.5f,0.5f,1.5f,2.5f,3.5f,4.5f,5.5f,6.5f,7.5f,8.5f,9.5f,10.5f,11.5f,12.5f,13.5f,
 					    15.0f,17.0f,19.0f,21.0f,23.0f,25.0f,27.0f,
 					    29.5f,32.5f,35.5f,38.5f,
 					    42.0f,46.0f,50.0f,
@@ -23,21 +21,20 @@ namespace cms {
 					    7172.0f,7672.0f,8172.0f,
 					    8734.5f,9359.5f,9984.5f};
 
-  HcalQIESample::HcalQIESample(int adc, int capid, int fiber, int fiberchan, bool dv, bool er) {
-    theSample=(adc&0x7f) | ((capid&0x3)<<7) |
-      ((fiber&0x7)<<13) | ((fiberchan&0x3)<<11) |
-      ((dv)?(0x0200):(0)) | ((er)?(0x0400):(0));
-  }
-
-  double HcalQIESample::nominal_fC() const {
-    return nominal_adc2fc[adc()];
-  }
-
-  std::ostream& operator<<(std::ostream& s, const HcalQIESample& samp) {
-    s << "ADC=" << samp.adc() << ", capid=" << samp.capid();
-    if (samp.er()) s << ", ER";
-    if (samp.dv()) s << ", DV";
-    return s;
-  }
-
+HcalQIESample::HcalQIESample(int adc, int capid, int fiber, int fiberchan, bool dv, bool er) {
+  theSample=(adc&0x7f) | ((capid&0x3)<<7) |
+    ((fiber&0x7)<<13) | ((fiberchan&0x3)<<11) |
+    ((dv)?(0x0200):(0)) | ((er)?(0x0400):(0));
 }
+
+double HcalQIESample::nominal_fC() const {
+  return nominal_adc2fc[adc()];
+}
+
+std::ostream& operator<<(std::ostream& s, const HcalQIESample& samp) {
+  s << "ADC=" << samp.adc() << ", capid=" << samp.capid();
+  if (samp.er()) s << ", ER";
+  if (samp.dv()) s << ", DV";
+  return s;
+}
+

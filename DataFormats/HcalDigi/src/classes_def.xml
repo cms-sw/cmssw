@@ -1,18 +1,18 @@
 <lcgdict>
-   <class name="cms::HcalQIESample"/>
-   <class name="cms::HBHEDataFrame"/>
-   <class name="cms::HODataFrame"/>
-   <class name="cms::HFDataFrame"/>
-   <class name="cms::HcalTriggerPrimitiveSample"/>
-   <class name="cms::HcalTriggerPrimitiveDigi"/>
-   <class name="std::vector<cms::HcalQIESample>"/>
-   <class name="std::vector<cms::HcalTriggerPrimitiveSample>"/>
-   <class name="std::vector<cms::HBHEDataFrame>"/>
-   <class name="std::vector<cms::HODataFrame>"/>
-   <class name="std::vector<cms::HFDataFrame>"/>
-   <class name="std::vector<cms::HcalTriggerPrimitiveDigi>"/>
-   <class name="edm::Wrapper<std::vector<cms::HBHEDataFrame> >" id="BB45767F-ADBB-BA48-40A0-1D23A8679810"/>
-   <class name="edm::Wrapper<std::vector<cms::HODataFrame> >" id="0C483481-31A5-1A2E-33E7-221A15E97593"/>
-   <class name="edm::Wrapper<std::vector<cms::HFDataFrame> >" id="82FB24CA-1EDE-B62B-AF76-D9902613D295"/>
-   <class name="edm::Wrapper<std::vector<cms::HcalTriggerPrimitiveDigi> >" id="B0A42DE2-C779-ACA0-BA4A-FD77983208D1"/>
+   <class name="HcalQIESample"/>
+   <class name="HBHEDataFrame"/>
+   <class name="HODataFrame"/>
+   <class name="HFDataFrame"/>
+   <class name="HcalTriggerPrimitiveSample"/>
+   <class name="HcalTriggerPrimitiveDigi"/>
+   <class name="std::vector<HcalQIESample>"/>
+   <class name="std::vector<HcalTriggerPrimitiveSample>"/>
+   <class name="std::vector<HBHEDataFrame>"/>
+   <class name="std::vector<HODataFrame>"/>
+   <class name="std::vector<HFDataFrame>"/>
+   <class name="std::vector<HcalTriggerPrimitiveDigi>"/>
+   <class name="edm::Wrapper<std::vector<HBHEDataFrame> >" id="BB45767F-ADBB-BA48-40A0-1D23A8679810"/>
+   <class name="edm::Wrapper<std::vector<HODataFrame> >" id="0C483481-31A5-1A2E-33E7-221A15E97593"/>
+   <class name="edm::Wrapper<std::vector<HFDataFrame> >" id="82FB24CA-1EDE-B62B-AF76-D9902613D295"/>
+   <class name="edm::Wrapper<std::vector<HcalTriggerPrimitiveDigi> >" id="B0A42DE2-C779-ACA0-BA4A-FD77983208D1"/>
 </lcgdict>
