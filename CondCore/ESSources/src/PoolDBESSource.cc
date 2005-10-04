@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jul 23 14:57:44 EDT 2005
-// $Id: PoolDBESSource.cc,v 1.9 2005/09/29 18:28:49 xiezhen Exp $
+// $Id: PoolDBESSource.cc,v 1.10 2005/09/30 12:06:55 xiezhen Exp $
 //
 //
 
@@ -56,7 +56,7 @@
 //
 
 class PoolDBESSource : public edm::eventsetup::DataProxyProvider, 
-		       public edm::eventsetup::EventSetupRecordIntervalFinder
+		       public edm::EventSetupRecordIntervalFinder
 {
 public:
   PoolDBESSource( const edm::ParameterSet& );
