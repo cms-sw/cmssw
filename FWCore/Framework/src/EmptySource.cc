@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EmptySource.cc,v 1.1 2005/09/07 19:09:26 wmtan Exp $
+$Id: EmptySource.cc,v 1.1 2005/09/28 05:18:26 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <stdexcept>
@@ -24,7 +24,7 @@ namespace edm {
 				       InputSourceDescription const& desc) :
     RandomAccessInputSource(desc),
     remainingEvents_(pset.getUntrackedParameter<int>("maxEvents", -1)),
-    numberEventsInRun_(pset.getUntrackedParameter<unsigned int>("numberEventsInRun", remainingEvents_+1)),
+    numberEventsInRun_(pset.getUntrackedParameter<unsigned int>("numberEventsInRun", remainingEvents_)),
     presentRun_(pset.getUntrackedParameter<unsigned int>("firstRun",1)),
     nextTime_(pset.getUntrackedParameter<unsigned int>("firstTime",1)),  //time in ns
     timeBetweenEvents_(pset.getUntrackedParameter<unsigned int>("timeBetweenEvents",kNanoSecPerSec/kAveEventPerSec)),
