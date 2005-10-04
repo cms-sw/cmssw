@@ -2,18 +2,20 @@
     
     Container for ADC<->fQ conversion constants for HCAL QIE
    $Author: ratnikov
-   $Date: 2005/08/02 01:31:24 $
-   $Revision: 1.2 $
+   $Date: 2005/08/18 23:41:41 $
+   $Revision: 1.1 $
 */
+
+#include <iostream>
 
 #include "CalibFormats/HcalObjects/interface/HcalChannelCoder.h"
 #include "CalibFormats/HcalObjects/interface/QieShape.h"
 
-HcalChannelCoder::HcalChannelCoder (double fOffset [4][4], double fSlope [4][4]) { // [CapId][Range]
+HcalChannelCoder::HcalChannelCoder (const float fOffset [16], const float fSlope [16]) { // [CapId][Range]
   for (int range = 0; range < 4; range++) {
     for (int capId = 0; capId < 4; capId++) {
-      mOffset [capId][range] = fOffset [capId][range];
-      mSlope [capId][range] = fSlope [capId][range];
+      mOffset [capId][range] = fOffset [index (capId, range)];
+      mSlope [capId][range] = fSlope [index (capId, range)];
     }
   }
 }
@@ -21,6 +23,8 @@ HcalChannelCoder::HcalChannelCoder (double fOffset [4][4], double fSlope [4][4])
 double HcalChannelCoder::charge (const QieShape& fShape, int fAdc, int fCapId) const {
   int range = (fAdc >> 6) & 0x3;
   double charge = (fShape.linearization (fAdc) - mOffset [fCapId][range]) * mSlope [fCapId][range];
+//   std::cout << "HcalChannelCoder::charge-> " << fAdc << '/' << fCapId 
+// 	    << " result: " << charge << std::endl;
   return charge;
 }
 
@@ -42,6 +46,9 @@ int HcalChannelCoder::adc (const QieShape& fShape, double fCharge, int fCapId) c
     if (adc >= 0) break; // found
   }
   if (adc < 0) adc = 0; // underflow
+
+//   std::cout << "HcalChannelCoder::adc-> " << fCharge << '/' << fCapId 
+// 	    << " result: " << adc << std::endl;
   return adc;
 }
 

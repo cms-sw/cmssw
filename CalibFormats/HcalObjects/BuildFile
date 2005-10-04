@@ -2,6 +2,7 @@
 <use name=DataFormats/HcalDetId>
 <use name=CalibFormats/CaloObjects>
 <use name=DataFormats/HcalDigi>
+<use name=CondFormats/DataRecord>
 <use name=boost>
 
 <export>
@@ -11,5 +12,6 @@
    <use name=DataFormats/HcalDetId>
    <use name=CalibFormats/CaloObjects>
    <use name=DataFormats/HcalDigi>
+   <use name=CondFormats/DataRecord>
 </export>
 
