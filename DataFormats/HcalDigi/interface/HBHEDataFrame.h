@@ -14,6 +14,8 @@ Precision readout digi for HB and HE.
 */
 class HBHEDataFrame {
 public:
+  typedef HcalDetId key_type; ///< For the sorted collection
+
   HBHEDataFrame(); // for persistence
   explicit HBHEDataFrame(const HcalDetId& id);
   

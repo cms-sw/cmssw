@@ -14,6 +14,8 @@ Precision readout digi for HF
 */
 class HFDataFrame {
 public:
+  typedef HcalDetId key_type; ///< For the sorted collection
+
   HFDataFrame(); // for persistence
   explicit HFDataFrame(const HcalDetId& id);
   

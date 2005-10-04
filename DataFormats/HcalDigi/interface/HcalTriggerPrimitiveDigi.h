@@ -8,12 +8,14 @@
 
 /** \class HcalTriggerPrimitiveDigi
     
-$Date: 2005/07/26 14:45:36 $
-$Revision: 1.3 $
+$Date: 2005/10/04 13:37:35 $
+$Revision: 1.4 $
 \author J. Mans - Minnesota
 */
 class HcalTriggerPrimitiveDigi {
 public:
+  typedef HcalTrigTowerDetId key_type; ///< For the sorted collection
+
   HcalTriggerPrimitiveDigi(); // for persistence
   explicit HcalTriggerPrimitiveDigi(const HcalTrigTowerDetId& id);
   

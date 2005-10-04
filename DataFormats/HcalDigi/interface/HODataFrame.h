@@ -15,6 +15,8 @@ Precision readout digi for HO
 */
 class HODataFrame {
 public:
+  typedef HcalDetId key_type; ///< For the sorted collection
+
   HODataFrame(); // for persistence
   explicit HODataFrame(const HcalDetId& id);
   
