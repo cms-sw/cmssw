@@ -87,7 +87,7 @@ CaloGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& 
    //
    // get the hcal geometry
    //
-   edm::eventsetup::ESHandle<CaloGeometry> pG;
+   edm::ESHandle<CaloGeometry> pG;
    iSetup.get<IdealGeometryRecord>().get(pG);     
       
 }

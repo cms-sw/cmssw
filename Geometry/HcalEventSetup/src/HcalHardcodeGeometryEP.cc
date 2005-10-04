@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Mon Oct  3 11:35:27 CDT 2005
-// $Id$
+// $Id: HcalHardcodeGeometryEP.cc,v 1.1 2005/10/04 01:04:39 mansj Exp $
 //
 //
 
@@ -35,7 +35,7 @@
 // class decleration
 //
 
-class HcalHardcodeGeometryEP : public edm::eventsetup::ESProducer {
+class HcalHardcodeGeometryEP : public edm::ESProducer {
    public:
       HcalHardcodeGeometryEP(const edm::ParameterSet&);
       ~HcalHardcodeGeometryEP();

@@ -4,7 +4,6 @@
   <use name=Geometry/CaloTopology>
   <use name=DataFormats/HcalDetId>
 </export>
-<flags SEAL_PLUGIN_NAME="GeometryHcalTowerAlgo">
 <use name=Geometry/CaloGeometry>
 <use name=Geometry/CaloTopology>
 <use name=DataFormats/HcalDetId>

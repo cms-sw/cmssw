@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Mon Oct  3 11:35:27 CDT 2005
-// $Id$
+// $Id: CaloGeometryBuilder.cc,v 1.1 2005/10/04 02:21:47 mansj Exp $
 //
 //
 
@@ -36,7 +36,7 @@
 // class decleration
 //
 
-class CaloGeometryBuilder : public edm::eventsetup::ESProducer {
+class CaloGeometryBuilder : public edm::ESProducer {
    public:
   CaloGeometryBuilder(const edm::ParameterSet&);
   ~CaloGeometryBuilder();
@@ -83,7 +83,7 @@ CaloGeometryBuilder::ReturnType
 CaloGeometryBuilder::produce(const IdealGeometryRecord& iRecord)
 {
    using namespace edm::es;
-   edm::eventsetup::ESHandle<CaloSubdetectorGeometry> pG;
+   edm::ESHandle<CaloSubdetectorGeometry> pG;
 
    std::auto_ptr<CaloGeometry> pCaloGeom(new CaloGeometry());
 
