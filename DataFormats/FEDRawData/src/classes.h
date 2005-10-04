@@ -7,9 +7,9 @@
    namespace {
 
      std::vector<unsigned char> v;  
-     raw::FEDRawData              a1; 
-     std::vector<raw::FEDRawData> a2;
-     raw::FEDRawDataCollection    a3;
-     edm::Wrapper<raw::FEDRawDataCollection> d;
+     FEDRawData              a1; 
+     std::vector<FEDRawData> a2;
+     FEDRawDataCollection    a3;
+     edm::Wrapper<FEDRawDataCollection> d;
    }
  }

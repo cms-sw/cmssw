@@ -3,7 +3,7 @@
    implementation of class FedRawData
 
    \author Stefano ARGIRO
-   \version $Id: FEDRawData.cc,v 1.2 2005/09/30 08:12:56 namapane Exp $
+   \version $Id: FEDRawData.cc,v 1.3 2005/09/30 12:35:20 namapane Exp $
    \date 28 Jun 2005
 */
 
@@ -11,7 +11,6 @@
 #include <FWCore/Utilities/interface/Exception.h>
 #include <iostream>
 
-using namespace raw;
 using namespace std;
 
 FEDRawData::FEDRawData(){}

@@ -1,8 +1,8 @@
 /** \file DaqRawDataCollection.cc
  *  implementation of DaqRawDataCollection
  *
- *  $Date: 2005/07/06 16:37:54 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/09/30 08:12:56 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -13,7 +13,6 @@
 
 #include <iostream>
 
-using namespace raw;
 using namespace std;
 
 FEDRawDataCollection::FEDRawDataCollection():
