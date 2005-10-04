@@ -3,9 +3,7 @@
 #define HcalMappingTextFileReader_h_included 1
 
 #include "CondFormats/HcalMapping/interface/HcalMapping.h"
-
-namespace cms {
-  namespace hcal {
+#include <memory>
 
 /** \class HcalMappingTextFileReader
 
@@ -24,16 +22,14 @@ namespace cms {
    Column 11: IPHI
    Column 12: Depth
     
-   $Date: $
-   $Revision: $
+   $Date: 2005/07/26 15:11:32 $
+   $Revision: 1.1 $
    \author J. Mans - Minnesota
 */
 class HcalMappingTextFileReader {
 public:
-  static HcalMapping readFromFile(const char* filename, bool maintainL2E=false);
+  static std::auto_ptr<HcalMapping> readFromFile(const char* filename, bool maintainL2E=false);
 };
 
-  }
-}
 
 #endif // HcalMappingTextFileReader_h_included

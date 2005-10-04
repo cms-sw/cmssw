@@ -5,11 +5,10 @@
 #include <iostream> 
 using namespace std;
 
-namespace cms {
-  namespace hcal {
-HcalMapping HcalMappingTextFileReader::readFromFile(const char* filename, bool maintainL2E) {
 
-  HcalMapping hrm(maintainL2E);
+std::auto_ptr<HcalMapping> HcalMappingTextFileReader::readFromFile(const char* filename, bool maintainL2E) {
+
+  std::auto_ptr<HcalMapping> hrm(new HcalMapping(maintainL2E));
   char buffer[1024];
   int lineNo, crate, slot;
   char tb;
@@ -41,15 +40,15 @@ HcalMapping HcalMappingTextFileReader::readFromFile(const char* filename, bool m
     else cerr << "Unknown tb = " << tb;
     
     if (!strcasecmp(subdet,"HB")) {
-      hrm.setMap(eid,HcalDetId(HcalBarrel,ieta,iphi,depth));
+      hrm->setMap(eid,HcalDetId(HcalBarrel,ieta,iphi,depth));
     } else if (!strcasecmp(subdet,"HE")) {
-      hrm.setMap(eid,HcalDetId(HcalEndcap,ieta,iphi,depth));
+      hrm->setMap(eid,HcalDetId(HcalEndcap,ieta,iphi,depth));
     } else if (!strcasecmp(subdet,"HF")) {
-      hrm.setMap(eid,HcalDetId(HcalForward,ieta,iphi,depth));
+      hrm->setMap(eid,HcalDetId(HcalForward,ieta,iphi,depth));
     } else if (!strcasecmp(subdet,"HO")) {
-      hrm.setMap(eid,HcalDetId(HcalOuter,ieta,iphi,depth));
+      hrm->setMap(eid,HcalDetId(HcalOuter,ieta,iphi,depth));
     } else if (!strcasecmp(subdet,"HT")) {
-      hrm.setTriggerMap(eid,HcalTrigTowerDetId(ieta,iphi));
+      hrm->setTriggerMap(eid,HcalTrigTowerDetId(ieta,iphi));
     } else {
       cerr << lineNo << " Unknown subdet = " << subdet << endl;
       continue;
@@ -58,5 +57,4 @@ HcalMapping HcalMappingTextFileReader::readFromFile(const char* filename, bool m
   }
   return hrm;
 }
-  }
-}
+

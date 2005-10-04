@@ -1,7 +1,5 @@
 #include "CondFormats/HcalMapping/interface/HcalMapping.h"
 #include <iostream>
-namespace cms {
-  namespace hcal {
 
 HcalMapping::HcalMapping(bool maintainL2E) : 
   maintainL2E_(maintainL2E), 
@@ -105,5 +103,4 @@ HcalSubdetector HcalMapping::majorityDetector(int dccid) const {
   if (dccid<0 || dccid>HcalElectronicsId::maxDCCId) return HcalSubdetector(0);
   return dccIds_[dccid].majorityId;
 }
-  }
-}
+
