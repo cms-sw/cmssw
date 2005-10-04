@@ -10,5 +10,5 @@ Local3DPoint PixelBarrelFrameRotation::transformPoint(Local3DPoint & point,G4VPh
   // TkDDDInterface/interface/PlaneBuilder.h::makeRightHand
   //
   //  return Local3DPoint(point.x()/cm,-point.z()/cm,point.y()/cm);
-  return Local3DPoint(point.x()/cm,point.z()/cm,-point.y()/cm);
+  return Local3DPoint(point.x()/cm,point.y()/cm,point.z()/cm);
 }
