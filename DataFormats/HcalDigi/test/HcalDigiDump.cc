@@ -12,8 +12,8 @@ using namespace std;
 
 /** \class HcalDigiDump
       
-$Date: 2005/09/29 22:23:26 $
-$Revision: 1.2 $
+$Date: 2005/10/04 13:37:35 $
+$Revision: 1.3 $
 \author J. Mans - Minnesota
 */
 class HcalDigiDump : public edm::EDAnalyzer {
@@ -38,8 +38,8 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
     for (i=hbhe.begin(); i!=hbhe.end(); i++) {
       const HBHEDigiCollection& c=*(*i);
       
-      for (unsigned int j=0; j<c.size(); j++)
-	cout << c[j] << std::endl;
+      for (HBHEDigiCollection::const_iterator j=c.begin(); j!=c.end(); j++)
+	cout << *j << std::endl;
     }
   } catch (...) {
     cout << "No HB/HE Digis." << endl;
@@ -52,8 +52,8 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
     for (i=hf.begin(); i!=hf.end(); i++) {
       const HFDigiCollection& c=*(*i);
       
-      for (unsigned int j=0; j<c.size(); j++)
-	cout << c[j] << std::endl;
+      for (HFDigiCollection::const_iterator j=c.begin(); j!=c.end(); j++)
+	cout << *j << std::endl;
     }
   } catch (...) {
     cout << "No HF Digis." << endl;
@@ -66,8 +66,9 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
     for (i=ho.begin(); i!=ho.end(); i++) {
       const HODigiCollection& c=*(*i);
       
-      for (unsigned int j=0; j<c.size(); j++)
-	cout << c[j] << std::endl;
+      for (HODigiCollection::const_iterator j=c.begin(); j!=c.end(); j++)
+	cout << *j << std::endl;
+
     }
   } catch (...) {
     cout << "No HO Digis." << endl;
