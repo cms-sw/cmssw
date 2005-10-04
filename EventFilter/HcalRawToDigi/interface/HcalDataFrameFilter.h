@@ -3,8 +3,6 @@
 
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
-namespace cms {
-  namespace hcal {
 /** \class HcalDataFrameFilter
     
     Utility algorithm for filtering out digis from testbeam, etc where
@@ -14,8 +12,8 @@ namespace cms {
     As these are applied in units proportional to energy, rather than
     transverse energy, and no calibration is applied, care should be used.
    
-   $Date: $
-   $Revision: $
+   $Date: 2005/07/26 15:10:51 $
+   $Revision: 1.1 $
    \author J. Mans - Minnesota
 */
 class HcalDataFrameFilter {
@@ -37,7 +35,6 @@ private:
   double minimumAmplitude_;
 };
 
-  }
-}
+
 
 #endif
