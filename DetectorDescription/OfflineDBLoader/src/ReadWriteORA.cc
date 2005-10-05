@@ -26,6 +26,8 @@
 #include "SealUtil/SealTimer.h"
 #include "SealBase/ShellEnvironment.h"
 
+#include "Reflex/Type.h"
+
 #include<string>
 
 using cond::MetaData;
@@ -95,7 +97,8 @@ bool ReadWriteORA::writeDB ( ) {
 
     pool::Ref<PIdealGeometry> pgeom(svc, new PIdealGeometry);
 
-    pool::Placement geomPlace(dbConnectString_, pool::DatabaseSpecification::PFN, type_, pool::Guid::null(), tech);
+    //    pool::Placement geomPlace(dbConnectString_, pool::DatabaseSpecification::PFN, type_, pool::Guid::null(), tech);
+    pool::Placement geomPlace(dbConnectString_, pool::DatabaseSpecification::PFN, type_, seal::reflex::Type(), tech);
  
     // This will also register the file. For this to occur, the placement object must use a PFN.
     pgeom.markWrite(geomPlace);
@@ -269,10 +272,11 @@ bool ReadWriteORA::readFromXML ( ) {
 /// Read back from the persistent objects
 bool ReadWriteORA::readFromDB ( ) {
 
-  MetaData meta(dbConnectString_);
+  MetaData* meta = new MetaData(dbConnectString_);
 
   std::cout << "Looking for ..." << name_ << std::endl;
-  std::string aToken= meta.getToken(name_);
+  std::string aToken= meta->getToken(name_);
+  delete meta;
   seal::SealTimer timer("ReadWriteORA::readFromDB");
   DDORAReader ddorar( "cms:OCMS", 
 		      aToken,
