@@ -10,6 +10,8 @@
 #include "DataFormats/JetObjects/interface/CaloJetCollection.h"
 #include "FWCore/Framework/interface/Handle.h"
 
+using namespace jetdemo;
+
 namespace cms
 {
 

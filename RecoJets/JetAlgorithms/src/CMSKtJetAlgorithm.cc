@@ -12,6 +12,7 @@
 
 using std::cout;
 using std::endl;
+using namespace jetdemo;
 
 /** Implemented by Fernando Varela Rodriguez
 

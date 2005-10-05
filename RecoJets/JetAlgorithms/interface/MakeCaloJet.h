@@ -6,6 +6,6 @@ class ProtoJet;
 #include "DataFormats/JetObjects/interface/CaloJetCollectionfwd.h"
 #include "DataFormats/CaloObjects/interface/CaloTowerCollectionfwd.h"
 
-void MakeCaloJet(const CaloTowerCollection &ctc, const std::vector<ProtoJet>& protoJets, CaloJetCollection &caloJets);
+void MakeCaloJet(const jetdemo::CaloTowerCollection &ctc, const std::vector<ProtoJet>& protoJets, CaloJetCollection &caloJets);
 
 #endif

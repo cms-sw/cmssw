@@ -25,6 +25,8 @@
 int signum(double x);
 
 class ProtoJet {
+ typedef jetdemo::CaloTowerCollection CaloTowerCollection;
+ typedef jetdemo::CaloTower CaloTower;
 public:
   /** Default Constructor */
   ProtoJet();

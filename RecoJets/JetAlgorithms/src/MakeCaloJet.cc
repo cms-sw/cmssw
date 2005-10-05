@@ -4,6 +4,8 @@
 #include "DataFormats/JetObjects/interface/CaloJet.h"
 #include "DataFormats/JetObjects/interface/CaloJetCollection.h"
 
+using namespace jetdemo;
+
 void MakeCaloJet(const CaloTowerCollection &ctc, const std::vector<ProtoJet>& protoJets, CaloJetCollection& caloJets){
 
    //Loop over the transient protoJets 

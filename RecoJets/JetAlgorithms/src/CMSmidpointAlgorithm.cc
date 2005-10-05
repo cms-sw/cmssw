@@ -35,6 +35,7 @@
 #include "RecoJets/JetAlgorithms/interface/MakeCaloJet.h"
 
 using namespace std;
+using namespace jetdemo;
 
 //  Run the algorithm
 //  ------------------

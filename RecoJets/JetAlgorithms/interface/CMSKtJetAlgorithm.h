@@ -30,6 +30,7 @@
  
 class CMSKtJetAlgorithm
 {
+ typedef jetdemo::CaloTowerCollection CaloTowerCollection;
 public:
 
   /** Default constructor    */

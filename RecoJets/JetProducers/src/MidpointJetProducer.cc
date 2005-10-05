@@ -11,6 +11,8 @@
 #include "DataFormats/CaloObjects/interface/CaloTowerCollection.h"
 #include "FWCore/Framework/interface/Handle.h"
 
+using namespace jetdemo;
+
 namespace cms
 {
 

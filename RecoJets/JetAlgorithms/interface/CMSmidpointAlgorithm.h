@@ -34,6 +34,8 @@
 
 class CMSmidpointAlgorithm 
 {
+ typedef jetdemo::CaloTowerCollection CaloTowerCollection;
+ typedef jetdemo::CaloTowerHelper CaloTowerHelper;
  public:
   /// Default constructor which defines the default values of the algorithm parameters
   ///
