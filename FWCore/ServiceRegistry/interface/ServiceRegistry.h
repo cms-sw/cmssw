@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 13:33:00 EDT 2005
-// $Id: ServiceRegistry.h,v 1.6 2005/09/22 07:33:46 chrjones Exp $
+// $Id: ServiceRegistry.h,v 1.7 2005/09/22 13:50:08 chrjones Exp $
 //
 
 // system include files
@@ -89,11 +89,12 @@ namespace edm {
       
    
    private:
-
+   public: // Made public (temporarily) at the request of Emilio Meschi.
       static ServiceToken createSet(const std::vector<ParameterSet>&);
       static ServiceToken createSet(const std::vector<ParameterSet>&,
                                     ServiceToken,
                                     serviceregistry::ServiceLegacy);
+   private:
       /// create a service token that holds the service defined by iService
       template<class T>
          static ServiceToken createContaining(std::auto_ptr<T> iService){
