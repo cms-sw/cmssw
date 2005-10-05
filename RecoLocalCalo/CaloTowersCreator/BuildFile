@@ -1,0 +1,14 @@
+<use name=boost>
+<use name=DataFormats/CaloTowers>
+<use name=DataFormats/HcalRecHit>
+<use name=Geometry/CaloTopology>
+<use name=Geometry/CaloGeometry>
+<export>
+ <lib name=RecoLocalCaloCaloTowersCreator>
+ <use name=boost>
+ <use name=DataFormats/HcalDigi>
+ <use name=DataFormats/HcalRecHit>
+ <use name=DataFormats/CaloTowers>
+ <use name=Geometry/CaloTopology>
+ <use name=Geometry/CaloGeometry>
+</export>
