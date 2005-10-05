@@ -1,8 +1,8 @@
 
 /* \file DaqFakeReader.cc
  *
- *  $Date: 2005/10/03 14:09:34 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/10/04 18:38:48 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane - CERN
  */
 
@@ -43,9 +43,9 @@ bool DaqFakeReader::fillRawData(EventID& eID,
   fillFEDs(FEDNumbering::getSiPixelFEDIds(), eID, tstamp, data, meansize, width);
   fillFEDs(FEDNumbering::getSiStripFEDIds(), eID, tstamp, data, meansize, width);
 
-  fillFEDs(FEDNumbering::getMuBarFEDIds(), eID, tstamp, data, meansize, width);
-  fillFEDs(FEDNumbering::getMuEndFEDIds(), eID, tstamp, data, meansize, width);
-  fillFEDs(FEDNumbering::getMRpcFEDIds(), eID, tstamp, data, meansize, width);
+  fillFEDs(FEDNumbering::getDTFEDIds(), eID, tstamp, data, meansize, width);
+  fillFEDs(FEDNumbering::getCSCFEDIds(), eID, tstamp, data, meansize, width);
+  fillFEDs(FEDNumbering::getRPCFEDIds(), eID, tstamp, data, meansize, width);
 
   fillFEDs(FEDNumbering::getEcalFEDIds(), eID, tstamp, data, meansize, width);
   fillFEDs(FEDNumbering::getHcalFEDIds(), eID, tstamp, data, meansize, width);
@@ -73,8 +73,8 @@ void DaqFakeReader::fillFEDs(const pair<int,int>& fedRange,
     feddata.resize(size+16); 
 
     // Generate header
-    FEDHeader header(feddata.data());
-    header.set(1,             // Trigger type
+    FEDHeader::set(feddata.data(),
+	       1,             // Trigger type
 	       eID.event(),   // LV1_id
 	       0,             // BX_id
 	       fedId);        // source_id
@@ -82,12 +82,12 @@ void DaqFakeReader::fillFEDs(const pair<int,int>& fedRange,
     // Payload = all 0s...
 
     // Generate trailer
-    FEDTrailer trailer(feddata.data()+8+size);
     int crc = 0; // FIXME : get CRC
-    trailer.set(size/8+2, // in 64 bit words!!!
-		crc,
-		0,        // Evt_stat
-		0);       // TTS bits
+    FEDTrailer::set(feddata.data()+8+size,
+		    size/8+2, // in 64 bit words!!!
+		    crc,
+		    0,        // Evt_stat
+		    0);       // TTS bits
   }  
 }
 

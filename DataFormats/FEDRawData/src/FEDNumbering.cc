@@ -2,8 +2,8 @@
  *  See header file for a description of this class.
  *
  *
- *  $Date: 2005/09/30 08:15:45 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/10/03 14:09:13 $
+ *  $Revision: 1.2 $
  *  \author G. Bruno  - CERN, EP Division
  */
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
@@ -58,21 +58,21 @@ pair<int,int> FEDNumbering::getSiPixelFEDIds(){
 }
 
 
-pair<int,int> FEDNumbering::getMuBarFEDIds(){
+pair<int,int> FEDNumbering::getDTFEDIds(){
 
   return pair<int,int> (MINDTFEDID, MAXDTFEDID);
 
 }
 
 
-pair<int,int> FEDNumbering::getMuEndFEDIds(){
+pair<int,int> FEDNumbering::getCSCFEDIds(){
 
   return pair<int,int> (MINCSCFEDID, MAXCSCFEDID);
 
 }
 
 
-pair<int,int> FEDNumbering::getMRpcFEDIds(){
+pair<int,int> FEDNumbering::getRPCFEDIds(){
 
   return pair<int,int> (MINRPCFEDID, MAXRPCFEDID);
 

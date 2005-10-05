@@ -3,8 +3,8 @@
  * dummy module  for the test of  DaqFileInputService
  *   
  * 
- * $Date: 2005/09/30 08:17:48 $
- * $Revision: 1.1 $
+ * $Date: 2005/10/04 18:38:48 $
+ * $Revision: 1.2 $
  * \author N. Amapane - S. Argiro'
  *
 */
@@ -42,14 +42,14 @@ namespace test{
       Handle<FEDRawDataCollection> rawdata;
       e.getByLabel("DaqRawData", rawdata);
       for (int i = 0; i<FEDNumbering::lastFEDId(); i++){
-	FEDRawData& data = rawdata->FEDData(i);
+	const FEDRawData& data = rawdata->FEDData(i);
 	if(size_t size=data.size()) {
 	  cout << "FED# " << i << " " << size << endl;
 	  FEDHeader header(data.data());
 	  CPPUNIT_ASSERT(header.check()==true);
 	  FEDTrailer trailer(data.data()+size-8);
 	  CPPUNIT_ASSERT(trailer.check()==true);
-	  CPPUNIT_ASSERT(trailer.lenght()==data.size()/8);
+	  CPPUNIT_ASSERT(trailer.lenght()==(int)data.size()/8);
 	}
       }
 //       if ( count_==1) {

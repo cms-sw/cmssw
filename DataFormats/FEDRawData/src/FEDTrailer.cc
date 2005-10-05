@@ -1,16 +1,16 @@
 
 /* \file FEDTrailer.cc
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2005/09/30 08:13:36 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - CERN
  */
 
 #include <DataFormats/FEDRawData/interface/FEDTrailer.h>
 #include "fed_trailer.h"
 
-FEDTrailer::FEDTrailer(unsigned char* trailer) :
-  theTrailer((fedt_t*)(trailer)) {}
+FEDTrailer::FEDTrailer(const unsigned char* trailer) :
+  theTrailer(reinterpret_cast<const fedt_t*>(trailer)) {}
 
 
 FEDTrailer::~FEDTrailer(){}
@@ -42,22 +42,25 @@ bool FEDTrailer::moreTrailers(){
 }
 
 
-void FEDTrailer::set(int evt_lgth,
+void FEDTrailer::set(unsigned char* trailer,
+		     int evt_lgth,
 		     int crc,  
 		     int evt_stat,
 		     int tts,
 		     bool T){
   // FIXME: should check that input ranges are OK!!!
-  theTrailer->eventsize = 
+  fedt_t* t = reinterpret_cast<fedt_t*>(trailer);
+
+  t->eventsize = 
     FED_TCTRLID |
     evt_lgth << FED_EVSZ_SHIFT;
  
-  theTrailer->conscheck = 
+  t->conscheck = 
     crc       << FED_CRCS_SHIFT |
     evt_stat  << FED_STAT_SHIFT |
     tts       << FED_TTSI_SHIFT;
   
-  if (T) theTrailer->conscheck |= FED_MORE_TRAILERS;
+  if (T) t->conscheck |= FED_MORE_TRAILERS;
 }
 
 

@@ -6,8 +6,8 @@
  *  No two feds should have the same id. Each subdetector has a reserved range.
  *  Gaps between range give flexibility to the numbering.
  *
- *  $Date: 2005/09/30 08:15:45 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/10/03 14:09:13 $
+ *  $Revision: 1.2 $
  *  \author G. Bruno - CERN, EP Division
  */   
 
@@ -24,9 +24,9 @@ class FEDNumbering {
   static std::pair<int,int> getSiPixelFEDIds();
   static std::pair<int,int> getSiStripFEDIds();
 
-  static std::pair<int,int> getMuBarFEDIds();
-  static std::pair<int,int> getMuEndFEDIds();
-  static std::pair<int,int> getMRpcFEDIds();
+  static std::pair<int,int> getDTFEDIds();
+  static std::pair<int,int> getCSCFEDIds();
+  static std::pair<int,int> getRPCFEDIds();
 
   static std::pair<int,int> getPreShowerFEDIds();
 

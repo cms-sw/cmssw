@@ -5,8 +5,8 @@
  *  TEMPORARY helper class to interpret/create FED trailer words.
  *  FIXME: will be replaced by the xdaq implementation
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2005/09/30 08:13:36 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - CERN
  */
 
@@ -15,7 +15,7 @@ struct fedt_struct;
 class FEDTrailer {
 public:
   /// Constructor
-  FEDTrailer(unsigned char* trailer);
+  FEDTrailer(const unsigned char* trailer);
 
   /// Destructor
   virtual ~FEDTrailer();
@@ -37,18 +37,19 @@ public:
   /// (always 0 for ECAL)
   bool moreTrailers();
 
-  /// Set all fields in the trailer
-  void set(int evt_lgth,
-	   int crc,  
-	   int evt_stat,
-	   int tts,
-	   bool T=false);
-
   // Check that the trailer is OK
   bool check();
 
+  /// Set all fields in the trailer
+  static void set(unsigned char* trailer,
+		  int evt_lgth,
+		  int crc,  
+		  int evt_stat,
+		  int tts,
+		  bool T=false);
+
 private:
-  fedt_struct* theTrailer;
+  const fedt_struct* theTrailer;
 
 };
 #endif

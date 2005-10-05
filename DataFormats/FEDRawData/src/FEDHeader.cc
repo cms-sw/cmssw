@@ -1,16 +1,16 @@
 
 /* \file FEDHeader.cc
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2005/09/30 08:13:36 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - CERN
  */
 
 #include <DataFormats/FEDRawData/interface/FEDHeader.h>
 #include "fed_header.h"
 
-FEDHeader::FEDHeader(unsigned char* header) : 
-  theHeader((fedh_t*)(header)) {}
+FEDHeader::FEDHeader(const unsigned char* header) : 
+  theHeader(reinterpret_cast<const fedh_t*>(header)) {}
 
 
 FEDHeader::~FEDHeader(){}
@@ -40,7 +40,8 @@ bool FEDHeader::moreHeaders(){
   return ((theHeader->sourceid & FED_MORE_HEADERS)!=0);
 }
 
-void FEDHeader::set(int evt_ty,	   
+void FEDHeader::set(unsigned char* header,
+		    int evt_ty,	   
 		    int lvl1_ID,
 		    int bx_ID,
 		    int source_ID,
@@ -48,17 +49,18 @@ void FEDHeader::set(int evt_ty,
 		    bool H){
 
   // FIXME: should check that input ranges are OK!!!
-  theHeader->eventid = 
+  fedh_t* h = reinterpret_cast<fedh_t*>(header);
+  h->eventid = 
     FED_HCTRLID | 
     evt_ty    << FED_EVTY_SHIFT | 
     lvl1_ID   << FED_LVL1_SHIFT;
 
-  theHeader->sourceid =
+  h->sourceid =
     bx_ID     << FED_BXID_SHIFT |
     source_ID << FED_SOID_SHIFT |
     version   << FED_VERSION_SHIFT;
   
-  if (H) theHeader->sourceid |= FED_MORE_HEADERS;
+  if (H) h->sourceid |= FED_MORE_HEADERS;
     
 }
 
