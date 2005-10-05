@@ -21,11 +21,11 @@ class HcalDbServiceBase;
 class HcalDbService {
  public:
   HcalDbService (const HcalDbServiceBase* fService);
-  std::auto_ptr<HcalCalibrations> getHcalCalibrations (const cms::HcalDetId& fId) const;
-  std::auto_ptr<HcalCalibrationWidths> getHcalCalibrationWidths (const cms::HcalDetId& fId) const;
-  std::auto_ptr<HcalCoder> getHcalCoder (const cms::HcalDetId& fId) const;
+  std::auto_ptr<HcalCalibrations> getHcalCalibrations (const HcalDetId& fId) const;
+  std::auto_ptr<HcalCalibrationWidths> getHcalCalibrationWidths (const HcalDetId& fId) const;
+  std::auto_ptr<HcalCoder> getHcalCoder (const HcalDetId& fId) const;
   const QieShape* getBasicShape () const;
-  std::auto_ptr<HcalChannelCoder> getChannelCoder (const cms::HcalDetId& fId) const;
+  std::auto_ptr<HcalChannelCoder> getChannelCoder (const HcalDetId& fId) const;
 
   const HcalDbServiceBase* service () const {return mService;}
   

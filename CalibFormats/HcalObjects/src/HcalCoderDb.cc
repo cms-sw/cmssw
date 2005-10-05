@@ -2,7 +2,7 @@
     
     coder which uses DB services to convert to fC
     $Author: ratnikov
-    $Date: 2005/08/04 18:16:29 $
+    $Date: 2005/08/18 23:41:41 $
     $Revision: 1.1 $
 */
 
@@ -29,16 +29,16 @@ template <class Digi> void HcalCoderDb::fC2adc_ (const CaloSamples& clf, Digi& d
   df.setPresamples (clf.presamples ());
   for (int i=0; i<clf.size(); i++) {
     int capId = (fCapIdOffset + i) % 4;
-    df.setSample(i, cms::HcalQIESample(mCoder->adc(*mShape, clf[i], capId), capId, 0, 0));
+    df.setSample(i, HcalQIESample(mCoder->adc(*mShape, clf[i], capId), capId, 0, 0));
   }
 }
 
 
-void HcalCoderDb::adc2fC(const cms::HBHEDataFrame& df, CaloSamples& lf) const {adc2fC_ (df, lf);}
-void HcalCoderDb::adc2fC(const cms::HODataFrame& df, CaloSamples& lf) const {adc2fC_ (df, lf);}
-void HcalCoderDb::adc2fC(const cms::HFDataFrame& df, CaloSamples& lf) const {adc2fC_ (df, lf);}
+void HcalCoderDb::adc2fC(const HBHEDataFrame& df, CaloSamples& lf) const {adc2fC_ (df, lf);}
+void HcalCoderDb::adc2fC(const HODataFrame& df, CaloSamples& lf) const {adc2fC_ (df, lf);}
+void HcalCoderDb::adc2fC(const HFDataFrame& df, CaloSamples& lf) const {adc2fC_ (df, lf);}
 
-void HcalCoderDb::fC2adc(const CaloSamples& clf, cms::HBHEDataFrame& df) const {fC2adc_ (clf, df);}
-void HcalCoderDb::fC2adc(const CaloSamples& clf, cms::HFDataFrame& df) const {fC2adc_ (clf, df);}
-void HcalCoderDb::fC2adc(const CaloSamples& clf, cms::HODataFrame& df) const {fC2adc_ (clf, df);}
+void HcalCoderDb::fC2adc(const CaloSamples& clf, HBHEDataFrame& df) const {fC2adc_ (clf, df);}
+void HcalCoderDb::fC2adc(const CaloSamples& clf, HFDataFrame& df) const {fC2adc_ (clf, df);}
+void HcalCoderDb::fC2adc(const CaloSamples& clf, HODataFrame& df) const {fC2adc_ (clf, df);}
 

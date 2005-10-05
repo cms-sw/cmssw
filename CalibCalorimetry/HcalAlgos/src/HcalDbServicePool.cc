@@ -16,7 +16,7 @@
 
 namespace {
 
-  unsigned int poolDetId (const cms::HcalDetId& fCell) {
+  unsigned int poolDetId (const HcalDetId& fCell) {
     return fCell.rawId();
   }
 };
@@ -42,7 +42,7 @@ double HcalDbServicePool::adcShapeBin (int fCount) const {
   return mDefault->adcShapeBin (fCount);
 }
   // pedestal  
-const float* HcalDbServicePool::pedestals (const cms::HcalDetId& fCell) const {
+const float* HcalDbServicePool::pedestals (const HcalDetId& fCell) const {
   if (!mPedestals) {
     std::cerr << "HcalDbServicePool::pedestals-> Pedestals are not defined. Use defaults" << std::endl;
     return mDefault->pedestals (fCell);
@@ -50,7 +50,7 @@ const float* HcalDbServicePool::pedestals (const cms::HcalDetId& fCell) const {
   return mPedestals->getValues (poolDetId (fCell));
 }
   // pedestal width
-const float* HcalDbServicePool::pedestalErrors (const cms::HcalDetId& fCell) const {
+const float* HcalDbServicePool::pedestalErrors (const HcalDetId& fCell) const {
   if (!mPedestalWidths) {
     std::cerr << "HcalDbServicePool::pedestalErrors-> Pedestals widths are not defined. Use defaults" << std::endl;
     return mDefault->pedestalErrors (fCell); 
@@ -58,7 +58,7 @@ const float* HcalDbServicePool::pedestalErrors (const cms::HcalDetId& fCell) con
   return mPedestalWidths->getValues (poolDetId (fCell));
 }
   // gain
-const float* HcalDbServicePool::gains (const cms::HcalDetId& fCell) const {
+const float* HcalDbServicePool::gains (const HcalDetId& fCell) const {
   if (!mGains) {
     std::cerr << "HcalDbServicePool::gains-> Gains are not defined. Use defaults" << std::endl;
     return mDefault->gains (fCell); 
@@ -66,7 +66,7 @@ const float* HcalDbServicePool::gains (const cms::HcalDetId& fCell) const {
   return mGains->getValues (poolDetId (fCell));
 }
   // gain width
-const float* HcalDbServicePool::gainErrors (const cms::HcalDetId& fCell) const {
+const float* HcalDbServicePool::gainErrors (const HcalDetId& fCell) const {
   if (!mGainWidths) {
     std::cerr << "HcalDbServicePool::gainErrors-> Gain widths are not defined. Use defaults" << std::endl;
     return mDefault->gainErrors (fCell);
@@ -74,12 +74,12 @@ const float* HcalDbServicePool::gainErrors (const cms::HcalDetId& fCell) const {
   return mGainWidths->getValues (poolDetId (fCell));
 }
 // offset for the (cell,capId,range)
-const float* HcalDbServicePool::offsets (const cms::HcalDetId& fCell) const {
+const float* HcalDbServicePool::offsets (const HcalDetId& fCell) const {
   std::cerr << " HcalDbServicePool::offsets-> offsets are not defined. Use defaults" << std::endl;
   return mDefault->offsets (fCell);
 }
 // slope for the (cell,capId,range)
-const float* HcalDbServicePool::slopes (const cms::HcalDetId& fCell) const {
+const float* HcalDbServicePool::slopes (const HcalDetId& fCell) const {
   std::cerr << " HcalDbServicePool::slopes-> slopes are not defined. Use defaults" << std::endl;
   return mDefault->slopes (fCell);
   return 0; 

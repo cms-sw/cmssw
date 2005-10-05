@@ -13,7 +13,7 @@
 //
 // Original Author:  Fedor Ratnikov
 //         Created:  Wed Aug 10 15:40:06 CDT 2005
-// $Id: HcalDbSource.h,v 1.1 2005/08/18 23:45:05 fedor Exp $
+// $Id: HcalDbSource.h,v 1.1 2005/10/04 18:03:03 fedor Exp $
 //
 //
 
@@ -35,14 +35,14 @@
 //
 
 class HcalDbSource : 
-  public edm::eventsetup::EventSetupRecordIntervalFinder 
+  public edm::EventSetupRecordIntervalFinder 
 {
 public:
   HcalDbSource( const edm::ParameterSet& );
-  ~HcalDbSource();
+  virtual ~HcalDbSource();
   
 protected:
-   virtual void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
+  virtual void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
                                 const edm::IOVSyncValue& iTime, 
                                 edm::ValidityInterval& iInterval);
 private:

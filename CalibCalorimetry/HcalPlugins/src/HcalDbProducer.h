@@ -13,7 +13,7 @@
 //
 // Original Author:  Fedor Ratnikov
 //         Created:  Tue Aug  9 19:10:10 CDT 2005
-// $Id: HcalDbProducer.h,v 1.1 2005/08/18 23:45:05 fedor Exp $
+// $Id: HcalDbProducer.h,v 1.2 2005/10/04 18:03:03 fedor Exp $
 //
 //
 
@@ -37,7 +37,7 @@ class HcalPedestalWidthsRcd;
 class HcalGainsRcd;
 class HcalGainWidthsRcd;
 
-class HcalDbProducer : public edm::eventsetup::ESProducer {
+class HcalDbProducer : public edm::ESProducer {
  public:
   HcalDbProducer( const edm::ParameterSet& );
   ~HcalDbProducer();

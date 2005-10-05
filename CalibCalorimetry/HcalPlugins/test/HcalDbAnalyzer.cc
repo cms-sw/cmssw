@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 19:13:25 EDT 2005
-// $Id: HcalDbAnalyzer.cc,v 1.1 2005/08/18 23:45:05 fedor Exp $
+// $Id: HcalDbAnalyzer.cc,v 1.2 2005/10/04 18:03:03 fedor Exp $
 //
 //
 
@@ -86,11 +86,11 @@ void
 HcalDbAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
   std::cout << "HcalDbAnalyzer::analyze->..." << std::endl;
-   edm::eventsetup::ESHandle<HcalDbService> pSetup;
+   edm::ESHandle<HcalDbService> pSetup;
    iSetup.get<HcalDbRecord>().get( pSetup );
    std::cout << "HcalDbAnalyzer::analyze-> got HcalDbRecord: " << pSetup->service()->name() << std::endl;
    std::cout << "HcalDbAnalyzer::analyze-> getting information for HB channel eta=1, phi=1, depth=1..." << std::endl;
-   cms::HcalDetId cell (cms::HcalBarrel, 1, 1, 1);
+   HcalDetId cell (HcalBarrel, 1, 1, 1);
    std::auto_ptr<HcalCalibrations> calibrations = pSetup->getHcalCalibrations (cell);
    std::auto_ptr<HcalCalibrationWidths> widths = pSetup->getHcalCalibrationWidths (cell);
    std::auto_ptr<HcalChannelCoder> coder = pSetup->getChannelCoder (cell);

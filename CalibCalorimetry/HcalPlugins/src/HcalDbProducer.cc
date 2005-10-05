@@ -13,7 +13,7 @@
 //
 // Original Author:  Fedor Ratnikov
 //         Created:  Tue Aug  9 19:10:10 CDT 2005
-// $Id: HcalDbProducer.cc,v 1.2 2005/08/19 17:52:10 fedor Exp $
+// $Id: HcalDbProducer.cc,v 1.3 2005/10/04 18:03:03 fedor Exp $
 //
 //
 
@@ -113,7 +113,7 @@ HcalDbProducer::produce( const HcalDbRecord& fRecord )
 void HcalDbProducer::poolPedestalsCallback (const HcalPedestalsRcd& fRecord) {
   std::cout << "HcalDbProducer::poolPedestalsCallback->..." << std::endl;
   if (mDbSourceName != name_pool) return;
-  edm::eventsetup::ESHandle <HcalPedestals> item;
+  edm::ESHandle <HcalPedestals> item;
   fRecord.get (item);
   mPedestals = item.product ();
 }
@@ -121,7 +121,7 @@ void HcalDbProducer::poolPedestalsCallback (const HcalPedestalsRcd& fRecord) {
   void HcalDbProducer::poolPedestalWidthsCallback (const HcalPedestalWidthsRcd& fRecord) {
   std::cout << "HcalDbProducer::poolPedestalWidthsCallback->..." << std::endl;
   if (mDbSourceName != name_pool) return;
-  edm::eventsetup::ESHandle <HcalPedestalWidths> item;
+  edm::ESHandle <HcalPedestalWidths> item;
   fRecord.get (item);
   mPedestalWidths = item.product ();
 }
@@ -130,7 +130,7 @@ void HcalDbProducer::poolPedestalsCallback (const HcalPedestalsRcd& fRecord) {
   void HcalDbProducer::poolGainsCallback (const HcalGainsRcd& fRecord) {
   std::cout << "HcalDbProducer::poolGainsCallback->..." << std::endl;
   if (mDbSourceName != name_pool) return;
-  edm::eventsetup::ESHandle <HcalGains> item;
+  edm::ESHandle <HcalGains> item;
   fRecord.get (item);
   mGains = item.product ();
 }
@@ -139,7 +139,7 @@ void HcalDbProducer::poolPedestalsCallback (const HcalPedestalsRcd& fRecord) {
   void HcalDbProducer::poolGainWidthsCallback (const HcalGainWidthsRcd& fRecord) {
   std::cout << "HcalDbProducer::poolGainWidthsCallback->..." << std::endl;
   if (mDbSourceName != name_pool) return;
-  edm::eventsetup::ESHandle <HcalGainWidths> item;
+  edm::ESHandle <HcalGainWidths> item;
   fRecord.get (item);
   mGainWidths = item.product ();
 }

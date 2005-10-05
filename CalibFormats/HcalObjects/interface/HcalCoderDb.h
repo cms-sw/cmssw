@@ -9,7 +9,7 @@
     
     coder which uses DB services to convert to fC
     $Author: ratnikov
-    $Date: 2005/08/04 18:16:29 $
+    $Date: 2005/08/18 23:41:41 $
     $Revision: 1.1 $
 */
 
@@ -20,12 +20,12 @@ class HcalCoderDb : public HcalCoder {
 public:
   HcalCoderDb (const HcalChannelCoder& fCoder, const QieShape& fShape);
 
-  virtual void adc2fC(const cms::HBHEDataFrame& df, CaloSamples& lf) const;
-  virtual void adc2fC(const cms::HODataFrame& df, CaloSamples& lf) const;
-  virtual void adc2fC(const cms::HFDataFrame& df, CaloSamples& lf) const;
-  virtual void fC2adc(const CaloSamples& clf, cms::HBHEDataFrame& df) const;
-  virtual void fC2adc(const CaloSamples& clf, cms::HFDataFrame& df) const;
-  virtual void fC2adc(const CaloSamples& clf, cms::HODataFrame& df) const;
+  virtual void adc2fC(const HBHEDataFrame& df, CaloSamples& lf) const;
+  virtual void adc2fC(const HODataFrame& df, CaloSamples& lf) const;
+  virtual void adc2fC(const HFDataFrame& df, CaloSamples& lf) const;
+  virtual void fC2adc(const CaloSamples& clf, HBHEDataFrame& df) const;
+  virtual void fC2adc(const CaloSamples& clf, HFDataFrame& df) const;
+  virtual void fC2adc(const CaloSamples& clf, HODataFrame& df) const;
 
  private:
   template <class Digi> void adc2fC_ (const Digi& df, CaloSamples& clf) const;

@@ -26,17 +26,17 @@ class HcalDbServiceHardcode : public HcalDbServiceBase {
   // bin size for the QIE conversion
   virtual double adcShapeBin (int fCount) const;
   // pedestal  
-  virtual const float* pedestals (const cms::HcalDetId& fCell) const;
+  virtual const float* pedestals (const HcalDetId& fCell) const;
   // gain
-  virtual const float* gains (const cms::HcalDetId& fCell) const;
+  virtual const float* gains (const HcalDetId& fCell) const;
   // pedestal width
-  virtual const float* pedestalErrors (const cms::HcalDetId& fCell) const;
+  virtual const float* pedestalErrors (const HcalDetId& fCell) const;
   // gain const width
-  virtual const float* gainErrors (const cms::HcalDetId& fCell) const;
+  virtual const float* gainErrors (const HcalDetId& fCell) const;
   // offset for the (cell,capId,range)
-  virtual const float* offsets (const cms::HcalDetId& fCell) const;
+  virtual const float* offsets (const HcalDetId& fCell) const;
   // slope for the (cell,capId,range)
-  virtual const float* slopes (const cms::HcalDetId& fCell) const;
+  virtual const float* slopes (const HcalDetId& fCell) const;
 
   // clone itself
   virtual HcalDbServiceBase* clone () const;

@@ -1,7 +1,7 @@
 //
 // F.Ratnikov (UMd), Aug. 9, 2005
 //
-// $Id: HcalDbService.cc,v 1.2 2005/08/18 23:41:41 fedor Exp $
+// $Id: HcalDbService.cc,v 1.1 2005/10/04 18:05:54 fedor Exp $
 
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
@@ -15,7 +15,7 @@ HcalDbService::HcalDbService (const HcalDbServiceBase* fService)
   mService (fService)
  {}
 
-std::auto_ptr <HcalCalibrations> HcalDbService::getHcalCalibrations (const cms::HcalDetId& fId) const {
+std::auto_ptr <HcalCalibrations> HcalDbService::getHcalCalibrations (const HcalDetId& fId) const {
   const float* gains = mService->gains (fId);
   const float* pedestals = mService->pedestals (fId);
   if (!gains || !pedestals) {
@@ -24,7 +24,7 @@ std::auto_ptr <HcalCalibrations> HcalDbService::getHcalCalibrations (const cms::
   return std::auto_ptr <HcalCalibrations> (new HcalCalibrations (gains, pedestals));
 }  
 
-std::auto_ptr <HcalCalibrationWidths> HcalDbService::getHcalCalibrationWidths (const cms::HcalDetId& fId) const {
+std::auto_ptr <HcalCalibrationWidths> HcalDbService::getHcalCalibrationWidths (const HcalDetId& fId) const {
   const float* gains = mService->gainErrors (fId);
   const float* pedestals = mService->pedestalErrors (fId);
   if (!gains || !pedestals) {
@@ -33,7 +33,7 @@ std::auto_ptr <HcalCalibrationWidths> HcalDbService::getHcalCalibrationWidths (c
   return std::auto_ptr <HcalCalibrationWidths> (new HcalCalibrationWidths (gains, pedestals));
 }  
 
-std::auto_ptr <HcalCoder> HcalDbService::getHcalCoder (const cms::HcalDetId& fId) const {
+std::auto_ptr <HcalCoder> HcalDbService::getHcalCoder (const HcalDetId& fId) const {
   return std::auto_ptr <HcalCoder> (new HcalCoderDb (*getChannelCoder (fId), *getBasicShape ()));
 }
 
@@ -50,7 +50,7 @@ const QieShape* HcalDbService::getBasicShape () const {
   return mQieShape;
 }
 
-std::auto_ptr <HcalChannelCoder> HcalDbService::getChannelCoder (const cms::HcalDetId& fId) const {
+std::auto_ptr <HcalChannelCoder> HcalDbService::getChannelCoder (const HcalDetId& fId) const {
   const float* offset = mService->offsets (fId);
   const float* slope = mService->slopes (fId);
   if (!offset || !slope) {

@@ -24,17 +24,17 @@ class HcalDbServiceBase {
   // bin size for the QIE conversion
   virtual double adcShapeBin (int fCount) const = 0;
   // pedestal  
-  virtual const float* pedestals (const cms::HcalDetId& fCell) const = 0;
+  virtual const float* pedestals (const HcalDetId& fCell) const = 0;
   // gain
-  virtual const float* gains (const cms::HcalDetId& fCell) const = 0;
+  virtual const float* gains (const HcalDetId& fCell) const = 0;
   // pedestal width
-  virtual const float* pedestalErrors (const cms::HcalDetId& fCell) const = 0;
+  virtual const float* pedestalErrors (const HcalDetId& fCell) const = 0;
   // gain width
-  virtual const float* gainErrors (const cms::HcalDetId& fCell) const = 0;
+  virtual const float* gainErrors (const HcalDetId& fCell) const = 0;
   // offset for the (cell,capId,range)
-  virtual const float* offsets (const cms::HcalDetId& fCell) const = 0;
+  virtual const float* offsets (const HcalDetId& fCell) const = 0;
   // slope for the (cell,capId,range)
-  virtual const float* slopes (const cms::HcalDetId& fCell) const = 0;
+  virtual const float* slopes (const HcalDetId& fCell) const = 0;
   // coding capId x Range into float[16]
   static int index (int fCapId, int Range) {return fCapId*4+Range;}
 
