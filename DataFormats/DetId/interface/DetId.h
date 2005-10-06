@@ -12,12 +12,12 @@ the large-scale detector (e.g. Tracker or Ecal) while the next three
 bits ([27:25]) identify a part of the detector (such as HcalBarrel
 (HB) for Hcal).
 
-$Date: 2005/07/20 00:10:24 $
-$Revision: 1.2 $
+$Date: 2005/10/03 14:26:52 $
+$Revision: 1.3 $
 */
 class DetId {
 public:
-  enum Detector { Tracker=1,Muon=2,Ecal=3,Hcal=4 };
+  enum Detector { Tracker=1,Muon=2,Ecal=3,Hcal=4,Calo=5 };
   /// Create an empty or null id (also for persistence)
   DetId();
   /// Create an id from a raw number
