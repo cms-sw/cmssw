@@ -98,7 +98,7 @@ bool ReadWriteORA::writeDB ( ) {
     pool::Ref<PIdealGeometry> pgeom(svc, new PIdealGeometry);
 
     //    pool::Placement geomPlace(dbConnectString_, pool::DatabaseSpecification::PFN, type_, pool::Guid::null(), tech);
-    pool::Placement geomPlace(dbConnectString_, pool::DatabaseSpecification::PFN, type_, seal::reflex::Type(), tech);
+    pool::Placement geomPlace(dbConnectString_, pool::DatabaseSpecification::PFN, type_, tech); //seal::reflex::Type(), tech);
  
     // This will also register the file. For this to occur, the placement object must use a PFN.
     pgeom.markWrite(geomPlace);

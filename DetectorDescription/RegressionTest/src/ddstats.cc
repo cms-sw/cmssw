@@ -4,11 +4,11 @@
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
-void ddstats(ostream & os)
+void ddstats(std::ostream & os)
 {
 
-  os << "DDD in memory stats:" << endl 
-     << "====================" << endl << endl;
+  os << "DDD in memory stats:" << std::endl 
+     << "====================" << std::endl << std::endl;
   DDCompactView cpv;
   
   // What we will count:
@@ -75,10 +75,10 @@ void ddstats(ostream & os)
   }
  
   // derived quantities
-  cout << "sizeof(void*)=" << sizeof(void*) << endl;
-  cout << "sizeof(DDLogicalPart)="<<sizeof(DDLogicalPart)<<endl;
-  cout << "sizeof(DDTranslation)="<< sizeof(DDTranslation)<<endl;
-  cout << "sizeof(DDRotationMatrix)=" << sizeof(DDRotationMatrix)<<endl;
+  std::cout << "sizeof(void*)=" << sizeof(void*) << std::endl;
+  std::cout << "sizeof(DDLogicalPart)="<<sizeof(DDLogicalPart)<<std::endl;
+  std::cout << "sizeof(DDTranslation)="<< sizeof(DDTranslation)<<std::endl;
+  std::cout << "sizeof(DDRotationMatrix)=" << sizeof(DDRotationMatrix)<<std::endl;
   int store = 4*sizeof(void*); // overhead for data-management (est.)
   int byRot = noRot * (sizeof(DDRotationMatrix) + store); // bytes in rotations
   int bySol = noSolidP * sizeof(double) + noSol*store; // bytes in solids
@@ -91,28 +91,28 @@ void ddstats(ostream & os)
   bytes += noNodes*sizeof(DDLogicalPart) + noEdges*sizeof(DDPosData*);
   double mb = 1024.*1024.;
   
-  os << "noNodes=" << noNodes << endl
-     << "noEdges=" << noEdges << endl 
-     << "noExNod=" << noExpNodes << endl << endl;   
-  os << "noLog=" << noLog << endl
-     << "noSol=" << noSol << " noSolidP=" << noSolidP << endl
-     << "noMat=" << noMat << endl
-     << "noRot=" << noRot << endl << endl;
-  os << "noCLog=" << noCLog << endl
-     << "noCSol=" << noCSol << endl      
-     << "noCMat=" << noCMat << endl
-     << "noCRot=" << noCRot << endl
-     << "       --------" << endl
+  os << "noNodes=" << noNodes << std::endl
+     << "noEdges=" << noEdges << std::endl 
+     << "noExNod=" << noExpNodes << std::endl << std::endl;   
+  os << "noLog=" << noLog << std::endl
+     << "noSol=" << noSol << " noSolidP=" << noSolidP << std::endl
+     << "noMat=" << noMat << std::endl
+     << "noRot=" << noRot << std::endl << std::endl;
+  os << "noCLog=" << noCLog << std::endl
+     << "noCSol=" << noCSol << std::endl      
+     << "noCMat=" << noCMat << std::endl
+     << "noCRot=" << noCRot << std::endl
+     << "       --------" << std::endl
      << "       " << byNam
-     <<  " chars used for naming." << endl << endl;
-  os << "byLog = " << byLog/mb << " logicalparts " << endl
-     << "byNam = " << byNam/mb << " string for names " << endl
-     << "byRot = " << byRot/mb << " rotations " << endl
-     << "bySol = " << bySol/mb << " solids " << endl
-     << "byMat = " << byMat/mb << " materials " << endl
-     << "byPos = " << byPos/mb << " posparts " << endl
-     << "byGra = " << byGra/mb << " graph-struct " << endl
-     << "-----------------------" << endl 
-     << "OVERALL: " << bytes / mb << " MByte" << endl;
+     <<  " chars used for naming." << std::endl << std::endl;
+  os << "byLog = " << byLog/mb << " logicalparts " << std::endl
+     << "byNam = " << byNam/mb << " string for names " << std::endl
+     << "byRot = " << byRot/mb << " rotations " << std::endl
+     << "bySol = " << bySol/mb << " solids " << std::endl
+     << "byMat = " << byMat/mb << " materials " << std::endl
+     << "byPos = " << byPos/mb << " posparts " << std::endl
+     << "byGra = " << byGra/mb << " graph-struct " << std::endl
+     << "-----------------------" << std::endl 
+     << "OVERALL: " << bytes / mb << " MByte" << std::endl;
   
 }

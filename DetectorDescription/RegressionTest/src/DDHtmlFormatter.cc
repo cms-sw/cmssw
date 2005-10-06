@@ -7,6 +7,7 @@ namespace std { } using namespace std;
 
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSpecifics.h"
+#include "DetectorDescription/Core/interface/DDPartSelection.h"
 
 ostream & operator<<(ostream & o, const DDHtmlFormatter & f)
 {
