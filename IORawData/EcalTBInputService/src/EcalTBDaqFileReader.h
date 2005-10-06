@@ -13,8 +13,8 @@
 using namespace std;
 
 class DaqInputEvent;
-class DaqFEDRawData;
-namespace raw {class FEDRawDataCollection; }
+namespace edm {class EventID; class Timestamp;}
+//namespace raw {class FEDRawDataCollection; }
 
 struct FedDataPair {
   unsigned char* fedData;
@@ -41,7 +41,7 @@ class EcalTBDaqFileReader  {
 
   // Override virtual methods from DaqFileReader
   virtual void initialize(const std::string & filename);
-  virtual bool fillDaqEventData(edm::EventID & cID, raw::FEDRawDataCollection& data);
+  virtual bool fillDaqEventData(edm::EventID & cID, FEDRawDataCollection& data);
   virtual FedDataPair getEventTrailer();
   virtual bool checkEndOfEvent();
   virtual bool checkEndOfFile();

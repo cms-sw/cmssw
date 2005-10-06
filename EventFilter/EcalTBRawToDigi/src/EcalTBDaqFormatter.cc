@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2005/08/04 16:49:10 $
- *  $Revision: 1.3 $
+ *  $Date: 2005/09/19 19:42:11 $
+ *  $Revision: 1.4 $
  *  \author  N. Marinelli IASA 
  *
  *
@@ -20,8 +20,7 @@
 #include "DCCDataMapper.h"
 
 
-using namespace cms;
-using namespace raw;
+
 using namespace std;
 #include <iostream>
 
@@ -51,7 +50,7 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData , EBDigiCol
   
 
   const unsigned char * pData = fedData.data();
-  int length = fedData.data_.size();
+  int length = fedData.size();
   bool shit=true;
   int tower=0;
   int ch=0;
@@ -88,7 +87,7 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData , EBDigiCol
       if (  (*itTowerBlock)->towerID() > 68 ) continue;  // The last two towers does not contain Xtal data. Do not store in the digis
 
 
-      cout << " Tower ID " << (*itTowerBlock)->towerID() << endl;
+      //      cout << " Tower ID " << (*itTowerBlock)->towerID() << endl;
       vector<DCCXtalBlock * > & xtalDataBlocks = (*itTowerBlock)->xtalBlocks();
       
 
@@ -116,7 +115,7 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData , EBDigiCol
       
       
       digicollection.push_back(theFrame);
-
+      
 
 
       }
@@ -126,6 +125,7 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData , EBDigiCol
     
     
   }
+ 
   
   
 }

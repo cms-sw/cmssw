@@ -1,6 +1,6 @@
 /*
- *  $Date: 2005/08/22 18:17:04 $
- *  $Revision: 1.4 $
+ *  $Date: 2005/09/19 19:43:46 $
+ *  $Revision: 1.5 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -12,13 +12,13 @@
 
 
 #include "IORawData/EcalTBInputService/src/EcalTBDaqFileReader.h"
-#include "FakeRetriever.h"
 
+#include <FWCore/EDProduct/interface/Timestamp.h>
 #include <FWCore/EDProduct/interface/EventID.h>
 #include <FWCore/EDProduct/interface/EDProduct.h>
 #include <FWCore/EDProduct/interface/Wrapper.h>
 #include <FWCore/Framework/src/TypeID.h> 
-#include <FWCore/Framework/interface/InputServiceDescription.h>
+#include <FWCore/Framework/interface/InputSourceDescription.h>
 #include <FWCore/Framework/interface/EventPrincipal.h>
 #include <FWCore/Framework/interface/ProductRegistry.h>
 
@@ -32,11 +32,9 @@ using namespace raw;
 
 
 DAQEcalTBInputService::DAQEcalTBInputService(const ParameterSet& pset, 
-			 const InputServiceDescription& desc) : 
-  InputService(desc),
+			 const InputSourceDescription& desc) : 
+  InputSource(desc),
   description_(desc),
-  // FIXME: DAQEcalTBReader is implemented a  la singleton...
-  retriever_(new FakeRetriever()),
   reader_(EcalTBDaqFileReader::instance()), 
   remainingEvents_(pset.getUntrackedParameter<int>("maxEvents", -1))
 
@@ -73,7 +71,7 @@ DAQEcalTBInputService::DAQEcalTBInputService(const ParameterSet& pset,
 
 
 DAQEcalTBInputService::~DAQEcalTBInputService(){
-  delete retriever_;
+  
   //  clear();
 }
 
@@ -93,6 +91,7 @@ auto_ptr<EventPrincipal> DAQEcalTBInputService::read() {
 
  
   EventID id;
+  Timestamp tstamp;
 
   FEDRawDataCollection* bare_product = new FEDRawDataCollection;
 
@@ -103,7 +102,7 @@ auto_ptr<EventPrincipal> DAQEcalTBInputService::read() {
 
   cout << " DAQEcalTBInputService::read run " << id.run() << " ev " << id.event() << endl;
 
-  result = auto_ptr<EventPrincipal>(new EventPrincipal(id, *retriever_, *preg_));
+  result = auto_ptr<EventPrincipal>(new EventPrincipal(id, tstamp, *preg_));
   
   edm::Wrapper<FEDRawDataCollection> *wrapped_product = 
     new edm::Wrapper<FEDRawDataCollection> (*bare_product);
@@ -121,3 +120,7 @@ auto_ptr<EventPrincipal> DAQEcalTBInputService::read() {
 }
 
 
+#include "PluginManager/ModuleDef.h"
+#include "FWCore/Framework/interface/InputSourceMacros.h"
+
+DEFINE_FWK_INPUT_SOURCE(DAQEcalTBInputService)

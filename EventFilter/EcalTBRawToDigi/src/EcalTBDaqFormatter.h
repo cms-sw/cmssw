@@ -2,8 +2,8 @@
 #define EcalTBDaqFormatter_H
 /** \class EcalTBDaqFormatter
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2005/08/03 15:27:50 $
+ *  $Revision: 1.1 $
  *  \author N. Marinelli  IASA-Athens
  *
  */
@@ -13,7 +13,8 @@
 using namespace std;
 #include <iostream>
 
-namespace raw {class FEDRawData;}
+
+class FEDRawData;
 class DCCDataParser;
 class EcalTBDaqFormatter   {
 
@@ -24,7 +25,7 @@ class EcalTBDaqFormatter   {
   virtual ~EcalTBDaqFormatter(){cout << " Destroying EcalTBDaqFormatter " << endl; };
   
   
-  void  interpretRawData( const raw::FEDRawData & data , cms::EBDigiCollection& digicollection );
+  void  interpretRawData( const FEDRawData & data , EBDigiCollection& digicollection );
   
  private:
   

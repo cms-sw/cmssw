@@ -11,7 +11,7 @@
 
 using namespace std;
 using namespace edm;
-using namespace raw;
+//using namespace raw;
 
 EcalTBDaqFileReader * EcalTBDaqFileReader::instance_=0;
 
@@ -171,8 +171,8 @@ bool EcalTBDaqFileReader::fillDaqEventData(edm::EventID & cID, FEDRawDataCollect
       cout<<"DaqEvent: adding DaqFEDRawData of FED "<< fedId << endl;
 
       FEDRawData& eventfeddata = data.FEDData( fedInfo.first  );
-      eventfeddata.data_.resize(fedInfo.second);
-      copy(aPair.fedData, aPair.fedData + fedInfo.second , eventfeddata.data_.begin());
+      eventfeddata.resize(fedInfo.second);
+      copy(aPair.fedData, aPair.fedData + fedInfo.second , eventfeddata.data());
       cout<< "EcalTBDaqFileReader::fillDaqEventData() : read in full event information" << endl;
     }
     // ShR 4Aug05: this is nasty but needed to fix big memory leak in current implementation

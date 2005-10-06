@@ -6,19 +6,20 @@
  *
  *  For the time being, reuses the services of DaqFileReader from DaqPrototype.
  *
- *  $Date: 2005/08/03 14:59:57 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/08/05 14:31:54 $
+ *  $Revision: 1.2 $
  *  \author N. Marinelli
  */
 
-#include <PluginManager/ModuleDef.h>
-#include <FWCore/Framework/interface/InputServiceMacros.h>
-#include <FWCore/Framework/interface/InputService.h>
-#include <FWCore/Framework/interface/InputServiceDescription.h>
+//#include <PluginManager/ModuleDef.h>
+//#include "FWCore/Framework/interface/InputSourceMacros.h"
+#include <FWCore/Framework/interface/InputSource.h>
+#include <FWCore/Framework/interface/InputSourceDescription.h>
 #include <FWCore/Framework/interface/ProductDescription.h>
 #include <string>
 
 class EcalTBDaqFileReader;
+class FEDRawData;
 
 namespace raw{ class FEDRawData; }
 
@@ -26,14 +27,14 @@ namespace edm {
 
   class Retriever;
   class ParameterSet;
-  class InputServiceDescription;
+  class InputSourceDescription;
 } 
 
-  class DAQEcalTBInputService : public edm::InputService {
+  class DAQEcalTBInputService : public edm::InputSource {
 
   public:
     DAQEcalTBInputService(const edm::ParameterSet& pset, 
-			const edm::InputServiceDescription& desc);
+			const edm::InputSourceDescription& desc);
 
     virtual ~DAQEcalTBInputService();
 
@@ -42,7 +43,7 @@ namespace edm {
 
     //void clear();
 
-    edm::InputServiceDescription description_;
+    edm::InputSourceDescription description_;
     edm::ProductDescription fedrawdataDescription_;
      
     edm::Retriever*  retriever_;
@@ -54,7 +55,7 @@ namespace edm {
   
   }; 
  
-  DEFINE_FWK_INPUT_SERVICE(DAQEcalTBInputService)
+//  DEFINE_FWK_INPUT_SOURCE(DAQEcalTBInputService)
 
 
 #endif
