@@ -291,14 +291,14 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
       iterator iStart(iEnd); iStart--;
       starttime = (*iStart).first+edm::IOVSyncValue::beginOfTime().eventID().run();
       //starttime = (*iStart).first;
-      std::cout<<"starttime "<<starttime<<std::endl;
     }
     payloadToken = (*iEnd).second;
     //std::cout<<"valid time "<<(*iEnd).first<<std::endl;
     std::cout<<"payloadToken "<<payloadToken<<std::endl;
     //edm::IOVSyncValue start( edm::EventID(0,0) );
     edm::IOVSyncValue start( edm::EventID(starttime,0) );
-    //std::cout<<"stop time "<<edm::EventID((*iEnd).first,0).run()<<std::endl;
+    std::cout<<"starttime "<<edm::EventID(starttime,0)<<std::endl;
+    std::cout<<"stop time "<<edm::EventID((*iEnd).first,0)<<std::endl;
     //edm::IOVSyncValue stop ( edm::EventID((*iEnd).first+edm::IOVSyncValue::beginOfTime().eventID().run(),0) );
     edm::IOVSyncValue stop ( edm::EventID((*iEnd).first).run(),0 );
     oInterval = edm::ValidityInterval( start, stop );
