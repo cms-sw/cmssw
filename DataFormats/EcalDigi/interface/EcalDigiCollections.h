@@ -1,17 +1,13 @@
 #ifndef DIGIECAL_ECALDIGICOLLECTION_H
 #define DIGIECAL_ECALDIGICOLLECTION_H
 
-#include <vector>
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EEDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EcalTriggerPrimitiveDigi.h"
+#include "FWCore/EDProduct/interface/SortedCollection.h"
 
-namespace cms {
-
-typedef std::vector<EBDataFrame> EBDigiCollection;
-typedef std::vector<EEDataFrame> EEDigiCollection;
-typedef std::vector<EcalTriggerPrimitiveDigi> EcalTrigPrimDigiCollection;
-
-}
+typedef edm::SortedCollection<EBDataFrame> EBDigiCollection;
+typedef edm::SortedCollection<EEDataFrame> EEDigiCollection;
+typedef edm::SortedCollection<EcalTriggerPrimitiveDigi> EcalTrigPrimDigiCollection;
 
 #endif

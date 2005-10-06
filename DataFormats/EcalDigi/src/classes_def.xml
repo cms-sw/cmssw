@@ -1,15 +1,18 @@
 <lcgdict>
-   <class name="cms::EcalMGPASample"/>
-   <class name="cms::EBDataFrame"/>
-   <class name="cms::EEDataFrame"/>
-   <class name="cms::EcalTriggerPrimitiveSample"/>
-   <class name="cms::EcalTriggerPrimitiveDigi"/>
-   <class name="std::vector<cms::EcalMGPASample>"/>
-   <class name="std::vector<cms::EcalTriggerPrimitiveSample>"/>
-   <class name="std::vector<cms::EBDataFrame>"/>
-   <class name="std::vector<cms::EEDataFrame>"/>
-   <class name="std::vector<cms::EcalTriggerPrimitiveDigi>"/>
-   <class name="edm::Wrapper<std::vector<cms::EBDataFrame> >" id="F0B06679-18A5-3D32-25EB-39EE2BC754CD"/>
-   <class name="edm::Wrapper<std::vector<cms::EEDataFrame> >" id="1BACF93F-EE6E-A387-6C0C-B654F011BDAB"/>
-   <class name="edm::Wrapper<std::vector<cms::EcalTriggerPrimitiveDigi> >" id="D932A444-CBDD-A27C-4D85-BFED25EFBCF8"/>
+   <class name="EcalMGPASample"/>
+   <class name="EBDataFrame"/>
+   <class name="EEDataFrame"/>
+   <class name="EcalTriggerPrimitiveSample"/>
+   <class name="EcalTriggerPrimitiveDigi"/>
+   <class name="std::vector<EcalMGPASample>"/>
+   <class name="std::vector<EcalTriggerPrimitiveSample>"/>
+   <class name="std::vector<EBDataFrame>"/>
+   <class name="std::vector<EEDataFrame>"/>
+   <class name="std::vector<EcalTriggerPrimitiveDigi>"/>
+   <class name="edm::SortedCollection<EBDataFrame,edm::StrictWeakOrdering<EBDataFrame> >"/>
+   <class name="edm::SortedCollection<EEDataFrame,edm::StrictWeakOrdering<EEDataFrame> >"/>
+   <class name="edm::SortedCollection<EcalTriggerPrimitiveDigi,edm::StrictWeakOrdering<EcalTriggerPrimitiveDigi> >"/>
+   <class name="edm::Wrapper< edm::SortedCollection<EBDataFrame,edm::StrictWeakOrdering<EBDataFrame> >" id="F0B06679-18A5-3D32-25EB-39EE2BC754CD"/>
+   <class name="edm::Wrapper< edm::SortedCollection<EEDataFrame,edm::StrictWeakOrdering<EEDataFrame> > >" id="1BACF93F-EE6E-A387-6C0C-B654F011BDAB"/>
+   <class name="edm::Wrapper< edm::SortedCollection<EcalTriggerPrimitiveDigi,edm::StrictWeakOrdering<EcalTriggerPrimitiveDigi> > > " id="D932A444-CBDD-A27C-4D85-BFED25EFBCF8"/>
 </lcgdict>

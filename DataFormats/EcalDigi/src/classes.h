@@ -6,20 +6,24 @@
 
 namespace {
   namespace {
-    std::vector<cms::EcalMGPASample> vMGPA_;
-    std::vector<cms::EcalTriggerPrimitiveSample> vETPS_;
+    std::vector<EcalMGPASample> vMGPA_;
+    std::vector<EcalTriggerPrimitiveSample> vETPS_;
 
-    std::vector<cms::EBDataFrame> vEB_;
-    std::vector<cms::EEDataFrame> vEE_;
-    std::vector<cms::EcalTriggerPrimitiveDigi> vETP_;
+    edm::SortedCollection<EBDataFrame> vEB_;
+    edm::SortedCollection<EEDataFrame> vEE_;
+    edm::SortedCollection<EcalTriggerPrimitiveDigi> vETP_;
 
-    cms::EBDigiCollection theEB_;
-    cms::EEDigiCollection theEE_;
-    cms::EcalTrigPrimDigiCollection theETP_;
+    EBDigiCollection theEB_;
+    EEDigiCollection theEE_;
+    EcalTrigPrimDigiCollection theETP_;
 
-    edm::Wrapper<cms::EBDigiCollection> theEBw_;
-    edm::Wrapper<cms::EEDigiCollection> theEEw_;
-    edm::Wrapper<cms::EcalTrigPrimDigiCollection> theETPw_; 
+    edm::Wrapper<EBDigiCollection> anotherEBw_;
+    edm::Wrapper<EEDigiCollection> anotherEEw_;
+    edm::Wrapper<EcalTrigPrimDigiCollection> anotherETPw_;
+
+    edm::Wrapper< edm::SortedCollection<EBDataFrame> > theEBw_;
+    edm::Wrapper< edm::SortedCollection<EEDataFrame> > theEEw_;
+    edm::Wrapper< edm::SortedCollection<EcalTriggerPrimitiveDigi> > theETPw_; 
  }
 }
 
