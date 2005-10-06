@@ -1,6 +1,6 @@
 <lcgdict>
-  <class name="cms::EBDetId"/>
-  <class name="cms::EEDetId"/>
-  <class name="cms::ESDetId"/>
-  <class name="cms::EcalTrigTowerDetId"/>
+  <class name="EBDetId"/>
+  <class name="EEDetId"/>
+  <class name="ESDetId"/>
+  <class name="EcalTrigTowerDetId"/>
 </lcgdict>
