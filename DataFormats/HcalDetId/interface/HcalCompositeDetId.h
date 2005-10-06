@@ -21,8 +21,8 @@ Packing:
 [12:7]  Ieta (absolute)
 [6:0]   Iphi
 
-$Date: 2005/09/15 14:43:36 $
-$Revision: 1.1 $
+$Date: 2005/10/03 14:27:12 $
+$Revision: 1.2 $
 \author J. Mans - Minnesota
 */
 class HcalCompositeDetId : public DetId {
@@ -32,7 +32,7 @@ public:
   /** Assignment from a generic cell id */
   HcalCompositeDetId& operator=(const DetId& id);
   
-  enum CompositeType { CaloTowerIdType=1 };
+  enum CompositeType { HFCombinedHitType=1 };
   
   /// get the z-side of the tower (1/-1)
   int zside() const { return (id_&0x2000)?(1):(-1); }
