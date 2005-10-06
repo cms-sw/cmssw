@@ -8,7 +8,7 @@
 #include "Geometry/CaloTopology/interface/CaloTowerTopology.h"
 #include<iostream>
 
-CaloTowersCreationAlgo::CaloTowersCreationAlgo(const HcalTopology* topo, const CaloGeometry* geo)
+CaloTowersCreationAlgo::CaloTowersCreationAlgo()
  : theEBthreshold(-1000.),
    theEEthreshold(-1000.),
    theHcalThreshold(-1000.),
@@ -29,9 +29,9 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo(const HcalTopology* topo, const C
    theEcutTower(-1000.),
    theEBSumThreshold(-1000.),
    theEESumThreshold(-1000.),
-   theHcalTopology(topo),
-   theGeometry(geo),
-   theHOIsUsedByDefault(true)
+   theHcalTopology(0),
+   theGeometry(0),
+   theHOIsUsed(true)
 {
   theTowerTopology=new CaloTowerTopology(); // for now
 }
@@ -45,7 +45,7 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo(double EBthreshold, double EEthre
     double HBweight, double HESweight, double HEDweight,
     double HOweight, double HF1weight, double HF2weight,
     double EcutTower, double EBSumThreshold, double EESumThreshold,
-    const HcalTopology* topo, const CaloGeometry* geo, bool useHODefault)
+    bool useHO)
 
  : theEBthreshold(EBthreshold),
    theEEthreshold(EEthreshold),
@@ -67,12 +67,17 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo(double EBthreshold, double EEthre
    theEcutTower(EcutTower),
    theEBSumThreshold(EBSumThreshold),
    theEESumThreshold(EESumThreshold),
-   theHcalTopology(topo),
-   theGeometry(geo),
-   theHOIsUsedByDefault(useHODefault)
+   theHOIsUsed(useHO)
 {
-  towerGeometry=geo->getSubdetectorGeometry(DetId::Calo,CaloTowerDetId::SubdetId);
 }
+
+
+void CaloTowersCreationAlgo::setGeometry(const HcalTopology* topo, const CaloGeometry* geo) {
+  theHcalTopology = topo;
+  theGeometry = geo;
+  theTowerGeometry=geo->getSubdetectorGeometry(DetId::Calo,CaloTowerDetId::SubdetId);
+}
+
 
 void CaloTowersCreationAlgo::create(CaloTowerCollection & result, const HBHERecHitCollection& hbhe, 
                             const HORecHitCollection & ho, const HFRecHitCollection& hf)
@@ -118,19 +123,21 @@ DetId detId = recHit->detid();
     DetId::Detector det = detId.det();
     if(det == DetId::Ecal) {
       tower.eT_em += eT;
+      tower.eT += eT;
     }
     // HCAL
     else {
       HcalDetId hcalDetId(detId);
       if(hcalDetId.subdet() == HcalOuter) {
         tower.eT_outer += eT;
+        if(theHOIsUsed) tower.eT += eT;
       } 
       else {
         tower.eT_had += eT;
+        tower.eT += eT;
       }
     }
     tower.constituents.push_back(detId);
-    tower.eT += eT;
   } 
 }
 
@@ -140,7 +147,7 @@ CaloTower & CaloTowersCreationAlgo::find(const CaloTowerDetId & detId) {
   if(itr == theTowerMap.end()) {
     // need to build a new tower
     CaloTower t(detId);
-    GlobalPoint p=towerGeometry->getGeometry(detId)->getPosition();
+    GlobalPoint p=theTowerGeometry->getGeometry(detId)->getPosition();
     t.eta = p.eta();
     t.phi = p.phi();
 

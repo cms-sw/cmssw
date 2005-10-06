@@ -15,13 +15,13 @@ class DetId;
 
 /** \class CaloTowersCreationAlgo
   *  
-  * $Date: 2005/10/06 01:11:40 $
-  * $Revision: 1.2 $
+  * $Date: 2005/10/06 15:23:00 $
+  * $Revision: 1.3 $
   * \author R. Wilkinson - Caltech
   */
 class CaloTowersCreationAlgo {
 public:
-  CaloTowersCreationAlgo(const HcalTopology* topo, const CaloGeometry* geo);
+  CaloTowersCreationAlgo();
 
   CaloTowersCreationAlgo(double EBthreshold, double EEthreshold, double HcalThreshold,
     double HBthreshold, double HESthreshold, double HEDthreshold,
@@ -29,13 +29,15 @@ public:
     double EBweight, double EEweight, 
     double HBweight, double HESweight, double HEDweight, 
     double HOweight, double HF1weight, double HF2weight,
-    double EcutTower, double EBSumThreshold, double EESumThreshold,
-    const HcalTopology* topo, const CaloGeometry* geo, bool useHODefault);
+    double EcutTower, double EBSumThreshold, double EESumThreshold, bool useHO);
+  
+  void setGeometry(const HcalTopology* topo, const CaloGeometry* geo);
 
   void create(CaloTowerCollection& destCollection,
 	      const HBHERecHitCollection& hbhe, 
 	      const HORecHitCollection& ho, 
 	      const HFRecHitCollection& hf); // eventually will need ECAL also.
+
 
 private:
   /// adds a single hit to the tower
@@ -57,9 +59,10 @@ private:
   const HcalTopology* theHcalTopology;
   const CaloGeometry* theGeometry;
   const CaloTowerTopology* theTowerTopology;
-  const CaloSubdetectorGeometry* towerGeometry;
+  const CaloSubdetectorGeometry* theTowerGeometry;
 
-  bool theHOIsUsedByDefault;
+  /// only affects energy and ET calculation.  HO is still recorded in the tower
+  bool theHOIsUsed;
 
   // internal map
   typedef std::map<CaloTowerDetId, CaloTower> CaloTowerMap;
