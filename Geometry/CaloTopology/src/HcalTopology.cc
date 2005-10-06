@@ -15,6 +15,7 @@
     firstHORing_(1),
     lastHORing_(15),
     firstHEDoublePhiRing_(21),
+    firstHFQuadPhiRing_(40),
     firstHETripleDepthRing_(27),
     singlePhiBins_(72),
     doublePhiBins_(36)

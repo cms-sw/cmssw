@@ -5,8 +5,8 @@
 
 /** \class HcalTopology
     
-   $Date: 2005/09/30 03:16:11 $
-   $Revision: 1.2 $
+   $Date: 2005/10/03 22:32:17 $
+   $Revision: 1.3 $
    \author J. Mans - Minnesota
 */
 class HcalTopology {
@@ -35,6 +35,7 @@ public:
   int lastHORing()  const {return lastHORing_;}
 
   int firstHEDoublePhiRing() const {return firstHEDoublePhiRing_;} 
+  int firstHFQuadPhiRing() const { return firstHFQuadPhiRing_; }
   int firstHETripleDepthRing() const {return firstHETripleDepthRing_;}
   int singlePhiBins() const {return singlePhiBins_;}
   int doublePhiBins() const {return doublePhiBins_;}
@@ -68,6 +69,7 @@ private:
   const int lastHORing_;
 
   const int firstHEDoublePhiRing_;
+  const int firstHFQuadPhiRing_;
   const int firstHETripleDepthRing_;
   const int singlePhiBins_;
   const int doublePhiBins_;
