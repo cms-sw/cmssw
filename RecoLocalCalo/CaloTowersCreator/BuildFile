@@ -6,6 +6,10 @@
 <use name=DataFormats/DetId>
 <use name=Geometry/CaloTopology>
 <use name=Geometry/CaloGeometry>
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+
+<flags SEAL_PLUGIN_NAME="RecoLocalCaloCaloTowersCreator">
 <export>
  <lib name=RecoLocalCaloCaloTowersCreator>
  <use name=boost>
@@ -17,4 +21,6 @@
  <use name=DataFormats/CaloTowers>
  <use name=Geometry/CaloTopology>
  <use name=Geometry/CaloGeometry>
+ <use name=FWCore/Framework>
+ <use name=FWCore/ParameterSet>
 </export>
