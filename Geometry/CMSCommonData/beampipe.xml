@@ -1,0 +1,230 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
+
+<SolidSection label="beampipe.xml">
+ <Polycone name="BEAM" startPhi="0*deg" deltaPhi="360*deg" >
+  <ZSection z="0*fm"  rMin="0*fm"  rMax="3.1*cm" />
+  <ZSection z="1.899*m"  rMin="0*fm"  rMax="3.1*cm" />
+  <ZSection z="1.899*m"  rMin="0*fm"  rMax="3.4*cm" />
+  <ZSection z="3.18*m"  rMin="0*fm"  rMax="8*cm" />
+  <ZSection z="10.6*m"  rMin="0*fm"  rMax="16*cm" />
+  <ZSection z="10.816*m"  rMin="0*fm"  rMax="10.2*cm" />
+  <ZSection z="13*m"  rMin="0*fm"  rMax="10.2*cm" />
+  <ZSection z="13.15*m"  rMin="0*fm"  rMax="14.2*cm" />
+  <ZSection z="14.05*m"  rMin="0*fm"  rMax="14.2*cm" />
+  <ZSection z="14.274*m"  rMin="0*fm"  rMax="20.2*cm" />
+  <ZSection z="14.3*m"  rMin="0*fm"  rMax="20.2*cm" />
+ </Polycone> 
+ <Tubs name="BTUB" rMin="0*fm" rMax="2.98*cm" dz="97.355*cm" startPhi="0*deg" deltaPhi="360*deg"/>
+ <Tubs name="BVTB" rMin="0*fm" rMax="2.9*cm" dz="97.355*cm" startPhi="0*deg" deltaPhi="360*deg"/>
+ <Tubs name="BTUF" rMin="2.98*cm" rMax="3.4*cm" dz="2.4*cm" startPhi="0*deg" deltaPhi="360*deg"/>
+ <Polycone name="BTUA" startPhi="0*deg" deltaPhi="360*deg" >
+  <ZSection z="1.9471*m"  rMin="0*fm"  rMax="2.958*cm" />
+  <ZSection z="3.12*m"  rMin="0*fm"  rMax="4.7398*cm" />
+  <ZSection z="3.12*m"  rMin="0*fm"  rMax="6.45*cm" />
+  <ZSection z="3.15*m"  rMin="0*fm"  rMax="6.45*cm" />
+ </Polycone> 
+ <Polycone name="BVTA" startPhi="0*deg" deltaPhi="360*deg" >
+  <ZSection z="1.9471*m"  rMin="0*fm"  rMax="2.9*cm" />
+  <ZSection z="3.12*m"  rMin="0*fm"  rMax="4.6469*cm" />
+  <ZSection z="3.15*m"  rMin="0*fm"  rMax="4.6916*cm" />
+ </Polycone> 
+ <Polycone name="BTUC" startPhi="0*deg" deltaPhi="360*deg" >
+  <ZSection z="3.15*m"  rMin="0*fm"  rMax="4.7854*cm" />
+  <ZSection z="3.158*m"  rMin="0*fm"  rMax="4.7976*cm" />
+  <ZSection z="3.18*m"  rMin="0*fm"  rMax="7.1*cm" />
+  <ZSection z="3.18*m"  rMin="0*fm"  rMax="8*cm" />
+  <ZSection z="3.25*m"  rMin="0*fm"  rMax="8*cm" />
+  <ZSection z="3.25*m"  rMin="0*fm"  rMax="7.1*cm" />
+  <ZSection z="3.271*m"  rMin="0*fm"  rMax="4.9692*cm" />
+  <ZSection z="3.482*m"  rMin="0*fm"  rMax="5.286*cm" />
+ </Polycone> 
+ <Polycone name="BVTC" startPhi="0*deg" deltaPhi="360*deg" >
+  <ZSection z="3.15*m"  rMin="0*fm"  rMax="4.6916*cm" />
+  <ZSection z="3.158*m"  rMin="0*fm"  rMax="4.7035*cm" />
+  <ZSection z="3.18*m"  rMin="0*fm"  rMax="7*cm" />
+  <ZSection z="3.25*m"  rMin="0*fm"  rMax="7*cm" />
+  <ZSection z="3.271*m"  rMin="0*fm"  rMax="4.8718*cm" />
+  <ZSection z="3.482*m"  rMin="0*fm"  rMax="5.186*cm" />
+ </Polycone> 
+ <Tubs name="BBTC" rMin="7*cm" rMax="8*cm" dz="3.5*cm" startPhi="0*deg" deltaPhi="360*deg"/>
+ <Polycone name="BTUD" startPhi="0*deg" deltaPhi="360*deg" >
+  <ZSection z="3.482*m"  rMin="0*fm"  rMax="5.286*cm" />
+  <ZSection z="3.5*m"  rMin="0*fm"  rMax="7.1*cm" />
+  <ZSection z="3.5*m"  rMin="0*fm"  rMax="8*cm" />
+  <ZSection z="3.57*m"  rMin="0*fm"  rMax="8*cm" />
+  <ZSection z="3.57*m"  rMin="0*fm"  rMax="7.1*cm" />
+  <ZSection z="3.588*m"  rMin="0*fm"  rMax="5.444*cm" />
+  <ZSection z="10.6*m"  rMin="0*fm"  rMax="15.8876*cm" />
+ </Polycone> 
+ <Polycone name="BVTD" startPhi="0*deg" deltaPhi="360*deg" >
+  <ZSection z="3.482*m"  rMin="0*fm"  rMax="5.186*cm" />
+  <ZSection z="3.5*m"  rMin="0*fm"  rMax="7*cm" />
+  <ZSection z="3.57*m"  rMin="0*fm"  rMax="7*cm" />
+  <ZSection z="3.588*m"  rMin="0*fm"  rMax="5.334*cm" />
+  <ZSection z="10.6*m"  rMin="0*fm"  rMax="15.7876*cm" />
+ </Polycone> 
+ <Tubs name="BBTD" rMin="7*cm" rMax="8*cm" dz="3.5*cm" startPhi="0*deg" deltaPhi="360*deg"/>
+ <Polycone name="BTUE" startPhi="0*deg" deltaPhi="360*deg" >
+  <ZSection z="10.6*m"  rMin="0*fm"  rMax="15.8876*cm" />
+  <ZSection z="10.816*m"  rMin="0*fm"  rMax="10.1*cm" />
+  <ZSection z="13*m"  rMin="0*fm"  rMax="10.1*cm" />
+  <ZSection z="13.15*m"  rMin="0*fm"  rMax="14.1*cm" />
+  <ZSection z="14.05*m"  rMin="0*fm"  rMax="14.1*cm" />
+  <ZSection z="14.274*m"  rMin="0*fm"  rMax="20.1*cm" />
+  <ZSection z="14.3*m"  rMin="0*fm"  rMax="20.1*cm" />
+ </Polycone> 
+ <Polycone name="BVTE" startPhi="0*deg" deltaPhi="360*deg" >
+  <ZSection z="10.6*m"  rMin="0*fm"  rMax="15.7876*cm" />
+  <ZSection z="10.816*m"  rMin="0*fm"  rMax="10*cm" />
+  <ZSection z="13*m"  rMin="0*fm"  rMax="10*cm" />
+  <ZSection z="13.15*m"  rMin="0*fm"  rMax="14*cm" />
+  <ZSection z="14.05*m"  rMin="0*fm"  rMax="14*cm" />
+  <ZSection z="14.274*m"  rMin="0*fm"  rMax="20*cm" />
+  <ZSection z="14.3*m"  rMin="0*fm"  rMax="20*cm" />
+ </Polycone> 
+</SolidSection>
+
+<LogicalPartSection label="beampipe.xml">
+ <LogicalPart name="BEAM" category="unspecified">
+  <rSolid name="BEAM"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
+ <LogicalPart name="BTUB" category="unspecified">
+  <rSolid name="BTUB"/>
+  <rMaterial name="materials:Beryllium"/>
+ </LogicalPart>
+ <LogicalPart name="BVTB" category="unspecified">
+  <rSolid name="BVTB"/>
+  <rMaterial name="materials:Vacuum"/>
+ </LogicalPart>
+ <LogicalPart name="BTUF" category="unspecified">
+  <rSolid name="BTUF"/>
+  <rMaterial name="materials:StainlessSteel"/>
+ </LogicalPart>
+ <LogicalPart name="BTUA" category="unspecified">
+  <rSolid name="BTUA"/>
+  <rMaterial name="materials:StainlessSteel"/>
+ </LogicalPart>
+ <LogicalPart name="BVTA" category="unspecified">
+  <rSolid name="BVTA"/>
+  <rMaterial name="materials:Vacuum"/>
+ </LogicalPart>
+ <LogicalPart name="BTUC" category="unspecified">
+  <rSolid name="BTUC"/>
+  <rMaterial name="materials:StainlessSteel"/>
+ </LogicalPart>
+ <LogicalPart name="BVTC" category="unspecified">
+  <rSolid name="BVTC"/>
+  <rMaterial name="materials:Vacuum"/>
+ </LogicalPart>
+ <LogicalPart name="BBTC" category="unspecified">
+  <rSolid name="BBTC"/>
+  <rMaterial name="materials:Steel-light"/>
+ </LogicalPart>
+ <LogicalPart name="BTUD" category="unspecified">
+  <rSolid name="BTUD"/>
+  <rMaterial name="materials:StainlessSteel"/>
+ </LogicalPart>
+ <LogicalPart name="BVTD" category="unspecified">
+  <rSolid name="BVTD"/>
+  <rMaterial name="materials:Vacuum"/>
+ </LogicalPart>
+ <LogicalPart name="BBTD" category="unspecified">
+  <rSolid name="BBTD"/>
+  <rMaterial name="materials:Steel-light"/>
+ </LogicalPart>
+ <LogicalPart name="BTUE" category="unspecified">
+  <rSolid name="BTUE"/>
+  <rMaterial name="materials:StainlessSteel"/>
+ </LogicalPart>
+ <LogicalPart name="BVTE" category="unspecified">
+  <rSolid name="BVTE"/>
+  <rMaterial name="materials:Vacuum"/>
+ </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="beampipe.xml">
+ <PosPart copyNumber="1">
+   <rParent name="cms:CMSE"/>
+   <rChild name="beampipe:BEAM"/>
+  <rRotation name="rotations:000D"/>
+ </PosPart>
+ <PosPart copyNumber="2">
+   <rParent name="cms:CMSE"/>
+   <rChild name="beampipe:BEAM"/>
+  <rRotation name="rotations:180D"/>
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="beampipe:BEAM"/>
+   <rChild name="beampipe:BTUB"/>
+  <rRotation name="rotations:000D"/>
+  <Translation x="0*fm" y="0*fm" z="97.355*cm" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="beampipe:BTUB"/>
+   <rChild name="beampipe:BVTB"/>
+  <rRotation name="rotations:000D"/>
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="beampipe:BEAM"/>
+   <rChild name="beampipe:BTUF"/>
+  <rRotation name="rotations:000D"/>
+  <Translation x="0*fm" y="0*fm" z="192.31*cm" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="beampipe:BEAM"/>
+   <rChild name="beampipe:BTUA"/>
+  <rRotation name="rotations:000D"/>
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="beampipe:BTUA"/>
+   <rChild name="beampipe:BVTA"/>
+  <rRotation name="rotations:000D"/>
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="beampipe:BEAM"/>
+   <rChild name="beampipe:BTUC"/>
+  <rRotation name="rotations:000D"/>
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="beampipe:BTUC"/>
+   <rChild name="beampipe:BVTC"/>
+  <rRotation name="rotations:000D"/>
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="beampipe:BTUC"/>
+   <rChild name="beampipe:BBTC"/>
+  <rRotation name="rotations:000D"/>
+  <Translation x="0*fm" y="0*fm" z="3.215*m" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="beampipe:BEAM"/>
+   <rChild name="beampipe:BTUD"/>
+  <rRotation name="rotations:000D"/>
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="beampipe:BTUD"/>
+   <rChild name="beampipe:BVTD"/>
+  <rRotation name="rotations:000D"/>
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="beampipe:BTUD"/>
+   <rChild name="beampipe:BBTD"/>
+  <rRotation name="rotations:000D"/>
+  <Translation x="0*fm" y="0*fm" z="3.535*m" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="beampipe:BEAM"/>
+   <rChild name="beampipe:BTUE"/>
+  <rRotation name="rotations:000D"/>
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="beampipe:BTUE"/>
+   <rChild name="beampipe:BVTE"/>
+  <rRotation name="rotations:000D"/>
+ </PosPart>
+</PosPartSection>
+
+
+</DDDefinition>

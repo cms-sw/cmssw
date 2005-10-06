@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
+
+<SolidSection label="cavern.xml">
+ <Tubs name="OSWL" rMin="12*m" rMax="13*m" dz="27*m" startPhi="0*deg" deltaPhi="360*deg"/>
+ <Tubs name="OSW1" rMin="12.05*m" rMax="12.95*m" dz="26.95*m" startPhi="0*deg" deltaPhi="360*deg"/>
+ <Tubs name="OZWL" rMin="1*m" rMax="12*m" dz="50*cm" startPhi="0*deg" deltaPhi="360*deg"/>
+ <Tubs name="OZW1" rMin="1.05*m" rMax="11.95*m" dz="45*cm" startPhi="0*deg" deltaPhi="360*deg"/>
+</SolidSection>
+
+<LogicalPartSection label="cavern.xml">
+ <LogicalPart name="OSWL" category="unspecified">
+  <rSolid name="OSWL"/>
+  <rMaterial name="materials:Stand.Concrete"/>
+ </LogicalPart>
+ <LogicalPart name="OSW1" category="unspecified">
+  <rSolid name="OSW1"/>
+  <rMaterial name="materials:Thick_Stand.Concrete"/>
+ </LogicalPart>
+ <LogicalPart name="OZWL" category="unspecified">
+  <rSolid name="OZWL"/>
+  <rMaterial name="materials:Stand.Concrete"/>
+ </LogicalPart>
+ <LogicalPart name="OZW1" category="unspecified">
+  <rSolid name="OZW1"/>
+  <rMaterial name="materials:Thick_Stand.Concrete"/>
+ </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="cavern.xml">
+ <PosPart copyNumber="1">
+   <rParent name="cms:OCMS"/>
+   <rChild name="cavern:OSWL"/>
+  <rRotation name="rotations:000D"/>
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="cavern:OSWL"/>
+   <rChild name="cavern:OSW1"/>
+  <rRotation name="rotations:000D"/>
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="cms:OCMS"/>
+   <rChild name="cavern:OZWL"/>
+  <rRotation name="rotations:000D"/>
+  <Translation x="0*fm" y="0*fm" z="26.5*m" />
+ </PosPart>
+ <PosPart copyNumber="2">
+   <rParent name="cms:OCMS"/>
+   <rChild name="cavern:OZWL"/>
+  <rRotation name="rotations:000D"/>
+  <Translation x="0*fm" y="0*fm" z="-26.5*m" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="cavern:OZWL"/>
+   <rChild name="cavern:OZW1"/>
+  <rRotation name="rotations:000D"/>
+ </PosPart>
+</PosPartSection>
+
+
+</DDDefinition>

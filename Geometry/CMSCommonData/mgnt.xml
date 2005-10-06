@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
+
+<SolidSection label="mgnt.xml">
+ <Polycone name="MGNT" startPhi="0*deg" deltaPhi="360*deg" >
+  <ZSection z="-6.5*m"  rMin="2.97*m"  rMax="3.77*m" />
+  <ZSection z="-2.2*m"  rMin="2.97*m"  rMax="3.77*m" />
+  <ZSection z="-2.2*m"  rMin="2.97*m"  rMax="3.8*m" />
+  <ZSection z="2.2*m"  rMin="2.97*m"  rMax="3.8*m" />
+  <ZSection z="2.2*m"  rMin="2.97*m"  rMax="3.77*m" />
+  <ZSection z="6.5*m"  rMin="2.97*m"  rMax="3.77*m" />
+ </Polycone> 
+ <Tubs name="COII" rMin="3.03*m" rMax="3.74*m" dz="6.42*m" startPhi="0*deg" deltaPhi="360*deg"/>
+ <Tubs name="COIV" rMin="3.06*m" rMax="3.71*m" dz="6.39*m" startPhi="0*deg" deltaPhi="360*deg"/>
+ <Tubs name="COIS" rMin="3.18*m" rMax="3.48*m" dz="6.24*m" startPhi="0*deg" deltaPhi="360*deg"/>
+ <Tubs name="COCF" rMin="3.185*m" rMax="3.43*m" dz="6.19*m" startPhi="0*deg" deltaPhi="360*deg"/>
+</SolidSection>
+
+<LogicalPartSection label="mgnt.xml">
+ <LogicalPart name="MGNT" category="unspecified">
+  <rSolid name="MGNT"/>
+  <rMaterial name="materials:StainlessSteel"/>
+ </LogicalPart>
+ <LogicalPart name="COII" category="unspecified">
+  <rSolid name="COII"/>
+  <rMaterial name="materials:Insulation"/>
+ </LogicalPart>
+ <LogicalPart name="COIV" category="unspecified">
+  <rSolid name="COIV"/>
+  <rMaterial name="materials:Vacuum"/>
+ </LogicalPart>
+ <LogicalPart name="COIS" category="unspecified">
+  <rSolid name="COIS"/>
+  <rMaterial name="materials:StainlessSteel"/>
+ </LogicalPart>
+ <LogicalPart name="COCF" category="unspecified">
+  <rSolid name="COCF"/>
+  <rMaterial name="materials:Coil average"/>
+ </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="mgnt.xml">
+ <PosPart copyNumber="1">
+   <rParent name="cms:MUON"/>
+   <rChild name="mgnt:MGNT"/>
+  <rRotation name="rotations:000D"/>
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="mgnt:MGNT"/>
+   <rChild name="mgnt:COII"/>
+  <rRotation name="rotations:000D"/>
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="mgnt:COII"/>
+   <rChild name="mgnt:COIV"/>
+  <rRotation name="rotations:000D"/>
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="mgnt:COIV"/>
+   <rChild name="mgnt:COIS"/>
+  <rRotation name="rotations:000D"/>
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="mgnt:COIS"/>
+   <rChild name="mgnt:COCF"/>
+  <rRotation name="rotations:000D"/>
+ </PosPart>
+</PosPartSection>
+
+
+</DDDefinition>
