@@ -1,5 +1,8 @@
 #include "RecoLocalCalo/CaloTowersCreator/interface/CaloTowersCreationAlgo.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
+#include "Geometry/CaloTopology/interface/CaloTowerTopology.h"
+#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "Geometry/CaloTopology/interface/CaloTowerTopology.h"
@@ -30,7 +33,9 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo(const HcalTopology* topo, const C
    theGeometry(geo),
    theHOIsUsedByDefault(true)
 {
+  theTowerTopology=new CaloTowerTopology(); // for now
 }
+
 
 
 CaloTowersCreationAlgo::CaloTowersCreationAlgo(double EBthreshold, double EEthreshold, double HcalThreshold,
@@ -66,6 +71,7 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo(double EBthreshold, double EEthre
    theGeometry(geo),
    theHOIsUsedByDefault(useHODefault)
 {
+  towerGeometry=geo->getSubdetectorGeometry(DetId::Calo,CaloTowerDetId::SubdetId);
 }
 
 void CaloTowersCreationAlgo::create(CaloTowerCollection & result, const HBHERecHitCollection& hbhe, 
@@ -73,37 +79,31 @@ void CaloTowersCreationAlgo::create(CaloTowerCollection & result, const HBHERecH
 {
 
   theTowerMap.clear();
-
+  
   for(HBHERecHitCollection::const_iterator hbheItr = hbhe.begin();
       hbheItr != hbhe.end(); ++hbheItr)
-  {
-    assignHit(*hbheItr);
-  }   
-
+    assignHit(&(*hbheItr));
+       
+  
   for(HORecHitCollection::const_iterator hoItr = ho.begin();
       hoItr != ho.end(); ++hoItr)
-    assignHit(*hoItr);
-  }
+    assignHit(&(*hoItr));
+  
 
   for(HFRecHitCollection::const_iterator hfItr = hf.begin();
-      hfItr != hf.end(); ++hfItr)
-  {
-    assignHit(*hfItr);
-  }
-
+      hfItr != hf.end(); ++hfItr)  
+    assignHit(&(*hfItr));
 
   // now copy this map into the final collection
   for(CaloTowerMap::const_iterator mapItr = theTowerMap.begin();
       mapItr != theTowerMap.end(); ++ mapItr)
-  {
     result.push_back(mapItr->second);
-  }
-
+    
 }
 
 
 void CaloTowersCreationAlgo::assignHit(const CaloRecHit * recHit) {
-  DetId detId = recHit->detid();
+DetId detId = recHit->detid();
   CaloTowerDetId towerDetId = theTowerTopology->towerOf(detId);
   CaloTower & tower = find(towerDetId);
 
@@ -130,26 +130,25 @@ void CaloTowersCreationAlgo::assignHit(const CaloRecHit * recHit) {
       }
     }
     tower.constituents.push_back(detId);
+    tower.eT += eT;
   } 
 }
 
 
 CaloTower & CaloTowersCreationAlgo::find(const CaloTowerDetId & detId) {
-  CaloTower * result;
-  CaloTowerMap::iterator itr = theCaloTowerMap.find(detId);
-  if(itr != theCaloTowerMap.end()) {
-    result = *itr;
-  }
-  else {
+  CaloTowerMap::iterator itr = theTowerMap.find(detId);
+  if(itr == theTowerMap.end()) {
     // need to build a new tower
-    result = new CaloTower(detId);
-    result->eta = theTowerGeometry->   ->eta();
-    result->phi = theTowerGeometry->   ->phi();
+    CaloTower t(detId);
+    GlobalPoint p=towerGeometry->getGeometry(detId)->getPosition();
+    t.eta = p.eta();
+    t.phi = p.phi();
 
     // store it in the map
-    theCaloTowerMap.insert(pair<CaloTowerDetId, CaloTower *>(detId, result));
+    theTowerMap.insert(std::pair<CaloTowerDetId, CaloTower>(detId, t));
+    itr = theTowerMap.find(detId);
   }
-  return result;
+  return itr->second;
 }
  
   
@@ -157,13 +156,13 @@ void CaloTowersCreationAlgo::getThresholdAndWeight(const DetId & detId, double &
   DetId::Detector det = detId.det();
   if(det == DetId::Ecal) {
     // may or may not be EB.  We'll find out.
-    cms::EBDetId ebDetId(detId);
-    cms::EcalSubdetector subdet = ebDetId.subdet();
-    if(subdet == cms::EcalBarrel) {
+    EBDetId ebDetId(detId);
+    EcalSubdetector subdet = ebDetId.subdet();
+    if(subdet == EcalBarrel) {
       threshold = theEBthreshold;
       weight = theEBweight;
     }
-    else if(subdet == cms::EcalEndcap) {
+    else if(subdet == EcalEndcap) {
       threshold = theEEthreshold;
       weight = theEEweight;
     }
@@ -171,12 +170,12 @@ void CaloTowersCreationAlgo::getThresholdAndWeight(const DetId & detId, double &
   else if(det == DetId::Hcal) {
     HcalDetId hcalDetId(detId);
     HcalSubdetector subdet = hcalDetId.subdet();
-
+    
     if(subdet == HcalBarrel) {
       threshold = theHBthreshold;
       weight = theHBweight;
     }
-
+    
     else if(subdet == HcalEndcap) {
       // check if it's single or double tower
       if(hcalDetId.ieta() < theHcalTopology->firstHEDoublePhiRing()) {
@@ -188,7 +187,7 @@ void CaloTowersCreationAlgo::getThresholdAndWeight(const DetId & detId, double &
         weight = theHEDweight;
       }
     }
-
+    
     else if(subdet == HcalForward) {
       if(hcalDetId.depth() == 1) {
         threshold = theHF1threshold;

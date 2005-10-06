@@ -3,11 +3,13 @@
 <use name=DataFormats/HcalRecHit>
 <use name=DataFormats/EcalRecHit>
 <use name=DataFormats/EcalDetId>
+<use name=DataFormats/DetId>
 <use name=Geometry/CaloTopology>
 <use name=Geometry/CaloGeometry>
 <export>
  <lib name=RecoLocalCaloCaloTowersCreator>
  <use name=boost>
+ <use name=DataFormats/DetId>
  <use name=DataFormats/HcalDigi>
  <use name=DataFormats/HcalRecHit>
  <use name=DataFormats/EcalRecHit>

@@ -4,17 +4,20 @@
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+
 #include <map>
 class HcalTopology;
 class CaloGeometry;
+class CaloSubdetectorGeometry;
+class CaloTowerTopology;
 class CaloRecHit;
 class DetId;
 
 /** \class CaloTowersCreationAlgo
   *  
-  * $Date: 2005/10/05 17:02:05 $
-  * $Revision: 1.1 $
-  * \author J. Mans - Minnesota
+  * $Date: 2005/10/06 01:11:40 $
+  * $Revision: 1.2 $
+  * \author R. Wilkinson - Caltech
   */
 class CaloTowersCreationAlgo {
 public:
@@ -29,7 +32,7 @@ public:
     double EcutTower, double EBSumThreshold, double EESumThreshold,
     const HcalTopology* topo, const CaloGeometry* geo, bool useHODefault);
 
-  bool create(CaloTowerCollection& destCollection,
+  void create(CaloTowerCollection& destCollection,
 	      const HBHERecHitCollection& hbhe, 
 	      const HORecHitCollection& ho, 
 	      const HFRecHitCollection& hf); // eventually will need ECAL also.
@@ -37,13 +40,13 @@ public:
 private:
   /// adds a single hit to the tower
   void assignHit(const CaloRecHit * recHit);
-
+  
   /// looks for a given tower in the internal cache.  If it can't find it, it makes it.
-  CaloTower & find(CaloTowerDetId & id);
-
+  CaloTower & find(const CaloTowerDetId & id);
+  
   /// helper method to look up the appropriate threshold & weight
   void getThresholdAndWeight(const DetId & detId, double & threshold, double & weight) const;
-
+  
   double theEBthreshold, theEEthreshold, theHcalThreshold;
   double theHBthreshold, theHESthreshold,  theHEDthreshold; 
   double theHOthreshold, theHF1threshold, theHF2threshold;
@@ -53,12 +56,14 @@ private:
 
   const HcalTopology* theHcalTopology;
   const CaloGeometry* theGeometry;
+  const CaloTowerTopology* theTowerTopology;
+  const CaloSubdetectorGeometry* towerGeometry;
 
   bool theHOIsUsedByDefault;
 
   // internal map
-  typedef std::map<CaloTowerDetId, CaloTower *> CaloTowerMap;
-  CaloTowerMap theCaloTowerMap;
+  typedef std::map<CaloTowerDetId, CaloTower> CaloTowerMap;
+  CaloTowerMap theTowerMap;
 };
 
 #endif
