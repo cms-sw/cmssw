@@ -1,8 +1,7 @@
-
-/* \file DaqFakeReader.cc
+/** \file
  *
- *  $Date: 2005/10/04 18:38:48 $
- *  $Revision: 1.3 $
+ *  $Date: 2005/10/05 16:22:50 $
+ *  $Revision: 1.4 $
  *  \author N. Amapane - CERN
  */
 
@@ -24,7 +23,8 @@ using namespace std;
 using namespace edm;
 
 
-DaqFakeReader::DaqFakeReader(const edm::ParameterSet& pset){
+DaqFakeReader::DaqFakeReader(const edm::ParameterSet& pset) : 
+  runNum(1), eventNum(0) {
   // mean = pset.getParameter<float>("mean");
 }
 
@@ -59,6 +59,12 @@ void DaqFakeReader::fillFEDs(const pair<int,int>& fedRange,
 			     FEDRawDataCollection& data,
 			     float meansize,
 			     float width){
+
+  // Fill the EventID
+  eID = EventID(runNum,eventNum);
+  eventNum++;
+  // FIXME:
+
 
   // FIXME: last ID included?
   for (int fedId = fedRange.first; fedId <= fedRange.second; ++fedId ) {

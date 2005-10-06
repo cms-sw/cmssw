@@ -1,13 +1,14 @@
-#ifndef DaqBaseReader_H
-#define DaqBaseReader_H
+#ifndef DaqSource_DaqBaseReader_h
+#define DaqSource_DaqBaseReader_h
 
 /** \class DaqBaseReader
  *  Base class for a "data reader" for the DaqSource.  
  *
  *  Derived classes must have a constructor accepting a
  *  parameter (const edm::ParameterSet& pset).
- *  $Date: 2005/09/30 08:17:47 $
- *  $Revision: 1.1 $
+ *
+ *  $Date: 2005/10/04 18:38:48 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - CERN
  */
 

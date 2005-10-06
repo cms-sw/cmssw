@@ -1,15 +1,17 @@
-#ifndef DaqFakeReader_H
-#define DaqFakeReader_H
+#ifndef DaqSource_DaqFakeReader_h
+#define DaqSource_DaqFakeReader_h
 
 /** \class DaqFakeReader
- *  No description available.
+ *  Generates empty FEDRawData of random size for all FEDs
+ *  Proper headers and trailers are included; but the payloads are all 0s
  *
- *  $Date: 2005/09/30 08:17:48 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/10/04 18:38:48 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - CERN
  */
 
 #include <IORawData/DaqSource/interface/DaqBaseReader.h>
+#include <FWCore/EDProduct/interface/EventID.h>
 #include <algorithm>
 
 class DaqFakeReader : public DaqBaseReader {
@@ -20,7 +22,7 @@ class DaqFakeReader : public DaqBaseReader {
   /// Destructor
   virtual ~DaqFakeReader();
 
-  // Generate raw data for a full event
+  /// Generate and fill FED raw data for a full event
   virtual bool fillRawData(edm::EventID& eID,
 			   edm::Timestamp& tstamp, 
 			   FEDRawDataCollection& data);
@@ -33,6 +35,9 @@ class DaqFakeReader : public DaqBaseReader {
 		float meansize,
 		float width);
 
+  edm::RunNumber_t runNum;
+  edm::EventNumber_t eventNum;
+  
 };
 #endif
 

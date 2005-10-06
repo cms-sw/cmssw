@@ -1,11 +1,11 @@
-#ifndef DaqFUReader_H
-#define DaqFUReader_H
+#ifndef DaqSource_DaqFUReader_h
+#define DaqSource_DaqFUReader_h
 
 /** \class DaqFUReader
- *  No description available.
+ *  Gets raw data from the DAQ and puts it to the event in the FU
  *
- *  $Date: 2005/09/30 08:17:48 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/10/04 18:38:48 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - CERN
  */
 
@@ -20,7 +20,7 @@ public:
   /// Destructor
   virtual ~DaqFUReader();
 
-  // Read in a full event
+  /// Read in a full event and fill the raw data containers
   virtual bool fillRawData(edm::EventID& eID,
 			   edm::Timestamp& tstamp, 
 			   FEDRawDataCollection& data);

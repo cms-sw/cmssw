@@ -1,7 +1,8 @@
-/*
+/* NOTE: this file temporarily stolen from the XDAQ project
+ * 
  * fed_header.h  
  *
- * $Header: /cvs_server/repositories/TriDAS/TriDAS/daq/interface/shared/include/fed_header.h,v 1.2 2004/11/08 11:14:30 cschwick Exp $
+ * $Header: /cvs_server/repositories/CMSSW/CMSSW/DataFormats/FEDRawData/src/fed_header.h,v 1.1 2005/09/30 08:13:36 namapane Exp $
  *
  * This file contains the struct definition of the FED-header.
  * The FED-header is inserted by the FED at the top of a data fragment

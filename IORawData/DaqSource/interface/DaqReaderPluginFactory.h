@@ -1,11 +1,11 @@
-#ifndef DaqReaderPluginFactory_H
-#define DaqReaderPluginFactory_H
+#ifndef DaqSource_DaqReaderPluginFactory_h
+#define DaqSource_DaqReaderPluginFactory_h
 
 /** \class DaqReaderPluginFactory
  *  Plugin factory for actual data sources for DaqSource.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2005/09/30 08:17:48 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - CERN
  */
 

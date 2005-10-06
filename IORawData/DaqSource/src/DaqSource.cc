@@ -1,6 +1,7 @@
-/*
- *  $Date: 2005/09/30 08:17:48 $
- *  $Revision: 1.1 $
+/** \file 
+ *
+ *  $Date: 2005/10/04 18:38:48 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -59,15 +60,13 @@ DaqSource::DaqSource(const ParameterSet& pset,
 
 
 DaqSource::~DaqSource(){
-  // delete reader_; // FIXME: who is the owner???
+  delete reader_;
 }
 
 
 auto_ptr<EventPrincipal>
 DaqSource::read() {
   auto_ptr<EventPrincipal> result(0);
-
-  //  clear();
 
   EventID eventId;
   Timestamp tstamp;

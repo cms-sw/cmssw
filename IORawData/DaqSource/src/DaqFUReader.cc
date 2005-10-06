@@ -1,8 +1,7 @@
-
-/* \file DaqFUReader.cc
+/** \file
  *
- *  $Date: 2005/09/30 08:17:48 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/10/04 18:38:48 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - CERN
  */
 
@@ -10,7 +9,6 @@
 
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
-//#include "FURawEvent" 
 
 using namespace std;
 using namespace edm;
@@ -25,7 +23,7 @@ DaqFUReader::~DaqFUReader(){}
 bool DaqFUReader::fillRawData(EventID& eID,
 			      Timestamp& tstamp, 
 			      FEDRawDataCollection& data){
-  // prendera' FURawEvent* da FilterUnitFramework::rqstEvent()
+  //cf. FURawEvent* da FilterUnitFramework::rqstEvent()
   return true;
 }
 

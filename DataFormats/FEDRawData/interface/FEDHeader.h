@@ -1,12 +1,12 @@
-#ifndef FEDHeader_H
-#define FEDHeader_H
+#ifndef FEDRawData_FEDHeader_h
+#define FEDRawData_FEDHeader_h
 
 /** \class FEDHeader
  *  TEMPORARY helper class to interpret/create FED header words.
  *  FIXME: will be replaced by the xdaq implementation.
  *
- *  $Date: 2005/09/30 08:13:36 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/10/05 16:20:20 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - CERN
  */
 
@@ -40,7 +40,7 @@ public:
   /// (always 1 for ECAL)
   bool moreHeaders();
 
-  // Check that the header is OK
+  /// Check that the header is OK
   bool check();
 
   /// Set all fields in the header

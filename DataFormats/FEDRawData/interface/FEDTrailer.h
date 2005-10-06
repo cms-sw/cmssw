@@ -1,12 +1,12 @@
-#ifndef FEDTrailer_H
-#define FEDTrailer_H
+#ifndef FEDRawData_FEDTrailer_h
+#define FEDRawData_FEDTrailer_h
 
 /** \class FEDTrailer
  *  TEMPORARY helper class to interpret/create FED trailer words.
  *  FIXME: will be replaced by the xdaq implementation
  *
- *  $Date: 2005/09/30 08:13:36 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/10/05 16:20:20 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - CERN
  */
 

@@ -1,3 +1,11 @@
+/** \file
+ *
+ *  $Date: $
+ *  $Revision: $
+ *  \author N. Amapane - CERN
+ */
+
+
 #include <IORawData/DaqSource/interface/DaqReaderPluginFactory.h>
 
 DaqReaderPluginFactory DaqReaderPluginFactory::s_instance;

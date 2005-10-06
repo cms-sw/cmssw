@@ -1,13 +1,14 @@
-#ifndef FEDNumbering_H
-#define FEDNumbering_H
+#ifndef FEDRawData_FEDNumbering_h
+#define FEDRawData_FEDNumbering_h
+
 /** \class FEDNumbering
  *  
  *  This class holds the fed numbering scheme for the CMS geometry. 
  *  No two feds should have the same id. Each subdetector has a reserved range.
- *  Gaps between range give flexibility to the numbering.
+ *  Gaps between ranges give flexibility to the numbering.
  *
- *  $Date: 2005/10/03 14:09:13 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/10/05 16:20:20 $
+ *  $Revision: 1.3 $
  *  \author G. Bruno - CERN, EP Division
  */   
 

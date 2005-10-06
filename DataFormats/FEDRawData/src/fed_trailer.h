@@ -1,7 +1,8 @@
-/*
+/* NOTE: this file temporarily stolen from the XDAQ project
+ *
  * fed_trailer.h  
  *
- * $Header: /cvs_server/repositories/TriDAS/TriDAS/daq/interface/shared/include/fed_trailer.h,v 1.2 2004/11/08 11:14:30 cschwick Exp $
+ * $Header: /cvs_server/repositories/CMSSW/CMSSW/DataFormats/FEDRawData/src/fed_trailer.h,v 1.1 2005/09/30 08:13:36 namapane Exp $
  *
  * This file contains the struct definition of the FED-trailer.
  * The FED-trailer is inserted by the FED at the bottom of a data fragment

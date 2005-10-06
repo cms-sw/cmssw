@@ -1,13 +1,13 @@
-#ifndef raw_FEDRawDataCollection_H
-#define raw_FEDRawDataCollection_H
+#ifndef FEDRawData_FEDRawDataCollection_h
+#define FEDRawData_FEDRawDataCollection_h
 
-/** \class DaqRawDataCollection
+/** \class FEDRawDataCollection
  *  An EDCollection storing the raw data for all  FEDs in a Event.
  *  
  *  Reference: DaqPrototype/DaqPersistentData/interface/DaqFedOpaqueData.h
  *
- *  $Date: 2005/09/30 08:12:56 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/10/04 12:23:56 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane - S. Argiro'
  */
 

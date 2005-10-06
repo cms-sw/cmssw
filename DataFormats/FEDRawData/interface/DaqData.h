@@ -1,6 +1,7 @@
-#ifndef DaqData_H
-#define DaqData_H
-/*  \class DaqData
+#ifndef FEDRawData_DaqData_h
+#define FEDRawData_DaqData_h
+
+/**  \class DaqData
  *  
  *  This is the basic class accomplishing raw data 
  *  formatting/unformatting.
@@ -39,8 +40,8 @@
  *           of accomplishing the task. In a future version of DaqData, 
  *           more efficient methods will be made available.
  *
- *  $Date: 2004/06/02 15:08:16 $
- *  $Revision: 1.10 $
+ *  $Date: 2005/07/06 16:37:54 $
+ *  $Revision: 1.1 $
  *  \author G. Bruno  - CERN, EP Division
  */
 

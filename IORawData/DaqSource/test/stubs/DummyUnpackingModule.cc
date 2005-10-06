@@ -1,10 +1,10 @@
-/**
- * \file DummyUnpackingModule.h 
+/** \file
+ * 
  * dummy module  for the test of  DaqFileInputService
  *   
  * 
- * $Date: 2005/10/04 18:38:48 $
- * $Revision: 1.2 $
+ * $Date: 2005/10/05 16:22:50 $
+ * $Revision: 1.3 $
  * \author N. Amapane - S. Argiro'
  *
 */

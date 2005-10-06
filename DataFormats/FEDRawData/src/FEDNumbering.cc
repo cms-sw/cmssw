@@ -1,9 +1,7 @@
-/**  
- *  See header file for a description of this class.
+/** \file
  *
- *
- *  $Date: 2005/10/03 14:09:13 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/10/05 16:20:20 $
+ *  $Revision: 1.3 $
  *  \author G. Bruno  - CERN, EP Division
  */
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"

@@ -3,11 +3,11 @@
    unit test file for class FEDRawDataProduct 
 
    \author Stefano ARGIRO
-   \version $Id: FEDRawDataProduct_t.cc,v 1.2 2005/09/30 08:13:54 namapane Exp $
+   \version $Id: FEDRawDataProduct_t.cc,v 1.3 2005/10/04 12:23:56 namapane Exp $
    \date 28 Jun 2005
 */
 
-static const char CVSId[] = "$Id: FEDRawDataProduct_t.cc,v 1.2 2005/09/30 08:13:54 namapane Exp $";
+static const char CVSId[] = "$Id: FEDRawDataProduct_t.cc,v 1.3 2005/10/04 12:23:56 namapane Exp $";
 
 
 #include <cppunit/extensions/HelperMacros.h>
@@ -36,12 +36,12 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testFEDRawDataProduct);
 
 void testFEDRawDataProduct::testInsertAndReadBack(){
 
-  FEDRawData f1(3);
+  FEDRawData f1(16);
   f1.data()[0] = 'a';
   f1.data()[1] = 'b';
  
 
-  FEDRawData f2(10);
+  FEDRawData f2(24);
   f2.data()[0] = 'd';
   f2.data()[1] = 'e';
  

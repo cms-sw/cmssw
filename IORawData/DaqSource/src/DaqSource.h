@@ -1,11 +1,12 @@
-#ifndef DaqSource_H
-#define DaqSource_H
+#ifndef DaqSource_DaqSource_H
+#define DaqSource_DaqSource_H
 
 /** \class DaqSource
- *  An input service for raw data
+ *  An input service for raw data. 
+ *  The actual source can be the real DAQ, a file, a random generator, etc.
  *
- *  $Date: 2005/09/30 08:17:48 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/10/04 18:38:48 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - S. Argiro'
  */
 
