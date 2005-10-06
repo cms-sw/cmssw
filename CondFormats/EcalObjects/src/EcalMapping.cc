@@ -42,10 +42,10 @@ const EcalMapping::crystalAnglesPair EcalMapping::crystalNumberToAngles(int SM, 
   return angles;
 }
 
-const cms::EBDetId EcalMapping::crystalNumberToEBDetID(int SM, int crystalNumber) const
+const EBDetId EcalMapping::crystalNumberToEBDetID(int SM, int crystalNumber) const
 {
   EcalMapping::crystalAnglesPair angles = EcalMapping::crystalNumberToAngles(SM, crystalNumber);
-  return cms::EBDetId(angles.ieta, angles.iphi);
+  return EBDetId(angles.ieta, angles.iphi);
 }
 
 int EcalMapping::crystalNumberToLogicID(int SM, int crystalNumber) const
@@ -61,7 +61,7 @@ void EcalMapping::buildMapping()
 {
 
   int logicId;
-  cms::EBDetId detid;
+  EBDetId detid;
   for (int SM = 1; SM <= numSuperModules; ++SM) {
     for (int xtal = 1; xtal <= numCrystalsPerSM; ++xtal) {
       logicId = EcalMapping::crystalNumberToLogicID(SM, xtal);
@@ -71,11 +71,11 @@ void EcalMapping::buildMapping()
   }
 }
 
-const cms::EBDetId EcalMapping::lookup(int channelId) const
+const EBDetId EcalMapping::lookup(int channelId) const
 {
-  std::map< int, cms::EBDetId >::const_iterator i = m_channelToDetIdMap.find(channelId);
+  std::map< int, EBDetId >::const_iterator i = m_channelToDetIdMap.find(channelId);
   if(i == m_channelToDetIdMap.end()) {
-    return cms::EBDetId();
+    return EBDetId();
   }
   return i->second;
 }

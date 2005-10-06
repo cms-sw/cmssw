@@ -4,9 +4,9 @@
  <class name="std::pair<const int, EcalPedestals::Item>"/>
 
  <class name="EcalMapping" id="428252C6-2710-DA11-93EF-0002B3D87B0F"/>
- <class name="std::map< int, cms::EBDetId>"/>
- <class name="cms::EBDetId"/>
- <class name="std::pair<const int, cms::EBDetId>"/>
+ <class name="std::map< int, EBDetId>"/>
+ <class name="EBDetId"/>
+ <class name="std::pair<const int, EBDetId>"/>
 
  <class pattern="*map*"/>
  <class pattern="*iterator*"/>

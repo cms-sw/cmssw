@@ -23,7 +23,7 @@ class EcalMapping {
 
   const crystalAnglesPair crystalNumberToAngles(int SM, int crystalNumber) const;
 
-  const cms::EBDetId crystalNumberToEBDetID(int SM, int crystalNumber) const;
+  const EBDetId crystalNumberToEBDetID(int SM, int crystalNumber) const;
   
   int crystalNumberToLogicID(int SM, int crystalNumber) const;
 
@@ -32,7 +32,7 @@ class EcalMapping {
   /**
    *  Lookup the DetId given the online Condition database's logical ID
    */
-  const cms::EBDetId lookup(int channelId) const;
+  const EBDetId lookup(int channelId) const;
 
  private:
   static const int numCrystalsInI = 85;
@@ -40,7 +40,7 @@ class EcalMapping {
   static const int numSuperModules = 36;
   static const int numCrystalsPerSM = 1700;
 
-  std::map<int, cms::EBDetId> m_channelToDetIdMap;
+  std::map<int, EBDetId> m_channelToDetIdMap;
 };
 
 
