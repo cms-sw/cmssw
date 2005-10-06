@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Mon Oct  3 11:35:27 CDT 2005
-// $Id: HcalHardcodeGeometryEP.cc,v 1.2 2005/10/04 17:46:29 mansj Exp $
+// $Id: HcalHardcodeGeometryEP.cc,v 1.3 2005/10/06 00:43:58 mansj Exp $
 //
 //
 
@@ -61,5 +61,4 @@ HcalHardcodeGeometryEP::produce(const IdealGeometryRecord& iRecord)
    return pCaloSubdetectorGeometry ;
 }
 
-//define this as a plug-in
-DEFINE_FWK_EVENTSETUP_MODULE(HcalHardcodeGeometryEP)
+
