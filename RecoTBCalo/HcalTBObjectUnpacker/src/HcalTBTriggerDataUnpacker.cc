@@ -54,11 +54,11 @@ typedef struct newExtendedTrgMsgBlkStruct {
 
 namespace hcaltb {
 
-  void HcalTBTriggerDataUnpacker::unpack(const raw::FEDRawData& raw, hcaltb::HcalTBTriggerData& htbtd) {
+  void HcalTBTriggerDataUnpacker::unpack(const FEDRawData& raw, HcalTBTriggerData& htbtd) {
 
     // Use the size to determine which format we have received:
     //
-    if (raw.data_.size() == 80) { // "old" test beam trigger format
+    if (raw.size() == 80) { // "old" test beam trigger format
 
       const oldTriggerDataFormat *oldtrgblk = (const oldTriggerDataFormat *)(raw.data());
       htbtd.setStandardData(oldtrgblk->orbitNumber,
@@ -81,16 +81,16 @@ namespace hcaltb {
 
       const newExtendedTrgMsgBlk *newtrgblk;
 
-      if (raw.data_.size() == 96)  // "new" test beam trigger format,
+      if (raw.size() == 96)  // "new" test beam trigger format,
 	                           // 64-bit header
 	newtrgblk = (const newExtendedTrgMsgBlk *)(raw.data()+8);
 
-      else if (raw.data_.size() == 104) // "new" test beam trigger format,
+      else if (raw.size() == 104) // "new" test beam trigger format,
 	                                // 128-bit header
 	newtrgblk = (const newExtendedTrgMsgBlk *)(raw.data()+16);
       else {
 	cerr << "HcalTBtdUnpacker.unpack: data of unknown size ";
-	cerr << raw.data_.size() << endl;
+	cerr << raw.size() << endl;
 	return;
       }
 

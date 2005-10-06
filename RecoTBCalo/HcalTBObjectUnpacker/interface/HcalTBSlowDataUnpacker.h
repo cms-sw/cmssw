@@ -11,10 +11,9 @@ namespace hcaltb {
   public:
     HcalTBSlowDataUnpacker(void) { }
 
-    void unpack(const raw::FEDRawData&       raw,
-		hcaltb::HcalTBRunData&       htbrd,
-		hcaltb::HcalTBEventPosition& htbep);
-     
+    void unpack(const FEDRawData&    raw,
+		HcalTBRunData&            htbrd,
+		HcalTBEventPosition&      htbep);
   };
 }
 

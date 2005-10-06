@@ -11,15 +11,12 @@ using namespace std;
 #include "FWCore/Framework/interface/Selector.h"
 #include <iostream>
 
-using namespace raw;
-
-namespace hcaltb
-{
 
   HcalTBObjectUnpacker::HcalTBObjectUnpacker(edm::ParameterSet const& conf):
     triggerFed_(conf.getParameter<int>("HcalTriggerFED")),
     sdFed_(conf.getParameter<int>("HcalSlowDataFED")),
-    tdcFed_(conf.getParameter<int>("HcalTDCFED"))
+    tdcFed_(conf.getParameter<int>("HcalTDCFED")),
+    tdcUnpacker_(conf.getParameter<bool>("IncludeUnmatchedHits"))
   {
     if (triggerFed_ >=0) {
       std::cout << "HcalTBObjectUnpacker will unpack FED ";
@@ -50,40 +47,40 @@ namespace hcaltb
   {
     // Step A: Get Inputs 
     edm::Handle<FEDRawDataCollection> rawraw;  
-    edm::ProcessNameSelector s("PROD"); // HACK!
-    e.get(s, rawraw);           
+    //    edm::ProcessNameSelector s("PROD"); // HACK!
+    e.getByType(rawraw);           
 
     // Step B: Create empty output
-    std::auto_ptr<hcaltb::HcalTBTriggerData>
-      trigd(new hcaltb::HcalTBTriggerData);
+    std::auto_ptr<HcalTBTriggerData>
+      trigd(new HcalTBTriggerData);
 
-    std::auto_ptr<hcaltb::HcalTBRunData>
-      rund(new hcaltb::HcalTBRunData);
+    std::auto_ptr<HcalTBRunData>
+      rund(new HcalTBRunData);
 
-    std::auto_ptr<hcaltb::HcalTBEventPosition>
-      epd(new hcaltb::HcalTBEventPosition);
+    std::auto_ptr<HcalTBEventPosition>
+      epd(new HcalTBEventPosition);
 
-    std::auto_ptr<hcaltb::HcalTBTiming>
-      tmgd(new hcaltb::HcalTBTiming);
+    std::auto_ptr<HcalTBTiming>
+      tmgd(new HcalTBTiming);
 
     if (triggerFed_ >=0) {
 
       // Step C: unpack all requested FEDs
-      const raw::FEDRawData& fed = rawraw->FEDData(triggerFed_);
+      const FEDRawData& fed = rawraw->FEDData(triggerFed_);
       tdUnpacker_.unpack(fed,*trigd);
     }
 
     if (sdFed_ >=0) {
 
       // Step C: unpack all requested FEDs
-      const raw::FEDRawData& fed = rawraw->FEDData(sdFed_);
+      const FEDRawData& fed = rawraw->FEDData(sdFed_);
       sdUnpacker_.unpack(fed, *rund, *epd);
     }
 
     if (tdcFed_ >=0) {
 
       // Step C: unpack all requested FEDs
-      const raw::FEDRawData& fed = rawraw->FEDData(tdcFed_);
+      const FEDRawData& fed = rawraw->FEDData(tdcFed_);
       tdcUnpacker_.unpack(fed, *epd, *tmgd);
     }
 
@@ -93,5 +90,3 @@ namespace hcaltb
     e.put(epd);
     e.put(tmgd);
   }
-
-}

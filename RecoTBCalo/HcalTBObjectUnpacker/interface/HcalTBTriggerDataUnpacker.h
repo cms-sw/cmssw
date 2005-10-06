@@ -10,7 +10,7 @@ namespace hcaltb {
   public:
     HcalTBTriggerDataUnpacker(void) { }
 
-    void unpack(const raw::FEDRawData& raw, hcaltb::HcalTBTriggerData& htbtd);
+    void unpack(const FEDRawData& raw, HcalTBTriggerData& htbtd);
      
   };
 }

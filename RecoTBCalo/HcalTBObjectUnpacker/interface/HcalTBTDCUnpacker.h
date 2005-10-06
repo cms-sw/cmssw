@@ -5,29 +5,30 @@
 #include "TBDataFormats/HcalTBObjects/interface/HcalTBTiming.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 
+namespace hcaltb {
 /** \class HcalTBTDCUnpacker
     
-   $Date: $
-   $Revision: $
+   $Date: 2005/08/29 17:31:59 $
+   $Revision: 1.1 $
    \author J. Mans, P. Dudero - Minnesota
 */
 class HcalTBTDCUnpacker {
 public:
-  HcalTBTDCUnpacker();
-  void unpack(const raw::FEDRawData& raw,
-	      hcaltb::HcalTBEventPosition& pos,
-	      hcaltb::HcalTBTiming& timing) const;
+  HcalTBTDCUnpacker(bool);
+  void unpack(const FEDRawData& raw,
+	      HcalTBEventPosition& pos,
+	      HcalTBTiming& timing) const;
 private:
   struct Hit {
     int channel;
     double time;
   };
   
-  void unpackHits(const raw::FEDRawData& raw, std::vector<Hit>& hits) const;
+  void unpackHits(const FEDRawData& raw, std::vector<Hit>& hits) const;
   void reconstructWC(const std::vector<Hit>& hits,
-		     hcaltb::HcalTBEventPosition& pos) const;
+		     HcalTBEventPosition& pos) const;
   void reconstructTiming(const std::vector<Hit>& hits,
-			 hcaltb::HcalTBTiming& timing) const;
+			 HcalTBTiming& timing) const;
   void setupWC();
 
   static const int PLANECOUNT = 10;
@@ -36,7 +37,10 @@ private:
     double b0, b1, mean, sigma;
   } wc_[PLANECOUNT];
 
-  
+  bool includeUnmatchedHits_;
 
 };
+
+}
+
 #endif

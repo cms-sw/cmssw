@@ -15,14 +15,16 @@ static const int lcScint2          = 94;
 static const int lcScint3          = 95;
 static const int lcScint4          = 96;
 
+namespace hcaltb {
 
-HcalTBTDCUnpacker::HcalTBTDCUnpacker() {
+HcalTBTDCUnpacker::HcalTBTDCUnpacker(bool include_unmatched_hits) :
+  includeUnmatchedHits_(include_unmatched_hits) {
   setupWC();
 }
 
-void HcalTBTDCUnpacker::unpack(const raw::FEDRawData& raw,
-			       hcaltb::HcalTBEventPosition& pos,
-			       hcaltb::HcalTBTiming& timing) const {
+void HcalTBTDCUnpacker::unpack(const FEDRawData& raw,
+			       HcalTBEventPosition& pos,
+			       HcalTBTiming& timing) const {
   std::vector<Hit> hits;
 
   unpackHits(raw, hits);
@@ -41,7 +43,7 @@ struct ClassicTDCDataFormat {
 
 static const double CONVERSION_FACTOR=25.0/32.0;
 
-void HcalTBTDCUnpacker::unpackHits(const raw::FEDRawData& raw,
+void HcalTBTDCUnpacker::unpackHits(const FEDRawData& raw,
 				   std::vector<Hit>& hits) const {
   const ClassicTDCDataFormat* tdc=(const ClassicTDCDataFormat*)raw.data();
 
@@ -55,7 +57,7 @@ void HcalTBTDCUnpacker::unpackHits(const raw::FEDRawData& raw,
 }
 
 void HcalTBTDCUnpacker::reconstructTiming(const std::vector<Hit>& hits,
-					  hcaltb::HcalTBTiming& timing) const {
+					  HcalTBTiming& timing) const {
   std::vector<Hit>::const_iterator j;
   double trigger_time=0;
   double ttc_l1a_time=0;
@@ -132,7 +134,7 @@ void HcalTBTDCUnpacker::setupWC() {
   wc_[9].mean=225.0; wc_[9].sigma=6.000; 
 }
 
-void HcalTBTDCUnpacker::reconstructWC(const std::vector<Hit>& hits, hcaltb::HcalTBEventPosition& ep) const {
+void HcalTBTDCUnpacker::reconstructWC(const std::vector<Hit>& hits, HcalTBEventPosition& ep) const {
   // process all planes, looping over all hits...
   const int MAX_HITS=100;
   float hits1[MAX_HITS], hits2[MAX_HITS], hitsA[MAX_HITS];
@@ -176,21 +178,23 @@ void HcalTBTDCUnpacker::reconstructWC(const std::vector<Hit>& hits, hcaltb::Hcal
 	}	      
       }
       if (jmin>=0) {
-	plane_hits.push_back(wc_[plane].b0+wc_[plane].b1 * (hits1[ii]-hits2[jmin]));
+	plane_hits.push_back(wc_[plane].b0 + 
+			     wc_[plane].b1 * (hits1[ii]-hits2[jmin]));
 	hits1[ii]=-99999;
 	hits2[jmin]=-99999;
 	hitsA[lmin]=99999;
       }
     }
 
-    // unmatched hits (all pairs get in here)
-    for (int ii=0; ii<n1; ii++) {
-      if (hits1[ii]<-99990) continue;
-      for (int jj=0; jj<n2; jj++) {
-	if (hits2[jj]<-99990) continue;
-	plane_hits.push_back(wc_[plane].b0+wc_[plane].b1 * (hits1[ii]-hits2[jj]));
+    if (includeUnmatchedHits_)   // unmatched hits (all pairs get in here)
+      for (int ii=0; ii<n1; ii++) {
+	if (hits1[ii]<-99990) continue;
+	for (int jj=0; jj<n2; jj++) {
+	  if (hits2[jj]<-99990) continue;
+	  plane_hits.push_back(wc_[plane].b0 + 
+			       wc_[plane].b1 * (hits1[ii]-hits2[jj]));
+	}
       }
-    }
 
     if ((plane%2)==0) x=plane_hits;
     else {
@@ -199,4 +203,6 @@ void HcalTBTDCUnpacker::reconstructWC(const std::vector<Hit>& hits, hcaltb::Hcal
     }
   }
   
+}
+
 }

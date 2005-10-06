@@ -24,9 +24,9 @@ struct xdaqSlowDataFormat {
 
 namespace hcaltb {
 
-  void HcalTBSlowDataUnpacker::unpack(const raw::FEDRawData&       raw,
-				      hcaltb::HcalTBRunData&       htbrd,
-				      hcaltb::HcalTBEventPosition& htbep) {
+  void HcalTBSlowDataUnpacker::unpack(const FEDRawData&  raw,
+				      HcalTBRunData&          htbrd,
+				      HcalTBEventPosition&    htbep) {
 
     const struct xdaqSlowDataFormat *sd =
       (const struct xdaqSlowDataFormat *)(raw.data());
