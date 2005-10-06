@@ -3,7 +3,7 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store pedestal values 4xCapId
 $Author: ratnikov
-$Date: 2005/08/02 01:31:24 $
+$Date: 2005/09/27 19:01:19 $
 $Revision: 1.2 $
 */
 
@@ -16,7 +16,7 @@ HcalGains::HcalGains()
 
 HcalGains::~HcalGains(){}
 
-const float* HcalGains::getValues (int fId) const {
+const float* HcalGains::getValues (unsigned long fId) const {
   Item target;
   target.mId = fId;
   std::vector<Item>::const_iterator cell;
@@ -31,7 +31,7 @@ const float* HcalGains::getValues (int fId) const {
   return &(cell->mValue1);
 }
 
-float HcalGains::getValue (int fId, int fCapId) const {
+float HcalGains::getValue (unsigned long fId, int fCapId) const {
   const float* values;
   if (fCapId > 0 && fCapId <= 4) {
     values = getValues (fId);
@@ -43,11 +43,11 @@ float HcalGains::getValue (int fId, int fCapId) const {
   return -1;
 }
 
-bool HcalGains::addValue (int fId, const float fValues [4]) {
+bool HcalGains::addValue (unsigned long fId, const float fValues [4]) {
   return addValue (fId, fValues [0], fValues [1], fValues [2], fValues [3]);
 }
 
-bool HcalGains::addValue (int fId, float fValue1, float fValue2, float fValue3, float fValue4) {
+bool HcalGains::addValue (unsigned long fId, float fValue1, float fValue2, float fValue3, float fValue4) {
   Item item;
   item.mId = fId;
   item.mValue1 = fValue1;
@@ -59,8 +59,8 @@ bool HcalGains::addValue (int fId, float fValue1, float fValue2, float fValue3, 
   return true;
 }
 
-std::vector<int> HcalGains::getAllChannels () const {
-  std::vector<int> result;
+std::vector<unsigned long> HcalGains::getAllChannels () const {
+  std::vector<unsigned long> result;
   for (std::vector<Item>::const_iterator item = mItems.begin (); item != mItems.end (); item++) {
     result.push_back (item->mId);
   }
