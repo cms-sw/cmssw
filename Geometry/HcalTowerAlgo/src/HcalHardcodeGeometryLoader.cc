@@ -2,6 +2,7 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/IdealObliquePrism.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
+#include "Geometry/HcalTowerAlgo/src/HcalHardcodeGeometryData.h"
 #include <iostream>
 
 HcalHardcodeGeometryLoader::HcalHardcodeGeometryLoader() {
@@ -32,36 +33,6 @@ void HcalHardcodeGeometryLoader::init() {
   theHFZPos[0] = 1100.0;
   theHFZPos[1] = 1120.0;
   theHFThickness = 165;
-
-  // the first tower all have width = 0.087
-  for(unsigned i = 0; i < 20; ++i) {
-    theHBHEEtaBounds[i] = i* 0.087;
-  }
-  theHBHEEtaBounds[20] = 1.74;
-  theHBHEEtaBounds[21] = 1.83;
-  theHBHEEtaBounds[22] = 1.93;
-  theHBHEEtaBounds[23] = 2.043;
-  theHBHEEtaBounds[24] = 2.172;
-  theHBHEEtaBounds[25] = 2.322;
-  theHBHEEtaBounds[26] = 2.5;
-  theHBHEEtaBounds[27] = 2.65;
-  theHBHEEtaBounds[28] = 2.868;
-  theHBHEEtaBounds[29] = 3.;
-
-  theHFEtaBounds[ 0] = 2.853;
-  theHFEtaBounds[ 1] = 2.964;
-  theHFEtaBounds[ 2] = 3.139;
-  theHFEtaBounds[ 3] = 3.314;
-  theHFEtaBounds[ 4] = 3.489;
-  theHFEtaBounds[ 5] = 3.664;
-  theHFEtaBounds[ 6] = 3.839;
-  theHFEtaBounds[ 7] = 4.013;
-  theHFEtaBounds[ 8] = 4.191;
-  theHFEtaBounds[ 9] = 4.363;
-  theHFEtaBounds[10] = 4.538;
-  theHFEtaBounds[11] = 4.716;
-  theHFEtaBounds[12] = 4.889;
-  theHFEtaBounds[13] = 5.191;
 
 }
 
@@ -141,11 +112,12 @@ const CaloCellGeometry * HcalHardcodeGeometryLoader::makeCell(const HcalDetId & 
   double deta = 0.5*(eta2-eta1);
   double theta = theta_from_eta(eta);
 
-  // is this right?  there's a cell centered at phi=0?
-  double startingPhi = 0.;
-  // in radians
-  double dphi = M_PI / theTopology.nPhiBins(etaRing);
-  double phi = startingPhi + dphi*(detId.iphi()-1);
+    // in radians
+  double dphi_nominal = 2.0*M_PI / theTopology.nPhiBins(1); // always the same
+  double dphi_half = M_PI / theTopology.nPhiBins(etaRing); // half-width
+  
+  double phi_low = dphi_nominal*(detId.iphi()-1); // low-edge boundaries are constant...
+  double phi = phi_low+dphi_half;
 
   bool isBarrel = (subdet == HcalBarrel || subdet == HcalOuter);
 
@@ -199,7 +171,7 @@ const CaloCellGeometry * HcalHardcodeGeometryLoader::makeCell(const HcalDetId & 
   y = r * sin(phi);
   GlobalPoint point(x,y,z);
 
-  return new calogeom::IdealObliquePrism(point, deta, dphi, thickness, !isBarrel);
+  return new calogeom::IdealObliquePrism(point, deta, dphi_half*2, thickness, !isBarrel);
 
 }
 

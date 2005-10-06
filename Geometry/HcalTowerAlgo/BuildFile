@@ -3,9 +3,11 @@
   <use name=Geometry/CaloGeometry>
   <use name=Geometry/CaloTopology>
   <use name=DataFormats/HcalDetId>
+  <use name=DataFormats/CaloTowers>
 </export>
 <use name=Geometry/CaloGeometry>
 <use name=Geometry/CaloTopology>
 <use name=DataFormats/HcalDetId>
+<use name=DataFormats/CaloTowers>
 <use name=clhep>
 

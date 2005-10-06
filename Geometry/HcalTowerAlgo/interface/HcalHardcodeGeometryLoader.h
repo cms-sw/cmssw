@@ -12,8 +12,8 @@ class HcalDetId;
  *
  * \note The HE geometry is not currently correct.  The z positions must be corrected.
  *   
- * $Date: $
- * $Revision: $
+ * $Date: 2005/10/03 22:31:33 $
+ * $Revision: 1.1 $
  * \author R. Wilkinson - Caltech
 */
 class HcalHardcodeGeometryLoader {
@@ -35,8 +35,6 @@ private:
   const CaloCellGeometry * makeCell(const HcalDetId & detId) const;
   
   HcalTopology theTopology;
-  double theHBHEEtaBounds[30];
-  double theHFEtaBounds[14];
   
   double theBarrelRadius;
   double theOuterRadius;
