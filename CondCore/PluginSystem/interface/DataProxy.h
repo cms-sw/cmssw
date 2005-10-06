@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jul 23 19:40:27 EDT 2005
-// $Id: DataProxy.h,v 1.2 2005/08/29 17:42:59 xiezhen Exp $
+// $Id: DataProxy.h,v 1.3 2005/09/01 09:28:59 xiezhen Exp $
 //
 
 // system include files
@@ -53,6 +53,7 @@ namespace cond{
   protected:
     virtual const DataT* make(const RecordT&, const edm::eventsetup::DataKey&) {
       m_data=*(new pool::Ref<DataT>(m_svc,m_pProxyToToken->second));
+      //m_data=pool::Ref<DataT>(m_svc,m_pProxyToToken->second);
       try{
 	*m_data;
       }catch( const pool::RefException& er){
@@ -68,7 +69,9 @@ namespace cond{
     }
     
     virtual void invalidateCache() {
-      m_data.clear();
+      std::cout<<"invalidateCache"<<std::endl;
+      //m_data.clear();
+      //std::cout<<"end invalidateCache"<<std::endl;
     }
   private:
     //DataProxy(); // stop default
