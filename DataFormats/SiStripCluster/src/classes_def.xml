@@ -6,8 +6,4 @@
   <class name="std::map<unsigned int, std::pair<unsigned int, unsigned int> >"/>
   <class name="SiStripClusterCollection"/>
   <class name="edm::Wrapper<SiStripClusterCollection>" id="C4D8A21B-7FB4-C5CC-EC4C-3DF86655814C"/>
-  <class name="SiStrip1DLocalMeasurement"/>
-  <class name="std::vector<SiStrip1DLocalMeasurement>"/>
-  <class name="SiStrip1DLocalMeasurementCollection"/>
-  <class name="edm::Wrapper<SiStrip1DLocalMeasurementCollection>" id="5E549029-8FCD-FE79-3B58-5A1EC58E54E9"/>
 </lcgdict>

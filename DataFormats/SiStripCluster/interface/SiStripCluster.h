@@ -2,8 +2,6 @@
 #define DATAFORMATS_SISTRIPCLUSTER_H
 
 #include <vector>
-#include "DataFormats/DetId/interface/DetId.h"
-
 class StripDigi;
 
 class SiStripCluster {
@@ -28,7 +26,7 @@ public:
    *  to be used for transformations to local and to global reference 
    *  frames etc.
    */
-  cms::DetId geographicalId() const {return detId_;}
+  unsigned int geographicalId() const {return detId_;}
 
   /** The amplitudes of the strips forming the cluster.
    *  The amplitudes are on consecutive strips; if a strip is missing
@@ -44,15 +42,13 @@ public:
    *  should not be used as position estimate for tracking.
    */
   float barycenter() const {return barycenter_;}
-  float barycenter_error() const {return barycenter_error_;}
 
 private:
 
-  cms::DetId           detId_;
+  unsigned int         detId_;
   short                firstStrip_;
   std::vector<short>   amplitudes_;
   float                barycenter_;
-  float                barycenter_error_;
 
 };
 
@@ -60,7 +56,7 @@ private:
 inline bool operator<( const SiStripCluster& one, const SiStripCluster& other) {
   if ( one.geographicalId() < other.geographicalId() ) {
     return true;
-  } else if ( one.geographicalId().rawId() > other.geographicalId().rawId() ) {
+  } else if ( one.geographicalId() > other.geographicalId() ) {
     return false;
   } else {
     if ( one.firstStrip() <= other.firstStrip() ) {
@@ -70,5 +66,8 @@ inline bool operator<( const SiStripCluster& one, const SiStripCluster& other) {
     }
   }
 }
+
+
+
 
 #endif // DATAFORMATS_SISTRIPCLUSTER_H
