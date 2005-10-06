@@ -1,17 +1,10 @@
 <flags SEAL_PLUGIN_NAME="RecoLocalTrackerSiStripClusterizer">
-<use name=FWCore/Framework>
 <use name=FWCore/EDProduct>
+<use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/SiStripDigi>
 <use name=DataFormats/SiStripCluster>
-<use name=DataFormats/DetId>
-<use name=Geometry/CommonDetAlgo>
-<use name=Geometry/TrackerSimAlgo>
-<use name=Geometry/Vector>
-<use name=Geometry/Surface>
-<use name=Geometry/Records>
-<use name=Geometry/CommonDetUnit>
-<use name=Geometry/CommonTopologies>
+
 <export>
  <lib name=RecoLocalTrackerSiStripClusterizer>
  <use name=FWCore/EDProduct>
@@ -19,12 +12,4 @@
  <use name=FWCore/ParameterSet>
  <use name=DataFormats/SiStripDigi>
  <use name=DataFormats/SiStripCluster>
- <use name=DataFormats/DetId>
- <use name=Geometry/CommonDetAlgo>
- <use name=Geometry/TrackerSimAlgo>
- <use name=Geometry/Vector>
- <use name=Geometry/Surface>
- <use name=Geometry/Records>
- <use name=Geometry/CommonDetUnit>
- <use name=Geometry/CommonTopologies>
 </export>

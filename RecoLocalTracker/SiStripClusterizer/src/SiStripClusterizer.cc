@@ -8,11 +8,10 @@
 #include <string>
 
 #include "RecoLocalTracker/SiStripClusterizer/interface/SiStripClusterizer.h"
-
 #include "DataFormats/SiStripDigi/interface/StripDigiCollection.h"
 #include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
-
 #include "FWCore/Framework/interface/Handle.h"
+
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
