@@ -10,8 +10,8 @@
 
 #include <string>
 
-class XMLIdealGeometryESSource : public edm::eventsetup::ESProducer, 
-                                  public edm::eventsetup::EventSetupRecordIntervalFinder
+class XMLIdealGeometryESSource : public edm::ESProducer, 
+                                  public edm::EventSetupRecordIntervalFinder
 {
 public:
     XMLIdealGeometryESSource(const edm::ParameterSet & p);

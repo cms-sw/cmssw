@@ -13,7 +13,7 @@
 //
 // Original Author:  Tommaso Boccali
 //         Created:  Tue Jul 26 08:47:57 CEST 2005
-// $Id: PerfectGeometryAnalyzer.cc,v 1.1 2005/07/26 16:03:14 chrjones Exp $
+// $Id: PerfectGeometryAnalyzer.cc,v 1.2 2005/07/27 12:09:16 tboccali Exp $
 //
 //
 
@@ -90,7 +90,7 @@ PerfectGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetu
    //
    // get the DDCompactView
    //
-   edm::eventsetup::ESHandle<DDCompactView> pDD;
+   edm::ESHandle<DDCompactView> pDD;
    iSetup.get<IdealGeometryRecord>().get( pDD );     
    DDExpandedView ex(*pDD);
    ex.firstChild();

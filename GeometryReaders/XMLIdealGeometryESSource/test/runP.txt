@@ -1,6 +1,6 @@
 process GeometryTest = {
-# empty input service, fire 10 events
-        source = EmptyInputService {untracked int32 maxEvents = 2}
+# empty input service, fire 2 events
+        source = EmptySource {untracked int32 maxEvents = 2}
         es_source = XMLIdealGeometryESSource {string GeometryConfiguration="ORCAconfiguration.xml"}
 	module print = AsciiOutputModule {}
         module prod = PerfectGeometryAnalyzer {}

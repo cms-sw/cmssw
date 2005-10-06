@@ -10,7 +10,6 @@
 
 #include <memory>
 
-using namespace edm::eventsetup;
 
 XMLIdealGeometryESSource::XMLIdealGeometryESSource(const edm::ParameterSet & p) 
 {
@@ -31,7 +30,7 @@ const DDCompactView *
 XMLIdealGeometryESSource::produce(const IdealGeometryRecord &)
 { return new DDCompactView(); }
 
-void XMLIdealGeometryESSource::setIntervalFor(const EventSetupRecordKey &,
+void XMLIdealGeometryESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
 					       const edm::IOVSyncValue & iosv, 
 					       edm::ValidityInterval & oValidity)
 {
