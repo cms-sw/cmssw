@@ -1,28 +1,33 @@
 /*----------------------------------------------------------------------
   
-$Id: TypeID.cc,v 1.7 2005/09/30 04:59:45 wmtan Exp $
+$Id: TypeID.cc,v 1.9 2005/09/30 22:05:33 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <ostream>
 #include "FWCore/Framework/src/TypeID.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "Reflex/Type.h"
 #include <string>
 
 namespace edm {
   void
   TypeID::print(std::ostream& os) const {
-    os << reflectionClassName();
+    os << className();
   }
 
   std::string
-  TypeID::reflectionClassName() const {
+  TypeID::className() const {
     seal::reflex::Type t = seal::reflex::Type::byTypeInfo(t_);
+    if (!bool(t)) {
+      throw edm::Exception(errors::ProductNotFound,"NoMatch")
+        << "TypeID::className: No dictionary for class " << t_.name() << '\n';
+    }
     return t.name(seal::reflex::SCOPED);
   }
 
   std::string 
   TypeID::userClassName() const {
-    std::string name = reflectionClassName();
+    std::string name = className();
     if (name.find("edm::Wrapper") == 0) {
       stripTemplate(name);
     }
