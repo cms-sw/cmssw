@@ -18,7 +18,8 @@
 
 
 // system include files
-#include <memory>
+#include <iostream>
+#include <iomanip>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -31,8 +32,9 @@
 
 #include "FWCore/Services/src/EventContentAnalyzer.h"
 
+#include "boost/lexical_cast.hpp"
 //
-// class decleration
+// class declarations
 //
 
 //
@@ -47,21 +49,20 @@
 // constructors and destructor
 //
 EventContentAnalyzer::EventContentAnalyzer(const edm::ParameterSet& iConfig) :
-indentation_( iConfig.getUntrackedParameter("indentation",std::string( "++") ) )
+  indentation_( iConfig.getUntrackedParameter("indentation",std::string( "++") ) )
+, evno_(0)
 {
    //now do what ever initialization is needed
 
 }
 
-
 EventContentAnalyzer::~EventContentAnalyzer()
 {
  
-   // do anything here that needs to be done at desctruction time
+   // do anything here that needs to be done at destruction time
    // (e.g. close files, deallocate resources etc.)
 
 }
-
 
 //
 // member functions
@@ -75,14 +76,51 @@ EventContentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
    typedef std::vector< Provenance const*> Provenances;
    Provenances provenances;
+   std::string friendlyName;
+   std::string modLabel;
+   std::string instanceName;
+
    iEvent.getAllProvenance( provenances );
    
-   std::cout <<indentation_<<"Event contains "<<provenances.size()<< " product"<< (provenances.size()==1 ?"":"s")<<std::endl;
-   for(Provenances::iterator itProv = provenances.begin();
-       itProv != provenances.end();
-       ++itProv ) {
-      std::cout <<indentation_<<(*itProv)->product.friendlyClassName_
-      <<" "<<(*itProv)->product.module.moduleLabel_
-      <<" "<<(*itProv)->product.productInstanceName_ <<std::endl;
+   std::cout << "\n" << indentation_ << "Event " << std::setw(5) << evno_ << " contains "
+             <<provenances.size() << " product" << (provenances.size()==1 ?"":"s")
+             << " with friendlyClassName, moduleLabel and productInstanceName:"
+             << std::endl;
+
+   for( Provenances::iterator itProv = provenances.begin();
+                              itProv != provenances.end();
+                            ++itProv ) {
+      friendlyName = (*itProv)->product.friendlyClassName_;
+      modLabel = (*itProv)->product.module.moduleLabel_;
+      instanceName = (*itProv)->product.productInstanceName_;
+      
+      std::cout << indentation_ << friendlyName
+                << " " << modLabel
+                << " " << instanceName << std::endl;
+      ++cumulates_["product.friendlyClassName_="+friendlyName];
+      ++cumulates_["product.module.moduleLabel_="+modLabel];
+      ++cumulates_["product.productInstanceName_="+instanceName];
+
    }
+   ++evno_;
+}
+
+// ------------ method called at end of job -------------------
+void
+EventContentAnalyzer::endJob() 
+{
+   typedef std::map<std::string,int> nameMap;
+
+   std::cout <<"\nSummary:" << std::endl;
+   for( nameMap::const_iterator it =cumulates_.begin();
+                                it!=cumulates_.end();
+                              ++it) {
+//    std::cout << "   Key " << it->first << " occurs " << it->second << " times." << std::endl;
+      std::cout << std::setw(6) << it->second << " occurrences of key " << it->first << std::endl;
+   }
+
+// Test boost::lexical_cast
+   int k = 137;
+   std::string fred = boost::lexical_cast<std::string>(k);
+   std::cout << "\nInteger " << k << " expressed as a string is |" << fred << "|" << std::endl;
 }

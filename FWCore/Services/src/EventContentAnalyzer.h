@@ -16,11 +16,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep 19 11:49:35 CEST 2005
-// $Id$
+// $Id: EventContentAnalyzer.h,v 1.1 2005/09/19 12:16:05 chrjones Exp $
 //
 
 // system include files
 #include <string>
+#include <map>
 
 // user include files
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -32,11 +33,15 @@ public:
    explicit EventContentAnalyzer(const edm::ParameterSet&);
    ~EventContentAnalyzer();
    
-   
    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+   virtual void endJob();
+
 private:
+
       // ----------member data ---------------------------
       std::string indentation_;
+      int         evno_;
+      std::map<std::string, int>  cumulates_;
 };
 
 
