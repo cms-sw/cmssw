@@ -2,8 +2,6 @@
 
 using namespace std;
 
-namespace hcaltb {
-
   HcalTBTiming::HcalTBTiming() :
     triggerTime_(0),
     ttcL1Atime_(0),
@@ -107,5 +105,3 @@ namespace hcaltb {
 
     return s;
   }
-
-}

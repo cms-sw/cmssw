@@ -2,7 +2,6 @@
 
 using namespace std;
 
-namespace hcaltb {
 
 const uint32_t HcalTBTriggerData::bit_BeamTrigger                   = 1;
 const uint32_t HcalTBTriggerData::bit_InSpillPedestalTrigger        = 2;
@@ -102,5 +101,3 @@ const uint32_t HcalTBTriggerData::bit_InSpill = 0x10;
 
     return s;
   }
-
-}

@@ -5,11 +5,11 @@
 #include <iostream>
 #include "boost/cstdint.hpp"
 
-namespace hcaltb {
+
   /** \class HcalTBRunData
       
-  $Date: $
-  $Revision: $
+  $Date: 2005/08/23 01:07:18 $
+  $Revision: 1.1 $
   \author P. Dudero - Minnesota
   */
   class HcalTBRunData {
@@ -34,7 +34,5 @@ namespace hcaltb {
   };
 
   std::ostream& operator<<(std::ostream& s, const HcalTBRunData& htbrd);
-
-}
 
 #endif

@@ -2,8 +2,6 @@
 
 using namespace std;
 
-namespace hcaltb {
-
   HcalTBEventPosition::HcalTBEventPosition() :
     hfTableX_(-1e24),
     hfTableY_(-1e24),
@@ -159,5 +157,3 @@ namespace hcaltb {
 
     return s;
   }
-
-}

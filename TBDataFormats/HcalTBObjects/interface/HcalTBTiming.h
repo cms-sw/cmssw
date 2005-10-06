@@ -6,11 +6,10 @@
 #include <vector>
 #include "boost/cstdint.hpp"
 
-namespace hcaltb {
   /** \class HcalTBTiming
       
-  $Date: 2005/08/23 01:07:18 $
-  $Revision: 1.1 $
+  $Date: 2005/08/29 18:07:15 $
+  $Revision: 1.2 $
   \author P. Dudero - Minnesota
   */
   class HcalTBTiming {
@@ -75,7 +74,5 @@ namespace hcaltb {
   };
 
   std::ostream& operator<<(std::ostream& s, const HcalTBTiming& htbtmg);
-
-}
 
 #endif

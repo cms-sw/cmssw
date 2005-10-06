@@ -2,8 +2,6 @@
 
 using namespace std;
 
-namespace hcaltb {
-
   HcalTBRunData::HcalTBRunData() :
     runType_(""),
     beamMode_(""),
@@ -24,5 +22,3 @@ namespace hcaltb {
     s << "Beam Energy = " << htbrd.beamEnergyGeV() << " GeV" << endl;
     return s;
   }
-
-}

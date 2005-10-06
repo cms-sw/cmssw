@@ -5,11 +5,11 @@
 #include <iostream>
 #include "boost/cstdint.hpp"
 
-namespace hcaltb {
+
   /** \class HcalTBTriggerData
       
-  $Date: $
-  $Revision: $
+  $Date: 2005/08/23 01:07:18 $
+  $Revision: 1.1 $
   \author P. Dudero - Minnesota
   */
   class HcalTBTriggerData {
@@ -129,7 +129,5 @@ namespace hcaltb {
   };
 
   std::ostream& operator<<(std::ostream& s, const HcalTBTriggerData& htbtd);
-
-}
 
 #endif

@@ -7,10 +7,10 @@
 namespace {
   namespace {
 
-    edm::Wrapper<hcaltb::HcalTBTriggerData>   theTriggerData_;
-    edm::Wrapper<hcaltb::HcalTBRunData>       theRunData_;
-    edm::Wrapper<hcaltb::HcalTBEventPosition> theEvtPosData_;
-    edm::Wrapper<hcaltb::HcalTBTiming>        theTimingData_;
+    edm::Wrapper<HcalTBTriggerData>   theTriggerData_;
+    edm::Wrapper<HcalTBRunData>       theRunData_;
+    edm::Wrapper<HcalTBEventPosition> theEvtPosData_;
+    edm::Wrapper<HcalTBTiming>        theTimingData_;
 
  }
 }

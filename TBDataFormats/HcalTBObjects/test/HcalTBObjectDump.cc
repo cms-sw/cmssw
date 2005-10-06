@@ -11,13 +11,12 @@
 #include <iostream>
 
 using namespace std;
-using namespace hcaltb;
 
 namespace cms {
 
   /** \class HcalTBObjectDump
       
-  $Date: 2005/08/04 18:14:50 $
+  $Date: 2005/08/23 01:07:18 $
   $Revision: 1.1 $
   \author J. Mans - Minnesota
   */
