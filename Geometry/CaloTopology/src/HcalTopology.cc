@@ -217,13 +217,11 @@ void HcalTopology::depthBinInformation(HcalSubdetector subdet, int etaRing,
       nDepthBins = 2;
       startingBin = 1;
     }
-  }
-
-  else if(subdet == HcalEndcap) {
+  } else if(subdet == HcalEndcap) {
     if (etaRing==16) {
       nDepthBins = 1;
       startingBin = 3;
-    } if (etaRing==17) {
+    } else if (etaRing==17) {
       nDepthBins = 1;
       startingBin = 1;
     } else {
