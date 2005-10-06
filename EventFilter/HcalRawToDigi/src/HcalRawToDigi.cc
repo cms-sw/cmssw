@@ -47,8 +47,8 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup&)
 {
   // Step A: Get Inputs 
   edm::Handle<FEDRawDataCollection> rawraw;  
-  edm::ProcessNameSelector s("PROD"); // HACK!
-  e.get(s, rawraw);           
+  // edm::ProcessNameSelector s("PROD"); 
+  e.getByType(rawraw);           // HACK!
   
   // Step B: Create empty output  : three vectors for three classes...
   std::vector<HBHEDataFrame> hbhe;
