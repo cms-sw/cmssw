@@ -1,0 +1,94 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
+
+<ConstantsSection label="tecwheel.xml" eval="true">
+ <Constant name="zero"           value="0.0*fm"/>
+ <Constant name="WheelRmax"      value="110.30*cm"/>
+ <Constant name="WheelT"         value="10.40*cm"/>
+ <Constant name="DiskT"          value="1.680*cm"/>
+ <Constant name="NomexT"         value="1.600*cm"/>
+ <Constant name="PetalContN"     value="8"/>
+ <Constant name="PetalContZ"     value="3.58*cm"/>
+ <Constant name="PetalContFiF"   value="0.00*deg"/>
+ <Constant name="PetalContFiB"   value="22.5*deg"/>
+ <Constant name="InsertR"        value="0.550*cm"/>
+ <Constant name="InsertL"        value="1.600*cm"/>
+ <Constant name="InsertN"        value="8"/>
+ <Constant name="InsertR1"       value="38.00*cm"/>
+ <Constant name="InsertR2"       value="46.50*cm"/>
+ <Constant name="InsertR3"       value="83.00*cm"/>
+ <Constant name="InsertR4"       value="83.00*cm"/>
+ <Constant name="InsertR5"       value="96.80*cm"/>
+ <Constant name="InsertR6"       value="96.80*cm"/>
+ <Constant name="InsertFi1"      value="22.50*deg"/>
+ <Constant name="InsertFi2"      value="0.00*deg"/>
+ <Constant name="InsertFi3"      value="31.40*deg"/>
+ <Constant name="InsertFi4"      value="13.40*deg"/>
+ <Constant name="InsertFi5"      value="-9.10*deg"/>
+ <Constant name="InsertFi6"      value="9.10*deg"/>
+ <Constant name="FixSuppR"       value="2.300*cm"/>
+ <Constant name="FixSuppW"       value="8.500*cm"/>
+ <Constant name="FixSuppT"       value="1.000*cm"/>
+ <Constant name="FixSuppN"       value="4"/>
+ <Constant name="FixSuppFi"      value="67.50*deg"/>
+ <Constant name="FixServR"       value="1.500*cm"/>
+ <Constant name="FixServW"       value="5.00*deg"/>
+ <Constant name="FixServT"       value="1.600*cm"/>
+ <Constant name="FixServN"       value="8"/>
+ <Constant name="FixServFi"      value="11.25*deg"/>
+ <Constant name="PetalConnRmin"  value="108.50*cm"/>
+ <Constant name="PetalConnRmax"  value="109.25*cm"/>
+ <Constant name="PetalConnW"     value="10.00*deg"/>
+ <Constant name="PetalConnT"     value="0.4*cm"/>
+ <Constant name="OptConnRmin"    value="95.65*cm"/>
+ <Constant name="OptConnRmax"    value="107.60*cm"/>
+ <Constant name="OptConnW"       value="1.60*deg"/>
+ <Constant name="OptConnN"       value="8"/>
+ <Constant name="OptConnT1"      value="2.475*cm"/>
+ <Constant name="OptConnT2"      value="2.25*cm"/>
+ <Constant name="OptConnT3"      value="1.80*cm"/>
+ <Constant name="OptConnZ1"      value="2.0775*cm"/>
+ <Constant name="OptConnZ2"      value="1.965*cm"/>
+ <Constant name="OptConnZ3"      value="1.740*cm"/>
+ <Constant name="OptConnFI1"     value="22.5*deg"/>
+ <Constant name="OptConnFI2"     value="0.00*deg"/>
+ <Constant name="CableW"         value="0.500*cm"/>
+ <Constant name="CableT"         value="0.210*cm"/>
+ <Constant name="CableTolerR"    value="0.350*cm"/>
+ <Constant name="CableZ1"        value="-1.380*cm"/>
+ <Constant name="CableZ2"        value="1.380*cm"/>
+ <Constant name="CableFi1"       value="-11.25*deg"/>
+ <Constant name="CableFi2"       value="11.25*deg"/>
+ <Constant name="FixServRmin"    value="[WheelRmax]-[FixServR]"/>
+ <Constant name="CableRmax"      value="[WheelRmax]-[CableTolerR]"/>
+ <Constant name="PetalConnZ"  value="([tecpetpar:PetalThick]+[PetalConnT])/2"/>
+</ConstantsSection>
+
+<SolidSection label="tecwheel.xml">
+ <Tubs name="TECWheelInsert"              rMin="[zero]"
+       rMax="[InsertR]"                   dz="[InsertL]/2"
+       startPhi="0*deg"                   deltaPhi="360.*deg"/>
+ <Tubs name="TECFixService"               rMin="[FixServRmin]"
+       rMax="[WheelRmax]"                 dz="[FixServT]/2"
+       startPhi="-[FixServW]/2"           deltaPhi="[FixServW]"/>
+ <Tubs name="TECPetalConnector"           rMin="[PetalConnRmin]" 
+       rMax="[PetalConnRmax]"             dz="[PetalConnT]/2" 
+       startPhi="-[PetalConnW]/2"         deltaPhi="[PetalConnW]"/>
+</SolidSection>
+
+<LogicalPartSection label="tecwheel.xml">
+ <LogicalPart name="TECWheelInsert" category="unspecified">
+  <rSolid name="tecwheel:TECWheelInsert"/>
+  <rMaterial name="tecmaterial:TEC_wheelinsert"/>
+ </LogicalPart>
+ <LogicalPart name="TECFixService" category="unspecified">
+  <rSolid name="tecwheel:TECFixService"/>
+  <rMaterial name="tecmaterial:TEC_FixServ"/>
+ </LogicalPart>
+ <LogicalPart name="TECPetalConnector" category="unspecified">
+  <rSolid name="tecwheel:TECPetalConnector"/>
+  <rMaterial name="tecmaterial:TEC_PetalCon"/>
+ </LogicalPart>
+</LogicalPartSection>
+
+</DDDefinition>

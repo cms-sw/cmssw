@@ -1,0 +1,162 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
+
+<ConstantsSection label="tidring1.xml" eval="true">
+ <Constant name="zero"           value="0.0*fm"/>
+ <Constant name="Rmin"           value="31.690*cm"/>
+ <Constant name="NPhi"           value="24"/>
+ <Constant name="PhiOff"         value="0*deg"/>
+ <Constant name="ICBR"           value="46.910*cm"/>
+ <Constant name="CoolR1"         value="34.000*cm"/>
+ <Constant name="CoolR2"         value="44.000*cm"/>
+ <Constant name="CoolSide"       value="2"/>
+ <Constant name="ICBTailR"       value="48.11*cm"/>
+ <Constant name="ICCRPos"        value="46.52*cm"/>
+ <Constant name="RPos"           value="[Rmin]+([tidmodule1:FullHeight]+
+           [tidmodpar:TopFrameHeight]+[tidmodpar:BottomFrameHeight]-
+           [tidmodpar:BottomFrameOver])/2"/>
+ <Constant name="ICBTailW"       value="([tidringpar:Rout]-[ICBTailR]-
+           [tidringpar:ICBTailTol])"/>
+ <Constant name="ICBTailRPos"    value="([tidringpar:Rout]+[ICBTailR]-
+           [tidringpar:ICBTailTol])/2"/>
+</ConstantsSection>
+
+<SolidSection label="tecring1.xml">
+ <Tubs name="TIDRing1ICB"             rMin="([ICBR]-[tidringpar:ICBW]/2)" 
+       rMax="([ICBR]+[tidringpar:ICBW]/2)" dz="[tidringpar:ICBT]/2" 
+       startPhi="0*deg"               deltaPhi="360.*deg"/>
+ <Box name="TIDRing1ICBTail"          dx="[tidringpar:ICBTailH]/2"
+       dy="[ICBTailW]/2"              dz="[tidringpar:ICBTailT]/2"/>
+ <Tubs name="TIDRing1Cool1"           rMin="([CoolR1]-[tidringpar:CoolW]/2)" 
+       rMax="([CoolR1]+[tidringpar:CoolW]/2)" dz="[tidringpar:CoolT]/2" 
+       startPhi="0*deg"               deltaPhi="360.*deg"/>
+ <Tubs name="TIDRing1Cool2"           rMin="([CoolR2]-[tidringpar:CoolW]/2)" 
+       rMax="([CoolR2]+[tidringpar:CoolW]/2)" dz="[tidringpar:CoolT]/2" 
+       startPhi="0*deg"               deltaPhi="360.*deg"/>
+</SolidSection>
+
+<LogicalPartSection label="tidring1.xml">
+ <LogicalPart name="TIDRing1" category="unspecified">
+  <rSolid name="tidringpar:TIDRing"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
+ <LogicalPart name="TIDStructure1" category="unspecified">
+  <rSolid name="tidringpar:TIDStructure"/>
+  <rMaterial name="tidmaterial:TID_mech"/>
+ </LogicalPart>
+ <LogicalPart name="TIDICC1" category="unspecified">
+  <rSolid name="tidringpar:TIDICC"/>
+  <rMaterial name="tidmaterial:TID_ICC1"/>
+ </LogicalPart>
+ <LogicalPart name="TIDRing1ICBTail" category="unspecified">
+  <rSolid name="tidring1:TIDRing1ICBTail"/>
+  <rMaterial name="tidmaterial:TID_ICB2"/>
+ </LogicalPart>
+ <LogicalPart name="TIDRing1ICB" category="unspecified">
+  <rSolid name="tidring1:TIDRing1ICB"/>
+  <rMaterial name="tidmaterial:TID_ICB2"/>
+ </LogicalPart>
+ <LogicalPart name="TIDRing1Cool1" category="unspecified">
+  <rSolid name="tidring1:TIDRing1Cool1"/>
+  <rMaterial name="tidmaterial:TID_Cool_ring"/>
+ </LogicalPart>
+ <LogicalPart name="TIDRing1Cool2" category="unspecified">
+  <rSolid name="tidring1:TIDRing1Cool2"/>
+  <rMaterial name="tidmaterial:TID_Cool_ring"/>
+ </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="tecpetal0f.xml">
+ <PosPart copyNumber="1">
+   <rParent name="tidring1:TIDRing1"/>
+   <rChild name="tidring1:TIDStructure1"/>
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="tidring1:TIDRing1"/>
+   <rChild name="tidring1:TIDRing1ICB"/>
+  <Translation x="[zero]" y="[zero]" z="-[tidringpar:ICBZ]"/>
+ </PosPart>
+ <PosPart copyNumber="2">
+   <rParent name="tidring1:TIDRing1"/>
+   <rChild name="tidring1:TIDRing1ICB"/>
+  <Translation x="[zero]" y="[zero]" z="[tidringpar:ICBZ]"/>
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="tidring1:TIDRing1"/>
+   <rChild name="tidring1:TIDRing1Cool1"/>
+  <Translation x="[zero]" y="[zero]" z="-[tidringpar:CoolZ]"/>
+ </PosPart>
+ <PosPart copyNumber="2">
+   <rParent name="tidring1:TIDRing1"/>
+   <rChild name="tidring1:TIDRing1Cool1"/>
+  <Translation x="[zero]" y="[zero]" z="[tidringpar:CoolZ]"/>
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="tidring1:TIDRing1"/>
+   <rChild name="tidring1:TIDRing1Cool2"/>
+  <Translation x="[zero]" y="[zero]" z="-[tidringpar:CoolZ]"/>
+ </PosPart>
+ <PosPart copyNumber="2">
+   <rParent name="tidring1:TIDRing1"/>
+   <rChild name="tidring1:TIDRing1Cool2"/>
+  <Translation x="[zero]" y="[zero]" z="[tidringpar:CoolZ]"/>
+ </PosPart>
+</PosPartSection>
+
+<Algorithm name="track:DDTrackerPhiAlgo">
+  <rParent name="tidring1:TIDRing1"/>
+  <String name="ChildName"    value="tidring1:TIDRing1ICBTail"/>
+  <Numeric name="Radius"      value="[ICBTailRPos]"/>
+  <Numeric name="Tilt"        value="-90*deg"/>
+  <Vector name="Phi" type="numeric" nEntries="4">
+   165.0*deg,         180.0*deg,          345.0*deg,         360.0*deg
+  </Vector>
+  <Vector name="ZPos" type="numeric" nEntries="4">
+  -[tidringpar:ICBZ], [tidringpar:ICBZ], -[tidringpar:ICBZ], [tidringpar:ICBZ]
+  </Vector>
+</Algorithm>
+<Algorithm name="track:DDTrackerAngular">
+  <rParent name="tidring1:TIDStructure1"/>
+  <String  name="ChildName"   value="tidringpar:TIDCoolManifold"/>
+  <Numeric name="N"           value="2" />
+  <Numeric name="StartCopyNo" value="1" />
+  <Numeric name="IncrCopyNo"  value="1" />
+  <Numeric name="RangeAngle"  value="360*deg"/>
+  <Numeric name="StartAngle"  value="82.50*deg"/>
+  <Numeric name="Radius"      value="[zero]"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 0 </Vector>
+</Algorithm>
+
+<Algorithm name="track:DDTIDRingAlgo">
+  <rParent name="tidring1:TIDRing1"/>
+  <String name="ModuleName"         value="tidmodule1:TIDModule1"/>
+  <String name="ICCName"            value="tidring1:TIDICC1"/>
+  <String name="CoolName"           value="tidringpar:TIDCoolInsert"/>
+  <Numeric name="Number"            value="[NPhi]" />
+  <Numeric name="StartAngle"        value="[PhiOff]" />
+  <Numeric name="ModuleR"           value="[RPos]" />
+  <Vector name="ModuleZ" type="numeric" nEntries="2">
+  -[tidringpar:ModuleZDS],    [tidringpar:ModuleZDS]   </Vector>
+  <Numeric name="ICCR"              value="[ICCRPos]" />
+  <Vector name="ICCZ"    type="numeric" nEntries="2">
+  -[tidringpar:ICCZ],         [tidringpar:ICCZ]        </Vector>
+  <Vector name="CoolR"   type="numeric" nEntries="2">
+   [tidring1:CoolR1],         [tidring1:CoolR2]        </Vector>
+  <Vector name="CoolZ"   type="numeric" nEntries="2">
+  -[tidringpar:CoolInsertZ],  [tidringpar:CoolInsertZ] </Vector>
+  <Numeric name="FullHeight"        value="[tidmodule1:FullHeight]"/>
+  <Numeric name="DlTop"             value="[tidmodule1:DlTop]"/>
+  <Numeric name="DlBottom"          value="[tidmodule1:DlBottom]"/>
+  <Numeric name="DlHybrid"          value="[tidmodule1:DlHybrid]"/>
+  <Numeric name="TopFrameHeight"    value="[tidmodpar:TopFrameHeight]"/>
+  <Numeric name="BottomFrameHeight" value="[tidmodpar:BottomFrameHeight]"/>
+  <Numeric name="BottomFrameOver"   value="[tidmodpar:BottomFrameOver]"/>
+  <Numeric name="SideFrameWidth"    value="[tidmodpar:SideFrameWidth]"/>
+  <Numeric name="SideFrameOver"     value="[tidmodpar:SideFrameOver]"/>
+  <Numeric name="HybridHeight"      value="[tidmodpar:HybridHeight]"/>
+  <Numeric name="HybridWidth"       value="[tidmodpar:HybridWidth]"/>
+  <Numeric name="CoolWidth"         value="[tidringpar:CoolInsertW]"/>
+  <Numeric name="CoolSide"          value="[tidring1:CoolSide]"/>
+</Algorithm>
+
+</DDDefinition>

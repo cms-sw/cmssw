@@ -1,0 +1,138 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
+
+<ConstantsSection label="pixfwdplaq1x2.xml" eval="true">
+ <Constant name="zero"              value="0.0*fm"/>
+ <Constant name="ActiveL"           value="16.200*mm"/>
+ <Constant name="ActiveW"           value="8.100*mm"/>
+ <Constant name="SensorL"           value="16.216*mm"/>
+ <Constant name="SensorW"           value="8.116*mm"/>
+ <Constant name="PlaquetteL"        value="18.544*mm"/>
+ <Constant name="PlaquetteW"        value="10.444*mm"/>
+</ConstantsSection>
+ 
+<SolidSection label="pixfwdplaq1x2.xml">
+ <Box name="PixelForwardPlaquette1x2"      dx="[PlaquetteL]/2"
+      dy="[PlaquetteW]/2"                dz="[pixfwdplaq:PlaquetteT]/2"/>
+ <Box name="PixelForwardWireBond1x2"       dx="[SensorL]/2"
+      dy="[SensorW]/2"                   dz="[pixfwdplaq:WireBondT]/2"/>
+ <Box name="PixelForwardSensor1x2"         dx="[SensorL]/2"
+      dy="[SensorW]/2"                   dz="[pixfwdplaq:SensorT]/2"/>
+ <Box name="PixelForwardActive1x2"         dx="[ActiveL]/2"
+      dy="[ActiveW]/2"                   dz="[pixfwdplaq:SensorT]/2"/>
+ <Box name="PixelForwardBump1x2"           dx="[SensorL]/2"
+      dy="[SensorW]/2"                   dz="[pixfwdplaq:BumpT]/2"/>
+ <Box name="PixelForwardAgEpoxy1x2"        dx="[SensorL]/2"
+      dy="[SensorW]/2"                   dz="[pixfwdplaq:AgEpoxyT]/2"/>
+ <Box name="PixelForwardVHDI1x2"           dx="[PlaquetteL]/2"
+      dy="[PlaquetteW]/2"                dz="[pixfwdplaq:VHDIT]/2"/>
+ <Box name="PixelForwardAdhFilm1x2"        dx="[PlaquetteL]/2"
+      dy="[PlaquetteW]/2"                dz="[pixfwdplaq:AdhFilmT]/2"/>
+ <Box name="PixelForwardBacking1x2"        dx="[PlaquetteL]/2"
+      dy="[PlaquetteW]/2"                dz="[pixfwdplaq:BackingT]/2"/>
+ <Box name="PixelForwardChoTherm1x2"       dx="[PlaquetteL]/2"
+      dy="[PlaquetteW]/2"                dz="[pixfwdplaq:ChoThermT]/2"/>
+</SolidSection>
+ 
+<LogicalPartSection label="pixfwdplaq1x2.xml">
+ <LogicalPart name="PixelForwardPlaquette1x2" category="unspecified">
+  <rSolid name="PixelForwardPlaquette1x2"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
+ <LogicalPart name="PixelForwardWireBond1x2" category="unspecified">
+  <rSolid name="PixelForwardWireBond1x2"/>
+  <rMaterial name="pixfwdmaterial:Pix_Fwd_WireBond"/>
+ </LogicalPart>
+ <LogicalPart name="PixelForwardSensor1x2" category="unspecified">
+  <rSolid name="PixelForwardSensor1x2"/>
+  <rMaterial name="materials:Silicon"/>
+ </LogicalPart>
+ <LogicalPart name="PixelForwardActive1x2" category="unspecified">
+  <rSolid name="PixelForwardActive1x2"/>
+  <rMaterial name="materials:Silicon"/>
+ </LogicalPart>
+ <LogicalPart name="PixelForwardBump1x2" category="unspecified">
+  <rSolid name="PixelForwardBump1x2"/>
+  <rMaterial name="pixfwdmaterial:Pix_Fwd_Bump"/>
+ </LogicalPart>
+ <LogicalPart name="PixelForwardAgEpoxy1x2" category="unspecified">
+  <rSolid name="PixelForwardAgEpoxy1x2"/>
+  <rMaterial name="pixfwdmaterial:Pix_Fwd_AgEpoxy"/>
+ </LogicalPart>
+ <LogicalPart name="PixelForwardVHDI1x2" category="unspecified">
+  <rSolid name="PixelForwardVHDI1x2"/>
+  <rMaterial name="pixfwdmaterial:Pix_Fwd_VHDI"/>
+ </LogicalPart>
+ <LogicalPart name="PixelForwardAdhFilm1x2" category="unspecified">
+  <rSolid name="PixelForwardAdhFilm1x2"/>
+  <rMaterial name="pixfwdmaterial:Pix_Fwd_AdhFilm"/>
+ </LogicalPart>
+ <LogicalPart name="PixelForwardBacking1x2" category="unspecified">
+  <rSolid name="PixelForwardBacking1x2"/>
+  <rMaterial name="materials:Silicon"/>
+ </LogicalPart>
+ <LogicalPart name="PixelForwardChoTherm1x2" category="unspecified">
+  <rSolid name="PixelForwardChoTherm1x2"/>
+  <rMaterial name="pixfwdmaterial:Pix_Fwd_AgEpoxy"/>
+ </LogicalPart>
+</LogicalPartSection>
+ 
+<PosPartSection label="pixfwdplaq1x2.xml">
+ <PosPart copyNumber="1">
+   <rParent name="pixfwdplaq1x2:PixelForwardSensor1x2"/>
+   <rChild name="pixfwdplaq1x2:PixelForwardActive1x2"/>
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="pixfwdplaq1x2:PixelForwardPlaquette1x2"/>
+   <rChild name="pixfwdplaq1x2:PixelForwardWireBond1x2"/>
+  <Translation x="[zero]" y="[zero]" z="[pixfwdplaq:WireBondZ]" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="pixfwdplaq1x2:PixelForwardPlaquette1x2"/>
+   <rChild name="pixfwdplaq1x2:PixelForwardSensor1x2"/>
+  <Translation x="[zero]" y="[zero]" z="[pixfwdplaq:SensorZ]" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="pixfwdplaq1x2:PixelForwardPlaquette1x2"/>
+   <rChild name="pixfwdplaq1x2:PixelForwardBump1x2"/>
+  <Translation x="[zero]" y="[zero]" z="[pixfwdplaq:BumpZ]" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="pixfwdplaq1x2:PixelForwardPlaquette1x2"/>
+   <rChild name="pixfwdplaq1x2:PixelForwardAgEpoxy1x2"/>
+  <Translation x="[zero]" y="[zero]" z="[pixfwdplaq:AgEpoxyZ]" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="pixfwdplaq1x2:PixelForwardPlaquette1x2"/>
+   <rChild name="pixfwdplaq1x2:PixelForwardVHDI1x2"/>
+  <Translation x="[zero]" y="[zero]" z="[pixfwdplaq:VHDIZ]" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="pixfwdplaq1x2:PixelForwardPlaquette1x2"/>
+   <rChild name="pixfwdplaq1x2:PixelForwardAdhFilm1x2"/>
+  <Translation x="[zero]" y="[zero]" z="[pixfwdplaq:AdhFilmZ]" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="pixfwdplaq1x2:PixelForwardPlaquette1x2"/>
+   <rChild name="pixfwdplaq1x2:PixelForwardBacking1x2"/>
+  <Translation x="[zero]" y="[zero]" z="[pixfwdplaq:BackingZ]" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="pixfwdplaq1x2:PixelForwardPlaquette1x2"/>
+   <rChild name="pixfwdplaq1x2:PixelForwardChoTherm1x2"/>
+  <Translation x="[zero]" y="[zero]" z="[pixfwdplaq:ChoThermZ]" />
+ </PosPart>
+</PosPartSection>
+ 
+<Algorithm name="track:DDTrackerLinearXY">
+  <rParent name="pixfwdplaq1x2:PixelForwardPlaquette1x2"/>
+  <String name="ChildName"         value="pixfwdplaq:PixelForwardROChip"/>
+  <Numeric name="NumberX"          value="2"/>
+  <Numeric name="NumberY"          value="1"/>
+  <Numeric name="DeltaX"           value="[pixfwdplaq:ROChipL]"/>
+  <Numeric name="DeltaY"           value="[pixfwdplaq:ROChipW]"/>
+  <Vector name="Center" type="numeric" nEntries="3">
+    [zero], [zero], [pixfwdplaq:ROChipZ] </Vector>
+</Algorithm>
+   
+</DDDefinition>

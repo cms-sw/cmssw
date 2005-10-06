@@ -1,0 +1,78 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
+
+<ConstantsSection label="tecpetpar.xml" eval="true">
+ <Constant name="zero"           value="0.0*fm"/>
+ <Constant name="PetalContThick" value="3.70*cm"/>
+ <Constant name="PetalContWidth" value="35.0*deg"/>
+ <Constant name="PetalContRmax"  value="110.05*cm"/>
+ <Constant name="HybridWidth"    value="2.50*cm"/>
+ <Constant name="HybridHeight"   value="2.50*cm"/>
+ <Constant name="HybridThick"    value="0.38*cm"/>
+ <Constant name="HybridZ"        value="0.060*cm"/>
+ <Constant name="CoolR1"         value="0.5380*cm"/>
+ <Constant name="CoolR2"         value="0.5950*cm"/>
+ <Constant name="CoolR3"         value="0.5800*cm"/>
+ <Constant name="CoolR4"         value="0.7180*cm"/>
+ <Constant name="CoolL"          value="1.000*cm"/>
+ <Constant name="PetalThick"     value="1.00*cm"/>
+ <Constant name="PetalWidth"     value="35.0*deg"/>
+ <Constant name="PetalRmax"      value="109.25*cm"/>
+ <Constant name="ICBThick"       value="0.50*cm"/>
+ <Constant name="ICBWidth"       value="25.0*deg"/>
+ <Constant name="ICBRmax"        value="108.50*cm"/>
+ <Constant name="ICBZ"           value="0.75*cm"/>
+ <Constant name="ICCThick"       value="0.12*cm"/>
+ <Constant name="ModuleThick"    value="0.60*cm"/>
+ <Constant name="ModuleFrameZ"   value="1.30*cm"/>
+ <Constant name="ModuleZ"        value="0.15*cm"/>
+ <Constant name="BridgeThick"    value="0.25*cm"/>
+ <Constant name="BridgeZ"        value="1.725*cm"/>
+</ConstantsSection>
+
+<RotationSection label="tecpetpar.xml">
+ <Rotation name="180X" thetaX="90*deg" phiX="0*deg"     thetaY="90*deg" 
+                       phiY="-90*deg"  thetaZ="180*deg" phiZ="0*deg" />
+</RotationSection>
+
+<SolidSection label="tecpetpar.xml">
+ <Tubs name="TECCool1"               rMin="[tecpetpar:zero]"
+       rMax="[tecpetpar:CoolR1]"     dz="[tecpetpar:CoolL]/2"
+       startPhi="0*deg"              deltaPhi="360.*deg"/>
+ <Tubs name="TECCool2"               rMin="[tecpetpar:zero]"
+       rMax="[tecpetpar:CoolR2]"     dz="[tecpetpar:CoolL]/2"
+       startPhi="0*deg"              deltaPhi="360.*deg"/>
+ <Tubs name="TECCool3"               rMin="[tecpetpar:zero]"
+       rMax="[tecpetpar:CoolR3]"     dz="[tecpetpar:CoolL]/2"
+       startPhi="0*deg"              deltaPhi="360.*deg"/>
+ <Tubs name="TECCool4"               rMin="[tecpetpar:zero]"
+       rMax="[tecpetpar:CoolR4]"     dz="[tecpetpar:CoolL]/2"
+       startPhi="0*deg"              deltaPhi="360.*deg"/>
+ <Box name="TECOptoHybrid"           dx="[tecpetpar:HybridHeight]/2"    
+      dy="[tecpetpar:HybridWidth]/2" dz="[tecpetpar:HybridThick]/2"/>
+</SolidSection>
+
+<LogicalPartSection label="tecpetpar.xml">
+ <LogicalPart name="TECCool1" category="unspecified">
+  <rSolid name="tecpetpar:TECCool1"/>
+  <rMaterial name="materials:Aluminium"/>
+ </LogicalPart>
+ <LogicalPart name="TECCool2" category="unspecified">
+  <rSolid name="tecpetpar:TECCool2"/>
+  <rMaterial name="materials:Aluminium"/>
+ </LogicalPart>
+ <LogicalPart name="TECCool3" category="unspecified">
+  <rSolid name="tecpetpar:TECCool3"/>
+  <rMaterial name="materials:Aluminium"/>
+ </LogicalPart>
+ <LogicalPart name="TECCool4" category="unspecified">
+  <rSolid name="tecpetpar:TECCool4"/>
+  <rMaterial name="materials:Aluminium"/>
+ </LogicalPart>
+ <LogicalPart name="TECOptoHybrid" category="unspecified">
+  <rSolid name="tecpetpar:TECOptoHybrid"/>
+  <rMaterial name="tecmaterial:TEC_OptoH"/>
+ </LogicalPart>
+</LogicalPartSection>
+
+</DDDefinition>

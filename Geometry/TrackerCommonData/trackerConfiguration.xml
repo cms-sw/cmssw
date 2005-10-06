@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<Configuration xmlns="." xmlns:xsi="." xsi:schemaLocation= "." name="CMSConfiguration" version="0">
+<Include name="test">
+      <File name="Materials/materials.xml"                   url="../../../"/>
+      <File name="trackermaterial.xml"                       url="."/>
+      <File name="cmscons.xml"                               url="."/>
+      <File name="trackerdummy.xml"                          url="."/>
+ </Include>
+ <Root fileName="trackerdummy.xml"          logicalPartName="Tracker"/>
+</Configuration>

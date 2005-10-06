@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<Configuration xmlns="." xmlns:xsi="." xsi:schemaLocation= "." name="CMSConfiguration" version="0">
+<Include name="test">
+      <File name="Materials/materials.xml"                   url="../../../"/>
+      <File name="tibmaterial.xml"                           url="."/>
+      <File name="tibmodpar.xml"                             url="."/>
+      <File name="tibmodule0.xml"                            url="."/>
+      <File name="tibmodule0a.xml"                           url="."/>
+      <File name="tibmodule0b.xml"                           url="."/>
+      <File name="tibmodule2.xml"                            url="."/>
+      <File name="tibstringpar.xml"                          url="."/>
+      <File name="tibstringds.xml"                           url="."/>
+      <File name="tibstring0c.xml"                           url="."/>
+      <File name="tibstring0ll.xml"                          url="."/>
+      <File name="tibstring0lr.xml"                          url="."/>
+      <File name="tibstring0ul.xml"                          url="."/>
+      <File name="tibstring0ur.xml"                          url="."/>
+      <File name="tibstring0.xml"                            url="."/>
+      <File name="tibstring1c.xml"                           url="."/>
+      <File name="tibstring1ll.xml"                          url="."/>
+      <File name="tibstring1lr.xml"                          url="."/>
+      <File name="tibstring1ul.xml"                          url="."/>
+      <File name="tibstring1ur.xml"                          url="."/>
+      <File name="tibstring1.xml"                            url="."/>
+      <File name="tibstringss.xml"                           url="."/>
+      <File name="tibstring2c.xml"                           url="."/>
+      <File name="tibstring2ll.xml"                          url="."/>
+      <File name="tibstring2lr.xml"                          url="."/>
+      <File name="tibstring2ul.xml"                          url="."/>
+      <File name="tibstring2ur.xml"                          url="."/>
+      <File name="tibstring2.xml"                            url="."/>
+      <File name="tibstring3c.xml"                           url="."/>
+      <File name="tibstring3ll.xml"                          url="."/>
+      <File name="tibstring3lr.xml"                          url="."/>
+      <File name="tibstring3ul.xml"                          url="."/>
+      <File name="tibstring3ur.xml"                          url="."/>
+      <File name="tibstring3.xml"                            url="."/>
+      <File name="tiblayerpar.xml"                           url="."/>
+      <File name="tiblayer0.xml"                             url="."/>
+      <File name="tiblayer1.xml"                             url="."/>
+      <File name="tiblayer2.xml"                             url="."/>
+      <File name="tiblayer3.xml"                             url="."/>
+      <File name="tib.xml"                                   url="."/>
+ </Include>
+ <Root fileName="tib.xml"     logicalPartName="TIB"/>
+</Configuration>

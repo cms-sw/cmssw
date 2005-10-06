@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
+
+<ConstantsSection label="tidmodpar.xml" eval="true">
+ <Constant name="DetTilt"           value="0.100*rad"/>
+ <Constant name="ModuleThickDS"     value="0.270*cm"/>
+ <Constant name="ModuleThickSS"     value="0.110*cm"/>
+ <Constant name="TopFrameHeight"    value="3.800*cm"/>
+ <Constant name="TopFrameWidth"     value="2.000*cm"/>
+ <Constant name="TopFrameThick"     value="0.050*cm"/>
+ <Constant name="TopFrameZDS"       value="0.060*cm"/>
+ <Constant name="TopFrameZSS"       value="0.020*cm"/>
+ <Constant name="BottomFrameHeight" value="0.800*cm"/>
+ <Constant name="BottomFrameOver"   value="0.300*cm"/>
+ <Constant name="SideFrameWidth"    value="1.350*cm"/>
+ <Constant name="SideFrameOver"     value="0.200*cm"/>
+ <Constant name="SideFrameThick"    value="0.060*cm"/>
+ <Constant name="SideFrameZDS"      value="0.055*cm"/>
+ <Constant name="SideFrameZSS"      value="0.025*cm"/>
+ <Constant name="SideWidth"         value="0.100*cm"/>
+ <Constant name="ActiveThick"       value="0.030*cm"/>
+ <Constant name="ActiveZDS"         value="0.100*cm"/>
+ <Constant name="ActiveZSS"         value="-0.020*cm"/>
+ <Constant name="HybridHeight"      value="2.500*cm"/>
+ <Constant name="HybridWidth"       value="4.700*cm"/>
+ <Constant name="HybridThick"       value="0.050*cm"/>
+ <Constant name="HybridZDS"         value="0.110*cm"/>
+ <Constant name="HybridZSS"         value="-0.030*cm"/>
+ <Constant name="PitchHeight"       value="1.300*cm"/>
+ <Constant name="PitchThick"        value="0.050*cm"/>
+ <Constant name="PitchZDS"          value="0.110*cm"/>
+ <Constant name="PitchZSS"          value="-0.030*cm"/>
+</ConstantsSection>
+
+<RotationSection label="tidmodpar.xml">
+ <Rotation name="90ZD" thetaX="-90*deg"     phiX="0*deg"        thetaY="0*deg"
+                       phiY="0*deg"         thetaZ="90*deg"     phiZ="90*deg"/>
+ <Rotation name="9NYX" thetaX="0*deg"       phiX="0*deg"        thetaY="90*deg"
+                       phiY="90*deg"        thetaZ="-90*deg"    phiZ="0*deg" />
+ <Rotation name="G100" thetaX="84.2704*deg" phiX="180*deg"      thetaY="90*deg"
+                       phiY="-90*deg"       thetaZ="5.7296*deg" phiZ="0*deg" />
+ <Rotation name="R180" thetaX="90*deg"      phiX="180*deg"      thetaY="90*deg"
+                       phiY="-90*deg"       thetaZ="0*deg"      phiZ="0*deg" />
+</RotationSection>
+
+</DDDefinition>

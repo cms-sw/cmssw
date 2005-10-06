@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
+
+<ConstantsSection label="tibstringds.xml" eval="true">
+ <Constant name="zero"         value="0.0*fm"/>
+</ConstantsSection>
+
+<LogicalPartSection label="tibstringds.xml">
+ <LogicalPart name="TIBICCBoxDS" category="unspecified">
+  <rSolid name="tibstringpar:TIBICCBox"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
+ <LogicalPart name="TIBICC0" category="unspecified">
+  <rSolid name="tibstringpar:TIBICC"/>
+  <rMaterial name="tibmaterial:TIB_ICC2"/>
+ </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="tibstringds.xml">
+ <PosPart copyNumber="1">
+   <rParent name="tibstringds:TIBICCBoxDS"/>
+   <rChild name="tibstringds:TIBICC0"/>
+  <Translation x="[zero]"                    y="[tibstringpar:ICCY]"
+               z="[zero]" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="tibstringds:TIBICCBoxDS"/>
+   <rChild name="tibstringpar:TIBICCCool1"/>
+  <Translation x="-[tibstringpar:ICCCoolX]"  y="[tibstringpar:ICCCoolY]"
+               z="[zero]" />
+ </PosPart>
+ <PosPart copyNumber="2">
+   <rParent name="tibstringds:TIBICCBoxDS"/>
+   <rChild name="tibstringpar:TIBICCCool1"/>
+  <Translation x="[tibstringpar:ICCCoolX]"   y="[tibstringpar:ICCCoolY]"
+               z="[zero]" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="tibstringds:TIBICCBoxDS"/>
+   <rChild name="tibstringpar:TIBICCCool2"/>
+  <Translation x="[zero]"                    y="[tibstringpar:ICCCoolY]"
+               z="[tibstringpar:ICCCoolZ]" />
+ </PosPart>
+ <PosPart copyNumber="2">
+   <rParent name="tibstringds:TIBICCBoxDS"/>
+   <rChild name="tibstringpar:TIBICCCool2"/>
+  <Translation x="[zero]"                    y="[tibstringpar:ICCCoolY]"
+               z="-[tibstringpar:ICCCoolZ]" />
+ </PosPart>
+</PosPartSection>
+ 
+</DDDefinition>

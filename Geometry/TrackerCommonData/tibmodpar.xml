@@ -1,0 +1,100 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
+
+<ConstantsSection label="tibmodpar.xml" eval="true">
+ <Constant name="ModuleDx"   value="3.900*cm"/>
+ <Constant name="ModuleDy"   value="0.152*cm"/>
+ <Constant name="ModuleDz"   value="8.150*cm"/>
+ <Constant name="HybridDx"   value="2.350*cm"/>
+ <Constant name="HybridDy"   value="0.056*cm"/>
+ <Constant name="HybridDz"   value="1.250*cm"/>
+ <Constant name="HybridZ"    value="6.900*cm"/>
+ <Constant name="PADx"       value="3.000*cm"/>
+ <Constant name="PADy"       value="0.056*cm"/>
+ <Constant name="PA1Dz"      value="0.450*cm"/>
+ <Constant name="PAZ"        value="5.200*cm"/>
+ <Constant name="SideRailDx" value="0.450*cm"/>
+ <Constant name="SideRailDy" value="0.036*cm"/>
+ <Constant name="SideRailDz" value="6.365*cm"/>
+ <Constant name="SideRailX"  value="3.450*cm"/>
+ <Constant name="SideRailZ"  value="0.715*cm"/>
+ <Constant name="LedgeDx"    value="3.000*cm"/>
+ <Constant name="LedgeDy"    value="0.045*cm"/>
+ <Constant name="ModCool1Dx" value="2.350*cm"/>
+ <Constant name="ModCoolDy"  value="0.015*cm"/>
+ <Constant name="ModCool1Dz" value="0.350*cm"/>
+ <Constant name="ModCool1X"  value="0.000*cm"/>
+ <Constant name="ModCool1Z"  value="7.800*cm"/>
+ <Constant name="ModCool2Dx" value="0.300*cm"/>
+ <Constant name="ModCool2Dz" value="1.250*cm"/>
+ <Constant name="ModCool2X"  value="2.650*cm"/>
+ <Constant name="ModCool2Z"  value="6.900*cm"/>
+ <Constant name="WaferDx"    value="3.172*cm"/>
+ <Constant name="WaferDy"    value="5.95825*cm"/>
+ <Constant name="WaferDz"    value="0.016*cm"/>
+ <Constant name="WaferZ"     value="1.20825*cm"/>
+ <Constant name="ActiveDx"   value="3.072*cm"/>
+ <Constant name="ActiveDy"   value="5.84425*cm"/>
+</ConstantsSection>
+
+<SolidSection label="tibmodpar.xml">
+ <Box name="TIBModule"            dx="[tibmodpar:ModuleDx]"    
+      dy="[tibmodpar:ModuleDy]"   dz="[tibmodpar:ModuleDz]"/>
+ <Box name="TIBHybrid"            dx="[tibmodpar:HybridDx]"    
+      dy="[tibmodpar:HybridDy]"   dz="[tibmodpar:HybridDz]"/>
+ <Box name="TIBPA1"          dx="[PADx]"    dy="[PADy]"    dz="[PA1Dz]"/>
+ <Box name="TIBSideRailL"    dx="[SideRailDx]" 
+                             dy="[SideRailDy]" dz="[SideRailDz]"/>
+ <Box name="TIBSideRailR"    dx="[SideRailDx]" 
+                             dy="[SideRailDy]" dz="[SideRailDz]"/>
+ <Box name="TIBModCoolTop"   dx="[ModCool1Dx]" 
+                             dy="[ModCoolDy]"  dz="[ModCool1Dz]"/>
+ <Box name="TIBModCoolSide"  dx="[ModCool2Dx]" 
+                             dy="[ModCoolDy]"  dz="[ModCool2Dz]"/>
+ <Box name="TIBWafer"             dx="[tibmodpar:WaferDx]" 
+      dy="[tibmodpar:WaferDy]"    dz="[tibmodpar:WaferDz]"/>
+ <Box name="TIBActive"            dx="[tibmodpar:ActiveDx]" 
+      dy="[tibmodpar:ActiveDy]"   dz="[tibmodpar:WaferDz]"/>
+</SolidSection>
+
+<LogicalPartSection label="tibmodpar.xml">
+ <LogicalPart name="TIBPA1" category="unspecified">
+  <rSolid name="TIBPA1"/>
+  <rMaterial name="tibmaterial:TIB_PA_rphi"/>
+ </LogicalPart>
+ <LogicalPart name="TIBSideRailL" category="unspecified">
+  <rSolid name="TIBSideRailL"/>
+  <rMaterial name="tibmaterial:TIB_sid_rail1"/>
+ </LogicalPart>
+ <LogicalPart name="TIBSideRailR" category="unspecified">
+  <rSolid name="TIBSideRailR"/>
+  <rMaterial name="tibmaterial:TIB_sid_rail2"/>
+ </LogicalPart>
+ <LogicalPart name="TIBModCoolTop" category="unspecified">
+  <rSolid name="TIBModCoolTop"/>
+  <rMaterial name="tibmaterial:TIB_ledge_hybrid"/>
+ </LogicalPart>
+ <LogicalPart name="TIBModCoolSide" category="unspecified">
+  <rSolid name="TIBModCoolSide"/>
+  <rMaterial name="tibmaterial:TIB_ledge_side"/>
+ </LogicalPart>
+ <LogicalPart name="TOBInactive" category="unspecified">
+  <rSolid name="TOBInactive"/>
+  <rMaterial name="materials:Silicon"/>
+ </LogicalPart>
+</LogicalPartSection>
+
+<RotationSection label="tibmodpar.xml">
+  <Rotation name="Rphi"  thetaX="90*deg"  phiX="0*deg"     thetaY="0*deg"
+                         phiY="0*deg"     thetaZ="-90*deg" phiZ="90*deg" />
+  <Rotation name="SterA" thetaX="84.2704*deg" phiX="0*deg" thetaY="5.7296*deg"
+                         phiY="-180*deg"  thetaZ="90*deg"  phiZ="-90*deg" />
+  <Rotation name="SterB" thetaX="95.7296*deg" phiX="0*deg" thetaY="-5.7296*deg"
+                         phiY="-180*deg"  thetaZ="90*deg"  phiZ="-90*deg" />
+  <Rotation name="PAA"   thetaX="180*deg" phiX="0*deg"     thetaY="90*deg"
+                         phiY="90*deg"    thetaZ="90*deg"  phiZ="0*deg" />
+  <Rotation name="PAB"   thetaX="180*deg" phiX="0*deg"     thetaY="90*deg" 
+                         phiY="270*deg"   thetaZ="90*deg"  phiZ="180*deg" />
+</RotationSection>
+
+</DDDefinition>

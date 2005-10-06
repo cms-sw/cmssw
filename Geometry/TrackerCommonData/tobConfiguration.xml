@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<Configuration xmlns="." xmlns:xsi="." xsi:schemaLocation= "." name="CMSConfiguration" version="0">
+<Include name="test">
+      <File name="Materials/materials.xml"                   url="../../../"/>
+      <File name="tobmaterial.xml"                           url="."/>
+      <File name="tobmodpar.xml"                             url="."/>
+      <File name="tobmodule0.xml"                            url="."/>
+      <File name="tobmodule2.xml"                            url="."/>
+      <File name="tobmodule4.xml"                            url="."/>
+      <File name="tobrodpar.xml"                             url="."/>
+      <File name="tobrod0c.xml"                              url="."/>
+      <File name="tobrod0l.xml"                              url="."/>
+      <File name="tobrod0h.xml"                              url="."/>
+      <File name="tobrod0.xml"                               url="."/>
+      <File name="tobrod1l.xml"                              url="."/>
+      <File name="tobrod1h.xml"                              url="."/>
+      <File name="tobrod1.xml"                               url="."/>
+      <File name="tobrod2c.xml"                              url="."/>
+      <File name="tobrod2l.xml"                              url="."/>
+      <File name="tobrod2h.xml"                              url="."/>
+      <File name="tobrod2.xml"                               url="."/>
+      <File name="tobrod3l.xml"                              url="."/>
+      <File name="tobrod3h.xml"                              url="."/>
+      <File name="tobrod3.xml"                               url="."/>
+      <File name="tobrod4c.xml"                              url="."/>
+      <File name="tobrod4l.xml"                              url="."/>
+      <File name="tobrod4h.xml"                              url="."/>
+      <File name="tobrod4.xml"                               url="."/>
+      <File name="tobrod5l.xml"                              url="."/>
+      <File name="tobrod5h.xml"                              url="."/>
+      <File name="tobrod5.xml"                               url="."/>
+      <File name="tob.xml"                                   url="."/>
+ </Include>
+ <Root fileName="tob.xml"     logicalPartName="TOB"/>
+</Configuration>

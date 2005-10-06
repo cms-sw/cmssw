@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
+
+<ConstantsSection label="tibstring0.xml" eval="true">
+ <Constant name="zero"         value="0.0*fm"/>
+</ConstantsSection>
+
+<LogicalPartSection label="tibstring0.xml">
+ <LogicalPart name="TIBString0Lo1" category="unspecified">
+  <rSolid name="tibstringpar:TIBString1"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
+ <LogicalPart name="TIBString0Lo2" category="unspecified">
+  <rSolid name="tibstringpar:TIBString2"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
+ <LogicalPart name="TIBString0Up1" category="unspecified">
+  <rSolid name="tibstringpar:TIBString1"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
+ <LogicalPart name="TIBString0Up2" category="unspecified">
+  <rSolid name="tibstringpar:TIBString2"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="tibstring0.xml">
+ <PosPart copyNumber="1">
+   <rParent name="tibstring0:TIBString0Lo1"/>
+   <rChild name="tibstring0ll:TIBString0LoMin1"/>
+  <Translation x="[zero]"   y="[zero]"  z="-[tibstring0c:StringLoPlsL]/2" />
+ </PosPart>
+ <PosPart copyNumber="2">
+   <rParent name="tibstring0:TIBString0Lo1"/>
+   <rChild name="tibstring0lr:TIBString0LoPls1"/>
+  <Translation x="[zero]"   y="[zero]"  z="[tibstring0c:StringLoMinL]/2" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="tibstring0:TIBString0Lo2"/>
+   <rChild name="tibstring0ll:TIBString0LoMin2"/>
+  <Translation x="[zero]"   y="[zero]"  z="-[tibstring0c:StringLoPlsL]/2" />
+ </PosPart>
+ <PosPart copyNumber="2">
+   <rParent name="tibstring0:TIBString0Lo2"/>
+   <rChild name="tibstring0lr:TIBString0LoPls2"/>
+  <Translation x="[zero]"   y="[zero]"  z="[tibstring0c:StringLoMinL]/2" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="tibstring0:TIBString0Up1"/>
+   <rChild name="tibstring0ul:TIBString0UpMin1"/>
+  <Translation x="[zero]"   y="[zero]"  z="-[tibstring0c:StringUpPlsL]/2" />
+ </PosPart>
+ <PosPart copyNumber="2">
+   <rParent name="tibstring0:TIBString0Up1"/>
+   <rChild name="tibstring0ur:TIBString0UpPls1"/>
+  <Translation x="[zero]"   y="[zero]"  z="[tibstring0c:StringUpMinL]/2" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="tibstring0:TIBString0Up2"/>
+   <rChild name="tibstring0ul:TIBString0UpMin2"/>
+  <Translation x="[zero]"   y="[zero]"  z="-[tibstring0c:StringUpPlsL]/2" />
+ </PosPart>
+ <PosPart copyNumber="2">
+   <rParent name="tibstring0:TIBString0Up2"/>
+   <rChild name="tibstring0ur:TIBString0UpPls2"/>
+  <Translation x="[zero]"   y="[zero]"  z="[tibstring0c:StringUpMinL]/2" />
+ </PosPart>
+</PosPartSection>
+ 
+</DDDefinition>

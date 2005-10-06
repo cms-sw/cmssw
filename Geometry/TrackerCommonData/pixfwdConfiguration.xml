@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<Configuration xmlns="." xmlns:xsi="." xsi:schemaLocation= "." name="CMSConfiguration" version="0">
+<Include name="test">
+      <File name="pixfwdPanel.xml"                           url="."/>
+      <File name="pixfwdPanel3LX.xml"                        url="."/>
+      <File name="pixfwdPanel4RX.xml"                        url="."/> 
+      <File name="pixfwdplaq1x5.xml"                         url="."/>
+      <File name="pixfwdplaq1x2.xml"                         url="."/>
+      <File name="pixfwdplaq2x5.xml"                         url="."/>
+      <File name="pixfwdplaq2x4.xml"                         url="."/>
+      <File name="pixfwdplaq2x3.xml"                         url="."/>
+      <File name="pixfwdplaq.xml"                            url="."/>
+      <File name="Materials/materials.xml"                   url="../../../"/>
+      <File name="pixfwdmaterial.xml"                        url="."/>
+ </Include>
+ <Root fileName="pixfwdPanel3LX.xml"  logicalPartName="PixelForwardPanel3LX"/>
+</Configuration>

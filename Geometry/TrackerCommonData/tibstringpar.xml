@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
+
+<ConstantsSection label="tibstringpar.xml" eval="true">
+ <Constant name="StringL"        value="140.20*cm"/>
+ <Constant name="MotherCableW"   value="2.40*cm"/>
+ <Constant name="MotherCableT"   value="0.06*cm"/>
+ <Constant name="MotherCableY"   value="0.12*cm"/>
+ <Constant name="CoolTubeD"      value="0.30*cm"/>
+ <Constant name="CoolTubeSep"    value="5.40*cm"/>
+ <Constant name="ICCBoxW"        value="7.40*cm"/>
+ <Constant name="ICCBoxT"        value="3.04*cm"/>
+ <Constant name="ICCBoxL"        value="3.50*cm"/>
+ <Constant name="ICCW"           value="7.20*cm"/>
+ <Constant name="ICCT"           value="0.19*cm"/>
+ <Constant name="ICCL"           value="3.50*cm"/>
+ <Constant name="ICCY"           value="0.053*cm"/>
+ <Constant name="ICCCool1W"      value="0.625*cm"/>
+ <Constant name="ICCCool2W"      value="4.75*cm"/>
+ <Constant name="ICCCoolT"       value="0.11*cm"/>
+ <Constant name="ICCCool1L"      value="3.50*cm"/>
+ <Constant name="ICCCool2L"      value="0.30*cm"/>
+ <Constant name="ICCCoolX"       value="2.6875*cm"/>
+ <Constant name="ICCCoolY"       value="-0.097*cm"/>
+ <Constant name="ICCCoolZ"       value="1.60*cm"/>
+ <Constant name="CCUML"          value="2.20*cm"/>
+ <Constant name="CCUMZ"          value="69.0*cm"/>
+ <Constant name="CoolTubeW"      value="[CoolTubeD]+[CoolTubeSep]"/>
+</ConstantsSection>
+
+<SolidSection label="tibstringpar.xml">
+ <Box name="TIBString1"               dx="[tibmodpar:ModuleDx]"    
+      dy="[tibmodpar:ModuleDy]"       dz="[tibstringpar:StringL]/2"/>
+ <Box name="TIBString2"               dx="[tibstringpar:CoolTubeW]/2"    
+      dy="[tibstringpar:CoolTubeD]/2" dz="[tibstringpar:StringL]/2"/>
+ <Box name="TIBICCBox"                dx="[tibstringpar:ICCBoxW]/2"    
+      dy="[tibstringpar:ICCBoxT]/2"   dz="[tibstringpar:ICCBoxL]/2"/>
+ <Box name="TIBICC"                   dx="[tibstringpar:ICCW]/2"    
+      dy="[tibstringpar:ICCT]/2"      dz="[tibstringpar:ICCL]/2"/>
+ <Box name="TIBICCCool1"              dx="[tibstringpar:ICCCool1W]/2"    
+      dy="[tibstringpar:ICCCoolT]/2"  dz="[tibstringpar:ICCCool1L]/2"/>
+ <Box name="TIBICCCool2"              dx="[tibstringpar:ICCCool2W]/2"    
+      dy="[tibstringpar:ICCCoolT]/2"  dz="[tibstringpar:ICCCool2L]/2"/>
+ <Box name="TIBCCUM"                  dx="[tibstringpar:ICCBoxW]/2"    
+      dy="[tibstringpar:ICCBoxT]/2"   dz="[tibstringpar:CCUML]/2"/>
+ </SolidSection>
+
+<LogicalPartSection label="tibstringpar.xml">
+ <LogicalPart name="TIBICCCool1" category="unspecified">
+  <rSolid name="TIBICCCool1"/>
+  <rMaterial name="tibmaterial:TIB_ICC_ledge1"/>
+ </LogicalPart>
+ <LogicalPart name="TIBICCCool2" category="unspecified">
+  <rSolid name="TIBICCCool2"/>
+  <rMaterial name="tibmaterial:TIB_ICC_ledge2"/>
+ </LogicalPart>
+ <LogicalPart name="TIBCCUM" category="unspecified">
+  <rSolid name="TIBCCUM"/>
+  <rMaterial name="tibmaterial:TIB_CCUM"/>
+ </LogicalPart>
+</LogicalPartSection>
+
+<RotationSection label="tibstringpar.xml">
+  <Rotation name="180D" thetaX="90*deg" phiX="180*deg"   thetaY="90*deg" 
+                        phiY="90*deg"   thetaZ="180*deg" phiZ="0*deg" />
+  <Rotation name="90XD" thetaX="90*deg" phiX="90*deg"    thetaY="0*deg" 
+                        phiY="0*deg"    thetaZ="90*deg"  phiZ="0*deg" />
+</RotationSection>
+
+</DDDefinition>

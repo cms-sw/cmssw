@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
+
+<ConstantsSection label="tecmodule4.xml" eval="true">
+ <Constant name="FullHeight"       value="15.020*cm"/>
+ <Constant name="DlTop"            value="12.300*cm"/>
+ <Constant name="DlBottom"         value="9.900*cm"/>
+ <Constant name="DlHybrid"         value="12.900*cm"/>
+ <Constant name="ActiveHeight"     value="14.720*cm"/>
+ <Constant name="SideWidth"        value="0.135*cm"/>
+ <Constant name="BridgeWidth"      value="2.570*cm"/>
+ <Constant name="BridgeThick"      value="0.176*cm"/>
+ <Constant name="BridgeHeight"     value="2.380*cm"/>
+ <Constant name="BridgeSeparation" value="8.300*cm"/>
+</ConstantsSection>
+
+<Algorithm name="track:DDTECModuleAlgo">
+  <rParent name="tecmodule4:TECModule4"/>
+  <String name="GeneralMaterial"   value="materials:Air"/>
+  <Numeric name="ModuleThick"      value="[tecmodpar:ModuleThick]"/>
+  <Numeric name="DetTilt"          value="[tecmodpar:DetTilt]"/>
+  <Numeric name="FullHeight"       value="[FullHeight]"/>
+  <Numeric name="DlTop"            value="[DlTop]"/>
+  <Numeric name="DlBottom"         value="[DlBottom]"/>
+  <Numeric name="DlHybrid"         value="[DlHybrid]"/>
+  <Numeric name="FrameWidth"       value="[tecmodpar:FrameWidth]"/>
+  <Numeric name="FrameThick"       value="2*[tecmodpar:ModuleThick]"/>
+  <Numeric name="FrameOver"        value="[tecmodpar:FrameOver]"/>
+  <String name="TopFrameMaterial"  value="tecmaterial:TEC_frame_top"/>
+  <Numeric name="TopFrameHeight"   value="[tecmodpar:TopFrameHeight]"/>
+  <Numeric name="TopFrameThick"    value="[tecmodpar:TopFrameThick]"/>
+  <Vector name="TopFrameZ"     type="numeric" nEntries="2">
+    [tecmodpar:TopFrameZ],    -[tecmodpar:TopFrameZ]
+  </Vector>
+  <String name="SideFrameMaterial" value="tecmaterial:TEC_frame_side"/>
+  <Numeric name="SideFrameThick"   value="[tecmodpar:SideFrameThick]"/>
+  <Vector name="SideFrameZ"    type="numeric" nEntries="2">
+    [tecmodpar:SideFrameZ],    [tecmodpar:SideFrameZ]
+  </Vector>
+  <String name="WaferMaterial"     value="materials:Silicon"/>
+  <Numeric name="SideWidth"        value="[SideWidth]"/>
+  <Vector name="WaferRotation" type="string" nEntries="2">
+    tecmodpar:NULL,  tecmodpar:G100</Vector>
+  <String name="ActiveMaterial"    value="materials:Silicon"/>
+  <Numeric name="ActiveHeight"     value="[ActiveHeight]"/>
+  <Vector name="ActiveThick"   type="numeric" nEntries="2">
+    [tecmodpar:ActiveThick2],  [tecmodpar:ActiveThick2]
+  </Vector>
+  <String name="ActiveRotation"    value="tecmodpar:90ZD"/>
+  <Vector name="ActiveZ"       type="numeric" nEntries="2">
+   -[tecmodpar:ActiveZ2],      [tecmodpar:ActiveZ2]
+  </Vector>
+  <String name="HybridMaterial"    value="tecmaterial:TEC_ele5"/>
+  <Numeric name="HybridHeight"     value="[tecmodpar:HybridHeight]"/>
+  <Numeric name="HybridWidth"      value="[tecmodpar:HybridWidth]"/>
+  <Numeric name="HybridThick"      value="[tecmodpar:HybridThick]"/>
+  <Vector name="HybridZ" type="numeric" nEntries="2">
+    -[tecmodpar:HybridZ],      [tecmodpar:HybridZ]
+  </Vector>
+  <String name="PitchMaterial"     value="tecmaterial:TEC_PitchAdapter"/>
+  <Numeric name="PitchHeight"      value="[tecmodpar:PitchHeight]"/>
+  <Numeric name="PitchThick"       value="[tecmodpar:PitchThick]"/>
+  <Vector name="PitchZ" type="numeric" nEntries="2">
+    -[tecmodpar:PitchZ],       [tecmodpar:PitchZ]
+  </Vector>
+  <String name="PitchRotation"     value="tecmodpar:9NYX"/>
+  <Numeric name="BridgeWidth"      value="[BridgeWidth]"/>
+  <Numeric name="BridgeThick"      value="[BridgeThick]"/>
+  <Numeric name="BridgeHeight"     value="[BridgeHeight]"/>
+  <Numeric name="BridgeSeparation" value="[BridgeSeparation]"/>
+  <String name="BridgeMaterial"    value="materials:Aluminium"/>
+</Algorithm>
+ 
+</DDDefinition>

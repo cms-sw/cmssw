@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
+
+<ConstantsSection label="pixfwdplaq.xml" eval="true">
+ <Constant name="WireBondT"         value="1.000*mm"/>
+ <Constant name="SensorT"           value="0.300*mm"/>
+ <Constant name="BumpT"             value="0.025*mm"/>
+ <Constant name="ROChipL"           value="8.100*mm"/>
+ <Constant name="ROChipT"           value="0.300*mm"/>
+ <Constant name="ROChipW"           value="8.100*mm"/>
+ <Constant name="AgEpoxyT"          value="0.175*mm"/>
+ <Constant name="VHDIT"             value="0.125*mm"/>
+ <Constant name="AdhFilmT"          value="0.050*mm"/>
+ <Constant name="BackingT"          value="0.300*mm"/>
+ <Constant name="ChoThermT"         value="0.175*mm"/>
+ <Constant name="PlaquetteT"        value="[WireBondT]+[SensorT]+[BumpT]+
+           [ROChipT]+[AgEpoxyT]+[VHDIT]+[AdhFilmT]+[BackingT]+[ChoThermT]"/>
+ <Constant name="WireBondZ"         value="([PlaquetteT]-[WireBondT])/2"/>
+ <Constant name="SensorZ"           value="[WireBondZ]-([WireBondT]+
+                                           [SensorT])/2"/>
+ <Constant name="BumpZ"             value="[SensorZ]-([SensorT]+
+                                           [BumpT])/2"/>
+ <Constant name="ROChipZ"           value="[BumpZ]-([BumpT]+
+                                           [ROChipT])/2"/>
+ <Constant name="AgEpoxyZ"          value="[ROChipZ]-([ROChipT]+
+                                           [AgEpoxyT])/2"/>
+ <Constant name="VHDIZ"             value="[AgEpoxyZ]-([AgEpoxyT]+
+                                           [VHDIT])/2"/>
+ <Constant name="AdhFilmZ"          value="[VHDIZ]-([VHDIT]+
+                                           [AdhFilmT])/2"/>
+ <Constant name="BackingZ"          value="[AdhFilmZ]-([AdhFilmT]+
+                                           [BackingT])/2"/>
+ <Constant name="ChoThermZ"         value="[BackingZ]-([BackingT]+
+                                           [ChoThermT])/2"/>
+</ConstantsSection>
+
+<SolidSection label="pixfwdplaq.xml">
+ <Box name="PixelForwardROChip"          dx="[ROChipL]/2"
+      dy="[ROChipW]/2"                   dz="[ROChipT]/2"/>
+</SolidSection>
+  
+<LogicalPartSection label="pixfwdplaq.xml">
+ <LogicalPart name="PixelForwardROChip" category="unspecified">
+  <rSolid name="PixelForwardROChip"/>
+  <rMaterial name="materials:Silicon"/>
+ </LogicalPart>
+</LogicalPartSection>
+  
+</DDDefinition>

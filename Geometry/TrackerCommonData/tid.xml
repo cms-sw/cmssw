@@ -1,0 +1,224 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
+
+<ConstantsSection label="tid.xml" eval="true">
+ <Constant name="zero"          value="0.0*fm"/>
+ <Constant name="Rin1"          value="22.20*cm"/>
+ <Constant name="Rin2"          value="35.00*cm"/>
+ <Constant name="Rin3"          value="1.135*m"/>
+ <Constant name="Rout1"         value="52.40*cm"/>
+ <Constant name="Rout2"         value="1.140*m"/>
+ <Constant name="Zv1"           value="73.00*cm"/>
+ <Constant name="Zv2"           value="1.130*m"/>
+ <Constant name="Zv3"           value="1.225*m"/>
+ <Constant name="Zv4"           value="1.230*m"/>
+ <Constant name="Zv5"           value="2.820*m"/>
+ <Constant name="WheelRin"      value="22.38*cm"/>
+ <Constant name="WheelRout"     value="51.20*cm"/>
+ <Constant name="WheelT"        value="10.00*cm"/>
+ <Constant name="Wheel0Z"       value="78.00*cm"/>
+ <Constant name="Wheel1Z"       value="90.00*cm"/>
+ <Constant name="Wheel2Z"       value="1.050*m"/>
+ <Constant name="RingZ"         value="3.50*cm"/>
+ <Constant name="SupportT"      value="0.10*cm"/>
+ <Constant name="SupportRin"    value="[WheelRout]"/>
+ <Constant name="SupportRout"   value="52.00*cm"/>
+ <Constant name="SupportL"      value="49.00*cm"/>
+ <Constant name="SupportZ"      value="[Zv1]+[SupportL]/2"/>
+ <Constant name="SupportInRin"  value="[SupportRin]+[SupportT]"/>
+ <Constant name="SupportInRout" value="[SupportRout]-[SupportT]"/>
+ <Constant name="SideDiskT"     value="0.60*cm"/>
+ <Constant name="SideDiskRin"   value="22.80*cm"/>
+ <Constant name="SideDiskZ"     value="1.108*m"/>
+ <Constant name="SideDiskInT"   value="0.50*cm"/>
+ <Constant name="ConnectorRout" value="51.00*cm"/>
+ <Constant name="ConnectorT"    value="10.00*cm"/>
+ <Constant name="ConnectorZ"    value="[Zv2]+[ConnectorT]/2"/>
+ <Constant name="WheelFixRin"   value="46.20*cm"/>
+ <Constant name="WheelFixT"     value="0.70*cm"/>
+ <Constant name="WheelFixW"     value="6.25*deg"/>
+ <Constant name="WheelFixPhi"   value="90.0*deg"/>
+ <Constant name="AxCableW"      value="15.0*deg"/>
+ <Constant name="AxCableT"      value="0.06*cm"/>
+</ConstantsSection>
+
+<SolidSection label="tid.xml">
+ <Polycone name="TID" startPhi="0*deg" deltaPhi="360*deg" >
+  <ZSection z="[Zv1]"      rMin="[Rin1]"         rMax="[Rout1]" />
+  <ZSection z="[Zv2]"      rMin="[Rin1]"         rMax="[Rout1]" />
+  <ZSection z="[Zv2]"      rMin="[Rin2]"         rMax="[Rout1]" />
+  <ZSection z="[Zv3]"      rMin="[Rin2]"         rMax="[Rout1]" />
+  <ZSection z="[Zv3]"      rMin="[Rin2]"         rMax="[Rout2]" />
+  <ZSection z="[Zv4]"      rMin="[Rin2]"         rMax="[Rout2]" />
+  <ZSection z="[Zv4]"      rMin="[Rin3]"         rMax="[Rout2]" />
+  <ZSection z="[Zv5]"      rMin="[Rin3]"         rMax="[Rout2]" />
+ </Polycone> 
+ <Tubs name="TIDWheel"      rMin="[WheelRin]"       rMax="[WheelRout]"
+                            dz="[WheelT]/2"         startPhi="0*deg"
+                            deltaPhi="360*deg"/>
+ <Tubs name="TIDSupport"    rMin="[SupportRin]"     rMax="[SupportRout]"
+                            dz="[SupportL]/2"       startPhi="0*deg"
+                            deltaPhi="360*deg"/>
+ <Tubs name="TIDSupportIn"  rMin="[SupportInRin]"   rMax="[SupportInRout]"
+                            dz="[SupportL]/2"       startPhi="0*deg"
+                            deltaPhi="360*deg"/>
+ <Tubs name="TIDSideDisk"   rMin="[SideDiskRin]"    rMax="[WheelRout]"
+                            dz="[SideDiskT]/2"      startPhi="0*deg"
+                            deltaPhi="360*deg"/>
+ <Tubs name="TIDSideDiskIn" rMin="[SideDiskRin]"    rMax="[WheelRout]"
+                            dz="[SideDiskInT]/2"    startPhi="0*deg"
+                            deltaPhi="360*deg"/>
+ <Polycone name="TIDAxCabCont" startPhi="0*deg" deltaPhi="360*deg" >
+  <ZSection z="[Zv1]"      rMin="[SupportRout]"  rMax="[Rout1]" />
+  <ZSection z="[Zv3]"      rMin="[SupportRout]"  rMax="[Rout1]" />
+  <ZSection z="[Zv3]"      rMin="[SupportRout]"  rMax="[Rout2]" />
+  <ZSection z="[Zv4]"      rMin="[SupportRout]"  rMax="[Rout2]" />
+  <ZSection z="[Zv4]"      rMin="[Rin3]"         rMax="[Rout2]" />
+  <ZSection z="[Zv5]"      rMin="[Rin3]"         rMax="[Rout2]" />
+ </Polycone> 
+ <Tubs name="TIDConnector"  rMin="[Rin2]"           rMax="[ConnectorRout]"
+                            dz="[ConnectorT]/2"     startPhi="0*deg"
+                            deltaPhi="360*deg"/>
+ <Tubs name="TIDWheelFix"   rMin="[WheelFixRin]"    rMax="[WheelRout]"
+                            dz="[WheelFixT]/2"      startPhi="-[WheelFixW]/2"
+                            deltaPhi="[WheelFixW]"/>
+</SolidSection>
+
+<LogicalPartSection label="tid.xml">
+ <LogicalPart name="TID" category="unspecified">
+  <rSolid name="TID"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
+ <LogicalPart name="TIDWheel" category="unspecified">
+  <rSolid name="TIDWheel"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
+ <LogicalPart name="TIDSupport" category="unspecified">
+  <rSolid name="TIDSupport"/>
+  <rMaterial name="materials:Carbon fibre str."/>
+ </LogicalPart>
+ <LogicalPart name="TIDSupportIn" category="unspecified">
+  <rSolid name="TIDSupportIn"/>
+  <rMaterial name="materials:Nomex"/>
+ </LogicalPart>
+ <LogicalPart name="TIDSideDisk" category="unspecified">
+  <rSolid name="TIDSideDisk"/>
+  <rMaterial name="materials:Carbon fibre str."/>
+  </LogicalPart>
+ <LogicalPart name="TIDSideDiskIn" category="unspecified">
+  <rSolid name="TIDSideDiskIn"/>
+  <rMaterial name="materials:Nomex"/>
+  </LogicalPart>
+ <LogicalPart name="TIDAxCabCont" category="unspecified">
+  <rSolid name="TIDAxCabCont"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
+ <LogicalPart name="TIDConnector" category="unspecified">
+  <rSolid name="TIDConnector"/>
+  <rMaterial name="tidmaterial:TID_Connector"/>
+ </LogicalPart>
+ <LogicalPart name="TIDWheelFix" category="unspecified">
+  <rSolid name="TIDWheelFix"/>
+  <rMaterial name="tidmaterial:TID_Wheel_Fixation"/>
+ </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="tid.xml">
+ <PosPart copyNumber="1">
+   <rParent name="tid:TID"/>
+   <rChild name="tid:TIDWheel"/>
+  <Translation x="[zero]" y="[zero]" z="[Wheel0Z]" />
+ </PosPart>
+ <PosPart copyNumber="2">
+   <rParent name="tid:TID"/>
+   <rChild name="tid:TIDWheel"/>
+  <Translation x="[zero]" y="[zero]" z="[Wheel1Z]" />
+ </PosPart>
+ <PosPart copyNumber="3">
+   <rParent name="tid:TID"/>
+   <rChild name="tid:TIDWheel"/>
+  <Translation x="[zero]" y="[zero]" z="[Wheel2Z]" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="tid:TIDWheel"/>
+   <rChild name="tidring0:TIDRing0"/>
+ </PosPart>
+ <PosPart copyNumber="2">
+   <rParent name="tid:TIDWheel"/>
+   <rChild name="tidring1:TIDRing1"/>
+  <Translation x="[zero]" y="[zero]" z="[RingZ]" />
+ </PosPart>
+ <PosPart copyNumber="3">
+   <rParent name="tid:TIDWheel"/>
+   <rChild name="tidring2:TIDRing2"/>
+  <Translation x="[zero]" y="[zero]" z="-[RingZ]" />
+ </PosPart>
+
+ <PosPart copyNumber="1">
+   <rParent name="tid:TID"/>
+   <rChild name="tid:TIDSupport"/>
+  <Translation x="[zero]" y="[zero]" z="[SupportZ]" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="tid:TIDSupport"/>
+   <rChild name="tid:TIDSupportIn"/>
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="tid:TID"/>
+   <rChild name="tid:TIDSideDisk"/>
+  <Translation x="[zero]" y="[zero]" z="[SideDiskZ]" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="tid:TIDSideDisk"/>
+   <rChild name="tid:TIDSideDiskIn"/>
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="tid:TID"/>
+   <rChild name="tid:TIDConnector"/>
+  <Translation x="[zero]" y="[zero]" z="[ConnectorZ]" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="tid:TID"/>
+   <rChild name="tid:TIDAxCabCont"/>
+ </PosPart>
+</PosPartSection>
+
+<Algorithm name="track:DDTrackerAngular">
+  <rParent name="tidring0:TIDStructure0"/>
+  <String  name="ChildName"   value="tid:TIDWheelFix"/>
+  <Numeric name="N"           value="3" />
+  <Numeric name="StartCopyNo" value="1" />
+  <Numeric name="IncrCopyNo"  value="1" />
+  <Numeric name="RangeAngle"  value="360*deg"/>
+  <Numeric name="StartAngle"  value="[WheelFixPhi]"/>
+  <Numeric name="Radius"      value="0"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 
+   [zero], [zero], [zero]
+  </Vector>
+</Algorithm>
+
+<Algorithm name="track:DDTIDAxialCableAlgo">
+  <rParent name="tid:TIDAxCabCont"/>
+  <String  name="ChildName"   value="TIDAxCable"/>
+  <Numeric name="ZBend"       value="[Zv4]"/>
+  <Numeric name="ZEnd"        value="[Zv5]"/>
+  <Numeric name="RMin"        value="[SupportRout]"/>
+  <Numeric name="RMax"        value="[Rout1]"/>
+  <Numeric name="RTop"        value="[Rout2]"/>
+  <Numeric name="Width"       value="[AxCableW]"/>
+  <Numeric name="Thick"       value="[AxCableT]"/>
+  <Vector name="Angles" type="numeric" nEntries="12"> 
+    14.5*deg,  52.5*deg,  82.5*deg, 104.5*deg, 142.5*deg, 172.5*deg,
+   194.5*deg, 232.5*deg, 262.5*deg, 284.5*deg, 322.5*deg, 352.5*deg
+  </Vector>
+  <Vector name="ZPosWheel" type="numeric" nEntries="3"> 
+   [Wheel0Z], [Wheel1Z], [Wheel2Z]
+  </Vector>
+  <Vector name="ZPosRing" type="numeric" nEntries="3"> 
+   -[RingZ], [zero], [RingZ]
+  </Vector>
+  <String  name="MaterialIn"  value="tidmaterial:TID_in_cable"/>
+  <String  name="MaterialOut" value="tidmaterial:TID_ax_cable"/>
+</Algorithm>
+
+</DDDefinition>
