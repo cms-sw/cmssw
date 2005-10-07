@@ -7,7 +7,7 @@
 
    \author Stefano ARGIRO
    \co-author Bill Tanenbaum
-   \version $Id: ProductRegistry.h,v 1.10 2005/09/01 23:30:49 wmtan Exp $
+   \version $Id: ProductRegistry.h,v 1.11 2005/10/03 19:03:16 wmtan Exp $
    \date 19 Jul 2005
 */
 
@@ -30,7 +30,7 @@ namespace edm {
   public:
     ProductRegistry() : productList_(), nextID_(0) {}
 
-    ~ProductRegistry() {}
+    virtual ~ProductRegistry() {}
   
     typedef std::map<BranchKey, BranchDescription> ProductList;
 
@@ -47,6 +47,7 @@ namespace edm {
     void setNextID(unsigned long next) {nextID_ = next;}
 
   private:
+    virtual void addCalled(BranchDescription const&);
     ProductList productList_;
     unsigned long nextID_;
   };

@@ -4,11 +4,11 @@
 
    \author Stefano ARGIRO
    \co-author Bill Tanenbaum
-   \version $Id: ProductRegistry.cc,v 1.10 2005/08/25 20:30:54 wmtan Exp $
+   \version $Id: ProductRegistry.cc,v 1.11 2005/10/03 19:05:24 wmtan Exp $
    \date 19 Jul 2005
 */
 
-static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.10 2005/08/25 20:30:54 wmtan Exp $";
+static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.11 2005/10/03 19:05:24 wmtan Exp $";
 
 
 #include <FWCore/Framework/interface/ProductRegistry.h>
@@ -20,6 +20,7 @@ void
 ProductRegistry::addProduct(BranchDescription const& productDesc) {
   productDesc.init();
   productList_.insert(std::make_pair(BranchKey(productDesc), productDesc));
+  addCalled(productDesc);
 }
 
 void
@@ -38,6 +39,10 @@ ProductRegistry::setProductIDs() {
         it->second.productID_.id_ = ++nextID_;
      }
   }
+}
+
+void
+ProductRegistry::addCalled(BranchDescription const&) {
 }
 
 // Configure (x)emacs for this file ...
