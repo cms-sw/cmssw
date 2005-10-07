@@ -1,7 +1,7 @@
 /* \file EcalDCCUnpackingModule.h
  *
- *  $Date: 2005/10/06 17:48:53 $
- *  $Revision: 1.5 $
+ *  $Date: 2005/10/07 11:25:33 $
+ *  $Revision: 1.6 $
  *  \author N. Marinelli 
  */
 
@@ -27,7 +27,8 @@ EcalDCCUnpackingModule::EcalDCCUnpackingModule(const edm::ParameterSet& pset) :
 
   string filename = pset.getUntrackedParameter<string>("fileName", "");
 
-  if ( filename == "" ) {
+  rootFile = 0;
+  if ( filename.c_str() == "" ) {
     rootFile = new TFile(filename.c_str(), "recreate");
     rootFile->cd();
   }
