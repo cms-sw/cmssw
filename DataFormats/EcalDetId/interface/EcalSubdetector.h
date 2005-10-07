@@ -5,10 +5,10 @@
  *  Enumeration for Ecal Subdetectors
  *
  *
- *  $Id: EcalSubdetector.h,v 1.1 2005/07/25 15:30:14 meridian Exp $
+ *  $Id: EcalSubdetector.h,v 1.2 2005/10/06 11:02:55 meridian Exp $
  */
 
 
-enum EcalSubdetector { EcalBarrel=1, EcalEndcap=2, EcalPreshower=3, EcalTriggerTower=4 };
+enum EcalSubdetector { EcalBarrel=1, EcalEndcap=2, EcalPreshower=3, EcalTriggerTower=4, EcalLaserPnDiode=5 };
 
 #endif
