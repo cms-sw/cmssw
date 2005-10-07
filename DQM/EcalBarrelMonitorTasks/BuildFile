@@ -1,0 +1,18 @@
+<use name=FWCore/Framework>
+<use name=DataFormats/FEDRawData>
+<use name=DataFormats/EcalDetId>
+<use name=DataFormats/EcalDigi>
+<use name=EcalMonitor/EBMonitorUtils>
+<use name=boost>
+<use name=root>
+
+<export>
+ <lib name=EcalMonitorEBMonitorTasks>
+ <use name=FWCore/Framework>
+ <use name=DataFormats/FEDRawData>	
+ <use name=DataFormats/EcalDetId>	
+ <use name=DataFormats/EcalDigi>		
+ <use name=EcalMonitor/EBMonitorUtils>
+ <use name=boost>	
+ <use name=root>
+</export>
