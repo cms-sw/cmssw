@@ -24,7 +24,7 @@ public:
   virtual const GeomDetType& type() const = 0;
 
 
-  virtual cms::DetId geographicalId() const = 0;
+  virtual DetId geographicalId() const = 0;
 
 private:
 
