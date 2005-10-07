@@ -5,6 +5,7 @@
 <use name=Geometry/Records>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet> 
+<use name=Utilities/General>
 <use name=clhep>
 </export>
 <flags SEAL_PLUGIN_NAME="GeometryReadersXMLIdealGeometryESSource">
@@ -14,4 +15,5 @@
 <use name=xerces-c>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet> 
+<use name=Utilities/General>
 <use name=clhep>
