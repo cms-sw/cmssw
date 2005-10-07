@@ -1,8 +1,8 @@
 /*
  * \file EBMonitorModule.cc
  * 
- * $Date: 2005/10/07 08:07:22 $
- * $Revision: 1.1 $
+ * $Date: 2005/10/07 08:47:46 $
+ * $Revision: 1.2 $
  *
 */
 
@@ -12,7 +12,7 @@ EBMonitorModule::EBMonitorModule(const edm::ParameterSet& ps){
 
   ievt = 0;
 
-  string filename = ps.getParameter<string>("fileName");
+  string filename = ps.getUntrackedParameter<string>("fileName");
 
   rootFile = new TFile(filename.c_str(), "recreate");
 
