@@ -3,4 +3,5 @@
   <class name="EEDetId"/>
   <class name="ESDetId"/>
   <class name="EcalTrigTowerDetId"/>
+  <class name="EcalPnDiodeDetId"/>
 </lcgdict>
