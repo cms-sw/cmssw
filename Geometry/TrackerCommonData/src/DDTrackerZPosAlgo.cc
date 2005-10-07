@@ -10,7 +10,7 @@
 
 namespace std{} using namespace std;
 #include "DetectorDescription/Parser/interface/DDLParser.h"
-#include "Geometry/TrackerSimData/interface/DDTrackerZPosAlgo.h"
+#include "Geometry/TrackerCommonData/interface/DDTrackerZPosAlgo.h"
 #include "DetectorDescription/Core/interface/DDPosPart.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"

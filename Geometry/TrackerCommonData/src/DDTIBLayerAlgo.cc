@@ -11,7 +11,7 @@
 namespace std{} using namespace std;
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "DetectorDescription/Base/interface/DDutils.h"
-#include "Geometry/TrackerSimData/interface/DDTIBLayerAlgo.h"
+#include "Geometry/TrackerCommonData/interface/DDTIBLayerAlgo.h"
 #include "DetectorDescription/Core/interface/DDPosPart.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
