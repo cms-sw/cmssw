@@ -1,10 +1,9 @@
-<flags SEAL_PLUGIN_NAME="EcalMonitorEBMonitorModule">
+<flags SEAL_PLUGIN_NAME="EBMonitorModule">
 <use name=FWCore/Framework>
 <use name=DataFormats/FEDRawData>
 <use name=DataFormats/EcalDetId>	
 <use name=DataFormats/EcalDigi>	
-<use name=EcalMonitor/EBMonitorTasks>
-<use name=EcalMonitor/EBMonitorUtils>
+<use name=DQM/EcalBarrelMonitorTasks>
 <use name=boost>
 <use name=root>
 
