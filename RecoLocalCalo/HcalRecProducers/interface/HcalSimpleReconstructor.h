@@ -11,13 +11,11 @@
 
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSimpleRecAlgo.h"
 
-namespace cms {
-  namespace hcal {
 
     /** \class HcalSimpleReconstructor
 	
-    $Date: 2005/08/05 19:50:01 $
-    $Revision: 1.1 $
+    $Date: 2005/09/12 20:00:43 $
+    $Revision: 1.2 $
     \author J. Mans - Minnesota
     */
     class HcalSimpleReconstructor : public edm::EDProducer {
@@ -29,7 +27,5 @@ namespace cms {
       HcalSimpleRecAlgo reco_;
       HcalSubdetector subdet_;
     };
-  }
-}
 
 #endif

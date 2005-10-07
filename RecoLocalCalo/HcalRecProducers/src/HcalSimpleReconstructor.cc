@@ -9,16 +9,11 @@ using namespace std;
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
-#include "CalibFormats/HcalObjects/interface/HcalDbServiceHandle.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 
 #include <iostream>
 
-namespace cms
-{
-  
-  namespace hcal 
-  { 
     class HRSHappySelector : public edm::Selector {
     public:
       HRSHappySelector() { }
@@ -55,64 +50,64 @@ namespace cms
     
     void HcalSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetup)
     {
-      // get calibrations
-      edm::eventsetup::ESHandle<HcalDbServiceHandle> pSetup;
-      eventSetup.get<HcalDbRecord>().get(pSetup);
-      const QieShape* qieShape = pSetup->getBasicShape (); // this one is generic
+      // get conditions
+      edm::ESHandle<HcalDbService> conditions;
+      eventSetup.get<HcalDbRecord>().get(conditions);
+      const QieShape* qieShape = conditions->getBasicShape (); // this one is generic
       
       if (subdet_==HcalBarrel || subdet_==HcalEndcap) {
-	edm::Handle<cms::HBHEDigiCollection> digi;
+	edm::Handle<HBHEDigiCollection> digi;
 	// selector?
 	HRSHappySelector s;
 	e.get(s, digi);
 	
 	// create empty output
-	std::auto_ptr<cms::HBHERecHitCollection> rec(new cms::HBHERecHitCollection);
+	std::auto_ptr<HBHERecHitCollection> rec(new HBHERecHitCollection);
 	// run the algorithm
-	cms::HBHEDigiCollection::const_iterator i;
+	HBHEDigiCollection::const_iterator i;
 	for (i=digi->begin(); i!=digi->end(); i++) {
-	  cms::HcalDetId cell = i->id();
-	  const HcalCalibrations* calibrations = pSetup->getHcalCalibrations (cell);
-	  const HcalChannelCoder* channelCoder = pSetup->getChannelCoder (cell);
+	  HcalDetId cell = i->id();
+	  std::auto_ptr<HcalCalibrations> calibrations = conditions->getHcalCalibrations (cell);
+	  std::auto_ptr<HcalChannelCoder> channelCoder = conditions->getChannelCoder (cell);
 	  HcalCoderDb coder (*channelCoder, *qieShape);
 	  rec->push_back(reco_.reconstruct(*i,coder,*calibrations));
 	}
 	// return result
 	e.put(rec);
       } else if (subdet_==HcalOuter) {
-	edm::Handle<cms::HODigiCollection> digi;
+	edm::Handle<HODigiCollection> digi;
 	// selector?
 	HRSHappySelector s;
 	e.get(s, digi);
 	
 	// create empty output
-	std::auto_ptr<cms::HORecHitCollection> rec(new cms::HORecHitCollection);
+	std::auto_ptr<HORecHitCollection> rec(new HORecHitCollection);
 	// run the algorithm
-	cms::HODigiCollection::const_iterator i;
+	HODigiCollection::const_iterator i;
 	for (i=digi->begin(); i!=digi->end(); i++) {
-	  cms::HcalDetId cell = i->id();
-	  const HcalCalibrations* calibrations = pSetup->getHcalCalibrations (cell);
-	  const HcalChannelCoder* channelCoder = pSetup->getChannelCoder (cell);
+	  HcalDetId cell = i->id();
+	  std::auto_ptr<HcalCalibrations> calibrations = conditions->getHcalCalibrations (cell);
+	  std::auto_ptr<HcalChannelCoder> channelCoder = conditions->getChannelCoder (cell);
 	  HcalCoderDb coder (*channelCoder, *qieShape);
 	  rec->push_back(reco_.reconstruct(*i,coder,*calibrations));
 	}
 	// return result
 	e.put(rec);    
       } else if (subdet_==HcalForward) {
-	edm::Handle<cms::HFDigiCollection> digi;
+	edm::Handle<HFDigiCollection> digi;
 	// selector?
 	HRSHappySelector s;
 	e.get(s, digi);
 	
 	// create empty output
-	std::auto_ptr<cms::HFRecHitCollection> rec(new cms::HFRecHitCollection);
+	std::auto_ptr<HFRecHitCollection> rec(new HFRecHitCollection);
 	// run the algorithm
-	cms::HFDigiCollection::const_iterator i;
+	HFDigiCollection::const_iterator i;
 	for (i=digi->begin(); i!=digi->end(); i++) {
-	  cms::HcalDetId cell = i->id();
+	  HcalDetId cell = i->id();
 	  std::cout << "HcalSimpleReconstructor::produce-> HF ID: " << cell << std::endl;
-	  const HcalCalibrations* calibrations = pSetup->getHcalCalibrations (cell);
-	  const HcalChannelCoder* channelCoder = pSetup->getChannelCoder (cell);
+	  std::auto_ptr<HcalCalibrations> calibrations = conditions->getHcalCalibrations (cell);
+	  std::auto_ptr<HcalChannelCoder> channelCoder = conditions->getChannelCoder (cell);
 	  HcalCoderDb coder (*channelCoder, *qieShape);
 	  rec->push_back(reco_.reconstruct(*i,coder,*calibrations));
 	}
@@ -120,5 +115,3 @@ namespace cms
 	e.put(rec);     
       }
     }
-  }
-}

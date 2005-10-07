@@ -12,16 +12,16 @@
 
 /** \class HcalSimplerecAlgo
     
-   $Date: $
-   $Revision: $
+   $Date: 2005/08/05 19:48:54 $
+   $Revision: 1.1 $
    \author J. Mans - Minnesota
 */
 class HcalSimpleRecAlgo {
 public:
   HcalSimpleRecAlgo(int firstSample, int samplesToAdd);
-  cms::HBHERecHit reconstruct(const cms::HBHEDataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calibs) const;
-  cms::HFRecHit reconstruct(const cms::HFDataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calibs) const;
-  cms::HORecHit reconstruct(const cms::HODataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calibs) const;
+  HBHERecHit reconstruct(const HBHEDataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calibs) const;
+  HFRecHit reconstruct(const HFDataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calibs) const;
+  HORecHit reconstruct(const HODataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calibs) const;
 private:
   int firstSample_, samplesToAdd_;
 };

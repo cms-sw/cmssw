@@ -4,23 +4,21 @@
 #include <ostream>
 #include "DataFormats/DetId/interface/DetId.h"
 
-//namespace cms { // cannot yet be in namespace as contains a fixed-length array
-
 /** \class CaloSamples
     
 Class which represents the charge/voltage measurements of an event/channel
 with the ADC decoding performed.
 
-$Date: $
-$Revision: $
+$Date: 2005/07/27 19:44:02 $
+$Revision: 1.1 $
 */
 class CaloSamples {
 public:
   CaloSamples();
-  explicit CaloSamples(const cms::DetId& id, int size);
+  explicit CaloSamples(const DetId& id, int size);
   
   /// get the (generic) id
-  cms::DetId id() const { return id_; }
+  DetId id() const { return id_; }
 
   /// get the size
   int size() const { return size_; }
@@ -36,13 +34,11 @@ public:
 
   static const int MAXSAMPLES=10;
 private:
-  cms::DetId id_;
+  DetId id_;
   double data_[MAXSAMPLES]; // 
   int size_, presamples_;
 };
 
 std::ostream& operator<<(std::ostream& s, const CaloSamples& samps);
-
-//}
 
 #endif

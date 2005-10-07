@@ -4,7 +4,7 @@ CaloSamples::CaloSamples() : id_(), size_(0), presamples_(0) {
   for (int i=0; i<MAXSAMPLES; i++) data_[i]=0;
 }
 
-CaloSamples::CaloSamples(const cms::DetId& id, int size) : id_(id), size_(size), presamples_(0) {
+CaloSamples::CaloSamples(const DetId& id, int size) : id_(id), size_(size), presamples_(0) {
   for (int i=0; i<MAXSAMPLES; i++) data_[i]=0;
 }
 

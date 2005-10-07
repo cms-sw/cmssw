@@ -19,12 +19,12 @@ namespace HcalSimpleRecAlgoImpl {
   }
 }
 
-cms::HBHERecHit HcalSimpleRecAlgo::reconstruct(const cms::HBHEDataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calibs) const {
-  return HcalSimpleRecAlgoImpl::reco<cms::HBHEDataFrame,cms::HBHERecHit>(digi,coder,calibs,firstSample_,samplesToAdd_);
+HBHERecHit HcalSimpleRecAlgo::reconstruct(const HBHEDataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calibs) const {
+  return HcalSimpleRecAlgoImpl::reco<HBHEDataFrame,HBHERecHit>(digi,coder,calibs,firstSample_,samplesToAdd_);
 }
-cms::HFRecHit HcalSimpleRecAlgo::reconstruct(const cms::HFDataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calibs) const {
-  return HcalSimpleRecAlgoImpl::reco<cms::HFDataFrame,cms::HFRecHit>(digi,coder,calibs,firstSample_,samplesToAdd_);
+HFRecHit HcalSimpleRecAlgo::reconstruct(const HFDataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calibs) const {
+  return HcalSimpleRecAlgoImpl::reco<HFDataFrame,HFRecHit>(digi,coder,calibs,firstSample_,samplesToAdd_);
 }
-cms::HORecHit HcalSimpleRecAlgo::reconstruct(const cms::HODataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calibs) const {
-  return HcalSimpleRecAlgoImpl::reco<cms::HODataFrame,cms::HORecHit>(digi,coder,calibs,firstSample_,samplesToAdd_);
+HORecHit HcalSimpleRecAlgo::reconstruct(const HODataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calibs) const {
+  return HcalSimpleRecAlgoImpl::reco<HODataFrame,HORecHit>(digi,coder,calibs,firstSample_,samplesToAdd_);
 }
