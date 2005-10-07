@@ -12,7 +12,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep 19 11:47:28 CEST 2005
-// $Id: EventContentAnalyzer.cc,v 1.1 2005/09/19 12:16:05 chrjones Exp $
+// $Id: EventContentAnalyzer.cc,v 1.3 2005/10/06 22:36:21 marafino Exp $
 //
 //
 
@@ -49,7 +49,7 @@
 // constructors and destructor
 //
 EventContentAnalyzer::EventContentAnalyzer(const edm::ParameterSet& iConfig) :
-  indentation_( iConfig.getUntrackedParameter("indentation",std::string( "++") ) )
+  indentation_(iConfig.getUntrackedParameter("indentation",std::string("++")))
 , evno_(0)
 {
    //now do what ever initialization is needed
@@ -80,16 +80,16 @@ EventContentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
    std::string modLabel;
    std::string instanceName;
 
-   iEvent.getAllProvenance( provenances );
+   iEvent.getAllProvenance(provenances);
    
    std::cout << "\n" << indentation_ << "Event " << std::setw(5) << evno_ << " contains "
-             <<provenances.size() << " product" << (provenances.size()==1 ?"":"s")
+             << provenances.size() << " product" << (provenances.size()==1 ?"":"s")
              << " with friendlyClassName, moduleLabel and productInstanceName:"
              << std::endl;
 
-   for( Provenances::iterator itProv = provenances.begin();
-                              itProv != provenances.end();
-                            ++itProv ) {
+   for(Provenances::iterator itProv = provenances.begin();
+                             itProv != provenances.end();
+                           ++itProv) {
       friendlyName = (*itProv)->product.friendlyClassName_;
       modLabel = (*itProv)->product.module.moduleLabel_;
       instanceName = (*itProv)->product.productInstanceName_;
@@ -112,15 +112,15 @@ EventContentAnalyzer::endJob()
    typedef std::map<std::string,int> nameMap;
 
    std::cout <<"\nSummary:" << std::endl;
-   for( nameMap::const_iterator it =cumulates_.begin();
-                                it!=cumulates_.end();
-                              ++it) {
+   for(nameMap::const_iterator it =cumulates_.begin();
+                               it!=cumulates_.end();
+                             ++it) {
 //    std::cout << "   Key " << it->first << " occurs " << it->second << " times." << std::endl;
       std::cout << std::setw(6) << it->second << " occurrences of key " << it->first << std::endl;
    }
 
-// Test boost::lexical_cast
-   int k = 137;
-   std::string fred = boost::lexical_cast<std::string>(k);
-   std::cout << "\nInteger " << k << " expressed as a string is |" << fred << "|" << std::endl;
+// Test boost::lexical_cast  We don't need this right now so comment it out.
+// int k = 137;
+// std::string ktext = boost::lexical_cast<std::string>(k);
+// std::cout << "\nInteger " << k << " expressed as a string is |" << ktext << "|" << std::endl;
 }
