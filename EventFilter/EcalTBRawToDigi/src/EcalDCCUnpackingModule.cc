@@ -1,7 +1,7 @@
 /* \file EcalDCCUnpackingModule.h
  *
- *  $Date: 2005/10/07 11:25:33 $
- *  $Revision: 1.6 $
+ *  $Date: 2005/10/07 14:00:47 $
+ *  $Revision: 1.7 $
  *  \author N. Marinelli 
  */
 
@@ -29,6 +29,7 @@ EcalDCCUnpackingModule::EcalDCCUnpackingModule(const edm::ParameterSet& pset) :
 
   rootFile = 0;
   if ( filename.c_str() == "" ) {
+    cout << "Integrity histograms wil be saved to " << filename.c_str() << endl;
     rootFile = new TFile(filename.c_str(), "recreate");
     rootFile->cd();
   }
