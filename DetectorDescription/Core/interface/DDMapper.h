@@ -7,9 +7,6 @@
 
 #include <iostream>
 
-;
-;
-
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 
 template<class KeyType, class ValueType>
@@ -17,7 +14,7 @@ class DDMapper
 {
 public:  
   //! usefull typedef
-  typedef pair<KeyType, ValueType> Pair;
+  typedef std::pair<KeyType, ValueType> Pair;
 
   //! usefull typedef
   typedef std::vector<Pair> Vector; 
@@ -72,7 +69,7 @@ public:
 
 private:
   std::map<KeyType, ValueType> keyToValue_;
-  std::multistd::map<ValueType, KeyType> valueToKey_;  
+  std::map<ValueType, KeyType> valueToKey_;  
 };
 
 
