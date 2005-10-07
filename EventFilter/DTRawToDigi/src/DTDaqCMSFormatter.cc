@@ -1,43 +1,34 @@
-/**  
- *  See header file for a description of this class.
- *  
- * 
+/** /file 
  *
- *  $Date: 2005/07/13 09:06:50 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/08/23 09:31:36 $
+ *  $Revision: 1.2 $
  *  \author G. Bruno - CERN, EP Division
  */
 
 #include "DTDaqCMSFormatter.h"
-//#include "CommonDet/DetReadout/interface/FrontEndDriver.h"
 #include <DataFormats/FEDRawData/interface/FEDRawData.h>
 #include <DataFormats/FEDRawData/interface/DaqData.h>
 #include "DTFEDDataFormat.h"
 #include "DTFEDHeaderFormat.h"
 #include "DTFEDTrailerFormat.h"
-//#include "Utilities/GenUtil/interface/ioutils.h"
-//#include "Muon/MBDetector/interface/MuBarBaseReadout.h"
-//#include "Muon/MBDetector/interface/MuBarLayer.h"
-//#include "Utilities/Notification/interface/Verbose.h"
 
-#include <DataFormats/DTDigis/interface/DTDigi.h>
 #include <DataFormats/MuonDetId/interface/DTDetId.h>
-#include <DataFormats/DTDigis/interface/DTDigiCollection.h>
+#include <DataFormats/DTDigi/interface/DTDigi.h>
+#include <DataFormats/DTDigi/interface/DTDigiCollection.h>
 #include <iostream>
 
 using namespace std;
-using namespace raw;
 
 void DTDaqCMSFormatter::interpretRawData(const FEDRawData & fedData,
 					 DTDigiCollection& digicollection){
 
-  cout <<"MBDaqCMSFormatter::interpretRawData() enter" <<  endl;
+  cout <<"DTDaqCMSFormatter::interpretRawData() enter" <<  endl;
 
 //   vector<MuBarBaseReadout*> readouts;
 //   for(vector<DetUnit *>::const_iterator it=fed->detsBegin(); it!=fed->detsEnd(); it++) readouts.push_back(dynamic_cast<MuBarBaseReadout *>(&((*it)->readout())));
 
   const unsigned char * buf = fedData.data();
-  int length = fedData.data_.size();
+  int length = fedData.size();
   int bytesread=0;
   
   try{
@@ -74,12 +65,9 @@ void DTDaqCMSFormatter::interpretRawData(const FEDRawData & fedData,
 	for(int i=0;i<data.Nobjects();i++) {
 	  DTDigi::PackedDigiType packed;	  
 	  packed.wire      = data.getValue(0,i);
-	  packed.layer     = data.getValue(1,i);
-	  packed.slayer    = data.getValue(2,i);
 	  packed.number    = data.getValue(3,i);
-	  packed.trailer1  = data.getValue(4,i);
 	  packed.counts    = data.getValue(5,i);
-	  packed.trailer2  = data.getValue(6,i);
+	  packed.trailer  = data.getValue(6,i);
 	  DTDigi digi(packed);
 	  //	  readouts[readoutindex]->add(digi);
 

@@ -1,5 +1,5 @@
-#ifndef DTDaqCMSFormatter_H
-#define DTDaqCMSFormatter_H
+#ifndef DTRawToDigi_DTDaqCMSFormatter_h
+#define DTRawToDigi_DTDaqCMSFormatter_h
 /** \class DTDaqCMSFormatter
  *  
  *  This class allows to transform the DT raw data of a given
@@ -9,25 +9,22 @@
  *  to create raw data out of simulated detector digis written on a 
  *  DataBase (method formatData).
  *
- *  $Date: 2005/07/13 09:06:50 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/08/23 09:31:36 $
+ *  $Revision: 1.2 $
  *  \author G. Bruno - CERN, EP Division
  */
 
-// #include "CommonDet/DaqDetInterface/interface/DaqFEDFormatterSingleDigi.h"
-// #include "Muon/MBDetector/interface/MuBarBaseReadout.h"
-#include <DataFormats/DTDigis/interface/DTDigiCollection.h>
+#include <DataFormats/DTDigi/interface/DTDigiCollection.h>
 #include <string>
-//#include <DataFormats/Digis/interface/DTDigiCollection.h>
 
-namespace raw {class FEDRawData;}
+class FEDRawData;
 
 
 class DTDaqCMSFormatter {
 
  public:
 
-  void interpretRawData(const raw::FEDRawData & data, 
+  void interpretRawData(const FEDRawData & data, 
 			DTDigiCollection& digicollection);
 
   //  DaqFEDRawData *  formatData(FrontEndDriver * fed);

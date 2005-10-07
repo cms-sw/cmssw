@@ -3,8 +3,8 @@
  * dummy module  for the test of  DaqFileInputService
  *   
  * 
- * $Date: 2005/07/13 12:56:02 $
- * $Revision: 1.2 $
+ * $Date: 2005/08/23 09:29:47 $
+ * $Revision: 1.3 $
  * \author N. Amapane - S. Argiro'
  *
 */
@@ -12,8 +12,7 @@
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
-#include <DataFormats/DTDigis/interface/DTDigiCollection.h>
-#include <DataFormats/DTDigis/interface/DTLayerId.h>
+#include <DataFormats/DTDigi/interface/DTDigiCollection.h>
 #include <iostream>
 #include <vector>
 
@@ -46,8 +45,7 @@
 	       detUnitIt->second.first;
 	     digiIt!=detUnitIt->second.second;
 	     ++digiIt){
-	  std::cout << "Layer: "  <<digiIt->layer() 
-		    << " counts: "<<digiIt->countsTDC() << std::endl;
+	  std::cout << "Digi: "  << *digiIt << std::endl;
 
 	}// for cells
       }// for layers
