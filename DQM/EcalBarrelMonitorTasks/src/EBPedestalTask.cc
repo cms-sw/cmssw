@@ -1,12 +1,12 @@
 /*
  * \file EBPedestalTask.cc
  * 
- * $Date: 2005/08/05 14:34:03 $
- * $Revision: 1.2 $
+ * $Date: 2005/10/07 08:02:53 $
+ * $Revision: 1.1 $
  *
 */
 
-#include <EcalMonitor/EBMonitorTasks/interface/EBPedestalTask.h>
+#include <DQM/EcalBarrelMonitorTasks/interface/EBPedestalTask.h>
 
 EBPedestalTask::EBPedestalTask(const edm::ParameterSet& ps, TFile* rootFile){
 

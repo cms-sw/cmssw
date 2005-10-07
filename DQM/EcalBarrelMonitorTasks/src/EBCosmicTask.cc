@@ -1,12 +1,12 @@
 /*
  * \file EBCosmicTask.cc
  * 
- * $Date: 2005/08/05 14:34:03 $
- * $Revision: 1.2 $
+ * $Date: 2005/10/07 08:02:53 $
+ * $Revision: 1.1 $
  *
 */
 
-#include <EcalMonitor/EBMonitorTasks/interface/EBCosmicTask.h>
+#include <DQM/EcalBarrelMonitorTasks/interface/EBCosmicTask.h>
 
 EBCosmicTask::EBCosmicTask(const edm::ParameterSet& ps, TFile* rootFile){
 

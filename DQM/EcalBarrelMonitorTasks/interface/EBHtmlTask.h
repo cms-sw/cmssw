@@ -4,8 +4,8 @@
 /*
  * \file EBHtmlTask.h
  *
- * $Date: 2005/08/05 14:34:03 $
- * $Revision: 1.2 $
+ * $Date: 2005/10/07 08:02:53 $
+ * $Revision: 1.1 $
  *
 */
 
@@ -16,7 +16,7 @@
 #include <DataFormats/EcalDetId/interface/EBDetId.h>
 #include <DataFormats/EcalDigi/interface/EBDataFrame.h>
 
-#include <EcalMonitor/EBMonitorUtils/interface/EBMonitorUtils.h>
+#include <DQM/EcalBarrelMonitorTasks/interface/EBMonitorUtils.h>
 
 #include "TROOT.h"
 #include "TFile.h"

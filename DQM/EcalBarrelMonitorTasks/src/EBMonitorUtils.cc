@@ -1,14 +1,14 @@
-//! $Id: $
+//! $Id: EBMonitorUtils.cc,v 1.1 2005/10/07 08:33:41 dellaric Exp $
 
 /*!
   \file EBMonitorUtils.cc
   \author bigben
-  \date $Date: $
-  \version  $Revision: $
+  \date $Date: 2005/10/07 08:33:41 $
+  \version  $Revision: 1.1 $
 */
 
-#include <EcalMonitor/EBMonitorUtils/interface/EBMonitorUtils.h>
-#include <EcalMonitor/EBMonitorUtils/interface/H4Geom.h>
+#include <DQM/EcalBarrelMonitorTasks/interface/EBMonitorUtils.h>
+#include <DQM/EcalBarrelMonitorTasks/interface/H4Geom.h>
 
 int EBMonitorUtils::getSuperModuleID( const int phi, const int zed ) {
 

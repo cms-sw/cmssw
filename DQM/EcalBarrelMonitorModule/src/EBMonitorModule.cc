@@ -1,12 +1,12 @@
 /*
  * \file EBMonitorModule.cc
  * 
- * $Date: 2005/08/05 14:34:03 $
- * $Revision: 1.2 $
+ * $Date: 2005/10/07 08:07:22 $
+ * $Revision: 1.1 $
  *
 */
 
-#include <EcalMonitor/EBMonitorModule/interface/EBMonitorModule.h>
+#include <DQM/EcalBarrelMonitorModule/interface/EBMonitorModule.h>
 
 EBMonitorModule::EBMonitorModule(const edm::ParameterSet& ps){
 

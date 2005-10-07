@@ -4,8 +4,8 @@
 /*! \class H4Geom
  * \brief A helper class with geometry information of the super module
  *
- * $Date: 2005/08/18 14:07:38 $
- * $Author: ghezzi $
+ * $Date: 2005/10/07 08:33:41 $
+ * $Author: dellaric $
  *
  * Crystal numbering schemes during automn 2004 (SM10):
  * - <b>Conventions</b>
@@ -167,7 +167,7 @@
  * each other.
 */
 
-#include <EcalMonitor/EBMonitorUtils/interface/H4Geom.h>
+#include <DQM/EcalBarrelMonitorTasks/interface/H4Geom.h>
 #include <iostream>
 
 

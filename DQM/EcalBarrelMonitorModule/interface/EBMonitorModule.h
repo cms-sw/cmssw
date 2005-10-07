@@ -4,8 +4,8 @@
 /*
  * \file EBMonitorModule.h
  *
- * $Date: 2005/08/05 14:34:03 $
- * $Revision: 1.2 $
+ * $Date: 2005/10/07 08:07:22 $
+ * $Revision: 1.1 $
  *
 */
 
@@ -15,12 +15,12 @@
 #include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
 #include <DataFormats/EcalDetId/interface/EBDetId.h>
 
-#include <EcalMonitor/EBMonitorTasks/interface/EBPedestalTask.h>
-#include <EcalMonitor/EBMonitorTasks/interface/EBTestPulseTask.h>
-#include <EcalMonitor/EBMonitorTasks/interface/EBLaserTask.h>
-#include <EcalMonitor/EBMonitorTasks/interface/EBCosmicTask.h>
+#include <DQM/EcalBarrelMonitorTasks/interface/EBPedestalTask.h>
+#include <DQM/EcalBarrelMonitorTasks/interface/EBTestPulseTask.h>
+#include <DQM/EcalBarrelMonitorTasks/interface/EBLaserTask.h>
+#include <DQM/EcalBarrelMonitorTasks/interface/EBCosmicTask.h>
 
-#include <EcalMonitor/EBMonitorTasks/interface/EBHtmlTask.h>
+#include <DQM/EcalBarrelMonitorTasks/interface/EBHtmlTask.h>
 
 #include "TROOT.h"
 #include "TFile.h"
