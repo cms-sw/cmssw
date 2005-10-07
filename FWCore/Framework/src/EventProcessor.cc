@@ -20,7 +20,7 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/EventRegistry.h"
-#include "FWCore/Framework/interface/ProductRegistry.h"
+#include "FWCore/Framework/src/SignallingProductRegistry.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -149,7 +149,7 @@ namespace edm {
     boost::shared_ptr<ParameterSet> params_;
     CommonParams            common_;
     WorkerRegistry          wreg_;
-    ProductRegistry preg_;
+    SignallingProductRegistry preg_;
     PathList                workers_;
 
     ActivityRegistry activityRegistry_;
