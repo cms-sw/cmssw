@@ -1,0 +1,6 @@
+<lcgdict>
+   <class name="EcalTBTDCSample"/>
+   <class name="EcalTBTDCInfo"/>
+   <class name="std::vector<EcalTBTDCSample>"/>
+   <class name="edm::Wrapper< EcalTBTDCInfo >" id="4D40F377-A8A4-FED4-7659-E9FDB3A4425A"/>
+</lcgdict>
