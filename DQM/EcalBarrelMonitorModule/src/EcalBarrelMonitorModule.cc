@@ -1,14 +1,14 @@
 /*
- * \file EBMonitorModule.cc
+ * \file EcalBarrelMonitorModule.cc
  * 
- * $Date: 2005/10/07 08:47:46 $
- * $Revision: 1.2 $
+ * $Date: 2005/10/07 10:06:32 $
+ * $Revision: 1.3 $
  *
 */
 
-#include <DQM/EcalBarrelMonitorModule/interface/EBMonitorModule.h>
+#include <DQM/EcalBarrelMonitorModule/interface/EcalBarrelMonitorModule.h>
 
-EBMonitorModule::EBMonitorModule(const edm::ParameterSet& ps){
+EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
 
   ievt = 0;
 
@@ -30,11 +30,11 @@ EBMonitorModule::EBMonitorModule(const edm::ParameterSet& ps){
 
   html_task = new EBHtmlTask(ps, rootFile);
 
-  logFile.open("EBMonitorModule.log");
+  logFile.open("EcalBarrelMonitorModule.log");
 
 }
 
-EBMonitorModule::~EBMonitorModule(){
+EcalBarrelMonitorModule::~EcalBarrelMonitorModule(){
 
   delete pedestal_task;
   delete testpulse_task;
@@ -50,11 +50,11 @@ EBMonitorModule::~EBMonitorModule(){
 
   logFile.close();
 
-  cout << "EBMonitorModule: analyzed " << ievt << " events" << endl;
+  cout << "EcalBarrelMonitorModule: analyzed " << ievt << " events" << endl;
 
 }
 
-void EBMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& c){
+void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   ievt++;
 
@@ -63,7 +63,7 @@ void EBMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   int neb = digis->size();
 
-  cout << "EBMonitorModule: event " << ievt << " collection size " << neb << endl;
+  cout << "EcalBarrelMonitorModule: event " << ievt << " collection size " << neb << endl;
 
   hEbarrel->Fill(float(neb));
 
