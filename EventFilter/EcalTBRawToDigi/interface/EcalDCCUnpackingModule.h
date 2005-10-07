@@ -4,13 +4,16 @@
 /** \class EcalUnpackingModule
  * 
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2005/08/03 15:28:39 $
+ *  $Revision: 1.1 $
  * \author N. Marinelli 
  */
 
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include <FWCore/Framework/interface/EDProducer.h>
+
+#include "TROOT.h"
+#include "TFile.h"
 
 #include <iostream>
 
@@ -30,6 +33,8 @@ class EcalTBDaqFormatter;
 
   private:
     EcalTBDaqFormatter* formatter;
+
+    TFile* rootFile;
   };
 
 DEFINE_FWK_MODULE(EcalDCCUnpackingModule);

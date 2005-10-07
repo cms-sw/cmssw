@@ -1,4 +1,4 @@
-<flags SEAL_PLUGIN_NAME="EcalBarrelMonitorModule">
+<flags SEAL_PLUGIN_NAME="DQMEcalBarrelMonitorModule">
 <use name=FWCore/Framework>
 <use name=DataFormats/FEDRawData>
 <use name=DataFormats/EcalDetId>	

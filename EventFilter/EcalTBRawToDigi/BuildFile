@@ -4,6 +4,7 @@
 <use name=DataFormats/EcalDetId>	
 <use name=DataFormats/EcalDigi>	
 <use name=boost>
+<use name=root>
 
 <export>
  <lib name=EventFilterEcalTBRawToDigi>
@@ -12,4 +13,5 @@
  <use name=DataFormats/EcalDetId>	
  <use name=DataFormats/EcalDigi>		
  <use name=boost>	
+ <use name=root>
 </export>

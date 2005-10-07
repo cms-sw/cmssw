@@ -1,7 +1,7 @@
 /* \file EcalDCCUnpackingModule.h
  *
- *  $Date: 2005/09/19 19:42:00 $
- *  $Revision: 1.4 $
+ *  $Date: 2005/10/06 17:48:53 $
+ *  $Revision: 1.5 $
  *  \author N. Marinelli 
  */
 
@@ -25,13 +25,26 @@ using namespace std;
 EcalDCCUnpackingModule::EcalDCCUnpackingModule(const edm::ParameterSet& pset) : 
   formatter(new EcalTBDaqFormatter()) {
 
-  produces<EBDigiCollection>();
+  string filename = pset.getUntrackedParameter<string>("fileName", "");
 
+  if ( filename == "" ) {
+    rootFile = new TFile(filename.c_str(), "recreate");
+    rootFile->cd();
+  }
+
+  produces<EBDigiCollection>();
 
 }
 
 
 EcalDCCUnpackingModule::~EcalDCCUnpackingModule(){
+
+  if ( rootFile ) {
+    rootFile->Write();
+    rootFile->Close();
+    delete rootFile;
+  }
+
   delete formatter;
 }
 
