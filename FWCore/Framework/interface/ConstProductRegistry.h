@@ -16,13 +16,14 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Sep 22 18:01:21 CEST 2005
-// $Id$
+// $Id: ConstProductRegistry.h,v 1.1 2005/09/22 16:19:34 chrjones Exp $
 //
 
 // system include files
 
 // user include files
-#include "FWCore/Framework/interface/ProductRegistry.h"
+#include "FWCore/Framework/src/SignallingProductRegistry.h"
+#include "FWCore/ServiceRegistry/interface/connect_but_block_self.h"
 
 // forward declarations
 namespace edm {
@@ -32,7 +33,7 @@ namespace edm {
    public:
      typedef ProductRegistry::ProductList ProductList;
      
-     ConstProductRegistry(const ProductRegistry& iReg) : reg_(&iReg) {}
+     ConstProductRegistry(SignallingProductRegistry& iReg) : reg_(&iReg) {}
      //virtual ~ConstProductRegistry();
      
       // ---------- const member functions ---------------------
@@ -40,13 +41,22 @@ namespace edm {
      
      unsigned long nextID() const {return reg_->nextID();}
      
+     template< class T>
+        void watchProductAdditions(const T& iFunc){
+           serviceregistry::connect_but_block_self( reg_->productAddedSignal_, iFunc);
+        }
+     template< class T, class TMethod>
+        void watchProductAdditions(T& iObj, TMethod iMethod){
+           serviceregistry::connect_but_block_self(reg_->productAddedSignal_, boost::bind(iMethod, iObj,_1));
+        }
+     
    private:
       ConstProductRegistry(const ConstProductRegistry&); // stop default
 
       const ConstProductRegistry& operator=(const ConstProductRegistry&); // stop default
 
       // ---------- member data --------------------------------
-      const ProductRegistry* reg_;
+      SignallingProductRegistry* reg_;
   };
 }
 
