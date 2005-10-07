@@ -1,0 +1,8 @@
+<use name=FWCore/EDProduct>
+<use name=DataFormats/MuonDetId>
+
+<export>
+ <lib name=DataFormatsDTDigi>
+ <use name=DataFormats/MuonDetId>
+ <use name=FWCore/EDProduct>	
+</export>

@@ -1,0 +1,16 @@
+<lcgdict>
+
+
+<class name="DTDigi"  
+          id="BE063F39-32C2-46D8-87B5-F49539BF2784"/>
+<class name="std::vector<DTDigi>" 
+          id="7BF5EA91-C546-4F71-9329-26F3DF4DA451"/>
+<class name="std::map<DTDetId,std::vector<DTDigi> >" 
+          id="7AB5CD91-C546-4F71-9329-26F3AB4DA45" />
+<class name="DTDigi::PersistentPacking" 
+          id="F8624359-07F4-42DE-A779-419CD1284B31" />
+<class name="DigiCollection<DTDetId,DTDigi>"  
+          id="E87EB799-21F4-462F-876C-7B68988AF8CE"/> 
+<class name="edm::Wrapper<DigiCollection<DTDetId,DTDigi>>"  
+          id="A87EB199-21F4-462F-876C-7B68988AF8CE"/> 
+</lcgdict>
