@@ -15,7 +15,7 @@ public:
     virtual ~DDG4SensitiveConverter();
     void upDate(const DDG4DispContainer & ddg4s);
 private:
-    string getString(const std::string &, const DDLogicalPart *);
+    std::string getString(const std::string &, const DDLogicalPart *);
 };
 
 #endif

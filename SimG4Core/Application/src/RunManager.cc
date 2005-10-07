@@ -90,7 +90,7 @@ void RunManager::initG4(const edm::EventSetup & es)
     if (m_managerInitialized) return;
 
     // DDDWorld: get the DDCV from the ES and use it to build the World
-    edm::eventsetup::ESHandle<DDCompactView> pDD;
+    edm::ESHandle<DDCompactView> pDD;
     es.get<IdealGeometryRecord>().get(pDD);
    
     DDDWorld * world = new DDDWorld(&(*pDD));

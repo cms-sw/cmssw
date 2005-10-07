@@ -24,6 +24,7 @@
 #include <sstream>
 
 using std::vector;
+using std::string;
 
 DDG4DispContainer * DDG4Builder::theVectorOfDDG4Dispatchables_ = 0;
 
@@ -158,7 +159,7 @@ G4LogicalVolume * DDG4Builder::BuildGeometry()
     } // iterate over graph nodes  
     
     // Looking for in the G4ReflectionFactory secretly created reflected G4LogicalVolumes
-    map<DDLogicalPart, G4LogicalVolume*>::const_iterator  ddg4_it = logs_.begin();
+    std::map<DDLogicalPart, G4LogicalVolume*>::const_iterator  ddg4_it = logs_.begin();
     for (; ddg4_it != logs_.end(); ++ddg4_it) 
     {
 	G4LogicalVolume * reflLogicalVolume = refFact->GetReflectedLV(ddg4_it->second);
@@ -200,7 +201,7 @@ int DDG4Builder::getInt(const string & s, const DDLogicalPart & part)
       vector<double> temp = val.doubles();
       if (temp.size() != 1)
       {
-	 cout << " ERROR: I need only 1 " << s << endl;
+	 std::cout << " ERROR: I need only 1 " << s << std::endl;
 	 abort();
       }      
       return int(temp[0]);
@@ -224,12 +225,12 @@ double DDG4Builder::getDouble(const string & s, const DDLogicalPart & part)
       vector<string> temp = val.strings();
       if (temp.size() != 1)
       {
-	 cout << " ERROR: I need only 1 " << s << endl;
+	 std::cout << " ERROR: I need only 1 " << s << std::endl;
 	 abort();
       }
       double v;
       string unit;
-      istringstream is(temp[0].c_str());
+      std::istringstream is(temp[0].c_str());
       is >> v >> unit;
       v  = v*G4UnitDefinition::GetValueOf(unit.substr(1,unit.size()));
       return v;
