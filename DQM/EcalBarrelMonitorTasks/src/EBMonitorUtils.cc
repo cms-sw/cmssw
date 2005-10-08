@@ -1,11 +1,11 @@
-//! $Id: EBMonitorUtils.cc,v 1.1 2005/10/07 08:33:41 dellaric Exp $
-
-/*!
-  \file EBMonitorUtils.cc
-  \author bigben
-  \date $Date: 2005/10/07 08:33:41 $
-  \version  $Revision: 1.1 $
-*/
+/*
+ * \file EBMonitorUtils.cc
+ *
+ *  $Date: 2005/10/06 17:47:01 $
+ *  $Revision: 1.2 $
+ * \author B. Gobbo
+ *
+ */
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBMonitorUtils.h>
 #include <DQM/EcalBarrelMonitorTasks/interface/H4Geom.h>

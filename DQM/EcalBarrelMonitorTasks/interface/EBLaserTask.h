@@ -4,8 +4,9 @@
 /*
  * \file EBLaserTask.h
  *
- * $Date: 2005/10/07 08:47:46 $
- * $Revision: 1.2 $
+ * $Date: 2005/10/07 11:15:53 $
+ * $Revision: 1.3 $
+ * \author G. Della Ricca
  *
 */
 

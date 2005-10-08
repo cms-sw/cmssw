@@ -1,10 +1,10 @@
-// H4Geom.h
-//
-// Class which manages geometry information of the super-module
-//
-// last change : $Date: 2005/08/25 10:10:23 $
-// by          : $Author: ghezzi $
-//
+/*
+ *
+ * \file H4Geom.h
+ *  $Date: 2005/10/06 17:47:01 $
+ *  $Revision: 1.6 $
+ *
+ */
 
 #ifndef H4Geom_H
 #define H4Geom_H

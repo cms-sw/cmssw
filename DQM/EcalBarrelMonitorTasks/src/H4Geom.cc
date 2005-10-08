@@ -4,8 +4,7 @@
 /*! \class H4Geom
  * \brief A helper class with geometry information of the super module
  *
- * $Date: 2005/10/07 08:33:41 $
- * $Author: dellaric $
+ * $Date: 2005/10/07 08:47:46 $
  *
  * Crystal numbering schemes during automn 2004 (SM10):
  * - <b>Conventions</b>

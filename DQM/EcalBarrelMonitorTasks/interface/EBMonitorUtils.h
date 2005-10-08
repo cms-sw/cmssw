@@ -1,14 +1,13 @@
 #ifndef EBMonitorUtils_h
 #define EBMonitorUtils_h
 
-// $Id: $
-
-/*!
-  \file EBMonitorUtils.h
-  \author bigben
-  \date $Date: $
-  \version $Revision: $
-
+/*
+ *
+ * \file EBMonitorUtils.h
+ * $Date: 2005/10/07 08:33:52 $
+ * \$Revision: 1.1 $
+ * \author B. Gobbo
+ *
 */
 
 class EBMonitorUtils {
