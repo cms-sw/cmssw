@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  * 
- * $Date: 2005/10/08 08:55:06 $
- * $Revision: 1.2 $
+ * $Date: 2005/10/08 09:39:39 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
@@ -69,6 +69,10 @@ EcalBarrelMonitorModule::~EcalBarrelMonitorModule(){
 void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   ievt++;
+
+  for (int i = 0; i < 36 ; i++) {
+    hEvent[i]->Reset();
+  }
 
   edm::Handle<EBDigiCollection>  digis;
   e.getByLabel("ecalEBunpacker", digis);
