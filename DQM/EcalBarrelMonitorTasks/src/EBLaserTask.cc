@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  * 
- * $Date: 2005/10/07 08:47:46 $
- * $Revision: 1.2 $
+ * $Date: 2005/10/08 08:55:06 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
@@ -25,17 +25,17 @@ EBLaserTask::EBLaserTask(const edm::ParameterSet& ps, TFile* rootFile){
 
   rootFile->cd("EBLaserTask/Laser1");
   for (int i = 0; i < 36 ; i++) {
-    sprintf(histo, "EBTT shape SM%02d L1", i+1);
+    sprintf(histo, "EBLT shape SM%02d L1", i+1);
     hShapeMapL1[i] = new TProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 0., 4096., "s");
-    sprintf(histo, "EBTT amplitude SM%02d L1", i+1);
+    sprintf(histo, "EBLT amplitude SM%02d L1", i+1);
     hAmplMapL1[i] = new TProfile2D(histo, histo, 20, 0., 20., 85, 0., 85., 0., 4096., "s");
   }
 
   rootFile->cd("EBLaserTask/Laser2");
   for (int i = 0; i < 36 ; i++) {
-    sprintf(histo, "EBTT shape SM%02d L2", i+1);
+    sprintf(histo, "EBLT shape SM%02d L2", i+1);
     hShapeMapL2[i] = new TProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 0., 4096., "s");
-    sprintf(histo, "EBTT amplitude SM%02d L2", i+1);
+    sprintf(histo, "EBLT amplitude SM%02d L2", i+1);
     hAmplMapL2[i] = new TProfile2D(histo, histo, 20, 0., 20., 85, 0., 85., 0., 4096., "s");
   }
 
