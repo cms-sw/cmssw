@@ -1,6 +1,6 @@
 <lcgdict>
-  <class name="cms::TIBDetId"/>
-  <class name="cms::TIDDetId"/>
-  <class name="cms::TOBDetId"/>
-  <class name="cms::TECDetId"/>
+  <class name="TIBDetId"/>
+  <class name="TIDDetId"/>
+  <class name="TOBDetId"/>
+  <class name="TECDetId"/>
 </lcgdict>
