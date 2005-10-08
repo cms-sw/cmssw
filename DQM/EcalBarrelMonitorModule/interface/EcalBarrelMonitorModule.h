@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorModule.h
  *
- * $Date: 2005/10/07 11:15:53 $
- * $Revision: 1.1 $
+ * $Date: 2005/10/08 08:55:06 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  *
 */
@@ -25,6 +25,10 @@
 
 #include "TROOT.h"
 #include "TFile.h"
+#include "TH1F.h"
+#include "TH2F.h"
+#include "TProfile.h"
+#include "TProfile2D.h"
 
 #include <iostream>
 #include <fstream>
@@ -56,6 +60,8 @@ int ievt;
 TFile* rootFile;
 
 TH1F* hEbarrel;
+
+TH2F* hEvent[36];
 
 EBPedestalTask* pedestal_task;
 EBTestPulseTask* testpulse_task;

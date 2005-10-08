@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  * 
- * $Date: 2005/10/07 11:15:53 $
- * $Revision: 1.1 $
+ * $Date: 2005/10/08 08:55:06 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  *
 */
@@ -13,13 +13,24 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
 
   ievt = 0;
 
+  Char_t histo[20];
+
   string filename = ps.getUntrackedParameter<string>("fileName");
 
   rootFile = new TFile(filename.c_str(), "recreate");
 
   rootFile->cd();
 
-  hEbarrel = new TH1F("EBMM1", "EB hits ", 100, 0., 61200.001);
+  hEbarrel = new TH1F("EBMM hits", "EBMM hits ", 100, 0., 61200.001);
+
+  TDirectory* subdir = gDirectory->mkdir("EBMonitorEvent");
+  subdir->cd();
+
+  rootFile->cd("EBMonitorEvent");
+  for (int i = 0; i < 36 ; i++) {
+    sprintf(histo, "EBMM event SM%02d", i+1);
+    hEvent[i] = new TH2F(histo, histo, 20, 0., 20., 85, 0., 85.);
+  }
 
   pedestal_task = new EBPedestalTask(ps, rootFile);
 
@@ -95,6 +106,34 @@ void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
       logFile << "ERROR:" << xie << " " << xip << " " << ie << " " << ip << " " << iz << endl;
       return;
     }
+
+    float xvalmax = 0.;
+
+    for (int i = 0; i < 10; i++) {
+
+      EcalMGPASample sample = dataframe.sample(i);
+      int adc = sample.adc();
+      float gain = 1.;
+
+      if ( sample.gainId() == 1 ) {
+        gain = 1./12.;
+      }
+      if ( sample.gainId() == 2 ) {
+        gain = 1./ 6.;
+      }
+      if ( sample.gainId() == 3 ) {
+        gain = 1./ 1.;
+      }
+
+      float xval = adc * gain;
+
+      float xrms = 1.0;
+
+      if ( xval >= 3.0 * xrms && xval >= xvalmax ) xvalmax = xval;
+
+    }
+
+    hEvent[ism-1]->Fill(xip, xie, xvalmax);
 
   }
 
