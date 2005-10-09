@@ -1,0 +1,9 @@
+<export>
+ <lib name=DQMServicesCore>
+ <use name=Utilities/Threads>
+ <use name=boost>
+</export>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/Utilities>
+<use name=Utilities/Threads>
+<use name=boost>
