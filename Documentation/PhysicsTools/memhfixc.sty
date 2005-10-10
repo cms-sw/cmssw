@@ -1,0 +1,189 @@
+%%
+%% This is file `memhfixc.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% mempatch.dtx  (with options: `hyper')
+%% 
+%%   Author: Peter Wilson (CUA) now at peter.r.wilson@boeing.com until June 2004
+%%                              (or at: pandgwilson at earthlink dot net)
+%%   Copyright 2001 --- 2004 Peter R. Wilson
+%% 
+%%   This work may be distributed and/or modified under the
+%%   conditions of the LaTeX Project Public License, either
+%%   version 1.3 of this license or (at your option) any
+%%   later version.
+%%   The latest version of the license is in
+%%      http://www.latex-project.org/lppl.txt
+%%   and version 1.3 or later is part of all distributions of
+%%   LaTeX version 2003/06/01 or later.
+%% 
+%%   This work has the LPPL maintenance status "author-maintained".
+%% 
+%%   This work consists of the files listed in the README file.
+%% 
+%%
+%% The memhfixc package provides hyperref related temporary
+%% fixes and extensions for version v1.3a of the memoir class.
+%%     o hyperref fix for part and chapter entries in the ToC (v1.0)
+%%     o Other fixes as and when
+%%
+%% Only use this package in conjunction with the hyperref package.
+%% Call the package without options after the hyperref package as:
+%% \documentclass[...]{memoir}
+%% ...
+%% \usepackage[...]{hyperref}
+%% \usepackage{memhfixc}
+%%
+%% Version 1.6  2004/05/13
+%% Version 1.5  2003/10/14
+%% Version 1.4  2003/09/26
+%% Version 1.3  2003/02/20
+%% Version 1.2  2003/02/02
+%% Version 1.1  2003/01/22
+%% Version 1.0  2002/10/22
+%%
+\ProvidesPackage{memhfixc}[2004/05/13 v1.6 package fixes for memoir class]
+\let\M@hfixcfinish\relax
+\@ifclassloaded{memoir}{}%
+                       {\let\M@hfixcfinish\endinput
+                        \typeout{No memoir class: memhfixc does nothing}}
+\M@hfixcfinish
+
+\AtBeginDocument{%
+  \@ifpackageloaded{nameref}{% nameref loaded
+    \@ifundefined{NR@sectm@m}{% haven't fiddled with \M@sect
+      \typeout{Redoing nameref's sectioning}
+      \let\NR@sectm@m\M@sect
+      \def\M@sect#1#2#3#4#5#6[#7][#8]#9{%
+        \setcounter{section@level}{#2}%
+        \def\@currentlabelname{#7}%
+        \NR@sectm@m{#1}{#2}{#3}{#4}{#5}{#6}[{#7}][{#8}]{\Sectionformat{#9}{#2}}}%
+    }%
+    {% \NR@sectm@m has already been defined
+    }
+  }%
+  {% no nameref
+  }
+} % end of \AtBeginDocument
+
+\AtBeginDocument{%
+  \@ifpackageloaded{nameref}{% nameref loaded
+    \@ifundefined{MNR@label}{% haven't fiddled with \label
+      \typeout{Redoing nameref's label}
+      \let\MNR@label\label
+      \def\label#1{\@bsphack\begingroup
+        \protected@edef\@currentlabel{\protect\M@TitleReference
+          {\@currentlabel}{\M@currentTitle}}%
+        \MNR@label{#1}%
+        \endgroup \@esphack}%
+      \let\MNR@old@caption\@caption
+      \long\def\@caption#1[#2]#3{%
+        \MNR@old@caption{#1}[{#2}]{#3}%
+        \def\@currentlabelname{#2}%
+        \M@gettitle{#2}%
+        }%
+    }%
+    {% \MNR@label has already been defined
+    }
+  }%
+  {% no nameref
+  }
+} % end of \AtBeginDocument
+
+%% We are done unless the hyperref package has been loaded
+\@ifpackageloaded{hyperref}{}{\let\M@hfixcfinish\endinput}
+\M@hfixcfinish
+
+\def\@@writetorep#1#2#3#4#5{%
+  \begingroup
+    \def\Hy@tempa{#5}%
+    \ifx\Hy@tempa\Hy@bookmarkstype
+      \edef\Hy@level{#4}%
+      \ifx\Hy@levelcheck Y%
+        \@tempcnta\Hy@level\relax
+        \advance\@tempcnta by -1
+        \ifnum\Hy@currentbookmarklevel<\@tempcnta
+          \advance\@tempcnta by -\Hy@currentbookmarklevel\relax
+          \advance\@tempcnta by 1
+          \Hy@Warning{%
+            Difference (\the\@tempcnta) between bookmark levels is %
+            greater \MessageBreak than one, level fixed%
+          }%
+          \@tempcnta\Hy@currentbookmarklevel
+          \advance\@tempcnta by 1
+          \edef\Hy@level{\the\@tempcnta}%
+        \fi
+      \else
+        \global\let\Hy@levelcheck Y%
+      \fi
+      \global\let\Hy@currentbookmarklevel\Hy@level
+      \@tempcnta\Hy@level\relax
+      \expandafter\xdef\csname Parent\Hy@level\endcsname{#3}%
+      \advance\@tempcnta by -1
+      \edef\Hy@tempa{#3}
+      \edef\Hy@tempb{\csname Parent\the\@tempcnta\endcsname}%
+      \ifx\Hy@tempa\Hy@tempb
+        \Hy@Warning{%
+          The anchor of a bookmark and its parent's must not%
+          \MessageBreak be the same. Added a new anchor%
+        }%
+        \phantomsection
+      \fi
+      \ifHy@bookmarksnumbered
+        \let\numberline\Hy@numberline
+        \let\partnumberline\Hy@numberline     % <- added
+        \let\chapternumberline\Hy@numberline  % <- added
+      \else
+        \let\numberline\@gobble
+        \let\partnumberline\@gobble           % <- added
+        \let\chapternumberline\@gobble        % <- added
+      \fi
+      \pdfstringdef\Hy@tempa{#2}%
+      \protected@write\@outlinefile{}{%
+        \protect\BOOKMARK
+          [\Hy@level][\@bookmarkopenstatus{\Hy@level}]{#3}%
+          {\Hy@tempa}{\Hy@tempb}%
+      }%
+    \fi
+  \endgroup
+}
+
+\@ifundefined{H@old@sectm@m}{% haven't fiddled with \M@sect
+  \let\H@old@sectm@m\M@sect
+  \def\M@sect#1#2#3#4#5#6[#7][#8]#9{%
+    \ifnum #2>\c@secnumdepth
+      \Hy@GlobalStepCount\Hy@linkcounter
+      \xdef\@currentHref{section*.\the\Hy@linkcounter}%
+    \fi
+    \H@old@sectm@m{#1}{#2}{#3}{#4}{#5}{#6}[{#7}][{#8}]{#9}%
+    \ifnum #2>\c@secnumdepth
+     \Hy@raisedlink{\hyper@anchorstart{\@currentHref}\hyper@anchorend}%
+    \fi}%
+  }%
+  {% already fiddled \M@sect
+  }
+
+\let\MH@old@resets@pp\@resets@pp
+\renewcommand*{\@resets@pp}{%
+  \MH@old@resets@pp
+  \def\theHchapter{\Alph{chapter}}}
+
+\let\MH@old@resets@ppsub\@resets@ppsub
+\renewcommand*{\@resets@ppsub}{%
+  \MH@old@resets@ppsub
+  \def\theHsection{\theHchapter.\Alph{section}}}
+\def\endsubappendices{\def\theHsection{\theHchapter.\arabic{section}}}
+
+\renewcommand{\cftaddtitleline}[4]{%
+  \addtocontents{#1}{\protect\contentsline{#2}{#3}{#4}{\@currentHref}}}
+\renewcommand{\cftaddnumtitleline}[5]{\addtocontents{#1}{%
+  \protect\contentsline{#2}{\protect\numberline{#3}#4}{#5}{\@currentHref}}}
+
+\let\m@moldhypcaption\caption
+\renewcommand{\caption}{\donemaincaptiontrue\m@moldhypcaption}
+
+\endinput
+%%
+%% End of file `memhfixc.sty'.
