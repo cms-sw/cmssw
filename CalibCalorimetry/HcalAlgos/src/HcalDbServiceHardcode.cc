@@ -60,7 +60,7 @@ const float* HcalDbServiceHardcode::offsets (const HcalDetId& fCell) const {
   int i = 4;
   while (--i >= 0) {
     int irange = 4;
-    while (irange <= 0) {
+    while (--irange >= 0) {
       offset [HcalDbServiceBase::index (i, irange)] = 0.; // none
     }
   }
@@ -71,7 +71,7 @@ const float* HcalDbServiceHardcode::slopes (const HcalDetId& fCell) const {
   int i = 4;
   while (--i >= 0) {
     int irange = 4;
-    while (irange <= 0) {
+    while (--irange >= 0) {
       slope [HcalDbServiceBase::index (i, irange)] = fCell.subdet () == HcalForward ? 2.6 : 1.;
     }
   }
