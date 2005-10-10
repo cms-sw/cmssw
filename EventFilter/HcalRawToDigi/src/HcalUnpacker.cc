@@ -6,7 +6,7 @@
 
 namespace HcalUnpacker_impl {
   template <class HcalDataFrame> 
-  void unpack(const FEDRawData& raw, const HcalMapping& emap, std::vector<HcalDataFrame>& cont, std::vector<HcalTriggerPrimitiveDigi>& tpcont, const int startSample, const int endSample, const int sourceIdOffset) {
+  void unpack(const FEDRawData& raw, const HcalMapping& emap, std::vector<HcalDataFrame>& cont, std::vector<HcalTriggerPrimitiveDigi>& tpcont, const int startSample, const int endSample, const int sourceIdOffset, HcalSubdetector sd1, HcalSubdetector sd2) {
 
     // get the DCC header
     const HcalDCCHeader* dccHeader=(const HcalDCCHeader*)(raw.data());
@@ -42,6 +42,9 @@ namespace HcalUnpacker_impl {
       int ncurr=0;
       bool valid=false;
 
+      /** NOTE : there is a minor bug here, if a FED contains both HF and HB/HE data or 
+	  HO and HB/HE data and trigger primitives are being sent.  The trigger primitives can be duplicated.
+      */
       for (tp_work=tp_begin; tp_work!=tp_end; tp_work++) {
 	if (tp_work->raw()==0xFFFF) continue; // filler word
 	if (tp_work->fiberAndChan()!=currFiberChan) { // start new set
@@ -85,6 +88,9 @@ namespace HcalUnpacker_impl {
 	  // lookup the right channel
 	  HcalElectronicsId eid(qie_work->fiberChan(),qie_work->fiber(),spigot,dccid);
 	  HcalDetId id=emap.lookup(eid);
+	  
+	  if (id.subdet()!=sd1 && id.subdet()!=sd2) continue; // filter on subdet id
+
 	  if (id.null()) {
 	    //	    std::cerr << "No match found for " << eid << std::endl;
 	    valid=false;
@@ -110,13 +116,13 @@ namespace HcalUnpacker_impl {
 }
 
 void HcalUnpacker::unpack(const FEDRawData& raw, const HcalMapping& emap, std::vector<HBHEDataFrame>& container, std::vector<HcalTriggerPrimitiveDigi>& tp) {
-  HcalUnpacker_impl::unpack<HBHEDataFrame>(raw,emap,container,tp,startSample_,endSample_, sourceIdOffset_);
+  HcalUnpacker_impl::unpack<HBHEDataFrame>(raw,emap,container,tp,startSample_,endSample_, sourceIdOffset_, HcalBarrel, HcalEndcap);
 }
 
 void HcalUnpacker::unpack(const FEDRawData& raw, const HcalMapping& emap, std::vector<HODataFrame>& container, std::vector<HcalTriggerPrimitiveDigi>& tp) {
-  HcalUnpacker_impl::unpack<HODataFrame>(raw,emap,container,tp,startSample_,endSample_, sourceIdOffset_);
+  HcalUnpacker_impl::unpack<HODataFrame>(raw,emap,container,tp,startSample_,endSample_, sourceIdOffset_, HcalOuter, HcalOuter);
 }
 
 void HcalUnpacker::unpack(const FEDRawData& raw, const HcalMapping& emap, std::vector<HFDataFrame>& container, std::vector<HcalTriggerPrimitiveDigi>& tp) {
-  HcalUnpacker_impl::unpack<HFDataFrame>(raw,emap,container,tp,startSample_,endSample_, sourceIdOffset_);
+  HcalUnpacker_impl::unpack<HFDataFrame>(raw,emap,container,tp,startSample_,endSample_, sourceIdOffset_, HcalForward, HcalForward);
 }

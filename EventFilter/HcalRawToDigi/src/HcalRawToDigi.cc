@@ -56,26 +56,17 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup&)
   std::vector<HFDataFrame> hf;
   std::vector<HcalTriggerPrimitiveDigi> htp;
  
-  // since the filter might drop all the data frames...
-  bool lookedAtHBHE=false, lookedAtHF=false, lookedAtHO=false;
-
   // Step C: unpack all requested FEDs
   for (std::vector<int>::const_iterator i=fedUnpackList_.begin(); i!=fedUnpackList_.end(); i++) {
     const FEDRawData& fed = rawraw->FEDData(*i);
-    HcalSubdetector subdet=readoutMap_->majorityDetector(*i-firstFED_);
     //      std::cout << "Processing FED " << *i << std::endl;
-    
-    if (subdet==HcalBarrel || subdet==HcalEndcap) {
-      unpacker_.unpack(fed,*readoutMap_,hbhe, htp);
-      lookedAtHBHE=true;
-    } else if (subdet==HcalOuter) {
+    // look only at the potential ones, to save time.
+    if (readoutMap_->subdetectorPresent(HcalBarrel,*i-firstFED_) || readoutMap_->subdetectorPresent(HcalEndcap,*i-firstFED_)) 
+      unpacker_.unpack(fed,*readoutMap_,hbhe, htp);   
+    if (readoutMap_->subdetectorPresent(HcalOuter,*i-firstFED_)) 
       unpacker_.unpack(fed,*readoutMap_,ho, htp);
-      lookedAtHO=true;
-    } else if (subdet==HcalForward) {
+    if (readoutMap_->subdetectorPresent(HcalForward,*i-firstFED_)) 
       unpacker_.unpack(fed,*readoutMap_,hf, htp);
-      lookedAtHF=true;
-    }
-    // TODO: else complain!
   }
 
   // Step B: encapsulate vectors in actual collections
@@ -98,11 +89,6 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup&)
 
 
   // Step D: Put outputs into event
-  /*
-    if (lookedAtHBHE) e.put(hbhe);
-    if (lookedAtHO) e.put(ho);
-    if (lookedAtHF)
-  */
   // just until the sorting is proven
   hbhe_prod->sort();
   ho_prod->sort();
