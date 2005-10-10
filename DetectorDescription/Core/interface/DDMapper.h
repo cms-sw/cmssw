@@ -69,7 +69,7 @@ public:
 
 private:
   std::map<KeyType, ValueType> keyToValue_;
-  std::map<ValueType, KeyType> valueToKey_;  
+  std::multimap<ValueType, KeyType> valueToKey_;  
 };
 
 
