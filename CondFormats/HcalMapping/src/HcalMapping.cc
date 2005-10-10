@@ -17,7 +17,6 @@ void HcalMapping::clear() {
     dccIds_[i].hbheEntries=0;
     dccIds_[i].hfEntries=0;
     dccIds_[i].hoEntries=0;
-    dccIds_[i].majorityId=HcalSubdetector(0);
   }
 }
 
@@ -81,26 +80,17 @@ void HcalMapping::setMap(const HcalElectronicsId& eid, const HcalDetId& lid) {
   if (lid.subdet()==HcalForward) dccIds_[dcc].hfEntries++;
   if (lid.subdet()==HcalOuter) dccIds_[dcc].hoEntries++;
 
-  // we _hope_ only one of these is non-zero...
-  if (dccIds_[dcc].hbheEntries>dccIds_[dcc].hfEntries && dccIds_[dcc].hbheEntries>dccIds_[dcc].hoEntries) {
-    if (dccIds_[dcc].hoEntries!=0 || dccIds_[dcc].hfEntries!=0) 
-      std::cerr << "HCAL DCC " << dcc << " has entries from more than one type of detector." << std::endl;
-    dccIds_[dcc].majorityId=HcalBarrel;
-  } else if (dccIds_[dcc].hoEntries>dccIds_[dcc].hfEntries && dccIds_[dcc].hoEntries>dccIds_[dcc].hbheEntries) {
-    if (dccIds_[dcc].hbheEntries!=0 || dccIds_[dcc].hfEntries!=0) 
-      std::cerr << "HCAL DCC " << dcc << " has entries from more than one type of detector." << std::endl;
-    dccIds_[dcc].majorityId=HcalOuter;
-  } else if (dccIds_[dcc].hfEntries>dccIds_[dcc].hoEntries && dccIds_[dcc].hfEntries>dccIds_[dcc].hbheEntries) {
-    if (dccIds_[dcc].hbheEntries!=0 || dccIds_[dcc].hoEntries!=0) 
-      std::cerr << "HCAL DCC " << dcc << " has entries from more than one type of detector." << std::endl;
-    dccIds_[dcc].majorityId=HcalForward;
-  } else {
-    std::cerr << "HCAL DCC " << dcc << " has no majority detector type." << std::endl;
-  }
 }
 
-HcalSubdetector HcalMapping::majorityDetector(int dccid) const {
-  if (dccid<0 || dccid>HcalElectronicsId::maxDCCId) return HcalSubdetector(0);
-  return dccIds_[dccid].majorityId;
+bool HcalMapping::subdetectorPresent(HcalSubdetector det, int dccid) const {
+  
+  if (dccid<0 || dccid>HcalElectronicsId::maxDCCId) return false;
+  switch (det) {
+  case (HcalBarrel) :
+  case (HcalEndcap) : return dccIds_[dccid].hbheEntries!=0;
+  case (HcalOuter) : return dccIds_[dccid].hoEntries!=0;
+  case (HcalForward) : return dccIds_[dccid].hfEntries!=0;
+  default: return false;
+  }
 }
 

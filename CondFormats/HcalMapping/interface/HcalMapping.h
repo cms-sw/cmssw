@@ -14,8 +14,8 @@
  *
  *  Memory usage for electronics --> logical ~= 64kB (precision)
  *  Memory usage for logical --> electronics (optional) ~= 300kB 
- *  $Date: 2005/07/26 15:11:32 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/10/04 14:32:40 $
+ *  $Revision: 1.2 $
  *  \author J. Mans - Minnesota
  */
 class HcalMapping {
@@ -62,10 +62,9 @@ public:
   */
   const HcalElectronicsId& lookupTrigger(const HcalTrigTowerDetId&) const;
   
-  /** \brief Get the majority detector type for the given dcc id.  
-      \note HB and HE are both identified using "HcalBarrel".
-  */
-  HcalSubdetector majorityDetector(int dccid) const;
+  /** \brief Test if this subdetector is present in this dccid */
+  bool subdetectorPresent(HcalSubdetector det, int dccid) const;
+
 private:
   // flag to indicate if the logical to electrical map must be maintained
   bool maintainL2E_;
@@ -77,12 +76,11 @@ private:
   std::map<HcalDetId,HcalElectronicsId> logicalToElec_;
   // logical to electronics (simulation only)
   std::map<HcalTrigTowerDetId,HcalElectronicsId> trigTowerToElec_;
-  // majority-vote identity of each DCC as one subdetector (HB/HE considered one)
+
   struct SubdetectorId {
     int hbheEntries;
     int hoEntries;
     int hfEntries;
-    HcalSubdetector majorityId;
   };
   SubdetectorId dccIds_[HcalElectronicsId::maxDCCId+1];
 };
