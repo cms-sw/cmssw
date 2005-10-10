@@ -73,8 +73,10 @@ namespace edm {
 					    ProductRegistry& preg)
   {
     // find single source
+    bool sourceSpecified = false;
     try {
       ParameterSet main_input = params_.getParameter<ParameterSet>("@main_input");
+      sourceSpecified = true;
       InputSourceDescription isdesc(common.processName_,common.pass_,preg);
 
       boost::shared_ptr<InputSource> input_
@@ -82,12 +84,12 @@ namespace edm {
     
       return input_;
     } catch(const edm::Exception& iException) {
-       if(errors::Configuration == iException.categoryCode()) {
-          throw edm::Exception(errors::Configuration, "NoInputSource")
-          <<"No main input source found in configuration.  Please add an input source via 'source = ...' in the configuration file.\n";
-       } else {
-          throw;
-       }
+      if(sourceSpecified == false && errors::Configuration == iException.categoryCode()) {
+        throw edm::Exception(errors::Configuration, "NoInputSource")
+        <<"No main input source found in configuration.  Please add an input source via 'source = ...' in the configuration file.\n";
+      } else {
+        throw;
+      }
     }
     return boost::shared_ptr<InputSource>();
   }
