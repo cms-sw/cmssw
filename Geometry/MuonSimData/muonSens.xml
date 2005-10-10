@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://www.cern.ch/cms/DDL http://cmsdoc.cern.ch/cms/software/ddd/DDLSchema/DDLSchema.xsd">
+
+<SpecParSection label="muonsensitive">
+ <SpecPar name="barrel">
+      <PartSelector path="//MBSLPhiGas" />
+      <PartSelector path="//MBChimSLPhiGas" />
+      <PartSelector path="//MB1SLZGas" />
+      <PartSelector path="//MB2SLZGas" />
+      <PartSelector path="//MB3SLZGas" />
+      <Parameter name="SensitiveDetector" value="MuonSensitiveDetector" />
+      <Parameter name="ReadOutName" value="MuonBarrelSD" />
+  </SpecPar>    
+  <SpecPar name="rpc">
+      <PartSelector path="//MB.*RPC.*Gas.*" />
+      <Parameter name="SensitiveDetector" value="MuonSensitiveDetector" />
+      <Parameter name="ReadOutName" value="MuonRpcSD" />
+  </SpecPar>    
+  <SpecPar name="endcap">
+      <PartSelector path="//MW11" />
+      <PartSelector path="//MW12" />
+      <PartSelector path="//MW13" />
+      <PartSelector path="//MW1A" />
+      <PartSelector path="//MW21" />
+      <PartSelector path="//MW22" />
+      <PartSelector path="//MW31" />
+      <PartSelector path="//MW32" />
+      <PartSelector path="//MW41" />
+      <Parameter name="SensitiveDetector" value="MuonSensitiveDetector" />
+      <Parameter name="ReadOutName" value="MuonEndcapSD" />
+  </SpecPar>    
+</SpecParSection>
+
+</DDDefinition>
