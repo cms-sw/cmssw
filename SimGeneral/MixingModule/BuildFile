@@ -1,0 +1,23 @@
+<flags SEAL_PLUGIN_NAME="SimGeneralMixingModule">
+<use name=FWCore/ParameterSet>
+<use name=FWCore/Framework>
+<use name=FWCore/Utilities>
+<use name=FWCore/MixMod>
+<use name=SimDataFormats/TrackingHit>
+<use name=SimDataFormats/CaloHit>
+<use name=SimDataFormats/Track>
+<use name=SimDataFormats/Vertex>
+<use name=SimDataFormats/CrossingFrame>
+<use name=Foundation/PluginManager>
+<export>
+ <lib name=SimGeneralMixingModule>
+ <use name=FWCore/ParameterSet>
+ <use name=FWCore/Framework>
+ <use name=FWCore/MixMod>
+ <use name=SimDataFormats/TrackingHit>
+ <use name=SimDataFormats/CaloHitHit>
+ <use name=SimDataFormats/Track>
+ <use name=SimDataFormats/Vertex>
+ <use name=SimDataFormats/CrossingFrame>
+ <use name=Foundation/PluginManager>
+</export>
