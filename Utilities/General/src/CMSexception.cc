@@ -1,9 +1,6 @@
 #include "Utilities/General/interface/CMSexception.h"
 #include "Utilities/General/interface/UncatchedException.h"
 #include "Utilities/General/interface/ioutils.h"
-#include "Utilities/General/interface/BackTrace.h"
-#include <sstream>
-#include <iostream>
 
 LockMutex::Mutex UncatchedException::mutex;
 int UncatchedException::count_=0; 
@@ -50,6 +47,7 @@ BaseGenexception::BaseGenexception(const std::string & mess) throw() :
   message(mess) {}
 
 BaseGenexception::~BaseGenexception() throw() {
+  /* cout << "deleting a BaseGenexception " << message << " at " << this << endl; */
 }
 
 //-------------------------------------------------------------------
@@ -72,6 +70,7 @@ void Genexception::add(Genexception * in) throw() {
   else next = own_ptr<Genexception>(in);
 }
 
+#include<iostream>
 void Genexception::dump(std::ostream & o, bool it)  const throw() {
   if (next.get()) {
     (*next).dump(o,it);
@@ -80,6 +79,9 @@ void Genexception::dump(std::ostream & o, bool it)  const throw() {
   o << what() << "\n" << std::endl;
   if(it) o << trace()<< std::endl;
 }
+
+#include "Utilities/General/interface/BackTrace.h"
+#include<sstream>
 
 void Genexception::traceit() throw() {
   std::ostringstream oss;

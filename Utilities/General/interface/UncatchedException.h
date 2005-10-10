@@ -1,11 +1,12 @@
-#ifndef UTILITIES_GENERAL_UNCATCHEDEXCEPTION_H
-#define UTILITIES_GENERAL_UNCATCHEDEXCEPTION_H
+#ifndef UncatchedException_H
+#define UncatchedException_H
+//
 //
 //   V 0.0 
 //
+
 #include "Utilities/Threads/interface/ThreadUtils.h"
 #include <iosfwd>
-
 namespace seal {
   class Error;
 }
@@ -30,4 +31,6 @@ private:
 
 };
 
-#endif // UTILITIES_GENERAL_UNCATCHEDEXCEPTION_H
+
+
+#endif // UncatchedException_H

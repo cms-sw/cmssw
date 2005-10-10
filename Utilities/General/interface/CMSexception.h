@@ -1,14 +1,13 @@
-#ifndef UTILITIES_GENERAL_CMSEXCEPTION_H
-#define UTILITIES_GENERAL_CMSEXCEPTION_H
+#ifndef Utilities_CMSexception_H
+#define Utilities_CMSexception_H
 //
 //  VI 1.0  3/4/2002
 //  exception with trace back and chaining
 //
 
-#include "SealBase/Error.h"
-#include "Utilities/General/interface/own_ptr.h"
-#include <iosfwd>
-#include <string>
+# include "SealBase/Error.h"
+
+
 
 /** base CMSexception
  */
@@ -32,6 +31,9 @@ public:
   virtual void        rethrow (void) { throw *this;}
 };
 
+
+#include <string>
+
 /** base generic exception
  */
 class BaseGenexception: public CMSexception  {
@@ -46,6 +48,11 @@ public:
 private:
   std::string message;
 };
+
+
+
+#include "Utilities/General/interface/own_ptr.h"
+#include<iosfwd>
 
 /** cms generic  exception
  */
@@ -119,4 +126,5 @@ private:
   std::string message;
 };
 
-#endif // UTILITIES_GENERAL_CMSEXCEPTION_H
+#endif
+

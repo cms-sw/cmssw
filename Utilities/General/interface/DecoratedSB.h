@@ -1,6 +1,6 @@
-#ifndef UTILITIES_GENERAL_DECORATEDSB_H
-#define UTILITIES_GENERAL_DECORATEDSB_H
-//
+#ifndef DecoratedSB_H
+#define DecoratedSB_H
+
 #include<iosfwd>
 #include<sstream>
 #include <streambuf>
@@ -46,4 +46,4 @@ private:
 
 typedef DecoratedSB<std::string, std::string>  DefDecoratedSB; 
 
-#endif // UTILITIES_GENERAL_DECORATEDSB_H
+#endif
