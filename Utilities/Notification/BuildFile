@@ -1,9 +1,10 @@
 <export>
  <lib name=UtilitiesNotification>
  <use name=Dictionary/Reflex>	
+ 
  <use name=boost>
 </export>
-
+<use name=Utilities/Threads>
 <use name=Dictionary/Reflex>
 <use name=boost>
 
