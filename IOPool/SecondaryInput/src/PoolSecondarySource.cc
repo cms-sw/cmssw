@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSecondarySource.cc,v 1.3 2005/10/03 19:00:29 wmtan Exp $
+$Id: PoolSecondarySource.cc,v 1.4 2005/10/03 19:53:11 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/EDProduct/interface/EDProduct.h"
@@ -23,8 +23,8 @@ using std::auto_ptr;
 #include <iostream>
 
 namespace edm {
-  PoolSecondarySource::PoolSecondarySource(ParameterSet const& pset, InputSourceDescription const& desc) :
-    SecondaryInputSource(desc),
+  PoolSecondarySource::PoolSecondarySource(ParameterSet const& pset) :
+    SecondaryInputSource(),
     file_(pset.getUntrackedParameter<std::string>("fileName")),
     branches_(),
     auxBranch_(0),

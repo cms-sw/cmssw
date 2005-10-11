@@ -5,7 +5,7 @@
 
 PoolSecondarySource: This is a SecondaryInputSource
 
-$Id: PoolSecondarySource.h,v 1.1 2005/09/28 06:11:47 wmtan Exp $
+$Id: PoolSecondarySource.h,v 1.2 2005/10/03 19:00:29 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -28,7 +28,6 @@ namespace seal { class Status; }
 namespace edm {
 
   class ParameterSet;
-  class InputSourceDescription;
   class PoolSecondarySource : public SecondaryInputSource {
   public:
     typedef std::map<BranchKey, std::pair<std::string, TBranch *> > BranchMap;
@@ -52,7 +51,7 @@ namespace edm {
 
   public:
     friend class PoolDelayedReader;
-    explicit PoolSecondarySource(ParameterSet const& pset, InputSourceDescription const&);
+    explicit PoolSecondarySource(ParameterSet const& pset);
     virtual ~PoolSecondarySource();
 
   private:
