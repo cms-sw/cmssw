@@ -1,8 +1,8 @@
 /*
  * \file EBHtmlTask.cc
  * 
- * $Date: 2005/10/08 08:55:06 $
- * $Revision: 1.3 $
+ * $Date: 2005/10/11 13:39:36 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  *
 */
@@ -10,6 +10,8 @@
 #include <DQM/EcalBarrelMonitorTasks/interface/EBHtmlTask.h>
 
 EBHtmlTask::EBHtmlTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe){
+
+  local_dbe = dbe;
 
   logFile.open("EBHtmlTask.log");
 
@@ -24,12 +26,8 @@ EBHtmlTask::~EBHtmlTask(){
 void EBHtmlTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   cout << "EBHtmlTask::analyze" << endl;
-  gROOT->cd();
-  gROOT->cd("EcalBarrel/EBPedestalTask/Gain01");
-  TObject* obj = gDirectory->Get("EBPT pedestal SM01 G01");
-  if ( obj ) {
-    cout << " Found histogram 'EBPT pedestal SM01 G01' :" << obj << endl;
-  }
+
+  local_dbe->cd("DQMData/EcalBarrel/EBPedestalTask/Gain01");
 
 }
 

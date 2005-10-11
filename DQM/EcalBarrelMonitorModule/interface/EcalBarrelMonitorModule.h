@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorModule.h
  *
- * $Date: 2005/10/08 09:39:39 $
- * $Revision: 1.3 $
+ * $Date: 2005/10/11 13:39:36 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  *
 */
@@ -60,11 +60,11 @@ private:
 
 int ievt;
 
+DaqMonitorBEInterface* dbe;
+
 MonitorElement* meEbarrel;
 
 MonitorElement* meEvent[36];
-
-DaqMonitorBEInterface* dbe;
 
 EBPedestalTask* pedestal_task;
 EBTestPulseTask* testpulse_task;

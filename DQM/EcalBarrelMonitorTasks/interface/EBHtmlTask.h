@@ -4,8 +4,8 @@
 /*
  * \file EBHtmlTask.h
  *
- * $Date: 2005/10/08 08:55:06 $
- * $Revision: 1.4 $
+ * $Date: 2005/10/11 13:39:36 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  *
 */
@@ -60,6 +60,8 @@ protected:
 void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 private:
+
+DaqMonitorBEInterface* local_dbe;
 
 ofstream logFile;
 
