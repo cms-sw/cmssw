@@ -5,70 +5,68 @@
 #include<iosfwd>
 /**
 
-   \class CaloHit
+ \class CaloHit
 
-   Simple class to encapsulate a Geant hit for ORCA.
+ Simple class to encapsulate a Geant hit for ORCA.
 */
-namespace cms {
-  class CaloHit 
-  { 
-  public: 
+class CaloHit 
+{ 
+public: 
 
-    /** 
-      \fn CaloHit(float e, float t, int i)
+  /** 
+    \fn CaloHit(float e, float t, int i)
 
-      \brief Default constructor, which
-      takes energy(e), time of the hit(t) and track number(i)
-    */
-    CaloHit(const DetId & id, float e = 0., float t = 0., int i = 0) : 
-      id_(id), energy_ (e), time_ (t), theTimeOffset(0.), itra (i) { }
+    \brief Default constructor, which
+    takes energy(e), time of the hit(t) and track number(i)
+  */
+  CaloHit(const DetId & id, float e = 0., float t = 0., int i = 0) : 
+    id_(id), energy_ (e), time_ (t), theTimeOffset(0.), itra (i) { }
 
-    DetId id() const {return id_;}
+  DetId id() const {return id_;}
 
-    //Energy deposit of the Hit
-    float energy() const { return energy_; }
+  //Energy deposit of the Hit
+  float energy() const { return energy_; }
 
-    //Time of the deposit
-    float time() const { return time_ + theTimeOffset; }
+  //Time of the deposit
+  float time() const { return time_ + theTimeOffset; }
 
-    //G3 track number
-  
-    /** 
-      \fn int geantTrackId() const
+  //G3 track number
 
-      \brief Geant 3 track number
-    */
-    int geantTrackId() const { return itra; }
+  /** 
+    \fn int geantTrackId() const
 
-
-    //Comaprisons
-
-    /** 
-      \fn bool operator<(const CaloHit &) const
-
-      \brief Askes, whether hit energy is smaller than the one provided.
-
-      Useful for sorting in energy.
-    */
-    bool operator<(const CaloHit &d) const 
-    { return energy_ < d.energy_ ? true : false; }
-
-    /// Offset of time of flight, e.g. when assigned to a new bunch crossing
-    void offsetTime( float t0) { theTimeOffset = t0;}
-    float timeOffset() const { return theTimeOffset;}
+    \brief Geant 3 track number
+  */
+  int geantTrackId() const { return itra; }
 
 
-  protected: 
-    DetId id_;
-    float energy_; 
-    float time_; 
-    float theTimeOffset;
-    int itra; 
-  }; 
+  //Comaprisons
 
-  extern std::ostream &operator<<(std::ostream &, const CaloHit &);
+  /** 
+    \fn bool operator<(const CaloHit &) const
 
-}
+    \brief Askes, whether hit energy is smaller than the one provided.
+
+    Useful for sorting in energy.
+  */
+  bool operator<(const CaloHit &d) const 
+  { return energy_ < d.energy_ ? true : false; }
+
+  /// Offset of time of flight, e.g. when assigned to a new bunch crossing
+  void offsetTime( float t0) { theTimeOffset = t0;}
+  float timeOffset() const { return theTimeOffset;}
+
+
+protected: 
+  DetId id_;
+  float energy_; 
+  float time_; 
+  float theTimeOffset;
+  int itra; 
+}; 
+
+extern std::ostream &operator<<(std::ostream &, const CaloHit &);
+
 
 
 #endif /* !defined(_CALO_HIT_H) */
