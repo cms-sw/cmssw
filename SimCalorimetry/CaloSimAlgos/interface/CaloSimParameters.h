@@ -14,12 +14,12 @@ namespace cms {
   class CaloSimParameters
   {
   public:
-    CaloSimParameters(double photomultiplierGain, double amplifierGain, 
+    CaloSimParameters(double simHitToPhotoelectrons, double photoelectronsToAnalog, 
                    double samplingFactor, double timePhase,
                    int readoutFrameSize, int binOfMaximum,
                    bool doPhotostatistics)
-    : photomultiplierGain_(photomultiplierGain),
-      amplifierGain_(amplifierGain),
+    : simHitToPhotoelectrons_(simHitToPhotoelectrons),
+      photoelectronsToAnalog_(photoelectronsToAnalog),
       samplingFactor_(samplingFactor),
       timePhase_(timePhase),
       readoutFrameSize_(readoutFrameSize),
@@ -33,10 +33,10 @@ namespace cms {
     /// the factor which goes from whatever units the SimHit amplitudes
     /// are in (could be deposited GeV, real GeV, or photoelectrons)
     /// and converts to photoelectrons
-    double photomultiplierGain() const { return photomultiplierGain_;}
+    double simHitToPhotoelectrons() const { return simHitToPhotoelectrons_;}
 
     /// the factor which goes from photoelectrons to whatever gets read by ADCs
-    double amplifierGain() const {return amplifierGain_;}
+    double photoelectronsToAnalog() const {return photoelectronsToAnalog_;}
 
     /// the ratio of actual incident energy to deposited energy
     /// in the SimHit
@@ -55,8 +55,8 @@ namespace cms {
 
 
   private:
-    double photomultiplierGain_;
-    double amplifierGain_;
+    double simHitToPhotoelectrons_;
+    double photoelectronsToAnalog_;
     double samplingFactor_;
     double timePhase_;
     int readoutFrameSize_;
