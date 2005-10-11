@@ -42,8 +42,6 @@ namespace edm
       virtual void createnewEDProduct();
       virtual void addSignals(edm::Event &e); 
       virtual void addPileups(const int bcr, edm::Event*);
-      //FIXME: for temporary workaround
-      virtual void getEvents (const unsigned int nrEvents);
 
       // internally used information
       std::vector<std::string> trackerSubdetectors_;

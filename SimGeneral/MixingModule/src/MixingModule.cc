@@ -42,7 +42,6 @@ namespace edm
   }
 
   void MixingModule::createnewEDProduct() {
-    printf("===================>>>> createnewEDProduct called \n");fflush(stdout);
     simcf_=new CrossingFrame(minbunch_,maxbunch_,bunchSpace_,trackerSubdetectors_,caloSubdetectors_);
   }
 
@@ -111,41 +110,5 @@ namespace edm
   void MixingModule::put(edm::Event &e) {
     e.put(std::auto_ptr<CrossingFrame>(simcf_));
   }
-
-  void MixingModule::getEvents (const unsigned int nrEvents)
-  {
-    // filling of eventvector by using  secondary input source 
-    // temporary for workarounds, in the future it will be implemented in the baseclass only
-    unsigned int eventCount=0;
-    eventVector_.clear();
-    std::vector <edm::Handle<edm::PSimHitContainer> > simHits;  //Event Pointer to minbias Hits
-    std::vector <edm::Handle<edm::PCaloHitContainer> > caloHits;  //Event Pointer to minbias Hits
-    std::vector<EventPrincipal*> vecEventPrincipal;
-    secInput_->readMany(0, nrEvents, vecEventPrincipal);
-    while (eventCount < nrEvents) {
-      ModuleDescription md=ModuleDescription();  //temporary
-      Event *event = new Event(*vecEventPrincipal[eventCount], md);
-      cout <<"\n Pileup event nr "<<eventCount<<" event id "<<event->id()<<endl;
-      eventVector_.push_back (event);
-      // Force reading of the hits now!!!!
-      event->getManyByType(simHits);  // Workaround
-      for (unsigned int idet=0;idet<simHits.size();idet++) 
-	cout <<" Got "<<(simHits[idet].product())->size()<<" PILEUP simhits for subdet "<<idet<<endl;
-      simHits.clear(); //Workaround
-      //      event->getManyByType(caloHits);  // Workaround
-      //      caloHits.clear(); //Workaround
-
-      edm::Handle<edm::EmbdSimTrackContainer> simtracks; // Workaround
-      edm::Handle<edm::EmbdSimVertexContainer> simvertices; // Workaround
-
-      event->getByLabel("r",simtracks); //Workaround
-      event->getByLabel("r",simvertices); //Workaround
-      cout <<" Got "<<(simtracks.product())->size()<<"PILEUP simtracks"<<endl;
-      cout <<" Got "<<(simvertices.product())->size()<<" PILEUP simvertices"<<endl;
-      ++eventCount;
-    }
-    cout <<endl;
-  }
- 
 
 } //edm
