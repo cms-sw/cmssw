@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
   
-$Id: EDProducer.cc,v 1.4 2005/07/21 20:48:17 argiro Exp $
+$Id: EDProducer.cc,v 1.5 2005/08/02 22:23:18 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -20,5 +20,10 @@ namespace edm
   EDProducer::TypeLabelList EDProducer::typeLabelList() const {
     return typeLabelList_;
   }
+
+   boost::function<void(const BranchDescription&)> EDProducer::registrationCallback() const {
+      return callWhenNewProductsRegistered_;
+   }
+
 }
   

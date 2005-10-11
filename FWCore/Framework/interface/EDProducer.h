@@ -6,13 +6,15 @@
 EDProducer: The base class of all "modules" that will insert new
 EDProducts into an Event.
 
-$Id: EDProducer.h,v 1.8 2005/09/01 05:39:53 wmtan Exp $
+$Id: EDProducer.h,v 1.9 2005/09/01 23:30:48 wmtan Exp $
 
 
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/src/TypeID.h"
+#include "boost/bind.hpp"
+#include "boost/function.hpp"
 #include <string>
 #include <utility>
 namespace edm {
@@ -53,13 +55,22 @@ namespace edm {
       produces<ProductType>(std::string());
     }
 
+    template<class TProducer, class TMethod>
+    void callWhenNewProductsRegistered(TProducer* iProd, TMethod iMethod){
+       callWhenNewProductsRegistered_ = boost::bind(iMethod,iProd,_1);
+    }
+          
     typedef std::list<TypeLabelItem> TypeLabelList;
 
     /// used by the fwk to register the list of products of this module 
     TypeLabelList typeLabelList() const;
+    
+    /// used by the fwk to register list of products
+    boost::function<void(const BranchDescription&)> registrationCallback() const;
 
   private:
     TypeLabelList typeLabelList_;
+    boost::function<void(const BranchDescription&)> callWhenNewProductsRegistered_;
   };
 
 
