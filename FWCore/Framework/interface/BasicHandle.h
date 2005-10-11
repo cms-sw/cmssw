@@ -19,7 +19,7 @@ Handles can have:
 
 To check validity, one can use the isValid() function.
 
-$Id: BasicHandle.h,v 1.5 2005/07/30 04:37:50 wmtan Exp $
+$Id: BasicHandle.h,v 1.6 2005/09/01 05:45:11 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -31,7 +31,7 @@ $Id: BasicHandle.h,v 1.5 2005/07/30 04:37:50 wmtan Exp $
 #include "boost/type_traits.hpp"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/EDProduct/interface/EDProduct.h"
+#include "FWCore/Framework/interface/Provenance.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 namespace edm {
@@ -80,7 +80,7 @@ namespace edm {
       return prov_;
     }
 
-    ProductID id() const {return wrap_->id();}
+    ProductID id() const {return prov_->event.productID_;}
 
   private:
     EDProduct const* wrap_;

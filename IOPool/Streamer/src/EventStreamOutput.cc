@@ -1,7 +1,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: EventStreamOutput.cc,v 1.4 2005/09/15 16:02:44 jbk Exp $
+// $Id: EventStreamOutput.cc,v 1.5 2005/09/30 05:26:18 wmtan Exp $
 //
 // Class EventStreamOutput module
 //
@@ -61,7 +61,6 @@ namespace edm
 
 	cout << "Prov:"
 	     << " " << spi->desc()->fullClassName_
-	     << " " << spi->prod()->id()
 	     << " " << spi->desc()->productID_
 	     << " " << spi->prov()->productID_
 	     << endl;
