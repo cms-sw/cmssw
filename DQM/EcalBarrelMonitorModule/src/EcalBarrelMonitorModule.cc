@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  * 
- * $Date: 2005/10/11 13:39:36 $
- * $Revision: 1.5 $
+ * $Date: 2005/10/11 16:40:55 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  *
 */
@@ -28,7 +28,7 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
   }
 
   dbe->setCurrentFolder("EcalBarrel");
-  meEbarrel = dbe->book1D("EBMM hits", "EBMM hits ", 100, 0., 61200.001);
+  meEbarrel = dbe->book1D("EBMM hits", "EBMM hits ", 100, 0., 61201.);
 
   dbe->setCurrentFolder("EcalBarrel/EBMonitorEvent");
   for (int i = 0; i < 36 ; i++) {
