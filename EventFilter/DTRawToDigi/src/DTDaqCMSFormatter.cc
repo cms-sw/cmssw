@@ -1,7 +1,7 @@
-/** /file 
+/** \file 
  *
- *  $Date: 2005/08/23 09:31:36 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/10/07 09:01:46 $
+ *  $Revision: 1.3 $
  *  \author G. Bruno - CERN, EP Division
  */
 

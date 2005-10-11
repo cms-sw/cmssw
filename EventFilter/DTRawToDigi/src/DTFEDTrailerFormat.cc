@@ -1,9 +1,6 @@
-/**  
- *  See header file for a description of this class.
- * 
+/** \file
  *
- *
- *  $Date: 2005/07/06 15:52:01 $
+ *  $Date: 2005/07/13 09:06:50 $
  *  $Revision: 1.1 $
  *  \author G. Bruno  - CERN, EP Division
  */

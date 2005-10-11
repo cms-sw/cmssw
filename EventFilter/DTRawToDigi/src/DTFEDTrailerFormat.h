@@ -1,5 +1,5 @@
-#ifndef DTFEDTrailerFormat_H
-#define DTFEDTrailerFormat_H
+#ifndef DTRawToDigi_DTFEDTrailerFormat_h
+#define DTRawToDigi_DTFEDTrailerFormat_h
 /**  \class DTFEDTrailerFormat
  * 
  *  This class defines the format of the DT FED trailer. 
@@ -9,7 +9,7 @@
  *  of each field (first bit == 0).  
  * 
  *
- *  $Date: 2005/07/06 15:52:01 $
+ *  $Date: 2005/07/13 09:06:50 $
  *  $Revision: 1.1 $
  *  \author G. Bruno  - CERN, EP Division
  */

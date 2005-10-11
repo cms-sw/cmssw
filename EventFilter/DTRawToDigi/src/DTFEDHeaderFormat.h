@@ -1,5 +1,5 @@
-#ifndef DTFEDHeaderFormat_H
-#define DTFEDHeaderFormat_H
+#ifndef DTRawToDigi_DTFEDHeaderFormat_h
+#define DTRawToDigi_DTFEDHeaderFormat_h
 /**  \class DTFEDHeaderFormat
  * 
  *  This class defines the format of the DT FED header. 
@@ -9,7 +9,7 @@
  *  of each field (first bit == 0).  
  *
  *
- *  $Date: 2005/07/06 15:52:01 $
+ *  $Date: 2005/07/13 09:06:50 $
  *  $Revision: 1.1 $
  *  \author G. Bruno  - CERN, EP Division
  */

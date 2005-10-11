@@ -1,16 +1,16 @@
 /**
    \file
-   Test suit for DTUnpackingModule
+   Test suite for DTUnpackingModule
 
    \author Stefano ARGIRO
-   \version $Id: testDTUnpackingModule.cc,v 1.6 2005/08/23 10:25:46 argiro Exp $
+   \version $Id: testDTUnpackingModule.cc,v 1.7 2005/09/14 10:06:23 argiro Exp $
    \date 29 Jun 2005
 
    \note these tests are not testing anything but the thing not crashing
         
 */
 
-static const char CVSId[] = "$Id: testDTUnpackingModule.cc,v 1.6 2005/08/23 10:25:46 argiro Exp $";
+static const char CVSId[] = "$Id: testDTUnpackingModule.cc,v 1.7 2005/09/14 10:06:23 argiro Exp $";
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <FWCore/Framework/interface/EventProcessor.h>

@@ -1,5 +1,5 @@
-#ifndef MBFEDDataFormat_H
-#define DTFEDDataFormat_H
+#ifndef DTRawToDigi_DTEDDataFormat_h
+#define DTRawToDigi_DTEDDataFormat_h
 /**  \class DTFEDDataFormat
  * 
  *  This class defines the format of the DT FED data (raw data). 
@@ -8,7 +8,7 @@
  *  The user must define the number of fields and set the last bit 
  *  of each field (first bit == 0).  
  *
- *  $Date: 2005/07/06 15:52:01 $
+ *  $Date: 2005/07/13 09:06:50 $
  *  $Revision: 1.1 $
  *  \author G. Bruno  - CERN, EP Division
  */
