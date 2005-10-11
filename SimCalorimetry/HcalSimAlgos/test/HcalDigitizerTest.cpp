@@ -11,7 +11,7 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HFShape.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalElectronicsSim.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbServiceHardcode.h"
-#include "CalibFormats/HcalObjects/interface/HcalDbServiceHandle.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalNoisifier.h"
 #include "CalibFormats/HcalObjects/interface/HcalNominalCoder.h"
 
@@ -64,7 +64,7 @@ int main() {
   CaloHitResponse hfResponse(&parameterMap, &hfShapeIntegrator);
 
   HcalDbServiceHardcode dbService;
-  HcalDbServiceHandle calibratorHandle(&dbService);
+  HcalDbService calibratorHandle(&dbService);
   HcalNoisifier noisifier(&calibratorHandle);
   HcalNominalCoder coder; 
   HcalElectronicsSim electronicsSim(&noisifier, &coder);

@@ -2,14 +2,14 @@
 #define HcalNoisifier_h
   
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVNoisifier.h"
-class HcalDbServiceHandle;
+class HcalDbService;
 
 namespace cms {
   class HcalSimCalibrator;
   
   class HcalNoisifier : public CaloVNoisifier {
   public:
-    explicit HcalNoisifier(HcalDbServiceHandle * calibrator);
+    explicit HcalNoisifier(HcalDbService * calibrator);
     /// doesn't delete the pointer
     virtual ~HcalNoisifier(){}
   
@@ -17,7 +17,7 @@ namespace cms {
   
   private:
     unsigned theStartingCapId;
-    HcalDbServiceHandle * theCalibrationHandle;
+    HcalDbService * theCalibrationHandle;
   };
 } 
 #endif
