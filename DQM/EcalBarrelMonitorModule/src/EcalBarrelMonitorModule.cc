@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  * 
- * $Date: 2005/10/08 09:39:39 $
- * $Revision: 1.3 $
+ * $Date: 2005/10/08 11:12:13 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  *
 */
@@ -13,34 +13,39 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
 
   ievt = 0;
 
+  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+
+  edm::Service<MonitorDaemon> daemon;
+  daemon.operator->();
+
   Char_t histo[20];
 
-  string filename = ps.getUntrackedParameter<string>("fileName");
-
-  rootFile = new TFile(filename.c_str(), "recreate");
-
-  rootFile->cd();
-
-  hEbarrel = new TH1F("EBMM hits", "EBMM hits ", 100, 0., 61200.001);
-
-  TDirectory* subdir = gDirectory->mkdir("EBMonitorEvent");
-  subdir->cd();
-
-  rootFile->cd("EBMonitorEvent");
-  for (int i = 0; i < 36 ; i++) {
-    sprintf(histo, "EBMM event SM%02d", i+1);
-    hEvent[i] = new TH2F(histo, histo, 20, 0., 20., 85, 0., 85.);
+  outputFile = ps.getUntrackedParameter<string>("outputFile", "");
+  if ( outputFile.size() != 0 ) {
+    cout << "Ecal Barrel Monitoring histograms will be saved to " << outputFile.c_str() << endl;
   }
 
-  pedestal_task = new EBPedestalTask(ps, rootFile);
+  dbe->setCurrentFolder("EcalBarrel");
+  meEbarrel = dbe->book1D("EBMM hits", "EBMM hits ", 100, 0., 61200.001);
 
-  testpulse_task = new EBTestPulseTask(ps, rootFile);
+  dbe->setCurrentFolder("EcalBarrel/EBMonitorEvent");
+  for (int i = 0; i < 36 ; i++) {
+    sprintf(histo, "EBMM event SM%02d", i+1);
+    meEvent[i] = dbe->book2D(histo, histo, 20, 0., 20., 85, 0., 85.);
+    meEvent[i]->setResetMe(true);
+  }
 
-  laser_task = new EBLaserTask(ps, rootFile);
+  pedestal_task = new EBPedestalTask(ps, dbe);
 
-  cosmic_task = new EBCosmicTask(ps, rootFile);
+  testpulse_task = new EBTestPulseTask(ps, dbe);
 
-  html_task = new EBHtmlTask(ps, rootFile);
+  laser_task = new EBLaserTask(ps, dbe);
+
+  cosmic_task = new EBCosmicTask(ps, dbe);
+
+  html_task = new EBHtmlTask(ps, dbe);
+
+  dbe->showDirStructure();
 
   logFile.open("EcalBarrelMonitorModule.log");
 
@@ -54,11 +59,7 @@ EcalBarrelMonitorModule::~EcalBarrelMonitorModule(){
   delete cosmic_task;
   delete html_task;
 
-  rootFile->Write();
-
-  rootFile->Close();
-
-  delete rootFile;
+  if ( outputFile.size() != 0 ) dbe->save(outputFile);
 
   logFile.close();
 
@@ -70,10 +71,6 @@ void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
 
   ievt++;
 
-  for (int i = 0; i < 36 ; i++) {
-    hEvent[i]->Reset();
-  }
-
   edm::Handle<EBDigiCollection>  digis;
   e.getByLabel("ecalEBunpacker", digis);
 
@@ -81,7 +78,7 @@ void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
 
   cout << "EcalBarrelMonitorModule: event " << ievt << " collection size " << neb << endl;
 
-  hEbarrel->Fill(float(neb));
+  meEbarrel->Fill(float(neb));
 
   for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
@@ -137,7 +134,7 @@ void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
 
     }
 
-    hEvent[ism-1]->Fill(xip, xie, xvalmax);
+    meEvent[ism-1]->Fill(xip, xie, xvalmax);
 
   }
 

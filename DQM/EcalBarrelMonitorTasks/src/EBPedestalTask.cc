@@ -1,15 +1,15 @@
 /*
  * \file EBPedestalTask.cc
  * 
- * $Date: 2005/10/07 08:47:46 $
- * $Revision: 1.2 $
+ * $Date: 2005/10/08 08:55:06 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBPedestalTask.h>
 
-EBPedestalTask::EBPedestalTask(const edm::ParameterSet& ps, TFile* rootFile){
+EBPedestalTask::EBPedestalTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe){
 
   logFile.open("EBPedestalTask.log");
 
@@ -17,29 +17,24 @@ EBPedestalTask::EBPedestalTask(const edm::ParameterSet& ps, TFile* rootFile){
 
   Char_t histo[20];
 
-  rootFile->cd();
-  TDirectory* subdir = gDirectory->mkdir("EBPedestalTask");
-  subdir->cd();
-  subdir = gDirectory->mkdir("Gain01");
-  subdir = gDirectory->mkdir("Gain06");
-  subdir = gDirectory->mkdir("Gain12");
+  dbe->setCurrentFolder("EcalBarrel/EBPedestalTask");
 
-  rootFile->cd("EBPedestalTask/Gain01");
+  dbe->setCurrentFolder("EcalBarrel/EBPedestalTask/Gain01");
   for (int i = 0; i < 36 ; i++) {
     sprintf(histo, "EBPT pedestal SM%02d G01", i+1);
-    hPedMapG01[i] = new TProfile2D(histo, histo, 20, 0., 20., 85, 0., 85., 0., 4096., "s");
+    mePedMapG01[i] = dbe->bookProfile2D(histo, histo, 20, 0., 20., 85, 0., 85., 4096, 0., 4096.);
   }
 
-  rootFile->cd("EBPedestalTask/Gain06");
+  dbe->setCurrentFolder("EcalBarrel/EBPedestalTask/Gain06");
   for (int i = 0; i < 36 ; i++) {
     sprintf(histo, "EBPT pedestal SM%02d G06", i+1);
-    hPedMapG06[i] = new TProfile2D(histo, histo, 20, 0., 20., 85, 0., 85., 0., 4096., "s");
+    mePedMapG06[i] = dbe->bookProfile2D(histo, histo, 20, 0., 20., 85, 0., 85., 4096, 0., 4096.);
   }
 
-  rootFile->cd("EBPedestalTask/Gain12");
+  dbe->setCurrentFolder("EcalBarrel/EBPedestalTask/Gain12");
   for (int i = 0; i < 36 ; i++) {
     sprintf(histo, "EBPT pedestal SM%02d G12", i+1);
-    hPedMapG12[i] = new TProfile2D(histo, histo, 20, 0., 20., 85, 0., 85., 0., 4096., "s");
+    mePedMapG12[i] = dbe->bookProfile2D(histo, histo, 20, 0., 20., 85, 0., 85., 4096, 0., 4096.);
   }
 
 }
@@ -85,28 +80,28 @@ void EBPedestalTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       int adc = sample.adc();
       float gain = 1.;
 
-      TProfile2D* hPedMap = 0;
+      MonitorElement* mePedMap = 0;
 
       if ( sample.gainId() == 1 ) {
         gain = 1./12.;
-        hPedMap = hPedMapG12[ism-1];
+        mePedMap = mePedMapG12[ism-1];
       }
       if ( sample.gainId() == 2 ) {
         gain = 1./ 6.;
-        hPedMap = hPedMapG06[ism-1];
+        mePedMap = mePedMapG06[ism-1];
       }
       if ( sample.gainId() == 3 ) {
         gain = 1./ 1.;
-        hPedMap = hPedMapG01[ism-1];
+        mePedMap = mePedMapG01[ism-1];
       }
 
       float xval = adc * gain;
 
       if ( i <= 3 ) {
-        if ( hPedMap ) hPedMap->Fill(xip, xie, xval);
+        if ( mePedMap ) mePedMap->Fill(xip, xie, xval);
       }
       if ( i >= 4 ) {
-        if ( hPedMap ) hPedMap->Fill(xip, xie, xval);
+        if ( mePedMap ) mePedMap->Fill(xip, xie, xval);
       }
     }
 

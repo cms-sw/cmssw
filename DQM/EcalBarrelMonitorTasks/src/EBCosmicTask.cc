@@ -1,15 +1,15 @@
 /*
  * \file EBCosmicTask.cc
  * 
- * $Date: 2005/10/07 08:47:46 $
- * $Revision: 1.2 $
+ * $Date: 2005/10/08 08:55:06 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBCosmicTask.h>
 
-EBCosmicTask::EBCosmicTask(const edm::ParameterSet& ps, TFile* rootFile){
+EBCosmicTask::EBCosmicTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe){
 
   logFile.open("EBCosmicTask.log");
 
@@ -17,22 +17,18 @@ EBCosmicTask::EBCosmicTask(const edm::ParameterSet& ps, TFile* rootFile){
 
   Char_t histo[20];
 
-  rootFile->cd();
-  TDirectory* subdir = gDirectory->mkdir("EBCosmicTask");
-  subdir->cd();
-  subdir = gDirectory->mkdir("Cut");
-  subdir = gDirectory->mkdir("Sel");
+  dbe->setCurrentFolder("EcalBarrel/EBCosmicTask");
 
-  rootFile->cd("EBCosmicTask/Cut");
+  dbe->setCurrentFolder("EcalBarrel/EBCosmicTask/Cut");
   for (int i = 0; i < 36 ; i++) {
     sprintf(histo, "EBCT amplitude (cut) SM%02d", i+1);
-    hCutMap[i] = new TProfile2D(histo, histo, 20, 0., 20., 85, 0., 85., 0., 4096, "s");
+    meCutMap[i] = dbe->bookProfile2D(histo, histo, 20, 0., 20., 85, 0., 85., 4096, 0., 4096.);
   }
 
-  rootFile->cd("EBCosmicTask/Sel");
+  dbe->setCurrentFolder("EcalBarrel/EBCosmicTask/Sel");
   for (int i = 0; i < 36 ; i++) {
     sprintf(histo, "EBCT amplitude (sel) SM%02d", i+1);
-    hSelMap[i] = new TProfile2D(histo, histo, 20, 0., 20., 85, 0., 85., 0., 4096, "s");
+    meSelMap[i] = dbe->bookProfile2D(histo, histo, 20, 0., 20., 85, 0., 85., 4096, 0., 4096.);
   }
 
 }
@@ -98,9 +94,9 @@ void EBCosmicTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
     }
 
-    hCutMap[ism-1]->Fill(xip, xie, xvalmax);
+    meCutMap[ism-1]->Fill(xip, xie, xvalmax);
 
-    hSelMap[ism-1]->Fill(xip, xie, xvalmax);
+    meSelMap[ism-1]->Fill(xip, xie, xvalmax);
 
   }
 

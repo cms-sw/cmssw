@@ -1,15 +1,15 @@
 /*
  * \file EBLaserTask.cc
  * 
- * $Date: 2005/10/08 08:55:06 $
- * $Revision: 1.3 $
+ * $Date: 2005/10/08 15:18:28 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  *
 */
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBLaserTask.h>
 
-EBLaserTask::EBLaserTask(const edm::ParameterSet& ps, TFile* rootFile){
+EBLaserTask::EBLaserTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe){
 
   logFile.open("EBLaserTask.log");
 
@@ -17,26 +17,22 @@ EBLaserTask::EBLaserTask(const edm::ParameterSet& ps, TFile* rootFile){
 
   Char_t histo[20];
 
-  rootFile->cd();
-  TDirectory* subdir = gDirectory->mkdir("EBLaserTask");
-  subdir->cd();
-  subdir = gDirectory->mkdir("Laser1");
-  subdir = gDirectory->mkdir("Laser2");
+  dbe->setCurrentFolder("EcalBarrel/EBLaserTask");
 
-  rootFile->cd("EBLaserTask/Laser1");
+  dbe->setCurrentFolder("EcalBarrel/EBLaserTask/Laser1");
   for (int i = 0; i < 36 ; i++) {
     sprintf(histo, "EBLT shape SM%02d L1", i+1);
-    hShapeMapL1[i] = new TProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 0., 4096., "s");
+    meShapeMapL1[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096.);
     sprintf(histo, "EBLT amplitude SM%02d L1", i+1);
-    hAmplMapL1[i] = new TProfile2D(histo, histo, 20, 0., 20., 85, 0., 85., 0., 4096., "s");
+    meAmplMapL1[i] = dbe->bookProfile2D(histo, histo, 20, 0., 20., 85, 0., 85., 4096, 0., 4096.);
   }
 
-  rootFile->cd("EBLaserTask/Laser2");
+  dbe->setCurrentFolder("EcalBarrel/EBLaserTask/Laser2");
   for (int i = 0; i < 36 ; i++) {
     sprintf(histo, "EBLT shape SM%02d L2", i+1);
-    hShapeMapL2[i] = new TProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 0., 4096., "s");
+    meShapeMapL2[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096.);
     sprintf(histo, "EBLT amplitude SM%02d L2", i+1);
-    hAmplMapL2[i] = new TProfile2D(histo, histo, 20, 0., 20., 85, 0., 85., 0., 4096., "s");
+    meAmplMapL2[i] = dbe->bookProfile2D(histo, histo, 20, 0., 20., 85, 0., 85., 4096, 0., 4096.);
   }
 
 }
@@ -78,7 +74,7 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
     float xvalmax = 0.;
 
-    TProfile2D* hAmplMap = 0;
+    MonitorElement* meAmplMap = 0;
 
     for (int i = 0; i < 10; i++) {
 
@@ -86,7 +82,7 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       int adc = sample.adc();
       float gain = 1.;
 
-      TProfile2D* hShapeMap = 0;
+      MonitorElement* meShapeMap = 0;
 
       int il = 1;
 
@@ -101,19 +97,19 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
 
       if ( il == 1 ) {
-          hShapeMap = hShapeMapL1[ism-1];
-          hAmplMap = hAmplMapL1[ism-1];
+          meShapeMap = meShapeMapL1[ism-1];
+          meAmplMap = meAmplMapL1[ism-1];
       }
       if ( il == 2 ) {
-        hShapeMap = hShapeMapL2[ism-1];
-        hAmplMap = hAmplMapL2[ism-1];
+        meShapeMap = meShapeMapL2[ism-1];
+        meAmplMap = meAmplMapL2[ism-1];
       }
 
       float xval = adc * gain;
 
       int ic = EBMonitorUtils::getCrystalID(ie, ip);
 
-      if ( hShapeMap ) hShapeMap->Fill( ic - 0.5, i + 0.5, xval);
+      if ( meShapeMap ) meShapeMap->Fill( ic - 0.5, i + 0.5, xval);
 
       float xrms = 1.0;
 
@@ -121,7 +117,7 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
     }
 
-    if ( hAmplMap ) hAmplMap->Fill(xip, xie, xvalmax);
+    if ( meAmplMap ) meAmplMap->Fill(xip, xie, xvalmax);
 
   }
 

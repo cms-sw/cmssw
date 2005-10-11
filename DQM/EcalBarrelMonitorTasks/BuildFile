@@ -1,4 +1,5 @@
 <use name=FWCore/Framework>
+<use name=DQMServices/CoreROOT>
 <use name=DataFormats/FEDRawData>
 <use name=DataFormats/EcalDetId>
 <use name=DataFormats/EcalDigi>
@@ -8,6 +9,7 @@
 <export>
  <lib name=DQMEcalBarrelMonitorTasks>
  <use name=FWCore/Framework>
+ <use name=DQMServices/CoreROOT>
  <use name=DataFormats/FEDRawData>	
  <use name=DataFormats/EcalDetId>	
  <use name=DataFormats/EcalDigi>		

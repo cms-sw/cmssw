@@ -4,15 +4,24 @@
 /*
  * \file EBHtmlTask.h
  *
- * $Date: 2005/10/07 11:15:53 $
- * $Revision: 1.3 $
+ * $Date: 2005/10/08 08:55:06 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  *
 */
 
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
+
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
 #include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
 #include <DataFormats/EcalDetId/interface/EBDetId.h>
 #include <DataFormats/EcalDigi/interface/EBDataFrame.h>
@@ -40,7 +49,7 @@ friend class EcalBarrelMonitorModule;
 public:
 
 /// Constructor
-EBHtmlTask(const edm::ParameterSet& ps, TFile* rootFile);
+EBHtmlTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe);
 
 /// Destructor
 virtual ~EBHtmlTask();
@@ -51,8 +60,6 @@ protected:
 void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 private:
-
-TFile* localRootFile;
 
 ofstream logFile;
 

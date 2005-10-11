@@ -1,15 +1,15 @@
 /*
  * \file EBTestPulseTask.cc
  * 
- * $Date: 2005/10/07 08:47:46 $
- * $Revision: 1.2 $
+ * $Date: 2005/10/08 08:55:06 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBTestPulseTask.h>
 
-EBTestPulseTask::EBTestPulseTask(const edm::ParameterSet& ps, TFile* rootFile){
+EBTestPulseTask::EBTestPulseTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe){
 
   logFile.open("EBTestPulseTask.log");
 
@@ -17,35 +17,30 @@ EBTestPulseTask::EBTestPulseTask(const edm::ParameterSet& ps, TFile* rootFile){
 
   Char_t histo[20];
 
-  rootFile->cd();
-  TDirectory* subdir = gDirectory->mkdir("EBTestPulseTask");
-  subdir->cd();
-  subdir = gDirectory->mkdir("Gain01");
-  subdir = gDirectory->mkdir("Gain06");
-  subdir = gDirectory->mkdir("Gain12");
+  dbe->setCurrentFolder("EcalBarrel/EBTestPulseTask");
 
-  rootFile->cd("EBTestPulseTask/Gain01");
+  dbe->setCurrentFolder("EcalBarrel/EBTestPulseTask/Gain01");
   for (int i = 0; i < 36 ; i++) {
     sprintf(histo, "EBTT shape SM%02d G01", i+1);
-    hShapeMapG01[i] = new TProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 0., 4096., "s");
+    meShapeMapG01[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096.);
     sprintf(histo, "EBTT amplitude SM%02d G01", i+1);
-    hAmplMapG01[i] = new TProfile2D(histo, histo, 20, 0., 20., 85, 0., 85., 0., 4096., "s");
+    meAmplMapG01[i] = dbe->bookProfile2D(histo, histo, 20, 0., 20., 85, 0., 85., 4096, 0., 4096.);
   }
 
-  rootFile->cd("EBTestPulseTask/Gain06");
+  dbe->setCurrentFolder("EcalBarrel/EBTestPulseTask/Gain06");
   for (int i = 0; i < 36 ; i++) {
     sprintf(histo, "EBTT shape SM%02d G06", i+1);
-    hShapeMapG06[i] = new TProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 0., 4096., "s");
+    meShapeMapG06[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096.);
     sprintf(histo, "EBTT amplitude SM%02d G06", i+1);
-    hAmplMapG06[i] = new TProfile2D(histo, histo, 20, 0., 20., 85, 0., 85., 0., 4096., "s");
+    meAmplMapG06[i] = dbe->bookProfile2D(histo, histo, 20, 0., 20., 85, 0., 85., 4096, 0., 4096.);
   }
 
-  rootFile->cd("EBTestPulseTask/Gain12");
+  dbe->setCurrentFolder("EcalBarrel/EBTestPulseTask/Gain12");
   for (int i = 0; i < 36 ; i++) {
     sprintf(histo, "EBTT shape SM%02d G12", i+1);
-    hShapeMapG12[i] = new TProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 0., 4096., "s");
+    meShapeMapG12[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096.);
     sprintf(histo, "EBTT amplitude SM%02d G12", i+1);
-    hAmplMapG12[i] = new TProfile2D(histo, histo, 20, 0., 20., 85, 0., 85., 0., 4096., "s");
+    meAmplMapG12[i] = dbe->bookProfile2D(histo, histo, 20, 0., 20., 85, 0., 85., 4096, 0., 4096.);
   }
 
 }
@@ -88,7 +83,7 @@ void EBTestPulseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
     float xvalmax = 0.;
 
-    TProfile2D* hAmplMap = 0;
+    MonitorElement* meAmplMap = 0;
 
     for (int i = 0; i < 10; i++) {
 
@@ -96,29 +91,29 @@ void EBTestPulseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       int adc = sample.adc();
       float gain = 1.;
 
-      TProfile2D* hShapeMap = 0;
+      MonitorElement* meShapeMap = 0;
 
       if ( sample.gainId() == 1 ) {
         gain = 1./12.;
-        hShapeMap = hShapeMapG12[ism-1];
-        hAmplMap = hAmplMapG12[ism-1];
+        meShapeMap = meShapeMapG12[ism-1];
+        meAmplMap = meAmplMapG12[ism-1];
       }
       if ( sample.gainId() == 2 ) {
         gain = 1./ 6.;
-        hShapeMap = hShapeMapG06[ism-1];
-        hAmplMap = hAmplMapG06[ism-1];
+        meShapeMap = meShapeMapG06[ism-1];
+        meAmplMap = meAmplMapG06[ism-1];
       }
       if ( sample.gainId() == 3 ) {
         gain = 1./ 1.;
-        hShapeMap = hShapeMapG01[ism-1];
-        hAmplMap = hAmplMapG01[ism-1];
+        meShapeMap = meShapeMapG01[ism-1];
+        meAmplMap = meAmplMapG01[ism-1];
       }
 
       float xval = adc * gain;
 
       int ic = EBMonitorUtils::getCrystalID(ie, ip);
 
-      if ( hShapeMap ) hShapeMap->Fill( ic - 0.5, i + 0.5, xval);
+      if ( meShapeMap ) meShapeMap->Fill( ic - 0.5, i + 0.5, xval);
 
       float xrms = 1.0;
 
@@ -126,7 +121,7 @@ void EBTestPulseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
     }
 
-    if ( hAmplMap ) hAmplMap->Fill(xip, xie, xvalmax);
+    if ( meAmplMap ) meAmplMap->Fill(xip, xie, xvalmax);
 
   }
 

@@ -4,15 +4,24 @@
 /*
  * \file EcalBarrelMonitorModule.h
  *
- * $Date: 2005/10/08 08:55:06 $
- * $Revision: 1.2 $
+ * $Date: 2005/10/08 09:39:39 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
 
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
+
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
 #include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
 #include <DataFormats/EcalDetId/interface/EBDetId.h>
 
@@ -23,13 +32,7 @@
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBHtmlTask.h>
 
-#include "TROOT.h"
-#include "TFile.h"
-#include "TH1F.h"
-#include "TH2F.h"
-#include "TProfile.h"
-#include "TProfile2D.h"
-
+#include <memory>
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -57,11 +60,11 @@ private:
 
 int ievt;
 
-TFile* rootFile;
+MonitorElement* meEbarrel;
 
-TH1F* hEbarrel;
+MonitorElement* meEvent[36];
 
-TH2F* hEvent[36];
+DaqMonitorBEInterface* dbe;
 
 EBPedestalTask* pedestal_task;
 EBTestPulseTask* testpulse_task;
@@ -69,6 +72,8 @@ EBLaserTask* laser_task;
 EBCosmicTask* cosmic_task;
 
 EBHtmlTask* html_task;
+
+string outputFile;
 
 ofstream logFile;
 

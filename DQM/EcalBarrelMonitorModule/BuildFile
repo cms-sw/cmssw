@@ -1,5 +1,6 @@
 <flags SEAL_PLUGIN_NAME="DQMEcalBarrelMonitorModule">
 <use name=FWCore/Framework>
+<use name=DQMServices/CoreROOT>
 <use name=DataFormats/FEDRawData>
 <use name=DataFormats/EcalDetId>	
 <use name=DataFormats/EcalDigi>	
@@ -10,6 +11,7 @@
 <export>
  <lib name=DQMEcalBarrelMonitorModule>
  <use name=FWCore/Framework>
+ <use name=DQMServices/CoreROOT>
  <use name=DataFormats/FEDRawData>	
  <use name=DataFormats/EcalDetId>	
  <use name=DataFormats/EcalDigi>		
