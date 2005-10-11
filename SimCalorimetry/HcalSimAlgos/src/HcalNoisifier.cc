@@ -28,7 +28,7 @@ namespace cms {
       // pedestals come in units of GeV.  Use gain to convert
       frame[tbin] += (calibrations->pedestal(capId) + pedestalJitter) / calibrations->gain(capId);
     }
-std::cout << "AFTER HCAL NOISE NOISE " << endl;
+std::cout << "AFTER HCAL NOISE NOISE " << std::endl;
     std::cout << frame << std::endl;
   }
 }
