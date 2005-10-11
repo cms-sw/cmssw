@@ -16,11 +16,13 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Sep 23 16:47:10 CEST 2005
-// $Id$
+// $Id: SignallingProductRegistry.h,v 1.1 2005/10/07 19:16:19 chrjones Exp $
 //
 
 // system include files
 #include "boost/signal.hpp"
+#include <map>
+#include <string>
 
 // user include files
 #include "FWCore/Framework/interface/ProductRegistry.h"
@@ -39,9 +41,9 @@ namespace edm {
 
       const SignallingProductRegistry& operator=(const SignallingProductRegistry&); // stop default
 
-      virtual void addCalled(BranchDescription const&);
+      virtual void addCalled(BranchDescription const&, bool);
       // ---------- member data --------------------------------
-
+      std::map<std::string, unsigned int> typeAddedStack_;
    };
 }
 
