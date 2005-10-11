@@ -4,11 +4,11 @@
 
    \author Stefano ARGIRO
    \co-author Bill Tanenbaum
-   \version $Id: ProductRegistry.cc,v 1.11 2005/10/03 19:05:24 wmtan Exp $
+   \version $Id: ProductRegistry.cc,v 1.12 2005/10/07 19:05:18 chrjones Exp $
    \date 19 Jul 2005
 */
 
-static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.11 2005/10/03 19:05:24 wmtan Exp $";
+static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.12 2005/10/07 19:05:18 chrjones Exp $";
 
 
 #include <FWCore/Framework/interface/ProductRegistry.h>
@@ -17,10 +17,10 @@ static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.11 2005/10/03 19:05:24 
 using namespace edm;
 
 void
-ProductRegistry::addProduct(BranchDescription const& productDesc) {
+ProductRegistry::addProduct(BranchDescription const& productDesc, bool fromListener) {
   productDesc.init();
   productList_.insert(std::make_pair(BranchKey(productDesc), productDesc));
-  addCalled(productDesc);
+  addCalled(productDesc,fromListener);
 }
 
 void
@@ -42,7 +42,7 @@ ProductRegistry::setProductIDs() {
 }
 
 void
-ProductRegistry::addCalled(BranchDescription const&) {
+ProductRegistry::addCalled(BranchDescription const&, bool) {
 }
 
 // Configure (x)emacs for this file ...
