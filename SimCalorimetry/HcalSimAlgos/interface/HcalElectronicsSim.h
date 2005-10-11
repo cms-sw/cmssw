@@ -9,12 +9,12 @@
       digitized data frame
    */
 class HcalCoder;
+class HBHEDataFrame;
+class HODataFrame;
+class HFDataFrame;
 
 namespace cms { 
 
-  class HBHEDataFrame;
-  class HODataFrame;
-  class HFDataFrame;
   class CaloVNoisifier;
   
   class HcalElectronicsSim {
