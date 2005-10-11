@@ -1,10 +1,10 @@
 #ifndef CaloVSimParameterMap_h
 #define CaloVSimParameterMap_h
 
+class DetId;
 
 namespace cms {
   class CaloSimParameters;
-  class DetId;
 
   class CaloVSimParameterMap
   {
