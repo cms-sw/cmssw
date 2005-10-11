@@ -4,7 +4,6 @@ using namespace edm;
 
     CrossingFrame::CrossingFrame(int minb, int maxb, int bunchsp, std::vector<std::string> trackersubdetectors,std::vector<std::string> calosubdetectors): BCrossingFrame(minb,bunchsp) {
 
-    printf ("complete constructor CF called\n");fflush(stdout);
     // create and insert vectors into the map
     // for tracker
     for(std::vector<std::string >::const_iterator it = trackersubdetectors.begin(); it != trackersubdetectors.end(); ++it) {  
@@ -24,12 +23,10 @@ using namespace edm;
   }
 
   CrossingFrame::~CrossingFrame () {
-    printf("SimCF destructor called\n");fflush(stdout);
     this->clear();
   }
 
   void CrossingFrame::clear() {
-    printf("SimCF clear called\n");fflush(stdout);
     // clear things up
     signalSimHits_.clear();
     signalCaloHits_.clear();

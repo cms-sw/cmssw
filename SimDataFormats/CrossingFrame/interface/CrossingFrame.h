@@ -30,8 +30,7 @@
     public:
       // con- and destructors
 
-      CrossingFrame() {    printf ("default constructor CF called\n");fflush(stdout);
-;}
+      CrossingFrame() {;}
       CrossingFrame(int minb, int maxb, int bunchsp, std::vector<std::string> trackersubdetectors,std::vector<std::string> calosubdetectors);
 
       ~CrossingFrame();
