@@ -1,18 +1,24 @@
 <lcgdict>
    <class name="EcalMGPASample"/>
+   <class name="EcalFEMSample"/>
    <class name="EBDataFrame"/>
    <class name="EEDataFrame"/>
    <class name="EcalTriggerPrimitiveSample"/>
    <class name="EcalTriggerPrimitiveDigi"/>
+   <class name="EcalPnDiodeDigi"/>
    <class name="std::vector<EcalMGPASample>"/>
+   <class name="std::vector<EcalFEMSample>"/>
    <class name="std::vector<EcalTriggerPrimitiveSample>"/>
    <class name="std::vector<EBDataFrame>"/>
    <class name="std::vector<EEDataFrame>"/>
    <class name="std::vector<EcalTriggerPrimitiveDigi>"/>
+   <class name="std::vector<EcalPnDiodeDigi>"/>
    <class name="edm::SortedCollection<EBDataFrame,edm::StrictWeakOrdering<EBDataFrame> >"/>
    <class name="edm::SortedCollection<EEDataFrame,edm::StrictWeakOrdering<EEDataFrame> >"/>
    <class name="edm::SortedCollection<EcalTriggerPrimitiveDigi,edm::StrictWeakOrdering<EcalTriggerPrimitiveDigi> >"/>
+   <class name="edm::SortedCollection<EcalPnDiodeDigi,edm::StrictWeakOrdering<EcalPnDiodeDigi> >"/>
    <class name="edm::Wrapper<edm::SortedCollection<EBDataFrame,edm::StrictWeakOrdering<EBDataFrame> > >" id="F0B06679-18A5-3D32-25EB-39EE2BC754CD"/>
    <class name="edm::Wrapper<edm::SortedCollection<EEDataFrame,edm::StrictWeakOrdering<EEDataFrame> > >" id="1BACF93F-EE6E-A387-6C0C-B654F011BDAB"/>
    <class name="edm::Wrapper<edm::SortedCollection<EcalTriggerPrimitiveDigi,edm::StrictWeakOrdering<EcalTriggerPrimitiveDigi> > > " id="D932A444-CBDD-A27C-4D85-BFED25EFBCF8"/>
+   <class name="edm::Wrapper<edm::SortedCollection<EcalPnDiodeDigi,edm::StrictWeakOrdering<EcalPnDiodeDigi> > > " id="8104DEE4-28BC-284A-8397-7EF8F5DBA1B1"/>
 </lcgdict>
