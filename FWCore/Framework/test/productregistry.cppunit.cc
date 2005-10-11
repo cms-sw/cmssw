@@ -3,7 +3,7 @@
    test for ProductRegistry 
 
    \author Stefano ARGIRO
-   \version $Id: productregistry.cppunit.cc,v 1.3 2005/09/28 17:32:52 chrjones Exp $
+   \version $Id: productregistry.cppunit.cc,v 1.4 2005/10/03 19:02:41 wmtan Exp $
    \date 21 July 2005
 */
 
@@ -13,9 +13,9 @@
 #include "FWCore/Framework/interface/EventProcessor.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-//#include "FWCore/Framework/src/SignallingProductRegistry.h"
-//#include "FWCore/Framework/interface/ConstProductRegistry.h"
-//#include "FWCore/Framework/interface/ModuleDescription.h"
+#include "FWCore/Framework/src/SignallingProductRegistry.h"
+#include "FWCore/Framework/interface/ConstProductRegistry.h"
+#include "FWCore/Framework/interface/ModuleDescription.h"
 #include "FWCore/Utilities/interface/ProblemTracker.h"
 
 
@@ -23,8 +23,9 @@ class testProductRegistry: public CppUnit::TestFixture
 {
 CPPUNIT_TEST_SUITE(testProductRegistry);
 
-//CPPUNIT_TEST(testSignal);
-//CPPUNIT_TEST(testWatch);
+CPPUNIT_TEST(testSignal);
+CPPUNIT_TEST(testWatch);
+CPPUNIT_TEST_EXCEPTION(testCircular,cms::Exception);
 
 CPPUNIT_TEST(testProductRegistration);
 
@@ -33,15 +34,16 @@ CPPUNIT_TEST_SUITE_END();
 public:
   void setUp(){}
   void tearDown(){}
-  //void testSignal();
-  //void testWatch();
+  void testSignal();
+  void testWatch();
+  void testCircular();
   void testProductRegistration();
 
 };
 
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testProductRegistry);
-/*
+
 namespace {
    struct Listener {
       int* heard_;
@@ -97,8 +99,34 @@ void  testProductRegistry:: testWatch(){
    constReg.watchProductAdditions(listening, &Listener::operator());
 
    Responder one("one",constReg, reg);
-   Responder two("two",constReg, reg);
                  
+   ModuleDescription modDesc;
+   BranchDescription prod(modDesc, "int", "int", "int",0);
+   reg.addProduct(prod);
+   BranchDescription prod2(modDesc, "float", "float", "float",0);
+   reg.addProduct(prod2);
+   
+   //Should be 4 products
+   // 1 from the 'int' in this routine
+   // 1 from 'one' responding to this call
+   // 1 from the 'float'
+   // 1 from 'one' responding to the original call
+   CPPUNIT_ASSERT(4*2==hear);
+   CPPUNIT_ASSERT(4 == reg.productList().size());
+}
+void  testProductRegistry:: testCircular(){
+   using namespace edm;
+   SignallingProductRegistry reg;
+   ConstProductRegistry constReg(reg);
+   
+   int hear=0;
+   Listener listening(hear);
+   constReg.watchProductAdditions(listening);
+   constReg.watchProductAdditions(listening, &Listener::operator());
+   
+   Responder one("one",constReg, reg);
+   Responder two("two",constReg, reg);
+   
    ModuleDescription modDesc;
    BranchDescription prod(modDesc, "int", "int", "int",0);
    
@@ -112,7 +140,7 @@ void  testProductRegistry:: testWatch(){
    CPPUNIT_ASSERT(5*2==hear);
    CPPUNIT_ASSERT(5 == reg.productList().size());
 }
-*/
+
 void  testProductRegistry:: testProductRegistration(){
    edm::AssertHandler ah;
 
