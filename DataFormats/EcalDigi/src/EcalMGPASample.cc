@@ -7,6 +7,6 @@ EcalMGPASample::EcalMGPASample(int adc, int gainId) {
 }
 
 std::ostream& operator<<(std::ostream& s, const EcalMGPASample& samp) {
-  s << "ADC=" << samp.adc() << ", capid=" << samp.gainId();
+  s << "ADC=" << samp.adc() << ", gainId=" << samp.gainId();
   return s;
 }
