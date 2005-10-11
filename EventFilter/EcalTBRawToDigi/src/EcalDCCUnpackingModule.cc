@@ -1,7 +1,7 @@
 /* \file EcalDCCUnpackingModule.h
  *
- *  $Date: 2005/10/07 14:10:38 $
- *  $Revision: 1.8 $
+ *  $Date: 2005/10/07 14:16:08 $
+ *  $Revision: 1.9 $
  *  \author N. Marinelli 
  */
 
@@ -25,12 +25,12 @@ using namespace std;
 EcalDCCUnpackingModule::EcalDCCUnpackingModule(const edm::ParameterSet& pset) : 
   formatter(new EcalTBDaqFormatter()) {
 
-  string filename = pset.getUntrackedParameter<string>("fileName", "");
+  string outputFile = pset.getUntrackedParameter<string>("outputFile", "");
 
   rootFile = 0;
-  if ( filename.c_str() != "" ) {
-    cout << "Integrity histograms wil be saved to " << filename.c_str() << endl;
-    rootFile = new TFile(filename.c_str(), "recreate");
+  if ( outputFile.size() != 0 ) {
+    cout << "Ecal Integrity histograms will be saved to " << outputFile.c_str() << endl;
+    rootFile = new TFile(outputFile.c_str(), "recreate");
     rootFile->cd();
   }
 

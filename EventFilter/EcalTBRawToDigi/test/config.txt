@@ -1,7 +1,7 @@
 process TEST = { 
 
      module ecalEBunpacker = EcalDCCUnpackingModule{
-#               untracked string fileName = 'integrity'
+#               untracked string outputFile = 'integrity.root'
      }
 
      module digi = EcalDigiDumperModule{ }
