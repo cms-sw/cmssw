@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  * 
- * $Date: 2005/10/11 17:08:32 $
- * $Revision: 1.6 $
+ * $Date: 2005/10/11 17:18:12 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  *
 */
@@ -66,7 +66,9 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
     float xie = iz * (ie - 0.5);
     float xip = ip - 0.5;
 
-    int ism = EBMonitorUtils::getSuperModuleID(ip, iz);
+    int ism = id.ism();
+
+    int ic = id.ic();
 
     logFile << " det id = " << id << endl;
     logFile << " sm, eta, phi " << ism << " " << ie*iz << " " << ip << endl;
@@ -105,8 +107,6 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
 
       float xval = adc * gain;
-
-      int ic = EBMonitorUtils::getCrystalID(ie, ip);
 
       if ( meShapeMap ) meShapeMap->Fill( ic - 0.5, i + 0.5, xval);
 

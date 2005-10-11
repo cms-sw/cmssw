@@ -4,8 +4,8 @@
 /*
  * \file EBHtmlTask.h
  *
- * $Date: 2005/10/11 13:39:36 $
- * $Revision: 1.5 $
+ * $Date: 2005/10/11 16:40:55 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  *
 */
@@ -25,8 +25,6 @@
 #include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
 #include <DataFormats/EcalDetId/interface/EBDetId.h>
 #include <DataFormats/EcalDigi/interface/EBDataFrame.h>
-
-#include <DQM/EcalBarrelMonitorTasks/interface/EBMonitorUtils.h>
 
 #include "TROOT.h"
 #include "TFile.h"

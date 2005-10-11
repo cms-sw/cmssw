@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  * 
- * $Date: 2005/10/11 17:08:32 $
- * $Revision: 1.5 $
+ * $Date: 2005/10/11 17:18:12 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  *
 */
@@ -62,7 +62,7 @@ void EBCosmicTask::analyze(const edm::Event& e, const edm::EventSetup& c){
     float xie = iz * (ie - 0.5);
     float xip = ip - 0.5;
 
-    int ism = EBMonitorUtils::getSuperModuleID(ip, iz);
+    int ism = id.ism();
 
     logFile << " det id = " << id << endl;
     logFile << " sm, eta, phi " << ism << " " << ie*iz << " " << ip << endl;

@@ -4,8 +4,8 @@
 /*
  * \file EBTestPulseTask.h
  *
- * $Date: 2005/10/08 08:55:06 $
- * $Revision: 1.4 $
+ * $Date: 2005/10/11 13:39:36 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  *
 */
@@ -25,8 +25,6 @@
 #include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
 #include <DataFormats/EcalDetId/interface/EBDetId.h>
 #include <DataFormats/EcalDigi/interface/EBDataFrame.h>
-
-#include <DQM/EcalBarrelMonitorTasks/interface/EBMonitorUtils.h>
 
 #include <iostream>
 #include <fstream>
