@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  * 
- * $Date: 2005/10/11 17:15:37 $
- * $Revision: 1.7 $
+ * $Date: 2005/10/11 17:55:11 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  *
 */
@@ -45,8 +45,6 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
 
   cosmic_task = new EBCosmicTask(ps, dbe);
 
-  html_task = new EBHtmlTask(ps, dbe);
-
   dbe->showDirStructure();
 
   logFile.open("EcalBarrelMonitorModule.log");
@@ -59,7 +57,6 @@ EcalBarrelMonitorModule::~EcalBarrelMonitorModule(){
   delete testpulse_task;
   delete laser_task;
   delete cosmic_task;
-  delete html_task;
 
   if ( outputFile.size() != 0 ) dbe->save(outputFile);
 
@@ -147,8 +144,6 @@ void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
   laser_task->analyze(e, c);
 
   cosmic_task->analyze(e, c);
-
-  html_task->analyze(e, c);
 
 }
 
