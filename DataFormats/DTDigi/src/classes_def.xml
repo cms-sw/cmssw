@@ -9,8 +9,8 @@
           id="7AB5CD91-C546-4F71-9329-26F3AB4DA45" />
 <class name="DTDigi::PersistentPacking" 
           id="F8624359-07F4-42DE-A779-419CD1284B31" />
-<class name="DigiCollection<DTDetId,DTDigi>"  
+<class name="MuonDigiCollection<DTDetId,DTDigi>"  
           id="E87EB799-21F4-462F-876C-7B68988AF8CE"/> 
-<class name="edm::Wrapper<DigiCollection<DTDetId,DTDigi>>"  
+<class name="edm::Wrapper<MuonDigiCollection<DTDetId,DTDigi>>"  
           id="A87EB199-21F4-462F-876C-7B68988AF8CE"/> 
 </lcgdict>
