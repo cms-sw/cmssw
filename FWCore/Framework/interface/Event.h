@@ -6,7 +6,7 @@
 Event: This is the primary interface for accessing
 EDProducts from a single collision and inserting new derived products.
 
-$Id: Event.h,v 1.20 2005/09/02 23:08:30 wmtan Exp $
+$Id: Event.h,v 1.21 2005/09/30 21:16:00 paterno Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
@@ -291,7 +291,8 @@ namespace edm {
 
     edm::Wrapper<PROD> *wp(new Wrapper<PROD>(*p));
     put_products_.push_back(std::make_pair(wp, productInstanceName));
-    product.release();
+    // product.release(); // The object has been copied into the Wrapper.
+    // The old copy must be deleted, so we cannot release ownership.
   }
 
   template <class PROD>
