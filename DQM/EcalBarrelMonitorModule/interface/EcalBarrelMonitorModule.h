@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorModule.h
  *
- * $Date: 2005/10/12 12:16:18 $
- * $Revision: 1.6 $
+ * $Date: 2005/10/12 14:20:45 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  *
 */
@@ -59,6 +59,9 @@ private:
 int ievt;
 
 DaqMonitorBEInterface* dbe;
+
+MonitorElement* meRun;
+MonitorElement* meEvt;
 
 MonitorElement* meEbarrel;
 

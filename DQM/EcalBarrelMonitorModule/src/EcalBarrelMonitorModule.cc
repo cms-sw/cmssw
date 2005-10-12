@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  * 
- * $Date: 2005/10/12 12:16:18 $
- * $Revision: 1.9 $
+ * $Date: 2005/10/12 14:20:45 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  *
 */
@@ -28,6 +28,8 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
   }
 
   dbe->setCurrentFolder("EcalBarrel");
+  meRun     = dbe->bookInt("RUN");
+  meEvt     = dbe->bookInt("EVT");
   meEbarrel = dbe->book1D("EBMM hits", "EBMM hits ", 100, 0., 61201.);
 
   dbe->setCurrentFolder("EcalBarrel/EBMonitorEvent");
@@ -64,11 +66,15 @@ EcalBarrelMonitorModule::~EcalBarrelMonitorModule(){
 
   cout << "EcalBarrelMonitorModule: analyzed " << ievt << " events" << endl;
 
+  meRun->Fill(0);
 }
 
 void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   ievt++;
+
+  meRun->Fill(1);
+  meEvt->Fill(ievt);
 
   edm::Handle<EBDigiCollection>  digis;
   e.getByLabel("ecalEBunpacker", digis);
