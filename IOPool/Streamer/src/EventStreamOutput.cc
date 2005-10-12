@@ -1,7 +1,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: EventStreamOutput.cc,v 1.5 2005/09/30 05:26:18 wmtan Exp $
+// $Id: EventStreamOutput.cc,v 1.6 2005/10/11 21:34:29 wmtan Exp $
 //
 // Class EventStreamOutput module
 //
@@ -71,7 +71,6 @@ namespace edm
   // -------------------------------------
 
   EventStreamerImpl::EventStreamerImpl(ParameterSet const&,
-				       ProductRegistry const& reg,
 				       EventBuffer* bufs):
     bufs_(bufs),
     tc_(),
@@ -89,22 +88,20 @@ namespace edm
   {
   }
 
-  void EventStreamerImpl::serializeRegistry(ProductRegistry const& reg)
+  void EventStreamerImpl::serializeRegistry(Selections const& prods)
   {
     FDEBUG(6) << "StreamOutput: serializeRegistry" << endl;
     TClass* prog_reg = getTClass(typeid(SendJobHeader));
     SendJobHeader sd;
 
-    typedef ProductRegistry::ProductList Prods;
-    const Prods& prods = reg.productList();
-    Prods::const_iterator i(prods.begin()),e(prods.end());
+    Selections::const_iterator i(prods.begin()),e(prods.end());
 
     //cout << "Product List: " << endl;
     for(;i!=e;++i) 
       {
-	//cout << " " << i->second.fullClassName_ << endl;
-	sd.descs_.push_back(i->second);
-	FDEBUG(9) << "StreamOutput got product = " << i->second.fullClassName_
+	//cout << " " << (*i)->fullClassName_ << endl;
+	sd.descs_.push_back(**i);
+	FDEBUG(9) << "StreamOutput got product = " << (*i)->fullClassName_
 		  << endl;
       }
 
