@@ -2,8 +2,8 @@
 #define EcalTBDaqFormatter_H
 /** \class EcalTBDaqFormatter
  *
- *  $Date: 2005/08/03 15:27:50 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/10/06 17:49:07 $
+ *  $Revision: 1.2 $
  *  \author N. Marinelli  IASA-Athens
  *
  */
@@ -13,6 +13,9 @@
 using namespace std;
 #include <iostream>
 
+#include "TROOT.h"
+#include "TFile.h"
+#include "TH2D.h"
 
 class FEDRawData;
 class DCCDataParser;
@@ -21,7 +24,7 @@ class EcalTBDaqFormatter   {
  public:
 
 
-  EcalTBDaqFormatter();
+  EcalTBDaqFormatter(TFile * rootFile);
   virtual ~EcalTBDaqFormatter(){cout << " Destroying EcalTBDaqFormatter " << endl; };
   
   
@@ -50,7 +53,7 @@ class EcalTBDaqFormatter   {
      kChannelsPerCard = 5    // Number of channels per VFE card
    };
 
-  
+  TH2D* meIntegrity[36];
   
 };
 #endif

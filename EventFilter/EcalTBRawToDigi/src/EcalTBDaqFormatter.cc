@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2005/09/19 19:42:11 $
- *  $Revision: 1.4 $
+ *  $Date: 2005/10/06 17:49:04 $
+ *  $Revision: 1.5 $
  *  \author  N. Marinelli IASA 
  *
  *
@@ -25,7 +25,7 @@ using namespace std;
 #include <iostream>
 
 
-EcalTBDaqFormatter::EcalTBDaqFormatter ( ) {
+EcalTBDaqFormatter::EcalTBDaqFormatter (TFile* rootFile) {
 
   cout << " EcalTBDaqFormatter CTOR " << endl;
   vector<ulong> parameters;
@@ -40,6 +40,16 @@ EcalTBDaqFormatter::EcalTBDaqFormatter ( ) {
   parameters.push_back(3);  // parameters[8] is the tcc3 id
   parameters.push_back(4);  // parameters[9] is the tcc4 id
  
+ Char_t histo[20];
+
+ if ( rootFile ) {
+   rootFile->mkdir("EcalIntegrity");
+   rootFile->cd("EcalIntegrity");
+   for (int i = 0; i < 36 ; i++) {
+     sprintf(histo, "EI SM%02d", i+1);
+     meIntegrity[i] = new TH2D(histo, histo, 20, 0., 20., 85, 0., 85.);
+   } 
+ }
 
  theParser_ = new DCCDataParser(parameters);
 

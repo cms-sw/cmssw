@@ -1,7 +1,7 @@
 /* \file EcalDCCUnpackingModule.h
  *
- *  $Date: 2005/10/07 14:16:08 $
- *  $Revision: 1.9 $
+ *  $Date: 2005/10/11 06:56:58 $
+ *  $Revision: 1.10 $
  *  \author N. Marinelli 
  */
 
@@ -22,8 +22,7 @@ using namespace std;
 
 #include <iostream>
 
-EcalDCCUnpackingModule::EcalDCCUnpackingModule(const edm::ParameterSet& pset) : 
-  formatter(new EcalTBDaqFormatter()) {
+EcalDCCUnpackingModule::EcalDCCUnpackingModule(const edm::ParameterSet& pset){
 
   string outputFile = pset.getUntrackedParameter<string>("outputFile", "");
 
@@ -33,6 +32,8 @@ EcalDCCUnpackingModule::EcalDCCUnpackingModule(const edm::ParameterSet& pset) :
     rootFile = new TFile(outputFile.c_str(), "recreate");
     rootFile->cd();
   }
+
+  formatter = new EcalTBDaqFormatter(rootFile);
 
   produces<EBDigiCollection>();
 
