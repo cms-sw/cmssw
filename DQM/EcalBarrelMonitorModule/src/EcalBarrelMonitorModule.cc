@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  * 
- * $Date: 2005/10/11 17:55:11 $
- * $Revision: 1.8 $
+ * $Date: 2005/10/12 12:16:18 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  *
 */
@@ -37,13 +37,13 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
     meEvent[i]->setResetMe(true);
   }
 
-  pedestal_task = new EBPedestalTask(ps, dbe);
+  pedestal_task  = new EBPedestalTask(ps, dbe);
 
   testpulse_task = new EBTestPulseTask(ps, dbe);
 
-  laser_task = new EBLaserTask(ps, dbe);
+  laser_task     = new EBLaserTask(ps, dbe);
 
-  cosmic_task = new EBCosmicTask(ps, dbe);
+  cosmic_task    = new EBCosmicTask(ps, dbe);
 
   dbe->showDirStructure();
 
