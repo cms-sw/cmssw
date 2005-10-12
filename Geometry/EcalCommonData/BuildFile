@@ -1,0 +1,11 @@
+
+<use name=DetectorDescription/Parser>
+<use name=DetectorDescription/Core>
+
+# Build a SEAL plugin:
+
+
+<export>
+<lib name=GeometryEcalCommonData>
+</export>
+<Flags SEAL_PLUGIN_NAME="GeometryEcalCommonData">
