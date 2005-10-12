@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSecondarySource.cc,v 1.4 2005/10/03 19:53:11 wmtan Exp $
+$Id: PoolSecondarySource.cc,v 1.5 2005/10/11 21:49:26 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/EDProduct/interface/EDProduct.h"
@@ -113,6 +113,7 @@ namespace edm {
       std::vector<BranchEntryDescription>::iterator pit = evProv.data_.begin();
       std::vector<BranchEntryDescription>::iterator pitEnd = evProv.data_.end();
       for (; pit != pitEnd; ++pit) {
+        if (pit->status != BranchEntryDescription::Success) continue;
         // BEGIN These lines read all branches
         // TBranch *br = branches_.find(poolNames::keyName(*pit))->second;
         // XXXX *p = QQQ;
