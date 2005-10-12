@@ -4,13 +4,15 @@
 #include <ostream>
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 
 /** \class EBDetId
  *  Crystal identifier class for the ECAL barrel
  *
  *
- *  $Id: EBDetId.h,v 1.2 2005/07/27 19:41:12 mansj Exp $
+ *  $Id: EBDetId.h,v 1.3 2005/10/06 11:02:55 meridian Exp $
  */
+
 
 class EBDetId : public DetId {
  public:
@@ -37,9 +39,15 @@ class EBDetId : public DetId {
   /// get the crystal iphi
   int iphi() const { return id_&0x1FF; }
   /// get the HCAL/trigger ieta of this crystal
-  int tower_ieta() const { return ((ieta()-zside())/5)+zside(); }
+  int tower_ieta() const { return ((ieta()-1)/5+1)*zside(); }
   /// get the HCAL/trigger iphi of this crystal
   int tower_iphi() const { return ((iphi()-1)/5)+1; }
+  /// get the HCAL/trigger iphi of this crystal
+  EcalTrigTowerDetId tower() const { return EcalTrigTowerDetId(); }
+  /// get the ECAL/SM id
+  int ism() const;
+  /// get ECAL/crystal number inside SM
+  int ic() const;
   /// get a compact index for arrays
   int hashedIndex() const;
 
@@ -48,6 +56,8 @@ class EBDetId : public DetId {
   static const int MIN_IPHI = 1;
   static const int MAX_IETA = 85;
   static const int MAX_IPHI = 360;
+  static const int kChannelsPerCard = 5;
+  static const int kTowersInPhi = 4;
 };
 
 std::ostream& operator<<(std::ostream& s,const EBDetId& id);
