@@ -33,7 +33,6 @@ namespace edmtest
   // ----------------------------------
 
   TestConsumer::TestConsumer(edm::ParameterSet const& ps, 
-			     edm::ProductRegistry const&,
 			     edm::EventBuffer* buf):
     worker_(new Worker(ps.getParameter<string>("fileName"))),
     bufs_(buf)

@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: OutputWorker.cc,v 1.9 2005/08/25 20:26:19 wmtan Exp $
+$Id: OutputWorker.cc,v 1.10 2005/09/08 10:57:35 chrjones Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/EventPrincipal.h"
@@ -22,7 +22,6 @@ namespace edm {
       Worker(md),
       mod_(mod),
       actions_(wp.actions_) {
-    assert(wp.reg_ != 0);
   }
 
   OutputWorker::~OutputWorker() {

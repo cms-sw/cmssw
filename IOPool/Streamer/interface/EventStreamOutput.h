@@ -21,7 +21,6 @@
 #include "IOPool/Streamer/interface/BufferArea.h"
 #include "IOPool/Streamer/interface/EventBuffer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ProductRegistry.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/OutputModule.h"
 
@@ -39,14 +38,14 @@ namespace edm
   {
   public:
     typedef std::vector<char> ProdRegBuf;
+    typedef OutputModule::Selections Selections;
 
     EventStreamerImpl(ParameterSet const& ps,
-		      ProductRegistry const& reg,
 		      EventBuffer* bufs);
     ~EventStreamerImpl();
 
     void serialize(EventPrincipal const& e);
-    void serializeRegistry(ProductRegistry const& reg);
+    void serializeRegistry(Selections const& prods);
 
     void* registryBuffer() const { return (void*)&prod_reg_buf_[0]; }
     int registryBufferSize() const { return prod_reg_len_; }
@@ -65,8 +64,7 @@ namespace edm
   class EventStreamingModule : public OutputModule
   {
   public:
-    EventStreamingModule(ParameterSet const& ps,
-			 ProductRegistry const& reg);
+    explicit EventStreamingModule(ParameterSet const& ps);
 
     virtual ~EventStreamingModule();
     virtual void write(EventPrincipal const& e);
@@ -89,13 +87,12 @@ namespace edm
    */
 
   template <class Consumer>
-  EventStreamingModule<Consumer>::EventStreamingModule(ParameterSet const& ps,
-						       ProductRegistry const& reg):
-    OutputModule(ps,reg),
+  EventStreamingModule<Consumer>::EventStreamingModule(ParameterSet const& ps):
+    OutputModule(ps),
     bufs_(getEventBuffer(ps.template getParameter<int>("max_event_size"),
 			 ps.template getParameter<int>("max_queue_depth"))),
-    es_(ps,reg,bufs_),
-    c_(ps.template getParameter<ParameterSet>("consumer_config"),reg,bufs_)
+    es_(ps,bufs_),
+    c_(ps.template getParameter<ParameterSet>("consumer_config"),bufs_)
   {
     // temporary hack
     //EventSetup* setu=0;
@@ -131,7 +128,7 @@ namespace edm
   {
     //std::cerr << "In beginJob" << std::endl;
 
-    es_.serializeRegistry(*preg_);
+    es_.serializeRegistry(descVec_);
     c_.sendRegistry(es_.registryBuffer(),es_.registryBufferSize());
 
   }
