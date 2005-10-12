@@ -3,14 +3,14 @@
    Test suite for DTUnpackingModule
 
    \author Stefano ARGIRO
-   \version $Id: testDTUnpackingModule.cc,v 1.7 2005/09/14 10:06:23 argiro Exp $
+   \version $Id: testDTUnpackingModule.cc,v 1.8 2005/10/11 15:48:55 namapane Exp $
    \date 29 Jun 2005
 
    \note these tests are not testing anything but the thing not crashing
         
 */
 
-static const char CVSId[] = "$Id: testDTUnpackingModule.cc,v 1.7 2005/09/14 10:06:23 argiro Exp $";
+static const char CVSId[] = "$Id: testDTUnpackingModule.cc,v 1.8 2005/10/11 15:48:55 namapane Exp $";
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <FWCore/Framework/interface/EventProcessor.h>
@@ -75,10 +75,11 @@ void testDTUnpackingModule::testUnpacker(){
 
   const std::string config=
     "process TEST = { \n"
-     "module dtunpacker = DTUnpackingModule{ }\n"
-     "module hit = DummyHitFinderModule{ }\n"
-     "path p = {dtunpacker, hit}\n"
-     "source = DAQFileInputService{ string fileName =\""  + testfileLocation+ "dtraw.raw" +"\" }\n"
+    "module dtunpacker = DTUnpackingModule{ }\n"
+    "module hit = DummyHitFinderModule{ }\n"
+    "path p = {dtunpacker, hit}\n"
+    "source = DAQFileInputService{ string fileName =\""  + testfileLocation+ "dtraw.raw" +"\"\n"
+    "                              untracked int32 maxEvents = 1 }\n"
     "}\n";
  
   int rc = runIt(config);
@@ -94,7 +95,8 @@ void testDTUnpackingModule::writeOut(){
      "module out = PoolOutputModule {\n"
      "                   untracked string fileName =\"" + testfileLocation+ "dtdigis.root" +"\"} \n"
      "path p = {dtunpacker, out}\n" 
-     "source = DAQFileInputService{ string fileName =\""  + testfileLocation+ "dtraw.raw" +"\" }\n"
+     "source = DAQFileInputService{ string fileName =\""  + testfileLocation+ "dtraw.raw" +"\"\n"
+    "                              untracked int32 maxEvents = 1 }\n"
     "}\n";
 
  int rc = runIt(config);
@@ -110,7 +112,7 @@ void testDTUnpackingModule::testPoolIO(){
     "process TEST = { \n"
     " module hit = DummyHitFinderModule{ }\n"
     " path p = {hit}\n"
-    " source = PoolInputService{ string fileName =\""  + testfileLocation+ "dtdigis.root" +"\"} \n"
+    " source = PoolSource{ string fileName =\""  + testfileLocation+ "dtdigis.root" +"\"} \n"
     "}\n";
 
    int rc = runIt(config);
