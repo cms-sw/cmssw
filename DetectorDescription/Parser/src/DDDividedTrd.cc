@@ -21,6 +21,9 @@
 #include "DetectorDescription/Base/interface/DDRotationMatrix.h"
 #include "DetectorDescription/Base/interface/DDTranslation.h"
 
+#include <cmath>
+#include <cstdlib>
+
 //------------------------------------------------------------------------
 DDDividedTrdX::DDDividedTrdX ( const DDDivision & div )
   :  DDDividedGeometryObject ( div )
@@ -143,9 +146,11 @@ void DDDividedTrdX::checkParametersValidity()
   double mpAlpha2 = mtrd.alpha2();
 //    double mpDy1 = mtrd.y1();
 //    double mpDy2 = mtrd.y2();
+//   double x1Tol = mpDx1 - mpDx2;
+//   if (x1Tol < 0.0) x1Tol = x1Tol * -1.0;
 
-  if ( abs(mpDx1 - mpDx2) > tolerance()  || abs(mpDx3 - mpDx4) > tolerance()
-       || abs(mpDx1 - mpDx4) > tolerance())
+  if ( fabs(mpDx1 - mpDx2) > tolerance()  || fabs(mpDx3 - mpDx4) > tolerance()
+       || fabs(mpDx1 - mpDx4) > tolerance())
     {
       std::string s = "ERROR - DDDividedTrdX::checkParametersValidity()";
       s+= "\n        Making a division of a TRD along axis X,";
@@ -154,7 +159,7 @@ void DDDividedTrdX::checkParametersValidity()
       s+= "\n        in non-equal division solids.";
       throw DDException(s);
     }
-//    if (abs(mpDy1 - mpDy2) > tolerance())
+//    if (fabs(mpDy1 - mpDy2) > tolerance())
 //      {
 //        std::string s = "ERROR - DDDividedTrdX::checkParametersValidity()";
 //        s+= "\n        Making a division of a TRD along axis X,";
@@ -297,7 +302,7 @@ void DDDividedTrdY::checkParametersValidity()
   double mpAlpha1 = mtrd.alpha1();
   double mpAlpha2 = mtrd.alpha2();
 
-  if( abs(mpDy1 - mpDy2) > tolerance() )
+  if( fabs(mpDy1 - mpDy2) > tolerance() )
   {
     std::string s= "ERROR - DDDividedTrdY::checkParametersValidity()";
     s += "\n        Making a division of a TRD along axis Y while";
