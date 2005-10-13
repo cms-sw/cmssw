@@ -39,6 +39,6 @@ namespace DD {
   typedef DDSolidFactory SolidFactory;
 
   // the parser
-  typedef DDLParser Parser;
+  //  typedef DDLParser Parser;
 };
 #endif // DD_DDD_H_GRD
