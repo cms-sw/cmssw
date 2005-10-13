@@ -9,7 +9,7 @@
 //! An exception for DDD errors
 /** @class DDException DDException.h
  *
- *  @author:  Martin Listd::endl               Initial Version
+ *  @author:  Martin Liendl               Initial Version
  *  @version: 0.0
  *  @date:    
  * 
@@ -18,7 +18,7 @@
  *  Provides an exception for DDD errors.
  *
  *  Modifications:
- *  MEC:   8 June 2005 Michael Case: changed to inherit fromseal::Error
+ *  MEC:   8 June 2005 Michael Case: changed to inherit from seal::Error
  */
 
 class DDException : public seal::Error //: public Genexception
