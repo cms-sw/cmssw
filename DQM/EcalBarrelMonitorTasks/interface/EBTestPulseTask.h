@@ -4,8 +4,8 @@
 /*
  * \file EBTestPulseTask.h
  *
- * $Date: 2005/10/11 13:39:36 $
- * $Revision: 1.5 $
+ * $Date: 2005/10/11 17:55:11 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  *
 */
@@ -47,7 +47,7 @@ virtual ~EBTestPulseTask();
 
 protected:
 
-/// Analyze digis out of raw data
+/// Analyze
 void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 private:
