@@ -1,0 +1,28 @@
+<use name=boost>
+<use name=root> 
+<use name=DQMServices/Core>
+<use name=DQMServices/NodeROOT>
+<use name=DQMServices/Daemon>
+<use name=DQMServices/UI>
+<use name=xdaq>
+<lib name=xgi>
+<lib name=xdata>
+<use name=xerces-c>
+<lib name=cgicc>
+<lib name=log4cplus>
+<lib name=xcept>
+<lib name=udpappender>
+<lib name=peer>
+<lib name=mimetic>
+<lib name=xmlappender>
+
+<export>
+ <lib name=xdaqCollector>
+ <use name=root>
+ <use name=boost>
+ <use name=DQMServices/Core>
+ <use name=DQMServices/NodeROOT>
+ <use name=DQMServices/Daemon>
+ <use name=xdaq>
+ <use name=xerces-c>
+</export>
