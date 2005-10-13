@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  * 
- * $Date: 2005/10/12 14:20:45 $
- * $Revision: 1.10 $
+ * $Date: 2005/10/12 15:36:19 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  *
 */
@@ -28,8 +28,11 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
   }
 
   dbe->setCurrentFolder("EcalBarrel");
+  meStatus  = dbe->bookInt("STATUS");
   meRun     = dbe->bookInt("RUN");
   meEvt     = dbe->bookInt("EVT");
+
+  dbe->setCurrentFolder("EcalBarrel");
   meEbarrel = dbe->book1D("EBMM hits", "EBMM hits ", 100, 0., 61201.);
 
   dbe->setCurrentFolder("EcalBarrel/EBMonitorEvent");
@@ -51,6 +54,8 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
 
   logFile.open("EcalBarrelMonitorModule.log");
 
+  meStatus->Fill(0);
+
 }
 
 EcalBarrelMonitorModule::~EcalBarrelMonitorModule(){
@@ -64,16 +69,24 @@ EcalBarrelMonitorModule::~EcalBarrelMonitorModule(){
 
   logFile.close();
 
+}
+
+void EcalBarrelMonitorModule::endJob(void) {
+
   cout << "EcalBarrelMonitorModule: analyzed " << ievt << " events" << endl;
 
-  meRun->Fill(0);
+  meStatus->Fill(2);
+
+  sleep(30);
 }
 
 void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& c){
 
+  meStatus->Fill(1);
+
   ievt++;
 
-  meRun->Fill(1);
+  meRun->Fill(14316);
   meEvt->Fill(ievt);
 
   edm::Handle<EBDigiCollection>  digis;

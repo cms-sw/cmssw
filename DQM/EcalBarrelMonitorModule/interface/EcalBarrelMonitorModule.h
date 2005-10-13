@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorModule.h
  *
- * $Date: 2005/10/12 14:20:45 $
- * $Revision: 1.7 $
+ * $Date: 2005/10/12 15:36:19 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  *
 */
@@ -51,14 +51,19 @@ virtual ~EcalBarrelMonitorModule();
 
 protected:
 
-/// Analyze digis out of raw data
+/// Analyze
 void analyze(const edm::Event& e, const edm::EventSetup& c);
+
+// EndJob
+virtual void endJob(void);
 
 private:
 
 int ievt;
 
 DaqMonitorBEInterface* dbe;
+
+MonitorElement* meStatus;
 
 MonitorElement* meRun;
 MonitorElement* meEvt;
