@@ -7,17 +7,23 @@
 
 #include <iostream>
 
+class RPCDaqCMSFormatter;
 
-  class RPCUnpackingModule: public edm::EDProducer {
+class RPCUnpackingModule: public edm::EDProducer {
   public:
-    /// Constructor
-    RPCUnpackingModule(const edm::ParameterSet& pset);
-
-    /// Destructor
-    virtual ~RPCUnpackingModule();
     
-    /// Produce digis out of raw data
-    void produce(edm::Event & e, const edm::EventSetup& c);
+    RPCUnpackingModule(const edm::ParameterSet& pset);
+    virtual ~RPCUnpackingModule();
+
+  /** Retrieves a RPCDigiCollection from the Event, creates a
+      FEDRawDataCollection (EDProduct) using the DigiToRaw converter,
+      and attaches it to the Event. */
+   void produce(edm::Event & e, const edm::EventSetup& c); 
+   
+
+  private:
+   
+   RPCDaqCMSFormatter * unpacker;
 
   };
 
