@@ -6,7 +6,6 @@
 #include "SimG4Core/Application/interface/TrackingAction.h"
 #include "SimG4Core/Application/interface/SteppingAction.h"
 #include "SimG4Core/Application/interface/G4SimEvent.h"
-#include "SimG4Core/Application/interface/DDDWorldObserver.h"
 
 #include "SimG4Core/Geometry/interface/DDDWorld.h"
 #include "SimG4Core/SensitiveDetector/interface/AttachSD.h"
@@ -52,7 +51,7 @@ RunManager * RunManager::instance()
 }
 
 RunManager::RunManager(edm::ParameterSet const & p) 
-    : m_context (new seal::Context), m_configurator (*m_context.get()),
+    : m_context (new seal::Context),
       m_generator(0), m_primaryTransformer(0), m_engine(0), m_managerInitialized(false), 
       m_geometryInitialized(true), m_physicsInitialized(true),
       m_runInitialized(false), m_runTerminated(false), m_runAborted(false),
@@ -74,14 +73,14 @@ RunManager::RunManager(edm::ParameterSet const & p)
 {    
     m_kernel = G4RunManagerKernel::GetRunManagerKernel();
     if (m_kernel==0) m_kernel = new G4RunManagerKernel();
-    frappe::Dispatcher<DDDWorld>::addDispatcher(m_configurator);
-    frappe::Dispatcher<EventAction>::addDispatcher(m_configurator);
     m_engine= dynamic_cast<HepJamesRandom*>(HepRandom::getTheEngine());
     std::cout << " Run Manager constructed " << std::endl;
 }
 
 RunManager::~RunManager() 
 { 
+    if (worldObserver!=0) delete worldObserver;
+    if (worldDispatcher!=0) delete worldDispatcher;
     if (m_kernel!=0) delete m_kernel; 
 }
 
@@ -93,10 +92,10 @@ void RunManager::initG4(const edm::EventSetup & es)
     edm::ESHandle<DDCompactView> pDD;
     es.get<IdealGeometryRecord>().get(pDD);
    
-    DDDWorld * world = new DDDWorld(&(*pDD));
-
-    m_configurator.component< frappe::Dispatcher<DDDWorld> >() (world);
-
+    const DDDWorld * world = new DDDWorld(&(*pDD));
+    
+    worldObserver = new DDDWorldObserver<DDDWorld >(); 
+    worldDispatcher = new Dispatcher<DDDWorld >(world);
     m_attach = new AttachSD;
     std::vector<SensitiveDetector*> sensDets = m_attach->create(*world);
     m_sensTkDets.clear();
@@ -198,7 +197,6 @@ void RunManager::initializeUserActions()
     if (m_generator!=0)
     {
         EventAction * userEventAction = new EventAction(m_pEventAction);
-	m_configurator.component< frappe::Dispatcher<EventAction> >() (userEventAction);
         eventManager->SetUserAction(userEventAction);
         eventManager->SetUserAction(new TrackingAction(userEventAction,m_pTrackingAction));
         eventManager->SetUserAction(new SteppingAction(m_pSteppingAction));

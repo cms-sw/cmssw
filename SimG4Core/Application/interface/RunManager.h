@@ -6,12 +6,14 @@
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "Utilities/Notification/interface/DispatcherObserver.h"
 
 #include "SimG4Core/SensitiveDetector/interface/AttachSD.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveDetector.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveTkDetector.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveCaloDetector.h"
+
+#include "SimG4Core/Application/interface/DDDWorldObserver.h"
+#include "SimG4Core/Notification/interface/Dispatcher.h"
 
 #include "SealKernel/Context.h"
 
@@ -63,7 +65,6 @@ private:
     static RunManager * me;
     explicit RunManager(edm::ParameterSet const & p);
     seal::Handle<seal::Context> m_context;
-    frappe::Configurator m_configurator;
     G4RunManagerKernel * m_kernel;
     Generator * m_generator;
     DummyPhysics * m_physics;
@@ -97,6 +98,8 @@ private:
     AttachSD * m_attach;
     std::vector<SensitiveTkDetector*> m_sensTkDets;
     std::vector<SensitiveCaloDetector*> m_sensCaloDets;
+    DDDWorldObserver<DDDWorld > * worldObserver; 
+    Dispatcher<DDDWorld > * worldDispatcher;
 };
 
 #endif
