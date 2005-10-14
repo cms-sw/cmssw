@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  * 
- * $Date: 2005/10/11 17:18:12 $
- * $Revision: 1.6 $
+ * $Date: 2005/10/11 17:55:11 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  *
 */
@@ -21,13 +21,13 @@ EBCosmicTask::EBCosmicTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* d
 
   dbe->setCurrentFolder("EcalBarrel/EBCosmicTask/Cut");
   for (int i = 0; i < 36 ; i++) {
-    sprintf(histo, "EBCT amplitude (cut) SM%02d", i+1);
+    sprintf(histo, "EBCT amplitude [cut] SM%02d", i+1);
     meCutMap[i] = dbe->bookProfile2D(histo, histo, 20, 0., 20., 85, 0., 85., 4096, 0., 4096.);
   }
 
   dbe->setCurrentFolder("EcalBarrel/EBCosmicTask/Sel");
   for (int i = 0; i < 36 ; i++) {
-    sprintf(histo, "EBCT amplitude (sel) SM%02d", i+1);
+    sprintf(histo, "EBCT amplitude [sel] SM%02d", i+1);
     meSelMap[i] = dbe->bookProfile2D(histo, histo, 20, 0., 20., 85, 0., 85., 4096, 0., 4096.);
   }
 
