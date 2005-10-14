@@ -1,0 +1,6 @@
+<use name=DataFormats/CSCDigi>
+<export>
+<lib name=CSCRawToDigi>
+<use name=DataFormats/CSCDigi>
+</export>
+ 
