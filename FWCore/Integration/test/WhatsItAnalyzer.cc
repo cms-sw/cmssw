@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 19:13:25 EDT 2005
-// $Id: WhatsItAnalyzer.cc,v 1.4 2005/09/01 03:59:29 wmtan Exp $
+// $Id: WhatsItAnalyzer.cc,v 1.5 2005/09/28 23:41:43 wmtan Exp $
 //
 //
 
@@ -30,8 +30,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "FWCore/Integration/src/WhatsIt.h"
-#include "FWCore/Integration/src/GadgetRcd.h"
+#include "FWCore/Integration/test/WhatsIt.h"
+#include "FWCore/Integration/test/GadgetRcd.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"

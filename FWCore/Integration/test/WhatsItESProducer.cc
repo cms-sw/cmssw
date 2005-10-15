@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 14:33:04 EDT 2005
-// $Id: WhatsItESProducer.cc,v 1.5 2005/09/28 23:41:43 wmtan Exp $
+// $Id: WhatsItESProducer.cc,v 1.6 2005/10/01 21:16:01 chrjones Exp $
 //
 //
 
@@ -27,9 +27,9 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "FWCore/Integration/src/WhatsIt.h"
-#include "FWCore/Integration/src/Doodad.h"
-#include "FWCore/Integration/src/GadgetRcd.h"
+#include "FWCore/Integration/test/WhatsIt.h"
+#include "FWCore/Integration/test/Doodad.h"
+#include "FWCore/Integration/test/GadgetRcd.h"
 
 
 //

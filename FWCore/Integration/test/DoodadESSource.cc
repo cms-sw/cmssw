@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 14:39:39 EDT 2005
-// $Id: DoodadESSource.cc,v 1.6 2005/10/01 21:16:51 chrjones Exp $
+// $Id: DoodadESSource.cc,v 1.7 2005/10/03 23:23:58 chrjones Exp $
 //
 
 // system include files
@@ -19,8 +19,8 @@
 #include "FWCore/Framework/interface/SourceFactory.h"
 
 
-#include "FWCore/Integration/src/GadgetRcd.h"
-#include "FWCore/Integration/src/Doodad.h"
+#include "FWCore/Integration/test/GadgetRcd.h"
+#include "FWCore/Integration/test/Doodad.h"
 
 namespace edmreftest {
 class DoodadESSource :
