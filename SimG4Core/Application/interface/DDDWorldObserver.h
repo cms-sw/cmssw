@@ -10,16 +10,6 @@ template<typename Event>
 class DDDWorldObserver : public Observer<Event>
 {
 public:
-    virtual void init() 
-    {
-	std::cout << " DDDWorldObserver: in init " << std::endl;
-	std::cout << " DDDWorldObserver: constructed " << std::endl; 
-    }
-    virtual void end() 
-    {
-	std::cout << " DDDWorldObserver: in end " << std::endl;
-	std::cout << " DDDWorldObserver: destructed " << std::endl;
-    }
     virtual void update(const DDDWorld * w) const
     {
 	std::cout << " DDDWorldObserver: in update " << std::endl;
