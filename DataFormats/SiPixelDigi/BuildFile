@@ -1,10 +1,7 @@
-<flags SEAL_PLUGIN_NAME="DataFormatsSiPixelDigi">
 <use name=clhep>
-<use name=root>
 <use name=FWCore/EDProduct>
 <export>
  <lib name=DataFormatsSiPixelDigi>
  <use name=FWCore/EDProduct>
  <use name=clhep>
- <use name=root>
 </export>
