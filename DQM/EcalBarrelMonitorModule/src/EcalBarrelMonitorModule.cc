@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  * 
- * $Date: 2005/10/16 11:07:40 $
- * $Revision: 1.15 $
+ * $Date: 2005/10/16 11:10:03 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  *
 */
@@ -72,8 +72,6 @@ EcalBarrelMonitorModule::~EcalBarrelMonitorModule(){
   delete laser_task;
   delete cosmic_task;
 
-  if ( outputFile.size() != 0  && dbe ) dbe->save(outputFile);
-
   logFile.close();
 
 }
@@ -83,6 +81,8 @@ void EcalBarrelMonitorModule::endJob(void) {
   cout << "EcalBarrelMonitorModule: analyzed " << ievt << " events" << endl;
 
   if ( meStatus ) meStatus->Fill(2);
+
+  if ( outputFile.size() != 0  && dbe ) dbe->save(outputFile);
 
   sleep(60);
 }
