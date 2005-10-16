@@ -1,9 +1,9 @@
 /*----------------------------------------------------------------------
-$Id: EventStreamInput.cc,v 1.10 2005/09/30 05:26:18 wmtan Exp $
+$Id: EventStreamInput.cc,v 1.11 2005/10/03 19:00:29 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Streamer/interface/EventStreamInput.h"
-#include "IOPool/Streamer/interface/StreamedProducts.h"
+#include "IOPool/StreamerData/interface/StreamedProducts.h"
 #include "IOPool/Streamer/interface/ClassFiller.h"
 
 #include "FWCore/EDProduct/interface/EDProduct.h"

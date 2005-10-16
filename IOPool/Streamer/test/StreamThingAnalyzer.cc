@@ -4,7 +4,7 @@
 #include "IOPool/Streamer/test/StreamThingAnalyzer.h"
 
 #if 1
-#include "IOPool/Streamer/interface/StreamTestThing.h"
+#include "IOPool/StreamerData/interface/StreamTestThing.h"
 typedef edmtestprod::StreamTestThing WriteThis;
 #else
 #include "FWCore/Integration/interface/IntArray.h"

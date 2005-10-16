@@ -1,7 +1,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: EventStreamOutput.cc,v 1.6 2005/10/11 21:34:29 wmtan Exp $
+// $Id: EventStreamOutput.cc,v 1.7 2005/10/12 02:38:54 wmtan Exp $
 //
 // Class EventStreamOutput module
 //
@@ -11,7 +11,7 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "IOPool/Streamer/interface/EventStreamOutput.h"
-#include "IOPool/Streamer/interface/StreamedProducts.h"
+#include "IOPool/StreamerData/interface/StreamedProducts.h"
 #include "IOPool/Streamer/interface/ClassFiller.h"
 
 #include "PluginManager/PluginCapabilities.h"
