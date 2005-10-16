@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  * 
- * $Date: 2005/10/14 09:21:45 $
- * $Revision: 1.8 $
+ * $Date: 2005/10/14 18:29:00 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  *
 */
@@ -67,6 +67,8 @@ void EBCosmicTask::analyze(const edm::Event& e, const edm::EventSetup& c){
     logFile << " det id = " << id << endl;
     logFile << " sm, eta, phi " << ism << " " << ie*iz << " " << ip << endl;
 
+    float xped = 0.;
+
     float xvalmax = 0.;
 
     for (int i = 0; i < 10; i++) {
@@ -87,15 +89,32 @@ void EBCosmicTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
       float xval = adc * gain;
 
-      float xrms = 1.0;
+// use the 3 first samples for the pedestal
 
-      if ( xval >= 3.0 * xrms && xval >= xvalmax ) xvalmax = xval;
+      if ( i <= 2 ) {
+        xped = xped + xval / 3.;
+      }
+
+// average rms per crystal
+
+      float xrms = 1.2;
+
+// signal samples
+
+      if ( i >= 3 ) {
+        xval = xval - xped;
+        if ( xval >= xrms && xval >= xvalmax ) xvalmax = xval;
+      }
 
     }
 
-    meCutMap[ism-1]->Fill(xip, xie, xvalmax);
+    if ( xvalmax >= 5 ) {
+      meCutMap[ism-1]->Fill(xip, xie, xvalmax);
+    }
 
-    meSelMap[ism-1]->Fill(xip, xie, xvalmax);
+    if ( xvalmax >= 10 ) {
+      meSelMap[ism-1]->Fill(xip, xie, xvalmax);
+    }
 
   }
 

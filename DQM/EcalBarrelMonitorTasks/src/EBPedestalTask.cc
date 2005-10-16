@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalTask.cc
  * 
- * $Date: 2005/10/11 17:55:11 $
- * $Revision: 1.7 $
+ * $Date: 2005/10/16 07:28:36 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  *
 */
@@ -96,13 +96,15 @@ void EBPedestalTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
       float xval = adc * gain;
 
-      if ( i <= 3 ) {
+// generic event: first 3 samples, 0 to 2
+
+      if ( i <= 2 ) {
         if ( mePedMap ) mePedMap->Fill(xip, xie, xval);
       }
 
-// only if the event is a pedestal event
+// pedestal event: last 7 samples, 3 to 9
 //
-//      if ( i >= 4 ) {
+//      if ( i >= 3 ) {
 //        if ( mePedMap ) mePedMap->Fill(xip, xie, xval);
 //      }
 
