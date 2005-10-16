@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  * 
- * $Date: 2005/10/16 11:10:03 $
- * $Revision: 1.16 $
+ * $Date: 2005/10/16 12:05:35 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  *
 */
@@ -11,7 +11,7 @@
 
 EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
 
-  ievt = 0;
+  logFile.open("EcalBarrelMonitorModule.log");
 
   dbe = 0;
   if ( ps.getUntrackedParameter<bool>("DaqMonitorBEInterface", false) ) {
@@ -59,10 +59,6 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
 
   if ( dbe ) dbe->showDirStructure();
 
-  logFile.open("EcalBarrelMonitorModule.log");
-
-  if ( meStatus ) meStatus->Fill(0);
-
 }
 
 EcalBarrelMonitorModule::~EcalBarrelMonitorModule(){
@@ -73,6 +69,14 @@ EcalBarrelMonitorModule::~EcalBarrelMonitorModule(){
   delete cosmic_task;
 
   logFile.close();
+
+}
+
+void EcalBarrelMonitorModule::beginJob(const edm::EventSetup& c){
+
+  ievt = 0;
+
+  if ( meStatus ) meStatus->Fill(0);
 
 }
 

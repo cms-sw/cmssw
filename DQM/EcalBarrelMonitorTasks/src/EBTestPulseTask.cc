@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  * 
- * $Date: 2005/10/16 12:20:27 $
- * $Revision: 1.9 $
+ * $Date: 2005/10/16 12:21:43 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  *
 */
@@ -12,8 +12,6 @@
 EBTestPulseTask::EBTestPulseTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe){
 
   logFile.open("EBTestPulseTask.log");
-
-  ievt = 0;
 
   Char_t histo[20];
 
@@ -51,6 +49,12 @@ EBTestPulseTask::~EBTestPulseTask(){
 
   logFile.close();
 
+}
+
+EBTestPulseTask::beginJob(const edm::EventSetup& c){
+
+  ievt = 0;
+    
 }
 
 void EBTestPulseTask::endJob(){

@@ -4,8 +4,8 @@
 /*
  * \file EBLaserTask.h
  *
- * $Date: 2005/10/13 12:07:56 $
- * $Revision: 1.7 $
+ * $Date: 2005/10/16 12:20:27 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  *
 */
@@ -50,8 +50,11 @@ protected:
 /// Analyze
 void analyze(const edm::Event& e, const edm::EventSetup& c);
 
+// BeginJob
+void beginJob(const edm::EventSetup& c);
+
 // EndJob
-virtual void endJob(void);
+void endJob(void);
 
 private:
 

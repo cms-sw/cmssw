@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  * 
- * $Date: 2005/10/16 11:14:54 $
- * $Revision: 1.9 $
+ * $Date: 2005/10/16 12:20:27 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  *
 */
@@ -12,8 +12,6 @@
 EBLaserTask::EBLaserTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe){
 
   logFile.open("EBLaserTask.log");
-
-  ievt = 0;
 
   Char_t histo[20];
 
@@ -43,6 +41,12 @@ EBLaserTask::~EBLaserTask(){
 
   logFile.close();
 
+}
+
+void EBLaserTask::beginJob(const edm::EventSetup& c){
+
+  ievt = 0;
+    
 }
 
 void EBLaserTask::endJob(){

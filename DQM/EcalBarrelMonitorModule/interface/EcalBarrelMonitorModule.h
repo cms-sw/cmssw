@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorModule.h
  *
- * $Date: 2005/10/12 15:36:19 $
- * $Revision: 1.8 $
+ * $Date: 2005/10/13 13:30:11 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  *
 */
@@ -53,6 +53,9 @@ protected:
 
 /// Analyze
 void analyze(const edm::Event& e, const edm::EventSetup& c);
+
+// BeginJob
+void beginJob(const edm::EventSetup& c);
 
 // EndJob
 virtual void endJob(void);
