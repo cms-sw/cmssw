@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  * 
- * $Date: 2005/10/14 18:29:00 $
- * $Revision: 1.9 $
+ * $Date: 2005/10/16 07:42:14 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  *
 */
@@ -17,18 +17,20 @@ EBCosmicTask::EBCosmicTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* d
 
   Char_t histo[20];
 
-  dbe->setCurrentFolder("EcalBarrel/EBCosmicTask");
+  if ( dbe ) {
+    dbe->setCurrentFolder("EcalBarrel/EBCosmicTask");
 
-  dbe->setCurrentFolder("EcalBarrel/EBCosmicTask/Cut");
-  for (int i = 0; i < 36 ; i++) {
-    sprintf(histo, "EBCT amplitude cut SM%02d", i+1);
-    meCutMap[i] = dbe->bookProfile2D(histo, histo, 20, 0., 20., 85, 0., 85., 4096, 0., 4096.);
-  }
+    dbe->setCurrentFolder("EcalBarrel/EBCosmicTask/Cut");
+    for (int i = 0; i < 36 ; i++) {
+      sprintf(histo, "EBCT amplitude cut SM%02d", i+1);
+      meCutMap[i] = dbe->bookProfile2D(histo, histo, 20, 0., 20., 85, 0., 85., 4096, 0., 4096.);
+    }
 
-  dbe->setCurrentFolder("EcalBarrel/EBCosmicTask/Sel");
-  for (int i = 0; i < 36 ; i++) {
-    sprintf(histo, "EBCT amplitude sel SM%02d", i+1);
-    meSelMap[i] = dbe->bookProfile2D(histo, histo, 20, 0., 20., 85, 0., 85., 4096, 0., 4096.);
+    dbe->setCurrentFolder("EcalBarrel/EBCosmicTask/Sel");
+    for (int i = 0; i < 36 ; i++) {
+      sprintf(histo, "EBCT amplitude sel SM%02d", i+1);
+      meSelMap[i] = dbe->bookProfile2D(histo, histo, 20, 0., 20., 85, 0., 85., 4096, 0., 4096.);
+    }
   }
 
 }
@@ -109,11 +111,11 @@ void EBCosmicTask::analyze(const edm::Event& e, const edm::EventSetup& c){
     }
 
     if ( xvalmax >= 5 ) {
-      meCutMap[ism-1]->Fill(xip, xie, xvalmax);
+      if ( meCutMap[ism-1] ) meCutMap[ism-1]->Fill(xip, xie, xvalmax);
     }
 
     if ( xvalmax >= 10 ) {
-      meSelMap[ism-1]->Fill(xip, xie, xvalmax);
+      if ( meSelMap[ism-1] ) meSelMap[ism-1]->Fill(xip, xie, xvalmax);
     }
 
   }

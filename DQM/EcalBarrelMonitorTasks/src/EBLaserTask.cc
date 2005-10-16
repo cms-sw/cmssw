@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  * 
- * $Date: 2005/10/11 17:18:12 $
- * $Revision: 1.7 $
+ * $Date: 2005/10/11 17:55:11 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  *
 */
@@ -17,22 +17,24 @@ EBLaserTask::EBLaserTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe
 
   Char_t histo[20];
 
-  dbe->setCurrentFolder("EcalBarrel/EBLaserTask");
+  if ( dbe ) {
+    dbe->setCurrentFolder("EcalBarrel/EBLaserTask");
 
-  dbe->setCurrentFolder("EcalBarrel/EBLaserTask/Laser1");
-  for (int i = 0; i < 36 ; i++) {
-    sprintf(histo, "EBLT shape SM%02d L1", i+1);
-    meShapeMapL1[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096.);
-    sprintf(histo, "EBLT amplitude SM%02d L1", i+1);
-    meAmplMapL1[i] = dbe->bookProfile2D(histo, histo, 20, 0., 20., 85, 0., 85., 4096, 0., 4096.);
-  }
+    dbe->setCurrentFolder("EcalBarrel/EBLaserTask/Laser1");
+    for (int i = 0; i < 36 ; i++) {
+      sprintf(histo, "EBLT shape SM%02d L1", i+1);
+      meShapeMapL1[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096.);
+      sprintf(histo, "EBLT amplitude SM%02d L1", i+1);
+      meAmplMapL1[i] = dbe->bookProfile2D(histo, histo, 20, 0., 20., 85, 0., 85., 4096, 0., 4096.);
+    }
 
-  dbe->setCurrentFolder("EcalBarrel/EBLaserTask/Laser2");
-  for (int i = 0; i < 36 ; i++) {
-    sprintf(histo, "EBLT shape SM%02d L2", i+1);
-    meShapeMapL2[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096.);
-    sprintf(histo, "EBLT amplitude SM%02d L2", i+1);
-    meAmplMapL2[i] = dbe->bookProfile2D(histo, histo, 20, 0., 20., 85, 0., 85., 4096, 0., 4096.);
+    dbe->setCurrentFolder("EcalBarrel/EBLaserTask/Laser2");
+    for (int i = 0; i < 36 ; i++) {
+      sprintf(histo, "EBLT shape SM%02d L2", i+1);
+      meShapeMapL2[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096.);
+      sprintf(histo, "EBLT amplitude SM%02d L2", i+1);
+      meAmplMapL2[i] = dbe->bookProfile2D(histo, histo, 20, 0., 20., 85, 0., 85., 4096, 0., 4096.);
+    }
   }
 
 }

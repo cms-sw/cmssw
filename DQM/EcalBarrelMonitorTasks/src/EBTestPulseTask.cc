@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  * 
- * $Date: 2005/10/11 17:18:12 $
- * $Revision: 1.6 $
+ * $Date: 2005/10/11 17:55:11 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  *
 */
@@ -17,30 +17,32 @@ EBTestPulseTask::EBTestPulseTask(const edm::ParameterSet& ps, DaqMonitorBEInterf
 
   Char_t histo[20];
 
-  dbe->setCurrentFolder("EcalBarrel/EBTestPulseTask");
+  if ( dbe ) {
+    dbe->setCurrentFolder("EcalBarrel/EBTestPulseTask");
 
-  dbe->setCurrentFolder("EcalBarrel/EBTestPulseTask/Gain01");
-  for (int i = 0; i < 36 ; i++) {
-    sprintf(histo, "EBTT shape SM%02d G01", i+1);
-    meShapeMapG01[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096.);
-    sprintf(histo, "EBTT amplitude SM%02d G01", i+1);
-    meAmplMapG01[i] = dbe->bookProfile2D(histo, histo, 20, 0., 20., 85, 0., 85., 4096, 0., 4096.);
-  }
+    dbe->setCurrentFolder("EcalBarrel/EBTestPulseTask/Gain01");
+    for (int i = 0; i < 36 ; i++) {
+      sprintf(histo, "EBTT shape SM%02d G01", i+1);
+      meShapeMapG01[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096.);
+      sprintf(histo, "EBTT amplitude SM%02d G01", i+1);
+      meAmplMapG01[i] = dbe->bookProfile2D(histo, histo, 20, 0., 20., 85, 0., 85., 4096, 0., 4096.);
+    }
 
-  dbe->setCurrentFolder("EcalBarrel/EBTestPulseTask/Gain06");
-  for (int i = 0; i < 36 ; i++) {
-    sprintf(histo, "EBTT shape SM%02d G06", i+1);
-    meShapeMapG06[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096.);
-    sprintf(histo, "EBTT amplitude SM%02d G06", i+1);
-    meAmplMapG06[i] = dbe->bookProfile2D(histo, histo, 20, 0., 20., 85, 0., 85., 4096, 0., 4096.);
-  }
+    dbe->setCurrentFolder("EcalBarrel/EBTestPulseTask/Gain06");
+    for (int i = 0; i < 36 ; i++) {
+      sprintf(histo, "EBTT shape SM%02d G06", i+1);
+      meShapeMapG06[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096.);
+      sprintf(histo, "EBTT amplitude SM%02d G06", i+1);
+      meAmplMapG06[i] = dbe->bookProfile2D(histo, histo, 20, 0., 20., 85, 0., 85., 4096, 0., 4096.);
+    }
 
-  dbe->setCurrentFolder("EcalBarrel/EBTestPulseTask/Gain12");
-  for (int i = 0; i < 36 ; i++) {
-    sprintf(histo, "EBTT shape SM%02d G12", i+1);
-    meShapeMapG12[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096.);
-    sprintf(histo, "EBTT amplitude SM%02d G12", i+1);
-    meAmplMapG12[i] = dbe->bookProfile2D(histo, histo, 20, 0., 20., 85, 0., 85., 4096, 0., 4096.);
+    dbe->setCurrentFolder("EcalBarrel/EBTestPulseTask/Gain12");
+    for (int i = 0; i < 36 ; i++) {
+      sprintf(histo, "EBTT shape SM%02d G12", i+1);
+      meShapeMapG12[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096.);
+      sprintf(histo, "EBTT amplitude SM%02d G12", i+1);
+      meAmplMapG12[i] = dbe->bookProfile2D(histo, histo, 20, 0., 20., 85, 0., 85., 4096, 0., 4096.);
+    }
   }
 
 }

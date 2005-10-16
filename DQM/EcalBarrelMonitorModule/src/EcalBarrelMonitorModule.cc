@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  * 
- * $Date: 2005/10/16 11:02:52 $
- * $Revision: 1.14 $
+ * $Date: 2005/10/16 11:07:40 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  *
 */
@@ -14,7 +14,7 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
   ievt = 0;
 
   dbe = 0;
-  if ( pset.getUntrackedParameter<bool>("DaqMonitorBEInterface", false) ) {
+  if ( ps.getUntrackedParameter<bool>("DaqMonitorBEInterface", false) ) {
     dbe = edm::Service<DaqMonitorBEInterface>().operator->();
 
     dbe->setVerbose(0);

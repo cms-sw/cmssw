@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalTask.cc
  * 
- * $Date: 2005/10/16 07:28:36 $
- * $Revision: 1.8 $
+ * $Date: 2005/10/16 07:42:14 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  *
 */
@@ -17,24 +17,26 @@ EBPedestalTask::EBPedestalTask(const edm::ParameterSet& ps, DaqMonitorBEInterfac
 
   Char_t histo[20];
 
-  dbe->setCurrentFolder("EcalBarrel/EBPedestalTask");
+  if ( dbe ) {
+    dbe->setCurrentFolder("EcalBarrel/EBPedestalTask");
 
-  dbe->setCurrentFolder("EcalBarrel/EBPedestalTask/Gain01");
-  for (int i = 0; i < 36 ; i++) {
-    sprintf(histo, "EBPT pedestal SM%02d G01", i+1);
-    mePedMapG01[i] = dbe->bookProfile2D(histo, histo, 20, 0., 20., 85, 0., 85., 4096, 0., 4096.);
-  }
+    dbe->setCurrentFolder("EcalBarrel/EBPedestalTask/Gain01");
+    for (int i = 0; i < 36 ; i++) {
+      sprintf(histo, "EBPT pedestal SM%02d G01", i+1);
+      mePedMapG01[i] = dbe->bookProfile2D(histo, histo, 20, 0., 20., 85, 0., 85., 4096, 0., 4096.);
+    }
 
-  dbe->setCurrentFolder("EcalBarrel/EBPedestalTask/Gain06");
-  for (int i = 0; i < 36 ; i++) {
-    sprintf(histo, "EBPT pedestal SM%02d G06", i+1);
-    mePedMapG06[i] = dbe->bookProfile2D(histo, histo, 20, 0., 20., 85, 0., 85., 4096, 0., 4096.);
-  }
+    dbe->setCurrentFolder("EcalBarrel/EBPedestalTask/Gain06");
+    for (int i = 0; i < 36 ; i++) {
+      sprintf(histo, "EBPT pedestal SM%02d G06", i+1);
+      mePedMapG06[i] = dbe->bookProfile2D(histo, histo, 20, 0., 20., 85, 0., 85., 4096, 0., 4096.);
+    }
 
-  dbe->setCurrentFolder("EcalBarrel/EBPedestalTask/Gain12");
-  for (int i = 0; i < 36 ; i++) {
-    sprintf(histo, "EBPT pedestal SM%02d G12", i+1);
-    mePedMapG12[i] = dbe->bookProfile2D(histo, histo, 20, 0., 20., 85, 0., 85., 4096, 0., 4096.);
+    dbe->setCurrentFolder("EcalBarrel/EBPedestalTask/Gain12");
+    for (int i = 0; i < 36 ; i++) {
+      sprintf(histo, "EBPT pedestal SM%02d G12", i+1);
+      mePedMapG12[i] = dbe->bookProfile2D(histo, histo, 20, 0., 20., 85, 0., 85., 4096, 0., 4096.);
+    }
   }
 
 }
