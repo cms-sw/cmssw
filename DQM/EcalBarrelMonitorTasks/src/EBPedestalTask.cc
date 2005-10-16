@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalTask.cc
  * 
- * $Date: 2005/10/11 17:18:12 $
- * $Revision: 1.6 $
+ * $Date: 2005/10/11 17:55:11 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  *
 */
@@ -99,9 +99,13 @@ void EBPedestalTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( i <= 3 ) {
         if ( mePedMap ) mePedMap->Fill(xip, xie, xval);
       }
-      if ( i >= 4 ) {
-        if ( mePedMap ) mePedMap->Fill(xip, xie, xval);
-      }
+
+// only if the event is a pedestal event
+//
+//      if ( i >= 4 ) {
+//        if ( mePedMap ) mePedMap->Fill(xip, xie, xval);
+//      }
+
     }
 
   }
