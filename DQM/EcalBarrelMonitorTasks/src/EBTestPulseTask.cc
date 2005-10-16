@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  * 
- * $Date: 2005/10/16 11:14:54 $
- * $Revision: 1.8 $
+ * $Date: 2005/10/16 12:20:27 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  *
 */
@@ -53,7 +53,7 @@ EBTestPulseTask::~EBTestPulseTask(){
 
 }
 
-EBTestPulseTask::endJob(){
+void EBTestPulseTask::endJob(){
 
   cout << "EBTestPulseTask: analyzed " << ievt << " events" << endl;
 

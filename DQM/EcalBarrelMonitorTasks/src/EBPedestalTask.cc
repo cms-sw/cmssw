@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalTask.cc
  * 
- * $Date: 2005/10/16 11:14:54 $
- * $Revision: 1.10 $
+ * $Date: 2005/10/16 12:20:27 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  *
 */
@@ -47,7 +47,7 @@ EBPedestalTask::~EBPedestalTask(){
 
 }
 
-EBPedestalTask::endJob(){
+void EBPedestalTask::endJob(){
 
   cout << "EBPedestalTask: analyzed " << ievt << " events" << endl;
 }
