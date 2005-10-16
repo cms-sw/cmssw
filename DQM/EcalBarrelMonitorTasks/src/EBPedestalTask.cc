@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalTask.cc
  * 
- * $Date: 2005/10/16 07:42:14 $
- * $Revision: 1.9 $
+ * $Date: 2005/10/16 11:14:54 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  *
 */
@@ -44,6 +44,10 @@ EBPedestalTask::EBPedestalTask(const edm::ParameterSet& ps, DaqMonitorBEInterfac
 EBPedestalTask::~EBPedestalTask(){
 
   logFile.close();
+
+}
+
+EBPedestalTask::endJob(){
 
   cout << "EBPedestalTask: analyzed " << ievt << " events" << endl;
 }

@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  * 
- * $Date: 2005/10/11 17:55:11 $
- * $Revision: 1.8 $
+ * $Date: 2005/10/16 11:14:54 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  *
 */
@@ -43,7 +43,12 @@ EBLaserTask::~EBLaserTask(){
 
   logFile.close();
 
+}
+
+void EBLaserTask::endJob(){
+
   cout << "EBLaserTask: analyzed " << ievt << " events" << endl;
+
 }
 
 void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){

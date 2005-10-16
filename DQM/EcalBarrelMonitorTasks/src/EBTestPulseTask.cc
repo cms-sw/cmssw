@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  * 
- * $Date: 2005/10/11 17:55:11 $
- * $Revision: 1.7 $
+ * $Date: 2005/10/16 11:14:54 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  *
 */
@@ -50,6 +50,10 @@ EBTestPulseTask::EBTestPulseTask(const edm::ParameterSet& ps, DaqMonitorBEInterf
 EBTestPulseTask::~EBTestPulseTask(){
 
   logFile.close();
+
+}
+
+EBTestPulseTask::endJob(){
 
   cout << "EBTestPulseTask: analyzed " << ievt << " events" << endl;
 

@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  * 
- * $Date: 2005/10/16 07:42:14 $
- * $Revision: 1.10 $
+ * $Date: 2005/10/16 11:14:54 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  *
 */
@@ -39,7 +39,12 @@ EBCosmicTask::~EBCosmicTask(){
 
   logFile.close();
 
+}
+
+void EBCosmicTask::endJob(){
+
   cout << "EBCosmicTask: analyzed " << ievt << " events" << endl;
+
 }
 
 void EBCosmicTask::analyze(const edm::Event& e, const edm::EventSetup& c){

@@ -4,8 +4,8 @@
 /*
  * \file EBPedestalTask.h
  *
- * $Date: 2005/10/11 17:55:11 $
- * $Revision: 1.6 $
+ * $Date: 2005/10/13 12:07:56 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  *
 */
@@ -49,6 +49,9 @@ protected:
 
 /// Analyze
 void analyze(const edm::Event& e, const edm::EventSetup& c);
+
+// EndJob
+virtual void endJob(void);
 
 private:
 
