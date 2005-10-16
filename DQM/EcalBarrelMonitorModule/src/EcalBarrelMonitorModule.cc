@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  * 
- * $Date: 2005/10/13 13:30:06 $
- * $Revision: 1.12 $
+ * $Date: 2005/10/13 14:25:52 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  *
 */
@@ -17,8 +17,10 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
 
   dbe->setVerbose(0);
 
-  edm::Service<MonitorDaemon> daemon;
-  daemon.operator->();
+  if ( ps.getUntrackedParameter<bool>("MonitorDaemon", false) ) {
+    edm::Service<MonitorDaemon> daemon;
+    daemon.operator->();
+  }
 
   Char_t histo[20];
 
