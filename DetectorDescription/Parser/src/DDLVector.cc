@@ -99,9 +99,10 @@ void DDLVector::processElement (const std::string& name, const std::string& nmsp
 		 || atts.find("type")->second == "numeric")
 		?  true : false);
   bool isStringVec((!isNumVec && atts.find("type") != atts.end() 
-		    && atts.find("type")->second == "std::string")
+		    && atts.find("type")->second == "string")
 		   ? true : false);
   std::string tTextToParse = getText();
+  //  cout << "tTextToParse is |"<< tTextToParse << "|" << endl;
   if (tTextToParse.size() == 0) {
     errorOut(" EMPTY STRING ");
   }
@@ -111,13 +112,13 @@ void DDLVector::processElement (const std::string& name, const std::string& nmsp
       errorOut(tTextToParse.c_str());
     }
   }
-  else if (isStringVec) { //(atts.find("type")->second == "std::string") {
+  else if (isStringVec) { //(atts.find("type")->second == "string") {
     if (!parse_strings(tTextToParse.c_str())) {
       errorOut(tTextToParse.c_str());
     }
   }
   else {
-    errorOut("Unexpected std::vector type. Only \"numeric\" and \"std::string\" are allowed.");
+    errorOut("Unexpected std::vector type. Only \"numeric\" and \"string\" are allowed.");
   }
 
 
@@ -130,8 +131,9 @@ void DDLVector::processElement (const std::string& name, const std::string& nmsp
 	pVecMap[atts.find("name")->second] = pVector;
 	//	std::cout << "size: " << pVecMap.size() << std::endl;
       }
-      else if (isStringVec) { //(atts.find("type")->second == "std::string") {
+      else if (isStringVec) { //(atts.find("type")->second == "string") {
 	pStrVecMap[atts.find("name")->second] = pStrVector;
+	//	cout << "it is a string, name is: " << atts.find("name")->second << endl;
       }
       size_t expNEntries = 0;
       if (atts.find("nEntries") != atts.end()) {

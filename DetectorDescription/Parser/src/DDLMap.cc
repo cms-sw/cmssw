@@ -107,7 +107,7 @@ void DDLMap::processElement (const std::string& name, const std::string& nmspace
     }
 
   // NOT IMPLEMENTED YET
-  if (atts.find("type") != atts.end() && atts.find("type")->second == "std::string")
+  if (atts.find("type") != atts.end() && atts.find("type")->second == "string")
     {
       errorOut("Map of type std::string is not supported yet.");
     }
