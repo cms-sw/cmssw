@@ -3,7 +3,7 @@
    test for ProductRegistry 
 
    \author Stefano ARGIRO
-   \version $Id: productregistry.cppunit.cc,v 1.4 2005/10/03 19:02:41 wmtan Exp $
+   \version $Id: edproducer_productregistry_callback.cc,v 1.1 2005/10/11 20:04:58 chrjones Exp $
    \date 21 July 2005
 */
 
@@ -238,7 +238,7 @@ void  testEDProducerProductRegistryCallback::testCircularRef2(){
    //Would be 10 products
    // 1 from the module 't1'
    //    1 from 'l1' in response
-   //       1 from 'l2' in response to 'l1' <-- circular \ 
+   //       1 from 'l2' in response to 'l1' <-- circular 
    //    1 from 'l2' in response to 't1'                  | 
    //       1 from 'l1' in response to 'l2' <-- circular / 
    // 1 from the module 't2'
