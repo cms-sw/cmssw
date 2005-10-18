@@ -2,9 +2,12 @@
 #define EcalTBDaqFormatter_H
 /** \class EcalTBDaqFormatter
  *
- *  $Date: 2005/10/06 17:49:07 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/10/12 09:04:26 $
+ *  $Revision: 1.3 $
  *  \author N. Marinelli  IASA-Athens
+ *  \author G. Della Ricca
+ *  \author G. Franzoni
+ *  \author A. Ghezzi
  *
  */
 #include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
@@ -13,9 +16,9 @@
 using namespace std;
 #include <iostream>
 
-#include "TROOT.h"
-#include "TFile.h"
-#include "TH2D.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 class FEDRawData;
 class DCCDataParser;
@@ -24,7 +27,7 @@ class EcalTBDaqFormatter   {
  public:
 
 
-  EcalTBDaqFormatter(TFile * rootFile);
+  EcalTBDaqFormatter(DaqMonitorBEInterface* dbe);
   virtual ~EcalTBDaqFormatter(){cout << " Destroying EcalTBDaqFormatter " << endl; };
   
   
@@ -53,7 +56,11 @@ class EcalTBDaqFormatter   {
      kChannelsPerCard = 5    // Number of channels per VFE card
    };
 
-  TH2D* meIntegrity[36];
+  MonitorElement* meIntegrityChId[36];  
+  MonitorElement* meIntegrityGain[36];
+  MonitorElement* meIntegrityTTId[36];
+  MonitorElement* meIntegrityTTBlockSize[36];
+  MonitorElement* meIntegrityDCCSize;
   
 };
 #endif

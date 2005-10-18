@@ -4,18 +4,23 @@
 /** \class EcalUnpackingModule
  * 
  *
- *  $Date: 2005/08/03 15:28:39 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/10/07 11:25:33 $
+ *  $Revision: 1.2 $
  * \author N. Marinelli 
+ * \author G. Della Ricca
  */
 
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include <FWCore/Framework/interface/EDProducer.h>
 
-#include "TROOT.h"
-#include "TFile.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include <iostream>
+#include <string>
+
+using namespace std;
 
 class EcalTBDaqFormatter;
 
@@ -31,10 +36,20 @@ class EcalTBDaqFormatter;
     /// Produce digis out of raw data
     void produce(edm::Event & e, const edm::EventSetup& c);
 
+    // BeginJob
+    void beginJob(const edm::EventSetup& c);
+
+    // EndJob
+    void endJob(void);
+
   private:
     EcalTBDaqFormatter* formatter;
 
-    TFile* rootFile;
+    DaqMonitorBEInterface* dbe;
+
+    MonitorElement* meIntegrity[36];
+
+    string outputFile;
   };
 
 DEFINE_FWK_MODULE(EcalDCCUnpackingModule);

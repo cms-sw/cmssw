@@ -3,6 +3,7 @@
  *  $Date: 2005/10/11 06:56:58 $
  *  $Revision: 1.10 $
  *  \author N. Marinelli 
+ *  \author G. Della Ricca
  */
 
 #include <EventFilter/EcalTBRawToDigi/interface/EcalDCCUnpackingModule.h>
@@ -24,16 +25,25 @@ using namespace std;
 
 EcalDCCUnpackingModule::EcalDCCUnpackingModule(const edm::ParameterSet& pset){
 
-  string outputFile = pset.getUntrackedParameter<string>("outputFile", "");
+  outputFile = pset.getUntrackedParameter<string>("outputFile", "");
 
-  rootFile = 0;
   if ( outputFile.size() != 0 ) {
     cout << "Ecal Integrity histograms will be saved to " << outputFile.c_str() << endl;
-    rootFile = new TFile(outputFile.c_str(), "recreate");
-    rootFile->cd();
   }
 
-  formatter = new EcalTBDaqFormatter(rootFile);
+  dbe = 0;
+  if ( pset.getUntrackedParameter<bool>("DaqMonitorBEInterface", false) ) {
+    dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+
+    dbe->setVerbose(0);
+  }
+
+  if ( pset.getUntrackedParameter<bool>("MonitorDaemon", false) ) {
+    edm::Service<MonitorDaemon> daemon;
+    daemon.operator->();
+  }
+
+  formatter = new EcalTBDaqFormatter(dbe);
 
   produces<EBDigiCollection>();
 
@@ -42,17 +52,21 @@ EcalDCCUnpackingModule::EcalDCCUnpackingModule(const edm::ParameterSet& pset){
 
 EcalDCCUnpackingModule::~EcalDCCUnpackingModule(){
 
-  if ( rootFile ) {
-    rootFile->Write();
-    rootFile->Close();
-    delete rootFile;
-  }
-
   delete formatter;
+
 }
 
+void EcalDCCUnpackingModule::beginJob(const edm::EventSetup& c){
 
-void EcalDCCUnpackingModule::produce(Event & e, const EventSetup& c){
+}
+
+void EcalDCCUnpackingModule::endJob(){
+
+  if ( outputFile.size() != 0 && dbe ) dbe->save(outputFile);
+
+}
+
+void EcalDCCUnpackingModule::produce(edm::Event & e, const edm::EventSetup& c){
 
   Handle<FEDRawDataCollection> rawdata;
   e.getByLabel("EcalDaqRawData", rawdata);
@@ -61,7 +75,7 @@ void EcalDCCUnpackingModule::produce(Event & e, const EventSetup& c){
   auto_ptr<EBDigiCollection> product(new EBDigiCollection);
 
   for (unsigned int id= 0; id<=FEDNumbering::lastFEDId(); ++id){ 
-      
+
     //     cout << "EcalDCCUnpackingModule::Got FED ID "<< id <<" ";
     const FEDRawData& data = rawdata->FEDData(id);
     // cout << " Fed data size " << data.size() << endl;
