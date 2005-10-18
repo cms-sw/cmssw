@@ -1,5 +1,8 @@
-// This is MuEndDetectorId.cc
-
+/** \file
+ *
+ *  $Date: $
+ *  $Revision: $
+ */
 
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include <iostream>

@@ -1,9 +1,7 @@
-#ifndef CSC_DETECTOR_ID_H
-#define CSC_DETECTOR_ID_H
+#ifndef MuonDetId_CSCDetId_h
+#define MuonDetId_CSCDetId_h
 
-// This is CSCDetectorId.h
-
-/** \class CSCDetectorId
+/** \class CSCDetId
  * Identifier class for hierarchy of Endcap Muon detector components.
  *
  * Allows access to hardware integer labels of the subcomponents
