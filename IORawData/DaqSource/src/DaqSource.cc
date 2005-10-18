@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2005/10/04 18:38:48 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/10/06 18:23:47 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -71,18 +71,18 @@ DaqSource::read() {
   EventID eventId;
   Timestamp tstamp;
 
-  FEDRawDataCollection* bare_product = new FEDRawDataCollection;
+  FEDRawDataCollection bare_product;
 
   if (remainingEvents_-- == 0 ||!reader_->fillRawData(eventId, 
 						      tstamp, 
-						      *bare_product)){
+						      bare_product)){
     return result;
   }
   result = 
     auto_ptr<EventPrincipal>(new EventPrincipal(eventId,tstamp,productRegistry()));
    
   edm::Wrapper<FEDRawDataCollection> *wrapped_product = 
-    new edm::Wrapper<FEDRawDataCollection> (*bare_product);
+    new edm::Wrapper<FEDRawDataCollection> (bare_product);
 
   auto_ptr<EDProduct>  prod(wrapped_product);
   
