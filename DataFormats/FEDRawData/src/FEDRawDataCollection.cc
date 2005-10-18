@@ -1,8 +1,8 @@
 /** \file
  *  implementation of DaqRawDataCollection
  *
- *  $Date: 2005/10/04 12:23:56 $
- *  $Revision: 1.3 $
+ *  $Date: 2005/10/06 18:25:22 $
+ *  $Revision: 1.4 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -16,10 +16,16 @@
 using namespace std;
 
 FEDRawDataCollection::FEDRawDataCollection():
-  data_(FEDNumbering::lastFEDId()+1) {}
+  data_(FEDNumbering::lastFEDId()+1) {
+}
 
+FEDRawDataCollection::FEDRawDataCollection(const FEDRawDataCollection &in) : data_(in.data_)
+{
 
-FEDRawDataCollection::~FEDRawDataCollection(){}
+}
+FEDRawDataCollection::~FEDRawDataCollection(){
+
+}
 
 
 const FEDRawData&   FEDRawDataCollection::FEDData(int fedid) const {
