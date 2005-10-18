@@ -1,14 +1,14 @@
 /** \file
  *
- *  $Date: 2005/10/05 16:20:20 $
- *  $Revision: 1.3 $
+ *  $Date: 2005/10/06 18:25:22 $
+ *  $Revision: 1.4 $
  *  \author G. Bruno  - CERN, EP Division
  */
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
 using namespace std;
 
-const int FEDNumbering::MAXFEDID=1023;
+const int FEDNumbering::MAXFEDID=2047;
 
 
 const int FEDNumbering::MINSiPixelFEDID=0;
