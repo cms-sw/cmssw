@@ -7,6 +7,13 @@
  <class name="HcalGains::Item"/>
  <class name="HcalGainWidths" id="2726EDFB-D5A8-4EEA-822B-5F0DE6784CB2"/>
  <class name="HcalGainWidths::Item"/>
+ <class name="HcalQIEData" id="3A102A5E-7773-02EF-7B98-A838BED8D66A"/>
+ <class name="HcalQIEData::Item"/>
+ <class name="HcalQIEShape" id="2529240C-E328-B3FC-70BE-451A388F2D8F"/>
+ <class name="HcalElectronicsMap" id="1EC50DB8-886B-ABB4-E875-20AF1C0C66E3"/>
+ <class name="HcalElectronicsMap::Item"/>
+ <class name="HcalCannelQuality" id="568D3456-EC1B-084B-1857-7AB9D60E93E4"/>
+ <class name="HcalCannelQuality::Item"/>
 
  <class pattern="*vector*"/>
  <class pattern="*iterator*"/>
