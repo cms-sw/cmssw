@@ -8,8 +8,8 @@
  *  lenght of the data is a multiple of the S-Link64 word lenght (8 byte).
  *  The FED data should include the standard FED header and trailer.
  *
- *  $Date: 2005/10/04 12:23:56 $
- *  $Revision: 1.4 $
+ *  $Date: 2005/10/06 18:25:22 $
+ *  $Revision: 1.5 $
  *  \author G. Bruno - CERN, EP Division
  *  \author S. Argiro - CERN and INFN - 
  *                      Refactoring and Modifications to fit into CMSSW
@@ -31,6 +31,12 @@ class FEDRawData {
   /// word (8 bytes)
   FEDRawData(size_t newsize);
 
+  /// Copy constructor
+  FEDRawData(const FEDRawData &);
+
+  /// Dtor
+  ~FEDRawData();
+
   /// Return a const pointer to the beginning of the data buffer
   const unsigned char * data() const;
 
@@ -45,6 +51,8 @@ class FEDRawData {
   void resize(size_t newsize);
 
  private:
+
+
   Data data_;
 
 };

@@ -6,8 +6,8 @@
  *  
  *  Reference: DaqPrototype/DaqPersistentData/interface/DaqFedOpaqueData.h
  *
- *  $Date: 2005/10/04 12:23:56 $
- *  $Revision: 1.3 $
+ *  $Date: 2005/10/06 18:25:22 $
+ *  $Revision: 1.4 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -27,8 +27,10 @@ class FEDRawDataCollection  {
   /// retrieve data for fed @param fedid
   FEDRawData&        FEDData(int fedid);
 
+  FEDRawDataCollection(const FEDRawDataCollection &);
+
  private:
-    
+
   std::vector<FEDRawData> data_; ///< the raw data 
 
 };
