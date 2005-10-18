@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  * 
- * $Date: 2005/10/16 12:05:35 $
- * $Revision: 1.17 $
+ * $Date: 2005/10/16 12:35:44 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  *
 */
@@ -64,8 +64,11 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
 EcalBarrelMonitorModule::~EcalBarrelMonitorModule(){
 
   delete pedestal_task;
+
   delete testpulse_task;
+
   delete laser_task;
+
   delete cosmic_task;
 
   logFile.close();
@@ -78,9 +81,25 @@ void EcalBarrelMonitorModule::beginJob(const edm::EventSetup& c){
 
   if ( meStatus ) meStatus->Fill(0);
 
+  pedestal_task->beginJob(c);
+
+  testpulse_task->beginJob(c);
+
+  laser_task->beginJob(c);
+
+  cosmic_task->beginJob(c);
+
 }
 
 void EcalBarrelMonitorModule::endJob(void) {
+
+  pedestal_task->endJob();
+
+  testpulse_task->endJob();
+
+  laser_task->endJob();
+
+  cosmic_task->endJob();
 
   cout << "EcalBarrelMonitorModule: analyzed " << ievt << " events" << endl;
 
