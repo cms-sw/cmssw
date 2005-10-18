@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2005/10/05 16:22:50 $
- *  $Revision: 1.4 $
+ *  $Date: 2005/10/06 18:23:47 $
+ *  $Revision: 1.5 $
  *  \author N. Amapane - CERN
  */
 
@@ -36,9 +36,14 @@ bool DaqFakeReader::fillRawData(EventID& eID,
 				Timestamp& tstamp, 
 				FEDRawDataCollection& data){
 
+  // FIXME
   float meansize = 1024;
   float width = 1024;
 
+  // Fill the EventID
+  eID = EventID(runNum,eventNum);
+  eventNum++;
+  // FIXME:
 
   fillFEDs(FEDNumbering::getSiPixelFEDIds(), eID, tstamp, data, meansize, width);
   fillFEDs(FEDNumbering::getSiStripFEDIds(), eID, tstamp, data, meansize, width);
@@ -59,12 +64,6 @@ void DaqFakeReader::fillFEDs(const pair<int,int>& fedRange,
 			     FEDRawDataCollection& data,
 			     float meansize,
 			     float width){
-
-  // Fill the EventID
-  eID = EventID(runNum,eventNum);
-  eventNum++;
-  // FIXME:
-
 
   // FIXME: last ID included?
   for (int fedId = fedRange.first; fedId <= fedRange.second; ++fedId ) {
