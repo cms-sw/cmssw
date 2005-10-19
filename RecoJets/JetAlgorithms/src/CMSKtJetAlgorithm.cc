@@ -4,7 +4,8 @@
 
 #include "RecoJets/JetAlgorithms/interface/KtEvent.h"
 #include "RecoJets/JetAlgorithms/interface/KtLorentzVector.h"
-#include "DataFormats/CaloObjects/interface/CaloTower.h"
+#include "DataFormats/CaloTowers/interface/CaloTower.h"
+#include "RecoJets/JetAlgorithms/interface/JetableObjectHelper.h"
 
 #include <stdio.h>
 #include <algorithm>
@@ -12,11 +13,14 @@
 
 using std::cout;
 using std::endl;
-using namespace jetdemo;
 
 /** Implemented by Fernando Varela Rodriguez
 
     Based on the ORCA implmentation of the Kt Algorithm by Arno Heister
+ 
+    19-Oct-2005: R. Harris Wasn't able to port it to the new CaloTower implementation, 
+                 so it just returns an empty jet collection, and couts an error message.
+                 See comments below in the code.
 */
 
 
@@ -70,13 +74,31 @@ CaloJetCollection* CMSKtJetAlgorithm::findJets(const CaloTowerCollection & aTowe
 {
   CaloJetCollection* result = new CaloJetCollection;
 
+  // Return immediately because Kt jets don't work until the line below commented out
+  // and mareked by FIXME is fixed.  R. Harris, 10-Oct-2005
+  std::cout << "ERROR: Kt Jets Needs to be Fixed.  No Jets made." << std::endl;
+  return result;
+  
   // fill the KtLorentzVector
   std::vector<KtJet::KtLorentzVector> avec;
-  for (std::vector<CaloTower>::const_iterator i = aTowerCollection.begin(); 
+  for (CaloTowerCollection::const_iterator i = aTowerCollection.begin(); 
                                               i != aTowerCollection.end(); 
 					      i++){
-    if((i->getE()) >= theKtJetECut)
-      avec.push_back(i->getLorentzVector());
+    if((i->e()) >= theKtJetECut){
+      float e = i->e();
+      float px = e * (1.0/cosh(i->eta)) * cos(i->phi);
+      float py = e * (1.0/cosh(i->eta)) * sin(i->phi);
+      float pz = e * tanh(i->eta); 
+    
+      HepLorentzVector theLorentzVector;
+    
+      theLorentzVector.setPx(px);
+      theLorentzVector.setPy(py);
+      theLorentzVector.setPz(pz);
+      theLorentzVector.setE(e);
+      
+      avec.push_back(theLorentzVector);
+    }
   }
   
   // construct the KtEvent object
@@ -124,8 +146,13 @@ CaloJetCollection* CMSKtJetAlgorithm::findJets(const CaloTowerCollection & aTowe
       //Instancite the Sub Collection of CaloTowers
       std::vector<const CaloTower*> jetSubCollection;
       //Populate the subcollection with objects from the input collection
-      for(unsigned int k = 0; k < listAssignedInputs.size(); k++)
-        jetSubCollection.push_back(&aTowerCollection[listAssignedInputs[k]]);
+
+      // FIXME: the line below is needed for kt jets.  It doesn't work with the
+      // new CaloTower collection, which is an EDM Sorted Collection, not an
+      // STL Vector. R. Harris, 10-Oct-2005
+
+      //for(unsigned int k = 0; k < listAssignedInputs.size(); k++)
+      //jetSubCollection.push_back(&aTowerCollection[listAssignedInputs[k]]);
 
       ProtoJet pj;
       
