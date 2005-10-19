@@ -1,0 +1,25 @@
+<export>
+<lib name=EventFilterAutoBU>
+<use name=XDAQ>
+<use name=xerces-c>
+<use name=CLHEP>
+</export>
+<use name=CLHEP>
+<use name=XDAQ>
+<use name=xerces-c>
+<use name=boost>
+<use name=Utilities/GenUtil>
+<use name=Utilities/Notification>
+<lib name=xdaq>
+<lib name=xgi>
+<lib name=toolbox>
+<lib name=xoap>
+<lib name=xcept>
+<lib name=xdata>
+<lib name=i2outils>
+<lib name=peer>
+<lib name=cgicc>
+<lib name=log4cplus>
+<lib name=mimetic>
+<lib name=udpappender>
+<lib name=xmlappender>
