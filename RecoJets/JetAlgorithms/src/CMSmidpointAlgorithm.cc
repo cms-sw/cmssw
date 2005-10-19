@@ -3,6 +3,7 @@
 // Author:  R. M. Harris
 // Creation Date:  RMH Feb. 4, 2005   Inital version of the CMS Midpoint Algorithm starting 
 //                                    from the CDF Midpoint Algorithm code by Matthias Toennesmann
+// Revisions       RMH Oct 19, 2005   Modified to work with real CaloTowers from Jeremy Mans.
 //
 // Pseudo Code for the CMS Midpoint Algorithm
 //--------------------------------------------
@@ -35,15 +36,14 @@
 #include "RecoJets/JetAlgorithms/interface/MakeCaloJet.h"
 
 using namespace std;
-using namespace jetdemo;
 
 //  Run the algorithm
 //  ------------------
 void CMSmidpointAlgorithm::run(const CaloTowerCollection* theCtcp,
 			       CaloJetCollection & caloJets)
 {
-  //Create a CaloTowerHelper for this collection
-    CaloTowerHelper theHelper(theCtcp); 
+  //Create a JetableObjectHelper for this collection
+    JetableObjectHelper theHelper(theCtcp); 
 
   // Find proto-jets from the seeds.
   vector<ProtoJet> protoJets;         // Initialize working container
@@ -68,7 +68,7 @@ void CMSmidpointAlgorithm::run(const CaloTowerCollection* theCtcp,
 
 // Find the proto-jets from the seed towers.
 // ----------------------------------------
-void CMSmidpointAlgorithm::findStableConesFromSeeds(CaloTowerHelper& theHelper,
+void CMSmidpointAlgorithm::findStableConesFromSeeds(JetableObjectHelper& theHelper,
 						    const CaloTowerCollection* theCtcp,
 						    vector<ProtoJet> & stableCones) {
   // This dictates that the cone size will be reduced in the iterations procedure,
@@ -81,8 +81,8 @@ void CMSmidpointAlgorithm::findStableConesFromSeeds(CaloTowerHelper& theHelper,
 
   // Loop over all Seeds
   for(vector<const CaloTower *>::const_iterator i = seedTowers.begin(); i != seedTowers.end(); ++i) {
-    double seedEta = (*i)->getEta();
-    double seedPhi = (*i)->getPhi(); 
+    double seedEta = (*i)->eta;
+    double seedPhi = (*i)->phi; 
 
     // Find stable cone from seed.  
     // This iterates the cone centroid, makes a proto-jet, and adds it to the list.
@@ -95,7 +95,7 @@ void CMSmidpointAlgorithm::findStableConesFromSeeds(CaloTowerHelper& theHelper,
 
 // Iterate the proto-jet center until it is stable
 // -----------------------------------------------
- void CMSmidpointAlgorithm::iterateCone(CaloTowerHelper& theHelper,
+ void CMSmidpointAlgorithm::iterateCone(JetableObjectHelper& theHelper,
 					const CaloTowerCollection* /* theCtcp */,
 					double startRapidity, double startPhi, 
 					double startE, bool reduceConeSize, vector<ProtoJet> & stableCones){
@@ -150,8 +150,8 @@ void CMSmidpointAlgorithm::findStableConesFromSeeds(CaloTowerHelper& theHelper,
 	  for(vector<const CaloTower *>::const_iterator i = towersInSeedCluster.begin(); i != towersInSeedCluster.end(); ++i) {
 	    const CaloTower &t = **i;
 	    if(theDebugLevel>=2) cout << "[CMSmidpointAlgorithm] Tower " <<
-              i-towersInSeedCluster.begin() << ": eta=" << t.getEta() << 
-	      ", phi=" << t.getPhi() << ", ET="  << t.getEt() << endl;
+              i-towersInSeedCluster.begin() << ": eta=" << t.eta << 
+	      ", phi=" << t.phi << ", ET="  << t.eT << endl;
           }
         }         
       }
@@ -178,7 +178,7 @@ void CMSmidpointAlgorithm::findStableConesFromSeeds(CaloTowerHelper& theHelper,
 
 // Find proto-jets from the midpoints
 // ----------------------------------
-void CMSmidpointAlgorithm::findStableConesFromMidPoints(CaloTowerHelper& theHelper,
+void CMSmidpointAlgorithm::findStableConesFromMidPoints(JetableObjectHelper& theHelper,
 							 const CaloTowerCollection* theCtcp,
 							 vector<ProtoJet>& stableCones){
 // We take the previous list of stable protojets from seeds as input and add to it
@@ -227,7 +227,7 @@ void CMSmidpointAlgorithm::findStableConesFromMidPoints(CaloTowerHelper& theHelp
 
 // Add proto-jets to pairs from which we will find the midpoint
 // ------------------------------------------------------------
-void CMSmidpointAlgorithm::addClustersToPairs(CaloTowerHelper& theHelper,
+void CMSmidpointAlgorithm::addClustersToPairs(JetableObjectHelper& theHelper,
 					      const CaloTowerCollection* theCtcp,
 					      vector<int>& testPair, vector< vector<int> >& pairs,
 					      vector< vector<bool> >& distanceOK, int maxClustersInPair)
@@ -261,7 +261,7 @@ void CMSmidpointAlgorithm::addClustersToPairs(CaloTowerHelper& theHelper,
 
 // Split and merge the proto-jets, assigning each tower in the protojets to one and only one final jet.
 // ----------------------------------------------------------------------------------------------------
-void CMSmidpointAlgorithm::splitAndMerge(CaloTowerHelper& /* theHelper */,
+void CMSmidpointAlgorithm::splitAndMerge(JetableObjectHelper& /* theHelper */,
 					 const CaloTowerCollection* /* theCtcp */,
 					 vector<ProtoJet>& stableCones, vector<ProtoJet>& finalJets)
 {
@@ -281,9 +281,9 @@ void CMSmidpointAlgorithm::splitAndMerge(CaloTowerHelper& /* theHelper */,
 			      << ", ntow="<< numTowers << endl;     
       vector<const CaloTower*> protojetTowers = stableCones[i].getTowerList(); 
       for(int j = 0; j < numTowers; ++j){
-        cout << "[CMSmidpointAlgorithm] Tower " << j << ": ET=" << protojetTowers[j]->getEt() 
-                                << ", eta="<< protojetTowers[j]->getEta()
-                                << ", phi="<<   protojetTowers[j]->getPhi() << endl;
+        cout << "[CMSmidpointAlgorithm] Tower " << j << ": ET=" << protojetTowers[j]->eT 
+                                << ", eta="<< protojetTowers[j]->eta
+                                << ", phi="<<   protojetTowers[j]->phi << endl;
       }
     }      
   }
@@ -339,12 +339,12 @@ void CMSmidpointAlgorithm::splitAndMerge(CaloTowerHelper& /* theHelper */,
 
             // Check if towers are the same by checking for unique eta, phi and energy values.
             // Will want to replace this with checking the tower index when available.
-            if((abs((*towerIter1)->getEta()-(*towerIter2)->getEta())<.001) && 
-	        (abs((*towerIter1)->getPhi()-(*towerIter2)->getPhi())<.001) &&
-	        (abs((*towerIter1)->getE()-(*towerIter2)->getE())<.001)){
+            if((abs((*towerIter1)->eta-(*towerIter2)->eta)<.001) && 
+	        (abs((*towerIter1)->phi-(*towerIter2)->phi)<.001) &&
+	        (abs((*towerIter1)->e()-(*towerIter2)->e())<.001)){
 	        isInCone2 = true;   //The tower is in both cones
-                //cout << "Merging found overlap tower: eta=" << (*towerIter1)->getEta() << ", phi=" << (*towerIter1)->getPhi() << " in 1st protojet "  << 
-	        //                             " and eta=" << (*towerIter2)->getEta() << ", phi=" << (*towerIter2)->getPhi() << " in 2nd protojet "  << endl;
+                //cout << "Merging found overlap tower: eta=" << (*towerIter1)->eta << ", phi=" << (*towerIter1)->phi << " in 1st protojet "  << 
+	        //                             " and eta=" << (*towerIter2)->eta << ", phi=" << (*towerIter2)->phi << " in 2nd protojet "  << endl;
              }
 	  }
           if(isInCone2){
@@ -379,9 +379,9 @@ void CMSmidpointAlgorithm::splitAndMerge(CaloTowerHelper& /* theHelper */,
 		  ++overlapTowerIter){
                 // Check if towers are the same by checking for unique eta, phi and energy values.
                 // Will want to replace this with checking the tower index when available.
-                if((abs((*overlapTowerIter)->getEta()-(*towerIter2)->getEta())<.001) && 
-	            (abs((*overlapTowerIter)->getPhi()-(*towerIter2)->getPhi())<.001) &&
-	            (abs((*overlapTowerIter)->getE()-(*towerIter2)->getE())<.001))
+                if((abs((*overlapTowerIter)->eta-(*towerIter2)->eta)<.001) && 
+	            (abs((*overlapTowerIter)->phi-(*towerIter2)->phi)<.001) &&
+	            (abs((*overlapTowerIter)->e()-(*towerIter2)->e())<.001))
 		    isInOverlap = true;
               }
               //Add  non-overlap tower from proto-jet 2 into the proto-jet 1 tower list.
@@ -419,8 +419,8 @@ void CMSmidpointAlgorithm::splitAndMerge(CaloTowerHelper& /* theHelper */,
 	    for(vector<const CaloTower*>::iterator towerIter = overlapTowers.begin();
 		towerIter != overlapTowers.end();
 		++towerIter){
-	      double towerRapidity = (*towerIter)->getEta();
-	      double towerPhi      = (*towerIter)->getPhi();
+	      double towerRapidity = (*towerIter)->eta;
+	      double towerPhi      = (*towerIter)->phi;
 
 	      // Calculate distance from proto-jet 1.
 	      double dRapidity1 = fabs(towerRapidity - stableConeIter1->getLorentzVector().rapidity());
@@ -460,9 +460,9 @@ void CMSmidpointAlgorithm::splitAndMerge(CaloTowerHelper& /* theHelper */,
 		{
 
                    // Check if they are equal
-                   if((abs((*towerIter)->getEta()-(*towerIter1)->getEta())<.001) && 
-	              (abs((*towerIter)->getPhi()-(*towerIter1)->getPhi())<.001) &&
-	              (abs((*towerIter)->getE()-(*towerIter1)->getE())<.001))
+                   if((abs((*towerIter)->eta-(*towerIter1)->eta)<.001) && 
+	              (abs((*towerIter)->phi-(*towerIter1)->phi)<.001) &&
+	              (abs((*towerIter)->e()-(*towerIter1)->e())<.001))
                   {
 
                      // Remove the tower
@@ -493,9 +493,9 @@ void CMSmidpointAlgorithm::splitAndMerge(CaloTowerHelper& /* theHelper */,
                for(vector<const CaloTower*>::iterator towerIter2 = towerList2.begin(); towerIter2 != towerList2.end(); ++towerIter2)
 		{
                   // Check if they are equal
-                   if((abs((*towerIter)->getEta()-(*towerIter2)->getEta())<.001) && 
-	              (abs((*towerIter)->getPhi()-(*towerIter2)->getPhi())<.001) &&
-	              (abs((*towerIter)->getE()-(*towerIter2)->getE())<.001))
+                   if((abs((*towerIter)->eta-(*towerIter2)->eta)<.001) && 
+	              (abs((*towerIter)->phi-(*towerIter2)->phi)<.001) &&
+	              (abs((*towerIter)->e()-(*towerIter2)->e())<.001))
                   {
                     // Remove the tower
 	             towerList2.erase(towerIter2);
@@ -542,5 +542,3 @@ void CMSmidpointAlgorithm::splitAndMerge(CaloTowerHelper& /* theHelper */,
 
   sort(finalJets.begin(),finalJets.end(),ProtoJetPtGreater());
 };
-
-

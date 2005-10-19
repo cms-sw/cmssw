@@ -11,12 +11,13 @@
  * \author Fernando Varela Rodriguez, Boston University
  *
  * \version   1st Version April 22, 2005.
- *
+ * \version   2nd Version Oct 19, 2005, R. Harris, modified to work with real CaloTowers from Jeremy Mans.
+*
  ************************************************************/
 
 #include "CLHEP/Vector/LorentzVector.h"
-#include "DataFormats/CaloObjects/interface/CaloTowerfwd.h"
-#include "DataFormats/CaloObjects/interface/CaloTowerCollection.h"
+#include "DataFormats/CaloTowers/interface/CaloTower.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 
 #include <vector>
 #include <string>
@@ -25,8 +26,6 @@
 int signum(double x);
 
 class ProtoJet {
- typedef jetdemo::CaloTowerCollection CaloTowerCollection;
- typedef jetdemo::CaloTower CaloTower;
 public:
   /** Default Constructor */
   ProtoJet();
@@ -72,7 +71,7 @@ public:
   int numberOfConstituents() const {return m_constituents.size();};
 
   /** Returns the array of CaloTower IDs the ProtoJet is made of*/
-  std::vector<int> towerIds() const;
+  std::vector<CaloTowerDetId> towerIds() const;
 
 //All these methods must be moved to the the CaloJet class
 

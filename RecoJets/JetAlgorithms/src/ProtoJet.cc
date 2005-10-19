@@ -1,9 +1,8 @@
-//Mandatory line for all .cc and .cpp files when working with ORCA
+//  ProtJet.cc
+//  Revision History:  R. Harris 10/19/05  Modified to work with real CaloTowers from Jeremy Mans
+//
 
-//CaloTower
-
-//Own header file
-#include "DataFormats/CaloObjects/interface/CaloTower.h"
+#include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "RecoJets/JetAlgorithms/interface/ProtoJet.h"
 
 #include <vector>
@@ -43,14 +42,28 @@ ProtoJet::ProtoJet(CaloTowerCollection aTowerCollection)
 {
  
  std::vector<const CaloTower*> constituentsPtr;
- for(unsigned int i = 0; i < aTowerCollection.size(); i++)
- {
-    constituentsPtr.push_back(&(aTowerCollection[i]));						  
+ for(CaloTowerCollection::const_iterator itr = aTowerCollection.begin();
+                                               itr != aTowerCollection.end();
+					       itr++){
+    constituentsPtr.push_back(&(*itr));						  
  }
   m_constituents = constituentsPtr;
   calculateLorentzVector(); 
 }//end of constructor
 
+
+// Old code
+//ProtoJet::ProtoJet(CaloTowerCollection aTowerCollection)
+//{
+ 
+// std::vector<const CaloTower*> constituentsPtr;
+// for(unsigned int i = 0; i < aTowerCollection.size(); i++)
+// {
+//    constituentsPtr.push_back(&(aTowerCollection[i]));						  
+// }
+//  m_constituents = constituentsPtr;
+//  calculateLorentzVector(); 
+//}//end of constructor
 
 
 ProtoJet::~ProtoJet() {
@@ -61,7 +74,7 @@ double ProtoJet::maxEInEmTowers() const
   std::vector<double> energy_i;
   for(vector<const CaloTower *>::const_iterator i = m_constituents.begin(); i !=  m_constituents.end(); ++i) {
     assert(*i);
-    energy_i.push_back((*i)->getEECal()); 
+    energy_i.push_back((*i)->e_em()); 
   }//end of for
   
   //Sort the array
@@ -77,7 +90,7 @@ double ProtoJet::maxEInHadTowers() const
   
   for(vector<const CaloTower *>::const_iterator i = m_constituents.begin(); i != m_constituents.end(); ++i) {
     assert(*i);
-    energy_i.push_back((*i)->getEHCal()); 
+    energy_i.push_back((*i)->e_had()); 
   }//end of for
   
   //Sort the array
@@ -93,8 +106,8 @@ double ProtoJet::emFraction() const {
   
   for(vector<const CaloTower *>::const_iterator i = m_constituents.begin(); i != m_constituents.end(); ++i) {
     assert(*i);
-    emEnergy_i.push_back((*i)->getEECal());
-    hadEnergy_i.push_back((*i)->getEHCal());
+    emEnergy_i.push_back((*i)->e_em());
+    hadEnergy_i.push_back((*i)->e_had());
   }
   //Calculate the ratio between the total EM and HAD energy:
   return accumulate(emEnergy_i.begin(), emEnergy_i.end(), 0.)/(accumulate(hadEnergy_i.begin(),
@@ -112,7 +125,7 @@ int ProtoJet::n90() const {
   eList.clear();
   for(vector<const CaloTower *>::const_iterator i = m_constituents.begin(); i != m_constituents.end(); ++i) {
     assert(*i);
-    eList.push_back((*i)->getE());
+    eList.push_back((*i)->e());
   }
     
   //Make sure that we have a sorted list of constituents:  
@@ -238,21 +251,21 @@ void ProtoJet::calculateLorentzVector() {
   for(vector<const CaloTower *>::const_iterator i = m_constituents.begin(); i !=  m_constituents.end(); ++i) {
     assert(*i);
     const CaloTower &t = **i;
-    m_e += t.getE();
-    m_px += t.getE() * sin(t.getTheta()) * cos(t.getPhi());
-    m_py += t.getE() * sin(t.getTheta()) * sin(t.getPhi());
-    m_pz += t.getE() * cos(t.getTheta());
+    m_e += t.e();
+    m_px += t.e() * (1.0/cosh(t.eta)) * cos(t.phi);
+    m_py += t.e() * (1.0/cosh(t.eta)) * sin(t.phi);
+    m_pz += t.e() * tanh(t.eta);
   } //end of loop over the jet constituents
 }
 
 
 
-std::vector<int> ProtoJet::towerIds() const {
-  vector<int> towerIds;
+std::vector<CaloTowerDetId> ProtoJet::towerIds() const {
+  vector<CaloTowerDetId> towerIds;
   
   for(vector<const CaloTower *>::const_iterator i = m_constituents.begin(); i !=  m_constituents.end(); ++i) {
    assert(*i);
-   towerIds.push_back((*i)->getTowerIndex());
+   towerIds.push_back((*i)->id());
 
   }
   return towerIds;  

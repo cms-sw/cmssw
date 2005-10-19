@@ -10,13 +10,13 @@
  * RUN II: QCD and Weak Boson Physics Workshop: hep-ex/0005012.
  *
  * The algorithm runs off of CaloTowers using
- * the navigation interface CaloTowerHelper.
+ * the navigation interface JetableObjectHelper.
  *
  * \author Robert M Harris, Fermilab
  *
  * \version   1st Version Feb. 4, 2005  Based on the CDF Midpoint Algorithm code by Matthias Toennesmann.
- * \version   2nd Version Apr. 6, 2005  Modifications toward
- *                                      integration in new EDM.
+ * \version   2nd Version Apr. 6, 2005  Modifications toward integration in new EDM.
+ * \version   3rd Version Oct. 19, 2005 Modified to work with real CaloTowers from Jeremy Mans
  *
  ************************************************************/
 
@@ -25,8 +25,10 @@
 
 #include "CLHEP/Vector/LorentzVector.h"
 
-#include "DataFormats/CaloObjects/interface/CaloTower.h"
-#include "DataFormats/CaloObjects/interface/CaloTowerHelper.h"
+#include "DataFormats/CaloTowers/interface/CaloTower.h"
+#include "RecoJets/JetAlgorithms/interface/JetableObjectHelper.h"
+
+
 
 #include "RecoJets/JetAlgorithms/interface/ProtoJet.h"
 #include "DataFormats/JetObjects/interface/CaloJet.h"
@@ -34,8 +36,6 @@
 
 class CMSmidpointAlgorithm 
 {
- typedef jetdemo::CaloTowerCollection CaloTowerCollection;
- typedef jetdemo::CaloTowerHelper CaloTowerHelper;
  public:
   /// Default constructor which defines the default values of the algorithm parameters
   ///
@@ -97,32 +97,32 @@ class CMSmidpointAlgorithm
  private:
   /// Find the list of proto-jets from the seeds.  
   /// Called by run, but public method to allow testing and studies.
-  void findStableConesFromSeeds(CaloTowerHelper& theHelper,
+  void findStableConesFromSeeds(JetableObjectHelper& theHelper,
 				const CaloTowerCollection* theCtcp,
 				std::vector<ProtoJet> & protoJets);
 
   /// Iterate the proto-jet center until it is stable.  
   /// Called by findStableConesFromSeeds and findStableConesFromMidPoints but public method to allow testing and studies.
-  void iterateCone(CaloTowerHelper& theHelper,
+  void iterateCone(JetableObjectHelper& theHelper,
 	   const CaloTowerCollection* theCtcp,
 		   double startRapidity, double startPhi, double startPt, bool reduceConeSize, std::vector<ProtoJet> & protoJets);
 
   /// Add to the list of proto-jets the list of midpoints.
   /// Called by run but public method to allow testing and studies.
-  void findStableConesFromMidPoints(CaloTowerHelper& theHelper,
+  void findStableConesFromMidPoints(JetableObjectHelper& theHelper,
 				    const CaloTowerCollection* theCtcp,
 				    std::vector<ProtoJet>& protoJets);
 
   /// Add proto-jets to pairs, triplets, etc, prior to finding their midpoints.
   /// Called by findStableConesFromMidPoints but public method to allow testing and studies.
-  void addClustersToPairs(CaloTowerHelper& theHelper,
+  void addClustersToPairs(JetableObjectHelper& theHelper,
 			  const CaloTowerCollection* theCtcp,
 			  std::vector<int>& testPair, std::vector<std::vector<int> >& pairs,
 			  std::vector<std::vector<bool> >& distanceOK, int maxClustersInPair);
 
   /// Split and merge the proto-jets, assigning each tower in the protojets to one and only one final jet.
   ///  Called by run but public method to allow testing and studies.
-  void splitAndMerge(CaloTowerHelper& theHelper,
+  void splitAndMerge(JetableObjectHelper& theHelper,
 		     const CaloTowerCollection* theCtcp,
 		     std::vector<ProtoJet>& protoJets, std::vector<ProtoJet>& finalJets);
 
