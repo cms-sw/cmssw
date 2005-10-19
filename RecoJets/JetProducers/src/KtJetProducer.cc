@@ -2,7 +2,7 @@
 // Description:  see KtJetProducer.h
 // Author:  Fernando Varela Rodriguez, Boston University
 // Creation Date:  Apr. 22 2005 Initial version.
-//
+// Revisions:  R. Harris, 19-Oct-2005, modified to use real CaloTowers from Jeremy Mans
 //--------------------------------------------
 #include <memory>
 
@@ -10,7 +10,6 @@
 #include "DataFormats/JetObjects/interface/CaloJetCollection.h"
 #include "FWCore/Framework/interface/Handle.h"
 
-using namespace jetdemo;
 
 namespace cms
 {
@@ -32,9 +31,9 @@ namespace cms
   void KtJetProducer::produce(edm::Event& e, const edm::EventSetup&)
   {
     // Step A: Get Inputs 
-    edm::Handle<CaloTowerCollection> towers;  //Fancy Event Pointer to CaloTowers
-    e.getByLabel("CalTwr", towers);           //Set pointer to CaloTowers
-
+    edm::Handle<CaloTowerCollection> towers;   //Smart pointer to CaloTowers
+    e.getByType(towers);                       //Set pointer to CaloTowers
+ 
     // Step B: Create empty output 
     std::auto_ptr<CaloJetCollection> result(new CaloJetCollection);  //Empty Jet Coll
 

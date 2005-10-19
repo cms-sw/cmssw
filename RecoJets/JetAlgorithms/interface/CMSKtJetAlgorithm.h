@@ -19,18 +19,18 @@
  * \author Fernando Varela Rodriguez, Boston University
  *
  * \version   1st Version April 22, 2005.
+ * \version   R. Harris, October 19, 2005 modified to use real CaloTowers
  *
  ************************************************************/
  
 #include "DataFormats/JetObjects/interface/CaloJetCollection.h"                    //CaloJetCollection
-#include "DataFormats/CaloObjects/interface/CaloTowerCollection.h"   //CaloTowerCollection
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"   //CaloTowerCollection
 
 #include <vector>
 #include <iostream>
  
 class CMSKtJetAlgorithm
 {
- typedef jetdemo::CaloTowerCollection CaloTowerCollection;
 public:
 
   /** Default constructor    */
