@@ -22,12 +22,13 @@
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 #include "DQMServices/UI/interface/CollectorRoot.h"
 
-class xdaqCollector: public xdaq::Application 
+class XdaqCollector: public xdaq::Application 
 {
 	
  public:
   
-  xdaqCollector(xdaq::ApplicationStub * s): xdaq::Application(s)
+  XDAQ_INSTANTIATOR();
+  XdaqCollector(xdaq::ApplicationStub * s): xdaq::Application(s)
     {	
       clientport_ = 9090;
       sourceport_ = 9050;
