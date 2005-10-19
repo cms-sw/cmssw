@@ -29,7 +29,7 @@ namespace evf
     } catch(const edm::Exception& iException) {
       if(edm::errors::Configuration == iException.categoryCode()) {
 	throw edm::Exception(edm::errors::Configuration, "NoSource")
-          <<"No main input source found in configuration.  Please add an input service via 'source = ...' in the configuration file.\n";
+          <<"No main input source found in configuration.  Please add an input source via 'source = ...' in the configuration file.\n";
       } else {
 	throw;
       }
@@ -82,11 +82,17 @@ void EventProcessor::init(std::string &config)
 	   << e.what() << endl;
       exit(-1);
     }
-      
+
   serviceToken_.connectTo(activityRegistry_);
+
+  //add the ProductRegistry as a service ONLY for the construction phase
+  boost::shared_ptr<edm::serviceregistry::ServiceWrapper<edm::ConstProductRegistry> > 
+    reg(new edm::serviceregistry::ServiceWrapper<edm::ConstProductRegistry>( 
+								  std::auto_ptr<edm::ConstProductRegistry>(new edm::ConstProductRegistry(preg_))));
+  edm::ServiceToken tempToken( edm::ServiceRegistry::createContaining(reg, serviceToken_, edm::serviceregistry::kOverlapIsError));
   
   //make the services available
-  edm::ServiceRegistry::Operate operate(serviceToken_);
+  edm::ServiceRegistry::Operate operate(tempToken);
 
   params_ = builder.getProcessPSet();
 
@@ -94,15 +100,12 @@ void EventProcessor::init(std::string &config)
 
   input_= makeInput(*params_, (*params_).getParameter<string>("@process_name"),
 		    getPass(), preg_);
-
   edm::ScheduleBuilder sbuilder = 
     edm::ScheduleBuilder(*params_, wreg_, preg_, act_table_);
-  
   workers_= (sbuilder.getPathList());
   runner_ = std::auto_ptr<edm::ScheduleExecutor>(new edm::ScheduleExecutor(workers_,act_table_));
   runner_->preModuleSignal.connect(activityRegistry_.preModuleSignal_);
   runner_->postModuleSignal.connect(activityRegistry_.postModuleSignal_);
-  
   //  fillEventSetupProvider(esp_, *params_, common_);  
   using namespace std;
   using namespace edm::eventsetup;
@@ -117,7 +120,6 @@ void EventProcessor::init(std::string &config)
 				getVersion(), 
 				getPass());
   }
-  
   vector<string> sources = (*params_).getParameter<vector<string> >("@all_essources");
   for(vector<string>::iterator itName = sources.begin();
       itName != sources.end();
@@ -129,7 +131,6 @@ void EventProcessor::init(std::string &config)
 						 getVersion(), 
 						 getPass());
   }
-  
   
 }
 
