@@ -1,0 +1,6 @@
+<use name=CLHEP>
+<flags SEAL_PLUGIN_NAME="SimTrackerCommon">
+<export>
+   <lib name=SimTrackerCommon>
+   <use name=CLHEP>
+</export>
