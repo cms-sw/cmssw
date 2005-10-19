@@ -7,8 +7,8 @@
 #include "xgi/include/xgi/exception/Exception.h"
 #include "FWCore/Utilities/interface/ProblemTracker.h"
 
-#include "EventFilter/Processor/interface/EPStateMachine.h"
-#include "EventFilter/Processor/interface/ProcessorCss.h"
+#include "EventFilter/Utilities/interface/EPStateMachine.h"
+#include "EventFilter/Utilities/interface/Css.h"
 
 class TaskGroup;
 namespace evf
@@ -20,7 +20,7 @@ namespace evf
     public:
       XDAQ_INSTANTIATOR();
       FUEventProcessor(xdaq::ApplicationStub *s);
-      ~FUEventProcessor(){}
+      ~FUEventProcessor();
       
     private:
       void configureAction(toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception);
@@ -42,7 +42,7 @@ namespace evf
       TaskGroup *group_;
       EPStateMachine *fsm_;
       edm::AssertHandler *ah_;
-      ProcessorCss css_;
+      Css css_;
       friend class EPStateMachine;
     };
 }
