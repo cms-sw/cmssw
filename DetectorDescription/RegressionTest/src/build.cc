@@ -249,7 +249,7 @@ void testParser()
 
 void testrot()
 {
-  ExprEvalInterface & eval = ExprEval::instance();
+  //  ExprEvalInterface & eval = ExprEval::instance();
   DDRotationMatrix * rm = new HepRotation(Hep3Vector(1.,1.,1.),20.*deg); 
   cout << "Hep3Vector was " << Hep3Vector(1.,1.,1.) << " and the rotation was 20*deg around that axis." << endl;
   cout << "phiX=" << rm->phiX() << " or in degrees = " 

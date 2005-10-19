@@ -168,7 +168,7 @@ void preshPrepareTubs()
   double ECAL_Z = DDConstant("ECAL_Z");
   double R_MIN = ECAL_Z * tan(THETA_MIN);
   double R_MAX = PRESH_Z*tan(THETA_MAX);
-
+  DCOUT('E', "R_MIN=" << R_MIN/cm << "cm   R_MAX=" << R_MAX/cm << "cm");
 
 
 } 
