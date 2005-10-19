@@ -18,8 +18,12 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s) : xdaq::Application
   xgi::bind(this, &FUEventProcessor::css           , "styles.css");
   xgi::bind(this, &FUEventProcessor::defaultWebPage, "Default"   );
 }
-
-
+FUEventProcessor::~FUEventProcessor()
+{
+  if(proc_) delete proc_;
+  delete fsm_;
+  delete ah_;
+}
 void FUEventProcessor::configureAction(toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception)
 {
   proc_ = new EventProcessor(getApplicationDescriptor()->getInstance());
