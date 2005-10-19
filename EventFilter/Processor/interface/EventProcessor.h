@@ -8,7 +8,10 @@
 /// 
 //
 //  MODIFICATION:
-//    $Log$
+//    $Log: EventProcessor.h,v $
+//    Revision 1.1  2005/10/10 09:54:45  meschi
+//    HLT processor initial implementation
+//
 //
 
 #include "FWCore/Framework/src/Worker.h"
@@ -30,7 +33,8 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/EventRegistry.h"
-#include "FWCore/Framework/interface/ProductRegistry.h"
+//#include "FWCore/Framework/src/SignallingProductRegistry.h"
+#include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
@@ -81,8 +85,8 @@ namespace evf
       int tid_;
 
       boost::shared_ptr<edm::ParameterSet> params_;
-      edm::WorkerRegistry          wreg_;
-      edm::ProductRegistry         preg_;
+      edm::WorkerRegistry                    wreg_;
+      edm::SignallingProductRegistry         preg_;
       PathList                workers_;
       edm::ActivityRegistry activityRegistry_;
       edm::ServiceToken serviceToken_;
