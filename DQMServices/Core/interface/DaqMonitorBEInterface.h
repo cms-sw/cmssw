@@ -104,6 +104,15 @@ class DaqMonitorBEInterface: public StringUtil
   // erase all monitoring elements in current directory (not including subfolders);
   virtual void removeContents(void) = 0;
   
+  // acquire and release lock
+  void lock(){
+    //cout << "Called lock " << endl;
+    pthread_mutex_lock(&mutex_);
+  }
+  void unlock(){  
+    //cout << "Called unlock " << endl;
+    pthread_mutex_unlock(&mutex_);
+  }
   
  protected:
   
@@ -251,15 +260,6 @@ class DaqMonitorBEInterface: public StringUtil
   // reset modifications to monitorable since last cycle
   void resetNewMonitorable(void);
 
-  // acquire and release lock
-  void lock(){
-    //cout << "Called lock " << endl;
-    pthread_mutex_lock(&mutex_);
-  }
-  void unlock(){  
-    //cout << "Called unlock " << endl;
-    pthread_mutex_unlock(&mutex_);
-  }
   pthread_mutex_t mutex_;
 
   // ------------------- data structures -----------------------------
