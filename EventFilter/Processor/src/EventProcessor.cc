@@ -278,6 +278,11 @@ void EventProcessor::run()
 	    throw edm::Exception(edm::errors::EventProcessorFailure,
 				 "EventProcessingStopped",e);
 	}
+      catch(seal::Error &e)
+	{
+	  cerr << e.explainSelf() << endl;
+	  throw;
+	}
     }
 }
 
