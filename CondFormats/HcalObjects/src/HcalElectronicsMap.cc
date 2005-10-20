@@ -3,11 +3,12 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store mapping for Hcal channels
 $Author: ratnikov
-$Date: 2005/10/06 21:25:32 $
-$Revision: 1.5 $
+$Date: 2005/10/18 23:34:56 $
+$Revision: 1.1 $
 */
 
 #include <iostream>
+#include <set>
 
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 
@@ -45,7 +46,7 @@ const HcalElectronicsMap::Item* HcalElectronicsMap::findByElId (unsigned long fE
     if (fWarning) std::cerr << "HcalElectronicsMap-> container is not sorted. Use sortById () to search effectively" << std::endl;
     item = mItems.begin();
     Item::LessByElId less;
-    while (item != mItems.end() && !( less (*item,target) || less (target, *item))) item++;
+    while (! (item == mItems.end() || ( !less (*item,target) && !less (target, *item)))) item++;
   }
   if (item == mItems.end() || item->mElId != fElId) return 0;
   return &*item;
@@ -101,6 +102,47 @@ bool HcalElectronicsMap::setMapping (unsigned long fChId, unsigned long fElectro
   mItems.push_back (item);
   mSortedByChId = mSortedByElId = mSortedByTrigId = false;
   return true;
+}
+
+std::vector <unsigned long> HcalElectronicsMap::allElectronicsId () const {
+  std::vector <unsigned long> result;
+  std::set <unsigned long> allIds;
+  for (std::vector<Item>::const_iterator item = mItems.begin (); item != mItems.end (); item++) allIds.insert (item->mElId);
+  return std::vector <unsigned long> (allIds.begin (), allIds.end ());
+}
+
+bool HcalElectronicsMap::mapEId2tId (unsigned long fElectronicsId, unsigned long fTriggerId) {
+  const Item* item = findByElId (fElectronicsId, false);
+  if (item) { // record exists
+    if (item->mTrigId == 0) {
+      ((Item*)item)->mTrigId = fTriggerId; // just cast avoiding long machinery
+    } 
+    else if (item->mTrigId != fTriggerId) {
+      std::cerr << "HcalElectronicsMap::mapEId2tId-> Electronics channel " <<  fElectronicsId << " already mapped to trigger channel " 
+		<< item->mTrigId << ". New value " << fTriggerId << " is ignored" << std::endl;
+      return false;
+    }
+    return true;
+  }
+  else {
+    return setMapping (0, fElectronicsId, fTriggerId);
+  }
+}
+
+bool HcalElectronicsMap::mapEId2chId (unsigned long fElectronicsId, unsigned long fChId) {
+  const Item* item = findByElId (fElectronicsId, false);
+  if (item) { // record exists
+    if (item->mChId == 0) {
+      ((Item*)item)->mChId = fChId; // just cast avoiding long machinery
+    } 
+    else if (item->mChId != fChId) {
+      std::cerr << "HcalElectronicsMap::mapEId2tId-> Electronics channel " <<  fElectronicsId << " already mapped to channel " 
+		<< item->mChId << ". New value " << fChId << " is ignored" << std::endl;
+      return false;
+    }
+    return true;
+  }
+  return setMapping (fChId, fElectronicsId, 0);
 }
 
 void HcalElectronicsMap::sortByChaId () {
