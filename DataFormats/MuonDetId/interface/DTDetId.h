@@ -4,8 +4,8 @@
 /** \class DTDetId
  *  DetUnit identifier for DT chambers
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2005/10/18 17:57:47 $
+ *  $Revision: 1.5 $
  *  \author Stefano ARGIRO
  */
 
@@ -76,7 +76,7 @@ class DTDetId :public DetId {
   /// lowest sector id
   static const unsigned int minSectorId=     1;
   /// highest sector id
-  static const unsigned int maxSectorId=    12;
+  static const unsigned int maxSectorId=    14;
   /// loweset super layer id
   static const unsigned int minSuperLayerId= 1;
   /// highest superlayer id
