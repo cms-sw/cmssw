@@ -16,15 +16,11 @@
 //
 // Original Author:  
 //         Created:  Thu Aug 11 18:56:27 EDT 2005
-// $Id$
+// $Id: candidateMethods.h,v 1.1 2005/10/21 13:56:43 llista Exp $
 //
 
-// system include files
 #include <map>
 
-// user include files
-
-// forward declarations
 namespace aod {
   class Candidate;
 }

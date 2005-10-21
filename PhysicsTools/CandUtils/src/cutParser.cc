@@ -10,63 +10,61 @@
 //
 // Author:      Chris D Jones
 // Created:     Sun Aug  7 20:45:55 EDT 2005
-// $Id: cutParser.cc,v 1.2 2005/10/21 14:03:22 llista Exp $
+// $Id: cutParser.cc,v 1.3 2005/10/21 14:56:00 llista Exp $
 //
 // Revision history
 //
 // $Log: cutParser.cc,v $
+// Revision 1.3  2005/10/21 14:56:00  llista
+// managed exception
+//
 // Revision 1.2  2005/10/21 14:03:22  llista
 // restyling
 //
 // Revision 1.1  2005/10/21 13:56:43  llista
 // added Chris Jones cut parser
 //
-
-// system include files
 #include <boost/spirit/core.hpp>
 #include <boost/spirit/actor/push_back_actor.hpp>
 #include <vector>
-
-// user include files
 #include "PhysicsTools/CandUtils/interface/cutParser.h"
 #include "PhysicsTools/CandUtils/interface/Selector.h"
 #include "PhysicsTools/Candidate/interface/Candidate.h"
 
-//
-// constants, enums and typedefs
-//
 using namespace aod;
 typedef boost::spirit::scanner<const char*, boost::spirit::scanner_policies_t > ScannerUsed;
 typedef boost::spirit::rule<ScannerUsed> Rule_t;
 
 struct ExpressionBase {
-  virtual ~ExpressionBase() {};
-  virtual double value(const Candidate&) const = 0;
+  virtual ~ExpressionBase() { }
+  virtual double value( const Candidate & ) const = 0;
 };
+
 struct ExpressionNumber : public ExpressionBase {
-  virtual double value(const Candidate&) const {
+  virtual double value (const Candidate & ) const {
     return m_value;
   }
   double m_value;
-  ExpressionNumber( double iValue ) : m_value(iValue) {//std::cout << m_value <<std::endl;
+  ExpressionNumber( double iValue ) : m_value(iValue) {
   }
 };
 
 struct ExpressionVar : public ExpressionBase {
   ExpressionVar(PCandMethod iMethod ):
-    m_method(iMethod) { //std::cout << m_var<<std::endl;
+    m_method(iMethod) {
   }
   
-  virtual double value(const Candidate& iCand) const {
-    return (iCand.*m_method)();
+  virtual double value( const Candidate & iCand ) const {
+    return ( iCand.*m_method )();
   }
   PCandMethod m_method;
 };
 
 typedef std::vector<boost::shared_ptr<ExpressionBase> > ExpressionStack;
+
 class ExpressionNumberSetter {
 public:
-  ExpressionNumberSetter( ExpressionStack& iStack) : stack_(iStack){}
+  ExpressionNumberSetter( ExpressionStack& iStack) : stack_(iStack) { }
   
   void operator()( double iNumber) const {
     stack_.push_back( boost::shared_ptr<ExpressionBase>( new ExpressionNumber( iNumber ) ) );
