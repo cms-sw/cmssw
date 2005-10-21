@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris D Jones
 //         Created:  Tue Aug  9 20:26:20 EDT 2005
-// $Id$
+// $Id: CandSelector.cc,v 1.1 2005/10/21 13:56:43 llista Exp $
 //
 //
 
@@ -31,11 +31,9 @@
 #include "PhysicsTools/CandUtils/interface/cutParser.h"
 #include "PhysicsTools/CandUtils/interface/Selector.h"
 #include "PhysicsTools/CandUtils/interface/candidateMethods.h"
-#include <iostream>
 //
 // class decleration
 //
-using namespace std;
 using namespace aod;
 typedef Candidate::collection Candidates;
 
