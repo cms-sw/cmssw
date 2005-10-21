@@ -1,6 +1,6 @@
 /** \file
  *
- *  $Date: 2005/10/21 16:45:41 $
+ *  $Date: 2005/10/21 10:59:07 $
  *  $Revision: 1.1 $
  *  \author Ilaria Segoni
  */
@@ -11,7 +11,7 @@
 
 RPCRecord::RPCRecord(const unsigned char* index){
 
-    word_(reinterpret_cast<const unsigned int*>(index)) {};
+    word_(reinterpret_cast<const unsigned int*>(index));
 
 }
 

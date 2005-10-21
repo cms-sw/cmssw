@@ -1,6 +1,6 @@
 /** \file
  *
- *  $Date: 2005/10/21 16:45:41 $
+ *  $Date: 2005/10/21 10:58:41 $
  *  $Revision: 1.1 $
  *  \author Ilaria Segoni
  */
@@ -10,7 +10,7 @@
 
 ChamberData::ChamberData(const unsigned char* index){
 
-       word_(reinterpret_cast<const unsigned int*>(index)) {};
+       word_(reinterpret_cast<const unsigned int*>(index)) ;
 
         partitionData_   = (*word_ >> PARTITION_DATA_SHIFT   ) & PARTITION_DATA_MASK ;
 	halfP_           = (*word_ >> HALFP_SHIFT            ) & HALFP_MASK;
