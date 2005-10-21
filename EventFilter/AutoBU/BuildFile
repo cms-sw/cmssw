@@ -8,8 +8,6 @@
 <use name=XDAQ>
 <use name=xerces-c>
 <use name=boost>
-<use name=Utilities/GenUtil>
-<use name=Utilities/Notification>
 <lib name=xdaq>
 <lib name=xgi>
 <lib name=toolbox>
