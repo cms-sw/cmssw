@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EventPrincipal.cc,v 1.25 2005/09/28 05:12:28 wmtan Exp $
+$Id: EventPrincipal.cc,v 1.26 2005/09/30 21:16:00 paterno Exp $
 ----------------------------------------------------------------------*/
 //#include <iostream>
 #include <memory>
@@ -136,22 +136,29 @@ namespace edm {
     this->addGroup(g);
   }
 
+  EventPrincipal::SharedGroupPtr const
+  EventPrincipal::getGroup(ProductID const& oid) const {
+    ProductDict::const_iterator i = productDict_.find(oid);
+    if (i == productDict_.end()) {
+	return SharedGroupPtr();
+    }
+    unsigned long slotNumber = i->second;
+    assert(slotNumber < groups_.size());
+
+    return groups_[slotNumber];
+  }
+
   BasicHandle
   EventPrincipal::get(ProductID const& oid) const {
     if (oid == ProductID())
       throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
 	<< "get by product ID: invalid ProductID supplied\n";
 
-    ProductDict::const_iterator i = productDict_.find(oid);
-    if (i == productDict_.end()) {
+    SharedGroupPtr const& g = getGroup(oid);
+    if (g == SharedGroupPtr()) {
       throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
 	<< "get by product ID: no product with given id\n";
     }
-
-    unsigned long slotNumber = i->second;
-    assert(slotNumber < groups_.size());
-
-    SharedGroupPtr const& g = groups_[slotNumber];
     this->resolve_(*g);
     return BasicHandle(g->product(), &g->provenance());
   }

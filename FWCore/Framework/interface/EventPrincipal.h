@@ -15,7 +15,7 @@ through shared pointers.
 The EventPrincipal returns BasicHandle, rather than a shared
 pointer to a Group, when queried.
 
-$Id: EventPrincipal.h,v 1.16 2005/09/28 05:13:06 wmtan Exp $
+$Id: EventPrincipal.h,v 1.17 2005/09/30 21:16:00 paterno Exp $
 
 ----------------------------------------------------------------------*/
 #include <map>
@@ -44,7 +44,6 @@ $Id: EventPrincipal.h,v 1.16 2005/09/28 05:13:06 wmtan Exp $
 namespace edm {
     
   class EventPrincipal {
-  friend class PoolOutputModule;
   public:
     typedef std::vector<boost::shared_ptr<Group> > GroupVec;
     typedef GroupVec::const_iterator               const_iterator;
@@ -73,11 +72,13 @@ namespace edm {
     unsigned long numEDProducts() const;
     
     // next two will not be available for a little while...
-    //      const Run& getRun() const; 
-    //      const LuminositySection& getLuminositySection() const; 
+    //      Run const& getRun() const; 
+    //      LuminositySection const& getLuminositySection() const; 
     
     void put(std::auto_ptr<EDProduct> edp,
 	     std::auto_ptr<Provenance> prov);
+
+    SharedGroupPtr const getGroup(ProductID const& oid) const;
 
     BasicHandle  get(ProductID const& oid) const;
 
@@ -85,7 +86,7 @@ namespace edm {
 
     BasicHandle  getByLabel(TypeID const& id,
 			    std::string const& label,
-                            const std::string& productInstanceName) const;
+                            std::string const& productInstanceName) const;
 
     void getMany(TypeID const& id, 
 		 Selector const&,
@@ -115,7 +116,7 @@ namespace edm {
       return aux_.process_history_.end();
     }
 
-    const ProcessNameList& processHistory() const;    
+    ProcessNameList const& processHistory() const;    
 
     // ----- manipulation of provenance
 
@@ -127,7 +128,13 @@ namespace edm {
 
     // ----- Mark this EventPrincipal as having been updated in the
     // given Process.
-    void addToProcessHistory(const std::string& processName);
+    void addToProcessHistory(std::string const& processName);
+
+    // Make my DelayedReader get the EDProduct for a Group.  The Group is
+    // a cache, and so can be modified through the const reference.
+    // We do not change the *number* of groups through this call, and so
+    // *this is const.
+    void resolve_(Group const& g) const;
 
   private:
     EventAux aux_;	// persistent
@@ -179,12 +186,6 @@ namespace edm {
     // Pointer to the 'source' that will be used to obtain EDProducts
     // from the persistent store.
     boost::shared_ptr<DelayedReader> store_;
-
-    // Make my DelayedReader get the EDProduct for a Group.  The Group is
-    // a cache, and so can be modified through the const reference.
-    // We do not change the *number* of groups through this call, and so
-    // *this is const.
-    void resolve_(const Group& g) const;
 
   };
 }
