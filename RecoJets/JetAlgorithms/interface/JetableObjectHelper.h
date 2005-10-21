@@ -1,6 +1,6 @@
-#ifndef CaloObjects_CaloTowerHelper_h
-#define CaloObjects_CaloTowerHelper_h
-/** \class CaloTowerHelper
+#ifndef RecoJets_JetableObjectHelper_h
+#define RecoJets_JetableObjectHelper_h
+/** \class JetableObjectHelper
  *
  * Class to provide methods to access calorimetry information,
  * primarily for jet algorithms.
