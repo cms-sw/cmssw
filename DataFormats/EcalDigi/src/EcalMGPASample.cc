@@ -3,7 +3,7 @@
 
 
 EcalMGPASample::EcalMGPASample(int adc, int gainId) {
-  theSample=(adc&0xFF) | ((gainId&0x3)<<12);
+  theSample=(adc&0xFFF) | ((gainId&0x3)<<12);
 }
 
 std::ostream& operator<<(std::ostream& s, const EcalMGPASample& samp) {
