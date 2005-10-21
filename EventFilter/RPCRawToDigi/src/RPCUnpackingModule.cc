@@ -17,6 +17,8 @@ using namespace raw;
 using namespace edm;
 using namespace std;
 
+//#define SLINK_WORD_SIZE 8 //define it here?
+
 #include <iostream>
 
 RPCUnpackingModule::RPCUnpackingModule(const edm::ParameterSet& pset) : 
@@ -34,37 +36,67 @@ RPCUnpackingModule::~RPCUnpackingModule(){
 void RPCUnpackingModule::produce(Event & e, const EventSetup& c){
 
   Handle<FEDRawDataCollection> allFEDRawData; 
-  e.getByLabel("DaqRawData", allFEDRawData);
+  e.getByLabel("DaqRawData", allFEDRawData); //FED Raw data for all feds in the event
 
 
   auto_ptr<RPCDigiCollection> producedRPCDigis(new RPCDigiCollection);
 
-  try{
+
     
-	const std::pair<int,int> rpcFEDS=FEDNumbering::getMRpcFEDIds() throw 1;  
+	const std::pair<int,int> rpcFEDS=FEDNumbering::getMRpcFEDIds();
 	for (int id= rpcFEDS.First(); id<=rpcFEDS.Second(); ++id){ 
 
-		const FEDRawData & data = allFEDRawData->FEDData(id);
-		if (data.size()){             
-      
-			unpacker->interpretRawData(data, *producedRPCDigis);
-    
+		const FEDRawData & fedData = allFEDRawData->FEDData(id);
+		
+		
+		if(fedData.size()){
+		
+      			const unsigned char* index = fedData.data();
+			FEDHeader fedHeader(index); 
+			
+			const unsigned char* trailerIndex=index+feddata.size()
+		 	FEDTrailer fedTrailer(trailerIndex);
+			
+
+// Beginning of RPC Records Unpacking
+			index+=numberOfHeaders*SLINK_WORD_SIZE; //does this point to
+								//beginning or end of first record?
+
+
+			while( index != trailerIndex ){
+			
+			 RPCRecord theRecord(index);
+			 
+			 // Find what type of record it is
+			 enum recordTypes typeOfRecord theRecord.type();
+			 
+			 if(typeOfRecord==RPCRecord::DataChamber)
+			 {
+			    RPCChamberData chambData(index);
+			    int rpcChamber = chambData.chamberNumber();
+			    int partitionNumber = chambData.partitionNumber();
+			    int eod = chambData.eod();
+			    int halfP = chambdata.halfP();
+			 }
+			 
+
+			 //Go to beginning of next record
+			 index=theRecord.next();
+			
+			
+			 }
+			 
+			 // Now check that next word is the Trailer as expected
+		
 		}
+		
 	}
        
         // Insert the new product in the event  
 	e.put(producedRPCDigis);
   
-  }
  
-  catch(int i) {
-
-	if (i==1){
-		cout<<" No FED id defined for RPC, Cannot unpack data"<<endl;
-	}    
-  }
-	
-  
+   
   
 }
 
