@@ -10,11 +10,14 @@
 //
 // Author:      Chris D Jones
 // Created:     Sun Aug  7 20:45:55 EDT 2005
-// $Id: cutParser.cc,v 1.1 2005/10/21 13:56:43 llista Exp $
+// $Id: cutParser.cc,v 1.2 2005/10/21 14:03:22 llista Exp $
 //
 // Revision history
 //
 // $Log: cutParser.cc,v $
+// Revision 1.2  2005/10/21 14:03:22  llista
+// restyling
+//
 // Revision 1.1  2005/10/21 13:56:43  llista
 // added Chris Jones cut parser
 //
@@ -252,9 +255,9 @@ struct CutSetter {
   CombinerStack& m_cStack;
 };
 
-bool cutParser( const std::string& iValue,
-		const CandidateMethods& iMethods,
-		boost::shared_ptr<Selector>& iCut ) {
+bool aod::cutParser( const std::string& iValue,
+		     const CandidateMethods& iMethods,
+		     boost::shared_ptr<Selector>& iCut ) {
   using namespace boost::spirit;
   ExpressionStack expressionStack;
   ComparisonStack cStack;
@@ -277,10 +280,16 @@ bool cutParser( const std::string& iValue,
   Rule_t logical_combiner = ch_p('&')[CombinerSetter(kAnd, combStack)] | ch_p('|')[CombinerSetter(kOr, combStack)];
   Rule_t cut = (trinary_comp [TrinarySelectorSetter(sStack, cStack, expressionStack)] | 
 		binary_comp  [BinarySelectorSetter(sStack, cStack, expressionStack)]) [CutSetter(iCut, sStack, combStack)] % logical_combiner;
-  return parse<>( iValue.c_str(),
-		  (
-		   cut
-		   )
-		  ,
-		  space_p).full;
+
+  try {
+    return parse<>( iValue.c_str(),
+		    (
+		     cut
+		     )
+		    ,
+		    space_p).full;
+  } catch ( std::exception e ) {
+    throw edm::Exception( edm::errors::Configuration, std::string("error parsing \""+iValue+"\"") );
+  }
+
 }
