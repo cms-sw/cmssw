@@ -4,6 +4,7 @@
 #include "PhysicsTools/CandAlgos/src/TwoDifferentBodyProducer.h"
 #include "PhysicsTools/CandAlgos/interface/SelectorProducer.h"
 #include "PhysicsTools/CandAlgos/src/PSetSelectors.h"
+#include "PhysicsTools/CandAlgos/src/CandSelector.h"
 
 DEFINE_SEAL_MODULE();
 
@@ -14,3 +15,4 @@ DEFINE_ANOTHER_FWK_MODULE( TwoSameBodyProducer );
 DEFINE_ANOTHER_FWK_MODULE( TwoDifferentBodyProducer );
 DEFINE_ANOTHER_FWK_MODULE( PtMinSelectorProducer );
 DEFINE_ANOTHER_FWK_MODULE( MassWindowSelectorProducer );
+DEFINE_ANOTHER_FWK_MODULE( CandSelector );

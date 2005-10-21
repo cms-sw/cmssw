@@ -2,7 +2,7 @@
 #define PHYSICSTOOLS_SELECTORPRODUCER_H
 /*----------------------------------------------------------
 
-$Id: SelectorProducer.h,v 1.3 2005/10/03 09:17:31 llista Exp $
+$Id: SelectorProducer.h,v 1.4 2005/10/03 10:12:11 llista Exp $
 
   class template SelectorProducer
  
@@ -36,13 +36,13 @@ private:
   virtual void produce( edm::Event&, const edm::EventSetup& );
   
   std::string source;
-  S selector;
+  S select;
 };
 
 template<typename S>
 SelectorProducer<S>::SelectorProducer( const edm::ParameterSet & parms ) :
   source( parms.template getParameter<std::string>( "src" ) ),
-  selector( parms ) {
+  select( parms ) {
   produces<Candidates>();
 }
 
@@ -58,9 +58,9 @@ void SelectorProducer<S>::produce( edm::Event& evt, const edm::EventSetup& ) {
   
   std::auto_ptr<Candidates> selected( new Candidates );
   for( Candidates::const_iterator i = cands->begin(); i != cands->end(); ++ i ) {
-    const aod::Candidate * cand = * i;
-    if ( selector( cand ) )
-      selected->push_back( cand->clone() );
+    const aod::Candidate & cand = * * i;
+    if ( select( cand ) )
+      selected->push_back( cand.clone() );
   }
   evt.put( selected );
 }
