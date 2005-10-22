@@ -18,12 +18,7 @@ namespace cms {
   {
   public:
     
-    EcalShape()
-      {setTpeak(47.6683);}
-    
-    EcalShape(const EcalShape&d):
-      CaloVShape(d),tconv(d.tconv),nbin(d.nbin),nt(d.nt),ntd(d.ntd)
-      {setTpeak(47.6683);}
+    EcalShape();
   
     ~EcalShape(){}
     
@@ -32,8 +27,6 @@ namespace cms {
     double derivative (double time_) const;
     double getTpeak () const;
     
-    void computeShape();
-  
    private:
     
     int tconv;

@@ -4,9 +4,11 @@ using namespace std;
 
 namespace cms {
   
-  void EcalShape::computeShape()
-  {
   
+  EcalShape::EcalShape()
+  {
+    setTpeak(47.6683);
+ 
     // first create pulse shape over a range of time 0 ns to 255 ns in 1 ns steps
     // tconv give integer fraction of 1 ns
     tconv = 10;
