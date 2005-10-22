@@ -17,7 +17,7 @@ namespace cms {
   
     virtual double operator () (double) const=0;
 
-    virtual double derivative (double) const = 0;
+    //virtual double derivative (double) const = 0;
   
     double getTpeak () const{return tpeak_;}
   
