@@ -23,14 +23,14 @@ namespace cms {
     /// doesn't delete pointers
     ~HcalElectronicsSim() {}
   
-    void run(CaloSamples & linearFrame, HBHEDataFrame & result);
-    void run(CaloSamples & linearFrame, HODataFrame & result);
-    void run(CaloSamples & linearFrame, HFDataFrame & result);
+    void analogToDigital(CaloSamples & linearFrame, HBHEDataFrame & result, bool addNoise);
+    void analogToDigital(CaloSamples & linearFrame, HODataFrame & result, bool addNoise);
+    void analogToDigital(CaloSamples & linearFrame, HFDataFrame & result, bool addNoise);
   
   private:
-    template<class Digi> void convert(CaloSamples & frame, Digi & result) {
+    template<class Digi> void convert(CaloSamples & frame, Digi & result, bool addNoise) {
       result.setSize(frame.size());
-      theNoisifier->noisify(frame);
+      if(addNoise) theNoisifier->noisify(frame);
       theCoder->fC2adc(frame, result);
     }
   

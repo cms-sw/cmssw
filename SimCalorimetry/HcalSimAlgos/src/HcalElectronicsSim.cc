@@ -13,18 +13,18 @@ namespace cms {
   {
   }
 
-  void HcalElectronicsSim::run(CaloSamples & lf, HBHEDataFrame & result) {
-    convert<HBHEDataFrame>(lf, result);
+  void HcalElectronicsSim::analogToDigital(CaloSamples & lf, HBHEDataFrame & result, bool addNoise) {
+    convert<HBHEDataFrame>(lf, result, addNoise);
   }
 
 
-  void HcalElectronicsSim::run(CaloSamples & lf, HODataFrame & result) {
-    convert<HODataFrame>(lf, result);
+  void HcalElectronicsSim::analogToDigital(CaloSamples & lf, HODataFrame & result, bool addNoise) {
+    convert<HODataFrame>(lf, result, addNoise);
   }
 
 
-  void HcalElectronicsSim::run(CaloSamples & lf, HFDataFrame & result) {
-    convert<HFDataFrame>(lf, result);
+  void HcalElectronicsSim::analogToDigital(CaloSamples & lf, HFDataFrame & result, bool addNoise) {
+    convert<HFDataFrame>(lf, result, addNoise);
   }
 
 }
