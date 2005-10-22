@@ -5,7 +5,6 @@
 class HcalDbService;
 
 namespace cms {
-  class HcalSimCalibrator;
   
   class HcalNoisifier : public CaloVNoisifier {
   public:
