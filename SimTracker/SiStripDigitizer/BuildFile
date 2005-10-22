@@ -1,0 +1,26 @@
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/EDProduct>
+<use name=SimDataFormats/TrackingHit>
+<use name=DataFormats/SiStripDigi>
+<use name=Geometry/TrackerSimAlgo>
+<use name=SimTracker/Common>
+<use name=SimGeneral/Generators>
+<use name=SimGeneral/HepPDT>
+<use name=gsl>
+<flags SEAL_PLUGIN_NAME="SimTrackerSiStripDigitizer">
+<export>
+   <lib name=SimTrackerSiStripDigitizer>
+   <use name=FWCore/Framework>
+   <use name=Foundation/PluginManager>
+   <use name=FWCore/ParameterSet>
+   <use name=FWCore/EDProduct>
+   <use name=SimDataFormats/TrackingHit>
+   <use name=DataFormats/SiStripDigi>
+   <use name=Geometry/TrackerSimAlgo>
+   <use name=SimTracker/Common>
+   <use name=SimGeneral/Generators>
+   <use name=SimGeneral/HepPDT>
+   <use name=gsl> 
+</export>
