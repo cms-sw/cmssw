@@ -6,10 +6,10 @@
 namespace cms {
 
   HcalSimParameterMap::HcalSimParameterMap() :
-    theHBHEParameters(0.0005, 1./4.0,
+    theHBHEParameters(2000., 1./4.0,
                      117, -2, 
                      10, 5, true),
-    theHOParameters( 0.00025, 1./4.0, 217., -2, 10, 5, true),
+    theHOParameters( 4000., 1./4.0, 217., -2, 10, 5, true),
     theHFParameters1(1., 1./0.3,
                    2.84 , -6,
                   6, 3, false),

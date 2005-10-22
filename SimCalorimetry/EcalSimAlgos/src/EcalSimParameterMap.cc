@@ -4,12 +4,17 @@
 
 namespace cms {
   
+/** Relevant constants are:
+  4.5 photoelectrons per MeV (J. Nash's slides)
+  APD gain 50, but analog signal stays in GeV
+ */
+ 
   EcalSimParameterMap::EcalSimParameterMap() :
-    theBarrelParameters(1/2250., 2250., 
-                     1., 0., 
+    theBarrelParameters(2500., 1./2500., 
+                     1., 47., 
                      10, 6, true),
-    theEndcapParameters( 1/1800., 1800., 
-                     1., 0., 
+    theEndcapParameters( 1800., 1./1800., 
+                     1., 47., 
                      10, 6, true)
   {
   }
