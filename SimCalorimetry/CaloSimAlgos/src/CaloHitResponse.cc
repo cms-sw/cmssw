@@ -61,10 +61,10 @@ CaloSamples CaloHitResponse::makeAnalogSignal(const CaloHit & hit) const {
   CaloSamples result(id, parameters.readoutFrameSize());
   for(int bin = 0; bin < result.size(); bin++) {
     result[bin] += (*theShape)(binTime)* signal;
-std::cout << "BIN " << bin << " TIME " << (*theShape)(binTime) << " SIG " << signal << endl;
+   //std::cout << "BIN " << bin << " TIME " << binTime << " SHAPE " << (*theShape)(binTime) << " SIG " << signal << endl;
     binTime += BUNCHSPACE;
   }
-std::cout << "SAMPLE " << result << endl;
+  std::cout << "SAMPLE " << result << endl;
   return result;
 } 
 
@@ -72,7 +72,7 @@ std::cout << "SAMPLE " << result << endl;
 double CaloHitResponse::analogSignalAmplitude(const CaloHit & hit, const CaloSimParameters & parameters) const {
   // OK, the "energy" in the hit could be a real energy, deposited energy,
   // or pe count.  This factor converts to photoelectrons
-  int npe = (int)(hit.energy() / parameters.simHitToPhotoelectrons());
+  int npe = (int)(hit.energy() * parameters.simHitToPhotoelectrons());
   // do we need to doPoisson statistics for the photoelectrons?
   if(parameters.doPhotostatistics()) {
     //npe = RandPoissonQ::shoot(npe)
