@@ -34,7 +34,8 @@ namespace cms {
       {
          Digi digi;
          CaloSamples analogSignal(theHitResponse->findSignal(*idItr));
-         theElectronicsSim->run( analogSignal , digi);
+         bool addNoise = true;
+         theElectronicsSim->analogToDigital(analogSignal , digi, addNoise);
          output->push_back(digi);
       }
 
