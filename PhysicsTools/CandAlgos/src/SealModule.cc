@@ -8,11 +8,8 @@
 
 DEFINE_SEAL_MODULE();
 
-typedef SelectorProducer<PSetPtMinSelector> PtMinSelectorProducer;
-typedef SelectorProducer<PSetMassWindowSelector> MassWindowSelectorProducer;
-
 DEFINE_ANOTHER_FWK_MODULE( TwoSameBodyProducer );
 DEFINE_ANOTHER_FWK_MODULE( TwoDifferentBodyProducer );
-DEFINE_ANOTHER_FWK_MODULE( PtMinSelectorProducer );
-DEFINE_ANOTHER_FWK_MODULE( MassWindowSelectorProducer );
+DEFINE_ANOTHER_FWK_MODULE( PtMinCandSelector );
+DEFINE_ANOTHER_FWK_MODULE( MassWindowCandSelector );
 DEFINE_ANOTHER_FWK_MODULE( CandSelector );
