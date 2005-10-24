@@ -8,7 +8,6 @@
 //#define debug
 
 using namespace std;
-using namespace cms;
 
 ShowerForwardNumberingScheme::ShowerForwardNumberingScheme() {
   std::cout << "Creating ShowerForwardNumberingScheme" << std::endl;

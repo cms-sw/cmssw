@@ -10,7 +10,6 @@
 
 //#define debug
 
-using namespace cms;
 
 EcalEndcapNumberingScheme::EcalEndcapNumberingScheme() {
   std::cout << "Creating EcalEndcapNumberingScheme" << std::endl;

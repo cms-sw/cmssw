@@ -9,7 +9,6 @@
 #include <iostream>
 
 //#define debug
-using namespace cms;
 
 EcalBarrelNumberingScheme::EcalBarrelNumberingScheme() {
   std::cout << "Creating EcalBarrelNumberingScheme" << std::endl;
