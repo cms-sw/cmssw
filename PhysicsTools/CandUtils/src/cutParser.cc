@@ -10,11 +10,14 @@
 //
 // Author:      Chris D Jones
 // Created:     Sun Aug  7 20:45:55 EDT 2005
-// $Id$
+// $Id: cutParser.cc,v 1.5 2005/10/21 16:14:15 llista Exp $
 //
 // Revision history
 //
-// $Log$
+// $Log: cutParser.cc,v $
+// Revision 1.5  2005/10/21 16:14:15  llista
+// ported again from original code
+//
 #include <boost/spirit/core.hpp>
 #include <boost/spirit/actor/push_back_actor.hpp>
 #include <vector>
@@ -42,9 +45,6 @@ struct ExpressionNumber : public ExpressionBase {
    ExpressionNumber( double iValue ) : m_value(iValue) {//std::cout << m_value <<std::endl;
    }
 };
-
-//class Candidate;
-//typedef std::map<std::string, double> Candidate;
 
 struct ExpressionVar : public ExpressionBase {
    ExpressionVar(PCandMethod iMethod ):
@@ -76,11 +76,14 @@ public:
     stack_(iStack),methods_(iMethods){}
    
    void operator()( const char* iVarStart, const char* iVarEnd) const {
-     std::string methodName( iVarStart, iVarEnd);
-     methodName.erase( methodName.find_last_of(' '), methodName.size() );
+     std::string methodName(iVarStart, iVarEnd);
+     std::string::size_type endOfExpr = methodName.find_last_of(' ');
+     if( endOfExpr != std::string::npos )
+       methodName.erase( endOfExpr, methodName.size() );
      CandidateMethods::const_iterator itMethod = methods_.find(methodName);
      if( itMethod == methods_.end() ) {
-       throw edm::Exception(edm::errors::Configuration, std::string("unknown method name \""+methodName+"\"") );
+       throw edm::Exception( edm::errors::Configuration, 
+			     std::string("unknown method name \""+methodName+"\"") );
      }
      stack_.push_back( boost::shared_ptr<ExpressionBase>( new ExpressionVar( itMethod->second ) ) );
    }
