@@ -24,7 +24,7 @@ CaloTowersCreator::CaloTowersCreator(const edm::ParameterSet& conf) :
 	conf.getParameter<double>("EcutTower"),
 	conf.getParameter<double>("EBSumThreshold"),
 	conf.getParameter<double>("EESumThreshold"),
-	conf.getParameter<bool>("UseHO")) 
+	true) // always uses HO!
 {
   produces<CaloTowerCollection>();
 }

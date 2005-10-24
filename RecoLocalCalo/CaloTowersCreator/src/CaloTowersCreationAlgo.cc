@@ -108,37 +108,69 @@ void CaloTowersCreationAlgo::create(CaloTowerCollection & result, const HBHERecH
 
 
 void CaloTowersCreationAlgo::assignHit(const CaloRecHit * recHit) {
-DetId detId = recHit->detid();
-  CaloTowerDetId towerDetId = theTowerTopology->towerOf(detId);
-  CaloTower & tower = find(towerDetId);
-
+  DetId detId = recHit->detid();
   double threshold, weight;
   getThresholdAndWeight(detId, threshold, weight);
-  double energy = recHit->energy();
-  if(energy >= threshold) {
-    // TODO calculate crystal by crystal
-    double sintheta = 1. / cosh(tower.eta);
-    double eT = energy * sintheta * weight;
 
-    DetId::Detector det = detId.det();
-    if(det == DetId::Ecal) {
-      tower.eT_em += eT;
-      tower.eT += eT;
+  // SPECIAL handling of tower 28/depth 3 --> half into tower 28 and half into tower 29
+  if (detId.det()==DetId::Hcal && 
+      HcalDetId(detId).subdet()==HcalEndcap &&
+      HcalDetId(detId).depth()==3 &&
+      HcalDetId(detId).ietaAbs()==28) {
+
+    CaloTowerDetId towerDetId = theTowerTopology->towerOf(detId);
+    CaloTower & tower28 = find(towerDetId);    
+    CaloTowerDetId towerDetId29 = CaloTowerDetId(towerDetId.ieta()+
+						 towerDetId.zside(),
+						 towerDetId.iphi());
+    CaloTower & tower29 = find(towerDetId29);
+
+    double energy = recHit->energy()/2; // NOTE DIVIDE BY 2!!!
+    if(energy >= threshold) {
+      double sintheta28 = 1. / cosh(tower28.eta);
+      double eT28 = energy * sintheta28 * weight;
+      double sintheta29 = 1. / cosh(tower29.eta);
+      double eT29 = energy * sintheta29 * weight;
+      
+      tower28.eT_had += eT28;
+      tower28.eT += eT28;
+      tower28.constituents.push_back(detId);    
+
+      tower29.eT_had += eT29;
+      tower29.eT += eT29;
+      tower29.constituents.push_back(detId);    
     }
-    // HCAL
-    else {
-      HcalDetId hcalDetId(detId);
-      if(hcalDetId.subdet() == HcalOuter) {
-        tower.eT_outer += eT;
-        if(theHOIsUsed) tower.eT += eT;
-      } 
-      else {
-        tower.eT_had += eT;
-        tower.eT += eT;
+  } else {
+    CaloTowerDetId towerDetId = theTowerTopology->towerOf(detId);
+    CaloTower & tower = find(towerDetId);
+
+
+    double energy = recHit->energy();
+    if(energy >= threshold) {
+      // TODO calculate crystal by crystal
+      double sintheta = 1. / cosh(tower.eta);
+      double eT = energy * sintheta * weight;
+      
+      DetId::Detector det = detId.det();
+      if(det == DetId::Ecal) {
+	tower.eT_em += eT;
+	tower.eT += eT;
       }
-    }
-    tower.constituents.push_back(detId);
-  } 
+      // HCAL
+      else {
+	HcalDetId hcalDetId(detId);
+	if(hcalDetId.subdet() == HcalOuter) {
+	  tower.eT_outer += eT;
+	  if(theHOIsUsed) tower.eT += eT;
+	} 
+	else {
+	  tower.eT_had += eT;
+	  tower.eT += eT;
+	}
+      }
+      tower.constituents.push_back(detId);
+    } 
+  }
 }
 
 
@@ -163,8 +195,8 @@ void CaloTowersCreationAlgo::getThresholdAndWeight(const DetId & detId, double &
   DetId::Detector det = detId.det();
   if(det == DetId::Ecal) {
     // may or may not be EB.  We'll find out.
-    EBDetId ebDetId(detId);
-    EcalSubdetector subdet = ebDetId.subdet();
+
+    EcalSubdetector subdet = (EcalSubdetector)(detId.subdetId());
     if(subdet == EcalBarrel) {
       threshold = theEBthreshold;
       weight = theEBweight;
