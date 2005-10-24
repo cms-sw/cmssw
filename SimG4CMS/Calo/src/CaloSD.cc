@@ -33,9 +33,9 @@ CaloSD::CaloSD(G4String name) :
   theTrack(0), preStepPoint(0), name(name), hcID(-1), 
   theHC(0), currentHit(0) {
   
-  if      (name == "CHEBRY01") numberingScheme=dynamic_cast<CaloNumberingScheme*>(new EcalBarrelNumberingScheme());
-  else if (name == "CHEFRY01") numberingScheme=dynamic_cast<CaloNumberingScheme*>(new EcalEndcapNumberingScheme());
-  else if (name == "CHESFX01") numberingScheme=dynamic_cast<CaloNumberingScheme*>(new ShowerForwardNumberingScheme());
+  if      (name == "EcalHitsEB") numberingScheme=dynamic_cast<CaloNumberingScheme*>(new EcalBarrelNumberingScheme());
+  else if (name == "EcalHitsEE") numberingScheme=dynamic_cast<CaloNumberingScheme*>(new EcalEndcapNumberingScheme());
+  else if (name == "EcalHitsES") numberingScheme=dynamic_cast<CaloNumberingScheme*>(new ShowerForwardNumberingScheme());
   else 
     {
       std::cout << "CaloSD: ReadoutName not supported" << std::endl;
