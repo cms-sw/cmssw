@@ -1,10 +1,8 @@
 <use name=clhep>
 <use name=DataFormats/JetObjects>
-<use name=DataFormats/CaloObjects>
 <export>
  <lib name=RecoJetsJetAlgorithms>
  <use name=DataFormats/JetObjects>
- <use name=DataFormats/CaloObjects>
  <use name=clhep>
 </export>
 
