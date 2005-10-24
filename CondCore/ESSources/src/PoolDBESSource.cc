@@ -122,8 +122,12 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   using namespace edm;
   using namespace edm::eventsetup;
   if( iConfig.getParameter<bool>("loadAll") ) {
+    // ECAL conditions
     m_recordToTypes.insert(make_pair(string("EcalPedestalsRcd"), string("EcalPedestals"))) ;
     m_recordToTypes.insert(make_pair(string("EcalMappingRcd"), string("EcalMapping"))) ;
+    m_recordToTypes.insert(make_pair(string("EcalWeightRecAlgoWeightsRcd"), string("EcalWeightRecAlgoWeights"))) ;
+
+    // HCAL conditions
     m_recordToTypes.insert(make_pair(string("HcalPedestalsRcd"), string("HcalPedestals"))) ;    
     m_recordToTypes.insert(make_pair(string("HcalPedestalWidthsRcd"), string("HcalPedestalWidths"))) ;
     m_recordToTypes.insert(make_pair(string("HcalGainsRcd"), string("HcalGains"))) ;    
@@ -132,6 +136,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
     m_recordToTypes.insert(make_pair(string("HcalElectronicsMapRcd"), string("HcalElectronicsMap"))) ;
     m_recordToTypes.insert(make_pair(string("HcalQIEDataRcd"), string("HcalQIEData"))) ;
     m_recordToTypes.insert(make_pair(string("HcalQIEShapeRcd"), string("HcalQIEShape"))) ;
+
     //by forcing this to load, we also load the definition of the Records which //will allow EventSetupRecordKey::TypeTag::findType(...) method to find them
     for(RecordToTypes::iterator itRec = m_recordToTypes.begin();itRec != m_recordToTypes.end();	++itRec ) {
       m_proxyToToken.insert( make_pair(buildName(itRec->first, itRec->second ),"") );//fill in dummy tokens now, change in setIntervalFor
