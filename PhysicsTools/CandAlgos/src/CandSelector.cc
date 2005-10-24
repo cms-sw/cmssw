@@ -1,11 +1,11 @@
-// $Id: CandSelector.cc,v 1.3 2005/10/21 15:10:13 llista Exp $
+// $Id: CandSelector.cc,v 1.4 2005/10/24 09:42:46 llista Exp $
 #include <memory>
 #include "PhysicsTools/CandAlgos/src/CandSelector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "PhysicsTools/Candidate/interface/Candidate.h"
-#include "PhysicsTools/CandUtils/interface/cutParser.h"
-#include "PhysicsTools/CandUtils/interface/candidateMethods.h"
+#include "PhysicsTools/CandAlgos/src/cutParser.h"
+#include "PhysicsTools/CandAlgos/src/candidateMethods.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 using namespace aod;

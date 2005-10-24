@@ -8,12 +8,12 @@
 //
 // Original Author:  
 //         Created:  Sun Aug  7 20:26:31 EDT 2005
-// $Id: decayParser.cc,v 1.1 2005/10/24 10:16:57 llista Exp $
+// $Id: decayParser.cc,v 1.2 2005/10/24 11:39:03 llista Exp $
 //
 #include <boost/spirit/core.hpp>
 #include <boost/spirit/actor/push_back_actor.hpp>
 #include <vector>
-#include "PhysicsTools/CandUtils/interface/decayParser.h"
+#include "PhysicsTools/CandAlgos/src/decayParser.h"
 
 namespace candcombiner {
 

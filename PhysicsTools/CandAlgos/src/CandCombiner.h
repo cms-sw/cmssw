@@ -1,11 +1,11 @@
 #ifndef PHYSICSTOOLS_CANDCOMBINER_H
 #define PHYSICSTOOLS_CANDCOMBINER_H
-// $Id: CandCombiner.h,v 1.1 2005/10/03 09:17:31 llista Exp $
+// $Id: CandCombiner.h,v 1.1 2005/10/24 11:40:36 llista Exp $
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "PhysicsTools/CandUtils/interface/TwoBodyCombiner.h"
 #include "PhysicsTools/CandUtils/interface/Selector.h"
-#include "PhysicsTools/CandUtils/interface/decayParser.h"
+#include "PhysicsTools/CandAlgos/src/decayParser.h"
 #include <string>
 
 namespace edm {
