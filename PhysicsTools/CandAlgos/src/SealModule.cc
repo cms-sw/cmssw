@@ -15,4 +15,4 @@ DEFINE_ANOTHER_FWK_MODULE( TwoSameBodyProducer );
 DEFINE_ANOTHER_FWK_MODULE( TwoDifferentBodyProducer );
 DEFINE_ANOTHER_FWK_MODULE( PtMinSelectorProducer );
 DEFINE_ANOTHER_FWK_MODULE( MassWindowSelectorProducer );
-DEFINE_ANOTHER_FWK_MODULE( CandSelector );
+// DEFINE_ANOTHER_FWK_MODULE( CandSelector );
