@@ -3,17 +3,17 @@
 
 /** \class MuonSubdetId
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2005/10/18 17:58:16 $
+ *  $Revision: 1.2 $
  * \author Stefano ARGIRO
  */
 
 class MuonSubdetId {
 public:
 
-  static const unsigned int DT= 1;  
-  static const unsigned int CSC=2;
-  static const unsigned int RPC=3; 
+  static const int DT= 1;  
+  static const int CSC=2;
+  static const int RPC=3; 
 };
 
 #endif

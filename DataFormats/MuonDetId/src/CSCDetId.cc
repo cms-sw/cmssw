@@ -1,13 +1,48 @@
 /** \file
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2005/10/18 17:58:16 $
+ *  $Revision: 1.3 $
  */
 
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
+#include <FWCore/Utilities/interface/Exception.h>
 #include <iostream>
 
 using namespace std;
+
+CSCDetId::CSCDetId():DetId(DetId::Muon, MuonSubdetId::CSC){}
+
+
+CSCDetId::CSCDetId(uint32_t id):DetId(id) {
+  if (det()!=DetId::Muon || subdetId()!=MuonSubdetId::CSC) {
+    throw cms::Exception("InvalidDetId") << "CSCDetId ctor:"
+					 << " det: " << det()
+					 << " subdet: " << subdetId()
+					 << " is not a valid CSC id";  
+  }
+}
+
+
+CSCDetId::CSCDetId( int iendcap, int istation, int iring, int ichamber, 
+		    int ilayer ) : 
+  DetId(DetId::Muon, MuonSubdetId::CSC) 
+{    
+  if (iendcap  < minEndcapId  || iendcap  > maxEndcapId ||
+      istation < minStationId || istation > maxStationId ||
+      iring    < minRingId    || iring    > maxRingId ||
+      ichamber < minChamberId || ichamber > maxChamberId ||
+      ilayer   < minLayerId   || ilayer   > maxLayerId) {
+    throw cms::Exception("InvalidDetId") << "CSCDetId ctor:" 
+					 << " Invalid parameters: " 
+					 << " E:"<< iendcap
+					 << " S:"<< istation
+					 << " R:"<< iring
+					 << " C:"<< ichamber
+					 << " L:"<< ilayer   
+					 << std::endl;
+  }
+  id_ |= init(iendcap, istation, iring, ichamber, ilayer);
+}
 
 bool CSCDetId::operator== (const CSCDetId& id) const
 { 
@@ -31,21 +66,21 @@ ostream& operator<<( ostream& os, const CSCDetId& id )
 {
   // Note that there is no endl to end the output
 
-   os << " E" << id.endcap()
-      << " S" << id.station()
-      << " R" << id.ring()
-      << " C" << id.chamber()
-      << " L" << id.layer();
+   os << " E:" << id.endcap()
+      << " S:" << id.station()
+      << " R:" << id.ring()
+      << " C:" << id.chamber()
+      << " L:" << id.layer();
    return os;
 }  
 
-unsigned int CSCDetId::sector() const
+int CSCDetId::sector() const
 {
 
-  unsigned int result;
-  unsigned int ring    = this->ring();
-  unsigned int station = this->station();
-  unsigned int chamber = this->chamber();
+  int result;
+  int ring    = this->ring();
+  int station = this->station();
+  int chamber = this->chamber();
 
   // This version 16-Nov-99 ptc to match simplified chamber labelling for cms116
   if(station > 1 && ring > 1 ) {
@@ -57,12 +92,12 @@ unsigned int CSCDetId::sector() const
   return result;
 }
 
-unsigned int CSCDetId::cscId() const 
+int CSCDetId::cscId() const 
 {
-  unsigned int result;
-  unsigned int ring    = this->ring();
-  unsigned int station = this->station();
-  unsigned int chamber = this->chamber();
+  int result;
+  int ring    = this->ring();
+  int station = this->station();
+  int chamber = this->chamber();
 
   if( station == 1 ) {
     result = (chamber-1) % 3 + 1; // 1,2,3

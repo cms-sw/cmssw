@@ -54,20 +54,23 @@ std::ostream& operator<<( std::ostream& os, const CSCDetId& id );
 
 class CSCDetId:public DetId {
 
-  //@@ Unnecessary?
-  //  friend ostream& operator<<( ostream& os, const CSCDetectorId& id ); 
-  //@@ Iterator class needs access to Id class UNNEC IF PUBLIC
-  //   friend class CSCLayerIterator; 
-
 public:
 
-  /** Explicit and default ctor.
-   */
-  CSCDetId( unsigned int iendcap=0, unsigned int istation=0, 
-		    unsigned int iring=0, unsigned int ichamber=0, 
-                     unsigned int ilayer=0 ) 
-     : DetId(DetId::Muon, MuonSubdetId::CSC )
-    {id_ |= init(iendcap, istation, iring, ichamber, ilayer);  }
+  /// Default constructor; fills the common part in the base
+  /// and leaves 0 in all other fields
+  CSCDetId();
+
+  /// Construct from a packed id. It is required that the Detector part of
+  /// id is Muon and the SubDet part is CSC, otherwise an exception is thrown.
+  explicit CSCDetId(uint32_t id);
+
+
+  /// Construct from fully qualified identifier.
+  /// Input values are required to be within legal ranges, otherwise an
+  /// exception is thrown.
+  CSCDetId( int iendcap, int istation, 
+	    int iring, int ichamber, 
+	    int ilayer );
 
   /** Copy ctor.
    */
@@ -88,7 +91,7 @@ public:
    * there are gaps. 
    *
    */
-   unsigned int index( void ) const {
+   int index() const {
      return id_; // This member already encodes the info.
    }          
 
@@ -96,36 +99,35 @@ public:
     * Return Layer label.
     *
     */
-   unsigned int layer( void ) const {
-     //     return (id_ & MASK_LAYER) + 1; }
+    int layer() const {
      return (id_ & MASK_LAYER); } // index counts from 1 not 0.
 
    /**
     * Return Chamber label.
     *
     */
-   unsigned int chamber( void ) const {
+    int chamber() const {
      return (  (id_>>START_CHAMBER) & MASK_CHAMBER ) + 1; }
 
    /**
     * Return Ring label.
     *
     */
-   unsigned int ring( void ) const {
+    int ring() const {
      return (  (id_>>START_RING) & MASK_RING ) + 1; }
 
    /**
     * Return Station label.
     *
     */
-   unsigned int station( void ) const {
+    int station() const {
      return (  (id_>>START_STATION) & MASK_STATION ) + 1; }
 
    /**
     * Return Endcap label.
     *
     */
-   unsigned int endcap( void ) const {
+    int endcap() const {
      return (  (id_>>START_ENDCAP) & MASK_ENDCAP ) + 1; }
 
 
@@ -146,44 +148,43 @@ public:
    * starting from the component ids.
    *
    */
-   static unsigned int index( unsigned int iendcap, unsigned int istation, unsigned int iring, 
-               unsigned int ichamber, unsigned int ilayer ) {
+   static int index( int iendcap, int istation, int iring, 
+               int ichamber, int ilayer ) {
      return init(iendcap, istation, iring, ichamber, ilayer) ; }
 
    /**
     * Return Layer label for supplied CSCDetId index.
     *
     */
-   static unsigned int layer( unsigned int index ) {
-     //     return (index & MASK_LAYER) + 1; }
-     return (index & MASK_LAYER); } // index counts from 1 not 0
+   static int layer( int index ) {
+     return (index & MASK_LAYER); }
 
    /**
     * Return Chamber label for supplied CSCDetId index.
     *
     */
-   static unsigned int chamber( unsigned int index ) {
+   static int chamber( int index ) {
      return (  (index>>START_CHAMBER) & MASK_CHAMBER ) + 1; }
 
    /**
     * Return Ring label for supplied CSCDetId index.
     *
     */
-   static unsigned int ring( unsigned int index ) {
+   static int ring( int index ) {
      return (  (index>>START_RING) & MASK_RING ) + 1; }
 
    /**
     * Return Station label for supplied CSCDetId index.
     *
     */
-   static unsigned int station( unsigned int index ) {
+   static int station( int index ) {
      return (  (index>>START_STATION) & MASK_STATION ) + 1; }
 
    /**
     * Return Endcap label for supplied CSCDetId index.
     *
     */
-   static unsigned int endcap( unsigned int index ) {
+   static int endcap( int index ) {
      return (  (index>>START_ENDCAP) & MASK_ENDCAP ) + 1; }
 
    /**
@@ -205,7 +206,7 @@ public:
     * We count from one not zero.
     *
     */
-   unsigned int sector() const;
+   int sector() const;
 
    /**
     * Return trigger-level CSC id  within a sector for an Endcap Muon chamber.
@@ -220,20 +221,20 @@ public:
     * and software changes.
     *
     */
-   unsigned int cscId() const;
+   int cscId() const;
 
    /// lowest endcap id
-   static const unsigned int minEndcapId=     1;
+   static const int minEndcapId=     1;
    /// highest endcap id
-   static const unsigned int maxEndcapId=     2;
-   static const unsigned int minStationId=    1;
-   static const unsigned int maxStationId=    4;
-   static const unsigned int minRingId=       1;
-   static const unsigned int maxRingId=       4;
-   static const unsigned int minChamberId=    1;
-   static const unsigned int maxChamberId=   36;
-   static const unsigned int minLayerId=      1;
-   static const unsigned int maxLayerId=      6;
+   static const int maxEndcapId=     2;
+   static const int minStationId=    1;
+   static const int maxStationId=    4;
+   static const int minRingId=       1;
+   static const int maxRingId=       4;
+   static const int minChamberId=    1;
+   static const int maxChamberId=   36;
+   static const int minLayerId=      0;
+   static const int maxLayerId=      6;
    
 private:
 
@@ -241,10 +242,9 @@ private:
    * Method for initialization within ctors.
    *
    */
-  static unsigned int init( unsigned int iendcap, unsigned int istation, 
-          unsigned int iring, unsigned int ichamber, unsigned int ilayer ) {
-     return 
-       //                    (ilayer-1) + // Oops! -1 means I start at 0. Wrong!
+  static uint32_t init( int iendcap, int istation, 
+			int iring, int ichamber, int ilayer ) {
+     return
                    ilayer + 
                 ( (ichamber-1)<<START_CHAMBER ) + 
                    ( (iring-1)<<START_RING ) + 
