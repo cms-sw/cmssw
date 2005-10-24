@@ -8,24 +8,13 @@
 //
 // Original Author:  
 //         Created:  Sun Aug  7 20:26:31 EDT 2005
-// $Id$
+// $Id: decayParser.cc,v 1.1 2005/10/24 10:16:57 llista Exp $
 //
-
-// system include files
 #include <boost/spirit/core.hpp>
 #include <boost/spirit/actor/push_back_actor.hpp>
 #include <vector>
+#include "PhysicsTools/CandUtils/interface/decayParser.h"
 
-// user include files
-#include "PhysicsTools/CandUtils/src/decayParser.h"
-
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
 namespace candcombiner {
 
   class ModeSetter {
