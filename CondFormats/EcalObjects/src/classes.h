@@ -4,5 +4,16 @@ template std::map< int, EcalPedestals::Item >::const_iterator;
 
 
 #include "CondFormats/EcalObjects/interface/EcalMapping.h"
-template std::map< int, EBDetId >::iterator;
-template std::map< int, EBDetId >::const_iterator;
+template std::map< int, cms::EBDetId >::iterator;
+template std::map< int, cms::EBDetId >::const_iterator;
+
+#include "CondFormats/EcalObjects/interface/EcalWeightRecAlgoWeights.h"
+#include "CondFormats/EcalObjects/interface/EcalWeight.h"
+namespace {
+  namespace {
+    std::vector< std::vector<EcalWeight> > vecOfVec0;
+    std::vector<EcalWeight>  vec0;
+  }
+}
+template  std::vector<EcalWeight>::iterator;
+template  std::vector< std::vector<EcalWeight> >::iterator;

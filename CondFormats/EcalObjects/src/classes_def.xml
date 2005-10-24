@@ -8,6 +8,11 @@
  <class name="EBDetId"/>
  <class name="std::pair<const int, EBDetId>"/>
 
+ <class name="EcalWeightRecAlgoWeights" id="D28B80AA-FB53-401B-9D0E-F2EA72F339BE"/>
+ <class name="EcalWeight"/>
+ <class name="std::vector<EcalWeight>"/>
+ <class name="std::vector< std::vector<EcalWeight> >"/>
+
  <class pattern="*map*"/>
  <class pattern="*iterator*"/>
-</lcgdict>   
+</lcgdict>
