@@ -1,9 +1,9 @@
 /** \class EcalWeightUncalibRecHitProducer
  *   produce ECAL uncalibrated rechits from dataframes
  *
-  *  $Id: EcalWeightUncalibRecHitProducer.cc,v 1.1 2005/10/25 09:22:46 rahatlou Exp $
-  *  $Date: 2005/10/25 09:22:46 $
-  *  $Revision: 1.1 $
+  *  $Id: EcalWeightUncalibRecHitProducer.cc,v 1.2 2005/10/25 11:04:28 rahatlou Exp $
+  *  $Date: 2005/10/25 11:04:28 $
+  *  $Revision: 1.2 $
   *  \author Shahram Rahatlou, University of Rome & INFN, Sept 2005
   *
   */
@@ -58,14 +58,14 @@ EcalWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup&
 
    // fetch the pedestals from the cond DB via EventSetup
    std::cout << "fetching pedestals....";
-   eventsetup::ESHandle<EcalPedestals> pedHandle;
+   edm::ESHandle<EcalPedestals> pedHandle;
    es.get<EcalPedestalsRcd>().get( pedHandle );
    //es.getData( pedHandle );
    const EcalPedestalsMap& pedMap = pedHandle.product()->m_pedestals; // map of pedestals
    std::cout << "done." << std::endl;
 
    // fetch the map of channel id <-> detid
-   //eventsetup::ESHandle<EcalMapping> mapHandle;
+   //edm::ESHandle<EcalMapping> mapHandle;
    //es.get<EcalMappingRcd>().get( mapHandle );
    //es.getData( mapHandle );
    //const EcalMapping* ecalMap = mapHandle.product();
@@ -73,7 +73,7 @@ EcalWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup&
 
    // fetch weights from cond DB via EventSetup
    std::cout << "fetching weights....";
-   eventsetup::ESHandle<EcalWeightRecAlgoWeights> wgtHandle;
+   edm::ESHandle<EcalWeightRecAlgoWeights> wgtHandle;
    es.get<EcalWeightRecAlgoWeightsRcd>().get( wgtHandle );
    const EcalWeightRecAlgoWeights* ewgt = wgtHandle.product();
    std::cout << "done." << std::endl;
