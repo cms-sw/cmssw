@@ -26,8 +26,6 @@ simple analyzer to dump information about ECAL cond objects
 
 using namespace std;
 
-namespace edmtest
-{
   class EcalObjectAnalyzer : public edm::EDAnalyzer
   {
   public:
@@ -47,7 +45,7 @@ namespace edmtest
     // Context is not used.
     std::cout <<" I AM IN RUN NUMBER "<<e.id().run() <<std::endl;
     std::cout <<" ---EVENT NUMBER "<<e.id().event() <<std::endl;
-    edm::eventsetup::ESHandle<EcalPedestals> pPeds;
+    edm::ESHandle<EcalPedestals> pPeds;
     context.get<EcalPedestalsRcd>().get(pPeds);
 
     //call tracker code
@@ -65,7 +63,7 @@ namespace edmtest
     }
 
 
-    edm::eventsetup::ESHandle<EcalWeightRecAlgoWeights> pWgts;
+    edm::ESHandle<EcalWeightRecAlgoWeights> pWgts;
     context.get<EcalWeightRecAlgoWeightsRcd>().get(pWgts);
     const EcalWeightRecAlgoWeights* wgts = pWgts.product();
 
@@ -92,6 +90,4 @@ namespace edmtest
 
 
   } //end of ::Analyze()
-
   DEFINE_FWK_MODULE(EcalObjectAnalyzer)
-}
