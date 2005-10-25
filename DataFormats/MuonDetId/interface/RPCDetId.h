@@ -5,8 +5,8 @@
 * 
 *  DetUnit identifier for DT chambers
  *
- *  $Date: 2005/10/18 17:57:47 $
- *  $Revision: 1.5 $
+ *  $Date: 2005/10/19 13:41:27 $
+ *  $Revision: 1.1 $
  *  \author Stefano ARGIRO
  */
 
@@ -92,7 +92,7 @@ class RPCDetId :public DetId {
   static const unsigned int planeNumBits_  =  0;
   static const unsigned int planeStartBit_ =  sectorStartBit_+sectorNumBits_;
   static const unsigned int etaNumBits_    =  0;
-  static const unsigned int etaStartBit_   =  planeBit_+planeNumBits_;
+  static const unsigned int etaStartBit_   =  planeStartBit_+planeNumBits_;
 
   
 
