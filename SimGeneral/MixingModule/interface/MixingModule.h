@@ -18,7 +18,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MixMod/interface/BMixingModule.h"
+#include "Mixing/Base/interface/BMixingModule.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include <vector>
 #include <string>

@@ -2,7 +2,7 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Framework>
 <use name=FWCore/Utilities>
-<use name=FWCore/MixMod>
+<use name=Mixing/Base>
 <use name=SimDataFormats/TrackingHit>
 <use name=SimDataFormats/CaloHit>
 <use name=SimDataFormats/Track>
@@ -13,7 +13,7 @@
  <lib name=SimGeneralMixingModule>
  <use name=FWCore/ParameterSet>
  <use name=FWCore/Framework>
- <use name=FWCore/MixMod>
+ <use name=Mixing/Base>
  <use name=SimDataFormats/TrackingHit>
  <use name=SimDataFormats/CaloHitHit>
  <use name=SimDataFormats/Track>

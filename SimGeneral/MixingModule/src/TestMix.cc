@@ -10,13 +10,14 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Fri Sep 23 11:38:38 CEST 2005
-// $Id: TestMix.cc,v 1.1 2005/09/26 15:31:38 uberthon Exp $
+// $Id: TestMix.cc,v 1.1 2005/10/10 16:32:04 uberthon Exp $
 //
 //
 
 
 // system include files
 #include <memory>
+#include <utility>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -28,6 +29,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
+#include "SimDataFormats/CrossingFrame/interface/SimHitCollection.h"
 #include "SimGeneral/MixingModule/interface/TestMix.h"
 
 using namespace edm;
@@ -64,6 +66,15 @@ TestMix::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     edm::Handle<CrossingFrame> cf;
     iEvent.getByType(cf);
     // and print
+    std::cout<<std::endl;
     cf.product()->print(level_);
+
+    const std::string subdet("TrackerHitsTOBLowTof");
+    std::auto_ptr<SimHitCollection> col(new SimHitCollection(cf.product(), subdet));
+    SimHitCollection::iterator cfi;
+    int count=0;
+    for (cfi=col->begin(); cfi!=col->end();cfi++) {
+      std::cout<<" Hit "<<count<<" has tof "<<cfi->timeOfFlight()<<" bunchcr "<<cfi.bunch()<<" trigger "<<cfi.getTrigger()<<std::endl;
+      count++;     }
 }
 
