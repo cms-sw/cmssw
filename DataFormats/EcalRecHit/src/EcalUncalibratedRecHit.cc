@@ -1,7 +1,5 @@
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 
-using namespace cms;
-
 EcalUncalibratedRecHit::EcalUncalibratedRecHit() :
      amplitude_(0.), pedestal_(0.), jitter_(0.), chi2_(10000.) { };
 

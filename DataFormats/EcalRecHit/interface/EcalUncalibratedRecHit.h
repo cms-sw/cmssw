@@ -4,7 +4,6 @@
 #include <vector>
 #include "DataFormats/DetId/interface/DetId.h"
 
-using namespace cms;
 class EcalUncalibratedRecHit {
 
   public:
