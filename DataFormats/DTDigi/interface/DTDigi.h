@@ -7,7 +7,7 @@
  * It can be initialized/set with a time in ns or a TDC count in 25/32 ns 
  * units.
  *  
- *  $Date: 2005/07/06 15:51:23 $
+ *  $Date: 2005/10/07 17:40:53 $
  *  $Revision: 1.1 $
  *
  * \author N. Amapane - INFN Torino
@@ -73,13 +73,13 @@ public:
   int number() const;
 
   /// Get time in ns
-  float time() const;
+  double time() const;
 
   /// Get raw TDC count
   int countsTDC() const;
 
   /// Set with a time in ns
-  void setTime(float time);  
+  void setTime(double time);  
 
   /// Set with a TDC count
   void setCountsTDC (int nTDC);
@@ -97,7 +97,7 @@ private:
   friend class testDTDigis;
 
   // The value of one TDC count in ns
-  static const float reso;
+  static const double reso;
 
   // Set data words
   void set(int  wire, int number, int counts);

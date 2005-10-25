@@ -1,6 +1,6 @@
 /** \file
  * 
- *  $Date: 2005/07/06 15:51:23 $
+ *  $Date: 2005/10/07 17:40:53 $
  *  $Revision: 1.1 $
  *
  * \author N. Amapane - INFN Torino
@@ -14,7 +14,7 @@
 
 using namespace std;
 
-const float DTDigi::reso =  25./32.; //ns
+const double DTDigi::reso =  25./32.; //ns
 
 DTDigi::DTDigi (int wire, int number, int nTDC){
   set(wire, number, nTDC);
@@ -76,7 +76,7 @@ DTDigi::channel() const {
 //   else return DTEnum::RPhi;
 // }
 
-float DTDigi::time() const { return countsTDC()*reso; }
+double DTDigi::time() const { return countsTDC()*reso; }
 
 int DTDigi::countsTDC() const { return data()->counts; }
 
@@ -86,7 +86,7 @@ int DTDigi::number() const { return data()->number; }
 
 // Setters
 
-void DTDigi::setTime(float time){
+void DTDigi::setTime(double time){
   setCountsTDC(static_cast<int>(time/reso));
 }
 
