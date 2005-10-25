@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSecondarySource.cc,v 1.5 2005/10/11 21:49:26 wmtan Exp $
+$Id: PoolSecondarySource.cc,v 1.6 2005/10/12 16:24:31 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/EDProduct/interface/EDProduct.h"
@@ -26,9 +26,6 @@ namespace edm {
   PoolSecondarySource::PoolSecondarySource(ParameterSet const& pset) :
     SecondaryInputSource(),
     file_(pset.getUntrackedParameter<std::string>("fileName")),
-    branches_(),
-    auxBranch_(0),
-    provBranch_(0),
     pReg_(new ProductRegistry) {
     init();
   }
@@ -36,44 +33,12 @@ namespace edm {
   void PoolSecondarySource::init() {
     ClassFiller();
 
-    std::string const wrapperBegin("edm::Wrapper<");
-    std::string const wrapperEnd1(">");
-    std::string const wrapperEnd2(" >");
+    poolFile_ = boost::shared_ptr<PoolFile>(new PoolFile(file_));
+    ProductRegistry::ProductList const& prodList = poolFile_->productRegistry().productList();
 
-    TFile *filePtr = TFile::Open(file_.c_str());
-    assert(filePtr != 0);
-
-    TTree *metaDataTree = dynamic_cast<TTree *>(filePtr->Get(poolNames::metaDataTreeName().c_str()));
-    assert(metaDataTree != 0);
-
-    // Load streamers for product dictionary and member/base classes.
-    ProductRegistry *ppReg = pReg_.get();
-    metaDataTree->SetBranchAddress(poolNames::productDescriptionBranchName().c_str(),(&ppReg));
-    metaDataTree->GetEntry(0);
-
-    TTree *eventTree = dynamic_cast<TTree *>(filePtr->Get(poolNames::eventTreeName().c_str()));
-    assert(eventTree != 0);
-    entries_ = eventTree->GetEntries();
-
-    auxBranch_ = eventTree->GetBranch(poolNames::auxiliaryBranchName().c_str());
-    provBranch_ = eventTree->GetBranch(poolNames::provenanceBranchName().c_str());
-
-    ProductRegistry::ProductList const& prodList = pReg_->productList();
     for (ProductRegistry::ProductList::const_iterator it = prodList.begin();
-        it != prodList.end(); ++it) {
-      BranchDescription const& prod = it->second;
-      prod.init();
-      pReg_->copyProduct(prod);
-      TBranch * branch = eventTree->GetBranch(prod.branchName_.c_str());
-      std::string const& name = prod.fullClassName_;
-      std::string const& wrapperEnd = (name[name.size()-1] == '>' ? wrapperEnd2 : wrapperEnd1);
-      std::string const className = wrapperBegin + name + wrapperEnd;
-      branches_.insert(std::make_pair(it->first, std::make_pair(className, branch)));
-    }
-
-    for (ProductRegistry::ProductList::const_iterator it = pReg_->productList().begin();
-         it != pReg_->productList().end(); ++it) {
-      productMap.insert(std::make_pair(it->second.productID_, it->second));
+         it != prodList.end(); ++it) {
+      productMap_.insert(std::make_pair(it->second.productID_, it->second));
     }
   }
 
@@ -97,15 +62,15 @@ namespace edm {
   PoolSecondarySource::read(int idx, int number, std::vector<EventPrincipal*>& result) {
     
     for (int entry = idx, i = 0; i < number; ++entry, ++i) {
-      if (entry == entries_) entry = 0; // Wrap around
+      if (!poolFile_->next()) entry = 0; // Wrap around
       EventAux evAux;
       EventProvenance evProv;
       EventAux *pEvAux = &evAux;
       EventProvenance *pEvProv = &evProv;
-      auxBranch_->SetAddress(&pEvAux);
-      provBranch_->SetAddress(&pEvProv);
-      auxBranch_->GetEntry(entry);
-      provBranch_->GetEntry(entry);
+      poolFile_->auxBranch()->SetAddress(&pEvAux);
+      poolFile_->provBranch()->SetAddress(&pEvProv);
+      poolFile_->auxBranch()->GetEntry(entry);
+      poolFile_->provBranch()->GetEntry(entry);
       // We're not done ... so prepare the EventPrincipal
       boost::shared_ptr<DelayedReader> store_(new PoolDelayedReader(entry, *this));
       EventPrincipal *thisEvent = new EventPrincipal(evAux.id_, evAux.time_, *pReg_, evAux.process_history_, store_);
@@ -120,13 +85,13 @@ namespace edm {
         // br->SetAddress(p);
         // br->GetEntry(idx);
         // auto_ptr<Provenance> prov(new Provenance(*pit));
-        // prov->product = productMap[prov.event.productID_];
+        // prov->product = productMap_[prov.event.productID_];
         // auto_ptr<Group> g(new Group(auto_ptr<EDProduct>(p), prov));
         // END These lines read all branches
         // BEGIN These lines defer reading branches
         auto_ptr<Provenance> prov(new Provenance);
         prov->event = *pit;
-        prov->product = productMap[prov->event.productID_];
+        prov->product = productMap_[prov->event.productID_];
         auto_ptr<Group> g(new Group(prov));
         // END These lines defer reading branches
         thisEvent->addGroup(g);
@@ -134,6 +99,52 @@ namespace edm {
       result.push_back(thisEvent);
     }
   }
+
+//---------------------------------------------------------------------
+  PoolSecondarySource::PoolFile::PoolFile(std::string const& fileName) :
+    file_(fileName),
+    entryNumber_(-1),
+    entries_(0),
+    productRegistry_(),
+    branches_(),
+    auxBranch_(),
+    provBranch_() {
+
+    TFile *filePtr = TFile::Open(file_.c_str());
+    assert(filePtr != 0);
+
+    TTree *metaDataTree = dynamic_cast<TTree *>(filePtr->Get(poolNames::metaDataTreeName().c_str()));
+    assert(metaDataTree != 0);
+
+    // Load streamers for product dictionary and member/base classes.
+    ProductRegistry *ppReg = &productRegistry_;
+    metaDataTree->SetBranchAddress(poolNames::productDescriptionBranchName().c_str(),(&ppReg));
+    metaDataTree->GetEntry(0);
+
+    TTree *eventTree = dynamic_cast<TTree *>(filePtr->Get(poolNames::eventTreeName().c_str()));
+    assert(eventTree != 0);
+    entries_ = eventTree->GetEntries();
+
+    auxBranch_ = eventTree->GetBranch(poolNames::auxiliaryBranchName().c_str());
+    provBranch_ = eventTree->GetBranch(poolNames::provenanceBranchName().c_str());
+
+    std::string const wrapperBegin("edm::Wrapper<");
+    std::string const wrapperEnd1(">");
+    std::string const wrapperEnd2(" >");
+
+    ProductRegistry::ProductList const& prodList = productRegistry_.productList();
+    for (ProductRegistry::ProductList::const_iterator it = prodList.begin();
+        it != prodList.end(); ++it) {
+      BranchDescription const& prod = it->second;
+      prod.init();
+      TBranch * branch = eventTree->GetBranch(prod.branchName_.c_str());
+      std::string const& name = prod.fullClassName_;
+      std::string const& wrapperEnd = (name[name.size()-1] == '>' ? wrapperEnd2 : wrapperEnd1);
+      std::string const className = wrapperBegin + name + wrapperEnd;
+      branches_.insert(std::make_pair(it->first, std::make_pair(className, branch)));
+    }
+  }
+
 
   PoolSecondarySource::PoolDelayedReader::~PoolDelayedReader() {}
 
