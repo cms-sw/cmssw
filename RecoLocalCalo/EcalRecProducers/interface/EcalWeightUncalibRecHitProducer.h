@@ -20,11 +20,16 @@ class EcalWeightUncalibRecHitProducer : public edm::EDProducer {
     virtual void produce(edm::Event& evt, const edm::EventSetup& es);
 
   private:
-    std::string digiProducer_;
-    std::string digiCollection_;
-    std::string hitCollection_;
+    std::string digiProducer_; // name of module/plugin/producer making digis
+    std::string digiCollection_; // secondary name given to collection of digis
+    std::string hitCollection_; // secondary name to be given to collection of hits
 
     EcalUncalibRecHitRecWeightsAlgo<EBDataFrame> algo_;
     HepMatrix makeMatrixFromVectors(const std::vector< std::vector<EcalWeight> >& vecvec);
+
+    int nMaxPrintout_; // max # of printouts
+    int nEvt_; // internal counter of events
+
+    bool counterExceeded() const { return ( (nEvt_>nMaxPrintout_) || (nMaxPrintout_<0) ) ; }
 };
 #endif
