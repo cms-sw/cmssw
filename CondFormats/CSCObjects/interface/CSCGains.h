@@ -9,10 +9,10 @@ class CSCGains{
   ~CSCGains();
   
   struct Item{
-    float m_slope;
-    float m_intercept;
+    float slope;
+    float intercept;
   };
-  std::map<int, Item> m_gains;
+  std::map<int, Item> gains;
 };
 
 #endif
