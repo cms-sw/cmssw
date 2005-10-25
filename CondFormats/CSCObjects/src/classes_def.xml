@@ -7,8 +7,8 @@
  <class name="CSCGains::Item"/>
  <class name="std::pair<const int, CSCGains::Item>"/>
 
- <class name="CSCXtalk" id="DA52D078-BE30-DA11-9387-0008743F7CC7"/>
- <class name="CSCXtalk::Item"/>
+ <class name="CSCcrosstalk" id="DA52D078-BE30-DA11-9387-0008743F7CC7"/>
+ <class name="CSCcrosstalk::Item"/>
  <class name="std::pair<const int, CSCcrosstalk::Item>"/>
 
  <class pattern="*map*"/>
