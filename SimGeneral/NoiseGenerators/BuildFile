@@ -1,0 +1,7 @@
+<use name=clhep>
+<use name=gsl>
+<export>
+   <lib name=SimGeneralNoiseGenerators>
+   <use name=clhep>	
+   <use name=gsl>
+</export>
