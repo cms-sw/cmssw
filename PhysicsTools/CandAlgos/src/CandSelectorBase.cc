@@ -1,15 +1,15 @@
-// $Id: CandSelectorBase.cc,v 1.1 2005/10/24 09:50:21 llista Exp $
+// $Id: CandSelectorBase.cc,v 1.2 2005/10/25 08:47:05 llista Exp $
 #include <memory>
 #include "PhysicsTools/CandAlgos/interface/CandSelectorBase.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "PhysicsTools/Candidate/interface/Candidate.h"
+#include "FWCore/Framework/interface/Event.h"
 
 using namespace aod;
 using namespace edm;
 typedef Candidate::collection Candidates;
 
 CandSelectorBase::CandSelectorBase( const std::string & src, 
-				    const boost::shared_ptr<aod::Candidate::selector> & sel ) :
+				    const boost::shared_ptr<CandSelector> & sel ) :
   select_( sel ), src_( src ) {
   produces<Candidates>();
 }

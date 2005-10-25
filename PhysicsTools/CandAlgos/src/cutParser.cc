@@ -10,11 +10,14 @@
 //
 // Author:      Chris D Jones
 // Created:     Sun Aug  7 20:45:55 EDT 2005
-// $Id: cutParser.cc,v 1.1 2005/10/24 12:59:00 llista Exp $
+// $Id: cutParser.cc,v 1.2 2005/10/25 08:47:05 llista Exp $
 //
 // Revision history
 //
 // $Log: cutParser.cc,v $
+// Revision 1.2  2005/10/25 08:47:05  llista
+// rationalized class location
+//
 // Revision 1.1  2005/10/24 12:59:00  llista
 // moved parser code to CandAlgos
 //
@@ -28,10 +31,10 @@
 #include <boost/spirit/actor/push_back_actor.hpp>
 #include <vector>
 #include "PhysicsTools/CandAlgos/src/cutParser.h"
-#include "PhysicsTools/Candidate/interface/Candidate.h"
+#include "PhysicsTools/CandUtils/interface/CandSelector.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
-typedef aod::Candidate::selector selector;
-typedef boost::shared_ptr<selector> selector_ptr;
+typedef boost::shared_ptr<CandSelector> selector_ptr;
 
 namespace aod {
 
@@ -128,9 +131,9 @@ private:
   //   virtual bool select() const = 0;
   //};
 
-typedef std::vector<selector_ptr > SelectorStack;
+typedef std::vector<selector_ptr> SelectorStack;
 
-struct BinarySelector : public selector {
+struct BinarySelector : public CandSelector {
    BinarySelector( boost::shared_ptr<ExpressionBase> iLHS,
                    boost::shared_ptr<ComparisonBase> iComp,
                    boost::shared_ptr<ExpressionBase> iRHS ) :
@@ -162,7 +165,7 @@ private:
 };
 
 
-struct TrinarySelector : public selector {
+struct TrinarySelector : public CandSelector {
    TrinarySelector( boost::shared_ptr<ExpressionBase> iLHS,
                    boost::shared_ptr<ComparisonBase> iComp1,
                    boost::shared_ptr<ExpressionBase> iMid,
@@ -208,7 +211,7 @@ enum Combiner { kAnd, kOr };
 typedef std::vector< Combiner > CombinerStack;
 
 
-struct AndCombiner : public selector {
+struct AndCombiner : public CandSelector {
    AndCombiner( selector_ptr iLHS,
                 selector_ptr iRHS ) :
    m_lhs( iLHS), m_rhs( iRHS ) {}
@@ -219,7 +222,7 @@ struct AndCombiner : public selector {
    selector_ptr m_rhs;
 };
 
-struct OrCombiner : public selector {
+struct OrCombiner : public CandSelector {
    OrCombiner( selector_ptr iLHS,
                selector_ptr iRHS ) :
    m_lhs( iLHS), m_rhs( iRHS ) {}

@@ -1,4 +1,4 @@
-// $Id: CandCombiner.cc,v 1.2 2005/10/24 12:59:00 llista Exp $
+// $Id: CandCombiner.cc,v 1.3 2005/10/25 08:47:05 llista Exp $
 #include "PhysicsTools/CandAlgos/src/CandCombiner.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -27,7 +27,7 @@ CandCombiner::CandCombiner( const ParameterSet & cfg ) :
 			  "failed to parse \"" + decay + "\"" );
   }
 
-  boost::shared_ptr<aod::Candidate::selector> select;
+  boost::shared_ptr<CandSelector> select;
 
   std::string cutString = cfg.getParameter<std::string>( "cut" );
   if( cutParser( cutString, candidateMethods(), select ) ) {

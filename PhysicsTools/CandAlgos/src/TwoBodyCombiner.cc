@@ -1,4 +1,4 @@
-// $Id: TwoBodyProducer.cc,v 1.1 2005/10/24 11:40:59 llista Exp $
+// $Id: TwoBodyCombiner.cc,v 1.5 2005/10/25 08:47:05 llista Exp $
 #include "PhysicsTools/CandAlgos/src/TwoBodyCombiner.h"
 #include "PhysicsTools/CandUtils/interface/MassWindowSelector.h"
 #include "FWCore/Framework/interface/Handle.h"
@@ -10,7 +10,7 @@ using namespace std;
 
 candmodules::TwoBodyCombiner::TwoBodyCombiner( const ParameterSet & p ) :
   // bad? http://www.boost.org/libs/smart_ptr/shared_ptr.htm
-  combiner( boost::shared_ptr<aod::Candidate::selector>( 
+  combiner( boost::shared_ptr<CandSelector>( 
     new MassWindowSelector( p.getParameter<double>( "massMin" ), 
 			    p.getParameter<double>( "massMax" ) ) ),
     p.getParameter<bool>( "checkCharge" ),

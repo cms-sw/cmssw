@@ -1,21 +1,21 @@
 #ifndef CandAlgos_CandSelectorBase_h
 #define CandAlgos_CandSelectorBase_h
 // Candidate Selector base producer module
-// $Id: CandSelectorBase.h,v 1.1 2005/10/24 09:50:21 llista Exp $
+// $Id: CandSelectorBase.h,v 1.2 2005/10/25 08:47:05 llista Exp $
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "PhysicsTools/Candidate/interface/Candidate.h"
+#include "PhysicsTools/CandUtils/interface/CandSelector.h"
 #include "boost/shared_ptr.hpp"
 #include <string>
 
 class CandSelectorBase : public edm::EDProducer {
 public:
   explicit CandSelectorBase( const std::string &,
-			     const boost::shared_ptr<aod::Candidate::selector> & = 
-			     boost::shared_ptr<aod::Candidate::selector>() );
+			     const boost::shared_ptr<CandSelector> & = 
+			     boost::shared_ptr<CandSelector>() );
   ~CandSelectorBase();
   
 protected:
-  boost::shared_ptr<aod::Candidate::selector> select_;
+  boost::shared_ptr<CandSelector> select_;
 
 private:
   virtual void produce( edm::Event&, const edm::EventSetup& );

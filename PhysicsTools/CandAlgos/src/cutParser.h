@@ -16,18 +16,21 @@
 //
 // Author:      Chris D Jones
 // Created:     Sun Aug  7 20:45:51 EDT 2005
-// $Id: cutParser.h,v 1.1 2005/10/24 12:59:52 llista Exp $
+// $Id: cutParser.h,v 1.2 2005/10/25 08:47:05 llista Exp $
 //
 // Revision history
 //
 // $Log: cutParser.h,v $
+// Revision 1.2  2005/10/25 08:47:05  llista
+// rationalized class location
+//
 // Revision 1.1  2005/10/24 12:59:52  llista
 // moved from CandUtils
 //
 // Revision 1.1  2005/10/21 13:56:43  llista
 // added Chris Jones cut parser
 //
-#include "PhysicsTools/Candidate/interface/Candidate.h"
+#include "PhysicsTools/CandUtils/interface/CandSelector.h"
 #include <string>
 #include <boost/shared_ptr.hpp>
 #include <map>
@@ -38,7 +41,7 @@ namespace aod {
   
   bool cutParser( const std::string & iString,
 		  const CandidateMethods & iMethods,
-		  boost::shared_ptr<aod::Candidate::selector> & oCut );
+		  boost::shared_ptr<CandSelector> & oCut );
 }
 
 #endif /* PACKAGE_CUTPARSER_H */
