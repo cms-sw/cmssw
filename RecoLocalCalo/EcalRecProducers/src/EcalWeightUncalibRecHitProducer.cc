@@ -1,9 +1,9 @@
 /** \class EcalWeightUncalibRecHitProducer
  *   produce ECAL uncalibrated rechits from dataframes
  *
-  *  $Id: $
-  *  $Date: $
-  *  $Revision: $
+  *  $Id: EcalWeightUncalibRecHitProducer.cc,v 1.1 2005/10/25 09:22:46 rahatlou Exp $
+  *  $Date: 2005/10/25 09:22:46 $
+  *  $Revision: 1.1 $
   *  \author Shahram Rahatlou, University of Rome & INFN, Sept 2005
   *
   */
@@ -29,8 +29,6 @@
 #include "CLHEP/Matrix/Matrix.h"
 #include "CLHEP/Matrix/SymMatrix.h"
 #include <vector>
-
-using namespace cms;
 
 EcalWeightUncalibRecHitProducer::EcalWeightUncalibRecHitProducer(const edm::ParameterSet& ps) {
 

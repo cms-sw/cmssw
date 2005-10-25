@@ -6,12 +6,9 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#include "TestEcal/Algo/src/AMPRecoWeights.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitRecWeightsAlgo.h"
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
 #include "CondFormats/EcalObjects/interface/EcalWeight.h"
-
-using namespace cms;
 
 // forward declaration
 class EcalWeightUncalibRecHitProducer : public edm::EDProducer {
