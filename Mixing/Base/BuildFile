@@ -1,0 +1,15 @@
+<use name=boost>
+<use name=clhep>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/Framework>
+<use name=FWCore/Utilities>
+<use name=Foundation/PluginManager>
+<export>
+ <use name=boost>
+ <use name=clhep>
+ <lib name=MixingBase>
+  <use name=FWCore/ParameterSet>
+ <use name=FWCore/Framework>
+ <use name=FWCore/Utilities>
+ <use name=Foundation/PluginManager>
+</export>
