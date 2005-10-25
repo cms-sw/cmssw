@@ -9,12 +9,10 @@ class CSCPedestals{
   ~CSCPedestals();
   
   struct Item{
-    int m_ped0;
-    int m_ped1;
-    float m_rms0;
-    float m_rms1;
+    float ped;
+    float rms;
   };
-  std::map<int, Item> m_pedestals;
+  std::map<int, Item> pedestals;
 };
 
 #endif
