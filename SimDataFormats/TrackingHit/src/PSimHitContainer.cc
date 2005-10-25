@@ -17,3 +17,23 @@ void PSimHitContainer::clear(){
 unsigned int PSimHitContainer::size() const {
   return _data.size();
 }
+
+std::vector<PSimHit>::const_iterator PSimHitContainer::begin () const
+{
+  return _data.begin () ;
+}
+
+std::vector<PSimHit>::const_iterator PSimHitContainer::end () const
+{
+  return _data.end () ;
+}
+
+std::vector<PSimHit>::iterator PSimHitContainer::begin () 
+{
+  return _data.begin () ;
+}
+
+std::vector<PSimHit>::iterator PSimHitContainer::end () 
+{
+  return _data.end () ;
+}

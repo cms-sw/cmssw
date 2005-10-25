@@ -18,6 +18,12 @@ namespace edm {
       // changed by UB
       unsigned int size() const;
       PSimHit operator [] (int i)const  {return _data[i];}
+      PSimHitSingleContainer::const_iterator begin () const ;
+      PSimHitSingleContainer::const_iterator end () const ;
+      PSimHitSingleContainer::iterator begin ();
+      PSimHitSingleContainer::iterator end ();
+
+
   private:
     PSimHitSingleContainer _data;
   };
