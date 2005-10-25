@@ -1,0 +1,5 @@
+<lcgdict>
+  <class name="EcalUncalibratedRecHit"/>
+  <class name="std::vector<EcalUncalibratedRecHit>"/>
+  <class name="edm::Wrapper< std::vector<EcalUncalibratedRecHit> >" id="1F628802-CBB2-416D-81E9-27CB7A7D70A3"/>
+</lcgdict>
