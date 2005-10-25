@@ -10,11 +10,14 @@
 //
 // Author:      Chris D Jones
 // Created:     Sun Aug  7 20:45:55 EDT 2005
-// $Id: cutParser.cc,v 1.6 2005/10/24 08:50:16 llista Exp $
+// $Id: cutParser.cc,v 1.1 2005/10/24 12:59:00 llista Exp $
 //
 // Revision history
 //
 // $Log: cutParser.cc,v $
+// Revision 1.1  2005/10/24 12:59:00  llista
+// moved parser code to CandAlgos
+//
 // Revision 1.6  2005/10/24 08:50:16  llista
 // fixed parsing {Chris Jones}
 //
@@ -25,11 +28,10 @@
 #include <boost/spirit/actor/push_back_actor.hpp>
 #include <vector>
 #include "PhysicsTools/CandAlgos/src/cutParser.h"
-#include "PhysicsTools/CandUtils/interface/Selector.h"
 #include "PhysicsTools/Candidate/interface/Candidate.h"
 
-using aod::Candidate;
-using aod::Selector;
+typedef aod::Candidate::selector selector;
+typedef boost::shared_ptr<selector> selector_ptr;
 
 namespace aod {
 
@@ -126,9 +128,9 @@ private:
   //   virtual bool select() const = 0;
   //};
 
-typedef std::vector<boost::shared_ptr<Selector> > SelectorStack;
+typedef std::vector<selector_ptr > SelectorStack;
 
-struct BinarySelector : public Selector {
+struct BinarySelector : public selector {
    BinarySelector( boost::shared_ptr<ExpressionBase> iLHS,
                    boost::shared_ptr<ComparisonBase> iComp,
                    boost::shared_ptr<ExpressionBase> iRHS ) :
@@ -151,7 +153,7 @@ public:
       boost::shared_ptr<ExpressionBase> rhs = eStack_.back(); eStack_.pop_back();
       boost::shared_ptr<ExpressionBase> lhs = eStack_.back(); eStack_.pop_back();
       boost::shared_ptr<ComparisonBase> comp = cStack_.back(); cStack_.pop_back();
-      sStack_.push_back( boost::shared_ptr<Selector>( new BinarySelector( lhs, comp, rhs ) ) );
+      sStack_.push_back( selector_ptr( new BinarySelector( lhs, comp, rhs ) ) );
    }
 private:
    SelectorStack& sStack_;
@@ -160,7 +162,7 @@ private:
 };
 
 
-struct TrinarySelector : public Selector {
+struct TrinarySelector : public selector {
    TrinarySelector( boost::shared_ptr<ExpressionBase> iLHS,
                    boost::shared_ptr<ComparisonBase> iComp1,
                    boost::shared_ptr<ExpressionBase> iMid,
@@ -191,7 +193,7 @@ public:
       boost::shared_ptr<ExpressionBase> lhs = eStack_.back();eStack_.pop_back();
       boost::shared_ptr<ComparisonBase> comp2 = cStack_.back();cStack_.pop_back();
       boost::shared_ptr<ComparisonBase> comp1 = cStack_.back();cStack_.pop_back();
-      sStack_.push_back( boost::shared_ptr<Selector>( new TrinarySelector( lhs, comp1, mid, comp2, rhs ) ) );
+      sStack_.push_back( selector_ptr( new TrinarySelector( lhs, comp1, mid, comp2, rhs ) ) );
    }
 private:
    SelectorStack& sStack_;
@@ -206,26 +208,26 @@ enum Combiner { kAnd, kOr };
 typedef std::vector< Combiner > CombinerStack;
 
 
-struct AndCombiner : public Selector {
-   AndCombiner( boost::shared_ptr<Selector> iLHS,
-                boost::shared_ptr<Selector> iRHS ) :
+struct AndCombiner : public selector {
+   AndCombiner( selector_ptr iLHS,
+                selector_ptr iRHS ) :
    m_lhs( iLHS), m_rhs( iRHS ) {}
    virtual bool operator()(const Candidate& iCand) const {
       return (*m_lhs)(iCand) && (*m_rhs)(iCand);
    }
-   boost::shared_ptr<Selector> m_lhs;
-   boost::shared_ptr<Selector> m_rhs;
+   selector_ptr m_lhs;
+   selector_ptr m_rhs;
 };
 
-struct OrCombiner : public Selector {
-   OrCombiner( boost::shared_ptr<Selector> iLHS,
-               boost::shared_ptr<Selector> iRHS ) :
+struct OrCombiner : public selector {
+   OrCombiner( selector_ptr iLHS,
+               selector_ptr iRHS ) :
    m_lhs( iLHS), m_rhs( iRHS ) {}
    virtual bool operator()(const Candidate& iCand) const {
       return (*m_lhs)(iCand) || (*m_rhs)(iCand);
    }
-boost::shared_ptr<Selector> m_lhs;
-boost::shared_ptr<Selector> m_rhs;
+selector_ptr m_lhs;
+selector_ptr m_rhs;
 };
 
 struct CombinerSetter {
@@ -241,7 +243,7 @@ struct CombinerSetter {
 
 
 struct CutSetter {
-   CutSetter( boost::shared_ptr<Selector>& iCut,
+   CutSetter( selector_ptr& iCut,
               SelectorStack& iSelStack,
               CombinerStack& iCombStack) :
    m_cut( iCut ), m_sStack(iSelStack), m_cStack(iCombStack) {}
@@ -252,17 +254,17 @@ struct CutSetter {
          m_sStack.pop_back();
       } else {
          if( m_cStack.back() == kAnd ) {
-            boost::shared_ptr<Selector> lhs = m_cut;
-            m_cut = boost::shared_ptr<Selector>(new AndCombiner(lhs, m_sStack.back() ) );
+            selector_ptr lhs = m_cut;
+            m_cut = selector_ptr(new AndCombiner(lhs, m_sStack.back() ) );
          } else {
-            boost::shared_ptr<Selector> lhs = m_cut;
-            m_cut = boost::shared_ptr<Selector>(new OrCombiner(lhs, m_sStack.back() ) );
+            selector_ptr lhs = m_cut;
+            m_cut = selector_ptr(new OrCombiner(lhs, m_sStack.back() ) );
          }
          m_cStack.pop_back();
          m_sStack.pop_back();
       }
    }
-   boost::shared_ptr<Selector>& m_cut;
+   selector_ptr& m_cut;
    SelectorStack& m_sStack;
    CombinerStack& m_cStack;
 };
@@ -271,7 +273,7 @@ struct CutSetter {
 
 bool cutParser( const std::string& iValue,
 		const CandidateMethods& iMethods,
-		boost::shared_ptr<Selector>& iCut ) {
+		selector_ptr& iCut ) {
    
    using namespace boost::spirit;
    ExpressionStack expressionStack;

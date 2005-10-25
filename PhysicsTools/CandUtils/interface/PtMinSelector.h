@@ -1,9 +1,9 @@
 #ifndef PHYSICSTOOLS_PTMINSELECTOR_H
 #define PHYSICSTOOLS_PTMINSELECTOR_H
-// $Id: PtMinSelector.h,v 1.4 2005/10/21 12:44:35 llista Exp $
-#include "PhysicsTools/CandUtils/interface/Selector.h"
+// $Id: PtMinSelector.h,v 1.5 2005/10/21 13:56:43 llista Exp $
+#include "PhysicsTools/Candidate/interface/Candidate.h"
 
-class PtMinSelector : public aod::Selector {
+class PtMinSelector : public aod::Candidate::selector {
 public:
   explicit PtMinSelector( double cut ) :
     ptMin( cut ) {

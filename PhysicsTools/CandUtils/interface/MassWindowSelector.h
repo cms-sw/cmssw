@@ -1,9 +1,9 @@
 #ifndef PHYSICSTOOLS_MASSWINDOWSELECTOR_H
 #define PHYSICSTOOLS_MASSWINDIWSELECTOR_H
-// $Id: MassWindowSelector.h,v 1.4 2005/10/21 12:44:35 llista Exp $
-#include "PhysicsTools/CandUtils/interface/Selector.h"
+// $Id: MassWindowSelector.h,v 1.5 2005/10/21 13:56:43 llista Exp $
+#include "PhysicsTools/Candidate/interface/Candidate.h"
 
-class MassWindowSelector : public aod::Selector {
+class MassWindowSelector : public aod::Candidate::selector {
 public:
   explicit MassWindowSelector( double massMin, double massMax ) :
     mMin2( massMin ), mMax2( massMax ) {

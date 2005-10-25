@@ -1,9 +1,9 @@
-// $Id: TwoBodyCombiner.cc,v 1.3 2005/10/24 10:14:25 llista Exp $
+// $Id: TwoBodyCombiner.cc,v 1.4 2005/10/24 11:39:03 llista Exp $
 #include "PhysicsTools/CandUtils/interface/TwoBodyCombiner.h"
 using namespace aod;
 using namespace std;
 
-TwoBodyCombiner::TwoBodyCombiner( const boost::shared_ptr<aod::Selector> & sel,
+TwoBodyCombiner::TwoBodyCombiner( const boost::shared_ptr<aod::Candidate::selector> & sel,
 				  bool ck, int q ) :
   checkCharge( ck ), charge( 0 ), overlap(), select( sel ) {
   if ( checkCharge ) charge = q;

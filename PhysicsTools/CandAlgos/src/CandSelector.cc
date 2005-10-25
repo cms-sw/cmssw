@@ -1,4 +1,4 @@
-// $Id: CandSelector.cc,v 1.4 2005/10/24 09:42:46 llista Exp $
+// $Id: CandSelector.cc,v 1.5 2005/10/24 12:59:00 llista Exp $
 #include <memory>
 #include "PhysicsTools/CandAlgos/src/CandSelector.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -10,6 +10,7 @@
 
 using namespace aod;
 typedef Candidate::collection Candidates;
+using namespace candmodules;
 
 CandSelector::CandSelector( const edm::ParameterSet& cfg ) :
   CandSelectorBase( cfg.getParameter<std::string>("src") ) {

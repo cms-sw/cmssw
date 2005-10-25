@@ -1,4 +1,4 @@
-// $Id: CandCombiner.cc,v 1.1 2005/10/24 11:40:36 llista Exp $
+// $Id: CandCombiner.cc,v 1.2 2005/10/24 12:59:00 llista Exp $
 #include "PhysicsTools/CandAlgos/src/CandCombiner.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -10,6 +10,7 @@ using namespace aod;
 using namespace edm;
 using namespace std;
 using namespace candcombiner;
+using namespace candmodules;
 
 CandCombiner::CandCombiner( const ParameterSet & cfg ) :
   combiner_( 0 ) {
@@ -26,7 +27,7 @@ CandCombiner::CandCombiner( const ParameterSet & cfg ) :
 			  "failed to parse \"" + decay + "\"" );
   }
 
-  boost::shared_ptr<aod::Selector> select;
+  boost::shared_ptr<aod::Candidate::selector> select;
 
   std::string cutString = cfg.getParameter<std::string>( "cut" );
   if( cutParser( cutString, candidateMethods(), select ) ) {
