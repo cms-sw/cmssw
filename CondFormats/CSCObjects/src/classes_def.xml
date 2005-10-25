@@ -9,7 +9,7 @@
 
  <class name="CSCXtalk" id="DA52D078-BE30-DA11-9387-0008743F7CC7"/>
  <class name="CSCXtalk::Item"/>
- <class name="std::pair<const int, CSCXtalk::Item>"/>
+ <class name="std::pair<const int, CSCcrosstalk::Item>"/>
 
  <class pattern="*map*"/>
  <class pattern="*iterator*"/>
