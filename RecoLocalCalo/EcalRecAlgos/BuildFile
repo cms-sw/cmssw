@@ -1,0 +1,7 @@
+<use name=clhep>
+<use name=DataFormats/EcalRecHit>
+<export>
+  <lib name=RecoLocalCaloEcalRecAlgos>
+  <use name=clhep>
+  <use name=DataFormats/EcalRecHit>
+</export>
