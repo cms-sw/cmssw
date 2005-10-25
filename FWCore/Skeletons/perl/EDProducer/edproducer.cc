@@ -93,7 +93,7 @@ prodname::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    Handle<ExampleData> pIn;
    iEvent.getByLabel("example",pIn);
 
-   auto_ptr<ExampleData2> pOut(new ExampleData2());
+   std::auto_ptr<ExampleData2> pOut(new ExampleData2());
    iEvent.put(pOut);
 #endif
 
