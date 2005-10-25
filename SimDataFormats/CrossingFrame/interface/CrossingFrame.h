@@ -12,17 +12,20 @@
  *
  ************************************************************/
 
+#include "SimDataFormats/CrossingFrame/interface/SimHitCollection.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimDataFormats/Track/interface/EmbdSimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/EmbdSimVertexContainer.h"
 
 #include "FWCore/EDProduct/interface/EventID.h"
-#include "FWCore/MixMod/interface/BCrossingFrame.h"
+#include "DataFormats/CrossingBase/interface/BCrossingFrame.h"
 
 #include <vector>
 #include <string>
 #include <map>
+#include <utility>
+using namespace edm;
 
   class CrossingFrame :public BCrossingFrame
     { 
@@ -47,8 +50,12 @@
       void addPileupTracks(const int bcr, const edm::EmbdSimTrackContainer *);
       void addPileupVertices(const int bcr, const edm::EmbdSimVertexContainer *);      
       void print(int level=0) const ;
- 
-    private:
+
+      //getters for collections
+      PSimHitContainer *getSignalSimHits(std::string subdet) { return &signalSimHits_[subdet];}
+      std::vector<PSimHitContainer> *getPileupSimHits(std::string subdet) { return &pileupSimHits_[subdet];}
+					    
+      private:
       void clear();
 
  

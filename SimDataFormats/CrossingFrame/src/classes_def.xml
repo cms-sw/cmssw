@@ -1,0 +1,14 @@
+<lcgdict>
+  <class name="std::vector<edm::PSimHitContainer>"/>
+  <class name="std::vector<edm::PCaloHitContainer>"/>
+  <class name="std::map<std::string,edm::PCaloHitContainer>"/>
+  <class name="std::map<std::string,edm::PSimHitContainer>"/>
+  <class name="std::vector<edm::EmbdSimTrackContainer> "/>
+  <class name="std::vector<edm::EmbdSimVertexContainer> "/>
+  <class name="std::map<std::string,std::vector<edm::PCaloHitContainer> >"/>
+  <class name="std::map<std::string,std::vector<edm::PSimHitContainer> >"/>
+  <class name="CrossingFrame"/>
+  <class name="BCrossingFrame"/>
+  <class name="edm::Wrapper<CrossingFrame>" id="9CD9116F-67FF-A3D8-EB12-11C02FE4F9A3"/>
+</lcgdict>
+
