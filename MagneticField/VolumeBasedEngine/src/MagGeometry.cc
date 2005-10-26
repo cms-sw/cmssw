@@ -1,14 +1,12 @@
-// #include "Utilities/Configuration/interface/Architecture.h"
-
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2005/09/26 14:47:13 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/09/27 15:15:52 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane - INFN Torino
  */
 
-#include "MagneticField/GeomBuilder/interface/MagGeometry.h"
+#include "MagneticField/VolumeBasedEngine/interface/MagGeometry.h"
 #include "MagneticField/GeomBuilder/src/MagGeoBuilderFromDDD.h"
 #include "MagneticField/VolumeGeometry/interface/MagVolume.h"
 #include "MagneticField/VolumeGeometry/interface/MagVolume6Faces.h"
@@ -25,22 +23,19 @@
 using namespace std;
 using namespace edm;
 
-MagGeometry::MagGeometry(const edm::ParameterSet& config):
-  lastVolume(0)
+MagGeometry::MagGeometry(const edm::ParameterSet& config, std::vector<MagBLayer *> tbl,
+			 std::vector<MagESector *> tes,
+			 std::vector<MagVolume6Faces*> tbv,
+			 std::vector<MagVolume6Faces*> tev) : 
+  lastVolume(0), theBLayers(tbl), theESectors(tes), theBVolumes(tbv), theEVolumes(tev)
 {
   
   tolerance = config.getParameter<double>("findVolumeTolerance");
   cacheLastVolume = config.getParameter<bool>("cacheLastVolume");
   timerOn = config.getUntrackedParameter<bool>("timerOn", false);
 
-  TimeMe t1("MagGeometry:build",false);
 
-  MagGeoBuilderFromDDD builder;
-  builder.build();
-  theBLayers = builder.barrelLayers();
-  theESectors = builder.endcapSectors();
-  theBVolumes = builder.barrelVolumes();
-  theEVolumes = builder.endcapVolumes();
+  TimeMe t1("MagGeometry:build",false);
 
   cout << endl
        << "         ___________________________________        " << endl

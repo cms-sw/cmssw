@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2005/09/26 14:47:13 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/09/27 15:15:52 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -115,10 +115,10 @@ void MagGeoBuilderFromDDD::summary(handles & volumes){
 }
 
 
-void MagGeoBuilderFromDDD::build()
+void MagGeoBuilderFromDDD::build(const DDCompactView & cpva)
 {
-  DDCompactView cpv;
-  DDExpandedView fv(cpv);
+//    DDCompactView cpv;
+  DDExpandedView fv(cpva);
 
   if (bldVerb::debugOut) cout << "**********************************************************" <<endl;
 

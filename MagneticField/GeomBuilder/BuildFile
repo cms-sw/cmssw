@@ -4,21 +4,36 @@
  <use name=clhep>
  <use name=boost>
  <use name=MagneticField/Layers>
+ <use name=MagneticField/VolumeBasedEngine>
  <use name=MagneticField/Interpolation>
  <use name=DetectorDescription/Core>
+ <use name=MagneticField/VolumeGeometry>
+
  <use name=Geometry/Surface>
  <use name=Utilities/BinningTools>
+ <use name=FWCore/Framework>
+<use name=MagneticField/Records>
+ <use name=FWCore/Utilities><use name=FWCore/Services>
+
+
  <use name=Utilities/Timing>
  <use name=FWCore/ParameterSet>
 </export>
 
 <use name=clhep>
 <use name=boost>
+ <use name=MagneticField/VolumeGeometry>
 <use name=MagneticField/Layers>
+<use name=FWCore/Framework>
+<use name=FWCore/Utilities>
+ <use name=MagneticField/VolumeBasedEngine>
 <use name=MagneticField/Interpolation>
 <use name=DetectorDescription/Core>
 <use name=Geometry/Surface>
+<use name=MagneticField/Records>
 <use name=Utilities/BinningTools>
 <use name=Utilities/Timing>
 <use name=FWCore/ParameterSet>
-#<Flags SEAL_PLUGIN_NAME="GeomBuilder">
+
+<flags SEAL_PLUGIN_NAME="MagneticFieldGeomBuilder">
+

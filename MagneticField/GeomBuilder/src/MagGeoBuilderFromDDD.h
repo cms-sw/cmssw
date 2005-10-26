@@ -6,7 +6,7 @@
  *  shared surfaces. Build MagVolume6Faces and organise them in a hierarchical
  *  structure. Build MagGeometry out of it.
  *
- *  $Date: 2005/09/06 15:48:07 $
+ *  $Date: 2005/09/27 15:15:38 $
  *  $Revision: 1.1 $
  *  \author N. Amapane - INFN Torino
  */
@@ -15,6 +15,9 @@
 #include "Geometry/Surface/interface/ReferenceCounted.h" 
 /* #include "Utilities/GenUtil/interface/ReferenceCountingPointer.h" */
 #include "MagneticField/Interpolation/interface/MagProviderInterpol.h"
+#include "MagneticField/GeomBuilder/interface/VolumeBasedMagneticFieldESProducer.h"
+
+#include "DetectorDescription/Core/interface/DDCompactView.h"
 
 #include <string>
 #include <vector>
@@ -45,11 +48,14 @@ private:
   typedef ConstReferenceCountingPointer<Surface> RCPS;
 
   // Build the geometry. 
-  virtual void build();
+  //virtual void build();
+  virtual void build(const DDCompactView & cpv) ;
 
   // FIXME: only for temporary tests and debug, to be removed
   friend class TestMagVolume;
   friend class MagGeometry;
+  friend class magneticfield::VolumeBasedMagneticFieldESProducer;
+
   std::vector<MagVolume6Faces*> barrelVolumes() const;  
   std::vector<MagVolume6Faces*> endcapVolumes() const;
 

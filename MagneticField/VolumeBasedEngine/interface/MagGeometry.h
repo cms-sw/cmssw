@@ -4,8 +4,8 @@
 /** \class MagGeometry
  *  Entry point to the geometry of magnetic volumes.
  *
- *  $Date: 2005/09/26 14:47:13 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/09/27 15:15:52 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -13,6 +13,8 @@
 #include "MagneticField/Layers/src/MagBinFinders.h"
 /* #include "Utilities/Notification/interface/Singleton.h" */
 //#include "DetectorDescription/Base/interface/Singleton.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+
 #include <vector>
 
 class MagBLayer;
@@ -29,7 +31,10 @@ public:
   typedef Surface::GlobalPoint    GlobalPoint;
 
   /// Constructor
-  MagGeometry(const edm::ParameterSet& config);
+  MagGeometry(const edm::ParameterSet& config, std::vector<MagBLayer *> ,
+			     std::vector<MagESector *> ,
+			     std::vector<MagVolume6Faces*> ,
+			     std::vector<MagVolume6Faces*> );
 
   /// Destructor
   ~MagGeometry();
