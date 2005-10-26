@@ -1,0 +1,15 @@
+
+<use name=Foundation/PluginManager>
+<use name=SimG4Core/SensitiveDetector>
+<use name=SimG4Core/Notification> 
+<use name=boost>
+<use name=geant4>
+<use name=SimDataFormats/SimHitMaker>
+<use name=SimG4Core/Application>
+<use name=Geometry/MuonBaseAlgo>
+
+<export>
+ <lib name=SimG4CMSMuon>
+</export>
+
+<Flags SEAL_PLUGIN_NAME="SimG4CMSMuon">
