@@ -12,7 +12,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep 19 11:47:28 CEST 2005
-// $Id: EventContentAnalyzer.cc,v 1.4 2005/10/07 16:44:29 marafino Exp $
+// $Id: EventContentAnalyzer.cc,v 1.1 2005/10/11 17:09:22 wmtan Exp $
 //
 //
 
@@ -79,6 +79,7 @@ EventContentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
    std::string friendlyName;
    std::string modLabel;
    std::string instanceName;
+   std::string key;
 
    iEvent.getAllProvenance(provenances);
    
@@ -87,20 +88,25 @@ EventContentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
              << " with friendlyClassName, moduleLabel and productInstanceName:"
              << std::endl;
 
-   for(Provenances::iterator itProv = provenances.begin();
+   for(Provenances::iterator itProv  = provenances.begin();
                              itProv != provenances.end();
                            ++itProv) {
       friendlyName = (*itProv)->product.friendlyClassName_;
+      if(friendlyName.empty())  friendlyName = std::string("||");
+
       modLabel = (*itProv)->product.module.moduleLabel_;
+      if(modLabel.empty())  modLabel = std::string("||");
+
       instanceName = (*itProv)->product.productInstanceName_;
+      if(instanceName.empty())  instanceName = std::string("||");
       
       std::cout << indentation_ << friendlyName
                 << " " << modLabel
                 << " " << instanceName << std::endl;
-      ++cumulates_["product.friendlyClassName_="+friendlyName];
-      ++cumulates_["product.module.moduleLabel_="+modLabel];
-      ++cumulates_["product.productInstanceName_="+instanceName];
-
+      key = friendlyName
+          + std::string(" + ") + modLabel
+          + std::string(" + ") + instanceName;
+      ++cumulates_[key];
    }
    ++evno_;
 }
@@ -111,11 +117,11 @@ EventContentAnalyzer::endJob()
 {
    typedef std::map<std::string,int> nameMap;
 
-   std::cout <<"\nSummary:" << std::endl;
+   std::cout <<"\nSummary for key being the concatenation of friendlyClassName, moduleLabel and productInstanceName" << std::endl;
+   std::cout <<"Note - Empty fields in keys are shown as ||" << std::endl;
    for(nameMap::const_iterator it =cumulates_.begin();
                                it!=cumulates_.end();
                              ++it) {
-//    std::cout << "   Key " << it->first << " occurs " << it->second << " times." << std::endl;
       std::cout << std::setw(6) << it->second << " occurrences of key " << it->first << std::endl;
    }
 
