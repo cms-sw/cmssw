@@ -153,7 +153,5 @@
   <rRotation name="rotations:000D"/>
   <Translation x="0*fm" y="0*fm" z="5.342*m" />
  </PosPart>
-</PosPartSection>
-
 
 </DDDefinition>
