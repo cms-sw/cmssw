@@ -7,7 +7,7 @@
 
    \author Stefano ARGIRO
    \co-author Bill Tanenbaum
-   \version $Id: ProductRegistry.h,v 1.12 2005/10/07 19:05:21 chrjones Exp $
+   \version $Id: ProductRegistry.h,v 1.13 2005/10/11 19:28:20 chrjones Exp $
    \date 19 Jul 2005
 */
 
@@ -51,6 +51,18 @@ namespace edm {
     ProductList productList_;
     unsigned long nextID_;
   };
+
+  inline
+  bool
+  operator==(ProductRegistry const& lhs, ProductRegistry const& rhs) {
+    return lhs.nextID() == rhs.nextID() && lhs.productList() == rhs.productList();
+  }
+
+  inline
+  bool
+  operator!=(ProductRegistry const& lhs, ProductRegistry const& rhs) {
+    return !(lhs == rhs);
+  }
 } // edm
 
 
