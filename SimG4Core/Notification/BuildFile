@@ -1,7 +1,0 @@
-<export>
- <lib name=SimG4CoreNotification>
- <use name=DetectorDescription/Core>
-</export>
-
-<use name=geant4>
-<use name=DetectorDescription/Core>

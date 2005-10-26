@@ -1,7 +1,0 @@
-<use name=boost>
-<use name=DataFormats/DetId>
-<export>
-   <lib name=DataFormatsCaloRecHit>
-   <use name=boost>
-   <use name=DataFormats/DetId>
-</export>

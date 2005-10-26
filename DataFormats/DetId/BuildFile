@@ -1,7 +1,0 @@
-<use name=boost>
-<use name=Dictionary/Reflex>
-<export>
-   <lib name=DataFormatsDetId>
-   <use name=boost>
-   <use name=Dictionary/Reflex>
-</export>

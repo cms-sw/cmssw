@@ -1,6 +1,0 @@
-<export>
-   <lib name=DataFormatsSiStripDetId>
-   <use name=DataFormats/DetId>
-</export>
-
-<use name=DataFormats/DetId>

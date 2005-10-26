@@ -1,7 +1,0 @@
-
-<use name=FWCore/EDProduct>
-
-<export>
- <lib name=DataFormatsFEDRawData>
- <use name=FWCore/EDProduct>
-</export>

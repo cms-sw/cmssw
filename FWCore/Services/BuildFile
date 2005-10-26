@@ -1,9 +1,0 @@
-<flags SEAL_PLUGIN_NAME="FWCoreServices">
-<use name=boost>
-<use name=FWCore/Framework>
-<export>
- <lib name=FWCoreServices>
- <use name=boost>
- <use name=FWCore/Framework>
-</export>
-

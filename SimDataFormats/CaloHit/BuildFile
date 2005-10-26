@@ -1,5 +1,0 @@
-<export>
-<lib name=SimDataFormatsCaloHit>
-<use name=FWCore/EDProduct>
-</export>
-<use name=FWCore/EDProduct>

@@ -1,9 +1,0 @@
-
-<use name=DetectorDescription/Core>
-<use name=Framework/SealKernel>
-
-<export>
- <lib name=DetectorDescriptionAlgorithm>
- <use name=DetectorDescription/Core>
- <use name=Framework/SealKernel>
-</export>

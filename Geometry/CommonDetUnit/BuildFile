@@ -1,5 +1,0 @@
- <use name=Geometry/Surface>
-<export>
- <lib name=GeometryCommonDetUnit>
- <use name=Geometry/Surface>
-</export>

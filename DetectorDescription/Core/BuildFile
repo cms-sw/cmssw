@@ -1,7 +1,0 @@
-
-<use name=DetectorDescription/CoreImpl>
-
-<export>
- <lib name=DetectorDescriptionCore>
- <use name=DetectorDescription/CoreImpl>
-</export>

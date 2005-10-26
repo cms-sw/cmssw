@@ -1,8 +1,0 @@
-<flags LCGDICT_ARGS="--">
-<use name=Dictionary/Reflex>
-<use name=FWCore/Framework>
-<export>
-  <use name=Dictionary/Reflex>
-  <use name=FWCore/Framework>
-  <lib name=CondFormatsCalibration>
-</export>

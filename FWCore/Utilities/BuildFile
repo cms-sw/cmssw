@@ -1,9 +1,0 @@
-<use name=boost>
-<use name=Foundation/PluginManager>
-<use name=Framework/SealKernel>
-<export>
- <lib name=FWCoreUtilities>
- <use name=boost>
- <use name=Foundation/PluginManager>
- <use name=Framework/SealKernel>
-</export>

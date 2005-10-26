@@ -1,7 +1,0 @@
-<use name=Framework/SealKernel>
-<use name=RelationalAccess>
-<export>
-  <use name=Framework/SealKernel>
-  <use name=RelationalAccess>
-  <lib name=CondCoreMetaDataService>
-</export>
