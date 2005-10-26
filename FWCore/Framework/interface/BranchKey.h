@@ -7,7 +7,7 @@ BranchKey: The key used to identify a Group in the EventPrincipal. The
 name of the branch to which the related data product will be written
 is determined entirely from the BranchKey.
 
-$Id: BranchKey.h,v 1.9 2005/09/02 05:17:49 wmtan Exp $
+$Id: BranchKey.h,v 1.10 2005/10/03 19:04:04 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <iosfwd>
@@ -58,7 +58,13 @@ namespace edm {
 	a.productInstanceName_ > b.productInstanceName_ ? false :
 	a.processName_ < b.processName_ ? true :
 	false;
-    }
+  }
+
+  inline
+  bool 
+  operator==(const BranchKey& a, const BranchKey& b) {
+    return !(a < b || b < a);
+  }
 
   std::ostream&
   operator<<(std::ostream& os, const BranchKey& bk);
