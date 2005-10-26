@@ -63,3 +63,38 @@ const std::vector<unsigned int> StripDigiCollection::detIDs() const {
   return output;
 
 }
+
+// -----------------------------------------------------------------------------
+// Appends StripDigis to the vector of the given DetId.
+void StripDigiCollection::add( unsigned int& det_id, 
+			       std::vector<StripDigi>& digis ) {
+  
+  digiMap_[det_id].reserve( digiMap_[det_id].size() + digis.size() );
+  if ( digiMap_[det_id].empty() ) { 
+    digiMap_[det_id] = digis;
+  } else {
+    copy( digis.begin(), digis.end(), back_inserter(digiMap_[det_id]) );
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Returns (by reference) all Digis for a given DetId.
+void StripDigiCollection::digis( unsigned int& det_id,
+				 std::vector<StripDigi>& digis ) const {
+  if ( digiMap_.find( det_id ) != digiMap_.end() ) { 
+    digis = digiMap_[det_id];
+  } else {
+    digis = std::vector<StripDigi>();
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Returns (by reference) vector of DetIds with Digis.
+void StripDigiCollection::detIDs( std::vector<unsigned int>& det_ids ) const {
+  det_ids.clear(); 
+  det_ids.reserve( static_cast<unsigned int>(digiMap_.size()) );
+  StripDigiContainer::const_iterator iter;
+  for (iter = digiMap_.begin(); iter != digiMap_.end(); iter++ ) {
+    det_ids.push_back( iter->first );
+  }
+}
