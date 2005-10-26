@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.cc,v 1.7 2005/08/19 13:39:04 paterno Exp $
+// $Id: ParameterSet.cc,v 1.8 2005/08/29 22:01:20 paterno Exp $
 //
 // definition of ParameterSet's function members
 // ----------------------------------------------------------------------
@@ -89,9 +89,9 @@ namespace edm {
   ParameterSet::getEntryPointerOrThrow_(std::string const& name) const {
     Entry const* result = retrieveUntracked(name);
     if (result == 0) 
-      throw edm::Exception(errors::Configuration, "InvalidName")
-	<< "The name '" << name
-	<< "' is not known in an anonymous ParameterSet.\n";
+      throw edm::Exception(errors::Configuration, "MissingParameter:")
+	<< "The required parameter '" << name
+	<< "' was not specified.\n";
     return result;
   }
 
@@ -104,13 +104,13 @@ namespace edm {
     if(it == tbl_.end()) {
       it = tbl_.find("label");
       if(it == tbl_.end())
-        throw edm::Exception(errors::Configuration,"InvalidName")
-	  << "The name '" << name 
-	  << "' is not known in an anonymous ParameterSet.\n";
+        throw edm::Exception(errors::Configuration,"MissingParameter:")
+	  << "The required parameter '" << name
+	  << "' was not specified.\n";
       else
-        throw edm::Exception(errors::Configuration,"InvalidName")
-	  << "The name '" << name
-	  << "' is not known in ParameterSet '"
+        throw edm::Exception(errors::Configuration,"MissingParameter:")
+	  << "The required parameter '" << name
+	  << "' was not specified in ParameterSet '"
 	  << it->second.getString() << "'\n";
     }
     return it->second;
