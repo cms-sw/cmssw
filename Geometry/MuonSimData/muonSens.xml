@@ -10,12 +10,12 @@
       <PartSelector path="//MB2SLZGas" />
       <PartSelector path="//MB3SLZGas" />
       <Parameter name="SensitiveDetector" value="MuonSensitiveDetector" />
-      <Parameter name="ReadOutName" value="MuonBarrelHits" />
+      <Parameter name="ReadOutName" value="MuonDTHits" />
   </SpecPar>    
   <SpecPar name="rpc">
       <PartSelector path="//MB.*RPC.*Gas.*" />
       <Parameter name="SensitiveDetector" value="MuonSensitiveDetector" />
-      <Parameter name="ReadOutName" value="MuonRpcHits" />
+      <Parameter name="ReadOutName" value="MuonRPCHits" />
   </SpecPar>    
   <SpecPar name="endcap">
       <PartSelector path="//MW11" />
@@ -28,7 +28,7 @@
       <PartSelector path="//MW32" />
       <PartSelector path="//MW41" />
       <Parameter name="SensitiveDetector" value="MuonSensitiveDetector" />
-      <Parameter name="ReadOutName" value="MuonEndcapHits" />
+      <Parameter name="ReadOutName" value="MuonCSCHits" />
   </SpecPar>    
 </SpecParSection>
 
