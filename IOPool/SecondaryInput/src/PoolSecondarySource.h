@@ -5,12 +5,13 @@
 
 PoolSecondarySource: This is a SecondaryInputSource
 
-$Id: PoolSecondarySource.h,v 1.3 2005/10/11 21:49:26 wmtan Exp $
+$Id: PoolSecondarySource.h,v 1.4 2005/10/25 21:11:47 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include <memory>
 #include <map>
+#include <vector>
 #include <string>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -40,13 +41,18 @@ namespace edm {
     virtual ~PoolSecondarySource();
 
   private:
+    PoolSecondarySource(PoolSecondarySource const&); // disable copy construction
+    PoolSecondarySource & operator=(PoolSecondarySource const&); // disable assignment
+    virtual void read(int idx, int number, std::vector<EventPrincipal*>& result);
+    void init(std::string const& file);
+    bool next();
+
     std::map<ProductID, BranchDescription> productMap_;
     std::string const file_;
+    std::vector<std::string> const files_;
+    std::vector<std::string>::const_iterator fileIter_;
     boost::shared_ptr<PoolFile> poolFile_;
     boost::shared_ptr<ProductRegistry> pReg_;
-
-    virtual void read(int idx, int number, std::vector<EventPrincipal*>& result);
-    void init();
   }; // class PoolSecondarySource
 
 
@@ -58,7 +64,7 @@ namespace edm {
     typedef std::map<BranchKey, std::pair<std::string, TBranch *> > BranchMap;
     BranchMap const& branches() const {return branches_;}
     explicit PoolFile(std::string const& fileName);
-    ~PoolFile() {}
+    ~PoolFile();
     bool next() {return ++entryNumber_ < entries_;} 
     ProductRegistry const& productRegistry() const {return productRegistry_;}
     TBranch *auxBranch() {return auxBranch_;}
@@ -72,9 +78,13 @@ namespace edm {
     EntryNumber entryNumber_;
     EntryNumber entries_;
     ProductRegistry productRegistry_;
+// We use bare pointers for pointers to ROOT entities.
+// Root owns them and uses bare pointers internally.
+// Therefore,using shared pointers here will do no good.
     BranchMap branches_;
     TBranch *auxBranch_;
     TBranch *provBranch_;
+    TFile *filePtr_;
   }; // class PoolSecondarySource::PoolFile
 
   //------------------------------------------------------------
@@ -86,6 +96,8 @@ namespace edm {
     PoolDelayedReader(EntryNumber const& entry, PoolSecondarySource const& serv) : entryNumber_(entry), inputSource(serv) {}
     virtual ~PoolDelayedReader();
   private:
+    PoolDelayedReader(PoolDelayedReader const&); // disable copy construction
+    PoolDelayedReader & operator=(PoolDelayedReader const&); // disable assignment
     virtual std::auto_ptr<EDProduct> get(BranchKey const& k) const;
     PoolFile::BranchMap const& branches() const {return inputSource.poolFile_->branches();}
     EntryNumber const entryNumber_;

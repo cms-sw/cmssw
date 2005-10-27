@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSecondarySource.cc,v 1.6 2005/10/12 16:24:31 wmtan Exp $
+$Id: PoolSecondarySource.cc,v 1.7 2005/10/25 21:11:47 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/EDProduct/interface/EDProduct.h"
@@ -26,20 +26,51 @@ namespace edm {
   PoolSecondarySource::PoolSecondarySource(ParameterSet const& pset) :
     SecondaryInputSource(),
     file_(pset.getUntrackedParameter<std::string>("fileName")),
+//    file_(pset.getUntrackedParameter("fileName", std::string())),
+//    files_(pset.getUntrackedParameter("fileNames", std::vector<std::string>())),
+    files_(),
+    fileIter_(files_.begin()),
+    poolFile_(),
     pReg_(new ProductRegistry) {
-    init();
+    if (file_.empty()) {
+      if (files_.empty()) { // this will throw;
+        pset.getUntrackedParameter<std::string>("fileName");
+      } else {
+        init(*fileIter_);
+        ++fileIter_;
+      }
+    } else {
+      init(file_);
+    }
   }
 
-  void PoolSecondarySource::init() {
+  void PoolSecondarySource::init(std::string const& file) {
     ClassFiller();
 
-    poolFile_ = boost::shared_ptr<PoolFile>(new PoolFile(file_));
+    poolFile_ = boost::shared_ptr<PoolFile>(new PoolFile(file));
     ProductRegistry::ProductList const& prodList = poolFile_->productRegistry().productList();
 
     for (ProductRegistry::ProductList::const_iterator it = prodList.begin();
-         it != prodList.end(); ++it) {
+        it != prodList.end(); ++it) {
       productMap_.insert(std::make_pair(it->second.productID_, it->second));
     }
+  }
+
+  bool PoolSecondarySource::next() {
+    if(poolFile_->next()) return true;
+
+     
+    if(files_.empty()) return false;
+    if(file_.empty() && files_.size() == 1) return false;
+    if(fileIter_ == files_.end() && files_.size() == 1) return false;
+    if(fileIter_ == files_.end()) fileIter_ == files_.begin();
+
+    poolFile_.reset();
+
+    poolFile_ = boost::shared_ptr<PoolFile>(new PoolFile(*fileIter_));
+    ++fileIter_;
+    next();
+    return false;
   }
 
   PoolSecondarySource::~PoolSecondarySource() {
@@ -62,7 +93,7 @@ namespace edm {
   PoolSecondarySource::read(int idx, int number, std::vector<EventPrincipal*>& result) {
     
     for (int entry = idx, i = 0; i < number; ++entry, ++i) {
-      if (!poolFile_->next()) entry = 0; // Wrap around
+      if (!next()) entry = 0;
       EventAux evAux;
       EventProvenance evProv;
       EventAux *pEvAux = &evAux;
@@ -107,13 +138,14 @@ namespace edm {
     entries_(0),
     productRegistry_(),
     branches_(),
-    auxBranch_(),
-    provBranch_() {
+    auxBranch_(0),
+    provBranch_(0),
+    filePtr_(0) {
 
-    TFile *filePtr = TFile::Open(file_.c_str());
-    assert(filePtr != 0);
+    filePtr_ = TFile::Open(file_.c_str());
+    assert(filePtr_ != 0);
 
-    TTree *metaDataTree = dynamic_cast<TTree *>(filePtr->Get(poolNames::metaDataTreeName().c_str()));
+    TTree *metaDataTree = dynamic_cast<TTree *>(filePtr_->Get(poolNames::metaDataTreeName().c_str()));
     assert(metaDataTree != 0);
 
     // Load streamers for product dictionary and member/base classes.
@@ -121,7 +153,7 @@ namespace edm {
     metaDataTree->SetBranchAddress(poolNames::productDescriptionBranchName().c_str(),(&ppReg));
     metaDataTree->GetEntry(0);
 
-    TTree *eventTree = dynamic_cast<TTree *>(filePtr->Get(poolNames::eventTreeName().c_str()));
+    TTree *eventTree = dynamic_cast<TTree *>(filePtr_->Get(poolNames::eventTreeName().c_str()));
     assert(eventTree != 0);
     entries_ = eventTree->GetEntries();
 
@@ -132,7 +164,7 @@ namespace edm {
     std::string const wrapperEnd1(">");
     std::string const wrapperEnd2(" >");
 
-    ProductRegistry::ProductList const& prodList = productRegistry_.productList();
+    ProductRegistry::ProductList const& prodList = productRegistry().productList();
     for (ProductRegistry::ProductList::const_iterator it = prodList.begin();
         it != prodList.end(); ++it) {
       BranchDescription const& prod = it->second;
@@ -144,7 +176,10 @@ namespace edm {
       branches_.insert(std::make_pair(it->first, std::make_pair(className, branch)));
     }
   }
-
+ 
+  PoolSecondarySource::PoolFile::~PoolFile() {
+    filePtr_->Close();
+  }
 
   PoolSecondarySource::PoolDelayedReader::~PoolDelayedReader() {}
 
