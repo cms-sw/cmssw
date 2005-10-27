@@ -1,3 +1,6 @@
+** V01-00-01  [Thu Oct 27 19:29:09 2005]
+Added EcalRecHit
+
 ** V01-00-00  [Thu Oct 27 19:05:34 2005]
 First working release for CMSSW_0_2_0_pre6
 
