@@ -2,13 +2,13 @@
 #define MuonDetId_RPCDetId_h
 
 /** \class RPCDetId
-* 
-*  DetUnit identifier for DT chambers
+ * 
+ *  DetUnit identifier for RPCs
  *
- *  $Date: 2005/10/25 14:01:42 $
- *  \version $Id: RPCDetId.cc,v 1.1 2005/10/19 13:42:37 segoni Exp $
- *  $Revision: 1.2 $
- *  \author Stefano ARGIRO
+ *  $Date: 2005/10/27 10:29:02 $
+ *  \version $Id: RPCDetId.h,v 1.3 2005/10/27 10:29:02 segoni Exp $
+ *  $Revision: 1.3 $
+ *  \author Ilaria Segoni
  */
 
 #include <DataFormats/MuonDetId/interface/MuonSubdetId.h>
@@ -142,14 +142,6 @@ class RPCDetId :public DetId {
   static const int RollNumBits_  =  2;
   static const int RollStartBit_ =  SubSectorStartBit_+SubSectorNumBits_;  
   static const unsigned int RollMask_     =  0X2;
-
-
-//<<<<<<< RPCDetId.h
-//=======
-
-//>>>>>>> 1.2
-  
-
  
 
 }; // RPCDetId

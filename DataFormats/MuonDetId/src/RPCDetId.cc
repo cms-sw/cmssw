@@ -1,13 +1,10 @@
-/**
-   \file
-   Impl of RPCDetId
-
-   \author Stefano ARGIRO
-   \version $Id: RPCDetId.cc,v 1.1 2005/10/19 13:42:37 segoni Exp $
-   \date 02 Aug 2005
-*/
-
-static const char CVSId[] = "$Id: RPCDetId.cc,v 1.1 2005/10/19 13:42:37 segoni Exp $";
+/** \file
+ * Impl of RPCDetId
+ *
+ * \author Ilaria Segoni
+ * \version $Id: RPCDetId.cc,v 1.2 2005/10/27 10:28:39 segoni Exp $
+ * \date 02 Aug 2005
+ */
 
 #include <iostream>
 #include <DataFormats/MuonDetId/interface/RPCDetId.h>
@@ -80,13 +77,13 @@ std::ostream& operator<<( std::ostream& os, const RPCDetId& id ){
 // do differently whether it's station or Wheel.
 
   os <<  " Re "<<id.region()
-	 << " Ri "<<id.ring()
-	 << " St "<<id.station()
-	 << " Se "<<id.sector()
-	 << " La "<<id.layer()
-	 << " Su "<<id.subsector()
-	 << " Ro "<<id.roll()
-	 <<" ";
+     << " Ri "<<id.ring()
+     << " St "<<id.station()
+     << " Se "<<id.sector()
+     << " La "<<id.layer()
+     << " Su "<<id.subsector()
+     << " Ro "<<id.roll()
+     <<" ";
 
   return os;
 }
