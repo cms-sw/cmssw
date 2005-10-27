@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.6 2005/10/12 16:24:31 wmtan Exp $
+$Id: PoolSource.cc,v 1.7 2005/10/25 05:36:09 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/EDProduct/interface/EDProduct.h"
@@ -15,6 +15,7 @@ $Id: PoolSource.cc,v 1.6 2005/10/12 16:24:31 wmtan Exp $
 
 #include "TFile.h"
 #include "TTree.h"
+#include "TBranch.h"
 
 #include <stdexcept>
 
@@ -25,17 +26,28 @@ using std::auto_ptr;
 namespace edm {
   PoolRASource::PoolRASource(ParameterSet const& pset, InputSourceDescription const& desc) :
     RandomAccessInputSource(desc),
-    file_(pset.getUntrackedParameter<std::string>("fileName")),
+    file_(pset.getUntrackedParameter("fileName", std::string())),
+    files_(pset.getUntrackedParameter("fileNames", std::vector<std::string>())),
+    fileIter_(files_.begin()),
     remainingEvents_(pset.getUntrackedParameter<int>("maxEvents", -1)),
     eventID_() {
-    init();
+    if (file_.empty()) {
+      if (files_.empty()) { // this will throw;
+        pset.getUntrackedParameter<std::string>("fileName");
+      } else {
+        init(*fileIter_);
+        ++fileIter_;
+      }
+    } else {
+      init(file_);
+    }
   }
 
-  void PoolRASource::init() {
+  void PoolRASource::init(std::string const& file) {
 
     ClassFiller();
 
-    poolFile_ = boost::shared_ptr<PoolFile>(new PoolFile(file_));
+    poolFile_ = boost::shared_ptr<PoolFile>(new PoolFile(file));
     if (poolFile_->productRegistry().nextID() > preg_->nextID()) {
       preg_->setNextID(poolFile_->productRegistry().nextID());
     }
@@ -49,6 +61,26 @@ namespace edm {
          it != preg_->productList().end(); ++it) {
       productMap_.insert(std::make_pair(it->second.productID_, it->second));
     }
+  }
+
+  bool PoolRASource::next() {
+    if(poolFile_->next()) return true;
+    if(fileIter_ == files_.end()) return false;
+
+    // save the product registry from the current file, temporarily
+    boost::shared_ptr<ProductRegistry const> pReg(poolFile_->productRegistrySharedPtr());
+
+    // delete the old PoolFile.  The file will be closed.
+    poolFile_.reset();
+    
+    poolFile_ = boost::shared_ptr<PoolFile>(new PoolFile(*fileIter_));
+    // make sure the new product registry is identical to the old one
+    if (*pReg != poolFile_->productRegistry()) {
+      throw cms::Exception("MismatchedInput","PoolSource::next()")
+        << "File " << *fileIter_ << "\nhas different product registry than previous files\n";
+    }
+    ++fileIter_;
+    return next();
   }
 
   PoolRASource::~PoolRASource() {
@@ -73,7 +105,7 @@ namespace edm {
     if (remainingEvents_ == 0) {
       return auto_ptr<EventPrincipal>(0);
     }
-    if (!poolFile_->next()) {
+    if (!next()) {
       return auto_ptr<EventPrincipal>(0);
     }
     --remainingEvents_;
@@ -135,23 +167,24 @@ namespace edm {
     file_(fileName),
     entryNumber_(-1),
     entries_(0),
-    productRegistry_(),
+    productRegistry_(new ProductRegistry),
     branches_(),
-    auxBranch_(),
-    provBranch_() {
+    auxBranch_(0),
+    provBranch_(0),
+    filePtr_(0) {
 
-    TFile *filePtr = TFile::Open(file_.c_str());
-    assert(filePtr != 0);
+    filePtr_ = TFile::Open(file_.c_str());
+    assert(filePtr_ != 0);
 
-    TTree *metaDataTree = dynamic_cast<TTree *>(filePtr->Get(poolNames::metaDataTreeName().c_str()));
+    TTree *metaDataTree = dynamic_cast<TTree *>(filePtr_->Get(poolNames::metaDataTreeName().c_str()));
     assert(metaDataTree != 0);
 
     // Load streamers for product dictionary and member/base classes.
-    ProductRegistry *ppReg = &productRegistry_;
+    ProductRegistry *ppReg = productRegistry_.get();
     metaDataTree->SetBranchAddress(poolNames::productDescriptionBranchName().c_str(),(&ppReg));
     metaDataTree->GetEntry(0);
 
-    TTree *eventTree = dynamic_cast<TTree *>(filePtr->Get(poolNames::eventTreeName().c_str()));
+    TTree *eventTree = dynamic_cast<TTree *>(filePtr_->Get(poolNames::eventTreeName().c_str()));
     assert(eventTree != 0);
     entries_ = eventTree->GetEntries();
 
@@ -162,7 +195,7 @@ namespace edm {
     std::string const wrapperEnd1(">");
     std::string const wrapperEnd2(" >");
 
-    ProductRegistry::ProductList const& prodList = productRegistry_.productList();
+    ProductRegistry::ProductList const& prodList = productRegistry().productList();
     for (ProductRegistry::ProductList::const_iterator it = prodList.begin();
         it != prodList.end(); ++it) {
       BranchDescription const& prod = it->second;
@@ -174,6 +207,10 @@ namespace edm {
       branches_.insert(std::make_pair(it->first, std::make_pair(className, branch)));
     }
 
+  }
+
+  PoolRASource::PoolFile::~PoolFile() {
+    filePtr_->Close();
   }
 
   PoolRASource::PoolDelayedReader::~PoolDelayedReader() {}
@@ -189,4 +226,3 @@ namespace edm {
     return p;
   }
 }
-

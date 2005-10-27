@@ -5,12 +5,13 @@
 
 PoolSource: This is an InputSource
 
-$Id: PoolSource.h,v 1.3 2005/10/03 19:00:29 wmtan Exp $
+$Id: PoolSource.h,v 1.4 2005/10/25 05:36:09 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include <memory>
 #include <map>
+#include <vector>
 #include <string>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -41,16 +42,19 @@ namespace edm {
     virtual ~PoolRASource();
 
   private:
-    std::map<ProductID, BranchDescription> productMap_;
-    std::string const file_;
-    boost::shared_ptr<PoolFile> poolFile_;
-    EntryNumber remainingEvents_;
-    EventID eventID_;
-
     virtual std::auto_ptr<EventPrincipal> read();
     virtual std::auto_ptr<EventPrincipal> read(EventID const& id);
     virtual void skip(int offset);
-    void init();
+    void init(std::string const& file);
+    bool next();
+
+    std::map<ProductID, BranchDescription> productMap_;
+    std::string const file_;
+    std::vector<std::string> const files_;
+    std::vector<std::string>::const_iterator fileIter_;
+    boost::shared_ptr<PoolFile> poolFile_;
+    EntryNumber remainingEvents_;
+    EventID eventID_;
   }; // class PoolRASource
 
   //------------------------------------------------------------
@@ -61,9 +65,10 @@ namespace edm {
     typedef std::map<BranchKey, std::pair<std::string, TBranch *> > BranchMap;
     BranchMap const& branches() const {return branches_;}
     explicit PoolFile(std::string const& fileName);
-    ~PoolFile() {}
+    ~PoolFile();
     bool next() {return ++entryNumber_ < entries_;} 
-    ProductRegistry const& productRegistry() const {return productRegistry_;}
+    ProductRegistry const& productRegistry() const {return *productRegistry_;}
+    boost::shared_ptr<ProductRegistry> productRegistrySharedPtr() const {return productRegistry_;}
     TBranch *auxBranch() {return auxBranch_;}
     TBranch *provBranch() {return provBranch_;}
     EntryNumber & entryNumber() {return entryNumber_;}
@@ -74,10 +79,14 @@ namespace edm {
     std::string const file_;
     EntryNumber entryNumber_;
     EntryNumber entries_;
-    ProductRegistry productRegistry_;
+    boost::shared_ptr<ProductRegistry> productRegistry_;
+// We use bare pointers for pointers to ROOT entities.
+// Root owns them and uses bare pointers internally.
+// Therefore,using shared pointers here will do no good.
     BranchMap branches_;
-    TBranch *auxBranch_;
+    TBranch *auxBranch_; 
     TBranch *provBranch_;
+    TFile *filePtr_;
   }; // class PoolRASource::PoolFile
 
 
