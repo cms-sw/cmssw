@@ -47,7 +47,7 @@ namespace edm
       virtual void createnewEDProduct() {std::cout<<"BMixingModule::createnewEDProduct must be overwritten!"<<std::endl;}
       virtual void getEvents(const unsigned int nrEvents);
       void merge(const int bcr, const std::vector<Event *> vec);
-      virtual void addSignals(edm::Event &e) {;}
+      virtual void addSignals(const edm::Event &e) {;}
       virtual void addPileups(const int bcr, edm::Event*) {;}
       virtual void put(edm::Event &e) {;}
 
