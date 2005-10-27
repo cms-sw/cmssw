@@ -4,8 +4,8 @@
 /** \class DTDetId
  *  DetUnit identifier for DT chambers
  *
- *  $Date: 2005/10/20 09:49:23 $
- *  $Revision: 1.6 $
+ *  $Date: 2005/10/24 15:56:19 $
+ *  $Revision: 1.7 $
  *  \author Stefano ARGIRO
  */
 
@@ -75,9 +75,11 @@ class DTDetId :public DetId {
   /// lowest sector id
   static const int minSectorId=     1;
   /// highest sector id
-  static const int maxSectorId=    14;
-  /// loweset super layer id. 0 indicates a full chamber
-  static const int minSuperLayerId= 0;
+//<<<<<<< DTDetId.h
+  static const unsigned int maxSectorId=    14;
+  /// loweset super layer id
+  static const unsigned int minSuperLayerId= 1;
+//>>>>>>> 1.7
   /// highest superlayer id
   static const int maxSuperLayerId= 3;
   /// lowest layer id. 0 indicates a full SL
