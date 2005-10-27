@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.7 2005/10/25 05:36:09 wmtan Exp $
+$Id: PoolSource.cc,v 1.8 2005/10/27 20:16:56 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/EDProduct/interface/EDProduct.h"
@@ -29,6 +29,7 @@ namespace edm {
     file_(pset.getUntrackedParameter("fileName", std::string())),
     files_(pset.getUntrackedParameter("fileNames", std::vector<std::string>())),
     fileIter_(files_.begin()),
+    poolFile_(),
     remainingEvents_(pset.getUntrackedParameter<int>("maxEvents", -1)),
     eventID_() {
     if (file_.empty()) {
