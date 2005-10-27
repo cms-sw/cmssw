@@ -5,7 +5,7 @@
 
 PoolSource: This is an InputSource
 
-$Id: PoolSource.h,v 1.5 2005/10/27 20:16:56 wmtan Exp $
+$Id: PoolSource.h,v 1.6 2005/10/27 20:24:07 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -42,6 +42,8 @@ namespace edm {
     virtual ~PoolRASource();
 
   private:
+    PoolRASource(PoolRASource const&); // disable copy construction
+    PoolRASource & operator=(PoolRASource const&); // disable assignment
     virtual std::auto_ptr<EventPrincipal> read();
     virtual std::auto_ptr<EventPrincipal> read(EventID const& id);
     virtual void skip(int offset);
@@ -99,6 +101,8 @@ namespace edm {
     PoolDelayedReader(EntryNumber const& entry, PoolRASource const& serv) : entryNumber_(entry), inputSource(serv) {}
     virtual ~PoolDelayedReader();
   private:
+    PoolDelayedReader(PoolDelayedReader const&); // disable copy construction
+    PoolDelayedReader & operator=(PoolDelayedReader const&); // disable assignment
     virtual std::auto_ptr<EDProduct> get(BranchKey const& k) const;
     PoolFile::BranchMap const& branches() const {return inputSource.poolFile_->branches();}
     EntryNumber const entryNumber_;
