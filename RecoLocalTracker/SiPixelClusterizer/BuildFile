@@ -1,0 +1,17 @@
+<flags SEAL_PLUGIN_NAME="RecoLocalTrackerSiPixelClusterizer">
+<use name=FWCore/EDProduct>
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=Utilities/Timing>
+<use name=DataFormats/SiPixelDigi>
+<use name=DataFormats/SiPixelCluster>
+
+<export>
+ <lib name=RecoLocalTrackerSiPixelClusterizer>
+ <use name=FWCore/EDProduct>
+ <use name=FWCore/Framework>
+ <use name=FWCore/ParameterSet>
+ <use name=Utilities/Timing>
+ <use name=DataFormats/SiPixelDigi>
+ <use name=DataFormats/SiPixelCluster>
+</export>
