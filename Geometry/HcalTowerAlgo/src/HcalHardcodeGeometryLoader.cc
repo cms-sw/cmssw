@@ -171,7 +171,7 @@ const CaloCellGeometry * HcalHardcodeGeometryLoader::makeCell(const HcalDetId & 
   y = r * sin(phi);
   GlobalPoint point(x,y,z);
 
-  return new calogeom::IdealObliquePrism(point, deta, dphi_half*2, thickness, !isBarrel);
+  return new calogeom::IdealObliquePrism(point, deta*2, dphi_half*2, thickness, isBarrel);
 
 }
 
