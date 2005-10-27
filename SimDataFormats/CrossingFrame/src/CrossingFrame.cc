@@ -69,8 +69,10 @@ using namespace edm;
   }
 
   void CrossingFrame::addPileupCaloHits(const int bcr, const std::string subdet, const PCaloHitContainer *calohits, int trackoffset) { 
-    for (unsigned int i=0;i<calohits->size();++i) 
-      (pileupCaloHits_[subdet])[bcr-firstCrossing_].insertHit((*calohits)[i]);
+    for (unsigned int i=0;i<calohits->size();++i) {
+      PCaloHit hit((*calohits)[i].id(),(*calohits)[i].energy(),(*calohits)[i].time()+bcr*bunchSpace_,(*calohits)[i].geantTrackId()+trackoffset);
+      (pileupCaloHits_[subdet])[bcr-firstCrossing_].insertHit(hit);
+    }
   }
 
 void CrossingFrame::addPileupTracks(const int bcr, const EmbdSimTrackContainer *simtracks, int vertexoffset) { 
@@ -88,7 +90,7 @@ void CrossingFrame::addPileupTracks(const int bcr, const EmbdSimTrackContainer *
     if ((*simvertices)[i].noParent()) 
       pileupVertices_[bcr-firstCrossing_].insertVertex((*simvertices)[i]);
     else {
-      EmbdSimVertex vertex((*simvertices)[i].position(),((*simvertices)[i].position())[3],(*simvertices)[i].parentIndex()+trackoffset);
+      EmbdSimVertex vertex((*simvertices)[i].position(),((*simvertices)[i].position())[3]+bcr*bunchSpace_,(*simvertices)[i].parentIndex()+trackoffset);
       pileupVertices_[bcr-firstCrossing_].insertVertex(vertex);
     }
   }

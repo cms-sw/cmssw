@@ -4,7 +4,6 @@
 SimHitCollection::SimHitCollection(const CrossingFrame *cf, const std::string subdet, const std::pair<int,int> bunchRange) : 
   cf_(const_cast<CrossingFrame*>(cf))
 {
-  std::cout<<" standard constructor of SimHitCollection called for detector " <<subdet<<" and range "<<bunchRange.first<<", "<<bunchRange.second<<std::endl;
   bunchRange_=bunchRange;
 
   //verify whether detector is present
@@ -27,7 +26,7 @@ SimHitCollection::SimHitCollection(const CrossingFrame *cf, const std::string su
   else if (bunchRange_!=defaultrange ) {
     int first=defaultrange.first;
     int last = defaultrange.second;
-    if (bunchRange_.first<defaultrange.first)       std::cout <<" Existing runrange is "<<defaultrange.first<<", "<<defaultrange.second<<" you are asking for "<<bunchRange_.first<<", "<<bunchRange_.second<<", lower limit was reset!!"<<std::endl; //who throws exception?
+    if (bunchRange_.first<defaultrange.first)       std::cout <<" Existing runrange is "<<defaultrange.first<<", "<<defaultrange.second<<" you are asking for "<<bunchRange_.first<<", "<<bunchRange_.second<<", lower limit was reset!!"<<std::endl; //FIXME: who throws exception?
     else first=bunchRange_.first;
     if (bunchRange_.second>defaultrange.second)         std::cout <<" Existing runrange is "<<defaultrange.first<<", "<<defaultrange.second<<" you are asking for "<<bunchRange_.first<<", "<<bunchRange_.second<<", upper limit was reset!!"<<std::endl; //who throws exception?
     else last=bunchRange_.second;
