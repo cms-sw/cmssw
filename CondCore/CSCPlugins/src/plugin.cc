@@ -11,9 +11,9 @@
 #include "CondFormats/DataRecord/interface/CSCPedestalsRcd.h"
 #include "CondFormats/CSCObjects/interface/CSCGains.h"
 #include "CondFormats/DataRecord/interface/CSCGainsRcd.h"
-#include "CondFormats/CSCObjects/interface/CSCXtalk.h"
-#include "CondFormats/DataRecord/interface/CSCXtalkRcd.h"
+#include "CondFormats/CSCObjects/interface/CSCcrosstalk.h"
+#include "CondFormats/DataRecord/interface/CSCcrosstalkRcd.h"
 DEFINE_SEAL_MODULE();
 REGISTER_PLUGIN(CSCPedestalsRcd,CSCPedestals);
 REGISTER_PLUGIN(CSCGainsRcd,CSCGains);
-REGISTER_PLUGIN(CSCXtalkRcd,CSCXtalk);
+REGISTER_PLUGIN(CSCcrosstalkRcd,CSCcrosstalk);
