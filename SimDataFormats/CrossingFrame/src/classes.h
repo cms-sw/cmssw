@@ -1,4 +1,3 @@
-#include "DataFormats/CrossingBase/interface/BCrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
@@ -13,7 +12,6 @@ using namespace std;
 
 namespace {
 namespace {
-	BCrossingFrame dummy0;
  	CrossingFrame dummy1;
         std::vector<edm::PSimHitContainer> dummy10;
         std::vector<edm::PCaloHitContainer> dummy11;

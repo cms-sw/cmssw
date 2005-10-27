@@ -2,7 +2,7 @@
 using namespace std;
 using namespace edm;
 
-    CrossingFrame::CrossingFrame(int minb, int maxb, int bunchsp, std::vector<std::string> trackersubdetectors,std::vector<std::string> calosubdetectors): BCrossingFrame(minb,bunchsp) {
+    CrossingFrame::CrossingFrame(int minb, int maxb, int bunchsp, std::vector<std::string> trackersubdetectors,std::vector<std::string> calosubdetectors): bunchSpace_(bunchsp), firstCrossing_(minb) {
 
     // create and insert vectors into the map
     // for tracker
@@ -55,40 +55,77 @@ using namespace edm;
   }
 
 
-  void CrossingFrame::addPileupSimHits(const int bcr, const std::string subdet, const PSimHitContainer *simhits) { 
-    for (unsigned int i=0;i<simhits->size();++i) 
-      (pileupSimHits_[subdet])[bcr-firstCrossing_].insertHit((*simhits)[i]);
+  void CrossingFrame::addPileupSimHits(const int bcr, const std::string subdet, const PSimHitContainer *simhits, int trackoffset) { 
+
+    for (unsigned int i=0;i<simhits->size();++i) {
+      //      (pileupSimHits_[subdet])[bcr-firstCrossing_].insertHit((*simhits)[i]);
+      PSimHit hit((*simhits)[i].entryPoint(), (*simhits)[i].exitPoint(),(*simhits)[i].pabs(),
+		  (*simhits)[i].timeOfFlight() + bcr*bunchSpace_, 
+		  (*simhits)[i].energyLoss(), (*simhits)[i].particleType(),
+		  (*simhits)[i].detUnitId(), (*simhits)[i].trackId()+trackoffset,
+		  (*simhits)[i].thetaAtEntry(),  (*simhits)[i].phiAtEntry(),  (*simhits)[i].processType());
+    (pileupSimHits_[subdet])[bcr-firstCrossing_].insertHit(hit);
+    }
   }
 
-  void CrossingFrame::addPileupCaloHits(const int bcr, const std::string subdet, const PCaloHitContainer *calohits) { 
+  void CrossingFrame::addPileupCaloHits(const int bcr, const std::string subdet, const PCaloHitContainer *calohits, int trackoffset) { 
     for (unsigned int i=0;i<calohits->size();++i) 
       (pileupCaloHits_[subdet])[bcr-firstCrossing_].insertHit((*calohits)[i]);
   }
 
-  void CrossingFrame::addPileupTracks(const int bcr, const EmbdSimTrackContainer *simtracks) { 
-    for (unsigned int i=0;i<simtracks->size();++i) 
-    pileupTracks_[bcr-firstCrossing_].insertTrack((*simtracks)[i]);
-  }
+void CrossingFrame::addPileupTracks(const int bcr, const EmbdSimTrackContainer *simtracks, int vertexoffset) { 
+  for (unsigned int i=0;i<simtracks->size();++i) 
+    if ((*simtracks)[i].noVertex()) 
+      pileupTracks_[bcr-firstCrossing_].insertTrack((*simtracks)[i]);
+    else {
+      EmbdSimTrack track((*simtracks)[i].type(),(*simtracks)[i].momentum(),(*simtracks)[i].vertIndex()+vertexoffset, (*simtracks)[i].genpartIndex());
+      pileupTracks_[bcr-firstCrossing_].insertTrack(track);
+    }
+}
 
-  void CrossingFrame::addPileupVertices(const int bcr, const EmbdSimVertexContainer *simvertices) { 
+  void CrossingFrame::addPileupVertices(const int bcr, const EmbdSimVertexContainer *simvertices, int trackoffset) { 
     for (unsigned int i=0;i<simvertices->size();++i) 
-    pileupVertices_[bcr-firstCrossing_].insertVertex((*simvertices)[i]);
+    if ((*simvertices)[i].noParent()) 
+      pileupVertices_[bcr-firstCrossing_].insertVertex((*simvertices)[i]);
+    else {
+      EmbdSimVertex vertex((*simvertices)[i].position(),((*simvertices)[i].position())[3],(*simvertices)[i].parentIndex()+trackoffset);
+      pileupVertices_[bcr-firstCrossing_].insertVertex(vertex);
+    }
   }
 
   void CrossingFrame::print(int level) const {
-    BCrossingFrame::print(level);
-    //
-    // print for lowest level (signals)
-    //
-    cout<<"\nSignals:"<<endl;
-    for(map<string,PSimHitContainer>::const_iterator it = signalSimHits_.begin(); it != signalSimHits_.end(); ++it) 
-      cout<< " subdetector "<<(*it).first <<" signal size "<<(*it).second.size()<<endl;
 
-    for(map<string,PCaloHitContainer>::const_iterator it = signalCaloHits_.begin(); it != signalCaloHits_.end(); ++it) 
+    std::cout<<"\nCrossingFrame for "<<id_<<",  minbunch = "<<firstCrossing_
+<<", bunchSpace "<<bunchSpace_<<std::endl;    // print for lowest level (signals)
+    //
+    // signals
+    cout<<"\nSignals:"<<endl;
+    for(map<string,PSimHitContainer>::const_iterator it = signalSimHits_.begin(); it != signalSimHits_.end(); ++it) {
+      cout<< " subdetector "<<(*it).first <<" signal size "<<(*it).second.size()<<endl;
+      if (level>=2) {
+	for (unsigned int j=0;j<(*it).second.size();++j) 
+	    cout<<" SimHit "<<j<<" has track pointer "<< (*it).second[j].trackId() <<" ,tof "<<(*it).second[j].tof()<<", energy loss "<< (*it).second[j].energyLoss()<<endl;
+      }
+    }
+
+    for(map<string,PCaloHitContainer>::const_iterator it = signalCaloHits_.begin(); it != signalCaloHits_.end(); ++it) {
       cout<< " subdetector "<<(*it).first <<" signal size"<<(*it).second.size()<<endl;
+      if (level>=2) {
+	for (unsigned int j=0;j<(*it).second.size();++j) 
+	    cout<<" CaloHit "<<j<<" has track pointer "<< (*it).second[j].geantTrackId() <<" ,tof "<<(*it).second[j].time()<<", energy loss "<< (*it).second[j].energy()<<endl;
+      }
+    }
 
     cout <<" Number of tracks in signal "<< signalTracks_.size()<<endl;
+	if (level>=2) {
+	  for (unsigned int j=0;j<signalTracks_.size();++j) 
+	    cout<<" track "<<j<<" has vertex pointer "<< signalTracks_[j].vertIndex()<<" and genpartindex "<<signalTracks_[j].genpartIndex()<<endl;
+	}
     cout <<" Number of vertices in signal "<< signalVertices_.size()<<endl;
+// 	if (level>=2) {
+// 	  for (unsigned int j=0;j<signalVertices_.size();++j) 
+//  	    cout<<" vertex "<<j<<" has track pointer "<< signalVertices_[j].parentIndex()<<endl;
+// 	}
 
     //
     // print for next higher level (pileups)
@@ -97,12 +134,17 @@ using namespace edm;
     cout<<"\nPilups:"<<endl;
     map<string,vector<PSimHitContainer> >::const_iterator itsim;
     for(itsim = pileupSimHits_.begin(); itsim != pileupSimHits_.end(); ++itsim){ 
-      cout<< " Pileup for subdetector "<<(*itsim).first <<endl;
+      cout<< endl<<" Pileup for subdetector "<<(*itsim).first <<endl;
       for (unsigned int i=0;i<(*itsim).second.size();++i) {
 	int bcr=firstCrossing_+i;
         cout <<" Bunchcrossing  "<<bcr<<", Simhit pileup size "<<(*itsim).second[i].size()<<endl;
-      }
+	  if (level>=3) {
+	  for (unsigned int j=0;j<(*itsim).second[i].size();++j) 
+	    cout<<" SimHit "<<j<<" has track pointer "<< ((*itsim).second[i])[j].trackId() <<" ,tof "<<((*itsim).second[i])[j].tof()<<", energy loss "<< ((*itsim).second[i])[j].energyLoss()<<endl;
+	  }
+	}
     }
+  
 
     map<string,vector<PCaloHitContainer> >::const_iterator it;
     for(it = pileupCaloHits_.begin(); it != pileupCaloHits_.end(); ++it){ 
@@ -110,18 +152,27 @@ using namespace edm;
       for (unsigned int i=0;i<(*it).second.size();++i) {
 	int bcr=firstCrossing_+i;
         cout <<" Bunchcrossing  "<<bcr<<", Calohit pileup size "<<(*it).second[i].size()<<endl;
-      }
+ 	  if (level>=3) {
+	  for (unsigned int j=0;j<(*itsim).second[i].size();++j) 
+	    cout<<" CaloHit "<<j<<" has track pointer "<< ((*it).second[i])[j].geantTrackId() <<" ,tof "<<((*it).second[i])[j].time()<<"energy "<< ((*it).second[i])[j].energy()<<endl;
+	  }
+     }
     }
 
     for (unsigned int i=0;i<pileupTracks_.size();++i) {
 	int bcr=firstCrossing_+i;
-        cout <<" Bunchcrossing  "<<bcr<<", Nr  pileup tracks "<<pileupTracks_[i].size();
-	cout<<", Nr  pileup vertices "<<pileupVertices_[i].size( )<<endl;
+        cout <<" Bunchcrossing  "<<bcr<<", Nr  pileup tracks "<<pileupTracks_[i].size()<<endl;
+	if (level>=3) {
+	  for (unsigned int j=0;j<pileupTracks_[i].size();++j) 
+	    cout<<" track "<<j<<" has vertex pointer "<< (pileupTracks_[i])[j].vertIndex()<<" and genpartindex "<<(pileupTracks_[i])[j].genpartIndex()<<endl;
+	}
+	  cout<<", Nr  pileup vertices "<<pileupVertices_[i].size( )<<endl;
+// 	  if (level>=3) {
+// 	  for (unsigned int j=0;j<pileupVertices_[i].size();++j) 
+// 	    cout<<" vertex "<<j<<" has track pointer "<< (pileupVertices_[i])[j].parentIndex()<<endl;
+// 	  }
     }
    
-    //
-    // print for next higher level
-    //
-    if (level<2) return;
+
   }
 

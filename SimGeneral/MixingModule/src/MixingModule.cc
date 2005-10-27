@@ -5,6 +5,8 @@
 //--------------------------------------------
 
 #include "SimGeneral/MixingModule/interface/MixingModule.h"
+#include "FWCore/Framework/interface/ConstProductRegistry.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
@@ -20,22 +22,17 @@ namespace edm
   MixingModule::MixingModule(const edm::ParameterSet& ps) : BMixingModule(ps)
   {
 
-    //temporary
-    const char *labels[]={"TrackerHitsPixelBarrelHighTof"
-			  ,"TrackerHitsPixelBarrelLowTof"
-			  ,"TrackerHitsPixelEndcapHighTof"
-			  ,"TrackerHitsPixelEndcapLowTof"
-			  ,"TrackerHitsTECHighTof"
-			  ,"TrackerHitsTECLowTof"
-			  ,"TrackerHitsTIBHighTof"
-			  ,"TrackerHitsTIBLowTof"
-			  ,"TrackerHitsTIDHighTof"
-			  ,"TrackerHitsTIDLowTof"
-			  ,"TrackerHitsTOBHighTof"
-			  ,"TrackerHitsTOBLowTof"
-    };
-    for (int i=0;i<12;++i)
-      trackerSubdetectors_.push_back(std::string(labels[i]));
+    // get tracker subdetector names
+    edm::Service<edm::ConstProductRegistry> reg;
+    // Loop over provenance of products in registry.
+    for (edm::ProductRegistry::ProductList::const_iterator it = reg->productList().begin();
+	 it != reg->productList().end(); ++it) {
+      // See FWCore/Framework/interface/BranchDescription.h
+      // BranchDescription contains all the information for the product.
+      edm::BranchDescription desc = it->second;
+      int ii=desc.productInstanceName_.compare(0,7,"Tracker");
+      if (ii==0) trackerSubdetectors_.push_back(desc.productInstanceName_);
+    }
 
     produces<CrossingFrame> ();
      
@@ -52,13 +49,17 @@ namespace edm
     // fill in signal part of CrossingFrame
     // first add eventID
     simcf_->setEventID(e.id());
+    std::cout<<"\naddsignals for  "<<e.id()<<endl;
 
     // tracker hits for all subdetectors
     for(std::vector<std::string >::const_iterator it = trackerSubdetectors_.begin(); it != trackerSubdetectors_.end(); ++it) {  
       edm::Handle<edm::PSimHitContainer> simHits;
       e.getByLabel("r",(*it),simHits);
       simcf_->addSignalSimHits((*it),simHits.product());
-      cout <<" Got "<<(simHits.product())->size()<<" simhits for subdet "<<(*it)<<endl;
+      cout <<" Subdet "<<(*it)<<" got "<<(simHits.product())->size()<<" simhits "<<endl;
+      //temporary
+	for (unsigned int j=0;j<simHits.product()->size();++j) 
+	    cout<<" SimHit "<<j<<" has track pointer "<< (*(simHits.product()))[j].trackId() <<" ,tof "<<(*(simHits.product()))[j].tof()<<", energy loss "<< (*(simHits.product()))[j].energyLoss()<<endl;
     }
 //     // cal hits for all subdetectors
 //     for(std::vector<std::string >::const_iterator it = caloSubdetectors_.begin(); it != caloSubdetectors_.end(); ++it) {  
@@ -72,6 +73,10 @@ namespace edm
     if (simtracks.isValid()) simcf_->addSignalTracks(simtracks.product());
     else cout <<"Invalid simtracks"<<endl;
     cout <<" Got "<<(simtracks.product())->size()<<" simtracks"<<endl;
+    //temporary
+	  for (unsigned int j=0;j<simtracks.product()->size();++j) 
+	    cout<<" track "<<j<<" has vertex pointer "<<(*(simtracks.product()))[j].vertIndex()<<" and genpartindex "<<(*(simtracks.product()))[j].genpartIndex()<<endl;
+
     edm::Handle<edm::EmbdSimVertexContainer> simvertices;
     e.getByLabel("r",simvertices);
     if (simvertices.isValid())     simcf_->addSignalVertices(simvertices.product());
@@ -81,30 +86,35 @@ namespace edm
 
   void MixingModule::addPileups(const int bcr, Event *e) {
 
+    std::cout<<"\naddPileups from event  "<<e->id()<<endl;
    // first all simhits
     for(std::vector<std::string >::const_iterator itstr = trackerSubdetectors_.begin(); itstr != trackerSubdetectors_.end(); ++itstr) {
       edm::Handle<edm::PSimHitContainer>  simHits;  //Event Pointer to minbias Hits
       e->getByLabel("r",(*itstr),simHits);
-      simcf_->addPileupSimHits(bcr,(*itstr),simHits.product());
+      simcf_->addPileupSimHits(bcr,(*itstr),simHits.product(),trackoffset);
     }
 
 //     //then all calohits
 //     for(std::vector<std::string >::const_iterator itstr = caloSubdetectors_.begin(); itstr != caloSubdetectors_.end(); ++itstr) {
 //       edm::Handle<edm::PCaloHitContainer>  caloHits;  //Event Pointer to minbias Hits
 //       e->getByLabel("r",(*itstr),caloHits);
-//       simcf_->addPileupCaloHits(bcr,(*itstr),caloHits.product());
+//       simcf_->addPileupCaloHits(bcr,(*itstr),caloHits.product()trackoffset);
 //     }
     //then simtracks
     edm::Handle<edm::EmbdSimTrackContainer> simtracks;
     e->getByLabel("r",simtracks);
-    if (simtracks.isValid()) simcf_->addPileupTracks(bcr, simtracks.product());
+    if (simtracks.isValid()) simcf_->addPileupTracks(bcr, simtracks.product(),vertexoffset);
     else cout <<"Invalid simtracks"<<endl;
 
     //then simvertices
     edm::Handle<edm::EmbdSimVertexContainer> simvertices;
     e->getByLabel("r",simvertices);
-    if (simvertices.isValid())  simcf_->addPileupVertices(bcr,simvertices.product());
+    if (simvertices.isValid())  simcf_->addPileupVertices(bcr,simvertices.product(),trackoffset);
     else cout <<"Invalid simvertices"<<endl;
+
+    // increment offsets
+    vertexoffset+=simvertices.product()->size();
+    trackoffset+=simtracks.product()->size();
   }
  
   void MixingModule::put(edm::Event &e) {

@@ -15,7 +15,7 @@
  <use name=FWCore/Framework>
  <use name=Mixing/Base>
  <use name=SimDataFormats/TrackingHit>
- <use name=SimDataFormats/CaloHitHit>
+ <use name=SimDataFormats/CaloHit>
  <use name=SimDataFormats/Track>
  <use name=SimDataFormats/Vertex>
  <use name=SimDataFormats/CrossingFrame>

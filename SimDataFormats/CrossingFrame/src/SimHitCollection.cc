@@ -66,7 +66,6 @@ SimHitCollection::SimHitItr SimHitCollection::SimHitItr::next() {
     curBunchCrossing_++;
   }
 
-  printf("  ===============>>>>>>>>>>>> next: continue with bunchcrossing %d\n",curBunchCrossing_);
   pSimHitItr_=(*pileupItr_).begin();
   pSimHitItrEnd_=(*pileupItr_).end();  // end of this container
   return *this;

@@ -19,7 +19,7 @@
 #include "SimDataFormats/Vertex/interface/EmbdSimVertexContainer.h"
 
 #include "FWCore/EDProduct/interface/EventID.h"
-#include "DataFormats/CrossingBase/interface/BCrossingFrame.h"
+#include "FWCore/Framework/interface/Event.h"
 
 #include <vector>
 #include <string>
@@ -27,13 +27,14 @@
 #include <utility>
 using namespace edm;
 
-  class CrossingFrame :public BCrossingFrame
+//  class CrossingFrame :public BCrossingFrame
+  class CrossingFrame 
     { 
 
     public:
       // con- and destructors
 
-      CrossingFrame() {;}
+      CrossingFrame():  bunchSpace_(75), firstCrossing_(0) {;}
       CrossingFrame(int minb, int maxb, int bunchsp, std::vector<std::string> trackersubdetectors,std::vector<std::string> calosubdetectors);
 
       ~CrossingFrame();
@@ -45,11 +46,14 @@ using namespace edm;
       void addSignalCaloHits(const std::string subdet, const edm::PCaloHitContainer *);
       void addSignalTracks(const edm::EmbdSimTrackContainer *);
       void addSignalVertices(const edm::EmbdSimVertexContainer *);
-      void addPileupSimHits(const int bcr, const std::string subdet, const edm::PSimHitContainer *);
-      void addPileupCaloHits(const int bcr, const std::string subdet, const edm::PCaloHitContainer *);
-      void addPileupTracks(const int bcr, const edm::EmbdSimTrackContainer *);
-      void addPileupVertices(const int bcr, const edm::EmbdSimVertexContainer *);      
+      void addPileupSimHits(const int bcr, const std::string subdet, const edm::PSimHitContainer *, int trackoffset=0);
+      void addPileupCaloHits(const int bcr, const std::string subdet, const edm::PCaloHitContainer *, int trackoffset=0);
+      void addPileupTracks(const int bcr, const edm::EmbdSimTrackContainer *, int vertexoffset=0);
+      void addPileupVertices(const int bcr, const edm::EmbdSimVertexContainer *, int trackoffset=0);      
       void print(int level=0) const ;
+      void setEventID(edm::EventID id) {id_=id;}
+      int getFirstCrossingNr() {return firstCrossing_;}
+
 
       //getters for collections
       PSimHitContainer *getSignalSimHits(std::string subdet) { return &signalSimHits_[subdet];}
@@ -58,7 +62,10 @@ using namespace edm;
       private:
       void clear();
 
- 
+      edm::EventID id_;
+      int bunchSpace_;  //in nsec
+      int firstCrossing_;
+
       // signal
       std::map <std::string, edm::PSimHitContainer> signalSimHits_;
       std::map <std::string, edm::PCaloHitContainer> signalCaloHits_;

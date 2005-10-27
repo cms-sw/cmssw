@@ -10,7 +10,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Fri Sep 23 11:38:38 CEST 2005
-// $Id: TestMix.cc,v 1.1 2005/10/10 16:32:04 uberthon Exp $
+// $Id: TestMix.cc,v 1.2 2005/10/25 12:12:26 uberthon Exp $
 //
 //
 
@@ -62,9 +62,10 @@ TestMix::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
 
-    // Get input
+// Get input
     edm::Handle<CrossingFrame> cf;
     iEvent.getByType(cf);
+
     // and print
     std::cout<<std::endl;
     cf.product()->print(level_);
@@ -74,7 +75,7 @@ TestMix::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     SimHitCollection::iterator cfi;
     int count=0;
     for (cfi=col->begin(); cfi!=col->end();cfi++) {
-      std::cout<<" Hit "<<count<<" has tof "<<cfi->timeOfFlight()<<" bunchcr "<<cfi.bunch()<<" trigger "<<cfi.getTrigger()<<std::endl;
+      std::cout<<" Hit "<<count<<" has tof "<<cfi->timeOfFlight()<<" trackid "<<cfi->trackId() <<" bunchcr "<<cfi.bunch()<<" trigger "<<cfi.getTrigger()<<std::endl;
       count++;     }
 }
 
