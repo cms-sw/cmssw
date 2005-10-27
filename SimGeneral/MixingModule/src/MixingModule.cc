@@ -57,36 +57,29 @@ namespace edm
       e.getByLabel("r",(*it),simHits);
       simcf_->addSignalSimHits((*it),simHits.product());
       cout <<" Subdet "<<(*it)<<" got "<<(simHits.product())->size()<<" simhits "<<endl;
-      //temporary
-	for (unsigned int j=0;j<simHits.product()->size();++j) 
-	    cout<<" SimHit "<<j<<" has track pointer "<< (*(simHits.product()))[j].trackId() <<" ,tof "<<(*(simHits.product()))[j].tof()<<", energy loss "<< (*(simHits.product()))[j].energyLoss()<<endl;
     }
-//     // cal hits for all subdetectors
-//     for(std::vector<std::string >::const_iterator it = caloSubdetectors_.begin(); it != caloSubdetectors_.end(); ++it) {  
-//       edm::Handle<edm::PCaloHitContainer> caloHits;
-//       e.getByLabel("r",(*it),caloHits);
-//       simcf_->addSignalCaloHits((*it),caloHits.product());
-//       cout <<" Got "<<(caloHits.product())->size()<<" calohits for subdet "<<(*it)<<endl;
-//     }
+    // calo hits for all subdetectors
+    for(std::vector<std::string >::const_iterator it = caloSubdetectors_.begin(); it != caloSubdetectors_.end(); ++it) {  
+      edm::Handle<edm::PCaloHitContainer> caloHits;
+      e.getByLabel("r",(*it),caloHits);
+      simcf_->addSignalCaloHits((*it),caloHits.product());
+      cout <<" Got "<<(caloHits.product())->size()<<" calohits for subdet "<<(*it)<<endl;
+    }
     edm::Handle<edm::EmbdSimTrackContainer> simtracks;
     e.getByLabel("r",simtracks);
     if (simtracks.isValid()) simcf_->addSignalTracks(simtracks.product());
     else cout <<"Invalid simtracks"<<endl;
-    cout <<" Got "<<(simtracks.product())->size()<<" simtracks"<<endl;
-    //temporary
-	  for (unsigned int j=0;j<simtracks.product()->size();++j) 
-	    cout<<" track "<<j<<" has vertex pointer "<<(*(simtracks.product()))[j].vertIndex()<<" and genpartindex "<<(*(simtracks.product()))[j].genpartIndex()<<endl;
-
+    //cout <<" Got "<<(simtracks.product())->size()<<" simtracks"<<endl;
     edm::Handle<edm::EmbdSimVertexContainer> simvertices;
     e.getByLabel("r",simvertices);
     if (simvertices.isValid())     simcf_->addSignalVertices(simvertices.product());
     else cout <<"Invalid simvertices"<<endl;
-    cout <<" Got "<<(simvertices.product())->size()<<" simvertices"<<endl;
+    //cout <<" Got "<<(simvertices.product())->size()<<" simvertices"<<endl;
   }
 
   void MixingModule::addPileups(const int bcr, Event *e) {
 
-    std::cout<<"\naddPileups from event  "<<e->id()<<endl;
+    //    std::cout<<"\naddPileups from event  "<<e->id()<<endl;
    // first all simhits
     for(std::vector<std::string >::const_iterator itstr = trackerSubdetectors_.begin(); itstr != trackerSubdetectors_.end(); ++itstr) {
       edm::Handle<edm::PSimHitContainer>  simHits;  //Event Pointer to minbias Hits
