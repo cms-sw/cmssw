@@ -1,0 +1,9 @@
+<lcgdict>
+   <class name="CSCWireDigi"/>
+   <class name="std::vector<CSCWireDigi>"/>
+   <class name="std::map<CSCDetId,std::vector<CSCWireDigi> >"/>
+   <class name="CSCWireDigi::PersistentPacking"/>
+   <class name="MuonDigiCollection<CSCDetId,CSCWireDigi>"/>
+   <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCWireDigi>>"  
+            id="44B8B226-38C3-41D1-B899-51FF287E7B12"/> 
+</lcgdict>
