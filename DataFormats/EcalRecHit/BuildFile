@@ -1,7 +1,11 @@
 <use name=FWCore/EDProduct>
 <use name=DataFormats/DetId>
+<use name=DataFormats/EcalDetId>
+<use name=DataFormats/CaloRecHit>
 <export>
   <lib name=DataFormatsEcalRecHit>
   <use name=FWCore/EDProduct>
   <use name=DataFormats/DetId>
+  <use name=DataFormats/EcalDetId>	
+  <use name=DataFormats/CaloRecHit>	
 </export>
