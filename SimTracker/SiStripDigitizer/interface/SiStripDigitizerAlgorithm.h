@@ -17,7 +17,7 @@
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/TrackerSimAlgo/interface/TrackerGeomFromDetUnits.h"
-#include "SimGeneral/Generators/interface/GaussianTailNoiseGenerator.h"
+#include "SimGeneral/NoiseGenerators/interface/GaussianTailNoiseGenerator.h"
 class SiStripDigitizerAlgorithm 
 {
  public:
