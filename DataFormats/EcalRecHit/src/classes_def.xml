@@ -2,4 +2,8 @@
   <class name="EcalUncalibratedRecHit"/>
   <class name="std::vector<EcalUncalibratedRecHit>"/>
   <class name="edm::Wrapper< std::vector<EcalUncalibratedRecHit> >" id="1F628802-CBB2-416D-81E9-27CB7A7D70A3"/>
+  <class name="EcalRecHit"/>
+  <class name="std::vector<EcalRecHit>"/>
+  <class name="edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> >"/>
+  <class name="edm::Wrapper<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > >" id="01609F4B-5EFA-D1FF-F620-4DC0EEF423AE"/>
 </lcgdict>
