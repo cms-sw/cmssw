@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.cc,v 1.8 2005/08/29 22:01:20 paterno Exp $
+// $Id: ParameterSet.cc,v 1.9 2005/10/26 16:16:20 wmtan Exp $
 //
 // definition of ParameterSet's function members
 // ----------------------------------------------------------------------
@@ -104,14 +104,14 @@ namespace edm {
     if(it == tbl_.end()) {
       it = tbl_.find("label");
       if(it == tbl_.end())
-        throw edm::Exception(errors::Configuration,"MissingParameter:")
-	  << "The required parameter '" << name
-	  << "' was not specified.\n";
+        throw edm::Exception(errors::Configuration,"InvalidName:")
+	  << "Module '" << name
+	  << "' does not exist.\n";
       else
-        throw edm::Exception(errors::Configuration,"MissingParameter:")
-	  << "The required parameter '" << name
-	  << "' was not specified in ParameterSet '"
-	  << it->second.getString() << "'\n";
+        throw edm::Exception(errors::Configuration,"InvalidName:")
+	  << "Module '" << name
+	  << "' specified in ParameterSet '"
+	  << it->second.getString() << "' does not exist.\n";
     }
     return it->second;
   }  // retrieve()
