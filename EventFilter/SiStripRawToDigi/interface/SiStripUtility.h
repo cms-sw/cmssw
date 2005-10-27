@@ -34,12 +34,12 @@ public:
   void siStripConnection( SiStripConnection& );
   /** Fills the StripDigiCollection (passed by reference) with random
       numbers of StripDigis with random positions and adc values. */
-  void stripDigiCollection( StripDigiCollection& );
+  int stripDigiCollection( StripDigiCollection& );
   /** Fills the FEDRawDataCollection (passed by reference) with
       FEDRawData objects that own FED buffers containing signal with
       random position and magnitude. Number of FED buffers is defined
       by the number of detectors (nDets_). */
-  void fedRawDataCollection( raw::FEDRawDataCollection& );
+  void fedRawDataCollection( FEDRawDataCollection& );
 
   /** Sets the FED readout mode (ZS, VR, PR, SM) and thus the type of
       FED buffer to be created. */

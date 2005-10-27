@@ -50,6 +50,7 @@ private:
   SiStripDigiToRaw* digiToRaw_;
   /** Utility class providing dummy digis, FED buffers, cabling map. */
   SiStripUtility* utility_;
+  int numDigis;
 
   /** Event counter. */
   unsigned long event_;
@@ -61,7 +62,7 @@ private:
   
   /** Defines verbosity level for this class (0=silent -> 3=debug). */
   int verbosity_;
-  
+
 };
 
 #endif // SiStripDigiToRawModule_H

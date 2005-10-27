@@ -33,7 +33,7 @@ class SiStripRawToDigi {
   
   /** Takes a FEDRawDataCollection as input and creates a
       StripDigiCollection. */
-  void createDigis( raw::FEDRawDataCollection& fed_buffers,
+  void createDigis( FEDRawDataCollection& fed_buffers,
 		    StripDigiCollection& digis );
   
   /** */
@@ -53,11 +53,8 @@ class SiStripRawToDigi {
   void scopeMode( unsigned short fed_id,
 		  StripDigiCollection& digis );
   /** */
-  void virginRaw( unsigned short fed_id,
+  void Raw( unsigned short fed_id,
 		  StripDigiCollection& digis );
-  /** */
-  void procRaw( unsigned short fed_id, 
-		StripDigiCollection& digis );
   
   /** */
   inline int readoutOrder( int physical_order );

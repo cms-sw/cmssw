@@ -35,7 +35,7 @@ class SiStripDigiToRaw {
   /** Takes a StripDigiCollection as input and creates a
       FEDRawDataCollection. */
   void createFedBuffers( StripDigiCollection& digis, 
-			 raw::FEDRawDataCollection& fed_buffers );
+			 FEDRawDataCollection& fed_buffers );
 
   /** */
   inline void fedReadoutPath( std::string rpath );

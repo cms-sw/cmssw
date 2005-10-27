@@ -65,7 +65,7 @@ public:
 
   /** */
   std::string edProductLabel_;
-  
+
 };
 
 #endif // SiStripRawToDigiModule_H

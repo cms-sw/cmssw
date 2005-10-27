@@ -8,7 +8,7 @@
 #include "DataFormats/SiStripDigi/interface/StripDigiCollection.h"
 #include "DataFormats/SiStripDigi/interface/StripDigi.h"
 // geometry 
-#include "Geometry/TrackerSimAlgo/interface/CmsDigiTracker.h"
+//#include "Geometry/TrackerSimAlgo/interface/CmsDigiTracker.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "DataFormats/DetId/interface/DetId.h"
 // utility class
@@ -30,11 +30,16 @@ SiStripRawToDigiModule::SiStripRawToDigiModule( const edm::ParameterSet& conf ) 
   verbosity_( conf.getParameter<int>("Verbosity") ),
   edProductLabel_( conf.getParameter<std::string>("EDProductLabel") )
 {
-  if (verbosity_>1) std::cout << "[SiStripRawToDigiModule::SiStripRawToDigiModule] "
-			      << "Constructing RawToDigi module..." << std::endl;
 
+ if (verbosity_>1) std::cout << "[SiStripRawToDigiModule::SiStripRawToDigiModule] "
+			      << "Constructing RawToDigi module..." << std::endl;
+  if (verbosity_>2) std::cout << "[SiStripRawToDigiModule::produce] "
+			      << "input: \"dummy\" StripDigiCollection, " 
+			      << "output: FedRawDataCollection" << std::endl;
+  
   // specify product type
   produces<StripDigiCollection>();
+
 }
 
 // -----------------------------------------------------------------------------
@@ -44,6 +49,7 @@ SiStripRawToDigiModule::~SiStripRawToDigiModule() {
 			      << "Destructing RawToDigi module..." << std::endl;
   if ( rawToDigi_ ) delete rawToDigi_;
   if ( utility_ ) delete utility_; 
+
 }
 
 // -----------------------------------------------------------------------------
@@ -76,6 +82,7 @@ void SiStripRawToDigiModule::beginJob( const edm::EventSetup& iSetup ) {
 // -----------------------------------------------------------------------------
 //
 void SiStripRawToDigiModule::endJob() { 
+  
   if (verbosity_>2) std::cout << "[SiStripRawToDigiModule::endJob] "
 			      << "currently does nothing..." << std::endl;
 }
@@ -84,31 +91,24 @@ void SiStripRawToDigiModule::endJob() {
 // produces a StripDigiCollection
 void SiStripRawToDigiModule::produce( edm::Event& iEvent, 
 				      const edm::EventSetup& iSetup ) {
-  if (verbosity_>2) std::cout << "[SiStripRawToDigiModule::produce] "
-			      << "input: \"dummy\" StripDigiCollection, " 
-			      << "output: FedRawDataCollection" << std::endl;
   
   event_++; // increment event counter
-
+  
   if (verbosity_>0) std::cout << "[SiStripRawToDigiModule::produce] "
-			      << "event number: " << event_ << std::endl;
+ 			      << "event number: " << event_ << std::endl;
   
   // retrieve collection of FEDRawData objects from Event
-  edm::Handle<raw::FEDRawDataCollection> handle;
+  edm::Handle<FEDRawDataCollection> handle;
   iEvent.getByLabel(edProductLabel_, handle);
-  raw::FEDRawDataCollection fed_buffers = const_cast<raw::FEDRawDataCollection&>( *handle );
-  
-  // // retrieve "dummy" collection of FEDRawData from utility object
-  // raw::FEDRawDataCollection fed_buffers;
-  // utility_->fedRawDataCollection( fed_buffers );
-  
+  FEDRawDataCollection fed_buffers = const_cast<FEDRawDataCollection&>( *handle );
+
   // create product 
   std::auto_ptr<StripDigiCollection> digis( new StripDigiCollection );
 
   // use RawToDigi converter to fill FEDRawDataCollection
   rawToDigi_->createDigis( fed_buffers, *(digis.get()) );
 
-  // write StripDigiCollection to the Event
-  iEvent.put( digis );
-  
+ // write StripDigiCollection to the Event
+ iEvent.put( digis );
+ 
 }

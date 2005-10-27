@@ -1,8 +1,8 @@
 #include "EventFilter/SiStripRawToDigi/interface/SiStripUtility.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/TrackerSimAlgo/interface/CmsDigiTracker.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+//#include "FWCore/Framework/interface/ESHandle.h"
+//#include "Geometry/TrackerSimAlgo/interface/CmsDigiTracker.h"
+//#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "CalibTracker/SiStripConnectivity/interface/SiStripConnection.h"
 #include "DataFormats/DetId/interface/DetId.h"
 //
@@ -27,7 +27,7 @@ SiStripUtility::SiStripUtility( const edm::EventSetup& iSetup ) :
   //   iSetup.get<TrackerDigiGeometryRecord>().get( pDD );
   //   std::vector<GeomDetUnit*> dets = pDD->dets();
   //   nDets_ = pDD->dets().size();
-  nDets_ = 15000; 
+  nDets_ = 19000; 
   // provide seed for random number generator
   srand( time( NULL ) ); 
 }
@@ -45,26 +45,30 @@ void SiStripUtility::siStripConnection( SiStripConnection& connections ) {
   // loop through detectors
   for ( int idet = 0; idet < nDets_; idet++ ) { 
     pair<unsigned short, unsigned short> fed; 
-    pair<cms::DetId,unsigned short> det_pair; 
-    cms::DetId det = cms::DetId(idet);
+    pair<DetId,unsigned short> det_pair; 
+    DetId det = DetId(idet);
     // first channel
     fed = pair<unsigned short, unsigned short>( 50+(idet/48), 2*(idet%48) );
-    det_pair = pair<cms::DetId,unsigned short>( det, 0 );
+    det_pair = pair<DetId,unsigned short>( det, 0 );
     connections.setPair( fed, det_pair );
     // second channel
     fed = pair<unsigned short, unsigned short>( 50+(idet/48), 2*(idet%48)+1 );
-    det_pair = pair<cms::DetId,unsigned short>( det, 1 );
+    det_pair = pair<DetId,unsigned short>( det, 1 );
     connections.setPair( fed, det_pair );
   }
+
 }
 
 // -----------------------------------------------------------------------------
 //
-void SiStripUtility::stripDigiCollection( StripDigiCollection& collection ) {
+int SiStripUtility::stripDigiCollection( StripDigiCollection& collection ) {
   if (verbose_) std::cout << "[SiStripUtility::stripDigiCollection]" << std::endl;
   // loop through detectors
+
+  int ndigiTotal = 0;
   for ( int idet = 0; idet < nDets_; idet++ ) { 
-    int ndigi = rand() % 16; // number of hits per det (~3% occupancy)
+    int ndigi = 5;//rand() % 51; // number of hits per det (~3% occupancy)
+    ndigiTotal += ndigi;
     std::vector<int> strips; strips.reserve(ndigi);
     std::vector<int>::iterator iter;
     std::vector<StripDigi> digis; digis.reserve(ndigi);
@@ -83,11 +87,12 @@ void SiStripUtility::stripDigiCollection( StripDigiCollection& collection ) {
     // put digis in collection
     if ( !digis.empty() ) { collection.put(range, idet); }
   }
+  return ndigiTotal;
 }
 
 // -----------------------------------------------------------------------------
 //
-void SiStripUtility::fedRawDataCollection( raw::FEDRawDataCollection& collection ) {
+void SiStripUtility::fedRawDataCollection( FEDRawDataCollection& collection ) {
   if (verbose_) std::cout << "[SiStripUtility::fedRawDataCollection]" << std::endl;
 
   // calculate number of FEDs for given number of detectors 
@@ -129,12 +134,12 @@ void SiStripUtility::fedRawDataCollection( raw::FEDRawDataCollection& collection
     // generate FED buffer using std::vector<unsigned short> that holds adc values
     generator.generateFed9UBuffer( adc );
     // retrieve raw::FEDRawData struct from collection for appropriate fed
-    raw::FEDRawData& fed_data = collection.FEDData( ifed ); 
+    FEDRawData& fed_data = collection.FEDData( ifed ); 
     // calculate size of FED buffer in units of bytes (unsigned char)
     int nbytes = generator.getBufferSize() * 4;
-    // resize (public) "data_" member of struct raw::FEDRawData
-    (fed_data.data_).resize( nbytes );
-    // copy FED buffer to struct raw::FEDRawData using Fed9UBufferGenerator
+    // resize (public) "data_" member of struct FEDRawData
+    fed_data.resize( nbytes );
+    // copy FED buffer to struct FEDRawData using Fed9UBufferGenerator
     unsigned char* chars = const_cast<unsigned char*>( fed_data.data() );
     unsigned int* ints = reinterpret_cast<unsigned int*>( chars );
     generator.getBuffer( ints );
