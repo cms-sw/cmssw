@@ -49,8 +49,7 @@ namespace edm
       void merge(const int bcr, const std::vector<Event *> vec);
       virtual void addSignals(edm::Event &e) {;}
       virtual void addPileups(const int bcr, edm::Event*) {;}
-      virtual void put(edm::Event &e
-		       ) {;}
+      virtual void put(edm::Event &e) {;}
 
       boost::shared_ptr<SecondaryInputSource> makeSecInput(ParameterSet const& ps);
     protected:

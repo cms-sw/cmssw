@@ -45,7 +45,7 @@ namespace edm
   // Virtual destructor needed.
   MixingModule::~MixingModule() { }  
 
-  void MixingModule::addSignals(edm::Event &e) { 
+  void MixingModule::addSignals(const edm::Event &e) { 
     // fill in signal part of CrossingFrame
     // first add eventID
     simcf_->setEventID(e.id());

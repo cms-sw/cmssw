@@ -41,13 +41,11 @@ private:
     const PSimHit* operator->() const { return pSimHitItr_.operator->(); }
     SimHitItr operator++ () {return next();}
     SimHitItr operator++ (int) {return next();}
-    SimHitItr operator-- () {pSimHitItr_--;return *this;}
-    SimHitItr operator--(int) {pSimHitItr_--;return *this;}
     bool operator!= (const SimHitItr& itr){return pSimHitItr_!=itr.pSimHitItr_;}
 
     /**getters*/
-    int bunch() {return trigger_ ? 0: curBunchCrossing_;}
-    bool getTrigger() {return trigger_;}
+    int bunch() const {return trigger_ ? 0: curBunchCrossing_;}
+    bool getTrigger() const {return trigger_;}
 
   private:
 
@@ -58,7 +56,7 @@ private:
     int lastBunchCrossing_;
     bool first_;
     bool trigger_;
-    std::vector<PSimHitContainer>::const_iterator pileupItr_;
+    std::vector<PSimHitContainer>::iterator pileupItr_;
 
     SimHitItr next();
     void reset() {;}

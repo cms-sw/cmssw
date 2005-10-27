@@ -75,7 +75,7 @@ SimHitCollection::SimHitItr SimHitCollection::begin() {
 }
 
  SimHitCollection::SimHitItr SimHitCollection::end() {
-  std::vector<PSimHitContainer>::const_iterator it=pileups_->begin();
+  std::vector<PSimHitContainer>::iterator it=pileups_->begin();
   for (int i=bunchRange_.first;i<bunchRange_.second;i++) it++;
   std::vector<PSimHit>::iterator itend=it->end();
   return itend;

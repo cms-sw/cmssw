@@ -52,7 +52,7 @@ using namespace edm;
       void addPileupVertices(const int bcr, const edm::EmbdSimVertexContainer *, int trackoffset=0);      
       void print(int level=0) const ;
       void setEventID(edm::EventID id) {id_=id;}
-      int getFirstCrossingNr() {return firstCrossing_;}
+      int getFirstCrossingNr() const {return firstCrossing_;}
 
 
       //getters for collections

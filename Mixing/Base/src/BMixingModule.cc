@@ -107,11 +107,11 @@ namespace edm
     //
     // main loop: loop over events and merge 
     //
-    cout <<endl<<" For bunchcrossing "<<bcr<<",  "<<vec.size()<< " events will be merged"<<flush<<endl;
+    //    cout <<endl<<" For bunchcrossing "<<bcr<<",  "<<vec.size()<< " events will be merged"<<flush<<endl;
     trackoffset=0;
     vertexoffset=0;
     for (std::vector<Event *>::const_iterator it =vec.begin(); it != vec.end(); it++)    {
-      cout <<" merging Event:  id "<<(*it)->id()<<flush<<endl;
+      //      cout <<" merging Event:  id "<<(*it)->id()<<flush<<endl;
       addPileups(bcr,(*it));
 
       // delete the event

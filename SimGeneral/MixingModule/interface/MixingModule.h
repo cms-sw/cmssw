@@ -40,7 +40,7 @@ namespace edm
 
       virtual void put(edm::Event &e) ;
       virtual void createnewEDProduct();
-      virtual void addSignals(edm::Event &e); 
+      virtual void addSignals(const edm::Event &e); 
       virtual void addPileups(const int bcr, edm::Event*);
 
       // internally used information
