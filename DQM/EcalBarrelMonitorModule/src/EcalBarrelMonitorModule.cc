@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  * 
- * $Date: 2005/10/27 08:23:29 $
- * $Revision: 1.21 $
+ * $Date: 2005/10/27 09:39:59 $
+ * $Revision: 1.22 $
  * \author G. Della Ricca
  *
 */
@@ -151,6 +151,8 @@ void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
       return;
     }
 
+    float xped = 0.;
+
     float xvalmax = 0.;
 
     for (int i = 0; i < 10; i++) {
@@ -171,9 +173,22 @@ void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
 
       float xval = adc * gain;
 
-      float xrms = 1.0;
+// use the 3 first samples for the pedestal
 
-      if ( xval >= 3.0 * xrms && xval >= xvalmax ) xvalmax = xval;
+      if ( i <= 2 ) {
+        xped = xped + xval / 3.;
+      }
+
+// average rms per crystal
+
+      float xrms = 1.2;
+
+// signal samples
+
+      if ( i >= 3 ) {
+        xval = xval - xped;
+        if ( xval >= 3.0 * xrms && xval >= xvalmax ) xvalmax = xval;
+      }
 
     }
 

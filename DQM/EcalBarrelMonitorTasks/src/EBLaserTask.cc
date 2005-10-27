@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  * 
- * $Date: 2005/10/16 12:20:27 $
- * $Revision: 1.10 $
+ * $Date: 2005/10/16 12:35:44 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  *
 */
@@ -84,6 +84,8 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
     logFile << " det id = " << id << endl;
     logFile << " sm, eta, phi " << ism << " " << ie*iz << " " << ip << endl;
 
+    float xped = 0.;
+
     float xvalmax = 0.;
 
     MonitorElement* meAmplMap = 0;
@@ -119,11 +121,24 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
       float xval = adc * gain;
 
+// use the 3 first samples for the pedestal
+
+      if ( i <= 2 ) {
+        xped = xped + xval / 3.;
+      }
+
       if ( meShapeMap ) meShapeMap->Fill( ic - 0.5, i + 0.5, xval);
 
-      float xrms = 1.0;
+// average rms per crystal
 
-      if ( xval >= 3.0 * xrms && xval >= xvalmax ) xvalmax = xval;
+      float xrms = 1.2;
+
+// signal samples
+
+      if ( i >= 3 ) {
+        xval = xval - xped;
+        if ( xval >= 3.0 * xrms && xval >= xvalmax ) xvalmax = xval;
+      }
 
     }
 

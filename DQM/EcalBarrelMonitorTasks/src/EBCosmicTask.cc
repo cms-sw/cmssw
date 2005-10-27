@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  * 
- * $Date: 2005/10/16 12:20:27 $
- * $Revision: 1.12 $
+ * $Date: 2005/10/16 12:35:44 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  *
 */
@@ -114,7 +114,7 @@ void EBCosmicTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
       if ( i >= 3 ) {
         xval = xval - xped;
-        if ( xval >= xrms && xval >= xvalmax ) xvalmax = xval;
+        if ( xval >= 3.0 * xrms && xval >= xvalmax ) xvalmax = xval;
       }
 
     }
