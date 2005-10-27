@@ -1,5 +1,9 @@
 <use name=boost>
 <use name=clhep>
+<use name=SimDataFormats/TrackingHit>
+ <use name=SimDataFormats/CaloHit>
+ <use name=SimDataFormats/Track>
+ <use name=SimDataFormats/Vertex>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Framework>
 <use name=FWCore/Utilities>
@@ -8,7 +12,11 @@
  <use name=boost>
  <use name=clhep>
  <lib name=MixingBase>
-  <use name=FWCore/ParameterSet>
+<use name=SimDataFormats/TrackingHit>
+ <use name=SimDataFormats/CaloHit>
+ <use name=SimDataFormats/Track>
+ <use name=SimDataFormats/Vertex>
+ <use name=FWCore/ParameterSet>
  <use name=FWCore/Framework>
  <use name=FWCore/Utilities>
  <use name=Foundation/PluginManager>

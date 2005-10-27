@@ -5,7 +5,6 @@
 //--------------------------------------------
 
 #include "Mixing/Base/interface/BMixingModule.h"
-#include "DataFormats/CrossingBase/interface/BCrossingFrame.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/src/SecondaryInputSourceFactory.h"
@@ -14,6 +13,9 @@
 #include "Mixing/Base/interface/PoissonPUGenerator.h"
 
 using namespace std;
+
+int edm::BMixingModule::trackoffset = 0;
+int edm::BMixingModule::vertexoffset = 0;
 
 namespace edm
 {
@@ -86,8 +88,6 @@ namespace edm
   void BMixingModule::getEvents (const unsigned int nrEvents)
   {
     // filling of eventvector by using  secondary input source 
-    // FIXME: this is a correct version, but for the moment we have to do workarounds
-    // which oblige subclasses to overwrite this method
     unsigned int eventCount=0;
     //    eventVector_.clear();
 
@@ -96,7 +96,7 @@ namespace edm
     while (eventCount < nrEvents) {
       ModuleDescription md=ModuleDescription();  //temporary
       Event *event = new Event(*result[eventCount], md);
-      cout <<"\n Pileup event nr "<<eventCount<<" event id "<<event->id()<<endl;
+      //      cout <<"\n Pileup event nr "<<eventCount<<" event id "<<event->id()<<endl;
       eventVector_.push_back (event);
       ++eventCount;
     }
@@ -107,8 +107,11 @@ namespace edm
     //
     // main loop: loop over events and merge 
     //
+    cout <<endl<<" For bunchcrossing "<<bcr<<",  "<<vec.size()<< " events will be merged"<<flush<<endl;
+    trackoffset=0;
+    vertexoffset=0;
     for (std::vector<Event *>::const_iterator it =vec.begin(); it != vec.end(); it++)    {
-      //      cout <<" merging Event:  id "<<(*it)->id()<<flush<<endl;
+      cout <<" merging Event:  id "<<(*it)->id()<<flush<<endl;
       addPileups(bcr,(*it));
 
       // delete the event

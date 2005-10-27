@@ -4,7 +4,7 @@
 /** \class BMixingModule
  *
  * BMixingModule is the EDProducer subclass 
- * which fills the BCrossingFrame object
+ * which fills the CrossingFrame object
  * It is the baseclass for all modules mnixing events 
  *
  * \author Ursula Berthon, LLR Palaiseau
@@ -50,13 +50,15 @@ namespace edm
       virtual void addSignals(edm::Event &e) {;}
       virtual void addPileups(const int bcr, edm::Event*) {;}
       virtual void put(edm::Event &e
-) {;}
+		       ) {;}
 
       boost::shared_ptr<SecondaryInputSource> makeSecInput(ParameterSet const& ps);
     protected:
       int minbunch_;
       int maxbunch_;
       int bunchSpace_;
+      static int trackoffset;
+      static int vertexoffset;
 
       boost::shared_ptr<SecondaryInputSource> secInput_;
       std::vector<Event *> eventVector_;
