@@ -75,11 +75,9 @@ class DTDetId :public DetId {
   /// lowest sector id
   static const int minSectorId=     1;
   /// highest sector id
-//<<<<<<< DTDetId.h
-  static const unsigned int maxSectorId=    14;
-  /// loweset super layer id
-  static const unsigned int minSuperLayerId= 1;
-//>>>>>>> 1.7
+  static const int maxSectorId=    14;
+  /// loweset super layer id. 0 indicates a full chamber
+  static const int minSuperLayerId= 0;
   /// highest superlayer id
   static const int maxSuperLayerId= 3;
   /// lowest layer id. 0 indicates a full SL
