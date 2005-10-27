@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  * 
- * $Date: 2005/10/27 07:20:06 $
- * $Revision: 1.20 $
+ * $Date: 2005/10/27 08:23:29 $
+ * $Revision: 1.21 $
  * \author G. Della Ricca
  *
 */
@@ -15,7 +15,7 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
 
   dbe = edm::Service<DaqMonitorBEInterface>().operator->();
 
-  dbe->setVerbose(0);
+  dbe->setVerbose(1);
 
   edm::Service<MonitorDaemon> daemon;
   daemon.operator->();
