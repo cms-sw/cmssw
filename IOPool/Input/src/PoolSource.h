@@ -5,7 +5,7 @@
 
 PoolSource: This is an InputSource
 
-$Id: PoolSource.h,v 1.4 2005/10/25 05:36:09 wmtan Exp $
+$Id: PoolSource.h,v 1.5 2005/10/27 20:16:56 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -84,7 +84,7 @@ namespace edm {
 // Root owns them and uses bare pointers internally.
 // Therefore,using shared pointers here will do no good.
     BranchMap branches_;
-    TBranch *auxBranch_; 
+    TBranch *auxBranch_;
     TBranch *provBranch_;
     TFile *filePtr_;
   }; // class PoolRASource::PoolFile
