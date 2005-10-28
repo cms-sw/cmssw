@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  * 
- * $Date: 2005/10/27 09:39:59 $
- * $Revision: 1.22 $
+ * $Date: 2005/10/27 09:57:35 $
+ * $Revision: 1.23 $
  * \author G. Della Ricca
  *
 */
@@ -39,7 +39,7 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
     dbe->setCurrentFolder("EcalBarrel/EBMonitorEvent");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBMM event SM%02d", i+1);
-      meEvent[i] = dbe->book2D(histo, histo, 20, 0., 20., 85, 0., 85.);
+      meEvent[i] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
       meEvent[i]->setResetMe(true);
     }
   }
@@ -192,7 +192,7 @@ void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
 
     }
 
-    if ( meEvent[ism-1] ) meEvent[ism-1]->Fill(xip, xie, xvalmax);
+    if ( meEvent[ism-1] ) meEvent[ism-1]->Fill(xie, xip, xvalmax);
 
   }
 
