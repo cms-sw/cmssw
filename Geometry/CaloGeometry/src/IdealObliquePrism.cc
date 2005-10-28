@@ -44,12 +44,12 @@ namespace calogeom {
 	float phi=p.phi();
 	points_.push_back(etaPhiPerp(eta+hwidthEta_,phi+hwidthPhi_,r_near)); // (+,+,near)
 	points_.push_back(etaPhiPerp(eta+hwidthEta_,phi-hwidthPhi_,r_near)); // (+,-,near)
-	points_.push_back(etaPhiPerp(eta-hwidthEta_,phi+hwidthPhi_,r_near)); // (-,+,near)
 	points_.push_back(etaPhiPerp(eta-hwidthEta_,phi-hwidthPhi_,r_near)); // (-,-,near)
+	points_.push_back(etaPhiPerp(eta-hwidthEta_,phi+hwidthPhi_,r_near)); // (-,+,near)
 	points_.push_back(etaPhiPerp(eta+hwidthEta_,phi+hwidthPhi_,r_far)); // (+,+,far)
 	points_.push_back(etaPhiPerp(eta+hwidthEta_,phi-hwidthPhi_,r_far)); // (+,-,far)
-	points_.push_back(etaPhiPerp(eta-hwidthEta_,phi+hwidthPhi_,r_far)); // (-,+,far)
 	points_.push_back(etaPhiPerp(eta-hwidthEta_,phi-hwidthPhi_,r_far)); // (-,-,far)
+	points_.push_back(etaPhiPerp(eta-hwidthEta_,phi+hwidthPhi_,r_far)); // (-,+,far)
       } else {
 	/* In this case, the faces are perpendicular to the zaxis.  This implies that all corners will have the same 
 	   z-dimension. 
@@ -61,12 +61,12 @@ namespace calogeom {
 	float phi=p.phi();
 	points_.push_back(etaPhiZ(eta+hwidthEta_,phi+hwidthPhi_,z_near)); // (+,+,near)
 	points_.push_back(etaPhiZ(eta+hwidthEta_,phi-hwidthPhi_,z_near)); // (+,-,near)
-	points_.push_back(etaPhiZ(eta-hwidthEta_,phi+hwidthPhi_,z_near)); // (-,+,near)
 	points_.push_back(etaPhiZ(eta-hwidthEta_,phi-hwidthPhi_,z_near)); // (-,-,near)
+	points_.push_back(etaPhiZ(eta-hwidthEta_,phi+hwidthPhi_,z_near)); // (-,+,near)
 	points_.push_back(etaPhiZ(eta+hwidthEta_,phi+hwidthPhi_,z_far)); // (+,+,far)
 	points_.push_back(etaPhiZ(eta+hwidthEta_,phi-hwidthPhi_,z_far)); // (+,-,far)
-	points_.push_back(etaPhiZ(eta-hwidthEta_,phi+hwidthPhi_,z_far)); // (-,+,far)
 	points_.push_back(etaPhiZ(eta-hwidthEta_,phi-hwidthPhi_,z_far)); // (-,-,far)
+	points_.push_back(etaPhiZ(eta-hwidthEta_,phi+hwidthPhi_,z_far)); // (-,+,far)
       }    
     }
     return points_;
