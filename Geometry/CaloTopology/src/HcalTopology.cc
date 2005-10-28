@@ -247,7 +247,9 @@ void HcalTopology::depthBinInformation(HcalSubdetector subdet, int etaRing,
 
 
 int HcalTopology::nPhiBins(int etaRing) const {
-  int lastPhiBin = (etaRing < firstHEDoublePhiRing_) ? singlePhiBins_ : doublePhiBins_;
+  int lastPhiBin=singlePhiBins_;
+  if (etaRing>= firstHFQuadPhiRing_) lastPhiBin=doublePhiBins_/2;
+  else if (etaRing>= firstHEDoublePhiRing_) lastPhiBin=doublePhiBins_;
   return std::min(lastPhiBin, max_iphi_) - std::max(min_iphi_, 1) + 1;
 }
 
