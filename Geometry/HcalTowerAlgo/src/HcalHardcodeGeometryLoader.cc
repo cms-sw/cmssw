@@ -1,6 +1,7 @@
 #include "Geometry/HcalTowerAlgo/interface/HcalHardcodeGeometryLoader.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/IdealObliquePrism.h"
+#include "Geometry/CaloGeometry/interface/IdealZPrism.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "Geometry/HcalTowerAlgo/src/HcalHardcodeGeometryData.h"
 #include <iostream>
@@ -112,12 +113,19 @@ const CaloCellGeometry * HcalHardcodeGeometryLoader::makeCell(const HcalDetId & 
   double deta = 0.5*(eta2-eta1);
   double theta = theta_from_eta(eta);
 
+  int nDepthBins, startingBin;
+  theTopology.depthBinInformation(subdet,etaRing,nDepthBins,startingBin);
+
     // in radians
   double dphi_nominal = 2.0*M_PI / theTopology.nPhiBins(1); // always the same
   double dphi_half = M_PI / theTopology.nPhiBins(etaRing); // half-width
   
   double phi_low = dphi_nominal*(detId.iphi()-1); // low-edge boundaries are constant...
   double phi = phi_low+dphi_half;
+
+  if (theTopology.nPhiBins(etaRing)==18) {
+    phi-=dphi_half*2;
+  }
 
   bool isBarrel = (subdet == HcalBarrel || subdet == HcalOuter);
 
@@ -156,11 +164,20 @@ const CaloCellGeometry * HcalHardcodeGeometryLoader::makeCell(const HcalDetId & 
 
     int depth = detId.depth();
     if(subdet == HcalEndcap) { // Sadly, Z must be made a function of ieta.
-      z = theHEZPos[depth - 1];
-      thickness = theHEZPos[depth] - z;
+      if (nDepthBins==1) {
+	z = theHEZPos[depth - 1];
+	thickness = theHEZPos[3] - z;
+      } else if (nDepthBins==2 && depth==2) {
+	z = theHEZPos[depth - 1];
+	thickness = theHEZPos[3] - z;
+      } else {
+	z = theHEZPos[depth - 1];
+	thickness = theHEZPos[depth] - z;
+      }
+      thickness /= fabs(tanh(eta));
     } else {
       z = theHFZPos[depth - 1];
-      thickness = theHFThickness;
+      thickness = theHFThickness-(theHFZPos[depth-1]-theHFZPos[0]);
     }
     z*=detId.zside(); // get the sign right.
     r = z * tan(theta);
@@ -171,8 +188,11 @@ const CaloCellGeometry * HcalHardcodeGeometryLoader::makeCell(const HcalDetId & 
   y = r * sin(phi);
   GlobalPoint point(x,y,z);
 
-  return new calogeom::IdealObliquePrism(point, deta*2, dphi_half*2, thickness, isBarrel);
-
+  if (subdet==HcalForward) {
+    return new calogeom::IdealZPrism(point, deta*2, dphi_half*2, thickness);
+  } else {
+    return new calogeom::IdealObliquePrism(point, deta*2, dphi_half*2, thickness, isBarrel);
+  }
 }
 
 

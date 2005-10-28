@@ -12,8 +12,8 @@ class HcalDetId;
  *
  * \note The HE geometry is not currently correct.  The z positions must be corrected.
  *   
- * $Date: 2005/10/03 22:31:33 $
- * $Revision: 1.1 $
+ * $Date: 2005/10/06 00:45:02 $
+ * $Revision: 1.2 $
  * \author R. Wilkinson - Caltech
 */
 class HcalHardcodeGeometryLoader {
@@ -38,7 +38,7 @@ private:
   
   double theBarrelRadius;
   double theOuterRadius;
-  double theHEZPos[3];
+  double theHEZPos[4];
   double theHFZPos[2];
   
   double theHBThickness;
