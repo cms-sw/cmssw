@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/ModuleDescription.h"
 #include "FWCore/Framework/src/WorkerParams.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 // The following includes are temporary until a better
 // solution can be found.  Placing these includes here
@@ -60,8 +61,16 @@ namespace edm {
     md.processName_ = p.processName_;;
     md.pass = p.pass_; 
 
-    std::auto_ptr<ModuleType> module(worker_type::template makeOne<UserType>(md,p));
-    std::auto_ptr<Worker> worker(new worker_type(module, md, p));
+    std::auto_ptr<Worker> worker;
+    try {
+       std::auto_ptr<ModuleType> module(worker_type::template makeOne<UserType>(md,p));
+       worker=std::auto_ptr<Worker>(new worker_type(module, md, p));
+    } catch( cms::Exception& iException){
+       edm::Exception toThrow(edm::errors::Configuration,"Error occured while creating ");
+       toThrow<<md.moduleName_<<" with label "<<md.moduleLabel_<<"\n";
+       toThrow.append(iException);
+       throw toThrow;
+    }
     return worker;
   }
 
