@@ -1,3 +1,6 @@
+** V00-01-00  [Fri Oct 28 03:15:51 2005]
+Added option processing to cmsRun. Also added some needed methods to various classes.
+
 ** V00-00-00  [Wed Oct 26 18:08:17 2005]
 Base tag on CMSSW_0_2_0_pre5
 
