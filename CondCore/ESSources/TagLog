@@ -1,3 +1,6 @@
+** V00-01-00  [Fri Oct 28 11:30:16 2005]
+fixed version file removing one line
+
 ** V00-01-00  [Thu Oct 27 17:58:00 2005]
 register new dataProxy EcalWeightRecAlgoWeights; split PoolDBESSource.h and PoolDBESSource.cc
 
