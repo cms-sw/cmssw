@@ -2,7 +2,7 @@
  * Impl of RPCDetId
  *
  * \author Ilaria Segoni
- * \version $Id: RPCDetId.cc,v 1.2 2005/10/27 10:28:39 segoni Exp $
+ * \version $Id: RPCDetId.cc,v 1.3 2005/10/27 14:36:57 namapane Exp $
  * \date 02 Aug 2005
  */
 
@@ -74,7 +74,6 @@ RPCDetId::RPCDetId(int region, int ring, int station, int sector, int layer,int 
 
 std::ostream& operator<<( std::ostream& os, const RPCDetId& id ){
 
-// do differently whether it's station or Wheel.
 
   os <<  " Re "<<id.region()
      << " Ri "<<id.ring()
