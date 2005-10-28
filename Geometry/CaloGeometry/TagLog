@@ -1,3 +1,6 @@
+** V02-00-00  [Fri Oct 28 20:15:10 2005]
+Added IdealZPrism for HF, and fixed order of points for Ianna
+
 ** V01-00-00  [Thu Oct 27 19:53:49 2005]
 Added TruncatedPyramid class. Added default constructor to CaloCellGeometry
 
