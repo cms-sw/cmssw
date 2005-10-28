@@ -1,17 +1,20 @@
 #include "PluginManager/ModuleDef.h"
 #include "FWCore/Framework/interface/InputSourceMacros.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "IOPool/Streamer/src/TestProducer.h"
-#include "IOPool/Streamer/interface/EventStreamInput.h"
 #include "IOPool/Streamer/src/TestConsumer.h"
+#include "IOPool/Streamer/interface/FragmentInput.h"
 #include "IOPool/Streamer/interface/EventStreamOutput.h"
+#include "IOPool/Streamer/interface/HLTInfo.h"
+#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 
-// using edm::EventStreamInput;
 typedef edm::EventStreamingModule<edmtest::TestConsumer> StreamTestConsumer;
-typedef edm::EventStreamInput<edmtestp::TestProducer> StreamTestProducer;
+using stor::FragmentInput;
 
 DEFINE_SEAL_MODULE();
-// DEFINE_ANOTHER_FWK_INPUT_SOURCE(EventStreamInput)
-DEFINE_ANOTHER_FWK_INPUT_SOURCE(StreamTestProducer)
-DEFINE_ANOTHER_FWK_MODULE(StreamTestConsumer)
+DEFINE_ANOTHER_FWK_MODULE(StreamTestConsumer);
+DEFINE_ANOTHER_FWK_INPUT_SOURCE(FragmentInput);
 
+using namespace edm::serviceregistry;
+using stor::HLTInfo;
+
+DEFINE_ANOTHER_FWK_SERVICE_MAKER(HLTInfo,ParameterSetMaker<HLTInfo>)

@@ -1,7 +1,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: EventStreamOutput.cc,v 1.7 2005/10/12 02:38:54 wmtan Exp $
+// $Id: EventStreamOutput.cc,v 1.8 2005/10/16 17:47:03 wmtan Exp $
 //
 // Class EventStreamOutput module
 //
@@ -12,6 +12,7 @@
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "IOPool/Streamer/interface/EventStreamOutput.h"
 #include "IOPool/StreamerData/interface/StreamedProducts.h"
+#include "IOPool/StreamerData/interface/Messages.h"
 #include "IOPool/Streamer/interface/ClassFiller.h"
 
 #include "PluginManager/PluginCapabilities.h"
@@ -36,10 +37,11 @@ namespace edm
 {
   void event_stream_output_test_read(void* buf, int len, TClass* send_event_)
   {
-    TBuffer rootbuf(TBuffer::kRead,len,buf,kFALSE);
-    if(10<debugit()) gDebug=10;
+    EventMsg msg(buf,len);
+    TBuffer rootbuf(TBuffer::kRead,msg.getDataSize(),msg.data(),kFALSE);
+
+    RootDebug tracer(10,10);
     auto_ptr<SendEvent> sd((SendEvent*)rootbuf.ReadObjectAny(send_event_));
-    if(10<debugit()) gDebug=0;
 
     if(sd.get()==0)
       {
@@ -96,21 +98,19 @@ namespace edm
 
     Selections::const_iterator i(prods.begin()),e(prods.end());
 
-    //cout << "Product List: " << endl;
+    FDEBUG(9) << "Product List: " << endl;
     for(;i!=e;++i) 
       {
-	//cout << " " << (*i)->fullClassName_ << endl;
 	sd.descs_.push_back(**i);
 	FDEBUG(9) << "StreamOutput got product = " << (*i)->fullClassName_
 		  << endl;
       }
 
-    TBuffer rootbuf(TBuffer::kWrite,
-		    prod_reg_buf_.size(),&prod_reg_buf_[0],
-		    kFALSE);
-    if(10<debugit()) gDebug=10;
+    InitMsg im(&prod_reg_buf_[0],prod_reg_buf_.size(),true);
+    TBuffer rootbuf(TBuffer::kWrite,im.dataSize(),im.data(),kFALSE);
+    RootDebug tracer(10,10);
+
     int bres = rootbuf.WriteObjectAny((char*)&sd,prog_reg);
-    if(10<debugit()) gDebug=0;
     
     switch(bres)
       {
@@ -137,7 +137,8 @@ namespace edm
 	  break;
 	}
       }	    
-    prod_reg_len_ = rootbuf.Length();
+    im.setDataSize(rootbuf.Length());
+    prod_reg_len_ = im.msgSize();
   }
 
   void EventStreamerImpl::serialize(EventPrincipal const& e)
@@ -156,12 +157,10 @@ namespace edm
 	    if (group->product()==0)
 	      e.get(group->provenance().product.productID_);
 
-#if 0
-	    cout << "Prov:"
+	    FDEBUG(11) << "Prov:"
 		 << " " << group->provenance().product.fullClassName_
 		 << " " << group->provenance().product.productID_
 		 << endl;
-#endif
 
 	    se.prods_.push_back(
 				ProdPair(group->product(),
@@ -173,21 +172,21 @@ namespace edm
       }	
 
 #if 0
-    cout << "-----Dump start" << endl;
+    FDEBUG(11) << "-----Dump start" << endl;
     for(SendProds::iterator pii=se.prods_.begin();pii!=se.prods_.end();++pii)
-      cout << "Prov:"
+      std::cout << "Prov:"
 	   << " " << pii->desc()->fullClassName_
 	   << " " << pii->desc()->productID_
 	   << endl;      
-    cout << "-----Dump end" << endl;
+    FDEBUG(11) << "-----Dump end" << endl;
 #endif
 
     EventBuffer::ProducerBuffer b(*bufs_);
-    //gDebug=10;
-    TBuffer rootbuf(TBuffer::kWrite,b.size(),b.buffer(),kFALSE);
-    if(10<debugit()) gDebug=10;
+    EventMsg msg(b.buffer(),b.size(),e.id().event(),e.id().run(),1,1);
+    TBuffer rootbuf(TBuffer::kWrite,msg.dataSize(),msg.data(),kFALSE);
+    RootDebug tracer(10,10);
+
     int bres = rootbuf.WriteObjectAny(&se,tc_);
-    if(10<debugit()) gDebug=0;
     
     switch(bres)
       {
@@ -218,7 +217,8 @@ namespace edm
 	}
       }
      
-    b.commit(rootbuf.Length());
+    msg.setDataSize(rootbuf.Length());
+    b.commit(msg.msgSize());
     // test_read(b.buffer(),b.size(),tc_);
   }
 

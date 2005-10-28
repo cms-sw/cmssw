@@ -76,3 +76,28 @@ the event stream input and output objects are doing to declare the
 product.  Setting this variable to 11 will cause the ROOT debug level
 to be set to 10 during I/O operations.
 
+18-10-05 jbk:
+
+Many important changes.  Here is the sequence.
+ 1) The "Producer" of the template EventStreamInput is not initialized 
+    first. It has a new role to provide the EventBuffer object to the
+    EventStreamInput object instead of the EventStreamInput object making
+    it.  The reason for this change is so the creation of this queue
+    can be placed into a different package - one that may need to use
+    services that depend on HLT related libraries.  In other words, the
+    EventBuffer may be created in HLT specific code.
+
+27-10-05 jbk: 
+
+A bunch of transition related checkins.  The streaming input template is
+going away.  The new code compiles and is checked in.  The streaming
+input template and TestProducer code is not removed yet until the 
+TestProducer is rewritten using the new streaming utility classes and
+functions in Utilities.h.  The FragmentInput input source is an exxample
+of using these functions - but not from a file.  The testing is
+not complete with this checkin.
+
+To build this, you must rename EventStreamInput.cc, TestProducer.cc
+to names that do not end in cc.
+
+
