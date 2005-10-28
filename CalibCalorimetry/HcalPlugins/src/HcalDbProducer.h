@@ -28,35 +28,33 @@
 
 class HcalDbService;
 class HcalDbRecord;
-class HcalPedestals;
-class HcalPedestalWidths;
-class HcalGains;
-class HcalGainWidths;
 class HcalPedestalsRcd;
 class HcalPedestalWidthsRcd;
 class HcalGainsRcd;
 class HcalGainWidthsRcd;
+class HcalQIEShapeRcd;
+class HcalQIEDataRcd;
+class HcalChannelQualityRcd;
+class HcalElectronicsMapRcd;
 
 class HcalDbProducer : public edm::ESProducer {
  public:
   HcalDbProducer( const edm::ParameterSet& );
   ~HcalDbProducer();
   
-  typedef std::auto_ptr<HcalDbService> ReturnType;
-  
-  ReturnType produce( const HcalDbRecord& );
+  boost::shared_ptr<HcalDbService> produce( const HcalDbRecord& );
 
   // callbacks
-  void poolPedestalsCallback (const HcalPedestalsRcd& fRecord);
-  void poolPedestalWidthsCallback (const HcalPedestalWidthsRcd& fRecord);
-  void poolGainsCallback (const HcalGainsRcd& fRecord);
-  void poolGainWidthsCallback (const HcalGainWidthsRcd& fRecord);
+  void pedestalsCallback (const HcalPedestalsRcd& fRecord);
+  void pedestalWidthsCallback (const HcalPedestalWidthsRcd& fRecord);
+  void gainsCallback (const HcalGainsRcd& fRecord);
+  void gainWidthsCallback (const HcalGainWidthsRcd& fRecord);
+  void QIEShapeCallback (const HcalQIEShapeRcd& fRecord);
+  void QIEDataCallback (const HcalQIEDataRcd& fRecord);
+  void channelQualityCallback (const HcalChannelQualityRcd& fRecord);
+  void electronicsMapCallback (const HcalElectronicsMapRcd& fRecord);
 
    private:
       // ----------member data ---------------------------
-  std::string mDbSourceName;
-  const HcalPedestals* mPedestals;
-  const HcalPedestalWidths* mPedestalWidths;
-  const HcalGains* mGains;
-  const HcalGainWidths* mGainWidths;
+  boost::shared_ptr<HcalDbService> mService;
 };

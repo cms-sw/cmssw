@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 19:13:25 EDT 2005
-// $Id: HcalDbAnalyzer.cc,v 1.2 2005/10/04 18:03:03 fedor Exp $
+// $Id: HcalDbAnalyzer.cc,v 1.3 2005/10/05 00:37:56 fedor Exp $
 //
 //
 
@@ -34,7 +34,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
-#include "CalibFormats/HcalObjects/interface/HcalDbServiceBase.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalDbServiceHardcode.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 
 
@@ -88,7 +88,7 @@ HcalDbAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
   std::cout << "HcalDbAnalyzer::analyze->..." << std::endl;
    edm::ESHandle<HcalDbService> pSetup;
    iSetup.get<HcalDbRecord>().get( pSetup );
-   std::cout << "HcalDbAnalyzer::analyze-> got HcalDbRecord: " << pSetup->service()->name() << std::endl;
+   std::cout << "HcalDbAnalyzer::analyze-> got HcalDbRecord: " << std::endl;
    std::cout << "HcalDbAnalyzer::analyze-> getting information for HB channel eta=1, phi=1, depth=1..." << std::endl;
    HcalDetId cell (HcalBarrel, 1, 1, 1);
    std::auto_ptr<HcalCalibrations> calibrations = pSetup->getHcalCalibrations (cell);

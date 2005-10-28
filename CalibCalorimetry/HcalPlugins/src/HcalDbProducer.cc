@@ -27,42 +27,45 @@
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbServiceHardcode.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbServicePool.h"
-//Frontier #include "CalibCalorimetry/HcalAlgos/interface/HcalDbServiceFrontier.h"
 
+#include "CondFormats/HcalObjects/interface/HcalPedestals.h"
+#include "CondFormats/HcalObjects/interface/HcalPedestalWidths.h"
+#include "CondFormats/HcalObjects/interface/HcalGains.h"
+#include "CondFormats/HcalObjects/interface/HcalGainWidths.h"
+#include "CondFormats/HcalObjects/interface/HcalQIEShape.h"
+#include "CondFormats/HcalObjects/interface/HcalQIEData.h"
+#include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
+#include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 #include "CondFormats/DataRecord/interface/HcalPedestalsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalPedestalWidthsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalGainsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalGainWidthsRcd.h"
+#include "CondFormats/DataRecord/interface/HcalQIEShapeRcd.h"
+#include "CondFormats/DataRecord/interface/HcalQIEDataRcd.h"
+#include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
+#include "CondFormats/DataRecord/interface/HcalElectronicsMapRcd.h"
 
 
 #include "HcalDbProducer.h"
 
-namespace {
-  const std::string name_hardcode ("hardcode");
-  const std::string name_frontier ("frontier");
-  const std::string name_pool ("pool");
-}
-
-HcalDbProducer::HcalDbProducer( const edm::ParameterSet& iConfig )
-  :
-  mDbSourceName (iConfig.getUntrackedParameter<std::string>("dbSource", name_hardcode)),
-  mPedestals (0),
-  mPedestalWidths (0),
-  mGains (0),
-  mGainWidths (0)
+HcalDbProducer::HcalDbProducer( const edm::ParameterSet&)
+  : mService (new HcalDbService ())
 {
-   //the following line is needed to tell the framework what
-   // data is being produced
-  std::cout << "HcalDbProducer::HcalDbProducer... Will use dbSource " 
-	    << mDbSourceName << std::endl;
-   setWhatProduced (this);
-   setWhatProduced (this, (dependsOn (&HcalDbProducer::poolPedestalsCallback) &
-			   &HcalDbProducer::poolPedestalWidthsCallback &
-			   &HcalDbProducer::poolGainsCallback &
-			   &HcalDbProducer::poolGainWidthsCallback)
-		    ); 
-
-   //now do what ever other initialization is needed
+  //the following line is needed to tell the framework what
+  // data is being produced
+  setWhatProduced (this);
+  setWhatProduced (this, (dependsOn (&HcalDbProducer::pedestalsCallback) &
+			  &HcalDbProducer::pedestalWidthsCallback &
+			  &HcalDbProducer::gainsCallback &
+			  &HcalDbProducer::gainWidthsCallback &
+			  &HcalDbProducer::QIEShapeCallback &
+			  &HcalDbProducer::QIEDataCallback &
+			  &HcalDbProducer::channelQualityCallback &
+			  &HcalDbProducer::electronicsMapCallback
+			  )
+		   );
+  
+  //now do what ever other initialization is needed
 }
 
 
@@ -80,68 +83,68 @@ HcalDbProducer::~HcalDbProducer()
 //
 
 // ------------ method called to produce the data  ------------
-HcalDbProducer::ReturnType
-HcalDbProducer::produce( const HcalDbRecord& fRecord )
+boost::shared_ptr<HcalDbService> HcalDbProducer::produce( const HcalDbRecord&)
 {
   std::cout << "HcalDbProducer::produce..." << std::endl;
-
-  
-  const HcalDbServiceBase* service = 0;
-  if (mDbSourceName == name_hardcode) {
-    service = new HcalDbServiceHardcode ();
-  }
-  else if (mDbSourceName == name_pool) {
-    HcalDbServicePool* poolService = new HcalDbServicePool ();
-    service = poolService;
-    if (mPedestals) poolService->setPedestals (mPedestals);
-    if (mPedestalWidths) poolService->setPedestalWidths (mPedestalWidths);
-    if (mGains) poolService->setGains (mGains);
-    if (mGainWidths) poolService->setGainWidths (mGainWidths);
-  }
-  else {
-    std::cerr << "HcalDbProducer::produce-> Unknown service " << mDbSourceName
-	      << ". Use one of: "  
-	      << name_hardcode 
-	      << std::endl;
-  }
-  std::auto_ptr<HcalDbService> pHcalDbService (new HcalDbService (service));
-
-  std::cout << "HcalDbProducer::produce-> got service " << pHcalDbService->service()->name () << std::endl;
-  return pHcalDbService;
+  return mService;
 }
 
-void HcalDbProducer::poolPedestalsCallback (const HcalPedestalsRcd& fRecord) {
+void HcalDbProducer::pedestalsCallback (const HcalPedestalsRcd& fRecord) {
   std::cout << "HcalDbProducer::poolPedestalsCallback->..." << std::endl;
-  if (mDbSourceName != name_pool) return;
   edm::ESHandle <HcalPedestals> item;
   fRecord.get (item);
-  mPedestals = item.product ();
+  mService->setData (item.product ());
 }
 
-  void HcalDbProducer::poolPedestalWidthsCallback (const HcalPedestalWidthsRcd& fRecord) {
+  void HcalDbProducer::pedestalWidthsCallback (const HcalPedestalWidthsRcd& fRecord) {
   std::cout << "HcalDbProducer::poolPedestalWidthsCallback->..." << std::endl;
-  if (mDbSourceName != name_pool) return;
   edm::ESHandle <HcalPedestalWidths> item;
   fRecord.get (item);
-  mPedestalWidths = item.product ();
+  mService->setData (item.product ());
 }
 
 
-  void HcalDbProducer::poolGainsCallback (const HcalGainsRcd& fRecord) {
+  void HcalDbProducer::gainsCallback (const HcalGainsRcd& fRecord) {
   std::cout << "HcalDbProducer::poolGainsCallback->..." << std::endl;
-  if (mDbSourceName != name_pool) return;
   edm::ESHandle <HcalGains> item;
   fRecord.get (item);
-  mGains = item.product ();
+  mService->setData (item.product ());
 }
 
 
-  void HcalDbProducer::poolGainWidthsCallback (const HcalGainWidthsRcd& fRecord) {
+  void HcalDbProducer::gainWidthsCallback (const HcalGainWidthsRcd& fRecord) {
   std::cout << "HcalDbProducer::poolGainWidthsCallback->..." << std::endl;
-  if (mDbSourceName != name_pool) return;
   edm::ESHandle <HcalGainWidths> item;
   fRecord.get (item);
-  mGainWidths = item.product ();
+  mService->setData (item.product ());
+}
+
+void HcalDbProducer::QIEShapeCallback (const HcalQIEShapeRcd& fRecord) {
+  std::cout << "HcalDbProducer::QIEShapeCallback->..." << std::endl;
+  edm::ESHandle <HcalQIEShape> item;
+  fRecord.get (item);
+  mService->setData (item.product ());
+}
+
+void HcalDbProducer::QIEDataCallback (const HcalQIEDataRcd& fRecord) {
+  std::cout << "HcalDbProducer::QIEDataCallback->..." << std::endl;
+  edm::ESHandle <HcalQIEData> item;
+  fRecord.get (item);
+  mService->setData (item.product ());
+}
+
+void HcalDbProducer::channelQualityCallback (const HcalChannelQualityRcd& fRecord) {
+  std::cout << "HcalDbProducer::channelQualityCallback->..." << std::endl;
+  edm::ESHandle <HcalChannelQuality> item;
+  fRecord.get (item);
+  mService->setData (item.product ());
+}
+
+void HcalDbProducer::electronicsMapCallback (const HcalElectronicsMapRcd& fRecord) {
+  std::cout << "HcalDbProducer::electronicsMapCallback->..." << std::endl;
+  edm::ESHandle <HcalElectronicsMap> item;
+  fRecord.get (item);
+  mService->setData (item.product ());
 }
 
 

@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Oct 21, 2005
-// $Id: HcalHardcodeCalibrations.h,v 1.8 2005/09/09 13:15:00 xiezhen Exp $
+// $Id: HcalHardcodeCalibrations.h,v 1.1 2005/10/25 17:55:39 fedor Exp $
 //
 //
 #include <map>
@@ -11,13 +11,25 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class ParameterSet;
+class HcalPedestals;
+class HcalPedestalWidths;
+class HcalGains;
+class HcalGainWidths;
+class HcalQIEShape;
+class HcalQIEData;
+class HcalChannelQuality;
+class HcalElectronicsMap;
 class HcalPedestalsRcd;
 class HcalPedestalWidthsRcd;
 class HcalGainsRcd;
 class HcalGainWidthsRcd;
+class HcalQIEShapeRcd;
+class HcalQIEDataRcd;
+class HcalChannelQualityRcd;
+class HcalElectronicsMapRcd;
 
-class HcalHardcodeCalibrations : public edm::eventsetup::ESProducer,
-		       public edm::eventsetup::EventSetupRecordIntervalFinder
+class HcalHardcodeCalibrations : public edm::ESProducer,
+		       public edm::EventSetupRecordIntervalFinder
 {
 public:
   HcalHardcodeCalibrations (const edm::ParameterSet& );
@@ -34,6 +46,10 @@ protected:
   std::auto_ptr<HcalPedestalWidths> producePedestalWidths (const HcalPedestalWidthsRcd& rcd);
   std::auto_ptr<HcalGains> produceGains (const HcalGainsRcd& rcd);
   std::auto_ptr<HcalGainWidths> produceGainWidths (const HcalGainWidthsRcd& rcd);
+  std::auto_ptr<HcalQIEShape> produceQIEShape (const HcalQIEShapeRcd& rcd);
+  std::auto_ptr<HcalQIEData> produceQIEData (const HcalQIEDataRcd& rcd);
+  std::auto_ptr<HcalChannelQuality> produceChannelQuality (const HcalChannelQualityRcd& rcd);
+  std::auto_ptr<HcalElectronicsMap> produceElectronicsMap (const HcalElectronicsMapRcd& rcd);
   
 };
 
