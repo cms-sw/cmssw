@@ -1,0 +1,40 @@
+<flags SEAL_PLUGIN_NAME="EventFilterSiPixelRawToDigi">
+
+# framework
+<use name=FWCore/Framework>
+<use name=DataFormats/FEDRawData>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+# geometry service
+<use name=Geometry/CommonTopologies>
+<use name=Geometry/TrackerSimAlgo>
+<use name=Geometry/Records>
+# detector identifiers
+<use name=DataFormats/DetId>
+<use name=DataFormats/SiPixelDetId>
+# input / output data collections
+<use name=DataFormats/FEDRawData>
+<use name=DataFormats/SiPixelDigi>
+# connectivity / cabling
+#<use name=CalibTracker/SiPixelConnectivity>
+
+<export>
+ <lib name=EventFilterSiPixelRawToDigi>
+ # framework
+ <use name=FWCore/Framework>
+ <use name=DataFormats/FEDRawData>
+ <use name=Foundation/PluginManager>
+ <use name=FWCore/ParameterSet>
+ # geometry service
+ <use name=Geometry/CommonTopologies>
+ <use name=Geometry/TrackerSimAlgo>
+ <use name=Geometry/Records>
+ # detector identifiers
+ <use name=DataFormats/DetId>
+ <use name=DataFormats/SiPixelDetId>
+ # input / output data collections
+ <use name=DataFormats/FEDRawData>
+ <use name=DataFormats/SiPixelDigi>
+ # connectivity / cabling
+# <use name=CalibTracker/SiPixelConnectivity>
+</export>
