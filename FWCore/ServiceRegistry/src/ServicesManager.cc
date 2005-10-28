@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 13:33:19 EDT 2005
-// $Id: ServicesManager.cc,v 1.4 2005/09/10 02:08:48 wmtan Exp $
+// $Id: ServicesManager.cc,v 1.5 2005/09/19 08:18:03 chrjones Exp $
 //
 
 // system include files
@@ -227,7 +227,14 @@ ServicesManager::createServices()
    for(Type2Maker::iterator itMaker = type2Maker_->begin();
         itMaker != type2Maker_->end();
         ++itMaker) {
-      itMaker->second.add(*this);
+      try{
+         itMaker->second.add(*this);
+      }catch(cms::Exception& iException){
+         edm::Exception toThrow(edm::errors::Configuration,"Error occured while creating ");
+         toThrow<<itMaker->second.pset_->getParameter<std::string>("@service_type")<<"\n";
+         toThrow.append(iException);
+         throw toThrow;
+      }
    }
    
    //No longer need the makers
