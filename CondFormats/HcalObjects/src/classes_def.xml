@@ -12,8 +12,8 @@
  <class name="HcalQIEShape" id="2529240C-E328-B3FC-70BE-451A388F2D8F"/>
  <class name="HcalElectronicsMap" id="1EC50DB8-886B-ABB4-E875-20AF1C0C66E3"/>
  <class name="HcalElectronicsMap::Item"/>
- <class name="HcalCannelQuality" id="568D3456-EC1B-084B-1857-7AB9D60E93E4"/>
- <class name="HcalCannelQuality::Item"/>
+ <class name="HcalChannelQuality" id="6AD128B1-6893-20A1-F739-079F9223BF21"/>
+ <class name="HcalChannelQuality::Item"/>
 
  <class pattern="*vector*"/>
  <class pattern="*iterator*"/>
