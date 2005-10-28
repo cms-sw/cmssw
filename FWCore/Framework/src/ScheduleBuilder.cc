@@ -3,11 +3,11 @@
    Implementation of class ScheduleBuilder
 
    \author Stefano ARGIRO
-   \version $Id: ScheduleBuilder.cc,v 1.15 2005/09/19 08:18:10 chrjones Exp $
+   \version $Id: ScheduleBuilder.cc,v 1.16 2005/10/28 01:42:56 chrjones Exp $
    \date 18 May 2005
 */
 
-static const char CVSId[] = "$Id: ScheduleBuilder.cc,v 1.15 2005/09/19 08:18:10 chrjones Exp $";
+static const char CVSId[] = "$Id: ScheduleBuilder.cc,v 1.16 2005/10/28 01:42:56 chrjones Exp $";
 
 
 #include "FWCore/Framework/interface/ScheduleBuilder.h"
@@ -53,7 +53,7 @@ ScheduleBuilder::ScheduleBuilder(ParameterSet const& processDesc,
 	 ++nameIt){
            
       try{
-        ParameterSet const& module_pset= m_processDesc.getParameter<ParameterSet>(*nameIt);
+        m_processDesc.getParameter<ParameterSet>(*nameIt);
       }catch(const cms::Exception&) {
         throw edm::Exception(errors::Configuration,"PathError:")<<"no module with label '"<<*nameIt<<"' is defined in configuration file, but is used in path '"
         <<*pathIt<<"'.\n Please check spelling.";
