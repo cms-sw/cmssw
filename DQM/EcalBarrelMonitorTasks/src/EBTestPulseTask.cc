@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  * 
- * $Date: 2005/10/16 12:37:43 $
- * $Revision: 1.12 $
+ * $Date: 2005/10/27 09:57:35 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  *
 */
@@ -23,7 +23,7 @@ EBTestPulseTask::EBTestPulseTask(const edm::ParameterSet& ps, DaqMonitorBEInterf
       sprintf(histo, "EBTT shape SM%02d G01", i+1);
       meShapeMapG01[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096.);
       sprintf(histo, "EBTT amplitude SM%02d G01", i+1);
-      meAmplMapG01[i] = dbe->bookProfile2D(histo, histo, 20, 0., 20., 85, 0., 85., 4096, 0., 4096.);
+      meAmplMapG01[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
     }
 
     dbe->setCurrentFolder("EcalBarrel/EBTestPulseTask/Gain06");
@@ -31,7 +31,7 @@ EBTestPulseTask::EBTestPulseTask(const edm::ParameterSet& ps, DaqMonitorBEInterf
       sprintf(histo, "EBTT shape SM%02d G06", i+1);
       meShapeMapG06[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096.);
       sprintf(histo, "EBTT amplitude SM%02d G06", i+1);
-      meAmplMapG06[i] = dbe->bookProfile2D(histo, histo, 20, 0., 20., 85, 0., 85., 4096, 0., 4096.);
+      meAmplMapG06[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
     }
 
     dbe->setCurrentFolder("EcalBarrel/EBTestPulseTask/Gain12");
@@ -39,7 +39,7 @@ EBTestPulseTask::EBTestPulseTask(const edm::ParameterSet& ps, DaqMonitorBEInterf
       sprintf(histo, "EBTT shape SM%02d G12", i+1);
       meShapeMapG12[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096.);
       sprintf(histo, "EBTT amplitude SM%02d G12", i+1);
-      meAmplMapG12[i] = dbe->bookProfile2D(histo, histo, 20, 0., 20., 85, 0., 85., 4096, 0., 4096.);
+      meAmplMapG12[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
     }
   }
 
@@ -145,7 +145,7 @@ void EBTestPulseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
     }
 
-    if ( meAmplMap ) meAmplMap->Fill(xip, xie, xvalmax);
+    if ( meAmplMap ) meAmplMap->Fill(xie, xip, xvalmax);
 
   }
 

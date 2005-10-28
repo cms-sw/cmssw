@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  * 
- * $Date: 2005/10/16 12:35:44 $
- * $Revision: 1.11 $
+ * $Date: 2005/10/27 09:57:35 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  *
 */
@@ -23,7 +23,7 @@ EBLaserTask::EBLaserTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe
       sprintf(histo, "EBLT shape SM%02d L1", i+1);
       meShapeMapL1[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096.);
       sprintf(histo, "EBLT amplitude SM%02d L1", i+1);
-      meAmplMapL1[i] = dbe->bookProfile2D(histo, histo, 20, 0., 20., 85, 0., 85., 4096, 0., 4096.);
+      meAmplMapL1[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
     }
 
     dbe->setCurrentFolder("EcalBarrel/EBLaserTask/Laser2");
@@ -31,7 +31,7 @@ EBLaserTask::EBLaserTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe
       sprintf(histo, "EBLT shape SM%02d L2", i+1);
       meShapeMapL2[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096.);
       sprintf(histo, "EBLT amplitude SM%02d L2", i+1);
-      meAmplMapL2[i] = dbe->bookProfile2D(histo, histo, 20, 0., 20., 85, 0., 85., 4096, 0., 4096.);
+      meAmplMapL2[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
     }
   }
 
@@ -142,7 +142,7 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
     }
 
-    if ( meAmplMap ) meAmplMap->Fill(xip, xie, xvalmax);
+    if ( meAmplMap ) meAmplMap->Fill(xie, xip, xvalmax);
 
   }
 

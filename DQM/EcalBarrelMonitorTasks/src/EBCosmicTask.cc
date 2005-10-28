@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  * 
- * $Date: 2005/10/16 12:35:44 $
- * $Revision: 1.13 $
+ * $Date: 2005/10/27 09:57:35 $
+ * $Revision: 1.14 $
  * \author G. Della Ricca
  *
 */
@@ -21,13 +21,13 @@ EBCosmicTask::EBCosmicTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* d
     dbe->setCurrentFolder("EcalBarrel/EBCosmicTask/Cut");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBCT amplitude cut SM%02d", i+1);
-      meCutMap[i] = dbe->bookProfile2D(histo, histo, 20, 0., 20., 85, 0., 85., 4096, 0., 4096.);
+      meCutMap[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
     }
 
     dbe->setCurrentFolder("EcalBarrel/EBCosmicTask/Sel");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBCT amplitude sel SM%02d", i+1);
-      meSelMap[i] = dbe->bookProfile2D(histo, histo, 20, 0., 20., 85, 0., 85., 4096, 0., 4096.);
+      meSelMap[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
     }
   }
 
@@ -120,11 +120,11 @@ void EBCosmicTask::analyze(const edm::Event& e, const edm::EventSetup& c){
     }
 
     if ( xvalmax >= 5 ) {
-      if ( meCutMap[ism-1] ) meCutMap[ism-1]->Fill(xip, xie, xvalmax);
+      if ( meCutMap[ism-1] ) meCutMap[ism-1]->Fill(xie, xip, xvalmax);
     }
 
     if ( xvalmax >= 10 ) {
-      if ( meSelMap[ism-1] ) meSelMap[ism-1]->Fill(xip, xie, xvalmax);
+      if ( meSelMap[ism-1] ) meSelMap[ism-1]->Fill(xie, xip, xvalmax);
     }
 
   }
