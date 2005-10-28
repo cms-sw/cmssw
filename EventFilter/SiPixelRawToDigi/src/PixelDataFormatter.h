@@ -1,0 +1,63 @@
+#ifndef PixelDataFormatter_H
+#define PixelDataFormatter_H
+/** \class PixelDataFormatter
+ *
+ *  Transforms Pixel raw data of a given  FED to orca digi
+ *  and vice versa.
+ *
+ * FED OUTPUT DATA FORMAT 6/02, d.k.  (11/02 updated for 100*150 pixels)
+ * ----------------------
+ * The output is transmitted through a 64 bit S-link connection.
+ * The packet format is defined by the CMS RU group to be :
+ * 1st packet header, 64 bits, includes a 6 bit FED id.
+ * 2nd packet header, 64 bits.
+ * .......................... (detector data)
+ * packet trailer, 64 bits.
+ * of the 64 bit pixel data records consists of 2
+ * 32 bit words. Each 32 bit word includes data from 1 pixel,
+ * the bit fields are the following:
+ *
+ * 6 bit link ID (max 36)   - this defines the input link within 1 FED.
+ * 5 bit ROC ID (max 24)    - this defines the readout chip within one link.
+ * 5 bit DCOL ID (max 26)   - this defines the double column index with 1 chip.
+ * 8 bit pixel ID (max 180) - this defines the pixel address within 1 DCOL.
+ * 8 bit ADC vales          - this has the charge amplitude.
+ *
+ * So, 1 pixel occupies 4 bytes.
+ * If the number of pixels is odd, one extra 32 bit word is added (value 0)
+ * to fill all 64 bits.
+ *
+ * The PixelDataFormatter interpret/format ONLY detector data words
+ * (not FED headers or trailer, which are treated elsewhere).
+ */
+
+#include "DataFormats/FEDRawData/interface/FEDRawData.h"
+#include "DataFormats/SiPixelDigi/interface/PixelDigiCollection.h"
+#include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
+
+class PixelDigi;
+class PixelROC;
+class PixelFEDConnections;
+
+class PixelDataFormatter {
+
+public:
+
+  PixelDataFormatter();
+
+  void interpretRawData(PixelFEDConnections* fed, const FEDRawData& data, PixelDigiCollection & digis);
+
+private:
+
+  typedef unsigned int Word32;
+  typedef long long Word64;
+
+//  void roc2words(PixelROC &, vector<Word32> &) const;
+  void word2digi(PixelFEDConnections &, Word32 & ) const;
+
+  static const int LINK_bits,  ROC_bits,  DCOL_bits,  PXID_bits,  ADC_bits;
+  static const int LINK_shift, ROC_shift, DCOL_shift, PXID_shift, ADC_shift;
+};
+
+#endif
+
