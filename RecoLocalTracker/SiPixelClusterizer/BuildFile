@@ -3,15 +3,24 @@
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=Utilities/Timing>
+<use name=Geometry/CommonTopologies>
+<use name=Geometry/Records>
+<use name=Geometry/TrackerSimAlgo>
 <use name=DataFormats/SiPixelDigi>
 <use name=DataFormats/SiPixelCluster>
+<use name=DataFormats/DetId>
 
 <export>
- <lib name=RecoLocalTrackerSiPixelClusterizer>
- <use name=FWCore/EDProduct>
- <use name=FWCore/Framework>
- <use name=FWCore/ParameterSet>
- <use name=Utilities/Timing>
- <use name=DataFormats/SiPixelDigi>
- <use name=DataFormats/SiPixelCluster>
+  <lib name=RecoLocalTrackerSiPixelClusterizer>
+
+  <use name=FWCore/EDProduct>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
+  <use name=Utilities/Timing>
+  <use name=Geometry/CommonTopologies>
+  <use name=Geometry/Records>
+  <use name=Geometry/TrackerSimAlgo>
+  <use name=DataFormats/SiPixelDigi>
+  <use name=DataFormats/SiPixelCluster>
+  <use name=DataFormats/DetId>
 </export>

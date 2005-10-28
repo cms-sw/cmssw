@@ -1,24 +1,7 @@
-
-#include "RecoLocalTracker/SiPixelClusterizer/interface/PixelThresholdClusterizer.h"
-#include "RecoLocalTracker/SiPixelClusterizer/interface/SiPixelArrayBuffer.h"
-
-// #include "TrackerReco/TkPixelClusterizer/interface/PixelThresholdClusterizer.h"
-// #include "Tracker/SiPixelDet/interface/PixelDigi.h"
-// #include "Tracker/SiPixelDet/interface/PixelReadout.h"
-// #include "Tracker/SiPixelDet/interface/PixelTopology.h"
-// #include "Tracker/SiPixelDet/interface/PixelDetType.h"
-// #include "Tracker/SiPixelDet/interface/PixelDet.h"
-
-// #include "TrackerReco/TkPixelClusterizer/interface/ClusterParameterEstimator.h"
-// #include "TrackerReco/TkPixelClusterizer/src/ClusterParameterEstimatorFactory.h"
-// #include "TrackerReco/TkPixelClusterizer/interface/PixelRecHit.h"
-
-#include <stack>
-#include <vector>
-#include <iostream>
-using namespace std;
-
 //----------------------------------------------------------------------------
+//! \class PixelThresholdClusterizer
+//! \brief A specific threshold-based pixel clustering algorithm
+//!
 //! General logic of PixelThresholdClusterizer:
 //!
 //! The clusterization is performed on a matrix with size
@@ -28,9 +11,24 @@ using namespace std;
 //!
 //! The search starts from seed pixels, i.e. pixels with sufficiently
 //! large amplitudes, found at the time of filling of the matrix
-//! and stored in a
+//! and stored in a SiPixelArrayBuffer.
 //----------------------------------------------------------------------------
 
+// Our own includes
+#include "RecoLocalTracker/SiPixelClusterizer/interface/PixelThresholdClusterizer.h"
+#include "RecoLocalTracker/SiPixelClusterizer/interface/SiPixelArrayBuffer.h"
+
+// Geometry
+class GeometricDet;   // hack in 0.2.0pre5, should be OK for pre6
+#include "Geometry/TrackerSimAlgo/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
+//#include "Geometry/CommonTopologies/RectangularPixelTopology.h"
+
+// STL
+#include <stack>
+#include <vector>
+#include <iostream>
+using namespace std;
 
 
 
@@ -46,10 +44,14 @@ PixelThresholdClusterizer::PixelThresholdClusterizer(edm::ParameterSet const& co
   theNumOfRows(0), theNumOfCols(0)
 {
   // Set the thresholds -- NOTE: in units of noise!
-  thePixelThresholdInNoiseUnits   = conf_.getParameter<double>("ChannelThreshold");
-  theSeedThresholdInNoiseUnits    = conf_.getParameter<double>("SeedThreshold");
-  theClusterThresholdInNoiseUnits = conf_.getParameter<double>("ClusterThreshold");
+  thePixelThresholdInNoiseUnits   = 
+    conf_.getParameter<double>("ChannelThreshold");
+  theSeedThresholdInNoiseUnits    = 
+    conf_.getParameter<double>("SeedThreshold");
+  theClusterThresholdInNoiseUnits = 
+    conf_.getParameter<double>("ClusterThreshold");
 
+  theBuffer.setSize( theNumOfRows, theNumOfCols );
   initTiming();
 }
 
@@ -64,24 +66,27 @@ PixelThresholdClusterizer::~PixelThresholdClusterizer()
 //!  Prepare the Clusterizer to work on a particular DetUnit.  Re-init the
 //!  size of the panel/plaquette (so update nrows and ncols), 
 //----------------------------------------------------------------------------
-bool PixelThresholdClusterizer::setup( unsigned int detid )
+bool PixelThresholdClusterizer::setup( unsigned int detid,
+				       const PixelGeomDetUnit * pixDet )
 {
-#if 0
+  // Cache the topology.
+  const PixelTopology & topol = pixDet->specificTopology();
+  
+  // Get the new sizes.
+  int nrows = topol.nrows();      // rows in x
+  int ncols = topol.ncolumns();   // cols in y
 
-  //  Set the bounds for this 
-  if(bufferAlreadySet == false){
-    theBuffer.setSize(rd.specificDet().specificType().specificTopology().nrows(), 
-		   rd.specificDet().specificType().specificTopology().ncolumns());
+  if( nrows != theNumOfRows || ncols != theNumOfCols ) {
+    cout << " PixelThresholdClusterizer: pixel buffer redefined to " 
+	 << nrows << " * " << ncols << endl;      
+    theNumOfRows = nrows;  // Set new sizes
+    theNumOfCols = ncols;
+    // Resize the buffer
+    theBuffer.setSize(nrows,ncols);  // Modify
     bufferAlreadySet = true;
-  }
 
-  // Check if topology has changed
-  int nrows = readout.specificTopology().nrows();    // rows in x
-  int ncols = readout.specificTopology().ncolumns(); // cols in y
-
-
+#if 0
   // TO DO: need to convert to the new geometry
-  if( nrows>theNumOfRows || ncols>theNumOfCols ) {
     if (infoV) {
       cout << "PixelThresholdClusterizer::setup" << endl;
       cout << readout.specificTopology().pitch().first << " "; // pitch size in x
@@ -92,15 +97,9 @@ bool PixelThresholdClusterizer::setup( unsigned int detid )
 	   << theSeedThresholdInNoiseUnits << " " 
 	   << theClusterThresholdInNoiseUnits << endl;
     }
-    cout << " PixelThresholdClusterizer: pixel buffer redefined " 
-	 << nrows << " " << ncols << endl;      
-    theNumOfRows = nrows;  // Set new sizes
-    theNumOfCols = ncols;
-    // Resize the buffer
-    theBuffer.setSize(nrows,ncols);  // Modify
+#endif
   }
 
-#endif
   
   // Get all noise/threshold parameters 
   float noise = 2;  // Get noise in adc units. TO DO: add DB access.
@@ -130,6 +129,7 @@ bool PixelThresholdClusterizer::setup( unsigned int detid )
 std::vector<SiPixelCluster>
 PixelThresholdClusterizer::clusterizeDetUnit( DigiIterator begin, DigiIterator end,
 					      unsigned int detid,
+					      const PixelGeomDetUnit * pixDet,
 					      const std::vector<float>& noiseVec,
 					      const std::vector<short>& badChannels)
 {
@@ -141,7 +141,7 @@ PixelThresholdClusterizer::clusterizeDetUnit( DigiIterator begin, DigiIterator e
     return theClusters;
 
   //  Set up the clusterization on this DetId.
-  if (!setup(detid))
+  if (!setup(detid, pixDet))
     return theClusters;
 
   //  Copy PixelDigis to the buffer array; select the seed pixels

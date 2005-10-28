@@ -28,18 +28,23 @@
 //!
 //---------------------------------------------------------------------------
 
+#include "RecoLocalTracker/SiPixelClusterizer/interface/PixelClusterizerBase.h"
 
+#include "Geometry/TrackerSimAlgo/interface/TrackerGeom.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelClusterCollectionfwd.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigiCollectionfwd.h"
-#include "RecoLocalTracker/SiPixelClusterizer/interface/PixelClusterizerBase.h"
 
 #include "FWCore/EDProduct/interface/EDProduct.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+
+#include "FWCore/Framework/interface/Handle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 
 namespace cms
 {
@@ -61,7 +66,8 @@ namespace cms
 
     //--- Execute the algorithm(s).
     void run(const PixelDigiCollection* input,
-	     SiPixelClusterCollection &output);
+	     SiPixelClusterCollection &output,
+	     edm::ESHandle<TrackerGeom> & geom);
 
   private:
     edm::ParameterSet conf_;
