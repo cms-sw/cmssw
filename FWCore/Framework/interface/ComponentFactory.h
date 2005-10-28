@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 15:21:05 EDT 2005
-// $Id: ComponentFactory.h,v 1.9 2005/09/01 23:30:48 wmtan Exp $
+// $Id: ComponentFactory.h,v 1.10 2005/09/19 08:18:08 chrjones Exp $
 //
 
 // system include files
@@ -77,7 +77,14 @@ class ComponentFactory : public seal::PluginFactory< ComponentMakerBase<T>* ()>
             it = ret.first;
          }
          
-         it->second->addTo(iProvider,iConfiguration,iProcessName,iVersion,iPass);
+         try {
+            it->second->addTo(iProvider,iConfiguration,iProcessName,iVersion,iPass);
+         } catch(cms::Exception& iException) {
+            edm::Exception toThrow(edm::errors::Configuration,"Error occured while creating ");
+            toThrow<<modtype<<"\n";
+            toThrow.append(iException);
+            throw toThrow;
+         }
       }
    
       // ---------- static member functions --------------------
