@@ -4,7 +4,7 @@
 #ifndef HcalDbServiceHardcode_h
 #define HcalDbServiceHardcode_h
 
-#include "CalibFormats/HcalObjects/interface/HcalDbServiceBase.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
 /**
 
@@ -13,7 +13,7 @@
    \author Fedor Ratnikov
    
 */
-class HcalDbServiceHardcode : public HcalDbServiceBase {
+class HcalDbServiceHardcode {
  public:
   HcalDbServiceHardcode ();
   virtual ~HcalDbServiceHardcode ();
@@ -33,13 +33,15 @@ class HcalDbServiceHardcode : public HcalDbServiceBase {
   virtual const float* pedestalErrors (const HcalDetId& fCell) const;
   // gain const width
   virtual const float* gainErrors (const HcalDetId& fCell) const;
+  // pack range/capId in the plain index
+  static inline unsigned index (unsigned fRange, unsigned fCapId) {return fCapId * 4 + fRange;}
+  static inline unsigned range (unsigned fIndex) {return fIndex % 4;}
+  static inline unsigned capId (unsigned fIndex) {return fIndex / 4;}
   // offset for the (cell,capId,range)
   virtual const float* offsets (const HcalDetId& fCell) const;
   // slope for the (cell,capId,range)
   virtual const float* slopes (const HcalDetId& fCell) const;
 
-  // clone itself
-  virtual HcalDbServiceBase* clone () const;
   
  private:
   // internal buffers
