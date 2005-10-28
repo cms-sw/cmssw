@@ -1,17 +1,19 @@
 <use name=FWCore/Framework>
 <use name=DataFormats/HcalDetId>
-<use name=CalibFormats/CaloObjects>
 <use name=DataFormats/HcalDigi>
+<use name=CalibFormats/CaloObjects>
+<use name=CondFormats/HcalObjects>
 <use name=CondFormats/DataRecord>
 <use name=boost>
 
 <export>
-   <use name=FWCore/Framework>
    <lib name=CalibFormatsHcalObjects>
-   <use name=boost>
+   <use name=FWCore/Framework>
    <use name=DataFormats/HcalDetId>
-   <use name=CalibFormats/CaloObjects>
    <use name=DataFormats/HcalDigi>
+   <use name=CalibFormats/CaloObjects>
+   <use name=CondFormats/HcalObjects>
    <use name=CondFormats/DataRecord>
+   <use name=boost>
 </export>
 

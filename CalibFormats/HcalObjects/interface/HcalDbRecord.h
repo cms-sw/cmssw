@@ -16,7 +16,7 @@
 //
 // Author:      
 // Created:     Tue Aug  9 19:10:36 CDT 2005
-// $Id: HcalDbRecord.h,v 1.1 2005/08/15 21:45:25 fedor Exp $
+// $Id: HcalDbRecord.h,v 1.2 2005/10/04 18:05:54 fedor Exp $
 //
 #include "boost/mpl/vector.hpp"
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
@@ -26,12 +26,16 @@ class HcalPedestalsRcd;
 class HcalPedestalWidthsRcd;
 class HcalGainsRcd;
 class HcalGainWidthsRcd;
+class HcalQIEShapeRcd;
+class HcalQIEDataRcd;
+class HcalChannelQualityRcd;
+class HcalElectronicsMapRcd;
 
 
 // class HcalDbRecord : public edm::eventsetup::EventSetupRecordImplementation<HcalDbRecord> {};
 
 class HcalDbRecord : public edm::eventsetup::DependentRecordImplementation <HcalDbRecord,  
-  boost::mpl::vector<HcalPedestalsRcd, HcalPedestalWidthsRcd, HcalGainsRcd, HcalGainWidthsRcd> > {}; 
+  boost::mpl::vector<HcalPedestalsRcd, HcalPedestalWidthsRcd, HcalGainsRcd, HcalGainWidthsRcd, HcalQIEShapeRcd, HcalQIEDataRcd, HcalChannelQualityRcd, HcalElectronicsMapRcd > > {}; 
 
 #endif /* HCALDBPRODUCER_HCALDBRECORD_H */
 

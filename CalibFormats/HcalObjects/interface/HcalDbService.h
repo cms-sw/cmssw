@@ -16,22 +16,43 @@
 #include "CalibFormats/HcalObjects/interface/QieShape.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoder.h"
 
-class HcalDbServiceBase;
+class HcalPedestals;
+class HcalPedestalWidths;
+class HcalGains;
+class HcalGainWidths;
+class HcalQIEShape;
+class HcalQIEData;
+class HcalChannelQuality;
+class HcalElectronicsMap;
 
 class HcalDbService {
  public:
-  HcalDbService (const HcalDbServiceBase* fService);
+  HcalDbService ();
   std::auto_ptr<HcalCalibrations> getHcalCalibrations (const HcalDetId& fId) const;
   std::auto_ptr<HcalCalibrationWidths> getHcalCalibrationWidths (const HcalDetId& fId) const;
   std::auto_ptr<HcalCoder> getHcalCoder (const HcalDetId& fId) const;
+
   const QieShape* getBasicShape () const;
   std::auto_ptr<HcalChannelCoder> getChannelCoder (const HcalDetId& fId) const;
-
-  const HcalDbServiceBase* service () const {return mService;}
   
+  void setData (const HcalPedestals* fItem) {mPedestals = fItem;}
+  void setData (const HcalPedestalWidths* fItem) {mPedestalWidths = fItem;}
+  void setData (const HcalGains* fItem) {mGains = fItem;}
+  void setData (const HcalGainWidths* fItem) {mGainWidths = fItem;}
+  void setData (const HcalQIEShape* fItem) {mQIEShape = fItem;}
+  void setData (const HcalQIEData* fItem) {mQIEData = fItem;}
+  void setData (const HcalChannelQuality* fItem) {mChannelQuality = fItem;}
+  void setData (const HcalElectronicsMap* fItem) {mElectronicsMap = fItem;}
  private:
-  mutable QieShape* mQieShape;
-  const HcalDbServiceBase* mService;
+  mutable QieShape* mQieShapeCache;
+  const HcalPedestals* mPedestals;
+  const HcalPedestalWidths* mPedestalWidths;
+  const HcalGains* mGains;
+  const HcalGainWidths* mGainWidths;
+  const HcalQIEShape* mQIEShape;
+  const HcalQIEData* mQIEData;
+  const HcalChannelQuality* mChannelQuality;
+  const HcalElectronicsMap* mElectronicsMap;
 };
 
 #endif
