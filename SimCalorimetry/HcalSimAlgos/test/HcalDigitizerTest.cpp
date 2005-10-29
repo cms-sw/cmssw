@@ -15,6 +15,8 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalNoisifier.h"
 #include "CalibFormats/HcalObjects/interface/HcalNominalCoder.h"
 
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalDigitizerTraits.h"
+
 #include <vector>
 #include<iostream>
 #include<iterator>
@@ -65,21 +67,25 @@ int main() {
 
   HcalDbServiceHardcode dbService;
   HcalDbService calibratorHandle(&dbService);
-  HcalNoisifier noisifier(&calibratorHandle);
+  HcalNoisifier noisifier;
+  noisifier.setDbService(&calibratorHandle);
   HcalNominalCoder coder; 
   HcalElectronicsSim electronicsSim(&noisifier, &coder);
 
-  CaloTDigitizer<HBHEDataFrame, HcalElectronicsSim> hbheDigitizer(&hcalResponse, &electronicsSim, hcalDetIds);
-  CaloTDigitizer<HODataFrame, HcalElectronicsSim> hoDigitizer(&hcalResponse, &electronicsSim, hoDetIds);
-  CaloTDigitizer<HFDataFrame, HcalElectronicsSim> hfDigitizer(&hfResponse, &electronicsSim, hfDetIds);
+  CaloTDigitizer<HBHEDigitizerTraits> hbheDigitizer(&hcalResponse, &electronicsSim);
+  CaloTDigitizer<HODigitizerTraits> hoDigitizer(&hcalResponse, &electronicsSim);
+  CaloTDigitizer<HFDigitizerTraits> hfDigitizer(&hfResponse, &electronicsSim);
+  hbheDigitizer.setDetIds(hcalDetIds);
+  hfDigitizer.setDetIds(hfDetIds);
+  hoDigitizer.setDetIds(hoDetIds);
 
-  auto_ptr<vector<HBHEDataFrame> > hbheResult(new vector<HBHEDataFrame>);
-  auto_ptr<vector<HODataFrame> > hoResult(new vector<HODataFrame>);
-  auto_ptr<vector<HFDataFrame> > hfResult(new vector<HFDataFrame>);
+  auto_ptr<HBHEDigiCollection> hbheResult(new HBHEDigiCollection);
+  auto_ptr<HODigiCollection> hoResult(new HODigiCollection);
+  auto_ptr<HFDigiCollection> hfResult(new HFDigiCollection);
 
-  hbheDigitizer.run(hbheHits, hbheResult);
-  hoDigitizer.run(hoHits, hoResult);
-  hfDigitizer.run(hfHits, hfResult);
+  hbheDigitizer.run(hbheHits, *hbheResult);
+  hoDigitizer.run(hoHits, *hoResult);
+  hfDigitizer.run(hfHits, *hfResult);
 
   // print out all the digis
   cout << "HBHE Frames" << endl;
