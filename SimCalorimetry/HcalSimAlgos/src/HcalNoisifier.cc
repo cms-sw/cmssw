@@ -7,17 +7,18 @@
 #include<iostream>
 namespace cms {
 
-  HcalNoisifier::HcalNoisifier(HcalDbService * calibrator) :
+  HcalNoisifier::HcalNoisifier() :
     theStartingCapId(0),
-    theCalibrationHandle(calibrator)
+    theDbService(0)
   {
   }
 
 
   void HcalNoisifier::noisify(CaloSamples & frame) const {
+    assert(theDbService != 0);
     HcalDetId hcalDetId(frame.id());
-    HcalCalibrations calibrations = *(theCalibrationHandle->getHcalCalibrations(hcalDetId));
-    HcalCalibrationWidths widths = *(theCalibrationHandle->getHcalCalibrationWidths(hcalDetId));
+    HcalCalibrations calibrations = *(theDbService->getHcalCalibrations(hcalDetId));
+    HcalCalibrationWidths widths = *(theDbService->getHcalCalibrationWidths(hcalDetId));
     for(int tbin = 0; tbin < frame.size(); ++tbin) {
 
       int capId = (theStartingCapId + tbin)%4;
@@ -26,7 +27,6 @@ namespace cms {
       // pedestals come in units of GeV.  Use gain to convert
       frame[tbin] = (frame[tbin]+pedestal) / gain;
     }
-std::cout << "AFTER HCAL NOISE  " << std::endl;
     std::cout << frame << std::endl;
   }
 }

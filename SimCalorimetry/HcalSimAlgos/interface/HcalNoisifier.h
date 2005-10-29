@@ -8,15 +8,20 @@ namespace cms {
   
   class HcalNoisifier : public CaloVNoisifier {
   public:
-    explicit HcalNoisifier(HcalDbService * calibrator);
+    HcalNoisifier();
     /// doesn't delete the pointer
     virtual ~HcalNoisifier(){}
   
+    /// the Producer will probably update this every event
+    void setDbService(const HcalDbService * service) {
+      theDbService = service;
+     }
+
     virtual void noisify(CaloSamples & linearFrame) const;
   
   private:
     unsigned theStartingCapId;
-    HcalDbService * theCalibrationHandle;
+    const HcalDbService * theDbService;
   };
 } 
 #endif
