@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  * 
- * $Date: 2005/10/27 09:57:35 $
- * $Revision: 1.12 $
+ * $Date: 2005/10/28 11:46:23 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  *
 */
@@ -81,8 +81,8 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
     int ic = id.ic();
 
-    logFile << " det id = " << id << endl;
-    logFile << " sm, eta, phi " << ism << " " << ie*iz << " " << ip << endl;
+//    logFile << " det id = " << id << endl;
+//    logFile << " sm, eta, phi " << ism << " " << ie*iz << " " << ip << endl;
 
     float xped = 0.;
 
