@@ -47,7 +47,6 @@ void CaloHitResponse::run(const vector<CaloHit> & hits) {
 CaloSamples CaloHitResponse::makeAnalogSignal(const CaloHit & hit) const {
   const DetId & id = hit.id();
   const CaloSimParameters & parameters = theParameterMap->simParameters(id);
-  std::cout << parameters << endl;
 
   double signal = analogSignalAmplitude(hit, parameters);
 
@@ -64,7 +63,6 @@ CaloSamples CaloHitResponse::makeAnalogSignal(const CaloHit & hit) const {
    //std::cout << "BIN " << bin << " TIME " << binTime << " SHAPE " << (*theShape)(binTime) << " SIG " << signal << endl;
     binTime += BUNCHSPACE;
   }
-  std::cout << "SAMPLE " << result << endl;
   return result;
 } 
 
