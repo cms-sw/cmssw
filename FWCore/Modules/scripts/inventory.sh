@@ -17,6 +17,7 @@ then
 	echo "No version of Root is set up. Aborting."
 	exit
 fi
+here=`dirname $0`
 #
 # Cycle through the list of input files one by one. If the
 # file exists, process it.  Otherwise complain and move on.
@@ -29,7 +30,7 @@ do
 		echo "Processing file $1"
 		echo " "
 		root -l << EOF
-.x inventory.C+
+.x ${here}/inventory2.C+
 $1
 quit
 .q
