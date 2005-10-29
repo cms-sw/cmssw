@@ -3,9 +3,9 @@
 
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include <CLHEP/Geometry/Point3D.h>
-/* #include <CLHEP/Geometry/Plane3D.h> */
-/* #include <CLHEP/Geometry/Vector3D.h> */
-/* #include <CLHEP/Geometry/Transform3D.h> */
+#include <CLHEP/Geometry/Plane3D.h>
+#include <CLHEP/Geometry/Vector3D.h>
+#include <CLHEP/Geometry/Transform3D.h>
 #include <vector>
 
 
@@ -37,11 +37,11 @@ public:
 
   virtual ~TruncatedPyramid(){};
 
-/*   //! Inside the volume? */
-/*   bool inside(const HepPoint3D &point) const;   */
+  //! Inside the volume?
+  virtual bool inside(const GlobalPoint & point) const;  
   
-/*   //! Access to data */
-/*   virtual const vector<HepPlane3D> & getBoundaries() const; */
+  //! Access to data
+  virtual const vector<HepPlane3D> & getBoundaries() const { return boundaries; };
   
   //! Access to data
   virtual const vector<GlobalPoint> & getCorners() const;  
@@ -59,7 +59,7 @@ public:
       This could eventually go up to CellGeometry as an abstract
       function.
   */
-  //  void hepTransform(const HepTransform3D &transformation);
+  void hepTransform(const HepTransform3D &transformation);
 
   /** helper function to calculate a trapezium area. This can e.g.
       be used to decide which of the two trapezium faces is the front
@@ -85,6 +85,9 @@ protected:
   /** Azimuthal angle of the axis of teh cristal */
   float phiAxis;
 
+  /** Bondary planes of the cristal */
+  vector<HepPlane3D> boundaries;
+
   /** constructs the crystal from the Geant3 like parameters.
       The trapezoid's center is at (0,0,0). 
 
@@ -97,13 +100,16 @@ protected:
         the side at positive or negative z should be considered as the
         front face of the crystal.
 
-       
+	
   */
+
+
+
   virtual void init(double dz,                 // axis length 
-            double theta, double phi,  // axis direction
-            double h1, double bl1, double tl1, double alpha1, // trapezium face at z < 0 parameters
-            double h2, double bl2, double tl2, double alpha2, // trapezium face at z > 0 parameters
-            bool frontSideIsPositiveZ);
+		    double theta, double phi,  // axis direction
+		    double h1, double bl1, double tl1, double alpha1, // trapezium face at z < 0 parameters
+		    double h2, double bl2, double tl2, double alpha2, // trapezium face at z > 0 parameters
+		    bool frontSideIsPositiveZ);
 
 };
 

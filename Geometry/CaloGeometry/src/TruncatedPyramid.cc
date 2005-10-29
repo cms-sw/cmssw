@@ -24,7 +24,7 @@ TruncatedPyramid::TruncatedPyramid(double dz, double theta, double phi,
                                 // face from the second four points
   else
     offset = 0;                 // or from the first four points
-
+  
   HepGeom::Point3D<double> position;
   for (i=0; i<4; ++i)
     position += HepGeom::Point3D<double>(corners[i + offset].x(),corners[i + offset].y(),corners[i + offset].z());
@@ -37,9 +37,9 @@ TruncatedPyramid::TruncatedPyramid(double dz, double theta, double phi,
 //----------------------------------------------------------------------
 
 void TruncatedPyramid::init(double dz, double theta, double phi, 
-                                   double h1, double bl1, double tl1, double alpha1, 
-                                   double h2, double bl2, double tl2, double alpha2, 
-                                   bool frontSideIsPositiveZ)
+			    double h1, double bl1, double tl1, double alpha1, 
+			    double h2, double bl2, double tl2, double alpha2,
+			    bool frontSideIsPositiveZ)
 {
   corners.resize(8);
   
@@ -77,83 +77,91 @@ void TruncatedPyramid::init(double dz, double theta, double phi,
   thetaAxis = theta;
   phiAxis = phi;
 
+  // create the boundary planes, the first boundary plane will be the
+  // front side
+
+  if (frontSideIsPositiveZ)
+    {
+      boundaries.push_back(HepPlane3D(HepGeom::Point3D<float>(corners[4].x(),corners[4].y(),corners[4].z()), HepGeom::Point3D<float>(corners[5].x(),corners[5].y(),corners[5].z()), HepGeom::Point3D<float>(corners[6].x(),corners[6].y(),corners[6].z())));
+      boundaries.push_back(HepPlane3D(HepGeom::Point3D<float>(corners[0].x(),corners[0].y(),corners[0].z()),HepGeom::Point3D<float>(corners[1].x(),corners[1].y(),corners[1].z()),HepGeom::Point3D<float>(corners[2].x(),corners[2].y(),corners[2].z())));
+    }
+  else
+    {
+      boundaries.push_back(HepPlane3D(HepGeom::Point3D<float>(corners[0].x(),corners[0].y(),corners[0].z()),HepGeom::Point3D<float>(corners[1].x(),corners[1].y(),corners[1].z()),HepGeom::Point3D<float>(corners[2].x(),corners[2].y(),corners[2].z())));
+      boundaries.push_back(HepPlane3D(HepGeom::Point3D<float>(corners[4].x(),corners[4].y(),corners[4].z()), HepGeom::Point3D<float>(corners[5].x(),corners[5].y(),corners[5].z()), HepGeom::Point3D<float>(corners[6].x(),corners[6].y(),corners[6].z())));
+    }
+  
+  // now generate the other boundaries
+  boundaries.push_back(HepPlane3D(HepGeom::Point3D<float>(corners[0].x(),corners[0].y(),corners[0].z()),HepGeom::Point3D<float>(corners[1].x(),corners[1].y(),corners[1].z()),HepGeom::Point3D<float>(corners[4].x(),corners[4].y(),corners[4].z())));
+  boundaries.push_back(HepPlane3D(HepGeom::Point3D<float>(corners[1].x(),corners[1].y(),corners[1].z()),HepGeom::Point3D<float>(corners[2].x(),corners[2].y(),corners[2].z()),HepGeom::Point3D<float>(corners[5].x(),corners[5].y(),corners[5].z())));
+  boundaries.push_back(HepPlane3D(HepGeom::Point3D<float>(corners[0].x(),corners[0].y(),corners[0].z()),HepGeom::Point3D<float>(corners[3].x(),corners[3].y(),corners[3].z()),HepGeom::Point3D<float>(corners[4].x(),corners[4].y(),corners[4].z())));
+  boundaries.push_back(HepPlane3D(HepGeom::Point3D<float>(corners[2].x(),corners[2].y(),corners[2].z()),HepGeom::Point3D<float>(corners[3].x(),corners[3].y(),corners[3].z()),HepGeom::Point3D<float>(corners[6].x(),corners[6].y(),corners[6].z())));
+  
+  // normalize the planes
+  for (unsigned i=0; i < boundaries.size(); ++i)
+    boundaries[i] = boundaries[i].normalize();
 }
 
 //----------------------------------------------------------------------
 
-// bool 
-// TruncatedPyramid::inside(const HepGeom::Point3D<double> &testPoint) const
-// {
-//   vector<HepPlane3D> boundaries=getBoundaries();
+bool TruncatedPyramid::inside(const GlobalPoint & Point) const
+{
 
-//   const HepGeom::Point3D<float> testPointb(testPoint.x(),testPoint.y(),testPoint.z());
-//   // with ordered planes this method becomes simpler
-//   if ((testPoint-boundaries[0].point(testPointb))*(testPoint-boundaries[1].point(testPointb))>0){
-//    return false ;
-//   } 
-//   if ((testPoint-boundaries[2].point(testPointb))*(testPoint-boundaries[5].point(testPointb))>0){   
-//    return false ;
-//   } 
-//   if ((testPoint-boundaries[3].point(testPointb))*(testPoint-boundaries[4].point(testPointb))>0){ 
-//    return false ;
-//   }
-//   return true;
-// }
+  const HepGeom::Point3D<float> testPoint(Point.x(),Point.y(),Point.z());
+  const HepGeom::Point3D<float> testPointb(Point.x(),Point.y(),Point.z());
+  // with ordered planes this method becomes simpler
+  if ((testPoint-boundaries[0].point(testPointb))*(testPoint-boundaries[1].point(testPointb))>0){
+   return false ;
+  } 
+  if ((testPoint-boundaries[2].point(testPointb))*(testPoint-boundaries[5].point(testPointb))>0){   
+   return false ;
+  } 
+  if ((testPoint-boundaries[3].point(testPointb))*(testPoint-boundaries[4].point(testPointb))>0){ 
+   return false ;
+  }
+  return true;
+}
 
-// //For the moment returning them only when asked. If speed will be a concern move them as protected members
-// const vector<HepPlane3D> & TruncatedPyramid::getBoundaries() const
-// { 
-//   vector<HepPlane3D> boundaries;
-//   // create the boundary planes, the first boundary plane will be the
-//   // front side
-//   if (frontSideIsPositiveZ)
-//     {
-//       boundaries.push_back(HepPlane3D(corners[4], corners[5], corners[6])) ;  // trapezium at +dz
-//       boundaries.push_back(HepPlane3D(corners[0], corners[1], corners[2])) ; // trapezium at -dz
-//     }
-//   else
-//     {
-//       boundaries.push_back(HepPlane3D(corners[0], corners[1], corners[2])) ; // trapezium at -dz
-//       boundaries.push_back(HepPlane3D(corners[4], corners[5], corners[6])) ;  // trapezium at +dz
-//     }
-  
-//   // now generate the other boundaries
-//   boundaries.push_back(HepPlane3D(corners[0], corners[1], corners[4])); // (-,-,-) (-,+,-) (-,-,+) -> (-,?,?)
-//   boundaries.push_back(HepPlane3D(corners[1], corners[2], corners[5])); // (-,+,-) (+,+,-) (-,+,+) -> (?,+,?)
-//   boundaries.push_back(HepPlane3D(corners[0], corners[3], corners[4])); // (-,-,-) (+,-,-) (-,-,+) -> (?,-,?)
-//   boundaries.push_back(HepPlane3D(corners[2], corners[3], corners[6])); // (+,+,-) (+,-,-) (+,+,+) -> (+,?,?)  
-  
-//   // normalize the planes
-//   for (unsigned i=0; i < boundaries.size(); ++i)
-//     boundaries[i] = boundaries[i].normalize();
-   
-//   return boundaries ; 
-// }
 
 const vector<GlobalPoint> & TruncatedPyramid::getCorners() const
 { return corners ; }
 
 //----------------------------------------------------------------------
-// void 
-// TruncatedPyramid::hepTransform(const HepTransform3D &transformation)
-// {
-//   unsigned int i;
+void 
+TruncatedPyramid::hepTransform(const HepTransform3D &transformation)
+{
 
 
-//   for (i=0; i<corners.size(); ++i)
-//     corners[i].transform(transformation);
-  
-//   position_.transform(transformation);
+  unsigned int i;
 
-//   HepVector3D axe(1.,1.,1.); 
-//   axe.setMag(1.); // must do this first
-//   axe.setTheta(thetaAxis);
-//   axe.setPhi(phiAxis);
+  //Updating corners
+  for (i=0; i<corners.size(); ++i)
+    {
+      HepGeom::Point3D<float> newCorner(corners[i].x(),corners[i].y(),corners[i].z());
+      newCorner.transform(transformation);
+      corners[i]=GlobalPoint(newCorner.x(),newCorner.y(),newCorner.z());
+    }
 
-//   axe.transform(transformation);
-//   thetaAxis = axe.getTheta();
-//   phiAxis = axe.getPhi();
-// }
+  //Updating reference position
+  const GlobalPoint& position_=getPosition();
+  HepGeom::Point3D<float> newPosition(position_.x(),position_.y(),position_.z());
+  newPosition.transform(transformation);
+  setPosition(GlobalPoint(newPosition.x(),newPosition.y(),newPosition.z()));
+
+  //Updating Bondaries
+  for (i=0; i<boundaries.size(); ++i)
+    boundaries[i].transform(transformation);
+
+  //Updating Theta and Phi
+  HepVector3D axe(1.,1.,1.); 
+  axe.setMag(1.); // must do this first
+  axe.setTheta(thetaAxis);
+  axe.setPhi(phiAxis);
+  axe.transform(transformation);
+  thetaAxis = axe.getTheta();
+  phiAxis = axe.getPhi();
+
+}
 
 //----------------------------------------------------------------------
 double 
