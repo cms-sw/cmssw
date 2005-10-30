@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  * 
- * $Date: 2005/10/30 15:37:34 $
- * $Revision: 1.27 $
+ * $Date: 2005/10/30 16:29:41 $
+ * $Revision: 1.28 $
  * \author G. Della Ricca
  *
 */
@@ -174,6 +174,8 @@ void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
   laser_task->analyze(e, c);
 
   cosmic_task->analyze(e, c);
+
+  sleep(10);
 
 }
 
