@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  * 
- * $Date: 2005/10/29 09:48:14 $
- * $Revision: 1.15 $
+ * $Date: 2005/10/30 14:16:19 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  *
 */
@@ -70,8 +70,8 @@ void EBTestPulseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   edm::Handle<EBDigiCollection>  digis;
   e.getByLabel("ecalEBunpacker", digis);
 
-//  int ned = digis->size();
-//  cout << "EBTestPulseTask: event " << ievt << " digi collection size " << neb << endl;
+//  int nebd = digis->size();
+//  cout << "EBTestPulseTask: event " << ievt << " digi collection size " << nebd << endl;
 
   for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
