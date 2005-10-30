@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  * 
- * $Date: 2005/10/30 14:34:05 $
- * $Revision: 1.18 $
+ * $Date: 2005/10/30 14:41:47 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  *
 */
@@ -70,12 +70,12 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
     EBDataFrame dataframe = (*digiItr);
     EBDetId id = dataframe.id();
 
-    int ie = id.ieta();
-    int ip = id.iphi();
-    int iz = id.zside();
+//    int ie = id.ieta();
+//    int ip = id.iphi();
+//    int iz = id.zside();
 
-    float xie = iz * (ie - 0.5);
-    float xip = ip - 0.5;
+//    float xie = iz * (ie - 0.5);
+//    float xip = ip - 0.5;
 
     int ism = id.ism();
 
@@ -149,7 +149,7 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
 //    logFile << " hit amplitude " << xval << endl;
 
-    if ( meAmplMap[ism-1] ) meAmplMap[ism-1]->Fill(xie, xip, xval);
+    if ( meAmplMap ) meAmplMap->Fill(xie, xip, xval);
 
   }
 

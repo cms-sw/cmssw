@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  * 
- * $Date: 2005/10/30 14:35:17 $
- * $Revision: 1.18 $
+ * $Date: 2005/10/30 14:41:47 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  *
 */
@@ -78,12 +78,12 @@ void EBTestPulseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
     EBDataFrame dataframe = (*digiItr);
     EBDetId id = dataframe.id();
 
-    int ie = id.ieta();
-    int ip = id.iphi();
-    int iz = id.zside();
+//    int ie = id.ieta();
+//    int ip = id.iphi();
+//    int iz = id.zside();
 
-    float xie = iz * (ie - 0.5);
-    float xip = ip - 0.5;
+//    float xie = iz * (ie - 0.5);
+//    float xip = ip - 0.5;
 
     int ism = id.ism();
 
@@ -91,10 +91,6 @@ void EBTestPulseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
 //    logFile << " det id = " << id << endl;
 //    logFile << " sm, eta, phi " << ism << " " << ie*iz << " " << ip << endl;
-
-    float xped = 0.;
-
-    float xvalmax = 0.;
 
     for (int i = 0; i < 10; i++) {
 

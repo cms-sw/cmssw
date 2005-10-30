@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  * 
- * $Date: 2005/10/28 10:22:30 $
- * $Revision: 1.24 $
+ * $Date: 2005/10/30 14:16:19 $
+ * $Revision: 1.25 $
  * \author G. Della Ricca
  *
 */
@@ -120,7 +120,7 @@ void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
 
   int nebd = digis->size();
 
-  cout << "EcalBarrelMonitorModule: event " << ievt << " digi collection size " << nebh << endl;
+  cout << "EcalBarrelMonitorModule: event " << ievt << " digi collection size " << nebd << endl;
 
   if ( meEBdigi ) meEBdigi->Fill(float(nebd));
 
