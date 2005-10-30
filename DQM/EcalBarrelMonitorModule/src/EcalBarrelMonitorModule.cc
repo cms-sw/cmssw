@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  * 
- * $Date: 2005/10/30 14:58:56 $
- * $Revision: 1.26 $
+ * $Date: 2005/10/30 15:37:34 $
+ * $Revision: 1.27 $
  * \author G. Della Ricca
  *
 */
@@ -157,15 +157,11 @@ void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
       return;
     }
 
-// average rms per crystal
-
-    float xrms = 1.2;
-
     float xval = 0.001 * hit.amplitude();
 
 //    logFile << " hit amplitude " << xval << endl;
 
-    if ( xval >= 3.0 * xrms ) {
+    if ( xval >= 10 ) {
        if ( meEvent[ism-1] ) meEvent[ism-1]->Fill(xie, xip, xval);
     }
 
