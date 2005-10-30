@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  * 
- * $Date: 2005/10/30 14:29:30 $
- * $Revision: 1.17 $
+ * $Date: 2005/10/30 14:34:05 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  *
 */
@@ -145,17 +145,11 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
     if ( il == 1 ) meAmplMap = meAmplMapL1[ism-1];
     if ( il == 2 ) meAmplMap = meAmplMapL2[ism-1];
 
-// average rms per crystal
-
-    float xrms = 1.2;
-
     float xval = hit.amplitude();
 
 //    logFile << " hit amplitude " << xval << endl;
 
-    if ( xval >= 3.0 * xrms ) {
-       if ( meAmplMap[ism-1] ) meAmplMap[ism-1]->Fill(xie, xip, xval);
-    }
+    if ( meAmplMap[ism-1] ) meAmplMap[ism-1]->Fill(xie, xip, xval);
 
   }
 

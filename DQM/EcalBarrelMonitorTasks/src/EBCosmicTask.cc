@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  * 
- * $Date: 2005/10/30 14:17:27 $
- * $Revision: 1.17 $
+ * $Date: 2005/10/30 14:19:54 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  *
 */
@@ -55,16 +55,16 @@ void EBCosmicTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   ievt++;
 
-  edm::Handle<EBDigiCollection>  digis;
-  e.getByLabel("ecalEBunpacker", digis);
+  edm::Handle<EcalUncalibratedRecHitCollection>  hits;
+  e.getByLabel("ecalUncalibHitMaker", "EcalEBUncalibRecHits", hits);
 
-//  int nebd = digis->size();
-//  cout << "EBCosmicTask: event " << ievt << " digi collection size " << nebd << endl;
+//  int nebh = hits->size();
+//  cout << "EBCosmicTask: event " << ievt << " hits collection size " << nebh << endl;
 
-  for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
+  for ( EcalUncalibratedRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
 
-    EBDataFrame dataframe = (*digiItr);
-    EBDetId id = dataframe.id();
+    EcalUncalibratedRecHit hit = (*hitItr);
+    EBDetId id = hit.id();
 
     int ie = id.ieta();
     int ip = id.iphi();
@@ -78,53 +78,21 @@ void EBCosmicTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 //    logFile << " det id = " << id << endl;
 //    logFile << " sm, eta, phi " << ism << " " << ie*iz << " " << ip << endl;
 
-    float xped = 0.;
-
-    float xvalmax = 0.;
-
-    for (int i = 0; i < 10; i++) {
-
-      EcalMGPASample sample = dataframe.sample(i);
-      int adc = sample.adc();
-      float gain = 1.;
-
-      if ( sample.gainId() == 1 ) {
-        gain = 1./12.;
-      }
-      if ( sample.gainId() == 2 ) {
-        gain = 1./ 6.;
-      }
-      if ( sample.gainId() == 3 ) {
-        gain = 1./ 1.;
-      }
-
-      float xval = adc * gain;
-
-// use the 3 first samples for the pedestal
-
-      if ( i <= 2 ) {
-        xped = xped + xval / 3.;
-      }
-
 // average rms per crystal
 
-      float xrms = 1.2;
+    float xrms = 1.2;
 
-// signal samples
+    float xval = hit.amplitude();
 
-      if ( i >= 3 ) {
-        xval = xval - xped;
-        if ( xval >= 3.0 * xrms && xval >= xvalmax ) xvalmax = xval;
-      }
+//    logFile << " hit amplitude " << xval << endl;
 
+
+    if ( xval >= 500 ) {
+      if ( meCutMap[ism-1] ) meCutMap[ism-1]->Fill(xie, xip, xval);
     }
 
-    if ( xvalmax >= 5 ) {
-      if ( meCutMap[ism-1] ) meCutMap[ism-1]->Fill(xie, xip, xvalmax);
-    }
-
-    if ( xvalmax >= 10 ) {
-      if ( meSelMap[ism-1] ) meSelMap[ism-1]->Fill(xie, xip, xvalmax);
+    if ( xval >= 1000 ) {
+      if ( meSelMap[ism-1] ) meSelMap[ism-1]->Fill(xie, xip, xval);
     }
 
   }

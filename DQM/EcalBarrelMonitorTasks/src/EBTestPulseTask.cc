@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  * 
- * $Date: 2005/10/30 14:18:48 $
- * $Revision: 1.17 $
+ * $Date: 2005/10/30 14:35:17 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  *
 */
@@ -150,17 +150,15 @@ void EBTestPulseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
     MonitorElement* meAmplMap = 0;
 
-// average rms per crystal
-
-    float xrms = 1.2;
+    if ( ievt >=   0 && ievt <=  50 ) meAmplMap = meAmplMapG01[ism-1];
+    if ( ievt >=  50 && ievt <= 100 ) meAmplMap = meAmplMapG06[ism-1];
+    if ( ievt >= 100 && ievt <= 150 ) meAmplMap = meAmplMapG12[ism-1];
 
     float xval = hit.amplitude();
 
 //    logFile << " hit amplitude " << xval << endl;
 
-    if ( xval >= 3.0 * xrms ) {
-      if ( meAmplMap ) meAmplMap->Fill(xie, xip, xval);
-    }
+    if ( meAmplMap ) meAmplMap->Fill(xie, xip, xval);
 
   }
 
