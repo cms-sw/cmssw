@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  * 
- * $Date: 2005/10/30 14:17:27 $
- * $Revision: 1.15 $
+ * $Date: 2005/10/30 14:19:54 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  *
 */
@@ -84,12 +84,6 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 //    logFile << " det id = " << id << endl;
 //    logFile << " sm, eta, phi " << ism << " " << ie*iz << " " << ip << endl;
 
-    float xped = 0.;
-
-    float xvalmax = 0.;
-
-    MonitorElement* meAmplMap = 0;
-
     for (int i = 0; i < 10; i++) {
 
       EcalMGPASample sample = dataframe.sample(i);
@@ -110,39 +104,58 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
         gain = 1./ 1.;
       }
 
-      if ( il == 1 ) {
-          meShapeMap = meShapeMapL1[ism-1];
-          meAmplMap = meAmplMapL1[ism-1];
-      }
-      if ( il == 2 ) {
-        meShapeMap = meShapeMapL2[ism-1];
-        meAmplMap = meAmplMapL2[ism-1];
-      }
+      if ( il == 1 ) meShapeMap = meShapeMapL1[ism-1];
+      if ( il == 2 ) meShapeMap = meShapeMapL2[ism-1];
 
       float xval = adc * gain;
 
-// use the 3 first samples for the pedestal
-
-      if ( i <= 2 ) {
-        xped = xped + xval / 3.;
-      }
-
       if ( meShapeMap ) meShapeMap->Fill( ic - 0.5, i + 0.5, xval);
-
-// average rms per crystal
-
-      float xrms = 1.2;
-
-// signal samples
-
-      if ( i >= 3 ) {
-        xval = xval - xped;
-        if ( xval >= 3.0 * xrms && xval >= xvalmax ) xvalmax = xval;
-      }
 
     }
 
-    if ( meAmplMap ) meAmplMap->Fill(xie, xip, xvalmax);
+  }
+
+  edm::Handle<EcalUncalibratedRecHitCollection>  hits;
+  e.getByLabel("ecalUncalibHitMaker", "EcalEBUncalibRecHits", hits);
+
+//  int neh = hits->size();
+//  cout << "EBTestPulseTask: event " << ievt << " hits collection size " << neb << endl;
+
+  for ( EcalUncalibratedRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
+
+    EcalUncalibratedRecHit hit = (*hitItr);
+    EBDetId id = hit.id();
+
+    int ie = id.ieta();
+    int ip = id.iphi();
+    int iz = id.zside();
+
+    float xie = iz * (ie - 0.5);
+    float xip = ip - 0.5;
+
+    int ism = id.ism();
+
+//    logFile << " det id = " << id << endl;
+//    logFile << " sm, eta, phi " << ism << " " << ie*iz << " " << ip << endl;
+
+    MonitorElement* meShapeMap = 0;
+
+    int il = 1;
+
+    if ( il == 1 ) meAmplMapL1[ism-1];
+    if ( il == 2 ) meAmplMapL2[ism-1];
+
+// average rms per crystal
+
+    float xrms = 1.2;
+
+    float xval = hit.amplitude();
+
+//    logFile << " hit amplitude " << xval << endl;
+
+    if ( xval >= 3.0 * xrms ) {
+       if ( meAmplMap[ism-1] ) meAmplMap[ism-1]->Fill(xie, xip, xval);
+    }
 
   }
 
