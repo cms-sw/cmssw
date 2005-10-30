@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  * 
- * $Date: 2005/10/30 14:16:19 $
- * $Revision: 1.16 $
+ * $Date: 2005/10/30 14:18:48 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  *
 */
@@ -96,8 +96,6 @@ void EBTestPulseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
     float xvalmax = 0.;
 
-    MonitorElement* meAmplMap = 0;
-
     for (int i = 0; i < 10; i++) {
 
       EcalMGPASample sample = dataframe.sample(i);
@@ -109,43 +107,21 @@ void EBTestPulseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( sample.gainId() == 1 ) {
         gain = 1./12.;
         meShapeMap = meShapeMapG12[ism-1];
-        meAmplMap = meAmplMapG12[ism-1];
       }
       if ( sample.gainId() == 2 ) {
         gain = 1./ 6.;
         meShapeMap = meShapeMapG06[ism-1];
-        meAmplMap = meAmplMapG06[ism-1];
       }
       if ( sample.gainId() == 3 ) {
         gain = 1./ 1.;
         meShapeMap = meShapeMapG01[ism-1];
-        meAmplMap = meAmplMapG01[ism-1];
       }
 
       float xval = adc * gain;
 
-// use the 3 first samples for the pedestal
-
-      if ( i <= 2 ) {
-        xped = xped + xval / 3.;
-      }
-
       if ( meShapeMap ) meShapeMap->Fill( ic - 0.5, i + 0.5, xval);
 
-// average rms per crystal
-
-      float xrms = 1.2;
-
-// signal samples
-
-      if ( i >= 3 ) {
-        xval = xval - xped;
-        if ( xval >= 3.0 * xrms && xval >= xvalmax ) xvalmax = xval;
-      }
-
     }
-
-    if ( meAmplMap ) meAmplMap->Fill(xie, xip, xvalmax);
 
   }
 
@@ -172,6 +148,8 @@ void EBTestPulseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 //    logFile << " det id = " << id << endl;
 //    logFile << " sm, eta, phi " << ism << " " << ie*iz << " " << ip << endl;
 
+    MonitorElement* meAmplMap = 0;
+
 // average rms per crystal
 
     float xrms = 1.2;
@@ -181,7 +159,7 @@ void EBTestPulseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 //    logFile << " hit amplitude " << xval << endl;
 
     if ( xval >= 3.0 * xrms ) {
-       if ( meEvent[ism-1] ) meEvent[ism-1]->Fill(xie, xip, xval);
+      if ( meAmplMap ) meAmplMap->Fill(xie, xip, xval);
     }
 
   }

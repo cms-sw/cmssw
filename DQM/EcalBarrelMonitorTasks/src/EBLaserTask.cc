@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  * 
- * $Date: 2005/10/30 14:19:54 $
- * $Revision: 1.16 $
+ * $Date: 2005/10/30 14:29:30 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  *
 */
@@ -138,12 +138,12 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 //    logFile << " det id = " << id << endl;
 //    logFile << " sm, eta, phi " << ism << " " << ie*iz << " " << ip << endl;
 
-    MonitorElement* meShapeMap = 0;
+    MonitorElement* meAmplMap = 0;
 
     int il = 1;
 
-    if ( il == 1 ) meAmplMapL1[ism-1];
-    if ( il == 2 ) meAmplMapL2[ism-1];
+    if ( il == 1 ) meAmplMap = meAmplMapL1[ism-1];
+    if ( il == 2 ) meAmplMap = meAmplMapL2[ism-1];
 
 // average rms per crystal
 
