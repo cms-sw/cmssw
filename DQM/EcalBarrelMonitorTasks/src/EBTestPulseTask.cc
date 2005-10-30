@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  * 
- * $Date: 2005/10/28 11:46:23 $
- * $Revision: 1.14 $
+ * $Date: 2005/10/29 09:48:14 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  *
 */
@@ -70,8 +70,8 @@ void EBTestPulseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   edm::Handle<EBDigiCollection>  digis;
   e.getByLabel("ecalEBunpacker", digis);
 
-//  int neb = digis->size();
-//  cout << "EBTestPulseTask: event " << ievt << " collection size " << neb << endl;
+//  int ned = digis->size();
+//  cout << "EBTestPulseTask: event " << ievt << " digi collection size " << neb << endl;
 
   for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
@@ -146,6 +146,43 @@ void EBTestPulseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
     }
 
     if ( meAmplMap ) meAmplMap->Fill(xie, xip, xvalmax);
+
+  }
+
+  edm::Handle<EcalUncalibratedRecHitCollection>  hits;
+  e.getByLabel("ecalUncalibHitMaker", "EcalEBUncalibRecHits", hits);
+
+//  int neh = hits->size();
+//  cout << "EBTestPulseTask: event " << ievt << " hits collection size " << neb << endl;
+
+  for ( EcalUncalibratedRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
+
+    EcalUncalibratedRecHit hit = (*hitItr);
+    EBDetId id = hit.id();
+
+    int ie = id.ieta();
+    int ip = id.iphi();
+    int iz = id.zside();
+
+    float xie = iz * (ie - 0.5);
+    float xip = ip - 0.5;
+
+    int ism = id.ism();
+
+//    logFile << " det id = " << id << endl;
+//    logFile << " sm, eta, phi " << ism << " " << ie*iz << " " << ip << endl;
+
+// average rms per crystal
+
+    float xrms = 1.2;
+
+    float xval = hit.amplitude();
+
+//    logFile << " hit amplitude " << xval << endl;
+
+    if ( xval >= 3.0 * xrms ) {
+       if ( meEvent[ism-1] ) meEvent[ism-1]->Fill(xie, xip, xval);
+    }
 
   }
 

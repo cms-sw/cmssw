@@ -2,8 +2,9 @@
 <use name=FWCore/Framework>
 <use name=DQMServices/CoreROOT>
 <use name=DataFormats/FEDRawData>
-<use name=DataFormats/EcalDetId>	
-<use name=DataFormats/EcalDigi>	
+<use name=DataFormats/EcalDetId>
+<use name=DataFormats/EcalDigi>
+<use name=DataFormats/EcalRecHit>
 <use name=DQM/EcalBarrelMonitorTasks>
 <use name=boost>
 <use name=root>
@@ -12,10 +13,11 @@
  <lib name=DQMEcalBarrelMonitorModule>
  <use name=FWCore/Framework>
  <use name=DQMServices/CoreROOT>
- <use name=DataFormats/FEDRawData>	
- <use name=DataFormats/EcalDetId>	
- <use name=DataFormats/EcalDigi>		
+ <use name=DataFormats/FEDRawData>
+ <use name=DataFormats/EcalDetId>
+ <use name=DataFormats/EcalDigi>
+ <use name=DataFormats/EcalRecHit>
  <use name=DQM/EcalBarrelMonitorTasks>
- <use name=boost>	
+ <use name=boost>
  <use name=root>
 </export>

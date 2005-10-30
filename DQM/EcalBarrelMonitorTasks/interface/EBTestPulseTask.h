@@ -4,8 +4,8 @@
 /*
  * \file EBTestPulseTask.h
  *
- * $Date: 2005/10/16 12:20:27 $
- * $Revision: 1.8 $
+ * $Date: 2005/10/16 12:35:44 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  *
 */
@@ -23,6 +23,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
+#include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include <DataFormats/EcalDetId/interface/EBDetId.h>
 #include <DataFormats/EcalDigi/interface/EBDataFrame.h>
 

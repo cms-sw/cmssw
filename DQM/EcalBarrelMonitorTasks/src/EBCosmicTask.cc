@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  * 
- * $Date: 2005/10/28 11:46:23 $
- * $Revision: 1.15 $
+ * $Date: 2005/10/29 09:48:14 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  *
 */
@@ -58,8 +58,8 @@ void EBCosmicTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   edm::Handle<EBDigiCollection>  digis;
   e.getByLabel("ecalEBunpacker", digis);
 
-//  int neb = digis->size();
-//  cout << "EBCosmicTask: event " << ievt << " collection size " << neb << endl;
+//  int nebd = digis->size();
+//  cout << "EBCosmicTask: event " << ievt << " digi collection size " << neb << endl;
 
   for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 

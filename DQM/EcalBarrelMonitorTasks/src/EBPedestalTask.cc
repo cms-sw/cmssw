@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalTask.cc
  * 
- * $Date: 2005/10/28 11:46:23 $
- * $Revision: 1.14 $
+ * $Date: 2005/10/29 09:48:14 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  *
 */
@@ -63,8 +63,8 @@ void EBPedestalTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   edm::Handle<EBDigiCollection>  digis;
   e.getByLabel("ecalEBunpacker", digis);
 
-//  int neb = digis->size();
-//  cout << "EBPedestalTask: event " << ievt << " collection size " << neb << endl;
+//  int ned = digis->size();
+//  cout << "EBPedestalTask: event " << ievt << " digi collection size " << neb << endl;
 
   for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 

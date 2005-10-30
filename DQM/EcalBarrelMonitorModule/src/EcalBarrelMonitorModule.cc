@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  * 
- * $Date: 2005/10/27 09:57:35 $
- * $Revision: 1.23 $
+ * $Date: 2005/10/28 10:22:30 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  *
 */
@@ -34,7 +34,8 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
     meEvt     = dbe->bookInt("EVT");
 
     dbe->setCurrentFolder("EcalBarrel");
-    meEbarrel = dbe->book1D("EBMM hits", "EBMM hits ", 100, 0., 61201.);
+    meEBdigi = dbe->book1D("EBMM digi", "EBMM digi", 100, 0., 61201.);
+    meEBhits = dbe->book1D("EBMM hits", "EBMM hits", 100, 0., 61201.);
 
     dbe->setCurrentFolder("EcalBarrel/EBMonitorEvent");
     for (int i = 0; i < 36 ; i++) {
@@ -117,22 +118,25 @@ void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
   edm::Handle<EBDigiCollection>  digis;
   e.getByLabel("ecalEBunpacker", digis);
 
-  int neb = digis->size();
+  int nebd = digis->size();
 
-  cout << "EcalBarrelMonitorModule: event " << ievt << " collection size " << neb << endl;
+  cout << "EcalBarrelMonitorModule: event " << ievt << " digi collection size " << nebh << endl;
 
-  if ( meEbarrel ) meEbarrel->Fill(float(neb));
+  if ( meEBdigi ) meEBdigi->Fill(float(nebd));
 
-  for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
+  edm::Handle<EcalUncalibratedRecHitCollection>  hits;
+  e.getByLabel("ecalUncalibHitMaker", "EcalEBUncalibRecHits", hits);
 
-//    logFile << " Dump the ADC counts for this event " << endl;
-//    for ( int i=0; i< (*digiItr).size() ; ++i ) {
-//      logFile <<  (*digiItr).sample(i) << " ";
-//    }       
-//    logFile << " " << endl;
+  int nebh = hits->size();
 
-    EBDataFrame dataframe = (*digiItr);
-    EBDetId id = dataframe.id();
+  cout << "EcalBarrelMonitorModule: event " << ievt << " hits collection size " << nebh << endl;
+
+  if ( meEBhits ) meEBhits->Fill(float(nebh));
+
+  for ( EcalUncalibratedRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
+
+    EcalUncalibratedRecHit hit = (*hitItr);
+    EBDetId id = hit.id();
 
     int ie = id.ieta();
     int ip = id.iphi();
@@ -143,56 +147,27 @@ void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
 
     int ism = id.ism();
 
-    logFile << " det id = " << id << endl;
-    logFile << " sm, eta, phi " << ism << " " << ie*iz << " " << ip << endl;
+//    logFile << " det id = " << id << endl;
+//    logFile << " sm, eta, phi " << ism << " " << ie*iz << " " << ip << endl;
 
     if ( xie <= 0. || xie >= 85. || xip <= 0. || xip >= 20. ) {
-      logFile << "ERROR:" << xie << " " << xip << " " << ie << " " << ip << " " << iz << endl;
+      cout << " det id = " << id << endl;
+      cout << " sm, eta, phi " << ism << " " << ie*iz << " " << ip << endl;
+      cout << "ERROR:" << xie << " " << xip << " " << ie << " " << ip << " " << iz << endl;
       return;
     }
 
-    float xped = 0.;
-
-    float xvalmax = 0.;
-
-    for (int i = 0; i < 10; i++) {
-
-      EcalMGPASample sample = dataframe.sample(i);
-      int adc = sample.adc();
-      float gain = 1.;
-
-      if ( sample.gainId() == 1 ) {
-        gain = 1./12.;
-      }
-      if ( sample.gainId() == 2 ) {
-        gain = 1./ 6.;
-      }
-      if ( sample.gainId() == 3 ) {
-        gain = 1./ 1.;
-      }
-
-      float xval = adc * gain;
-
-// use the 3 first samples for the pedestal
-
-      if ( i <= 2 ) {
-        xped = xped + xval / 3.;
-      }
-
 // average rms per crystal
 
-      float xrms = 1.2;
+    float xrms = 1.2;
 
-// signal samples
+    float xval = hit.amplitude();
 
-      if ( i >= 3 ) {
-        xval = xval - xped;
-        if ( xval >= 3.0 * xrms && xval >= xvalmax ) xvalmax = xval;
-      }
+//    logFile << " hit amplitude " << xval << endl;
 
+    if ( xval >= 3.0 * xrms ) {
+       if ( meEvent[ism-1] ) meEvent[ism-1]->Fill(xie, xip, xval);
     }
-
-    if ( meEvent[ism-1] ) meEvent[ism-1]->Fill(xie, xip, xvalmax);
 
   }
 

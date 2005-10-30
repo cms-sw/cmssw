@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorModule.h
  *
- * $Date: 2005/10/13 13:30:11 $
- * $Revision: 1.9 $
+ * $Date: 2005/10/16 12:35:44 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  *
 */
@@ -23,6 +23,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
+#include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include <DataFormats/EcalDetId/interface/EBDetId.h>
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBPedestalTask.h>
@@ -71,7 +72,8 @@ MonitorElement* meStatus;
 MonitorElement* meRun;
 MonitorElement* meEvt;
 
-MonitorElement* meEbarrel;
+MonitorElement* meEBdigi;
+MonitorElement* meEBhits;
 
 MonitorElement* meEvent[36];
 
