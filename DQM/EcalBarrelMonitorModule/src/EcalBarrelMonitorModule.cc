@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  * 
- * $Date: 2005/10/30 16:47:55 $
- * $Revision: 1.29 $
+ * $Date: 2005/10/30 17:03:13 $
+ * $Revision: 1.30 $
  * \author G. Della Ricca
  *
 */
@@ -103,7 +103,7 @@ void EcalBarrelMonitorModule::endJob(void) {
 
   if ( outputFile.size() != 0  && dbe ) dbe->save(outputFile);
 
-  sleep(1);
+  sleep(10);
 }
 
 void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& c){
@@ -175,7 +175,7 @@ void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
 
   cosmic_task->analyze(e, c);
 
-  sleep(10);
+  sleep(1);
 
 }
 
