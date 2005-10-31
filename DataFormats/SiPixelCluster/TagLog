@@ -1,3 +1,6 @@
+** V01-00-01  [Mon Oct 31 14:52:00 2005]
+Removed erroneous SEAL_PLUGIN_NAME flag since this library soe not have the SEAL_MODULE entrypoint.
+
 ** V01-00-00  [Thu Oct 27 21:56:17 2005]
 Tagging V01-00-00.
 
