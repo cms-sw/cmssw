@@ -1,13 +1,12 @@
 /** \file
  *
- *  $Date: 2005/10/18 16:45:41 $
- *  $Revision: 1.5 $
+ *  $Date: 2005/10/31 12:29:17 $
+ *  $Revision: 1.6 $
  *  \author S. Argiro - N. Amapane - M. Zanetti 
  */
 
 
 #include <EventFilter/DTRawToDigi/src/DTUnpackingModule.h>
-#include <EventFilter/DTRawToDigi/src/DTDaqCMSFormatter.h>
 #include <DataFormats/FEDRawData/interface/FEDRawData.h>
 #include <DataFormats/FEDRawData/interface/FEDNumbering.h>
 #include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
