@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2005/10/07 09:01:46 $
- *  $Revision: 1.4 $
+ *  $Date: 2005/10/18 16:45:41 $
+ *  $Revision: 1.5 $
  *  \author S. Argiro - N. Amapane - M. Zanetti 
  */
 
@@ -26,13 +26,12 @@ using namespace std;
 #define SLINK_WORD_SIZE 8
 
 
-DTUnpackingModule::DTUnpackingModule(const edm::ParameterSet& pset) : 
-  formatter(new DTDaqCMSFormatter()) {
+DTUnpackingModule::DTUnpackingModule(const edm::ParameterSet& pset)
+{
   produces<DTDigiCollection>();
 }
 
 DTUnpackingModule::~DTUnpackingModule(){
- delete formatter;
 }
 
 

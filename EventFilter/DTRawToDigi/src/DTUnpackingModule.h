@@ -4,16 +4,14 @@
 /** \class DTUnpackingModule
  *  The unpacking module for DTs.
  *
- *  $Date: 2005/07/14 08:00:50 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/10/07 09:24:10 $
+ *  $Revision: 1.1 $
  * \author N. Amapane - S. Argiro'
  */
 
 #include <FWCore/Framework/interface/EDProducer.h>
 
 #include <iostream>
-
-class DTDaqCMSFormatter;
 
 class DTUnpackingModule: public edm::EDProducer {
  public:
@@ -27,7 +25,6 @@ class DTUnpackingModule: public edm::EDProducer {
   void produce(edm::Event & e, const edm::EventSetup& c);
 
  private:
-  DTDaqCMSFormatter* formatter;
 };
 
 #endif
