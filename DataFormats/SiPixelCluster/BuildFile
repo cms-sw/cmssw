@@ -1,4 +1,3 @@
-<flags SEAL_PLUGIN_NAME="DataFormatsSiPixelCluster">
 <use name=clhep>
 <use name=root>
 <use name=DataFormats/SiPixelDigi>
