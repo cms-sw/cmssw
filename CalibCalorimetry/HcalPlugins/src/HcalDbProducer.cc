@@ -13,7 +13,7 @@
 //
 // Original Author:  Fedor Ratnikov
 //         Created:  Tue Aug  9 19:10:10 CDT 2005
-// $Id: HcalDbProducer.cc,v 1.3 2005/10/04 18:03:03 fedor Exp $
+// $Id: HcalDbProducer.cc,v 1.5 2005/10/28 01:30:47 fedor Exp $
 //
 //
 
@@ -26,7 +26,7 @@
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbServiceHardcode.h"
-#include "CalibCalorimetry/HcalAlgos/interface/HcalDbServicePool.h"
+//#include "CalibCalorimetry/HcalAlgos/interface/HcalDbServicePool.h"
 
 #include "CondFormats/HcalObjects/interface/HcalPedestals.h"
 #include "CondFormats/HcalObjects/interface/HcalPedestalWidths.h"
