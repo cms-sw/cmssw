@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.8 2005/10/27 20:16:56 wmtan Exp $
+$Id: PoolSource.cc,v 1.9 2005/10/27 22:14:12 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/EDProduct/interface/EDProduct.h"
@@ -26,6 +26,7 @@ using std::auto_ptr;
 namespace edm {
   PoolRASource::PoolRASource(ParameterSet const& pset, InputSourceDescription const& desc) :
     RandomAccessInputSource(desc),
+    productMap_(),
     file_(pset.getUntrackedParameter("fileName", std::string())),
     files_(pset.getUntrackedParameter("fileNames", std::vector<std::string>())),
     fileIter_(files_.begin()),
