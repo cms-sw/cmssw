@@ -83,17 +83,24 @@ void CSCUnpackingModule::produce(Event & e, const EventSetup& c){
 	  
 	  for (int ilayer = 1; ilayer <= 6; ilayer++) { 
 
-#warning Fake mapping of the layer
+#warning Fake mapping of the endcap, station, ring and chamber!!!
 	    CSCDetID layer(1, //endcap
 			   1, //station
 			   1, //ring
 			   1, //chamber
-			   1); //layer
+			   ilayer); //layer
+
 
 	    std::vector <CSCWireDigi> wireDigi =  cscData[iCSC].wireDigi(ilayer);
 	    for (int i=0; i<wireDigi.size() ; i++) {
 	      wireProduct.insertDigi(layer, wireDigi[i]);
 	    }
+
+	    std::vector <CSCStripDigi> stripDigi =  cscData[iCSC].stripDigi(ilayer);
+            for (int i=0; i<stripDigi.size() ; i++) {
+              stripProduct.insertDigi(layer, stripDigi[i]);
+            }
+
 	  }
 	}
       }     
