@@ -5,7 +5,7 @@
 
 PoolSecondarySource: This is a SecondaryInputSource
 
-$Id: PoolSecondarySource.h,v 1.4 2005/10/25 21:11:47 wmtan Exp $
+$Id: PoolSecondarySource.h,v 1.5 2005/10/27 23:55:34 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -22,6 +22,7 @@ $Id: PoolSecondarySource.h,v 1.4 2005/10/25 21:11:47 wmtan Exp $
 #include "FWCore/Framework/interface/BranchKey.h"
 #include "FWCore/Framework/interface/EventProvenance.h"
 #include "FWCore/Framework/interface/EventAux.h"
+#include "IOPool/Common/interface/PoolCatalog.h"
 #include "TBranch.h"
 
 #include "boost/shared_ptr.hpp"
@@ -47,6 +48,7 @@ namespace edm {
     void init(std::string const& file);
     bool next();
 
+    PoolCatalog catalog_;
     std::map<ProductID, BranchDescription> productMap_;
     std::string const file_;
     std::vector<std::string> const files_;

@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSecondarySource.cc,v 1.8 2005/10/27 23:55:34 wmtan Exp $
+$Id: PoolSecondarySource.cc,v 1.9 2005/10/31 18:02:16 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/EDProduct/interface/EDProduct.h"
@@ -9,8 +9,8 @@ $Id: PoolSecondarySource.cc,v 1.8 2005/10/27 23:55:34 wmtan Exp $
 #include "FWCore/Framework/interface/EventProvenance.h"
 #include "FWCore/Framework/interface/ProductRegistry.h"
 #include "IOPool/SecondaryInput/src/PoolSecondarySource.h"
-#include "IOPool/CommonService/interface/PoolNames.h"
-#include "IOPool/CommonService/interface/ClassFiller.h"
+#include "IOPool/Common/interface/PoolNames.h"
+#include "IOPool/Common/interface/ClassFiller.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "TFile.h"
@@ -25,6 +25,8 @@ using std::auto_ptr;
 namespace edm {
   PoolSecondarySource::PoolSecondarySource(ParameterSet const& pset) :
     SecondaryInputSource(),
+    catalog_(PoolCatalog::READ,
+      PoolCatalog::toPhysical(pset.getUntrackedParameter("catalog", std::string()))),
     productMap_(),
     file_(pset.getUntrackedParameter<std::string>("fileName")),
 //    file_(pset.getUntrackedParameter("fileName", std::string())),
@@ -48,7 +50,10 @@ namespace edm {
   void PoolSecondarySource::init(std::string const& file) {
     ClassFiller();
 
-    poolFile_ = boost::shared_ptr<PoolFile>(new PoolFile(file));
+    std::string pfn;
+    catalog_.findFile(pfn, file);
+
+    poolFile_ = boost::shared_ptr<PoolFile>(new PoolFile(pfn));
     ProductRegistry::ProductList const& prodList = poolFile_->productRegistry().productList();
 
     for (ProductRegistry::ProductList::const_iterator it = prodList.begin();
@@ -68,7 +73,10 @@ namespace edm {
 
     poolFile_.reset();
 
-    poolFile_ = boost::shared_ptr<PoolFile>(new PoolFile(*fileIter_));
+    std::string pfn;
+    catalog_.findFile(pfn, *fileIter_);
+
+    poolFile_ = boost::shared_ptr<PoolFile>(new PoolFile(pfn));
     ++fileIter_;
     next();
     return false;
@@ -144,7 +152,10 @@ namespace edm {
     filePtr_(0) {
 
     filePtr_ = TFile::Open(file_.c_str());
-    assert(filePtr_ != 0);
+    if (filePtr_ == 0) {
+      throw cms::Exception("FileNotFound","PoolSecondarySource::PoolFile::PoolFile()")
+        << "File " << file_ << " was not found.\n";
+    }
 
     TTree *metaDataTree = dynamic_cast<TTree *>(filePtr_->Get(poolNames::metaDataTreeName().c_str()));
     assert(metaDataTree != 0);
