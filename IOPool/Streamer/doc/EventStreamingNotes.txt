@@ -100,4 +100,15 @@ not complete with this checkin.
 To build this, you must rename EventStreamInput.cc, TestProducer.cc
 to names that do not end in cc.
 
+01-11-05 jbk:
+
+Added a few more functions for reading a product registry from 
+file containing streamed events (for testing).
+
+Removed the EventStreamInput.cc and TestProducer.cc files. Also
+made it an error to include EventStreamInput.h.  All these files
+contain the code for the old way of making an streaming event input
+service.  The new way just gives the developer a set of functions
+and classes to aid in the creation of an InputSource that is 
+specific to a task.
 
