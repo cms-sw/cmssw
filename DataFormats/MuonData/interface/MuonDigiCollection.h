@@ -6,14 +6,14 @@
  * Declaration of class MuonDigiCollection
  *
  * \author Stefano ARGIRO
- * \version $Id: MuonDigiCollection.h,v 1.1 2005/08/23 09:09:06 argiro Exp $
+ * \version $Id: MuonDigiCollection.h,v 1.1 2005/10/07 17:44:04 namapane Exp $
  * \date 05 Aug 2005
  */
 
 
 #include <vector>
 #include <map>
-#include <boost/iterator/transform_iterator.hpp>
+#include <iterator>
 
 /**
  * \class DigiContainerIteratorAdaptor MuonDigiCollection.h "/MuonDigiCollection.h"
@@ -28,42 +28,50 @@
  * \date 05 Aug 2005
 */
 
-template <typename IndexType, 
-	  typename DigiType>
-  class DigiContainerIteratorAdaptor {
- 
+template <typename IndexType, typename DigiType>
+  class DigiContainerIterator {
   public:
+    typedef typename std::vector<DigiType>::const_iterator  DigiRangeIterator;
+    typedef std::map<IndexType, std::vector<DigiType> >     BaseContainer;
+    typedef typename BaseContainer::const_iterator          BaseIterator;
 
-    typedef typename std::vector<DigiType>::const_iterator const_iterator;
-    typedef typename std::pair<const_iterator,const_iterator> Range;
-    typedef typename std::map<IndexType,std::vector<DigiType> > BaseContainer;
-    typedef typename BaseContainer::const_iterator BaseIterator;
+    typedef std::pair<IndexType,
+		      std::pair<DigiRangeIterator,
+				DigiRangeIterator> >        value_type;
+    typedef value_type                                      reference;
+    typedef void                                            pointer;
+    typedef typename DigiRangeIterator::difference_type     difference_type;
+    typedef typename DigiRangeIterator::iterator_category   iterator_category;
 
-    class Dereference {
-      
-    public:
+    DigiContainerIterator (void) {}
+    DigiContainerIterator (BaseIterator i) : base_ (i) {}
+    // implicit copy constructor
+    // implicit assignment operator
+    // implicit destructor
 
-      typedef typename std::pair<IndexType,Range> result_type;
-  
-      result_type operator()(typename BaseIterator::reference thePair) const { 
-	
-	return std::make_pair(thePair.first,
-			      std::make_pair(thePair.second.begin(), 
-					     thePair.second.end()) 
-			      ); }
-    };// class Dereference 
+    DigiContainerIterator operator++ (int)
+    { return DigiContainerIterator (base_++); }
     
-    typedef  typename 
-    ::boost::transform_iterator<Dereference,
-				BaseIterator,
-				typename Dereference::result_type > type;
-   
-    /// takes the original iterator and returns the adapted one
-    static type adapt(BaseIterator iter){
-      return type(iter);
+    DigiContainerIterator &operator++ (void)
+    { ++base_; return *this; }
+
+    bool operator== (const DigiContainerIterator &x)
+    { return x.base_ == base_; }
+
+    bool operator!= (const DigiContainerIterator &x)
+    { return x.base_ != base_; }
+
+    value_type operator* (void) const
+    {
+      return std::make_pair(base_->first,
+			    std::make_pair(base_->second.begin(), 
+					   base_->second.end()));
     }
 
-  }; // DigiContainerIteratorAdaptor
+  private:
+    BaseIterator base_;
+  };
+
 
 
 
@@ -105,10 +113,14 @@ public:
   
   /// insert a range of digis for a  given DetUnit
   void put(Range range, const IndexType& index){
-    std::vector<DigiType>& digis = data_[index];
-    size_t size = digis.size();
-    digis.resize(size + (range.second - range.first));
-    std::copy(range.first, range.second,digis.begin());
+    std::vector<DigiType> &digis = data_[index];
+    digis.reserve (digis.size () + (range.second - range.first));
+    std::copy (range.first, range.second, std::back_inserter (digis));
+    
+    // std::vector<DigiType>& digis = data_[index];
+    // size_t size = digis.size();
+    // digis.resize(size + (range.second - range.first));
+    // std::copy(range.first, range.second,digis.begin());
   }
  
   /// return the digis for a given DetUnit 
@@ -119,16 +131,13 @@ public:
     return std::make_pair(digis.begin(),digis.end());
   }
   
-  typedef typename DigiContainerIteratorAdaptor<IndexType,DigiType>::type 
-          DigiRangeIterator;
+  typedef DigiContainerIterator<IndexType,DigiType> DigiRangeIterator;
   
   DigiRangeIterator begin() const { 
-    return 
-      DigiContainerIteratorAdaptor<IndexType,DigiType>::adapt(data_.begin());}
+    return data_.begin();}
   
   DigiRangeIterator end() const {
-    return 
-      DigiContainerIteratorAdaptor<IndexType,DigiType>::adapt(data_.end());}
+    return data_.end();}
   
   
 private:
