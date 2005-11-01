@@ -5,7 +5,7 @@
 
 PoolSource: This is an InputSource
 
-$Id: PoolSource.h,v 1.6 2005/10/27 20:24:07 wmtan Exp $
+$Id: PoolSource.h,v 1.7 2005/10/27 21:45:58 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -22,6 +22,7 @@ $Id: PoolSource.h,v 1.6 2005/10/27 20:24:07 wmtan Exp $
 #include "FWCore/Framework/interface/BranchKey.h"
 #include "FWCore/Framework/interface/EventProvenance.h"
 #include "FWCore/Framework/interface/EventAux.h"
+#include "IOPool/Common/interface/PoolCatalog.h"
 #include "TBranch.h"
 
 #include "boost/shared_ptr.hpp"
@@ -50,6 +51,7 @@ namespace edm {
     void init(std::string const& file);
     bool next();
 
+    PoolCatalog catalog_;
     std::map<ProductID, BranchDescription> productMap_;
     std::string const file_;
     std::vector<std::string> const files_;

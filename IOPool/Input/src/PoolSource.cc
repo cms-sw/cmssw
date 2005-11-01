@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.9 2005/10/27 22:14:12 wmtan Exp $
+$Id: PoolSource.cc,v 1.10 2005/10/31 18:02:35 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/EDProduct/interface/EDProduct.h"
@@ -9,8 +9,8 @@ $Id: PoolSource.cc,v 1.9 2005/10/27 22:14:12 wmtan Exp $
 #include "FWCore/Framework/interface/EventProvenance.h"
 #include "FWCore/Framework/interface/ProductRegistry.h"
 #include "IOPool/Input/src/PoolSource.h"
-#include "IOPool/CommonService/interface/PoolNames.h"
-#include "IOPool/CommonService/interface/ClassFiller.h"
+#include "IOPool/Common/interface/PoolNames.h"
+#include "IOPool/Common/interface/ClassFiller.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "TFile.h"
@@ -26,6 +26,8 @@ using std::auto_ptr;
 namespace edm {
   PoolRASource::PoolRASource(ParameterSet const& pset, InputSourceDescription const& desc) :
     RandomAccessInputSource(desc),
+    catalog_(PoolCatalog::READ,
+      PoolCatalog::toPhysical(pset.getUntrackedParameter("catalog", std::string()))),
     productMap_(),
     file_(pset.getUntrackedParameter("fileName", std::string())),
     files_(pset.getUntrackedParameter("fileNames", std::vector<std::string>())),
@@ -49,7 +51,10 @@ namespace edm {
 
     ClassFiller();
 
-    poolFile_ = boost::shared_ptr<PoolFile>(new PoolFile(file));
+    std::string pfn;
+    catalog_.findFile(pfn, file);
+
+    poolFile_ = boost::shared_ptr<PoolFile>(new PoolFile(pfn));
     if (poolFile_->productRegistry().nextID() > preg_->nextID()) {
       preg_->setNextID(poolFile_->productRegistry().nextID());
     }
@@ -75,7 +80,10 @@ namespace edm {
     // delete the old PoolFile.  The file will be closed.
     poolFile_.reset();
     
-    poolFile_ = boost::shared_ptr<PoolFile>(new PoolFile(*fileIter_));
+    std::string pfn;
+    catalog_.findFile(pfn, *fileIter_);
+
+    poolFile_ = boost::shared_ptr<PoolFile>(new PoolFile(pfn));
     // make sure the new product registry is identical to the old one
     if (*pReg != poolFile_->productRegistry()) {
       throw cms::Exception("MismatchedInput","PoolSource::next()")
@@ -130,7 +138,6 @@ namespace edm {
       if (pit->status != BranchEntryDescription::Success) continue;
       // BEGIN These lines read all branches
       // TBranch *br = branches_.find(poolNames::keyName(*pit))->second;
-      // XXXX *p = QQQ;
       // br->SetAddress(p);
       // br->GetEntry(poolFile_->entryNumber());
       // auto_ptr<Provenance> prov(new Provenance(*pit));
@@ -176,7 +183,10 @@ namespace edm {
     filePtr_(0) {
 
     filePtr_ = TFile::Open(file_.c_str());
-    assert(filePtr_ != 0);
+    if (filePtr_ == 0) {
+      throw cms::Exception("FileNotFound","PoolRASource::PoolFile::PoolFile()")
+        << "File " << file_ << " was not found.\n";
+    }
 
     TTree *metaDataTree = dynamic_cast<TTree *>(filePtr_->Get(poolNames::metaDataTreeName().c_str()));
     assert(metaDataTree != 0);
