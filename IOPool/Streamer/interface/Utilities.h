@@ -13,11 +13,12 @@
 #include <memory>
 #include <string>
 #include <fstream>
+#include <vector>
 
 namespace edm
 {
   edm::ProductRegistry getRegFromFile(const std::string& filename);
-  std::auto_ptr<SendJobHeader> readHeaderFromStream(ifstream& ist);
+  std::auto_ptr<SendJobHeader> readHeaderFromStream(std::ifstream& ist);
   bool registryIsSubset(const SendJobHeader&, const ProductRegistry&);
   void mergeWithRegistry(const SendJobHeader&, ProductRegistry&);
 
@@ -116,6 +117,23 @@ namespace edm
     }
   private:
     EventBuffer* buf_;
+  };
+
+  class EventReader
+  {
+  public:
+    typedef std::vector<char> Buf;
+
+    EventReader(std::ifstream& ist):
+      ist_(&ist),b_(1000*1000*7) { }
+    std::auto_ptr<EventPrincipal> read(const ProductRegistry& prods);
+    int readMessage(Buf& here);
+
+  private:
+
+    std::ifstream* ist_;
+    Buf b_;
+    EventDecoder decoder_;
   };
 
 }

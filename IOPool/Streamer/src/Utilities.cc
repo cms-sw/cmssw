@@ -242,5 +242,27 @@ namespace edm
     return pr;
   }
 
+  int EventReader::readMessage(Buf& here)
+  {
+    int len=0;
+    ist_->read((char*)&len,sizeof(int));
+
+    if(!*ist_ || len==0) return 0;
+
+    here.resize(len);
+    ist_->read(&here[0],len);
+    return len;
+  }
+
+  std::auto_ptr<EventPrincipal> EventReader::read(const ProductRegistry& prods)
+  {
+    int len = readMessage(b_);
+    if(len==0)
+	return std::auto_ptr<edm::EventPrincipal>();
+
+    edm::EventMsg msg(&b_[0],len);
+    return decoder_.decodeEvent(msg,prods);
+
+  }
 
 }
