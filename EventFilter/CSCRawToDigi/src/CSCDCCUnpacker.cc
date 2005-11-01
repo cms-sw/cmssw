@@ -24,9 +24,7 @@
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCRPCDigiCollection.h"
 
-
-
-
+#include "DataFormats/MuonDetID/interface/CSCDetID.h"
 
 #include <iostream>
 
@@ -80,13 +78,21 @@ void CSCUnpackingModule::produce(Event & e, const EventSetup& c){
 	for (int iCSC=0; iCSC<cscData.size(); ++iCSC) { //loop over CSCs
 
 	  ///Digis for each chamber must be obtained here	
-	  ///below is an example for strip digis 
+	  ///below is an example for  wire digis 
 	  ///it must be repeated for all 6 types!
 	  
 	  for (int ilayer = 1; ilayer <= 6; ilayer++) { 
-	    std::vector <CSCStripDigi> stripDigi =  cscData[iCSC].stripDigi(ilayer);
-	    for (int i=0; i<stripDigi.size() ; i++) {
-	      stripProduct.insertDigi(ilayer, stripDigi[i]);
+
+#warning Fake mapping of the layer
+	    CSCDetID layer(1, //endcap
+			   1, //station
+			   1, //ring
+			   1, //chamber
+			   1); //layer
+
+	    std::vector <CSCWireDigi> wireDigi =  cscData[iCSC].wireDigi(ilayer);
+	    for (int i=0; i<wireDigi.size() ; i++) {
+	      wireProduct.insertDigi(layer, wireDigi[i]);
 	    }
 	  }
 	}
