@@ -3,8 +3,8 @@
  * dummy module  for the test of  DaqFileInputService
  *   
  * 
- * $Date: 2005/08/03 18:06:48 $
- * $Revision: 1.1 $
+ * $Date: 2005/08/05 14:34:03 $
+ * $Revision: 1.2 $
  * \author N. Amapane - S. Argiro'
  *
 */
@@ -38,7 +38,10 @@ protected:
     
     for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 	
-      cout << " Dump the ADC counts for this event " << endl;
+      cout << "\nDump samples for this event: i-phi: " 
+	   << (*digiItr).id().iphi() << " j-eta: " 
+	   << (*digiItr).id().ieta()
+	   << "   ";
       for ( int i=0; i< (*digiItr).size() ; ++i ) {
 	cout <<  (*digiItr).sample(i) << " ";
       }       
