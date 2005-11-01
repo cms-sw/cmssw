@@ -128,7 +128,7 @@ std::auto_ptr<edm::EventPrincipal> HcalTBSource::read() {
   EventID id=((m_eventInfo==0)?(EventID(fileCounter_,m_i-1)):(EventID(m_eventInfo->getRunNumber(),m_eventInfo->getEventNumber())));
   unsigned long long evtTime=m_itotal*10000; // hack  -- time is only in the trigger blocks which I do not want to unpack here
  
-  FEDRawDataCollection *bare_product = new FEDRawDataCollection();  
+  std::auto_ptr<FEDRawDataCollection> bare_product(new  FEDRawDataCollection());
   for (int i=0; i<n_chunks; i++) {
     const unsigned char* data=(const unsigned char*)m_chunks[i]->getData();
     int len=m_chunks[i]->getDataLength()*8;
