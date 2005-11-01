@@ -206,4 +206,41 @@ namespace edm
     return ep;
   }
 
+  std::auto_ptr<SendJobHeader> readHeaderFromStream(ifstream& ist)
+  {
+    JobHeaderDecoder decoder;
+    vector<char> regdata(1000*1000);
+
+    int len;
+    ist.read((char*)&len,sizeof(int));
+    regdata.resize(len);
+    ist.read(&regdata[0],len);
+
+    if(!ist)
+      throw cms::Exception("ReadHeader","getRegFromFile")
+	<< "Could not read the registry information from the test\n"
+	<< "event stream file \n";
+
+    edm::InitMsg msg(&regdata[0],len);
+    std::auto_ptr<SendJobHeader> p = decoder.decodeJobHeader(msg);
+    return p;
+  }
+
+  edm::ProductRegistry getRegFromFile(const std::string& filename)
+  {
+    edm::ProductRegistry pr;
+    ifstream ist(filename.c_str(),ios_base::binary | ios_base::in);
+
+    if(!ist)
+      {
+	throw cms::Exception("ReadRegistry","getRegFromFile")
+	  << "cannot open file " << filename;
+      }
+
+    std::auto_ptr<SendJobHeader> p = readHeaderFromStream(ist);
+    mergeWithRegistry(*p,pr);
+    return pr;
+  }
+
+
 }

@@ -1,0 +1,63 @@
+
+#include "IOPool/Streamer/src/TestProducer.h"
+#include "IOPool/Streamer/interface/BufferArea.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
+#include <algorithm>
+#include <iterator>
+
+using namespace std;
+using namespace edm;
+
+namespace edmtestp
+{  
+  // ----------------------------------
+
+  TestProducer::TestProducer(edm::ParameterSet const& ps,
+			     edm::InputSourceDescription const& desc):
+    edm::InputSource(desc),
+    filename_(ps.getParameter<string>("fileName")),
+    ist_(s.c_str(),ios_base::binary | ios_base::in),
+    regdata_(1000*1000),
+    edata_(1000*1000*4)
+  {
+    if(!ist_)
+      {
+	throw cms::Exception("Configuration","TestProducer")
+	  << "cannot open file " << s;
+      }
+
+    int len;
+    ist_.read((char*)&len,sizeof(int));
+    regdata_.resize(len);
+    ist_.read(&regdata_[0],len);
+
+    if(!ist_)
+      throw cms::Exception("ReadHeader","TestProducer")
+	<< "Could not read the registry information from the test\n"
+	<< "event stream file " << s << "\n";
+
+    edm::InitMsg msg(&regbuf_[0],len);
+    std::auto_ptr<SendJobHeader> p = head_dec_.decodeJobHeader(msg);
+    edm::mergeWithRegistry(*(p.get()),productRegistry());
+  }
+
+  TestProducer::~TestProducer()
+  {
+  }
+
+  std::auto_ptr<edm::EventPrincipal> TestProducer::read()
+  {
+    int len=0;
+    worker_->ist_.read((char*)&len,sizeof(int));
+    if(!worker_->ist_ || len==0)
+      {
+	return std::auto_ptr<edm::EventPrincipal>();
+      }
+
+    worker_->ist_.read(&edata_[0],len);
+    edm::EventMsg msg(&edata_[0],len);
+    return event_dec_.decodeEvent(msg,productRegistry());
+  }
+
+}
