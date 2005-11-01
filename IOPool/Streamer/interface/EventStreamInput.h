@@ -1,11 +1,13 @@
 #ifndef Streamer_EventStreamInput_h
 #define Streamer_EventStreamInput_h
 
+#error "this way has been changed to use the functions in Utilities.h"
+
 /*----------------------------------------------------------------------
 
 Event streaming input source
 
-$Id: EventStreamInput.h,v 1.4 2005/09/28 05:37:11 wmtan Exp $
+$Id: EventStreamInput.h,v 1.5 2005/10/28 04:39:31 jbk Exp $
 
 ----------------------------------------------------------------------*/
 

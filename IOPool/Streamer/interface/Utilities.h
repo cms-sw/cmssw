@@ -11,9 +11,13 @@
 #include "TClass.h"
 
 #include <memory>
+#include <string>
+#include <fstream>
 
 namespace edm
 {
+  edm::ProductRegistry getRegFromFile(const std::string& filename);
+  std::auto_ptr<SendJobHeader> readHeaderFromStream(ifstream& ist);
   bool registryIsSubset(const SendJobHeader&, const ProductRegistry&);
   void mergeWithRegistry(const SendJobHeader&, ProductRegistry&);
 
