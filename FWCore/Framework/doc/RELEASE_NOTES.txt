@@ -74,3 +74,8 @@ This code needs to be factored out.
 
 The printing of the path name is missing in most of the output
 message from exception and from printouts from ignored exceptions.
+
+01-11-05
+
+Added a way to get at the InputSource from the EventProcessor interface.
+

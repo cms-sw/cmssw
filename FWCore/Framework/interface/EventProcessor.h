@@ -61,7 +61,7 @@ problems:
   where does the pluginmanager initialise call go?
 
 
-$Id: EventProcessor.h,v 1.9 2005/09/08 18:08:55 chrjones Exp $
+$Id: EventProcessor.h,v 1.10 2005/09/28 05:27:45 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -77,6 +77,7 @@ namespace edm {
   class EventID;
   class Timestamp;
   class ServiceToken;
+  class InputSource;
   
   class EventProcessor
   {
@@ -131,6 +132,10 @@ namespace edm {
     // sources are exhausted.
     StatusCode run(unsigned long numberToProcess = 0);
 
+    InputSource& getInputSource();
+
+    template <class T> T& getSpecificInputSource();
+
     /// signal is emitted after the Event has been created by the InputSource but before any modules have seen the Event
     boost::signal<void (const EventID&, const Timestamp&)> preProcessEventSignal;
     /// signal is emitted after all modules have finished processing the Event
@@ -140,5 +145,12 @@ namespace edm {
     FwkImpl* impl_;
   };
   
+
+  template <class T> T& EventProcessor::getSpecificInputSource()
+  {
+    InputSource& is = this->getInputSource();
+    return dynamic_cast<T&>(is);
+  }
+
 }
 #endif

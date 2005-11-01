@@ -489,4 +489,10 @@ namespace edm {
   {
     return impl_->endJob();
   }
+
+  InputSource&
+  EventProcessor::getInputSource()
+  {
+    return *impl_->input_;
+  }
 }
