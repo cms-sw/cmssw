@@ -124,7 +124,7 @@ std::vector<CSCWireDigi> CSCAnodeData::wireDigis(int layer) const {
             if(frame.isHit(j)) {
 	      // wireGroup; 5th e time; FD time; beamCrossingTag; adcCounts
               int wireGroup = (afeb*16+halfLayer*8+j)+1;
-              CSCWireDigi digi(wireGroup, 0, 0, tbin, 1);
+              CSCWireDigi digi(wireGroup, tbin);
               if (debug) std::cout << "Layer " << layer << " " << digi;
               digis.push_back(digi);
             }
@@ -145,7 +145,7 @@ std::vector < std::vector<CSCWireDigi> > CSCAnodeData::wireDigis() const {
 }
 
 
-
+/*
 void CSCAnodeData::add(const CSCWireDigi & digi, int layer) {
 
   int wireGroup = digi.getWireGroup();
@@ -190,4 +190,5 @@ bool CSCAnodeData::selfTest() {
   return true;
 }
 
+*/
 #endif
