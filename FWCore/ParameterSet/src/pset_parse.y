@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.6 2005/09/07 16:31:06 paterno Exp $
+ * $Id: pset_parse.y,v 1.7 2005/09/19 08:18:00 chrjones Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -112,6 +112,7 @@ inline string toString(char* arg) { string s(arg); free(arg); return s; }
 %token VUINT32_tok
 %token VINT32_tok
 %token VSTRING_tok
+
 %token VDOUBLE_tok
 %token PSID_tok
 %token PSNAME_tok
@@ -119,6 +120,7 @@ inline string toString(char* arg) { string s(arg); free(arg); return s; }
 %token VPSET_tok
 %token TYPE_tok
 %token VTYPE_tok
+%token FILEINPATH_tok
 
 %token SCOPE_START_tok
 %token SCOPE_END_tok
@@ -223,6 +225,16 @@ node:            untracked TYPE_tok LETTERSTART_tok EQUAL_tok any
                    StringListPtr value($<_StringList>5);
                    bool tr = $<_bool>1;
                    VEntryNode* en(new VEntryNode("vstring",name,value,tr,lines));
+                   $<_Node>$ = en;
+                 }
+               | 
+                 untracked FILEINPATH_tok LETTERSTART_tok EQUAL_tok anyquote
+                 {
+                   DBPRINT("node: FILEINPATH");
+                   bool tr = $<_bool>1;
+                   string name(toString($<str>3));
+                   string value(toString($<str>5));
+                   EntryNode* en(new EntryNode("FileInPath",name,value,tr,lines));
                    $<_Node>$ = en;
                  }
                |

@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: types.cc,v 1.1 2005/05/29 02:29:55 wmtan Exp $
+// $Id: types.cc,v 1.2 2005/06/23 19:57:23 wmtan Exp $
 //
 // definition of type encoding/decoding functions
 // ----------------------------------------------------------------------
@@ -16,13 +16,12 @@
 #include "FWCore/ParameterSet/interface/split.h"
 #include <algorithm>
 #include <cctype>
-#include <iostream>  //DEBUG*/
-#include <limits>
-#include <stdexcept>
-#include <cstdio>
 #include <cstdlib>
-#include <sstream>
+#include <cstdio>
 
+#include <limits>
+#include <sstream>
+#include <stdexcept>
 
 using namespace edm;
 
@@ -460,6 +459,34 @@ bool
 
   return true;
 }  // decode to String
+
+
+// ----------------------------------------------------------------------
+// FileInPath
+// ----------------------------------------------------------------------
+
+bool
+  edm::decode(FileInPath& to, std::string const& from)
+{
+  std::istringstream is(from);
+  FileInPath temp;
+  is >> temp;
+  if (!is) return false;
+  to = temp;
+  return true;
+}  // decode to FileInPath
+
+
+
+bool
+  edm::encode(std::string& to, const FileInPath& from)
+{
+  std::ostringstream ost;
+  ost << from.relativePath() << ' ' << from.isLocal();
+  if (!ost) return false;
+  to = ost.str();
+  return true;
+}
 
 // ----------------------------------------------------------------------
 

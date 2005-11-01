@@ -1,3 +1,15 @@
+01-11-05 mfp. Attempted to run the "test/run_all_parser_t.sh" script.
+
+The tests fail because the output from printing the parse tree is no
+longer legal input. The reason for failure (there may be others, but
+this is the first encountered, which stops the test) is that the 'main
+input source' is written out with a name '@main'; the grammar requires
+the main input source to be unnamed. Furthermore, '@main' is not a
+legal name.
+
+This problem is not yet solved.
+
+Added support for FileInPath; see the header for details.
 
 12-08-05 mfp Added member template to ParameterSet to allow adding
 parameters to an existing ParameterSet object.

@@ -39,6 +39,8 @@ namespace errors
        ScheduleExecutionFailure,
        EventProcessorFailure,
 
+       FileInPathError,
+
        NotFound
      };
 

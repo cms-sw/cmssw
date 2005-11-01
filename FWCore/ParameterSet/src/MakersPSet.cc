@@ -123,6 +123,11 @@ namespace edm {
            string usethis(withoutQuotes(n.value_));
            main_->insert(false, n.name_, Entry(usethis, !n.tracked_));
          }
+       else if (n.type_=="FileInPath")
+	 {
+	   edm::FileInPath fip(withoutQuotes(n.value_));
+	   main_->insert(false, n.name_, Entry(fip, !n.tracked_));
+	 }
        else if(n.type_=="double")
          {
            double d = strtod(n.value_.c_str(),0);

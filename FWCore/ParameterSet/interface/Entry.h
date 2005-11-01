@@ -2,7 +2,7 @@
 #define ParameterSet_Entry_h
 
 // ----------------------------------------------------------------------
-// $Id: Entry.h,v 1.4 2005/07/14 16:17:23 jbk Exp $
+// $Id: Entry.h,v 1.5 2005/09/01 03:51:56 wmtan Exp $
 //
 // interface to edm::Entry and related types
 //
@@ -24,6 +24,7 @@
 #include <map>
 
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 // ----------------------------------------------------------------------
 // contents
@@ -99,6 +100,10 @@ namespace edm {
     // vString
     Entry(std::vector<std::string> const& val, bool is_tracked);
     std::vector<std::string>  getVString() const;
+
+    // FileInPath
+    Entry(edm::FileInPath const& val, bool is_tracked);
+    edm::FileInPath getFileInPath() const;
   
     // ParameterSet
     Entry(ParameterSet const& val, bool is_tracked);

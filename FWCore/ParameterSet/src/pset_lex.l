@@ -1,3 +1,11 @@
+/*
+ * $Id: pset_lex.l,v 1.3 2005/09/07 16:31:06 paterno Exp $
+ * Author: Us
+ * Date: 4/28/05
+ * History:
+ *
+ */
+
 
 %{
 #include "FWCore/ParameterSet/interface/Nodes.h"
@@ -9,27 +17,9 @@ using namespace edm::pset;
 #include "FWCore/ParameterSet/src/pset_parse.h"
 
 
-  /*
-    #include "InputString.h"
-
-    #undef YY_INPUT
-    #define YY_INPUT(b,r,ms) (r=input_data(b,ms))
-
-    extern InputString input_data;
-  */  
-
-  // static int lines=1; // defined in yacc file
-  // static char* copy_clean(char*,char); // not used
   namespace edm { namespace pset { extern int lines; } }
   char* stringDup(const char*);
   char* stringDupQuoted(const char* s,char quotetype);
-/*
- * $Id: pset_lex.l,v 1.2 2005/06/27 16:35:01 paterno Exp $
- * Author: Us
- * Date: 4/28/05
- * History:
- *
- */
 
 /* 
    YY_BREAK is #defined to nothing, to silence a C++ from complaining
@@ -40,6 +30,8 @@ using namespace edm::pset;
 #define yylval pset_lval
 
   /* the SQ.DQ things are start states, or context dependent sections */
+  /* DQ is used to identify a double-quoted string                    */
+  /* SQ is used to identify a single-quoted string                    */
 
 %}
 
@@ -65,6 +57,7 @@ comment2 "//".*[\n]?
 "PSet"          { return PSET_tok; }
 "VPSet"         { return VPSET_tok; }
 "untracked"     { return UNTRACKED_tok; }
+"FileInPath"    { return FILEINPATH_tok; }
 
 "process"       { return PROCESS_tok; }
 "source"        { return SOURCE_tok; }

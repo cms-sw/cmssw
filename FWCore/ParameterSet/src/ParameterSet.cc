@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.cc,v 1.9 2005/10/26 16:16:20 wmtan Exp $
+// $Id: ParameterSet.cc,v 1.10 2005/10/27 18:27:17 wmtan Exp $
 //
 // definition of ParameterSet's function members
 // ----------------------------------------------------------------------
@@ -97,6 +97,8 @@ namespace edm {
 
 
 
+  template <class T, class U> T first(std::pair<T,U> const& p) { return p.first; }
+  template <class T, class U> U second(std::pair<T,U> const& p) { return p.second; }
   
   Entry const&
   ParameterSet::retrieve(std::string const& name) const {
@@ -104,14 +106,14 @@ namespace edm {
     if(it == tbl_.end()) {
       it = tbl_.find("label");
       if(it == tbl_.end())
-        throw edm::Exception(errors::Configuration,"InvalidName:")
-	  << "Module '" << name
-	  << "' does not exist.\n";
+        throw edm::Exception(errors::Configuration,"MissingParameter:")
+	  << "Parameter '" << name
+	  << "' not found.\n";
       else
-        throw edm::Exception(errors::Configuration,"InvalidName:")
-	  << "Module '" << name
+        throw edm::Exception(errors::Configuration,"MissingParameter:")
+	  << "Parameter '" << name
 	  << "' specified in ParameterSet '"
-	  << it->second.getString() << "' does not exist.\n";
+	  << it->second.getString() << "' not found.\n";
     }
     return it->second;
   }  // retrieve()

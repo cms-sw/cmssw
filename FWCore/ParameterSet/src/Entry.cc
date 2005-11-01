@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: Entry.cc,v 1.3 2005/06/13 23:59:17 wmtan Exp $
+// $Id: Entry.cc,v 1.4 2005/06/23 19:57:23 wmtan Exp $
 //
 // definition of Entry's function members
 // ----------------------------------------------------------------------
@@ -47,6 +47,7 @@ namespace edm {
       table_['p'] = "vPSet";
       table_['P'] = "PSet";
       table_['T'] = "path";
+      table_['F'] = "FileInPath";
       
       for(CodeMap::const_iterator itCode = table_.begin();
            itCode != table_.end();
@@ -116,6 +117,12 @@ namespace edm {
         std::vector<std::string>  val;
         if(!decode(val, rep))
           throw EntryError(std::string("invalid vString ") + rep);
+        break;
+      }
+      case 'F':  {  // FileInPath
+	edm::FileInPath val;
+        if(!decode(val, rep))
+          throw EntryError(std::string("invalid FileInPath ") + rep);
         break;
       }
       case 'D':  {  // Double
@@ -242,6 +249,17 @@ namespace edm {
       throw EntryError("bad vString value");
     validate();
   }
+
+// ----------------------------------------------------------------------
+// FileInPath
+
+  Entry::Entry(edm::FileInPath const& val, bool is_tracked) : rep(), type('F'),
+       tracked(is_tracked ? '+' : '-') {
+    if (!encode(rep, val))
+      throw EntryError("bad FileInPath value");
+    validate();
+  }
+							      
 
 // ----------------------------------------------------------------------
 // ParameterSet
@@ -463,6 +481,20 @@ namespace edm {
     std::vector<std::string>  val;
     if(!decode(val, rep))
       throw EntryError(std::string("invalid vString ") + rep);
+    return val;
+  }
+
+
+// ----------------------------------------------------------------------
+// FileInPath
+
+  edm::FileInPath
+  Entry::getFileInPath() const {
+    if(type != 'F')
+      throw ValueError("value's type is not FileInPath");
+    edm::FileInPath val;
+    if(!decode(val, rep))
+      throw EntryError(std::string("invalid FileInPath ") + rep);
     return val;
   }
 
