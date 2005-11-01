@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<!DOCTYPE Database SYSTEM "InMemory">
+<Database connectionString="notmatter" >
+   <HomogeneousContainer name="EcalPedestals" >
+      <Class name="EcalPedestals" mappingVersion="2.0"/>
+   </HomogeneousContainer >
+</Database >
