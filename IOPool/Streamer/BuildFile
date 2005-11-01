@@ -3,7 +3,7 @@
 <use name=root>
 <use name=rootcore>
 <use name=FWCore/Framework>
-<use name=IOPool/CommonService>
+<use name=IOPool/Common>
 <use name=IOPool/StreamerData>
 <export>
  <lib name=IOPoolStreamer>
@@ -11,7 +11,7 @@
  <use name=root>
  <use name=rootcore>
  <use name=FWCore/Framework>
- <use name=IOPool/CommonService>
+ <use name=IOPool/Common>
  <use name=IOPool/StreamerData>
 </export>
 

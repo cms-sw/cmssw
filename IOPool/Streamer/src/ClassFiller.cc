@@ -1,5 +1,5 @@
 #include "IOPool/StreamerData/interface/StreamedProducts.h"
-#include "IOPool/CommonService/interface/ClassFiller.h"
+#include "IOPool/Common/interface/ClassFiller.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "Reflex/Type.h"
