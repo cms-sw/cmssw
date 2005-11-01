@@ -1,3 +1,6 @@
+** V00-00-02  [Tue Nov  1 23:45:56 2005]
+Fixes for RPCDetId
+
 ** V00-00-01  [Thu Oct 27 23:20:25 2005]
 Fix unsigned in interfaces and constructors. First version of RPCDetId.
 
