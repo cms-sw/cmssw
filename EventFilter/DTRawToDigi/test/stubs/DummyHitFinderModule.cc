@@ -1,10 +1,10 @@
-/**
+ /**
  * \file DummyHitFinderModule.h 
  * dummy module  for the test of  DaqFileInputService
  *   
  * 
- * $Date: 2005/08/23 09:29:47 $
- * $Revision: 1.3 $
+ * $Date: 2005/10/07 09:01:46 $
+ * $Revision: 1.4 $
  * \author N. Amapane - S. Argiro'
  *
 */
@@ -42,8 +42,8 @@
 	   ++detUnitIt){
 	
 	for (DTDigiCollection::const_iterator digiIt = 
-	       detUnitIt->second.first;
-	     digiIt!=detUnitIt->second.second;
+	       (*detUnitIt).second.first;
+	     digiIt!=(*detUnitIt).second.second;
 	     ++digiIt){
 	  std::cout << "Digi: "  << *digiIt << std::endl;
 
