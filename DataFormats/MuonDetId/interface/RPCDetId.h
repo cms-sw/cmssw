@@ -5,9 +5,9 @@
  * 
  *  DetUnit identifier for RPCs
  *
- *  $Date: 2005/10/27 10:29:02 $
- *  \version $Id: RPCDetId.h,v 1.3 2005/10/27 10:29:02 segoni Exp $
- *  $Revision: 1.3 $
+ *  $Date: 2005/10/27 14:36:56 $
+ *  \version $Id: RPCDetId.h,v 1.4 2005/10/27 14:36:56 segoni Exp $
+ *  $Revision: 1.4 $
  *  \author Ilaria Segoni
  */
 
@@ -16,6 +16,7 @@
 #include <FWCore/Utilities/interface/Exception.h>
 
 #include <iosfwd>
+#include <iostream>
 
 class RPCDetId :public DetId {
   
@@ -49,11 +50,26 @@ class RPCDetId :public DetId {
   int ring() const{
   
     int ring_= (id_>>RingStartBit_) & RingMask_;
+    
+    if(ring_ <RingBarrelOffSet){
+    
+    	if(this->region() == 0)
+	{
+    	 throw cms::Exception("InvalidDetId") << "RPCDetId ctor:" 
+					 << " Ring - Region Inconsistency, " 
+					 << " region "<< this->region()
+					 << " ring "<<ring_
+					 << std::endl;
+    
+         }
+	 
+    	return int(ring_ + minRingForwardId);
+
+
+    }
         
-    if(ring_ <  RingBarrelOffSet) return int(ring_ + minRingForwardId);
     if(ring_ >= RingBarrelOffSet) return int(ring_ - RingBarrelOffSet + minRingBarrelId);
    
-  // check consistency
  
   }
 
@@ -76,7 +92,7 @@ class RPCDetId :public DetId {
 
   /// SubSector id
   int subsector() const{
-    return int((id_>>SubSectorStartBit_) & SubSectorMask_) + minSubSectorId;
+     return int((id_>>SubSectorStartBit_) & SubSectorMask_) + minSubSectorId;
   }
 
   /// Roll id
@@ -89,8 +105,6 @@ class RPCDetId :public DetId {
   static const int minRegionId=     -1;
   static const int maxRegionId=      1;
  
-  static const int minRingId=	1;
-  static const int maxRingId=	7;  
   static const int minRingForwardId=   1;
   static const int maxRingForwardId=   3;
   static const int minRingBarrelId=   -2;
@@ -101,7 +115,7 @@ class RPCDetId :public DetId {
   static const int maxStationId=     4;
 
   static const int minSectorId=     1;
-  static const int maxSectorId=     4;
+  static const int maxSectorId=     12;
 
   static const int minLayerId=     1;
   static const int maxLayerId=     2;
@@ -109,7 +123,7 @@ class RPCDetId :public DetId {
   static const int minSubSectorId=	 1;
   static const int maxSubSectorId=	 4;
 
-  static const int minRollId=	  1;
+  static const int minRollId=	  0;
   static const int maxRollId=	  3;
 
 
@@ -124,7 +138,7 @@ class RPCDetId :public DetId {
 
   static const int StationNumBits_  =  2;
   static const int StationStartBit_ =  RingStartBit_+RingNumBits_;  
-  static const unsigned int StationMask_     =  0X2;
+  static const unsigned int StationMask_     =  0X3;
 
 
   static const int SectorNumBits_  =  4;
@@ -137,11 +151,11 @@ class RPCDetId :public DetId {
 
   static const int SubSectorNumBits_  =  2;
   static const int SubSectorStartBit_ =  LayerStartBit_+LayerNumBits_;  
-  static const unsigned int SubSectorMask_     =  0X2;
+  static const unsigned int SubSectorMask_     =  0X3;
   
   static const int RollNumBits_  =  2;
   static const int RollStartBit_ =  SubSectorStartBit_+SubSectorNumBits_;  
-  static const unsigned int RollMask_     =  0X2;
+  static const unsigned int RollMask_     =  0X3;
  
 
 }; // RPCDetId

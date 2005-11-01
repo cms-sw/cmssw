@@ -2,11 +2,10 @@
  * Impl of RPCDetId
  *
  * \author Ilaria Segoni
- * \version $Id: RPCDetId.cc,v 1.3 2005/10/27 14:36:57 namapane Exp $
+ * \version $Id: RPCDetId.cc,v 1.4 2005/10/28 08:36:56 segoni Exp $
  * \date 02 Aug 2005
  */
 
-#include <iostream>
 #include <DataFormats/MuonDetId/interface/RPCDetId.h>
 #include <FWCore/Utilities/interface/Exception.h>
 
@@ -26,10 +25,17 @@ RPCDetId::RPCDetId(uint32_t id):DetId(id) {
 RPCDetId::RPCDetId(int region, int ring, int station, int sector, int layer,int subsector, int roll):	      
         DetId(DetId::Muon, MuonSubdetId::RPC)
 {
-	      
+
+      int minRing=RPCDetId::minRingForwardId;
+      int maxRing=RPCDetId::maxRingForwardId;
+      if (!region) 
+      {
+	minRing=RPCDetId::minRingBarrelId;
+	maxRing=RPCDetId::maxRingBarrelId;
+      } 
 	      
   if ( region     < minRegionId    || region    > maxRegionId ||
-       ring       < minRingId      || ring      > maxRingId ||
+       ring       < minRing        || ring      > maxRing ||
        station    < minStationId   || station   > maxStationId ||
        sector     < minSectorId    || sector    > maxSectorId ||
        layer      < minLayerId     || layer     > maxLayerId ||
@@ -52,24 +58,23 @@ RPCDetId::RPCDetId(int region, int ring, int station, int sector, int layer,int 
   
   int ringInBits =0;
   if(region != 0) ringInBits = ring - minRingForwardId;
-  if(region == 0) ringInBits = ring + RingBarrelOffSet - minRingBarrelId;
+  if(!region) ringInBits = ring + RingBarrelOffSet - minRingBarrelId;
   
   int stationInBits=station-minStationId;
   int sectorInBits=sector-minSectorId;
   int layerInBits=layer-minLayerId;
-  int subSectorInBits=sector-minSubSectorId;
+  int subSectorInBits=subsector-minSubSectorId;
   int rollInBits=roll;
   
-  id_ |= ( regionInBits    & RegionMask_)    << RegionStartBit_ | 
-         ( ringInBits      & RingMask_)      << RingStartBit_  |
-         ( stationInBits   & StationMask_)   << StationStartBit_ |
-         ( sectorInBits    & SectorMask_)    << SectorStartBit_ |
-         ( layerInBits     & LayerMask_)     << LayerStartBit_ |
+  id_ |= ( regionInBits    & RegionMask_)    << RegionStartBit_    | 
+         ( ringInBits      & RingMask_)      << RingStartBit_      |
+         ( stationInBits   & StationMask_)   << StationStartBit_   |
+         ( sectorInBits    & SectorMask_)    << SectorStartBit_    |
+         ( layerInBits     & LayerMask_)     << LayerStartBit_     |
          ( subSectorInBits & SubSectorMask_) << SubSectorStartBit_ |
-         ( rollInBits      & RollMask_)      << RollStartBit_;
-           
-
-}
+         ( rollInBits      & RollMask_)      << RollStartBit_        ;
+   
+  }
 
 
 std::ostream& operator<<( std::ostream& os, const RPCDetId& id ){

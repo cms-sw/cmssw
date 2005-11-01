@@ -3,7 +3,7 @@
    test file for RPCDetId
 
    \author Stefano ARGIRO
-   \version $Id: testRPCDetId.cc,v 1.1 2005/10/28 08:00:19 segoni Exp $
+   \version $Id: testRPCDetId.cc,v 1.2 2005/10/28 08:10:37 segoni Exp $
    \date 27 Jul 2005
 */
 
@@ -48,7 +48,7 @@ void testRPCDetId::testOne(){
       } 
     
       for (int ring=minRing; ring<=maxRing; ++ring) 	    
-        for (int station=RPCDetId::minStationId; ring<=RPCDetId::maxStationId; ++station)
+        for (int station=RPCDetId::minStationId; station<=RPCDetId::maxStationId; ++station)
           for (int sector=RPCDetId::minSectorId; sector<=RPCDetId::maxSectorId; ++sector)
             for (int layer=RPCDetId::minLayerId; layer<=RPCDetId::maxLayerId; ++layer)
               for (int subSector=RPCDetId::minSubSectorId; subSector<=RPCDetId::maxSubSectorId; ++subSector)
@@ -64,7 +64,7 @@ void testRPCDetId::testOne(){
 	          CPPUNIT_ASSERT(detid.subsector() == subSector);
                   CPPUNIT_ASSERT(detid.roll() == roll);
 
-	          // test constructor from id
+	         //  test constructor from id
 	          int myId = detid.rawId();
 	          RPCDetId anotherId(myId);
 	          CPPUNIT_ASSERT(detid==anotherId);
@@ -77,11 +77,12 @@ void testRPCDetId::testOne(){
 
 
 void testRPCDetId::testFail(){
-  
+
+
   // contruct using an invalid input index
   try {
-    // Incompatible ring with respect to region
-    RPCDetId detid(0,3,1,2,2,1,1);
+    // Station number too high
+    RPCDetId detid(0,1,7,2,2,1,1);
     CPPUNIT_ASSERT("Failed to throw required exception" == 0);      
     detid.rawId(); // avoid compiler warning
   } catch (cms::Exception& e) {
@@ -100,6 +101,7 @@ void testRPCDetId::testFail(){
   } catch (...) {
     CPPUNIT_ASSERT("Threw wrong kind of exception" == 0);
   }
+
 }
 
 
