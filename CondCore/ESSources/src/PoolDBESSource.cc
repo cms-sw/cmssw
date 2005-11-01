@@ -124,7 +124,6 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   if( iConfig.getParameter<bool>("loadAll") ) {
     // ECAL conditions
     m_recordToTypes.insert(make_pair(string("EcalPedestalsRcd"), string("EcalPedestals"))) ;
-    m_recordToTypes.insert(make_pair(string("EcalMappingRcd"), string("EcalMapping"))) ;
     m_recordToTypes.insert(make_pair(string("EcalWeightRecAlgoWeightsRcd"), string("EcalWeightRecAlgoWeights"))) ;
 
     // HCAL conditions

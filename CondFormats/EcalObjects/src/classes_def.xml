@@ -3,11 +3,6 @@
  <class name="EcalPedestals::Item"/>
  <class name="std::pair<const int, EcalPedestals::Item>"/>
 
- <class name="EcalMapping" id="428252C6-2710-DA11-93EF-0002B3D87B0F"/>
- <class name="std::map< int, EBDetId>"/>
- <class name="EBDetId"/>
- <class name="std::pair<const int, EBDetId>"/>
-
  <class name="EcalWeightRecAlgoWeights" id="D28B80AA-FB53-401B-9D0E-F2EA72F339BE"/>
  <class name="EcalWeight"/>
  <class name="std::vector<EcalWeight>"/>
