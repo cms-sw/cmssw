@@ -5,7 +5,7 @@
 \author Fedor Ratnikov (UMd)
 DB instance of HcalDetId
 $Author: ratnikov
-$Date: 2005/10/18 23:34:56 $
+$Date: 2005/10/28 01:29:29 $
 $Revision: 1.1 $
 */
 
@@ -16,8 +16,8 @@ $Revision: 1.1 $
 
 
 namespace HcalDetIdDb {
-  unsigned long HcalDetIdDb (const HcalDetId& fId) {return fId.rawId ();}
-  HcalDetId HcalDetId (unsigned long fId) {return ::HcalDetId (fId);}
+  inline unsigned long HcalDetIdDb (const HcalDetId& fId) {return fId.rawId ();}
+  inline HcalDetId HcalDetId (unsigned long fId) {return ::HcalDetId (fId);}
 }
 
 #endif
