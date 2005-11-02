@@ -1,3 +1,6 @@
+** V00-01-00  [Wed Nov  2 09:02:09 2005]
+Adding edm::FileInPath to ParameterSet system
+
 ** V00-00-01  [Fri Oct 28 03:24:04 2005]
 Corrected some incorrect exception messages.
 
