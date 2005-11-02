@@ -4,44 +4,16 @@
 /** \class CSCDetId
  * Identifier class for hierarchy of Endcap Muon detector components.
  *
- * Allows access to hardware integer labels of the subcomponents
- * of the Muon Endcap detector system. The member functions  should rarely be
- * required by users since the subdetector objects already know their labels.
+ * Ported from MuEndDetectorId but now derived from DetId and updated accordingly.
  *
- * However, the STATIC member functions can be used to translate back and
- * forth between a MuEndLayer 'index' and the %set of subdetector labels.
+ * Allows access to hardware integer labels of the subcomponents
+ * of the Muon Endcap CSC detector system.
+ *
+ * The STATIC member functions can be used to translate back and
+ * forth between a MuEndLayer 'rawId' and the %set of subdetector labels.
  *
  * \warning EVERY LABEL COUNTS FROM ONE NOT ZERO.
  *
- * \author Tim Cox
- * \author Rick Wilkinson
- *
- * Last mod: <BR>
- * 23-May-99 ptc Under development as a hierarchy...argh! This started as a
- *               simple %set of integers. <BR>
- * 27-Jul-99 ptc Remove MuEndLayer* - makes horrid package dependency
- *               and it's original purpose has vanished during development! <BR>
- * 01-Sep-99 ptc Add sector() and cscId() to MuEndChamberId <BR>
- * 15-Sep-99 ptc int->unsigned int <BR>
- * 21-Sep-99 ptc doxygenate. <BR>
- * 22-Sep-99 ptc Add lIndex to return unique integer index for each layer. <BR>
- * 06-Oct-99 ptc lIndex now const (Rick noticed) <BR>
- * 06-Nov-99 ptc Add mod hist to doxygen. <BR>
- * 15-Nov-99 ptc Update comments & code for sector() & cscId(). <BR>
- * 16-Nov-99 ptc Update sector() & cscId() to match new mu_end_chamber_index. <BR>
- * 21-Nov-99 ptc Bug-fix in cscId(). <BR>
- * 06-Feb-00 ptc Major redesign of MuEndDetectorId to use just one class level.
- *               This is a long-overdue but welcome simplification.
- *               Methods access subdetector component labels.
- *               Method 'index' with subdet label args returns unique int for use
- *               with digis and ntuples (replaces old 'lIndex'.) <BR>
- * 11-Feb-00 ptc Polish doxygen. <BR>
- * 2-Aug-05  sa  Renamed to CSCDetId.
- *               Added inheritance from DetId.
- *               Inserted into the new CMSSW structure <BR>
- *               Added data members to tell the bounds of the various 
- *               components (minStationId, etc)
- *   
  */
 
 #include <iosfwd>
@@ -52,7 +24,7 @@ class CSCDetId;
 
 std::ostream& operator<<( std::ostream& os, const CSCDetId& id );
 
-class CSCDetId:public DetId {
+class CSCDetId : public DetId {
 
 public:
 
@@ -77,30 +49,12 @@ public:
   CSCDetId( const CSCDetId& id )
      : DetId(id.id_) { }  
 
-//  ~CSCDetId();                                        // Default dtor is ok
-//  CSCDetId& operator=( const CSCDetId& rhs );  // Default assignment op is ok
-
-  bool operator == ( const CSCDetId& ) const;
-  bool operator != ( const CSCDetId& ) const;
-  bool operator <  ( const CSCDetId& ) const;
-
-  /** 
-   * Unique integer index for this CSCDetId.
-   *
-   * \warning The returned integers are not necessarily consecutive, i.e.
-   * there are gaps. 
-   *
-   */
-   int index() const {
-     return id_; // This member already encodes the info.
-   }          
-
    /**
     * Return Layer label.
     *
     */
     int layer() const {
-     return (id_ & MASK_LAYER); } // index counts from 1 not 0.
+     return (id_ & MASK_LAYER); } // counts from 1 not 0.
 
    /**
     * Return Chamber label.
@@ -135,7 +89,7 @@ public:
    // Used when we need information about subdetector labels.
 
   /** 
-   * Unique integer index for each Layer.
+   * The unique integer 'rawId' which labels each CSC layer.
    *
    * The arguments are the integer labels for, respectively,  <br>
    * endcap, station, ring, chamber, layer.
@@ -148,9 +102,14 @@ public:
    * starting from the component ids.
    *
    */
-   static int index( int iendcap, int istation, int iring, 
+
+  // Tim dislikes the necessity of this ugly code - magic numbers included
+  // Thanks a lot, CMSSW
+
+   static int rawIdValue( int iendcap, int istation, int iring, 
                int ichamber, int ilayer ) {
-     return init(iendcap, istation, iring, ichamber, ilayer) ; }
+     return ((DetId::Muon&0xF)<<28)|((MuonSubdetId::CSC&0x7)<<25)|
+               init(iendcap, istation, iring, ichamber, ilayer) ; }
 
    /**
     * Return Layer label for supplied CSCDetId index.
@@ -206,7 +165,7 @@ public:
     * We count from one not zero.
     *
     */
-   int sector() const;
+   int triggerSector() const;
 
    /**
     * Return trigger-level CSC id  within a sector for an Endcap Muon chamber.
@@ -221,7 +180,13 @@ public:
     * and software changes.
     *
     */
-   int cscId() const;
+   int triggerCscId() const;
+
+
+   /* Tim asks: Wouldn't it have been better to keep these as enums?
+      Aren't nicely-packaged enum sets rather neat?
+      Now we have a disconnected collection of values which are associated 
+      only by the fact that each begins with 'min' or 'max'.               */
 
    /// lowest endcap id
    static const int minEndcapId=     1;
@@ -233,7 +198,7 @@ public:
    static const int maxRingId=       4;
    static const int minChamberId=    1;
    static const int maxChamberId=   36;
-   static const int minLayerId=      0;
+   static const int minLayerId=      1; // Tim asks: Why was this set to 0?
    static const int maxLayerId=      6;
    
 private:
@@ -267,7 +232,7 @@ private:
   enum eMaskBitDet{ MASK_LAYER=07, MASK_CHAMBER=077, MASK_RING=03,
 		     MASK_STATION=03, MASK_ENDCAP=01 };
 
-  // START_det is bit position (counting from zero) at which bits for 'det' start in 'index' word
+  // START_det is bit position (counting from zero) at which bits for 'det' start in 'rawId' word
   enum eStartBitDet{ START_CHAMBER=BITS_LAYER, START_RING=START_CHAMBER+BITS_CHAMBER,
           START_STATION=START_RING+BITS_RING, START_ENDCAP=START_STATION+BITS_STATION };
 };
