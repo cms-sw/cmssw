@@ -9,7 +9,7 @@ process TEST = {
      source = DAQEcalTBInputService{
                untracked string fileName = 'new_dcc_format.raw'
                untracked int32 maxEvents = 6
-
+               untracked bool isBinary = false
     }
 
 }
