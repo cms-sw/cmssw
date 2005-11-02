@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Mon Oct  3 11:35:27 CDT 2005
-// $Id: CaloGeometryBuilder.cc,v 1.2 2005/10/04 17:46:29 mansj Exp $
+// $Id: CaloGeometryBuilder.cc,v 1.3 2005/10/06 01:01:15 mansj Exp $
 //
 //
 
@@ -31,6 +31,7 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
 //
 // class decleration
@@ -98,6 +99,8 @@ CaloGeometryBuilder::produce(const IdealGeometryRecord& iRecord)
    pCaloGeom->setSubdetGeometry(DetId::Hcal,HcalForward,pG.product());
    
    // TODO: Look for ECAL parts
+   iRecord.get("EcalBarrel", pG); 
+   pCaloGeom->setSubdetGeometry(DetId::Ecal,EcalBarrel,pG.product());
 
    // look for TOWER parts
    iRecord.get("TOWER",pG);

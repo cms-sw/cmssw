@@ -32,6 +32,8 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include <fstream>
 
 //
@@ -47,7 +49,7 @@ class CaloGeometryAnalyzer : public edm::EDAnalyzer {
       virtual void analyze( const edm::Event&, const edm::EventSetup& );
    private:
       // ----------member data ---------------------------
-  void build(const CaloGeometry& cg, DetId::Detector det, HcalSubdetector subdetn, const char* name);
+  void build(const CaloGeometry& cg, DetId::Detector det, int subdetn, const char* name);
   int pass_;
 };
 
@@ -78,7 +80,7 @@ CaloGeometryAnalyzer::~CaloGeometryAnalyzer()
 }
 
 
-void CaloGeometryAnalyzer::build(const CaloGeometry& cg, DetId::Detector det, HcalSubdetector subdetn, const char* name) {
+void CaloGeometryAnalyzer::build(const CaloGeometry& cg, DetId::Detector det, int subdetn, const char* name) {
   std::fstream f(name,std::ios_base::out);
   const CaloSubdetectorGeometry* geom=cg.getSubdetectorGeometry(det,subdetn);
 
@@ -94,8 +96,17 @@ void CaloGeometryAnalyzer::build(const CaloGeometry& cg, DetId::Detector det, Hc
   for (std::vector<DetId>::iterator i=ids.begin(); i!=ids.end(); i++) {
     n++;
     const CaloCellGeometry* cell=geom->getGeometry(*i);
-    f << "  // " << HcalDetId(*i) << std::endl;
-    if (subdetn==HcalForward) 
+    if (det == DetId::Ecal)
+      {
+	if (subdetn == EcalBarrel)
+	  f << "  // " << EBDetId(*i) << std::endl;
+      }
+    else if (det == DetId::Hcal)
+      {
+	f << "  // " << HcalDetId(*i) << std::endl;
+      }
+    
+    if (det == DetId::Hcal && subdetn==HcalForward) 
       f << "  box=geoManager->MakeBox(\"point\",dummyMedium,1.0,1.0,1.0);" << std::endl;
     else
       f << "  box=geoManager->MakeBox(\"point\",dummyMedium,3.0,3.0,3.0);" << std::endl;
@@ -124,9 +135,10 @@ CaloGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& 
    edm::ESHandle<CaloGeometry> pG;
    iSetup.get<IdealGeometryRecord>().get(pG);     
    //
-   // get the hcal geometry
+   // get the ecal & hcal geometry
    //
    if (pass_==0) {
+     build(*pG,DetId::Ecal,EcalBarrel,"eb.C");
      build(*pG,DetId::Hcal,HcalBarrel,"hb.C");
      build(*pG,DetId::Hcal,HcalEndcap,"he.C");
      build(*pG,DetId::Hcal,HcalOuter,"ho.C");
