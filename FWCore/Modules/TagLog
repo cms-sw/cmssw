@@ -1,3 +1,6 @@
+** V00-01-01  [Wed Nov  2 09:26:49 2005]
+inventory.sh script now works from any directory
+
 ** V00-01-00  [Fri Oct 28 03:19:50 2005]
 Improved output of EventContentAnalyzer.
 
