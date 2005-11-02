@@ -167,7 +167,7 @@ std::auto_ptr<edm::EventPrincipal> HcalTBSource::read() {
     */
   }
 
-  edm::Wrapper<FEDRawDataCollection>* full_prod=new edm::Wrapper<FEDRawDataCollection>(*bare_product);
+  edm::Wrapper<FEDRawDataCollection>* full_prod=new edm::Wrapper<FEDRawDataCollection>(bare_product);
   auto_ptr<EventPrincipal> result = auto_ptr<EventPrincipal>(new EventPrincipal(id, Timestamp(evtTime),*preg_));
   auto_ptr<EDProduct>  prod(full_prod);
   auto_ptr<Provenance> prov(new Provenance(prodDesc_));
