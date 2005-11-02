@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id: eventprincipal_t.cppunit.cc,v 1.16 2005/09/28 04:46:35 wmtan Exp $
+$Id: eventprincipal_t.cppunit.cc,v 1.17 2005/10/03 19:02:41 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <cassert>
@@ -173,8 +173,8 @@ void testeventprincipal::failgetManybyTypeTest() {
 void testeventprincipal::failgetbyInvalidIdTest() {
   typedef edmtest::DummyProduct DP;
   typedef edm::Wrapper<DP> WDP;
-  DP * pr = new DP;
-  std::auto_ptr<edm::EDProduct> pprod(new WDP(*pr));
+  std::auto_ptr<DP> pr(new DP);
+  std::auto_ptr<edm::EDProduct> pprod(new WDP(pr));
   std::auto_ptr<edm::Provenance> pprov(new edm::Provenance);
   std::string label("fred");
   std::string processName = "PROD";
@@ -235,8 +235,8 @@ void testeventprincipal::getbyIdTest() {
 
   typedef edmtest::DummyProduct DP;
   typedef edm::Wrapper<DP> WDP;
-  DP * pr = new DP;
-  std::auto_ptr<edm::EDProduct> pprod(new WDP(*pr));
+  std::auto_ptr<DP> pr(new DP);
+  std::auto_ptr<edm::EDProduct> pprod(new WDP(pr));
   std::auto_ptr<edm::Provenance> pprov(new edm::Provenance);
   std::string label("fred");
 
@@ -282,8 +282,8 @@ void testeventprincipal::getbyLabelTest() {
 
   typedef edmtest::DummyProduct DP;
   typedef edm::Wrapper<DP> WDP;
-  DP * pr = new DP;
-  std::auto_ptr<edm::EDProduct> pprod(new WDP(*pr));
+  std::auto_ptr<DP> pr(new DP);
+  std::auto_ptr<edm::EDProduct> pprod(new WDP(pr));
   std::auto_ptr<edm::Provenance> pprov(new edm::Provenance);
   std::string label("fred");
   std::string productInstanceName("Rick");
@@ -334,8 +334,8 @@ void testeventprincipal::getbySelectorTest() {
 
   typedef edmtest::DummyProduct DP;
   typedef edm::Wrapper<DP> WDP;
-  DP * pr = new DP;
-  std::auto_ptr<edm::EDProduct> pprod(new WDP(*pr));
+  std::auto_ptr<DP> pr(new DP);
+  std::auto_ptr<edm::EDProduct> pprod(new WDP(pr));
   std::auto_ptr<edm::Provenance> pprov(new edm::Provenance);
   std::string label("fred");
 
@@ -384,8 +384,8 @@ void testeventprincipal::getbyTypeTest() {
 
   typedef edmtest::DummyProduct DP;
   typedef edm::Wrapper<DP> WDP;
-  DP * pr = new DP;
-  std::auto_ptr<edm::EDProduct> pprod(new WDP(*pr));
+  std::auto_ptr<DP> pr(new DP);
+  std::auto_ptr<edm::EDProduct> pprod(new WDP(pr));
   std::auto_ptr<edm::Provenance> pprov(new edm::Provenance);
   std::string label("fred");
   std::string productInstanceName("Rick");
@@ -436,8 +436,8 @@ void testeventprincipal::getProvenanceTest() {
 
   typedef edmtest::DummyProduct DP;
   typedef edm::Wrapper<DP> WDP;
-  DP * pr = new DP;
-  std::auto_ptr<edm::EDProduct> pprod(new WDP(*pr));
+  std::auto_ptr<DP> pr(new DP);
+  std::auto_ptr<edm::EDProduct> pprod(new WDP(pr));
   std::auto_ptr<edm::Provenance> pprov(new edm::Provenance);
   std::string label("fred");
 
@@ -482,8 +482,8 @@ void testeventprincipal::getAllProvenanceTest() {
 
   typedef edmtest::DummyProduct DP;
   typedef edm::Wrapper<DP> WDP;
-  DP * pr = new DP;
-  std::auto_ptr<edm::EDProduct> pprod(new WDP(*pr));
+  std::auto_ptr<DP> pr(new DP);
+  std::auto_ptr<edm::EDProduct> pprod(new WDP(pr));
   std::auto_ptr<edm::Provenance> pprov(new edm::Provenance);
   std::string label("fred");
 
