@@ -13,7 +13,7 @@
 //
 // Original Author:  Fedor Ratnikov
 //         Created:  Tue Aug  9 19:10:10 CDT 2005
-// $Id: HcalDbProducer.h,v 1.2 2005/10/04 18:03:03 fedor Exp $
+// $Id: HcalDbProducer.h,v 1.4 2005/10/28 01:30:47 fedor Exp $
 //
 //
 
@@ -28,14 +28,8 @@
 
 class HcalDbService;
 class HcalDbRecord;
-class HcalPedestalsRcd;
-class HcalPedestalWidthsRcd;
-class HcalGainsRcd;
-class HcalGainWidthsRcd;
-class HcalQIEShapeRcd;
-class HcalQIEDataRcd;
-class HcalChannelQualityRcd;
-class HcalElectronicsMapRcd;
+
+#include "CondFormats/DataRecord/interface/AllHcalClasses.h"
 
 class HcalDbProducer : public edm::ESProducer {
  public:
