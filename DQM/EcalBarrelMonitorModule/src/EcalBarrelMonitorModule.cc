@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  * 
- * $Date: 2005/10/30 17:07:18 $
- * $Revision: 1.31 $
+ * $Date: 2005/10/30 17:51:42 $
+ * $Revision: 1.32 $
  * \author G. Della Ricca
  *
 */
@@ -102,6 +102,9 @@ void EcalBarrelMonitorModule::endJob(void) {
   if ( meStatus ) meStatus->Fill(2);
 
   if ( outputFile.size() != 0  && dbe ) dbe->save(outputFile);
+
+  // this is to give enough time to the meStatus to reach the clients ...
+  sleep(10);
 
 }
 
