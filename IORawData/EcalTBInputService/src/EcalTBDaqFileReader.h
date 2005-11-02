@@ -40,7 +40,7 @@ class EcalTBDaqFileReader  {
   bool isInitialized();
 
   // Override virtual methods from DaqFileReader
-  virtual void initialize(const std::string & filename);
+  virtual void initialize(const std::string & filename, bool isBinary);
   virtual bool fillDaqEventData(edm::EventID & cID, FEDRawDataCollection& data);
   virtual FedDataPair getEventTrailer();
   virtual bool checkEndOfEvent();
@@ -71,6 +71,7 @@ private:
 protected:
 
   bool initialized_;
+  bool isBinary_;
   //std::ifstream * input_;
 };
 #endif

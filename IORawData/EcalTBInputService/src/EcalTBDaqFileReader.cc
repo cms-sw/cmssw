@@ -37,7 +37,7 @@ EcalTBDaqFileReader::~EcalTBDaqFileReader(){
 
   cout << "Destructing EcalTBDaqFileReader" << endl;
 
- if(inputFile) {
+  if(inputFile) {
     inputFile.close();
     //delete input_;
   }
@@ -54,75 +54,133 @@ bool EcalTBDaqFileReader::isInitialized(){
 
 
 
-void EcalTBDaqFileReader::initialize(const string & filename){
+void EcalTBDaqFileReader::initialize(const string & filename, bool isBinary){
+  
+  isBinary_ = isBinary;
 
-
+  // case of ASCII input data file
   if (initialized_) {
     cout << "EcalTB DaqFileReader was already initialized... reinitializing it " << endl;
     if(inputFile) {
       inputFile.close();
-
     }
-
   }
-
-  cout<<"EcalTB DaqFileReader::initialize : Opening file "<<filename<<endl;
-  inputFile.open(filename.c_str());
-  if( inputFile.fail() ) {
-    cout<<"EcalTBDaqFileReader: the input file: "<<filename <<" is not present. Exiting program... "  << endl;
-    exit(1);
-  }
+  
+  if ( isBinary_){
+    // case of binary input data file
+    cout<<"[EcalTB DaqFileReader::initialize]   Opening binary data file "<<filename<<endl;
+    inputFile.open(filename.c_str(), ios::binary );
+    if( inputFile.fail() ) {
+      cout<<"EcalTBDaqFileReader: the input file: "<<filename <<" is not present. Exiting program... "  << endl;
+      exit(1);
+    }
+  }// end if binary
+  
+  else{
+    cout<<"[EcalTB DaqFileReader::initialize]   Opening ASCII file "<<filename<<endl;
+    inputFile.open(filename.c_str());
+    if( inputFile.fail() ) {
+      cout<<"EcalTBDaqFileReader: the input file: "<<filename <<" is not present. Exiting program... "  << endl;
+      exit(1);
+    }
+  }// end if not binary
 
   initialized_ = true;
 }
 
+
+
+
+
+
+
+//retunrs a FedDataPair with event length and pointer to start of event 
 FedDataPair EcalTBDaqFileReader::getEventTrailer() {
-
-  //  cout << " EcalTBDaqFileReader getEvent Trailer  " << endl;
-  string myWord;
-
-  int len=0;
-  ulong* buf = new ulong [maxEventSizeInBytes_];
-  ulong* tmp=buf;
-
-  for ( int i=0; i< maxEventSizeInBytes_/4; ++i) {
-    inputFile >> myWord;
-    sscanf( myWord.c_str(),"%x",buf);
-    int val= *buf >> 28;
-
-    //    cout << " myWord " << myWord << " myWord >> 28 " << val << endl;
-
-
-    if ( len%2!=0 ) {
-
-      if ( val  == EOE_ ) {
-	//        cout << " EcalTBDaqFileReader::getEventTrailer EOE_ reached " <<   endl;
-        len++;
-        break;
-      }
+  
+  if (isBinary_){
+    ulong dataStore=1;
+    
+    // read first words of event, seeking for event size 
+    inputFile.read(reinterpret_cast<char *>(&dataStore),sizeof(ulong));
+    inputFile.read(reinterpret_cast<char *>(&dataStore),sizeof(ulong));
+    inputFile.read(reinterpret_cast<char *>(&dataStore),sizeof(ulong));
+    int size =  dataStore & 0xffffff ;
+    cout << "[EcalTB DaqFileReader::getEventTrailer] event size masked  "<<  size 
+	 << " (max size in byte is " << maxEventSizeInBytes_ << ")"<< endl;
+    if (size > maxEventSizeInBytes_){
+      cout << "[EcalTB DaqFileReader::getEventTrailer] event size larger than allowed"<< endl;
     }
-    buf+=1;
-    len++;
+    
+    inputFile.seekg(-2*4,ios::cur);
+    inputFile.read(reinterpret_cast<char *>(&dataStore),sizeof(ulong));
+    //cout << "is it beginning?\t"<< a << endl;
+    inputFile.seekg(-2*4,ios::cur);
+    
+    // 
+    char   * bufferChar =  new  char [8* size];
+    inputFile.read (bufferChar,size*8);
+    
+    FedDataPair aPair;
+    aPair.len         = size*8;
+    aPair.fedData = reinterpret_cast<unsigned char*>(bufferChar);
+    
+    return aPair;
+  }// end in case of binary file
+  
 
-  }
+  else{
+    string myWord;
 
-  //  cout << " Number of 32 words in the event " << len << endl;
-  len*=4;
-  //cout << " Length in bytes " << len << endl;
+    // allocate max memory allowed, use only what needed
+    int len=0;
+    ulong* buf = new ulong [maxEventSizeInBytes_];
+    ulong* tmp=buf;
 
-  FedDataPair aPair;
-  aPair.len = len;
-  //aPair.fedData = fedData;
-  //fedData = reinterpret_cast<unsigned char*>(tmp);
-  aPair.fedData = reinterpret_cast<unsigned char*>(tmp);
+    // importing data word by word
+    for ( int i=0; i< maxEventSizeInBytes_/4; ++i) {
+      inputFile >> myWord;
+      sscanf( myWord.c_str(),"%x",buf);
+      int val= *buf >> 28;
 
-  for ( int i=0; i<20; ++i) {
-    //    cout << "i)"<< i << " " << hex<<(*fedData)<< endl; 
-    //fedData++;
-  }
+      //    cout << " myWord " << myWord << " myWord >> 28 " << val << endl;
 
-  return aPair;
+
+      if ( len%2!=0 ) {
+	// looking for end of event searching a tag
+	if ( val  == EOE_ ) {
+	  //        cout << " EcalTBDaqFileReader::getEventTrailer EOE_ reached " <<   endl;
+	  len++;
+	  break;
+	}
+      }
+      buf+=1;
+      len++;
+
+    }// end loop importing data word by word
+
+    //  cout << " Number of 32 words in the event " << len << endl;
+    len*=4;
+    //cout << " Length in bytes " << len << endl;
+
+    FedDataPair aPair;
+    aPair.len = len;
+    //aPair.fedData = fedData;
+    //fedData = reinterpret_cast<unsigned char*>(tmp);
+    aPair.fedData = reinterpret_cast<unsigned char*>(tmp);
+
+    for ( int i=0; i<20; ++i) {
+      //    cout << "i)"<< i << " " << hex<<(*fedData)<< endl; 
+      //fedData++;
+    }
+
+    return aPair;
+  }// end in case of ASCII file
+
 }
+
+
+
+
 
 
 bool EcalTBDaqFileReader::fillDaqEventData(edm::EventID & cID, FEDRawDataCollection& data ) {
@@ -143,18 +201,25 @@ bool EcalTBDaqFileReader::fillDaqEventData(edm::EventID & cID, FEDRawDataCollect
 
     if( checkEndOfFile() ) throw 1;
 
+    // FedDataPair is struct: event lenght + pointer to beginning of event 
     FedDataPair aPair = getEventTrailer();
     fedInfo.second = aPair.len;
 
 
     //    unsigned char* tmp = new unsigned char [fedInfo.second];
+    // allocate memory to fit event
     unsigned long* tmp = new unsigned long [fedInfo.second];
     tmp= reinterpret_cast<unsigned long*>(aPair.fedData);
+    
+    // extracting header information from event
     getFEDHeader(tmp);
+
     fedInfo.first=getFedId();
     fedId=fedInfo.first; 
 
-    cout << " fillDaqEventData Fed Id " << fedId << " getEventLength() " << getEventLength() << " run " << getRunNumber() << " Ev " << getEventNumber() << endl;
+    cout << " fillDaqEventData Fed Id " << fedId << " getEventLength() " 
+	 << getEventLength() << " run " << getRunNumber() << " Ev "
+	 << getEventNumber() << endl;
     
    
     EventID ev( getRunNumber(), getEventNumber() );

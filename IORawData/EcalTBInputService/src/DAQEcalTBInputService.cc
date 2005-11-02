@@ -1,7 +1,8 @@
 /*
- *  $Date: 2005/09/19 19:43:46 $
- *  $Revision: 1.5 $
+ *  $Date: 2005/10/06 17:47:01 $
+ *  $Revision: 1.6 $
  *  \author N. Amapane - S. Argiro'
+ *  \author G. Franzoni
  */
 
 #include "DAQEcalTBInputService.h"
@@ -64,7 +65,14 @@ DAQEcalTBInputService::DAQEcalTBInputService(const ParameterSet& pset,
 
 
     std::string filename= pset.getParameter<string>("fileName");
-    reader_->initialize(filename);
+    cout << "[DAQEcalTBInputService] input data file: " << filename << endl;
+    bool isBinary= pset.getUntrackedParameter<bool>("isBinary",true);
+    if ( isBinary ) {
+      cout << "[DAQEcalTBInputService] BINARY input data file" << endl;
+    } else {
+      cout << "[DAQEcalTBInputService] ASCII input data file" << endl;
+    }
+    reader_->initialize(filename,isBinary);
 
 }
 
