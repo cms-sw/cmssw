@@ -89,7 +89,7 @@ public:
    // Used when we need information about subdetector labels.
 
   /** 
-   * The unique integer 'rawId' which labels each CSC layer.
+   * Returns the unique integer 'rawId' which labels each CSC layer.
    *
    * The arguments are the integer labels for, respectively,  <br>
    * endcap, station, ring, chamber, layer.
@@ -106,7 +106,7 @@ public:
   // Tim dislikes the necessity of this ugly code - magic numbers included
   // Thanks a lot, CMSSW
 
-   static int rawIdValue( int iendcap, int istation, int iring, 
+   static int rawIdMaker( int iendcap, int istation, int iring, 
                int ichamber, int ilayer ) {
      return ((DetId::Muon&0xF)<<28)|((MuonSubdetId::CSC&0x7)<<25)|
                init(iendcap, istation, iring, ichamber, ilayer) ; }
