@@ -1,6 +1,6 @@
 /*
- *  $Date: 2005/08/19 15:43:25 $
- *  $Revision: 1.11 $
+ *  $Date: 2005/10/05 04:45:33 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -79,12 +79,12 @@ auto_ptr<EventPrincipal> MCFileSource::read() {
   if (remainingEvents_-- != 0) {
   
     result = auto_ptr<EventPrincipal>(new EventPrincipal(nextID_, Timestamp(nextTime_), *preg_));
-    HepMCProduct *bare_product = new HepMCProduct();  
+    auto_ptr<HepMCProduct> bare_product(new HepMCProduct());  
     cout << "MCFileSource: Start Reading  " << endl;
     evt = reader_->fillCurrentEventData(); 
     if(evt)  bare_product->addHepMCData(evt );
     edm::Wrapper<HepMCProduct> *wrapped_product = 
-      new edm::Wrapper<HepMCProduct> (*bare_product); 
+      new edm::Wrapper<HepMCProduct> (bare_product); 
     auto_ptr<EDProduct>  prod(wrapped_product);
     auto_ptr<Provenance> prov(new Provenance(branchDesc_));
 
