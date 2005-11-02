@@ -45,12 +45,19 @@ unsigned int EcalBarrelNumberingScheme::getUnitID(const G4Step* aStep) const {
   // eta index of in Lyon geometry
   int ieta = PVid%5;
   if( ieta == 0) {ieta = 5;}
-  int eta = 5 * (int) ((float)(PVid - 1)/10.) + ieta;
+  int eta = 5 * (int) ((float)(PVid - 1)/10.) + ieta ;
 
   // phi index in Lyon geometry
   int isubm = 1 + (int) ((float)(PVid - 1)/5.);
   int iphi  = (isubm%2) == 0 ? 2: 1;
-  int phi   = 20*(18-MMVid) + 2*(10-MVid) + iphi;
+  int phi   = 0;
+  if (zside == 1)
+    phi = (20*(18-MMVid) + 2*(10-MVid) + iphi + 20) % 360  ;
+  else if (zside == -1)
+    phi = (541 - (20*(18-MMVid) + 2*(10-MVid) + iphi) ) % 360  ;
+  if (phi == 0) 
+    phi = 360;
+
 
   //pack it into an integer
   // to be consistent with EBDetId convention
