@@ -1,3 +1,6 @@
+** V00-00-02  [Wed Nov  2 16:41:51 2005]
+removed EcalMapping object
+
 ** V00-00-01  [Fri Oct 28 11:33:21 2005]
 fixed version file removing one line
 
