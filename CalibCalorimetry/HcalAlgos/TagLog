@@ -1,3 +1,6 @@
+** V01-01-00  [Wed Nov  2 22:38:25 2005]
+new functions to convert objects into ascii and xml formats
+
 ** V01-00-00  [Fri Oct 28 15:50:20 2005]
 version to be included in CMSSW_0_2_0-pre6
 
