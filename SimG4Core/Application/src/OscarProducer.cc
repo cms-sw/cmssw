@@ -29,7 +29,9 @@ OscarProducer::OscarProducer(edm::ParameterSet const & p)
     produces<edm::PSimHitContainer>("TrackerHitsTOBHighTof");
     produces<edm::PSimHitContainer>("TrackerHitsTECLowTof");
     produces<edm::PSimHitContainer>("TrackerHitsTECHighTof");
-    produces<edm::PCaloHitContainer>();
+    produces<edm::PCaloHitContainer>("EcalHitsEB");
+    produces<edm::PCaloHitContainer>("EcalHitsEE");
+    produces<edm::PCaloHitContainer>("EcalHitsES");
     m_runManager = RunManager::init(p);
 }
 
