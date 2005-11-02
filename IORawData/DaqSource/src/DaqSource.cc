@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2005/10/06 18:23:47 $
- *  $Revision: 1.3 $
+ *  $Date: 2005/10/18 13:10:54 $
+ *  $Revision: 1.4 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -71,11 +71,11 @@ DaqSource::read() {
   EventID eventId;
   Timestamp tstamp;
 
-  FEDRawDataCollection bare_product;
+  std::auto_ptr<FEDRawDataCollection> bare_product(new FEDRawDataCollection);
 
   if (remainingEvents_-- == 0 ||!reader_->fillRawData(eventId, 
 						      tstamp, 
-						      bare_product)){
+						      *bare_product)){
     return result;
   }
   result = 
