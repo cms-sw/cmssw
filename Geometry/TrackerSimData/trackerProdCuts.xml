@@ -48,11 +48,6 @@
   <SpecPar name="tracker-sens-pixel">
     <PartSelector path="//PixelBarrelActiveFull" />
     <PartSelector path="//PixelBarrelActiveHalf" />
-    <PartSelector path="//PixelForwardActive1x2" />
-    <PartSelector path="//PixelForwardActive1x5" />
-    <PartSelector path="//PixelForwardActive2x3" />
-    <PartSelector path="//PixelForwardActive2x4" />
-    <PartSelector path="//PixelForwardActive2x5" />
     <Parameter name="CMSCutsRegion" value="TrackerPixelSensRegion" eval="false"/>
     <Parameter name="ProdCutsForElectrons" value="0.01*mm"/>
     <Parameter name="ProdCutsForPositrons" value="0.01*mm"/>
@@ -70,7 +65,7 @@
   </SpecPar>
 
   <SpecPar name="BeamPipeNotBeryllium">
-    <PartSelector path="//BeamVacuum.*" />
+    <PartSelector path="//BVTB" />
     <Parameter name="CMSCutsRegion" value="BeamPipeInternal" eval="false"/>
     <Parameter name="ProdCutsForElectrons" value="10000*mm"/>
     <Parameter name="ProdCutsForPositrons" value="10000*mm"/>
