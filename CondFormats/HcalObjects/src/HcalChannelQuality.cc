@@ -3,7 +3,7 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store pedestal values 4xCapId
 $Author: ratnikov
-$Date: 2005/10/18 23:34:56 $
+$Date: 2005/10/28 01:37:10 $
 $Revision: 1.1 $
 */
 
@@ -31,6 +31,14 @@ HcalChannelQuality::Quality HcalChannelQuality::quality (unsigned long fId, bool
   return (HcalChannelQuality::Quality) cell->mQuality;
 }
 
+std::vector<unsigned long> HcalChannelQuality::getAllChannels () const {
+  std::vector<unsigned long> result;
+  for (std::vector<Item>::const_iterator item = mItems.begin (); item != mItems.end (); item++) {
+    result.push_back (item->mId);
+  }
+  return result;
+}
+
 bool HcalChannelQuality::setChannel (unsigned long fId, Quality fQuality) {
   Item item;
   item.mId = fId;
@@ -43,5 +51,16 @@ void HcalChannelQuality::sort () {
   if (!mSorted) {
     std::sort (mItems.begin(), mItems.end());
     mSorted = true;
+  }
+}
+
+static const char* HcalChannelQuality::str (Quality fQuality) {
+  switch (fQuality) {
+  case BAD: return "BAD";
+  case GOOD: return "GOOD";
+  case HOT: return "HOT";
+  case DEAD: return "DEAD";
+  case END: return "END";
+  default: return "UNKNOWN";
   }
 }
