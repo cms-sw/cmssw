@@ -30,7 +30,7 @@ do
 		echo "Processing file $1"
 		echo " "
 		root -l << EOF
-.x ${here}/inventory2.C+
+.x ${here}/inventory.C+
 $1
 quit
 .q
