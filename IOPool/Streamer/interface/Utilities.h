@@ -14,6 +14,7 @@
 #include <string>
 #include <fstream>
 #include <vector>
+#include <utility>
 
 namespace edm
 {

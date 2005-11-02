@@ -112,3 +112,16 @@ service.  The new way just gives the developer a set of functions
 and classes to aid in the creation of an InputSource that is 
 specific to a task.
 
+Added the replacement for TestProducer.cc, called EventStreamFileInput.
+This is an input source that reads from a file.
+
+Added a file reader that can be placed into a thread to read events
+message buffer from a file continuously and place them onto a queue.
+
+Added a utility class for managing an array lifetime to TestFileReader.cc.
+See the notes in readEvents().
+
+The way threading is used in all the classes is consistent and should
+really be pulled out into a template.
+
+

@@ -20,7 +20,7 @@ namespace edmtestp
   {
   public:
     TestFileReader(const std::string& filename,edm::EventBuffer& to,
-		   edm::ProductRegistry&);
+		   edm::ProductRegistry& prods);
     virtual ~TestFileReader();
 
     void start();
@@ -33,9 +33,7 @@ namespace edmtestp
     std::string filename_;
     std::ifstream ist_;
     edm::EventReader reader_;
-    edm::EventInserter inserter_;
     edm::EventBuffer* to_;
-    edm::ProductRegistry* prods_;
     boost::shared_ptr<boost::thread> me_;
   };
 
