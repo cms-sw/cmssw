@@ -3,12 +3,9 @@
 
 /** \class SiStripDigitizer
  *
- * SiStripDigitizer is the EDProducer subclass which clusters
- * SiStripDigi/interface/StripDigi.h to SiStripCluster/interface/SiStripCluster.h
  *
- * \author Michele Pioppi-INFN Perugia
+ * \author Andrea Giammanco
  *
- * \version   Sep 26 2005  
 
  *
  ************************************************************/
@@ -19,10 +16,9 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "FWCore/EDProduct/interface/EDProduct.h"
-#include "SimTracker/SiStripDigitizer/interface/SiStripDigitizerAlgorithm.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-
+#include "SimTracker/SiStripDigitizer/interface/SiStripDigitizerAlgorithm.h"
 
 namespace cms
 {
@@ -30,6 +26,9 @@ namespace cms
   {
   public:
 
+    // The following is not yet used, but will be the primary
+    // constructor when the parameter set system is available.
+    //
     explicit SiStripDigitizer(const edm::ParameterSet& conf);
 
     virtual ~SiStripDigitizer();
@@ -37,14 +36,15 @@ namespace cms
     virtual void produce(edm::Event& e, const edm::EventSetup& c);
 
   private:
+    SiStripDigitizerAlgorithm stripDigitizer_;
     edm::ParameterSet conf_;
-    SiStripDigitizerAlgorithm  _stripdigialgo;
     int irandom1,irandom2,irandom3;
-    float frandom3,frandom4,frandom5;
+    float frandom1,frandom2,frandom3,frandom4,frandom5;
     float angrandom1,angrandom2;
     float xexrand,xentrand, yexrand,yentrand, zexrand,zentrand;
     std::vector<PSimHit*> pseudoHitSingleContainer;
 
+    int numStrips;    // number of strips in the module
   };
 }
 
