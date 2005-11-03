@@ -1,6 +1,6 @@
 /*
- *  $Date: 2005/10/06 17:47:01 $
- *  $Revision: 1.6 $
+ *  $Date: 2005/11/02 11:43:39 $
+ *  $Revision: 1.7 $
  *  \author N. Amapane - S. Argiro'
  *  \author G. Franzoni
  */
@@ -101,9 +101,7 @@ auto_ptr<EventPrincipal> DAQEcalTBInputService::read() {
   EventID id;
   Timestamp tstamp;
 
-  FEDRawDataCollection* bare_product = new FEDRawDataCollection;
-
-
+  std::auto_ptr<FEDRawDataCollection> bare_product(new  FEDRawDataCollection());
   
   if (remainingEvents_-- == 0 || !reader_->fillDaqEventData(id, *bare_product)   )
     return result;
@@ -113,7 +111,7 @@ auto_ptr<EventPrincipal> DAQEcalTBInputService::read() {
   result = auto_ptr<EventPrincipal>(new EventPrincipal(id, tstamp, *preg_));
   
   edm::Wrapper<FEDRawDataCollection> *wrapped_product = 
-    new edm::Wrapper<FEDRawDataCollection> (*bare_product);
+    new edm::Wrapper<FEDRawDataCollection> (bare_product);
 
   auto_ptr<EDProduct>  prod(wrapped_product);
   
