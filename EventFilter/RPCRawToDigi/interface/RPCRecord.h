@@ -5,45 +5,36 @@
  *
  *  Class that finds whether record contains chamber data or a control word
  *
- *  $Date: 2005/10/21 16:45:41 $
+ *  $Date: 2005/10/21 11:00:18 $
  *  $Revision: 1.1 $
  *  \author Ilaria Segoni
   */
 
-#define RPC_RECORD_BIT_SIZE =16
-
-#define RECORD_TYPE_MASK = 0X3
-#define RECORD_TYPE_SHIFT =14
-
-
-/** \class RPCRecords
- * //scrivere cosa fa sta classe
- *
- *  $Date: 2005/10/21 16:43:07 $
- *  $Revision: 1.1 $
- * \author Ilaria Segoni - CERN
- */
 class RPCRecord {
 
 public:
   
   /// Constructor
-  RPCRecord(const unsigned char* index);
+  RPCRecord(const unsigned char* index): 
+    word_(reinterpret_cast<const unsigned int*>(index)) {};
 
   /// Destructor
   virtual ~RPCRecord() {};
 
   /// List of DT DDU Word Types
   enum recordTypes {
-    	DataChamber = 1,
-    	Control = 2,
-        UndefinedType =3
+    	ChamberData = 1,
+    	StartOfChannelData = 2,
+    	EmptyWord = 3,
+        RMBDiscardedData =4,
+	SLinkDiscardedData=5,
+        UndefinedType =6
   };
 
 
   /// Record type getter 
   enum recordTypes type(); 
-    
+   
    /// Record Unpacker 
   void recordUnpack(enum recordTypes); 
     
@@ -52,17 +43,36 @@ public:
  
 
   /// Control bits definitions
-  static const unsigned int  chamberZeroFlag = 0;
-  static const unsigned int  chamberOneFlag  = 1;
-  static const unsigned int  chamberTwoFlag  = 2;
-  static const unsigned int  controlWordFlag = 3;
+  static const int  MaxChamberFlag  = 2;
+  static const int  controlWordFlag = 3;
+  
+  static const int  StartOfChannelDataFlag        = 7;
+  static const int  EmptyWordOrSLinkDiscardedFlag = 5;
+  static const int  RMBDiscardedDataFlag          = 6;
 
+
+  static const int  EmptyWordFlag                 = 0;
+  static const int  SLinkDiscardedDataFlag        = 1;
+ 
+ 
+  static const int RPC_RECORD_BIT_SIZE =16;
+
+  static const int RECORD_TYPE_MASK = 0X3;
+  static const int RECORD_TYPE_SHIFT =14;
+
+  static const int CONTROL_TYPE_MASK = 0X7;
+  static const int CONTROL_TYPE_SHIFT =11;
+
+  static const int EMPTY_OR_SLDISCARDED_MASK  = 0X1;
+  static const int EMPTY_OR_SLDISCARDED_SHIFT =0;
 
 
 private:
 
   const unsigned int * word_;
   
+
+
 };
 
 

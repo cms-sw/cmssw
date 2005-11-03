@@ -5,7 +5,7 @@
  */
 
 #include <EventFilter/RPCRawToDigi/interface/RPCUnpackingModule.h>
-#include <EventFilter/RPCRawToDigi/src/RPCDaqCMSFormatter.h>
+#include <EventFilter/RPCRawToDigi/interface/RPCRecord.h>
 #include <DataFormats/FEDRawData/interface/FEDRawData.h>
 #include <DataFormats/FEDRawData/interface/FEDNumbering.h>
 #include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
@@ -13,23 +13,24 @@
 #include <FWCore/Framework/interface/Handle.h>
 #include <FWCore/Framework/interface/Event.h>
 
-using namespace raw;
 using namespace edm;
 using namespace std;
 
-//#define SLINK_WORD_SIZE 8 //define it here?
 
 #include <iostream>
 
-RPCUnpackingModule::RPCUnpackingModule(const edm::ParameterSet& pset) : 
-  unpacker(new RPCDaqCMSFormatter()) {
- 
-  produces<raw::RPCDigiCollection>();
+#define SLINK_WORD_SIZE 8 //define it here?
 
-}
+
+
+RPCUnpackingModule::RPCUnpackingModule(const edm::ParameterSet& pset)  
+ {
+ 
+  produces<RPCDigiCollection>();
+
+ }
 
 RPCUnpackingModule::~RPCUnpackingModule(){
-  delete unpacker;
 }
 
 
@@ -44,44 +45,47 @@ void RPCUnpackingModule::produce(Event & e, const EventSetup& c){
 
     
 	const std::pair<int,int> rpcFEDS=FEDNumbering::getMRpcFEDIds();
-	for (int id= rpcFEDS.First(); id<=rpcFEDS.Second(); ++id){ 
+	for (int id= rpcFEDS.first; id<=rpcFEDS.second; ++id){ 
 
 		const FEDRawData & fedData = allFEDRawData->FEDData(id);
 		
 		
 		if(fedData.size()){
-		
-      			const unsigned char* index = fedData.data();
-			FEDHeader fedHeader(index); 
+		        
+			int numberOfHeaders=1;
 			
-			const unsigned char* trailerIndex=index+feddata.size()
-		 	FEDTrailer fedTrailer(trailerIndex);
+      			const unsigned char* index = fedData.data();
+			//FEDHeader fedHeader(index); 
+			
+			const unsigned char* trailerIndex=index+fedData.size();
+		 	//FEDTrailer fedTrailer(trailerIndex);
 			
 
 // Beginning of RPC Records Unpacking
-			index+=numberOfHeaders*SLINK_WORD_SIZE; //does this point to
-								//beginning or end of first record?
+			index += numberOfHeaders*SLINK_WORD_SIZE; 
 
+			//index+=SLINK_WORD_SIZE; //does this point to
+								//beginning or end of first record?
 
 			while( index != trailerIndex ){
 			
 			 RPCRecord theRecord(index);
 			 
 			 // Find what type of record it is
-			 enum recordTypes typeOfRecord theRecord.type();
+			 RPCRecord::recordTypes typeOfRecord = theRecord.type();
 			 
-			 if(typeOfRecord==RPCRecord::DataChamber)
+			 if(typeOfRecord==RPCRecord::ChamberData)
 			 {
-			    RPCChamberData chambData(index);
-			    int rpcChamber = chambData.chamberNumber();
-			    int partitionNumber = chambData.partitionNumber();
-			    int eod = chambData.eod();
-			    int halfP = chambdata.halfP();
+			  //  RPCChamberData chambData(index);
+			   // int rpcChamber = chambData.chamberNumber();
+			   // int partitionNumber = chambData.partitionNumber();
+			   // int eod = chambData.eod();
+			  //  int halfP = chambdata.halfP();
 			 }
 			 
 
 			 //Go to beginning of next record
-			 index=theRecord.next();
+			 theRecord.next();
 			
 			
 			 }
@@ -93,7 +97,7 @@ void RPCUnpackingModule::produce(Event & e, const EventSetup& c){
 	}
        
         // Insert the new product in the event  
-	e.put(producedRPCDigis);
+	//e.put(producedRPCDigis);
   
  
    

@@ -7,7 +7,6 @@
 
 #include <iostream>
 
-class RPCDaqCMSFormatter;
 
 class RPCUnpackingModule: public edm::EDProducer {
   public:
@@ -23,7 +22,6 @@ class RPCUnpackingModule: public edm::EDProducer {
 
   private:
    
-   RPCDaqCMSFormatter * unpacker;
 
   };
 
