@@ -7,6 +7,7 @@
 #include "RelationalAccess/IRelationalSchema.h"
 #include "RelationalAccess/IRelationalTable.h"
 #include "RelationalAccess/RelationalEditableTableDescription.h"
+#include "RelationalAccess/IRelationalTablePrivilegeManager.h"
 #include "RelationalAccess/IRelationalPrimaryKey.h"
 #include "RelationalAccess/IRelationalCursor.h"
 #include "RelationalAccess/IRelationalQuery.h"
@@ -101,4 +102,5 @@ void cond::MetaData::createTable(const std::string& tabname){
   desc->setPrimaryKey(cols);
   desc->setNotNullConstraint( "name" );
   m_table=&(schema.createTable(tabname,*desc));  
+  m_table->privilegeManager().grantToPublic( pool::IRelationalTablePrivilegeManager::SELECT );
 }
