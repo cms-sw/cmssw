@@ -7,18 +7,19 @@
  * It can be initialized/set with a time in ns or a TDC count in 25/32 ns 
  * units.
  *  
- *  $Date: 2005/10/07 17:40:53 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/10/25 13:48:54 $
+ *  $Revision: 1.2 $
  *
  * \author N. Amapane - INFN Torino
  *
  */
 
+#include <boost/cstdint.hpp>
 
 class DTDigi{
 
 public:
-  typedef unsigned int ChannelType;
+  typedef uint32_t ChannelType;
 
   /// Lenght of packed fields
   enum packing{wire_s     = 7,
@@ -123,7 +124,7 @@ private:
   // directly, only by calling data()
 // made public to be able to generate lcgdict, SA, 27/4/05
   struct PersistentPacking {
-    unsigned int w1;
+    uint32_t w1;
   };
 
  private:
