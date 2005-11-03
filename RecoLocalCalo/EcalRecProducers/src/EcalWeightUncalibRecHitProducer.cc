@@ -1,9 +1,9 @@
 /** \class EcalWeightUncalibRecHitProducer
  *   produce ECAL uncalibrated rechits from dataframes
  *
-  *  $Id: EcalWeightUncalibRecHitProducer.cc,v 1.3 2005/10/25 11:10:02 rahatlou Exp $
-  *  $Date: 2005/10/25 11:10:02 $
-  *  $Revision: 1.3 $
+  *  $Id: EcalWeightUncalibRecHitProducer.cc,v 1.4 2005/10/25 14:08:30 rahatlou Exp $
+  *  $Date: 2005/10/25 14:08:30 $
+  *  $Revision: 1.4 $
   *  \author Shahram Rahatlou, University of Rome & INFN, Sept 2005
   *
   */
@@ -20,8 +20,6 @@
 
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 #include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalMapping.h"
-#include "CondFormats/DataRecord/interface/EcalMappingRcd.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "CondFormats/EcalObjects/interface/EcalWeightRecAlgoWeights.h"
 #include "CondFormats/DataRecord/interface/EcalWeightRecAlgoWeightsRcd.h"
@@ -66,13 +64,6 @@ EcalWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup&
    es.get<EcalPedestalsRcd>().get( pedHandle );
    const EcalPedestalsMap& pedMap = pedHandle.product()->m_pedestals; // map of pedestals
    if(!counterExceeded()) std::cout << "done." << std::endl;
-
-   // fetch the map of channel id <-> detid
-   //edm::ESHandle<EcalMapping> mapHandle;
-   //es.get<EcalMappingRcd>().get( mapHandle );
-   //es.getData( mapHandle );
-   //const EcalMapping* ecalMap = mapHandle.product();
-
 
    // fetch weights from cond DB via EventSetup
    if(!counterExceeded()) std::cout << "fetching weights....";
