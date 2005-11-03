@@ -13,7 +13,6 @@ namespace {
     CLHEP::Hep3Vector dummy2;
     EmbdSimVertex dummy33;
     std::vector<EmbdSimVertex> dummy333;
-    edm::EmbdSimVertexContainer dummy3333;
     edm::Wrapper<edm::EmbdSimVertexContainer> dummy33333;
 }
 }
