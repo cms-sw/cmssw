@@ -1,3 +1,6 @@
+** V01-00-02  [Thu Nov  3 16:59:39 2005]
+Fixes for Petar. Publish V01-00-02.
+
 ** V01-00-01  [Mon Oct 31 14:52:00 2005]
 Removed erroneous SEAL_PLUGIN_NAME flag since this library soe not have the SEAL_MODULE entrypoint.
 
