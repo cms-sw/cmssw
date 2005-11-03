@@ -26,14 +26,14 @@ VolumeBasedMagneticFieldESProducer::VolumeBasedMagneticFieldESProducer(const edm
 
 
 // ------------ method called to produce the data  ------------
-std::auto_ptr<VolumeBasedMagneticField> VolumeBasedMagneticFieldESProducer::produce(const IdealMagneticFieldRecord & iRecord)
+std::auto_ptr<MagneticField> VolumeBasedMagneticFieldESProducer::produce(const IdealMagneticFieldRecord & iRecord)
 {
   edm::ESHandle<DDCompactView> cpv;
   iRecord.getRecord<IdealGeometryRecord>().get( cpv );
   MagGeoBuilderFromDDD builder;
   builder.build(*cpv);
   
-  std::auto_ptr<VolumeBasedMagneticField> s(new VolumeBasedMagneticField(builder.barrelLayers(),
+  std::auto_ptr<MagneticField> s(new VolumeBasedMagneticField(builder.barrelLayers(),
 									 builder.endcapSectors(),
 									 builder.barrelVolumes(),
 									 builder.endcapVolumes()));

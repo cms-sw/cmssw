@@ -5,7 +5,7 @@
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 
-#include "MagneticField/VolumeBasedEngine/interface/VolumeBasedMagneticField.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <string>
@@ -18,7 +18,7 @@ class VolumeBasedMagneticFieldESProducer :
 public:
   VolumeBasedMagneticFieldESProducer(const edm::ParameterSet&);
   
-  std::auto_ptr<VolumeBasedMagneticField> produce(const IdealMagneticFieldRecord &);
+  std::auto_ptr<MagneticField> produce(const IdealMagneticFieldRecord &);
 
 protected:
 private:

@@ -1,6 +1,6 @@
-#include "MagneticField/VolumeBasedEngine/interface/VolumeBasedMagneticField.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
    
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 
-EVENTSETUP_DATA_REG(VolumeBasedMagneticField);
+EVENTSETUP_DATA_REG(MagneticField);
    
