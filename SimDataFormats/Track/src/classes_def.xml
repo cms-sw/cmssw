@@ -1,9 +1,8 @@
 <lcgdict>
   <class name="CLHEP::HepLorentzVector"/>
   <class name="CLHEP::Hep3Vector"/>
-  <class name="edm::EmbdSimTrackContainer"/>
   <class name="std::vector<EmbdSimTrack>"/>
   <class name="CoreSimTrack"/>
   <class name="EmbdSimTrack"/>
-  <class name="edm::Wrapper<edm::EmbdSimTrackContainer>" id="4CDE1F5F-7A50-3846-885F-5B4BED00F47D"/>
+  <class name="edm::Wrapper<std::vector<EmbdSimTrack> >" id="4CDE1F5F-7A50-3846-885F-5B4BED00F47D"/>
 </lcgdict>

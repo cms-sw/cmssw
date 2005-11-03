@@ -13,7 +13,6 @@ namespace {
     CLHEP::Hep3Vector dummy2;
     EmbdSimTrack dummy22;
     std::vector<EmbdSimTrack> dummy222;
-    edm::EmbdSimTrackContainer dummy2222;
     edm::Wrapper<edm::EmbdSimTrackContainer> dummy22222;
 }
 }
