@@ -1,11 +1,10 @@
 <use name=clhep>
-<use name=root>
 <use name=DataFormats/SiPixelDigi>
 <use name=FWCore/EDProduct>
+
 <export>
  <lib name=DataFormatsSiPixelCluster>
  <use name=FWCore/EDProduct>
  <use name=DataFormats/SiPixelDigi>
  <use name=clhep>
- <use name=root>
 </export>

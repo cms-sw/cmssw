@@ -1,9 +1,8 @@
 <lcgdict>
   <class name="SiPixelCluster"/>
-  <class name="std::vector<short>"/>
   <class name="std::vector<SiPixelCluster>"/>
   <class name="std::pair<unsigned int, unsigned int>"/>
   <class name="std::map<unsigned int, std::pair<unsigned int, unsigned int> >"/>
   <class name="SiPixelClusterCollection"/>
-  <class name="edm::Wrapper<SiPixelClusterCollection>" id="C4D8A21B-7FB4-C5CC-EC4C-3DF86655814C"/>
+  <class name="edm::Wrapper<SiPixelClusterCollection>" id="134C2284-14F7-B4E6-330D-561B974FAE35"/>
 </lcgdict>
