@@ -1,0 +1,910 @@
+WARNING: $POOL_CATALOG is not defined
+using default `xmlcatalog_file:PoolFileCatalog.xml'
+POOL/RelationalPlugins/oracle     Info Connected to a server running Oracle version 9.2.0.7.0
+POOL/RelationalPlugins/oracle    Debug Prepared statement : "SELECT "token" FROM "CMS_ECAL_DEV"."METADATA" WHERE "name"='ecalped_fromonline'"
+token : [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=IOV][CLID=2F16F0A9-79D5-4881-CE0B-A271DD84A7F1][TECH=00000B00][OID=00000004-00000000]	
+registering Proxies for HcalQIEShapeRcd
+   HcalQIEShape   HcalQIEShape
+registering Proxies for HcalQIEDataRcd
+   HcalQIEData   HcalQIEData
+registering Proxies for HcalPedestalWidthsRcd
+   HcalPedestalWidths   HcalPedestalWidths
+registering Proxies for HcalPedestalsRcd
+   HcalPedestals   HcalPedestals
+registering Proxies for HcalGainWidthsRcd
+   HcalGainWidths   HcalGainWidths
+registering Proxies for HcalGainsRcd
+   HcalGains   HcalGains
+registering Proxies for HcalElectronicsMapRcd
+   HcalElectronicsMap   HcalElectronicsMap
+registering Proxies for HcalChannelQualityRcd
+   HcalChannelQuality   HcalChannelQuality
+registering Proxies for EcalWeightRecAlgoWeightsRcd
+   EcalWeightRecAlgoWeights   EcalWeightRecAlgoWeights
+registering Proxies for EcalPedestalsRcd
+   EcalPedestals   EcalPedestals
+POOL/RelationalPlugins/oracle     Info Connected to a server running Oracle version 9.2.0.7.0
+POOL/RelationalPlugins/oracle     Info Connected to a server running Oracle version 9.2.0.7.0
+POOL/RelationalPlugins/oracle    Debug Prepared statement : "SELECT "CONTAINER_ID", "CONTAINER_NAME", "CONTAINER_TYPE", "TABLE_NAME", "CLASS_NAME", "MAPPING_VERSION", "NUMBER_OF_WRITTEN_OBJECTS", "NUMBER_OF_DELETED_OBJECTS" FROM "CMS_ECAL_DEV"."POOL_RSS_CONTAINERS""
+POOL/RelationalPlugins/oracle    Debug Prepared statement : "SELECT "MAPPING_VERSION" FROM "CMS_ECAL_DEV"."POOL_OR_MAPPING_VERSIONS""
+POOL/RelationalPlugins/oracle    Debug Prepared statement : "SELECT "VARIABLE_NAME", "TABLE_NAME" FROM "CMS_ECAL_DEV"."POOL_OR_MAPPING_ELEMENTS" WHERE "VERSION"='2.0' AND "SCOPE_NAME"=' '"
+POOL/RelationalPlugins/oracle    Debug Prepared statement : "SELECT "COLUMN_NAME" FROM "CMS_ECAL_DEV"."POOL_OR_MAPPING_COLUMNS" WHERE "VERSION"='2.0' AND "SCOPE_NAME"=' ' AND "VARIABLE_NAME"='EcalPedestals' ORDER BY "POSITION""
+POOL/RelationalPlugins/oracle    Debug Prepared statement : "SELECT "ELEMENT_TYPE", "VARIABLE_NAME", "VARIABLE_TYPE", "TABLE_NAME" FROM "CMS_ECAL_DEV"."POOL_OR_MAPPING_ELEMENTS" WHERE "VERSION"='2.0' AND "SCOPE_NAME"='EcalPedestals'"
+POOL/RelationalPlugins/oracle    Debug Prepared statement : "SELECT "COLUMN_NAME" FROM "CMS_ECAL_DEV"."POOL_OR_MAPPING_COLUMNS" WHERE "VERSION"='2.0' AND "SCOPE_NAME"='EcalPedestals' AND "VARIABLE_NAME"='m_pedestals' ORDER BY "POSITION""
+POOL/RelationalPlugins/oracle    Debug Prepared statement : "SELECT "ELEMENT_TYPE", "VARIABLE_NAME", "VARIABLE_TYPE", "TABLE_NAME" FROM "CMS_ECAL_DEV"."POOL_OR_MAPPING_ELEMENTS" WHERE "VERSION"='2.0' AND "SCOPE_NAME"='EcalPedestals::m_pedestals'"
+POOL/RelationalPlugins/oracle    Debug Prepared statement : "SELECT "COLUMN_NAME" FROM "CMS_ECAL_DEV"."POOL_OR_MAPPING_COLUMNS" WHERE "VERSION"='2.0' AND "SCOPE_NAME"='EcalPedestals::m_pedestals' AND "VARIABLE_NAME"='EcalPedestals::Item' ORDER BY "POSITION""
+POOL/RelationalPlugins/oracle    Debug Prepared statement : "SELECT "ELEMENT_TYPE", "VARIABLE_NAME", "VARIABLE_TYPE", "TABLE_NAME" FROM "CMS_ECAL_DEV"."POOL_OR_MAPPING_ELEMENTS" WHERE "VERSION"='2.0' AND "SCOPE_NAME"='EcalPedestals::m_pedestals::EcalPedestals::Item'"
+POOL/RelationalPlugins/oracle    Debug Prepared statement : "SELECT "COLUMN_NAME" FROM "CMS_ECAL_DEV"."POOL_OR_MAPPING_COLUMNS" WHERE "VERSION"='2.0' AND "SCOPE_NAME"='EcalPedestals::m_pedestals::EcalPedestals::Item' AND "VARIABLE_NAME"='mean_x1' ORDER BY "POSITION""
+POOL/RelationalPlugins/oracle    Debug Prepared statement : "SELECT "ELEMENT_TYPE", "VARIABLE_NAME", "VARIABLE_TYPE", "TABLE_NAME" FROM "CMS_ECAL_DEV"."POOL_OR_MAPPING_ELEMENTS" WHERE "VERSION"='2.0' AND "SCOPE_NAME"='EcalPedestals::m_pedestals::EcalPedestals::Item::mean_x1'"
+POOL/RelationalPlugins/oracle    Debug Prepared statement : "SELECT "COLUMN_NAME" FROM "CMS_ECAL_DEV"."POOL_OR_MAPPING_COLUMNS" WHERE "VERSION"='2.0' AND "SCOPE_NAME"='EcalPedestals::m_pedestals::EcalPedestals::Item' AND "VARIABLE_NAME"='mean_x12' ORDER BY "POSITION""
+POOL/RelationalPlugins/oracle    Debug Prepared statement : "SELECT "ELEMENT_TYPE", "VARIABLE_NAME", "VARIABLE_TYPE", "TABLE_NAME" FROM "CMS_ECAL_DEV"."POOL_OR_MAPPING_ELEMENTS" WHERE "VERSION"='2.0' AND "SCOPE_NAME"='EcalPedestals::m_pedestals::EcalPedestals::Item::mean_x12'"
+POOL/RelationalPlugins/oracle    Debug Prepared statement : "SELECT "COLUMN_NAME" FROM "CMS_ECAL_DEV"."POOL_OR_MAPPING_COLUMNS" WHERE "VERSION"='2.0' AND "SCOPE_NAME"='EcalPedestals::m_pedestals::EcalPedestals::Item' AND "VARIABLE_NAME"='mean_x6' ORDER BY "POSITION""
+POOL/RelationalPlugins/oracle    Debug Prepared statement : "SELECT "ELEMENT_TYPE", "VARIABLE_NAME", "VARIABLE_TYPE", "TABLE_NAME" FROM "CMS_ECAL_DEV"."POOL_OR_MAPPING_ELEMENTS" WHERE "VERSION"='2.0' AND "SCOPE_NAME"='EcalPedestals::m_pedestals::EcalPedestals::Item::mean_x6'"
+POOL/RelationalPlugins/oracle    Debug Prepared statement : "SELECT "COLUMN_NAME" FROM "CMS_ECAL_DEV"."POOL_OR_MAPPING_COLUMNS" WHERE "VERSION"='2.0' AND "SCOPE_NAME"='EcalPedestals::m_pedestals::EcalPedestals::Item' AND "VARIABLE_NAME"='rms_x1' ORDER BY "POSITION""
+POOL/RelationalPlugins/oracle    Debug Prepared statement : "SELECT "ELEMENT_TYPE", "VARIABLE_NAME", "VARIABLE_TYPE", "TABLE_NAME" FROM "CMS_ECAL_DEV"."POOL_OR_MAPPING_ELEMENTS" WHERE "VERSION"='2.0' AND "SCOPE_NAME"='EcalPedestals::m_pedestals::EcalPedestals::Item::rms_x1'"
+POOL/RelationalPlugins/oracle    Debug Prepared statement : "SELECT "COLUMN_NAME" FROM "CMS_ECAL_DEV"."POOL_OR_MAPPING_COLUMNS" WHERE "VERSION"='2.0' AND "SCOPE_NAME"='EcalPedestals::m_pedestals::EcalPedestals::Item' AND "VARIABLE_NAME"='rms_x12' ORDER BY "POSITION""
+POOL/RelationalPlugins/oracle    Debug Prepared statement : "SELECT "ELEMENT_TYPE", "VARIABLE_NAME", "VARIABLE_TYPE", "TABLE_NAME" FROM "CMS_ECAL_DEV"."POOL_OR_MAPPING_ELEMENTS" WHERE "VERSION"='2.0' AND "SCOPE_NAME"='EcalPedestals::m_pedestals::EcalPedestals::Item::rms_x12'"
+POOL/RelationalPlugins/oracle    Debug Prepared statement : "SELECT "COLUMN_NAME" FROM "CMS_ECAL_DEV"."POOL_OR_MAPPING_COLUMNS" WHERE "VERSION"='2.0' AND "SCOPE_NAME"='EcalPedestals::m_pedestals::EcalPedestals::Item' AND "VARIABLE_NAME"='rms_x6' ORDER BY "POSITION""
+POOL/RelationalPlugins/oracle    Debug Prepared statement : "SELECT "ELEMENT_TYPE", "VARIABLE_NAME", "VARIABLE_TYPE", "TABLE_NAME" FROM "CMS_ECAL_DEV"."POOL_OR_MAPPING_ELEMENTS" WHERE "VERSION"='2.0' AND "SCOPE_NAME"='EcalPedestals::m_pedestals::EcalPedestals::Item::rms_x6'"
+POOL/RelationalPlugins/oracle    Debug Prepared statement : "SELECT "COLUMN_NAME" FROM "CMS_ECAL_DEV"."POOL_OR_MAPPING_COLUMNS" WHERE "VERSION"='2.0' AND "SCOPE_NAME"='EcalPedestals::m_pedestals' AND "VARIABLE_NAME"='int' ORDER BY "POSITION""
+POOL/RelationalPlugins/oracle    Debug Prepared statement : "SELECT "ELEMENT_TYPE", "VARIABLE_NAME", "VARIABLE_TYPE", "TABLE_NAME" FROM "CMS_ECAL_DEV"."POOL_OR_MAPPING_ELEMENTS" WHERE "VERSION"='2.0' AND "SCOPE_NAME"='EcalPedestals::m_pedestals::int'"
+POOL/RelationalPlugins/oracle    Debug Prepared statement : "SELECT "VARIABLE_NAME", "TABLE_NAME" FROM "CMS_ECAL_DEV"."POOL_OR_MAPPING_ELEMENTS" WHERE "VERSION"='automatic_default_for_cond::IOV' AND "SCOPE_NAME"=' '"
+POOL/RelationalPlugins/oracle    Debug Prepared statement : "SELECT "COLUMN_NAME" FROM "CMS_ECAL_DEV"."POOL_OR_MAPPING_COLUMNS" WHERE "VERSION"='automatic_default_for_cond::IOV' AND "SCOPE_NAME"=' ' AND "VARIABLE_NAME"='cond::IOV' ORDER BY "POSITION""
+POOL/RelationalPlugins/oracle    Debug Prepared statement : "SELECT "ELEMENT_TYPE", "VARIABLE_NAME", "VARIABLE_TYPE", "TABLE_NAME" FROM "CMS_ECAL_DEV"."POOL_OR_MAPPING_ELEMENTS" WHERE "VERSION"='automatic_default_for_cond::IOV' AND "SCOPE_NAME"='cond::IOV'"
+POOL/RelationalPlugins/oracle    Debug Prepared statement : "SELECT "COLUMN_NAME" FROM "CMS_ECAL_DEV"."POOL_OR_MAPPING_COLUMNS" WHERE "VERSION"='automatic_default_for_cond::IOV' AND "SCOPE_NAME"='cond::IOV' AND "VARIABLE_NAME"='iov' ORDER BY "POSITION""
+POOL/RelationalPlugins/oracle    Debug Prepared statement : "SELECT "ELEMENT_TYPE", "VARIABLE_NAME", "VARIABLE_TYPE", "TABLE_NAME" FROM "CMS_ECAL_DEV"."POOL_OR_MAPPING_ELEMENTS" WHERE "VERSION"='automatic_default_for_cond::IOV' AND "SCOPE_NAME"='cond::IOV::iov'"
+POOL/RelationalPlugins/oracle    Debug Prepared statement : "SELECT "COLUMN_NAME" FROM "CMS_ECAL_DEV"."POOL_OR_MAPPING_COLUMNS" WHERE "VERSION"='automatic_default_for_cond::IOV' AND "SCOPE_NAME"='cond::IOV::iov' AND "VARIABLE_NAME"='string' ORDER BY "POSITION""
+POOL/RelationalPlugins/oracle    Debug Prepared statement : "SELECT "ELEMENT_TYPE", "VARIABLE_NAME", "VARIABLE_TYPE", "TABLE_NAME" FROM "CMS_ECAL_DEV"."POOL_OR_MAPPING_ELEMENTS" WHERE "VERSION"='automatic_default_for_cond::IOV' AND "SCOPE_NAME"='cond::IOV::iov::string'"
+POOL/RelationalPlugins/oracle    Debug Prepared statement : "SELECT "COLUMN_NAME" FROM "CMS_ECAL_DEV"."POOL_OR_MAPPING_COLUMNS" WHERE "VERSION"='automatic_default_for_cond::IOV' AND "SCOPE_NAME"='cond::IOV::iov' AND "VARIABLE_NAME"='unsigned long' ORDER BY "POSITION""
+POOL/RelationalPlugins/oracle    Debug Prepared statement : "SELECT "ELEMENT_TYPE", "VARIABLE_NAME", "VARIABLE_TYPE", "TABLE_NAME" FROM "CMS_ECAL_DEV"."POOL_OR_MAPPING_ELEMENTS" WHERE "VERSION"='automatic_default_for_cond::IOV' AND "SCOPE_NAME"='cond::IOV::iov::unsigned long'"
+POOL/RelationalPlugins/oracle    Debug Prepared statement : "SELECT * FROM (SELECT "OID", "VALUE" FROM "CMS_ECAL_DEV"."POOL_CONT___SHAPES" WHERE "OID" >= :"OID" ORDER BY "OID") WHERE ROWNUM < 2"
+POOL/RelationalPlugins/oracle    Debug Prepared statement : "SELECT * FROM (SELECT "OID", "VALUE" FROM "CMS_ECAL_DEV"."POOL_CONT___SHAPES" WHERE "OID" >= :"OID" ORDER BY "OID") WHERE ROWNUM < 2"
+POOL/RelationalPlugins/oracle    Debug Prepared statement : "SELECT * FROM (SELECT "OID", "VALUE" FROM "CMS_ECAL_DEV"."POOL_CONT___SHAPES" WHERE "OID" >= :"OID" ORDER BY "OID") WHERE ROWNUM < 2"
+POOL/RelationalPlugins/oracle    Debug Prepared statement : "SELECT * FROM (SELECT "OID", "VALUE" FROM "CMS_ECAL_DEV"."POOL_CONT___LINKS" WHERE "OID" >= :"OID" ORDER BY "OID") WHERE ROWNUM < 2"
+POOL/RelationalPlugins/oracle    Debug Prepared statement : "SELECT * FROM (SELECT "OID", "VALUE" FROM "CMS_ECAL_DEV"."POOL_CONT___LINKS" WHERE "OID" >= :"OID" ORDER BY "OID") WHERE ROWNUM < 2"
+POOL/RelationalPlugins/oracle    Debug Prepared statement : "SELECT * FROM (SELECT "OID", "VALUE" FROM "CMS_ECAL_DEV"."POOL_CONT___LINKS" WHERE "OID" >= :"OID" ORDER BY "OID") WHERE ROWNUM < 2"
+POOL/RelationalPlugins/oracle    Debug Prepared statement : "SELECT * FROM (SELECT "OID", "VALUE" FROM "CMS_ECAL_DEV"."POOL_CONT___LINKS" WHERE "OID" >= :"OID" ORDER BY "OID") WHERE ROWNUM < 2"
+POOL/RelationalPlugins/oracle    Debug Prepared statement : "SELECT * FROM (SELECT "OID", "VALUE" FROM "CMS_ECAL_DEV"."POOL_CONT___PARAMS" WHERE "OID" >= :"OID" ORDER BY "OID") WHERE ROWNUM < 2"
+POOL/RelationalPlugins/oracle    Debug Prepared statement : "SELECT * FROM (SELECT "OID", "VALUE" FROM "CMS_ECAL_DEV"."POOL_CONT___PARAMS" WHERE "OID" >= :"OID" ORDER BY "OID") WHERE ROWNUM < 2"
+POOL/RelationalPlugins/oracle    Debug Prepared statement : "SELECT * FROM (SELECT "OID", "VALUE" FROM "CMS_ECAL_DEV"."POOL_CONT___PARAMS" WHERE "OID" >= :"OID" ORDER BY "OID") WHERE ROWNUM < 2"
+POOL/RelationalPlugins/oracle    Debug Prepared statement : "SELECT * FROM (SELECT "OID", "VALUE" FROM "CMS_ECAL_DEV"."POOL_CONT___PARAMS" WHERE "OID" >= :"OID" ORDER BY "OID") WHERE ROWNUM < 2"
+POOL/RelationalPlugins/oracle    Debug Prepared statement : "SELECT * FROM (SELECT "OID", "VALUE" FROM "CMS_ECAL_DEV"."POOL_CONT___PARAMS" WHERE "OID" >= :"OID" ORDER BY "OID") WHERE ROWNUM < 2"
+POOL/RelationalPlugins/oracle    Debug Prepared statement : "SELECT "ID" FROM "CMS_ECAL_DEV"."COND__IOV" WHERE "ID" =:"ID""
+POOL/RelationalPlugins/oracle    Debug Prepared statement : "SELECT "POS", "ID_ID", "IOV_IOV_UNSIGNED_LONG", "IOV_IOV_STRING" FROM "CMS_ECAL_DEV"."COND__IOV_IOV" WHERE "ID_ID" = :"ID_ID" ORDER BY "POS""
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000000]
+starttime run: 1 event: 0
+stop time run: 1 event: 0
+invalidateCache
+>>> processing event # run: 1 event: 1 time 1
+ I AM IN RUN NUMBER 1
+ ---EVENT NUMBER 1
+POOL/RelationalPlugins/oracle    Debug Prepared statement : "SELECT "IOV_VALUE_ID" FROM "CMS_ECAL_DEV"."ECALPEDESTALS" WHERE "IOV_VALUE_ID" =:"IOV_VALUE_ID""
+POOL/RelationalPlugins/oracle    Debug Prepared statement : "SELECT "POS", "IOV_VALUE_ID", "DET_ID", "MEAN_X12", "RMS_X12", "MEAN_X6", "RMS_X6", "MEAN_X1", "RMS_X1" FROM "CMS_ECAL_DEV"."ECALPEDESTALS_VALUE" WHERE "IOV_VALUE_ID" = :"IOV_VALUE_ID" ORDER BY "POS""
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  1.3 rms_x1:  0.3  mean_x6:  1.2 rms_x6:  0.2  mean_x12: 1.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000000]
+starttime run: 1 event: 0
+stop time run: 1 event: 0
+>>> processing event # run: 1 event: 2 time 5000001
+ I AM IN RUN NUMBER 1
+ ---EVENT NUMBER 2
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  1.3 rms_x1:  0.3  mean_x6:  1.2 rms_x6:  0.2  mean_x12: 1.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000000]
+starttime run: 1 event: 0
+stop time run: 1 event: 0
+>>> processing event # run: 1 event: 3 time 10000001
+ I AM IN RUN NUMBER 1
+ ---EVENT NUMBER 3
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  1.3 rms_x1:  0.3  mean_x6:  1.2 rms_x6:  0.2  mean_x12: 1.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000000]
+starttime run: 1 event: 0
+stop time run: 1 event: 0
+>>> processing event # run: 1 event: 4 time 15000001
+ I AM IN RUN NUMBER 1
+ ---EVENT NUMBER 4
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  1.3 rms_x1:  0.3  mean_x6:  1.2 rms_x6:  0.2  mean_x12: 1.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000000]
+starttime run: 1 event: 0
+stop time run: 1 event: 0
+>>> processing event # run: 1 event: 5 time 20000001
+ I AM IN RUN NUMBER 1
+ ---EVENT NUMBER 5
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  1.3 rms_x1:  0.3  mean_x6:  1.2 rms_x6:  0.2  mean_x12: 1.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000000]
+starttime run: 1 event: 0
+stop time run: 1 event: 0
+>>> processing event # run: 1 event: 6 time 25000001
+ I AM IN RUN NUMBER 1
+ ---EVENT NUMBER 6
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  1.3 rms_x1:  0.3  mean_x6:  1.2 rms_x6:  0.2  mean_x12: 1.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000000]
+starttime run: 1 event: 0
+stop time run: 1 event: 0
+>>> processing event # run: 1 event: 7 time 30000001
+ I AM IN RUN NUMBER 1
+ ---EVENT NUMBER 7
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  1.3 rms_x1:  0.3  mean_x6:  1.2 rms_x6:  0.2  mean_x12: 1.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000000]
+starttime run: 1 event: 0
+stop time run: 1 event: 0
+>>> processing event # run: 1 event: 8 time 35000001
+ I AM IN RUN NUMBER 1
+ ---EVENT NUMBER 8
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  1.3 rms_x1:  0.3  mean_x6:  1.2 rms_x6:  0.2  mean_x12: 1.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000000]
+starttime run: 1 event: 0
+stop time run: 1 event: 0
+>>> processing event # run: 1 event: 9 time 40000001
+ I AM IN RUN NUMBER 1
+ ---EVENT NUMBER 9
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  1.3 rms_x1:  0.3  mean_x6:  1.2 rms_x6:  0.2  mean_x12: 1.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000000]
+starttime run: 1 event: 0
+stop time run: 1 event: 0
+>>> processing event # run: 1 event: 10 time 45000001
+ I AM IN RUN NUMBER 1
+ ---EVENT NUMBER 10
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  1.3 rms_x1:  0.3  mean_x6:  1.2 rms_x6:  0.2  mean_x12: 1.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000001]
+starttime run: 2 event: 0
+stop time run: 5 event: 0
+invalidateCache
+>>> processing event # run: 2 event: 1 time 50000001
+ I AM IN RUN NUMBER 2
+ ---EVENT NUMBER 1
+POOL/RelationalPlugins/oracle    Debug Prepared statement : "SELECT "IOV_VALUE_ID" FROM "CMS_ECAL_DEV"."ECALPEDESTALS" WHERE "IOV_VALUE_ID" =:"IOV_VALUE_ID""
+POOL/RelationalPlugins/oracle    Debug Prepared statement : "SELECT "POS", "IOV_VALUE_ID", "DET_ID", "MEAN_X12", "RMS_X12", "MEAN_X6", "RMS_X6", "MEAN_X1", "RMS_X1" FROM "CMS_ECAL_DEV"."ECALPEDESTALS_VALUE" WHERE "IOV_VALUE_ID" = :"IOV_VALUE_ID" ORDER BY "POS""
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  11.3 rms_x1:  0.3  mean_x6:  11.2 rms_x6:  0.2  mean_x12: 11.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000001]
+starttime run: 2 event: 0
+stop time run: 5 event: 0
+>>> processing event # run: 2 event: 2 time 55000001
+ I AM IN RUN NUMBER 2
+ ---EVENT NUMBER 2
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  11.3 rms_x1:  0.3  mean_x6:  11.2 rms_x6:  0.2  mean_x12: 11.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000001]
+starttime run: 2 event: 0
+stop time run: 5 event: 0
+>>> processing event # run: 2 event: 3 time 60000001
+ I AM IN RUN NUMBER 2
+ ---EVENT NUMBER 3
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  11.3 rms_x1:  0.3  mean_x6:  11.2 rms_x6:  0.2  mean_x12: 11.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000001]
+starttime run: 2 event: 0
+stop time run: 5 event: 0
+>>> processing event # run: 2 event: 4 time 65000001
+ I AM IN RUN NUMBER 2
+ ---EVENT NUMBER 4
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  11.3 rms_x1:  0.3  mean_x6:  11.2 rms_x6:  0.2  mean_x12: 11.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000001]
+starttime run: 2 event: 0
+stop time run: 5 event: 0
+>>> processing event # run: 2 event: 5 time 70000001
+ I AM IN RUN NUMBER 2
+ ---EVENT NUMBER 5
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  11.3 rms_x1:  0.3  mean_x6:  11.2 rms_x6:  0.2  mean_x12: 11.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000001]
+starttime run: 2 event: 0
+stop time run: 5 event: 0
+>>> processing event # run: 2 event: 6 time 75000001
+ I AM IN RUN NUMBER 2
+ ---EVENT NUMBER 6
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  11.3 rms_x1:  0.3  mean_x6:  11.2 rms_x6:  0.2  mean_x12: 11.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000001]
+starttime run: 2 event: 0
+stop time run: 5 event: 0
+>>> processing event # run: 2 event: 7 time 80000001
+ I AM IN RUN NUMBER 2
+ ---EVENT NUMBER 7
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  11.3 rms_x1:  0.3  mean_x6:  11.2 rms_x6:  0.2  mean_x12: 11.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000001]
+starttime run: 2 event: 0
+stop time run: 5 event: 0
+>>> processing event # run: 2 event: 8 time 85000001
+ I AM IN RUN NUMBER 2
+ ---EVENT NUMBER 8
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  11.3 rms_x1:  0.3  mean_x6:  11.2 rms_x6:  0.2  mean_x12: 11.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000001]
+starttime run: 2 event: 0
+stop time run: 5 event: 0
+>>> processing event # run: 2 event: 9 time 90000001
+ I AM IN RUN NUMBER 2
+ ---EVENT NUMBER 9
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  11.3 rms_x1:  0.3  mean_x6:  11.2 rms_x6:  0.2  mean_x12: 11.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000001]
+starttime run: 2 event: 0
+stop time run: 5 event: 0
+>>> processing event # run: 2 event: 10 time 95000001
+ I AM IN RUN NUMBER 2
+ ---EVENT NUMBER 10
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  11.3 rms_x1:  0.3  mean_x6:  11.2 rms_x6:  0.2  mean_x12: 11.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000001]
+starttime run: 2 event: 0
+stop time run: 5 event: 0
+>>> processing event # run: 3 event: 1 time 100000001
+ I AM IN RUN NUMBER 3
+ ---EVENT NUMBER 1
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  11.3 rms_x1:  0.3  mean_x6:  11.2 rms_x6:  0.2  mean_x12: 11.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000001]
+starttime run: 2 event: 0
+stop time run: 5 event: 0
+>>> processing event # run: 3 event: 2 time 105000001
+ I AM IN RUN NUMBER 3
+ ---EVENT NUMBER 2
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  11.3 rms_x1:  0.3  mean_x6:  11.2 rms_x6:  0.2  mean_x12: 11.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000001]
+starttime run: 2 event: 0
+stop time run: 5 event: 0
+>>> processing event # run: 3 event: 3 time 110000001
+ I AM IN RUN NUMBER 3
+ ---EVENT NUMBER 3
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  11.3 rms_x1:  0.3  mean_x6:  11.2 rms_x6:  0.2  mean_x12: 11.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000001]
+starttime run: 2 event: 0
+stop time run: 5 event: 0
+>>> processing event # run: 3 event: 4 time 115000001
+ I AM IN RUN NUMBER 3
+ ---EVENT NUMBER 4
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  11.3 rms_x1:  0.3  mean_x6:  11.2 rms_x6:  0.2  mean_x12: 11.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000001]
+starttime run: 2 event: 0
+stop time run: 5 event: 0
+>>> processing event # run: 3 event: 5 time 120000001
+ I AM IN RUN NUMBER 3
+ ---EVENT NUMBER 5
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  11.3 rms_x1:  0.3  mean_x6:  11.2 rms_x6:  0.2  mean_x12: 11.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000001]
+starttime run: 2 event: 0
+stop time run: 5 event: 0
+>>> processing event # run: 3 event: 6 time 125000001
+ I AM IN RUN NUMBER 3
+ ---EVENT NUMBER 6
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  11.3 rms_x1:  0.3  mean_x6:  11.2 rms_x6:  0.2  mean_x12: 11.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000001]
+starttime run: 2 event: 0
+stop time run: 5 event: 0
+>>> processing event # run: 3 event: 7 time 130000001
+ I AM IN RUN NUMBER 3
+ ---EVENT NUMBER 7
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  11.3 rms_x1:  0.3  mean_x6:  11.2 rms_x6:  0.2  mean_x12: 11.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000001]
+starttime run: 2 event: 0
+stop time run: 5 event: 0
+>>> processing event # run: 3 event: 8 time 135000001
+ I AM IN RUN NUMBER 3
+ ---EVENT NUMBER 8
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  11.3 rms_x1:  0.3  mean_x6:  11.2 rms_x6:  0.2  mean_x12: 11.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000001]
+starttime run: 2 event: 0
+stop time run: 5 event: 0
+>>> processing event # run: 3 event: 9 time 140000001
+ I AM IN RUN NUMBER 3
+ ---EVENT NUMBER 9
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  11.3 rms_x1:  0.3  mean_x6:  11.2 rms_x6:  0.2  mean_x12: 11.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000001]
+starttime run: 2 event: 0
+stop time run: 5 event: 0
+>>> processing event # run: 3 event: 10 time 145000001
+ I AM IN RUN NUMBER 3
+ ---EVENT NUMBER 10
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  11.3 rms_x1:  0.3  mean_x6:  11.2 rms_x6:  0.2  mean_x12: 11.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000001]
+starttime run: 2 event: 0
+stop time run: 5 event: 0
+>>> processing event # run: 4 event: 1 time 150000001
+ I AM IN RUN NUMBER 4
+ ---EVENT NUMBER 1
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  11.3 rms_x1:  0.3  mean_x6:  11.2 rms_x6:  0.2  mean_x12: 11.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000001]
+starttime run: 2 event: 0
+stop time run: 5 event: 0
+>>> processing event # run: 4 event: 2 time 155000001
+ I AM IN RUN NUMBER 4
+ ---EVENT NUMBER 2
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  11.3 rms_x1:  0.3  mean_x6:  11.2 rms_x6:  0.2  mean_x12: 11.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000001]
+starttime run: 2 event: 0
+stop time run: 5 event: 0
+>>> processing event # run: 4 event: 3 time 160000001
+ I AM IN RUN NUMBER 4
+ ---EVENT NUMBER 3
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  11.3 rms_x1:  0.3  mean_x6:  11.2 rms_x6:  0.2  mean_x12: 11.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000001]
+starttime run: 2 event: 0
+stop time run: 5 event: 0
+>>> processing event # run: 4 event: 4 time 165000001
+ I AM IN RUN NUMBER 4
+ ---EVENT NUMBER 4
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  11.3 rms_x1:  0.3  mean_x6:  11.2 rms_x6:  0.2  mean_x12: 11.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000001]
+starttime run: 2 event: 0
+stop time run: 5 event: 0
+>>> processing event # run: 4 event: 5 time 170000001
+ I AM IN RUN NUMBER 4
+ ---EVENT NUMBER 5
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  11.3 rms_x1:  0.3  mean_x6:  11.2 rms_x6:  0.2  mean_x12: 11.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000001]
+starttime run: 2 event: 0
+stop time run: 5 event: 0
+>>> processing event # run: 4 event: 6 time 175000001
+ I AM IN RUN NUMBER 4
+ ---EVENT NUMBER 6
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  11.3 rms_x1:  0.3  mean_x6:  11.2 rms_x6:  0.2  mean_x12: 11.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000001]
+starttime run: 2 event: 0
+stop time run: 5 event: 0
+>>> processing event # run: 4 event: 7 time 180000001
+ I AM IN RUN NUMBER 4
+ ---EVENT NUMBER 7
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  11.3 rms_x1:  0.3  mean_x6:  11.2 rms_x6:  0.2  mean_x12: 11.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000001]
+starttime run: 2 event: 0
+stop time run: 5 event: 0
+>>> processing event # run: 4 event: 8 time 185000001
+ I AM IN RUN NUMBER 4
+ ---EVENT NUMBER 8
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  11.3 rms_x1:  0.3  mean_x6:  11.2 rms_x6:  0.2  mean_x12: 11.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000001]
+starttime run: 2 event: 0
+stop time run: 5 event: 0
+>>> processing event # run: 4 event: 9 time 190000001
+ I AM IN RUN NUMBER 4
+ ---EVENT NUMBER 9
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  11.3 rms_x1:  0.3  mean_x6:  11.2 rms_x6:  0.2  mean_x12: 11.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000001]
+starttime run: 2 event: 0
+stop time run: 5 event: 0
+>>> processing event # run: 4 event: 10 time 195000001
+ I AM IN RUN NUMBER 4
+ ---EVENT NUMBER 10
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  11.3 rms_x1:  0.3  mean_x6:  11.2 rms_x6:  0.2  mean_x12: 11.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000001]
+starttime run: 2 event: 0
+stop time run: 5 event: 0
+>>> processing event # run: 5 event: 1 time 200000001
+ I AM IN RUN NUMBER 5
+ ---EVENT NUMBER 1
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  11.3 rms_x1:  0.3  mean_x6:  11.2 rms_x6:  0.2  mean_x12: 11.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000001]
+starttime run: 2 event: 0
+stop time run: 5 event: 0
+>>> processing event # run: 5 event: 2 time 205000001
+ I AM IN RUN NUMBER 5
+ ---EVENT NUMBER 2
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  11.3 rms_x1:  0.3  mean_x6:  11.2 rms_x6:  0.2  mean_x12: 11.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000001]
+starttime run: 2 event: 0
+stop time run: 5 event: 0
+>>> processing event # run: 5 event: 3 time 210000001
+ I AM IN RUN NUMBER 5
+ ---EVENT NUMBER 3
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  11.3 rms_x1:  0.3  mean_x6:  11.2 rms_x6:  0.2  mean_x12: 11.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000001]
+starttime run: 2 event: 0
+stop time run: 5 event: 0
+>>> processing event # run: 5 event: 4 time 215000001
+ I AM IN RUN NUMBER 5
+ ---EVENT NUMBER 4
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  11.3 rms_x1:  0.3  mean_x6:  11.2 rms_x6:  0.2  mean_x12: 11.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000001]
+starttime run: 2 event: 0
+stop time run: 5 event: 0
+>>> processing event # run: 5 event: 5 time 220000001
+ I AM IN RUN NUMBER 5
+ ---EVENT NUMBER 5
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  11.3 rms_x1:  0.3  mean_x6:  11.2 rms_x6:  0.2  mean_x12: 11.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000001]
+starttime run: 2 event: 0
+stop time run: 5 event: 0
+>>> processing event # run: 5 event: 6 time 225000001
+ I AM IN RUN NUMBER 5
+ ---EVENT NUMBER 6
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  11.3 rms_x1:  0.3  mean_x6:  11.2 rms_x6:  0.2  mean_x12: 11.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000001]
+starttime run: 2 event: 0
+stop time run: 5 event: 0
+>>> processing event # run: 5 event: 7 time 230000001
+ I AM IN RUN NUMBER 5
+ ---EVENT NUMBER 7
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  11.3 rms_x1:  0.3  mean_x6:  11.2 rms_x6:  0.2  mean_x12: 11.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000001]
+starttime run: 2 event: 0
+stop time run: 5 event: 0
+>>> processing event # run: 5 event: 8 time 235000001
+ I AM IN RUN NUMBER 5
+ ---EVENT NUMBER 8
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  11.3 rms_x1:  0.3  mean_x6:  11.2 rms_x6:  0.2  mean_x12: 11.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000001]
+starttime run: 2 event: 0
+stop time run: 5 event: 0
+>>> processing event # run: 5 event: 9 time 240000001
+ I AM IN RUN NUMBER 5
+ ---EVENT NUMBER 9
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  11.3 rms_x1:  0.3  mean_x6:  11.2 rms_x6:  0.2  mean_x12: 11.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000001]
+starttime run: 2 event: 0
+stop time run: 5 event: 0
+>>> processing event # run: 5 event: 10 time 245000001
+ I AM IN RUN NUMBER 5
+ ---EVENT NUMBER 10
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  11.3 rms_x1:  0.3  mean_x6:  11.2 rms_x6:  0.2  mean_x12: 11.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000002]
+starttime run: 6 event: 0
+stop time run: 9 event: 0
+invalidateCache
+>>> processing event # run: 6 event: 1 time 250000001
+ I AM IN RUN NUMBER 6
+ ---EVENT NUMBER 1
+POOL/RelationalPlugins/oracle    Debug Prepared statement : "SELECT "IOV_VALUE_ID" FROM "CMS_ECAL_DEV"."ECALPEDESTALS" WHERE "IOV_VALUE_ID" =:"IOV_VALUE_ID""
+POOL/RelationalPlugins/oracle    Debug Prepared statement : "SELECT "POS", "IOV_VALUE_ID", "DET_ID", "MEAN_X12", "RMS_X12", "MEAN_X6", "RMS_X6", "MEAN_X1", "RMS_X1" FROM "CMS_ECAL_DEV"."ECALPEDESTALS_VALUE" WHERE "IOV_VALUE_ID" = :"IOV_VALUE_ID" ORDER BY "POS""
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  111.3 rms_x1:  0.3  mean_x6:  111.2 rms_x6:  0.2  mean_x12: 111.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000002]
+starttime run: 6 event: 0
+stop time run: 9 event: 0
+>>> processing event # run: 6 event: 2 time 255000001
+ I AM IN RUN NUMBER 6
+ ---EVENT NUMBER 2
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  111.3 rms_x1:  0.3  mean_x6:  111.2 rms_x6:  0.2  mean_x12: 111.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000002]
+starttime run: 6 event: 0
+stop time run: 9 event: 0
+>>> processing event # run: 6 event: 3 time 260000001
+ I AM IN RUN NUMBER 6
+ ---EVENT NUMBER 3
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  111.3 rms_x1:  0.3  mean_x6:  111.2 rms_x6:  0.2  mean_x12: 111.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000002]
+starttime run: 6 event: 0
+stop time run: 9 event: 0
+>>> processing event # run: 6 event: 4 time 265000001
+ I AM IN RUN NUMBER 6
+ ---EVENT NUMBER 4
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  111.3 rms_x1:  0.3  mean_x6:  111.2 rms_x6:  0.2  mean_x12: 111.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000002]
+starttime run: 6 event: 0
+stop time run: 9 event: 0
+>>> processing event # run: 6 event: 5 time 270000001
+ I AM IN RUN NUMBER 6
+ ---EVENT NUMBER 5
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  111.3 rms_x1:  0.3  mean_x6:  111.2 rms_x6:  0.2  mean_x12: 111.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000002]
+starttime run: 6 event: 0
+stop time run: 9 event: 0
+>>> processing event # run: 6 event: 6 time 275000001
+ I AM IN RUN NUMBER 6
+ ---EVENT NUMBER 6
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  111.3 rms_x1:  0.3  mean_x6:  111.2 rms_x6:  0.2  mean_x12: 111.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000002]
+starttime run: 6 event: 0
+stop time run: 9 event: 0
+>>> processing event # run: 6 event: 7 time 280000001
+ I AM IN RUN NUMBER 6
+ ---EVENT NUMBER 7
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  111.3 rms_x1:  0.3  mean_x6:  111.2 rms_x6:  0.2  mean_x12: 111.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000002]
+starttime run: 6 event: 0
+stop time run: 9 event: 0
+>>> processing event # run: 6 event: 8 time 285000001
+ I AM IN RUN NUMBER 6
+ ---EVENT NUMBER 8
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  111.3 rms_x1:  0.3  mean_x6:  111.2 rms_x6:  0.2  mean_x12: 111.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000002]
+starttime run: 6 event: 0
+stop time run: 9 event: 0
+>>> processing event # run: 6 event: 9 time 290000001
+ I AM IN RUN NUMBER 6
+ ---EVENT NUMBER 9
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  111.3 rms_x1:  0.3  mean_x6:  111.2 rms_x6:  0.2  mean_x12: 111.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000002]
+starttime run: 6 event: 0
+stop time run: 9 event: 0
+>>> processing event # run: 6 event: 10 time 295000001
+ I AM IN RUN NUMBER 6
+ ---EVENT NUMBER 10
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  111.3 rms_x1:  0.3  mean_x6:  111.2 rms_x6:  0.2  mean_x12: 111.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000002]
+starttime run: 6 event: 0
+stop time run: 9 event: 0
+>>> processing event # run: 7 event: 1 time 300000001
+ I AM IN RUN NUMBER 7
+ ---EVENT NUMBER 1
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  111.3 rms_x1:  0.3  mean_x6:  111.2 rms_x6:  0.2  mean_x12: 111.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000002]
+starttime run: 6 event: 0
+stop time run: 9 event: 0
+>>> processing event # run: 7 event: 2 time 305000001
+ I AM IN RUN NUMBER 7
+ ---EVENT NUMBER 2
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  111.3 rms_x1:  0.3  mean_x6:  111.2 rms_x6:  0.2  mean_x12: 111.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000002]
+starttime run: 6 event: 0
+stop time run: 9 event: 0
+>>> processing event # run: 7 event: 3 time 310000001
+ I AM IN RUN NUMBER 7
+ ---EVENT NUMBER 3
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  111.3 rms_x1:  0.3  mean_x6:  111.2 rms_x6:  0.2  mean_x12: 111.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000002]
+starttime run: 6 event: 0
+stop time run: 9 event: 0
+>>> processing event # run: 7 event: 4 time 315000001
+ I AM IN RUN NUMBER 7
+ ---EVENT NUMBER 4
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  111.3 rms_x1:  0.3  mean_x6:  111.2 rms_x6:  0.2  mean_x12: 111.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000002]
+starttime run: 6 event: 0
+stop time run: 9 event: 0
+>>> processing event # run: 7 event: 5 time 320000001
+ I AM IN RUN NUMBER 7
+ ---EVENT NUMBER 5
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  111.3 rms_x1:  0.3  mean_x6:  111.2 rms_x6:  0.2  mean_x12: 111.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000002]
+starttime run: 6 event: 0
+stop time run: 9 event: 0
+>>> processing event # run: 7 event: 6 time 325000001
+ I AM IN RUN NUMBER 7
+ ---EVENT NUMBER 6
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  111.3 rms_x1:  0.3  mean_x6:  111.2 rms_x6:  0.2  mean_x12: 111.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000002]
+starttime run: 6 event: 0
+stop time run: 9 event: 0
+>>> processing event # run: 7 event: 7 time 330000001
+ I AM IN RUN NUMBER 7
+ ---EVENT NUMBER 7
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  111.3 rms_x1:  0.3  mean_x6:  111.2 rms_x6:  0.2  mean_x12: 111.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000002]
+starttime run: 6 event: 0
+stop time run: 9 event: 0
+>>> processing event # run: 7 event: 8 time 335000001
+ I AM IN RUN NUMBER 7
+ ---EVENT NUMBER 8
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  111.3 rms_x1:  0.3  mean_x6:  111.2 rms_x6:  0.2  mean_x12: 111.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000002]
+starttime run: 6 event: 0
+stop time run: 9 event: 0
+>>> processing event # run: 7 event: 9 time 340000001
+ I AM IN RUN NUMBER 7
+ ---EVENT NUMBER 9
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  111.3 rms_x1:  0.3  mean_x6:  111.2 rms_x6:  0.2  mean_x12: 111.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000002]
+starttime run: 6 event: 0
+stop time run: 9 event: 0
+>>> processing event # run: 7 event: 10 time 345000001
+ I AM IN RUN NUMBER 7
+ ---EVENT NUMBER 10
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  111.3 rms_x1:  0.3  mean_x6:  111.2 rms_x6:  0.2  mean_x12: 111.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000002]
+starttime run: 6 event: 0
+stop time run: 9 event: 0
+>>> processing event # run: 8 event: 1 time 350000001
+ I AM IN RUN NUMBER 8
+ ---EVENT NUMBER 1
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  111.3 rms_x1:  0.3  mean_x6:  111.2 rms_x6:  0.2  mean_x12: 111.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000002]
+starttime run: 6 event: 0
+stop time run: 9 event: 0
+>>> processing event # run: 8 event: 2 time 355000001
+ I AM IN RUN NUMBER 8
+ ---EVENT NUMBER 2
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  111.3 rms_x1:  0.3  mean_x6:  111.2 rms_x6:  0.2  mean_x12: 111.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000002]
+starttime run: 6 event: 0
+stop time run: 9 event: 0
+>>> processing event # run: 8 event: 3 time 360000001
+ I AM IN RUN NUMBER 8
+ ---EVENT NUMBER 3
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  111.3 rms_x1:  0.3  mean_x6:  111.2 rms_x6:  0.2  mean_x12: 111.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000002]
+starttime run: 6 event: 0
+stop time run: 9 event: 0
+>>> processing event # run: 8 event: 4 time 365000001
+ I AM IN RUN NUMBER 8
+ ---EVENT NUMBER 4
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  111.3 rms_x1:  0.3  mean_x6:  111.2 rms_x6:  0.2  mean_x12: 111.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000002]
+starttime run: 6 event: 0
+stop time run: 9 event: 0
+>>> processing event # run: 8 event: 5 time 370000001
+ I AM IN RUN NUMBER 8
+ ---EVENT NUMBER 5
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  111.3 rms_x1:  0.3  mean_x6:  111.2 rms_x6:  0.2  mean_x12: 111.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000002]
+starttime run: 6 event: 0
+stop time run: 9 event: 0
+>>> processing event # run: 8 event: 6 time 375000001
+ I AM IN RUN NUMBER 8
+ ---EVENT NUMBER 6
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  111.3 rms_x1:  0.3  mean_x6:  111.2 rms_x6:  0.2  mean_x12: 111.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000002]
+starttime run: 6 event: 0
+stop time run: 9 event: 0
+>>> processing event # run: 8 event: 7 time 380000001
+ I AM IN RUN NUMBER 8
+ ---EVENT NUMBER 7
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  111.3 rms_x1:  0.3  mean_x6:  111.2 rms_x6:  0.2  mean_x12: 111.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000002]
+starttime run: 6 event: 0
+stop time run: 9 event: 0
+>>> processing event # run: 8 event: 8 time 385000001
+ I AM IN RUN NUMBER 8
+ ---EVENT NUMBER 8
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  111.3 rms_x1:  0.3  mean_x6:  111.2 rms_x6:  0.2  mean_x12: 111.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000002]
+starttime run: 6 event: 0
+stop time run: 9 event: 0
+>>> processing event # run: 8 event: 9 time 390000001
+ I AM IN RUN NUMBER 8
+ ---EVENT NUMBER 9
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  111.3 rms_x1:  0.3  mean_x6:  111.2 rms_x6:  0.2  mean_x12: 111.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000002]
+starttime run: 6 event: 0
+stop time run: 9 event: 0
+>>> processing event # run: 8 event: 10 time 395000001
+ I AM IN RUN NUMBER 8
+ ---EVENT NUMBER 10
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  111.3 rms_x1:  0.3  mean_x6:  111.2 rms_x6:  0.2  mean_x12: 111.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000002]
+starttime run: 6 event: 0
+stop time run: 9 event: 0
+>>> processing event # run: 9 event: 1 time 400000001
+ I AM IN RUN NUMBER 9
+ ---EVENT NUMBER 1
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  111.3 rms_x1:  0.3  mean_x6:  111.2 rms_x6:  0.2  mean_x12: 111.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000002]
+starttime run: 6 event: 0
+stop time run: 9 event: 0
+>>> processing event # run: 9 event: 2 time 405000001
+ I AM IN RUN NUMBER 9
+ ---EVENT NUMBER 2
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  111.3 rms_x1:  0.3  mean_x6:  111.2 rms_x6:  0.2  mean_x12: 111.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000002]
+starttime run: 6 event: 0
+stop time run: 9 event: 0
+>>> processing event # run: 9 event: 3 time 410000001
+ I AM IN RUN NUMBER 9
+ ---EVENT NUMBER 3
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  111.3 rms_x1:  0.3  mean_x6:  111.2 rms_x6:  0.2  mean_x12: 111.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000002]
+starttime run: 6 event: 0
+stop time run: 9 event: 0
+>>> processing event # run: 9 event: 4 time 415000001
+ I AM IN RUN NUMBER 9
+ ---EVENT NUMBER 4
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  111.3 rms_x1:  0.3  mean_x6:  111.2 rms_x6:  0.2  mean_x12: 111.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000002]
+starttime run: 6 event: 0
+stop time run: 9 event: 0
+>>> processing event # run: 9 event: 5 time 420000001
+ I AM IN RUN NUMBER 9
+ ---EVENT NUMBER 5
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  111.3 rms_x1:  0.3  mean_x6:  111.2 rms_x6:  0.2  mean_x12: 111.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000002]
+starttime run: 6 event: 0
+stop time run: 9 event: 0
+>>> processing event # run: 9 event: 6 time 425000001
+ I AM IN RUN NUMBER 9
+ ---EVENT NUMBER 6
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  111.3 rms_x1:  0.3  mean_x6:  111.2 rms_x6:  0.2  mean_x12: 111.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000002]
+starttime run: 6 event: 0
+stop time run: 9 event: 0
+>>> processing event # run: 9 event: 7 time 430000001
+ I AM IN RUN NUMBER 9
+ ---EVENT NUMBER 7
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  111.3 rms_x1:  0.3  mean_x6:  111.2 rms_x6:  0.2  mean_x12: 111.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000002]
+starttime run: 6 event: 0
+stop time run: 9 event: 0
+>>> processing event # run: 9 event: 8 time 435000001
+ I AM IN RUN NUMBER 9
+ ---EVENT NUMBER 8
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  111.3 rms_x1:  0.3  mean_x6:  111.2 rms_x6:  0.2  mean_x12: 111.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000002]
+starttime run: 6 event: 0
+stop time run: 9 event: 0
+>>> processing event # run: 9 event: 9 time 440000001
+ I AM IN RUN NUMBER 9
+ ---EVENT NUMBER 9
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  111.3 rms_x1:  0.3  mean_x6:  111.2 rms_x6:  0.2  mean_x12: 111.1 rms_x12: 0.1
+payloadToken [DB=C4572F1A-324B-DA11-9534-000E0C4D1844][CNT=EcalPedestals][CLID=2F16F0A9-79D5-4881-CE0B-C271DD84A7F1][TECH=00000B00][OID=00000000-00000002]
+starttime run: 6 event: 0
+stop time run: 9 event: 0
+>>> processing event # run: 9 event: 10 time 445000001
+ I AM IN RUN NUMBER 9
+ ---EVENT NUMBER 10
+INFO: Size of pedestals object (number of channels):  4
+INFO: List of channels:  456 789 987 1656 
+INFO: Ecal channel: 1656  mean_x1:  111.3 rms_x1:  0.3  mean_x6:  111.2 rms_x6:  0.2  mean_x12: 111.1 rms_x12: 0.1
+invalidateCache
+>>> processing event # run: 10 event: 1 time 450000001
+ I AM IN RUN NUMBER 10
+ ---EVENT NUMBER 1
+caught seal Exception FID "" is not existing in the catalog
+>>> processed 91 events
+Exception caught in cmsRun
+---- EventProcessorFailure BEGIN
+EventProcessingStopped
+---- ScheduleExecutionFailure BEGIN
+ProcessingStopped
+---- FID "" is not existing in the catalog BEGIN
+A cms::Exception is going through EDAnalyzer:
+Module type=EcalPedestalsAnalyzer, Module label=prod, Process name=TEST
+---- FID "" is not existing in the catalog END
+---- ScheduleExecutionFailure END
+---- EventProcessorFailure END
+

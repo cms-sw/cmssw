@@ -1,34 +1,40 @@
 cd src/CondTools/Utilities/test setenv SCRAM_ARCH slc3_ia32_gcc323
 eval `scramv1 runtime -csh`
 
-0)step because of current limit
- sqlplus cms_ecal_dev@devdb/ecaldev05 < clear.sql
+0) Step because of current limit
 
-1) use buildmapping "dry run" mode to create a mapping file template
+sqlplus cms_ecal_dev/ecaldev05@devdb < clear.sql
+
+1) Use buildmapping "dry run" mode to create a mapping file template
 for the desired class
 
-pool_build_object_relational_mapping -f mapping-template.xml -o
-EcalPedestals-default.xml -b -d CondFormatsEcalObjects -c
-oracle://devdb -u cms_ecal_dev -p ecaldev05 -b
+pool_build_object_relational_mapping -f mapping-template.xml \
+-o EcalPedestals-default.xml -b -d CondFormatsEcalObjects \
+-c oracle://devdb -u cms_ecal_dev -p ecaldev05 -b
 
-cp EcalPedestals-default.xml EcalPedestals-custom.xml modify
-EcalPedestals-custom.xml
+cp EcalPedestals-default.xml EcalPedestals-custom.xml
+
+Modify EcalPedestals-custom.xml
    --change to different Mapping version(!)
    --change column names and table names as you wish
 
-2) create offline db schema and some mock data population sqlplus
-cms_ecal_dev@devdb/ecaldev05 < offline-ecalpedestals-oracle.sql
+2) Create offline db schema and some mock data population 
+sqlplus cms_ecal_dev/ecaldev05@devdb < offline-ecalpedestals-oracle.sql
 
-3) build the real mapping pool_build_object_relational_mapping -f
-EcalPedestals-custom.xml -d CondFormatsEcalObjects -c oracle://devdb
--u cms_ecal_dev -p ecaldev05
+3) Build the real mapping 
+
+pool_build_object_relational_mapping -f EcalPedestals-custom.xml \
+-d CondFormatsEcalObjects -c oracle://devdb -u cms_ecal_dev -p ecaldev05
 
 --inspect the database to see some POOL tables appeared look at
---dbsetup.xml build the pool container with data pool_setup_database
----f dbsetup.xml -d CondFormatsEcalObjects -c oracle://devdb -u
---cms_ecal_dev -p ecaldev05
+--Ecaldbsetup.xml 
 
-4) register the db host to the POOL catalog. Necessary *only* if the
+Build the pool container with data
+
+pool_setup_database -f dbsetup.xml -d CondFormatsEcalObjects -c oracle://devdb \
+-u cms_ecal_dev -p ecaldev05
+
+4) Register the db host to the POOL catalog. Necessary *only* if the
 connection string hasn't been already registered to the catalog.
 
 FCregisterPFN -p oracle://devdb -t POOL_RDBMS
@@ -39,23 +45,25 @@ command returns the result token of the IOV has been built. -s option
 takes the classid of of the EcalPedestals object in the dictionary:
 i.e. from EcalObjects/src/classes_def.xml
 
-setenv POOL_AUTH_USER cms_ecal_dev //*only* if use oracle setenv
-POOL_AUTH_PASSWORD ecaldev05 //*only* if use oracle cmscond_build_iov
--h //to see the help message
+setenv POOL_AUTH_USER cms_ecal_dev //*only* if use oracle
+setenv POOL_AUTH_PASSWORD ecaldev05 //*only* if use oracle
 
-cmscond_build_iov -c oracle://devdb -t ECALPEDESTALS -n
-EcalPedestals -s 2F16F0A9-79D5-4881-CE0B-C271DD84A7F1
+cmscond_build_iov -h //to see the help message
+cmscond_build_iov -c oracle://devdb -t ECALPEDESTALS \
+-n EcalPedestals -s 2F16F0A9-79D5-4881-CE0B-C271DD84A7F1
 
-6)assign a tag to the iov token built by the previous command and
-register it to the metadata service cmscond_build_metadata -h //to see
-the help message
+6) Assign a tag to the iov token built by the previous command and
+register it to the metadata service
 
-cmscond_build_metadata -c oracle://devdb -i "<the output from the
-previous command>" -t "ecalped_fromonline"
+cmscond_build_metadata -h //to see the help message
+cmscond_build_metadata -c oracle://devdb \
+-i "<the output from the previous command>" \
+-t "ecalped_fromonline"
 
-7) get transfered data in offline db from eventsetup. Inspect the
+7) Get transfered data in offline db from eventsetup. Inspect the
 content of load_onlineped.txt, see data changes when iov expires.
 
-cmsRun --parameter-set load_onlineped.txt
+cmsRun --parameter-set load_onlineped.cfg
+cmsRun --parameter-set print_onlineped.cfg
 
 --success!
