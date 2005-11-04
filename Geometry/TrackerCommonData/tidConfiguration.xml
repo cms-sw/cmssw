@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <Configuration xmlns="." xmlns:xsi="." xsi:schemaLocation= "." name="CMSConfiguration" version="0">
 <Include name="test">
-      <File name="Materials/materials.xml"                   url="../../../"/>
+      <File name="CMSCommonData/materials.xml"               url="../"/>
       <File name="tidmaterial.xml"                           url="."/>
       <File name="tidmodpar.xml"                             url="."/>
       <File name="tidmodule0.xml"                            url="."/>

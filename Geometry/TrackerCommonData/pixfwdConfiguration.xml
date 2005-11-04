@@ -10,7 +10,7 @@
       <File name="pixfwdplaq2x4.xml"                         url="."/>
       <File name="pixfwdplaq2x3.xml"                         url="."/>
       <File name="pixfwdplaq.xml"                            url="."/>
-      <File name="Materials/materials.xml"                   url="../../../"/>
+      <File name="CMSCommonData/materials.xml"               url="../"/>
       <File name="pixfwdmaterial.xml"                        url="."/>
  </Include>
  <Root fileName="pixfwdPanel3LX.xml"  logicalPartName="PixelForwardPanel3LX"/>

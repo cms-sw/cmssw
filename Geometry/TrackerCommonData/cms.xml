@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
 
-<ConstantsSection label="cmscons.xml" eval="true">
+<ConstantsSection label="cms.xml" eval="true">
  <Constant name="Rmin"         value="0*fm"/>
  <Constant name="Zmin"         value="0*fm"/>
  <Constant name="HallZ"        value="27.0*m"/>
@@ -44,7 +44,8 @@
  <Constant name="ForwdBeamZ7"  value="17.920*m"/>
  <Constant name="ForwdBeamZ8"  value="18.562*m"/>
  <Constant name="ForwdBeamZ9"  value="18.905*m"/>
- <Constant name="ForwdBeamR1"  value="15.95*cm"/>
+ <Constant name="ForwdBeamR0"  value="15.95*cm"/>
+ <Constant name="ForwdBeamR1"  value="12.495*cm"/>
  <Constant name="ForwdBeamR2"  value="12.50*cm"/>
  <Constant name="ForwdBeamR3"  value="25.0*cm"/>
  <Constant name="ForwdBeamR4"  value="2.85*cm"/>
@@ -52,9 +53,9 @@
  <Constant name="ForwdBeamR6"  value="20.5*cm"/>
  <Constant name="ForwdBeamR7"  value="4.00*cm"/>
  <Constant name="ForwdBeamR8"  value="2.15*cm"/>
- <Constant name="ForwdVcalZ1"  value="11.130*m"/>
+ <Constant name="ForwdVcalZ1"  value="11.1295*m"/>
  <Constant name="ForwdVcalZ2"  value="12.800*m"/>
- <Constant name="ForwdVcalR1"  value="1.375*m"/>
+ <Constant name="ForwdVcalR1"  value="1.600*m"/>
  <Constant name="ForwdDetsZ1"  value="15.870*m"/>
  <Constant name="ForwdDetsR1"  value="33.00*cm"/>
  <Constant name="MBarRmin"     value="3.80*m"/>
@@ -64,5 +65,21 @@
  <Constant name="MBRing1Zpos"  value="2.686*m"/>
  <Constant name="MBRing2Zpos"  value="5.342*m"/>
 </ConstantsSection>
+
+<SolidSection label="cms.xml">
+ <Polycone name="Tracker" startPhi="0*deg" deltaPhi="360*deg" >
+  <ZSection z="-[TrackBeamZ2]"  rMin="[TrackBeamR2]"  rMax="[TrackCalorR]" />
+  <ZSection z="-[TrackBeamZ1]"  rMin="[TrackBeamR1]"  rMax="[TrackCalorR]" />
+  <ZSection z="[TrackBeamZ1]"   rMin="[TrackBeamR1]"  rMax="[TrackCalorR]" />
+  <ZSection z="[TrackBeamZ2]"   rMin="[TrackBeamR2]"  rMax="[TrackCalorR]" />
+ </Polycone> 
+</SolidSection>
+
+<LogicalPartSection label="cms.xml">
+ <LogicalPart name="Tracker" category="unspecified">
+  <rSolid name="Tracker"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
+</LogicalPartSection>
 
 </DDDefinition>

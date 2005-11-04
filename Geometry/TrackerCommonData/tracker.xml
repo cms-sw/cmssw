@@ -21,20 +21,9 @@
  <Constant name="PatchPannelR2"    value="62.50*cm"/>
  <Constant name="PatchPannelR3"    value="1.105*m"/>
  <Constant name="PatchPannelZ"     value="2.865*m"/>
- <Constant name="TrackBeamR1"      value="[cmscons:TrackBeamR1]"/>
- <Constant name="TrackBeamR2"      value="[cmscons:TrackBeamR2]"/>
- <Constant name="TrackBeamZ1"      value="[cmscons:TrackBeamZ1]"/>
- <Constant name="TrackBeamZ2"      value="[cmscons:TrackBeamZ2]"/>
- <Constant name="TrackCalorR"      value="[cmscons:TrackCalorR]"/>
 </ConstantsSection>
 
 <SolidSection label="tracker.xml">
- <Polycone name="Tracker" startPhi="0*deg" deltaPhi="360*deg" >
-  <ZSection z="-[TrackBeamZ2]" rMin="[TrackBeamR2]" rMax="[TrackCalorR]" />
-  <ZSection z="-[TrackBeamZ1]" rMin="[TrackBeamR1]" rMax="[TrackCalorR]" />
-  <ZSection z="[TrackBeamZ1]"  rMin="[TrackBeamR1]" rMax="[TrackCalorR]" />
-  <ZSection z="[TrackBeamZ2]"  rMin="[TrackBeamR2]" rMax="[TrackCalorR]" />
- </Polycone> 
  <Tubs name="TrackerScreenCont"     rMin="[ActiveScreenRin]" 
        rMax="[ActiveScreenRout]"    dz="[ActiveScreenL]/2" 
        startPhi="0*deg"             deltaPhi="360*deg"/>
@@ -68,10 +57,6 @@
 </SolidSection>
 
 <LogicalPartSection label="tracker.xml">
- <LogicalPart name="Tracker" category="unspecified">
-  <rSolid name="Tracker"/>
-  <rMaterial name="materials:Air"/>
- </LogicalPart>
  <LogicalPart name="TrackerScreenCont" category="unspecified">
   <rSolid name="TrackerScreenCont"/>
   <rMaterial name="materials:Foam"/>
@@ -121,7 +106,7 @@
 
 <PosPartSection label="tracker.xml">
  <PosPart copyNumber="1">
-   <rParent name="tracker:Tracker"/>
+   <rParent name="cms:Tracker"/>
    <rChild name="tracker:TrackerScreenCont"/>
  </PosPart>
  <PosPart copyNumber="1">
@@ -129,12 +114,12 @@
    <rChild name="tracker:TrackerScreenSupp"/>
  </PosPart>
  <PosPart copyNumber="1">
-   <rParent name="tracker:Tracker"/>
+   <rParent name="cms:Tracker"/>
    <rChild name="tracker:TrackerPatchPanel"/>
   <Translation x="[zero]" y="[zero]" z="[PatchPannelZ]"/>
  </PosPart>
  <PosPart copyNumber="2">
-   <rParent name="tracker:Tracker"/>
+   <rParent name="cms:Tracker"/>
    <rChild name="tracker:TrackerPatchPanel"/>
   <rRotation name="tracker:180D"/>
   <Translation x="[zero]" y="[zero]" z="-[PatchPannelZ]"/>
@@ -154,33 +139,33 @@
    <rChild name="tracker:TrackerPatchPanelUp"/>
  </PosPart>
  <PosPart copyNumber="1">
-   <rParent name="tracker:Tracker"/>
+   <rParent name="cms:Tracker"/>
    <rChild name="pixbar:PixelBarrel"/>
  </PosPart>
  <PosPart copyNumber="1">
-   <rParent name="tracker:Tracker"/>
+   <rParent name="cms:Tracker"/>
    <rChild name="tib:TIB"/>
  </PosPart>
  <PosPart copyNumber="1">
-   <rParent name="tracker:Tracker"/>
+   <rParent name="cms:Tracker"/>
    <rChild name="tid:TID"/>
  </PosPart>
  <PosPart copyNumber="2">
-   <rParent name="tracker:Tracker"/>
+   <rParent name="cms:Tracker"/>
    <rChild name="tid:TID"/>
   <rRotation name="tracker:180D"/>
  </PosPart>
  <PosPart copyNumber="1">
-   <rParent name="tracker:Tracker"/>
+   <rParent name="cms:Tracker"/>
    <rChild name="tob:TOB"/>
  </PosPart>
  <PosPart copyNumber="1">
-   <rParent name="tracker:Tracker"/>
+   <rParent name="cms:Tracker"/>
    <rChild name="tec:TEC"/>
   <Translation x="[zero]" y="[zero]" z="[tec:ZPos]"/>
  </PosPart>
  <PosPart copyNumber="2">
-   <rParent name="tracker:Tracker"/>
+   <rParent name="cms:Tracker"/>
    <rChild name="tec:TEC"/>
   <rRotation name="tracker:180D"/>
   <Translation x="[zero]" y="[zero]" z="-[tec:ZPos]"/>
