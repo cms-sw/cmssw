@@ -25,6 +25,8 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Framework/interface/Event.h"
 
+#include "FWCore/EDProduct/interface/EDProductGetter.h"
+
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
@@ -384,6 +386,7 @@ namespace edm {
               activityRegistry_.preProcessEventSignal_(pep->id(),pep->time());
             }
 	    EventRegistry::Operate oper(pep->id(),pep.get());
+            EDProductGetter::Operate pgoper(EventRegistry::instance());
 	    runner_->runOneEvent(*pep.get(),es);
             {
               activityRegistry_.postProcessEventSignal_(Event(*pep.get(),dummy) , es);
