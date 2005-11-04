@@ -2,7 +2,6 @@
 <Configuration xmlns="." xmlns:xsi="." xsi:schemaLocation= "." name="CMSConfiguration" version="0">
 <Include>
       <File name="Geometry/CMSCommonData/cms.xml"                   url="."/>
-      <File name="Geometry/CMSCommonData/quadrupole.xml"            url="."/>
       <File name="Geometry/CMSCommonData/beampipe.xml"              url="."/>
       <File name="Geometry/CMSCommonData/mgnt.xml"                  url="."/>
       <File name="Geometry/CMSCommonData/cavern.xml"                url="."/>
@@ -147,9 +146,9 @@
       <File name="Geometry/TrackerCommonData/trackermaterial.xml"   url="."/>
       <File name="Geometry/TrackerCommonData/cmscons.xml"           url="."/>
       <File name="Geometry/TrackerCommonData/tracker.xml"           url="."/>
+      <File name="Geometry/TrackerCommonData/trackerStructureTopology.xml" url="."/>
       <File name="Geometry/TrackerSimData/trackersens.xml"          url="."/>
       <File name="Geometry/TrackerSimData/trackerProdCuts.xml"      url="."/>
-      <File name="Geometry/TrackerSimData/trackerStructureTopology.xml" url="."/>
 
  </Include>
  <Root fileName="cms.xml"          logicalPartName="OCMS"/>
