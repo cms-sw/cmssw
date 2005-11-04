@@ -2,13 +2,18 @@
 #include <sstream>
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Framework/interface/EventRegistry.h"
+#include "FWCore/Framework/interface/EventPrincipal.h"
+#include "boost/thread/tss.hpp"
 
 namespace edm {
 
   EventRegistry *
   EventRegistry::instance() {
-    static EventRegistry me;
-    return &me;
+    static boost::thread_specific_ptr<EventRegistry> s_registry;
+    if(0 == s_registry.get()){
+      s_registry.reset(new EventRegistry);
+    }
+    return s_registry.get();
   }
 
   void
@@ -31,4 +36,9 @@ namespace edm {
       }
       return it->second;
     }
+  EDProduct const* 
+  EventRegistry::get(EventID const& evtID, ProductID const& prodID) const {
+     EventPrincipal const* ep = getEvent(evtID);
+     return ep->get(prodID).wrapper();
+  }
 }
