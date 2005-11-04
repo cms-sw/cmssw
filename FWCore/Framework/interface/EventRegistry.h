@@ -6,16 +6,17 @@
 EventRegistry: A singleton to keep track of active events.
 Event.
 
-$Id: EventRegistry.h,v 1.8 2005/09/02 05:17:49 wmtan Exp $
+$Id: EventRegistry.h,v 1.9 2005/09/07 21:01:39 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include <map>
 #include "FWCore/EDProduct/interface/EventID.h"
+#include "FWCore/EDProduct/interface/EDProductGetter.h"
 
 namespace edm {
   class EventPrincipal;
-  class EventRegistry {
+  class EventRegistry : public EDProductGetter {
   public:
     typedef std::map<EventID, EventPrincipal const *> EventMap;
     static EventRegistry *instance();
@@ -24,6 +25,7 @@ namespace edm {
       eventMap.erase(evtID);
     }
     EventPrincipal const * getEvent(EventID const& evtID) const;
+    virtual EDProduct const* get(EventID const&, ProductID const&) const;
 
     class Operate {
     public:
