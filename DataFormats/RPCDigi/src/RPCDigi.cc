@@ -1,7 +1,7 @@
 /** \file
  * 
- *  $Date: 2005/11/03 15:25:32 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/11/04 16:18:44 $
+ *  $Revision: 1.2 $
  *
  * \author Ilaria Segoni
  */
@@ -21,18 +21,18 @@ RPCDigi::RPCDigi(int strip, int bx){
 
 
 /// Copy constructor
-//RPCDigi::RPCDigi(const RPCDigi& digi) {
-//  persistentData = digi.persistentData;
-//}
+RPCDigi::RPCDigi(const RPCDigi& digi) {
+  persistentData = digi.persistentData;
+}
 
 
 
 /// Assignment
-//RPCDigi& 
-//RPCDigi::operator=(const RPCDigi& digi){
- // persistentData = digi.persistentData;
- // return *this;
-//}
+RPCDigi& 
+RPCDigi::operator=(const RPCDigi& digi){
+  persistentData = digi.persistentData;
+  return *this;
+}
 
 /// Comparison
 bool RPCDigi::operator == (const RPCDigi& digi) const {

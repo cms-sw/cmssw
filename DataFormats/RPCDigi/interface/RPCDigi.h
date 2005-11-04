@@ -5,8 +5,8 @@
  *
  * Digi for Resistive Plate Chambers.
  *  
- *  $Date: 2005/11/03 15:25:59 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/11/04 16:19:19 $
+ *  $Revision: 1.2 $
  *
  * \author Ilaria Segoni (CERN)
  *
@@ -24,8 +24,8 @@ public:
   ///Constructor from Strip and BX
   explicit RPCDigi(int strip,int bx);
   
-//  /// Copy constructor
-//  RPCDigi (const RPCDigi& digi);
+  /// Copy constructor
+  RPCDigi (const RPCDigi& digi);
 
   ///Destructor
   ~RPCDigi(){}
