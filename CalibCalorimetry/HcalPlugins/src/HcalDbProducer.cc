@@ -13,7 +13,7 @@
 //
 // Original Author:  Fedor Ratnikov
 //         Created:  Tue Aug  9 19:10:10 CDT 2005
-// $Id: HcalDbProducer.cc,v 1.5 2005/10/28 01:30:47 fedor Exp $
+// $Id: HcalDbProducer.cc,v 1.7 2005/11/02 21:10:56 fedor Exp $
 //
 //
 
@@ -27,8 +27,21 @@
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbServiceHardcode.h"
 
-#include "CondFormats/DataRecord/interface/AllHcalRecords.h"
+
 #include "CondFormats/HcalObjects/interface/AllObjects.h"
+
+//fix for Release of pre 7 - stefano.argiro@cern.ch, 20051104
+//#include "CondFormats/DataRecord/interface/AllHcalRecords.h"
+#include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h" 
+#include "CondFormats/DataRecord/interface/HcalElectronicsMapRcd.h"  	 
+#include "CondFormats/DataRecord/interface/HcalGainWidthsRcd.h"
+#include "CondFormats/DataRecord/interface/HcalGainsRcd.h"
+#include "CondFormats/DataRecord/interface/HcalPedestalWidthsRcd.h"
+#include "CondFormats/DataRecord/interface/HcalPedestalsRcd.h" 
+#include "CondFormats/DataRecord/interface/HcalQIEDataRcd.h"
+#include "CondFormats/DataRecord/interface/HcalQIEShapeRcd.h"
+// end fix
+
 
 
 #include "HcalDbProducer.h"
