@@ -562,8 +562,8 @@ bool CaloSD::saveHit(CaloG4Hit* aHit) {
 //     tkID = eventAction->g4ToSim(aHit->getTrackID());
 //     if (tkID == EventAction::InvalidID) ok = false;
 //   } else {
-  tkID = aHit->getTrackID();
-  ok = false;
+//  tkID = aHit->getTrackID();
+//  ok = false;
 //   }
 #ifdef debug
   std::cout << "CalosD: Track ID " << aHit->getTrackID() << " changed to "
@@ -621,5 +621,12 @@ void CaloSD::clearHits(){
 }
 
 void CaloSD::fillHits(edm::PCaloHitContainer& c, std::string n){
-  if (slave->name() == n) c.insertHits(slave->hits());
+  
+  if (slave->name() == n) 
+    {
+#ifdef debug   
+      std::cout << "Inserting hits for HitContainer " << n << std::endl;
+#endif
+      c.insertHits(slave->hits());
+    }
 }
