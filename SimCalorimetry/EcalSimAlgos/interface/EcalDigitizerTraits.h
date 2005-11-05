@@ -2,7 +2,7 @@
 #define EcalDigitizerTraits_h
 using namespace cms;
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-#include "CalibFormats/EcalObjects/interface/EcalCoder.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/EcalCoder.h"
 
 class EBDigitizerTraits {
   typedef EBDigiCollection DigiCollection;
