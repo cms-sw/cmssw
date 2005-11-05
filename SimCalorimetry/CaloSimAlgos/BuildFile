@@ -2,9 +2,11 @@
   <lib name=SimCalorimetryCaloSimAlgos>
   <use name=CalibFormats/CaloObjects>
   <use name=DataFormats/DetId>
+  <use name=SimDataFormats/CaloHit>
 </export>
 
 <use name=CalibFormats/CaloObjects>
 <use name=DataFormats/DetId>
+<use name=SimDataFormats/CaloHit>
 <use name=clhep>
 
