@@ -14,7 +14,7 @@
 
 */
 
-class CaloHit;
+class PCaloHit;
 
 namespace cms {
 
@@ -38,20 +38,20 @@ public:
   void setBunchRange(int minBunch, int maxBunch);
 
   /// Complete cell digitization.
-  void run(const std::vector<CaloHit> & hits);
+  void run(const std::vector<PCaloHit> & hits);
 
   /// frees up memory
   void clear() {theAnalogSignalMap.clear();}
  
   /// adds the amplitude for a single hit to the frame
-  void addHit(const CaloHit * hit, CaloSamples & frame) const;
+  void addHit(const PCaloHit * hit, CaloSamples & frame) const;
 
   /// creates a new frame from this hit
-  CaloSamples makeAnalogSignal(const CaloHit & hit) const;
+  CaloSamples makeAnalogSignal(const PCaloHit & hit) const;
 
   /// finds the amplitude contribution from this hit, applying
   /// photostatistics, if needed
-  double analogSignalAmplitude(const CaloHit & hit, const CaloSimParameters & parameters) const;
+  double analogSignalAmplitude(const PCaloHit & hit, const CaloSimParameters & parameters) const;
 
   /// users can look for the signal for a given cell
   CaloSamples findSignal(const DetId & cell) const;

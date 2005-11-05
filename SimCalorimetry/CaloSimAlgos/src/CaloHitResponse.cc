@@ -1,6 +1,6 @@
 using namespace std;
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloHitResponse.h" 
-#include "SimCalorimetry/CaloSimAlgos/interface/CaloHit.h" 
+#include "SimDataFormats/CaloHit/interface/PCaloHit.h" 
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVSimParameterMap.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloSimParameters.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVShape.h"
@@ -20,15 +20,15 @@ void CaloHitResponse::setBunchRange(int minBunch, int maxBunch) {
 }
 
 
-void CaloHitResponse::run(const vector<CaloHit> & hits) {
-
-  for(vector<CaloHit>::const_iterator hitItr = hits.begin();
+void CaloHitResponse::run(const vector<PCaloHit> & hits) {
+std::cout << "CALOHIT size " << hits.size() << std::endl;
+  for(vector<PCaloHit>::const_iterator hitItr = hits.begin();
       hitItr != hits.end(); ++hitItr)
   {
+std::cout << *hitItr << std::endl;
     CaloSamples signal = makeAnalogSignal(*hitItr);
-
     // if there's already a frame for this in the map, superimpose it
-    const DetId & id = (*hitItr).id();
+    const DetId id(hitItr->id());
     map<DetId, CaloSamples>::iterator mapItr = theAnalogSignalMap.find(id);
     if (mapItr == theAnalogSignalMap.end()) {
       theAnalogSignalMap.insert(pair<DetId, CaloSamples>(id, signal));
@@ -44,8 +44,8 @@ void CaloHitResponse::run(const vector<CaloHit> & hits) {
 }
 
 
-CaloSamples CaloHitResponse::makeAnalogSignal(const CaloHit & hit) const {
-  const DetId & id = hit.id();
+CaloSamples CaloHitResponse::makeAnalogSignal(const PCaloHit & hit) const {
+  DetId id(hit.id());
   const CaloSimParameters & parameters = theParameterMap->simParameters(id);
 
   double signal = analogSignalAmplitude(hit, parameters);
@@ -67,7 +67,7 @@ CaloSamples CaloHitResponse::makeAnalogSignal(const CaloHit & hit) const {
 } 
 
 
-double CaloHitResponse::analogSignalAmplitude(const CaloHit & hit, const CaloSimParameters & parameters) const {
+double CaloHitResponse::analogSignalAmplitude(const PCaloHit & hit, const CaloSimParameters & parameters) const {
   // OK, the "energy" in the hit could be a real energy, deposited energy,
   // or pe count.  This factor converts to photoelectrons
   int npe = (int)(hit.energy() * parameters.simHitToPhotoelectrons());

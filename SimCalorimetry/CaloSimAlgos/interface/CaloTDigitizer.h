@@ -6,7 +6,7 @@
     interface Digi convert(const CaloSamples &)
 
 */
-#include "SimCalorimetry/CaloSimAlgos/interface/CaloHit.h"
+class PCaloHit;
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloHitResponse.h"
 
 namespace cms {
@@ -34,10 +34,11 @@ namespace cms {
 
     /// turns hits into digis
     /// user must delete the pointer returned
-    void run(const std::vector<CaloHit> & input, DigiCollection & output) {
+    void run(const std::vector<PCaloHit> & input, DigiCollection & output) {
       assert(theDetIds.size() != 0);
 
       theHitResponse->run(input);
+
       // make a raw digi for evey cell
       for(std::vector<DetId>::const_iterator idItr = theDetIds.begin();
           idItr != theDetIds.end(); ++idItr)
@@ -47,7 +48,6 @@ namespace cms {
          bool addNoise = true;
          theElectronicsSim->analogToDigital(analogSignal , digi, addNoise);
          output.push_back(digi);
-std::cout << digi << std::endl;
       }
 
       // free up some memory
