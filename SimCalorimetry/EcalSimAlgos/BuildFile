@@ -6,12 +6,8 @@
 <use name=DataFormats/EcalDigi>
 <use name=DataFormats/EcalDetId>
 <use name=SimCalorimetry/CaloSimAlgos>
+<use name=CondFormats/EcalObjects>
 <use name=CalibFormats/CaloObjects>
-<use name=FWCore/EDProduct>
-<use name=FWCore/ParameterSet>
-<use name=FWCore/Framework>
-<use name=Foundation/SealBase>  
-<Flags CXXFLAGS="-g">
 
 
 <export>
@@ -22,12 +18,9 @@
   <use name=DataFormats/EcalDigi>
   <use name=DataFormats/EcalDetId>
   <use name=SimCalorimetry/CaloSimAlgos>
+  <use name=CondFormats/EcalObjects>
   <use name=CalibFormats/CaloObjects>
-  <use name=FWCore/EDProduct>
-  <use name=FWCore/ParameterSet>
-  <use name=FWCore/Framework>
-  <use name=Foundation/SealBase> 
-  <Flags CXXFLAGS="-g">
+
 
   <lib name=SimCalorimetryEcalSimAlgos>
 </export>
