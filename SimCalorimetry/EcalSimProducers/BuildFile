@@ -1,0 +1,17 @@
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=SimCalorimetry/EcalSimAlgos>
+<use name=Geometry/CaloEventSetup>
+<use name=CondFormats/DataRecord>
+
+<flags SEAL_PLUGIN_NAME="SimCalorimetryEcalSimProducers">
+<export>
+   <lib name=SimCalorimetryEcalSimProducers>
+   <use name=SimCalorimetry/EcalSimAlgos>
+   <use name=Geometry/CaloEventSetup>
+   <use name=FWCore/Framework>
+   <use name=Foundation/PluginManager>
+   <use name=FWCore/ParameterSet>
+   <use name=CondFormats/DataRecord>
+</export>
