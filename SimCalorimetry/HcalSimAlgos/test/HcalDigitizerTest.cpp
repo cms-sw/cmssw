@@ -2,7 +2,7 @@
 #include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
 #include "DataFormats/HcalDigi/interface/HODataFrame.h"
 #include "DataFormats/HcalDigi/interface/HFDataFrame.h"
-#include "SimCalorimetry/CaloSimAlgos/interface/CaloHit.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloHitResponse.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloTDigitizer.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloShapeIntegrator.h"
@@ -27,19 +27,19 @@ int main() {
   // make a silly little hit in each subdetector, which should
   // correspond to a 100 GeV particle
   HcalDetId barrelDetId(HcalBarrel, 1, 1, 1);
-  CaloHit barrelHit(barrelDetId, 0.855, 0., 0);
+  PCaloHit barrelHit(barrelDetId.rawId(),  0.855, 0.);
 
   HcalDetId endcapDetId(HcalEndcap, 17, 1, 1);
-  CaloHit endcapHit(endcapDetId, 0.9, 0., 0);
+  PCaloHit endcapHit(endcapDetId.rawId(), 0.9, 0.);
 
   HcalDetId outerDetId(HcalOuter, 1, 1, 4);
-  CaloHit outerHit(outerDetId, 0.45, 0., 0);
+  PCaloHit outerHit(outerDetId.rawId(), 0.45, 0.);
 
   HcalDetId forwardDetId1(HcalForward, 30, 1, 1);
-  CaloHit forwardHit1(forwardDetId1, 35., 0., 0);
+  PCaloHit forwardHit1(forwardDetId1.rawId(), 35., 0.);
 
   HcalDetId forwardDetId2(HcalForward, 30, 1, 2);
-  CaloHit forwardHit2(forwardDetId2, 48., 0., 0);
+  PCaloHit forwardHit2(forwardDetId2.rawId(), 48., 0.);
 
   vector<DetId> hcalDetIds, hoDetIds, hfDetIds;
   hcalDetIds.push_back(barrelDetId);
@@ -48,7 +48,7 @@ int main() {
   hfDetIds.push_back(forwardDetId1);
   hfDetIds.push_back(forwardDetId2);
 
-  vector<CaloHit> hbheHits, hoHits, hfHits;
+  vector<PCaloHit> hbheHits, hoHits, hfHits;
   hbheHits.push_back(barrelHit);
   hbheHits.push_back(endcapHit);
   hoHits.push_back(outerHit);
