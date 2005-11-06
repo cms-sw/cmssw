@@ -5,8 +5,8 @@
  *
  * Digi for Resistive Plate Chambers.
  *  
- *  $Date: 2005/11/04 16:19:19 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/11/04 17:28:13 $
+ *  $Revision: 1.3 $
  *
  * \author Ilaria Segoni (CERN)
  *
@@ -45,8 +45,10 @@ public:
   /// Assignment operator
   RPCDigi& operator=(const RPCDigi& digi);
 
-
- ///Comparison operator
+  /// Precedence operator
+   bool operator<(const  RPCDigi& d)const;
+   
+  ///Comparison operator
  bool operator==(const RPCDigi& digi) const;
 
   ///Print content of Digi

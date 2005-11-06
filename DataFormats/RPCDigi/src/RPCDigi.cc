@@ -1,7 +1,7 @@
 /** \file
  * 
- *  $Date: 2005/11/04 16:18:44 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/11/04 17:28:23 $
+ *  $Revision: 1.3 $
  *
  * \author Ilaria Segoni
  */
@@ -32,6 +32,17 @@ RPCDigi&
 RPCDigi::operator=(const RPCDigi& digi){
   persistentData = digi.persistentData;
   return *this;
+}
+
+///Precedence operator
+bool RPCDigi::operator<(const RPCDigi& digi) const{
+
+if(digi.bx() == this->bx())
+ return digi.strip()<this->strip();
+else 
+ return digi.bx()<this->bx();
+ 
+
 }
 
 /// Comparison
