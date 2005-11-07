@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  * 
- * $Date: 2005/10/30 15:34:53 $
- * $Revision: 1.21 $
+ * $Date: 2005/11/07 09:54:39 $
+ * $Revision: 1.22 $
  * \author G. Della Ricca
  *
 */
@@ -102,8 +102,10 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
         gain = 1./ 1.;
       }
 
-      if ( ievt >=   1 && ievt <=  600 ) meShapeMap = meShapeMapL1[ism-1];
-      if ( ievt >= 601 && ievt <= 1200 ) meShapeMap = meShapeMapL2[ism-1];
+      if ( ievt >=    1 && ievt <=  600 ) meShapeMap = meShapeMapL1[ism-1];
+      if ( ievt >=  601 && ievt <= 1200 ) meShapeMap = meShapeMapL1[ism-1];
+      if ( ievt >= 1201 && ievt <= 1800 ) meShapeMap = meShapeMapL2[ism-1];
+      if ( ievt >= 1801 && ievt <= 2400 ) meShapeMap = meShapeMapL2[ism-1];
 
       float xval = adc * gain;
 
@@ -138,8 +140,10 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
     MonitorElement* meAmplMap = 0;
 
-    if ( ievt >=   1 && ievt <=  600 ) meAmplMap = meAmplMapL1[ism-1];
-    if ( ievt >= 601 && ievt <= 1200 ) meAmplMap = meAmplMapL2[ism-1];
+    if ( ievt >=    1 && ievt <=  600 ) meAmplMap = meAmplMapL1[ism-1];
+    if ( ievt >=  601 && ievt <= 1200 ) meAmplMap = meAmplMapL1[ism-1];
+    if ( ievt >= 1201 && ievt <= 1800 ) meAmplMap = meAmplMapL2[ism-1];
+    if ( ievt >= 1801 && ievt <= 2400 ) meAmplMap = meAmplMapL2[ism-1];
 
     float xval = 0.001 * hit.amplitude();
 
