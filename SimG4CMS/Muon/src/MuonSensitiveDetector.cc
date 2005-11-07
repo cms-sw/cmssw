@@ -446,7 +446,7 @@ void MuonSensitiveDetector::fillHits(edm::PSimHitContainer& c, std::string n){
   // do it once for low, once for High
   //
 
-  if (slaveMuon->name() == n)c.insertHits(slaveMuon->hits());
+  if (slaveMuon->name() == n) c=slaveMuon->hits();
 
 }
 
