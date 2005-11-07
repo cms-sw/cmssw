@@ -32,6 +32,9 @@ OscarProducer::OscarProducer(edm::ParameterSet const & p)
     produces<edm::PCaloHitContainer>("EcalHitsEB");
     produces<edm::PCaloHitContainer>("EcalHitsEE");
     produces<edm::PCaloHitContainer>("EcalHitsES");
+    produces<edm::PSimHitContainer>("MuonDTHits");
+    produces<edm::PSimHitContainer>("MuonCSCHits");
+    produces<edm::PSimHitContainer>("MuonRPCHits");
     m_runManager = RunManager::init(p);
 }
 
