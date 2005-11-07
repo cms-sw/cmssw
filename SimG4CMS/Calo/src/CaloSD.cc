@@ -627,6 +627,6 @@ void CaloSD::fillHits(edm::PCaloHitContainer& c, std::string n){
 #ifdef debug   
       std::cout << "Inserting hits for HitContainer " << n << std::endl;
 #endif
-      c.insertHits(slave->hits());
+      c = slave->hits();
     }
 }
