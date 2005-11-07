@@ -2,6 +2,7 @@
 <use name=Foundation/SealZip>
 <use name=FWCore/Utilities>
 <use name=FWCore/EDProduct>
+<lib name=boost_filesystem-gcc-mt> 
 
 <export>
  <lib name=FWCoreParameterSet>
@@ -9,5 +10,6 @@
  <use name=FWCore/EDProduct>
  <use name=boost>
  <use name=Foundation/SealZip>
+ <lib name=boost_filesystem-gcc-mt> 
 </export>
 
