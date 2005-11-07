@@ -4,8 +4,8 @@
 /** \class DTDetId
  *  DetUnit identifier for DT chambers
  *
- *  $Date: 2005/10/24 15:56:19 $
- *  $Revision: 1.7 $
+ *  $Date: 2005/10/27 14:15:33 $
+ *  $Revision: 1.9 $
  *  \author Stefano ARGIRO
  */
 
@@ -63,6 +63,11 @@ class DTDetId :public DetId {
   int wire() const 
   { return ((id_>>wireStartBit_)&wireMask_) ;}
 
+  /// Return a copy of the DetId clearing the optional wire number.
+  DTDetId layerId() const 
+  {return DTDetId(id_ & layerIdMask_);}
+  
+
 
   /// lowest wheel number
   static const int minWheelId=              -2;
@@ -106,12 +111,14 @@ class DTDetId :public DetId {
   static const int wheelNumBits_  = 3;
   static const int wheelStartBit_=  stationStartBit_+stationNumBits_;
 
-  static const unsigned int wheelMask_=    0x7;
-  static const unsigned int stationMask_=  0x7;
-  static const unsigned int sectorMask_=   0xf;
-  static const unsigned int slMask_=       0x3;
-  static const unsigned int lMask_=        0x7;
-  static const unsigned int wireMask_=    0x7f;
+  static const uint32_t wheelMask_=    0x7;
+  static const uint32_t stationMask_=  0x7;
+  static const uint32_t sectorMask_=   0xf;
+  static const uint32_t slMask_=       0x3;
+  static const uint32_t lMask_=        0x7;
+  static const uint32_t wireMask_=    0x7f;
+
+  static const uint32_t layerIdMask_= ~(wireMask_<<wireStartBit_);
  
 
 }; // DTDetId
