@@ -3,39 +3,38 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store pedestal values 4xCapId
 $Author: ratnikov
-$Date: 2005/10/18 23:34:56 $
-$Revision: 1.1 $
+$Date: 2005/10/20 05:18:37 $
+$Revision: 1.2 $
 */
-
-#include <iostream>
 
 #include "CondFormats/HcalObjects/interface/HcalQIEShape.h"
 
 HcalQIEShape::HcalQIEShape() 
-: mValues (129, 0.) {}
+: mValues (33, 0.) {
+}
 
 HcalQIEShape::~HcalQIEShape() {}
 
 float HcalQIEShape::lowEdge (unsigned fAdc) const {
-  if (fAdc < 128) return mValues [fAdc];
+  if (fAdc < 32) return mValues [fAdc];
   return 0.;
 }
 
 float HcalQIEShape::highEdge (unsigned fAdc) const {
-  if (fAdc < 128) return mValues [fAdc+1];
+  if (fAdc < 32) return mValues [fAdc+1];
   return 0.;
 }
 
 bool HcalQIEShape::setLowEdge (float fValue, unsigned fAdc) {
-  if (fAdc >= 128) return false; 
+  if (fAdc >= 32) return false; 
   mValues [fAdc] = fValue;
-  if (fAdc >= 126) mValues [128] = 2 * mValues [127] - mValues [126]; // extrapolate
+  if (fAdc >= 30) mValues [32] = 2 * mValues [31] - mValues [30]; // extrapolate
   return true;
 }
 
-bool HcalQIEShape::setLowEdges (const float fValue [128]) {
+bool HcalQIEShape::setLowEdges (const float fValue [32]) {
   bool result = true;
-  for (int adc = 0; adc < 128; adc++) result = result || setLowEdge (fValue [adc], adc);
+  for (int adc = 0; adc < 32; adc++) result = result && setLowEdge (fValue [adc], adc);
   return result;
 }
 

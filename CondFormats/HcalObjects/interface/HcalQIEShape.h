@@ -6,8 +6,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store QIE basic shape
 $Author: ratnikov
-$Date: 2005/10/06 21:25:32 $
-$Revision: 1.5 $
+$Date: 2005/10/18 23:34:56 $
+$Revision: 1.1 $
 */
 
 #include <vector>
@@ -21,7 +21,7 @@ class HcalQIEShape {
   float lowEdge (unsigned fAdc) const;
   float highEdge (unsigned fAdc) const;
   bool setLowEdge (float fValue, unsigned fAdc);
-  bool setLowEdges (const float fValue [128]);
+  bool setLowEdges (const float fValue [32]);
  protected:
   std::vector<float> mValues;
 };
