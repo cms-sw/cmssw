@@ -95,6 +95,7 @@ private:
     edm::ParameterSet m_pEventAction;
     edm::ParameterSet m_pTrackingAction;
     edm::ParameterSet m_pSteppingAction;
+    edm::ParameterSet m_p;
     AttachSD * m_attach;
     std::vector<SensitiveTkDetector*> m_sensTkDets;
     std::vector<SensitiveCaloDetector*> m_sensCaloDets;

@@ -1,6 +1,8 @@
 #ifndef SimG4Core_SensitiveDetector_H
 #define SimG4Core_SensitiveDetector_H
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include "Geometry/Vector/interface/LocalPoint.h"
 #include "Geometry/Vector/interface/LocalVector.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
@@ -13,11 +15,13 @@ class G4Step;
 class G4HCofThisEvent;
 class G4TouchableHistory;
 class G4VPhysicalVolume;
+class DDCompactView;    
 
 class SensitiveDetector : public G4VSensitiveDetector
 {
 public:
-    explicit SensitiveDetector(std::string & iname);
+    explicit SensitiveDetector(std::string & iname, const DDCompactView & cpv,
+			       edm::ParameterSet const & p);
     virtual ~SensitiveDetector();
     virtual void Initialize(G4HCofThisEvent * eventHC);
     virtual void clearHits() = 0;

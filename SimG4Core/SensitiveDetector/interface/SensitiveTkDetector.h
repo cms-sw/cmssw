@@ -10,7 +10,9 @@
 class SensitiveTkDetector : public SensitiveDetector
 {
 public:
-    SensitiveTkDetector(std::string & iname) : SensitiveDetector(iname) {}
+    SensitiveTkDetector(std::string & iname, const DDCompactView & cpv,
+			edm::ParameterSet const & p) : 
+      SensitiveDetector(iname, cpv, p) {}
     virtual void fillHits(edm::PSimHitContainer &, std::string name = 0) = 0;
 };
 

@@ -1,6 +1,8 @@
 #ifndef SimG4Core_FieldBuilder_H
 #define SimG4Core_FieldBuilder_H
 
+#include "FWCore/Framework/interface/EventSetup.h"
+
 class Field;
 class DDLogicalPart;
 
@@ -16,7 +18,7 @@ public:
     ~FieldBuilder();
     void readFieldParameters(DDLogicalPart theLogicalPart,
 			     std::string keywordField);
-    void setField();
+    void setField(const edm::EventSetup & iSetup);
     void configure(std::string keywordField,G4FieldManager * fM = 0,
 		   G4PropagatorInField * fP = 0);
     G4LogicalVolume * fieldTopVolume();

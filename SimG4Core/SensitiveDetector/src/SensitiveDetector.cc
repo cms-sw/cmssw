@@ -8,8 +8,9 @@
 
 using std::string;
 
-SensitiveDetector::SensitiveDetector(string & iname) :
-    G4VSensitiveDetector(iname), name(iname) {}
+SensitiveDetector::SensitiveDetector(string & iname, const DDCompactView & cpv,
+				     edm::ParameterSet const & p) :
+  G4VSensitiveDetector(iname), name(iname) {}
 
 SensitiveDetector::~SensitiveDetector() {}
 
@@ -17,8 +18,8 @@ void SensitiveDetector::Initialize(G4HCofThisEvent * eventHC) {}
 
 void SensitiveDetector::Register()
 {
-    G4SDManager * SDman = G4SDManager::GetSDMpointer();
-    SDman->AddNewDetector(this);
+  G4SDManager * SDman = G4SDManager::GetSDMpointer();
+  SDman->AddNewDetector(this);
 }
 
 void SensitiveDetector::AssignSD(string & vname)

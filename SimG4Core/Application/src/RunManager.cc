@@ -69,7 +69,8 @@ RunManager::RunManager(edm::ParameterSet const & p)
       m_pRunAction(p.getParameter<edm::ParameterSet>("RunAction")),      
       m_pEventAction(p.getParameter<edm::ParameterSet>("EventAction")),
       m_pTrackingAction(p.getParameter<edm::ParameterSet>("TrackingAction")),
-      m_pSteppingAction(p.getParameter<edm::ParameterSet>("SteppingAction"))
+      m_pSteppingAction(p.getParameter<edm::ParameterSet>("SteppingAction")),
+      m_p(p)
 {    
     m_kernel = G4RunManagerKernel::GetRunManagerKernel();
     if (m_kernel==0) m_kernel = new G4RunManagerKernel();
@@ -97,7 +98,7 @@ void RunManager::initG4(const edm::EventSetup & es)
     worldObserver = new DDDWorldObserver<DDDWorld >(); 
     worldDispatcher = new Dispatcher<DDDWorld >(world);
     m_attach = new AttachSD;
-    std::vector<SensitiveDetector*> sensDets = m_attach->create(*world);
+    std::vector<SensitiveDetector*> sensDets = m_attach->create(*world,(*pDD),m_p);
     m_sensTkDets.clear();
     m_sensCaloDets.clear();
 

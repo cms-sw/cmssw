@@ -7,7 +7,7 @@
 #include <string>
 
 
-class SensitiveDetectorPluginFactory : public seal::PluginFactory<SensitiveDetector *(std::string)>{
+class SensitiveDetectorPluginFactory : public seal::PluginFactory<SensitiveDetector *(std::string, const DDCompactView & cpv, edm::ParameterSet const & p)>{
  public:
     static  SensitiveDetectorPluginFactory* get (void);
     SensitiveDetectorPluginFactory();

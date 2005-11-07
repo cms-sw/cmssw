@@ -12,7 +12,9 @@ class AttachSD
 public:
     AttachSD();
     ~AttachSD();
-    std::vector<SensitiveDetector*> create(const DDDWorld & w) const;
+    std::vector<SensitiveDetector*> create(const DDDWorld & w, 
+					   const DDCompactView & cpv,
+					   edm::ParameterSet const & p) const;
 };
 
 #endif

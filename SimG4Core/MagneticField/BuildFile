@@ -3,6 +3,9 @@
  <lib name=SimG4CoreMagneticField>
  <use name=Framework/SealKernel>
  <use name=FWCore/ParameterSet>
+ <use name=MagneticField/Records>
+ <use name=MagneticField/GeomBuilder>
+ <use name=MagneticField/VolumeBasedEngine>
  <use name=Foundation/PluginManager>
  <use name=SimG4Core/Notification>
  <use name=boost>
@@ -10,6 +13,9 @@
 </export>
 <use name=Framework/SealKernel>
 <use name=FWCore/ParameterSet>
+<use name=MagneticField/Records>
+<use name=MagneticField/GeomBuilder>
+<use name=MagneticField/VolumeBasedEngine>
 <use name=Foundation/PluginManager>
 <use name=SimG4Core/Geometry>
 <use name=SimG4Core/Notification>
