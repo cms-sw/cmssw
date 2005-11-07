@@ -54,35 +54,35 @@ public:
     *
     */
     int layer() const {
-     return (id_ & MASK_LAYER); } // counts from 1 not 0.
+     return (id_ & MASK_LAYER); } 
 
    /**
     * Return Chamber label.
     *
     */
     int chamber() const {
-     return (  (id_>>START_CHAMBER) & MASK_CHAMBER ) + 1; }
+     return (  (id_>>START_CHAMBER) & MASK_CHAMBER ); }
 
    /**
     * Return Ring label.
     *
     */
     int ring() const {
-     return (  (id_>>START_RING) & MASK_RING ) + 1; }
+     return (  (id_>>START_RING) & MASK_RING ); }
 
    /**
     * Return Station label.
     *
     */
     int station() const {
-     return (  (id_>>START_STATION) & MASK_STATION ) + 1; }
+     return (  (id_>>START_STATION) & MASK_STATION ); }
 
    /**
     * Return Endcap label.
     *
     */
     int endcap() const {
-     return (  (id_>>START_ENDCAP) & MASK_ENDCAP ) + 1; }
+     return (  (id_>>START_ENDCAP) & MASK_ENDCAP ); }
 
 
    // static methods
@@ -123,28 +123,28 @@ public:
     *
     */
    static int chamber( int index ) {
-     return (  (index>>START_CHAMBER) & MASK_CHAMBER ) + 1; }
+     return (  (index>>START_CHAMBER) & MASK_CHAMBER ); }
 
    /**
     * Return Ring label for supplied CSCDetId index.
     *
     */
    static int ring( int index ) {
-     return (  (index>>START_RING) & MASK_RING ) + 1; }
+     return (  (index>>START_RING) & MASK_RING ); }
 
    /**
     * Return Station label for supplied CSCDetId index.
     *
     */
    static int station( int index ) {
-     return (  (index>>START_STATION) & MASK_STATION ) + 1; }
+     return (  (index>>START_STATION) & MASK_STATION ); }
 
    /**
     * Return Endcap label for supplied CSCDetId index.
     *
     */
    static int endcap( int index ) {
-     return (  (index>>START_ENDCAP) & MASK_ENDCAP ) + 1; }
+     return (  (index>>START_ENDCAP) & MASK_ENDCAP ); }
 
    /**
     * Return trigger-level sector id for an Endcap Muon chamber.
@@ -182,25 +182,20 @@ public:
     */
    int triggerCscId() const;
 
+   /**
+    * Lower and upper counts for the subdetector hierarchy
+    */
+   static int minEndcapId()  { return MIN_ENDCAP; }
+   static int maxEndcapId()  { return MAX_ENDCAP; }
+   static int minStationId() { return MIN_STATION; }
+   static int maxStationId() { return MAX_STATION; }
+   static int minRingId()    { return MIN_RING; }
+   static int maxRingId()    { return MAX_RING; }
+   static int minChamberId() { return MIN_CHAMBER; }
+   static int maxChamberId() { return MAX_CHAMBER; }
+   static int minLayerId()   { return MIN_LAYER; }
+   static int maxLayerId()   { return MAX_LAYER; }
 
-   /* Tim asks: Wouldn't it have been better to keep these as enums?
-      Aren't nicely-packaged enum sets rather neat?
-      Now we have a disconnected collection of values which are associated 
-      only by the fact that each begins with 'min' or 'max'.               */
-
-   /// lowest endcap id
-   static const int minEndcapId=     1;
-   /// highest endcap id
-   static const int maxEndcapId=     2;
-   static const int minStationId=    1;
-   static const int maxStationId=    4;
-   static const int minRingId=       1;
-   static const int maxRingId=       4;
-   static const int minChamberId=    1;
-   static const int maxChamberId=   36;
-   static const int minLayerId=      1; // Tim asks: Why was this set to 0?
-   static const int maxLayerId=      6;
-   
 private:
 
   /**
@@ -210,27 +205,25 @@ private:
   static uint32_t init( int iendcap, int istation, 
 			int iring, int ichamber, int ilayer ) {
      return
-                   ilayer + 
-                ( (ichamber-1)<<START_CHAMBER ) + 
-                   ( (iring-1)<<START_RING ) + 
-                ( (istation-1)<<START_STATION ) + 
-            	 ( (iendcap-1)<<START_ENDCAP ) ; }
+         (ilayer   & MASK_LAYER)                      |
+       ( (ichamber & MASK_CHAMBER) << START_CHAMBER ) |
+       ( (iring    & MASK_RING)    << START_RING )    |
+       ( (istation & MASK_STATION) << START_STATION ) | 
+       ( (iendcap  & MASK_ENDCAP)  << START_ENDCAP ) ; }
 
- 
  
   // The following define the bit-packing implementation...
 
-  // This class is designed to handle the following maxima
-  // There are 2 endcaps, which are the two z ends.
-  //  enum eMaxNum{ MAX_RING=4, MAX_STATION=4, MAX_LAYER=6, MAX_CHAMBER=36};
+  // The maximum numbers of various parts
+  enum eMaxNum{ MAX_ENDCAP=2, MAX_STATION=4, MAX_RING=4, MAX_CHAMBER=36, MAX_LAYER=6 };
+  // We count from 1 
+  enum eMinNum{ MIN_ENDCAP=1, MIN_STATION=1, MIN_RING=1, MIN_CHAMBER=1, MIN_LAYER=1 };
 
-  // BITS_det is no. of binary bits required to label 'det'
-  enum eNumBitDet{ BITS_LAYER=3, BITS_CHAMBER=6, BITS_RING=2, 
-                    BITS_STATION=2, BITS_ENDCAP=1};
+  // BITS_det is no. of binary bits required to label 'det' but allow 0 as a wild-card character
+  enum eNumBitDet{ BITS_ENDCAP=2, BITS_STATION=3,  BITS_RING=3, BITS_CHAMBER=7, BITS_LAYER=3 };
 
-  // MASK_det is binary bits set to pick off the bits for 'det'
-  enum eMaskBitDet{ MASK_LAYER=07, MASK_CHAMBER=077, MASK_RING=03,
-		     MASK_STATION=03, MASK_ENDCAP=01 };
+  // MASK_det is binary bits set to pick off the bits for 'det' (defined as octal)
+  enum eMaskBitDet{ MASK_ENDCAP=03, MASK_STATION=07, MASK_RING=07, MASK_CHAMBER=0177, MASK_LAYER=07 };
 
   // START_det is bit position (counting from zero) at which bits for 'det' start in 'rawId' word
   enum eStartBitDet{ START_CHAMBER=BITS_LAYER, START_RING=START_CHAMBER+BITS_CHAMBER,

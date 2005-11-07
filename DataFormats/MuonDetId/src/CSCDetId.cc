@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2005/10/24 15:56:19 $
- *  $Revision: 1.4 $
+ *  $Date: 2005/11/02 17:37:51 $
+ *  $Revision: 1.5 $
  */
 
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
@@ -27,11 +27,11 @@ CSCDetId::CSCDetId( int iendcap, int istation, int iring, int ichamber,
 		    int ilayer ) : 
   DetId(DetId::Muon, MuonSubdetId::CSC) 
 {    
-  if (iendcap  < minEndcapId  || iendcap  > maxEndcapId ||
-      istation < minStationId || istation > maxStationId ||
-      iring    < minRingId    || iring    > maxRingId ||
-      ichamber < minChamberId || ichamber > maxChamberId ||
-      ilayer   < minLayerId   || ilayer   > maxLayerId) {
+  if (iendcap  < MIN_ENDCAP  || iendcap  > MAX_ENDCAP ||
+      istation < MIN_STATION || istation > MAX_STATION ||
+      iring    < MIN_RING    || iring    > MAX_RING ||
+      ichamber < MIN_CHAMBER || ichamber > MAX_CHAMBER ||
+      ilayer   < MIN_LAYER   || ilayer   > MAX_LAYER ) {
     throw cms::Exception("InvalidDetId") << "CSCDetId ctor:" 
 					 << " Invalid parameters: " 
 					 << " E:"<< iendcap
@@ -43,24 +43,6 @@ CSCDetId::CSCDetId( int iendcap, int istation, int iring, int ichamber,
   }
   id_ |= init(iendcap, istation, iring, ichamber, ilayer);
 }
-
-//bool CSCDetId::operator== (const CSCDetId& id) const
-//{ 
-//  return ( id_ == id.id_ );
-//}
-
-//bool CSCDetId::operator != (const CSCDetId& id) const
-//{ 
-//  return ( id_ != id.id_ );
-//}
-
-//bool CSCDetId::operator < (const CSCDetId& id) const
-//{ 
-//  if ( id_ < id.id_ ) 
-//     return true;
-//  else
-//     return false;
-//}
 
 ostream& operator<<( ostream& os, const CSCDetId& id )
 {
