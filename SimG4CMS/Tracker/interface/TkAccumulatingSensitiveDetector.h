@@ -24,7 +24,8 @@ class G4TrackToParticleID;
 class TkAccumulatingSensitiveDetector : public SensitiveTkDetector
 { 
 public:    
-    TkAccumulatingSensitiveDetector(std::string);
+    TkAccumulatingSensitiveDetector(std::string, const DDCompactView &,
+				    edm::ParameterSet const &);
     virtual ~TkAccumulatingSensitiveDetector();
     virtual bool ProcessHits(G4Step *,G4TouchableHistory *);
     virtual int  SetDetUnitId(G4Step*);

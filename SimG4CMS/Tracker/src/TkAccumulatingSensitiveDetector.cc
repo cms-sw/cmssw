@@ -42,9 +42,11 @@ using std::endl;
 using std::vector;
 using std::string;
 
-TkAccumulatingSensitiveDetector::TkAccumulatingSensitiveDetector(string name) : 
-  SensitiveTkDetector(name), myName(name), myRotation(0),  mySimHit(0), oldVolume(0),
-  lastId(-1), lastTrack(0),eventno(0) {
+TkAccumulatingSensitiveDetector::TkAccumulatingSensitiveDetector(string name, 
+								 const DDCompactView & cpv,
+								 edm::ParameterSet const & p) : 
+  SensitiveTkDetector(name, cpv, p), myName(name), myRotation(0),  mySimHit(0),
+  oldVolume(0), lastId(-1), lastTrack(0),eventno(0) {
   std::cout<<" Constructing a TkAccumulatingSensitiveDetector with "<<name<<std::endl;
 #ifndef FAKEFRAMEROTATION
     // No Rotation given in input, automagically choose one based upon the name
@@ -409,8 +411,8 @@ void TkAccumulatingSensitiveDetector::fillHits(edm::PSimHitContainer& c, std::st
   // do it once for low, once for High
   //
 
-  if (slaveLowTof->name() == n)c.insertHits(slaveLowTof->hits());
-  if (slaveHighTof->name() == n)c.insertHits(slaveHighTof->hits());
+  if (slaveLowTof->name() == n) c=slaveLowTof->hits();
+  if (slaveHighTof->name() == n) c=slaveHighTof->hits();
 
 }
 
