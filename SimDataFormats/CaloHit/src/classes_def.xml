@@ -1,6 +1,5 @@
 <lcgdict>
   <class name="PCaloHit"/>
   <class name="std::vector<PCaloHit>"/>
-  <class name="edm::PCaloHitContainer"/>
-  <class name="edm::Wrapper<edm::PCaloHitContainer>" id="97CC76DB-1102-76B1-BCC7-A4253B9EDA13"/>
+  <class name="edm::Wrapper<std::vector<PCaloHit>>" id="97CC76DB-1102-76B1-BCC7-A4253B9EDA13"/>
 </lcgdict>
