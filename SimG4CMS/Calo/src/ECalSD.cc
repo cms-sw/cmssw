@@ -16,8 +16,8 @@
 #define debug
 
 
-ECalSD::ECalSD(G4String name) : 
-  CaloSD(name) {
+ECalSD::ECalSD(G4String name, const DDCompactView & cpv,
+	       edm::ParameterSet const & p) : CaloSD(name, cpv, p) {
   
   //   static SimpleConfigurable<bool>   on1(false, "ECalSD:UseBirkLaw");
   //   static SimpleConfigurable<double> bk1(0.013, "ECalSD:BirkC1");

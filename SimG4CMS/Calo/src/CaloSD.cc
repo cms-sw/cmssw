@@ -25,8 +25,9 @@
 #define debug
 
 
-CaloSD::CaloSD(G4String name) : 
-  SensitiveCaloDetector(name),
+CaloSD::CaloSD(G4String name, const DDCompactView & cpv,
+               edm::ParameterSet const & p) : 
+  SensitiveCaloDetector(name, cpv, p),
 #ifdef G4v7
   G4VGFlashSensitiveDetector(), 
 #endif
@@ -562,8 +563,8 @@ bool CaloSD::saveHit(CaloG4Hit* aHit) {
 //     tkID = eventAction->g4ToSim(aHit->getTrackID());
 //     if (tkID == EventAction::InvalidID) ok = false;
 //   } else {
-//  tkID = aHit->getTrackID();
-//  ok = false;
+  tkID = aHit->getTrackID();
+  ok = false;
 //   }
 #ifdef debug
   std::cout << "CalosD: Track ID " << aHit->getTrackID() << " changed to "

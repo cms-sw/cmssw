@@ -18,7 +18,7 @@ class ECalSD : public CaloSD {
 
 public:    
 
-  ECalSD(G4String);
+  ECalSD(G4String, const DDCompactView &, edm::ParameterSet const &);
   virtual ~ECalSD();
   virtual double getEnergyDeposit(G4Step*);
 

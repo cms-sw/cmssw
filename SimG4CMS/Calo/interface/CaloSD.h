@@ -52,7 +52,8 @@ public SensitiveCaloDetector
   typedef ::EndOfEvent MyEndOfEvent;
   typedef map<vector<int>,CaloG4Hit*> MyMap;
   
-  CaloSD(G4String aSDname);
+  CaloSD(G4String aSDname, const DDCompactView & cpv,
+	 edm::ParameterSet const & p);
   virtual ~CaloSD();
   virtual bool ProcessHits(G4Step * step,G4TouchableHistory * tHistory);
 #ifdef G4v7

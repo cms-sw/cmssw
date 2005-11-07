@@ -26,8 +26,10 @@
 #define DEBUG
 #define DEBUGST
 
-MuonSensitiveDetector::MuonSensitiveDetector(std::string name) 
-  : SensitiveTkDetector(name),
+MuonSensitiveDetector::MuonSensitiveDetector(std::string name, 
+					     const DDCompactView & cpv,
+					     edm::ParameterSet const & p) 
+  : SensitiveTkDetector(name, cpv, p),
     thePV(0), theHit(0), theDetUnitId(0), theTrackID(0) 
 {
 
