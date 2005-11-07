@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  * 
- * $Date: 2005/10/30 16:29:41 $
- * $Revision: 1.22 $
+ * $Date: 2005/10/31 12:42:26 $
+ * $Revision: 1.23 $
  * \author G. Della Ricca
  *
 */
@@ -110,9 +110,9 @@ void EBTestPulseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
         gain = 1./ 1.;
       }
 
-      if (                ievt <=  50 ) meShapeMap = meShapeMapG01[ism-1];
-      if ( ievt >=  50 && ievt <= 100 ) meShapeMap = meShapeMapG06[ism-1];
-      if ( ievt >= 100                ) meShapeMap = meShapeMapG12[ism-1];
+      if ( ievt >=   1 && ievt <=  50 ) meShapeMap = meShapeMapG01[ism-1];
+      if ( ievt >=  51 && ievt <= 100 ) meShapeMap = meShapeMapG06[ism-1];
+      if ( ievt >= 101 && ievt <= 150 ) meShapeMap = meShapeMapG12[ism-1];
 
       float xval = adc * gain;
 
