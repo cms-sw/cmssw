@@ -42,7 +42,6 @@ namespace {
     LocalTag d12;
 
     PSimHit dummy444;
-    std::vector<PSimHit> sdummy7;
     edm::PSimHitContainer sdummy777;
     edm::Wrapper<edm::PSimHitContainer> dummy7777;
   }
