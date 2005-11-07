@@ -1,7 +1,7 @@
 #ifndef ParameterSet_FileInPath_h
 #define ParameterSet_FileInPath_h
 
-/// $Id:$
+/// $Id: FileInPath.h,v 1.1 2005/11/01 22:32:45 paterno Exp $
 ///
 
 /// Find a non-event-data file, given a relative path.
@@ -63,7 +63,7 @@ namespace edm
 
     /// Return a string containing the canonical form of the
     /// *relative* path. DO NOT USE THIS AS THE FILENAME for any file
-    /// operations; use filename() for that purpose.
+    /// operations; use fullPath() for that purpose.
     std::string const& relativePath() const;
 
     /// Was the file found under "."?
@@ -77,7 +77,7 @@ namespace edm
     /// filesystem is global; other threads, processes, etc., may have
     /// removed the file since we checked on its existence at the time
     /// of construction of the FileInPath object.
-    std::string const& filename() const;
+    std::string const& fullPath() const;
 
     /// Write contents to the given ostream.
     /// Writing errors are reflected in the state of the stream.
