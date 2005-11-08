@@ -1,0 +1,14 @@
+<use name=boost>
+<use name=FWCore/Framework>
+<use name=FWCore/EDProduct>
+<use name=IOPool/Streamer>
+<use name=IOPool/StreamerData>
+<export>
+ <lib name=EventFilterStorageManager>
+ <use name=boost>
+ <use name=FWCore/Framework>
+ <use name=FWCore/EDProduct>
+ <use name=IOPool/Streamer>
+ <use name=IOPool/StreamerData>
+</export>
+
