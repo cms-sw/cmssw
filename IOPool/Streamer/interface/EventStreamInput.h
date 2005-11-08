@@ -1,13 +1,14 @@
+#error "This file is obsolete. Use instead the functions in Utilities.h"
+
 #ifndef Streamer_EventStreamInput_h
 #define Streamer_EventStreamInput_h
 
-#error "this way has been changed to use the functions in Utilities.h"
-
+// -*- C++ -*-
 /*----------------------------------------------------------------------
 
 Event streaming input source
 
-$Id: EventStreamInput.h,v 1.5 2005/10/28 04:39:31 jbk Exp $
+$Id: EventStreamInput.h,v 1.6 2005/11/01 17:32:24 jbk Exp $
 
 ----------------------------------------------------------------------*/
 

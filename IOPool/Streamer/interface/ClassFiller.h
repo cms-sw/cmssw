@@ -1,6 +1,8 @@
 #ifndef Streamer_ClassFiller_h
 #define Streamer_ClassFiller_h
 
+// -*- C++ -*-
+
 #include "FWCore/Utilities/interface/DebugMacros.h"
 
 #include "TClass.h"

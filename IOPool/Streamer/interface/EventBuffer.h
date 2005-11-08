@@ -1,6 +1,8 @@
 #ifndef Streamer_EventBuffer_h
 #define Streamer_EventBuffer_h
 
+// -*- C++ -*-
+
 /*
  A bounded queue for use in a multi-threaded producer/consumer application.
  This is a simple design.  It is only meant to be used where there is

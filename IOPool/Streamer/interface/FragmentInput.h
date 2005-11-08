@@ -1,5 +1,7 @@
-#ifndef HLT_FRAG_INPUT_H
-#define HLT_FRAG_INPUT_H
+#ifndef Streamer_FragmentInput_h
+#define Streamer_FragmentInput_h
+
+// -*- C++ -*-
 
 #include "FWCore/Framework/interface/InputSource.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

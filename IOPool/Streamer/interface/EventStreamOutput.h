@@ -1,6 +1,8 @@
 #ifndef Streamer_EventStreamOutput_h
 #define Streamer_EventStreamOutput_h
 
+// -*- C++ -*-
+
 /*
   If the consumer is multithreaded and the destructor of the
   consumer does not return until the thread behind the scenes is

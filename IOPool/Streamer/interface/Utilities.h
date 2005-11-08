@@ -1,5 +1,11 @@
-#ifndef IOP_STR_UTIL_HPP
-#define IOP_STR_UTIL_HPP
+#ifndef Streamer_Utilties_h
+#define Streamer_Utilties_h
+
+// -*- C++ -*-
+//
+//  This header presents several classes used internally by the
+//  Streamer package.
+//
 
 #include "IOPool/StreamerData/interface/StreamedProducts.h"
 #include "IOPool/StreamerData/interface/Messages.h"

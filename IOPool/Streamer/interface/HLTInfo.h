@@ -1,5 +1,7 @@
-#ifndef HLTINFO_HPP
-#define HLTINFO_HPP
+#ifndef Streamer_HLTInfo_h
+#define Streamer_HLTInfo_h
+
+// -*- C++ -*-
 
 /*
   All the queues are contained in this service and created as a 
