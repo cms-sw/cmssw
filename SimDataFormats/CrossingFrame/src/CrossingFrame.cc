@@ -64,34 +64,40 @@ using namespace edm;
 		  (*simhits)[i].energyLoss(), (*simhits)[i].particleType(),
 		  (*simhits)[i].detUnitId(), (*simhits)[i].trackId()+trackoffset,
 		  (*simhits)[i].thetaAtEntry(),  (*simhits)[i].phiAtEntry(),  (*simhits)[i].processType());
-    (pileupSimHits_[subdet])[bcr-firstCrossing_].insertHit(hit);
+      //    (pileupSimHits_[subdet])[bcr-firstCrossing_].insertHit(hit);
+    (pileupSimHits_[subdet])[bcr-firstCrossing_].push_back(hit);
     }
   }
 
   void CrossingFrame::addPileupCaloHits(const int bcr, const std::string subdet, const PCaloHitContainer *calohits, int trackoffset) { 
     for (unsigned int i=0;i<calohits->size();++i) {
       PCaloHit hit((*calohits)[i].id(),(*calohits)[i].energy(),(*calohits)[i].time()+bcr*bunchSpace_,(*calohits)[i].geantTrackId()+trackoffset);
-      (pileupCaloHits_[subdet])[bcr-firstCrossing_].insertHit(hit);
+      //      (pileupCaloHits_[subdet])[bcr-firstCrossing_].insertHit(hit);
+      (pileupCaloHits_[subdet])[bcr-firstCrossing_].push_back(hit);
     }
   }
 
 void CrossingFrame::addPileupTracks(const int bcr, const EmbdSimTrackContainer *simtracks, int vertexoffset) { 
   for (unsigned int i=0;i<simtracks->size();++i) 
     if ((*simtracks)[i].noVertex()) 
-      pileupTracks_[bcr-firstCrossing_].insertTrack((*simtracks)[i]);
+      //      pileupTracks_[bcr-firstCrossing_].insertTrack((*simtracks)[i]);
+      pileupTracks_[bcr-firstCrossing_].push_back((*simtracks)[i]);
     else {
       EmbdSimTrack track((*simtracks)[i].type(),(*simtracks)[i].momentum(),(*simtracks)[i].vertIndex()+vertexoffset, (*simtracks)[i].genpartIndex());
-      pileupTracks_[bcr-firstCrossing_].insertTrack(track);
+      //      pileupTracks_[bcr-firstCrossing_].insertTrack(track);
+      pileupTracks_[bcr-firstCrossing_].push_back(track);
     }
 }
 
   void CrossingFrame::addPileupVertices(const int bcr, const EmbdSimVertexContainer *simvertices, int trackoffset) { 
     for (unsigned int i=0;i<simvertices->size();++i) 
     if ((*simvertices)[i].noParent()) 
-      pileupVertices_[bcr-firstCrossing_].insertVertex((*simvertices)[i]);
+      //      pileupVertices_[bcr-firstCrossing_].insertVertex((*simvertices)[i]);
+      pileupVertices_[bcr-firstCrossing_].push_back((*simvertices)[i]);
     else {
       EmbdSimVertex vertex((*simvertices)[i].position(),((*simvertices)[i].position())[3]+bcr*bunchSpace_,(*simvertices)[i].parentIndex()+trackoffset);
-      pileupVertices_[bcr-firstCrossing_].insertVertex(vertex);
+      //      pileupVertices_[bcr-firstCrossing_].insertVertex(vertex);
+      pileupVertices_[bcr-firstCrossing_].push_back(vertex);
     }
   }
 
