@@ -1,3 +1,6 @@
+** V01-00-02  [Tue Nov  8 19:22:08 2005]
+bug fix: swap pedestals and gains in HcalDbService.cc
+
 ** V01-00-01  [Tue Nov  8 00:43:56 2005]
 fix bug in QIEShape interpretation
 
