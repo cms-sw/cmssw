@@ -44,7 +44,7 @@ class MuonSensitiveDetector : public SensitiveTkDetector {
 			edm::ParameterSet const &);
   virtual ~MuonSensitiveDetector();
   virtual G4bool ProcessHits(G4Step *,G4TouchableHistory *);
-  virtual int  SetDetUnitId(G4Step *);
+  virtual uint32_t setDetUnitId(G4Step *);
   virtual void EndOfEvent(G4HCofThisEvent*);
 
   void fillHits(edm::PSimHitContainer&, std::string use);
@@ -78,7 +78,7 @@ class MuonSensitiveDetector : public SensitiveTkDetector {
 
   G4VPhysicalVolume * thePV;
   UpdatablePSimHit* theHit;
-  int theDetUnitId; 
+  uint32_t theDetUnitId; 
   unsigned int theTrackID;
  
   bool thePrintHits;

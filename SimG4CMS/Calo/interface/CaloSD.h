@@ -33,7 +33,6 @@ using namespace std;
 class G4Step;
 class G4HCofThisEvent;
 class EventAction;
-class CaloNumberingScheme;
 class CaloSlaveSD;
 #ifdef G4v7
 class G4GFlashSpot;
@@ -49,7 +48,6 @@ public SensitiveCaloDetector
 	       /*                public LazyObserver<const EventAction*> { */
 {
  public:    
-  typedef ::EndOfEvent MyEndOfEvent;
   typedef map<vector<int>,CaloG4Hit*> MyMap;
   
   CaloSD(G4String aSDname, const DDCompactView & cpv,
@@ -60,16 +58,14 @@ public SensitiveCaloDetector
   virtual bool ProcessHits(G4GFlashSpot*aSpot,G4TouchableHistory*);
 #endif
   virtual double getEnergyDeposit(G4Step* step); 
-  virtual int    SetDetUnitId(G4Step* step);
+  virtual uint32_t setDetUnitId(G4Step* step)=0;
   
   virtual void   Initialize(G4HCofThisEvent * HCE);
-  //  void           lazyUpDate(const EventAction *);
   virtual void   EndOfEvent(G4HCofThisEvent * eventHC);
   virtual void   clear();
   virtual void   DrawAll();
   virtual void   PrintAll();
 
-  void setNumberingScheme(CaloNumberingScheme* scheme);
   void fillHits(edm::PCaloHitContainer&,std::string n);
 
 protected:
@@ -86,7 +82,6 @@ protected:
 private:
 
   void          upDate(const BeginOfEvent *);
-  void          upDate(const MyEndOfEvent * );
   virtual void  clearHits();
 
   void          storeHit(CaloG4Hit*);
@@ -119,19 +114,13 @@ protected:
 
 private:
 
-  CaloSlaveSD*          slave;
-  CaloNumberingScheme * numberingScheme;
-
-  G4String             name;
+  CaloSlaveSD*         slave;
   int                  hcID;
   CaloG4HitCollection* theHC; 
   map<CaloHitID,CaloG4Hit*> hitMap;
 
   CaloG4Hit*           currentHit;
   vector<CaloG4Hit*>   hitvec;
-//  const EventAction*   eventAction;
-
-//  static UserVerbosity cout;
 
 };
 

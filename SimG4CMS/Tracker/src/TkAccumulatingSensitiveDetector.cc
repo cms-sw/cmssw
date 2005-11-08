@@ -46,7 +46,7 @@ TkAccumulatingSensitiveDetector::TkAccumulatingSensitiveDetector(string name,
 								 const DDCompactView & cpv,
 								 edm::ParameterSet const & p) : 
   SensitiveTkDetector(name, cpv, p), myName(name), myRotation(0),  mySimHit(0),
-  oldVolume(0), lastId(-1), lastTrack(0),eventno(0) {
+  oldVolume(0), lastId(0), lastTrack(0), eventno(0) {
   std::cout<<" Constructing a TkAccumulatingSensitiveDetector with "<<name<<std::endl;
 #ifndef FAKEFRAMEROTATION
     // No Rotation given in input, automagically choose one based upon the name
@@ -166,7 +166,7 @@ bool TkAccumulatingSensitiveDetector::ProcessHits(G4Step * aStep, G4TouchableHis
     return false;
 }
 
-int TkAccumulatingSensitiveDetector::SetDetUnitId(G4Step * s)
+uint32_t TkAccumulatingSensitiveDetector::setDetUnitId(G4Step * s)
 { 
     return TkG4SimHitNumberingScheme::instance()->
 	g4ToNumberingScheme(s->GetPreStepPoint()->GetTouchable());
@@ -221,7 +221,7 @@ void TkAccumulatingSensitiveDetector::sendHit()
     delete mySimHit;
     mySimHit = 0;
     lastTrack = 0;
-    lastId = -1;
+    lastId = 0;
 }
 
 void TkAccumulatingSensitiveDetector::createHit(G4Step * aStep)
@@ -244,13 +244,13 @@ void TkAccumulatingSensitiveDetector::createHit(G4Step * aStep)
     float theTof              = aStep->GetPreStepPoint()->GetGlobalTime()/nanosecond;
     float theEnergyLoss       = aStep->GetTotalEnergyDeposit()/GeV;
     short theParticleType     = myG4TrackToParticleID->particleID(theTrack);
-    int theDetUnitId          = SetDetUnitId(aStep);
+    uint32_t theDetUnitId     = setDetUnitId(aStep);
   
     globalEntryPoint = SensitiveDetector::InitialStepPosition(aStep,WorldCoordinates);
     globalExitPoint = SensitiveDetector::FinalStepPosition(aStep,WorldCoordinates);
     pname = theTrack->GetDynamicParticle()->GetDefinition()->GetParticleName();
   
-    if (theDetUnitId == -1)
+    if (theDetUnitId == 0)
     {
 	cout << " Error: theDetUnitId is not valid." << endl;
 	abort();
@@ -342,7 +342,7 @@ bool TkAccumulatingSensitiveDetector::newHit(G4Step * aStep)
 {
     if (neverAccumulate == true) return true;
     G4Track * theTrack = aStep->GetTrack(); 
-    int theDetUnitId = SetDetUnitId(aStep);
+    uint32_t theDetUnitId = setDetUnitId(aStep);
     unsigned int theTrackID = theTrack->GetTrackID();
 #ifdef DEBUG
     cout << " OLD (d,t) = (" << lastId << "," << lastTrack 
@@ -411,7 +411,7 @@ void TkAccumulatingSensitiveDetector::fillHits(edm::PSimHitContainer& c, std::st
   // do it once for low, once for High
   //
 
-  if (slaveLowTof->name() == n) c=slaveLowTof->hits();
+  if (slaveLowTof->name() == n)  c=slaveLowTof->hits();
   if (slaveHighTof->name() == n) c=slaveHighTof->hits();
 
 }

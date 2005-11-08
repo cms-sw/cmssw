@@ -6,8 +6,6 @@
 #include "SimG4CMS/Calo/interface/CaloG4Hit.h"
 #include <iostream>
 
-//UserVerbosity CaloG4Hit::cout("CaloG4Hit","silent","CaloSD");
-
 CaloG4Hit::CaloG4Hit():entry(0), entryLocal(0) {
 
   elem     = 0.;
@@ -57,7 +55,7 @@ void CaloG4Hit::Print() {
 
 std::ostream& operator<<(std::ostream& os, const CaloG4Hit& hit) {
   os << " Data of this CaloG4Hit are:" << std::endl
-     << "  HitID: " << hit.getID() << std::endl
+     << " HitID: " << hit.getID() << std::endl
      << " EnergyDeposit of EM particles = " << hit.getEM() << std::endl
      << " EnergyDeposit of HD particles = " << hit.getHadr() << std::endl
      << " Energy of primary particle    = " << hit.getIncidentEnergy()/MeV 

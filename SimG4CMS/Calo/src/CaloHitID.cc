@@ -6,9 +6,7 @@
 
 #include <iomanip>
 
-//UserVerbosity CaloHitID::cout("CaloHitID","silent","CaloSD");
-
-CaloHitID::CaloHitID(unsigned int unitID, double timeSlice, int trackID) {
+CaloHitID::CaloHitID(uint32_t unitID, double timeSlice, int trackID) {
   setID(unitID, timeSlice, trackID);
 }
 
@@ -34,7 +32,7 @@ const CaloHitID& CaloHitID::operator=(const CaloHitID & id) {
 
 CaloHitID::~CaloHitID() {}
 
-void CaloHitID::setID(unsigned int unitID, double timeSlice, int trackID) {
+void CaloHitID::setID(uint32_t unitID, double timeSlice, int trackID) {
   theUnitID    = unitID;
   theTimeSlice = timeSlice;
   theTrackID   = trackID;
@@ -73,12 +71,9 @@ bool CaloHitID::operator>(const CaloHitID& id) const {
   }
 }
 
-void CaloHitID::print() {
-  cout << "CaloHitID:: " << (*this);
-}
-
 ostream& operator<<(ostream& os, const CaloHitID& id) {
-  os << "UnitID 0x" << hex << id.unitID() << dec << " Time " << setw(6) 
-     << id.timeSlice() << " TrackID " << setw(8) << id.trackID() ;
+  os << "UnitID 0x" << std::hex << id.unitID() << std::dec << " Time " 
+     << std::setw(6) << id.timeSlice() << " TrackID " << std::setw(8)
+     << id.trackID();
   return os;
 }

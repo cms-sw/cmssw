@@ -235,7 +235,7 @@ bool MuonSensitiveDetector::hitInChimney(G4Step * aStep)
   return inChimney;
 }
 
-int MuonSensitiveDetector::SetDetUnitId(G4Step * aStep)
+uint32_t MuonSensitiveDetector::setDetUnitId(G4Step * aStep)
 { 
   //  G4VPhysicalVolume * pv = aStep->GetPreStepPoint()->GetPhysicalVolume();
   MuonBaseNumber num = g4numbering->PhysicalVolumeToBaseNumber(aStep);
@@ -262,7 +262,7 @@ bool MuonSensitiveDetector::newHit(G4Step * aStep){
   
   G4VPhysicalVolume* pv = aStep->GetPreStepPoint()->GetPhysicalVolume();
   G4Track * t  = aStep->GetTrack();
-  int currentUnitId=SetDetUnitId(aStep);
+  uint32_t currentUnitId=setDetUnitId(aStep);
   unsigned int currentTrackID=t->GetTrackID();
   //unsigned int currentEventID=G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID();
   bool changed=((pv!=thePV) || 
@@ -290,7 +290,7 @@ void MuonSensitiveDetector::createHit(G4Step * aStep){
   float thePhiAtEntry = lnmd.phi();
 
   storeVolumeAndTrack( aStep );
-  theDetUnitId              = SetDetUnitId(aStep);
+  theDetUnitId              = setDetUnitId(aStep);
 
 #ifdef DEBUG
   Global3DPoint theGlobalPos;

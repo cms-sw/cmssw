@@ -5,7 +5,7 @@
 #ifndef CaloHit_H
 #define CaloHit_H
 
-//#include "Utilities/UI/interface/Verbosity.h"
+#include <boost/cstdint.hpp>
 #include <iostream>
 
 class CaloHit {
@@ -13,7 +13,7 @@ class CaloHit {
 public:
 
   CaloHit(int deti, int layi, double ei, double etai, double phii, double timi,
-	  unsigned int idi=0);
+	  uint32_t idi=0);
   CaloHit();
   CaloHit(const CaloHit&);
   virtual ~CaloHit();
@@ -24,20 +24,16 @@ public:
   double       eta()    const {return etah;}
   double       phi()    const {return phih;}
   double       t()      const {return timeh;}
-  unsigned int id()     const {return idh;}
-  void         setId(const unsigned int idi) {idh = idi;}
+  uint32_t     id()     const {return idh;}
+  void         setId(const uint32_t idi) {idh = idi;}
 
   bool operator<( const CaloHit& hit) const;
- 
-  void         print();
  
 private:
 
   int          deth, layerh;
   double       eh, etah, phih, timeh;
-  unsigned int idh;
-
-  //  static UserVerbosity cout;
+  uint32_t     idh;
 
 };
 

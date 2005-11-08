@@ -5,22 +5,25 @@
 #include "SimG4CMS/Calo/interface/ShowerForwardNumberingScheme.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
 
-//#define debug
+#define debug
 
 using namespace std;
 
-ShowerForwardNumberingScheme::ShowerForwardNumberingScheme() {
-  std::cout << "Creating ShowerForwardNumberingScheme" << std::endl;
+ShowerForwardNumberingScheme::ShowerForwardNumberingScheme(int iv) : 
+  EcalNumberingScheme(iv) {
+  if (verbosity>0) 
+    std::cout << "Creating ShowerForwardNumberingScheme" << std::endl;
 }
 
 ShowerForwardNumberingScheme::~ShowerForwardNumberingScheme() {
-  std::cout << "Deleting ShowerForwardNumberingScheme" << std::endl;
+  if (verbosity>0) 
+    std::cout << "Deleting ShowerForwardNumberingScheme" << std::endl;
 }
 
-unsigned int ShowerForwardNumberingScheme::getUnitID(const G4Step* aStep) const {
+uint32_t ShowerForwardNumberingScheme::getUnitID(const G4Step* aStep) const {
 
   int level = detectorLevel(aStep);
-  unsigned int intIndex = 0;
+  uint32_t intIndex = 0;
   if (level > 0) {
     int*      copyno = new int[level];
     G4String* name   = new G4String[level];
@@ -47,13 +50,15 @@ unsigned int ShowerForwardNumberingScheme::getUnitID(const G4Step* aStep) const 
 
     intIndex =  ESDetId(1,1,1,1,1).rawId(); //Fake for the moment
 #ifdef debug
-    std::cout << "ShowerForwardNumberingScheme : zside " 
-		 << zside << " layer " << layer << " wafer " << wafer 
-		 << " strip " << strip << " UnitID 0x" << hex << intIndex 
-		 << dec << std::endl;
-    for (int ich = 0; ich < level; ich++) {
-      std::cout << "Name = " << name[ich] << " copy = " << copyno[ich]
-		   << std::endl;
+    if (verbosity>1) {
+      std::cout << "ShowerForwardNumberingScheme : zside " 
+		<< zside << " layer " << layer << " wafer " << wafer 
+		<< " strip " << strip << " UnitID 0x" << std::hex << intIndex 
+		<< std::dec << std::endl;
+      for (int ich = 0; ich < level; ich++) {
+	std::cout << "Name = " << name[ich] << " copy = " << copyno[ich]
+		  << std::endl;
+      }
     }
 #endif
     delete[] copyno;

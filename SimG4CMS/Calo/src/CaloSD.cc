@@ -5,15 +5,12 @@
 
 #include "SimG4CMS/Calo/interface/CaloSD.h"
 #include "SimG4CMS/Calo/interface/CaloMap.h"
-#include "SimG4CMS/Calo/interface/CaloNumberingScheme.h"
-#include "SimG4CMS/Calo/interface/EcalBarrelNumberingScheme.h"
-#include "SimG4CMS/Calo/interface/EcalEndcapNumberingScheme.h"
-#include "SimG4CMS/Calo/interface/ShowerForwardNumberingScheme.h"
 #include "SimDataFormats/SimHitMaker/interface/CaloSlaveSD.h"
 #include "SimG4Core/Geometry/interface/SDCatalog.h"
 #include "SimG4Core/Application/interface/EventAction.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 
+#include "G4EventManager.hh"
 #include "G4SDManager.hh"
 #include "G4Step.hh"
 #include "G4Track.hh"
@@ -24,35 +21,41 @@
 
 #define debug
 
-
 CaloSD::CaloSD(G4String name, const DDCompactView & cpv,
-               edm::ParameterSet const & p) : 
+	       edm::ParameterSet const & p) : 
   SensitiveCaloDetector(name, cpv, p),
 #ifdef G4v7
   G4VGFlashSensitiveDetector(), 
 #endif
-  theTrack(0), preStepPoint(0), name(name), hcID(-1), 
-  theHC(0), currentHit(0) {
-  
-  if      (name == "EcalHitsEB") numberingScheme=dynamic_cast<CaloNumberingScheme*>(new EcalBarrelNumberingScheme());
-  else if (name == "EcalHitsEE") numberingScheme=dynamic_cast<CaloNumberingScheme*>(new EcalEndcapNumberingScheme());
-  else if (name == "EcalHitsES") numberingScheme=dynamic_cast<CaloNumberingScheme*>(new ShowerForwardNumberingScheme());
-  else 
-    {
-      std::cout << "CaloSD: ReadoutName not supported" << std::endl;
-    }
+  theTrack(0), preStepPoint(0), hcID(-1), theHC(0), currentHit(0) {
   //Add Hcal Sentitive Detector Names
 
-  
-//   Observer<const BeginOfEvent *>::init();
-//   Observer<const MyEndOfEvent *>::init();
+  //   Observer<const BeginOfEvent *>::init();
   collectionName.insert(name);
-  
-  std::cout << "***************************************************" <<std::endl
-	       << "*                                                 *" <<std::endl
-	       << "* Constructing a CaloSD  with name " << name         <<std::endl
-	       << "*                                                 *" <<std::endl
-	       << "***************************************************" <<std::endl;
+
+  //Parameters
+  //  static SimpleConfigurable<float> pEmin(1.0,"CaloSD:EminTrack");
+  //   static SimpleConfigurable<int>   pcheckHit(25,"CaloSD:CheckHits");
+  //   static SimpleConfigurable<bool>  pUseMap(false,"CaloSD:UseMap");
+  edm::ParameterSet m_CaloSD = p.getParameter<edm::ParameterSet>("CaloSD");
+  energyCut = m_CaloSD.getParameter<double>("EminTrack")*GeV;
+  checkHits = m_CaloSD.getParameter<int>("CheckHits");
+  useMap    = m_CaloSD.getParameter<bool>("UseMap");
+  int verbn = m_CaloSD.getParameter<int>("Verbosity");
+  bool on   = m_CaloSD.getParameter<bool>("DetailedTiming");
+
+  SetVerboseLevel(verbn);
+  if (verboseLevel > 0) 
+    std::cout << "***************************************************" 
+	      << std::endl
+	      << "*                                                 *" 
+	      << std::endl
+	      << "* Constructing a CaloSD  with name " << GetName()
+	      << std::endl
+	      << "*                                                 *" 
+	      << std::endl
+	      << "***************************************************" 
+	      << std::endl;
 
   slave  = new CaloSlaveSD(name);
 
@@ -65,41 +68,30 @@ CaloSD::CaloSD(G4String name, const DDCompactView & cpv,
   for (vector<string>::iterator it=lvNames.begin();  it !=lvNames.end(); it++){
     this->AssignSD(*it);
 #ifdef debug
-    std::cout << "CaloSD : Assigns SD to LV " << (*it) << std::endl;
+    if (verboseLevel > 0) 
+      std::cout << "CaloSD : Assigns SD to LV " << (*it) << std::endl;
 #endif
   }
 
-//   // timer initialization
-//   static bool on = 
-//     SimpleConfigurable<bool>(false,"CaloSensitiveDetector:DetailedTiming").value();
-//   if (on) {
-//     string trname("CaloSD:");
-//     theHitTimer.init( trname + name + ":hits", true);
-//   }
-//   else {
-//     theHitTimer.init( "CaloSensitiveDetector:hits", true);
-//   }
+  // timer initialization
+  if (on) {
+  //     string trname("CaloSD:");
+  //     theHitTimer.init( trname + name + ":hits", true);
+  //   }
+  //   else {
+  //     theHitTimer.init( "CaloSensitiveDetector:hits", true);
+  }
 
-  //Simple configurables
-  //  static SimpleConfigurable<float> pEmin(1.0,"CaloSD:EminTrack");
-  //  energyCut = pEmin.value()*GeV;
-  energyCut = 1.0*GeV;
-//   static SimpleConfigurable<int>   pcheckHit(25,"CaloSD:CheckHits");
-//   checkHits = pcheckHit.value();
-  checkHits = 25;
-//   static SimpleConfigurable<bool>  pUseMap(false,"CaloSD:UseMap");
-//   useMap    = pUseMap.value();
-  useMap    = false;
-  std::cout << "CaloSD: Minimum energy of track for saving it " 
-	       << energyCut/GeV  << " GeV" << std::endl 
-	       << "        Use of HitID Map " << useMap << std::endl
-	       << "        Check last " << checkHits 
-	       << " before saving the hit" << std::endl;
+  if (verboseLevel > 0) 
+    std::cout << "CaloSD: Minimum energy of track for saving it " 
+	      << energyCut/GeV  << " GeV" << std::endl 
+	      << "        Use of HitID Map " << useMap << std::endl
+	      << "        Check last " << checkHits 
+	      << " before saving the hit" << std::endl;
 }
 
 CaloSD::~CaloSD() { 
   if (slave)           delete slave; 
-  if (numberingScheme) delete numberingScheme;
 }
 
 bool CaloSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
@@ -143,8 +135,8 @@ bool CaloSD::ProcessHits(G4GFlashSpot* aSpot, G4TouchableHistory*) {
       fFakePreStepPoint->SetTouchableHandle(fTouchableHandle);
       fFakeStep->SetTotalEnergyDeposit(aSpot->GetEnergySpot()->GetEnergy());
       
-      double       time   = 0;
-      unsigned int unitID = SetDetUnitId(fFakeStep);
+      double   time   = 0;
+      uint32_t unitID = setDetUnitId(fFakeStep);
       int      primaryID;
 
       if (trkInfo)
@@ -153,18 +145,20 @@ bool CaloSD::ProcessHits(G4GFlashSpot* aSpot, G4TouchableHistory*) {
 	primaryID = 0;
       
       if (primaryID == 0) {
-#ifdef debug_verbose
-	std::cout << "CaloSD: Spot Problem with primaryID **** set by force"
-		  << " to  **** " << theTrack->GetTrackID() << std::endl;
+#ifdef debug
+	if (verboseLevel > 2) 
+	  std::cout << "CaloSD: Spot Problem with primaryID **** set by force"
+		    << " to  **** " << theTrack->GetTrackID() << std::endl;
 #endif
 	primaryID = theTrack->GetTrackID();
       }
       currentID.setID(unitID, time, primaryID);
-#ifdef debug_verbose
-      cout << "CaloSD:: GetSpotInfo for"
-		    << " Unit 0x" << hex << currentID.unitID() << dec
-		    << " Edeposit = " << edepositEM << " " << edepositHAD 
-		    << std::endl;
+#ifdef debug
+      if (verboseLevel > 2) 
+	std::cout << "CaloSD:: GetSpotInfo for"
+		  << " Unit 0x" << std::hex << currentID.unitID() << std::dec
+		  << " Edeposit = " << edepositEM << " " << edepositHAD 
+		  << std::endl;
 #endif
       // Update if in the same detector, time-slice and for same track   
       if (currentID == previousID) {
@@ -178,9 +172,11 @@ bool CaloSD::ProcessHits(G4GFlashSpot* aSpot, G4TouchableHistory*) {
 	    GetTopTransform().TransformPoint(entrancePoint);
 	  incidentEnergy = theTrack->GetKineticEnergy();
 #ifdef debug
-	  cout << "CaloSD: Incident energy " << incidentEnergy/GeV 
-			<< " GeV and" << " entrance point " << entrancePoint 
-			<< " (Global) " << entranceLocal << " (Local)" << std::endl;
+	  if (verboseLevel > 2) 
+	    std::cout << "CaloSD: Incident energy " << incidentEnergy/GeV 
+		      << " GeV and" << " entrance point " << entrancePoint 
+		      << " (Global) " << entranceLocal << " (Local)" 
+		      << std::endl;
 #endif
 	}
 	
@@ -200,19 +196,16 @@ double CaloSD::getEnergyDeposit(G4Step* aStep) {
   return aStep->GetTotalEnergyDeposit();
 }
 
-int CaloSD::SetDetUnitId(G4Step * aStep) { 
-  return (numberingScheme == 0 ? 0 : numberingScheme->getUnitID(aStep));
-}
-
 void CaloSD::Initialize(G4HCofThisEvent * HCE) { 
 #ifdef debug
-  std::cout << "CaloSD : Initialize called for " << name << std::endl;
+  if (verboseLevel > 1) 
+    std::cout << "CaloSD : Initialize called for " << GetName() << std::endl;
 #endif
 
   //This initialization is performed at the beginning of an event
   //------------------------------------------------------------
 
-  theHC = new CaloG4HitCollection(name, collectionName[0]);
+  theHC = new CaloG4HitCollection(GetName(), collectionName[0]);
   if (hcID<0) 
     hcID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
   HCE->AddHitsCollection(hcID, theHC);
@@ -240,8 +233,8 @@ void CaloSD::getStepInfo(G4Step* aStep) {
     edepositEM  = 0.; edepositHAD = getEnergyDeposit(aStep);
   }
 
-  double       time  = (aStep->GetPostStepPoint()->GetGlobalTime())/nanosecond;
-  unsigned int unitID= SetDetUnitId(aStep);
+  double   time  = (aStep->GetPostStepPoint()->GetGlobalTime())/nanosecond;
+  uint32_t unitID= setDetUnitId(aStep);
   TrackInformation * trkInfo = (TrackInformation *)(theTrack->GetUserInformation());
   int      primaryID;
 
@@ -251,31 +244,36 @@ void CaloSD::getStepInfo(G4Step* aStep) {
     primaryID = 0;
 
   if (primaryID == 0) {
-#ifdef debug_verbose
-    std::cout << "CaloSD: Problem with primaryID **** set by force to TkID"
-	      << " **** " << theTrack->GetTrackID() << std::endl;
+#ifdef debug
+    if (verboseLevel > 1) 
+      std::cout << "CaloSD: Problem with primaryID **** set by force to TkID"
+		<< " **** " << theTrack->GetTrackID() << std::endl;
 #endif
     primaryID = theTrack->GetTrackID();
   }
 
   currentID.setID(unitID, time, primaryID);
 
-#ifdef debug_verbose
-  G4TouchableHistory* touch = (G4TouchableHistory*)(theTrack->GetTouchable());
-  cout << "CaloSD:: GetStepInfo for"
-		<< " PV "     << touch->GetVolume(0)->GetName()
-		<< " PVid = " << touch->GetReplicaNumber(0)
-		<< " MVid = " << touch->GetReplicaNumber(1)
-		<< " Unit 0x" << hex << currentID.unitID() << dec
-		<< " Edeposit = " << edepositEM << " " << edepositHAD << std::endl;
+#ifdef debug
+  if (verboseLevel > 2) {
+    G4TouchableHistory* touch =(G4TouchableHistory*)(theTrack->GetTouchable());
+    std::cout << "CaloSD:: GetStepInfo for"
+	      << " PV "     << touch->GetVolume(0)->GetName()
+	      << " PVid = " << touch->GetReplicaNumber(0)
+	      << " MVid = " << touch->GetReplicaNumber(1)
+	      << " Unit 0x" << std::hex << currentID.unitID() << std::dec
+	      << " Edeposit = " << edepositEM << " " << edepositHAD 
+	      << std::endl;
+  }
 #endif
 }
 
 G4bool CaloSD::hitExists() {
    
   if (currentID.trackID()<1) {
-    std::cout << "***** CaloSD error: primaryID = " << currentID.trackID()
-		 << " maybe detector name changed" << std::endl;
+    if (verboseLevel > 0) 
+      std::cout << "***** CaloSD error: primaryID = " << currentID.trackID()
+		<< " maybe detector name changed" << std::endl;
   }
    
   // Update if in the same detector, time-slice and for same track   
@@ -330,10 +328,11 @@ void CaloSD::resetForNewPrimary(G4ThreeVector point, double energy) {
   entrancePoint  = point;
   entranceLocal  = setToLocal(entrancePoint, preStepPoint->GetTouchable());
   incidentEnergy = energy;
-#ifdef debug_verbose
-  cout << "CaloSD: Incident energy " << incidentEnergy/GeV 
-		<< " GeV and" << " entrance point " << entrancePoint 
-		<< " (Global) " << entranceLocal << " (Local)" << std::endl;
+#ifdef debug
+  if (verboseLevel > 2) 
+    std::cout << "CaloSD: Incident energy " << incidentEnergy/GeV 
+	      << " GeV and" << " entrance point " << entrancePoint 
+	      << " (Global) " << entranceLocal << " (Local)" << std::endl;
 #endif
 }
 
@@ -350,12 +349,13 @@ double CaloSD::getAttenuation(G4Step* aStep, double birk1, double birk2) {
     double c       = birk2/(density*density);
     if (abs(charge) >= 2.) rkb *= 7.2/12.6; // based on alpha particle data
     weight = 1./(1.+rkb*dedx+c*dedx*dedx);
-#ifdef debug_verbose
-    std::cout << "CaloSD::getAttenuation in " << mat->GetName() 
-		 << " Charge " << charge << " dE/dx " << dedx 
-		 << " Birk Const " << rkb << ", " << c << " Weight = " 
-		 << weight << " dE " << aStep->GetTotalEnergyDeposit() 
-		 << std::endl;
+#ifdef debug
+    if (verboseLevel > 2) 
+      std::cout << "CaloSD::getAttenuation in " << mat->GetName() 
+		<< " Charge " << charge << " dE/dx " << dedx 
+		<< " Birk Const " << rkb << ", " << c << " Weight = " 
+		<< weight << " dE " << aStep->GetTotalEnergyDeposit() 
+		<< std::endl;
 #endif
   }
   return weight;
@@ -365,7 +365,8 @@ void CaloSD::storeHit(CaloG4Hit* hit) {
 
   if (previousID.trackID()<0) return;
   if (hit == 0) {
-    std::cout << "CaloSD: hit to be stored is NULL !!" << std::endl;
+    if (verboseLevel > 0) 
+      std::cout << "CaloSD: hit to be stored is NULL !!" << std::endl;
     return;
   }
 
@@ -377,23 +378,26 @@ void CaloSD::storeHit(CaloG4Hit* hit) {
 void CaloSD::createNewHit() {
 
 #ifdef debug
-  std::cout << "CaloSD::CreateNewHit for"
-	       << " Unit 0x" << hex << currentID.unitID() << dec
-	       << " Edeposit = " << edepositEM << " " << edepositHAD << std::endl;
-  std::cout << " primary "    << currentID.trackID()
-	       << " time slice " << currentID.timeSliceID()
-	       << " For Track  " << theTrack->GetTrackID()
-	       << " which is a " <<theTrack->GetDefinition()->GetParticleName()
-	       << " of energy "  << theTrack->GetKineticEnergy()/GeV
-	       << " " << theTrack->GetMomentum().mag()/GeV
-	       << " daughter of part. " << theTrack->GetParentID()
-	       << " and created by " ;
+  if (verboseLevel > 1) {
+    std::cout << "CaloSD::CreateNewHit for"
+	      << " Unit 0x" << std::hex << currentID.unitID() << std::dec
+	      << " Edeposit = " << edepositEM << " " << edepositHAD
+	      << std::endl;
+    std::cout << " primary "    << currentID.trackID()
+	      << " time slice " << currentID.timeSliceID()
+	      << " For Track  " << theTrack->GetTrackID()
+	      << " which is a " <<theTrack->GetDefinition()->GetParticleName()
+	      << " of energy "  << theTrack->GetKineticEnergy()/GeV
+	      << " " << theTrack->GetMomentum().mag()/GeV
+	      << " daughter of part. " << theTrack->GetParentID()
+	      << " and created by " ;
   
-  if (theTrack->GetCreatorProcess()!=NULL)
-    std::cout << theTrack->GetCreatorProcess()->GetProcessName() ;
-  else 
-    std::cout << "NO process";
-  std::cout << std::endl;
+    if (theTrack->GetCreatorProcess()!=NULL)
+      std::cout << theTrack->GetCreatorProcess()->GetProcessName() ;
+    else 
+      std::cout << "NO process";
+    std::cout << std::endl;
+  }
 #endif          
     
   currentHit = new CaloG4Hit;
@@ -414,24 +418,27 @@ void CaloSD::createNewHit() {
       trkInfo->storeTrack(true);
       trkInfo->putInHistory();
 #ifdef debug
-      std::cout << "CaloSD: set save the track " << currentID.trackID() 
-		   << " with Hit" << std::endl;
+      if (verboseLevel > 1) 
+	std::cout << "CaloSD: set save the track " << currentID.trackID() 
+		  << " with Hit" << std::endl;
 #endif
     }
   } else {
     TrackWithHistory * trkh = 
       CaloMap::instance()->getTrack(currentID.trackID());
 #ifdef debug
-    cout << "CaloSD : TrackwithHistory pointer for " 
-		  << currentID.trackID() << " is " << trkh << std::endl;
+    if (verboseLevel > 2) 
+      cout << "CaloSD : TrackwithHistory pointer for " 
+	   << currentID.trackID() << " is " << trkh << std::endl;
 #endif
     if (trkh != NULL) {
       etrack = trkh->momentum().mag();
       if (etrack >= energyCut) {
 	trkh->save();
 #ifdef debug
-	std::cout << "CaloSD: set save the track " << currentID.trackID()
-		     << " with Hit" << std::endl;
+	if (verboseLevel > 1) 
+	  std::cout << "CaloSD: set save the track " << currentID.trackID()
+		    << " with Hit" << std::endl;
 #endif
       }
     }
@@ -445,9 +452,10 @@ void CaloSD::upDateHit() {
   if (edepositEM+edepositHAD != 0) {
     currentHit->addEnergyDeposit(edepositEM,edepositHAD);
 #ifdef debug
-    cout << "CaloSD: Add energy deposit in " << currentID << " em " 
-		  << edepositEM/MeV << " hadronic " << edepositHAD/MeV 
-		  << " MeV" << std::endl;
+    if (verboseLevel > 2) 
+      cout << "CaloSD: Add energy deposit in " << currentID << " em " 
+	   << edepositEM/MeV << " hadronic " << edepositHAD/MeV 
+	   << " MeV" << std::endl;
 #endif
   }
 
@@ -464,18 +472,12 @@ G4ThreeVector CaloSD::setToLocal(G4ThreeVector global,
   return localPoint;  
 }
 
-// void CaloSD::lazyUpDate(const  EventAction * ev) {
-//   eventAction = ev;
-// #ifdef debug
-//   std::cout << "CaloSD: gets pointer to eventAction " << eventAction <<std::endl;
-// #endif
-// }
-
 void CaloSD::EndOfEvent(G4HCofThisEvent* ) {
 
 #ifdef debug
-  std::cout << "CaloSD: EndofEvent entered with " << theHC->entries() 
-	       << " entries" << std::endl;
+  if (verboseLevel > 1) 
+    std::cout << "CaloSD: EndofEvent entered with " << theHC->entries() 
+	      << " entries" << std::endl;
 #endif
   //  TimeMe("CaloSD:sortAndMergeHits",false);
 
@@ -485,28 +487,18 @@ void CaloSD::EndOfEvent(G4HCofThisEvent* ) {
   for (int ii=0; ii<theHC->entries(); ii++) {
     CaloG4Hit* aHit = (*theHC)[ii];
 #ifdef debug
-    cout << "CaloHit " << ii << " " << *aHit << std::endl;
+    if (verboseLevel > 2) 
+      std::cout << "CaloHit " << ii << " " << *aHit << std::endl;
 #endif
     hitvec.push_back(aHit);
   }
 
 #ifdef debug
-  std::cout << "CaloSD: EndofEvent transfer " << hitvec.size() 
-	       << " hits to vector" << " for " << name << std::endl;
+  if (verboseLevel > 1) 
+    std::cout << "CaloSD: EndofEvent transfer " << hitvec.size() 
+	      << " hits to vector" << " for " << GetName() << std::endl;
 #endif
-  // FAKE FOR THE MOMENT WAITING FOR SIGNALS   
-  MyEndOfEvent * theEnd= new MyEndOfEvent(0);
-  upDate(theEnd);
-  delete theEnd;
-}
-
-void CaloSD::upDate(const MyEndOfEvent * ) {
-
-#ifdef debug_verbose
-  std::cout << "CaloSD: Check LazyUpdates for " << name << std::endl;
-#endif
-  //  check();
-
+  
   int kount = 0, count = 0, wrong = 0;
   vector<CaloG4Hit*>::iterator i;
 
@@ -519,7 +511,8 @@ void CaloSD::upDate(const MyEndOfEvent * ) {
   } else {
     sort(hitvec.begin(), hitvec.end(), CaloG4HitLess());
 #ifdef debug_verbose
-    std::cout << "CaloSD: EndofEvent sort the hits in buffer " << std::endl;
+    if (verboseLevel > 1) 
+      std::cout << "CaloSD: EndofEvent sort the hits in buffer " << std::endl;
 #endif
 
     vector<CaloG4Hit*>::iterator j;
@@ -538,20 +531,21 @@ void CaloSD::upDate(const MyEndOfEvent * ) {
 
       kount++;
       count++;
-#ifdef debug_verbose
-      cout << "CaloSD: Merge " << jump << " hits to hit " << kount 
-		    << std::endl;
+#ifdef debug
+      if (verboseLevel > 2) 
+	cout << "CaloSD: Merge " << jump << " hits to hit " << kount 
+	     << std::endl;
 #endif
-
       if (!saveHit(*i)) wrong++;
       i+=jump;
       kount += jump;
     }
   }
   
-  std::cout << "CaloSD: " << name << " store " << count << " hits out of " 
-	       << kount << " recorded with " << wrong 
-	       << " track IDs not given properly" << std::endl;
+  if (verboseLevel > 0) 
+    std::cout << "CaloSD: " << GetName() << " store " << count 
+	      << " hits out of " << kount << " recorded with " << wrong 
+	      << " track IDs not given properly" << std::endl;
   summarize();
 }
 
@@ -559,24 +553,27 @@ bool CaloSD::saveHit(CaloG4Hit* aHit) {
 
   int tkID;
   bool ok = true;
-//   if (eventAction) {
-//     tkID = eventAction->g4ToSim(aHit->getTrackID());
-//     if (tkID == EventAction::InvalidID) ok = false;
-//   } else {
-  tkID = aHit->getTrackID();
-  ok = false;
-//   }
+  EventAction * eventAction = (EventAction *)(G4EventManager::GetEventManager()->GetUserEventAction());
+  if (eventAction) {
+    tkID = eventAction->g4ToSim(aHit->getTrackID());
+    if (tkID == EventAction::InvalidID) ok = false;
+  } else {
+    tkID = aHit->getTrackID();
+    ok = false;
+  }
 #ifdef debug
-  std::cout << "CalosD: Track ID " << aHit->getTrackID() << " changed to "
-	       << tkID << " by EventAction" << std::endl;
+  if (verboseLevel > 1) 
+    std::cout << "CalosD: Track ID " << aHit->getTrackID() << " changed to "
+	      << tkID << " by EventAction" << std::endl;
 #endif
   slave->processHits(aHit->getUnitID(), aHit->getEnergyDeposit()/GeV,
 		     aHit->getTimeSlice(), tkID);
 #ifdef debug
-  cout << "CaloSD: Store Hit at 0x" << hex << aHit->getUnitID() 
-		<< dec << " due to " << tkID << " in time " 
-		<< aHit->getTimeSlice() << " of energy " 
-		<< aHit->getEnergyDeposit()/GeV << " GeV" << std::endl;
+  if (verboseLevel > 2) 
+    std::cout << "CaloSD: Store Hit at 0x" << std::hex << aHit->getUnitID() 
+	      << std::dec << " due to " << tkID << " in time " 
+	      << aHit->getTimeSlice() << " of energy " 
+	      << aHit->getEnergyDeposit()/GeV << " GeV" << std::endl;
 #endif
   return ok;
 }
@@ -588,46 +585,40 @@ void CaloSD::clear() {}
 void CaloSD::DrawAll() {} 
 
 void CaloSD::PrintAll() {
-  std::cout << "CaloSD: Collection " << theHC->GetName() << std::endl;
+  if (verboseLevel > 0) 
+    std::cout << "CaloSD: Collection " << theHC->GetName() << std::endl;
   theHC->PrintAllHits();
 } 
 
-void CaloSD::setNumberingScheme(CaloNumberingScheme* scheme) {
-  if (scheme != 0) {
-    std::cout << "CaloSD: updates numbering scheme for " << name << std::endl;
-    if (numberingScheme)
-      delete numberingScheme;
-    numberingScheme = scheme;
-  }
-}
-
 void CaloSD::upDate(const BeginOfEvent *) {
-#ifdef debug_verbose
-  std::cout << "CaloSD: Dispatched BeginOfEvent for " << name << " !" 
-	       << std::endl;
+#ifdef debug
+  if (verboseLevel > 1) 
+    std::cout << "CaloSD: Dispatched BeginOfEvent for " << GetName() << " !" 
+	      << std::endl;
 #endif
   clearHits();
 }
 
 void CaloSD::clearHits(){
   hitvec.erase(hitvec.begin(),hitvec.end()); 
-#ifdef debug_verbose
-  std::cout << "CaloSD: Clears hit vector for " << name << " " << slave 
-	       << std::endl;
+#ifdef debug
+  if (verboseLevel > 1) 
+    std::cout << "CaloSD: Clears hit vector for " << GetName() << " " << slave 
+	      << std::endl;
 #endif
   slave->Initialize();
 #ifdef debug_verbose
-  std::cout << "CaloSD: Initialises slave SD for " << name << std::endl;
+  if (verboseLevel > 1) 
+    std::cout << "CaloSD: Initialises slave SD for " << GetName() << std::endl;
 #endif
 }
 
 void CaloSD::fillHits(edm::PCaloHitContainer& c, std::string n){
-  
-  if (slave->name() == n) 
-    {
+  if (slave->name() == n) {
 #ifdef debug   
+    if (verboseLevel > 1) 
       std::cout << "Inserting hits for HitContainer " << n << std::endl;
 #endif
-      c = slave->hits();
-    }
+    c = slave->hits();
+  }
 }

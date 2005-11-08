@@ -5,18 +5,14 @@
 #ifndef EcalBarrelNumberingScheme_h
 #define EcalBarrelNumberingScheme_h
 
-#include "SimG4CMS/Calo/interface/CaloNumberingScheme.h"
+#include "SimG4CMS/Calo/interface/EcalNumberingScheme.h"
 
-class EcalBarrelNumberingScheme : public CaloNumberingScheme {
+class EcalBarrelNumberingScheme : public EcalNumberingScheme {
 
 public:
-  EcalBarrelNumberingScheme();
+  EcalBarrelNumberingScheme(int);
   ~EcalBarrelNumberingScheme();
-	 
-  virtual unsigned int getUnitID(const G4Step* aStep) const ;
-
-private:
-  //  static UserVerbosity cout;
+  virtual uint32_t getUnitID(const G4Step* aStep) const ;
 
 };
 

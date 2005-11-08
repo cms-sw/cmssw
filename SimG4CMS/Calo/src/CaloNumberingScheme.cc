@@ -5,9 +5,9 @@
 #include "SimG4CMS/Calo/interface/CaloNumberingScheme.h"
 #include "globals.hh"
 
-//#define debug
+CaloNumberingScheme::CaloNumberingScheme(int iv) : verbosity(iv) {}
 
-//UserVerbosity CaloNumberingScheme::cout("CaloNumberingScheme","silent","CaloNumberingScheme");
+void CaloNumberingScheme::setVerbosity(const int iv) {verbosity = iv;}
 
 int CaloNumberingScheme::detectorLevel(const G4Step* aStep) const {
 
@@ -31,67 +31,3 @@ void CaloNumberingScheme::detectorLevel(const G4Step* aStep, int& level,
     }
   }
 }
-
-// int CaloNumberingScheme::getUnitWithMaxEnergy(map<int,float,less<int> >& themap){
-
-//   //look for max
-//   int UnitWithMaxEnergy = 0;
-//   float maxEnergy = 0.;
-	
-//   for(map<int,float,less<int> >::iterator iter = themap.begin();
-//       iter != themap.end(); iter++){
-	    
-//     if(	maxEnergy < (*iter).second) {
-//       maxEnergy = (*iter).second;	
-//       UnitWithMaxEnergy = (*iter).first;
-//     }				
-//   }
-// // #ifdef debug
-// //   cout.testOut << "CaloNumberingScheme: *** max energy of " << maxEnergy 
-// // 	       << " MeV was found in Unit id " << UnitWithMaxEnergy;
-// //   int det,z,eta,phi;
-// //   myPacker.unpackEcalIndex(UnitWithMaxEnergy, det, z, eta, phi);
-// //   cout.testOut << " corresponding to z= " << z << " eta= " << eta << " phi = " 
-// // 	       << phi << endl;
-// // #endif
-//   return UnitWithMaxEnergy;
-
-// }
-
-// float CaloNumberingScheme::energyInMatrix(int nCellInEta, int nCellInPhi,
-// 					  int crystalWithMaxEnergy, 
-// 					  map<int,float,less<int> >& themap){
-
-//   int det,z,eta,phi;
-//   myPacker.unpackEcalIndex(crystalWithMaxEnergy, det, z, eta, phi);
-//   int ncristals=0;
-	
-//   int goBackInEta = nCellInEta/2;
-//   int goBackInPhi = nCellInPhi/2;
-//   int startEta = eta-goBackInEta;
-//   int startPhi = phi-goBackInPhi;
-
-//   float totalEnergy = 0.;
-  
-//   for (int ieta=startEta; ieta<startEta+nCellInEta; ieta++) {
-//     for (int iphi=startPhi; iphi<startPhi+nCellInPhi; iphi++) {
-      
-//       int index = myPacker.packEcalIndex(det,z,ieta,iphi);
-//       totalEnergy += themap[index];
-//       ncristals+=1;
-// #ifdef debug
-//       cout.debugOut << "CaloNumberingScheme: ieta - iphi - E = " << ieta 
-// 		    << "  " << iphi << " "  << themap[index] << endl;
-// #endif
-//     }
-//   }
-	
-// #ifdef debug   	
-//   cout.testOut << "CaloNumberingScheme: energy in " << nCellInEta 
-// 	       << " cells in eta times " << nCellInPhi 
-// 	       << " cells in phi matrix = " << totalEnergy
-// 	       << " for " << ncristals << " crystals" << endl;
-// #endif
-//   return totalEnergy;
-
-// }   

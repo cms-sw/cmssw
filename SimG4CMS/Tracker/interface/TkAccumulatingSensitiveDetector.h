@@ -28,7 +28,7 @@ public:
 				    edm::ParameterSet const &);
     virtual ~TkAccumulatingSensitiveDetector();
     virtual bool ProcessHits(G4Step *,G4TouchableHistory *);
-    virtual int  SetDetUnitId(G4Step*);
+    virtual uint32_t setDetUnitId(G4Step*);
     virtual void EndOfEvent(G4HCofThisEvent*);
 
     void fillHits(edm::PSimHitContainer&, std::string use);
@@ -56,7 +56,7 @@ private:
     Local3DPoint globalExitPoint;
     G4VPhysicalVolume * oldVolume;
     G4ProcessTypeEnumerator * theG4ProcessTypeEnumerator;
-    int lastId;
+    uint32_t lastId;
     unsigned int lastTrack;
     int eventno;
     // cache stuff for debugging

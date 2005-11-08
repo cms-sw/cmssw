@@ -58,12 +58,12 @@ public:
   void         setIncidentEnergy (double e)  {theIncidentEnergy = e;}
   
   int          getTrackID() const            {return hitID.trackID();}
-  unsigned int getUnitID() const             {return hitID.unitID();}
+  uint32_t     getUnitID() const             {return hitID.unitID();}
   double       getTimeSlice() const          {return hitID.timeSlice();}
   int          getTimeSliceID() const        {return hitID.timeSliceID();}
 
   CaloHitID    getID() const                 {return hitID;}
-  void         setID (unsigned int i, double d, int j) {hitID.setID(i,d,j);}
+  void         setID (uint32_t i, double d, int j) {hitID.setID(i,d,j);}
   void         setID (CaloHitID id)          {hitID = id;}
   
   void         addEnergyDeposit(double em, double hd);
@@ -80,8 +80,6 @@ private:
   double       theIncidentEnergy; //Energy of the primary particle
   CaloHitID    hitID;             //Identification number of the hit given by
                                   //primary particle, Cell ID, Time of the hit
-
-  //  static UserVerbosity cout;
 };
 
 class CaloG4HitLess {

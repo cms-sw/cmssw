@@ -5,19 +5,14 @@
 #ifndef ShowerForwardNumberingScheme_h
 #define ShowerForwardNumberingScheme_h
 
-#include "SimG4CMS/Calo/interface/CaloNumberingScheme.h"
+#include "SimG4CMS/Calo/interface/EcalNumberingScheme.h"
 
-class ShowerForwardNumberingScheme : public CaloNumberingScheme {
+class ShowerForwardNumberingScheme : public EcalNumberingScheme {
 
 public:
-
-  ShowerForwardNumberingScheme();
+  ShowerForwardNumberingScheme(int);
   ~ShowerForwardNumberingScheme();
-	 
-  virtual unsigned int getUnitID(const G4Step* aStep) const ;
-
-private:
-
+  virtual uint32_t getUnitID(const G4Step* aStep) const;
 
 };
 

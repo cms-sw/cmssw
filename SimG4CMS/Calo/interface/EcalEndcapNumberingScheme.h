@@ -5,18 +5,14 @@
 #ifndef EcalEndcapNumberingScheme_h
 #define EcalEndcapNumberingScheme_h
 
-#include "SimG4CMS/Calo/interface/CaloNumberingScheme.h"
+#include "SimG4CMS/Calo/interface/EcalNumberingScheme.h"
 
-class EcalEndcapNumberingScheme : public CaloNumberingScheme {
+class EcalEndcapNumberingScheme : public EcalNumberingScheme {
 
 public:
-  EcalEndcapNumberingScheme();
+  EcalEndcapNumberingScheme(int);
   ~EcalEndcapNumberingScheme();
-	 
-  virtual unsigned int getUnitID(const G4Step* aStep) const ;
-
-private:
-  //  static UserVerbosity cout;
+  virtual uint32_t getUnitID(const G4Step* aStep) const ;
 
 };
 
