@@ -9,6 +9,7 @@
 
 #include "G4VSensitiveDetector.hh"
 
+#include <boost/cstdint.hpp>
 #include <string>
 
 class G4Step;
@@ -26,7 +27,7 @@ public:
     virtual void Initialize(G4HCofThisEvent * eventHC);
     virtual void clearHits() = 0;
     virtual G4bool ProcessHits(G4Step * step ,G4TouchableHistory * tHistory) = 0;
-    virtual int SetDetUnitId(G4Step * step) = 0;
+    virtual uint32_t setDetUnitId(G4Step * step) = 0;
     void Register();
     virtual void AssignSD(std::string & vname); 
     virtual void EndOfEvent(G4HCofThisEvent * eventHC); 
