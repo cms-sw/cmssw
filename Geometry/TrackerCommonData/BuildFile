@@ -1,9 +1,9 @@
 
+<export>
+<lib name=GeometryTrackerCommonData>
+</export>
+
 <use name=DetectorDescription/Parser>
 
 # Build a SEAL plugin:
 <Flags SEAL_PLUGIN_NAME="GeometryTrackerCommonData">
-
-<export>
-<lib name=GeometryTrackerCommonData>
-</export>
