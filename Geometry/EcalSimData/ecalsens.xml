@@ -194,7 +194,7 @@
  <SpecPar name="ecal_sf">
    <PartSelector path="//SFSX"/>
    <PartSelector path="//SFSY"/>
-   <Parameter name="SensitiveDetector" value="CaloSD" eval="false"/>
+   <Parameter name="SensitiveDetector" value="EcalSensitiveDetector" eval="false"/>
    <Parameter name="ReadOutName" value="EcalHitsES" eval="false"/>
  </SpecPar>  
 </SpecParSection>
