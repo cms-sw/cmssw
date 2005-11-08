@@ -1,3 +1,6 @@
+** V00-02-00  [Tue Nov  8 18:15:08 2005]
+Add support for FileInPath parameter type
+
 ** V00-01-00  [Wed Nov  2 09:02:09 2005]
 Adding edm::FileInPath to ParameterSet system
 
