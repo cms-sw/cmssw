@@ -1,7 +1,7 @@
 //
 // F.Ratnikov (UMd), Aug. 9, 2005
 //
-// $Id: HcalDbService.cc,v 1.2 2005/10/05 00:37:56 fedor Exp $
+// $Id: HcalDbService.cc,v 1.3 2005/10/28 01:33:28 fedor Exp $
 
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 
@@ -36,8 +36,8 @@ HcalDbService::HcalDbService ()
 
 std::auto_ptr <HcalCalibrations> HcalDbService::getHcalCalibrations (const HcalDetId& fId) const {
   if (mPedestals && mGains) {
-    const float* gains =  mPedestals->getValues (HcalDetIdDb::HcalDetIdDb (fId));
-    const float* pedestals = mGains->getValues (HcalDetIdDb::HcalDetIdDb (fId));
+    const float* pedestals =  mPedestals->getValues (HcalDetIdDb::HcalDetIdDb (fId));
+    const float* gains = mGains->getValues (HcalDetIdDb::HcalDetIdDb (fId));
     if (gains && pedestals) {
       return std::auto_ptr <HcalCalibrations> (new HcalCalibrations (gains, pedestals));
     }
