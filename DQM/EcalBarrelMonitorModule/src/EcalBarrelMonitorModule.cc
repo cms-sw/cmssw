@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  * 
- * $Date: 2005/11/02 14:53:00 $
- * $Revision: 1.33 $
+ * $Date: 2005/11/05 12:17:11 $
+ * $Revision: 1.34 $
  * \author G. Della Ricca
  *
 */
@@ -12,6 +12,18 @@
 EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
 
   logFile.open("EcalBarrelMonitorModule.log");
+
+  string s = ps.getUntrackedParameter<string>("runType","unknown");
+
+  if ( s == "cosmic" ) {
+    runType = 0;
+  } else if ( s == "laser" ) {
+    runType = 1;
+  } else if ( s == "pedestal" ) {
+    runType = 2;
+  } else if ( s == "testpulse" ) {
+    runType = 3;
+  }
 
   dbe = edm::Service<DaqMonitorBEInterface>().operator->();
 
@@ -32,6 +44,7 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
     meStatus  = dbe->bookInt("STATUS");
     meRun     = dbe->bookInt("RUN");
     meEvt     = dbe->bookInt("EVT");
+    meRunType = dbe->bookInt("RUNTYPE");
 
     dbe->setCurrentFolder("EcalBarrel");
     meEBdigi = dbe->book1D("EBMM digi", "EBMM digi", 100, 0., 61201.);
@@ -45,13 +58,13 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
     }
   }
 
-  pedestal_task  = new EBPedestalTask(ps, dbe);
-
-  testpulse_task = new EBTestPulseTask(ps, dbe);
+  cosmic_task    = new EBCosmicTask(ps, dbe);
 
   laser_task     = new EBLaserTask(ps, dbe);
 
-  cosmic_task    = new EBCosmicTask(ps, dbe);
+  pedestal_task  = new EBPedestalTask(ps, dbe);
+
+  testpulse_task = new EBTestPulseTask(ps, dbe);
 
   if ( dbe ) dbe->showDirStructure();
 
@@ -59,13 +72,13 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
 
 EcalBarrelMonitorModule::~EcalBarrelMonitorModule(){
 
-  delete pedestal_task;
-
-  delete testpulse_task;
+  delete cosmic_task;
 
   delete laser_task;
 
-  delete cosmic_task;
+  delete pedestal_task;
+
+  delete testpulse_task;
 
   logFile.close();
 
@@ -77,25 +90,25 @@ void EcalBarrelMonitorModule::beginJob(const edm::EventSetup& c){
 
   if ( meStatus ) meStatus->Fill(0);
 
-  pedestal_task->beginJob(c);
-
-  testpulse_task->beginJob(c);
+  cosmic_task->beginJob(c);
 
   laser_task->beginJob(c);
 
-  cosmic_task->beginJob(c);
+  pedestal_task->beginJob(c);
+
+  testpulse_task->beginJob(c);
 
 }
 
 void EcalBarrelMonitorModule::endJob(void) {
 
-  pedestal_task->endJob();
-
-  testpulse_task->endJob();
+  cosmic_task->endJob();
 
   laser_task->endJob();
 
-  cosmic_task->endJob();
+  pedestal_task->endJob();
+
+  testpulse_task->endJob();
 
   cout << "EcalBarrelMonitorModule: analyzed " << ievt << " events" << endl;
 
@@ -116,6 +129,8 @@ void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
 
   if ( meRun ) meRun->Fill(14316);
   if ( meEvt ) meEvt->Fill(ievt);
+
+  if ( meRunType ) meRunType->Fill(runType);
 
   edm::Handle<EBDigiCollection>  digis;
   e.getByLabel("ecalEBunpacker", digis);
@@ -169,13 +184,13 @@ void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
 
   }
 
-  pedestal_task->analyze(e, c);
+  if ( runType == 0 ) cosmic_task->analyze(e, c);
 
-  testpulse_task->analyze(e, c);
+  if ( runType == 1 ) laser_task->analyze(e, c);
 
-  laser_task->analyze(e, c);
+  if ( runType == 2 ) pedestal_task->analyze(e, c);
 
-  cosmic_task->analyze(e, c);
+  if ( runType == 3 ) testpulse_task->analyze(e, c);
 
   sleep(1);
 

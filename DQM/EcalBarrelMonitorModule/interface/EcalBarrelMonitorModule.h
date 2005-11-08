@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorModule.h
  *
- * $Date: 2005/10/16 12:35:44 $
- * $Revision: 1.10 $
+ * $Date: 2005/10/30 14:16:19 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  *
 */
@@ -26,10 +26,10 @@
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include <DataFormats/EcalDetId/interface/EBDetId.h>
 
+#include <DQM/EcalBarrelMonitorTasks/interface/EBCosmicTask.h>
+#include <DQM/EcalBarrelMonitorTasks/interface/EBLaserTask.h>
 #include <DQM/EcalBarrelMonitorTasks/interface/EBPedestalTask.h>
 #include <DQM/EcalBarrelMonitorTasks/interface/EBTestPulseTask.h>
-#include <DQM/EcalBarrelMonitorTasks/interface/EBLaserTask.h>
-#include <DQM/EcalBarrelMonitorTasks/interface/EBCosmicTask.h>
 
 #include <memory>
 #include <iostream>
@@ -63,6 +63,8 @@ virtual void endJob(void);
 
 private:
 
+int runType;
+
 int ievt;
 
 DaqMonitorBEInterface* dbe;
@@ -72,15 +74,17 @@ MonitorElement* meStatus;
 MonitorElement* meRun;
 MonitorElement* meEvt;
 
+MonitorElement* meRunType;
+
 MonitorElement* meEBdigi;
 MonitorElement* meEBhits;
 
 MonitorElement* meEvent[36];
 
+EBCosmicTask*    cosmic_task;
+EBLaserTask*     laser_task;
 EBPedestalTask*  pedestal_task;
 EBTestPulseTask* testpulse_task;
-EBLaserTask*     laser_task;
-EBCosmicTask*    cosmic_task;
 
 string outputFile;
 
