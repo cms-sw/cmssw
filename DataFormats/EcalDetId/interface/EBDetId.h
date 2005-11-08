@@ -2,15 +2,17 @@
 #define ECALDETID_EBDETID_H
 
 #include <ostream>
+#include <stdexcept>
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
+
 
 /** \class EBDetId
  *  Crystal identifier class for the ECAL barrel
  *
  *
- *  $Id: EBDetId.h,v 1.4 2005/10/12 13:38:21 meridian Exp $
+ *  $Id: EBDetId.h,v 1.5 2005/10/27 12:33:50 meridian Exp $
  */
 
 
@@ -20,8 +22,10 @@ class EBDetId : public DetId {
   EBDetId();
   /** Constructor from a raw value */
   EBDetId(uint32_t rawid);
-  /** Constructor from crystal ieta and iphi */
-  EBDetId(int crystal_ieta, int crystal_iphi);
+  /** Constructor from crystal ieta and iphi 
+      or from SM# and crystal# */
+  EBDetId(int index1, int index2, int mode = ETAPHIMODE)
+    throw(std::runtime_error);
   /** Constructor from a generic cell id */
   EBDetId(const DetId& id);
   /** Assignment operator from cell id */
@@ -57,7 +61,18 @@ class EBDetId : public DetId {
   static const int MAX_IETA = 85;
   static const int MAX_IPHI = 360;
   static const int kChannelsPerCard = 5;
-  static const int kTowersInPhi = 4;
+  static const int kTowersInPhi = 4;  // per SM
+  static const int kCrystalsInPhi = 20; // per SM
+  static const int kCrystalsInEta = 85; // per SM
+  static const int kCrystalsPerSM = 1700;
+  static const int MIN_SM = 1;
+  static const int MAX_SM = 36;
+  static const int MIN_C = 1;
+  static const int MAX_C = kCrystalsPerSM;
+
+  // function modes for (int, int) constructor
+  static const int ETAPHIMODE = 0;
+  static const int SMCRYSTALMODE = 1;
 };
 
 std::ostream& operator<<(std::ostream& s,const EBDetId& id);
