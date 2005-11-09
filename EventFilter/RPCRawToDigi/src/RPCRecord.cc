@@ -1,50 +1,41 @@
 /** \file
  *
- *  $Date: 2005/10/21 17:14:32 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/11/03 15:23:54 $
+ *  $Revision: 1.3 $
  *  \author Ilaria Segoni
  */
 
 
 #include <EventFilter/RPCRawToDigi/interface/RPCRecord.h>
 
-//RPCRecord::RPCRecord(const unsigned char* index){
-
-//    word_(reinterpret_cast<const unsigned int*>(index));
-
-//}
-
-
 
 RPCRecord::recordTypes RPCRecord::type(){ 
     
-    enum recordTypes wordType = UndefinedType;
+enum recordTypes wordType = UndefinedType;
     
-    // Chamber Data
-      if ( ((*word_ >> RECORD_TYPE_SHIFT) & RECORD_TYPE_MASK) <= MaxChamberFlag) wordType = ChamberData;
+/// Chamber Data
+if ( (int)((*word_ >> RECORD_TYPE_SHIFT) & RECORD_TYPE_MASK) <= MaxChamberFlag) wordType = ChamberData;
  
-    // Control Word
-      if ( ((*word_ >> RECORD_TYPE_SHIFT) & RECORD_TYPE_MASK) == controlWordFlag){
+/// Control Word
+if ( (int)((*word_ >> RECORD_TYPE_SHIFT) & RECORD_TYPE_MASK) == controlWordFlag){
       
-              
-       if ( ((*word_ >> CONTROL_TYPE_SHIFT) & CONTROL_TYPE_MASK) == StartOfChannelDataFlag) wordType = StartOfChannelData;
-       if ( ((*word_ >> CONTROL_TYPE_SHIFT) & CONTROL_TYPE_MASK) == RMBDiscardedDataFlag)   wordType = RMBDiscardedDataFlag;
+	/// StartOfBXData
+	if ( (int)((*word_ >> BX_TYPE_SHIFT) & BX_TYPE_MASK) == BXFlag) wordType = StartOfBXData;
+	/// StartOfChannelData             
+	if ( (int)((*word_ >> CONTROL_TYPE_SHIFT) & CONTROL_TYPE_MASK) == StartOfChannelDataFlag) wordType = StartOfChannelData;
+	///  RMBDiscarded           
+	if ( (int) ((*word_ >> CONTROL_TYPE_SHIFT) & CONTROL_TYPE_MASK) == RMBDiscardedDataFlag  ) wordType = RMBDiscarded;
+	///  RMBCorrupted           
+	if ( (int) ((*word_ >> CONTROL_TYPE_SHIFT) & CONTROL_TYPE_MASK) == RMBCorruptedDataFlag  ) wordType = RMBCorrupted;
+	/// Empty or DCC Discarded 
+	if ( (int)((*word_ >> CONTROL_TYPE_SHIFT) & CONTROL_TYPE_MASK) == EmptyOrDCCDiscardedFlag){
        
-       //Discarded Data
-       if ( ((*word_ >> CONTROL_TYPE_SHIFT) & CONTROL_TYPE_MASK) == EmptyWordOrSLinkDiscardedFlag){
-       
-        if ( ((*word_ >> EMPTY_OR_SLDISCARDED_SHIFT) & EMPTY_OR_SLDISCARDED_MASK) == EmptyWordFlag) wordType = EmptyWord;
-        if ( ((*word_ >> EMPTY_OR_SLDISCARDED_SHIFT) & EMPTY_OR_SLDISCARDED_MASK) == SLinkDiscardedDataFlag) wordType = SLinkDiscardedData;
-      
-       
-       
-       }
-    
-      
-      
-      }
+		if ( (int)((*word_ >> EMPTY_OR_DCCDISCARDED_SHIFT) & EMPTY_OR_DCCDISCARDED_MASK) == EmptyWordFlag) wordType = EmptyWord;
+		if ( (int) ((*word_ >> EMPTY_OR_DCCDISCARDED_SHIFT) & EMPTY_OR_DCCDISCARDED_MASK) == DCCDiscardedFlag) wordType = DCCDiscarded;
+	}
+}
 
-    return wordType;
+return wordType;
 }
 
 

@@ -6,6 +6,11 @@
 
 #include <EventFilter/RPCRawToDigi/interface/RPCUnpackingModule.h>
 #include <EventFilter/RPCRawToDigi/interface/RPCRecord.h>
+#include <EventFilter/RPCRawToDigi/interface/StartOfBXData.h>
+#include <EventFilter/RPCRawToDigi/interface/StartOfChannelData.h>
+#include <EventFilter/RPCRawToDigi/interface/ChamberData.h>
+#include <EventFilter/RPCRawToDigi/interface/RMBErrorData.h>
+
 #include <DataFormats/FEDRawData/interface/FEDRawData.h>
 #include <DataFormats/FEDRawData/interface/FEDNumbering.h>
 #include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
@@ -19,7 +24,7 @@ using namespace std;
 
 #include <iostream>
 
-#define SLINK_WORD_SIZE 8 //define it here?
+#define SLINK_WORD_SIZE 8
 
 
 
@@ -64,8 +69,6 @@ void RPCUnpackingModule::produce(Event & e, const EventSetup& c){
 // Beginning of RPC Records Unpacking
 			index += numberOfHeaders*SLINK_WORD_SIZE; 
 
-			//index+=SLINK_WORD_SIZE; //does this point to
-								//beginning or end of first record?
 
 			while( index != trailerIndex ){
 			
@@ -74,16 +77,37 @@ void RPCUnpackingModule::produce(Event & e, const EventSetup& c){
 			 // Find what type of record it is
 			 RPCRecord::recordTypes typeOfRecord = theRecord.type();
 			 
+			 int bx=0;
+			 if(typeOfRecord==RPCRecord::StartOfBXData)
+                         {
+			  StartOfBXData bxData(index);
+			 } 
+			 if(typeOfRecord==RPCRecord::StartOfChannelData)
+			 {
+			    StartOfChannelData channelData(index);
+			 }
+
+
 			 if(typeOfRecord==RPCRecord::ChamberData)
 			 {
-			  //  RPCChamberData chambData(index);
-			   // int rpcChamber = chambData.chamberNumber();
-			   // int partitionNumber = chambData.partitionNumber();
-			   // int eod = chambData.eod();
-			  //  int halfP = chambdata.halfP();
-			 }
+			    ChamberData chambData(index);
+			    //int rpcChamber = chambData.chamberNumber();
+			    //int partitionNumber = chambData.partitionNumber();
+			    //int eod = chambData.eod();
+			    //int halfP = chambData.halfP();
+			 } 
 			 
 
+			 if(typeOfRecord==RPCRecord::RMBDiscarded)
+			 {
+			    RMBErrorData  discarded(index);
+			 }
+			 if(typeOfRecord==RPCRecord::RMBCorrupted)
+			 {
+			    RMBErrorData  corrupted(index);
+			 }
+	
+	
 			 //Go to beginning of next record
 			 theRecord.next();
 			
