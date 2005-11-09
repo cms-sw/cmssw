@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea GIAMMANCO
 //         Created:  Thu Sep 22 14:23:22 CEST 2005
-// $Id$
+// $Id: SiStripDigitizer.cc,v 1.2 2005/11/03 17:06:15 giamman Exp $
 //
 //
 
@@ -36,14 +36,12 @@
 #include "DataFormats/SiStripDigi/interface/StripDigiCollection.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
-//#include "SimTracker/SiStripDigitizer/interface/PseudoHitContainer.h"
-//#include "SimTracker/SiStripDigitizer/interface/PseudoHit.h"
 #include <cstdlib> // I need it for random numbers
 
 //needed for the geometry:
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/TrackerSimAlgo/interface/TrackerGeom.h"
+#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerBaseAlgo/interface/GeometricDet.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
@@ -106,16 +104,16 @@ namespace cms
 
     // Step A: Create Inputs
  
-    edm::ESHandle<TrackerGeom> pDD;
+    edm::ESHandle<TrackingGeometry> pDD;
  
     iSetup.get<TrackerDigiGeometryRecord> ().get (pDD);
  
     int i=0;
-    for(TrackerGeom::DetContainer::iterator iu = pDD->dets().begin(); iu != pDD->dets().end(); iu ++){
+    for(TrackingGeometry::DetContainer::iterator iu = pDD->dets().begin(); iu != pDD->dets().end(); iu ++){
 
       //   const GeomDetUnit& iu(**iu);
       if (dynamic_cast<StripGeomDetUnit*>((*iu))!=0){
-	//	cout<<"bau"<<endl; 
+	cout<<"bau"<<endl; 
 	i++;
 	if (i<10){
 	  int idummy=0;
