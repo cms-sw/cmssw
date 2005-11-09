@@ -30,6 +30,7 @@ class TIDDetId : public DetId {
 	   uint32_t ster) : DetId(DetId::Tracker,StripSubdetector::TID){
     id_ |= (side& sideMask_)      << sideStartBit_    |
       (wheel& wheelMask_)          << wheelStartBit_      |
+      (ring& ringMask_)            << ringStartBit_       |
       (det_fw_bw& det_fw_bwMask_)  << det_fw_bwStartBit_  |
       (det& detMask_)              << detStartBit_        |
       (ster& sterMask_)            << sterStartBit_ ;
