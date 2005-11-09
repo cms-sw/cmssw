@@ -4,8 +4,8 @@
 /*
  * \file EBMonitorPedestalClient.h
  *
- * $Date: 2005/11/08 17:52:08 $
- * $Revision: 1.12 $
+ * $Date: 2005/11/09 17:29:05 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */
@@ -22,11 +22,23 @@
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/UI/interface/MonitorUIRoot.h"
+
+#include "CalibCalorimetry/EcalDBInterface/interface/EcalCondDBInterface.h"
+#include "CalibCalorimetry/EcalDBInterface/interface/RunTag.h"
+#include "CalibCalorimetry/EcalDBInterface/interface/RunIOV.h"
+#include "CalibCalorimetry/EcalDBInterface/interface/MonPedestalsDat.h"
+
+#include "TROOT.h"
+
 #include <memory>
 #include <iostream>
 #include <fstream>
 #include <vector>
 #include <string>
+
+#include <signal.h>
 
 using namespace cms;
 using namespace std;
@@ -38,7 +50,7 @@ friend class EcalBarrelMonitorClient;
 public:
 
 /// Constructor
-EBMonitorPedestalClient(const edm::ParameterSet& ps);
+EBMonitorPedestalClient(const edm::ParameterSet& ps, MonitorUserInterface* mui);
 
 /// Destructor
 virtual ~EBMonitorPedestalClient();
@@ -56,7 +68,9 @@ virtual void endJob(void);
 
 private:
 
-int ievt;
+int ievt_;
+
+MonitorUserInterface* mui_;
 
 };
 

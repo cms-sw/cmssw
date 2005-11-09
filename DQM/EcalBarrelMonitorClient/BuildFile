@@ -3,6 +3,10 @@
 <use name=DQMServices/CoreROOT>
 <use name=boost>
 <use name=root>
+<use name=DQMServices/NodeROOT>
+<use name=DQMServices/UI>
+<use name=CalibCalorimetry/EcalDBInterface>
+<use name=oracle>
 
 <export>
  <lib name=DQMEcalBarrelMonitorClient>
@@ -10,4 +14,10 @@
  <use name=DQMServices/CoreROOT>
  <use name=boost>
  <use name=root>
+ <use name=DQMServices/NodeROOT>
+ <use name=DQMServices/UI>
+ <use name=CalibCalorimetry/EcalDBInterface>
+ <use name=oracle>
+ <lib name=nnz10>
+ <lib name=occi>
 </export>

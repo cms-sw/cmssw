@@ -4,8 +4,8 @@
 /*
  * \file EBMonitorLaserClient.h
  *
- * $Date: 2005/11/08 17:52:08 $
- * $Revision: 1.12 $
+ * $Date: 2005/11/09 17:29:05 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */
@@ -38,7 +38,7 @@ friend class EcalBarrelMonitorClient;
 public:
 
 /// Constructor
-EBMonitorLaserClient(const edm::ParameterSet& ps);
+EBMonitorLaserClient(const edm::ParameterSet& ps, MonitorUserInterface* mui);
 
 /// Destructor
 virtual ~EBMonitorLaserClient();
@@ -56,7 +56,9 @@ virtual void endJob(void);
 
 private:
 
-int jevt;
+int ievt_;
+
+MonitorUserInterface* mui_;
 
 };
 

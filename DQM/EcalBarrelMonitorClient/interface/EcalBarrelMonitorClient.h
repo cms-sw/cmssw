@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2005/11/08 17:52:08 $
- * $Revision: 1.12 $
+ * $Date: 2005/11/09 17:29:05 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */
@@ -31,6 +31,8 @@
 #include <vector>
 #include <string>
 
+#include <csignal>
+
 using namespace cms;
 using namespace std;
 
@@ -55,12 +57,21 @@ void beginJob(const edm::EventSetup& c);
 // EndJob
 virtual void endJob(void);
 
+// Trap Ctrl-C
+void ctrl_c_intr(int signal);
+
 private:
 
-int kevt;
+int ievt_;
 
-EBMonitorLaserClient* laser_client;
-EBMonitorPedestalClient* pedestal_client;
+MonitorUserInterface* mui_;
+
+EcalCondDBInterface* econn_;
+
+EBMonitorLaserClient* laser_client_;
+EBMonitorPedestalClient* pedestal_client_;
+
+int exit_now;
 
 };
 
