@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  * 
- * $Date: 2005/11/09 17:29:05 $
- * $Revision: 1.1 $
+ * $Date: 2005/11/09 19:08:11 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  *
 */
@@ -99,8 +99,6 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
 
   bool stay_in_loop = mui_->update();
 
-  cout << "stay_in_loop = " << stay_in_loop << endl;
-
   // subscribe to new monitorable matching pattern
   mui_->subscribeNew("*/EcalBarrel/STATUS");
   mui_->subscribeNew("*/EcalBarrel/RUN");
@@ -111,7 +109,7 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
   int last_update = -1;
   int updates = mui_->getNumUpdates();
 
-  if ( updates != last_update ) {
+  if ( stay_in_loop && updates != last_update ) {
 
     me = mui_->get("Collector/FU0/EcalBarrel/STATUS");
     if ( me ) {
