@@ -98,9 +98,11 @@ void cond::MetaData::createTable(const std::string& tabname){
   desc->insertColumn( "name", pool::AttributeStaticTypeInfo<std::string>::type_name() );
   desc->insertColumn( "token", pool::AttributeStaticTypeInfo<std::string>::type_name() );
   std::vector<std::string> cols;
-  cols.push_back("token");
+  //cols.push_back("token");
+  cols.push_back("name");
   desc->setPrimaryKey(cols);
-  desc->setNotNullConstraint( "name" );
+  //desc->setNotNullConstraint( "name" );
+  desc->setNotNullConstraint( "token" );
   m_table=&(schema.createTable(tabname,*desc));  
   m_table->privilegeManager().grantToPublic( pool::IRelationalTablePrivilegeManager::SELECT );
 }
