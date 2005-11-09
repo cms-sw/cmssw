@@ -13,7 +13,7 @@
 //
 // Original Author:  Michele Pioppi-INFN perugia
 //         Created:  Mon Sep 26 11:08:32 CEST 2005
-// $Id$
+// $Id: SiPixelDigitizer.cc,v 1.1 2005/10/20 14:09:11 pioppi Exp $
 //
 //
 
@@ -35,6 +35,7 @@
 #include "Geometry/Vector/interface/LocalPoint.h"
 #include "Geometry/Vector/interface/LocalVector.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/TrackerSimAlgo/interface/PixelGeomDetType.h"
 
@@ -82,12 +83,12 @@ namespace cms
 
     // Step A: Create Inputs
  
-    edm::ESHandle<TrackerGeom> pDD;
+    edm::ESHandle<TrackingGeometry> pDD;
  
     iSetup.get<TrackerDigiGeometryRecord> ().get (pDD);
  
     int i=0;
-    for(TrackerGeom::DetContainer::iterator iu = pDD->dets().begin(); iu != pDD->dets().end(); iu ++){
+    for(TrackingGeometry::DetContainer::iterator iu = pDD->dets().begin(); iu != pDD->dets().end(); iu ++){
 
       //   const GeomDetUnit& iu(**iu);
       if (dynamic_cast<PixelGeomDetUnit*>((*iu))!=0){
