@@ -6,27 +6,16 @@
  * -------------------------------------------- 
  */
 
-
-// Our own stuff
 #include "RecoLocalTracker/SiPixelClusterizer/interface/SiPixelClusterProducer.h"
 #include "RecoLocalTracker/SiPixelClusterizer/interface/PixelThresholdClusterizer.h"
 
-// Geometry
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerSimAlgo/interface/TrackerGeom.h"
-class GeometricDet;   // hack in 0.2.0pre5, should be OK for pre6
-#include "Geometry/TrackerSimAlgo/interface/PixelGeomDetUnit.h"
-
-// Data Formats
 #include "DataFormats/SiPixelDigi/interface/PixelDigiCollection.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelClusterCollection.h"
-#include "DataFormats/DetId/interface/DetId.h"
 
-// Framework
 #include "FWCore/Framework/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+//#include "FWCore/Framework/interface/ESHandle.h"
+//#include "FWCore/Framework/interface/EventSetup.h"
 
-// STL
 #include <vector>
 #include <memory>
 #include <string>
@@ -67,21 +56,16 @@ namespace cms
     // retrieve producer name of input SiPixelDigiCollection
     std::string digiProducer = conf_.getParameter<std::string>("DigiProducer");
 
-    // Step A.1: get input data
+    // Step A: Get Inputs 
     edm::Handle<PixelDigiCollection> stripDigis;
     e.getByLabel(digiProducer, stripDigis);
-
-    // Step A.2: get event setup
-    edm::ESHandle<TrackerGeom> geom;
-    es.get<TrackerDigiGeometryRecord>().get( geom );
-
 
     // Step B: create empty output collection
     std::auto_ptr<SiPixelClusterCollection> output(new SiPixelClusterCollection);
 
     // Step C: Iterate over DetIds and invoke the strip clusterizer algorithm
     // on each DetUnit
-    run( stripDigis.product(), *output, geom );
+    run(stripDigis.product(),*output);
 
     // Step D: write output to file
     e.put(output);
@@ -117,8 +101,7 @@ namespace cms
   //!  Iterate over DetUnits, and invoke the PixelClusterizer on each.
   //---------------------------------------------------------------------------
   void SiPixelClusterProducer::run(const PixelDigiCollection* input, 
-				   SiPixelClusterCollection &output,
-				   edm::ESHandle<TrackerGeom> & geom)
+			       SiPixelClusterCollection &output)
   {
     if ( ! readyToCluster_ ) {
       std::cout << "[SiPixelClusterProducer]:"
@@ -141,9 +124,9 @@ namespace cms
       detunit_end = detIDs.end();
     for ( ; detunit_it != detunit_end; ++detunit_it ) {
       //
-      unsigned int detid = *detunit_it;
+      unsigned int id = *detunit_it;
       ++numberOfDetUnits;
-      const PixelDigiCollection::Range digiRange = input->get(detid);
+      const PixelDigiCollection::Range digiRange = input->get(id);
       PixelDigiCollection::ContainerIterator 
 	digiRangeIteratorBegin = digiRange.first;
       PixelDigiCollection::ContainerIterator 
@@ -152,37 +135,21 @@ namespace cms
       // TO DO: if we were to allow concurrent clusterizers, we would
       // be picking one from the map and running it.
 
-      // geometry information for this DetUnit. TrackerGeom:DetContainer is
-      // a vector<GeomDetUnit*>.  We need to call 
-      //     const GeomDet&  TrackerGeom::idToDet(DetId) const;
-      // to get a GeomDet (a GeomDetUnit*) from a DetId.
-
-      // convert detid (unsigned int) to DetId
-      DetId detIdObject( detid );      
-
-      GeomDetUnit * geoUnit = geom->idToDet( detIdObject );
-      PixelGeomDetUnit * pixDet = dynamic_cast<PixelGeomDetUnit*>(geoUnit);
-      if (! pixDet) {
-	// Fatal error!  TO DO: throw an exception!
-	assert(0);
-      }
-
       // dummies, right now, all empty
       std::vector<float> noiseVec(768,2);
       std::vector<short> badChannels;
-
+      
       std::vector<SiPixelCluster> clustersOnDetUnit = 
 	clusterizer_->clusterizeDetUnit(digiRangeIteratorBegin, 
 					digiRangeIteratorEnd,
-					detid,
-					pixDet,
+					id,
 					noiseVec,
 					badChannels);
       
       SiPixelClusterCollection::Range inputRange;
       inputRange.first = clustersOnDetUnit.begin();
       inputRange.second = clustersOnDetUnit.end();
-      output.put(inputRange, detid);
+      output.put(inputRange,id);
       numberOfClusters += clustersOnDetUnit.size();
 
     }

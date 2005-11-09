@@ -1,6 +1,0 @@
-<export>
-   <lib name=DataFormatsSiPixelDetId>
-   <use name=DataFormats/DetId>
-</export>
-
-<use name=DataFormats/DetId>

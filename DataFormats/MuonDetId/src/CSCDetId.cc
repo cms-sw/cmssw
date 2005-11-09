@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2005/10/24 15:56:19 $
- *  $Revision: 1.4 $
+ *  $Date: 2005/10/18 17:58:16 $
+ *  $Revision: 1.3 $
  */
 
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
@@ -44,23 +44,23 @@ CSCDetId::CSCDetId( int iendcap, int istation, int iring, int ichamber,
   id_ |= init(iendcap, istation, iring, ichamber, ilayer);
 }
 
-//bool CSCDetId::operator== (const CSCDetId& id) const
-//{ 
-//  return ( id_ == id.id_ );
-//}
+bool CSCDetId::operator== (const CSCDetId& id) const
+{ 
+  return ( id_ == id.id_ );
+}
 
-//bool CSCDetId::operator != (const CSCDetId& id) const
-//{ 
-//  return ( id_ != id.id_ );
-//}
+bool CSCDetId::operator != (const CSCDetId& id) const
+{ 
+  return ( id_ != id.id_ );
+}
 
-//bool CSCDetId::operator < (const CSCDetId& id) const
-//{ 
-//  if ( id_ < id.id_ ) 
-//     return true;
-//  else
-//     return false;
-//}
+bool CSCDetId::operator < (const CSCDetId& id) const
+{ 
+  if ( id_ < id.id_ ) 
+     return true;
+  else
+     return false;
+}
 
 ostream& operator<<( ostream& os, const CSCDetId& id )
 {
@@ -74,7 +74,7 @@ ostream& operator<<( ostream& os, const CSCDetId& id )
    return os;
 }  
 
-int CSCDetId::triggerSector() const
+int CSCDetId::sector() const
 {
 
   int result;
@@ -83,7 +83,6 @@ int CSCDetId::triggerSector() const
   int chamber = this->chamber();
 
   // This version 16-Nov-99 ptc to match simplified chamber labelling for cms116
-  //@@ REQUIRES UPDATE TO 2005 REALITY, ONCE I UNDERSTAND WHAT THAT IS
   if(station > 1 && ring > 1 ) {
     result = (chamber+5) / 6; // ch 1-6->1, 7-12->2, ...
   }
@@ -93,7 +92,7 @@ int CSCDetId::triggerSector() const
   return result;
 }
 
-int CSCDetId::triggerCscId() const 
+int CSCDetId::cscId() const 
 {
   int result;
   int ring    = this->ring();

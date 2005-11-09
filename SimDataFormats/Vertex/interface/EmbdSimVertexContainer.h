@@ -4,10 +4,25 @@
 #include "SimDataFormats/Vertex/interface/EmbdSimVertex.h"
 
 #include <vector>
+#include <string>
  
 namespace edm 
 {
-  typedef std::vector<EmbdSimVertex> EmbdSimVertexContainer;
+  class EmbdSimVertexContainer 
+    {
+    public:
+      typedef std::vector<EmbdSimVertex> SimVertexContainer;
+      void insertVertex(const EmbdSimVertex & v) { data.push_back(v); }
+      void clear() { data.clear(); }
+      unsigned int size () const {return data.size();}
+      EmbdSimVertex operator[] (int i) const {return data[i]; }
+ 
+      SimVertexContainer::const_iterator begin () const {return data.begin();}
+      SimVertexContainer::const_iterator end () const  {return data.end();}
+
+    private:
+      SimVertexContainer data;
+    };
 } 
  
 

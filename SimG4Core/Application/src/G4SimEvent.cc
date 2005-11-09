@@ -19,7 +19,7 @@ void G4SimEvent::load(edm::EmbdSimTrackContainer & c) const
 	// iv = corresponding G4SimVertex index
 	// ig = corresponding GenParticle index
 	EmbdSimTrack t = EmbdSimTrack(ip,p,iv,ig);
-	c.push_back(t);
+	c.insertTrack(t);
     }
 }
 
@@ -35,6 +35,6 @@ void G4SimEvent::load(edm::EmbdSimVertexContainer & c) const
 	// t  = global time
 	// iv = index of the parent in the SimEvent SimTrack container (-1 if no parent)
 	EmbdSimVertex v = EmbdSimVertex(v3,t,iv);
-	c.push_back(v);
+	c.insertVertex(v);
     }
 }
