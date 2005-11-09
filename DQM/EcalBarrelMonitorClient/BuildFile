@@ -1,0 +1,13 @@
+<flags SEAL_PLUGIN_NAME="DQMEcalBarrelMonitorClient">
+<use name=FWCore/Framework>
+<use name=DQMServices/CoreROOT>
+<use name=boost>
+<use name=root>
+
+<export>
+ <lib name=DQMEcalBarrelMonitorClient>
+ <use name=FWCore/Framework>
+ <use name=DQMServices/CoreROOT>
+ <use name=boost>
+ <use name=root>
+</export>
