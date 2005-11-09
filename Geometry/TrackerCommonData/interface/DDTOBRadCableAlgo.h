@@ -39,7 +39,6 @@ private:
   std::vector<double> coolR;        //Radii     for cooling manifold
   std::vector<std::string> coolM;   //Materials for cooling manifold
   std::vector<std::string> names;   //Names of layers
-
 };
 
 #endif

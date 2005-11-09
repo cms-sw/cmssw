@@ -1,5 +1,3 @@
-#define DEBUG 0
-#define COUT if (DEBUG) cout
 ///////////////////////////////////////////////////////////////////////////////
 // File: DDTIBRadCableAlgo.cc
 // Description: Equipping the side disks of TIB with cables etc
@@ -10,21 +8,21 @@
 
 namespace std{} using namespace std;
 #include "DetectorDescription/Parser/interface/DDLParser.h"
+#include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Base/interface/DDutils.h"
-#include "Geometry/TrackerCommonData/interface/DDTIBRadCableAlgo.h"
 #include "DetectorDescription/Core/interface/DDPosPart.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
-#include "DetectorDescription/Base/interface/DDTypes.h"
+#include "Geometry/TrackerCommonData/interface/DDTIBRadCableAlgo.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 
 DDTIBRadCableAlgo::DDTIBRadCableAlgo(): layRin(0),cableMat(0),strucMat(0) {
-  COUT << "DDTIBRadCableAlgo info: Creating an instance" << endl;
+  DCOUT('a', "DDTIBRadCableAlgo info: Creating an instance");
 }
 
 DDTIBRadCableAlgo::~DDTIBRadCableAlgo() {}
@@ -38,48 +36,37 @@ void DDTIBRadCableAlgo::initialize(const DDNumericArguments & nArgs,
   idNameSpace  = DDCurrentNamespace::ns();
   unsigned int i;
   DDName parentName = parent().name();
-  COUT << "DDTIBRadCableAlgo debug: Parent " << parentName 
-		<< " NameSpace " << idNameSpace << endl;
+  DCOUT('A', "DDTIBRadCableAlgo debug: Parent " << parentName << " NameSpace " << idNameSpace);
 
   rMin         = nArgs["RMin"];
   rMax         = nArgs["RMax"];
   layRin       = vArgs["RadiusLo"];    
   deltaR       = nArgs["DeltaR"];
-  COUT << "DDTIBRadCableAlgo debug: Disk Rmin " << rMin
-		<< "\tRMax " << rMax  << "\tSeparation of layers " << deltaR
-		<< " with " << layRin.size() << " layers at R =";
+  DCOUT('A', "DDTIBRadCableAlgo debug: Disk Rmin " << rMin << "\tRMax " << rMax  << "\tSeparation of layers " << deltaR	<< " with " << layRin.size() << " layers at R =");
   for (i = 0; i < layRin.size(); i++)
-    COUT << " " << layRin[i];
-  COUT << endl;
+    DCOUT('A', "\t " << layRin[i]);
 
   cylinderT    = nArgs["CylinderThick"];
   supportT     = nArgs["SupportThick"];
   supportDR    = nArgs["SupportDR"];
   supportMat   = sArgs["SupportMaterial"];
-  COUT << "DDTIBRadCableAlgo debug: SupportCylinder Thickness " 
-		<< cylinderT << "\tSupportDisk Thickness " << supportT 
-		<< "\tExtra width along R " << supportDR
-		<< "\tMaterial: " << supportMat << endl;
+  DCOUT('A', "DDTIBRadCableAlgo debug: SupportCylinder Thickness " << cylinderT << "\tSupportDisk Thickness " << supportT << "\tExtra width along R " << supportDR << "\tMaterial: " << supportMat);
 
   cableT       = nArgs["CableThick"];     
   cableMat     = vsArgs["CableMaterial"];
-  COUT << "DDTIBRadCableAlgo debug: Cable Thickness " << cableT  
-		<< " with materials: ";
+  DCOUT('A', "DDTIBRadCableAlgo debug: Cable Thickness " << cableT << " with materials: ");
   for (i = 0; i < cableMat.size(); i++)
-    COUT << " " << cableMat[i];
-  COUT << endl;
+    DCOUT('A', "\t " << cableMat[i]);
 
   strucMat     = vsArgs["StructureMaterial"];
-  COUT << "DDTIBRadCableAlgo debug: " << strucMat.size()
-		<< " materials for open structure:";
+  DCOUT('A', "DDTIBRadCableAlgo debug: " << strucMat.size() << " materials for open structure:");
   for (i=0; i<strucMat.size(); i++)
-    COUT << " " << strucMat[i];
-  COUT << endl;
+    DCOUT('A', "\t " << strucMat[i]);
 }
 
 void DDTIBRadCableAlgo::execute() {
   
-  COUT << "==>> Constructing DDTIBRadCableAlgo..." << endl;
+  DCOUT('a', "==>> Constructing DDTIBRadCableAlgo...");
   DDName diskName = parent().name();
 
   DDSolid solid;
@@ -100,17 +87,12 @@ void DDTIBRadCableAlgo::execute() {
     rout  = layRin[i]+0.5*(deltaR+cylinderT)+supportDR;
     solid = DDSolidFactory::tubs(DDName(name, idNameSpace), dz, rin, 
 				 rout, 0, twopi);
-    COUT << "DDTIBRadCableAlgo test: " << DDName(name, idNameSpace) 
-		 << " Tubs made of " << supportMat << " from 0 to " 
-		 << twopi/deg << " with Rin " << rin << " Rout " << rout 
-		 << " ZHalf " << dz << endl;
+    DCOUT('a', "DDTIBRadCableAlgo test: " << DDName(name, idNameSpace) << " Tubs made of " << supportMat << " from 0 to " << twopi/deg << " with Rin " << rin << " Rout " << rout << " ZHalf " << dz);
     DDLogicalPart suppLogic(DDName(name, idNameSpace), suppMatter, solid);
 
     DDTranslation r1(0, 0, (dz-diskDz));
     DDpos(DDName(name,idNameSpace), diskName, i+1, r1, DDRotation());
-    COUT << "DDTIBRadCableAlgo test: " << DDName(name,idNameSpace) 
-		 << " number " << i+1 << " positioned in " << diskName 
-		 << " at " << r1 << " with no rotation" << endl;
+    DCOUT('a', "DDTIBRadCableAlgo test: " << DDName(name,idNameSpace) << " number " << i+1 << " positioned in " << diskName << " at " << r1 << " with no rotation");
     
     //Open Structure
     name  = "TIBOpenZone" + dbl_to_string(i);
@@ -119,19 +101,14 @@ void DDTIBRadCableAlgo::execute() {
     else        rin = layRin[i-1]+0.5*(deltaR+cylinderT)+supportDR;
     solid = DDSolidFactory::tubs(DDName(name, idNameSpace), dz, rin, 
 				 rout, 0, twopi);
-    COUT << "DDTIBRadCableAlgo test: " << DDName(name, idNameSpace) 
-		 << " Tubs made of " << strucMat[i] << " from 0 to " 
-		 << twopi/deg << " with Rin " << rin << " Rout " << rout 
-		 << " ZHalf " << dz << endl;
+    DCOUT('a', "DDTIBRadCableAlgo test: " << DDName(name, idNameSpace) << " Tubs made of " << strucMat[i] << " from 0 to " << twopi/deg << " with Rin " << rin << " Rout " << rout << " ZHalf " << dz);
     DDName strucName(DDSplit(strucMat[i]).first, DDSplit(strucMat[i]).second);
     DDMaterial strucMatter(strucName);
     DDLogicalPart strucLogic(DDName(name, idNameSpace), strucMatter, solid);
 
     DDTranslation r2(0, 0, (dz-diskDz));
     DDpos(DDName(name,idNameSpace), diskName, i+1, r2, DDRotation());
-    COUT << "DDTIBRadCableAlgo test: " << DDName(name,idNameSpace) 
-		 << " number " << i+1 << " positioned in " << diskName 
-		 << " at " << r2 << " with no rotation" << endl;
+    DCOUT('a', "DDTIBRadCableAlgo test: " << DDName(name,idNameSpace) << " number " << i+1 << " positioned in " << diskName << " at " << r2 << " with no rotation");
 
     //Now the radial cable
     name  = "TIBRadCable" + dbl_to_string(i);
@@ -150,22 +127,16 @@ void DDTIBRadCableAlgo::execute() {
     pgonRmax.push_back(rv); 
     solid = DDSolidFactory::polycone(DDName(name, idNameSpace), 0, twopi,
 				     pgonZ, pgonRmin, pgonRmax);
-    COUT << "DDTIBRadCableAlgo test: " << DDName(name, idNameSpace) 
-		 << " Polycone made of " << cableMat[i] << " from 0 to "
-		 << twopi/deg << " and with " << pgonZ.size() << " sections"
-		 << endl;
+    DCOUT('a', "DDTIBRadCableAlgo test: " << DDName(name, idNameSpace) << " Polycone made of " << cableMat[i] << " from 0 to " << twopi/deg << " and with " << pgonZ.size() << " sections");
     for (unsigned int ii = 0; ii <pgonZ.size(); ii++) 
-      COUT << "\t" << "\tZ = " << pgonZ[ii] << "\tRmin = " 
-		   << pgonRmin[ii] << "\tRmax = " << pgonRmax[ii] << endl;
+      DCOUT('a', "\t" << "\tZ = " << pgonZ[ii] << "\tRmin = " << pgonRmin[ii] << "\tRmax = " << pgonRmax[ii]);
     DDName cableName(DDSplit(cableMat[i]).first, DDSplit(cableMat[i]).second);
     DDMaterial cableMatter(cableName);
     DDLogicalPart cableLogic(DDName(name, idNameSpace), cableMatter, solid);
 
     DDTranslation r3(0, 0, (diskDz-(i+0.5)*cableT));
     DDpos(DDName(name,idNameSpace), diskName, i+1, r3, DDRotation());
-    COUT << "DDTIBRadCableAlgo test: " << DDName(name,idNameSpace) 
-		 << " number " <<i+1 << " positioned in " << diskName << " at "
-		 << r3 << " with no rotation" << endl;
+    DCOUT('a', "DDTIBRadCableAlgo test: " << DDName(name,idNameSpace) << " number " <<i+1 << " positioned in " << diskName << " at " << r3 << " with no rotation");
     
   }
 
@@ -176,19 +147,14 @@ void DDTIBRadCableAlgo::execute() {
   name  = "TIBOpenZone" + dbl_to_string(i);
   solid = DDSolidFactory::tubs(DDName(name, idNameSpace), dz, rin, 
 			       rout, 0, twopi);
-  COUT << "DDTIBRadCableAlgo test: " << DDName(name, idNameSpace) 
-	       << " Tubs made of " << strucMat[i] << " from 0 to " 
-	       << twopi/deg << " with Rin " << rin << " Rout " << rout 
-	       << " ZHalf " << dz << endl;
+  DCOUT('a', "DDTIBRadCableAlgo test: " << DDName(name, idNameSpace) << " Tubs made of " << strucMat[i] << " from 0 to " << twopi/deg << " with Rin " << rin << " Rout " << rout << " ZHalf " << dz);
   DDName strucName(DDSplit(strucMat[i]).first, DDSplit(strucMat[i]).second);
   DDMaterial strucMatter(strucName);
   DDLogicalPart strucLogic(DDName(name, idNameSpace), strucMatter, solid);
 
   DDTranslation r2(0, 0, (dz-diskDz));
   DDpos(DDName(name,idNameSpace), diskName, i+1, r2, DDRotation());
-  COUT << "DDTIBRadCableAlgo test: " << DDName(name,idNameSpace) 
-	       << " number " << i+1 << " positioned in " << diskName 
-	       << " at " << r2 << " with no rotation" << endl;
+  DCOUT('a', "DDTIBRadCableAlgo test: " << DDName(name,idNameSpace) << " number " << i+1 << " positioned in " << diskName << " at " << r2 << " with no rotation");
 
-  COUT << "<<== End of DDTIBRadCableAlgo construction ..." << endl;
+  DCOUT('a', "<<== End of DDTIBRadCableAlgo construction ...");
 }

@@ -32,7 +32,6 @@ private:
   double                   delta;       //Increment     ................
   std::vector<double>      centre;      //Centre
   std::string              rotMat;      //Rotation matrix
-  
 };
 
 #endif

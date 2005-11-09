@@ -1,5 +1,3 @@
-#define DEBUG 0
-#define COUT if (DEBUG) cout
 ///////////////////////////////////////////////////////////////////////////////
 // File: DDTECCoolAlgo.cc
 // Description: Placing cooling pieces in the petal material of a TEC petal
@@ -10,21 +8,21 @@
 
 namespace std{} using namespace std;
 #include "DetectorDescription/Parser/interface/DDLParser.h"
+#include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Base/interface/DDutils.h"
-#include "Geometry/TrackerCommonData/interface/DDTECCoolAlgo.h"
 #include "DetectorDescription/Core/interface/DDPosPart.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
-#include "DetectorDescription/Base/interface/DDTypes.h"
+#include "Geometry/TrackerCommonData/interface/DDTECCoolAlgo.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 
 DDTECCoolAlgo::DDTECCoolAlgo(): coolName(0),coolR(0),coolInsert(0) {
-  COUT << "DDTECCoolAlgo info: Creating an instance" << endl;
+  DCOUT('a', "DDTECCoolAlgo info: Creating an instance");
 }
 
 DDTECCoolAlgo::~DDTECCoolAlgo() {}
@@ -42,32 +40,23 @@ void DDTECCoolAlgo::initialize(const DDNumericArguments & nArgs,
   petalName      = vsArgs["PetalName"];
   petalRmax      = vArgs["PetalR"];
   petalWidth     = vArgs["PetalWidth"];
-  COUT << "DDTECCoolAlgo debug: Parent " << parentName <<" NameSpace "
-		<< idNameSpace << " with " << petalName.size()
-		<< " possible petals:";
+  DCOUT('A', "DDTECCoolAlgo debug: Parent " << parentName <<" NameSpace " << idNameSpace << " with " << petalName.size() << " possible petals:");
   for (unsigned int i=0; i<petalName.size(); i++)
-    COUT << " " << petalName[i] << " R " << petalRmax[i] << " W "
-		  << petalWidth[i]/deg;
-  COUT << endl;
+    DCOUT('A', "\t " << petalName[i] << " R " << petalRmax[i] << " W " << petalWidth[i]/deg);
   coolName       = vsArgs["CoolName"];
   coolR          = vArgs["CoolR"];
   coolInsert     = dbl_to_int (vArgs["CoolInsert"]);
 
-  COUT << "DDTECCoolAlgo debug: Start Copy Number " << startCopyNo
-		<< " with " << coolName.size() << " possible Cool pieces for "
-		<< coolInsert.size() << " modules" << endl;
+  DCOUT('A', "DDTECCoolAlgo debug: Start Copy Number " << startCopyNo << " with " << coolName.size() << " possible Cool pieces for " << coolInsert.size() << " modules");
   for (unsigned int i=0; i<coolName.size(); i++)
-    COUT << "                   Piece " << i << " " << coolName[i] 
-		  << " R = " << coolR[i] << endl;
-  COUT << "DDTECCoolAlgo debug: Inserts for modules:";
+    DCOUT('A', "                   Piece " << i << " " << coolName[i] << " R = " << coolR[i]);
+  DCOUT('A', "DDTECCoolAlgo debug: Inserts for modules:");
   for (unsigned int i=0; i<coolInsert.size(); i++)
-    COUT << " " << coolInsert[i];
-  COUT << endl;
+    DCOUT('A', "\t " << coolInsert[i]);
 
   startAngle     = nArgs["StartAngle"];
   incrAngle      = nArgs["IncrAngle"];
-  COUT << "DDTECCoolAlgo debug: StartAngle " << startAngle/deg 
-		<< " IncrementAngle " << incrAngle/deg << endl;
+  DCOUT('A', "DDTECCoolAlgo debug: StartAngle " << startAngle/deg << " IncrementAngle " << incrAngle/deg);
   rmin           = nArgs["Rmin"];
   fullHeight     = nArgs["FullHeight"];
   dlTop          = nArgs["DlTop"];
@@ -79,16 +68,11 @@ void DDTECCoolAlgo::initialize(const DDNumericArguments & nArgs,
   hybridHeight   = nArgs["HybridHeight"];
   hybridWidth    = nArgs["HybridWidth"];
 
-  COUT << "DDTECCoolAlgo debug: Rmin " << rmin  << " FullHeight " 
-		<< fullHeight << " DlTop " << dlTop << " DlBottom " << dlBottom
-		<< " DlHybrid " << dlHybrid << " Top Frame Height " 
-		<< topFrameHeight << " Width " << frameWidth << " Overlap " 
-		<< frameOver <<" Hybrid Height " << hybridHeight << " Width " 
-		<< hybridWidth << endl;
+  DCOUT('A', "DDTECCoolAlgo debug: Rmin " << rmin  << " FullHeight " << fullHeight << " DlTop " << dlTop << " DlBottom " << dlBottom << " DlHybrid " << dlHybrid << " Top Frame Height " << topFrameHeight << " Width " << frameWidth << " Overlap " << frameOver <<" Hybrid Height " << hybridHeight << " Width " << hybridWidth);
 }
 
 void DDTECCoolAlgo::execute() {
-  COUT << "==>> Constructing DDTECCoolAlgo..." << endl;
+  DCOUT('a', "==>> Constructing DDTECCoolAlgo...");
   int copyNo  = startCopyNo;
   double phi  = startAngle;
   double rr[4];
@@ -120,9 +104,7 @@ void DDTECCoolAlgo::execute() {
 	double xpsl = rp*cos(phi)-dy*sin(phi);
 	double ypsl = rp*sin(phi)+dy*cos(phi);
 	double phi1 = atan2(ypsl,xpsl);
-	COUT << "DDTECCoolAlgo debug: kk " << kk << " R "
-		      << rp << " DY " << yy << ", " << dy << " X, Y "
-		      << xpsl << ", " << ypsl << endl;
+	DCOUT('a', "DDTECCoolAlgo debug: kk " << kk << " R " << rp << " DY " << yy << ", " << dy << " X, Y " << xpsl << ", " << ypsl);
 	DDName mother;
 	unsigned int mm = petalName.size();
 	for (unsigned int ii=petalName.size(); ii>0; ii--)
@@ -138,15 +120,12 @@ void DDTECCoolAlgo::execute() {
 	DDTranslation tran(xpos, ypos, 0.0);
 	DDRotation rotation;
 	DDpos (child, mother, copyNo, tran, rotation);
-	COUT << "DDTECCoolAlgo test " << child << " number " 
-		     << copyNo << " positioned in " << mother << " at " 
-		     << tran  << " with " << rotation << " phi "
-		     << phi1/deg << endl;
+	DCOUT('a', "DDTECCoolAlgo test " << child << " number " << copyNo << " positioned in " << mother << " at " << tran  << " with " << rotation << " phi " << phi1/deg);
 	copyNo++;
       }
     }
     phi += incrAngle;
   }
 
-  COUT << "<<== End of DDTECCoolAlgo construction ..." << endl;
+  DCOUT('a', "<<== End of DDTECCoolAlgo construction ...");
 }

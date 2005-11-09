@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
+ 
+<LogicalPartSection label="tidmodule1l.xml">
+ <LogicalPart name="TIDModule1L" category="unspecified">
+  <rSolid name="tidmodule1:TIDModule1"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
+</LogicalPartSection>
+
+<Algorithm name="track:DDTIDModulePosAlgo">
+  <rParent name="tidmodule1l:TIDModule1L"/>
+  <Numeric name="DetectorNumber"    value="2"/>
+  <Numeric name="ModuleThick"       value="[tidmodpar:ModuleThickDS]"/>
+  <Numeric name="DetTilt"           value="-[tidmodpar:DetTilt]"/>
+  <Numeric name="FullHeight"        value="[tidmodule1:FullHeight]"/>
+  <Numeric name="DlTop"             value="[tidmodule1:DlTop]"/>
+  <Numeric name="DlBottom"          value="[tidmodule1:DlBottom]"/>
+  <Numeric name="DlHybrid"          value="[tidmodule1:DlHybrid]"/>
+  <String name="TopFrameName"       value="tidmodule1:TIDModule1TopFrame"/>
+  <Numeric name="TopFrameHeight"    value="[tidmodpar:TopFrameHeight]"/>
+  <Vector name="TopFrameZ"     type="numeric" nEntries="2">
+   [tidmodpar:TopFrameZDS],   -[tidmodpar:TopFrameZDS] </Vector>
+  <Numeric name="BottomFrameHeight" value="[tidmodpar:BottomFrameHeight]"/>
+  <Numeric name="BottomFrameOver"   value="[tidmodpar:BottomFrameOver]"/>
+  <String name="SideFrameName"      value="tidmodule1:TIDModule1SideFrame"/>
+  <Vector name="SideFrameZ"    type="numeric" nEntries="2">
+   [tidmodpar:SideFrameZDS],  -[tidmodpar:SideFrameZDS] </Vector>
+  <Vector name="WaferName"     type="string" nEntries="2">
+    tidmodule1:TIDModule1RphiWafer,  tidmodule1:TIDModule1StereoWafer</Vector>
+  <Vector name="WaferZ"        type="numeric" nEntries="2">
+   [tidmodpar:ActiveZDS],     -[tidmodpar:ActiveZDS] </Vector>
+  <Vector name="WaferRotation" type="string" nEntries="2">
+    tidmodpar:NULL,  tidmodpar:F100</Vector>
+  <String name="HybridName"         value="tidmodule1:TIDModule1Hybrid"/>
+  <Numeric name="HybridHeight"      value="[tidmodpar:HybridHeight]"/>
+  <Vector name="HybridZ"       type="numeric" nEntries="2">
+    [tidmodpar:HybridZDS],    -[tidmodpar:HybridZDS] </Vector>
+  <Vector name="PitchName"     type="string" nEntries="2">
+    tidmodule1:TIDModule1RphiPA,  tidmodule1:TIDModule1StereoPA</Vector>
+  <Numeric name="PitchHeight"       value="[tidmodpar:PitchHeight]"/>
+  <Vector name="PitchZ"        type="numeric" nEntries="2">
+    [tidmodpar:PitchZDS],     -[tidmodpar:PitchZDS] </Vector>
+  <Vector name="PitchRotation" type="string" nEntries="2">
+    tidmodpar:NULL,  tidmodpar:9PYX</Vector>
+</Algorithm>
+ 
+</DDDefinition>

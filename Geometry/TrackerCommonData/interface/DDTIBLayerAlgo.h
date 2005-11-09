@@ -57,8 +57,6 @@ private:
   std::string              ribMat;         //Rib material
   std::vector<double>      ribW;           //Rib width
   std::vector<double>      ribPhi;         //Rib Phi position
-
-  
 };
 
 #endif

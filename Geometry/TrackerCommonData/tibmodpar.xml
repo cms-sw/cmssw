@@ -78,19 +78,15 @@
   <rSolid name="TIBModCoolSide"/>
   <rMaterial name="tibmaterial:TIB_ledge_side"/>
  </LogicalPart>
- <LogicalPart name="TOBInactive" category="unspecified">
-  <rSolid name="TOBInactive"/>
-  <rMaterial name="materials:Silicon"/>
- </LogicalPart>
 </LogicalPartSection>
 
 <RotationSection label="tibmodpar.xml">
   <Rotation name="Rphi"  thetaX="90*deg"  phiX="0*deg"     thetaY="0*deg"
                          phiY="0*deg"     thetaZ="-90*deg" phiZ="90*deg" />
-  <Rotation name="SterA" thetaX="84.2704*deg" phiX="0*deg" thetaY="5.7296*deg"
-                         phiY="-180*deg"  thetaZ="90*deg"  phiZ="-90*deg" />
-  <Rotation name="SterB" thetaX="95.7296*deg" phiX="0*deg" thetaY="-5.7296*deg"
-                         phiY="-180*deg"  thetaZ="90*deg"  phiZ="-90*deg" />
+  <Rotation name="SterA" thetaX="95.7296*deg" phiX="180*deg" thetaY="5.7296*deg"
+                         phiY="-180*deg"  thetaZ="90*deg"  phiZ="90*deg" />
+  <Rotation name="SterB" thetaX="84.2704*deg" phiX="180*deg" thetaY="-5.7296*deg"
+                         phiY="-180*deg"  thetaZ="90*deg"  phiZ="90*deg" />
   <Rotation name="PAA"   thetaX="180*deg" phiX="0*deg"     thetaY="90*deg"
                          phiY="90*deg"    thetaZ="90*deg"  phiZ="0*deg" />
   <Rotation name="PAB"   thetaX="180*deg" phiX="0*deg"     thetaY="90*deg" 

@@ -43,7 +43,6 @@ private:
   double                   topFrameHeight; //Top frame     height
   double                   hybridHeight;   //Hybrid        height
   double                   hybridWidth;    //              width
-
 };
 
 #endif

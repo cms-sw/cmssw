@@ -37,7 +37,6 @@ private:
   std::vector<std::string> ladder;      //Names     of ladders
   std::vector<double>      ladderWidth; //Widths         ...
   std::vector<double>      ladderThick; //Thickness      ...
-  
 };
 
 #endif

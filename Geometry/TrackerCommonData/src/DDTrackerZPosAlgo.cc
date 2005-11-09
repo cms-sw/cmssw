@@ -1,5 +1,3 @@
-#define DEBUG 0
-#define COUT if (DEBUG) cout
 ///////////////////////////////////////////////////////////////////////////////
 // File: DDTrackerZPosAlgo.cc
 // Description: Position n copies at given z-values
@@ -10,20 +8,20 @@
 
 namespace std{} using namespace std;
 #include "DetectorDescription/Parser/interface/DDLParser.h"
-#include "Geometry/TrackerCommonData/interface/DDTrackerZPosAlgo.h"
+#include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDPosPart.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
-#include "DetectorDescription/Base/interface/DDTypes.h"
+#include "Geometry/TrackerCommonData/interface/DDTrackerZPosAlgo.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 
 DDTrackerZPosAlgo::DDTrackerZPosAlgo() {
-  COUT << "DDTrackerZPosAlgo info: Creating an instance" << endl;
+  DCOUT('a', "DDTrackerZPosAlgo info: Creating an instance");
 }
 
 DDTrackerZPosAlgo::~DDTrackerZPosAlgo() {}
@@ -42,16 +40,10 @@ void DDTrackerZPosAlgo::initialize(const DDNumericArguments & nArgs,
   idNameSpace = DDCurrentNamespace::ns();
   childName   = sArgs["ChildName"]; 
   DDName parentName = parent().name();
-  COUT << "DDTrackerZPosAlgo debug: Parent " << parentName 
-		<< "\tChild " << childName << " NameSpace " << idNameSpace 
-		<< "\tCopyNo (Start/Increment) " << startCopyNo << ", " 
-		<< incrCopyNo << "\tNumber " << zvec.size() << endl;
+  DCOUT('A', "DDTrackerZPosAlgo debug: Parent " << parentName << "\tChild " << childName << " NameSpace " << idNameSpace << "\tCopyNo (Start/Increment) " << startCopyNo << ", " << incrCopyNo << "\tNumber " << zvec.size());
   for (unsigned int i = 0; i < zvec.size(); i++) {
-    COUT << " Z = " << zvec[i] << ", Rot.Matrix = " << rotMat[i]
-		  << "; ";
-    if (i%3 == 2) COUT << endl;
+    DCOUT('A', "\tZ = " << zvec[i] << ", Rot.Matrix = " << rotMat[i] << "; ");
   }
-  if ((zvec.size())%3 != 0) COUT << endl;
 }
 
 void DDTrackerZPosAlgo::execute() {
@@ -70,9 +62,7 @@ void DDTrackerZPosAlgo::execute() {
       rot = DDRotation(DDName(rotstr, rotns));
     }
     DDpos (child, mother, copy, tran, rot);
-    COUT << "DDTrackerZPosAlgo test: " << child << " number " << copy
-		 << " positioned in " << mother << " at " << tran << " with "
-		 << rot << endl;
+    DCOUT('a', "DDTrackerZPosAlgo test: " << child << " number " << copy << " positioned in " << mother << " at " << tran << " with " << rot);
     copy += incrCopyNo;
   }
 }

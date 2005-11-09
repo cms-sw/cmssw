@@ -52,7 +52,7 @@
  </LogicalPart>
 </LogicalPartSection>
 
-<PosPartSection label="tibstringur.xml">
+<PosPartSection label="tibstring0ur.xml">
  <PosPart copyNumber="1">
    <rParent name="tibstring0ur:TIBString0UpPls1"/>
    <rChild name="tibstringpar:TIBCCUM"/>

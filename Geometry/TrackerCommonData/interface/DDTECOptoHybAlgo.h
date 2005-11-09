@@ -30,7 +30,6 @@ private:
   double                   zpos;           //Z position of the OptoHybrid
   int                      startCopyNo;    //Start copy number
   std::vector<double>      angles;         //Angular position of Hybrid
-
 };
 
 #endif

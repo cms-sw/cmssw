@@ -1,5 +1,3 @@
-#define DEBUG 0
-#define COUT if (DEBUG) cout
 ///////////////////////////////////////////////////////////////////////////////
 // File: DDTECPhiAltAlgo.cc
 // Description: Position n copies inside and outside Z at alternate phi values
@@ -10,21 +8,21 @@
 
 namespace std{} using namespace std;
 #include "DetectorDescription/Parser/interface/DDLParser.h"
+#include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Base/interface/DDutils.h"
-#include "Geometry/TrackerCommonData/interface/DDTECPhiAltAlgo.h"
 #include "DetectorDescription/Core/interface/DDPosPart.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
-#include "DetectorDescription/Base/interface/DDTypes.h"
+#include "Geometry/TrackerCommonData/interface/DDTECPhiAltAlgo.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 
 DDTECPhiAltAlgo::DDTECPhiAltAlgo() {
-  COUT << "DDTECPhiAltAlgo info: Creating an instance" << endl;
+  DCOUT('a', "DDTECPhiAltAlgo info: Creating an instance");
 }
 
 DDTECPhiAltAlgo::~DDTECPhiAltAlgo() {}
@@ -44,19 +42,12 @@ void DDTECPhiAltAlgo::initialize(const DDNumericArguments & nArgs,
   startCopyNo= int (nArgs["StartCopyNo"]);
   incrCopyNo = int (nArgs["IncrCopyNo"]);
 
-  COUT << "DDTECPhiAltAlgo debug: Parameters for positioning--"
-		<< "\tStartAngle " << startAngle/deg << "\tIncrAngle " 
-		<< incrAngle/deg << "\tRadius " << radius << "\tZ in/out "
-		<< zIn << ", " << zOut << "\tCopy Numbers " << number 
-		<< " Start/Increment " << startCopyNo << ", " << incrCopyNo 
-		<< endl;
+  DCOUT('A', "DDTECPhiAltAlgo debug: Parameters for positioning--" << "\tStartAngle " << startAngle/deg << "\tIncrAngle " << incrAngle/deg << "\tRadius " << radius << "\tZ in/out " << zIn << ", " << zOut << "\tCopy Numbers " << number << " Start/Increment " << startCopyNo << ", " << incrCopyNo);
 
   idNameSpace = DDCurrentNamespace::ns();
   childName   = sArgs["ChildName"]; 
   DDName parentName = parent().name();
-  COUT << "DDTECPhiAltAlgo debug: Parent " << parentName 
-		<< "\tChild " << childName << " NameSpace " << idNameSpace 
-		<< endl;
+  DCOUT('A', "DDTECPhiAltAlgo debug: Parent " << parentName << "\tChild " << childName << " NameSpace " << idNameSpace);
 }
 
 void DDTECPhiAltAlgo::execute() {
@@ -76,9 +67,7 @@ void DDTECPhiAltAlgo::execute() {
       string rotstr = DDSplit(childName).first + dbl_to_string(phideg*10.);
       rotation = DDRotation(DDName(rotstr, idNameSpace));
       if (!rotation) {
-	COUT << "DDTECPhiAltAlgo test: Creating a new rotation " 
-		     << rotstr << "\t" << theta/deg << ", " << phix/deg 
-		     << ", 0, 0, " << theta/deg << ", " << phiz/deg << endl;
+	DCOUT('a', "DDTECPhiAltAlgo test: Creating a new rotation " << rotstr << "\t" << theta/deg << ", " << phix/deg << ", 0, 0, " << theta/deg << ", " << phiz/deg);
 	rotation = DDrot(DDName(rotstr, idNameSpace), theta, phix, 0., 0.,
 			 theta, phiz);
       }
@@ -91,9 +80,7 @@ void DDTECPhiAltAlgo::execute() {
       DDTranslation tran(xpos, ypos, zpos);
   
       DDpos (child, mother, copyNo, tran, rotation);
-      COUT << "DDTECPhiAltAlgo test: " << child << " number " 
-		   << copyNo << " positioned in " << mother << " at " << tran 
-		   << " with " << rotation << endl;
+      DCOUT('a', "DDTECPhiAltAlgo test: " << child << " number " << copyNo << " positioned in " << mother << " at " << tran << " with " << rotation);
       copyNo += incrCopyNo;
     }
   }

@@ -36,7 +36,6 @@ private:
   double              cableT;        //Cable thickness
   std::vector<std::string> cableMat; //Materials for cables
   std::vector<std::string> strucMat; //Materials for open structures
-
 };
 
 #endif

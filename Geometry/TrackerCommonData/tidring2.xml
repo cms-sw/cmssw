@@ -21,7 +21,7 @@
            [tidringpar:ICBTailTol])/2"/>
 </ConstantsSection>
 
-<SolidSection label="tecring2.xml">
+<SolidSection label="tidring2.xml">
  <Tubs name="TIDRing2ICB"             rMin="([ICBR]-[tidringpar:ICBW]/2)" 
        rMax="([ICBR]+[tidringpar:ICBW]/2)" dz="[tidringpar:ICBT]/2" 
        startPhi="0*deg"               deltaPhi="360.*deg"/>
@@ -66,7 +66,7 @@
  </LogicalPart>
 </LogicalPartSection>
 
-<PosPartSection label="tecpetal0f.xml">
+<PosPartSection label="tidring2.xml">
  <PosPart copyNumber="1">
    <rParent name="tidring2:TIDRing2"/>
    <rChild name="tidring2:TIDStructure2"/>
@@ -115,6 +115,7 @@
   -[tidringpar:ICBZ], [tidringpar:ICBZ], -[tidringpar:ICBZ], [tidringpar:ICBZ]
   </Vector>
 </Algorithm>
+
 <Algorithm name="track:DDTrackerAngular">
   <rParent name="tidring2:TIDStructure2"/>
   <String  name="ChildName"   value="tidringpar:TIDCoolManifold"/>
@@ -129,20 +130,21 @@
 
 <Algorithm name="track:DDTIDRingAlgo">
   <rParent name="tidring2:TIDRing2"/>
-  <String name="ModuleName"         value="tidmodule2:TIDModule2"/>
+  <Vector name="ModuleName" type="string" nEntries="2">
+   tidmodule2:TIDModule2,   tidmodule2:TIDModule2</Vector>
   <String name="ICCName"            value="tidring2:TIDICC2"/>
   <String name="CoolName"           value="tidringpar:TIDCoolInsert"/>
   <Numeric name="Number"            value="[NPhi]" />
   <Numeric name="StartAngle"        value="[PhiOff]" />
   <Numeric name="ModuleR"           value="[RPos]" />
-  <Vector name="ModuleZ" type="numeric" nEntries="2">
+  <Vector name="ModuleZ"    type="numeric" nEntries="2">
   -[tidringpar:ModuleZSS],    [tidringpar:ModuleZSS]   </Vector>
   <Numeric name="ICCR"              value="[ICCRPos]" />
-  <Vector name="ICCZ"    type="numeric" nEntries="2">
+  <Vector name="ICCZ"       type="numeric" nEntries="2">
   -[tidringpar:ICCZ],         [tidringpar:ICCZ]        </Vector>
-  <Vector name="CoolR"   type="numeric" nEntries="2">
+  <Vector name="CoolR"      type="numeric" nEntries="2">
    [tidring2:CoolR1],         [tidring2:CoolR2]        </Vector>
-  <Vector name="CoolZ"   type="numeric" nEntries="2">
+  <Vector name="CoolZ"      type="numeric" nEntries="2">
   -[tidringpar:CoolInsertZ],  [tidringpar:CoolInsertZ] </Vector>
   <Numeric name="FullHeight"        value="[tidmodule2:FullHeight]"/>
   <Numeric name="DlTop"             value="[tidmodule2:DlTop]"/>

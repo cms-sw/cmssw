@@ -128,7 +128,7 @@
  </LogicalPart>
 </LogicalPartSection>
 
-<PosPartSection label="tob.xml">
+<PosPartSection label="pixbarladderhalf.xml">
  <PosPart copyNumber="1">
    <rParent name="pixbarladderhalf:PixelBarrelLadderHalf"/>
    <rChild name="pixbarladderhalf:PixelBarrelCableBoxHalf"/>

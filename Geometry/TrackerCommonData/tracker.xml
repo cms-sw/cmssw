@@ -148,11 +148,11 @@
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="cms:Tracker"/>
-   <rChild name="tid:TID"/>
+   <rChild name="tidf:TIDF"/>
  </PosPart>
  <PosPart copyNumber="2">
    <rParent name="cms:Tracker"/>
-   <rChild name="tid:TID"/>
+   <rChild name="tidb:TIDB"/>
   <rRotation name="tracker:180D"/>
  </PosPart>
  <PosPart copyNumber="1">

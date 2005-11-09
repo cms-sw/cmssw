@@ -1,5 +1,3 @@
-#define DEBUG 0
-#define COUT if (DEBUG) cout
 ///////////////////////////////////////////////////////////////////////////////
 // File: DDTrackerPhiAlgo.cc
 // Description: Position n copies at prescribed phi values
@@ -10,21 +8,21 @@
 
 namespace std{} using namespace std;
 #include "DetectorDescription/Parser/interface/DDLParser.h"
+#include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Base/interface/DDutils.h"
-#include "Geometry/TrackerCommonData/interface/DDTrackerPhiAlgo.h"
 #include "DetectorDescription/Core/interface/DDPosPart.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
-#include "DetectorDescription/Base/interface/DDTypes.h"
+#include "Geometry/TrackerCommonData/interface/DDTrackerPhiAlgo.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 
 DDTrackerPhiAlgo::DDTrackerPhiAlgo() {
-  COUT << "DDTrackerPhiAlgo info: Creating an instance" << endl;
+  DCOUT('a', "DDTrackerPhiAlgo info: Creating an instance");
 }
 
 DDTrackerPhiAlgo::~DDTrackerPhiAlgo() {}
@@ -40,18 +38,14 @@ void DDTrackerPhiAlgo::initialize(const DDNumericArguments & nArgs,
   phi        = vArgs["Phi"];
   zpos       = vArgs["ZPos"];
 
-  COUT << "DDTrackerPhiAlgo debug: Parameters for positioning:: "
-		<< " Radius " << radius << " Tilt " << tilt/deg << " Copies " 
-		<< phi.size() << " at phi/z values:" << endl;
+  DCOUT('A', "DDTrackerPhiAlgo debug: Parameters for positioning:: " << " Radius " << radius << " Tilt " << tilt/deg << " Copies " << phi.size() << " at phi/z values:");
   for (unsigned int i=0; i<phi.size(); i++)
-    COUT << " " << phi[i]/deg << " " << zpos[i];
-  COUT << endl;
+    DCOUT('A', "\t " << phi[i]/deg << " " << zpos[i]);
 
   idNameSpace = DDCurrentNamespace::ns();
   childName   = sArgs["ChildName"]; 
   DDName parentName = parent().name();
-  COUT << "DDTrackerPhiAlgo debug: Parent " << parentName <<"\tChild "
-		<< childName << " NameSpace " << idNameSpace << endl;
+  DCOUT('A', "DDTrackerPhiAlgo debug: Parent " << parentName <<"\tChild " << childName << " NameSpace " << idNameSpace);
 }
 
 void DDTrackerPhiAlgo::execute() {
@@ -67,9 +61,7 @@ void DDTrackerPhiAlgo::execute() {
     string rotstr = DDSplit(childName).first + dbl_to_string(phideg);
     DDRotation rotation = DDRotation(DDName(rotstr, idNameSpace));
     if (!rotation) {
-      COUT << "DDTrackerPhiAlgo test: Creating a new rotation: " 
-		   << rotstr << "\t" << "90., " << phix/deg << ", 90.," 
-		   << phiy/deg << ", 0, 0" << endl;
+      DCOUT('a', "DDTrackerPhiAlgo test: Creating a new rotation: " << rotstr << "\t" << "90., " << phix/deg << ", 90.," << phiy/deg << ", 0, 0");
       rotation = DDrot(DDName(rotstr, idNameSpace), theta, phix, theta, phiy,
 		       0., 0.);
     }
@@ -79,8 +71,6 @@ void DDTrackerPhiAlgo::execute() {
     DDTranslation tran(xpos, ypos, zpos[i]);
   
     DDpos (child, mother, i+1, tran, rotation);
-    COUT << "DDTrackerPhiAlgo test: " << child << " number " << i+1 
-		 << " positioned in " << mother << " at " << tran  << " with " 
-		 << rotation << endl;
+    DCOUT('a', "DDTrackerPhiAlgo test: " << child << " number " << i+1 << " positioned in " << mother << " at " << tran  << " with " << rotation);
   }
 }

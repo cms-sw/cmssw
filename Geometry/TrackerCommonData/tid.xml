@@ -85,14 +85,6 @@
 </SolidSection>
 
 <LogicalPartSection label="tid.xml">
- <LogicalPart name="TID" category="unspecified">
-  <rSolid name="TID"/>
-  <rMaterial name="materials:Air"/>
- </LogicalPart>
- <LogicalPart name="TIDWheel" category="unspecified">
-  <rSolid name="TIDWheel"/>
-  <rMaterial name="materials:Air"/>
- </LogicalPart>
  <LogicalPart name="TIDSupport" category="unspecified">
   <rSolid name="TIDSupport"/>
   <rMaterial name="materials:Carbon fibre str."/>
@@ -125,61 +117,12 @@
 
 <PosPartSection label="tid.xml">
  <PosPart copyNumber="1">
-   <rParent name="tid:TID"/>
-   <rChild name="tid:TIDWheel"/>
-  <Translation x="[zero]" y="[zero]" z="[Wheel0Z]" />
- </PosPart>
- <PosPart copyNumber="2">
-   <rParent name="tid:TID"/>
-   <rChild name="tid:TIDWheel"/>
-  <Translation x="[zero]" y="[zero]" z="[Wheel1Z]" />
- </PosPart>
- <PosPart copyNumber="3">
-   <rParent name="tid:TID"/>
-   <rChild name="tid:TIDWheel"/>
-  <Translation x="[zero]" y="[zero]" z="[Wheel2Z]" />
- </PosPart>
- <PosPart copyNumber="1">
-   <rParent name="tid:TIDWheel"/>
-   <rChild name="tidring0:TIDRing0"/>
- </PosPart>
- <PosPart copyNumber="2">
-   <rParent name="tid:TIDWheel"/>
-   <rChild name="tidring1:TIDRing1"/>
-  <Translation x="[zero]" y="[zero]" z="[RingZ]" />
- </PosPart>
- <PosPart copyNumber="3">
-   <rParent name="tid:TIDWheel"/>
-   <rChild name="tidring2:TIDRing2"/>
-  <Translation x="[zero]" y="[zero]" z="-[RingZ]" />
- </PosPart>
-
- <PosPart copyNumber="1">
-   <rParent name="tid:TID"/>
-   <rChild name="tid:TIDSupport"/>
-  <Translation x="[zero]" y="[zero]" z="[SupportZ]" />
- </PosPart>
- <PosPart copyNumber="1">
    <rParent name="tid:TIDSupport"/>
    <rChild name="tid:TIDSupportIn"/>
  </PosPart>
  <PosPart copyNumber="1">
-   <rParent name="tid:TID"/>
-   <rChild name="tid:TIDSideDisk"/>
-  <Translation x="[zero]" y="[zero]" z="[SideDiskZ]" />
- </PosPart>
- <PosPart copyNumber="1">
    <rParent name="tid:TIDSideDisk"/>
    <rChild name="tid:TIDSideDiskIn"/>
- </PosPart>
- <PosPart copyNumber="1">
-   <rParent name="tid:TID"/>
-   <rChild name="tid:TIDConnector"/>
-  <Translation x="[zero]" y="[zero]" z="[ConnectorZ]" />
- </PosPart>
- <PosPart copyNumber="1">
-   <rParent name="tid:TID"/>
-   <rChild name="tid:TIDAxCabCont"/>
  </PosPart>
 </PosPartSection>
 

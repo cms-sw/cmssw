@@ -36,7 +36,6 @@ private:
 
   std::string   idNameSpace; //Namespace of this and ALL sub-parts
   std::string   childName;   //Child name
-  
 };
 
 #endif

@@ -3,6 +3,8 @@
 
 <ConstantsSection label="tibstringss.xml" eval="true">
  <Constant name="zero"         value="0.0*fm"/>
+ <Constant name="ICCX"         value="-([tibstringpar:ICCCool2W]/2+
+           [tibstringpar:ICCCool1W]/2-[tibstringpar:ICCW]/2)"/>
 </ConstantsSection>
 
 <LogicalPartSection label="tibstringss.xml">
@@ -20,7 +22,7 @@
  <PosPart copyNumber="1">
    <rParent name="tibstringss:TIBICCBoxSS"/>
    <rChild name="tibstringss:TIBICC2"/>
-  <Translation x="[zero]"                    y="[tibstringpar:ICCY]"
+  <Translation x="[tibstringss:ICCX]"        y="[tibstringpar:ICCY]"
                z="[zero]" />
  </PosPart>
  <PosPart copyNumber="1">
@@ -40,12 +42,6 @@
    <rChild name="tibstringpar:TIBICCCool2"/>
   <Translation x="[zero]"                    y="[tibstringpar:ICCCoolY]"
                z="[tibstringpar:ICCCoolZ]" />
- </PosPart>
- <PosPart copyNumber="2">
-   <rParent name="tibstringss:TIBICCBoxSS"/>
-   <rChild name="tibstringpar:TIBICCCool2"/>
-  <Translation x="[zero]"                    y="[tibstringpar:ICCCoolY]"
-               z="-[tibstringpar:ICCCoolZ]" />
  </PosPart>
 </PosPartSection>
  

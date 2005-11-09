@@ -1,5 +1,3 @@
-#define DEBUG 0
-#define COUT if (DEBUG) cout
 ///////////////////////////////////////////////////////////////////////////////
 // File: DDTrackerLinearXY.cc
 // Description: Position nxXny copies at given intervals along x and y axis
@@ -10,20 +8,20 @@
 
 namespace std{} using namespace std;
 #include "DetectorDescription/Parser/interface/DDLParser.h"
-#include "Geometry/TrackerCommonData/interface/DDTrackerLinearXY.h"
+#include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDPosPart.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
-#include "DetectorDescription/Base/interface/DDTypes.h"
+#include "Geometry/TrackerCommonData/interface/DDTrackerLinearXY.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 
 DDTrackerLinearXY::DDTrackerLinearXY() {
-  COUT << "DDTrackerLinearXY info: Creating an instance" << endl;
+  DCOUT('a', "DDTrackerLinearXY info: Creating an instance");
 }
 
 DDTrackerLinearXY::~DDTrackerLinearXY() {}
@@ -43,12 +41,7 @@ void DDTrackerLinearXY::initialize(const DDNumericArguments & nArgs,
   idNameSpace = DDCurrentNamespace::ns();
   childName   = sArgs["ChildName"]; 
   DDName parentName = parent().name();
-  COUT << "DDTrackerLinearXY debug: Parent " << parentName 
-		<< "\tChild " << childName << " NameSpace " << idNameSpace 
-		<< "\tNumber along X/Y " << numberX << "/" << numberY
-		<< "\tDelta along X/Y " << deltaX << "/" << deltaY 
-		<< "\tCentre " << centre[0] << ", " << centre[1] 
-		<< ", "	<< centre[2] << endl;
+  DCOUT('A', "DDTrackerLinearXY debug: Parent " << parentName << "\tChild " << childName << " NameSpace " << idNameSpace << "\tNumber along X/Y " << numberX << "/" << numberY << "\tDelta along X/Y " << deltaX << "/" << deltaY << "\tCentre " << centre[0] << ", " << centre[1] << ", "	<< centre[2]);
 }
 
 void DDTrackerLinearXY::execute() {
@@ -66,9 +59,7 @@ void DDTrackerLinearXY::execute() {
       DDTranslation tran(xoff+i*deltaX,yoff+j*deltaY,centre[2]);
       copy++;
       DDpos (child, mother, copy, tran, rot);
-      COUT << "DDTrackerLinearXY test: " << child << " number " << copy
-		   << " positioned in " << mother << " at " << tran << " with "
-		   << rot << endl;
+      DCOUT('a', "DDTrackerLinearXY test: " << child << " number " << copy << " positioned in " << mother << " at " << tran << " with " << rot);
     }
   }
 }

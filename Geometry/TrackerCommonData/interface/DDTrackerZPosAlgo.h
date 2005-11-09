@@ -30,7 +30,6 @@ private:
   std::string              childName;   //Child name
   int                      startCopyNo; //Start Copy number
   int                      incrCopyNo;  //Increment in Copy number
-  
 };
 
 #endif

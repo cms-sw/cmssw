@@ -11,9 +11,9 @@
  <Constant name="ICCBoxW"        value="7.40*cm"/>
  <Constant name="ICCBoxT"        value="3.04*cm"/>
  <Constant name="ICCBoxL"        value="3.50*cm"/>
- <Constant name="ICCW"           value="7.20*cm"/>
+ <Constant name="ICCW"           value="2.20*cm"/>
  <Constant name="ICCT"           value="0.19*cm"/>
- <Constant name="ICCL"           value="3.50*cm"/>
+ <Constant name="ICCL"           value="3.00*cm"/>
  <Constant name="ICCY"           value="0.053*cm"/>
  <Constant name="ICCCool1W"      value="0.625*cm"/>
  <Constant name="ICCCool2W"      value="4.75*cm"/>

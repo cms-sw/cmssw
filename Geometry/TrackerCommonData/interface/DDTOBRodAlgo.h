@@ -68,7 +68,6 @@ private:
   std::vector<std::string> connect;      //Name of the connectors
   std::vector<double>      connectY;     //y-positions
   std::vector<double>      connectZ;     //z-positions
-
 };
 
 #endif

@@ -66,7 +66,7 @@
                                            ([Conn4T]+[ServT])/2"/>
 </ConstantsSection>
 
-<RotationSection label="tibstringpar.xml">
+<RotationSection label="pixbar.xml">
   <Rotation name="180D" thetaX="90*deg" phiX="180*deg"   thetaY="90*deg" 
                         phiY="90*deg"   thetaZ="180*deg" phiZ="0*deg" />
 </RotationSection>

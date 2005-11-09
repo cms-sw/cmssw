@@ -1,5 +1,3 @@
-#define DEBUG 0
-#define COUT if (DEBUG) cout
 ///////////////////////////////////////////////////////////////////////////////
 // File: DDTIDAxialCableAlgo.cc
 // Description: Create and position TID axial cables at prescribed phi values
@@ -10,21 +8,21 @@
 
 namespace std{} using namespace std;
 #include "DetectorDescription/Parser/interface/DDLParser.h"
+#include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Base/interface/DDutils.h"
-#include "Geometry/TrackerCommonData/interface/DDTIDAxialCableAlgo.h"
 #include "DetectorDescription/Core/interface/DDPosPart.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
-#include "DetectorDescription/Base/interface/DDTypes.h"
+#include "Geometry/TrackerCommonData/interface/DDTIDAxialCableAlgo.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 
 DDTIDAxialCableAlgo::DDTIDAxialCableAlgo() {
-  COUT << "DDTIDAxialCableAlgo info: Creating an instance" << endl;
+  DCOUT('a', "DDTIDAxialCableAlgo info: Creating an instance");
 }
 
 DDTIDAxialCableAlgo::~DDTIDAxialCableAlgo() {}
@@ -46,24 +44,17 @@ void DDTIDAxialCableAlgo::initialize(const DDNumericArguments & nArgs,
   zposWheel   = vArgs["ZPosWheel"];
   zposRing    = vArgs["ZPosRing"];
 
-  COUT << "DDTIDAxialCableAlgo debug: Parameters for creating "
-		<< (zposWheel.size()+2) << " axial cables and positioning "
-		<< angles.size() << " copies in Service volume" << endl
-		<< "                            zBend " << zBend << " zEnd " 
-		<< zEnd << " rMin " << rMin << " rMax " << rMax 
-		<< " Cable width " << width/deg << " thickness " << thick 
-		<< endl << "                            Angles";
+  DCOUT('A', "DDTIDAxialCableAlgo debug: Parameters for creating " << (zposWheel.size()+2) << " axial cables and positioning " << angles.size() << " copies in Service volume");
+  DCOUT('A', "                            zBend " << zBend << " zEnd " << zEnd << " rMin " << rMin << " rMax " << rMax << " Cable width " << width/deg << " thickness " << thick);
+  DCOUT('A', "                            Angles");
   for (unsigned int i=0; i<angles.size(); i++)
-    COUT << " " << angles[i]/deg;
-  COUT << endl << "                          Wheels " 
-		<< zposWheel.size() << " at Z";
+    DCOUT('A', "\t " << angles[i]/deg);
+  DCOUT('A', "                          Wheels " << zposWheel.size() << " at Z");
   for (unsigned int i=0; i<zposWheel.size(); i++)
-    COUT << " " << zposWheel[i];
-  COUT << endl << "                          each with " 
-		<< zposRing.size() << " Rings at Z";
+    DCOUT('A', "\t " << zposWheel[i]);
+  DCOUT('A', "                          each with " << zposRing.size() << " Rings at Z");
   for (unsigned int i=0; i<zposRing.size(); i++)
-    COUT << " " << zposRing[i];
-  COUT << endl;
+    DCOUT('A', "\t " << zposRing[i]);
 
   idNameSpace = DDCurrentNamespace::ns();
   childName   = sArgs["ChildName"]; 
@@ -71,9 +62,7 @@ void DDTIDAxialCableAlgo::initialize(const DDNumericArguments & nArgs,
   matOut      = sArgs["MaterialOut"]; 
 
   DDName parentName = parent().name();
-  COUT << "DDTIDAxialCableAlgo debug: Parent " << parentName 
-		<< "\tChild " << childName << " NameSpace " << idNameSpace 
-		<< "\tMaterial " << matIn << " and " << matOut << endl;
+  DCOUT('A', "DDTIDAxialCableAlgo debug: Parent " << parentName << "\tChild " << childName << " NameSpace " << idNameSpace << "\tMaterial " << matIn << " and " << matOut);
 }
 
 void DDTIDAxialCableAlgo::execute() {
@@ -121,13 +110,9 @@ void DDTIDAxialCableAlgo::execute() {
 					     -0.5*width, width, pconZ, 
 					     pconRmin, pconRmax);
 
-    COUT << "DDTIDAxialCableAlgo test: " << DDName(name, idNameSpace)
-		 << " Polycone made of " << matIn << " from " 
-		 << -0.5*width/deg << " to " << 0.5*width/deg << " and with " 
-		 << pconZ.size() << " sections "  << endl;
+    DCOUT('a', "DDTIDAxialCableAlgo test: " << DDName(name, idNameSpace) << " Polycone made of " << matIn << " from " << -0.5*width/deg << " to " << 0.5*width/deg << " and with " << pconZ.size() << " sections ");
     for (unsigned int i = 0; i <pconZ.size(); i++) 
-      COUT << "\t" << "\tZ = " << pconZ[i] << "\tRmin = "<< pconRmin[i]
-		   << "\tRmax = " << pconRmax[i] << endl;
+      DCOUT('a', "\t" << "\tZ = " << pconZ[i] << "\tRmin = "<< pconRmin[i] << "\tRmax = " << pconRmax[i]);
 
     DDName mat(DDSplit(matIn).first, DDSplit(matIn).second); 
     DDMaterial matter(mat);
@@ -139,9 +124,7 @@ void DDTIDAxialCableAlgo::execute() {
   vector<double> pconZ, pconRmin, pconRmax;
   r = thktot*rMax/rTop;
   z = zBend - thktot;
-  COUT << "DDTIDAxialCableAlgo test: Thk " << thk << " Total "
-	       << thktot << " rMax " << rMax << " rTop " << rTop << " dR "
-	       << r << " z " << z << endl;
+  DCOUT('a', "DDTIDAxialCableAlgo test: Thk " << thk << " Total " << thktot << " rMax " << rMax << " rTop " << rTop << " dR " << r << " z " << z);
   pconZ.push_back(z);
   pconRmin.push_back(rMax);
   pconRmax.push_back(rMax);
@@ -158,13 +141,9 @@ void DDTIDAxialCableAlgo::execute() {
 					   -0.5*width, width, pconZ, 
 					   pconRmin, pconRmax);
 
-  COUT << "DDTIDAxialCableAlgo test: " << DDName(name, idNameSpace)
-	       << " Polycone made of " << matIn << " from " 
-	       << -0.5*width/deg << " to " << 0.5*width/deg << " and with " 
-	       << pconZ.size() << " sections "  << endl;
+  DCOUT('a', "DDTIDAxialCableAlgo test: " << DDName(name, idNameSpace) << " Polycone made of " << matIn << " from " << -0.5*width/deg << " to " << 0.5*width/deg << " and with "  << pconZ.size() << " sections ");
   for (unsigned int i = 0; i <pconZ.size(); i++) 
-    COUT << "\t" << "\tZ = " << pconZ[i] << "\tRmin = "<< pconRmin[i]
-		 << "\tRmax = " << pconRmax[i] << endl;
+    DCOUT('a', "\t" << "\tZ = " << pconZ[i] << "\tRmin = "<< pconRmin[i] << "\tRmax = " << pconRmax[i]);
 
   DDName mat(DDSplit(matIn).first, DDSplit(matIn).second); 
   DDMaterial matter(mat);
@@ -176,10 +155,7 @@ void DDTIDAxialCableAlgo::execute() {
   r    = rTop-r;
   solid = DDSolidFactory::tubs(DDName(name, idNameSpace), 0.5*(zEnd-zBend),
                                r, rTop, -0.5*width, width);
-  COUT << "DDTIDAxialCableAlgo test: " << DDName(name, idNameSpace)
-               << " Tubs made of " << matOut << " from " << -0.5*width/deg 
-	       << " to " << 0.5*width/deg << " with Rin " << r << " Rout " 
-	       << rTop << " ZHalf " << 0.5*(zEnd-zBend) << endl;
+  DCOUT('a', "DDTIDAxialCableAlgo test: " << DDName(name, idNameSpace) << " Tubs made of " << matOut << " from " << -0.5*width/deg << " to " << 0.5*width/deg << " with Rin " << r << " Rout " << rTop << " ZHalf " << 0.5*(zEnd-zBend));
   mat    = DDName(DDSplit(matOut).first, DDSplit(matOut).second);
   matter = DDMaterial(mat);
   genlogic = DDLogicalPart(DDName(name, idNameSpace), matter, solid);
@@ -197,9 +173,7 @@ void DDTIDAxialCableAlgo::execute() {
       string rotstr = childName + dbl_to_string(phideg*10.);
       rotation = DDRotation(DDName(rotstr, idNameSpace));
       if (!rotation) {
-	COUT << "DDTIDAxialCableAlgo test: Creating a new rotation: "
-		     << rotstr << " " << theta/deg << ", " << phix/deg << ", " 
-		     << theta/deg << ", " << phiy/deg << ", 0, 0" << endl;
+	DCOUT('a', "DDTIDAxialCableAlgo test: Creating a new rotation: " << rotstr << " " << theta/deg << ", " << phix/deg << ", " << theta/deg << ", " << phiy/deg << ", 0, 0");
 	rotation = DDrot(DDName(rotstr, idNameSpace), theta, phix, theta, 
 			 phiy, 0., 0.);
       }
@@ -209,9 +183,7 @@ void DDTIDAxialCableAlgo::execute() {
       DDTranslation tran(0,0,0);
       if (k == logs.size()-1) tran = DDTranslation(0,0,0.5*(zEnd+zBend));
       DDpos (logs[k], mother, i+1, tran, rotation);
-      COUT << "DDTIDAxialCableAlgo test " << logs[k]
-		   << " number " << i+1 << " positioned in " << mother 
-		   << " at " << tran  << " with "  << rotation << endl;
+      DCOUT('a', "DDTIDAxialCableAlgo test " << logs[k] << " number " << i+1 << " positioned in " << mother << " at " << tran  << " with "  << rotation);
     }
   }
 }

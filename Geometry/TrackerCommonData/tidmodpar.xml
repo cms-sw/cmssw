@@ -37,8 +37,12 @@
                        phiY="0*deg"         thetaZ="90*deg"     phiZ="90*deg"/>
  <Rotation name="9NYX" thetaX="0*deg"       phiX="0*deg"        thetaY="90*deg"
                        phiY="90*deg"        thetaZ="-90*deg"    phiZ="0*deg" />
+ <Rotation name="9PYX" thetaX="0*deg"       phiX="0*deg"        thetaY="90*deg"
+                       phiY="-90*deg"       thetaZ="90*deg"     phiZ="0*deg"/>
  <Rotation name="G100" thetaX="84.2704*deg" phiX="180*deg"      thetaY="90*deg"
                        phiY="-90*deg"       thetaZ="5.7296*deg" phiZ="0*deg" />
+ <Rotation name="F100" thetaX="-95.7296*deg" phiX="0*deg"       thetaY="-90*deg"
+                       phiY="90*deg"        thetaZ="-5.7296*deg" phiZ="0*deg"/>
  <Rotation name="R180" thetaX="90*deg"      phiX="180*deg"      thetaY="90*deg"
                        phiY="-90*deg"       thetaZ="0*deg"      phiZ="0*deg" />
 </RotationSection>

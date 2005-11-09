@@ -104,7 +104,7 @@
   <Vector name="ZPositions" type="numeric" nEntries="3">
   ([ICC0Z]+[Shift]), ([ICC1Z]+[Shift]), ([ICC2Z]+[Shift]) </Vector>
   <Vector name="Rotations" type="string" nEntries="3">
-  tibstringpar:NULL, tibstringpar:NULL, tibstringpar:NULL</Vector>
+  tibstringpar:180D, tibstringpar:180D, tibstringpar:180D</Vector>
 </Algorithm>
  
 </DDDefinition>

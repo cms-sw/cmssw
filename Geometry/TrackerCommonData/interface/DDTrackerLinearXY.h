@@ -30,7 +30,6 @@ private:
   int                      numberY;     //Number of positioning along Y-axis
   double                   deltaY;      //Increment               .........
   std::vector<double>      centre;      //Centre
-  
 };
 
 #endif

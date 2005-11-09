@@ -39,7 +39,6 @@ private:
   std::string   childName;        //Child name
   std::string   matIn;            //Material name (for inner parts)
   std::string   matOut;           //Material name (for outer part)
-
 };
 
 #endif
