@@ -1,3 +1,6 @@
+** V00-00-02  [Wed Nov  9 17:15:06 2005]
+from TrackerGeom to TrackingGeometry
+
 ** V00-00-01  [Tue Nov  1 10:15:38 2005]
 First official version for SiPixelDigitizer in CMSSW
 
