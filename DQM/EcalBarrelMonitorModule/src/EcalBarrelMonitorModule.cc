@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  * 
- * $Date: 2005/11/09 14:57:58 $
- * $Revision: 1.36 $
+ * $Date: 2005/11/10 09:08:27 $
+ * $Revision: 1.37 $
  * \author G. Della Ricca
  *
 */
@@ -25,6 +25,8 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
     runType = 3;
   }
 
+  irun = ps.getUntrackedParameter<int>("runNumber",999999);
+
   dbe = edm::Service<DaqMonitorBEInterface>().operator->();
 
   dbe->setVerbose(1);
@@ -44,6 +46,8 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
     meStatus  = dbe->bookInt("STATUS");
     meRun     = dbe->bookInt("RUN");
     meEvt     = dbe->bookInt("EVT");
+
+    meEvtType = dbe->book1D("EVTTYPE", "EVTTYPE", 10, 0., 10.);
     meRunType = dbe->bookInt("RUNTYPE");
 
     dbe->setCurrentFolder("EcalBarrel");
@@ -135,9 +139,12 @@ void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
 
   ievt++;
 
-  if ( meRun ) meRun->Fill(14316);
+  if ( meRun ) meRun->Fill(irun);
   if ( meEvt ) meEvt->Fill(ievt);
 
+  evtType = runType;
+
+  if ( meEvtType ) meEvtType->Fill(evtType+0.5);
   if ( meRunType ) meRunType->Fill(runType);
 
   edm::Handle<EBDigiCollection>  digis;
@@ -192,17 +199,17 @@ void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
 
   }
 
-  if ( runType == 0 ) cosmic_task->analyze(e, c);
+  if ( evtType == 0 ) cosmic_task->analyze(e, c);
 
-  if ( runType == 1 ) laser_task->analyze(e, c);
+  if ( evtType == 1 ) laser_task->analyze(e, c);
 
-  if ( runType == 2 ) pedestal_task->analyze(e, c);
+  if ( evtType == 2 ) pedestal_task->analyze(e, c);
 
                       pedonline_task->analyze(e, c);
 
-  if ( runType == 3 ) testpulse_task->analyze(e, c);
+  if ( evtType == 3 ) testpulse_task->analyze(e, c);
 
-//  sleep(1);
+  sleep(1);
 
 }
 

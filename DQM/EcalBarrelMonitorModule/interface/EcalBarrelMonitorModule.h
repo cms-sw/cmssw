@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorModule.h
  *
- * $Date: 2005/11/08 17:52:08 $
- * $Revision: 1.12 $
+ * $Date: 2005/11/10 09:08:27 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  *
 */
@@ -64,9 +64,11 @@ void endJob(void);
 
 private:
 
+int evtType;
 int runType;
 
 int ievt;
+int irun;
 
 DaqMonitorBEInterface* dbe;
 
@@ -75,6 +77,7 @@ MonitorElement* meStatus;
 MonitorElement* meRun;
 MonitorElement* meEvt;
 
+MonitorElement* meEvtType;
 MonitorElement* meRunType;
 
 MonitorElement* meEBdigi;
@@ -93,7 +96,5 @@ string outputFile;
 ofstream logFile;
 
 };
-
-DEFINE_FWK_MODULE(EcalBarrelMonitorModule)
 
 #endif
