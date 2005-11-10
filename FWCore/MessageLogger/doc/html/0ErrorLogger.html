@@ -1,0 +1,170 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<BODY bgcolor="FFFFFF">
+<title>
+          Fermi Physics Class Libraries Module: Error Logger
+</title>
+
+<center>
+<h1>ZOOM <img src="http://www.fnal.gov/docs/working-groups/fpcltf/icons/
+particle_coll_bar_463_grey.gif" align="center"> ZOOM</h1>
+
+<font color=red>
+<h1>ZOOM Error Logger</h1>
+</font>
+</center>
+
+<p>
+The ZOOM Error Logger package is meant to meet the needs of Run II (D0 and CDF)
+offline (and possibly higher-level online) code for a unified message logging 
+and statistics facility.  
+<p>
+<ul>
+<li> <a href="fundamentals.html"> Fundamentals and Concepts </a>
+<li> <a href="physicist.html"> How the Physicist Logs Errors </a>
+<li> <a href="framework.html">  Frameworker's Basics of Error Loggers </a>
+<li> <a href="further.html">   Further Options for the Frameworker </a>
+<li> <a href="coll.html">   Collective Error Logging </a>
+<li> <a href="ts.html">   Error Logging for Multithreaded Processes </a>
+<li> <a href="ELassertN.html">   
+		Graded Assertions Interfacing with the Error Logger </a>
+<li> <a href="custom.html">   Customization Hooks </a>
+</ul>
+
+
+<p>
+This package provides:
+
+  <ul>
+    <li> Uniform formatting of log messages
+    <li> Central control of logging to multiple destination logs
+    <li> Throttling by severity of messages to each destination
+    <li> Setting limits on appearances (by message id) of each sort of message
+    <li> Error statistics by message id, module, and subroutine
+    <li> <font color=red>
+	Collective (multiprocess) error reporting </font>
+	(with the user supplying the communications mechanism)
+    <li> <font color=red>
+	Error message history</font>, via a filtered list of ErrorObj's.
+    <li> 
+	<a href="../../../ZMtools/doc/html/0assertN.html">
+	Assertion macros </a>
+	reporting via error messages
+  </ul>
+
+<p>
+Some design points of this package are 
+  <ul>
+   
+   <li> The semantics of providing information to a log message are those
+   	of streaming objects into the log.  Thus the full power of the
+	&lt&lt mechanism for any object that may be sent to an ostream is 
+	available.
+	<ul>
+	<font color=red>
+	Here is a <a href="brief.html">very brief description</a> 
+	of how users issue messages for the log.
+	</font>
+	</ul>
+   <li> It is assumed that most of the time, messages are not being logged.
+	The burden in time incurred by the presence of the mechanism is kept 
+   	absolutely minimal in such circumstances.
+   <li> Much attention has been paid to the potential for use in the D0 Level 2
+	environment, in which efficienciy considerations are extreme and 
+	notable restrictions are placed on C++ feature usage.  The design
+	is such that customization for that purpose can be done with maximal
+	retention of the ErrorLogger code.
+  </ul>
+<p>
+Although this package did not start out with a design goal of becoming a
+not a multi-process message gathering mechanism, the 
+<font color=red><code>ELcollected</code></font>
+destination allows an experiment to set up collective error message handling,
+based on whatever communications mechanism they choose to employ.
+Given this collection mechanism, the need for a "circular save buffer" 
+(which had previously been called <b>ELsaveBuffer</b>) is also greatly 
+simplified.  
+The necessary functionallity is met by a destination 
+<font color=red><code>ELerrorList</code></font>,
+which places error objects onto a user-accessible std::list.
+<p>
+
+This package may be obtained from the following sources:
+
+  <ul>
+    <li>
+      The ZOOM reference copy
+      is located on the Fermilab <b>fnalu</b> Unix cluster
+      (for example, on <code>fsgi02.fnal.gov</code>),
+      in directories rooted at
+      <a href="../..">
+      /afs/fnal.gov/files/reports/working-groups/fpcltf/Pkg/ErrorLogger</a>.
+    <li>
+      For CDF or D0 users,
+      a reference copy is maintained in the standard CDF or
+      D0 manner on their respective Unix systems.
+    <li>
+      The package is kept in a CVS repository managed by SoftRelTools.
+      A file <a href="../../../cvs.setup">cvs.setup</a>
+      provides a script for setting up this and/or other ZOOM products.
+  </ul>
+
+
+<hr>
+
+
+<ul>
+<li> <a href="fundamentals.html"> Fundamentals and Concepts </a>
+<li> <a href="physicist.html"> How the Physicist Logs Errors </a>
+<li> <a href="framework.html">  Frameworker's Basics of Error Loggers </a>
+<li> <a href="further.html">   Further Options for the Frameworker </a>
+<li> <a href="coll.html">   Collective Error Logging </a>
+<li> <a href="ts.html">   Error Logging for Multithreaded Processes </a>
+<li> <a href="../../../ZMtools/doc/html/0assertN.html">   
+		Graded Assertions Interfacing with the Error Logger </a>
+<li> <a href="custom.html">   Customization Hooks </a>
+
+<li> <a href="../designNotes.txt"> Design Notes </a> and details of syntax and 
+semantics 
+<br>
+includes all the above sections, plus technical details.
+</ul>
+
+There are also coded samples of how to use the package:
+
+<ul>
+<li> <a href="basicUsage.html"> Very basic usage </a> 
+<li> <a href="sampleFramework.html"> Sample framework </a> illustratiing
+the use of many of the common features
+<li> <a href="ELcollected.html"> Using ELcollected/ELrecv </a> 
+to implement centralized message collection
+<li> <a href="ELerrorList.html"> Using ELerrorList </a> 
+for in-code examination of error message history
+</ul>
+
+There is also a mechanism for integrating the 
+<a href="../../../Exceptions/doc/html/0Exceptions.html">ZOOM Exceptions</a>
+ mechanism with the Error Logger, using a class derived from ZMexception
+<ul>
+<li>
+<a href="../../../ErrLogEx/doc/html/ZMexAugmented.html">ZMexAugmented</a>.
+</ul>
+
+<p><center>
+<img src="http://www.fnal.gov/docs/working-groups/fpcltf/icons/bar.gif"></center>
+
+<p><center>
+<a href="http://www.fnal.gov/docs/working-groups/fpcltf/Pkg/WebPages/zoomReal.html">
+ZOOM Home Page </a> -
+
+<a href="http://www.fnal.gov/faw/">Fermilab at Work</a> -
+
+<a href="http://www.fnal.gov/">Fermilab Home</a>
+</center>
+
+<p>
+      <hr>
+      <address><a href="mailto:mf@fnal.gov">Mark Fischler</a></address>
+<!-- hhmts start -->
+Last modified: September 22, 2000
+<!-- hhmts end -->
+</body>

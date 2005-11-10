@@ -1,0 +1,36 @@
+#ifndef ERROROBJ_ICC
+  #error ErrorObj.icc erroneously included by file other than ErrorObj.h
+#endif
+
+
+// ----------------------------------------------------------------------
+//
+// ErrorObj.icc
+//
+// ----------------------------------------------------------------------
+
+#include<sstream>
+
+namespace edm {      
+
+
+// ----------------------------------------------------------------------
+// Global method for physicists adding to an ErrorObj:
+// ----------------------------------------------------------------------
+
+
+template <class T>
+ErrorObj & operator<<( ErrorObj & e, const T & t )  {
+
+  std::ostringstream  ost;
+  ost << t << ' ';
+
+  return  e.emit( ost.str() );
+
+}  // operator<< <T>()
+
+
+// ----------------------------------------------------------------------
+
+
+}        // end of namespace edm

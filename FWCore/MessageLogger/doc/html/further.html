@@ -1,0 +1,799 @@
+<title>
+Further Options for the Frameworker 
+</title>
+<body bgcolor=FFFFFFFF>
+<center>
+<h1>
+The ZOOM ErrorLogger Package:
+<p>
+<font color=red>
+Further Options for the Frameworker
+</font>
+</h1>
+</center>
+
+<p>
+<ul>
+<!--
+<li> <a href="#ELcout"> Connecting cout or cerr to a Log </a>
+-->
+<li> <a href="#errorCounts"> Error Counts </a>
+<li> <a href="#errorHistory"> Error History: ELerrorList</a>
+<li> <a href="#errorobj"> Getting Information from an ErrorObj </a>
+<li> <a href="#traces"> Control over whether traces are logged </a>
+<li> <a href="#timespan"> Timespan in conjunction with limits </a>
+<li> <a href="#statistics"> How ELstatistics information is kept </a>
+<li> <a href="#statsMap"> Getting ELstatistics information as a map </a>
+<li> <a href="#changeostream"> Changing the ostream used by an ELoutput </a>
+<li> <a href="#formattingControl"> Formatting control available in ELoutput </a>
+<li> <a href="#hexFormatting"> Hex output formatting via ErrorLog </a>
+<li> <a href="#spaceAfter"> Spaces after ints are output </a>
+<li> <a href="#handleRecovery"> Recovering an ELdestControl handle </a>
+<li> <a href="#tableLimit"> Limiting the size of Error Count Tables </a>
+</ul>
+
+<!--
+<hr>
+<a name="ELcout"> </a>
+<h2> Connecting cout or cerr to a Log </h2>
+
+   Although the ErrorLogger package is meant to augment rather than replace
+   cout and cerr, the package supports hooking cout and/or cerr to the logger
+   instead.  If this is done, any data the user streams to cout or cerr
+   will instead go into the log.
+
+
+<p>
+   The intent of this ability is to help the user whose existing code does a 
+   lot of ordinary cout output, but who realizes that the information 
+   ought to go to the logger instead.  You can redefine a new global cout 
+   and/or cerr as follows:
+<font color=blue>
+<pre>
+	ELcout cout (ELinfo);
+	ELcout cerr (ELerror2);
+</pre>
+</font>
+<p> 
+The severity level supplied is a level that will be assigned when such 
+text is sent to the destinations.  Is the above example, if some ELoutput 
+destination
+was assigned a threshold of ELerror, then that destination would ignore things
+sent to cout (because those messages come in with severity ELinfo, which is
+below ELerror).  But that destination would output things sent to cerr (which
+have severity ELerror2).
+<p>
+  Having set up cout and/or cerr once for a compilation unit, 
+  the user need not go through and change each output to cout 
+  into issuing a message to errlog.
+<p>
+  This sort of output is ignored by the ELstatistics and 
+   ELsaveBuffer destinations, and will not be time-stamped, limited by id, or 
+   enjoy other sophisticated logging features.
+<p>
+   We recommend this mechanism be used only as an expedient for dealing with
+   existing code that streams to ostreams directly.  New code should use 
+   the actual errlog syntax when issuing messages that should go into the
+   log!
+-->
+
+
+<p><hr><p> 
+<a name="ErrorCounts"> </a>
+<h2> Error counts </h2>
+
+   You can obtain a cumulative count of errors of a given severity -- including
+   those which occured but were not sent to a destination or saved.
+
+<font color=blue>
+<pre>
+	logger->severityCount (ELerror);
+	logger->severityCount (ELsevere, ELfatal);
+</pre>
+</font>
+
+   The two-argument form adds the counts of the severities from the first
+   to the second level; for example, severe1, severe2, abort and fatal.
+<p>
+   These counts are can be reset to zero by 
+
+<font color=blue>
+<pre>
+	logger->resetSeverityCount(ELerror);
+	logger->resetSeverityCount(ELerror, ELfatal);
+	logger->resetSeverityCount();
+</pre>
+</font>
+
+   The latter resets all the severity counts.  Note that these methods
+   of the ELadministrator "logger" have nothing to do with the counts kept 
+   in ELstatistics for summary purposes.
+<p>
+  In the two-argument forms of these routines, if the first is a higher 
+  level than the second argument, the count will be zero and nothing will
+  be reset.
+
+<p><hr><p> 
+<a name="errorHistory"> </a>
+<h2> Error History: ELerrorList </h2>
+
+   You can set up to keep a std::list of all the Error Objects that were 
+   produced as a result of logging error messages.  To do this, first 
+   instantiate a <code>std::list&lt;ErrorObj</code>&gt;.  You then construct
+   an <code>ELerrorList</code> destination supplying that list, and
+   attaching that destination to the logger.
+
+<font color=blue>
+<pre>
+  std::list&lt;ErrorObj&gt; theList;
+  ELerrorList theErrorListD ( theList );
+  ELdestControl theErrorList ( logger->attach(theErrorListD) );   
+</pre>
+</font>
+
+  You can control what sort of errors the <code>ELerrorList</code> destination 
+  will react to, as per other destinations, by setting thresholds, limits,
+  and a module filter if desired.
+
+<font color=blue>
+<pre>
+  theErrorList.setThreshold(ELerror);
+  theErrorList.setLimit(*,10);
+</pre>
+</font>
+
+When the <code>ELerrorList</code> reacts to a message, it creates an 
+<code>ErrorObj</code> which is identical to that of the message, adds
+one last item containing the full context of this error, an places 
+that <code>ErrorObj</code> at the end of the <code>ELerrorList</code>.
+
+<p>
+The list (in the above example, <code>theErrorList</code>) remains owned and
+controlled by the instantiator.   Thus at any time the framework can find out
+information about the list, 
+<a href="#errorobj">examine</a> any of the <code>ErrorObj</code>s present,
+or clear the list so that it does not grow indefinitely.
+
+<font color=blue>
+<pre>
+  int numErrors = theList.size();
+  std::list&lt;ErrorObj&gt;::const_iterator e;
+  for ( e = theList.begin(); e != theList.end(); ++e ) {
+    if (e-&gt;.xid().id == "Tracking error") {
+      // do whatever is to be done if a tracking error has happened
+    }
+  }
+  list.clear();
+</pre>
+</font>
+
+<p>
+
+One warning:  
+<font color=red><b> Do not allow the list to be destroyed </b></font>
+while errors may still be logged to it!
+<p>
+Unlike what the logger does with destination objects (it creates and retains
+a clone so that a destination object can safely be discarded once attached to 
+the logger), 
+<code>ELerrorList</code><em> does not take over control of the list 
+supplied to its constructor.</em>
+It simply adds <code>ErrorObj</code>s to that list, trusting that the reference
+to the list remains valid.
+
+<p><hr><p> 
+<a name="errorobj"> </a>
+<h2> Getting Information from an ErrorObj </h2>
+
+  The header <a href="../../ErrorLogger/ErrorObj.h"> ErrorObj.h </a> defines 
+  the ErrorObj class; this in turn contains an 
+  <a href="../../ErrorLogger/ELextendedID.h">ELextendedID</a>.
+  <p>
+  The information you can extract from an ErrorObj is:
+  <ul>
+  <li> <font color=blue><code>xid().id</code></font>, 
+		the message id string (20 characters or less).
+  <li> <font color=blue><code>xid().severity</code></font>, 
+		the ELseverity object (e.g. ELerror).
+  <li> <font color=blue><code>xid().process</code></font>, 
+		a string containing the name supplied in setProcess().
+  <li> <font color=blue><code>xid().module</code></font>, 
+		a string containing the name supplied in setModule().
+  <li> <font color=blue><code>xid().subroutine</code></font>, 
+		a string containing the name supplied in setSubroutine()
+		or via @SUB=.
+  <li> <font color=blue><code>serial()</code></font>, 
+		a sequential integer serial number.
+  <li> <font color=blue><code>idOverflow()</code></font>, 
+		a string filled if the id logged was longer than 20 characters.
+  <li> <font color=blue><code>timestamp()</code></font>, 
+		a time_t (looks like an unsigned int) from which the time stamp
+		can be derived.
+  <li> <font color=blue><code>items()</code></font>, 
+	  A const reference to a list of ELstring's containing all the items 
+	  that were streamed to this message.
+  <li> If the ErrorObj was inserted onto an error list by ELerrorList, then
+	the last item on the <font color=blue><code>items()</code></font> list
+	will contain the string returned by invoking 
+	<code>fullContext()</code> when the error was logged.
+  </ul>
+
+<p> <hr> <p>
+
+
+<a name="traces"> </a>
+<h2> Control Over whether traces are logged </h2>
+
+   Obviously, if a message is not logged at some destination (because it
+   misses the severity threshold or has occured more times than its limit)
+   no trace is sent to that destination either.  But even if the message is
+   logged, you may not want the additional information (and clutter) of a
+   trace unless the message is sufficiently severe: 
+
+<font color=blue>
+<pre>
+   dest.setTrace(severity)   -- For errors logged to this destination, 
+				 include the trace (if available) if severity 
+				 is at least this level.
+</pre>
+</font>
+
+   The default provided for ELoutput is setTrace(ELerror).
+<p>
+(However, at this time, we do not have the ability to generate useful trace
+information based on the calling stack.)
+
+<p><hr><p> 
+<a name="timespan"> </a>
+<h2> Timespan in conjunction with limits </h2>
+
+   Sometimes, you may have a large bunch of errors logged in a short period of 
+   time, due to a specific problem within, say, a peculiar event.  The limit
+   mechanism prevents an output destination from being swamped with more than
+   N of these identical messages.  
+<p>
+   If the messages continue to arrive on a regular basis, then this throttling
+   should continue to apply.  But sometimes, there may be a burst of errors,
+   hitting the limit, followed by a long hiatus, followed by another instance
+   or burst of that type of error.  In that case, you may well wish to see
+   the errors immediately after the dry spell.
+<p>
+   The way this is provided is by the concept of a timespan.  A timespan is
+   a number of seconds associated with a given error type.  When a message
+   arrives to ELoutput (which uses the same ELlimitTable class
+   to implement its throttling behavior), the count (tward throttling based
+   on the limit) might be zeroed.  The count is zeroed if the number of seconds 
+   between the previous occurence of this type of error and the present 
+   occurence exceeds the timespan for this type of error.  Of course, if the 
+   count is zeroed, this and the next N errors will not be suppressed.
+<p>
+   (On systems where getting time information is impractical, timespan will be
+   moot.)
+<p>
+   The semantics of setting timespans, and choosing which timespan is 
+   applicable, is exactly the same as for setting limits.  However, a 
+   timespan is expressed as a float number of seconds t.
+
+
+<font color=blue>
+<pre>
+   dest.setTimespan      (id, t)
+   dest.setTimespan      (severity, t)
+   dest.setTimespan      ("*", t)
+   logger->setTimespans  (id, t)
+   logger->setTimespans  (severity, t)
+   logger->setTimespans  ("*", t)
+</pre>
+</font>
+
+   A timespan (or a limit) can be "unset" by supplying a honking large value
+   that will never be reached.
+
+<!--
+<p><hr><p> 
+<font color=red>
+<b>
+ELsaveBuffer (discussed in the next two sections) is not yet implemented.
+</b>
+</font>
+<pre>
+
+21) ELsaveBuffer Local Semantics
+--------------------------------
+
+The save buffer is intended to fill two roles:  Firstly, in Run I, at least one
+experiment had the framework examine errors AFTER an event was completed.  
+One could imagine storing the eoor infomration in a data bank tied to the 
+event, for example.  Secondly, athough depending on the strategy chosen
+collective logging may require some custom destination, the save buffer is
+designed to be suitable for a "boss" process to pull error info for collection.
+
+This section describes the ELsaveBuffer destination from just the point of view 
+of the local process; the first of those two roles.
+
+Locally, however, it can ve viewed as a single list of LENGTH ErrorObj
+objects. The fundamental operation -- done by the logger -- is to add an
+ErrorObj to the collection at the logical end. Locally, we will implement
+semantics patterned on those of list, with the implemented concepts being
+push_back(), pop_front(), and clear(). Direct const_iterator manipulation is 
+also supported so that the program can examine the contents (see the next 
+section, "Accessing Saved Error Messages").
+
+The various pieces of control information needed to implement these operations
+are kept in a state block, and it is possible via the constructor to force that
+state block and the actual data area to be located at some given address.
+See "ELsaveBuffer Semantics" for details about this state block, which will
+be essential in the collective role.
+
+The operations which come from the user or frameworker, to impact ELsaveBuffer,
+mostly come from the fact that it is an ELdestinationI subclass:
+
+setThreshold()			Thresholds, limits and timespans are set 
+setLimit()			as for any other ELdestinationI class.
+setTimespan()			
+
+log(errorObjI &)		This ends up calling push_back() to place an
+				error object into the save buffer.  The error
+				object, contains the extended ID plus the 
+				entire text of items sent to that error message.
+
+summaryLine(char*)		Summary lines are stored in some way in a 
+				summary buffer which some external entity
+				can read out. We have yet to flesh out this
+				mechanism but it will be much like the message
+				mechanism.  ****
+
+And particular to ELsaveBuffer:
+
+flush()				This ends up calling clear().  If you also
+				wish to zero the counts toward limits (which
+				you might do if error info is stored with
+				each independent event), call flush() then 
+				zero().
+
+The ELsaveBuffer destination ignores individual operator<< operations that send
+one item at a time, in favor of wating till the entire message is logged.  Of
+course, no information is lost since the ErrorObj contains the full text of
+all the items logged in.
+
+						   -- Further Options --
+
+The logical list can be of finite extent, and in fact, when used in the
+collective mode, it is possible that even with a small amount of room 
+available, there will be no way to add a message without blocking.  Thus, 
+adding a message has peculiar semantics:  It is NOT GUARANTEED that a given 
+message added to the list will actually be remembered; messages may be dropped 
+if they overflow.  If that happens, the last message before the overflow will 
+also be lost, replaced by a message warning of skipped messages.  
+
+In any case, long jobs ought periodiacally to flush the save buffer, otherwise
+a large collection of occasional messages can amount to a large memory hog.
+
+If the logical list is of indefinite extent, the implementation may use a
+true list, and in that case no messages can be lost.  If collective use
+of the ELsaveBuffer is desired, a limit should be imposed.  If a true list is 
+used, the state block used for remote control and access becomes meaningless.
+
+						   -- Further Options --
+22) Accessing Saved Error Messages
+----------------------------------
+
+   For the program to get at information contained in saved error objects, 
+   if needs to know how to get at the items in the ELsaveBuffer list, and 
+   having gotten an ErrorObj, how to get at its individual fields of data.
+
+   The ELsaveBuffer list sticks with standard container semantics:  To get
+   at an item, you declare a const_iterator and use it.
+
+   	ELsaveBuffer::const_iterator err;  
+	for ( err = savebuf->begin(); err != savebuf->end(); err++ ) {
+	  if ( err->severity() == ELabort ) { think_about_aborting(); }
+        }
+
+   The methods for forming and adding information to an ErrorObj were already
+   described in "How an instance of ErrorObj may be formed."  ErrorObj
+   also has methods to get the various pieces of information, both those 
+   captured when the object was created, and those supplied directly by a user.
+
+	ELseverityLevel severity();
+	ELstring   id();
+	ELstring   text();
+	ELstring   process();
+	ELstring   module();
+	ELstring   subroutine();
+	ELstring   context();
+	ELstring   verboseContext();
+	time_t     timeStamp();
+	ELstring   fullMessage();
+	int	   sequenceNumber();  
+
+   The last item bears explaining:  ErrorObjs sent and not ignored by 
+   ELsaveBuffer are assigned sequential numbers, so that a non-local entity
+   can detect any skipped messages.  Only ErrorObj's obtained from the save
+   buffer have a meaningful sequence number; if a user just constructs an
+   ErrorObj it will have sequence number 0.
+
+   Notice that only information associated with the error message is available
+   in this way.  This would not include information describing how a specific
+   destination (including an ELstatistics destination) would treat the error.
+   In particular, there is no way to get from the count of how many times this 
+   type of error has occured, directly from an ErrorObj.
+
+</pre>
+-->
+
+<p><hr><p> 
+<a name="statistics"> </a>
+<h2>How ELstatistics information is kept </h2>
+
+   The error statistics kept by the ELstatistics destination are logically 
+   a map.  The combination of 20-byte message id, severity, process, module
+   and subroutine, which we for conveneince combine to form --ELextendedID--,
+   acts as the key for this map.  The data is a (zero-able) count and an 
+   aggregate count for each type of message, plus the (brief) contexts 
+   (run/event) of the two first and one latest instance of occurence of such 
+   a message with non-null contexts.
+<p>
+   A last piece of data for each entry is a flag telling whether any message 
+   of this type has been throttled out of all the destinations because of 
+   limits.  In "How the framework sets up for logging," it was mentioned
+   that ELstatistics should be attached ater all the ordinary destinations.
+
+<font color=blue>
+<pre>
+	ELdestControl  logfile  = logger->attach ( ELoutput(cerr)      );
+	ELdestControl  logcerr  = logger->attach ( ELoutput("myFileName.log"));
+	ELdestControl  logstats = logger->attach ( ELstatistics(5000)  );
+</pre>
+</font>
+<!--	ELdestControl  errbuf   = logger->attach ( ELsaveBuffer(20000) );
+-->
+
+   This is the recommended order, for the following reason:  Each destination 
+   indicates whether it has ignored a given message because of a limit or 
+   threshold.  An ELstatistics, when passed an error object, notes whether any
+   destination has YET actually logged the error message; if not, it will
+   mark that error type as having an instance that was ignored by every 
+   destination due to limits.  So if you want that asterisk in the statistics
+   summary to be meaningful, attach ELstatistics after all the destinations
+   which might output the message.
+<p>
+   In the above example, we attached errbuf after ELstatistics because we 
+   want the * to appear in the summary if an error was neither logged to 
+   logfile nor logcerr.  But of course the frameworker has flexibility.  For
+   instance, one could imagine a attaching a scrolling screen that will get
+   millions of messages AFTER logstats, saying that if the instance only was
+   output there, we want to note in the summary that some instance appears in
+   no destination logs.
+<p>
+   In addition to the information kept in the individual error table,
+   a count and an aggregate count of errors by severity level is kept,
+   so that that information may be supplied in the summary.  
+<p>
+   You can access the ELstatistics information by the stats.summary() methods.  
+<p>
+</pre>
+
+<p><hr><p> 
+<a name="statsMap"> </a>
+<h2> Getting ELstatistics information as a map </h2>
+
+The frameworker can obtain a 
+<code>std::map&LT ELextendedID, StatsCount ></code>
+containing the same information available when an ELstatistics summary is 
+requested.
+<p>
+   The difference is that for puposes within a program, it may be easier
+   to extract information from the <b>ELextendedID</b> keys and 
+   <b>StatsCount</b> structures than to parse summary output lines.
+
+<font color=blue>
+<pre>
+  ELdestControl logstats = logger->attach ( ELstatistics()  );
+  ... 
+  std::map<ELextendedID, StatsCount> m = logstats.statisticsMap();
+</pre>
+</font>
+
+To use this, one should know about the <b>ELextendedID</b> struct from
+<a href="../../ErrorLogger/ELextendedID.h">ELextendedID.h</a>,
+and the <b>StatsCount</b> struct from 
+<a href="../../ErrorLogger/ELmap.h">ELmap.h</a>.
+<p>
+An example of usage is in the file 
+<a href="../../Tests/testStatsMap.cc">testStatsMap.cc</a>.
+
+<p><hr><p> 
+
+<a name="changeostream"> </a>
+<h2> Changing the ostream used by an ELoutput</h2>
+
+The frameworker can switch ostreams used by an <b>ELoutput</b> destination.
+For example, one set of runs can write to one file, and then this can be closed
+for examination while another file is used for further messages.
+This is done, of course, via the associated destControl.
+<font color=blue>
+<pre>
+  ELdestControl logfile = logger->attach ( ELoutput("earlyFile.txt")  );
+  ...
+  logfile.changeFile("laterFile.txt"); 
+</pre>
+</font>
+Just as an <b>ELoutput</b> may be constructed supplying either a file name
+(in which case it will create and own a new ofstream) or by supplying 
+a reference to an ostream, so too the ostream may be switched by supplying
+a file name (as above) or an ostream:
+<font color=blue>
+<pre>
+  std::ostream os1, os2;
+  ELdestControl logfile = logger->attach ( ELoutput(os1)  );
+  ...
+  logfile.changeFile(os2); 
+</pre>
+</font>
+
+<p>
+A good general rule is that if an <b>ELoutput</b> was constructed by giving an
+ostream it should be and then switched supplying an ostream; and if it was
+constructed by file name it should be switched by file name.
+<p>
+There is a potential trap if this rule is violated and the two files
+or streams involved refer to the same actual object.
+A <a href="ostreamTraps.html">documentation page</a> shows the details of this
+trap.
+
+<p>
+In addition, if you just want to inspect a file while a long job is running,
+knowing that it is up to date on the error messages issued, 
+a flush command is provided:
+<font color=blue>
+<pre>
+  logfile.flush(); 
+</pre>
+</font>
+
+<p><hr><p> 
+
+<a name="formattingControl"> </a>
+<h2>Formatting control available in ELoutput</h2>
+
+
+The ELoutput destination provided allows the frameworker to control some 
+aspects of the format outputted for each error message.  The methods 
+in the second column of this chart reflect the default behavior.
+
+<font color=blue>
+<pre>
+  dest.suppressTime()        dest.includeTime()
+  dest.suppressGMT()         dest.includeGMT()
+  dest.suppressModule()      dest.includeModule()
+  dest.suppressSubroutine()  dest.includeSubroutine()
+  dest.suppressText()        dest.includeText()
+  dest.suppressContext()     dest.includeContext()
+  dest.includeSerial()       dest.suppressSerial()
+  dest.useFullContext()      dest.useContext()
+</pre>
+</font>
+
+Note that these methods should be called as methods of the destination control
+obtained when the ELoutput was attached to the logger.
+
+
+<p>
+Users can use \n at the start or end of items sent to the log, to control line
+formatting.  ELoutput also supports a couple of routines to force newlines
+into the "epilog" of context and time infomation appended after the last item:
+<font color=blue>
+<pre>
+dest.separateEpilogue()      dest.attachEpilogue()
+dest.separateTime()          dest.attachTime()
+</pre>
+</font>
+
+The former places a newline after the last user-supplied item so that the
+run/event context, module name, and and time stamp come out on a fresh line.
+The latter forces the timestamp to come out at the start of its own line
+(after the usual indent).  These may help with easy scanning of the log output.
+Their inverse functions in the second column can be called to reverse the
+process.
+<p>
+If a timestamp is included, by default it tacks on the Greenwich Mean Time
+(more technically known as the Universal Common Time).  This feature can
+be suppressed.  <code>dest.suppressGMT()</code> and 
+<code>dest.suppressGMT()</code> are moot if the overall timestamp
+is suppressed.
+
+<p>
+<a name="setLineLength"> </a>
+Another flexibility is setting line length:  The ELoutput destination
+by default formats messages lines by starting a new line whenever an
+item would go past column 80.  One can change that line length:
+
+<font color=blue>
+<pre>
+dest.setLineLength(len)      dest.getLineLength()
+</pre>
+</font>
+
+Note that this is done separately for each destination, thus a log might
+have 132-column formating while a screen output sticks to 80.  Note also
+that for the ELstatistics destination, the formatting -- which assigns
+fixed column widths for various fields -- is unaffected by this line length.
+
+<p>
+<a name="squelchEstablished"> </a>
+Another flexibility is squelching the "ErrorLog Established" message that
+comes out at the top of the log.  This message can be very useful in cases
+where a log was appended to an existing file.  Nonetheless, it is sometimes
+desirable that a program with no problematic occurances emit absolutely
+nothing to the error logging stream.  This is done when constructing the
+<b>ELoutput destination. </b>
+A second argument is accepted; this is a boolean which
+defaults to true, but if false will squelch the ErrorLog Established
+message.
+
+<font color=blue>
+<pre>
+ELdestControl logcerr  = logger->attach ( ELoutput(cerr, false) );
+ELdestControl logfile  = logger->attach ( ELoutput("myFileName.log", false) );
+</pre>
+</font>
+
+The default constructor for ELoutput does not provide this flexibility.
+<p>
+
+<p><hr><p> 
+
+<a name="hexFormatting"> </a>
+<h2>Hex output formatting via ErrorLog </h2>
+
+When data of integer type is output, it is occasionally preferable to see
+the value in hex.  The package does not support streaming the 
+<code>hex</code> manipulator
+into an <b>ErrorLog</b>, 
+because technical considerations involving the details of
+signature of <code>hex</code> make doing this in a portable manner too 
+difficult.
+<p>
+Instead, the framworker or a user can set an <b>ErrorLog</b>
+to print all integer
+items larger that some trigger value in a format like 
+<b><code>258 [0x00000102]</code></b>:
+
+<font color=blue>
+<pre>
+  errlog.setHexTrigger (int trigger);
+</pre>
+</font>
+
+The rules for deciding whether an integer will have its hex value output
+along with its decimal value are as follows:
+<ol>
+<li>
+  The logic determining whether to use the hex form is on a 
+   per-<b>ErrorLog</b> basis.  Message using a different <b>ErrorLog</b> 
+   will see the other <b>ErrorLog</b>'s hexTrigger.
+<li>
+  Hex output is done whenever an <code>int</code>, <code>long</code>, 
+  or <code>short</code>, (or the unsigned form of one of those) is streamed 
+  to the ErrorLog, and the absolute value of that
+  integer is greater than or equal to the hexTrigger established for that
+  ErrorLog.
+<li>
+  The default value of hexTrigger is negative.  A negative value turns off
+  hex formatting.  
+</ol>
+<p>
+An example of usage is in the file 
+<a href="../../Tests/testHex.cc">testHex.cc</a>.
+
+<p><hr><p> 
+
+<a name="spaceAfter"> </a>
+<h2>Spaces after ints are output </h2>
+
+The default behavior when an int-type variable is part of a message is
+<em>not</em> to append a space after it.  (Strings and floating point
+numbers do have
+ending spaces automatically appended.)  Often, output will be easier to
+read if spaces are appended.  To enable this behavior, the framework can do:
+<font color=blue>
+<pre>
+  errlog.setSpaceAfterInt (true);
+</pre>
+</font> 
+
+<p><hr><p> 
+
+<a name="handleRecovery"> </a>
+<h2>Recovering an ELdestControl handle 
+</h2>
+
+If you wish to modify the behavior of a destination, but no longer have in 
+scope the <b>ELdestControl</b> obtained when that destination was attached
+to the logger, that handle can be recovered as long as it was assigned an
+<a href="framework.html#handleId"> identifying string </a> when attached.  
+For example, if the setup code looked like
+
+<font color=blue>
+<pre>
+  ELdestControl logfile;
+  logfile = logger->attach(ELoutput ( "filename.log" ), "myLogFile" );
+</pre>
+</font>
+
+then later, after that logfile object has been lost, you can get the handle 
+back by
+
+<font color=blue>
+<pre>
+  ELdestControl logfile;
+  bool handleFound;
+  handleFound = errlog.getELdestControl ("myLogFile", logfile);
+  if (!handleFound) { /* ... oops, wrong name -- user chooses what to do */ }
+</pre>
+</font>
+
+Assuming the string supplied is recognized as being one the id for an
+attached destination, <b>logfile</b>, which is passed by non-const reference,
+will become a handle to control that destination.
+
+<p>
+
+If <b>getELdestControl()</b> is supplied a string it does not recognize, then
+an error message of severity <b>SEVERE2</b> will be sent to Errrlog, and
+<b>logfile</b> will be left unmodified.  
+
+In the above example <b>logfile</b> was initialized as a 
+default <b>ELdestControl</b>,
+and methods invoked on this default <b>ELdestControl</b> will have no effect
+on any destinations.
+
+
+
+<p><hr><p> 
+
+<a name="tableLimit"> </a>
+<h2>Limiting the size of Error Count Tables</h2>
+ 
+By default, each unique type of error message (that is, each new type of 
+extended id encountered) will result in an entry to a table in each destination,
+which tracks the frequency of occurence of that type of message for purposes
+of imposing a limit on the number of times it is output.  
+
+Since the space of possible id's is huge, under some circumstances, one may 
+wish to impose an absolute limit on the number of id's tracked.  
+
+<font color=blue>
+<pre>
+  ELdestControl logfile;
+  logfile = logger->attach(ELoutput ( "filename.log" ), "myLogFile" );
+  logfile.setLimit("*", 10);
+  logfile.setTableLimit (200);
+</pre>
+</font>
+  
+In the above example, if 250 different types of messages are logged, only the
+first 200 go into the table.  Thus if 50 messages of the first type are issued,
+the limit will suppress messages of the first type after 10 have been output.
+But since messages of type 201 won't have an entry in the table, all 50 messages
+of that type would be responded to and output.
+
+<p><hr><p>
+
+
+
+<p><center>
+<img src="http://www.fnal.gov/docs/working-groups/fpcltf/icons/bar.gif"></center>
+
+<p><center>
+<a href="0ErrorLogger.html">
+ErrorLogger Package Page </a> 
+<p>
+</center>
+      <hr>
+      <address><a href="mailto:mf@fnal.gov">Mark Fischler</a></address>
+<!-- hhmts start -->
+Last modified: Thu Mar 15 2001
+<!-- hhmts end -->
+</body>

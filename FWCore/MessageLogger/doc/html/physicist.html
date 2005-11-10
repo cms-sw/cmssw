@@ -1,0 +1,620 @@
+<title>
+How the Physicist Logs Errors
+</title>
+<body bgcolor=FFFFFFFF>
+<center>
+<h1>
+The ZOOM ErrorLogger Package:
+<p>
+<font color=red>
+How the Physicist Logs Errors
+</font>
+</h1>
+</center>
+
+<font size = +1> Click <a href="brief.html">here</a> for a <em>very brief</em> description of 
+what you do to issue error messages into the log. </font>
+<p>
+<hr>
+
+
+<h2>
+How logging works
+</h2>
+
+The framework of each experiment provides the physics code with an instance of
+<b>ErrorLog</b>.  The framework establishes one or more "destinations" for
+the logged information, and controls behavior such as filtering of messages 
+based on severity -- the physics code need pay no attention to those 
+administrative choices.
+<p>
+When an anomolous condition occurs, or when it is necessary to log some 
+information, the physics code can use the ErrorLog directly to log messages 
+of various severities.  The information comes out in each of the desitnations,
+filtered according to what the framework has specified, and with suitable
+time, module, and context information attached.
+<p>
+
+The framework may also provide one or more <b>ZMexception</b> types derived
+from <a href="#zmxel"><b>ZMxel</b></a>.  
+This allows the physics code to use the 
+<a href="../../../Exceptions/doc/html/0Exceptions.html">
+ZMthrow exception mechanism</a>, which supports error handlers and so forth.
+ZMxel exceptions make use of the ErrorLogger mechanism:  They take an 
+<a href="#errorobj">ErrorObj</a> argument, and if information is to be logged,
+they hook into the same ErrorLog.  Thus you can use the Exceptions package
+and also get the formatting, dispatching and statistics capabilities of the 
+ErrorLogger package.
+
+<p>
+<ul>
+<li> <a href="#access"> How the Physicist has access to the logger </a>
+<li> <a href="#log"> How a physicist can issue a log message 
+			in multiple statements </a>
+<li> <a href="#indicate"> How the physicist can indicate what is being done </a>
+<li> <a href="#information"> How the physicist can query the ErrorLog to
+			find the module name </a>
+<li> <a href="#severity"> A list of the available severity levels </a>
+<li> <a href="#zmxel"> How to log thru the ZOOM Exception mechanism </a>
+<li> <a href="#errorobj"> How an instance of ErrorObj is formed </a>
+<li> <a href="#look"> What the error message output will look like </a>
+<li> <a href="#stats"> What summary information will be available </a>
+</ul>
+<hr>
+
+<h2>
+<a name="access">
+How the Physicist has access to the logger
+</a>
+</h2>
+
+
+   Both experiments (CDF and D0)
+   have the concept of an organizational step in the course
+   of processing, under control of some responsible person or group.  One
+   experiment calls this a "package," another a "module"; but in both
+   cases it is implemented in code as a set of structural rules that the 
+   framework requires its various major components to follow.  In particular, 
+   there is an object encapsulating each entire package (or module); and
+   this is derived from some framework-provided base class which we will call
+   Module.  
+<p>   
+
+<a name="indexELadministrator"></a>
+<a name="indexerrlog"></a>
+
+   Each module has an object at scope of the Module class, which for
+   illustration sake, we will name "<b>errlog</b>."  
+   (The steps the writer
+   of the base Module class must take to establish this log object are 
+   presented in 
+	<a href="framework.html#module"> How the Module Sets Up errlog</a>.)
+<p>   
+
+   So the physicist working in a methods of that module sees "errlog" as an 
+   instance of <b>ErrorLog</b>.  A physicist coding for a different module will 
+   see some other instance of ErrorLog (with the same name "errlog" if things 
+   are set up as we recommend).  But these are thin shells attached to a single
+   instance of an <b>ELadministrator</b> 
+   object that represents the actual logger.
+<p>   
+
+   A logger can be associated with one or more destinations.  Each destination 
+   represents a "sink" for error information; it is a class with methods to 
+   accept and deal with error message information, and to allow the frameworker 
+   to control various behavior aspects.  In any event, the frameworker has 
+   established the logger and set up the destinations (possibly driven by 
+   information from a job control file).  The physicist logging errors need 
+   not be concerned with the destinations which have been set up.
+<p>   
+
+   To get the headers allowing the use of ErrorLog, the compilation unit
+   has to include one header:
+<p>
+<font color=blue>
+<pre>
+	#include "ErrorLogger/ErrorLog.h".
+</pre>
+</font>
+<p>
+   
+   However, since the physicist code is going to be part of a class that is
+   derived from a Module base class, and the Module base sets up errlog,
+   that will already have included the necessary ErrorLog.h.  So in normal use
+   the physicist does not have to include that line; nothing extra need be
+   included to get access to errlog.
+
+<p>
+<a name="indexnamespace"></a>
+   Also, since this product is namespace protected, the user must specify
+   that namespace zmel is in general use:
+<p>
+<font color=blue>
+<pre>
+	using namespace zmel;
+</pre>
+</font>
+<p>
+
+   ZOOM provides a mechanism to use if you wish the use of namespaces to be
+   disabled/enabled depending on a define.  Instead of "using namespace zmel":
+
+<p>
+<font color=blue>
+<pre>
+	ZM_USING_NAMESPACE( zmel )  /* using namespace zmel; */
+</pre>
+</font>
+<p>
+
+<hr>
+
+
+
+<a name="indexmessage_ID"> </a>
+<a name="indexendmsg"> </a>
+<h2>
+How a physicist issues a log message:
+</h2>
+
+<p>
+<font color=blue>
+<pre>
+   errlog (ELerror, "Too much energy") << "E = " << totalEnergy << endmsg;<font color=0080c0>
+     a       b            c                 d            e           f
+</font></pre>
+</font>
+<p>
+
+   Here is the breakdown of this syntax:
+<dl>
+<dt>a - errlog<dd>
+	The ErrorLog object has a () method which returns something you
+	can treat like an ostream, that is, you can do << to it.  It takes 
+	two mandatory arguments -- a severity and a message ID.  The presence
+	of these arguments has the effect of saying that this is the start
+	of an error message.
+
+<dt> b - ELerror <dd>
+   	ELerror is one of the ErrorLogger severity levels.  They all start 
+	with EL (they are listed below).  They are all instances (provided by 
+	the ErrorLogger package) of the class <b>ELseverityLevel</b>.  Invoking 
+	this operator() of the ErrorLog object has the effect of starting a new 
+  	error message, and establishing the severity of that error.
+
+<dt> c - "Too much energy" <dd>
+   	The second argument is a string (or char*), and determines the message 
+	identifier (ID).  Although the entire content of the string will go
+	into the output text, the message ID is considered for statistics and
+	limits purposes to be the leading 20 characters of this string, padded 
+	with trailing blanks.
+
+<dt> d - "E = "<dd>
+   	There follow an arbitrary number of further outputs to the message.
+	These will together form an informational string, which most 
+  	destinations will print	after the ID, with suitable line-break 
+	insertions.  These further outputs are optional.
+
+<dt> e - totalEnergy <dd>
+   	Notice that the further arguments need not be strings (although you
+	could, if you wish, format them all up into one string by using an 
+ 	ostringstream).  In the example, the double totalEnergy is put to the
+	stream.  Any data type or class that could be streamed to cout can
+	be sent to the log message in this way.
+
+<dt> f - endmsg <dd>
+   	The endmsg at the end of the message is treated specially, and indicates
+	that the message is over.  Only one endmsg should be placed in a 
+	message; the user is free to insert explicit "\n" characters and/or
+	endl should control of multiple lines be desired.  
+</dl>
+<p>
+
+
+<a name="indexERRLOG"> </a>
+<a name="indexERRLOGTO"> </a>
+
+ An alternative to doing errlog (sev, id) is to use the provided ERRLOG macro:
+
+<p>
+<font color=blue>
+<pre>
+	ERRLOG ( sev, id ) 				   	
+</pre>
+</font>
+equivalent to 
+<pre>
+	errlog ( sev, id ) << __FILE__ <<":" << __LINE__ << " "
+</pre>
+<p>
+
+   This assumes that the ErrorLog available is named errlog; a second macro is
+
+<p>
+<font color=blue>
+<pre>
+	ERRLOGTO ( logname, sev, id )
+</pre>
+</font>
+equivalent to 
+<pre>
+	logname ( sev, id ) << __FILE__ <<":" << __LINE__ << " "
+</pre>
+<p>
+
+<hr>
+
+<p>
+<a name="log">
+<h2> How a physicist can issue a log message <br>
+in multiple statements
+</a>
+</h2>
+
+<p>
+<font color=blue>
+<pre>
+   errlog (ELerror, " "Too much energy") << "E = " << totalEnergy;
+   if ( condition ) {
+     errlog << "more stuff";
+   }
+   errlog << "yet more stuff" << endmsg;<font color=0080C0>
+      g                            h
+</font></pre></font>
+</pre>
+
+<dl>
+<dt> g - errlog <dd> 
+	The ErrorLog object also has a direct << method.  This streams 
+	more into its message string, without declaring a new error or
+	establishing a severity level.  Thus you may continue to build up the 
+	message, by having repeated lines which do not use endmsg until the
+	last one.
+
+<dt> h - endmsg <dd> 
+	Although key error information (id, severity, timestamp, context, 
+	and so forth) is captured immediately when the log () method is done, 
+ 	the <b>ELerrorObj</b> object remains "open" to additional data until 
+	either the endmsg is encountered, or some other invocation of errlog () 
+	occurs.
+</dl>
+
+    If the physicist forgets to start a new message with log (severity, id)
+    and instead then does errlog << stuff, then assuming the previous message
+    was closed off with an endmsg (or this is the first one for this log),
+    a new message will be opened.  The severity assigned to such a message 
+    will be <b>ELunspecified</b>.
+
+<p><hr><p>
+
+
+<a name="indexsetSubroutine"> </a>
+<a name="index@SUB="> </a>
+
+<p>
+<a name="indicate">
+<h2>
+How the physicist can indicate what is being done
+</a>
+</h2>
+
+   The physicist may OPTIONALLY declare the name of the subroutine
+   currently executing.  When an error is logged, this name will go
+   into the message, and also into the overall statistics.  The user 
+   will generally only declare fairly large steps, to avoid some overhead.
+<font color=blue>
+<pre>
+	errlog.setSubroutine( "myName" );
+</pre>
+</font>
+
+   An alternative is available:  If after the ID string, the next item
+   is a string of the form "<b>@SUB=</b><em>myname</em>", then 
+   <em>myname</em> is treated as the 
+   subroutine name, regardless of what setSubroutine has set up.
+<font color=blue>
+<pre>
+  errlog ( ELsevere "Bank Confusion" ) << "@SUB=prepare_IO" << endmsg;
+</pre>
+</font>
+
+<p>
+
+<hr>
+
+<p>
+<h2>
+<a name="information">
+How the physicist can find the Mudule or Subroutine name  
+</a>
+</h2>
+
+   In most frameworks, the framework will automatically set up the module
+   (package) and in some frameworks, the framework may automatically
+   set the subroutine at key points.  The physicist can query the ErrorLog
+   object to find out the name of the module and/or subroutine:
+   
+<font color=blue>
+<pre>
+        std::string modname = errlog.moduleName();
+        std::string subname = errlog.subroutineName();
+</pre>
+</font>
+
+   Of course, the user need not use these explicit queries to include
+   the module and subroutine in an error message (the message formatting does
+   this automaticaaly), but there may be cases where this information is useful for the program logic.
+   for the program logic.
+   <p>
+   These methods are in no way magic:  They only return the same information
+   that some other portion of the program has supplied via setModule() or
+   setSubroutine().
+   
+<p>
+
+<hr>
+
+<p>
+<h2>
+<a name="severity">
+A list of the available severity levels
+</a>
+</h2>
+
+   Each severity level has a corresponding ELseverityLevel object, for example, 
+   ELwarning.  Each such object has two relevant behaviors:
+<ol>
+	<li> Methods getSymbol() and getName() get its symbol and full name
+          respectively;  the destinations will use these methods to prepare 
+          text.
+	<li> There is a comparison to ask whether one ErrorSeverity is more 
+	  severe than another.  So the concept of logging everything above 
+	  a certain severity is meaningful.
+</ol>
+   The ErrorSeverity objects -- instantiated globally by the package -- are:
+<pre>
+  Severity object   Symbol   Full name  Intention	
+  ---------------   ------   ---------  ---------
+
+  ELzeroSeverity      --	--				
+  ELincidental        ..	..      flash this on a screen
+  ELsuccess           -!      SUCCESS   report reaching a milestone	
+  ELinfo              -i      INFO      information
+  ELwarning           -w      WARNING   warning
+  ELwarning2          -W      WARNING!  more serious warning
+  ELerror             -e      ERROR     error detected
+  ELerror2            -E      ERROR!    more serious error
+  ELnextEvent         -n      NEXT      advise to skip to next event
+  ELunspecified       ??        ??      severity was not specified
+  ELsevere            -s      SEVERE    future results are suspect
+  ELsevere2           -S      SEVERE!   more severe
+  ELabort             -A      ABORT!    suggest aborting		
+  ELfatal              -F     FATAL!    strongly suggest aborting!
+  ELhighestSeverity    !!       !!
+</pre>
+   The frameworker can control whether declaring severe, abort, or fatal
+   errors actually will abort the job.  The intentions listed for all the 
+   error types are only advisory; it is up to the framework to do what the
+   experiment intends.  If no abort threshold is set, then
+   even ELfatal errors will not automatically abort the job.
+<p>
+
+   ELzeroSeverity and ELhighestSeverity are not supposed to be used in 
+   forming error messages but are available to the frameworker when setting
+   up various thresholds.  
+
+<p>
+
+   An ELseverityLevel may be constructed from a string (or char*).  This
+   allows a user or framework to accept run-time input specifying what
+   severity to assign to a given possible error. 
+
+<font color=blue>
+<pre>
+  ELstring input; cin >> input;
+  ELseverityLevel mysev (input);
+  // ...
+  errlog (mysev, "this error");
+</pre>        
+</font color=blue>
+
+   The options accepted for a given level are its symbol, its full name,
+   the name of its severity object -- these are as listed in the above table --
+   and all-caps names:
+
+
+<font color=blue>
+<pre>
+        "ZERO"          "INCIDENTAL"    "SUCCESS"       "INFO"
+        "WARNING"       "WARNING2"      "ERROR"         "ERROR2"
+        "NEXT"          "UNSPECIFIED"   "SEVERE"        "SEVERE2"
+        "ABORT"         "FATAL"         "HIGHEST"
+</pre>        
+</font color=blue>
+
+   The translation used is case-sensitive.  If no match is found, then
+   ELunspecified will be used.
+
+
+<hr>
+
+<h2>
+<a name="zmxel"> How to log thru the ZOOM Exception mechanism </a>
+</h2>
+
+The ZOOM <a href="../../Exceptions/doc/html/0Exceptions.html"> Exceptions </a>
+mechanism 
+provides a way to structure a heirearchy of exception objects, and
+supports control of handling of these objects when they are <b>ZMthrow</b>.
+Aside from the additional flexibility supported, ZMthrow has the same
+semantics as the C++ exception try/<b>throw</b>/catch machinery, and indeed
+if the exception is not handled, the handler does not specify that normal
+excecution should continue, then an ordinary C++ throw is issued.
+
+Most ZOOM exception classes have constructors taking a (message) string, and
+will output to cerr information including the exception type and the string.
+But the package provieds a special class <b>ZMxel</b>.   This exception class
+(and any exception derived from it) has a constructor taking an 
+<a href="#errorobj"><b>ErrorObj</b></a>.  This error object represents
+the same information you would provide to the error logger:  severity, error
+id, and optionally one or more items streamed in via the <code>&LT&LT</code>
+operator.  
+
+So if the experiment framework wishes to use the ZOOM exceptions mechanism, 
+the user can <b>ZMthrow</b> an exception yet still have the output go to the
+logging destinations and the statistics be kept.
+
+<p>
+<font color=blue>
+<pre>
+  #include "Exceptions/ZMxel.h"
+  ErrorObj myMsg ( ELwarning, "Suspicious Pt" ); 
+  ZMthrow ( myMsg );
+</pre>
+</font>
+<hr>
+
+<h2>
+<a name="errorobj">
+How an instance of ErrorObj may be formed
+</a>
+</h2>
+
+   An <b>ErrorObj</b> is an object representing an error message.
+<p>
+
+   The physicist (or the frameworker) works with 
+   an ErrorObj directly when the <a href="#zmxel">ZMxel</a> mechanism is
+   used to ZMthrow an exeption but put its information into the error log.
+<p>
+   Less commonly, one might wish to 
+   one can form an ErrorObj just in case it later needs to be logged.
+   This might be done, for example, if you want to build up some
+   history of what was done, but only log it if some ghastly condition later
+   occurs.
+<p>
+The semantics of constructing and adding to an ErrorObj are similar to those for
+ErrorLog:
+<p>
+<font color=blue>
+<pre>
+   	ErrorObj myMsg ( ELwarning, "Suspicious Pt" ); <font color=0080c0>
+     		     j        k             l
+</font>
+	ZMthrow (myMsg); <font color=0080c0>
+            m
+</font>
+	myMsg = ErrorObj ( ELsevere, "Out of space" );
+	myMsg << "was doing step" << 20 << "@SUB=tracker" ; <font color=0080c0>
+                      n               p         q
+</font>
+   	errlog (myMsg);  <font color=0080c0>
+              r
+</font>
+</pre>
+</font>
+<p>
+<dl>
+<dt> j - myMsg <dd>
+	You can instantiate some pre-defined ErrorObj and, when and if an 
+	error happens, use it.  
+
+<dt> k,l - ELwarning, "Suspicious Pt"<dd>
+   	The constructor for ErrorObj takes the two mandatory fields:  
+	severity and id.
+
+<dt> m - errlog (myMsg) <dd>
+   	The ZOOM Exceptions analogue to <b>throw myMsg</b>.  Earlier code can
+   	embed this in a <code>try</code> loop, and in case the exception is
+	not handled at the ZOOM exceptions level, can have a <code>catch</code>.
+
+<dt> n - << "was doing step"<dd>
+   	ErrorObj has operator<< so you can pump further info into it, just
+	as in the case of pumping more into the log.
+
+<dt> p - no endmsg <dd>
+   	Notice in both this and the previous example we did not put endmsg.
+	endmsg is ignored in ErrorObj's.  When an ErrorObj is supplied 
+	to a log (as in errlog(myMsg)) this is known to be complete and the
+	implied endmsg is supplied automatically.
+
+<dt> q - "@SUB=tracker" <dd>
+   	Just as for streaming to errlog, an item starting with <b>@SUB=</b>
+	defines a name of a subroutine which will appear in the logged message.
+
+<dt> r - errlog (myMsg) <dd>
+   	We also support sending one of these formed ErrorObj messages to 
+	the log directly.
+
+</dl>
+
+<hr>
+<p><h2> 
+<a name="look">
+What the error message output will look like
+</a>
+</h2><p>
+
+   Although each possible destination may do different things with an
+   error message, the ErrorLogger package supplies a standard <b>ELoutput</b>
+   destination which will output (to a stream or file) as follows:
+
+<font color=brown>
+<pre>
+%ERLOG-w  Too much energy: E = 834.750032 d0L2proc5 CTCDRVmodule 
+          CTCTRKsubr 10-Jul-1999 14:49:03 CST run=234 event=543
+</pre>
+</font>
+
+   This is the default formatting; if some portion of the message would overrun 
+   the end of an 80-column line, it will instead be started on the next line,
+   indenting to align with the first character of the id.
+
+<p>   A space is inserted to separate each item 
+   (each object put to the log via
+   the &lt&lt operator) from the next.  
+  The user can force line breaks by putting a \n as the first or 
+   last character in an item.  (If \n appears
+   in the middle of an item, indentation will not be done and the column
+   formatter may introduce an unneeded new line when it thinks 80 columns
+   would be exceeded.)
+<p>
+   The frameworker can control some aspects of the format produced by
+   ELoutput. A custom ELdestination can make more complex 
+   format changes.
+<p>
+
+<hr>
+
+<p>
+<h2>
+<a name="stats">
+What summary information will be available
+</a>
+</h2>
+
+There will be a method (normally invoked by the framework at the end of a 
+job or run) to deliver a summary, either to one or more of the log destinations
+or to another ostream or file.  The summary information will be a table by
+message type (message type means the combination of ID, process, module,
+subroutine, and severity) of count.  If there were any occurences of a message
+that were not logged anywhere due to limits, that is indicated by an asterisk.
+<p>
+
+A second part supplies up to 3 example contexts for each message type:  The 
+first two occurences, and the last one.
+<p>
+
+In a third part there will be information about total counts at each severity 
+level.  Counts are given since the last clear, and also a total for the whole 
+job.
+<p>
+
+The responsibility of triggering the output of summary information belongs
+to the frameworker rather than the individual physicists.  An illustration of 
+the format of the summary information is given in the section on 
+<a href="framework.html#errstats">Obtaining error statistics summaries</a>.
+<p>
+
+<hr>
+

@@ -1,0 +1,305 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<BODY bgcolor="FFFFFF">
+<title>
+          Fermi Physics Class Libraries Module: EL Graded Asserts
+</title>
+
+<center>
+<h1>ZOOM <img src="http://www.fnal.gov/docs/working-groups/fpcltf/icons/
+particle_coll_bar_463_grey.gif" align="center"> ZOOM</h1>
+</center>
+
+<font color=red>
+<center>
+<h1>Graded Assertions Logging to ErrorLogger</h1>
+</center>
+</font>
+
+<p>
+
+The ErrorLogger package provides a header
+<font color=blue><code>ErrorLogger/ELassertN.h</code></font>,
+that defines macros such as 
+<font color=blue><code><b>ELassert3</b>(condition)</code></font> and
+<font color=blue><code><b>ELwarningAssert2</b>(condition)</code></font>. 
+These behave like the <em>assert</em> macro but permit gradations of 
+activation, and also route the output (when triggered) to 
+<b><code>errlog</code></b>, either with
+severity <code>ELabort</code> or severity <code>ELwarning</code>.
+
+<p>
+
+
+
+<hr>
+<p>
+<dl>
+<dd><a href="#purpose">Purpose and Rationale </a>
+<dd><a href="#ELassertN">
+	Using Graded Asserts Connecting to the ErrorLogger: ELassertN.h</a>
+</dl>
+<hr>
+
+
+<p><center>
+<img src="http://www.fnal.gov/docs/working-groups/fpcltf/icons/bar.gif"></center>
+
+<p>
+<a name="purpose"></a>
+<h2>Purpose and Rationale </h2>
+<p>
+
+The granularity of the C assert mechanism is inadequate for some purposes.
+Every assert() macro is active unless <code><b>NDEBUG</b></code> 
+is not defined, and disappears if <code><b>NDEBUG</b></code> is defined.
+For some assertions this is appropriate.
+However, the coder may well know that some specific assertions are unlikely 
+to become time critical, and ought to remain active even though some degree 
+of optimization has been specified.  
+<p>
+The mechanism we use to address this obeys the following rules:
+<ol>
+<li>
+    The standard assert mechanism, activated by lack of 
+     <code><b>NDEBUG</b></code>, continues
+    to behave as in the standard manner, except for a different mode
+    of aborting when an ELassert assertion fails.    
+<li>
+    When an ELassert fails,
+    instead of writing to cerr and calling exit(),
+    it will issue a message to <code><b>errlog</b></code>, 
+    of severity <code><b>ELabort</b></code>, 
+    containing the text of the assertion
+    and the file and line of the failed assertion.
+<li>
+    There are several new assert-like macros, such as 
+	<code><b>ELassert1</b></code>.  
+    If any of these are triggered, the behavior is the 
+    same as when an ELassert is triggered. 
+
+<li>The activation of the new assert-like macros is again controlled by 
+    defines.  The gradations of asserts will be reflected in the gradations
+    of available defines; for example <code><b>ELassert1</b></code> is 
+    de-activated if   <code><b>NDEBUG</b></code>, <code><b>NDEBUG1</b></code>,
+    or <code><b>NDEBUG2</b></code> is defined.
+
+<li>The new assert-like macros, in the case where they are not activated, 
+    preprocess down to no code at all ,so that there is no question of
+    removing them "just in case the optimizer isn't that good."
+</ol>
+
+The new graded asserts are more readily deactivated than ordinary asserts, 
+so an experiment can easily leave intact all asserts except those explicitly 
+noted as being time-critical.  However, another macro 
+<b><code>ELsanityCheck</b>(condition)</code> is also provided; 
+this is <em>not</em>
+deactivated by <code><b>NDEBUG</b></code>.
+<p>
+A <a href="../../../ZMtools/doc/assertN.rationale">discussion</a> 
+of the reasoning behind this is available.
+
+<p>
+There is also a mechanism for declaring assertions that only generate 
+warnings if triggered, allowing a framework wants to continue processing
+in some manner despite a failed (user) assertion.  These are analogous to 
+the corresponding <code>ELassert</code>s but with names like 
+<code>ELwarningAssert1</code>.
+ 
+
+<p><center>
+<img src="http://www.fnal.gov/docs/working-groups/fpcltf/icons/bar.gif"></center>
+
+<p>
+<a name="ELassertN"></a><h2>
+Using Graded Asserts Connecting to the ErrorLogger: ELassertN.h</h2>
+
+To use the graded asserts that route messages to an error logger, you must
+have error logging set up.  <br>
+Specifically, in the scope where the <code>ELassert</code>
+will appear, 
+there must be an  
+<b><code>ErrorLog</code></b> variable named
+<b><code>errlog</code></b>.  Also, the file 
+<code>ErrorLogger/ELassertN.h</code> must be included.  
+<ul>(This header is part of the 
+<a href="../../../ErrorLogger/doc/html/0ErrorLogger.html">ErrorLogger</a>
+package, since these macros cannot be used if that package is not in use.)
+</ul>
+
+<p>
+Having included <code>ErrorLogger/ELassertN.h</code>, one can use the 
+following macros with the same semantics as <var>assert()</var>:
+<ul>
+<li><font color=blue> <b>
+ELassert3
+</b></font>
+(<em>condition</em>) -- 
+for assertions that are to be most readily deactivated.
+<li><font color=blue> <b>
+ELassert2
+</b></font>
+(<em>condition</em>) -- 
+for assertions that will often be deactivated but can remain active when
+assert3 is inactive.
+<li><font color=blue> <b>
+ELassert1
+</b></font>
+(<em>condition</em>) -- 
+for assertions which are more persistent than assert2, 
+but can be deactivated without deactivating ordinary asserts,
+<li><font color=blue> <b>
+ELassert
+</b></font>
+(<em>condition</em>) -- 
+the ordinary assert, controlled by <code><b>NDEBUG</b></code> (only
+triggering an ELabort severity mesasage to errlog when the assert fails).
+<li><font color=blue> <b>
+sanityCheck
+</b></font>
+(<em>condition</em>) -- 
+for assertions controlled by a separate define, 
+	<code><b>NOSANCHECK</b></code>;
+these can remain active even if <code><b>NDEBUG</b></code> is defined.
+</ul>
+
+<p>
+The macros are controlled by symbols as follows:
+
+<ul>
+<li><font color=blue> <b>
+ELassert3
+</b></font>
+(<em>condition</em>) -- 
+deactivated by defining <code><b>NDEBUG</b></code>,
+<code><b>NDEBUG1</b></code>,
+<code><b>NDEBUG2</b></code>, or <code><b>NDEBUG3</b></code>.
+<li><font color=blue> <b>
+ELassert2
+</b></font>
+(<em>condition</em>) -- 
+deactivated by defining <code><b>NDEBUG</b></code>,
+<code><b>NDEBUG1</b></code>,
+or <code><b>NDEBUG2</b></code>.
+<li><font color=blue> <b>
+ELassert1
+</b></font>
+(<em>condition</em>) --
+deactivated by defining <code><b>NDEBUG</b></code>
+or <code><b>NDEBUG1</b></code>.
+<li><font color=blue> <b>
+ELassert
+</b></font>
+(<em>condition</em>) -- 
+corresponding to the ordinary assert, controlled by <code><b>NDEBUG</b></code>.
+<li><font color=blue> <b>
+ELsanityCheck
+</b></font>
+(<em>condition</em>) -- 
+controlled by <code><b>NOSANCHECK</b></code>.
+</ul>
+
+<code>ErrorLogger/ELassertN.h</code> may be included multiple times in the same
+code unit.  
+Just like <var>assert.h</var>, it is not code-guarded; thus one can alter
+the defined-status of the various <code>NDEBUG</code> symbols to modify the 
+activation status of ELassert statements in a given section of code. 
+<p>
+
+An example code snippet:
+<ul>
+<font color=blue>
+<pre>
+#include "ErrorLogger/ELassertN.h"
+int transform(int);
+bool testIfValid(int);
+int i = transform(0); 
+ELsanityCheck (testIfValid(i)); // Not time critical
+for (i = 0; i < 100; i++) {
+  int j = transform(i);
+  ELassert (testIfValid(j));    // Normally active; off if NDEBUG is defined
+  for (int k = 0; k < j; k++) {
+    int m = transform(k);
+    ELassert3 (testIfValid(m)); // Inactive when any NDEBUGn is defined
+  }
+}
+</pre>
+</font>
+</ul>
+<p>
+
+If one of these macros is triggered, an error message is issued, with severity
+<code></b>ELabort</b></code>.  
+This <em>recommends</em> that the program exit after outputting the error 
+information.  
+(The framework may be set up so as to ignore that recommendation.)
+
+
+
+<h3> Assertions Issuing Warnings </h3>
+
+There are alternative macros, corresponding to each of the above, which
+differ only in that any error message issued will be assigned severity
+<code></b>ELwarning</b></code>.  
+<ul>
+This can be used, for instance, if there is some difficult optimization
+which would be appropriate to implement if some condition is not super-rare;
+so you may wish to test for that condition during the first part of production
+running, but not to abort the jobs where it is detected.
+</ul>
+
+<ul>
+<li><font color=blue> <b>
+ELwarningAssert3
+</b></font>
+(<em>condition</em>) -- 
+deactivated by defining <code><b>NDEBUG</b></code>,
+<code><b>NDEBUG1</b></code>,
+<code><b>NDEBUG2</b></code>, or <code><b>NDEBUG3</b></code>.
+<li><font color=blue> <b>
+ELwarningAssert2
+</b></font>
+(<em>condition</em>) -- 
+deactivated by defining <code><b>NDEBUG</b></code>,
+<code><b>NDEBUG1</b></code>,
+or <code><b>NDEBUG2</b></code>.
+<li><font color=blue> <b>
+ELwarningAssert1
+</b></font>
+(<em>condition</em>) --
+deactivated by defining <code><b>NDEBUG</b></code>
+or <code><b>NDEBUG1</b></code>.
+<li><font color=blue> <b>
+ELwarningAssert
+</b></font>
+(<em>condition</em>) -- 
+corresponding to the ordinary assert, controlled by <code><b>NDEBUG</b></code>.
+<li><font color=blue> <b>
+ELwarningCheck
+</b></font>
+(<em>condition</em>) -- 
+controlled by <code><b>NOSANCHECK</b></code>.
+</ul>
+
+<p>
+
+<p><center>
+<img src="http://www.fnal.gov/docs/working-groups/fpcltf/icons/bar.gif"></center>
+
+<p><center>
+<a href="0ErrorLogger.html"> ErrorLogger Main Documentation </a> -
+
+<a href="http://www.fnal.gov/docs/working-groups/fpcltf/Pkg/WebPages/zoomReal.html">
+ZOOM Home Page </a> 
+<p>
+<a href="http://www.fnal.gov/faw/">Fermilab at Work</a> -
+
+<a href="http://www.fnal.gov/">Fermilab Home</a>
+</center>
+
+<p>
+      <hr>
+      <address><a href="mailto:mf@fnal.gov">Mark Fischler</a></address>
+      Last modified: May 11, 2000.
+</body>
+
+
