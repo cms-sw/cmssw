@@ -1,8 +1,8 @@
 /*
  * \file EBPedOnlineTask.cc
  * 
- * $Date: 2005/10/30 14:19:54 $
- * $Revision: 1.17 $
+ * $Date: 2005/11/10 08:32:40 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */
@@ -82,11 +82,11 @@ void EBPedOnlineTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
       if ( sample.gainId() == 1 ) {
         gain = 1./12.;
-        mePedMap = mePedMapG12[ism-1];
+        mePedMap = 0;
       }
       if ( sample.gainId() == 2 ) {
         gain = 1./ 6.;
-        mePedMap = mePedMapG06[ism-1];
+        mePedMap = 0;
       }
       if ( sample.gainId() == 3 ) {
         gain = 1./ 1.;

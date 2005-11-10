@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  * 
- * $Date: 2005/11/08 17:52:08 $
- * $Revision: 1.35 $
+ * $Date: 2005/11/09 14:57:58 $
+ * $Revision: 1.36 $
  * \author G. Della Ricca
  *
 */
@@ -64,6 +64,8 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
 
   pedestal_task  = new EBPedestalTask(ps, dbe);
 
+  pedonline_task = new EBPedOnlineTask(ps, dbe);
+
   testpulse_task = new EBTestPulseTask(ps, dbe);
 
   if ( dbe ) dbe->showDirStructure();
@@ -77,6 +79,8 @@ EcalBarrelMonitorModule::~EcalBarrelMonitorModule(){
   delete laser_task;
 
   delete pedestal_task;
+
+  delete pedonline_task;
 
   delete testpulse_task;
 
@@ -96,6 +100,8 @@ void EcalBarrelMonitorModule::beginJob(const edm::EventSetup& c){
 
   pedestal_task->beginJob(c);
 
+  pedonline_task->beginJob(c);
+
   testpulse_task->beginJob(c);
 
 }
@@ -107,6 +113,8 @@ void EcalBarrelMonitorModule::endJob(void) {
   laser_task->endJob();
 
   pedestal_task->endJob();
+
+  pedonline_task->endJob();
 
   testpulse_task->endJob();
 
@@ -189,6 +197,8 @@ void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
   if ( runType == 1 ) laser_task->analyze(e, c);
 
   if ( runType == 2 ) pedestal_task->analyze(e, c);
+
+                      pedonline_task->analyze(e, c);
 
   if ( runType == 3 ) testpulse_task->analyze(e, c);
 
