@@ -42,9 +42,10 @@ namespace evf
 }
 using namespace evf;
 
-EventProcessor::EventProcessor(int tid/*, boost::shared_ptr<edm::InputService> is*/) : 
+EventProcessor::EventProcessor(unsigned long tid) : 
   Task("FPTq"), /*input_(is),*/ tid_(tid),  serviceToken_(edm::ServiceToken()), 
-  emittedBeginJob_(false), running_(false), paused_(false), eventcount(0)
+  emittedBeginJob_(false), running_(false), paused_(false), exited_(false),
+  eventcount(0)
 {
   cout << "EventProcessor constructor " << endl;
 }
@@ -61,7 +62,6 @@ void EventProcessor::init(std::string &config)
   edm::ServiceToken iToken;
   edm::serviceregistry::ServiceLegacy iLegacy = edm::serviceregistry::kOverlapIsError;
   edm::ProcessPSetBuilder builder(config);
-  
   //create the services
   boost::shared_ptr< std::vector<edm::ParameterSet> > pServiceSets(builder.getServicesPSets());
   //NOTE: FIX WHEN POOL BUG FIXED
@@ -82,7 +82,6 @@ void EventProcessor::init(std::string &config)
 	   << e.what() << endl;
       exit(-1);
     }
-
   serviceToken_.connectTo(activityRegistry_);
 
   //add the ProductRegistry as a service ONLY for the construction phase
@@ -90,7 +89,7 @@ void EventProcessor::init(std::string &config)
     reg(new edm::serviceregistry::ServiceWrapper<edm::ConstProductRegistry>( 
 								  std::auto_ptr<edm::ConstProductRegistry>(new edm::ConstProductRegistry(preg_))));
   edm::ServiceToken tempToken( edm::ServiceRegistry::createContaining(reg, serviceToken_, edm::serviceregistry::kOverlapIsError));
-  
+
   //make the services available
   edm::ServiceRegistry::Operate operate(tempToken);
 
@@ -100,13 +99,17 @@ void EventProcessor::init(std::string &config)
 
   input_= makeInput(*params_, (*params_).getParameter<string>("@process_name"),
 		    getPass(), preg_);
+
   edm::ScheduleBuilder sbuilder = 
     edm::ScheduleBuilder(*params_, wreg_, preg_, act_table_);
+
   workers_= (sbuilder.getPathList());
+
   runner_ = std::auto_ptr<edm::ScheduleExecutor>(new edm::ScheduleExecutor(workers_,act_table_));
   runner_->preModuleSignal.connect(activityRegistry_.preModuleSignal_);
   runner_->postModuleSignal.connect(activityRegistry_.postModuleSignal_);
   //  fillEventSetupProvider(esp_, *params_, common_);  
+
   using namespace std;
   using namespace edm::eventsetup;
   vector<string> providers = (*params_).getParameter<vector<string> >("@all_esmodules");
@@ -120,6 +123,7 @@ void EventProcessor::init(std::string &config)
 				getVersion(), 
 				getPass());
   }
+
   vector<string> sources = (*params_).getParameter<vector<string> >("@all_essources");
   for(vector<string>::iterator itName = sources.begin();
       itName != sources.end();
@@ -131,7 +135,7 @@ void EventProcessor::init(std::string &config)
 						 getVersion(), 
 						 getPass());
   }
-  
+  cout << "FPEventProcessor::init() complete " << endl; 
 }
 
 
@@ -225,9 +229,12 @@ bool EventProcessor::endRun()
 void EventProcessor::run()
 {
   std::cout << "EventProcessor run() " << std::endl;
+  int oldState;
+  pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, &oldState);
+
   //make the services available
   edm::ServiceRegistry::Operate operate(serviceToken_);
-
+  if(exited_) exited_ = false;
   while(running_)
     {
 
@@ -284,6 +291,7 @@ void EventProcessor::run()
 	  throw;
 	}
     }
+  exited_ = true;
 }
 
 #include "extern/cgicc/linuxx86/include/cgicc/CgiDefs.h"
