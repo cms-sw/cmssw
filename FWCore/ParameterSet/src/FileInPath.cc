@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: FileInPath.cc,v 1.1 2005/11/01 22:32:45 paterno Exp $
+// $Id: FileInPath.cc,v 1.2 2005/11/07 17:35:44 paterno Exp $
 //
 // ----------------------------------------------------------------------
 
@@ -100,8 +100,8 @@ namespace edm
   FileInPath::FileInPath(const char* r) :
     relativePath_( r ?
 		   r :
-		   (throw edm::Exception(edm::errors::FileInPathError)
-		    << "Relative path may not be null\n"), r),
+		   ((throw edm::Exception(edm::errors::FileInPathError)
+		    << "Relative path may not be null\n"), r)),
     canonicalFilename_(),
     isLocal_(false)
   {
