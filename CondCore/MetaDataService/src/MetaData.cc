@@ -19,10 +19,10 @@
 #include <stdexcept>
 
 cond::MetaData::MetaData(const std::string& connectionString):m_con(connectionString),m_table(0){
-  pool::POOLContext::loadComponent( "SEAL/Services/MessageService" );
+  //pool::POOLContext::loadComponent( "SEAL/Services/MessageService" );
   pool::POOLContext::loadComponent( "POOL/Services/RelationalService" );
   pool::POOLContext::loadComponent( "POOL/Services/EnvironmentAuthenticationService" );
-  pool::POOLContext::setMessageVerbosityLevel( seal::Msg::Debug );
+  //pool::POOLContext::setMessageVerbosityLevel( seal::Msg::Debug );
   m_log.reset(new seal::MessageStream(pool::POOLContext::context(), "MetaDataService" ));  
   seal::IHandle<pool::IRelationalService> serviceHandle=pool::POOLContext::context()->query<pool::IRelationalService>( "POOL/Services/RelationalService" );
   if ( ! serviceHandle ) {
