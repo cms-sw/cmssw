@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  * 
- * $Date: 2005/11/10 14:56:24 $
- * $Revision: 1.38 $
+ * $Date: 2005/11/10 16:45:05 $
+ * $Revision: 1.39 $
  * \author G. Della Ricca
  *
 */
@@ -65,7 +65,7 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
   cosmic_task = new EBCosmicTask(ps, dbe);
   laser_task = new EBLaserTask(ps, dbe);
   pedestal_task = new EBPedestalTask(ps, dbe);
-  pedpresample_task = new EBPedOnlineTask(ps, dbe);
+  pedpresample_task = new EBPedPreSampleTask(ps, dbe);
   testpulse_task = new EBTestPulseTask(ps, dbe);
 
   if ( dbe ) dbe->showDirStructure();

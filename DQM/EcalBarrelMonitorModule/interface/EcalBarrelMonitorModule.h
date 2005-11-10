@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorModule.h
  *
- * $Date: 2005/11/10 14:56:24 $
- * $Revision: 1.14 $
+ * $Date: 2005/11/10 16:45:05 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  *
 */
@@ -88,7 +88,7 @@ MonitorElement* meEvent[36];
 EBCosmicTask* cosmic_task;
 EBLaserTask* laser_task;
 EBPedestalTask* pedestal_task;
-EBPedPreSampleTask* pedonline_task;
+EBPedPreSampleTask* pedpresample_task;
 EBTestPulseTask* testpulse_task;
 
 string outputFile;
