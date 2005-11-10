@@ -1,11 +1,11 @@
-#ifndef EBPedOnlineTask_H
-#define EBPedOnlineTask_H
+#ifndef EBPedPreSampleTask_H
+#define EBPedPreSampleTask_H
 
 /*
- * \file EBPedOnlineTask.h
+ * \file EBPedPreSampleTask.h
  *
- * $Date: 2005/10/30 14:16:19 $
- * $Revision: 1.10 $
+ * $Date: 2005/11/10 08:32:40 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */
@@ -34,17 +34,17 @@
 using namespace cms;
 using namespace std;
 
-class EBPedOnlineTask: public edm::EDAnalyzer{
+class EBPedPreSampleTask: public edm::EDAnalyzer{
 
 friend class EcalBarrelMonitorModule;
 
 public:
 
 /// Constructor
-EBPedOnlineTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe);
+EBPedPreSampleTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe);
 
 /// Destructor
-virtual ~EBPedOnlineTask();
+virtual ~EBPedPreSampleTask();
 
 protected:
 

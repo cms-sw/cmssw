@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  * 
- * $Date: 2005/11/10 09:55:15 $
- * $Revision: 1.2 $
+ * $Date: 2005/11/10 15:57:22 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
@@ -55,18 +55,30 @@ void EBLaserClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* r
 void EBLaserClient::subscribe(void){
 
   // subscribe to all monitorable matching pattern
+  mui_->subscribe("*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude SM*");
+  mui_->subscribe("*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude over PN SM*");
+  mui_->subscribe("*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude SM*");
+  mui_->subscribe("*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude over PN SM*");
 
 }
 
 void EBLaserClient::subscribeNew(void){
 
   // subscribe to new monitorable matching pattern
+  mui_->subscribeNew("*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude over PN SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude over PN SM*");
 
 }
 
 void EBLaserClient::unsubscribe(void){
 
   // unsubscribe to all monitorable matching pattern
+  mui_->unsubscribe("*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude over PN SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude over PN SM*");
 
 }
 

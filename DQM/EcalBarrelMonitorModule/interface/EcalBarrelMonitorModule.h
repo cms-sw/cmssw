@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorModule.h
  *
- * $Date: 2005/11/10 09:08:27 $
- * $Revision: 1.13 $
+ * $Date: 2005/11/10 14:56:24 $
+ * $Revision: 1.14 $
  * \author G. Della Ricca
  *
 */
@@ -29,7 +29,7 @@
 #include <DQM/EcalBarrelMonitorTasks/interface/EBCosmicTask.h>
 #include <DQM/EcalBarrelMonitorTasks/interface/EBLaserTask.h>
 #include <DQM/EcalBarrelMonitorTasks/interface/EBPedestalTask.h>
-#include <DQM/EcalBarrelMonitorTasks/interface/EBPedOnlineTask.h>
+#include <DQM/EcalBarrelMonitorTasks/interface/EBPedPreSampleTask.h>
 #include <DQM/EcalBarrelMonitorTasks/interface/EBTestPulseTask.h>
 
 #include <memory>
@@ -85,10 +85,10 @@ MonitorElement* meEBhits;
 
 MonitorElement* meEvent[36];
 
-EBCosmicTask*    cosmic_task;
-EBLaserTask*     laser_task;
-EBPedestalTask*  pedestal_task;
-EBPedOnlineTask* pedonline_task;
+EBCosmicTask* cosmic_task;
+EBLaserTask* laser_task;
+EBPedestalTask* pedestal_task;
+EBPedPreSampleTask* pedonline_task;
 EBTestPulseTask* testpulse_task;
 
 string outputFile;

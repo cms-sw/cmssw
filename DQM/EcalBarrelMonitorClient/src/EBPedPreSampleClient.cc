@@ -1,8 +1,8 @@
 /*
  * \file EBPedPreSampleClient.cc
  * 
- * $Date: 2005/11/10 09:55:15 $
- * $Revision: 1.2 $
+ * $Date: 2005/11/10 15:57:22 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */
@@ -55,18 +55,21 @@ void EBPedPreSampleClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, Ru
 void EBPedPreSampleClient::subscribe(void){
 
   // subscribe to all monitorable matching pattern
+  mui_->subscribe("*/EcalBarrel/EBPedPreSampleTask/Gain01/EBPT pedestal SM*");
 
 }
 
 void EBPedPreSampleClient::subscribeNew(void){
 
   // subscribe to new monitorable matching pattern
+  mui_->subscribeNew("*/EcalBarrel/EBPedPreSampleTask/Gain01/EBPT pedestal SM*");
 
 }
 
 void EBPedPreSampleClient::unsubscribe(void){
 
   // unsubscribe to all monitorable matching pattern
+  mui_->unsubscribe("*/EcalBarrel/EBPedPreSampleTask/Gain01/EBPT pedestal SM*");
 
 }
 

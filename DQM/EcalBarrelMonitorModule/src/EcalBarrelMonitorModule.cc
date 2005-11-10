@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  * 
- * $Date: 2005/11/10 09:08:27 $
- * $Revision: 1.37 $
+ * $Date: 2005/11/10 14:56:24 $
+ * $Revision: 1.38 $
  * \author G. Della Ricca
  *
 */
@@ -62,14 +62,10 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
     }
   }
 
-  cosmic_task    = new EBCosmicTask(ps, dbe);
-
-  laser_task     = new EBLaserTask(ps, dbe);
-
-  pedestal_task  = new EBPedestalTask(ps, dbe);
-
-  pedonline_task = new EBPedOnlineTask(ps, dbe);
-
+  cosmic_task = new EBCosmicTask(ps, dbe);
+  laser_task = new EBLaserTask(ps, dbe);
+  pedestal_task = new EBPedestalTask(ps, dbe);
+  pedpresample_task = new EBPedOnlineTask(ps, dbe);
   testpulse_task = new EBTestPulseTask(ps, dbe);
 
   if ( dbe ) dbe->showDirStructure();
@@ -79,13 +75,9 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
 EcalBarrelMonitorModule::~EcalBarrelMonitorModule(){
 
   delete cosmic_task;
-
   delete laser_task;
-
   delete pedestal_task;
-
-  delete pedonline_task;
-
+  delete pedpresample_task;
   delete testpulse_task;
 
   logFile.close();
@@ -99,13 +91,9 @@ void EcalBarrelMonitorModule::beginJob(const edm::EventSetup& c){
   if ( meStatus ) meStatus->Fill(0);
 
   cosmic_task->beginJob(c);
-
   laser_task->beginJob(c);
-
   pedestal_task->beginJob(c);
-
-  pedonline_task->beginJob(c);
-
+  pedpresample_task->beginJob(c);
   testpulse_task->beginJob(c);
 
 }
@@ -113,13 +101,9 @@ void EcalBarrelMonitorModule::beginJob(const edm::EventSetup& c){
 void EcalBarrelMonitorModule::endJob(void) {
 
   cosmic_task->endJob();
-
   laser_task->endJob();
-
   pedestal_task->endJob();
-
-  pedonline_task->endJob();
-
+  pedpresample_task->endJob();
   testpulse_task->endJob();
 
   cout << "EcalBarrelMonitorModule: analyzed " << ievt << " events" << endl;
@@ -205,7 +189,7 @@ void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
 
   if ( evtType == 2 ) pedestal_task->analyze(e, c);
 
-                      pedonline_task->analyze(e, c);
+                      pedpresample_task->analyze(e, c);
 
   if ( evtType == 3 ) testpulse_task->analyze(e, c);
 

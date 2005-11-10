@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  * 
- * $Date: 2005/11/10 09:55:15 $
- * $Revision: 1.2 $
+ * $Date: 2005/11/10 15:57:22 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */
@@ -55,18 +55,33 @@ void EBIntegrityClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
 void EBIntegrityClient::subscribe(void){
 
   // subscribe to all monitorable matching pattern
+  mui_->subscribe("*/EcalIntegrity/Gain/EI gain SM*");
+  mui_->subscribe("*/EcalIntegrity/ChId/EI ChId SM*");
+  mui_->subscribe("*/EcalIntegrity/TTId/EI TTId SM*");
+  mui_->subscribe("*/EcalIntegrity/TTBlockSize/EI TTBlockSize SM*");
+  mui_->subscribe("*/EcalIntegrity/DCC size error");
 
 }
 
 void EBIntegrityClient::subscribeNew(void){
 
   // subscribe to new monitorable matching pattern
+  mui_->subscribeNew("*/EcalIntegrity/Gain/EI gain SM*");
+  mui_->subscribeNew("*/EcalIntegrity/ChId/EI ChId SM*");
+  mui_->subscribeNew("*/EcalIntegrity/TTId/EI TTId SM*");
+  mui_->subscribeNew("*/EcalIntegrity/TTBlockSize/EI TTBlockSize SM*");
+  mui_->subscribeNew("*/EcalIntegrity/DCC size error");
 
 }
 
 void EBIntegrityClient::unsubscribe(void){
   
   // unsubscribe to all monitorable matching pattern
+  mui_->subscribe("*/EcalIntegrity/Gain/EI gain SM*");
+  mui_->subscribe("*/EcalIntegrity/ChId/EI ChId SM*");
+  mui_->subscribe("*/EcalIntegrity/TTId/EI TTId SM*");
+  mui_->subscribe("*/EcalIntegrity/TTBlockSize/EI TTBlockSize SM*");
+  mui_->subscribe("*/EcalIntegrity/DCC size error");
 
 }
 

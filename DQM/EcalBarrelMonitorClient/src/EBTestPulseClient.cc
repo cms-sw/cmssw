@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  * 
- * $Date: 2005/11/10 09:55:15 $
- * $Revision: 1.2 $
+ * $Date: 2005/11/10 15:57:22 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */
@@ -55,18 +55,24 @@ void EBTestPulseClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
 void EBTestPulseClient::subscribe(void){
 
   // subscribe to all monitorable matching pattern
+  mui_->subscribe("*/EcalBarrel/EBTestPulseTask/Gain01/EBTT amplitude SM*");
+  mui_->subscribe("*/EcalBarrel/EBTestPulseTask/Gain01/EBTT shape SM*");
 
 }
 
 void EBTestPulseClient::subscribeNew(void){
 
   // subscribe to new monitorable matching pattern
+  mui_->subscribeNew("*/EcalBarrel/EBTestPulseTask/Gain01/EBTT amplitude SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBTestPulseTask/Gain01/EBTT shape SM*");
 
 }
 
 void EBTestPulseClient::unsubscribe(void){
 
   // unsubscribe to all monitorable matching pattern
+  mui_->unsubscribe("*/EcalBarrel/EBTestPulseTask/Gain01/EBTT amplitude SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBTestPulseTask/Gain01/EBTT shape SM*");
 
 }
 
