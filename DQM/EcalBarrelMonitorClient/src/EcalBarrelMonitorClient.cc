@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  * 
- * $Date: 2005/11/10 15:57:22 $
- * $Revision: 1.6 $
+ * $Date: 2005/11/10 16:22:13 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  *
 */
@@ -259,10 +259,10 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
 
     location_ = "H4";
 
+    cout << " run = "      << run_      <<
+            " event = "    << evt_      << endl;
     cout << " updates = "  << updates   <<
             " status = "   << status_   <<
-            " run = "      << run_      <<
-            " event = "    << evt_      <<
             " runtype  = " << runtype_  <<
             " location = " << location_ << endl;
 
