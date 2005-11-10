@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  * 
- * $Date: 2005/11/10 16:25:02 $
- * $Revision: 1.8 $
+ * $Date: 2005/11/10 16:25:32 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  *
 */
@@ -207,7 +207,11 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
 
   this->subscribeNew();
 
+  integrity_client_->subscribeNew();
+  laser_client_->subscribeNew();
   pedestal_client_->subscribeNew();
+  pedpresample_client_->subscribeNew();
+  testpulse_client_->subscribeNew();
 
   // # of full monitoring cycles processed
   int updates = mui_->getNumUpdates();
