@@ -7,8 +7,8 @@
  * It can be initialized/set with a time in ns or a TDC count in 25/32 ns 
  * units.
  *  
- *  $Date: 2005/10/25 13:48:54 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/11/03 17:37:05 $
+ *  $Revision: 1.3 $
  *
  * \author N. Amapane - INFN Torino
  *
@@ -35,10 +35,15 @@ public:
     unsigned int counts   : counts_s;
     unsigned int trailer  : trailer_s; 
   };
-
-  /// Construct from the wire#, the digi number and the TDC counts.
+  
+  /// Construct from the wire#, the TDC counts and the digi number.
   /// number should identify uniquely multiple digis in the same cell.
-  explicit DTDigi (int wire, int number, int nTDC);
+  explicit DTDigi (int wire, int nTDC, int number=0);
+
+  /// Construct from the wire#, the time (ns) and the digi number.
+  /// time is converted in TDC counts (1 TDC = 25./32. ns)
+  /// number should identify uniquely multiple digis in the same cell.
+  explicit DTDigi (int wire, float tdrift, int number=0);
 
   /// Construct from channel and counts.
   explicit DTDigi (ChannelType channel, int nTDC);

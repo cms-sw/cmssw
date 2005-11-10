@@ -1,7 +1,7 @@
 /** \file
  * 
- *  $Date: 2005/10/07 17:40:53 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/10/25 13:48:54 $
+ *  $Revision: 1.2 $
  *
  * \author N. Amapane - INFN Torino
  */
@@ -16,10 +16,13 @@ using namespace std;
 
 const double DTDigi::reso =  25./32.; //ns
 
-DTDigi::DTDigi (int wire, int number, int nTDC){
+DTDigi::DTDigi (int wire, int nTDC, int number){
   set(wire, number, nTDC);
 }
 
+DTDigi::DTDigi (int wire, float tdrift, int number){
+  set(wire, number, static_cast<int>(tdrift/reso));
+}
 
 DTDigi::DTDigi (ChannelType channel, int nTDC){
   ChannelPacking* ch = reinterpret_cast<ChannelPacking*>(&channel);
