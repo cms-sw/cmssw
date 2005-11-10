@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  * 
- * $Date: 2005/11/09 19:08:11 $
- * $Revision: 1.2 $
+ * $Date: 2005/11/09 19:09:01 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
@@ -36,9 +36,8 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps){
   // will attempt to reconnect upon connection problems (w/ a 5-sec delay)
   mui_->setReconnectDelay(5);
 
-  laser_client_ = new EBMonitorLaserClient(ps, mui_);
-
-  pedestal_client_ = new EBMonitorPedestalClient(ps, mui_);
+  laser_client_ = new EBLaserClient(ps, mui_);
+  pedestal_client_ = new EBPedestalClient(ps, mui_);
 
 }
 
@@ -47,7 +46,6 @@ EcalBarrelMonitorClient::~EcalBarrelMonitorClient(){
   cout << "Exit ..." << endl;
 
   delete laser_client_;
-
   delete pedestal_client_;
 
   mui_->unsubscribe("*");
@@ -62,32 +60,87 @@ void EcalBarrelMonitorClient::beginJob(const edm::EventSetup& c){
 
   ievt_ = 0;
 
+  laser_client_->beginJob(c);
+  pedestal_client_->beginJob(c);
+
+}
+
+void EcalBarrelMonitorClient::beginRun(const edm::EventSetup& c){
+  
+  jevt_ = 0;
+
   // subscribe to all monitorable matching pattern
   mui_->subscribe("*/EcalBarrel/STATUS");
   mui_->subscribe("*/EcalBarrel/RUN");
   mui_->subscribe("*/EcalBarrel/EVT");
   mui_->subscribe("*/EcalBarrel/RUNTYPE");
 
-  laser_client_->beginJob(c);
-
-  pedestal_client_->beginJob(c);
+  laser_client_->beginRun(c);
+  pedestal_client_->beginRun(c);
 
 }
 
 void EcalBarrelMonitorClient::endJob(void) {
 
-  cout << "EcalBarrelMonitorClient final ievt = " << ievt_ << endl;
+  cout << "EcalBarrelMonitorClient: endJob, ievt = " << ievt_ << endl;
 
   laser_client_->endJob();
-
   pedestal_client_->endJob();
+
+}
+
+void EcalBarrelMonitorClient::endRun(void) {
+
+  cout << "EcalBarrelMonitorClient: endRun, jevt = " << jevt_ << endl;
+
+  TThread::Lock();
+  mui_->save("EcalBarrelMonitorClient.root");
+  TThread::UnLock();
+
+  try {
+    cout << "Opening DB connection." << endl;
+    econn_ = new EcalCondDBInterface("pccmsecdb.cern.ch", "ecalh4db",
+                                     "test06", "oratest06");
+  } catch (runtime_error &e) {
+    cerr << e.what() << endl;
+    return;
+  }
+
+  // The objects necessary to identify a dataset
+  RunTag runtag;
+  RunIOV runiov;
+
+  Tm startTm;
+  Tm endTm;
+
+  // Set the beginning time
+  startTm.setToCurrentGMTime();
+
+  cout << "Setting run " << run_ << " start_time " << startTm.str() << endl;
+
+  // Set the properties of the tag
+  runtag.setRunType(runtype_);
+  runtag.setLocation(location_);
+  runtag.setMonitoringVersion("version 1");
+
+  startTm.setToMicrosTime(startTm.microsTime());
+
+  runiov.setRunNumber(run_);
+  runiov.setRunStart(startTm);
+
+  laser_client_->endRun(econn_);
+  pedestal_client_->endRun(econn_);
+
+  cout << "Closing DB connection." << endl;
+
+  delete econn_;
 
 }
 
 void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   ievt_++;
-  cout << "EcalBarrelMonitorClient ievt = " << ievt_ << endl;
+  cout << "EcalBarrelMonitorClient ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
 
   MonitorElement* me;
 
@@ -114,7 +167,7 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
     me = mui_->get("Collector/FU0/EcalBarrel/STATUS");
     if ( me ) {
       s = me->valueString();
-      if ( s.substr(2,1) == "0" ) status = "start-of-run";
+      if ( s.substr(2,1) == "0" ) status = "begin-of-run";
       if ( s.substr(2,1) == "1" ) status = "running";
       if ( s.substr(2,1) == "2" ) status = "end-of-run";
     }
@@ -143,15 +196,34 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
     last_update = updates;
 
     cout << " status = " << status <<
-            " run = "   << run    <<
-            " event = " << evt    <<
-            " type = "  << type   << endl;
+            " run = "    << run    <<
+            " event = "  << evt    <<
+            " type = "   << type   << endl;
+
+// tests on 'type' to be changed with test on type-me !!
+
+    if ( status == "begin-of-run" ) {
+      this->beginRun(c);
+    } else if ( status == "running" ) {
+      if ( updates % 50 == 0 ) {
+        if ( type == "laser" ) laser_client_->analyze(e, c);
+        pedestal_client_->analyze(e, c);
+      }
+    } else if ( status == "end-of-run" ) {
+      if ( type == "laser" ) laser_client_->analyze(e, c);
+      pedestal_client_->analyze(e, c);
+      this->endRun();
+    }
+
   }
 
-  laser_client_->analyze(e, c);
-
-  pedestal_client_->analyze(e, c);
+  if ( updates % 100 == 0 ) {
+    TThread::Lock();
+    mui_->save("EcalBarrelMonitorClient.root");
+    TThread::UnLock();
+  }
 
   sleep(2);
+
 }
 

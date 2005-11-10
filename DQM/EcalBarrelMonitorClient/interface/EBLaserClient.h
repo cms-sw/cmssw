@@ -1,8 +1,8 @@
-#ifndef EcalBarrelMonitorClient_H
-#define EcalBarrelMonitorClient_H
+#ifndef EBLaserClient_H
+#define EBLaserClient_H
 
 /*
- * \file EcalBarrelMonitorClient.h
+ * \file EBLaserClient.h
  *
  * $Date: 2005/11/09 19:08:11 $
  * $Revision: 1.2 $
@@ -22,15 +22,19 @@
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include <DQM/EcalBarrelMonitorClient/interface/EBLaserClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBPedestalClient.h>
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/UI/interface/MonitorUIRoot.h"
 
 #include "CalibCalorimetry/EcalDBInterface/interface/EcalCondDBInterface.h"
 #include "CalibCalorimetry/EcalDBInterface/interface/RunTag.h"
 #include "CalibCalorimetry/EcalDBInterface/interface/RunIOV.h"
 
+#include "CalibCalorimetry/EcalDBInterface/interface/MonLaserBlueDat.h"
+#include "CalibCalorimetry/EcalDBInterface/interface/MonLaserGreenDat.h"
+#include "CalibCalorimetry/EcalDBInterface/interface/MonLaserInfraredDat.h"
+#include "CalibCalorimetry/EcalDBInterface/interface/MonLaserRedDat.h"
+
 #include "TROOT.h"
-#include "TThread.h"
 
 #include <memory>
 #include <iostream>
@@ -38,20 +42,20 @@
 #include <vector>
 #include <string>
 
-#include <csignal>
-
 using namespace cms;
 using namespace std;
 
-class EcalBarrelMonitorClient: public edm::EDAnalyzer{
+class EBLaserClient: public edm::EDAnalyzer{
+
+friend class EcalBarrelMonitorClient;
 
 public:
 
 /// Constructor
-EcalBarrelMonitorClient(const edm::ParameterSet& ps);
+EBLaserClient(const edm::ParameterSet& ps, MonitorUserInterface* mui);
 
 /// Destructor
-virtual ~EcalBarrelMonitorClient();
+virtual ~EBLaserClient();
 
 protected:
 
@@ -68,7 +72,7 @@ virtual void endJob(void);
 void beginRun(const edm::EventSetup& c);
 
 // EndRun
-virtual void endJob(void);
+virtual void endRun(EcalCondDBInterface* econn);
 
 private:
 
@@ -79,17 +83,6 @@ MonitorUserInterface* mui_;
 
 EcalCondDBInterface* econn_;
 
-string location_;
-string runtype_;
-run_t run_;
-
-EBLaserClient* laser_client_;
-EBPedestalClient* pedestal_client_;
-
-int exit_now;
-
 };
-
-DEFINE_FWK_MODULE(EcalBarrelMonitorClient)
 
 #endif

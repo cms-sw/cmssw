@@ -1,11 +1,11 @@
-#ifndef EBMonitorPedestalClient_H
-#define EBMonitorPedestalClient_H
+#ifndef EBPedestalClient_H
+#define EBPedestalClient_H
 
 /*
- * \file EBMonitorPedestalClient.h
+ * \file EBPedestalClient.h
  *
- * $Date: 2005/11/09 17:29:05 $
- * $Revision: 1.1 $
+ * $Date: 2005/11/09 19:08:11 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  *
 */
@@ -28,6 +28,7 @@
 #include "CalibCalorimetry/EcalDBInterface/interface/EcalCondDBInterface.h"
 #include "CalibCalorimetry/EcalDBInterface/interface/RunTag.h"
 #include "CalibCalorimetry/EcalDBInterface/interface/RunIOV.h"
+
 #include "CalibCalorimetry/EcalDBInterface/interface/MonPedestalsDat.h"
 
 #include "TROOT.h"
@@ -43,17 +44,17 @@
 using namespace cms;
 using namespace std;
 
-class EBMonitorPedestalClient: public edm::EDAnalyzer{
+class EBPedestalClient: public edm::EDAnalyzer{
 
 friend class EcalBarrelMonitorClient;
 
 public:
 
 /// Constructor
-EBMonitorPedestalClient(const edm::ParameterSet& ps, MonitorUserInterface* mui);
+EBPedestalClient(const edm::ParameterSet& ps, MonitorUserInterface* mui);
 
 /// Destructor
-virtual ~EBMonitorPedestalClient();
+virtual ~EBPedestalClient();
 
 protected:
 
@@ -66,11 +67,24 @@ void beginJob(const edm::EventSetup& c);
 // EndJob
 virtual void endJob(void);
 
+// BeginRun
+void beginRun(const edm::EventSetup& c);
+
+// EndRun
+virtual void endRun(EcalCondDBInterface* econn);
+
 private:
 
 int ievt_;
+int jevt_;
 
 MonitorUserInterface* mui_;
+
+EcalCondDBInterface* econn_;
+
+MonitorElement* me01[36];
+MonitorElement* me02[36];
+MonitorElement* me03[36];
 
 };
 
