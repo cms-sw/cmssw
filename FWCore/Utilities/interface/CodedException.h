@@ -47,12 +47,6 @@ namespace edm
     Code category_;
   };
 
-  template <class Code>
-  std::ostream& operator<<(std::ostream& ost, const CodedException<Code>& c)
-  {
-    ost << CodedException<Code>::codeToString(c.code());
-    return ost;
-  }
 
   /// -------------- implementation details ------------------
 
