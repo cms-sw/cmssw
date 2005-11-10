@@ -1,8 +1,8 @@
-#ifndef EBPedestalClient_H
-#define EBPedestalClient_H
+#ifndef EBIntegrityClient_H
+#define EBIntegrityClient_H
 
 /*
- * \file EBPedestalClient.h
+ * \file EBIntegrityClient.h
  *
  * $Date: 2005/11/10 09:55:15 $
  * $Revision: 1.2 $
@@ -29,7 +29,7 @@
 #include "CalibCalorimetry/EcalDBInterface/interface/RunTag.h"
 #include "CalibCalorimetry/EcalDBInterface/interface/RunIOV.h"
 
-#include "CalibCalorimetry/EcalDBInterface/interface/MonPedestalsDat.h"
+#include "CalibCalorimetry/EcalDBInterface/interface/RunConsistencyDat.h"
 
 #include "TROOT.h"
 
@@ -42,17 +42,17 @@
 using namespace cms;
 using namespace std;
 
-class EBPedestalClient: public edm::EDAnalyzer{
+class EBIntegrityClient: public edm::EDAnalyzer{
 
 friend class EcalBarrelMonitorClient;
 
 public:
 
 /// Constructor
-EBPedestalClient(const edm::ParameterSet& ps, MonitorUserInterface* mui);
+EBIntegrityClient(const edm::ParameterSet& ps, MonitorUserInterface* mui);
 
 /// Destructor
-virtual ~EBPedestalClient();
+virtual ~EBIntegrityClient();
 
 protected:
 
@@ -82,10 +82,6 @@ int ievt_;
 int jevt_;
 
 MonitorUserInterface* mui_;
-
-MonitorElement* me01[36];
-MonitorElement* me02[36];
-MonitorElement* me03[36];
 
 };
 

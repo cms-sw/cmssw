@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2005/11/10 08:26:07 $
- * $Revision: 1.3 $
+ * $Date: 2005/11/10 09:55:15 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  *
 */
@@ -22,8 +22,11 @@
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include <DQM/EcalBarrelMonitorClient/interface/EBIntegrityClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBLaserClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBPedestalClient.h>
+#include <DQM/EcalBarrelMonitorClient/interface/EBPedPreSampleClient.h>
+#include <DQM/EcalBarrelMonitorClient/interface/EBTestPulseClient.h>
 
 #include "CalibCalorimetry/EcalDBInterface/interface/EcalCondDBInterface.h"
 #include "CalibCalorimetry/EcalDBInterface/interface/RunTag.h"
@@ -36,8 +39,6 @@
 #include <fstream>
 #include <vector>
 #include <string>
-
-#include <csignal>
 
 using namespace cms;
 using namespace std;
@@ -53,6 +54,11 @@ EcalBarrelMonitorClient(const edm::ParameterSet& ps);
 virtual ~EcalBarrelMonitorClient();
 
 protected:
+
+/// Subscribe/Unsubscribe to Monitoring Elements
+virtual void subscribe();
+virtual void subscribeNew();
+virtual void unsubscribe();
 
 /// Analyze
 virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
@@ -76,6 +82,8 @@ int jevt_;
 
 MonitorUserInterface* mui_;
 
+int last_update_;
+
 EcalCondDBInterface* econn_;
 
 RunIOV* runiov_;
@@ -85,13 +93,14 @@ string location_;
 string runtype_;
 run_t run_;
 
+EBIntegrityClient* integrity_client_;
 EBLaserClient* laser_client_;
 EBPedestalClient* pedestal_client_;
+EBPedPreSampleClient* pedpresample_client_;
+EBTestPulseClient* testpulse_client_;
 
 int exit_now;
 
 };
-
-DEFINE_FWK_MODULE(EcalBarrelMonitorClient)
 
 #endif

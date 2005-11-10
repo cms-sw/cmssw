@@ -1,8 +1,8 @@
-#ifndef EBPedestalClient_H
-#define EBPedestalClient_H
+#ifndef EBPedPreSampleClient_H
+#define EBPedPreSampleClient_H
 
 /*
- * \file EBPedestalClient.h
+ * \file EBPedPreSampleClient.h
  *
  * $Date: 2005/11/10 09:55:15 $
  * $Revision: 1.2 $
@@ -42,17 +42,17 @@
 using namespace cms;
 using namespace std;
 
-class EBPedestalClient: public edm::EDAnalyzer{
+class EBPedPreSampleClient: public edm::EDAnalyzer{
 
 friend class EcalBarrelMonitorClient;
 
 public:
 
 /// Constructor
-EBPedestalClient(const edm::ParameterSet& ps, MonitorUserInterface* mui);
+EBPedPreSampleClient(const edm::ParameterSet& ps, MonitorUserInterface* mui);
 
 /// Destructor
-virtual ~EBPedestalClient();
+virtual ~EBPedPreSampleClient();
 
 protected:
 
@@ -82,10 +82,6 @@ int ievt_;
 int jevt_;
 
 MonitorUserInterface* mui_;
-
-MonitorElement* me01[36];
-MonitorElement* me02[36];
-MonitorElement* me03[36];
 
 };
 

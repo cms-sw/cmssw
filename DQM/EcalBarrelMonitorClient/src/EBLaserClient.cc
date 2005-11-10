@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  * 
- * $Date: 2005/11/10 08:26:07 $
- * $Revision: 1.1 $
+ * $Date: 2005/11/10 09:55:15 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  *
 */
@@ -17,16 +17,24 @@ EBLaserClient::EBLaserClient(const edm::ParameterSet& ps, MonitorUserInterface* 
 
 EBLaserClient::~EBLaserClient(){
 
+  this->unsubscribe();
+
 }
 
 void EBLaserClient::beginJob(const edm::EventSetup& c){
 
+  cout << "EBLaserClient: beginJob" << endl;
+
   ievt_ = 0;
   jevt_ = 0;
+
+  this->beginRun(c);
 
 }
 
 void EBLaserClient::beginRun(const edm::EventSetup& c){
+
+  cout << "EBLaserClient: beginRun" << endl;
 
   jevt_ = 0;
 
@@ -44,11 +52,29 @@ void EBLaserClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* r
 
 }
 
+void EBLaserClient::subscribe(void){
+
+  // subscribe to all monitorable matching pattern
+
+}
+
+void EBLaserClient::subscribeNew(void){
+
+  // subscribe to new monitorable matching pattern
+
+}
+
+void EBLaserClient::unsubscribe(void){
+
+  // unsubscribe to all monitorable matching pattern
+
+}
+
 void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   ievt_++;
   jevt_++;
-  cout << "EBLaserClient ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+  cout << "EBLaserClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
 
 }
 

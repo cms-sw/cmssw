@@ -4,8 +4,8 @@
 /*
  * \file EBLaserClient.h
  *
- * $Date: 2005/11/10 08:26:07 $
- * $Revision: 1.1 $
+ * $Date: 2005/11/10 09:55:15 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  *
 */
@@ -58,6 +58,11 @@ EBLaserClient(const edm::ParameterSet& ps, MonitorUserInterface* mui);
 virtual ~EBLaserClient();
 
 protected:
+
+/// Subscribe/Unsubscribe to Monitoring Elements
+void subscribe();
+void subscribeNew();
+void unsubscribe();
 
 /// Analyze
 void analyze(const edm::Event& e, const edm::EventSetup& c);

@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  * 
- * $Date: 2005/11/10 08:26:07 $
- * $Revision: 1.1 $
+ * $Date: 2005/11/10 09:55:15 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  *
 */
@@ -17,23 +17,28 @@ EBPedestalClient::EBPedestalClient(const edm::ParameterSet& ps, MonitorUserInter
 
 EBPedestalClient::~EBPedestalClient(){
 
+  this->unsubscribe();
+
 }
 
 void EBPedestalClient::beginJob(const edm::EventSetup& c){
 
+  cout << "EBPedestalClient: beginJob" << endl;
+
   ievt_ = 0;
   jevt_ = 0;
+
+  this->subscribe();
 
 }
 
 void EBPedestalClient::beginRun(const edm::EventSetup& c){
 
+  cout << "EBPedestalClient: beginRun" << endl;
+
   jevt_ = 0;
 
-  // subscribe to all monitorable matching pattern
-  mui_->subscribe("*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal SM*");
-  mui_->subscribe("*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM*");
-  mui_->subscribe("*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM*");
+  this->subscribe();
 
 }
 
@@ -68,7 +73,56 @@ void EBPedestalClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag
 
         bool update_channel = false;
 
-// .....
+        MonitorElementT<TNamed>* ob;
+
+        TProfile2D* h01 = 0;
+        TProfile2D* h02 = 0;
+        TProfile2D* h03 = 0;
+
+        if ( me01[ism-1] ) {
+          ob = dynamic_cast<MonitorElementT<TNamed>*> (me01[ism-1]);
+          if ( ob ) h01 = dynamic_cast<TProfile2D*> (ob->operator->());
+        }
+
+        if ( me02[ism-1] ) {
+          ob = dynamic_cast<MonitorElementT<TNamed>*> (me02[ism-1]);
+          if ( ob ) h02 = dynamic_cast<TProfile2D*> (ob->operator->());
+        }
+
+        if ( me03[ism-1] ) {
+          ob = dynamic_cast<MonitorElementT<TNamed>*> (me03[ism-1]);
+          if ( ob ) h03 = dynamic_cast<TProfile2D*> (ob->operator->());
+        }
+
+        float n_min_tot = 1000.;
+        float n_min_bin = 50.;
+
+        if ( h01 && h01->GetEntries() >= n_min_tot ) {
+          num01 = h01->GetBinEntries(h01->GetBin(ie, ip));
+          if ( num01 >= n_min_bin ) {
+            mean01 = h01->GetBinContent(h01->GetBin(ie, ip));
+            rms01  = h01->GetBinError(h01->GetBin(ie, ip));
+            update_channel = true;
+          }
+        }
+  
+        if ( h02 && h02->GetEntries() >= n_min_tot ) {
+          num02 = h02->GetBinEntries(h02->GetBin(ie, ip));
+          if ( num02 >= n_min_bin ) {
+            mean02 = h02->GetBinContent(h02->GetBin(ie, ip));
+            rms02  = h02->GetBinError(h02->GetBin(ie, ip));
+            update_channel = true;
+          }
+        }
+  
+        if ( h03 && h03->GetEntries() >= n_min_tot ) {
+          num03 = h03->GetBinEntries(h03->GetBin(ie, ip));
+          if ( num03 >= n_min_bin ) {
+            mean03 = h03->GetBinContent(h03->GetBin(ie, ip));
+            rms03  = h03->GetBinError(h03->GetBin(ie, ip));
+            update_channel = true;
+          }
+        }
 
         if ( update_channel ) {
 
@@ -122,22 +176,46 @@ void EBPedestalClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag
 
 }
 
-void EBPedestalClient::analyze(const edm::Event& e, const edm::EventSetup& c){
+void EBPedestalClient::subscribe(void){
 
-  ievt_++;
-  jevt_++;
-  cout << "EBPedestalClient ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+  // subscribe to all monitorable matching pattern
+  mui_->subscribe("*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal SM*");
+  mui_->subscribe("*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM*");
+  mui_->subscribe("*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM*");
+
+}
+
+void EBPedestalClient::subscribeNew(void){
 
   // subscribe to new monitorable matching pattern
   mui_->subscribeNew("*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal SM*");
   mui_->subscribeNew("*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM*");
   mui_->subscribeNew("*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM*");
 
+}
+
+void EBPedestalClient::unsubscribe(void){
+
+  // unsubscribe to all monitorable matching pattern
+  mui_->unsubscribe("*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM*");
+
+}
+
+void EBPedestalClient::analyze(const edm::Event& e, const edm::EventSetup& c){
+
+  ievt_++;
+  jevt_++;
+  cout << "EBPedestalClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+
+  this->subscribeNew();
+
+  Char_t histo[150];
+
   for ( int ism = 1; ism <= 36; ism++ ) {
     me01[ism-1] = me02[ism-1] = me03[ism-1] = 0;
   }
-
-  Char_t histo[150];
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
