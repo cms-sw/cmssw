@@ -1,7 +1,7 @@
 #ifndef ParameterSet_FileInPath_h
 #define ParameterSet_FileInPath_h
 
-/// $Id: FileInPath.h,v 1.1 2005/11/01 22:32:45 paterno Exp $
+/// $Id: FileInPath.h,v 1.2 2005/11/07 17:35:13 paterno Exp $
 ///
 
 /// Find a non-event-data file, given a relative path.
@@ -17,18 +17,19 @@
 ///  CMS_SEARCH_PATH is a 'search path' limited to either 1 or 2
 ///  components. The legal values are:
 ///
-///       ".", which means to search for files under the
-///            process's current working directory. Changing
-///            the current working directory while running a
-///            program will confuse this!
+///
+///       "." or "LOCAL", which means to search for files under
+///            the top level of the "local working area", which is
+///            defined as ${SCRAMRT_LOCALRT}/src
 ///
 ///       "CMSDATA", which means search the "official place",
-///                  defined by the value of the CMSDATA
-///                  environment variable, for files.
+///             defined by the value of the CMSDATA environment
+///             variable, for files.
 ///
-///       ".:CMSDATA", which means look first in the current
-///                    working directory, then in the "official
-///                    place", for files.
+///       ".:CMSDATA" or "LOCAL:CMSDATA",
+///              which means look first in the current working
+///              directory, then in the "official place", for files.
+///
 
 // Notes:
 //
@@ -66,7 +67,7 @@ namespace edm
     /// operations; use fullPath() for that purpose.
     std::string const& relativePath() const;
 
-    /// Was the file found under "."?
+    /// Was the file found under the "local" area?
     bool isLocal() const;
 
     /// Return a string that can be used to open the referenced

@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: FileInPath.cc,v 1.2 2005/11/07 17:35:44 paterno Exp $
+// $Id: FileInPath.cc,v 1.3 2005/11/10 19:53:13 chrjones Exp $
 //
 // ----------------------------------------------------------------------
 
@@ -33,6 +33,7 @@ namespace
 
   const std::string PathVariableName("CMS_SEARCH_PATH");
   const std::string DataVariableName("CMSDATA");
+  const std::string ScramVariableName("SCRAMRT_LOCALRT");
 
 
   // Return false if the environment variable 'name is not found, and
@@ -181,9 +182,12 @@ namespace edm
       {
 	
 	bf::path pathPrefix;
-	if ( *it == "." ) 
+	if ( *it == "."  || *it == "LOCAL" ) 
 	  {
-	    pathPrefix = *it;
+	    std::string prefix;
+	    envstring(ScramVariableName, prefix);
+	    pathPrefix = prefix;
+	    pathPrefix /= "src";
 	  }
 	else if ( *it == DataVariableName )
 	  {
@@ -202,7 +206,7 @@ namespace edm
 	      << PathVariableName
 	      << ": "
 	      << *it
-	      << ";\nLegal entries are . and "
+	      << ";\nLegal entries are LOCAL and "
 	      << DataVariableName
 	      << '\n';
 	  }
@@ -220,12 +224,13 @@ namespace edm
 					      pathPrefix ).string();
 
 	    // Remember if the file was local.
-	    isLocal_ = ( *it == "." );
+	    isLocal_ = ( (*it == ".") || 
+			 (*it == "LOCAL") );
 
 	    // We're done...
 
 	    // This is really gross --- this organization of if/else
-	    // inside the while-loop should be reorganized so that
+	    // inside the while-loop should be changed so that
 	    // this break isn't needed.
 	    return;
 	  }
