@@ -1,0 +1,12 @@
+<use name=DataFormats/HcalDetId>
+<use name=DetectorDescription/Base>
+<use name=DetectorDescription/Core>
+<use name=FWCore/ParameterSet>
+
+<export>
+  <lib name=GeometryHcalCommonData>
+  <use name=DataFormats/HcalDetId>
+  <use name=DetectorDescription/Base>
+  <use name=DetectorDescription/Core>
+  <use name=FWCore/ParameterSet>
+</export>
