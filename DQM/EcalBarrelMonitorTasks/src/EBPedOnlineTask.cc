@@ -1,5 +1,5 @@
 /*
- * \file EBPedestalTask.cc
+ * \file EBPedOnlineTask.cc
  * 
  * $Date: 2005/10/30 14:19:54 $
  * $Revision: 1.17 $
@@ -7,56 +7,45 @@
  *
 */
 
-#include <DQM/EcalBarrelMonitorTasks/interface/EBPedestalTask.h>
+#include <DQM/EcalBarrelMonitorTasks/interface/EBPedOnlineTask.h>
 
-EBPedestalTask::EBPedestalTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe){
+EBPedOnlineTask::EBPedOnlineTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe){
 
-  logFile.open("EBPedestalTask.log");
+  logFile.open("EBPedOnlineTask.log");
 
   Char_t histo[20];
 
   if ( dbe ) {
-    dbe->setCurrentFolder("EcalBarrel/EBPedestalTask");
+    dbe->setCurrentFolder("EcalBarrel/EBPedOnlineTask");
 
-    dbe->setCurrentFolder("EcalBarrel/EBPedestalTask/Gain01");
+    dbe->setCurrentFolder("EcalBarrel/EBPedOnlineTask/Gain01");
     for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBPT pedestal SM%02d G01", i+1);
+      sprintf(histo, "EBPT pedestal online SM%02d G01", i+1);
       mePedMapG01[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
     }
 
-    dbe->setCurrentFolder("EcalBarrel/EBPedestalTask/Gain06");
-    for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBPT pedestal SM%02d G06", i+1);
-      mePedMapG06[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
-    }
-
-    dbe->setCurrentFolder("EcalBarrel/EBPedestalTask/Gain12");
-    for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBPT pedestal SM%02d G12", i+1);
-      mePedMapG12[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
-    }
   }
 
 }
 
-EBPedestalTask::~EBPedestalTask(){
+EBPedOnlineTask::~EBPedOnlineTask(){
 
   logFile.close();
 
 }
 
-void EBPedestalTask::beginJob(const edm::EventSetup& c){
+void EBPedOnlineTask::beginJob(const edm::EventSetup& c){
 
   ievt = 0;
     
 }
 
-void EBPedestalTask::endJob(){
+void EBPedOnlineTask::endJob(){
 
-  cout << "EBPedestalTask: analyzed " << ievt << " events" << endl;
+  cout << "EBPedOnlineTask: analyzed " << ievt << " events" << endl;
 }
 
-void EBPedestalTask::analyze(const edm::Event& e, const edm::EventSetup& c){
+void EBPedOnlineTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   ievt++;
 
@@ -64,7 +53,7 @@ void EBPedestalTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   e.getByLabel("ecalEBunpacker", digis);
 
 //  int nebd = digis->size();
-//  cout << "EBPedestalTask: event " << ievt << " digi collection size " << nebd << endl;
+//  cout << "EBPedOnlineTask: event " << ievt << " digi collection size " << nebd << endl;
 
   for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
@@ -83,7 +72,7 @@ void EBPedestalTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 //    logFile << " det id = " << id << endl;
 //    logFile << " sm, eta, phi " << ism << " " << ie*iz << " " << ip << endl;
 
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 3; i++) {
 
       EcalMGPASample sample = dataframe.sample(i);
       int adc = sample.adc();
