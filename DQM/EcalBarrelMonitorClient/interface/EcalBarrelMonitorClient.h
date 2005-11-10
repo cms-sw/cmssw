@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2005/11/09 19:08:11 $
- * $Revision: 1.2 $
+ * $Date: 2005/11/10 08:26:07 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
@@ -30,7 +30,6 @@
 #include "CalibCalorimetry/EcalDBInterface/interface/RunIOV.h"
 
 #include "TROOT.h"
-#include "TThread.h"
 
 #include <memory>
 #include <iostream>
@@ -56,19 +55,19 @@ virtual ~EcalBarrelMonitorClient();
 protected:
 
 /// Analyze
-void analyze(const edm::Event& e, const edm::EventSetup& c);
+virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 // BeginJob
-void beginJob(const edm::EventSetup& c);
+virtual void beginJob(const edm::EventSetup& c);
 
 // EndJob
 virtual void endJob(void);
 
 // BeginRun
-void beginRun(const edm::EventSetup& c);
+virtual void beginRun(const edm::EventSetup& c);
 
 // EndRun
-virtual void endJob(void);
+virtual void endRun(void);
 
 private:
 
@@ -78,6 +77,9 @@ int jevt_;
 MonitorUserInterface* mui_;
 
 EcalCondDBInterface* econn_;
+
+RunIOV* runiov_;
+RunTag* runtag_;
 
 string location_;
 string runtype_;

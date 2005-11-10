@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  * 
- * $Date: 2005/11/09 19:09:01 $
- * $Revision: 1.3 $
+ * $Date: 2005/11/10 08:26:07 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  *
 */
@@ -59,6 +59,7 @@ EcalBarrelMonitorClient::~EcalBarrelMonitorClient(){
 void EcalBarrelMonitorClient::beginJob(const edm::EventSetup& c){
 
   ievt_ = 0;
+  jevt_ = 0;
 
   laser_client_->beginJob(c);
   pedestal_client_->beginJob(c);
@@ -93,9 +94,7 @@ void EcalBarrelMonitorClient::endRun(void) {
 
   cout << "EcalBarrelMonitorClient: endRun, jevt = " << jevt_ << endl;
 
-  TThread::Lock();
   mui_->save("EcalBarrelMonitorClient.root");
-  TThread::UnLock();
 
   try {
     cout << "Opening DB connection." << endl;
@@ -107,39 +106,40 @@ void EcalBarrelMonitorClient::endRun(void) {
   }
 
   // The objects necessary to identify a dataset
-  RunTag runtag;
-  RunIOV runiov;
+  runiov_ = new RunIOV();
+  runtag_ = new RunTag();
 
   Tm startTm;
-  Tm endTm;
 
   // Set the beginning time
   startTm.setToCurrentGMTime();
+  startTm.setToMicrosTime(startTm.microsTime());
 
   cout << "Setting run " << run_ << " start_time " << startTm.str() << endl;
 
-  // Set the properties of the tag
-  runtag.setRunType(runtype_);
-  runtag.setLocation(location_);
-  runtag.setMonitoringVersion("version 1");
+  runiov_->setRunNumber(run_);
+  runiov_->setRunStart(startTm);
 
-  startTm.setToMicrosTime(startTm.microsTime());
+  runtag_->setRunType(runtype_);
+  runtag_->setLocation(location_);
+  runtag_->setMonitoringVersion("version 1");
 
-  runiov.setRunNumber(run_);
-  runiov.setRunStart(startTm);
-
-  laser_client_->endRun(econn_);
-  pedestal_client_->endRun(econn_);
+  laser_client_->endRun(econn_, runiov_, runtag_);
+  pedestal_client_->endRun(econn_, runiov_, runtag_);
 
   cout << "Closing DB connection." << endl;
 
   delete econn_;
+
+  delete runiov_;
+  delete runtag_;
 
 }
 
 void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   ievt_++;
+  jevt_++;
   cout << "EcalBarrelMonitorClient ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
 
   MonitorElement* me;
@@ -218,9 +218,7 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
   }
 
   if ( updates % 100 == 0 ) {
-    TThread::Lock();
     mui_->save("EcalBarrelMonitorClient.root");
-    TThread::UnLock();
   }
 
   sleep(2);

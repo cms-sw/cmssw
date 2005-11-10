@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  * 
- * $Date: 2005/11/09 19:08:11 $
- * $Revision: 1.2 $
+ * $Date: 2005/11/10 08:26:07 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */
@@ -22,6 +22,7 @@ EBPedestalClient::~EBPedestalClient(){
 void EBPedestalClient::beginJob(const edm::EventSetup& c){
 
   ievt_ = 0;
+  jevt_ = 0;
 
 }
 
@@ -42,9 +43,7 @@ void EBPedestalClient::endJob(void) {
 
 }
 
-void EBPedestalClient::endRun(econn) {
-
-  econn_ = econn;
+void EBPedestalClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* runtag) {
 
   cout << "EBPedestalClient: endRun, jevt = " << jevt_ << endl;
 
@@ -76,9 +75,16 @@ void EBPedestalClient::endRun(econn) {
           if ( ie == 1 && ip == 1 ) {
 
             cout << "Inserting dataset for SM=" << ism << endl;
-            cout << "G01 (" << ie << "," << ip << ") " << num01 << " " << mean01 << " " << rms01 << endl;
-            cout << "G06 (" << ie << "," << ip << ") " << num02 << " " << mean02 << " " << rms02 << endl;
-            cout << "G12 (" << ie << "," << ip << ") " << num03 << " " << mean03 << " " << rms03 << endl;
+
+            cout << "G01 (" << ie << "," << ip << ") " << num01  << " "
+                                                       << mean01 << " "
+                                                       << rms01  << endl;
+            cout << "G06 (" << ie << "," << ip << ") " << num02  << " "
+                                                       << mean02 << " "
+                                                       << rms02  << endl;
+            cout << "G12 (" << ie << "," << ip << ") " << num03  << " "
+                                                       << mean03 << " "
+                                                       << rms03  << endl;
 
           }
 
@@ -109,7 +115,7 @@ void EBPedestalClient::endRun(econn) {
 
   try {
     cout << "Inserting dataset in DB." << endl;
-    if ( econn_ ) econn_->insertDataSet(&dataset, &runiov, &runtag );
+    if ( econn ) econn->insertDataSet(&dataset, runiov, runtag );
   } catch (runtime_error &e) {
     cerr << e.what() << endl;
   }
@@ -119,6 +125,7 @@ void EBPedestalClient::endRun(econn) {
 void EBPedestalClient::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   ievt_++;
+  jevt_++;
   cout << "EBPedestalClient ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
 
   // subscribe to new monitorable matching pattern
@@ -135,22 +142,24 @@ void EBPedestalClient::analyze(const edm::Event& e, const edm::EventSetup& c){
   for ( int ism = 1; ism <= 36; ism++ ) {
 
     sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal SM%02d G01", ism);
-    me01[ism-1] = mui->get(histo);
+    me01[ism-1] = mui_->get(histo);
     if ( me01[ism-1] ) {
       cout << "Found '" << histo << "'" << endl;
     }
 
     sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM%02d G06", ism);
-    me02[ism-1] = mui->get(histo);
+    me02[ism-1] = mui_->get(histo);
     if ( me02[ism-1] ) {
       cout << "Found '" << histo << "'" << endl;
     }
 
     sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM%02d G12", ism);
-    me03[ism-1] = mui->get(histo);
+    me03[ism-1] = mui_->get(histo);
     if ( me03[ism-1] ) {
       cout << "Found '" << histo << "'" << endl;
     }
+
+  }
 
 }
 

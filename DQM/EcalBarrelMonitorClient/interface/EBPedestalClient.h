@@ -4,8 +4,8 @@
 /*
  * \file EBPedestalClient.h
  *
- * $Date: 2005/11/09 19:08:11 $
- * $Revision: 1.2 $
+ * $Date: 2005/11/10 08:26:07 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */
@@ -65,13 +65,13 @@ void analyze(const edm::Event& e, const edm::EventSetup& c);
 void beginJob(const edm::EventSetup& c);
 
 // EndJob
-virtual void endJob(void);
+void endJob(void);
 
 // BeginRun
 void beginRun(const edm::EventSetup& c);
 
 // EndRun
-virtual void endRun(EcalCondDBInterface* econn);
+void endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* runtag);
 
 private:
 
@@ -79,8 +79,6 @@ int ievt_;
 int jevt_;
 
 MonitorUserInterface* mui_;
-
-EcalCondDBInterface* econn_;
 
 MonitorElement* me01[36];
 MonitorElement* me02[36];

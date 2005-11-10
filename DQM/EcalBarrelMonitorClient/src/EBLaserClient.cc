@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  * 
- * $Date: 2005/11/09 19:08:11 $
- * $Revision: 1.2 $
+ * $Date: 2005/11/10 08:26:07 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */
@@ -22,6 +22,7 @@ EBLaserClient::~EBLaserClient(){
 void EBLaserClient::beginJob(const edm::EventSetup& c){
 
   ievt_ = 0;
+  jevt_ = 0;
 
 }
 
@@ -37,9 +38,7 @@ void EBLaserClient::endJob(void) {
 
 }
 
-void EBLaserClient::endRun(econn) {
-
-  econn_ = econn;
+void EBLaserClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* runtag) {
 
   cout << "EBLaserClient: endRun, jevt = " << jevt_ << endl;
 
