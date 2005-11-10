@@ -9,6 +9,9 @@
 //
 //  MODIFICATION:
 //    $Log: EventProcessor.h,v $
+//    Revision 1.2  2005/10/19 08:52:36  meschi
+//    updated to latest for ProductRegistry
+//
 //    Revision 1.1  2005/10/10 09:54:45  meschi
 //    HLT processor initial implementation
 //
@@ -43,7 +46,6 @@
 #include "boost/shared_ptr.hpp"
 
 #include "toolbox/include/Task.h"
-#include "toolbox/include/BSem.h"
 
 #include "xgi/include/xgi/Input.h"
 #include "xgi/include/xgi/Output.h"
@@ -64,7 +66,7 @@ namespace evf
       
     public:
       
-      EventProcessor(int/*, boost::shared_ptr<edm::InputService> */);
+      EventProcessor(unsigned long/*, boost::shared_ptr<edm::InputService> */);
       ~EventProcessor();
       
       void taskWebPage(xgi::Input *, xgi::Output *);
@@ -77,12 +79,13 @@ namespace evf
 
       void beginRun(); 
       bool endRun();
-      
+      bool exited() const {return exited_;}
+
     private:
       
       unsigned long getVersion() { return 0; }
       unsigned long getPass() { return 0; }
-      int tid_;
+      unsigned long tid_;
 
       boost::shared_ptr<edm::ParameterSet> params_;
       edm::WorkerRegistry                    wreg_;
@@ -97,6 +100,7 @@ namespace evf
       bool emittedBeginJob_;
       bool running_;
       bool paused_;
+      bool exited_;
       unsigned long eventcount;
       edm::ActionTable act_table_;
       std::vector<edm::ModuleDescription> descs_;
