@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  * 
- * $Date: 2005/11/10 09:55:15 $
- * $Revision: 1.5 $
+ * $Date: 2005/11/10 15:57:22 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  *
 */
@@ -198,10 +198,10 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
   cout << "EcalBarrelMonitorClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
 
   string s;
-  string status = "unknown";
-  string run    = "unknown";
-  string evt    = "unknown";
-  string type   = "unknown";
+  status_  = "unknown";
+  run_     = 0;
+  evt_     = 0;
+  runtype_ = "unknown";
 
   bool stay_in_loop = mui_->update();
 
@@ -219,21 +219,21 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
     me = mui_->get("Collector/FU0/EcalBarrel/STATUS");
     if ( me ) {
       s = me->valueString();
-      if ( s.substr(2,1) == "0" ) status = "begin-of-run";
-      if ( s.substr(2,1) == "1" ) status = "running";
-      if ( s.substr(2,1) == "2" ) status = "end-of-run";
+      if ( s.substr(2,1) == "0" ) status_ = "begin-of-run";
+      if ( s.substr(2,1) == "1" ) status_ = "running";
+      if ( s.substr(2,1) == "2" ) status_ = "end-of-run";
     }
 
     me = mui_->get("Collector/FU0/EcalBarrel/RUN");
     if ( me ) {
       s = me->valueString();
-      run = s.substr(2,s.length()-2);
+      sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &run_);
     }
 
     me = mui_->get("Collector/FU0/EcalBarrel/EVT");
     if ( me ) {
       s = me->valueString();
-      evt = s.substr(2,s.length()-2);
+      sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &evt_);
     }
 
     TH1F* h = 0;
@@ -249,19 +249,22 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
     me = mui_->get("Collector/FU0/EcalBarrel/RUNTYPE");
     if ( me ) {
       s = me->valueString();
-      if ( s.substr(2,1) == "0" ) type = "cosmic";
-      if ( s.substr(2,1) == "1" ) type = "laser";
-      if ( s.substr(2,1) == "2" ) type = "pedestal";
-      if ( s.substr(2,1) == "3" ) type = "testpulse";
+      if ( s.substr(2,1) == "0" ) runtype_ = "cosmic";
+      if ( s.substr(2,1) == "1" ) runtype_ = "laser";
+      if ( s.substr(2,1) == "2" ) runtype_ = "pedestal";
+      if ( s.substr(2,1) == "3" ) runtype_ = "testpulse";
     }
 
     last_update_ = updates;
 
-    cout << " updates = " << updates <<
-            " status = "  << status  <<
-            " run = "     << run     <<
-            " event = "   << evt     <<
-            " type = "    << type    << endl;
+    location_ = "H4";
+
+    cout << " updates = "  << updates   <<
+            " status = "   << status_   <<
+            " run = "      << run_      <<
+            " event = "    << evt_      <<
+            " runtype  = " << runtype_  <<
+            " location = " << location_ << endl;
 
     if ( h ) {
       cout << " event type = " << flush;
@@ -271,9 +274,9 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
       cout << endl;
     }
 
-    if ( status == "begin-of-run" ) {
+    if ( status_ == "begin-of-run" ) {
       this->beginRun(c);
-    } else if ( status == "running" ) {
+    } else if ( status_ == "running" ) {
       if ( updates != 0 && updates % 50 == 0 ) {
                                              integrity_client_->analyze(e, c);
         if ( h && h->GetBinContent(2) != 0 ) laser_client_->analyze(e, c);
@@ -281,7 +284,7 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
                                              pedpresample_client_->analyze(e, c);
         if ( h && h->GetBinContent(4) != 0 ) testpulse_client_->analyze(e, c);
       }
-    } else if ( status == "end-of-run" ) {
+    } else if ( status_ == "end-of-run" ) {
                                            integrity_client_->analyze(e, c);
       if ( h && h->GetBinContent(2) != 0 ) laser_client_->analyze(e, c);
       if ( h && h->GetBinContent(3) != 0 ) pedestal_client_->analyze(e, c);
