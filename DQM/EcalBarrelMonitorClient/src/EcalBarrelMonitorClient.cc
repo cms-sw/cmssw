@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  * 
- * $Date: 2005/11/10 16:22:13 $
- * $Revision: 1.7 $
+ * $Date: 2005/11/10 16:25:02 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  *
 */
@@ -299,7 +299,7 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
 
   }
 
-  sleep(1);
+//  sleep(1);
 
 }
 
