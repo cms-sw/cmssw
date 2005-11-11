@@ -18,7 +18,7 @@
 //
 // Author:      Chris D. Jones
 // Created:     Sun Sep 20 15:05:10 EDT 1998
-// $Id: HCTypeTag.h,v 1.3 2005/09/01 05:20:56 wmtan Exp $
+// $Id: HCTypeTag.h,v 1.4 2005/09/01 23:30:48 wmtan Exp $
 //
 //
 
@@ -26,30 +26,31 @@
 #include <string>
 
 // user include files
+#include "FWCore/Utilities/interface/TypeIDBase.h"
 
 // forward declarations
 namespace edm {
    namespace eventsetup {
       namespace heterocontainer {
 template< class Group >
-class HCTypeTag
+class HCTypeTag : public TypeIDBase
 {
       // ---------- friend classes and functions ---------------
 
    public:
       // ---------- constants, enums and typedefs --------------
-      enum { kDefaultValue = 0 };
 
       // ---------- Constructors and destructor ----------------
-      HCTypeTag() : m_value(kDefaultValue), m_name(0) {}
+      HCTypeTag() : m_name(0) {}
       //virtual ~HCTypeTag();  
 
       // ---------- member functions ---------------------------
 
       // ---------- const member functions ---------------------
-      unsigned int value() const { return m_value; }
+      const std::type_info& value() const { return typeInfo(); }
       const char*  name() const { return m_name; }
 
+   /*
       bool operator==(const HCTypeTag< Group >& iRHS) const {
 	 return m_value == iRHS.m_value; }
       bool operator!=(const HCTypeTag< Group >& iRHS) const {
@@ -62,18 +63,21 @@ class HCTypeTag
 	 return m_value > iRHS.m_value; }
       bool operator>=(const HCTypeTag< Group >& iRHS) const {
 	 return m_value >= iRHS.m_value; }
-
+*/
       ///find a type based on the types name, if not found will return default HCTypeTag
       static HCTypeTag<Group> findType(const std::string& iTypeName);
    protected:
       // ---------- protected member functions -----------------
-      HCTypeTag(unsigned int iValue, const char* iName) :
-	 m_value(iValue), m_name(iName) {}
+      HCTypeTag(const std::type_info& iValue, const char* iName) :
+	 TypeIDBase(iValue), m_name(iName) {}
+
+      HCTypeTag(const TypeIDBase& iValue, const char* iName) :
+         TypeIDBase(iValue), m_name(iName) {}
 
       // ---------- protected const member functions -----------
 
       // ---------- protected static member functions ----------
-      static unsigned int nextValue(const char* iTypeName);
+      static void registerName(const char* iTypeName,const std::type_info& iInfo);
 
    private:
       // ---------- Constructors and destructor ----------------
@@ -84,7 +88,6 @@ class HCTypeTag
 
 
       // ---------- data members -------------------------------
-      unsigned int m_value;
       const char*  m_name;
 
 

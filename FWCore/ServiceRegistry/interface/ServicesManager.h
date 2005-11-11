@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 13:33:01 EDT 2005
-// $Id: ServicesManager.h,v 1.2 2005/09/10 02:08:48 wmtan Exp $
+// $Id: ServicesManager.h,v 1.3 2005/09/12 19:07:21 chrjones Exp $
 //
 
 // system include files
@@ -25,7 +25,7 @@
 #include "boost/shared_ptr.hpp"
 
 // user include files
-#include "FWCore/ServiceRegistry/interface/TypeInfoHolder.h"
+#include "FWCore/Utilities/interface/TypeIDBase.h"
 #include "FWCore/ServiceRegistry/interface/ServiceWrapper.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMakerBase.h"
 #include "FWCore/ServiceRegistry/interface/ServiceLegacy.h"
@@ -55,8 +55,8 @@ public:
             edm::ActivityRegistry* registry_;
             mutable bool wasAdded_;
          };
-         typedef std::map< TypeInfoHolder, boost::shared_ptr<ServiceWrapperBase> > Type2Service;
-         typedef std::map< TypeInfoHolder, MakerHolder > Type2Maker;
+         typedef std::map< TypeIDBase, boost::shared_ptr<ServiceWrapperBase> > Type2Service;
+         typedef std::map< TypeIDBase, MakerHolder > Type2Maker;
          
          ServicesManager(const std::vector<edm::ParameterSet>& iConfiguration);
 
@@ -72,17 +72,17 @@ public:
          // ---------- const member functions ---------------------
          template<class T>
          T& get() const {
-            Type2Service::const_iterator itFound = type2Service_.find(typeid(T));
+            Type2Service::const_iterator itFound = type2Service_.find(TypeIDBase(typeid(T)));
             Type2Maker::const_iterator itFoundMaker ;
             if(itFound == type2Service_.end()) {
                //do on demand building of the service
                if(0 == type2Maker_.get() || 
-                   type2Maker_->end() == (itFoundMaker = type2Maker_->find(typeid(T)))) {
+                   type2Maker_->end() == (itFoundMaker = type2Maker_->find(TypeIDBase(typeid(T))))) {
                       throw edm::Exception(edm::errors::NotFound,"Service Request") 
                       <<" unable to find requested service";
                } else {
                   itFoundMaker->second.add(const_cast<ServicesManager&>(*this));
-                  itFound = type2Service_.find(typeid(T));
+                  itFound = type2Service_.find(TypeIDBase(typeid(T)));
                   //the 'add()' should have put the service into the list
                   assert(itFound != type2Service_.end());
                }
@@ -96,18 +96,18 @@ public:
          ///returns true of the particular service is accessible
          template<class T>
             bool isAvailable() const {
-               Type2Service::const_iterator itFound = type2Service_.find(typeid(T));
+               Type2Service::const_iterator itFound = type2Service_.find(TypeIDBase(typeid(T)));
                Type2Maker::const_iterator itFoundMaker ;
                if(itFound == type2Service_.end()) {
                   //do on demand building of the service
                   if(0 == type2Maker_.get() || 
-                      type2Maker_->end() == (itFoundMaker = type2Maker_->find(typeid(T)))) {
+                      type2Maker_->end() == (itFoundMaker = type2Maker_->find(TypeIDBase(typeid(T))))) {
                      return false;
                   } else {
                      //Actually create the service in order to 'flush out' any 
                      // configuration errors for the service
                      itFoundMaker->second.add(const_cast<ServicesManager&>(*this));
-                     itFound = type2Service_.find(typeid(T));
+                     itFound = type2Service_.find(TypeIDBase(typeid(T)));
                      //the 'add()' should have put the service into the list
                      assert(itFound != type2Service_.end());
                   }
@@ -121,11 +121,11 @@ public:
          ///returns false if put fails because a service of this type already exists
          template<class T>
             bool put(boost::shared_ptr<ServiceWrapper<T> > iPtr) {
-               Type2Service::const_iterator itFound = type2Service_.find(typeid(T));
+               Type2Service::const_iterator itFound = type2Service_.find(TypeIDBase(typeid(T)));
                if(itFound != type2Service_.end()) {
                   return false;
                }
-               type2Service_[ typeid(T) ] = iPtr;
+               type2Service_[ TypeIDBase(typeid(T)) ] = iPtr;
                return true;
             }
         

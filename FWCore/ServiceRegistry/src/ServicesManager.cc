@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 13:33:19 EDT 2005
-// $Id: ServicesManager.cc,v 1.5 2005/09/19 08:18:03 chrjones Exp $
+// $Id: ServicesManager.cc,v 1.6 2005/10/28 13:54:51 chrjones Exp $
 //
 
 // system include files
@@ -69,7 +69,7 @@ associatedManager_(iToken.manager_)
    fillListOfMakers(iConfiguration);
 
    //find overlaps between services in iToken and iConfiguration
-   typedef std::set< TypeInfoHolder> TypeSet;
+   typedef std::set< TypeIDBase> TypeSet;
    TypeSet configTypes;
    for(Type2Maker::iterator itType = type2Maker_->begin();
        itType != type2Maker_->end();
@@ -85,7 +85,7 @@ associatedManager_(iToken.manager_)
          tokenTypes.insert(itType->first);
       }
    
-      typedef std::set<TypeInfoHolder> IntersectionType;
+      typedef std::set<TypeIDBase> IntersectionType;
       IntersectionType intersection;
       std::set_intersection(configTypes.begin(), configTypes.end(),
                             tokenTypes.begin(), tokenTypes.end(),
@@ -184,7 +184,7 @@ ServicesManager::fillListOfMakers(const std::vector<edm::ParameterSet>& iConfigu
          << itParam->getParameter<std::string>("@service_type")
          <<". Please check spelling.";
       }
-      Type2Maker::iterator itFound = type2Maker_->find(base->serviceType());
+      Type2Maker::iterator itFound = type2Maker_->find(TypeIDBase(base->serviceType()));
       if(itFound != type2Maker_->end()) {
          throw edm::Exception(edm::errors::Configuration,"Service") 
          <<" the service "<< itParam->getParameter<std::string>("@service_type") 
@@ -192,7 +192,7 @@ ServicesManager::fillListOfMakers(const std::vector<edm::ParameterSet>& iConfigu
          << itFound->second.pset_->getParameter<std::string>("@service_type")
          <<"\n Please reconfigure job to only use one of these services.";
       }
-      type2Maker_->insert(Type2Maker::value_type(base->serviceType(),
+      type2Maker_->insert(Type2Maker::value_type(TypeIDBase(base->serviceType()),
                                                   MakerHolder(base,
                                                               *itParam,
                                                               registry_)));

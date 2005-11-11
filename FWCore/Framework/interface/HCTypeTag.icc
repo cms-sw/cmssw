@@ -12,11 +12,14 @@
 //
 // Author:      Chris D. Jones
 // Created:     Sun Sep 20 15:27:25 EDT 1998
-// $Id: HCTypeTag.icc,v 1.4 2005/09/01 05:20:56 wmtan Exp $
+// $Id: HCTypeTag.icc,v 1.5 2005/09/01 23:30:48 wmtan Exp $
 //
 // Revision history
 //
 // $Log: HCTypeTag.icc,v $
+// Revision 1.5  2005/09/01 23:30:48  wmtan
+// fix rule violations found by rulechecker
+//
 // Revision 1.4  2005/09/01 05:20:56  wmtan
 // Fix Rules violations found by RuleChecker
 //
@@ -67,8 +70,8 @@ namespace edm {
 template<class Group>
 class HCTypeTagNameHolder {
    public:
-   static std::map< std::string, unsigned int>& typeNameToValueMap() {
-      static std::map<std::string, unsigned int> s_map;
+   static std::map< std::string, edm::TypeIDBase>& typeNameToValueMap() {
+      static std::map<std::string, edm::TypeIDBase> s_map;
 	 return s_map;
       }
 };
@@ -119,7 +122,7 @@ template<class Group >
 HCTypeTag< Group >
 HCTypeTag< Group >::findType(const std::string& iTypeName)
 {
-   std::map<std::string, unsigned int>::iterator itFind = HCTypeTagNameHolder<Group>::typeNameToValueMap().find(
+   std::map<std::string, TypeIDBase>::iterator itFind = HCTypeTagNameHolder<Group>::typeNameToValueMap().find(
       iTypeName);
    
    if(itFind == HCTypeTagNameHolder<Group>::typeNameToValueMap().end()) {
@@ -130,16 +133,12 @@ HCTypeTag< Group >::findType(const std::string& iTypeName)
 }
 
 template< class Group >
-unsigned int
-HCTypeTag< Group >::nextValue(const char* iTypeName)
+void
+HCTypeTag< Group >::registerName(const char* iTypeName, const std::type_info& iInfo)
 {
-   static unsigned int presentValue = kDefaultValue;
-   unsigned int newValue = ++presentValue;
-
    HCTypeTagNameHolder<Group>::typeNameToValueMap().insert(
-    std::pair<std::string, unsigned int>(iTypeName,
-                                          newValue));
-   return newValue;
+    std::pair<std::string, TypeIDBase>(iTypeName,
+                                          TypeIDBase(iInfo)));
 }
 
 }

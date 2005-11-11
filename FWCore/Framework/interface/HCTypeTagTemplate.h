@@ -20,11 +20,14 @@
 //     
 // Author:      Chris D. Jones
 // Created:     Sun Sep 20 15:31:56 EDT 1998
-// $Id: HCTypeTagTemplate.h,v 1.4 2005/09/01 05:20:05 wmtan Exp $
+// $Id: HCTypeTagTemplate.h,v 1.5 2005/09/01 23:30:48 wmtan Exp $
 //
 // Revision history
 //
 // $Log: HCTypeTagTemplate.h,v $
+// Revision 1.5  2005/09/01 23:30:48  wmtan
+// fix rule violations found by rulechecker
+//
 // Revision 1.4  2005/09/01 05:20:05  wmtan
 // Fix Rules violations found by RuleChecker
 //
@@ -81,17 +84,16 @@ class HCTypeTagTemplate : public HCTypeTag< Group >
 
       // ---------- Constructors and destructor ---------------- 
       HCTypeTagTemplate() : 
-	 HCTypeTag<Group>(classValue(), className()) {}
+      HCTypeTag<Group>(typeid(T), className()) {doRegistration();}
       //virtual ~HCTypeTagTemplate(); //not needed
 
       // ---------- static member functions --------------------
-      static unsigned int classValue() ;
-
       static const char* className();
 
    protected:
 
    private:
+      void doRegistration();
       // ---------- Constructors and destructor ----------------
       //HCTypeTagTemplate(const HCTypeTagTemplate&); // stop default
 
