@@ -1,3 +1,6 @@
+** V01-00-02  [Sat Nov 12 00:59:59 2005]
+Use new TypeIDBase class
+
 ** V01-00-01  [Tue Nov  8 18:28:28 2005]
 Eliminate run-time dependency on FWCore/Framework when dereferencing an edm::Ref&lt;T&gt;.
 
