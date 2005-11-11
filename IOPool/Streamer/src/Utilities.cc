@@ -273,12 +273,12 @@ namespace edm
   std::auto_ptr<EventPrincipal> EventReader::read(const ProductRegistry& prods)
   {
     int len = readMessage(b_);
-    cout << "readMessage done len=" << len << " " << (void*)len << endl;
+    //cout << "readMessage done len=" << len << " " << (void*)len << endl;
     if(len==0)
 	return std::auto_ptr<edm::EventPrincipal>();
 
     edm::EventMsg msg(&b_[0],len);
-    cout << "turned into EventMsg" << endl;
+    //cout << "turned into EventMsg" << endl;
     return decoder_.decodeEvent(msg,prods);
 
   }
