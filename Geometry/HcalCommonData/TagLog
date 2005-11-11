@@ -1,3 +1,6 @@
+** V00-02-03  [Fri Nov 11 12:47:18 2005]
+Update to have HO as separate subdet type
+
 ** V00-02-02  [Thu Nov 10 19:10:18 2005]
 First versions of HcalFromDDD and specpar definition
 
