@@ -1,0 +1,92 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.cern.ch/cms/DDL" xmlns="http://www.cern.ch/cms/DDL" elementFormDefault="unqualified">
+
+	
+<!-- Include schema parts -->
+
+<xsd:include schemaLocation="DDLTypes.xsd"/>
+<xsd:include schemaLocation="DDLReference.xsd"/>
+<xsd:include schemaLocation="DDLParameter.xsd"/>
+
+<!-- Element definitions -->
+
+<xsd:element name="SpecPar" type="SpecParType"/>
+
+<!-- <xsd:element name="SValue" type="SValueType"/>
+
+<xsd:element name="FValue" type="FValueType"/>
+
+<xsd:element name="IValue" type="IValueType"/>
+
+<xsd:element name="DValue" type="DValueType"/>
+-->
+
+
+<!-- Type definitions -->
+
+<xsd:complexType name="SpecParType">
+  <xsd:sequence>
+    <xsd:element ref="PartSelector" minOccurs='0' maxOccurs='unbounded' />
+    <xsd:element ref="Parameter"  minOccurs='0' maxOccurs='unbounded' />
+<!--    <xsd:element ref="SValue" minOccurs='0' maxOccurs='unbounded'/>
+    <xsd:element ref="IValue" minOccurs='0' maxOccurs='unbounded'/>
+    <xsd:element ref="FValue" minOccurs='0' maxOccurs='unbounded'/>
+    <xsd:element ref="DValue" minOccurs='0' maxOccurs='unbounded'/>
+-->
+  </xsd:sequence>
+  <xsd:attributeGroup ref="SpecParAttributes"/>
+</xsd:complexType>
+
+<!-- <xsd:complexType name="SValueType">
+  <xsd:attributeGroup ref="SValueAttributes"/>
+</xsd:complexType>
+
+<xsd:complexType name="IValueType">
+  <xsd:attributeGroup ref="IValueAttributes"/>
+</xsd:complexType>
+
+<xsd:complexType name="FValueType">
+  <xsd:attributeGroup ref="FValueAttributes"/>
+</xsd:complexType>
+
+<xsd:complexType name="DValueType">
+  <xsd:attributeGroup ref="DValueAttributes"/>
+</xsd:complexType>
+-->
+
+<!-- Attribute definitions -->
+
+<xsd:attributeGroup name="SpecParAttributes">
+  <xsd:attribute name="name" type="xsd:string" use="required"/>
+</xsd:attributeGroup>
+
+<!--
+<xsd:attributeGroup name="SValueAttributes">
+	<xsd:attribute name="name" type="xsd:string" use="required"/>
+  <xsd:attribute name="value" type="xsd:string" use="required"/>
+  <xsd:attribute name="unit" type="unitT" use="optional"/>
+</xsd:attributeGroup>
+
+<xsd:attributeGroup name="FValueAttributes">
+	<xsd:attribute name="name" type="xsd:string" use="required"/>
+  <xsd:attribute name="value" type="xsd:float" use="required"/>
+  <xsd:attribute name="unit" type="unitT" use="optional"/>
+</xsd:attributeGroup>
+
+<xsd:attributeGroup name="IValueAttributes">
+  <xsd:attribute name="name" type="xsd:string" use="required"/>
+  <xsd:attribute name="value" type="xsd:integer" use="required"/>
+  <xsd:attribute name="unit" type="unitT" use="optional"/>
+</xsd:attributeGroup>
+
+<xsd:attributeGroup name="DValueAttributes">
+  <xsd:attribute name="name" type="xsd:string" use="required"/>
+  <xsd:attribute name="value" type="xsd:double" use="required"/>
+  <xsd:attribute name="unit" type="unitT" use="optional"/>
+</xsd:attributeGroup>
+-->
+
+<!-- currently only standard values are supported. But users can build -->
+<!-- there own schema using the same references to logical and physical parts -->
+<!-- but with another namespace -->
+</xsd:schema>

@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.cern.ch/cms/DDL" xmlns="http://www.cern.ch/cms/DDL" elementFormDefault="unqualified">
+
+<xsd:annotation>
+	<xsd:documentation xml:lang="en">
+		There are two types of constraints. Constraints on the parts. e.g. the name should start with "tk". Or constraints on specific parameters. e.g. parameter should be smaller than 5. Within the DDL we have a very simple constraint mechanism. Other more general constraint mechanisms can be found in projects such as Protege
+	</xsd:documentation>
+</xsd:annotation>
+
+<!-- Include namespaces -->
+
+<xsd:include schemaLocation="DDLReference.xsd"/>
+
+<!-- Element definitions -->
+
+<xsd:element name="Constraint" type="ConstraintType" abstract="true"/>
+
+<xsd:element name="ModelConstraint" type="ModelConstraintType" substitutionGroup="Constraint"/>
+
+<xsd:element name="ParameterConstraint" type="ParameterConstraintType" substitutionGroup="Constraint"/>
+
+<xsd:element name="Prefix" type="PType"/>
+
+<xsd:element name="Postfix" type="PType"/>
+
+
+<!-- Type definitions -->
+
+<xsd:complexType name="ConstraintType">
+  <xsd:sequence>
+     <xsd:element name="comment" type="xsd:string" minOccurs='0' maxOccurs='1'/>
+  </xsd:sequence>
+  <xsd:attributeGroup ref="ConstraintAttributes"/>
+</xsd:complexType>
+
+<xsd:complexType name="ModelConstraintType">
+  <xsd:complexContent>
+     <xsd:extension base="ConstraintType">
+        <xsd:sequence>
+          <xsd:element ref="PartSelector" minOccurs='0' maxOccurs='unbounded' />
+          <xsd:element ref="Prefix" minOccurs='0' maxOccurs='1'/>
+          <xsd:element ref="Postfix" minOccurs='0' maxOccurs='1'/>
+        </xsd:sequence>
+     </xsd:extension>
+  </xsd:complexContent>
+</xsd:complexType>
+
+<xsd:complexType name="ParameterConstraintType">
+  <xsd:complexContent>
+    <xsd:extension base="ConstraintType">
+    <xsd:sequence>
+      <xsd:element ref="rParameter" minOccurs='1' maxOccurs='unbounded'/>
+      <xsd:element name="Rule" type="xsd:string" minOccurs='1' maxOccurs='unbounded'/>
+    </xsd:sequence>
+    </xsd:extension>
+  </xsd:complexContent>
+</xsd:complexType>
+
+<!-- the string for the rule element will have the following structure: -->
+<!-- Parameter Sign (= {=,<=,>=,<,>} ) Value -->
+<!-- Furthermore, the rules will be interpreted as AND clauses -->
+
+<xsd:complexType name="PType">
+  <xsd:attributeGroup ref="PAttributes"/>
+</xsd:complexType>
+
+<!-- Attribute definitions -->
+
+<xsd:attributeGroup name="ConstraintAttributes">
+  <xsd:attribute name="label" type="xsd:string" use="optional"/>
+</xsd:attributeGroup>
+
+<xsd:attributeGroup name="PAttributes">
+  <xsd:attribute name="value" type="xsd:string"/>
+</xsd:attributeGroup>
+
+</xsd:schema>
