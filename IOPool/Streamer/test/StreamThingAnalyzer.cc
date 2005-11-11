@@ -48,7 +48,7 @@ namespace edmtest_thing
     
   StreamThingAnalyzer::~StreamThingAnalyzer()
   {
-    cout << "total=" << total_ << endl;
+    cout << "\nSTREAMTHING_CHECKSUM " << total_ << "\n" << endl;
   }
 
   void StreamThingAnalyzer::analyze(edm::Event const& e,
