@@ -1,13 +1,16 @@
-
 <use name=Foundation/PluginManager>
 <use name=SimG4Core/SensitiveDetector>
 <use name=SimG4Core/Notification> 
+<use name=SimG4Core/Application>
 <use name=DataFormats/EcalDetId> 
-<use name=boost>
-<use name=geant4>
+<use name=DataFormats/HcalDetId> 
 <use name=SimDataFormats/SimHitMaker>
 <use name=SimDataFormats/CaloHit>
-<use name=SimG4Core/Application>
+<use name=Geometry/HcalCommonData>
+<use name=DetectorDescription/Core>
+<use name=FWCore/ParameterSet>
+<use name=boost>
+<use name=geant4>
 
 <export>
  <lib name=SimG4CMSCalo>

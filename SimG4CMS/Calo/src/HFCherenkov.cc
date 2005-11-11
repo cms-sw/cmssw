@@ -260,13 +260,16 @@ double HFCherenkov::computeHEMEff(double wavelength) {
     hEMEff = (-1322.453 / wavelength) + 4.2056;
   } else if (wavelength >= 410.) {
     hEMEff = 0.99;
-    if (abs(wavelength - 430.) < 15.){
+    if (wavelength > 415. && wavelength < 445.) {
+      //abs(wavelength - 430.) < 15.
       //hEMEff = 0.95;
       hEMEff = 0.97;
-    } else if (abs(wavelength - 575.) < 25.) {
+    } else if (wavelength > 550. && wavelength < 600.) { 
+      // abs(wavelength - 575.) < 25.) 
       //hEMEff = 0.96;
       hEMEff = 0.98;
-    } else if (abs(wavelength - 600.) < 35.) { // added later 
+    } else if (wavelength > 565. && wavelength <= 635.) { // added later 
+      // abs(wavelength - 600.) < 35.) 
       hEMEff = (701.7268 / wavelength) - 0.186;
     }
   }

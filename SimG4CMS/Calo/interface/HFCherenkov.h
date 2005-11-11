@@ -51,7 +51,7 @@ private:
 
 private:
 
-   integer             verbosity;
+   int                 verbosity;
    double              ref_index;
    double              lambda1, lambda2;
    double              aperture, apertureTrap;
