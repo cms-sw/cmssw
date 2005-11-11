@@ -1,7 +1,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: EventStreamOutput.cc,v 1.8 2005/10/16 17:47:03 wmtan Exp $
+// $Id: EventStreamOutput.cc,v 1.9 2005/10/28 04:39:31 jbk Exp $
 //
 // Class EventStreamOutput module
 //
@@ -107,7 +107,7 @@ namespace edm
       }
 
     InitMsg im(&prod_reg_buf_[0],prod_reg_buf_.size(),true);
-    TBuffer rootbuf(TBuffer::kWrite,im.dataSize(),im.data(),kFALSE);
+    TBuffer rootbuf(TBuffer::kWrite,im.getDataSize(),im.data(),kFALSE);
     RootDebug tracer(10,10);
 
     int bres = rootbuf.WriteObjectAny((char*)&sd,prog_reg);
@@ -183,7 +183,7 @@ namespace edm
 
     EventBuffer::ProducerBuffer b(*bufs_);
     EventMsg msg(b.buffer(),b.size(),e.id().event(),e.id().run(),1,1);
-    TBuffer rootbuf(TBuffer::kWrite,msg.dataSize(),msg.data(),kFALSE);
+    TBuffer rootbuf(TBuffer::kWrite,msg.getDataSize(),msg.data(),kFALSE);
     RootDebug tracer(10,10);
 
     int bres = rootbuf.WriteObjectAny(&se,tc_);

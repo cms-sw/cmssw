@@ -2,6 +2,7 @@
 #include "IOPool/Streamer/src/EventStreamFileReader.h"
 #include "IOPool/Streamer/interface/BufferArea.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "IOPool/Streamer/interface/ClassFiller.h"
 
 #include <algorithm>
 #include <iterator>
@@ -25,6 +26,10 @@ namespace edmtestp
 	throw cms::Exception("Configuration","EventStreamFileReader")
 	  << "cannot open file " << filename_;
       }
+
+    loadExtraClasses();
+    getTClass(typeid(SendEvent));
+    getTClass(typeid(SendJobHeader));
 
     std::auto_ptr<SendJobHeader> p = readHeaderFromStream(ist_);
     edm::mergeWithRegistry(*p,productRegistry());

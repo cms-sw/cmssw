@@ -33,7 +33,7 @@ namespace edm
       loadextrastuff();
       if(!ans)
 	{
-	  if((ans = getTClass(typeid(T))))
+	  if((ans = getTClass(typeid(T)))==0)
 	    {
 	      throw cms::Exception("gettclass")
 		<< "Could not get the TClass for "
@@ -67,9 +67,12 @@ namespace edm
 	<< "received wrong message type: expected INIT, got "
 	<< msg.getCode() << "\n";
     
-    buf_.SetBuffer((char*)msg.data(),msg.dataSize(),kFALSE);
+    // This "SetBuffer" stuff does not appear to work or I don't understand
+    // what needs to be done to actually make it go. (JBK)
+    //buf_.SetBuffer((char*)msg.data(),msg.getDataSize(),kFALSE);
+    TBuffer xbuf(TBuffer::kRead,msg.getDataSize(),(char*)msg.data(),kFALSE);
     RootDebug tracer(10,10);
-    auto_ptr<SendJobHeader> sd((SendJobHeader*)buf_.ReadObjectAny(desc_));
+    auto_ptr<SendJobHeader> sd((SendJobHeader*)xbuf.ReadObjectAny(desc_));
 
     if(sd.get()==0)
       {
@@ -150,9 +153,22 @@ namespace edm
   std::auto_ptr<EventPrincipal>
   EventDecoder::decodeEvent(const EventMsg& msg, const ProductRegistry& pr)
   {
-    buf_.SetBuffer((char*)msg.data(),msg.dataSize(),kFALSE);
+    FDEBUG(5) << "Decide event: "
+	      << msg.getEventNumber() << " "
+	      << msg.getRunNumber() << " "
+	      << msg.getTotalSegs() << " "
+	      << msg.getWhichSeg() << " "
+	      << msg.msgSize() << " "
+	      << msg.getDataSize() << " "
+	      << msg.data()
+	      << endl;
+
+    // This "SetBuffer" stuff does not appear to work or I don't understand
+    // what needs to be done to actually make it go. (JBK)
+    //buf_.SetBuffer((char*)msg.data(),msg.getDataSize(),kFALSE);
+    TBuffer xbuf(TBuffer::kRead,msg.getDataSize(),(char*)msg.data(),kFALSE);
     RootDebug tracer(10,10);
-    auto_ptr<SendEvent> sd((SendEvent*)buf_.ReadObjectAny(desc_));
+    auto_ptr<SendEvent> sd((SendEvent*)xbuf.ReadObjectAny(desc_));
 
     if(sd.get()==0)
       {
@@ -257,10 +273,12 @@ namespace edm
   std::auto_ptr<EventPrincipal> EventReader::read(const ProductRegistry& prods)
   {
     int len = readMessage(b_);
+    cout << "readMessage done len=" << len << " " << (void*)len << endl;
     if(len==0)
 	return std::auto_ptr<edm::EventPrincipal>();
 
     edm::EventMsg msg(&b_[0],len);
+    cout << "turned into EventMsg" << endl;
     return decoder_.decodeEvent(msg,prods);
 
   }
