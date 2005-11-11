@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  * 
- * $Date: 2005/11/10 17:43:35 $
- * $Revision: 1.10 $
+ * $Date: 2005/11/11 14:13:32 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  *
 */
@@ -201,7 +201,7 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
 
   ievt_++;
   jevt_++;
-  if ( ievt_ % 10 )
+  if ( ievt_ % 10 == 0 )
   cout << "EcalBarrelMonitorClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
 
   string s;

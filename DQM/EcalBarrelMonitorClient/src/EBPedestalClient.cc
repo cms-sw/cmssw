@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  * 
- * $Date: 2005/11/10 15:57:22 $
- * $Revision: 1.3 $
+ * $Date: 2005/11/11 14:13:32 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  *
 */
@@ -187,7 +187,7 @@ void EBPedestalClient::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   ievt_++;
   jevt_++;
-  if ( ievt_ % 10 )  
+  if ( ievt_ % 10 == 0 )  
   cout << "EBPedestalClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
 
   this->subscribeNew();
