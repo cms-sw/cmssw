@@ -159,6 +159,9 @@ HcalNumberingFromDDD::HcalID HcalNumberingFromDDD::unitID(int det, int zside,
     }
   }
   if (etaR == nOff[1] && depth > 2) etaR = nOff[1]-1;
+  if (det == static_cast<int>(HcalBarrel) && depth == 4) {
+    det = static_cast<int>(HcalOuter);
+  }
 
   HcalNumberingFromDDD::HcalID tmp(det,zside,depth,etaR,phi,lay);
 #ifdef debug
@@ -190,7 +193,8 @@ HcalCellType::HcalCell HcalNumberingFromDDD::cell(int det, int zside,
   double eta = 0, deta = 0, phi = 0, dphi = 0, rz = 0, drz = 0;
   bool   ok = false, flagrz = true;
   if ((idet==static_cast<int>(HcalBarrel)||idet==static_cast<int>(HcalEndcap)||
-       idet==static_cast<int>(HcalForward)) && etaR >=etaMn && etaR <= etaMx)
+       idet==static_cast<int>(HcalOuter)||idet==static_cast<int>(HcalForward))
+      && etaR >=etaMn && etaR <= etaMx)
     ok = true;
   if (idet == static_cast<int>(HcalEndcap)) {
     if      (depth < 3 && etaR <= etaMin[1]) ok = false;
@@ -202,7 +206,8 @@ HcalCellType::HcalCell HcalNumberingFromDDD::cell(int det, int zside,
     eta  = getEta(idet, etaR, zside, depth);
     deta = deltaEta(idet, etaR, depth);
     double fibin, fioff;
-    if      (idet == static_cast<int>(HcalBarrel)) {
+    if      (idet == static_cast<int>(HcalBarrel)||
+	     idet == static_cast<int>(HcalOuter)) {
       fioff = phioff[0];
       fibin = phibin[etaR-1];
     } else if (idet == static_cast<int>(HcalEndcap)) {
@@ -316,7 +321,22 @@ vector<HcalCellType::HcalCellType> HcalNumberingFromDDD::HcalCellTypes() const{
 
   // Get the Cells for HB 
   subdet = static_cast<int>(HcalBarrel);
-  for (int depth=1; depth<=4; depth++) {
+  for (int depth=1; depth<=3; depth++) {
+    int    shift = shiftHB[depth-1];
+    double gain  = gainHB[depth-1];
+    for (int eta=etaMin[0]; eta<= etaMax[0]; eta++) {
+      HcalCellType::HcalCell temp1 = cell(subdet, zside, depth, eta, phi, cor);
+      if (temp1.ok) {
+	HcalCellType::HcalCellType temp2(subdet, eta, phi, depth, temp1,
+					 shift, gain);
+	cellTypes.push_back(temp2);
+      }
+    }
+  }
+
+  // Get the Cells for HO
+  subdet = static_cast<int>(HcalOuter);
+  for (int depth=4; depth<=4; depth++) {
     int    shift = shiftHB[depth-1];
     double gain  = gainHB[depth-1];
     for (int eta=etaMin[0]; eta<= etaMax[0]; eta++) {
