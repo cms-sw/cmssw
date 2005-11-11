@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  * 
- * $Date: 2005/11/11 14:13:32 $
- * $Revision: 1.3 $
+ * $Date: 2005/11/11 14:25:31 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  *
 */
@@ -94,6 +94,8 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
   jevt_++;
   if ( ievt_ % 10 == 0 )
   cout << "EBIntegrityClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+
+  this->subscribeNew();
 
 }
 
