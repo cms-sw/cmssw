@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  * 
- * $Date: 2005/11/10 16:25:32 $
- * $Revision: 1.9 $
+ * $Date: 2005/11/10 17:43:35 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  *
 */
@@ -67,11 +67,10 @@ void EcalBarrelMonitorClient::beginJob(const edm::EventSetup& c){
   cout << "EcalBarrelMonitorClient: beginJob" << endl;
 
   ievt_ = 0;
-  jevt_ = 0;
+
+  this->beginRun(c);
 
   last_update_ = -1;
-
-  this->subscribe();
 
   integrity_client_->beginJob(c);
   laser_client_->beginJob(c);
@@ -88,6 +87,11 @@ void EcalBarrelMonitorClient::beginRun(const edm::EventSetup& c){
   jevt_ = 0;
 
   this->subscribe();
+
+  status_  = "unknown";
+  run_     = 0;
+  evt_     = 0;
+  runtype_ = "unknown";
 
   integrity_client_->beginRun(c);
   laser_client_->beginRun(c);
@@ -112,6 +116,8 @@ void EcalBarrelMonitorClient::endJob(void) {
 void EcalBarrelMonitorClient::endRun(void) {
 
   cout << "EcalBarrelMonitorClient: endRun, jevt = " << jevt_ << endl;
+
+  this->htmlOutput();
 
   mui_->save("EcalBarrelMonitorClient.root");
 
@@ -195,13 +201,10 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
 
   ievt_++;
   jevt_++;
+  if ( ievt_ % 10 )
   cout << "EcalBarrelMonitorClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
 
   string s;
-  status_  = "unknown";
-  run_     = 0;
-  evt_     = 0;
-  runtype_ = "unknown";
 
   bool stay_in_loop = mui_->update();
 
@@ -305,5 +308,23 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
 
 //  sleep(1);
 
+}
+
+void EcalBarrelMonitorClient::htmlOutput(void){
+
+  cout << "Preparing html output ..." << flush;
+
+  char htmlOutputDir[99] = "./";
+
+  char command[99];
+  sprintf(command, "mkdir %s/%09d", htmlOutputDir, run_);
+
+  try {
+    system(command);
+    cout << " done !" << endl;
+  } catch (runtime_error &e) {
+    cerr << e.what() << endl;
+  }
+ 
 }
 

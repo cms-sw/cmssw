@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  * 
- * $Date: 2005/11/10 15:57:22 $
- * $Revision: 1.3 $
+ * $Date: 2005/11/10 16:45:05 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  *
 */
@@ -26,9 +26,8 @@ void EBLaserClient::beginJob(const edm::EventSetup& c){
   cout << "EBLaserClient: beginJob" << endl;
 
   ievt_ = 0;
-  jevt_ = 0;
 
-  this->beginRun(c);
+//  this->beginRun(c);
 
 }
 
@@ -37,6 +36,8 @@ void EBLaserClient::beginRun(const edm::EventSetup& c){
   cout << "EBLaserClient: beginRun" << endl;
 
   jevt_ = 0;
+
+  this->subscribe();
 
 }
 
@@ -49,6 +50,8 @@ void EBLaserClient::endJob(void) {
 void EBLaserClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* runtag) {
 
   cout << "EBLaserClient: endRun, jevt = " << jevt_ << endl;
+
+  this->htmlOutput();
 
 }
 
@@ -86,7 +89,12 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   ievt_++;
   jevt_++;
+  if ( ievt_ % 10 )  
   cout << "EBLaserClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+
+}
+
+void EBLaserClient::htmlOutput(void){
 
 }
 

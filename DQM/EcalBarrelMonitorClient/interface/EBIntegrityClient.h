@@ -4,8 +4,8 @@
 /*
  * \file EBIntegrityClient.h
  *
- * $Date: 2005/11/10 09:55:15 $
- * $Revision: 1.2 $
+ * $Date: 2005/11/10 15:57:22 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */
@@ -75,6 +75,9 @@ void beginRun(const edm::EventSetup& c);
 
 // EndRun
 void endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* runtag);
+
+// HtmlOutput
+virtual void htmlOutput(void);
 
 private:
 

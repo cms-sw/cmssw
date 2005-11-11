@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2005/11/10 15:57:22 $
- * $Revision: 1.5 $
+ * $Date: 2005/11/10 16:22:13 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  *
 */
@@ -74,6 +74,9 @@ virtual void beginRun(const edm::EventSetup& c);
 
 // EndRun
 virtual void endRun(void);
+
+// HtmlOutput
+virtual void htmlOutput(void);
 
 private:
 

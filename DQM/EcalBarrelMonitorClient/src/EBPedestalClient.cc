@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  * 
- * $Date: 2005/11/10 09:55:15 $
- * $Revision: 1.2 $
+ * $Date: 2005/11/10 15:57:22 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
@@ -26,9 +26,8 @@ void EBPedestalClient::beginJob(const edm::EventSetup& c){
   cout << "EBPedestalClient: beginJob" << endl;
 
   ievt_ = 0;
-  jevt_ = 0;
 
-  this->subscribe();
+//  this->beginRun(c);
 
 }
 
@@ -58,6 +57,9 @@ void EBPedestalClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag
 
   cout << "Writing MonPedestalsDatObjects to database ..." << endl;
 
+  float n_min_tot = 1000.;
+  float n_min_bin = 50.;
+
   for ( int ism = 1; ism <= 36; ism++ ) {
 
     float num01, num02, num03;
@@ -73,53 +75,29 @@ void EBPedestalClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag
 
         bool update_channel = false;
 
-        MonitorElementT<TNamed>* ob;
-
-        TProfile2D* h01 = 0;
-        TProfile2D* h02 = 0;
-        TProfile2D* h03 = 0;
-
-        if ( me01[ism-1] ) {
-          ob = dynamic_cast<MonitorElementT<TNamed>*> (me01[ism-1]);
-          if ( ob ) h01 = dynamic_cast<TProfile2D*> (ob->operator->());
-        }
-
-        if ( me02[ism-1] ) {
-          ob = dynamic_cast<MonitorElementT<TNamed>*> (me02[ism-1]);
-          if ( ob ) h02 = dynamic_cast<TProfile2D*> (ob->operator->());
-        }
-
-        if ( me03[ism-1] ) {
-          ob = dynamic_cast<MonitorElementT<TNamed>*> (me03[ism-1]);
-          if ( ob ) h03 = dynamic_cast<TProfile2D*> (ob->operator->());
-        }
-
-        float n_min_tot = 1000.;
-        float n_min_bin = 50.;
-
-        if ( h01 && h01->GetEntries() >= n_min_tot ) {
-          num01 = h01->GetBinEntries(h01->GetBin(ie, ip));
+        if ( h01[ism-1] && h01[ism-1]->GetEntries() >= n_min_tot ) {
+          num01 = h01[ism-1]->GetBinEntries(h01[ism-1]->GetBin(ie, ip));
           if ( num01 >= n_min_bin ) {
-            mean01 = h01->GetBinContent(h01->GetBin(ie, ip));
-            rms01  = h01->GetBinError(h01->GetBin(ie, ip));
+            mean01 = h01[ism-1]->GetBinContent(h01[ism-1]->GetBin(ie, ip));
+            rms01  = h01[ism-1]->GetBinError(h01[ism-1]->GetBin(ie, ip));
             update_channel = true;
           }
         }
   
-        if ( h02 && h02->GetEntries() >= n_min_tot ) {
-          num02 = h02->GetBinEntries(h02->GetBin(ie, ip));
+        if ( h02[ism-1] && h02[ism-1]->GetEntries() >= n_min_tot ) {
+          num02 = h02[ism-1]->GetBinEntries(h02[ism-1]->GetBin(ie, ip));
           if ( num02 >= n_min_bin ) {
-            mean02 = h02->GetBinContent(h02->GetBin(ie, ip));
-            rms02  = h02->GetBinError(h02->GetBin(ie, ip));
+            mean02 = h02[ism-1]->GetBinContent(h02[ism-1]->GetBin(ie, ip));
+            rms02  = h02[ism-1]->GetBinError(h02[ism-1]->GetBin(ie, ip));
             update_channel = true;
           }
         }
   
-        if ( h03 && h03->GetEntries() >= n_min_tot ) {
-          num03 = h03->GetBinEntries(h03->GetBin(ie, ip));
+        if ( h03[ism-1] && h03[ism-1]->GetEntries() >= n_min_tot ) {
+          num03 = h03[ism-1]->GetBinEntries(h03[ism-1]->GetBin(ie, ip));
           if ( num03 >= n_min_bin ) {
-            mean03 = h03->GetBinContent(h03->GetBin(ie, ip));
-            rms03  = h03->GetBinError(h03->GetBin(ie, ip));
+            mean03 = h03[ism-1]->GetBinContent(h03[ism-1]->GetBin(ie, ip));
+            rms03  = h03[ism-1]->GetBinError(h03[ism-1]->GetBin(ie, ip));
             update_channel = true;
           }
         }
@@ -174,6 +152,8 @@ void EBPedestalClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag
     cerr << e.what() << endl;
   }
 
+  this->htmlOutput();
+
 }
 
 void EBPedestalClient::subscribe(void){
@@ -207,37 +187,50 @@ void EBPedestalClient::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   ievt_++;
   jevt_++;
+  if ( ievt_ % 10 )  
   cout << "EBPedestalClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
 
   this->subscribeNew();
 
   Char_t histo[150];
 
-  for ( int ism = 1; ism <= 36; ism++ ) {
-    me01[ism-1] = me02[ism-1] = me03[ism-1] = 0;
-  }
+  MonitorElement* me;
+  MonitorElementT<TNamed>* ob;
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
+    h01[ism-1] = 0;
     sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal SM%02d G01", ism);
-    me01[ism-1] = mui_->get(histo);
-    if ( me01[ism-1] ) {
+    me = mui_->get(histo);
+    if ( me ) {
       cout << "Found '" << histo << "'" << endl;
+      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
+      if ( ob ) h01[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
     }
 
+    h03[ism-1] = 0;
     sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM%02d G06", ism);
-    me02[ism-1] = mui_->get(histo);
-    if ( me02[ism-1] ) {
+    me = mui_->get(histo);
+    if ( me ) {
       cout << "Found '" << histo << "'" << endl;
+      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
+      if ( ob ) h02[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
     }
 
+    h03[ism-1] = 0;
     sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM%02d G12", ism);
-    me03[ism-1] = mui_->get(histo);
-    if ( me03[ism-1] ) {
+    me = mui_->get(histo);
+    if ( me ) {
       cout << "Found '" << histo << "'" << endl;
+      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
+      if ( ob ) h03[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
     }
 
   }
+
+}
+
+void EBPedestalClient::htmlOutput(void){
 
 }
 

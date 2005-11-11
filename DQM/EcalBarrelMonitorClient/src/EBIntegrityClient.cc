@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  * 
- * $Date: 2005/11/10 15:57:22 $
- * $Revision: 1.1 $
+ * $Date: 2005/11/10 16:45:05 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  *
 */
@@ -26,9 +26,8 @@ void EBIntegrityClient::beginJob(const edm::EventSetup& c){
   cout << "EBIntegrityClient: beginJob" << endl;
 
   ievt_ = 0;
-  jevt_ = 0;
 
-  this->beginRun(c);
+//  this->beginRun(c);
 
 }
 
@@ -37,6 +36,8 @@ void EBIntegrityClient::beginRun(const edm::EventSetup& c){
   cout << "EBIntegrityClient: beginRun" << endl;
 
   jevt_ = 0;
+
+  this->subscribe();
 
 }
 
@@ -49,6 +50,8 @@ void EBIntegrityClient::endJob(void) {
 void EBIntegrityClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* runtag) {
 
   cout << "EBIntegrityClient: endRun, jevt = " << jevt_ << endl;
+
+  this->htmlOutput();
 
 }
 
@@ -89,7 +92,12 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   ievt_++;
   jevt_++;
+  if ( ievt_ % 10 )
   cout << "EBIntegrityClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+
+}
+
+void EBIntegrityClient::htmlOutput(void){
 
 }
 
