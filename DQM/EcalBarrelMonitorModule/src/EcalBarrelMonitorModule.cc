@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  * 
- * $Date: 2005/11/10 16:45:05 $
- * $Revision: 1.39 $
+ * $Date: 2005/11/10 17:02:03 $
+ * $Revision: 1.40 $
  * \author G. Della Ricca
  *
 */
@@ -11,7 +11,7 @@
 
 EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
 
-  logFile.open("EcalBarrelMonitorModule.log");
+//  logFile.open("EcalBarrelMonitorModule.log");
 
   string s = ps.getUntrackedParameter<string>("runType","unknown");
 
@@ -80,7 +80,7 @@ EcalBarrelMonitorModule::~EcalBarrelMonitorModule(){
   delete pedpresample_task;
   delete testpulse_task;
 
-  logFile.close();
+//  logFile.close();
 
 }
 

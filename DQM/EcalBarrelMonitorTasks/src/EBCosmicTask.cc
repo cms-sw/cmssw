@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  * 
- * $Date: 2005/10/30 15:20:49 $
- * $Revision: 1.21 $
+ * $Date: 2005/10/30 15:34:53 $
+ * $Revision: 1.22 $
  * \author G. Della Ricca
  *
 */
@@ -11,7 +11,7 @@
 
 EBCosmicTask::EBCosmicTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe){
 
-  logFile.open("EBCosmicTask.log");
+//  logFile.open("EBCosmicTask.log");
 
   Char_t histo[20];
 
@@ -35,7 +35,7 @@ EBCosmicTask::EBCosmicTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* d
 
 EBCosmicTask::~EBCosmicTask(){
 
-  logFile.close();
+//  logFile.close();
 
 }
 

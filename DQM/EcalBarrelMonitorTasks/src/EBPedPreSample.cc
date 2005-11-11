@@ -1,8 +1,8 @@
 /*
  * \file EBPedPreSampleTask.cc
  * 
- * $Date: 2005/11/10 09:08:27 $
- * $Revision: 1.2 $
+ * $Date: 2005/11/10 16:45:05 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */
@@ -11,7 +11,7 @@
 
 EBPedPreSampleTask::EBPedPreSampleTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe){
 
-  logFile.open("EBPedPreSampleTask.log");
+//  logFile.open("EBPedPreSampleTask.log");
 
   Char_t histo[20];
 
@@ -30,7 +30,7 @@ EBPedPreSampleTask::EBPedPreSampleTask(const edm::ParameterSet& ps, DaqMonitorBE
 
 EBPedPreSampleTask::~EBPedPreSampleTask(){
 
-  logFile.close();
+//  logFile.close();
 
 }
 
