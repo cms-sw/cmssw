@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  * 
- * $Date: 2005/11/11 14:13:32 $
- * $Revision: 1.4 $
+ * $Date: 2005/11/11 14:25:31 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  *
 */
@@ -208,7 +208,7 @@ void EBPedestalClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( ob ) h01[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
     }
 
-    h03[ism-1] = 0;
+    h02[ism-1] = 0;
     sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM%02d G06", ism);
     me = mui_->get(histo);
     if ( me ) {
