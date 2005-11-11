@@ -98,7 +98,6 @@ std::vector<double> HFFibre::getDDDArray(const std::string & str,
       }
     }
     nmin = nval;
-    
     return fvec;
   } else {
     if (verbosity > 0) 
