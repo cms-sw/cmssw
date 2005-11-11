@@ -1,7 +1,7 @@
 #ifndef ParameterSet_FileInPath_h
 #define ParameterSet_FileInPath_h
 
-/// $Id: FileInPath.h,v 1.2 2005/11/07 17:35:13 paterno Exp $
+/// $Id: FileInPath.h,v 1.3 2005/11/10 23:44:22 paterno Exp $
 ///
 
 /// Find a non-event-data file, given a relative path.
@@ -100,7 +100,7 @@ namespace edm
 
 
   inline  std::ostream& 
-  operator<< (std::ostream& os, const FileInPath& fip)
+  operator<< (std::ostream& os, const edm::FileInPath& fip)
   {
     fip.write(os);
     return os;
@@ -111,6 +111,13 @@ namespace edm
   {
     fip.read(is);
     return is;
+  }
+
+  inline bool
+  operator== (edm::FileInPath const& a,
+	      edm::FileInPath const& b)
+  {
+    return a.isLocal() == b.isLocal() && a.relativePath() == b.relativePath();      
   }
 
 }

@@ -2,7 +2,7 @@
 #define ParameterSet_ParameterSet_h
 
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.h,v 1.10 2005/09/01 23:30:49 wmtan Exp $
+// $Id: ParameterSet.h,v 1.11 2005/11/01 22:31:51 paterno Exp $
 //
 // Declaration for ParameterSet(parameter set) and related types
 // ----------------------------------------------------------------------
@@ -49,11 +49,11 @@ namespace edm {
     std::string toString() const;
     std::string toStringOfTracked() const;
 
-    template< class T >
+    template <class T>
     T
     getParameter(std::string const&) const;
 
-    template< class T > 
+    template <class T> 
     void 
     addParameter(std::string const& name, T value)
     {
@@ -61,15 +61,22 @@ namespace edm {
       insert(true, name, Entry(value, true));
     }
 
-    template< class T >
+    template <class T>
     T
     getUntrackedParameter(std::string const&, T const&) const;
 
-    template< class T >
+    template <class T>
     T
     getUntrackedParameter(std::string const&) const;
 
-    template< class T >
+    /// The returned value is the number of new FileInPath objects
+    /// pushed into the vector.
+    /// N.B.: The vector 'output' is *not* cleared; new entries are
+    /// added with push_back.
+    std::vector<edm::FileInPath>::size_type
+    getAllFileInPaths(std::vector<edm::FileInPath>& output) const;
+
+    template <class T>
     void
     addUntrackedParameter(std::string const& name, T value)
     {
