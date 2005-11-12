@@ -1,3 +1,6 @@
+** V00-00-02  [Sat Nov 12 01:03:19 2005]
+Use new TypeIDBase class
+
 ** V00-00-01  [Wed Nov  2 09:10:42 2005]
 Exception message now contains name of service
 
