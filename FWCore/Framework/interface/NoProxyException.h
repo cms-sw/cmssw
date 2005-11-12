@@ -15,7 +15,7 @@
 //
 // Author:      Valentine Kouznetsov
 // Created:     Wed Apr 23 10:58:26 EDT 2003
-// $Id: NoProxyException.h,v 1.6 2005/09/01 05:13:14 wmtan Exp $
+// $Id: NoProxyException.h,v 1.7 2005/09/01 23:30:49 wmtan Exp $
 //
 //
 
@@ -44,11 +44,8 @@ class NoProxyException : public NoDataException<T>
       // ---------- Constructors and destructor ----------------
       NoProxyException(const EventSetupRecord& iRecord,
 			  const DataKey& iDataKey) :
-	NoDataException<T>(iRecord.key(), iDataKey,"NoProxyException"), 
-	 record_(iRecord),
-	 message_()
+	NoDataException<T>(iRecord.key(), iDataKey,"NoProxyException",standardMessage()) 
        {
-	 this->append(this->myMessage());
        }
       virtual ~NoProxyException() throw() {}
 
@@ -56,75 +53,8 @@ class NoProxyException : public NoDataException<T>
 
    private:
       // ---------- const member functions ---------------------
-      const char* myMessage()const throw() { 
-         /*
-         std::stringstream m_stream1, m_stream2;
-        // Evaluate more precisely what is going on with thrown exception
-
-        // look for proxy in other records
-        const Frame& iFrame = record_.frame();
-        Frame::const_iterator fIter = iFrame.begin();
-        Frame::const_iterator fIEnd = iFrame.end();
-        std::string o_record_proxy = "";
-        while(fIter != fIEnd) 
-        { // loop over all records in current frame
-          if(fIter->find(this->dataKey()))
-          { // search if proxy exist in other record
-            o_record_proxy = "However this data has been found in ";
-             m_stream1 << fIter->stream() << " record." << "\0" << std::flush;
-            o_record_proxy+= m_stream1.str();
-          }
-          fIter++;
-        }
-        
-        // search if proxy has another tags
-        Record::const_key_iterator pIter = record_.begin_key();
-        Record::const_key_iterator iEnd  = record_.end_key();
-        std::string sametype_proxy = "";
-        while(pIter != iEnd)
-        {
-          if(pIter->type()  > this->dataKey().type()) 
-          {
-            break;
-          }
-          if(pIter->type() == this->dataKey().type()) 
-          {
-            if(!sametype_proxy.size())
-            {
-              m_stream2 <<"This data type \"" << pIter->type().name()
-                        <<"\" exists, but has different tags.\n";
-            }
-            m_stream2 <<" usage \"" << pIter->usage().value() << "\""
-                      <<" production \""
-             << pIter->production().value() << "\""<< "\0" << std::flush;
-            sametype_proxy+= m_stream2.str();
-          }
-          pIter++;
-        }
-        */
-        if(message_.size() == 0) {
-
-	  // since dataTypeMessage is a member of the base class,
-	  // I suspect that the information will included twice
-	  // in the final "what" message because the base class
-	  // already appends this information.
-          message_ = this->dataTypeMessage();
-          /*
-          if(o_record_proxy.size()) {
-             message_ += std::string(" \n ")+o_record_proxy;
-             message_ += std::string(" \n Perhaps you need to change your extract call to use a different record.");
-          } else if(sametype_proxy.size()) {
-             message_ += std::string(" \n ")+sametype_proxy;
-             message_ += std::string(" \n Please check your code and/or scripts for correct usage/production tag.");
-          } else {
-             */
-             message_ += std::string(" \n ")
-             +std::string("Please add a Source or Producer to your job which can deliver this data.");
-             /*
-          }
-              */
-        }
-        return message_.c_str();
+      std::string standardMessage()const throw() { 
+         return std::string("Please add an ESSource or ESProducer to your job which can deliver this data.\n");
       }
 
       // ---------- static member functions --------------------
@@ -134,10 +64,7 @@ class NoProxyException : public NoDataException<T>
 
       //const NoProxyException& operator=(const NoProxyException&); // allow default
 
-      // ---------- data members -------------------------------
-      const EventSetupRecord& record_;
-      mutable std::string message_;
-      
+      // ---------- data members -------------------------------      
 };
    }
 }

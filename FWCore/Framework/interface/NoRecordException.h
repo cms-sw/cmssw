@@ -48,9 +48,9 @@ class NoRecordException : public cms::Exception
   NoRecordException():cms::Exception("NoRecord")
   {
     (*this)
-      << "No " 
+      << "No \"" 
       << heterocontainer::HCTypeTagTemplate<T,EventSetupRecordKey>::className()
-      << " Record found in the EventSetup";
+      << "\" record found in the EventSetup.\n Please add an ESSource or EDProducer that delivers such a record.\n";
   }
       virtual ~NoRecordException() throw() {}
 
