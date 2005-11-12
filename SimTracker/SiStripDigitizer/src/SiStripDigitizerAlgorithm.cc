@@ -23,7 +23,7 @@ using namespace std;
 #define CBOLTZ (1.38E-23)
 #define e_SI (1.6E-19)
 
-SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet const& conf):conf_(conf){
+SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& conf):conf_(conf){
   cout << "Creating a SiStripDigitizerAlgorithm." << endl;
   ndigis=0;
 }

@@ -10,7 +10,7 @@
 #define CBOLTZ (1.38E-23)
 #define e_SI (1.6E-19)
 
-SiHitDigitizer::SiHitDigitizer(const edm::ParameterSet const& conf, const StripGeomDetUnit *det):conf_(conf){
+SiHitDigitizer::SiHitDigitizer(const edm::ParameterSet& conf, const StripGeomDetUnit *det):conf_(conf){
 
   //
   // Construct default classes

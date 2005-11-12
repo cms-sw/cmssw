@@ -3,7 +3,7 @@
 #include "Geometry/Vector/interface/LocalVector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-SiLinearChargeDivider::SiLinearChargeDivider(const edm::ParameterSet const& conf):conf_(conf){
+SiLinearChargeDivider::SiLinearChargeDivider(const edm::ParameterSet& conf):conf_(conf){
   // Run APV in peak instead of deconvolution mode, which degrades the 
   // time resolution.
   //SimpleConfigurable<bool> SiLinearChargeDivider::peakMode(false,"SiStripDigitizer:APVpeakmode");

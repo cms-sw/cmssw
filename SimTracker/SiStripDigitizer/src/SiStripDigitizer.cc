@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea GIAMMANCO
 //         Created:  Thu Sep 22 14:23:22 CEST 2005
-// $Id: SiStripDigitizer.cc,v 1.2 2005/11/03 17:06:15 giamman Exp $
+// $Id: SiStripDigitizer.cc,v 1.3 2005/11/09 17:57:17 giamman Exp $
 //
 //
 
@@ -54,7 +54,7 @@ using namespace std;
 namespace cms
 {
 
-  SiStripDigitizer::SiStripDigitizer(edm::ParameterSet const& conf) : 
+  SiStripDigitizer::SiStripDigitizer(const edm::ParameterSet& conf) : 
     stripDigitizer_(conf) ,
     conf_(conf)
   {
@@ -69,7 +69,7 @@ namespace cms
   // Functions that gets called by framework every event
   void SiStripDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   {
-   using namespace edm;
+    //   using namespace edm;
 
 
    // Step B: create empty output collection
@@ -113,7 +113,6 @@ namespace cms
 
       //   const GeomDetUnit& iu(**iu);
       if (dynamic_cast<StripGeomDetUnit*>((*iu))!=0){
-	cout<<"bau"<<endl; 
 	i++;
 	if (i<10){
 	  int idummy=0;
@@ -154,37 +153,6 @@ namespace cms
     
 
 
-
-    /*
-    std::vector<PseudoHit*> pseudoHitSingleContainer;
-    int idummy=0;
-    for (int i=0;i<numStrips;i++) {
-      irandom1 = rand(); // particle type
-      irandom2 = rand(); // detId
-      irandom3 = rand(); // trackId
-      frandom1 = rand(); // entry
-      frandom2 = rand(); // exit
-      frandom3 = rand(); // pabs
-      Local3DPoint entryVector(frandom1,frandom2,0.);
-      Local3DPoint exitVector(frandom1,frandom2,100.);
-      frandom4 = 110.*rand()/RAND_MAX; // tof
-      frandom5 = rand(); // eloss
-      angrandom1 = 3.14*rand()/RAND_MAX; // theta
-      angrandom2 = 6.28*rand()/RAND_MAX; // phi
-      //      std::cout << "a " << irandom1 << " "  << irandom2 << " "  << irandom3 << " " << endl;
-      //      std::cout << "b " << frandom1 << " "  << frandom2 << " "  << frandom3 << " "  << frandom4 << " "  << frandom5 << " " << endl;
-      //      std::cout << "c " << angrandom1 << " "  << angrandom2 << " " << endl;
-      //      std::cout << "i:  "  << i << endl;
-      PseudoHit* pseudoHit = new PseudoHit(entryVector, exitVector ,frandom3, frandom4, frandom5, irandom1, irandom2, irandom3, angrandom1, angrandom2, idummy);
-      pseudoHitSingleContainer.push_back(pseudoHit);
-      delete pseudoHit;
-    }
-
-    // Step C: Invoke the StripDigi conversion algorithm
-    //    stripDigitizer_.run(simHitsTrackerHitsTOBLowTof.product(),*output);
-    stripDigitizer_.run(pseudoHitSingleContainer,*output);
-    */
-
     std::cout << "pippo " << endl;
     // Step D: write output to file
     iEvent.put(output);
@@ -194,7 +162,5 @@ namespace cms
   }
 
 }
-
-
 //define this as a plug-in
-//DEFINE_FWK_MODULE(SiStripDigitizer)
+

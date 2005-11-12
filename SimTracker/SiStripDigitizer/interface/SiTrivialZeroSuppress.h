@@ -23,11 +23,11 @@ class SiTrivialZeroSuppress : public SiZeroSuppress{
  public:
    
   /**Constructor. This reads in the noise in the strips.*/
-  SiTrivialZeroSuppress(const edm::ParameterSet const& conf, float noise);
+  SiTrivialZeroSuppress(const edm::ParameterSet& conf, float noise);
   
   /** This calculates the lower and high signal thresholds using the noise. It also
    *  checks for a valid choice of zero suppression algorithm.*/
-  void initParams(edm::ParameterSet const& conf_);
+  void initParams(const edm::ParameterSet& conf_);
  
   /** This simply calls the method to do zero suppression (trkFEDclusterizer).*/
   SiZeroSuppress::DigitalMapType zeroSuppress(const DigitalMapType&);
