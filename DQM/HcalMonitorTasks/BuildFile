@@ -1,0 +1,21 @@
+<use name=root>
+<use name=boost>
+<use name=DataFormats/HcalRecHit>
+<use name=TBDataFormats/HcalTBObjects>
+<use name=DataFormats/HcalDigi>
+<use name=EventFilter/HcalRawToDigi>
+<use name=DQMServices/CoreROOT>
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<export>
+  <lib name=DQMHcalMonitorTasks>
+  <use name=root>
+  <use name=boost>
+  <use name=DataFormats/HcalRecHit>
+  <use name=TBDataFormats/HcalTBObjects>
+  <use name=DataFormats/HcalDigi>
+  <use name=EventFilter/HcalRawToDigi>
+  <use name=DQMServices/CoreROOT>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
+</export>
