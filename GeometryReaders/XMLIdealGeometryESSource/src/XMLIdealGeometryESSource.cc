@@ -7,11 +7,12 @@
 #include "DetectorDescription/Core/interface/DDSpecifics.h"
 #include "DetectorDescription/Parser/interface/DDLConfiguration.h"
 #include "DetectorDescription/Algorithm/src/AlgoInit.h"
+#include "DetectorDescription/Core/interface/DDRoot.h"
 
 #include <memory>
 
 
-XMLIdealGeometryESSource::XMLIdealGeometryESSource(const edm::ParameterSet & p) 
+XMLIdealGeometryESSource::XMLIdealGeometryESSource(const edm::ParameterSet & p): rootNodeName_(p.getParameter<std::string>("rootNodeName"))
 {
     DDLParser * parser = DDLParser::instance();
     AlgoInit();
@@ -20,15 +21,37 @@ XMLIdealGeometryESSource::XMLIdealGeometryESSource(const edm::ParameterSet & p)
     if (result1 !=0) throw DDException("DDLConfiguration: readConfig failed !");
     int result2 = parser->parse(cf);
     if (result2 != 0) throw DDException("DDD-Parser: parsing failed!");
-    setWhatProduced(this);
+    if(rootNodeName_ == "" || rootNodeName_ == "\""){
+       rootNodeName_ = DDRootDef::instance().root().ddname();
+       //std::cout <<"default name \""<<rootNodeName_<<"\""<<std::endl;
+       setWhatProduced(this);
+    }else {
+       setWhatProduced(this,rootNodeName_);
+    }
     findingRecord<IdealGeometryRecord>();
 }
 
 XMLIdealGeometryESSource::~XMLIdealGeometryESSource() {}
 
-const DDCompactView *
+std::auto_ptr<DDCompactView>
 XMLIdealGeometryESSource::produce(const IdealGeometryRecord &)
-{ return new DDCompactView(); }
+{ 
+   //std::cout <<"got in produce"<<std::endl;
+   DDName ddName(rootNodeName_);
+   //std::cout <<"ddName \""<<ddName<<"\""<<std::endl;
+   DDLogicalPart rootNode(ddName);
+   //std::cout <<"made the DDLogicalPart"<<std::endl;
+   if(! rootNode.isValid()){
+      throw cms::Exception("Geometry")<<"There is no valid node named \""
+				      <<rootNodeName_<<"\"";
+   }
+   std::auto_ptr<DDCompactView> returnValue(new DDCompactView(rootNode));
+   //copy the graph from the global one
+   DDCompactView globalOne;
+   returnValue->writeableGraph() = globalOne.graph();
+   //std::cout <<"made the view"<<std::endl;
+   return returnValue;
+}
 
 void XMLIdealGeometryESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
 					       const edm::IOVSyncValue & iosv, 

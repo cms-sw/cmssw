@@ -8,6 +8,7 @@
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
+#include <memory>
 #include <string>
 
 class XMLIdealGeometryESSource : public edm::ESProducer, 
@@ -16,13 +17,14 @@ class XMLIdealGeometryESSource : public edm::ESProducer,
 public:
     XMLIdealGeometryESSource(const edm::ParameterSet & p);
     virtual ~XMLIdealGeometryESSource(); 
-    const DDCompactView * produce(const IdealGeometryRecord &);
+    std::auto_ptr<DDCompactView> produce(const IdealGeometryRecord &);
 protected:
     virtual void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
 				const edm::IOVSyncValue &,edm::ValidityInterval &);
 private:
     XMLIdealGeometryESSource(const XMLIdealGeometryESSource &);
     const XMLIdealGeometryESSource & operator=(const XMLIdealGeometryESSource &);
+    std::string rootNodeName_;
 };
 
 
