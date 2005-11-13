@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <Configuration xmlns="." xmlns:xsi="." xsi:schemaLocation= "." name="CMSConfiguration" version="0">
-<Include name="test">
-      <File name="CMSCommonData/materials.xml"               url="../"/>
-      <File name="trackermaterial.xml"                       url="."/>
-      <File name="cms.xml"                                   url="."/>
-      <File name="tracker.xml"                               url="."/>
+ <Include name="test">
+  <File name="Geometry/CMSCommonData/materials.xml"              url="../../"/>
+  <File name="Geometry/TrackerCommonData/trackermaterial.xml"    url="../../"/>
+  <File name="Geometry/TrackerCommonData/cms.xml"                url="../../"/>
+  <File name="Geometry/TrackerCommonData/tracker.xml"            url="../../"/>
  </Include>
- <Root fileName="cms.xml"          logicalPartName="TRAK"/>
+ <Root fileName="cms.xml"          logicalPartName="Tracker"/>
 </Configuration>

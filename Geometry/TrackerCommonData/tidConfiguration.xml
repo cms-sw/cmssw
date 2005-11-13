@@ -1,27 +1,27 @@
 <?xml version="1.0"?>
 <Configuration xmlns="." xmlns:xsi="." xsi:schemaLocation= "." name="CMSConfiguration" version="0">
-<Include name="test">
-      <File name="CMSCommonData/materials.xml"               url="../"/>
-      <File name="tidmaterial.xml"                           url="."/>
-      <File name="tidmodpar.xml"                             url="."/>
-      <File name="tidmodule0.xml"                            url="."/>
-      <File name="tidmodule0r.xml"                           url="."/>
-      <File name="tidmodule0l.xml"                           url="."/>
-      <File name="tidmodule1.xml"                            url="."/>
-      <File name="tidmodule1r.xml"                           url="."/>
-      <File name="tidmodule1l.xml"                           url="."/>
-      <File name="tidmodule2.xml"                            url="."/>
-      <File name="tidringpar.xml"                            url="."/>
-      <File name="tidring0.xml"                              url="."/>
-      <File name="tidring0f.xml"                             url="."/>
-      <File name="tidring0b.xml"                             url="."/>
-      <File name="tidring1.xml"                              url="."/>
-      <File name="tidring1f.xml"                             url="."/>
-      <File name="tidring1b.xml"                             url="."/>
-      <File name="tidring2.xml"                              url="."/>
-      <File name="tid.xml"                                   url="."/>
-      <File name="tidf.xml"                                  url="."/>
-      <File name="tidb.xml"                                  url="."/>
+ <Include name="test">
+  <File name="Geometry/CMSCommonData/materials.xml"              url="../../"/>
+  <File name="Geometry/TrackerCommonData/tidmaterial.xml"        url="../../"/>
+  <File name="Geometry/TrackerCommonData/tidmodpar.xml"          url="../../"/>
+  <File name="Geometry/TrackerCommonData/tidmodule0.xml"         url="../../"/>
+  <File name="Geometry/TrackerCommonData/tidmodule0r.xml"        url="../../"/>
+  <File name="Geometry/TrackerCommonData/tidmodule0l.xml"        url="../../"/>
+  <File name="Geometry/TrackerCommonData/tidmodule1.xml"         url="../../"/>
+  <File name="Geometry/TrackerCommonData/tidmodule1r.xml"        url="../../"/>
+  <File name="Geometry/TrackerCommonData/tidmodule1l.xml"        url="../../"/>
+  <File name="Geometry/TrackerCommonData/tidmodule2.xml"         url="../../"/>
+  <File name="Geometry/TrackerCommonData/tidringpar.xml"         url="../../"/>
+  <File name="Geometry/TrackerCommonData/tidring0.xml"           url="../../"/>
+  <File name="Geometry/TrackerCommonData/tidring0f.xml"          url="../../"/>
+  <File name="Geometry/TrackerCommonData/tidring0b.xml"          url="../../"/>
+  <File name="Geometry/TrackerCommonData/tidring1.xml"           url="../../"/>
+  <File name="Geometry/TrackerCommonData/tidring1f.xml"          url="../../"/>
+  <File name="Geometry/TrackerCommonData/tidring1b.xml"          url="../../"/>
+  <File name="Geometry/TrackerCommonData/tidring2.xml"           url="../../"/>
+  <File name="Geometry/TrackerCommonData/tid.xml"                url="../../"/>
+  <File name="Geometry/TrackerCommonData/tidf.xml"               url="../../"/>
+  <File name="Geometry/TrackerCommonData/tidb.xml"               url="../../"/>
  </Include>
  <Root fileName="tidf.xml"          logicalPartName="TIDF"/>
 </Configuration>
