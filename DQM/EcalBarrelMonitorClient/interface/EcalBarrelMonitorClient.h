@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2005/11/11 14:13:32 $
- * $Revision: 1.7 $
+ * $Date: 2005/11/13 08:18:53 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  *
 */
@@ -89,7 +89,7 @@ MonitorUserInterface* mui_;
 
 string clientName_;
 string hostName_;
-string hostPort_;
+int hostPort_;
 
 EcalCondDBInterface* econn_;
 

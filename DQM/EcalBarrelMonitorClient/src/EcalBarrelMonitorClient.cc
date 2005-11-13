@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  * 
- * $Date: 2005/11/11 14:25:31 $
- * $Revision: 1.12 $
+ * $Date: 2005/11/13 08:18:53 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  *
 */
@@ -16,13 +16,13 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps){
   cout << endl;
 
   // default client name
-  clientName_ = ps.getUntrackedParameter<string>("clientName","EcalBarrelMonitorClient");
+  clientName_ = ps.getUntrackedParameter<string>("clientName", "EcalBarrelMonitorClient");
 
   // default collector host name
-  hostName_ = ps.getUntrackedParameter<string>("hostName","localhost");
+  hostName_ = ps.getUntrackedParameter<string>("hostName", "localhost");
 
   // default host port
-  hostPort_ = ps.getUntrackedParameter<int>("hostPort",9090);;
+  hostPort_ = ps.getUntrackedParameter<int>("hostPort", 9090);;
 
   cout << " Client " << clientName_
        << " begins requesting monitoring from host " << hostName_
