@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  * 
- * $Date: 2005/11/11 14:25:31 $
- * $Revision: 1.5 $
+ * $Date: 2005/11/11 14:55:57 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  *
 */
@@ -27,8 +27,6 @@ void EBPedestalClient::beginJob(const edm::EventSetup& c){
 
   ievt_ = 0;
 
-//  this->beginRun(c);
-
 }
 
 void EBPedestalClient::beginRun(const edm::EventSetup& c){
@@ -38,6 +36,12 @@ void EBPedestalClient::beginRun(const edm::EventSetup& c){
   jevt_ = 0;
 
   this->subscribe();
+
+  for ( int ism = 1; ism <= 36; ism++ ) {
+    h01[ism-1] = 0;
+    h02[ism-1] = 0;
+    h03[ism-1] = 0;
+  }
 
 }
 
@@ -152,8 +156,6 @@ void EBPedestalClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag
     cerr << e.what() << endl;
   }
 
-  this->htmlOutput();
-
 }
 
 void EBPedestalClient::subscribe(void){
@@ -230,7 +232,16 @@ void EBPedestalClient::analyze(const edm::Event& e, const edm::EventSetup& c){
 
 }
 
-void EBPedestalClient::htmlOutput(void){
+void EBPedestalClient::htmlOutput(int run, string htmlDir){
+
+  cout << "Preparing EBPedestalClient html output ..." << endl;
+
+  ofstream htmlFile;
+
+  htmlFile.open(htmlDir + "EBPedestalClient.html")
+
+
+  htmlFile.close();
 
 }
 

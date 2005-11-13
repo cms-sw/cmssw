@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  * 
- * $Date: 2005/11/13 08:25:45 $
- * $Revision: 1.14 $
+ * $Date: 2005/11/13 09:43:36 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  *
 */
@@ -10,6 +10,9 @@
 #include <DQM/EcalBarrelMonitorClient/interface/EcalBarrelMonitorClient.h>
 
 EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps){
+
+  mui_ = 0;
+  econn_ = 0;
 
   cout << endl;
   cout << " *** Ecal Barrel Generic Monitor Client ***" << endl;
@@ -48,10 +51,10 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps){
   dbUserName_ = ps.getUntrackedParameter<string>("dbUserName", "");
   dbPassword_ = ps.getUntrackedParameter<string>("dbPassword", "");
 
-  cout << " dbName = " << dbName_
+  cout << " Client will write to"
+       << " dbName = " << dbName_
        << " dbHostName = " << dbHostName_
-       << " dbUserName = " << dbUserName_
-       << endl;
+       << " dbUserName = " << dbUserName_ << endl;
 
 }
 
@@ -128,17 +131,13 @@ void EcalBarrelMonitorClient::endRun(void) {
 
   cout << "EcalBarrelMonitorClient: endRun, jevt = " << jevt_ << endl;
 
-  this->htmlOutput();
-
   mui_->save("EcalBarrelMonitorClient.root");
 
   try {
     cout << "Opening DB connection." << endl;
-    econn_ = new EcalCondDBInterface(dbHostName_, dbName_,
-                                     dbUserName_, dbPassword_);
+    econn_ = new EcalCondDBInterface(dbHostName_, dbName_, dbUserName_, dbPassword_);
   } catch (runtime_error &e) {
     cerr << e.what() << endl;
-    return;
   }
 
   // The objects necessary to identify a dataset
@@ -160,11 +159,11 @@ void EcalBarrelMonitorClient::endRun(void) {
   runtag_->setLocation(location_);
   runtag_->setMonitoringVersion("version 1");
 
-  integrity_client_->endRun(econn_, runiov_, runtag_);
-  laser_client_->endRun(econn_, runiov_, runtag_);
-  pedestal_client_->endRun(econn_, runiov_, runtag_);
-  pedpresample_client_->endRun(econn_, runiov_, runtag_);
-  testpulse_client_->endRun(econn_, runiov_, runtag_);
+  integrity_client_->htmlOutput(run_, htmlDir_);
+  laser_client_->htmlOutput(run_, htmlDir_);
+  pedestal_client_->htmlOutput(run_, htmlDir_);
+  pedpresample_client_->htmlOutput(run_, htmlDir_);
+  testpulse_client_->htmlOutput(run_, htmlDir_);
 
   cout << "Closing DB connection." << endl;
 
@@ -309,6 +308,7 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
                                            pedpresample_client_->analyze(e, c);
       if ( h && h->GetBinContent(4) != 0 ) testpulse_client_->analyze(e, c);
       this->endRun();
+      this->htmlOutput();
     }
 
     if ( updates != 0 && updates % 100 == 0 ) {
@@ -323,7 +323,23 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
 
 void EcalBarrelMonitorClient::htmlOutput(void){
 
-  cout << "Preparing html output ..." << flush;
+  cout << "Preparing EcalBarrelMonitorClient html output ..." << endl;
+
+  htmlDir_ = "./" + string(run_) + "/";
+
+  system('/bin/mkdir -p ' + htmlDir_.c_str());
+
+  ofstream htmlFile;
+
+  htmlFile.open(htmlDir + "index.html");
+
+  integrity_client_->htmlOutput(run_, htmlDir_);
+  laser_client_->htmlOutput(run_, htmlDir_);
+  pedestal_client_->htmlOutput(run_, htmlDir_);
+  pedpresample_client_->htmlOutput(run_, htmlDir_);
+  testpulse_client_->htmlOutput(run_, htmlDir_);
+
+  htmlFile.close();
 
 }
 

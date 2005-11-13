@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  * 
- * $Date: 2005/11/11 15:19:56 $
- * $Revision: 1.5 $
+ * $Date: 2005/11/13 08:55:51 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  *
 */
@@ -27,8 +27,6 @@ void EBIntegrityClient::beginJob(const edm::EventSetup& c){
 
   ievt_ = 0;
 
-//  this->beginRun(c);
-
 }
 
 void EBIntegrityClient::beginRun(const edm::EventSetup& c){
@@ -38,6 +36,14 @@ void EBIntegrityClient::beginRun(const edm::EventSetup& c){
   jevt_ = 0;
 
   this->subscribe();
+
+  for ( int ism = 1; ism <= 36; ism++ ) {
+    h00 = 0;
+    h01[ism-1] = 0;
+    h02[ism-1] = 0;
+    h03[ism-1] = 0;
+    h04[ism-1] = 0;
+  }
 
 }
 
@@ -123,8 +129,6 @@ void EBIntegrityClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
   } catch (runtime_error &e) {
     cerr << e.what() << endl;
   }
-
-  this->htmlOutput();
 
 }
 
@@ -226,7 +230,9 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
 
 }
 
-void EBIntegrityClient::htmlOutput(void){
+void EBIntegrityClient::htmlOutput(int run, string htmlDir){
+
+  cout << "Preparing EBIntegrityClient html output ..." << endl;
 
 }
 

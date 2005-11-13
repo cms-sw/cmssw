@@ -1,8 +1,8 @@
 /*
  * \file EBPedPreSampleClient.cc
  * 
- * $Date: 2005/11/13 10:22:01 $
- * $Revision: 1.7 $
+ * $Date: 2005/11/13 10:23:23 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  *
 */
@@ -27,8 +27,6 @@ void EBPedPreSampleClient::beginJob(const edm::EventSetup& c){
 
   ievt_ = 0;
 
-//  this->beginRun(c);
-
 }
 
 void EBPedPreSampleClient::beginRun(const edm::EventSetup& c){
@@ -38,6 +36,10 @@ void EBPedPreSampleClient::beginRun(const edm::EventSetup& c){
   jevt_ = 0;
 
   this->subscribe();
+
+  for ( int ism = 1; ism <= 36; ism++ ) {
+    h01[ism-1] = 0;
+  }
 
 }
 
@@ -121,8 +123,6 @@ void EBPedPreSampleClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, Ru
     cerr << e.what() << endl;
   }
 
-  this->htmlOutput();
-
 }
 
 void EBPedPreSampleClient::subscribe(void){
@@ -175,7 +175,9 @@ void EBPedPreSampleClient::analyze(const edm::Event& e, const edm::EventSetup& c
 
 }
 
-void EBPedPreSampleClient::htmlOutput(void){
+void EBPedPreSampleClient::htmlOutput(int run, string htmlDir){
+
+  cout << "Preparing EBPedPreSampleClient html output ..." << endl;
 
 }
 

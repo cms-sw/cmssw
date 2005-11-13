@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  * 
- * $Date: 2005/11/11 14:25:31 $
- * $Revision: 1.4 $
+ * $Date: 2005/11/11 15:19:56 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  *
 */
@@ -27,8 +27,6 @@ void EBTestPulseClient::beginJob(const edm::EventSetup& c){
 
   ievt_ = 0;
 
-//  this->beginRun(c);
-
 }
 
 void EBTestPulseClient::beginRun(const edm::EventSetup& c){
@@ -38,6 +36,11 @@ void EBTestPulseClient::beginRun(const edm::EventSetup& c){
   jevt_ = 0;
 
   this->subscribe();
+
+  for ( int ism = 1; ism <= 36; ism++ ) {
+    h01[ism-1] = 0;
+    h02[ism-1] = 0;
+  }
 
 }
 
@@ -148,8 +151,6 @@ void EBTestPulseClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
     cerr << e.what() << endl;
   }
 
-  this->htmlOutput();
-
 }
 
 void EBTestPulseClient::subscribe(void){
@@ -214,7 +215,9 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
 
 }
 
-void EBTestPulseClient::htmlOutput(void){
+void EBTestPulseClient::htmlOutput(int run, string htmlDir){
+
+  cout << "Preparing EBTestPulseClient html output ..." << endl;
 
 }
 

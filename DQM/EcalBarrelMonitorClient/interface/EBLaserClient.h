@@ -4,8 +4,8 @@
 /*
  * \file EBLaserClient.h
  *
- * $Date: 2005/11/11 14:13:32 $
- * $Revision: 1.4 $
+ * $Date: 2005/11/11 15:19:56 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  *
 */
@@ -80,7 +80,7 @@ void beginRun(const edm::EventSetup& c);
 void endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* runtag);
 
 // HtmlOutput
-virtual void htmlOutput(void);
+virtual void htmlOutput(int run, string htmlDir);
 
 private:
 
