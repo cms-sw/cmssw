@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2005/11/13 08:25:45 $
- * $Revision: 1.9 $
+ * $Date: 2005/11/13 18:37:20 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  *
 */
@@ -107,7 +107,7 @@ string status_;
 int run_;
 int evt_;
 
-string htmlDir_;
+string baseHtmlDir_;
 
 EBIntegrityClient* integrity_client_;
 EBLaserClient* laser_client_;

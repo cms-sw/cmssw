@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  * 
- * $Date: 2005/11/13 09:43:36 $
- * $Revision: 1.15 $
+ * $Date: 2005/11/13 18:37:20 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  *
 */
@@ -55,6 +55,15 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps){
        << " dbName = " << dbName_
        << " dbHostName = " << dbHostName_
        << " dbUserName = " << dbUserName_ << endl;
+
+  // base Html output directory
+  baseHtmlDir_ = ps.getUntrackedParameter<string>("baseHtmlDir", "./");
+
+  if ( baseHtmlDir_.size() != 0 ) {
+    cout << " HTML output will go to " << baseHtmlDir_ << endl;
+  } else {
+    cout << " HTML output is disabled" << endl;
+  }
 
 }
 
@@ -159,11 +168,11 @@ void EcalBarrelMonitorClient::endRun(void) {
   runtag_->setLocation(location_);
   runtag_->setMonitoringVersion("version 1");
 
-  integrity_client_->htmlOutput(run_, htmlDir_);
-  laser_client_->htmlOutput(run_, htmlDir_);
-  pedestal_client_->htmlOutput(run_, htmlDir_);
-  pedpresample_client_->htmlOutput(run_, htmlDir_);
-  testpulse_client_->htmlOutput(run_, htmlDir_);
+  integrity_client_->endRun(econn_, runiov_, runtag_);
+  laser_client_->endRun(econn_, runiov_, runtag_);
+  pedestal_client_->endRun(econn_, runiov_, runtag_);
+  pedpresample_client_->endRun(econn_, runiov_, runtag_);
+  testpulse_client_->endRun(econn_, runiov_, runtag_);
 
   cout << "Closing DB connection." << endl;
 
@@ -308,7 +317,7 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
                                            pedpresample_client_->analyze(e, c);
       if ( h && h->GetBinContent(4) != 0 ) testpulse_client_->analyze(e, c);
       this->endRun();
-      this->htmlOutput();
+      if ( baseHtmlDir_.size() != 0 ) this->htmlOutput();
     }
 
     if ( updates != 0 && updates % 100 == 0 ) {
@@ -325,19 +334,23 @@ void EcalBarrelMonitorClient::htmlOutput(void){
 
   cout << "Preparing EcalBarrelMonitorClient html output ..." << endl;
 
-  htmlDir_ = "./" + string(run_) + "/";
+  char tmp[10];
 
-  system('/bin/mkdir -p ' + htmlDir_.c_str());
+  sprintf(tmp, "%09d", run_);
+
+  string htmlDir = baseHtmlDir_ + tmp + "/";
+
+  system(("/bin/mkdir -p " + htmlDir).c_str());
 
   ofstream htmlFile;
 
-  htmlFile.open(htmlDir + "index.html");
+  htmlFile.open((htmlDir + "index.html").c_str());
 
-  integrity_client_->htmlOutput(run_, htmlDir_);
-  laser_client_->htmlOutput(run_, htmlDir_);
-  pedestal_client_->htmlOutput(run_, htmlDir_);
-  pedpresample_client_->htmlOutput(run_, htmlDir_);
-  testpulse_client_->htmlOutput(run_, htmlDir_);
+  integrity_client_->htmlOutput(run_, htmlDir);
+  laser_client_->htmlOutput(run_, htmlDir);
+  pedestal_client_->htmlOutput(run_, htmlDir);
+  pedpresample_client_->htmlOutput(run_, htmlDir);
+  testpulse_client_->htmlOutput(run_, htmlDir);
 
   htmlFile.close();
 
