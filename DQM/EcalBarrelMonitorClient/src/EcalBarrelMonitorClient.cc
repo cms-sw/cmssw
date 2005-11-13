@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  * 
- * $Date: 2005/11/11 14:13:32 $
- * $Revision: 1.11 $
+ * $Date: 2005/11/11 14:25:31 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  *
 */
@@ -16,20 +16,20 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps){
   cout << endl;
 
   // default client name
-  string clientName = ps.getUntrackedParameter<string>("clientName","EcalBarrelMonitorClient");
+  clientName_ = ps.getUntrackedParameter<string>("clientName","EcalBarrelMonitorClient");
 
   // default collector host name
-  string hostName = ps.getUntrackedParameter<string>("hostName","localhost");
+  hostName_ = ps.getUntrackedParameter<string>("hostName","localhost");
 
   // default host port
-  int hostPort = ps.getUntrackedParameter<int>("hostPort",9090);;
+  hostPort_ = ps.getUntrackedParameter<int>("hostPort",9090);;
 
-  cout << " Client " << clientName
-       << " begins requesting monitoring from host " << hostName
-       << " on port " << hostPort << endl;
+  cout << " Client " << clientName_
+       << " begins requesting monitoring from host " << hostName_
+       << " on port " << hostPort_ << endl;
 
   // start user interface instance
-  mui_ = new MonitorUIRoot(hostName, hostPort, clientName);
+  mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_);
 
   mui_->setVerbose(1);
 
@@ -41,6 +41,17 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps){
   pedestal_client_ = new EBPedestalClient(ps, mui_);
   pedpresample_client_ = new EBPedPreSampleClient(ps, mui_);
   testpulse_client_ = new EBTestPulseClient(ps, mui_);
+
+  // Ecal Cond DB
+  dbName_ = ps.getUntrackedParameter<string>("dbName", "");
+  dbHostName_ = ps.getUntrackedParameter<string>("dbHostName", "");
+  dbUserName_ = ps.getUntrackedParameter<string>("dbUserName", "");
+  dbPassword_ = ps.getUntrackedParameter<string>("dbPassword", "");
+
+  cout << " dbName = " << dbName_
+       << " dbHostName = " << dbHostName_
+       << " dbUserName = " << dbUserName_
+       << endl;
 
 }
 
@@ -123,8 +134,8 @@ void EcalBarrelMonitorClient::endRun(void) {
 
   try {
     cout << "Opening DB connection." << endl;
-    econn_ = new EcalCondDBInterface("pccmsecdb.cern.ch", "ecalh4db",
-                                     "test06", "oratest06");
+    econn_ = new EcalCondDBInterface(dbHostName_, dbName_,
+                                     dbUserName_, dbPassword_);
   } catch (runtime_error &e) {
     cerr << e.what() << endl;
     return;
