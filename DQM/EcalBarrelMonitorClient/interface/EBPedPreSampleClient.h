@@ -4,8 +4,8 @@
 /*
  * \file EBPedPreSampleClient.h
  *
- * $Date: 2005/11/11 14:13:32 $
- * $Revision: 1.2 $
+ * $Date: 2005/11/13 10:12:52 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
@@ -29,7 +29,7 @@
 #include "CalibCalorimetry/EcalDBInterface/interface/RunTag.h"
 #include "CalibCalorimetry/EcalDBInterface/interface/RunIOV.h"
 
-#include "CalibCalorimetry/EcalDBInterface/interface/MonPedestalsDat.h"
+//#include "CalibCalorimetry/EcalDBInterface/interface/MonPedPreSampleDat.h"
 
 #include "TROOT.h"
 
