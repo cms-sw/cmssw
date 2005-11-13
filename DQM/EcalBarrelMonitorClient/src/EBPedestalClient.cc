@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  * 
- * $Date: 2005/11/11 14:55:57 $
- * $Revision: 1.6 $
+ * $Date: 2005/11/13 18:37:20 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  *
 */
@@ -238,7 +238,7 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir){
 
   ofstream htmlFile;
 
-  htmlFile.open(htmlDir + "EBPedestalClient.html")
+  htmlFile.open((htmlDir + "EBPedestalClient.html").c_str());
 
 
   htmlFile.close();
