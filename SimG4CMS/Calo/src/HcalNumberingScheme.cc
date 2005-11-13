@@ -21,7 +21,7 @@ uint32_t HcalNumberingScheme::getUnitID(const HcalNumberingFromDDD::HcalID id){
 
   int zside = 2*(id.zside) - 1;
   int etaR  = zside*(id.etaR);
-  HcalSubdetector subdet =  static_cast<HcalSubdetector>(id.subdet);
+  HcalSubdetector subdet =  (HcalSubdetector)(id.subdet);
 
   //pack it into an integer
   // to be consistent with HcalDetId convention

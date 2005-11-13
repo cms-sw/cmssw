@@ -135,8 +135,8 @@ bool CaloSD::ProcessHits(G4GFlashSpot* aSpot, G4TouchableHistory*) {
       fFakePreStepPoint->SetTouchableHandle(fTouchableHandle);
       fFakeStep->SetTotalEnergyDeposit(aSpot->GetEnergySpot()->GetEnergy());
       
-      double   time   = 0;
-      uint32_t unitID = setDetUnitId(fFakeStep);
+      double       time   = 0;
+      unsigned int unitID = setDetUnitId(fFakeStep);
       int      primaryID;
 
       if (trkInfo)
@@ -233,8 +233,8 @@ void CaloSD::getStepInfo(G4Step* aStep) {
     edepositEM  = 0.; edepositHAD = getEnergyDeposit(aStep);
   }
 
-  double   time  = (aStep->GetPostStepPoint()->GetGlobalTime())/nanosecond;
-  uint32_t unitID= setDetUnitId(aStep);
+  double       time  = (aStep->GetPostStepPoint()->GetGlobalTime())/nanosecond;
+  unsigned int unitID= setDetUnitId(aStep);
   TrackInformation * trkInfo = (TrackInformation *)(theTrack->GetUserInformation());
   int      primaryID;
 
@@ -614,11 +614,5 @@ void CaloSD::clearHits(){
 }
 
 void CaloSD::fillHits(edm::PCaloHitContainer& c, std::string n){
-  if (slave->name() == n) {
-#ifdef debug   
-    if (verboseLevel > 1) 
-      std::cout << "Inserting hits for HitContainer " << n << std::endl;
-#endif
-    c = slave->hits();
-  }
+  if (slave->name() == n) c.insertHits(slave->hits());
 }

@@ -31,7 +31,6 @@ HFShower::HFShower(const DDCompactView & cpv, edm::ParameterSet const & p) :
 
   if (verbosity>0)
     std::cout << "HFShower:: Speed of light in fibre " << cFibre
-    if (verbosity > 0)
 	      << " m/ns  Maximum probability cut off " << probMax << std::endl;
 
   G4String attribute = "Volume";

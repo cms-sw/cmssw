@@ -23,13 +23,13 @@ public:
 
   HFShower(const DDCompactView & cpv, edm::ParameterSet const & p);
   virtual ~HFShower();
-  int           getHits(G4Step * aStep);
-  double        getTSlice(int i);
+  int                        getHits(G4Step * aStep);
+  double                     getTSlice(int i);
 
 private:    
 
-  double        fibreLength(G4String);
-  void          clearHits();
+  double                     fibreLength(G4String);
+  void                       clearHits();
 
   HFCherenkov*               cherenkov;
   HFFibre*                   fibre;
