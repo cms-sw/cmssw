@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  * 
- * $Date: 2005/11/13 08:18:53 $
- * $Revision: 1.13 $
+ * $Date: 2005/11/13 08:25:45 $
+ * $Revision: 1.14 $
  * \author G. Della Ricca
  *
 */
@@ -325,17 +325,5 @@ void EcalBarrelMonitorClient::htmlOutput(void){
 
   cout << "Preparing html output ..." << flush;
 
-  char htmlOutputDir[99] = "./";
-
-  char command[99];
-  sprintf(command, "mkdir %s/%09d", htmlOutputDir, run_);
-
-  try {
-    system(command);
-    cout << " done !" << endl;
-  } catch (runtime_error &e) {
-    cerr << e.what() << endl;
-  }
- 
 }
 
