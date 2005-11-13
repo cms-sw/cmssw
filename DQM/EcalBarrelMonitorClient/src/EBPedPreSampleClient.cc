@@ -1,8 +1,8 @@
 /*
  * \file EBPedPreSampleClient.cc
  * 
- * $Date: 2005/11/11 15:19:56 $
- * $Revision: 1.5 $
+ * $Date: 2005/11/13 10:20:05 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  *
 */
@@ -69,9 +69,9 @@ void EBPedPreSampleClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, Ru
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
 
-        num01  = num02  = num03  = -1.;
-        mean01 = mean02 = mean03 = -1.;
-        rms01  = rms02  = rms03  = -1.;
+        num01  = -1.;
+        mean01 = -1.;
+        rms01  = -1.;
 
         bool update_channel = false;
 
