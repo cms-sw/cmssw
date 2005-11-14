@@ -118,7 +118,7 @@ void DDLSAX2FileHandler::startElement(const XMLCh* const uri
 
   if (myElement != NULL)
     {
-      DDLParser* beingParsed = DDLParser::Instance();
+      DDLParser* beingParsed = DDLParser::instance();
       std::string nmspace = getnmspace(extractFileName( beingParsed->getCurrFileName()));
       myElement->loadAttributes(myElementName, attrNames, attrValues, nmspace);
       //  initialize text
@@ -146,7 +146,7 @@ void DDLSAX2FileHandler::endElement(const XMLCh* const uri
   DCOUT_V('P', "    " + myElementName);
 
   DDXMLElement* myElement = DDLElementRegistry::getElement(myElementName);
-  DDLParser* beingParsed = DDLParser::Instance();
+  DDLParser* beingParsed = DDLParser::instance();
   if (myElement != NULL)
     {
       std::string nmspace = getnmspace(extractFileName( beingParsed->getCurrFileName()));

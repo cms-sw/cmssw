@@ -18,6 +18,7 @@
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "DetectorDescription/Parser/interface/DDLDocumentProvider.h"
 #include "DetectorDescription/Parser/interface/DDLConfiguration.h"
+#include "DetectorDescription/Parser/interface/DDLSAX2Handler.h"
 #include "DetectorDescription/Parser/interface/DDLSAX2FileHandler.h"
 #include "DetectorDescription/Parser/interface/DDLSAX2ConfigHandler.h"
 #include "DetectorDescription/Parser/interface/DDLSAX2ExpressionHandler.h"
@@ -31,6 +32,7 @@
 
 // Xerces dependencies
 #include <xercesc/util/PlatformUtils.hpp>
+#include <xercesc/util/XMLUni.hpp>
 #include <xercesc/sax2/SAX2XMLReader.hpp>
 #include <xercesc/sax2/XMLReaderFactory.hpp>
 #include <xercesc/sax/SAXException.hpp>
@@ -49,15 +51,13 @@ namespace std{} using namespace std;
 /// Destructor terminates the XMLPlatformUtils (as required by Xerces)
 DDLParser::~DDLParser()
 { 
-
   // clean up and leave
   XMLPlatformUtils::Terminate();
-
   DCOUT_V('P', "DDLParser::~DDLParser(): destruct DDLParser"); 
 }
 
 /// Constructor initializes XMLPlatformUtils (as required by Xerces.
-DDLParser::DDLParser(seal::Context* ) : nFiles_(0) //, handler_(0)
+DDLParser::DDLParser( )  : nFiles_(0) //, handler_(0) (seal::Context* )
 { 
   // Initialize the XML4C2 system
   static seal::SealTimer tddlparser("DDLParser:Construct");
@@ -75,13 +75,26 @@ DDLParser::DDLParser(seal::Context* ) : nFiles_(0) //, handler_(0)
       throw (DDException(e));
     }
 
-  SAX2Parser_ = XMLReaderFactory::createXMLReader();
+  SAX2Parser_  = XMLReaderFactory::createXMLReader();
 
-  // Set these to the flags for the configuration file.
-  SAX2Parser_->setFeature(XMLString::transcode("http://xml.org/sax/features/validation"),true);   // optional
-  SAX2Parser_->setFeature(XMLString::transcode("http://xml.org/sax/features/namespaces"),true);   // optional
-  if (SAX2Parser_->getFeature(XMLString::transcode("http://xml.org/sax/features/validation")) == true)
-    SAX2Parser_->setFeature(XMLString::transcode("http://apache.org/xml/features/validation/dynamic"), true);
+  // FIX: Temporarily set validation and namespaces to false always.
+  //      Due to ignorance, I did not realize that once set, these can not be
+  //      changed for a SAX2XMLReader.  I need to re-think the use of SAX2Parser.
+  SAX2Parser_->setFeature(XMLString::transcode("http://xml.org/sax/features/validation"), false);   // optional
+  SAX2Parser_->setFeature(XMLString::transcode("http://xml.org/sax/features/namespaces"), false);   // optional
+  //  SAX2Parser_->setFeature(XMLString::transcode("http://apache.org/xml/properties/scannerName"), XMLString::transcode("SGXMLScanner"));
+  //was not the problem, IGXML was fine!  SAX2Parser_->setProperty(XMLUni::fgXercesScannerName, (void *)XMLUni::fgSGXMLScanner);
+
+  // Specify other parser features, e.g.
+  //  SAX2Parser_->setFeature(XMLUni::fgXercesSchemaFullChecking, false);
+
+  expHandler_  = new DDLSAX2ExpressionHandler;
+  fileHandler_ = new DDLSAX2FileHandler;
+  errHandler_  = new DDLSAX2Handler;
+  SAX2Parser_->setErrorHandler(errHandler_); 
+  SAX2Parser_->setContentHandler(fileHandler_); 
+
+  //  std::cout << "created SAX2XMLReader at memory " << SAX2Parser_ << std::endl;
   
   DCOUT_V('P', "DDLParser::DDLParser(): new (and only) DDLParser"); 
 }
@@ -94,56 +107,14 @@ DDLParser::DDLParser(seal::Context* ) : nFiles_(0) //, handler_(0)
 // Initialize singleton pointer.
 DDLParser* DDLParser::instance_ = 0;
 
-// deprecated!
-DDLParser* DDLParser::Instance()
-{
-  return instance();
-}
-
-// MEC: trying to keep COBRA stuff...
-#ifdef USECOBRA
-#include "Utilities/GenUtil/interface/TopLevelContext.h"
-#include "Utilities/GenUtil/interface/GenericComponent.h"
-
-// Fake singleton for backward compatibility
-
 DDLParser* DDLParser::instance()
 {
-  if ( instance_ == 0 ) {
-    // legacy sigleton
-    // configure and build...
-    seal::Context & theAppContext = frappe::topLevelContext();
-    frappe::Configurator config(theAppContext);
-    config.configure<DDLParserI>(frappe::Key<DDLParser>::name());
-    instance_ = dynamic_cast<DDLParser*>(&config.component<DDLParserI>());
-  }
-  return instance_;
-}
-#endif
 
-#ifndef USECOBRA
-DDLParser* DDLParser::instance()
-{
   if ( instance_ == 0 ) {
-    // legacy sigleton
-    // configure and build...
-//     seal::Context & theAppContext = frappe::topLevelContext();
-//     frappe::Configurator config(theAppContext);
-//     config.configure<DDLParserI>(frappe::Key<DDLParser>::name());
-//     instance_ = dynamic_cast<DDLParser*>(&config.component<DDLParserI>());
     instance_ = new DDLParser();
   }
-  return instance_;
-}
-#endif
 
-// MEC: EDMProto  temp?
-void DDLParser::setInstance( DDLParser* p ) {
-  if ( instance_ == 0 ) {
-    instance_ = p;
-  } else {
-    std::cout << "DDL Parser instance already set!!" << std::endl;
-  }
+  return instance_;
 }
 
 /**  This method allows external "users" to use the current DDLParser on their own.
@@ -152,15 +123,8 @@ void DDLParser::setInstance( DDLParser* p ) {
  */ 
 SAX2XMLReader* DDLParser::getXMLParser() { return SAX2Parser_; }
 
-DDLSAX2FileHandler* DDLParser::getDDLSAX2FileHandler() { return dynamic_cast < DDLSAX2FileHandler* > (SAX2Parser_->getContentHandler()); }
-
-// Set the filename for the config file.
-// Remove this soon!
-int DDLParser::SetConfig (const std::string& filename)
-{
-  std::cout << "DDLParser::SetConfig IS DEPRECATED.  Please check interface." << std::endl;
-  configFileName_ = filename;
-  return 0;
+DDLSAX2FileHandler* DDLParser::getDDLSAX2FileHandler() { 
+  return fileHandler_; // dynamic_cast < DDLSAX2FileHandler* > (SAX2Parser_->getContentHandler()); 
 }
 
 size_t DDLParser::isFound(const std::string& filename)
@@ -198,7 +162,7 @@ bool DDLParser::parseOneFile(const std::string& filename, const std::string& url
     {
 
       int fIndex = foundFile;
-      //std::cout << "fIndex= " << fIndex << std::endl;
+      //      std::cout << "fIndex= " << fIndex << std::endl;
       if (!foundFile) //parsed_[foundFile])
 	{
 	  seal::SealTimer tddlfname("DDLParser:"+filename.substr(filename.rfind('/')+1));
@@ -212,63 +176,63 @@ bool DDLParser::parseOneFile(const std::string& filename, const std::string& url
 	  fileNames_[fIndex] = pss;
 	  parsed_[fIndex] = false;
 	}
-      //std::cout << "fIndex= " << fIndex << std::endl;
-      DDLSAX2ExpressionHandler* myExpHandler(0);
+      //      std::cout << "fIndex= " << fIndex << std::endl;
       currFileName_ = fileNames_[fIndex].second;
       try
 	{
-	  myExpHandler = new DDLSAX2ExpressionHandler;
-	  SAX2Parser_->setContentHandler(myExpHandler);
+	  //myExpHandler = new DDLSAX2ExpressionHandler;
+	  SAX2Parser_->setContentHandler(expHandler_);
 	  std::cout << "Parsing: " << fileNames_[fIndex].second << std::endl;
 	  parseFile ( fIndex );
 
-	  delete myExpHandler;
+	  //	  delete myExpHandler;
 	}
       catch (const XMLException& toCatch) {
 	std::cout << "\nDDLParser::ParseOneFile, PASS1: XMLException while processing files... \n"
 	     << "Exception message is: \n"
 	     << StrX(toCatch.getMessage()) << "\n" ;
-	if (myExpHandler) delete myExpHandler;
+	//	delete myExpHandler;
 	XMLPlatformUtils::Terminate();
 	throw (DDException("  See XMLException above. "));
+      } catch (...) {
+	std::cout << "Some un-caught exception" << endl;
       }
     
       // PASS 2:
 
       DCOUT_V('P', "DDLParser::ParseOneFile(): PASS2: Just before setting Xerces content and error handlers... ");
 
-      DDLSAX2FileHandler* myFileHandler(0);
       try
 	{ 
 	  seal::SealTimer t("DDLParser2:"+filename.substr(filename.rfind('/')+1));
 
-	  myFileHandler = new DDLSAX2FileHandler;
-	  SAX2Parser_->setContentHandler(myFileHandler);
+	  //	  myFileHandler = new DDLSAX2FileHandler;
+	  SAX2Parser_->setContentHandler(fileHandler_);
 
 	  // No need to validate (regardless of user's doValidation
 	  // because the files have already been validated on the first pass.
-	  // This optimization suggested by Martin Listd::endl.
-	  SAX2Parser_->setFeature(XMLString::transcode("http://xml.org/sax/features/validation"), false);   // optional
-	  SAX2Parser_->setFeature(XMLString::transcode("http://xml.org/sax/features/namespaces"), false);   // optional
-	  SAX2Parser_->setFeature(XMLString::transcode("http://apache.org/xml/features/validation/dynamic"), false);
+	  // This optimization suggested by Martin Liendl.
+// 	  SAX2Parser_->setFeature(XMLString::transcode("http://xml.org/sax/features/validation"), false);   // optional
+// 	  SAX2Parser_->setFeature(XMLString::transcode("http://xml.org/sax/features/namespaces"), false);   // optional
+// 	  SAX2Parser_->setFeature(XMLString::transcode("http://apache.org/xml/features/validation/dynamic"), false);
 
 	  parseFile ( fIndex );
 	  parsed_[fIndex] = true;
 	  
-	  delete myFileHandler;
+	  //	  delete myFileHandler;
 	}
       catch (const XMLException& toCatch) {
 	std::cout << "\nDDLParser::ParseOneFile, PASS2: XMLException while processing files... \n"
 	     << "Exception message is: \n"
 	     << StrX(toCatch.getMessage()) << "\n" ;
-	if (myFileHandler) delete myFileHandler;
+	//	 delete myFileHandler;
 	XMLPlatformUtils::Terminate();
 	throw (DDException("  See XMLException above."));
       }
     }
   else // was found and is parsed...
     {
-      DCOUT('P', "\nWARNING: DDLParser::ParseOneFile() file " + filename 
+      DCOUT('P', " WARNING: DDLParser::ParseOneFile() file " + filename 
 	   + " was already parsed as " + fileNames_[foundFile].second);
       return true;
     }
@@ -300,58 +264,37 @@ void DDLParser::dumpFileList(ostream& co) {
     co << it->second.second << std::endl;
 }
 
-// Deprecated. One implication is that I may not NEED configFileName_ and should not 
-// keep it around any how, once this is gone!
-int DDLParser::StartParsing()
-{
-  std::string tconfig = configFileName_;
-  if (tconfig.size() == 0)
-    {
-      DDException e(std::string("DDLParser::StartParsing() can not be called without first DDLParser::SetConfig(...)"));
-      throw(e);
-    }
-  else
-    {
-      DDLConfiguration tdp;
-      /// FIX after removing this deprecated function, fix DDLConfiguration to not use int and fail flag.
-      int failflag = tdp.readConfig(tconfig);
-      if (!failflag)
-	{
-	  failflag = parse( tdp );
-	}
-      return failflag;
-    }
-  return 1; // control should never reach here
-}
-
+// FIX: CLEAN THIS UP!
 int DDLParser::parse(const DDLDocumentProvider& dp)
 {
-  std::cout << "Start Parsing.  Validation is set to " << dp.doValidation() << "." << std::endl;
+  //  std::cout << "Start Parsing.  Validation is set to " << dp.doValidation() << "." << std::endl;
+  std::cout << "Start Parsing.  Validation is set off for the time being." << std::endl;
   // prep for pass 1 through DDD XML
-  DDLSAX2Handler* errHandler = new DDLSAX2Handler;
-  SAX2Parser_->setErrorHandler(errHandler);
+  //  DDLSAX2Handler* errHandler = new DDLSAX2Handler;
+
   //  std::cout << "after setErrorHandler)" << std::endl;
   if (dp.doValidation())
     { 
-      seal::SealTimer t("DDLParser:Validation");
+      //      seal::SealTimer t("DDLParser:Validation");
 
-      std::string tval=dp.getSchemaLocation();
-      const char* tch = tval.c_str();
-      SAX2Parser_->setProperty(XMLString::transcode("http://apache.org/xml/properties/schema/external-schemaLocation"),XMLString::transcode(tch));
-      SAX2Parser_->setFeature(XMLString::transcode("http://xml.org/sax/features/validation"), true);   // optional
-      SAX2Parser_->setFeature(XMLString::transcode("http://xml.org/sax/features/namespaces"), true);   // optional
-      SAX2Parser_->setFeature(XMLString::transcode("http://apache.org/xml/features/validation/dynamic"), true);
+      //      std::string tval=dp.getSchemaLocation();
+      //      const char* tch = tval.c_str();
+      DCOUT_V('P', "WARNING:  PARSER VALIDATION IS TURNED OFF REGARDLESS OF <Schema... ELEMENT");
+//       SAX2Parser_->setProperty(XMLString::transcode("http://apache.org/xml/properties/schema/external-schemaLocation"),XMLString::transcode(tch));
+//       SAX2Parser_->setFeature(XMLString::transcode("http://xml.org/sax/features/validation"), true);   // optional
+//       SAX2Parser_->setFeature(XMLString::transcode("http://xml.org/sax/features/namespaces"), true);   // optional
+//       SAX2Parser_->setFeature(XMLString::transcode("http://apache.org/xml/features/validation/dynamic"), true);
     }
   else
     {
-      seal::SealTimer t("DDLParser:NoValidation");
-      SAX2Parser_->setFeature(XMLString::transcode("http://xml.org/sax/features/validation"), false);   // optional
-      SAX2Parser_->setFeature(XMLString::transcode("http://xml.org/sax/features/namespaces"), false);   // optional
-      SAX2Parser_->setFeature(XMLString::transcode("http://apache.org/xml/features/validation/dynamic"), false);
+//       seal::SealTimer t("DDLParser:NoValidation");
+//       SAX2Parser_->setFeature(XMLString::transcode("http://xml.org/sax/features/validation"), false);   // optional
+//       SAX2Parser_->setFeature(XMLString::transcode("http://xml.org/sax/features/namespaces"), false);   // optional
+//       SAX2Parser_->setFeature(XMLString::transcode("http://apache.org/xml/features/validation/dynamic"), false);
     }
 
   //  This need be only done once, so might as well to it here.
-  DDLSAX2ExpressionHandler* myExpHandler = new DDLSAX2ExpressionHandler;
+  //  DDLSAX2ExpressionHandler* myExpHandler = new DDLSAX2ExpressionHandler;
   size_t fileIndex = 0;
   std::vector<std::string> fullFileName;
 
@@ -359,10 +302,15 @@ int DDLParser::parse(const DDLDocumentProvider& dp)
     { 
       std::string ts = dp.getURLList()[fileIndex];
       std::string tf = dp.getFileList()[fileIndex];
-      if (ts[ts.size() - 1] == '/')
-	fullFileName.push_back( ts + tf );
-      else
-	fullFileName.push_back( ts + "/" + tf );
+      if ( ts.size() > 0 ) {
+	if ( ts[ts.size() - 1] == '/') {
+	  fullFileName.push_back( ts + tf );
+	} else {
+	  fullFileName.push_back( ts + "/" + tf );
+	}
+      } else {
+	fullFileName.push_back( tf );
+      }
       //      std::cout << "full file name" << fullFileName[fileIndex] << std::endl;
     }
 
@@ -372,49 +320,28 @@ int DDLParser::parse(const DDLDocumentProvider& dp)
 	 fnit != fullFileName.end();
 	 fnit++)
       {
-	size_t foundFile = isFound(myExpHandler->extractFileName( *fnit )); 
+	size_t foundFile = isFound(expHandler_->extractFileName( *fnit )); 
 	
-	//       FileNameHolder::const_iterator it = fileNames_.begin();
-	//       size_t i = 0;      
-	//       while (it != fileNames_.end() && !foundFile)
-	// 	{
-	// 	  if (it->second.first == myExpHandler->extractFileName( *fnit ))
-	// 	    {
-	// 	      foundFile = true;
-	// 	    }
-	// 	  else i++;
-	// 	  it++;
-	// 	}
 	if (!foundFile)
 	  {
 	    pair <std::string, std::string> pss;
-	    pss.first = myExpHandler->extractFileName( *fnit );
+	    pss.first = expHandler_->extractFileName( *fnit );
 	    pss.second = *fnit;
 	    fileNames_[nFiles_++] = pss;
 	    parsed_[nFiles_ - 1]=false;
 	  }
-	//       else if (parsed_[foundFile])
-	// 	{
-	// 	  std::cout << "INFO:  DDLParser::Parse File " << *fnit << " was already processed as " 
-	// 	       << fileNames_[foundFile].second << std::endl;
-	// 	}
       }
     
   // Start processing the files found in the config file.
   
   // PASS 1:  This was added later (historically) to implement the DDD
   // requirement for Expressions.
-  DCOUT('P', "DDLParser::ParseAllFiles(): PASS1: Just before setting Xerces content and error handlers... ");
+  DCOUT('P', "DDLParser::parse(): PASS1: Just before setting Xerces content and error handlers... ");
   
   
-  // Because we know we will be parsing a bunch of the same files, let us set the "reuse grammar flag"
-  // THIS DID NOT DO WHAT I WANTED AND EXPECTED.  I GOT VERY STRANGE ERRORS!
-  // if (SAX2Parser_->getFeature(XMLString::transcode("http://xml.org/sax/features/validation")))
-  //    SAX2Parser_->setFeature(XMLString::transcode("http://apache.org/xml/features/validation/reuse-grammar"), true);
-
   try
     {
-      SAX2Parser_->setContentHandler(myExpHandler);
+      SAX2Parser_->setContentHandler(expHandler_);
       //std::cout << "1st PASS: Parsing " << fileNames_.size() << " files." << std::endl;
       //std::vector<std::string>::const_iterator currFile = fileNames_.begin(); currFile != fileNames_.end(); currFile++)
       for (size_t i = 0; i < fileNames_.size(); i++)
@@ -425,13 +352,13 @@ int DDLParser::parse(const DDLDocumentProvider& dp)
 	      parseFile(i);
 	    }
 	}
-      myExpHandler->dumpElementTypeCounter();
+      expHandler_->dumpElementTypeCounter();
     }
   catch (const XMLException& toCatch) {
     std::cout << "\nPASS1: XMLException while processing files... \n"
 	 << "Exception message is: \n"
 	 << StrX(toCatch.getMessage()) << "\n" ;
-    if (myExpHandler) delete myExpHandler;
+    //    delete myExpHandler;
     XMLPlatformUtils::Terminate();
     // FIX use this after DEPRECATED stuff removed:    throw(DDException("See XML Exception above"));
     return -1;
@@ -439,30 +366,30 @@ int DDLParser::parse(const DDLDocumentProvider& dp)
   catch (DDException& e) {
     std::cout << "unexpected: " << std::endl;
     std::cout << e << std::endl;
-    if (myExpHandler) delete myExpHandler;
+    //    delete myExpHandler;
     // FIX use this after DEPRECATED stuff removed    throw(e);
     return 4;
   }
-  delete myExpHandler;
+  //  delete myExpHandler;
   delete t;
   // PASS 2:
 
-  DCOUT('P', "DDLParser::ParseAllFiles(): PASS2: Just before setting Xerces content and error handlers... ");
+  DCOUT('P', "DDLParser::parse(): PASS2: Just before setting Xerces content and error handlers... ");
   t = new seal::SealTimer("DDLParser2");
-  DDLSAX2FileHandler* myFileHandler(0);
+  //  DDLSAX2FileHandler* myFileHandler(0);
   try
     {
-      myFileHandler = new DDLSAX2FileHandler;
-      SAX2Parser_->setContentHandler(myFileHandler);
+      //      myFileHandler = new DDLSAX2FileHandler;
+      SAX2Parser_->setContentHandler(fileHandler_);
       // *T no need to re-do, all the same!
-
 
       // No need to validate (regardless of user's doValidation
       // because the files have already been validated on the first pass.
       // This optimization suggested by Martin Listd::endl.
-      SAX2Parser_->setFeature(XMLString::transcode("http://xml.org/sax/features/validation"), false);   // optional
-      SAX2Parser_->setFeature(XMLString::transcode("http://xml.org/sax/features/namespaces"), false);   // optional
-      SAX2Parser_->setFeature(XMLString::transcode("http://apache.org/xml/features/validation/dynamic"), false);
+//       SAX2Parser_->setFeature(XMLString::transcode("http://xml.org/sax/features/validation"), false);   // optional
+//       SAX2Parser_->setFeature(XMLString::transcode("http://xml.org/sax/features/namespaces"), false);   // optional
+//       SAX2Parser_->setFeature(XMLString::transcode("http://apache.org/xml/features/validation/dynamic"), false);
+
 
       // Process files again.
       //std::cout << "Parsing " << fileNames_.size() << " files." << std::endl;
@@ -476,15 +403,12 @@ int DDLParser::parse(const DDLDocumentProvider& dp)
 	}
       //myFileHandler->dumpElementTypeCounter();
 
-      delete myFileHandler;
+      //      delete myFileHandler;
     }
   catch (DDException& e) {
     std::string s(e.what());
     s+="\n\t see above:  DDLParser::parse  Exception " ;
     std::cout << s << std::endl;
-    if (myFileHandler) delete myFileHandler;
-    // remove/fix after DEPRECATED stuff...
-    delete errHandler;
     return -1;
     //    throw(e);
   }
@@ -492,13 +416,9 @@ int DDLParser::parse(const DDLDocumentProvider& dp)
     std::cout << "\nPASS2: XMLException while processing files... \n"
 	 << "Exception message is: \n"
 	 << StrX(toCatch.getMessage()) << "\n" ;
-    if (myFileHandler) delete myFileHandler;
     XMLPlatformUtils::Terminate();
-    // FIX - use this after DEPRECATED stuff removed:    throw(DDException("See XMLException above"));
-    delete errHandler;
     return -1;
   }
-  delete errHandler;
   delete t;
   // FIX remove after DEPRECATED stuff removed
   return 0;
@@ -532,16 +452,12 @@ void DDLParser::parseFile(const int& numtoproc)
 	    + currFileName_ + "'\n"
 	    + "Exception message is shown above.\n";
 	  throw(DDException(e));
+	} catch (...) {
+	  std::cout << "Another un-caught exception!" << endl;
 	}
     }
   else
     {
-// 	DDException e("\nWARNING: File ");
-// 	e+= fileNames_[numtoproc].first 
-// 	  + " has already been processed as " 
-// 	  + fileNames_[numtoproc].second 
-// 	  + "\n";
-// 	throw(e);
       DCOUT('P', "\nWARNING: File " + fileNames_[numtoproc].first 
 	   + " has already been processed as " + fileNames_[numtoproc].second);
     }
@@ -553,8 +469,3 @@ std::string DDLParser::getCurrFileName()
   return currFileName_;
 }
 
-#include "DetectorDescription/Parser/interface/DDLConfiguration.h"
-// to make client independent of the implementation
-DDLDocumentProvider * DDLParser::newConfig() const {
-  return new  DDLConfiguration(const_cast<DDLParser*>(this));
-} 

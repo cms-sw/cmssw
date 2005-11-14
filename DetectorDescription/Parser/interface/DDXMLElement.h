@@ -18,7 +18,7 @@
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Base/interface/DDException.h"
 
-#include "DetectorDescription/Parser/interface/DDLParser.h"
+//#include "DetectorDescription/Parser/interface/DDLParser.h"
 
 // -------------------------------------------------------------------------
 // Class declaration

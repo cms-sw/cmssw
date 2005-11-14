@@ -12,6 +12,7 @@ namespace std{} using namespace std;
 // -------------------------------------------------------------------------
 #include "DetectorDescription/Parser/interface/DDXMLElement.h"
 #include "DetectorDescription/Parser/interface/DDLSAX2FileHandler.h"
+#include "DetectorDescription/Parser/interface/DDLParser.h"
 
 // DDCore dependencies
 #include "DetectorDescription/Base/interface/DDdebug.h"

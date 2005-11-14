@@ -39,42 +39,34 @@ namespace std{} using namespace std;
 //  DDLConfiguration:  Default constructor and destructor.
 //--------------------------------------------------------------------------
 DDLConfiguration::~DDLConfiguration()
-{ 
-  delete sch_;
-  delete errHandler_;
+{
+  //  parser_->getXMLParser()->setContentHandler(0);  
 }
 
-DDLConfiguration::DDLConfiguration()
+DDLConfiguration::DDLConfiguration() : configHandler_()
 { 
-  m_parser = DDLParser::instance(); // I just want to make sure Xerces gets initialized!
-  sch_ = new DDLSAX2ConfigHandler;
-  errHandler_ = new DDLSAX2Handler;
-  //  std::cout << "made a DDLSAX2ConfigHandler at " << sch_ << std::endl;
-  //  std::cout << "made a DDLSAX2Handler at " << errHandler_ << std::endl;
+  parser_ = DDLParser::instance();
+  //  std::cout << "Making a DDLConfiguration with configHandler_ at " << &configHandler_ << std::endl;
 }
 
-DDLConfiguration::DDLConfiguration(DDLParser * ip)
+DDLConfiguration::DDLConfiguration(DDLParser * ip) : configHandler_()
 { 
-  m_parser = ip; //
-  sch_ = new DDLSAX2ConfigHandler;
-  errHandler_ = new DDLSAX2Handler;
-  //  std::cout << "made a DDLSAX2ConfigHandler at " << sch_ << std::endl;
-  //  std::cout << "made a DDLSAX2Handler at " << errHandler_ << std::endl;
+  parser_ = ip;
 }
 
 const std::vector<std::string>&  DDLConfiguration::getFileList(void) const
 {
-  return sch_->getFileNames();
+  return configHandler_.getFileNames();
 }
 
 const std::vector<std::string>&  DDLConfiguration::getURLList(void) const
 {
-  return sch_->getURLs();
+  return configHandler_.getURLs();
 }
 
-bool DDLConfiguration::doValidation() const { return sch_->doValidation(); }
+bool DDLConfiguration::doValidation() const { return configHandler_.doValidation(); }
 
-std::string DDLConfiguration::getSchemaLocation() const { return sch_->getSchemaLocation(); }
+std::string DDLConfiguration::getSchemaLocation() const { return configHandler_.getSchemaLocation(); }
 
 void DDLConfiguration::dumpFileList(void) const {
   std::cout << "File List:" << std::endl;
@@ -87,11 +79,6 @@ void DDLConfiguration::dumpFileList(void) const {
 //-----------------------------------------------------------------------
 //  Here the Xerces parser is used to process the content of the 
 //  configuration file.
-//  FIX:  Right now, each config file passed to this will simply increase the 
-//  size of the list of files.  So if this default DDLDocumentProvider is
-//  called repeatedly (i.e. the same instance of it) then the file list MAY
-//  repeat files.  It is the Parser which checks for maintains a list of real
-//  files.
 //-----------------------------------------------------------------------
 int DDLConfiguration::readConfig(const std::string& filename)
 {
@@ -101,11 +88,16 @@ int DDLConfiguration::readConfig(const std::string& filename)
 
   // Set the parser to use the handler for the configuration file.
   // This makes sure the Parser is initialized and gets a handle to it.
-  m_parser->getXMLParser()->setContentHandler(sch_);
-  m_parser->getXMLParser()->setErrorHandler(errHandler_);
+  // Set these to the flags for the configuration file.
+//   parser_->getXMLParser()->setFeature(XMLString::transcode("http://xml.org/sax/features/validation"),true);   // optional
+//   parser_->getXMLParser()->setFeature(XMLString::transcode("http://xml.org/sax/features/namespaces"),true);   // optional
+//   if (parser_->getXMLParser()->getFeature(XMLString::transcode("http://xml.org/sax/features/validation")) == true)
+//     parser_->getXMLParser()->setFeature(XMLString::transcode("http://apache.org/xml/features/validation/dynamic"), true);
+
+  parser_->getXMLParser()->setContentHandler(&configHandler_);
 
   try {
-    m_parser->getXMLParser()->parse(filename.c_str());
+    parser_->getXMLParser()->parse(filename.c_str());
   }
   catch (const XMLException& toCatch) {
     std::cout << "\nXMLException: parsing '" << filename << "'\n"
@@ -119,9 +111,9 @@ int DDLConfiguration::readConfig(const std::string& filename)
       return 4;
     }
 
-//   std::vector<std::string> fnames = sch_->getFileNames();
-//   std::cout << "there are " << fnames.size() << " files." << std::endl;
-//   for (size_t i = 0; i < fnames.size(); i++)
-//     std::cout << "url=" << sch_->getURLs()[i] << " file=" << sch_->getFileNames()[i] << std::endl;
+  //   std::vector<std::string> fnames = configHandler_.getFileNames();
+  //   std::cout << "there are " << fnames.size() << " files." << std::endl;
+  //   for (size_t i = 0; i < fnames.size(); i++)
+  //     std::cout << "url=" << configHandler_.getURLs()[i] << " file=" << configHandler_.getFileNames()[i] << std::endl;
   return 0;
 }

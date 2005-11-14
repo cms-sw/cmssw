@@ -1,5 +1,5 @@
-#ifndef DDL_Configuration_H
-#define DDL_Configuration_H
+#ifndef DetectorDescription_Parser_XMLConfiguration_H
+#define DetectorDescription_Parser_XMLConfiguration_H
 
 // ---------------------------------------------------------------------------
 //  Includes
@@ -15,25 +15,23 @@ class DDLSAX2ConfigHandler;
 #include <vector>
 #include <map>
 
-/// DDLConfiguration reads in the configuration file for the DDParser.
-/** @class DDLConfiguration
+/// FIPConfiguration reads in the configuration file for the DDParser.
+/** @class FIPConfiguration
  * @author Michael Case
  *
- *  DDLConfiguration.h  -  description
+ *  FIPConfiguration.h  -  description
  *  -------------------
- *  begin: Mon Feb 24 2003
+ *  begin: Sun Nov 13, 2005
  *  email: case@ucdhep.ucdavis.edu
  *
  */
-class DDLConfiguration : public DDLDocumentProvider {
+class FIPConfiguration : public DDLDocumentProvider {
 
-  //  friend DDLParser;
 
  public:
 
-  explicit DDLConfiguration(DDLParser *);
-  DDLConfiguration();
-  virtual ~DDLConfiguration();
+  FIPConfiguration();
+  virtual ~FIPConfiguration();
 
   /// Read in the configuration file.
   int readConfig(const std::string& filename);
@@ -42,6 +40,9 @@ class DDLConfiguration : public DDLDocumentProvider {
   virtual const std::vector < std::string >&  getFileList(void) const;
 
   /// Return a list of urls as a std::vector of strings.
+  /**
+     This implementation does not provide a meaningful url list.
+   **/
   virtual const std::vector < std::string >&  getURLList(void) const;
 
   /// Print out the list of files.
@@ -58,6 +59,9 @@ class DDLConfiguration : public DDLDocumentProvider {
  private:
   DDLParser * parser_;
   DDLSAX2ConfigHandler configHandler_;
+  std::vector<std::string> files_;
+  std::vector<std::string> urls_;
+
 };
 
 #endif

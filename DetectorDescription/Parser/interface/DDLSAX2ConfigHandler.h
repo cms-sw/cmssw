@@ -40,10 +40,10 @@ class DDLSAX2ConfigHandler : public DDLSAX2Handler
   void startElement(const XMLCh* const uri, const XMLCh* const localname
 		    , const XMLCh* const qname, const Attributes& attrs);
 
-  std::vector<std::string>& getFileNames();
-  std::vector<std::string>& getURLs();
-  std::string getSchemaLocation();
-  bool doValidation();
+  const std::vector<std::string>& getFileNames() const;
+  const std::vector<std::string>& getURLs() const;
+  const std::string getSchemaLocation() const;
+  const bool doValidation() const;
 
  private:
   bool doValidation_;

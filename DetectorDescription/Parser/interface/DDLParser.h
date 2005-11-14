@@ -4,10 +4,12 @@
 // ---------------------------------------------------------------------------
 //  Includes
 // ---------------------------------------------------------------------------
-#include "DetectorDescription/Core/interface/DDLParserI.h"
+//#include "DetectorDescription/Core/interface/DDLParserI.h"
 
-#include "DetectorDescription/Parser/interface/DDLSAX2ConfigHandler.h"
+//#include "DetectorDescription/Parser/interface/DDLDocumentProvider.h"
+#include "DetectorDescription/Parser/interface/DDLSAX2Handler.h"
 #include "DetectorDescription/Parser/interface/DDLSAX2FileHandler.h"
+#include "DetectorDescription/Parser/interface/DDLSAX2ExpressionHandler.h"
 
 // Xerces C++ dependencies
 #include <xercesc/util/PlatformUtils.hpp>
@@ -21,6 +23,9 @@
 #include <iosfwd>
 
 class DDLDocumentProvider;
+/* class DDLSAX2FileHandler; */
+/* class DDLSAX2Handler; */
+/* class DDLSAX2ExpressionHandler; */
 
 /// DDLParser is the main class of Detector Description Language Parser.
 /** @class DDLParser
@@ -41,22 +46,24 @@ class DDLDocumentProvider;
  *  allows for sub-components of the parser to easily find out information from
  *  the parser during run-time.
  *
- *  There is a new interface to parse just one file.  If one uses this method
+ *  There is an interface to parse just one file.  If one uses this method
  *  and does not use the default DDLDocumentProvider (DDLConfiguration) the
- *  user is responsible for also setting the DDRootDef or else I do not know
- *  how one would get a CompactView from the DDD.
+ *  user is responsible for also setting the DDRootDef.
  *  
  *  Modification:
- *    2003-02-13: Michael Case, Stepan Wynhoff and Martin Listd::endl
+ *    2003-02-13: Michael Case, Stepan Wynhoff and Martin Liendl
  *    2003-02-24: same.
  *         DDLParser will use DDLDocumentProvider (abstract).  One of these
  *         and will be defaulted to DDLConfiguration.  This will read
  *         the "configuration.xml" file provided and will be used by the Parser
  *         to "get" the files.
+ *   2005-11-13:  Michael Case
+ *         removed some of the un-necessary methods that were deprecated.
  *
  */
-class DDLParser : public DDLParserI {
+class DDLParser 
 
+{
  public:
 
   typedef std::map< int, std::pair<std::string, std::string> > FileNameHolder;
@@ -65,23 +72,15 @@ class DDLParser : public DDLParserI {
   // MEC: EDMProto temporary? But we need it for 
   static void setInstance( DDLParser* p );
 
-  ///DEPRECATED, PLEASE stop using.
-  static DDLParser* Instance();
-
   /// unique (and default) constructor
-  DDLParser(seal::Context* ic=0);
+ protected:
+  DDLParser();//seal::Context* ic=0);
 
+ public:
   ~DDLParser();
 
-  /// DEPRECATED: Parse all files in the given configuration.
-  int StartParsing();
-
-
-  /// New Parse all files. FIX - After deprecated stuff removed, make this void
+  /// Parse all files. FIX - After deprecated stuff removed, make this void
   int parse( const DDLDocumentProvider& dp );
-
-  /// Deprecated... temporarily keep for backward compatibility.
-  int SetConfig (const std::string& filename);
 
   /// Process a single files.
   /** 
@@ -115,9 +114,12 @@ class DDLParser : public DDLParserI {
 
   /// Get the SAX2Parser from the DDLParser.  USE WITH CAUTION.  Set your own handler, etc.
   /**
-   *  I wanted (needed?) to do this for the DDLConfiguration to do the parsing separately.
+   *  I wanted to do this for the DDLConfiguration to do the parsing separately.
    *  Since these two classes are so connected I wonder if I should remove this, make
    *  DDLConfiguration a friend of this guy and let it access the SAX2XMLReader directly.
+   *  FIX:  Maybe Configuration should handle its own parser?  Maybe I should
+   *  destroy the parser and remake it as needed, this way validation can be
+   *  turned on for the DDL after the CDL says what should be done.
    */
   SAX2XMLReader* getXMLParser();
 
@@ -126,18 +128,15 @@ class DDLParser : public DDLParserI {
    *  In order to retrieve the name of the parent element from DDLSAX2Handlers.
    */
   DDLSAX2FileHandler* getDDLSAX2FileHandler();
-
+  
   /// Is the file already known by the DDLParser?  Returns 0 if not found, and index if found.
   size_t isFound(const std::string& filename);
-
+  
   /// Is the file already parsed?
   bool isParsed(const std::string& filename);
 
-  // it may not belong here...
-  virtual DDLDocumentProvider * newConfig() const;
-
  protected:
-
+  
   /// Parse File.  Just to hold some common looking code.
   void parseFile (const int& numtoproc);
 
@@ -162,9 +161,11 @@ class DDLParser : public DDLParserI {
 
   /// SAX2XMLReader is one way of parsing.
   SAX2XMLReader* SAX2Parser_;
-
-  //  DDLSAX2ConfigHandler* handler_;
-
+  
+  DDLSAX2FileHandler* fileHandler_;
+  DDLSAX2ExpressionHandler* expHandler_;
+  DDLSAX2Handler* errHandler_;
+  
   
 };
 

@@ -26,8 +26,6 @@ namespace std{} using namespace std;
 
 // DDCore dependencies
 #include "DetectorDescription/Base/interface/DDdebug.h"
-//  This is frustrating.  I only need DDInit at this level to get a handle on DDRootDef.
-//#include "DetectorDescription/Core/interface/DDInit.h"
 #include "DetectorDescription/Core/interface/DDRoot.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 
@@ -87,16 +85,6 @@ void DDLSAX2ConfigHandler::startElement(const XMLCh* const uri
       DCOUT('P', "file name = " << name << " and url = " << url);
       files_.push_back(name);
       urls_.push_back(url);
-//       if (url[url.size() - 1] == '/')
-// 	{
-// 	  //	beingParsed->SetDDLFileName(url+name);
-// 	  fileNames_.push_back(url+name);
-// 	}
-//       else
-// 	{
-// 	  //	beingParsed->SetDDLFileName(url+"/"+name);
-// 	  fileNames_.push_back(url+"/"+name);
-// 	}
     }
   else if (myelemname == "Root")
     {
@@ -137,22 +125,22 @@ void DDLSAX2ConfigHandler::startElement(const XMLCh* const uri
   DCOUT_V('P', "DDLSAX2ConfigHandler::startElement" << myelemname << " completed...");
 }
 
-std::vector<std::string>& DDLSAX2ConfigHandler::getFileNames()
+const std::vector<std::string>& DDLSAX2ConfigHandler::getFileNames() const
 {
   return files_;
 }
 
-std::vector<std::string>& DDLSAX2ConfigHandler::getURLs()
+const std::vector<std::string>& DDLSAX2ConfigHandler::getURLs() const
 {
   return urls_;
 }
 
-std::string DDLSAX2ConfigHandler::getSchemaLocation()
+const std::string DDLSAX2ConfigHandler::getSchemaLocation() const
 {
   return schemaLocation_;
 }
 
-bool DDLSAX2ConfigHandler::doValidation()
+const bool DDLSAX2ConfigHandler::doValidation() const
 {
   return doValidation_;
 }

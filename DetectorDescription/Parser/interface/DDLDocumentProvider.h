@@ -39,7 +39,6 @@ class DDLDocumentProvider {
   /// Print out the list of files.
   virtual void dumpFileList(void) const = 0;
 
-
   /// (does not belong here) Read in the configuration file.
   virtual int readConfig(const std:: string& filename)=0;
 
