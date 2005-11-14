@@ -2,6 +2,8 @@
 #define GeometryConfiguration_H
 
 #include "DetectorDescription/Core/interface/DDLDocumentProvider.h"
+#include "DetectorDescription/Parser/interface/DDLSAX2ConfigHandler.h"
+
 class DDLParser;
 
 #include <string>
@@ -9,13 +11,13 @@ class DDLParser;
 #include <memory>
 
 /**
- */
+ **/
 class GeometryConfiguration: public DDLDocumentProvider {
 
-
  public:
-  explicit GeometryConfiguration(std::string  fname, DDLParser & parser);
-  virtual ~GeometryConfiguration(){}
+  GeometryConfiguration();
+
+  virtual ~GeometryConfiguration();
 
   /// Print out the list of files.
   virtual void dumpFileList(void) const;
@@ -24,29 +26,28 @@ class GeometryConfiguration: public DDLDocumentProvider {
   virtual const std::vector < std::string >  & getFileList(void) const;
 
   /// Return a list of urls as a vector of strings.
+  /**
+     The EDM should not allow URLs because of provenance.
+     This vector will always be empty.
+   **/
   virtual const std::vector < std::string >  & getURLList(void) const;
  
- /// Return a flag whether to do xml validation or not.
+  /// Return a flag whether to do xml validation or not.
   virtual bool doValidation() const;
 
   /// Return the Schema Location.
   virtual std::string getSchemaLocation() const;
 
+  /// Reads in a configuration file and parses it
+  int readConfig(const std::string& filename);
+
  protected:
 
  private:
-  GeometryConfiguration(){}
-  int readConfig(const std::string& filename) { return 0;}
 
-private:
-
-  std::auto_ptr<DDLDocumentProvider> m_config;
-
-  std::string configfile;
-  std::string configpath;
-
-  std::vector< std::string > myFilenames;
-  std::vector< std::string > myURLs;
+  DDLSAX2ConfigHandler configHandler_;
+  std::vector< std::string > files_;
+  std::vector< std::string > urls_;
 
 };
 

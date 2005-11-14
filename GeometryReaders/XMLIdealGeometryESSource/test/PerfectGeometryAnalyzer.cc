@@ -13,7 +13,7 @@
 //
 // Original Author:  Tommaso Boccali
 //         Created:  Tue Jul 26 08:47:57 CEST 2005
-// $Id: PerfectGeometryAnalyzer.cc,v 1.2 2005/07/27 12:09:16 tboccali Exp $
+// $Id: PerfectGeometryAnalyzer.cc,v 1.3 2005/10/06 07:58:19 case Exp $
 //
 //
 
@@ -47,6 +47,7 @@ class PerfectGeometryAnalyzer : public edm::EDAnalyzer {
       virtual void analyze( const edm::Event&, const edm::EventSetup& );
    private:
       // ----------member data ---------------------------
+      std::string label_;
 };
 
 //
@@ -60,10 +61,11 @@ class PerfectGeometryAnalyzer : public edm::EDAnalyzer {
 //
 // constructors and destructor
 //
-PerfectGeometryAnalyzer::PerfectGeometryAnalyzer( const edm::ParameterSet& iConfig )
+PerfectGeometryAnalyzer::PerfectGeometryAnalyzer( const edm::ParameterSet& iConfig ) :
+   label_(iConfig.getUntrackedParameter<std::string>("label",""))
 {
    //now do what ever initialization is needed
-
+   
 }
 
 
@@ -91,11 +93,17 @@ PerfectGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetu
    // get the DDCompactView
    //
    edm::ESHandle<DDCompactView> pDD;
-   iSetup.get<IdealGeometryRecord>().get( pDD );     
-   DDExpandedView ex(*pDD);
-   ex.firstChild();
-   std::cout << " Top node is a "<< ex.logicalPart() << std::endl;
-   
+   iSetup.get<IdealGeometryRecord>().get(label_, pDD );
+   //std::cout <<" got the geometry"<<std::endl;
+   try {
+      DDExpandedView ex(*pDD);
+      //std::cout <<" made the expanded view"<<std::endl;
+      ex.firstChild();
+      std::cout << " Top node is a "<< ex.logicalPart() << std::endl;
+   }catch(const DDLogicalPart& iException){
+      throw cms::Exception("Geometry")
+      <<"A DDLogicalPart was thrown \""<<iException<<"\"";
+   }
 }
 
 //define this as a plug-in

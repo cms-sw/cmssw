@@ -1,13 +1,13 @@
 #include "GeometryReaders/XMLIdealGeometryESSource/interface/XMLIdealGeometryESSource.h"
+#include "GeometryReaders/XMLIdealGeometryESSource/interface/GeometryConfiguration.h"
 
-#include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Base/interface/DDException.h"
+#include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
-#include "DetectorDescription/Core/interface/DDSpecifics.h"
-#include "DetectorDescription/Parser/interface/DDLConfiguration.h"
-#include "DetectorDescription/Algorithm/src/AlgoInit.h"
 #include "DetectorDescription/Core/interface/DDRoot.h"
+
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include <memory>
 
@@ -15,9 +15,10 @@
 XMLIdealGeometryESSource::XMLIdealGeometryESSource(const edm::ParameterSet & p): rootNodeName_(p.getParameter<std::string>("rootNodeName"))
 {
     DDLParser * parser = DDLParser::instance();
-    AlgoInit();
-    DDLConfiguration cf;
-    int result1 = cf.readConfig(p.getParameter<std::string>("GeometryConfiguration"));
+    GeometryConfiguration cf;
+    edm::FileInPath fp = p.getParameter<edm::FileInPath>("GeometryConfiguration");
+    DCOUT ('X', "FileInPath is looking for " + fp.fullPath());
+    int result1 = cf.readConfig(fp.fullPath());
     if (result1 !=0) throw DDException("DDLConfiguration: readConfig failed !");
     int result2 = parser->parse(cf);
     if (result2 != 0) throw DDException("DDD-Parser: parsing failed!");

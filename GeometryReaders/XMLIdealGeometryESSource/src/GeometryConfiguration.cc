@@ -1,94 +1,81 @@
-#include "Utilities/General/interface/FileInPath.h"
-#include "Utilities/General/interface/envUtil.h"
-
-#include "DetectorDescription/Parser/interface/DDLParser.h"
-
+/**
+   Editted By     On
+   Michael Case   Sun Nov 13 2005
+ **/
 #include "GeometryReaders/XMLIdealGeometryESSource/interface/GeometryConfiguration.h"
 
-#include <iostream>
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
-GeometryConfiguration::GeometryConfiguration(std::string  fname, DDLParser & parser) : 
-  m_config(parser.newConfig()),
-  configfile(fname){
+#include "DetectorDescription/Parser/interface/DDLParser.h"
+#include "DetectorDescription/Base/interface/DDdebug.h"
 
-  envUtil eutil("Geometry_PATH",".");
-  configpath = eutil.getEnv();
+#include <string>
+#include <vector>
 
-  const std::string thisdir=envUtil("PWD","").getEnv();
-  std::cout << "Searching DDD geometry files in " << configpath << std::endl;
+GeometryConfiguration::GeometryConfiguration() : configHandler_ (){ }
 
-  FileInPath f1(configpath,configfile);
-  std::cout << "Reading DDD configuration from " << f1.name() << std::endl;
-  if (f1.name().empty())
-      std::cout << "GeometryConfiguration: file not found" <<
-      configfile << " not in " << configpath << std::endl;
-  m_config->readConfig(f1.name());
-  std::vector < std::string >  filenames = m_config->getFileList();
-  std::vector < std::string >  urlnames =  m_config->getURLList();
+GeometryConfiguration::~GeometryConfiguration() { }
 
-  unsigned int idx=0;
-  for (std::vector<std::string>::iterator it = filenames.begin(); it != filenames.end(); it++) 
-    {
-      // check if there is a real URL, e.g. http://
-      if (urlnames[idx].find(":") > urlnames[idx].length()) {
-	// we have a normal filename - search for it
-	FileInPath f1(configpath,*it);
-	if ( f1() == 0) {
-	    std::cout << "XML file not found"
-	    << *it << " not found in " << configpath << std::endl;
-	} else {
-	  *it = f1.name();
-	  std::string url=f1.name();
-	  // replace the local directory (.) by the full pathname
-	  if (url.find(".")==0) {
-	    url.erase(0,1);
-	    url=thisdir+url;
-	  }
-	  myFilenames.push_back(url);
-	  myURLs.push_back("");
-	  std::cout << "File is " << url << std::endl;
-	}
-      } else {
-	// keep the URL as is.
-	myFilenames.push_back(filenames[idx]);
-	myURLs.push_back(urlnames[idx]);
-	std::cout << "URL  is " << urlnames[idx]+"/"+filenames[idx] << std::endl;
-      }
-      idx++; // next filename/urlname
-    }
-  dumpFileList();
-  std::cout << "======== Geometry Configuration read ==========" << std::endl;
-}
-
-const std::vector<std::string>  & GeometryConfiguration::getFileList(void) const
-{
-  return myFilenames;
-}
-
-const std::vector<std::string> & GeometryConfiguration::getURLList(void) const
-{
-  return myURLs;
-}
-
-  /// Print out the list of files.
-void GeometryConfiguration::dumpFileList(void) const {
-  std::cout << "File List:" << std::endl;
-  const std::vector<std::string> & vst = this->getFileList();
-  std::cout << "  number of files=" << vst.size() << std::endl;
-  for (std::vector<std::string>::const_iterator it = vst.begin(); it != vst.end(); it++) {
-    std::cout << *it <<std:: endl;
-  }
+/// Return the Schema Location.
+std::string GeometryConfiguration::getSchemaLocation() const {
+  return configHandler_.getSchemaLocation();
 }
 
 /// Return a flag whether to do xml validation or not.
 bool GeometryConfiguration::doValidation() const {
-  return m_config->doValidation();
+  return configHandler_.doValidation();
 }
 
-  /// Return the Schema Location.
-std::string GeometryConfiguration::getSchemaLocation() const {
-  return m_config->getSchemaLocation();
+/// Return a list of files as a vector of strings.
+const std::vector < std::string >  & GeometryConfiguration::getFileList(void) const {
+  return files_;
 }
 
+/// Return a list of urls as a vector of strings.
+/**
+   The EDM should not allow URLs because of provenance.
+   This vector will always be empty.
+**/
+const std::vector < std::string >  & GeometryConfiguration::getURLList(void) const
+{
+  return urls_;
+}
 
+/// Print out the list of files.
+void GeometryConfiguration::dumpFileList(void) const {
+  std::cout << "File List:" << std::endl;
+  std::cout << "  number of files=" << files_.size() << std::endl;
+  for (std::vector<std::string>::const_iterator it = files_.begin(); it != files_.end(); it++)
+    std::cout << *it << std::endl;
+}
+
+int GeometryConfiguration::readConfig( const std::string& fname ) {
+
+  DCOUT('X', "readConfig() about to read " + fname );
+  //get hold of the DDLParser
+  DDLParser * parser = DDLParser::instance();
+
+  //set the content handler for the xerces:sax2parser
+  parser->getXMLParser()->setContentHandler(&configHandler_);
+
+  //parse the configuration with the xerces:sax2parser
+  parser->getXMLParser()->parse(fname.c_str());
+
+  //the handler keeps record of all files it processed.
+  const std::vector<std::string>& vURLs = configHandler_.getURLs();
+  const std::vector<std::string>& vFiles = configHandler_.getFileNames();
+
+  //change the files to be full path names
+  //since we are bypassing the original intent, we need to provide a vector
+  //of empty strings for the urls to match the files.
+  size_t maxInd = vFiles.size();
+  size_t ind = 0;
+  for ( ; ind < maxInd ; ind++) {
+    edm::FileInPath fp(vURLs[ind] + "/" + vFiles[ind]);
+    files_.push_back(fp.fullPath());
+    urls_.push_back("");
+  }
+  std::cout << "======== Geometry Configuration read ==========" << std::endl;
+  return 0;
+}
 
