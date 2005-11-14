@@ -1,8 +1,10 @@
+<flags SEAL_PLUGIN_NAME="FWCoreMessageLogger">
 <use name=boost>
 <use name=Foundation/PluginManager>
 <use name=Framework/SealKernel>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Utilities>
+<use name=FWCore/ServiceRegistry>
 <export>
  <lib name=FWCoreMessageLogger>
  <use name=boost>
@@ -10,4 +12,5 @@
  <use name=Framework/SealKernel>
  <use name=FWCore/ParameterSet>
  <use name=FWCore/Utilities>
+ <use name=FWCore/ServiceRegistry>
 </export>

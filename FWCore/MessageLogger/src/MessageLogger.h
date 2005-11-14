@@ -1,11 +1,11 @@
-#ifndef Services_MessageService_h
-#define Services_MessageService_h
+#ifndef Services_MessageLogger_h
+#define Services_MessageLogger_h
 // -*- C++ -*-
 //
 // Package:     Services
-// Class  :     MessageService
+// Class  :     MessageLogger
 // 
-/**\class MessageService MessageService.h FWCore/Services/interface/MessageService.h
+/**\class MessageLogger MessageLogger.h FWCore/Services/interface/MessageLogger.h
 
  Description: <one line class summary>
 
@@ -16,7 +16,7 @@
 //
 // Original Author:  W. Brown and M. FIschler 
 //         Created:   Fri Nov 11 16:38:19 CST 2005
-// $Id: MessageService.h,v 1.1 2005/11/11 23:04:37 fischler Exp $
+// $Id: MessageLogger.h,v 1.1 2005/11/14 16:36:49 fischler Exp $
 //
 
 // system include files
@@ -31,9 +31,9 @@
 
 namespace edm {
    namespace service {
-      class MessageService {
+      class MessageLogger {
 public:
-         MessageService(const ParameterSet&,ActivityRegistry&);
+         MessageLogger(const ParameterSet&,ActivityRegistry&);
          
          void postBeginJob();
          void postEndJob();
