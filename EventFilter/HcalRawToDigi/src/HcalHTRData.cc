@@ -1,6 +1,6 @@
 //#include "Utilities/Configuration/interface/Architecture.h"
 /*  
- *  $Date: 2005/06/06 19:29:39 $
+ *  $Date: 2005/07/26 15:10:51 $
  *  $Revision: 1.1 $
  *  \author J. Mans -- UMD
  */
@@ -10,7 +10,7 @@
 #include "HcalHTRData.h"
 #endif
 #include <string.h>
-
+#include <stdio.h>
 const int HcalHTRData::CHANNELS_PER_SPIGOT         = 24;
 const int HcalHTRData::MAXIMUM_SAMPLES_PER_CHANNEL = 20;
 
@@ -69,15 +69,23 @@ bool HcalHTRData::check() const {
     //  minimum length
     if (m_rawLength<8+4) return false;
     //  matches wordcount
-    if (m_rawLength!=m_rawConst[m_rawLength-3]) return false;
+    if (m_rawLength!=m_rawConst[m_rawLength-3]) {
+      if (isHistogramEvent() && m_rawConst[m_rawLength-3]==786) {
+	// known bug!
+      } else
+	return false;
+    }
     // empty event check (redundant...)
     if (m_rawConst[2]&0x4) return false;
   }
-  // daq/tp length check
-  int tp, daq, header, trailer;
-  determineSectionLengths(tp,daq,header,trailer);
-  if (tp+daq+header+trailer>m_rawLength) return false;
-  
+
+  if (!isHistogramEvent()) {
+    // daq/tp length check
+    int tp, daq, header, trailer;
+    determineSectionLengths(tp,daq,header,trailer);
+    if (tp+daq+header+trailer>m_rawLength) return false;
+  }
+
   return true;
 }
 
@@ -123,7 +131,7 @@ static const int channelDecoder[32] = { 0, 1, 2, 99, 3, 4, 5, 99,
                                         6, 7, 8, 99, 9,10,11, 99,
                                         12,13,14,99,15,16,17, 99,
                                         18,19,20,99,21,22,23, 99};
-#include <stdio.h>
+
 void HcalHTRData::unpack(unsigned char* daq_lengths, unsigned short* daq_samples,
 			 unsigned char* tp_lengths, unsigned short* tp_samples) const {
 
@@ -297,12 +305,10 @@ bool HcalHTRData::wasHistogramError(int ifiber) const {
   return retval;
 }
 
-bool HcalHTRData::unpackHistogram(int channel, int capid, unsigned int* histogram) const {
+bool HcalHTRData::unpackHistogram(int myfiber, int mysc, int capid, unsigned short* histogram) const {
   // check for histogram mode
   if (!isHistogramEvent()) return false;
 
-  int myfiber=channel/3;
-  int mysc=channel%3;
   int fiber1, fiber2;
   getHistogramFibers(fiber1,fiber2);
   if (fiber1!=myfiber && fiber2!=myfiber) return false;
