@@ -37,18 +37,14 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* 
   return;
 }
 
-void HcalDigiMonitor::done(int mode){
-
-}
-
-bool bitUpset(int last, int now){
+static bool bitUpset(int last, int now){
   if(last ==-1) return false;
   int v = last+1; if(v==4) v=0;
   if(v==now) return false;
   return true;
 }
 
-bool hbheErr(HBHEDataFrame digi){
+static bool hbheErr(HBHEDataFrame digi){
   int last = -1;
   for (int i=0; i<digi.size(); i++) { 
     if(bitUpset(last,digi.sample(i).capid())) return true;
@@ -84,7 +80,7 @@ void HcalDigiMonitor::fillErrors(HODataFrame digi){
   return;
 }
 
-bool hfErr(HFDataFrame digi){
+static bool hfErr(HFDataFrame digi){
   int last = -1;
   for (int i=0; i<digi.size(); i++) { 
     if(bitUpset(last,digi.sample(i).capid())) return true;
@@ -102,84 +98,71 @@ void HcalDigiMonitor::fillErrors(HFDataFrame digi){
   return;
 }
 
-void HcalDigiMonitor::processEvent(std::vector<edm::Handle<HBHEDigiCollection> > hbhe,
-				   std::vector<edm::Handle<HODigiCollection> > ho,
-				   std::vector<edm::Handle<HFDigiCollection> > hf)
+void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
+				   const HODigiCollection& ho,
+				   const HFDigiCollection& hf)
 {
 
   if(!m_dbe) { printf("HcalDigiMonitor::processEvent   DaqMonitorBEInterface not instantiated!!!\n");  return; }
 
-
   try{
-    std::vector<edm::Handle<HBHEDigiCollection> >::iterator i;
-    for (i=hbhe.begin(); i!=hbhe.end(); i++) {
-      const HBHEDigiCollection& c=*(*i);
-      for (HBHEDigiCollection::const_iterator j=c.begin(); j!=c.end(); j++){
-	const HBHEDataFrame digi = (const HBHEDataFrame)(*j);	
-	fillErrors(digi);	  
-	m_meDIGI_SIZE_hb->Fill(digi.size());
-	m_meDIGI_PRESAMPLE_hb->Fill(digi.presamples());
-	int last = -1;
-	for (int i=0; i<digi.size(); i++) {	    
-	  m_meQIE_CAPID_hb->Fill(digi.sample(i).capid());
-	  m_meQIE_ADC_hb->Fill(digi.sample(i).adc());
-	  m_meQIE_CAPID_hb->Fill(5,bitUpset(last,digi.sample(i).capid()));
-	  if(bitUpset(last,digi.sample(i).capid())) printf("l: %d, n: %d\n",last,digi.sample(i).capid());
-	  last = digi.sample(i).capid();
-	  m_meQIE_DV_hb->Fill(0,digi.sample(i).dv());
-	  m_meQIE_DV_hb->Fill(1,digi.sample(i).er());
-	}
-      }
+
+    for (HBHEDigiCollection::const_iterator j=hbhe.begin(); j!=hbhe.end(); j++){
+      const HBHEDataFrame digi = (const HBHEDataFrame)(*j);	
+      fillErrors(digi);	  
+      m_meDIGI_SIZE_hb->Fill(digi.size());
+      m_meDIGI_PRESAMPLE_hb->Fill(digi.presamples());
+      int last = -1;
+      for (int i=0; i<digi.size(); i++) {	    
+	m_meQIE_CAPID_hb->Fill(digi.sample(i).capid());
+	m_meQIE_ADC_hb->Fill(digi.sample(i).adc());
+	m_meQIE_CAPID_hb->Fill(5,bitUpset(last,digi.sample(i).capid()));
+	if(bitUpset(last,digi.sample(i).capid())) printf("l: %d, n: %d\n",last,digi.sample(i).capid());
+	last = digi.sample(i).capid();
+	m_meQIE_DV_hb->Fill(0,digi.sample(i).dv());
+	m_meQIE_DV_hb->Fill(1,digi.sample(i).er());
+      }    
     }
   } catch (...) {
     printf("HcalDigiMonitor::processEvent  No HB/HE Digis.\n");
   }
-
+  
   try{
-    std::vector<edm::Handle<HODigiCollection> >::iterator i;
-
-    for (i=ho.begin(); i!=ho.end(); i++) {
-      const HODigiCollection& c=*(*i);
-      for (HODigiCollection::const_iterator j=c.begin(); j!=c.end(); j++){
-	const HODataFrame digi = (const HODataFrame)(*j);	
-	fillErrors(digi);	  
-	m_meDIGI_SIZE_ho->Fill(digi.size());
-	m_meDIGI_PRESAMPLE_ho->Fill(digi.presamples());
-	int last = -1;
-	for (int i=0; i<digi.size(); i++) {	    
-	  m_meQIE_CAPID_ho->Fill(digi.sample(i).capid());
-	  m_meQIE_ADC_ho->Fill(digi.sample(i).adc());
-	  m_meQIE_CAPID_ho->Fill(5,bitUpset(last,digi.sample(i).capid()));
-	  if(bitUpset(last,digi.sample(i).capid())) printf("l: %d, n: %d\n",last,digi.sample(i).capid());
-	  last = digi.sample(i).capid();
-	  m_meQIE_DV_ho->Fill(0,digi.sample(i).dv());
-	  m_meQIE_DV_ho->Fill(1,digi.sample(i).er());
-	}
-      }
-    }
+    for (HODigiCollection::const_iterator j=ho.begin(); j!=ho.end(); j++){
+      const HODataFrame digi = (const HODataFrame)(*j);	
+      fillErrors(digi);	  
+      m_meDIGI_SIZE_ho->Fill(digi.size());
+      m_meDIGI_PRESAMPLE_ho->Fill(digi.presamples());
+      int last = -1;
+      for (int i=0; i<digi.size(); i++) {	    
+	m_meQIE_CAPID_ho->Fill(digi.sample(i).capid());
+	m_meQIE_ADC_ho->Fill(digi.sample(i).adc());
+	m_meQIE_CAPID_ho->Fill(5,bitUpset(last,digi.sample(i).capid()));
+	if(bitUpset(last,digi.sample(i).capid())) printf("l: %d, n: %d\n",last,digi.sample(i).capid());
+	last = digi.sample(i).capid();
+	m_meQIE_DV_ho->Fill(0,digi.sample(i).dv());
+	m_meQIE_DV_ho->Fill(1,digi.sample(i).er());
+      }    
+    }    
   } catch (...) {
     cout << "HcalDigiMonitor::processEvent  No HO Digis." << endl;
   }
   
   try{
-    std::vector<edm::Handle<HFDigiCollection> >::iterator i;
-    for (i=hf.begin(); i!=hf.end(); i++) {
-      const HFDigiCollection& c=*(*i);
-      for (HFDigiCollection::const_iterator j=c.begin(); j!=c.end(); j++){
-	const HFDataFrame digi = (const HFDataFrame)(*j);	
-	fillErrors(digi);	  
-	m_meDIGI_SIZE_hf->Fill(digi.size());
-	m_meDIGI_PRESAMPLE_hf->Fill(digi.presamples());
-	int last = -1;
-	for (int i=0; i<digi.size(); i++) {	    
-	  m_meQIE_CAPID_hf->Fill(digi.sample(i).capid());
-	  m_meQIE_ADC_hf->Fill(digi.sample(i).adc());
-	  m_meQIE_CAPID_hf->Fill(5,bitUpset(last,digi.sample(i).capid()));
-	  if(bitUpset(last,digi.sample(i).capid())) printf("l: %d, n: %d\n",last,digi.sample(i).capid());
-	  last = digi.sample(i).capid();
-	  m_meQIE_DV_hf->Fill(0,digi.sample(i).dv());
-	  m_meQIE_DV_hf->Fill(1,digi.sample(i).er());
-	}
+    for (HFDigiCollection::const_iterator j=hf.begin(); j!=hf.end(); j++){
+      const HFDataFrame digi = (const HFDataFrame)(*j);	
+      fillErrors(digi);	  
+      m_meDIGI_SIZE_hf->Fill(digi.size());
+      m_meDIGI_PRESAMPLE_hf->Fill(digi.presamples());
+      int last = -1;
+      for (int i=0; i<digi.size(); i++) {	    
+	m_meQIE_CAPID_hf->Fill(digi.sample(i).capid());
+	m_meQIE_ADC_hf->Fill(digi.sample(i).adc());
+	m_meQIE_CAPID_hf->Fill(5,bitUpset(last,digi.sample(i).capid()));
+	if(bitUpset(last,digi.sample(i).capid())) printf("l: %d, n: %d\n",last,digi.sample(i).capid());
+	last = digi.sample(i).capid();
+	m_meQIE_DV_hf->Fill(0,digi.sample(i).dv());
+	m_meQIE_DV_hf->Fill(1,digi.sample(i).er());
       }
     }
   } catch (...) {

@@ -11,6 +11,6 @@ void HcalBaseMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* 
   if(dbe != NULL) m_dbe = dbe;
 }
 
-void HcalBaseMonitor::done(int mode){
+void HcalBaseMonitor::done(){
   return;
 }

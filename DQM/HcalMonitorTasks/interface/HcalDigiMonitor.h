@@ -6,8 +6,8 @@
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: $
-  * $Revision: $
+  * $Date: 2005/11/13 17:33:07 $
+  * $Revision: 1.1 $
   * \author W. Fisher - FNAL
   */
 class HcalDigiMonitor: public HcalBaseMonitor {
@@ -16,10 +16,9 @@ public:
   ~HcalDigiMonitor(); 
 
   void setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe);
-  void done(int mode);
-  void processEvent(std::vector<edm::Handle<HBHEDigiCollection> > hbhe,
-		    std::vector<edm::Handle<HODigiCollection> > ho,
-		    std::vector<edm::Handle<HFDigiCollection> > hf);
+  void processEvent(const HBHEDigiCollection& hbhe,
+		    const HODigiCollection& ho,
+		    const HFDigiCollection& hf);
 
   void fillErrors(const HBHEDataFrame);
   void fillErrors(const HODataFrame);

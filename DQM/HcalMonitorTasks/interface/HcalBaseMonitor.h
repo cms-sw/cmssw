@@ -3,18 +3,13 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include <iostream>
 
 using namespace std;
 /** \class HcalBaseMonitor
   *  
-  * $Date: $
-  * $Revision: $
+  * $Date: 2005/11/13 17:33:07 $
+  * $Revision: 1.1 $
   * \author W. Fisher - FNAL
   */
 class HcalBaseMonitor {
@@ -23,7 +18,7 @@ public:
   virtual ~HcalBaseMonitor(); 
 
   virtual void setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe);
-  virtual void done(int mode = 0);
+  virtual void done();
 
   void setVerbosity(int verb) { fVerbosity = verb; }
   int getVerbosity() const { return fVerbosity; }
