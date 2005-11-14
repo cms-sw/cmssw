@@ -218,6 +218,7 @@ void output(string filename)
 }
 
 #include "DetectorDescription/Parser/interface/DDLParser.h"
+#include "DetectorDescription/Parser/interface/DDLConfiguration.h"
 #include "DetectorDescription/Algorithm/src/AlgoInit.h"
 void testParser()
 {
@@ -229,11 +230,13 @@ void testParser()
     DDLParser* myP = DDLParser::instance();
 
     cout << "main::about to set configuration" << endl;
-    myP->SetConfig("configuration.xml");
+    //    myP->SetConfig("configuration.xml");
+    DDLConfiguration cf;
+    cf.readConfig("configuration.xml");
 
     cout << "main::about to start parsing" << endl;
  
-    myP->StartParsing();
+    myP->parse(cf);
 
     cout << "main::completed Parser" << endl;
   
