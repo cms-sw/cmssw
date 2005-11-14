@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  * 
- * $Date: 2005/11/14 08:52:30 $
- * $Revision: 1.9 $
+ * $Date: 2005/11/14 10:51:05 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  *
 */
@@ -266,6 +266,13 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
 void EBLaserClient::htmlOutput(int run, string htmlDir){
 
   cout << "Preparing EBLaserClient html output ..." << endl;
+
+  ofstream htmlFile;
+
+  htmlFile.open((htmlDir + "EBLaserClient.html").c_str());
+
+
+  htmlFile.close();
 
 }
 

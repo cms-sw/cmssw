@@ -1,8 +1,8 @@
 /*
  * \file EBPedPreSampleClient.cc
  * 
- * $Date: 2005/11/14 08:52:30 $
- * $Revision: 1.10 $
+ * $Date: 2005/11/14 10:51:05 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  *
 */
@@ -119,8 +119,9 @@ void EBPedPreSampleClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, Ru
   }
 
   try {
-    cout << "Inserting dataset in DB." << endl;
+    cout << "Inserting dataset ... " << flush;
 //    if ( econn ) econn->insertDataSet(&dataset, runiov, runtag );
+    cout << "done." << endl;
   } catch (runtime_error &e) {
     cerr << e.what() << endl;
   }
@@ -180,6 +181,13 @@ void EBPedPreSampleClient::analyze(const edm::Event& e, const edm::EventSetup& c
 void EBPedPreSampleClient::htmlOutput(int run, string htmlDir){
 
   cout << "Preparing EBPedPreSampleClient html output ..." << endl;
+
+  ofstream htmlFile;
+
+  htmlFile.open((htmlDir + "EBPedPreSampleClient.html").c_str());
+
+
+  htmlFile.close();
 
 }
 

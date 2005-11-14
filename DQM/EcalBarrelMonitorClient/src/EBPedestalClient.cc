@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  * 
- * $Date: 2005/11/14 08:52:30 $
- * $Revision: 1.9 $
+ * $Date: 2005/11/14 10:51:05 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  *
 */
@@ -152,8 +152,9 @@ void EBPedestalClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag
   }
 
   try {
-    cout << "Inserting dataset in DB." << endl;
+    cout << "Inserting dataset ... " << flush;
     if ( econn ) econn->insertDataSet(&dataset, runiov, runtag );
+    cout << "done." << endl;
   } catch (runtime_error &e) {
     cerr << e.what() << endl;
   }
