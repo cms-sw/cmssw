@@ -226,7 +226,7 @@ void testParser()
     AlgoInit();
 
     cout << "main::initialize DDL parser" << endl;
-    DDLParser* myP = DDLParser::Instance();
+    DDLParser* myP = DDLParser::instance();
 
     cout << "main::about to set configuration" << endl;
     myP->SetConfig("configuration.xml");
