@@ -1,3 +1,6 @@
+** V01-00-01  [Mon Nov 14 21:03:18 2005]
+changed the TBuffer use back to old method to make it work
+
 ** V01-00-00  [Wed Nov  2 09:42:55 2005]
 Major changes to streaming. see the doc/EventstreamingNotes.txt file
 
