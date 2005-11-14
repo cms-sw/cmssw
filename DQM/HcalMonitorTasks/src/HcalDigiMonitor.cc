@@ -53,7 +53,7 @@ static bool hbheErr(HBHEDataFrame digi){
   return false;
 }
 
-void HcalDigiMonitor::fillErrors(HBHEDataFrame digi){
+void HcalDigiMonitor::fillErrors(const HBHEDataFrame& digi){
   if(hbheErr(digi)){
     int x = digi.id().ieta();
     int y = digi.id().iphi();
@@ -62,7 +62,7 @@ void HcalDigiMonitor::fillErrors(HBHEDataFrame digi){
   return;
 }
 
-bool hoErr(HODataFrame digi){
+static bool hoErr(HODataFrame digi){
   int last = -1;
   for (int i=0; i<digi.size(); i++) { 
     if(bitUpset(last,digi.sample(i).capid())) return true;
@@ -71,7 +71,7 @@ bool hoErr(HODataFrame digi){
   return false;
 }
 
-void HcalDigiMonitor::fillErrors(HODataFrame digi){
+void HcalDigiMonitor::fillErrors(const HODataFrame& digi){
   if(hoErr(digi)){
     int x = digi.id().ieta();
     int y = digi.id().iphi();
@@ -89,7 +89,7 @@ static bool hfErr(HFDataFrame digi){
   return false;
 }
 
-void HcalDigiMonitor::fillErrors(HFDataFrame digi){
+void HcalDigiMonitor::fillErrors(const HFDataFrame& digi){
   if(hfErr(digi)){
     int x = digi.id().ieta();
     int y = digi.id().iphi();

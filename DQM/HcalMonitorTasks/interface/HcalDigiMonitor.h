@@ -6,8 +6,8 @@
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2005/11/13 17:33:07 $
-  * $Revision: 1.1 $
+  * $Date: 2005/11/14 16:48:07 $
+  * $Revision: 1.2 $
   * \author W. Fisher - FNAL
   */
 class HcalDigiMonitor: public HcalBaseMonitor {
@@ -20,11 +20,11 @@ public:
 		    const HODigiCollection& ho,
 		    const HFDigiCollection& hf);
 
-  void fillErrors(const HBHEDataFrame);
-  void fillErrors(const HODataFrame);
-  void fillErrors(const HFDataFrame);
-
 private:  ///Monitoring elements
+
+  void fillErrors(const HBHEDataFrame& hb);
+  void fillErrors(const HODataFrame& ho);
+  void fillErrors(const HFDataFrame& hf);
   
   MonitorElement* m_meDIGI_SIZE_hb;
   MonitorElement* m_meDIGI_PRESAMPLE_hb;

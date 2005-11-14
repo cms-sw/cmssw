@@ -44,7 +44,7 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInter
   return;
 }
 
-void HcalDataFormatMonitor::processEvent(FEDRawDataCollection& rawraw)
+void HcalDataFormatMonitor::processEvent(const FEDRawDataCollection& rawraw)
 {
 
   if(!m_dbe) { printf("HcalDataFormatMonitor::processEvent   DaqMonitorBEInterface not instantiated!!!\n");  return;}
@@ -70,7 +70,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw, int f_offset, int f_st
 
   // get the DCC header
   const HcalDCCHeader* dccHeader=(const HcalDCCHeader*)(raw.data());
-  int dccid=dccHeader->getSourceId()-f_offset;  
+  //  int dccid=dccHeader->getSourceId()-f_offset;  
   // check the summary status
   
   // walk through the HTR data...
@@ -84,7 +84,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw, int f_offset, int f_st
       continue;
     }
     // calculate "real" number of presamples
-    int nps=htr.getNPS()-f_start;
+    //    int nps=htr.getNPS()-f_start;
 
     //    printf("Spigot: %d, dccid: %d, nps; %d, errorword 0x%x\n",spigot,dccid,nps,htr.getErrorsWord());
     int err = htr.getErrorsWord();
