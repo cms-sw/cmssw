@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  * 
- * $Date: 2005/11/14 08:52:30 $
- * $Revision: 1.43 $
+ * $Date: 2005/11/14 08:57:03 $
+ * $Revision: 1.44 $
  * \author G. Della Ricca
  *
 */
@@ -51,7 +51,6 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
     meEvt_->setResetMe(true);
 
     meEvtType_ = dbe_->book1D("EVTTYPE", "EVTTYPE", 10, 0., 10.);
-    meEvtType_->setResetMe(true);
     meRunType_ = dbe_->bookInt("RUNTYPE");
     meRunType_->setResetMe(true);
 
