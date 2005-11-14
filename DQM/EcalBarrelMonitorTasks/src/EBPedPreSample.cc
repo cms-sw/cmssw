@@ -1,8 +1,8 @@
 /*
  * \file EBPedPreSampleTask.cc
  * 
- * $Date: 2005/11/10 16:45:05 $
- * $Revision: 1.1 $
+ * $Date: 2005/11/11 08:04:41 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  *
 */
@@ -11,7 +11,7 @@
 
 EBPedPreSampleTask::EBPedPreSampleTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe){
 
-//  logFile.open("EBPedPreSampleTask.log");
+//  logFile_.open("EBPedPreSampleTask.log");
 
   Char_t histo[20];
 
@@ -21,7 +21,7 @@ EBPedPreSampleTask::EBPedPreSampleTask(const edm::ParameterSet& ps, DaqMonitorBE
     dbe->setCurrentFolder("EcalBarrel/EBPedPreSampleTask/Gain01");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBPT pedestal PreSample SM%02d G01", i+1);
-      mePedMapG01[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
+      mePedMapG01_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
     }
 
   }
@@ -30,30 +30,30 @@ EBPedPreSampleTask::EBPedPreSampleTask(const edm::ParameterSet& ps, DaqMonitorBE
 
 EBPedPreSampleTask::~EBPedPreSampleTask(){
 
-//  logFile.close();
+//  logFile_.close();
 
 }
 
 void EBPedPreSampleTask::beginJob(const edm::EventSetup& c){
 
-  ievt = 0;
+  ievt_ = 0;
     
 }
 
 void EBPedPreSampleTask::endJob(){
 
-  cout << "EBPedPreSampleTask: analyzed " << ievt << " events" << endl;
+  cout << "EBPedPreSampleTask: analyzed " << ievt_ << " events" << endl;
 }
 
 void EBPedPreSampleTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
-  ievt++;
+  ievt_++;
 
   edm::Handle<EBDigiCollection>  digis;
   e.getByLabel("ecalEBunpacker", digis);
 
 //  int nebd = digis->size();
-//  cout << "EBPedPreSampleTask: event " << ievt << " digi collection size " << nebd << endl;
+//  cout << "EBPedPreSampleTask: event " << ievt_ << " digi collection size " << nebd << endl;
 
   for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
@@ -69,8 +69,8 @@ void EBPedPreSampleTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
     int ism = id.ism();
 
-//    logFile << " det id = " << id << endl;
-//    logFile << " sm, eta, phi " << ism << " " << ie*iz << " " << ip << endl;
+//    logFile_ << " det id = " << id << endl;
+//    logFile_ << " sm, eta, phi " << ism << " " << ie*iz << " " << ip << endl;
 
     for (int i = 0; i < 3; i++) {
 
@@ -90,7 +90,7 @@ void EBPedPreSampleTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
       if ( sample.gainId() == 3 ) {
         gain = 1./ 1.;
-        mePedMap = mePedMapG01[ism-1];
+        mePedMap = mePedMapG01_[ism-1];
       }
 
       float xval = adc * gain;

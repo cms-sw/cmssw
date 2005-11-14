@@ -4,7 +4,7 @@
 /*
  * \file EBPedPreSampleTask.h
  *
- * $Date: 2005/11/10 08:32:40 $
+ * $Date: 2005/11/10 16:45:05 $
  * $Revision: 1.1 $
  * \author G. Della Ricca
  *
@@ -59,11 +59,11 @@ void endJob(void);
 
 private:
 
-int ievt;
+int ievt_;
 
-MonitorElement* mePedMapG01[36];
+MonitorElement* mePedMapG01_[36];
 
-ofstream logFile;
+ofstream logFile_;
 
 };
 

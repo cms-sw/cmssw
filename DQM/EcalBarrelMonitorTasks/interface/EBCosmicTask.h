@@ -4,8 +4,8 @@
 /*
  * \file EBCosmicTask.h
  *
- * $Date: 2005/10/16 12:35:44 $
- * $Revision: 1.9 $
+ * $Date: 2005/10/30 14:16:19 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  *
 */
@@ -59,13 +59,13 @@ void endJob(void);
 
 private:
 
-int ievt;
+int ievt_;
 
-MonitorElement* meCutMap[36];
+MonitorElement* meCutMap_[36];
 
-MonitorElement* meSelMap[36];
+MonitorElement* meSelMap_[36];
 
-ofstream logFile;
+ofstream logFile_;
 
 };
 

@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  * 
- * $Date: 2005/11/07 11:19:15 $
- * $Revision: 1.23 $
+ * $Date: 2005/11/11 08:04:41 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  *
 */
@@ -21,17 +21,17 @@ EBLaserTask::EBLaserTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe
     dbe->setCurrentFolder("EcalBarrel/EBLaserTask/Laser1");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBLT shape SM%02d L1", i+1);
-      meShapeMapL1[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096.);
+      meShapeMapL1_[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096.);
       sprintf(histo, "EBLT amplitude SM%02d L1", i+1);
-      meAmplMapL1[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
+      meAmplMapL1_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
     }
 
     dbe->setCurrentFolder("EcalBarrel/EBLaserTask/Laser2");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBLT shape SM%02d L2", i+1);
-      meShapeMapL2[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096.);
+      meShapeMapL2_[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096.);
       sprintf(histo, "EBLT amplitude SM%02d L2", i+1);
-      meAmplMapL2[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
+      meAmplMapL2_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
     }
   }
 
@@ -45,25 +45,25 @@ EBLaserTask::~EBLaserTask(){
 
 void EBLaserTask::beginJob(const edm::EventSetup& c){
 
-  ievt = 0;
+  ievt_ = 0;
     
 }
 
 void EBLaserTask::endJob(){
 
-  cout << "EBLaserTask: analyzed " << ievt << " events" << endl;
+  cout << "EBLaserTask: analyzed " << ievt_ << " events" << endl;
 
 }
 
 void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
-  ievt++;
+  ievt_++;
 
   edm::Handle<EBDigiCollection>  digis;
   e.getByLabel("ecalEBunpacker", digis);
 
 //  int nebd = digis->size();
-//  cout << "EBLaserTask: event " << ievt << " digi collection size " << nebd << endl;
+//  cout << "EBLaserTask: event " << ievt_ << " digi collection size " << nebd << endl;
 
   for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
@@ -102,10 +102,10 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
         gain = 1./ 1.;
       }
 
-      if ( ievt >=    1 && ievt <=  600 ) meShapeMap = meShapeMapL1[ism-1];
-      if ( ievt >=  601 && ievt <= 1200 ) meShapeMap = meShapeMapL1[ism-1];
-      if ( ievt >= 1201 && ievt <= 1800 ) meShapeMap = meShapeMapL2[ism-1];
-      if ( ievt >= 1801 && ievt <= 2400 ) meShapeMap = meShapeMapL2[ism-1];
+      if ( ievt_ >=    1 && ievt_ <=  600 ) meShapeMap = meShapeMapL1_[ism-1];
+      if ( ievt_ >=  601 && ievt_ <= 1200 ) meShapeMap = meShapeMapL1_[ism-1];
+      if ( ievt_ >= 1201 && ievt_ <= 1800 ) meShapeMap = meShapeMapL2_[ism-1];
+      if ( ievt_ >= 1801 && ievt_ <= 2400 ) meShapeMap = meShapeMapL2_[ism-1];
 
       float xval = adc * gain;
 
@@ -119,7 +119,7 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   e.getByLabel("ecalUncalibHitMaker", "EcalEBUncalibRecHits", hits);
 
 //  int neh = hits->size();
-//  cout << "EBTestPulseTask: event " << ievt << " hits collection size " << neb << endl;
+//  cout << "EBTestPulseTask: event " << ievt_ << " hits collection size " << neb << endl;
 
   for ( EcalUncalibratedRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
 
@@ -140,10 +140,10 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
     MonitorElement* meAmplMap = 0;
 
-    if ( ievt >=    1 && ievt <=  600 ) meAmplMap = meAmplMapL1[ism-1];
-    if ( ievt >=  601 && ievt <= 1200 ) meAmplMap = meAmplMapL1[ism-1];
-    if ( ievt >= 1201 && ievt <= 1800 ) meAmplMap = meAmplMapL2[ism-1];
-    if ( ievt >= 1801 && ievt <= 2400 ) meAmplMap = meAmplMapL2[ism-1];
+    if ( ievt_ >=    1 && ievt_ <=  600 ) meAmplMap = meAmplMapL1_[ism-1];
+    if ( ievt_ >=  601 && ievt_ <= 1200 ) meAmplMap = meAmplMapL1_[ism-1];
+    if ( ievt_ >= 1201 && ievt_ <= 1800 ) meAmplMap = meAmplMapL2_[ism-1];
+    if ( ievt_ >= 1801 && ievt_ <= 2400 ) meAmplMap = meAmplMapL2_[ism-1];
 
     float xval = 0.001 * hit.amplitude();
 

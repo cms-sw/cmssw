@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  * 
- * $Date: 2005/10/30 15:34:53 $
- * $Revision: 1.22 $
+ * $Date: 2005/11/11 08:04:41 $
+ * $Revision: 1.23 $
  * \author G. Della Ricca
  *
 */
@@ -11,7 +11,7 @@
 
 EBCosmicTask::EBCosmicTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe){
 
-//  logFile.open("EBCosmicTask.log");
+//  logFile_.open("EBCosmicTask.log");
 
   Char_t histo[20];
 
@@ -21,13 +21,13 @@ EBCosmicTask::EBCosmicTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* d
     dbe->setCurrentFolder("EcalBarrel/EBCosmicTask/Cut");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBCT amplitude cut SM%02d", i+1);
-      meCutMap[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
+      meCutMap_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
     }
 
     dbe->setCurrentFolder("EcalBarrel/EBCosmicTask/Sel");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBCT amplitude sel SM%02d", i+1);
-      meSelMap[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
+      meSelMap_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
     }
   }
 
@@ -35,31 +35,31 @@ EBCosmicTask::EBCosmicTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* d
 
 EBCosmicTask::~EBCosmicTask(){
 
-//  logFile.close();
+//  logFile_.close();
 
 }
 
 void EBCosmicTask::beginJob(const edm::EventSetup& c){
 
-  ievt = 0;
+  ievt_ = 0;
 
 }
 
 void EBCosmicTask::endJob(){
 
-  cout << "EBCosmicTask: analyzed " << ievt << " events" << endl;
+  cout << "EBCosmicTask: analyzed " << ievt_ << " events" << endl;
 
 }
 
 void EBCosmicTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
-  ievt++;
+  ievt_++;
 
   edm::Handle<EcalUncalibratedRecHitCollection>  hits;
   e.getByLabel("ecalUncalibHitMaker", "EcalEBUncalibRecHits", hits);
 
 //  int nebh = hits->size();
-//  cout << "EBCosmicTask: event " << ievt << " hits collection size " << nebh << endl;
+//  cout << "EBCosmicTask: event " << ievt_ << " hits collection size " << nebh << endl;
 
   for ( EcalUncalibratedRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
 
@@ -75,19 +75,19 @@ void EBCosmicTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
     int ism = id.ism();
 
-//    logFile << " det id = " << id << endl;
-//    logFile << " sm, eta, phi " << ism << " " << ie*iz << " " << ip << endl;
+//    logFile_ << " det id = " << id << endl;
+//    logFile_ << " sm, eta, phi " << ism << " " << ie*iz << " " << ip << endl;
 
     float xval = 0.001 * hit.amplitude();
 
-//    logFile << " hit amplitude " << xval << endl;
+//    logFile_ << " hit amplitude " << xval << endl;
 
     if ( xval >= 5 ) {
-      if ( meCutMap[ism-1] ) meCutMap[ism-1]->Fill(xie, xip, xval);
+      if ( meCutMap_[ism-1] ) meCutMap_[ism-1]->Fill(xie, xip, xval);
     }
 
     if ( xval >= 10 ) {
-      if ( meSelMap[ism-1] ) meSelMap[ism-1]->Fill(xie, xip, xval);
+      if ( meSelMap_[ism-1] ) meSelMap_[ism-1]->Fill(xie, xip, xval);
     }
 
   }

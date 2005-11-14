@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  * 
- * $Date: 2005/11/13 13:15:53 $
- * $Revision: 1.42 $
+ * $Date: 2005/11/14 08:52:30 $
+ * $Revision: 1.43 $
  * \author G. Della Ricca
  *
 */
@@ -47,8 +47,8 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
     meStatus_->setResetMe(true);
     meRun_     = dbe_->bookInt("RUN");
     meRun_->setResetMe(true);
-    meEvt     = dbe_->bookInt("EVT");
-    meEvt->setResetMe(true);
+    meEvt_     = dbe_->bookInt("EVT");
+    meEvt_->setResetMe(true);
 
     meEvtType_ = dbe_->book1D("EVTTYPE", "EVTTYPE", 10, 0., 10.);
     meEvtType_->setResetMe(true);
@@ -129,7 +129,7 @@ void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
   ievt_++;
 
   if ( meRun_ ) meRun_->Fill(irun_);
-  if ( meEvt ) meEvt->Fill(ievt_);
+  if ( meEvt_ ) meEvt_->Fill(ievt_);
 
   evtType_ = runType_;
 

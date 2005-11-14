@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  * 
- * $Date: 2005/11/07 09:54:39 $
- * $Revision: 1.24 $
+ * $Date: 2005/11/11 08:04:41 $
+ * $Revision: 1.25 $
  * \author G. Della Ricca
  *
 */
@@ -11,7 +11,7 @@
 
 EBTestPulseTask::EBTestPulseTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe){
 
-//  logFile.open("EBTestPulseTask.log");
+//  logFile_.open("EBTestPulseTask.log");
 
   Char_t histo[20];
 
@@ -21,25 +21,25 @@ EBTestPulseTask::EBTestPulseTask(const edm::ParameterSet& ps, DaqMonitorBEInterf
     dbe->setCurrentFolder("EcalBarrel/EBTestPulseTask/Gain01");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBTT shape SM%02d G01", i+1);
-      meShapeMapG01[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096.);
+      meShapeMapG01_[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096.);
       sprintf(histo, "EBTT amplitude SM%02d G01", i+1);
-      meAmplMapG01[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
+      meAmplMapG01_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
     }
 
     dbe->setCurrentFolder("EcalBarrel/EBTestPulseTask/Gain06");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBTT shape SM%02d G06", i+1);
-      meShapeMapG06[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096.);
+      meShapeMapG06_[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096.);
       sprintf(histo, "EBTT amplitude SM%02d G06", i+1);
-      meAmplMapG06[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
+      meAmplMapG06_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
     }
 
     dbe->setCurrentFolder("EcalBarrel/EBTestPulseTask/Gain12");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBTT shape SM%02d G12", i+1);
-      meShapeMapG12[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096.);
+      meShapeMapG12_[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096.);
       sprintf(histo, "EBTT amplitude SM%02d G12", i+1);
-      meAmplMapG12[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
+      meAmplMapG12_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
     }
   }
 
@@ -47,31 +47,31 @@ EBTestPulseTask::EBTestPulseTask(const edm::ParameterSet& ps, DaqMonitorBEInterf
 
 EBTestPulseTask::~EBTestPulseTask(){
 
-//  logFile.close();
+//  logFile_.close();
 
 }
 
 void EBTestPulseTask::beginJob(const edm::EventSetup& c){
 
-  ievt = 0;
+  ievt_ = 0;
     
 }
 
 void EBTestPulseTask::endJob(){
 
-  cout << "EBTestPulseTask: analyzed " << ievt << " events" << endl;
+  cout << "EBTestPulseTask: analyzed " << ievt_ << " events" << endl;
 
 }
 
 void EBTestPulseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
-  ievt++;
+  ievt_++;
 
   edm::Handle<EBDigiCollection>  digis;
   e.getByLabel("ecalEBunpacker", digis);
 
 //  int nebd = digis->size();
-//  cout << "EBTestPulseTask: event " << ievt << " digi collection size " << nebd << endl;
+//  cout << "EBTestPulseTask: event " << ievt_ << " digi collection size " << nebd << endl;
 
   for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
@@ -89,8 +89,8 @@ void EBTestPulseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
     int ic = id.ic();
 
-//    logFile << " det id = " << id << endl;
-//    logFile << " sm, eta, phi " << ism << " " << ie*iz << " " << ip << endl;
+//    logFile_ << " det id = " << id << endl;
+//    logFile_ << " sm, eta, phi " << ism << " " << ie*iz << " " << ip << endl;
 
     for (int i = 0; i < 10; i++) {
 
@@ -110,9 +110,9 @@ void EBTestPulseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
         gain = 1./ 1.;
       }
 
-      if ( ievt >=   1 && ievt <=  50 ) meShapeMap = meShapeMapG01[ism-1];
-      if ( ievt >=  51 && ievt <= 100 ) meShapeMap = meShapeMapG06[ism-1];
-      if ( ievt >= 101 && ievt <= 150 ) meShapeMap = meShapeMapG12[ism-1];
+      if ( ievt_ >=   1 && ievt_ <=  50 ) meShapeMap = meShapeMapG01_[ism-1];
+      if ( ievt_ >=  51 && ievt_ <= 100 ) meShapeMap = meShapeMapG06_[ism-1];
+      if ( ievt_ >= 101 && ievt_ <= 150 ) meShapeMap = meShapeMapG12_[ism-1];
 
       float xval = adc * gain;
 
@@ -126,7 +126,7 @@ void EBTestPulseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   e.getByLabel("ecalUncalibHitMaker", "EcalEBUncalibRecHits", hits);
 
 //  int neh = hits->size();
-//  cout << "EBTestPulseTask: event " << ievt << " hits collection size " << neb << endl;
+//  cout << "EBTestPulseTask: event " << ievt_ << " hits collection size " << neb << endl;
 
   for ( EcalUncalibratedRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
 
@@ -142,18 +142,18 @@ void EBTestPulseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
     int ism = id.ism();
 
-//    logFile << " det id = " << id << endl;
-//    logFile << " sm, eta, phi " << ism << " " << ie*iz << " " << ip << endl;
+//    logFile_ << " det id = " << id << endl;
+//    logFile_ << " sm, eta, phi " << ism << " " << ie*iz << " " << ip << endl;
 
     MonitorElement* meAmplMap = 0;
 
-    if (                ievt <=  50 ) meAmplMap = meAmplMapG01[ism-1];
-    if ( ievt >=  50 && ievt <= 100 ) meAmplMap = meAmplMapG06[ism-1];
-    if ( ievt >= 100                ) meAmplMap = meAmplMapG12[ism-1];
+    if ( ievt_ >=   1 && ievt_ <=  50 ) meAmplMap = meAmplMapG01_[ism-1];
+    if ( ievt_ >=  50 && ievt_ <= 100 ) meAmplMap = meAmplMapG06_[ism-1];
+    if ( ievt_ >= 100 && ievt_ <= 150 ) meAmplMap = meAmplMapG12_[ism-1];
 
     float xval = 0.001 * hit.amplitude();
 
-//    logFile << " hit amplitude " << xval << endl;
+//    logFile_ << " hit amplitude " << xval << endl;
 
     if ( meAmplMap ) meAmplMap->Fill(xie, xip, xval);
 
