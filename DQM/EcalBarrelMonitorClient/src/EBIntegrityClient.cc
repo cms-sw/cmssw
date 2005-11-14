@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  * 
- * $Date: 2005/11/13 18:37:20 $
- * $Revision: 1.7 $
+ * $Date: 2005/11/14 08:52:30 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  *
 */
@@ -157,11 +157,11 @@ void EBIntegrityClient::subscribeNew(void){
 void EBIntegrityClient::unsubscribe(void){
   
   // unsubscribe to all monitorable matching pattern
-  mui_->subscribe("*/EcalIntegrity/DCC size error");
-  mui_->subscribe("*/EcalIntegrity/Gain/EI gain SM*");
-  mui_->subscribe("*/EcalIntegrity/ChId/EI ChId SM*");
-  mui_->subscribe("*/EcalIntegrity/TTId/EI TTId SM*");
-  mui_->subscribe("*/EcalIntegrity/TTBlockSize/EI TTBlockSize SM*");
+  mui_->unsubscribe("*/EcalIntegrity/DCC size error");
+  mui_->unsubscribe("*/EcalIntegrity/Gain/EI gain SM*");
+  mui_->unsubscribe("*/EcalIntegrity/ChId/EI ChId SM*");
+  mui_->unsubscribe("*/EcalIntegrity/TTId/EI TTId SM*");
+  mui_->unsubscribe("*/EcalIntegrity/TTBlockSize/EI TTBlockSize SM*");
 
 }
 
