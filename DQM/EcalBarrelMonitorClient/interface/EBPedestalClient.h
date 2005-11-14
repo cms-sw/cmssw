@@ -4,8 +4,8 @@
 /*
  * \file EBPedestalClient.h
  *
- * $Date: 2005/11/11 14:13:32 $
- * $Revision: 1.4 $
+ * $Date: 2005/11/13 18:37:20 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  *
 */
@@ -89,6 +89,18 @@ MonitorUserInterface* mui_;
 TProfile2D* h01[36];
 TProfile2D* h02[36];
 TProfile2D* h03[36];
+
+TH2F* g01[36];
+TH2F* g02[36];
+TH2F* g03[36];
+
+TH1F* p01[36];
+TH1F* p02[36];
+TH1F* p03[36];
+
+TH1F* r01[36];
+TH1F* r02[36];
+TH1F* r03[36];
 
 };
 

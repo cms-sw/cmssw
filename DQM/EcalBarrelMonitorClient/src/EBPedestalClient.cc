@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  * 
- * $Date: 2005/11/14 10:51:05 $
- * $Revision: 1.10 $
+ * $Date: 2005/11/14 13:33:33 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  *
 */
@@ -12,6 +12,32 @@
 EBPedestalClient::EBPedestalClient(const edm::ParameterSet& ps, MonitorUserInterface* mui){
 
   mui_ = mui;
+
+  Char_t histo[50];
+
+  for ( int i = 0; i < 36; i++ ) {
+
+    sprintf(histo, "EBPT pedestal quality G01 SM%02d", i+1);
+    g01[i] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
+    sprintf(histo, "EBPT pedestal quality G06 SM%02d", i+1);
+    g02[i] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
+    sprintf(histo, "EBPT pedestal quality G12 SM%02d", i+1);
+    g03[i] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
+
+    sprintf(histo, "EBPT pedestal mean G01 SM%02d", i+1);
+    p01[i] = new TH1F(histo, histo, 100, 150., 250.);
+    sprintf(histo, "EBPT pedestal mean G06 SM%02d", i+1);
+    p02[i] = new TH1F(histo, histo, 100, 150., 250.);
+    sprintf(histo, "EBPT pedestal mean G12 SM%02d", i+1);
+    p03[i] = new TH1F(histo, histo, 100, 150., 250.);
+
+    sprintf(histo, "EBPT pedestal rms G01 SM%02d", i+1);
+    r01[i] = new TH1F(histo, histo, 100, 0., 10.);
+    sprintf(histo, "EBPT pedestal rms G06 SM%02d", i+1);
+    r02[i] = new TH1F(histo, histo, 100, 0., 10.);
+    sprintf(histo, "EBPT pedestal rms G12 SM%02d", i+1);
+    r03[i] = new TH1F(histo, histo, 100, 0., 10.);
+  }
 
 }
 
@@ -129,11 +155,26 @@ void EBPedestalClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag
           p.setPedMeanG1(mean01);
           p.setPedRMSG1(rms01);
 
+          if ( g01[ism-1] ) {
+            if ( rms01 == 0 ) {
+              g01[ism-1]->SetBinContent(g01[ism-1]->GetBin(ie, ip), 0.);
+            }
+          }
+
+          if ( p01[ism-1] ) p01[ism-1]->Fill(mean01);
+          if ( r01[ism-1] ) r01[ism-1]->Fill(rms01);
+
           p.setPedMeanG6(mean02);
           p.setPedRMSG6(rms02);
 
+          if ( p02[ism-1] ) p02[ism-1]->Fill(mean02);
+          if ( r02[ism-1] ) r02[ism-1]->Fill(rms02);
+
           p.setPedMeanG12(mean03);
           p.setPedRMSG12(rms03);
+
+          if ( p03[ism-1] ) p03[ism-1]->Fill(mean03);
+          if ( r03[ism-1] ) r03[ism-1]->Fill(rms03);
 
           p.setTaskStatus(1);
 
@@ -243,6 +284,45 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir){
 
   htmlFile.open((htmlDir + "EBPedestalClient.html").c_str());
 
+  // html page header
+  htmlFile << "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">  " << endl;
+  htmlFile << "<html>  " << endl;
+  htmlFile << "<head>  " << endl;
+  htmlFile << "  <meta content=\"text/html; charset=ISO-8859-1\"  " << endl;
+  htmlFile << " http-equiv=\"content-type\">  " << endl;
+  htmlFile << "  <title>Monitor:PedestalTask output</title> " << endl;
+  htmlFile << "</head>  " << endl;
+  htmlFile << "<body>  " << endl;
+  htmlFile << "<br>  " << endl;
+  htmlFile << "<h2>Run:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << endl;
+  htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl; 
+  htmlFile << " style=\"color: rgb(0, 0, 153);\">" << run << "</span></h2>" << endl;
+  htmlFile << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
+  htmlFile << " style=\"color: rgb(0, 0, 153);\">PEDESTAL</span></h2> " << endl;
+  htmlFile << "<hr>" << endl;
+
+  string gifname01 , gifname02 , gifname03;
+  for ( int ism = 1 ; ism <= 36 ; ism++ ) {
+
+    if ( g01[ism-1] && g02[ism-1] && g03[ism-1] ) {
+
+      htmlFile << "</h3>Supermodule&nbsp;&nbsp;" << ism << "</h3>" << endl;
+      htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+      htmlFile << "cellpadding=\"10\" align=center> " << endl;
+      htmlFile << "<tr><td>" << endl;
+
+      htmlFile << "</td></tr>" << endl;
+      htmlFile << "<tr><td>Gain 1</td><td>Gain 6</td><td>Gain 12</td><tr>" << endl;
+      htmlFile << "</table>" << endl;
+      htmlFile << "<br>" << endl;
+    
+    }
+
+  }
+
+  // html page footer
+  htmlFile << "</body> " << endl;
+  htmlFile << "</html> " << endl;
 
   htmlFile.close();
 
