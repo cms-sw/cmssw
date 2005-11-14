@@ -16,7 +16,7 @@
 //
 // Original Author:  W. Brown and M. FIschler 
 //         Created:   Fri Nov 11 16:38:19 CST 2005
-// $Id: MessageService.h,v 1.2 2005/09/08 20:37:18 chrjones Exp $
+// $Id: MessageService.h,v 1.1 2005/11/11 23:04:37 fischler Exp $
 //
 
 // system include files

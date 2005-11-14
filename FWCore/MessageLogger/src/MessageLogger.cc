@@ -8,7 +8,7 @@
 //
 // Original Author:  W. Brown, M. Fischler
 //         Created:  Fri Nov 11 16:42:39 CST 2005
-// $Id: MessageService.cc,v 1.3 2005/09/10 02:08:49 wmtan Exp $
+// $Id: MessageService.cc,v 1.1 2005/11/11 23:04:37 fischler Exp $
 //
 
 // system include files
