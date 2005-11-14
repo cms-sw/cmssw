@@ -12,8 +12,8 @@ using namespace std;
 
 /** \class HcalDigiDump
       
-$Date: 2005/10/04 13:37:35 $
-$Revision: 1.3 $
+$Date: 2005/10/04 20:32:07 $
+$Revision: 1.4 $
 \author J. Mans - Minnesota
 */
 class HcalDigiDump : public edm::EDAnalyzer {
@@ -30,6 +30,7 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
   std::vector<edm::Handle<HBHEDigiCollection> > hbhe;
   std::vector<edm::Handle<HODigiCollection> > ho;
   std::vector<edm::Handle<HFDigiCollection> > hf;
+  std::vector<edm::Handle<HcalTrigPrimDigiCollection> > htp;
   
   try {
     e.getManyByType(hbhe);
@@ -72,6 +73,21 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
     }
   } catch (...) {
     cout << "No HO Digis." << endl;
+  }
+
+  try {
+    e.getManyByType(htp);
+    //      cout << "Selected " << ho.size() << endl;
+    std::vector<edm::Handle<HcalTrigPrimDigiCollection> >::iterator i;
+    for (i=htp.begin(); i!=htp.end(); i++) {
+      const HcalTrigPrimDigiCollection& c=*(*i);
+      
+      for (HcalTrigPrimDigiCollection::const_iterator j=c.begin(); j!=c.end(); j++)
+	cout << *j << std::endl;
+
+    }
+  } catch (...) {
+    cout << "No HCAL Trigger Primitive Digis." << endl;
   }
   
   cout << endl;    
