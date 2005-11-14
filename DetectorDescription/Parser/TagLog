@@ -1,3 +1,14 @@
+** V01-00-00  [Mon Nov 14 18:42:15 2005]
+CRITICAL CHANGES:
+XML can NOT be validated with this software at this time.  It is 
+hard coded to be OFF.
+Removed: DDLParser::StartParsing()
+Removed: DDLParser::Instance()
+Removed: DDLParser::setConfig(...)
+Removed: DDLParserI
+Added:   FIPConfiguration (temporarily) for FileInPath testing
+Changed: DDLConfiguration as regards to validation as well.
+
 ** V00-00-00  [Wed Oct 26 18:08:17 2005]
 Base tag on CMSSW_0_2_0_pre5
 
