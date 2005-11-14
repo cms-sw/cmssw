@@ -1,8 +1,8 @@
 /*
  * \file EBPedPreSampleClient.cc
  * 
- * $Date: 2005/11/14 10:51:05 $
- * $Revision: 1.11 $
+ * $Date: 2005/11/14 13:33:33 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  *
 */
@@ -131,21 +131,21 @@ void EBPedPreSampleClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, Ru
 void EBPedPreSampleClient::subscribe(void){
 
   // subscribe to all monitorable matching pattern
-  mui_->subscribe("*/EcalBarrel/EBPedPreSampleTask/Gain01/EBPT pedestal SM*");
+  mui_->subscribe("*/EcalBarrel/EBPedPreSampleTask/Gain01/EBPT pedestal PreSample SM*");
 
 }
 
 void EBPedPreSampleClient::subscribeNew(void){
 
   // subscribe to new monitorable matching pattern
-  mui_->subscribeNew("*/EcalBarrel/EBPedPreSampleTask/Gain01/EBPT pedestal SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBPedPreSampleTask/Gain01/EBPT pedestal PreSample SM*");
 
 }
 
 void EBPedPreSampleClient::unsubscribe(void){
 
   // unsubscribe to all monitorable matching pattern
-  mui_->unsubscribe("*/EcalBarrel/EBPedPreSampleTask/Gain01/EBPT pedestal SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBPedPreSampleTask/Gain01/EBPT pedestal PreSample SM*");
 
 }
 
@@ -166,7 +166,7 @@ void EBPedPreSampleClient::analyze(const edm::Event& e, const edm::EventSetup& c
   for ( int ism = 1; ism <= 36; ism++ ) {
 
     h01[ism-1] = 0;
-    sprintf(histo, "Collector/FU0/EcalBarrel/EBPedPreSampleTask/Gain01/EBPT pedestal SM%02d G01", ism);
+    sprintf(histo, "Collector/FU0/EcalBarrel/EBPedPreSampleTask/Gain01/EBPT pedestal PreSample SM%02d G01", ism);
     me = mui_->get(histo);
     if ( me ) {
       cout << "Found '" << histo << "'" << endl;
