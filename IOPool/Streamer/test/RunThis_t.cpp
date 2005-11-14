@@ -77,6 +77,7 @@ int main(int argc, char* argv[])
 
   string testdir(topdir); testdir+="/"; testdir+=thisdir; testdir+="/test";
   string tmpdir(topdir); tmpdir+="/tmp/"; tmpdir+=arch;
+  string testbin(topdir); testbin+="/test/"; testbin+=arch;
 
   if(setenv("LOCAL_TEST_DIR",testdir.c_str(),1)!=0)
     {
@@ -86,6 +87,16 @@ int main(int argc, char* argv[])
   if(setenv("LOCAL_TMP_DIR",tmpdir.c_str(),1)!=0)
     {
       cerr << "Could not set LOCAL_TMP_DIR to " << tmpdir << endl;
+      return -1;
+    }
+  if(setenv("LOCAL_TOP_DIR",topdir.c_str(),1)!=0)
+    {
+      cerr << "Could not set LOCAL_TOP_DIR to " << topdir << endl;
+      return -1;
+    }
+  if(setenv("LOCAL_TEST_BIN",testbin.c_str(),1)!=0)
+    {
+      cerr << "Could not set LOCAL_TEST_BIN to " << testbin << endl;
       return -1;
     }
 
