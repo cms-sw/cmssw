@@ -1,7 +1,7 @@
 /* \file EcalDCCUnpackingModule.h
  *
- *  $Date: 2005/10/18 09:06:15 $
- *  $Revision: 1.12 $
+ *  $Date: 2005/10/27 07:18:04 $
+ *  $Revision: 1.13 $
  *  \author N. Marinelli 
  *  \author G. Della Ricca
  */
@@ -35,7 +35,7 @@ EcalDCCUnpackingModule::EcalDCCUnpackingModule(const edm::ParameterSet& pset){
   if ( pset.getUntrackedParameter<bool>("DBEinterface", false) ) {
     dbe = edm::Service<DaqMonitorBEInterface>().operator->();
 
-    dbe->setVerbose(0);
+    dbe->setVerbose(1);
 
     edm::Service<MonitorDaemon> daemon;
     daemon.operator->();
