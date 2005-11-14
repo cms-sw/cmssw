@@ -70,11 +70,15 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup&)
   }
 
   // Step B: encapsulate vectors in actual collections
-  std::auto_ptr<HBHEDigiCollection> hbhe_prod(new HBHEDigiCollection(hbhe));
-  std::auto_ptr<HFDigiCollection> hf_prod(new HFDigiCollection(hf));
-  std::auto_ptr<HODigiCollection> ho_prod(new HODigiCollection(ho));
-  std::auto_ptr<HcalTrigPrimDigiCollection> htp_prod(new HcalTrigPrimDigiCollection(htp));  
+  std::auto_ptr<HBHEDigiCollection> hbhe_prod(new HBHEDigiCollection()); 
+  std::auto_ptr<HFDigiCollection> hf_prod(new HFDigiCollection());
+  std::auto_ptr<HODigiCollection> ho_prod(new HODigiCollection());
+  std::auto_ptr<HcalTrigPrimDigiCollection> htp_prod(new HcalTrigPrimDigiCollection());  
 
+  hbhe_prod->swap_contents(hbhe);
+  hf_prod->swap_contents(hf);
+  ho_prod->swap_contents(ho);
+  htp_prod->swap_contents(htp);
 
   // Step C2: filter FEDs, if required
   if (filter_.active()) {
