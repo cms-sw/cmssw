@@ -1,3 +1,6 @@
+** V01-00-03  [Mon Nov 14 21:57:49 2005]
+Inprove some exception messages.
+
 ** V01-00-02  [Sat Nov 12 00:59:59 2005]
 Use new TypeIDBase class
 
