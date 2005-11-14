@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  * 
- * $Date: 2005/11/13 08:55:51 $
- * $Revision: 1.6 $
+ * $Date: 2005/11/13 18:37:20 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  *
 */
@@ -111,7 +111,7 @@ void EBIntegrityClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
         cons.setProblemsInADC(int(-999));
 
         try {
-          ecid = econn->getEcalLogicID("EB_crystal_index", ism, ie-1, ip-1);
+          if ( econn ) ecid = econn->getEcalLogicID("EB_crystal_index", ism, ie-1, ip-1);
           dataset[ecid] = cons;
         } catch (runtime_error &e) {
           cerr << e.what() << endl;
@@ -124,7 +124,7 @@ void EBIntegrityClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
 
   try {
     cout << "Inserting dataset ... " << flush;
-    econn->insertDataSet(&dataset, runiov, runtag );
+    if ( econn ) econn->insertDataSet(&dataset, runiov, runtag );
     cout << "done." << endl; 
   } catch (runtime_error &e) {
     cerr << e.what() << endl;

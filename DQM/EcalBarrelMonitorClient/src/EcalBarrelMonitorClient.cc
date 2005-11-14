@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  * 
- * $Date: 2005/11/13 18:37:20 $
- * $Revision: 1.16 $
+ * $Date: 2005/11/13 19:54:45 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  *
 */
@@ -51,16 +51,21 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps){
   dbUserName_ = ps.getUntrackedParameter<string>("dbUserName", "");
   dbPassword_ = ps.getUntrackedParameter<string>("dbPassword", "");
 
-  cout << " Client will write to"
-       << " dbName = " << dbName_
-       << " dbHostName = " << dbHostName_
-       << " dbUserName = " << dbUserName_ << endl;
+  if ( dbName_.size() != 0 ) {
+    cout << " DB output will go to"
+         << " dbName = " << dbName_
+         << " dbHostName = " << dbHostName_
+         << " dbUserName = " << dbUserName_ << endl;
+  } else {
+    cout << " DB output is disabled" << endl;
+  }
 
   // base Html output directory
-  baseHtmlDir_ = ps.getUntrackedParameter<string>("baseHtmlDir", "./");
+  baseHtmlDir_ = ps.getUntrackedParameter<string>("baseHtmlDir", ".");
 
   if ( baseHtmlDir_.size() != 0 ) {
-    cout << " HTML output will go to " << baseHtmlDir_ << endl;
+    cout << " HTML output will go to "
+         << " baseHtmlDir = " << baseHtmlDir_ << endl;
   } else {
     cout << " HTML output is disabled" << endl;
   }
@@ -73,15 +78,15 @@ EcalBarrelMonitorClient::~EcalBarrelMonitorClient(){
 
   this->unsubscribe();
 
-  delete integrity_client_;
-  delete laser_client_;
-  delete pedestal_client_;
-  delete pedpresample_client_;
-  delete testpulse_client_;
+  if ( integrity_client_ ) delete integrity_client_;
+  if ( laser_client_ ) delete laser_client_;
+  if ( pedestal_client_ ) delete pedestal_client_;
+  if ( pedpresample_client_ ) delete pedpresample_client_;
+  if ( testpulse_client_ ) delete testpulse_client_;
 
   usleep(100);
 
-  delete mui_;
+  if ( mui_ ) delete mui_;
 
 }
 
@@ -142,9 +147,11 @@ void EcalBarrelMonitorClient::endRun(void) {
 
   mui_->save("EcalBarrelMonitorClient.root");
 
+  econn_ = 0;
+
   try {
     cout << "Opening DB connection." << endl;
-    econn_ = new EcalCondDBInterface(dbHostName_, dbName_, dbUserName_, dbPassword_);
+    if ( dbName_.size() != 0 ) econn_ = new EcalCondDBInterface(dbHostName_, dbName_, dbUserName_, dbPassword_);
   } catch (runtime_error &e) {
     cerr << e.what() << endl;
   }
@@ -176,10 +183,10 @@ void EcalBarrelMonitorClient::endRun(void) {
 
   cout << "Closing DB connection." << endl;
 
-  delete econn_;
+  if ( econn_ ) delete econn_;
 
-  delete runiov_;
-  delete runtag_;
+  if ( runiov_ ) delete runiov_;
+  if ( runtag_ ) delete runtag_;
 
 }
 
@@ -338,7 +345,7 @@ void EcalBarrelMonitorClient::htmlOutput(void){
 
   sprintf(tmp, "%09d", run_);
 
-  string htmlDir = baseHtmlDir_ + tmp + "/";
+  string htmlDir = baseHtmlDir_ + "/" + tmp + "/";
 
   system(("/bin/mkdir -p " + htmlDir).c_str());
 

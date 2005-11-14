@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  * 
- * $Date: 2005/11/13 18:37:20 $
- * $Revision: 1.7 $
+ * $Date: 2005/11/13 19:22:37 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  *
 */
@@ -136,7 +136,7 @@ void EBPedestalClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag
           p.setTaskStatus(1);
 
           try {
-            ecid = econn->getEcalLogicID("EB_crystal_index", ism, ie-1, ip-1);
+            if ( econn ) ecid = econn->getEcalLogicID("EB_crystal_index", ism, ie-1, ip-1);
             dataset[ecid] = p;
           } catch (runtime_error &e) {
             cerr << e.what() << endl;

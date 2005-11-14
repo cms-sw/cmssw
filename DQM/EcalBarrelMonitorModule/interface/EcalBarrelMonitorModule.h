@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorModule.h
  *
- * $Date: 2005/11/10 16:45:05 $
- * $Revision: 1.15 $
+ * $Date: 2005/11/10 16:59:38 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  *
 */
@@ -64,36 +64,36 @@ void endJob(void);
 
 private:
 
-int evtType;
-int runType;
+int evtType_;
+int runType_;
 
-int ievt;
-int irun;
+int ievt_;
+int irun_;
 
-DaqMonitorBEInterface* dbe;
+DaqMonitorBEInterface* dbe_;
 
-MonitorElement* meStatus;
+MonitorElement* meStatus_;
 
-MonitorElement* meRun;
-MonitorElement* meEvt;
+MonitorElement* meRun_;
+MonitorElement* meEvt_;
 
-MonitorElement* meEvtType;
-MonitorElement* meRunType;
+MonitorElement* meEvtType_;
+MonitorElement* meRunType_;
 
-MonitorElement* meEBdigi;
-MonitorElement* meEBhits;
+MonitorElement* meEBdigi_;
+MonitorElement* meEBhits_;
 
-MonitorElement* meEvent[36];
+MonitorElement* meEvent_[36];
 
-EBCosmicTask* cosmic_task;
-EBLaserTask* laser_task;
-EBPedestalTask* pedestal_task;
-EBPedPreSampleTask* pedpresample_task;
-EBTestPulseTask* testpulse_task;
+EBCosmicTask* cosmic_task_;
+EBLaserTask* laser_task_;
+EBPedestalTask* pedestal_task_;
+EBPedPreSampleTask* pedpresample_task_;
+EBTestPulseTask* testpulse_task_;
 
-string outputFile;
+string outputFile_;
 
-ofstream logFile;
+ofstream logFile_;
 
 };
 

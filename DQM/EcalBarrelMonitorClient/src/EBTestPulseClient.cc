@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  * 
- * $Date: 2005/11/11 15:19:56 $
- * $Revision: 1.5 $
+ * $Date: 2005/11/13 18:37:20 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  *
 */
@@ -128,7 +128,7 @@ void EBTestPulseClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
           }
 
           try {
-            ecid = econn->getEcalLogicID("EB_crystal_index", ism, ie-1, ip-1);
+            if ( econn ) ecid = econn->getEcalLogicID("EB_crystal_index", ism, ie-1, ip-1);
             dataset1[ecid] = adc;
             if ( ie == 1 && ip == 1 ) dataset2[ecid] = shape;
           } catch (runtime_error &e) {
@@ -144,8 +144,8 @@ void EBTestPulseClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
 
   try {
     cout << "Inserting dataset ... " << flush;
-    econn->insertDataSet(&dataset1, runiov, runtag );
-    econn->insertDataSet(&dataset2, runiov, runtag );
+    if ( econn ) econn->insertDataSet(&dataset1, runiov, runtag );
+    if ( econn ) econn->insertDataSet(&dataset2, runiov, runtag );
     cout << "done." << endl;
   } catch (runtime_error &e) {
     cerr << e.what() << endl;
