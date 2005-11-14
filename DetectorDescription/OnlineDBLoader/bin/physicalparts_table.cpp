@@ -30,7 +30,7 @@ try { // DDD Prototype can throw DDException defined in DetectorDescription/Core
   // Initialize a DDL Schema aware parser for DDL-documents
   // (DDL ... Detector Description Language)
   cout << "initialize DDL parser" << endl;
-  DDLParser* myP = DDLParser::Instance();
+  DDLParser* myP = DDLParser::instance();
 
   cout << "about to set configuration" << endl;
   /* The configuration file tells the parser what to parse.
