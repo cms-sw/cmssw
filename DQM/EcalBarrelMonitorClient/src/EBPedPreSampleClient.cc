@@ -1,8 +1,8 @@
 /*
  * \file EBPedPreSampleClient.cc
  * 
- * $Date: 2005/11/13 18:37:20 $
- * $Revision: 1.9 $
+ * $Date: 2005/11/14 08:52:30 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  *
 */
@@ -52,6 +52,8 @@ void EBPedPreSampleClient::endJob(void) {
 void EBPedPreSampleClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* runtag) {
 
   cout << "EBPedPreSampleClient: endRun, jevt = " << jevt_ << endl;
+
+  if ( jevt_ == 0 ) return;
 
   EcalLogicID ecid;
 //  MonPedestalsDat p;

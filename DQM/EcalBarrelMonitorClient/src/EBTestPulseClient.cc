@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  * 
- * $Date: 2005/11/13 18:37:20 $
- * $Revision: 1.6 $
+ * $Date: 2005/11/14 08:52:30 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  *
 */
@@ -53,6 +53,8 @@ void EBTestPulseClient::endJob(void) {
 void EBTestPulseClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* runtag) {
 
   cout << "EBTestPulseClient: endRun, jevt = " << jevt_ << endl;
+
+  if ( jevt_ == 0 ) return;
 
   EcalLogicID ecid;
   MonTestPulseDat adc;

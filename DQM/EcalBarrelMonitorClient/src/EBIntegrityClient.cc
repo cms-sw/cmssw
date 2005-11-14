@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  * 
- * $Date: 2005/11/14 08:52:30 $
- * $Revision: 1.8 $
+ * $Date: 2005/11/14 10:47:58 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  *
 */
@@ -56,6 +56,8 @@ void EBIntegrityClient::endJob(void) {
 void EBIntegrityClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* runtag) {
 
   cout << "EBIntegrityClient: endRun, jevt = " << jevt_ << endl;
+
+  if ( jevt_ == 0 ) return;
 
   EcalLogicID ecid;
   RunConsistencyDat cons;

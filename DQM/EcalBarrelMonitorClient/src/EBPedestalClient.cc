@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  * 
- * $Date: 2005/11/13 19:22:37 $
- * $Revision: 1.8 $
+ * $Date: 2005/11/14 08:52:30 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  *
 */
@@ -54,6 +54,8 @@ void EBPedestalClient::endJob(void) {
 void EBPedestalClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* runtag) {
 
   cout << "EBPedestalClient: endRun, jevt = " << jevt_ << endl;
+
+  if ( jevt_ == 0 ) return;
 
   EcalLogicID ecid;
   MonPedestalsDat p;

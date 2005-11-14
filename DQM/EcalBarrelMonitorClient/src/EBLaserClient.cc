@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  * 
- * $Date: 2005/11/13 18:37:20 $
- * $Revision: 1.8 $
+ * $Date: 2005/11/14 08:52:30 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  *
 */
@@ -55,6 +55,8 @@ void EBLaserClient::endJob(void) {
 void EBLaserClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* runtag) {
 
   cout << "EBLaserClient: endRun, jevt = " << jevt_ << endl;
+
+  if ( jevt_ == 0 ) return;
 
   EcalLogicID ecid;
   MonLaserBlueDat apdb;
