@@ -8,9 +8,10 @@ import math
 # output directory
 CONFIGFILE = "configuration.xml"
 #CONFIGFILE = "config_test.xml"
-outdir = "./DDDTABLES/"
+outdir = "./data/"
 #outdir = "./Test/"
-soldir = "SOLIDS_DIR/"
+soldir = ""
+#soldir = "solids"
 GENSOLID_ONCE = {}
 LOGFILE = open("log.txt",'w')
 LOGFILE.write("Logfile\n")
@@ -18,7 +19,7 @@ LOGFILE.write("Logfile\n")
 cmd = "rm -rf " + outdir
 os.system(cmd)
 os.mkdir(outdir)
-os.mkdir(outdir+soldir)
+#os.mkdir(outdir+soldir)
 #for i in glob.glob(outdir+"*"):
 #    try:
 #       os.remove(i)
@@ -118,12 +119,12 @@ def poly_section_action(r,ns,kind):
     if kind=="ZS,":
         for i in r.getElementsByTagName("ZSection"):
             prefix = count.__str__() + ","
-            generic_solid("ZSECTIONS",i,ns,name,prefix,"polycone_solid_name,polyhedra_solid_name,","sequence_no,")
+            generic_solid("ZSECTIONS.dat",i,ns,name,prefix,"polycone_solid_name,polyhedra_solid_name,","sequence_no,")
             count = count + 1
     else:
         for i in r.getElementsByTagName("RZPoint"):
             prefix = count.__str__() + ","
-            generic_solid("RZPOINTS",i,ns,name,prefix,"polycone_solid_name,polyhedra_solid_name,","sequence_no,")
+            generic_solid("RZPOINTS.dat",i,ns,name,prefix,"polycone_solid_name,polyhedra_solid_name,","sequence_no,")
             count = count + 1
     #if count<5:
     #    LOGFILE.write("ZSECTION:" +" " + r.tagName + " " + name + "\n")
@@ -154,32 +155,32 @@ def boolean_components(r,ns):
 
 def box_action(r,s,ns):
     s = s + r.tagName +','
-    generic_solid("BOXES",r,ns)
+    generic_solid("BOXES.dat",r,ns)
     return s
 
 def reflectionsolid_action(r,s,ns):
     s = s + r.tagName +','
-    generic_solid("REFLECTIONSOLIDS",r,ns)
+    generic_solid("REFLECTIONSOLIDS.dat",r,ns)
     return s
     
 def shapelesssolid_action(r,s,ns):
     s = s  + r.tagName +','
-    generic_solid("SHAPELESSSOLIDS",r,ns)
+    generic_solid("SHAPELESSSOLIDS.dat",r,ns)
     return s
 
 def tubs_action(r,s,ns):
     s = s  + r.tagName +','
-    generic_solid("TUBESECTIONS",r,ns)
+    generic_solid("TUBESECTIONS.dat",r,ns)
     return s
 
 def tube_action(r,s,ns):
     s = s + r.tagName +','
-    generic_solid("TUBES",r,ns)
+    generic_solid("TUBES.dat",r,ns)
     return s
 
 def trd1_action(r,s,ns):
     s = s + r.tagName +','
-    generic_solid("TRD1S",r,ns)
+    generic_solid("TRD1S.dat",r,ns)
     return s
 
 def polyhedra_action(r,s,ns):
@@ -188,7 +189,7 @@ def polyhedra_action(r,s,ns):
         kind = "ZS,"
     poly_section_action(r,ns,kind)    
     s = s + r.tagName +','
-    generic_solid("POLYHEDRAS",r,ns,kind,"","RZ_or_ZS,")
+    generic_solid("POLYHEDRAS.dat",r,ns,kind,"","RZ_or_ZS,")
     return s
 
 def polycone_action(r,s,ns):
@@ -196,41 +197,41 @@ def polycone_action(r,s,ns):
     if len(r.getElementsByTagName("ZSection"))>0:
         kind = "ZS,"
     poly_section_action(r,ns,kind)
-    generic_solid("POLYCONES",r,ns,kind,"","RZ_or_ZS,")
+    generic_solid("POLYCONES.dat",r,ns,kind,"","RZ_or_ZS,")
     s = s + r.tagName +','   
     return s
 
 def cone_action(r,s,ns):
     s = s + r.tagName +','
-    generic_solid("CONES",r,ns)
+    generic_solid("CONES.dat",r,ns)
     return s
 
 def pseudotrap_action(r,s,ns):
     s = s + r.tagName +','
-    generic_solid("PSEUDOTRAPEZOIDS",r,ns)
+    generic_solid("PSEUDOTRAPEZOIDS.dat",r,ns)
     return s
 
 def trapezoid_action(r,s,ns):
     s = s + r.tagName +','
-    generic_solid("TRAPEZOIDS",r,ns)
+    generic_solid("TRAPEZOIDS.dat",r,ns)
     return s
 
 def intersectionsolid_action(r,s,ns):
     s = s + r.tagName +','
     comp = boolean_components(r,ns)
-    generic_solid("BOOLEANSOLIDS",r,ns,"I,"+comp,"","operation,solidA,solidB,x,y,z,rot")
+    generic_solid("BOOLEANSOLIDS.dat",r,ns,"I,"+comp,"","operation,solidA,solidB,x,y,z,rot")
     return s
 
 def unionsolid_action(r,s,ns):
     s = s + r.tagName +','
     comp = boolean_components(r,ns)
-    generic_solid("BOOLDEANSOLIDS",r,ns,"U,"+comp,"","operation,solidA,solidB,x,y,z,rot")
+    generic_solid("BOOLDEANSOLIDS.dat",r,ns,"U,"+comp,"","operation,solidA,solidB,x,y,z,rot")
     return s
 
 def subtractionsolid_action(r,s,ns):
     s = s + r.tagName +','
     comp = boolean_components(r,ns)
-    generic_solid("BOOLEANSOLIDS",r,ns,"S,"+comp,"","operation,solidA,solidB,x,y,z,rot")
+    generic_solid("BOOLEANSOLIDS.dat",r,ns,"S,"+comp,"","operation,solidA,solidB,x,y,z,rot")
     return s
     
 # global things
@@ -317,7 +318,7 @@ def qname(s,ns):
     return s
 
 def comp_action(e,s,ns):
-    file = open(outdir+"MATERIALFRACTIONS",'a')
+    file = open(outdir+"MATERIALFRACTIONS.dat",'a')
     fracs = e.getElementsByTagName("MaterialFraction")
     for frac in fracs:
         fm = frac.getAttribute("fraction")
@@ -340,7 +341,7 @@ def log_action(logp,s,ns):
             mat = qname(nodelist[i].getAttribute("name"),ns)
         if string.find(nodelist[i].nodeName,"So") != -1:
             sol = qname(nodelist[i].getAttribute("name"),ns)
-    result =  name_cat[0] + ',' + sol + ',' + mat + ',' + name_cat[1] + ','
+    result =  name_cat[0] + ',' + sol + ',' + mat + ',' + name_cat[1] + ',' 
     return result
     
 def pos_action(posp,s,ns):
@@ -383,25 +384,25 @@ for doc in docs_ns:
     # prefixing an attribute name with ":"  =  convert to a q-name
     # prefixing an attribute name with ";"  =  do NOT perform unit-conversion
     table = [
-              [ 'MATERIALS', ['ElementaryMaterial', 'CompositeMaterial'] ,
+              [ 'MATERIALS.dat', ['ElementaryMaterial', 'CompositeMaterial'] ,
                 [':name','density'] ,0 ],
 
-              [ 'ELEMENTARYMATERIALS', ['ElementaryMaterial'],
+              [ 'ELEMENTARYMATERIALS.dat', ['ElementaryMaterial'],
                 [':name', ';atomicNumber', 'atomicWeight',  ';symbol' ], 0 ],
 
-              [ 'COMPOSITEMATERIALS', ['CompositeMaterial'],
+              [ 'COMPOSITEMATERIALS.dat', ['CompositeMaterial'],
                 [':name',';method' ], comp_action ],
 
-              [ 'ROTATIONS', ['Rotation', 'ReflectionRotation'],
+              [ 'ROTATIONS.dat', ['Rotation', 'ReflectionRotation'],
                 [':name', 'thetaX', 'phiX', 'thetaY', 'phiY', 'thetaZ', 'phiZ'], rot_action ],
 
-              [ 'LOGICALPARTS', ['LogicalPart'],
-                [':name', ';category' ], log_action ],
+              [ 'LOGICALPARTS.dat', ['LogicalPart'],
+                [':name', ';category', 'itemid' ], log_action ],
 
-              [ 'POSPARTS', ['PosPart'],
+              [ 'POSPARTS.dat', ['PosPart'],
                 ['copyNumber'], pos_action ],
 
-              [ 'SOLIDS', SOLIDTYPES.keys(),
+              [ 'SOLIDS.dat', SOLIDTYPES.keys(),
                 [':name'], SOLIDTYPES.values() ]
             
             ]
@@ -450,7 +451,7 @@ for doc in docs_ns:
                 file.write(s[:len(s)-1]+"\n")
         file.close()
 
-file = open(outdir+"CATEGORIES",'w')
+file = open(outdir+"CATEGORIES.dat",'w')
 for i in CATEGORIES.keys():
     file.write(i+"\n")
 file.close()
