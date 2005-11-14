@@ -1,5 +1,5 @@
-#ifndef DQM_HCALMONITORTASKS_HCALDCCMONITOR_H
-#define DQM_HCALMONITORTASKS_HCALDCCMONITOR_H
+#ifndef DQM_HCALMONITORTASKS_HCALDATAFORMATMONITOR_H
+#define DQM_HCALMONITORTASKS_HCALDATAFORMATMONITOR_H
 
 #include "DQM/HcalMonitorTasks/interface/HcalBaseMonitor.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalUnpacker.h"
@@ -12,20 +12,19 @@
 #include "DataFormats/HcalDigi/interface/HcalQIESample.h"
 #include "CondFormats/HcalMapping/interface/HcalMappingTextFileReader.h"
 
-/** \class HcalDCCMonitor
+/** \class Hcaldataformatmonitor
   *  
-  * $Date: $
-  * $Revision: $
+  * $Date: 2005/11/13 17:33:07 $
+  * $Revision: 1.1 $
   * \author W. Fisher - FNAL
   */
-class HcalDCCMonitor: public HcalBaseMonitor {
+class HcalDataFormatMonitor: public HcalBaseMonitor {
 public:
-  HcalDCCMonitor(); 
-  ~HcalDCCMonitor(); 
+  HcalDataFormatMonitor(); 
+  ~HcalDataFormatMonitor(); 
 
   void setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe);
-  void done(int mode);
-  void processEvent(edm::Handle<FEDRawDataCollection> rawraw);
+  void processEvent(const FEDRawDataCollection& rawraw);
   void unpack(const FEDRawData& raw, int a, int b, int c);
 
 

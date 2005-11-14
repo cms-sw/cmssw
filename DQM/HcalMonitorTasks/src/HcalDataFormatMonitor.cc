@@ -1,12 +1,12 @@
-#include "DQM/HcalMonitorTasks/interface/HcalDCCMonitor.h"
+#include "DQM/HcalMonitorTasks/interface/HcalDataFormatMonitor.h"
 #include "TH1F.h"
 #include "DQMServices/CoreROOT/interface/MonitorElementRootT.h"
 
-HcalDCCMonitor::HcalDCCMonitor() {}
+HcalDataFormatMonitor::HcalDataFormatMonitor() {}
 
-HcalDCCMonitor::~HcalDCCMonitor() {}
+HcalDataFormatMonitor::~HcalDataFormatMonitor() {}
 
-void HcalDCCMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe){
+void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe){
   HcalBaseMonitor::setup(ps,dbe);
 
   if ( m_dbe ) {
@@ -34,28 +34,24 @@ void HcalDCCMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* d
   if (m_readoutMapSource.find(filePrefix)==0) {
     std::string theFile=m_readoutMapSource;
     theFile.erase(0,filePrefix.length());
-    std::cout << "HcalDCCMonitor::setup  Reading HcalMapping from '" << theFile << "'\n";
+    std::cout << "HcalDataFormatMonitor::setup  Reading HcalMapping from '" << theFile << "'\n";
     m_readoutMap=HcalMappingTextFileReader::readFromFile(theFile.c_str(),true); // maintain L2E for no real reason
   }
-  std::cout << "HcalDCCMonitor::setup  Will unpack FEDs ";
+  std::cout << "HcalDataFormatMonitor::setup  Will unpack FEDs ";
   for (unsigned int i=0; i<m_fedUnpackList.size(); i++) 
     std::cout << m_fedUnpackList[i] << " ";
   std::cout << std::endl;
   return;
 }
 
-void HcalDCCMonitor::done(int mode){
-
-}
-
-void HcalDCCMonitor::processEvent(edm::Handle<FEDRawDataCollection> rawraw)
+void HcalDataFormatMonitor::processEvent(FEDRawDataCollection& rawraw)
 {
 
-  if(!m_dbe) { printf("HcalDCCMonitor::processEvent   DaqMonitorBEInterface not instantiated!!!\n");  return;}
+  if(!m_dbe) { printf("HcalDataFormatMonitor::processEvent   DaqMonitorBEInterface not instantiated!!!\n");  return;}
 
   // Step C: unpack all requested FEDs
   for (std::vector<int>::const_iterator i=m_fedUnpackList.begin(); i!=m_fedUnpackList.end(); i++) {
-    const FEDRawData& fed = rawraw->FEDData(*i);
+    const FEDRawData& fed = rawraw.FEDData(*i);
     //   std::cout << "Processing FED " << *i << std::endl;
     // look only at the potential ones, to save time.
     if (m_readoutMap->subdetectorPresent(HcalBarrel,*i-m_firstFED) 
@@ -70,7 +66,7 @@ void HcalDCCMonitor::processEvent(edm::Handle<FEDRawDataCollection> rawraw)
 
 }
 
-void HcalDCCMonitor::unpack(const FEDRawData& raw, int f_offset, int f_start, int f_end){
+void HcalDataFormatMonitor::unpack(const FEDRawData& raw, int f_offset, int f_start, int f_end){
 
   // get the DCC header
   const HcalDCCHeader* dccHeader=(const HcalDCCHeader*)(raw.data());
