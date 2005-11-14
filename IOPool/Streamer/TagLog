@@ -1,3 +1,6 @@
+** V01-00-02  [Tue Nov 15 00:07:58 2005]
+Don't build failing test for now
+
 ** V01-00-01  [Mon Nov 14 21:03:18 2005]
 changed the TBuffer use back to old method to make it work
 
