@@ -89,7 +89,7 @@ int main(int argc, char* argv[])
       cerr << "Could not set LOCAL_TMP_DIR to " << tmpdir << endl;
       return -1;
     }
-  if(setenv("LOCAL_TOP_DIR",topdir.c_str(),1)!=0)
+  if(setenv("LOCAL_TOP_DIR",topdir,1)!=0)
     {
       cerr << "Could not set LOCAL_TOP_DIR to " << topdir << endl;
       return -1;
