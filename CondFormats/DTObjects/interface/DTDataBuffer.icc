@@ -1,0 +1,474 @@
+/*
+ *  See header file for a description of this class.
+ *
+ *  $Date: 2005/10/14 16:00:00 $
+ *  $Revision: 1.1 $
+ *  \author Paolo Ronchese INFN Padova
+ *
+ */
+
+//----------------------
+// This Class' Header --
+//----------------------
+#include "CondFormats/DTObjects/interface/DTDataBuffer.h"
+
+//-------------------------------
+// Collaborating Class Headers --
+//-------------------------------
+
+
+//---------------
+// C++ Headers --
+//---------------
+#include <iostream>
+
+//-------------------
+// Initializations --
+//-------------------
+template<class T> int DTDataBuffer<T>::nMaxWheel      =  5;
+template<class T> int DTDataBuffer<T>::nMaxStation    =  4;
+template<class T> int DTDataBuffer<T>::nMaxSector     = 14;
+template<class T> int DTDataBuffer<T>::nMaxSL         =  3;
+template<class T> int DTDataBuffer<T>::nMaxLayer      =  4;
+template<class T> int DTDataBuffer<T>::nMaxCell       = 99;
+template<class T> int DTDataBuffer<T>::nMaxDDU        = 10;
+template<class T> int DTDataBuffer<T>::nMaxROS        =  6;
+template<class T> int DTDataBuffer<T>::nMaxROB        =  7;
+template<class T> int DTDataBuffer<T>::nMaxTDC        =  4;
+template<class T> int DTDataBuffer<T>::nMaxTDCChannel = 32;
+template<class T> int DTDataBuffer<T>::nMinWheel      = -2;
+template<class T> int DTDataBuffer<T>::nMinStation    =  1;
+template<class T> int DTDataBuffer<T>::nMinSector     =  1;
+template<class T> int DTDataBuffer<T>::nMinSL         =  1;
+template<class T> int DTDataBuffer<T>::nMinLayer      =  1;
+template<class T> int DTDataBuffer<T>::nMinCell       =  1;
+template<class T> int DTDataBuffer<T>::nMinDDU        =  1;
+template<class T> int DTDataBuffer<T>::nMinROS        =  1;
+template<class T> int DTDataBuffer<T>::nMinROB        =  1;
+template<class T> int DTDataBuffer<T>::nMinTDC        =  1;
+template<class T> int DTDataBuffer<T>::nMinTDCChannel =  1;
+
+template<class T>
+T DTDataBuffer<T>::defaultObject;
+
+template<class T> typename
+DTDataBuffer<T>::buffer_type DTDataBuffer<T>::dataBuffer;
+
+//----------------
+// Constructors --
+//----------------
+template<class T>
+DTDataBuffer<T>::DTDataBuffer() {
+}
+
+
+template<class T>
+DTDataBuffer<T>::NamedBuffer::NamedBuffer( const std::string& bType,
+                                           const std::string& bName,
+                                           const T& init ):
+  bufferType( bType ),
+  bufferName( bName ),
+  dataBufPtr( 0 ) {
+  int nObjects = 0;
+  if ( bType ==        "cell" ) nObjects = nMaxWheel    *
+                                           nMaxStation  *
+                                           nMaxSector   *
+                                           nMaxSL       *
+                                           nMaxLayer    *
+                                           nMaxCell;
+  if ( bType ==       "layer" ) nObjects = nMaxWheel    *
+                                           nMaxStation  *
+                                           nMaxSector   *
+                                           nMaxSL       *
+                                           nMaxLayer;
+  if ( bType ==  "superlayer" ) nObjects = nMaxWheel    *
+                                           nMaxStation  *
+                                           nMaxSector   *
+                                           nMaxSL;
+  if ( bType ==     "chamber" ) nObjects = nMaxWheel    *
+                                           nMaxStation  *
+                                           nMaxSector;
+  if ( bType == "tdc_channel" ) nObjects = nMaxDDU        *
+                                           nMaxROS        *
+                                           nMaxROB        *
+                                           nMaxTDC        *
+                                           nMaxTDCChannel;
+  if ( !nObjects ) return;
+  dataBufPtr = new T[nObjects];
+  T*
+  dataBufEnd = dataBufPtr + nObjects;
+  while ( dataBufEnd-- > dataBufPtr ) *dataBufEnd = init;
+
+}
+
+
+
+//--------------
+// Destructor --
+//--------------
+template<class T>
+DTDataBuffer<T>::~DTDataBuffer() {
+  const_iter iter = dataBuffer.begin();
+  const_iter iend = dataBuffer.end();
+  while ( iter != iend ) delete *iter++;
+}
+
+
+template<class T>
+DTDataBuffer<T>::NamedBuffer::~NamedBuffer() {
+  delete[] dataBufPtr;
+}
+
+
+//--------------
+// Operations --
+//--------------
+template<class T>
+void DTDataBuffer<T>::insertCellData( const std::string& name,
+                                      int   wheelId,
+                                      int stationId,
+                                      int  sectorId,
+                                      int      slId,
+                                      int   layerId,
+                                      int    cellId,
+                                      const T& current,
+                                      const T& init ) {
+
+  T* data = openBuffer( "cell", name, init );
+  data[geometryGlobalId( wheelId,
+                       stationId,
+                        sectorId,
+                            slId,
+                         layerId,
+                          cellId )] = current;
+  return;
+
+}
+
+
+template<class T>
+void DTDataBuffer<T>::insertLayerData( const std::string& name,
+                                       int   wheelId,
+                                       int  sectorId,
+                                       int stationId,
+                                       int      slId,
+                                       int   layerId,
+                                       const T& current,
+                                       const T& init ) {
+
+  T* data = openBuffer( "layer", name, init );
+  data[geometryGlobalId( wheelId,
+                        sectorId,
+                       stationId,
+                            slId,
+                         layerId )] = current;
+  return;
+
+}
+
+
+template<class T>
+void DTDataBuffer<T>::insertSLData( const std::string& name,
+                                    int   wheelId,
+                                    int  sectorId,
+                                    int stationId,
+                                    int      slId,
+                                    const T& current,
+                                    const T& init ) {
+
+  T* data = openBuffer( "superlayer", name, init );
+  data[geometryGlobalId( wheelId,
+                        sectorId,
+                       stationId,
+                            slId )] = current;
+  return;
+
+}
+
+
+template<class T>
+void DTDataBuffer<T>::insertChamberData( const std::string& name,
+                                         int   wheelId,
+                                         int  sectorId,
+                                         int stationId,
+                                         const T& current,
+                                         const T& init ) {
+
+  T* data = openBuffer( "chamber", name, init );
+  data[geometryGlobalId( wheelId,
+                        sectorId,
+                       stationId )] = current;
+  return;
+
+}
+
+
+template<class T>
+void DTDataBuffer<T>::insertTDCChannelData( const std::string& name,
+                                            int        dduId,
+                                            int        rosId,
+                                            int        robId,
+                                            int        tdcId,
+                                            int tdcChannelId,
+                                            const T& current,
+                                            const T& init ) {
+
+  T* data = openBuffer( "tdc_channel", name, init );
+  data[readoutGlobalId( dduId,
+                        rosId,
+                        robId,
+                        tdcId,
+                 tdcChannelId )] = current;
+  return;
+
+}
+
+
+template<class T>
+const T& DTDataBuffer<T>::getCellData( const std::string& name,
+                                       int   wheelId,
+                                       int  sectorId,
+                                       int stationId,
+                                       int      slId,
+                                       int   layerId,
+                                       int    cellId ) {
+
+  const T* data = findBuffer( "cell", name );
+  if ( data == 0 ) return defaultObject;
+  return data[geometryGlobalId( wheelId,
+                               sectorId,
+                              stationId,
+                                   slId,
+                                layerId,
+                                 cellId )];
+
+}
+
+
+template<class T>
+const T& DTDataBuffer<T>::getLayerData( const std::string& name,
+                                        int   wheelId,
+                                        int  sectorId,
+                                        int stationId,
+                                        int      slId,
+                                        int   layerId ) {
+
+  const T* data = findBuffer( "layer", name );
+  if ( data == 0 ) return defaultObject;
+  return data[geometryGlobalId( wheelId,
+                               sectorId,
+                              stationId,
+                                   slId,
+                                layerId )];
+
+}
+
+
+template<class T>
+const T& DTDataBuffer<T>::getSLData( const std::string& name,
+                                     int   wheelId,
+                                     int  sectorId,
+                                     int stationId,
+                                     int      slId ) {
+
+  const T* data = findBuffer( "superlayer", name );
+  if ( data == 0 ) return defaultObject;
+  return data[geometryGlobalId( wheelId,
+                               sectorId,
+                              stationId,
+                                   slId )];
+
+}
+
+
+template<class T>
+const T& DTDataBuffer<T>::getChamberData( const std::string& name,
+                                          int   wheelId,
+                                          int  sectorId,
+                                          int stationId ) {
+
+  const T* data = findBuffer( "chamber", name );
+  if ( data == 0 ) return defaultObject;
+  return data[geometryGlobalId( wheelId,
+                               sectorId,
+                              stationId )];
+
+}
+
+
+template<class T>
+const T& DTDataBuffer<T>::getTDCChannelData( const std::string& name,
+                                             int        dduId,
+                                             int        rosId,
+                                             int        robId,
+                                             int        tdcId,
+                                             int tdcChannelId ) {
+
+  const T* data = findBuffer( "tdc_channel", name );
+  if ( data == 0 ) return defaultObject;
+  return data[readoutGlobalId( dduId,
+                               rosId,
+                               robId,
+                               tdcId,
+                        tdcChannelId )];
+
+}
+
+
+template<class T>
+T* DTDataBuffer<T>::openBuffer( const std::string& bType,
+                                const std::string& bName,
+                                const T& init ) {
+  buf_iter iter = dataBuffer.begin();
+  buf_iter iend = dataBuffer.end();
+  NamedBuffer* bufPtr = 0;
+  while ( iter != iend ) {
+    NamedBuffer* data = *iter++;
+    if ( data->type() != bType ) continue;
+    if ( data->name() != bName ) continue;
+    bufPtr = data;
+    break;
+  }
+
+  if ( bufPtr == 0 ) dataBuffer.push_back( bufPtr = 
+                                new NamedBuffer( bType, bName, init ) );
+  return bufPtr->data();
+
+}
+
+
+template<class T>
+const
+T* DTDataBuffer<T>::findBuffer( const std::string& bType,
+                                const std::string& bName ) {
+
+  const_iter iter = dataBuffer.begin();
+  const_iter iend = dataBuffer.end();
+  const NamedBuffer* bufPtr = 0;
+  while ( iter != iend ) {
+    const NamedBuffer* data = *iter++;
+    if ( data->type() != bType ) continue;
+    if ( data->name() != bName ) continue;
+    bufPtr = data;
+    break;
+  }
+
+  return bufPtr->data();
+
+}
+
+
+template<class T>
+int DTDataBuffer<T>::geometryGlobalId( int   wheelId,
+                                       int  sectorId,
+                                       int stationId,
+                                       int      slId,
+                                       int   layerId,
+                                       int    cellId ) {
+    wheelId -= nMinWheel;
+   sectorId -= nMinSector;
+  stationId -= nMinStation;
+       slId -= nMinSL;
+    layerId -= nMinLayer;
+     cellId -= nMinCell;
+  return ( ( ( ( ( ( ( ( ( wheelId   * nMaxSector  )
+                       +  sectorId ) * nMaxStation )
+                       + stationId ) * nMaxSL      )
+                       +      slId ) * nMaxLayer   )
+                       +   layerId ) * nMaxCell    )
+                       +    cellId;
+}
+
+
+template<class T>
+int DTDataBuffer<T>::geometryGlobalId( int   wheelId,
+                                       int  sectorId,
+                                       int stationId,
+                                       int      slId,
+                                       int   layerId ) {
+    wheelId -= nMinWheel;
+   sectorId -= nMinSector;
+  stationId -= nMinStation;
+       slId -= nMinSL;
+    layerId -= nMinLayer;
+  return ( ( ( ( ( ( ( wheelId   * nMaxSector  )
+                   +  sectorId ) * nMaxStation )
+                   + stationId ) * nMaxSL      )
+                   +      slId ) * nMaxLayer   )
+                   +   layerId;
+}
+
+
+
+template<class T>
+int DTDataBuffer<T>::geometryGlobalId( int   wheelId,
+                                       int  sectorId,
+                                       int stationId,
+                                       int      slId ) {
+    wheelId -= nMinWheel;
+   sectorId -= nMinSector;
+  stationId -= nMinStation;
+       slId -= nMinSL;
+  return ( ( ( ( ( wheelId   * nMaxSector  )
+               +  sectorId ) * nMaxStation )
+               + stationId ) * nMaxSL      )
+               +      slId;
+}
+
+
+template<class T>
+int DTDataBuffer<T>::geometryGlobalId( int   wheelId,
+                                       int  sectorId,
+                                       int stationId ) {
+    wheelId -= nMinWheel;
+   sectorId -= nMinSector;
+  stationId -= nMinStation;
+  return ( ( ( wheelId   * nMaxSector  )
+           +  sectorId ) * nMaxStation )
+           + stationId;
+}
+
+
+template<class T>
+int DTDataBuffer<T>::readoutGlobalId( int        dduId,
+                                      int        rosId,
+                                      int        robId,
+                                      int        tdcId,
+                                      int tdcChannelId ) {
+         dduId -= nMinWheel;
+         rosId -= nMinSector;
+         robId -= nMinStation;
+         tdcId -= nMinSL;
+  tdcChannelId -= nMinLayer;
+  return ( ( ( ( ( ( ( dduId   * nMaxROS        )
+              +        rosId ) * nMaxROB        )
+              +        robId ) * nMaxTDC        )
+              +        tdcId ) * nMaxTDCChannel )
+              + tdcChannelId;
+}
+
+
+template<class T>
+const std::string& DTDataBuffer<T>::NamedBuffer::type() const {
+  return bufferType;
+}
+
+
+template<class T>
+const std::string& DTDataBuffer<T>::NamedBuffer::name() const {
+  return bufferName;
+}
+
+
+template<class T>
+T* DTDataBuffer<T>::NamedBuffer::data() const {
+  return dataBufPtr;
+}
+
+
+int dtdbcheck() {
+  DTDataBuffer<int> iddb;
+  iddb.insertCellData( "check", 0, 0, 0, 0, 0, 0, 1, -1 );
+  int j = iddb.getCellData( "check", 0, 0, 0, 0, 0, 0 );
+  return j;
+}

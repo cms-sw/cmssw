@@ -1,0 +1,8 @@
+<lcgdict>
+  <class name="DTReadOutMapping" id="6E1247AF-2A00-DA11-96EE-000E0C4DE431"/>
+  <class name="DTReadOutGeometryLink" id="C428DA7A-EE34-DA11-89FB-000E0C5CE283"/>
+  <class name="std::vector<DTReadOutGeometryLink>"/>
+  <class name="std::basic_string<char>"/>
+  <class pattern="*iterator*"/>
+</lcgdict>
+
