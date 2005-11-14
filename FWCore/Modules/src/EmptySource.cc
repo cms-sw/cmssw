@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EmptySource.cc,v 1.1 2005/10/15 02:06:56 wmtan Exp $
+$Id: EmptySource.cc,v 1.1 2005/10/17 19:22:41 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <stdexcept>
@@ -23,7 +23,7 @@ namespace edm {
   EmptySource::EmptySource(ParameterSet const& pset,
 				       InputSourceDescription const& desc) :
     RandomAccessInputSource(desc),
-    remainingEvents_(pset.getUntrackedParameter<int>("maxEvents", -1)),
+    remainingEvents_(pset.getUntrackedParameter<int>("maxEvents", 0)),
     numberEventsInRun_(pset.getUntrackedParameter<unsigned int>("numberEventsInRun", remainingEvents_)),
     presentRun_(pset.getUntrackedParameter<unsigned int>("firstRun",1)),
     nextTime_(pset.getUntrackedParameter<unsigned int>("firstTime",1)),  //time in ns
@@ -39,7 +39,7 @@ namespace edm {
   EmptySource::read() {
     std::auto_ptr<EventPrincipal> result(0);
     
-    if (remainingEvents_-- != 0) {
+    if (remainingEvents_-- > 0) {
       result = std::auto_ptr<EventPrincipal>(new EventPrincipal(nextID_, Timestamp(nextTime_), *preg_));
       if(++numberEventsInThisRun_ < numberEventsInRun_) {
         nextID_ = nextID_.next();
