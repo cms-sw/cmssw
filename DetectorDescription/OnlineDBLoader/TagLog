@@ -1,3 +1,7 @@
+** V00-00-01  [Mon Nov 14 18:22:06 2005]
+Changed some common files between DGD loading and EMDB loading.
+Put a README.EMDB to describe how I did the loading to EMDB.
+
 ** V00-00-00  [Wed Oct 26 18:08:17 2005]
 Base tag on CMSSW_0_2_0_pre5
 
