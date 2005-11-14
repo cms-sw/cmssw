@@ -24,7 +24,7 @@ namespace HcalUnpacker_impl {
 
       dccHeader->getSpigotData(spigot,htr);
       // check
-      if (!htr.check()) {
+      if (!htr.check() || htr.isHistogramEvent()) {
 	// TODO: log error!
 	continue;
       }
@@ -126,3 +126,54 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalMapping& emap, std::v
 void HcalUnpacker::unpack(const FEDRawData& raw, const HcalMapping& emap, std::vector<HFDataFrame>& container, std::vector<HcalTriggerPrimitiveDigi>& tp) {
   HcalUnpacker_impl::unpack<HFDataFrame>(raw,emap,container,tp,startSample_,endSample_, sourceIdOffset_, HcalForward, HcalForward);
 }
+
+void HcalUnpacker::unpack(const FEDRawData& raw, const HcalMapping& emap, std::vector<HcalHistogramDigi>& histoDigis) {
+
+  // get the DCC header
+  const HcalDCCHeader* dccHeader=(const HcalDCCHeader*)(raw.data());
+  int dccid=dccHeader->getSourceId()-sourceIdOffset_;
+  
+  // check the summary status
+  
+  // walk through the HTR data...
+  HcalHTRData htr;
+  for (int spigot=0; spigot<HcalDCCHeader::SPIGOT_COUNT; spigot++) {
+    if (!dccHeader->getSpigotPresent(spigot)) continue;
+    
+    dccHeader->getSpigotData(spigot,htr);
+    // check
+    if (!htr.check()) {
+      // TODO: log error!
+      std::cout << "What is up here!" << std::endl;
+      continue;
+    }
+    if (!htr.isHistogramEvent()) {
+      std::cout << "Must be histogram data!" << std::endl;
+      continue;
+    }
+    
+    // find out the fibers
+    int f[2],fc;
+    htr.getHistogramFibers(f[0],f[1]);
+
+    for (int nf=0; nf<2; nf++) {
+      if (f[nf]<0 || nf==1 && f[0]==f[1]) continue; // skip if invalid or the same
+      for (fc=0; fc<=2; fc++) {
+	HcalElectronicsId eid(fc,f[nf],spigot,dccid);	  
+	HcalDetId id=emap.lookup(eid);
+
+	if (id.null()) {
+	  continue;
+	}
+	histoDigis.push_back(HcalHistogramDigi(id)); // add it!
+	HcalHistogramDigi& digi=histoDigis.back();
+	
+	// unpack the four capids
+	for (int capid=0; capid<4; capid++) 
+	  htr.unpackHistogram(f[nf],fc,capid,digi.getArray(capid));
+	
+      }
+    }
+  }
+}      
+
