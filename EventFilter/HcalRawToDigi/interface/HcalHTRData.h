@@ -8,7 +8,7 @@
  *  Since this class requires external specification of the length of the data, it is implemented 
  *  as an interpreter, rather than a cast-able header class.
  *
- *  $Date: 2005/06/06 19:29:31 $
+ *  $Date: 2005/07/26 15:10:51 $
  *  $Revision: 1.1 $
  *  \author J. Mans - UMD
  */
@@ -62,11 +62,12 @@ class HcalHTRData {
 	      unsigned char* tp_lengths, unsigned short* tp_samples) const;
 
   /** \brief Unpack special histogramming mode data
-      \param channel id to extract histogram for (may not be present, check return code)
+      \param fiber 
+      \param fiberchan
       \param capid Capacitor id for which to extract a histogram 
       \param histogram unsigned int[32] into which the data should be deposited
   */
-  bool unpackHistogram(int channel, int capid, unsigned int* histogram) const;
+  bool unpackHistogram(int fiber, int fiberchan, int capid, unsigned short* histogram) const;
 
   /** \brief Unpack the HTR data into TP and DAQ data sorted by channel 
       \param daq_lengths unsigned char[24] of lengths
