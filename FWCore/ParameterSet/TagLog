@@ -1,3 +1,6 @@
+** V00-02-01  [Mon Nov 14 22:12:46 2005]
+Fix bug in FilePath::read()
+
 ** V00-02-00  [Tue Nov  8 18:15:08 2005]
 Add support for FileInPath parameter type
 
