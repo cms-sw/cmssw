@@ -3,8 +3,8 @@
 <use name=DetectorDescription/PersistentDDDObjects>
 <use name=DetectorDescription/DBReader>
 <use name=CondCore/MetaDataService>
-<use name=pool>
-<use name=seal>
+
+
 <use name=DataSvc>
 <use name=RelationalAccess>
 <use name=Foundation/SealUtil>
@@ -16,8 +16,8 @@
  <use name=DetectorDescription/PersistentDDDObjects>
  <use name=DetectorDescription/DBReader>
  <use name=CondCore/MetaDataService>
- <use name=pool>
- <use name=seal>
+ 
+ 
  <use name=DataSvc>
  <use name=RelationalAccess>
  <use name=Foundation/SealUtil>
