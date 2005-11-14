@@ -5,18 +5,22 @@
    <class name="HFDataFrame"/>
    <class name="HcalTriggerPrimitiveSample"/>
    <class name="HcalTriggerPrimitiveDigi"/>
+   <class name="HcalHistogramDigi"/>
    <class name="std::vector<HcalQIESample>"/>
    <class name="std::vector<HcalTriggerPrimitiveSample>"/>
    <class name="std::vector<HBHEDataFrame>"/>
    <class name="std::vector<HODataFrame>"/>
    <class name="std::vector<HFDataFrame>"/>
    <class name="std::vector<HcalTriggerPrimitiveDigi>"/>
+   <class name="std::vector<HcalHistogramDigi>"/>
    <class name="edm::SortedCollection<HBHEDataFrame,edm::StrictWeakOrdering<HBHEDataFrame> >"/>
    <class name="edm::SortedCollection<HODataFrame,edm::StrictWeakOrdering<HODataFrame> >"/>
    <class name="edm::SortedCollection<HFDataFrame,edm::StrictWeakOrdering<HFDataFrame> >"/>
    <class name="edm::SortedCollection<HcalTriggerPrimitiveDigi,edm::StrictWeakOrdering<HcalTriggerPrimitiveDigi> >"/>
+   <class name="edm::SortedCollection<HcalHistogramDigi,edm::StrictWeakOrdering<HcalHistogramDigi> >"/>
    <class name="edm::Wrapper<edm::SortedCollection<HBHEDataFrame,edm::StrictWeakOrdering<HBHEDataFrame> > >" id="02547F61-D115-DB9D-08CF-D8C9C1B5BBE3"/>
    <class name="edm::Wrapper<edm::SortedCollection<HODataFrame,edm::StrictWeakOrdering<HODataFrame> > >" id="580E7EF3-AFFA-8254-EB18-AD160AB1894B"/>
    <class name="edm::Wrapper<edm::SortedCollection<HFDataFrame,edm::StrictWeakOrdering<HFDataFrame> > >" id="8163A4BD-37F1-5506-9BE8-BEA1F1208557"/>
    <class name="edm::Wrapper<edm::SortedCollection<HcalTriggerPrimitiveDigi,edm::StrictWeakOrdering<HcalTriggerPrimitiveDigi> > >" id="03698ADD-E2CC-64FE-25AF-6D451CD91C3A"/>
+   <class name="edm::Wrapper<edm::SortedCollection<HcalHistogramDigi,edm::StrictWeakOrdering<HcalHistogramDigi> > >" id="C9AC9D40-EC79-354F-2CBE-7853732AA0A0"/>
 </lcgdict>

@@ -4,6 +4,7 @@
 #include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
 #include "DataFormats/HcalDigi/interface/HFDataFrame.h"
 #include "DataFormats/HcalDigi/interface/HODataFrame.h"
+#include "DataFormats/HcalDigi/interface/HcalHistogramDigi.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "FWCore/EDProduct/interface/Wrapper.h"
 
@@ -16,21 +17,25 @@ namespace {
     edm::SortedCollection<HODataFrame> vHO_;
     edm::SortedCollection<HFDataFrame> vHF_;
     edm::SortedCollection<HcalTriggerPrimitiveDigi> vHTP_;
-    
+    edm::SortedCollection<HcalHistogramDigi> vHH_;
+
     HBHEDigiCollection theHBHE_;
     HODigiCollection theHO_;
     HFDigiCollection theHF_;
     HcalTrigPrimDigiCollection theHTP_;
+    HcalHistogramDigiCollection theHH_;
 
     edm::Wrapper<edm::SortedCollection<HBHEDataFrame> > anotherHBHE_;
     edm::Wrapper<edm::SortedCollection<HODataFrame> > anotherHO_;
     edm::Wrapper<edm::SortedCollection<HFDataFrame> > anotherHF_;
     edm::Wrapper<edm::SortedCollection<HcalTriggerPrimitiveDigi> > anotherHTP_;
+    edm::Wrapper<edm::SortedCollection<HcalHistogramDigi> > anotherHH_;
 
     edm::Wrapper<HBHEDigiCollection> theHBHEw_;
     edm::Wrapper<HODigiCollection> theHOw_;
     edm::Wrapper<HFDigiCollection> theHFw_;
     edm::Wrapper<HcalTrigPrimDigiCollection> theHTPw_; 
+    edm::Wrapper<HcalHistogramDigiCollection> theHHw_; 
  }
 }
 
