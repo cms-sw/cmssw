@@ -3,8 +3,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2005/10/26 08:02:54 $
- * $Revision: 1.19 $
+ * $Date: 2005/11/13 17:20:53 $
+ * $Revision: 1.1 $
  * \author W Fisher
  *
 */
@@ -39,8 +39,8 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   m_digiMon = new HcalDigiMonitor();
   m_digiMon->setup(ps, m_dbe);
 
-  m_dccMon = new HcalDCCMonitor();
-  m_dccMon->setup(ps, m_dbe);
+  m_dfMon = new HcalDataFormatMonitor();
+  m_dfMon->setup(ps, m_dbe);
 
   if ( m_dbe ) m_dbe->showDirStructure();
   
@@ -48,7 +48,7 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
 
 HcalMonitorModule::~HcalMonitorModule(){
   delete m_digiMon;
-  delete m_dccMon;
+  delete m_dfMon;
   m_logFile.close();
 }
 
@@ -60,9 +60,8 @@ void HcalMonitorModule::beginJob(const edm::EventSetup& c){
 void HcalMonitorModule::endJob(void) {
 
   cout << "HcalMonitorModule: analyzed " << m_ievt << " events" << endl;
-  m_digiMon->done(0);
-  m_dccMon->done(0);
-
+  m_digiMon->done();
+  m_dfMon->done();
   if ( m_meStatus ) m_meStatus->Fill(2);
   if ( m_outputFile.size() != 0  && m_dbe ) m_dbe->save(m_outputFile);
 
@@ -77,17 +76,17 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& c){
   if ( m_meRun ) m_meRun->Fill(14316);
   if ( m_meEvt ) m_meEvt->Fill(m_ievt,m_ievt);
 
-  std::vector<edm::Handle<HBHEDigiCollection> > hbhe;
-  std::vector<edm::Handle<HODigiCollection> > ho;
-  std::vector<edm::Handle<HFDigiCollection> > hf;
-  e.getManyByType(hbhe);
-  e.getManyByType(hf);
-  e.getManyByType(ho);
-  m_digiMon->processEvent(hbhe, ho, hf);
+  edm::Handle<HBHEDigiCollection> hbhe;
+  edm::Handle<HODigiCollection> ho;
+  edm::Handle<HFDigiCollection> hf;
+  e.getByType(hbhe);
+  e.getByType(hf);
+  e.getByType(ho);
+  m_digiMon->processEvent(*hbhe, *ho, *hf);
 
   edm::Handle<FEDRawDataCollection> rawraw;  
-  e.getByType(rawraw);           // HACK!
-  m_dccMon->processEvent(rawraw);
+  e.getByType(rawraw);           
+  m_dfMon->processEvent(*rawraw);
 
   sleep(5);
   return;

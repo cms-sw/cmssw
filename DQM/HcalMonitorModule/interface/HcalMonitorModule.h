@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.h
  *
- * $Date: 2005/10/16 12:35:44 $
- * $Revision: 1.10 $
+ * $Date: 2005/11/13 17:20:53 $
+ * $Revision: 1.1 $
  * \author W. Fisher
  *
 */
@@ -19,7 +19,7 @@
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include <DQM/HcalMonitorTasks/interface/HcalDigiMonitor.h>
-#include <DQM/HcalMonitorTasks/interface/HcalDCCMonitor.h>
+#include <DQM/HcalMonitorTasks/interface/HcalDataFormatMonitor.h>
 
 
 #include <memory>
@@ -61,7 +61,7 @@ MonitorElement* m_meRun;
 MonitorElement* m_meEvt;
 
 HcalDigiMonitor*  m_digiMon;
-HcalDCCMonitor*  m_dccMon;
+HcalDataFormatMonitor*  m_dfMon;
 
 string m_outputFile;
 ofstream m_logFile;
