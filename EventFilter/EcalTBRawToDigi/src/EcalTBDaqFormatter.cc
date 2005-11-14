@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2005/10/12 09:04:26 $
- *  $Revision: 1.6 $
+ *  $Date: 2005/10/18 09:06:15 $
+ *  $Revision: 1.7 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -49,35 +49,36 @@ EcalTBDaqFormatter::EcalTBDaqFormatter (DaqMonitorBEInterface *dbe) {
 
   // checking when gain=0
   if ( dbe ) {
-    dbe->setCurrentFolder("EcalIntegrity");
-    dbe->setCurrentFolder("EcalIntegrity/Gain");
+    dbe->setCurrentFolder("EcalBarrel");
+    dbe->setCurrentFolder("EcalBarrel/EcalIntegrity");
+    dbe->setCurrentFolder("EcalBarrel/EcalIntegrity/Gain");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EI gain SM%02d", i+1);
       meIntegrityGain[i] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
     } 
     
     // checking when channel has unexpected or invalid ID
-    dbe->setCurrentFolder("EcalIntegrity/ChId");
+    dbe->setCurrentFolder("EcalBarrel/EcalIntegrity/ChId");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EI ChId SM%02d", i+1);
       meIntegrityChId[i] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
     } 
 
     // checking when trigger tower has unexpected or invalid ID
-    dbe->setCurrentFolder("EcalIntegrity/TTId");
+    dbe->setCurrentFolder("EcalBarrel/EcalIntegrity/TTId");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EI TTId SM%02d", i+1);
       meIntegrityTTId[i] = dbe->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
     }
 
-    dbe->setCurrentFolder("EcalIntegrity/TTBlockSize");
+    dbe->setCurrentFolder("EcalBarrel/EcalIntegrity/TTBlockSize");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EI TTBlockSize SM%02d", i+1);
       meIntegrityTTBlockSize[i] = dbe->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
     } 
 
     // checking when number of towers in data different than expected from header
-    dbe->setCurrentFolder("EcalIntegrity");
+    dbe->setCurrentFolder("EcalBarrel/EcalIntegrity");
     sprintf(histo, "DCC size error");
     meIntegrityDCCSize = dbe->book1D(histo, histo, 36, 1, 37.);
 
