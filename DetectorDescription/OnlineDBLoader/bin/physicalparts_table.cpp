@@ -3,6 +3,7 @@ using namespace std;
 #include <sstream>
 #include <fstream>
 #include "DetectorDescription/Parser/interface/DDLParser.h"
+#include "DetectorDescription/Parser/interface/DDLConfiguration.h"
 #include "DetectorDescription/Core/src/DDCheck.h"
 #include "DetectorDescription/Core/interface/DDRoot.h"
 #include "DetectorDescription/Base/interface/DDException.h"
@@ -40,10 +41,12 @@ try { // DDD Prototype can throw DDException defined in DetectorDescription/Core
      files and mention them at end of configuration.xml. Functional SW 
     will not suffer from this restriction).
   */  
-  myP->SetConfig("configuration.xml");
+  //  myP->SetConfig("configuration.xml");
+  DDLConfiguration cf;
+  cf.readConfig("configuration.xml");
 
   cout << "about to start parsing" << endl;
-  int parserResult = myP->StartParsing();
+  int parserResult = myP->parse(cf);
   if (parserResult != 0) {
     cout << " problem encountered during parsing. exiting ... " << endl;
     exit(1);
