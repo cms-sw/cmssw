@@ -98,18 +98,14 @@ void RunManager::initG4(const edm::EventSetup & es)
     worldObserver = new DDDWorldObserver<DDDWorld >(); 
     worldDispatcher = new Dispatcher<DDDWorld >(world);
     m_attach = new AttachSD;
-    std::vector<SensitiveDetector*> sensDets = m_attach->create(*world,(*pDD),m_p);
-    m_sensTkDets.clear();
-    m_sensCaloDets.clear();
-
-    for (std::vector<SensitiveDetector*>::iterator it = sensDets.begin();
-	 it != sensDets.end(); it++)
     {
-	if (dynamic_cast<SensitiveTkDetector*>(*it))
-	    m_sensTkDets.push_back(dynamic_cast<SensitiveTkDetector*>(*it));
-	if (dynamic_cast<SensitiveCaloDetector*>(*it))
-	    m_sensCaloDets.push_back(dynamic_cast<SensitiveCaloDetector*>(*it));
+      std::pair< std::vector<SensitiveTkDetector*>,
+	std::vector<SensitiveCaloDetector*> > sensDets = m_attach->create(*world,(*pDD),m_p,m_registry);
+      
+      m_sensTkDets.swap(sensDets.first);
+      m_sensCaloDets.swap(sensDets.second);
     }
+
     std::cout << " Sensitive Detector building finished; found " << m_sensTkDets.size()
 	      << " Tk type Producers, and " << m_sensCaloDets.size() 
 	      << " Calo type producers " << std::endl;
@@ -198,6 +194,8 @@ void RunManager::initializeUserActions()
     if (m_generator!=0)
     {
         EventAction * userEventAction = new EventAction(m_pEventAction);
+	userEventAction->m_beginOfEventSignal.connect(m_registry.beginOfEventSignal_);
+	userEventAction->m_endOfEventSignal.connect(m_registry.endOfEventSignal_);
         eventManager->SetUserAction(userEventAction);
         eventManager->SetUserAction(new TrackingAction(userEventAction,m_pTrackingAction));
         eventManager->SetUserAction(new SteppingAction(m_pSteppingAction));
