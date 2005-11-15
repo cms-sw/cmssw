@@ -13,6 +13,7 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbServiceHardcode.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalNoisifier.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalTriggerPrimitiveAlgo.h"
 #include "CalibFormats/HcalObjects/interface/HcalNominalCoder.h"
 
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalDigitizerTraits.h"
@@ -36,10 +37,10 @@ int main() {
   PCaloHit outerHit(outerDetId.rawId(), 0.45, 0.);
 
   HcalDetId forwardDetId1(HcalForward, 30, 1, 1);
-  PCaloHit forwardHit1(forwardDetId1.rawId(), 35., 0.);
+  PCaloHit forwardHit1(forwardDetId1.rawId(), 35.2, 0.);
 
   HcalDetId forwardDetId2(HcalForward, 30, 1, 2);
-  PCaloHit forwardHit2(forwardDetId2.rawId(), 48., 0.);
+  PCaloHit forwardHit2(forwardDetId2.rawId(), 47.8, 0.);
 
   vector<DetId> hcalDetIds, hoDetIds, hfDetIds;
   hcalDetIds.push_back(barrelDetId);
@@ -94,11 +95,19 @@ int main() {
   cout << "HF Frames" << endl;
   copy(hfResult->begin(), hfResult->end(), std::ostream_iterator<HFDataFrame>(std::cout, "\n"));
 
+/*
   cout << "SHAPES" << endl;
-  for(unsigned i = 0; i < 25; ++i) {
+  for(unsigned i = 0; i < 75; ++i) {
      cout << i << " " << hcalShape(i) << " " << hfShape(i) << " " << hcalShapeIntegrator(i) << " " << hfShapeIntegrator(i) << endl;
   }
 
+*/
+
+  HcalTrigPrimRecHitCollection trigPrims;
+  HcalTriggerPrimitiveAlgo triggerPrimitiveAlgo;
+  triggerPrimitiveAlgo.run(*hbheResult, *hfResult, trigPrims);
+
+  copy(trigPrims.begin(), trigPrims.end(),  std::ostream_iterator<HcalTriggerPrimitiveRecHit>(std::cout, "\n"));
 return 0;
 }
 
