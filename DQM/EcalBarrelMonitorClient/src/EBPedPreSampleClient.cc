@@ -1,8 +1,8 @@
 /*
  * \file EBPedPreSampleClient.cc
  * 
- * $Date: 2005/11/15 15:52:03 $
- * $Revision: 1.14 $
+ * $Date: 2005/11/15 20:11:34 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  *
 */
@@ -12,6 +12,14 @@
 EBPedPreSampleClient::EBPedPreSampleClient(const edm::ParameterSet& ps, MonitorUserInterface* mui){
 
   mui_ = mui;
+
+  Char_t histo[50];
+
+  for ( int i = 0; i < 36; i++ ) {
+
+    h01[i] = 0;
+
+  }
 
 }
 
@@ -37,9 +45,9 @@ void EBPedPreSampleClient::beginRun(const edm::EventSetup& c){
 
   this->subscribe();
 
-  for ( int ism = 1; ism <= 36; ism++ ) {
+  for ( int i = 0; i < 36; i++ ) {
 
-    h01[ism-1] = 0;
+    if ( h01[i] ) delete h01[i];
 
   }
 
@@ -171,13 +179,14 @@ void EBPedPreSampleClient::analyze(const edm::Event& e, const edm::EventSetup& c
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
+    if ( h01[ism-1] ) delete h01[ism-1];
     h01[ism-1] = 0;
     sprintf(histo, "Collector/FU0/EcalBarrel/EBPedPreSampleTask/Gain01/EBPT pedestal PreSample SM%02d G01", ism);
     me = mui_->get(histo);
     if ( me ) {
       cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-      if ( ob ) h01[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+      if ( ob ) h01[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone());
     }
 
   }

@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  * 
- * $Date: 2005/11/15 15:52:03 $
- * $Revision: 1.10 $
+ * $Date: 2005/11/15 20:11:34 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  *
 */
@@ -16,6 +16,9 @@ EBTestPulseClient::EBTestPulseClient(const edm::ParameterSet& ps, MonitorUserInt
   Char_t histo[50];
 
   for ( int i = 0; i < 36; i++ ) {
+
+    h01[i] = 0;
+    h02[i] = 0;
 
   }
 
@@ -43,9 +46,11 @@ void EBTestPulseClient::beginRun(const edm::EventSetup& c){
 
   this->subscribe();
 
-  for ( int ism = 1; ism <= 36; ism++ ) {
-    h01[ism-1] = 0;
-    h02[ism-1] = 0;
+  for ( int i = 0; i < 36; i++ ) {
+
+    if ( h01[i] ) delete h01[i];
+    if ( h02[i] ) delete h02[i];
+
   }
 
 }
@@ -205,22 +210,24 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
+    if ( h01[ism-1] ) delete h01[ism-1];
     h01[ism-1] = 0;
     sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain01/EBTT amplitude SM%02d G01", ism);
     me = mui_->get(histo);
     if ( me ) {
       cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-      if ( ob ) h01[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+      if ( ob ) h01[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone());
     }
 
+    if ( h02[ism-1] ) delete h02[ism-1];
     h02[ism-1] = 0;
     sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain01/EBTT shape SM%02d G01", ism);
     me = mui_->get(histo);
     if ( me ) {
       cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-      if ( ob ) h02[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+      if ( ob ) h02[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone());
     }
 
   }

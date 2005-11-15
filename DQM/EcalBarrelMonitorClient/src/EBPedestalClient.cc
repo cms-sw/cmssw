@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  * 
- * $Date: 2005/11/15 15:52:03 $
- * $Revision: 1.13 $
+ * $Date: 2005/11/15 20:11:34 $
+ * $Revision: 1.14 $
  * \author G. Della Ricca
  *
 */
@@ -16,6 +16,10 @@ EBPedestalClient::EBPedestalClient(const edm::ParameterSet& ps, MonitorUserInter
   Char_t histo[50];
 
   for ( int i = 0; i < 36; i++ ) {
+
+    h01[i] = 0;
+    h02[i] = 0;
+    h03[i] = 0;
 
     sprintf(histo, "EBPT pedestal quality G01 SM%02d", i+1);
     g01[i] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
@@ -59,6 +63,10 @@ EBPedestalClient::~EBPedestalClient(){
   this->unsubscribe();
 
   for ( int i=0 ; i<36 ; i++ ) {
+
+    if ( h01[i] ) delete h01[i];
+    if ( h02[i] ) delete h02[i];
+    if ( h03[i] ) delete h03[i];
 
     delete g01[i];
     delete g02[i];
@@ -325,31 +333,34 @@ void EBPedestalClient::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
+    if ( h01[ism-1] ) delete h01[ism-1];
     h01[ism-1] = 0;
     sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal SM%02d G01", ism);
     me = mui_->get(histo);
     if ( me ) {
       cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-      if ( ob ) h01[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+      if ( ob ) h01[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone());
     }
 
+    if ( h02[ism-1] ) delete h02[ism-1];
     h02[ism-1] = 0;
     sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM%02d G06", ism);
     me = mui_->get(histo);
     if ( me ) {
       cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-      if ( ob ) h02[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+      if ( ob ) h02[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone());
     }
 
+    if ( h03[ism-1] ) delete h03[ism-1];
     h03[ism-1] = 0;
     sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM%02d G12", ism);
     me = mui_->get(histo);
     if ( me ) {
       cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-      if ( ob ) h03[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+      if ( ob ) h03[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone());
     }
 
   }

@@ -4,8 +4,8 @@
 /*
  * \file EBPedestalClient.h
  *
- * $Date: 2005/11/14 14:40:40 $
- * $Revision: 1.6 $
+ * $Date: 2005/11/15 15:52:03 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  *
 */
@@ -105,8 +105,6 @@ TH1F* r02[36];
 TH1F* r03[36];
 
 // Quality check on crystals, one per each gain
-
-bool isOk_;
 
 float expectedMean_[3];
 float discrepancyMean_[3];

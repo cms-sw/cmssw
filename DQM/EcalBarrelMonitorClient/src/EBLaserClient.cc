@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  * 
- * $Date: 2005/11/15 15:52:03 $
- * $Revision: 1.12 $
+ * $Date: 2005/11/15 20:11:34 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  *
 */
@@ -16,6 +16,11 @@ EBLaserClient::EBLaserClient(const edm::ParameterSet& ps, MonitorUserInterface* 
   Char_t histo[50];
 
   for ( int i = 0; i < 36; i++ ) {
+
+    h01[i] = 0;
+    h02[i] = 0;
+    h03[i] = 0;
+    h04[i] = 0;
 
   }
 
@@ -43,12 +48,12 @@ void EBLaserClient::beginRun(const edm::EventSetup& c){
 
   this->subscribe();
 
-  for ( int ism = 1; ism <= 36; ism++ ) {
+  for ( int i = 0; i < 36; i++ ) {
 
-    h01[ism-1] = 0;
-    h02[ism-1] = 0;
-    h03[ism-1] = 0;
-    h04[ism-1] = 0;
+    if ( h01[i] ) delete h01[i];
+    if ( h02[i] ) delete h02[i];
+    if ( h03[i] ) delete h03[i];
+    if ( h04[i] ) delete h04[i];
 
   }
 
@@ -235,40 +240,44 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
+    if ( h01[ism-1] ) delete h01[ism-1];
     h01[ism-1] = 0;
     sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude SM%02d L1", ism);
     me = mui_->get(histo);
     if ( me ) {
       cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-      if ( ob ) h01[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+      if ( ob ) h01[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone());
     }
 
+    if ( h02[ism-1] ) delete h02[ism-1];
     h02[ism-1] = 0;
     sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude over PN SM%02d L1", ism);
     me = mui_->get(histo);
     if ( me ) {
       cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-      if ( ob ) h02[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+      if ( ob ) h02[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone());
     }
 
+    if ( h03[ism-1] ) delete h03[ism-1];
     h03[ism-1] = 0;
     sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude SM%02d L2", ism);
     me = mui_->get(histo);
     if ( me ) {
       cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-      if ( ob ) h03[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+      if ( ob ) h03[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone());
     }
 
+    if ( h04[ism-1] ) delete h04[ism-1];
     h04[ism-1] = 0;
     sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude over PN SM%02d L2", ism);
     me = mui_->get(histo);
     if ( me ) {
       cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-      if ( ob ) h04[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+      if ( ob ) h04[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone());
     }
 
   }
