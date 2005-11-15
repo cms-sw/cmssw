@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: FileInPath.cc,v 1.4 2005/11/10 23:44:22 paterno Exp $
+// $Id: FileInPath.cc,v 1.5 2005/11/14 17:37:51 paterno Exp $
 //
 // ----------------------------------------------------------------------
 
@@ -7,7 +7,7 @@
 // handling of environment variables. We can do better with
 // translating them only once --- after we have settled down on how
 // long the search path is allowed to be, and whether are only choice
-// for the "official" directory is CMSDATA.
+// for the "official" directory is CMSSW_DATA_PATH.
 
 #include <algorithm>
 #include <cstdlib>
@@ -30,8 +30,8 @@ namespace
   /// the behavior  of the FileInPath  class.  They are local to  this
   /// class; other code should not even know about them!
 
-  const std::string PathVariableName("CMS_SEARCH_PATH");
-  const std::string DataVariableName("CMSDATA");
+  const std::string PathVariableName("CMSSW_SEARCH_PATH");
+  const std::string DataVariableName("CMSSW_DATA_PATH");
   const std::string ScramVariableName("SCRAMRT_LOCALRT");
 
 
@@ -42,7 +42,19 @@ namespace
 		 std::string& result)
   {
     const char* val = getenv(name.c_str());
-    if (val == 0) return false;
+    if (val == 0)
+      {
+	// Temporary hackery to allow use of old names during
+	// transition period.
+	//
+	// TODO: Remove these two "if" tests, leaving only the return
+	// false, before the CMSSW_0_3_0 release
+	if ( name == "CMSSW_DATA_PATH" ) 
+	  return envstring("CMSDATA", result);
+	if ( name == "CMSSW_SEARCH_PATH" ) 
+	  return envstring("CMS_SEARCH_PATH", result);
+	return false;
+      }
     result = val;
     return true;
   }
