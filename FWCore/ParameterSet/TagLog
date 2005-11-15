@@ -1,3 +1,6 @@
+** V00-02-02  [Tue Nov 15 16:11:28 2005]
+Name changes to FileInPath environment variables
+
 ** V00-02-01  [Mon Nov 14 22:12:46 2005]
 Fix bug in FilePath::read()
 
