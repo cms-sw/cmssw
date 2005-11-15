@@ -1,0 +1,19 @@
+<flags SEAL_PLUGIN_NAME="DQMDTMonitorModule">
+<use name=FWCore/Framework>
+<use name=DQMServices/CoreROOT>
+<use name=DataFormats/FEDRawData>
+<use name=DataFormats/DTDigi>
+<use name=DQM/DTMonitorTasks>
+<use name=boost>
+<use name=root>
+
+<export>
+ <lib name=DQMDTMonitorModule>
+ <use name=FWCore/Framework>
+ <use name=DQMServices/CoreROOT>
+ <use name=DataFormats/FEDRawData>
+ <use name=DataFormats/DTDigi>
+ <use name=DQM/DTMonitorTasks>
+ <use name=boost>
+ <use name=root>
+</export>
