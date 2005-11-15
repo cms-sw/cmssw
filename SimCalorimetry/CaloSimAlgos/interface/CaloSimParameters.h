@@ -45,6 +45,12 @@ namespace cms {
     /// the adjustment you need to apply to get the signal where you want it
     double timePhase() const {return timePhase_;}
 
+    /// the factor that goes from linearized ADC counts to energy
+    /// (GeV/dGeV) / (pe/dGeV) / (signal/pe)
+    double calibrationConstant() const {
+      return samplingFactor_ / simHitToPhotoelectrons_ / photoelectronsToAnalog_;
+    }
+
     /// for now, the LinearFrames and trhe digis will be one-to-one.
     int readoutFrameSize() const {return readoutFrameSize_;}
 
