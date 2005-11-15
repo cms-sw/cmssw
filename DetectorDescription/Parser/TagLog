@@ -1,3 +1,6 @@
+** V01-00-01  [Tue Nov 15 18:24:25 2005]
+Removed DDLDocumentProvider.cc
+
 ** V01-00-00  [Mon Nov 14 18:42:15 2005]
 CRITICAL CHANGES:
 XML can NOT be validated with this software at this time.  It is 
