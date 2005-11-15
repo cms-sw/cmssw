@@ -5,16 +5,20 @@
 #include "SimG4Core/Geometry/interface/DDDWorld.h"
 #include <vector>
 
-class SensitiveDetector;
+class SensitiveTkDetector;
+class SensitiveCaloDetector;
+class SimActivityRegistry;
 
 class AttachSD
 {
 public:
     AttachSD();
     ~AttachSD();
-    std::vector<SensitiveDetector*> create(const DDDWorld & w, 
-					   const DDCompactView & cpv,
-					   edm::ParameterSet const & p) const;
+    std::pair< std::vector<SensitiveTkDetector*>,
+      std::vector<SensitiveCaloDetector*> > create(const DDDWorld & w, 
+						   const DDCompactView & cpv,
+						   edm::ParameterSet const & p,
+						   SimActivityRegistry& reg ) const;
 };
 
 #endif
