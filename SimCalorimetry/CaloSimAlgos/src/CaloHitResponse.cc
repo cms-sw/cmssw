@@ -4,12 +4,17 @@ using namespace std;
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVSimParameterMap.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloSimParameters.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVShape.h"
+#include "SimCalorimetry/CaloSimAlgos/interface/CaloVHitCorrection.h"
 #include<iostream>
 
 using namespace cms;
 
 CaloHitResponse::CaloHitResponse(CaloVSimParameterMap * parametersMap, CaloVShape * shape)
-: theParameterMap(parametersMap), theShape(shape), theMinBunch(-10), theMaxBunch(10)
+: theParameterMap(parametersMap), 
+  theShape(shape),  
+  theHitCorrection(0),
+  theMinBunch(-10), 
+  theMaxBunch(10)
 {
 }
 
@@ -21,7 +26,6 @@ void CaloHitResponse::setBunchRange(int minBunch, int maxBunch) {
 
 
 void CaloHitResponse::run(const vector<PCaloHit> & hits) {
-std::cout << "CALOHIT size " << hits.size() << std::endl;
   for(vector<PCaloHit>::const_iterator hitItr = hits.begin();
       hitItr != hits.end(); ++hitItr)
   {
@@ -44,9 +48,17 @@ std::cout << *hitItr << std::endl;
 }
 
 
-CaloSamples CaloHitResponse::makeAnalogSignal(const PCaloHit & hit) const {
+CaloSamples CaloHitResponse::makeAnalogSignal(const PCaloHit & inputHit) const {
+
+  // see if we need to correct the hit 
+  PCaloHit hit = inputHit;
+  if(theHitCorrection != 0) {
+    theHitCorrection->correct(hit);
+  }
+
   DetId id(hit.id());
   const CaloSimParameters & parameters = theParameterMap->simParameters(id);
+
 
   double signal = analogSignalAmplitude(hit, parameters);
 
@@ -75,7 +87,6 @@ double CaloHitResponse::analogSignalAmplitude(const PCaloHit & hit, const CaloSi
   if(parameters.doPhotostatistics()) {
     //npe = RandPoissonQ::shoot(npe)
   }
-
   // convert to whatever units get read out: charge, voltage, whatever
   return npe * parameters.photoelectronsToAnalog();
 }

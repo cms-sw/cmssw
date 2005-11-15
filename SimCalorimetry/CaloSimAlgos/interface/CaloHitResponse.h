@@ -20,6 +20,7 @@ namespace cms {
 
 class CaloVShape;
 class CaloVSimParameterMap;
+class CaloVHitCorrection;
 class CaloSimParameters;
 
 class CaloHitResponse 
@@ -39,6 +40,11 @@ public:
 
   /// Complete cell digitization.
   void run(const std::vector<PCaloHit> & hits);
+
+  /// If you want to correct hits, for attenuation or delay, set this.
+  void setHitCorrection(CaloVHitCorrection * hitCorrection) {
+    theHitCorrection = hitCorrection;
+  }
 
   /// frees up memory
   void clear() {theAnalogSignalMap.clear();}
@@ -64,6 +70,7 @@ protected:
 
   CaloVSimParameterMap * theParameterMap;
   CaloVShape * theShape;
+  CaloVHitCorrection * theHitCorrection;
 
   int theMinBunch;
   int theMaxBunch;
