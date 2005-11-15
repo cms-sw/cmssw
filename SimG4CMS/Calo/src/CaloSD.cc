@@ -614,5 +614,5 @@ void CaloSD::clearHits(){
 }
 
 void CaloSD::fillHits(edm::PCaloHitContainer& c, std::string n){
-  if (slave->name() == n) c.insertHits(slave->hits());
+  if (slave->name() == n) c=slave->hits();
 }
