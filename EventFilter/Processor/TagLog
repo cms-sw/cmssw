@@ -1,3 +1,6 @@
+** V00-00-02  [Tue Nov 15 12:23:15 2005]
+ 
+
 ** V00-00-01  [Mon Oct 31 14:04:41 2005]
 Removed test contents which doesn;t link in one step (uses test libs from FWCore).
 Publish new tag V00-00-01.
