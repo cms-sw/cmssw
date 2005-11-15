@@ -1,3 +1,6 @@
+** V01-00-01  [Wed Nov 16 00:35:34 2005]
+fixed compilation problem from change in FWCore and made tests work with new configuration for XML geometry reading
+
 ** V01-00-00  [Tue Nov 15 11:01:34 2005]
 New Tag from Chris
 
