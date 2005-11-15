@@ -3,4 +3,4 @@
 #include "PluginManager/ModuleDef.h"
   
 DEFINE_SEAL_MODULE ();
-DEFINE_SEAL_PLUGIN (SensitiveDetectorPluginFactory, TkAccumulatingSensitiveDetector, "TkAccumulatingSensitiveDetector");
+DEFINE_SENSITIVEDETECTOR(TkAccumulatingSensitiveDetector);

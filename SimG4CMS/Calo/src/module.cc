@@ -4,6 +4,8 @@
 #include "PluginManager/ModuleDef.h"
   
 DEFINE_SEAL_MODULE ();
-DEFINE_SEAL_PLUGIN (SensitiveDetectorPluginFactory, ECalSD, "EcalSensitiveDetector");
-DEFINE_SEAL_PLUGIN (SensitiveDetectorPluginFactory, HCalSD, "HcalSensitiveDetector");
-
+typedef ECalSD EcalSensitiveDetector;
+DEFINE_SENSITIVEDETECTOR(EcalSensitiveDetector);
+typedef HCalSD HcalSensitiveDetector;
+DEFINE_SENSITIVEDETECTOR(HcalSensitiveDetector);
+// Add Hcal Stuff here
