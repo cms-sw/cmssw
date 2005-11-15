@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  * 
- * $Date: 2005/11/14 13:33:33 $
- * $Revision: 1.11 $
+ * $Date: 2005/11/15 15:52:03 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  *
 */
@@ -68,7 +68,7 @@ void EBIntegrityClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
   if ( jevt_ == 0 ) return;
 
   EcalLogicID ecid;
-  RunConsistencyDat cons;
+  RunConsistencyDat c;
   map<EcalLogicID, RunConsistencyDat> dataset;
 
   cout << "Writing RunConsistencyDatObjects to database ..." << endl;
@@ -122,17 +122,19 @@ void EBIntegrityClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
 
           }
 
-          cons.setExpectedEvents(0);
-          cons.setProblemsInGain(int(num01));
-          cons.setProblemsInId(int(num02));
-          cons.setProblemsInSample(int(-999));
-          cons.setProblemsInADC(int(-999));
+          c.setExpectedEvents(0);
+          c.setProblemsInGain(int(num01));
+          c.setProblemsInId(int(num02));
+          c.setProblemsInSample(int(-999));
+          c.setProblemsInADC(int(-999));
 
-          try {
-            if ( econn ) ecid = econn->getEcalLogicID("EB_crystal_index", ism, ie-1, ip-1);
-            dataset[ecid] = cons;
-          } catch (runtime_error &e) {
-            cerr << e.what() << endl;
+          if ( econn ) {
+            try {
+              ecid = econn->getEcalLogicID("EB_crystal_index", ism, ie-1, ip-1);
+              dataset[ecid] = c;
+            } catch (runtime_error &e) {
+              cerr << e.what() << endl;
+            }
           }
 
         }

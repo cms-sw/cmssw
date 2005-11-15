@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  * 
- * $Date: 2005/11/14 14:40:35 $
- * $Revision: 1.12 $
+ * $Date: 2005/11/15 15:52:03 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  *
 */
@@ -93,31 +93,32 @@ void EBPedestalClient::beginRun(const edm::EventSetup& c){
   this->subscribe();
 
   for ( int ism = 1; ism <= 36; ism++ ) {
+
     h01[ism-1] = 0;
     h02[ism-1] = 0;
     h03[ism-1] = 0;
 
-    g01[ism-1]->Reset(" ");
-    g02[ism-1]->Reset(" ");
-    g03[ism-1]->Reset(" ");
+    g01[ism-1]->Reset();
+    g02[ism-1]->Reset();
+    g03[ism-1]->Reset();
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
 
-        g01[ism-1]->SetBinContent( g01[ism-1]->GetBin(ie , ip) , 2);
-        g02[ism-1]->SetBinContent( g01[ism-1]->GetBin(ie , ip) , 2);
-        g03[ism-1]->SetBinContent( g01[ism-1]->GetBin(ie , ip) , 2);
+        g01[ism-1]->SetBinContent(g01[ism-1]->GetBin(ie, ip), 2.);
+        g02[ism-1]->SetBinContent(g01[ism-1]->GetBin(ie, ip), 2.);
+        g03[ism-1]->SetBinContent(g01[ism-1]->GetBin(ie, ip), 2.);
 
       }
     }
 
-    p01[ism-1]->Reset(" ");
-    p02[ism-1]->Reset(" ");
-    p03[ism-1]->Reset(" ");
+    p01[ism-1]->Reset();
+    p02[ism-1]->Reset();
+    p03[ism-1]->Reset();
 
-    r01[ism-1]->Reset(" ");
-    r02[ism-1]->Reset(" ");
-    r03[ism-1]->Reset(" ");
+    r01[ism-1]->Reset();
+    r02[ism-1]->Reset();
+    r03[ism-1]->Reset();
 
   }
 
@@ -207,16 +208,15 @@ void EBPedestalClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag
           p.setPedMeanG1(mean01);
           p.setPedRMSG1(rms01);
 
+          float val;
+
           if ( g01[ism-1] ) {
-            isOk_ = true;
-            if ( fabs(mean01 - expectedMean_[1]) > discrepancyMean_[1] ) 
-              isOk_ = false;
-            if ( rms01 > RMSThreshold_[1] ) 
-              isOk_ = false;
-            if ( isOk_ ) 
-              g01[ism-1]->SetBinContent(g01[ism-1]->GetBin(ie, ip), 1);
-            else
-              g01[ism-1]->SetBinContent(g01[ism-1]->GetBin(ie, ip), 0);
+            val = 1.;
+            if ( abs(mean01 - expectedMean_[1]) > discrepancyMean_[1] )
+              val = 0.;
+            if ( rms01 > RMSThreshold_[1] )
+              val = 0.;
+            g01[ism-1]->SetBinContent(g01[ism-1]->GetBin(ie, ip), val);
           }
           
           if ( p01[ism-1] ) p01[ism-1]->Fill(mean01);
@@ -226,15 +226,12 @@ void EBPedestalClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag
           p.setPedRMSG6(rms02);
 
           if ( g02[ism-1] ) {
-            isOk_ = true;
-            if ( fabs(mean02 - expectedMean_[2]) > discrepancyMean_[2] ) 
-              isOk_ = false;
-            if ( rms02 > RMSThreshold_[2] ) 
-              isOk_ = false;
-            if ( isOk_ ) 
-              g02[ism-1]->SetBinContent(g02[ism-1]->GetBin(ie, ip), 1);
-            else
-              g02[ism-1]->SetBinContent(g02[ism-1]->GetBin(ie, ip), 0);
+            val = 1.;
+            if ( abs(mean02 - expectedMean_[2]) > discrepancyMean_[2] )
+              val = 0.;
+            if ( rms02 > RMSThreshold_[2] )
+              val = 0.;
+            g02[ism-1]->SetBinContent(g02[ism-1]->GetBin(ie, ip), val);
           }
 
           if ( p02[ism-1] ) p02[ism-1]->Fill(mean02);
@@ -244,15 +241,12 @@ void EBPedestalClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag
           p.setPedRMSG12(rms03);
 
           if ( g03[ism-1] ) {
-            isOk_ = true;
-            if ( fabs(mean03 - expectedMean_[3]) > discrepancyMean_[3] ) 
-              isOk_ = false;
-            if ( rms03 > RMSThreshold_[3] ) 
-              isOk_ = false;
-            if ( isOk_ ) 
-              g03[ism-1]->SetBinContent(g03[ism-1]->GetBin(ie, ip), 1);
-            else
-              g03[ism-1]->SetBinContent(g03[ism-1]->GetBin(ie, ip), 0);
+            val = 1.;
+            if ( abs(mean03 - expectedMean_[3]) > discrepancyMean_[3] )
+              val = 0.;
+            if ( rms03 > RMSThreshold_[3] )
+              val = 0.;
+            g03[ism-1]->SetBinContent(g03[ism-1]->GetBin(ie, ip), val);
           }
 
           if ( p03[ism-1] ) p03[ism-1]->Fill(mean03);
@@ -260,11 +254,13 @@ void EBPedestalClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag
 
           p.setTaskStatus(1);
 
-          try {
-            if ( econn ) ecid = econn->getEcalLogicID("EB_crystal_index", ism, ie-1, ip-1);
-            dataset[ecid] = p;
-          } catch (runtime_error &e) {
-            cerr << e.what() << endl;
+          if ( econn ) {
+            try {
+              ecid = econn->getEcalLogicID("EB_crystal_index", ism, ie-1, ip-1);
+              dataset[ecid] = p;
+            } catch (runtime_error &e) {
+              cerr << e.what() << endl;
+            }
           }
 
         }
@@ -411,18 +407,19 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir){
 
   for ( int ism = 1 ; ism <= 36 ; ism++ ) {
     
-    if ( g01[ism-1] && g02[ism-1] && g03[ism-1] && p01[ism-1] && p02[ism-1] && p03[ism-1] && r01[ism-1] && r02[ism-1] && r03[ism-1] ) {
+    if ( g01[ism-1] && g02[ism-1] && g03[ism-1] &&
+         p01[ism-1] && p02[ism-1] && p03[ism-1] &&
+         r01[ism-1] && r02[ism-1] && r03[ism-1] ) {
 
       // Loop on gains
 
-      for ( int iCanvas=1 ; iCanvas <= 3 ; iCanvas++ ) {
+      for (int iCanvas=1 ; iCanvas <= 3 ; iCanvas++ ) {
 
         // Quality plots
 
       TH2F* obj2f = 0; 
 
-      switch ( iCanvas )
-        {
+      switch ( iCanvas ) {
         case 1:
           meName = g01[ism-1]->GetName();
           obj2f = g01[ism-1];
@@ -439,16 +436,16 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir){
           break;
         }
 
-        TCanvas *cQual = new TCanvas("cQual" , "Temporary Canvas", 2*csize , csize );
-        for ( unsigned int iQual=0 ; iQual<meName.size() ; iQual++ ) {
-          if ( meName.substr(iQual,1) == " " )  {
-            meName.replace( iQual , 1 , "_" );
+        TCanvas *cQual = new TCanvas("cQual" , "Temp", 2*csize , csize );
+        for (unsigned int iQual = 0 ; iQual < meName.size(); iQual++) {
+          if ( meName.substr(iQual, 1) == " " )  {
+            meName.replace(iQual, 1, "_");
           }
         }
         imgName = htmlDir + meName + ".jpg";
         imgNameQual[iCanvas-1] = imgName;
-        gStyle->SetOptStat( " " );
-        gStyle->SetPalette( 3, pCol3 );
+        gStyle->SetOptStat(" ");
+        gStyle->SetPalette(3, pCol3);
         obj2f->GetXaxis()->SetNdivisions(17);
         obj2f->GetYaxis()->SetNdivisions(4);
         cQual->SetGridx();
@@ -458,15 +455,14 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir){
         obj2f->Draw("col");
         dummy.Draw("text,same");
         cQual->Update();
-        cQual->SaveAs( imgName.c_str() );
+        cQual->SaveAs(imgName.c_str());
         delete cQual;
 
         // Mean distributions
         
         TH1F* obj1f = 0; 
         
-        switch ( iCanvas )
-          {
+        switch ( iCanvas ) {
           case 1:
             meName = p01[ism-1]->GetName();
             obj1f = p01[ism-1];
@@ -483,37 +479,35 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir){
             break;
           }
         
-        TCanvas *cMean = new TCanvas("cMean" , "Temporary Canvas", csize , csize );
-        for ( unsigned int iMean=0 ; iMean<meName.size() ; iMean++ ) {
+        TCanvas *cMean = new TCanvas("cMean" , "Temp", csize , csize );
+        for (unsigned int iMean=0 ; iMean < meName.size(); iMean++) {
           if ( meName.substr(iMean,1) == " " )  {
-            meName.replace( iMean , 1 , "_" );
+            meName.replace(iMean, 1 ,"_" );
           }
         }
         imgName = htmlDir + meName + ".jpg";
         imgNameMean[iCanvas-1] = imgName;
-        gStyle->SetOptStat( "euomr" );
+        gStyle->SetOptStat("euomr");
         obj1f->SetStats(kTRUE);
         if ( obj1f->GetMaximum(histMax) > 0. ) {
           gPad->SetLogy(1);
-        }
-        else {
+        } else {
           gPad->SetLogy(0);
         }
         obj1f->Draw();
         cMean->Update();
         gPad->SetLogy(0);
         TPaveStats* stMean = dynamic_cast<TPaveStats*>(obj1f->FindObject("stats"));
-        if( stMean ) {
+        if ( stMean ) {
           stMean->SetX1NDC(0.6);
           stMean->SetY1NDC(0.75);
         }
-        cMean->SaveAs( imgName.c_str() );
+        cMean->SaveAs(imgName.c_str());
         delete cMean;
         
         // RMS distributions
         
-        switch ( iCanvas )
-          {
+        switch ( iCanvas ) {
           case 1:
             meName = r01[ism-1]->GetName();
             obj1f = r01[ism-1];
@@ -530,36 +524,35 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir){
             break;
           }
         
-        TCanvas *cRMS = new TCanvas("cRMS" , "Temporary Canvas", csize , csize );
-        for ( unsigned int iRMS=0 ; iRMS<meName.size() ; iRMS++ ) {
+        TCanvas *cRMS = new TCanvas("cRMS" , "Temp", csize , csize );
+        for (unsigned int iRMS=0 ; iRMS < meName.size(); iRMS++) {
           if ( meName.substr(iRMS,1) == " " )  {
-            meName.replace( iRMS , 1 , "_" );
+            meName.replace(iRMS, 1, "_");
           }
         }
         imgName = htmlDir + meName + ".jpg";
         imgNameRMS[iCanvas-1] = imgName;
-        gStyle->SetOptStat( "euomr" );
+        gStyle->SetOptStat("euomr");
         obj1f->SetStats(kTRUE);
         if ( obj1f->GetMaximum(histMax) > 0. ) {
           gPad->SetLogy(1);
-        }
-        else {
+        } else {
           gPad->SetLogy(0);
         }
         obj1f->Draw();
         cRMS->Update();
         gPad->SetLogy(0);
         TPaveStats* stRMS = dynamic_cast<TPaveStats*>(obj1f->FindObject("stats"));
-        if( stRMS ) {
+        if ( stRMS ) {
           stRMS->SetX1NDC(0.6);
           stRMS->SetY1NDC(0.75);
         }
-        cRMS->SaveAs( imgName.c_str() );
+        cRMS->SaveAs(imgName.c_str());
         delete cRMS;
         
       }
 
-      htmlFile << "</h3><strong>Supermodule&nbsp;&nbsp;" << ism << "</straong></h3>" << endl;
+      htmlFile << "</h3><strong>Supermodule&nbsp;&nbsp;" << ism << "</strong></h3>" << endl;
       htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
       htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
       htmlFile << "<tr align=\"center\">" << endl;

@@ -1,8 +1,8 @@
 /*
  * \file EBPedPreSampleClient.cc
  * 
- * $Date: 2005/11/14 14:22:22 $
- * $Revision: 1.13 $
+ * $Date: 2005/11/15 15:52:03 $
+ * $Revision: 1.14 $
  * \author G. Della Ricca
  *
 */
@@ -106,11 +106,13 @@ void EBPedPreSampleClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, Ru
 
 //          p.setTaskStatus(1);
 
-          try {
-            if ( econn ) ecid = econn->getEcalLogicID("EB_crystal_index", ism, ie-1, ip-1);
-//            dataset[ecid] = p;
-          } catch (runtime_error &e) {
-            cerr << e.what() << endl;
+          if ( econn ) {
+            try {
+              ecid = econn->getEcalLogicID("EB_crystal_index", ism, ie-1, ip-1);
+//              dataset[ecid] = p;
+            } catch (runtime_error &e) {
+              cerr << e.what() << endl;
+            }
           }
 
         }

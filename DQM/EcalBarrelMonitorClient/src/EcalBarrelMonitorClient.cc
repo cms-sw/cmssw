@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  * 
- * $Date: 2005/11/14 08:52:30 $
- * $Revision: 1.18 $
+ * $Date: 2005/11/15 15:52:03 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  *
 */
@@ -187,6 +187,7 @@ void EcalBarrelMonitorClient::endRun(void) {
     try {
       cout << "Closing DB connection." << endl;
       delete econn_;
+      econn_ = 0;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }

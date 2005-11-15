@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  * 
- * $Date: 2005/11/14 13:33:33 $
- * $Revision: 1.11 $
+ * $Date: 2005/11/15 15:52:03 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  *
 */
@@ -159,12 +159,14 @@ void EBLaserClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* r
 
           apdr.setTaskStatus(1);
 
-          try {
-            if ( econn ) ecid = econn->getEcalLogicID("EB_crystal_index", ism, ie-1, ip-1);
-            datasetb[ecid] = apdb;
-            datasetr[ecid] = apdr;
-          } catch (runtime_error &e) {
-            cerr << e.what() << endl;
+          if ( econn ) {
+            try {
+              ecid = econn->getEcalLogicID("EB_crystal_index", ism, ie-1, ip-1);
+              datasetb[ecid] = apdb;
+              datasetr[ecid] = apdr;
+            } catch (runtime_error &e) {
+              cerr << e.what() << endl;
+            }
           }
 
         }
