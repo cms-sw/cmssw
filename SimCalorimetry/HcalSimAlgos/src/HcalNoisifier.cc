@@ -25,7 +25,9 @@ namespace cms {
       double pedestal = theRandGaussian->shoot(calibrations.pedestal(capId), widths.pedestal(capId));
       double gain = theRandGaussian->shoot(calibrations.gain(capId), widths.gain(capId));
       // pedestals come in units of GeV.  Use gain to convert
-      frame[tbin] = (frame[tbin]+pedestal) / gain;
+      //frame[tbin] = (frame[tbin]+pedestal) / gain;
+      // frame will already be in fC
+      frame[tbin] += pedestal / gain;
     }
     std::cout << frame << std::endl;
   }
