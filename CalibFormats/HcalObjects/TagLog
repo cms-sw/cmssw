@@ -1,3 +1,6 @@
+** V01-01-02  [Tue Nov 15 19:50:18 2005]
+change parent records declarations to definitions
+
 ** V01-00-02  [Tue Nov  8 19:22:08 2005]
 bug fix: swap pedestals and gains in HcalDbService.cc
 
