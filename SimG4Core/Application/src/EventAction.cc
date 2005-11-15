@@ -36,6 +36,7 @@ void EventAction::BeginOfEventAction(const G4Event * anEvent)
 	m_trksForThisEvent = new TrackContainer();
     }
     BeginOfEvent e(anEvent);
+    m_beginOfEventSignal(&e);
     cleanVertexMap();
 }
 
@@ -124,6 +125,7 @@ void EventAction::EndOfEventAction(const G4Event * anEvent)
     storeTracks(RunManager::instance()->simEvent());
     // dispatch now end of event, and only then delete tracks...
     EndOfEvent e(anEvent);
+    m_endOfEventSignal(&e);
 
     for (unsigned int i = 0; i < m_trksForThisEvent->size(); i++) delete (*m_trksForThisEvent)[i];
     delete m_trksForThisEvent;

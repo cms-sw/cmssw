@@ -9,10 +9,14 @@
 
 #include "G4UserEventAction.hh"
 
+#include "boost/signal.hpp"
+
 #include <vector>
 #include <map>
  
 class RunManager;
+class BeginOfEvent;
+class EndOfEvent;
  
 class EventAction: public G4UserEventAction
 {
@@ -38,6 +42,10 @@ public:
     void cleanVertexMap();
     int getOrCreateVertex(TrackWithHistory *,int,G4SimEvent * simEvent);
     TrackContainer * trackContainer() { return m_trksForThisEvent; }
+
+    boost::signal< void(const BeginOfEvent*)> m_beginOfEventSignal;
+    boost::signal< void(const EndOfEvent*)> m_endOfEventSignal;
+
 private:
     TrackContainer * m_trksForThisEvent;
     bool m_SaveSimTracks;
