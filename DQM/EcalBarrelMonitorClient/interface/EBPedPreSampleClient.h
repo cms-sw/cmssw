@@ -4,8 +4,8 @@
 /*
  * \file EBPedPreSampleClient.h
  *
- * $Date: 2005/11/13 10:20:05 $
- * $Revision: 1.4 $
+ * $Date: 2005/11/13 18:37:20 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  *
 */
@@ -87,6 +87,12 @@ int jevt_;
 MonitorUserInterface* mui_;
 
 TProfile2D* h01[36];
+
+TH2F* g01[36];
+
+TH1F* p01[36];
+
+TH1F* r01[36];
 
 };
 
