@@ -14,6 +14,7 @@
 
 #include "SimG4Core/Application/interface/DDDWorldObserver.h"
 #include "SimG4Core/Notification/interface/Dispatcher.h"
+#include "SimG4Core/Notification/interface/SimActivityRegistry.h"
 
 #include "SealKernel/Context.h"
 
@@ -101,6 +102,8 @@ private:
     std::vector<SensitiveCaloDetector*> m_sensCaloDets;
     DDDWorldObserver<DDDWorld > * worldObserver; 
     Dispatcher<DDDWorld > * worldDispatcher;
+
+    SimActivityRegistry m_registry;
 };
 
 #endif
