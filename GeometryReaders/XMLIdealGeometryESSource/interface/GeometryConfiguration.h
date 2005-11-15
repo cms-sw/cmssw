@@ -1,7 +1,7 @@
 #ifndef GeometryConfiguration_H
 #define GeometryConfiguration_H
 
-#include "DetectorDescription/Core/interface/DDLDocumentProvider.h"
+#include "DetectorDescription/Parser/interface/DDLDocumentProvider.h"
 #include "DetectorDescription/Parser/interface/DDLSAX2ConfigHandler.h"
 
 class DDLParser;
