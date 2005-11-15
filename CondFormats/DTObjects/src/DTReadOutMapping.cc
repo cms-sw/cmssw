@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2005/11/14 19:17:30 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/11/15 13:50:55 $
+ *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -78,6 +78,57 @@ DTReadOutGeometryLink::~DTReadOutGeometryLink() {
 //--------------
 // Operations --
 //--------------
+void DTReadOutMapping::initSetup() const {
+
+  std::string mappingVersion = cellMapVersion + "_" + robMapVersion + "_map";
+//  std::cout << "initSetup: " << mappingVersion << std::endl;
+  std::vector<DTReadOutGeometryLink>::const_iterator iter =
+              readOutChannelDriftTubeMap.begin();
+  std::vector<DTReadOutGeometryLink>::const_iterator iend =
+              readOutChannelDriftTubeMap.end();
+//  DTDataBuffer<int>::insertTDCChannelData( mappingVersion,
+//                                           1, 1, 1, 1, 1, -999, -999 );
+//  DTDataBuffer<int>::insertCellData( mappingVersion,
+//                                        1, 1, 1, 1, 1, 1, -999, -999 );
+  DTDataBuffer<int>::openBuffer( "tdc_channel", mappingVersion, -999 );
+  DTDataBuffer<int>::openBuffer(        "cell", mappingVersion, -999 );
+  while ( iter != iend ) {
+    const DTReadOutGeometryLink& link = *iter++;
+    DTDataBuffer<int>::insertTDCChannelData( mappingVersion,
+                                             link.    dduId,
+                                             link.    rosId,
+                                             link.    robId,
+                                             link.    tdcId,
+                                             link.channelId,
+                                           ( link.  wheelId *  10000000 ) +
+                                           ( link.stationId *   1000000 ) +
+                                           ( link. sectorId *     10000 ) +
+                                           ( link.     slId *      1000 ) +
+                                           ( link.  layerId *       100 ) +
+                                             link.   cellId,
+                                             -999 );
+    DTDataBuffer<int>::insertCellData( mappingVersion,
+                                       link.  wheelId,
+                                       link.stationId,
+                                       link. sectorId,
+                                       link.     slId,
+                                       link.  layerId,
+                                       link.   cellId,
+                                     ( link.    dduId *  1000000 ) +
+                                     ( link.    rosId *    10000 ) +
+                                     ( link.    robId *     1000 ) +
+                                     ( link.    tdcId *      100 ) +
+                                       link.channelId,
+                                       -999 );
+  }
+
+//  std::cout << "initSetup - end " << std::endl;
+
+  return;
+
+}
+
+
 DTDetId DTReadOutMapping::readOutToGeometry( int      dduId,
                                              int      rosId,
                                              int      robId,
@@ -149,7 +200,9 @@ void DTReadOutMapping::readOutToGeometry( int      dduId,
   }
 */
 
-  std::string mappingVersion = cellMapVersion + "_" + robMapVersion;
+  std::string mappingVersion = cellMapVersion + "_" + robMapVersion + "_map";
+  if( DTDataBuffer<int>::findBuffer( "tdc_channel",
+                                     mappingVersion ) == 0 ) initSetup();
   int geometryId =
   DTDataBuffer<int>::getTDCChannelData( mappingVersion,
                                             dduId,
@@ -218,7 +271,9 @@ void DTReadOutMapping::geometryToReadOut( int    wheelId,
   }
 */
 
-  std::string mappingVersion = cellMapVersion + "_" + robMapVersion;
+  std::string mappingVersion = cellMapVersion + "_" + robMapVersion + "_map";
+  if( DTDataBuffer<int>::findBuffer( "cell",
+                                     mappingVersion ) == 0 ) initSetup();
   int readoutId =
   DTDataBuffer<int>::getCellData( mappingVersion,
                                     wheelId,
@@ -323,7 +378,7 @@ int DTReadOutMapping::insertReadOutGeometryLink( int     dduId,
 
   readOutChannelDriftTubeMap.push_back( link );
 
-  std::string mappingVersion = cellMapVersion + "_" + robMapVersion;
+  std::string mappingVersion = cellMapVersion + "_" + robMapVersion + "_map";
   DTDataBuffer<int>::insertTDCChannelData( mappingVersion,
                                                dduId,
                                                rosId,
@@ -366,52 +421,3 @@ DTReadOutMapping::const_iterator DTReadOutMapping::end() const {
 }
 
 
-void DTReadOutMapping::initSetup() const {
-
-  std::string mappingVersion = cellMapVersion + "_" + robMapVersion;
-//  std::cout << "initSetup: " << mappingVersion << std::endl;
-  std::vector<DTReadOutGeometryLink>::const_iterator iter =
-              readOutChannelDriftTubeMap.begin();
-  std::vector<DTReadOutGeometryLink>::const_iterator iend =
-              readOutChannelDriftTubeMap.end();
-//  DTDataBuffer<int>::insertTDCChannelData( mappingVersion,
-//                                           1, 1, 1, 1, 1, -999, -999 );
-//  DTDataBuffer<int>::insertCellData( mappingVersion,
-//                                        1, 1, 1, 1, 1, 1, -999, -999 );
-  DTDataBuffer<int>::openBuffer( "tdc_channel", mappingVersion, -999 );
-  DTDataBuffer<int>::openBuffer(        "cell", mappingVersion, -999 );
-  while ( iter != iend ) {
-    const DTReadOutGeometryLink& link = *iter++;
-    DTDataBuffer<int>::insertTDCChannelData( mappingVersion,
-                                             link.    dduId,
-                                             link.    rosId,
-                                             link.    robId,
-                                             link.    tdcId,
-                                             link.channelId,
-                                           ( link.  wheelId *  10000000 ) +
-                                           ( link.stationId *   1000000 ) +
-                                           ( link. sectorId *     10000 ) +
-                                           ( link.     slId *      1000 ) +
-                                           ( link.  layerId *       100 ) +
-                                             link.   cellId,
-                                             -999 );
-    DTDataBuffer<int>::insertCellData( mappingVersion,
-                                       link.  wheelId,
-                                       link.stationId,
-                                       link. sectorId,
-                                       link.     slId,
-                                       link.  layerId,
-                                       link.   cellId,
-                                     ( link.    dduId *  1000000 ) +
-                                     ( link.    rosId *    10000 ) +
-                                     ( link.    robId *     1000 ) +
-                                     ( link.    tdcId *      100 ) +
-                                       link.channelId,
-                                       -999 );
-  }
-
-//  std::cout << "initSetup - end " << std::endl;
-
-  return;
-
-}

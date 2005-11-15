@@ -1,7 +1,10 @@
 <lcgdict>
   <class name="DTReadOutMapping" id="6E1247AF-2A00-DA11-96EE-000E0C4DE431"/>
   <class name="DTReadOutGeometryLink" id="C428DA7A-EE34-DA11-89FB-000E0C5CE283"/>
+  <class name="DTT0" id="FAEFE9C5-2A00-DA11-89E6-000E0C4DE431"/>
+  <class name="DTCellT0Data" id="604A5767-1B3B-DA11-9D99-000E0C5CE283"/>
   <class name="std::vector<DTReadOutGeometryLink>"/>
+  <class name="std::vector<DTCellT0Data>"/>
   <class name="std::basic_string<char>"/>
   <class pattern="*iterator*"/>
 </lcgdict>

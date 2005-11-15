@@ -1,7 +1,7 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2005/10/14 16:00:00 $
+ *  $Date: 2005/11/14 19:17:18 $
  *  $Revision: 1.1 $
  *  \author Paolo Ronchese INFN Padova
  *
@@ -350,10 +350,13 @@ T* DTDataBuffer<T>::findBuffer( const std::string& bType,
     if ( data->type() != bType ) continue;
     if ( data->name() != bName ) continue;
     bufPtr = data;
-    break;
+    return data->data();
+//    break;
   }
 
-  return bufPtr->data();
+  return 0;
+//  if ( bufPtr == 0 ) return 0;
+//  return bufPtr->data();
 
 }
 
@@ -465,10 +468,11 @@ T* DTDataBuffer<T>::NamedBuffer::data() const {
   return dataBufPtr;
 }
 
-
+/*
 int dtdbcheck() {
   DTDataBuffer<int> iddb;
   iddb.insertCellData( "check", 0, 0, 0, 0, 0, 0, 1, -1 );
   int j = iddb.getCellData( "check", 0, 0, 0, 0, 0, 0 );
   return j;
 }
+*/
