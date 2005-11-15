@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  * 
- * $Date: 2005/11/14 10:51:05 $
- * $Revision: 1.10 $
+ * $Date: 2005/11/14 13:33:33 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  *
 */
@@ -12,6 +12,12 @@
 EBIntegrityClient::EBIntegrityClient(const edm::ParameterSet& ps, MonitorUserInterface* mui){
 
   mui_ = mui;
+
+  Char_t histo[50];
+
+  for ( int i = 0; i < 36; i++ ) {
+
+  }
 
 }
 
@@ -38,11 +44,13 @@ void EBIntegrityClient::beginRun(const edm::EventSetup& c){
   this->subscribe();
 
   for ( int ism = 1; ism <= 36; ism++ ) {
+
     h00 = 0;
     h01[ism-1] = 0;
     h02[ism-1] = 0;
     h03[ism-1] = 0;
     h04[ism-1] = 0;
+
   }
 
 }
@@ -134,12 +142,14 @@ void EBIntegrityClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
   
   }
 
-  try {
-    cout << "Inserting dataset ... " << flush;
-    if ( econn ) econn->insertDataSet(&dataset, runiov, runtag );
-    cout << "done." << endl; 
-  } catch (runtime_error &e) {
-    cerr << e.what() << endl;
+  if ( econn ) {
+    try {
+      cout << "Inserting dataset ... " << flush;
+      econn->insertDataSet(&dataset, runiov, runtag );
+      cout << "done." << endl; 
+    } catch (runtime_error &e) {
+      cerr << e.what() << endl;
+    }
   }
 
 }

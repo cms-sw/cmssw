@@ -4,8 +4,8 @@
 /*
  * \file EBPedestalClient.h
  *
- * $Date: 2005/11/13 18:37:20 $
- * $Revision: 1.5 $
+ * $Date: 2005/11/14 14:40:40 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  *
 */
@@ -32,6 +32,8 @@
 #include "CalibCalorimetry/EcalDBInterface/interface/MonPedestalsDat.h"
 
 #include "TROOT.h"
+#include "TStyle.h"
+#include "TPaveStats.h"
 
 #include <memory>
 #include <iostream>
@@ -101,6 +103,15 @@ TH1F* p03[36];
 TH1F* r01[36];
 TH1F* r02[36];
 TH1F* r03[36];
+
+// Quality check on crystals, one per each gain
+
+bool isOk_;
+
+float expectedMean_[3];
+float discrepancyMean_[3];
+float RMSThreshold_[3]; 
+
 
 };
 

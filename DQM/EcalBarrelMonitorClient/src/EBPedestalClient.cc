@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  * 
- * $Date: 2005/11/14 13:33:33 $
- * $Revision: 1.11 $
+ * $Date: 2005/11/14 14:40:35 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  *
 */
@@ -37,13 +37,42 @@ EBPedestalClient::EBPedestalClient(const edm::ParameterSet& ps, MonitorUserInter
     r02[i] = new TH1F(histo, histo, 100, 0., 10.);
     sprintf(histo, "EBPT pedestal rms G12 SM%02d", i+1);
     r03[i] = new TH1F(histo, histo, 100, 0., 10.);
+
   }
 
+  expectedMean_[1] = 2048;
+  expectedMean_[2] = 2048;
+  expectedMean_[3] = 2048;
+  
+  discrepancyMean_[1] = 2040;
+  discrepancyMean_[2] = 2042;
+  discrepancyMean_[3] = 2044;
+  
+  RMSThreshold_[1] = 2;
+  RMSThreshold_[2] = 1;
+  RMSThreshold_[3] = 2.2;
+   
 }
 
 EBPedestalClient::~EBPedestalClient(){
 
   this->unsubscribe();
+
+  for ( int i=0 ; i<36 ; i++ ) {
+
+    delete g01[i];
+    delete g02[i];
+    delete g03[i];
+
+    delete p01[i];
+    delete p02[i];
+    delete p03[i];
+
+    delete r01[i];
+    delete r02[i];
+    delete r03[i];
+
+  }
 
 }
 
@@ -67,6 +96,29 @@ void EBPedestalClient::beginRun(const edm::EventSetup& c){
     h01[ism-1] = 0;
     h02[ism-1] = 0;
     h03[ism-1] = 0;
+
+    g01[ism-1]->Reset(" ");
+    g02[ism-1]->Reset(" ");
+    g03[ism-1]->Reset(" ");
+
+    for ( int ie = 1; ie <= 85; ie++ ) {
+      for ( int ip = 1; ip <= 20; ip++ ) {
+
+        g01[ism-1]->SetBinContent( g01[ism-1]->GetBin(ie , ip) , 2);
+        g02[ism-1]->SetBinContent( g01[ism-1]->GetBin(ie , ip) , 2);
+        g03[ism-1]->SetBinContent( g01[ism-1]->GetBin(ie , ip) , 2);
+
+      }
+    }
+
+    p01[ism-1]->Reset(" ");
+    p02[ism-1]->Reset(" ");
+    p03[ism-1]->Reset(" ");
+
+    r01[ism-1]->Reset(" ");
+    r02[ism-1]->Reset(" ");
+    r03[ism-1]->Reset(" ");
+
   }
 
 }
@@ -141,14 +193,14 @@ void EBPedestalClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag
             cout << "Inserting dataset for SM=" << ism << endl;
 
             cout << "G01 (" << ie << "," << ip << ") " << num01  << " "
-                                                       << mean01 << " "
-                                                       << rms01  << endl;
+                 << mean01 << " "
+                 << rms01  << endl;
             cout << "G06 (" << ie << "," << ip << ") " << num02  << " "
-                                                       << mean02 << " "
-                                                       << rms02  << endl;
+                 << mean02 << " "
+                 << rms02  << endl;
             cout << "G12 (" << ie << "," << ip << ") " << num03  << " "
-                                                       << mean03 << " "
-                                                       << rms03  << endl;
+                 << mean03 << " "
+                 << rms03  << endl;
 
           }
 
@@ -156,22 +208,52 @@ void EBPedestalClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag
           p.setPedRMSG1(rms01);
 
           if ( g01[ism-1] ) {
-            if ( rms01 == 0 ) {
-              g01[ism-1]->SetBinContent(g01[ism-1]->GetBin(ie, ip), 0.);
-            }
+            isOk_ = true;
+            if ( fabs(mean01 - expectedMean_[1]) > discrepancyMean_[1] ) 
+              isOk_ = false;
+            if ( rms01 > RMSThreshold_[1] ) 
+              isOk_ = false;
+            if ( isOk_ ) 
+              g01[ism-1]->SetBinContent(g01[ism-1]->GetBin(ie, ip), 1);
+            else
+              g01[ism-1]->SetBinContent(g01[ism-1]->GetBin(ie, ip), 0);
           }
-
+          
           if ( p01[ism-1] ) p01[ism-1]->Fill(mean01);
           if ( r01[ism-1] ) r01[ism-1]->Fill(rms01);
 
           p.setPedMeanG6(mean02);
           p.setPedRMSG6(rms02);
 
+          if ( g02[ism-1] ) {
+            isOk_ = true;
+            if ( fabs(mean02 - expectedMean_[2]) > discrepancyMean_[2] ) 
+              isOk_ = false;
+            if ( rms02 > RMSThreshold_[2] ) 
+              isOk_ = false;
+            if ( isOk_ ) 
+              g02[ism-1]->SetBinContent(g02[ism-1]->GetBin(ie, ip), 1);
+            else
+              g02[ism-1]->SetBinContent(g02[ism-1]->GetBin(ie, ip), 0);
+          }
+
           if ( p02[ism-1] ) p02[ism-1]->Fill(mean02);
           if ( r02[ism-1] ) r02[ism-1]->Fill(rms02);
 
           p.setPedMeanG12(mean03);
           p.setPedRMSG12(rms03);
+
+          if ( g03[ism-1] ) {
+            isOk_ = true;
+            if ( fabs(mean03 - expectedMean_[3]) > discrepancyMean_[3] ) 
+              isOk_ = false;
+            if ( rms03 > RMSThreshold_[3] ) 
+              isOk_ = false;
+            if ( isOk_ ) 
+              g03[ism-1]->SetBinContent(g03[ism-1]->GetBin(ie, ip), 1);
+            else
+              g03[ism-1]->SetBinContent(g03[ism-1]->GetBin(ie, ip), 0);
+          }
 
           if ( p03[ism-1] ) p03[ism-1]->Fill(mean03);
           if ( r03[ism-1] ) r03[ism-1]->Fill(rms03);
@@ -192,12 +274,14 @@ void EBPedestalClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag
 
   }
 
-  try {
-    cout << "Inserting dataset ... " << flush;
-    if ( econn ) econn->insertDataSet(&dataset, runiov, runtag );
-    cout << "done." << endl;
-  } catch (runtime_error &e) {
-    cerr << e.what() << endl;
+  if ( econn ) {
+    try {
+      cout << "Inserting dataset ... " << flush;
+      econn->insertDataSet(&dataset, runiov, runtag );
+      cout << "done." << endl;
+    } catch (runtime_error &e) {
+      cerr << e.what() << endl;
+    }
   }
 
 }
@@ -300,19 +384,214 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir){
   htmlFile << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
   htmlFile << " style=\"color: rgb(0, 0, 153);\">PEDESTAL</span></h2> " << endl;
   htmlFile << "<hr>" << endl;
+  htmlFile << "<table border=1><tr><td bgcolor=red>channel has problems in this task</td>" << endl;
+  htmlFile << "<td bgcolor=lime>channel has NO problems</td>" << endl;
+  htmlFile << "<td bgcolor=white>channel is missing</td></table>" << endl;
+  htmlFile << "<hr>" << endl;
 
-  string gifname01 , gifname02 , gifname03;
+  // Produce the plots to be shown as .jpg files from existing histograms
+
+  int csize = 250;
+
+  double histMax = 1.e15;
+
+  int pCol3[3] = { 2, 3, 10 };
+
+  TH2C dummy( "dummy", "dummy for sm", 85, 0., 85., 20, 0., 20. );
+  for( short i=0; i<68; i++ ) {
+    int a = 2 + ( i/4 ) * 5;
+    int b = 2 + ( i%4 ) * 5;
+    dummy.Fill( a, b, i+1 );
+  }
+  dummy.SetMarkerSize(2);
+
+  string imgNameQual[3] , imgNameMean[3] , imgNameRMS[3] , imgName , meName;
+
+  // Loop on barrel supermodules
+
   for ( int ism = 1 ; ism <= 36 ; ism++ ) {
+    
+    if ( g01[ism-1] && g02[ism-1] && g03[ism-1] && p01[ism-1] && p02[ism-1] && p03[ism-1] && r01[ism-1] && r02[ism-1] && r03[ism-1] ) {
 
-    if ( g01[ism-1] && g02[ism-1] && g03[ism-1] ) {
+      // Loop on gains
 
-      htmlFile << "</h3>Supermodule&nbsp;&nbsp;" << ism << "</h3>" << endl;
+      for ( int iCanvas=1 ; iCanvas <= 3 ; iCanvas++ ) {
+
+        // Quality plots
+
+      TH2F* obj2f = 0; 
+
+      switch ( iCanvas )
+        {
+        case 1:
+          meName = g01[ism-1]->GetName();
+          obj2f = g01[ism-1];
+          break;
+        case 2:
+          meName = g02[ism-1]->GetName();
+          obj2f = g02[ism-1];
+          break;
+        case 3:
+          meName = g03[ism-1]->GetName();
+          obj2f = g03[ism-1];
+          break;
+        default:
+          break;
+        }
+
+        TCanvas *cQual = new TCanvas("cQual" , "Temporary Canvas", 2*csize , csize );
+        for ( unsigned int iQual=0 ; iQual<meName.size() ; iQual++ ) {
+          if ( meName.substr(iQual,1) == " " )  {
+            meName.replace( iQual , 1 , "_" );
+          }
+        }
+        imgName = htmlDir + meName + ".jpg";
+        imgNameQual[iCanvas-1] = imgName;
+        gStyle->SetOptStat( " " );
+        gStyle->SetPalette( 3, pCol3 );
+        obj2f->GetXaxis()->SetNdivisions(17);
+        obj2f->GetYaxis()->SetNdivisions(4);
+        cQual->SetGridx();
+        cQual->SetGridy();
+        obj2f->SetMinimum(-0.00000001);
+        obj2f->SetMaximum(2.0);
+        obj2f->Draw("col");
+        dummy.Draw("text,same");
+        cQual->Update();
+        cQual->SaveAs( imgName.c_str() );
+        delete cQual;
+
+        // Mean distributions
+        
+        TH1F* obj1f = 0; 
+        
+        switch ( iCanvas )
+          {
+          case 1:
+            meName = p01[ism-1]->GetName();
+            obj1f = p01[ism-1];
+            break;
+          case 2:
+            meName = p02[ism-1]->GetName();
+            obj1f = p02[ism-1];
+            break;
+          case 3:
+            meName = p03[ism-1]->GetName();
+            obj1f = p03[ism-1];
+            break;
+          default:
+            break;
+          }
+        
+        TCanvas *cMean = new TCanvas("cMean" , "Temporary Canvas", csize , csize );
+        for ( unsigned int iMean=0 ; iMean<meName.size() ; iMean++ ) {
+          if ( meName.substr(iMean,1) == " " )  {
+            meName.replace( iMean , 1 , "_" );
+          }
+        }
+        imgName = htmlDir + meName + ".jpg";
+        imgNameMean[iCanvas-1] = imgName;
+        gStyle->SetOptStat( "euomr" );
+        obj1f->SetStats(kTRUE);
+        if ( obj1f->GetMaximum(histMax) > 0. ) {
+          gPad->SetLogy(1);
+        }
+        else {
+          gPad->SetLogy(0);
+        }
+        obj1f->Draw();
+        cMean->Update();
+        gPad->SetLogy(0);
+        TPaveStats* stMean = dynamic_cast<TPaveStats*>(obj1f->FindObject("stats"));
+        if( stMean ) {
+          stMean->SetX1NDC(0.6);
+          stMean->SetY1NDC(0.75);
+        }
+        cMean->SaveAs( imgName.c_str() );
+        delete cMean;
+        
+        // RMS distributions
+        
+        switch ( iCanvas )
+          {
+          case 1:
+            meName = r01[ism-1]->GetName();
+            obj1f = r01[ism-1];
+            break;
+          case 2:
+            meName = r02[ism-1]->GetName();
+            obj1f = r02[ism-1];
+            break;
+          case 3:
+            meName = r03[ism-1]->GetName();
+            obj1f = r03[ism-1];
+            break;
+          default:
+            break;
+          }
+        
+        TCanvas *cRMS = new TCanvas("cRMS" , "Temporary Canvas", csize , csize );
+        for ( unsigned int iRMS=0 ; iRMS<meName.size() ; iRMS++ ) {
+          if ( meName.substr(iRMS,1) == " " )  {
+            meName.replace( iRMS , 1 , "_" );
+          }
+        }
+        imgName = htmlDir + meName + ".jpg";
+        imgNameRMS[iCanvas-1] = imgName;
+        gStyle->SetOptStat( "euomr" );
+        obj1f->SetStats(kTRUE);
+        if ( obj1f->GetMaximum(histMax) > 0. ) {
+          gPad->SetLogy(1);
+        }
+        else {
+          gPad->SetLogy(0);
+        }
+        obj1f->Draw();
+        cRMS->Update();
+        gPad->SetLogy(0);
+        TPaveStats* stRMS = dynamic_cast<TPaveStats*>(obj1f->FindObject("stats"));
+        if( stRMS ) {
+          stRMS->SetX1NDC(0.6);
+          stRMS->SetY1NDC(0.75);
+        }
+        cRMS->SaveAs( imgName.c_str() );
+        delete cRMS;
+        
+      }
+
+      htmlFile << "</h3><strong>Supermodule&nbsp;&nbsp;" << ism << "</straong></h3>" << endl;
       htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
-      htmlFile << "cellpadding=\"10\" align=center> " << endl;
-      htmlFile << "<tr><td>" << endl;
+      htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+      htmlFile << "<tr align=\"center\">" << endl;
 
-      htmlFile << "</td></tr>" << endl;
-      htmlFile << "<tr><td>Gain 1</td><td>Gain 6</td><td>Gain 12</td><tr>" << endl;
+      for ( int iCanvas = 1 ; iCanvas <= 3 ; iCanvas++ ) {
+
+      if ( imgNameQual[iCanvas-1] != " " ) 
+        htmlFile << "<td colspan=\"2\"><img src=\" " << imgNameQual[iCanvas-1] << "\"></td>" << endl;
+      else
+        htmlFile << "<img src=\" " << " " << "\"></td>" << endl;
+
+      }
+      htmlFile << "</tr>" << endl;
+      htmlFile << "<tr>" << endl;
+
+      for ( int iCanvas = 1 ; iCanvas <= 3 ; iCanvas++ ) {
+
+        if ( imgNameMean[iCanvas-1] != " " ) 
+          htmlFile << "<td><img src=\" " << imgNameMean[iCanvas-1] << "\"></td>" << endl;
+        else
+          htmlFile << "<img src=\" " << " " << "\"></td>" << endl;
+        
+        if ( imgNameRMS[iCanvas-1] != " " ) 
+          htmlFile << "<td><img src=\" " << imgNameRMS[iCanvas-1] << "\"></td>" << endl;
+        else
+          htmlFile << "<img src=\" " << " " << "\"></td>" << endl;
+
+      }
+
+      htmlFile << "</tr>" << endl;
+
+      htmlFile << "<tr align=\"center\"><td colspan=\"2\">Gain 1</td><td colspan=\"2\">Gain 6</td><td colspan=\"2\">Gain 12</td><tr>" << endl;
       htmlFile << "</table>" << endl;
       htmlFile << "<br>" << endl;
     

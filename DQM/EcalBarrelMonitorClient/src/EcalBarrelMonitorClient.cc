@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  * 
- * $Date: 2005/11/13 19:54:45 $
- * $Revision: 1.17 $
+ * $Date: 2005/11/14 08:52:30 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  *
 */
@@ -64,7 +64,7 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps){
   baseHtmlDir_ = ps.getUntrackedParameter<string>("baseHtmlDir", ".");
 
   if ( baseHtmlDir_.size() != 0 ) {
-    cout << " HTML output will go to "
+    cout << " HTML output will go to"
          << " baseHtmlDir = " << baseHtmlDir_ << endl;
   } else {
     cout << " HTML output is disabled" << endl;
@@ -149,11 +149,13 @@ void EcalBarrelMonitorClient::endRun(void) {
 
   econn_ = 0;
 
-  try {
-    cout << "Opening DB connection." << endl;
-    if ( dbName_.size() != 0 ) econn_ = new EcalCondDBInterface(dbHostName_, dbName_, dbUserName_, dbPassword_);
-  } catch (runtime_error &e) {
-    cerr << e.what() << endl;
+  if ( dbName_.size() != 0 ) {
+    try {
+      cout << "Opening DB connection." << endl;
+      econn_ = new EcalCondDBInterface(dbHostName_, dbName_, dbUserName_, dbPassword_);
+    } catch (runtime_error &e) {
+      cerr << e.what() << endl;
+    }
   }
 
   // The objects necessary to identify a dataset
@@ -181,12 +183,19 @@ void EcalBarrelMonitorClient::endRun(void) {
   pedpresample_client_->endRun(econn_, runiov_, runtag_);
   testpulse_client_->endRun(econn_, runiov_, runtag_);
 
-  cout << "Closing DB connection." << endl;
-
-  if ( econn_ ) delete econn_;
+  if ( econn_ ) {
+    try {
+      cout << "Closing DB connection." << endl;
+      delete econn_;
+    } catch (runtime_error &e) {
+      cerr << e.what() << endl;
+    }
+  }
 
   if ( runiov_ ) delete runiov_;
   if ( runtag_ ) delete runtag_;
+
+  if ( baseHtmlDir_.size() != 0 ) this->htmlOutput();
 
 }
 
@@ -288,15 +297,13 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
       if ( s.substr(2,1) == "3" ) runtype_ = "testpulse";
     }
 
-    last_update_ = updates;
-
     location_ = "H4";
 
     cout << " run = "      << run_      <<
             " event = "    << evt_      << endl;
     cout << " updates = "  << updates   <<
             " status = "   << status_   <<
-            " runtype  = " << runtype_  <<
+            " runtype = " << runtype_  <<
             " location = " << location_ << endl;
 
     if ( h ) {
@@ -309,7 +316,9 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
 
     if ( status_ == "begin-of-run" ) {
       this->beginRun(c);
-    } else if ( status_ == "running" ) {
+    }
+
+    if ( status_ == "running" ) {
       if ( updates != 0 && updates % 50 == 0 ) {
                                              integrity_client_->analyze(e, c);
         if ( h && h->GetBinContent(2) != 0 ) laser_client_->analyze(e, c);
@@ -317,23 +326,26 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
                                              pedpresample_client_->analyze(e, c);
         if ( h && h->GetBinContent(4) != 0 ) testpulse_client_->analyze(e, c);
       }
-    } else if ( status_ == "end-of-run" ) {
+    }
+
+    if ( status_ == "end-of-run" ) {
                                            integrity_client_->analyze(e, c);
       if ( h && h->GetBinContent(2) != 0 ) laser_client_->analyze(e, c);
       if ( h && h->GetBinContent(3) != 0 ) pedestal_client_->analyze(e, c);
                                            pedpresample_client_->analyze(e, c);
       if ( h && h->GetBinContent(4) != 0 ) testpulse_client_->analyze(e, c);
       this->endRun();
-      if ( baseHtmlDir_.size() != 0 ) this->htmlOutput();
     }
 
     if ( updates != 0 && updates % 100 == 0 ) {
       mui_->save("EcalBarrelMonitorClient.root");
     }
 
+    last_update_ = updates;
+
   }
 
-//  sleep(1);
+  sleep(1);
 
 }
 
