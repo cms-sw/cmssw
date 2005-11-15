@@ -11,7 +11,7 @@
 <use name=FWCore/ParameterSet>
 <use name=boost>
 <use name=geant4>
-
+<use name=root>
 <export>
  <lib name=SimG4CMSCalo>
 </export>
