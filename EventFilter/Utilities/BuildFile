@@ -1,5 +1,5 @@
 <export>
 <lib name=EventFilterUtilities>
-<group name=XdaqBase>
+<use name=xdaq>
 </export>
-<group name=XdaqBase>
+<use name=xdaq>
