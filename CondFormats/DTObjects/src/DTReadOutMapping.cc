@@ -1,7 +1,7 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2005/10/04 10:53:00 $
+ *  $Date: 2005/11/14 19:17:30 $
  *  $Revision: 1.1 $
  *  \author Paolo Ronchese INFN Padova
  *
@@ -78,7 +78,35 @@ DTReadOutGeometryLink::~DTReadOutGeometryLink() {
 //--------------
 // Operations --
 //--------------
-//int DTReadOutMapping::readOutToGeometry( int      dduId,
+DTDetId DTReadOutMapping::readOutToGeometry( int      dduId,
+                                             int      rosId,
+                                             int      robId,
+                                             int      tdcId,
+                                             int  channelId ) const {
+
+  int   wheelId;
+  int stationId;
+  int  sectorId;
+  int      slId;
+  int   layerId;
+  int    cellId;
+
+  readOutToGeometry(      dduId,
+                          rosId,
+                          robId,
+                          tdcId,
+                      channelId,
+                        wheelId,
+                      stationId,
+                       sectorId,
+                           slId,
+                        layerId,
+                         cellId );
+
+  return DTDetId( wheelId, stationId, sectorId, slId, layerId, cellId );
+
+}
+
 void DTReadOutMapping::readOutToGeometry( int      dduId,
                                           int      rosId,
                                           int      robId,

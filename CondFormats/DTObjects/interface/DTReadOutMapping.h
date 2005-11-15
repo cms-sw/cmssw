@@ -5,7 +5,7 @@
  *  Description:
  *       Class to map read-out channels to physical drift tubes
  *
- *  $Date: 2005/10/04 10:53:00 $
+ *  $Date: 2005/11/14 19:17:18 $
  *  $Revision: 1.1 $
  *  \author Paolo Ronchese INFN Padova
  *
@@ -19,7 +19,7 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
-
+#include "DataFormats/MuonDetId/interface/DTDetId.h"
 
 //---------------
 // C++ Headers --
@@ -73,6 +73,12 @@ class DTReadOutMapping {
   void initSetup() const;
 
   /// transform identifiers
+  DTDetId readOutToGeometry( int      dduId,
+                             int      rosId,
+                             int      robId,
+                             int      tdcId,
+                             int  channelId ) const;
+
   void readOutToGeometry( int      dduId,
                           int      rosId,
                           int      robId,

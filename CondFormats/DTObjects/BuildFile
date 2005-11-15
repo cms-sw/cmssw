@@ -1,0 +1,10 @@
+<flags LCGDICT_ARGS="--">
+<use name=FWCore/Framework>
+<use name=Dictionary/Reflex>
+<use name=CondFormats/DTObjects>
+<export>
+ <use name=FWCore/Framework>
+ <use name=Dictionary/Reflex>
+ <lib name=CondFormatsDTObjects>
+ <lib name=DataFormatsMuonDetId>
+</export>
