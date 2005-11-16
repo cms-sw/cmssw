@@ -1,3 +1,6 @@
+** V01-00-01  [Wed Nov 16 06:00:58 2005]
+made Observer class actually work with SimActivityRegistry and added tests to prove it
+
 ** V01-00-00  [Tue Nov 15 11:00:08 2005]
 New Tag from Chris
 
