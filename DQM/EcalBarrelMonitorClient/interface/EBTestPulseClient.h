@@ -4,9 +4,10 @@
 /*
  * \file EBTestPulseClient.h
  *
- * $Date: 2005/11/16 08:36:44 $
- * $Revision: 1.5 $
+ * $Date: 2005/11/16 13:36:46 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
+ * \author F. Cossutti
  *
 */
 
@@ -33,6 +34,8 @@
 #include "CalibCalorimetry/EcalDBInterface/interface/MonPulseShapeDat.h"
 
 #include "TROOT.h"
+#include "TStyle.h"
+#include "TPaveStats.h"
 
 #include <memory>
 #include <iostream>
@@ -87,8 +90,31 @@ int jevt_;
 
 MonitorUserInterface* mui_;
 
-TProfile2D* h01_[36];
-TProfile2D* h02_[36];
+TProfile2D* ha01_[36];
+TProfile2D* ha02_[36];
+TProfile2D* ha03_[36];
+
+TProfile2D* hs01_[36];
+TProfile2D* hs02_[36];
+TProfile2D* hs03_[36];
+
+TH2F* g01_[36];
+TH2F* g02_[36];
+TH2F* g03_[36];
+
+TH1F* a01_[36];
+TH1F* a02_[36];
+TH1F* a03_[36];
+
+TH1D* s01_[36];
+TH1D* s02_[36];
+TH1D* s03_[36];
+
+// Quality check on crystals, one per each gain
+
+float amplitudeThreshold_;
+float RMSThreshold_;
+float threshold_on_AmplitudeErrorsNumber_;
 
 };
 

@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  * 
- * $Date: 2005/11/16 14:06:28 $
- * $Revision: 1.26 $
+ * $Date: 2005/11/16 15:19:36 $
+ * $Revision: 1.27 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -404,8 +404,10 @@ void EcalBarrelMonitorClient::htmlOutput(void){
   htmlFile << "</head>  " << endl;
   htmlFile << "<body>  " << endl;
   htmlFile << "<br>  " << endl;
-  htmlFile << "<h2><span style=\"color: rgb(0, 0, 153);\">" << endl;
-  htmlFile << "EXECUTED TASKS FOR RUN:&nbsp&nbsp&nbsp</span>" << run_ <<"</h2> " << endl;
+  htmlFile << "<h2>Executed tasks for run:&nbsp&nbsp&nbsp" << endl;
+  htmlFile << "<span style=\"color: rgb(0, 0, 153);\">" << run_ <<"</span></h2> " << endl;
+  htmlFile << "<h2>Run type:&nbsp&nbsp&nbsp" << endl;
+  htmlFile << "<span style=\"color: rgb(0, 0, 153);\">" << runtype_ <<"</span></h2> " << endl;
   htmlFile << "<hr>" << endl;
 
   htmlFile << "<ul>" << endl;

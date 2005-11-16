@@ -1,8 +1,8 @@
 /*
  * \file EBPedPreSampleClient.cc
  * 
- * $Date: 2005/11/16 14:37:07 $
- * $Revision: 1.22 $
+ * $Date: 2005/11/16 15:19:36 $
+ * $Revision: 1.23 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -267,6 +267,7 @@ void EBPedPreSampleClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << " http-equiv=\"content-type\">  " << endl;
   htmlFile << "  <title>Monitor:PedPreSampleTask output</title> " << endl;
   htmlFile << "</head>  " << endl;
+  htmlFile << "<style type=\"text/css\"> td { font-weight: bold } </style>" << endl;
   htmlFile << "<body>  " << endl;
   htmlFile << "<br>  " << endl;
   htmlFile << "<h2>Run:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << endl;

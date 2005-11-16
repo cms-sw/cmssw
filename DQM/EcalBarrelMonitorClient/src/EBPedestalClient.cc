@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  * 
- * $Date: 2005/11/16 13:40:38 $
- * $Revision: 1.18 $
+ * $Date: 2005/11/16 15:19:36 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -390,6 +390,7 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << " http-equiv=\"content-type\">  " << endl;
   htmlFile << "  <title>Monitor:PedestalTask output</title> " << endl;
   htmlFile << "</head>  " << endl;
+  htmlFile << "<style type=\"text/css\"> td { font-weight: bold } </style>" << endl;
   htmlFile << "<body>  " << endl;
   htmlFile << "<br>  " << endl;
   htmlFile << "<h2>Run:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << endl;
