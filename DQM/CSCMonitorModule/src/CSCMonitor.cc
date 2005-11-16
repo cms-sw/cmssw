@@ -25,9 +25,8 @@ CSCMonitor::CSCMonitor(const edm::ParameterSet& iConfig ){
   daemon.operator->();
 
   meCollection[0] = book_common();
-//  int chID=256;
-//  cout<<"about to book chamber plots"<<endl;
-//  meCollection[chID] = book_chamber(chID);
+  int chID=256; //temporary dummy value
+  meCollection[chID] = book_chamber(chID);
 
 
   dbe->showDirStructure();
