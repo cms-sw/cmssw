@@ -1,3 +1,6 @@
+** V01-00-02  [Wed Nov 16 10:22:44 2005]
+Second attempt removing DDLDocumentProvider.c
+
 ** V01-00-01  [Tue Nov 15 18:24:25 2005]
 Removed DDLDocumentProvider.cc
 
