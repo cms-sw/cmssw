@@ -9,7 +9,7 @@ class Observer : public boost::signals::trackable
 public:
     Observer() {}
     virtual ~Observer() {}
-    virtual void update(T const *) const = 0;
+    virtual void update(T) const = 0;
 };
 
 #endif
