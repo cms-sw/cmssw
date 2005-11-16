@@ -4,9 +4,10 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2005/11/13 19:54:45 $
- * $Revision: 1.11 $
+ * $Date: 2005/11/16 08:36:44 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
+ * \author F. Cossutti
  *
 */
 

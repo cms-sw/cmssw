@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  * 
- * $Date: 2005/11/16 09:42:12 $
- * $Revision: 1.17 $
+ * $Date: 2005/11/16 13:40:38 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -48,15 +48,15 @@ EBPedestalClient::EBPedestalClient(const edm::ParameterSet& ps, MonitorUserInter
   expectedMean_[1] = 2048;
   expectedMean_[2] = 2048;
   expectedMean_[3] = 2048;
-  
+
   discrepancyMean_[1] = 2040;
   discrepancyMean_[2] = 2042;
   discrepancyMean_[3] = 2044;
-  
+
   RMSThreshold_[1] = 2;
   RMSThreshold_[2] = 1;
   RMSThreshold_[3] = 2.2;
-   
+ 
 }
 
 EBPedestalClient::~EBPedestalClient(){

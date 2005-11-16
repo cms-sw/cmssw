@@ -1,9 +1,10 @@
 /*
  * \file EBPedPreSampleClient.cc
  * 
- * $Date: 2005/11/16 13:40:38 $
- * $Revision: 1.21 $
+ * $Date: 2005/11/16 14:37:07 $
+ * $Revision: 1.22 $
  * \author G. Della Ricca
+ * \author F. Cossutti
  *
 */
 
@@ -17,26 +18,25 @@ EBPedPreSampleClient::EBPedPreSampleClient(const edm::ParameterSet& ps, MonitorU
 
   for ( int i = 0; i < 36; i++ ) {
 
-    h01_[i] = 0;
+    h03_[i] = 0;
 
-    sprintf(histo, "EBPT pedestal PreSample quality G01 SM%02d", i+1);
-    g01_[i] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
+    sprintf(histo, "EBPT pedestal PreSample quality G12 SM%02d", i+1);
+    g03_[i] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
 
-    sprintf(histo, "EBPT pedestal PreSample mean G01 SM%02d", i+1);
-    p01_[i] = new TH1F(histo, histo, 100, 150., 250.);
+    sprintf(histo, "EBPT pedestal PreSample mean G12 SM%02d", i+1);
+    p03_[i] = new TH1F(histo, histo, 100, 150., 250.);
 
-    sprintf(histo, "EBPT pedestal PreSample rms G01 SM%02d", i+1);
-    r01_[i] = new TH1F(histo, histo, 100, 0., 10.);
+    sprintf(histo, "EBPT pedestal PreSample rms G12 SM%02d", i+1);
+    r03_[i] = new TH1F(histo, histo, 100, 0., 10.);
 
   }
 
-
    expectedMean_ = 2048;
-  
+
    discrepancyMean_ = 2044;
-  
+
    RMSThreshold_ = 2.2;
-   
+
 }
 
 EBPedPreSampleClient::~EBPedPreSampleClient(){
@@ -45,13 +45,13 @@ EBPedPreSampleClient::~EBPedPreSampleClient(){
 
   for ( int i = 0; i < 36; i++ ) {
 
-    if ( h01_[i] ) delete h01_[i];
+    if ( h03_[i] ) delete h03_[i];
 
-    delete g01_[i];
+    delete g03_[i];
 
-    delete p01_[i];
+    delete p03_[i];
 
-    delete r01_[i];
+    delete r03_[i];
 
   }
 
@@ -75,22 +75,22 @@ void EBPedPreSampleClient::beginRun(const edm::EventSetup& c){
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
-    if ( h01_[ism-1] ) delete h01_[ism-1];
-    h01_[ism-1] = 0;
+    if ( h03_[ism-1] ) delete h03_[ism-1];
+    h03_[ism-1] = 0;
 
-    g01_[ism-1]->Reset();
+    g03_[ism-1]->Reset();
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
 
-        g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), 2.);
+        g03_[ism-1]->SetBinContent(g03_[ism-1]->GetBin(ie, ip), 2.);
 
       }
     }
 
-    p01_[ism-1]->Reset();
+    p03_[ism-1]->Reset();
 
-    r01_[ism-1]->Reset();
+    r03_[ism-1]->Reset();
 
   }
 
@@ -119,24 +119,24 @@ void EBPedPreSampleClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, Ru
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
-    float num01;
-    float mean01;
-    float rms01;
+    float num03;
+    float mean03;
+    float rms03;
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
 
-        num01  = -1.;
-        mean01 = -1.;
-        rms01  = -1.;
+        num03  = -1.;
+        mean03 = -1.;
+        rms03  = -1.;
 
         bool update_channel = false;
 
-        if ( h01_[ism-1] && h01_[ism-1]->GetEntries() >= n_min_tot ) {
-          num01 = h01_[ism-1]->GetBinEntries(h01_[ism-1]->GetBin(ie, ip));
-          if ( num01 >= n_min_bin ) {
-            mean01 = h01_[ism-1]->GetBinContent(h01_[ism-1]->GetBin(ie, ip));
-            rms01  = h01_[ism-1]->GetBinError(h01_[ism-1]->GetBin(ie, ip));
+        if ( h03_[ism-1] && h03_[ism-1]->GetEntries() >= n_min_tot ) {
+          num03 = h03_[ism-1]->GetBinEntries(h03_[ism-1]->GetBin(ie, ip));
+          if ( num03 >= n_min_bin ) {
+            mean03 = h03_[ism-1]->GetBinContent(h03_[ism-1]->GetBin(ie, ip));
+            rms03  = h03_[ism-1]->GetBinError(h03_[ism-1]->GetBin(ie, ip));
             update_channel = true;
           }
         }
@@ -147,27 +147,27 @@ void EBPedPreSampleClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, Ru
 
             cout << "Inserting dataset for SM=" << ism << endl;
 
-            cout << "G01 (" << ie << "," << ip << ") " << num01  << " "
-                                                       << mean01 << " "
-                                                       << rms01  << endl;
+            cout << "G12 (" << ie << "," << ip << ") " << num03  << " "
+                                                       << mean03 << " "
+                                                       << rms03  << endl;
           }
 
-//          p.setPedMeanG01(mean01);
-//          p.setPedRMSG01(rms01);
+//          p.setPedMeanG12(mean03);
+//          p.setPedRMSG12(rms03);
 
           float val;
 
-          if ( g01_[ism-1] ) {
+          if ( g03_[ism-1] ) {
             val = 1.;
-            if ( abs(mean01 - expectedMean_) > discrepancyMean_ )
+            if ( abs(mean03 - expectedMean_) > discrepancyMean_ )
               val = 0.;
-            if ( rms01 > RMSThreshold_ )
+            if ( rms03 > RMSThreshold_ )
               val = 0.;
-            g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), val);
+            g03_[ism-1]->SetBinContent(g03_[ism-1]->GetBin(ie, ip), val);
           }
 
-          if ( p01_[ism-1] ) p01_[ism-1]->Fill(mean01);
-          if ( r01_[ism-1] ) r01_[ism-1]->Fill(rms01);
+          if ( p03_[ism-1] ) p03_[ism-1]->Fill(mean03);
+          if ( r03_[ism-1] ) r03_[ism-1]->Fill(rms03);
 
 //          p.setTaskStatus(1);
 
@@ -202,21 +202,21 @@ void EBPedPreSampleClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, Ru
 void EBPedPreSampleClient::subscribe(void){
 
   // subscribe to all monitorable matching pattern
-  mui_->subscribe("*/EcalBarrel/EBPedPreSampleTask/Gain01/EBPT pedestal PreSample SM*");
+  mui_->subscribe("*/EcalBarrel/EBPedPreSampleTask/Gain12/EBPT pedestal PreSample SM*");
 
 }
 
 void EBPedPreSampleClient::subscribeNew(void){
 
   // subscribe to new monitorable matching pattern
-  mui_->subscribeNew("*/EcalBarrel/EBPedPreSampleTask/Gain01/EBPT pedestal PreSample SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBPedPreSampleTask/Gain12/EBPT pedestal PreSample SM*");
 
 }
 
 void EBPedPreSampleClient::unsubscribe(void){
 
   // unsubscribe to all monitorable matching pattern
-  mui_->unsubscribe("*/EcalBarrel/EBPedPreSampleTask/Gain01/EBPT pedestal PreSample SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBPedPreSampleTask/Gain12/EBPT pedestal PreSample SM*");
 
 }
 
@@ -236,14 +236,14 @@ void EBPedPreSampleClient::analyze(const edm::Event& e, const edm::EventSetup& c
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
-    sprintf(histo, "Collector/FU0/EcalBarrel/EBPedPreSampleTask/Gain01/EBPT pedestal PreSample SM%02d G01", ism);
+    sprintf(histo, "Collector/FU0/EcalBarrel/EBPedPreSampleTask/Gain12/EBPT pedestal PreSample SM%02d G12", ism);
     me = mui_->get(histo);
     if ( me ) {
       cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
-        if ( h01_[ism-1] ) delete h01_[ism-1];
-        h01_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone());
+        if ( h03_[ism-1] ) delete h03_[ism-1];
+        h03_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone());
       }
     }
 
@@ -302,12 +302,12 @@ void EBPedPreSampleClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   for ( int ism = 1 ; ism <= 36 ; ism++ ) {
     
-    if ( g01_[ism-1] && p01_[ism-1] && r01_[ism-1] ) {
+    if ( g03_[ism-1] && p03_[ism-1] && r03_[ism-1] ) {
 
       TH2F* obj2f = 0; 
 
-      meName = g01_[ism-1]->GetName();
-      obj2f = g01_[ism-1];
+      meName = g03_[ism-1]->GetName();
+      obj2f = g03_[ism-1];
 
       TCanvas *cQual = new TCanvas("cQual" , "Temp", 2*csize , csize );
       for ( unsigned int iQual = 0 ; iQual < meName.size(); iQual++ ) {
@@ -335,8 +335,8 @@ void EBPedPreSampleClient::htmlOutput(int run, string htmlDir, string htmlName){
         
       TH1F* obj1f = 0; 
         
-      meName = p01_[ism-1]->GetName();
-      obj1f = p01_[ism-1];
+      meName = p03_[ism-1]->GetName();
+      obj1f = p03_[ism-1];
         
       TCanvas *cMean = new TCanvas("cMean" , "Temp", csize , csize );
       for ( unsigned int iMean=0 ; iMean < meName.size(); iMean++ ) {
@@ -366,8 +366,8 @@ void EBPedPreSampleClient::htmlOutput(int run, string htmlDir, string htmlName){
       
       // RMS distributions
       
-          meName = r01_[ism-1]->GetName();
-          obj1f = r01_[ism-1];
+          meName = r03_[ism-1]->GetName();
+          obj1f = r03_[ism-1];
 
       TCanvas *cRMS = new TCanvas("cRMS" , "Temp", csize , csize );
       for ( unsigned int iRMS=0 ; iRMS < meName.size(); iRMS++ ) {

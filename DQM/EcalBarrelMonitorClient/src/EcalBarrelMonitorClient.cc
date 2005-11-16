@@ -1,9 +1,10 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  * 
- * $Date: 2005/11/16 13:40:38 $
- * $Revision: 1.25 $
+ * $Date: 2005/11/16 14:06:28 $
+ * $Revision: 1.26 $
  * \author G. Della Ricca
+ * \author F. Cossutti
  *
 */
 

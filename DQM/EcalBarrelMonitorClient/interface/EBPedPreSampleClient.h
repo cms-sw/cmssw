@@ -4,9 +4,10 @@
 /*
  * \file EBPedPreSampleClient.h
  *
- * $Date: 2005/11/16 12:30:58 $
- * $Revision: 1.9 $
+ * $Date: 2005/11/16 13:36:46 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
+ * \author F. Cossutti
  *
 */
 
@@ -88,13 +89,13 @@ int jevt_;
 
 MonitorUserInterface* mui_;
 
-TProfile2D* h01_[36];
+TProfile2D* h03_[36];
 
-TH2F* g01_[36];
+TH2F* g03_[36];
 
-TH1F* p01_[36];
+TH1F* p03_[36];
 
-TH1F* r01_[36];
+TH1F* r03_[36];
 
 // Quality check on crystals, one per each gain
 

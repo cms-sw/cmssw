@@ -4,8 +4,8 @@
 /*
  * \file EBPedPreSampleTask.h
  *
- * $Date: 2005/11/16 08:36:44 $
- * $Revision: 1.3 $
+ * $Date: 2005/11/16 12:30:58 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  *
 */
@@ -61,7 +61,7 @@ private:
 
 int ievt_;
 
-MonitorElement* mePedMapG01_[36];
+MonitorElement* mePedMapG12_[36];
 
 ofstream logFile_;
 
