@@ -4,8 +4,8 @@
 /*
  * \file EBPedPreSampleClient.h
  *
- * $Date: 2005/11/15 13:54:30 $
- * $Revision: 1.6 $
+ * $Date: 2005/11/16 08:36:44 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  *
 */
@@ -32,6 +32,8 @@
 //#include "CalibCalorimetry/EcalDBInterface/interface/MonPedPreSampleDat.h"
 
 #include "TROOT.h"
+#include "TStyle.h"
+#include "TPaveStats.h"
 
 #include <memory>
 #include <iostream>
@@ -93,6 +95,12 @@ TH2F* g03_[36];
 TH1F* p03_[36];
 
 TH1F* r03_[36];
+
+// Quality check on crystals, one per each gain
+
+float expectedMean_;
+float discrepancyMean_;
+float RMSThreshold_; 
 
 };
 
