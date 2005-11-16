@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  * 
- * $Date: 2005/11/15 21:02:45 $
- * $Revision: 1.12 $
+ * $Date: 2005/11/16 08:36:44 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  *
 */
@@ -28,6 +28,13 @@ EBTestPulseClient::~EBTestPulseClient(){
 
   this->unsubscribe();
 
+  for ( int i = 0; i < 36; i++ ) {
+
+    if ( h01_[i] ) delete h01_[i];
+    if ( h02_[i] ) delete h02_[i];
+
+  }
+
 }
 
 void EBTestPulseClient::beginJob(const edm::EventSetup& c){
@@ -50,6 +57,8 @@ void EBTestPulseClient::beginRun(const edm::EventSetup& c){
 
     if ( h01_[i] ) delete h01_[i];
     if ( h02_[i] ) delete h02_[i];
+    h01_[i] = 0;
+    h02_[i] = 0;
 
   }
 
@@ -199,7 +208,7 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 )  
-  cout << "EBTestPulseClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+    cout << "EBTestPulseClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
 
   this->subscribeNew();
 

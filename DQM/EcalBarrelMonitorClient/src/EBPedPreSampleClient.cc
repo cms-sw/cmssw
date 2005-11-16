@@ -1,8 +1,8 @@
 /*
  * \file EBPedPreSampleClient.cc
  * 
- * $Date: 2005/11/15 21:02:45 $
- * $Revision: 1.16 $
+ * $Date: 2005/11/16 08:36:44 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  *
 */
@@ -36,6 +36,18 @@ EBPedPreSampleClient::~EBPedPreSampleClient(){
 
   this->unsubscribe();
 
+  for ( int i = 0; i < 36; i++ ) {
+
+    if ( h03_[i] ) delete h03_[i];
+
+    delete g03_[i];
+
+    delete p03_[i];
+
+    delete r03_[i];
+
+  }
+
 }
 
 void EBPedPreSampleClient::beginJob(const edm::EventSetup& c){
@@ -57,12 +69,7 @@ void EBPedPreSampleClient::beginRun(const edm::EventSetup& c){
   for ( int i = 0; i < 36; i++ ) {
 
     if ( h03_[i] ) delete h03_[i];
-
-    delete g03_[i];
-
-    delete p03_[i];
-
-    delete r03_[i];
+    h03_[i] = 0;
 
   }
 
@@ -183,7 +190,7 @@ void EBPedPreSampleClient::analyze(const edm::Event& e, const edm::EventSetup& c
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 )  
-  cout << "EBPedPreSampleClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+    cout << "EBPedPreSampleClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
 
   this->subscribeNew();
 

@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  * 
- * $Date: 2005/11/15 21:02:45 $
- * $Revision: 1.14 $
+ * $Date: 2005/11/16 08:36:44 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  *
 */
@@ -31,6 +31,7 @@ EBIntegrityClient::~EBIntegrityClient(){
 
   this->unsubscribe();
 
+  if ( h00_ ) delete h00_;
   for ( int i = 0; i < 36; i++ ) {
   
     if ( h01_[i] ) delete h01_[i];
@@ -57,6 +58,21 @@ void EBIntegrityClient::beginRun(const edm::EventSetup& c){
   jevt_ = 0;
 
   this->subscribe();
+
+  if ( h00_ ) delete h00_;
+  h00_ = 0;
+  for ( int i = 0; i < 36; i++ ) {
+
+    if ( h01_[i] ) delete h01_[i];
+    if ( h02_[i] ) delete h02_[i];
+    if ( h03_[i] ) delete h03_[i];
+    if ( h04_[i] ) delete h04_[i];
+    h01_[i] = 0;
+    h02_[i] = 0;
+    h03_[i] = 0;
+    h04_[i] = 0;
+
+  }
 
 }
 
@@ -199,7 +215,7 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 )
-  cout << "EBIntegrityClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+    cout << "EBIntegrityClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
 
   this->subscribeNew();
 

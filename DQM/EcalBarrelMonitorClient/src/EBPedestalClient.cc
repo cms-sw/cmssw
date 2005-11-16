@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  * 
- * $Date: 2005/11/15 21:02:45 $
- * $Revision: 1.15 $
+ * $Date: 2005/11/16 08:36:44 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -63,7 +63,7 @@ EBPedestalClient::~EBPedestalClient(){
 
   this->unsubscribe();
 
-  for ( int i=0 ; i<36 ; i++ ) {
+  for ( int i = 0 ; i < 36 ; i++ ) {
 
     if ( h01_[i] ) delete h01_[i];
     if ( h02_[i] ) delete h02_[i];
@@ -103,6 +103,9 @@ void EBPedestalClient::beginRun(const edm::EventSetup& c){
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
+    if ( h01_[ism-1] ) delete h01_[ism-1];
+    if ( h02_[ism-1] ) delete h02_[ism-1];
+    if ( h03_[ism-1] ) delete h03_[ism-1];
     h01_[ism-1] = 0;
     h02_[ism-1] = 0;
     h03_[ism-1] = 0;
@@ -323,7 +326,7 @@ void EBPedestalClient::analyze(const edm::Event& e, const edm::EventSetup& c){
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 )  
-  cout << "EBPedestalClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+    cout << "EBPedestalClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
 
   this->subscribeNew();
 
@@ -599,7 +602,7 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir){
 
       htmlFile << "</tr>" << endl;
 
-      htmlFile << "<tr align=\"center\"><td colspan=\"2\">Gain 1</td><td colspan=\"2\">Gain 6</td><td colspan=\"2\">Gain 12</td><tr>" << endl;
+      htmlFile << "<tr align=\"center\"><td colspan=\"2\">Gain 1</td><td colspan=\"2\">Gain 6</td><td colspan=\"2\">Gain 12</td></tr>" << endl;
       htmlFile << "</table>" << endl;
       htmlFile << "<br>" << endl;
     

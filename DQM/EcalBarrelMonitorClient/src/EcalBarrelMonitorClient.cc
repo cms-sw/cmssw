@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  * 
- * $Date: 2005/11/16 08:36:44 $
- * $Revision: 1.22 $
+ * $Date: 2005/11/16 08:48:15 $
+ * $Revision: 1.23 $
  * \author G. Della Ricca
  *
 */
@@ -121,6 +121,9 @@ void EcalBarrelMonitorClient::beginRun(const edm::EventSetup& c){
   last_jevt_ = -1;
 
   this->subscribe();
+
+  if ( h_ ) delete h_;
+  h_ = 0;
 
   status_  = "unknown";
   run_     = 0;
@@ -244,7 +247,7 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 )
-  cout << "EcalBarrelMonitorClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+    cout << "EcalBarrelMonitorClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
 
   string s;
 
@@ -356,7 +359,7 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
   if ( run_ != 0 &&
        evt_ != 0 &&
        status_ == "running" &&
-       jevt_ - last_jevt_ > 500 ) {
+       jevt_ - last_jevt_ > 200 ) {
 
     cout << "Running with no updates since too long ..." << endl;
 

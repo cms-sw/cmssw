@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  * 
- * $Date: 2005/11/15 21:02:45 $
- * $Revision: 1.14 $
+ * $Date: 2005/11/16 08:36:44 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  *
 */
@@ -30,6 +30,15 @@ EBLaserClient::~EBLaserClient(){
 
   this->unsubscribe();
 
+  for ( int i = 0; i < 36; i++ ) {
+
+    if ( h01_[i] ) delete h01_[i];
+    if ( h02_[i] ) delete h02_[i];
+    if ( h03_[i] ) delete h03_[i];
+    if ( h04_[i] ) delete h04_[i];
+
+  }
+
 }
 
 void EBLaserClient::beginJob(const edm::EventSetup& c){
@@ -54,6 +63,10 @@ void EBLaserClient::beginRun(const edm::EventSetup& c){
     if ( h02_[i] ) delete h02_[i];
     if ( h03_[i] ) delete h03_[i];
     if ( h04_[i] ) delete h04_[i];
+    h01_[i] = 0;
+    h02_[i] = 0;
+    h03_[i] = 0;
+    h04_[i] = 0;
 
   }
 
@@ -229,7 +242,7 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 )  
-  cout << "EBLaserClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+    cout << "EBLaserClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
 
   this->subscribeNew();
 
