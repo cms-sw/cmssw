@@ -5,12 +5,20 @@ Glossary
 
 KitchenSink		Initializes certain static-lifetime entities
 			which need to be around before any subtantive
-			code in main() is done.  Singleton, instantiated 
-			at the begining of main().
+			code in main() is done.  Instantiated at the 
+			begining of main(); goes out of scope only when
+			main() terminates.  We rely on precisely one 
+			KitchenSink to be instantiated.
 			
 MessageLoggerSpigot	Owns the messageLoggerScribe thread -- it starts it, 
-			it makes it (tells it to) go away.  Singleton, 
-			instantiated early in instantiation of a KitchenSink.
+			it makes it (tells it to) go away.  Concpetually
+			a destructible singleton:  We rely on the fact that
+			the dtor is invoked at the end of the job, to 
+			cleanly terminate the messageLoggerScribe thread.
+			Instantiated early in instantiation of a KitchenSink.
+			We do not use the DestructibleSingleton pattern 
+			because we want to keep the code reuired in 
+			KitchenSink as trivial as possible.
 
 MessageLoggerQ		Interthread communication buffer of MessageLoggerSlot 
 			blocks.  Handles all the locking, blocking, sleeping, 
