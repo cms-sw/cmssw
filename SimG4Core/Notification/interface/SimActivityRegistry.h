@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Nov 13 11:43:40 EST 2005
-// $Id$
+// $Id: SimActivityRegistry.h,v 1.1 2005/11/15 03:42:01 chrjones Exp $
 //
 
 // system include files
@@ -38,7 +38,7 @@ class EndOfTrack;
 class DDDWorld;
 class G4Step;
 
-#define SAR_CONNECT_METHOD(signal) void connect(Observer<signal>* iObject) { watch ## signal (boost::bind(boost::mem_fn(&Observer<signal>::update), iObject, _1)); }
+#define SAR_CONNECT_METHOD(signal) void connect(Observer<const signal*>* iObject) { watch ## signal (boost::bind(boost::mem_fn(&Observer<const signal*>::update), iObject, _1)); }
 
 class SimActivityRegistry
 {
