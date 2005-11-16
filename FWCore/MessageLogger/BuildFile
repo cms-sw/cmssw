@@ -5,6 +5,7 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Utilities>
 <use name=FWCore/ServiceRegistry>
+<use name=IOPool/Streamer>
 <export>
  <lib name=FWCoreMessageLogger>
  <use name=boost>
@@ -13,4 +14,5 @@
  <use name=FWCore/ParameterSet>
  <use name=FWCore/Utilities>
  <use name=FWCore/ServiceRegistry>
+ <use name=IOPool/Streamer>
 </export>
