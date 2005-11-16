@@ -1,3 +1,6 @@
+** V01-00-02  [Wed Nov 16 06:03:59 2005]
+updated DDDWorldObserver to new Observer interface
+
 ** V01-00-01  [Wed Nov 16 00:35:34 2005]
 fixed compilation problem from change in FWCore and made tests work with new configuration for XML geometry reading
 
