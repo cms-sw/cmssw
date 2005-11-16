@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Nov 13 15:08:12 EST 2005
-// $Id$
+// $Id: SimActivityRegistryEnroller.h,v 1.1 2005/11/15 03:42:01 chrjones Exp $
 //
 
 // system include files
@@ -37,12 +37,12 @@
 namespace enroller_helper {
   template <class T>
     struct Enrollment {
-      static void enroll(SimActivityRegistry& iReg, Observer<T>* iObs){
-	iReg.connect(*iObs);
+      static void enroll(SimActivityRegistry& iReg, Observer<const T*>* iObs){
+	iReg.connect(iObs);
       }
       static void enroll(SimActivityRegistry&, void*) {}
     };
-  
+   
   //this class is used to terminate our recursion
   template <class T>
     struct LastEnrollerHelper {
