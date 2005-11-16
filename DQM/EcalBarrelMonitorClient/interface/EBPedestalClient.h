@@ -4,9 +4,10 @@
 /*
  * \file EBPedestalClient.h
  *
- * $Date: 2005/11/15 15:52:03 $
- * $Revision: 1.7 $
+ * $Date: 2005/11/15 21:03:05 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
+ * \author F. Cossutti
  *
 */
 
@@ -88,21 +89,21 @@ int jevt_;
 
 MonitorUserInterface* mui_;
 
-TProfile2D* h01[36];
-TProfile2D* h02[36];
-TProfile2D* h03[36];
+TProfile2D* h01_[36];
+TProfile2D* h02_[36];
+TProfile2D* h03_[36];
 
-TH2F* g01[36];
-TH2F* g02[36];
-TH2F* g03[36];
+TH2F* g01_[36];
+TH2F* g02_[36];
+TH2F* g03_[36];
 
-TH1F* p01[36];
-TH1F* p02[36];
-TH1F* p03[36];
+TH1F* p01_[36];
+TH1F* p02_[36];
+TH1F* p03_[36];
 
-TH1F* r01[36];
-TH1F* r02[36];
-TH1F* r03[36];
+TH1F* r01_[36];
+TH1F* r02_[36];
+TH1F* r03_[36];
 
 // Quality check on crystals, one per each gain
 

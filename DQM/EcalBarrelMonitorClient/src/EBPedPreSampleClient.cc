@@ -1,8 +1,8 @@
 /*
  * \file EBPedPreSampleClient.cc
  * 
- * $Date: 2005/11/15 20:11:34 $
- * $Revision: 1.15 $
+ * $Date: 2005/11/15 21:02:45 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  *
 */
@@ -17,7 +17,16 @@ EBPedPreSampleClient::EBPedPreSampleClient(const edm::ParameterSet& ps, MonitorU
 
   for ( int i = 0; i < 36; i++ ) {
 
-    h01[i] = 0;
+    h03_[i] = 0;
+
+    sprintf(histo, "EBPT pedestal PreSample quality G12 SM%02d", i+1);
+    g03_[i] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
+
+    sprintf(histo, "EBPT pedestal PreSample mean G01 SM%02d", i+1);
+    p03_[i] = new TH1F(histo, histo, 100, 150., 250.);
+
+    sprintf(histo, "EBPT pedestal PreSample rms G01 SM%02d", i+1);
+    r03_[i] = new TH1F(histo, histo, 100, 0., 10.);
 
   }
 
@@ -47,7 +56,13 @@ void EBPedPreSampleClient::beginRun(const edm::EventSetup& c){
 
   for ( int i = 0; i < 36; i++ ) {
 
-    if ( h01[i] ) delete h01[i];
+    if ( h03_[i] ) delete h03_[i];
+
+    delete g03_[i];
+
+    delete p03_[i];
+
+    delete r03_[i];
 
   }
 
@@ -76,24 +91,24 @@ void EBPedPreSampleClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, Ru
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
-    float num01;
-    float mean01;
-    float rms01;
+    float num03;
+    float mean03;
+    float rms03;
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
 
-        num01  = -1.;
-        mean01 = -1.;
-        rms01  = -1.;
+        num03  = -1.;
+        mean03 = -1.;
+        rms03  = -1.;
 
         bool update_channel = false;
 
-        if ( h01[ism-1] && h01[ism-1]->GetEntries() >= n_min_tot ) {
-          num01 = h01[ism-1]->GetBinEntries(h01[ism-1]->GetBin(ie, ip));
-          if ( num01 >= n_min_bin ) {
-            mean01 = h01[ism-1]->GetBinContent(h01[ism-1]->GetBin(ie, ip));
-            rms01  = h01[ism-1]->GetBinError(h01[ism-1]->GetBin(ie, ip));
+        if ( h03_[ism-1] && h03_[ism-1]->GetEntries() >= n_min_tot ) {
+          num03 = h03_[ism-1]->GetBinEntries(h03_[ism-1]->GetBin(ie, ip));
+          if ( num03 >= n_min_bin ) {
+            mean03 = h03_[ism-1]->GetBinContent(h03_[ism-1]->GetBin(ie, ip));
+            rms03  = h03_[ism-1]->GetBinError(h03_[ism-1]->GetBin(ie, ip));
             update_channel = true;
           }
         }
@@ -104,13 +119,13 @@ void EBPedPreSampleClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, Ru
 
             cout << "Inserting dataset for SM=" << ism << endl;
 
-            cout << "G01 (" << ie << "," << ip << ") " << num01  << " "
-                                                       << mean01 << " "
-                                                       << rms01  << endl;
+            cout << "G12 (" << ie << "," << ip << ") " << num03  << " "
+                                                       << mean03 << " "
+                                                       << rms03  << endl;
           }
 
-//          p.setPedMeanG1(mean01);
-//          p.setPedRMSG1(rms01);
+//          p.setPedMeanG12(mean03);
+//          p.setPedRMSG12(rms03);
 
 //          p.setTaskStatus(1);
 
@@ -145,21 +160,21 @@ void EBPedPreSampleClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, Ru
 void EBPedPreSampleClient::subscribe(void){
 
   // subscribe to all monitorable matching pattern
-  mui_->subscribe("*/EcalBarrel/EBPedPreSampleTask/Gain01/EBPT pedestal PreSample SM*");
+  mui_->subscribe("*/EcalBarrel/EBPedPreSampleTask/Gain12/EBPT pedestal PreSample SM*");
 
 }
 
 void EBPedPreSampleClient::subscribeNew(void){
 
   // subscribe to new monitorable matching pattern
-  mui_->subscribeNew("*/EcalBarrel/EBPedPreSampleTask/Gain01/EBPT pedestal PreSample SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBPedPreSampleTask/Gain12/EBPT pedestal PreSample SM*");
 
 }
 
 void EBPedPreSampleClient::unsubscribe(void){
 
   // unsubscribe to all monitorable matching pattern
-  mui_->unsubscribe("*/EcalBarrel/EBPedPreSampleTask/Gain01/EBPT pedestal PreSample SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBPedPreSampleTask/Gain12/EBPT pedestal PreSample SM*");
 
 }
 
@@ -179,14 +194,15 @@ void EBPedPreSampleClient::analyze(const edm::Event& e, const edm::EventSetup& c
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
-    if ( h01[ism-1] ) delete h01[ism-1];
-    h01[ism-1] = 0;
-    sprintf(histo, "Collector/FU0/EcalBarrel/EBPedPreSampleTask/Gain01/EBPT pedestal PreSample SM%02d G01", ism);
+    sprintf(histo, "Collector/FU0/EcalBarrel/EBPedPreSampleTask/Gain12/EBPT pedestal PreSample SM%02d G12", ism);
     me = mui_->get(histo);
     if ( me ) {
       cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-      if ( ob ) h01[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone());
+      if ( ob ) {
+        if ( h03_[ism-1] ) delete h03_[ism-1];
+        h03_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone());
+      }
     }
 
   }

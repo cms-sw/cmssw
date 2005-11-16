@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  * 
- * $Date: 2005/11/15 20:11:34 $
- * $Revision: 1.13 $
+ * $Date: 2005/11/15 21:02:45 $
+ * $Revision: 1.14 $
  * \author G. Della Ricca
  *
 */
@@ -15,13 +15,13 @@ EBIntegrityClient::EBIntegrityClient(const edm::ParameterSet& ps, MonitorUserInt
 
   Char_t histo[50];
 
-  h00 = 0;
+  h00_ = 0;
   for ( int i = 0; i < 36; i++ ) {
 
-    h01[i] = 0;
-    h02[i] = 0;
-    h03[i] = 0;
-    h04[i] = 0;
+    h01_[i] = 0;
+    h02_[i] = 0;
+    h03_[i] = 0;
+    h04_[i] = 0;
 
   }
 
@@ -33,10 +33,10 @@ EBIntegrityClient::~EBIntegrityClient(){
 
   for ( int i = 0; i < 36; i++ ) {
   
-    if ( h01[i] ) delete h01[i];
-    if ( h02[i] ) delete h02[i];
-    if ( h03[i] ) delete h03[i];
-    if ( h04[i] ) delete h04[i];
+    if ( h01_[i] ) delete h01_[i];
+    if ( h02_[i] ) delete h02_[i];
+    if ( h03_[i] ) delete h03_[i];
+    if ( h04_[i] ) delete h04_[i];
 
   }
 
@@ -89,31 +89,31 @@ void EBIntegrityClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
 
         num00 = -1.;
 
-        if ( h00 ) {
-          num00  = h00->GetBinContent(h00->GetBin(ie, ip));
+        if ( h00_ ) {
+          num00  = h00_->GetBinContent(h00_->GetBin(ie, ip));
         }
 
         num01 = num02 = num03 = num04 = -1.;
 
         bool update_channel = false;
 
-        if ( h01[ism-1] ) {
-          num01  = h01[ism-1]->GetBinContent(h01[ism-1]->GetBin(ie, ip));
+        if ( h01_[ism-1] ) {
+          num01  = h01_[ism-1]->GetBinContent(h01_[ism-1]->GetBin(ie, ip));
           update_channel = true;
         }
 
-        if ( h02[ism-1] ) {
-          num02  = h02[ism-1]->GetBinContent(h02[ism-1]->GetBin(ie, ip));
+        if ( h02_[ism-1] ) {
+          num02  = h02_[ism-1]->GetBinContent(h02_[ism-1]->GetBin(ie, ip));
           update_channel = true;
         }
 
-        if ( h03[ism-1] ) {
-          num03  = h03[ism-1]->GetBinContent(h03[ism-1]->GetBin(ie, ip));
+        if ( h03_[ism-1] ) {
+          num03  = h03_[ism-1]->GetBinContent(h03_[ism-1]->GetBin(ie, ip));
           update_channel = true;
         }
 
-        if ( h04[ism-1] ) {
-          num04  = h04[ism-1]->GetBinContent(h04[ism-1]->GetBin(ie, ip));
+        if ( h04_[ism-1] ) {
+          num04  = h04_[ism-1]->GetBinContent(h04_[ism-1]->GetBin(ie, ip));
           update_channel = true;
         }
 
@@ -208,56 +208,61 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
   MonitorElement* me;
   MonitorElementT<TNamed>* ob;
 
-  if ( h00 ) delete h00;
-  h00 = 0;
   sprintf(histo, "Collector/FU0/EcalBarrel/EcalIntegrity/DCC size error");
   me = mui_->get(histo);
   if ( me ) {
     cout << "Found '" << histo << "'" << endl;
     ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-    if ( ob ) h00 = dynamic_cast<TH2D*> (ob->operator->());
+    if ( ob ) {
+      if ( h00_ ) delete h00_;
+      h00_ = dynamic_cast<TH2D*> (ob->operator->());
+    }
   }
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
-    if ( h01[ism-1] ) delete h01[ism-1];
-    h01[ism-1] = 0;
     sprintf(histo, "Collector/FU0/EcalBarrel/EcalIntegrity/Gain/EI gain SM%02d", ism);
     me = mui_->get(histo);
     if ( me ) {
       cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-      if ( ob ) h01[ism-1] = dynamic_cast<TH2D*> ((ob->operator->())->Clone());
+      if ( ob ) {
+        if ( h01_[ism-1] ) delete h01_[ism-1];
+        h01_[ism-1] = dynamic_cast<TH2D*> ((ob->operator->())->Clone());
+      }
     }
 
-    if ( h02[ism-1] ) delete h02[ism-1];
-    h02[ism-1] = 0;
     sprintf(histo, "Collector/FU0/EcalBarrel/EcalIntegrity/ChId/EI ChId SM%02d", ism);
     me = mui_->get(histo);
     if ( me ) {
       cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-      if ( ob ) h02[ism-1] = dynamic_cast<TH2D*> ((ob->operator->())->Clone());
+      if ( ob ) {
+        if ( h02_[ism-1] ) delete h02_[ism-1];
+        h02_[ism-1] = dynamic_cast<TH2D*> ((ob->operator->())->Clone());
+      }
     }
 
-    if ( h03[ism-1] ) delete h03[ism-1];
-    h03[ism-1] = 0;
     sprintf(histo, "Collector/FU0/EcalBarrel/EcalIntegrity/TTId/EI TTId SM%02d", ism);
     me = mui_->get(histo);
     if ( me ) {
       cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-      if ( ob ) h03[ism-1] = dynamic_cast<TH2D*> ((ob->operator->())->Clone());
+      if ( ob ) {
+        if ( h03_[ism-1] ) delete h03_[ism-1];
+        h03_[ism-1] = dynamic_cast<TH2D*> ((ob->operator->())->Clone());
+      }
     }
 
-    if ( h04[ism-1] ) delete h04[ism-1];
-    h04[ism-1] = 0;
     sprintf(histo, "Collector/FU0/EcalBarrel/EcalIntegrity/TTBlockSize/EI TTBlockSize SM%02d", ism);
     me = mui_->get(histo);
     if ( me ) {
       cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-      if ( ob ) h04[ism-1] = dynamic_cast<TH2D*> ((ob->operator->())->Clone());
+      if ( ob ) {
+        if ( h04_[ism-1] ) delete h04_[ism-1];
+        h04_[ism-1] = dynamic_cast<TH2D*> ((ob->operator->())->Clone());
+      }
     }
 
   }

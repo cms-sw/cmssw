@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  * 
- * $Date: 2005/11/15 20:11:34 $
- * $Revision: 1.13 $
+ * $Date: 2005/11/15 21:02:45 $
+ * $Revision: 1.14 $
  * \author G. Della Ricca
  *
 */
@@ -17,10 +17,10 @@ EBLaserClient::EBLaserClient(const edm::ParameterSet& ps, MonitorUserInterface* 
 
   for ( int i = 0; i < 36; i++ ) {
 
-    h01[i] = 0;
-    h02[i] = 0;
-    h03[i] = 0;
-    h04[i] = 0;
+    h01_[i] = 0;
+    h02_[i] = 0;
+    h03_[i] = 0;
+    h04_[i] = 0;
 
   }
 
@@ -50,10 +50,10 @@ void EBLaserClient::beginRun(const edm::EventSetup& c){
 
   for ( int i = 0; i < 36; i++ ) {
 
-    if ( h01[i] ) delete h01[i];
-    if ( h02[i] ) delete h02[i];
-    if ( h03[i] ) delete h03[i];
-    if ( h04[i] ) delete h04[i];
+    if ( h01_[i] ) delete h01_[i];
+    if ( h02_[i] ) delete h02_[i];
+    if ( h03_[i] ) delete h03_[i];
+    if ( h04_[i] ) delete h04_[i];
 
   }
 
@@ -101,38 +101,38 @@ void EBLaserClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* r
 
         bool update_channel = false;
 
-        if ( h01[ism-1] && h01[ism-1]->GetEntries() >= n_min_tot ) {
-          num01 = h01[ism-1]->GetBinEntries(h01[ism-1]->GetBin(ie, ip));
+        if ( h01_[ism-1] && h01_[ism-1]->GetEntries() >= n_min_tot ) {
+          num01 = h01_[ism-1]->GetBinEntries(h01_[ism-1]->GetBin(ie, ip));
           if ( num01 >= n_min_bin ) {
-            mean01 = h01[ism-1]->GetBinContent(h01[ism-1]->GetBin(ie, ip));
-            rms01  = h01[ism-1]->GetBinError(h01[ism-1]->GetBin(ie, ip));
+            mean01 = h01_[ism-1]->GetBinContent(h01_[ism-1]->GetBin(ie, ip));
+            rms01  = h01_[ism-1]->GetBinError(h01_[ism-1]->GetBin(ie, ip));
             update_channel = true;
           }
         }
 
-        if ( h02[ism-1] && h02[ism-1]->GetEntries() >= n_min_tot ) {
-          num02 = h02[ism-1]->GetBinEntries(h02[ism-1]->GetBin(ie, ip));
+        if ( h02_[ism-1] && h02_[ism-1]->GetEntries() >= n_min_tot ) {
+          num02 = h02_[ism-1]->GetBinEntries(h02_[ism-1]->GetBin(ie, ip));
           if ( num02 >= n_min_bin ) {
-            mean02 = h02[ism-1]->GetBinContent(h02[ism-1]->GetBin(ie, ip));
-            rms02  = h02[ism-1]->GetBinError(h02[ism-1]->GetBin(ie, ip));
+            mean02 = h02_[ism-1]->GetBinContent(h02_[ism-1]->GetBin(ie, ip));
+            rms02  = h02_[ism-1]->GetBinError(h02_[ism-1]->GetBin(ie, ip));
             update_channel = true;
           }
         }
 
-        if ( h03[ism-1] && h03[ism-1]->GetEntries() >= n_min_tot ) {
-          num03 = h03[ism-1]->GetBinEntries(h03[ism-1]->GetBin(ie, ip));
+        if ( h03_[ism-1] && h03_[ism-1]->GetEntries() >= n_min_tot ) {
+          num03 = h03_[ism-1]->GetBinEntries(h03_[ism-1]->GetBin(ie, ip));
           if ( num03 >= n_min_bin ) {
-            mean03 = h03[ism-1]->GetBinContent(h03[ism-1]->GetBin(ie, ip));
-            rms03  = h03[ism-1]->GetBinError(h03[ism-1]->GetBin(ie, ip));
+            mean03 = h03_[ism-1]->GetBinContent(h03_[ism-1]->GetBin(ie, ip));
+            rms03  = h03_[ism-1]->GetBinError(h03_[ism-1]->GetBin(ie, ip));
             update_channel = true;
           }
         }
 
-        if ( h04[ism-1] && h04[ism-1]->GetEntries() >= n_min_tot ) {
-          num04 = h04[ism-1]->GetBinEntries(h04[ism-1]->GetBin(ie, ip));
+        if ( h04_[ism-1] && h04_[ism-1]->GetEntries() >= n_min_tot ) {
+          num04 = h04_[ism-1]->GetBinEntries(h04_[ism-1]->GetBin(ie, ip));
           if ( num04 >= n_min_bin ) {
-            mean04 = h04[ism-1]->GetBinContent(h04[ism-1]->GetBin(ie, ip));
-            rms04  = h04[ism-1]->GetBinError(h04[ism-1]->GetBin(ie, ip));
+            mean04 = h04_[ism-1]->GetBinContent(h04_[ism-1]->GetBin(ie, ip));
+            rms04  = h04_[ism-1]->GetBinError(h04_[ism-1]->GetBin(ie, ip));
             update_channel = true;
           }
         }
@@ -240,44 +240,48 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
-    if ( h01[ism-1] ) delete h01[ism-1];
-    h01[ism-1] = 0;
     sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude SM%02d L1", ism);
     me = mui_->get(histo);
     if ( me ) {
       cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-      if ( ob ) h01[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone());
+      if ( ob ) {
+        if ( h01_[ism-1] ) delete h01_[ism-1];
+        h01_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone());
+      }
     }
 
-    if ( h02[ism-1] ) delete h02[ism-1];
-    h02[ism-1] = 0;
     sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude over PN SM%02d L1", ism);
     me = mui_->get(histo);
     if ( me ) {
       cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-      if ( ob ) h02[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone());
+      if ( ob ) {
+        if ( h02_[ism-1] ) delete h02_[ism-1];
+        h02_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone());
+      } 
     }
 
-    if ( h03[ism-1] ) delete h03[ism-1];
-    h03[ism-1] = 0;
     sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude SM%02d L2", ism);
     me = mui_->get(histo);
     if ( me ) {
       cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-      if ( ob ) h03[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone());
+      if ( ob ) {
+        if ( h03_[ism-1] ) delete h03_[ism-1];
+        h03_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone());
+      } 
     }
 
-    if ( h04[ism-1] ) delete h04[ism-1];
-    h04[ism-1] = 0;
     sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude over PN SM%02d L2", ism);
     me = mui_->get(histo);
     if ( me ) {
       cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-      if ( ob ) h04[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone());
+      if ( ob ) {
+        if ( h04_[ism-1] ) delete h04_[ism-1];
+        h04_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone());
+      } 
     }
 
   }

@@ -4,8 +4,8 @@
 /*
  * \file EBTestPulseClient.h
  *
- * $Date: 2005/11/11 15:19:56 $
- * $Revision: 1.3 $
+ * $Date: 2005/11/13 18:37:20 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  *
 */
@@ -87,8 +87,8 @@ int jevt_;
 
 MonitorUserInterface* mui_;
 
-TProfile2D* h01[36];
-TProfile2D* h02[36];
+TProfile2D* h01_[36];
+TProfile2D* h02_[36];
 
 };
 

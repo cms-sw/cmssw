@@ -1,9 +1,10 @@
 /*
  * \file EBPedestalClient.cc
  * 
- * $Date: 2005/11/15 20:11:34 $
- * $Revision: 1.14 $
+ * $Date: 2005/11/15 21:02:45 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
+ * \author F. Cossutti
  *
 */
 
@@ -17,30 +18,30 @@ EBPedestalClient::EBPedestalClient(const edm::ParameterSet& ps, MonitorUserInter
 
   for ( int i = 0; i < 36; i++ ) {
 
-    h01[i] = 0;
-    h02[i] = 0;
-    h03[i] = 0;
+    h01_[i] = 0;
+    h02_[i] = 0;
+    h03_[i] = 0;
 
     sprintf(histo, "EBPT pedestal quality G01 SM%02d", i+1);
-    g01[i] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
+    g01_[i] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
     sprintf(histo, "EBPT pedestal quality G06 SM%02d", i+1);
-    g02[i] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
+    g02_[i] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
     sprintf(histo, "EBPT pedestal quality G12 SM%02d", i+1);
-    g03[i] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
+    g03_[i] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
 
     sprintf(histo, "EBPT pedestal mean G01 SM%02d", i+1);
-    p01[i] = new TH1F(histo, histo, 100, 150., 250.);
+    p01_[i] = new TH1F(histo, histo, 100, 150., 250.);
     sprintf(histo, "EBPT pedestal mean G06 SM%02d", i+1);
-    p02[i] = new TH1F(histo, histo, 100, 150., 250.);
+    p02_[i] = new TH1F(histo, histo, 100, 150., 250.);
     sprintf(histo, "EBPT pedestal mean G12 SM%02d", i+1);
-    p03[i] = new TH1F(histo, histo, 100, 150., 250.);
+    p03_[i] = new TH1F(histo, histo, 100, 150., 250.);
 
     sprintf(histo, "EBPT pedestal rms G01 SM%02d", i+1);
-    r01[i] = new TH1F(histo, histo, 100, 0., 10.);
+    r01_[i] = new TH1F(histo, histo, 100, 0., 10.);
     sprintf(histo, "EBPT pedestal rms G06 SM%02d", i+1);
-    r02[i] = new TH1F(histo, histo, 100, 0., 10.);
+    r02_[i] = new TH1F(histo, histo, 100, 0., 10.);
     sprintf(histo, "EBPT pedestal rms G12 SM%02d", i+1);
-    r03[i] = new TH1F(histo, histo, 100, 0., 10.);
+    r03_[i] = new TH1F(histo, histo, 100, 0., 10.);
 
   }
 
@@ -64,21 +65,21 @@ EBPedestalClient::~EBPedestalClient(){
 
   for ( int i=0 ; i<36 ; i++ ) {
 
-    if ( h01[i] ) delete h01[i];
-    if ( h02[i] ) delete h02[i];
-    if ( h03[i] ) delete h03[i];
+    if ( h01_[i] ) delete h01_[i];
+    if ( h02_[i] ) delete h02_[i];
+    if ( h03_[i] ) delete h03_[i];
 
-    delete g01[i];
-    delete g02[i];
-    delete g03[i];
+    delete g01_[i];
+    delete g02_[i];
+    delete g03_[i];
 
-    delete p01[i];
-    delete p02[i];
-    delete p03[i];
+    delete p01_[i];
+    delete p02_[i];
+    delete p03_[i];
 
-    delete r01[i];
-    delete r02[i];
-    delete r03[i];
+    delete r01_[i];
+    delete r02_[i];
+    delete r03_[i];
 
   }
 
@@ -102,31 +103,31 @@ void EBPedestalClient::beginRun(const edm::EventSetup& c){
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
-    h01[ism-1] = 0;
-    h02[ism-1] = 0;
-    h03[ism-1] = 0;
+    h01_[ism-1] = 0;
+    h02_[ism-1] = 0;
+    h03_[ism-1] = 0;
 
-    g01[ism-1]->Reset();
-    g02[ism-1]->Reset();
-    g03[ism-1]->Reset();
+    g01_[ism-1]->Reset();
+    g02_[ism-1]->Reset();
+    g03_[ism-1]->Reset();
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
 
-        g01[ism-1]->SetBinContent(g01[ism-1]->GetBin(ie, ip), 2.);
-        g02[ism-1]->SetBinContent(g01[ism-1]->GetBin(ie, ip), 2.);
-        g03[ism-1]->SetBinContent(g01[ism-1]->GetBin(ie, ip), 2.);
+        g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), 2.);
+        g02_[ism-1]->SetBinContent(g02_[ism-1]->GetBin(ie, ip), 2.);
+        g03_[ism-1]->SetBinContent(g03_[ism-1]->GetBin(ie, ip), 2.);
 
       }
     }
 
-    p01[ism-1]->Reset();
-    p02[ism-1]->Reset();
-    p03[ism-1]->Reset();
+    p01_[ism-1]->Reset();
+    p02_[ism-1]->Reset();
+    p03_[ism-1]->Reset();
 
-    r01[ism-1]->Reset();
-    r02[ism-1]->Reset();
-    r03[ism-1]->Reset();
+    r01_[ism-1]->Reset();
+    r02_[ism-1]->Reset();
+    r03_[ism-1]->Reset();
 
   }
 
@@ -168,29 +169,29 @@ void EBPedestalClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag
 
         bool update_channel = false;
 
-        if ( h01[ism-1] && h01[ism-1]->GetEntries() >= n_min_tot ) {
-          num01 = h01[ism-1]->GetBinEntries(h01[ism-1]->GetBin(ie, ip));
+        if ( h01_[ism-1] && h01_[ism-1]->GetEntries() >= n_min_tot ) {
+          num01 = h01_[ism-1]->GetBinEntries(h01_[ism-1]->GetBin(ie, ip));
           if ( num01 >= n_min_bin ) {
-            mean01 = h01[ism-1]->GetBinContent(h01[ism-1]->GetBin(ie, ip));
-            rms01  = h01[ism-1]->GetBinError(h01[ism-1]->GetBin(ie, ip));
+            mean01 = h01_[ism-1]->GetBinContent(h01_[ism-1]->GetBin(ie, ip));
+            rms01  = h01_[ism-1]->GetBinError(h01_[ism-1]->GetBin(ie, ip));
             update_channel = true;
           }
         }
   
-        if ( h02[ism-1] && h02[ism-1]->GetEntries() >= n_min_tot ) {
-          num02 = h02[ism-1]->GetBinEntries(h02[ism-1]->GetBin(ie, ip));
+        if ( h02_[ism-1] && h02_[ism-1]->GetEntries() >= n_min_tot ) {
+          num02 = h02_[ism-1]->GetBinEntries(h02_[ism-1]->GetBin(ie, ip));
           if ( num02 >= n_min_bin ) {
-            mean02 = h02[ism-1]->GetBinContent(h02[ism-1]->GetBin(ie, ip));
-            rms02  = h02[ism-1]->GetBinError(h02[ism-1]->GetBin(ie, ip));
+            mean02 = h02_[ism-1]->GetBinContent(h02_[ism-1]->GetBin(ie, ip));
+            rms02  = h02_[ism-1]->GetBinError(h02_[ism-1]->GetBin(ie, ip));
             update_channel = true;
           }
         }
   
-        if ( h03[ism-1] && h03[ism-1]->GetEntries() >= n_min_tot ) {
-          num03 = h03[ism-1]->GetBinEntries(h03[ism-1]->GetBin(ie, ip));
+        if ( h03_[ism-1] && h03_[ism-1]->GetEntries() >= n_min_tot ) {
+          num03 = h03_[ism-1]->GetBinEntries(h03_[ism-1]->GetBin(ie, ip));
           if ( num03 >= n_min_bin ) {
-            mean03 = h03[ism-1]->GetBinContent(h03[ism-1]->GetBin(ie, ip));
-            rms03  = h03[ism-1]->GetBinError(h03[ism-1]->GetBin(ie, ip));
+            mean03 = h03_[ism-1]->GetBinContent(h03_[ism-1]->GetBin(ie, ip));
+            rms03  = h03_[ism-1]->GetBinError(h03_[ism-1]->GetBin(ie, ip));
             update_channel = true;
           }
         }
@@ -218,47 +219,47 @@ void EBPedestalClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag
 
           float val;
 
-          if ( g01[ism-1] ) {
+          if ( g01_[ism-1] ) {
             val = 1.;
             if ( abs(mean01 - expectedMean_[1]) > discrepancyMean_[1] )
               val = 0.;
             if ( rms01 > RMSThreshold_[1] )
               val = 0.;
-            g01[ism-1]->SetBinContent(g01[ism-1]->GetBin(ie, ip), val);
+            g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), val);
           }
           
-          if ( p01[ism-1] ) p01[ism-1]->Fill(mean01);
-          if ( r01[ism-1] ) r01[ism-1]->Fill(rms01);
+          if ( p01_[ism-1] ) p01_[ism-1]->Fill(mean01);
+          if ( r01_[ism-1] ) r01_[ism-1]->Fill(rms01);
 
           p.setPedMeanG6(mean02);
           p.setPedRMSG6(rms02);
 
-          if ( g02[ism-1] ) {
+          if ( g02_[ism-1] ) {
             val = 1.;
             if ( abs(mean02 - expectedMean_[2]) > discrepancyMean_[2] )
               val = 0.;
             if ( rms02 > RMSThreshold_[2] )
               val = 0.;
-            g02[ism-1]->SetBinContent(g02[ism-1]->GetBin(ie, ip), val);
+            g02_[ism-1]->SetBinContent(g02_[ism-1]->GetBin(ie, ip), val);
           }
 
-          if ( p02[ism-1] ) p02[ism-1]->Fill(mean02);
-          if ( r02[ism-1] ) r02[ism-1]->Fill(rms02);
+          if ( p02_[ism-1] ) p02_[ism-1]->Fill(mean02);
+          if ( r02_[ism-1] ) r02_[ism-1]->Fill(rms02);
 
           p.setPedMeanG12(mean03);
           p.setPedRMSG12(rms03);
 
-          if ( g03[ism-1] ) {
+          if ( g03_[ism-1] ) {
             val = 1.;
             if ( abs(mean03 - expectedMean_[3]) > discrepancyMean_[3] )
               val = 0.;
             if ( rms03 > RMSThreshold_[3] )
               val = 0.;
-            g03[ism-1]->SetBinContent(g03[ism-1]->GetBin(ie, ip), val);
+            g03_[ism-1]->SetBinContent(g03_[ism-1]->GetBin(ie, ip), val);
           }
 
-          if ( p03[ism-1] ) p03[ism-1]->Fill(mean03);
-          if ( r03[ism-1] ) r03[ism-1]->Fill(rms03);
+          if ( p03_[ism-1] ) p03_[ism-1]->Fill(mean03);
+          if ( r03_[ism-1] ) r03_[ism-1]->Fill(rms03);
 
           p.setTaskStatus(1);
 
@@ -333,34 +334,37 @@ void EBPedestalClient::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
-    if ( h01[ism-1] ) delete h01[ism-1];
-    h01[ism-1] = 0;
     sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal SM%02d G01", ism);
     me = mui_->get(histo);
     if ( me ) {
       cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-      if ( ob ) h01[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone());
+      if ( ob ) {
+        if ( h01_[ism-1] ) delete h01_[ism-1];
+        h01_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone());
+      }
     }
 
-    if ( h02[ism-1] ) delete h02[ism-1];
-    h02[ism-1] = 0;
     sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM%02d G06", ism);
     me = mui_->get(histo);
     if ( me ) {
       cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-      if ( ob ) h02[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone());
+      if ( ob ) {
+        if ( h02_[ism-1] ) delete h02_[ism-1];
+        h02_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone());
+      }
     }
 
-    if ( h03[ism-1] ) delete h03[ism-1];
-    h03[ism-1] = 0;
     sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM%02d G12", ism);
     me = mui_->get(histo);
     if ( me ) {
       cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-      if ( ob ) h03[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone());
+      if ( ob ) {
+        if ( h03_[ism-1] ) delete h03_[ism-1];
+        h03_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone());
+      }
     }
 
   }
@@ -405,7 +409,7 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir){
   int pCol3[3] = { 2, 3, 10 };
 
   TH2C dummy( "dummy", "dummy for sm", 85, 0., 85., 20, 0., 20. );
-  for( short i=0; i<68; i++ ) {
+  for( int i = 0; i < 68; i++ ) {
     int a = 2 + ( i/4 ) * 5;
     int b = 2 + ( i%4 ) * 5;
     dummy.Fill( a, b, i+1 );
@@ -418,13 +422,13 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir){
 
   for ( int ism = 1 ; ism <= 36 ; ism++ ) {
     
-    if ( g01[ism-1] && g02[ism-1] && g03[ism-1] &&
-         p01[ism-1] && p02[ism-1] && p03[ism-1] &&
-         r01[ism-1] && r02[ism-1] && r03[ism-1] ) {
+    if ( g01_[ism-1] && g02_[ism-1] && g03_[ism-1] &&
+         p01_[ism-1] && p02_[ism-1] && p03_[ism-1] &&
+         r01_[ism-1] && r02_[ism-1] && r03_[ism-1] ) {
 
       // Loop on gains
 
-      for (int iCanvas=1 ; iCanvas <= 3 ; iCanvas++ ) {
+      for ( int iCanvas=1 ; iCanvas <= 3 ; iCanvas++ ) {
 
         // Quality plots
 
@@ -432,23 +436,23 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir){
 
       switch ( iCanvas ) {
         case 1:
-          meName = g01[ism-1]->GetName();
-          obj2f = g01[ism-1];
+          meName = g01_[ism-1]->GetName();
+          obj2f = g01_[ism-1];
           break;
         case 2:
-          meName = g02[ism-1]->GetName();
-          obj2f = g02[ism-1];
+          meName = g02_[ism-1]->GetName();
+          obj2f = g02_[ism-1];
           break;
         case 3:
-          meName = g03[ism-1]->GetName();
-          obj2f = g03[ism-1];
+          meName = g03_[ism-1]->GetName();
+          obj2f = g03_[ism-1];
           break;
         default:
           break;
         }
 
         TCanvas *cQual = new TCanvas("cQual" , "Temp", 2*csize , csize );
-        for (unsigned int iQual = 0 ; iQual < meName.size(); iQual++) {
+        for ( unsigned int iQual = 0 ; iQual < meName.size(); iQual++ ) {
           if ( meName.substr(iQual, 1) == " " )  {
             meName.replace(iQual, 1, "_");
           }
@@ -475,23 +479,23 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir){
         
         switch ( iCanvas ) {
           case 1:
-            meName = p01[ism-1]->GetName();
-            obj1f = p01[ism-1];
+            meName = p01_[ism-1]->GetName();
+            obj1f = p01_[ism-1];
             break;
           case 2:
-            meName = p02[ism-1]->GetName();
-            obj1f = p02[ism-1];
+            meName = p02_[ism-1]->GetName();
+            obj1f = p02_[ism-1];
             break;
           case 3:
-            meName = p03[ism-1]->GetName();
-            obj1f = p03[ism-1];
+            meName = p03_[ism-1]->GetName();
+            obj1f = p03_[ism-1];
             break;
           default:
             break;
           }
         
         TCanvas *cMean = new TCanvas("cMean" , "Temp", csize , csize );
-        for (unsigned int iMean=0 ; iMean < meName.size(); iMean++) {
+        for ( unsigned int iMean=0 ; iMean < meName.size(); iMean++ ) {
           if ( meName.substr(iMean,1) == " " )  {
             meName.replace(iMean, 1 ,"_" );
           }
@@ -520,23 +524,23 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir){
         
         switch ( iCanvas ) {
           case 1:
-            meName = r01[ism-1]->GetName();
-            obj1f = r01[ism-1];
+            meName = r01_[ism-1]->GetName();
+            obj1f = r01_[ism-1];
             break;
           case 2:
-            meName = r02[ism-1]->GetName();
-            obj1f = r02[ism-1];
+            meName = r02_[ism-1]->GetName();
+            obj1f = r02_[ism-1];
             break;
           case 3:
-            meName = r03[ism-1]->GetName();
-            obj1f = r03[ism-1];
+            meName = r03_[ism-1]->GetName();
+            obj1f = r03_[ism-1];
             break;
           default:
             break;
           }
         
         TCanvas *cRMS = new TCanvas("cRMS" , "Temp", csize , csize );
-        for (unsigned int iRMS=0 ; iRMS < meName.size(); iRMS++) {
+        for ( unsigned int iRMS=0 ; iRMS < meName.size(); iRMS++ ) {
           if ( meName.substr(iRMS,1) == " " )  {
             meName.replace(iRMS, 1, "_");
           }

@@ -4,8 +4,8 @@
 /*
  * \file EBIntegrityClient.h
  *
- * $Date: 2005/11/13 08:55:51 $
- * $Revision: 1.3 $
+ * $Date: 2005/11/13 18:37:19 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  *
 */
@@ -86,11 +86,11 @@ int jevt_;
 
 MonitorUserInterface* mui_;
 
-TH2D* h00;
-TH2D* h01[36];
-TH2D* h02[36];
-TH2D* h03[36];
-TH2D* h04[36];
+TH2D* h00_;
+TH2D* h01_[36];
+TH2D* h02_[36];
+TH2D* h03_[36];
+TH2D* h04_[36];
 
 };
 

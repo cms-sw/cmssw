@@ -4,8 +4,8 @@
 /*
  * \file EBLaserClient.h
  *
- * $Date: 2005/11/11 15:19:56 $
- * $Revision: 1.5 $
+ * $Date: 2005/11/13 18:37:20 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  *
 */
@@ -89,10 +89,10 @@ int jevt_;
 
 MonitorUserInterface* mui_;
 
-TProfile2D* h01[36];
-TProfile2D* h02[36];
-TProfile2D* h03[36];
-TProfile2D* h04[36];
+TProfile2D* h01_[36];
+TProfile2D* h02_[36];
+TProfile2D* h03_[36];
+TProfile2D* h04_[36];
 
 };
 

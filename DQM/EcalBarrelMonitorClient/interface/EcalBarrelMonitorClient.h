@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2005/11/13 18:37:20 $
- * $Revision: 1.10 $
+ * $Date: 2005/11/13 19:54:45 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  *
 */
@@ -85,6 +85,8 @@ int jevt_;
 
 int last_update_;
 
+int last_jevt_;
+
 MonitorUserInterface* mui_;
 
 string clientName_;
@@ -114,6 +116,8 @@ EBLaserClient* laser_client_;
 EBPedestalClient* pedestal_client_;
 EBPedPreSampleClient* pedpresample_client_;
 EBTestPulseClient* testpulse_client_;
+
+TH1F* h_;
 
 };
 

@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  * 
- * $Date: 2005/11/15 20:11:34 $
- * $Revision: 1.20 $
+ * $Date: 2005/11/15 21:02:45 $
+ * $Revision: 1.21 $
  * \author G. Della Ricca
  *
 */
@@ -11,12 +11,14 @@
 
 EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps){
 
-  mui_ = 0;
-  econn_ = 0;
-
   cout << endl;
   cout << " *** Ecal Barrel Generic Monitor Client ***" << endl;
   cout << endl;
+
+  mui_ = 0;
+  econn_ = 0;
+
+  h_ = 0;
 
   // default client name
   clientName_ = ps.getUntrackedParameter<string>("clientName", "EcalBarrelMonitorClient");
@@ -78,6 +80,8 @@ EcalBarrelMonitorClient::~EcalBarrelMonitorClient(){
 
   this->unsubscribe();
 
+  if ( h_ ) delete h_;
+
   if ( integrity_client_ ) delete integrity_client_;
   if ( laser_client_ ) delete laser_client_;
   if ( pedestal_client_ ) delete pedestal_client_;
@@ -113,6 +117,8 @@ void EcalBarrelMonitorClient::beginRun(const edm::EventSetup& c){
   cout << "EcalBarrelMonitorClient: beginRun" << endl;
 
   jevt_ = 0;
+
+  last_jevt_ = -1;
 
   this->subscribe();
 
@@ -279,13 +285,12 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
       sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &evt_);
     }
 
-    TH1F* h = 0;
-
     me = mui_->get("Collector/FU0/EcalBarrel/EVTTYPE");
     if ( me ) {
       MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
-        h = dynamic_cast<TH1F*> (ob->operator->());
+        if ( h_ ) delete h_;
+        h_ = dynamic_cast<TH1F*> ((ob->operator->())->Clone());
       }
     }
 
@@ -307,10 +312,10 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
             " runtype = " << runtype_  <<
             " location = " << location_ << endl;
 
-    if ( h ) {
+    if ( h_ ) {
       cout << " event type = " << flush;
       for ( int i = 1; i <=10; i++ ) {
-        cout << h->GetBinContent(i) << " " << flush;
+        cout << h_->GetBinContent(i) << " " << flush;
       }
       cout << endl;
     }
@@ -321,20 +326,20 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
 
     if ( status_ == "running" ) {
       if ( updates != 0 && updates % 50 == 0 ) {
-                                             integrity_client_->analyze(e, c);
-        if ( h && h->GetBinContent(2) != 0 ) laser_client_->analyze(e, c);
-        if ( h && h->GetBinContent(3) != 0 ) pedestal_client_->analyze(e, c);
-                                             pedpresample_client_->analyze(e, c);
-        if ( h && h->GetBinContent(4) != 0 ) testpulse_client_->analyze(e, c);
+                                               integrity_client_->analyze(e, c);
+        if ( h_ && h_->GetBinContent(2) != 0 ) laser_client_->analyze(e, c);
+        if ( h_ && h_->GetBinContent(3) != 0 ) pedestal_client_->analyze(e, c);
+                                               pedpresample_client_->analyze(e, c);
+        if ( h_ && h_->GetBinContent(4) != 0 ) testpulse_client_->analyze(e, c);
       }
     }
 
     if ( status_ == "end-of-run" ) {
-                                           integrity_client_->analyze(e, c);
-      if ( h && h->GetBinContent(2) != 0 ) laser_client_->analyze(e, c);
-      if ( h && h->GetBinContent(3) != 0 ) pedestal_client_->analyze(e, c);
-                                           pedpresample_client_->analyze(e, c);
-      if ( h && h->GetBinContent(4) != 0 ) testpulse_client_->analyze(e, c);
+                                             integrity_client_->analyze(e, c);
+      if ( h_ && h_->GetBinContent(2) != 0 ) laser_client_->analyze(e, c);
+      if ( h_ && h_->GetBinContent(3) != 0 ) pedestal_client_->analyze(e, c);
+                                             pedpresample_client_->analyze(e, c);
+      if ( h_ && h_->GetBinContent(4) != 0 ) testpulse_client_->analyze(e, c);
       this->endRun();
     }
 
@@ -343,6 +348,25 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
     }
 
     last_update_ = updates;
+
+    last_jevt_ = jevt_;
+
+  }
+
+  if ( run_ != 0 &&
+       evt_ != 0 &&
+       status_ == "running" &&
+       jevt_ - last_jevt_ > 100 ) {
+
+    cout << "Running with no updates since too long ..." << endl;
+
+    cout << "Forcing end-of-run ... NOW !" << endl;
+
+    this->endRun();
+
+    cout << "Forcing start-of-run ... NOW !" << endl;
+
+    this->beginRun(c);
 
   }
 
