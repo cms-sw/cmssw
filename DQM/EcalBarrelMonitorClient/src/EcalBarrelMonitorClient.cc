@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  * 
- * $Date: 2005/11/15 21:02:45 $
- * $Revision: 1.21 $
+ * $Date: 2005/11/16 08:36:44 $
+ * $Revision: 1.22 $
  * \author G. Della Ricca
  *
 */
@@ -356,7 +356,7 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
   if ( run_ != 0 &&
        evt_ != 0 &&
        status_ == "running" &&
-       jevt_ - last_jevt_ > 100 ) {
+       jevt_ - last_jevt_ > 500 ) {
 
     cout << "Running with no updates since too long ..." << endl;
 
