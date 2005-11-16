@@ -12,11 +12,14 @@
 //
 // Author:      Chris D Jones
 // Created:     Wed Sep 30 11:09:00 EDT 1998
-// $Id: HCTypeTagTemplate.icc,v 1.5 2005/09/01 23:30:48 wmtan Exp $
+// $Id: HCTypeTagTemplate.icc,v 1.6 2005/11/11 20:55:54 chrjones Exp $
 //
 // Revision history
 //
 // $Log: HCTypeTagTemplate.icc,v $
+// Revision 1.6  2005/11/11 20:55:54  chrjones
+// use new TypeIDBase for basis of all type comparisons
+//
 // Revision 1.5  2005/09/01 23:30:48  wmtan
 // fix rule violations found by rulechecker
 //
@@ -74,6 +77,10 @@ HCTypeTagTemplate<T,Group>::className()
 namespace edm {
    namespace eventsetup {
       namespace heterocontainer {
+
+      template<class T, class Group >
+      HCTypeTagTemplate<T,Group>::HCTypeTagTemplate() : 
+         HCTypeTag<Group>(typeid(T), className()) {doRegistration();}
 
       template<class T, class Group >
       void  

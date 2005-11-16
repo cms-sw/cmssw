@@ -20,11 +20,14 @@
 //     
 // Author:      Chris D. Jones
 // Created:     Sun Sep 20 15:31:56 EDT 1998
-// $Id: HCTypeTagTemplate.h,v 1.5 2005/09/01 23:30:48 wmtan Exp $
+// $Id: HCTypeTagTemplate.h,v 1.6 2005/11/11 20:55:54 chrjones Exp $
 //
 // Revision history
 //
 // $Log: HCTypeTagTemplate.h,v $
+// Revision 1.6  2005/11/11 20:55:54  chrjones
+// use new TypeIDBase for basis of all type comparisons
+//
 // Revision 1.5  2005/09/01 23:30:48  wmtan
 // fix rule violations found by rulechecker
 //
@@ -83,8 +86,7 @@ class HCTypeTagTemplate : public HCTypeTag< Group >
    public:
 
       // ---------- Constructors and destructor ---------------- 
-      HCTypeTagTemplate() : 
-      HCTypeTag<Group>(typeid(T), className()) {doRegistration();}
+      HCTypeTagTemplate();
       //virtual ~HCTypeTagTemplate(); //not needed
 
       // ---------- static member functions --------------------
