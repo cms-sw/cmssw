@@ -1,8 +1,8 @@
 /*
  * \file EBPedPreSampleTask.cc
  * 
- * $Date: 2005/11/14 08:52:30 $
- * $Revision: 1.3 $
+ * $Date: 2005/11/16 08:36:44 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  *
 */
@@ -18,10 +18,10 @@ EBPedPreSampleTask::EBPedPreSampleTask(const edm::ParameterSet& ps, DaqMonitorBE
   if ( dbe ) {
     dbe->setCurrentFolder("EcalBarrel/EBPedPreSampleTask");
 
-    dbe->setCurrentFolder("EcalBarrel/EBPedPreSampleTask/Gain12");
+    dbe->setCurrentFolder("EcalBarrel/EBPedPreSampleTask/Gain01");
     for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBPT pedestal PreSample SM%02d G12", i+1);
-      mePedMapG12_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
+      sprintf(histo, "EBPT pedestal PreSample SM%02d G01", i+1);
+      mePedMapG01_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
     }
 
   }
@@ -90,7 +90,7 @@ void EBPedPreSampleTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
       if ( sample.gainId() == 3 ) {
         gain = 1./ 1.;
-        mePedMap = mePedMapG12_[ism-1];
+        mePedMap = mePedMapG01_[ism-1];
       }
 
       float xval = adc * gain;
