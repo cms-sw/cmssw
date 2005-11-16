@@ -1,8 +1,8 @@
 /*
  * \file EBPedPreSampleClient.cc
  * 
- * $Date: 2005/11/16 12:30:58 $
- * $Revision: 1.20 $
+ * $Date: 2005/11/16 13:40:38 $
+ * $Revision: 1.21 $
  * \author G. Della Ricca
  *
 */
@@ -165,6 +165,9 @@ void EBPedPreSampleClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, Ru
               val = 0.;
             g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), val);
           }
+
+          if ( p01_[ism-1] ) p01_[ism-1]->Fill(mean01);
+          if ( r01_[ism-1] ) r01_[ism-1]->Fill(rms01);
 
 //          p.setTaskStatus(1);
 
