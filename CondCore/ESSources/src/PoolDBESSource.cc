@@ -40,7 +40,7 @@ buildName( const std::string& iRecordName, const std::string& iTypeName ) {
 
 void PoolDBESSource::initPool(){
   try{
-    //std::cout<<"PoolDBESSource::initPool"<<std::endl;
+    std::cout<<"PoolDBESSource::initPool"<<std::endl;
     pool::POOLContext::loadComponent( "SEAL/Services/MessageService" );
     pool::POOLContext::setMessageVerbosityLevel( seal::Msg::Error );
     // needed to connect to oracle
@@ -70,7 +70,7 @@ void PoolDBESSource::initPool(){
 }
 
 void PoolDBESSource::closePool(){
-  //std::cout<<"PoolDBESSource::closePool"<<std::endl;
+  std::cout<<"PoolDBESSource::closePool"<<std::endl;
   m_svc->transaction().commit();
   m_svc->session().disconnectAll();
   m_cat->commit();
@@ -79,7 +79,7 @@ void PoolDBESSource::closePool(){
 }
 
 bool PoolDBESSource::initIOV( const std::vector< std::pair < std::string, std::string> >& recordToTag ){
-  //std::cout<<"PoolDBESSource::initIOV"<<std::endl;
+  std::cout<<"PoolDBESSource::initIOV"<<std::endl;
   cond::MetaData meta(m_con);
   std::vector< std::pair<std::string, std::string> >::const_iterator it;
   try{
@@ -88,8 +88,8 @@ bool PoolDBESSource::initIOV( const std::vector< std::pair < std::string, std::s
       if( iovToken.empty() ){
 	return false;
       }
-      //std::cout<<"initIOV record: "<<it->first<<std::endl;
-      //std::cout<<"initIOV tag: "<<it->second<<std::endl;
+      std::cout<<"initIOV record: "<<it->first<<std::endl;
+      std::cout<<"initIOV tag: "<<it->second<<std::endl;
       //std::cout<<"initIOV iovToken: "<<iovToken<<std::endl;
       pool::Ref<cond::IOV> iov(m_svc, iovToken);
       m_recordToIOV.insert(std::make_pair(it->first,iov));
@@ -117,35 +117,32 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   m_con(iConfig.getParameter<std::string>("connect") ),
   m_timetype(iConfig.getParameter<std::string>("timetype") )
 {
-  //std::cout<<"PoolDBESSource::PoolDBESSource"<<std::endl;
+  std::cout<<"PoolDBESSource::PoolDBESSource"<<std::endl;
   using namespace std;
   using namespace edm;
   using namespace edm::eventsetup;
-  if( iConfig.getParameter<bool>("loadAll") ) {
-    // ECAL conditions
-    m_recordToTypes.insert(make_pair(string("EcalPedestalsRcd"), string("EcalPedestals"))) ;
-    m_recordToTypes.insert(make_pair(string("EcalWeightRecAlgoWeightsRcd"), string("EcalWeightRecAlgoWeights"))) ;
-
-    // HCAL conditions
-    m_recordToTypes.insert(make_pair(string("HcalPedestalsRcd"), string("HcalPedestals"))) ;    
-    m_recordToTypes.insert(make_pair(string("HcalPedestalWidthsRcd"), string("HcalPedestalWidths"))) ;
-    m_recordToTypes.insert(make_pair(string("HcalGainsRcd"), string("HcalGains"))) ;    
-    m_recordToTypes.insert(make_pair(string("HcalGainWidthsRcd"), string("HcalGainWidths"))) ;
-    m_recordToTypes.insert(make_pair(string("HcalChannelQualityRcd"), string("HcalChannelQuality"))) ;
-    m_recordToTypes.insert(make_pair(string("HcalElectronicsMapRcd"), string("HcalElectronicsMap"))) ;
-    m_recordToTypes.insert(make_pair(string("HcalQIEDataRcd"), string("HcalQIEData"))) ;
-    m_recordToTypes.insert(make_pair(string("HcalQIEShapeRcd"), string("HcalQIEShape"))) ;
-
-    //by forcing this to load, we also load the definition of the Records which //will allow EventSetupRecordKey::TypeTag::findType(...) method to find them
-    for(RecordToTypes::iterator itRec = m_recordToTypes.begin();itRec != m_recordToTypes.end();	++itRec ) {
-      m_proxyToToken.insert( make_pair(buildName(itRec->first, itRec->second ),"") );//fill in dummy tokens now, change in setIntervalFor
-      pProxyToToken pos=m_proxyToToken.find(buildName(itRec->first, itRec->second));
-      boost::shared_ptr<DataProxy> proxy(cond::ProxyFactory::get()->create( buildName(itRec->first, itRec->second),m_svc,pos));
-    }
-  }else{
-    std::cerr<<"what else?"<<std::endl;
-    throw cms::Exception("Unsupported operation.");
+  // test conditions
+  m_recordToTypes.insert(make_pair(string("PedestalsRcd"), string("Pedestals"))) ;
+  // ECAL conditions
+  m_recordToTypes.insert(make_pair(string("EcalPedestalsRcd"), string("EcalPedestals"))) ;
+  m_recordToTypes.insert(make_pair(string("EcalWeightRecAlgoWeightsRcd"), string("EcalWeightRecAlgoWeights"))) ;
+  
+  // HCAL conditions
+  m_recordToTypes.insert(make_pair(string("HcalPedestalsRcd"), string("HcalPedestals"))) ;    
+  m_recordToTypes.insert(make_pair(string("HcalPedestalWidthsRcd"), string("HcalPedestalWidths"))) ;
+  m_recordToTypes.insert(make_pair(string("HcalGainsRcd"), string("HcalGains"))) ;    
+  m_recordToTypes.insert(make_pair(string("HcalGainWidthsRcd"), string("HcalGainWidths"))) ;
+  m_recordToTypes.insert(make_pair(string("HcalChannelQualityRcd"), string("HcalChannelQuality"))) ;
+  m_recordToTypes.insert(make_pair(string("HcalElectronicsMapRcd"), string("HcalElectronicsMap"))) ;
+  m_recordToTypes.insert(make_pair(string("HcalQIEDataRcd"), string("HcalQIEData"))) ;
+  m_recordToTypes.insert(make_pair(string("HcalQIEShapeRcd"), string("HcalQIEShape"))) ;
+  //by forcing this to load, we also load the definition of the Records which //will allow EventSetupRecordKey::TypeTag::findType(...) method to find them
+  for(RecordToTypes::iterator itRec = m_recordToTypes.begin();itRec != m_recordToTypes.end();	++itRec ) {
+    m_proxyToToken.insert( make_pair(buildName(itRec->first, itRec->second ),"") );//fill in dummy tokens now, change in setIntervalFor
+    pProxyToToken pos=m_proxyToToken.find(buildName(itRec->first, itRec->second));
+    boost::shared_ptr<DataProxy> proxy(cond::ProxyFactory::get()->create( buildName(itRec->first, itRec->second),m_svc,pos));
   }
+  
   
   //NOTE: should delay setting what  records until all 
   string lastRecordName;
@@ -157,11 +154,14 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
       if ( recordKey == EventSetupRecordKey() ) {
 	cout << "The Record type named \""<<itName->first<<"\" could not be found.  We therefore assume it is not needed for this job"
 	     << endl;
+      } else {
+	//findingRecordWithKey( recordKey );
+	//usingRecordWithKey( recordKey );
       }
-      findingRecordWithKey( recordKey );
-      usingRecordWithKey( recordKey );
     }
   }
+  
+
   //parsing record to tag
   std::vector< std::pair<std::string,std::string> > recordToTag;
   typedef std::vector< ParameterSet > Parameters;
@@ -172,23 +172,25 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
     eventsetup::EventSetupRecordKey recordKey(eventsetup::EventSetupRecordKey::TypeTag::findType( recordName ) );
     if( recordKey.type() == eventsetup::EventSetupRecordKey::TypeTag() ) {
       //record not found
-      std::cout <<"Record \""<< recordName <<"\" does not exist "<<std::endl;
-      continue;
+      throw cms::Exception("NoRecord")<<"The record \""<< recordName <<"\" does not exist ";
     }
     recordToTag.push_back(std::make_pair(recordName, tagName));
+    findingRecordWithKey( recordKey );
+    usingRecordWithKey( recordKey );
   }
   ///
   //now do what ever other initialization is needed
   ///
   this->initPool();
   if( !this->initIOV(recordToTag) ){
-    throw cms::Exception("IOV not found for requested records");
+    throw cms::Exception("NoIOVFound")<<"IOV not found for requested records";
   }
 }
 
 
 PoolDBESSource::~PoolDBESSource()
 {
+  std::cout<<"PoolDBESSource::~PoolDBESSource"<<std::endl;
   this->closePool();
 }
 
@@ -199,7 +201,7 @@ PoolDBESSource::~PoolDBESSource()
 void 
 PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey, const edm::IOVSyncValue& iTime, edm::ValidityInterval& oInterval ) {
   RecordToTypes::iterator itRec = m_recordToTypes.find( iKey.name() );
-  //std::cout<<"setIntervalFor "<<iKey.name()<<std::endl;
+  std::cout<<"setIntervalFor "<<iKey.name()<<std::endl;
   if( itRec == m_recordToTypes.end() ) {
     //no valid record
     //std::cout<<"no valid record "<<std::endl;
@@ -246,7 +248,7 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
     oInterval = edm::ValidityInterval( start, stop );
   }
   m_proxyToToken[buildName(itRec->first ,itRec->second)]=payloadToken;  
-  //std::cout<<"about to get out setIntervalFor"<<std::endl;
+  std::cout<<"about to get out setIntervalFor"<<std::endl;
 }   
 
 void 
@@ -283,7 +285,7 @@ PoolDBESSource::registerProxies(const edm::eventsetup::EventSetupRecordKey& iRec
 void 
 PoolDBESSource::newInterval(const edm::eventsetup::EventSetupRecordKey& iRecordType,const edm::ValidityInterval& iInterval) 
 {
-  //std::cout<<"PoolDBESSource::newInterval "<<iRecordType.name()<<std::endl;
+  std::cout<<"PoolDBESSource::newInterval "<<iRecordType.name()<<std::endl;
   invalidateProxies(iRecordType);
   //std::cout<<"invalidated "<<std::endl;
 }
