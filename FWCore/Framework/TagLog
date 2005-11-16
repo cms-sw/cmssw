@@ -1,3 +1,6 @@
+** V01-00-04  [Wed Nov 16 01:48:48 2005]
+Eliminate coupling caused by new TypeIDBase class
+
 ** V01-00-03  [Mon Nov 14 21:57:49 2005]
 Inprove some exception messages.
 
