@@ -7,7 +7,7 @@
 #include <iostream>
 
 template<typename Event>
-class DDDWorldObserver : public Observer<Event>
+class DDDWorldObserver : public Observer<const Event*>
 {
 public:
     virtual void update(const DDDWorld * w) const
