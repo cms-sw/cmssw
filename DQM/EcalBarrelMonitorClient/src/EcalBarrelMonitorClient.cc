@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  * 
- * $Date: 2005/11/16 09:42:12 $
- * $Revision: 1.24 $
+ * $Date: 2005/11/16 13:40:38 $
+ * $Revision: 1.25 $
  * \author G. Della Ricca
  *
 */
@@ -425,17 +425,18 @@ void EcalBarrelMonitorClient::htmlOutput(void){
     htmlFile << "<li><a href=\"" << htmlName << "\">Laser</a></li>" << endl;
   }
   
-  // Pedestal check (normal and on pre-sample)
+  // Pedestal check (normal)
   
   if ( h_ && h_->GetBinContent(3) != 0 ) {
     htmlName = "EBPedestalClient.html";
     pedestal_client_->htmlOutput(run_, htmlDir, htmlName);
     htmlFile << "<li><a href=\"" << htmlName << "\">Pedestal</a></li>" << endl;
-
-    htmlName = "EBPedPreSampleClient.html";
-    pedpresample_client_->htmlOutput(run_, htmlDir, htmlName);
-    htmlFile << "<li><a href=\"" << htmlName << "\">Pedestal on Presample</a></li>" << endl;
   }
+
+  // Pedestal check (pre-sample)
+  htmlName = "EBPedPreSampleClient.html";
+  pedpresample_client_->htmlOutput(run_, htmlDir, htmlName);
+  htmlFile << "<li><a href=\"" << htmlName << "\">Pedestal on Presample</a></li>" << endl;
   
   // Test pulse check
   
