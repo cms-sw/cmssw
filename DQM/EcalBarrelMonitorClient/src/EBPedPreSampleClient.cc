@@ -1,8 +1,8 @@
 /*
  * \file EBPedPreSampleClient.cc
  * 
- * $Date: 2005/11/16 10:41:48 $
- * $Revision: 1.19 $
+ * $Date: 2005/11/16 12:30:58 $
+ * $Revision: 1.20 $
  * \author G. Della Ricca
  *
 */
@@ -248,13 +248,13 @@ void EBPedPreSampleClient::analyze(const edm::Event& e, const edm::EventSetup& c
 
 }
 
-void EBPedPreSampleClient::htmlOutput(int run, string htmlDir){
+void EBPedPreSampleClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   cout << "Preparing EBPedPreSampleClient html output ..." << endl;
 
   ofstream htmlFile;
 
-  htmlFile.open((htmlDir + "EBPedPreSampleClient.html").c_str());
+  htmlFile.open((htmlDir + htmlName).c_str());
 
   // html page header
   htmlFile << "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">  " << endl;
@@ -312,8 +312,8 @@ void EBPedPreSampleClient::htmlOutput(int run, string htmlDir){
           meName.replace(iQual, 1, "_");
         }
       }
-      imgName = htmlDir + meName + ".jpg";
-      imgNameQual = imgName;
+      imgNameQual = meName + ".jpg";
+      imgName = htmlDir + imgNameQual;
       gStyle->SetOptStat(" ");
       gStyle->SetPalette(3, pCol3);
       obj2f->GetXaxis()->SetNdivisions(17);
@@ -341,8 +341,8 @@ void EBPedPreSampleClient::htmlOutput(int run, string htmlDir){
           meName.replace(iMean, 1 ,"_" );
         }
       }
-      imgName = htmlDir + meName + ".jpg";
-      imgNameMean = imgName;
+      imgNameMean = meName + ".jpg";
+      imgName = htmlDir + imgNameMean;
       gStyle->SetOptStat("euomr");
       obj1f->SetStats(kTRUE);
       if ( obj1f->GetMaximum(histMax) > 0. ) {
@@ -372,8 +372,8 @@ void EBPedPreSampleClient::htmlOutput(int run, string htmlDir){
           meName.replace(iRMS, 1, "_");
         }
       }
-      imgName = htmlDir + meName + ".jpg";
-      imgNameRMS = imgName;
+      imgNameRMS = meName + ".jpg";
+      imgName = htmlDir + imgNameRMS;
       gStyle->SetOptStat("euomr");
       obj1f->SetStats(kTRUE);
       if ( obj1f->GetMaximum(histMax) > 0. ) {

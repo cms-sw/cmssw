@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  * 
- * $Date: 2005/11/16 08:36:44 $
- * $Revision: 1.13 $
+ * $Date: 2005/11/16 09:42:12 $
+ * $Revision: 1.14 $
  * \author G. Della Ricca
  *
 */
@@ -245,13 +245,13 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
 
 }
 
-void EBTestPulseClient::htmlOutput(int run, string htmlDir){
+void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   cout << "Preparing EBTestPulseClient html output ..." << endl;
 
   ofstream htmlFile;
 
-  htmlFile.open((htmlDir + "EBTestPulseClient.html").c_str());
+  htmlFile.open((htmlDir + htmlName).c_str());
 
 
   htmlFile.close();

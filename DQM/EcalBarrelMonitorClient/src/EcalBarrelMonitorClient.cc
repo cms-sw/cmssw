@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  * 
- * $Date: 2005/11/16 08:48:15 $
- * $Revision: 1.23 $
+ * $Date: 2005/11/16 09:42:12 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  *
 */
@@ -393,11 +393,63 @@ void EcalBarrelMonitorClient::htmlOutput(void){
 
   htmlFile.open((htmlDir + "index.html").c_str());
 
-  integrity_client_->htmlOutput(run_, htmlDir);
-  laser_client_->htmlOutput(run_, htmlDir);
-  pedestal_client_->htmlOutput(run_, htmlDir);
-  pedpresample_client_->htmlOutput(run_, htmlDir);
-  testpulse_client_->htmlOutput(run_, htmlDir);
+  // html page header
+  htmlFile << "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">  " << endl;
+  htmlFile << "<html>  " << endl;
+  htmlFile << "<head>  " << endl;
+  htmlFile << "  <meta content=\"text/html; charset=ISO-8859-1\"  " << endl;
+  htmlFile << " http-equiv=\"content-type\">  " << endl;
+  htmlFile << "  <title>Monitor:Executed Tasks index</title> " << endl;
+  htmlFile << "</head>  " << endl;
+  htmlFile << "<body>  " << endl;
+  htmlFile << "<br>  " << endl;
+  htmlFile << "<h2><span style=\"color: rgb(0, 0, 153);\">" << endl;
+  htmlFile << "EXECUTED TASKS FOR RUN:&nbsp&nbsp&nbsp</span>" << run_ <<"</h2> " << endl;
+  htmlFile << "<hr>" << endl;
+
+  htmlFile << "<ul>" << endl;
+
+  string htmlName;
+
+  // Integrity check
+
+  htmlName = "EBIntegrityClient.html";
+  integrity_client_->htmlOutput(run_, htmlDir, htmlName);
+  htmlFile << "<li><a href=\"" << htmlName << "\">Data Integrity</a></li>" << endl;
+
+  // Laser check
+
+  if ( h_ && h_->GetBinContent(2) != 0 ) {
+    htmlName = "EBLaserClient.html";
+    laser_client_->htmlOutput(run_, htmlDir, htmlName);
+    htmlFile << "<li><a href=\"" << htmlName << "\">Laser</a></li>" << endl;
+  }
+  
+  // Pedestal check (normal and on pre-sample)
+  
+  if ( h_ && h_->GetBinContent(3) != 0 ) {
+    htmlName = "EBPedestalClient.html";
+    pedestal_client_->htmlOutput(run_, htmlDir, htmlName);
+    htmlFile << "<li><a href=\"" << htmlName << "\">Pedestal</a></li>" << endl;
+
+    htmlName = "EBPedPreSampleClient.html";
+    pedpresample_client_->htmlOutput(run_, htmlDir, htmlName);
+    htmlFile << "<li><a href=\"" << htmlName << "\">Pedestal on Presample</a></li>" << endl;
+  }
+  
+  // Test pulse check
+  
+  if ( h_ && h_->GetBinContent(4) != 0 ) {
+    htmlName = "EBTestPulseClient.html";
+    testpulse_client_->htmlOutput(run_, htmlDir, htmlName);
+    htmlFile << "<li><a href=\"" << htmlName << "\">Test pulse</a></li>" << endl;
+  }    
+
+  htmlFile << "</ul>" << endl;
+
+  // html page footer
+  htmlFile << "</body> " << endl;
+  htmlFile << "</html> " << endl;
 
   htmlFile.close();
 

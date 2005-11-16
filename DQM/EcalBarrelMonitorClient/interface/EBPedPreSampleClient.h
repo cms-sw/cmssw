@@ -4,8 +4,8 @@
 /*
  * \file EBPedPreSampleClient.h
  *
- * $Date: 2005/11/16 10:41:48 $
- * $Revision: 1.8 $
+ * $Date: 2005/11/16 12:30:58 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  *
 */
@@ -79,7 +79,7 @@ void beginRun(const edm::EventSetup& c);
 void endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* runtag);
 
 // HtmlOutput
-virtual void htmlOutput(int run, string htmlDir);
+virtual void htmlOutput(int run, string htmlDir, string htmlName);
 
 private:
 

@@ -4,8 +4,8 @@
 /*
  * \file EBIntegrityClient.h
  *
- * $Date: 2005/11/13 18:37:19 $
- * $Revision: 1.4 $
+ * $Date: 2005/11/16 08:36:44 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  *
 */
@@ -77,7 +77,7 @@ void beginRun(const edm::EventSetup& c);
 void endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* runtag);
 
 // HtmlOutput
-virtual void htmlOutput(int run, string htmlDir);
+virtual void htmlOutput(int run, string htmlDir, string htmlName);
 
 private:
 

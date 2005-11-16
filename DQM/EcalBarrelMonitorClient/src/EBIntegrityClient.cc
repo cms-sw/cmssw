@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  * 
- * $Date: 2005/11/16 08:36:44 $
- * $Revision: 1.15 $
+ * $Date: 2005/11/16 09:42:12 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  *
 */
@@ -285,13 +285,13 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
 
 }
 
-void EBIntegrityClient::htmlOutput(int run, string htmlDir){
+void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   cout << "Preparing EBIntegrityClient html output ..." << endl;
 
   ofstream htmlFile;
 
-  htmlFile.open((htmlDir + "EBIntegrityClient.html").c_str());
+  htmlFile.open((htmlDir + htmlName).c_str());
 
 
   htmlFile.close();

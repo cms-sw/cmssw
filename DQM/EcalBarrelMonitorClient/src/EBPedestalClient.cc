@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  * 
- * $Date: 2005/11/16 08:36:44 $
- * $Revision: 1.16 $
+ * $Date: 2005/11/16 09:42:12 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -374,13 +374,13 @@ void EBPedestalClient::analyze(const edm::Event& e, const edm::EventSetup& c){
 
 }
 
-void EBPedestalClient::htmlOutput(int run, string htmlDir){
+void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   cout << "Preparing EBPedestalClient html output ..." << endl;
 
   ofstream htmlFile;
 
-  htmlFile.open((htmlDir + "EBPedestalClient.html").c_str());
+  htmlFile.open((htmlDir + htmlName).c_str());
 
   // html page header
   htmlFile << "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">  " << endl;
@@ -460,8 +460,8 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir){
             meName.replace(iQual, 1, "_");
           }
         }
-        imgName = htmlDir + meName + ".jpg";
-        imgNameQual[iCanvas-1] = imgName;
+        imgNameQual[iCanvas-1] = meName + ".jpg";
+        imgName = htmlDir + imgNameQual[iCanvas-1];
         gStyle->SetOptStat(" ");
         gStyle->SetPalette(3, pCol3);
         obj2f->GetXaxis()->SetNdivisions(17);
@@ -503,8 +503,8 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir){
             meName.replace(iMean, 1 ,"_" );
           }
         }
-        imgName = htmlDir + meName + ".jpg";
-        imgNameMean[iCanvas-1] = imgName;
+        imgNameMean[iCanvas-1] = meName + ".jpg";
+        imgName = htmlDir + imgNameMean[iCanvas-1];
         gStyle->SetOptStat("euomr");
         obj1f->SetStats(kTRUE);
         if ( obj1f->GetMaximum(histMax) > 0. ) {
@@ -548,8 +548,8 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir){
             meName.replace(iRMS, 1, "_");
           }
         }
-        imgName = htmlDir + meName + ".jpg";
-        imgNameRMS[iCanvas-1] = imgName;
+        imgNameRMS[iCanvas-1] = meName + ".jpg";
+        imgName = htmlDir + imgNameRMS[iCanvas-1];
         gStyle->SetOptStat("euomr");
         obj1f->SetStats(kTRUE);
         if ( obj1f->GetMaximum(histMax) > 0. ) {
