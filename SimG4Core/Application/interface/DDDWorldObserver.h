@@ -10,7 +10,7 @@ template<typename Event>
 class DDDWorldObserver : public Observer<const Event*>
 {
 public:
-    virtual void update(const DDDWorld * w) const
+    virtual void update(const DDDWorld * w)
     {
 	std::cout << " DDDWorldObserver: in update " << std::endl;
 	if (w!=0)
