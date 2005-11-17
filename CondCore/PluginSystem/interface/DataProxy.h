@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jul 23 19:40:27 EDT 2005
-// $Id: DataProxy.h,v 1.3 2005/09/01 09:28:59 xiezhen Exp $
+// $Id: DataProxy.h,v 1.4 2005/10/06 11:16:25 xiezhen Exp $
 //
 
 // system include files
@@ -69,7 +69,6 @@ namespace cond{
     }
     
     virtual void invalidateCache() {
-      std::cout<<"invalidateCache"<<std::endl;
       //m_data.clear();
       //std::cout<<"end invalidateCache"<<std::endl;
     }
