@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  * 
- * $Date: 2005/11/16 20:40:31 $
- * $Revision: 1.28 $
+ * $Date: 2005/11/17 09:15:32 $
+ * $Revision: 1.29 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -365,6 +365,12 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
     cout << "Running with no updates since too long ..." << endl;
 
     cout << "Forcing end-of-run ... NOW !" << endl;
+
+                                           integrity_client_->analyze(e, c);
+    if ( h_ && h_->GetBinContent(2) != 0 ) laser_client_->analyze(e, c);
+    if ( h_ && h_->GetBinContent(3) != 0 ) pedestal_client_->analyze(e, c); 
+                                           pedpresample_client_->analyze(e, c);
+    if ( h_ && h_->GetBinContent(4) != 0 ) testpulse_client_->analyze(e, c);
 
     this->endRun();
 
