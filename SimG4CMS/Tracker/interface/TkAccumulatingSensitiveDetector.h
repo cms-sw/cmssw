@@ -23,7 +23,7 @@ class UpdatablePSimHit;
 class G4ProcessTypeEnumerator;
 class G4TrackToParticleID;
 
-class TkAccumulatingSensitiveDetector : public SensitiveTkDetector//, private Observer<const BeginOfEvent*>
+class TkAccumulatingSensitiveDetector : public SensitiveTkDetector, public Observer<const BeginOfEvent*>
 { 
 public:    
     TkAccumulatingSensitiveDetector(std::string, const DDCompactView &,

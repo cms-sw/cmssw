@@ -14,7 +14,7 @@ TrackingSlaveSDWithRenumbering::TrackingSlaveSDWithRenumbering(std::string myNam
 void TrackingSlaveSDWithRenumbering::lazyUpDate(const  EventAction * ev){
   eventAction = ev;
 }
-//void TrackingSlaveSDWithRenumbering::update(const EndOfEvent*  ev)const {
+
 void TrackingSlaveSDWithRenumbering::update(const EndOfEvent*  ev){
   //
   // Now renumber the Hits

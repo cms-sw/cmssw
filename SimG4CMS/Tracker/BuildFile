@@ -1,7 +1,9 @@
 
 <use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
 <use name=SimG4Core/SensitiveDetector>
 <use name=SimG4Core/Notification> 
+<use name=Geometry/TrackerBaseAlgo>
 <use name=boost>
 <use name=geant4>
 <use name=SimDataFormats/SimHitMaker>

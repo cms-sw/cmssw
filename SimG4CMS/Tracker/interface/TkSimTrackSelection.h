@@ -13,8 +13,7 @@ class TrackInformation;
  */
 
 
-class TkSimTrackSelection : public Observer<BeginOfTrack>{
-  //public Observer<const BeginOfTrack*>{
+class TkSimTrackSelection : public Observer<const BeginOfTrack*>{
   public:
   TkSimTrackSelection( edm::ParameterSet const & p);
   //  void update(const BeginOfTrack *) const;

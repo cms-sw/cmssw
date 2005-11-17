@@ -19,7 +19,6 @@ TkSimTrackSelection::TkSimTrackSelection( edm::ParameterSet const & p) : rTracke
   std::cout <<" History: "<<energyHistoryCut<< " MeV ; Persistency: "<< energyCut<<" MeV "<<std::endl;
 }
 
-//void TkSimTrackSelection::update(const BeginOfTrack *bot)const{
 void TkSimTrackSelection::update(const BeginOfTrack *bot){
   const G4Track* gTrack = (*bot)();
 #ifdef DUMPPROCESSES

@@ -14,11 +14,10 @@ class EventAction;
 #include<string>
 
 class TrackingSlaveSDWithRenumbering : 
-public TrackingSlaveSD//, public Observer<const EndOfEvent *>
+public TrackingSlaveSD, public Observer<const EndOfEvent *>
 {
  public:
   TrackingSlaveSDWithRenumbering(std::string);
-  //  void update(const EndOfEvent *) const;  
   void update(const EndOfEvent *);  
   void lazyUpDate(const  EventAction *);
   bool format();
