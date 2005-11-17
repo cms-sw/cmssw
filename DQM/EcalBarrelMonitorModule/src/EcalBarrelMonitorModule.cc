@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  * 
- * $Date: 2005/11/16 09:42:12 $
- * $Revision: 1.46 $
+ * $Date: 2005/11/16 15:19:36 $
+ * $Revision: 1.47 $
  * \author G. Della Ricca
  *
 */
@@ -27,16 +27,9 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
 
   irun_ = ps.getUntrackedParameter<int>("runNumber", 999999);
 
-  // this should give enough time to the ME created in EventFilter/EcalTBRawToDigi
-  // to reach the Collector ...
-  sleep(20);
-
-  dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe_ = EcalBarrelMonitorDaemon::dbe();
 
   dbe_->setVerbose(1);
-
-  edm::Service<MonitorDaemon> daemon;
-  daemon.operator->();
 
   Char_t histo[20];
 

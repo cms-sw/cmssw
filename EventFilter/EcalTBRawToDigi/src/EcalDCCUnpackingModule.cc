@@ -1,7 +1,7 @@
 /* \file EcalDCCUnpackingModule.h
  *
- *  $Date: 2005/10/27 07:18:04 $
- *  $Revision: 1.13 $
+ *  $Date: 2005/11/14 11:02:42 $
+ *  $Revision: 1.14 $
  *  \author N. Marinelli 
  *  \author G. Della Ricca
  */
@@ -33,12 +33,11 @@ EcalDCCUnpackingModule::EcalDCCUnpackingModule(const edm::ParameterSet& pset){
 
   dbe = 0;
   if ( pset.getUntrackedParameter<bool>("DBEinterface", false) ) {
-    dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+
+    dbe = EcalBarrelMonitorDaemon::dbe();
 
     dbe->setVerbose(1);
 
-    edm::Service<MonitorDaemon> daemon;
-    daemon.operator->();
   }
 
   formatter = new EcalTBDaqFormatter(dbe);

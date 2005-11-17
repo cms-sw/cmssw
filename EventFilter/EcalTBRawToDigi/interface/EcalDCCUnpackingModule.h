@@ -4,8 +4,8 @@
 /** \class EcalUnpackingModule
  * 
  *
- *  $Date: 2005/10/07 11:25:33 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/10/18 09:06:15 $
+ *  $Revision: 1.3 $
  * \author N. Marinelli 
  * \author G. Della Ricca
  */
@@ -13,9 +13,7 @@
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include <FWCore/Framework/interface/EDProducer.h>
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
+#include <DQM/EcalBarrelMonitorModule/interface/EcalBarrelMonitorDaemon.h>
 
 #include <iostream>
 #include <string>

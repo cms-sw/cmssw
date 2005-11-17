@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorModule.h
  *
- * $Date: 2005/11/10 16:59:38 $
- * $Revision: 1.16 $
+ * $Date: 2005/11/14 08:52:30 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  *
 */
@@ -18,13 +18,11 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-
 #include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include <DataFormats/EcalDetId/interface/EBDetId.h>
+
+#include <DQM/EcalBarrelMonitorModule/interface/EcalBarrelMonitorDaemon.h>
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBCosmicTask.h>
 #include <DQM/EcalBarrelMonitorTasks/interface/EBLaserTask.h>
