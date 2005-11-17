@@ -244,16 +244,18 @@ namespace edm {
 
         void BuilderPSet::visitModule(const ModuleNode& iNode) 
         {
+	  // When the tree walking is refactored, this test should
+	  // come back in.
 
-          // Make sure the node is of type 'source' (which comes from a
-          // 'secsource' entry.
-          if (iNode.type() != "source")
-            {
-              throw edm::Exception(errors::Configuration,"PSetError")
-                << "An illegal entry has been found within a module declaration"
-                << "\ntype: " << iNode.type()
-                << "\nname: " << iNode.name();
-            }
+//           // Make sure the node is of type 'source' (which comes from a
+//           // 'secsource' entry.
+//           if (iNode.type() != "source")
+//             {
+//               throw edm::Exception(errors::Configuration,"PSetError")
+//                 << "An illegal entry has been found within a module declaration"
+//                 << "\ntype: " << iNode.type()
+//                 << "\nname: " << iNode.name();
+//             }
 
           edm::pset::NamedPSets dummyBlocks;
           edm::pset::NamedPSets dummyPSets;

@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 18 19:09:01 EDT 2005
-// $Id: MakersProcess.cc,v 1.11 2005/09/19 08:17:59 chrjones Exp $
+// $Id: MakersProcess.cc,v 1.12 2005/11/17 14:29:10 paterno Exp $
 //
 
 // system include files
@@ -50,16 +50,19 @@ struct FillProcess : public edm::pset::Visitor
       static const std::string kModule("module");
       static const std::string kESModule("es_module");
       static const std::string kSource("source");
+      static const std::string kSecSource("secsource");
       static const std::string kESSource("es_source");
       static const std::string kService("service");
 
       moduleTypes_[kModule];
       moduleTypes_[kESModule];
       moduleTypes_[kSource];
+      moduleTypes_[kSecSource];
       moduleTypes_[kESSource];
       moduleTypes_[kService];
       handleTypes_[kModule] = &FillProcess::handleModule;
       handleTypes_[kSource] = &FillProcess::handleSource;
+      handleTypes_[kSecSource] = &FillProcess::handleSource;
       handleTypes_[kESModule] = &FillProcess::handleESModule;
       handleTypes_[kESSource] = &FillProcess::handleESSource;
       handleTypes_[kService] = &FillProcess::handleService;
@@ -169,7 +172,9 @@ private:
      std::string nodename = iNode.name_;
      if (nodename.empty()) nodename = "@main_input";
      oPSet.insert(true, "@module_label", Entry(nodename, true));
-     oPSet.insert(true, "@module_type", Entry(iNode.class_,true));
+     std::string type = iNode.class_;
+     if (type == "secsource") type = "source";
+     oPSet.insert(true, "@module_type", Entry(type,true));
      return nodename;
    }
    std::string handleESModule(const edm::pset::ModuleNode&iNode, edm::ParameterSet& oPSet) {
