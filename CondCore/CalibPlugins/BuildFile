@@ -1,0 +1,15 @@
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=CondCore/PluginSystem>
+<use name=CondFormats/Calibration>
+<use name=CondFormats/DataRecord>
+
+<flags SEAL_PLUGIN_NAME="CondCoreCalibPlugins">
+<export>
+   <lib name=CondCoreCalibPlugins>
+   <use name=FWCore/Framework>
+   <use name=Foundation/PluginManager>
+   <use name=CondCore/PluginSystem>
+   <use name=CondFormats/Calibration>
+   <use name=CondFormats/DataRecord>
+</export>
