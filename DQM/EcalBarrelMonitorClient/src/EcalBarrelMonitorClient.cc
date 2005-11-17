@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  * 
- * $Date: 2005/11/16 15:19:36 $
- * $Revision: 1.27 $
+ * $Date: 2005/11/16 20:40:31 $
+ * $Revision: 1.28 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -329,7 +329,7 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
     }
 
     if ( status_ == "running" ) {
-      if ( updates != 0 && updates % 50 == 0 ) {
+      if ( updates != 0 && updates % 5 == 0 ) {
                                                integrity_client_->analyze(e, c);
         if ( h_ && h_->GetBinContent(2) != 0 ) laser_client_->analyze(e, c);
         if ( h_ && h_->GetBinContent(3) != 0 ) pedestal_client_->analyze(e, c);
