@@ -27,20 +27,12 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInter
     ((TH1F*)(me_->operator->()))->GetXaxis()->SetBinLabel(12,"??3");
   }
 
-  m_readoutMapSource = ps.getParameter<std::string>("readoutMapSource");
-  m_fedUnpackList = ps.getParameter<std::vector<int> >("FEDs");
+  m_fedUnpackList = ps.getParameter<vector<int> >("FEDs");
   m_firstFED = ps.getParameter<int>("HcalFirstFED");
-  const std::string filePrefix("file://");
-  if (m_readoutMapSource.find(filePrefix)==0) {
-    std::string theFile=m_readoutMapSource;
-    theFile.erase(0,filePrefix.length());
-    std::cout << "HcalDataFormatMonitor::setup  Reading HcalMapping from '" << theFile << "'\n";
-    m_readoutMap=HcalMappingTextFileReader::readFromFile(theFile.c_str(),true); // maintain L2E for no real reason
-  }
-  std::cout << "HcalDataFormatMonitor::setup  Will unpack FEDs ";
+  cout << "HcalDataFormatMonitor::setup  Will unpack FEDs ";
   for (unsigned int i=0; i<m_fedUnpackList.size(); i++) 
-    std::cout << m_fedUnpackList[i] << " ";
-  std::cout << std::endl;
+    cout << m_fedUnpackList[i] << " ";
+  cout << endl;
   return;
 }
 
@@ -50,20 +42,18 @@ void HcalDataFormatMonitor::processEvent(const FEDRawDataCollection& rawraw)
   if(!m_dbe) { printf("HcalDataFormatMonitor::processEvent   DaqMonitorBEInterface not instantiated!!!\n");  return;}
 
   // Step C: unpack all requested FEDs
-  for (std::vector<int>::const_iterator i=m_fedUnpackList.begin(); i!=m_fedUnpackList.end(); i++) {
+  for (vector<int>::const_iterator i=m_fedUnpackList.begin(); i!=m_fedUnpackList.end(); i++) {
     const FEDRawData& fed = rawraw.FEDData(*i);
-    //   std::cout << "Processing FED " << *i << std::endl;
+    //   cout << "Processing FED " << *i << endl;
     // look only at the potential ones, to save time.
-    if (m_readoutMap->subdetectorPresent(HcalBarrel,*i-m_firstFED) 
-	|| m_readoutMap->subdetectorPresent(HcalEndcap,*i-m_firstFED)) 
+    if (m_readoutMap.subdetectorPresent(HcalBarrel,*i-m_firstFED) 
+	|| m_readoutMap.subdetectorPresent(HcalEndcap,*i-m_firstFED)) 
       unpack(fed,0,0,10);
-    if (m_readoutMap->subdetectorPresent(HcalOuter,*i-m_firstFED)) 
+    if (m_readoutMap.subdetectorPresent(HcalOuter,*i-m_firstFED)) 
       unpack(fed,0,0,10);
-    if (m_readoutMap->subdetectorPresent(HcalForward,*i-m_firstFED)) 
+    if (m_readoutMap.subdetectorPresent(HcalForward,*i-m_firstFED)) 
       unpack(fed,0,0,10);
   }
-  //      unpacker_.unpack(fed,*m_readoutMap,hf, htp);
-
 }
 
 void HcalDataFormatMonitor::unpack(const FEDRawData& raw, int f_offset, int f_start, int f_end){

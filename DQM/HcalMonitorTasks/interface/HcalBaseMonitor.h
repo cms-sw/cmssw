@@ -3,13 +3,15 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+
+#include "CondFormats/HcalMapping/interface/HcalMappingTextFileReader.h"
 #include <iostream>
 
 using namespace std;
 /** \class HcalBaseMonitor
   *  
-  * $Date: 2005/11/13 17:33:07 $
-  * $Revision: 1.1 $
+  * $Date: 2005/11/14 16:48:07 $
+  * $Revision: 1.2 $
   * \author W. Fisher - FNAL
   */
 class HcalBaseMonitor {
@@ -27,6 +29,9 @@ protected:
   
   int fVerbosity;
   DaqMonitorBEInterface* m_dbe;
+  HcalMapping m_readoutMap;
+  string m_readoutMapSource;
+
 };
 
 #endif

@@ -10,11 +10,10 @@
 #include "EventFilter/HcalRawToDigi/interface/HcalDCCHeader.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalHTRData.h"
 #include "DataFormats/HcalDigi/interface/HcalQIESample.h"
-#include "CondFormats/HcalMapping/interface/HcalMappingTextFileReader.h"
 
 /** \class Hcaldataformatmonitor
   *  
-  * $Date: 2005/11/13 17:33:07 $
+  * $Date: 2005/11/14 16:55:55 $
   * $Revision: 1.1 $
   * \author W. Fisher - FNAL
   */
@@ -27,11 +26,8 @@ public:
   void processEvent(const FEDRawDataCollection& rawraw);
   void unpack(const FEDRawData& raw, int a, int b, int c);
 
-
 private: /// Data accessors
-  std::auto_ptr<HcalMapping> m_readoutMap;
-  std::string m_readoutMapSource;
-  std::vector<int> m_fedUnpackList;
+  vector<int> m_fedUnpackList;
   int m_firstFED;
 
 private:  ///Monitoring elements
