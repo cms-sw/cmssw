@@ -3,8 +3,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2005/11/13 17:20:53 $
- * $Revision: 1.1 $
+ * $Date: 2005/11/14 17:00:43 $
+ * $Revision: 1.2 $
  * \author W Fisher
  *
 */
@@ -42,6 +42,9 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   m_dfMon = new HcalDataFormatMonitor();
   m_dfMon->setup(ps, m_dbe);
 
+  m_rhMon = new HcalRecHitMonitor();
+  m_rhMon->setup(ps, m_dbe);
+
   if ( m_dbe ) m_dbe->showDirStructure();
   
 }
@@ -49,6 +52,8 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
 HcalMonitorModule::~HcalMonitorModule(){
   delete m_digiMon;
   delete m_dfMon;
+  delete m_rhMon;
+
   m_logFile.close();
 }
 
@@ -62,6 +67,7 @@ void HcalMonitorModule::endJob(void) {
   cout << "HcalMonitorModule: analyzed " << m_ievt << " events" << endl;
   m_digiMon->done();
   m_dfMon->done();
+  m_rhMon->done();
   if ( m_meStatus ) m_meStatus->Fill(2);
   if ( m_outputFile.size() != 0  && m_dbe ) m_dbe->save(m_outputFile);
 
@@ -72,10 +78,16 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   m_ievt++;
 
-  if ( m_meStatus ) m_meStatus->Fill(1);
-  if ( m_meRun ) m_meRun->Fill(14316);
-  if ( m_meEvt ) m_meEvt->Fill(m_ievt,m_ievt);
+  if ( m_dbe ){ 
+    m_meStatus->Fill(1);
+    m_meRun->Fill(14316);
+    m_meEvt->Fill(m_ievt,m_ievt);
+  }
 
+  edm::Handle<HcalTBTriggerData> triggerD;
+  e.getByType(triggerD);
+  
+  /////Digi monitor stuff
   edm::Handle<HBHEDigiCollection> hbhe;
   edm::Handle<HODigiCollection> ho;
   edm::Handle<HFDigiCollection> hf;
@@ -84,11 +96,21 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& c){
   e.getByType(ho);
   m_digiMon->processEvent(*hbhe, *ho, *hf);
 
+  /////Daata Format monitor stuff
   edm::Handle<FEDRawDataCollection> rawraw;  
   e.getByType(rawraw);           
   m_dfMon->processEvent(*rawraw);
 
-  sleep(5);
+  /////Rec Hit monitor stuff
+  edm::Handle<HBHERecHitCollection> hb_hits;
+  edm::Handle<HORecHitCollection> ho_hits;
+  edm::Handle<HFRecHitCollection> hf_hits;
+  e.getByType(hb_hits);
+  e.getByType(ho_hits);
+  e.getByType(hf_hits);
+  m_rhMon->processEvent(*hb_hits,*ho_hits,*hf_hits);
+  
+  //  sleep(2);
   return;
 }
 
