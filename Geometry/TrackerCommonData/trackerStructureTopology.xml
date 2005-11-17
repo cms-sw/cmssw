@@ -83,25 +83,31 @@ definire plus e minus
     </SpecPar>
 
     <SpecPar name="TIDSubDetPar">
-      <PartSelector path="//TID" />
+      <PartSelector path="//TIDB" />
+      <PartSelector path="//TIDF" />
       <Parameter name="TkDDDStructure" value="TID"/>
     </SpecPar>
 
     <SpecPar name="TIDSubDetWheelPar">
-      <PartSelector path="//TIDWheel" />
+      <PartSelector path="//TIDWheelB" />
+      <PartSelector path="//TIDWheelF" />
       <Parameter name="TkDDDStructure" value="TIDWheel"/>
     </SpecPar>
 
     <SpecPar name="TIDSubDetRingPar">
-      <PartSelector path="//TIDRing0" />
-      <PartSelector path="//TIDRing1" />
+      <PartSelector path="//TIDRing0F" />
+      <PartSelector path="//TIDRing1F" />
+      <PartSelector path="//TIDRing0B" />
+      <PartSelector path="//TIDRing1B" />
       <PartSelector path="//TIDRing2" />
       <Parameter name="TkDDDStructure" value="TIDRing"/>
     </SpecPar>
 
     <SpecPar name="TIDSubDetGluedDetPar">
-      <PartSelector path="//TIDModule0" />
-      <PartSelector path="//TIDModule1" />
+      <PartSelector path="//TIDModule0L" />
+      <PartSelector path="//TIDModule0R" />
+      <PartSelector path="//TIDModule1L" />
+      <PartSelector path="//TIDModule1R" />
       <Parameter name="TkDDDStructure" value="TIDGluedDet"/>
     </SpecPar>
 
