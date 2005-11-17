@@ -136,6 +136,8 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   m_recordToTypes.insert(make_pair(string("HcalElectronicsMapRcd"), string("HcalElectronicsMap"))) ;
   m_recordToTypes.insert(make_pair(string("HcalQIEDataRcd"), string("HcalQIEData"))) ;
   m_recordToTypes.insert(make_pair(string("HcalQIEShapeRcd"), string("HcalQIEShape"))) ;
+  // DT conditions
+  m_recordToTypes.insert(make_pair(string("DTReadOutMappingRcd"), string("DTReadOutMapping"))) ;
   //by forcing this to load, we also load the definition of the Records which //will allow EventSetupRecordKey::TypeTag::findType(...) method to find them
   for(RecordToTypes::iterator itRec = m_recordToTypes.begin();itRec != m_recordToTypes.end();	++itRec ) {
     m_proxyToToken.insert( make_pair(buildName(itRec->first, itRec->second ),"") );//fill in dummy tokens now, change in setIntervalFor
