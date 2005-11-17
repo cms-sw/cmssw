@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  * 
- * $Date: 2005/11/17 15:09:29 $
- * $Revision: 1.30 $
+ * $Date: 2005/11/17 20:49:13 $
+ * $Revision: 1.31 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -190,6 +190,8 @@ void EcalBarrelMonitorClient::endRun(void) {
   EcalLogicID ecid;
   RunDat r;
   map<EcalLogicID, RunDat> dataset;
+
+  cout << "Writing RunDatObjects to database ..." << endl;
 
   float nevt = 0.;
 
