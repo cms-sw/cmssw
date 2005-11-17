@@ -1,3 +1,6 @@
+** V00-01-02  [Thu Nov 17 19:47:45 2005]
+fix multiple ESSource; add DT conditions; add tests
+
 ** V00-01-01  [Wed Nov  2 16:36:40 2005]
 remove EcalMapping object and test
 
