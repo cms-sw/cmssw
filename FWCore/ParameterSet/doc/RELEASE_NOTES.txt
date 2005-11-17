@@ -1,10 +1,13 @@
+17-11-05 mfp & cdj. Fixed handling of unnamed source; "@main_input"
+magic name now injected into ParameterSet, not parse tree.
+
 15-11-05 mfp. Changed FileInPath to deal with new versions of its
 environment variables.
    CMSDATA          --> CMSSW_DATA_PATH
    CMS_SEARCH_PATH  --> CMSSW_SEARCH_PATH
 
-Modified tests to fit. Code and tests also deal with the old environment
-variables, as a temporary measure.
+Modified tests to fit. Code and tests also deal with the old
+environment variables, as a temporary measure.
 
 01-11-05 mfp. Attempted to run the "test/run_all_parser_t.sh" script.
 

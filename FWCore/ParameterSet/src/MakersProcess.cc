@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 18 19:09:01 EDT 2005
-// $Id: MakersProcess.cc,v 1.10 2005/09/10 02:08:46 wmtan Exp $
+// $Id: MakersProcess.cc,v 1.11 2005/09/19 08:17:59 chrjones Exp $
 //
 
 // system include files
@@ -59,7 +59,7 @@ struct FillProcess : public edm::pset::Visitor
       moduleTypes_[kESSource];
       moduleTypes_[kService];
       handleTypes_[kModule] = &FillProcess::handleModule;
-      handleTypes_[kSource] = &FillProcess::handleModule;
+      handleTypes_[kSource] = &FillProcess::handleSource;
       handleTypes_[kESModule] = &FillProcess::handleESModule;
       handleTypes_[kESSource] = &FillProcess::handleESSource;
       handleTypes_[kService] = &FillProcess::handleService;
@@ -164,6 +164,13 @@ private:
       oPSet.insert(true, "@module_label", Entry(iNode.name_, true));
       oPSet.insert(true, "@module_type", Entry(iNode.class_,true));
       return iNode.name_;
+   }
+   std::string handleSource(const edm::pset::ModuleNode&iNode , edm::ParameterSet& oPSet) {
+     std::string nodename = iNode.name_;
+     if (nodename.empty()) nodename = "@main_input";
+     oPSet.insert(true, "@module_label", Entry(nodename, true));
+     oPSet.insert(true, "@module_type", Entry(iNode.class_,true));
+     return nodename;
    }
    std::string handleESModule(const edm::pset::ModuleNode&iNode, edm::ParameterSet& oPSet) {
       std::string label("");
