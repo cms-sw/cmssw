@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  * 
- * $Date: 2005/11/16 15:19:36 $
- * $Revision: 1.19 $
+ * $Date: 2005/11/16 20:40:31 $
+ * $Revision: 1.20 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -32,16 +32,16 @@ EBPedestalClient::EBPedestalClient(const edm::ParameterSet& ps, MonitorUserInter
     sprintf(histo, "EBPT pedestal mean G01 SM%02d", i+1);
     p01_[i] = new TH1F(histo, histo, 100, 150., 250.);
     sprintf(histo, "EBPT pedestal mean G06 SM%02d", i+1);
-    p02_[i] = new TH1F(histo, histo, 100, 150., 250.);
+    p02_[i] = new TH1F(histo, histo, 100,  20.,  40.);
     sprintf(histo, "EBPT pedestal mean G12 SM%02d", i+1);
-    p03_[i] = new TH1F(histo, histo, 100, 150., 250.);
+    p03_[i] = new TH1F(histo, histo, 100,  10.,  20.);
 
     sprintf(histo, "EBPT pedestal rms G01 SM%02d", i+1);
     r01_[i] = new TH1F(histo, histo, 100, 0., 10.);
     sprintf(histo, "EBPT pedestal rms G06 SM%02d", i+1);
-    r02_[i] = new TH1F(histo, histo, 100, 0., 10.);
+    r02_[i] = new TH1F(histo, histo, 100, 0.,  2.);
     sprintf(histo, "EBPT pedestal rms G12 SM%02d", i+1);
-    r03_[i] = new TH1F(histo, histo, 100, 0., 10.);
+    r03_[i] = new TH1F(histo, histo, 100, 0.,  1.);
 
   }
 

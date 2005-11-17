@@ -1,8 +1,8 @@
 /*
  * \file EBPedPreSampleClient.cc
  * 
- * $Date: 2005/11/16 15:19:36 $
- * $Revision: 1.23 $
+ * $Date: 2005/11/16 20:40:31 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -24,10 +24,10 @@ EBPedPreSampleClient::EBPedPreSampleClient(const edm::ParameterSet& ps, MonitorU
     g03_[i] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
 
     sprintf(histo, "EBPT pedestal PreSample mean G12 SM%02d", i+1);
-    p03_[i] = new TH1F(histo, histo, 100, 150., 250.);
+    p03_[i] = new TH1F(histo, histo, 100,  10.,  20.);
 
     sprintf(histo, "EBPT pedestal PreSample rms G12 SM%02d", i+1);
-    r03_[i] = new TH1F(histo, histo, 100, 0., 10.);
+    r03_[i] = new TH1F(histo, histo, 100, 0.,  1.);
 
   }
 
