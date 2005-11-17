@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  * 
- * $Date: 2005/11/16 09:42:12 $
- * $Revision: 1.16 $
+ * $Date: 2005/11/16 13:40:38 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  *
 */
@@ -231,7 +231,7 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
     ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
     if ( ob ) {
       if ( h00_ ) delete h00_;
-      h00_ = dynamic_cast<TH2D*> (ob->operator->());
+      h00_ = dynamic_cast<TH2F*> (ob->operator->());
     }
   }
 
@@ -244,7 +244,7 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( h01_[ism-1] ) delete h01_[ism-1];
-        h01_[ism-1] = dynamic_cast<TH2D*> ((ob->operator->())->Clone());
+        h01_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone());
       }
     }
 
@@ -255,7 +255,7 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( h02_[ism-1] ) delete h02_[ism-1];
-        h02_[ism-1] = dynamic_cast<TH2D*> ((ob->operator->())->Clone());
+        h02_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone());
       }
     }
 
@@ -266,7 +266,7 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( h03_[ism-1] ) delete h03_[ism-1];
-        h03_[ism-1] = dynamic_cast<TH2D*> ((ob->operator->())->Clone());
+        h03_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone());
       }
     }
 
@@ -277,7 +277,7 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( h04_[ism-1] ) delete h04_[ism-1];
-        h04_[ism-1] = dynamic_cast<TH2D*> ((ob->operator->())->Clone());
+        h04_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone());
       }
     }
 
