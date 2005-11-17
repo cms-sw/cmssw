@@ -199,7 +199,11 @@ void RunManager::initializeUserActions()
 	userEventAction->m_beginOfEventSignal.connect(m_registry.beginOfEventSignal_);
 	userEventAction->m_endOfEventSignal.connect(m_registry.endOfEventSignal_);
         eventManager->SetUserAction(userEventAction);
-        eventManager->SetUserAction(new TrackingAction(userEventAction,m_pTrackingAction));
+        TrackingAction* userTrackingAction = new TrackingAction(userEventAction,m_pTrackingAction);
+	userTrackingAction->m_beginOfTrackSignal.connect(m_registry.beginOfTrackSignal_);
+	userTrackingAction->m_endOfTrackSignal.connect(m_registry.endOfTrackSignal_);
+	eventManager->SetUserAction(userTrackingAction);
+	
         eventManager->SetUserAction(new SteppingAction(m_pSteppingAction));
         if (m_Override)
         {

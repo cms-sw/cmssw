@@ -26,6 +26,7 @@ void TrackingAction::PreUserTrackingAction(const G4Track * aTrack)
 	throw SimG4Exception("TrackingAction: currentTrack is a mess...");
     currentTrack_ = new TrackWithHistory(aTrack);
     BeginOfTrack bt(aTrack);
+    m_beginOfTrackSignal(&bt);
 }
 
 void TrackingAction::PostUserTrackingAction(const G4Track * aTrack)
@@ -43,6 +44,7 @@ void TrackingAction::PostUserTrackingAction(const G4Track * aTrack)
         else delete currentTrack_;
     }
     EndOfTrack et(aTrack);
+    m_endOfTrackSignal(&et);
     currentTrack_ = 0; // reset for next track
 }
 
