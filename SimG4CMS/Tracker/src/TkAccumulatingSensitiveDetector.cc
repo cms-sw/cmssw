@@ -14,12 +14,7 @@
 #include "SimG4CMS/Tracker/interface/TrackingSlaveSDWithRenumbering.h"
 #include "SimG4CMS/Tracker/interface/FakeFrameRotation.h"
 #include "SimG4CMS/Tracker/interface/StandardFrameRotation.h"
-#include "SimG4CMS/Tracker/interface/PixelBarrelFrameRotation.h"
-#include "SimG4CMS/Tracker/interface/PixelEndcapFrameRotation.h"
-#include "SimG4CMS/Tracker/interface/TIBFrameRotation.h"
-#include "SimG4CMS/Tracker/interface/TOBFrameRotation.h"
-#include "SimG4CMS/Tracker/interface/TIDFrameRotation.h"
-#include "SimG4CMS/Tracker/interface/TECFrameRotation.h"
+#include "SimG4CMS/Tracker/interface/TrackerFrameRotation.h"
 #include "SimG4CMS/Tracker/interface/TkSimHitPrinter.h"
 #include "SimG4CMS/Tracker/interface/TrackerG4SimHitNumberingScheme.h"
 
@@ -34,7 +29,7 @@
 #include <vector>
 
 //#define FAKEFRAMEROTATION
-//#define DEBUG
+#define DEBUG
 //#define DEBUG_TRACKID
 
 using std::cout;
@@ -47,51 +42,37 @@ TkAccumulatingSensitiveDetector::TkAccumulatingSensitiveDetector(string name,
 								 edm::ParameterSet const & p) : 
   SensitiveTkDetector(name, cpv, p), myName(name), myRotation(0),  mySimHit(0),
   oldVolume(0), lastId(0), lastTrack(0), eventno(0) {
+
+  edm::ParameterSet m_TrackerSD = p.getParameter<edm::ParameterSet>("TrackerSD");
+  allowZeroEnergyLoss = m_TrackerSD.getParameter<bool>("ZeroEnergyLoss");
+  neverAccumulate     = m_TrackerSD.getParameter<bool>("NeverAccumulate");
+  printHits           = m_TrackerSD.getParameter<bool>("PrintHits");
+  theSigma            = m_TrackerSD.getParameter<double>("ElectronicSigmaInNanoSeconds");
+
+
+
   std::cout<<" Constructing a TkAccumulatingSensitiveDetector with "<<name<<std::endl;
+
+
 #ifndef FAKEFRAMEROTATION
-    // No Rotation given in input, automagically choose one based upon the name
-	if (name.find("PixelEndcap") != string::npos) 
-	{
-	    cout <<" TkAccumulatingSensitiveDetector: using PixelEndcapFrameRotation for "<<myName<<endl;
-	    myRotation = new PixelEndcapFrameRotation;
-	}
-	if (name.find("TIB") != string::npos) 
-	{
-	    cout <<" TkAccumulatingSensitiveDetector: using TIBFrameRotation for "<<myName<<endl;
-	    myRotation = new TIBFrameRotation;
-	}
-	if (name.find("TOB") != string::npos) 
-	{
-            cout <<" TkAccumulatingSensitiveDetector: using TOBFrameRotation for "<<myName<<endl;
-	    myRotation = new TOBFrameRotation;
-	}
-	if (name.find("TID") != string::npos) 
-	{
-	    cout <<" TkAccumulatingSensitiveDetector: using TIDFrameRotation for "<<myName<<endl;
-	    myRotation = new TIDFrameRotation;
-	}
-	if (name.find("TEC") != string::npos) 
-	{
-	    cout <<" TkAccumulatingSensitiveDetector: using TECFrameRotation for "<<myName<<endl;
-	    myRotation = new TECFrameRotation;
-	}
-	if (name.find("PixelBarrel") != string::npos) 
-	{
-	    cout <<" TkAccumulatingSensitiveDetector: using PixelBarrelFrameRotation for "<<myName<<endl;
-	    myRotation = new PixelBarrelFrameRotation;
-	}
-	// Just in case (test beam etc)
-	if (myRotation == 0) 
-	{
-	    cout <<" TkAccumulatingSensitiveDetector: using StandardFrameRotation for "<<myName<<endl;
-	    myRotation = new StandardFrameRotation;
-	}
+  // No Rotation given in input, automagically choose one based upon the name
+  if (name.find("TrackerHits") != string::npos) 
+    {
+      cout <<" TkAccumulatingSensitiveDetector: using TrackerFrameRotation for "<<myName<<endl;
+      myRotation = new TrackerFrameRotation;
+    }
+  // Just in case (test beam etc)
+  if (myRotation == 0) 
+    {
+      cout <<" TkAccumulatingSensitiveDetector: using StandardFrameRotation for "<<myName<<endl;
+      myRotation = new StandardFrameRotation;
+    }
 #else
-	myRotation = new FakeFrameRotation;
-	cout << " WARNING - Using FakeFrameRotation in TkAccumulatingSensitiveDetector;" << endl 
-	     << "This is NOT producing a usable DB," 
-	     << " but should be used for debugging purposes only." << endl;
-    
+  myRotation = new FakeFrameRotation;
+  cout << " WARNING - Using FakeFrameRotation in TkAccumulatingSensitiveDetector;" << endl 
+       << "This is NOT producing a usable DB," 
+       << " but should be used for debugging purposes only." << endl;
+  
 #endif
     slaveLowTof  = new TrackingSlaveSDWithRenumbering(name+"LowTof");
     slaveHighTof = new TrackingSlaveSDWithRenumbering(name+"HighTof");
@@ -105,41 +86,18 @@ TkAccumulatingSensitiveDetector::TkAccumulatingSensitiveDetector(string name,
 	this->AssignSD(*it);
     }
 
-//     // timer initialization
-//     static bool on = 
-// 	SimpleConfigurable<bool>(false,"TkSensitiveDetector:DetailedTiming").value();
-//     if (on) 
-//     {
-// 	string trname("TrackerSD:");
-// 	theTimer.init( trname + name + ":hits", true);
-//     }
-//     else { theTimer.init( "TkAccumulatingSensitiveDetector:hits", true); }
-
-    // Allow the processing of hits with 0 energy loss (for geantino runs)
-    allowZeroEnergyLoss = false;
-    // allowZeroEnergyLoss = SimpleConfigurable<bool>(false,"TkSensitiveDetector:AllowHitsWithZeroELoss");
-    if (allowZeroEnergyLoss == true)
-	cout << "WARNING TkAccumulatingSensitiveDetector: allowing hits with zero energy loss" << endl;
-
-    // Never accumulate Hits ... only for special studies ...
-    neverAccumulate = false;
-    // neverAccumulate = SimpleConfigurable<bool>(false,"TkSensitiveDetector:NeverAccumulateHits");
-
-    // Print the hits to HitsPositionOscar.dat
-    printHits = false;
-    // printHits = SimpleConfigurable<bool>(false,"TkSensitiveDetector:PrintHits");
-    if (printHits == true) cout << " Dumping TrackerHits to HitsPositionOscar.dat" << endl;
-
+    tkG4SimHitNumberingScheme = new TrackerG4SimHitNumberingScheme;
     theG4ProcessTypeEnumerator = new G4ProcessTypeEnumerator;
     myG4TrackToParticleID = new G4TrackToParticleID;
 }
 
 TkAccumulatingSensitiveDetector::~TkAccumulatingSensitiveDetector() 
 { 
-    delete slaveLowTof;
-    delete slaveHighTof;
-    delete theG4ProcessTypeEnumerator;
-    delete myG4TrackToParticleID;
+  delete slaveLowTof;
+  delete slaveHighTof;
+  delete tkG4SimHitNumberingScheme;
+  delete theG4ProcessTypeEnumerator;
+  delete myG4TrackToParticleID;
 }
 
 
@@ -168,17 +126,18 @@ bool TkAccumulatingSensitiveDetector::ProcessHits(G4Step * aStep, G4TouchableHis
 
 uint32_t TkAccumulatingSensitiveDetector::setDetUnitId(G4Step * s)
 { 
-    return TkG4SimHitNumberingScheme::instance()->
-	g4ToNumberingScheme(s->GetPreStepPoint()->GetTouchable());
+  if(tkG4SimHitNumberingScheme){
+    tkG4SimHitNumberingScheme = new TrackerG4SimHitNumberingScheme;
+  }
+#ifdef DEBUG
+  cout<<"DetId "<<tkG4SimHitNumberingScheme->g4ToNumberingScheme(s->GetPreStepPoint()->GetTouchable())<<endl;
+#endif    
 }
 
 
 int TkAccumulatingSensitiveDetector::tofBin(float tof)
 {
-    // Here is all the logic to set the different containers
-    //
-    float theSigma = 12.06;
-    // static SimpleConfigurable<float> theSigma(12.06,"TrackerHits:ElectronicSigmaInNanoSeconds");
+
     float threshold = 3. * theSigma;
     if (tof < threshold) return 1;
     return 2;
@@ -373,12 +332,17 @@ void TkAccumulatingSensitiveDetector::EndOfEvent(G4HCofThisEvent *)
 #ifdef DEBUG
     cout << " Saving the last hit in a ROU " << myName << endl;
 #endif
-    //TimeMe t("TkSensitiveDetector::EndOfEvent", false);
     if (mySimHit == 0) return;
     sendHit();
+    // FAKE FOR THE MOMENT WAITING FOR SIGNALS   
+    /*
+    BeginOfEvent* theBegin= new BeginOfEvent(0);
+    upDate(theBegin);
+    delete theBegin;
+    */
 }
 
-void TkAccumulatingSensitiveDetector::upDate(const BeginOfEvent * i)
+void TkAccumulatingSensitiveDetector::update(const BeginOfEvent * i)
 {
     clearHits();
     eventno = (*i)()->GetEventID();

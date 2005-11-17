@@ -1,31 +1,31 @@
-#include "Utilities/Configuration/interface/Architecture.h"
 #include "SimG4CMS/Tracker/interface/TkSimTrackSelection.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
-#include "Utilities/UI/interface/SimpleConfigurable.h"
 #include <iostream>
 #include "G4Track.hh"
 
-//#define DEBUG
-//#define DUMPPROCESSES
+#define DEBUG
+#define DUMPPROCESSES
 
 #ifdef DUMPPROCESSES
 #include "G4VProcess.hh"
 #endif
 
-TkSimTrackSelection::TkSimTrackSelection() : rTracker(1200*mm), zTracker(3000*mm) {
-  Observer<const BeginOfTrack *>::init();
-  energyCut = SimpleConfigurable<float>(0.5,"TkSimTrackSelection:EnergyThresholdForPersistencyInGeV")*GeV;
-  energyHistoryCut = SimpleConfigurable<float>(0.05,"TkSimTrackSelection:EnergyThresholdForHistoryInGeV")*GeV;
-  cout <<"Criteria for Saving Tracker SimTracks:  ";
-  cout <<" History: "<<energyHistoryCut<< " MeV ; Persistency: "<< energyCut<<" MeV "<<endl;
+TkSimTrackSelection::TkSimTrackSelection( edm::ParameterSet const & p) : rTracker(1200.*mm), zTracker(3000.*mm) {
+  edm::ParameterSet m_SimTrack = p.getParameter<edm::ParameterSet>("SimTrack");
+  energyCut = m_SimTrack.getParameter<double>("EnergyThresholdForPersistencyInGeV")*GeV; //default must be 0.5
+  energyHistoryCut  = m_SimTrack.getParameter<bool>("EnergyThresholdForHistoryInGeV")*GeV;//default must be 00.5
+
+  std::cout <<"Criteria for Saving Tracker SimTracks:  ";
+  std::cout <<" History: "<<energyHistoryCut<< " MeV ; Persistency: "<< energyCut<<" MeV "<<std::endl;
 }
 
-void TkSimTrackSelection::upDate(const BeginOfTrack *bot){
+//void TkSimTrackSelection::update(const BeginOfTrack *bot)const{
+void TkSimTrackSelection::update(const BeginOfTrack *bot){
   const G4Track* gTrack = (*bot)();
 #ifdef DUMPPROCESSES
-  cout <<" -> process creator pointer "<<gTrack->GetCreatorProcess()<<endl;
+  std::cout <<" -> process creator pointer "<<gTrack->GetCreatorProcess()<<std::endl;
   if (gTrack->GetCreatorProcess())
-    cout <<" -> PROCESS CREATOR : "<<gTrack->GetCreatorProcess()->GetProcessName()<<endl;
+    std::cout <<" -> PROCESS CREATOR : "<<gTrack->GetCreatorProcess()->GetProcessName()<<std::endl;
 
 #endif
 
@@ -35,9 +35,9 @@ void TkSimTrackSelection::upDate(const BeginOfTrack *bot){
   //
   const G4ThreeVector pos = gTrack->GetPosition();
 #ifdef DEBUG
-  cout <<" ENERGY MeV "<<gTrack->GetKineticEnergy()<<" Energy Cut" << energyCut<<endl;
-  cout <<" TOTAL ENERGY "<<gTrack->GetTotalEnergy()<<endl;
-  cout <<" WEIGHT "<<gTrack->GetWeight()<<endl;
+  std::cout <<" ENERGY MeV "<<gTrack->GetKineticEnergy()<<" Energy Cut" << energyCut<<std::endl;
+  std::cout <<" TOTAL ENERGY "<<gTrack->GetTotalEnergy()<<std::endl;
+  std::cout <<" WEIGHT "<<gTrack->GetWeight()<<std::endl;
 #endif
   //
   // Check if in Tracker Volume
@@ -47,13 +47,13 @@ void TkSimTrackSelection::upDate(const BeginOfTrack *bot){
     // inside the Tracker
     //
 #ifdef DEBUG
-      cout <<" INSIDE TRACKER"<<endl;
+      std::cout <<" INSIDE TRACKER"<<std::endl;
 #endif
     if (gTrack->GetKineticEnergy() > energyCut){
       TrackInformation* info = getOrCreateTrackInformation(gTrack);
 #ifdef DEBUG
-      cout <<" POINTER "<<info<<endl;
-      cout <<" track inside the tracker selected for STORE"<<endl;
+      std::cout <<" POINTER "<<info<<std::endl;
+      std::cout <<" track inside the tracker selected for STORE"<<std::endl;
 #endif
       info->storeTrack(true);
     }
@@ -64,8 +64,8 @@ void TkSimTrackSelection::upDate(const BeginOfTrack *bot){
       TrackInformation* info = getOrCreateTrackInformation(gTrack);
       info->putInHistory();
 #ifdef DEBUG
-      cout <<" POINTER "<<info<<endl;
-      cout <<" track inside the tracker selected for HISTORY"<<endl;
+      std::cout <<" POINTER "<<info<<std::endl;
+      std::cout <<" track inside the tracker selected for HISTORY"<<std::endl;
 #endif
     }
     
@@ -75,20 +75,15 @@ void TkSimTrackSelection::upDate(const BeginOfTrack *bot){
 TrackInformation* TkSimTrackSelection::getOrCreateTrackInformation( const G4Track* gTrack){
   G4VUserTrackInformation* temp = gTrack->GetUserInformation();
   if (temp == 0){
-    cout <<" ERROR: no G4VUserTrackInformation available"<<endl;
+    std::cout <<" ERROR: no G4VUserTrackInformation available"<<std::endl;
     abort();
   }else{
     TrackInformation* info = dynamic_cast<TrackInformation*>(temp);
     if (info ==0){
-      cout <<" ERROR: TkSimTrackSelection: the UserInformation does not appear to be a TrackInformation"<<endl;
+      std::cout <<" ERROR: TkSimTrackSelection: the UserInformation does not appear to be a TrackInformation"<<std::endl;
       abort();
     }
     return info;
   }
 }
-
-#include "Utilities/GenUtil/interface/PackageInitializer.h"
-#include "Utilities/UI/interface/PackageBuilderUI.h"
-
-static PKBuilder<TkSimTrackSelection> 	observeBeginOfTrack("TkSimTrackSelection");
 
