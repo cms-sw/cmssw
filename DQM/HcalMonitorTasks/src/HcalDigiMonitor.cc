@@ -12,7 +12,7 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* 
     m_meDIGI_SIZE_hb =  m_dbe->book1D("HB/HE Digi Size","HB/HE Digi Size",100,0,100);
     m_meDIGI_PRESAMPLE_hb =  m_dbe->book1D("HB/HE Digi Presamples","HB/HE Digi Presamples",100,0,100);
     m_meQIE_CAPID_hb =  m_dbe->book1D("HB/HE QIE Cap-ID","HB/HE QIE Cap-ID",6,-0.5,5.5);
-    m_meQIE_ADC_hb = m_dbe->book1D("HB/HE QIE ADC Value","HB/HE QIE ADC Value",100,0,100);
+    m_meQIE_ADC_hb = m_dbe->book1D("HB/HE QIE ADC Value","HB/HE QIE ADC Value",100,0,1000);
     m_meQIE_DV_hb = m_dbe->book1D("HB/HE QIE Data Value","HB/HE QIE Data Value",2,-0.5,1.5);
     m_meERR_MAP_hb = m_dbe->book2D("HB/HE Digi Errors","HB/HE Digi Errors",59,-29.5,29.5,40,0,40);
 
@@ -20,7 +20,7 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* 
     m_meDIGI_SIZE_hf =  m_dbe->book1D("HF Digi Size","HF Digi Size",100,0,100);
     m_meDIGI_PRESAMPLE_hf =  m_dbe->book1D("HF Digi Presamples","HF Digi Presamples",100,0,100);
     m_meQIE_CAPID_hf =  m_dbe->book1D("HF QIE Cap-ID","HF QIE Cap-ID",6,-0.5,5.5);
-    m_meQIE_ADC_hf = m_dbe->book1D("HF QIE ADC Value","HF QIE ADC Value",100,0,100);
+    m_meQIE_ADC_hf = m_dbe->book1D("HF QIE ADC Value","HF QIE ADC Value",100,0,1000);
     m_meQIE_DV_hf = m_dbe->book1D("HF QIE Data Value","HF QIE Data Value",2,-0.5,1.5);
     m_meERR_MAP_hf = m_dbe->book2D("HF Digi Errors","HF Digi Errors",59,-29.5,29.5,40,0,40);
 
@@ -28,7 +28,7 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* 
     m_meDIGI_SIZE_ho =  m_dbe->book1D("HO Digi Size","HO Digi Size",100,0,100);
     m_meDIGI_PRESAMPLE_ho =  m_dbe->book1D("HO Digi Presamples","HO Digi Presamples",100,0,100);
     m_meQIE_CAPID_ho =  m_dbe->book1D("HO QIE Cap-ID","HO QIE Cap-ID",6,-0.5,5.5);
-    m_meQIE_ADC_ho = m_dbe->book1D("HO QIE ADC Value","HO QIE ADC Value",100,0,100);
+    m_meQIE_ADC_ho = m_dbe->book1D("HO QIE ADC Value","HO QIE ADC Value",100,0,1000);
     m_meQIE_DV_ho = m_dbe->book1D("HO QIE Data Value","HO QIE Data Value",2,-0.5,1.5);
     m_meERR_MAP_ho = m_dbe->book2D("HO Digi Errors","HO Digi Errors",59,-29.5,29.5,40,0,40);
 
