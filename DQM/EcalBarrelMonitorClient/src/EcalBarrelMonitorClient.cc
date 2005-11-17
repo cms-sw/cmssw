@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  * 
- * $Date: 2005/11/17 09:15:32 $
- * $Revision: 1.29 $
+ * $Date: 2005/11/17 15:09:29 $
+ * $Revision: 1.30 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -186,6 +186,26 @@ void EcalBarrelMonitorClient::endRun(void) {
   runtag_->setRunType(runtype_);
   runtag_->setLocation(location_);
   runtag_->setMonitoringVersion("version 1");
+
+  EcalLogicID ecid;
+  RunDat r;
+  map<EcalLogicID, RunDat> dataset;
+
+  float nevt = 0.;
+
+  if ( h_ ) nevt = h_->GetEntries();
+
+  r.setNumEvents(int(nevt));
+
+  if ( econn_ ) {
+    try {
+      int ism = 1;
+      ecid = econn_->getEcalLogicID("EB_supermodule", ism-1);
+      dataset[ecid] = r;
+    } catch (runtime_error &e) {
+      cerr << e.what() << endl;
+    }
+  }
 
   integrity_client_->endRun(econn_, runiov_, runtag_);
   laser_client_->endRun(econn_, runiov_, runtag_);
