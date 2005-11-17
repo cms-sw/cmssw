@@ -139,7 +139,7 @@ void CrossingFrame::addPileupTracks(const int bcr, const EmbdSimTrackContainer *
     // print for next higher level (pileups)
     //
     if (level<1) return;
-    cout<<"\nPilups:"<<endl;
+    cout<<"\nPileups:"<<endl;
     map<string,vector<PSimHitContainer> >::const_iterator itsim;
     for(itsim = pileupSimHits_.begin(); itsim != pileupSimHits_.end(); ++itsim){ 
       cout<< endl<<" Pileup for subdetector "<<(*itsim).first <<endl;
@@ -169,9 +169,10 @@ void CrossingFrame::addPileupTracks(const int bcr, const EmbdSimTrackContainer *
 
     for (unsigned int i=0;i<pileupTracks_.size();++i) {
 	int bcr=firstCrossing_+i;
-        cout <<" Bunchcrossing  "<<bcr<<", Nr  pileup tracks "<<pileupTracks_[i].size()<<endl;
+        cout <<" Bunchcrossing  "<<bcr<<", Nr  pileup tracks "<<pileupTracks_[i].size();
 	if (level>=3) {
-	  for (unsigned int j=0;j<pileupTracks_[i].size();++j) 
+	  cout<<endl;
+          for (unsigned int j=0;j<pileupTracks_[i].size();++j) 
 	    cout<<" track "<<j<<" has vertex pointer "<< (pileupTracks_[i])[j].vertIndex()<<" and genpartindex "<<(pileupTracks_[i])[j].genpartIndex()<<endl;
 	}
 	  cout<<", Nr  pileup vertices "<<pileupVertices_[i].size( )<<endl;
