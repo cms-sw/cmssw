@@ -10,7 +10,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Fri Sep 23 11:38:38 CEST 2005
-// $Id: TestMix.cc,v 1.2 2005/10/25 12:12:26 uberthon Exp $
+// $Id: TestMix.cc,v 1.3 2005/10/27 08:43:40 uberthon Exp $
 //
 //
 
@@ -29,8 +29,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
-#include "SimDataFormats/CrossingFrame/interface/SimHitCollection.h"
+#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimGeneral/MixingModule/interface/TestMix.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
 using namespace edm;
 
@@ -70,12 +71,25 @@ TestMix::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     std::cout<<std::endl;
     cf.product()->print(level_);
 
+    // test access to SimHits
     const std::string subdet("TrackerHitsTOBLowTof");
-    std::auto_ptr<SimHitCollection> col(new SimHitCollection(cf.product(), subdet));
-    SimHitCollection::iterator cfi;
+    std::cout<<"\n=================== Starting SimHit access, subdet "<<subdet<<"  ==================="<<std::endl;
+    std::auto_ptr<MixCollection<PSimHit> > col(new MixCollection<PSimHit>(cf.product(), subdet));
+    MixCollection<PSimHit>::iterator cfi;
     int count=0;
     for (cfi=col->begin(); cfi!=col->end();cfi++) {
       std::cout<<" Hit "<<count<<" has tof "<<cfi->timeOfFlight()<<" trackid "<<cfi->trackId() <<" bunchcr "<<cfi.bunch()<<" trigger "<<cfi.getTrigger()<<std::endl;
-      count++;     }
+      count++;
+     }
+
+    // test access to EmbdSimTracks
+    std::cout<<"\n=================== Starting EmbdSimTrack access ==================="<<std::endl;
+    std::auto_ptr<MixCollection<EmbdSimTrack> > col2(new MixCollection<EmbdSimTrack>(cf.product()));
+    MixCollection<EmbdSimTrack>::iterator cfi2;
+    int count2=0;
+    for (cfi2=col2->begin(); cfi2!=col2->end();cfi2++) {
+      std::cout<<" EmbdSimTrack "<<count2<<" has genpart index  "<<cfi2->genpartIndex()<<" vertex Index "<<cfi2->vertIndex() <<" bunchcr "<<cfi2.bunch()<<" trigger "<<cfi2.getTrigger()<<std::endl;
+      count2++; 
+    }
 }
 
