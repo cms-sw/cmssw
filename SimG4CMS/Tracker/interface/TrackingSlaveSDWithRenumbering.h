@@ -4,24 +4,22 @@
 
 #ifndef TrackingSlaveSDWithRenumbering_h
 #define TrackingSlaveSDWithRenumbering_h
-
+#include "SimG4Core/Notification/interface/Observer.h"
+#include "SimG4Core/Notification/interface/EndOfEvent.h"
 #include "SimDataFormats/SimHitMaker/interface/TrackingSlaveSD.h"
-//#include "Utilities/Notification/interface/Observer.h"
-//#include "Utilities/Notification/interface/LazyObserver.h"
 
-class EndOfEvent;
+
 class EventAction;
 
 #include<string>
 
-class TrackingSlaveSDWithRenumbering : public TrackingSlaveSD
-//
-//				       private Observer<const EndOfEvent *>,
-//				       public LazyObserver<const EventAction*>
+class TrackingSlaveSDWithRenumbering : 
+public TrackingSlaveSD//, public Observer<const EndOfEvent *>
 {
  public:
   TrackingSlaveSDWithRenumbering(std::string);
-  void upDate(const EndOfEvent *);  
+  //  void update(const EndOfEvent *) const;  
+  void update(const EndOfEvent *);  
   void lazyUpDate(const  EventAction *);
   bool format();
  private:

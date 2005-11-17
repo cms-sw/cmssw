@@ -1,7 +1,9 @@
-#ifndef TrackerSim_TkSimTrackSelection_H
-#define TrackerSim_TkSimTrackSelection_H
+#ifndef SimG4CMS_TkSimTrackSelection_H
+#define SimG4CMS_TkSimTrackSelection_H
 
-#include "Utilities/Notification/interface/Observer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "SimG4Core/Notification/interface/Observer.h"
 #include "SimG4Core/Notification/interface/BeginOfTrack.h"
 #include "SimG4Core/Notification/interface/EndOfTrack.h"
 
@@ -10,10 +12,13 @@ class TrackInformation;
  * Selects the G4Tracks which should be made persistent
  */
 
-class TkSimTrackSelection :  private Observer<const BeginOfTrack *> {
+
+class TkSimTrackSelection : public Observer<BeginOfTrack>{
+  //public Observer<const BeginOfTrack*>{
   public:
-  TkSimTrackSelection();
-  void upDate(const BeginOfTrack *);
+  TkSimTrackSelection( edm::ParameterSet const & p);
+  //  void update(const BeginOfTrack *) const;
+  void update(const BeginOfTrack *);
  private:
   TrackInformation* getOrCreateTrackInformation(const G4Track *);
   float energyCut;

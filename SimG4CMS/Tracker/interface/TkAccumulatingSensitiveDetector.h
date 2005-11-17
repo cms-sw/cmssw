@@ -5,8 +5,10 @@
  * This is TkSensitiveDetector which accumulates all the SimHits coming from the same track in the
  * same volume, thus reducing the db size.
  */
+#include "SimG4Core/Notification/interface/Observer.h"
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveTkDetector.h"
+#include "SimG4CMS/Tracker/interface/TrackerG4SimHitNumberingScheme.h"
 
 #include "G4Step.hh"
 #include "G4StepPoint.hh"
@@ -21,7 +23,7 @@ class UpdatablePSimHit;
 class G4ProcessTypeEnumerator;
 class G4TrackToParticleID;
 
-class TkAccumulatingSensitiveDetector : public SensitiveTkDetector
+class TkAccumulatingSensitiveDetector : public SensitiveTkDetector//, private Observer<const BeginOfEvent*>
 { 
 public:    
     TkAccumulatingSensitiveDetector(std::string, const DDCompactView &,
@@ -42,7 +44,7 @@ private:
     virtual bool closeHit(G4Step *);
     virtual void createHit(G4Step *);
     void checkExitPoint(Local3DPoint);
-    void upDate(const BeginOfEvent *);
+    void update(const BeginOfEvent *);
     virtual void clearHits();
     Local3DPoint toOrcaRef(Local3DPoint ,G4VPhysicalVolume *);
     int tofBin(float);
@@ -56,6 +58,8 @@ private:
     Local3DPoint globalExitPoint;
     G4VPhysicalVolume * oldVolume;
     G4ProcessTypeEnumerator * theG4ProcessTypeEnumerator;
+    TrackerG4SimHitNumberingScheme* tkG4SimHitNumberingScheme;
+    double theSigma;
     uint32_t lastId;
     unsigned int lastTrack;
     int eventno;
