@@ -38,6 +38,48 @@ buildName( const std::string& iRecordName, const std::string& iTypeName ) {
   return iRecordName+"_"+iTypeName+"_Proxy";
 }
 
+static
+std::pair<std::string,std::string>
+deconstructName(const std::string& iProxyName) {
+  std::string recordName(iProxyName, 0, iProxyName.find_first_of("_"));
+  std::string typeName(iProxyName,recordName.size()+1,iProxyName.size()-6-recordName.size()-1);
+  //std::cout <<"Record \""<<recordName<<"\" type \""<<typeName<<"\""<<std::endl;
+  return std::make_pair(recordName,typeName);
+}
+
+#include "PluginManager/PluginManager.h"
+#include "PluginManager/ModuleCache.h"
+#include "PluginManager/Module.h"
+
+static
+void
+fillRecordToTypeMap(std::multimap<std::string, std::string>& oToFill){
+  //From the plugin manager get the list of our plugins
+  // then from the plugin names, we can deduce the 'record to type' information
+  seal::PluginManager                       *db =  seal::PluginManager::get();
+  seal::PluginManager::DirectoryIterator    dir;
+  seal::ModuleCache::Iterator               plugin;
+  seal::ModuleDescriptor                    *cache;
+  unsigned                            i;
+      
+      
+  //std::cout <<"LoadAllDictionaries"<<std::endl;
+  
+  const std::string mycat(cond::ProxyFactory::pluginCategory());
+      
+  for (dir = db->beginDirectories(); dir != db->endDirectories(); ++dir) {
+    for (plugin = (*dir)->begin(); plugin != (*dir)->end(); ++plugin) {
+      for (cache=(*plugin)->cacheRoot(), i=0; i < cache->children(); ++i) {
+	//std::cout <<" "<<cache->child(i)->token(0)<<std::endl;
+	if (cache->child(i)->token(0) == mycat) {
+	  const std::string cap = cache->child(i)->token(1);
+	  oToFill.insert(deconstructName(cap));
+	}
+      }
+    }
+  }
+}
+
 void PoolDBESSource::initPool(){
   try{
     //std::cout<<"PoolDBESSource::initPool"<<std::endl;
@@ -121,24 +163,8 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   using namespace std;
   using namespace edm;
   using namespace edm::eventsetup;
-  // test conditions
-  m_recordToTypes.insert(make_pair(string("PedestalsRcd"), string("Pedestals"))) ;
-  // ECAL conditions
-  m_recordToTypes.insert(make_pair(string("EcalPedestalsRcd"), string("EcalPedestals"))) ;
-  m_recordToTypes.insert(make_pair(string("EcalWeightRecAlgoWeightsRcd"), string("EcalWeightRecAlgoWeights"))) ;
-  
-  // HCAL conditions
-  m_recordToTypes.insert(make_pair(string("HcalPedestalsRcd"), string("HcalPedestals"))) ;    
-  m_recordToTypes.insert(make_pair(string("HcalPedestalWidthsRcd"), string("HcalPedestalWidths"))) ;
-  m_recordToTypes.insert(make_pair(string("HcalGainsRcd"), string("HcalGains"))) ;    
-  m_recordToTypes.insert(make_pair(string("HcalGainWidthsRcd"), string("HcalGainWidths"))) ;
-  m_recordToTypes.insert(make_pair(string("HcalChannelQualityRcd"), string("HcalChannelQuality"))) ;
-  m_recordToTypes.insert(make_pair(string("HcalElectronicsMapRcd"), string("HcalElectronicsMap"))) ;
-  m_recordToTypes.insert(make_pair(string("HcalQIEDataRcd"), string("HcalQIEData"))) ;
-  m_recordToTypes.insert(make_pair(string("HcalQIEShapeRcd"), string("HcalQIEShape"))) ;
-  // DT conditions
-  m_recordToTypes.insert(make_pair(string("DTReadOutMappingRcd"), string("DTReadOutMapping"))) ;
-  m_recordToTypes.insert(make_pair(string("DTT0Rcd"), string("DTT0"))) ;
+  fillRecordToTypeMap(m_recordToTypes);
+
   //by forcing this to load, we also load the definition of the Records which //will allow EventSetupRecordKey::TypeTag::findType(...) method to find them
   for(RecordToTypes::iterator itRec = m_recordToTypes.begin();itRec != m_recordToTypes.end();	++itRec ) {
     m_proxyToToken.insert( make_pair(buildName(itRec->first, itRec->second ),"") );//fill in dummy tokens now, change in setIntervalFor
