@@ -20,6 +20,8 @@
 
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
 #include "G4StateManager.hh"
 #include "G4ApplicationState.hh"
 #include "G4RunManagerKernel.hh"
@@ -78,6 +80,13 @@ RunManager::RunManager(edm::ParameterSet const & p)
     if (m_kernel==0) m_kernel = new G4RunManagerKernel();
     m_engine= dynamic_cast<HepJamesRandom*>(HepRandom::getTheEngine());
     std::cout << " Run Manager constructed " << std::endl;
+
+    //Look for an outside SimActivityRegistry
+    // this is used by the visualization code
+    edm::Service<SimActivityRegistry> otherRegistry;
+    if(otherRegistry){
+       m_registry.connect(*otherRegistry);
+    }
 }
 
 RunManager::~RunManager() 
