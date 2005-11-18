@@ -12,7 +12,7 @@ namespace HcalSimpleRecAlgoImpl {
     double ampl=0;
     for (int i=ifirst; i<tool.size() && i<n+ifirst; i++) {
       int capid=digi[i].capid();
-      ampl+=tool[i]*calibs.gain(capid)-calibs.pedestal(capid);
+      ampl+=(tool[i]-calibs.pedestal(capid))*calibs.gain(capid);
     }
 
     return RecHit(digi.id(),ampl,0);    
