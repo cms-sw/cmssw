@@ -1,3 +1,6 @@
+** V00-01-03  [Fri Nov 18 20:37:52 2005]
+allow dynamic plugin detection
+
 ** V00-01-02  [Thu Nov 17 19:47:45 2005]
 fix multiple ESSource; add DT conditions; add tests
 
