@@ -1,3 +1,6 @@
+** V00-01-00  [Fri Nov 18 20:41:52 2005]
+allow dynamic plugin registration
+
 ** V00-00-01  [Thu Nov 17 19:36:40 2005]
 remove printout
 
