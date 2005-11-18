@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  * 
- * $Date: 2005/11/18 08:30:19 $
- * $Revision: 1.33 $
+ * $Date: 2005/11/18 08:34:04 $
+ * $Revision: 1.34 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -212,7 +212,7 @@ void EcalBarrelMonitorClient::endRun(void) {
   if ( econn_ ) {
     try {
       cout << "Inserting dataset ... " << flush;
-      econn_->insertDataSet(&dataset, runiov, runtag );
+      econn_->insertDataSet(&dataset, runiov_, runtag_ );
       cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
