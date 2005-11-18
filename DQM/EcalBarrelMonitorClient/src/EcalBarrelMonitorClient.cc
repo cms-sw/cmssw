@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  * 
- * $Date: 2005/11/18 08:34:04 $
- * $Revision: 1.34 $
+ * $Date: 2005/11/18 08:35:02 $
+ * $Revision: 1.35 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -103,8 +103,6 @@ void EcalBarrelMonitorClient::beginJob(const edm::EventSetup& c){
 
   this->beginRun(c);
 
-  last_update_ = -1;
-
   integrity_client_->beginJob(c);
   laser_client_->beginJob(c);
   pedestal_client_->beginJob(c);
@@ -122,6 +120,8 @@ void EcalBarrelMonitorClient::beginRun(const edm::EventSetup& c){
   last_jevt_ = -1;
 
   this->subscribe();
+
+  last_update_ = 0;
 
   if ( h_ ) delete h_;
   h_ = 0;
@@ -361,7 +361,7 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
     }
 
     if ( status_ == "running" ) {
-      if ( updates != 0 && updates % 5 == 0 ) {
+      if ( last_update_ == 0 || updates % 5 == 0 ) {
                                                integrity_client_->analyze(e, c);
         if ( h_ && h_->GetBinContent(2) != 0 ) laser_client_->analyze(e, c);
         if ( h_ && h_->GetBinContent(3) != 0 ) pedestal_client_->analyze(e, c);
@@ -379,7 +379,7 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
       this->endRun();
     }
 
-    if ( updates != 0 && updates % 100 == 0 ) {
+    if ( updates % 100 == 0 ) {
       mui_->save("EcalBarrelMonitorClient.root");
     }
 
