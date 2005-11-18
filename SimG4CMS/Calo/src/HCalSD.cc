@@ -248,7 +248,7 @@ std::vector<double> HCalSD::getDDDArray(const std::string & str,
   DDValue value(str);
   if (DDfetch(&sv,value)) {
 #ifdef debug
-    if (verbosity > 2) std::cout << value << " " << std::endl;
+    if (verbosity > 3) std::cout << value << " " << std::endl;
 #endif
     const vector<double> & fvec = value.doubles();
     int nval = fvec.size();

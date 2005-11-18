@@ -77,7 +77,7 @@ std::vector<double> HFFibre::getDDDArray(const std::string & str,
 	      << " with nMin " << nmin << std::endl;
   DDValue value(str);
   if (DDfetch(&sv,value)) {
-    if (verbosity > 2) std::cout << value << " " << std::endl;
+    if (verbosity > 3) std::cout << value << " " << std::endl;
     const std::vector<double> & fvec = value.doubles();
     int nval = fvec.size();
     if (nmin > 0) {

@@ -602,7 +602,7 @@ std::vector<double> HFShowerLibrary::getDDDArray(const std::string & str,
   DDValue value(str);
   if (DDfetch(&sv,value)) {
 #ifdef debug
-    if (verbosity > 2) std::cout << value << " " << std::endl;
+    if (verbosity > 3) std::cout << value << " " << std::endl;
 #endif
     const std::vector<double> & fvec = value.doubles();
     int nval = fvec.size();

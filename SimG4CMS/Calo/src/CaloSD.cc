@@ -245,7 +245,7 @@ void CaloSD::getStepInfo(G4Step* aStep) {
 
   if (primaryID == 0) {
 #ifdef debug
-    if (verboseLevel > 1) 
+    if (verboseLevel > 2) 
       std::cout << "CaloSD: Problem with primaryID **** set by force to TkID"
 		<< " **** " << theTrack->GetTrackID() << std::endl;
 #endif
