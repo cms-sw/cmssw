@@ -755,7 +755,7 @@ void HcalNumberingFromDDD::loadGeometry(DDFilteredView fv) {
       }
     } else {
 #ifdef debug
-      if (verbosity>2) 
+      if (verbosity>3) 
 	std::cout << "Unknown Detector " << idet << " for " << sol.name() 
 		  << " Shape " << sol.shape() << " R " << t.perp() << " Z " 
 		  << t.z() << std::endl;
@@ -819,7 +819,7 @@ vector<double> HcalNumberingFromDDD::getDDDArray(const string & str,
   DDValue value(str);
   if (DDfetch(&sv,value)) {
 #ifdef debug
-    if (verbosity>2) std::cout << value << " " << std::endl;
+    if (verbosity>3) std::cout << value << " " << std::endl;
 #endif
     const vector<double> & fvec = value.doubles();
     int nval = fvec.size();
