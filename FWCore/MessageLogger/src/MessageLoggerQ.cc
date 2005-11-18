@@ -17,6 +17,7 @@ namespace edm
 
 EventBuffer  MessageLoggerQ::buf(buf_size, buf_depth);
 
+
 MessageLoggerQ::MessageLoggerQ()
 { }
 
@@ -30,7 +31,7 @@ MessageLoggerQ *
 {
   static MessageLoggerQ *  instance = new MessageLoggerQ();
   return instance;
-}
+}  // MessageLoggerQ::instance()
 
 void
   MessageLoggerQ::END()
@@ -44,7 +45,7 @@ void
   std::memcpy(slot_p               , &o, sizeof(OpCode));
   std::memcpy(slot_p+sizeof(OpCode), &v, sizeof(void *));
   b.commit(buf_size);
-}
+}  // MessageLoggerQ::END()
 
 
 void
@@ -59,7 +60,7 @@ void
   std::memcpy(slot_p+0             , &o, sizeof(OpCode));
   std::memcpy(slot_p+sizeof(OpCode), &v, sizeof(void *));
   b.commit(buf_size);
-}
+}  // MessageLoggerQ::LOG()
 
 
 void
@@ -74,7 +75,7 @@ void
   std::memcpy(slot_p+0             , &o, sizeof(OpCode));
   std::memcpy(slot_p+sizeof(OpCode), &v, sizeof(void *));
   b.commit(buf_size);
-}
+}  // MessageLoggerQ::CFG()
 
 
 void
@@ -86,7 +87,7 @@ void
   std::memcpy(&opcode , slot_p+0             , sizeof(OpCode));
   std::memcpy(&operand, slot_p+sizeof(OpCode), sizeof(void *));
   b.commit(buf_size);
-}
+}  // MessageLoggerQ::consume()
 
 
 }  // namespace edm

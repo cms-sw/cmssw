@@ -10,8 +10,6 @@ namespace edm
 {
 
 // --- forward declarations:
-//
-
 class ErrorObj;
 class ParameterSet;
 
@@ -44,11 +42,12 @@ private:
 
   // --- no copying:
   MessageLoggerQ( MessageLoggerQ const & );
-  void  operator= ( MessageLoggerQ const & );
+  void  operator = ( MessageLoggerQ const & );
 
-  // --- parameters:
-  static  const int  buf_size  = sizeof(OpCode) + sizeof(void *);
+  // --- buffer parameters:
   static  const int  buf_depth = 500;
+  static  const int  buf_size  = sizeof(OpCode)
+                               + sizeof(void *);
 
   // --- data:
   static  EventBuffer  buf;

@@ -2,25 +2,28 @@
 //
 // Package:     Services
 // Class  :     MessageLogger
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  W. Brown, M. Fischler
 //         Created:  Fri Nov 11 16:42:39 CST 2005
-// $Id: MessageLogger.cc,v 1.1 2005/11/14 16:36:49 fischler Exp $
+// $Id: MessageLogger.cc,v 1.2 2005/11/14 20:08:17 fischler Exp $
 //
 
 // system include files
 
 // user include files
 #include "FWCore/MessageLogger/src/MessageLogger.h"
+#include "FWCore/MessageLogger/interface/MessageSender.h"
+#include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
 
 #include "FWCore/Framework/interface/ModuleDescription.h"
 #include "FWCore/EDProduct/interface/EventID.h"
 #include "FWCore/EDProduct/interface/Timestamp.h"
 
 using namespace edm::service;
+
 //
 // constants, enums and typedefs
 //
@@ -32,16 +35,20 @@ using namespace edm::service;
 //
 // constructors and destructor
 //
-MessageLogger::MessageLogger(const ParameterSet& iPS, ActivityRegistry&iRegistry)
+MessageLogger::MessageLogger( ParameterSet const & iPS
+                            , ActivityRegistry   & iRegistry
+                            )
 {
-   iRegistry.watchPostBeginJob(this,&MessageLogger::postBeginJob);
-   iRegistry.watchPostEndJob(this,&MessageLogger::postEndJob);
+  MessageLoggerQ::CFG( new ParameterSet(iPS) );
 
-   iRegistry.watchPreProcessEvent(this,&MessageLogger::preEventProcessing);
-   iRegistry.watchPostProcessEvent(this,&MessageLogger::postEventProcessing);
+  iRegistry.watchPostBeginJob(this,&MessageLogger::postBeginJob);
+  iRegistry.watchPostEndJob(this,&MessageLogger::postEndJob);
 
-   iRegistry.watchPreModule(this,&MessageLogger::preModule);
-   iRegistry.watchPostModule(this,&MessageLogger::postModule);
+  iRegistry.watchPreProcessEvent(this,&MessageLogger::preEventProcessing);
+  iRegistry.watchPostProcessEvent(this,&MessageLogger::postEventProcessing);
+
+  iRegistry.watchPreModule(this,&MessageLogger::preModule);
+  iRegistry.watchPostModule(this,&MessageLogger::postModule);
 }
 
 // MessageLogger::MessageLogger(const MessageLogger& rhs)
@@ -68,38 +75,42 @@ MessageLogger::MessageLogger(const ParameterSet& iPS, ActivityRegistry&iRegistry
 //
 // member functions
 //
-void 
+void
 MessageLogger::postBeginJob()
 {
-   std::cout << " MessageLogger Job started"<<std::endl;
+  LogInfo("postBeginJob") << "Job started";
 }
-void 
+void
 MessageLogger::postEndJob()
 {
-   std::cout << " Job ended"<<std::endl;
+  LogInfo("postEndJob") << "Job ended";
 }
 
-void 
-MessageLogger::preEventProcessing(const edm::EventID& iID, const edm::Timestamp& iTime)
+void
+MessageLogger::preEventProcessing( const edm::EventID& iID
+                                 , const edm::Timestamp& iTime
+                                 )
 {
-   std::cout <<" processing event:"<< iID<<" time:"<<iTime.value()<< std::endl;
+  LogInfo("preEventProcessing") << "Processing event: " << iID
+                                <<" time: " << iTime.value();
 }
-void 
+void
 MessageLogger::postEventProcessing(const Event&, const EventSetup&)
 {
-   std::cout <<" finished event:"<<std::endl;
+  LogInfo("postEventProcessing") << "Finished event";
 }
 
-void 
+void
 MessageLogger::preModule(const ModuleDescription& iDescription)
 {
-   std::cout <<" module:" <<iDescription.moduleLabel_<<std::endl;
+  LogInfo("preModule") << "Module:" << iDescription.moduleLabel_;
 }
 
-void 
-MessageLogger::postModule(const ModuleDescription&)
+void
+MessageLogger::postModule(const ModuleDescription& iDescription)
 {
-   std::cout <<" finished"<<std::endl;
+  LogInfo("postModule") << "Module:" << iDescription.moduleLabel_
+			<< " finished";
 }
 
 //

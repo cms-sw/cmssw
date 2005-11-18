@@ -1,28 +1,31 @@
 #include "FWCore/MessageLogger/interface/MessageLoggerSpigot.h"
 #include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
-#include "boost/thread/thread.hpp"
-#include <iostream>
+#include "FWCore/MessageLogger/interface/MessageLoggerScribe.h"
+
 
 namespace edm {
 
-// TEMPORARY function to thread out:
+
+namespace  {
 void
-  messageLoggerScribe() {std::cout << "=== messageLoggerScribe()\n";}
+  runMessageLoggerScribe()
+{
+  MessageLoggerScribe  m;
+  m.run();
+}
+}  // namespace
 
 
 MessageLoggerSpigot::MessageLoggerSpigot()
-  :scribe( messageLoggerScribe )
-{
-  std::cout << "=== MessageLoggerSpigot ctor body\n";
-}
+  :scribe( runMessageLoggerScribe )  // starts a new thread
+{ }
 
 
 MessageLoggerSpigot::~MessageLoggerSpigot()
 {
-  std::cout << "=== MessageLoggerSpigot dtor entered\n";
   MessageLoggerQ::END();
   scribe.join();
-  std::cout << "=== MessageLoggerSpigot dtorafter join()\n";
 }
+
 
 } // namespace edm

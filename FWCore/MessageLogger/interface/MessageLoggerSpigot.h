@@ -7,7 +7,6 @@ namespace edm {
 
 class MessageLoggerSpigot {
 public:
-
   // ---  birth/death:
   MessageLoggerSpigot();
   ~MessageLoggerSpigot();
@@ -15,9 +14,9 @@ public:
 private:
   // --- no copying:
   MessageLoggerSpigot( MessageLoggerSpigot const & );
-  void  operator= ( MessageLoggerSpigot const & );
+  void  operator = ( MessageLoggerSpigot const & );
 
-  // --- data members:
+  // --- data:
   boost::thread  scribe;
 
 }; // MessageLoggerSpigot
