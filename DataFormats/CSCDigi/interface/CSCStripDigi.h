@@ -5,7 +5,7 @@
  *
  * Digi for CSC Cathode Strips.
  *  
- *  $Date: 2005/10/07 17:40:53 $
+ *  $Date: 2005/11/17 13:04:41 $
  *  $Revision: 1.1 $
  *
  * \author M. Schmitt, Northwestern
@@ -66,6 +66,7 @@ private:
 
   // Set data words
   void set(int strip, std::vector<int> ADCCounts);
+  void setData(theStripDigi p);
 
   // access
   theStripDigi* data(); 

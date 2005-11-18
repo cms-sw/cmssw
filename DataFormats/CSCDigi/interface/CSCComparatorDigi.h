@@ -5,7 +5,7 @@
  *
  * Digi for CSC Comparators.
  *  
- *  $Date: 2005/11/17 13:04:41 $
+ *  $Date: 2005/11/18 10:58:52 $
  *  $Revision: 1.1 $
  *
  * \author M. Schmitt, Northwestern
@@ -64,6 +64,7 @@ private:
 
   // Set data words
   void set(int strip, int comparator);
+  void setData(theComparatorDigi p);
 
   // access
   theComparatorDigi* data(); 

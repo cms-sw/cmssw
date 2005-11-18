@@ -1,6 +1,6 @@
 /** \file
  * 
- *  $Date: 2005/11/17 13:03:05 $
+ *  $Date: 2005/11/18 10:59:31 $
  *  $Revision: 1.1 $
  *
  * \author M.Schmitt, Northwestern
@@ -71,3 +71,16 @@ CSCComparatorDigi::set(int strip, int comparator) {
   data()->comparator = comparator;
 }
 
+CSCComparatorDigi::theComparatorDigi*
+CSCComparatorDigi::data() {
+  return reinterpret_cast<theComparatorDigi*>(&aComparatorDigi);
+}
+
+const CSCComparatorDigi::theComparatorDigi*
+CSCComparatorDigi::data() const {
+  return reinterpret_cast<theComparatorDigi*>(&aComparatorDigi);
+}
+
+void CSCComparatorDigi::setData(theComparatorDigi p){
+  *(data()) = p;
+}

@@ -1,6 +1,6 @@
 /** \file
  * 
- *  $Date: 2005/10/07 17:40:53 $
+ *  $Date: 2005/11/17 13:03:05 $
  *  $Revision: 1.1 $
  *
  * \author M.Schmitt, Northwestern
@@ -84,3 +84,16 @@ CSCStripDigi::set(int strip, vector<int> ADCCounts) {
   data()->ADCCounts = ADCCounts;
 }
 
+CSCStripDigi::theStripDigi*
+CSCStripDigi::data() {
+  return reinterpret_cast<theStripDigi*>(&aStripDigi);
+}
+
+const CSCStripDigi::theStripDigi*
+CSCStripDigi::data() const {
+  return reinterpret_cast<theStripDigi*>(&aStripDigi);
+}
+
+void CSCStripDigi::setData(theStripDigi p){
+  *(data()) = p;
+}
