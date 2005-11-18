@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  * 
- * $Date: 2005/11/18 08:35:02 $
- * $Revision: 1.35 $
+ * $Date: 2005/11/18 09:40:30 $
+ * $Revision: 1.36 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -101,13 +101,13 @@ void EcalBarrelMonitorClient::beginJob(const edm::EventSetup& c){
 
   ievt_ = 0;
 
-  this->beginRun(c);
-
   integrity_client_->beginJob(c);
   laser_client_->beginJob(c);
   pedestal_client_->beginJob(c);
   pedpresample_client_->beginJob(c);
   testpulse_client_->beginJob(c);
+
+  this->beginRun(c);
 
 }
 
