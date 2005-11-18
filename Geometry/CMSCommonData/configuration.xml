@@ -177,7 +177,6 @@
   <File name="Geometry/EcalSimData/ecalsens.xml"               url="."/> 
   <File name="Geometry/HcalCOMMONData/hcalsens.xml"            url="."/> 
   <File name="Geometry/MuonSimData/muonsens.xml"               url="."/> 
-  <File name="Geometry/CMSCommonData/MagneticFieldVolumes.xml" url="."/> 
  </Include>
  <Root fileName="cms.xml" logicalPartName="OCMS"/>
 </Configuration>
