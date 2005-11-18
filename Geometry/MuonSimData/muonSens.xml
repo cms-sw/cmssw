@@ -18,15 +18,15 @@
       <Parameter name="ReadOutName" value="MuonRPCHits" />
   </SpecPar>    
   <SpecPar name="endcap">
-      <PartSelector path="//MW11" />
-      <PartSelector path="//MW12" />
-      <PartSelector path="//MW13" />
-      <PartSelector path="//MW1A" />
-      <PartSelector path="//MW21" />
-      <PartSelector path="//MW22" />
-      <PartSelector path="//MW31" />
-      <PartSelector path="//MW32" />
-      <PartSelector path="//MW41" />
+      <PartSelector path="//ME11_ActiveGasVol" />
+      <PartSelector path="//ME12_ActiveGasVol" />
+      <PartSelector path="//ME13_ActiveGasVol" />
+      <PartSelector path="//ME1A_ActiveGasVol" />
+      <PartSelector path="//ME21_ActiveGasVol" />
+      <PartSelector path="//ME22_ActiveGasVol" />
+      <PartSelector path="//ME31_ActiveGasVol" />
+      <PartSelector path="//ME32_ActiveGasVol" />
+      <PartSelector path="//ME41_ActiveGasVol" />
       <Parameter name="SensitiveDetector" value="MuonSensitiveDetector" />
       <Parameter name="ReadOutName" value="MuonCSCHits" />
   </SpecPar>    

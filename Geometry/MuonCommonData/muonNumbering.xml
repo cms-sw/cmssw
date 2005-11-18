@@ -407,27 +407,27 @@
  </SpecPar>  
 
  <SpecPar name="MuonEndcapRing1">
-   <PartSelector path="//MW11"/>
-   <PartSelector path="//MW21"/>
-   <PartSelector path="//MW31"/>
-   <PartSelector path="//MW41"/>
+   <PartSelector path="//MME11_ActiveGasVol"/>
+   <PartSelector path="//ME21_ActiveGasVol"/>
+   <PartSelector path="//ME31_ActiveGasVol"/>
+   <PartSelector path="//ME41_ActiveGasVol"/>
    <Parameter name="CopyNoTag" value="[me_ring]"/>
    <Parameter name="CopyNoOffset" value="1*[super]"/>
  </SpecPar>  
  <SpecPar name="MuonEndcapRing2">
-   <PartSelector path="//MW12"/>
-   <PartSelector path="//MW22"/>
-   <PartSelector path="//MW32"/>
+   <PartSelector path="//ME12_ActiveGasVol"/>
+   <PartSelector path="//ME22_ActiveGasVol"/>
+   <PartSelector path="//ME32_ActiveGasVol"/>
    <Parameter name="CopyNoTag" value="[me_ring]"/>
    <Parameter name="CopyNoOffset" value="2*[super]"/>
  </SpecPar>  
  <SpecPar name="MuonEndcapRing3">
-   <PartSelector path="//MW13"/>
+   <PartSelector path="//ME13_ActiveGasVol"/>
    <Parameter name="CopyNoTag" value="[me_ring]"/>
    <Parameter name="CopyNoOffset" value="3*[super]"/>
  </SpecPar>  
  <SpecPar name="MuonEndcapRingA">
-   <PartSelector path="//MW1A"/>
+   <PartSelector path="//ME1A_ActiveGasVol"/>
    <Parameter name="CopyNoTag" value="[me_ring]"/>
    <Parameter name="CopyNoOffset" value="4*[super]"/>
  </SpecPar>  
