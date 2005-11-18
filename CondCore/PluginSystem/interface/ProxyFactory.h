@@ -16,7 +16,7 @@ Usage:
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jul 23 19:14:06 EDT 2005
-// $Id$
+// $Id: ProxyFactory.h,v 1.1 2005/08/29 08:52:52 xiezhen Exp $
 //
 
 // system include files
@@ -47,6 +47,7 @@ namespace cond{
     
     // ---------- static member functions --------------------
     static ProxyFactory* get();
+    static const char* pluginCategory();
     
     // ---------- member functions ---------------------------
 

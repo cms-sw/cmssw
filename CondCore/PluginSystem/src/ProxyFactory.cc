@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jul 23 19:14:11 EDT 2005
-// $Id$
+// $Id: ProxyFactory.cc,v 1.1 2005/08/29 08:52:52 xiezhen Exp $
 //
 
 // system include files
@@ -29,7 +29,7 @@
 // constructors and destructor
 //
 cond::ProxyFactory::ProxyFactory() 
-  : seal::PluginFactory< edm::eventsetup::DataProxy*( pool::IDataSvc*, std::map<std::string,std::string>::iterator& ) >( "CondProxyFactory")
+  : seal::PluginFactory< edm::eventsetup::DataProxy*( pool::IDataSvc*, std::map<std::string,std::string>::iterator& ) >(pluginCategory())
 {
 }
 
@@ -72,4 +72,10 @@ cond::ProxyFactory*
 cond::ProxyFactory::get()
 {
   return &s_factory;
+}
+
+const char*
+cond::ProxyFactory::pluginCategory()
+{
+  return  "CondProxyFactory";
 }
