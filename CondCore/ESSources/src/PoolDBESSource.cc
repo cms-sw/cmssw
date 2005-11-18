@@ -165,48 +165,80 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   using namespace edm::eventsetup;
   fillRecordToTypeMap(m_recordToTypes);
 
-  //by forcing this to load, we also load the definition of the Records which //will allow EventSetupRecordKey::TypeTag::findType(...) method to find them
-  for(RecordToTypes::iterator itRec = m_recordToTypes.begin();itRec != m_recordToTypes.end();	++itRec ) {
-    m_proxyToToken.insert( make_pair(buildName(itRec->first, itRec->second ),"") );//fill in dummy tokens now, change in setIntervalFor
-    pProxyToToken pos=m_proxyToToken.find(buildName(itRec->first, itRec->second));
-    boost::shared_ptr<DataProxy> proxy(cond::ProxyFactory::get()->create( buildName(itRec->first, itRec->second),m_svc,pos));
-  }
   
-  
-  //NOTE: should delay setting what  records until all 
-  string lastRecordName;
-  for(RecordToTypes::const_iterator itName = m_recordToTypes.begin();itName != m_recordToTypes.end();++itName ) {
-    if( lastRecordName != itName->first ) {
-      lastRecordName = itName->first;
-      //std::cout<<"lastRecordName "<<lastRecordName<<std::endl;
-      EventSetupRecordKey recordKey = EventSetupRecordKey::TypeTag::findType( itName->first );
-      if ( recordKey == EventSetupRecordKey() ) {
-	cout << "The Record type named \""<<itName->first<<"\" could not be found.  We therefore assume it is not needed for this job"
-	     << endl;
-      } else {
-	//findingRecordWithKey( recordKey );
-	//usingRecordWithKey( recordKey );
-      }
-    }
-  }
-  
-
   //parsing record to tag
   std::vector< std::pair<std::string,std::string> > recordToTag;
   typedef std::vector< ParameterSet > Parameters;
   Parameters toGet = iConfig.getParameter<Parameters>("toGet");
-  for(Parameters::iterator itToGet = toGet.begin(); itToGet != toGet.end(); ++itToGet ) {
-    std::string recordName = itToGet->getParameter<std::string>("record");
-    std::string tagName = itToGet->getParameter<std::string>("tag");
-    eventsetup::EventSetupRecordKey recordKey(eventsetup::EventSetupRecordKey::TypeTag::findType( recordName ) );
-    if( recordKey.type() == eventsetup::EventSetupRecordKey::TypeTag() ) {
-      //record not found
-      throw cms::Exception("NoRecord")<<"The record \""<< recordName <<"\" does not exist ";
-    }
-    recordToTag.push_back(std::make_pair(recordName, tagName));
-    findingRecordWithKey( recordKey );
-    usingRecordWithKey( recordKey );
+  if(0==toGet.size()){
+    throw cms::Exception("Configuration") <<" The \"toGet\" parameter is empty, please specify what (Record, tag) pairs you wish to retrieve\n"
+					  <<" or use the record name \"all\" to have your tag be used to retrieve all known Records\n";
   }
+  if(1==toGet.size() && (toGet[0].getParameter<std::string>("record") =="all") ) {
+    //User wants us to read all known records
+    // NOTE: In the future, we should only read all known Records for the data that is in the actual database
+    //  Can this be done looking at the available IOVs?
+
+    //by forcing this to load, we also load the definition of the Records which 
+    //will allow EventSetupRecordKey::TypeTag::findType(...) method to find them
+    for(RecordToTypes::iterator itRec = m_recordToTypes.begin();itRec != m_recordToTypes.end();	++itRec ) {
+      m_proxyToToken.insert( make_pair(buildName(itRec->first, itRec->second ),"") );
+      //fill in dummy tokens now, change in setIntervalFor
+      pProxyToToken pos=m_proxyToToken.find(buildName(itRec->first, itRec->second));
+      boost::shared_ptr<DataProxy> proxy(cond::ProxyFactory::get()->create( buildName(itRec->first, itRec->second),m_svc,pos));
+    }
+  
+  
+    string tagName = toGet[0].getParameter<string>("tag");
+    //NOTE: should delay setting what  records until all 
+    string lastRecordName;
+    for(RecordToTypes::const_iterator itName = m_recordToTypes.begin();itName != m_recordToTypes.end();++itName) {
+      if(lastRecordName != itName->first) {
+	lastRecordName = itName->first;
+	//std::cout<<"lastRecordName "<<lastRecordName<<std::endl;
+	EventSetupRecordKey recordKey = EventSetupRecordKey::TypeTag::findType(itName->first);
+	if (recordKey == EventSetupRecordKey()) {
+	  cout << "The Record type named \""<<itName->first<<"\" could not be found.  We therefore assume it is not needed for this job"
+	       << endl;
+	} else {
+	  findingRecordWithKey(recordKey);
+	  usingRecordWithKey(recordKey);
+	  recordToTag.push_back(std::make_pair(itName->first, tagName));
+	}
+      }
+    }
+  } else {
+    string lastRecordName;
+    for(Parameters::iterator itToGet = toGet.begin(); itToGet != toGet.end(); ++itToGet ) {
+      std::string recordName = itToGet->getParameter<std::string>("record");
+      std::string tagName = itToGet->getParameter<std::string>("tag");
+
+      //load proxy code now to force in the Record code
+      std::multimap<std::string, std::string>::iterator itFound=m_recordToTypes.find(recordName);
+      if(itFound == m_recordToTypes.end()){
+	throw cms::Exception("NoRecord")<<" The record \""<<recordName<<"\" is not known by the PoolDBESSource";
+      }
+      std::string typeName = itFound->second;
+      std::string proxyName = buildName(recordName,typeName);
+      //std::cout<<"proxy "<<proxyName<<std::endl;
+      m_proxyToToken.insert( make_pair(proxyName,"") );
+      //fill in dummy tokens now, change in setIntervalFor
+      pProxyToToken pos=m_proxyToToken.find(proxyName);
+      boost::shared_ptr<DataProxy> proxy(cond::ProxyFactory::get()->create(proxyName,m_svc,pos));
+      eventsetup::EventSetupRecordKey recordKey(eventsetup::EventSetupRecordKey::TypeTag::findType( recordName ) );
+      if( recordKey.type() == eventsetup::EventSetupRecordKey::TypeTag() ) {
+	//record not found
+	throw cms::Exception("NoRecord")<<"The record \""<< recordName <<"\" does not exist ";
+      }
+      recordToTag.push_back(std::make_pair(recordName, tagName));
+      if( lastRecordName != recordName ) {
+	lastRecordName = recordName;
+	findingRecordWithKey( recordKey );
+	usingRecordWithKey( recordKey );
+      }
+    }
+  }
+
   ///
   //now do what ever other initialization is needed
   ///
