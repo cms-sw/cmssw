@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  * 
- * $Date: 2005/11/17 20:51:03 $
- * $Revision: 1.32 $
+ * $Date: 2005/11/18 08:30:19 $
+ * $Revision: 1.33 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -204,6 +204,16 @@ void EcalBarrelMonitorClient::endRun(void) {
       int ism = 1;
       ecid = econn_->getEcalLogicID("EB_supermodule", ism);
       dataset[ecid] = r;
+    } catch (runtime_error &e) {
+      cerr << e.what() << endl;
+    }
+  }
+
+  if ( econn_ ) {
+    try {
+      cout << "Inserting dataset ... " << flush;
+      econn_->insertDataSet(&dataset, runiov, runtag );
+      cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
