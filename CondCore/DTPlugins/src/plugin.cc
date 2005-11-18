@@ -10,7 +10,10 @@
 #include "CondCore/PluginSystem/interface/registration_macros.h"
 #include "CondFormats/DTObjects/interface/DTReadOutMapping.h"
 #include "CondFormats/DataRecord/interface/DTReadOutMappingRcd.h"
+#include "CondFormats/DTObjects/interface/DTT0.h"
+#include "CondFormats/DataRecord/interface/DTT0Rcd.h"
 
 
 DEFINE_SEAL_MODULE();
 REGISTER_PLUGIN(DTReadOutMappingRcd,DTReadOutMapping);
+REGISTER_PLUGIN(DTT0Rcd,DTT0);
