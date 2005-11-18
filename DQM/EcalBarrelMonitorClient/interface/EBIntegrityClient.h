@@ -4,8 +4,8 @@
 /*
  * \file EBIntegrityClient.h
  *
- * $Date: 2005/11/16 13:36:46 $
- * $Revision: 1.6 $
+ * $Date: 2005/11/17 11:17:07 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  *
 */
@@ -32,6 +32,8 @@
 #include "CalibCalorimetry/EcalDBInterface/interface/RunConsistencyDat.h"
 
 #include "TROOT.h"
+#include "TStyle.h"
+#include "TPaveStats.h"
 
 #include <memory>
 #include <iostream>
@@ -91,6 +93,12 @@ TH2F* h01_[36];
 TH2F* h02_[36];
 TH2F* h03_[36];
 TH2F* h04_[36];
+
+TH2F* g01_[36];
+
+// Quality criteria for data integrity
+
+float threshCry_;
 
 };
 

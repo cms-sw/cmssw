@@ -4,8 +4,8 @@
 /*
  * \file EBLaserClient.h
  *
- * $Date: 2005/11/16 08:36:44 $
- * $Revision: 1.7 $
+ * $Date: 2005/11/16 13:36:46 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  *
 */
@@ -35,6 +35,8 @@
 #include "CalibCalorimetry/EcalDBInterface/interface/MonLaserRedDat.h"
 
 #include "TROOT.h"
+#include "TStyle.h"
+#include "TPaveStats.h"
 
 #include <memory>
 #include <iostream>
@@ -93,6 +95,19 @@ TProfile2D* h01_[36];
 TProfile2D* h02_[36];
 TProfile2D* h03_[36];
 TProfile2D* h04_[36];
+
+TH2F* g01_[36];
+TH2F* g02_[36];
+
+TH1F* a01_[36];
+TH1F* a02_[36];
+
+TH1F* aopn01_[36];
+TH1F* aopn02_[36];
+
+// Quality check on crystals
+
+float percentVariation_;
 
 };
 

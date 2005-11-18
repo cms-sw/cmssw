@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  * 
- * $Date: 2005/11/16 13:40:38 $
- * $Revision: 1.17 $
+ * $Date: 2005/11/17 11:17:07 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  *
 */
@@ -23,7 +23,12 @@ EBIntegrityClient::EBIntegrityClient(const edm::ParameterSet& ps, MonitorUserInt
     h03_[i] = 0;
     h04_[i] = 0;
 
+    sprintf(histo, "EBPT data integrity quality SM%02d", i+1);
+    g01_[i] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
+
   }
+
+  threshCry_ = 1.;
 
 }
 
@@ -38,6 +43,8 @@ EBIntegrityClient::~EBIntegrityClient(){
     if ( h02_[i] ) delete h02_[i];
     if ( h03_[i] ) delete h03_[i];
     if ( h04_[i] ) delete h04_[i];
+
+    delete g01_[i];
 
   }
 
@@ -71,6 +78,16 @@ void EBIntegrityClient::beginRun(const edm::EventSetup& c){
     h02_[i] = 0;
     h03_[i] = 0;
     h04_[i] = 0;
+
+    g01_[i]->Reset();
+
+    for ( int ie = 1; ie <= 85; ie++ ) {
+      for ( int ip = 1; ip <= 20; ip++ ) {
+
+        g01_[i]->SetBinContent(g01_[i]->GetBin(ie, ip), 2.);
+
+      }
+    }
 
   }
 
@@ -148,6 +165,13 @@ void EBIntegrityClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
           c.setProblemsInId(int(num02));
           c.setProblemsInSample(int(-999));
           c.setProblemsInADC(int(-999));
+
+          float val;
+
+          if ( g01_[ism-1] ) {
+            val = 1.;
+            g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), val);
+          }
 
           if ( econn ) {
             try {
@@ -293,8 +317,200 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   htmlFile.open((htmlDir + htmlName).c_str());
 
+  // html page header
+  htmlFile << "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">  " << endl;
+  htmlFile << "<html>  " << endl;
+  htmlFile << "<head>  " << endl;
+  htmlFile << "  <meta content=\"text/html; charset=ISO-8859-1\"  " << endl;
+  htmlFile << " http-equiv=\"content-type\">  " << endl;
+  htmlFile << "  <title>Monitor:IntegrityTask output</title> " << endl;
+  htmlFile << "</head>  " << endl;
+  htmlFile << "<style type=\"text/css\"> td { font-weight: bold } </style>" << endl;
+  htmlFile << "<body>  " << endl;
+  htmlFile << "<br>  " << endl;
+  htmlFile << "<h2>Run:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << endl;
+  htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl; 
+  htmlFile << " style=\"color: rgb(0, 0, 153);\">" << run << "</span></h2>" << endl;
+  htmlFile << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
+  htmlFile << " style=\"color: rgb(0, 0, 153);\">INTEGRITY</span></h2> " << endl;
+  htmlFile << "<hr>" << endl;
+  htmlFile << "<table border=1><tr><td bgcolor=red>channel has problems in this task</td>" << endl;
+  htmlFile << "<td bgcolor=lime>channel has NO problems</td>" << endl;
+  htmlFile << "<td bgcolor=white>channel is missing</td></table>" << endl;
+  htmlFile << "<hr>" << endl;
 
+  // Produce the plots to be shown as .jpg files from existing histograms
+
+  int csize = 250;
+
+  double histMax = 1.e15;
+
+  int pCol3[3] = { 2, 3, 10 };
+
+  TH2C dummy( "dummy", "dummy for sm", 85, 0., 85., 20, 0., 20. );
+  for( int i = 0; i < 68; i++ ) {
+    int a = 2 + ( i/4 ) * 5;
+    int b = 2 + ( i%4 ) * 5;
+    dummy.Fill( a, b, i+1 );
+  }
+  dummy.SetMarkerSize(2);
+
+  string imgNameDCC, imgNameQual, imgNameME[4], imgName , meName;
+  
+  if ( h00_ ) {
+    
+    // DCC size error
+    
+    TH2F* obj2f = 0; 
+    meName = h00_->GetName();
+    obj2f = h00_;
+    
+    TCanvas *cDCC = new TCanvas("cDCC" , "Temp", 2*csize , csize );
+    for ( unsigned int iDCC = 0 ; iDCC < meName.size(); iDCC++ ) {
+      if ( meName.substr(iDCC, 1) == " " )  {
+        meName.replace(iDCC, 1, "_");
+      }
+    }
+    imgNameDCC = meName + ".jpg";
+    imgName = htmlDir + imgNameDCC;
+    gStyle->SetOptStat(" ");
+    gStyle->SetPalette(3, pCol3);
+    obj2f->GetXaxis()->SetNdivisions(17);
+    obj2f->GetYaxis()->SetNdivisions(4);
+    cDCC->SetGridx();
+    cDCC->SetGridy();
+    obj2f->SetMinimum(-0.00000001);
+    obj2f->SetMaximum(2.0);
+    obj2f->Draw("col");
+    dummy.Draw("text,same");
+    cDCC->Update();
+    cDCC->SaveAs(imgName.c_str());
+    delete cDCC;
+    
+  }
+  
+  htmlFile << "</h3><strong>DCC size error</strong></h3>" << endl;
+  
+  if ( imgNameQual != " " ) 
+    htmlFile << "<p><img src=\" " << imgNameDCC << "\"></p>" << endl;
+  else
+    htmlFile << "<p><img src=\" " << " " << "\"></p>" << endl;
+  
+  htmlFile << "<br>" << endl;
+
+  // Loop on barrel supermodules
+
+  for ( int ism = 1 ; ism <= 36 ; ism++ ) {
+    
+    if ( g01_[ism-1] && h01_[ism-1] && h02_[ism-1] 
+         && h03_[ism-1] && h04_[ism-1] ) {
+
+      // Quality plots
+      
+      TH2F* obj2f = 0; 
+      meName = g01_[ism-1]->GetName();
+      obj2f = g01_[ism-1];
+      
+      TCanvas *cQual = new TCanvas("cQual" , "Temp", 2*csize , csize );
+      for ( unsigned int iQual = 0 ; iQual < meName.size(); iQual++ ) {
+        if ( meName.substr(iQual, 1) == " " )  {
+          meName.replace(iQual, 1, "_");
+        }
+      }
+      imgNameQual = meName + ".jpg";
+      imgName = htmlDir + imgNameQual;
+      gStyle->SetOptStat(" ");
+      gStyle->SetPalette(3, pCol3);
+      obj2f->GetXaxis()->SetNdivisions(17);
+      obj2f->GetYaxis()->SetNdivisions(4);
+      cQual->SetGridx();
+      cQual->SetGridy();
+      obj2f->SetMinimum(-0.00000001);
+      obj2f->SetMaximum(2.0);
+      obj2f->Draw("col");
+      dummy.Draw("text,same");
+      cQual->Update();
+      cQual->SaveAs(imgName.c_str());
+      delete cQual;
+
+      // Monitoring elements plots
+      
+      for ( int iMe = 0; iMe < 4; iMe++ ) {
+      
+        switch ( iMe ) {
+        case 1:
+          meName = h01_[ism-1]->GetName();
+          obj2f = h01_[ism-1];
+          break;
+        case 2:
+          meName = h02_[ism-1]->GetName();
+          obj2f = h02_[ism-1];
+          break;
+        case 3:
+          meName = h03_[ism-1]->GetName();
+          obj2f = h03_[ism-1];
+          break;
+        case 4:
+          meName = h04_[ism-1]->GetName();
+          obj2f = h04_[ism-1];
+          break;
+        default:
+          break;
+        }
+        
+        TCanvas *cMe = new TCanvas("cMe" , "Temp", 2*csize , csize );
+        for ( unsigned int iMe = 0 ; iMe < meName.size(); iMe++ ) {
+          if ( meName.substr(iMe, 1) == " " )  {
+            meName.replace(iMe, 1, "_");
+          }
+        }
+        imgNameQual = meName + ".jpg";
+        imgName = htmlDir + imgNameQual;
+        gStyle->SetOptStat(" ");
+        obj2f->GetXaxis()->SetNdivisions(17);
+        obj2f->GetYaxis()->SetNdivisions(4);
+        cMe->SetGridx();
+        cMe->SetGridy();
+        obj2f->Draw("colz");
+        cMe->Update();
+        cMe->SaveAs(imgName.c_str());
+        delete cMe;
+
+      }
+
+    }
+
+    htmlFile << "</h3><strong>Supermodule&nbsp;&nbsp;" << ism << "</strong></h3>" << endl;
+    
+    if ( imgNameQual != " " ) 
+      htmlFile << "<p><img src=\" " << imgNameQual << "\"></p>" << endl;
+    else
+      htmlFile << "<p><img src=\" " << " " << "\"></p>" << endl;
+
+    htmlFile << "<br>" << endl;
+    
+    htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+    htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+    htmlFile << "<tr align=\"center\">" << endl;
+
+    for ( int iMe = 1 ; iMe <= 4 ; iMe++ ) {
+      
+      if ( imgNameME[iMe-1] != " " ) 
+        htmlFile << "<td><img src=\" " << imgNameME[iMe-1] << "\"></td>" << endl;
+      else
+        htmlFile << "<img src=\" " << " " << "\"></td>" << endl;
+      
+    }
+    
+    htmlFile << "</tr>" << endl;
+    
+  }
+  
+  // html page footer
+  htmlFile << "</body> " << endl;
+  htmlFile << "</html> " << endl;
+  
   htmlFile.close();
-
+  
 }
 
