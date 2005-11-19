@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  * 
- * $Date: 2005/11/18 16:24:08 $
- * $Revision: 1.19 $
+ * $Date: 2005/11/19 09:46:23 $
+ * $Revision: 1.20 $
  * \author G. Della Ricca
  *
 */
@@ -361,9 +361,9 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
     
     // DCC size error
     
-    TH2F* obj2f = 0; 
+    TH1F* obj1f = 0; 
     meName = h00_->GetName();
-    obj2f = h00_;
+    obj1f = h00_;
     
     TCanvas *cDCC = new TCanvas("cDCC" , "Temp", 2*csize , csize );
     for ( unsigned int iDCC = 0 ; iDCC < meName.size(); iDCC++ ) {
@@ -375,13 +375,13 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
     imgName = htmlDir + imgNameDCC;
     gStyle->SetOptStat(" ");
     gStyle->SetPalette(3, pCol3);
-    obj2f->GetXaxis()->SetNdivisions(17);
-    obj2f->GetYaxis()->SetNdivisions(4);
+    obj1f->GetXaxis()->SetNdivisions(17);
+    obj1f->GetYaxis()->SetNdivisions(4);
     cDCC->SetGridx();
     cDCC->SetGridy();
-    obj2f->SetMinimum(-0.00000001);
-    obj2f->SetMaximum(2.0);
-    obj2f->Draw("col");
+    obj1f->SetMinimum(-0.00000001);
+    obj1f->SetMaximum(2.0);
+    obj1f->Draw("col");
     dummy.Draw("text,same");
     cDCC->Update();
     cDCC->SaveAs(imgName.c_str());
