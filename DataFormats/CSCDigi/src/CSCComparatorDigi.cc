@@ -1,7 +1,7 @@
 /** \file
  * 
- *  $Date: 2005/11/18 10:59:31 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/11/18 19:22:37 $
+ *  $Revision: 1.2 $
  *
  * \author M.Schmitt, Northwestern
  */
@@ -14,6 +14,10 @@ using namespace std;
 // Constructors
 CSCComparatorDigi::CSCComparatorDigi (int strip, int comparator){
   set(strip, comparator);
+}
+
+CSCComparatorDigi::CSCComparatorDigi (theComparatorDigi aComparatorDigi){
+  setData(aComparatorDigi);
 }
 
 CSCComparatorDigi::CSCComparatorDigi (){
@@ -49,7 +53,7 @@ void CSCComparatorDigi::setStrip(int strip) {
   data()->strip = strip;
 }
 void CSCComparatorDigi::setComparator(int comparator) {
-    data()->comparator = comparator;
+  data()->comparator = comparator;
 }
 
 // Debug
@@ -61,7 +65,8 @@ CSCComparatorDigi::print() const {
 
 void
 CSCComparatorDigi::dump() const {
-  // Do we need this?
+  typedef bitset<8*sizeof(theComparatorDigi)> bits;
+  cout << *reinterpret_cast<const bits*>(data());  
 }
 
 // ----- Private members
@@ -78,7 +83,7 @@ CSCComparatorDigi::data() {
 
 const CSCComparatorDigi::theComparatorDigi*
 CSCComparatorDigi::data() const {
-  return reinterpret_cast<theComparatorDigi*>(&aComparatorDigi);
+  return reinterpret_cast<const theComparatorDigi*>(&aComparatorDigi);
 }
 
 void CSCComparatorDigi::setData(theComparatorDigi p){

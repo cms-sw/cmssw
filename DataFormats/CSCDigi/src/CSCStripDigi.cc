@@ -1,7 +1,7 @@
 /** \file
  * 
- *  $Date: 2005/11/17 13:03:05 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/11/18 19:22:45 $
+ *  $Revision: 1.2 $
  *
  * \author M.Schmitt, Northwestern
  */
@@ -15,6 +15,10 @@ using namespace std;
 // Constructors
 CSCStripDigi::CSCStripDigi (int strip, vector<int> ADCCounts){
   set(strip, ADCCounts);
+}
+
+CSCStripDigi::CSCStripDigi (theStripDigi aStripDigi){
+  setData(aStripDigi);
 }
 
 CSCStripDigi::CSCStripDigi (){
@@ -67,14 +71,15 @@ void CSCStripDigi::setADCCounts(vector<int>ADCCounts) {
 // Debug
 void
 CSCStripDigi::print() const {
-  //  cout << "CSC Strip: " << strip() << " ADC Counts: ";
-  //  for (int i=0; i<ADCCounts().size(); i++) {cout << ADCCounts[i] << " ";}
+  cout << "CSC Strip: " << getStrip() << " ADC Counts: ";
+  for (int i=0; i<(int)getADCCounts().size(); i++) {cout << getADCCounts()[i] << " ";}
   cout << "\n";
 }
 
 void
 CSCStripDigi::dump() const {
-  // Do we need this?
+  typedef bitset<8*sizeof(theStripDigi)> bits;
+  cout << *reinterpret_cast<const bits*>(data());  
 }
 
 // ----- Private members
@@ -91,7 +96,7 @@ CSCStripDigi::data() {
 
 const CSCStripDigi::theStripDigi*
 CSCStripDigi::data() const {
-  return reinterpret_cast<theStripDigi*>(&aStripDigi);
+  return reinterpret_cast<const theStripDigi*>(&aStripDigi);
 }
 
 void CSCStripDigi::setData(theStripDigi p){
