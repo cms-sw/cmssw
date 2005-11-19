@@ -5,8 +5,8 @@
  *
  * Digi for CSC Comparators.
  *  
- *  $Date: 2005/11/18 10:58:52 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/11/18 19:22:07 $
+ *  $Revision: 1.2 $
  *
  * \author M. Schmitt, Northwestern
  *
@@ -28,6 +28,9 @@ public:
 
   // Construct from the strip number and the ADC readings.
   explicit CSCComparatorDigi (int strip, int comparator);
+
+  // Construct from the structure directly
+  explicit CSCComparatorDigi (theComparatorDigi aComparatorDigi);
 
   // Copy constructor
   CSCComparatorDigi (const CSCComparatorDigi& digi);

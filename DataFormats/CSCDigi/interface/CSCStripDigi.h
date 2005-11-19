@@ -5,8 +5,8 @@
  *
  * Digi for CSC Cathode Strips.
  *  
- *  $Date: 2005/11/17 13:04:41 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/11/18 19:22:16 $
+ *  $Revision: 1.2 $
  *
  * \author M. Schmitt, Northwestern
  *
@@ -30,6 +30,9 @@ public:
 
   // Construct from the strip number and the ADC readings.
   explicit CSCStripDigi (int strip, std::vector<int> ADCCounts);
+
+  // Construct from the struct.
+  explicit CSCStripDigi (theStripDigi aStripDigi);
 
   // Copy constructor
   CSCStripDigi (const CSCStripDigi& digi);
