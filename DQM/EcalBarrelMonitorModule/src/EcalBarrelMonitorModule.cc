@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  * 
- * $Date: 2005/11/16 15:19:36 $
- * $Revision: 1.47 $
+ * $Date: 2005/11/17 08:43:36 $
+ * $Revision: 1.48 $
  * \author G. Della Ricca
  *
 */
@@ -116,6 +116,9 @@ void EcalBarrelMonitorModule::endJob(void) {
   // this should give enough time to meStatus_ to reach the Collector,
   // and then the clients ...
   sleep(60);
+
+  // give extra time to short runs ...
+  if ( ievt_ < 2000) sleep(60);
 
 }
 
