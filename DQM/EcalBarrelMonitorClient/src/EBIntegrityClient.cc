@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  * 
- * $Date: 2005/11/17 11:17:07 $
- * $Revision: 1.18 $
+ * $Date: 2005/11/18 16:24:08 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  *
 */
@@ -255,7 +255,7 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
     ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
     if ( ob ) {
       if ( h00_ ) delete h00_;
-      h00_ = dynamic_cast<TH2F*> (ob->operator->());
+      h00_ = dynamic_cast<TH1F*> (ob->operator->());
     }
   }
 
