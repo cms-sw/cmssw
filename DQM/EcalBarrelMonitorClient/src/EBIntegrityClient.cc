@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  * 
- * $Date: 2005/11/20 09:11:32 $
- * $Revision: 1.23 $
+ * $Date: 2005/11/20 09:30:53 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  *
 */
@@ -389,7 +389,7 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
     
   }
   
-  htmlFile << "</h3><strong>DCC size error</strong></h3>" << endl;
+  htmlFile << "<h3><strong>DCC size error</strong></h3>" << endl;
   
   if ( imgNameQual != " " ) 
     htmlFile << "<p><img src=\"" << imgNameDCC << "\"></p>" << endl;
@@ -480,7 +480,7 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     }
 
-    htmlFile << "</h3><strong>Supermodule&nbsp;&nbsp;" << ism << "</strong></h3>" << endl;
+    htmlFile << "<h3><strong>Supermodule&nbsp;&nbsp;" << ism << "</strong></h3>" << endl;
     
     if ( imgNameQual != " " ) 
       htmlFile << "<p><img src=\"" << imgNameQual << "\"></p>" << endl;
@@ -493,16 +493,18 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr align=\"center\">" << endl;
 
-    for ( int iMe = 1 ; iMe <= 4 ; iMe++ ) {
+    for ( int iCanvas = 1 ; iCanvas <= 4 ; iCanvas++ ) {
       
-      if ( imgNameME[iMe-1] != " " ) 
-        htmlFile << "<td><img src=\"" << imgNameME[iMe-1] << "\"></td>" << endl;
+      if ( imgNameME[iCanvas-1] != " " ) 
+        htmlFile << "<td><img src=\"" << imgNameME[iCanvas-1] << "\"></td>" << endl;
       else
         htmlFile << "<img src=\"" << " " << "\"></td>" << endl;
       
     }
-    
+
     htmlFile << "</tr>" << endl;
+    htmlFile << "</table>" << endl;
+    htmlFile << "<br>" << endl;
     
   }
   

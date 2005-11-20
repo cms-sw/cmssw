@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  * 
- * $Date: 2005/11/18 16:24:08 $
- * $Revision: 1.18 $
+ * $Date: 2005/11/20 09:11:32 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  *
 */
@@ -601,7 +601,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         
       }
 
-      htmlFile << "</h3><strong>Supermodule&nbsp;&nbsp;" << ism << "</strong></h3>" << endl;
+      htmlFile << "<h3><strong>Supermodule&nbsp;&nbsp;" << ism << "</strong></h3>" << endl;
       htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
       htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
       htmlFile << "<tr align=\"center\">" << endl;

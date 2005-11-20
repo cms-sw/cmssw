@@ -1,8 +1,8 @@
 /*
  * \file EBPedPreSampleClient.cc
  * 
- * $Date: 2005/11/17 13:15:34 $
- * $Revision: 1.25 $
+ * $Date: 2005/11/20 09:11:32 $
+ * $Revision: 1.26 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -396,7 +396,7 @@ void EBPedPreSampleClient::htmlOutput(int run, string htmlDir, string htmlName){
       cRMS->SaveAs(imgName.c_str());
       delete cRMS;
 
-      htmlFile << "</h3><strong>Supermodule&nbsp;&nbsp;" << ism << "</strong></h3>" << endl;
+      htmlFile << "<h3><strong>Supermodule&nbsp;&nbsp;" << ism << "</strong></h3>" << endl;
       htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
       htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
       htmlFile << "<tr align=\"center\">" << endl;
