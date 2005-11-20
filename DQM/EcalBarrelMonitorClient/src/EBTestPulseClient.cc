@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  * 
- * $Date: 2005/11/20 13:19:26 $
- * $Revision: 1.18 $
+ * $Date: 2005/11/20 13:35:14 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -180,7 +180,7 @@ void EBTestPulseClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
     float mean03;
     float rms03;
 
-    vector<int> sample;
+    vector<int> sample01, sample02, sample03;
 
     for ( int ie = 1; ie <= 85; ie++ ) { 
       for ( int ip = 1; ip <= 20; ip++ ) {
@@ -197,7 +197,9 @@ void EBTestPulseClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
         mean03 = -1.;
         rms03  = -1.;
 
-        sample.clear();
+        sample01.clear();
+        sample02.clear();
+        sample03.clear();
 
         bool update_channel = false;
 
@@ -307,36 +309,48 @@ void EBTestPulseClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
 
             if ( hs01_[ism-1] && hs01_[ism-1]->GetEntries() >= n_min_tot ) {
               for ( int i = 1; i <= 10; i++ ) {
-                sample.push_back(int(hs01_[ism-1]->GetBinContent(hs01_[ism-1]->GetBin(1, i))));
+                sample01.push_back(int(hs01_[ism-1]->GetBinContent(hs01_[ism-1]->GetBin(1, i))));
               }
             }
 
             if ( hs02_[ism-1] && hs02_[ism-1]->GetEntries() >= n_min_tot ) {
               for ( int i = 1; i <= 10; i++ ) {
-                sample.push_back(int(hs02_[ism-1]->GetBinContent(hs02_[ism-1]->GetBin(1, i))));
+                sample02.push_back(int(hs02_[ism-1]->GetBinContent(hs02_[ism-1]->GetBin(1, i))));
               }
             }
 
             if ( hs03_[ism-1] && hs03_[ism-1]->GetEntries() >= n_min_tot ) {
               for ( int i = 1; i <= 10; i++ ) {
-                sample.push_back(int(hs03_[ism-1]->GetBinContent(hs03_[ism-1]->GetBin(1, i))));
+                sample03.push_back(int(hs03_[ism-1]->GetBinContent(hs03_[ism-1]->GetBin(1, i))));
               }
             }
 
-            cout << "sample= " << flush;
-            for ( unsigned int i = 0; i < sample.size(); i++ ) {
-              cout << sample[i] << " " << flush;
+            cout << "sample01= " << flush;
+            for ( unsigned int i = 0; i < sample01.size(); i++ ) {
+              cout << sample01[i] << " " << flush;
             }
             cout << endl;
 
-            shape.setSamples(sample);
+            cout << "sample02= " << flush;
+            for ( unsigned int i = 0; i < sample02.size(); i++ ) {
+              cout << sample02[i] << " " << flush;
+            }
+            cout << endl;
+
+            cout << "sample03= " << flush;
+            for ( unsigned int i = 0; i < sample03.size(); i++ ) {
+              cout << sample03[i] << " " << flush;
+            }
+            cout << endl;
+
+            shape01.setSamples(sample01);
             
 
             if ( econn ) {
               try {
                 ecid = econn->getEcalLogicID("EB_crystal_index", ism, ie-1, ip-1);
                 dataset1[ecid] = adc;
-                if ( ie == 1 && ip == 1 ) dataset2[ecid] = shape;
+                if ( ie == 1 && ip == 1 ) dataset2[ecid] = shape01;
               } catch (runtime_error &e) {
                 cerr << e.what() << endl;
               }
