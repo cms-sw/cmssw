@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  * 
- * $Date: 2005/11/11 08:04:41 $
- * $Revision: 1.25 $
+ * $Date: 2005/11/14 08:52:30 $
+ * $Revision: 1.26 $
  * \author G. Della Ricca
  *
 */
@@ -100,23 +100,17 @@ void EBTestPulseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
       MonitorElement* meShapeMap = 0;
 
-      if ( sample.gainId() == 1 ) {
-        gain = 1./12.;
-      }
-      if ( sample.gainId() == 2 ) {
-        gain = 1./ 6.;
-      }
-      if ( sample.gainId() == 3 ) {
-        gain = 1./ 1.;
-      }
+      if ( sample.gainId() == 1 ) gain = 1./12.;
+      if ( sample.gainId() == 2 ) gain = 1./ 6.;
+      if ( sample.gainId() == 3 ) gain = 1./ 1.;
 
       if ( ievt_ >=   1 && ievt_ <=  50 ) meShapeMap = meShapeMapG01_[ism-1];
       if ( ievt_ >=  51 && ievt_ <= 100 ) meShapeMap = meShapeMapG06_[ism-1];
       if ( ievt_ >= 101 && ievt_ <= 150 ) meShapeMap = meShapeMapG12_[ism-1];
 
-      float xval = adc * gain;
+      float xval = float(adc) * gain;
 
-      if ( meShapeMap ) meShapeMap->Fill( ic - 0.5, i + 0.5, xval);
+      if ( meShapeMap ) meShapeMap->Fill(ic - 0.5, i + 0.5, xval);
 
     }
 

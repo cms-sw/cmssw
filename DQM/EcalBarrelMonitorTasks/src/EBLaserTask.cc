@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  * 
- * $Date: 2005/11/11 08:04:41 $
- * $Revision: 1.24 $
+ * $Date: 2005/11/14 08:52:30 $
+ * $Revision: 1.25 $
  * \author G. Della Ricca
  *
 */
@@ -92,24 +92,18 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
       MonitorElement* meShapeMap = 0;
 
-      if ( sample.gainId() == 1 ) {
-        gain = 1./12.;
-      }
-      if ( sample.gainId() == 2 ) {
-        gain = 1./ 6.;
-      }
-      if ( sample.gainId() == 3 ) {
-        gain = 1./ 1.;
-      }
+      if ( sample.gainId() == 1 ) gain = 1./12.;
+      if ( sample.gainId() == 2 ) gain = 1./ 6.;
+      if ( sample.gainId() == 3 ) gain = 1./ 1.;
 
       if ( ievt_ >=    1 && ievt_ <=  600 ) meShapeMap = meShapeMapL1_[ism-1];
       if ( ievt_ >=  601 && ievt_ <= 1200 ) meShapeMap = meShapeMapL1_[ism-1];
       if ( ievt_ >= 1201 && ievt_ <= 1800 ) meShapeMap = meShapeMapL2_[ism-1];
       if ( ievt_ >= 1801 && ievt_ <= 2400 ) meShapeMap = meShapeMapL2_[ism-1];
 
-      float xval = adc * gain;
+      float xval = float(adc) * gain;
 
-      if ( meShapeMap ) meShapeMap->Fill( ic - 0.5, i + 0.5, xval);
+      if ( meShapeMap ) meShapeMap->Fill(ic - 0.5, i + 0.5, xval);
 
     }
 

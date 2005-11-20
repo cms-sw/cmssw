@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  * 
- * $Date: 2005/11/20 13:45:38 $
- * $Revision: 1.20 $
+ * $Date: 2005/11/20 13:46:48 $
+ * $Revision: 1.21 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -707,7 +707,7 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       for ( int iCanvas = 1 ; iCanvas <= 3 ; iCanvas++ ) {
 
-      if ( imgNameQual[iCanvas-1] != " " ) 
+      if ( imgNameQual[iCanvas-1].size() != 0 ) 
         htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameQual[iCanvas-1] << "\"></td>" << endl;
       else
         htmlFile << "<img src=\"" << " " << "\"></td>" << endl;
@@ -718,12 +718,12 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       for ( int iCanvas = 1 ; iCanvas <= 3 ; iCanvas++ ) {
 
-        if ( imgNameAmp[iCanvas-1] != " " ) 
+        if ( imgNameAmp[iCanvas-1].size() != 0 ) 
           htmlFile << "<td><img src=\"" << imgNameAmp[iCanvas-1] << "\"></td>" << endl;
         else
           htmlFile << "<img src=\"" << " " << "\"></td>" << endl;
         
-        if ( imgNameShape[iCanvas-1] != " " ) 
+        if ( imgNameShape[iCanvas-1].size() != 0 ) 
           htmlFile << "<td><img src=\"" << imgNameShape[iCanvas-1] << "\"></td>" << endl;
         else
           htmlFile << "<img src=\"" << " " << "\"></td>" << endl;

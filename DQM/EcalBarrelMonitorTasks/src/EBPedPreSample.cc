@@ -1,8 +1,8 @@
 /*
  * \file EBPedPreSampleTask.cc
  * 
- * $Date: 2005/11/16 12:30:58 $
- * $Revision: 1.5 $
+ * $Date: 2005/11/16 15:19:36 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  *
 */
@@ -76,24 +76,14 @@ void EBPedPreSampleTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
       EcalMGPASample sample = dataframe.sample(i);
       int adc = sample.adc();
-      float gain = 1.;
 
       MonitorElement* mePedMap = 0;
 
-      if ( sample.gainId() == 1 ) {
-        gain = 1./12.;
-        mePedMap = mePedMapG12_[ism-1];
-      }
-      if ( sample.gainId() == 2 ) {
-        gain = 1./ 6.;
-        mePedMap = 0;
-      }
-      if ( sample.gainId() == 3 ) {
-        gain = 1./ 1.;
-        mePedMap = 0;
-      }
+      if ( sample.gainId() == 1 ) mePedMap = mePedMapG12_[ism-1];
+      if ( sample.gainId() == 2 ) mePedMap = 0;
+      if ( sample.gainId() == 3 ) mePedMap = 0;
 
-      float xval = adc * gain;
+      float xval = float(adc);
 
       if ( mePedMap ) mePedMap->Fill(xie, xip, xval);
 

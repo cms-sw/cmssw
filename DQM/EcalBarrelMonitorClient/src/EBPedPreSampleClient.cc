@@ -1,8 +1,8 @@
 /*
  * \file EBPedPreSampleClient.cc
  * 
- * $Date: 2005/11/20 09:11:32 $
- * $Revision: 1.26 $
+ * $Date: 2005/11/20 13:19:26 $
+ * $Revision: 1.27 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -24,10 +24,10 @@ EBPedPreSampleClient::EBPedPreSampleClient(const edm::ParameterSet& ps, MonitorU
     g03_[i] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
 
     sprintf(histo, "EBPT pedestal PreSample mean G12 SM%02d", i+1);
-    p03_[i] = new TH1F(histo, histo, 100,  10.,  20.);
+    p03_[i] = new TH1F(histo, histo, 100, 150., 250.);
 
     sprintf(histo, "EBPT pedestal PreSample rms G12 SM%02d", i+1);
-    r03_[i] = new TH1F(histo, histo, 100, 0.,  1.);
+    r03_[i] = new TH1F(histo, histo, 100, 0.,  10.);
 
   }
 
@@ -401,7 +401,7 @@ void EBPedPreSampleClient::htmlOutput(int run, string htmlDir, string htmlName){
       htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
       htmlFile << "<tr align=\"center\">" << endl;
 
-      if ( imgNameQual != " " ) 
+      if ( imgNameQual.size() != 0 ) 
         htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameQual << "\"></td>" << endl;
       else
         htmlFile << "<img src=\"" << " " << "\"></td>" << endl;
@@ -409,12 +409,12 @@ void EBPedPreSampleClient::htmlOutput(int run, string htmlDir, string htmlName){
       htmlFile << "</tr>" << endl;
       htmlFile << "<tr>" << endl;
 
-      if ( imgNameMean != " " ) 
+      if ( imgNameMean.size() != 0 ) 
         htmlFile << "<td><img src=\"" << imgNameMean << "\"></td>" << endl;
       else
         htmlFile << "<img src=\"" << " " << "\"></td>" << endl;
       
-      if ( imgNameRMS != " " ) 
+      if ( imgNameRMS.size() != 0 ) 
         htmlFile << "<td><img src=\"" << imgNameRMS << "\"></td>" << endl;
       else
         htmlFile << "<img src=\"" << " " << "\"></td>" << endl;

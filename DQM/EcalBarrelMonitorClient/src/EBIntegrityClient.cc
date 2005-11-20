@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  * 
- * $Date: 2005/11/20 09:30:53 $
- * $Revision: 1.24 $
+ * $Date: 2005/11/20 13:19:26 $
+ * $Revision: 1.25 $
  * \author G. Della Ricca
  *
 */
@@ -391,7 +391,7 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
   
   htmlFile << "<h3><strong>DCC size error</strong></h3>" << endl;
   
-  if ( imgNameQual != " " ) 
+  if ( imgNameQual.size() != 0 ) 
     htmlFile << "<p><img src=\"" << imgNameDCC << "\"></p>" << endl;
   else
     htmlFile << "<p><img src=\"" << " " << "\"></p>" << endl;
@@ -482,7 +482,7 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     htmlFile << "<h3><strong>Supermodule&nbsp;&nbsp;" << ism << "</strong></h3>" << endl;
     
-    if ( imgNameQual != " " ) 
+    if ( imgNameQual.size() != 0 ) 
       htmlFile << "<p><img src=\"" << imgNameQual << "\"></p>" << endl;
     else
       htmlFile << "<p><img src=\"" << " " << "\"></p>" << endl;
@@ -495,7 +495,7 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     for ( int iCanvas = 1 ; iCanvas <= 4 ; iCanvas++ ) {
       
-      if ( imgNameME[iCanvas-1] != " " ) 
+      if ( imgNameME[iCanvas-1].size() != 0 ) 
         htmlFile << "<td><img src=\"" << imgNameME[iCanvas-1] << "\"></td>" << endl;
       else
         htmlFile << "<img src=\"" << " " << "\"></td>" << endl;

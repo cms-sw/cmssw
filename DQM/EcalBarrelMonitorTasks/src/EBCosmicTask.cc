@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  * 
- * $Date: 2005/11/11 08:04:41 $
- * $Revision: 1.23 $
+ * $Date: 2005/11/14 08:52:30 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  *
 */
@@ -82,11 +82,11 @@ void EBCosmicTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
 //    logFile_ << " hit amplitude " << xval << endl;
 
-    if ( xval >= 5 ) {
+    if ( xval >= 5. ) {
       if ( meCutMap_[ism-1] ) meCutMap_[ism-1]->Fill(xie, xip, xval);
     }
 
-    if ( xval >= 10 ) {
+    if ( xval >= 10. ) {
       if ( meSelMap_[ism-1] ) meSelMap_[ism-1]->Fill(xie, xip, xval);
     }
 

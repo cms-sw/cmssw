@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  * 
- * $Date: 2005/11/20 09:11:32 $
- * $Revision: 1.22 $
+ * $Date: 2005/11/20 13:19:26 $
+ * $Revision: 1.23 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -32,16 +32,16 @@ EBPedestalClient::EBPedestalClient(const edm::ParameterSet& ps, MonitorUserInter
     sprintf(histo, "EBPT pedestal mean G01 SM%02d", i+1);
     p01_[i] = new TH1F(histo, histo, 100, 150., 250.);
     sprintf(histo, "EBPT pedestal mean G06 SM%02d", i+1);
-    p02_[i] = new TH1F(histo, histo, 100,  20.,  40.);
+    p02_[i] = new TH1F(histo, histo, 100, 150., 250.);
     sprintf(histo, "EBPT pedestal mean G12 SM%02d", i+1);
-    p03_[i] = new TH1F(histo, histo, 100,  10.,  20.);
+    p03_[i] = new TH1F(histo, histo, 100, 150., 250.);
 
     sprintf(histo, "EBPT pedestal rms G01 SM%02d", i+1);
     r01_[i] = new TH1F(histo, histo, 100, 0., 10.);
     sprintf(histo, "EBPT pedestal rms G06 SM%02d", i+1);
-    r02_[i] = new TH1F(histo, histo, 100, 0.,  2.);
+    r02_[i] = new TH1F(histo, histo, 100, 0., 10.);
     sprintf(histo, "EBPT pedestal rms G12 SM%02d", i+1);
-    r03_[i] = new TH1F(histo, histo, 100, 0.,  1.);
+    r03_[i] = new TH1F(histo, histo, 100, 0., 10.);
 
   }
 
@@ -578,7 +578,7 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       for ( int iCanvas = 1 ; iCanvas <= 3 ; iCanvas++ ) {
 
-      if ( imgNameQual[iCanvas-1] != " " ) 
+      if ( imgNameQual[iCanvas-1].size() != 0 ) 
         htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameQual[iCanvas-1] << "\"></td>" << endl;
       else
         htmlFile << "<img src=\"" << " " << "\"></td>" << endl;
@@ -589,12 +589,12 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       for ( int iCanvas = 1 ; iCanvas <= 3 ; iCanvas++ ) {
 
-        if ( imgNameMean[iCanvas-1] != " " ) 
+        if ( imgNameMean[iCanvas-1].size() != 0 ) 
           htmlFile << "<td><img src=\"" << imgNameMean[iCanvas-1] << "\"></td>" << endl;
         else
           htmlFile << "<img src=\"" << " " << "\"></td>" << endl;
         
-        if ( imgNameRMS[iCanvas-1] != " " ) 
+        if ( imgNameRMS[iCanvas-1].size() != 0 ) 
           htmlFile << "<td><img src=\"" << imgNameRMS[iCanvas-1] << "\"></td>" << endl;
         else
           htmlFile << "<img src=\"" << " " << "\"></td>" << endl;
