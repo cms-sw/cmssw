@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  * 
- * $Date: 2005/11/19 12:07:25 $
- * $Revision: 1.22 $
+ * $Date: 2005/11/20 09:11:32 $
+ * $Revision: 1.23 $
  * \author G. Della Ricca
  *
 */
@@ -435,9 +435,9 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       // Monitoring elements plots
       
-      for ( int iMe = 0; iMe < 4; iMe++ ) {
+      for ( int iCanvas = 1; iCanvas <= 4; iCanvas++ ) {
       
-        switch ( iMe ) {
+        switch ( iCanvas ) {
         case 1:
           meName = h01_[ism-1]->GetName();
           obj2f = h01_[ism-1];
@@ -464,8 +464,8 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
             meName.replace(iMe, 1, "_");
           }
         }
-        imgNameQual = meName + ".jpg";
-        imgName = htmlDir + imgNameQual;
+        imgNameME[iCanvas-1] = meName + ".jpg";
+        imgName = htmlDir + imgNameME[iCanvas-1];
         gStyle->SetOptStat(" ");
         obj2f->GetXaxis()->SetNdivisions(17);
         obj2f->GetYaxis()->SetNdivisions(4);
