@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  * 
- * $Date: 2005/11/18 09:45:26 $
- * $Revision: 1.37 $
+ * $Date: 2005/11/20 08:41:48 $
+ * $Revision: 1.38 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -155,7 +155,7 @@ void EcalBarrelMonitorClient::endRun(void) {
 
   cout << "EcalBarrelMonitorClient: endRun, jevt = " << jevt_ << endl;
 
-  mui_->save((baseHtmlDir_ + "/EcalBarrelMonitorClient.root").c_str());
+  mui_->save("EcalBarrelMonitorClient.root");
 
   econn_ = 0;
 
@@ -380,7 +380,7 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
     }
 
     if ( updates % 100 == 0 ) {
-      mui_->save((baseHtmlDir_ + "/EcalBarrelMonitorClient.root").c_str());
+      mui_->save("EcalBarrelMonitorClient.root");
     }
 
     last_update_ = updates;
