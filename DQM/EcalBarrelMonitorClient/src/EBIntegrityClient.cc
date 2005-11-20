@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  * 
- * $Date: 2005/11/20 13:19:26 $
- * $Revision: 1.25 $
+ * $Date: 2005/11/20 16:43:39 $
+ * $Revision: 1.26 $
  * \author G. Della Ricca
  *
 */
@@ -391,7 +391,7 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
   
   htmlFile << "<h3><strong>DCC size error</strong></h3>" << endl;
   
-  if ( imgNameQual.size() != 0 ) 
+  if ( imgNameDCC.size() != 0 ) 
     htmlFile << "<p><img src=\"" << imgNameDCC << "\"></p>" << endl;
   else
     htmlFile << "<p><img src=\"" << " " << "\"></p>" << endl;
