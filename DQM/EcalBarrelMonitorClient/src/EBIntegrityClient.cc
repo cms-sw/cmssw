@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  * 
- * $Date: 2005/11/19 09:50:44 $
- * $Revision: 1.21 $
+ * $Date: 2005/11/19 12:07:25 $
+ * $Revision: 1.22 $
  * \author G. Della Ricca
  *
 */
@@ -392,9 +392,9 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "</h3><strong>DCC size error</strong></h3>" << endl;
   
   if ( imgNameQual != " " ) 
-    htmlFile << "<p><img src=\" " << imgNameDCC << "\"></p>" << endl;
+    htmlFile << "<p><img src=\"" << imgNameDCC << "\"></p>" << endl;
   else
-    htmlFile << "<p><img src=\" " << " " << "\"></p>" << endl;
+    htmlFile << "<p><img src=\"" << " " << "\"></p>" << endl;
   
   htmlFile << "<br>" << endl;
 
@@ -483,9 +483,9 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile << "</h3><strong>Supermodule&nbsp;&nbsp;" << ism << "</strong></h3>" << endl;
     
     if ( imgNameQual != " " ) 
-      htmlFile << "<p><img src=\" " << imgNameQual << "\"></p>" << endl;
+      htmlFile << "<p><img src=\"" << imgNameQual << "\"></p>" << endl;
     else
-      htmlFile << "<p><img src=\" " << " " << "\"></p>" << endl;
+      htmlFile << "<p><img src=\"" << " " << "\"></p>" << endl;
 
     htmlFile << "<br>" << endl;
     
@@ -496,9 +496,9 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
     for ( int iMe = 1 ; iMe <= 4 ; iMe++ ) {
       
       if ( imgNameME[iMe-1] != " " ) 
-        htmlFile << "<td><img src=\" " << imgNameME[iMe-1] << "\"></td>" << endl;
+        htmlFile << "<td><img src=\"" << imgNameME[iMe-1] << "\"></td>" << endl;
       else
-        htmlFile << "<img src=\" " << " " << "\"></td>" << endl;
+        htmlFile << "<img src=\"" << " " << "\"></td>" << endl;
       
     }
     

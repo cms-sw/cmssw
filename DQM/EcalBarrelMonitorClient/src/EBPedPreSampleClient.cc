@@ -1,8 +1,8 @@
 /*
  * \file EBPedPreSampleClient.cc
  * 
- * $Date: 2005/11/16 20:40:31 $
- * $Revision: 1.24 $
+ * $Date: 2005/11/17 13:15:34 $
+ * $Revision: 1.25 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -402,22 +402,22 @@ void EBPedPreSampleClient::htmlOutput(int run, string htmlDir, string htmlName){
       htmlFile << "<tr align=\"center\">" << endl;
 
       if ( imgNameQual != " " ) 
-        htmlFile << "<td colspan=\"2\"><img src=\" " << imgNameQual << "\"></td>" << endl;
+        htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameQual << "\"></td>" << endl;
       else
-        htmlFile << "<img src=\" " << " " << "\"></td>" << endl;
+        htmlFile << "<img src=\"" << " " << "\"></td>" << endl;
 
       htmlFile << "</tr>" << endl;
       htmlFile << "<tr>" << endl;
 
       if ( imgNameMean != " " ) 
-        htmlFile << "<td><img src=\" " << imgNameMean << "\"></td>" << endl;
+        htmlFile << "<td><img src=\"" << imgNameMean << "\"></td>" << endl;
       else
-        htmlFile << "<img src=\" " << " " << "\"></td>" << endl;
+        htmlFile << "<img src=\"" << " " << "\"></td>" << endl;
       
       if ( imgNameRMS != " " ) 
-        htmlFile << "<td><img src=\" " << imgNameRMS << "\"></td>" << endl;
+        htmlFile << "<td><img src=\"" << imgNameRMS << "\"></td>" << endl;
       else
-        htmlFile << "<img src=\" " << " " << "\"></td>" << endl;
+        htmlFile << "<img src=\"" << " " << "\"></td>" << endl;
 
       htmlFile << "</tr>" << endl;
 

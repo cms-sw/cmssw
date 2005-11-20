@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  * 
- * $Date: 2005/11/16 20:40:31 $
- * $Revision: 1.20 $
+ * $Date: 2005/11/17 13:15:34 $
+ * $Revision: 1.21 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -579,9 +579,9 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
       for ( int iCanvas = 1 ; iCanvas <= 3 ; iCanvas++ ) {
 
       if ( imgNameQual[iCanvas-1] != " " ) 
-        htmlFile << "<td colspan=\"2\"><img src=\" " << imgNameQual[iCanvas-1] << "\"></td>" << endl;
+        htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameQual[iCanvas-1] << "\"></td>" << endl;
       else
-        htmlFile << "<img src=\" " << " " << "\"></td>" << endl;
+        htmlFile << "<img src=\"" << " " << "\"></td>" << endl;
 
       }
       htmlFile << "</tr>" << endl;
@@ -590,14 +590,14 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
       for ( int iCanvas = 1 ; iCanvas <= 3 ; iCanvas++ ) {
 
         if ( imgNameMean[iCanvas-1] != " " ) 
-          htmlFile << "<td><img src=\" " << imgNameMean[iCanvas-1] << "\"></td>" << endl;
+          htmlFile << "<td><img src=\"" << imgNameMean[iCanvas-1] << "\"></td>" << endl;
         else
-          htmlFile << "<img src=\" " << " " << "\"></td>" << endl;
+          htmlFile << "<img src=\"" << " " << "\"></td>" << endl;
         
         if ( imgNameRMS[iCanvas-1] != " " ) 
-          htmlFile << "<td><img src=\" " << imgNameRMS[iCanvas-1] << "\"></td>" << endl;
+          htmlFile << "<td><img src=\"" << imgNameRMS[iCanvas-1] << "\"></td>" << endl;
         else
-          htmlFile << "<img src=\" " << " " << "\"></td>" << endl;
+          htmlFile << "<img src=\"" << " " << "\"></td>" << endl;
 
       }
 
