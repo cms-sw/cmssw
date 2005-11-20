@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  * 
- * $Date: 2005/11/20 09:11:32 $
- * $Revision: 1.17 $
+ * $Date: 2005/11/20 13:19:26 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -370,6 +370,10 @@ void EBTestPulseClient::subscribe(void){
   // subscribe to all monitorable matching pattern
   mui_->subscribe("*/EcalBarrel/EBTestPulseTask/Gain01/EBTT amplitude SM*");
   mui_->subscribe("*/EcalBarrel/EBTestPulseTask/Gain01/EBTT shape SM*");
+  mui_->subscribe("*/EcalBarrel/EBTestPulseTask/Gain06/EBTT amplitude SM*");
+  mui_->subscribe("*/EcalBarrel/EBTestPulseTask/Gain06/EBTT shape SM*");
+  mui_->subscribe("*/EcalBarrel/EBTestPulseTask/Gain12/EBTT amplitude SM*");
+  mui_->subscribe("*/EcalBarrel/EBTestPulseTask/Gain12/EBTT shape SM*");
 
 }
 
@@ -378,6 +382,10 @@ void EBTestPulseClient::subscribeNew(void){
   // subscribe to new monitorable matching pattern
   mui_->subscribeNew("*/EcalBarrel/EBTestPulseTask/Gain01/EBTT amplitude SM*");
   mui_->subscribeNew("*/EcalBarrel/EBTestPulseTask/Gain01/EBTT shape SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBTestPulseTask/Gain06/EBTT amplitude SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBTestPulseTask/Gain06/EBTT shape SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBTestPulseTask/Gain12/EBTT amplitude SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBTestPulseTask/Gain12/EBTT shape SM*");
 
 }
 
@@ -386,6 +394,10 @@ void EBTestPulseClient::unsubscribe(void){
   // unsubscribe to all monitorable matching pattern
   mui_->unsubscribe("*/EcalBarrel/EBTestPulseTask/Gain01/EBTT amplitude SM*");
   mui_->unsubscribe("*/EcalBarrel/EBTestPulseTask/Gain01/EBTT shape SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBTestPulseTask/Gain06/EBTT amplitude SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBTestPulseTask/Gain06/EBTT shape SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBTestPulseTask/Gain12/EBTT amplitude SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBTestPulseTask/Gain12/EBTT shape SM*");
 
 }
 
@@ -416,7 +428,7 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
     }
 
-    sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain01/EBTT amplitude SM%02d G06", ism);
+    sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain06/EBTT amplitude SM%02d G06", ism);
     me = mui_->get(histo);
     if ( me ) {
       cout << "Found '" << histo << "'" << endl;
@@ -427,7 +439,7 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
     }
 
-    sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain01/EBTT amplitude SM%02d G12", ism);
+    sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain12/EBTT amplitude SM%02d G12", ism);
     me = mui_->get(histo);
     if ( me ) {
       cout << "Found '" << histo << "'" << endl;
@@ -449,7 +461,7 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
     }
 
-    sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain01/EBTT shape SM%02d G06", ism);
+    sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain06/EBTT shape SM%02d G06", ism);
     me = mui_->get(histo);
     if ( me ) {
       cout << "Found '" << histo << "'" << endl;
@@ -460,7 +472,7 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
     }
 
-    sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain01/EBTT shape SM%02d G12", ism);
+    sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain12/EBTT shape SM%02d G12", ism);
     me = mui_->get(histo);
     if ( me ) {
       cout << "Found '" << histo << "'" << endl;
