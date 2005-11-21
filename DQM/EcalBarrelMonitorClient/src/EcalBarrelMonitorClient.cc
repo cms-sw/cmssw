@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  * 
- * $Date: 2005/11/20 08:41:48 $
- * $Revision: 1.38 $
+ * $Date: 2005/11/20 08:43:22 $
+ * $Revision: 1.39 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -48,6 +48,8 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps){
   pedpresample_client_ = new EBPedPreSampleClient(ps, mui_);
   testpulse_client_ = new EBTestPulseClient(ps, mui_);
 
+  cosmic_client_ = new EBCosmicClient(ps, mui_);
+
   // Ecal Cond DB
   dbName_ = ps.getUntrackedParameter<string>("dbName", "");
   dbHostName_ = ps.getUntrackedParameter<string>("dbHostName", "");
@@ -89,6 +91,8 @@ EcalBarrelMonitorClient::~EcalBarrelMonitorClient(){
   if ( pedpresample_client_ ) delete pedpresample_client_;
   if ( testpulse_client_ ) delete testpulse_client_;
 
+  if ( cosmic_client_ ) delete cosmic_client_;
+
   usleep(100);
 
   if ( mui_ ) delete mui_;
@@ -106,6 +110,8 @@ void EcalBarrelMonitorClient::beginJob(const edm::EventSetup& c){
   pedestal_client_->beginJob(c);
   pedpresample_client_->beginJob(c);
   testpulse_client_->beginJob(c);
+
+  cosmic_client_->beginJob(c);
 
   this->beginRun(c);
 
@@ -137,6 +143,8 @@ void EcalBarrelMonitorClient::beginRun(const edm::EventSetup& c){
   pedpresample_client_->beginRun(c);
   testpulse_client_->beginRun(c);
 
+  cosmic_client_->beginRun(c);
+
 }
 
 void EcalBarrelMonitorClient::endJob(void) {
@@ -148,6 +156,8 @@ void EcalBarrelMonitorClient::endJob(void) {
   pedestal_client_->endJob();
   pedpresample_client_->endJob();
   testpulse_client_->endJob();
+
+  cosmic_client_->endJob();
 
 }
 
@@ -225,6 +235,8 @@ void EcalBarrelMonitorClient::endRun(void) {
   pedpresample_client_->endRun(econn_, runiov_, runtag_);
   testpulse_client_->endRun(econn_, runiov_, runtag_);
 
+  cosmic_client_->endRun(econn_, runiov_, runtag_);
+
   if ( econn_ ) {
     try {
       cout << "Closing DB connection." << endl;
@@ -293,6 +305,8 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
   pedestal_client_->subscribeNew();
   pedpresample_client_->subscribeNew();
   testpulse_client_->subscribeNew();
+
+  cosmic_client_->subscribeNew();
 
   // # of full monitoring cycles processed
   int updates = mui_->getNumUpdates();
@@ -367,6 +381,8 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
         if ( h_ && h_->GetBinContent(3) != 0 ) pedestal_client_->analyze(e, c);
                                                pedpresample_client_->analyze(e, c);
         if ( h_ && h_->GetBinContent(4) != 0 ) testpulse_client_->analyze(e, c);
+
+        if ( h_ && h_->GetBinContent(1) != 0 ) cosmic_client_->analyze(e, c);
       }
     }
 
@@ -376,6 +392,8 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
       if ( h_ && h_->GetBinContent(3) != 0 ) pedestal_client_->analyze(e, c);
                                              pedpresample_client_->analyze(e, c);
       if ( h_ && h_->GetBinContent(4) != 0 ) testpulse_client_->analyze(e, c);
+
+      if ( h_ && h_->GetBinContent(1) != 0 ) cosmic_client_->analyze(e, c);
       this->endRun();
     }
 
@@ -403,6 +421,8 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
     if ( h_ && h_->GetBinContent(3) != 0 ) pedestal_client_->analyze(e, c); 
                                            pedpresample_client_->analyze(e, c);
     if ( h_ && h_->GetBinContent(4) != 0 ) testpulse_client_->analyze(e, c);
+
+    if ( h_ && h_->GetBinContent(1) != 0 ) cosmic_client_->analyze(e, c);
 
     this->endRun();
 
@@ -465,9 +485,9 @@ void EcalBarrelMonitorClient::htmlOutput(void){
     laser_client_->htmlOutput(run_, htmlDir, htmlName);
     htmlFile << "<li><a href=\"" << htmlName << "\">Laser</a></li>" << endl;
   }
-  
+
   // Pedestal check (normal)
-  
+
   if ( h_ && h_->GetBinContent(3) != 0 ) {
     htmlName = "EBPedestalClient.html";
     pedestal_client_->htmlOutput(run_, htmlDir, htmlName);
@@ -478,14 +498,22 @@ void EcalBarrelMonitorClient::htmlOutput(void){
   htmlName = "EBPedPreSampleClient.html";
   pedpresample_client_->htmlOutput(run_, htmlDir, htmlName);
   htmlFile << "<li><a href=\"" << htmlName << "\">Pedestal on Presample</a></li>" << endl;
-  
+
   // Test pulse check
-  
+
   if ( h_ && h_->GetBinContent(4) != 0 ) {
     htmlName = "EBTestPulseClient.html";
     testpulse_client_->htmlOutput(run_, htmlDir, htmlName);
     htmlFile << "<li><a href=\"" << htmlName << "\">Test pulse</a></li>" << endl;
-  }    
+  }
+
+  // Cosmic check
+
+  if ( h_ && h_->GetBinContent(1) != 0 ) {
+    htmlName = "EBCosmicClient.html";
+    cosmic_client_->htmlOutput(run_, htmlDir, htmlName);
+    htmlFile << "<li><a href=\"" << htmlName << "\">Cosmic</a></li>" << endl;
+  }
 
   htmlFile << "</ul>" << endl;
 

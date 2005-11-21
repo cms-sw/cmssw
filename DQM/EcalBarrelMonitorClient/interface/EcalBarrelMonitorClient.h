@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2005/11/16 15:19:36 $
- * $Revision: 1.13 $
+ * $Date: 2005/11/16 20:57:53 $
+ * $Revision: 1.14 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -28,6 +28,8 @@
 #include <DQM/EcalBarrelMonitorClient/interface/EBPedestalClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBPedPreSampleClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBTestPulseClient.h>
+
+#include <DQM/EcalBarrelMonitorClient/interface/EBCosmicClient.h>
 
 #include "CalibCalorimetry/EcalDBInterface/interface/EcalCondDBInterface.h"
 #include "CalibCalorimetry/EcalDBInterface/interface/RunTag.h"
@@ -118,6 +120,8 @@ EBLaserClient* laser_client_;
 EBPedestalClient* pedestal_client_;
 EBPedPreSampleClient* pedpresample_client_;
 EBTestPulseClient* testpulse_client_;
+
+EBCosmicClient* cosmic_client_;
 
 TH1F* h_;
 
