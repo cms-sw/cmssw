@@ -1,9 +1,11 @@
 <use name=boost>
 <use name=Foundation/PluginManager>
 <use name=Framework/SealKernel>
+<lib name=boost_filesystem-gcc-mt> 
 <export>
  <lib name=FWCoreUtilities>
  <use name=boost>
  <use name=Foundation/PluginManager>
  <use name=Framework/SealKernel>
+ <lib name=boost_filesystem-gcc-mt> 
 </export>
