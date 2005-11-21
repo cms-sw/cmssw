@@ -7,8 +7,8 @@
  * Extends the Topology interface with methods relevant for
  * the DT detectors.
  *  
- *  $Date: 2005/11/10 13:21:02 $
- *  $Revision: 1.4 $
+ *  $Date: 2005/11/20 11:43:01 $
+ *  $Revision: 1.1 $
  *
  * \author R. Bellan - INFN Torino
  *
@@ -52,13 +52,13 @@ class DTTopology: public Topology {
   // They return the cell dimensions:
   float cellWidth(){return theWidth;}
   float cellHeight(){return theHeight;}
-  float cellLenght(){return theLenght;}
+  float cellLenght(){return theLength;}
 
 private:
   float theNChannels;
   float theWidth;
   float theHeight;
-  float theLenght;
+  float theLength;
 
   Local2DPoint theOffSet;
 };
