@@ -79,11 +79,23 @@ namespace edm
    // first all simhits
     for(std::vector<std::string >::const_iterator itstr = trackerSubdetectors_.begin(); itstr != trackerSubdetectors_.end(); ++itstr) {
       edm::Handle<std::vector<PSimHit> >  simHits;  //Event Pointer to minbias Hits
+      // do not read this branch if clearly outside of tof bounds
+      float tof = bcr*simcf_->getBunchSpace();
+      int slow=(*itstr).find("LowTof");
+      int shigh=(*itstr).find("HighTof");
+      if (slow>0 )
+	if ( (tof<CrossingFrame::lowTrackTof || tof>0)) {
+	  continue;
+	}
+	else if (shigh>0 )
+	  if ( ((CrossingFrame::highTrackTof+tof)<CrossingFrame::lowTrackTof || tof>0)) {
+	    continue;
+	  }
       e->getByLabel("r",(*itstr),simHits);
       simcf_->addPileupSimHits(bcr,(*itstr),simHits.product(),trackoffset);
     }
 
-//     //then all calohits
+  //     //then all calohits
 //     for(std::vector<std::string >::const_iterator itstr = caloSubdetectors_.begin(); itstr != caloSubdetectors_.end(); ++itstr) {
 //       edm::Handle<std::vector<PCaloHit> >  caloHits;  //Event Pointer to minbias Hits
 //       e->getByLabel("r",(*itstr),caloHits);

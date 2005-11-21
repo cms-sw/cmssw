@@ -53,12 +53,12 @@ using namespace edm;
       void print(int level=0) const ;
       void setEventID(edm::EventID id) {id_=id;}
       int getFirstCrossingNr() const {return firstCrossing_;}
+      int getBunchSpace() const {return bunchSpace_;}
+      
 
 
       //getters for collections
-/*       PSimHitContainer *getSignalSimHits(std::string subdet) { return &signalSimHits_[subdet];} */
-/*       std::vector<PSimHitContainer> *getPileupSimHits(std::string subdet) { return &pileupSimHits_[subdet];} */
-/*           PSimHitContainer *getSignalSimHits(std::string subdet) { return &signalSimHits_[subdet];} */
+
       template <class T> void getSignal(std::string subdet,std::vector<T> *&);
       void getSignal(std::string subdet, std::vector<PSimHit>* &v) { v=&(signalSimHits_[subdet]);  }
       void getSignal(std::string subdet, std::vector<PCaloHit> * &v) { v=&signalCaloHits_[subdet];}
@@ -70,6 +70,9 @@ using namespace edm;
       void getPileups(std::string subdet, std::vector<std::vector<EmbdSimTrack> > * &v) { v=&pileupTracks_;}
       void getPileups(std::string subdet, std::vector<std::vector<EmbdSimVertex> > * &v) { v=&pileupVertices_;}
 
+      // limits for tof to be considered for trackers
+      static const int lowTrackTof; //nsec
+      static const int highTrackTof;
 					    
       private:
       void clear();

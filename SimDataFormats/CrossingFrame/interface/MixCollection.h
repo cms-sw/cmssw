@@ -133,16 +133,18 @@ typename MixCollection<T>::MixItr MixCollection<T>::MixItr::next() {
     pileupItr_++;
     curBunchCrossing_++;
   }
+  pMixItr_=(*pileupItr_).begin();
+  pMixItrEnd_=(*pileupItr_).end();  // end of this container
 
   // skip empty containers
   while (!pileupItr_->size()) {
     if (curBunchCrossing_==lastBunchCrossing_) return pMixItrEnd_;
     pileupItr_++;
     curBunchCrossing_++;
+    pMixItr_=(*pileupItr_).begin();
+    pMixItrEnd_=(*pileupItr_).end();  // end of this container
   }
 
-  pMixItr_=(*pileupItr_).begin();
-  pMixItrEnd_=(*pileupItr_).end();  // end of this container
   return *this;
 }
 
