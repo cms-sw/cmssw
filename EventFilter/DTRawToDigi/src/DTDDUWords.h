@@ -70,8 +70,8 @@
 /** \class DTROSWordType
  *  Enumeration of DT Read Out Sector (ROS) word types.
  *
- *  $Date: 2005/10/07 09:24:10 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/11/09 13:20:48 $
+ *  $Revision: 1.1.2.1 $
  * \author M. Zanetti - INFN Padova
  */
 class DTROSWordType {
@@ -123,13 +123,16 @@ public:
     }
 
     // TDC Header
-    if ( ((*word_ & WORDTYPEMASK) >> WORDCONTROLSHIFT) == tdcHeaderControlWord ) wordType = TDCHeader;
+    if ( ((*word_ & WORDTYPEMASK) >> WORDCONTROLSHIFT) == tdcHeaderControlWord ) 
+      wordType = TDCHeader;
 
     // TDC Trailer
-    if ( ((*word_ & WORDTYPEMASK) >> WORDCONTROLSHIFT) == tdcTrailerControlWord ) wordType = TDCTrailer;
+    if ( ((*word_ & WORDTYPEMASK) >> WORDCONTROLSHIFT) == tdcTrailerControlWord ) 
+      wordType = TDCTrailer;
 
     // TDC Measurement
-    if ( ((*word_ & WORDTYPEMASK) >> WORDCONTROLSHIFT) == tdcDataControlWord ) wordType = TDCMeasurement;
+    if ( ((*word_ & WORDTYPEMASK) >> WORDCONTROLSHIFT) == tdcDataControlWord ) 
+      wordType = TDCMeasurement;
 
     // Errors
     if ( ((*word_ & WORDTYPEMASK) >> WORDCONTROLSHIFT) == errorControlWord ) {
@@ -175,16 +178,20 @@ private:
  *  DT ROS Header interpreter. 
  *  It interprets the TTC Event counter (24 bits).
  *
- *  $Date: 2005/10/07 09:24:10 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/11/09 13:20:48 $
+ *  $Revision: 1.1.2.1 $
  * \author M. Zanetti - INFN Padova
  */
 class DTROSHeaderWord {
 
 public:
 
+  /// Constructor
   DTROSHeaderWord(const unsigned char* index) : 
     word_(reinterpret_cast<const unsigned int*>(index)) {} 
+
+  /// Destructor
+  virtual ~DTROSHeaderWord() {}
 
   int TTCEventCounter() { return  *word_ & TTC_EVENT_COUNTER_MASK; }
 
@@ -193,8 +200,8 @@ public:
     unsigned int* iword = reinterpret_cast<unsigned int*> (word);
     
     *iword = 
-      DTROSWordType::headerControlWord >> WORDCONTROLSHIFT |
-      DTROSWordType::rosTypeWord >> WORDTYPESHIFT |
+      DTROSWordType::headerControlWord << WORDCONTROLSHIFT |
+      DTROSWordType::rosTypeWord << WORDTYPESHIFT |
       ttc_event_counter;
   }
 
@@ -216,22 +223,26 @@ private:
  *  - BCO: Bunch Counter FIFO occupancy (2 bits)
  *  - Event Word count (16 bits)
  *
- *  $Date: 2005/10/07 09:24:10 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/11/09 13:20:48 $
+ *  $Revision: 1.1.2.1 $
  * \author M. Zanetti - INFN Padova
  */
 class DTROSTrailerWord {
 
 public:
-
+  
+  /// Constructor
   DTROSTrailerWord(const unsigned char* index) : 
     word_((const unsigned int*)(index)) {} 
 
-  int TFF() { return *word_ & TFF_MASK; }
-  int TPX() { return *word_ & TPX_MASK; }
-  int ECHO() { return *word_ & ECHO_MASK; }
-  int ECLO() { return *word_ & ECLO_MASK; }
-  int BCO() { return *word_ & BCO_MASK; }
+  /// Destructor
+  virtual ~DTROSTrailerWord() {}
+
+  int TFF() { return (*word_ & TFF_MASK) >> TFF_SHIFT; }
+  int TPX() { return (*word_ & TPX_MASK) >> TPX_SHIFT; }
+  int ECHO() { return (*word_ & ECHO_MASK) >> ECHO_SHIFT; }
+  int ECLO() { return (*word_ & ECLO_MASK) >> ECLO_SHIFT; }
+  int BCO() { return (*word_ & BCO_MASK) >> BCO_SHIFT; }
   int EventWordCount() { return *word_ & EVENT_WORD_COUNT_MASK; }
 
   static void set(unsigned char* word,
@@ -244,12 +255,13 @@ public:
     unsigned int* iword = reinterpret_cast<unsigned int*> (word);
     
     *iword = 
-      DTROSWordType::trailerControlWord >> WORDCONTROLSHIFT |
-      DTROSWordType::rosTypeWord >> WORDTYPESHIFT |
-      tff >> TFF_SHIFT |
-      tpx >> TPX_SHIFT |
-      echo >> ECHO_SHIFT |
-      bco >> BCO_SHIFT |
+      DTROSWordType::trailerControlWord << WORDCONTROLSHIFT |
+      DTROSWordType::rosTypeWord << WORDTYPESHIFT |
+      tff << TFF_SHIFT |
+      tpx << TPX_SHIFT |
+      echo << ECHO_SHIFT |
+      eclo << ECLO_SHIFT |
+      bco << BCO_SHIFT |
       event_word_count;
   }
 
@@ -265,19 +277,23 @@ private:
  *  DT ROS Error interpreter. 
  *  It interprets the Error type and the ROB_ID (2 bits) 
  *
- *  $Date: 2005/10/07 09:24:10 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/11/09 13:20:48 $
+ *  $Revision: 1.1.2.1 $
  * \author M. Zanetti - INFN Padova
  */
 class DTROSErrorWord {
 
 public:
 
+  /// Constructor
   DTROSErrorWord(const unsigned char* index) : 
     word_(reinterpret_cast<const unsigned int*>(index)) {}
 
-  int errorType() { return *word_ & ERROR_TYPE_MASK;} 
-  int robID() { return *word_ & ERROR_ROB_ID_MASK;} 
+  /// Destructor
+  virtual ~DTROSErrorWord() {}
+
+  int errorType() { return (*word_ & ERROR_TYPE_MASK) >> ERROR_TYPE_SHIFT;} 
+  int robID() { return (*word_ & ERROR_ROB_ID_MASK) >> ERROR_ROB_ID_SHIFT;} 
 
   static void set(unsigned char* word,
 		  int error_type,
@@ -285,11 +301,11 @@ public:
     unsigned int* iword = reinterpret_cast<unsigned int*> (word);
     
     *iword = 
-      DTROSWordType::errorControlWord >> WORDCONTROLSHIFT |
-      DTROSWordType::rosTypeWord >> WORDTYPESHIFT |
-      error_type >> ERROR_TYPE_SHIFT |
-      rob_id >> ERROR_ROB_ID_SHIFT |
-      1 >> ERRORSHIFT;
+      DTROSWordType::errorControlWord << WORDCONTROLSHIFT |
+      DTROSWordType::rosTypeWord << WORDTYPESHIFT |
+      error_type << ERROR_TYPE_SHIFT |
+      rob_id << ERROR_ROB_ID_SHIFT |
+      1 << ERRORSHIFT;
   }
 
 private:
@@ -306,20 +322,24 @@ private:
  *  It interprets the ROB_ID (5 bits), the Event ID (12 bits) 
  *  and the Bunch ID (12 bits).
  *
- *  $Date: 2005/10/07 09:24:10 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/11/09 13:20:48 $
+ *  $Revision: 1.1.2.1 $
  * \author M. Zanetti - INFN Padova
  */
 class DTROBHeaderWord {
 
 public:
 
+  /// Constructor
   DTROBHeaderWord(const unsigned char* index) : 
     word_(reinterpret_cast<const unsigned int*>(index)) {}
 
-  int robID() { return *word_ & ROB_ID_MASK;} 
-  int eventID() { return *word_ & EVENT_ID_MASK;} 
-  int bunchID() { return *word_ & BUNCH_ID_MASK;} 
+  /// Destructor
+  virtual ~DTROBHeaderWord() {}
+
+  int robID() { return (*word_ & ROB_ID_MASK) >> WORDTYPESHIFT;} 
+  int eventID() { return (*word_ & EVENT_ID_MASK) >> EVENT_ID_SHIFT;} 
+  int bunchID() { return (*word_ & BUNCH_ID_MASK);} 
 
 
   static void set(unsigned char* word,
@@ -329,9 +349,9 @@ public:
     unsigned int* iword = reinterpret_cast<unsigned int*> (word);
     
     *iword = 
-      DTROSWordType::headerControlWord >> WORDCONTROLSHIFT |
-      rob_id >> WORDTYPESHIFT |
-      event_id >> EVENT_ID_SHIFT |
+      DTROSWordType::headerControlWord << WORDCONTROLSHIFT |
+      rob_id << WORDTYPESHIFT |
+      event_id << EVENT_ID_SHIFT |
       bunch_id;
   }
   
@@ -348,20 +368,24 @@ private:
  *  It interprets the ROB_ID (5 bits), the Event ID (12 bits) 
  *  and the Word ID (12 bits).
  *
- *  $Date: 2005/10/07 09:24:10 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/11/09 13:20:48 $
+ *  $Revision: 1.1.2.1 $
  * \author M. Zanetti - INFN Padova
  */
 class DTROBTrailerWord {
 
 public:
 
+  /// Constructor
   DTROBTrailerWord(const unsigned char* index) : 
     word_(reinterpret_cast<const unsigned int*>(index)) {}
 
-  int robID() { return *word_ & ROB_ID_MASK;} 
-  int eventID() { return *word_ & EVENT_ID_MASK;} 
-  int wordCount() { return *word_ & WORD_COUNT_MASK;} 
+  /// Destructor
+  virtual ~DTROBTrailerWord() {}
+
+  int robID() { return (*word_ & ROB_ID_MASK) >> WORDTYPESHIFT;} 
+  int eventID() { return (*word_ & EVENT_ID_MASK) >> EVENT_ID_SHIFT;} 
+  int wordCount() { return (*word_ & WORD_COUNT_MASK);} 
 
   static void set(unsigned char* word,
 		  int rob_id,
@@ -370,9 +394,9 @@ public:
     unsigned int* iword = reinterpret_cast<unsigned int*> (word);
     
     *iword = 
-      DTROSWordType::trailerControlWord >> WORDCONTROLSHIFT |
-      rob_id >> WORDTYPESHIFT |
-      event_id >> EVENT_ID_SHIFT |
+      DTROSWordType::trailerControlWord << WORDCONTROLSHIFT |
+      rob_id << WORDTYPESHIFT |
+      event_id << EVENT_ID_SHIFT |
       word_count;
   }
   
@@ -390,23 +414,27 @@ private:
  *  It interprets the Parity Checks, FIFO occupancy, Lokeced channels (all 1 bit),
  *  the TDC_ID (2 bits), the Event ID (12 bits) and the Bunch ID (12 bits).
  *
- *  $Date: 2005/10/07 09:24:10 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/11/09 13:20:48 $
+ *  $Revision: 1.1.2.1 $
  * \author M. Zanetti - INFN Padova
  */
 class DTTDCHeaderWord {
 
 public:
 
+  /// Constructor
   DTTDCHeaderWord(const unsigned char* index) : 
     word_(reinterpret_cast<const unsigned int*>(index)) {}
 
-  int PC() { return *word_ & PC_MASK;} 
-  int PAF() { return *word_ & PAF_MASK;} 
-  int HU() { return *word_ & HU_MASK;} 
-  int tdcID() { return *word_ & TDC_ID_MASK;} 
-  int eventID() { return *word_ & EVENT_ID_MASK;} 
-  int bunchID() { return *word_ & BUNCH_ID_MASK;} 
+  /// Destructor
+  virtual ~DTTDCHeaderWord() {}
+
+  int PC() { return (*word_ & PC_MASK) >> PC_SHIFT;} 
+  int PAF() { return (*word_ & PAF_MASK) >> PAF_SHIFT;} 
+  int HU() { return (*word_ & HU_MASK) >> HU_SHIFT;} 
+  int tdcID() { return (*word_ & TDC_ID_MASK) >> TDC_ID_SHIFT;} 
+  int eventID() { return (*word_ & EVENT_ID_MASK) >> EVENT_ID_SHIFT;} 
+  int bunchID() { return (*word_ & BUNCH_ID_MASK);} 
 
   static void set(unsigned char* word,
 		  int pc,
@@ -418,12 +446,12 @@ public:
     unsigned int* iword = reinterpret_cast<unsigned int*> (word);
     
     *iword = 
-      DTROSWordType::tdcHeaderControlWord >> WORDCONTROLSHIFT |
-      pc >> PC_SHIFT |
-      paf >> PAF_SHIFT |
-      hu >> HU_SHIFT |
-      tdc_id >> TDC_ID_SHIFT |
-      event_id >> EVENT_ID_SHIFT |
+      DTROSWordType::tdcHeaderControlWord << WORDCONTROLSHIFT |
+      pc << PC_SHIFT |
+      paf << PAF_SHIFT |
+      hu << HU_SHIFT |
+      tdc_id << TDC_ID_SHIFT |
+      event_id << EVENT_ID_SHIFT |
       bunch_id;
   }
 
@@ -439,23 +467,27 @@ private:
  *  It interprets the Parity Checks, FIFO occupancy, Lokeced channels (all 1 bit),
  *  the TDC_ID (2 bits), the Event ID (12 bits) and the Word ID (12 bits).
  *
- *  $Date: 2005/10/07 09:24:10 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/11/09 13:20:48 $
+ *  $Revision: 1.1.2.1 $
  * \author M. Zanetti - INFN Padova
  */
 class DTTDCTrailerWord {
 
 public:
 
+  /// Constructor
   DTTDCTrailerWord(const unsigned char* index) : 
     word_(reinterpret_cast<const unsigned int*>(index)) {}
 
-  int PC() { return *word_ & PC_MASK;} 
-  int PAF() { return *word_ & PAF_MASK;} 
-  int HU() { return *word_ & HU_MASK;} 
-  int tdcID() { return *word_ & TDC_ID_MASK;} 
-  int eventID() { return *word_ & EVENT_ID_MASK;} 
-  int wordCount() { return *word_ & WORD_COUNT_MASK;} 
+  /// Destructor
+  virtual ~DTTDCTrailerWord() {}
+
+  int PC() { return (*word_ & PC_MASK) >> PC_SHIFT;} 
+  int PAF() { return (*word_ & PAF_MASK) >> PAF_SHIFT;} 
+  int HU() { return (*word_ & HU_MASK) >> HU_SHIFT;} 
+  int tdcID() { return (*word_ & TDC_ID_MASK) >> TDC_ID_SHIFT;} 
+  int eventID() { return (*word_ & EVENT_ID_MASK) >> EVENT_ID_SHIFT;} 
+  int wordCount() { return (*word_ & WORD_COUNT_MASK);} 
 
   static void set(unsigned char* word,
 		  int pc,
@@ -467,12 +499,12 @@ public:
     unsigned int* iword = reinterpret_cast<unsigned int*> (word);
     
     *iword = 
-      DTROSWordType::tdcTrailerControlWord >> WORDCONTROLSHIFT |
-      pc >> PC_SHIFT |
-      paf >> PAF_SHIFT |
-      hu >> HU_SHIFT |
-      tdc_id >> TDC_ID_SHIFT |
-      event_id >> EVENT_ID_SHIFT |
+      DTROSWordType::tdcTrailerControlWord << WORDCONTROLSHIFT |
+      pc << PC_SHIFT |
+      paf << PAF_SHIFT |
+      hu << HU_SHIFT |
+      tdc_id << TDC_ID_SHIFT |
+      event_id << EVENT_ID_SHIFT |
       word_count;
   }
 
@@ -487,23 +519,27 @@ private:
  *  It interprets the Parity Checks, FIFO occupancy, Lokeced channels (all 1 bit),
  *  the TDC_ID (2 bits), the TDC channel (5 bits), and the TDC time (19 bits)
  *
- *  $Date: 2005/10/07 09:24:10 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/11/09 13:20:48 $
+ *  $Revision: 1.1.2.1 $
  * \author M. Zanetti - INFN Padova
  */
 class DTTDCMeasurementWord {
 
 public:
 
+  /// Constructor
   DTTDCMeasurementWord(const unsigned char* index) : 
     word_(reinterpret_cast<const unsigned int*>(index)) {}
 
-  int PC() { return *word_ & PC_MASK;} 
-  int PAF() { return *word_ & PAF_MASK;} 
-  int HU() { return *word_ & HU_MASK;} 
-  int tdcID() { return *word_ & TDC_ID_MASK;} 
-  int tdcChannel() { return *word_ & TDC_CHANNEL_MASK;} 
-  int tdcTime() { return *word_ & TDC_TIME_MASK;} 
+  /// Destructor
+  virtual ~DTTDCMeasurementWord() {}
+
+  int PC() { return (*word_ & PC_MASK) >> PC_SHIFT;} 
+  int PAF() { return (*word_ & PAF_MASK) >> PAF_SHIFT;} 
+  int HU() { return (*word_ & HU_MASK) >> HU_SHIFT;} 
+  int tdcID() { return (*word_ & TDC_ID_MASK) >> TDC_ID_SHIFT;} 
+  int tdcChannel() { return (*word_ & TDC_CHANNEL_MASK) >> TDC_CHANNEL_SHIFT;} 
+  int tdcTime() { return (*word_ & TDC_TIME_MASK);} 
 
 
   static void set(unsigned char* word,
@@ -516,12 +552,12 @@ public:
     unsigned int* iword = reinterpret_cast<unsigned int*> (word);
     
     *iword = 
-      DTROSWordType::tdcDataControlWord >> WORDCONTROLSHIFT |
-      pc >> PC_SHIFT |
-      paf >> PAF_SHIFT |
-      hu >> HU_SHIFT |
-      tdc_id >> TDC_ID_SHIFT |
-      tdc_channel >> TDC_CHANNEL_SHIFT |
+      DTROSWordType::tdcDataControlWord << WORDCONTROLSHIFT |
+      pc << PC_SHIFT |
+      paf << PAF_SHIFT |
+      hu << HU_SHIFT |
+      tdc_id << TDC_ID_SHIFT |
+      tdc_channel << TDC_CHANNEL_SHIFT |
       tdc_time;
   }
 
@@ -538,22 +574,26 @@ private:
  *  It interprets the Parity Checks, FIFO occupancy, Lokeced channels (all 1 bit),
  *  the TDC_ID (2 bits) and the TDC error flag (15 bits)
  *
- *  $Date: 2005/10/07 09:24:10 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/11/09 13:20:48 $
+ *  $Revision: 1.1.2.1 $
  * \author M. Zanetti - INFN Padova
  */
 class DTTDCErrorWord {
 
 public:
 
+  /// Constructor
   DTTDCErrorWord(const unsigned char* index) : 
     word_(reinterpret_cast<const unsigned int*>(index)) {}
 
-  int PC() { return *word_ & PC_MASK;} 
-  int PAF() { return *word_ & PAF_MASK;} 
-  int HU() { return *word_ & HU_MASK;} 
-  int tdcID() { return *word_ & TDC_ID_MASK;} 
-  int tdcError() { return *word_ & TDC_ERROR_MASK;} 
+  /// Destructor
+  virtual ~DTTDCErrorWord() {}
+
+  int PC() { return (*word_ & PC_MASK) >> PC_SHIFT;} 
+  int PAF() { return (*word_ & PAF_MASK) >> PAF_SHIFT;} 
+  int HU() { return (*word_ & HU_MASK) >> HU_SHIFT;} 
+  int tdcID() { return (*word_ & TDC_ID_MASK) >> TDC_ID_SHIFT;} 
+  int tdcError() { return (*word_ & TDC_ERROR_MASK);} 
 
   static void set(unsigned char* word,
 		  int pc,
@@ -564,12 +604,12 @@ public:
     unsigned int* iword = reinterpret_cast<unsigned int*> (word);
     
     *iword = 
-      DTROSWordType::errorControlWord >> WORDCONTROLSHIFT |
-      pc >> PC_SHIFT |
-      paf >> PAF_SHIFT |
-      hu >> HU_SHIFT |
-      tdc_id >> TDC_ID_SHIFT |
-      0 >> ERRORSHIFT |
+      DTROSWordType::errorControlWord << WORDCONTROLSHIFT |
+      pc << PC_SHIFT |
+      paf << PAF_SHIFT |
+      hu << HU_SHIFT |
+      tdc_id << TDC_ID_SHIFT |
+      0 << ERRORSHIFT |
       tdc_error;
   }
 
@@ -580,22 +620,26 @@ private:
 
 
 /** \class DTLocalTriggerHeaderWord
- *  DT TDC Error interpreter. 
+ *  DT Sector Collector header interpreter. 
  *  It interprets ROS event ID (12 bits) and the Sector Collector FIFO occupancy (8 bits)
  *
- *  $Date: 2005/10/07 09:24:10 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/11/09 13:20:48 $
+ *  $Revision: 1.1.2.1 $
  * \author M. Zanetti - INFN Padova
  */
 class DTLocalTriggerHeaderWord {
 
 public:
 
+  /// Constructor
   DTLocalTriggerHeaderWord(const unsigned char* index) : 
     word_(reinterpret_cast<const unsigned int*>(index)) {}
 
-  int EventID() { return *word_ & EVENT_ID_MASK;}
-  int SCFO() { return *word_ & SCFO_MASK;}
+  /// Destructor
+  virtual ~DTLocalTriggerHeaderWord() {}
+
+  int EventID() { return (*word_ & EVENT_ID_MASK) >> EVENT_ID_SHIFT;}
+  int SCFO() { return (*word_ & SCFO_MASK);}
 
   
   static void set(unsigned char* word,
@@ -604,9 +648,9 @@ public:
     unsigned int* iword = reinterpret_cast<unsigned int*> (word);
     
     *iword = 
-      DTROSWordType::headerControlWord >> WORDCONTROLSHIFT |
-      DTROSWordType::scTypeWord >> WORDTYPESHIFT |
-      event_id >> EVENT_ID_SHIFT |
+      DTROSWordType::headerControlWord << WORDCONTROLSHIFT |
+      DTROSWordType::scTypeWord << WORDTYPESHIFT |
+      event_id << EVENT_ID_SHIFT |
       scfo; 
   }
 
@@ -617,29 +661,33 @@ private:
 
 
 /** \class DTLocalTriggerTrailerWord
- *  DT TDC Error interpreter. 
+ *  DT Sector Collector trailer interpreter. 
  *  It interprets the word count (16 bits)
  *
- *  $Date: 2005/10/07 09:24:10 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/11/09 13:20:48 $
+ *  $Revision: 1.1.2.1 $
  * \author M. Zanetti - INFN Padova
  */
 class DTLocalTriggerTrailerWord {
 
 public:
 
+  /// Constructor
   DTLocalTriggerTrailerWord(const unsigned char* index) : 
     word_(reinterpret_cast<const unsigned int*>(index)) {}
 
-  int wordCount() { return *word_ & TRIGGER_WORD_COUNT_MASK;}
+  /// Destructor
+  virtual ~DTLocalTriggerTrailerWord() {}
+
+  int wordCount() { return (*word_ & TRIGGER_WORD_COUNT_MASK);}
 
   static void set(unsigned char* word,
 		  int word_count) {
     unsigned int* iword = reinterpret_cast<unsigned int*> (word);
     
     *iword = 
-      DTROSWordType::trailerControlWord >> WORDCONTROLSHIFT |
-      DTROSWordType::scTypeWord >> WORDTYPESHIFT |
+      DTROSWordType::trailerControlWord << WORDCONTROLSHIFT |
+      DTROSWordType::scTypeWord << WORDTYPESHIFT |
       word_count; 
   }
 
@@ -651,29 +699,33 @@ private:
 
 
 /** \class DTLocalTriggerDataWord
- *  DT TDC Error interpreter. 
+ *  DT Sector Collector data interpreter. 
  *  It interprets the Sector Collector data (16 bits)
  *
- *  $Date: 2005/10/07 09:24:10 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/11/09 13:20:48 $
+ *  $Revision: 1.1.2.1 $
  * \author M. Zanetti - INFN Padova
  */
 class DTLocalTriggerDataWord {
 
 public:
 
+  /// Constructor
   DTLocalTriggerDataWord(const unsigned char* index) : 
     word_(reinterpret_cast<const unsigned int*>(index)) {}
 
-  int SCData() { return *word_ & TRIGGER_DATA_MASK;}
+  /// Destructor
+  virtual ~DTLocalTriggerDataWord() {}
+
+  int SCData() { return (*word_ & TRIGGER_DATA_MASK);}
 
   static void set(unsigned char* word,
 		  int sc_data) {
     unsigned int* iword = reinterpret_cast<unsigned int*> (word);
     
     *iword = 
-      DTROSWordType::tdcDataControlWord >> WORDCONTROLSHIFT |
-      DTROSWordType::scTypeWord >> WORDTYPESHIFT |
+      DTROSWordType::tdcDataControlWord << WORDCONTROLSHIFT |
+      DTROSWordType::scTypeWord << WORDTYPESHIFT |
       sc_data; 
   }
 
@@ -682,6 +734,80 @@ private:
 
   const unsigned int * word_;
 };
+
+
+/** \class DTDDUFirstStatusWord
+ *  DT DDU status 1 interpreter (8 bits word). 
+ *  It interprets the error messages from each DDU channel
+ *
+ *  $Date: 2005/11/09 13:20:48 $
+ *  $Revision: 1.1.2.1 $
+ * \author M. Zanetti - INFN Padova
+ */
+class DTDDUFirstStatusWord {
+
+public:
+
+  /// Constructor
+  DTDDUFirstStatusWord(const unsigned char* index) : 
+    word_(reinterpret_cast<const unsigned int*>(index)) {}
+
+  /// Destructor
+  virtual ~DTDDUFirstStatusWord() {}
+
+  int channelEnabled() { return (*word_ & 0x1);}
+  int timeout() { return (*word_ & 0x2) >> 1;}
+  int eventTrailerLost() { return (*word_ & 0x4) >> 2;}
+  int opticalFiberSignalLost() { return (*word_ & 0x8) >> 3;}
+  int tlkPropagationError() { return (*word_ & 0x10) >> 4;}
+  int tlkPatternError() { return (*word_ & 0x20) >> 5;}
+  int tlkSignalLost() { return (*word_ & 0x40) >> 6;}
+  int errorFromROS() { return (*word_ & 0x80) >> 7;}
+
+
+private:
+
+  const unsigned int * word_;
+};
+
+
+/** \class DTDDUSecondStatusWord
+ *  DT DDU status 2 interpreter. 
+ *  It interprets the (16 bits)
+ *  WARNING!! : It interprets the second part of a 64 bits word!
+ *
+ *  $Date: 2005/11/09 13:20:48 $
+ *  $Revision: 1.1.2.1 $
+ * \author M. Zanetti - INFN Padova
+ */
+class DTDDUSecondStatusWord {
+  
+public:
+  
+  /// Constructor
+  DTDDUSecondStatusWord(const unsigned char* index) : 
+    word_(reinterpret_cast<const unsigned int*>(index)) {}
+  
+  /// Destructor
+  virtual ~DTDDUSecondStatusWord() {}
+  
+  int l1AIDError() { return (*word_ & 0x1); }
+  int bxIDError() { return (*word_ & 0x2) >> 1; }
+  int fifoFull() { return (*word_ & 0x1C ) >> 2; }
+  int inputFifoFull() { return (*word_ & 0xE0) >> 5; }
+  int fifoAlmostFull() { return (*word_ & 0x700) >> 8; }
+  int inputFifoAlmostFull() { return (*word_ & 0x3800) >> 11; }
+  int fifoAlmostEmpty() { return (*word_ & 0x1C000) >> 14; }
+  int inputFifoAlmostEmpty() { return (*word_ & 0xE0000) >> 17; }
+  int outputFifoFull() { return (*word_ & 0x100000) >> 20; }
+  int outputFifoAlmostFull() { return (*word_ & 0x200000) >> 21; }
+  int outputFifoAlmostEmpty() { return (*word_ & 0x400000) >> 22; }
+
+private:
+  
+  const unsigned int * word_;
+};
+
 
 
 
