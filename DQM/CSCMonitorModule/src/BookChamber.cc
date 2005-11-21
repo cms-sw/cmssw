@@ -178,38 +178,6 @@ map<string, MonitorElement*> CSCMonitor::book_chamber(int ChamberID) {
 		me[meName] = dbe->book1D(meName.c_str(), "Number of ALCTs", 3, 0, 3 );
 
 
-		meName = Form("%dALCT1_vs_ALCT0_KeyWG", ChamberID);
-		me[meName] = dbe->book2D(meName.c_str(), "ALCT1 & ALCT0 Correlation", 112, 0, 112, 112, 0, 112);
-
-	for(Int_t lct = 0; lct<=1; lct++) {
-
-			meName = Form("%dALCT%d_KeyWG", ChamberID, lct);
-			me[meName] = dbe->book1D(meName.c_str(), Form("ALCT%d Key Wiregroup", lct), 112, 0, 112);
-
-			meName = Form("%dALCT%d_Quality", ChamberID, lct);
-			me[meName] = dbe->book2D(meName.c_str(), Form("ALCT%d Quality vs Key Wiregroup", lct), 112, 0, 112, 4, 0, 4);
-
-
-			meName = Form("%dALCT%d_Pattern", ChamberID, lct);
-			me[meName] = dbe->book2D(meName.c_str(), Form("ALCT%d Patterns vs Key Wiregroup", lct), 112, 0, 112, 4, 0, 4);
-
-//			meName = Form("%dALCT%d_Quality_Profile", ChamberID, lct);
-//			me[meName] = new TProfile(meName.c_str(), Form("ALCT%d Average Quality", lct), 112, 0, 112, 0, 4, "g");
-
-
-
-			meName = Form("%dALCT%d_BXN", ChamberID, lct);
-			me[meName] = dbe->book1D(meName.c_str(), Form("ALCT%d BXN", lct), 32, 0.0, 32.0);
-
-			meName = Form("%dALCT%d_dTime_vs_KeyWG", ChamberID, lct);
-			me[meName] = dbe->book2D(meName.c_str(), Form("(ALCT%d BXN - ALCT_L1A BXN) vs Key Wiregroup", lct), 112, 0.0, 112.0, 32, -16.0, 16.0);
-
-			meName = Form("%dALCT%d_dTime", ChamberID, lct);
-			me[meName] = dbe->book1D(meName.c_str(), Form("ALCT%d BXN - ALCT_L1A BXN difference", lct), 32, -16.0, 16.0);
-
-			//meName = Form("%dALCT%d_dTime_Profile", ChamberID, lct);
-			//me[meName] = new TProfile(meName.c_str(), Form("Average (ALCT%d BXN - L1A BXN) vs Key Wiregroup", lct), 112, 0.0, 112.0, -16.0, 16.0, "g");
-	}
 
 //TMB
 	//if(debug_printout) 	cout << "D**EmuBookChamber> New TMB Canvases are booking ..." << endl;
