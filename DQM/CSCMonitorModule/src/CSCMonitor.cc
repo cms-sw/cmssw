@@ -18,6 +18,7 @@ CSCMonitor::CSCMonitor(const edm::ParameterSet& iConfig ){
  nEvents=0;
  dduBX=0;
  L1ANumber=0;
+ FEBUnpacked =0;
  
  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
   
