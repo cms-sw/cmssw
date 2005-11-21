@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Nov 13 11:43:40 EST 2005
-// $Id: SimActivityRegistry.h,v 1.1 2005/11/15 03:42:01 chrjones Exp $
+// $Id: SimActivityRegistry.h,v 1.2 2005/11/16 04:56:34 chrjones Exp $
 //
 
 // system include files
@@ -25,7 +25,7 @@
 #include "boost/mem_fn.hpp"
 
 // user include files
-#include "SimG4Core/Notification/interface/Observer.h"
+#include "SimG4Core/Notification/interface/SimSlotAdapter.h"
 
 // forward declarations
 class BeginOfRun;
@@ -38,7 +38,7 @@ class EndOfTrack;
 class DDDWorld;
 class G4Step;
 
-#define SAR_CONNECT_METHOD(signal) void connect(Observer<const signal*>* iObject) { watch ## signal (boost::bind(boost::mem_fn(&Observer<const signal*>::update), iObject, _1)); }
+#define SAR_CONNECT_METHOD(signal) template <class TFunc> void connect(SimSlotAdapter<const signal*,TFunc>* iObject) { watch ## signal (boost::bind(boost::mem_fn(&SimSlotAdapter<const signal*,TFunc>::slot), iObject, _1)); }
 
 class SimActivityRegistry
 {
