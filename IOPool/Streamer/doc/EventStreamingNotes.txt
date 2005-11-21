@@ -1,3 +1,6 @@
+21-11-05 mfp:
+
+IOPool/Streamer is now making use of the test driver from FWCore/Utilities.
 
 22-8-05 jbk:
 
