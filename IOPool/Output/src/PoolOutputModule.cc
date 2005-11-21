@@ -1,9 +1,10 @@
-// $Id: PoolOutputModule.cc,v 1.34 2005/10/21 20:21:00 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.1 2005/11/01 22:53:40 wmtan Exp $
 #include "DataSvc/Ref.h"
 #include "DataSvc/IDataSvc.h"
 #include "StorageSvc/DbType.h"
 #include "PersistencySvc/ITransaction.h"
 #include "PersistencySvc/ISession.h"
+#include "PersistencySvc/ITechnologySpecificAttributes.h"
 #include "FWCore/Framework/interface/BranchKey.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/EventProvenance.h"
@@ -24,6 +25,8 @@ namespace edm {
     context_(catalog_.createContext(true, false)),
     file_(PoolCatalog::toPhysical(pset.getUntrackedParameter<string>("fileName"))),
     lfn_(pset.getUntrackedParameter("logicalFileName", std::string())),
+    commitInterval_(pset.getUntrackedParameter("commitInterval", 1000U)),
+    eventCount_(0),
     provenancePlacement_(),
     auxiliaryPlacement_(),
     productDescriptionPlacement_() {
@@ -45,11 +48,12 @@ namespace edm {
     startTransaction();
     pool::Ref<ProductRegistry const> rp(context_, &pReg);
     rp.markWrite(productDescriptionPlacement_);
-    commitTransaction();
+    commitAndFlushTransaction();
     catalog_.registerFile(file_, lfn_);
   }
 
   void PoolOutputModule::endJob() {
+    commitAndFlushTransaction();
     catalog_.commitCatalog();
     context_->session().disconnectAll();
     setBranchAliases();
@@ -63,6 +67,10 @@ namespace edm {
   }
 
   void PoolOutputModule::commitTransaction() const {
+    context_->transaction().commitAndHold();
+  }
+
+  void PoolOutputModule::commitAndFlushTransaction() const {
     context_->transaction().commit();
   }
 
@@ -73,6 +81,7 @@ namespace edm {
   }
 
   void PoolOutputModule::write(EventPrincipal const& e) {
+    ++eventCount_;
     startTransaction();
 
     // Write auxiliary branch
@@ -118,6 +127,9 @@ namespace edm {
     rp.markWrite(provenancePlacement_);
 	
     commitTransaction();
+    if (eventCount_ % commitInterval_ == 0) {
+      commitAndFlushTransaction();
+    }
   }
 
   // For now, we must use root directly to set branch aliases, since there is no way to do this in POOL

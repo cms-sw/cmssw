@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: PoolOutputModule.h,v 1.15 2005/10/12 02:33:07 wmtan Exp $
+// $Id: PoolOutputModule.h,v 1.1 2005/11/01 22:53:40 wmtan Exp $
 //
 // Class PoolOutputModule. Output module to POOL file
 //
@@ -42,6 +42,7 @@ namespace edm {
        pool::Placement& placement);
     void startTransaction() const;
     void commitTransaction() const;
+    void commitAndFlushTransaction() const;
     void setBranchAliases() const;
 
   private:
@@ -52,6 +53,8 @@ namespace edm {
     OutputItemList outputItemList_;
     std::string const file_;
     std::string const lfn_;
+    unsigned long commitInterval_;
+    unsigned long eventCount_;
     pool::Placement provenancePlacement_;
     pool::Placement auxiliaryPlacement_;
     pool::Placement productDescriptionPlacement_;
