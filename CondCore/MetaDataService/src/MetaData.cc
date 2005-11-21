@@ -82,10 +82,10 @@ const std::string cond::MetaData::getToken( const std::string& name ){
       const pool::AttributeList& row = cursor.currentRow();
       for ( pool::AttributeList::const_iterator iColumn = row.begin();
 	    iColumn != row.end(); ++iColumn ) {
-	std::cout << iColumn->spec().name() << " : " << iColumn->getValueAsString() << "\t";
+	//std::cout << iColumn->spec().name() << " : " << iColumn->getValueAsString() << "\t";
 	iovtoken=iColumn->getValueAsString();
       }
-      std::cout << std::endl;
+      //std::cout << std::endl;
     }
   }
   return iovtoken;
