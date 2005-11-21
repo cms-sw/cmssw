@@ -1,3 +1,6 @@
+** V00-01-04  [Mon Nov 21 20:08:40 2005]
+remove load_All; clean up includes
+
 ** V00-01-03  [Fri Nov 18 20:37:52 2005]
 allow dynamic plugin detection
 
