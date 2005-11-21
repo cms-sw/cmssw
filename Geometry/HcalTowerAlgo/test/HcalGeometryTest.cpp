@@ -1,13 +1,13 @@
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalHardcodeGeometryLoader.h"
-#include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerMapping.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
 #include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
 #include <iostream>
 
 void testTriggerGeometry() {
 
-  HcalTrigTowerMapping trigTowers;
+  HcalTrigTowerGeometry trigTowers;
   std::cout << "HCAL trigger tower eta bounds " << std::endl;
   for(int ieta = 1; ieta <= 32; ++ieta) {
     double eta1, eta2;
