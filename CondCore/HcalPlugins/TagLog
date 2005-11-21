@@ -1,3 +1,6 @@
+** V01-01-01  [Mon Nov 21 21:45:37 2005]
+Move HCAL DB tools from CondCore/HcalPlugins to CondTools/Hcal
+
 ** V01-00-01  [Mon Oct 31 14:56:41 2005]
 Fixed misplet header. Publish new tag V01-00-01
 
