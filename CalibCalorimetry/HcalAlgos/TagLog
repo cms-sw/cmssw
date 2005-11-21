@@ -1,3 +1,6 @@
+** V01-02-00  [Mon Nov 21 21:41:25 2005]
+Pedestals are in fQ. not GeV
+
 ** V01-01-00  [Wed Nov  2 22:38:25 2005]
 new functions to convert objects into ascii and xml formats
 
