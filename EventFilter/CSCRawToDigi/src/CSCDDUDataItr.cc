@@ -26,7 +26,7 @@ CSCDDUDataItr::CSCDDUDataItr(const char * buf) :
     theDDUData = new CSCDDUEventData((unsigned short *)buf);
     theNumberOfCSCs = theDDUData->cscData().size();
   } else {
-     cout << "OMG! FAILED THE HEADER CHECK " << endl;
+     std::cout << "OMG! FAILED THE HEADER CHECK " << std::endl;
   }
 }
   

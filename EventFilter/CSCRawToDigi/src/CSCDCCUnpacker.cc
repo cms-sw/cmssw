@@ -13,18 +13,24 @@
 #include "DataFormats/CSCDigi/interface/CSCStripDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCWireDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigi.h"
-#include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"
-#include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
+//#include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"
+//#include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
+//Include LCT digis later
+
 #include "DataFormats/CSCDigi/interface/CSCRPCDigi.h"
 
 #include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
-#include "DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h"
-#include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
+//#include "DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h"
+//#include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCRPCDigiCollection.h"
 
-#include "DataFormats/MuonDetID/interface/CSCDetID.h"
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
+
+#include "EventFilter/CSCRawToDigi/interface/CSCDCCEventData.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCEventData.h"
+
 
 #include <iostream>
 
@@ -42,19 +48,19 @@ CSCDCCUnpacker::~CSCDCCUnpacker(){
 }
 
 
-void CSCUnpackingModule::produce(Event & e, const EventSetup& c){
+void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 
   // Get a handle to the FED data collection
-  Handle<FEDRawDataCollection> rawdata;
+  edm::Handle<FEDRawDataCollection> rawdata;
   e.getByLabel("DaqRawData", rawdata);
 
   // create the collection of CSC wire and strip Digis
   std::auto_ptr<CSCWireDigiCollection> wireProduct(new CSCWireDigiCollection);
   std::auto_ptr<CSCStripDigiCollection> stripProduct(new CSCStripDigiCollection);
-  std::auto_ptr<CSCALCTDigiCollection> alctProduct(new CSCALCTDigiCollection);
-  std::auto_ptr<CSCCLCTpDigiCollection> clctProduct(new CSCCLCTDigiCollection);
-  std::auto_ptr<CSCComparatorDigiCollection> ComparatorProduct(new CSCComparatorDigiCollection);
-  std::auto_ptr<CSCRPCDigiCollection> RPCProduct(new CSCRPCDigiCollection);
+  //std::auto_ptr<CSCALCTDigiCollection> alctProduct(new CSCALCTDigiCollection);
+  //std::auto_ptr<CSCCLCTpDigiCollection> clctProduct(new CSCCLCTDigiCollection);
+  //std::auto_ptr<CSCComparatorDigiCollection> ComparatorProduct(new CSCComparatorDigiCollection);
+  //std::auto_ptr<CSCRPCDigiCollection> RPCProduct(new CSCRPCDigiCollection);
 
   for (int id=FEDNumbering::getCSCFEDIds().first;
        id<=FEDNumbering::getCSCFEDIds().second; ++id){ //for each of our DCCs
@@ -63,14 +69,14 @@ void CSCUnpackingModule::produce(Event & e, const EventSetup& c){
     const FEDRawData& fedData = rawdata->FEDData(id);
 
     if (fedData.size()){ //unpack data 
-
+     
       //get a pointer to dcc data and pass it to constructor for unpacking
-      CSCDCCEventData dccData(fedData.data());
+      CSCDCCEventData dccData((short unsigned int *) fedData.data());
 
       //get a reference to dduData
-      const std::vector<CSCEventData> & dduData = dccData.dduData(); 
+      const std::vector<CSCDDUEventData> & dduData = dccData.dduData(); 
 
-      for (int iDDU=0; iDDU<dccData.size(); ++iDDU) {  //loop over DDUs
+      for (int iDDU=0; iDDU<dduData.size(); ++iDDU) {  //loop over DDUs
 	
 	//get a reference to chamber data
 	const std::vector<CSCEventData> & cscData = dduData[iDDU].cscData();
@@ -83,22 +89,22 @@ void CSCUnpackingModule::produce(Event & e, const EventSetup& c){
 	  
 	  for (int ilayer = 1; ilayer <= 6; ilayer++) { 
 
-#warning Fake mapping of the endcap, station, ring and chamber!!!
-	    CSCDetID layer(1, //endcap
+            #warning Fake mapping of the endcap, station, ring and chamber!!!
+	    CSCDetId layer(1, //endcap
 			   1, //station
 			   1, //ring
 			   1, //chamber
 			   ilayer); //layer
 
 
-	    std::vector <CSCWireDigi> wireDigi =  cscData[iCSC].wireDigi(ilayer);
-	    for (int i=0; i<wireDigi.size() ; i++) {
-	      wireProduct.insertDigi(layer, wireDigi[i]);
+	    std::vector <CSCWireDigi> wireDigis =  cscData[iCSC].wireDigis(ilayer);
+	    for (int i=0; i<wireDigis.size() ; i++) {
+	      wireProduct->insertDigi(layer, wireDigis[i]);
 	    }
 
-	    std::vector <CSCStripDigi> stripDigi =  cscData[iCSC].stripDigi(ilayer);
-            for (int i=0; i<stripDigi.size() ; i++) {
-              stripProduct.insertDigi(layer, stripDigi[i]);
+	    std::vector <CSCStripDigi> stripDigis =  cscData[iCSC].stripDigis(ilayer);
+            for (int i=0; i<stripDigis.size() ; i++) {
+              stripProduct->insertDigi(layer, stripDigis[i]);
             }
 
 	  }
@@ -109,10 +115,10 @@ void CSCUnpackingModule::produce(Event & e, const EventSetup& c){
   // commit to the event
   e.put(wireProduct);
   e.put(stripProduct);
-  e.put(ALCTProduct);
-  e.put(CLCTProduct);
-  e.put(ComparatorProduct);
-  e.put(RPCProduct);
+  //e.put(ALCTProduct);
+  //e.put(CLCTProduct);
+  //e.put(ComparatorProduct);
+  //e.put(RPCProduct);
 
 }
 

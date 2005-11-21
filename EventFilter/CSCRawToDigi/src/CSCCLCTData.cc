@@ -36,7 +36,7 @@ CSCCLCTData::CSCCLCTData(int ncfebs, int ntbins, const unsigned short * buf)
 }
 
 #ifndef UNPCK_ONLY
-
+/*
 std::vector<CSCComparatorOutput>  CSCCLCTData::comparatorOutputs(int layer) {
   //cout << "looking for comp output on layer " << layer << endl;
   std::vector<CSCComparatorOutput> result;
@@ -90,7 +90,7 @@ void CSCCLCTData::add(const CSCComparatorOutput & comparator, int layer) {
      dataWord(cfeb, tbin+2-bit, layer).set(distrip, (output>>bit)&1);
   }
 }
-
+*/
 #endif
 
 

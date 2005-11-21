@@ -1,7 +1,7 @@
 #ifndef CSCCLCTData_h
 #define CSCCLCTData_h
 #ifndef UNPCK_ONLY
-#include "DataFormats/CSCDigi/interface/CSCComparatorOutput.h"
+#include "DataFormats/CSCDigi/interface/CSCComparatorDigi.h"
 #endif
 #include <vector>
 #include <cassert>
@@ -31,7 +31,7 @@ public:
 #ifndef UNPCK_ONLY
 
   /// layers count from one
-  std::vector<CSCComparatorOutput> comparatorOutputs(int layer);
+  //std::vector<CSCComparatorOutput> comparatorOutputs(int layer);
 
 #endif
 
@@ -57,7 +57,7 @@ public:
   }
 
 #ifndef UNPCK_ONLY
-  void add(const CSCComparatorOutput &, int layer);
+  //  void add(const CSCComparatorOutput &, int layer);
 #endif
 
   // checks that the CFEB number and time bins are correct

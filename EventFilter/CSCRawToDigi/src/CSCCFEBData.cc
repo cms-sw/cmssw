@@ -94,7 +94,7 @@ unsigned CSCCFEBData::adcCounts(unsigned layer, unsigned channel, unsigned timeB
 
 #ifndef UNPCK_ONLY
 
-void CSCCFEBData::add(const CSCStripDigi & digi, int layer) {
+/*void CSCCFEBData::add(const CSCStripDigi & digi, int layer) {
   for(unsigned itime = 0; itime < theNumberOfSamples; ++itime) {
     unsigned channel = (digi.channel()-1) % 16 + 1;
     unsigned value = digi.getScaCounts(itime) & 0xFFF; // 12-bit
@@ -105,25 +105,22 @@ void CSCCFEBData::add(const CSCStripDigi & digi, int layer) {
   }
 }
 
+*/
 
 std::vector<CSCStripDigi> CSCCFEBData::digis(unsigned layer) const {
   assert(layer>0 && layer <= 6);
   std::vector<CSCStripDigi> result;
   result.reserve(16);
-  std::vector<int> sca(CSCStripDigi::N_SCA_BINS);
+  std::vector<int> sca(nTimeSamples());
   for(unsigned ichannel = 1; ichannel <= 16; ++ichannel) {
-    for(unsigned itime = 0; itime < CSCStripDigi::N_SCA_BINS; ++itime) {
-      if (itime < theNumberOfSamples)
-	sca[itime] = adcCounts(layer, ichannel, itime);
-      else // fill unused time slices with zeros
-	sca[itime] = 0;	
+    for(unsigned itime = 0; itime < nTimeSamples(); ++itime) {
+      sca[itime] = adcCounts(layer, ichannel, itime);
     }
     int bxnCount = 0;
     int comparatorOutput = 0;
     int comparatorTime = 0;
     int strip = ichannel + 16*boardNumber_;
-    CSCStripDigi digi(strip, comparatorOutput, comparatorTime,
-	  bxnCount, 0, sca, 0.);
+    CSCStripDigi digi(strip, sca);
     result.push_back(digi);
   }
   return result;
@@ -158,6 +155,7 @@ std::ostream & operator<<(std::ostream & os, const CSCCFEBData & data) {
 
 #ifndef UNPCK_ONLY
 
+/*
 void CSCCFEBData::selfTest() {
   bool result = true;
   // stores a digi in a CFEB, then tries to read it back
@@ -184,6 +182,8 @@ void CSCCFEBData::selfTest() {
     std::cout << cfebData << std::endl;
   }
 }
+
+*/
 
 std::vector < std::vector<CSCStripDigi> > CSCCFEBData::stripDigis() const {
   std::vector < std::vector<CSCStripDigi> > result;

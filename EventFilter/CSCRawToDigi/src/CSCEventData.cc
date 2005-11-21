@@ -224,16 +224,16 @@ std::vector<CSCStripDigi> CSCEventData::stripDigis(unsigned ilayer) const {
   }
 
   // now add the comparator information
-  addComparatorInformation(result, ilayer);
-
+  //addComparatorInformation(result, ilayer);
+  /*
   if (debug) {
     for (std::vector<CSCStripDigi>::iterator pdigi = result.begin();
 	 pdigi != result.end(); pdigi++) {
       if (pdigi->getComparatorOutput() > 0)
-	std::std::cout << "Layer " << ilayer << " " << *pdigi;
+	std::cout << "Layer " << ilayer << " " << *pdigi;
     }
   }
-
+  */
   return result;
 }
 
@@ -308,6 +308,8 @@ CSCCLCTData & CSCEventData::clctData() const {
 
 
 #ifndef UNPCK_ONLY
+
+/*
 void CSCEventData::add(const CSCStripDigi & digi, int layer) {
   //@@ need special logic here for ME11
   unsigned cfeb = (digi.channel()-1)/16;
@@ -346,7 +348,7 @@ void CSCEventData::add(const CSCComparatorOutput & output, int layer) {
   }
   theTMBData->clctData().add(output, layer);
 }
-
+*/
 #endif
 
 void CSCEventData::setEventInformation(int bxnum, int lvl1num) {
@@ -374,6 +376,7 @@ void CSCEventData::createALCTClasses() {
 
 #ifndef UNPCK_ONLY
 
+/*
 void CSCEventData::addComparatorInformation(std::vector<CSCStripDigi>& digis, int ilayer) const {
   if(theTMBData != 0) {
     std::vector<CSCComparatorOutput> comparatorOutputs = theTMBData->clctData().comparatorOutputs(ilayer);
@@ -399,7 +402,7 @@ void CSCEventData::addComparatorInformation(std::vector<CSCStripDigi>& digis, in
     } // loop over digis
   }
 }
-
+*/
 #endif
 
 /*
@@ -508,11 +511,13 @@ BitVector CSCEventData::packVector() {
 
 std::ostream & operator<<(std::ostream & os, const CSCEventData & evt) {
   for(int ilayer = 1; ilayer <= 6; ++ilayer) {
-    std::vector<CSCStripDigi> stripDigis = evt.stripDigis(ilayer);
-    copy(stripDigis.begin(), stripDigis.end(), std::ostream_iterator<CSCStripDigi>(os, "\n"));
 
+
+    std::vector<CSCStripDigi> stripDigis = evt.stripDigis(ilayer);
+    //copy(stripDigis.begin(), stripDigis.end(), std::ostream_iterator<CSCStripDigi>(os, "\n"));
+    //print your scas here
     std::vector<CSCWireDigi> wireDigis = evt.wireDigis(ilayer);
-    copy(wireDigis.begin(), wireDigis.end(), std::ostream_iterator<CSCWireDigi>(os, "\n"));
+    //copy(wireDigis.begin(), wireDigis.end(), std::ostream_iterator<CSCWireDigi>(os, "\n"));
   }
   return os;
 }

@@ -1,3 +1,4 @@
+<flags SEAL_PLUGIN_NAME="EventFilterCSCRawToDigi">
 <use name=DataFormats/CSCDigi>
 <export>
 <lib name=CSCRawToDigi>
