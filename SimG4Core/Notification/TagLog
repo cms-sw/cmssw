@@ -1,3 +1,6 @@
+** V01-01-00  [Mon Nov 21 17:26:49 2005]
+Modification of Observer to inherit from SimSlotAdapter and allowed future expandability
+
 ** V01-00-01  [Wed Nov 16 06:00:58 2005]
 made Observer class actually work with SimActivityRegistry and added tests to prove it
 
