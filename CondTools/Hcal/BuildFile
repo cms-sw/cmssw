@@ -1,0 +1,15 @@
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=CondCore/PluginSystem>
+<use name=CondFormats/HcalObjects>
+<use name=CondFormats/DataRecord>
+
+<flags SEAL_PLUGIN_NAME="CondToolsHcal">
+<export>
+   <lib name=CondToolsHcal>
+   <use name=FWCore/Framework>
+   <use name=Foundation/PluginManager>
+   <use name=CondCore/PluginSystem>
+   <use name=CondFormats/HcalObjects>
+   <use name=CondFormats/DataRecord>
+</export>
