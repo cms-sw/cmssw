@@ -1,3 +1,6 @@
+** V02-01-00  [Tue Nov 22 00:11:20 2005]
+added BeginOfJob and DDDWorld signal (previous tag comment should have been 'now' instead of 'not')
+
 ** V02-00-00  [Mon Nov 21 22:34:15 2005]
 all original Oscar 'signals' are not being emitted
 
