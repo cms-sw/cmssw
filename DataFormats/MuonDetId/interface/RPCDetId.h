@@ -5,9 +5,9 @@
  * 
  *  DetUnit identifier for RPCs
  *
- *  $Date: 2005/10/27 14:36:56 $
- *  \version $Id: RPCDetId.h,v 1.4 2005/10/27 14:36:56 segoni Exp $
- *  $Revision: 1.4 $
+ *  $Date: 2005/11/01 15:18:40 $
+ *  \version $Id: RPCDetId.h,v 1.5 2005/11/01 15:18:40 segoni Exp $
+ *  $Revision: 1.5 $
  *  \author Ilaria Segoni
  */
 
@@ -29,9 +29,7 @@ class RPCDetId :public DetId {
   explicit RPCDetId(uint32_t id);
 
 
-  /// Construct from fully qualified identifier. Wire is optional since it
-  /// is not reqired to identify a DetUnit, however it is part of the interface
-  /// since it is required for the numbering schema.
+  /// Construct from fully qualified identifier.
   RPCDetId(int region, 
 	   int ring,
 	   int station, 
