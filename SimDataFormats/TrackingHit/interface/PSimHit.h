@@ -14,11 +14,11 @@ class TrackingSlaveSD; // for friend declaration only
 class PSimHit {
 public:
 
-  PSimHit() : theDetUnitId(-1) {}
+  PSimHit() : theDetUnitId(0) {}
 
   PSimHit( const Local3DPoint& entry, const Local3DPoint& exit, 
 	   float pabs, float tof, float eloss, int particleType,
-	   int detId, unsigned int trackId,
+	   unsigned int detId, unsigned int trackId,
 	   float theta, float phi, unsigned short processType=0) :
   theEntryPoint( entry), 
   theSegment(exit-entry),
@@ -89,7 +89,7 @@ public:
    *  Currently the context is not deducible from the PSimHit and
    *  must be known when the PSimHit is created/accessed.
    */
-  int          detUnitId()    const {return theDetUnitId;}
+  unsigned int          detUnitId()    const {return theDetUnitId;}
 
   /** The SimTrack ID of the "mother" track. This may be the actual
    *  charged track that produced the hit, or a "mother" of this
@@ -126,7 +126,7 @@ protected:
                                     // which created the PSimHit
 
   // association
-  int             theDetUnitId;
+  unsigned int    theDetUnitId;
   unsigned int    theTrackId;
 
   friend class TrackingSlaveSD;
