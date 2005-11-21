@@ -199,7 +199,11 @@ void RunManager::abortEvent()
 
 void RunManager::initializeUserActions()
 {
-    m_userRunAction = new RunAction(m_pRunAction);
+    RunAction* userRunAction = new RunAction(m_pRunAction);
+    m_userRunAction = userRunAction;
+    userRunAction->m_beginOfRunSignal.connect(m_registry.beginOfRunSignal_);
+    userRunAction->m_endOfRunSignal.connect(m_registry.endOfRunSignal_);
+
     G4EventManager * eventManager = m_kernel->GetEventManager();
     eventManager->SetVerboseLevel(m_EvtMgrVerbosity);
     if (m_generator!=0)
@@ -213,7 +217,9 @@ void RunManager::initializeUserActions()
 	userTrackingAction->m_endOfTrackSignal.connect(m_registry.endOfTrackSignal_);
 	eventManager->SetUserAction(userTrackingAction);
 	
-        eventManager->SetUserAction(new SteppingAction(m_pSteppingAction));
+	SteppingAction* userSteppingAction = new SteppingAction(m_pSteppingAction); 
+	userSteppingAction->m_g4StepSignal.connect(m_registry.g4StepSignal_);
+        eventManager->SetUserAction(userSteppingAction);
         if (m_Override)
         {
             std::cout << " RunManager: user StackingAction overridden " 
