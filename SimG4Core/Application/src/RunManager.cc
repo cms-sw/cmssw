@@ -13,6 +13,7 @@
 #include "SimG4Core/Physics/interface/PhysicsListFactory.h"
 
 #include "SimG4Core/Notification/interface/SimG4Exception.h"
+#include "SimG4Core/Notification/interface/BeginOfJob.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -100,14 +101,23 @@ void RunManager::initG4(const edm::EventSetup & es)
 {
     if (m_managerInitialized) return;
 
+    //tell all interesting parties that we are beginning the job
+    BeginOfJob aBeginOfJob(&es);
+    m_registry.beginOfJobSignal_(&aBeginOfJob);
+
     // DDDWorld: get the DDCV from the ES and use it to build the World
     edm::ESHandle<DDCompactView> pDD;
     es.get<IdealGeometryRecord>().get(pDD);
    
+    //QUESTION: Who deletes this?
     const DDDWorld * world = new DDDWorld(&(*pDD));
     
+    m_registry.dddWorldSignal_(world);
+
+    //QUESTION: Are the following two lines still needed?
     worldObserver = new DDDWorldObserver<DDDWorld >(); 
     worldDispatcher = new Dispatcher<DDDWorld >(world);
+
     m_attach = new AttachSD;
     {
       std::pair< std::vector<SensitiveTkDetector*>,
