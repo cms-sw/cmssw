@@ -34,7 +34,9 @@ double HcalDbServiceHardcode::adcShapeBin (int fCount) const {
 // pedestal  
 const float* HcalDbServiceHardcode::pedestals (const HcalDetId& fCell) const {
   int i = 4;
-  while (--i >= 0) pedestal [i] = 0.75; // 750MeV
+  //  while (--i >= 0) pedestal [i] = 0.75; // 750MeV
+  const float* gain = gains (fCell);
+  while (--i >= 0) pedestal [i] = 0.75 / gain [i]; // 750MeV but in fC units
   return pedestal;
 }
 // pedestal width
