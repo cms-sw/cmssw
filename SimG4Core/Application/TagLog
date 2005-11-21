@@ -1,3 +1,6 @@
+** V02-00-00  [Mon Nov 21 22:34:15 2005]
+all original Oscar 'signals' are not being emitted
+
 ** V01-00-02  [Wed Nov 16 06:03:59 2005]
 updated DDDWorldObserver to new Observer interface
 
