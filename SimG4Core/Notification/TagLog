@@ -1,3 +1,6 @@
+** V01-02-00  [Tue Nov 22 00:08:12 2005]
+added BeginOfJob signal and made DDDWorld actually work
+
 ** V01-01-01  [Mon Nov 21 21:36:24 2005]
 added a missing include
 
