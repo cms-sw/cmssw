@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Nov 13 11:43:40 EST 2005
-// $Id: SimActivityRegistry.h,v 1.2 2005/11/16 04:56:34 chrjones Exp $
+// $Id: SimActivityRegistry.h,v 1.3 2005/11/21 16:19:19 chrjones Exp $
 //
 
 // system include files
@@ -28,6 +28,7 @@
 #include "SimG4Core/Notification/interface/SimSlotAdapter.h"
 
 // forward declarations
+class BeginOfJob;
 class BeginOfRun;
 class BeginOfEvent;
 class BeginOfTrack;
@@ -46,6 +47,13 @@ class SimActivityRegistry
    public:
       SimActivityRegistry() {}
       //virtual ~SimActivityRegistry();
+
+      typedef boost::signal< void(const BeginOfJob*)> BeginOfJobSignal;
+      BeginOfJobSignal beginOfJobSignal_;
+      void watchBeginOfJob(const BeginOfJobSignal::slot_type& iSlot){
+         beginOfJobSignal_.connect(iSlot);
+      }
+      SAR_CONNECT_METHOD(BeginOfJob)
 
       typedef boost::signal< void(const DDDWorld*)> DDDWorldSignal;
       DDDWorldSignal dddWorldSignal_;

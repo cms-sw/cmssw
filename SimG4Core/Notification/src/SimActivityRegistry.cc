@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Nov 13 12:44:58 EST 2005
-// $Id$
+// $Id: SimActivityRegistry.cc,v 1.1 2005/11/15 03:42:01 chrjones Exp $
 //
 
 // system include files
@@ -59,6 +59,7 @@
 void
 SimActivityRegistry::connect(SimActivityRegistry& iOther)
 {
+   beginOfJobSignal_.connect(iOther.beginOfJobSignal_);
    dddWorldSignal_.connect(iOther.dddWorldSignal_);
    beginOfRunSignal_.connect(iOther.beginOfRunSignal_);
    beginOfEventSignal_.connect(iOther.beginOfEventSignal_);
