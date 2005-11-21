@@ -21,10 +21,11 @@ before (TPre) and after (TPost) the overrided 'update()' method is called.
 
 */
 //
-// $Id$
+// $Id: Observer.h,v 1.6 2005/11/21 16:18:10 chrjones Exp $
 //
 
 #include <boost/signal.hpp>
+#include "SimG4Core/Notification/interface/SimSlotAdapter.h"
 
 namespace observer_helper {
    /**
