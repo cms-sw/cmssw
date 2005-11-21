@@ -18,6 +18,7 @@ void RunAction::BeginOfRunAction(const G4Run * aRun)
         RunManager::instance()->abortRun(true);
     }
     BeginOfRun r(aRun);
+    m_beginOfRunSignal(&r);
 }
 
 void RunAction::EndOfRunAction(const G4Run * aRun)
@@ -28,5 +29,6 @@ void RunAction::EndOfRunAction(const G4Run * aRun)
         RunManager::instance()->abortRun(true);
     }
     EndOfRun r(aRun);
+    m_endOfRunSignal(&r);
 }
 

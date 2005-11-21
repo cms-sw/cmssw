@@ -17,6 +17,7 @@ SteppingAction::~SteppingAction() {}
 
 void SteppingAction::UserSteppingAction(const G4Step * aStep)
 {
+    m_g4StepSignal(aStep);
     if (killBeamPipe)
     {
         catchLowEnergyInVacuumHere(aStep);
