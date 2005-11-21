@@ -1,3 +1,6 @@
+** V00-01-00  [Mon Nov 21 16:19:41 2005]
+fixes in ctors
+
 ** V00-00-03  [Thu Nov  3 19:58:01 2005]
 use uint32_t
 
