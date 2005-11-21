@@ -7,8 +7,8 @@
  * Extends the Topology interface with methods relevant for
  * the DT detectors.
  *  
- *  $Date: 2005/11/20 11:43:01 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/11/21 08:52:39 $
+ *  $Revision: 1.2 $
  *
  * \author R. Bellan - INFN Torino
  *
@@ -27,8 +27,8 @@
 class DTTopology: public Topology {
  public:
   
-  //Constructor: number of wire in the layer and its lenght
-  DTTopology(int nChannels,float lenght);
+  //Constructor: number of first wire, total # of wires in the layer and their lenght
+  DTTopology(int firstWire, int nChannels,float lenght);
 
   virtual ~DTTopology() {}
   
@@ -53,11 +53,17 @@ class DTTopology: public Topology {
   float cellWidth(){return theWidth;}
   float cellHeight(){return theHeight;}
   float cellLenght(){return theLength;}
-
-private:
-  float theNChannels;
-  float theWidth;
-  float theHeight;
+  
+  // They return the dimensions of the sensible volume of the cell:
+  float sensibleWidth();
+  float sensibleHeight();
+  
+private: 
+  int theFirstChannel;
+  int theNChannels;
+  
+  static const float theWidth;
+  static const float theHeight;
   float theLength;
 
   Local2DPoint theOffSet;
