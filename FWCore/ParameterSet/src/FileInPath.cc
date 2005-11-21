@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: FileInPath.cc,v 1.5 2005/11/14 17:37:51 paterno Exp $
+// $Id: FileInPath.cc,v 1.6 2005/11/15 14:38:57 paterno Exp $
 //
 // ----------------------------------------------------------------------
 
@@ -32,7 +32,7 @@ namespace
 
   const std::string PathVariableName("CMSSW_SEARCH_PATH");
   const std::string DataVariableName("CMSSW_DATA_PATH");
-  const std::string ScramVariableName("SCRAMRT_LOCALRT");
+  const std::string ScramVariableName("LOCALRT");
 
 
   // Return false if the environment variable 'name is not found, and
@@ -219,7 +219,23 @@ namespace edm
 	if ( *it == "."  || *it == "LOCAL" ) 
 	  {
 	    std::string prefix;
-	    envstring(ScramVariableName, prefix);
+	    if (getenv(ScramVariableName.c_str()) )
+	      {
+		envstring(ScramVariableName, prefix);
+	      }
+	    else
+	      {
+		if (getenv("SCRAMRT_LOCALRT"))
+		  {
+		    envstring("SCRAMRT_LOCALRT", prefix);
+		  }
+		else
+		  {
+		    throw edm::Exception(edm::errors::FileInPathError)
+		      << ScramVariableName
+		      << " is not defined\n";
+		  }
+	      }
 	    pathPrefix = prefix;
 	    pathPrefix /= "src";
 	  }
