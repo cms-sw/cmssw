@@ -38,9 +38,12 @@ private:
 //  scommenta  CSCDDUEventData dduEvent;
 
   int nEvents;
+  
   int dataLength;
   int dduBX;
   int L1ANumber;
+  
+  int FEBUnpacked;
 
 };
 
