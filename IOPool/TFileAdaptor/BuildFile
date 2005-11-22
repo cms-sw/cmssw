@@ -1,0 +1,9 @@
+<use name=Utilities/StorageFactory>
+<use name=rootcore>
+<flags CPPFLAGS="_FILE_OFFSET_BITS=32">
+
+<export>
+ <lib name=IOPoolTFileAdaptor>
+ <use name=Utilities/StorageFactory>
+ <use name=rootcore>
+</export>

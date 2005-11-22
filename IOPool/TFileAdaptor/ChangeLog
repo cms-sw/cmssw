@@ -1,0 +1,8 @@
+2005-11-22  Giulio Eulisse  <giulio.eulisse@cern.ch>
+
+	* .admin/developers: admins added on pete's request.
+
+	* BuildFile, TStorageFactoryFile.h, TStorageFactorySystem.h,
+	TStorageFactoryFile.cc, TStorageFactorySystem.cc, BuildFile,
+	tfileTest.cpp: files added to repository.
+

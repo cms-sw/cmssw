@@ -1,0 +1,64 @@
+//<<<<<< INCLUDES                                                       >>>>>>
+
+#include "IOPool/TFileAdaptor/interface/TStorageFactorySystem.h"
+#include "Utilities/StorageFactory/interface/StorageFactory.h"
+#include "TError.h"
+#include "TSystem.h"
+
+//<<<<<< PRIVATE DEFINES                                                >>>>>>
+//<<<<<< PRIVATE CONSTANTS                                              >>>>>>
+//<<<<<< PRIVATE TYPES                                                  >>>>>>
+//<<<<<< PRIVATE VARIABLE DEFINITIONS                                   >>>>>>
+//<<<<<< PUBLIC VARIABLE DEFINITIONS                                    >>>>>>
+//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
+
+ClassImp(TStorageFactorySystem)
+
+//<<<<<< PRIVATE FUNCTION DEFINITIONS                                   >>>>>>
+//<<<<<< PUBLIC FUNCTION DEFINITIONS                                    >>>>>>
+//<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
+
+TStorageFactorySystem::TStorageFactorySystem (void)
+    : TSystem ("-StorageFactory", "Storage Factory System"),
+      fDirp (0)
+{ SetName ("StorageFactory"); }
+
+TStorageFactorySystem::~TStorageFactorySystem (void)
+{}
+
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+Int_t
+TStorageFactorySystem::MakeDirectory (const char *name)
+{
+    Error ("MakeDirectory", "Unsupported");
+    return -1;
+}
+
+void *
+TStorageFactorySystem::OpenDirectory (const char *name)
+{
+    Error ("OpenDirectory", "Unsupported");
+    return 0;
+}
+
+void
+TStorageFactorySystem::FreeDirectory (void * /* dirp */)
+{
+    Error ("FreeDirectory", "Unsupported");
+}
+
+const char *
+TStorageFactorySystem::GetDirEntry (void * /* dirp */)
+{
+    Error ("GetDirEntry", "Unsupported");
+    return 0;
+}
+
+Bool_t
+TStorageFactorySystem::AccessPathName (const char *name, EAccessMode /* mode */)
+{
+    // NB: This return reverse of check(): kTRUE if access *fails*
+    return name ? !StorageFactory::get ()->check (name) : kTRUE;
+}
