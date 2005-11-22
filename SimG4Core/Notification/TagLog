@@ -1,3 +1,6 @@
+** V01-03-00  [Tue Nov 22 23:03:02 2005]
+updated version
+
 ** V01-02-00  [Tue Nov 22 00:08:12 2005]
 added BeginOfJob signal and made DDDWorld actually work
 
