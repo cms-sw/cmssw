@@ -325,7 +325,7 @@ void EventProcessor::taskWebPage(xgi::Input *in, xgi::Output *out)
 	*out << "Processed Events" << std::endl;
 	*out << "</td>" << std::endl;
 	*out << "<td>" << std::endl;
-	*out << eventcount << std::endl;
+	*out << eventcount-1 << std::endl;
 	*out << "</td>" << std::endl;
     *out << "  </tr>"                                            << endl;
   *out << "</table>" << std::endl;
