@@ -1,3 +1,6 @@
+** V00-02-06  [Tue Nov 22 15:37:14 2005]
+Changed to the latest observer mechanism for BeginOfEvent
+
 ** V00-02-05  [Fri Nov 18 12:31:38 2005]
 First working version with HCal+ECal (without track ID)
 
