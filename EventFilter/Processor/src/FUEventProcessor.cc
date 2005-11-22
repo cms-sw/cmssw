@@ -35,8 +35,8 @@ void FUEventProcessor::configureAction(toolbox::Event::Reference e) throw (toolb
 void FUEventProcessor::enableAction(toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception)
 {
   proc_->beginRun();
-  cout << "activate processor thread and wait 1s before killing" << endl;
   proc_->activate();
+  
 }
 
 void FUEventProcessor::suspendAction(toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception)
