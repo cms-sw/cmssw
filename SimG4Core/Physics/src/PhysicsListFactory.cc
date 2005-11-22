@@ -3,8 +3,7 @@
 PhysicsListFactory PhysicsListFactory::s_instance;
 
 PhysicsListFactory::PhysicsListFactory()
-    : seal::PluginFactory<PhysicsList * 
-(seal::Context *,const edm::ParameterSet &)>("Sim Physics Plugins")
+    : seal::PluginFactory<PhysicsListMakerBase * ()>("CMS Simulation PhysicsListFactory")
 {}
 
 PhysicsListFactory::~PhysicsListFactory() {}
