@@ -44,13 +44,15 @@ namespace edmtest_thing
   StreamThingAnalyzer::StreamThingAnalyzer(edm::ParameterSet const& ps):
     name_(ps.getParameter<string>("product_to_get")),
     total_(),
-    out_("gennums.txt")
+    out_("gennums.txt"),
+	cnt_()
   {
     if(!out_)
     {
 	cerr << "cannot open file gennums.txt" << endl;
         abort();
     }
+	out_ << "event instance value" << endl;
   }
     
   StreamThingAnalyzer::~StreamThingAnalyzer()
@@ -70,9 +72,17 @@ namespace edmtest_thing
       total_ = accumulate((*i)->data_.begin(),(*i)->data_.end(),total_);
     //cout << tot << endl;
 
-    out_ << e.id() << " " << i->id() << " " ;
-    copy((*i)->data_.begin(),(*i)->data_.end(),ostream_iterator<int>(out_," "));
-    out_ << "\n";
+    for(i=prod.begin();i!=end;++i)
+	{
+	  vector<int>::const_iterator ii((*i)->data_.begin()),
+	     ib((*i)->data_.end());
+	  for(;ii!=ib;++ii)
+	  {
+         out_ << cnt_ << " " << i->id() << " " << *ii << "\n" ;
+	  }
+	}
+
+    ++cnt_;
   }
 }
 

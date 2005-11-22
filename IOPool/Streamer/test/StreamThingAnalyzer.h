@@ -24,6 +24,7 @@ namespace edmtest_thing {
     std::string name_;
     int total_;
     std::ofstream out_;
+	int cnt_;
   };
 
 }
