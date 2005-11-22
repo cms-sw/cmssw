@@ -1,7 +1,12 @@
 <flags SEAL_PLUGIN_NAME="EventFilterCSCRawToDigi">
 <use name=DataFormats/CSCDigi>
+<use name=FWCore/Framework>
+<use name=DataFormats/FEDRawData>
+
 <export>
 <lib name=CSCRawToDigi>
 <use name=DataFormats/CSCDigi>
+<use name=FWCore/Framework>
+<use name=DataFormats/FEDRawData>
 </export>
  
