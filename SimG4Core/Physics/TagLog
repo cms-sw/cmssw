@@ -1,3 +1,6 @@
+** V01-00-00  [Tue Nov 22 21:14:42 2005]
+PhysicLists can now listen for OSCAR signals by inheriting from Observer
+
 ** V00-02-00  [Tue Nov  8 18:40:14 2005]
 updated version to V00-02-00
 
