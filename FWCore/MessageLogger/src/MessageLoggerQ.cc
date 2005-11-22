@@ -15,7 +15,7 @@ namespace edm
 {
 
 
-EventBuffer  MessageLoggerQ::buf(buf_size, buf_depth);
+SingleConsumerQ  MessageLoggerQ::buf(buf_size, buf_depth);
 
 
 MessageLoggerQ::MessageLoggerQ()
@@ -36,7 +36,7 @@ MessageLoggerQ *
 void
   MessageLoggerQ::END()
 {
-  EventBuffer::ProducerBuffer b(buf);
+  SingleConsumerQ::ProducerBuffer b(buf);
   char * slot_p = static_cast<char *>(b.buffer());
 
   OpCode o(END_THREAD);
@@ -51,7 +51,7 @@ void
 void
   MessageLoggerQ::LOG( ErrorObj * p )
 {
-  EventBuffer::ProducerBuffer b(buf);
+  SingleConsumerQ::ProducerBuffer b(buf);
   char * slot_p = static_cast<char *>(b.buffer());
 
   OpCode o(LOG_A_MESSAGE);
@@ -66,7 +66,7 @@ void
 void
   MessageLoggerQ::CFG( ParameterSet * p )
 {
-  EventBuffer::ProducerBuffer b(buf);
+  SingleConsumerQ::ProducerBuffer b(buf);
   char * slot_p = static_cast<char *>(b.buffer());
 
   OpCode o(CONFIGURE);
@@ -81,7 +81,7 @@ void
 void
   MessageLoggerQ::consume( OpCode & opcode, void * & operand )
 {
-  EventBuffer::ConsumerBuffer b(buf);
+  SingleConsumerQ::ConsumerBuffer b(buf);
   char * slot_p = static_cast<char *>(b.buffer());
 
   std::memcpy(&opcode , slot_p+0             , sizeof(OpCode));

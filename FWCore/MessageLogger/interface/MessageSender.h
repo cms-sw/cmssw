@@ -39,11 +39,4 @@ private:
 }  // namespace edm
 
 
-#define LogWarning(id)  edm::MessageSender(edm::ELwarning, id)
-#define LogError(id)    edm::MessageSender(edm::ELerror  , id)
-#define LogInfo(id)     edm::MessageSender(edm::ELinfo   , id)
-#define LogDebug(id)    edm::MessageSender(edm::ELsuccess, id) \
-                        << __FILE__ << ':' << __LINE__ << ' '
-
-
 #endif  // FWCore_MessageLogger_MessageSender_h

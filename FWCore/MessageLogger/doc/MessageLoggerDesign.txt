@@ -267,12 +267,15 @@ Features wanted:
   attaching an ELoutput destination
   detaching an ELoutput destination
   attaching a statistics destination
-  controlling a particular destination
-    setlimit(ID,n)
-    setlimit(severity,n)
-    setlimit(*,n)
-    threshold
-    setTimeSpan(ID,sec)
+
+  controlling a particular destination (ELunspecified == unrecognized sevLevel)
+    setLimit(ID,n)
+    setLimit(severity,n)
+    setLimit("*",n)
+    setThreshold(severity)
+    setTimespan(ID,sec)
+    setTimespan(severity,sec)
+    setTimespan("*",sec)
 
 ===========================================================================
 

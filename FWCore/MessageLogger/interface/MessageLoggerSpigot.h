@@ -1,11 +1,15 @@
 #ifndef FWCore_MessageLogger_MessageLoggerSpigot_h
 #define FWCore_MessageLogger_MessageLoggerSpigot_h
 
+
 #include "boost/thread/thread.hpp"
 
-namespace edm {
 
-class MessageLoggerSpigot {
+namespace edm  {
+
+
+class MessageLoggerSpigot
+{
 public:
   // ---  birth/death:
   MessageLoggerSpigot();
@@ -19,11 +23,10 @@ private:
   // --- data:
   boost::thread  scribe;
 
-}; // MessageLoggerSpigot
+};  // MessageLoggerSpigot
 
 
-} // namespace edm
+}  // namespace edm
 
 
-
-#endif // FWCore_MessageLogger_MessageLoggerSpigot_h
+#endif  // FWCore_MessageLogger_MessageLoggerSpigot_h

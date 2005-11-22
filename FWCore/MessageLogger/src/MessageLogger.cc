@@ -8,13 +8,13 @@
 //
 // Original Author:  W. Brown, M. Fischler
 //         Created:  Fri Nov 11 16:42:39 CST 2005
-// $Id: MessageLogger.cc,v 1.2 2005/11/14 20:08:17 fischler Exp $
+// $Id: MessageLogger.cc,v 1.3 2005/11/18 21:59:07 fischler Exp $
 //
 
 // system include files
 
 // user include files
-#include "FWCore/MessageLogger/src/MessageLogger.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageSender.h"
 #include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
 
@@ -78,12 +78,12 @@ MessageLogger::MessageLogger( ParameterSet const & iPS
 void
 MessageLogger::postBeginJob()
 {
-  LogInfo("postBeginJob") << "Job started";
+  edm::LogInfo("postBeginJob") << "Job started";
 }
 void
 MessageLogger::postEndJob()
 {
-  LogInfo("postEndJob") << "Job ended";
+  edm::LogInfo("postEndJob") << "Job ended";
 }
 
 void
@@ -91,13 +91,13 @@ MessageLogger::preEventProcessing( const edm::EventID& iID
                                  , const edm::Timestamp& iTime
                                  )
 {
-  LogInfo("preEventProcessing") << "Processing event: " << iID
-                                <<" time: " << iTime.value();
+  edm::LogInfo("preEventProcessing") << "Processing event: " << iID
+                                     << " time: " << iTime.value();
 }
 void
 MessageLogger::postEventProcessing(const Event&, const EventSetup&)
 {
-  LogInfo("postEventProcessing") << "Finished event";
+  edm::LogInfo("postEventProcessing") << "Finished event";
 }
 
 void
@@ -110,7 +110,7 @@ void
 MessageLogger::postModule(const ModuleDescription& iDescription)
 {
   LogInfo("postModule") << "Module:" << iDescription.moduleLabel_
-			<< " finished";
+                        << " finished";
 }
 
 //

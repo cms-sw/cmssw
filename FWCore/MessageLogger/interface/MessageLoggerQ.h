@@ -2,7 +2,7 @@
 #define FWCore_MessageLogger_MessageLoggerQ_h
 
 
-#include "IOPool/Streamer/interface/EventBuffer.h"
+#include "FWCore/Utilities/interface/SingleConsumerQ.h"
 #include <memory>
 
 
@@ -50,7 +50,7 @@ private:
                                + sizeof(void *);
 
   // --- data:
-  static  EventBuffer  buf;
+  static  SingleConsumerQ  buf;
 
 };  // MessageLoggerQ
 
@@ -59,6 +59,3 @@ private:
 
 
 #endif  // FWCore_MessageLogger_MessageLoggerQ_h
-
-
-

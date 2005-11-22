@@ -7,6 +7,9 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include <fstream>
+#include <vector>
+
 
 namespace edm
 {
@@ -27,9 +30,10 @@ private:
   void  configure_errorlog( ParameterSet const * );
 
   // --- data:
-  ELadministrator *  admin_p;
-  ELdestControl      early_dest;
-  ErrorLog        *  errorlog_p;
+  ELadministrator           *  admin_p;
+  ELdestControl                early_dest;
+  ErrorLog                  *  errorlog_p;
+  std::vector<std::ofstream *> file_ps;
 
 };  // MessageLoggerScribe
 

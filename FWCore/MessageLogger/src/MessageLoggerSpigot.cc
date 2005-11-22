@@ -3,6 +3,9 @@
 #include "FWCore/MessageLogger/interface/MessageLoggerScribe.h"
 
 
+#include <iostream>
+
+
 namespace edm {
 
 
@@ -17,8 +20,12 @@ void
 
 
 MessageLoggerSpigot::MessageLoggerSpigot()
-  :scribe( runMessageLoggerScribe )  // starts a new thread
-{ }
+  : scribe( ( (void) MessageLoggerQ::instance() // ensure Q's static data init'd
+            , runMessageLoggerScribe  // start a new thread
+          ) )
+{
+  //std::cout << "MessageLoggerSpigot ctor\n";
+}
 
 
 MessageLoggerSpigot::~MessageLoggerSpigot()
