@@ -1,0 +1,7 @@
+<export>
+ <lib name=SimG4CoreWatcher>
+</export>
+
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=boost>

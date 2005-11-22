@@ -1,0 +1,12 @@
+<Flags SEAL_PLUGIN_NAME="SimG4CoreHelpfulWatchers">
+<export>
+ <use name=FWCore/ParameterSet>
+<use name=SimG4Core/Notification>
+<use name=SimG4Core/Watcher>
+ <lib name=SimG4CoreHelpfulWatchers>
+</export>
+ 
+<use name=FWCore/Framework>
+<use name=SimG4Core/Watcher>
+<use name=SimG4Core/Notification>
+<use name=boost>
