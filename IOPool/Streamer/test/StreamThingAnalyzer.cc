@@ -18,6 +18,7 @@ typedef edmtestprod::IntArray WriteThis;
 #include <iostream>
 #include <algorithm>
 #include <numeric>
+#include <iterator>
 
 using namespace std;
 using namespace edmtestprod;
@@ -42,8 +43,14 @@ namespace edmtest_thing
 {
   StreamThingAnalyzer::StreamThingAnalyzer(edm::ParameterSet const& ps):
     name_(ps.getParameter<string>("product_to_get")),
-    total_()
+    total_(),
+    out_("gennums.txt")
   {
+    if(!out_)
+    {
+	cerr << "cannot open file gennums.txt" << endl;
+        abort();
+    }
   }
     
   StreamThingAnalyzer::~StreamThingAnalyzer()
@@ -62,6 +69,10 @@ namespace edmtest_thing
     for(;i!=end;++i)
       total_ = accumulate((*i)->data_.begin(),(*i)->data_.end(),total_);
     //cout << tot << endl;
+
+    out_ << e.id() << " " << i->id() << " " ;
+    copy((*i)->data_.begin(),(*i)->data_.end(),ostream_iterator<int>(out_," "));
+    out_ << "\n";
   }
 }
 

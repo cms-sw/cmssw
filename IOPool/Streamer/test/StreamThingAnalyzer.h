@@ -7,6 +7,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <string>
+#include <fstream>
 
 namespace edmtest_thing {
 
@@ -22,6 +23,7 @@ namespace edmtest_thing {
   private:
     std::string name_;
     int total_;
+    std::ofstream out_;
   };
 
 }
