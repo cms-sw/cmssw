@@ -1,3 +1,6 @@
+** V01-00-03  [Tue Nov 22 03:33:33 2005]
+Use shell script test driver.
+
 ** V01-00-02  [Tue Nov 15 00:07:58 2005]
 Don't build failing test for now
 
