@@ -1,0 +1,5 @@
+2005-11-22  Giulio Eulisse  <giulio.eulisse@cern.ch>
+
+	* BuildFile, DCacheError.h, DCacheFile.h, DCacheError.cc,
+	DCacheFile.cc: files added to repository.
+
