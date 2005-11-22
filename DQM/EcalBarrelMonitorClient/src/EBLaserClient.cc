@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  * 
- * $Date: 2005/11/20 13:19:26 $
- * $Revision: 1.20 $
+ * $Date: 2005/11/20 16:43:39 $
+ * $Revision: 1.21 $
  * \author G. Della Ricca
  *
 */
@@ -39,7 +39,7 @@ EBLaserClient::EBLaserClient(const edm::ParameterSet& ps, MonitorUserInterface* 
 
   }
 
-  percentVariation_ = 1.; // to be fixed F. Cossutti - 17-Nov-2005 17:21
+  percentVariation_ = 0.4; 
 
 }
 
@@ -151,7 +151,7 @@ void EBLaserClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* r
 
     float meanAmplL1, meanAmplL2;
     int nCryL1, nCryL2;
-    meanAmplL1 = meanAmplL2 = 0.;
+    meanAmplL1 = meanAmplL2 = -1.;
     nCryL1 = nCryL2 = 0;
 
     for ( int ie = 1; ie <= 85; ie++ ) {
@@ -189,14 +189,15 @@ void EBLaserClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* r
         mean01 = mean02 = mean03 = mean04 = -1.;
         rms01  = rms02  = rms03  = rms04  = -1.;
 
-        bool update_channel = false;
+        bool update_channel1 = false;
+        bool update_channel2 = false;
 
         if ( h01_[ism-1] && h01_[ism-1]->GetEntries() >= n_min_tot ) {
           num01 = h01_[ism-1]->GetBinEntries(h01_[ism-1]->GetBin(ie, ip));
           if ( num01 >= n_min_bin ) {
             mean01 = h01_[ism-1]->GetBinContent(h01_[ism-1]->GetBin(ie, ip));
             rms01  = h01_[ism-1]->GetBinError(h01_[ism-1]->GetBin(ie, ip));
-            update_channel = true;
+            update_channel1 = true;
           }
         }
 
@@ -205,7 +206,7 @@ void EBLaserClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* r
           if ( num02 >= n_min_bin ) {
             mean02 = h02_[ism-1]->GetBinContent(h02_[ism-1]->GetBin(ie, ip));
             rms02  = h02_[ism-1]->GetBinError(h02_[ism-1]->GetBin(ie, ip));
-            update_channel = true;
+            update_channel1 = true;
           }
         }
 
@@ -214,7 +215,7 @@ void EBLaserClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* r
           if ( num03 >= n_min_bin ) {
             mean03 = h03_[ism-1]->GetBinContent(h03_[ism-1]->GetBin(ie, ip));
             rms03  = h03_[ism-1]->GetBinError(h03_[ism-1]->GetBin(ie, ip));
-            update_channel = true;
+            update_channel2 = true;
           }
         }
 
@@ -223,18 +224,17 @@ void EBLaserClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* r
           if ( num04 >= n_min_bin ) {
             mean04 = h04_[ism-1]->GetBinContent(h04_[ism-1]->GetBin(ie, ip));
             rms04  = h04_[ism-1]->GetBinError(h04_[ism-1]->GetBin(ie, ip));
-            update_channel = true;
+            update_channel2 = true;
           }
         }
 
-        if ( update_channel ) {
+        if ( update_channel1 ) {
 
           if ( ie == 1 && ip == 1 ) {
 
             cout << "Inserting dataset for SM=" << ism << endl;
 
             cout << "L1 (" << ie << "," << ip << ") " << num01 << " " << mean01 << " " << rms01 << endl;
-            cout << "L2 (" << ie << "," << ip << ") " << num03 << " " << mean03 << " " << rms03 << endl;
 
           }
 
@@ -250,7 +250,7 @@ void EBLaserClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* r
 
           if ( g01_[ism-1] ) {
             val = 1.;
-            if ( abs(mean01 - meanAmplL1) > percentVariation_ * meanAmplL1 ) { 
+            if ( abs(mean01 - meanAmplL1) > abs(percentVariation_ * meanAmplL1) ) { 
               val = 0.;
             }
             g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), val);
@@ -266,6 +266,27 @@ void EBLaserClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* r
             aopn01_[ism-1]->SetBinError(ip+20*(ie-1), rms02);
           }
 
+          if ( econn ) {
+            try {
+              ecid = econn->getEcalLogicID("EB_crystal_index", ism, ie-1, ip-1);
+              datasetb[ecid] = apdb;
+            } catch (runtime_error &e) {
+              cerr << e.what() << endl;
+            }
+          }
+
+        }
+
+        if ( update_channel2 ) {
+
+          if ( ie == 1 && ip == 1 ) {
+
+            cout << "Inserting dataset for SM=" << ism << endl;
+
+            cout << "L2 (" << ie << "," << ip << ") " << num03 << " " << mean03 << " " << rms03 << endl;
+
+          }
+
           apdr.setAPDMean(mean03);
           apdr.setAPDRMS(rms03);
 
@@ -274,9 +295,11 @@ void EBLaserClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* r
 
           apdr.setTaskStatus(1);
 
+          float val;
+
           if ( g02_[ism-1] ) {
             val = 1.;
-            if ( abs(mean03 - meanAmplL2) > percentVariation_ * meanAmplL2 ) {
+            if ( abs(mean03 - meanAmplL2) > abs(percentVariation_ * meanAmplL2) ) {
               val = 0.;
             }
             g02_[ism-1]->SetBinContent(g02_[ism-1]->GetBin(ie, ip), val);
@@ -295,7 +318,6 @@ void EBLaserClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* r
           if ( econn ) {
             try {
               ecid = econn->getEcalLogicID("EB_crystal_index", ism, ie-1, ip-1);
-              datasetb[ecid] = apdb;
               datasetr[ecid] = apdr;
             } catch (runtime_error &e) {
               cerr << e.what() << endl;
