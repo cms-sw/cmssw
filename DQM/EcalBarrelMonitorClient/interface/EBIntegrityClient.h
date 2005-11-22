@@ -4,8 +4,8 @@
 /*
  * \file EBIntegrityClient.h
  *
- * $Date: 2005/11/18 16:24:08 $
- * $Revision: 1.8 $
+ * $Date: 2005/11/19 09:48:37 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  *
 */
@@ -96,6 +96,8 @@ TH2F* h03_[36];
 TH2F* h04_[36];
 
 TH2F* g01_[36];
+
+TProfile2D* h_[36];
 
 // Quality criteria for data integrity
 
