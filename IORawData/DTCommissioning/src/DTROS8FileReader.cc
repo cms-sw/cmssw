@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2005/10/18 13:26:01 $
- *  $Revision: 1.6 $
+ *  $Date: 2005/11/21 18:35:41 $
+ *  $Revision: 1.1 $
  *  \author M. Zanetti
  */
 
@@ -18,7 +18,10 @@
 
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
-//#include <CLHEP/Random/RandGauss.h>
+#include <string>
+#include <iosfwd>
+#include <iostream>
+#include <algorithm>
    
 using namespace std;
 using namespace edm;
@@ -26,10 +29,20 @@ using namespace edm;
 
 DTROS8FileReader::DTROS8FileReader(const edm::ParameterSet& pset) : 
   runNum(1), eventNum(0) {
+      
+  string & filename = pset.getParameter<string>("fileName");
+
+  inputFile.open(filename.c_str(), ios::in | ios::binary );
+  if( inputFile.fail() ) {
+    throw cms::Exception("InputFileMissing") 
+      << "DTROS8FileReader: the input file: " << filename <<" is not present";
+  }
 }
 
 
-DTROS8FileReader::~DTROS8FileReader(){}
+DTROS8FileReader::~DTROS8FileReader(){
+  inputFile.close();
+}
 
 
 bool DTROS8FileReader::fillRawData(EventID& eID,
@@ -38,6 +51,7 @@ bool DTROS8FileReader::fillRawData(EventID& eID,
 
   try {
     
+
     if( checkEndOfFile() ) throw 1; 
     
     // Get the total number of words from the 1st word in the payload
