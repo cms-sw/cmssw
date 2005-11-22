@@ -2,6 +2,8 @@
 <use name=FWCore/Framework>
 <use name=DataFormats/FEDRawData>
 <use name=DataFormats/DTDigi>
+<use name=CondFormats/DTObjects>
+<use name=CondFormats/DataRecord>
 <use name=boost>
 
 <export>
@@ -9,5 +11,7 @@
  <use name=FWCore/Framework>
  <use name=DataFormats/FEDRawData>	
  <use name=DataFormats/DTDigi>
+ <use name=CondFormats/DTObjects>
+ <use name=CondFormats/DataRecord>
  <use name=boost>	
 </export>

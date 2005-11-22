@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2005/11/10 18:55:03 $
- *  $Revision: 1.7.2.4 $
+ *  $Date: 2005/11/21 17:38:48 $
+ *  $Revision: 1.8 $
  *  \author S. Argiro - N. Amapane - M. Zanetti 
  */
 
@@ -19,7 +19,7 @@
 #include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
 #include <DataFormats/DTDigi/interface/DTDigiCollection.h>
 
-#include <CondFormats/DTMapping/interface/DTReadOutMapping.h>
+#include <CondFormats/DTObjects/interface/DTReadOutMapping.h>
 #include <CondFormats/DataRecord/interface/DTReadOutMappingRcd.h>
 
 #include <EventFilter/DTRawToDigi/src/DTDDUWords.h>
