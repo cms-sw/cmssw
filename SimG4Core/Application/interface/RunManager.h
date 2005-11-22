@@ -16,6 +16,7 @@
 #include "SimG4Core/Notification/interface/SimActivityRegistry.h"
 
 #include <memory>
+#include "boost/shared_ptr.hpp"
 
 namespace CLHEP {
   class HepJamesRandom;
@@ -24,6 +25,7 @@ namespace CLHEP {
 class PrimaryTransformer;
 class Generator;
 class PhysicsList;
+class SimWatcher;
 class G4SimEvent;
 
 class DDDWorld;
@@ -97,6 +99,7 @@ private:
     std::vector<SensitiveCaloDetector*> m_sensCaloDets;
 
     SimActivityRegistry m_registry;
+    std::vector<boost::shared_ptr<SimWatcher> > m_watchers;
 };
 
 #endif

@@ -11,6 +11,7 @@
 #include "SimG4Core/SensitiveDetector/interface/AttachSD.h"
 #include "SimG4Core/Generators/interface/Generator.h"
 #include "SimG4Core/Physics/interface/PhysicsListFactory.h"
+#include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
 
 #include "SimG4Core/Notification/interface/SimG4Exception.h"
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
@@ -94,9 +95,38 @@ RunManager::~RunManager()
     if (m_kernel!=0) delete m_kernel; 
 }
 
+static
+void createWatchers(const edm::ParameterSet& iP,
+		    SimActivityRegistry& iReg,
+		    std::vector<boost::shared_ptr<SimWatcher> >& oWatchers)
+{
+  using namespace std;
+  using namespace edm;
+  vector<ParameterSet> watchers;
+  try {
+    watchers = iP.getParameter<vector<ParameterSet> >("Watchers");
+  } catch( edm::Exception) {
+  }
+  
+  for(vector<ParameterSet>::iterator itWatcher = watchers.begin();
+      itWatcher != watchers.end();
+      ++itWatcher) {
+    std::auto_ptr<SimWatcherMakerBase> maker( 
+      SimWatcherFactory::get()->create
+      (itWatcher->getParameter<std::string> ("type")) );
+    if(maker.get()==0) {
+      throw SimG4Exception("Unable to find the requested Watcher");
+    }
+    std::auto_ptr<SimWatcher> temp(maker->make(*itWatcher,iReg));
+    oWatchers.push_back( boost::shared_ptr<SimWatcher>(temp) );
+  }
+}
+
 void RunManager::initG4(const edm::EventSetup & es)
 {
     if (m_managerInitialized) return;
+
+    createWatchers(m_p, m_registry, m_watchers);
 
     //tell all interesting parties that we are beginning the job
     BeginOfJob aBeginOfJob(&es);
