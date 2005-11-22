@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2005/11/10 18:53:57 $
- *  $Revision: 1.1.2.1 $
+ *  $Date: 2005/11/21 17:38:48 $
+ *  $Revision: 1.2 $
  *  \author  M. Zanetti - INFN Padova 
  */
 
@@ -10,8 +10,10 @@
 #include <EventFilter/DTRawToDigi/src/DTDDUWords.h>
 #include <EventFilter/DTRawToDigi/src/DTROSErrorNotifier.h>
 #include <EventFilter/DTRawToDigi/src/DTTDCErrorNotifier.h>
+#include <CondFormats/DTObjects/interface/DTReadOutMapping.h>
 
 using namespace std;
+using namespace edm;
 
 #include <iostream>
 
