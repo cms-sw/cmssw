@@ -1,3 +1,6 @@
+** V02-02-00  [Tue Nov 22 21:12:28 2005]
+updated to use new PhysicsList interface
+
 ** V02-01-00  [Tue Nov 22 00:11:20 2005]
 added BeginOfJob and DDDWorld signal (previous tag comment should have been 'now' instead of 'not')
 
