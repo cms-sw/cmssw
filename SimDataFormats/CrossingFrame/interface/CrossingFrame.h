@@ -12,7 +12,6 @@
  *
  ************************************************************/
 
-#include "SimDataFormats/CrossingFrame/interface/SimHitCollection.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimDataFormats/Track/interface/EmbdSimTrackContainer.h"
