@@ -1,3 +1,6 @@
+** V00-01-01  [Tue Nov 22 14:54:22 2005]
+adapt: DTMapping moved to DTObjects
+
 ** V00-01-00  [Mon Nov 21 18:46:57 2005]
 Real unpacking code
 
