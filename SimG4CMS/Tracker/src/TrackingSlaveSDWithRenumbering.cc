@@ -1,5 +1,4 @@
 #include "SimG4CMS/Tracker/interface/TrackingSlaveSDWithRenumbering.h"
-#include "SimG4Core/Notification/interface/EndOfEvent.h"
 #include "SimG4Core/Application/interface/EventAction.h"
 #include "SimG4CMS/Tracker/interface/TrackerHitsObject.h"
 

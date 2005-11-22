@@ -8,7 +8,6 @@
 #include "SimG4Core/Notification/interface/EndOfEvent.h"
 #include "SimDataFormats/SimHitMaker/interface/TrackingSlaveSD.h"
 
-
 class EventAction;
 
 #include<string>

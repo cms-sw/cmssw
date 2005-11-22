@@ -29,7 +29,7 @@
 #include <vector>
 
 //#define FAKEFRAMEROTATION
-#define DEBUG
+//#define DEBUG
 //#define DEBUG_TRACKID
 
 using std::cout;
@@ -334,12 +334,6 @@ void TkAccumulatingSensitiveDetector::EndOfEvent(G4HCofThisEvent *)
 #endif
     if (mySimHit == 0) return;
     sendHit();
-    // FAKE FOR THE MOMENT WAITING FOR SIGNALS   
-    /*
-    BeginOfEvent* theBegin= new BeginOfEvent(0);
-    upDate(theBegin);
-    delete theBegin;
-    */
 }
 
 void TkAccumulatingSensitiveDetector::update(const BeginOfEvent * i)
