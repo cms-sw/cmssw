@@ -1,0 +1,42 @@
+//<<<<<< INCLUDES                                                       >>>>>>
+
+#include "Utilities/StorageFactory/interface/LocalStorageMaker.h"
+#include "SealBase/IOStatus.h"
+#include "SealBase/Filename.h"
+#include "SealBase/File.h"
+
+//<<<<<< PRIVATE DEFINES                                                >>>>>>
+//<<<<<< PRIVATE CONSTANTS                                              >>>>>>
+//<<<<<< PRIVATE TYPES                                                  >>>>>>
+//<<<<<< PRIVATE VARIABLE DEFINITIONS                                   >>>>>>
+//<<<<<< PUBLIC VARIABLE DEFINITIONS                                    >>>>>>
+//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
+//<<<<<< PRIVATE FUNCTION DEFINITIONS                                   >>>>>>
+//<<<<<< PUBLIC FUNCTION DEFINITIONS                                    >>>>>>
+//<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
+
+seal::Storage *
+LocalStorageMaker::open (const std::string & /* proto */,
+			 const std::string &path,
+			 int mode,
+			 const std::string & /* tmpdir */)
+{ return new seal::File (path, mode); }
+
+bool
+LocalStorageMaker::check (const std::string &proto,
+		          const std::string &path,
+		          seal::IOOffset *size /* = 0 */)
+{
+    seal::Filename name (path);
+    if (! name.exists ())
+	return false;
+
+    if (size)
+    {
+	seal::IOStatus stat;
+	name.status (stat);
+	*size = stat.m_size;
+    }
+
+    return true;
+}

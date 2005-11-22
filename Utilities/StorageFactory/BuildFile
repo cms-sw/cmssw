@@ -1,0 +1,17 @@
+<export>
+ <lib name=UtilitiesStorageFactory>
+ <use name=Utilities/RFIOAdaptor>
+ <use name=Utilities/DCacheAdaptor>
+ <use name=Foundation/SealZip>
+ <use name=Foundation/PluginManager>
+ <use name=boost>
+</export>
+
+<use name=Utilities/RFIOAdaptor>
+<use name=Utilities/DCacheAdaptor>
+<use name=Foundation/SealZip>
+<use name=Foundation/PluginManager>
+<use name=boost>
+
+# This is really a SEAL plugin:
+<Flags SEAL_PLUGIN_NAME="UtilitiesStorageFactory">

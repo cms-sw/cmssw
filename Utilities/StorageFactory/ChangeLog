@@ -1,0 +1,19 @@
+2005-11-22  Giulio Eulisse  <giulio.eulisse@cern.ch>
+
+	* .admin/developers: administrators added on pete's request. 
+
+	* BuildFile, DCacheStorageMaker.h, GsiFTPStorageMaker.h,
+	HttpStorageMaker.h, LocalStorageMaker.h, RFIOStorageMaker.h,
+	RedirectStorageMaker.h, StorageAccount.h, StorageAccountProxy.h,
+	StorageFactory.h, StorageMaker.h, ZipMemberStorageMaker.h,
+	DCacheStorageMaker.cc, GsiFTPStorageMaker.cc, HttpStorageMaker.cc,
+	LocalStorageMaker.cc, RFIOStorageMaker.cc,
+	RedirectStorageMaker.cc, StorageAccount.cc,
+	StorageAccountProxy.cc, StorageFactory.cc, StorageMaker.cc,
+	ZipMemberStorage.cc, module.cc, BuildFile, any.cpp, ftp.cpp,
+	ftp2.cpp, http.cpp, http2.cpp, http3.cpp, http4.cpp, local.cpp,
+	local2.cpp, local3.cpp, redirect.cpp, rfio.cpp, rfio2.cpp,
+	rfio3.cpp, rfzip.cpp, rfzip2.cpp, rfzip3.cpp, write.cpp,
+	writestream.cpp, zip.cpp, zip2.cpp, zip3.cpp, ziplist.cpp: files
+	imported in the repository.
+
