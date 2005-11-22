@@ -1,3 +1,6 @@
+** V00-03-01  [Tue Nov 22 16:17:58 2005]
+eliminate reference to SimHitCollection (obsolete)
+
 ** V00-03-00  [Mon Nov 21 18:32:34 2005]
 add elimination of simhits outside of 3 sigma
 
