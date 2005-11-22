@@ -1,8 +1,8 @@
 /*
  * \file EBPedPreSampleClient.cc
  * 
- * $Date: 2005/11/20 13:19:26 $
- * $Revision: 1.27 $
+ * $Date: 2005/11/20 16:43:39 $
+ * $Revision: 1.28 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -31,11 +31,11 @@ EBPedPreSampleClient::EBPedPreSampleClient(const edm::ParameterSet& ps, MonitorU
 
   }
 
-   expectedMean_ = 2048;
+   expectedMean_ = 200;
 
-   discrepancyMean_ = 2044;
+   discrepancyMean_ = 20;
 
-   RMSThreshold_ = 2.2;
+   RMSThreshold_ = 2;
 
 }
 
