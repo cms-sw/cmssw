@@ -1,0 +1,9 @@
+
+<export>
+ <lib name=UtilitiesRFIOAdaptor>
+ <use name=Foundation/SealBase>
+ <use name=rfio>
+</export>
+
+<use name=Foundation/SealBase>
+<use name=rfio>
