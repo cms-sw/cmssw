@@ -1,3 +1,6 @@
+** V00-02-03  [Tue Nov 22 03:25:00 2005]
+Use shell script test driver.
+
 ** V00-02-02  [Tue Nov 15 16:11:28 2005]
 Name changes to FileInPath environment variables
 
