@@ -162,9 +162,10 @@ bool CaloSD::ProcessHits(G4GFlashSpot* aSpot, G4TouchableHistory*) {
 #endif
       // Update if in the same detector, time-slice and for same track   
       if (currentID == previousID) {
-	upDateHit();
+	updateHit();
       } else {
 	
+	posGlobal = aSpot->GetPosition();
 	// Reset entry point for new primary
 	if (currentID.trackID() != previousID.trackID()) {
 	  entrancePoint  = aSpot->GetPosition();
@@ -197,6 +198,7 @@ double CaloSD::getEnergyDeposit(G4Step* aStep) {
 }
 
 void CaloSD::Initialize(G4HCofThisEvent * HCE) { 
+
 #ifdef debug
   if (verboseLevel > 1) 
     std::cout << "CaloSD : Initialize called for " << GetName() << std::endl;
@@ -204,19 +206,10 @@ void CaloSD::Initialize(G4HCofThisEvent * HCE) {
 
   //This initialization is performed at the beginning of an event
   //------------------------------------------------------------
-
   theHC = new CaloG4HitCollection(GetName(), collectionName[0]);
   if (hcID<0) 
     hcID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
   HCE->AddHitsCollection(hcID, theHC);
-
-  hitMap.erase (hitMap.begin(), hitMap.end());
-  previousID.reset();
-  primIDSaved    = -99;
-  // FAKE FOR THE MOMENT WAITING FOR SIGNALS   
-  BeginOfEvent* theBegin= new BeginOfEvent(0);
-  upDate(theBegin);
-  delete theBegin;
 }
 
 void CaloSD::getStepInfo(G4Step* aStep) {
@@ -278,11 +271,12 @@ G4bool CaloSD::hitExists() {
    
   // Update if in the same detector, time-slice and for same track   
   if (currentID == previousID) {
-    upDateHit();
+    updateHit();
     return true;
   }
    
   // Reset entry point for new primary
+  posGlobal = preStepPoint->GetPosition();
   if (currentID.trackID() != previousID.trackID()) 
     resetForNewPrimary(preStepPoint->GetPosition(),
 		       preStepPoint->GetKineticEnergy());
@@ -315,7 +309,7 @@ G4bool CaloSD::checkHit() {
   }
 
   if (found) {
-    upDateHit();
+    updateHit();
     return true;
   } else {
     return false;
@@ -404,8 +398,9 @@ void CaloSD::createNewHit() {
   currentHit->setID(currentID);
   currentHit->setEntry(entrancePoint);
   currentHit->setEntryLocal(entranceLocal);
+  currentHit->setPosition(posGlobal);
   currentHit->setIncidentEnergy(incidentEnergy);
-  upDateHit();
+  updateHit();
   
   storeHit(currentHit);
   double etrack = 0;
@@ -447,7 +442,7 @@ void CaloSD::createNewHit() {
 
 }	 
 
-void CaloSD::upDateHit() {
+void CaloSD::updateHit() {
 
   if (edepositEM+edepositHAD != 0) {
     currentHit->addEnergyDeposit(edepositEM,edepositHAD);
@@ -590,7 +585,7 @@ void CaloSD::PrintAll() {
   theHC->PrintAllHits();
 } 
 
-void CaloSD::upDate(const BeginOfEvent *) {
+void CaloSD::update(const BeginOfEvent *) {
 #ifdef debug
   if (verboseLevel > 1) 
     std::cout << "CaloSD: Dispatched BeginOfEvent for " << GetName() << " !" 
@@ -600,7 +595,11 @@ void CaloSD::upDate(const BeginOfEvent *) {
 }
 
 void CaloSD::clearHits(){
-  hitvec.erase(hitvec.begin(),hitvec.end()); 
+
+  hitvec.erase (hitvec.begin(), hitvec.end()); 
+  hitMap.erase (hitMap.begin(), hitMap.end());
+  previousID.reset();
+  primIDSaved    = -99;
 #ifdef debug
   if (verboseLevel > 1) 
     std::cout << "CaloSD: Clears hit vector for " << GetName() << " " << slave 

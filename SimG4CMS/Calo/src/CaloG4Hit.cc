@@ -2,7 +2,6 @@
 // File: CaloG4Hit.cc
 // Description: Transient Hit class for the calorimeters
 ///////////////////////////////////////////////////////////////////////////////
-//#include "Utilities/Configuration/interface/Architecture.h"
 #include "SimG4CMS/Calo/interface/CaloG4Hit.h"
 #include <iostream>
 
@@ -19,6 +18,7 @@ CaloG4Hit::CaloG4Hit(const CaloG4Hit &right) {
 
   entry             = right.entry;
   entryLocal        = right.entryLocal;
+  pos               = right.pos;
   elem              = right.elem;
   hadr              = right.hadr;
   theIncidentEnergy = right.theIncidentEnergy;
@@ -29,6 +29,7 @@ const CaloG4Hit& CaloG4Hit::operator=(const CaloG4Hit &right) {
 
   entry             = right.entry;
   entryLocal        = right.entryLocal;
+  pos               = right.pos;
   elem              = right.elem;
   hadr              = right.hadr;
   theIncidentEnergy = right.theIncidentEnergy;
@@ -61,8 +62,9 @@ std::ostream& operator<<(std::ostream& os, const CaloG4Hit& hit) {
      << " Energy of primary particle    = " << hit.getIncidentEnergy()/MeV 
      << " (MeV)"<< std::endl
      << " Entry point in Calorimeter (global) : " << hit.getEntry() 
-     << "   (local) " << hit.getEntryLocal() << std::endl;
-  os << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+     << "   (local) " << hit.getEntryLocal() << std::endl
+     << " Position of Hit (global) : " << hit.getPosition() << std::endl
+     << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
      << std::endl;
   return os;
 }

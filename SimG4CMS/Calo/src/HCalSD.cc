@@ -327,7 +327,8 @@ void HCalSD::getFromLibrary (G4Step* aStep) {
   }
 
   // Reset entry point for new primary
-  resetForNewPrimary(preStepPoint->GetPosition(), etrack);
+  posGlobal = preStepPoint->GetPosition();
+  resetForNewPrimary(posGlobal, etrack);
 
   G4String particleType = theTrack->GetDefinition()->GetParticleName();
   if (particleType == "e-" || particleType == "e+" ||
@@ -353,7 +354,7 @@ void HCalSD::getFromLibrary (G4Step* aStep) {
    
     // check if it is in the same unit and timeslice as the previosus one
     if (currentID == previousID) {
-      upDateHit();
+      updateHit();
     } else {
       if (!checkHit()) createNewHit();
     }
@@ -415,8 +416,9 @@ void HCalSD::hitForFibre (G4Step* aStep) {
 
       // check if it is in the same unit and timeslice as the previosus one
       if (currentID == previousID) {
-        upDateHit();
+        updateHit();
       } else {
+        posGlobal = preStepPoint->GetPosition();
         if (!checkHit()) createNewHit();
       }
     }

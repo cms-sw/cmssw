@@ -8,4 +8,3 @@ typedef ECalSD EcalSensitiveDetector;
 DEFINE_SENSITIVEDETECTOR(EcalSensitiveDetector);
 typedef HCalSD HcalSensitiveDetector;
 DEFINE_SENSITIVEDETECTOR(HcalSensitiveDetector);
-// Add Hcal Stuff here

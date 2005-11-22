@@ -48,6 +48,9 @@ public:
   Hep3Vector   getEntryLocal() const         {return entryLocal;}
   void         setEntryLocal(Hep3Vector xyz) {entryLocal = xyz;}
   
+  Hep3Vector   getPosition() const           {return pos;}
+  void         setPosition(Hep3Vector xyz)   {pos = xyz;}
+  
   double       getEM() const                 {return elem;}
   void         setEM (double e)              {elem = e;}
   
@@ -75,6 +78,7 @@ private:
   
   Hep3Vector   entry;             //Entry point (Global coordinate)
   Hep3Vector   entryLocal;        //Entry point (Local  coordinate)
+  Hep3Vector   pos;               //Position    (Global coordinate)
   double       elem;              //EnergyDeposit of EM particles
   double       hadr;              //EnergyDeposit of HD particles
   double       theIncidentEnergy; //Energy of the primary particle

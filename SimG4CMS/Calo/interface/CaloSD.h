@@ -9,14 +9,12 @@
 
 #include "SimG4CMS/Calo/interface/CaloG4Hit.h"
 #include "SimG4CMS/Calo/interface/CaloG4HitCollection.h"
+#include "SimG4Core/Notification/interface/Observer.h"
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
-#include "SimG4Core/Notification/interface/EndOfEvent.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveCaloDetector.h"
-
 
 // To be replaced by something else 
 /* #include "Utilities/Notification/interface/TimerProxy.h" */
-/* #include "Utilities/UI/interface/Verbosity.h" */
  
 #include "G4VPhysicalVolume.hh"
 #include "G4Track.hh"
@@ -42,10 +40,7 @@ class CaloSD :
 #ifdef G4v7
 public G4VGFlashSensitiveDetector,
 #endif
-public SensitiveCaloDetector
-	       /* 	       private Observer<const BeginOfEvent *>, */
-	       /* 	       private Observer<const EndOfEvent *>, */
-	       /*                public LazyObserver<const EventAction*> { */
+public SensitiveCaloDetector, public Observer<const BeginOfEvent *>
 {
  public:    
   typedef map<vector<int>,CaloG4Hit*> MyMap;
@@ -75,14 +70,14 @@ protected:
   G4bool        hitExists();
   G4bool        checkHit();
   void          createNewHit();
-  void          upDateHit();
+  void          updateHit();
   void          resetForNewPrimary(G4ThreeVector, double);
   double        getAttenuation(G4Step* aStep, double birk1, double birk2);
 
-private:
-
-  void          upDate(const BeginOfEvent *);
+  virtual void  update(const BeginOfEvent *);
   virtual void  clearHits();
+
+private:
 
   void          storeHit(CaloG4Hit*);
   bool          saveHit(CaloG4Hit*);
@@ -97,6 +92,7 @@ protected:
 
   G4ThreeVector        entrancePoint;
   G4ThreeVector        entranceLocal;
+  G4ThreeVector        posGlobal;
   float                incidentEnergy;
   int                  primIDSaved; //   ID of the last saved primary
 
