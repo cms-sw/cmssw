@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  * 
- * $Date: 2005/11/14 08:52:30 $
- * $Revision: 1.25 $
+ * $Date: 2005/11/20 16:43:39 $
+ * $Revision: 1.26 $
  * \author G. Della Ricca
  *
 */
@@ -24,6 +24,8 @@ EBLaserTask::EBLaserTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe
       meShapeMapL1_[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096.);
       sprintf(histo, "EBLT amplitude SM%02d L1", i+1);
       meAmplMapL1_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
+      sprintf(histo, "EBPT laser amplitude over PN L1 SM%02d", i+1);
+      meAmplPNMapL1_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
     }
 
     dbe->setCurrentFolder("EcalBarrel/EBLaserTask/Laser2");
@@ -32,7 +34,30 @@ EBLaserTask::EBLaserTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe
       meShapeMapL2_[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096.);
       sprintf(histo, "EBLT amplitude SM%02d L2", i+1);
       meAmplMapL2_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
+      sprintf(histo, "EBPT laser amplitude over PN L2 SM%02d", i+1);
+      meAmplPNMapL2_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
     }
+
+    dbe->setCurrentFolder("EcalBarrel/EBLaserTask/Laser3");
+    for (int i = 0; i < 36 ; i++) {
+      sprintf(histo, "EBLT shape SM%02d L3", i+1);
+      meShapeMapL3_[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096.);
+      sprintf(histo, "EBLT amplitude SM%02d L3", i+1);
+      meAmplMapL3_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
+      sprintf(histo, "EBPT laser amplitude over PN L3 SM%02d", i+1);
+      meAmplPNMapL3_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
+    }
+
+    dbe->setCurrentFolder("EcalBarrel/EBLaserTask/Laser4");
+    for (int i = 0; i < 36 ; i++) {
+      sprintf(histo, "EBLT shape SM%02d L4", i+1);
+      meShapeMapL4_[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096.);
+      sprintf(histo, "EBLT amplitude SM%02d L4", i+1);
+      meAmplMapL4_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
+      sprintf(histo, "EBPT laser amplitude over PN L4 SM%02d", i+1);
+      meAmplPNMapL4_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
+    }
+
   }
 
 }

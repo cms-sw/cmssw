@@ -4,8 +4,8 @@
 /*
  * \file EBLaserTask.h
  *
- * $Date: 2005/10/30 14:16:19 $
- * $Revision: 1.10 $
+ * $Date: 2005/11/14 08:52:30 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  *
 */
@@ -63,9 +63,19 @@ int ievt_;
 
 MonitorElement* meShapeMapL1_[36];
 MonitorElement* meAmplMapL1_[36];
+MonitorElement* meAmplPNMapL1_[36];
 
 MonitorElement* meShapeMapL2_[36];
 MonitorElement* meAmplMapL2_[36];
+MonitorElement* meAmplPNMapL2_[36];
+
+MonitorElement* meShapeMapL3_[36];
+MonitorElement* meAmplMapL3_[36];
+MonitorElement* meAmplPNMapL3_[36];
+
+MonitorElement* meShapeMapL4_[36];
+MonitorElement* meAmplMapL4_[36];
+MonitorElement* meAmplPNMapL4_[36];
 
 ofstream logFile_;
 
