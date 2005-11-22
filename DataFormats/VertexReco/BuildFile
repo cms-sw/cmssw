@@ -3,6 +3,7 @@
 <use name=Dictionary/Reflex>
 <use name=clhep>
 <use name=rootcore>
+<flags LCGDICT_ARGS="--deep">
 <export>
  <lib name=DataFormatsVertexReco>
  <use name=DataFormats/TrackReco>
