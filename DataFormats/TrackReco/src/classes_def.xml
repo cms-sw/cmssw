@@ -7,7 +7,7 @@
 
   <class name="reco::Track" />
   <class name="std::vector<reco::Track>" />
-  <class name="edm::Wrapper<std::vector<reco::Track> >" id="4C01A44A-A375-6DA5-E508-FFB2AB70540C"/>
+  <class name="edm::Wrapper<std::vector<reco::Track> >" />
 
   <class name="reco::RecHit" />
   <class name="std::vector<reco::RecHit>" />
