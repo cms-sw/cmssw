@@ -18,6 +18,7 @@ public:
     ~FieldBuilder();
     void readFieldParameters(DDLogicalPart theLogicalPart,
 			     std::string keywordField);
+    void setField();
     void setField(const edm::EventSetup & iSetup);
     void configure(std::string keywordField,G4FieldManager * fM = 0,
 		   G4PropagatorInField * fP = 0);

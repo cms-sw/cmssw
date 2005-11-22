@@ -47,6 +47,14 @@ void FieldBuilder::readFieldParameters(DDLogicalPart lp,std::string keywordField
     tmp = m->toDouble("MaximumEpsilonStep",lp,maxEpsilonStep);
 }
 
+void FieldBuilder::setField()
+{
+    G4MagneticField * f = new G4UniformMagField(Hep3Vector(0.,0.,4*tesla));
+    theField = f;
+    theFieldEquation = new G4Mag_UsualEqRhs(theField);
+    theField->fieldEquation(theFieldEquation);
+}
+
 void FieldBuilder::setField(const edm::EventSetup & iSetup)
 {
     edm::ESHandle<MagneticField> pSetup;
@@ -54,7 +62,7 @@ void FieldBuilder::setField(const edm::EventSetup & iSetup)
     const GlobalPoint g(0.,0.,0.);
     std::cout << "B-field(T) at (0,0,0)(cm): " << pSetup->inTesla(g) << std::endl;
 
-    G4MagneticField * f = new G4UniformMagField(Hep3Vector(0.,0.,4*tesla));
+    G4MagneticField * f = 0; // FIXME 
     theField = f;    
     theFieldEquation = new G4Mag_UsualEqRhs(theField);
     theField->fieldEquation(theFieldEquation);

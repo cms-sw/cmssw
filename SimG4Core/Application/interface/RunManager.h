@@ -13,8 +13,6 @@
 #include "SimG4Core/SensitiveDetector/interface/SensitiveTkDetector.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveCaloDetector.h"
 
-#include "SimG4Core/Application/interface/DDDWorldObserver.h"
-#include "SimG4Core/Notification/interface/Dispatcher.h"
 #include "SimG4Core/Notification/interface/SimActivityRegistry.h"
 
 #include <memory>
@@ -97,8 +95,6 @@ private:
     AttachSD * m_attach;
     std::vector<SensitiveTkDetector*> m_sensTkDets;
     std::vector<SensitiveCaloDetector*> m_sensCaloDets;
-    DDDWorldObserver<DDDWorld > * worldObserver; 
-    Dispatcher<DDDWorld > * worldDispatcher;
 
     SimActivityRegistry m_registry;
 };

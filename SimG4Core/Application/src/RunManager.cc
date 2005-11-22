@@ -91,8 +91,6 @@ RunManager::RunManager(edm::ParameterSet const & p)
 
 RunManager::~RunManager() 
 { 
-    if (worldObserver!=0) delete worldObserver;
-    if (worldDispatcher!=0) delete worldDispatcher;
     if (m_kernel!=0) delete m_kernel; 
 }
 
@@ -110,12 +108,12 @@ void RunManager::initG4(const edm::EventSetup & es)
    
     //QUESTION: Who deletes this?
     const DDDWorld * world = new DDDWorld(&(*pDD));
-    
+    //ANSWER: Unfortunately we cannot; G4 deletes all the volumes for now
+    //        but I'll check again
     m_registry.dddWorldSignal_(world);
 
     //QUESTION: Are the following two lines still needed?
-    worldObserver = new DDDWorldObserver<DDDWorld >(); 
-    worldDispatcher = new Dispatcher<DDDWorld >(world);
+    //ANSWER: No!
 
     m_attach = new AttachSD;
     {
