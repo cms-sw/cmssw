@@ -1,3 +1,6 @@
+** V00-00-03  [Tue Nov 22 03:21:29 2005]
+Adding shell script test driver.
+
 ** V00-00-02  [Sat Nov 12 01:01:56 2005]
 Define new TypeIDBase class
 
