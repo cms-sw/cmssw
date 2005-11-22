@@ -1,6 +1,7 @@
 #ifndef SimG4Core_RunManager_H
 #define SimG4Core_RunManager_H
 
+#include <memory>
 #include "FWCore/EDProduct/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Handle.h"
@@ -16,8 +17,6 @@
 #include "SimG4Core/Notification/interface/Dispatcher.h"
 #include "SimG4Core/Notification/interface/SimActivityRegistry.h"
 
-#include "SealKernel/Context.h"
-
 #include <memory>
 
 namespace CLHEP {
@@ -26,7 +25,7 @@ namespace CLHEP {
  
 class PrimaryTransformer;
 class Generator;
-class DummyPhysics;
+class PhysicsList;
 class G4SimEvent;
 
 class DDDWorld;
@@ -53,7 +52,6 @@ public:
     const Generator * generator() const { return m_generator; }
     const G4Event * currentEvent() const { return m_currentEvent; }
     G4SimEvent * simEvent() { return m_simEvent; }
-    seal::Handle<seal::Context> runContext() { return m_context; }
     std::vector<SensitiveTkDetector*>& sensTkDetectors() { return m_sensTkDets; }
     std::vector<SensitiveCaloDetector*>& sensCaloDetectors() { return m_sensCaloDets; }
     void runRNDMstore(int run);
@@ -65,10 +63,9 @@ protected:
 private:
     static RunManager * me;
     explicit RunManager(edm::ParameterSet const & p);
-    seal::Handle<seal::Context> m_context;
     G4RunManagerKernel * m_kernel;
     Generator * m_generator;
-    DummyPhysics * m_physics;
+    std::auto_ptr<PhysicsList> m_physicsList;
     PrimaryTransformer * m_primaryTransformer;
     CLHEP::HepJamesRandom * m_engine;
     bool m_managerInitialized;

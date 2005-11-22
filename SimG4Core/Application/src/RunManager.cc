@@ -56,8 +56,7 @@ RunManager * RunManager::instance()
 }
 
 RunManager::RunManager(edm::ParameterSet const & p) 
-    : m_context (new seal::Context),
-      m_generator(0), m_primaryTransformer(0), m_engine(0), m_managerInitialized(false), 
+  :   m_generator(0), m_primaryTransformer(0), m_engine(0), m_managerInitialized(false), 
       m_geometryInitialized(true), m_physicsInitialized(true),
       m_runInitialized(false), m_runTerminated(false), m_runAborted(false),
       m_currentRun(0), m_currentEvent(0), m_simEvent(0), 
@@ -134,15 +133,20 @@ void RunManager::initG4(const edm::EventSetup & es)
     m_generator = new Generator(m_pGenerator);
     m_primaryTransformer = new PrimaryTransformer();
     
-    seal::Handle<PhysicsList> physics = PhysicsListFactory::get()->create
-	(m_pPhysics.getParameter<std::string> ("type"),m_context.get(),m_pPhysics);
-    if (physics.get()==0) throw SimG4Exception("Physics list construction failed!");
-    m_kernel->SetPhysics(physics.get());
+    std::auto_ptr<PhysicsListMakerBase> physicsMaker( 
+      PhysicsListFactory::get()->create
+      (m_pPhysics.getParameter<std::string> ("type")) );
+    if(physicsMaker.get()==0) {
+      throw SimG4Exception("Unable to find the Physics list requested");
+    }
+    m_physicsList = physicsMaker->make(m_pPhysics,m_registry);
+    if (m_physicsList.get()==0) throw SimG4Exception("Physics list construction failed!");
+    m_kernel->SetPhysics(m_physicsList.get());
     m_kernel->InitializePhysics();
 
-    physics->ResetStoredInAscii();
+    m_physicsList->ResetStoredInAscii();
     std::string tableDir = m_PhysicsTablesDir;
-    if (m_RestorePhysicsTables) physics->SetPhysicsTableRetrieved(tableDir);
+    if (m_RestorePhysicsTables) m_physicsList->SetPhysicsTableRetrieved(tableDir);
  
     if (m_kernel->RunInitialization()) m_managerInitialized = true;
     else throw SimG4Exception("G4RunManagerKernel initialization failed!");
@@ -154,7 +158,7 @@ void RunManager::initG4(const edm::EventSetup & es)
 	std::string cmd = std::string("/control/shell mkdir -p ")+tableDir;
 	if (!std::ifstream(dir.str(), std::ios::in))
 	    G4UImanager::GetUIpointer()->ApplyCommand(cmd);
-	physics->StorePhysicsTable(tableDir);
+	m_physicsList->StorePhysicsTable(tableDir);
     }
  
     initializeUserActions();
