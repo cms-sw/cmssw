@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2005/11/21 17:38:48 $
- *  $Revision: 1.8 $
+ *  $Date: 2005/11/22 13:52:15 $
+ *  $Revision: 1.9 $
  *  \author S. Argiro - N. Amapane - M. Zanetti 
  */
 
@@ -24,7 +24,7 @@
 
 #include <EventFilter/DTRawToDigi/src/DTDDUWords.h>
 #include <EventFilter/DTRawToDigi/src/DTDDUUnpacker.h>
-#include <EventFilter/DTRawToDigi/src/DTROS25Unpacker.h>
+//#include <EventFilter/DTRawToDigi/src/DTROS25Unpacker.h>
 #include <EventFilter/DTRawToDigi/src/DTROS8Unpacker.h>
 
 
@@ -37,18 +37,25 @@ using namespace std;
 #define SLINK_WORD_SIZE 8
 
 
-DTUnpackingModule::DTUnpackingModule(const edm::ParameterSet& pset):
-  dduUnpacker(new DTDDUUnpacker()),
-  ros25Unpacker(new DTROS25Unpacker()),
-  ros8Unpacker(new DTROS8Unpacker()) 
+DTUnpackingModule::DTUnpackingModule(const edm::ParameterSet& pset) :
+  unpacker(0)
 {
+  const string &  dataType = pset.getParameter<string>("dataType");
+
+  if (dataType == "DDU") {
+    unpacker = new DTDDUUnpacker();
+  } else if (dataType == "ROS8") {
+    unpacker = new DTROS8Unpacker();
+  } else {
+    throw cms::Exception("InvalidParameter") << "DTUnpackingModule: dataType "
+					     << dataType << " is unknown";
+  }
+
   produces<DTDigiCollection>();
 }
 
 DTUnpackingModule::~DTUnpackingModule(){
-  delete dduUnpacker;
-  delete ros25Unpacker;
-  delete ros8Unpacker;
+  delete unpacker;
 }
 
 
@@ -60,14 +67,13 @@ void DTUnpackingModule::produce(Event & e, const EventSetup& context){
 
   // Get the mapping from the setup
   ESHandle<DTReadOutMapping> mapping;
-  context.get<DTReadOutMappingRcd>().get(mapping);
+  //  context.get<DTReadOutMappingRcd>().get(mapping);
   
   // Create the result i.e. the collection of MB Digis
   auto_ptr<DTDigiCollection> product(new DTDigiCollection);
 
 
   // Loop over the DT FEDs
-  int dduID = 0;
   for (int id=FEDNumbering::getDTFEDIds().first; id<=FEDNumbering::getDTFEDIds().second; ++id){ 
     
     const FEDRawData& feddata = rawdata->FEDData(id);
@@ -75,17 +81,8 @@ void DTUnpackingModule::produce(Event & e, const EventSetup& context){
     if (feddata.size()){
       
       // Unpack the DDU data
-      dduUnpacker->interpretRawData(feddata.data(), feddata.size());
-
-      // Unpack the ROS25 data
-      ros25Unpacker->interpretRawData(feddata.data(), feddata.size(), dduID, mapping, product);
-
-      // Unpack the ROS8 data
-      ros8Unpacker->interpretRawData(feddata.data(), feddata.size(), mapping, product);
-
+      unpacker->interpretRawData(feddata.data(), feddata.size(), id, mapping, product);
     }
-
-    dduID++; 
   }
 
   // commit to the event  

@@ -1,26 +1,24 @@
 /** \file
  *
- *  $Date: 2005/11/21 17:38:48 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/11/22 13:52:15 $
+ *  $Revision: 1.3 $
  *  \author  M. Zanetti - INFN Padova 
  */
 
 #include <EventFilter/DTRawToDigi/src/DTROS8Unpacker.h>
-
 #include <EventFilter/DTRawToDigi/src/DTDDUWords.h>
 #include <EventFilter/DTRawToDigi/src/DTROSErrorNotifier.h>
 #include <EventFilter/DTRawToDigi/src/DTTDCErrorNotifier.h>
 #include <CondFormats/DTObjects/interface/DTReadOutMapping.h>
 
+#include <iostream>
+
 using namespace std;
 using namespace edm;
 
-#include <iostream>
-
-#define SLINK_WORD_SIZE 8
-
 
 void DTROS8Unpacker::interpretRawData(const unsigned char* index, int datasize,
+				      int dduID,
 				      edm::ESHandle<DTReadOutMapping>& mapping, 
 				      std::auto_ptr<DTDigiCollection>& product) {
 
@@ -86,12 +84,16 @@ void DTROS8Unpacker::interpretRawData(const unsigned char* index, int datasize,
 
       // Map the RO channel to the DetId and wire
       DTDetId detId; 
-      int dduID = 1;
-      detId = mapping->readOutToGeometry(dduID, ros, rob, itdc1, icha);
+      //      detId = mapping->readOutToGeometry(dduID, ros, rob, itdc1, icha);
       int wire = detId.wire();
       
       // Produce the digi
-      DTDigi digi(wire, time);
+      // FIXME : handle count!!!
+      int count = 0;
+      DTDigi digi(wire, time, count);
+
+      //      cout << digi << endl;
+
       product->insertDigi(detId.layerId(),digi);
     }
   }

@@ -1,23 +1,20 @@
 /** \file
  *
- *  $Date: 2005/11/21 17:38:48 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/11/22 14:16:43 $
+ *  $Revision: 1.3 $
  *  \author  M. Zanetti - INFN Padova 
  */
 
 #include <EventFilter/DTRawToDigi/src/DTROS25Unpacker.h>
-
 #include <EventFilter/DTRawToDigi/src/DTDDUWords.h>
 #include <EventFilter/DTRawToDigi/src/DTROSErrorNotifier.h>
 #include <EventFilter/DTRawToDigi/src/DTTDCErrorNotifier.h>
 #include <CondFormats/DTObjects/interface/DTReadOutMapping.h>
 
-using namespace std;
-using namespace edm;
-
 #include <iostream>
 
-#define SLINK_WORD_SIZE 8
+using namespace std;
+using namespace edm;
 
 
 void DTROS25Unpacker::interpretRawData(const unsigned char* index, int datasize,
@@ -25,15 +22,11 @@ void DTROS25Unpacker::interpretRawData(const unsigned char* index, int datasize,
 				       edm::ESHandle<DTReadOutMapping>& mapping, 
 				       std::auto_ptr<DTDigiCollection>& product) {
 
-  // Set the index to start looping on ROS data
-  index += SLINK_WORD_SIZE - DTDDU_WORD_SIZE;
-  DTROSWordType wordType(index);	
+  DTROSWordType wordType(index);
 
   // Loop on ROSs
   int rosID = 0;
-  do {
-    index+=DTDDU_WORD_SIZE;
-    wordType.update();
+  while (index < (index + datasize)) { // FIXME!!!
 
     // ROS Header; 
     if (wordType.type() == DTROSWordType::ROSHeader) {
@@ -45,7 +38,7 @@ void DTROS25Unpacker::interpretRawData(const unsigned char* index, int datasize,
       // Loop on ROBs
       do {	  
 	index+=DTDDU_WORD_SIZE;
-	wordType.update();
+	wordType.update(index);
 	    
 	// Eventual ROS Error: occurs when some errors are found in a ROB
 	if (wordType.type() == DTROSWordType::ROSError) {
@@ -65,7 +58,7 @@ void DTROS25Unpacker::interpretRawData(const unsigned char* index, int datasize,
 	  // Loop on TDCs data (headers and trailers are not there
 	  do {
 	    index+=DTDDU_WORD_SIZE;
-	    wordType.update();
+	    wordType.update(index);
 		
 	    // Eventual TDC Error 
 	    if ( wordType.type() == DTROSWordType::TDCError) {
@@ -102,7 +95,9 @@ void DTROS25Unpacker::interpretRawData(const unsigned char* index, int datasize,
       if (wordType.type() == DTROSWordType::ROSTrailer);
     }
 
-  } while (index != (index + datasize - 3*SLINK_WORD_SIZE));
+    index+=DTDDU_WORD_SIZE;
+    wordType.update(index);
+  }
 
 
 }

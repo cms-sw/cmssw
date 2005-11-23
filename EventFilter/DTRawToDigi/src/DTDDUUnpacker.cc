@@ -1,24 +1,32 @@
 /** \file
  *
- *  $Date: 2005/11/10 18:53:57 $
- *  $Revision: 1.1.2.1 $
+ *  $Date: 2005/11/21 17:38:48 $
+ *  $Revision: 1.2 $
  *  \author  M. Zanetti - INFN Padova 
  */
 
-#include <EventFilter/DTRawToDigi/src/DTDDUUnpacker.h>
-
 #include <DataFormats/FEDRawData/interface/FEDHeader.h>
 #include <DataFormats/FEDRawData/interface/FEDTrailer.h>
+#include <EventFilter/DTRawToDigi/src/DTDDUUnpacker.h>
 #include <EventFilter/DTRawToDigi/src/DTDDUWords.h>
-
-using namespace std;
+#include <EventFilter/DTRawToDigi/src/DTROS25Unpacker.h>
 
 #include <iostream>
 
-#define SLINK_WORD_SIZE 8
+using namespace std;
+
+DTDDUUnpacker::DTDDUUnpacker() : ros25Unpacker(new DTROS25Unpacker) {
+}
+
+DTDDUUnpacker::~DTDDUUnpacker() {
+  delete ros25Unpacker;
+}
 
 
-void DTDDUUnpacker::interpretRawData(const unsigned char* index, int datasize) {
+void DTDDUUnpacker::interpretRawData(const unsigned char* index, int datasize,
+				     int dduID,
+				     edm::ESHandle<DTReadOutMapping>& mapping, 
+				     std::auto_ptr<DTDigiCollection>& product) {
 
   // Check DDU header
   FEDHeader dduHeader(index);
@@ -31,4 +39,13 @@ void DTDDUUnpacker::interpretRawData(const unsigned char* index, int datasize) {
   
   DTDDUSecondStatusWord dduStatusWord2(index + datasize - 2*SLINK_WORD_SIZE);
 
+  
+  //---- ROS data
+
+  // Set the index to start looping on ROS data
+  index += SLINK_WORD_SIZE;
+  datasize -= 4*SLINK_WORD_SIZE; // header, trailer, 2 status words
+
+  ros25Unpacker->interpretRawData(index, datasize, dduID, mapping, product);
+  
 }

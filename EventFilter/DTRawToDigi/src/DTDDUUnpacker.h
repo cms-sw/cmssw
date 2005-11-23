@@ -4,27 +4,33 @@
 /** \class DTDDUUnpacker
  *  The unpacker for DTs' FED.
  *
- *  $Date: 2005/11/10 18:53:57 $
- *  $Revision: 1.1.2.1 $
+ *  $Date: 2005/11/21 17:38:48 $
+ *  $Revision: 1.2 $
  * \author M. Zanetti INFN Padova
  */
 
+#include <EventFilter/DTRawToDigi/src/DTUnpacker.h>
 
-class DTDDUUnpacker {
+class DTROS25Unpacker;
+
+class DTDDUUnpacker : public DTUnpacker {
 
  public:
   
   /// Constructor
-  DTDDUUnpacker() {}
+  DTDDUUnpacker();
 
   /// Destructor
-  virtual ~DTDDUUnpacker() {}
+  virtual ~DTDDUUnpacker();
 
   /// Unpacking method
-  void interpretRawData(const unsigned char* index, int datasize);
+  virtual void interpretRawData(const unsigned char* index, int datasize,
+				int dduID,
+				edm::ESHandle<DTReadOutMapping>& mapping, 
+				std::auto_ptr<DTDigiCollection>& product);
 
  private:
-
+  DTROS25Unpacker* ros25Unpacker;
 
 };
 

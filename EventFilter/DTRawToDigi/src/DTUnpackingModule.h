@@ -4,8 +4,8 @@
 /** \class DTUnpackingModule
  *  The unpacking module for DTs.
  *
- *  $Date: 2005/11/10 18:55:03 $
- *  $Revision: 1.2.2.2 $
+ *  $Date: 2005/11/21 17:38:48 $
+ *  $Revision: 1.3 $
  * \author N. Amapane - S. Argiro' - M. Zanetti
  */
 
@@ -13,9 +13,7 @@
 
 #include <iostream>
 
-class DTDDUUnpacker;
-class DTROS25Unpacker;
-class DTROS8Unpacker;
+class DTUnpacker;
 
 class DTUnpackingModule: public edm::EDProducer {
  public:
@@ -31,9 +29,7 @@ class DTUnpackingModule: public edm::EDProducer {
 
  private:
 
-  DTDDUUnpacker * dduUnpacker;
-  DTROS25Unpacker * ros25Unpacker;
-  DTROS8Unpacker * ros8Unpacker;
+  DTUnpacker * unpacker;
 
 };
 
