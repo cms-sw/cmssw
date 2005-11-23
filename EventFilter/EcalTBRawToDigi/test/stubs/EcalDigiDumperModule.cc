@@ -3,11 +3,12 @@
  * dummy module  for the test of  DaqFileInputService
  *   
  * 
- * $Date: 2005/08/05 14:34:03 $
- * $Revision: 1.2 $
+ * $Date: 2005/11/01 22:22:59 $
+ * $Revision: 1.3 $
  * \author N. Amapane - S. Argiro'
+ * \author G. Franzoni
  *
-*/
+ */
 
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include <FWCore/Framework/interface/Event.h>
@@ -23,39 +24,66 @@ using namespace std;
 
 class EcalDigiDumperModule: public edm::EDAnalyzer{
   
-public:
+ public:
   EcalDigiDumperModule(const edm::ParameterSet& ps){   }
   
-protected:
+ protected:
   
   void analyze( const edm::Event & e, const  edm::EventSetup& c){
     
-    
+    // retrieving crystal data from Event
     edm::Handle<EBDigiCollection>  digis;
     e.getByLabel("ecalEBunpacker", digis);
+
+    // retrieving crystal PN diodes from Event
+    edm::Handle<EcalPnDiodeDigiCollection>  PNs;
+    e.getByLabel("ecalEBunpacker", PNs);
+
     
-    cout << " ^^^^^^^^^^^^^^^^^^ EcalDigiDumperModule  collection size " << digis->size() << endl;
-    
-    for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
+    cout << "\n\n ^^^^^^^^^^^^^^^^^^ [EcalDigiDumperModule]  digi cry collection size " << digis->size() << endl;
+    cout << "                                  [EcalDigiDumperModule]  dumping some crystals\n"  << endl;
+    short dumpConter =0;      
+
+    for ( EBDigiCollection::const_iterator digiItr= digis->begin();digiItr != digis->end(); 
+	  ++digiItr ) {
 	
-      cout << "\nDump samples for this event: i-phi: " 
+      cout << "i-phi: " 
 	   << (*digiItr).id().iphi() << " j-eta: " 
 	   << (*digiItr).id().ieta()
 	   << "   ";
       for ( int i=0; i< (*digiItr).size() ; ++i ) {
-	cout <<  (*digiItr).sample(i) << " ";
+	if (i==5)	  cout << "\n\t";
+	cout <<  (*digiItr).sample(i) << " ";	  
       }       
       cout << " " << endl;
-      
-      
+	
+      if( (dumpConter++) > 10) break;
+
     }	
     
     
-    
-    
+
+    cout << " \n^^^^^^^^^^^^^^^^^^ EcalDigiDumperModule  digi PN collection.  Size: " << PNs->size() << endl;
+    cout << "                                  [EcalDigiDumperModule]  dumping PN 1 "  << endl;
+
+    for ( EcalPnDiodeDigiCollection::const_iterator pnItr = PNs->begin(); pnItr != PNs->end(); ++pnItr ) {
+	
+      cout << "PN num: " 
+	   << (*pnItr).id().iPnId() << "\n";
+	
+      if ((*pnItr).id().iPnId() == 1){
+	for ( int samId=0; samId < (*pnItr).size() ; samId++ ) {
+	  cout <<  "sId: " << samId << " "
+	       << (*pnItr).sample(samId) 
+	       << "\t";
+	}// end loop on PN samples
+      }// end loop on PNs
+	
+    }
     
     
   } // produce
+
 };// class EcalDigiDumperModule
 
 DEFINE_FWK_MODULE(EcalDigiDumperModule)
