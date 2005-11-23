@@ -50,7 +50,7 @@ ELdestination::ELdestination()
 : threshold     ( ELzeroSeverity    )
 , traceThreshold( ELhighestSeverity )
 , limits        (                   )
-, preamble      ( "%ERLOG"          )
+, preamble      ( "%MSG"          )
 , newline       ( "\n"              )
 , indent        ( "        "        )
 , lineLength    ( defaultLineLength )
@@ -160,7 +160,7 @@ void ELdestination::summary( ELdestControl & dest, const ELstring & title )  {
 
 void ELdestination::summary( std::ostream & os, const ELstring & title )  {
 
-  os << "%ERLOG" << ELwarning2.getSymbol() << " "
+  os << "%MSG" << ELwarning2.getSymbol() << " "
        << noSummaryMsg << " " << hereMsg << std::endl
      << title << std::endl;
 
@@ -169,7 +169,7 @@ void ELdestination::summary( std::ostream & os, const ELstring & title )  {
 
 void ELdestination::summary( ELstring & s, const ELstring & title )  {
 
-  s = ELstring("%ERLOG") + ELwarning2.getSymbol() + " "
+  s = ELstring("%MSG") + ELwarning2.getSymbol() + " "
       + noSummaryMsg + " " + hereMsg + "\n"
     + title + "\n";
 

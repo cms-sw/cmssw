@@ -218,7 +218,7 @@ ELoutput::ELoutput( const ELstring & fileName, bool emitAtStart )
     if (emitAtStart) {
       emit( "\n=======================================================",
 								true );
-      emit( "\n%ERLOG** Logging to cerr is being substituted" );
+      emit( "\n%MSG** Logging to cerr is being substituted" );
       emit( " for specified log file \"" );
       emit( fileName  );
       emit( "\" which could not be opened for write or append.\n" );
