@@ -22,12 +22,13 @@ namespace edmtest_thing
 {
   StreamThingProducer::StreamThingProducer(edm::ParameterSet const& ps):
     size_(ps.getParameter<int>("array_size")),
-    inst_count_(ps.getParameter<int>("instance_count"))
+    inst_count_(ps.getParameter<int>("instance_count")),
+    start_count_(ps.getUntrackedParameter<int>("start_count",0))
   {
     for(int i=0;i<inst_count_;++i)
       {
 	ostringstream ost;
-	ost << i;
+	ost << (i+start_count_);
 	names_.push_back(ost.str());
 	produces<WriteThis>(ost.str());
       }

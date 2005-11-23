@@ -127,4 +127,11 @@ See the notes in readEvents().
 The way threading is used in all the classes is consistent and should
 really be pulled out into a template.
 
+22-11-05 jbk:
+
+added a bunch of code for declaring classes explicitly to root using the
+pool utilities and the reflex information in order to debug a problem.
+The problem appears to stem from a giving class definition in the
+xml file of StreamerData - I've added it now.  The missing class was
+vector<BranchDescription>.
 

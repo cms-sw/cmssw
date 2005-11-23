@@ -30,6 +30,7 @@ namespace edmtest_thing
     int size_;
     int inst_count_;
     std::vector<std::string> names_;
+    int start_count_;
   };
 }
 #endif
