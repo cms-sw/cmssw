@@ -22,6 +22,7 @@ OscarProducer::OscarProducer(edm::ParameterSet const & p)
     produces<edm::PCaloHitContainer>("EcalHitsEB");
     produces<edm::PCaloHitContainer>("EcalHitsEE");
     produces<edm::PCaloHitContainer>("EcalHitsES");
+    produces<edm::PCaloHitContainer>("HcalHits");
     produces<edm::PSimHitContainer>("MuonDTHits");
     produces<edm::PSimHitContainer>("MuonCSCHits");
     produces<edm::PSimHitContainer>("MuonRPCHits");
@@ -30,7 +31,9 @@ OscarProducer::OscarProducer(edm::ParameterSet const & p)
 
 OscarProducer::~OscarProducer() 
 { 
-    if (m_runManager!=0) delete m_runManager; 
+  //this is causing a seg fault when an exception occurs while constructing
+  // an HcalSD.  Need to check for memory problems. 
+  if (m_runManager!=0) delete m_runManager; 
 }
 
 void OscarProducer::beginJob(const edm::EventSetup & es)
