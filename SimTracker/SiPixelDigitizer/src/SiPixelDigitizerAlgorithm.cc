@@ -80,7 +80,7 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
 			     << endl;
   }
   //MP DA RISOLVERE
-  // particleTable =  &HepPDT::theTable();
+  //   particleTable =  &HepPDT::theTable();
 
 }
 SiPixelDigitizerAlgorithm::~SiPixelDigitizerAlgorithm(){
@@ -89,12 +89,17 @@ SiPixelDigitizerAlgorithm::~SiPixelDigitizerAlgorithm(){
  }
 }
 
-//void  SiPixelDigitizerAlgorithm::run(const std::vector<PSimHit*> &input,PixelDigiCollection &output)
-void  SiPixelDigitizerAlgorithm::run(const std::vector<PSimHit*> &input,PixelDigiCollection &output,PixelGeomDetUnit *pixdet)
+void  SiPixelDigitizerAlgorithm::run(const std::vector<PSimHit> &input,
+				     PixelDigiCollection &output,
+				     PixelGeomDetUnit *pixdet,
+				     GlobalVector bfield)
 {
 
 
   _detp = pixdet; //cache the PixGeomDetUnit
+  _PixelHits=input; //cache the SimHit
+
+
 
   // Pixel Efficiency moved from the constructor to the method run because
   // the information of the det are nota available in the constructor
@@ -162,48 +167,19 @@ void  SiPixelDigitizerAlgorithm::run(const std::vector<PSimHit*> &input,PixelDig
       }
     }
   }
-  
-  //MP QUESTA PARTE VA COMPLETAMENTE MODIFICATA NON APPENA SARANNO DISPONIBILI 
-  // I SIMHIT
+  //drift direction
+  //  GlobalVector Perp_det pixdet->surface().
+  //  driftdirection(pixdet,bfield);
 
-  unsigned int detID = 0;
-  unsigned int newDetID = 0;
 
-  int detunits = 0;
-  bool first = true;
-  //  vector<PixelDigi> collector;
-  ss.clear();
-  //raggruppati gli hit in base alla detunit
-  
-  
-  vector<PSimHit*>::const_iterator simHitIter = input.begin();
-  vector<PSimHit*>::const_iterator simHitIterEnd = input.end();
-  //  vector<PseudoHit*>::const_iterator simHitIter = input.begin();
-  //  vector<PseudoHit*>::const_iterator simHitIterEnd = input.end();
-  //start the loop over the simhits
-  for (;simHitIter != simHitIterEnd; ++simHitIter) {
-    ++digis;
-    //pointer to the simhit
-    const PSimHit *simHitPointer = *simHitIter;
-  
- 
-    if ( first ) {
-      detID = simHitPointer->detUnitId();
-      first = false;
-    }
-    newDetID =  simHitPointer->detUnitId();
-    if(detID==newDetID){
-      ss.push_back(simHitPointer);     
-    }
 
-    
     //     /////////////////      
     
-  }
+
   
   //Digitization of the SimHits of a given pixdet
   vector<PixelDigi> collector =digitize(pixdet);
-  
+  int detID= _detp->geographicalId().rawId();
 
   //Fill the pixidigicollection
   PixelDigiCollection::Range outputRange;
@@ -213,7 +189,7 @@ void  SiPixelDigitizerAlgorithm::run(const std::vector<PSimHit*> &input,PixelDig
   collector.clear();
 
   if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 0 ) {
-    cout << "[SiPixelDigitizerAlgorithm] converted " << digis << " StripDigis in " << detunits+1 << " DetUnits." << endl; 
+    cout << "[SiPixelDigitizerAlgorithm] converted " << collector.size() << " StripDigis in DetUnit" << detID << endl; 
   }
   
 }
@@ -222,9 +198,9 @@ void  SiPixelDigitizerAlgorithm::run(const std::vector<PSimHit*> &input,PixelDig
 vector<PixelDigi> SiPixelDigitizerAlgorithm::digitize(PixelGeomDetUnit *det){
   
 
-  digis = 0;
-  if( ss.size() > 0 || addNoisyPixels) {
-  
+
+  if( _PixelHits.size() > 0 || addNoisyPixels) {
+ 
     topol=&det->specificTopology(); // cache topology
     numColumns = topol->ncolumns();  // det module number of cols&rows
     numRows = topol->nrows();
@@ -250,29 +226,30 @@ vector<PixelDigi> SiPixelDigitizerAlgorithm::digitize(PixelGeomDetUnit *det){
     }
     // produce SignalPoint's for all SimHit's in detector
     // Loop over hits
-    vector<const PSimHit*>::const_iterator ssbegin = ss.begin();
-    vector<const PSimHit*>::const_iterator ssend = ss.end();
+    _signal.clear();
+ 
+    vector<PSimHit>::const_iterator ssbegin = _PixelHits.begin();
+    vector<PSimHit>::const_iterator ssend = _PixelHits.end();
     for (;ssbegin != ssend; ++ssbegin) {
-      const PSimHit *pointerHit = *ssbegin;
  
 
       if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 1 ) {  
-	cout << pointerHit->particleType() << " " << pointerHit->pabs() << " " 
-	     << pointerHit->energyLoss() << " " << pointerHit->tof() << " " 
-	  //MP packedTrackId???    
-	  //	  << pointerHit->packedTrackId() << " " << pointerHit->processType() << " " 
-	     << pointerHit->detUnitId() << endl; 
-	cout << pointerHit->entryPoint() << " " << pointerHit->exitPoint() << endl; 
+	cout << (*ssbegin).particleType() << " " << (*ssbegin).pabs() << " " 
+	     << (*ssbegin).energyLoss() << " " << (*ssbegin).tof() << " " 
+	     << (*ssbegin).trackId() << " " << (*ssbegin).processType() << " " 
+	     << (*ssbegin).detUnitId() << endl; 
+	cout << (*ssbegin).entryPoint() << " " << (*ssbegin).exitPoint() << endl; 
       }
 
 
       _collection_points.clear();  // Clear the container
       // fill _collection_points for this SimHit, indpendent of topology
-      primary_ionization(*pointerHit); // fills _ionization_points
-      drift(*pointerHit);  // transforms _ionization_points to _collection_points  
+      primary_ionization(*ssbegin); // fills _ionization_points
+
+      drift(*ssbegin);  // transforms _ionization_points to _collection_points  
 
       // compute induced signal on readout elements and add to _signal
-      induce_signal(*pointerHit); //*ihit needed only for SimHit<-->Digi link
+      induce_signal(*ssbegin); //*ihit needed only for SimHit<-->Digi link
 
 
 				      //      int adc=10;
@@ -280,14 +257,16 @@ vector<PixelDigi> SiPixelDigitizerAlgorithm::digitize(PixelGeomDetUnit *det){
 				      //    int col=10; 
       //      internal_coll.push_back(PixelDigi(row,col,adc));
     }
-  
-    if(addNoise) add_noise();  // generate noise
 
+    if(addNoise) add_noise();  // generate noise
+ 
     // Do only if needed 
     if(pixelInefficiency && _signal.size()>0 ) 
       pixel_inefficiency(); // Kill some pixels
+
   }
   make_digis();
+
   return internal_coll;
 }
 
@@ -736,6 +715,7 @@ void SiPixelDigitizerAlgorithm::induce_signal( const PSimHit& hit) {
   } // loop over charge distributions
 
   // Fill the global map with all hit pixels from this event
+   
   for ( hit_map_type::const_iterator im = hit_signal.begin();
 	im != hit_signal.end(); im++) {
     _signal[(*im).first] += Amplitude( (*im).second, &hit);
@@ -809,7 +789,7 @@ void SiPixelDigitizerAlgorithm::make_digis() {
 /***********************************************************************/
 //
 void SiPixelDigitizerAlgorithm::add_noise() {
-  
+
 
   if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 0 ) {
     cout << " enter add_noise " << theNoiseInElectrons << endl;
@@ -825,7 +805,7 @@ void SiPixelDigitizerAlgorithm::add_noise() {
   
   if(!addNoisyPixels)  // Option to skip noise in non-hit pixels
     return;
-  
+
   // Add noise on non-hit pixels
   int numberOfPixels = (numRows * numColumns);
 
@@ -930,6 +910,7 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency() {
   //       << " " << rowsInChip <<  endl;
   
   // Initilize the index converter
+ 
   PixelChipIndices indexConverter(theColsInChip,theRowsInChip,
 				  numColumns,numRows);
 
@@ -945,14 +926,14 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency() {
     pair<int,int> ip = PixelDigi::channelToPixel(chan);
     int pixX = ip.first + 1;  // my indices start from 1
     int pixY = ip.second + 1;
-    
     indexConverter.chipIndices(pixX,pixY,chipX,chipY,row,col);
-    int chipIndex = indexConverter.chipIndex(chipX,chipY);
+   
+   int chipIndex = indexConverter.chipIndex(chipX,chipY);
     pair<int,int> dColId = indexConverter.dColumn(row,col);
     //    int pixInChip  = dColId.first;
     int dColInChip = dColId.second;
     int dColInDet = indexConverter.dColumnIdInDet(dColInChip,chipIndex);
-    
+  
     //cout <<chan << " " << pixX << " " << pixY << " " << (*i).second  << endl;
     //cout << chipX << " " << chipY << " " << row << " " << col << " " 
     // << chipIndex << " " << pixInChip << " " << dColInChip << " " 
