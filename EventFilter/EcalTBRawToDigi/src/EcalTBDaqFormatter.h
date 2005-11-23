@@ -2,8 +2,8 @@
 #define EcalTBDaqFormatter_H
 /** \class EcalTBDaqFormatter
  *
- *  $Date: 2005/10/12 09:04:26 $
- *  $Revision: 1.3 $
+ *  $Date: 2005/10/18 09:06:15 $
+ *  $Revision: 1.4 $
  *  \author N. Marinelli  IASA-Athens
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -31,10 +31,12 @@ class EcalTBDaqFormatter   {
   virtual ~EcalTBDaqFormatter(){cout << " Destroying EcalTBDaqFormatter " << endl; };
   
   
-  void  interpretRawData( const FEDRawData & data , EBDigiCollection& digicollection );
+  //  void  interpretRawData( const FEDRawData & data , EBDigiCollection& digicollection );
+  void  interpretRawData( const FEDRawData & data , EBDigiCollection& digicollection , EcalPnDiodeDigiCollection & pndigicollection );
   
  private:
   
+  void DecodeMEM(int tower_id);
   pair<int,int>  cellIndex(int tower_id, int strip, int xtal); 
   bool leftTower(int tower) const ;
   bool rightTower(int tower) const ;
@@ -61,6 +63,11 @@ class EcalTBDaqFormatter   {
   MonitorElement* meIntegrityTTId[36];
   MonitorElement* meIntegrityTTBlockSize[36];
   MonitorElement* meIntegrityDCCSize;
+
+  // used for mem boxes unpacking
+  int fem[5][5][11];            // store raw data for one mem
+  int data_MEM[500];      // collects unpacked data for both mems 
+
   
 };
 #endif

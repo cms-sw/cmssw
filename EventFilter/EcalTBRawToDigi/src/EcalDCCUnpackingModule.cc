@@ -1,9 +1,10 @@
 /* \file EcalDCCUnpackingModule.h
  *
- *  $Date: 2005/11/14 11:02:42 $
- *  $Revision: 1.14 $
- *  \author N. Marinelli 
+ *  $Date: 2005/11/17 08:43:30 $
+ *  $Revision: 1.15 $
+ *  \author N. Marinelli
  *  \author G. Della Ricca
+ *  \author G. Franzoni
  */
 
 #include <EventFilter/EcalTBRawToDigi/interface/EcalDCCUnpackingModule.h>
@@ -28,7 +29,8 @@ EcalDCCUnpackingModule::EcalDCCUnpackingModule(const edm::ParameterSet& pset){
   outputFile = pset.getUntrackedParameter<string>("outputFile", "");
 
   if ( outputFile.size() != 0 ) {
-    cout << "Ecal Integrity histograms will be saved to " << outputFile.c_str() << endl;
+    cout << "[EcalDCCUnpackingModule] Ecal Integrity histograms will be saved to: " 
+	 << outputFile.c_str() << endl;
   }
 
   dbe = 0;
@@ -43,7 +45,7 @@ EcalDCCUnpackingModule::EcalDCCUnpackingModule(const edm::ParameterSet& pset){
   formatter = new EcalTBDaqFormatter(dbe);
 
   produces<EBDigiCollection>();
-
+  produces<EcalPnDiodeDigiCollection>();
 }
 
 
@@ -69,7 +71,11 @@ void EcalDCCUnpackingModule::produce(edm::Event & e, const edm::EventSetup& c){
   e.getByLabel("EcalDaqRawData", rawdata);
   
   // create the collection of Ecal Digis
-  auto_ptr<EBDigiCollection> product(new EBDigiCollection);
+  auto_ptr<EBDigiCollection> productEb(new EBDigiCollection);
+
+  // create the collection of Ecal PN's
+  auto_ptr<EcalPnDiodeDigiCollection> productPN(new EcalPnDiodeDigiCollection);
+
 
   for (unsigned int id= 0; id<=FEDNumbering::lastFEDId(); ++id){ 
 
@@ -79,16 +85,16 @@ void EcalDCCUnpackingModule::produce(edm::Event & e, const edm::EventSetup& c){
     
     if (data.size()){
       
-      // do the conversion and fill the container
-      formatter->interpretRawData(data,  *product );
+      // do the data unpacking and fill the collections
+      formatter->interpretRawData(data,  *productEb, * productPN);
+
     }// endif 
   }//endfor
   
 
   // commit to the event  
-
-  e.put(product);
-
+  e.put(productPN);
+  e.put(productEb);
 
 
 }
