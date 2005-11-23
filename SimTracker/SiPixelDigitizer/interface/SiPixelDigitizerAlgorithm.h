@@ -9,7 +9,7 @@
 #include "DataFormats/SiPixelDigi/interface/PixelDigiCollection.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
-//#include "SimGeneral/HepPDT/interface/HepPDTable.h"
+#include "SimGeneral/HepPDT/interface/HepPDTable.h"
 #include "SimTracker/Common/interface/SiG4UniversalFluctuation.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "DataFormats/DetId/interface/DetId.h"
@@ -26,7 +26,7 @@ class SiPixelDigitizerAlgorithm
   ~SiPixelDigitizerAlgorithm();
   
   //run the algorithm to digitize a single det
-  void run(const std::vector<PSimHit*> &input,PixelDigiCollection &output,PixelGeomDetUnit *pixdet);
+  void run(const std::vector<PSimHit> &input,PixelDigiCollection &output,PixelGeomDetUnit *pixdet,GlobalVector);
 
 
  private:
@@ -176,13 +176,17 @@ class SiPixelDigitizerAlgorithm
   int numColumns; // number of pixel columns in a module (detUnit)
   int numRows;    // number          rows
   float moduleThickness; // sensor thickness 
-  int digis; 
+  //  int digis; 
   GeomDetType::SubDetector pixelPart;            // is it barrel on forward
   const PixelGeomDetUnit* _detp;
+  std::vector<PSimHit> _PixelHits; //cache
    PixelTopology* topol;
 
   std::vector<PixelDigi> internal_coll; //empty vector of PixelDigi used in digitize
 
+
+
+  GlobalVector _driftdet;
 
   float PixelEff;
   float PixelColEff;
@@ -200,7 +204,7 @@ class SiPixelDigitizerAlgorithm
   float theOffsetSmearing;      // The sigma of the offset fluct. (around 0)
 
   // The PDTable
-  //HepPDTable *particleTable;
+  HepPDTable *particleTable;
 
  //-- charge fluctuation
   double tMax;  // The delta production cut, should be as in OSCAR = 30keV
@@ -208,7 +212,7 @@ class SiPixelDigitizerAlgorithm
   // The eloss fluctuation class from G4. Is the right place? 
   SiG4UniversalFluctuation fluctuate; //
   GaussianTailNoiseGenerator* theNoiser; //
-  std::vector<const PSimHit*> ss;
+
  
  std::vector<EnergyDepositUnit> _ionization_points;
   std::vector<SignalPoint> _collection_points;

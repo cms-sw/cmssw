@@ -26,7 +26,7 @@
 
 namespace cms
 {
-  class SiPixelDigitizer : public edm::EDProducer
+  class SiPixelDigitizer : public edm::EDProducer 
   {
   public:
 
@@ -43,8 +43,8 @@ namespace cms
     float frandom3,frandom4,frandom5;
     float angrandom1,angrandom2;
     float xexrand,xentrand, yexrand,yentrand, zexrand,zentrand;
-    std::vector<PSimHit*> pseudoHitSingleContainer;
-
+    std::vector<PSimHit> thePixelHits;
+    std::vector<PSimHit> detPixelHits;
   };
 }
 
