@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  * 
- * $Date: 2005/11/20 16:58:38 $
- * $Revision: 1.27 $
+ * $Date: 2005/11/22 18:15:42 $
+ * $Revision: 1.28 $
  * \author G. Della Ricca
  *
 */
@@ -131,12 +131,12 @@ void EBIntegrityClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
 
-        double numEventsinCry = 0.;
-        numEventsinCry = h_[ism-1]->GetBinEntries(h_[ism-1]->GetBin(ie, ip)) / 3.;
+        float numEventsinCry = 0.;
+        if ( h_ ) numEventsinCry = h_[ism-1]->GetBinEntries(h_[ism-1]->GetBin(ie, ip)) / 3.;
         
         // cout << "Number of events per crystal (" << ie << "," << ip << ") SM " << ism << " " << numEventsinCry << endl;
 
-        if ( numEventsinCry > (double)n_min_bin ) {
+        if ( numEventsinCry > n_min_bin ) {
           
           num00 = -1.;
           
@@ -188,7 +188,7 @@ void EBIntegrityClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
 
             if ( g01_[ism-1] ) {
               val = 1.;
-              if ( (float) (( num01 + num02 ) / numEventsinCry / 2. ) > threshCry_ ) 
+              if ( (( num01 + num02 ) / numEventsinCry / 2. ) > threshCry_ ) 
                 val = 0.;
               g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), val);
             }
