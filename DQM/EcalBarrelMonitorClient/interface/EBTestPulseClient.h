@@ -4,8 +4,8 @@
 /*
  * \file EBTestPulseClient.h
  *
- * $Date: 2005/11/16 13:36:46 $
- * $Revision: 1.6 $
+ * $Date: 2005/11/16 20:40:31 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -97,6 +97,10 @@ TProfile2D* ha03_[36];
 TProfile2D* hs01_[36];
 TProfile2D* hs02_[36];
 TProfile2D* hs03_[36];
+
+TH2F* he01_[36];
+TH2F* he02_[36];
+TH2F* he03_[36];
 
 TH2F* g01_[36];
 TH2F* g02_[36];
