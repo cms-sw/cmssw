@@ -128,8 +128,11 @@ void
         ELseverityLevel severity = ELseverityLevel(severity_name);
         if( severity != ELunspecified )
           dest_ctrl.setLimit(severity, limit);
-      }
-    }
+        String msgID
+          = limit_info.getUntrackedParameter<String>("messageID", "*");
+        dest_ctrl.setLimit(msgID, limit);
+       }
+     }
 
     // Timespan processing:
     {
@@ -143,7 +146,6 @@ void
         ELseverityLevel severity = ELseverityLevel(severity_name);
         if( severity != ELunspecified )
           dest_ctrl.setLimit(severity, seconds);
-
         String msgID
           = timespan_info.getUntrackedParameter<String>("messageID", "*");
         dest_ctrl.setLimit(msgID, seconds);
