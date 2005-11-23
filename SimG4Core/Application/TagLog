@@ -1,3 +1,6 @@
+** V03-01-00  [Wed Nov 23 03:48:52 2005]
+registered the production of HcalHits and updated the test to work with Hcal
+
 ** V03-00-00  [Tue Nov 22 23:24:30 2005]
 added the ability to load SimWatchers
 
