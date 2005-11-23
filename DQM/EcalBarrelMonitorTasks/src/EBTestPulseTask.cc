@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  * 
- * $Date: 2005/11/14 08:52:30 $
- * $Revision: 1.26 $
+ * $Date: 2005/11/20 16:43:39 $
+ * $Revision: 1.27 $
  * \author G. Della Ricca
  *
 */
@@ -24,6 +24,8 @@ EBTestPulseTask::EBTestPulseTask(const edm::ParameterSet& ps, DaqMonitorBEInterf
       meShapeMapG01_[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096.);
       sprintf(histo, "EBTT amplitude SM%02d G01", i+1);
       meAmplMapG01_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
+      sprintf(histo, "EBTT amplitude error SM%02d G01", i+1);
+      meAmplErrorMapG01_[i] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
     }
 
     dbe->setCurrentFolder("EcalBarrel/EBTestPulseTask/Gain06");
@@ -32,6 +34,8 @@ EBTestPulseTask::EBTestPulseTask(const edm::ParameterSet& ps, DaqMonitorBEInterf
       meShapeMapG06_[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096.);
       sprintf(histo, "EBTT amplitude SM%02d G06", i+1);
       meAmplMapG06_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
+      sprintf(histo, "EBTT amplitude error SM%02d G06", i+1);
+      meAmplErrorMapG06_[i] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
     }
 
     dbe->setCurrentFolder("EcalBarrel/EBTestPulseTask/Gain12");
@@ -40,8 +44,13 @@ EBTestPulseTask::EBTestPulseTask(const edm::ParameterSet& ps, DaqMonitorBEInterf
       meShapeMapG12_[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096.);
       sprintf(histo, "EBTT amplitude SM%02d G12", i+1);
       meAmplMapG12_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
-    }
+      sprintf(histo, "EBTT amplitude error SM%02d G12", i+1);
+      meAmplErrorMapG12_[i] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+   }
   }
+
+  // amplitudeThreshold_ = 200;
+  amplitudeThreshold_ = 0;
 
 }
 
@@ -150,6 +159,20 @@ void EBTestPulseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 //    logFile_ << " hit amplitude " << xval << endl;
 
     if ( meAmplMap ) meAmplMap->Fill(xie, xip, xval);
+
+    MonitorElement* meAmplErrorMap = 0;
+
+    if ( ievt_ >=   1 && ievt_ <=  50 ) meAmplErrorMap = meAmplErrorMapG01_[ism-1];
+    if ( ievt_ >=  50 && ievt_ <= 100 ) meAmplErrorMap = meAmplErrorMapG06_[ism-1];
+    if ( ievt_ >= 100 && ievt_ <= 150 ) meAmplErrorMap = meAmplErrorMapG12_[ism-1];
+
+    // cout << "Crystal " << ie << " " << ip << " Amplitude = " << xval << endl;
+
+    if ( xval < amplitudeThreshold_ ) {
+
+      if ( meAmplErrorMap ) meAmplErrorMap->Fill(xie, xip);
+
+    }
 
   }
 

@@ -4,8 +4,8 @@
 /*
  * \file EBTestPulseTask.h
  *
- * $Date: 2005/10/30 14:16:19 $
- * $Revision: 1.10 $
+ * $Date: 2005/11/14 08:52:30 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  *
 */
@@ -69,7 +69,15 @@ MonitorElement* meAmplMapG01_[36];
 MonitorElement* meAmplMapG06_[36];
 MonitorElement* meAmplMapG12_[36];
 
+MonitorElement* meAmplErrorMapG01_[36];
+MonitorElement* meAmplErrorMapG06_[36];
+MonitorElement* meAmplErrorMapG12_[36];
+
 ofstream logFile_;
+
+// Quality check on crystals, one per each gain
+
+float amplitudeThreshold_;
 
 };
 

@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  * 
- * $Date: 2005/11/20 16:43:39 $
- * $Revision: 1.22 $
+ * $Date: 2005/11/22 18:14:01 $
+ * $Revision: 1.23 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -25,6 +25,10 @@ EBTestPulseClient::EBTestPulseClient(const edm::ParameterSet& ps, MonitorUserInt
     hs01_[i] = 0;
     hs02_[i] = 0;
     hs03_[i] = 0;
+
+    he01_[i] = 0;
+    he02_[i] = 0;
+    he03_[i] = 0;
 
     sprintf(histo, "EBPT test pulse quality G01 SM%02d", i+1);
     g01_[i] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
@@ -68,6 +72,10 @@ EBTestPulseClient::~EBTestPulseClient(){
     if ( hs01_[i] ) delete hs01_[i];
     if ( hs02_[i] ) delete hs02_[i];
     if ( hs03_[i] ) delete hs03_[i];
+
+    if ( he01_[i] ) delete he01_[i];
+    if ( he02_[i] ) delete he02_[i];
+    if ( he03_[i] ) delete he03_[i];
 
     delete g01_[i];
     delete g02_[i];
@@ -116,6 +124,13 @@ void EBTestPulseClient::beginRun(const edm::EventSetup& c){
     hs01_[i] = 0;
     hs02_[i] = 0;
     hs03_[i] = 0;
+
+    if ( he01_[i] ) delete he01_[i];
+    if ( he02_[i] ) delete he02_[i];
+    if ( he03_[i] ) delete he03_[i];
+    he01_[i] = 0;
+    he02_[i] = 0;
+    he03_[i] = 0;
 
     g01_[i]->Reset();
     g02_[i]->Reset();
@@ -203,6 +218,12 @@ void EBTestPulseClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
 
         bool update_channel = false;
 
+        float numEventsinCry[3] = {0., 0., 0.};
+
+        if ( ha01_[ism-1] ) numEventsinCry[1] = ha01_[ism-1]->GetBinEntries(ha01_[ism-1]->GetBin(ie, ip));
+        if ( ha02_[ism-1] ) numEventsinCry[2] = ha02_[ism-1]->GetBinEntries(ha02_[ism-1]->GetBin(ie, ip));
+        if ( ha03_[ism-1] ) numEventsinCry[3] = ha03_[ism-1]->GetBinEntries(ha03_[ism-1]->GetBin(ie, ip));
+
         if ( ha01_[ism-1] && ha01_[ism-1]->GetEntries() >= n_min_tot ) {
           num01 = ha01_[ism-1]->GetBinEntries(ha01_[ism-1]->GetBin(ie, ip));
           if ( num01 >= n_min_bin ) {
@@ -255,6 +276,10 @@ void EBTestPulseClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
               val = 0.;
             if ( rms01 > RMSThreshold_ )
               val = 0.;
+            if ( he01_[ism-1] ) {
+              float errorRate = (float) (he01_[ism-1]->GetBinContent(he01_[ism-1]->GetBin(ie, ip)) / numEventsinCry[1]) ;
+              if ( errorRate > threshold_on_AmplitudeErrorsNumber_ ) val = 0.;
+            }
             g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), val);
           }
 
@@ -274,6 +299,10 @@ void EBTestPulseClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
               val = 0.;
             if ( rms02 > RMSThreshold_ )
               val = 0.;
+            if ( he02_[ism-1] ) {
+              float errorRate = (float) (he02_[ism-1]->GetBinContent(he02_[ism-1]->GetBin(ie, ip)) / numEventsinCry[2]) ;
+              if ( errorRate > threshold_on_AmplitudeErrorsNumber_ ) val = 0.;
+            }
             g02_[ism-1]->SetBinContent(g02_[ism-1]->GetBin(ie, ip), val);
           }
 
@@ -293,6 +322,10 @@ void EBTestPulseClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
               val = 0.;
             if ( rms03 > RMSThreshold_ )
               val = 0.;
+            if ( he03_[ism-1] ) {
+              float errorRate = (float) (he03_[ism-1]->GetBinContent(he03_[ism-1]->GetBin(ie, ip)) / numEventsinCry[3]) ;
+              if ( errorRate > threshold_on_AmplitudeErrorsNumber_ ) val = 0.;
+            }
             g03_[ism-1]->SetBinContent(g03_[ism-1]->GetBin(ie, ip), val);
           }
 
@@ -384,10 +417,13 @@ void EBTestPulseClient::subscribe(void){
   // subscribe to all monitorable matching pattern
   mui_->subscribe("*/EcalBarrel/EBTestPulseTask/Gain01/EBTT amplitude SM*");
   mui_->subscribe("*/EcalBarrel/EBTestPulseTask/Gain01/EBTT shape SM*");
+  mui_->subscribe("*/EcalBarrel/EBTestPulseTask/Gain01/EBTT amplitude error SM*");
   mui_->subscribe("*/EcalBarrel/EBTestPulseTask/Gain06/EBTT amplitude SM*");
   mui_->subscribe("*/EcalBarrel/EBTestPulseTask/Gain06/EBTT shape SM*");
+  mui_->subscribe("*/EcalBarrel/EBTestPulseTask/Gain06/EBTT amplitude error SM*");
   mui_->subscribe("*/EcalBarrel/EBTestPulseTask/Gain12/EBTT amplitude SM*");
   mui_->subscribe("*/EcalBarrel/EBTestPulseTask/Gain12/EBTT shape SM*");
+  mui_->subscribe("*/EcalBarrel/EBTestPulseTask/Gain12/EBTT amplitude error SM*");
 
 }
 
@@ -396,10 +432,13 @@ void EBTestPulseClient::subscribeNew(void){
   // subscribe to new monitorable matching pattern
   mui_->subscribeNew("*/EcalBarrel/EBTestPulseTask/Gain01/EBTT amplitude SM*");
   mui_->subscribeNew("*/EcalBarrel/EBTestPulseTask/Gain01/EBTT shape SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBTestPulseTask/Gain01/EBTT amplitude error SM*");
   mui_->subscribeNew("*/EcalBarrel/EBTestPulseTask/Gain06/EBTT amplitude SM*");
   mui_->subscribeNew("*/EcalBarrel/EBTestPulseTask/Gain06/EBTT shape SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBTestPulseTask/Gain06/EBTT amplitude error SM*");
   mui_->subscribeNew("*/EcalBarrel/EBTestPulseTask/Gain12/EBTT amplitude SM*");
   mui_->subscribeNew("*/EcalBarrel/EBTestPulseTask/Gain12/EBTT shape SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBTestPulseTask/Gain12/EBTT amplitude error SM*");
 
 }
 
@@ -408,10 +447,13 @@ void EBTestPulseClient::unsubscribe(void){
   // unsubscribe to all monitorable matching pattern
   mui_->unsubscribe("*/EcalBarrel/EBTestPulseTask/Gain01/EBTT amplitude SM*");
   mui_->unsubscribe("*/EcalBarrel/EBTestPulseTask/Gain01/EBTT shape SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBTestPulseTask/Gain01/EBTT amplitude error SM*");
   mui_->unsubscribe("*/EcalBarrel/EBTestPulseTask/Gain06/EBTT amplitude SM*");
   mui_->unsubscribe("*/EcalBarrel/EBTestPulseTask/Gain06/EBTT shape SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBTestPulseTask/Gain06/EBTT amplitude error SM*");
   mui_->unsubscribe("*/EcalBarrel/EBTestPulseTask/Gain12/EBTT amplitude SM*");
   mui_->unsubscribe("*/EcalBarrel/EBTestPulseTask/Gain12/EBTT shape SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBTestPulseTask/Gain12/EBTT amplitude error SM*");
 
 }
 
@@ -494,6 +536,39 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( ob ) {
         if ( hs03_[ism-1] ) delete hs03_[ism-1];
         hs03_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone());
+      }
+    }
+
+    sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain01/EBTT amplitude error SM%02d G01", ism);
+    me = mui_->get(histo);
+    if ( me ) {
+      cout << "Found '" << histo << "'" << endl;
+      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
+      if ( ob ) {
+        if ( he01_[ism-1] ) delete he01_[ism-1];
+        he01_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone());
+      }
+    }
+
+    sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain06/EBTT amplitude error SM%02d G06", ism);
+    me = mui_->get(histo);
+    if ( me ) {
+      cout << "Found '" << histo << "'" << endl;
+      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
+      if ( ob ) {
+        if ( he02_[ism-1] ) delete he02_[ism-1];
+        he02_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone());
+      }
+    }
+
+    sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain12/EBTT amplitude error SM%02d G12", ism);
+    me = mui_->get(histo);
+    if ( me ) {
+      cout << "Found '" << histo << "'" << endl;
+      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
+      if ( ob ) {
+        if ( he03_[ism-1] ) delete he03_[ism-1];
+        he03_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone());
       }
     }
 
