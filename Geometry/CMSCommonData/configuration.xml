@@ -175,8 +175,9 @@
   <File name="Geometry/CMSCommonData/colors.xml"               url="."/> 
   <File name="Geometry/TrackerSimData/trackersens.xml"         url="."/> 
   <File name="Geometry/EcalSimData/ecalsens.xml"               url="."/> 
-  <File name="Geometry/HcalCOMMONData/hcalsens.xml"            url="."/> 
-  <File name="Geometry/MuonSimData/muonsens.xml"               url="."/> 
+  <File name="Geometry/HcalCommonData/hcalsens.xml"            url="."/> 
+  <File name="Geometry/MuonSimData/muonSens.xml"               url="."/> 
+  <File name="Geometry/CMSCommonData/MagneticFieldVolumes.xml" url="."/> 
  </Include>
  <Root fileName="cms.xml" logicalPartName="OCMS"/>
 </Configuration>
