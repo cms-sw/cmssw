@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2005/11/21 18:35:41 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/11/22 16:47:46 $
+ *  $Revision: 1.2 $
  *  \author M. Zanetti
  */
 
@@ -30,7 +30,7 @@ using namespace edm;
 DTROS8FileReader::DTROS8FileReader(const edm::ParameterSet& pset) : 
   runNum(1), eventNum(0) {
       
-  string & filename = pset.getParameter<string>("fileName");
+  const string & filename = pset.getParameter<string>("fileName");
 
   inputFile.open(filename.c_str(), ios::in | ios::binary );
   if( inputFile.fail() ) {
