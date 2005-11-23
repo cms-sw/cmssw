@@ -213,11 +213,14 @@ namespace edm
 	aprov->event   = *(aedesc.get());
 	aprov->product = *(adesc.get());
 	
-	FDEBUG(10) << "addgroup next" << endl;
+	FDEBUG(10) << "addgroup next " << aprov->product.productID_ << endl;
+	FDEBUG(10) << "addgroup next " << aprov->event.productID_ << endl;
 	ep->addGroup(auto_ptr<Group>(new Group(aprod,aprov)));
 	FDEBUG(10) << "addgroup done" << endl;
 	spi->clear();
       }
+
+    FDEBUG(10) << "Size = " << ep->numEDProducts() << endl;
 
     return ep;
   }
