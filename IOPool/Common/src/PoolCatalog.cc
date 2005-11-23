@@ -1,35 +1,27 @@
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: PoolCatalog.cc,v 1.4 2005/07/27 12:37:32 wmtan Exp $
+// $Id: PoolCatalog.cc,v 1.1 2005/11/01 22:42:45 wmtan Exp $
 //
 // Author: Luca Lista
+// Co-Author: Bill Tanenbaum
 //
 //////////////////////////////////////////////////////////////////////
 
 #include "IOPool/Common/interface/PoolCatalog.h"
 #include "POOLCore/POOLContext.h"
 #include "FileCatalog/URIParser.h"
-#include "DataSvc/DataSvcFactory.h"
-#include "PersistencySvc/DatabaseConnectionPolicy.h"
-#include "DataSvc/IDataSvc.h"
-#include "DataSvc/DataSvcContext.h"
-#include "PersistencySvc/ISession.h"
-#include "PersistencySvc/ITransaction.h"
 #include "FileCatalog/IFCAction.h"
 #include "FileCatalog/IFCContainer.h"
-
-using namespace std;
-using namespace pool;
 
 namespace edm {
   PoolCatalog::PoolCatalog(unsigned int rw, std::string const& url) : catalog_() {
     bool read = rw & READ;
     bool write = rw & WRITE;
     assert(read || write);
-    POOLContext::loadComponent("SEAL/Services/MessageService");
+    pool::POOLContext::loadComponent("SEAL/Services/MessageService");
     //  POOLContext::setMessageVerbosityLevel(seal::Msg::Info);
 
-    URIParser parser(url);
+    pool::URIParser parser(url);
     parser.parse();
 
     if (read)
@@ -41,33 +33,14 @@ namespace edm {
   }
 
   PoolCatalog::~PoolCatalog() {
-    //  _context->session().disconnectAll();
     catalog_.commit();
     catalog_.disconnect();
-  }
-
-  IDataSvc * PoolCatalog::createContext(bool write, bool del) {
-    pool::DataSvcContext ctx;
-    ctx.setFileCatalog(&catalog_);
-    ObjectDeletePolicy deletePolicy;
-    deletePolicy.setOnCache(del);  // delete on the cache
-    deletePolicy.setOnRef(del);    // delete on the 'free' ref
-    ctx.setObjectDeletePolicy(deletePolicy);
-    IDataSvc * cache = pool::DataSvcFactory::create(ctx);
-    if (write) {
-      pool::DatabaseConnectionPolicy policy;
-      policy.setWriteModeForNonExisting(pool::DatabaseConnectionPolicy::CREATE);
-      policy.setWriteModeForExisting(pool::DatabaseConnectionPolicy::OVERWRITE);
-      cache->session().setDefaultConnectionPolicy(policy);
-    }
-    return cache;
   }
 
   void PoolCatalog::commitCatalog() {
     catalog_.commit();
     catalog_.start();
   }
-
 
   void PoolCatalog::registerFile(std::string const& pfn, std::string const& lfn) {
     if (!lfn.empty()) {
