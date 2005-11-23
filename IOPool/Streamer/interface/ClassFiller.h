@@ -27,7 +27,7 @@ namespace edm
     int old_;
   };
 
-  void loadExtraClasses();
+  void loadExtraClasses(bool do_children=false);
   TClass* getTClass(const std::type_info& ti);
 }
 

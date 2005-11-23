@@ -127,7 +127,7 @@ namespace {
 
 namespace edm {
 
-  static void loadCap(const std::string& name) {
+  static void loadCap(const std::string& name,bool do_children) {
     std::string fname("LCGReflex/");
     fname += name;
     FDEBUG(1) << "attempting to load cap for: " << fname << endl;
@@ -138,7 +138,8 @@ namespace edm {
 
       // next two lines are for explicitly causing every object to get defined
       pool::IClassLoader* cl = getClassLoader();
-      fillChildren(cl,cc);
+	  if(do_children)
+         fillChildren(cl,cc);
     } 
     catch(...) {
       std::cerr << "Error: could not find Class object for " << name << std::endl;
@@ -148,12 +149,15 @@ namespace edm {
 
   // ---------------------
 
-  void loadExtraClasses() {
-    loadCap(std::string("edm::ProdPair"));
-    loadCap(std::string("edm::SendProds"));
-    loadCap(std::string("edm::SendEvent"));
-    loadCap(std::string("edm::SendDescs"));
-    loadCap(std::string("edm::SendJobHeader"));
+  void loadExtraClasses(bool do_children) {
+    static bool done = false;
+	if(done==true) return;
+	done=true;
+    loadCap(std::string("edm::ProdPair"),do_children);
+    loadCap(std::string("edm::SendProds"),do_children);
+    loadCap(std::string("edm::SendEvent"),do_children);
+    loadCap(std::string("edm::SendDescs"),do_children);
+    loadCap(std::string("edm::SendJobHeader"),do_children);
     ClassFiller();
   }
 
