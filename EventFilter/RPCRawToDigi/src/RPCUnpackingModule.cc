@@ -6,9 +6,7 @@
 
 #include <EventFilter/RPCRawToDigi/interface/RPCUnpackingModule.h>
 #include <EventFilter/RPCRawToDigi/interface/RPCRecord.h>
-#include <EventFilter/RPCRawToDigi/interface/StartOfBXData.h>
-#include <EventFilter/RPCRawToDigi/interface/StartOfChannelData.h>
-#include <EventFilter/RPCRawToDigi/interface/ChamberData.h>
+#include <EventFilter/RPCRawToDigi/interface/RPCBXData.h>
 #include <EventFilter/RPCRawToDigi/interface/RMBErrorData.h>
 
 #include <DataFormats/FEDRawData/interface/FEDRawData.h>
@@ -31,6 +29,7 @@ using namespace std;
 RPCUnpackingModule::RPCUnpackingModule(const edm::ParameterSet& pset)  
  {
  
+  
   produces<RPCDigiCollection>();
 
  }
@@ -49,7 +48,7 @@ void RPCUnpackingModule::produce(Event & e, const EventSetup& c){
 
 
     
-	const std::pair<int,int> rpcFEDS=FEDNumbering::getMRpcFEDIds();
+        std::pair<int,int> rpcFEDS=FEDNumbering::getRPCFEDIds();
 	for (int id= rpcFEDS.first; id<=rpcFEDS.second; ++id){ 
 
 		const FEDRawData & fedData = allFEDRawData->FEDData(id);
@@ -74,46 +73,49 @@ void RPCUnpackingModule::produce(Event & e, const EventSetup& c){
 			
 			 RPCRecord theRecord(index);
 			 
-			 // Find what type of record it is
+			 /// Find what type of record it is
 			 RPCRecord::recordTypes typeOfRecord = theRecord.type();
 			 
-			 int bx=0;
+                         /// Data
 			 if(typeOfRecord==RPCRecord::StartOfBXData)
                          {
-			  StartOfBXData bxData(index);
-			 } 
-			 if(typeOfRecord==RPCRecord::StartOfChannelData)
-			 {
-			    StartOfChannelData channelData(index);
-			 }
-
-
-			 if(typeOfRecord==RPCRecord::ChamberData)
-			 {
-			    ChamberData chambData(index);
-			    //int rpcChamber = chambData.chamberNumber();
-			    //int partitionNumber = chambData.partitionNumber();
-			    //int eod = chambData.eod();
-			    //int halfP = chambData.halfP();
-			 } 
+			    
+			    RPCBXData bxData(index);
+			    rpcData.addBXData(bxData);
 			 
+			 } 
 
+
+                         /// RMB Discarded
 			 if(typeOfRecord==RPCRecord::RMBDiscarded)
 			 {
+			 
 			    RMBErrorData  discarded(index);
+			    rpcData.addRMBDiscarded(discarded);
 			 }
+
+                         /// RMB Corrupted
 			 if(typeOfRecord==RPCRecord::RMBCorrupted)
 			 {
+			 
 			    RMBErrorData  corrupted(index);
+			    rpcData.addRMBCorrupted(corrupted);
+			    
 			 }
 	
 	
+                         /// DCC Discraded
+			 if(typeOfRecord==RPCRecord::DCCDiscarded)
+			 {
+			 
+			    rpcData.addDCCDiscarded();
+			    
+			 }
 			 //Go to beginning of next record
 			 theRecord.next();
 			
 			
 			 }
-			 
 			 // Now check that next word is the Trailer as expected
 		
 		}
