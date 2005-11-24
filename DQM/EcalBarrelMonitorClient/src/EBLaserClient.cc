@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  * 
- * $Date: 2005/11/24 12:43:53 $
- * $Revision: 1.25 $
+ * $Date: 2005/11/24 13:42:10 $
+ * $Revision: 1.26 $
  * \author G. Della Ricca
  *
 */
@@ -622,13 +622,13 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         }
         obj1f->Draw();
         cAmpoPN->Update();
-        gPad->SetLogy(0);
         TPaveStats* stAmpoPN = dynamic_cast<TPaveStats*>(obj1f->FindObject("stats"));
         if ( stAmpoPN ) {
           stAmpoPN->SetX1NDC(0.6);
           stAmpoPN->SetY1NDC(0.75);
         }
         cAmpoPN->SaveAs(imgName.c_str());
+        gPad->SetLogy(0);
         delete cAmpoPN;
         
       }

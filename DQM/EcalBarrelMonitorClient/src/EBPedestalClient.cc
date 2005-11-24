@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  * 
- * $Date: 2005/11/22 18:12:55 $
- * $Revision: 1.25 $
+ * $Date: 2005/11/24 12:43:53 $
+ * $Revision: 1.26 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -560,13 +560,13 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
         }
         obj1f->Draw();
         cRMS->Update();
-        gPad->SetLogy(0);
         TPaveStats* stRMS = dynamic_cast<TPaveStats*>(obj1f->FindObject("stats"));
         if ( stRMS ) {
           stRMS->SetX1NDC(0.6);
           stRMS->SetY1NDC(0.75);
         }
         cRMS->SaveAs(imgName.c_str());
+        gPad->SetLogy(0);
         delete cRMS;
         
       }

@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  * 
- * $Date: 2005/11/23 13:37:05 $
- * $Revision: 1.24 $
+ * $Date: 2005/11/24 12:43:53 $
+ * $Revision: 1.25 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -764,13 +764,13 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
         }
         obj1d->Draw();
         cShape->Update();
-        gPad->SetLogy(0);
         TPaveStats* stShape = dynamic_cast<TPaveStats*>(obj1d->FindObject("stats"));
         if ( stShape ) {
           stShape->SetX1NDC(0.6);
           stShape->SetY1NDC(0.75);
         }
         cShape->SaveAs(imgName.c_str());
+        gPad->SetLogy(0);
         delete cShape;
         
       }

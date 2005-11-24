@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  * 
- * $Date: 2005/11/24 15:11:10 $
- * $Revision: 1.2 $
+ * $Date: 2005/11/24 16:18:37 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -372,13 +372,13 @@ void EBCosmicClient::htmlOutput(int run, string htmlDir, string htmlName){
       }
       obj1f->Draw();
       cAmp->Update();
-      gPad->SetLogy(0);
       TPaveStats* stAmp = dynamic_cast<TPaveStats*>(obj1f->FindObject("stats"));
       if ( stAmp ) {
         stAmp->SetX1NDC(0.6);
         stAmp->SetY1NDC(0.75);
       }
       cAmp->SaveAs(imgName.c_str());
+      gPad->SetLogy(0);
       delete cAmp;
 
     }

@@ -1,8 +1,8 @@
 /*
  * \file EBPedPreSampleClient.cc
  * 
- * $Date: 2005/11/22 18:13:32 $
- * $Revision: 1.29 $
+ * $Date: 2005/11/24 12:43:53 $
+ * $Revision: 1.30 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -387,13 +387,13 @@ void EBPedPreSampleClient::htmlOutput(int run, string htmlDir, string htmlName){
       }
       obj1f->Draw();
       cRMS->Update();
-      gPad->SetLogy(0);
       TPaveStats* stRMS = dynamic_cast<TPaveStats*>(obj1f->FindObject("stats"));
       if ( stRMS ) {
         stRMS->SetX1NDC(0.6);
         stRMS->SetY1NDC(0.75);
       }
       cRMS->SaveAs(imgName.c_str());
+      gPad->SetLogy(0);
       delete cRMS;
 
       htmlFile << "<h3><strong>Supermodule&nbsp;&nbsp;" << ism << "</strong></h3>" << endl;
