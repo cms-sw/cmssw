@@ -1,7 +1,7 @@
 /*
  * \file EBPnDiodeClient.cc
  * 
- * $Date: 2005/11/21 09:02:43 $
+ * $Date: 2005/11/24 09:20:29 $
  * $Revision: 1.1 $
  * \author G. Della Ricca
  * \author F. Cossutti
@@ -151,21 +151,21 @@ void EBPnDiodeClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag*
 void EBPnDiodeClient::subscribe(void){
 
   // subscribe to all monitorable matching pattern
-  mui_->subscribe("*/EcalBarrel/EBLaserTask/PNs/EBLT PNs SM*");
+  mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/EBLT PNs SM*");
 
 }
 
 void EBPnDiodeClient::subscribeNew(void){
 
   // subscribe to new monitorable matching pattern
-  mui_->subscribeNew("*/EcalBarrel/EBLaserTask/PNs/EBLT PNs SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBPnDiodeTask/EBLT PNs SM*");
 
 }
 
 void EBPnDiodeClient::unsubscribe(void){
 
   // unsubscribe to all monitorable matching pattern
-  mui_->unsubscribe("*/EcalBarrel/EBLaserTask/PNs/EBLT PNs SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBPnDiodeTask/EBLT PNs SM*");
 
 }
 
@@ -185,7 +185,7 @@ void EBPnDiodeClient::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
-    sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/PNs/EBLT PNs SM%02d", ism);
+    sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/EBLT PNs SM%02d", ism);
     me = mui_->get(histo);
     if ( me ) {
       cout << "Found '" << histo << "'" << endl;

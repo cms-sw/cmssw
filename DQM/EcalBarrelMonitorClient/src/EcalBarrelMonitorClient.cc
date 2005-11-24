@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  * 
- * $Date: 2005/11/20 08:43:22 $
- * $Revision: 1.39 $
+ * $Date: 2005/11/21 09:02:43 $
+ * $Revision: 1.40 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -44,6 +44,7 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps){
 
   integrity_client_ = new EBIntegrityClient(ps, mui_);
   laser_client_ = new EBLaserClient(ps, mui_);
+  pndiode_client_ = new EBPnDiodeClient(ps, mui_);
   pedestal_client_ = new EBPedestalClient(ps, mui_);
   pedpresample_client_ = new EBPedPreSampleClient(ps, mui_);
   testpulse_client_ = new EBTestPulseClient(ps, mui_);
@@ -87,6 +88,7 @@ EcalBarrelMonitorClient::~EcalBarrelMonitorClient(){
 
   if ( integrity_client_ ) delete integrity_client_;
   if ( laser_client_ ) delete laser_client_;
+  if ( pndiode_client_ ) delete pndiode_client_;
   if ( pedestal_client_ ) delete pedestal_client_;
   if ( pedpresample_client_ ) delete pedpresample_client_;
   if ( testpulse_client_ ) delete testpulse_client_;
@@ -107,6 +109,7 @@ void EcalBarrelMonitorClient::beginJob(const edm::EventSetup& c){
 
   integrity_client_->beginJob(c);
   laser_client_->beginJob(c);
+  pndiode_client_->beginJob(c);
   pedestal_client_->beginJob(c);
   pedpresample_client_->beginJob(c);
   testpulse_client_->beginJob(c);
@@ -139,6 +142,7 @@ void EcalBarrelMonitorClient::beginRun(const edm::EventSetup& c){
 
   integrity_client_->beginRun(c);
   laser_client_->beginRun(c);
+  pndiode_client_->beginRun(c);
   pedestal_client_->beginRun(c);
   pedpresample_client_->beginRun(c);
   testpulse_client_->beginRun(c);
@@ -153,6 +157,7 @@ void EcalBarrelMonitorClient::endJob(void) {
 
   integrity_client_->endJob();
   laser_client_->endJob();
+  pndiode_client_->endJob();
   pedestal_client_->endJob();
   pedpresample_client_->endJob();
   testpulse_client_->endJob();
@@ -231,6 +236,7 @@ void EcalBarrelMonitorClient::endRun(void) {
 
   integrity_client_->endRun(econn_, runiov_, runtag_);
   laser_client_->endRun(econn_, runiov_, runtag_);
+  pndiode_client_->endRun(econn_, runiov_, runtag_);
   pedestal_client_->endRun(econn_, runiov_, runtag_);
   pedpresample_client_->endRun(econn_, runiov_, runtag_);
   testpulse_client_->endRun(econn_, runiov_, runtag_);
@@ -302,6 +308,7 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
 
   integrity_client_->subscribeNew();
   laser_client_->subscribeNew();
+  pndiode_client_->subscribeNew();
   pedestal_client_->subscribeNew();
   pedpresample_client_->subscribeNew();
   testpulse_client_->subscribeNew();
@@ -378,6 +385,7 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
       if ( last_update_ == 0 || updates % 5 == 0 ) {
                                                integrity_client_->analyze(e, c);
         if ( h_ && h_->GetBinContent(2) != 0 ) laser_client_->analyze(e, c);
+        if ( h_ && h_->GetBinContent(2) != 0 ) pndiode_client_->analyze(e, c);
         if ( h_ && h_->GetBinContent(3) != 0 ) pedestal_client_->analyze(e, c);
                                                pedpresample_client_->analyze(e, c);
         if ( h_ && h_->GetBinContent(4) != 0 ) testpulse_client_->analyze(e, c);
@@ -389,6 +397,7 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
     if ( status_ == "end-of-run" ) {
                                              integrity_client_->analyze(e, c);
       if ( h_ && h_->GetBinContent(2) != 0 ) laser_client_->analyze(e, c);
+      if ( h_ && h_->GetBinContent(2) != 0 ) pndiode_client_->analyze(e, c);
       if ( h_ && h_->GetBinContent(3) != 0 ) pedestal_client_->analyze(e, c);
                                              pedpresample_client_->analyze(e, c);
       if ( h_ && h_->GetBinContent(4) != 0 ) testpulse_client_->analyze(e, c);
@@ -418,6 +427,7 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
 
                                            integrity_client_->analyze(e, c);
     if ( h_ && h_->GetBinContent(2) != 0 ) laser_client_->analyze(e, c);
+    if ( h_ && h_->GetBinContent(2) != 0 ) pndiode_client_->analyze(e, c);
     if ( h_ && h_->GetBinContent(3) != 0 ) pedestal_client_->analyze(e, c); 
                                            pedpresample_client_->analyze(e, c);
     if ( h_ && h_->GetBinContent(4) != 0 ) testpulse_client_->analyze(e, c);
@@ -486,6 +496,14 @@ void EcalBarrelMonitorClient::htmlOutput(void){
     htmlFile << "<li><a href=\"" << htmlName << "\">Laser</a></li>" << endl;
   }
 
+  // PNs check
+
+  if ( h_ && h_->GetBinContent(2) != 0 ) {
+    htmlName = "EBPnDiodeClient.html";
+    pndiode_client_->htmlOutput(run_, htmlDir, htmlName);
+    htmlFile << "<li><a href=\"" << htmlName << "\">Laser</a></li>" << endl;
+  }
+
   // Pedestal check (normal)
 
   if ( h_ && h_->GetBinContent(3) != 0 ) {
@@ -495,6 +513,7 @@ void EcalBarrelMonitorClient::htmlOutput(void){
   }
 
   // Pedestal check (pre-sample)
+
   htmlName = "EBPedPreSampleClient.html";
   pedpresample_client_->htmlOutput(run_, htmlDir, htmlName);
   htmlFile << "<li><a href=\"" << htmlName << "\">Pedestal on Presample</a></li>" << endl;
