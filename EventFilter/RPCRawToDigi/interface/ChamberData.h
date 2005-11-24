@@ -5,8 +5,8 @@
 /** \file
  * Unpacks RPC Chamber Data
  *
- *  $Date: 2005/10/21 11:00:01 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/11/07 15:43:35 $
+ *  $Revision: 1.3 $
  * \author Ilaria Segoni - CERN
  */
 class ChamberData {
@@ -26,10 +26,10 @@ public:
   int partitionNumber();
   int chamberNumber();
 
-  static const int PARTITION_DATA_MASK  = 0X7;
+  static const int PARTITION_DATA_MASK  = 0XFF;
   static const int PARTITION_DATA_SHIFT =0;
 
-  static const int HALFP_MASK = 0X100;
+  static const int HALFP_MASK = 0X1;
   static const int HALFP_SHIFT =8;
 
   static const int EOD_MASK = 0X1;
