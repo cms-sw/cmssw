@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  * 
- * $Date: 2005/11/24 10:55:51 $
- * $Revision: 1.23 $
+ * $Date: 2005/11/24 11:08:08 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  *
 */
@@ -140,8 +140,8 @@ void EBLaserClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* r
 
   cout << "Writing MonLaserDatObjects to database ..." << endl;
 
-  float n_min_tot = 1000.;
-  float n_min_bin = 50.;
+  const float n_min_tot = 1000.;
+  const float n_min_bin = 50.;
   
   for ( int ism = 1; ism <= 36; ism++ ) {
 

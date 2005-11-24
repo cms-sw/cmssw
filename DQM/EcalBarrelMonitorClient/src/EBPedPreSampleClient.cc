@@ -1,8 +1,8 @@
 /*
  * \file EBPedPreSampleClient.cc
  * 
- * $Date: 2005/11/20 16:43:39 $
- * $Revision: 1.28 $
+ * $Date: 2005/11/22 18:13:32 $
+ * $Revision: 1.29 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -114,8 +114,8 @@ void EBPedPreSampleClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, Ru
 
   cout << "Writing MonPedPreSampleDatObjects to database ..." << endl;
 
-  float n_min_tot = 1000.;
-  float n_min_bin = 50.;
+  const float n_min_tot = 1000.;
+  const float n_min_bin = 50.;
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 

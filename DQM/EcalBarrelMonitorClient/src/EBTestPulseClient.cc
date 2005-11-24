@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  * 
- * $Date: 2005/11/22 18:14:01 $
- * $Revision: 1.23 $
+ * $Date: 2005/11/23 13:37:05 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -178,8 +178,8 @@ void EBTestPulseClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
 
   cout << "Writing MonTestPulseDatObjects to database ..." << endl;
 
-  float n_min_tot = 1000.;
-  float n_min_bin = 30.;
+  const float n_min_tot = 1000.;
+  const float n_min_bin = 30.;
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 

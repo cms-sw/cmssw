@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  * 
- * $Date: 2005/11/20 16:43:39 $
- * $Revision: 1.24 $
+ * $Date: 2005/11/22 18:12:55 $
+ * $Revision: 1.25 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -154,8 +154,8 @@ void EBPedestalClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag
 
   cout << "Writing MonPedestalsDatObjects to database ..." << endl;
 
-  float n_min_tot = 1000.;
-  float n_min_bin = 50.;
+  const float n_min_tot = 1000.;
+  const float n_min_bin = 50.;
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
