@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  * 
- * $Date: 2005/11/20 16:43:39 $
- * $Revision: 1.25 $
+ * $Date: 2005/11/24 15:09:33 $
+ * $Revision: 1.26 $
  * \author G. Della Ricca
  *
 */
@@ -85,7 +85,7 @@ void EBCosmicTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 //    logFile_ << " det id = " << id << endl;
 //    logFile_ << " sm, eta, phi " << ism << " " << ie*iz << " " << ip << endl;
 
-    float xval = 0.001 * hit.amplitude();
+    float xval = hit.amplitude();
 
 //    logFile_ << " hit amplitude " << xval << endl;
 

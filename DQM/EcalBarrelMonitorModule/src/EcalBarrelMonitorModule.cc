@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  * 
- * $Date: 2005/11/24 09:47:00 $
- * $Revision: 1.52 $
+ * $Date: 2005/11/24 13:18:45 $
+ * $Revision: 1.53 $
  * \author G. Della Ricca
  *
 */
@@ -183,7 +183,7 @@ void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
       return;
     }
 
-    float xval = 0.001 * hit.amplitude();
+    float xval = hit.amplitude();
 
 //    logFile_ << " hit amplitude " << xval << endl;
 
