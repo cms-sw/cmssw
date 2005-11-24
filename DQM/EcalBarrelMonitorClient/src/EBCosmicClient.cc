@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  * 
- * $Date: 2005/11/20 16:43:39 $
- * $Revision: 1.28 $
+ * $Date: 2005/11/21 09:02:43 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -83,8 +83,8 @@ void EBCosmicClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* 
 
   cout << "Writing MonCosmicDatObjects to database ..." << endl;
 
-  float n_min_tot = 1000.;
-  float n_min_bin = 50.;
+  const float n_min_tot = 1000.;
+  const float n_min_bin = 50.;
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
