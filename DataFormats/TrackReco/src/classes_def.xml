@@ -1,9 +1,8 @@
 <lcgdict>
-  <class name="HepGeom::Vector3D<double>" />
-  <class name="HepGeom::Point3D<double>" />
   <class name="reco::Error<5>" />
   <class name="reco::Vector<5>" />
-  <class name="reco::HelixParameters" />
+  <class name="reco::helix::Covariance" />
+  <class name="reco::helix::Parameters" />
 
   <class name="reco::Track" />
   <class name="std::vector<reco::Track>" />

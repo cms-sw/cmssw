@@ -1,6 +1,6 @@
 #ifndef TrackReco_Error_h
 #define TrackReco_Error_h
-// $Id: Error.h,v 1.6 2005/11/17 08:44:16 llista Exp $
+// $Id: Error.h,v 1.1 2005/11/22 13:51:44 llista Exp $
 //
 // very simple persistent error matrix with minumal functionalities
 //
@@ -53,14 +53,6 @@ namespace reco {
 
   typedef Error<3> Error3D;
 
-}
-
-template<unsigned int n>
-bool operator==( const reco::Error<n> & a, const reco::Error<n> & b ) {
-  for( unsigned int i = 0; i < n; ++i )
-    for( unsigned int j = 0; j <= i; ++j )
-      if ( a( i, j ) != b( i, j ) ) return false;
-  return true;
 }
 
 #endif

@@ -1,6 +1,6 @@
 #ifndef TrackReco_Vector_h
 #define TrackReco_Vector_h
-// $Id: Vector.h,v 1.5 2005/11/17 08:44:16 llista Exp $
+// $Id: Vector.h,v 1.1 2005/11/22 13:51:44 llista Exp $
 //
 // very simple persistent vector with minumal functionalities
 //
@@ -25,7 +25,7 @@ namespace reco {
     template< index i >
     double & get() { return val[ i ]; }
     template< index i >
-    const double & get() const { return val[ i ]; }
+    double get() const { return val[ i ]; }
     
   private:
     Double32_t val[ dimension ];

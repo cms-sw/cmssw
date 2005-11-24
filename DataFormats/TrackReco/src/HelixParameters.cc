@@ -1,65 +1,66 @@
-// $Id: HelixParameters.cc,v 1.24 2005/11/17 08:56:11 llista Exp $
+// $Id: HelixParameters.cc,v 1.1 2005/11/22 13:51:44 llista Exp $
 // Author : Luca Lista, INFN
 #include "DataFormats/TrackReco/interface/HelixParameters.h"
 #include <cmath>
 using namespace reco;
+using namespace reco::helix;
 
-HelixParameters::HelixParameters( int q, const HelixParameters::Point & v, 
-				  const HelixParameters::Vector & p,
-				  const HelixParameters::PosMomError & cov ) {
-  const double & dx2 = cov( 0, 0 );
-  const double & dxy = cov( 0, 1 );
-  const double & dy2 = cov( 1, 1 );
-  const double & dxz = cov( 0, 2 );
-  const double & dyz = cov( 1, 2 );
-  const double & dz2 = cov( 2, 2 );
+void reco::helix::setFromCartesian( int q, const Point & v, const Vector & p, 
+				    const PosMomError & err,
+				    Parameters & par, Covariance & cov ) {
+  const double & dx2 = err( 0, 0 );
+  const double & dxy = err( 0, 1 );
+  const double & dy2 = err( 1, 1 );
+  const double & dxz = err( 0, 2 );
+  const double & dyz = err( 1, 2 );
+  const double & dz2 = err( 2, 2 );
 
-  const double & dpx2  = cov( 3, 3 );
-  const double & dpxpy = cov( 3, 4 );
-  const double & dpy2  = cov( 4, 4 );
-  const double & dpxpz = cov( 3, 5 );
-  const double & dpypz = cov( 4, 5 );
-  const double & dpz2  = cov( 5, 5 );
+  const double & dpx2  = err( 3, 3 );
+  const double & dpxpy = err( 3, 4 );
+  const double & dpy2  = err( 4, 4 );
+  const double & dpxpz = err( 3, 5 );
+  const double & dpypz = err( 4, 5 );
+  const double & dpz2  = err( 5, 5 );
 
-  const double & dxpx = cov( 0, 3 );
-  const double & dxpy = cov( 0, 4 );
-  const double & dxpz = cov( 0, 5 );
-  const double & dypx = cov( 1, 3 );
-  const double & dypy = cov( 1, 4 );
-  const double & dypz = cov( 1, 5 );
-  const double & dzpx = cov( 2, 3 );
-  const double & dzpy = cov( 2, 4 );
-  const double & dzpz = cov( 2, 5 );
+  const double & dxpx = err( 0, 3 );
+  const double & dxpy = err( 0, 4 );
+  const double & dxpz = err( 0, 5 );
+  const double & dypx = err( 1, 3 );
+  const double & dypy = err( 1, 4 );
+  const double & dypz = err( 1, 5 );
+  const double & dzpx = err( 2, 3 );
+  const double & dzpy = err( 2, 4 );
+  const double & dzpz = err( 2, 5 );
 
-  double & dd02 = error_( 0, 0 );
-  double & dphi02 = error_( 1, 1 );
-  double & domega2 = error_( 2, 2 );
-  double & ddz2 = error_( 3, 3 );
-  double & dtanDip2 = error_( 4, 4 );
+  double & dd02 = cov( 0, 0 );
+  double & dphi02 = cov( 1, 1 );
+  double & domega2 = cov( 2, 2 );
+  double & ddz2 = cov( 3, 3 );
+  double & dtanDip2 = cov( 4, 4 );
 
-  double & dd0phi0 = error_( 0, 1 );
-  double & dd0omega = error_( 0, 2 );
-  double & dd0dz = error_( 0, 3 );
-  double & dd0tanDip = error_( 0, 4 );
-  double & dphi0omega = error_( 1, 2 );
-  double & dphi0dz = error_( 1, 3 );
-  double & dphi0tanDip = error_( 1, 4 );
-  double & domegadz = error_( 2, 3 );
-  double & domegatanDip = error_( 2, 4 );
-  double & ddztanDip = error_( 3, 4 );
+  double & dd0phi0 = cov( 0, 1 );
+  double & dd0omega = cov( 0, 2 );
+  double & dd0dz = cov( 0, 3 );
+  double & dd0tanDip = cov( 0, 4 );
+  double & dphi0omega = cov( 1, 2 );
+  double & dphi0dz = cov( 1, 3 );
+  double & dphi0tanDip = cov( 1, 4 );
+  double & domegadz = cov( 2, 3 );
+  double & domegatanDip = cov( 2, 4 );
+  double & ddztanDip = cov( 3, 4 );
 
   double px = p.x(), py = p.y(), pz = p.z();
-  par_.get< i_dz >() = v.z();
+  par.dz() = v.z();
   double d02 = v.perp2(), d0 = sqrt( d02 );
-  par_.get< i_d0 >() = d0;
+  par.d0() = d0;
   double pt2 = p.perp2(), px2 = px*px, py2 = py*py, pxpy = px*py;
   double pt = sqrt( pt2 );
-  par_.get< i_omega >() = ( q > 0 ? 1. : -1. ) / pt ;
-  par_.get< i_tanDip >() = pz / pt;
-  par_.get< i_phi0 >() = - atan2( px, py );
+  par.omega() = ( q > 0 ? 1. : -1. ) / pt ;
+  par.tanDip() = pz / pt;
+  par.phi0() = - atan2( px, py );
 
   // check v is the p.o.c.a. to ( 0, 0, 0 )
-  assert( fabs( p.x() * v.x() + p.y() * v.y() ) < 1.e-2 );
+  assert( fabs( p.x() * v.x() + p.y() * v.y() ) < 1.e-4 );
 
  // first, remove degeneracy:
   // pt = sqrt( px^2 + py^2 )
@@ -106,9 +107,9 @@ HelixParameters::HelixParameters( int q, const HelixParameters::Point & v,
   //  td     :  0  |  0  |  0  |-td/pt| 1/pt:
 
   // warning: fix if d0 ~ 0
-  double phi0 = par_.get< i_phi0 >();
-  double omega = par_.get< i_omega >(), omega2 = omega*omega;
-  double tanDip = par_.get< i_tanDip >(), tanDip2 = tanDip*tanDip;
+  double phi0 = par.phi0();
+  double omega = par.omega(), omega2 = omega*omega;
+  double tanDip = par.tanDip(), tanDip2 = tanDip*tanDip;
   double s = sin( phi0 ), c = cos( phi0 ), c2 = c*c, s2 = s*s, sc = s*c;
   double scdxy = sc * dxy, scdxy2 = 2 * scdxy;
   dd02 = c2 * dx2 + scdxy2 + s2 * dy2;
@@ -128,48 +129,48 @@ HelixParameters::HelixParameters( int q, const HelixParameters::Point & v,
   ddztanDip =( - tanDip * dzpt + dzpz ) / pt;
 }  
 
-HelixParameters::PosMomError HelixParameters::posMomError() const {
-  PosMomError cov;
-  double & dx2 = cov( 0, 0 );
-  double & dxy = cov( 0, 1 );
-  double & dy2 = cov( 1, 1 );
-  double & dxz = cov( 0, 2 );
-  double & dyz = cov( 1, 2 );
-  double & dz2 = cov( 2, 2 );
+PosMomError reco::helix::posMomError( const Parameters & par, const Covariance & cov ) {
+  PosMomError err;
+  double & dx2 = err( 0, 0 );
+  double & dxy = err( 0, 1 );
+  double & dy2 = err( 1, 1 );
+  double & dxz = err( 0, 2 );
+  double & dyz = err( 1, 2 );
+  double & dz2 = err( 2, 2 );
 
-  double & dpx2  = cov( 3, 3 );
-  double & dpxpy = cov( 3, 4 );
-  double & dpy2  = cov( 4, 4 );
-  double & dpxpz = cov( 3, 5 );
-  double & dpypz = cov( 4, 5 );
-  double & dpz2  = cov( 5, 5 );
+  double & dpx2  = err( 3, 3 );
+  double & dpxpy = err( 3, 4 );
+  double & dpy2  = err( 4, 4 );
+  double & dpxpz = err( 3, 5 );
+  double & dpypz = err( 4, 5 );
+  double & dpz2  = err( 5, 5 );
 
-  double & dxpx = cov( 0, 3 );
-  double & dxpy = cov( 0, 4 );
-  double & dxpz = cov( 0, 5 );
-  double & dypx = cov( 1, 3 );
-  double & dypy = cov( 1, 4 );
-  double & dypz = cov( 1, 5 );
-  double & dzpx = cov( 2, 3 );
-  double & dzpy = cov( 2, 4 );
-  double & dzpz = cov( 2, 5 );
+  double & dxpx = err( 0, 3 );
+  double & dxpy = err( 0, 4 );
+  double & dxpz = err( 0, 5 );
+  double & dypx = err( 1, 3 );
+  double & dypy = err( 1, 4 );
+  double & dypz = err( 1, 5 );
+  double & dzpx = err( 2, 3 );
+  double & dzpy = err( 2, 4 );
+  double & dzpz = err( 2, 5 );
   
-  const double & dd02 = error_( 0, 0 );
-  const double & dphi02 = error_( 1, 1 );
-  const double & domega2 = error_( 2, 2 );
-  const double & ddz2 = error_( 3, 3 );
-  const double & dtanDip2 = error_( 4, 4 );
+  const double & dd02 = cov( 0, 0 );
+  const double & dphi02 = cov( 1, 1 );
+  const double & domega2 = cov( 2, 2 );
+  const double & ddz2 = cov( 3, 3 );
+  const double & dtanDip2 = cov( 4, 4 );
 
-  const double & dd0phi0 = error_( 0, 1 );
-  const double & dd0omega = error_( 0, 2 );
-  const double & dd0dz = error_( 0, 3 );
-  const double & dd0tanDip = error_( 0, 4 );
-  const double & dphi0omega = error_( 1, 2 );
-  const double & dphi0dz = error_( 1, 3 );
-  const double & dphi0tanDip = error_( 1, 4 );
-  const double & domegadz = error_( 2, 3 );
-  const double & domegatanDip = error_( 2, 4 );
-  const double & ddztanDip = error_( 3, 4 );
+  const double & dd0phi0 = cov( 0, 1 );
+  const double & dd0omega = cov( 0, 2 );
+  const double & dd0dz = cov( 0, 3 );
+  const double & dd0tanDip = cov( 0, 4 );
+  const double & dphi0omega = cov( 1, 2 );
+  const double & dphi0dz = cov( 1, 3 );
+  const double & dphi0tanDip = cov( 1, 4 );
+  const double & domegadz = cov( 2, 3 );
+  const double & domegatanDip = cov( 2, 4 );
+  const double & ddztanDip = cov( 3, 4 );
   // d v / d d0 = ( c, s, 0 )
   // d v / d dz = ( 0, 0, 1 )
   // d v / d phi0 = d0 * ( -s, c, 0 )
@@ -192,12 +193,12 @@ HelixParameters::PosMomError HelixParameters::posMomError() const {
   //  dpy  :  0  |-pt*s |-pt*c/o |  0  |  0  |
   //  dpz  :  0  |  0   |-pt*td/o|  0  |  pt |
 
-  double c = cos( phi0() ), s = sin( phi0() );
+  double c = cos( par.phi0() ), s = sin( par.phi0() );
   double c2 = c*c, s2 = s*s, sc = s*c, c2s2 = c2 - s2;
-  double pt = HelixParameters::pt(), pt2 = pt * pt;
-  double d0 = HelixParameters::d0();
-  double tanDip = HelixParameters::tanDip(), tanDip2 = tanDip * tanDip;
-  double omega = HelixParameters::omega();
+  double pt = par.pt(), pt2 = pt * pt;
+  double d0 = par.d0();
+  double tanDip = par.tanDip(), tanDip2 = tanDip * tanDip;
+  double omega = par.omega();
   double scdd0phi02 = 2 * sc * dd0phi0;
   double d0dphi02 = d0 * dphi02;
   dx2 = c2 * dd02 + d0 * (   - scdd0phi02 + s2 * d0dphi02 );
@@ -234,5 +235,5 @@ HelixParameters::PosMomError HelixParameters::posMomError() const {
   dzpy = pt * ( - s * dphi0dz  - c * domegadzo );
   dzpz = pt * ( - tanDip * domegadzo + ddztanDip );
 
-  return cov;
+  return err;
 }

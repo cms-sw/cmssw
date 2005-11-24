@@ -1,7 +1,7 @@
 #ifndef TrackReco_Track_h
 #define TrackReco_Track_h
 //
-// $Id: Track.h,v 1.12 2005/11/17 18:14:27 llista Exp $
+// $Id: Track.h,v 1.1 2005/11/22 13:51:44 llista Exp $
 //
 // Definition of Track class for RECO
 //
@@ -14,24 +14,37 @@ namespace reco {
 
   class Track {
   public:
+    typedef helix::Parameters Parameters;
+    typedef helix::Covariance Covariance;
+    typedef helix::PosMomError PosMomError;
+    typedef helix::Point Point;
+    typedef helix::Vector Vector;
     Track() { }
     Track( float chi2, unsigned short ndof, int found, int invalid, int lost,
-	   const HelixParameters & );
+	   const Parameters &, const Covariance & );
+    Track( float chi2, unsigned short ndof, int found, int invalid, int lost,
+	   int q, const Point & v, const Vector & p, 
+	   const PosMomError & err );
     unsigned short foundHits() const { return found_; }
     unsigned short lostHits() const { return lost_; }
     unsigned short invalidHits() const { return invalid_; }
     double chi2() const { return chi2_; }
     unsigned short ndof() const { return ndof_; }
     double normalizedChi2() const { return chi2_ / ndof_; }
-    const HelixParameters & helix() const { return helix_; }
-    int charge() const { return helix_.charge(); }
-    double pt() const { return helix_.pt(); }
-    double doca() const { return helix_.d0(); }
-    typedef HelixParameters::Vector Vector;
-    typedef HelixParameters::Point Point;
-    Vector momentum() const { return helix_.momentum(); }
-    Point poca() const { return helix_.poca(); }
-    Error<6> covariance() const { return helix_.posMomError(); }
+    const helix::Parameters & parameters() const { return par_; }
+    const helix::Covariance & covariance() const { return cov_; }
+    int charge() const { return par_.charge(); }
+    double pt() const { return par_.pt(); }
+    double d0() const { return par_.d0(); }
+    double phi0() const { return par_.phi0(); }
+    double omega() const { return par_.omega(); }
+    double dz() const { return par_.dz(); }
+    double tanDip() const { return par_.tanDip(); }
+    typedef helix::Vector Vector;
+    typedef helix::Point Point;
+    Vector momentum() const { return par_.momentum(); }
+    Point vertex() const { return par_.vertex(); }
+    PosMomError posMomError() const { return helix::posMomError( par_, cov_ ); }
     unsigned short found() const { return found_; }
     unsigned short lost() const { return lost_; }
     unsigned short invalid() const { return invalid_; }
@@ -42,9 +55,9 @@ namespace reco {
     double phi() const { return momentum().phi(); }
     double eta() const { return momentum().eta(); }
     double theta() const { return momentum().theta(); }
-    double x() const { return poca().x(); }
-    double y() const { return poca().y(); }
-    double z() const { return poca().z(); }
+    double x() const { return vertex().x(); }
+    double y() const { return vertex().y(); }
+    double z() const { return vertex().z(); }
 
   private:
     Double32_t chi2_;
@@ -52,7 +65,8 @@ namespace reco {
     unsigned short found_;
     unsigned short lost_;
     unsigned short invalid_;
-    HelixParameters helix_;
+    Parameters par_;
+    Covariance cov_;
   };
 
 }
