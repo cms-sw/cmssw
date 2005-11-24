@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  * 
- * $Date: 2005/11/24 11:08:08 $
- * $Revision: 1.24 $
+ * $Date: 2005/11/24 12:43:53 $
+ * $Revision: 1.25 $
  * \author G. Della Ricca
  *
 */
@@ -129,14 +129,14 @@ void EBLaserClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* r
   if ( jevt_ == 0 ) return;
 
   EcalLogicID ecid;
-  MonLaserBlueDat apdb;
-  map<EcalLogicID, MonLaserBlueDat> datasetb;
-  MonLaserGreenDat apdg;
-  map<EcalLogicID, MonLaserGreenDat> datasetg;
-  MonLaserInfraredDat apdi;
-  map<EcalLogicID, MonLaserInfraredDat> dataseti;
-  MonLaserRedDat apdr;
-  map<EcalLogicID, MonLaserRedDat> datasetr;
+  MonLaserBlueDat apd_bl;
+  map<EcalLogicID, MonLaserBlueDat> dataset_bl;
+  MonLaserGreenDat apd_gr;
+  map<EcalLogicID, MonLaserGreenDat> dataset_gr;
+  MonLaserInfraredDat apd_ir;
+  map<EcalLogicID, MonLaserInfraredDat> dataset_ir;
+  MonLaserRedDat apd_rd;
+  map<EcalLogicID, MonLaserRedDat> dataset_rd;
 
   cout << "Writing MonLaserDatObjects to database ..." << endl;
 
@@ -238,21 +238,20 @@ void EBLaserClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* r
 
           }
 
-          apdb.setAPDMean(mean01);
-          apdb.setAPDRMS(rms01);
+          apd_bl.setAPDMean(mean01);
+          apd_bl.setAPDRMS(rms01);
           
-          apdb.setAPDOverPNMean(mean02);
-          apdb.setAPDOverPNRMS(rms02);
+          apd_bl.setAPDOverPNMean(mean02);
+          apd_bl.setAPDOverPNRMS(rms02);
 
-          apdb.setTaskStatus(1);
+          apd_bl.setTaskStatus(1);
 
           float val;
 
           if ( g01_[ism-1] ) {
             val = 1.;
-            if ( abs(mean01 - meanAmplL1) > abs(percentVariation_ * meanAmplL1) ) { 
+            if ( abs(mean01 - meanAmplL1) > abs(percentVariation_ * meanAmplL1) )
               val = 0.;
-            }
             g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), val);
           }
           
@@ -269,7 +268,7 @@ void EBLaserClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* r
           if ( econn ) {
             try {
               ecid = econn->getEcalLogicID("EB_crystal_index", ism, ie-1, ip-1);
-              datasetb[ecid] = apdb;
+              dataset_bl[ecid] = apd_bl;
             } catch (runtime_error &e) {
               cerr << e.what() << endl;
             }
@@ -287,21 +286,20 @@ void EBLaserClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* r
 
           }
 
-          apdr.setAPDMean(mean03);
-          apdr.setAPDRMS(rms03);
+          apd_ir.setAPDMean(mean03);
+          apd_ir.setAPDRMS(rms03);
 
-          apdr.setAPDOverPNMean(mean04);
-          apdr.setAPDOverPNRMS(rms04);
+          apd_ir.setAPDOverPNMean(mean04);
+          apd_ir.setAPDOverPNRMS(rms04);
 
-          apdr.setTaskStatus(1);
+          apd_ir.setTaskStatus(1);
 
           float val;
 
           if ( g02_[ism-1] ) {
             val = 1.;
-            if ( abs(mean03 - meanAmplL2) > abs(percentVariation_ * meanAmplL2) ) {
+            if ( abs(mean03 - meanAmplL2) > abs(percentVariation_ * meanAmplL2) )
               val = 0.;
-            }
             g02_[ism-1]->SetBinContent(g02_[ism-1]->GetBin(ie, ip), val);
           }
           
@@ -318,7 +316,7 @@ void EBLaserClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* r
           if ( econn ) {
             try {
               ecid = econn->getEcalLogicID("EB_crystal_index", ism, ie-1, ip-1);
-              datasetr[ecid] = apdr;
+              dataset_ir[ecid] = apd_ir;
             } catch (runtime_error &e) {
               cerr << e.what() << endl;
             }
@@ -334,8 +332,8 @@ void EBLaserClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* r
   if ( econn ) {
     try {
       cout << "Inserting dataset ... " << flush;
-      econn->insertDataSet(&datasetb, runiov, runtag );
-      econn->insertDataSet(&datasetr, runiov, runtag );
+      econn->insertDataSet(&dataset_bl, runiov, runtag );
+      econn->insertDataSet(&dataset_ir, runiov, runtag );
       cout << "done." << endl; 
     } catch (runtime_error &e) {
       cerr << e.what() << endl;

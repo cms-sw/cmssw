@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  * 
- * $Date: 2005/11/24 10:59:36 $
- * $Revision: 1.31 $
+ * $Date: 2005/11/24 12:43:53 $
+ * $Revision: 1.32 $
  * \author G. Della Ricca
  *
 */
@@ -147,25 +147,30 @@ void EBIntegrityClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
           num01 = num02 = num03 = num04 = -1.;
           
           bool update_channel = false;
+          bool update_channel_db = false;
           
           if ( h01_[ism-1] ) {
             num01  = h01_[ism-1]->GetBinContent(h01_[ism-1]->GetBin(ie, ip));
             update_channel = true;
+            if ( num01 > 0 ) update_channel_db = true;
           }
 
           if ( h02_[ism-1] ) {
             num02  = h02_[ism-1]->GetBinContent(h02_[ism-1]->GetBin(ie, ip));
             update_channel = true;
+            if ( num02 > 0 ) update_channel_db = true;
           }
 
           if ( h03_[ism-1] ) {
             num03  = h03_[ism-1]->GetBinContent(h03_[ism-1]->GetBin(ie, ip));
             update_channel = true;
+            if ( num03 > 0 ) update_channel_db = true;
           }
 
           if ( h04_[ism-1] ) {
             num04  = h04_[ism-1]->GetBinContent(h04_[ism-1]->GetBin(ie, ip));
             update_channel = true;
+            if ( num04 > 0 ) update_channel_db = true;
           }
 
           if ( update_channel ) {
@@ -178,11 +183,13 @@ void EBIntegrityClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
 
             }
 
-            c.setExpectedEvents(0);
-            c.setProblemsInGain(int(num01));
-            c.setProblemsInId(int(num02));
-            c.setProblemsInSample(int(-999));
-            c.setProblemsInADC(int(-999));
+            if ( update_channel_db ) {
+              c.setExpectedEvents(0);
+              c.setProblemsInGain(int(num01));
+              c.setProblemsInId(int(num02));
+              c.setProblemsInSample(int(-999));
+              c.setProblemsInADC(int(-999));
+            }
 
             float val;
 
@@ -193,12 +200,14 @@ void EBIntegrityClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
               g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), val);
             }
 
-            if ( econn ) {
-              try {
-                ecid = econn->getEcalLogicID("EB_crystal_index", ism, ie-1, ip-1);
-                dataset[ecid] = c;
-              } catch (runtime_error &e) {
-                cerr << e.what() << endl;
+            if ( update_channel_db ) {
+              if ( econn ) {
+                try {
+                  ecid = econn->getEcalLogicID("EB_crystal_index", ism, ie-1, ip-1);
+                  dataset[ecid] = c;
+                } catch (runtime_error &e) {
+                  cerr << e.what() << endl;
+                }
               }
             }
 
