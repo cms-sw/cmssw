@@ -4,6 +4,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "SimG4CMS/Calo/interface/HCalSD.h"
+#include "SimG4CMS/Calo/interface/HcalTestNumberingScheme.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
@@ -32,14 +33,16 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
   //static SimpleConfigurable<bool> on2(true,"HCalSD:UseShowerLibrary");
 
   edm::ParameterSet m_HC = p.getParameter<edm::ParameterSet>("HCalSD");
-  verbosity= m_HC.getParameter<int>("Verbosity");
-  useBirk  = m_HC.getParameter<bool>("UseBirkLaw");
-  birk1    = m_HC.getParameter<double>("BirkC1")*(g/(MeV*cm2));
-  birk2    = m_HC.getParameter<double>("BirkC2")*(g/(MeV*cm2))*(g/(MeV*cm2));
+  verbosity  = m_HC.getParameter<int>("Verbosity");
+  useBirk    = m_HC.getParameter<bool>("UseBirkLaw");
+  birk1      = m_HC.getParameter<double>("BirkC1")*(g/(MeV*cm2));
+  birk2      = m_HC.getParameter<double>("BirkC2")*(g/(MeV*cm2))*(g/(MeV*cm2));
   useShowerLibrary = m_HC.getParameter<bool>("UseShowerLibrary");
+  bool testNumber  = m_HC.getParameter<bool>("TestNumberingScheme");
 
-  int verbn  = verbosity/10;
-  verbosity %= 10;
+  int verbddd = (verbosity/100)/10;
+  int verbn   = (verbosity/10)%10;
+  verbosity  %= 10;
 
 #ifdef debug  
   if (verbosity > 1)
@@ -61,8 +64,11 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
 	      << useBirk << "         with the two constants C1 =     "
 	      << birk1 << ", C2 = " << birk2 << std::endl;
   
-  numberingFromDDD = new HcalNumberingFromDDD(name, cpv, p);
-  setNumberingScheme(new HcalNumberingScheme(verbn));
+  numberingFromDDD = new HcalNumberingFromDDD(verbddd, name, cpv);
+  HcalNumberingScheme* scheme;
+  if (testNumber) scheme = dynamic_cast<HcalNumberingScheme*>(new HcalTestNumberingScheme(verbn));
+  else            scheme = new HcalNumberingScheme(verbn);
+  setNumberingScheme(scheme);
   if (useShowerLibrary) showerLibrary = new HFShowerLibrary(name, cpv, p);
   else                  hfshower      = new HFShower(cpv,p);
 
