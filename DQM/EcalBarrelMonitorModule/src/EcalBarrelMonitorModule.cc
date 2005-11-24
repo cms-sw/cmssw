@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  * 
- * $Date: 2005/11/23 07:37:18 $
- * $Revision: 1.50 $
+ * $Date: 2005/11/23 08:57:38 $
+ * $Revision: 1.51 $
  * \author G. Della Ricca
  *
 */
@@ -65,6 +65,7 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
 
   cosmic_task_ = new EBCosmicTask(ps, dbe_);
   laser_task_ = new EBLaserTask(ps, dbe_);
+  pndiode_task_ = new EBPnDiodeTask(ps, dbe_);
   pedestal_task_ = new EBPedestalTask(ps, dbe_);
   pedpresample_task_ = new EBPedPreSampleTask(ps, dbe_);
   testpulse_task_ = new EBTestPulseTask(ps, dbe_);
@@ -81,6 +82,7 @@ EcalBarrelMonitorModule::~EcalBarrelMonitorModule(){
 
   if ( cosmic_task_ ) delete cosmic_task_;
   if ( laser_task_ ) delete laser_task_;
+  if ( pndiode_task_ ) delete pndiode_task_;
   if ( pedestal_task_ ) delete pedestal_task_;
   if ( pedpresample_task_ ) delete pedpresample_task_;
   if ( testpulse_task_ ) delete testpulse_task_;
@@ -97,6 +99,7 @@ void EcalBarrelMonitorModule::beginJob(const edm::EventSetup& c){
 
   cosmic_task_->beginJob(c);
   laser_task_->beginJob(c);
+  pndiode_task_->beginJob(c);
   pedestal_task_->beginJob(c);
   pedpresample_task_->beginJob(c);
   testpulse_task_->beginJob(c);
@@ -107,6 +110,7 @@ void EcalBarrelMonitorModule::endJob(void) {
 
   cosmic_task_->endJob();
   laser_task_->endJob();
+  pndiode_task_->endJob();
   pedestal_task_->endJob();
   pedpresample_task_->endJob();
   testpulse_task_->endJob();
@@ -195,6 +199,8 @@ void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
   if ( evtType_ == 0 ) cosmic_task_->analyze(e, c);
 
   if ( evtType_ == 1 ) laser_task_->analyze(e, c);
+
+  if ( evtType_ == 1 ) pndiode_task_->analyze(e, c);
 
   if ( evtType_ == 2 ) pedestal_task_->analyze(e, c);
 

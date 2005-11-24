@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  * 
- * $Date: 2005/11/20 16:43:39 $
- * $Revision: 1.26 $
+ * $Date: 2005/11/22 16:04:29 $
+ * $Revision: 1.27 $
  * \author G. Della Ricca
  *
 */
@@ -134,11 +134,47 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   }
 
+  edm::Handle<EcalPnDiodeDigiCollection>  pns;
+  e.getByLabel("ecalEBunpacker", pns);
+
+  float adc[36];
+
+  for ( int i = 0; i < 36; i++ ) adc[i] = 0.;
+
+//  int nep = pns->size();
+//  cout << "EBTestPulseTask: event " << ievt_ << " pns collection size " << nep << endl;
+
+  for ( EcalPnDiodeDigiCollection::const_iterator pnItr = pns->begin(); pnItr != pns->end(); ++pnItr ) {
+
+    EcalPnDiodeDigi pn = (*pnItr);
+    EcalPnDiodeDetId id = pn.id();
+
+
+//    int ism = id.ism();
+    int ism = id.iDCCId();
+    int num = id.iPnId();
+
+    float xvalmax = 0.;
+
+    for (int i = 0; i < 50; i++) {
+
+      EcalFEMSample sample = pn.sample(i);
+
+      float xval = sample.adc();
+
+      if ( xvalmax >= xval ) xval = xvalmax;
+
+      if ( num == 1 ) adc[ism-1] = xvalmax;
+
+    }
+
+  }
+
   edm::Handle<EcalUncalibratedRecHitCollection>  hits;
   e.getByLabel("ecalUncalibHitMaker", "EcalEBUncalibRecHits", hits);
 
 //  int neh = hits->size();
-//  cout << "EBTestPulseTask: event " << ievt_ << " hits collection size " << neb << endl;
+//  cout << "EBTestPulseTask: event " << ievt_ << " hits collection size " << neh << endl;
 
   for ( EcalUncalibratedRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
 
@@ -158,17 +194,37 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 //    logFile << " sm, eta, phi " << ism << " " << ie*iz << " " << ip << endl;
 
     MonitorElement* meAmplMap = 0;
+    MonitorElement* meAmplPNMap = 0;
 
-    if ( ievt_ >=    1 && ievt_ <=  600 ) meAmplMap = meAmplMapL1_[ism-1];
-    if ( ievt_ >=  601 && ievt_ <= 1200 ) meAmplMap = meAmplMapL1_[ism-1];
-    if ( ievt_ >= 1201 && ievt_ <= 1800 ) meAmplMap = meAmplMapL2_[ism-1];
-    if ( ievt_ >= 1801 && ievt_ <= 2400 ) meAmplMap = meAmplMapL2_[ism-1];
+    if ( ievt_ >=    1 && ievt_ <=  600 ) {
+      meAmplMap = meAmplMapL1_[ism-1];
+      meAmplPNMap = meAmplPNMapL1_[ism-1];
+    }
+    if ( ievt_ >=  601 && ievt_ <= 1200 ) {
+      meAmplMap = meAmplMapL1_[ism-1];
+      meAmplPNMap = meAmplPNMapL1_[ism-1];
+    }
+    if ( ievt_ >= 1201 && ievt_ <= 1800 ) {
+      meAmplMap = meAmplMapL2_[ism-1];
+      meAmplPNMap = meAmplPNMapL2_[ism-1];
+    }
+    if ( ievt_ >= 1801 && ievt_ <= 2400 ) {
+      meAmplMap = meAmplMapL2_[ism-1];
+      meAmplPNMap = meAmplPNMapL2_[ism-1];
+    }
 
     float xval = 0.001 * hit.amplitude();
 
 //    logFile << " hit amplitude " << xval << endl;
 
     if ( meAmplMap ) meAmplMap->Fill(xie, xip, xval);
+
+    float yval = 0.;
+    if ( adc[ism-1] != 0. ) yval = xval / adc[ism-1];
+
+//    logFile << " hit amplitude over PN " << yval << endl;
+
+    if ( meAmplPNMap ) meAmplPNMap->Fill(xie, xip, yval);
 
   }
 

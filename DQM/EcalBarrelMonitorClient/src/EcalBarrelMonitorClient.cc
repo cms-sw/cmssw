@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  * 
- * $Date: 2005/11/21 09:02:43 $
- * $Revision: 1.40 $
+ * $Date: 2005/11/24 09:20:29 $
+ * $Revision: 1.41 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -501,7 +501,7 @@ void EcalBarrelMonitorClient::htmlOutput(void){
   if ( h_ && h_->GetBinContent(2) != 0 ) {
     htmlName = "EBPnDiodeClient.html";
     pndiode_client_->htmlOutput(run_, htmlDir, htmlName);
-    htmlFile << "<li><a href=\"" << htmlName << "\">Laser</a></li>" << endl;
+    htmlFile << "<li><a href=\"" << htmlName << "\">PNdiode</a></li>" << endl;
   }
 
   // Pedestal check (normal)
