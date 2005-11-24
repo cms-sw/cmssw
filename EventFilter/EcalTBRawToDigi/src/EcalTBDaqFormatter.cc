@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2005/11/14 13:43:42 $
- *  $Revision: 1.8 $
+ *  $Date: 2005/11/23 18:54:07 $
+ *  $Revision: 1.9 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -254,7 +254,7 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData , EBDigiCol
     
 	  // comparison: expectation VS crystal in data
 	  if(!	   (strip == expStripInTower &&
-		    ch    { == expCryInStrip )	     )
+		    ch     == expCryInStrip )	     )
 	    {
 
 	      // 		// only for debugging purposes
@@ -319,11 +319,12 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData , EBDigiCol
 	
 
 	
-	/**************************************************
-	 //    tt 69 and 70:  two mem boxes, holding PN0 ... PN9
-	 *********************************************************/	
-	else if (  (*itTowerBlock)->towerID() == 69 )
-	             ||	   (*itTowerBlock)->towerID() == 70)
+      /**************************************************
+       //    tt 69 and 70:  two mem boxes, holding PN0 ... PN9
+       *********************************************************/	
+      else if (       (*itTowerBlock)->towerID() == 69 
+		      ||	   (*itTowerBlock)->towerID() == 70
+	       )
 	
 	  {// if it is a mem box
 	  
