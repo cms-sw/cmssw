@@ -1,8 +1,8 @@
 /*
  * \file EBPedPreSampleClient.cc
  * 
- * $Date: 2005/11/24 12:43:53 $
- * $Revision: 1.30 $
+ * $Date: 2005/11/24 18:13:17 $
+ * $Revision: 1.31 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -356,13 +356,13 @@ void EBPedPreSampleClient::htmlOutput(int run, string htmlDir, string htmlName){
       }
       obj1f->Draw();
       cMean->Update();
-      gPad->SetLogy(0);
       TPaveStats* stMean = dynamic_cast<TPaveStats*>(obj1f->FindObject("stats"));
       if ( stMean ) {
         stMean->SetX1NDC(0.6);
         stMean->SetY1NDC(0.75);
       }
       cMean->SaveAs(imgName.c_str());
+      gPad->SetLogy(0);
       delete cMean;
       
       // RMS distributions
