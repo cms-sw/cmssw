@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  * 
- * $Date: 2005/11/24 13:42:10 $
- * $Revision: 1.33 $
+ * $Date: 2005/11/24 15:07:33 $
+ * $Revision: 1.34 $
  * \author G. Della Ricca
  *
 */
@@ -390,6 +390,7 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
   int pCol3[3] = { 2, 3, 10 };
   int pCol4[10];
   for( int i=0; i<10; i++ ) pCol4[i] = 30+i;
+  pCol4[0] = 10;
 
 
   TH2C dummy1( "dummy1", "dummy1 for sm", 85, 0, 85, 20, 0, 20 );
