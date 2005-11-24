@@ -17,4 +17,5 @@ private:
 CPPUNIT_TEST_SUITE_REGISTRATION(testMuon);
 
 void testMuon::checkAll() {
+  // to be implemented...
 }
