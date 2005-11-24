@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  * 
- * $Date: 2005/11/22 18:15:42 $
- * $Revision: 1.28 $
+ * $Date: 2005/11/23 08:26:32 $
+ * $Revision: 1.29 $
  * \author G. Della Ricca
  *
 */
@@ -120,7 +120,7 @@ void EBIntegrityClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
 
   cout << "Writing RunConsistencyDatObjects to database ..." << endl;
 
-  float n_min_bin = 50.;
+  float n_min_bin = 0.;
 
   float num00;
 
