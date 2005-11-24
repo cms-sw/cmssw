@@ -19,11 +19,8 @@ namespace std{} using namespace std;
 
 #define debug
 
-HcalNumberingFromDDD::HcalNumberingFromDDD(std::string & name,
-					   const DDCompactView & cpv,
-					   edm::ParameterSet const & p) {
-  edm::ParameterSet m_HCalDD = p.getParameter<edm::ParameterSet>("HcalNumberingFromDDD");
-  verbosity= m_HCalDD.getParameter<int>("Verbosity");
+HcalNumberingFromDDD::HcalNumberingFromDDD(int iv, std::string & name,
+					   const DDCompactView & cpv) : verbosity(iv) {
   if (verbosity>0) std::cout << "Creating HcalNumberingFromDDD" << std::endl;
   initialize(name, cpv);
 }

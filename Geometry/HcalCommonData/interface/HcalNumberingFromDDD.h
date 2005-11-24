@@ -8,7 +8,6 @@
 #include "Geometry/HcalCommonData/interface/HcalCellType.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CLHEP/Vector/ThreeVector.h"
 
 #include <vector>
@@ -21,8 +20,7 @@ class HcalNumberingFromDDD {
 
 public:
 
-  HcalNumberingFromDDD(std::string & name, const DDCompactView & cpv,
-		       edm::ParameterSet const & p);
+  HcalNumberingFromDDD(int iv, std::string & name, const DDCompactView & cpv);
   ~HcalNumberingFromDDD();
 	 
   struct HcalID {
