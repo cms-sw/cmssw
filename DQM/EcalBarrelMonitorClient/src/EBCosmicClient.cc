@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  * 
- * $Date: 2005/11/21 09:02:43 $
- * $Revision: 1.1 $
+ * $Date: 2005/11/24 15:11:10 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -20,6 +20,7 @@ EBCosmicClient::EBCosmicClient(const edm::ParameterSet& ps, MonitorUserInterface
 
     h01_[i] = 0;
     h02_[i] = 0;
+    h03_[i] = 0;
 
   }
 
@@ -33,6 +34,7 @@ EBCosmicClient::~EBCosmicClient(){
 
     if ( h01_[i] ) delete h01_[i];
     if ( h02_[i] ) delete h02_[i];
+    if ( h03_[i] ) delete h03_[i];
 
   }
 
@@ -58,8 +60,10 @@ void EBCosmicClient::beginRun(const edm::EventSetup& c){
 
     if ( h01_[ism-1] ) delete h01_[ism-1];
     if ( h02_[ism-1] ) delete h02_[ism-1];
+    if ( h03_[ism-1] ) delete h03_[ism-1];
     h01_[ism-1] = 0;
     h02_[ism-1] = 0;
+    h03_[ism-1] = 0;
 
   }
 
@@ -171,6 +175,7 @@ void EBCosmicClient::subscribe(void){
   // subscribe to all monitorable matching pattern
   mui_->subscribe("*/EcalBarrel/EBCosmicTask/Sel/EBCT amplitude sel SM*");
   mui_->subscribe("*/EcalBarrel/EBCosmicTask/Cut/EBCT amplitude cut SM*");
+  mui_->subscribe("*/EcalBarrel/EBCosmicTask/Spectrum/EBCT amplitude spectrum SM*");
 
 }
 
@@ -179,6 +184,7 @@ void EBCosmicClient::subscribeNew(void){
   // subscribe to new monitorable matching pattern
   mui_->subscribeNew("*/EcalBarrel/EBCosmicTask/Sel/EBCT amplitude sel SM*");
   mui_->subscribeNew("*/EcalBarrel/EBCosmicTask/Cut/EBCT amplitude cut SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBCosmicTask/Spectrum/EBCT amplitude spectrum SM*");
 
 }
 
@@ -187,6 +193,7 @@ void EBCosmicClient::unsubscribe(void){
   // unsubscribe to all monitorable matching pattern
   mui_->unsubscribe("*/EcalBarrel/EBCosmicTask/Sel/EBCT amplitude sel SM*");
   mui_->unsubscribe("*/EcalBarrel/EBCosmicTask/Cut/EBCT amplitude cut SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBCosmicTask/Spectrum/EBCT amplitude spectrum SM*");
 
 }
 
@@ -228,6 +235,17 @@ void EBCosmicClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
     }
 
+    sprintf(histo, "Collector/FU0/EcalBarrel/EBCosmicTask/Spectrum/EBCT amplitude spectrum SM%02d", ism);
+    me = mui_->get(histo);
+    if ( me ) {
+      cout << "Found '" << histo << "'" << endl;
+      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
+      if ( ob ) {
+        if ( h03_[ism-1] ) delete h03_[ism-1];
+        h03_[ism-1] = dynamic_cast<TH1F*> ((ob->operator->())->Clone());
+      }
+    }
+
   }
 
 }
@@ -262,6 +280,140 @@ void EBCosmicClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<td bgcolor=white>channel is missing</td></table>" << endl;
   htmlFile << "<hr>" << endl;
 
+  // Produce the plots to be shown as .jpg files from existing histograms
+
+  int csize = 250;
+
+  double histMax = 1.e15;
+
+  int pCol4[10];
+  for( int i=0; i<10; i++ ) pCol4[i] = 30+i;
+  
+  TH2C dummy( "dummy", "dummy for sm", 85, 0., 85., 20, 0., 20. );
+  for( int i = 0; i < 68; i++ ) {
+    int a = 2 + ( i/4 ) * 5;
+    int b = 2 + ( i%4 ) * 5;
+    dummy.Fill( a, b, i+1 );
+  }
+  dummy.SetMarkerSize(2);
+
+  string imgNameME[3], imgName, meName;
+
+  // Loop on barrel supermodules
+
+  for ( int ism = 1 ; ism <= 36 ; ism++ ) {
+    
+    if ( h01_[ism-1] && h02_[ism-1] && h03_[ism-1] ) {
+
+      // Monitoring elements plots
+      
+      for ( int iCanvas = 1; iCanvas <= 2; iCanvas++ ) {
+
+        TProfile2D* obj2f = 0;
+      
+        switch ( iCanvas ) {
+        case 1:
+          meName = h01_[ism-1]->GetName();
+          obj2f = h01_[ism-1];
+          break;
+        case 2:
+          meName = h02_[ism-1]->GetName();
+          obj2f = h02_[ism-1];
+          break;
+        default:
+          break;
+        }
+        
+        TCanvas *cMe = new TCanvas("cMe" , "Temp", 2*csize , csize );
+        for ( unsigned int iMe = 0 ; iMe < meName.size(); iMe++ ) {
+          if ( meName.substr(iMe, 1) == " " )  {
+            meName.replace(iMe, 1, "_");
+          }
+        }
+        imgNameME[iCanvas-1] = meName + ".jpg";
+        imgName = htmlDir + imgNameME[iCanvas-1];
+        gStyle->SetOptStat(" ");
+        gStyle->SetPalette( 10, pCol4 );
+        obj2f->GetXaxis()->SetNdivisions(17);
+        obj2f->GetYaxis()->SetNdivisions(4);
+        cMe->SetGridx();
+        cMe->SetGridy();
+        obj2f->SetMinimum(-0.00000001);
+        obj2f->SetMaximum();
+        obj2f->Draw("colz");
+        dummy.Draw("text,same");
+        cMe->Update();
+        cMe->SaveAs(imgName.c_str());
+        delete cMe;
+
+      }
+
+      // Energy spectrum distributions
+      
+      TH1F* obj1f = 0; 
+    
+      meName = h03_[ism-1]->GetName();
+      obj1f = h03_[ism-1];
+    
+      TCanvas *cAmp = new TCanvas("cAmp" , "Temp", csize , csize );
+      for ( unsigned int iAmp=0 ; iAmp < meName.size(); iAmp++ ) {
+        if ( meName.substr(iAmp,1) == " " )  {
+          meName.replace(iAmp, 1 ,"_" );
+        }
+      }
+      imgNameME[2] = meName + ".jpg";
+      imgName = htmlDir + imgNameME[2];
+      gStyle->SetOptStat("euomr");
+      obj1f->SetStats(kTRUE);
+      if ( obj1f->GetMaximum(histMax) > 0. ) {
+        gPad->SetLogy(1);
+      } else {
+        gPad->SetLogy(0);
+      }
+      obj1f->Draw();
+      cAmp->Update();
+      gPad->SetLogy(0);
+      TPaveStats* stAmp = dynamic_cast<TPaveStats*>(obj1f->FindObject("stats"));
+      if ( stAmp ) {
+        stAmp->SetX1NDC(0.6);
+        stAmp->SetY1NDC(0.75);
+      }
+      cAmp->SaveAs(imgName.c_str());
+      delete cAmp;
+
+    }
+      
+    htmlFile << "<h3><strong>Supermodule&nbsp;&nbsp;" << ism << "</strong></h3>" << endl;
+    htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+    htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+    htmlFile << "<tr align=\"center\">" << endl;
+
+    for ( int iCanvas = 1 ; iCanvas <= 2 ; iCanvas++ ) {
+
+      if ( imgNameME[iCanvas-1].size() != 0 ) 
+        htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameME[iCanvas-1] << "\"></td>" << endl;
+      else
+        htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+
+    }
+    htmlFile << "</tr>" << endl;
+    htmlFile << "</table>" << endl;
+    htmlFile << "<br>" << endl;
+
+    htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+    htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+    htmlFile << "<tr align=\"center\">" << endl;
+
+    if ( imgNameME[2].size() != 0 )
+      htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameME[2] << "\"></td>" << endl;
+    else
+      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+
+    htmlFile << "</tr>" << endl;
+    htmlFile << "</table>" << endl;
+    htmlFile << "<br>" << endl;
+
+  }
 
   // html page footer
   htmlFile << "</body> " << endl;
