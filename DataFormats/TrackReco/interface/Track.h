@@ -31,8 +31,10 @@ namespace reco {
     double chi2() const { return chi2_; }
     unsigned short ndof() const { return ndof_; }
     double normalizedChi2() const { return chi2_ / ndof_; }
-    const helix::Parameters & parameters() const { return par_; }
-    const helix::Covariance & covariance() const { return cov_; }
+    const Parameters & parameters() const { return par_; }
+    double parameter( int i ) const { return par_( i ); }
+    const Covariance & covariance() const { return cov_; }
+    double covariance( int i, int j ) const { return cov_( i, j ); }
     int charge() const { return par_.charge(); }
     double pt() const { return par_.pt(); }
     double d0() const { return par_.d0(); }

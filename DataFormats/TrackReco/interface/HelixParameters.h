@@ -24,10 +24,12 @@ namespace reco {
       Parameters() { }
       Parameters( const double * par ) : par_( par ) { }
       typedef reco::Vector<5>::index index;
+      /* removed for consistency with Covariance. See comment below...
       template<index i>
       double get() const { return par_.get<i>(); }
       template<index i>
       double & get() { return par_.get<i>(); }
+      */
       double operator()( index i ) const { return par_( i ); }
       double & operator()( index i ) { return par_( i ); }
       double d0() const { return par_.get<i_d0>(); }
@@ -52,24 +54,24 @@ namespace reco {
     class Covariance {
     public:
       Covariance() {} 
-      Covariance( const double * err ) : err_( err ) { }
+      Covariance( const double * cov ) : cov_( cov ) { }
       typedef Error<5>::index index;
       /* those methods templates don't compile under LCG reflex dicts.
       template<index i, index j>
-      double get() const { return err_.get<i, j>(); }
+      double get() const { return cov_.get<i, j>(); }
       template<index i, index j>
-      double & get() { return err_.get<i, j>(); }
+      double & get() { return cov_.get<i, j>(); }
       */
-      double operator()( index i, index j ) const { return err_( i, j ); }
-      double & operator()( index i, index j ) { return err_ ( i, j ); }
-      double d0Error() const { return sqrt( err_.get<i_d0, i_d0>() ); }
-      double phi0Error() const { return sqrt( err_.get<i_phi0, i_phi0>() ); }
-      double omegaError() const { return sqrt( err_.get<i_omega, i_omega>() ); }
-      double dzError() const { return sqrt( err_.get<i_dz, i_dz>() ); }
-      double tanDipError() const { return sqrt( err_.get<i_tanDip, i_tanDip>() ); }
+      double operator()( index i, index j ) const { return cov_( i, j ); }
+      double & operator()( index i, index j ) { return cov_ ( i, j ); }
+      double d0Error() const { return sqrt( cov_.get<i_d0, i_d0>() ); }
+      double phi0Error() const { return sqrt( cov_.get<i_phi0, i_phi0>() ); }
+      double omegaError() const { return sqrt( cov_.get<i_omega, i_omega>() ); }
+      double dzError() const { return sqrt( cov_.get<i_dz, i_dz>() ); }
+      double tanDipError() const { return sqrt( cov_.get<i_tanDip, i_tanDip>() ); }
 
     private:
-      Error<5> err_;
+      Error<5> cov_;
     };
     
     void setFromCartesian( int q, const Point &, const Vector &, 
