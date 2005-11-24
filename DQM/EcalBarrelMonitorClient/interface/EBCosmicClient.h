@@ -4,8 +4,8 @@
 /*
  * \file EBCosmicClient.h
  *
- * $Date: 2005/11/16 15:19:36 $
- * $Revision: 1.11 $
+ * $Date: 2005/11/21 09:02:43 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -91,6 +91,7 @@ MonitorUserInterface* mui_;
 
 TProfile2D* h01_[36];
 TProfile2D* h02_[36];
+TH1F* h03_[36];
 
 };
 
