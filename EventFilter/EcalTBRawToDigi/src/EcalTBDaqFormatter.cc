@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2005/11/23 18:54:07 $
- *  $Revision: 1.9 $
+ *  $Date: 2005/11/24 09:08:49 $
+ *  $Revision: 1.10 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -414,11 +414,11 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData , EBDigiCol
 		{thePnDigi.setSample(sample, data_MEM[(pnId-1)*50 + sample ] );  
 		
 		
-		  if (pnId==1){
-		    cout << "[Formatter] sample: " << sample
-			 << " " 
-			 <<data_MEM[(pnId-1)*50 + sample ];
-		  }
+//		  if (pnId==1){
+//		    cout << "[Formatter] sample: " << sample
+//			 << " " 
+//			 <<data_MEM[(pnId-1)*50 + sample ];
+//		  }
 		
 		
 		}
