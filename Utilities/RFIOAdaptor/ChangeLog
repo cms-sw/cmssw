@@ -1,3 +1,7 @@
+2005-11-24  Giulio Eulisse  <giulio.eulisse@cern.ch>
+
+	* put.cpp, ostream.cpp: removed old COBRA include.
+
 2005-11-22  Giulio Eulisse  <giulio.eulisse@cern.ch>
 
 	* .admin/developers: more people added on pete request.
