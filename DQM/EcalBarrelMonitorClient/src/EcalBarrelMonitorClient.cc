@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  * 
- * $Date: 2005/11/24 09:20:29 $
- * $Revision: 1.41 $
+ * $Date: 2005/11/24 09:47:00 $
+ * $Revision: 1.42 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -15,6 +15,8 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps){
   cout << endl;
   cout << " *** Ecal Barrel Generic Monitor Client ***" << endl;
   cout << endl;
+
+  init_run_done_ = false;
 
   mui_ = 0;
   econn_ = 0;
@@ -117,6 +119,7 @@ void EcalBarrelMonitorClient::beginJob(const edm::EventSetup& c){
   cosmic_client_->beginJob(c);
 
   this->beginRun(c);
+  init_run_done_ = true;
 
 }
 
@@ -300,8 +303,6 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
   if ( ievt_ % 10 == 0 )
     cout << "EcalBarrelMonitorClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
 
-  string s;
-
   bool stay_in_loop = mui_->update();
 
   this->subscribeNew();
@@ -321,6 +322,7 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
   if ( stay_in_loop && updates != last_update_ ) {
 
     MonitorElement* me;
+    string s;
 
     me = mui_->get("Collector/FU0/EcalBarrel/STATUS");
     if ( me ) {
@@ -366,7 +368,7 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
             " event = "    << evt_      << endl;
     cout << " updates = "  << updates   <<
             " status = "   << status_   <<
-            " runtype = " << runtype_  <<
+            " runtype = "  << runtype_  <<
             " location = " << location_ << endl;
 
     if ( h_ ) {
@@ -377,11 +379,19 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
       cout << endl;
     }
 
+    if ( status_ == "unknown" ) {
+      init_run_done_ = false;
+    }
+
     if ( status_ == "begin-of-run" ) {
-      this->beginRun(c);
+      if ( ! init_run_done_ ) {
+        this->beginRun(c);
+        init_run_done_ = true;
+      }
     }
 
     if ( status_ == "running" ) {
+      init_run_done_ = false;
       if ( last_update_ == 0 || updates % 5 == 0 ) {
                                                integrity_client_->analyze(e, c);
         if ( h_ && h_->GetBinContent(2) != 0 ) laser_client_->analyze(e, c);
@@ -395,6 +405,7 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
     }
 
     if ( status_ == "end-of-run" ) {
+      init_run_done_ = false;
                                              integrity_client_->analyze(e, c);
       if ( h_ && h_->GetBinContent(2) != 0 ) laser_client_->analyze(e, c);
       if ( h_ && h_->GetBinContent(2) != 0 ) pndiode_client_->analyze(e, c);
@@ -439,6 +450,7 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
     cout << "Forcing start-of-run ... NOW !" << endl;
 
     this->beginRun(c);
+    init_run_done_ = true;
 
   }
 
