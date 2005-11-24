@@ -1,0 +1,12 @@
+<export>
+ <lib name=IORawDataCSCCommissioning>
+ <use name=FWCore/Framework>
+ <use name=DataFormats/FEDRawData>
+ <use name=IORawData/DaqSource>
+</export>
+
+<use name=FWCore/Framework>
+<use name=DataFormats/FEDRawData>
+<use name=IORawData/DaqSource>
+
+<flags SEAL_PLUGIN_NAME="IORawDataCSCCommissioning">
