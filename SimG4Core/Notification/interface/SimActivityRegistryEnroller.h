@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Nov 13 15:08:12 EST 2005
-// $Id: SimActivityRegistryEnroller.h,v 1.2 2005/11/16 04:57:08 chrjones Exp $
+// $Id: SimActivityRegistryEnroller.h,v 1.3 2005/11/21 22:00:50 chrjones Exp $
 //
 
 // system include files
@@ -76,7 +76,7 @@ class SimActivityRegistryEnroller
  public:
   SimActivityRegistryEnroller() {}
       //virtual ~SimActivityRegistryEnroller();
-      typedef boost::mpl::vector<BeginOfJob,DDDWorld,BeginOfRun,BeginOfEvent,BeginOfTrack,BeginOfStep,EndOfTrack,EndOfEvent,EndOfRun> Signals;
+      typedef boost::mpl::vector<BeginOfJob,DDDWorld,BeginOfRun,BeginOfEvent,BeginOfTrack,BeginOfStep,G4Step,EndOfTrack,EndOfEvent,EndOfRun> Signals;
    
       // ---------- const member functions ---------------------
 
