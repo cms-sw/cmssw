@@ -1,8 +1,8 @@
 /*
  * \file EBPnDiodeTask.cc
  * 
- * $Date: 2005/11/22 16:04:29 $
- * $Revision: 1.27 $
+ * $Date: 2005/11/24 09:47:00 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */
@@ -18,7 +18,7 @@ EBPnDiodeTask::EBPnDiodeTask(const edm::ParameterSet& ps, DaqMonitorBEInterface*
   if ( dbe ) {
     dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask");
     for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBLT PNs SM%02d", i+1);
+      sprintf(histo, "EBPT PNs SM%02d", i+1);
       mePN_[i] = dbe->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096.);
     }
 
@@ -64,6 +64,9 @@ void EBPnDiodeTask::analyze(const edm::Event& e, const edm::EventSetup& c){
     int ism = id.iDCCId();
     int num = id.iPnId();
 
+//    logFile << " det id = " << id << endl;
+//    logFile << " sm, num " << ism << " " << num << endl;
+
     float xvalmax = 0.;
 
     for (int i = 0; i < 50; i++) {
@@ -72,11 +75,13 @@ void EBPnDiodeTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
       float xval = sample.adc();
 
-      if ( xvalmax >= xval ) xval = xvalmax;
+//    logFile << " hit amplitude " << xval << endl;
+
+      if ( xval >= xvalmax ) xvalmax = xval;
 
     }
 
-    if ( num == 1 ) mePN_[ism-1]->Fill(float(num), xvalmax);
+    mePN_[ism-1]->Fill(num - 0.5, xvalmax);
 
   }
 

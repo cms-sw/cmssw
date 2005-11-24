@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  * 
- * $Date: 2005/11/23 08:26:32 $
- * $Revision: 1.29 $
+ * $Date: 2005/11/24 08:48:38 $
+ * $Revision: 1.30 $
  * \author G. Della Ricca
  *
 */
@@ -132,7 +132,7 @@ void EBIntegrityClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
       for ( int ip = 1; ip <= 20; ip++ ) {
 
         float numEventsinCry = 0.;
-        if ( h_ ) numEventsinCry = h_[ism-1]->GetBinEntries(h_[ism-1]->GetBin(ie, ip)) / 3.;
+        if ( h_[ism-1] ) numEventsinCry = h_[ism-1]->GetBinEntries(h_[ism-1]->GetBin(ie, ip)) / 3.;
         
         // cout << "Number of events per crystal (" << ie << "," << ip << ") SM " << ism << " " << numEventsinCry << endl;
 

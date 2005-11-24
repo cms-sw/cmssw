@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  * 
- * $Date: 2005/11/22 16:04:29 $
- * $Revision: 1.27 $
+ * $Date: 2005/11/24 09:47:00 $
+ * $Revision: 1.28 $
  * \author G. Della Ricca
  *
 */
@@ -24,7 +24,7 @@ EBLaserTask::EBLaserTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe
       meShapeMapL1_[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096.);
       sprintf(histo, "EBLT amplitude SM%02d L1", i+1);
       meAmplMapL1_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
-      sprintf(histo, "EBPT laser amplitude over PN L1 SM%02d", i+1);
+      sprintf(histo, "EBLT amplitude over PN SM%02d L1", i+1);
       meAmplPNMapL1_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
     }
 
@@ -34,7 +34,7 @@ EBLaserTask::EBLaserTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe
       meShapeMapL2_[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096.);
       sprintf(histo, "EBLT amplitude SM%02d L2", i+1);
       meAmplMapL2_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
-      sprintf(histo, "EBPT laser amplitude over PN L2 SM%02d", i+1);
+      sprintf(histo, "EBLT amplitude over PN SM%02d L2", i+1);
       meAmplPNMapL2_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
     }
 
@@ -44,7 +44,7 @@ EBLaserTask::EBLaserTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe
       meShapeMapL3_[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096.);
       sprintf(histo, "EBLT amplitude SM%02d L3", i+1);
       meAmplMapL3_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
-      sprintf(histo, "EBPT laser amplitude over PN L3 SM%02d", i+1);
+      sprintf(histo, "EBLT amplitude over PN SM%02d L3", i+1);
       meAmplPNMapL3_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
     }
 
@@ -54,7 +54,7 @@ EBLaserTask::EBLaserTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe
       meShapeMapL4_[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096.);
       sprintf(histo, "EBLT amplitude SM%02d L4", i+1);
       meAmplMapL4_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
-      sprintf(histo, "EBPT laser amplitude over PN L4 SM%02d", i+1);
+      sprintf(histo, "EBLT amplitude over PN SM%02d L4", i+1);
       meAmplPNMapL4_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
     }
 
@@ -162,7 +162,7 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
       float xval = sample.adc();
 
-      if ( xvalmax >= xval ) xval = xvalmax;
+      if ( xval >= xvalmax ) xvalmax = xval;
 
       if ( num == 1 ) adc[ism-1] = xvalmax;
 

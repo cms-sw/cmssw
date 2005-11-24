@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  * 
- * $Date: 2005/11/20 16:43:39 $
- * $Revision: 1.21 $
+ * $Date: 2005/11/22 18:14:58 $
+ * $Revision: 1.22 $
  * \author G. Della Ricca
  *
 */
@@ -22,19 +22,19 @@ EBLaserClient::EBLaserClient(const edm::ParameterSet& ps, MonitorUserInterface* 
     h03_[i] = 0;
     h04_[i] = 0;
 
-    sprintf(histo, "EBPT laser quality L1 SM%02d", i+1);
+    sprintf(histo, "EBLT laser quality L1 SM%02d", i+1);
     g01_[i] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
-    sprintf(histo, "EBPT laser quality L2 SM%02d", i+1);
+    sprintf(histo, "EBLT laser quality L2 SM%02d", i+1);
     g02_[i] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
 
-    sprintf(histo, "EBPT laser amplitude L1 SM%02d", i+1);
+    sprintf(histo, "EBLT laser amplitude L1 SM%02d", i+1);
     a01_[i] = new TH1F(histo, histo, 1700, 0., 1700.);
-    sprintf(histo, "EBPT laser amplitude L2 SM%02d", i+1);
+    sprintf(histo, "EBLT laser amplitude L2 SM%02d", i+1);
     a02_[i] = new TH1F(histo, histo, 1700, 0., 1700.);
 
-    sprintf(histo, "EBPT laser amplitude over PN L1 SM%02d", i+1);
+    sprintf(histo, "EBLT laser amplitude over PN L1 SM%02d", i+1);
     aopn01_[i] = new TH1F(histo, histo, 10, 0., 10.);
-    sprintf(histo, "EBPT laser amplitude over PN L2 SM%02d", i+1);
+    sprintf(histo, "EBLT laser amplitude over PN L2 SM%02d", i+1);
     aopn02_[i] = new TH1F(histo, histo, 10, 0., 10.);
 
   }
@@ -351,6 +351,10 @@ void EBLaserClient::subscribe(void){
   mui_->subscribe("*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude over PN SM*");
   mui_->subscribe("*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude SM*");
   mui_->subscribe("*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude over PN SM*");
+  mui_->subscribe("*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude SM*");
+  mui_->subscribe("*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude over PN SM*");
+  mui_->subscribe("*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude SM*");
+  mui_->subscribe("*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN SM*");
 
 }
 
@@ -361,6 +365,10 @@ void EBLaserClient::subscribeNew(void){
   mui_->subscribeNew("*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude over PN SM*");
   mui_->subscribeNew("*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude SM*");
   mui_->subscribeNew("*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude over PN SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude over PN SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN SM*");
 
 }
 
@@ -371,6 +379,10 @@ void EBLaserClient::unsubscribe(void){
   mui_->unsubscribe("*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude over PN SM*");
   mui_->unsubscribe("*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude SM*");
   mui_->unsubscribe("*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude over PN SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude over PN SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN SM*");
 
 }
 
