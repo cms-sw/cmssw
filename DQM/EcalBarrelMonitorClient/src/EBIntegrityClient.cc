@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  * 
- * $Date: 2005/11/24 12:43:53 $
- * $Revision: 1.32 $
+ * $Date: 2005/11/24 13:42:10 $
+ * $Revision: 1.33 $
  * \author G. Della Ricca
  *
 */
@@ -388,14 +388,25 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
   int csize = 250;
 
   int pCol3[3] = { 2, 3, 10 };
+  int pCol4[10];
+  for( int i=0; i<10; i++ ) pCol4[i] = 30+i;
 
-  TH2C dummy( "dummy", "dummy for sm", 85, 0., 85., 20, 0., 20. );
-  for( int i = 0; i < 68; i++ ) {
+
+  TH2C dummy1( "dummy1", "dummy1 for sm", 85, 0, 85, 20, 0, 20 );
+  for( short i=0; i<68; i++ ) {
     int a = 2 + ( i/4 ) * 5;
     int b = 2 + ( i%4 ) * 5;
-    dummy.Fill( a, b, i+1 );
+    dummy1.Fill( a, b, i+1 );
   }
-  dummy.SetMarkerSize(2);
+  dummy1.SetMarkerSize(2);
+
+  TH2C dummy2( "dummy2", "dummy2 for sm", 17, 0, 17, 4, 0, 4 );
+  for( short i=0; i<68; i++ ) {
+    int a = ( i/4 );
+    int b = ( i%4 );
+    dummy2.Fill( a, b, i+1 );
+  }
+  dummy2.SetMarkerSize(2);
 
   string imgNameDCC, imgNameQual, imgNameME[4], imgName , meName;
   
@@ -424,7 +435,6 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
     obj1f->SetMinimum(-0.00000001);
     obj1f->SetMaximum(2.0);
     obj1f->Draw("col");
-    dummy.Draw("text,same");
     cDCC->Update();
     cDCC->SaveAs(imgName.c_str());
     delete cDCC;
@@ -433,11 +443,17 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
   
   htmlFile << "<h3><strong>DCC size error</strong></h3>" << endl;
   
-  if ( imgNameDCC.size() != 0 ) 
-    htmlFile << "<p><img src=\"" << imgNameDCC << "\"></p>" << endl;
-  else
-    htmlFile << "<p><img src=\"" << " " << "\"></p>" << endl;
+  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+  htmlFile << "cellpadding=\"10\"> " << endl;
+  htmlFile << "<tr align=\"left\">" << endl;
   
+  if ( imgNameDCC.size() != 0 ) 
+    htmlFile << "<td><img src=\"" << imgNameDCC << "\"></td>" << endl;
+  else
+    htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+  
+  htmlFile << "</tr>" << endl;
+  htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
 
   // Loop on barrel supermodules
@@ -470,7 +486,7 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj2f->SetMinimum(-0.00000001);
       obj2f->SetMaximum(2.0);
       obj2f->Draw("col");
-      dummy.Draw("text,same");
+      dummy1.Draw("text,same");
       cQual->Update();
       cQual->SaveAs(imgName.c_str());
       delete cQual;
@@ -509,7 +525,7 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
         imgNameME[iCanvas-1] = meName + ".jpg";
         imgName = htmlDir + imgNameME[iCanvas-1];
         gStyle->SetOptStat(" ");
-        gStyle->SetPalette(1, 0);
+        gStyle->SetPalette( 10, pCol4 );
         obj2f->GetXaxis()->SetNdivisions(17);
         obj2f->GetYaxis()->SetNdivisions(4);
         cMe->SetGridx();
@@ -517,6 +533,10 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
         obj2f->SetMinimum(-0.00000001);
         obj2f->SetMaximum();
         obj2f->Draw("colz");
+        if ( iCanvas < 3 ) 
+          dummy1.Draw("text,same");
+        else
+          dummy2.Draw("text,same");
         cMe->Update();
         cMe->SaveAs(imgName.c_str());
         delete cMe;
@@ -527,11 +547,17 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     htmlFile << "<h3><strong>Supermodule&nbsp;&nbsp;" << ism << "</strong></h3>" << endl;
     
+    htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+    htmlFile << "cellpadding=\"10\"> " << endl;
+    htmlFile << "<tr align=\"left\">" << endl;
+    
     if ( imgNameQual.size() != 0 ) 
-      htmlFile << "<p><img src=\"" << imgNameQual << "\"></p>" << endl;
+      htmlFile << "<td><img src=\"" << imgNameQual << "\"></td>" << endl;
     else
-      htmlFile << "<p><img src=\"" << " " << "\"></p>" << endl;
+      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
 
+    htmlFile << "</tr>" << endl;
+    htmlFile << "</table>" << endl;
     htmlFile << "<br>" << endl;
     
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
@@ -543,7 +569,7 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
       if ( imgNameME[iCanvas-1].size() != 0 ) 
         htmlFile << "<td><img src=\"" << imgNameME[iCanvas-1] << "\"></td>" << endl;
       else
-        htmlFile << "<img src=\"" << " " << "\"></td>" << endl;
+        htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
       
     }
 
