@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  * 
- * $Date: 2005/11/22 18:14:58 $
- * $Revision: 1.22 $
+ * $Date: 2005/11/24 10:55:51 $
+ * $Revision: 1.23 $
  * \author G. Della Ricca
  *
 */
@@ -33,9 +33,9 @@ EBLaserClient::EBLaserClient(const edm::ParameterSet& ps, MonitorUserInterface* 
     a02_[i] = new TH1F(histo, histo, 1700, 0., 1700.);
 
     sprintf(histo, "EBLT laser amplitude over PN L1 SM%02d", i+1);
-    aopn01_[i] = new TH1F(histo, histo, 10, 0., 10.);
+    aopn01_[i] = new TH1F(histo, histo, 1700, 0., 1700.);
     sprintf(histo, "EBLT laser amplitude over PN L2 SM%02d", i+1);
-    aopn02_[i] = new TH1F(histo, histo, 10, 0., 10.);
+    aopn02_[i] = new TH1F(histo, histo, 1700, 0., 1700.);
 
   }
 
