@@ -1,3 +1,6 @@
+** V01-03-01  [Thu Nov 24 21:19:56 2005]
+G4Step signal was not being connected to its Observers
+
 ** V01-03-00  [Tue Nov 22 23:03:02 2005]
 updated version
 
