@@ -4,6 +4,7 @@
 
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include <FWCore/Framework/interface/EDProducer.h>
+#include <EventFilter/RPCRawToDigi/interface/RPCEventData.h>
 
 #include <iostream>
 
@@ -18,9 +19,14 @@ class RPCUnpackingModule: public edm::EDProducer {
       FEDRawDataCollection (EDProduct) using the DigiToRaw converter,
       and attaches it to the Event. */
    void produce(edm::Event & e, const edm::EventSetup& c); 
+
+
    
+   RPCEventData eventData(){return rpcData;}
 
   private:
+  
+  RPCEventData rpcData; 
    
 
   };
