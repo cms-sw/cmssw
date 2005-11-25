@@ -1,8 +1,8 @@
 /*
  * \file EBPnDiodeClient.cc
  * 
- * $Date: 2005/11/24 10:55:51 $
- * $Revision: 1.3 $
+ * $Date: 2005/11/24 12:43:53 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -230,6 +230,70 @@ void EBPnDiodeClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<td bgcolor=white>channel is missing</td></table>" << endl;
   htmlFile << "<hr>" << endl;
 
+  // Produce the plots to be shown as .jpg files from existing histograms
+
+  int csize = 250;
+
+  double histMax = 1.e15;
+
+  string imgNameME, imgName, meName;
+
+  // Loop on barrel supermodules
+
+  for ( int ism = 1 ; ism <= 36 ; ism++ ) {
+
+    if ( h01_[ism-1] ) {
+
+      // Monitoring elements plots
+
+      TProfile* objp = 0;
+
+      meName = h01_[ism-1]->GetName();
+      objp = h01_[ism-1];
+
+      TCanvas *cAmp = new TCanvas("cAmp" , "Temp", csize , csize );
+      for ( unsigned int iAmp=0 ; iAmp < meName.size(); iAmp++ ) {
+        if ( meName.substr(iAmp,1) == " " )  {
+          meName.replace(iAmp, 1 ,"_" );
+        }
+      }
+      imgNameME = meName + ".jpg";
+      imgName = htmlDir + imgNameME;
+      gStyle->SetOptStat("euomr");
+      objp->SetStats(kTRUE);
+//      if ( objp->GetMaximum(histMax) > 0. ) {
+//        gPad->SetLogy(1);
+//      } else {
+//        gPad->SetLogy(0);
+//      }
+      objp->Draw();
+      cAmp->Update();
+      TPaveStats* stAmp = dynamic_cast<TPaveStats*>(objp->FindObject("stats"));
+      if ( stAmp ) {
+        stAmp->SetX1NDC(0.6);
+        stAmp->SetY1NDC(0.75);
+      }
+      cAmp->SaveAs(imgName.c_str());
+      gPad->SetLogy(0);
+      delete cAmp;
+
+    }
+
+    htmlFile << "<h3><strong>Supermodule&nbsp;&nbsp;" << ism << "</strong></h3>" << endl;
+    htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+    htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+    htmlFile << "<tr align=\"center\">" << endl;
+
+    if ( imgNameME.size() != 0 )
+      htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameME << "\"></td>" << endl;
+    else
+      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+
+    htmlFile << "</tr>" << endl;
+    htmlFile << "</table>" << endl;
+    htmlFile << "<br>" << endl;
+
+  }
 
   // html page footer
   htmlFile << "</body> " << endl;

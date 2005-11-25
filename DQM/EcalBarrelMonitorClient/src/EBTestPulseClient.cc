@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  * 
- * $Date: 2005/11/24 12:43:53 $
- * $Revision: 1.25 $
+ * $Date: 2005/11/24 18:13:16 $
+ * $Revision: 1.26 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -757,11 +757,11 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
         imgName = htmlDir + imgNameShape[iCanvas-1];
         gStyle->SetOptStat("euomr");
         obj1d->SetStats(kTRUE);
-        if ( obj1d->GetMaximum(histMax) > 0. ) {
-          gPad->SetLogy(1);
-        } else {
-          gPad->SetLogy(0);
-        }
+//        if ( obj1d->GetMaximum(histMax) > 0. ) {
+//          gPad->SetLogy(1);
+//        } else {
+//          gPad->SetLogy(0);
+//        }
         obj1d->Draw();
         cShape->Update();
         TPaveStats* stShape = dynamic_cast<TPaveStats*>(obj1d->FindObject("stats"));

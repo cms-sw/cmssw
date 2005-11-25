@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  * 
- * $Date: 2005/11/24 13:42:10 $
- * $Revision: 1.26 $
+ * $Date: 2005/11/24 18:13:17 $
+ * $Revision: 1.27 $
  * \author G. Della Ricca
  *
 */
@@ -615,11 +615,11 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         imgName = htmlDir + imgNameAmpoPN[iCanvas-1];
         gStyle->SetOptStat("euomr");
         obj1f->SetStats(kTRUE);
-        if ( obj1f->GetMaximum(histMax) > 0. ) {
-          gPad->SetLogy(1);
-        } else {
-          gPad->SetLogy(0);
-        }
+//        if ( obj1f->GetMaximum(histMax) > 0. ) {
+//          gPad->SetLogy(1);
+//        } else {
+//          gPad->SetLogy(0);
+//        }
         obj1f->Draw();
         cAmpoPN->Update();
         TPaveStats* stAmpoPN = dynamic_cast<TPaveStats*>(obj1f->FindObject("stats"));
