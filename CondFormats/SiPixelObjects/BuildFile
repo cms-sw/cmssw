@@ -1,0 +1,11 @@
+<flags LCGDICT_ARGS="--">
+<use name=Dictionary/Reflex>
+<use name=FWCore/Framework>
+<use name=boost>
+<export>
+   <lib name=CondFormatsSiPixelObjects>
+   <use name=Dictionary/Reflex>
+   <use name=FWCore/Framework>
+   <use name=boost>
+</export>
+
