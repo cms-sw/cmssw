@@ -128,10 +128,6 @@ void RunManager::initG4(const edm::EventSetup & es)
 
     createWatchers(m_p, m_registry, m_watchers);
 
-    //tell all interesting parties that we are beginning the job
-    BeginOfJob aBeginOfJob(&es);
-    m_registry.beginOfJobSignal_(&aBeginOfJob);
-
     // DDDWorld: get the DDCV from the ES and use it to build the World
     edm::ESHandle<DDCompactView> pDD;
     es.get<IdealGeometryRecord>().get(pDD);
@@ -189,8 +185,13 @@ void RunManager::initG4(const edm::EventSetup & es)
 	m_physicsList->StorePhysicsTable(tableDir);
     }
  
+    //tell all interesting parties that we are beginning the job
+    BeginOfJob aBeginOfJob(&es);
+    m_registry.beginOfJobSignal_(&aBeginOfJob);
+
     initializeUserActions();
     initializeRun();
+
 }
 
 void RunManager::produce(const edm::EventSetup & es)
