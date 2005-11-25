@@ -13,7 +13,7 @@
 //
 // Original Author:  Tommaso Boccali
 //         Created:  Tue Jul 26 08:47:57 CEST 2005
-// $Id: PerfectGeometryAnalyzer.cc,v 1.3 2005/10/06 07:58:19 case Exp $
+// $Id: PerfectGeometryAnalyzer.cc,v 1.4 2005/11/14 13:57:46 case Exp $
 //
 //
 
@@ -98,7 +98,7 @@ PerfectGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetu
    try {
       DDExpandedView ex(*pDD);
       //std::cout <<" made the expanded view"<<std::endl;
-      ex.firstChild();
+      // ex.firstChild();
       std::cout << " Top node is a "<< ex.logicalPart() << std::endl;
    }catch(const DDLogicalPart& iException){
       throw cms::Exception("Geometry")
