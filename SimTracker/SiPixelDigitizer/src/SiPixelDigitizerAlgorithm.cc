@@ -45,6 +45,9 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   //theTofCut 12.5, cut in particle TOD +/- 12.5ns
   theTofCut=conf_.getParameter<double>("TofCut");
 
+  //Lorentz angle tangent per Tesla
+  tanLorentzAnglePerTesla=conf_.getParameter<double>("TanLorentzAnglePerTesla");
+
   // Add noise   
   addNoise=conf_.getParameter<bool>("AddNoise");
 
@@ -89,16 +92,15 @@ SiPixelDigitizerAlgorithm::~SiPixelDigitizerAlgorithm(){
  }
 }
 
-void  SiPixelDigitizerAlgorithm::run(const std::vector<PSimHit> &input,
-				     PixelDigiCollection &output,
-				     PixelGeomDetUnit *pixdet,
-				     GlobalVector bfield)
+vector<PixelDigi>  SiPixelDigitizerAlgorithm::run(const std::vector<PSimHit> &input,
+						  PixelGeomDetUnit *pixdet,
+						  GlobalVector bfield)
 {
 
 
   _detp = pixdet; //cache the PixGeomDetUnit
   _PixelHits=input; //cache the SimHit
-
+  _bfield=bfield; //cache the drift direction
 
 
   // Pixel Efficiency moved from the constructor to the method run because
@@ -110,6 +112,16 @@ void  SiPixelDigitizerAlgorithm::run(const std::vector<PSimHit> &input,
 
 
   thePixelLuminosity=conf_.getParameter<int>("AddPixelInefficiency");
+  if (thePixelLuminosity==0) {
+    pixelInefficiency=false;
+    for (int i=0; i<3;i++) {
+      thePixelEfficiency[i]     = 1.;  // pixels = 99%
+      // For columns make 1% default.
+      thePixelColEfficiency[i]  = 1.;  // columns = 99%
+      // A flat 0.25% inefficiency due to lost data packets from TBM
+      thePixelChipEfficiency[i] = 1.; // chips = 99.75%
+    }
+  }
   if (thePixelLuminosity>0) {
     pixelInefficiency=true;
     // Default efficiencies 
@@ -167,31 +179,18 @@ void  SiPixelDigitizerAlgorithm::run(const std::vector<PSimHit> &input,
       }
     }
   }
-  //drift direction
-  //  GlobalVector Perp_det pixdet->surface().
-  //  driftdirection(pixdet,bfield);
 
 
-
-    //     /////////////////      
-    
-
-  
   //Digitization of the SimHits of a given pixdet
   vector<PixelDigi> collector =digitize(pixdet);
   int detID= _detp->geographicalId().rawId();
-
   //Fill the pixidigicollection
-  PixelDigiCollection::Range outputRange;
-  outputRange.first = collector.begin();
-  outputRange.second = collector.end();
-  output.put(outputRange,detID);
-  collector.clear();
 
-  if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 0 ) {
-    cout << "[SiPixelDigitizerAlgorithm] converted " << collector.size() << " StripDigis in DetUnit" << detID << endl; 
-  }
-  
+
+   if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 0 ) {
+    cout << "[SiPixelDigitizerAlgorithm] converted " << collector.size() << " PixelDigis in DetUnit" << detID << endl; 
+   }
+   return collector;
 }
 /**********************************************************************/
 
@@ -259,14 +258,14 @@ vector<PixelDigi> SiPixelDigitizerAlgorithm::digitize(PixelGeomDetUnit *det){
     }
 
     if(addNoise) add_noise();  // generate noise
- 
     // Do only if needed 
+
     if(pixelInefficiency && _signal.size()>0 ) 
       pixel_inefficiency(); // Kill some pixels
 
   }
-  make_digis();
 
+  make_digis();
   return internal_coll;
 }
 
@@ -416,11 +415,7 @@ void SiPixelDigitizerAlgorithm::drift(const PSimHit& hit){
   
   _collection_points.resize( _ionization_points.size()); // set size
 
-  LocalPoint center(0.,0.);  // detector center 
-
-  //MP dove e' driftdirection?
-  // LocalVector driftDir = _detp->driftDirection(center); // drift in center
-  LocalVector driftDir(1.,1.,1.);
+  LocalVector driftDir=DriftDirection();
 
 
   if(driftDir.z() ==0.) {
@@ -594,8 +589,7 @@ void SiPixelDigitizerAlgorithm::induce_signal( const PSimHit& hit) {
 	 
 	 gsl_sf_result result;
 	 int status = gsl_sf_erf_Q_e( (xLB-CloudCenterX)/SigmaX, &result);
-	 //MP da verificare
-	 //	 if (status != 0) throw DetLogicError("GaussianTailNoiseGenerator::could not compute gaussian tail probability for the threshold chosen");
+
 	 if (status != 0)  cerr<<"GaussianTailNoiseGenerator::could not compute gaussian tail probability for the threshold chosen"<<endl;
 	 LowerBound = 1-result.val;
 	 //	cout <<" LOWERB PIXEL "<<oLowerBound<<" " <<LowerBound<<" " <<oLowerBound-LowerBound<<endl;
@@ -609,9 +603,8 @@ void SiPixelDigitizerAlgorithm::induce_signal( const PSimHit& hit) {
 	
 	 gsl_sf_result result;
 	 int status = gsl_sf_erf_Q_e( (xUB-CloudCenterX)/SigmaX, &result);
-	 //MP da verificare
 	 if (status != 0)  cerr<<"GaussianTailNoiseGenerator::could not compute gaussian tail probability for the threshold chosen"<<endl;
-	 //	 if (status != 0) throw DetLogicError("GaussianTailNoiseGenerator::could not compute gaussian tail probability for the threshold chosen");
+
 	UpperBound = 1. - result.val;
 	//	cout <<" LOWERB PIXEL "<<oUpperBound<<" " <<UpperBound<<" " <<oUpperBound-UpperBound<<endl;
 
@@ -633,9 +626,8 @@ void SiPixelDigitizerAlgorithm::induce_signal( const PSimHit& hit) {
 	//	float oLowerBound = freq_( (yLB-CloudCenterY)/SigmaY);
 	gsl_sf_result result;
 	int status = gsl_sf_erf_Q_e( (yLB-CloudCenterY)/SigmaY, &result);
-	 //MP da verificare
 	 if (status != 0)  cerr<<"GaussianTailNoiseGenerator::could not compute gaussian tail probability for the threshold chosen"<<endl;
-	 //	 if (status != 0) throw DetLogicError("GaussianTailNoiseGenerator::could not compute gaussian tail probability for the threshold chosen");
+
 	LowerBound = 1. - result.val;
 	//	cout <<" LOWERB PIXEL "<<oLowerBound<<" " <<LowerBound<<" " <<oLowerBound-LowerBound<<endl;
 
@@ -649,9 +641,9 @@ void SiPixelDigitizerAlgorithm::induce_signal( const PSimHit& hit) {
 	//        float oUpperBound = freq_( (yUB-CloudCenterY)/SigmaY);
 	gsl_sf_result result;
 	int status = gsl_sf_erf_Q_e( (yUB-CloudCenterY)/SigmaY, &result);
-	 //MP da verificare
+
 	 if (status != 0)  cerr<<"GaussianTailNoiseGenerator::could not compute gaussian tail probability for the threshold chosen"<<endl;
-	 //	 if (status != 0) throw DetLogicError("GaussianTailNoiseGenerator::could not compute gaussian tail probability for the threshold chosen");
+
 	UpperBound = 1. - result.val;
 	//	cout <<" LOWERB PIXEL "<<oUpperBound<<" " <<UpperBound<<" " <<oUpperBound-UpperBound<<endl;
 
@@ -747,7 +739,6 @@ void SiPixelDigitizerAlgorithm::make_digis() {
   for ( signal_map_iterator i = _signal.begin(); i != _signal.end(); i++) {
 
     float signalInElectrons = (*i).second ;   // signal in electrons
-
     // Do the miss calibration for calibration studies only.
     if(doMissCalibrate) signalInElectrons = missCalibrate(signalInElectrons);
 
@@ -843,10 +834,12 @@ void SiPixelDigitizerAlgorithm::add_noise() {
   
 
     if(_signal[chan] == 0){
-      float noise = float( (*mapI).second );
+      //      float noise = float( (*mapI).second );
+      int noise=int( (*mapI).second );
       _signal[chan] = Amplitude (noise, 0);
     }
   }
+
 }
 /***********************************************************************/
 //
@@ -862,10 +855,8 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency() {
   //MP da verificare
   //  if ( pixelPart == barrel ) {  // barrel layers
   if ( pixelPart == 0 ) {  // barrel layers
-    //MP da capire
-    //    double radius = _detp->position().perp();
+
     double radius = _detp->surface().position().perp();
-    
     int layerIndex = 0;
     if( radius < 5.5 ) {
       layerIndex=1;
@@ -874,7 +865,10 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency() {
     } else  {
       layerIndex=3;
     }
-    
+
+
+
+
     pixelEfficiency  = thePixelEfficiency[layerIndex-1];
     columnEfficiency = thePixelColEfficiency[layerIndex-1];
     chipEfficiency   = thePixelChipEfficiency[layerIndex-1];
@@ -928,7 +922,7 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency() {
     int pixY = ip.second + 1;
     indexConverter.chipIndices(pixX,pixY,chipX,chipY,row,col);
    
-   int chipIndex = indexConverter.chipIndex(chipX,chipY);
+    int chipIndex = indexConverter.chipIndex(chipX,chipY);
     pair<int,int> dColId = indexConverter.dColumn(row,col);
     //    int pixInChip  = dColId.first;
     int dColInChip = dColId.second;
@@ -951,7 +945,6 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency() {
     //cout << rand << " "  << iter->first << " " << iter->second << endl;
     //if( iter->second == 0 ) cout << " chip erased " << endl;
   }
-  
   //cout << " columns hit " << columns.size() << endl;
   for ( iter = columns.begin(); iter != columns.end() ; iter++ ) {
     //cout << iter->first << " " << iter->second << endl;
@@ -983,15 +976,18 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency() {
     // << chipIndex << " " << dColInDet << endl;
     //cout <<  chips[chipIndex] << " " <<  columns[dColInDet] << endl; 
 
+
     float rand  = RandFlat::shoot();
-    if( chips[chipIndex]==0 ||  columns[dColInDet]==0 
+
+   if( chips[chipIndex]==0 ||  columns[dColInDet]==0 
 	|| rand>pixelEfficiency ) {
       // make pixel amplitude =0, pixel will be lost at clusterization    
       i->second.set(0.); // reset amplitude, 
       //cout << " pixel will be killed " << float(i->second) << " " 
       //   << rand << " " << chips[chipIndex] << " " 
       //   << columns[dColInDet] << endl;
-   }
+    }
+
 
   }
   
@@ -1005,3 +1001,17 @@ float SiPixelDigitizerAlgorithm::missCalibrate(const float amp) const {
   float newAmp = amp * gain + offset;
   return newAmp;
 }  
+LocalVector SiPixelDigitizerAlgorithm::DriftDirection(){
+  //good Drift direction estimation only for pixel barrel
+  Frame detFrame(_detp->surface().position(),_detp->surface().rotation());
+  LocalVector Bfield=detFrame.toLocal(_bfield);
+  float dir_x = tanLorentzAnglePerTesla * Bfield.y();
+  float dir_y = -tanLorentzAnglePerTesla * Bfield.x();
+  float dir_z = 1.; // E field always in z direction
+  LocalVector theDriftDirection = LocalVector(dir_x,dir_y,dir_z);
+  if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 0 ) {
+    cout << " The drift direction in local coordinate is " <<  
+      theDriftDirection    << endl;
+  }
+  return theDriftDirection;
+}

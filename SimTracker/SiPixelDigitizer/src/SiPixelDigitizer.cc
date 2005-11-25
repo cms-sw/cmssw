@@ -13,7 +13,7 @@
 //
 // Original Author:  Michele Pioppi-INFN perugia
 //         Created:  Mon Sep 26 11:08:32 CEST 2005
-// $Id: SiPixelDigitizer.cc,v 1.2 2005/11/09 16:08:40 pioppi Exp $
+// $Id: SiPixelDigitizer.cc,v 1.3 2005/11/23 19:33:45 pioppi Exp $
 //
 //
 
@@ -52,7 +52,6 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-
 
 
 //
@@ -100,16 +99,6 @@ namespace cms
     //MP waiting for container bug fix
 
     thePixelHits.insert(thePixelHits.end(), PixelHits->begin(), PixelHits->end()); 
-//     std::cout <<"PixelHits= "<<thePixelHits.size()<<std::endl;
-
-//     int io=0;
-//    std::cout<<"punto B"<<std::endl;
-//     for(std::vector<PSimHit>::const_iterator isim = thePixelHits.begin();
-// 	isim != thePixelHits.end(); ++isim){
-//       io++;
-//       std::cout<<"l'Id del simhit "<<io<<" e' "<<
-// 	(*isim).detUnitId()<<std::endl;
-//     }
 
     // Step B: create empty output collection
     std::auto_ptr<PixelDigiCollection> output(new PixelDigiCollection);       
@@ -125,11 +114,15 @@ namespace cms
     // Step C: LOOP on PixelGeomDetUnit //
 
     for(TrackingGeometry::DetContainer::iterator iu = pDD->dets().begin(); iu != pDD->dets().end(); iu ++){
-      //Bfield value
-      GlobalPoint PosDet=(*iu)->surface().position();
-      GlobalVector bfield=pSetup->inTesla(PosDet);
+  
+      GlobalVector bfield=pSetup->inTesla((*iu)->surface().position());
+
+
+
+
       if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 1 ) {
-	std::cout << "B-field(T) at "<<PosDet<<"(cm): " << pSetup->inTesla(PosDet) << std::endl;
+	std::cout << "B-field(T) at "<<(*iu)->surface().position()<<"(cm): " 
+		  << pSetup->inTesla((*iu)->surface().position()) << std::endl;
       }
 
       if (dynamic_cast<PixelGeomDetUnit*>((*iu))!=0){
@@ -142,16 +135,19 @@ namespace cms
 		    detPixelHits.push_back((*isim));
 		  }
 	}
-	//	std::cout<<"det n "<<(*iu)->geographicalId().rawId()<<std::endl;
-	
-	_pixeldigialgo.run(detPixelHits,*output,dynamic_cast<PixelGeomDetUnit*>((*iu)),bfield);	
 
-	// Step D: write output to file
-
+	//take back the vector of PixelDigi 
+	collector= _pixeldigialgo.run(detPixelHits,dynamic_cast<PixelGeomDetUnit*>((*iu)),bfield);	
+	PixelDigiCollection::Range outputRange;
+	outputRange.first = collector.begin();
+	outputRange.second = collector.end();
+       	output->put(outputRange,(*iu)->geographicalId().rawId());
+	//
       }
 
     }
-  	iEvent.put(output);
+    // Step D: write output to file
+    iEvent.put(output);
   }
 }
 

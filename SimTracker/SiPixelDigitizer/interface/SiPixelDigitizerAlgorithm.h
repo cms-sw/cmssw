@@ -18,6 +18,9 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/TrackerSimAlgo/interface/TrackerGeomFromDetUnits.h"
 #include "SimGeneral/NoiseGenerators/interface/GaussianTailNoiseGenerator.h"
+#include "Geometry/Surface/interface/TkRotation.h"
+#include "Geometry/Surface/interface/GloballyPositioned.h"
+
 class SiPixelDigitizerAlgorithm 
 {
  public:
@@ -26,7 +29,7 @@ class SiPixelDigitizerAlgorithm
   ~SiPixelDigitizerAlgorithm();
   
   //run the algorithm to digitize a single det
-  void run(const std::vector<PSimHit> &input,PixelDigiCollection &output,PixelGeomDetUnit *pixdet,GlobalVector);
+  std::vector<PixelDigi>   run(const std::vector<PSimHit> &input,PixelGeomDetUnit *pixdet,GlobalVector);
 
 
  private:
@@ -160,6 +163,7 @@ class SiPixelDigitizerAlgorithm
   float thePixelThreshold;     // Pixel threshold in units of noise.
   float thePixelThresholdInE;  // Pixel noise in electorns.
   float theTofCut;             // Cut on the particle TOF
+  float tanLorentzAnglePerTesla;   //Lorentz angle tangent per Tesla
   //-- add_noise
   bool addNoise;
   bool addNoisyPixels;
@@ -186,7 +190,7 @@ class SiPixelDigitizerAlgorithm
 
 
 
-  GlobalVector _driftdet;
+  GlobalVector _bfield;
 
   float PixelEff;
   float PixelColEff;
@@ -220,7 +224,7 @@ class SiPixelDigitizerAlgorithm
   typedef std::map< int, Amplitude, std::less<int> >   signal_map_type;  // from
   typedef signal_map_type::iterator          signal_map_iterator; //Digi.Skel.
   signal_map_type     _signal;       // from Digi.Skel.
-  
+  typedef GloballyPositioned<double>      Frame;
  //-- additional member functions
 
 
@@ -235,7 +239,7 @@ class SiPixelDigitizerAlgorithm
   void make_digis();
   void pixel_inefficiency();
   float missCalibrate(float amp) const;  
-
+  LocalVector DriftDirection();
 
 };
 

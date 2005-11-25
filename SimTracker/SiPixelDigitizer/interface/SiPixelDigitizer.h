@@ -21,7 +21,8 @@
 #include "FWCore/EDProduct/interface/EDProduct.h"
 #include "SimTracker/SiPixelDigitizer/interface/SiPixelDigitizerAlgorithm.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
+#include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
+#include "DataFormats/SiPixelDigi/interface/PixelDigiCollection.h"
 
 
 namespace cms
@@ -45,6 +46,7 @@ namespace cms
     float xexrand,xentrand, yexrand,yentrand, zexrand,zentrand;
     std::vector<PSimHit> thePixelHits;
     std::vector<PSimHit> detPixelHits;
+    std::vector<PixelDigi> collector;
   };
 }
 
