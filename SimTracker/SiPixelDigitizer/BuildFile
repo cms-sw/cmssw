@@ -5,6 +5,7 @@
 <use name=SimDataFormats/TrackingHit>
 <use name=DataFormats/SiPixelDigi>
 <use name=Geometry/TrackerSimAlgo>
+<use name=Geometry/Surface>
 <use name=SimTracker/Common>
 <use name=SimGeneral/NoiseGenerators>
 <use name=SimGeneral/HepPDT>
@@ -35,4 +36,5 @@
    <use name=MagneticField/Records>
    <use name=MagneticField/GeomBuilder>
    <use name=MagneticField/VolumeBasedEngine>
+   <use name=Geometry/Surface>
 </export>
