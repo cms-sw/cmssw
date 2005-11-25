@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  * 
- * $Date: 2005/11/24 15:09:33 $
- * $Revision: 1.26 $
+ * $Date: 2005/11/24 18:19:18 $
+ * $Revision: 1.27 $
  * \author G. Della Ricca
  *
 */
@@ -33,7 +33,7 @@ EBCosmicTask::EBCosmicTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* d
     dbe->setCurrentFolder("EcalBarrel/EBCosmicTask/Spectrum");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBCT amplitude spectrum SM%02d", i+1);
-      meSpectrumMap_[i] = dbe->book1D(histo, histo, 4096, 0., 4096.);
+      meSpectrumMap_[i] = dbe->book1D(histo, histo, 100, 0., 1000.);
     }
 
   }
