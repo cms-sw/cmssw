@@ -3,7 +3,7 @@ using namespace std;
 #include <sstream>
 #include <fstream>
 #include "DetectorDescription/Parser/interface/DDLParser.h"
-#include "DetectorDescription/Parser/interface/DDLConfiguration.h"
+#include "DetectorDescription/Parser/interface/FIPConfiguration.h"
 #include "DetectorDescription/Core/src/DDCheck.h"
 #include "DetectorDescription/Core/interface/DDRoot.h"
 #include "DetectorDescription/Base/interface/DDException.h"
@@ -15,7 +15,7 @@ using namespace std;
 // The DDD user-code after XML-parsing is located
 // in DetectorDescription/Core/src/tutorial.cc
 // Please have a look to all the commentary therein.
-#include "DetectorDescription/Core/src/tutorial.h"
+//#include "DetectorDescription/Core/src/tutorial.h"
 
 #include "Utilities/Timing/interface/TimingReport.h"
 //#include "Utilities/Timing/interface/TimerProxy.h"
@@ -42,7 +42,7 @@ try { // DDD Prototype can throw DDException defined in DetectorDescription/Core
     will not suffer from this restriction).
   */  
   //  myP->SetConfig("configuration.xml");
-  DDLConfiguration cf;
+  FIPConfiguration cf;
   cf.readConfig("configuration.xml");
 
   cout << "about to start parsing" << endl;
