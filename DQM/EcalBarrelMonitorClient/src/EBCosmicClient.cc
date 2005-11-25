@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  * 
- * $Date: 2005/11/24 18:13:17 $
- * $Revision: 1.4 $
+ * $Date: 2005/11/25 07:42:25 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -288,7 +288,7 @@ void EBCosmicClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   int pCol4[10];
   for( int i=0; i<10; i++ ) pCol4[i] = 30+i;
-  pCol4[0] = 10;
+//  pCol4[0] = 10;
 
 
   TH2C dummy( "dummy", "dummy for sm", 85, 0., 85., 20, 0., 20. );
@@ -340,7 +340,7 @@ void EBCosmicClient::htmlOutput(int run, string htmlDir, string htmlName){
         obj2f->GetYaxis()->SetNdivisions(4);
         cMe->SetGridx();
         cMe->SetGridy();
-        obj2f->SetMinimum(-0.00000001);
+//        obj2f->SetMinimum(-0.00000001);
         obj2f->SetMaximum();
         obj2f->Draw("colz");
         dummy.Draw("text,same");

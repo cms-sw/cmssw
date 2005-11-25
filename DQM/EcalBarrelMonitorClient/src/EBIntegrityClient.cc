@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  * 
- * $Date: 2005/11/24 15:07:33 $
- * $Revision: 1.34 $
+ * $Date: 2005/11/24 18:21:21 $
+ * $Revision: 1.35 $
  * \author G. Della Ricca
  *
 */
@@ -390,7 +390,7 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
   int pCol3[3] = { 2, 3, 10 };
   int pCol4[10];
   for( int i=0; i<10; i++ ) pCol4[i] = 30+i;
-  pCol4[0] = 10;
+//  pCol4[0] = 10;
 
 
   TH2C dummy1( "dummy1", "dummy1 for sm", 85, 0, 85, 20, 0, 20 );
@@ -531,7 +531,7 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
         obj2f->GetYaxis()->SetNdivisions(4);
         cMe->SetGridx();
         cMe->SetGridy();
-        obj2f->SetMinimum(-0.00000001);
+//        obj2f->SetMinimum(-0.00000001);
         obj2f->SetMaximum();
         obj2f->Draw("colz");
         if ( iCanvas < 3 ) 
