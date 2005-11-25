@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2005/11/22 13:52:15 $
- *  $Revision: 1.3 $
+ *  $Date: 2005/11/23 11:17:15 $
+ *  $Revision: 1.4 $
  *  \author  M. Zanetti - INFN Padova 
  */
 
@@ -12,88 +12,71 @@
 #include <CondFormats/DTObjects/interface/DTReadOutMapping.h>
 
 #include <iostream>
+#include <map>
 
 using namespace std;
 using namespace edm;
 
 
-void DTROS8Unpacker::interpretRawData(const unsigned char* index, int datasize,
+void DTROS8Unpacker::interpretRawData(const unsigned int* index, int datasize,
 				      int dduID,
 				      edm::ESHandle<DTReadOutMapping>& mapping, 
 				      std::auto_ptr<DTDigiCollection>& product) {
 
 
-  /// CopyAndPaste from P.Ronchese unpacker
-
+  /// CopyAndPaste from P. Ronchese unpacker
   const int wordLength = 4;
-  int nrb = datasize / wordLength;
-  int rob = 0;
-  int ros = 0;
-  int mbs[8];
-  int lbs[8];
-  int err[8];
-  int itdc=0;
-  int ievt=0;
-  int ibwc=0;
+  int numberOfWords = datasize / wordLength;
+  int robID = 0;
+  int rosID = 0;
+  int eventID = 0;
+  int bunchID = 0;
+
+  map<int,int> hitOrder;
 
   // Loop over the ROS8 words
-  for ( int irb = 1; irb < nrb; irb++ ) {
+  for ( int i = 1; i < numberOfWords; i++ ) {
 
     // The word
-    int word = index[irb];
+    int word = index[i];
 
     // The word type
     int type = ( word >> 28 ) & 0xF;
 
-    // ROS Header ??
+    // Event Header 
     if ( type == 15 ) {
-      rob =   word        & 0x7;
-      ros = ( word >> 3 ) & 0xFF;
+      robID =   word        & 0x7;
+      rosID = ( word >> 3 ) & 0xFF;
     } 
-
-    // ROB Header ??
-    else if ( type == 14 ) {
-      int cmap =   word &        0xFF;
-      int lock = ( word >> 8 ) & 0xFF;
-      for ( int bit = 0; bit < 8; bit++ ) {
-        mbs[bit] = cmap & 1;
-        cmap >>= 1;
-        lbs[bit] = lock & 1;
-        lock >>= 1; 
-        err[bit] = mbs[bit] && lbs[bit];
-      }
-    }
 
     // TDC Header/Trailer
     else if ( type <= 3 ) {
-      itdc = ( word >> 24 ) & 0xF;
-      ievt = ( word >> 12 ) & 0xFFF;
-      ibwc =   word &         0xFFF; 
+      eventID = ( word >> 12 ) & 0xFFF;
+      bunchID =   word &         0xFFF; 
     }
 
     // TDC Measurement
-    // Note that this is assumed to be reached after all previous types
-    // have already been found...
     else if ( type >= 4 && type <= 5 ) {
-      int itdc1 = ( word >> 24 ) & 0xF;
-      int icha = ( word >> 19 ) & 0x1F;
-      int time =   word         & 0x7FFFF;
+      
+      int tdcID = ( word >> 24 ) & 0xF;
+      int tdcChannel = ( word >> 19 ) & 0x1F;
 
-      // int edge = ( type == 4 ? 0 : 1 );
-      time >>= 2;
+      int channelIndex = robID << 7 | tdcID << 5 | tdcChannel;
+      hitOrder[channelIndex]++;
 
+      int tdcMeasurement =  word  & 0x7FFFF;
+      tdcMeasurement >>= 2;
+
+      // temporary for the mapping
+      dduID = 31;
       // Map the RO channel to the DetId and wire
-      DTDetId detId; 
-      //      detId = mapping->readOutToGeometry(dduID, ros, rob, itdc1, icha);
+      DTDetId detId = mapping->readOutToGeometry(dduID, rosID, robID, tdcID, tdcChannel);
       int wire = detId.wire();
       
       // Produce the digi
-      // FIXME : handle count!!!
-      int count = 0;
-      DTDigi digi(wire, time, count);
+      DTDigi digi(wire, tdcMeasurement, hitOrder[channelIndex]-1);
 
-      //      cout << digi << endl;
-
+      // Commit to the event
       product->insertDigi(detId.layerId(),digi);
     }
   }

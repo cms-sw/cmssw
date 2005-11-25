@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2005/11/22 13:52:15 $
- *  $Revision: 1.9 $
+ *  $Date: 2005/11/23 11:17:15 $
+ *  $Revision: 1.10 $
  *  \author S. Argiro - N. Amapane - M. Zanetti 
  */
 
@@ -38,7 +38,7 @@ using namespace std;
 
 
 DTUnpackingModule::DTUnpackingModule(const edm::ParameterSet& pset) :
-  unpacker(0)
+  unpacker(0), numOfEvents(0)
 {
   const string &  dataType = pset.getParameter<string>("dataType");
 
@@ -67,7 +67,7 @@ void DTUnpackingModule::produce(Event & e, const EventSetup& context){
 
   // Get the mapping from the setup
   ESHandle<DTReadOutMapping> mapping;
-  //  context.get<DTReadOutMappingRcd>().get(mapping);
+  context.get<DTReadOutMappingRcd>().get(mapping);
   
   // Create the result i.e. the collection of MB Digis
   auto_ptr<DTDigiCollection> product(new DTDigiCollection);
@@ -81,7 +81,13 @@ void DTUnpackingModule::produce(Event & e, const EventSetup& context){
     if (feddata.size()){
       
       // Unpack the DDU data
-      unpacker->interpretRawData(feddata.data(), feddata.size(), id, mapping, product);
+      unpacker->interpretRawData(reinterpret_cast<const unsigned int*>(feddata.data()), 
+				 feddata.size(), id, mapping, product);
+
+      numOfEvents++;      
+      if (numOfEvents%100 == 0) 
+	cout<<"[DTUnpackingModule]: "<<numOfEvents<<" events analyzed"<<endl;
+
     }
   }
 

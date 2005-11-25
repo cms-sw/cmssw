@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2005/11/22 16:47:46 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/11/23 11:35:34 $
+ *  $Revision: 1.3 $
  *  \author M. Zanetti
  */
 
@@ -90,17 +90,19 @@ bool DTROS8FileReader::fillRawData(EventID& eID,
 
     // The pointer to the ROS payload (the 1st word being the ROS words counter)
     int* rosData = eventData + head[4];
+
     // The ROS payload size
-    int numberOfWordsInEvent = *rosData * ros8WordLenght;
+    int eventDataSize = *rosData * ros8WordLenght;
 
     // The FED ID is always the first in the DT range
     FEDRawData& fedRawData = data.FEDData( FEDNumbering::getDTFEDIds().first );
-    fedRawData.resize(numberOfWordsInEvent);
+    fedRawData.resize(eventDataSize);
+    
 
     // I pass only the ROS data to the Event
-    copy(reinterpret_cast< unsigned char*>(rosData), 
-	 reinterpret_cast< unsigned char*>(rosData) + numberOfWordsInEvent, fedRawData.data());
-    
+    copy(reinterpret_cast<unsigned char*>(rosData), 
+	 reinterpret_cast<unsigned char*>(rosData) + eventDataSize, fedRawData.data());
+
     // needed to get rid of memory leaks (?)
     delete[] eventData;
 

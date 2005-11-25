@@ -71,8 +71,8 @@
 /** \class DTROSWordType
  *  Enumeration of DT Read Out Sector (ROS) word types.
  *
- *  $Date: 2005/11/21 17:38:48 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/11/23 11:17:15 $
+ *  $Revision: 1.3 $
  * \author M. Zanetti - INFN Padova
  */
 class DTROSWordType {
@@ -80,8 +80,8 @@ class DTROSWordType {
 public:
   
   /// Constructor
-  DTROSWordType(const unsigned char* index) : 
-    word_(reinterpret_cast<const unsigned int*>(index)) {};
+  DTROSWordType(const unsigned int* index) : 
+    word_(index) {};
 
   /// Destructor
   virtual ~DTROSWordType() {};
@@ -151,8 +151,8 @@ public:
 
 
   /// Update the word by a ROS word size ( == 32 bits) 
-  void update(const unsigned char* index) {
-    word_ = reinterpret_cast<const unsigned int*>(index); 
+  void update(const unsigned int* index) {
+    word_ = index; 
   }
 
 
@@ -181,8 +181,8 @@ private:
  *  DT ROS Header interpreter. 
  *  It interprets the TTC Event counter (24 bits).
  *
- *  $Date: 2005/11/21 17:38:48 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/11/23 11:17:15 $
+ *  $Revision: 1.3 $
  * \author M. Zanetti - INFN Padova
  */
 class DTROSHeaderWord {
@@ -190,8 +190,8 @@ class DTROSHeaderWord {
 public:
 
   /// Constructor
-  DTROSHeaderWord(const unsigned char* index) : 
-    word_(reinterpret_cast<const unsigned int*>(index)) {} 
+  DTROSHeaderWord(const unsigned int* index) : 
+    word_(index) {} 
 
   /// Destructor
   virtual ~DTROSHeaderWord() {}
@@ -226,8 +226,8 @@ private:
  *  - BCO: Bunch Counter FIFO occupancy (2 bits)
  *  - Event Word count (16 bits)
  *
- *  $Date: 2005/11/21 17:38:48 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/11/23 11:17:15 $
+ *  $Revision: 1.3 $
  * \author M. Zanetti - INFN Padova
  */
 class DTROSTrailerWord {
@@ -235,8 +235,8 @@ class DTROSTrailerWord {
 public:
   
   /// Constructor
-  DTROSTrailerWord(const unsigned char* index) : 
-    word_((const unsigned int*)(index)) {} 
+  DTROSTrailerWord(const unsigned int* index) : 
+    word_(index) {} 
 
   /// Destructor
   virtual ~DTROSTrailerWord() {}
@@ -280,8 +280,8 @@ private:
  *  DT ROS Error interpreter. 
  *  It interprets the Error type and the ROB_ID (2 bits) 
  *
- *  $Date: 2005/11/21 17:38:48 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/11/23 11:17:15 $
+ *  $Revision: 1.3 $
  * \author M. Zanetti - INFN Padova
  */
 class DTROSErrorWord {
@@ -289,8 +289,8 @@ class DTROSErrorWord {
 public:
 
   /// Constructor
-  DTROSErrorWord(const unsigned char* index) : 
-    word_(reinterpret_cast<const unsigned int*>(index)) {}
+  DTROSErrorWord(const unsigned int* index) : 
+    word_(index) {}
 
   /// Destructor
   virtual ~DTROSErrorWord() {}
@@ -325,8 +325,8 @@ private:
  *  It interprets the ROB_ID (5 bits), the Event ID (12 bits) 
  *  and the Bunch ID (12 bits).
  *
- *  $Date: 2005/11/21 17:38:48 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/11/23 11:17:15 $
+ *  $Revision: 1.3 $
  * \author M. Zanetti - INFN Padova
  */
 class DTROBHeaderWord {
@@ -334,8 +334,8 @@ class DTROBHeaderWord {
 public:
 
   /// Constructor
-  DTROBHeaderWord(const unsigned char* index) : 
-    word_(reinterpret_cast<const unsigned int*>(index)) {}
+  DTROBHeaderWord(const unsigned int* index) : 
+    word_(index) {}
 
   /// Destructor
   virtual ~DTROBHeaderWord() {}
@@ -371,8 +371,8 @@ private:
  *  It interprets the ROB_ID (5 bits), the Event ID (12 bits) 
  *  and the Word ID (12 bits).
  *
- *  $Date: 2005/11/21 17:38:48 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/11/23 11:17:15 $
+ *  $Revision: 1.3 $
  * \author M. Zanetti - INFN Padova
  */
 class DTROBTrailerWord {
@@ -380,8 +380,8 @@ class DTROBTrailerWord {
 public:
 
   /// Constructor
-  DTROBTrailerWord(const unsigned char* index) : 
-    word_(reinterpret_cast<const unsigned int*>(index)) {}
+  DTROBTrailerWord(const unsigned int* index) : 
+    word_(index) {}
 
   /// Destructor
   virtual ~DTROBTrailerWord() {}
@@ -417,8 +417,8 @@ private:
  *  It interprets the Parity Checks, FIFO occupancy, Lokeced channels (all 1 bit),
  *  the TDC_ID (2 bits), the Event ID (12 bits) and the Bunch ID (12 bits).
  *
- *  $Date: 2005/11/21 17:38:48 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/11/23 11:17:15 $
+ *  $Revision: 1.3 $
  * \author M. Zanetti - INFN Padova
  */
 class DTTDCHeaderWord {
@@ -426,8 +426,8 @@ class DTTDCHeaderWord {
 public:
 
   /// Constructor
-  DTTDCHeaderWord(const unsigned char* index) : 
-    word_(reinterpret_cast<const unsigned int*>(index)) {}
+  DTTDCHeaderWord(const unsigned int* index) : 
+    word_(index) {}
 
   /// Destructor
   virtual ~DTTDCHeaderWord() {}
@@ -470,8 +470,8 @@ private:
  *  It interprets the Parity Checks, FIFO occupancy, Lokeced channels (all 1 bit),
  *  the TDC_ID (2 bits), the Event ID (12 bits) and the Word ID (12 bits).
  *
- *  $Date: 2005/11/21 17:38:48 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/11/23 11:17:15 $
+ *  $Revision: 1.3 $
  * \author M. Zanetti - INFN Padova
  */
 class DTTDCTrailerWord {
@@ -479,8 +479,8 @@ class DTTDCTrailerWord {
 public:
 
   /// Constructor
-  DTTDCTrailerWord(const unsigned char* index) : 
-    word_(reinterpret_cast<const unsigned int*>(index)) {}
+  DTTDCTrailerWord(const unsigned int* index) : 
+    word_(index) {}
 
   /// Destructor
   virtual ~DTTDCTrailerWord() {}
@@ -522,8 +522,8 @@ private:
  *  It interprets the Parity Checks, FIFO occupancy, Lokeced channels (all 1 bit),
  *  the TDC_ID (2 bits), the TDC channel (5 bits), and the TDC time (19 bits)
  *
- *  $Date: 2005/11/21 17:38:48 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/11/23 11:17:15 $
+ *  $Revision: 1.3 $
  * \author M. Zanetti - INFN Padova
  */
 class DTTDCMeasurementWord {
@@ -531,8 +531,8 @@ class DTTDCMeasurementWord {
 public:
 
   /// Constructor
-  DTTDCMeasurementWord(const unsigned char* index) : 
-    word_(reinterpret_cast<const unsigned int*>(index)) {}
+  DTTDCMeasurementWord(const unsigned int* index) : 
+    word_(index) {}
 
   /// Destructor
   virtual ~DTTDCMeasurementWord() {}
@@ -577,8 +577,8 @@ private:
  *  It interprets the Parity Checks, FIFO occupancy, Lokeced channels (all 1 bit),
  *  the TDC_ID (2 bits) and the TDC error flag (15 bits)
  *
- *  $Date: 2005/11/21 17:38:48 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/11/23 11:17:15 $
+ *  $Revision: 1.3 $
  * \author M. Zanetti - INFN Padova
  */
 class DTTDCErrorWord {
@@ -586,8 +586,8 @@ class DTTDCErrorWord {
 public:
 
   /// Constructor
-  DTTDCErrorWord(const unsigned char* index) : 
-    word_(reinterpret_cast<const unsigned int*>(index)) {}
+  DTTDCErrorWord(const unsigned int* index) : 
+    word_(index) {}
 
   /// Destructor
   virtual ~DTTDCErrorWord() {}
@@ -626,8 +626,8 @@ private:
  *  DT Sector Collector header interpreter. 
  *  It interprets ROS event ID (12 bits) and the Sector Collector FIFO occupancy (8 bits)
  *
- *  $Date: 2005/11/21 17:38:48 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/11/23 11:17:15 $
+ *  $Revision: 1.3 $
  * \author M. Zanetti - INFN Padova
  */
 class DTLocalTriggerHeaderWord {
@@ -635,8 +635,8 @@ class DTLocalTriggerHeaderWord {
 public:
 
   /// Constructor
-  DTLocalTriggerHeaderWord(const unsigned char* index) : 
-    word_(reinterpret_cast<const unsigned int*>(index)) {}
+  DTLocalTriggerHeaderWord(const unsigned int* index) : 
+    word_(index) {}
 
   /// Destructor
   virtual ~DTLocalTriggerHeaderWord() {}
@@ -667,8 +667,8 @@ private:
  *  DT Sector Collector trailer interpreter. 
  *  It interprets the word count (16 bits)
  *
- *  $Date: 2005/11/21 17:38:48 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/11/23 11:17:15 $
+ *  $Revision: 1.3 $
  * \author M. Zanetti - INFN Padova
  */
 class DTLocalTriggerTrailerWord {
@@ -676,8 +676,8 @@ class DTLocalTriggerTrailerWord {
 public:
 
   /// Constructor
-  DTLocalTriggerTrailerWord(const unsigned char* index) : 
-    word_(reinterpret_cast<const unsigned int*>(index)) {}
+  DTLocalTriggerTrailerWord(const unsigned int* index) : 
+    word_(index) {}
 
   /// Destructor
   virtual ~DTLocalTriggerTrailerWord() {}
@@ -705,8 +705,8 @@ private:
  *  DT Sector Collector data interpreter. 
  *  It interprets the Sector Collector data (16 bits)
  *
- *  $Date: 2005/11/21 17:38:48 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/11/23 11:17:15 $
+ *  $Revision: 1.3 $
  * \author M. Zanetti - INFN Padova
  */
 class DTLocalTriggerDataWord {
@@ -714,8 +714,8 @@ class DTLocalTriggerDataWord {
 public:
 
   /// Constructor
-  DTLocalTriggerDataWord(const unsigned char* index) : 
-    word_(reinterpret_cast<const unsigned int*>(index)) {}
+  DTLocalTriggerDataWord(const unsigned int* index) : 
+    word_(index) {}
 
   /// Destructor
   virtual ~DTLocalTriggerDataWord() {}
@@ -743,8 +743,8 @@ private:
  *  DT DDU status 1 interpreter (8 bits word). 
  *  It interprets the error messages from each DDU channel
  *
- *  $Date: 2005/11/21 17:38:48 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/11/23 11:17:15 $
+ *  $Revision: 1.3 $
  * \author M. Zanetti - INFN Padova
  */
 class DTDDUFirstStatusWord {
@@ -752,8 +752,8 @@ class DTDDUFirstStatusWord {
 public:
 
   /// Constructor
-  DTDDUFirstStatusWord(const unsigned char* index) : 
-    word_(reinterpret_cast<const unsigned int*>(index)) {}
+  DTDDUFirstStatusWord(const unsigned int* index) : 
+    word_(index) {}
 
   /// Destructor
   virtual ~DTDDUFirstStatusWord() {}
@@ -779,8 +779,8 @@ private:
  *  It interprets the (16 bits)
  *  WARNING!! : It interprets the second part of a 64 bits word!
  *
- *  $Date: 2005/11/21 17:38:48 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/11/23 11:17:15 $
+ *  $Revision: 1.3 $
  * \author M. Zanetti - INFN Padova
  */
 class DTDDUSecondStatusWord {
@@ -788,8 +788,8 @@ class DTDDUSecondStatusWord {
 public:
   
   /// Constructor
-  DTDDUSecondStatusWord(const unsigned char* index) : 
-    word_(reinterpret_cast<const unsigned int*>(index)) {}
+  DTDDUSecondStatusWord(const unsigned int* index) : 
+    word_(index) {}
   
   /// Destructor
   virtual ~DTDDUSecondStatusWord() {}

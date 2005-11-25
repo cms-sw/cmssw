@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2005/11/22 14:16:43 $
- *  $Revision: 1.3 $
+ *  $Date: 2005/11/23 11:17:15 $
+ *  $Revision: 1.4 $
  *  \author  M. Zanetti - INFN Padova 
  */
 
@@ -17,7 +17,7 @@ using namespace std;
 using namespace edm;
 
 
-void DTROS25Unpacker::interpretRawData(const unsigned char* index, int datasize,
+void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 				       int dduID,
 				       edm::ESHandle<DTReadOutMapping>& mapping, 
 				       std::auto_ptr<DTDigiCollection>& product) {

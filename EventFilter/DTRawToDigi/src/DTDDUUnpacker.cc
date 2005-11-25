@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2005/11/21 17:38:48 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/11/23 11:17:15 $
+ *  $Revision: 1.3 $
  *  \author  M. Zanetti - INFN Padova 
  */
 
@@ -23,16 +23,16 @@ DTDDUUnpacker::~DTDDUUnpacker() {
 }
 
 
-void DTDDUUnpacker::interpretRawData(const unsigned char* index, int datasize,
+void DTDDUUnpacker::interpretRawData(const unsigned int* index, int datasize,
 				     int dduID,
 				     edm::ESHandle<DTReadOutMapping>& mapping, 
 				     std::auto_ptr<DTDigiCollection>& product) {
 
   // Check DDU header
-  FEDHeader dduHeader(index);
+  FEDHeader dduHeader(reinterpret_cast<const unsigned char*>(index));
 
   // Check DDU trailer
-  FEDTrailer dduTrailer(index + datasize - SLINK_WORD_SIZE);
+  FEDTrailer dduTrailer(reinterpret_cast<const unsigned char*>(index) + datasize - SLINK_WORD_SIZE);
 
   // Check Status Words
   DTDDUFirstStatusWord dduStatusWord1(index + datasize - 3*SLINK_WORD_SIZE);
