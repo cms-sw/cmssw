@@ -1,3 +1,6 @@
+** V00-01-00  [Fri Nov 25 18:18:25 2005]
+Magnetic field introduced and real SimHit reading 
+
 ** V00-00-02  [Wed Nov  9 17:15:06 2005]
 from TrackerGeom to TrackingGeometry
 
