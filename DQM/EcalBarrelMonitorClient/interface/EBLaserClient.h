@@ -4,8 +4,8 @@
 /*
  * \file EBLaserClient.h
  *
- * $Date: 2005/11/16 13:36:46 $
- * $Revision: 1.8 $
+ * $Date: 2005/11/18 16:24:08 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  *
 */
@@ -95,15 +95,25 @@ TProfile2D* h01_[36];
 TProfile2D* h02_[36];
 TProfile2D* h03_[36];
 TProfile2D* h04_[36];
+TProfile2D* h05_[36];
+TProfile2D* h06_[36];
+TProfile2D* h07_[36];
+TProfile2D* h08_[36];
 
 TH2F* g01_[36];
 TH2F* g02_[36];
+TH2F* g03_[36];
+TH2F* g04_[36];
 
 TH1F* a01_[36];
 TH1F* a02_[36];
+TH1F* a03_[36];
+TH1F* a04_[36];
 
 TH1F* aopn01_[36];
 TH1F* aopn02_[36];
+TH1F* aopn03_[36];
+TH1F* aopn04_[36];
 
 // Quality check on crystals
 

@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  * 
- * $Date: 2005/11/25 12:57:11 $
- * $Revision: 1.6 $
+ * $Date: 2005/11/26 15:38:21 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -218,7 +218,8 @@ void EBCosmicClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( h01_[ism-1] ) delete h01_[ism-1];
-        h01_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone());
+        sprintf(histo, "ME EBCT amplitude sel SM%02d", ism);
+        h01_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
       }
     }
 
@@ -229,7 +230,8 @@ void EBCosmicClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( h02_[ism-1] ) delete h02_[ism-1];
-        h02_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone());
+        sprintf(histo, "ME EBCT amplitude cut SM%02d", ism);
+        h02_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
       }
     }
 
@@ -240,7 +242,8 @@ void EBCosmicClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( h03_[ism-1] ) delete h03_[ism-1];
-        h03_[ism-1] = dynamic_cast<TH1F*> ((ob->operator->())->Clone());
+        sprintf(histo, "ME EBCT amplitude spectrum SM%02d", ism);
+        h03_[ism-1] = dynamic_cast<TH1F*> ((ob->operator->())->Clone(histo));
       }
     }
 

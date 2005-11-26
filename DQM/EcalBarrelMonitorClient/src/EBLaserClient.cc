@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  * 
- * $Date: 2005/11/25 08:30:24 $
- * $Revision: 1.28 $
+ * $Date: 2005/11/26 15:38:21 $
+ * $Revision: 1.29 $
  * \author G. Della Ricca
  *
 */
@@ -21,21 +21,37 @@ EBLaserClient::EBLaserClient(const edm::ParameterSet& ps, MonitorUserInterface* 
     h02_[i] = 0;
     h03_[i] = 0;
     h04_[i] = 0;
+    h05_[i] = 0;
+    h06_[i] = 0;
+    h07_[i] = 0;
+    h08_[i] = 0;
 
     sprintf(histo, "EBLT laser quality L1 SM%02d", i+1);
     g01_[i] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
     sprintf(histo, "EBLT laser quality L2 SM%02d", i+1);
     g02_[i] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
+    sprintf(histo, "EBLT laser quality L3 SM%02d", i+1);
+    g03_[i] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
+    sprintf(histo, "EBLT laser quality L4 SM%02d", i+1);
+    g04_[i] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
 
     sprintf(histo, "EBLT laser amplitude L1 SM%02d", i+1);
     a01_[i] = new TH1F(histo, histo, 1700, 0., 1700.);
     sprintf(histo, "EBLT laser amplitude L2 SM%02d", i+1);
     a02_[i] = new TH1F(histo, histo, 1700, 0., 1700.);
+    sprintf(histo, "EBLT laser amplitude L3 SM%02d", i+1);
+    a03_[i] = new TH1F(histo, histo, 1700, 0., 1700.);
+    sprintf(histo, "EBLT laser amplitude L4 SM%02d", i+1);
+    a04_[i] = new TH1F(histo, histo, 1700, 0., 1700.);
 
     sprintf(histo, "EBLT laser amplitude over PN L1 SM%02d", i+1);
     aopn01_[i] = new TH1F(histo, histo, 1700, 0., 1700.);
     sprintf(histo, "EBLT laser amplitude over PN L2 SM%02d", i+1);
     aopn02_[i] = new TH1F(histo, histo, 1700, 0., 1700.);
+    sprintf(histo, "EBLT laser amplitude over PN L3 SM%02d", i+1);
+    aopn03_[i] = new TH1F(histo, histo, 1700, 0., 1700.);
+    sprintf(histo, "EBLT laser amplitude over PN L4 SM%02d", i+1);
+    aopn04_[i] = new TH1F(histo, histo, 1700, 0., 1700.);
 
   }
 
@@ -51,15 +67,25 @@ EBLaserClient::~EBLaserClient(){
     if ( h02_[i] ) delete h02_[i];
     if ( h03_[i] ) delete h03_[i];
     if ( h04_[i] ) delete h04_[i];
+    if ( h05_[i] ) delete h05_[i];
+    if ( h06_[i] ) delete h06_[i];
+    if ( h07_[i] ) delete h07_[i];
+    if ( h08_[i] ) delete h08_[i];
 
     delete g01_[i];
     delete g02_[i];
+    delete g03_[i];
+    delete g04_[i];
 
     delete a01_[i];
     delete a02_[i];
+    delete a03_[i];
+    delete a04_[i];
 
     delete aopn01_[i];
     delete aopn02_[i];
+    delete aopn03_[i];
+    delete aopn04_[i];
 
   }
 
@@ -87,28 +113,44 @@ void EBLaserClient::beginRun(const edm::EventSetup& c){
     if ( h02_[i] ) delete h02_[i];
     if ( h03_[i] ) delete h03_[i];
     if ( h04_[i] ) delete h04_[i];
+    if ( h05_[i] ) delete h05_[i];
+    if ( h06_[i] ) delete h06_[i];
+    if ( h07_[i] ) delete h07_[i];
+    if ( h08_[i] ) delete h08_[i];
     h01_[i] = 0;
     h02_[i] = 0;
     h03_[i] = 0;
     h04_[i] = 0;
+    h05_[i] = 0;
+    h06_[i] = 0;
+    h07_[i] = 0;
+    h08_[i] = 0;
 
     g01_[i]->Reset();
     g02_[i]->Reset();
+    g03_[i]->Reset();
+    g04_[i]->Reset();
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
 
         g01_[i]->SetBinContent(g01_[i]->GetBin(ie, ip), 2.);
         g02_[i]->SetBinContent(g02_[i]->GetBin(ie, ip), 2.);
+        g03_[i]->SetBinContent(g03_[i]->GetBin(ie, ip), 2.);
+        g04_[i]->SetBinContent(g04_[i]->GetBin(ie, ip), 2.);
 
       }
     }
 
     a01_[i]->Reset();
     a02_[i]->Reset();
+    a03_[i]->Reset();
+    a04_[i]->Reset();
 
     aopn01_[i]->Reset();
     aopn02_[i]->Reset();
+    aopn03_[i]->Reset();
+    aopn04_[i]->Reset();
 
   }
 
@@ -407,7 +449,8 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( h01_[ism-1] ) delete h01_[ism-1];
-        h01_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone());
+        sprintf(histo, "ME EBLT amplitude SM%02d L1", ism);
+        h01_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
       }
     }
 
@@ -418,7 +461,8 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( h02_[ism-1] ) delete h02_[ism-1];
-        h02_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone());
+        sprintf(histo, "ME EBLT amplitude over PN SM%02d L1", ism);
+        h02_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
       } 
     }
 
@@ -429,7 +473,8 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( h03_[ism-1] ) delete h03_[ism-1];
-        h03_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone());
+        sprintf(histo, "ME EBLT amplitude SM%02d L2", ism);
+        h03_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
       } 
     }
 
@@ -440,8 +485,57 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( h04_[ism-1] ) delete h04_[ism-1];
-        h04_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone());
+        sprintf(histo, "ME EBLT amplitude over PN SM%02d L2", ism);
+        h04_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
       } 
+    }
+
+    sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude SM%02d L3", ism);
+    me = mui_->get(histo);
+    if ( me ) {
+      cout << "Found '" << histo << "'" << endl;
+      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
+      if ( ob ) {
+        if ( h05_[ism-1] ) delete h05_[ism-1];
+        sprintf(histo, "ME EBLT amplitude SM%02d L3", ism);
+        h05_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+      }
+    }
+
+    sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude over PN SM%02d L3", ism);
+    me = mui_->get(histo);
+    if ( me ) {
+      cout << "Found '" << histo << "'" << endl;
+      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
+      if ( ob ) {
+        if ( h06_[ism-1] ) delete h06_[ism-1];
+        sprintf(histo, "ME EBLT amplitude over PN SM%02d L3", ism);
+        h06_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+      }
+    }
+
+    sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude SM%02d L4", ism);
+    me = mui_->get(histo);
+    if ( me ) {
+      cout << "Found '" << histo << "'" << endl;
+      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
+      if ( ob ) {
+        if ( h07_[ism-1] ) delete h07_[ism-1];
+        sprintf(histo, "ME EBLT amplitude SM%02d L4", ism);
+        h07_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+      }
+    }
+
+    sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN SM%02d L4", ism);
+    me = mui_->get(histo);
+    if ( me ) {
+      cout << "Found '" << histo << "'" << endl;
+      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
+      if ( ob ) {
+        if ( h08_[ism-1] ) delete h08_[ism-1];
+        sprintf(histo, "ME EBLT amplitude over PN SM%02d L4", ism);
+        h08_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+      }
     }
 
   }

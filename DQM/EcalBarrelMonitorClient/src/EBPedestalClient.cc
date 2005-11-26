@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  * 
- * $Date: 2005/11/24 18:13:16 $
- * $Revision: 1.27 $
+ * $Date: 2005/11/26 15:38:21 $
+ * $Revision: 1.28 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -344,7 +344,8 @@ void EBPedestalClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( h01_[ism-1] ) delete h01_[ism-1];
-        h01_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone());
+        sprintf(histo, "ME EBPT pedestal SM%02d G01", ism);
+        h01_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
       }
     }
 
@@ -355,7 +356,8 @@ void EBPedestalClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( h02_[ism-1] ) delete h02_[ism-1];
-        h02_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone());
+        sprintf(histo, "ME EBPT pedestal SM%02d G06", ism);
+        h02_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
       }
     }
 
@@ -366,7 +368,8 @@ void EBPedestalClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( h03_[ism-1] ) delete h03_[ism-1];
-        h03_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone());
+        sprintf(histo, "ME EBPT pedestal SM%02d G12", ism);
+        h03_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
       }
     }
 

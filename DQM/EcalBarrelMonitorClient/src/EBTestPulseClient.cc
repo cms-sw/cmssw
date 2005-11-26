@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  * 
- * $Date: 2005/11/25 08:30:25 $
- * $Revision: 1.27 $
+ * $Date: 2005/11/26 15:38:21 $
+ * $Revision: 1.28 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -480,7 +480,8 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( ha01_[ism-1] ) delete ha01_[ism-1];
-        ha01_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone());
+        sprintf(histo, "ME EBTT amplitude SM%02d G01", ism);
+        ha01_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
       }
     }
 
@@ -491,7 +492,8 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( ha02_[ism-1] ) delete ha02_[ism-1];
-        ha02_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone());
+        sprintf(histo, "ME EBTT amplitude SM%02d G06", ism);
+        ha02_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
       }
     }
 
@@ -502,7 +504,8 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( ha03_[ism-1] ) delete ha03_[ism-1];
-        ha03_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone());
+        sprintf(histo, "ME EBTT amplitude SM%02d G12", ism);
+        ha03_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
       }
     }
 
@@ -513,7 +516,8 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( hs01_[ism-1] ) delete hs01_[ism-1];
-        hs01_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone());
+        sprintf(histo, "ME EBTT shape SM%02d G01", ism);
+        hs01_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
       }
     }
 
@@ -524,7 +528,8 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( hs02_[ism-1] ) delete hs02_[ism-1];
-        hs02_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone());
+        sprintf(histo, "ME EBTT shape SM%02d G06", ism);
+        hs02_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
       }
     }
 
@@ -535,7 +540,8 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( hs03_[ism-1] ) delete hs03_[ism-1];
-        hs03_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone());
+        sprintf(histo, "ME EBTT shape SM%02d G12", ism);
+        hs03_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
       }
     }
 
@@ -546,7 +552,8 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( he01_[ism-1] ) delete he01_[ism-1];
-        he01_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone());
+        sprintf(histo, "ME EBTT amplitude error SM%02d G01", ism);
+        he01_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
       }
     }
 
@@ -557,7 +564,8 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( he02_[ism-1] ) delete he02_[ism-1];
-        he02_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone());
+        sprintf(histo, "ME EBTT amplitude error SM%02d G06", ism);
+        he02_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
       }
     }
 
@@ -568,7 +576,8 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( he03_[ism-1] ) delete he03_[ism-1];
-        he03_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone());
+        sprintf(histo, "ME EBTT amplitude error SM%02d G12", ism);
+        he03_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
       }
     }
 

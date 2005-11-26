@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  * 
- * $Date: 2005/11/25 12:57:11 $
- * $Revision: 1.36 $
+ * $Date: 2005/11/26 15:38:21 $
+ * $Revision: 1.37 $
  * \author G. Della Ricca
  *
 */
@@ -286,7 +286,8 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
     ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
     if ( ob ) {
       if ( h00_ ) delete h00_;
-      h00_ = dynamic_cast<TH1F*> ((ob->operator->())->Clone());
+      sprintf(histo, "ME DCC size error");
+      h00_ = dynamic_cast<TH1F*> ((ob->operator->())->Clone(histo));
     }
   }
 
@@ -299,7 +300,8 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( h_[ism-1] ) delete h_[ism-1];
-        h_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone());
+        sprintf(histo, "ME EBPT pedestal PreSample SM%02d G12", ism);
+        h_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
       }
     }
 
@@ -310,7 +312,8 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( h01_[ism-1] ) delete h01_[ism-1];
-        h01_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone());
+        sprintf(histo, "ME EI gain SM%02d", ism);
+        h01_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
       }
     }
 
@@ -321,7 +324,8 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( h02_[ism-1] ) delete h02_[ism-1];
-        h02_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone());
+        sprintf(histo, "ME EI ChId SM%02d", ism);
+        h02_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
       }
     }
 
@@ -332,7 +336,8 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( h03_[ism-1] ) delete h03_[ism-1];
-        h03_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone());
+        sprintf(histo, "ME EI TTId SM%02d", ism);
+        h03_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
       }
     }
 
@@ -343,7 +348,8 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( h04_[ism-1] ) delete h04_[ism-1];
-        h04_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone());
+        sprintf(histo, "ME EI TTBlockSize SM%02d", ism);
+        h04_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
       }
     }
 

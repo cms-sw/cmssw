@@ -1,8 +1,8 @@
 /*
  * \file EBPnDiodeClient.cc
  * 
- * $Date: 2005/11/25 08:30:25 $
- * $Revision: 1.5 $
+ * $Date: 2005/11/26 15:38:21 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -190,7 +190,8 @@ void EBPnDiodeClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( h01_[ism-1] ) delete h01_[ism-1];
-        h01_[ism-1] = dynamic_cast<TProfile*> ((ob->operator->())->Clone());
+        sprintf(histo, "ME EBPT PNs SM%02d", ism);
+        h01_[ism-1] = dynamic_cast<TProfile*> ((ob->operator->())->Clone(histo));
       }
     }
 

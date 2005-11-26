@@ -1,8 +1,8 @@
 /*
  * \file EBPedPreSampleClient.cc
  * 
- * $Date: 2005/11/24 18:21:01 $
- * $Revision: 1.32 $
+ * $Date: 2005/11/26 15:38:21 $
+ * $Revision: 1.33 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -243,7 +243,8 @@ void EBPedPreSampleClient::analyze(const edm::Event& e, const edm::EventSetup& c
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( h03_[ism-1] ) delete h03_[ism-1];
-        h03_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone());
+        sprintf(histo, "ME EBPT pedestal PreSample SM%02d G12", ism);
+        h03_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
       }
     }
 

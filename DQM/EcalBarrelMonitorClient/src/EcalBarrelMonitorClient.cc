@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  * 
- * $Date: 2005/11/24 13:24:42 $
- * $Revision: 1.43 $
+ * $Date: 2005/11/26 15:38:21 $
+ * $Revision: 1.44 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -349,7 +349,7 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
       MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( h_ ) delete h_;
-        h_ = dynamic_cast<TH1F*> ((ob->operator->())->Clone());
+        h_ = dynamic_cast<TH1F*> ((ob->operator->())->Clone("ME EVTTYPE"));
       }
     }
 
