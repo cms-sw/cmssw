@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  * 
- * $Date: 2005/11/25 07:42:25 $
- * $Revision: 1.5 $
+ * $Date: 2005/11/25 12:57:11 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -13,8 +13,6 @@
 EBCosmicClient::EBCosmicClient(const edm::ParameterSet& ps, MonitorUserInterface* mui){
 
   mui_ = mui;
-
-  Char_t histo[50];
 
   for ( int i = 0; i < 36; i++ ) {
 
@@ -27,8 +25,6 @@ EBCosmicClient::EBCosmicClient(const edm::ParameterSet& ps, MonitorUserInterface
 }
 
 EBCosmicClient::~EBCosmicClient(){
-
-  this->unsubscribe();
 
   for ( int i = 0; i < 36; i++ ) {
 
@@ -46,6 +42,8 @@ void EBCosmicClient::beginJob(const edm::EventSetup& c){
 
   ievt_ = 0;
 
+  this->subscribe();
+
 }
 
 void EBCosmicClient::beginRun(const edm::EventSetup& c){
@@ -53,8 +51,6 @@ void EBCosmicClient::beginRun(const edm::EventSetup& c){
   cout << "EBCosmicClient: beginRun" << endl;
 
   jevt_ = 0;
-
-  this->subscribe();
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
@@ -72,6 +68,8 @@ void EBCosmicClient::beginRun(const edm::EventSetup& c){
 void EBCosmicClient::endJob(void) {
 
   cout << "EBCosmicClient: endJob, ievt = " << ievt_ << endl;
+
+  this->unsubscribe();
 
 }
 

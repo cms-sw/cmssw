@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  * 
- * $Date: 2005/11/24 09:47:00 $
- * $Revision: 1.42 $
+ * $Date: 2005/11/24 13:24:42 $
+ * $Revision: 1.43 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -84,8 +84,6 @@ EcalBarrelMonitorClient::~EcalBarrelMonitorClient(){
 
   cout << "Exit ..." << endl;
 
-  this->unsubscribe();
-
   if ( h_ ) delete h_;
 
   if ( integrity_client_ ) delete integrity_client_;
@@ -109,6 +107,8 @@ void EcalBarrelMonitorClient::beginJob(const edm::EventSetup& c){
 
   ievt_ = 0;
 
+  this->subscribe();
+
   integrity_client_->beginJob(c);
   laser_client_->beginJob(c);
   pndiode_client_->beginJob(c);
@@ -130,8 +130,6 @@ void EcalBarrelMonitorClient::beginRun(const edm::EventSetup& c){
   jevt_ = 0;
 
   last_jevt_ = -1;
-
-  this->subscribe();
 
   last_update_ = 0;
 
@@ -157,6 +155,8 @@ void EcalBarrelMonitorClient::beginRun(const edm::EventSetup& c){
 void EcalBarrelMonitorClient::endJob(void) {
 
   cout << "EcalBarrelMonitorClient: endJob, ievt = " << ievt_ << endl;
+
+  this->unsubscribe();
 
   integrity_client_->endJob();
   laser_client_->endJob();

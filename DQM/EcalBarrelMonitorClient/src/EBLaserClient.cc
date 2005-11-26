@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  * 
- * $Date: 2005/11/24 18:13:17 $
- * $Revision: 1.27 $
+ * $Date: 2005/11/25 08:30:24 $
+ * $Revision: 1.28 $
  * \author G. Della Ricca
  *
 */
@@ -45,8 +45,6 @@ EBLaserClient::EBLaserClient(const edm::ParameterSet& ps, MonitorUserInterface* 
 
 EBLaserClient::~EBLaserClient(){
 
-  this->unsubscribe();
-
   for ( int i = 0; i < 36; i++ ) {
 
     if ( h01_[i] ) delete h01_[i];
@@ -73,6 +71,8 @@ void EBLaserClient::beginJob(const edm::EventSetup& c){
 
   ievt_ = 0;
 
+  this->subscribe();
+
 }
 
 void EBLaserClient::beginRun(const edm::EventSetup& c){
@@ -80,8 +80,6 @@ void EBLaserClient::beginRun(const edm::EventSetup& c){
   cout << "EBLaserClient: beginRun" << endl;
 
   jevt_ = 0;
-
-  this->subscribe();
 
   for ( int i = 0; i < 36; i++ ) {
 
@@ -119,6 +117,8 @@ void EBLaserClient::beginRun(const edm::EventSetup& c){
 void EBLaserClient::endJob(void) {
 
   cout << "EBLaserClient: endJob, ievt = " << ievt_ << endl;
+
+  this->unsubscribe();
 
 }
 

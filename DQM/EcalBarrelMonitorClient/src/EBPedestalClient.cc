@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  * 
- * $Date: 2005/11/24 12:43:53 $
- * $Revision: 1.26 $
+ * $Date: 2005/11/24 18:13:16 $
+ * $Revision: 1.27 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -61,8 +61,6 @@ EBPedestalClient::EBPedestalClient(const edm::ParameterSet& ps, MonitorUserInter
 
 EBPedestalClient::~EBPedestalClient(){
 
-  this->unsubscribe();
-
   for ( int i = 0 ; i < 36 ; i++ ) {
 
     if ( h01_[i] ) delete h01_[i];
@@ -91,6 +89,8 @@ void EBPedestalClient::beginJob(const edm::EventSetup& c){
 
   ievt_ = 0;
 
+  this->subscribe();
+
 }
 
 void EBPedestalClient::beginRun(const edm::EventSetup& c){
@@ -98,8 +98,6 @@ void EBPedestalClient::beginRun(const edm::EventSetup& c){
   cout << "EBPedestalClient: beginRun" << endl;
 
   jevt_ = 0;
-
-  this->subscribe();
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
@@ -139,6 +137,8 @@ void EBPedestalClient::beginRun(const edm::EventSetup& c){
 void EBPedestalClient::endJob(void) {
 
   cout << "EBPedestalClient: endJob, ievt = " << ievt_ << endl;
+
+  this->unsubscribe();
 
 }
 

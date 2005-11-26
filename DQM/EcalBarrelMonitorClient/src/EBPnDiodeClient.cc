@@ -1,8 +1,8 @@
 /*
  * \file EBPnDiodeClient.cc
  * 
- * $Date: 2005/11/24 12:43:53 $
- * $Revision: 1.4 $
+ * $Date: 2005/11/25 08:30:25 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -14,8 +14,6 @@ EBPnDiodeClient::EBPnDiodeClient(const edm::ParameterSet& ps, MonitorUserInterfa
 
   mui_ = mui;
 
-  Char_t histo[50];
-
   for ( int i = 0; i < 36; i++ ) {
 
     h01_[i] = 0;
@@ -25,8 +23,6 @@ EBPnDiodeClient::EBPnDiodeClient(const edm::ParameterSet& ps, MonitorUserInterfa
 }
 
 EBPnDiodeClient::~EBPnDiodeClient(){
-
-  this->unsubscribe();
 
   for ( int i = 0; i < 36; i++ ) {
 
@@ -42,6 +38,8 @@ void EBPnDiodeClient::beginJob(const edm::EventSetup& c){
 
   ievt_ = 0;
 
+  this->subscribe();
+
 }
 
 void EBPnDiodeClient::beginRun(const edm::EventSetup& c){
@@ -49,8 +47,6 @@ void EBPnDiodeClient::beginRun(const edm::EventSetup& c){
   cout << "EBPnDiodeClient: beginRun" << endl;
 
   jevt_ = 0;
-
-  this->subscribe();
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
@@ -64,6 +60,8 @@ void EBPnDiodeClient::beginRun(const edm::EventSetup& c){
 void EBPnDiodeClient::endJob(void) {
 
   cout << "EBPnDiodeClient: endJob, ievt = " << ievt_ << endl;
+
+  this->unsubscribe();
 
 }
 
@@ -234,7 +232,7 @@ void EBPnDiodeClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   int csize = 250;
 
-  double histMax = 1.e15;
+//  double histMax = 1.e15;
 
   string imgNameME, imgName, meName;
 

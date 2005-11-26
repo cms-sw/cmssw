@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  * 
- * $Date: 2005/11/24 18:21:21 $
- * $Revision: 1.35 $
+ * $Date: 2005/11/25 12:57:11 $
+ * $Revision: 1.36 $
  * \author G. Della Ricca
  *
 */
@@ -12,7 +12,6 @@
 EBIntegrityClient::EBIntegrityClient(const edm::ParameterSet& ps, MonitorUserInterface* mui){
 
   mui_ = mui;
-
 
   Char_t histo[50];
 
@@ -37,9 +36,6 @@ EBIntegrityClient::EBIntegrityClient(const edm::ParameterSet& ps, MonitorUserInt
 
 EBIntegrityClient::~EBIntegrityClient(){
 
-  this->unsubscribe();
-
-
   if ( h00_ ) delete h00_;
   for ( int i = 0; i < 36; i++ ) {
     
@@ -62,6 +58,8 @@ void EBIntegrityClient::beginJob(const edm::EventSetup& c){
 
   ievt_ = 0;
 
+  this->subscribe();
+
 }
 
 void EBIntegrityClient::beginRun(const edm::EventSetup& c){
@@ -69,8 +67,6 @@ void EBIntegrityClient::beginRun(const edm::EventSetup& c){
   cout << "EBIntegrityClient: beginRun" << endl;
 
   jevt_ = 0;
-
-  this->subscribe();
 
   if ( h00_ ) delete h00_;
   h00_ = 0;
@@ -105,6 +101,8 @@ void EBIntegrityClient::beginRun(const edm::EventSetup& c){
 void EBIntegrityClient::endJob(void) {
 
   cout << "EBIntegrityClient: endJob, ievt = " << ievt_ << endl;
+
+  this->unsubscribe();
 
 }
 
