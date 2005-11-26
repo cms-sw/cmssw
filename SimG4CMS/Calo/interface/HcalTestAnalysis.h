@@ -55,8 +55,15 @@ private:
 
 private:
 
+  //Keep parameters to instantiate HcalTestHistoClass later
+  int                       verbosHisto;
+  std::string               fileName;
+
+  //Keep parameters to instantiate HcalTestNumberingScheme later
+  int                       verbosNumber;
+
   //Keep reference to instantiate HcalNumberingFromDDD later
-  int                       verbosddd;
+  int                       verbosDDD;
 
   // Qie Analysis
   HcalQie *                 myqie;

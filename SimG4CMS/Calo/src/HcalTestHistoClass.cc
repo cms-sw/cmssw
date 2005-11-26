@@ -63,7 +63,6 @@ HcalTestHistoClass::HcalTestHistoClass(int iv, std::string file) :
   tree->Branch("lngqQIE",      &lngqQIE,     "lngqQIE[nQIE][nGroupQIE]/F");
 
   if (verbosity > 0) {
-    tree->Print();
     std::cout << std::endl << "===>>> Done booking user histograms & Ntuples " 
 	      << std::endl;
   }
@@ -79,8 +78,11 @@ HcalTestHistoClass::~HcalTestHistoClass() {
 
   // Save the trees
   tree->Print();
-  //froot->Write("", TObject::kOverwrite);
-  //froot->Close();
+  if (verbosity > 1) 
+    std::cout << "HcalTestHistoClass: Pointer to tree " << tree 
+	      << " and that to root file " << froot << std::endl;
+  //  froot->Write("", TObject::kOverwrite);
+  //  froot->Close();
   delete tree;
   delete froot;
   
@@ -265,6 +267,6 @@ void HcalTestHistoClass::fillTree() {
     std::cout << "HcalTestHistoClass::fillTree called with nLayers = " 
 	      << nLayers << " nHits = " << nHits << " nQIE = " << nQIE
 	      << " nTowerQIE = " << nTowerQIE << " nGroupQIE = " << nGroupQIE 
-	      << std::endl;
-  //tree->Fill();
+	      << " tree pointer = " << tree << std::endl;
+  //  tree->Fill();
 }

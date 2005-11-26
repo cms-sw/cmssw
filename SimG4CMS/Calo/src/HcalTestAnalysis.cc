@@ -43,10 +43,10 @@ HcalTestAnalysis::HcalTestAnalysis(const edm::ParameterSet &p):
   int laygroup = m_Anal.getParameter<int>("LayerGrouping");
   centralTower = m_Anal.getParameter<int>("CentralTower");
   names        = m_Anal.getParameter<std::vector<std::string> >("Names");
-  std::string file = m_Anal.getParameter<std::string>("FileName");
-  verbosddd    = (verbosity/1000)%10;
-  int verb1    = (verbosity/100)%10;
-  int verb2    = (verbosity/10)%10;
+  fileName     = m_Anal.getParameter<std::string>("FileName");
+  verbosDDD    = (verbosity/1000)%10;
+  verbosHisto  = (verbosity/100)%10;
+  verbosNumber = (verbosity/10)%10;
   verbosity   %= 10;
 
   if (verbosity > 0)
@@ -68,12 +68,6 @@ HcalTestAnalysis::HcalTestAnalysis(const edm::ParameterSet &p):
 
   // qie
   myqie  = new HcalQie(p);
-
-  // Ntuples
-  tuples = new HcalTestHistoClass(verb1, file);
-
-  // Numbering scheme
-  org    = new HcalTestNumberingScheme(verb2);
 } 
    
 HcalTestAnalysis::~HcalTestAnalysis() {
@@ -179,12 +173,20 @@ std::vector<int> HcalTestAnalysis::towersToAdd(int centre, int nadd) {
 //==================================================================== per JOB
 void HcalTestAnalysis::update(const BeginOfJob * job) {
 
+  // Numbering From DDD
   edm::ESHandle<DDCompactView> pDD;
   (*job)()->get<IdealGeometryRecord>().get(pDD);
   if (verbosity > 0) 
     std::cout << "HcalTestAnalysis:: Initialise HcalNumberingFromDDD for "
 	      << names[0] << std::endl;
-  numberingFromDDD = new HcalNumberingFromDDD(verbosddd, names[0], (*pDD));
+  numberingFromDDD = new HcalNumberingFromDDD(verbosDDD, names[0], (*pDD));
+
+  // Ntuples
+  tuples = new HcalTestHistoClass(verbosHisto, fileName);
+
+  // Numbering scheme
+  org    = new HcalTestNumberingScheme(verbosNumber);
+
 }
 
 //==================================================================== per RUN
