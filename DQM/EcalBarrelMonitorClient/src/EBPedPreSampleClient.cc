@@ -1,8 +1,8 @@
 /*
  * \file EBPedPreSampleClient.cc
  * 
- * $Date: 2005/11/26 15:38:21 $
- * $Revision: 1.33 $
+ * $Date: 2005/11/26 18:43:10 $
+ * $Revision: 1.34 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -226,8 +226,6 @@ void EBPedPreSampleClient::analyze(const edm::Event& e, const edm::EventSetup& c
   jevt_++;
   if ( ievt_ % 10 == 0 )  
     cout << "EBPedPreSampleClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
-
-  this->subscribeNew();
 
   Char_t histo[150];
 

@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  * 
- * $Date: 2005/11/26 15:38:21 $
- * $Revision: 1.7 $
+ * $Date: 2005/11/26 18:43:10 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -201,8 +201,6 @@ void EBCosmicClient::analyze(const edm::Event& e, const edm::EventSetup& c){
   jevt_++;
   if ( ievt_ % 10 == 0 )  
     cout << "EBCosmicClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
-
-  this->subscribeNew();
 
   Char_t histo[150];
 
