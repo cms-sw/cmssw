@@ -1,3 +1,6 @@
+** V03-02-00  [Sun Nov 27 23:11:51 2005]
+moved responsibility of managing tracks from EventAction to SimTrackManager
+
 ** V03-01-01  [Fri Nov 25 14:59:18 2005]
 the BeginOfJob signal is now sent after all plugins have been loaded
 
