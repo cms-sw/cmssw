@@ -39,7 +39,7 @@ void TrackingAction::PostUserTrackingAction(const G4Track * aTrack)
         if (extractor(aTrack).isInHistory())
         {
             currentTrack_->checkAtEnd(aTrack);  // check with end-of-track information
-            (eventAction_->trackContainer())->push_back(currentTrack_);
+            eventAction_->addTrack(currentTrack_);
         }
         else delete currentTrack_;
     }
