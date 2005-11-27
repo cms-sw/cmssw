@@ -10,11 +10,11 @@
   </SpecPar>  
   <SpecPar name="MuonIron">  
     <PartSelector path="//MGNT"/>  
-    <PartSelector path="//MBIronSepar.*"/>  
+    <PartSelector path="//YBSepar.*"/>  
     <PartSelector path="//COI.*"/> 
     <PartSelector path="//COCF"/>  
     <PartSelector path="//YB.*"/>  
-    <PartSelector path="//ZStopY.*"/>  
+    <PartSelector path="//ZStopSpace"/>  
     <PartSelector path="//SupportTubeForHE.*"/> 
     <PartSelector path="//YN.*"/> 
     <PartSelector path="//YE1.*"/>  
@@ -33,7 +33,7 @@
   <SpecPar name="MuonChamber">  
     <PartSelector path="//MB.*N"/>
     <PartSelector path="//MB.*P"/>
-    <PartSelector path="//MR.*Space"/>  
+    <PartSelector path="//ME.*Space"/>  
     <PartSelector path="//RR.*"/>  
       <Parameter name="CMSCutsRegion"  value="MuonChamber" eval="false" />  
       <Parameter name="ProdCutsForGamma"  value="10.*mm"  />  
@@ -52,7 +52,7 @@
   </SpecPar>
   <SpecPar name="MuonSensitive_RPC">
 <!-- 10 keV for gamma/e-, 1 MeV for e+ -->
-    <PartSelector path="//MB.*RPCGas.*"/>  
+    <PartSelector path="//MB.*RPC_.*Gas.*"/>  
     <PartSelector path="//REA.*"/>  
     <PartSelector path="//REB.*"/>  
     <PartSelector path="//REC.*"/>  
