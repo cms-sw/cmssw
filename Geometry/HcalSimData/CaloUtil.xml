@@ -4,7 +4,13 @@
 <SpecParSection label="caloutil.xml" eval="true">
   <SpecPar name="calo">
    <PartSelector path="//CALO" />
-   <Parameter name="Volume" value="Calorimeter" eval="false"/>
+   <Parameter name="SensitiveDetector" value="CaloTrkProcessing" eval="false"/>
+   <Parameter name="ReadOutName" value="EcalHitsEB" eval="false"/>
+   <Parameter name="Calorimeter" value="CALO"       eval="false"/>
+   <Parameter name="Calorimeter" value="VCAL"       eval="false"/>
+   <Parameter name="Inside"      value="BEAM"       eval="false"/>
+   <Parameter name="Inside"      value="Tracker"    eval="false"/>
+   <Parameter name="Inside"      value="NotFound"   eval="false"/>
   </SpecPar>  
   <SpecPar name="hf">
    <PartSelector path="//HVQF" />
