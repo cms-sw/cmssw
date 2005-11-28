@@ -1,4 +1,5 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSimpleRecAlgo.h"
+#include <FWCore/Utilities/interface/Exception.h>
 
 HcalSimpleRecAlgo::HcalSimpleRecAlgo(int firstSample, int samplesToAdd) : firstSample_(firstSample), samplesToAdd_(samplesToAdd) {
 }
@@ -24,7 +25,15 @@ namespace HcalSimpleRecAlgoImpl {
       }
     }
 
-    if(maxI==ifirst || maxI==(tool.size()-1)) printf("HcalSimpleRecAlgoImpl:  This is bad!!!\n");
+    if(maxI==ifirst || maxI==(tool.size()-1)) {
+      throw cms::Exception("InvalidRecoParam") << "HcalSimpleRecAlgo::reconstruct :" 
+					       << " Invalid max amplitude position, " 
+					       << " max Amplitude: "<< maxI
+					       << " first: "<<ifirst
+					       << " last: "<<(tool.size()-1)
+					       << std::endl;
+  }
+
 
     int capid=digi[maxI-1].capid();
     float t0 = (tool[maxI-1]-calibs.pedestal(capid))*calibs.gain(capid);
@@ -59,7 +68,15 @@ HFRecHit HcalSimpleRecAlgo::reconstruct(const HFDataFrame& digi, const HcalCoder
     }
   }
 
-  if(maxI==firstSample_ || maxI==(tool.size()-1)) printf("HcalSimpleRecAlgoImpl:  This is bad!!!\n");
+  if(maxI==firstSample_ || maxI==(tool.size()-1)) {
+    throw cms::Exception("InvalidRecoParam") << "HcalSimpleRecAlgo::reconstruct :" 
+					 << " Invalid max amplitude position, " 
+					 << " max Amplitude: "<< maxI
+					 << " first: "<<firstSample_
+					 << " last: "<<(tool.size()-1)
+					 << std::endl;
+  }
+
   
   int capid=digi[maxI-1].capid();
   float t0 = (tool[maxI-1]-calibs.pedestal(capid))*calibs.gain(capid);
