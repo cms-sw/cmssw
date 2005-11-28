@@ -1,16 +1,16 @@
 <lcgdict>
  <class name="CSCPedestals" id="7C1F7D6C-BE30-DA11-95EF-0008743F7CC7"/>
  <class name="CSCPedestals::Item"/>
- <class name="std::pair<const int, CSCPedestals::Item>"/>
-
+ 
  <class name="CSCGains" id="24647172-BE30-DA11-888A-0008743F7CC7"/>
  <class name="CSCGains::Item"/>
- <class name="std::pair<const int, CSCGains::Item>"/>
-
+ 
  <class name="CSCcrosstalk" id="DA52D078-BE30-DA11-9387-0008743F7CC7"/>
  <class name="CSCcrosstalk::Item"/>
- <class name="std::pair<const int, CSCcrosstalk::Item>"/>
+ 
+ <class name="CSCIdentifier" id="DA52D078-BE30-DA11-9387-0008743F7CC7"/>
+ <class name="CSCIdentifier::Item"/>
 
- <class pattern="*map*"/>
+ <class pattern="*vector*"/>
  <class pattern="*iterator*"/>
 </lcgdict>   
