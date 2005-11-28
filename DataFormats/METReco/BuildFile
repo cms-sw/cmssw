@@ -1,0 +1,12 @@
+<use name=FWCore/EDProduct>
+<use name=FWCore/Framework>
+<use name=Dictionary/Reflex>
+<use name=rootcore>
+<flags LCGDICT_ARGS="--deep">
+<export>
+ <lib name=DataFormatsMETReco>
+ <use name=FWCore/EDProduct>
+ <use name=FWCore/Framework>
+ <use name=Dictionary/Reflex>
+ <use name=rootcore>
+</export>
