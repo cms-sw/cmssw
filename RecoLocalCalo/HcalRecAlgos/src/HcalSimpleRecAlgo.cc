@@ -23,8 +23,8 @@ namespace HcalSimpleRecAlgoImpl {
 	maxI=i;
       }
     }
-    
-    if(maxI==ifirst || maxI==(n+ifirst)) printf("HcalSimpleRecAlgoImpl:  This is bad!!!\n");
+
+    if(maxI==ifirst || maxI==(tool.size()-1)) printf("HcalSimpleRecAlgoImpl:  This is bad!!!\n");
 
     int capid=digi[maxI-1].capid();
     float t0 = (tool[maxI-1]-calibs.pedestal(capid))*calibs.gain(capid);
@@ -58,8 +58,8 @@ HFRecHit HcalSimpleRecAlgo::reconstruct(const HFDataFrame& digi, const HcalCoder
       maxI=i;
     }
   }
-  
-  if(maxI==firstSample_ || maxI==(samplesToAdd_+firstSample_)) printf("HcalSimpleRecAlgoImpl:  This is bad!!!\n");
+
+  if(maxI==firstSample_ || maxI==(tool.size()-1)) printf("HcalSimpleRecAlgoImpl:  This is bad!!!\n");
   
   int capid=digi[maxI-1].capid();
   float t0 = (tool[maxI-1]-calibs.pedestal(capid))*calibs.gain(capid);

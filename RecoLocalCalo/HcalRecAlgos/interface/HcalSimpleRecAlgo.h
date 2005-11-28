@@ -12,8 +12,8 @@
 
 /** \class HcalSimplerecAlgo
     
-   $Date: 2005/08/05 19:48:54 $
-   $Revision: 1.1 $
+   $Date: 2005/10/07 03:52:06 $
+   $Revision: 1.2 $
    \author J. Mans - Minnesota
 */
 class HcalSimpleRecAlgo {
@@ -24,5 +24,6 @@ public:
   HORecHit reconstruct(const HODataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calibs) const;
 private:
   int firstSample_, samplesToAdd_;
+
 };
 #endif
