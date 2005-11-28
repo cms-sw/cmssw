@@ -36,12 +36,14 @@ class TrackInformation;
 class G4Track;
 class G4ProcessTypeEnumerator;
 class G4TrackToParticleID;
+class SimTrackManager;
 
 class MuonSensitiveDetector : public SensitiveTkDetector {
 
  public:    
   MuonSensitiveDetector(std::string, const DDCompactView &,
-			edm::ParameterSet const &);
+			edm::ParameterSet const &,
+			const SimTrackManager*);
   virtual ~MuonSensitiveDetector();
   virtual G4bool ProcessHits(G4Step *,G4TouchableHistory *);
   virtual uint32_t setDetUnitId(G4Step *);
