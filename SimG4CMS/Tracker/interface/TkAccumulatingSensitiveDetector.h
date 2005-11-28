@@ -16,7 +16,7 @@
 
 #include <string>
 
-class EventAction;
+class SimTrackManager;
 class TrackingSlaveSD;
 class FrameRotation;
 class UpdatablePSimHit;
@@ -27,7 +27,8 @@ class TkAccumulatingSensitiveDetector : public SensitiveTkDetector, public Obser
 { 
 public:    
     TkAccumulatingSensitiveDetector(std::string, const DDCompactView &,
-				    edm::ParameterSet const &);
+				    edm::ParameterSet const &,
+				    const SimTrackManager*);
     virtual ~TkAccumulatingSensitiveDetector();
     virtual bool ProcessHits(G4Step *,G4TouchableHistory *);
     virtual uint32_t setDetUnitId(G4Step*);
