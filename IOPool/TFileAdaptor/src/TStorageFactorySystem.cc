@@ -62,3 +62,24 @@ TStorageFactorySystem::AccessPathName (const char *name, EAccessMode /* mode */)
     // NB: This return reverse of check(): kTRUE if access *fails*
     return name ? !StorageFactory::get ()->check (name) : kTRUE;
 }
+
+Int_t
+TStorageFactorySystem::GetPathInfo (const char *name, FileStat_t &info)
+{
+    info.fDev = 0;
+    info.fIno = 0;
+    info.fMode = 0644;
+    info.fUid = 0;
+    info.fGid = 0;
+    info.fSize = 0;
+    info.fMtime = 0;
+
+    seal::IOOffset storageSize;
+    if (StorageFactory::get ()->check (name, &storageSize))
+    {
+        info.fSize = storageSize;
+        return 0;
+    }
+
+    return -1;
+}
