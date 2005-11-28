@@ -8,6 +8,7 @@
 class SensitiveTkDetector;
 class SensitiveCaloDetector;
 class SimActivityRegistry;
+class SimTrackManager;
 
 class AttachSD
 {
@@ -18,6 +19,7 @@ public:
       std::vector<SensitiveCaloDetector*> > create(const DDDWorld & w, 
 						   const DDCompactView & cpv,
 						   edm::ParameterSet const & p,
+						   const SimTrackManager* m,
 						   SimActivityRegistry& reg ) const;
 };
 

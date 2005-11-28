@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Fri Nov 25 17:36:41 EST 2005
-// $Id$
+// $Id: SimTrackManager.h,v 1.1 2005/11/27 22:03:53 chrjones Exp $
 //
 
 // system include files
@@ -43,7 +43,7 @@ class SimTrackManager
       typedef std::map<unsigned int,unsigned int> G4ToSimMapType;
       typedef std::vector<unsigned int> SimToG4VectorType;
      
-      SimTrackManager(bool iCollapsePrimaryVertices);
+      SimTrackManager(bool iCollapsePrimaryVertices =false);
       virtual ~SimTrackManager();
 
       // ---------- const member functions ---------------------
@@ -61,6 +61,10 @@ class SimTrackManager
 
       void addTrack(TrackWithHistory* iTrack) {
 	m_trksForThisEvent->push_back(iTrack);
+      }
+
+      void setCollapsePrimaryVertices(bool iSet) {
+	m_collapsePrimaryVertices=iSet;
       }
    private:
       SimTrackManager(const SimTrackManager&); // stop default

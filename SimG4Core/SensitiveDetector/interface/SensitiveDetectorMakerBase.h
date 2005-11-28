@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon Nov 14 11:50:24 EST 2005
-// $Id$
+// $Id: SensitiveDetectorMakerBase.h,v 1.1 2005/11/15 03:51:00 chrjones Exp $
 //
 
 // system include files
@@ -28,6 +28,7 @@
 // forward declarations
 class SimActivityRegistry;
 class DDCompactView;
+class SimTrackManager;
 
 namespace edm{
   class ParameterSet;
@@ -44,6 +45,7 @@ class SensitiveDetectorMakerBase
       virtual void make(const std::string& iname,
 			const DDCompactView& cpv,
 			const edm::ParameterSet& p,
+			const SimTrackManager* m,
 			SimActivityRegistry& reg,
 			std::auto_ptr<SensitiveTkDetector>& oTK,
 			std::auto_ptr<SensitiveCaloDetector>& oCalo) const =0;

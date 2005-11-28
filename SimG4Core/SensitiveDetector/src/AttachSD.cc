@@ -22,6 +22,7 @@ std::pair< std::vector<SensitiveTkDetector*>,
 AttachSD::create(const DDDWorld & w, 
 		 const DDCompactView & cpv,
 		 edm::ParameterSet const & p,
+		 const SimTrackManager* m,
 		 SimActivityRegistry& reg) const
 {
   std::pair< std::vector<SensitiveTkDetector *>,
@@ -39,7 +40,7 @@ AttachSD::create(const DDDWorld & w,
 						     SensitiveDetectorPluginFactory::get()->create(className) );
       std::auto_ptr<SensitiveTkDetector> tkDet;
       std::auto_ptr<SensitiveCaloDetector> caloDet;
-      temp->make(*it,cpv,p,reg,tkDet,caloDet);
+      temp->make(*it,cpv,p,m,reg,tkDet,caloDet);
       if(tkDet.get()){
 	detList.first.push_back(tkDet.get());
 	tkDet.release();

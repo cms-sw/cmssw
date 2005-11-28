@@ -141,10 +141,13 @@ void RunManager::initG4(const edm::EventSetup & es)
     //QUESTION: Are the following two lines still needed?
     //ANSWER: No!
 
+    //we need the track manager now
+    m_trackManager = std::auto_ptr<SimTrackManager>(new SimTrackManager);
+
     m_attach = new AttachSD;
     {
       std::pair< std::vector<SensitiveTkDetector*>,
-	std::vector<SensitiveCaloDetector*> > sensDets = m_attach->create(*world,(*pDD),m_p,m_registry);
+	std::vector<SensitiveCaloDetector*> > sensDets = m_attach->create(*world,(*pDD),m_p,m_trackManager.get(),m_registry);
       
       m_sensTkDets.swap(sensDets.first);
       m_sensCaloDets.swap(sensDets.second);
@@ -251,7 +254,7 @@ void RunManager::initializeUserActions()
     eventManager->SetVerboseLevel(m_EvtMgrVerbosity);
     if (m_generator!=0)
     {
-        EventAction * userEventAction = new EventAction(m_pEventAction);
+        EventAction * userEventAction = new EventAction(m_pEventAction,m_trackManager.get());
 	userEventAction->m_beginOfEventSignal.connect(m_registry.beginOfEventSignal_);
 	userEventAction->m_endOfEventSignal.connect(m_registry.endOfEventSignal_);
         eventManager->SetUserAction(userEventAction);
