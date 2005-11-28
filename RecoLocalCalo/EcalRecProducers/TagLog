@@ -1,3 +1,6 @@
+** V00-00-03  [Mon Nov 28 17:47:11 2005]
+added new algorithm based on analytical fit to compute the pulse shape. currently this is a placeholder and the fit is not perfomed yet
+
 ** V00-00-02  [Thu Nov  3 15:57:28 2005]
 removed any refernce to the obsolete (and now removed) object EcalMapping.
 This tag is to be included in CMSSW_0_2_0-pre7 and later
