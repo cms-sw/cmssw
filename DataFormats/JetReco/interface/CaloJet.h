@@ -2,7 +2,7 @@
 #define JetReco_CaloJet_h
 
 /** \class CaloJet
- * $Id$
+ * $Id: CaloJet.h,v 1.1 2005/11/28 14:45:33 llista Exp $
  *
  * Ported from original version in JetObjects package
  *
@@ -18,11 +18,11 @@
  * \version   2nd Version Oct 19, 2005, R. Harris, modified to work 
  *            with real CaloTowers. No energy fractions yet.
  ************************************************************/
-#include <vector>
 #include "TLorentzVector.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
-
-class CaloTowerDetId;
+#include "FWCore/EDProduct/interface/Ref.h"
+#include "FWCore/EDProduct/interface/RefVector.h"
+#include <vector>
+class CaloTower;
 
 namespace reco {
   
@@ -34,8 +34,9 @@ namespace reco {
     
     /** Constructor from values*/
     CaloJet( double px, double py, double pz, double e, 
-	     const CaloTowerCollection & caloTowerColl, 
-	     const std::vector<CaloTowerDetId> & indices );
+	     double maxEInEmTowers, double maxEInHadTowers, 
+	     double energyFractionInHCAL, double energyFractionInECAL,
+	     int n90 );
     
     /** Default destructor*/
     ~CaloJet();
@@ -66,16 +67,19 @@ namespace reco {
     double eta() const { return p4_.Eta(); }
     /** Returns the rapidity of the jet*/
     double y() const { return p4_.Rapidity(); }
-    /** Returns the number of constituents of the jet*/
-    int numberOfConstituents() const { return towerIndices_.size(); }
     
     //These methods are specific to the CaloJet class
     
-    /** Returns the list of CaloTower IDs forming the Jet*/
-    const std::vector<CaloTowerDetId> & towerIndices() const {return towerIndices_;};
-    
-    /**Sets tower indices */
-    void setTowerIndices(const std::vector<CaloTowerDetId > & towerIndices);
+    typedef CaloTower Constituent;
+    typedef edm::Ref<std::vector<Constituent> > ConstituentRef;
+    typedef edm::RefVector<std::vector<Constituent> > ConstituentRefs;
+    typedef ConstituentRefs::iterator constituents_iterator;
+
+    /** Returns/add the list of CaloTower IDs forming the Jet*/
+    void add( const ConstituentRef & r ) { constituents_.push_back( r ); }
+    constituents_iterator constituents_begin() const { return constituents_.begin(); }
+    constituents_iterator constituents_end() const { return constituents_.end(); }
+    size_t constituentsSize() const { return constituents_.size(); }
     
     /** Returns the maximum energy deposited in ECAL towers*/
     double maxEInEmTowers() const { return maxEInEmTowers_; }
@@ -93,7 +97,7 @@ namespace reco {
     // Data members
     TLorentzVector p4_;
     /** List of CaloTower IDs the Jet consists of*/
-    std::vector<CaloTowerDetId> towerIndices_;
+    ConstituentRefs constituents_;
     //Variables specific to to the CaloJet class
     /** Maximum energy in EM towers*/
     double maxEInEmTowers_;
@@ -107,8 +111,6 @@ namespace reco {
     int n90_;
   };
   
-typedef std::vector<CaloJet> CaloJetCollection;
-
 }
 
 #endif

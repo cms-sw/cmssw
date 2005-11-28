@@ -3,6 +3,6 @@
 #include <vector>
 namespace {
   namespace {
-    edm::Wrapper<CaloJetCollection> dummy;
+    edm::Wrapper<std::vector<CaloJet> > dummy;
   }
 }

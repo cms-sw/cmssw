@@ -1,6 +1,5 @@
 <lcgdict>
   <class name="CaloJet"/>
   <class name="std::vector<CaloJet>"/>
-  <class name="std::vector<CaloTowerDetId>"/>
   <class name="edm::Wrapper<std::vector<CaloJet> >" id="C75D7A9B-86BD-F88A-7423-802D1A8E813D"/>
 </lcgdict>
