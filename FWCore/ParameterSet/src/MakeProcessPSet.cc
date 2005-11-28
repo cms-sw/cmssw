@@ -156,4 +156,10 @@ namespace {
 
     return boost::shared_ptr<edm::ParameterSet>(new ParameterSet(tmp->pset_));
   } // make ProcessPset
+
+  void write_python_form(edm::pset::Node const& topnode, std::ostream& os)
+  {
+    // Not yet implemented
+  }
+
 }//namespace edm
