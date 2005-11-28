@@ -1,3 +1,6 @@
+** V03-03-00  [Mon Nov 28 01:53:10 2005]
+senstive detectors now take a SimTrackManager in their constructor
+
 ** V03-02-00  [Sun Nov 27 23:11:51 2005]
 moved responsibility of managing tracks from EventAction to SimTrackManager
 
