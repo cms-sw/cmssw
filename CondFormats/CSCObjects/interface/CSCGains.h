@@ -1,7 +1,7 @@
 #ifndef CSCGains_h
 #define CSCGains_h
 
-#include <map>
+#include <vector>
 
 class CSCGains{
  public:
@@ -12,7 +12,7 @@ class CSCGains{
     float slope;
     float intercept;
   };
-  std::map<int, Item> gains;
+  std::vector<Item> gains;
 };
 
 #endif

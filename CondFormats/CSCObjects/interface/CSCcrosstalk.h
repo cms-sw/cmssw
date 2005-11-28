@@ -1,7 +1,7 @@
 #ifndef CSCcrosstalk_h
 #define CSCcrosstalk_h
 
-#include <map>
+#include <vector>
 
 class CSCcrosstalk{
  public:
@@ -12,7 +12,7 @@ class CSCcrosstalk{
     float slope;
     float intercept;
   };
-  std::map<int, Item> crosstalk;
+  std::vector<Item> crosstalk;
 };
 
 #endif
