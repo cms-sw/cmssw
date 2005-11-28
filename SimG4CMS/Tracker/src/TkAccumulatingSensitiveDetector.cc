@@ -39,7 +39,8 @@ using std::string;
 
 TkAccumulatingSensitiveDetector::TkAccumulatingSensitiveDetector(string name, 
 								 const DDCompactView & cpv,
-								 edm::ParameterSet const & p) : 
+								 edm::ParameterSet const & p,
+const SimTrackManager* manager) : 
   SensitiveTkDetector(name, cpv, p), myName(name), myRotation(0),  mySimHit(0),
   oldVolume(0), lastId(0), lastTrack(0), eventno(0) {
 
@@ -74,8 +75,8 @@ TkAccumulatingSensitiveDetector::TkAccumulatingSensitiveDetector(string name,
        << " but should be used for debugging purposes only." << endl;
   
 #endif
-    slaveLowTof  = new TrackingSlaveSDWithRenumbering(name+"LowTof");
-    slaveHighTof = new TrackingSlaveSDWithRenumbering(name+"HighTof");
+    slaveLowTof  = new TrackingSlaveSDWithRenumbering(name+"LowTof",manager);
+    slaveHighTof = new TrackingSlaveSDWithRenumbering(name+"HighTof",manager);
   
     // Now attach the right detectors (LogicalVolumes) to me
     vector<string>  lvNames= SensitiveDetectorCatalog::instance()->logicalNames(name);
