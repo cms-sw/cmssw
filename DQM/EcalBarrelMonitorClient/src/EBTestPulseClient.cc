@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  * 
- * $Date: 2005/11/28 16:07:46 $
- * $Revision: 1.31 $
+ * $Date: 2005/11/28 16:22:16 $
+ * $Revision: 1.32 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -53,7 +53,7 @@ EBTestPulseClient::EBTestPulseClient(const edm::ParameterSet& ps, MonitorUserInt
 
   }
 
-  amplitudeThreshold_ = 1;
+  amplitudeThreshold_ = 0.5;
   RMSThreshold_ = 0.3 ;                
   threshold_on_AmplitudeErrorsNumber_ = 0.02;
 
