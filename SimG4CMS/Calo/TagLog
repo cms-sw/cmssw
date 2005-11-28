@@ -1,3 +1,6 @@
+** V00-04-00  [Mon Nov 28 02:08:06 2005]
+senstive detectors now take a SimTrackManager in their constructor which allows SimTrackManager to replace the use of EventAction
+
 ** V00-03-02  [Sat Nov 26 18:03:13 2005]
 Give track ID to Calorimeter Hits
 
