@@ -27,6 +27,7 @@ class Generator;
 class PhysicsList;
 class SimWatcher;
 class G4SimEvent;
+class SimTrackManager;
 
 class DDDWorld;
 
@@ -100,6 +101,8 @@ private:
 
     SimActivityRegistry m_registry;
     std::vector<boost::shared_ptr<SimWatcher> > m_watchers;
+    
+    std::auto_ptr<SimTrackManager> m_trackManager;
 };
 
 #endif
