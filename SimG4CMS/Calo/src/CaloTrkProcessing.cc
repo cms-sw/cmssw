@@ -24,7 +24,7 @@ CaloTrkProcessing::CaloTrkProcessing(G4String name,
 				     edm::ParameterSet const & p,
 				     const SimTrackManager* manager) : 
   SensitiveCaloDetector(name, cpv, p), lastTrackID(-1),
-  m_trackManager(manager){  
+  m_trackManager(manager) {  
 
   //Initialise the parameter set
   edm::ParameterSet m_p = p.getParameter<edm::ParameterSet>("CaloTrkProcessing");

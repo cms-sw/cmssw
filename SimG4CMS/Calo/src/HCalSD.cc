@@ -20,12 +20,9 @@
 #define debug
 
 HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
-               edm::ParameterSet const & p,
-	       const SimTrackManager* iManager) : CaloSD(name, cpv,p), 
-					      numberingFromDDD(0),
-					      numberingScheme(0), 
-					      showerLibrary(0),
-					      hfshower(0) {
+               edm::ParameterSet const & p, const SimTrackManager* manager) : 
+  CaloSD(name, cpv, p, manager), numberingFromDDD(0), numberingScheme(0), 
+  showerLibrary(0), hfshower(0) {
 
   //static SimpleConfigurable<bool>   on1(false, "HCalSD:UseBirkLaw");
   //static SimpleConfigurable<double> bk1(0.013, "HCalSD:BirkC1");

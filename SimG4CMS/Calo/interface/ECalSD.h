@@ -14,8 +14,6 @@
 #include "G4String.hh"
 #include <map>
 
-class SimTrackManager;
-
 class ECalSD : public CaloSD {
 
 public:    

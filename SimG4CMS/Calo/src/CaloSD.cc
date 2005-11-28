@@ -7,8 +7,8 @@
 #include "SimG4CMS/Calo/interface/CaloMap.h"
 #include "SimDataFormats/SimHitMaker/interface/CaloSlaveSD.h"
 #include "SimG4Core/Geometry/interface/SDCatalog.h"
-#include "SimG4Core/Application/interface/EventAction.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
+#include "SimG4Core/Application/interface/EventAction.h"
 
 #include "G4EventManager.hh"
 #include "G4SDManager.hh"
@@ -22,12 +22,13 @@
 #define debug
 
 CaloSD::CaloSD(G4String name, const DDCompactView & cpv,
-	       edm::ParameterSet const & p) : 
+	       edm::ParameterSet const & p, const SimTrackManager* manager) : 
   SensitiveCaloDetector(name, cpv, p),
 #ifdef G4v7
   G4VGFlashSensitiveDetector(), 
 #endif
-  theTrack(0), preStepPoint(0), hcID(-1), theHC(0), currentHit(0) {
+  theTrack(0), preStepPoint(0), m_trackManager(manager), hcID(-1), theHC(0), 
+  currentHit(0) {
   //Add Hcal Sentitive Detector Names
 
   //   Observer<const BeginOfEvent *>::init();
@@ -548,9 +549,8 @@ bool CaloSD::saveHit(CaloG4Hit* aHit) {
 
   int tkID;
   bool ok = true;
-  EventAction * eventAction = (EventAction *)(G4EventManager::GetEventManager()->GetUserEventAction());
-  if (eventAction) {
-    tkID = eventAction->g4ToSim(aHit->getTrackID());
+  if (m_trackManager) {
+    tkID = m_trackManager->g4ToSim(aHit->getTrackID());
     if (tkID == EventAction::InvalidID) ok = false;
   } else {
     tkID = aHit->getTrackID();
@@ -559,7 +559,7 @@ bool CaloSD::saveHit(CaloG4Hit* aHit) {
 #ifdef debug
   if (verboseLevel > 1) 
     std::cout << "CalosD: Track ID " << aHit->getTrackID() << " changed to "
-	      << tkID << " by EventAction" << std::endl;
+	      << tkID << " by SimTrackManager" << std::endl;
 #endif
   slave->processHits(aHit->getUnitID(), aHit->getEnergyDeposit()/GeV,
 		     aHit->getTimeSlice(), tkID);

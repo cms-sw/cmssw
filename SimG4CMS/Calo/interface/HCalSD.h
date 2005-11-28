@@ -21,7 +21,6 @@
 class DDCompactView;
 class DDFilteredView;
 class G4Step;
-class SimTrackManager;
 
 class HCalSD : public CaloSD {
 

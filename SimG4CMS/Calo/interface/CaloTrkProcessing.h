@@ -25,8 +25,7 @@ class CaloTrkProcessing : public SensitiveCaloDetector,
 public:
 
   CaloTrkProcessing(G4String aSDname, const DDCompactView & cpv,
-		    edm::ParameterSet const & p,
-		    const SimTrackManager*);
+		    edm::ParameterSet const & p, const SimTrackManager*);
   virtual ~CaloTrkProcessing();
   virtual void             Initialize(G4HCofThisEvent * ) {}
   virtual void             clearHits() {}

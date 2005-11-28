@@ -12,6 +12,7 @@
 #include "SimG4Core/Notification/interface/Observer.h"
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveCaloDetector.h"
+#include "SimG4Core/Application/interface/SimTrackManager.h"
 
 // To be replaced by something else 
 /* #include "Utilities/Notification/interface/TimerProxy.h" */
@@ -28,9 +29,9 @@
 #include <map>
 
 using namespace std;
+
 class G4Step;
 class G4HCofThisEvent;
-class EventAction;
 class CaloSlaveSD;
 #ifdef G4v7
 class G4GFlashSpot;
@@ -46,7 +47,7 @@ public SensitiveCaloDetector, public Observer<const BeginOfEvent *>
   typedef map<vector<int>,CaloG4Hit*> MyMap;
   
   CaloSD(G4String aSDname, const DDCompactView & cpv,
-	 edm::ParameterSet const & p);
+	 edm::ParameterSet const & p, const SimTrackManager*);
   virtual ~CaloSD();
   virtual bool ProcessHits(G4Step * step,G4TouchableHistory * tHistory);
 #ifdef G4v7
@@ -90,33 +91,34 @@ protected:
   // One shower is made of several hits which differ by the
   // unit ID (crystal/fibre/scintillator) and the Time slice ID.
 
-  G4ThreeVector        entrancePoint;
-  G4ThreeVector        entranceLocal;
-  G4ThreeVector        posGlobal;
-  float                incidentEnergy;
-  int                  primIDSaved; //   ID of the last saved primary
+  G4ThreeVector          entrancePoint;
+  G4ThreeVector          entranceLocal;
+  G4ThreeVector          posGlobal;
+  float                  incidentEnergy;
+  int                    primIDSaved; //   ID of the last saved primary
 
-  CaloHitID            currentID, previousID; 
-  G4Track*             theTrack;
+  CaloHitID              currentID, previousID; 
+  G4Track*               theTrack;
 
-  G4StepPoint*         preStepPoint; 
-  float                edepositEM, edepositHAD;
+  G4StepPoint*           preStepPoint; 
+  float                  edepositEM, edepositHAD;
 
-  double               energyCut;
-  int                  checkHits;
-  bool                 useMap;
+  double                 energyCut;
+  int                    checkHits;
+  bool                   useMap;
 
+  const SimTrackManager* m_trackManager;
 //  TimerProxy           theHitTimer;
 
 private:
 
-  CaloSlaveSD*         slave;
-  int                  hcID;
-  CaloG4HitCollection* theHC; 
+  CaloSlaveSD*           slave;
+  int                    hcID;
+  CaloG4HitCollection*   theHC; 
   map<CaloHitID,CaloG4Hit*> hitMap;
 
-  CaloG4Hit*           currentHit;
-  vector<CaloG4Hit*>   hitvec;
+  CaloG4Hit*             currentHit;
+  vector<CaloG4Hit*>     hitvec;
 
 };
 
