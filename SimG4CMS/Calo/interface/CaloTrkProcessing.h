@@ -12,6 +12,7 @@
 #include <string>
 #include <iostream>
 
+class SimTrackManager;
 class BeginOfEvent;
 class EndOfTrack;
 class G4Step;
@@ -24,7 +25,8 @@ class CaloTrkProcessing : public SensitiveCaloDetector,
 public:
 
   CaloTrkProcessing(G4String aSDname, const DDCompactView & cpv,
-		    edm::ParameterSet const & p);
+		    edm::ParameterSet const & p,
+		    const SimTrackManager*);
   virtual ~CaloTrkProcessing();
   virtual void             Initialize(G4HCofThisEvent * ) {}
   virtual void             clearHits() {}
@@ -56,7 +58,7 @@ private:
   int                      lastTrackID;
   std::vector<std::string> caloNames;
   std::vector<std::string> insideNames;
-
+  const SimTrackManager*   m_trackManager;
 };
 
 #endif

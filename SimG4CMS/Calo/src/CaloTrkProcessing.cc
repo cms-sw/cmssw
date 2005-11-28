@@ -6,7 +6,7 @@
 #include "SimG4CMS/Calo/interface/CaloTrkProcessing.h"
 #include "SimG4CMS/Calo/interface/CaloMap.h"
 
-#include "SimG4Core/Application/interface/EventAction.h"
+#include "SimG4Core/Application/interface/SimTrackManager.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
@@ -21,8 +21,10 @@
 
 CaloTrkProcessing::CaloTrkProcessing(G4String name, 
 				     const DDCompactView & cpv,
-				     edm::ParameterSet const & p) : 
-  SensitiveCaloDetector(name, cpv, p), lastTrackID(-1) {  
+				     edm::ParameterSet const & p,
+				     const SimTrackManager* manager) : 
+  SensitiveCaloDetector(name, cpv, p), lastTrackID(-1),
+  m_trackManager(manager){  
 
   //Initialise the parameter set
   edm::ParameterSet m_p = p.getParameter<edm::ParameterSet>("CaloTrkProcessing");
@@ -78,8 +80,7 @@ void CaloTrkProcessing::update(const EndOfTrack * trk) {
 
   int id = (*trk)()->GetTrackID();
   if (id == lastTrackID) {
-    EventAction * eventAction = (EventAction *)(G4EventManager::GetEventManager()->GetUserEventAction());
-    TrackContainer * trksForThisEvent = eventAction->trackContainer();
+    const TrackContainer * trksForThisEvent = m_trackManager->trackContainer();
     if (trksForThisEvent != NULL) {
       int it = (int)(trksForThisEvent->size()) - 1;
 #ifdef ddebug
