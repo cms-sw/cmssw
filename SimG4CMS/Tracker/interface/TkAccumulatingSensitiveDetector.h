@@ -6,8 +6,9 @@
  * same volume, thus reducing the db size.
  */
 #include "SimG4Core/Notification/interface/Observer.h"
-#include "SimG4Core/Notification/interface/BeginOfEvent.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveTkDetector.h"
+#include "SimG4Core/Notification/interface/BeginOfEvent.h"
+#include "SimG4Core/Notification/interface/BeginOfJob.h"
 #include "SimG4CMS/Tracker/interface/TrackerG4SimHitNumberingScheme.h"
 
 #include "G4Step.hh"
@@ -23,7 +24,10 @@ class UpdatablePSimHit;
 class G4ProcessTypeEnumerator;
 class G4TrackToParticleID;
 
-class TkAccumulatingSensitiveDetector : public SensitiveTkDetector, public Observer<const BeginOfEvent*>
+class TkAccumulatingSensitiveDetector : 
+public SensitiveTkDetector, 
+public Observer<const BeginOfEvent*>,
+public Observer<const BeginOfJob*>
 { 
 public:    
     TkAccumulatingSensitiveDetector(std::string, const DDCompactView &,
@@ -46,6 +50,7 @@ private:
     virtual void createHit(G4Step *);
     void checkExitPoint(Local3DPoint);
     void update(const BeginOfEvent *);
+    void update(const BeginOfJob *);
     virtual void clearHits();
     Local3DPoint toOrcaRef(Local3DPoint ,G4VPhysicalVolume *);
     int tofBin(float);

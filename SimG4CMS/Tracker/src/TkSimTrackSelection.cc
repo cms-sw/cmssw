@@ -11,9 +11,9 @@
 #endif
 
 TkSimTrackSelection::TkSimTrackSelection( edm::ParameterSet const & p) : rTracker(1200.*mm), zTracker(3000.*mm) {
-  edm::ParameterSet m_SimTrack = p.getParameter<edm::ParameterSet>("SimTrack");
+  edm::ParameterSet m_SimTrack = p.getParameter<edm::ParameterSet>("TkSimTrack");
   energyCut = m_SimTrack.getParameter<double>("EnergyThresholdForPersistencyInGeV")*GeV; //default must be 0.5
-  energyHistoryCut  = m_SimTrack.getParameter<bool>("EnergyThresholdForHistoryInGeV")*GeV;//default must be 00.5
+  energyHistoryCut  = m_SimTrack.getParameter<double>("EnergyThresholdForHistoryInGeV")*GeV;//default must be 0.05
 
   std::cout <<"Criteria for Saving Tracker SimTracks:  ";
   std::cout <<" History: "<<energyHistoryCut<< " MeV ; Persistency: "<< energyCut<<" MeV "<<std::endl;

@@ -19,6 +19,11 @@
 #include "SimG4CMS/Tracker/interface/TrackerG4SimHitNumberingScheme.h"
 
 
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/TrackerBaseAlgo/interface/GeometricDet.h"
 
 #include "G4SDManager.hh"
 #include "G4VProcess.hh"
@@ -130,9 +135,13 @@ uint32_t TkAccumulatingSensitiveDetector::setDetUnitId(G4Step * s)
   if(tkG4SimHitNumberingScheme){
     tkG4SimHitNumberingScheme = new TrackerG4SimHitNumberingScheme;
   }
+ uint32_t detId = tkG4SimHitNumberingScheme->g4ToNumberingScheme(s->GetPreStepPoint()->GetTouchable());
+
 #ifdef DEBUG
-  cout<<"DetId "<<tkG4SimHitNumberingScheme->g4ToNumberingScheme(s->GetPreStepPoint()->GetTouchable())<<endl;
+  cout<<"DetId "<<detId<endl;
 #endif    
+
+ return detId;
 }
 
 
@@ -342,6 +351,13 @@ void TkAccumulatingSensitiveDetector::update(const BeginOfEvent * i)
     clearHits();
     eventno = (*i)()->GetEventID();
     mySimHit = 0;
+}
+
+void TkAccumulatingSensitiveDetector::update(const BeginOfJob * i)
+{
+    edm::ESHandle<GeometricDet> pDD;
+    const edm::EventSetup* es = (*i)();
+    es->get<IdealGeometryRecord>().get( pDD );
 }
 
 void TkAccumulatingSensitiveDetector::clearHits()
