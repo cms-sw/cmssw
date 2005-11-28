@@ -10,11 +10,14 @@
 using std::cout;
 using std::endl;
 
-EventAction::EventAction(const edm::ParameterSet & p) 
-    : m_trackManager(p.getParameter<bool>("CollapsePrimaryVertices")),
+EventAction::EventAction(const edm::ParameterSet & p,
+			 SimTrackManager* iManager) 
+    : m_trackManager(iManager),
       m_stopFile(p.getParameter<std::string>("StopFile")),
       m_debug(p.getParameter<bool>("debug"))
-{}
+{
+  m_trackManager->setCollapsePrimaryVertices(p.getParameter<bool>("CollapsePrimaryVertices"));
+}
 
 EventAction::~EventAction() {}
     
@@ -27,7 +30,7 @@ void EventAction::BeginOfEventAction(const G4Event * anEvent)
         RunManager::instance()->abortRun(true);
     }
 
-    m_trackManager.reset();
+    m_trackManager->reset();
     BeginOfEvent e(anEvent);
     m_beginOfEventSignal(&e);
 }
@@ -47,15 +50,15 @@ void EventAction::EndOfEventAction(const G4Event * anEvent)
         return;
     }
 
-    m_trackManager.storeTracks(RunManager::instance()->simEvent());
+    m_trackManager->storeTracks(RunManager::instance()->simEvent());
     // dispatch now end of event, and only then delete tracks...
     EndOfEvent e(anEvent);
     m_endOfEventSignal(&e);
 
-    m_trackManager.deleteTracks();
+    m_trackManager->deleteTracks();
 }
 
 void EventAction::addTrack(TrackWithHistory* iTrack)
 {
-  m_trackManager.addTrack(iTrack);
+  m_trackManager->addTrack(iTrack);
 }

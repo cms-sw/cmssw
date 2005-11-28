@@ -26,7 +26,8 @@ public:
     enum SpecialNumbers {InvalidID = 65535};
 public:
     //EventAction(const edm::ParameterSet & ps);
-    EventAction(const edm::ParameterSet & ps);
+    EventAction(const edm::ParameterSet & ps,
+		SimTrackManager*);
     ~EventAction();
     void BeginOfEventAction(const G4Event * evt);
     void EndOfEventAction(const G4Event * evt);
@@ -34,22 +35,22 @@ public:
 
     ///For backwards compatibility
     unsigned int g4ToSim(unsigned int iG4) const {
-      return m_trackManager.g4ToSim(iG4);
+      return m_trackManager->g4ToSim(iG4);
     }
     unsigned int simToG4(unsigned int iSim) const {
-      return m_trackManager.simToG4(iSim);
+      return m_trackManager->simToG4(iSim);
     }
     const TrackContainer * trackContainer() const { 
-      return m_trackManager.trackContainer();
+      return m_trackManager->trackContainer();
     }
-
     void addTrack(TrackWithHistory* iTrack);
 
     boost::signal< void(const BeginOfEvent*)> m_beginOfEventSignal;
     boost::signal< void(const EndOfEvent*)> m_endOfEventSignal;
 
 private:
-    SimTrackManager m_trackManager;
+    //does not own the manager
+    SimTrackManager* m_trackManager;
     std::string m_stopFile;
     bool m_debug;
 };
