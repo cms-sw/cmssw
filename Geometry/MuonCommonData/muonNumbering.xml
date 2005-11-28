@@ -395,7 +395,7 @@
    <Parameter name="CopyNoTag" value="[me_sector]"/>
  </SpecPar>  
  <SpecPar name="MuonEndcapLayers">
-   <PartSelector path="//ME11Layer'"/>
+   <PartSelector path="//ME11Layer"/>
    <PartSelector path="//ME12Layer"/>
    <PartSelector path="//ME13Layer"/>
    <PartSelector path="//ME21Layer"/>
