@@ -4,13 +4,14 @@
 /** \class CSCDCCUnpacker
  * 
  *
- *  $Date: 2005/10/14 11:25:33 $
- *  $Revision: 1.0 $
+ *  $Date: 2005/10/14 18:13:00 $
+ *  $Revision: 1.1 $
  * \author Alex Tumanov 
  */
 
 #include <FWCore/Framework/interface/EDProducer.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+class CSCDCCEventData;
 
 class CSCDCCUnpacker: public edm::EDProducer {
  public:
@@ -22,8 +23,16 @@ class CSCDCCUnpacker: public edm::EDProducer {
   
   /// Produce digis out of raw data
   void produce(edm::Event & e, const edm::EventSetup& c);
+
+  CSCDCCEventData * dccUnpackedData(){return dccData;}
+
+
   
  private:
+
+  CSCDCCEventData * dccData;
+
+
   
 };
 

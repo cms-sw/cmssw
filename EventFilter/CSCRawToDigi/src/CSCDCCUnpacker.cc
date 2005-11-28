@@ -44,6 +44,7 @@ CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset){
 CSCDCCUnpacker::~CSCDCCUnpacker(){
 
   //fill destructor here
+  delete dccData;   
 
 }
 
@@ -71,10 +72,11 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
     if (fedData.size()){ //unpack data 
      
       //get a pointer to dcc data and pass it to constructor for unpacking
-      CSCDCCEventData dccData((short unsigned int *) fedData.data());
+      dccData=new CSCDCCEventData((short unsigned int *) fedData.data()); 
+
 
       //get a reference to dduData
-      const std::vector<CSCDDUEventData> & dduData = dccData.dduData(); 
+      const std::vector<CSCDDUEventData> & dduData = dccData->dduData(); 
 
       for (int iDDU=0; iDDU<dduData.size(); ++iDDU) {  //loop over DDUs
 	
