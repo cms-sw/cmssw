@@ -1,3 +1,6 @@
+** V02-00-00  [Mon Nov 28 01:56:21 2005]
+senstive detectors now take a SimTrackManager in their constructor
+
 ** V01-00-00  [Tue Nov 15 11:00:47 2005]
 New Tag from Chris
 
