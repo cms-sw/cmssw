@@ -4,7 +4,14 @@
 HcalSimpleRecAlgo::HcalSimpleRecAlgo(int firstSample, int samplesToAdd) : firstSample_(firstSample), samplesToAdd_(samplesToAdd) {
 }
 
+///Timeshift correction for HPDs based on the position of the peak ADC measurement.
+///  Allows for an accurate determination of the relative phase of the pulse shape from
+///  the HPD.  Calculated based on a weighted sum of the -1,0,+1 samples relative to the peak
+///  as follows:  wpksamp = (0*sample[0] + 1*sample[1] + 2*sample[2]) / (sample[0] + sample[1] + sample[2])
+///  where sample[1] is the maximum ADC sample value.
 float timeshift_hbheho(float wpksamp) { return 0; }
+
+///Same as above, but for the HF PMTs.
 float timeshift_hf(float wpksamp) { return 0; }
 
 
@@ -25,7 +32,8 @@ namespace HcalSimpleRecAlgoImpl {
       }
     }
 
-    if(maxI==ifirst || maxI==(tool.size()-1)) {
+    ////Cannot calculate time value with max ADC sample at first or last position in window....
+    if(maxI==0 || maxI==(tool.size()-1)) {
       throw cms::Exception("InvalidRecoParam") << "HcalSimpleRecAlgo::reconstruct :" 
 					       << " Invalid max amplitude position, " 
 					       << " max Amplitude: "<< maxI
@@ -68,7 +76,8 @@ HFRecHit HcalSimpleRecAlgo::reconstruct(const HFDataFrame& digi, const HcalCoder
     }
   }
 
-  if(maxI==firstSample_ || maxI==(tool.size()-1)) {
+  ////Cannot calculate time value with max ADC sample at first or last position in window....
+  if(maxI==0 || maxI==(tool.size()-1)) {
     throw cms::Exception("InvalidRecoParam") << "HcalSimpleRecAlgo::reconstruct :" 
 					 << " Invalid max amplitude position, " 
 					 << " max Amplitude: "<< maxI
