@@ -8,7 +8,8 @@ class Topology;
 class GeomDetType {
 public:
 
-    enum SubDetector {PixelBarrel, TIB, TOB, PixelEndcap, TID, TEC};
+  enum SubDetector {PixelBarrel, TIB, TOB, PixelEndcap, TID, TEC, 
+     CSC, DT, RPCBarrel, RPCEndcap};
 
     GeomDetType( const std::string&, SubDetector);
 
@@ -22,6 +23,9 @@ public:
 
     bool isTrackerStrip() const;
     bool isTrackerPixel() const;
+    bool isTracker()      const;
+    bool isRPC()          const;
+    bool isMuon()         const;
 
 private:
 
