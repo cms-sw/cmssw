@@ -28,7 +28,8 @@
 
 MuonSensitiveDetector::MuonSensitiveDetector(std::string name, 
 					     const DDCompactView & cpv,
-					     edm::ParameterSet const & p) 
+					     edm::ParameterSet const & p,
+					     const SimTrackManager* manager) 
   : SensitiveTkDetector(name, cpv, p),
     thePV(0), theHit(0), theDetUnitId(0), theTrackID(0) 
 {
@@ -44,7 +45,7 @@ MuonSensitiveDetector::MuonSensitiveDetector(std::string name,
 #ifdef DEBUG 
   std::cout << "create MuonSlaveSD"<<std::endl;
 #endif
-  slaveMuon  = new MuonSlaveSD(detector);
+  slaveMuon  = new MuonSlaveSD(detector,manager);
 #ifdef DEBUG 
   std::cout << "create MuonSimHitNumberingScheme"<<std::endl;
 #endif
