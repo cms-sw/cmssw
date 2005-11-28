@@ -20,7 +20,8 @@
 #define debug
 
 HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
-               edm::ParameterSet const & p) : CaloSD(name, cpv, p), 
+               edm::ParameterSet const & p,
+	       const SimTrackManager* iManager) : CaloSD(name, cpv,p), 
 					      numberingFromDDD(0),
 					      numberingScheme(0), 
 					      showerLibrary(0),

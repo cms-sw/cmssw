@@ -14,11 +14,14 @@
 #include "G4String.hh"
 #include <map>
 
+class SimTrackManager;
+
 class ECalSD : public CaloSD {
 
 public:    
 
-  ECalSD(G4String, const DDCompactView &, edm::ParameterSet const &);
+  ECalSD(G4String, const DDCompactView &, edm::ParameterSet const &,
+	 const SimTrackManager*);
   virtual ~ECalSD();
   virtual double getEnergyDeposit(G4Step*);
   virtual uint32_t setDetUnitId(G4Step* step);
