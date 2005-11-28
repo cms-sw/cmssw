@@ -1,3 +1,6 @@
+** V00-00-04  [Mon Nov 28 20:37:42 2005]
+add pool cleaning tool; add O2O script
+
 ** V00-00-03  [Wed Nov  9 19:47:02 2005]
 fixed the setupWriter script; modify condReaderTest script to loop over detectors
 
