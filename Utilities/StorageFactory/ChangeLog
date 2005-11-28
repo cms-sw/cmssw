@@ -1,6 +1,14 @@
+2005-11-28  Giulio Eulisse  <giulio.eulisse@cern.ch>
+
+	* M any.cpp, ftp.cpp, ftp2.cpp, http.cpp, http2.cpp, http3.cpp,
+	http4.cpp, local.cpp, local2.cpp, local3.cpp, rfio.cpp, rfio2.cpp,
+	rfio3.cpp, rfzip.cpp, rfzip2.cpp, rfzip3.cpp, write.cpp,
+	writestream.cpp, zip.cpp, zip2.cpp, zip3.cpp, ziplist.cpp:
+	cobrisms removed.
+
 2005-11-22  Giulio Eulisse  <giulio.eulisse@cern.ch>
 
-	* .admin/developers: administrators added on pete's request. 
+	* .admin/developers: administrators added on pete's request.
 
 	* BuildFile, DCacheStorageMaker.h, GsiFTPStorageMaker.h,
 	HttpStorageMaker.h, LocalStorageMaker.h, RFIOStorageMaker.h,

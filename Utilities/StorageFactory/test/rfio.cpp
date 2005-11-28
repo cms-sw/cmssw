@@ -1,6 +1,5 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 
-#include "Utilities/Configuration/interface/Architecture.h"
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
 #include "Utilities/StorageFactory/interface/StorageAccount.h"
 #include "PluginManager/PluginManager.h"
