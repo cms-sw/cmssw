@@ -1,5 +1,5 @@
 #include "SimG4CMS/Tracker/interface/TrackingSlaveSDWithRenumbering.h"
-#include "SimG4Core/Application/interface/EventAction.h"
+#include "SimG4Core/Application/interface/SimTrackManager.h"
 #include "SimG4CMS/Tracker/interface/TrackerHitsObject.h"
 
 
@@ -7,11 +7,8 @@
 
 #include <iostream>
 
-TrackingSlaveSDWithRenumbering::TrackingSlaveSDWithRenumbering(std::string myName) : TrackingSlaveSD(myName), eventAction(0){
-}
-
-void TrackingSlaveSDWithRenumbering::lazyUpDate(const  EventAction * ev){
-  eventAction = ev;
+TrackingSlaveSDWithRenumbering::TrackingSlaveSDWithRenumbering(std::string myName,
+							       const SimTrackManager* manager) : TrackingSlaveSD(myName), m_trackManager(manager){
 }
 
 void TrackingSlaveSDWithRenumbering::update(const EndOfEvent*  ev){
@@ -24,7 +21,7 @@ void TrackingSlaveSDWithRenumbering::update(const EndOfEvent*  ev){
   //
   for(TrackingSlaveSD::Collection::const_iterator it = begin(); it!= end(); it++){
     PSimHit& temp = const_cast<PSimHit&>(*it);
-    unsigned int nt = eventAction->g4ToSim(temp.trackId());
+    unsigned int nt = m_trackManager->g4ToSim(temp.trackId());
 #ifdef DEBUG
     std::cout <<" Studying PSimHit " << temp << std::endl;
     std::cout <<" Changing TrackID from " << temp.trackId();

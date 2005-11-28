@@ -8,7 +8,7 @@
 #include "SimG4Core/Notification/interface/EndOfEvent.h"
 #include "SimDataFormats/SimHitMaker/interface/TrackingSlaveSD.h"
 
-class EventAction;
+class SimTrackManager;
 
 #include<string>
 
@@ -16,12 +16,11 @@ class TrackingSlaveSDWithRenumbering :
 public TrackingSlaveSD, public Observer<const EndOfEvent *>
 {
  public:
-  TrackingSlaveSDWithRenumbering(std::string);
+  TrackingSlaveSDWithRenumbering(std::string, const SimTrackManager* );
   void update(const EndOfEvent *);  
-  void lazyUpDate(const  EventAction *);
   bool format();
  private:
-  const EventAction* eventAction;
+  const SimTrackManager* m_trackManager;
 };
 
 #endif // TrackingSlaveSD_h
