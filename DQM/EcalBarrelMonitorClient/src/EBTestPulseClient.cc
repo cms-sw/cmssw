@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  * 
- * $Date: 2005/11/26 20:42:49 $
- * $Revision: 1.30 $
+ * $Date: 2005/11/28 16:07:46 $
+ * $Revision: 1.31 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -53,8 +53,8 @@ EBTestPulseClient::EBTestPulseClient(const edm::ParameterSet& ps, MonitorUserInt
 
   }
 
-  amplitudeThreshold_ = 200;
-  RMSThreshold_ = 20 ;                
+  amplitudeThreshold_ = 1;
+  RMSThreshold_ = 0.3 ;                
   threshold_on_AmplitudeErrorsNumber_ = 0.02;
 
 }
@@ -272,7 +272,7 @@ void EBTestPulseClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
 
           if ( g01_[ism-1] ) {
             val = 1.;
-            if ( mean01 > amplitudeThreshold_ )
+            if ( mean01 < amplitudeThreshold_ )
               val = 0.;
             if ( rms01 > RMSThreshold_ )
               val = 0.;
@@ -295,7 +295,7 @@ void EBTestPulseClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
 
           if ( g02_[ism-1] ) {
             val = 1.;
-            if ( mean02 > amplitudeThreshold_ )
+            if ( mean02 < amplitudeThreshold_ )
               val = 0.;
             if ( rms02 > RMSThreshold_ )
               val = 0.;
@@ -318,7 +318,7 @@ void EBTestPulseClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
 
           if ( g03_[ism-1] ) {
             val = 1.;
-            if ( mean03 > amplitudeThreshold_ )
+            if ( mean03 < amplitudeThreshold_ )
               val = 0.;
             if ( rms03 > RMSThreshold_ )
               val = 0.;
