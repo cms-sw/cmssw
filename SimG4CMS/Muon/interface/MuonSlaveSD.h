@@ -20,6 +20,7 @@ class EventAction;
 #include <string>
 
 class MuonSubDetector;
+class SimTrackManager;
 #include "SimDataFormats/SimHitMaker/interface/TrackingSlaveSD.h"
 
 class MuonSlaveSD : public TrackingSlaveSD
@@ -27,10 +28,9 @@ class MuonSlaveSD : public TrackingSlaveSD
 public: 
   typedef std::vector<PSimHit> Collection;
   typedef Collection::const_iterator const_iterator;
-  MuonSlaveSD(MuonSubDetector*);
+  MuonSlaveSD(MuonSubDetector*,const SimTrackManager*);
   virtual ~MuonSlaveSD();
   void upDate(const EndOfEvent *);
-  void lazyUpDate(const  EventAction *);
   virtual void clearHits();
   virtual bool format();
   virtual const_iterator begin() { return hits_.begin();}
@@ -42,7 +42,8 @@ protected:
 private:
   MuonSubDetector* detector;
 
-  const EventAction* eventAction;
+  const SimTrackManager* m_trackManager;
+  //const EventAction* eventAction;
 };
 
 class FormatBarrelHits {

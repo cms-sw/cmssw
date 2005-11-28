@@ -2,7 +2,7 @@
 #include "Geometry/MuonBaseAlgo/interface/MuonSubDetector.h"
 
 #include "SimG4Core/Notification/interface/EndOfEvent.h"
-#include "SimG4Core/Application/interface/EventAction.h"
+#include "SimG4Core/Application/interface/SimTrackManager.h"
 #include "Geometry/MuonBaseAlgo/interface/MuBarIDPacking.h"
 
 #include <iostream>
@@ -10,7 +10,9 @@
 //#define DEBUG
 
 
-MuonSlaveSD::MuonSlaveSD(MuonSubDetector* d): TrackingSlaveSD(d->name() ), eventAction(0)
+MuonSlaveSD::MuonSlaveSD(MuonSubDetector* d,
+			 const SimTrackManager* manager): 
+  TrackingSlaveSD(d->name() ), m_trackManager(manager)
 {
   detector=d;
 
@@ -44,11 +46,6 @@ bool MuonSlaveSD::format()
 }
 
 
-void MuonSlaveSD::lazyUpDate(const  EventAction * ev)
-{
-  eventAction = ev;
-}
-
 void MuonSlaveSD::upDate(const  EndOfEvent * ev)
 {
   //
@@ -63,7 +60,7 @@ void MuonSlaveSD::upDate(const  EndOfEvent * ev)
   //
   for(MuonSlaveSD::const_iterator it = begin(); it!=end(); it++){
     PSimHit& temp = const_cast<PSimHit&>(*it);
-    unsigned int nt = eventAction->g4ToSim(temp.trackId());
+    unsigned int nt = m_trackManager->g4ToSim(temp.trackId());
 #ifdef DEBUG
     std::cout <<" Studying PSimHit " << temp << std::endl;
     std::cout <<" Changing TrackID from " << temp.trackId();
