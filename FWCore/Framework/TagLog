@@ -1,3 +1,6 @@
+** V01-00-05  [Tue Nov 29 23:37:44 2005]
+Support for MessageLogger
+
 ** V01-00-04  [Wed Nov 16 01:48:48 2005]
 Eliminate coupling caused by new TypeIDBase class
 
