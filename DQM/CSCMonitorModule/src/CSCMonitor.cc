@@ -9,12 +9,15 @@
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-// scommenta #include "EventFilter/CSCRawToDigi/interface/CSCDCCUnpacker.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCDCCEventData.h"
+
 
 using namespace std;
 
 CSCMonitor::CSCMonitor(const edm::ParameterSet& iConfig ){
 
+ printout=false;
+ 
  nEvents=0;
  dduBX=0;
  L1ANumber=0;
@@ -41,18 +44,24 @@ CSCMonitor::~CSCMonitor()
   
 }
 
-/*
+
 void CSCMonitor::process(CSCDCCUnpacker & unpacker)
 {
    
-  dduEvent=unpacker.dduEventData;
-  MonitorDDU();
-  
-  
+   
+   CSCDCCEventData * dccData=unpacker.dccUnpackedData();
+   
+   const vector<CSCDDUEventData> & dduData = dccData->dduData(); 
+
+   for (int iDDU=0; iDDU<dduData.size(); ++iDDU) { 
+   
+         MonitorDDU(dduData[iDDU]);
+   
+      }
   
 }
 
-*/
+
 
 
 
