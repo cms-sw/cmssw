@@ -13,7 +13,7 @@
 #include <vector>
 #include <cstdio>
 
-bool CSCDCCEventData::debug = false;
+bool CSCDCCEventData::debug = true;
 
 CSCDCCEventData::CSCDCCEventData(int sourceId, int nDDUs, int bx, int l1a) 
 : theDCCHeader(bx, l1a, sourceId) 
@@ -55,13 +55,26 @@ void CSCDCCEventData::unpack_data(unsigned short *buf) {
   {
     if (debug) std::cout << std::endl << "unpack ddu data loop started" << std::endl;
     CSCDDUEventData dduEventData(buf);
-    theDDUData.push_back(dduEventData);
-    buf += dduEventData.size();
-    if (debug) {
-      std::cout << "size of vector of dduDatas = " << theDDUData.size() << std::endl;
-      printf("%04x %04x %04x %04x\n",buf[3],buf[2],buf[1],buf[0]);
+    if (debug)  std::cout << " checking ddu data integrity "<< std::endl;
+    if (dduEventData.check()) {
+      theDDUData.push_back(dduEventData);
+      buf += dduEventData.size();
+      if (debug) {
+	std::cout << "size of vector of dduDatas = " << theDDUData.size() << std::endl;
+	printf("%04x %04x %04x %04x\n",buf[3],buf[2],buf[1],buf[0]);
+      }
+    } else {
+      std::cout <<"DDU Data Check failed! reasons:  ";
+      std::cout << "size of dduData= " << dduEventData.size() << std::endl;
+      std::cout << "sizeof( dduData) =  " << sizeof(dduEventData) << std::endl;
+
+      for (int i=0;i<20;i++) {
+	printf("%04x %04x %04x %04x\n",buf[i+3],buf[i+2],buf[i+1],buf[i]);
+      }
     }
+    
   }
+  
 
 
   if (debug) {
