@@ -51,7 +51,7 @@ void CSCDCCEventData::unpack_data(unsigned short *buf) {
 
  
   ///loop over DDUEventDatas
-  while ( (buf[7]==0x8000)&&(buf[6]==0x0001)&&(buf[5]==0x8000)&&(buf[4]==0x8000))
+  while ( (buf[7]==0x8000)&&(buf[6]==0x0001)&&(buf[5]==0x8000))
   {
     if (debug) std::cout << std::endl << "unpack ddu data loop started" << std::endl;
     CSCDDUEventData dduEventData(buf);
