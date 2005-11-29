@@ -35,6 +35,7 @@
 
 //#define FAKEFRAMEROTATION
 //#define DEBUG
+#define DEBUG_ID
 //#define DEBUG_TRACKID
 
 using std::cout;
@@ -64,20 +65,20 @@ const SimTrackManager* manager) :
   // No Rotation given in input, automagically choose one based upon the name
   if (name.find("TrackerHits") != string::npos) 
     {
-      cout <<" TkAccumulatingSensitiveDetector: using TrackerFrameRotation for "<<myName<<endl;
+      std::cout <<" TkAccumulatingSensitiveDetector: using TrackerFrameRotation for "<<myName<<std::endl;
       myRotation = new TrackerFrameRotation;
     }
   // Just in case (test beam etc)
   if (myRotation == 0) 
     {
-      cout <<" TkAccumulatingSensitiveDetector: using StandardFrameRotation for "<<myName<<endl;
+      std::cout <<" TkAccumulatingSensitiveDetector: using StandardFrameRotation for "<<myName<<std::endl;
       myRotation = new StandardFrameRotation;
     }
 #else
   myRotation = new FakeFrameRotation;
-  cout << " WARNING - Using FakeFrameRotation in TkAccumulatingSensitiveDetector;" << endl 
+  std::cout << " WARNING - Using FakeFrameRotation in TkAccumulatingSensitiveDetector;" << std::endl 
        << "This is NOT producing a usable DB," 
-       << " but should be used for debugging purposes only." << endl;
+       << " but should be used for debugging purposes only." << std::endl;
   
 #endif
     slaveLowTof  = new TrackingSlaveSDWithRenumbering(name+"LowTof",manager);
@@ -88,7 +89,7 @@ const SimTrackManager* manager) :
     this->Register();
     for (vector<string>::iterator it = lvNames.begin();  it != lvNames.end(); it++)
     {
-	cout << name << " attaching LV " << *it << endl;
+	std::cout << name << " attaching LV " << *it << std::endl;
 	this->AssignSD(*it);
     }
 
@@ -110,8 +111,8 @@ TkAccumulatingSensitiveDetector::~TkAccumulatingSensitiveDetector()
 bool TkAccumulatingSensitiveDetector::ProcessHits(G4Step * aStep, G4TouchableHistory * ROhist)
 {
 #ifdef DEBUG
-    cout << " Entering a new Step " << aStep->GetTotalEnergyDeposit() << " " 
-	 << aStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetName() << endl;
+    std::cout << " Entering a new Step " << aStep->GetTotalEnergyDeposit() << " " 
+	 << aStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetName() << std::endl;
 #endif
     //TimeMe t1(theTimer, false);
     if (aStep->GetTotalEnergyDeposit()>0. || allowZeroEnergyLoss == true)
@@ -132,13 +133,13 @@ bool TkAccumulatingSensitiveDetector::ProcessHits(G4Step * aStep, G4TouchableHis
 
 uint32_t TkAccumulatingSensitiveDetector::setDetUnitId(G4Step * s)
 { 
-  if(tkG4SimHitNumberingScheme){
+  if(!tkG4SimHitNumberingScheme){
     tkG4SimHitNumberingScheme = new TrackerG4SimHitNumberingScheme;
   }
- uint32_t detId = tkG4SimHitNumberingScheme->g4ToNumberingScheme(s->GetPreStepPoint()->GetTouchable());
+ unsigned int detId = tkG4SimHitNumberingScheme->g4ToNumberingScheme(s->GetPreStepPoint()->GetTouchable());
 
-#ifdef DEBUG
-  cout<<"DetId "<<detId<endl;
+#ifdef DEBUG_ID
+ std::cout << " DetID = "<<detId<<std::endl; 
 #endif    
 
  return detId;
@@ -164,9 +165,9 @@ void TkAccumulatingSensitiveDetector::sendHit()
 {  
     if (mySimHit == 0) return;
 #ifdef DEBUG
-    cout << " Storing PSimHit: " << pname << " " << mySimHit->detUnitId() 
+    std::cout << " Storing PSimHit: " << pname << " " << mySimHit->detUnitId() 
 	 << " " << mySimHit->trackId() << " " << mySimHit->energyLoss() 
-	 << " " << mySimHit->entryPoint() << " " << mySimHit->exitPoint() << endl;
+	 << " " << mySimHit->entryPoint() << " " << mySimHit->exitPoint() << std::endl;
 #endif
     if (printHits)
     {
@@ -221,7 +222,7 @@ void TkAccumulatingSensitiveDetector::createHit(G4Step * aStep)
   
     if (theDetUnitId == 0)
     {
-	cout << " Error: theDetUnitId is not valid." << endl;
+	std::cout << " Error: theDetUnitId is not valid." << std::endl;
 	abort();
     }
     unsigned int theTrackID = theTrack->GetTrackID();
@@ -231,28 +232,28 @@ void TkAccumulatingSensitiveDetector::createHit(G4Step * aStep)
     // otherwise, get to the mother
     int theTrackIDInsideTheSimHit=theTrackID;
     G4VUserTrackInformation * info = theTrack->GetUserInformation();
-    if (info == 0) cout << " Error: no UserInformation available " << endl;
+    if (info == 0) std::cout << " Error: no UserInformation available " << std::endl;
     else
     {
 	TrackInformation * temp = dynamic_cast<TrackInformation* >(info);
-	if (temp ==0) cout << " Error:G4VUserTrackInformation is not a TrackInformation." << endl;
+	if (temp ==0) std::cout << " Error:G4VUserTrackInformation is not a TrackInformation." << std::endl;
 	if (temp->storeTrack() == false) 
 	{
 	    // Go to the mother!
 #ifdef DEBUG_TRACKID
-	    cout << " TkAccumulatingSensitiveDetector:createHit(): setting the TrackID from "
+	    std::cout << " TkAccumulatingSensitiveDetector:createHit(): setting the TrackID from "
 		 << theTrackIDInsideTheSimHit;
 #endif
 	    theTrackIDInsideTheSimHit = theTrack->GetParentID();
 #ifdef DEBUG_TRACKID
-	    cout << " to the mother one " << theTrackIDInsideTheSimHit << " " << theEnergyLoss << endl;
+	    std::cout << " to the mother one " << theTrackIDInsideTheSimHit << " " << theEnergyLoss << std::endl;
 #endif
 	}
 	else
 	{
 #ifdef DEBUG_TRACKID
-	    cout << " TkAccumulatingSensitiveDetector:createHit(): leaving the current TrackID " 
-		 << theTrackIDInsideTheSimHit << endl;
+	    std::cout << " TkAccumulatingSensitiveDetector:createHit(): leaving the current TrackID " 
+		 << theTrackIDInsideTheSimHit << std::endl;
 #endif
 	}
     }
@@ -274,9 +275,9 @@ void TkAccumulatingSensitiveDetector::createHit(G4Step * aStep)
 				    theTrackIDInsideTheSimHit,theThetaAtEntry,thePhiAtEntry,
 				    theG4ProcessTypeEnumerator->processId(theTrack->GetCreatorProcess()));  
 #ifdef DEBUG
-    cout << " Created PSimHit: " << pname << " " << mySimHit->detUnitId() << " " << mySimHit->trackId()
+    std::cout << " Created PSimHit: " << pname << " " << mySimHit->detUnitId() << " " << mySimHit->trackId()
 	 << " " << mySimHit->energyLoss() << " " << mySimHit->entryPoint() 
-	 << " " << mySimHit->exitPoint() << endl;
+	 << " " << mySimHit->exitPoint() << std::endl;
 #endif
     lastId = theDetUnitId;
     lastTrack = theTrackID;
@@ -294,16 +295,16 @@ void TkAccumulatingSensitiveDetector::updateHit(G4Step * aStep)
     float theEnergyLoss = aStep->GetTotalEnergyDeposit()/GeV;
     mySimHit->setExitPoint(theExitPoint);
 #ifdef DEBUG
-    cout << " Before : " << mySimHit->energyLoss() << endl;
+    std::cout << " Before : " << mySimHit->energyLoss() << std::endl;
 #endif
     mySimHit->addEnergyLoss(theEnergyLoss);
     globalExitPoint = SensitiveDetector::FinalStepPosition(aStep,WorldCoordinates);
 #ifdef DEBUG
-    cout << " Updating: new exitpoint " << pname << " " << theExitPoint 
-	 << " new energy loss " << theEnergyLoss << endl;
-    cout << " Updated PSimHit: " << mySimHit->detUnitId() << " " << mySimHit->trackId()
+    std::cout << " Updating: new exitpoint " << pname << " " << theExitPoint 
+	 << " new energy loss " << theEnergyLoss << std::endl;
+    std::cout << " Updated PSimHit: " << mySimHit->detUnitId() << " " << mySimHit->trackId()
 	 << " " << mySimHit->energyLoss() << " " << mySimHit->entryPoint() 
-	 << " " << mySimHit->exitPoint() << endl;
+	 << " " << mySimHit->exitPoint() << std::endl;
 #endif
 }
 
@@ -314,9 +315,9 @@ bool TkAccumulatingSensitiveDetector::newHit(G4Step * aStep)
     uint32_t theDetUnitId = setDetUnitId(aStep);
     unsigned int theTrackID = theTrack->GetTrackID();
 #ifdef DEBUG
-    cout << " OLD (d,t) = (" << lastId << "," << lastTrack 
+    std::cout << " OLD (d,t) = (" << lastId << "," << lastTrack 
 	 << "), new = (" << theDetUnitId << "," << theTrackID << ") return "
-	 << ((theTrackID == lastTrack) && (lastId == theDetUnitId)) << endl;
+	 << ((theTrackID == lastTrack) && (lastId == theDetUnitId)) << std::endl;
 #endif
     if ((mySimHit != 0) && (theTrackID == lastTrack) && (lastId == theDetUnitId) && closeHit(aStep))
 	return false;
@@ -331,7 +332,7 @@ bool TkAccumulatingSensitiveDetector::closeHit(G4Step * aStep)
     G4VPhysicalVolume * v = aStep->GetPreStepPoint()->GetPhysicalVolume();
     Local3DPoint theEntryPoint = toOrcaRef(SensitiveDetector::InitialStepPosition(aStep,LocalCoordinates),v);  
 #ifdef DEBUG
-    cout << " closeHit: distance = " << (mySimHit->exitPoint()-theEntryPoint).mag() << endl;
+    std::cout << " closeHit: distance = " << (mySimHit->exitPoint()-theEntryPoint).mag() << std::endl;
 #endif
     if ((mySimHit->exitPoint()-theEntryPoint).mag()<tolerance) return true;
     return false;
@@ -340,7 +341,7 @@ bool TkAccumulatingSensitiveDetector::closeHit(G4Step * aStep)
 void TkAccumulatingSensitiveDetector::EndOfEvent(G4HCofThisEvent *)
 {
 #ifdef DEBUG
-    cout << " Saving the last hit in a ROU " << myName << endl;
+    std::cout << " Saving the last hit in a ROU " << myName << std::endl;
 #endif
     if (mySimHit == 0) return;
     sendHit();
@@ -372,8 +373,8 @@ void TkAccumulatingSensitiveDetector::checkExitPoint(Local3DPoint p)
     if (std::abs(z)<0.3*mm) return;
     bool sendExc = false;
     //static SimpleConfigurable<bool> sendExc(false,"TrackerSim:ThrowOnBadHits");
-    cout << " ************ Hit outside the detector ; Local z " << z 
-	 << "; skipping event = " << sendExc << endl;
+    std::cout << " ************ Hit outside the detector ; Local z " << z 
+	 << "; skipping event = " << sendExc << std::endl;
     if (sendExc == true)
     {
 	G4EventManager::GetEventManager()->AbortCurrentEvent();
