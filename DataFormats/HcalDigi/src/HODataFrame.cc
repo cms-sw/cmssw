@@ -23,8 +23,7 @@ void HODataFrame::setSize(int size) {
   else size_=size;
 }
 void HODataFrame::setPresamples(int ps) {
-  if (ps>size_) hcalPresamples_=size_;
-  else hcalPresamples_=ps;
+   hcalPresamples_=ps;
 }
 void HODataFrame::setReadoutIds(const HcalElectronicsId& eid) {
   electronicsId_=eid;
@@ -44,7 +43,7 @@ bool HODataFrame::validate(int firstSample, int nSamples) const {
 
   
 std::ostream& operator<<(std::ostream& s, const HODataFrame& digi) {
-  s << digi.id() << " " << digi.size() << " samples " << std::endl;
+  s << digi.id() << " " << digi.size() << " samples  " << digi.presamples() << " presamples " << std::endl;
   for (int i=0; i<digi.size(); i++) 
     s << "  " << digi.sample(i) << std::endl;
   return s;

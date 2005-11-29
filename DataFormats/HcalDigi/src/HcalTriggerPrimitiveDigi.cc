@@ -14,7 +14,7 @@ void HcalTriggerPrimitiveDigi::setSize(int size) {
 }
 void HcalTriggerPrimitiveDigi::setPresamples(int ps) {
   if (ps<0) hcalPresamples_=0;
-  else if (ps>=size_) hcalPresamples_=size_-1;
+  //  else if (ps>=size_) hcalPresamples_=size_-1;
   else hcalPresamples_=ps;
 }
   

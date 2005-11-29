@@ -22,8 +22,7 @@ void HFDataFrame::setSize(int size) {
   else size_=size;
 }
 void HFDataFrame::setPresamples(int ps) {
-  if (ps>size_) hcalPresamples_=size_;
-  else hcalPresamples_=ps;
+  hcalPresamples_=ps;
 }
 void HFDataFrame::setReadoutIds(const HcalElectronicsId& eid) {
   electronicsId_=eid;
@@ -42,7 +41,7 @@ bool HFDataFrame::validate(int firstSample, int nSamples) const {
 }
 
 std::ostream& operator<<(std::ostream& s, const HFDataFrame& digi) {
-  s << digi.id() << " " << digi.size() << " samples " << std::endl;
+  s << digi.id() << " " << digi.size() << " samples  " << digi.presamples() << " presamples " << std::endl;
   for (int i=0; i<digi.size(); i++) 
     s << "  " << digi.sample(i) << std::endl;
   return s;
