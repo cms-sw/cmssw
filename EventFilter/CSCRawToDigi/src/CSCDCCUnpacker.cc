@@ -36,8 +36,11 @@
 
 
 CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset){
-
   //fill constructor here
+  dccData = 0;
+  produces<CSCWireDigiCollection>();
+  produces<CSCStripDigiCollection>();
+
 
 }
 
