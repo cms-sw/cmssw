@@ -155,7 +155,7 @@ ELoutput::ELoutput( std::ostream & os_ , bool emitAtStart )
   if (emitAtStart) {
     emit( "\n=======================================================",
 								true );
-    emit( "\MessageLogger service established\n" );
+    emit( "\nMessageLogger service established\n" );
     emit( formatTime(time(0)), true );
     emit( "\n=======================================================\n",
 								true );

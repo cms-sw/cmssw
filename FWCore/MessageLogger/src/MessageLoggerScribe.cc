@@ -75,22 +75,42 @@ void
   typedef std::vector<String>  vString;
   typedef ParameterSet         PSet;
 
-  vString      empty_vString;
-  PSet         empty_PSet;
-  std::string  empty_String;
+  vString  empty_vString;
+  PSet     empty_PSet;
+  String   empty_String;
+
+  // 
+  char * severity_array[] = {"WARNING", "INFO", "ERROR", "DEBUG"};
+  vString const severities(severity_array+0, severity_array+4);
 
   // no longer need default destination:
   early_dest.setThreshold(ELhighestSeverity);
 
-  vString  filenames
-     = p->getUntrackedParameter<vString>("files", empty_vString);
-  for( vString::const_iterator it = filenames.begin()
-     ; it != filenames.end()
+  // grab list of messageIDs:
+  vString  messageIDs
+     = p->getUntrackedParameter<vString>("messageIDs", empty_vString);
+
+  // grab default limit/timespan common to all destinations/messageIDs:
+  PSet default_pset
+     = p->getUntrackedParameter<PSet>("default", empty_PSet);
+  int default_limit
+    = default_pset.getUntrackedParameter<int>("limit", -1);
+  int default_timespan
+    = default_pset.getUntrackedParameter<int>("timespan", -1);
+
+  // grab list of destinations:
+  vString  destinations
+     = p->getUntrackedParameter<vString>("destinations", empty_vString);
+
+  // establish each destination:
+  for( vString::const_iterator it = destinations.begin()
+     ; it != destinations.end()
      ; ++it
      )
   {
+    // attach the current destination, keeping a control handle to it:
     ELdestControl dest_ctrl;
-    std::string filename = *it;
+    String filename = *it;
     if( filename == "cout" )  {
       dest_ctrl = admin_p->attach( ELoutput(std::cout) );
     }
@@ -105,52 +125,58 @@ void
     }
     //(*errorlog_p)( ELinfo, "added_dest") << filename << endmsg;
 
-    PSet pset = p->getUntrackedParameter<PSet>(filename,empty_PSet);
+    // grab all of this destination's parameters:
+    PSet dest_pset = p->getUntrackedParameter<PSet>(filename,empty_PSet);
 
-    // Threshold processing:
-    {
-      String severity_name
-        = pset.getUntrackedParameter<String>("setThreshold", empty_String);
-      ELseverityLevel lev = ELseverityLevel(severity_name);
-      if( lev != ELunspecified )
-        dest_ctrl.setThreshold(lev);
-    }
+    // grab this destination's default limit/timespan:
+    PSet dest_default_pset
+       = dest_pset.getUntrackedParameter<PSet>("default", empty_PSet);
+    int dest_default_limit
+      = dest_default_pset.getUntrackedParameter<int>("limit", default_limit);
+    int dest_default_timespan
+      = dest_default_pset.getUntrackedParameter<int>("timespan", default_timespan);
 
-    // Limit processing:
+    // establish this destination's limit/timespan for each messageID:
+    for( vString::const_iterator id_it = messageIDs.begin()
+       ; id_it != messageIDs.end()
+       ; ++id_it
+       )
     {
-      PSet limit_info
-        = pset.getUntrackedParameter<PSet>("setLimit", empty_PSet);
+      String msgID = *id_it;
+      PSet messageIDpset
+	 = dest_pset.getUntrackedParameter<PSet>(msgID, empty_PSet);
       int limit
-        = limit_info.getUntrackedParameter<int>("limit", -1);
-      if( limit >= 0 )  {
-        String severity_name
-          = limit_info.getUntrackedParameter<String>("severity", empty_String);
-        ELseverityLevel severity = ELseverityLevel(severity_name);
-        if( severity != ELunspecified )
-          dest_ctrl.setLimit(severity, limit);
-        String msgID
-          = limit_info.getUntrackedParameter<String>("messageID", "*");
-        dest_ctrl.setLimit(msgID, limit);
-       }
-     }
+	= messageIDpset.getUntrackedParameter<int>("limit", dest_default_limit);
+      int timespan
+	= messageIDpset.getUntrackedParameter<int>("timespan", dest_default_timespan);
+      if( limit    >= 0 )  dest_ctrl.setLimit(msgID, limit   );
+      if( timespan >= 0 )  dest_ctrl.setLimit(msgID, timespan);
+    }  // for
 
-    // Timespan processing:
+    // establish this destination's threshold:
+    String severity_name
+      = dest_pset.getUntrackedParameter<String>("threshold", empty_String);
+    ELseverityLevel lev = ELseverityLevel(severity_name);
+    if( lev != ELunspecified )
+      dest_ctrl.setThreshold(lev);
+
+    // establish this destination's limit for each severity:
+    for( vString::const_iterator sev_it = severities.begin()
+       ; sev_it != severities.end()
+       ; ++sev_it
+       )
     {
-      PSet timespan_info
-        = pset.getUntrackedParameter<PSet>("setTimespan", empty_PSet);
-      int seconds
-        = timespan_info.getUntrackedParameter<int>("seconds", -1);
-      if( seconds >= 0 )  {
-        String severity_name
-          = timespan_info.getUntrackedParameter<String>("severity", empty_String);
-        ELseverityLevel severity = ELseverityLevel(severity_name);
-        if( severity != ELunspecified )
-          dest_ctrl.setLimit(severity, seconds);
-        String msgID
-          = timespan_info.getUntrackedParameter<String>("messageID", "*");
-        dest_ctrl.setLimit(msgID, seconds);
-      }
-    }
+      String sevID = *sev_it;
+      ELseverityLevel severity(sevID);
+      PSet sev_pset
+	 = dest_pset.getUntrackedParameter<PSet>(sevID, empty_PSet);
+      int limit
+	= sev_pset.getUntrackedParameter<int>("limit", -1);
+      int timespan
+	= sev_pset.getUntrackedParameter<int>("timespan", -1);
+      if( limit    >= 0 )  dest_ctrl.setLimit(severity, limit   );
+      if( timespan >= 0 )  dest_ctrl.setLimit(severity, timespan);
+    }  // for
 
   }  // for
 
