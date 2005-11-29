@@ -1,7 +1,7 @@
 #ifndef TrackReco_Track_h
 #define TrackReco_Track_h
 //
-// $Id: Track.h,v 1.1 2005/11/22 13:51:44 llista Exp $
+// $Id: Track.h,v 1.3 2005/11/24 12:12:08 llista Exp $
 //
 // Definition of Track class for RECO
 //
@@ -25,9 +25,6 @@ namespace reco {
     Track( float chi2, unsigned short ndof, int found, int invalid, int lost,
 	   int q, const Point & v, const Vector & p, 
 	   const PosMomError & err );
-    unsigned short foundHits() const { return found_; }
-    unsigned short lostHits() const { return lost_; }
-    unsigned short invalidHits() const { return invalid_; }
     double chi2() const { return chi2_; }
     unsigned short ndof() const { return ndof_; }
     double normalizedChi2() const { return chi2_ / ndof_; }
@@ -42,8 +39,6 @@ namespace reco {
     double omega() const { return par_.omega(); }
     double dz() const { return par_.dz(); }
     double tanDip() const { return par_.tanDip(); }
-    typedef helix::Vector Vector;
-    typedef helix::Point Point;
     Vector momentum() const { return par_.momentum(); }
     Point vertex() const { return par_.vertex(); }
     PosMomError posMomError() const { return helix::posMomError( par_, cov_ ); }

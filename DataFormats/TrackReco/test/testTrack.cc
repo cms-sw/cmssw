@@ -24,8 +24,8 @@ void testTrack::checkAll() {
   CPPUNIT_ASSERT( t.chi2() == chi2 );
   CPPUNIT_ASSERT( t.ndof() == ndof );
   CPPUNIT_ASSERT( t.normalizedChi2() == chi2 / ndof );
-  CPPUNIT_ASSERT( t.foundHits() == found );
-  CPPUNIT_ASSERT( t.lostHits() == lost );
-  CPPUNIT_ASSERT( t.invalidHits() == invalid );
+  CPPUNIT_ASSERT( t.found() == found );
+  CPPUNIT_ASSERT( t.lost() == lost );
+  CPPUNIT_ASSERT( t.invalid() == invalid );
 }
 
