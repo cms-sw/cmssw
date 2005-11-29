@@ -2,7 +2,7 @@
 #define JetReco_CaloJet_h
 
 /** \class CaloJet
- * $Id: CaloJet.h,v 1.1 2005/11/28 14:45:33 llista Exp $
+ * $Id: CaloJet.h,v 1.2 2005/11/28 15:33:50 llista Exp $
  *
  * Ported from original version in JetObjects package
  *
@@ -21,6 +21,7 @@
 #include "TLorentzVector.h"
 #include "FWCore/EDProduct/interface/Ref.h"
 #include "FWCore/EDProduct/interface/RefVector.h"
+#include "FWCore/EDProduct/interface/SortedCollection.h"
 #include <vector>
 class CaloTower;
 
@@ -70,9 +71,9 @@ namespace reco {
     
     //These methods are specific to the CaloJet class
     
-    typedef CaloTower Constituent;
-    typedef edm::Ref<std::vector<Constituent> > ConstituentRef;
-    typedef edm::RefVector<std::vector<Constituent> > ConstituentRefs;
+    typedef edm::SortedCollection<CaloTower> ConstituentCollection; 
+    typedef edm::Ref<ConstituentCollection> ConstituentRef;
+    typedef edm::RefVector<ConstituentCollection> ConstituentRefs;
     typedef ConstituentRefs::iterator constituents_iterator;
 
     /** Returns/add the list of CaloTower IDs forming the Jet*/
