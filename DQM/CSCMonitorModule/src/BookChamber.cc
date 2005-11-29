@@ -18,47 +18,29 @@ map<string, MonitorElement*> CSCMonitor::book_chamber(int ChamberID) {
 
 	map<int, map<string,MonitorElement*> >::iterator me_itr = meCollection.find(ChamberID);
       	if (me_itr == meCollection.end() || (meCollection.size()==0)) {
-	  //if(debug_printout) {
-	    cout << "D**EmuFillChamber> #"
-		 << "> ch" << CrateID << ":" << DMBID << ">";
-	    cout << " List of Histos for chamber not found" << endl;
-	  //}
-	 // if(fill_histo) {
-	   // if(debug_printout) {
-	      cout << "D**EmuFillChamber> #"
+	    if(printout) {
+	      cout << "CSCMonitor::book_chamber> #"
 		   << "> ch" << CrateID << ":" << DMBID << ">";
 	      cout << " Creating of list of Histos for the chamber ..." << endl;
-	    //}
-	  //}
+	   
+	    }
+	    
 	} else { 
 	
-          cout<<"returning the existing collector "<<endl;
-	return meCollection[ChamberID];}
+         if(printout) cout<<"returning the existing collector "<<endl;
+	  return meCollection[ChamberID];
+	
+	}
 
 
-	string IDTextShort = Form("%.3d_%.2d_",CrateID,DMBID);
-	string IDTextLong = Form(" Crate ID = %d. DMB ID = %d",CrateID,DMBID);
-
-	string dir = Form("CSC_%.3d_%.2d",CrateID,DMBID);
-	string path_to_folder = "";
-
-	string LabelBinNumber[32], bit;
-		for(int i = 0; i<32; i++){
-			for(int j = 4; j >= 0; j--) {
-				bit = Form("%d",(i>>j)&0x1);
-				LabelBinNumber[i] = LabelBinNumber[i] + bit;
-			}
-		}
-
-	string meName, htitle;
+	string meName;
 	map<string, MonitorElement*> me;
 
+        string dir = Form("Data/Channel_%d",id);
 
-	stringstream stname, sttitle;
 
 //CSC
-	//if(debug_printout) 	cout << "D**EmuBookChamber> New CSC Canvases are booking ..." << endl;
-	//if(folders) 		path_to_folder = "";
+	if(printout) 	cout << "CSCMonitor::book_chamber> New CSC Canvases are booking ..." << endl;
 
 //KK additional information for each particular chamber
 
@@ -87,7 +69,7 @@ map<string, MonitorElement*> CSCMonitor::book_chamber(int ChamberID) {
 
 //DMBs
 //	if(debug_printout) 	cout << "D**EmuBookChamber> New DMB Canvases are booking ..." << endl;
-	//if(folders) 		path_to_folder = "DMB/";
+
         dbe->setCurrentFolder("DMB");
 
 
@@ -137,7 +119,6 @@ map<string, MonitorElement*> CSCMonitor::book_chamber(int ChamberID) {
 
 //ALCTs
 	//if(debug_printout) 	cout << "D**EmuBookChamber> New ALCT Canvases are booking ..." << endl;
-	//if(folders) 		path_to_folder = "ALCT/";
         dbe->setCurrentFolder("ALCT");
 
 
@@ -181,7 +162,6 @@ map<string, MonitorElement*> CSCMonitor::book_chamber(int ChamberID) {
 
 //TMB
 	//if(debug_printout) 	cout << "D**EmuBookChamber> New TMB Canvases are booking ..." << endl;
-	//if(folders) 		path_to_folder = "TMB/";
         dbe->setCurrentFolder("TMB");
 
 
@@ -202,7 +182,6 @@ map<string, MonitorElement*> CSCMonitor::book_chamber(int ChamberID) {
 
 //TMB - CLCTs
 	//if(debug_printout) 	cout << "D**EmuBookChamber> New TMB-CLCT Canvases are booking ..." << endl;
-	//if(folders) 		path_to_folder = "TMB/";
         //dbe->setCurrentFolder("TMB");
  
 		meName = Form("%dCLCT_Number_Of_Layers_With_Hits", ChamberID);
@@ -289,7 +268,6 @@ map<string, MonitorElement*> CSCMonitor::book_chamber(int ChamberID) {
 
 // CFEBs
 	//if(debug_printout) 	cout << "D**EmuBookChamber> New CFEB Canvases are booking ..." << endl;
-	//if(folders) 		path_to_folder = "CFEB/";
         dbe->setCurrentFolder("CFEB");
 
  
@@ -365,7 +343,6 @@ map<string, MonitorElement*> CSCMonitor::book_chamber(int ChamberID) {
 
 //SYNC
 	//if(debug_printout) 	cout << "D**EmuBookChamber> New SYNC Canvases are booking ..." << endl;
-	//if(folders) 		path_to_folder = "SYNC/";
         dbe->setCurrentFolder("SYNC");
 
 
@@ -453,7 +430,6 @@ map<string, MonitorElement*> CSCMonitor::book_chamber(int ChamberID) {
 		me[meName] = dbe->book2D(meName.c_str(), Form("LCT Phase vs L1A Phase. CFEB%d", nCFEB), 2, 0, 2, 2, 0, 2);
 	}
 
-// 	fListModified = true;
 	return me;
 }
 
