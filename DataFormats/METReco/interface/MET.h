@@ -12,8 +12,11 @@ namespace reco {
     double mEy() const { return mEy_; }
     double mEt() const { return sqrt( mEx_ * mEx_ + mEy_ * mEy_ ); }
     double phi() const { return atan2( mEy_, mEx_ ); }
+    double uncorrectedMEx() const { return uncorrectedMEx_; }
+    double uncorrectedMEy() const { return uncorrectedMEy_; }
   private:
     Double32_t mEx_, mEy_;
+    Double32_t uncorrectedMEx_, uncorrectedMEy_;
   };
 
 }
