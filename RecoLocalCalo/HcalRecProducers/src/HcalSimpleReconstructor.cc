@@ -14,16 +14,6 @@ using namespace std;
 
 #include <iostream>
 
-    class HRSHappySelector : public edm::Selector {
-    public:
-      HRSHappySelector() { }
-    private:
-      virtual bool doMatch(const edm::Provenance& p) const {
-	//      cout << p << endl;
-	return true;
-      }
-    };
-    
     
     HcalSimpleReconstructor::HcalSimpleReconstructor(edm::ParameterSet const& conf):
       reco_(conf.getParameter<int>("firstSample"),conf.getParameter<int>("samplesToAdd"))
@@ -58,8 +48,7 @@ using namespace std;
       if (subdet_==HcalBarrel || subdet_==HcalEndcap) {
 	edm::Handle<HBHEDigiCollection> digi;
 	// selector?
-	HRSHappySelector s;
-	e.get(s, digi);
+	e.getByType(digi);
 	
 	// create empty output
 	std::auto_ptr<HBHERecHitCollection> rec(new HBHERecHitCollection);
@@ -77,8 +66,7 @@ using namespace std;
       } else if (subdet_==HcalOuter) {
 	edm::Handle<HODigiCollection> digi;
 	// selector?
-	HRSHappySelector s;
-	e.get(s, digi);
+	e.getByType(digi);
 	
 	// create empty output
 	std::auto_ptr<HORecHitCollection> rec(new HORecHitCollection);
@@ -96,16 +84,14 @@ using namespace std;
       } else if (subdet_==HcalForward) {
 	edm::Handle<HFDigiCollection> digi;
 	// selector?
-	HRSHappySelector s;
-	e.get(s, digi);
+	e.getByType(digi);
 	
 	// create empty output
 	std::auto_ptr<HFRecHitCollection> rec(new HFRecHitCollection);
 	// run the algorithm
 	HFDigiCollection::const_iterator i;
 	for (i=digi->begin(); i!=digi->end(); i++) {
-	  HcalDetId cell = i->id();
-	  std::cout << "HcalSimpleReconstructor::produce-> HF ID: " << cell << std::endl;
+	  HcalDetId cell = i->id();	  
 	  std::auto_ptr<HcalCalibrations> calibrations = conditions->getHcalCalibrations (cell);
 	  std::auto_ptr<HcalChannelCoder> channelCoder = conditions->getChannelCoder (cell);
 	  HcalCoderDb coder (*channelCoder, *qieShape);
