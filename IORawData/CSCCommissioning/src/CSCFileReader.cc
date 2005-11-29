@@ -3,8 +3,6 @@
 #include <errno.h>
 #include <string>
 
-#include <IORawData/DTCommissioning/src/DTROS8FileReader.h>
-
 #include <DataFormats/FEDRawData/interface/FEDHeader.h>
 #include <DataFormats/FEDRawData/interface/FEDTrailer.h>
 #include <DataFormats/FEDRawData/interface/FEDNumbering.h>
