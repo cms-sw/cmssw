@@ -7,9 +7,9 @@
  */
 
 #include "CondCore/PluginSystem/interface/registration_macros.h"
-#include "CondFormats/TrackerMapping/interface/SiStripReadOutCabling.h"
-#include "CondFormats/TrackerMapping/interface/SiStripControlCabling.h"
-#include "CondFormats/DataRecord/interface/SiStripReadOutCablingRcd.h"
+#include "CondFormats/SiStripObjects/interface/SiStripReadoutCabling.h"
+#include "CondFormats/SiStripObjects/interface/SiStripControlCabling.h"
+#include "CondFormats/DataRecord/interface/SiStripReadoutCablingRcd.h"
 #include "CondFormats/DataRecord/interface/SiStripControlCablingRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
 #include "CondFormats/DataRecord/interface/SiStripPedestalsRcd.h"
