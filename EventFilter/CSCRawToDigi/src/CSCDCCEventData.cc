@@ -71,6 +71,7 @@ void CSCDCCEventData::unpack_data(unsigned short *buf) {
       for (int i=0;i<20;i++) {
 	printf("%04x %04x %04x %04x\n",buf[i+3],buf[i+2],buf[i+1],buf[i]);
       }
+      break;
     }
     
   }
