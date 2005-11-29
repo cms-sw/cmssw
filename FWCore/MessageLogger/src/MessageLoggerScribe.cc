@@ -42,7 +42,7 @@ void
     switch(opcode)  {
       default:  {
         assert(false);
-	break;
+        break;
       }
       case MessageLoggerQ::END_THREAD:  {
         assert( operand == 0 );
@@ -51,7 +51,7 @@ void
       }
       case MessageLoggerQ::LOG_A_MESSAGE:  {
         ErrorObj *  errorobj_p = static_cast<ErrorObj *>(operand);
-	//std::cout << "MessageLoggerQ::LOG_A_MESSAGE " << errorobj_p << '\n';
+        //std::cout << "MessageLoggerQ::LOG_A_MESSAGE " << errorobj_p << '\n';
         (*errorlog_p)( *errorobj_p );  // route the message text
         delete errorobj_p;  // dispose of the message text
         break;
@@ -79,7 +79,6 @@ void
   PSet     empty_PSet;
   String   empty_String;
 
-  // 
   char * severity_array[] = {"WARNING", "INFO", "ERROR", "DEBUG"};
   vString const severities(severity_array+0, severity_array+4);
 
@@ -179,14 +178,5 @@ void
     }  // for
 
   }  // for
-
-
-  //////////////////////////////////////////////////////////////////////
-  // for temporary reference:
-  //   ELdestControl                early_dest;
-  //   ELadministrator           *  admin_p;
-  //   ErrorLog                  *  errorlog_p;
-  //   std::vector<std::ofstream *> file_ps;
-  //////////////////////////////////////////////////////////////////////
 
 }  // MessageLoggerScribe::configure()

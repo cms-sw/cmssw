@@ -2,13 +2,13 @@
 //
 // ELtsErrorLog.cc
 //
-// Created 5/31/01 mf	Base implementations for all the templates in 
-//			ThreadSafeErrorLog<Mutex>
+// Created 5/31/01 mf   Base implementations for all the templates in
+//                      ThreadSafeErrorLog<Mutex>
 //
-// 11/15/01 mf  static_cast to unsigned int and long in comparisons in 
-//		operator<<( ErrorLog & e, unsigned int n) and long, and
-//		also rwriting 0xFFFFFFFF as 0xFFFFFFFFL when comparing to a
-//		long.  THese cure warnings when -Wall -pedantic are turned on.
+// 11/15/01 mf  static_cast to unsigned int and long in comparisons in
+//              operator<<( ErrorLog & e, unsigned int n) and long, and
+//              also rwriting 0xFFFFFFFF as 0xFFFFFFFFL when comparing to a
+//              long.  THese cure warnings when -Wall -pedantic are turned on.
 // 3/06/01 mf   getELdestControl() which forwards to *a
 //
 // ----------------------------------------------------------------------
@@ -31,7 +31,8 @@
   #include <string>
 #endif
 
-namespace edm {       
+namespace edm
+{
 
 
 // ----------------------------------------------------------------------
@@ -48,7 +49,7 @@ ELtsErrorLog::ELtsErrorLog()
   #ifdef ErrorLogCONSTRUCTOR_TRACE
     std::cout << "Constructor for ThreadSafeErrorLog\n";
   #endif
-}  
+}
 
 ELtsErrorLog::ELtsErrorLog( const ELstring & pkgName )
 : a( ELadministrator::instance() )
@@ -58,10 +59,10 @@ ELtsErrorLog::ELtsErrorLog( const ELstring & pkgName )
 , msg(ELunspecified, "...")
 {
   #ifdef ErrorLogCONSTRUCTOR_TRACE
-    std::cout << "Constructor for ThreadSafeErrorLog (with pkgName = " 
-							<< pkgName << ")\n";
+    std::cout << "Constructor for ThreadSafeErrorLog (with pkgName = "
+                                                        << pkgName << ")\n";
   #endif
-}  
+}
 
 ELtsErrorLog::ELtsErrorLog( const ErrorLog & ee )
 : a( ELadministrator::instance() )
@@ -73,7 +74,7 @@ ELtsErrorLog::ELtsErrorLog( const ErrorLog & ee )
   #ifdef ErrorLogCONSTRUCTOR_TRACE
     std::cout << "Constructor for ThreadSafeErrorLog from ErrorLog\n";
   #endif
-}  
+}
 
 ELtsErrorLog::ELtsErrorLog( const ELtsErrorLog & ee)
 : a( ELadministrator::instance() )
@@ -85,17 +86,17 @@ ELtsErrorLog::ELtsErrorLog( const ELtsErrorLog & ee)
   #ifdef ErrorLogCONSTRUCTOR_TRACE
     std::cout << "Copy constructor for ThreadSafeErrorLog \n";
   #endif
-}  
+}
 
 ELtsErrorLog::~ELtsErrorLog()
 {
   #ifdef ErrorLogCONSTRUCTOR_TRACE
     std::cout << "Destructor for ThreadSafeErrorLog\n";
   #endif
-}  
+}
 
 // ----------------------------------------------------------------------
-// Setup for preamble parts 
+// Setup for preamble parts
 // ----------------------------------------------------------------------
 
 void ELtsErrorLog::setSubroutine( const ELstring & subName )  {
@@ -176,13 +177,13 @@ void ELtsErrorLog::initiateMsg(const ELseverityLevel& sev, const ELstring& id)
 
 // ----------------------------------------------------------------------
 // Message Continuation:
-//   item() method used by emit(string) 
+//   item() method used by emit(string)
 // ----------------------------------------------------------------------
 
 
 void ELtsErrorLog::item ( const ELstring & s ) {
   if ( ! msgIsActive )
-    initiateMsg ( ELunspecified, "..." );  
+    initiateMsg ( ELunspecified, "..." );
   msg.emit( s );
 }  // emit()
 
@@ -200,21 +201,21 @@ void ELtsErrorLog::item ( int n ) {
     ost << "[0x"
         << std::hex << std::setw(8) << std::setfill('0')
         << n << "] ";
-  } 
-  msg.emit ( ost.str() ); 
+  }
+  msg.emit ( ost.str() );
 }
 
 void ELtsErrorLog::item ( unsigned int n )  {
   if (e.discarding) return;
   std::ostringstream  ost;
   ost << n << ' ';
-  if ( (e.hexTrigger >= 0) && 
+  if ( (e.hexTrigger >= 0) &&
        (n >= static_cast<unsigned int>(e.hexTrigger)) ) {
     ost << "[0x"
         << std::hex << std::setw(8) << std::setfill('0')
         << n << "] ";
-  } 
-  msg.emit ( ost.str() ); 
+  }
+  msg.emit ( ost.str() );
 }
 
 void ELtsErrorLog::item ( long n )  {
@@ -229,14 +230,14 @@ void ELtsErrorLog::item ( long n )  {
         << std::hex << std::setw(width) << std::setfill('0')
         << n << "] ";
   }
-  msg.emit ( ost.str() ); 
+  msg.emit ( ost.str() );
 }
 
 void ELtsErrorLog::item ( unsigned long n )  {
   if (e.discarding) return;
   std::ostringstream  ost;
   ost << n << ' ';
-  if ( (e.hexTrigger >= 0) && 
+  if ( (e.hexTrigger >= 0) &&
        (n >= static_cast<unsigned long>(e.hexTrigger)) ) {
     int width = 8;
     if ( n > 0xFFFFFFFFL ) width = 16;
@@ -244,7 +245,7 @@ void ELtsErrorLog::item ( unsigned long n )  {
         << std::hex << std::setw(width) << std::setfill('0')
         << n << "] ";
   }
-  msg.emit ( ost.str() ); 
+  msg.emit ( ost.str() );
 }
 
 void ELtsErrorLog::item ( short n )  {
@@ -257,7 +258,7 @@ void ELtsErrorLog::item ( short n )  {
         << std::hex << std::setw(4) << std::setfill('0')
         << n << "] ";
   }
-  msg.emit ( ost.str() ); 
+  msg.emit ( ost.str() );
 }
 
 void ELtsErrorLog::item ( unsigned short n )  {
@@ -269,7 +270,7 @@ void ELtsErrorLog::item ( unsigned short n )  {
         << std::hex << std::setw(4) << std::setfill('0')
         << n << "] ";
   }
-  msg.emit ( ost.str() ); 
+  msg.emit ( ost.str() );
 }
 
 // ----------------------------------------------------------------------
@@ -297,8 +298,8 @@ bool ELtsErrorLog::pokeMsg ( ErrorObj & msg )  {
 void ELtsErrorLog::dispatch ( ErrorObj & msg )  {
 
   // NOTE -- this is never called except in cases where a <Mutex> LOCK
-  //  	     is in scope.  That is, this code should be treated as a 
-  // 	     critical section.
+  //         is in scope.  That is, this code should be treated as a
+  //         critical section.
 
   // severity level statistics keeping:
   int lev = msg.xid().severity.getLevel();
@@ -311,7 +312,7 @@ void ELtsErrorLog::dispatch ( ErrorObj & msg )  {
 
   // -----  send the message to each destination:
   //
-  if (a->sinks().begin() == a->sinks().end())  { 
+  if (a->sinks().begin() == a->sinks().end())  {
     std::cerr << "\nERROR LOGGED WITHOUT DESTINATION!\n";
     std::cerr << "Attaching destination \"cerr\" to ELadministrator by default\n"
               << std::endl;
@@ -322,13 +323,13 @@ void ELtsErrorLog::dispatch ( ErrorObj & msg )  {
     if (  (*d)->log( msg )  )
       msg.setReactedTo (true );
 
-  
+
   if ( msg.xid().severity.getLevel() >= a->abortThreshold().getLevel()
-                       && 
-	a->abortThreshold() != ELhighestSeverity) {
+                       &&
+        a->abortThreshold() != ELhighestSeverity) {
     abort();
   }
 
-}  
+}
 
 } // end of namespace edm  */

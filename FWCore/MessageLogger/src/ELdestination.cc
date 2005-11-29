@@ -4,21 +4,21 @@
 //
 // History:
 //
-// 7/5/98 	mf	Created
+// 7/5/98       mf      Created
 // 6/16/99      jvr     Allow suppress/include options on destinations
 // 7/2/99       jvr     Added separate/attachTime, Epilogue, and Serial
-//			options
-// 6/7/00	web	Consolidate ELdestination/X; add filterModule()
-// 8/22/00	web	Fix omitted .getSymbol() call
-// 10/4/00	mf	excludeModule()
-// 1/15/01 	mf   	setLineLength()
-// 2/13/01	mf	fix written by pc to accomodate NT problem with 
-//			static init { $001$ }.  Corresponding fix is in 
-//			.h file.
-// 3/13/01	mf	statisticsMap()
-// 4/05/01	mf	multi-module filtering
-// 4/12/01	mf	repair multi-module filtering
-// 6/23/03 	mf  	changeFile(), flush() 
+//                      options
+// 6/7/00       web     Consolidate ELdestination/X; add filterModule()
+// 8/22/00      web     Fix omitted .getSymbol() call
+// 10/4/00      mf      excludeModule()
+// 1/15/01      mf      setLineLength()
+// 2/13/01      mf      fix written by pc to accomodate NT problem with
+//                      static init { $001$ }.  Corresponding fix is in
+//                      .h file.
+// 3/13/01      mf      statisticsMap()
+// 4/05/01      mf      multi-module filtering
+// 4/12/01      mf      repair multi-module filtering
+// 6/23/03      mf      changeFile(), flush()
 //
 // ----------------------------------------------------------------------
 
@@ -39,9 +39,10 @@
 // #define ELdestinationCONSTRUCTOR_TRACE
 
 
-namespace edm {       
+namespace edm
+{
 
-					 // Fix $001 2/13/01 mf
+                                         // Fix $001 2/13/01 mf
 #ifdef DEFECT_NO_STATIC_CONST_INIT
   const int ELdestination::defaultLineLength = 80;
 #endif
@@ -115,7 +116,7 @@ void ELdestination::wipe()  { limits.wipe(); }
 
 void ELdestination::zero()  { limits.zero(); }
 
-void ELdestination::respondToModule( ELstring const & moduleName )  { 
+void ELdestination::respondToModule( ELstring const & moduleName )  {
   if (moduleName=="*") {
     ignoreMostModules = false;
     respondToMostModules = true;
@@ -127,7 +128,7 @@ void ELdestination::respondToModule( ELstring const & moduleName )  {
   }
 }
 
-void ELdestination::ignoreModule( ELstring const & moduleName )  { 
+void ELdestination::ignoreModule( ELstring const & moduleName )  {
   if (moduleName=="*") {
     respondToMostModules = false;
     ignoreMostModules = true;
@@ -139,14 +140,14 @@ void ELdestination::ignoreModule( ELstring const & moduleName )  {
   }
 }
 
-void ELdestination::filterModule( ELstring const & moduleName )  { 
-  ignoreModule("*"); 
-  respondToModule(moduleName); 
+void ELdestination::filterModule( ELstring const & moduleName )  {
+  ignoreModule("*");
+  respondToModule(moduleName);
 }
 
-void ELdestination::excludeModule( ELstring const & moduleName )  { 
-  respondToModule("*"); 
-  ignoreModule(moduleName); 
+void ELdestination::excludeModule( ELstring const & moduleName )  {
+  respondToModule("*");
+  ignoreModule(moduleName);
 }
 
 void ELdestination::summary( ELdestControl & dest, const ELstring & title )  {
@@ -246,7 +247,7 @@ void ELdestination::noTerminationSummary()  { ; }
 
 ELstring ELdestination::getNewline() const  { return newline; }
 
-int ELdestination::setLineLength (int len) { 
+int ELdestination::setLineLength (int len) {
   int temp=lineLength;
   lineLength = len;
   return temp;

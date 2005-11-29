@@ -8,7 +8,7 @@
 //
 // Original Author:  W. Brown, M. Fischler
 //         Created:  Fri Nov 11 16:42:39 CST 2005
-// $Id: MessageLogger.cc,v 1.3 2005/11/18 21:59:07 fischler Exp $
+// $Id: MessageLogger.cc,v 1.4 2005/11/22 22:07:08 fischler Exp $
 //
 
 // system include files
@@ -22,7 +22,9 @@
 #include "FWCore/EDProduct/interface/EventID.h"
 #include "FWCore/EDProduct/interface/Timestamp.h"
 
+
 using namespace edm::service;
+
 
 //
 // constants, enums and typedefs

@@ -5,15 +5,15 @@
 // History:
 //
 // Created 7/8/98 mf
-// 6/16/99  mf, jvr	ErrorObj::operator<<( void (* f)(ErrorLog &) )
-//			allows an "ErrorObj << endmsg;"
-// 7/16/99  jvr		Added setSeverity() and setID functions
-// 6/7/00   web		Forbid setting extreme severities; guard against
-//			too-long ID's
-// 9/21/00  mf		Added copy constructor for use by ELerrorList
-// 5/7/01   mf   	operator<< (const char[]) 
-// 6/5/01   mf		setReactedTo
-// 11/01/01 web		maxIDlength now unsigned
+// 6/16/99  mf, jvr     ErrorObj::operator<<( void (* f)(ErrorLog &) )
+//                      allows an "ErrorObj << endmsg;"
+// 7/16/99  jvr         Added setSeverity() and setID functions
+// 6/7/00   web         Forbid setting extreme severities; guard against
+//                      too-long ID's
+// 9/21/00  mf          Added copy constructor for use by ELerrorList
+// 5/7/01   mf          operator<< (const char[])
+// 6/5/01   mf          setReactedTo
+// 11/01/01 web         maxIDlength now unsigned
 //
 // ErrorObj( const ELseverityLevel & sev, const ELstring & id )
 // ~ErrorObj()
@@ -49,7 +49,8 @@
 // ----------------------------------------------------------------------
 
 
-namespace edm {       
+namespace edm
+{
 
 
 // ----------------------------------------------------------------------
@@ -77,12 +78,12 @@ ErrorObj::ErrorObj( const ELseverityLevel & sev, const ELstring & id )  {
 
 
 ErrorObj::ErrorObj( const ErrorObj & orig )  :
-	mySerial	( orig.mySerial ),
-	myXid		( orig.myXid ),
-	myIdOverflow	( orig.myIdOverflow ),
-	myTimestamp	( orig.myTimestamp ),
-	myItems		( orig.myItems ),
-	myReactedTo	( orig.myReactedTo )
+        mySerial        ( orig.mySerial ),
+        myXid           ( orig.myXid ),
+        myIdOverflow    ( orig.myIdOverflow ),
+        myTimestamp     ( orig.myTimestamp ),
+        myItems         ( orig.myItems ),
+        myReactedTo     ( orig.myReactedTo )
 {
 
   #ifdef ErrorObjCONSTRUCTOR_TRACE
@@ -117,8 +118,8 @@ ELstring ErrorObj::fullText() const  {
 
   ELstring result;
   for ( ELlist_string::const_iterator it = myItems.begin();
-	it != myItems.end();
-	++it )
+        it != myItems.end();
+        ++it )
     result +=  *it;
   return result;
 
@@ -131,9 +132,9 @@ ELstring ErrorObj::fullText() const  {
 
 void ErrorObj::setSeverity( const ELseverityLevel & sev )  {
   myXid.severity = (sev <= ELzeroSeverity   ) ? (ELseverityLevel)ELincidental
-		 : (sev >= ELhighestSeverity) ? (ELseverityLevel)ELfatal
-		 :                              sev
-		 ;
+                 : (sev >= ELhighestSeverity) ? (ELseverityLevel)ELfatal
+                 :                              sev
+                 ;
 }
 
 
@@ -152,7 +153,7 @@ void ErrorObj::setSubroutine( const ELstring & subroutine )  {
     std::cerr << "=:=:=: ErrorObj::setSubroutine(" << subroutine << ")\n";
   #endif
   myXid.subroutine = (subroutine[0] == ' ')
-		   ? subroutine.substr(1)
+                   ? subroutine.substr(1)
                    : subroutine;
 }
 
@@ -190,7 +191,7 @@ ErrorObj & ErrorObj::emit( const ELstring & s )  {
   if ( eq_nocase(s.substr(0,5), "@SUB=" ) )  {
     #ifdef ErrorObj_SUB_TRACE
       std::cerr << "=:=:=: ErrorObj::@SUB s.substr(5) is: " << s.substr(5)
-		<< '\n';
+                << '\n';
     #endif
     setSubroutine(s.substr(5));
   }

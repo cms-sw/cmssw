@@ -4,21 +4,21 @@
 //
 // History:
 //
-// 7/5/98 mf	Created
-// 6/16/99 jvr	Allow include/suppress options on destinations
-// 7/2/99 jvr	Added separate/attachTime, Epilogue, and Serial options
-// 7/2/99 jvr	Added separate/attachTime, Epilogue, and Serial options
-// 6/7/00 web	Reflect consolidation of ELdestination/X; add
-//		filterModule()
-// 6/15/00 web	using -> USING
+// 7/5/98 mf    Created
+// 6/16/99 jvr  Allow include/suppress options on destinations
+// 7/2/99 jvr   Added separate/attachTime, Epilogue, and Serial options
+// 7/2/99 jvr   Added separate/attachTime, Epilogue, and Serial options
+// 6/7/00 web   Reflect consolidation of ELdestination/X; add
+//              filterModule()
+// 6/15/00 web  using -> USING
 // 10/4/00 mf   excludeModule()
 // 3/13/01 mf   statisticsMap()
-// 4/04/01 mf   ignoreModule() and respondToModule(); 
+// 4/04/01 mf   ignoreModule() and respondToModule();
 //10/17/01 mf   setTableLimit()
-// 3/03/02 mf   conditionalize all forwarding on if (d) so that using a 
-//		default ELdestControl has no effect on anything.  Needed for
-//		good behavior for handle recovery.
-//  6/23/03 mf  changeFile(), flush() 
+// 3/03/02 mf   conditionalize all forwarding on if (d) so that using a
+//              default ELdestControl has no effect on anything.  Needed for
+//              good behavior for handle recovery.
+//  6/23/03 mf  changeFile(), flush()
 // ----------------------------------------------------------------------
 
 
@@ -32,7 +32,8 @@ using std::cerr;
 // #define ELdestinationCONSTRUCTOR_TRACE
 
 
-namespace edm {       
+namespace edm
+{
 
 
 // ----------------------------------------------------------------------
@@ -255,15 +256,15 @@ std::map<ELextendedID , StatsCount> ELdestControl::statisticsMap() const {
 
 void ELdestControl::changeFile (std::ostream & os) {
   if (d) d->changeFile(os);
-}    
+}
 
 void ELdestControl::changeFile (const ELstring & filename) {
   if (d) d->changeFile(filename);
-}    
+}
 
 void ELdestControl::flush () {
   if (d) d->flush();
-}    
+}
 
 // ----------------------------------------------------------------------
 // Maintenance and Test Functionality

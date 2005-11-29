@@ -3,38 +3,38 @@
 // ELoutput.cc
 //
 //
-// 7/8/98 	mf	Created
+// 7/8/98       mf      Created
 // 6/10/99      jv      JV:1 puts a \n after each log using suppressContext()
 // 6/11/99      jv      JV:2 accounts for newline at the beginning and end of
 //                           an emitted ELstring
-// 6/14/99	mf	Made the static char* in formatTime into auto so that
-//			ctime(&t) is called each time - corrects the bug of
-//			never changing the first timestamp.
-// 6/15/99	mf	Inserted operator<<(void (*f)(ErrorLog&) to avoid
-//			mystery characters being inserted when users <<
-//			endmsg to an ErrorObj.
+// 6/14/99      mf      Made the static char* in formatTime into auto so that
+//                      ctime(&t) is called each time - corrects the bug of
+//                      never changing the first timestamp.
+// 6/15/99      mf      Inserted operator<<(void (*f)(ErrorLog&) to avoid
+//                      mystery characters being inserted when users <<
+//                      endmsg to an ErrorObj.
 // 7/2/99       jv      Added separate/attachTime, Epilogue, and Serial options
 // 8/2/99       jv      Modified handling of newline in an emmitted ELstring
-// 2/22/00	mf	Changed usage of myDestX to myOutputX.  Added
-//			constructor of ELoutput from ELoutputX * to allow for
-//			inheritance.
-// 6/7/00	web	Reflect consolidation of ELdestination/X; consolidate
-//			ELoutput/X; add filterModule() and query logic
-// 10/4/00	mf	excludeModule()
-// 1/15/01 	mf      line length control: changed ELoutputLineLen to
-//			the base class lineLen (no longer static const)
-// 2/13/01	mf	Added emitAtStart argument to two constructors
-//			{ Enh 001 }.
-// 4/4/01	mf	Simplify filter/exclude logic by useing base class
-//			method thisShouldBeIgnored().  Eliminate
-//			moduleOfinterest and moduleToexclude.
-// 6/15/01	mf	Repaired Bug 005 by explicitly setting all
-//			ELdestination member data appropriately.
-//10/18/01	mf	When epilogue not on separate line, preceed by space
-// 6/23/03 	mf  	changeFile(), flush() 
-// 4/09/04 	mf  	Add 1 to length in strftime call in formatTime, to
-//			correctly provide the time zone.  Had been providing
-//			CST every time. 
+// 2/22/00      mf      Changed usage of myDestX to myOutputX.  Added
+//                      constructor of ELoutput from ELoutputX * to allow for
+//                      inheritance.
+// 6/7/00       web     Reflect consolidation of ELdestination/X; consolidate
+//                      ELoutput/X; add filterModule() and query logic
+// 10/4/00      mf      excludeModule()
+// 1/15/01      mf      line length control: changed ELoutputLineLen to
+//                      the base class lineLen (no longer static const)
+// 2/13/01      mf      Added emitAtStart argument to two constructors
+//                      { Enh 001 }.
+// 4/4/01       mf      Simplify filter/exclude logic by useing base class
+//                      method thisShouldBeIgnored().  Eliminate
+//                      moduleOfinterest and moduleToexclude.
+// 6/15/01      mf      Repaired Bug 005 by explicitly setting all
+//                      ELdestination member data appropriately.
+//10/18/01      mf      When epilogue not on separate line, preceed by space
+// 6/23/03      mf      changeFile(), flush()
+// 4/09/04      mf      Add 1 to length in strftime call in formatTime, to
+//                      correctly provide the time zone.  Had been providing
+//                      CST every time.
 //
 // ----------------------------------------------------------------------
 
@@ -65,7 +65,8 @@
 #include <iostream>
 #include <fstream>
 
-namespace edm {       
+namespace edm
+{
 
 // ----------------------------------------------------------------------
 // Useful function:
@@ -78,7 +79,7 @@ static char ts[] = "dd-Mon-yyyy hh:mm:ss XYZ";
 
 
 #ifdef ANALTERNATIVE
-  char * c  = ctime( &t );			// 6/14/99 mf Can't be static!
+  char * c  = ctime( &t );                      // 6/14/99 mf Can't be static!
   strncpy( ts+ 0, c+ 8, 2 );  // dd
   strncpy( ts+ 3, c+ 4, 3 );  // Mon
   strncpy( ts+ 7, c+20, 4 );  // yyyy
@@ -87,7 +88,7 @@ static char ts[] = "dd-Mon-yyyy hh:mm:ss XYZ";
 #endif
 
   strftime( ts, strlen(ts)+1, "%d-%b-%Y %H:%M:%S %Z", localtime(&t) );
-  		// mf 4-9-04
+                // mf 4-9-04
 
 
   return ts;
@@ -151,14 +152,14 @@ ELoutput::ELoutput( std::ostream & os_ , bool emitAtStart )
     std::cerr << "Constructor for ELoutput( os )\n";
   #endif
 
-					// Enh 001 2/13/01 mf
+                                        // Enh 001 2/13/01 mf
   if (emitAtStart) {
     emit( "\n=======================================================",
-								true );
+                                                                true );
     emit( "\nMessageLogger service established\n" );
     emit( formatTime(time(0)), true );
     emit( "\n=======================================================\n",
-								true );
+                                                                true );
   }
 
 }  // ELoutput()
@@ -167,8 +168,8 @@ ELoutput::ELoutput( std::ostream & os_ , bool emitAtStart )
 ELoutput::ELoutput( const ELstring & fileName, bool emitAtStart )
 : ELdestination       (       )
 , os                  ( new std::ofstream( fileName.c_str()
-					 , std::ios/*_base*/::app
-					 )
+                                         , std::ios/*_base*/::app
+                                         )
                       )
 , osIsOwned           ( false )
 , charsOnLine         ( 0     )
@@ -197,10 +198,10 @@ ELoutput::ELoutput( const ELstring & fileName, bool emitAtStart )
     #ifdef ELoutputCONSTRUCTOR_TRACE
       std::cerr << "          About to do first emit\n";
     #endif
-					// Enh 001 2/13/01 mf
+                                        // Enh 001 2/13/01 mf
     if (emitAtStart) {
       emit( "\n=======================================================",
-								true );
+                                                                true );
       emit( "\nError Log File " );
       emit( fileName );
       emit( " \n" );
@@ -217,7 +218,7 @@ ELoutput::ELoutput( const ELstring & fileName, bool emitAtStart )
     #endif
     if (emitAtStart) {
       emit( "\n=======================================================",
-								true );
+                                                                true );
       emit( "\n%MSG** Logging to cerr is being substituted" );
       emit( " for specified log file \"" );
       emit( fileName  );
@@ -227,7 +228,7 @@ ELoutput::ELoutput( const ELstring & fileName, bool emitAtStart )
   if (emitAtStart) {
     emit( formatTime(time(0)), true );
     emit( "\n=======================================================\n",
-								true );
+                                                                true );
   }
 
   #ifdef ELoutputCONSTRUCTOR_TRACE
@@ -260,18 +261,18 @@ ELoutput::ELoutput( const ELoutput & orig )
   #endif
 
   // mf 6/15/01 fix of Bug 005
-  threshold		= orig.threshold;
-  traceThreshold	= orig.traceThreshold;
-  limits		= orig.limits;
-  preamble		= orig.preamble;
-  newline		= orig.newline;
-  indent		= orig.indent;
-  lineLength		= orig.lineLength;
+  threshold             = orig.threshold;
+  traceThreshold        = orig.traceThreshold;
+  limits                = orig.limits;
+  preamble              = orig.preamble;
+  newline               = orig.newline;
+  indent                = orig.indent;
+  lineLength            = orig.lineLength;
 
-  ignoreMostModules	= orig.ignoreMostModules;
-  respondToThese  	= orig.respondToThese;
-  respondToMostModules 	= orig.respondToMostModules;
-  ignoreThese          	= orig.ignoreThese;
+  ignoreMostModules     = orig.ignoreMostModules;
+  respondToThese        = orig.respondToThese;
+  respondToMostModules  = orig.respondToMostModules;
+  ignoreThese           = orig.ignoreThese;
 
   // ownership, if any, passes to new copy:
   const_cast<ELoutput &>(orig).osIsOwned = false;
@@ -311,7 +312,7 @@ bool ELoutput::log( const ErrorObj & msg )  {
     std::cerr << "    =:=:=: Log to an ELoutput \n";
   #endif
 
-  xid = msg.xid();	// Save the xid.
+  xid = msg.xid();      // Save the xid.
 
   // See if this message is to be acted upon, and add it to limits table
   // if it was not already present:
@@ -403,11 +404,11 @@ bool ELoutput::log( const ErrorObj & msg )  {
     if (needAspace) { emit(ELstring(" ")); needAspace = false; }
     #ifdef ELoutputTRACE_LOG
       std::cerr << "    =:=:=:>> context supplier is at 0x"
-		<< std::hex
-		<< &ELadministrator::instance()->getContextSupplier() << '\n';
+                << std::hex
+                << &ELadministrator::instance()->getContextSupplier() << '\n';
       std::cerr << "    =:=:=:>> context is --- "
-		<< ELadministrator::instance()->getContextSupplier().context()
-		<< '\n';
+                << ELadministrator::instance()->getContextSupplier().context()
+                << '\n';
     #endif
     if ( wantFullContext )  {
       emit( ELadministrator::instance()->getContextSupplier().fullContext());
@@ -425,8 +426,8 @@ bool ELoutput::log( const ErrorObj & msg )  {
   //
   if ( msg.xid().severity >= traceThreshold )  {
     emit( ELstring("\n")
-	  + ELadministrator::instance()->getContextSupplier().traceRoutine()
-	, true );
+          + ELadministrator::instance()->getContextSupplier().traceRoutine()
+        , true );
   }
   else  {                                        //else statement added JV:1
     emit ("", true);
@@ -634,7 +635,7 @@ void ELoutput::changeFile (const ELstring & filename) {
   emit( "\n=======================================================\n", true );
 }
 
-void ELoutput::flush()  {				     
+void ELoutput::flush()  {
   os->flush();
 }
 

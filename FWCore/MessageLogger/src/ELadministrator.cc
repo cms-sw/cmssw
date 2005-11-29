@@ -6,26 +6,26 @@
 //
 // History:
 //
-// 7/2/98  mf	Created
-// 7/6/98  mf	Added ELadministratorX knowledge
-// 6/16/99 jvr	Attaches a destination when an error is logged and
-//		no destinations are attached          $$ JV:1
-// 6/18/99 jvr/mf	Constructor for ELadministratorX uses explcitly
-//		constructed ELseverityLevels in its init list, rather
-//		than objectslike ELabort, which may not yet have
-//		been fully constructed.  Repairs a problem with ELcout.
-// 6/23/99  mf	Made emptyContextSUpplier static to this comp unit.
-// 12/20/99 mf 	Added virtual destructor to ELemptyContextSupplier.
-// 2/29/00  mf 	swapContextSupplier.
-// 4/05/00  mf 	swapProcess.
-// 5/03/00  mf 	When aborting, changed exit() to abort() so that dump
-//		will reflect true condition without unwinding things.
-// 6/6/00  web	Consolidated ELadministrator/X.
-// 6/7/00  web	Reflect consolidation of ELdestination/X.
-// 6/12/00 web	Attach cerr, rather than cout, in case of no previously-
-//		attached destination; using -> USING.
-// 3/6/00  mf	Attach taking name to id the destination, getELdestControl()
-// 3/14/10 mf	exitThreshold
+// 7/2/98  mf   Created
+// 7/6/98  mf   Added ELadministratorX knowledge
+// 6/16/99 jvr  Attaches a destination when an error is logged and
+//              no destinations are attached          $$ JV:1
+// 6/18/99 jvr/mf       Constructor for ELadministratorX uses explcitly
+//              constructed ELseverityLevels in its init list, rather
+//              than objectslike ELabort, which may not yet have
+//              been fully constructed.  Repairs a problem with ELcout.
+// 6/23/99  mf  Made emptyContextSUpplier static to this comp unit.
+// 12/20/99 mf  Added virtual destructor to ELemptyContextSupplier.
+// 2/29/00  mf  swapContextSupplier.
+// 4/05/00  mf  swapProcess.
+// 5/03/00  mf  When aborting, changed exit() to abort() so that dump
+//              will reflect true condition without unwinding things.
+// 6/6/00  web  Consolidated ELadministrator/X.
+// 6/7/00  web  Reflect consolidation of ELdestination/X.
+// 6/12/00 web  Attach cerr, rather than cout, in case of no previously-
+//              attached destination; using -> USING.
+// 3/6/00  mf   Attach taking name to id the destination, getELdestControl()
+// 3/14/10 mf   exitThreshold
 //
 //-----------------------------------------------------------------------
 
@@ -41,15 +41,15 @@
 // ELadministrator::setExitThreshold( const ELseverityLevel & sev )
 // ELadministrator::attach( const ELdestination & sink )
 // ELadministrator::attach( const ELdestination & sink, const ELstring & name )
-// ELadministrator::getELdestControl ( const ELstring & name, 
-//					ELdestControl & theDestControl )
+// ELadministrator::getELdestControl ( const ELstring & name,
+//                                      ELdestControl & theDestControl )
 // ELadministrator::checkSeverity()
 // ELadministrator::severityCount( const ELseverityLevel & sev ) const
 // ELadministrator::severityCount( const ELseverityLevel & from,
-// 		                    const ELseverityLevel & to    ) const
+//                                  const ELseverityLevel & to    ) const
 // ELadministrator::resetSeverityCount( const ELseverityLevel & sev )
 // ELadministrator::resetSeverityCount( const ELseverityLevel & from,
-// 	                                const ELseverityLevel & to    )
+//                                      const ELseverityLevel & to    )
 // ELadministrator::resetSeverityCount()
 // ELadministrator::setThresholds( const ELseverityLevel & sev )
 // ELadministrator::setLimits( const ELstring & id, int limit )
@@ -85,7 +85,8 @@
 using std::cerr;
 
 
-namespace edm {       
+namespace edm
+{
 
 
 // Possible Traces:
@@ -131,7 +132,7 @@ const ELcontextSupplier & ELadministrator::getContextSupplier() const  {
 }  // getContextSupplier()
 
 ELcontextSupplier & ELadministrator::swapContextSupplier
-					(ELcontextSupplier & cs)  {
+                                        (ELcontextSupplier & cs)  {
   ELcontextSupplier & save = *(context_);
   context_ = &cs;
   return save;
@@ -158,8 +159,8 @@ ELdestControl ELadministrator::attach( const ELdestination & sink )  {
 
 }  // attach()
 
-ELdestControl ELadministrator::attach(  const ELdestination & sink, 
-					const ELstring & name )     {
+ELdestControl ELadministrator::attach(  const ELdestination & sink,
+                                        const ELstring & name )     {
   ELdestination * dest = sink.clone();
   attachedDestinations[name] = dest;
   sinks().push_back( dest );
@@ -167,8 +168,8 @@ ELdestControl ELadministrator::attach(  const ELdestination & sink,
 } // attach()
 
 
-bool ELadministrator::getELdestControl ( const ELstring & name, 
-				 	 ELdestControl & theDestControl ) {
+bool ELadministrator::getELdestControl ( const ELstring & name,
+                                         ELdestControl & theDestControl ) {
 
   if ( attachedDestinations.find(name) != attachedDestinations.end() ) {
     theDestControl = ELdestControl ( attachedDestinations[name] );
@@ -219,7 +220,7 @@ void ELadministrator::resetSeverityCount( const ELseverityLevel & sev )  {
 
 
 void ELadministrator::resetSeverityCount( const ELseverityLevel & from,
-	                                  const ELseverityLevel & to   )  {
+                                          const ELseverityLevel & to   )  {
 
   for ( int k = from.getLevel();  k <= to.getLevel();  ++k )
     severityCounts_[k] = 0;
@@ -314,7 +315,7 @@ void ELadministrator::finishMsg()  {
   for ( d = sinks().begin();  d != sinks().end();  ++d )  {
     #ifdef ELadTRACE_FINISH
       cerr << "  =:=:=: log(msg) for a destination number "
-	   << ++destCounter << " called ... \n";
+           << ++destCounter << " called ... \n";
     #endif
     mrt = (*d)->log( msg );
     #ifdef ELadTRACE_FINISH
@@ -326,10 +327,10 @@ void ELadministrator::finishMsg()  {
 
   msgIsActive = false;
 
-  possiblyAbortOrExit (	lev, 
-  			abortThreshold().getLevel(),
-			exitThreshold().getLevel()   ); 	// $$ mf 3/17/04
-  
+  possiblyAbortOrExit ( lev,
+                        abortThreshold().getLevel(),
+                        exitThreshold().getLevel()   );         // $$ mf 3/17/04
+
 }  // finishMsg()
 
 
@@ -450,14 +451,14 @@ ELadministrator * ELadministrator::instance()  {
 
 
 ELadministrator::ELadministrator()
-: process_       ( ""                   				     )
-, context_       ( emptyContext.clone() 				     )
+: process_       ( ""                                                        )
+, context_       ( emptyContext.clone()                                      )
 , abortThreshold_( ELseverityLevel (ELseverityLevel::ELsev_abort)            )
 , exitThreshold_ ( ELseverityLevel (ELseverityLevel::ELsev_highestSeverity   )            )
-, sinks_         (                      				     )
+, sinks_         (                                                           )
 , highSeverity_  ( ELseverityLevel (ELseverityLevel::ELsev_zeroSeverity)     )
 , msg            ( ELseverityLevel (ELseverityLevel::ELsev_unspecified), ""  )
-, msgIsActive    ( false                				     )
+, msgIsActive    ( false                                                     )
 {
 
   #ifdef ELadministratorCONSTRUCTOR_TRACE
@@ -515,7 +516,7 @@ ELadministrator::~ELadministrator()  {
 
 void  ELadministrator::xxxxSet( int i )  {  xxxxInt = i; }
 
-void  ELadministrator::xxxxShout()  {  
+void  ELadministrator::xxxxShout()  {
   cerr << "XXXX ELadministrator: " << xxxxInt << '\n';
 }
 

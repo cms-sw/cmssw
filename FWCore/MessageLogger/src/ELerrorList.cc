@@ -3,12 +3,12 @@
 // ELerrorList.cc
 //
 //
-// 9/21/00 	mf	Created
-// 10/4/00	mf	excludeModule()
-//			intializer for moduleOfINterest in constructors
-//  4/4/01	mf	Simplify filter/exclude logic by using base class 
-//			method thisShouldBeIgnored().  Eliminate 
-//			moduleOfinterest and moduleToexclude.
+// 9/21/00      mf      Created
+// 10/4/00      mf      excludeModule()
+//                      intializer for moduleOfINterest in constructors
+//  4/4/01      mf      Simplify filter/exclude logic by using base class
+//                      method thisShouldBeIgnored().  Eliminate
+//                      moduleOfinterest and moduleToexclude.
 //
 // ----------------------------------------------------------------------
 
@@ -38,16 +38,17 @@
 // #define ELerrorListCONSTRUCTOR_TRACE
 // #define ELerrorListTRACE_LOG
 
-namespace edm {       
+namespace edm
+{
 
 
 // ----------------------------------------------------------------------
 // Constructors:
 // ----------------------------------------------------------------------
 
-ELerrorList::ELerrorList(std::list<ErrorObj> & errorList) : 
-		ELdestination (), 
-		errorObjs ( errorList )
+ELerrorList::ELerrorList(std::list<ErrorObj> & errorList) :
+                ELdestination (),
+                errorObjs ( errorList )
 {
 
   #ifdef ELerrorListCONSTRUCTOR_TRACE
@@ -57,8 +58,8 @@ ELerrorList::ELerrorList(std::list<ErrorObj> & errorList) :
 }  // ELerrorList()
 
 ELerrorList::ELerrorList(const ELerrorList & orig) :
-		ELdestination (), 
-		errorObjs ( orig.errorObjs )
+                ELdestination (),
+                errorObjs ( orig.errorObjs )
 {
 
   #ifdef ELerrorListCONSTRUCTOR_TRACE

@@ -1,8 +1,8 @@
 // ----------------------------------------------------------------------
 //
-// ELstring.cc	Provides a string class with the semantics of std::string.
-// 		Customizers may substitute for this class to provide either
-//		a string with a different allocator, or whatever else.
+// ELstring.cc  Provides a string class with the semantics of std::string.
+//              Customizers may substitute for this class to provide either
+//              a string with a different allocator, or whatever else.
 //
 // The elements of string semantics which are relied upon are listed
 // in doc/ELstring.semantics
@@ -17,7 +17,8 @@
 #include <cctype>
 
 
-namespace edm {       
+namespace edm
+{
 
 
 bool  eq_nocase( const ELstring & s1, const char s2[] )  {

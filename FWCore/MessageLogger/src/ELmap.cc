@@ -3,11 +3,11 @@
 // ELmap.cc
 //
 // Change History:
-//   99-06-10	mf	correction in sense of comparison between timespan
-//			and diff (now, lastTime)
-//		mf	ELcountTRACE made available
-//   99-06-11	mf	Corrected logic for suppressing output when n > limit
-//			but not but a factor of 2**K
+//   99-06-10   mf      correction in sense of comparison between timespan
+//                      and diff (now, lastTime)
+//              mf      ELcountTRACE made available
+//   99-06-11   mf      Corrected logic for suppressing output when n > limit
+//                      but not but a factor of 2**K
 //
 // ----------------------------------------------------------------------
 
@@ -19,7 +19,8 @@
 // #define ELmapDumpTRACE
 
 
-namespace edm {       
+namespace edm
+{
 
 
 // ----------------------------------------------------------------------
@@ -55,13 +56,13 @@ bool  CountAndLimit::add()  {
   std::cout << "&&&    Last time is " << lastTime << "\n";
   std::cout << "&&&    timespan  is " << timespan << "\n";
   std::cout << "&&&    difftime  is " << difftime( now, lastTime ) << "\n"
-				<< std::flush;
+                                << std::flush;
 #endif
 
   // Has it been so long that we should restart counting toward the limit?
   if ( (timespan >= 0)
-	    &&
-	(difftime(now, lastTime) >= timespan) )  {
+            &&
+        (difftime(now, lastTime) >= timespan) )  {
      n = 0;
   }
 
@@ -73,21 +74,21 @@ bool  CountAndLimit::add()  {
   std::cout << "&&&    n is " << n << "-- limit is " << limit << "\n";
 #endif
 
-  if ( limit == 0 ) return false; 	// Zero limit - never react to this	
-  if ( limit < 0  ) return true;   	// No limit - always react
-  if ( n <= limit ) return true;  	// Under the limit so react
+  if ( limit == 0 ) return false;       // Zero limit - never react to this
+  if ( limit < 0  ) return true;        // No limit - always react
+  if ( n <= limit ) return true;        // Under the limit so react
 
   // Now we are over the limit - have we exceeded limit by 2^N * limit?
   long  diff = n - limit;
   long  r = diff/limit;
-  if ( r*limit != diff ) return false; 	// Not a multiple of limit - don't react
-  if ( r == 1 )          return true;  	// Exactly twice limit - react
+  if ( r*limit != diff ) return false;  // Not a multiple of limit - don't react
+  if ( r == 1 )          return true;   // Exactly twice limit - react
   while ( r > 1 )  {
-    if ( (r & 1) != 0 )  return false;	// Not 2**n times limit - don't react
+    if ( (r & 1) != 0 )  return false;  // Not 2**n times limit - don't react
     r >>= 1;
   }
-  			 return true; 	// If you never get an odd number till
-					// one, r is 2**n so react
+                         return true;   // If you never get an odd number till
+                                        // one, r is 2**n so react
 
 }  // add()
 
@@ -140,7 +141,7 @@ char *  ELmapDump ( ELmap_limits m )  {
   for ( i = m.begin();  i != m.end();  ++i )  {
     LimitAndTimespan lt = (*i).second;
     s << "     " << (*i).first << ":  " << lt.limit << ", " <<
-		lt.timespan << "\n";
+                lt.timespan << "\n";
   }
   s << "--------------------------------------------\n";
 
@@ -153,4 +154,3 @@ char *  ELmapDump ( ELmap_limits m )  {
 #endif
 
 } // end of namespace edm  */
-

@@ -11,8 +11,7 @@
 //////////////////////////////////////////////////////////////////////
 
 
-namespace edm
-{
+using namespace edm;
 
 
 SingleConsumerQ  MessageLoggerQ::buf(buf_size, buf_depth);
@@ -88,6 +87,3 @@ void
   std::memcpy(&operand, slot_p+sizeof(OpCode), sizeof(void *));
   b.commit(buf_size);
 }  // MessageLoggerQ::consume()
-
-
-}  // namespace edm

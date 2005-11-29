@@ -4,8 +4,7 @@
 #include <iostream>
 
 
-namespace edm
-{
+using namespace edm;
 
 
 MessageSender::MessageSender( ELseverityLevel const & sev, ELstring const & id )
@@ -25,6 +24,3 @@ MessageSender::~MessageSender()
   // and will then (b) dispose of the ErrorObj
   MessageLoggerQ::LOG(errorobj_p);
 }
-
-
-}  // namespace edm

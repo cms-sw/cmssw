@@ -3,13 +3,13 @@
 // ELlimitsTable.cc
 //
 // History:
-//   7/6/98 	mf	Created
-//   6/10/99	jvr	Corrected initialization for severityLimits and
-//			timespans to -1 instead of 0.
-//   6/17/99	jvr     setLimit(id,n) works w/ setTimespan(sev||"*",n)
-//			and setTimespan(id,n) w/ setLimit(sev||"*",n)
-//   6/15/00	web	using -> USING
-//  11/01/01	web	Fixed mixed-type comparisons
+//   7/6/98     mf      Created
+//   6/10/99    jvr     Corrected initialization for severityLimits and
+//                      timespans to -1 instead of 0.
+//   6/17/99    jvr     setLimit(id,n) works w/ setTimespan(sev||"*",n)
+//                      and setTimespan(id,n) w/ setLimit(sev||"*",n)
+//   6/15/00    web     using -> USING
+//  11/01/01    web     Fixed mixed-type comparisons
 //
 // ----------------------------------------------------------------------
 
@@ -24,7 +24,8 @@ using std::cerr;
 // #define ELlimitsTableATRACE
 
 
-namespace edm {       
+namespace edm
+{
 
 
 // ----------------------------------------------------------------------

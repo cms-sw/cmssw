@@ -6,7 +6,7 @@
 #include <iostream>
 
 
-namespace edm {
+using namespace edm;
 
 
 namespace  {
@@ -33,6 +33,3 @@ MessageLoggerSpigot::~MessageLoggerSpigot()
   MessageLoggerQ::END();
   scribe.join();
 }
-
-
-} // namespace edm

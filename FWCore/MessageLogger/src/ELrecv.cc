@@ -1,8 +1,8 @@
 // ----------------------------------------------------------------------
 //
-// ELrecv.cc	This is the global method which the server-side program calls
-//		when it receives a message which originated from ELsend on the
-//		client process.
+// ELrecv.cc    This is the global method which the server-side program calls
+//              when it receives a message which originated from ELsend on the
+//              client process.
 //
 // This file defines ELrecv() and its pet context supplier ELservConSup class.
 //
@@ -29,7 +29,8 @@
 #endif
 
 
-namespace edm {       
+namespace edm
+{
 
 
 class ELservConSup : public ELcontextSupplier  {
@@ -94,16 +95,16 @@ void  ELrecv ( int nbytes, const char * data, ELstring localModule )  {
     // This should not be possible.  But if it does, we don't want to
     // kill off the probably critical error monitoring job!
     errlog ( ELerror2, "Collection Error" ) <<
-	"An error message received has an unreadable value of severity level"
-	<< sevString << endmsg;
+        "An error message received has an unreadable value of severity level"
+        << sevString << endmsg;
     sevLevel = ELseverityLevel::ELsev_unspecified;
   }
   if ( sevLevel < ELseverityLevel::ELsev_zeroSeverity ||
        sevLevel > ELseverityLevel::ELsev_highestSeverity )  {
     // Again, this should not be possible.
     errlog ( ELerror2, "Collection Error" ) <<
-	"An error message received has an out-of-range value of severity level"
-	<< sevString << endmsg;
+        "An error message received has an out-of-range value of severity level"
+        << sevString << endmsg;
     sevLevel = ELseverityLevel::ELsev_unspecified;
   }
 
@@ -138,8 +139,8 @@ void  ELrecv ( int nbytes, const char * data, ELstring localModule )  {
   errlog ( ELseverityLevel( ELseverityLevel::ELsev_(sevLevel)), id );
 
   // Add the remaining items to this message.
-  //	To avoid any possibility of a completely runaway message, we limit
-  // 	the number of items output to 100 by doing a for instead of a while
+  //    To avoid any possibility of a completely runaway message, we limit
+  //    the number of items output to 100 by doing a for instead of a while
   //    loop.
 
   ELstring  item;
@@ -162,8 +163,8 @@ void  ELrecv ( int nbytes, const char * data, ELstring localModule )  {
   if ( *nextItem++ != 0 )  {
     errlog << endmsg;
     errlog ( ELerror2, "Collection Error" ) <<
-	"Apparent runaway error message on the previous message!" <<
-	"Truncated after " << MAXITEMCOUNT << "items." << endmsg;
+        "Apparent runaway error message on the previous message!" <<
+        "Truncated after " << MAXITEMCOUNT << "items." << endmsg;
   }
   int  diff = nextItem - data;
   if ( diff != nbytes )  {

@@ -15,18 +15,18 @@
 // 3/13/01 mf   setDiscardThreshold(), and discardThreshold mechanism
 // 3/14/01 web  g/setfill(0)/s//setfill('0')/g; move #include <string>
 // 3/14/01 web  Insert missing initializers in constructor
-// 5/7/01  mf   operator<< (const char[]) 
+// 5/7/01  mf   operator<< (const char[])
 // 6/7/01  mf   operator()(ErrorObj&) should have been doing level bookkeeping
-//		and abort checking; inserted this code
-// 11/15/01 mf  static_cast to unsigned int and long in comparisons in 
-//		operator<<( ErrorLog & e, unsigned int n) and long, and
-//		also rwriting 0xFFFFFFFF as 0xFFFFFFFFL when comparing to a
-//		long.  THese cure warnings when -Wall -pedantic are turned on.
-// 3/06/01 mf	getELdestControl() forwards to *a
-// 12/3/02 mf	discardVerbosityLevel, and items related to operator()(int)
-// 6/23/03 mf	moduleName() and subroutineName()
+//              and abort checking; inserted this code
+// 11/15/01 mf  static_cast to unsigned int and long in comparisons in
+//              operator<<( ErrorLog & e, unsigned int n) and long, and
+//              also rwriting 0xFFFFFFFF as 0xFFFFFFFFL when comparing to a
+//              long.  THese cure warnings when -Wall -pedantic are turned on.
+// 3/06/01 mf   getELdestControl() forwards to *a
+// 12/3/02 mf   discardVerbosityLevel, and items related to operator()(int)
+// 6/23/03 mf   moduleName() and subroutineName()
 // 3/17/04 mf   spaces after ints.
-// 3/17/04 mf	exit threshold
+// 3/17/04 mf   exit threshold
 //
 // ----------------------------------------------------------------------
 
@@ -55,7 +55,8 @@
   #include <string>
 #endif
 
-namespace edm {       
+namespace edm
+{
 
 
 // ----------------------------------------------------------------------
@@ -151,7 +152,7 @@ void ErrorLog::setSubroutine( const ELstring & subName )  {
 }  // setSubroutine()
 
 static inline void possiblyAbOrEx (int s, int a, int e) {
-  if (s < a && s < e) return;  
+  if (s < a && s < e) return;
   if (a < e) {
     if ( s < e ) abort();
     exit(s);
@@ -181,17 +182,17 @@ ErrorLog & ErrorLog::operator()( ErrorObj & msg )  {
   if ( updateModule     )  msg.setModule    ( module );
   if ( updateSubroutine )  msg.setSubroutine( subroutine );
 
-  // severity level statistics keeping:			// $$ mf 6/7/01
+  // severity level statistics keeping:                 // $$ mf 6/7/01
   int lev = msg.xid().severity.getLevel();
   ++ a->severityCounts_[lev];
   if ( lev > a->highSeverity_.getLevel() )
     a->highSeverity_ = msg.xid().severity;
-    
+
   a->context_->editErrorObj( msg );
 
   // -----  send the message to each destination:
   //
-  if (a->sinks().begin() == a->sinks().end())  {                   
+  if (a->sinks().begin() == a->sinks().end())  {
     std::cerr << "\nERROR LOGGED WITHOUT DESTINATION!\n";
     std::cerr << "Attaching destination \"cerr\" to ELadministrator by default\n"
               << std::endl;
@@ -202,10 +203,10 @@ ErrorLog & ErrorLog::operator()( ErrorObj & msg )  {
     if (  (*d)->log( msg )  )
       msg.setReactedTo ( true );
 
-  possiblyAbOrEx ( msg.xid().severity.getLevel(), 
-  		   a->abortThreshold().getLevel(),
-		   a->exitThreshold().getLevel()   ); 	// $$ mf 3/17/04
-  
+  possiblyAbOrEx ( msg.xid().severity.getLevel(),
+                   a->abortThreshold().getLevel(),
+                   a->exitThreshold().getLevel()   );   // $$ mf 3/17/04
+
   // -----  restore, if we poked above:
   //
   if ( updateProcess    )  msg.setProcess( "" );
@@ -323,7 +324,7 @@ void ErrorLog::setDebugMessages (ELseverityLevel sev, ELstring id) {
 }
 
 bool ErrorLog::getELdestControl (const ELstring & name,
-	                               ELdestControl & theDestControl) const {
+                                       ELdestControl & theDestControl) const {
   return a->getELdestControl(name, theDestControl);
 }
 
@@ -354,24 +355,24 @@ ErrorLog & operator<<( ErrorLog & e, int n)  {
         << std::hex << std::setw(8) << std::setfill('0')
         << n << "] ";
   } else {
-    if (e.spaceAfterInt) ost << " ";			// $$mf 3/17/04
+    if (e.spaceAfterInt) ost << " ";                    // $$mf 3/17/04
   }
-  return e.emit( ost.str() ); 
+  return e.emit( ost.str() );
 }
 
 ErrorLog & operator<<( ErrorLog & e, unsigned int n)  {
   if (e.discarding) return e;
   std::ostringstream  ost;
   ost << n;
-  if ( (e.hexTrigger >= 0) && 
+  if ( (e.hexTrigger >= 0) &&
        (n >= static_cast<unsigned int>(e.hexTrigger)) ) {
     ost << "[0x"
         << std::hex << std::setw(8) << std::setfill('0')
         << n << "] ";
   } else {
-    if (e.spaceAfterInt) ost << " ";			// $$mf 3/17/04
+    if (e.spaceAfterInt) ost << " ";                    // $$mf 3/17/04
   }
-  return e.emit( ost.str() ); 
+  return e.emit( ost.str() );
 }
 
 ErrorLog & operator<<( ErrorLog & e, long n)  {
@@ -386,7 +387,7 @@ ErrorLog & operator<<( ErrorLog & e, long n)  {
         << std::hex << std::setw(width) << std::setfill('0')
         << n << "] ";
   } else {
-    if (e.spaceAfterInt) ost << " ";			// $$mf 3/17/04
+    if (e.spaceAfterInt) ost << " ";                    // $$mf 3/17/04
   }
   return  e.emit( ost.str() );
 }
@@ -395,7 +396,7 @@ ErrorLog & operator<<( ErrorLog & e, unsigned long n)  {
   if (e.discarding) return e;
   std::ostringstream  ost;
   ost << n;
-  if ( (e.hexTrigger >= 0) && 
+  if ( (e.hexTrigger >= 0) &&
        (n >= static_cast<unsigned long>(e.hexTrigger)) ) {
     int width = 8;
     if ( n > 0xFFFFFFFFL ) width = 16;
@@ -403,7 +404,7 @@ ErrorLog & operator<<( ErrorLog & e, unsigned long n)  {
         << std::hex << std::setw(width) << std::setfill('0')
         << n << "] ";
   } else {
-    if (e.spaceAfterInt) ost << " ";			// $$mf 3/17/04
+    if (e.spaceAfterInt) ost << " ";                    // $$mf 3/17/04
   }
   return  e.emit( ost.str() );
 }
@@ -418,7 +419,7 @@ ErrorLog & operator<<( ErrorLog & e, short n)  {
         << std::hex << std::setw(4) << std::setfill('0')
         << n << "] ";
   } else {
-    if (e.spaceAfterInt) ost << " ";			// $$mf 3/17/04
+    if (e.spaceAfterInt) ost << " ";                    // $$mf 3/17/04
   }
   return  e.emit( ost.str() );
 }
@@ -432,7 +433,7 @@ ErrorLog & operator<<( ErrorLog & e, unsigned short n)  {
         << std::hex << std::setw(4) << std::setfill('0')
         << n << "] ";
   } else {
-    if (e.spaceAfterInt) ost << " ";			// $$mf 3/17/04
+    if (e.spaceAfterInt) ost << " ";                    // $$mf 3/17/04
   }
   return  e.emit( ost.str() );
 }
@@ -469,4 +470,3 @@ void ErrorLog::xxxxShout()  {
 
 
 } // end of namespace edm  */
-

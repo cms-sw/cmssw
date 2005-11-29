@@ -6,11 +6,11 @@
 //   07-Jun-2000  WEB  Reflect consolidation of ELdestination/X and of
 //     ELoutput/X; consolidate ELcollected/X
 //   15-Sep-2000  MF   Corrected bug:  copy constructor needs to set sender
-//			based on a clone() of *sender, not a bit copy, since
-//			the whole reasoning was to protect against the user's
-//			objects going out of scope.
-//   4-Apr-2001   MF 	Loginc to ignore ore respond to modules, using base 
-//			method thisShouldBeIgnored().  
+//                      based on a clone() of *sender, not a bit copy, since
+//                      the whole reasoning was to protect against the user's
+//                      objects going out of scope.
+//   4-Apr-2001   MF    Loginc to ignore ore respond to modules, using base
+//                      method thisShouldBeIgnored().
 //
 // ----------------------------------------------------------------------
 
@@ -32,7 +32,8 @@
 //#define ELcollectedTRACE_LOG
 //#define ELcollected_EMIT_TRACE
 
-namespace edm {       
+namespace edm
+{
 
 
 // ----------------------------------------------------------------------
@@ -55,7 +56,7 @@ ELcollected::ELcollected( const ELsender & snd )
 
 ELcollected::ELcollected( const ELcollected & orig )
 : ELoutput( orig        )
-, sender  ( orig.sender->clone() )		// $$ mf 9/15/00
+, sender  ( orig.sender->clone() )              // $$ mf 9/15/00
 {
 
   #ifdef ELcollectedCONSTRUCTOR_TRACE
@@ -186,7 +187,7 @@ bool ELcollected::log( const ErrorObj & msg )  {
     std::cout << "    =:=:=: Log to an ELcollected \n";
   #endif
 
-  xid = msg.xid();	// Save the xid.
+  xid = msg.xid();      // Save the xid.
 
   // See if this message is to be acted upon, and add it to limits table
   // if it was not already present:
@@ -214,11 +215,11 @@ bool ELcollected::log( const ErrorObj & msg )  {
   // context, even though probably only 1 or 2 will be needed.
 
   emit( ELadministrator::instance()->
-    			getContextSupplier().summaryContext());
+                        getContextSupplier().summaryContext());
   emit( ELadministrator::instance()->
-  	    		getContextSupplier().context());
+                        getContextSupplier().context());
   emit( ELadministrator::instance()->
-    			getContextSupplier().fullContext());
+                        getContextSupplier().fullContext());
 
   #ifdef ELcollectedTRACE_LOG
     std::cout << "    =:=:=: Context done: \n";
@@ -250,8 +251,8 @@ bool ELcollected::log( const ErrorObj & msg )  {
   //
   if ( msg.xid().severity >= traceThreshold )  {
     emit( ELstring("\n")
-	  + ELadministrator::instance()->getContextSupplier().traceRoutine()
-	, true );
+          + ELadministrator::instance()->getContextSupplier().traceRoutine()
+        , true );
   }
   else  {                                        //else statement added JV:1
     emit( "", true );

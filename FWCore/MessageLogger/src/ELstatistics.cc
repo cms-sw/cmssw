@@ -3,20 +3,20 @@
 // ELstatistics.cc
 //
 // History:
-//   7/8/98 	mf	Created
-//   7/2/99	jv	Added noTerminationSummary() function
-//   6/7/00	web	Reflect consolidation of ELdestination/X;
-//			consolidate ELstatistics/X
-//   6/14/00	web	Remove GNU relic code
-//   6/15/00	web	using -> USING
-//   10/4/00	mf	filterModule() and excludeModule()
-//   3/13/00	mf	statisticsMap()
-//    4/4/01	mf	Simplify filter/exclude logic by useing base class 
-//			method thisShouldBeIgnored().  Eliminate 
-//			moduleOfinterest and moduleToexclude.
-//  11/01/01	web	Remove last vestige of GNU relic code; reordered
-//			initializers to correspond to order of member
-//			declarations
+//   7/8/98     mf      Created
+//   7/2/99     jv      Added noTerminationSummary() function
+//   6/7/00     web     Reflect consolidation of ELdestination/X;
+//                      consolidate ELstatistics/X
+//   6/14/00    web     Remove GNU relic code
+//   6/15/00    web     using -> USING
+//   10/4/00    mf      filterModule() and excludeModule()
+//   3/13/00    mf      statisticsMap()
+//    4/4/01    mf      Simplify filter/exclude logic by useing base class
+//                      method thisShouldBeIgnored().  Eliminate
+//                      moduleOfinterest and moduleToexclude.
+//  11/01/01    web     Remove last vestige of GNU relic code; reordered
+//                      initializers to correspond to order of member
+//                      declarations
 //
 //  ---------------------------------------------------------------------
 
@@ -42,7 +42,8 @@
 // #define ELstatsLOG_TRACE
 
 
-namespace edm {       
+namespace edm
+{
 
 
 // ----------------------------------------------------------------------
@@ -189,20 +190,20 @@ bool  ELstatistics::log( const ErrorObj & msg )  {
   #endif
   if ( s != stats.end() )  {
     #ifdef ELstatsLOG_TRACE
-	std::cerr << "    =:=:=: Message not last stats \n";
-	std::cerr << "    =:=:=: getContextSupplier \n";
-	const ELcontextSupplier & csup
-	  = ELadministrator::instance()->getContextSupplier();
-	std::cerr << "    =:=:=: getContextSupplier \n";
-	ELstring sumcon;
-	std::cerr << "    =:=:=: summaryContext \n";
-	sumcon = csup.summaryContext();
-	std::cerr << "    =:=:=: summaryContext is: " << sumcon << "\n";
-	(*s).second.add( sumcon, msg.reactedTo() );
-	std::cerr << "    =:=:=: add worked. \n";
+        std::cerr << "    =:=:=: Message not last stats \n";
+        std::cerr << "    =:=:=: getContextSupplier \n";
+        const ELcontextSupplier & csup
+          = ELadministrator::instance()->getContextSupplier();
+        std::cerr << "    =:=:=: getContextSupplier \n";
+        ELstring sumcon;
+        std::cerr << "    =:=:=: summaryContext \n";
+        sumcon = csup.summaryContext();
+        std::cerr << "    =:=:=: summaryContext is: " << sumcon << "\n";
+        (*s).second.add( sumcon, msg.reactedTo() );
+        std::cerr << "    =:=:=: add worked. \n";
     #else
-	(*s).second.add( ELadministrator::instance()->
-		    getContextSupplier().summaryContext(), msg.reactedTo() );
+        (*s).second.add( ELadministrator::instance()->
+                    getContextSupplier().summaryContext(), msg.reactedTo() );
     #endif
 
     updatedStats = true;
@@ -259,7 +260,7 @@ void  ELstatistics::zero()  {
 
 static ELstring  formSummary( ELmap_stats & stats )  {
 
-  using std::ios;	/* _base ? */
+  using std::ios;       /* _base ? */
   using std::setw;
   using std::right;
   using std::left;
@@ -285,9 +286,9 @@ static ELstring  formSummary( ELmap_stats & stats )  {
     if ( n == 0  || ! eq(lastProcess, (*i).first.process) )
       s << "\nProcess " << (lastProcess = (*i).first.process) << '\n'
         << " type    message id       sev    module        "
-	     "subroutine        count    total\n"
+             "subroutine        count    total\n"
         << " ---- -------------------- -- ---------------- "
-	     "----------------  -----    -----\n"
+             "----------------  -----    -----\n"
         ;
 
     // -----  Emit detailed message information:
@@ -313,7 +314,7 @@ static ELstring  formSummary( ELmap_stats & stats )  {
   //
   if ( ftnote )
     s << "\n* Some occurrences of this message"
-	 " were suppressed in all logs, due to limits.\n"
+         " were suppressed in all logs, due to limits.\n"
       ;
 
   // -----  Summary part II:
