@@ -1032,7 +1032,7 @@
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mf:ME"/>
-   <rChild name="mf:ME1"/>
+   <rChild name="mf:ME1Ring"/>
   <rRotation name="rotations:000D"/>
  </PosPart>
  <PosPart copyNumber="1">
