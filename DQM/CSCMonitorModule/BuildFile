@@ -9,6 +9,7 @@
 <use name=DQMServices/NodeROOT>
 <use name=DQMServices/CoreROOT>
 <use name=FWCore/Framework>
+<use name=EventFilter/CSCRawToDigi>
 
 <export>
 <lib name=DQMCSCMonitorModule>
@@ -22,5 +23,6 @@
 <use name=DQMServices/NodeROOT>
 <use name=DQMServices/CoreROOT>
 <use name=FWCore/Framework>
+<use name=EventFilter/CSCRawToDigi>
 </export>
 
