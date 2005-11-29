@@ -1,3 +1,6 @@
+** V00-01-00  [Tue Nov 29 23:36:59 2005]
+Support for MessageLogger
+
 ** V00-00-03  [Tue Nov 22 03:21:29 2005]
 Adding shell script test driver.
 
