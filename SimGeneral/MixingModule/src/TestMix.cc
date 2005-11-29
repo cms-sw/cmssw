@@ -10,7 +10,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Fri Sep 23 11:38:38 CEST 2005
-// $Id: TestMix.cc,v 1.3 2005/10/27 08:43:40 uberthon Exp $
+// $Id: TestMix.cc,v 1.4 2005/11/17 16:46:43 uberthon Exp $
 //
 //
 
@@ -69,12 +69,14 @@ TestMix::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     // and print
     std::cout<<std::endl;
+    std::cout<<*(cf.product())<<std::endl;
     cf.product()->print(level_);
 
     // test access to SimHits
     const std::string subdet("TrackerHitsTOBLowTof");
     std::cout<<"\n=================== Starting SimHit access, subdet "<<subdet<<"  ==================="<<std::endl;
-    std::auto_ptr<MixCollection<PSimHit> > col(new MixCollection<PSimHit>(cf.product(), subdet));
+    std::auto_ptr<MixCollection<PSimHit> > col(new MixCollection<PSimHit>(cf.product(), subdet,std::pair<int,int>(-1,2)));
+    std::cout<<*(col.get())<<std::endl;
     MixCollection<PSimHit>::iterator cfi;
     int count=0;
     for (cfi=col->begin(); cfi!=col->end();cfi++) {
