@@ -4,8 +4,6 @@
 
 namespace {
   namespace {
-    HepGeom::Vector3D<float> v3d;
-    HepGeom::Point3D<float> p3d;
     std::vector<reco::Muon> v1;
     edm::Wrapper<std::vector<reco::Muon> > c1;
   }

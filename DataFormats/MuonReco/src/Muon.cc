@@ -4,12 +4,12 @@ using namespace std;
 using namespace reco;
 
 Muon::Muon( float chi2, unsigned short ndof, int found, int invalid, int lost,
-	    const Parameters & par, const Covariance & cov ) :
-  Track( chi2, ndof, found, invalid, lost, par, cov ) {
+	    const Parameters & p, const Covariance & c ) :
+  Track( chi2, ndof, found, invalid, lost, p, c ) {
 }
 
 Muon::Muon( float chi2, unsigned short ndof, int found, int invalid, int lost,
-	   int q, const Point & v, const Vector & p, 
+	    int q, const Point & v, const Vector & p, 
 	    const PosMomError & err ) :
   Track( chi2, ndof, found, invalid, lost, q, v, p, err ) {
 }
