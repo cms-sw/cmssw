@@ -1,0 +1,168 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<BODY bgcolor="FFFFFF">
+<title>
+          CMS MessageLogger: Guide To Issuing Messages
+</title>
+
+<center>
+<h1> <img src="header-public.gif" align="center"> </h1>
+
+<font color=red>
+<h1>CMS MessageLogger Service
+<br> 
+Guide To Issuing Messages</h1>
+</font>
+</center>
+
+<p>
+The CMS MessageLogger Service is meant to allow code in modules, other 
+services, and other framework "scaffolding" to log 
+messages to a unified message logging 
+and statistics facility.  
+<p>
+The  MessageLogger Service captures and coordinates messages originating in
+multiple modules (which, under the CMS framework, will in general be running 
+in multiple threads) into a specified set of destinations.  
+The management of these destinations is  
+based on the ZOOM Error Logger package developed at Fermilab.  
+<p>
+All users of the MessageLogger service should read the section on 
+<a href="howSend"> Issuing Messages </a>.
+<p>
+The behavior of the MessageLogger can be adjusted via lines in the 
+job's configuration file (.cfg).  
+Users wishing to customize the behavior of the MessageLogger should read 
+the section on 
+<a href="parameters.html"> MessageLogger Parameters </a>.
+ 
+<ul>
+<em>
+Note - the pages for MessageLogger Parameters are being prepared
+and are not yet linked to this page.
+</em>
+</ul> 
+<p>
+<ul>
+<li> <a href="#howSend"> Issuing Messages </a>
+<!-- <li> <a href="parameters.html"> MessageLogger Parameters </a> -->
+<!-- <li> <a href="parameters.html"> 
+	Modifying Behavior via the MessageLogger Service  </a> -->
+</ul>
+
+<hr><p></hr>
+
+<a name="howSend">
+<p>
+<h2> Issuing Messages </h2>
+
+In order to issue messages, the module must include the MessageLogger
+service header:
+<font color=blue>
+<pre>
+  #include "FWCore/MessageLogger/interface/MessageLogger.h"
+</pre>
+</font>
+
+In addition, it is strongly recommended (for consistency with the way all
+services are used ) that the .cfg file contain at least the line 
+<font color=blue>
+<pre>
+  service = MessageLogger { }
+</pre>
+</font>
+The braces can enclose specifications of parameters to adjust the 
+MessageLogger behavior 
+(see <a href="parameters.html"> MessageLogger Parameters </a>); 
+if no parameters are supplied, a sensible CMS default behavior is
+provided.  
+<p>
+If the .cfg file does not specify the MessageLogger service,
+or if a message is issued in code executed before any services are initiated,  
+then the response to issuing a message will be that the content will
+be sent to cerr.
+
+Having included the necessary MessageLogger header, when code wishes to issue 
+a message, one of these functions can be used:
+
+<font color=blue>
+<pre>
+  edm::LogError   ("msgId") << a << b << ... << z;
+  edm::LogWarning ("msgId") << a << b << ... << z;
+  edm::LogInfo    ("msgId") << a << b << ... << z;
+</pre>
+</font>
+When issuing messages:
+<ul>
+<li>
+<font color=blue>LogInfo</font>,  <font color=blue>LogWarning</font>,
+and  <font color=blue>LogError</font>   
+represent three levels of "severity" of the message.  It is possible
+(see <a href="parameters.html"> MessageLogger Parameters </a>)
+to configure the job to ignore all <font color=blue>LogInfo</font> messages,
+or all messages of severity less than <font color=blue>LogError</font>.
+<li>
+<font color=blue>msgId</font> is going to be included as the first 
+part of the message, but it also plays two other roles:
+<ol>
+<li> It is possible to set limits on how many times some specific 
+type of message will be sent to the outputs of the logger.  
+By "type" we mean any messages with some specific msgId.  See
+<a href="parameters.html"> MessageLogger Parameters</a> for details.
+<li> When message statistics are provided, the counts of how many times
+messages of a given type were issued again keyed to msgId.
+</ol>
+<li>
+An arbitrary number of additional 
+objects <font color=blue> << a << b << ... << z </font> can be
+appended to the message.  These can be strings, ints, doubles, or any object
+that has an <b>operator<< </b> to an ostream. 
+(Or the message can be issued with no additional objects at all.)  
+<li>
+There is no need to affix any sort of <b>endl</b>; when the
+statement ends the message will be dispatched.
+<li> Newline characters can be included in the objects appended to the message.
+These will be used in formatting the message.  But they are generally not
+necessary:  Line breaks are automatically inserted if the next appended 
+object would cause the line to exceed 80 characters.  
+</ul>
+
+There is an additional form for issuing a message:
+<font color=blue>
+<pre>
+    LogDebug    ("msgId") << a << b << ... << z;
+</pre>
+</font>
+This is identical to the others, except:
+<ul>
+<li>
+<font color=blue>LogDebug</font> 
+affixes the <b>__FILE__</b> and <b>__LINE__</b> number to the 
+message.
+<li>
+LogDebug messages are considered to be lower in severity than LogInfo
+messages.
+<li>
+Because it must get <b>__FILE__</b> and <b>__LINE__</b> from the spot
+issuing the message, <font color=blue>LogDebug</font> 
+is implemented as a macro rather than a free function.
+<li>
+Because <font color=blue>LogDebug</font>  is a macro, it is not
+prepended with the <font color=blue>edm::</font>  namespace
+designation.
+</ul>
+
+<p><center>
+<img src="bar.gif"></center>
+
+<p><center>
+<a href="http://www.uscms.org/SoftwareComputing/index.html">
+USCMS Software and Computing Home Page </a> 
+</center>
+
+<p>
+      <hr>
+      <address><a href="mailto:mf@fnal.gov">Mark Fischler</a></address>
+<!-- hhmts start -->
+Last modified: November 24, 2005
+<!-- hhmts end -->
+</body>
