@@ -17,11 +17,11 @@
 //
 // Original Author:  Chris D Jones
 //         Created:  Tue Nov 22 13:03:39 EST 2005
-// $Id: SimWatcherMakerBase.h,v 1.1 2005/11/22 20:05:22 chrjones Exp $
+// $Id: SimWatcherMakerBase.h,v 1.1 2005/11/22 22:02:08 chrjones Exp $
 //
 
 // system include files
-#include <memory>
+#include "boost/shared_ptr.hpp"
 
 // user include files
 
@@ -31,7 +31,7 @@ namespace edm{
   class ParameterSet;
 }
 class SimWatcher;
-
+class SimProducer;
 class SimWatcherMakerBase
 {
 
@@ -40,12 +40,11 @@ class SimWatcherMakerBase
       virtual ~SimWatcherMakerBase() {}
 
       // ---------- const member functions ---------------------
-      virtual std::auto_ptr<SimWatcher> make(const edm::ParameterSet&,
-					      SimActivityRegistry&) const = 0;
-
-
-   private:
-
+      virtual void make(const edm::ParameterSet&,
+			SimActivityRegistry&,
+			boost::shared_ptr<SimWatcher>&,
+			boost::shared_ptr<SimProducer>&
+	 ) const = 0;
 };
 
 

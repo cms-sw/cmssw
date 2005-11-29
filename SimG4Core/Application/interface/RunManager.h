@@ -26,6 +26,7 @@ class PrimaryTransformer;
 class Generator;
 class PhysicsList;
 class SimWatcher;
+class SimProducer;
 class G4SimEvent;
 class SimTrackManager;
 
@@ -59,6 +60,10 @@ public:
     void runRNDMrestore(int run);
     void eventRNDMstore(int run, int event);
     void eventRNDMrestore(int run, int event);
+
+    std::vector<boost::shared_ptr<SimProducer> > producers() const {
+       return m_producers;
+    }
 protected:
     G4Event * generateEvent(int evt);
 private:
@@ -101,6 +106,7 @@ private:
 
     SimActivityRegistry m_registry;
     std::vector<boost::shared_ptr<SimWatcher> > m_watchers;
+    std::vector<boost::shared_ptr<SimProducer> > m_producers;
     
     std::auto_ptr<SimTrackManager> m_trackManager;
 };

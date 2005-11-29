@@ -11,6 +11,8 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 
+#include "SimG4Core/Watcher/interface/SimProducer.h"
+
 #include <iostream>
 
 OscarProducer::OscarProducer(edm::ParameterSet const & p) 
@@ -27,6 +29,15 @@ OscarProducer::OscarProducer(edm::ParameterSet const & p)
     produces<edm::PSimHitContainer>("MuonCSCHits");
     produces<edm::PSimHitContainer>("MuonRPCHits");
     m_runManager = RunManager::init(p);
+
+    //register any products 
+    m_producers= m_runManager->producers();
+
+    for(Producers::iterator itProd = m_producers.begin();
+	itProd != m_producers.end();
+	++itProd) {
+       (*itProd)->registerProducts(*this);
+    }
 }
 
 OscarProducer::~OscarProducer() 
@@ -79,6 +90,12 @@ void OscarProducer::produce(edm::Event & e, const edm::EventSetup & es)
 	    (*it)->fillHits(*product,*in);
 	    e.put(product,*in);
 	}
+    }
+
+    for(Producers::iterator itProd = m_producers.begin();
+	itProd != m_producers.end();
+	++itProd) {
+       (*itProd)->produce(e,es);
     }
 }
  

@@ -7,7 +7,7 @@
 // 
 /**\class SimWatcherMaker SimWatcherMaker.h SimG4Core/Watcher/interface/SimWatcherMaker.h
 
- Description: <one line class summary>
+ Description: Makes a particular type of SimWatcher
 
  Usage:
     <usage>
@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Tue Nov 22 13:03:44 EST 2005
-// $Id: SimWatcherMaker.h,v 1.1 2005/11/22 20:05:22 chrjones Exp $
+// $Id: SimWatcherMaker.h,v 1.1 2005/11/22 22:02:08 chrjones Exp $
 //
 
 // system include files
@@ -36,13 +36,28 @@ class SimWatcherMaker : public SimWatcherMakerBase
       SimWatcherMaker(){}
 
       // ---------- const member functions ---------------------
-      virtual std::auto_ptr<SimWatcher> make(const edm::ParameterSet& p,
-                                SimActivityRegistry& reg) const
+      virtual void make(const edm::ParameterSet& p,
+			SimActivityRegistry& reg,
+			boost::shared_ptr<SimWatcher>& oWatcher,
+			boost::shared_ptr<SimProducer>& oProd
+	 ) const
       {
-	std::auto_ptr<T> returnValue(new T(p));
+	boost::shared_ptr<T> returnValue(new T(p));
 	SimActivityRegistryEnroller::enroll(reg, returnValue.get());
-	
-	return std::auto_ptr<SimWatcher>(returnValue);
+	oWatcher = returnValue;
+
+	//If this is also a SimProducer, set the value
+	oProd = this->getSimProducer(returnValue.get(), returnValue);
+      }
+
+   private:
+      boost::shared_ptr<SimProducer>
+      getSimProducer(SimProducer*, boost::shared_ptr<T>& iProd) const{
+	 return boost::shared_ptr<SimProducer>(iProd);
+      }
+      boost::shared_ptr<SimProducer>
+      getSimProducer(void*, boost::shared_ptr<T>& iProd) const{
+	 return boost::shared_ptr<SimProducer>();
       }
 
 };

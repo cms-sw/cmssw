@@ -42,6 +42,41 @@
 #include <strstream>
 #include <fstream>
 
+static
+void createWatchers(const edm::ParameterSet& iP,
+		    SimActivityRegistry& iReg,
+		    std::vector<boost::shared_ptr<SimWatcher> >& oWatchers,
+		    std::vector<boost::shared_ptr<SimProducer> >& oProds
+   )
+{
+  using namespace std;
+  using namespace edm;
+  vector<ParameterSet> watchers;
+  try {
+    watchers = iP.getParameter<vector<ParameterSet> >("Watchers");
+  } catch( edm::Exception) {
+  }
+  
+  for(vector<ParameterSet>::iterator itWatcher = watchers.begin();
+      itWatcher != watchers.end();
+      ++itWatcher) {
+    std::auto_ptr<SimWatcherMakerBase> maker( 
+      SimWatcherFactory::get()->create
+      (itWatcher->getParameter<std::string> ("type")) );
+    if(maker.get()==0) {
+      throw SimG4Exception("Unable to find the requested Watcher");
+    }
+    
+    boost::shared_ptr<SimWatcher> watcherTemp;
+    boost::shared_ptr<SimProducer> producerTemp;
+    maker->make(*itWatcher,iReg,watcherTemp,producerTemp);
+    oWatchers.push_back(watcherTemp);
+    if(producerTemp) {
+       oProds.push_back(producerTemp);
+    }
+  }
+}
+
 RunManager * RunManager::me = 0;
 RunManager * RunManager::init(edm::ParameterSet const & p)
 {
@@ -88,6 +123,8 @@ RunManager::RunManager(edm::ParameterSet const & p)
     if(otherRegistry){
        m_registry.connect(*otherRegistry);
     }
+
+    createWatchers(m_p, m_registry, m_watchers, m_producers);
 }
 
 RunManager::~RunManager() 
@@ -95,38 +132,9 @@ RunManager::~RunManager()
     if (m_kernel!=0) delete m_kernel; 
 }
 
-static
-void createWatchers(const edm::ParameterSet& iP,
-		    SimActivityRegistry& iReg,
-		    std::vector<boost::shared_ptr<SimWatcher> >& oWatchers)
-{
-  using namespace std;
-  using namespace edm;
-  vector<ParameterSet> watchers;
-  try {
-    watchers = iP.getParameter<vector<ParameterSet> >("Watchers");
-  } catch( edm::Exception) {
-  }
-  
-  for(vector<ParameterSet>::iterator itWatcher = watchers.begin();
-      itWatcher != watchers.end();
-      ++itWatcher) {
-    std::auto_ptr<SimWatcherMakerBase> maker( 
-      SimWatcherFactory::get()->create
-      (itWatcher->getParameter<std::string> ("type")) );
-    if(maker.get()==0) {
-      throw SimG4Exception("Unable to find the requested Watcher");
-    }
-    std::auto_ptr<SimWatcher> temp(maker->make(*itWatcher,iReg));
-    oWatchers.push_back( boost::shared_ptr<SimWatcher>(temp) );
-  }
-}
-
 void RunManager::initG4(const edm::EventSetup & es)
 {
     if (m_managerInitialized) return;
-
-    createWatchers(m_p, m_registry, m_watchers);
 
     // DDDWorld: get the DDCV from the ES and use it to build the World
     edm::ESHandle<DDCompactView> pDD;
