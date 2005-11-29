@@ -1,3 +1,6 @@
+** V00-03-02  [Tue Nov 29 14:58:17 2005]
+add exception and operator&lt;&lt;
+
 ** V00-03-01  [Tue Nov 22 16:17:58 2005]
 eliminate reference to SimHitCollection (obsolete)
 
