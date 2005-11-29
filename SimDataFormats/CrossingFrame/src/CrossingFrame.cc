@@ -190,6 +190,14 @@ void CrossingFrame::print(int level) const {
     // 	  }
   }
    
-
 }
+
+std::ostream &operator<<(std::ostream& o, const CrossingFrame &cf)
+{
+  o <<"\nCrossingFrame for "<<cf.getEventID()<<",  minbunch = "<<cf.getFirstCrossingNr()
+	   <<", bunchSpace "<<cf.getBunchSpace();
+
+  return o;
+}
+
 

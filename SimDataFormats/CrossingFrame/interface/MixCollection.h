@@ -16,6 +16,8 @@ private:
   MixCollection(const CrossingFrame *cf, 
 		   const std::string subdet=" ", const range bunchRange =range(-999,999));
 
+  range bunchrange() const {return bunchRange_;}
+
   class MixItr;
   friend class MixItr;
 
@@ -72,8 +74,14 @@ private:
        std::vector<std::vector<T> > *getPileups() {return pileups_;}
 };
 
+
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
+//
+// Exceptions
+//
+#include "FWCore/Utilities/interface/Exception.h"
+
 
 template <class T> 
 MixCollection<T>::MixCollection(const CrossingFrame *cf, const std::string subdet, const std::pair<int,int> bunchRange) : 
@@ -83,14 +91,14 @@ MixCollection<T>::MixCollection(const CrossingFrame *cf, const std::string subde
 
   //verify whether detector is present
   cf_->getSignal(subdet,signals_);
-  if (!signals_) {
-    std::cout<< " No detector "<<subdet<<" known in CrossingFrame!!"<<std::endl;
+  if (!signals_->size()) {
+     throw cms::Exception("UnknownSubdetector")<< " No detector "<<subdet<<" known in CrossingFrame\n";
     return;
   }
-
+ 
   cf_->getPileups(subdet,pileups_);
-  if (!pileups_) {
-    std::cout<< " No pileups for detector "<<subdet<<" in CrossingFrame!!"<<std::endl;
+  if (!pileups_->size()) {
+     throw cms::Exception("UnknownSubdetector")<< " No pileups for detector "<<subdet<<" in CrossingFrame\n";
     return;
   }
 
@@ -102,10 +110,7 @@ MixCollection<T>::MixCollection(const CrossingFrame *cf, const std::string subde
   else if (bunchRange_!=defaultrange ) {
     int first=defaultrange.first;
     int last = defaultrange.second;
-    if (bunchRange_.first<defaultrange.first)       std::cout <<" Existing runrange is "<<defaultrange.first<<", "<<defaultrange.second<<" you are asking for "<<bunchRange_.first<<", "<<bunchRange_.second<<", lower limit was reset!!"<<std::endl; //FIXME: who throws exception?
-    else first=bunchRange_.first;
-    if (bunchRange_.second>defaultrange.second)         std::cout <<" Existing runrange is "<<defaultrange.first<<", "<<defaultrange.second<<" you are asking for "<<bunchRange_.first<<", "<<bunchRange_.second<<", upper limit was reset!!"<<std::endl; //who throws exception?
-    else last=bunchRange_.second;
+    if (bunchRange_.first<defaultrange.first || bunchRange_.second>defaultrange.second )  throw cms::Exception("BadRunRange")<<" You are asking for a runrange ("<<bunchRange_.first<<","<<bunchRange_.second<<"), outside of the existing runrange ("<<defaultrange.first<<", "<<defaultrange.second<<")\n";
     bunchRange_=range(first,last);
   }
 
@@ -160,5 +165,16 @@ typename  MixCollection<T>::MixItr MixCollection<T>::end() {
   typename std::vector<T>::iterator itend=it->end();
   return itend;
 }
+
+#include<iosfwd>
+#include<iostream>
+template <class T>
+std::ostream &operator<<(std::ostream& o, const MixCollection<T>& col)
+{
+  o << "MixCollection with bunchRange: "<<(col.bunchrange()).first<< "," << (col.bunchrange()).second;
+
+  return o;
+}
+
 #endif
 

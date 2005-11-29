@@ -51,6 +51,7 @@ using namespace edm;
       void addPileupVertices(const int bcr, const edm::EmbdSimVertexContainer *, int trackoffset=0);      
       void print(int level=0) const ;
       void setEventID(edm::EventID id) {id_=id;}
+      edm::EventID getEventID() const {return id_;}
       int getFirstCrossingNr() const {return firstCrossing_;}
       int getBunchSpace() const {return bunchSpace_;}
       
@@ -93,6 +94,9 @@ using namespace edm;
       std::vector<edm::EmbdSimVertexContainer> pileupVertices_;
 
     };
- 
+
+#include<iosfwd>
+#include<iostream>
+std::ostream &operator<<(std::ostream& o, const CrossingFrame & c);
 
 #endif 
