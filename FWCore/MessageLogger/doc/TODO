@@ -1,0 +1,54 @@
+			TODO list
+			---------
+Before Phase 1 Initial Release
+------------------------------
+
+
+<ALL DONE!>
+
+		
+To Complete Phase 1
+-------------------
+
+Guide to Issuing CMS MessageLogger Messages
+
+Finalize decision on  whether to hoist LogWarning etc to not be in 
+edm namespace (JBK likes it the way we have it).
+
+If no destinations attached, re-enable cerr.
+
+		
+Decide whether debug is lowest or highest level.  (Have Jim's statement that
+it is lowest.)
+
+Add string name for debug's severity of DEBUG to map.
+
+
+
+Known for Phase 2
+-----------------
+
+statistics destination(s) 
+
+Destination connecting to log4cplusplus - or discussion about that with
+CMS and decision on what to do instead.
+
+Information order (is time etc first or last...)
+
+Default behaviour (particularly destination) if none provided.
+
+
+			Recommended options
+			-------------------
+
+Way to incorporate Module name
+
+
+ErrorLogger has a scheme for establishing debug verbosity levels and
+discriminating about whether a given message will be rapidly discarded
+based on the level assigned. The LogDebug mechanism should be able to 
+exploit that scheme.
+
+
+			Plausible options
+			-----------------
