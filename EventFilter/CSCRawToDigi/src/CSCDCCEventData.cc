@@ -13,7 +13,7 @@
 #include <vector>
 #include <cstdio>
 
-bool CSCDCCEventData::debug = true;
+bool CSCDCCEventData::debug = false;
 
 CSCDCCEventData::CSCDCCEventData(int sourceId, int nDDUs, int bx, int l1a) 
 : theDCCHeader(bx, l1a, sourceId) 
@@ -69,7 +69,7 @@ void CSCDCCEventData::unpack_data(unsigned short *buf) {
       std::cout << "sizeof( dduData) =  " << sizeof(dduEventData) << std::endl;
 
       for (int i=0;i<20;i++) {
-	printf("%04x %04x %04x %04x\n",buf[i+3],buf[i+2],buf[i+1],buf[i]);
+	printf("%04x %04x %04x %04x\n",buf[4*i+3],buf[4*i+2],buf[4*i+1],buf[4*i]);
       }
       break;
     }
