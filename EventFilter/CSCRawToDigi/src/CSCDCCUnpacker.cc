@@ -36,18 +36,19 @@
 
 
 CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset){
+  std::cout << "starting DCCConstructor";   
   //fill constructor here
-  dccData = 0;
+  //dccData = 0;
   produces<CSCWireDigiCollection>();
   produces<CSCStripDigiCollection>();
-
-
+  std::cout <<"... and finished " << std::endl;  
+  
 }
 
 CSCDCCUnpacker::~CSCDCCUnpacker(){
-
+  
   //fill destructor here
-  delete dccData;   
+  //delete dccData;   
 
 }
 
@@ -65,21 +66,30 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
   //std::auto_ptr<CSCCLCTpDigiCollection> clctProduct(new CSCCLCTDigiCollection);
   //std::auto_ptr<CSCComparatorDigiCollection> ComparatorProduct(new CSCComparatorDigiCollection);
   //std::auto_ptr<CSCRPCDigiCollection> RPCProduct(new CSCRPCDigiCollection);
+  
+  //std::cout <<"in the producer now " << std::endl;  
 
   for (int id=FEDNumbering::getCSCFEDIds().first;
        id<=FEDNumbering::getCSCFEDIds().second; ++id){ //for each of our DCCs
+    //std::cout <<"in the loop of CSCFEDs now " << std::endl;
     
     // Take a reference to this FED's data
     const FEDRawData& fedData = rawdata->FEDData(id);
 
+
     if (fedData.size()){ //unpack data 
+      //std::cout <<"in the loop of CSCFEDs data now " << std::endl;
      
-      //get a pointer to dcc data and pass it to constructor for unpacking
-      dccData=new CSCDCCEventData((short unsigned int *) fedData.data()); 
+      //get a pointer to data and pass it to constructor for unpacking
+      CSCDCCEventData dccData((short unsigned int *) fedData.data()); 
+      
+      numOfEvents++; 
+     
+      std::cout<<"[DCCUnpackingModule]:"<<numOfEvents<<" events analyzed"<<std::endl;
 
 
       //get a reference to dduData
-      const std::vector<CSCDDUEventData> & dduData = dccData->dduData(); 
+      const std::vector<CSCDDUEventData> & dduData = dccData.dduData(); 
 
       for (int iDDU=0; iDDU<dduData.size(); ++iDDU) {  //loop over DDUs
 	

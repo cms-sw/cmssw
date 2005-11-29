@@ -4,8 +4,8 @@
 /** \class CSCDCCUnpacker
  * 
  *
- *  $Date: 2005/10/14 18:13:00 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/11/28 21:42:50 $
+ *  $Revision: 1.2 $
  * \author Alex Tumanov 
  */
 
@@ -24,14 +24,14 @@ class CSCDCCUnpacker: public edm::EDProducer {
   /// Produce digis out of raw data
   void produce(edm::Event & e, const edm::EventSetup& c);
 
-  CSCDCCEventData * dccUnpackedData(){return dccData;}
+  //CSCDCCEventData * dccUnpackedData(){return dccData;}
 
 
   
  private:
 
-  CSCDCCEventData * dccData;
-
+  //CSCDCCEventData * dccData;
+  int numOfEvents;
 
   
 };
