@@ -1,0 +1,10 @@
+<lcgdict>
+
+ <class name="SiStripPedestals" id="e63da36a5e362e91c2b64a16b5962310"/>
+ <class name="SiStripPedestals::Item"/>
+ <class name="std::vector<SiStripPedestals::Item>"/>
+ <class name="std::pair<const int, std::vector<SiStripPedestals::Item> >"/>
+
+ <class pattern="*map*"/>
+ <class pattern="*iterator*"/>
+</lcgdict>   
