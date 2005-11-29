@@ -18,8 +18,8 @@ public:
     };
 
     //map of CCU [0,] to I2C channels
-    map<short, vector<I2CItem> > //CCU 
-
+    //FIXME
+    std::map<short, std::vector<I2CItem> > CCU;
   };
   //map of fecs [0,] to Rings
   std::map<short, std::vector<RingItem> > Fecs;

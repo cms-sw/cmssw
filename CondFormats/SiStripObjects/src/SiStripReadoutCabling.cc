@@ -1,4 +1,4 @@
-#include "CondFormats/SiStripObjects/interface/SiStripReadOutCabling.h"
+#include "CondFormats/SiStripObjects/interface/SiStripReadoutCabling.h"
 SiStripReadOutCabling::SiStripReadOutCabling(){
 }
 SiStripReadOutCabling::~SiStripReadOutCabling(){
