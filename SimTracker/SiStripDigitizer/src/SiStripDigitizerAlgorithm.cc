@@ -35,11 +35,15 @@ SiStripDigitizerAlgorithm::~SiStripDigitizerAlgorithm(){
 //  Run the algorithm
 //  ------------------
 void SiStripDigitizerAlgorithm::run(const std::vector<PSimHit*> &input,
-				      StripDigiCollection &output, StripGeomDetUnit *det)
+				    StripDigiCollection &output,
+				    StripGeomDetUnit *det,
+				    GlobalVector bfield)
+
 {
   /// Temporary solution: run() contains what was in the constructor of SiStripDigitizer in ORCA.
 
   std::cout << "SiStripDigitizerAlgorithm is running!" << endl;
+
 
   NumberOfSegments = 20; // Default number of track segment divisions
   ClusterWidth = 3.;     // Charge integration spread on the collection plane
@@ -108,7 +112,7 @@ void SiStripDigitizerAlgorithm::run(const std::vector<PSimHit*> &input,
     // Compute the different charges;
     //
     if ( abs(ihit->tof()) < tofCut && ihit->energyLoss()>0) {
-      SiHitDigitizer::hit_map_type _temp = theSiHitDigitizer->processHit(*ihit,*det);
+      SiHitDigitizer::hit_map_type _temp = theSiHitDigitizer->processHit(*ihit,*det,bfield);
       theSiPileUpSignals->add(_temp,*ihit);
     }
   }

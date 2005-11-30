@@ -9,6 +9,10 @@
 <use name=SimGeneral/NoiseGenerators>
 <use name=SimGeneral/HepPDT>
 <use name=gsl>
+<use name=boost>
+<use name=MagneticField/Records>
+<use name=MagneticField/GeomBuilder>
+<use name=MagneticField/VolumeBasedEngine>
 <flags SEAL_PLUGIN_NAME="SimTrackerSiStripDigitizer">
 <export>
    <lib name=SimTrackerSiStripDigitizer>
@@ -23,4 +27,9 @@
    <use name=SimGeneral/Generators>
    <use name=SimGeneral/HepPDT>
    <use name=gsl> 
+   <use name=boost>
+   <use name=MagneticField/Records>
+   <use name=MagneticField/GeomBuilder>
+   <use name=MagneticField/VolumeBasedEngine>
+   <use name=Geometry/Surface>
 </export>

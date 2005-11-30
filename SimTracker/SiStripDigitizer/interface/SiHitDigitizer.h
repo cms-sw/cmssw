@@ -47,7 +47,7 @@ class SiHitDigitizer{
   //SiChargeCollectionDrifter* getChargeCollectionDrifter(){return theSiChargeCollectionDrifter;}
   //SiInduceChargeOnStrips* getInduceChargeOnStrips(){return theSiInduceChargeOnStrips;}
   
-  hit_map_type processHit(const PSimHit&, const StripGeomDetUnit&);
+  hit_map_type processHit(const PSimHit&, const StripGeomDetUnit&, GlobalVector);
   
  private:
   SiChargeDivider* theSiChargeDivider;
@@ -62,6 +62,10 @@ class SiHitDigitizer{
   bool noDiffusion;
   double chargeDistributionRMS;
   double gevperelectron;
+  LocalVector DriftDirection(const StripGeomDetUnit*,GlobalVector);
+  typedef GloballyPositioned<double>      Frame;
+  float tanLorentzAnglePerTesla;   //Lorentz angle tangent per Tesla
+
 };
 
 #endif

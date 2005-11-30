@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea GIAMMANCO
 //         Created:  Thu Sep 22 14:23:22 CEST 2005
-// $Id: SiStripDigitizer.cc,v 1.3 2005/11/09 17:57:17 giamman Exp $
+// $Id: SiStripDigitizer.cc,v 1.4 2005/11/12 17:33:49 giamman Exp $
 //
 //
 
@@ -49,6 +49,10 @@
 #include "Geometry/TrackerSimAlgo/interface/PixelGeomDetType.h"
 #include "Geometry/TrackerSimAlgo/interface/StripGeomDetType.h"
 #include "Geometry/TrackerSimAlgo/interface/StripGeomDetUnit.h"
+//needed for the magnetic field:
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
 using namespace std;
 
 namespace cms
@@ -108,8 +112,13 @@ namespace cms
  
     iSetup.get<TrackerDigiGeometryRecord> ().get (pDD);
  
+    edm::ESHandle<MagneticField> pSetup;
+    iSetup.get<IdealMagneticFieldRecord>().get(pSetup);
+
     int i=0;
     for(TrackingGeometry::DetContainer::iterator iu = pDD->dets().begin(); iu != pDD->dets().end(); iu ++){
+
+      GlobalVector bfield=pSetup->inTesla((*iu)->surface().position());
 
       //   const GeomDetUnit& iu(**iu);
       if (dynamic_cast<StripGeomDetUnit*>((*iu))!=0){
@@ -144,7 +153,7 @@ namespace cms
 
 	    pseudoHitSingleContainer.push_back(pseudoHit);
 	  }
-	  stripDigitizer_.run(pseudoHitSingleContainer,*output,dynamic_cast<StripGeomDetUnit*>((*iu)));
+	  stripDigitizer_.run(pseudoHitSingleContainer,*output,dynamic_cast<StripGeomDetUnit*>((*iu)),bfield);
 	}
 
       }
