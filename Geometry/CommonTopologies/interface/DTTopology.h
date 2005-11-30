@@ -7,19 +7,12 @@
  * Extends the Topology interface with methods relevant for
  * the DT detectors.
  *  
- *  $Date: 2005/11/21 08:52:39 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/11/21 13:14:53 $
+ *  $Revision: 1.3 $
  *
  * \author R. Bellan - INFN Torino
  *
  */
-
-/*
-#include "Geometry/CommonDetAlgo/interface/LocalError.h"
-#include "Geometry/Vector/interface/LocalPoint.h"
-#include "Geometry/CommonDetAlgo/interface/MeasurementPoint.h"
-#include "Geometry/CommonDetAlgo/interface/MeasurementError.h"
-*/
 
 #include "Geometry/CommonTopologies/interface/Topology.h"
 #include "Geometry/Vector/interface/LocalPoint.h"
@@ -28,7 +21,7 @@ class DTTopology: public Topology {
  public:
   
   //Constructor: number of first wire, total # of wires in the layer and their lenght
-  DTTopology(int firstWire, int nChannels,float lenght);
+  DTTopology(int firstWire=0, int nChannels=0,float lenght=0); // togliere =0 prima di commitare
 
   virtual ~DTTopology() {}
   
@@ -47,16 +40,16 @@ class DTTopology: public Topology {
   int channel( const LocalPoint& p) const;
 
   // return the x-wire position in the layer, starting from its wire number.
-  float wirePosition(int wireNumber);
+  float wirePosition(int wireNumber) const;
   
   // They return the cell dimensions:
-  float cellWidth(){return theWidth;}
-  float cellHeight(){return theHeight;}
-  float cellLenght(){return theLength;}
+  const float cellWidth() const {return theWidth;}
+  const float cellHeight() const {return theHeight;}
+  const float cellLenght() const {return theLength;}
   
   // They return the dimensions of the sensible volume of the cell:
-  float sensibleWidth();
-  float sensibleHeight();
+  const float sensibleWidth() const;
+  const float sensibleHeight() const;
   
 private: 
   int theFirstChannel;

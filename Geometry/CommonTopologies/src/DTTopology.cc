@@ -58,7 +58,7 @@ int DTTopology::channel( const LocalPoint& lp) const{
 }
 
 // return the x wire position in the layer, starting from its wire number.
-float DTTopology::wirePosition(int wireNumber){
+float DTTopology::wirePosition(int wireNumber) const{
   return  (wireNumber - 0.5)*theWidth + theOffSet.x();
 }
   
