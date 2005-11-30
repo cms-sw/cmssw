@@ -23,7 +23,9 @@ it is lowest.)
 
 Add string name for debug's severity of DEBUG to map.
 
-
+Figure out how to allow proper specification of directory in which destination
+files are to appear.  First, CMS has to resolve how they want to do this sort of
+thing in general.
 
 Known for Phase 2
 -----------------
@@ -37,6 +39,7 @@ Information order (is time etc first or last...)
 
 Default behaviour (particularly destination) if none provided.
 
+Deal with case of ofstream failing to construct.
 
 			Recommended options
 			-------------------
