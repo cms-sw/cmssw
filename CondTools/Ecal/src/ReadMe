@@ -42,7 +42,7 @@ Modify EcalPedestals-custom.xml
 
 5.1)  To write the file catalog to the DB, do:
 
- > FCpublish -u file:POOLFilecatalog.xml -d oracle://devdb/cms_ecal_dev
+ > FCpublish -u file:POOLFileCatalog.xml -d relationalcatalog_oracle://devdb/cms_ecal_dev
 
 6) In the offline db, build initial iov of the EcalPedestals data from
    the TIME value in the top level EcalPedestals object table. The
