@@ -17,14 +17,28 @@
 //
 // Original Author:  Riccardo Bellan
 //         Created:  Fri Nov  4 18:56:35 CET 2005
-// $Id$
+// $Id: DTDigitizer.h,v 1.1 2005/11/21 09:44:13 bellan Exp $
 //
 
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Handle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+
+#include "FWCore/EDProduct/interface/EDProduct.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 //
 #include <vector>
-#include <pair>
+#include "DataFormats/DTDigi/interface/DTDigiCollection.h"
+#include "DataFormats/MuonDetId/interface/DTDetId.h"
+#include "Geometry/CommonTopologies/interface/DTTopology.h"
 
+using namespace std;
+
+class DTGeomDetUnit;
+class PSimHit;
+class DTWireType;
+class DTBaseDigiSync;
 
 class DTDigitizer : public edm::EDProducer {
   
@@ -36,7 +50,11 @@ class DTDigitizer : public edm::EDProducer {
  private:
   typedef pair<const PSimHit*,float> hitAndT; // hit & corresponding time
   typedef vector<hitAndT> TDContainer; // hits & times for one wire
-  
+
+  typedef map<DTDetId, vector<PSimHit> > DTDetIdMap;
+  typedef map<DTDetId, vector<PSimHit> >::iterator DTDetIdMapIter;  
+  typedef map<DTDetId, vector<PSimHit> >::const_iterator DTDetIdMapConstIter;  
+
   // Sort hits container by time.
   struct hitLessT {
     bool operator()(const  hitAndT & h1, const hitAndT & h2) {
@@ -47,7 +65,7 @@ class DTDigitizer : public edm::EDProducer {
 
   // Calculate the drift time for one hit. 
   // if status flag == false, hit has to be discarded.
-  pair<float,bool> computeTime(DTGeomDetUnit* layer,const DTDetId &wireId, const PSimHit hit) ;
+  pair<float,bool> computeTime(const DTGeomDetUnit* layer,const DTDetId &wireId, const PSimHit &hit) ;
 
   // Calculate the drift time using the GARFIELD cell parametrization,
   // taking care of all conversions from CMSSW local coordinates
@@ -61,25 +79,33 @@ class DTDigitizer : public edm::EDProducer {
   
   // Add all delays other than drift times (signal propagation along the wire, 
   // TOF etc.; subtract calibration time.
-  float externalDelays( .. ..);  
-  /* OLD
-  float externalDelays(MuBarBaseReadout * stat,
-		       const MuBarWireId & wireId,
-		       const PSimHit * hit) const;*/ 
+  float externalDelays(const DTTopology &topo, 
+		       const DTDetId &wireId, 
+		       const PSimHit *hit) const;
 
   // Store digis for one wire, taking into account the dead time.
-  void storeDigis(... ... );
-  /* OLD
-  void storeDigis(MuBarBaseReadout* stat, const MuBarWireId & wireId,
-		  TDContainer & hits);*/
+  //FiXME put alias for the map.
+  void storeDigis(DTDetId &wireId, 
+		  DTDetIdMapConstIter &wire,
+		  DTDetIdMapIter end,
+		  TDContainer &hits,
+		  std::auto_ptr<DTDigiCollection> &output);
+
+		  //DTDigiCollection &output);
+
+  void loadOutput(std::auto_ptr<DTDigiCollection> &output,
+		  // DTDigiCollection &output, 
+		  vector<DTDigi> &digis, DTDetId &layerID);
 
   // Debug output
-  void dumpHit(const PSimHit * hit, float xEntry, float xExit, DTWireType* wire_type);
+  void dumpHit(const PSimHit * hit, float xEntry, float xExit, const DTTopology &topo);
+
 
   // Check if given point (in cell r.f.) is on cell borders.
   enum sides {zMin,zMax,xMin,xMax,yMin,yMax,none}; // sides of the cell
-  sides onWhichBorder(float x, float y, float z, DTWireType* wire_type);
-    
+  sides onWhichBorder_old(float x, float y, float z, const DTTopology& topo);
+  sides onWhichBorder(float x, float y, float z, const DTTopology& topo);
+
   // Double half-gaussian smearing.
   float asymGausSmear(double mean, double sigmaLeft, double sigmaRight) const;
 

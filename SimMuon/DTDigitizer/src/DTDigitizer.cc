@@ -1,39 +1,36 @@
-// -*- C++ -*-
-//
+// 
 // Package:    DTDigitizer
 // Class:      DTDigitizer
 // 
 /**\class DTDigitizer DTDigitizer.cc src/DTDigitizer/src/DTDigitizer.cc
 
- Description: <one line class summary>
+ Description: Digitizer for the Drift Tubes
 
  Implementation:
-     <Notes on implementation>
+          This version compiles, but some classes used by this package are fake.
 */
 //
 // Original Author:  Riccardo Bellan
 //         Created:  Fri Nov  4 18:56:35 CET 2005
-// $Id$
+// $Id: DTDigitizer.cc,v 1.1 2005/11/21 09:44:13 bellan Exp $
 //
 //
 // system include files
 #include <memory>
 
-// user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
-//#include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
+#include "FWCore/Framework/interface/ESHandle.h"
 //
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/DTSimAlgo/interface/DTGeometry.h"
-
-
+#include "Geometry/DTSimAlgo/interface/DTGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/DTTopology.h"
+//
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "FWCore/Framework/interface/Handle.h"
@@ -43,20 +40,28 @@
 #include "Geometry/Vector/interface/LocalVector.h"
 
 //
+
 #include "SimMuon/DTDigitizer/interface/DTDriftTimeParametrization.h"
+#include "SimMuon/DTDigitizer/interface/DTDigitizer.h"
 
-//FIXME mancano altri include
+#include <CLHEP/Random/RandGaussQ.h>
+#include <CLHEP/Random/RandFlat.h>
 
-//FIXME la natura di hit non l'ho ancora determinata, percio' il codice non e' consistente.
+#include <cmath>
+
+
+//FIXME- ReCheck the "hit nature" (is it a pointer?)
+using namespace edm;
+using namespace std;
 
 DTDigitizer::DTDigitizer(const edm::ParameterSet& iConfig):conf_(iConfig){
   
   cout<<"Creating a DTDigitizer"<<endl;
   
   //register the Producer
-  produces<PSimHitContainer>();
+  //  produces<DTDigiCollection>();
   //if do put with a label
-  produces<PSimHitContainer>("DTDigitization");
+  produces<DTDigiCollection>("DTDigitization");
   
   //Parameters:
 
@@ -93,9 +98,9 @@ void DTDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
   //************ 1 ***************
   
   // create the container for the SimHits
-  Handle<PSimHitContainer> simHits;         //edm::Handle has the same implementation as a pointer
-  // fill the container
-  iSetup.getByLabel("MuonDTHits",simHits); // FIXME-check
+  Handle<PSimHitContainer> simHits; //edm::Handle has the same implementation as a pointer
+  // fill the container - FIXME, what is "r"?
+  iEvent.getByLabel("r","MuonDTHits",simHits);
 
   // create the pointer to the Digi container
   std::auto_ptr<DTDigiCollection> output(new DTDigiCollection());
@@ -107,18 +112,18 @@ void DTDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
   //************ 2 ***************
 
   // These are sorted by DetId, i.e. by layer and then by wire #
-  map<DTDetId, vector<PSimHit*> > wireMap;     
+  map<DTDetId, vector<PSimHit> > wireMap;     
   //  map<DTDetId, vector<PSimHit> > detUnitMap;
  
   // loop over the SimHits -  FIXME check the iterator...
   // maybe can be: PSimHitContainer::const_iterator...
-  for(PSimHitContainer::const_iterator simHit = simHits->begin();
+  for(vector<PSimHit>::const_iterator simHit = simHits->begin();
        simHit != simHits->end(); simHit++){
     
     // Create the id of the wire, the simHits in the DT known also the wireId
     DTDetId wireId(simHit->detUnitId());
     // Fill the map
-    WireMap[wireId].push_back(*simHit); 
+    wireMap[wireId].push_back(*simHit); 
   }
   
   pair<float,bool> time(0.,false);
@@ -126,16 +131,18 @@ void DTDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
   //************ 3 ***************
 
   // Loop over the wires
-  for(map<DTDetId, vector<PSimHit*> >::const_iterator wire =
-	WireMap.begin(); wire!=WireMap.end(); wire++){
+  for(map<DTDetId, vector<PSimHit> >::const_iterator wire =
+	wireMap.begin(); wire!=wireMap.end(); wire++){
     // SimHit Container associated to the wire
-    const vector<PSimHit*> & vhit = (*wire).second; // perche' by reference??
+    const vector<PSimHit> & vhit = (*wire).second; 
     if(vhit.size()!=0) {
       TDContainer tdCont; // Is a vector<pair<const PSimHit*,float> >;
-
+      
       //************ 4 ***************
       DTDetId wireId = (*wire).first;
-      DTGeomDetUnit* layer = muonGeom->idToDet(wireId); // FIXME - check,altern ->  wireId.layer() ?
+
+      const DTGeomDetUnit* layer = dynamic_cast< const DTGeomDetUnit* > (muonGeom->idToDet(wireId)); 
+
       // Loop on the hits of this wire    
       for (vector<PSimHit>::const_iterator hit=vhit.begin();
 	   hit != vhit.end(); hit++){
@@ -147,7 +154,7 @@ void DTDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
 	//************ 6 ***************
 
 	if (time.second) {
-	  tdCont.push_back(make_pair(*hit,time.first));
+	  tdCont.push_back(make_pair(&(*hit),time.first));
 	} else {
 	  if (debug) cout << "hit discarded" << endl;
 	}
@@ -158,7 +165,7 @@ void DTDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
       // the loading must be done by layer but
       // the digitization must be done by wire (in order to take into account the dead time)
 
-      storeDigis(wireId,wire,WireMap.end(),tdCont,output);
+      storeDigis(wireId,wire,wireMap.end(),tdCont,output);
     }
     
   }
@@ -168,20 +175,21 @@ void DTDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
   iEvent.put(output);
 }
 
-//FIXME PSimHit (pointer-obj) inconsistency:
-pair<float,bool> DTDigitizer::computeTime(DTGeomDetUnit* layer,const DTDetId &wireId, const PSimHit *hit) 
+//FIXME PSimHit (pointer-obj) possible inconsistency:
+pair<float,bool> DTDigitizer::computeTime(const DTGeomDetUnit* layer,const DTDetId &wireId, const PSimHit &hit_) 
 {
+  const PSimHit* hit = &hit_;
   LocalPoint entryP = hit->entryPoint();
   LocalPoint exitP = hit->exitPoint();
   int partType = hit->particleType();
 
   // Check if hits starts/ends on one of the cell's edges
 
-  // FIXME
-  DTTopology & topo = layer->specificTopology();
-  LocalPoint  wirePos = topo.wirePosition(wireId.wire()); // mettere nell'impl della topolo che accetta il numero del filo nel layer
-  
-  float xwire = wirePos.x(); 
+  // FIXME DTTopology or DTTopology& ?
+  const DTTopology &topo = layer->specificTopology();
+
+  float xwire = topo.wirePosition(wireId.wire()); 
+
   float xEntry = entryP.x()-xwire;
   float xExit  = exitP.x()-xwire;
 
@@ -206,13 +214,13 @@ pair<float,bool> DTDigitizer::computeTime(DTGeomDetUnit* layer,const DTDetId &wi
   //event setu -> Record -> Magnetc Field
   LocalVector BLoc = layer->magneticField(locPt); // FIXME
 
-  /* // per accedere al CM e' facile, cio' che vorrei fare e' pero' mettere questo accesso in DTGeomDetUnit per poter fare
+  /* // To access to Mag Field: put in DTGeomDetUnit a method in order to do
      // layer->magneticField(locPt); 
      
   ESHandle<MagneticField> magnField;
   iSetup.get<IdealMagneticFieldRecord>().get(magnField);
   
-  //devo convertire localPt in un GlobalPoint usando la posizione del layer
+  //the localPt must be convertend into a GlobalPoint using the layer global position
   
   const GlobalPoint globalPt(0.,0.,0.);
   const GlobalVector BLoc=magnField->inTesla(globalPt);
@@ -307,14 +315,14 @@ pair<float,bool> DTDigitizer::computeTime(DTGeomDetUnit* layer,const DTDetId &wi
 
   // Signal propagation, TOF etc.
   if (driftTime.second) {
-    driftTime.first += externalDelays(stat, wireId, hit);
+    driftTime.first += externalDelays(topo,wireId,hit);
   }
   return driftTime;
 } 
 
-
-DTDigitizer::sides DTDigitizer::onWhichBorder(float x, float y, float z,
-						  DTTopology& topo){
+//Old geometry of the DT
+DTDigitizer::sides DTDigitizer::onWhichBorder_old(float x, float y, float z,
+					      const DTTopology& topo){
 
   // epsilon = Tolerance to determine if a hit starts/ends on the cell border.
   // Current value comes from CMSIM, where hit position is
@@ -342,10 +350,49 @@ DTDigitizer::sides DTDigitizer::onWhichBorder(float x, float y, float z,
   return side;
 }
 
+//New cell geometry
+DTDigitizer::sides DTDigitizer::onWhichBorder(float x, float y, float z,
+					      const DTTopology& topo){
+
+  // epsilon = Tolerance to determine if a hit starts/ends on the cell border.
+  // Current value comes from CMSIM, where hit position is
+  // always ~10um far from surface. For OSCAR the discrepancy is < 1um.
+  const float epsilon = 0.0015; // 15 um
+
+  // with new geometry (2) the cell shape is not rectangular, but is a
+  // rectangular with the I-beam "Wing" subtracted.
+  // The height of the Wing is 1.4 mm and the length is 6.35 mm: these 4
+  // volumens must be taken into account when the border is computed
+
+  const float IBeamWingThickness = 0.14; // cm
+  const float IBeamWingLength    = 0.635; // cm
+
+  sides side = none;
+
+  if ( fabs(z) > (topo.cellHeight()/2.-epsilon) ||
+       ( fabs(x) > (topo.cellWidth()/2.-IBeamWingLength-epsilon) &&
+	 fabs(z) > (topo.cellHeight()/2.-IBeamWingThickness-epsilon))) {
+    if (z > 0.) {
+      side = zMax; // This is currently the INNER surface.
+    } else {
+      side = zMin;
+    }
+	 } else if ( fabs(x) > (topo.cellWidth()/2.-epsilon)) {
+	   if (x > 0.) {
+	     side = xMax;
+	   } else {
+	     side = xMin;
+	   }
+	 }   // FIXME: else if ymax, ymin...
+  
+  return side;
+}
+
+
+
 
 //************ 5A ***************
 
-//OK!
 pair<float,bool> DTDigitizer::driftTimeFromParametrization(float x, float theta, float By, float Bz) const {
 
   // Convert from ORCA frame/units r.f. to parametrization ones.
@@ -412,7 +459,6 @@ pair<float,bool> DTDigitizer::driftTimeFromParametrization(float x, float theta,
 
 }
 
-//OK!
 float DTDigitizer::asymGausSmear(double mean, double sigmaLeft, double sigmaRight) const {
 
   double f = sigmaLeft/(sigmaLeft+sigmaRight);
@@ -437,7 +483,7 @@ pair<float,bool> DTDigitizer::driftTimeFromTimeMap() const {
 //************ 5B ***************
 
 //FIXME PSimHit (pointer-obj) inconsistency:
-float DTDigitizer::externalDelays(DTGeomDetUnit* layer, 
+float DTDigitizer::externalDelays(const DTTopology &topo, 
 				  const DTDetId &wireId, 
 				  const PSimHit *hit) const {
 
@@ -448,7 +494,7 @@ float DTDigitizer::externalDelays(DTGeomDetUnit* layer,
   //DTWireType* wire_type = wire->wireType(); // FIXME
   
   float wireCoord = hit->localPosition().y();
-  float halfL     = (wire_type->length())/2.;
+  float halfL     = (topo.cellLenght())/2.;
   float propgL  ;/*  FIXME = (stat->layer()->getFEPosition() == 
 		     MuBarEnum::ZNeg ? halfL + wireCoord : 
 		     halfL - wireCoord ); */ 
@@ -459,8 +505,9 @@ float DTDigitizer::externalDelays(DTGeomDetUnit* layer,
 
   // Delays and t0 according to theSync
 
-  //FIXME Che cosa c'e' adesso??
-  double sync = theSync->digitizerOffset(&wireId);
+  //FIXME what is the analogous in CMSSW?
+
+  double sync; //= theSync->digitizerOffset(&wireId);
 
   if (debug) {
     cout << "    propDelay =" << propDelay
@@ -475,16 +522,18 @@ float DTDigitizer::externalDelays(DTGeomDetUnit* layer,
 
 // accumulate digis by layer
 
-void DTDigitizer::storeDigis(DTDetId wireId, 
-			     map<DTDetId, vector<PSimHit> >::const_iterator wire,
-			     map<DTDetId, vector<PSimHit> >::const_iterator end,
-			     TDContainer hits,std::auto_ptr<DTDigiCollection> &output){
+void DTDigitizer::storeDigis(DTDetId &wireId, 
+			     DTDetIdMapConstIter &wire,
+			     DTDetIdMapIter end,
+			     TDContainer &hits,
+			     std::auto_ptr<DTDigiCollection> &output){
+			     //DTDigiCollection &output){
+
   //Just for check poi magari lo tolgo
   static DTDetId lastWireId;
   if(debug)
     if(lastWireId==wireId){
       cout<<"Error in accumulateDigis"<<endl;
-      return digis;
     }
     else lastWireId=wireId;
 
@@ -510,7 +559,7 @@ void DTDigitizer::storeDigis(DTDetId wireId,
     float time = (*hit).second;
     if ( time > wakeTime ) {
       // Note that digi is constructed with a float value (in ns)
-      DTDigi digi(wireId, time, digiN);
+      DTDigi digi(wireId.wire(), time, digiN);
       
       /* Devo e se si come, tradurre questo?
 
@@ -529,36 +578,42 @@ void DTDigitizer::storeDigis(DTDetId wireId,
       static vector<DTDigi> digis;
       static DTDetId lastID;
       
-      DTDetId layerID = wireId.layerID();  //taking the layer in which reside the wire
+      DTDetId layerID = wireId.layerId();  //taking the layer in which reside the wire
       
       if(lastID==layerID) digis.push_back(digi);
       else{
-	if(digis.size()) output.put(digis,layerID); // -> [AA]
+	if(digis.size()) loadOutput(output,digis,layerID); //ex output.put(digis,layerID);
 	digis.clear();
 	digis.push_back(digi);
 	lastID=layerID;
       }
-      if(wire==(end-1) && digis.size()!=0) output.put(digis,layerID); // -> [AA]
+      //FIXME!! 
+      //      if(wire==(end-- ) && digis.size()!=0) 
+      if(wire==(end-1) && digis.size()!=0) 
+	loadOutput(output,digis,layerID); // ex output.put(digis,layerID);
               
       digiN++;
       wakeTime = time + deadTime;
     }
   }
 
+}
 
-  // _____ [AA] _____ oppure fare ? Molto probabilmente si.
-  /*
-   DTDigiCollection::Range outputRange;
-   outputRange.first = digis.begin();
-   outputRange.second = digis.end();
-   output.put(outputRange,layerID);
-   digis.clear();
-  */
+void DTDigitizer::loadOutput(std::auto_ptr<DTDigiCollection> &output,
+			     //DTDigiCollection &output, 
+			     vector<DTDigi> &digis, DTDetId &layerID){
+  
+  DTDigiCollection::Range outputRange;
+  outputRange.first = digis.begin();
+  outputRange.second = digis.end();
+  //  output.put(outputRange,layerID); non funziona ma devo farlo funzionare!!!!
+
+  digis.clear();
 }
 
 void DTDigitizer::dumpHit(const PSimHit * hit,
                           float xEntry, float xExit,
-                          DTTopology &topo) {
+                          const DTTopology &topo) {
   
   LocalPoint entryP = hit->entryPoint();
   LocalPoint exitP = hit->exitPoint();
@@ -572,13 +627,15 @@ void DTDigitizer::dumpHit(const PSimHit * hit,
        << "   Particle type         = " << hit->particleType() << endl
        << "   process type          = " << hit->processType() << endl
        << "   process type          = " << hit->processType() << endl
-       << "   packedTrackId         = " << hit->packedTrackId() << endl
+    // << "   packedTrackId         = " << hit->packedTrackId() << endl
+       << "   trackId               = " << hit->trackId() << endl // new,is the same as the
+                                                                  // previous?? FIXME-Check
        << "   |p|                   = " << hit->pabs() << endl
        << "   Energy loss           = " << hit->energyLoss() << endl
-       << "   timeOffset            = " << hit->timeOffset() << endl
-       << "   measurementPosition   = " << hit->measurementPosition() << endl
-       << "   measurementDirection  = " << hit->measurementDirection() << endl      //FIXME
-       << "   localDirection        = " << hit->momentumAtEntry().unit() << endl    //FIXME   non sono sicuro debba essere un versore
+    // << "   timeOffset            = " << hit->timeOffset() << endl
+    // << "   measurementPosition   = " << hit->measurementPosition() << endl
+    // << "   measurementDirection  = " << hit->measurementDirection() << endl      //FIXME
+       << "   localDirection        = " << hit->momentumAtEntry().unit() << endl    //FIXME is it a versor?
        << "   Entry point           = " << entryP << " cell x = " << xEntry << endl
        << "   Exit point            = " << exitP << " cell x = " << xExit << endl
        << "   DR =                  = " << (exitP-entryP).mag() << endl

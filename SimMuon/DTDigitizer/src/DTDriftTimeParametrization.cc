@@ -19,13 +19,13 @@
 #include <stdio.h>
 
 #ifndef MB_DT_STANDALONE
-#include "Utilities/Configuration/interface/Architecture.h" // sparisce??
 #include "SimMuon/DTDigitizer/interface/DTDriftTimeParametrization.h"
-#include "Muon/MCommonData/src/MBDriftTimeParameters.icc" // questo??
+#include "SimMuon/DTDigitizer/src/DTDriftTimeParameters.icc" // questo dove lo mettiamo??
 #else
 #include "DTDriftTimeParametrization.h" // ?
-#include "MBDriftTimeParameters.icc"  // ?
+#include "DTDriftTimeParameters.icc"  // ?
 #endif
+
 
 DTDriftTimeParametrization::DTDriftTimeParametrization(){}
 
