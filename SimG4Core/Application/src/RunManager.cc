@@ -13,6 +13,8 @@
 #include "SimG4Core/Physics/interface/PhysicsListFactory.h"
 #include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
 
+#include "IOMC/EventVertexGenerators/interface/EventVertexGeneratorFactory.h"
+
 #include "SimG4Core/Notification/interface/SimG4Exception.h"
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
 
@@ -105,6 +107,7 @@ RunManager::RunManager(edm::ParameterSet const & p)
       m_Override(p.getParameter<bool>("OverrideUserStackingAction")),
       m_RunNumber(p.getParameter<int>("RunNumber")),
       m_pGenerator(p.getParameter<edm::ParameterSet>("Generator")),
+      m_pVertexGenerator(p.getParameter<edm::ParameterSet>("VertexGenerator")),
       m_pPhysics(p.getParameter<edm::ParameterSet>("Physics")),
       m_pRunAction(p.getParameter<edm::ParameterSet>("RunAction")),      
       m_pEventAction(p.getParameter<edm::ParameterSet>("EventAction")),
@@ -164,6 +167,15 @@ void RunManager::initG4(const edm::EventSetup & es)
     std::cout << " Sensitive Detector building finished; found " << m_sensTkDets.size()
 	      << " Tk type Producers, and " << m_sensCaloDets.size() 
 	      << " Calo type producers " << std::endl;
+
+    std::auto_ptr<EventVertexGeneratorMakerBase> vertexGeneratorMaker(
+      EventVertexGeneratorFactory::get()->create
+      (m_pVertexGenerator.getParameter<std::string> ("type")) );
+    if(vertexGeneratorMaker.get()==0) {
+      throw SimG4Exception("Unable to find the event vertex generator requested");
+    }
+    m_eventVertexGenerator = vertexGeneratorMaker->make(m_pVertexGenerator,m_registry);
+    if (m_eventVertexGenerator.get()==0) throw SimG4Exception("EventVertexGenerator construction failed!");
 
     m_generator = new Generator(m_pGenerator);
     m_primaryTransformer = new PrimaryTransformer();
@@ -235,6 +247,7 @@ void RunManager::produce(const edm::EventSetup & es)
  
 G4Event * RunManager::generateEvent(int i)
 {                       
+
     if (m_currentEvent!=0) delete m_currentEvent;
     m_currentEvent = 0;
     if (m_simEvent!=0) delete m_simEvent;
