@@ -5,33 +5,30 @@ using namespace std;
 
 //
 // -- Given a FedReference returns the connected DetUnitId
-//
+// 
 DetId SiStripReadoutConnectivity::getDetId(FedReference& fed_ref){
-  SiStripReadoutConnectivity::MapType::iterator CPos = theMap.find(fed_ref);
-  if (CPos != theMap.end()) return (CPos->second).first;
-  return DetId(0);
+  return getDetId(fed_ref.first, fed_ref.second);
 }
 //
 // -- Given Fed id and fed channel  returns the connected DetUnitId
 //
 DetId SiStripReadoutConnectivity::getDetId(unsigned short fed_id, unsigned short fed_channel){
-  SiStripReadoutConnectivity::MapType::iterator CPos = 
-             theMap.find(SiStripReadoutConnectivity::FedReference(fed_id, fed_channel));
-  if (CPos != theMap.end()) return (CPos->second).first;
-  return DetId(0);
+  DetPair det_pair;
+  getDetPair(fed_id, fed_channel, det_pair);
+  if (det_pair.first.null()) return DetId(0);
+  else return det_pair.first; 
 }
 //
 //  get Connected DetUnit Ids in a given Fed Number
 //
 int SiStripReadoutConnectivity::getDetIds(unsigned short fed_num, 
                      unsigned short max_channels, vector<DetId>& det_ids){
+  det_ids.clear();
   for (unsigned short ich = 0; ich < max_channels; ich++) {
-    SiStripReadoutConnectivity::MapType::iterator CPos = theMap.find(FedReference(fed_num, ich));
-    if (CPos != theMap.end()) {
-       DetId idet = (CPos->second).first;
-      unsigned short ipair = (CPos->second).second;
-      if (ipair == 0) det_ids.push_back(idet);
-    }
+    DetPair det_pair;
+    getDetPair(fed_num, ich, det_pair);
+    if (!det_pair.first.null() && det_pair.second == 0) 
+                                 det_ids.push_back(det_pair.first);
   }
   return det_ids.size();
 }
@@ -39,43 +36,41 @@ int SiStripReadoutConnectivity::getDetIds(unsigned short fed_num,
 // -- Given a DetId returns the list of corresponding FedChannels 
 //
 unsigned short SiStripReadoutConnectivity::getFedIdAndChannels(DetId id,
-                                    vector<unsigned short>& fedChannels){
-  unsigned short fed_id = 0;
-  for (SiStripReadoutConnectivity::MapType::iterator it = theMap.begin() ; it != theMap.end() ; it++){
-    if (it == theMap.begin()) fed_id = (it->first).first;
-    if (((*it).second).first == id) fedChannels.push_back((it->first).second);
+                           map<unsigned short, unsigned short>& fedChannels){
+  fedChannels.clear();
+  unsigned short fed_id = 999999;
+  for (unsigned short i = 0; i < detUnitMap_.size(); i++) {
+    for(unsigned short j = 0; j < detUnitMap_[i].size(); j++) {
+      if (detUnitMap_[i][j].first == id) {
+        fed_id = i;
+        unsigned short ipair = detUnitMap_[i][j].second;
+        fedChannels[ipair] = j;
+      }
+    }
+    if (fed_id != 999999) break;
   }
   return fed_id;
-}
-//
-// -- Given a Fed Reference returns the Apv Pair # of a GeomDetUnit connected
-//
-unsigned short SiStripReadoutConnectivity::getPairNumber(SiStripReadoutConnectivity::FedReference& fed_ref){
-  unsigned int ipair = 10;
-  SiStripReadoutConnectivity::MapType::iterator CPos = theMap.find(fed_ref);
-  if (CPos != theMap.end()) ipair = (CPos->second).second;
-  return ipair;
 }
 //
 // -- Given a Fed Reference returns the Apv Pair# of a GeomDetUnit connected
 //
 unsigned short SiStripReadoutConnectivity::getPairNumber(unsigned short fed_id, unsigned short fed_channel){
-  unsigned int ipair = 10;
-  SiStripReadoutConnectivity::MapType::iterator CPos = 
-            theMap.find(SiStripReadoutConnectivity::FedReference(fed_id,fed_channel));
-  if (CPos != theMap.end()) ipair = (CPos->second).second;
-  return ipair;
+  DetPair det_pair;
+  getDetPair(fed_id, fed_channel, det_pair);
+  if (det_pair.first.null()) return 99;
+  else return det_pair.second; 
+}
+//
+// -- Given a Fed Reference returns the Apv Pair # of a GeomDetUnit connected
+//
+unsigned short SiStripReadoutConnectivity::getPairNumber(SiStripReadoutConnectivity::FedReference& fed_ref){
+  return getPairNumber(fed_ref.first, fed_ref.second);
 }
 //
 // -- Given a Fed Reference returns the DetPair
 //
 void SiStripReadoutConnectivity::getDetPair(SiStripReadoutConnectivity::FedReference& fed_ref, DetPair& det_pair){
-  SiStripReadoutConnectivity::MapType::iterator CPos = theMap.find(fed_ref);
-  if (CPos != theMap.end()) {
-    det_pair = CPos->second;
-  } else  {
-    cout << " COULD NOT FIND DetPair ..." << endl;
-  }
+  getDetPair(fed_ref.first, fed_ref.second, det_pair);
 }
 //
 // -- Given a Fed id and channel number returns the DetPair (R.B)
@@ -89,12 +84,13 @@ void SiStripReadoutConnectivity::getDetPair(unsigned short fed_id, unsigned shor
       cout << "FedToDetUnitMapper::getDetUnit(...) : " 
 	   << "ERROR : \"fed_channel > detUnitMap_[fed_id].size()\": "
 	   << fed_channel << " > " << detUnitMap_[fed_id].size();
-    
+      det_pair = DetPair(DetId(0),99);
     }
   } else {
     cout << "FedToDetUnitMapper::getDetUnit(...) : " 
 	 << "ERROR : \"fed_id > detUnitMap_.size()\": " 
 	 << fed_id << " > " << detUnitMap_.size();
+    det_pair = DetPair(DetId(0),99);
   }
 
 }
@@ -104,7 +100,7 @@ void SiStripReadoutConnectivity::getDetPair(unsigned short fed_id, unsigned shor
 //
 int SiStripReadoutConnectivity::getStripNumber(SiStripReadoutConnectivity::FedReference& fed_ref, int strip){
   int pair = getPairNumber(fed_ref);
-  if (pair == -1){
+  if (pair == 99){
     cout <<" ERROR!!!!! "<<endl;
     abort();
   }
@@ -114,7 +110,6 @@ int SiStripReadoutConnectivity::getStripNumber(SiStripReadoutConnectivity::FedRe
 // -- Set the pair of a FedChannel and corresponding DetPair
 //
 void SiStripReadoutConnectivity::setPair(FedReference& fed_ref, DetPair& dp){
-  theMap[fed_ref] = dp;
 
   // below: fills two-dimensional array of DetPair's (R.B)
   int fed_id = fed_ref.first;
@@ -156,21 +151,17 @@ void SiStripReadoutConnectivity::setPair(FedReference& fed_ref, DetPair& dp){
 //
 void SiStripReadoutConnectivity::debug (){
   //
-  // Loop over the map and print
+  // Loop over all the FED channels  and print
   //
-  for (SiStripReadoutConnectivity::MapType::iterator it = theMap.begin(); 
-                               it!=theMap.end() ; it++){
-    cout <<" Fed # "<< (it->first).first  <<" " 
-	 <<" Ch # " << (it->first).second <<" attached to Det Id "
-	 <<(*it).second.first.rawId() <<" in position "
-         <<(*it).second.second << endl;
+  for (unsigned short i = 0; i < detUnitMap_.size(); i++) {
+    for(unsigned short j = 0; j < detUnitMap_[i].size(); j++) {
+      if (detUnitMap_[i][j].first.null()) continue;
+      cout <<" Fed # "<< i  <<" " 
+	 <<" Ch # " << j <<" attached to Det Id "
+	 << detUnitMap_[i][j].first.rawId() <<" in position "
+         << detUnitMap_[i][j].second << endl;
+    }
   }
-}
-//
-// Get the whole Map
-//
-const SiStripReadoutConnectivity::MapType& SiStripReadoutConnectivity::getFedList(){
-  return theMap;
 }
 //
 // Get list of FED numbers in a vector
@@ -178,17 +169,20 @@ const SiStripReadoutConnectivity::MapType& SiStripReadoutConnectivity::getFedLis
 void SiStripReadoutConnectivity::getConnectedFedNumbers(vector<unsigned short>& feds) {
   feds.clear();
   unsigned short last_element = 99999;
-  for (SiStripReadoutConnectivity::MapType::iterator it = theMap.begin(); 
-                                 it!=theMap.end(); it++){
-    unsigned short fed_id = (it->first).first;
-    if ((it->second).first.rawId() != 0 && last_element != fed_id) feds.push_back(fed_id);
-    if (last_element == 9999 || last_element != fed_id) last_element = fed_id;
+  for (unsigned short i = 0; i < detUnitMap_.size(); i++) {
+    for(unsigned short j = 0; j < detUnitMap_[i].size(); j++) {
+      if (detUnitMap_[i][j].first.null()) continue;
+      else if (last_element == 99999 || last_element != i) {
+        feds.push_back(i);
+        last_element =i; 
+      }
+    }
   }
 }
 //
 // Get a map of FED numbers and connected detids 
 //
-void SiStripReadoutConnectivity::getDetPartitions(map<unsigned short, vector<DetId> >& partitions){
+/*void SiStripReadoutConnectivity::getDetPartitions(map<unsigned short, vector<DetId> >& partitions){
   partitions.clear();
   unsigned short last_element = 99999;
   for (SiStripReadoutConnectivity::MapType::iterator it = theMap.begin(); 
@@ -203,7 +197,7 @@ void SiStripReadoutConnectivity::getDetPartitions(map<unsigned short, vector<Det
     }
     if (last_element == 9999 || last_element != fed_id) last_element = fed_id;    
   }
-}
+}*/
 
 
 EVENTSETUP_DATA_REG(SiStripReadoutConnectivity);

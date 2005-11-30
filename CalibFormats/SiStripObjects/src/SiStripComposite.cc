@@ -1,4 +1,4 @@
-#include "CalibTracker/SiStripConnectivity/interface/SiStripComposite.h" 
+#include "CalibFormats/SiStripObjects/interface/SiStripComposite.h" 
 #include <sstream>
 using namespace std;
 //

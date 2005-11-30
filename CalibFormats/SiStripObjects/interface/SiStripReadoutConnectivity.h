@@ -7,11 +7,11 @@
 #include <map>
 using namespace std;
 
-class SiStripConnectivity {
+class SiStripReadoutConnectivity {
 public:
   typedef pair<DetId,unsigned short> DetPair;
   typedef pair<unsigned short, unsigned short> FedReference; 
-  typedef map<FedReference, DetPair>  MapType;
+  //  typedef map<FedReference, DetPair>  MapType;
 
   SiStripReadoutConnectivity(){}
   ~SiStripReadoutConnectivity(){}
@@ -20,7 +20,8 @@ public:
   DetId getDetId(unsigned short fed_id, unsigned short fed_channel);
 
   int getDetIds(unsigned short fed_num, unsigned short max_channels, vector<DetId>&);
-  unsigned short getFedIdAndChannels(DetId id,vector<unsigned short>& fedChannels);
+  unsigned short getFedIdAndChannels(DetId id,map<unsigned short, 
+                                        unsigned short>& fedChannels);
 
   unsigned short getPairNumber(SiStripReadoutConnectivity::FedReference& );
   unsigned short getPairNumber(unsigned short fed_id, unsigned short fed_channel);
@@ -36,17 +37,15 @@ public:
 
   void setPair(FedReference&, DetPair&);
   
-  void clean(){theMap.clear();}
+  void clean(){detUnitMap_.clear();}
   void debug();
 
-  const MapType& getFedList();
-  pair<int, int> getFedRange();
 
   void getConnectedFedNumbers(vector<unsigned short>& feds);
-  void getDetPartitions(map<unsigned short, vector<DetId> >& partitions);
+  //  void getDetPartitions(map<unsigned short, vector<DetId> >& partitions);
 
  private:
-  MapType theMap;
+  //  MapType theMap;
   
   /** DetPair info for FED id (1st dim) and channel (2nd dim). */
   vector< vector<DetPair> > detUnitMap_; // M.W, R.B 
