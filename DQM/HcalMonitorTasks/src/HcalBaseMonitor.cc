@@ -15,7 +15,7 @@ void HcalBaseMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* 
   if (m_readoutMapSource.find(filePrefix)==0) {
     string theFile=m_readoutMapSource;
     theFile.erase(0,filePrefix.length());
-    std::cout << "HcalDataFormatMonitor::setup  Reading HcalMapping from '" << theFile << "'\n";
+    std::cout << "HcalBaseMonitor::setup  Reading HcalMapping from '" << theFile << "'\n";
     m_readoutMap = *HcalMappingTextFileReader::readFromFile(theFile.c_str(),true); // maintain L2E for no real reason
   }
 

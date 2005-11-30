@@ -3,11 +3,12 @@
 
 #include "DQM/HcalMonitorTasks/interface/HcalBaseMonitor.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include <map>
 
 /** \class HcalRecHitMonitor
   *  
-  * $Date: 2005/11/14 17:17:35 $
-  * $Revision: 1.3 $
+  * $Date: 2005/11/17 22:51:55 $
+  * $Revision: 1.1 $
   * \author W. Fisher - FNAL
   */
 class HcalRecHitMonitor: public HcalBaseMonitor {
@@ -21,14 +22,20 @@ public:
 
 private:  ///Monitoring elements
 
-  MonitorElement* m_meRECHIT_E_hb;
-  MonitorElement* m_meRECHIT_T_hb;
+  bool m_doPerChannel;
 
-  MonitorElement* m_meRECHIT_E_hf;
-  MonitorElement* m_meRECHIT_T_hf;
+  MonitorElement* m_meRECHIT_E_hb_tot;
+  MonitorElement* m_meRECHIT_T_hb_tot;
 
-  MonitorElement* m_meRECHIT_E_ho;
-  MonitorElement* m_meRECHIT_T_ho;
+  MonitorElement* m_meRECHIT_E_hf_tot;
+  MonitorElement* m_meRECHIT_T_hf_tot;
+
+  MonitorElement* m_meRECHIT_E_ho_tot;
+  MonitorElement* m_meRECHIT_T_ho_tot;
+
+  std::map<HcalDetId, MonitorElement*> m_meRECHIT_E_hb, m_meRECHIT_T_hb;  // complicated per-channel histogram setup
+  std::map<HcalDetId, MonitorElement*> m_meRECHIT_E_hf, m_meRECHIT_T_hf;  // complicated per-channel histogram setup
+  std::map<HcalDetId, MonitorElement*> m_meRECHIT_E_ho, m_meRECHIT_T_ho;  // complicated per-channel histogram setup
 
 };
 
