@@ -1,3 +1,6 @@
+** V00-00-02  [Wed Nov 30 01:14:54 2005]
+minor fix to physicalparts_tree
+
 ** V00-00-01  [Mon Nov 14 18:22:06 2005]
 Changed some common files between DGD loading and EMDB loading.
 Put a README.EMDB to describe how I did the loading to EMDB.
