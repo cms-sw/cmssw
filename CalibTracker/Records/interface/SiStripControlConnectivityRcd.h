@@ -16,12 +16,12 @@
 //
 // Author:      
 // Created:     Wed Aug 10 08:13:43 CEST 2005
-// $Id: SiStripControlConnectivityRcd.h,v 1.2 2005/08/11 17:51:47 dutta Exp $
+// $Id: SiStripControlConnectivityRcd.h,v 1.1 2005/11/29 14:18:35 gbruno Exp $
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
-#include "CondFormats/Records/interface/SiStripControlCablingRcd.h"
+#include "CondFormats/DataRecord/interface/SiStripControlCablingRcd.h"
 #include "boost/mpl/vector.hpp"
 
 class SiStripControlConnectivityRcd : public edm::eventsetup::DependentRecordImplementation<SiStripControlConnectivityRcd,
