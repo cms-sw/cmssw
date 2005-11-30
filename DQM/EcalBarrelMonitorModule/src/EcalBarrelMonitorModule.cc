@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  * 
- * $Date: 2005/11/24 13:18:45 $
- * $Revision: 1.53 $
+ * $Date: 2005/11/24 18:19:18 $
+ * $Revision: 1.54 $
  * \author G. Della Ricca
  *
 */
@@ -159,6 +159,9 @@ void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
 
   if ( meEBhits_ ) meEBhits_->Fill(float(nebh));
 
+  // pause the shipping of monitoring elements
+  dbe_->lock();
+
   for ( EcalUncalibratedRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
 
     EcalUncalibratedRecHit hit = (*hitItr);
@@ -192,6 +195,9 @@ void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
     }
 
   }
+
+  // resume the shipping of monitoring elements
+  dbe_->unlock();
 
   if ( evtType_ == 0 ) cosmic_task_->analyze(e, c);
 
