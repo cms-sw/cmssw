@@ -5,7 +5,8 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCDCCUnpacker.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCDCCEventData.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCDDUEventData.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
@@ -17,7 +18,6 @@
 using namespace std;
 
 
-class CSCDDUEventData;
 
 class CSCMonitor {
 public:
@@ -25,7 +25,7 @@ public:
    ~CSCMonitor();
    
  
-  void process(CSCDCCUnpacker & unpacker);
+  void process(CSCDCCEventData & dccData);
   
   void MonitorDDU(const CSCDDUEventData& dduEvent);
   
