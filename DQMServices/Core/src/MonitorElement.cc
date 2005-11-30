@@ -1,12 +1,17 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/QCriterion.h"
+#include "DQMServices/Core/interface/QTestStatus.h"
 
 #include <iostream>
 
 using namespace std;
 
+using namespace dqm::qtests;
+
 MonitorElement::MonitorElement() 
 {
   softReset_on = accumulate_on = false;
+  qreports_.clear(); 
 }
 
 MonitorElement::MonitorElement(const char*name) 
@@ -14,20 +19,21 @@ MonitorElement::MonitorElement(const char*name)
   softReset_on = accumulate_on = false;
 }
 
-MonitorElement::~MonitorElement() {}
+MonitorElement::~MonitorElement() 
+{
+  for(qr_it it = qreports_.begin(); it != qreports_.end(); ++it)
+    {
+      if(it->second)
+	delete it->second;
+    }
+
+  qreports_.clear();
+}
 
 bool MonitorElement::wasUpdated() const {return man.variedSince;}
 
-bool MonitorElement::isUrgent() const {return man.urgent;}
 
 void MonitorElement::update() {man.variedSince = true;}
-
-void MonitorElement::setUrgent() 
-{
-  cout << " Status for monitoring element " << getName() << " set to urgent" 
-       << endl;
-  man.urgent = true;
-}
 
 void MonitorElement::resetUpdate() {man.variedSince = false;}
 
@@ -63,4 +69,85 @@ void MonitorElement::setAccumulate(bool flag)
   else
     cout << " dis";
   cout << "abled for " << getName() << endl;  
+}
+
+// add quality report (to be called by DaqMonitorROOTBackEnd)
+void MonitorElement::addQReport(QReport * qr)
+{
+  if(!qr)
+    {
+      cerr << " *** Cannot add null QReport to  MonitorElement " 
+	   << getName() << endl;
+      return;
+    }
+
+  string qtname = qr->getQRName();
+  if(qreportExists(qtname))
+    {
+      delete qr; qr = 0;
+      return;
+    }
+
+  qreports_[qtname] = qr;
+  qr->setMonitorElement(this);
+}
+
+// get QReport corresponding to <qtname> (null pointer if QReport does not exist)
+const QReport * MonitorElement::getQReport(string qtname) const
+{
+  cqr_it it = qreports_.find(qtname);
+  if(it == qreports_.end())
+    return (QReport *) 0;
+  else
+    return it->second;
+}
+
+// true if QReport with name <qtname> already exists
+bool MonitorElement::qreportExists(string qtname) const
+{
+  if(getQReport(qtname))
+   {
+     cerr << " **** Quality report " << qtname 
+	  << " already exists for MonitorElement " << getName() << endl;
+     return true;
+   }
+  return false;
+}
+ 
+// run all quality tests
+void MonitorElement::runQTests(void)
+{
+  qwarnings_.clear(); qerrors_.clear();
+  for(qr_it it = qreports_.begin(); it != qreports_.end(); ++it)
+    { // loop over all quality reports/tests for MonitorElement
+      QReport * qr = it->second;
+      if(!qr)
+	{
+	  cerr << " *** Attempt to access null QReport " << it->first 
+	       << " for MonitorElement " << getName() << endl;
+	  continue;
+	}
+     
+      // test should run if (a) ME has been modified, 
+      // or (b) algorithm has been modified
+      if(wasUpdated() || qr->getQCriterion()->wasModified() )
+	{
+	  qr->runTest();
+	  int status = qr->getStatus();
+	  switch(status)
+	    {
+	    case dqm::qstatus::WARNING:
+	      qwarnings_.push_back(qr);
+	      break;
+	    case dqm::qstatus::ERROR:
+	      qerrors_.push_back(qr);
+	      break;
+	    default:
+	      ; // do nothing
+	    }
+
+	} // check if test should run
+
+    } // loop over QReports
+
 }

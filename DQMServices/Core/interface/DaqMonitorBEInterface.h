@@ -4,17 +4,18 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/StringUtil.h"
+#include "DQMServices/Core/interface/QCriterion.h"
 
 #include <pthread.h>
 #include <semaphore.h>
-
-class AlarmElement;
 
 #include <iostream>
 #include <vector>
 #include <list>
 #include <map>
 #include <string>
+
+class QCriterion;
 
 class DaqMonitorBEInterface: public StringUtil
 {
@@ -25,7 +26,7 @@ class DaqMonitorBEInterface: public StringUtil
   {
     pthread_mutex_init(&mutex_,0); DQM_VERBOSE = 1;
   }  
-  virtual ~DaqMonitorBEInterface(){}
+  virtual ~DaqMonitorBEInterface();
  
   void reParseConfig(const edm::ParameterSet &pset){}
  
@@ -51,6 +52,13 @@ class DaqMonitorBEInterface: public StringUtil
 				       const std::string title, 
 				       int nchX, double lowX, double highX, 
 				       int nchY, double lowY,double highY)=0;
+  // book 2-D profile
+  // in a 2-D profile plot the number of channels in Z is disregarded
+  virtual MonitorElement * bookProfile2D(const std::string name, 
+					 const std::string title, 
+					 int nchX, double lowX, double highX, 
+					 int nchY, double lowY,double highY,
+					 int nchZ, double lowZ,double highZ)=0;
   // book float
   virtual MonitorElement * bookFloat(const std::string ) = 0;
   // book int
@@ -82,8 +90,6 @@ class DaqMonitorBEInterface: public StringUtil
   virtual void showDirStructure(void) const = 0;
   // save structure with monitoring objects into root file
   virtual void save(const std::string & filename) = 0;
-  //  virtual AlarmElement   * createAlarm(const std::string, int)=0;
-  // virtual AlarmElement * getAlarm()=0;
   // cycle through all monitoring objects, draw one at time
   virtual void drawAll(void) = 0;
   // get list of subdirectories of current directory
@@ -170,32 +176,8 @@ class DaqMonitorBEInterface: public StringUtil
   
   // come here at end of monitoring cycle for all receivers;
   // if reset=true, reset MEs that were updated (and have resetME = true)
-  void doneSending(bool reset = false);
-
-  // set <name> ME's "canDelete" property in <subdir>: to be used 
-  // to set property to false when ME is extracted in ReceiverBase class
-  virtual void setCanDelete(const MonitorElement * dir, 
-			    const std::string& ME_name, bool flag) const= 0;
-  // call setCanDelete in current directory
-  virtual void setCanDelete(const std::string & ME_name, bool flag) const = 0;
-  // call setCanDelete for all ME in <dir>
-  virtual void setCanDelete(const MonitorElement * dir, bool flag) const = 0;
-
-  // set <name> ME's "isDesired" property in <subdir>: to be used 
-  // to set property to true/false when ME is (un)subscribed in ReceiverBase class
-  virtual void setIsDesired(const MonitorElement * dir, 
-			    const std::string& ME_name, bool flag) const= 0;
-  // call setIsDesired for all ME in <dir>
-  virtual void setIsDesired(const MonitorElement * dir, bool flag) const = 0;
+  void doneSending(bool reset);
  
-  // true if monitoring element in directory has never been sent (to be 
-  // used in the context of a subsriber's directory: flag per ME per receiver)
-  virtual bool isNeverSent(const MonitorElement* dir, 
-			   const std::string & ME_name) const = 0;
-
-  // set "neverSent" flag for ME in directory
-  virtual void setNeverSent(const MonitorElement * dir, 
-			    const std::string& ME_name, bool flag) const= 0;
   // ------------------- Booking ---------------------------
 
   // add monitoring element to current folder
@@ -225,10 +207,6 @@ class DaqMonitorBEInterface: public StringUtil
   // true if Monitoring Element <me> is needed by any subscriber
   virtual bool isNeeded(const std::string& pathname, const std::string& me)=0;
 
-  // true if Monitoring Element <me> in current directory has isDesired = true;
-  // if warning = true and <me> does not exist, show warning
-  virtual bool isDesired(const std::string& me, bool warning = false) const= 0;
-
   // -------------------- Unsubscribing/Removing --------------------
   
   // remove monitoring element from directory;
@@ -255,10 +233,18 @@ class DaqMonitorBEInterface: public StringUtil
   // -------------------- Misc ----------------------------------
 
   // add <name> to back-end interface's updatedContents
-  void add2UpdatedContents(const std::string & name);
+  void add2UpdatedContents(const std::string & name, 
+			   const std::string & pathname);
 
-  // reset modifications to monitorable since last cycle
-  void resetNewMonitorable(void);
+  // add (QReport) MonitorElement to back-end intereface's updatedQReports
+  void add2UpdatedQReports(MonitorElement * me)
+  {updatedQReports.insert(me);}
+
+  // (a) call resetUpdate for modified contents
+  // (b) reset modifications to monitorable since last cycle 
+  // (c) reset sets of added/removed/updated contents and updated QReports
+  // if reset=true, reset MEs that were updated (and have resetMe = true)
+  void resetStuff(bool reset = false);
 
   pthread_mutex_t mutex_;
 
@@ -286,14 +272,16 @@ class DaqMonitorBEInterface: public StringUtil
   // Note: these do not include objects in subscriber's folders
   dqm::me_util::monit_map addedContents;
   dqm::me_util::monit_map removedContents;
-  // collected set of monitoring objects that have been sent to clients
-  // (use to call MonitorElement::resetUpdate) at end of monitoring cycle 
-  // (all receivers)
-  std::set<MonitorElement *> collectiveMonitoring;
   // updated monitoring elements since last cycle
   // format: <dir pathname>:<obj1>,<obj2>,...
-  // COMPLEMENTARY to addedContents, removedContents
+  // *** Note: includes addedContents ***
   dqm::me_util::monit_map updatedContents;
+
+  // map of all quality tests
+  dqm::qtests::QC_map qtests_;
+
+  // set of updated quality reports since last monitoring cycle
+  std::set<MonitorElement *> updatedQReports;
 
   // ------------ Operations for MEs that are normally never reset ---------
 
@@ -314,8 +302,63 @@ class DaqMonitorBEInterface: public StringUtil
   // universal verbose flag for DQM
   unsigned DQM_VERBOSE;
 
+  // -------------------- Quality tests on MonitorElements ------------------
+
+   // add quality report (to be called when test is to run locally)
+  virtual QReport * addQReport(MonitorElement * me, QCriterion * qc) const = 0;
+  // add quality report (to be called by ReceiverBase)
+  virtual QReport * addQReport(MonitorElement * me, std::string qtname,
+			       QCriterion * qc = 0) const = 0;
+
+  // add quality report to ME
+  void addQReport(MonitorElement * me, QReport * qr) const
+  {me->addQReport(qr);}
+
+  // check if QReport is already defined for ME
+  bool qreportExists(MonitorElement * me, std::string qtname) const
+  {return me->qreportExists(qtname);}
+
+  // get QCriterion corresponding to <qtname> 
+  // (null pointer if QCriterion does not exist)
+  QCriterion * getQCriterion(std::string qtname) const;
+
+  // get QReport from ME (null pointer if no such QReport)
+  QReport * getQReport(MonitorElement * me, std::string qtname);
+
+  // run quality tests (also finds updated contents in last monitoring cycle,
+  // including newly added content) 
+  void runQTests(void);
+
+  // create quality test with unique name <qtname> (analogous to ME name);
+  // quality test can then be attached to ME with useQTest method
+  // (<algo_name> must match one of known algorithms)
+  virtual QCriterion * createQTest(std::string algo_name,
+				   std::string qtname) = 0;
+
+  // attach quality test <qtname> to all ME matching <search_string>;
+  // <search_string> could : (a) be exact pathname (e.g. A/B/C/histo)
+  // (b) include wildcards (e.g. A/?/C/histo, A/B/*/histo or A/B/*);
+  // this action applies to all MEs already available or future ones
+  void useQTest(std::string search_string, std::string qtname) const;
+
+  // look for all MEs matching <search_string> in own.global_;
+  // if found, create QReport from QCriterion and add to ME
+  void scanContents(QCriterion * qc, std::string search_string) const;
+
  private:
 
+  // run quality tests (also finds updated contents in last monitoring cycle,
+  // including newly added content) <-- to be called only by runQTests
+  void runQualityTests(void);
+
+  // loop over addedContents, look for MEs that match QCriterion::searchStrings 
+  // (by looping over all quality tests); upon a match, add QReport to ME(s)
+  void checkAddedElements(void);
+ 
+  // check if ME matches any of QCriterion::searchStrings;
+  // upon a match, add QReport to ME(s)
+  void checkAddedElement(std::string pathname, std::string ME_name);
+ 
   DaqMonitorBEInterface(const DaqMonitorBEInterface&);
   const DaqMonitorBEInterface& operator=(const DaqMonitorBEInterface&);
 
@@ -333,6 +376,7 @@ class DaqMonitorBEInterface: public StringUtil
   friend class CollateMERootH2;
   friend class CollateMERootH3;
   friend class CollateMERootProf;
+  friend class CollateMERootProf2D;
 
 };
 

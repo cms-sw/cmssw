@@ -1,12 +1,12 @@
 #ifndef MonitorUserInterface_h
 #define MonitorUserInterface_h
 
-class AlarmElement;
 class MonitorElement;
 class CollateMonitorElement;
 
 #include "DQMServices/Core/interface/StringUtil.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/QCriterion.h"
 
 #include <list>
 #include <map>
@@ -25,7 +25,20 @@ class MonitorUserInterface : public StringUtil
   virtual MonitorElement * get(const std::string & fullpath) const = 0;
   // this is the "main" loop where we receive monitoring;
   // returns success flag
-  virtual bool update(void) = 0;
+  bool update(void);
+
+  // *****************  NOTE ******************************************
+  // instead of calling "update", users can use the following two methods:
+  // 1. retrieval of monitoring, sending of subscription requests/cancellations,
+  // calculation of "collate"-type Monitoring Elements;
+  // returns success flag
+  virtual bool doMonitoring(void) = 0;
+  // 2. run quality tests on all MonitorElements that have been updated (or added)
+  // since last monitoring cycle
+  void runQTests(void)
+  {bei->runQTests();}
+  // *****************  NOTE ******************************************
+
   // return # of monitoring cycles received
   virtual int getNumUpdates(void) const = 0;
 
@@ -57,7 +70,7 @@ class MonitorUserInterface : public StringUtil
   void getRemovedContents(std::vector<std::string> & put_here) const
   {bei->getRemovedContents(put_here);}
   // get updated contents (since last cycle)
-  // COMPLEMENTARY to added & removed contents
+  // *** included added content!
   // return vector<string> of the form: <dir pathname>:<obj1>,<obj2>,...
   void getUpdatedContents(std::vector<std::string> & put_here) const
   {bei->getUpdatedContents(put_here);}
@@ -160,10 +173,29 @@ class MonitorUserInterface : public StringUtil
 
   // add <search_string> to summary ME; 
   // <search_string> could : (a) be exact pathname (e.g. A/B/C/histo)
-  // (b) include wildcards (e.g. A/?/C/histo, A/B/*/histo or A/B/*)
-  virtual void add(CollateMonitorElement* cme, 
-		   const std::string& search_string) const;
+  // (b) include wildcards (e.g. A/?/C/histo, A/B/*/histo or A/B/*);
+  // this action applies to all MEs already available or future ones
+  void add(CollateMonitorElement* cme, const std::string& search_string) const;
 
+
+  // -------------------- Quality tests on MonitorElements ------------------
+
+  // create quality test with unique name <qtname> (analogous to ME name);
+  // quality test can then be attached to ME with useQTest method
+  // (<algo_name> must match one of known algorithms)
+  QCriterion * createQTest(std::string algo_name, std::string qtname)
+  {return bei->createQTest(algo_name, qtname);}
+  
+  // attach quality test <qtname> to all ME matching <search_string>;
+  // <search_string> could : (a) be exact pathname (e.g. A/B/C/histo)
+  // (b) include wildcards (e.g. A/?/C/histo, A/B/*/histo or A/B/*);
+  // this action applies to all MEs already available or future ones
+  void useQTest(std::string search_string, std::string qtname) const
+  {bei->useQTest(search_string, qtname);}
+  // get quality test with name <qtname> (null pointer if no such test)
+  QCriterion * getQCriterion(std::string qtname) const
+  {return bei->getQCriterion(qtname);}
+  
  protected:
 
   // do calculations for all collate MEs; come here at end of monitoring cycle)
@@ -189,6 +221,7 @@ class MonitorUserInterface : public StringUtil
   DaqMonitorBEInterface *bei;
   // # of monitoring packages received;
   int numUpdates_;
+  
 };
 
 

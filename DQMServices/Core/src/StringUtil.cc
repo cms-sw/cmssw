@@ -160,7 +160,7 @@ bool StringUtil::unpackDirFormat(const string & name, DirFormat & dir) const
       return false;
     }
   
-  vector<string>::const_iterator subst = subs.begin();
+  cvIt subst = subs.begin();
   // first get the directory pathname
   dir.dir_path = *subst;
   // now get the directory's contents
@@ -206,4 +206,14 @@ void StringUtil::errorObjUnp(const vector<string> & desc) const
   for(vector<string>::const_iterator it = desc.begin(); it != desc.end(); 
       ++it)
     cout << " desc = " << *it << endl;
+}
+
+// print out error message
+void StringUtil::nullError(const char * name)
+{
+  if(!name) 
+    cerr << " *** Error! nullError called with null pointer "
+	 << "(isn't that ironic...) " << endl;
+  else
+    cerr << " *** Error! Attempt to use null " << name << endl;
 }

@@ -44,7 +44,7 @@ void CollateMonitorElement::scanContents(const string & search_string, const
 	  
 	  if(matchit(fullname, search_string))
 	    { // this is a match!
-	      MonitorElement * me = (MonitorElement *)file->second.me;
+	      MonitorElement * me = (MonitorElement *)file->second;
 	      
 	      if(addIt(me, pathname, file->first))
 		{

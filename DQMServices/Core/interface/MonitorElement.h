@@ -11,6 +11,8 @@
 
 #include "Utilities/Threads/interface/ThreadUtils.h"
 
+#include "DQMServices/Core/interface/QReport.h"
+
 /** The base class for all MonitorElements (ME)
  */
 class MonitorElement
@@ -24,8 +26,6 @@ class MonitorElement
 
   // true if ME was updated in last monitoring cycle
   bool wasUpdated() const;
-  // true if ME is urgent (currently not in use)
-  bool isUrgent() const;
   // specify whether ME should be reset at end of monitoring cycle (default: false);
   // (typically called by Sources that control the original ME)
   void setResetMe(bool flag);
@@ -53,6 +53,19 @@ class MonitorElement
   // opposite of isFolder method
   bool isNotFolder(void) const;
 
+  // get QReport corresponding to <qtname> (null pointer if QReport does not exist)
+  const QReport * getQReport(std::string qtname) const;
+
+  // get map of QReports
+  dqm::qtests::QR_map getQReports(void) const {return qreports_;}
+  // get warnings from last set of quality tests
+  std::vector<QReport *> getQWarnings(void) const {return qwarnings_;}
+  // get errors from last set of quality tests
+  std::vector<QReport *> getQErrors(void) const {return qerrors_;}
+
+  // run all quality tests
+  void runQTests(void);
+
   LockMutex::Mutex mutex;
 
  private:
@@ -60,7 +73,6 @@ class MonitorElement
  protected:
 
   void update();
-  void setUrgent();
   // reset ME (ie. contents, errors, etc)
   virtual void Reset()=0;
 
@@ -88,15 +100,17 @@ class MonitorElement
   bool resetMe(void) const;
   // reset "was updated" flag
   void resetUpdate();
- 
+  // add quality report (to be called by DaqMonitorROOTBackEnd)
+  void addQReport(QReport * qr);
+  // true if QReport with name <qtname> already exists
+  bool qreportExists(std::string qtname) const;
+
   class manage{
   public:
-    manage() : variedSince(true), urgent(false), folder_flag(false),
+    manage() : variedSince(true), folder_flag(false),
       resetMe(false){}
     // has content changed?
     bool variedSince; 
-    // is content urgent?
-    bool urgent;     
     // is this a folder? (if not, it's a monitoring object)
     bool folder_flag;
     // should contents be reset at end of monitoring cycle?
@@ -106,6 +120,11 @@ class MonitorElement
   };
 
   manage man;
+
+  dqm::qtests::QR_map qreports_;
+
+  std::vector<QReport *> qwarnings_;
+  std::vector<QReport *> qerrors_;
 
   friend class DaqMonitorBEInterface;
   friend class CollateMET;
@@ -123,29 +142,10 @@ namespace dqm
     typedef std::list<std::string>::iterator lIt;
     typedef std::set<std::string>::iterator sIt;
     typedef std::set<std::string>::const_iterator csIt;
-    
-    struct ME_data_
-    {
-      MonitorElement * me; // monitor element address
-      // whether ME should be removed
-      // from subscription menu if removeElement is called;
-      // true by default; change values only via extractObject, removeMonitorable
-      // in ReceiverBase class
-      bool canDeleteFromMenu; 
-      // whether ME has never been sent
-      // at least once (to a given subscriber);
-      // to be used for subscribers' directories
-      bool neverSent;
-      // whether ME has been requested; false by default; change value via
-      // method modifySubscription in ReceiverBase class
-      bool isDesired;
-      ME_data_(MonitorElement * init = 0) 
-      {me = init; canDeleteFromMenu=neverSent = true; isDesired = false;}
-    };
-    typedef struct ME_data_ ME_data;
-    
-    // key: ME name, value: monitoring element data (ME_data)
-    typedef std::map<std::string, ME_data> ME_map;
+    typedef std::set<MonitorElement *>::iterator meIt;
+
+    // key: ME name, value: monitoring element address
+    typedef std::map<std::string, MonitorElement *> ME_map;
     typedef ME_map::iterator ME_it;
     typedef ME_map::const_iterator cME_it;
     
@@ -154,8 +154,6 @@ namespace dqm
     typedef dir_map::iterator dir_it;
     typedef dir_map::const_iterator cdir_it;
     // key: folder pathname,value: folder address 
-    // (no real reason to redefine ME_map, 
-    // other than differentiating between "ME name" and "folder pathname")
     typedef std::map<std::string, MonitorElement *> fulldir_map;
     typedef fulldir_map::iterator fdir_it;
     typedef fulldir_map::const_iterator cfdir_it;

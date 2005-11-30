@@ -63,7 +63,7 @@ class MonitorElementString : public MonitorElementT<std::string>
   void Reset() {}
 
  public:
-  std::string valueString() const;
+  virtual std::string valueString() const;
 
 };
 

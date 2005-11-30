@@ -16,7 +16,7 @@ class MonitorElementT : public MonitorElement
   {
     delete val_;
     if(reference_)deleteReference();
-  } 
+  }
 
   void clear(){} 
   // pointer to val_
@@ -24,6 +24,12 @@ class MonitorElementT : public MonitorElement
     update();
     return val_;
   }
+  // const pointer to val_
+  const T * const_ptr() const
+  {
+    return (const T *) val_;
+  }
+
   // return *val_ by reference
   T & operator*()
     {
@@ -93,6 +99,7 @@ class MonitorElementT : public MonitorElement
   friend class CollateMERootH2;
   friend class CollateMERootH3;
   friend class CollateMERootProf;
+  friend class CollateMERootProf2D;
 
 };
 #endif

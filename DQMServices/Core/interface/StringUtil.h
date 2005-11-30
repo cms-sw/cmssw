@@ -28,6 +28,9 @@ class StringUtil
   void errorObjUnp(const std::vector<std::string> & desc) const;
 
  protected:
+
+  // print out error message
+  static void nullError(const char * name);
   
   // yes if we have a match (<pattern> can include unix-like wildcards "*", "?")
   bool matchit(const std::string & s, const std::string & pattern) const;

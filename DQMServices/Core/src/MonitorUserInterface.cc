@@ -6,6 +6,7 @@
 
 using namespace std;
 using namespace dqm::me_util;
+using namespace dqm::qtests;
 
 MonitorUserInterface::MonitorUserInterface(const string & hostname, int port_no, 
 					   const string & client_name)
@@ -44,7 +45,7 @@ void MonitorUserInterface::subscribe_base(const string & subsc_request, bool add
 	  // "unsubscribe" should loop over "contents" (only non-null MEs)
 	  
 	  // if unsubscribing, skip null monitoring elements
-	  if(!add && !file->second.me)continue;
+	  if(!add && !file->second)continue;
 
 	  string fullname = getUnixName(path->first, file->first);
 	  
@@ -240,5 +241,20 @@ void MonitorUserInterface::doSummary(void)
     {
       (*it)->summary();
     }
+}
+
+// this is the "main" loop where we receive monitoring;
+// returns success flag
+bool MonitorUserInterface::update(void)
+{
+
+  // retrieval of monitoring, sending of subscription requests/cancellations,
+  // calculation of "collate"-type Monitoring Elements;
+  bool ret = doMonitoring();
+
+  // Run quality tests (and determine updated contents)
+  runQTests();
+
+  return ret;
 }
 
