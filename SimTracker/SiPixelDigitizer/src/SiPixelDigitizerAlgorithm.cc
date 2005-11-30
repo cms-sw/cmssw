@@ -179,7 +179,8 @@ vector<PixelDigi>  SiPixelDigitizerAlgorithm::run(const std::vector<PSimHit> &in
       }
     }
   }
-
+   _signal.clear();
+ 
 
   //Digitization of the SimHits of a given pixdet
   vector<PixelDigi> collector =digitize(pixdet);
@@ -225,7 +226,6 @@ vector<PixelDigi> SiPixelDigitizerAlgorithm::digitize(PixelGeomDetUnit *det){
     }
     // produce SignalPoint's for all SimHit's in detector
     // Loop over hits
-    _signal.clear();
  
     vector<PSimHit>::const_iterator ssbegin = _PixelHits.begin();
     vector<PSimHit>::const_iterator ssend = _PixelHits.end();
