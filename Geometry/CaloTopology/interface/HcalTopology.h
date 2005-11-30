@@ -1,18 +1,35 @@
 #ifndef GEOMETRY_CALOTOPOLOGY_HCALTOPOLOGY_H
 #define GEOMETRY_CALOTOPOLOGY_HCALTOPOLOGY_H 1
 
+#include <vector>
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
 /** \class HcalTopology
+
+   The HcalTopology class contains a set of hardcoded constants which
+   represent the topology (tower relationship) of the CMS HCAL as
+   built.  These constants can be used to determine neighbor
+   relationships and existence of cells.
+
+   For use with limited setups (testbeam, cosmic stands, etc), the
+   topology can be limited by creating a rejection list -- a list of
+   cells which would normally exist in the full CMS HCAL, but are not
+   present for the specified topology.
     
-   $Date: 2005/10/03 22:32:17 $
-   $Revision: 1.3 $
+   $Date: 2005/10/06 00:42:49 $
+   $Revision: 1.4 $
    \author J. Mans - Minnesota
 */
 class HcalTopology {
 public:
   HcalTopology();
-  void limitDetector(int min_iphi, int max_iphi, int min_ieta, int max_ieta);
+  
+  /** Add a cell to exclusion list */
+  void exclude(const HcalDetId& id);
+  /** Exclude an entire subdetector */
+  void excludeSubdetector(HcalSubdetector subdet);
+  /** Exclude an eta/phi/depth range for a given subdetector */
+  int exclude(HcalSubdetector subdet, int ieta1, int ieta2, int iphi1, int iphi2, int depth1=1, int depth2=4);
 
   /** Is this a valid cell id? */
   bool valid(const HcalDetId& id) const;
@@ -53,11 +70,13 @@ private:
   /** Get the neighbors of the given cell with lower absolute ieta */
   int decAIEta(const HcalDetId& id, HcalDetId neighbors[2]) const;
 
+  /** Is this a valid cell id, ignoring the exclusion list */
+  bool validRaw(const HcalDetId& id) const;
 
-  int min_iphi_;
-  int max_iphi_;
-  int min_ieta_;
-  int max_ieta_;
+  std::vector<HcalDetId> exclusionList_;
+  bool excludeHB_, excludeHE_, excludeHO_, excludeHF_;
+
+  bool isExcluded(const HcalDetId& id) const;
 
   const int firstHBRing_;
   const int lastHBRing_;
@@ -73,7 +92,6 @@ private:
   const int firstHETripleDepthRing_;
   const int singlePhiBins_;
   const int doublePhiBins_;
-
 };
 
 

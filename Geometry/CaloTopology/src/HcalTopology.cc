@@ -3,28 +3,106 @@
 #include <iostream>
 
 
-  static const int IPHI_MAX=72;
+static const int IPHI_MAX=72;
 
-  HcalTopology::HcalTopology() :
-    firstHBRing_(1),
-    lastHBRing_(16),
-    firstHERing_(16),
-    lastHERing_(29),
-    firstHFRing_(29),
-    lastHFRing_(41),
-    firstHORing_(1),
-    lastHORing_(15),
-    firstHEDoublePhiRing_(21),
-    firstHFQuadPhiRing_(40),
-    firstHETripleDepthRing_(27),
-    singlePhiBins_(72),
-    doublePhiBins_(36)
+HcalTopology::HcalTopology() :
+  excludeHB_(false),
+  excludeHE_(false),
+  excludeHO_(false),
+  excludeHF_(false),
+  firstHBRing_(1),
+  lastHBRing_(16),
+  firstHERing_(16),
+  lastHERing_(29),
+  firstHFRing_(29),
+  lastHFRing_(41),
+  firstHORing_(1),
+  lastHORing_(15),
+  firstHEDoublePhiRing_(21),
+  firstHFQuadPhiRing_(40),
+  firstHETripleDepthRing_(27),
+  singlePhiBins_(72),
+  doublePhiBins_(36)
 {
-    min_iphi_=1;
-    max_iphi_=IPHI_MAX;
-    min_ieta_=-41;
-    max_ieta_=41;
+}
+
+
+bool HcalTopology::valid(const HcalDetId& id) const {
+  // check the raw rules
+  bool ok=validRaw(id);
+
+  ok=ok && !isExcluded(id);
+
+  return ok;
+}
+
+bool HcalTopology::isExcluded(const HcalDetId& id) const {
+  bool exed=false;
+  // first, check the full detector exclusions...  (fast)
+  switch (id.subdet()) {
+  case(HcalBarrel): exed=excludeHB_; break;
+  case(HcalEndcap): exed=excludeHE_; break;
+  case(HcalOuter): exed=excludeHO_; break;
+  case(HcalForward): exed=excludeHF_; break;
+  default: exed=false;
   }
+  // next, check the list (slower)
+  if (!exed && !exclusionList_.empty()) {
+    std::vector<HcalDetId>::const_iterator i=std::lower_bound(exclusionList_.begin(),exclusionList_.end(),id);
+    if (i!=exclusionList_.end() && *i==id) exed=true;
+  }
+  return exed;
+}
+
+void HcalTopology::exclude(const HcalDetId& id) {
+  std::vector<HcalDetId>::iterator i=std::lower_bound(exclusionList_.begin(),exclusionList_.end(),id);
+  if (i==exclusionList_.end() || *i!=id) {
+    exclusionList_.insert(i,id);
+  }
+}
+
+void HcalTopology::excludeSubdetector(HcalSubdetector subdet) {
+  switch (subdet) {
+  case(HcalBarrel): excludeHB_=true; break;
+  case(HcalEndcap): excludeHE_=true; break;
+  case(HcalOuter): excludeHO_=true; break;
+  case(HcalForward): excludeHF_=true; break;
+  default: break;
+  }
+}
+
+int HcalTopology::exclude(HcalSubdetector subdet, int ieta1, int ieta2, int iphi1, int iphi2, int depth1, int depth2) {
+
+  bool exed=false;
+  // first, check the full detector exclusions...  (fast)
+  switch (subdet) {
+  case(HcalBarrel): exed=excludeHB_; break;
+  case(HcalEndcap): exed=excludeHE_; break;
+  case(HcalOuter): exed=excludeHO_; break;
+  case(HcalForward): exed=excludeHF_; break;
+  default: exed=false;
+  }
+  if (exed) return 0; // if the whole detector is excluded...
+
+  int ieta_l=std::min(ieta1,ieta2);
+  int ieta_h=std::max(ieta1,ieta2);
+  int iphi_l=std::min(iphi1,iphi2);
+  int iphi_h=std::max(iphi1,iphi2);
+  int depth_l=std::min(depth1,depth2);
+  int depth_h=std::max(depth1,depth2);
+
+  int n=0;
+  for (int ieta=ieta_l; ieta<=ieta_h; ieta++) 
+    for (int iphi=iphi_l; iphi<=iphi_h; iphi++) 
+      for (int depth=depth_l; depth<=depth_h; depth++) {
+	HcalDetId id(subdet,ieta,iphi,depth);
+	if (validRaw(id)) { // use 'validRaw' to include check validity in "uncut" detector
+	  exclude(id);  
+	  n++;
+	}
+      }
+  return n;
+}
 
   /** Basic rules used to derive this code:
       
@@ -45,15 +123,14 @@
   */
 
   /** Is this a valid cell id? */
-  bool HcalTopology::valid(const HcalDetId& id) const {
+  bool HcalTopology::validRaw(const HcalDetId& id) const {
     bool ok=true;
     int ieta=id.ieta();
     int aieta=id.ietaAbs();
     int depth=id.depth();
     int iphi=id.iphi();
 
-    if ((ieta==0 || iphi<=0 || depth<=0 || iphi>IPHI_MAX) ||
-	(ieta<min_ieta_ || ieta>max_ieta_ || iphi>max_iphi_ || iphi<min_iphi_)) ok=false;
+    if ((ieta==0 || iphi<=0 || iphi>IPHI_MAX) || aieta>41) return false; // outer limits
     
     if (ok) {
       HcalSubdetector subdet=id.subdet();
@@ -88,7 +165,6 @@
       case (HcalOuter):
 	if (id.iphi()==IPHI_MAX) neighbor=HcalDetId(id.subdet(),id.ieta(),1,id.depth()); 
 	else neighbor=HcalDetId(id.subdet(),id.ieta(),id.iphi()+1,id.depth()); 
-	if (neighbor.iphi()>max_iphi_ || neighbor.iphi()<min_iphi_) ok=false;
 	break;
       case (HcalEndcap):
 	if (id.ietaAbs()>=21) {
@@ -97,8 +173,7 @@
 	} else {
 	  if (id.iphi()==IPHI_MAX) neighbor=HcalDetId(HcalEndcap,id.ieta(),1,id.depth()); 
 	  else neighbor=HcalDetId(HcalEndcap,id.ieta(),id.iphi()+1,id.depth()); 
-	}
-	if (neighbor.iphi()>max_iphi_ || neighbor.iphi()<min_iphi_) ok=false;
+	}	
 	break;
       case (HcalForward):
 	if (id.ietaAbs()>=40) {
@@ -108,7 +183,6 @@
 	  if (id.iphi()==IPHI_MAX-1) neighbor=HcalDetId(HcalEndcap,id.ieta(),1,id.depth()); 
 	  else neighbor=HcalDetId(HcalEndcap,id.ieta(),id.iphi()+2,id.depth()); 
 	}
-	if (neighbor.iphi()>max_iphi_ || neighbor.iphi()<min_iphi_) ok=false;
 	break;
       default: ok=false;
       }
@@ -124,7 +198,6 @@
       case (HcalOuter):
 	if (id.iphi()==1) neighbor=HcalDetId(id.subdet(),id.ieta(),IPHI_MAX,id.depth()); 
 	else neighbor=HcalDetId(id.subdet(),id.ieta(),id.iphi()-1,id.depth()); 
-	if (neighbor.iphi()>max_iphi_ || neighbor.iphi()<min_iphi_) ok=false;
 	break;
       case (HcalEndcap):
 	if (id.ietaAbs()>=21) {
@@ -134,7 +207,6 @@
 	  if (id.iphi()==1) neighbor=HcalDetId(HcalEndcap,id.ieta(),IPHI_MAX,id.depth()); 
 	  else neighbor=HcalDetId(HcalEndcap,id.ieta(),id.iphi()-1,id.depth()); 
 	}
-	if (neighbor.iphi()>max_iphi_ || neighbor.iphi()<min_iphi_) ok=false;
 	break;
       case (HcalForward):
 	if (id.ietaAbs()>=40) {
@@ -144,7 +216,6 @@
 	  if (id.iphi()==1) neighbor=HcalDetId(HcalEndcap,id.ieta(),IPHI_MAX-1,id.depth()); 
 	  else neighbor=HcalDetId(HcalEndcap,id.ieta(),id.iphi()-2,id.depth()); 
 	}
-	if (neighbor.iphi()>max_iphi_ || neighbor.iphi()<min_iphi_) ok=false;
 	break;
       default: ok=false;
       }
@@ -250,7 +321,7 @@ int HcalTopology::nPhiBins(int etaRing) const {
   int lastPhiBin=singlePhiBins_;
   if (etaRing>= firstHFQuadPhiRing_) lastPhiBin=doublePhiBins_/2;
   else if (etaRing>= firstHEDoublePhiRing_) lastPhiBin=doublePhiBins_;
-  return std::min(lastPhiBin, max_iphi_) - std::max(min_iphi_, 1) + 1;
+  return lastPhiBin;
 }
 
 
