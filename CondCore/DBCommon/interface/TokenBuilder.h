@@ -9,13 +9,12 @@ namespace cond{
   public:
     TokenBuilder();
     ~TokenBuilder();
-    void setDB(const std::string& fid);
-    void setContainer(const std::string& classguid, 
-		      const std::string& containerName);
-    void setContainerFromDict(const std::string& dictLib,
-			      const std::string& classname,
-			      const std::string& containerName);
-    void setOID(int pkcolumnValue);
+    void set( const std::string& fid,
+	      const std::string& dictLib,
+	      const std::string& className,
+	      const std::string& containerName,
+	      int pkcolumnValue=0);
+    void resetOID( int pkcolumnValue );
     std::string tokenAsString() const;
   private:
     pool::Token* m_token;
