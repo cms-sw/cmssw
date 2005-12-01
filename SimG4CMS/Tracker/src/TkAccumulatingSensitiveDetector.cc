@@ -81,6 +81,7 @@ const SimTrackManager* manager) :
        << " but should be used for debugging purposes only." << std::endl;
   
 #endif
+
     slaveLowTof  = new TrackingSlaveSDWithRenumbering(name+"LowTof",manager);
     slaveHighTof = new TrackingSlaveSDWithRenumbering(name+"HighTof",manager);
   
@@ -93,7 +94,6 @@ const SimTrackManager* manager) :
 	this->AssignSD(*it);
     }
 
-    tkG4SimHitNumberingScheme = new TrackerG4SimHitNumberingScheme;
     theG4ProcessTypeEnumerator = new G4ProcessTypeEnumerator;
     myG4TrackToParticleID = new G4TrackToParticleID;
 }
@@ -102,7 +102,6 @@ TkAccumulatingSensitiveDetector::~TkAccumulatingSensitiveDetector()
 { 
   delete slaveLowTof;
   delete slaveHighTof;
-  delete tkG4SimHitNumberingScheme;
   delete theG4ProcessTypeEnumerator;
   delete myG4TrackToParticleID;
 }
@@ -133,10 +132,7 @@ bool TkAccumulatingSensitiveDetector::ProcessHits(G4Step * aStep, G4TouchableHis
 
 uint32_t TkAccumulatingSensitiveDetector::setDetUnitId(G4Step * s)
 { 
-  if(!tkG4SimHitNumberingScheme){
-    tkG4SimHitNumberingScheme = new TrackerG4SimHitNumberingScheme;
-  }
- unsigned int detId = tkG4SimHitNumberingScheme->g4ToNumberingScheme(s->GetPreStepPoint()->GetTouchable());
+ unsigned int detId = TrackerG4SimHitNumberingScheme::instance().g4ToNumberingScheme(s->GetPreStepPoint()->GetTouchable());
 
 #ifdef DEBUG_ID
  std::cout << " DetID = "<<detId<<std::endl; 

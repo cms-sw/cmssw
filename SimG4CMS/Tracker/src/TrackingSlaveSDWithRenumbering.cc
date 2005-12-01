@@ -1,14 +1,12 @@
 #include "SimG4CMS/Tracker/interface/TrackingSlaveSDWithRenumbering.h"
 #include "SimG4Core/Application/interface/SimTrackManager.h"
-#include "SimG4CMS/Tracker/interface/TrackerHitsObject.h"
-
 
 #define DEBUG
 
 #include <iostream>
 
-TrackingSlaveSDWithRenumbering::TrackingSlaveSDWithRenumbering(std::string myName,
-							       const SimTrackManager* manager) : TrackingSlaveSD(myName), m_trackManager(manager){
+TrackingSlaveSDWithRenumbering::TrackingSlaveSDWithRenumbering(std::string myName,const SimTrackManager* manager) : 
+TrackingSlaveSD(myName),m_trackManager(manager){
 }
 
 void TrackingSlaveSDWithRenumbering::update(const EndOfEvent*  ev){
@@ -29,10 +27,6 @@ void TrackingSlaveSDWithRenumbering::update(const EndOfEvent*  ev){
 #endif
     setTrackId( temp, nt);
   }
-  //
-  // Here I dispatch it
-  //
-  //  TrackerHitsObject t(name(),hits_);
 }
 
 bool TrackingSlaveSDWithRenumbering::format(){

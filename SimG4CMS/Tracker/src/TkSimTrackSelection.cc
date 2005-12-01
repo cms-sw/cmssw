@@ -85,4 +85,3 @@ TrackInformation* TkSimTrackSelection::getOrCreateTrackInformation( const G4Trac
     return info;
   }
 }
-

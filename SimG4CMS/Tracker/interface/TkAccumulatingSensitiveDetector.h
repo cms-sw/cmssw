@@ -9,7 +9,6 @@
 #include "SimG4Core/SensitiveDetector/interface/SensitiveTkDetector.h"
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
-#include "SimG4CMS/Tracker/interface/TrackerG4SimHitNumberingScheme.h"
 
 #include "G4Step.hh"
 #include "G4StepPoint.hh"
@@ -64,7 +63,6 @@ private:
     Local3DPoint globalExitPoint;
     G4VPhysicalVolume * oldVolume;
     G4ProcessTypeEnumerator * theG4ProcessTypeEnumerator;
-    TrackerG4SimHitNumberingScheme* tkG4SimHitNumberingScheme;
     double theSigma;
     uint32_t lastId;
     unsigned int lastTrack;

@@ -18,7 +18,6 @@ void TouchableToHistory::buildAll(){
   if (alreadySet == true) return;
   alreadySet = true;
 
-  
   std::vector<nav_type> allSensitiveDets = TrackerMapDDDtoID::instance().allNavTypes();
   std::cout <<" TouchableTo History: got "<<allSensitiveDets.size()<<" sensitive detectors from TrackerMapDDDtoID."<<std::endl;
   DDCompactView cv;

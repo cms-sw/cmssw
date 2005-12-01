@@ -12,6 +12,6 @@ unsigned int TrackerG4SimHitNumberingScheme::g4ToNumberingScheme(const G4VToucha
 TrackerG4SimHitNumberingScheme::TrackerG4SimHitNumberingScheme(){
   ts = new TouchableToHistory;
 }
-TrackerG4SimHitNumberingScheme::~TrackerG4SimHitNumberingScheme(){
+void TrackerG4SimHitNumberingScheme::clear(){
   if (ts) delete ts;
 }
