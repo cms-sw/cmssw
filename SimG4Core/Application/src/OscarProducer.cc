@@ -19,8 +19,18 @@ OscarProducer::OscarProducer(edm::ParameterSet const & p)
 {    
     produces<edm::EmbdSimTrackContainer>();
     produces<edm::EmbdSimVertexContainer>();
-    produces<edm::PSimHitContainer>("TrackerHitsLowTof");
-    produces<edm::PSimHitContainer>("TrackerHitsHighTof");
+    produces<edm::PSimHitContainer>("TrackerHitsPixelBarrelLowTof");
+    produces<edm::PSimHitContainer>("TrackerHitsPixelBarrelHighTof");
+    produces<edm::PSimHitContainer>("TrackerHitsTIBLowTof");
+    produces<edm::PSimHitContainer>("TrackerHitsTIBHighTof");
+    produces<edm::PSimHitContainer>("TrackerHitsTIDLowTof");
+    produces<edm::PSimHitContainer>("TrackerHitsTIDHighTof");
+    produces<edm::PSimHitContainer>("TrackerHitsPixelEndcapLowTof");
+    produces<edm::PSimHitContainer>("TrackerHitsPixelEndcapHighTof");
+    produces<edm::PSimHitContainer>("TrackerHitsTOBLowTof");
+    produces<edm::PSimHitContainer>("TrackerHitsTOBHighTof");
+    produces<edm::PSimHitContainer>("TrackerHitsTECLowTof");
+    produces<edm::PSimHitContainer>("TrackerHitsTECHighTof");
     produces<edm::PCaloHitContainer>("EcalHitsEB");
     produces<edm::PCaloHitContainer>("EcalHitsEE");
     produces<edm::PCaloHitContainer>("EcalHitsES");
