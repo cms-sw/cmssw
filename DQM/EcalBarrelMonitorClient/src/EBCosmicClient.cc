@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  * 
- * $Date: 2005/11/26 20:42:49 $
- * $Revision: 1.9 $
+ * $Date: 2005/12/01 09:50:06 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -191,7 +191,7 @@ void EBCosmicClient::subscribe(void){
 
     sprintf(histo, "EBCT amplitude spectrum SM%02d", ism);
     me_h03_[ism-1] = mui_->collate1D(histo, histo, "EcalBarrel/Sums/EBCosmicTask/Spectrum");
-    sprintf(histo, "*/EcalBarrel/Spectrum/EBCT amplitude spectrum SM%02d", ism);
+    sprintf(histo, "*/EcalBarrel/EBCosmicTask/Spectrum/EBCT amplitude spectrum SM%02d", ism);
     mui_->add(me_h03_[ism-1], histo);
 
   }
@@ -257,7 +257,7 @@ void EBCosmicClient::analyze(const edm::Event& e, const edm::EventSetup& c){
     }
 
 //    sprintf(histo, "Collector/FU0/EcalBarrel/EBCosmicTask/Spectrum/EBCT amplitude spectrum SM%02d", ism);
-    sprintf(histo, "EcalBarrel/Sums/EcalBarrel/EBCosmicTask/Spectrum/EBCT amplitude spectrum SM%02d", ism);
+    sprintf(histo, "EcalBarrel/Sums/EBCosmicTask/Spectrum/EBCT amplitude spectrum SM%02d", ism);
     me = mui_->get(histo);
     if ( me ) {
       cout << "Found '" << histo << "'" << endl;

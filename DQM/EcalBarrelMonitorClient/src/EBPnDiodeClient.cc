@@ -1,8 +1,8 @@
 /*
  * \file EBPnDiodeClient.cc
  * 
- * $Date: 2005/11/26 20:42:49 $
- * $Revision: 1.8 $
+ * $Date: 2005/12/01 09:37:12 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -202,6 +202,32 @@ void EBPnDiodeClient::subscribe(void){
   mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/Laser3/EBPT PNs SM*");
   mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/Laser4/EBPT PNs SM*");
 
+  Char_t histo[80];
+
+  for ( int ism = 1; ism <= 36; ism++ ) {
+
+    sprintf(histo, "EBPT PNs SM%02d L1", ism);
+    me_h01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1");
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/EBPT PNs SM%02d L1", ism);
+    mui_->add(me_h01_[ism-1], histo);
+
+    sprintf(histo, "EBPT PNs SM%02d L2", ism);
+    me_h02_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser2");
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/EBPT PNs SM%02d L2", ism);
+    mui_->add(me_h02_[ism-1], histo);
+
+    sprintf(histo, "EBPT PNs SM%02d L3", ism);
+    me_h03_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser3");
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/EBPT PNs SM%02d L3", ism);
+    mui_->add(me_h03_[ism-1], histo);
+
+    sprintf(histo, "EBPT PNs SM%02d L4", ism);
+    me_h04_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser4");
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/EBPT PNs SM%02d L4", ism);
+    mui_->add(me_h04_[ism-1], histo);
+
+  }
+
 }
 
 void EBPnDiodeClient::subscribeNew(void){
@@ -238,7 +264,8 @@ void EBPnDiodeClient::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
-    sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser1/EBPT PNs SM%02d L1", ism);
+//    sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser1/EBPT PNs SM%02d L1", ism);
+    sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1/EBPT PNs SM%02d L1", ism);
     me = mui_->get(histo);
     if ( me ) {
       cout << "Found '" << histo << "'" << endl;
@@ -250,7 +277,8 @@ void EBPnDiodeClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
     }
 
-    sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser2/EBPT PNs SM%02d L2", ism);
+//    sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser2/EBPT PNs SM%02d L2", ism);
+    sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser2/EBPT PNs SM%02d L2", ism);
     me = mui_->get(histo);
     if ( me ) {
       cout << "Found '" << histo << "'" << endl;
@@ -262,7 +290,8 @@ void EBPnDiodeClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
     }
 
-    sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser3/EBPT PNs SM%02d L3", ism);
+//    sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser3/EBPT PNs SM%02d L3", ism);
+    sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser3/EBPT PNs SM%02d L3", ism);
     me = mui_->get(histo);
     if ( me ) {
       cout << "Found '" << histo << "'" << endl;
@@ -274,7 +303,8 @@ void EBPnDiodeClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
     }
 
-    sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser4/EBPT PNs SM%02d L4", ism);
+//    sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser4/EBPT PNs SM%02d L4", ism);
+    sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser4/EBPT PNs SM%02d L4", ism);
     me = mui_->get(histo);
     if ( me ) {
       cout << "Found '" << histo << "'" << endl;

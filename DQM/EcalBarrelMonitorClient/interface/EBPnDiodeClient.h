@@ -4,8 +4,8 @@
 /*
  * \file EBPnDiodeClient.h
  *
- * $Date: 2005/11/24 09:20:29 $
- * $Revision: 1.1 $
+ * $Date: 2005/12/01 09:37:12 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -88,6 +88,11 @@ int ievt_;
 int jevt_;
 
 MonitorUserInterface* mui_;
+
+CollateMonitorElement* me_h01_[36];
+CollateMonitorElement* me_h02_[36];
+CollateMonitorElement* me_h03_[36];
+CollateMonitorElement* me_h04_[36];
 
 TProfile* h01_[36];
 TProfile* h02_[36];

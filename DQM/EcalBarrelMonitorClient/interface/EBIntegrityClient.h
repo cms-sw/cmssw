@@ -4,8 +4,8 @@
 /*
  * \file EBIntegrityClient.h
  *
- * $Date: 2005/11/19 09:48:37 $
- * $Revision: 1.9 $
+ * $Date: 2005/11/22 18:11:34 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  *
 */
@@ -88,6 +88,13 @@ int jevt_;
 
 MonitorUserInterface* mui_;
 
+CollateMonitorElement* me_h00_;
+
+CollateMonitorElement* me_h01_[36];
+CollateMonitorElement* me_h02_[36];
+CollateMonitorElement* me_h03_[36];
+CollateMonitorElement* me_h04_[36];
+
 TH1F* h00_;
 
 TH2F* h01_[36];
@@ -96,6 +103,8 @@ TH2F* h03_[36];
 TH2F* h04_[36];
 
 TH2F* g01_[36];
+
+CollateMonitorElement* me_h_[36];
 
 TProfile2D* h_[36];
 

@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  * 
- * $Date: 2005/11/26 18:43:10 $
- * $Revision: 1.38 $
+ * $Date: 2005/11/26 20:42:49 $
+ * $Revision: 1.39 $
  * \author G. Della Ricca
  *
 */
@@ -239,6 +239,42 @@ void EBIntegrityClient::subscribe(void){
   mui_->subscribe("*/EcalBarrel/EcalIntegrity/TTId/EI TTId SM*");
   mui_->subscribe("*/EcalBarrel/EcalIntegrity/TTBlockSize/EI TTBlockSize SM*");
 
+  me_h00_ = mui_->collate1D("DCC size error", "DCC size error", "EcalBarrel/Sums/EcalIntegrity");
+  mui_->add(me_h00_, "*/EcalBarrel/EcalIntegrity/DCC size error");
+
+  Char_t histo[80];
+  
+  for ( int ism = 1; ism <= 36; ism++ ) {
+
+// not needed: the CollateMonitorElements are built in EBPedPreSample.cc
+
+//    sprintf(histo, "EBPT pedestal PreSample SM%02d G12", ism);
+//    me_h_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPedPreSampleTask/Gain12");
+//    sprintf(histo, "*/EcalBarrel/EBPedPreSampleTask/Gain12/EBPT pedestal PreSample SM%02d G12", ism);
+//    mui_->add(me_h_[ism-1], histo);
+
+    sprintf(histo, "EI gain SM%02d", ism);
+    me_h01_[ism-1] = mui_->collate2D(histo, histo, "EcalBarrel/Sums/EcalIntegrity/Gain");
+    sprintf(histo, "*/EcalBarrel/EcalIntegrity/Gain/EI gain SM%02d", ism);
+    mui_->add(me_h01_[ism-1], histo);
+
+    sprintf(histo, "EI ChId SM%02d", ism);
+    me_h02_[ism-1] = mui_->collate2D(histo, histo, "EcalBarrel/Sums/EcalIntegrity/ChId");
+    sprintf(histo, "*/EcalBarrel/EcalIntegrity/ChId/EI ChId SM%02d", ism);
+    mui_->add(me_h02_[ism-1], histo);
+
+    sprintf(histo, "EI TTId SM%02d", ism);
+    me_h03_[ism-1] = mui_->collate2D(histo, histo, "EcalBarrel/Sums/EcalIntegrity/TTId");
+    sprintf(histo, "*/EcalBarrel/EcalIntegrity/TTId/EI TTId SM%02d", ism);
+    mui_->add(me_h03_[ism-1], histo);
+
+    sprintf(histo, "EI TTBlockSize SM%02d", ism);
+    me_h04_[ism-1] = mui_->collate2D(histo, histo, "EcalBarrel/Sums/EcalIntegrity/TTBlockSize");
+    sprintf(histo, "*/EcalBarrel/EcalIntegrity/TTBlockSize/EI TTBlockSize SM%02d", ism);
+    mui_->add(me_h04_[ism-1], histo);
+
+  }
+
 }
 
 void EBIntegrityClient::subscribeNew(void){
@@ -277,7 +313,8 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
   MonitorElement* me;
   MonitorElementT<TNamed>* ob;
 
-  sprintf(histo, "Collector/FU0/EcalBarrel/EcalIntegrity/DCC size error");
+//  sprintf(histo, "Collector/FU0/EcalBarrel/EcalIntegrity/DCC size error");
+  sprintf(histo, "EcalBarrel/Sums/EcalIntegrity/DCC size error");
   me = mui_->get(histo);
   if ( me ) {
     cout << "Found '" << histo << "'" << endl;
@@ -291,7 +328,8 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
-    sprintf(histo, "Collector/FU0/EcalBarrel/EBPedPreSampleTask/Gain12/EBPT pedestal PreSample SM%02d G12", ism);
+//    sprintf(histo, "Collector/FU0/EcalBarrel/EBPedPreSampleTask/Gain12/EBPT pedestal PreSample SM%02d G12", ism);
+    sprintf(histo, "EcalBarrel/Sums/EBPedPreSampleTask/Gain12/EBPT pedestal PreSample SM%02d G12", ism);
     me = mui_->get(histo);
     if ( me ) {
       cout << "Found '" << histo << "'" << endl;
@@ -303,7 +341,8 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
     }
 
-    sprintf(histo, "Collector/FU0/EcalBarrel/EcalIntegrity/Gain/EI gain SM%02d", ism);
+//    sprintf(histo, "Collector/FU0/EcalBarrel/EcalIntegrity/Gain/EI gain SM%02d", ism);
+    sprintf(histo, "EcalBarrel/Sums/EcalIntegrity/Gain/EI gain SM%02d", ism);
     me = mui_->get(histo);
     if ( me ) {
       cout << "Found '" << histo << "'" << endl;
@@ -315,7 +354,8 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
     }
 
-    sprintf(histo, "Collector/FU0/EcalBarrel/EcalIntegrity/ChId/EI ChId SM%02d", ism);
+//    sprintf(histo, "Collector/FU0/EcalBarrel/EcalIntegrity/ChId/EI ChId SM%02d", ism);
+    sprintf(histo, "EcalBarrel/Sums/EcalIntegrity/ChId/EI ChId SM%02d", ism);
     me = mui_->get(histo);
     if ( me ) {
       cout << "Found '" << histo << "'" << endl;
@@ -327,7 +367,8 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
     }
 
-    sprintf(histo, "Collector/FU0/EcalBarrel/EcalIntegrity/TTId/EI TTId SM%02d", ism);
+//    sprintf(histo, "Collector/FU0/EcalBarrel/EcalIntegrity/TTId/EI TTId SM%02d", ism);
+    sprintf(histo, "EcalBarrel/Sums/EcalIntegrity/TTId/EI TTId SM%02d", ism);
     me = mui_->get(histo);
     if ( me ) {
       cout << "Found '" << histo << "'" << endl;
@@ -339,7 +380,8 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
     }
 
-    sprintf(histo, "Collector/FU0/EcalBarrel/EcalIntegrity/TTBlockSize/EI TTBlockSize SM%02d", ism);
+//    sprintf(histo, "Collector/FU0/EcalBarrel/EcalIntegrity/TTBlockSize/EI TTBlockSize SM%02d", ism);
+    sprintf(histo, "EcalBarrel/Sums/EcalIntegrity/TTBlockSize/EI TTBlockSize SM%02d", ism);
     me = mui_->get(histo);
     if ( me ) {
       cout << "Found '" << histo << "'" << endl;

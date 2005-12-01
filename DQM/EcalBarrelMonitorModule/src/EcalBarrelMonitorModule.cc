@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  * 
- * $Date: 2005/11/24 18:19:18 $
- * $Revision: 1.54 $
+ * $Date: 2005/11/30 07:56:31 $
+ * $Revision: 1.55 $
  * \author G. Della Ricca
  *
 */
@@ -74,7 +74,7 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
 
   // this should give enough time to the ME to reach the Collector,
   // and then hopefully the clients, even for short runs
-  sleep(60);
+  sleep(120);
 
 }
 
