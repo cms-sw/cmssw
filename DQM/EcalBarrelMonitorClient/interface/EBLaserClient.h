@@ -4,8 +4,8 @@
 /*
  * \file EBLaserClient.h
  *
- * $Date: 2005/11/18 16:24:08 $
- * $Revision: 1.9 $
+ * $Date: 2005/11/26 18:43:10 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  *
 */
@@ -90,6 +90,15 @@ int ievt_;
 int jevt_;
 
 MonitorUserInterface* mui_;
+
+CollateMonitorElement* me_h01_[36];
+CollateMonitorElement* me_h02_[36];
+CollateMonitorElement* me_h03_[36];
+CollateMonitorElement* me_h04_[36];
+CollateMonitorElement* me_h05_[36];
+CollateMonitorElement* me_h06_[36];
+CollateMonitorElement* me_h07_[36];
+CollateMonitorElement* me_h08_[36];
 
 TProfile2D* h01_[36];
 TProfile2D* h02_[36];
