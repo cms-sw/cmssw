@@ -14,6 +14,7 @@ template std::vector< CSCcrosstalk::Item >::const_iterator;
 template std::vector< CSCIdentifier::Item >::iterator;
 template std::vector< CSCIdentifier::Item >::const_iterator;
 
-//#include "CondFormats/CSCObjects/interface/CSCVectorping.h"
-//template std::vector< int, cms::EBDetId >::iterator;
-//template std::vector< int, cms::EBDetId >::const_iterator;
+#include "CondFormats/CSCObjects/interface/CSCReadoutMapping.h"
+template std::vector< CSCReadoutMapping::CSCLabel >::iterator;
+template std::vector< CSCReadoutMapping::CSCLabel >::const_iterator;
+
