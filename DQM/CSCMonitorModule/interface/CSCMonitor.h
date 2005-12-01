@@ -5,8 +5,10 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCEventData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDDUEventData.h"
+#include "EventFilter/CSCRawToDigi/interface/MonitorInterface.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
@@ -19,7 +21,7 @@ using namespace std;
 
 
 
-class CSCMonitor {
+class CSCMonitor : public MonitorInterface{
 public:
    explicit CSCMonitor( const edm::ParameterSet& );
    ~CSCMonitor();

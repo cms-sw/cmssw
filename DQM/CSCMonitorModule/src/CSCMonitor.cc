@@ -9,7 +9,7 @@
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-
+//#include "PluginManager/PluginManager.h"
 
 using namespace std;
 
@@ -63,9 +63,14 @@ void CSCMonitor::process(CSCDCCEventData & dccData )
 
 
 
+#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
+
+using namespace edm::serviceregistry;
+
+typedef ParameterSetMaker<MonitorInterface,CSCMonitor> maker;
+
+DEFINE_SEAL_MODULE();
+DEFINE_ANOTHER_FWK_SERVICE_MAKER(MonitorInterface,maker)
 
 
-
-//define this as a plug-in
-//DEFINE_FWK_MODULE(CSCMonitor)
 
