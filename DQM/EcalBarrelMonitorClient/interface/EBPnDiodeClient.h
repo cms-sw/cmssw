@@ -4,7 +4,7 @@
 /*
  * \file EBPnDiodeClient.h
  *
- * $Date: 2005/11/21 09:02:43 $
+ * $Date: 2005/11/24 09:20:29 $
  * $Revision: 1.1 $
  * \author G. Della Ricca
  * \author F. Cossutti
@@ -90,6 +90,9 @@ int jevt_;
 MonitorUserInterface* mui_;
 
 TProfile* h01_[36];
+TProfile* h02_[36];
+TProfile* h03_[36];
+TProfile* h04_[36];
 
 };
 

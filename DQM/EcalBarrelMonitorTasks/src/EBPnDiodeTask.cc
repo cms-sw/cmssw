@@ -1,8 +1,8 @@
 /*
  * \file EBPnDiodeTask.cc
  * 
- * $Date: 2005/11/24 09:47:00 $
- * $Revision: 1.1 $
+ * $Date: 2005/11/24 10:55:51 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  *
 */
@@ -16,10 +16,28 @@ EBPnDiodeTask::EBPnDiodeTask(const edm::ParameterSet& ps, DaqMonitorBEInterface*
   Char_t histo[20];
 
   if ( dbe ) {
-    dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask");
+    dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Laser1");
     for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBPT PNs SM%02d", i+1);
-      mePN_[i] = dbe->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096.);
+      sprintf(histo, "EBPT PNs SM%02d L1", i+1);
+      mePNL1_[i] = dbe->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096.);
+    }
+
+    dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Laser2");
+    for (int i = 0; i < 36 ; i++) {
+      sprintf(histo, "EBPT PNs SM%02d L2", i+1);
+      mePNL1_[i] = dbe->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096.);
+    }
+
+    dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Laser3");
+    for (int i = 0; i < 36 ; i++) {
+      sprintf(histo, "EBPT PNs SM%02d L3", i+1);
+      mePNL1_[i] = dbe->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096.);
+    }
+
+    dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Laser4");
+    for (int i = 0; i < 36 ; i++) {
+      sprintf(histo, "EBPT PNs SM%02d L4", i+1);
+      mePNL1_[i] = dbe->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096.);
     }
 
   }
@@ -69,6 +87,8 @@ void EBPnDiodeTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
     float xvalmax = 0.;
 
+    MonitorElement* mePN = 0;
+
     for (int i = 0; i < 50; i++) {
 
       EcalFEMSample sample = pn.sample(i);
@@ -81,7 +101,12 @@ void EBPnDiodeTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
     }
 
-    mePN_[ism-1]->Fill(num - 0.5, xvalmax);
+    if ( ievt_ >=    1 && ievt_ <=  600 ) mePN = mePNL1_[ism-1];
+    if ( ievt_ >=  601 && ievt_ <= 1200 ) mePN = mePNL1_[ism-1];
+    if ( ievt_ >= 1201 && ievt_ <= 1800 ) mePN = mePNL2_[ism-1];
+    if ( ievt_ >= 1801 && ievt_ <= 2400 ) mePN = mePNL2_[ism-1];
+
+    if ( mePN ) mePN->Fill(num - 0.5, xvalmax);
 
   }
 

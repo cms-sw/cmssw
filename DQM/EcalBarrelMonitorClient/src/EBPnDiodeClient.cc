@@ -1,8 +1,8 @@
 /*
  * \file EBPnDiodeClient.cc
  * 
- * $Date: 2005/11/26 18:43:10 $
- * $Revision: 1.7 $
+ * $Date: 2005/11/26 20:42:49 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -17,6 +17,9 @@ EBPnDiodeClient::EBPnDiodeClient(const edm::ParameterSet& ps, MonitorUserInterfa
   for ( int i = 0; i < 36; i++ ) {
 
     h01_[i] = 0;
+    h02_[i] = 0;
+    h03_[i] = 0;
+    h04_[i] = 0;
 
   }
 
@@ -27,6 +30,9 @@ EBPnDiodeClient::~EBPnDiodeClient(){
   for ( int i = 0; i < 36; i++ ) {
 
     if ( h01_[i] ) delete h01_[i];
+    if ( h02_[i] ) delete h02_[i];
+    if ( h03_[i] ) delete h03_[i];
+    if ( h04_[i] ) delete h04_[i];
 
   }
 
@@ -51,7 +57,13 @@ void EBPnDiodeClient::beginRun(const edm::EventSetup& c){
   for ( int ism = 1; ism <= 36; ism++ ) {
 
     if ( h01_[ism-1] ) delete h01_[ism-1];
+    if ( h02_[ism-1] ) delete h02_[ism-1];
+    if ( h03_[ism-1] ) delete h03_[ism-1];
+    if ( h04_[ism-1] ) delete h04_[ism-1];
     h01_[ism-1] = 0;
+    h02_[ism-1] = 0;
+    h03_[ism-1] = 0;
+    h04_[ism-1] = 0;
 
   }
 
@@ -82,15 +94,15 @@ void EBPnDiodeClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag*
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
-    float num01;
-    float mean01;
-    float rms01;
+    float num01, num02, num03, num04;
+    float mean01, mean02, mean03, mean04;
+    float rms01, rms02, rms03, rms04;
 
     for ( int i = 1; i <= 10; i++ ) {
 
-      num01  = -1.;
-      mean01 = -1.;
-      rms01  = -1.;
+      num01  = num02  = num03  = num04  = -1.;
+      mean01 = mean02 = mean03 = mean04 = -1.;
+      rms01  = rms02  = rms03  = rms04  = -1.;
 
       bool update_channel = false;
 
@@ -103,15 +115,51 @@ void EBPnDiodeClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag*
         }
       }
 
+      if ( h02_[ism-1] && h02_[ism-1]->GetEntries() >= n_min_tot ) {
+        num02 = h02_[ism-1]->GetBinEntries(h02_[ism-1]->GetBin(i));
+        if ( num02 >= n_min_bin ) {
+          mean02 = h02_[ism-1]->GetBinContent(h02_[ism-1]->GetBin(i));
+          rms02  = h02_[ism-1]->GetBinError(h02_[ism-1]->GetBin(i));
+          update_channel = true;
+        }
+      }
+
+      if ( h03_[ism-1] && h03_[ism-1]->GetEntries() >= n_min_tot ) {
+        num03 = h03_[ism-1]->GetBinEntries(h03_[ism-1]->GetBin(i));
+        if ( num03 >= n_min_bin ) {
+          mean03 = h03_[ism-1]->GetBinContent(h03_[ism-1]->GetBin(i));
+          rms03  = h03_[ism-1]->GetBinError(h03_[ism-1]->GetBin(i));
+          update_channel = true;
+        }
+      }
+
+      if ( h04_[ism-1] && h04_[ism-1]->GetEntries() >= n_min_tot ) {
+        num04 = h04_[ism-1]->GetBinEntries(h04_[ism-1]->GetBin(i));
+        if ( num04 >= n_min_bin ) {
+          mean04 = h04_[ism-1]->GetBinContent(h04_[ism-1]->GetBin(i));
+          rms04  = h04_[ism-1]->GetBinError(h04_[ism-1]->GetBin(i));
+          update_channel = true;
+        }
+      }
+
       if ( update_channel ) {
 
         if ( i == 1 ) {
 
           cout << "Inserting dataset for SM=" << ism << endl;
 
-          cout << "PNs (" << i << ") " << num01  << " "
-                                       << mean01 << " "
-                                       << rms01  << endl;
+          cout << "PNs (" << i << ") L1 " << num01  << " "
+                                          << mean01 << " "
+                                          << rms01  << endl;
+          cout << "PNs (" << i << ") L2 " << num02  << " "
+                                          << mean02 << " "
+                                          << rms02  << endl;
+          cout << "PNs (" << i << ") L3 " << num03  << " "
+                                          << mean03 << " "
+                                          << rms03  << endl;
+          cout << "PNs (" << i << ") L4 " << num04  << " "
+                                          << mean04 << " "
+                                          << rms04  << endl;
         }
 
         p.setADCMean(mean01);
@@ -149,21 +197,30 @@ void EBPnDiodeClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag*
 void EBPnDiodeClient::subscribe(void){
 
   // subscribe to all monitorable matching pattern
-  mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/EBPT PNs SM*");
+  mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/Laser1/EBPT PNs SM*");
+  mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/Laser2/EBPT PNs SM*");
+  mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/Laser3/EBPT PNs SM*");
+  mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/Laser4/EBPT PNs SM*");
 
 }
 
 void EBPnDiodeClient::subscribeNew(void){
 
   // subscribe to new monitorable matching pattern
-  mui_->subscribeNew("*/EcalBarrel/EBPnDiodeTask/EBPT PNs SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBPnDiodeTask/Laser1/EBPT PNs SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBPnDiodeTask/Laser2/EBPT PNs SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBPnDiodeTask/Laser3/EBPT PNs SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBPnDiodeTask/Laser4/EBPT PNs SM*");
 
 }
 
 void EBPnDiodeClient::unsubscribe(void){
 
   // unsubscribe to all monitorable matching pattern
-  mui_->unsubscribe("*/EcalBarrel/EBPnDiodeTask/EBPT PNs SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBPnDiodeTask/Laser1/EBPT PNs SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBPnDiodeTask/Laser2/EBPT PNs SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBPnDiodeTask/Laser3/EBPT PNs SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBPnDiodeTask/Laser4/EBPT PNs SM*");
 
 }
 
@@ -181,15 +238,51 @@ void EBPnDiodeClient::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
-    sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/EBPT PNs SM%02d", ism);
+    sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser1/EBPT PNs SM%02d L1", ism);
     me = mui_->get(histo);
     if ( me ) {
       cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( h01_[ism-1] ) delete h01_[ism-1];
-        sprintf(histo, "ME EBPT PNs SM%02d", ism);
+        sprintf(histo, "ME EBPT PNs SM%02d L1", ism);
         h01_[ism-1] = dynamic_cast<TProfile*> ((ob->operator->())->Clone(histo));
+      }
+    }
+
+    sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser2/EBPT PNs SM%02d L2", ism);
+    me = mui_->get(histo);
+    if ( me ) {
+      cout << "Found '" << histo << "'" << endl;
+      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
+      if ( ob ) {
+        if ( h02_[ism-1] ) delete h02_[ism-1];
+        sprintf(histo, "ME EBPT PNs SM%02d L2", ism);
+        h02_[ism-1] = dynamic_cast<TProfile*> ((ob->operator->())->Clone(histo));
+      }
+    }
+
+    sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser3/EBPT PNs SM%02d L3", ism);
+    me = mui_->get(histo);
+    if ( me ) {
+      cout << "Found '" << histo << "'" << endl;
+      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
+      if ( ob ) {
+        if ( h03_[ism-1] ) delete h03_[ism-1];
+        sprintf(histo, "ME EBPT PNs SM%02d L3", ism);
+        h03_[ism-1] = dynamic_cast<TProfile*> ((ob->operator->())->Clone(histo));
+      }
+    }
+
+    sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser4/EBPT PNs SM%02d L4", ism);
+    me = mui_->get(histo);
+    if ( me ) {
+      cout << "Found '" << histo << "'" << endl;
+      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
+      if ( ob ) {
+        if ( h04_[ism-1] ) delete h04_[ism-1];
+        sprintf(histo, "ME EBPT PNs SM%02d L4", ism);
+        h04_[ism-1] = dynamic_cast<TProfile*> ((ob->operator->())->Clone(histo));
       }
     }
 
@@ -233,47 +326,68 @@ void EBPnDiodeClient::htmlOutput(int run, string htmlDir, string htmlName){
 
 //  double histMax = 1.e15;
 
-  string imgNameME, imgName, meName;
+  string imgNameME[2], imgName, meName;
 
   // Loop on barrel supermodules
 
   for ( int ism = 1 ; ism <= 36 ; ism++ ) {
 
-    if ( h01_[ism-1] ) {
+    if ( h01_[ism-1] && h02_[ism-1] && h03_[ism-1] && h04_[ism-1] ) {
 
-      // Monitoring elements plots
+      // Loop on wavelenght
 
-      TProfile* objp = 0;
+      for ( int iCanvas=1 ; iCanvas <= 2 ; iCanvas++ ) {
 
-      meName = h01_[ism-1]->GetName();
-      objp = h01_[ism-1];
+        // Monitoring elements plots
 
-      TCanvas *cAmp = new TCanvas("cAmp" , "Temp", csize , csize );
-      for ( unsigned int iAmp=0 ; iAmp < meName.size(); iAmp++ ) {
-        if ( meName.substr(iAmp,1) == " " )  {
-          meName.replace(iAmp, 1 ,"_" );
+        TProfile* objp = 0;
+
+        switch ( iCanvas ) { 
+        case 1:
+          meName = h01_[ism-1]->GetName();
+          objp = h01_[ism-1];
+          break;
+        case 2:
+          meName = h02_[ism-1]->GetName();
+          objp = h02_[ism-1];
+          break;
+        case 3:
+          meName = h03_[ism-1]->GetName();
+          objp = h03_[ism-1];
+          break;
+        case 4:
+          meName = h04_[ism-1]->GetName();
+          objp = h04_[ism-1];
+          break;
         }
-      }
-      imgNameME = meName + ".jpg";
-      imgName = htmlDir + imgNameME;
-      gStyle->SetOptStat("euomr");
-      objp->SetStats(kTRUE);
-//      if ( objp->GetMaximum(histMax) > 0. ) {
-//        gPad->SetLogy(1);
-//      } else {
-//        gPad->SetLogy(0);
-//      }
-      objp->Draw();
-      cAmp->Update();
-      TPaveStats* stAmp = dynamic_cast<TPaveStats*>(objp->FindObject("stats"));
-      if ( stAmp ) {
-        stAmp->SetX1NDC(0.6);
-        stAmp->SetY1NDC(0.75);
-      }
-      cAmp->SaveAs(imgName.c_str());
-      gPad->SetLogy(0);
-      delete cAmp;
 
+        TCanvas *cAmp = new TCanvas("cAmp" , "Temp", csize , csize );
+        for ( unsigned int iAmp=0 ; iAmp < meName.size(); iAmp++ ) {
+          if ( meName.substr(iAmp,1) == " " )  {
+            meName.replace(iAmp, 1 ,"_" );
+          }
+        }
+        imgNameME[iCanvas-1] = meName + ".jpg";
+        imgName = htmlDir + imgNameME[iCanvas-1];
+        gStyle->SetOptStat("euomr");
+        objp->SetStats(kTRUE);
+//        if ( objp->GetMaximum(histMax) > 0. ) {
+//          gPad->SetLogy(1);
+//        } else {
+//          gPad->SetLogy(0);
+//        }
+        objp->Draw();
+        cAmp->Update();
+        TPaveStats* stAmp = dynamic_cast<TPaveStats*>(objp->FindObject("stats"));
+        if ( stAmp ) {
+          stAmp->SetX1NDC(0.6);
+          stAmp->SetY1NDC(0.75);
+        }
+        cAmp->SaveAs(imgName.c_str());
+        gPad->SetLogy(0);
+        delete cAmp;
+
+      }
     }
 
     htmlFile << "<h3><strong>Supermodule&nbsp;&nbsp;" << ism << "</strong></h3>" << endl;
@@ -281,11 +395,14 @@ void EBPnDiodeClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr align=\"center\">" << endl;
 
-    if ( imgNameME.size() != 0 )
-      htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameME << "\"></td>" << endl;
-    else
-      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+    for ( int iCanvas = 1 ; iCanvas <= 2 ; iCanvas++ ) {
 
+      if ( imgNameME[iCanvas-1].size() != 0 )
+        htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameME[iCanvas-1] << "\"></td>" << endl;
+      else
+        htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+
+    }
     htmlFile << "</tr>" << endl;
     htmlFile << "</table>" << endl;
     htmlFile << "<br>" << endl;
