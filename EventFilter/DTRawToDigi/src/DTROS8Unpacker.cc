@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2005/11/23 11:17:15 $
- *  $Revision: 1.4 $
+ *  $Date: 2005/11/25 18:12:53 $
+ *  $Revision: 1.5 $
  *  \author  M. Zanetti - INFN Padova 
  */
 
@@ -10,13 +10,14 @@
 #include <EventFilter/DTRawToDigi/src/DTROSErrorNotifier.h>
 #include <EventFilter/DTRawToDigi/src/DTTDCErrorNotifier.h>
 #include <CondFormats/DTObjects/interface/DTReadOutMapping.h>
+#include <FWCore/Utilities/interface/Exception.h>
 
 #include <iostream>
 #include <map>
 
 using namespace std;
 using namespace edm;
-
+using namespace cms;
 
 void DTROS8Unpacker::interpretRawData(const unsigned int* index, int datasize,
 				      int dduID,
@@ -67,17 +68,27 @@ void DTROS8Unpacker::interpretRawData(const unsigned int* index, int datasize,
       int tdcMeasurement =  word  & 0x7FFFF;
       tdcMeasurement >>= 2;
 
-      // temporary for the mapping
-      dduID = 31;
-      // Map the RO channel to the DetId and wire
-      DTDetId detId = mapping->readOutToGeometry(dduID, rosID, robID, tdcID, tdcChannel);
-      int wire = detId.wire();
-      
-      // Produce the digi
-      DTDigi digi(wire, tdcMeasurement, hitOrder[channelIndex]-1);
 
-      // Commit to the event
-      product->insertDigi(detId.layerId(),digi);
+      try {
+
+	// temporary for the mapping
+	dduID = 31;
+	
+	// Map the RO channel to the DetId and wire
+	DTDetId detId = mapping->readOutToGeometry(dduID, rosID, robID, tdcID, tdcChannel);
+	int wire = detId.wire();
+	
+	// Produce the digi
+	DTDigi digi(wire, tdcMeasurement, hitOrder[channelIndex]-1);
+
+	// Commit to the event
+	product->insertDigi(detId.layerId(),digi);
+      }
+
+      catch (cms::Exception & e1) {
+	return;
+      }
     }
+    
   }
 }
