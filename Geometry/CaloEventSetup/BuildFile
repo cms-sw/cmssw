@@ -1,4 +1,5 @@
 <use name=Geometry/CaloGeometry>
+<use name=Geometry/CaloTopology>
 <use name=FWCore/Framework>
 <use name=Geometry/Records>
 <flags SEAL_PLUGIN_NAME="GeometryCaloEventSetup">
@@ -6,6 +7,7 @@
 <export>
   <lib name=GeometryCaloEventSetup>
   <use name=Geometry/CaloGeometry>
+  <use name=Geometry/CaloTopology>
   <use name=FWCore/Framework>
   <use name=Geometry/Records>
 </export>
