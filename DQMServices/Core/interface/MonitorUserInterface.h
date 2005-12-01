@@ -170,7 +170,13 @@ class MonitorUserInterface : public StringUtil
   virtual CollateMonitorElement* collateProf(const std::string name, 
 					     const std::string title, 
 					     const std::string pathname)=0;
-
+  
+  // collate profiles, store in <pathname>
+  virtual CollateMonitorElement* collateProf2D(const std::string name, 
+					       const std::string title, 
+					       const std::string pathname)
+    =0;
+  
   // add <search_string> to summary ME; 
   // <search_string> could : (a) be exact pathname (e.g. A/B/C/histo)
   // (b) include wildcards (e.g. A/?/C/histo, A/B/*/histo or A/B/*);
