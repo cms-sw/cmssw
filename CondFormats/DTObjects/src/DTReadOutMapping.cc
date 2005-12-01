@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2005/11/15 13:50:55 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/11/15 18:38:13 $
+ *  $Revision: 1.3 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -340,6 +340,7 @@ int DTReadOutMapping::insertReadOutGeometryLink( int     dduId,
                                                  int   layerId,
                                                  int    cellId ) {
 
+/*
   std::vector<DTReadOutGeometryLink>::const_iterator iter =
               readOutChannelDriftTubeMap.begin();
   std::vector<DTReadOutGeometryLink>::const_iterator iend =
@@ -362,6 +363,7 @@ int DTReadOutMapping::insertReadOutGeometryLink( int     dduId,
     exist = false;
   }
   if ( exist ) return 1;
+*/
 
   DTReadOutGeometryLink link;
   link.    dduId =     dduId;

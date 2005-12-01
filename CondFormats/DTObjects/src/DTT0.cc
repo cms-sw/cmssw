@@ -1,7 +1,7 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2005/10/11 16:00:00 $
+ *  $Date: 2005/11/15 18:38:13 $
  *  $Revision: 1.1 $
  *  \author Paolo Ronchese INFN Padova
  *
@@ -46,8 +46,8 @@ DTCellT0Data::DTCellT0Data() :
        slId( 0 ),
     layerId( 0 ),
      cellId( 0 ),
-  t0mean( 0 ),
-  t0rms(  0 ) {
+     t0mean( 0 ),
+     t0rms(  0 ) {
 }
 
 //--------------
@@ -65,10 +65,8 @@ DTCellT0Data::~DTCellT0Data() {
 void DTT0::initSetup() const {
 
   std::string t0Version = dataVersion + "_t0";
-  std::vector<DTCellT0Data>::const_iterator iter =
-              cellData.begin();
-  std::vector<DTCellT0Data>::const_iterator iend =
-              cellData.end();
+  std::vector<DTCellT0Data>::const_iterator iter = cellData.begin();
+  std::vector<DTCellT0Data>::const_iterator iend = cellData.end();
   DTDataBuffer<int>::openBuffer(   "cell", t0Version, -999 );
   DTDataBuffer<float>::openBuffer( "cell", t0Version, -999 );
   while ( iter != iend ) {
@@ -107,8 +105,8 @@ int DTT0::cellT0( int   wheelId,
                   int&   t0mean,
                   float& t0rms ) const {
 
-  int found =
-    t0mean    = 0;
+  int found = 0;
+  t0mean    = 0;
   t0rms     = 0.0;
 
 /*
@@ -179,6 +177,7 @@ int DTT0::setCellT0( int   wheelId,
                      int   t0mean,
                      float t0rms ) {
 
+/*
   std::vector<DTCellT0Data>::const_iterator iter = cellData.begin();
   std::vector<DTCellT0Data>::const_iterator iend = cellData.end();
   bool exist = false;
@@ -194,6 +193,8 @@ int DTT0::setCellT0( int   wheelId,
     exist = false;
   }
   if ( exist ) return 1;
+*/
+
   DTCellT0Data data;
   data.  wheelId =   wheelId;
   data.stationId = stationId;
@@ -215,7 +216,6 @@ int DTT0::setCellT0( int   wheelId,
                                        layerId,
                                         cellId,
                                         t0mean, -999999 );
-
   DTDataBuffer<float>::insertCellData( t0Version,
                                        wheelId,
                                      stationId,
