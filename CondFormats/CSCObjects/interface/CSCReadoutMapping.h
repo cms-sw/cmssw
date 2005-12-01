@@ -27,7 +27,7 @@ class CSCReadoutMapping {
    * Instead of a set of vectors of int use one vector of a set of ints
    */  
   struct CSCLabel{
-
+    CSCLabel(){}
     CSCLabel( int endcap, int station, int ring, int chamber,  
 	      int vmecrate, int dmb, int tmb, int tsector, int cscid )
       : endcap_( endcap ), station_( station ), ring_( ring ), chamber_( chamber ),
@@ -113,7 +113,6 @@ class CSCReadoutMapping {
     bool debugV_;
     std::vector< CSCLabel > mapping_;
     std::map< int, int > hw2sw_;
-
 };
 
 #endif
