@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jun 28 11:10:24 EDT 2005
-// $Id: EventSetupRecordDataGetter.cc,v 1.6 2005/09/01 03:12:50 wmtan Exp $
+// $Id: EventSetupRecordDataGetter.cc,v 1.1 2005/10/11 17:09:22 wmtan Exp $
 //
 //
 
@@ -55,7 +55,6 @@ namespace edm {
 {
 }
 
-
 EventSetupRecordDataGetter::~EventSetupRecordDataGetter()
 {
  
@@ -90,13 +89,18 @@ EventSetupRecordDataGetter::analyze(const edm::Event& /*iEvent*/, const edm::Eve
          Strings dataNames = itToGet->getParameter< Strings >("data");
          std::vector< eventsetup::DataKey > dataKeys;
          for(Strings::iterator itDatum = dataNames.begin(); itDatum != dataNames.end(); ++itDatum) {
-            eventsetup::TypeTag datumType = eventsetup::TypeTag::findType(*itDatum);
+            std::string datumName(*itDatum, 0, itDatum->find_first_of("/"));
+            std::string labelName;
+            if(itDatum->size() != datumName.size()) {
+               labelName = std::string(*itDatum, datumName.size()+1);
+            }
+            eventsetup::TypeTag datumType = eventsetup::TypeTag::findType(datumName);
             if(datumType == eventsetup::TypeTag()) {
                //not found
-               std::cout <<"data item \""<< *itDatum <<"\" does not exist"<<std::endl;
+               std::cout <<"data item of type \""<< datumName <<"\" does not exist"<<std::endl;
                continue;
             }
-            eventsetup::DataKey datumKey(datumType, "");
+            eventsetup::DataKey datumKey(datumType, labelName.c_str());
             dataKeys.push_back(datumKey); 
          }
          recordToDataKeys_.insert(std::make_pair(recordKey, dataKeys));
