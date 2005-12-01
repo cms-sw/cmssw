@@ -41,6 +41,10 @@ Default behaviour (particularly destination) if none provided.
 
 Deal with case of ofstream failing to construct.
 
+Multiple types in a message ID (note - this requires ErrorLogger work) -
+we need first to discuss the meaning of this, both in filtering and in
+statistics.
+
 			Recommended options
 			-------------------
 
