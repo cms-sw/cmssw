@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  * 
- * $Date: 2005/11/26 18:43:10 $
- * $Revision: 1.29 $
+ * $Date: 2005/11/26 20:42:49 $
+ * $Revision: 1.30 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -301,6 +301,27 @@ void EBPedestalClient::subscribe(void){
   mui_->subscribe("*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM*");
   mui_->subscribe("*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM*");
 
+  Char_t histo[80];
+
+  for ( int ism = 1; ism <= 36; ism++ ) {
+
+    sprintf(histo, "EBPT pedestal SM%02d G01", ism);
+    me_h01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPedestalTask/Gain01");
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal SM%02d G01", ism);
+    mui_->add(me_h01_[ism-1], histo);
+
+    sprintf(histo, "EBPT pedestal SM%02d G06", ism);
+    me_h02_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPedestalTask/Gain06");
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM%02d G06", ism);
+    mui_->add(me_h02_[ism-1], histo);
+
+    sprintf(histo, "EBPT pedestal SM%02d G12", ism);
+    me_h03_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPedestalTask/Gain12");
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM%02d G12", ism);
+    mui_->add(me_h03_[ism-1], histo);
+
+  }
+
 }
 
 void EBPedestalClient::subscribeNew(void){
@@ -335,7 +356,8 @@ void EBPedestalClient::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
-    sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal SM%02d G01", ism);
+//    sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal SM%02d G01", ism);
+    sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain01/EBPT pedestal SM%02d G01", ism);
     me = mui_->get(histo);
     if ( me ) {
       cout << "Found '" << histo << "'" << endl;
@@ -347,7 +369,8 @@ void EBPedestalClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
     }
 
-    sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM%02d G06", ism);
+//    sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM%02d G06", ism);
+    sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain06/EBPT pedestal SM%02d G06", ism);
     me = mui_->get(histo);
     if ( me ) {
       cout << "Found '" << histo << "'" << endl;
@@ -359,7 +382,8 @@ void EBPedestalClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
     }
 
-    sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM%02d G12", ism);
+//    sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM%02d G12", ism);
+    sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain12/EBPT pedestal SM%02d G12", ism);
     me = mui_->get(histo);
     if ( me ) {
       cout << "Found '" << histo << "'" << endl;

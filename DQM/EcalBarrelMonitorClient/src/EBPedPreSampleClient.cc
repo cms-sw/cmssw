@@ -1,8 +1,8 @@
 /*
  * \file EBPedPreSampleClient.cc
  * 
- * $Date: 2005/11/26 20:42:49 $
- * $Revision: 1.35 $
+ * $Date: 2005/12/01 09:50:06 $
+ * $Revision: 1.36 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -210,7 +210,7 @@ void EBPedPreSampleClient::subscribe(void){
 
     sprintf(histo, "EBPT pedestal PreSample SM%02d G12", ism);
     me_h03_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPedPreSampleTask/Gain12");
-    sprintf(histo, "*/EcalBarrel/EBPedPreSampleTask/Gain12/EBPT pedestal PreSample SM%02d", ism);
+    sprintf(histo, "*/EcalBarrel/EBPedPreSampleTask/Gain12/EBPT pedestal PreSample SM%02d G12", ism);
     mui_->add(me_h03_[ism-1], histo);
 
   }

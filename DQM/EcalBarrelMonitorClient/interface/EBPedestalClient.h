@@ -4,8 +4,8 @@
 /*
  * \file EBPedestalClient.h
  *
- * $Date: 2005/11/16 08:36:44 $
- * $Revision: 1.9 $
+ * $Date: 2005/11/16 13:36:46 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -88,6 +88,10 @@ int ievt_;
 int jevt_;
 
 MonitorUserInterface* mui_;
+
+CollateMonitorElement* me_h01_[36];
+CollateMonitorElement* me_h02_[36];
+CollateMonitorElement* me_h03_[36];
 
 TProfile2D* h01_[36];
 TProfile2D* h02_[36];

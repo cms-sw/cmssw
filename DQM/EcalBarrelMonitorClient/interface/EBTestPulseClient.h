@@ -4,8 +4,8 @@
 /*
  * \file EBTestPulseClient.h
  *
- * $Date: 2005/11/16 20:40:31 $
- * $Revision: 1.7 $
+ * $Date: 2005/11/23 13:36:21 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -89,6 +89,18 @@ int ievt_;
 int jevt_;
 
 MonitorUserInterface* mui_;
+
+CollateMonitorElement* me_ha01_[36];
+CollateMonitorElement* me_ha02_[36];
+CollateMonitorElement* me_ha03_[36];
+
+CollateMonitorElement* me_hs01_[36];
+CollateMonitorElement* me_hs02_[36];
+CollateMonitorElement* me_hs03_[36];
+
+CollateMonitorElement* me_he01_[36];
+CollateMonitorElement* me_he02_[36];
+CollateMonitorElement* me_he03_[36];
 
 TProfile2D* ha01_[36];
 TProfile2D* ha02_[36];
