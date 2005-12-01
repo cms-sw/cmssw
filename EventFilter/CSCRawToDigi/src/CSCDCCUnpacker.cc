@@ -30,19 +30,36 @@
 
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCEventData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCEventData.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCALCTHeader.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCAnodeData.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCCLCTData.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCDDUEventData.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCTMBData.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCTMBHeader.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCRPCData.h"
 
+#include "CondFormats/CSCObjects/interface/CSCReadoutMappingFromFile.h"
 
 #include <iostream>
 
 
 CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset){
-  std::cout << "starting DCCConstructor";   
+  //std::cout << "starting DCCConstructor";   
   //fill constructor here
   //dccData = 0;
   produces<CSCWireDigiCollection>();
   produces<CSCStripDigiCollection>();
-  std::cout <<"... and finished " << std::endl;  
-  
+  //std::cout <<"... and finished " << std::endl;  
+   
+  CSCAnodeData::setDebug(true);
+  CSCALCTHeader::setDebug(true);
+  CSCCLCTData::setDebug(true);
+  CSCEventData::setDebug(true);
+  CSCTMBData::setDebug(true);
+  CSCDCCEventData::setDebug(true);
+  CSCDDUEventData::setDebug(true);
+  CSCTMBHeader::setDebug(true);
+
 }
 
 CSCDCCUnpacker::~CSCDCCUnpacker(){
@@ -54,6 +71,9 @@ CSCDCCUnpacker::~CSCDCCUnpacker(){
 
 
 void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
+
+  //move this outside of producer
+  CSCReadoutMappingFromFile theMapping = CSCReadoutMappingFromFile("csc_slice_test_map.txt");
 
   // Get a handle to the FED data collection
   edm::Handle<FEDRawDataCollection> rawdata;
@@ -69,9 +89,14 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
   
   //std::cout <<"in the producer now " << std::endl;  
 
-  for (int id=FEDNumbering::getCSCFEDIds().first;
-       id<=FEDNumbering::getCSCFEDIds().second; ++id){ //for each of our DCCs
-    //std::cout <<"in the loop of CSCFEDs now " << std::endl;
+  //for (int id=FEDNumbering::getCSCFEDIds().first;
+  //     id<=FEDNumbering::getCSCFEDIds().second; ++id){ //for each of our DCCs
+
+    
+  for (int id=1873;id<=1873; ++id){ //for each of our DCCs
+
+
+  //std::cout <<"in the loop of CSCFEDs now " << std::endl;
     
     // Take a reference to this FED's data
     const FEDRawData& fedData = rawdata->FEDData(id);
@@ -85,7 +110,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
       
       numOfEvents++; 
      
-      std::cout<<"[DCCUnpackingModule]:"<<numOfEvents<<" events analyzed"<<std::endl;
+      std::cout<<"**************[DCCUnpackingModule]:"<<numOfEvents<<" events analyzed"<<std::endl;
 
 
       //get a reference to dduData
@@ -103,14 +128,26 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 	  ///it must be repeated for all 6 types!
 	  
 	  for (int ilayer = 1; ilayer <= 6; ilayer++) { 
+	    int endcap = 1;
+	    int station = 1;
+	    int tmb = 1;
+ 	    int vmecrate = cscData[iCSC].dmbHeader().crateID(); 
+	    int dmb = cscData[iCSC].dmbHeader().dmbID();
 
-            #warning Fake mapping of the endcap, station, ring and chamber!!!
+	    std::cout << "crate = " << vmecrate << "; dmb = " << dmb << std::endl;           
+
 	    CSCDetId layer(1, //endcap
 			   1, //station
 			   1, //ring
 			   1, //chamber
 			   ilayer); //layer
-
+ 
+            if (((vmecrate==0)||(vmecrate==1)) && (dmb>=0)&&(dmb<=10)&&(dmb!=6)) {
+	      layer = theMapping.detId( endcap, station, vmecrate, dmb, tmb,ilayer );
+	    }else {
+	      std::cerr << " detID input out of range!!! " << std::endl;
+	      std::cerr << " using fake CSCDetId!!!! " << std::endl;
+	    }
 
 	    std::vector <CSCWireDigi> wireDigis =  cscData[iCSC].wireDigis(ilayer);
 	    for (int i=0; i<wireDigis.size() ; i++) {

@@ -2,11 +2,14 @@
 <use name=DataFormats/CSCDigi>
 <use name=FWCore/Framework>
 <use name=DataFormats/FEDRawData>
-
+<use name=CondFormats/CSCObjects>
+ 
 <export>
 <lib name=EventFilterCSCRawToDigi>
 <use name=DataFormats/CSCDigi>
 <use name=FWCore/Framework>
 <use name=DataFormats/FEDRawData>
+<use name=CondFormats/CSCObjects>
+
 </export>
  
