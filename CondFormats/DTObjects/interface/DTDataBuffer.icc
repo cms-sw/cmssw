@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2005/11/14 19:17:18 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/11/15 18:38:13 $
+ *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -438,11 +438,11 @@ int DTDataBuffer<T>::readoutGlobalId( int        dduId,
                                       int        robId,
                                       int        tdcId,
                                       int tdcChannelId ) {
-         dduId -= nMinWheel;
-         rosId -= nMinSector;
-         robId -= nMinStation;
-         tdcId -= nMinSL;
-  tdcChannelId -= nMinLayer;
+  dduId -= nMinDDU;
+  rosId -= nMinROS;
+  robId -= nMinROB;
+  tdcId -= nMinTDC;
+  tdcChannelId -= nMinTDCChannel;
   return ( ( ( ( ( ( ( dduId   * nMaxROS        )
               +        rosId ) * nMaxROB        )
               +        robId ) * nMaxTDC        )

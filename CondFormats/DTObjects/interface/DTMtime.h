@@ -1,12 +1,12 @@
-#ifndef DTT0_H
-#define DTT0_H
-/** \class DTT0
+#ifndef DTMtime_H
+#define DTMtime_H
+/** \class DTMtime
  *
  *  Description:
- *       Class to hold drift tubes T0s
- *             ( cell by cell time offsets )
+ *       Class to hold drift tubes mean-times
+ *             ( SL by SL mean-time calculation )
  *
- *  $Date: 2005/11/15 18:38:13 $
+ *  $Date: 2005/11/24 16:45:00 $
  *  $Revision: 1.1 $
  *  \author Paolo Ronchese INFN Padova
  *
@@ -32,37 +32,35 @@
 //              -- Class Interface --
 //              ---------------------
 
-class DTCellT0Data {
+class DTSLMtimeData {
 
  public:
 
-  DTCellT0Data();
-  ~DTCellT0Data();
+  DTSLMtimeData();
+  ~DTSLMtimeData();
 
   int   wheelId;
   int stationId;
   int  sectorId;
   int      slId;
-  int   layerId;
-  int    cellId;
-  int t0mean;
-  int t0rms;
+  int     mTime;
+  int     mTrms;
 
 };
 
 
-class DTT0 {
+class DTMtime {
 
  public:
 
   /** Constructor
    */
-  DTT0();
-  DTT0( const std::string& version );
+  DTMtime();
+  DTMtime( const std::string& version );
 
   /** Destructor
    */
-  ~DTT0();
+  ~DTMtime();
 
   /** Operations
    */
@@ -70,14 +68,12 @@ class DTT0 {
   void initSetup() const;
 
   /// get content
-  int cellT0( int   wheelId,
-              int stationId,
-              int  sectorId,
-              int      slId,
-              int   layerId,
-              int    cellId,
-              int&   t0mean,
-              float& t0rms ) const;
+  int slMtime( int   wheelId,
+               int stationId,
+               int  sectorId,
+               int      slId,
+               int&    mTime,
+               float&  mTrms ) const;
 
   /// access version
   const
@@ -87,17 +83,15 @@ class DTT0 {
   /// reset content
   void clear();
 
-  int setCellT0( int   wheelId,
-                 int stationId,
-                 int  sectorId,
-                 int      slId,
-                 int   layerId,
-                 int    cellId,
-                 int   t0mean,
-                 float t0rms );
+  int setSLMtime( int   wheelId,
+                  int stationId,
+                  int  sectorId,
+                  int      slId,
+                  int     mTime,
+                  float   mTrms );
 
   /// Access methods to data
-  typedef std::vector<DTCellT0Data>::const_iterator const_iterator;
+  typedef std::vector<DTSLMtimeData>::const_iterator const_iterator;
   const_iterator begin() const;
   const_iterator end() const;
 
@@ -105,12 +99,12 @@ class DTT0 {
 
   std::string dataVersion;
 
-  std::vector<DTCellT0Data> cellData;
+  std::vector<DTSLMtimeData> slData;
 
   static int rmsFactor;
 
 };
 
 
-#endif // DTT0_H
+#endif // DTMtime_H
 

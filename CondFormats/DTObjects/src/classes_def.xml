@@ -3,8 +3,14 @@
   <class name="DTReadOutGeometryLink" id="C428DA7A-EE34-DA11-89FB-000E0C5CE283"/>
   <class name="DTT0" id="FAEFE9C5-2A00-DA11-89E6-000E0C4DE431"/>
   <class name="DTCellT0Data" id="604A5767-1B3B-DA11-9D99-000E0C5CE283"/>
+  <class name="DTTtrig" id="FA524625-415C-DA11-A1AE-000E0C5CE283"/>
+  <class name="DTSLTtrigData" id="B0103027-415C-DA11-8831-000E0C5CE283"/>
+  <class name="DTMtime" id="DE34E051-095D-DA11-86A8-000E0C5CE283"/>
+  <class name="DTSLMtimeData" id="6A4F37E1-085D-DA11-95BC-000E0C5CE283"/>
   <class name="std::vector<DTReadOutGeometryLink>"/>
   <class name="std::vector<DTCellT0Data>"/>
+  <class name="std::vector<DTSLTtrigData>"/>
+  <class name="std::vector<DTSLMtimeData>"/>
   <class name="std::basic_string<char>"/>
   <class pattern="*iterator*"/>
 </lcgdict>

@@ -1,12 +1,12 @@
-#ifndef DTT0_H
-#define DTT0_H
-/** \class DTT0
+#ifndef DTTtrig_H
+#define DTTtrig_H
+/** \class DTTtrig
  *
  *  Description:
- *       Class to hold drift tubes T0s
- *             ( cell by cell time offsets )
+ *       Class to hold drift tubes TTrigs
+ *             ( SL by SL time offsets )
  *
- *  $Date: 2005/11/15 18:38:13 $
+ *  $Date: 2005/11/23 17:15:00 $
  *  $Revision: 1.1 $
  *  \author Paolo Ronchese INFN Padova
  *
@@ -32,37 +32,34 @@
 //              -- Class Interface --
 //              ---------------------
 
-class DTCellT0Data {
+class DTSLTtrigData {
 
  public:
 
-  DTCellT0Data();
-  ~DTCellT0Data();
+  DTSLTtrigData();
+  ~DTSLTtrigData();
 
   int   wheelId;
   int stationId;
   int  sectorId;
   int      slId;
-  int   layerId;
-  int    cellId;
-  int t0mean;
-  int t0rms;
+  int     tTrig;
 
 };
 
 
-class DTT0 {
+class DTTtrig {
 
  public:
 
   /** Constructor
    */
-  DTT0();
-  DTT0( const std::string& version );
+  DTTtrig();
+  DTTtrig( const std::string& version );
 
   /** Destructor
    */
-  ~DTT0();
+  ~DTTtrig();
 
   /** Operations
    */
@@ -70,14 +67,11 @@ class DTT0 {
   void initSetup() const;
 
   /// get content
-  int cellT0( int   wheelId,
-              int stationId,
-              int  sectorId,
-              int      slId,
-              int   layerId,
-              int    cellId,
-              int&   t0mean,
-              float& t0rms ) const;
+  int slTtrig( int   wheelId,
+               int stationId,
+               int  sectorId,
+               int      slId,
+               int&    tTrig ) const;
 
   /// access version
   const
@@ -87,17 +81,14 @@ class DTT0 {
   /// reset content
   void clear();
 
-  int setCellT0( int   wheelId,
-                 int stationId,
-                 int  sectorId,
-                 int      slId,
-                 int   layerId,
-                 int    cellId,
-                 int   t0mean,
-                 float t0rms );
+  int setSLTtrig( int   wheelId,
+                  int stationId,
+                  int  sectorId,
+                  int      slId,
+                  int     tTrig );
 
   /// Access methods to data
-  typedef std::vector<DTCellT0Data>::const_iterator const_iterator;
+  typedef std::vector<DTSLTtrigData>::const_iterator const_iterator;
   const_iterator begin() const;
   const_iterator end() const;
 
@@ -105,12 +96,10 @@ class DTT0 {
 
   std::string dataVersion;
 
-  std::vector<DTCellT0Data> cellData;
-
-  static int rmsFactor;
+  std::vector<DTSLTtrigData> slData;
 
 };
 
 
-#endif // DTT0_H
+#endif // DTTtrig_H
 
