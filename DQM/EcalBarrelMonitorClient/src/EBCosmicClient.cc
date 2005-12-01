@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  * 
- * $Date: 2005/11/26 18:43:10 $
- * $Revision: 1.8 $
+ * $Date: 2005/11/26 20:42:49 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -175,6 +175,27 @@ void EBCosmicClient::subscribe(void){
   mui_->subscribe("*/EcalBarrel/EBCosmicTask/Cut/EBCT amplitude cut SM*");
   mui_->subscribe("*/EcalBarrel/EBCosmicTask/Spectrum/EBCT amplitude spectrum SM*");
 
+  Char_t histo[80];
+
+  for ( int ism = 1; ism <= 36; ism++ ) {
+
+    sprintf(histo, "EBCT amplitude sel SM%02d", ism);
+    me_h01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBCosmicTask/Sel");
+    sprintf(histo, "*/EcalBarrel/EBCosmicTask/Sel/EBCT amplitude sel SM%02d", ism);
+    mui_->add(me_h01_[ism-1], histo);
+
+    sprintf(histo, "EBCT amplitude cut SM%02d", ism);
+    me_h02_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBCosmicTask/Cut");
+    sprintf(histo, "*/EcalBarrel/EBCosmicTask/Cut/EBCT amplitude cut SM%02d", ism);
+    mui_->add(me_h02_[ism-1], histo);
+
+    sprintf(histo, "EBCT amplitude spectrum SM%02d", ism);
+    me_h03_[ism-1] = mui_->collate1D(histo, histo, "EcalBarrel/Sums/EBCosmicTask/Spectrum");
+    sprintf(histo, "*/EcalBarrel/Spectrum/EBCT amplitude spectrum SM%02d", ism);
+    mui_->add(me_h03_[ism-1], histo);
+
+  }
+
 }
 
 void EBCosmicClient::subscribeNew(void){
@@ -209,7 +230,8 @@ void EBCosmicClient::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
-    sprintf(histo, "Collector/FU0/EcalBarrel/EBCosmicTask/Sel/EBCT amplitude sel SM%02d", ism);
+//    sprintf(histo, "Collector/FU0/EcalBarrel/EBCosmicTask/Sel/EBCT amplitude sel SM%02d", ism);
+    sprintf(histo, "EcalBarrel/Sums/EBCosmicTask/Sel/EBCT amplitude sel SM%02d", ism);
     me = mui_->get(histo);
     if ( me ) {
       cout << "Found '" << histo << "'" << endl;
@@ -221,7 +243,8 @@ void EBCosmicClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
     }
 
-    sprintf(histo, "Collector/FU0/EcalBarrel/EBCosmicTask/Cut/EBCT amplitude cut SM%02d", ism);
+//    sprintf(histo, "Collector/FU0/EcalBarrel/EBCosmicTask/Cut/EBCT amplitude cut SM%02d", ism);
+    sprintf(histo, "EcalBarrel/Sums/EBCosmicTask/Cut/EBCT amplitude cut SM%02d", ism);
     me = mui_->get(histo);
     if ( me ) {
       cout << "Found '" << histo << "'" << endl;
@@ -233,7 +256,8 @@ void EBCosmicClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
     }
 
-    sprintf(histo, "Collector/FU0/EcalBarrel/EBCosmicTask/Spectrum/EBCT amplitude spectrum SM%02d", ism);
+//    sprintf(histo, "Collector/FU0/EcalBarrel/EBCosmicTask/Spectrum/EBCT amplitude spectrum SM%02d", ism);
+    sprintf(histo, "EcalBarrel/Sums/EcalBarrel/EBCosmicTask/Spectrum/EBCT amplitude spectrum SM%02d", ism);
     me = mui_->get(histo);
     if ( me ) {
       cout << "Found '" << histo << "'" << endl;

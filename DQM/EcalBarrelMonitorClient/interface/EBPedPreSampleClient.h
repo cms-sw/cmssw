@@ -4,8 +4,8 @@
 /*
  * \file EBPedPreSampleClient.h
  *
- * $Date: 2005/11/16 13:36:46 $
- * $Revision: 1.10 $
+ * $Date: 2005/11/16 15:19:36 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -88,6 +88,8 @@ int ievt_;
 int jevt_;
 
 MonitorUserInterface* mui_;
+
+CollateMonitorElement* me_h03_[36];
 
 TProfile2D* h03_[36];
 

@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2005/11/24 09:20:29 $
- * $Revision: 1.16 $
+ * $Date: 2005/11/24 13:24:42 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -22,6 +22,10 @@
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/CollateMonitorElement.h"
+#include "DQMServices/UI/interface/MonitorUIRoot.h"
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBIntegrityClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBLaserClient.h>
@@ -126,6 +130,8 @@ EBPedPreSampleClient* pedpresample_client_;
 EBTestPulseClient* testpulse_client_;
 
 EBCosmicClient* cosmic_client_;
+
+CollateMonitorElement* me_h_;
 
 TH1F* h_;
 

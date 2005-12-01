@@ -1,8 +1,8 @@
 /*
  * \file EBPedPreSampleClient.cc
  * 
- * $Date: 2005/11/26 18:43:10 $
- * $Revision: 1.34 $
+ * $Date: 2005/11/26 20:42:49 $
+ * $Revision: 1.35 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -204,6 +204,17 @@ void EBPedPreSampleClient::subscribe(void){
   // subscribe to all monitorable matching pattern
   mui_->subscribe("*/EcalBarrel/EBPedPreSampleTask/Gain12/EBPT pedestal PreSample SM*");
 
+  Char_t histo[80];
+
+  for ( int ism = 1; ism <= 36; ism++ ) {
+
+    sprintf(histo, "EBPT pedestal PreSample SM%02d G12", ism);
+    me_h03_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPedPreSampleTask/Gain12");
+    sprintf(histo, "*/EcalBarrel/EBPedPreSampleTask/Gain12/EBPT pedestal PreSample SM%02d", ism);
+    mui_->add(me_h03_[ism-1], histo);
+
+  }
+
 }
 
 void EBPedPreSampleClient::subscribeNew(void){
@@ -234,7 +245,8 @@ void EBPedPreSampleClient::analyze(const edm::Event& e, const edm::EventSetup& c
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
-    sprintf(histo, "Collector/FU0/EcalBarrel/EBPedPreSampleTask/Gain12/EBPT pedestal PreSample SM%02d G12", ism);
+//    sprintf(histo, "Collector/FU0/EcalBarrel/EBPedPreSampleTask/Gain12/EBPT pedestal PreSample SM%02d G12", ism);
+    sprintf(histo, "EcalBarrel/Sums/EBPedPreSampleTask/Gain12/EBPT pedestal PreSample SM%02d G12", ism);
     me = mui_->get(histo);
     if ( me ) {
       cout << "Found '" << histo << "'" << endl;

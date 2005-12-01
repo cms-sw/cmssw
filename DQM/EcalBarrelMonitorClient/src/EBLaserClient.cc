@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  * 
- * $Date: 2005/11/26 18:43:10 $
- * $Revision: 1.30 $
+ * $Date: 2005/11/26 20:42:49 $
+ * $Revision: 1.31 $
  * \author G. Della Ricca
  *
 */
@@ -277,6 +277,9 @@ void EBLaserClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* r
             cout << "Inserting dataset for SM=" << ism << endl;
 
             cout << "L1 (" << ie << "," << ip << ") " << num01 << " " << mean01 << " " << rms01 << endl;
+            cout << "L2 (" << ie << "," << ip << ") " << num02 << " " << mean02 << " " << rms02 << endl;
+            cout << "L3 (" << ie << "," << ip << ") " << num03 << " " << mean03 << " " << rms03 << endl;
+            cout << "L4 (" << ie << "," << ip << ") " << num04 << " " << mean04 << " " << rms04 << endl;
 
           }
 
@@ -732,10 +735,10 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       for ( int iCanvas = 1 ; iCanvas <= 2 ; iCanvas++ ) {
 
-      if ( imgNameQual[iCanvas-1].size() != 0 ) 
-        htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameQual[iCanvas-1] << "\"></td>" << endl;
-      else
-        htmlFile << "<img src=\"" << " " << "\"></td>" << endl;
+        if ( imgNameQual[iCanvas-1].size() != 0 ) 
+          htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameQual[iCanvas-1] << "\"></td>" << endl;
+        else
+          htmlFile << "<img src=\"" << " " << "\"></td>" << endl;
 
       }
       htmlFile << "</tr>" << endl;

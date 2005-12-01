@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  * 
- * $Date: 2005/11/26 15:38:21 $
- * $Revision: 1.44 $
+ * $Date: 2005/11/26 18:43:10 $
+ * $Revision: 1.45 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -272,6 +272,9 @@ void EcalBarrelMonitorClient::subscribe(void){
   mui_->subscribe("*/EcalBarrel/EVTTYPE");
   mui_->subscribe("*/EcalBarrel/RUNTYPE");
 
+  me_h_ = mui_->collate1D("EVTTYPE", "EVTTYPE", "EcalBarrel/Sums");
+  mui_->add(me_h_, "*/EcalBarrel/EVTTYPE");
+
 }
 
 void EcalBarrelMonitorClient::subscribeNew(void){
@@ -344,7 +347,8 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
       sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &evt_);
     }
 
-    me = mui_->get("Collector/FU0/EcalBarrel/EVTTYPE");
+//    me = mui_->get("Collector/FU0/EcalBarrel/EVTTYPE");
+    me = mui_->get("EcalBarrel/Sums/EVTTYPE");
     if ( me ) {
       MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
