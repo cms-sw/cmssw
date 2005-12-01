@@ -139,11 +139,8 @@ process TEST = {
     <a href="filename.html">PSet detailedInfo.txt</a> = { <a href="infothreshold.html">string setThreshold = "INFO"</a>    } 
     <a href="cerr.html">PSet cerr</a>             = { <a href="warnthreshold.html">string setThreshold = "WARNING"</a> }
   }
-  path p = { print,myAnalysisModule }
-
-  module print =            AsciiOutputModule { }
+  path p = { myAnalysisModule }
   module myAnalysisModule = ModuleThatIssuesMessages { }
-  
   source = EmptySource {untracked int32 maxEvents = 5}
 }
 </pre>
@@ -151,14 +148,6 @@ process TEST = {
 
 <a name="complete">
 <h2> Examples of all MessageLogger Parameters </h2>
-
-<ul>
-<em>
-Examples not yet prepared.
-</em>
-</ul>
- 
-<!--
 
 The following is an example .cfg file, requesting the MessageLogger
 Service, setting up some destinations, and specifying some  
@@ -168,32 +157,64 @@ missage ID's, and to all non-specified (default) message ID's.
 <p>
 The .cfg file contains not only a list of files, but also a list of message 
 ID's that the author wishes to control individually.
-
+<p>
+This example documents all options available for configuration of MessageLogger
+behavior.  
+If further features are made available, they will be reflected by additional 
+illustrations in this example.
 <pre>
 process TEST = {
 
-  <a href="serviceML.html">service = MessageLogger</a> {
-    <a href="files.html">vstring files = </a>{ "detailedInfo.txt"
-                      , "critical.txt"
-                      , <a href="cout.html">"cout"</a>
-                      , <a href="cerr.html">"cerr"</a>
-                                             }
-    PSet critical.txt     = { string setThreshold = "ERROR" }
-    PSet detailedInfo.txt = { PSet   setLimit = { int32  limit = 5
-                                                  string messageID = "unimportant" 
-						}
-			    , string setThreshold = "INFO" 
+  <a href="serviceMLc.html">service = MessageLogger {</a>
+    <a href="destinations.html">vstring destinations = { "detailedInfo.txt"</a>
+			   <a href="destinations.html">, "critical.txt"</a>
+			   <a href="destinations.html">, "jobdebug.txt"</a>
+			   <a href="destinations.html">, "anotherfile.txt"</a>
+			   <a href="destinations.html">, "cout"</a>
+			   <a href="destinations.html">, "cerr"</a>
+			   <a href="destinations.html">}</a>
+    <a href="mIDs.html">vstring messageIDs = { "unimportant"</a>
+			 <a href="mIDs.html">, "trkwarning"</a>
+ 			 <a href="mIDs.html">, "serious_matter"</a>
+                         <a href="mIDs.html">}</a>
+    <a href="destname.html">PSet critical.txt = {</a> <a href="thresh.html">string threshold = "ERROR"</a>
+                              <a href="default.html">PSet default = {</a> <a href="limits.html">int32 limit</a>    = 10
+			                       <a href="limits.html">int32 timespan = 180</a>
+					     <a href="default.html">}</a>
+			      PSet serious_matter = { int32 limit = 100000 }
+                        }
+    <a href="destname.html">PSet detailedInfo.txt = {</a>  <a href="thresh.html">string threshold = "INFO"</a>
+			      <a href="default.html">PSet default        = {</a> <a href="limits.html">int32 limit    =  10</a>
+					              <a href="limits.html">int32 timespan =  60</a>
+					            <a href="default.html">}</a>
+			      <a href="severity.html">PSet WARNING        = </a>{ <a href="limits.html">int32 limit    = 100</a>
+			                              <a href="limits.html">int32 timespan =  60</a> 
+					            }
+			      <a href="severity.html">PSet ERROR          = </a>{ <a href="limits.html">int32 limit    = 100</a>
+			                              <a href="limits.html">int32 timespan =  60</a> 
+					            }
+			      <a href="mIDs.html">PSet trkwarning</a>     = { <a href="limits.html">int32 limit    = 20</a>
+			                              <a href="limits.html">int32 timespan = 1200</a>
+						    }
+			      <a href="mIDs.html">PSet unimportant</a>    = { <a href="limits.html">int32 limit    = 5</a> }
+			      <a href="mIDs.html">PSet serious_matter</a> = { <a href="limits.html">int32 limit    = 1000000</a> }
                             }
-    PSet cerr             = { string setThreshold = "WARNING" }
-  }
-  path p = { print,myAnalysisModule }
+    PSet cerr     = { <a href="thresh.html">string threshold = "WARNING"</a> }
 
-  module print =            AsciiOutputModule { }
-  module myAnalysisModule = ModuleThatIssuesMessages { }
-  
-  source = EmptySource {untracked int32 maxEvents = 5}
+    <a href="destname.html">PSet jobdebug.txt =     {</a> PSet default        = { <a href="limits.html">int32 limit    = 1000000</a> <a href="mIDs.html">}</a>
+                            }
+    <a href="destname.html">PSet anotherfile.txt =  {</a> PSet serious_matter = { <a href="limits.html">int32 limit    = 1000</a> } 
+                            }
+    PSet default = { int32 limit    = 10
+                     int32 timespan = 60
+		   }
+  }
+  path p = { sendSomeMessages }
+  module sendSomeMessages = MessageLoggerClient { }
+  source = EmptySource {untracked int32 maxEvents = 10}
 }
 </pre>
+
 
 -->
 

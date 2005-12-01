@@ -28,11 +28,8 @@ process TEST = {
     <font color=red>PSet detailedInfo.txt = </font>{ string setThreshold = "INFO"    } 
     PSet cerr             = { string setThreshold = "WARNING" }
   }
-  path p = { print,myAnalysisModule }
-
-  module print =            AsciiOutputModule { }
+  path p = { myAnalysisModule }
   module myAnalysisModule = ModuleThatIssuesMessages { }
-  
   source = EmptySource {untracked int32 maxEvents = 5}
 }
 </pre>

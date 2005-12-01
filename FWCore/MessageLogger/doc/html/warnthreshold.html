@@ -28,11 +28,8 @@ process TEST = {
     PSet detailedInfo.txt = { string setThreshold = "INFO"    } 
     PSet cerr             = { <font color=red>string setThreshold = "WARNING"</font> }
   }
-  path p = { print,myAnalysisModule }
-
-  module print =            AsciiOutputModule { }
+  path p = { myAnalysisModule }
   module myAnalysisModule = ModuleThatIssuesMessages { }
-  
   source = EmptySource {untracked int32 maxEvents = 5}
 }
 </pre>
@@ -42,8 +39,8 @@ The <font color=red>string setThreshold = "WARNING"</font> parameter
 in the PSet configuring <font color=red>cerr</font> tells the 
 destination writing to cerr to ignore all messages
 with severity below <font color=red>WARNING</font>.  Thus messages
-issued (after the service has been configured) 
-using <font color=blue>LogDegbug</font> and  
+issued (after the service has been configured with this .cfg file) 
+using <font color=blue>LogDebug</font> and  
 <font color=blue>LogInfo</font> will have no effect on
 cerr.  
 <p><center>
