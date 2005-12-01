@@ -1,8 +1,10 @@
 <use name=boost>
 <use name=DataSvc>
+<use name=rootcore>
 <export>
  <lib name=IOPoolCommon>
  <use name=boost>
  <use name=DataSvc>
+ <use name=rootcore>
 </export>
 

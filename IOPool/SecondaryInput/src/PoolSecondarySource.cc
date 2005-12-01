@@ -1,6 +1,11 @@
 /*----------------------------------------------------------------------
-$Id: PoolSecondarySource.cc,v 1.9 2005/10/31 18:02:16 wmtan Exp $
+$Id: PoolSecondarySource.cc,v 1.10 2005/11/01 23:41:05 wmtan Exp $
 ----------------------------------------------------------------------*/
+
+#include "IOPool/SecondaryInput/src/PoolSecondarySource.h"
+#include "IOPool/Common/interface/PoolNames.h"
+#include "IOPool/Common/interface/ClassFiller.h"
+#include "IOPool/Common/interface/RefStreamer.h"
 
 #include "FWCore/EDProduct/interface/EDProduct.h"
 #include "FWCore/Framework/interface/BranchKey.h"
@@ -8,9 +13,6 @@ $Id: PoolSecondarySource.cc,v 1.9 2005/10/31 18:02:16 wmtan Exp $
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/EventProvenance.h"
 #include "FWCore/Framework/interface/ProductRegistry.h"
-#include "IOPool/SecondaryInput/src/PoolSecondarySource.h"
-#include "IOPool/Common/interface/PoolNames.h"
-#include "IOPool/Common/interface/ClassFiller.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "TFile.h"
@@ -35,6 +37,7 @@ namespace edm {
     fileIter_(files_.begin()),
     poolFile_(),
     pReg_(new ProductRegistry) {
+    ClassFiller();
     if (file_.empty()) {
       if (files_.empty()) { // this will throw;
         pset.getUntrackedParameter<std::string>("fileName");
@@ -48,8 +51,6 @@ namespace edm {
   }
 
   void PoolSecondarySource::init(std::string const& file) {
-    ClassFiller();
-
     std::string pfn;
     catalog_.findFile(pfn, file);
 
@@ -196,7 +197,8 @@ namespace edm {
   PoolSecondarySource::PoolDelayedReader::~PoolDelayedReader() {}
 
   auto_ptr<EDProduct>
-  PoolSecondarySource::PoolDelayedReader::get(BranchKey const& k) const {
+  PoolSecondarySource::PoolDelayedReader::get(BranchKey const& k, EventPrincipal const* ep) const {
+    SetRefStreamer(ep);
     TBranch *br = branches().find(k)->second.second;
     TClass *cp = gROOT->GetClass(branches().find(k)->second.first.c_str());
     auto_ptr<EDProduct> p(static_cast<EDProduct *>(cp->New()));

@@ -5,7 +5,7 @@
 
 PoolSecondarySource: This is a SecondaryInputSource
 
-$Id: PoolSecondarySource.h,v 1.5 2005/10/27 23:55:34 wmtan Exp $
+$Id: PoolSecondarySource.h,v 1.6 2005/11/01 23:41:05 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -100,7 +100,7 @@ namespace edm {
   private:
     PoolDelayedReader(PoolDelayedReader const&); // disable copy construction
     PoolDelayedReader & operator=(PoolDelayedReader const&); // disable assignment
-    virtual std::auto_ptr<EDProduct> get(BranchKey const& k) const;
+    virtual std::auto_ptr<EDProduct> get(BranchKey const& k, EventPrincipal const* ep) const;
     PoolFile::BranchMap const& branches() const {return inputSource.poolFile_->branches();}
     EntryNumber const entryNumber_;
     PoolSecondarySource const& inputSource;

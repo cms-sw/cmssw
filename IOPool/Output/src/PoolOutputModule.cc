@@ -1,12 +1,14 @@
-// $Id: PoolOutputModule.cc,v 1.1 2005/11/01 22:53:40 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.3 2005/11/23 02:21:29 wmtan Exp $
 #include "FWCore/Framework/interface/BranchKey.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/EventProvenance.h"
 #include "FWCore/Framework/interface/ProductRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "IOPool/Common/interface/PoolDataSvc.h"
 #include "IOPool/Output/src/PoolOutputModule.h"
+#include "IOPool/Common/interface/PoolDataSvc.h"
+#include "IOPool/Common/interface/ClassFiller.h"
+#include "IOPool/Common/interface/RefStreamer.h"
 
 #include "DataSvc/Ref.h"
 #include "DataSvc/IDataSvc.h"
@@ -33,6 +35,10 @@ namespace edm {
     commitInterval_(pset.getUntrackedParameter("commitInterval", 1000U)),
     maxFileSize_(pset.getUntrackedParameter<int>("maxSize", 0x7f000000)),
     fileCount_(0) {
+    // We need to set a custom streamer for edm::RefCore so that it will not be split.
+    // even though a custom streamer is not otherwise necessary.
+    ClassFiller();
+    SetRefStreamer();
   }
 
   void PoolOutputModule::beginJob(EventSetup const&) {

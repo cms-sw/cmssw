@@ -1,6 +1,11 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.10 2005/10/31 18:02:35 wmtan Exp $
+$Id: PoolSource.cc,v 1.11 2005/11/01 23:24:13 wmtan Exp $
 ----------------------------------------------------------------------*/
+
+#include "IOPool/Input/src/PoolSource.h"
+#include "IOPool/Common/interface/PoolNames.h"
+#include "IOPool/Common/interface/ClassFiller.h"
+#include "IOPool/Common/interface/RefStreamer.h"
 
 #include "FWCore/EDProduct/interface/EDProduct.h"
 #include "FWCore/Framework/interface/BranchKey.h"
@@ -8,9 +13,6 @@ $Id: PoolSource.cc,v 1.10 2005/10/31 18:02:35 wmtan Exp $
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/EventProvenance.h"
 #include "FWCore/Framework/interface/ProductRegistry.h"
-#include "IOPool/Input/src/PoolSource.h"
-#include "IOPool/Common/interface/PoolNames.h"
-#include "IOPool/Common/interface/ClassFiller.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "TFile.h"
@@ -35,6 +37,7 @@ namespace edm {
     poolFile_(),
     remainingEvents_(pset.getUntrackedParameter<int>("maxEvents", -1)),
     eventID_() {
+    ClassFiller();
     if (file_.empty()) {
       if (files_.empty()) { // this will throw;
         pset.getUntrackedParameter<std::string>("fileName");
@@ -48,8 +51,6 @@ namespace edm {
   }
 
   void PoolRASource::init(std::string const& file) {
-
-    ClassFiller();
 
     std::string pfn;
     catalog_.findFile(pfn, file);
@@ -228,7 +229,8 @@ namespace edm {
   PoolRASource::PoolDelayedReader::~PoolDelayedReader() {}
 
   auto_ptr<EDProduct>
-  PoolRASource::PoolDelayedReader::get(BranchKey const& k) const {
+  PoolRASource::PoolDelayedReader::get(BranchKey const& k, EventPrincipal const* ep) const {
+    SetRefStreamer(ep);
     TBranch *br = branches().find(k)->second.second;
     TClass *cp = gROOT->GetClass(branches().find(k)->second.first.c_str());
     auto_ptr<EDProduct> p(static_cast<EDProduct *>(cp->New()));
