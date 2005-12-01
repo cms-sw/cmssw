@@ -99,7 +99,6 @@ namespace edmreftest {
       if (x1 != one) std::cout << "operator[] ITERATOR ERROR: " << x1 << " " << one << std::endl;
       x1 = it1[0]->a;
       if (x1 != one) std::cout << "operator[] ITERATOR ERROR 2: " << x1 << " " << one << std::endl;
-      std::cout << "EVENT " << it0->evtID() << std::endl;
     }
   }
 }
