@@ -1,0 +1,12 @@
+<export>
+ <lib name=PhysicsToolsFWLite>
+ <use name=root>
+ <use name=Foundation/PluginManager>
+ <use name=Dictionary/Reflex>
+</export>
+
+
+ <lib name=lcg_Cintex>
+<use name=Foundation/PluginManager>
+<use name=Dictionary/Reflex>
+<use name=root>
