@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EventPrincipal.cc,v 1.26 2005/09/30 21:16:00 paterno Exp $
+$Id: EventPrincipal.cc,v 1.27 2005/10/21 20:20:21 wmtan Exp $
 ----------------------------------------------------------------------*/
 //#include <iostream>
 #include <memory>
@@ -408,10 +408,14 @@ namespace edm {
     
     // must attempt to load from persistent store
     BranchKey const bk = BranchKey(g.productDescription());
-    auto_ptr<EDProduct> edp(store_->get(bk));
+    auto_ptr<EDProduct> edp(store_->get(bk, this));
 
     // Now fixup the Group
     g.setProduct(edp);
   }
 
+  EDProduct const *
+  EventPrincipal::getIt(ProductID const& oid) const {
+    return get(oid).wrapper();
+  }
 }

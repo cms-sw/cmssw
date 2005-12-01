@@ -19,7 +19,6 @@
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
-#include "FWCore/Framework/interface/EventRegistry.h"
 #include "FWCore/Framework/src/SignallingProductRegistry.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -385,8 +384,6 @@ namespace edm {
             {
               activityRegistry_.preProcessEventSignal_(pep->id(),pep->time());
             }
-	    EventRegistry::Operate oper(pep->id(),pep.get());
-            EDProductGetter::Operate pgoper(EventRegistry::instance());
 	    runner_->runOneEvent(*pep.get(),es);
             {
               activityRegistry_.postProcessEventSignal_(Event(*pep.get(),dummy) , es);
