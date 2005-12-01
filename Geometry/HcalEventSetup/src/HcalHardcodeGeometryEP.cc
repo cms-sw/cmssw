@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Mon Oct  3 11:35:27 CDT 2005
-// $Id: HcalHardcodeGeometryEP.cc,v 1.3 2005/10/06 00:43:58 mansj Exp $
+// $Id: HcalHardcodeGeometryEP.cc,v 1.4 2005/10/06 01:01:43 mansj Exp $
 //
 //
 
@@ -35,15 +35,13 @@ HcalHardcodeGeometryEP::HcalHardcodeGeometryEP(const edm::ParameterSet& iConfig)
    //the following line is needed to tell the framework what
    // data is being produced
    setWhatProduced(this,"HCAL");
-
-   //now do what ever other initialization is needed
-   loader_=new HcalHardcodeGeometryLoader(); /// TODO : allow override of Topology.
+   loader_=0;
 }
 
 
 HcalHardcodeGeometryEP::~HcalHardcodeGeometryEP()
 { 
-  delete loader_;
+  if (loader_) delete loader_;
 }
 
 
@@ -56,6 +54,19 @@ HcalHardcodeGeometryEP::ReturnType
 HcalHardcodeGeometryEP::produce(const IdealGeometryRecord& iRecord)
 {
    using namespace edm::es;
+
+   //now do what ever other initialization is needed
+   if (loader_==0) {
+     edm::ESHandle<HcalTopology> topo;
+     try {
+       iRecord.get(topo);
+       loader_=new HcalHardcodeGeometryLoader(*topo); 
+     } catch (...) {
+       loader_=new HcalHardcodeGeometryLoader();
+       std::cout << "Using default HCAL topology" << std::endl;
+     }
+   }
+
    std::auto_ptr<CaloSubdetectorGeometry> pCaloSubdetectorGeometry(loader_->load()) ;
 
    return pCaloSubdetectorGeometry ;
