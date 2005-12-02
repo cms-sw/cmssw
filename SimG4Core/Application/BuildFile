@@ -14,6 +14,7 @@
 <use name=SimDataFormats/Vertex>
 <use name=SimDataFormats/TrackingHit>
 <use name=SimDataFormats/CaloHit>
+<use name=SimDataFormats/HepMCProduct>
 <use name=FWCore/EDProduct>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Framework>
@@ -32,6 +33,7 @@
 <use name=SimDataFormats/Vertex>
 <use name=SimDataFormats/TrackingHit>
 <use name=SimDataFormats/CaloHit>
+<use name=SimDataFormats/HepMCProduct>
 <use name=FWCore/EDProduct>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Framework>
