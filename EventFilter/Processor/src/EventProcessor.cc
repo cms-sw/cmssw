@@ -257,7 +257,7 @@ void EventProcessor::run()
 	  {
 	    activityRegistry_.preProcessEventSignal_(pep->id(),pep->time());
 	  }
-	  edm::EventRegistry::Operate oper(pep->id(),pep.get());
+	  //	  edm::EventRegistry::Operate oper(pep->id(),pep.get());
 	  runner_->runOneEvent(*pep.get(),es);
 	  {
 	    activityRegistry_.postProcessEventSignal_(edm::Event(*pep.get(),dummy) , es);

@@ -9,6 +9,9 @@
 //
 //  MODIFICATION:
 //    $Log: EventProcessor.h,v $
+//    Revision 1.3  2005/11/10 14:32:33  meschi
+//    cosmetics
+//
 //    Revision 1.2  2005/10/19 08:52:36  meschi
 //    updated to latest for ProductRegistry
 //
@@ -35,7 +38,7 @@
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
-#include "FWCore/Framework/interface/EventRegistry.h"
+//#include "FWCore/Framework/interface/EventRegistry.h"
 //#include "FWCore/Framework/src/SignallingProductRegistry.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/Utilities/interface/EDMException.h"
