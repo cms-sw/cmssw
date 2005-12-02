@@ -126,9 +126,6 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
       numOfEvents++; 
      
 <<<<<<< CSCDCCUnpacker.cc
-      //get a pointer to dcc data and pass it to constructor for unpacking
-      CSCDCCEventData dccData((short unsigned int *) fedData.data());
-     
       if(instatiateDQM) monitor->process(dccData);
 =======
       std::cout<<"**************[DCCUnpackingModule]:"<<numOfEvents<<" events analyzed"<<std::endl;
