@@ -1,15 +1,15 @@
 #ifndef CommonDet_GeomDetUnit_H
 #define CommonDet_GeomDetUnit_H
 
-//#include "Utilities/GenUtil/interface/ReferenceCountingPointer.h"
 #include "Geometry/Surface/interface/BoundPlane.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
 class Topology;
 //class Readout;
 class GeomDetType;
 
-class GeomDetUnit {
+class GeomDetUnit : public GeomDet {
 public:
 
   explicit GeomDetUnit( BoundPlane* sp);
@@ -25,6 +25,11 @@ public:
 
 
   virtual DetId geographicalId() const = 0;
+
+  /// DetUnit does not have components
+  virtual std::vector< const GeomDet*> components() const {
+    return std::vector< const GeomDet*>();
+  }
 
 private:
 
