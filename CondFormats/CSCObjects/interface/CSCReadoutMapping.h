@@ -7,8 +7,11 @@
  * Abstract class to define mapping between CSC readout hardware ids and other labels.
  *
  * Defines the ids and labels in the mapping and supplies tramslation interface.
- * How the mapping is filled, and where from, depends on a concrete class.
+ * A derived class must define how hardware labels map to a unique integer.
+ * A derived, concrete, class must define from where the mapping information comes.
  */
+
+//@@ FIXME This whole design would better suit a Factory/Builder pattern
 
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include <vector>
@@ -46,33 +49,24 @@ class CSCReadoutMapping {
     int cscid_;
   };
 
-
-  /**
-   * Return CSCDetId for layer corresponding to readout ids vme, tmb, and dmb for given endcap
-   * and layer no. 1-6, or for chamber if no layer no. supplied.
-   * Args: endcap = 1 (+z), 2 (-z), station, vme crate number, dmb slot number, tmb slot number, layer#
-   */
-  // layer at end so it can have default arg
-  CSCDetId detId( int endcap, int station, int vmecrate, int dmb, int tmb, int layer = 0 );
+   /**
+    * Return CSCDetId for layer corresponding to readout ids vme, tmb, and dmb for given endcap
+    * and layer no. 1-6, or for chamber if no layer no. supplied.
+    * Args: endcap = 1 (+z), 2 (-z), station, vme crate number, dmb slot number, tmb slot number, layer#
+    */
+    // layer at end so it can have default arg
+    CSCDetId detId( int endcap, int station, int vmecrate, int dmb, int tmb, int layer = 0 ) const;
 
    /** 
     * Return chamber label corresponding to readout ids vme, tmb and dmb for given endcap
     *  endcap = 1 (+z), 2 (-z), vme crate number, tmb slot number, dmb slot number
     */
-  int chamber( int endcap, int station, int vmecrate, int dmb, int tmb );
-
-    //@@ FIXME further interface as required to handle any mapping one likes,
-    //@@ as long as it's feasible from the available labels.
+    int chamber( int endcap, int station, int vmecrate, int dmb, int tmb ) const;
 
    /** 
     * Fill mapping store
     */
     virtual void fill( void ) = 0;
-
-   /**
-    * Add a CSCLabel element to mapping     
-    */
-    //    void addRecord( CSCLabel label );    
 
    /**
     * Add one record of info to mapping
@@ -88,7 +82,12 @@ class CSCReadoutMapping {
     /**
      * Status of debug printout flag
      */
-    bool debugV( void ) { return debugV_; }
+    bool debugV( void ) const { return debugV_; }
+
+    /**
+     * Return class name
+     */
+    const std::string myName( void ) const { return myName_; }
 
  private: 
 
@@ -96,18 +95,16 @@ class CSCReadoutMapping {
      * Build a unique integer out of the readout electronics labels.
      *
      * In general this must depend on endcap and station, as well as
-     * vme crate number and dmb slot number. In principle perhaps tmb slot
-     * number might not be neighbour of dmb?
-     * But for slice test (Nov-2005) only relevant labels are vme and dmb.
+     * vme crate number and dmb slot number. And possibly tmb slot?
      */
-    int hwId( int endcap, int station, int vme, int dmb, int tmb );
+    virtual int hwId( int endcap, int station, int vme, int dmb, int tmb ) const = 0;
 
     /**
      * Build a unique integer out of chamber labels.
      *
      * We'll probably use rawId of CSCDetId... You know it makes sense!
      */
-    int swId( int endcap, int station, int ring, int chamber);
+    int swId( int endcap, int station, int ring, int chamber) const;
 
     const std::string myName_;
     bool debugV_;

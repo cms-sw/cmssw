@@ -4,13 +4,13 @@
 /** 
  * \class CSCReadoutMappingFromFile
  * \author Tim Cox
- * A concrete CSCReadoutMapping to read mapping from Ascii file.
+ * A concrete CSCReadoutMappingForSLiceTest to read mapping from Ascii file.
  */
 
-#include <CondFormats/CSCObjects/interface/CSCReadoutMapping.h>
+#include <CondFormats/CSCObjects/interface/CSCReadoutMappingForSliceTest.h>
 #include <string>
 
-class CSCReadoutMappingFromFile : public CSCReadoutMapping {
+class CSCReadoutMappingFromFile : public CSCReadoutMappingForSliceTest {
  public:
 
   /// Constructor
@@ -19,9 +19,7 @@ class CSCReadoutMappingFromFile : public CSCReadoutMapping {
   /// Destructor
    virtual ~CSCReadoutMappingFromFile();
 
-  /** 
-   * Fill mapping store
-   */
+  /// Fill mapping store
    virtual void fill( void );
 
  private: 
