@@ -10,7 +10,7 @@
 using std::cout;
 using std::endl;
 
-//#define DEBUG
+#define DEBUG
 
 DDG4ProductionCuts::DDG4ProductionCuts(){
     keywordRegion =  "CMSCutsRegion";
