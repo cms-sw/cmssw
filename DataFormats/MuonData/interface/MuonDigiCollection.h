@@ -6,7 +6,7 @@
  * Declaration of class MuonDigiCollection
  *
  * \author Stefano ARGIRO
- * \version $Id: MuonDigiCollection.h,v 1.1 2005/10/07 17:44:04 namapane Exp $
+ * \version $Id: MuonDigiCollection.h,v 1.2 2005/11/01 17:19:52 namapane Exp $
  * \date 05 Aug 2005
  */
 
@@ -109,6 +109,8 @@ public:
   
   /// insert a digi for a given DetUnit  @deprecated 
   void insertDigi(const IndexType& index, const DigiType& digi){
+    std::vector<DigiType> &digis = data_[index];
+    digis.push_back(digi);
   }
   
   /// insert a range of digis for a  given DetUnit
@@ -117,10 +119,6 @@ public:
     digis.reserve (digis.size () + (range.second - range.first));
     std::copy (range.first, range.second, std::back_inserter (digis));
     
-    // std::vector<DigiType>& digis = data_[index];
-    // size_t size = digis.size();
-    // digis.resize(size + (range.second - range.first));
-    // std::copy(range.first, range.second,digis.begin());
   }
  
   /// return the digis for a given DetUnit 
