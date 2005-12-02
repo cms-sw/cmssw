@@ -30,9 +30,16 @@ Generator::Generator(const ParameterSet & p) :
     theMaxPtCut(p.getParameter<double>("MaxPtCut")*MeV),
     inputFileName(p.getParameter<std::string>("InputFileName")),
     verbose(p.getParameter<int>("Verbosity")),
-    evt_(0),vtx_(0),weight_(0),runNumber_(0)
+    evt_(0),vtx_(HepLorentzVector(0.,0.,0.,0.)),weight_(0),runNumber_(0)
 {
-    inputFile = new std::ifstream(inputFileName.c_str(),std::ios::in);
+    if ( inputFileName == "Internal" )
+    {
+       inputFile = 0 ;
+    }
+    else
+    {
+       inputFile = new std::ifstream(inputFileName.c_str(),std::ios::in);
+    }
     std::cout << " Generator constructed " << std::endl;
 }
 
@@ -40,8 +47,11 @@ Generator::~Generator() { delete inputFile; }
 
 const HepMC::GenEvent * Generator::generateEvent()
 {
-    evt_ = HepMC::readGenEvent(*inputFile);
-    vtx_ = HepLorentzVector(0.,0.,0.,0.);
+    if ( inputFile != 0 )
+    {
+       evt_ = HepMC::readGenEvent(*inputFile);
+    }
+    // vtx_ = HepLorentzVector(0.,0.,0.,0.);
     if (verbose>0) evt_->print();
     return evt_;
 }
