@@ -1,3 +1,6 @@
+** V00-03-00  [Fri Dec  2 23:56:41 2005]
+Can now request data with a label.  The format is 'type/label'.
+
 ** V00-02-00  [Mon Nov 14 22:26:00 2005]
 Change maxEvents default for EmptySource to 0
 
