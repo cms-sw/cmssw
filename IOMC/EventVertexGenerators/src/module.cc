@@ -1,4 +1,4 @@
-#include "IOMC/EventVertexGenerators/interface/EventVertexGeneratorFactory.h"
+#include "IOMC/EventVertexGenerators/interface/BaseEventVertexGenerator.h"
 
 #include "PluginManager/ModuleDef.h"
 
