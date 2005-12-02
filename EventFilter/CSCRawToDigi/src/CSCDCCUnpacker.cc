@@ -38,13 +38,28 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBHeader.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCRPCData.h"
 
+<<<<<<< CSCDCCUnpacker.cc
+#include "FWCore/ServiceRegistry/interface/Service.h"
+=======
 #include "CondFormats/CSCObjects/interface/CSCReadoutMappingFromFile.h"
+>>>>>>> 1.8
 
 #include <iostream>
 
 
 CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset){
+<<<<<<< CSCDCCUnpacker.cc
+
+  instatiateDQM = pset.getUntrackedParameter<bool>("runDQM", false);
+  if(instatiateDQM){
+   
+   monitor = edm::Service<MonitorInterface>().operator->(); 
+  
+  }
+  
+=======
   //std::cout << "starting DCCConstructor";   
+>>>>>>> 1.8
   //fill constructor here
   //dccData = 0;
   produces<CSCWireDigiCollection>();
@@ -110,8 +125,15 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
       
       numOfEvents++; 
      
+<<<<<<< CSCDCCUnpacker.cc
+      //get a pointer to dcc data and pass it to constructor for unpacking
+      CSCDCCEventData dccData((short unsigned int *) fedData.data());
+     
+      if(instatiateDQM) monitor->process(dccData);
+=======
       std::cout<<"**************[DCCUnpackingModule]:"<<numOfEvents<<" events analyzed"<<std::endl;
 
+>>>>>>> 1.8
 
       //get a reference to dduData
       const std::vector<CSCDDUEventData> & dduData = dccData.dduData(); 
