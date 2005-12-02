@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.11 2005/11/01 23:24:13 wmtan Exp $
+$Id: PoolSource.cc,v 1.12 2005/12/01 22:35:23 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/PoolSource.h"
@@ -14,6 +14,7 @@ $Id: PoolSource.cc,v 1.11 2005/11/01 23:24:13 wmtan Exp $
 #include "FWCore/Framework/interface/EventProvenance.h"
 #include "FWCore/Framework/interface/ProductRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "TFile.h"
 #include "TTree.h"
@@ -183,11 +184,13 @@ namespace edm {
     provBranch_(0),
     filePtr_(0) {
 
+    LogInfo("FwkJob") << "Input file " << file_ << " is about to be opened.";
     filePtr_ = TFile::Open(file_.c_str());
     if (filePtr_ == 0) {
       throw cms::Exception("FileNotFound","PoolRASource::PoolFile::PoolFile()")
         << "File " << file_ << " was not found.\n";
     }
+    LogInfo("FwkJob") << "Input file " << file_ << " has been opened successfully.";
 
     TTree *metaDataTree = dynamic_cast<TTree *>(filePtr_->Get(poolNames::metaDataTreeName().c_str()));
     assert(metaDataTree != 0);

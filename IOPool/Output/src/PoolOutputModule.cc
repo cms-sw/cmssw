@@ -1,14 +1,16 @@
-// $Id: PoolOutputModule.cc,v 1.3 2005/11/23 02:21:29 wmtan Exp $
-#include "FWCore/Framework/interface/BranchKey.h"
-#include "FWCore/Framework/interface/EventPrincipal.h"
-#include "FWCore/Framework/interface/EventProvenance.h"
-#include "FWCore/Framework/interface/ProductRegistry.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+// $Id: PoolOutputModule.cc,v 1.4 2005/12/01 22:33:01 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
 #include "IOPool/Common/interface/ClassFiller.h"
 #include "IOPool/Common/interface/RefStreamer.h"
+
+#include "FWCore/Framework/interface/BranchKey.h"
+#include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/EventProvenance.h"
+#include "FWCore/Framework/interface/ProductRegistry.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataSvc/Ref.h"
 #include "DataSvc/IDataSvc.h"
@@ -92,10 +94,12 @@ namespace edm {
       makePlacement(poolNames::eventTreeName(), (*it)->branchName_, placement);
       outputItemList_.push_back(std::make_pair(*it, placement));
     }
+    LogInfo("FwkJob") << "Output file " << file_ << " is about to be opened.";
     startTransaction();
     pool::Ref<ProductRegistry const> rp(om->context(), &pReg);
     rp.markWrite(productDescriptionPlacement_);
     commitAndFlushTransaction();
+    LogInfo("FwkJob") << "Output file " << file_ << " has been opened successfully.";
     om->catalog_.registerFile(file_, lfn_);
   }
 
@@ -195,7 +199,6 @@ namespace edm {
   void
   PoolOutputModule::PoolFile::setBranchAliases() const {
     TFile f(file_.c_str(), "update");
-    // TFile f(filen_.c_str(), "update");
     TTree *t = dynamic_cast<TTree *>(f.Get(poolNames::eventTreeName().c_str()));
     if (t) {
       for (Selections::const_iterator it = om_->descVec_.begin();
