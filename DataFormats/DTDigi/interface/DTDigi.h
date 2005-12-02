@@ -7,8 +7,8 @@
  * It can be initialized/set with a time in ns or a TDC count in 25/32 ns 
  * units.
  *  
- *  $Date: 2005/11/03 17:37:05 $
- *  $Revision: 1.3 $
+ *  $Date: 2005/11/10 13:21:02 $
+ *  $Revision: 1.4 $
  *
  * \author N. Amapane - INFN Torino
  *
@@ -30,10 +30,13 @@ public:
 
   /// The packed digi content  
   struct PackedDigiType {
+
     unsigned int wire     : wire_s;
     unsigned int number   : number_s;
     unsigned int counts   : counts_s;
     unsigned int trailer  : trailer_s; 
+    
+    PackedDigiType():wire_s(0),number_s(0),counts_s(0),trailer_s(0) {}
   };
   
   /// Construct from the wire#, the TDC counts and the digi number.
