@@ -71,7 +71,7 @@ void OscarProducer::produce(edm::Event & e, const edm::EventSetup & es)
     std::vector<SensitiveTkDetector*>& sTk = m_runManager->sensTkDetectors();
     std::vector<SensitiveCaloDetector*>& sCalo = m_runManager->sensCaloDetectors();
 
-    m_runManager->produce(es);
+    m_runManager->produce(e,es);
 
     std::auto_ptr<edm::EmbdSimTrackContainer> p1(new edm::EmbdSimTrackContainer);
     std::auto_ptr<edm::EmbdSimVertexContainer> p2(new edm::EmbdSimVertexContainer);

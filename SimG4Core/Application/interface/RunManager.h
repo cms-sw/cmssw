@@ -50,7 +50,7 @@ public:
     void terminateRun();
     void abortRun(bool softAbort=false);
     const G4Run * currentRun() const { return m_currentRun; }
-    void produce(const edm::EventSetup & es);
+    void produce(edm::Event& inpevt, const edm::EventSetup & es);
     void abortEvent();
     const Generator * generator() const { return m_generator; }
     const G4Event * currentEvent() const { return m_currentEvent; }
@@ -66,7 +66,7 @@ public:
        return m_producers;
     }
 protected:
-    G4Event * generateEvent(int evt);
+    G4Event * generateEvent(int evt, edm::Event& inpevt);
 private:
     static RunManager * me;
     explicit RunManager(edm::ParameterSet const & p);
