@@ -7,8 +7,8 @@
  * It can be initialized/set with a time in ns or a TDC count in 25/32 ns 
  * units.
  *  
- *  $Date: 2005/11/10 13:21:02 $
- *  $Revision: 1.4 $
+ *  $Date: 2005/12/02 09:28:35 $
+ *  $Revision: 1.5 $
  *
  * \author N. Amapane - INFN Torino
  *
@@ -36,7 +36,7 @@ public:
     unsigned int counts   : counts_s;
     unsigned int trailer  : trailer_s; 
     
-    PackedDigiType():wire_s(0),number_s(0),counts_s(0),trailer_s(0) {}
+    PackedDigiType():wire(0),number(0),counts(0),trailer(0) {}
   };
   
   /// Construct from the wire#, the TDC counts and the digi number.
