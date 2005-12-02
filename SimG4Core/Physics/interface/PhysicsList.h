@@ -5,6 +5,8 @@
 
 #include "G4VModularPhysicsList.hh"
 
+class DDG4ProductionCuts;
+
 class PhysicsList : public G4VModularPhysicsList
 {
 public:
@@ -13,6 +15,7 @@ public:
     virtual void SetCuts();
 private:
     edm::ParameterSet m_pPhysics; 
+    DDG4ProductionCuts * prodCuts;
 };
 
 #endif
