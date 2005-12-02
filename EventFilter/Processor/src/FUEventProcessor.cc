@@ -36,7 +36,6 @@ void FUEventProcessor::enableAction(toolbox::Event::Reference e) throw (toolbox:
 {
   proc_->beginRun();
   proc_->activate();
-  
 }
 
 void FUEventProcessor::suspendAction(toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception)
@@ -156,9 +155,14 @@ void FUEventProcessor::defaultWebPage (xgi::Input  *in, xgi::Output *out)
     *out << "Unconfigured" << endl;
   *out << "  </td>"                                                  << endl;
   *out << "</table>"                                                 << endl;
+
+  *out << "<textarea rows=" << 10 << " cols=30 scroll=yes>"          << endl;
+  *out << offConfig_.value_                                          << endl;
+  *out << "</textarea><P>"                                           << endl;
   
   *out << "</body>"                                                  << endl;
   *out << "</html>"                                                  << endl;
+
 }
 
 XDAQ_INSTANTIATOR_IMPL(evf::FUEventProcessor)
