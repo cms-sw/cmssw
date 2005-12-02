@@ -1,8 +1,8 @@
 /*
  * \file EBPedPreSampleClient.cc
  * 
- * $Date: 2005/12/01 09:50:06 $
- * $Revision: 1.36 $
+ * $Date: 2005/12/01 13:49:51 $
+ * $Revision: 1.37 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -201,8 +201,12 @@ void EBPedPreSampleClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, Ru
 
 void EBPedPreSampleClient::subscribe(void){
 
+  cout << "EBPedPreSampleClient: subscribe" << endl;
+
   // subscribe to all monitorable matching pattern
   mui_->subscribe("*/EcalBarrel/EBPedPreSampleTask/Gain12/EBPT pedestal PreSample SM*");
+
+  cout << "EBPedPreSampleClient: collate" << endl;
 
   Char_t histo[80];
 
@@ -225,6 +229,8 @@ void EBPedPreSampleClient::subscribeNew(void){
 }
 
 void EBPedPreSampleClient::unsubscribe(void){
+
+  cout << "EBPedPreSampleClient: unsubscribe" << endl;
 
   // unsubscribe to all monitorable matching pattern
   mui_->unsubscribe("*/EcalBarrel/EBPedPreSampleTask/Gain12/EBPT pedestal PreSample SM*");
@@ -255,6 +261,7 @@ void EBPedPreSampleClient::analyze(const edm::Event& e, const edm::EventSetup& c
         if ( h03_[ism-1] ) delete h03_[ism-1];
         sprintf(histo, "ME EBPT pedestal PreSample SM%02d G12", ism);
         h03_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+//        h03_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
       }
     }
 

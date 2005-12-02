@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  * 
- * $Date: 2005/11/26 20:42:49 $
- * $Revision: 1.39 $
+ * $Date: 2005/12/01 15:11:42 $
+ * $Revision: 1.40 $
  * \author G. Della Ricca
  *
 */
@@ -231,6 +231,8 @@ void EBIntegrityClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
 
 void EBIntegrityClient::subscribe(void){
 
+  cout << "EBIntegrityClient: subscribe" << endl;
+
   // subscribe to all monitorable matching pattern
   mui_->subscribe("*/EcalBarrel/EBPedPreSampleTask/Gain12/EBPT pedestal PreSample SM*");
   mui_->subscribe("*/EcalBarrel/EcalIntegrity/DCC size error");
@@ -239,14 +241,18 @@ void EBIntegrityClient::subscribe(void){
   mui_->subscribe("*/EcalBarrel/EcalIntegrity/TTId/EI TTId SM*");
   mui_->subscribe("*/EcalBarrel/EcalIntegrity/TTBlockSize/EI TTBlockSize SM*");
 
-  me_h00_ = mui_->collate1D("DCC size error", "DCC size error", "EcalBarrel/Sums/EcalIntegrity");
-  mui_->add(me_h00_, "*/EcalBarrel/EcalIntegrity/DCC size error");
+  cout << "EBIntegrityClient: collate" << endl;
 
   Char_t histo[80];
-  
+
+  sprintf(histo, "DCC size error"); 
+  me_h00_ = mui_->collate1D(histo, histo, "EcalBarrel/Sums/EcalIntegrity");
+  sprintf(histo, "*/EcalBarrel/EcalIntegrity/DCC size error");
+  mui_->add(me_h00_, histo);
+
   for ( int ism = 1; ism <= 36; ism++ ) {
 
-// not needed: the CollateMonitorElements are built in EBPedPreSample.cc
+// not needed: the same CollateMonitorElements are built in EBPedPreSample.cc
 
 //    sprintf(histo, "EBPT pedestal PreSample SM%02d G12", ism);
 //    me_h_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPedPreSampleTask/Gain12");
@@ -291,6 +297,8 @@ void EBIntegrityClient::subscribeNew(void){
 
 void EBIntegrityClient::unsubscribe(void){
   
+  cout << "EBIntegrityClient: unsubscribe" << endl;
+
   // unsubscribe to all monitorable matching pattern
   mui_->unsubscribe("*/EcalBarrel/EBPedPreSampleTask/Gain12/EBPT pedestal PreSample SM*");
   mui_->unsubscribe("*/EcalBarrel/EcalIntegrity/DCC size error");
@@ -323,6 +331,7 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( h00_ ) delete h00_;
       sprintf(histo, "ME DCC size error");
       h00_ = dynamic_cast<TH1F*> ((ob->operator->())->Clone(histo));
+//      h00_ = dynamic_cast<TH1F*> (ob->operator->());
     }
   }
 
@@ -338,6 +347,7 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
         if ( h_[ism-1] ) delete h_[ism-1];
         sprintf(histo, "ME EBPT pedestal PreSample SM%02d G12", ism);
         h_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+//        h_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
       }
     }
 
@@ -351,6 +361,7 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
         if ( h01_[ism-1] ) delete h01_[ism-1];
         sprintf(histo, "ME EI gain SM%02d", ism);
         h01_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
+//        h01_[ism-1] = dynamic_cast<TH2F*> (ob->operator->());
       }
     }
 
@@ -364,6 +375,7 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
         if ( h02_[ism-1] ) delete h02_[ism-1];
         sprintf(histo, "ME EI ChId SM%02d", ism);
         h02_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
+//        h02_[ism-1] = dynamic_cast<TH2F*> (ob->operator->());
       }
     }
 
@@ -377,6 +389,7 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
         if ( h03_[ism-1] ) delete h03_[ism-1];
         sprintf(histo, "ME EI TTId SM%02d", ism);
         h03_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
+//        h03_[ism-1] = dynamic_cast<TH2F*> (ob->operator->());
       }
     }
 
@@ -390,6 +403,7 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
         if ( h04_[ism-1] ) delete h04_[ism-1];
         sprintf(histo, "ME EI TTBlockSize SM%02d", ism);
         h04_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
+//        h04_[ism-1] = dynamic_cast<TH2F*> (ob->operator->());
       }
     }
 

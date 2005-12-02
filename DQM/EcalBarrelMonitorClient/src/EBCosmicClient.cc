@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  * 
- * $Date: 2005/12/01 09:50:06 $
- * $Revision: 1.10 $
+ * $Date: 2005/12/01 15:11:42 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -170,10 +170,14 @@ void EBCosmicClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* 
 
 void EBCosmicClient::subscribe(void){
 
+  cout << "EBCosmicClient: subscribe" << endl;
+
   // subscribe to all monitorable matching pattern
   mui_->subscribe("*/EcalBarrel/EBCosmicTask/Sel/EBCT amplitude sel SM*");
   mui_->subscribe("*/EcalBarrel/EBCosmicTask/Cut/EBCT amplitude cut SM*");
   mui_->subscribe("*/EcalBarrel/EBCosmicTask/Spectrum/EBCT amplitude spectrum SM*");
+
+  cout << "EBCosmicClient: collate" << endl;
 
   Char_t histo[80];
 
@@ -209,6 +213,8 @@ void EBCosmicClient::subscribeNew(void){
 
 void EBCosmicClient::unsubscribe(void){
 
+  cout << "EBCosmicClient: unsubscribe" << endl;
+
   // unsubscribe to all monitorable matching pattern
   mui_->unsubscribe("*/EcalBarrel/EBCosmicTask/Sel/EBCT amplitude sel SM*");
   mui_->unsubscribe("*/EcalBarrel/EBCosmicTask/Cut/EBCT amplitude cut SM*");
@@ -240,6 +246,7 @@ void EBCosmicClient::analyze(const edm::Event& e, const edm::EventSetup& c){
         if ( h01_[ism-1] ) delete h01_[ism-1];
         sprintf(histo, "ME EBCT amplitude sel SM%02d", ism);
         h01_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+//        h01_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
       }
     }
 
@@ -253,6 +260,7 @@ void EBCosmicClient::analyze(const edm::Event& e, const edm::EventSetup& c){
         if ( h02_[ism-1] ) delete h02_[ism-1];
         sprintf(histo, "ME EBCT amplitude cut SM%02d", ism);
         h02_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+//        h02_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
       }
     }
 
@@ -266,6 +274,7 @@ void EBCosmicClient::analyze(const edm::Event& e, const edm::EventSetup& c){
         if ( h03_[ism-1] ) delete h03_[ism-1];
         sprintf(histo, "ME EBCT amplitude spectrum SM%02d", ism);
         h03_[ism-1] = dynamic_cast<TH1F*> ((ob->operator->())->Clone(histo));
+//        h03_[ism-1] = dynamic_cast<TH1F*> (ob->operator->());
       }
     }
 

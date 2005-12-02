@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  * 
- * $Date: 2005/11/26 20:42:49 $
- * $Revision: 1.30 $
+ * $Date: 2005/12/01 13:49:51 $
+ * $Revision: 1.31 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -296,10 +296,14 @@ void EBPedestalClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag
 
 void EBPedestalClient::subscribe(void){
 
+  cout << "EBPedestalClient: subscribe" << endl;
+
   // subscribe to all monitorable matching pattern
   mui_->subscribe("*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal SM*");
   mui_->subscribe("*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM*");
   mui_->subscribe("*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM*");
+
+  cout << "EBPedestalClient: collate" << endl;
 
   Char_t histo[80];
 
@@ -335,6 +339,8 @@ void EBPedestalClient::subscribeNew(void){
 
 void EBPedestalClient::unsubscribe(void){
 
+  cout << "EBPedestalClient: unsubscribe" << endl;
+
   // unsubscribe to all monitorable matching pattern
   mui_->unsubscribe("*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal SM*");
   mui_->unsubscribe("*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM*");
@@ -366,6 +372,7 @@ void EBPedestalClient::analyze(const edm::Event& e, const edm::EventSetup& c){
         if ( h01_[ism-1] ) delete h01_[ism-1];
         sprintf(histo, "ME EBPT pedestal SM%02d G01", ism);
         h01_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+//        h01_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
       }
     }
 
@@ -379,6 +386,7 @@ void EBPedestalClient::analyze(const edm::Event& e, const edm::EventSetup& c){
         if ( h02_[ism-1] ) delete h02_[ism-1];
         sprintf(histo, "ME EBPT pedestal SM%02d G06", ism);
         h02_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+//        h02_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
       }
     }
 
@@ -392,6 +400,7 @@ void EBPedestalClient::analyze(const edm::Event& e, const edm::EventSetup& c){
         if ( h03_[ism-1] ) delete h03_[ism-1];
         sprintf(histo, "ME EBPT pedestal SM%02d G12", ism);
         h03_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+//        h03_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
       }
     }
 

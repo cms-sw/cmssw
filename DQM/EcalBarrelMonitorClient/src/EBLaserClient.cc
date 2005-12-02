@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  * 
- * $Date: 2005/12/01 09:50:06 $
- * $Revision: 1.32 $
+ * $Date: 2005/12/01 14:59:46 $
+ * $Revision: 1.33 $
  * \author G. Della Ricca
  *
 */
@@ -389,6 +389,8 @@ void EBLaserClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* r
 
 void EBLaserClient::subscribe(void){
 
+  cout << "EBLaserClient: subscribe" << endl;
+
   // subscribe to all monitorable matching pattern
   mui_->subscribe("*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude SM*");
   mui_->subscribe("*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude over PN SM*");
@@ -398,6 +400,8 @@ void EBLaserClient::subscribe(void){
   mui_->subscribe("*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude over PN SM*");
   mui_->subscribe("*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude SM*");
   mui_->subscribe("*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN SM*");
+
+  cout << "EBLaserClient: collate" << endl;
 
   Char_t histo[80];
 
@@ -463,6 +467,8 @@ void EBLaserClient::subscribeNew(void){
 
 void EBLaserClient::unsubscribe(void){
 
+  cout << "EBLaserClient: unsubscribe" << endl;
+
   // unsubscribe to all monitorable matching pattern
   mui_->unsubscribe("*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude SM*");
   mui_->unsubscribe("*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude over PN SM*");
@@ -499,6 +505,7 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
         if ( h01_[ism-1] ) delete h01_[ism-1];
         sprintf(histo, "ME EBLT amplitude SM%02d L1", ism);
         h01_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+//        h01_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
       }
     }
 
@@ -512,6 +519,7 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
         if ( h02_[ism-1] ) delete h02_[ism-1];
         sprintf(histo, "ME EBLT amplitude over PN SM%02d L1", ism);
         h02_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+//        h02_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
       } 
     }
 
@@ -525,6 +533,7 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
         if ( h03_[ism-1] ) delete h03_[ism-1];
         sprintf(histo, "ME EBLT amplitude SM%02d L2", ism);
         h03_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+//        h03_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
       } 
     }
 
@@ -538,6 +547,7 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
         if ( h04_[ism-1] ) delete h04_[ism-1];
         sprintf(histo, "ME EBLT amplitude over PN SM%02d L2", ism);
         h04_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+//        h04_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
       } 
     }
 
@@ -551,6 +561,7 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
         if ( h05_[ism-1] ) delete h05_[ism-1];
         sprintf(histo, "ME EBLT amplitude SM%02d L3", ism);
         h05_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+//        h05_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
       }
     }
 
@@ -564,6 +575,7 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
         if ( h06_[ism-1] ) delete h06_[ism-1];
         sprintf(histo, "ME EBLT amplitude over PN SM%02d L3", ism);
         h06_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+//        h06_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
       }
     }
 
@@ -577,6 +589,7 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
         if ( h07_[ism-1] ) delete h07_[ism-1];
         sprintf(histo, "ME EBLT amplitude SM%02d L4", ism);
         h07_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+//        h07_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
       }
     }
 
@@ -590,6 +603,7 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
         if ( h08_[ism-1] ) delete h08_[ism-1];
         sprintf(histo, "ME EBLT amplitude over PN SM%02d L4", ism);
         h08_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+//        h08_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
       }
     }
 

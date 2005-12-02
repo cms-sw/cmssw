@@ -1,8 +1,8 @@
 /*
  * \file EBPnDiodeClient.cc
  * 
- * $Date: 2005/12/01 09:37:12 $
- * $Revision: 1.9 $
+ * $Date: 2005/12/01 15:11:42 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -196,11 +196,15 @@ void EBPnDiodeClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag*
 
 void EBPnDiodeClient::subscribe(void){
 
+  cout << "EBPnDiodeClient: subscribe" << endl;
+
   // subscribe to all monitorable matching pattern
   mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/Laser1/EBPT PNs SM*");
   mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/Laser2/EBPT PNs SM*");
   mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/Laser3/EBPT PNs SM*");
   mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/Laser4/EBPT PNs SM*");
+
+  cout << "EBPnDiodeClient: collate" << endl;
 
   Char_t histo[80];
 
@@ -242,6 +246,8 @@ void EBPnDiodeClient::subscribeNew(void){
 
 void EBPnDiodeClient::unsubscribe(void){
 
+  cout << "EBPnDiodeClient: unsubscribe" << endl;
+
   // unsubscribe to all monitorable matching pattern
   mui_->unsubscribe("*/EcalBarrel/EBPnDiodeTask/Laser1/EBPT PNs SM*");
   mui_->unsubscribe("*/EcalBarrel/EBPnDiodeTask/Laser2/EBPT PNs SM*");
@@ -274,6 +280,7 @@ void EBPnDiodeClient::analyze(const edm::Event& e, const edm::EventSetup& c){
         if ( h01_[ism-1] ) delete h01_[ism-1];
         sprintf(histo, "ME EBPT PNs SM%02d L1", ism);
         h01_[ism-1] = dynamic_cast<TProfile*> ((ob->operator->())->Clone(histo));
+//        h01_[ism-1] = dynamic_cast<TProfile*> (ob->operator->());
       }
     }
 
@@ -287,6 +294,7 @@ void EBPnDiodeClient::analyze(const edm::Event& e, const edm::EventSetup& c){
         if ( h02_[ism-1] ) delete h02_[ism-1];
         sprintf(histo, "ME EBPT PNs SM%02d L2", ism);
         h02_[ism-1] = dynamic_cast<TProfile*> ((ob->operator->())->Clone(histo));
+//        h02_[ism-1] = dynamic_cast<TProfile*> (ob->operator->());
       }
     }
 
@@ -300,6 +308,7 @@ void EBPnDiodeClient::analyze(const edm::Event& e, const edm::EventSetup& c){
         if ( h03_[ism-1] ) delete h03_[ism-1];
         sprintf(histo, "ME EBPT PNs SM%02d L3", ism);
         h03_[ism-1] = dynamic_cast<TProfile*> ((ob->operator->())->Clone(histo));
+//        h03_[ism-1] = dynamic_cast<TProfile*> (ob->operator->());
       }
     }
 
@@ -313,6 +322,7 @@ void EBPnDiodeClient::analyze(const edm::Event& e, const edm::EventSetup& c){
         if ( h04_[ism-1] ) delete h04_[ism-1];
         sprintf(histo, "ME EBPT PNs SM%02d L4", ism);
         h04_[ism-1] = dynamic_cast<TProfile*> ((ob->operator->())->Clone(histo));
+//        h04_[ism-1] = dynamic_cast<TProfile*> (ob->operator->());
       }
     }
 

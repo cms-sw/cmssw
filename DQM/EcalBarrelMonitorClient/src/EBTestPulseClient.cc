@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  * 
- * $Date: 2005/11/28 20:40:16 $
- * $Revision: 1.33 $
+ * $Date: 2005/12/01 13:49:51 $
+ * $Revision: 1.34 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -53,7 +53,7 @@ EBTestPulseClient::EBTestPulseClient(const edm::ParameterSet& ps, MonitorUserInt
 
   }
 
-  amplitudeThreshold_ = 0.5;
+  amplitudeThreshold_ = 0.4;
   RMSThreshold_ = 0.3 ;                
   threshold_on_AmplitudeErrorsNumber_ = 0.02;
 
@@ -414,6 +414,8 @@ void EBTestPulseClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
 
 void EBTestPulseClient::subscribe(void){
 
+  cout << "EBTestPulseClient: subscribe" << endl;
+
   // subscribe to all monitorable matching pattern
   mui_->subscribe("*/EcalBarrel/EBTestPulseTask/Gain01/EBTT amplitude SM*");
   mui_->subscribe("*/EcalBarrel/EBTestPulseTask/Gain01/EBTT shape SM*");
@@ -424,6 +426,8 @@ void EBTestPulseClient::subscribe(void){
   mui_->subscribe("*/EcalBarrel/EBTestPulseTask/Gain12/EBTT amplitude SM*");
   mui_->subscribe("*/EcalBarrel/EBTestPulseTask/Gain12/EBTT shape SM*");
   mui_->subscribe("*/EcalBarrel/EBTestPulseTask/Gain12/EBTT amplitude error SM*");
+
+  cout << "EBTestPulseClient: collate" << endl;
 
   Char_t histo[80];
 
@@ -495,6 +499,8 @@ void EBTestPulseClient::subscribeNew(void){
 
 void EBTestPulseClient::unsubscribe(void){
 
+  cout << "EBTestPulseClient: unsubscribe" << endl;
+
   // unsubscribe to all monitorable matching pattern
   mui_->unsubscribe("*/EcalBarrel/EBTestPulseTask/Gain01/EBTT amplitude SM*");
   mui_->unsubscribe("*/EcalBarrel/EBTestPulseTask/Gain01/EBTT shape SM*");
@@ -532,6 +538,7 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
         if ( ha01_[ism-1] ) delete ha01_[ism-1];
         sprintf(histo, "ME EBTT amplitude SM%02d G01", ism);
         ha01_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+//        ha01_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
       }
     }
 
@@ -545,6 +552,7 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
         if ( ha02_[ism-1] ) delete ha02_[ism-1];
         sprintf(histo, "ME EBTT amplitude SM%02d G06", ism);
         ha02_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+//        ha02_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
       }
     }
 
@@ -558,6 +566,7 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
         if ( ha03_[ism-1] ) delete ha03_[ism-1];
         sprintf(histo, "ME EBTT amplitude SM%02d G12", ism);
         ha03_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+//        ha03_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
       }
     }
 
@@ -571,6 +580,7 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
         if ( hs01_[ism-1] ) delete hs01_[ism-1];
         sprintf(histo, "ME EBTT shape SM%02d G01", ism);
         hs01_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+//        hs01_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
       }
     }
 
@@ -584,6 +594,7 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
         if ( hs02_[ism-1] ) delete hs02_[ism-1];
         sprintf(histo, "ME EBTT shape SM%02d G06", ism);
         hs02_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+//        hs02_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
       }
     }
 
@@ -597,6 +608,7 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
         if ( hs03_[ism-1] ) delete hs03_[ism-1];
         sprintf(histo, "ME EBTT shape SM%02d G12", ism);
         hs03_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+//        hs03_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
       }
     }
 
@@ -610,6 +622,7 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
         if ( he01_[ism-1] ) delete he01_[ism-1];
         sprintf(histo, "ME EBTT amplitude error SM%02d G01", ism);
         he01_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
+//        he01_[ism-1] = dynamic_cast<TH2F*> (ob->operator->());
       }
     }
 
@@ -623,6 +636,7 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
         if ( he02_[ism-1] ) delete he02_[ism-1];
         sprintf(histo, "ME EBTT amplitude error SM%02d G06", ism);
         he02_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
+//        he02_[ism-1] = dynamic_cast<TH2F*> (ob->operator->());
       }
     }
 
@@ -636,6 +650,7 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
         if ( he03_[ism-1] ) delete he03_[ism-1];
         sprintf(histo, "ME EBTT amplitude error SM%02d G12", ism);
         he03_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
+//        he03_[ism-1] = dynamic_cast<TH2F*> (ob->operator->());
       }
     }
 
