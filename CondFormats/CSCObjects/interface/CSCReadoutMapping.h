@@ -87,7 +87,7 @@ class CSCReadoutMapping {
     /**
      * Return class name
      */
-    const std::string myName( void ) const { return myName_; }
+    const std::string& myName( void ) const { return myName_; }
 
  private: 
 
