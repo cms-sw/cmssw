@@ -1,8 +1,8 @@
 /*
  * \file EBPnDiodeClient.cc
  * 
- * $Date: 2005/12/01 15:11:42 $
- * $Revision: 1.10 $
+ * $Date: 2005/12/02 15:48:25 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -211,22 +211,22 @@ void EBPnDiodeClient::subscribe(void){
   for ( int ism = 1; ism <= 36; ism++ ) {
 
     sprintf(histo, "EBPT PNs SM%02d L1", ism);
-    me_h01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1");
+    me_h01_[ism-1] = mui_->collateProf(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1");
     sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/EBPT PNs SM%02d L1", ism);
     mui_->add(me_h01_[ism-1], histo);
 
     sprintf(histo, "EBPT PNs SM%02d L2", ism);
-    me_h02_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser2");
+    me_h02_[ism-1] = mui_->collateProf(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser2");
     sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/EBPT PNs SM%02d L2", ism);
     mui_->add(me_h02_[ism-1], histo);
 
     sprintf(histo, "EBPT PNs SM%02d L3", ism);
-    me_h03_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser3");
+    me_h03_[ism-1] = mui_->collateProf(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser3");
     sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/EBPT PNs SM%02d L3", ism);
     mui_->add(me_h03_[ism-1], histo);
 
     sprintf(histo, "EBPT PNs SM%02d L4", ism);
-    me_h04_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser4");
+    me_h04_[ism-1] = mui_->collateProf(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser4");
     sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/EBPT PNs SM%02d L4", ism);
     mui_->add(me_h04_[ism-1], histo);
 
