@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  * 
- * $Date: 2005/12/01 15:11:42 $
- * $Revision: 1.56 $
+ * $Date: 2005/12/02 15:48:25 $
+ * $Revision: 1.57 $
  * \author G. Della Ricca
  *
 */
@@ -222,7 +222,7 @@ void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
 
   if ( evtType_ == 2 && pedestal_task_ ) pedestal_task_->analyze(e, c);
 
-  if (                  pedpresample_task_) pedpresample_task_->analyze(e, c);
+  if (                  pedpresample_task_ ) pedpresample_task_->analyze(e, c);
 
   if ( evtType_ == 3 && testpulse_task_ ) testpulse_task_->analyze(e, c);
 
