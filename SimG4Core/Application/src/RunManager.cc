@@ -26,6 +26,8 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+
 #include "G4StateManager.hh"
 #include "G4ApplicationState.hh"
 #include "G4RunManagerKernel.hh"
@@ -168,7 +170,7 @@ void RunManager::initG4(const edm::EventSetup & es)
 	      << " Tk type Producers, and " << m_sensCaloDets.size() 
 	      << " Calo type producers " << std::endl;
 
-    std::auto_ptr<EventVertexGeneratorMakerBase> vertexGeneratorMaker(
+/*    std::auto_ptr<EventVertexGeneratorMakerBase> vertexGeneratorMaker(
       EventVertexGeneratorFactory::get()->create
       (m_pVertexGenerator.getParameter<std::string> ("type")) );
     if(vertexGeneratorMaker.get()==0) {
@@ -176,7 +178,7 @@ void RunManager::initG4(const edm::EventSetup & es)
     }
     m_eventVertexGenerator = vertexGeneratorMaker->make(m_pVertexGenerator,m_registry);
     if (m_eventVertexGenerator.get()==0) throw SimG4Exception("EventVertexGenerator construction failed!");
-
+*/
     m_generator = new Generator(m_pGenerator);
     m_primaryTransformer = new PrimaryTransformer();
     
@@ -217,10 +219,10 @@ void RunManager::initG4(const edm::EventSetup & es)
 
 }
 
-void RunManager::produce(const edm::EventSetup & es)
+void RunManager::produce(edm::Event& inpevt, const edm::EventSetup & es)
 {
     static int i = 0;
-    m_currentEvent = generateEvent(i);
+    m_currentEvent = generateEvent(i,inpevt);
     i++;
     
     m_simEvent = new G4SimEvent;
@@ -245,7 +247,7 @@ void RunManager::produce(const edm::EventSetup & es)
 
 }
  
-G4Event * RunManager::generateEvent(int i)
+G4Event * RunManager::generateEvent(int i, edm::Event& inpevt)
 {                       
 
     if (m_currentEvent!=0) delete m_currentEvent;
@@ -253,8 +255,28 @@ G4Event * RunManager::generateEvent(int i)
     if (m_simEvent!=0) delete m_simEvent;
     m_simEvent = 0;
     G4Event * e = new G4Event(i);
-    const HepMC::GenEvent * g = m_generator->generateEvent();
-    m_generator->HepMC2G4(g,e);
+   
+    if ( m_generator->genInputType() == "Internal" )
+    {
+       edm::Handle<edm::HepMCProduct> HepMCEvt ;
+       inpevt.getByType( HepMCEvt ) ;
+       if ( !HepMCEvt.isValid() )
+       {
+          std::cout << "Can NOT find HepMC Event " << std::endl;
+          throw SimG4Exception("Unable to find HepMCProduct(HepMC::GenEvent) in edm::Event  ") ;
+       }
+       else
+       {
+          m_generator->setGenEvent( HepMCEvt->GetEvent() ) ;
+          m_generator->HepMC2G4( HepMCEvt->GetEvent(), e ) ;
+       }
+    }
+    else
+    {    
+       const HepMC::GenEvent * g = m_generator->generateEvent();
+       m_generator->HepMC2G4(g,e);
+    }
+    
     return e;
 }
 
