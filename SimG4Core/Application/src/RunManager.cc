@@ -170,7 +170,7 @@ void RunManager::initG4(const edm::EventSetup & es)
 	      << " Tk type Producers, and " << m_sensCaloDets.size() 
 	      << " Calo type producers " << std::endl;
 
-/*    std::auto_ptr<EventVertexGeneratorMakerBase> vertexGeneratorMaker(
+    std::auto_ptr<EventVertexGeneratorMakerBase> vertexGeneratorMaker(
       EventVertexGeneratorFactory::get()->create
       (m_pVertexGenerator.getParameter<std::string> ("type")) );
     if(vertexGeneratorMaker.get()==0) {
@@ -178,7 +178,7 @@ void RunManager::initG4(const edm::EventSetup & es)
     }
     m_eventVertexGenerator = vertexGeneratorMaker->make(m_pVertexGenerator,m_registry);
     if (m_eventVertexGenerator.get()==0) throw SimG4Exception("EventVertexGenerator construction failed!");
-*/
+
     m_generator = new Generator(m_pGenerator);
     m_primaryTransformer = new PrimaryTransformer();
     
