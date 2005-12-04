@@ -1,3 +1,6 @@
+** V00-04-02  [Sun Dec  4 15:50:09 2005]
+Move updating track number after getting EndOfEvent Signal
+
 ** V00-04-01  [Mon Nov 28 10:22:26 2005]
 Adopting to Chris's last change for SimTrackManager
 
