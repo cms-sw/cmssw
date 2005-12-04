@@ -3,23 +3,22 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "G4MagneticField.hh"
-#include "SealKernel/Component.h"
 
+class MagneticField;
 class G4Mag_UsualEqRhs;
 
-class Field : public G4MagneticField, public seal::Component
+class Field : public G4MagneticField
 {
-    DECLARE_SEAL_COMPONENT;
 public:
-    Field(seal::Context * c, const edm::ParameterSet & p);
+    Field(const MagneticField * f, const edm::ParameterSet & p);
     virtual ~Field();
     static Field * instance();
     static G4Mag_UsualEqRhs * fieldEquation();
     virtual void GetFieldValue(const double p[3],double b[3]) const;
     void fieldEquation(G4Mag_UsualEqRhs * e);
 private:
-    seal::Context * m_context;
-    edm::ParameterSet m_pPhysics; 
+    const MagneticField * theCMSMagneticField;
+    edm::ParameterSet m_pField; 
     static Field * theField;
     static G4Mag_UsualEqRhs * theFieldEquation;
 };

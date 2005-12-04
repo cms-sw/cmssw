@@ -1,10 +1,11 @@
 #include "SimG4Core/MagneticField/interface/Field.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+
+#include "Geometry/Vector/interface/GlobalPoint.h"
 
 #include "G4Mag_UsualEqRhs.hh"
 
 #include "CLHEP/Units/SystemOfUnits.h"
-
-DEFINE_SEAL_COMPONENT (Field, "SimG4Core/MagneticField/Field");
 
 Field * Field::theField = 0;
 
@@ -14,11 +15,10 @@ G4Mag_UsualEqRhs * Field::theFieldEquation = 0;
 
 G4Mag_UsualEqRhs * Field::fieldEquation() { return theFieldEquation; }
 
-Field::Field(seal::Context * c, const edm::ParameterSet & p) 
-    : G4MagneticField(), Component(c, classContextKey()), m_context(c)
-{ 
-    theField = this; 
-    bool timerOn = false;
+Field::Field(const MagneticField * f,const edm::ParameterSet & p) 
+    : G4MagneticField(), theCMSMagneticField(f),m_pField(p)
+{
+    theField = this;
 }
 
 Field::~Field() {}
@@ -26,7 +26,6 @@ Field::~Field() {}
 void Field::GetFieldValue(const double xyz[3],double bfield[3]) const 
 { 
     double delta = 1.;
-    bool inTesla = false;
 
     static float oldx[3] = {1.0e12,1.0e12,1.0e12};
     static double b[3];
@@ -43,15 +42,12 @@ void Field::GetFieldValue(const double xyz[3],double bfield[3]) const
 	return;
     }
 
-//     if (inTesla)
-//     {
-// 	GlobalVector v = 
-// 	    MagneticField::inTesla(GlobalPoint(xyz[0]/cm,xyz[1]/cm,xyz[2]/cm));
-// 	b[0] = v.x()*tesla;
-// 	b[1] = v.y()*tesla;	
-// 	b[2] = v.z()*tesla;    
-//     }
-//     else theLoader->field(xyz,b); 
+    const GlobalPoint g(xyz[0]/cm,xyz[1]/cm,xyz[2]/cm);
+//    std::cout << "B-field(T) at " << g << (cm): " << pSetup->inTesla(g) << std::endl;
+    GlobalVector v = theCMSMagneticField->inTesla(g);
+    b[0] = v.x();
+    b[1] = v.y();
+    b[2] = v.z();
 
     oldx[0] = xyz[0]; 
     oldx[1] = xyz[1]; 

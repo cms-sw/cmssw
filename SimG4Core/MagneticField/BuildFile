@@ -1,4 +1,3 @@
-<Flags SEAL_PLUGIN_NAME="SimG4CoreMagneticField">
 <export>
  <lib name=SimG4CoreMagneticField>
  <use name=Framework/SealKernel>
