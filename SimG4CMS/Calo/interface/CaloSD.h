@@ -11,6 +11,7 @@
 #include "SimG4CMS/Calo/interface/CaloG4HitCollection.h"
 #include "SimG4Core/Notification/interface/Observer.h"
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
+#include "SimG4Core/Notification/interface/EndOfEvent.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveCaloDetector.h"
 #include "SimG4Core/Application/interface/SimTrackManager.h"
 
@@ -41,9 +42,10 @@ class CaloSD :
 #ifdef G4v7
 public G4VGFlashSensitiveDetector,
 #endif
-public SensitiveCaloDetector, public Observer<const BeginOfEvent *>
-{
- public:    
+public SensitiveCaloDetector, public Observer<const BeginOfEvent *>,
+public Observer<const EndOfEvent *> {
+
+public:    
   typedef map<vector<int>,CaloG4Hit*> MyMap;
   
   CaloSD(G4String aSDname, const DDCompactView & cpv,
@@ -76,6 +78,7 @@ protected:
   double        getAttenuation(G4Step* aStep, double birk1, double birk2);
 
   virtual void  update(const BeginOfEvent *);
+  virtual void  update(const ::EndOfEvent *);
   virtual void  clearHits();
 
 private:

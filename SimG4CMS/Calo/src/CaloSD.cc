@@ -31,7 +31,6 @@ CaloSD::CaloSD(G4String name, const DDCompactView & cpv,
   currentHit(0) {
   //Add Hcal Sentitive Detector Names
 
-  //   Observer<const BeginOfEvent *>::init();
   collectionName.insert(name);
 
   //Parameters
@@ -494,7 +493,15 @@ void CaloSD::EndOfEvent(G4HCofThisEvent* ) {
     std::cout << "CaloSD: EndofEvent transfer " << hitvec.size() 
 	      << " hits to vector" << " for " << GetName() << std::endl;
 #endif
+}
+
+void CaloSD::update(const ::EndOfEvent * ) {
   
+#ifdef debug
+  if (verboseLevel > 1) 
+    std::cout << "CaloSD::update: Start saving hits for " << GetName() 
+	      << std::endl;
+#endif
   int kount = 0, count = 0, wrong = 0;
   vector<CaloG4Hit*>::iterator i;
 
@@ -506,7 +513,7 @@ void CaloSD::EndOfEvent(G4HCofThisEvent* ) {
     count = kount;
   } else {
     sort(hitvec.begin(), hitvec.end(), CaloG4HitLess());
-#ifdef debug_verbose
+#ifdef debug
     if (verboseLevel > 1) 
       std::cout << "CaloSD: EndofEvent sort the hits in buffer " << std::endl;
 #endif
@@ -606,7 +613,7 @@ void CaloSD::clearHits(){
 	      << std::endl;
 #endif
   slave->Initialize();
-#ifdef debug_verbose
+#ifdef debug
   if (verboseLevel > 1) 
     std::cout << "CaloSD: Initialises slave SD for " << GetName() << std::endl;
 #endif
