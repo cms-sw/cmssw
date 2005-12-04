@@ -46,7 +46,7 @@ bool MuonSlaveSD::format()
 }
 
 
-void MuonSlaveSD::upDate(const  EndOfEvent * ev)
+void MuonSlaveSD::update(const  EndOfEvent * ev)
 {
   //
   // Now renumber the Hits

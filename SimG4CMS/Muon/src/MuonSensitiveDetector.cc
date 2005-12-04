@@ -23,8 +23,8 @@
 
 #include <iostream>
 
-#define DEBUG
-#define DEBUGST
+//#define DEBUG
+//#define DEBUGST
 
 MuonSensitiveDetector::MuonSensitiveDetector(std::string name, 
 					     const DDCompactView & cpv,
@@ -33,7 +33,11 @@ MuonSensitiveDetector::MuonSensitiveDetector(std::string name,
   : SensitiveTkDetector(name, cpv, p),
     thePV(0), theHit(0), theDetUnitId(0), theTrackID(0) 
 {
-
+  edm::ParameterSet m_MuonSD = p.getParameter<edm::ParameterSet>("MuonSD");
+  STenergyPersistentCut = m_MuonSD.getParameter<double>("EnergyThresholdForPersistency");//Default 1. GeV
+  STallMuonsPersistent = m_MuonSD.getParameter<bool>("AllMuonsPersistent");
+  printHits  = m_MuonSD.getParameter<bool>("PrintHits");
+  
   //
   // Here simply create 1 MuonSlaveSD for the moment
   //  
@@ -65,32 +69,10 @@ MuonSensitiveDetector::MuonSensitiveDetector(std::string name,
     this->AssignSD(*it);
   }
 
-//  static SimpleConfigurable<bool>
-//    pNumberingPrintHits(0,"MuonNumbering:PrintHits");
-//  thePrintHits = pNumberingPrintHits.value();
-  thePrintHits = 0;
-  if (thePrintHits) {
+  if (printHits) {
     thePrinter = new SimHitPrinter("HitPositionOSCAR.dat");
   }
 
-  /*
-// timer initialization
-  static bool on = 
-    SimpleConfigurable<bool>(false,"MuonSensitiveDetector:DetailedTiming").value();
-  if (on) {
-    std::string trname("MuonSD:");
-    theHitTimer.init( trname + name + ":hits", true);
-  }
-  else {
-    theHitTimer.init( "MuonSensitiveDetector:hits", true);
-  }
-*/
-
-  //----- Parameters for SimTracks creation and persistent storage
-//  STenergyPersistentCut = SimpleConfigurable<float>(1*GeV,"MuonSimTrackSelection:EnergyThresholdForPersistency");
-  STenergyPersistentCut = 1*GeV;
-// STallMuonsPersistent = SimpleConfigurable<bool>(true,"MuonSimTrackSelection:AllMuonsPersistent");
-  STallMuonsPersistent = true;
 
 #ifdef DEBUGST
     std::cout << "  EnergyThresholdForPersistency " << STenergyPersistentCut << " AllMuonsPersistent " <<  STallMuonsPersistent << std::endl;
@@ -103,7 +85,6 @@ MuonSensitiveDetector::MuonSensitiveDetector(std::string name,
 
 
 MuonSensitiveDetector::~MuonSensitiveDetector() { 
-  //  saveHit();
   delete g4numbering;
   delete numbering;
   delete slaveMuon;
@@ -114,7 +95,7 @@ MuonSensitiveDetector::~MuonSensitiveDetector() {
   delete myG4TrackToParticleID;
 }
 
-void MuonSensitiveDetector::upDate(const BeginOfEvent * i){
+void MuonSensitiveDetector::update(const BeginOfEvent * i){
   clearHits();
 
   //----- Initialize variables to check if two steps belong to same hit
@@ -297,7 +278,7 @@ void MuonSensitiveDetector::createHit(G4Step * aStep){
   Global3DPoint theGlobalPos;
   const G4RotationMatrix * theGlobalRot;
 #endif
-  if (thePrintHits) {   
+  if (printHits) {   
     Local3DPoint theGlobalHelp = InitialStepPosition(aStep,WorldCoordinates);
     theGlobalEntry = toOrcaUnits(Global3DPoint (theGlobalHelp.x(),theGlobalHelp.y(),theGlobalHelp.z()));
 #ifdef DEBUG
@@ -400,7 +381,7 @@ void MuonSensitiveDetector::updateHit(G4Step * aStep){
 void MuonSensitiveDetector::saveHit(){
 
   if (theHit) {
-    if (thePrintHits) {
+    if (printHits) {
       thePrinter->startNewSimHit(detector->name());
       thePrinter->printId(theHit->detUnitId());
       //      thePrinter->printTrack(theHit->trackId());

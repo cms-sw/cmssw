@@ -12,6 +12,7 @@
  *
  */
 
+#include "SimG4Core/Notification/interface/Observer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
 class EndOfEvent;
@@ -23,14 +24,16 @@ class MuonSubDetector;
 class SimTrackManager;
 #include "SimDataFormats/SimHitMaker/interface/TrackingSlaveSD.h"
 
-class MuonSlaveSD : public TrackingSlaveSD
+class MuonSlaveSD : 
+public TrackingSlaveSD,
+public Observer <const EndOfEvent*> 
 {
 public: 
   typedef std::vector<PSimHit> Collection;
   typedef Collection::const_iterator const_iterator;
   MuonSlaveSD(MuonSubDetector*,const SimTrackManager*);
   virtual ~MuonSlaveSD();
-  void upDate(const EndOfEvent *);
+  void update(const EndOfEvent *);
   virtual void clearHits();
   virtual bool format();
   virtual const_iterator begin() { return hits_.begin();}
@@ -43,7 +46,7 @@ private:
   MuonSubDetector* detector;
 
   const SimTrackManager* m_trackManager;
-  //const EventAction* eventAction;
+
 };
 
 class FormatBarrelHits {

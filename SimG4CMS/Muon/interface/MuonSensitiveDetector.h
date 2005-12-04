@@ -15,6 +15,7 @@
  * Add SimTracks selection
  */
 
+#include "SimG4Core/Notification/interface/Observer.h"
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveTkDetector.h"
 #include "Geometry/Vector/interface/GlobalPoint.h"
@@ -38,7 +39,10 @@ class G4ProcessTypeEnumerator;
 class G4TrackToParticleID;
 class SimTrackManager;
 
-class MuonSensitiveDetector : public SensitiveTkDetector {
+class MuonSensitiveDetector : 
+public SensitiveTkDetector,
+public Observer<const BeginOfEvent*>
+ {
 
  public:    
   MuonSensitiveDetector(std::string, const DDCompactView &,
@@ -58,7 +62,7 @@ class MuonSensitiveDetector : public SensitiveTkDetector {
   
  private:
   bool hitInChimney(G4Step * aStep);
-  void upDate(const BeginOfEvent *);
+  void update(const BeginOfEvent *);
   virtual void clearHits();
 
   Local3DPoint toOrcaUnits(Local3DPoint);
@@ -83,7 +87,7 @@ class MuonSensitiveDetector : public SensitiveTkDetector {
   uint32_t theDetUnitId; 
   unsigned int theTrackID;
  
-  bool thePrintHits;
+  bool printHits;
   SimHitPrinter* thePrinter;
   Global3DPoint theGlobalEntry;
 
