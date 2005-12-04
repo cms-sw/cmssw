@@ -19,6 +19,7 @@ public:
     ~FieldBuilder();
     void readFieldParameters(DDLogicalPart theLogicalPart,
 			     std::string keywordField);
+    void initDDD(std::string xmlConfiguration);
     void setField(const MagneticField * f, const edm::ParameterSet & p);
     void configure(std::string keywordField,G4FieldManager * fM = 0,
 		   G4PropagatorInField * fP = 0);

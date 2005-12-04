@@ -12,6 +12,11 @@
 #include "SimG4Core/Geometry/interface/G4LogicalVolumeToDDLogicalPartMapper.h"
 #include "SimG4Core/Notification/interface/SimG4Exception.h"
 
+#include "DetectorDescription/Parser/interface/DDLParser.h"
+#include "DetectorDescription/Parser/interface/DDLConfiguration.h"
+#include "DetectorDescription/Base/interface/DDException.h"
+#include "DetectorDescription/Algorithm/src/AlgoInit.h"
+
 #include "G4Mag_UsualEqRhs.hh"
 #include "G4PropagatorInField.hh"
 #include "G4FieldManager.hh"
@@ -45,6 +50,18 @@ void FieldBuilder::readFieldParameters(DDLogicalPart lp,std::string keywordField
     tmp = m->toDouble("MaximumLoopCount",lp,maxLoopCount);
     tmp = m->toDouble("MinimumEpsilonStep",lp,minEpsilonStep);
     tmp = m->toDouble("MaximumEpsilonStep",lp,maxEpsilonStep);
+}
+
+void FieldBuilder::initDDD(std::string xmlConfiguration)
+{  
+    DDLParser * parser = DDLParser::instance();
+    AlgoInit();
+    parser->dumpFileList();
+    DDLConfiguration cf;
+    int result1 = cf.readConfig(xmlConfiguration);
+    if (result1 !=0) throw DDException("DDLConfiguration: readConfig failed !");
+    int result2 = parser->parse(cf);
+    if (result2 != 0) throw DDException("DDD-Parser: parsing failed!");
 }
 
 void FieldBuilder::setField(const MagneticField * f, const edm::ParameterSet & p)
