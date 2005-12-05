@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  * 
- * $Date: 2005/12/02 15:48:25 $
- * $Revision: 1.57 $
+ * $Date: 2005/12/03 10:42:53 $
+ * $Revision: 1.58 $
  * \author G. Della Ricca
  *
 */
@@ -84,7 +84,7 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
 
   if ( dbe_ ) dbe_->showDirStructure();
 
-  // this should give enough time to the ME to reach the Collector,
+  // this should give enough time to all the MEs to reach the Collector,
   // and then hopefully the clients, even for short runs
   sleep(120);
 
