@@ -160,7 +160,10 @@ namespace edm {
 
       // next two lines are for explicitly causing every object to get defined
       pool::IClassLoader* cl = getClassLoader();
-      fillChildren(cl,cc,do_children==true?10000:1);
+
+	  // jbk - I'm leaving this out unless we really need it -
+	  // its job is to declare each of the types to ROOT
+      // fillChildren(cl,cc,do_children==true?10000:1);
     } 
     catch(...) {
       std::cerr << "Error: could not find Class object for "
