@@ -1,7 +1,11 @@
 <use name=clhep>
 <use name=DataFormats/EcalRecHit>
+<use name=root>
+<lib name=Minuit>
 <export>
   <lib name=RecoLocalCaloEcalRecAlgos>
   <use name=clhep>
   <use name=DataFormats/EcalRecHit>
+  <use name=root>
+  <lib name=Minuit>
 </export>
