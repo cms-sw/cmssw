@@ -5,8 +5,6 @@
 #include "SimG4CMS/Calo/interface/ShowerForwardNumberingScheme.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
 
-#define debug
-
 using namespace std;
 
 ShowerForwardNumberingScheme::ShowerForwardNumberingScheme(int iv) : 
@@ -49,7 +47,7 @@ uint32_t ShowerForwardNumberingScheme::getUnitID(const G4Step* aStep) const {
     int strip = copyno[level-1];
 
     intIndex =  ESDetId(1,1,1,1,1).rawId(); //Fake for the moment
-#ifdef debug
+
     if (verbosity>1) {
       std::cout << "ShowerForwardNumberingScheme : zside " 
 		<< zside << " layer " << layer << " wafer " << wafer 
@@ -60,7 +58,7 @@ uint32_t ShowerForwardNumberingScheme::getUnitID(const G4Step* aStep) const {
 		  << std::endl;
       }
     }
-#endif
+
     delete[] copyno;
     delete[] name;
   }

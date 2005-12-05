@@ -13,7 +13,9 @@ public:
   EcalEndcapNumberingScheme(int);
   ~EcalEndcapNumberingScheme();
   virtual uint32_t getUnitID(const G4Step* aStep) const ;
-
+  virtual float energyInMatrix(int nCellInEta, int nCellInPhi, 
+			       int centralEta, int centralPhi, int centralZ,
+			       MapType& themap); 
 };
 
 #endif

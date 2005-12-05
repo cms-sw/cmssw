@@ -8,8 +8,6 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 #include <iostream>
 
-#define debug
-
 EcalEndcapNumberingScheme::EcalEndcapNumberingScheme(int iv) : 
   EcalNumberingScheme(iv) {
   if (verbosity>0) 
@@ -42,14 +40,46 @@ uint32_t EcalEndcapNumberingScheme::getUnitID(const G4Step* aStep) const {
 
   //pack it into an integer
   // to be consistent with EEDetId definition
-  uint32_t intindex = EEDetId(1,1,zside).rawId();
-#ifdef debug
+  uint32_t intindex = EEDetId(eta,phi,zside).rawId();
+
   if (verbosity>1) 
     std::cout << "EcalEndcapNumberingScheme: zside = "  << zside 
 	      << " super crystal = " << eta << " crystal = " << phi
 	      << " packed index = 0x" << std::hex << intindex << std::dec 
 	      << std::endl;
-#endif
   return intindex;
 
 }
+
+float EcalEndcapNumberingScheme::energyInMatrix(int nCellInEta, int nCellInPhi,
+						int centralEta, int centralPhi,
+						int centralZ, MapType& themap){
+
+  int   ncristals   = 0;
+  float totalEnergy = 0.;
+        
+  int goBackInEta = nCellInEta/2;
+  int goBackInPhi = nCellInPhi/2;
+  int startEta    = centralEta-goBackInEta;
+  int startPhi    = centralPhi-goBackInPhi;
+  
+  for (int ieta=startEta; ieta<startEta+nCellInEta; ieta++) {
+    for (int iphi=startPhi; iphi<startPhi+nCellInPhi; iphi++) {
+      
+      uint32_t index = EEDetId(ieta,iphi,centralZ).rawId();
+      totalEnergy   += themap[index];
+      ncristals     += 1;
+      if (verbosity > 2)
+	std::cout << "EcalEndcapNumberingScheme: ieta - iphi - E = " << ieta 
+		  << "  " << iphi << " "  << themap[index] << std::endl;
+    }
+  }
+        
+  if (verbosity > 1)
+    std::cout << "EcalEndcapNumberingScheme: energy in " << nCellInEta 
+	      << " cells in eta times " << nCellInPhi 
+	      << " cells in phi matrix = " << totalEnergy
+	      << " for " << ncristals << " crystals" << std::endl;
+  return totalEnergy;
+
+}   

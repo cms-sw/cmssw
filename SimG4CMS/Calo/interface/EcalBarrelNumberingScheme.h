@@ -13,6 +13,9 @@ public:
   EcalBarrelNumberingScheme(int);
   ~EcalBarrelNumberingScheme();
   virtual uint32_t getUnitID(const G4Step* aStep) const ;
+  virtual float energyInMatrix(int nCellInEta, int nCellInPhi, 
+			       int centralEta, int centralPhi, int centralZ,
+			       MapType& themap); 
 
 };
 

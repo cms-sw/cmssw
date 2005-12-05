@@ -8,8 +8,6 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 #include <iostream>
 
-#define debug
-
 EcalBarrelNumberingScheme::EcalBarrelNumberingScheme(int iv) : 
   EcalNumberingScheme(iv) {
   if (verbosity>0) 
@@ -61,12 +59,44 @@ uint32_t EcalBarrelNumberingScheme::getUnitID(const G4Step* aStep) const {
   // to be consistent with EBDetId convention
   //  zside=2*(1-zside)+1;
   uint32_t intindex = EBDetId(zside*eta,phi).rawId();
-#ifdef debug
+
   if (verbosity>1) 
     std::cout << "EcalBarrelNumberingScheme zside = "  << zside << " eta = " 
 	      << eta << " phi = " << phi << " packed index = 0x" << std::hex 
 	      << intindex << std::dec << std::endl;
-#endif
   return intindex;
 
 }
+
+float EcalBarrelNumberingScheme::energyInMatrix(int nCellInEta, int nCellInPhi,
+						int centralEta, int centralPhi,
+						int centralZ, MapType& themap){
+
+  int   ncristals   = 0;
+  float totalEnergy = 0.;
+        
+  int goBackInEta = nCellInEta/2;
+  int goBackInPhi = nCellInPhi/2;
+  int startEta    = centralZ*centralEta-goBackInEta;
+  int startPhi    = centralPhi-goBackInPhi;
+  
+  for (int ieta=startEta; ieta<startEta+nCellInEta; ieta++) {
+    for (int iphi=startPhi; iphi<startPhi+nCellInPhi; iphi++) {
+      
+      uint32_t index = EBDetId(ieta,iphi).rawId();
+      totalEnergy   += themap[index];
+      ncristals     += 1;
+      if (verbosity > 2)
+	std::cout << "EcalBarrelNumberingScheme: ieta - iphi - E = " << ieta 
+		  << "  " << iphi << " "  << themap[index] << std::endl;
+    }
+  }
+        
+  if (verbosity > 1)
+    std::cout << "EcalBarrelNumberingScheme: energy in " << nCellInEta 
+	      << " cells in eta times " << nCellInPhi 
+	      << " cells in phi matrix = " << totalEnergy
+	      << " for " << ncristals << " crystals" << std::endl;
+  return totalEnergy;
+
+}   
