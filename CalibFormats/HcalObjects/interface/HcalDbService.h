@@ -15,6 +15,7 @@
 #include "CalibFormats/HcalObjects/interface/HcalChannelCoder.h"
 #include "CalibFormats/HcalObjects/interface/QieShape.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoder.h"
+#include "CondFormats/HcalMapping/interface/HcalMapping.h"
 
 class HcalPedestals;
 class HcalPedestalWidths;
@@ -31,6 +32,7 @@ class HcalDbService {
   std::auto_ptr<HcalCalibrations> getHcalCalibrations (const HcalDetId& fId) const;
   std::auto_ptr<HcalCalibrationWidths> getHcalCalibrationWidths (const HcalDetId& fId) const;
   std::auto_ptr<HcalCoder> getHcalCoder (const HcalDetId& fId) const;
+  std::auto_ptr<HcalMapping> getHcalMapping () const;
 
   const QieShape* getBasicShape () const;
   std::auto_ptr<HcalChannelCoder> getChannelCoder (const HcalDetId& fId) const;

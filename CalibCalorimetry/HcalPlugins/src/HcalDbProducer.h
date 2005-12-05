@@ -13,7 +13,7 @@
 //
 // Original Author:  Fedor Ratnikov
 //         Created:  Tue Aug  9 19:10:10 CDT 2005
-// $Id: HcalDbProducer.h,v 1.5 2005/11/02 21:10:56 fedor Exp $
+// $Id: HcalDbProducer.h,v 1.6 2005/11/04 11:40:59 sashby Exp $
 //
 //
 
@@ -29,9 +29,6 @@
 class HcalDbService;
 class HcalDbRecord;
 
-//fix for Release of pre 7 - stefano.argiro@cern.ch, 20051104
-//#include "CondFormats/DataRecord/interface/AllHcalClasses.h"
-//#include "CondFormats/DataRecord/interface/AllHcalRecords.h"
 #include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
 #include "CondFormats/DataRecord/interface/HcalElectronicsMapRcd.h"  	 
 #include "CondFormats/DataRecord/interface/HcalGainWidthsRcd.h"
@@ -40,7 +37,7 @@ class HcalDbRecord;
 #include "CondFormats/DataRecord/interface/HcalPedestalsRcd.h" 
 #include "CondFormats/DataRecord/interface/HcalQIEDataRcd.h"
 #include "CondFormats/DataRecord/interface/HcalQIEShapeRcd.h"
-// end fix
+
 
 
 

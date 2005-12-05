@@ -2,7 +2,6 @@
 // Original Author:  Fedor Ratnikov Oct 21, 2005
 // $Id: HcalHardcodeCalibrations.h,v 1.2 2005/10/28 01:30:47 fedor Exp $
 //
-// ESSource to generate default HCAL calibration objects 
 //
 #include <map>
 #include <string>
@@ -29,12 +28,12 @@ class HcalQIEDataRcd;
 class HcalChannelQualityRcd;
 class HcalElectronicsMapRcd;
 
-class HcalHardcodeCalibrations : public edm::ESProducer,
+class HcalTextCalibrations : public edm::ESProducer,
 		       public edm::EventSetupRecordIntervalFinder
 {
 public:
-  HcalHardcodeCalibrations (const edm::ParameterSet& );
-  ~HcalHardcodeCalibrations ();
+  HcalTextCalibrations (const edm::ParameterSet& );
+  ~HcalTextCalibrations ();
 
   void produce () {};
   
@@ -51,6 +50,8 @@ protected:
   std::auto_ptr<HcalQIEData> produceQIEData (const HcalQIEDataRcd& rcd);
   std::auto_ptr<HcalChannelQuality> produceChannelQuality (const HcalChannelQualityRcd& rcd);
   std::auto_ptr<HcalElectronicsMap> produceElectronicsMap (const HcalElectronicsMapRcd& rcd);
-  
+
+ private:
+  std::map <std::string, std::string> mInputs;
 };
 

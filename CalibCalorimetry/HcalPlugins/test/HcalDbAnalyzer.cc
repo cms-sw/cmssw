@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 19:13:25 EDT 2005
-// $Id: HcalDbAnalyzer.cc,v 1.3 2005/10/05 00:37:56 fedor Exp $
+// $Id: HcalDbAnalyzer.cc,v 1.4 2005/10/28 01:30:47 fedor Exp $
 //
 //
 
@@ -119,13 +119,23 @@ HcalDbAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
 	     << widths->gain (3) 
 	     << std::endl;
 
-   // std::cout << "QIE shape:" << std::endl;
+   std::cout << "QIE shape:" << std::endl;
    for (int i = 0; i < 128; i++) {
      double q0 = coder->charge (*shape, i, 0);
      double q1 = coder->charge (*shape, i, 1);
      double q2 = coder->charge (*shape, i, 2);
      double q3 = coder->charge (*shape, i, 3);
-     // std::cout << ' ' << i << ':' << q0 << '/' << q1 << '/' << q2 << '/' << q3;
+     std::cout << " ADC: " << i << " q1:" << q0 << " q2:" << q1 << " q3:" << q2 << " q4:" << q3 << std::endl;
+   }
+
+   // dump mapping
+   std::auto_ptr <HcalMapping> emap = pSetup->getHcalMapping ();
+   std::cout << "Mapping: all Hcal IDs:" << std::endl;
+   std::vector <HcalElectronicsId> detIds = emap->allElectronicsId ();
+   std::vector <HcalElectronicsId>::iterator id = detIds.begin ();
+   for (; id != detIds.end (); id++) {
+     std::cout << "ElectronicsID: " << *id << " , Detector ID: " << emap->lookup (*id) 
+	       << " , Trigger ID: " << emap->lookupTrigger (*id) << std::endl;
    }
 
 }

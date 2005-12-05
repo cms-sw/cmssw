@@ -3,8 +3,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store mapping for Hcal channels
 $Author: ratnikov
-$Date: 2005/10/18 23:34:56 $
-$Revision: 1.1 $
+$Date: 2005/10/20 05:18:37 $
+$Revision: 1.2 $
 */
 
 #include <iostream>
@@ -107,7 +107,24 @@ bool HcalElectronicsMap::setMapping (unsigned long fChId, unsigned long fElectro
 std::vector <unsigned long> HcalElectronicsMap::allElectronicsId () const {
   std::vector <unsigned long> result;
   std::set <unsigned long> allIds;
-  for (std::vector<Item>::const_iterator item = mItems.begin (); item != mItems.end (); item++) allIds.insert (item->mElId);
+  for (std::vector<Item>::const_iterator item = mItems.begin (); item != mItems.end (); item++) 
+    if (item->mElId) allIds.insert (item->mElId);
+  return std::vector <unsigned long> (allIds.begin (), allIds.end ());
+}
+
+std::vector <unsigned long> HcalElectronicsMap::allDetectorId () const {
+  std::vector <unsigned long> result;
+  std::set <unsigned long> allIds;
+  for (std::vector<Item>::const_iterator item = mItems.begin (); item != mItems.end (); item++)  
+    if (item->mChId) allIds.insert (item->mChId);
+  return std::vector <unsigned long> (allIds.begin (), allIds.end ());
+}
+
+std::vector <unsigned long> HcalElectronicsMap::allTriggerId () const {
+  std::vector <unsigned long> result;
+  std::set <unsigned long> allIds;
+  for (std::vector<Item>::const_iterator item = mItems.begin (); item != mItems.end (); item++)  
+    if (item->mTrigId) allIds.insert (item->mTrigId);
   return std::vector <unsigned long> (allIds.begin (), allIds.end ());
 }
 

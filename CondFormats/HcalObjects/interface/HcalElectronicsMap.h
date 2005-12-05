@@ -6,8 +6,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store map between detector ID, electronics ID and trigger ID
 $Author: ratnikov
-$Date: 2005/10/18 23:34:56 $
-$Revision: 1.1 $
+$Date: 2005/10/20 05:18:37 $
+$Revision: 1.2 $
 */
 
 #include <vector>
@@ -29,6 +29,8 @@ class HcalElectronicsMap {
   unsigned long tId2chId (unsigned long fTriggerId, bool fWarning = true) const;
 
   std::vector <unsigned long> allElectronicsId () const;
+  std::vector <unsigned long> allDetectorId () const;
+  std::vector <unsigned long> allTriggerId () const;
 
   // map channels
   bool setMapping (unsigned long fChId, unsigned long fElectronicsId, unsigned long fTriggerId);

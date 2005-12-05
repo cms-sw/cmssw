@@ -4,8 +4,10 @@
 #include "HcalDbProducer.h"
 #include "HcalHardcodeCalibrations.h"
 #include "HcalElectronicsMappingReader.h"
+#include "HcalTextCalibrations.h"
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(HcalDbProducer)
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(HcalHardcodeCalibrations)
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(HcalElectronicsMappingReader)
+DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(HcalTextCalibrations)

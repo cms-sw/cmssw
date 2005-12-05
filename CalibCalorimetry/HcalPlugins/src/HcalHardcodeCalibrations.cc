@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: HcalHardcodeCalibrations.cc,v 1.1 2005/10/25 17:55:39 fedor Exp $
+// $Id: HcalHardcodeCalibrations.cc,v 1.2 2005/10/28 01:30:47 fedor Exp $
 //
 //
 
@@ -88,8 +88,6 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
 {
   std::cout << "HcalHardcodeCalibrations::HcalHardcodeCalibrations->..." << std::endl;
   //parsing record parameters
-  std::vector< std::pair<std::string,std::string> > recordToTag;
-
   std::vector <std::string> toGet = iConfig.getParameter <std::vector <std::string> > ("toGet");
   for(std::vector <std::string>::iterator objectName = toGet.begin(); objectName != toGet.end(); ++objectName ) {
     bool all = *objectName == "all";
@@ -117,17 +115,16 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
       setWhatProduced (this, &HcalHardcodeCalibrations::produceQIEData);
       findingRecord <HcalQIEDataRcd> ();
     }
-    if ((*objectName == "channelQuality") || all) {
+    if ((*objectName == "ChannelQuality") || (*objectName == "channelQuality") || all) {
       setWhatProduced (this, &HcalHardcodeCalibrations::produceChannelQuality);
       findingRecord <HcalChannelQualityRcd> ();
     }
-    if ((*objectName == "electronicsMap") || all) {
+    if ((*objectName == "ElectronicsMap") || (*objectName == "electronicsMap") || all) {
       setWhatProduced (this, &HcalHardcodeCalibrations::produceElectronicsMap);
       findingRecord <HcalElectronicsMapRcd> ();
     }
 
   }
-  //  setWhatProduced(this);
 }
 
 

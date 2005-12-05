@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbProducer.h,v 1.2 2005/10/04 18:03:03 fedor Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.1 2005/11/02 21:31:24 fedor Exp $
 //
 #include <vector>
 #include <string>
@@ -244,6 +244,7 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalElectronicsMap* fObject
       fObject->mapEId2chId (elId (), chId.rawId());
     }
   }
+  fObject->sort ();
   return true;
 }
 
