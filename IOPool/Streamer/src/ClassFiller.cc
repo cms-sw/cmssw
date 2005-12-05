@@ -159,7 +159,7 @@ namespace edm {
       seal::reflex::Type cc = seal::reflex::Type::byName(name);
 
       // next two lines are for explicitly causing every object to get defined
-      pool::IClassLoader* cl = getClassLoader();
+      //pool::IClassLoader* cl = getClassLoader();
 
 	  // jbk - I'm leaving this out unless we really need it -
 	  // its job is to declare each of the types to ROOT
