@@ -43,4 +43,4 @@ echo "Running ${MYAPP}"
 export CONNECT=oracle://cms_val_lb.cern.ch/${POOL_AUTH_USER}
 export TAG=ecalfall_test      #tag
 echo "Using TNS_ADMIN ${TNS_ADMIN}"
-${CMSSWVERSION}/test/${SCRAM_ARCH}/${MYAPP} ${CONNECT} 1000 ${TAG}
+${CMSSWVERSION}/test/${SCRAM_ARCH}/${MYAPP} ${CONNECT} 10000 ${TAG}
