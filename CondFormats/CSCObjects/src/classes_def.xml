@@ -11,7 +11,11 @@
  <class name="CSCIdentifier" id="DC949595-1360-DA11-86C4-000E0C4DE689"/>
  <class name="CSCIdentifier::Item"/>
 
-<class name="CSCReadoutMapping" id="7AFAC964-9B62-DA11-BB7B-0008743F7CC7"/>
+<class name="CSCReadoutMapping" id="7AFAC964-9B62-DA11-BB7B-0008743F7CC7">
+  <field name="myName_" transient="true"/>
+  <field name="debugV_" transient="true"/>
+  <field name="hw2sw_" transient="true"/>
+</class>
 <class name="CSCReadoutMapping::CSCLabel"/>
 <class name="std::basic_string<char>"/>
 
