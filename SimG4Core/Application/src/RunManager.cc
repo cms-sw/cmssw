@@ -12,6 +12,10 @@
 #include "SimG4Core/Generators/interface/Generator.h"
 #include "SimG4Core/Physics/interface/PhysicsListFactory.h"
 #include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
+#include "SimG4Core/MagneticField/interface/FieldBuilder.h"
+
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "IOMC/EventVertexGenerators/interface/EventVertexGeneratorFactory.h"
 
@@ -36,9 +40,9 @@
 #include "G4EventManager.hh"
 #include "G4Run.hh"
 #include "G4Event.hh"
+#include "G4TransportationManager.hh"
 
 #include "CLHEP/Random/JamesRandom.h"
- 
 #include "Randomize.hh"
 
 #include <iostream>
@@ -108,6 +112,7 @@ RunManager::RunManager(edm::ParameterSet const & p)
       m_EvtMgrVerbosity(p.getParameter<int>("G4EventManagerVerbosity")),
       m_Override(p.getParameter<bool>("OverrideUserStackingAction")),
       m_RunNumber(p.getParameter<int>("RunNumber")),
+      m_pField(p.getParameter<edm::ParameterSet>("MagneticField")),
       m_pGenerator(p.getParameter<edm::ParameterSet>("Generator")),
       m_pVertexGenerator(p.getParameter<edm::ParameterSet>("VertexGenerator")),
       m_pPhysics(p.getParameter<edm::ParameterSet>("Physics")),
@@ -145,15 +150,26 @@ void RunManager::initG4(const edm::EventSetup & es)
     edm::ESHandle<DDCompactView> pDD;
     es.get<IdealGeometryRecord>().get(pDD);
    
-    //QUESTION: Who deletes this?
     const DDDWorld * world = new DDDWorld(&(*pDD));
-    //ANSWER: Unfortunately we cannot; G4 deletes all the volumes for now
-    //        but I'll check again
     m_registry.dddWorldSignal_(world);
 
-    //QUESTION: Are the following two lines still needed?
-    //ANSWER: No!
-
+    edm::ESHandle<MagneticField> pMF;
+    es.get<IdealMagneticFieldRecord>().get(pMF);
+    const GlobalPoint g(0.,0.,0.);
+    std::cout << "B-field(T) at (0,0,0)(cm): " << pMF->inTesla(g) << std::endl;
+ 
+    FieldBuilder * theFieldBuilder = FieldBuilder::instance();
+    static bool fieldIsInitialized = false;
+    if(!fieldIsInitialized)
+    {
+        theFieldBuilder->initDDD("FieldConfiguration.xml");
+        theFieldBuilder->setField(&(*pMF),m_pField);    
+        G4TransportationManager * tM = G4TransportationManager::GetTransportationManager(); 
+        theFieldBuilder->configure("MagneticFieldType",
+                                   tM->GetFieldManager(),tM->GetPropagatorInField());
+        fieldIsInitialized = true;
+    }
+ 
     //we need the track manager now
     m_trackManager = std::auto_ptr<SimTrackManager>(new SimTrackManager);
 

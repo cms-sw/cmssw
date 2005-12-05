@@ -7,6 +7,7 @@
 <use name=SimG4Core/Generators>
 <use name=IOMC/EventVertexGenerators>
 <use name=SimG4Core/Geometry>
+<use name=SimG4Core/MagneticField>
 <use name=SimG4Core/Notification>
 <use name=SimG4Core/Watcher>
 <use name=SimG4Core/Geometry>
@@ -29,6 +30,7 @@
 <use name=SimG4Core/Watcher>
 <use name=SimG4Core/SensitiveDetector>               
 <use name=SimG4Core/Geometry>
+<use name=SimG4Core/MagneticField>
 <use name=SimDataFormats/Track>
 <use name=SimDataFormats/Vertex>
 <use name=SimDataFormats/TrackingHit>
