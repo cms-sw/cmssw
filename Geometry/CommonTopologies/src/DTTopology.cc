@@ -22,12 +22,12 @@ DTTopology::DTTopology(int firstWire, int nChannels,float lenght): theFirstChann
 #endif
 }
 
-float DTTopology::sensibleWidth(){
+const float DTTopology::sensibleWidth() const{
   const float IBeamThickness = 0.1;  // I-beam : 1 mm    
   return theWidth-IBeamThickness;
   }
 
-float DTTopology::sensibleHeight(){
+const float DTTopology::sensibleHeight() const{
   const float plateThickness = 0.15; // aluminium plate: 1.5 mm   
   return theHeight-plateThickness;
 }

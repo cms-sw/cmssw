@@ -7,8 +7,8 @@
  * Extends the Topology interface with methods relevant for
  * the DT detectors.
  *  
- *  $Date: 2005/11/21 13:14:53 $
- *  $Revision: 1.3 $
+ *  $Date: 2005/11/30 14:53:55 $
+ *  $Revision: 1.4 $
  *
  * \author R. Bellan - INFN Torino
  *
@@ -21,7 +21,7 @@ class DTTopology: public Topology {
  public:
   
   //Constructor: number of first wire, total # of wires in the layer and their lenght
-  DTTopology(int firstWire=0, int nChannels=0,float lenght=0); // togliere =0 prima di commitare
+  DTTopology(int firstWire, int nChannels,float lenght); 
 
   virtual ~DTTopology() {}
   
