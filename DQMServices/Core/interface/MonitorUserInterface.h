@@ -127,6 +127,8 @@ class MonitorUserInterface : public StringUtil
   void drawAll(void) const;
   // attempt to connect (to be used if ctor failed to connect)
   virtual void connect(std::string host, unsigned port) = 0;
+  // opposite action of that of connect method
+  virtual void disconnect(void) = 0; 
   // true if connection was succesful
   virtual bool isConnected(void) const = 0;
   // set reconnect delay parameter (in secs);
