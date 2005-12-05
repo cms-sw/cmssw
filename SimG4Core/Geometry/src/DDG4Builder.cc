@@ -26,9 +26,14 @@
 using std::vector;
 using std::string;
 
+DDG4DispContainer * DDG4Builder::theVectorOfDDG4Dispatchables_ = 0;
+
+DDG4DispContainer * DDG4Builder::theVectorOfDDG4Dispatchables() 
+{ return theVectorOfDDG4Dispatchables_; }
+
 DDG4Builder::DDG4Builder(const DDCompactView* cpv) : 
   solidConverter_(new DDG4SolidConverter), compactView(cpv)
-{}
+{ theVectorOfDDG4Dispatchables_ = new DDG4DispContainer(); }
 
 DDG4Builder::~DDG4Builder() { delete solidConverter_; }
 
@@ -43,6 +48,7 @@ G4LogicalVolume * DDG4Builder::convertLV(const DDLogicalPart & part)
 	result = new G4LogicalVolume(s,m,part.name().name());
 	G4LogicalVolumeToDDLogicalPartMapper::instance()->insert(result,part);	
 	DDG4Dispatchable * disp = new DDG4Dispatchable(&part,result);	
+        theVectorOfDDG4Dispatchables_->push_back(disp);
         DCOUT('g', "DDG4Builder::convertLV(): new G4LogicalVolume " << part.name().name() );
         DCOUT('G', "DDG4Builder: newEvent: dd=" << part.ddname() << " g4=" << result->GetName());
 	logs_[part] = result;  // DDD -> GEANT4  
@@ -162,12 +168,19 @@ G4LogicalVolume * DDG4Builder::BuildGeometry()
 	    DDLogicalPart ddlv = ddg4_it->first;
 	    G4LogicalVolumeToDDLogicalPartMapper::instance()->insert(reflLogicalVolume,ddlv);
 	    DDG4Dispatchable * disp = new DDG4Dispatchable(&ddlv,reflLogicalVolume);
-	    DCOUT('G', "DDG4Builder: newEvent: dd=" << ddlv.ddname() << " g4=" 
+	    theVectorOfDDG4Dispatchables_->push_back(disp);
+            DCOUT('G', "DDG4Builder: newEvent: dd=" << ddlv.ddname() << " g4=" 
 		  << reflLogicalVolume->GetName());
 	}  
     }
       
     G4LogicalVolume * world = logs_[DDCompactView().root()];
+
+    //
+    //  needed for building sensitive detectors
+    //
+    DDG4SensitiveConverter conv_;
+    conv_.upDate(*theVectorOfDDG4Dispatchables_);
 
     return world;    
 }
