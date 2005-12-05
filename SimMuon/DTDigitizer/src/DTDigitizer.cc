@@ -12,55 +12,61 @@
 //
 // Original Author:  Riccardo Bellan
 //         Created:  Fri Nov  4 18:56:35 CET 2005
-// $Id: DTDigitizer.cc,v 1.1 2005/11/21 09:44:13 bellan Exp $
+// $Id: DTDigitizer.cc,v 1.2 2005/11/30 17:33:33 bellan Exp $
 //
 //
 // system include files
 #include <memory>
 
+//C++ headers
+#include <cmath>
+//
+#include <CLHEP/Random/RandGaussQ.h>
+#include <CLHEP/Random/RandFlat.h>
+
+// Framework
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-//
-#include "DataFormats/DTDigi/interface/DTDigiCollection.h"
+#include "FWCore/Framework/interface/Handle.h"
+
+// Geometry
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/DTSimAlgo/interface/DTGeometry.h"
 #include "Geometry/DTSimAlgo/interface/DTGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/DTTopology.h"
-//
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
-#include "FWCore/Framework/interface/Handle.h"
-#include "DataFormats/MuonDetId/interface/DTDetId.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
+
 #include "Geometry/Vector/interface/LocalPoint.h"
 #include "Geometry/Vector/interface/LocalVector.h"
 
-//
+// SimHits
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
+// Digis
+#include "DataFormats/DTDigi/interface/DTDigiCollection.h"
+#include "DataFormats/MuonDetId/interface/DTDetId.h"
+
+// DTDigitizer
 #include "SimMuon/DTDigitizer/interface/DTDriftTimeParametrization.h"
 #include "SimMuon/DTDigitizer/interface/DTDigitizer.h"
 
-#include <CLHEP/Random/RandGaussQ.h>
-#include <CLHEP/Random/RandFlat.h>
-
-#include <cmath>
-
-
-//FIXME- ReCheck the "hit nature" (is it a pointer?)
+// namespaces
 using namespace edm;
 using namespace std;
 
-DTDigitizer::DTDigitizer(const edm::ParameterSet& iConfig):conf_(iConfig){
+
+//FIXME- ReCheck the "hit nature" (is it a pointer?)
+
+// Constructor
+DTDigitizer::DTDigitizer(const ParameterSet& iConfig):conf_(iConfig){
   
   cout<<"Creating a DTDigitizer"<<endl;
   
-  //register the Producer
-  //  produces<DTDigiCollection>();
-  //if do put with a label
+  //register the Producer with a label
   produces<DTDigiCollection>("DTDigitization");
   
   //Parameters:
@@ -72,7 +78,7 @@ DTDigitizer::DTDigitizer(const edm::ParameterSet& iConfig):conf_(iConfig){
   interpolate=conf_.getParameter<bool>("interpolate");
   
   // Set verbose output
-  debug=conf_.getUntrackedParameter<bool>("debug"); // il default come lo metto? non esiste piu'!!
+  debug=conf_.getUntrackedParameter<bool>("debug"); 
   
   // Velocity of signal propagation along the wire (cm/ns)
   // For the default value
@@ -81,29 +87,27 @@ DTDigitizer::DTDigitizer(const edm::ParameterSet& iConfig):conf_(iConfig){
   vPropWire=conf_.getParameter<double>("vPropWire"); //24.4
 
   // Dead time for signals on the same wire (number from M. Pegoraro)  
-  deadTime=conf_.getParameter<float>("deadTime"); //150
-
+  deadTime=conf_.getParameter<double>("deadTime"); //150
+  
   // further configurable smearing
-  smearing=conf_.getParameter<float>("Smearing"); // 3.
+  smearing=conf_.getParameter<double>("Smearing"); // 3.
 }
 
-
+// Destructor
 DTDigitizer::~DTDigitizer(){}
 
 
 // method called to produce the data
-void DTDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
-  using namespace edm;
+void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
   
   //************ 1 ***************
   
   // create the container for the SimHits
-  Handle<PSimHitContainer> simHits; //edm::Handle has the same implementation as a pointer
-  // fill the container - FIXME, what is "r"?
-  iEvent.getByLabel("r","MuonDTHits",simHits);
+  Handle<PSimHitContainer> simHits; 
+  iEvent.getByLabel("MuonDTHits",simHits);
 
   // create the pointer to the Digi container
-  std::auto_ptr<DTDigiCollection> output(new DTDigiCollection());
+  auto_ptr<DTDigiCollection> output(new DTDigiCollection());
   
   ESHandle<DTGeometry> muonGeom;
   iSetup.get<MuonGeometryRecord>().get(muonGeom);
@@ -113,8 +117,7 @@ void DTDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
 
   // These are sorted by DetId, i.e. by layer and then by wire #
   map<DTDetId, vector<PSimHit> > wireMap;     
-  //  map<DTDetId, vector<PSimHit> > detUnitMap;
- 
+  
   // loop over the SimHits -  FIXME check the iterator...
   // maybe can be: PSimHitContainer::const_iterator...
   for(vector<PSimHit>::const_iterator simHit = simHits->begin();
@@ -149,7 +152,7 @@ void DTDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
 
 	//************ 5 ***************
 	
-	time = computeTime(layer,wireId, *hit); // FIXME
+	time = computeTime(layer,wireId, *hit); 
 	
 	//************ 6 ***************
 
@@ -165,7 +168,7 @@ void DTDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
       // the loading must be done by layer but
       // the digitization must be done by wire (in order to take into account the dead time)
 
-      storeDigis(wireId,wire,wireMap.end(),tdCont,output);
+      storeDigis(wireId,wire,wireMap.end(),tdCont,*output);
     }
     
   }
@@ -185,8 +188,7 @@ pair<float,bool> DTDigitizer::computeTime(const DTGeomDetUnit* layer,const DTDet
 
   // Check if hits starts/ends on one of the cell's edges
 
-  // FIXME DTTopology or DTTopology& ?
-  const DTTopology &topo = layer->specificTopology();
+  const DTTopology &topo = layer->Topology();
 
   float xwire = topo.wirePosition(wireId.wire()); 
 
@@ -388,16 +390,12 @@ DTDigitizer::sides DTDigitizer::onWhichBorder(float x, float y, float z,
   return side;
 }
 
-
-
-
 //************ 5A ***************
 
 pair<float,bool> DTDigitizer::driftTimeFromParametrization(float x, float theta, float By, float Bz) const {
 
   // Convert from ORCA frame/units r.f. to parametrization ones.
-  x *= 10.;  //cm -> mm  FIXME??
-
+  x *= 10.;  //cm -> mm 
 
   // FIXME: Current parametrisation can extrapolate above 21 mm,
   // however a detailed study is needed before using this.
@@ -409,7 +407,7 @@ pair<float,bool> DTDigitizer::driftTimeFromParametrization(float x, float theta,
 
   // Different r.f. of the parametrization:
   // X_par = X_ORCA; Y_par=Z_ORCA; Z_par = -Y_ORCA  
-  //FIXME??
+
   float By_par = Bz;  // Bnorm
   float Bz_par = -By; // Bwire
   float theta_par = theta;
@@ -486,18 +484,13 @@ pair<float,bool> DTDigitizer::driftTimeFromTimeMap() const {
 float DTDigitizer::externalDelays(const DTTopology &topo, 
 				  const DTDetId &wireId, 
 				  const PSimHit *hit) const {
-
-  // Time of signal propagation along wire.
   
-  // FIXME
-  //DTWire* wire = layer->getWire(wireId);  //FIXME
-  //DTWireType* wire_type = wire->wireType(); // FIXME
+  // Time of signal propagation along wire.
   
   float wireCoord = hit->localPosition().y();
   float halfL     = (topo.cellLenght())/2.;
-  float propgL  ;/*  FIXME = (stat->layer()->getFEPosition() == 
-		     MuBarEnum::ZNeg ? halfL + wireCoord : 
-		     halfL - wireCoord ); */ 
+  float propgL = halfL + wireCoord; // the FE is always located at the neg coord. // FIXME- Ask to Nicola.
+
   float propDelay = propgL/vPropWire;
 
   // Real TOF.
@@ -507,7 +500,7 @@ float DTDigitizer::externalDelays(const DTTopology &topo,
 
   //FIXME what is the analogous in CMSSW?
 
-  double sync; //= theSync->digitizerOffset(&wireId);
+  double sync=0.; //= theSync->digitizerOffset(&wireId);
 
   if (debug) {
     cout << "    propDelay =" << propDelay
@@ -526,7 +519,7 @@ void DTDigitizer::storeDigis(DTDetId &wireId,
 			     DTDetIdMapConstIter &wire,
 			     DTDetIdMapIter end,
 			     TDContainer &hits,
-			     std::auto_ptr<DTDigiCollection> &output){
+			     DTDigiCollection &output){
 			     //DTDigiCollection &output){
 
   //Just for check poi magari lo tolgo
@@ -589,7 +582,7 @@ void DTDigitizer::storeDigis(DTDetId &wireId,
       }
       //FIXME!! 
       //      if(wire==(end-- ) && digis.size()!=0) 
-      if(wire==(end-1) && digis.size()!=0) 
+      if(wire==(end--) && digis.size()!=0) 
 	loadOutput(output,digis,layerID); // ex output.put(digis,layerID);
               
       digiN++;
@@ -599,14 +592,13 @@ void DTDigitizer::storeDigis(DTDetId &wireId,
 
 }
 
-void DTDigitizer::loadOutput(std::auto_ptr<DTDigiCollection> &output,
-			     //DTDigiCollection &output, 
+void DTDigitizer::loadOutput(DTDigiCollection &output,
 			     vector<DTDigi> &digis, DTDetId &layerID){
   
   DTDigiCollection::Range outputRange;
   outputRange.first = digis.begin();
   outputRange.second = digis.end();
-  //  output.put(outputRange,layerID); non funziona ma devo farlo funzionare!!!!
+  output.put(outputRange,layerID); //non funziona ma devo farlo funzionare!!!!
 
   digis.clear();
 }
@@ -649,5 +641,4 @@ void DTDigitizer::dumpHit(const PSimHit * hit,
        << " ; exitSide = " << (int)exitSide << endl;
 
 }
-
 

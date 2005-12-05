@@ -17,7 +17,7 @@
 //
 // Original Author:  Riccardo Bellan
 //         Created:  Fri Nov  4 18:56:35 CET 2005
-// $Id: DTDigitizer.h,v 1.1 2005/11/21 09:44:13 bellan Exp $
+// $Id: DTDigitizer.h,v 1.2 2005/11/30 17:33:33 bellan Exp $
 //
 
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -89,12 +89,9 @@ class DTDigitizer : public edm::EDProducer {
 		  DTDetIdMapConstIter &wire,
 		  DTDetIdMapIter end,
 		  TDContainer &hits,
-		  std::auto_ptr<DTDigiCollection> &output);
+		  DTDigiCollection &output);
 
-		  //DTDigiCollection &output);
-
-  void loadOutput(std::auto_ptr<DTDigiCollection> &output,
-		  // DTDigiCollection &output, 
+  void loadOutput(DTDigiCollection &output,
 		  vector<DTDigi> &digis, DTDetId &layerID);
 
   // Debug output
