@@ -1,7 +1,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: EventStreamOutput.cc,v 1.9 2005/10/28 04:39:31 jbk Exp $
+// $Id: EventStreamOutput.cc,v 1.10 2005/11/11 19:27:25 jbk Exp $
 //
 // Class EventStreamOutput module
 //
@@ -161,6 +161,12 @@ namespace edm
 		 << " " << group->provenance().product.fullClassName_
 		 << " " << group->provenance().product.productID_
 		 << endl;
+
+	    if(group->product()==0)
+	      {
+		throw cms::Exception("Output")
+		  << "The product is null even though it is not supposed to be";
+	      }
 
 	    se.prods_.push_back(
 				ProdPair(group->product(),
