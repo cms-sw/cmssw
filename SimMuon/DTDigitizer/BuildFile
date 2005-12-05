@@ -3,12 +3,17 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/EDProduct>
 <use name=SimDataFormats/TrackingHit>
+<use name=DataFormats/DTDigi>
+<use name=Geometry/CommonTopologies>
+<use name=Geometry/Records>
+<use name=Geometry/DTSimAlgo>
 
-<lib name=GeometryCommonTopologies>
 <use name=CLHEP>
+
 <flags SEAL_PLUGIN_NAME="SimMuonDTDigitizer">
 <export>
-   <lib name=srcDTDigitizer>
+   <lib name=SimMuonDTDigitizer>
+   <use name=DataFormats/DTDigi>	
    <use name=FWCore/Framework>
    <use name=Foundation/PluginManager>
    <use name=FWCore/ParameterSet>
