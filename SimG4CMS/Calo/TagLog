@@ -1,3 +1,6 @@
+** V00-04-04  [Mon Dec  5 18:30:51 2005]
+Move all xml files to data
+
 ** V00-04-03  [Mon Dec  5 13:50:54 2005]
 New methods for EcalNumberingScheme to be used for validation
 
