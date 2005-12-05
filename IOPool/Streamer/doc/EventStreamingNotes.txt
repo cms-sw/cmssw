@@ -135,3 +135,14 @@ The problem appears to stem from a giving class definition in the
 xml file of StreamerData - I've added it now.  The missing class was
 vector<BranchDescription>.
 
+5-12-05 jbk:
+
+Lots of trouble.  Added a bunch of function to go through the reflex
+dictionaries of product registry clases and attempt to "load
+capabilities" and declare the ROOT dictionary.
+
+Most of this was added as a result of trying to find a bug in 
+streaming out SortedCollection.  Turned out to be a bug in ROOT -
+a hard-coded buffer size of 80 characters for a class name.
+
+
