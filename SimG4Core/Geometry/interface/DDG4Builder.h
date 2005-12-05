@@ -1,8 +1,6 @@
 #ifndef SimG4Core_DDG4Builder_h
 #define SimG4Core_DDG4Builder_h
 
-#include "SimG4Core/Notification/interface/DDG4DispContainer.h"
-
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
@@ -29,7 +27,6 @@ public:
     DDG4Builder(const DDCompactView*);  
     ~DDG4Builder(); 
     G4LogicalVolume * BuildGeometry();
-    static DDG4DispContainer * theVectorOfDDG4Dispatchables();
 protected:    
     G4VSolid * convertSolid(const DDSolid & dSolid);    
     G4LogicalVolume * convertLV(const DDLogicalPart & dLogical);  
@@ -43,7 +40,6 @@ protected:
     std::map<DDLogicalPart,G4LogicalVolume*> logs_;
 private:
     DDCompactView* compactView;
-    static DDG4DispContainer * theVectorOfDDG4Dispatchables_;
 };
 
 #endif
