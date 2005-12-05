@@ -28,6 +28,7 @@ namespace edm
   std::auto_ptr<SendJobHeader> readHeaderFromStream(std::ifstream& ist);
   bool registryIsSubset(const SendJobHeader&, const ProductRegistry&);
   void mergeWithRegistry(const SendJobHeader&, ProductRegistry&);
+  void declareStreamers(ProductRegistry& reg);
 
   class JobHeaderDecoder
   {
