@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  * 
- * $Date: 2005/12/02 15:48:25 $
- * $Revision: 1.48 $
+ * $Date: 2005/12/05 09:31:35 $
+ * $Revision: 1.49 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -402,17 +402,20 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
 
     if ( status_ == "unknown" ) {
       begin_run_done_ = false;
+      end_run_done_ = false;
     }
 
     if ( status_ == "begin-of-run" ) {
       if ( ! begin_run_done_ ) {
         this->beginRun(c);
         begin_run_done_ = true;
+        end_run_done_ = false;
       }
     }
 
     if ( status_ == "running" ) {
       begin_run_done_ = false;
+      end_run_done_ = false;
       if ( last_update_ == 0 || updates % 5 == 0 ) {
         if (                                    integrity_client_ ) integrity_client_->analyze(e, c);
         if ( h_ && h_->GetBinContent(2) != 0 && laser_client_ ) laser_client_->analyze(e, c);
@@ -426,7 +429,6 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
     }
 
     if ( status_ == "end-of-run" ) {
-      begin_run_done_ = false;
       if (                                    integrity_client_ ) integrity_client_->analyze(e, c);
       if ( h_ && h_->GetBinContent(2) != 0 && laser_client_ ) laser_client_->analyze(e, c);
       if ( h_ && h_->GetBinContent(2) != 0 && pndiode_client_ ) pndiode_client_->analyze(e, c);
@@ -435,6 +437,7 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
       if ( h_ && h_->GetBinContent(4) != 0 && testpulse_client_ ) testpulse_client_->analyze(e, c);
 
       if ( h_ && h_->GetBinContent(1) != 0 && cosmic_client_ ) cosmic_client_->analyze(e, c);
+      begin_run_done_ = false;
       this->endRun();
       end_run_done_ = true;
     }
