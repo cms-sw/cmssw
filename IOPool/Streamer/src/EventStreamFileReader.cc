@@ -3,6 +3,7 @@
 #include "IOPool/Streamer/interface/BufferArea.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "IOPool/Streamer/interface/ClassFiller.h"
+#include "IOPool/Streamer/interface/Utilities.h"
 
 #include <algorithm>
 #include <iterator>
@@ -27,12 +28,13 @@ namespace edmtestp
 	  << "cannot open file " << filename_;
       }
 
-    loadExtraClasses();
-    getTClass(typeid(SendEvent));
-    getTClass(typeid(SendJobHeader));
-
     std::auto_ptr<SendJobHeader> p = readHeaderFromStream(ist_);
     edm::mergeWithRegistry(*p,productRegistry());
+
+	// jbk - the next line should not be needed
+    // edm::declareStreamers(productRegistry());
+
+    loadExtraClasses();
   }
 
   EventStreamFileReader::~EventStreamFileReader()
