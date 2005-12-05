@@ -58,7 +58,7 @@ void CSCDCCEventData::unpack_data(unsigned short *buf) {
     if (debug)  std::cout << " checking ddu data integrity "<< std::endl;
     if (dduEventData.check()) {
       theDDUData.push_back(dduEventData);
-      buf += dduEventData.size();
+      buf += dduEventData.sizeInWords();
       if (debug) {
 	std::cout << "size of vector of dduDatas = " << theDDUData.size() << std::endl;
 	printf("%04x %04x %04x %04x\n",buf[3],buf[2],buf[1],buf[0]);
