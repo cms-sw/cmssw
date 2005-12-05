@@ -1,6 +1,8 @@
 
 #include "IOPool/Streamer/interface/FragmentInput.h"
 #include "IOPool/Streamer/interface/HLTInfo.h"
+#include "IOPool/Streamer/interface/ClassFiller.h"
+#include "IOPool/Streamer/interface/Utilities.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -20,6 +22,11 @@ namespace stor
   {
     edm::Service<HLTInfo> info;
     info->mergeRegistry(productRegistry());
+
+	// jbk - hopefully the next line is not needed
+    // edm::declareStreamers(productRegistry());
+
+    edm::loadExtraClasses();
   }
 
   FragmentInput::~FragmentInput()
