@@ -139,6 +139,30 @@ namespace edm
     // fillStreamers(*pr_);
   }
 
+  // jbk - hopefully this function is not needed any more. 
+  // I'm leaving it in for debugging - it prints out a lot of
+  // useful information about what classes have dictionaries and
+  // what ones do not.
+
+  void declareStreamers(ProductRegistry& reg)
+  {
+    typedef edm::ProductRegistry::ProductList ProdList; 
+    ProdList plist(reg.productList());
+    ProdList::iterator pi(plist.begin()),pe(plist.end());
+
+    static const string wrapBeg("edm::Wrapper<");
+    static const string wrapEnd1(">");
+    static const string wrapEnd2(" >");
+    
+    for(;pi!=pe;++pi)
+      {
+	//pi->second.init();
+	string real_name(wrapBeg+pi->second.fullClassName_);
+	real_name += *(real_name.rbegin()) == '>' ? wrapEnd2:wrapEnd1;
+	FDEBUG(6) << "declare: " << real_name << endl;
+	edm::loadCap(real_name);
+      }    
+  }
   
   // ---------------------------------------
 
@@ -176,7 +200,7 @@ namespace edm
 	  << "got a null event from input stream\n";
       }
 
-    FDEBUG(5) << "Got event: " << sd->id_ << endl;
+    FDEBUG(5) << "Got event: " << sd->id_ << " " << sd->prods_.size() << endl;
 
     auto_ptr<EventPrincipal> ep(new EventPrincipal(sd->id_,
 						   sd->time_,
@@ -190,8 +214,6 @@ namespace edm
 	FDEBUG(10) << "check prodpair" << endl;
 	if(spi->prov()==0)
 	  throw cms::Exception("NoData","EmptyProvenance");
-	if(spi->prod()==0)
-	  throw cms::Exception("NoData","EmptyProduct");
 	if(spi->desc()==0)
 	  throw cms::Exception("NoData","EmptyDesc");
 
@@ -201,6 +223,13 @@ namespace edm
 	     << " " << spi->desc()->productID_
 	     << " " << spi->prov()->productID_
 	     << endl;
+
+	if(spi->prod()==0)
+	  {
+	    FDEBUG(10) << "Product is null" << endl;
+	    continue;
+	    throw cms::Exception("NoData","EmptyProduct");
+	  }
 
 	auto_ptr<EDProduct> 
 	  aprod(const_cast<EDProduct*>(spi->prod()));

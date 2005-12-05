@@ -50,8 +50,9 @@ namespace {
 
 
   // ---------------------
-  void fillChildren(pool::IClassLoader* cl, seal::reflex::Type cc)
+  void fillChildren(pool::IClassLoader* cl, seal::reflex::Type cc, int rcnt)
   {
+    rcnt--;
     FDEBUG(9) << "JBK: parent - " << getName(cc) << endl;
 
     while(cc.isPointer() == true || cc.isArray() == true)
@@ -63,41 +64,43 @@ namespace {
     if(cc.isFundamental()) return;
 
     // this probably need to be corrected also (JBK)
-    if(getName(cc) == "std::basic_string<char>")
+    if(getName(cc).find("std::basic_string<char>")==0 ||
+       getName(cc).find("basic_string<char>")==0)
       {
 	static bool has_printed = false;
 	if(has_printed == false)
 	  {
-	    //cerr << "Dictionary generation: "
-	    // << "do not know how to deal with " << cc->fullName()
-	    // << endl;
+	    FDEBUG(6) << "JBK: leaving " << getName(cc) << " alone\n";
 	    has_printed = true;
 	  }
 	return;
       }
 
-    if(cc.isTemplateInstance())
+    if(rcnt)
       {
-	FDEBUG(9) << "JBK: Got template instance " << getName(cc) << endl;
-	int cnt = cc.templateArgumentCount();
+	if(cc.isTemplateInstance())
+	  {
+	    FDEBUG(9) << "JBK: Got template instance " << getName(cc) << endl;
+	    int cnt = cc.templateArgumentCount();
+	    for(int i=0;i<cnt;++i)
+	      {
+		seal::reflex::Type t = cc.templateArgument(i);
+		fillChildren(cl,t,rcnt);
+	      }
+	  }
+
+	FDEBUG(9) << "JBK: declare members " << getName(cc) << endl;
+
+	int cnt = cc.memberCount();
 	for(int i=0;i<cnt;++i)
 	  {
-	    seal::reflex::Type t = cc.templateArgument(i);
-	    fillChildren(cl,t);
+	    seal::reflex::Member m = cc.member(i);
+	    if(m.isTransient() || m.isStatic()) continue;
+	    if(!m.isDataMember()) continue;
+
+	    seal::reflex::Type t = m.type();
+	    fillChildren(cl,t,rcnt);
 	  }
-      }
-
-    FDEBUG(9) << "JBK: declare members " << getName(cc) << endl;
-
-    int cnt = cc.memberCount();
-    for(int i=0;i<cnt;++i)
-      {
-	seal::reflex::Member m = cc.member(i);
-	if(m.isTransient() || m.isStatic()) continue;
-	if(!m.isDataMember()) continue;
-
-	seal::reflex::Type t = m.type();
-	fillChildren(cl,t);
       }
 	    
     FDEBUG(9) << "JBK: after field loop " << getName(cc) << endl;
@@ -119,7 +122,25 @@ namespace {
       }
 
     FDEBUG(9) << "JBK: parent complete loadClass - " << getName(cc) << endl;
+    if(ttest->GetClassInfo()==0)
+      {
+	FDEBUG(8) << "JBK: " << getName(cc) << " has no class info!\n";
+      }
+    if(ttest->GetStreamerInfo(1)==0)
+      {
+	FDEBUG(8) << "JBK: " << getName(cc)
+		  << " has no streamer info version 1!\n";
+      }
+#if 0
+    else
+      ttest->GetStreamerInfo(1)->ls();
 
+    if(ttest->GetStreamer()==0)
+      {
+	FDEBUG(8) << "JBK: " << getName(cc)
+		  << " has no streamer!\n";
+      }
+#endif
   }
 
 }
@@ -127,7 +148,8 @@ namespace {
 
 namespace edm {
 
-  static void loadCap(const std::string& name,bool do_children) {
+  void loadCap(const std::string& name,bool do_children)
+  {
     std::string fname("LCGReflex/");
     fname += name;
     FDEBUG(1) << "attempting to load cap for: " << fname << endl;
@@ -138,11 +160,11 @@ namespace edm {
 
       // next two lines are for explicitly causing every object to get defined
       pool::IClassLoader* cl = getClassLoader();
-	  if(do_children)
-         fillChildren(cl,cc);
+      fillChildren(cl,cc,do_children==true?10000:1);
     } 
     catch(...) {
-      std::cerr << "Error: could not find Class object for " << name << std::endl;
+      std::cerr << "Error: could not find Class object for "
+		<< name << std::endl;
       return;
     }
   }
@@ -151,14 +173,16 @@ namespace edm {
 
   void loadExtraClasses(bool do_children) {
     static bool done = false;
-	if(done==true) return;
-	done=true;
-    loadCap(std::string("edm::ProdPair"),do_children);
-    loadCap(std::string("edm::SendProds"),do_children);
-    loadCap(std::string("edm::SendEvent"),do_children);
-    loadCap(std::string("edm::SendDescs"),do_children);
-    loadCap(std::string("edm::SendJobHeader"),do_children);
+    if(done==false)
+      {
+	loadCap(std::string("edm::ProdPair"),do_children);
+	loadCap(std::string("edm::SendProds"),do_children);
+	loadCap(std::string("edm::SendEvent"),do_children);
+	loadCap(std::string("edm::SendDescs"),do_children);
+	loadCap(std::string("edm::SendJobHeader"),do_children);
+      }
     ClassFiller();
+    done=true;
   }
 
   namespace {

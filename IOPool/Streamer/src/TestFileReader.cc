@@ -2,6 +2,7 @@
 #include "IOPool/Streamer/interface/TestFileReader.h"
 #include "IOPool/Streamer/interface/BufferArea.h"
 #include "IOPool/Streamer/interface/HLTInfo.h"
+#include "IOPool/Streamer/interface/ClassFiller.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "boost/bind.hpp"
