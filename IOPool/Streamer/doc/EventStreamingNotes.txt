@@ -145,4 +145,17 @@ Most of this was added as a result of trying to find a bug in
 streaming out SortedCollection.  Turned out to be a bug in ROOT -
 a hard-coded buffer size of 80 characters for a class name.
 
+This package is in need of a major cleanup:
+ * it is not clear where and in what order the functions in 
+   Utility and ClassFiller need to be called.
+ * an index of functions and descriptions is needed.
+ * the messages and handling function need a second revision to
+   remove redundancy.
+ * instructions are needed to explain the concepts.
+ * the names of many things are poorly chosen.
+ * The "EventBuffer" use needs to be converted over to use the
+   "SingleServerQueue" in the fwcore utilities area
+ * any shared functions between the various clients of the classfiller
+   and loadextraclasses need to be clearly identified and shared 
+   properly.
 
