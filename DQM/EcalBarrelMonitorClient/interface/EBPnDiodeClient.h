@@ -4,8 +4,8 @@
 /*
  * \file EBPnDiodeClient.h
  *
- * $Date: 2005/12/01 09:37:12 $
- * $Revision: 1.2 $
+ * $Date: 2005/12/01 15:11:42 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -94,10 +94,10 @@ CollateMonitorElement* me_h02_[36];
 CollateMonitorElement* me_h03_[36];
 CollateMonitorElement* me_h04_[36];
 
-TProfile* h01_[36];
-TProfile* h02_[36];
-TProfile* h03_[36];
-TProfile* h04_[36];
+TProfile2D* h01_[36];
+TProfile2D* h02_[36];
+TProfile2D* h03_[36];
+TProfile2D* h04_[36];
 
 };
 
