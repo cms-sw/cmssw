@@ -153,6 +153,7 @@ void RunManager::initG4(const edm::EventSetup & es)
     const DDDWorld * world = new DDDWorld(&(*pDD));
     m_registry.dddWorldSignal_(world);
 
+    /*
     edm::ESHandle<MagneticField> pMF;
     es.get<IdealMagneticFieldRecord>().get(pMF);
     const GlobalPoint g(0.,0.,0.);
@@ -169,7 +170,8 @@ void RunManager::initG4(const edm::EventSetup & es)
                                    tM->GetFieldManager(),tM->GetPropagatorInField());
         fieldIsInitialized = true;
     }
- 
+    */
+
     //we need the track manager now
     m_trackManager = std::auto_ptr<SimTrackManager>(new SimTrackManager);
 
