@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2005/11/24 13:24:42 $
- * $Revision: 1.17 $
+ * $Date: 2005/12/01 09:50:06 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -118,7 +118,8 @@ string status_;
 int run_;
 int evt_;
 
-bool init_run_done_;
+bool begin_run_done_;
+bool end_run_done_;
 
 string baseHtmlDir_;
 

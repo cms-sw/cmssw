@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  * 
- * $Date: 2005/12/01 15:11:42 $
- * $Revision: 1.11 $
+ * $Date: 2005/12/02 15:48:25 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -127,12 +127,9 @@ void EBCosmicClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* 
 
             cout << "Inserting dataset for SM=" << ism << endl;
 
-            cout << "Sel (" << ie << "," << ip << ") " << num01  << " "
-                                                       << mean01 << " "
-                                                       << rms01  << endl;
-            cout << "Cut (" << ie << "," << ip << ") " << num02  << " "
-                                                       << mean02 << " "
-                                                       << rms02  << endl;
+            cout << "Sel (" << ie << "," << ip << ") " << num01  << " " << mean01 << " " << rms01  << endl;
+            cout << "Cut (" << ie << "," << ip << ") " << num02  << " " << mean02 << " " << rms02  << endl;
+
           }
 
 //          p.setPedMeanG12(mean03);
@@ -343,16 +340,16 @@ void EBCosmicClient::htmlOutput(int run, string htmlDir, string htmlName){
       
       for ( int iCanvas = 1; iCanvas <= 2; iCanvas++ ) {
 
-        TProfile2D* obj2f = 0;
+        TProfile2D* objp = 0;
       
         switch ( iCanvas ) {
         case 1:
           meName = h01_[ism-1]->GetName();
-          obj2f = h01_[ism-1];
+          objp = h01_[ism-1];
           break;
         case 2:
           meName = h02_[ism-1]->GetName();
-          obj2f = h02_[ism-1];
+          objp = h02_[ism-1];
           break;
         default:
           break;
@@ -368,13 +365,13 @@ void EBCosmicClient::htmlOutput(int run, string htmlDir, string htmlName){
         imgName = htmlDir + imgNameME[iCanvas-1];
         gStyle->SetOptStat(" ");
         gStyle->SetPalette( 10, pCol4 );
-        obj2f->GetXaxis()->SetNdivisions(17);
-        obj2f->GetYaxis()->SetNdivisions(4);
+        objp->GetXaxis()->SetNdivisions(17);
+        objp->GetYaxis()->SetNdivisions(4);
         cMe->SetGridx();
         cMe->SetGridy();
-//        obj2f->SetMinimum(-0.00000001);
-        obj2f->SetMaximum();
-        obj2f->Draw("colz");
+//        objp->SetMinimum(-0.00000001);
+        objp->SetMaximum();
+        objp->Draw("colz");
         dummy.Draw("text,same");
         cMe->Update();
         cMe->SaveAs(imgName.c_str());

@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  * 
- * $Date: 2005/12/01 13:49:51 $
- * $Revision: 1.31 $
+ * $Date: 2005/12/02 15:48:25 $
+ * $Revision: 1.32 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -205,15 +205,9 @@ void EBPedestalClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag
 
             cout << "Inserting dataset for SM=" << ism << endl;
 
-            cout << "G01 (" << ie << "," << ip << ") " << num01  << " "
-                 << mean01 << " "
-                 << rms01  << endl;
-            cout << "G06 (" << ie << "," << ip << ") " << num02  << " "
-                 << mean02 << " "
-                 << rms02  << endl;
-            cout << "G12 (" << ie << "," << ip << ") " << num03  << " "
-                 << mean03 << " "
-                 << rms03  << endl;
+            cout << "G01 (" << ie << "," << ip << ") " << num01  << " " << mean01 << " " << rms01  << endl;
+            cout << "G06 (" << ie << "," << ip << ") " << num02  << " " << mean02 << " " << rms02  << endl;
+            cout << "G12 (" << ie << "," << ip << ") " << num03  << " " << mean03 << " " << rms03  << endl;
 
           }
 

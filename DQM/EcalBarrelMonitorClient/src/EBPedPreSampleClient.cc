@@ -1,8 +1,8 @@
 /*
  * \file EBPedPreSampleClient.cc
  * 
- * $Date: 2005/12/01 13:49:51 $
- * $Revision: 1.37 $
+ * $Date: 2005/12/02 15:48:25 $
+ * $Revision: 1.38 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -147,9 +147,7 @@ void EBPedPreSampleClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, Ru
 
             cout << "Inserting dataset for SM=" << ism << endl;
 
-            cout << "G12 (" << ie << "," << ip << ") " << num03  << " "
-                                                       << mean03 << " "
-                                                       << rms03  << endl;
+            cout << "G12 (" << ie << "," << ip << ") " << num03  << " " << mean03 << " " << rms03  << endl;
           }
 
 //          p.setPedMeanG12(mean03);

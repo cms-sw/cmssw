@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  * 
- * $Date: 2005/12/01 13:49:51 $
- * $Revision: 1.34 $
+ * $Date: 2005/12/02 15:48:25 $
+ * $Revision: 1.35 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -44,13 +44,6 @@ EBTestPulseClient::EBTestPulseClient(const edm::ParameterSet& ps, MonitorUserInt
     sprintf(histo, "EBPT test pulse amplitude G12 SM%02d", i+1);
     a03_[i] = new TH1F(histo, histo, 1700, 0., 1700.);
 
-    sprintf(histo, "EBPT test pulse shape G01 SM%02d", i+1);
-    s01_[i] = new TH1D(histo, histo, 10, 0., 10.);
-    sprintf(histo, "EBPT test pulse shape G06 SM%02d", i+1);
-    s02_[i] = new TH1D(histo, histo, 10, 0., 10.);
-    sprintf(histo, "EBPT test pulse shape G12 SM%02d", i+1);
-    s03_[i] = new TH1D(histo, histo, 10, 0., 10.);
-
   }
 
   amplitudeThreshold_ = 0.4;
@@ -82,10 +75,6 @@ EBTestPulseClient::~EBTestPulseClient(){
     delete a01_[i];
     delete a02_[i];
     delete a03_[i];
-
-    delete s01_[i];
-    delete s02_[i];
-    delete s03_[i];
 
   }
 
@@ -147,10 +136,6 @@ void EBTestPulseClient::beginRun(const edm::EventSetup& c){
     a01_[i]->Reset();
     a02_[i]->Reset();
     a03_[i]->Reset();
-
-    s01_[i]->Reset();
-    s02_[i]->Reset();
-    s03_[i]->Reset();
 
   }
 
@@ -256,11 +241,8 @@ void EBTestPulseClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
           if ( ie == 1 && ip == 1 ) {
 
             cout << "Inserting dataset for SM=" << ism << endl;
-
             cout << "G01 (" << ie << "," << ip << ") " << num01 << " " << mean01 << " " << rms01 << endl;
-
             cout << "G06 (" << ie << "," << ip << ") " << num02 << " " << mean02 << " " << rms02 << endl;
-
             cout << "G12 (" << ie << "," << ip << ") " << num03 << " " << mean03 << " " << rms03 << endl;
 
           }
@@ -277,7 +259,7 @@ void EBTestPulseClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
             if ( rms01 > RMSThreshold_ )
               val = 0.;
             if ( he01_[ism-1] ) {
-              float errorRate = (float) (he01_[ism-1]->GetBinContent(he01_[ism-1]->GetBin(ie, ip)) / numEventsinCry[1]) ;
+              float errorRate = he01_[ism-1]->GetBinContent(he01_[ism-1]->GetBin(ie, ip)) / numEventsinCry[1];
               if ( errorRate > threshold_on_AmplitudeErrorsNumber_ ) val = 0.;
             }
             g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), val);
@@ -288,8 +270,6 @@ void EBTestPulseClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
             a01_[ism-1]->SetBinError(ip+20*(ie-1), rms01);
           }
           
-          if ( hs01_[ism-1] && s01_[ism-1] ) s01_[ism-1] = hs01_[ism-1]->ProjectionY("_py", 1, 10, "e");
-
           // adc.setADCMean(mean02);
           // adc.setADCRMS(rms02);
 
@@ -300,7 +280,7 @@ void EBTestPulseClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
             if ( rms02 > RMSThreshold_ )
               val = 0.;
             if ( he02_[ism-1] ) {
-              float errorRate = (float) (he02_[ism-1]->GetBinContent(he02_[ism-1]->GetBin(ie, ip)) / numEventsinCry[2]) ;
+              float errorRate = he02_[ism-1]->GetBinContent(he02_[ism-1]->GetBin(ie, ip)) / numEventsinCry[2];
               if ( errorRate > threshold_on_AmplitudeErrorsNumber_ ) val = 0.;
             }
             g02_[ism-1]->SetBinContent(g02_[ism-1]->GetBin(ie, ip), val);
@@ -311,8 +291,6 @@ void EBTestPulseClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
             a02_[ism-1]->SetBinError(ip+20*(ie-1), rms02);
           }
           
-          if ( hs02_[ism-1] && s02_[ism-1] ) s02_[ism-1] = hs02_[ism-1]->ProjectionY("_py", 1, 10, "e");
-
           // adc.setADCMean(mean03);
           // adc.setADCRMS(rms03);
 
@@ -323,7 +301,7 @@ void EBTestPulseClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
             if ( rms03 > RMSThreshold_ )
               val = 0.;
             if ( he03_[ism-1] ) {
-              float errorRate = (float) (he03_[ism-1]->GetBinContent(he03_[ism-1]->GetBin(ie, ip)) / numEventsinCry[3]) ;
+              float errorRate = he03_[ism-1]->GetBinContent(he03_[ism-1]->GetBin(ie, ip)) / numEventsinCry[3];
               if ( errorRate > threshold_on_AmplitudeErrorsNumber_ ) val = 0.;
             }
             g03_[ism-1]->SetBinContent(g03_[ism-1]->GetBin(ie, ip), val);
@@ -334,8 +312,6 @@ void EBTestPulseClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
             a03_[ism-1]->SetBinError(ip+20*(ie-1), rms03);
           }
           
-          if ( hs03_[ism-1] && s03_[ism-1] ) s03_[ism-1] = hs03_[ism-1]->ProjectionY("_py", 1, 10, "e");
-
           adc.setTaskStatus(1);
 
           if ( ie == 1 && ip == 1 ) {
@@ -377,7 +353,8 @@ void EBTestPulseClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
             cout << endl;
 
             shape.setSamples(sample01);
-            
+//            shape.setSamples(sample02);
+//            shape.setSamples(sample03);
 
             if ( econn ) {
               try {
@@ -710,9 +687,9 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   for ( int ism = 1 ; ism <= 36 ; ism++ ) {
     
-    if ( g01_[ism-1] && g02_[ism-1] && g03_[ism-1] &&
-         a01_[ism-1] && a02_[ism-1] && a03_[ism-1] &&
-         s01_[ism-1] && s02_[ism-1] && s03_[ism-1] ) {
+    if (  g01_[ism-1] &&  g02_[ism-1] &&  g03_[ism-1] &&
+          a01_[ism-1] &&  a02_[ism-1] &&  a03_[ism-1] &&
+         hs01_[ism-1] && hs02_[ism-1] && hs03_[ism-1] ) {
 
       // Loop on gains
 
@@ -814,16 +791,16 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
 
         switch ( iCanvas ) {
           case 1:
-            meName = s01_[ism-1]->GetName();
-            obj1d = s01_[ism-1];
+            meName = hs01_[ism-1]->GetName();
+            obj1d = hs01_[ism-1]->ProjectionY("_py", 1, 10, "e");
             break;
           case 2:
-            meName = s02_[ism-1]->GetName();
-            obj1d = s02_[ism-1];
+            meName = hs02_[ism-1]->GetName();
+            obj1d = hs02_[ism-1]->ProjectionY("_py", 1, 10, "e");
             break;
           case 3:
-            meName = s03_[ism-1]->GetName();
-            obj1d = s03_[ism-1];
+            meName = hs03_[ism-1]->GetName();
+            obj1d = hs03_[ism-1]->ProjectionY("_py", 1, 10, "e");
             break;
           default:
             break;
@@ -854,7 +831,8 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
         cShape->SaveAs(imgName.c_str());
         gPad->SetLogy(0);
         delete cShape;
-        
+
+        delete obj1d; 
       }
 
       htmlFile << "<h3><strong>Supermodule&nbsp;&nbsp;" << ism << "</strong></h3>" << endl;

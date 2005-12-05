@@ -4,8 +4,8 @@
 /*
  * \file EBTestPulseClient.h
  *
- * $Date: 2005/11/23 13:36:21 $
- * $Revision: 1.8 $
+ * $Date: 2005/12/01 13:49:51 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -121,10 +121,6 @@ TH2F* g03_[36];
 TH1F* a01_[36];
 TH1F* a02_[36];
 TH1F* a03_[36];
-
-TH1D* s01_[36];
-TH1D* s02_[36];
-TH1D* s03_[36];
 
 // Quality check on crystals, one per each gain
 
