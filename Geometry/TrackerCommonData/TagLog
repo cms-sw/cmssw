@@ -1,3 +1,6 @@
+** V00-03-00  [Mon Dec  5 20:21:49 2005]
+Move all xml files to data
+
 ** V00-02-06  [Wed Nov 30 10:27:14 2005]
 change to use the FileInPath
 
