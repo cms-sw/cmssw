@@ -1,3 +1,6 @@
+** V00-02-03  [Mon Dec  5 18:33:51 2005]
+Move all xml files to data
+
 ** V00-02-02  [Mon Nov 28 09:26:57 2005]
 Introduce CaloTrkProcessing as a SD
 
