@@ -1,3 +1,6 @@
+** V00-04-03  [Mon Dec  5 13:50:54 2005]
+New methods for EcalNumberingScheme to be used for validation
+
 ** V00-04-02  [Sun Dec  4 15:50:09 2005]
 Move updating track number after getting EndOfEvent Signal
 
