@@ -4,7 +4,8 @@
 PhysicsList::PhysicsList(const edm::ParameterSet & p) 
     : G4VModularPhysicsList(), m_pPhysics(p) 
 {
-    prodCuts = new DDG4ProductionCuts();	
+    //if (m_pPhysics.getParameter<bool>("CutsPerRegion")) 
+      // prodCuts = new DDG4ProductionCuts();	
 }
  
 PhysicsList::~PhysicsList() 
@@ -18,6 +19,11 @@ void PhysicsList::SetCuts()
     {	 
        SetDefaultCutValue(m_pPhysics.getParameter<double>("DefaultCutValue")*cm);
        SetCutsWithDefault();
+    }
+    else
+    {
+       DDG4ProductionCuts prodCuts;
+       prodCuts.update();
     }
     if (m_pPhysics.getParameter<int>("Verbosity") > 1) 
 	G4VUserPhysicsList::DumpCutValuesTable();

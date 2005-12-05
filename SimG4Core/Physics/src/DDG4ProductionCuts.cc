@@ -44,7 +44,8 @@ bool dd_is_greater(const std::pair<G4LogicalVolume*, DDLogicalPart> & p1,
     return result;
 }		   
 
-void DDG4ProductionCuts::update(const DDDWorld * d){
+void DDG4ProductionCuts::update()
+{
     //
     // Now we can operate, loop over the Map by Martin ...
     //
@@ -76,9 +77,6 @@ void DDG4ProductionCuts::update(const DDDWorld * d){
 	 tit != vec.end(); tit++){
 	SetProdCuts((*tit).second,(*tit).first);
     }
-#ifdef DEBUG
-    // dump_debug();
-#endif
 }
 
 void DDG4ProductionCuts::SetProdCuts( const DDLogicalPart lpart, G4LogicalVolume* lvol )
