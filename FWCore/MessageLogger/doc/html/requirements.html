@@ -15,18 +15,24 @@ Open Issues Concerning Features Wanted by CMS</h1>
 </center>
 <ul>
 <li> <a href=#multipleID> Multiple Message IDs </a>
+<li> <a href=#log4cplus> Destination Reporting to log4cplus </a>
+<li> <a href=#statistics> Statistics Destination </a>
+<li> <a href=#filtering> Other Filtering Options </a>
+<li> <a href=#context> Context (e.g., event number) in Messages </a>
+<li> <a href=#endl> Support For Use Of endl in Messages </a>
+<li> <a href=#messageobj> Multi-statement Building of Message Objects </a>
+<li> <a href=#control> Post-configuration Control of Logging Behavior </a>
 </ul>
+
 <hr>
 <a name=#multipleID></a>
 <h2>Multiple Message IDs </h2>
 
 <h3> The requirement </h3>
-<ul>
 A message can be issued  with multiple ID's, as in 
 <pre>
   edm::LogWarning(tracking|overflow) << "some more text";
 </pre>
-</ul>
 
 This is to be treated as both an ID=tracking message, and an ID=overflow
 message.
@@ -80,6 +86,320 @@ example, in the limit maps and statistics maps) it is exactly as before.
 This is non-trivial, as the messageID penetrates much of the package, but 
 as long as the behavior to shoot for is well-defined, this appears to be a
 solvable task.
+
+<hr>
+<a name=#log4cplus></a>
+<h2>Destination Reporting to log4cplus  </h2>
+
+<h3> The requirement </h3>
+
+We need a destination which, rather than sending to a file or ostream,
+delivers the header and text of the message to the CMS log4cplus facility.
+
+<h3> Questions </h3>
+
+What do we do to use log4cplus, and what options does it have:
+<ul>
+<li> Should we have a default destination of log4cplus, so that the user gets it
+even without mention in the .cfg file?
+<li> Is it mature enough to just use, or do we check out the package (and
+if so, can we make needed tweaks)?
+<li> What choices (if any) should we make if there are options in how to use
+log4cplus?
+<li> Are there any options which we should leave to the user via the .cfg file?
+</ul>
+
+
+<h3> Proposed treatment </h3>
+
+<ul>
+<li>
+We create a ELlog4cplus destination class which reports to log4cplus.
+This is similar to ELoutput, but probably formats the header and remainder
+of the message separately.
+<li>
+We attach an ELlog4cplus destination always.
+<li>
+We provide a special named destination parameter "log4cplus" by which a user
+can control filtering of messages to that destination.
+<li>
+We are told by CMS which log4cplus options to use, and we do not provide 
+further flexibility from the .cfg file for the user changing those options.
+</ul>
+   
+<h3> Work consequences </h3>
+
+There are three potentially significant areas of work:
+<ol>
+<li> Understanding how to use log4cplus may be easy (especially if the
+product is mature and well documented) or arbitrarily hard.  We can give no
+estimate on how long this will take until we try it out.
+<li> Creating the ELlog4cplus destination will be some non-trivial but
+fixed amount of semi-routine work, since it is done with some knowlege of 
+how ELoutput works.
+<li> Providing the parameters to control flexibility will take about half a day
+per parameter, once we know what sort of .cfg control (if any) is needed by CMS.
+</ol>
+
+<hr>
+<a name=#statistics></a>
+<h2>Statistics Destination </h2>
+
+<h3> The requirement </h3>
+
+The ErrorLogger has anice ELstatistics destination for summarizing 
+the messages.
+<p>
+We need a way for MessageLogger service users to to specify a 
+statistics destination.
+
+<h3> Questions </h3>
+
+<ul>
+<li> Should we let the .cfg file specify where statistics are to be sent,
+or have some default destination?
+<li> What should trigger the reporting of statistics?  (For example, it could
+be part of the end-of-job or end-of-run activity of the MessageLogger
+service.)
+<li> How should we obtain the "short context" to report the contexts of the
+first two and last one of each type of message -- or should we punt that 
+feature?
+</ul>
+
+
+<h3> Proposed treatment </h3>
+
+<ul>
+<li>
+We treat the statistics destinations analagously to the output destinations,
+allowing the user to provide a list.  This allows the user to control those
+features of the statistics destinations (including threshold and output control)
+which are needed.
+<li>
+By default, we create a single statistics destination sending its output to 
+the first of the output destinations (or to the log4cplus destination).
+<li>
+The issue of context is solvable (we can obtain the event number, for example)
+but it is an open issue as to how we would do this.  For a start, we could 
+disable the noting of contexts.
+</ul>
+   
+<h3> Work consequences </h3>
+
+Other than the context issue, we can probably set up statistics in a day.
+
+
+<hr>
+<a name=#filtering></a>
+<h2>Other Filtering Options  </h2>
+
+<h3> The requirement </h3>
+The ErrorLogger package supplies 
+other ways to specify limits and thresholds on which messages a destination will 
+report.  For instance, one can set a limit for all message IDs <em>except</em>
+a specified type.
+The MessageLogger service might benefit from enabling some of these further 
+options via the configuration file.
+<p>
+<em>This requirement may or may not finally be requested.</em>
+
+
+<h3> Questions </h3>
+
+<ul>
+<li> Do we want exclusion limits?
+<li> Do we want rapid-discard thresholds?
+<li> Other flexibility (see the 
+<a href=
+"www.fnal.gov/docs/working-groups/fpcltf/Pkg/ErrorLogger/doc/html/0ErrorLogger.html">
+ZOOM ErrorLogger</a> documentation for possibilities)?
+</ul>
+
+<h3> Proposed treatment </h3>
+Additional parameters in the .cfg file, either destination-specific lines
+within the destination PSet, or general lines within the service=MessageLogger
+PSet.
+   
+<h3> Work consequences </h3>
+
+Requires no modifications to the ErrorLogger package.  
+However, each degree of flexibility will require code in MessageLoggerScribe
+to understand the parameter and issue appropriate calls to the ErrorLogger.
+Also, each feature requires CMS MessageLogger service documentation (otherwise 
+it is next to useless).  The total time to enable a feature is about half a day.
+
+
+<hr>
+<a name=#context></a>
+<h2>Context (e.g., event number) in Messages </a>
+</ul>  </h2>
+
+<h3> The requirement </h3>
+
+The ErrorLogger package supplies 
+ways to automatically append context information to messages.  The intent
+is to indicate event/run numbers without the message issuer having to think 
+about it.  Perhaps the MessageLogger service should support this. 
+<p>
+<em>This requirement may or may not finally be requested.</em>
+
+
+<h3> Questions </h3>
+
+What should we use as the context?
+<ul>
+<li> How do we obtain the context (error number or whatever)?
+<li> Is there a useful abbreviated form?
+<li> Does getting the context take too much time?
+</ul>
+
+<h3> Proposed treatment </h3>
+
+We find out how to get context from an existing EDM service, and write a 
+context supplier (in the ErrorLogger sense) to do so).  We propose that the
+format of the context not be user configurable.
+   
+<h3> Work consequences </h3>
+
+Requires no modifications to the ErrorLogger package.  
+Writing the context supplier is likely to take less than a day, assuming the
+info is available from the EDM.
+
+
+<hr>
+<a name=endl></a>
+<h2>Support For Use Of endl in Messages </a>
+</ul>  </h2>
+
+<h3> The requirement </h3>
+
+Users are used to using std::endl as a line terminator.
+The use of \n is already supported for this, but it might be
+desirable to also support endl.
+<p>
+<em>This requirement may or may not finally be requested.</em>
+
+
+<h3> Questions </h3>
+
+Is endl any different in effect than \n?
+
+<h3> Proposed treatment </h3>
+
+The ErrorLogger package implementers originally attempted use std::endl 
+as a message terminator.
+This led to technical difficulties we could not, at that time, surmount
+(thus the introduction of the errmsg manipulator.
+<p>
+Jim Kowalkowski and Marc Paterno claim they know how to do this without 
+those difficulties.  If so, we will adapt that technique, treating endl as
+a "force line termination" directive (as opposed to a message terminator).
+<p>
+If this is not easy, we should not do it, as the gain is slight.   
+<h3> Work consequences </h3>
+
+Requires learning how to handle endl, and implementing that in ELoutput
+and other destinations.  The danger is that the problem issues may be subtle, in
+which case it is best to abandon the idea.
+
+<hr>
+<a name=messageobj></a>
+<h2>Multi-statement Building of Message Objects </a>
+</ul>  </h2>
+
+<h3> The requirement </h3>
+
+In the ErrorLogger package, the user can gradually build an ErrorObj containing
+th message, and later dispatch it ot the logger.  A similar capability
+might be desirable in the MessageLogger service.
+
+<p>
+<em>This requirement may or may not finally be requested.</em>
+
+
+<h3> Questions </h3>
+<ul>
+<li>
+What is the best way do instantiate the object?
+<li>
+How should the message be fired off to the log? 
+</ul>
+<h3> Proposed treatment </h3>
+
+The ErrorOjb in the ErrorLogger package already has its severity and ID imbedded
+upon construction, and we propose to do the same here.  
+We would provide 3 classes (the Debug form has complications we choose not to
+deal with:  InfoMessage, WarningMessage, and ErrorMessage.  The ctor would take
+the message ID.
+<p>
+The user community would probably vote for some sort of send() member function
+or special endmsg manipulator to indicate that the message is to be dispatched,
+but this leaves around a dangerously already-sent message object.  The correct
+idiom is to dispatch the message when the object is destructed.  The user code
+should look like:
+<pre>
+  if ( problem_is_detected ) {
+    WarningMessage warn ("thistypeoftrouble");
+    warn << "information is";
+    while (there_is_more_information) {
+      warn << get_a_piece_of_information(); 
+    }
+  } // here warn goes out of scope and the message is dispatched
+</pre>
+
+<h3> Work consequences </h3>
+
+This would be straightforward since no ErrorLogger code need be modified.  
+Including documentation it should take a couple of days.
+
+
+<hr>
+<a name=control></a>
+<h2>Post-configuration Control of Logging Behavior </a>
+</ul>  </h2>
+
+<h3> The requirement </h3>
+
+The current service allows control of the behavior of destinations (filtering
+and thresholds) and the overall logger, only via job-start configuration 
+parameters found in the .cfg file.
+We could also support modification of these choices under programmatic control.
+<p>
+<em>This requirement may or may not finally be requested.</em>
+
+
+<h3> Questions </h3>
+<ul>
+<li>
+What degree of control should we support?
+<li>
+What is the syntax of the code controlling logging behavior?
+</ul>
+
+<h3> Proposed treatment </h3>
+
+We immediately step onto a slippery slope (more like, step off a steep cliff)
+when we open up the idea of runtime control of these options.  
+Developing an interface for this control would take weeks at the least, and 
+there would inevitably be arguments over all the equally-good ways of expressing 
+the desired behavior.
+<p>
+The only sensible answers are to provide no post-configuration control at all,
+or to provide everything in the ErrorLogger package.  In the latter case, the
+capability is provided by having the service provide points or references to
+the actual ErrorLogger package objects, such as ELadministrator and the various
+ELdestControl handles.  The user would need to look in the ErrorLogger package
+documentation for how to use these.
+
+<h3> Work consequences </h3>
+
+If we can stick to our guns about just providing handles to raw ErrorLogger 
+objects, this should not be too hard.  There may be a bit of work in developing
+an interface to get the ELdestControl for a given destination, but we
+probably already have the structures in placve for that.
+<p>
+If we need to develop a separate CMS-approved interface for post-configuration 
+adjustment of behavior, this will be a hopeless and endless task.
 
 <p><center>
 <img src="bar.gif"></center>

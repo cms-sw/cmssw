@@ -1,7 +1,14 @@
-#include "FWCore/MessageLogger/interface/MessageLoggerScribe.h"
-#include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
+// ----------------------------------------------------------------------
+//
+// MessageLoggerScribe.cc
+//
+// ----------------------------------------------------------------------
+
+
 #include "FWCore/MessageLogger/interface/ELoutput.h"
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
+#include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
+#include "FWCore/MessageLogger/interface/MessageLoggerScribe.h"
 
 #include <cassert>
 #include <fstream>
@@ -38,10 +45,10 @@ void
 
   bool  done = false;
   do  {
-    MessageLoggerQ::consume(opcode, operand);
-    switch(opcode)  {
+    MessageLoggerQ::consume(opcode, operand);  // grab next work item from Q
+    switch(opcode)  {  // interpret the work item
       default:  {
-        assert(false);
+        assert(false);  // can't happen (we certainly hope!)
         break;
       }
       case MessageLoggerQ::END_THREAD:  {
@@ -68,6 +75,7 @@ void
 
 }  // MessageLoggerScribe::run()
 
+
 void
   MessageLoggerScribe::configure_errorlog( ParameterSet const * p )
 {
@@ -79,27 +87,28 @@ void
   PSet     empty_PSet;
   String   empty_String;
 
-  char * severity_array[] = {"WARNING", "INFO", "ERROR", "DEBUG"};
-  vString const severities(severity_array+0, severity_array+4);
-
-  // no longer need default destination:
-  early_dest.setThreshold(ELhighestSeverity);
+  char *  severity_array[] = {"WARNING", "INFO", "ERROR", "DEBUG"};
+  vString const  severities(severity_array+0, severity_array+4);
 
   // grab list of messageIDs:
   vString  messageIDs
      = p->getUntrackedParameter<vString>("messageIDs", empty_vString);
 
   // grab default limit/timespan common to all destinations/messageIDs:
-  PSet default_pset
+  PSet  default_pset
      = p->getUntrackedParameter<PSet>("default", empty_PSet);
-  int default_limit
+  int  default_limit
     = default_pset.getUntrackedParameter<int>("limit", -1);
-  int default_timespan
+  int  default_timespan
     = default_pset.getUntrackedParameter<int>("timespan", -1);
 
   // grab list of destinations:
   vString  destinations
      = p->getUntrackedParameter<vString>("destinations", empty_vString);
+
+  // dial down the early destination if other dest's are supplied:
+  if( ! destinations.empty() )
+    early_dest.setThreshold(ELhighestSeverity);
 
   // establish each destination:
   for( vString::const_iterator it = destinations.begin()
@@ -125,14 +134,14 @@ void
     //(*errorlog_p)( ELinfo, "added_dest") << filename << endmsg;
 
     // grab all of this destination's parameters:
-    PSet dest_pset = p->getUntrackedParameter<PSet>(filename,empty_PSet);
+    PSet  dest_pset = p->getUntrackedParameter<PSet>(filename,empty_PSet);
 
     // grab this destination's default limit/timespan:
-    PSet dest_default_pset
+    PSet  dest_default_pset
        = dest_pset.getUntrackedParameter<PSet>("default", empty_PSet);
-    int dest_default_limit
+    int  dest_default_limit
       = dest_default_pset.getUntrackedParameter<int>("limit", default_limit);
-    int dest_default_timespan
+    int  dest_default_timespan
       = dest_default_pset.getUntrackedParameter<int>("timespan", default_timespan);
 
     // establish this destination's limit/timespan for each messageID:
@@ -141,21 +150,21 @@ void
        ; ++id_it
        )
     {
-      String msgID = *id_it;
-      PSet messageIDpset
-	 = dest_pset.getUntrackedParameter<PSet>(msgID, empty_PSet);
-      int limit
-	= messageIDpset.getUntrackedParameter<int>("limit", dest_default_limit);
-      int timespan
-	= messageIDpset.getUntrackedParameter<int>("timespan", dest_default_timespan);
+      String  msgID = *id_it;
+      PSet  messageIDpset
+         = dest_pset.getUntrackedParameter<PSet>(msgID, empty_PSet);
+      int  limit
+        = messageIDpset.getUntrackedParameter<int>("limit", dest_default_limit);
+      int  timespan
+        = messageIDpset.getUntrackedParameter<int>("timespan", dest_default_timespan);
       if( limit    >= 0 )  dest_ctrl.setLimit(msgID, limit   );
       if( timespan >= 0 )  dest_ctrl.setLimit(msgID, timespan);
     }  // for
 
     // establish this destination's threshold:
-    String severity_name
+    String  severity_name
       = dest_pset.getUntrackedParameter<String>("threshold", empty_String);
-    ELseverityLevel lev = ELseverityLevel(severity_name);
+    ELseverityLevel  lev = ELseverityLevel(severity_name);
     if( lev != ELunspecified )
       dest_ctrl.setThreshold(lev);
 
@@ -165,14 +174,14 @@ void
        ; ++sev_it
        )
     {
-      String sevID = *sev_it;
-      ELseverityLevel severity(sevID);
-      PSet sev_pset
-	 = dest_pset.getUntrackedParameter<PSet>(sevID, empty_PSet);
-      int limit
-	= sev_pset.getUntrackedParameter<int>("limit", -1);
-      int timespan
-	= sev_pset.getUntrackedParameter<int>("timespan", -1);
+      String  sevID = *sev_it;
+      ELseverityLevel  severity(sevID);
+      PSet  sev_pset
+         = dest_pset.getUntrackedParameter<PSet>(sevID, empty_PSet);
+      int  limit
+        = sev_pset.getUntrackedParameter<int>("limit", -1);
+      int  timespan
+        = sev_pset.getUntrackedParameter<int>("timespan", -1);
       if( limit    >= 0 )  dest_ctrl.setLimit(severity, limit   );
       if( timespan >= 0 )  dest_ctrl.setLimit(severity, timespan);
     }  // for

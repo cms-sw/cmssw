@@ -115,7 +115,7 @@ specify any destinations, then a single destination of cerr is assumed.
 <p>
 
 In the near future, concepts for establishing and/or controlling a destination
-involving the <font color=blue> log4cplusplus </font> service may also
+involving the <font color=blue> log4cplus </font> service may also
 be listed here.
 
 <a name="example">
@@ -178,10 +178,10 @@ process TEST = {
  			 <a href="mIDs.html">, "serious_matter"</a>
                          <a href="mIDs.html">}</a>
     <a href="destname.html">PSet critical.txt = {</a> <a href="thresh.html">string threshold = "ERROR"</a>
-                              <a href="default.shtml">PSet default = {</a> <a href="limits.html">int32 limit</a>    = 10
+                              <a href="defaults.html">PSet default = {</a> <a href="limits.html">int32 limit</a>    = 10
 			                       <a href="limits.html">int32 timespan = 180</a>
 					     <a href="defaults.html">}</a>
-			      PSet serious_matter = { int32 limit = 100000 }
+			      <a href="notimespan.html">PSet serious_matter = { int32 limit = 100000 }</a>
                         }
     <a href="destname.html">PSet detailedInfo.txt = {</a>  <a href="thresh.html">string threshold = "INFO"</a>
 			      <a href="defaults.html">PSet default        = {</a> <a href="limits.html">int32 limit    =  10</a>
@@ -201,13 +201,13 @@ process TEST = {
                             }
     PSet cerr     = { <a href="thresh.html">string threshold = "WARNING"</a> }
 
-    <a href="destname.html">PSet jobdebug.txt =     {</a> PSet default        = { <a href="limits.html">int32 limit    = 1000000</a> <a href="mIDs.html">}</a>
+    <a href="destname.html">PSet jobdebug.txt =     {</a> <a href="defaults.html">PSet default        = { </a><a href="limits.html">int32 limit    = 1000000</a> <a href="mIDs.html">}</a>
                             }
-    <a href="destname.html">PSet anotherfile.txt =  {</a> PSet serious_matter = { <a href="limits.html">int32 limit    = 1000</a> } 
+    <a href="destname.html">PSet anotherfile.txt =  {</a> <a href="notimespan.html">PSet serious_matter = { int32 limit    = 1000</a> } 
                             }
-    PSet default = { int32 limit    = 10
-                     int32 timespan = 60
-		   }
+    <a href="defdefault.html">PSet default = { int32 limit    = 10</a>
+                     <a href="defdefault.html">int32 timespan = 60</a>
+		   <a href="defdefault.html">}</a>
   }
   path p = { sendSomeMessages }
   module sendSomeMessages = MessageLoggerClient { }

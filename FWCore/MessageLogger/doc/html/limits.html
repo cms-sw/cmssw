@@ -68,16 +68,16 @@ process TEST = {
 
 The Pset entries <font color=red>int32 limit = ...</font> and
 <font color=red>int32 timespan = ...</font> establish that this 
-destination should react to only so many messages of a specified
+destination should report only so many messages of a specified
 specified messageID or severity level.  For example, detailedInfo.txt
-will react only to the first twenty trkwarning messages, before 
+will report only the first twenty trkwarning messages, before 
 ignoring most of the rest (with an exponential backoff). 
 <p>
 The timespan, if supplied, directs the destination to reset its count of
 how many times a message of this type has been encountered if no messages
-of this tiyp occur within that many seconds.  For example, if this job issues
+of this type occur within that many seconds.  For example, if this job issues
 25 trkwarning messages at the start, then 25 additional messages more than 
-20 minues (1200 seconds) later, the first twenty of each group would appear.
+20 minues (1200 seconds) later, the first twenty of each group would be reported.
 A limit can be supplied without a timespan.  Supplying a timespan without a 
 limit is meaningless.
 <p>
