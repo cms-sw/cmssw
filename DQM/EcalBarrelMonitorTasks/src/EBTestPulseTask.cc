@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  * 
- * $Date: 2005/11/20 16:43:39 $
- * $Revision: 1.27 $
+ * $Date: 2005/11/23 13:38:11 $
+ * $Revision: 1.28 $
  * \author G. Della Ricca
  *
 */
@@ -154,7 +154,7 @@ void EBTestPulseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
     if ( ievt_ >=  50 && ievt_ <= 100 ) meAmplMap = meAmplMapG06_[ism-1];
     if ( ievt_ >= 100 && ievt_ <= 150 ) meAmplMap = meAmplMapG12_[ism-1];
 
-    float xval = 0.001 * hit.amplitude();
+    float xval = hit.amplitude();
 
 //    logFile_ << " hit amplitude " << xval << endl;
 

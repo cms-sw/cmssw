@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  * 
- * $Date: 2005/11/24 09:47:00 $
- * $Revision: 1.28 $
+ * $Date: 2005/11/24 10:55:51 $
+ * $Revision: 1.29 $
  * \author G. Della Ricca
  *
 */
@@ -213,7 +213,7 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       meAmplPNMap = meAmplPNMapL2_[ism-1];
     }
 
-    float xval = 0.001 * hit.amplitude();
+    float xval = hit.amplitude();
 
 //    logFile << " hit amplitude " << xval << endl;
 
