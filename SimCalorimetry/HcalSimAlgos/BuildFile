@@ -3,6 +3,7 @@
   <use name=SimCalorimetry/CaloSimAlgos>
   <use name=CondFormats/HcalObjects>
   <use name=CalibCalorimetry/HcalAlgos>
+  <use name=CalibFormats/HcalObjects>
   <use name=DataFormats/HcalDigi>
   <use name=DataFormats/HcalRecHit>
   <use name=Geometry/HcalTowerAlgo>
@@ -11,6 +12,7 @@
 <use name=SimCalorimetry/CaloSimAlgos>
 <use name=CondFormats/HcalObjects>
 <use name=CalibCalorimetry/HcalAlgos>
+<use name=CalibFormats/HcalObjects>
 <use name=DataFormats/HcalDigi>
 <use name=DataFormats/HcalRecHit>
 <use name=Geometry/HcalTowerAlgo>
