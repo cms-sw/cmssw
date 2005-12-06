@@ -1,13 +1,11 @@
 /** \file
  * 
  * 
- * $Date: 2005/11/29 18:44:16 $
- * $Revision: 1.1 $
+ * $Date: 2005/11/29 18:55:55 $
+ * $Revision: 1.2 $
  * \author N. Amapane - S. Argiro'
  *
 */
-
-#include <cppunit/extensions/HelperMacros.h>
 
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include <FWCore/Framework/interface/EDAnalyzer.h>
