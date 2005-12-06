@@ -13,6 +13,8 @@
 #include "G4HelixSimpleRunge.hh"
 #include "G4HelixHeum.hh"
 
+using namespace sim;
+
 FieldStepper::FieldStepper(G4Mag_UsualEqRhs * eq) :
     G4MagIntegratorStepper(eq, 6), theEquation(eq) {}
 
@@ -27,7 +29,7 @@ double FieldStepper::DistChord() const { return theStepper->DistChord(); }
 int FieldStepper::IntegratorOrder() const
 { return theStepper->IntegratorOrder(); }
 
-G4MagIntegratorStepper * FieldStepper::select(std::string & s)
+G4MagIntegratorStepper * FieldStepper::select(const std::string & s)
 {
     if      (s == "G4ClassicalRK4")       theStepper = new G4ClassicalRK4(theEquation);
     else if (s == "G4SimpleRunge")        theStepper = new G4SimpleRunge(theEquation);

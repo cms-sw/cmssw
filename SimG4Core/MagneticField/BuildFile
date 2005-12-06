@@ -10,7 +10,6 @@
  <use name=boost>
  <use name=geant4>
 </export>
-<flags SEAL_PLUGIN_NAME="SimG4CoreMagneticField">
 <use name=Framework/SealKernel>
 <use name=FWCore/ParameterSet>
 <use name=MagneticField/Records>

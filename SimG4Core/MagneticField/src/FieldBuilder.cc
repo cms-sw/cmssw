@@ -24,17 +24,19 @@
 #include "G4ChordFinder.hh"
 #include "G4UniformMagField.hh"
 
-FieldBuilder * FieldBuilder::theBuilder = 0;
-FieldBuilder * FieldBuilder::instance()
+using namespace sim;
+
+FieldBuilder::FieldBuilder(const MagneticField * f, 
+			   const edm::ParameterSet & p) 
+   : theField( new Field(f,p)), 
+     theFieldEquation(new G4Mag_UsualEqRhs(theField.get())),
+     theTopVolume(0) 
 {
-    if (theBuilder==0) theBuilder = new FieldBuilder();
-    return theBuilder;
+    theField->fieldEquation(theFieldEquation);
 }
 
-FieldBuilder::FieldBuilder(): theField(0), theTopVolume(0) {}
-FieldBuilder::~FieldBuilder() { if (theField != 0) delete theField; }
-
-void FieldBuilder::readFieldParameters(DDLogicalPart lp,std::string keywordField)
+void FieldBuilder::readFieldParameters(DDLogicalPart lp,
+				       const std::string& keywordField)
 {
     G4LogicalVolumeToDDLogicalPartMapper * m = 
 	G4LogicalVolumeToDDLogicalPartMapper::instance();
@@ -52,27 +54,9 @@ void FieldBuilder::readFieldParameters(DDLogicalPart lp,std::string keywordField
     tmp = m->toDouble("MaximumEpsilonStep",lp,maxEpsilonStep);
 }
 
-void FieldBuilder::initDDD(std::string xmlConfiguration)
-{  
-    DDLParser * parser = DDLParser::instance();
-    AlgoInit();
-    parser->dumpFileList();
-    DDLConfiguration cf;
-    int result1 = cf.readConfig(xmlConfiguration);
-    if (result1 !=0) throw DDException("DDLConfiguration: readConfig failed !");
-    int result2 = parser->parse(cf);
-    if (result2 != 0) throw DDException("DDD-Parser: parsing failed!");
-}
-
-void FieldBuilder::setField(const MagneticField * f, const edm::ParameterSet & p)
-{
-    theField = new Field (f,p);
-    theFieldEquation = new G4Mag_UsualEqRhs(theField);
-    theField->fieldEquation(theFieldEquation);
-}
-
-void FieldBuilder::configure(std::string keywordField,G4FieldManager * fM,
-				   G4PropagatorInField * fP)
+void FieldBuilder::configure(const std::string& keywordField,
+			     G4FieldManager * fM,
+			     G4PropagatorInField * fP)
 {
     ConcreteG4LogicalVolumeToDDLogicalPartMapper::Vector vec = 
         G4LogicalVolumeToDDLogicalPartMapper::instance()->all(keywordField);
@@ -89,10 +73,10 @@ void FieldBuilder::configure(std::string keywordField,G4FieldManager * fM,
 void FieldBuilder::configureFieldManager(G4FieldManager * fM)
 {
     if (fM==0) return;
-    fM->SetDetectorField(Field::instance());
-    FieldStepper * theStepper = new FieldStepper(Field::fieldEquation());
+    fM->SetDetectorField(theField.get());
+    FieldStepper * theStepper = new FieldStepper(theField->fieldEquation());
     theStepper->select(stepper);
-    G4ChordFinder * CF = new G4ChordFinder(Field::instance(),minStep,theStepper);
+    G4ChordFinder * CF = new G4ChordFinder(theField.get(),minStep,theStepper);
     CF->SetDeltaChord(dChord);
     fM->SetChordFinder(CF);
     fM->SetDeltaOneStep(dOneStep);

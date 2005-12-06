@@ -7,18 +7,13 @@
 
 #include "CLHEP/Units/SystemOfUnits.h"
 
-Field * Field::theField = 0;
-
-Field * Field::instance() { return theField; }
-
-G4Mag_UsualEqRhs * Field::theFieldEquation = 0;
+using namespace sim;
 
 G4Mag_UsualEqRhs * Field::fieldEquation() { return theFieldEquation; }
 
 Field::Field(const MagneticField * f,const edm::ParameterSet & p) 
     : G4MagneticField(), theCMSMagneticField(f),m_pField(p)
 {
-    theField = this;
 }
 
 Field::~Field() {}
