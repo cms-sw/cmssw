@@ -1,3 +1,6 @@
+** V00-01-01  [Tue Dec  6 16:27:27 2005]
+add remove mapping tool
+
 ** V00-01-00  [Wed Nov 30 20:32:05 2005]
 use reflex based token builder; add python o2o tools; merge buildiov and buildmetadata into one
 
