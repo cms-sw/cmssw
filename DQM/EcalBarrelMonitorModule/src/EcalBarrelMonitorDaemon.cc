@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorDaemon.cc
  *
- * $Date: 2005/11/14 08:52:30 $
- * $Revision: 1.11 $
+ * $Date: 2005/11/17 08:43:49 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */
@@ -13,14 +13,16 @@ DaqMonitorBEInterface* EcalBarrelMonitorDaemon::dbe_ = 0;
 
 EcalBarrelMonitorDaemon::EcalBarrelMonitorDaemon(){
 
-    cout << "Constructing a new EcalBarrelMonitorDaemon ... " << flush;
+  cout << "Constructing a new EcalBarrelMonitorDaemon ... " << flush;
 
-    // get hold of back-end interface
-    dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
-  
-    //We put this here for the moment since there is no better place 
-    edm::Service<MonitorDaemon> daemon;
-    daemon.operator->();
+  // get hold of back-end interface
+  dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
+
+  if ( dbe_ ) dbe_->setVerbose(1);
+
+  //We put this here for the moment since there is no better place 
+  edm::Service<MonitorDaemon> daemon;
+  daemon.operator->();
 
    cout << "done !" << endl;
 
