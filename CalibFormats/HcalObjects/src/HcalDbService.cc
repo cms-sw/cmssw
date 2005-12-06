@@ -1,7 +1,7 @@
 //
 // F.Ratnikov (UMd), Aug. 9, 2005
 //
-// $Id: HcalDbService.cc,v 1.4 2005/11/08 18:17:34 fedor Exp $
+// $Id: HcalDbService.cc,v 1.5 2005/12/05 00:25:33 fedor Exp $
 
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 
@@ -66,7 +66,7 @@ std::auto_ptr <HcalCoder> HcalDbService::getHcalCoder (const HcalDetId& fId) con
 }
 
 std::auto_ptr <HcalMapping> HcalDbService::getHcalMapping () const {
-  if (mElectronicsMap) return std::auto_ptr <HcalMapping> (new HcalMapping (mElectronicsMap));
+  //  if (mElectronicsMap) return std::auto_ptr <HcalMapping> (new HcalMapping (mElectronicsMap));
   return std::auto_ptr <HcalMapping> (0);
 }
 
