@@ -2941,7 +2941,7 @@
   <rRotation name="rotations:R015"/>
   <Translation x="0*fm " y="0*fm " z="-5.04999*cm " />
  </PosPart>
- <Division name="ME22SpaceDivision" parent="ME22Space" axis="phi" offset="-15.*deg" width="20*deg"/>
+ <Division name="ME22SpaceDivision" parent="ME22Space" axis="phi" offset="-10.*deg" width="20*deg"/>
  <PosPart copyNumber="1">
    <rParent name="mf:ME22SpaceDivision"/>
    <rChild name="mf:ME22"/>
@@ -3288,7 +3288,7 @@
   <rRotation name="rotations:R015"/>
   <Translation x="0*fm " y="0*fm " z="5.04999*cm " />
  </PosPart>
- <Division name="ME32SpaceDivision" parent="ME32Space" axis="phi" offset="-15*deg" width="20*deg"/>
+ <Division name="ME32SpaceDivision" parent="ME32Space" axis="phi" offset="-10*deg" width="20*deg"/>
  <PosPart copyNumber="1">
    <rParent name="mf:ME32SpaceDivision"/>
    <rChild name="mf:ME32"/>
@@ -3635,7 +3635,7 @@
   <rRotation name="rotations:R015"/>
   <Translation x="0*fm " y="0*fm " z="6.375*cm " />
  </PosPart>
- <Division name="ME42SpaceDivision" parent="ME42Space" axis="phi" offset="-15*deg" width="20*deg"/>
+ <Division name="ME42SpaceDivision" parent="ME42Space" axis="phi" offset="-10*deg" width="20*deg"/>
  <PosPart copyNumber="1">
    <rParent name="mf:ME42SpaceDivision"/>
    <rChild name="mf:ME42"/>
