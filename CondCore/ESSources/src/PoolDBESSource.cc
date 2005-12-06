@@ -16,9 +16,11 @@
 #include "PersistencySvc/ITransaction.h"
 #include "DataSvc/DataSvcFactory.h"
 #include "DataSvc/IDataSvc.h"
+#include "SealKernel/Context.h"
 #include "POOLCore/POOLContext.h"
 #include "SealKernel/Exception.h"
 #include "RelationalAccess/RelationalException.h"
+#include "RelationalAccess/IAuthenticationService.h"
 //
 // static data member definitions
 //
@@ -71,18 +73,11 @@ fillRecordToTypeMap(std::multimap<std::string, std::string>& oToFill){
   }
 }
 
-void PoolDBESSource::initPool(){
+void PoolDBESSource::initPool(const std::string& catcontact){
   try{
-    //std::cout<<"PoolDBESSource::initPool"<<std::endl;
-    pool::POOLContext::loadComponent( "SEAL/Services/MessageService" );
-    pool::POOLContext::setMessageVerbosityLevel( seal::Msg::Error );
-    // needed to connect to oracle
-    pool::POOLContext::loadComponent( "POOL/Services/EnvironmentAuthenticationService" );
-    pool::URIParser p;
-    p.parse();    
     // the required lifetime of the file catalog is the same of the  srv_ or longer  
     m_cat.reset(new pool::IFileCatalog);
-    m_cat->addReadCatalog(p.contactstring());
+    m_cat->addReadCatalog(catcontact);
     m_cat->connect();
     m_cat->start();    
     m_svc= pool::DataSvcFactory::instance(&(*m_cat));
@@ -149,13 +144,47 @@ bool PoolDBESSource::initIOV( const std::vector< std::pair < std::string, std::s
 PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   m_con(iConfig.getParameter<std::string>("connect") ),
   m_timetype(iConfig.getParameter<std::string>("timetype") )
-{
+{		
+  /*parameter set parsing and pool environment setting
+   */
+  unsigned int auth=iConfig.getParameter<unsigned int>("authenticationMethod") ;
+  if( auth==1 ){
+    pool::POOLContext::loadComponent( "POOL/Services/XMLAuthenticationService" );
+  }else{
+    pool::POOLContext::loadComponent( "POOL/Services/EnvironmentAuthenticationService" );
+  }
+  std::vector< seal::IHandle<pool::IAuthenticationService> > v_authSvc;
+  pool::POOLContext::context()->query( v_authSvc );
+  if ( ! v_authSvc.empty() ) {
+    seal::IHandle<pool::IAuthenticationService>& authSvc = v_authSvc.front();
+    std::cout<<"user "<<authSvc->valueForItem( m_con,"user" ) << std::endl;
+    std::cout<<"password "<<authSvc->valueForItem( m_con,"password" ) << std::endl;
+  }
+  std::string catconnect=iConfig.getParameter<std::string>("catalog");
+  pool::POOLContext::loadComponent( "SEAL/Services/MessageService" );
+  unsigned int message_level=iConfig.getParameter<unsigned int>("messagelevel");
+  switch (message_level) {
+  case 0 :
+    pool::POOLContext::setMessageVerbosityLevel( seal::Msg::Error );
+    break;    
+  case 1:
+    pool::POOLContext::setMessageVerbosityLevel( seal::Msg::Warning );
+    break;
+  case 2:
+    pool::POOLContext::setMessageVerbosityLevel( seal::Msg::Info );
+    break;
+  case 3:
+    pool::POOLContext::setMessageVerbosityLevel( seal::Msg::Debug );
+    break;  
+  default:
+    pool::POOLContext::setMessageVerbosityLevel( seal::Msg::Error );
+  }
+  
   //std::cout<<"PoolDBESSource::PoolDBESSource"<<std::endl;
   using namespace std;
   using namespace edm;
   using namespace edm::eventsetup;
   fillRecordToTypeMap(m_recordToTypes);
-
   
   //parsing record to tag
   std::vector< std::pair<std::string,std::string> > recordToTag;
@@ -233,7 +262,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   ///
   //now do what ever other initialization is needed
   ///
-  this->initPool();
+  this->initPool(catconnect);
   if( !this->initIOV(recordToTag) ){
     throw cms::Exception("NoIOVFound")<<"IOV not found for requested records";
   }
