@@ -104,6 +104,7 @@ RunManager::RunManager(edm::ParameterSet const & p)
   :   m_generator(0), m_primaryTransformer(0), m_engine(0), m_managerInitialized(false), 
       m_geometryInitialized(true), m_physicsInitialized(true),
       m_runInitialized(false), m_runTerminated(false), m_runAborted(false),
+      m_pUseMagneticField(p.getParameter<bool>("UseMagneticField")),
       m_currentRun(0), m_currentEvent(0), m_simEvent(0), 
       m_rndmStore(p.getParameter<bool>("StoreRndmSeeds")),
       m_rndmRestore(p.getParameter<bool>("RestoreRndmSeeds")),
@@ -154,22 +155,20 @@ void RunManager::initG4(const edm::EventSetup & es)
     const DDDWorld * world = new DDDWorld(&(*pDD));
     m_registry.dddWorldSignal_(world);
 
-    //setup the magnetic field
+    if (m_pUseMagneticField)
+    {
+    // setup the magnetic field
     edm::ESHandle<MagneticField> pMF;
     es.get<IdealMagneticFieldRecord>().get(pMF);
     const GlobalPoint g(0.,0.,0.);
     std::cout << "B-field(T) at (0,0,0)(cm): " << pMF->inTesla(g) << std::endl;
- 
-    m_fieldBuilder = 
-       std::auto_ptr<sim::FieldBuilder>(
-	  new sim::FieldBuilder(&(*pMF), m_pField));
-    G4TransportationManager * tM = G4TransportationManager::GetTransportationManager(); 
-    m_fieldBuilder->configure("MagneticFieldType",
-			       tM->GetFieldManager(),
-			       tM->GetPropagatorInField());
-    
 
-    //we need the track manager now
+    m_fieldBuilder = std::auto_ptr<sim::FieldBuilder>(new sim::FieldBuilder(&(*pMF), m_pField));
+    G4TransportationManager * tM = G4TransportationManager::GetTransportationManager();
+    m_fieldBuilder->configure("MagneticFieldType",tM->GetFieldManager(),tM->GetPropagatorInField());
+    }
+
+    // we need the track manager now
     m_trackManager = std::auto_ptr<SimTrackManager>(new SimTrackManager);
 
     m_attach = new AttachSD;

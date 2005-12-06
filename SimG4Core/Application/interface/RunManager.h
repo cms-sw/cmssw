@@ -86,6 +86,7 @@ private:
     bool m_runInitialized;
     bool m_runTerminated;
     bool m_runAborted;
+    bool m_pUseMagneticField;
     G4Run * m_currentRun;
     G4Event * m_currentEvent;
     G4SimEvent * m_simEvent;
