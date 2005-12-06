@@ -1,3 +1,6 @@
+** V00-01-01  [Tue Dec  6 17:11:16 2005]
+fixed memory leak
+
 ** V00-01-01  [Tue Dec  6 17:09:51 2005]
 fixed memory leak
 
