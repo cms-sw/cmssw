@@ -1,7 +1,6 @@
 #include "SimG4CMS/Muon/interface/MuonSlaveSD.h"
 #include "Geometry/MuonBaseAlgo/interface/MuonSubDetector.h"
 
-#include "SimG4Core/Notification/interface/EndOfEvent.h"
 #include "SimG4Core/Application/interface/SimTrackManager.h"
 #include "Geometry/MuonBaseAlgo/interface/MuBarIDPacking.h"
 
@@ -45,31 +44,6 @@ bool MuonSlaveSD::format()
   return true;
 }
 
-
-void MuonSlaveSD::update(const  EndOfEvent * ev)
-{
-  //
-  // Now renumber the Hits
-  //
-#ifdef DEBUG
-  std::cout << " MuonSlaveSD renumbering " << name() << " " << hits_.size() <<" hits."<< std::endl;
-#endif
- //?? check();
-  //
-  // now I loop over PSimHits and change the id inside
-  //
-  for(MuonSlaveSD::const_iterator it = begin(); it!=end(); it++){
-    PSimHit& temp = const_cast<PSimHit&>(*it);
-    unsigned int nt = m_trackManager->g4ToSim(temp.trackId());
-#ifdef DEBUG
-    std::cout <<" Studying PSimHit " << temp << std::endl;
-    std::cout <<" Changing TrackID from " << temp.trackId();
-    std::cout <<" with " << nt << std::endl;
-#endif
-    setTrackId( temp, nt);
-  }
-
-}
 
 bool FormatBarrelHits::operator() (const PSimHit & a, const PSimHit & b)
 {

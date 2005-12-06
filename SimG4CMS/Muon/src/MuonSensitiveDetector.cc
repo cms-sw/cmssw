@@ -31,7 +31,7 @@ MuonSensitiveDetector::MuonSensitiveDetector(std::string name,
 					     edm::ParameterSet const & p,
 					     const SimTrackManager* manager) 
   : SensitiveTkDetector(name, cpv, p),
-    thePV(0), theHit(0), theDetUnitId(0), theTrackID(0) 
+    thePV(0), theHit(0), theDetUnitId(0), theTrackID(0), theManager(manager)
 {
   edm::ParameterSet m_MuonSD = p.getParameter<edm::ParameterSet>("MuonSD");
   STenergyPersistentCut = m_MuonSD.getParameter<double>("EnergyThresholdForPersistency");//Default 1. GeV
@@ -49,7 +49,7 @@ MuonSensitiveDetector::MuonSensitiveDetector(std::string name,
 #ifdef DEBUG 
   std::cout << "create MuonSlaveSD"<<std::endl;
 #endif
-  slaveMuon  = new MuonSlaveSD(detector,manager);
+  slaveMuon  = new MuonSlaveSD(detector,theManager);
 #ifdef DEBUG 
   std::cout << "create MuonSimHitNumberingScheme"<<std::endl;
 #endif
@@ -104,6 +104,12 @@ void MuonSensitiveDetector::update(const BeginOfEvent * i){
   theTrackID = 0;
 
 }
+
+void MuonSensitiveDetector::update(const  ::EndOfEvent * ev)
+{
+  slaveMuon->renumbering(theManager);
+}
+
 
 void MuonSensitiveDetector::clearHits()
 {

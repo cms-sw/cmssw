@@ -25,15 +25,13 @@ class SimTrackManager;
 #include "SimDataFormats/SimHitMaker/interface/TrackingSlaveSD.h"
 
 class MuonSlaveSD : 
-public TrackingSlaveSD,
-public Observer <const EndOfEvent*> 
+public TrackingSlaveSD
 {
 public: 
   typedef std::vector<PSimHit> Collection;
   typedef Collection::const_iterator const_iterator;
   MuonSlaveSD(MuonSubDetector*,const SimTrackManager*);
   virtual ~MuonSlaveSD();
-  void update(const EndOfEvent *);
   virtual void clearHits();
   virtual bool format();
   virtual const_iterator begin() { return hits_.begin();}
