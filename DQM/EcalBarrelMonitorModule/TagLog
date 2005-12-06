@@ -1,3 +1,7 @@
+** V00-00-02  [Tue Dec  6 17:09:47 2005]
+several improvements and bug fixes
+reduced total memory footprint
+
 ** V00-00-01  [Wed Nov 30 12:28:27 2005]
 This is the first officially released version of DQM/EcalBarrelMonitorModule
 
