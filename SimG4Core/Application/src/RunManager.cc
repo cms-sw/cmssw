@@ -13,6 +13,7 @@
 #include "SimG4Core/Physics/interface/PhysicsListFactory.h"
 #include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
 #include "SimG4Core/MagneticField/interface/FieldBuilder.h"
+#include "SimG4Core/MagneticField/interface/Field.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -153,24 +154,20 @@ void RunManager::initG4(const edm::EventSetup & es)
     const DDDWorld * world = new DDDWorld(&(*pDD));
     m_registry.dddWorldSignal_(world);
 
-    /*
+    //setup the magnetic field
     edm::ESHandle<MagneticField> pMF;
     es.get<IdealMagneticFieldRecord>().get(pMF);
     const GlobalPoint g(0.,0.,0.);
     std::cout << "B-field(T) at (0,0,0)(cm): " << pMF->inTesla(g) << std::endl;
  
-    FieldBuilder * theFieldBuilder = FieldBuilder::instance();
-    static bool fieldIsInitialized = false;
-    if(!fieldIsInitialized)
-    {
-        theFieldBuilder->initDDD("FieldConfiguration.xml");
-        theFieldBuilder->setField(&(*pMF),m_pField);    
-        G4TransportationManager * tM = G4TransportationManager::GetTransportationManager(); 
-        theFieldBuilder->configure("MagneticFieldType",
-                                   tM->GetFieldManager(),tM->GetPropagatorInField());
-        fieldIsInitialized = true;
-    }
-    */
+    m_fieldBuilder = 
+       std::auto_ptr<sim::FieldBuilder>(
+	  new sim::FieldBuilder(&(*pMF), m_pField));
+    G4TransportationManager * tM = G4TransportationManager::GetTransportationManager(); 
+    m_fieldBuilder->configure("MagneticFieldType",
+			       tM->GetFieldManager(),
+			       tM->GetPropagatorInField());
+    
 
     //we need the track manager now
     m_trackManager = std::auto_ptr<SimTrackManager>(new SimTrackManager);

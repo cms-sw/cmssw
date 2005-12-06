@@ -21,7 +21,11 @@
 namespace CLHEP {
   class HepJamesRandom;
 }
- 
+
+namespace sim {
+   class FieldBuilder;
+}
+
 class PrimaryTransformer;
 class Generator;
 class BaseEventVertexGenerator;
@@ -113,6 +117,8 @@ private:
     std::vector<boost::shared_ptr<SimProducer> > m_producers;
     
     std::auto_ptr<SimTrackManager> m_trackManager;
+
+    std::auto_ptr<sim::FieldBuilder> m_fieldBuilder;
 };
 
 #endif
