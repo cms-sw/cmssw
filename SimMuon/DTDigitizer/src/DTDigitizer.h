@@ -1,44 +1,30 @@
-#ifndef DTDIGITIZER_H
-#define DTDIGITIZER_H
-//
-// class decleration
-//
-// -*- C++ -*-
-//
-// Package:    DTDigitizer
-// Class:      DTDigitizer
-// 
-/*
- Description: <one line class summary>
+#ifndef SimMuon_DTDigitizer_h
+#define SimMuon_DTDigitizer_h
 
- Implementation:
-     <Notes on implementation>
-*/
-//
-// Original Author:  Riccardo Bellan
-//         Created:  Fri Nov  4 18:56:35 CET 2005
-// $Id: DTDigitizer.h,v 1.2 2005/11/30 17:33:33 bellan Exp $
-//
+/** \class DTDigitizer
+ *  Digitize the muon drift tubes. 
+ *  The parametrisation function MuBarDriftTimeParametrization 
+ *  from P.G.Abia, J.Puerta is used in all cases where it is applicable. 
+ *
+ *  $Date: $
+ *  $Revision: $
+ *  \author G. Bevilacqua, N. Amapane, G. Cerminara, R. Bellan
+ */
+
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 
-#include "FWCore/EDProduct/interface/EDProduct.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-//
-#include <vector>
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 #include "DataFormats/MuonDetId/interface/DTDetId.h"
-#include "Geometry/CommonTopologies/interface/DTTopology.h"
 
-using namespace std;
+#include <vector>
 
 class DTGeomDetUnit;
 class PSimHit;
 class DTWireType;
 class DTBaseDigiSync;
+class DTTopology;
+namespace edm {class ParameterSet; class Event; class EventSetup;}
 
 class DTDigitizer : public edm::EDProducer {
   
@@ -48,12 +34,12 @@ class DTDigitizer : public edm::EDProducer {
   virtual void produce(edm::Event&, const edm::EventSetup&);
   
  private:
-  typedef pair<const PSimHit*,float> hitAndT; // hit & corresponding time
-  typedef vector<hitAndT> TDContainer; // hits & times for one wire
+  typedef std::pair<const PSimHit*,float> hitAndT; // hit & corresponding time
+  typedef std::vector<hitAndT> TDContainer; // hits & times for one wire
 
-  typedef map<DTDetId, vector<PSimHit> > DTDetIdMap;
-  typedef map<DTDetId, vector<PSimHit> >::iterator DTDetIdMapIter;  
-  typedef map<DTDetId, vector<PSimHit> >::const_iterator DTDetIdMapConstIter;  
+  typedef std::map<DTDetId, std::vector<PSimHit> > DTDetIdMap;
+  typedef std::map<DTDetId, std::vector<PSimHit> >::iterator DTDetIdMapIter;  
+  typedef std::map<DTDetId, std::vector<PSimHit> >::const_iterator DTDetIdMapConstIter;  
 
   // Sort hits container by time.
   struct hitLessT {
@@ -65,17 +51,17 @@ class DTDigitizer : public edm::EDProducer {
 
   // Calculate the drift time for one hit. 
   // if status flag == false, hit has to be discarded.
-  pair<float,bool> computeTime(const DTGeomDetUnit* layer,const DTDetId &wireId, const PSimHit &hit) ;
+  std::pair<float,bool> computeTime(const DTGeomDetUnit* layer,const DTDetId &wireId, const PSimHit *hit) ;
 
   // Calculate the drift time using the GARFIELD cell parametrization,
   // taking care of all conversions from CMSSW local coordinates
   // to the conventions used for the parametrization.
-  pair<float,bool> driftTimeFromParametrization(float x, float alpha, float By,
+  std::pair<float,bool> driftTimeFromParametrization(float x, float alpha, float By,
 						float Bz) const;
   
   // Calculate the drift time for the cases where it is not possible
   // to use the GARFIELD cell parametrization.
-  pair<float,bool> driftTimeFromTimeMap() const;
+  std::pair<float,bool> driftTimeFromTimeMap() const;
   
   // Add all delays other than drift times (signal propagation along the wire, 
   // TOF etc.; subtract calibration time.
@@ -86,13 +72,11 @@ class DTDigitizer : public edm::EDProducer {
   // Store digis for one wire, taking into account the dead time.
   //FiXME put alias for the map.
   void storeDigis(DTDetId &wireId, 
-		  DTDetIdMapConstIter &wire,
-		  DTDetIdMapIter end,
 		  TDContainer &hits,
 		  DTDigiCollection &output);
 
   void loadOutput(DTDigiCollection &output,
-		  vector<DTDigi> &digis, DTDetId &layerID);
+		  std::vector<DTDigi> &digis, DTDetId &layerID);
 
   // Debug output
   void dumpHit(const PSimHit * hit, float xEntry, float xExit, const DTTopology &topo);
@@ -112,8 +96,6 @@ class DTDigitizer : public edm::EDProducer {
   // Allow debugging and testing.
   friend class DTDigitizerAnalysis;
 
-  // Parameter Set:
-  edm::ParameterSet conf_;
   // Its Atributes:
   double vPropWire;
   float deadTime;

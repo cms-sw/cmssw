@@ -19,11 +19,11 @@
 #include <stdio.h>
 
 #ifndef MB_DT_STANDALONE
-#include "SimMuon/DTDigitizer/interface/DTDriftTimeParametrization.h"
+#include "SimMuon/DTDigitizer/src/DTDriftTimeParametrization.h"
 #include "SimMuon/DTDigitizer/src/DTDriftTimeParameters.icc" // questo dove lo mettiamo??
 #else
-#include "DTDriftTimeParametrization.h" // ?
-#include "DTDriftTimeParameters.icc"  // ?
+#include "SimMuon/DTDigitizer/src/DTDriftTimeParametrization.h"
+#include "SimMuon/DTDigitizer/src/DTDriftTimeParameters.icc"
 #endif
 
 

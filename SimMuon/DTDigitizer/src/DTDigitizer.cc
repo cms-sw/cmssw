@@ -1,20 +1,11 @@
-// 
-// Package:    DTDigitizer
-// Class:      DTDigitizer
-// 
-/**\class DTDigitizer DTDigitizer.cc src/DTDigitizer/src/DTDigitizer.cc
+/** \file
+ *
+ *  $Date: $
+ *  $Revision: $
+ *  \author G. Bevilacqua, N. Amapane, G. Cerminara, R. Bellan
+ */
 
- Description: Digitizer for the Drift Tubes
 
- Implementation:
-          This version compiles, but some classes used by this package are fake.
-*/
-//
-// Original Author:  Riccardo Bellan
-//         Created:  Fri Nov  4 18:56:35 CET 2005
-// $Id: DTDigitizer.cc,v 1.2 2005/11/30 17:33:33 bellan Exp $
-//
-//
 // system include files
 #include <memory>
 
@@ -51,8 +42,8 @@
 #include "DataFormats/MuonDetId/interface/DTDetId.h"
 
 // DTDigitizer
-#include "SimMuon/DTDigitizer/interface/DTDriftTimeParametrization.h"
-#include "SimMuon/DTDigitizer/interface/DTDigitizer.h"
+#include "SimMuon/DTDigitizer/src/DTDriftTimeParametrization.h"
+#include "SimMuon/DTDigitizer/src/DTDigitizer.h"
 
 // namespaces
 using namespace edm;
@@ -62,12 +53,12 @@ using namespace std;
 //FIXME- ReCheck the "hit nature" (is it a pointer?)
 
 // Constructor
-DTDigitizer::DTDigitizer(const ParameterSet& iConfig):conf_(iConfig){
+DTDigitizer::DTDigitizer(const ParameterSet& conf_) {
   
-  cout<<"Creating a DTDigitizer"<<endl;
+  if (debug) cout<<"Creating a DTDigitizer"<<endl;
   
   //register the Producer with a label
-  produces<DTDigiCollection>("DTDigitization");
+  produces<DTDigiCollection>();
   
   //Parameters:
 
@@ -116,7 +107,7 @@ void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
   //************ 2 ***************
 
   // These are sorted by DetId, i.e. by layer and then by wire #
-  map<DTDetId, vector<PSimHit> > wireMap;     
+  map<DTDetId, vector<const PSimHit*> > wireMap;     
   
   // loop over the SimHits -  FIXME check the iterator...
   // maybe can be: PSimHitContainer::const_iterator...
@@ -126,7 +117,7 @@ void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
     // Create the id of the wire, the simHits in the DT known also the wireId
     DTDetId wireId(simHit->detUnitId());
     // Fill the map
-    wireMap[wireId].push_back(*simHit); 
+    wireMap[wireId].push_back(&(*simHit));
   }
   
   pair<float,bool> time(0.,false);
@@ -134,10 +125,10 @@ void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
   //************ 3 ***************
 
   // Loop over the wires
-  for(map<DTDetId, vector<PSimHit> >::const_iterator wire =
+  for(map<DTDetId, vector<const PSimHit*> >::const_iterator wire =
 	wireMap.begin(); wire!=wireMap.end(); wire++){
     // SimHit Container associated to the wire
-    const vector<PSimHit> & vhit = (*wire).second; 
+    const vector<const PSimHit*> & vhit = (*wire).second; 
     if(vhit.size()!=0) {
       TDContainer tdCont; // Is a vector<pair<const PSimHit*,float> >;
       
@@ -147,7 +138,7 @@ void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
       const DTGeomDetUnit* layer = dynamic_cast< const DTGeomDetUnit* > (muonGeom->idToDet(wireId)); 
 
       // Loop on the hits of this wire    
-      for (vector<PSimHit>::const_iterator hit=vhit.begin();
+      for (vector<const PSimHit*>::const_iterator hit=vhit.begin();
 	   hit != vhit.end(); hit++){
 
 	//************ 5 ***************
@@ -157,7 +148,7 @@ void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
 	//************ 6 ***************
 
 	if (time.second) {
-	  tdCont.push_back(make_pair(&(*hit),time.first));
+	  tdCont.push_back(make_pair((*hit),time.first));
 	} else {
 	  if (debug) cout << "hit discarded" << endl;
 	}
@@ -168,7 +159,7 @@ void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
       // the loading must be done by layer but
       // the digitization must be done by wire (in order to take into account the dead time)
 
-      storeDigis(wireId,wire,wireMap.end(),tdCont,*output);
+      storeDigis(wireId,tdCont,*output);
     }
     
   }
@@ -179,9 +170,8 @@ void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
 }
 
 //FIXME PSimHit (pointer-obj) possible inconsistency:
-pair<float,bool> DTDigitizer::computeTime(const DTGeomDetUnit* layer,const DTDetId &wireId, const PSimHit &hit_) 
+pair<float,bool> DTDigitizer::computeTime(const DTGeomDetUnit* layer,const DTDetId &wireId, const PSimHit *hit) 
 {
-  const PSimHit* hit = &hit_;
   LocalPoint entryP = hit->entryPoint();
   LocalPoint exitP = hit->exitPoint();
   int partType = hit->particleType();
@@ -214,19 +204,12 @@ pair<float,bool> DTDigitizer::computeTime(const DTGeomDetUnit* layer,const DTDet
   // Local magnetic field  FIXME
   LocalPoint locPt = hit->localPosition();
   //event setu -> Record -> Magnetc Field
-  LocalVector BLoc = layer->magneticField(locPt); // FIXME
-
-  /* // To access to Mag Field: put in DTGeomDetUnit a method in order to do
-     // layer->magneticField(locPt); 
-     
-  ESHandle<MagneticField> magnField;
-  iSetup.get<IdealMagneticFieldRecord>().get(magnField);
-  
-  //the localPt must be convertend into a GlobalPoint using the layer global position
-  
-  const GlobalPoint globalPt(0.,0.,0.);
-  const GlobalVector BLoc=magnField->inTesla(globalPt);
-  */
+  LocalVector BLoc;
+    
+  //FIXME 
+//   ESHandle<MagneticField> magnField;
+//   iSetup.get<IdealMagneticFieldRecord>().get(magnField);
+//  const LocalVector BLoc=layer->toLocal(magnField->inTesla(layer->toGlobal(locPt)));
 
   float By = BLoc.y();
   float Bz = BLoc.z();
@@ -289,7 +272,7 @@ pair<float,bool> DTDigitizer::computeTime(const DTGeomDetUnit* layer,const DTDet
 
   if (!noParametrisation) {
     
-    LocalVector dir = hit->momentumAtEntry(); // ex  Measurement3DVector dir = hit->measurementDirection();
+    LocalVector dir = hit->momentumAtEntry(); // ex  Measurement3DVector dir = hit->measurementDirection(); //FIXME
     float theta = atan(dir.x()/-dir.z())*180/M_PI;
 
     // FIXME: use dir if M.S. is included as GARFIELD option...
@@ -489,7 +472,7 @@ float DTDigitizer::externalDelays(const DTTopology &topo,
   
   float wireCoord = hit->localPosition().y();
   float halfL     = (topo.cellLenght())/2.;
-  float propgL = halfL + wireCoord; // the FE is always located at the neg coord. // FIXME- Ask to Nicola.
+  float propgL = halfL + wireCoord; // the FE is always located at the neg coord.
 
   float propDelay = propgL/vPropWire;
 
@@ -516,11 +499,8 @@ float DTDigitizer::externalDelays(const DTTopology &topo,
 // accumulate digis by layer
 
 void DTDigitizer::storeDigis(DTDetId &wireId, 
-			     DTDetIdMapConstIter &wire,
-			     DTDetIdMapIter end,
 			     TDContainer &hits,
 			     DTDigiCollection &output){
-			     //DTDigiCollection &output){
 
   //Just for check poi magari lo tolgo
   static DTDetId lastWireId;
@@ -548,7 +528,7 @@ void DTDigitizer::storeDigis(DTDetId &wireId,
     if (onlyMuHits && abs((*hit).first->particleType())!=13) continue;
 
     //************ 7C ***************
-
+	
     float time = (*hit).second;
     if ( time > wakeTime ) {
       // Note that digi is constructed with a float value (in ns)
@@ -567,24 +547,27 @@ void DTDigitizer::storeDigis(DTDetId &wireId,
       */
 
       //************ 7D ***************
-      
-      static vector<DTDigi> digis;
-      static DTDetId lastID;
-      
+
       DTDetId layerID = wireId.layerId();  //taking the layer in which reside the wire
+      output.insertDigi(layerID, digi);
+      //>>>>>>>>>>>>>>>>>
+//       static vector<DTDigi> digis;
+//       static DTDetId lastID;
       
-      if(lastID==layerID) digis.push_back(digi);
-      else{
-	if(digis.size()) loadOutput(output,digis,layerID); //ex output.put(digis,layerID);
-	digis.clear();
-	digis.push_back(digi);
-	lastID=layerID;
-      }
-      //FIXME!! 
-      //      if(wire==(end-- ) && digis.size()!=0) 
-      if(wire==(end--) && digis.size()!=0) 
-	loadOutput(output,digis,layerID); // ex output.put(digis,layerID);
+      
+//       if(lastID==layerID) digis.push_back(digi);
+//       else{
+// 	if(digis.size()) loadOutput(output,digis,layerID); //ex output.put(digis,layerID);
+// 	digis.clear();
+// 	digis.push_back(digi);
+// 	lastID=layerID;
+//       }
+//       //FIXME!! 
+//       //      if(wire==(end-- ) && digis.size()!=0) 
+//       if(wire==(end--) && digis.size()!=0) 
+// 	loadOutput(output,digis,layerID); // ex output.put(digis,layerID);
               
+      //<<<<<<<<<<<<<<<<<
       digiN++;
       wakeTime = time + deadTime;
     }

@@ -2,7 +2,7 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "SimMuon/DTDigitizer/interface/DTDigitizer.h"
+#include "SimMuon/DTDigitizer/src/DTDigitizer.h"
 
 
 DEFINE_SEAL_MODULE();
