@@ -10,7 +10,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Fri Sep 23 11:38:38 CEST 2005
-// $Id: TestMix.cc,v 1.4 2005/11/17 16:46:43 uberthon Exp $
+// $Id: TestMix.cc,v 1.5 2005/11/29 13:47:07 uberthon Exp $
 //
 //
 
@@ -72,8 +72,12 @@ TestMix::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     std::cout<<*(cf.product())<<std::endl;
     cf.product()->print(level_);
 
+    // test accesses to CrossingFrame
+    // attention: operator-> returns the templated object, but
+    // bunch() and getTrigger() are methods of the iterator itself!
+
     // test access to SimHits
-    const std::string subdet("TrackerHitsTOBLowTof");
+    const std::string subdet("TrackerHitsLowTof");
     std::cout<<"\n=================== Starting SimHit access, subdet "<<subdet<<"  ==================="<<std::endl;
     std::auto_ptr<MixCollection<PSimHit> > col(new MixCollection<PSimHit>(cf.product(), subdet,std::pair<int,int>(-1,2)));
     std::cout<<*(col.get())<<std::endl;
