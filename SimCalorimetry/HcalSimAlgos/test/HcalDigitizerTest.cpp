@@ -15,6 +15,11 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalNoisifier.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalTriggerPrimitiveAlgo.h"
 #include "CalibFormats/HcalObjects/interface/HcalNominalCoder.h"
+#include "CondFormats/HcalObjects/interface/HcalPedestals.h"
+#include "CondFormats/HcalObjects/interface/HcalPedestalWidths.h"
+#include "CondFormats/HcalObjects/interface/HcalGains.h"
+#include "CondFormats/HcalObjects/interface/HcalGainWidths.h"
+
 
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalDigitizerTraits.h"
 
@@ -49,6 +54,11 @@ int main() {
   hfDetIds.push_back(forwardDetId1);
   hfDetIds.push_back(forwardDetId2);
 
+  vector<DetId> allDetIds;
+  allDetIds.insert(allDetIds.end(), hcalDetIds.begin(), hcalDetIds.end());
+  allDetIds.insert(allDetIds.end(), hoDetIds.begin(), hoDetIds.end());
+  allDetIds.insert(allDetIds.end(), hfDetIds.begin(), hfDetIds.end());
+
   vector<PCaloHit> hbheHits, hoHits, hfHits;
   hbheHits.push_back(barrelHit);
   hbheHits.push_back(endcapHit);
@@ -66,8 +76,32 @@ int main() {
   CaloHitResponse hcalResponse(&parameterMap, &hcalShapeIntegrator);
   CaloHitResponse hfResponse(&parameterMap, &hfShapeIntegrator);
 
-  HcalDbServiceHardcode dbService;
-  HcalDbService calibratorHandle(&dbService);
+  HcalDbServiceHardcode hardcode;
+  HcalPedestals pedestals;
+  HcalPedestalWidths pedestalWidths;
+  HcalGains gains;
+  HcalGainWidths gainWidths;
+  // make a calibration service by hand
+  for(vector<DetId>::const_iterator detItr = allDetIds.begin(); detItr != allDetIds.end(); ++detItr) {
+    pedestals.addValue(detItr->rawId(), hardcode.pedestals(HcalDetId(*detItr)) );
+    pedestalWidths.addValue(detItr->rawId(), hardcode.pedestalErrors(HcalDetId(*detItr)) );
+    gains.addValue(detItr->rawId(), hardcode.gains(HcalDetId(*detItr)) );
+    gainWidths.addValue(detItr->rawId(), hardcode.gainErrors(HcalDetId(*detItr)) );
+  }
+
+  pedestals.sort();
+  pedestalWidths.sort();
+  gains.sort();
+  gainWidths.sort();
+
+std::cout << " {TESTPED " << pedestals.getValue(barrelDetId.rawId(),  1) << std::endl;
+
+  HcalDbService calibratorHandle;
+  calibratorHandle.setData(&pedestals);
+  calibratorHandle.setData(&pedestalWidths);
+  calibratorHandle.setData(&gains);
+  calibratorHandle.setData(&gainWidths);
+
   HcalNoisifier noisifier;
   noisifier.setDbService(&calibratorHandle);
   HcalNominalCoder coder; 
