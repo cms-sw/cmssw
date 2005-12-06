@@ -117,7 +117,7 @@ bool MonitorElement::qreportExists(string qtname) const
 // run all quality tests
 void MonitorElement::runQTests(void)
 {
-  qwarnings_.clear(); qerrors_.clear();
+  qwarnings_.clear(); qerrors_.clear(); qothers_.clear();
   for(qr_it it = qreports_.begin(); it != qreports_.end(); ++it)
     { // loop over all quality reports/tests for MonitorElement
       QReport * qr = it->second;
@@ -142,8 +142,11 @@ void MonitorElement::runQTests(void)
 	    case dqm::qstatus::ERROR:
 	      qerrors_.push_back(qr);
 	      break;
+	    case dqm::qstatus::STATUS_OK:
+	      break;
 	    default:
-	      ; // do nothing
+	      // all other cases go here
+	      qothers_.push_back(qr);
 	    }
 
 	} // check if test should run

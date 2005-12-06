@@ -53,6 +53,16 @@ class MonitorElement
   // opposite of isFolder method
   bool isNotFolder(void) const;
 
+  // true if at least of one of the quality tests returned an error
+  // (will override for folders)
+  virtual bool hasError(void) const {return !qerrors_.empty();}
+  // true if at least of one of the quality tests returned a warning
+  // (will override for folders)
+  virtual bool hasWarning(void) const {return !qwarnings_.empty();}
+  // true if at least of one of the tests returned some other (non-ok) status
+  // (will override for folders)
+  virtual bool hasOtherReport(void) const {return !qothers_.empty();}
+
   // get QReport corresponding to <qtname> (null pointer if QReport does not exist)
   const QReport * getQReport(std::string qtname) const;
 
@@ -62,6 +72,9 @@ class MonitorElement
   std::vector<QReport *> getQWarnings(void) const {return qwarnings_;}
   // get errors from last set of quality tests
   std::vector<QReport *> getQErrors(void) const {return qerrors_;}
+  // get "other" (i.e. non-error, non-warning, non-"ok") QReports 
+  // from last set of quality tests
+  std::vector<QReport *> getQOthers(void) const {return qothers_;}
 
   // run all quality tests
   void runQTests(void);
@@ -123,8 +136,12 @@ class MonitorElement
 
   dqm::qtests::QR_map qreports_;
 
+  // warnings from last set of quality tests
   std::vector<QReport *> qwarnings_;
+  // errors from last set of quality tests
   std::vector<QReport *> qerrors_;
+  // "other" (i.e. non-error, non-warning, non-"ok") QReports
+  std::vector<QReport *> qothers_;
 
   friend class DaqMonitorBEInterface;
   friend class CollateMET;

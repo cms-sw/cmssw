@@ -153,18 +153,18 @@ class DaqMonitorBEInterface: public StringUtil
   // return vector<string> of the form: <dir pathname>:<obj1>,<obj2>,...
   void getUpdatedContents(std::vector<std::string> & put_here) const;
  
-  // get folder corresponding to inpath wrt to root
-  // if flag = true, create subdirs (if necessary)
-  virtual MonitorElement * getDirectory(const std::string & inpath, 
-					bool create_dir = true) = 0;
+  // get folder corresponding to inpath wrt to root (create subdirs if necessary)
+  virtual MonitorElement * makeDirectory(std::string inpath) = 0;
+  // get (pointer to) last directory in inpath (null if inpath does not exist)
+  virtual MonitorElement * getDirectory(std::string inpath) const = 0;
   
   // look for object <name> in current directory
-  virtual MonitorElement * findObject(const std::string & name) const = 0;
+  virtual MonitorElement * findObject(std::string name) const = 0;
   // look for object <name> in directory <pathname>
-  virtual MonitorElement * findObject(const std::string & name, 
-				      const std::string & pathname) = 0;
+  virtual MonitorElement * findObject(std::string name, 
+				      std::string pathname) const = 0;
   // look for folder <name> in current directory
-  virtual MonitorElement * findFolder(const std::string & name) const = 0;
+  virtual MonitorElement * findFolder(std::string name) const = 0;
     
   // ---------------- Miscellaneous -----------------------------
   
@@ -189,23 +189,23 @@ class DaqMonitorBEInterface: public StringUtil
   // ---------------- Checkers -----------------------------
   
   // true if pathname exists
-  virtual bool pathExists(const std::string & inpath) const = 0;
+  virtual bool pathExists(std::string inpath) const = 0;
   // check against null objects (true if object exists)
   bool checkElement(const MonitorElement * const me) const;
   // check if object is really a folder (true if it is)
   bool checkFolder(const MonitorElement * const dir) const;
   // true if object <name> already belongs to current directory (fCurrentFolder)
-  virtual bool objectDefined(const std::string & name) const = 0;
+  virtual bool objectDefined(std::string name) const = 0;
   
   // true if directory (or any subfolder at any level below it) contains
   // at least one valid (i.e. non-null) monitoring element
-  virtual bool containsAnyMEs(const std::string & pathname) = 0;
+  virtual bool containsAnyMEs(std::string pathname) const = 0;
   // true if directory (or any subfolder at any level below it) contains
   // at least one monitorable element
-  virtual bool containsAnyMonitorable(const std::string & pathname) = 0;
+  virtual bool containsAnyMonitorable(std::string pathname) const = 0;
 
   // true if Monitoring Element <me> is needed by any subscriber
-  virtual bool isNeeded(const std::string& pathname, const std::string& me)=0;
+  virtual bool isNeeded(std::string pathname, std::string me) const=0;
 
   // -------------------- Unsubscribing/Removing --------------------
   
@@ -282,6 +282,11 @@ class DaqMonitorBEInterface: public StringUtil
 
   // set of updated quality reports since last monitoring cycle
   std::set<MonitorElement *> updatedQReports;
+
+  // get "global" folder <inpath> status (one of: STATUS_OK, WARNING, ERROR, OTHER);
+  // returns most sever error, where ERROR > WARNING > OTHER > STATUS_OK;
+  // see Core/interface/QTestStatus.h for details on "OTHER" 
+  virtual int getStatus(std::string inpath = "") const = 0;
 
   // ------------ Operations for MEs that are normally never reset ---------
 

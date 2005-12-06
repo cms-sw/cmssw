@@ -203,7 +203,12 @@ class MonitorUserInterface : public StringUtil
   // get quality test with name <qtname> (null pointer if no such test)
   QCriterion * getQCriterion(std::string qtname) const
   {return bei->getQCriterion(qtname);}
-  
+
+  // get "global" system status (one of: STATUS_OK, WARNING, ERROR, OTHER);
+  // returns most sever error, where ERROR > WARNING > OTHER > STATUS_OK;
+  // see Core/interface/QTestStatus.h for details on "OTHER" 
+  int getSystemStatus(void) const{return bei->getStatus();}
+
  protected:
 
   // do calculations for all collate MEs; come here at end of monitoring cycle)
