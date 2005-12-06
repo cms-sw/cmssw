@@ -1,7 +1,7 @@
 /* \file EcalDCCUnpackingModule.h
  *
- *  $Date: 2005/11/17 08:43:30 $
- *  $Revision: 1.15 $
+ *  $Date: 2005/11/23 18:54:07 $
+ *  $Revision: 1.16 $
  *  \author N. Marinelli
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -37,8 +37,6 @@ EcalDCCUnpackingModule::EcalDCCUnpackingModule(const edm::ParameterSet& pset){
   if ( pset.getUntrackedParameter<bool>("DBEinterface", false) ) {
 
     dbe = EcalBarrelMonitorDaemon::dbe();
-
-    dbe->setVerbose(1);
 
   }
 
