@@ -1,8 +1,8 @@
 /*
  * \file EBPnDiodeClient.cc
  * 
- * $Date: 2005/12/03 16:24:12 $
- * $Revision: 1.12 $
+ * $Date: 2005/12/05 08:15:47 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -373,24 +373,24 @@ void EBPnDiodeClient::htmlOutput(int run, string htmlDir, string htmlName){
 
         // Monitoring elements plots
 
-        TProfile2D* objp = 0;
+        TH1D* obj1d = 0;
 
         switch ( iCanvas ) { 
         case 1:
           meName = h01_[ism-1]->GetName();
-          objp = h01_[ism-1];
+          obj1d = h01_[ism-1]->ProjectionY("_py", 1, 10, "e");
           break;
         case 2:
           meName = h02_[ism-1]->GetName();
-          objp = h02_[ism-1];
+          obj1d = h02_[ism-1]->ProjectionY("_py", 1, 10, "e");
           break;
         case 3:
           meName = h03_[ism-1]->GetName();
-          objp = h03_[ism-1];
+          obj1d = h03_[ism-1]->ProjectionY("_py", 1, 10, "e");
           break;
         case 4:
           meName = h04_[ism-1]->GetName();
-          objp = h04_[ism-1];
+          obj1d = h04_[ism-1]->ProjectionY("_py", 1, 10, "e");
           break;
         }
 
@@ -403,15 +403,15 @@ void EBPnDiodeClient::htmlOutput(int run, string htmlDir, string htmlName){
         imgNameME[iCanvas-1] = meName + ".jpg";
         imgName = htmlDir + imgNameME[iCanvas-1];
         gStyle->SetOptStat("euomr");
-        objp->SetStats(kTRUE);
-//        if ( objp->GetMaximum(histMax) > 0. ) {
+        obj1d->SetStats(kTRUE);
+//        if ( obj1d->GetMaximum(histMax) > 0. ) {
 //          gPad->SetLogy(1);
 //        } else {
 //          gPad->SetLogy(0);
 //        }
-        objp->ProjectionY("_py", 1, 10, "e")->Draw();
+        obj1d->Draw();
         cAmp->Update();
-        TPaveStats* stAmp = dynamic_cast<TPaveStats*>(objp->FindObject("stats"));
+        TPaveStats* stAmp = dynamic_cast<TPaveStats*>(obj1d->FindObject("stats"));
         if ( stAmp ) {
           stAmp->SetX1NDC(0.6);
           stAmp->SetY1NDC(0.75);
@@ -420,6 +420,7 @@ void EBPnDiodeClient::htmlOutput(int run, string htmlDir, string htmlName){
         gPad->SetLogy(0);
         delete cAmp;
 
+        delete obj1d;
       }
     }
 
