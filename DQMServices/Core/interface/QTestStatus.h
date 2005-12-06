@@ -8,6 +8,7 @@ namespace dqm
     static const int STATUS_OK  =   0;  // test was succesful
     static const int WARNING    =  10;  // test had some problems
     static const int ERROR      =  20;  // test has failed
+    static const int OTHER      =  30;  // any other status defined below
 
     static const int DISABLED   =  50;   // test has been disabled
     static const int INVALID    =  60;   // problem preventing test from running
