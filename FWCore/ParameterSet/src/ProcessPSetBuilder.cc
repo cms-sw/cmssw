@@ -3,11 +3,11 @@
    Implementation of calss ProcessPSetBuilder
 
    \author Stefano ARGIRO
-   \version $Id: ProcessPSetBuilder.cc,v 1.6 2005/09/10 02:08:47 wmtan Exp $
+   \version $Id: ProcessPSetBuilder.cc,v 1.7 2005/09/19 08:18:00 chrjones Exp $
    \date 17 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ProcessPSetBuilder.cc,v 1.6 2005/09/10 02:08:47 wmtan Exp $";
+static const char CVSId[] = "$Id: ProcessPSetBuilder.cc,v 1.7 2005/09/19 08:18:00 chrjones Exp $";
 
 
 #include <FWCore/ParameterSet/interface/ProcessPSetBuilder.h>
@@ -32,61 +32,67 @@ using namespace edm;
 using namespace edm::pset;
 using namespace std;
 
-ProcessPSetBuilder::~ProcessPSetBuilder(){delete validator_;}
+ProcessPSetBuilder::~ProcessPSetBuilder()
+{
+  delete validator_;
+}
 
-ProcessPSetBuilder::ProcessPSetBuilder(const std::string& config){
+ProcessPSetBuilder::ProcessPSetBuilder(const std::string& config)
+{
+  edm::pset::ParseResults parsetree = edm::pset::parse(config.c_str());
+
+  // The following test was not needed, because the edm::pset::parse
+  // either returns a well-formed ParseResults object, or throws.
+
+  //   if(0 == parsetree.get()) {
+  //     throw edm::Exception(errors::Configuration,"FileOpen")
+  //       << "Unable to parse configuration file.\n"
+  //       << "Please check the error message reported earlier.";
+  //   }
   
-  boost::shared_ptr<edm::pset::NodePtrList> nodelist = 
-    edm::pset::parse(config.c_str());
-  if(0 == nodelist.get()) {
-    throw edm::Exception(errors::Configuration,"FileOpen")
-      << "Unable to parse configuration file.\n"
-      << "Please check the error message reported earlier.";
-  }
-  
-  processDesc_= edm::pset::makeProcess(nodelist);
+  processDesc_= edm::pset::makeProcess(parsetree);
 
-   SeqMap sequences;
+  SeqMap sequences;
 
-   // loop on path fragments
-   ProcessDesc::PathContainer::iterator pathIt; 
-   Strs pathnames;
+  // loop on path fragments
+  ProcessDesc::PathContainer::iterator pathIt; 
+  Strs pathnames;
    
-   for(pathIt= processDesc_->pathFragments_.begin();
-       pathIt!=processDesc_->pathFragments_.end();
-       ++pathIt){
+  for(pathIt= processDesc_->pathFragments_.begin();
+      pathIt!=processDesc_->pathFragments_.end();
+      ++pathIt){
      
-     if ((*pathIt)->type()=="sequence") {
-       sequences[(*pathIt)->name()]= (*pathIt);
-     }
+    if ((*pathIt)->type()=="sequence") {
+      sequences[(*pathIt)->name()]= (*pathIt);
+    }
      
-     if ((*pathIt)->type()=="path") {
-       sequenceSubstitution((*pathIt)->wrapped_, sequences);
-       fillPath((*pathIt),pathnames,&processDesc_->pset_);
-     }
+    if ((*pathIt)->type()=="path") {
+      sequenceSubstitution((*pathIt)->wrapped_, sequences);
+      fillPath((*pathIt),pathnames,&processDesc_->pset_);
+    }
 
-     if ((*pathIt)->type()=="endpath") {
-	//cout << "got endpath = " << (*pathIt)->name() << endl;
-	//cout << "pointer = " << typeid(*(*pathIt)->wrapped_.get()).name() << endl;
-       sequenceSubstitution((*pathIt)->wrapped_, sequences);
-       fillPath((*pathIt),pathnames,&processDesc_->pset_);
-     }
+    if ((*pathIt)->type()=="endpath") {
+      //cout << "got endpath = " << (*pathIt)->name() << endl;
+      //cout << "pointer = " << typeid(*(*pathIt)->wrapped_.get()).name() << endl;
+      sequenceSubstitution((*pathIt)->wrapped_, sequences);
+      fillPath((*pathIt),pathnames,&processDesc_->pset_);
+    }
      
      
-   } // loop on path fragments
+  } // loop on path fragments
    
-   processDesc_->pset_.insert(true,"@paths",Entry(pathnames,true));
+  processDesc_->pset_.insert(true,"@paths",Entry(pathnames,true));
    
-   validator_= 
-     new ScheduleValidator(processDesc_->pathFragments_,processDesc_->pset_); 
+  validator_= 
+    new ScheduleValidator(processDesc_->pathFragments_,processDesc_->pset_); 
    
-   validator_->validate();
+  validator_->validate();
    
-   processPSet_= 
-     shared_ptr<edm::ParameterSet>(new ParameterSet(processDesc_->pset_));
-   servicePSets_=
-      shared_ptr<std::vector<edm::ParameterSet> >(
-               new std::vector<edm::ParameterSet>(processDesc_->services_));
+  processPSet_= 
+    shared_ptr<edm::ParameterSet>(new ParameterSet(processDesc_->pset_));
+  servicePSets_=
+    shared_ptr<std::vector<edm::ParameterSet> >(
+						new std::vector<edm::ParameterSet>(processDesc_->services_));
 }
 
 
@@ -102,7 +108,7 @@ void ProcessPSetBuilder::getNames(const Node* n, Strs& out){
 
 
 void ProcessPSetBuilder::fillPath(WrapperNodePtr n, Strs&   paths,  
-			      ParameterSet* out){
+				  ParameterSet* out){
   
   Strs names;
   getNames(n->wrapped_.get(),names);    
@@ -114,7 +120,7 @@ void ProcessPSetBuilder::fillPath(WrapperNodePtr n, Strs&   paths,
 
 
 void ProcessPSetBuilder::sequenceSubstitution(NodePtr& node, 
-			    SeqMap&  sequences){
+					      SeqMap&  sequences){
   
   if (node->type()=="operand"){
     SeqMap::iterator seqIt = sequences.find(node->name()); 
@@ -173,6 +179,6 @@ ProcessPSetBuilder::getProcessPSet() const{
 
 boost::shared_ptr<std::vector<ParameterSet> > 
 ProcessPSetBuilder::getServicesPSets() const{
-   return servicePSets_;
+  return servicePSets_;
 }
 

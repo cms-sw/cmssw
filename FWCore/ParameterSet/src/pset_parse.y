@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.9 2005/11/17 14:29:10 paterno Exp $
+ * $Id: pset_parse.y,v 1.10 2005/11/17 17:27:29 paterno Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -81,17 +81,17 @@ inline string toString(char* arg) { string s(arg); free(arg); return s; }
 
 %union
 {
-  VPSetNode*  _VPSetNode;
-  VEntryNode* _VEntryNode;
-  PSetNode*   _PSetNode;
-  EntryNode*  _EntryNode;
-  NodePtrList* _NodePtrList;
-  PSetNodePtrList* _PSetNodePtrList;
-  Node* _Node;
-  std::string*            _String;
-  StringList*             _StringList;
-  char*                   str;
-  bool                    _bool;
+  edm::pset::VPSetNode*       _VPSetNode;
+  edm::pset::VEntryNode*      _VEntryNode;
+  edm::pset::PSetNode*        _PSetNode;
+  edm::pset::EntryNode*       _EntryNode;
+  edm::pset::NodePtrList*     _NodePtrList;
+  edm::pset::PSetNodePtrList* _PSetNodePtrList;
+  edm::pset::Node*            _Node;
+  std::string*                _String;
+  edm::pset::StringList*      _StringList;
+  char*                       str;
+  bool                        _bool;
 }
 
 %token TYPE_tok
