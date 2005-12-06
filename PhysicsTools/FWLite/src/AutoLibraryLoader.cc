@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Nov 30 14:55:01 EST 2005
-// $Id$
+// $Id: AutoLibraryLoader.cc,v 1.1 2005/12/01 14:56:55 chrjones Exp $
 //
 
 // system include files
@@ -17,6 +17,7 @@
 
 // user include files
 #include "PhysicsTools/FWLite/src/AutoLibraryLoader.h"
+#include "PhysicsTools/FWLite/src/stdNamespaceAdder.h"
 
 #include "PluginManager/PluginManager.h"
 #include "PluginManager/ModuleCache.h"
@@ -62,6 +63,17 @@ AutoLibraryLoader::GetClass(const char* classname, Bool_t load)
       if(seal::reflex::Type() != t ) {
 	 //std::cout <<"loaded "<<classname<<std::endl;
 	 return gROOT->GetClass(classname,kFALSE);
+      } else {
+	 //see if adding a std namespace helps
+	 std::string name = fwlite::stdNamespaceAdder(classname);
+
+	 seal::PluginCapabilities::get()->load(cPrefix+name);
+
+	 seal::reflex::Type t = seal::reflex::Type::byName(classname);
+	 if(seal::reflex::Type() != t ) {
+	    //std::cout <<"loaded "<<classname<<std::endl;
+	    return gROOT->GetClass(classname,kFALSE);
+	 }
       }
    }
    return returnValue;
