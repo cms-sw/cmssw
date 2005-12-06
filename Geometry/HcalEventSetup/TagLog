@@ -1,3 +1,6 @@
+** V00-03-00  [Tue Dec  6 10:23:51 2005]
+Allow to use HcalTopology from event setup for creating the HcalGeometry
+
 ** V00-02-00  [Tue Nov  8 18:00:07 2005]
 updated version to V00-02-00
 
