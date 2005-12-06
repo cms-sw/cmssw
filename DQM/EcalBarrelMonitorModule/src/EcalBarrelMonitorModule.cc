@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  * 
- * $Date: 2005/12/03 10:42:53 $
- * $Revision: 1.58 $
+ * $Date: 2005/12/05 07:38:20 $
+ * $Revision: 1.59 $
  * \author G. Della Ricca
  *
 */
@@ -28,8 +28,6 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
   irun_ = ps.getUntrackedParameter<int>("runNumber", 999999);
 
   dbe_ = EcalBarrelMonitorDaemon::dbe();
-
-  dbe_->setVerbose(1);
 
   Char_t histo[20];
 
@@ -133,7 +131,7 @@ void EcalBarrelMonitorModule::endJob(void) {
   // end-of-run
   if ( meStatus_ ) meStatus_->Fill(2);
 
-  if ( outputFile_.size() != 0  && dbe_ ) dbe_->save(outputFile_);
+  if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
 
   // this should give enough time to meStatus_ to reach the Collector,
   // and then hopefully the clients ...
