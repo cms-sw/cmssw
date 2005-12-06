@@ -13,8 +13,20 @@
    \class HcalDbASCIIIO
    \brief IO for ASCII instances of Hcal Calibrations
    \author Fedor Ratnikov Oct. 28, 2005
-   $Id: HcalDbProducer.h,v 1.2 2005/10/04 18:03:03 fedor Exp $
+   $Id: HcalDbASCIIIO.h,v 1.1 2005/11/02 21:31:24 fedor Exp $
    
+Text file formats for different data types is as following:
+- # in first column comments the line
+- HcalPedestals, HcalPedestalWidths, HcalGains, HcalGainWidths have identical formats:
+  eta(int)  phi(int) depth(int) det(HB,HE,HF) cap1_value(float) cap2_value(float) cap3_value(float) cap4_value(float)  HcalDetId(int,optional)
+- HcalQIEShape:
+  33 x floats - low edges for first 33 channels of ideal QIE
+- HcalQIEData:
+  eta phi depth det 4x offsets_cap1 4x offsets_cap2 4x offsets_cap3 4x offsets_cap4 4x slopes_cap1 4x slopes_cap2 4x slopes_cap3 4x slopes_cap4
+- HcalChannelQuality:
+  eta phi depth det status(GOOD/BAD/HOT/DEAD)
+- HcalElectronicsMap:
+  line#  crate HTR_slot top_bottom(t/b) dcc# dcc_spigot fiber fiberchan subdet(HB/HE/HF/HO/HT) eta phi depth
 */
 namespace HcalDbASCIIIO {
   bool getObject (std::istream& fInput, HcalPedestals* fObject);
