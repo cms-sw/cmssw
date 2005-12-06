@@ -125,7 +125,7 @@ void CrossingFrame::print(int level) const {
   }
 
   for(map<string,PCaloHitContainer>::const_iterator it = signalCaloHits_.begin(); it != signalCaloHits_.end(); ++it) {
-    cout<< " subdetector "<<(*it).first <<" signal size"<<(*it).second.size()<<endl;
+    cout<< " subdetector "<<(*it).first <<" signal size "<<(*it).second.size()<<endl;
     if (level>=2) {
       for (unsigned int j=0;j<(*it).second.size();++j) 
 	cout<<" CaloHit "<<j<<" has track pointer "<< (*it).second[j].geantTrackId() <<" ,tof "<<(*it).second[j].time()<<", energy loss "<< (*it).second[j].energy()<<endl;

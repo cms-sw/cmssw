@@ -59,16 +59,16 @@ using namespace edm;
 
       //getters for collections
 
-      template <class T> void getSignal(std::string subdet,std::vector<T> *&);
-      void getSignal(std::string subdet, std::vector<PSimHit>* &v) { v=&(signalSimHits_[subdet]);  }
-      void getSignal(std::string subdet, std::vector<PCaloHit> * &v) { v=&signalCaloHits_[subdet];}
-      void getSignal(std::string subdet, std::vector<EmbdSimTrack>* &v) { v=&signalTracks_;}
-      void getSignal(std::string subdet, std::vector<EmbdSimVertex>* &v) { v=&signalVertices_;}
-      template <class T>  void getPileups(std::string subdet,std::vector<std::vector<T> >*&);
-      void getPileups(std::string subdet, std::vector<std::vector<PSimHit> >*& v) { v=&(pileupSimHits_[subdet]);}
-      void getPileups(std::string subdet, std::vector<std::vector<PCaloHit> > * &v) { v=&pileupCaloHits_[subdet];} 
-      void getPileups(std::string subdet, std::vector<std::vector<EmbdSimTrack> > * &v) { v=&pileupTracks_;}
-      void getPileups(std::string subdet, std::vector<std::vector<EmbdSimVertex> > * &v) { v=&pileupVertices_;}
+      template <class T> void getSignal(const std::string subdet,std::vector<T> *&);
+      void getSignal(const std::string subdet, std::vector<PSimHit>* &v) { v=&(signalSimHits_[subdet]);  }
+      void getSignal(const std::string subdet, std::vector<PCaloHit> * &v) { v=&signalCaloHits_[subdet];}
+      void getSignal(const std::string subdet, std::vector<EmbdSimTrack>* &v) { v=&signalTracks_;}
+      void getSignal(const std::string subdet, std::vector<EmbdSimVertex>* &v) { v=&signalVertices_;}
+      template <class T>  void getPileups(const std::string subdet,std::vector<std::vector<T> >*&);
+      void getPileups(const std::string subdet, std::vector<std::vector<PSimHit> >*& v) { v=&(pileupSimHits_[subdet]);}
+      void getPileups(const std::string subdet, std::vector<std::vector<PCaloHit> > * &v) { v=&pileupCaloHits_[subdet];} 
+      void getPileups(const std::string subdet, std::vector<std::vector<EmbdSimTrack> > * &v) { v=&pileupTracks_;}
+      void getPileups(const std::string subdet, std::vector<std::vector<EmbdSimVertex> > * &v) { v=&pileupVertices_;}
 
       // limits for tof to be considered for trackers
       static const int lowTrackTof; //nsec
