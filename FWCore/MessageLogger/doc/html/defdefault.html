@@ -67,12 +67,12 @@ process TEST = {
 </pre>
 
 The <font color=red>PSet default = { ... }</font> parameter, outside the context of any destination,
-applies to all destinations for which no default limit and timespan are established.  This Pset specifies
+applies to all destinations for which no default limit and timespan are established.  This PSet specifies
 that those destinations should behave as if their default limit and timespan are the given values.
 <p>
 In this example file, the limit of 10 reports of each type of message, and the timespan of 60 seconds,
 would apply as defaults for cerr, anotherfile.txt, and cout, none of which contain a default in their
-configuration PSets.  (cout in fact has no conficguration Pset at all.)
+configuration PSets.  (cout in fact has no configuration PSet at all.)
 <p>
 Although in this illustration the <font color=red>PSet default = { ... }</font> parameter appears last,
 it could validly appear first or in any other place within the  <font color=red>service = MessageLogger</font>
