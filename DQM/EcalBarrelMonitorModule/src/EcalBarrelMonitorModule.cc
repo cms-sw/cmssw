@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  * 
- * $Date: 2005/12/05 07:38:20 $
- * $Revision: 1.59 $
+ * $Date: 2005/12/06 09:27:15 $
+ * $Revision: 1.60 $
  * \author G. Della Ricca
  *
 */
@@ -61,12 +61,16 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
     }
   }
 
+  integrity_task_ = 0;
+
   cosmic_task_ = 0;
   laser_task_ = 0;
   pndiode_task_ = 0;
   pedestal_task_ = 0;
   pedpresample_task_ = 0;
   testpulse_task_ = 0;
+
+//                       integrity_task_ = new EBIntegrityTask(ps, dbe_);
 
   if ( runType_ == 0 ) cosmic_task_ = new EBCosmicTask(ps, dbe_);
 
@@ -90,6 +94,8 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
 
 EcalBarrelMonitorModule::~EcalBarrelMonitorModule(){
 
+  if ( integrity_task_ ) delete integrity_task_;
+
   if ( cosmic_task_ ) delete cosmic_task_;
   if ( laser_task_ ) delete laser_task_;
   if ( pndiode_task_ ) delete pndiode_task_;
@@ -108,6 +114,8 @@ void EcalBarrelMonitorModule::beginJob(const edm::EventSetup& c){
   // begin-of-run
   if ( meStatus_ ) meStatus_->Fill(0);
 
+  if ( integrity_task_ ) integrity_task_->beginJob(c);
+
   if ( cosmic_task_ ) cosmic_task_->beginJob(c);
   if ( laser_task_ ) laser_task_->beginJob(c);
   if ( pndiode_task_ ) pndiode_task_->beginJob(c);
@@ -118,6 +126,8 @@ void EcalBarrelMonitorModule::beginJob(const edm::EventSetup& c){
 }
 
 void EcalBarrelMonitorModule::endJob(void) {
+
+  if ( integrity_task_ ) integrity_task_->endJob();
 
   if ( cosmic_task_ ) cosmic_task_->endJob();
   if ( laser_task_ ) laser_task_->endJob();
@@ -211,6 +221,8 @@ void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
 
   // resume the shipping of monitoring elements
   dbe_->unlock();
+
+  if (                  integrity_task_ ) integrity_task_->analyze(e, c);
 
   if ( evtType_ == 0 && cosmic_task_ ) cosmic_task_->analyze(e, c);
 

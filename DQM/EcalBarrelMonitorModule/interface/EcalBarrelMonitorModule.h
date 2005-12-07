@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorModule.h
  *
- * $Date: 2005/11/17 08:43:36 $
- * $Revision: 1.18 $
+ * $Date: 2005/11/24 09:47:00 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  *
 */
@@ -23,6 +23,8 @@
 #include <DataFormats/EcalDetId/interface/EBDetId.h>
 
 #include <DQM/EcalBarrelMonitorModule/interface/EcalBarrelMonitorDaemon.h>
+
+#include <DQM/EcalBarrelMonitorTasks/interface/EBIntegrityTask.h>
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBCosmicTask.h>
 #include <DQM/EcalBarrelMonitorTasks/interface/EBLaserTask.h>
@@ -83,6 +85,8 @@ MonitorElement* meEBdigi_;
 MonitorElement* meEBhits_;
 
 MonitorElement* meEvent_[36];
+
+EBIntegrityTask* integrity_task_;
 
 EBCosmicTask* cosmic_task_;
 EBLaserTask* laser_task_;
