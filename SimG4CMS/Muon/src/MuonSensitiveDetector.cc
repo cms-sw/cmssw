@@ -116,7 +116,7 @@ void MuonSensitiveDetector::clearHits()
 #ifdef DEBUG 
   std::cout << "MuonSensitiveDetector::clearHits"<<std::endl;
 #endif
-  slaveMuon->clearHits();
+  slaveMuon->Initialize();
 }
 
 bool MuonSensitiveDetector::ProcessHits(G4Step * aStep, G4TouchableHistory * ROhist)
