@@ -38,6 +38,7 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBHeader.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCRPCData.h"
 
+#include <EventFilter/CSCRawToDigi/interface/CSCMonitorInterface.h>
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "CondFormats/CSCObjects/interface/CSCReadoutMappingFromFile.h"
@@ -51,7 +52,7 @@ CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset){
   instatiateDQM = pset.getUntrackedParameter<bool>("runDQM", false);
   if(instatiateDQM){
    
-   monitor = edm::Service<MonitorInterface>().operator->(); 
+   monitor = edm::Service<CSCMonitorInterface>().operator->(); 
   
   }
   

@@ -13,36 +13,19 @@ using namespace std;
 map<string, MonitorElement*> CSCMonitor::book_chamber(int ChamberID) {
 
 	int id = ChamberID;
-	int CrateID = (int)((id>>4) & 0xFF);
-	int DMBID = (int)(id & 0xF);
-
-	map<int, map<string,MonitorElement*> >::iterator me_itr = meCollection.find(ChamberID);
-      	if (me_itr == meCollection.end() || (meCollection.size()==0)) {
-	    if(printout) {
-	      cout << "CSCMonitor::book_chamber> #"
-		   << "> ch" << CrateID << ":" << DMBID << ">";
-	      cout << " Creating of list of Histos for the chamber ..." << endl;
-	   
-	    }
-	    
-	} else { 
-	
-         if(printout) cout<<"returning the existing collector "<<endl;
-	  return meCollection[ChamberID];
-	
-	}
-
-
+        string dir;
 	string meName;
 	map<string, MonitorElement*> me;
-
-        string dir = Form("Data/Channel_%d",id);
-
 
 //CSC
 	if(printout) 	cout << "CSCMonitor::book_chamber> New CSC Canvases are booking ..." << endl;
 
 //KK additional information for each particular chamber
+
+	
+	dir= Form("Data/Chamber_%d",id);
+        dbe->setCurrentFolder(dir);
+
 
 		meName = Form("%dBinCheck_ErrorStat_Table",id);
 		me[meName] = dbe->book2D(meName.c_str(), "DDU Data Format Errors Table", 1, 0, 1, 19, 0, 19);
@@ -70,7 +53,8 @@ map<string, MonitorElement*> CSCMonitor::book_chamber(int ChamberID) {
 //DMBs
 //	if(debug_printout) 	cout << "D**EmuBookChamber> New DMB Canvases are booking ..." << endl;
 
-        dbe->setCurrentFolder("DMB");
+        dir = Form("Data/Chamber_%d/DMB",id);
+        dbe->setCurrentFolder(dir);
 
 
 		meName = Form("%dDMB_FEB_DAV",id);
@@ -119,7 +103,8 @@ map<string, MonitorElement*> CSCMonitor::book_chamber(int ChamberID) {
 
 //ALCTs
 	//if(debug_printout) 	cout << "D**EmuBookChamber> New ALCT Canvases are booking ..." << endl;
-        dbe->setCurrentFolder("ALCT");
+        dir = Form("Data/Chamber_%d/ALCT",id);
+        dbe->setCurrentFolder(dir);
 
 
 		meName = Form("%dALCT_Word_Count", ChamberID);
@@ -162,7 +147,8 @@ map<string, MonitorElement*> CSCMonitor::book_chamber(int ChamberID) {
 
 //TMB
 	//if(debug_printout) 	cout << "D**EmuBookChamber> New TMB Canvases are booking ..." << endl;
-        dbe->setCurrentFolder("TMB");
+        dir = Form("Data/Chamber_%d/TMB",id);
+        dbe->setCurrentFolder(dir);
 
 
 		meName = Form("%dTMB_Word_Count", ChamberID);
@@ -268,7 +254,8 @@ map<string, MonitorElement*> CSCMonitor::book_chamber(int ChamberID) {
 
 // CFEBs
 	//if(debug_printout) 	cout << "D**EmuBookChamber> New CFEB Canvases are booking ..." << endl;
-        dbe->setCurrentFolder("CFEB");
+        dir = Form("Data/Chamber_%d/CFEB",id);
+        dbe->setCurrentFolder(dir);
 
  
 //	CFEBs by numbers
@@ -343,7 +330,8 @@ map<string, MonitorElement*> CSCMonitor::book_chamber(int ChamberID) {
 
 //SYNC
 	//if(debug_printout) 	cout << "D**EmuBookChamber> New SYNC Canvases are booking ..." << endl;
-        dbe->setCurrentFolder("SYNC");
+        dir = Form("Data/Chamber_%d/SYNC",id);
+        dbe->setCurrentFolder(dir);
 
 
 		meName = Form("%dDMB_L1A_Distrib", ChamberID);
