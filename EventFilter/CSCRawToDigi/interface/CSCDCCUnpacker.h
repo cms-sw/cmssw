@@ -4,15 +4,16 @@
 /** \class CSCDCCUnpacker
  * 
  *
- *  $Date: 2005/11/29 18:06:48 $
- *  $Revision: 1.3 $
+ *  $Date: 2005/12/01 17:56:09 $
+ *  $Revision: 1.4 $
  * \author Alex Tumanov 
  */
 
 #include <FWCore/Framework/interface/EDProducer.h>
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
-#include <EventFilter/CSCRawToDigi/interface/MonitorInterface.h>
 
+class CSCMonitorInterface;
 
 class CSCDCCUnpacker: public edm::EDProducer {
  public:
@@ -29,13 +30,13 @@ class CSCDCCUnpacker: public edm::EDProducer {
 
   
  private:
-
+ 
   int numOfEvents;
   
   bool instatiateDQM;
-  MonitorInterface * monitor;
+  CSCMonitorInterface * monitor;
 
-  
+
 };
 
 #endif
