@@ -45,6 +45,7 @@ fi
 scramv1 project CMSSW $1
 cd $1/src
 eval `scramv1 runtime -sh`
+cvs co CondCore/PluginSystem
 cvs co CondCore/MetaDataService
 cvs co CondTools/Ecal
 scramv1 b
