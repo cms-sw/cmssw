@@ -3,20 +3,21 @@
 
 
 #include "DQM/CSCMonitorModule/interface/CSCMonitor.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCMonitorInterface.h"
 
-//#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-//#include "PluginManager/PluginManager.h"
 
 using namespace std;
 
 CSCMonitor::CSCMonitor(const edm::ParameterSet& iConfig ){
 
- printout=false;
- 
+ printout=true;
+ for(int ddu=0; ddu<maxDDU; ddu++) dduBooked[ddu]=false;
+ for(int cmb=0; cmb<maxCMBID; cmb++) cmbBooked[cmb]=false;
+
  nEvents=0;
  dduBX=0;
  L1ANumber=0;
@@ -26,11 +27,6 @@ CSCMonitor::CSCMonitor(const edm::ParameterSet& iConfig ){
   
   edm::Service<MonitorDaemon> daemon;
   daemon.operator->();
-
-  meCollection[0] = book_common();
-  int chID=256; //temporary dummy value
-  meCollection[chID] = book_chamber(chID);
-
 
   dbe->showDirStructure();
 }
@@ -47,15 +43,20 @@ CSCMonitor::~CSCMonitor()
 void CSCMonitor::process(CSCDCCEventData & dccData )
 {
    
-      
+  nEvents = nEvents +1;
+        
    const vector<CSCDDUEventData> & dduData = dccData.dduData(); 
+
+  if(printout) cout << "CSCMonitor::process #" << dec << nEvents 
+             << "> Number of DDU = " <<dduData.size()<<endl;
+        
 
    for (int ddu=0; ddu<(int)dduData.size(); ++ddu) { 
    
-         MonitorDDU(dduData[ddu]);
+         MonitorDDU(dduData[ddu], ddu );
    
       }
-  
+  usleep(100000);
 }
 
 
@@ -67,10 +68,10 @@ void CSCMonitor::process(CSCDCCEventData & dccData )
 
 using namespace edm::serviceregistry;
 
-typedef ParameterSetMaker<MonitorInterface,CSCMonitor> maker;
+typedef ParameterSetMaker<CSCMonitorInterface,CSCMonitor> maker;
 
 DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_SERVICE_MAKER(MonitorInterface,maker)
+DEFINE_ANOTHER_FWK_SERVICE_MAKER(CSCMonitor,maker)
 
 
 
