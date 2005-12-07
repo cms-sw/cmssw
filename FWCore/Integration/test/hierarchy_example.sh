@@ -1,4 +1,4 @@
 #!/bin/sh
 
-cmsRun --parameter-set hierarchy_example.cfg
+cmsRun --parameter-set ${LOCAL_TEST_DIR}/hierarchy_example.cfg
 
