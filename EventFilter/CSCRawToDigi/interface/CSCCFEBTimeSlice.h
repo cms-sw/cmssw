@@ -79,6 +79,19 @@ class CSCCFEBTimeSlice {
 
   friend std::ostream & operator<<(std::ostream & os, const CSCCFEBTimeSlice &);
 
+
+  ///accessors for words 97, 98 and 99
+  unsigned  get_crc()               const {return crc;}
+  unsigned  get_n_free_sca_blocks() const {return n_free_sca_blocks;}
+  unsigned  get_lctpipe_count()     const {return lctpipe_count;}
+  unsigned  get_lctpipe_full()      const {return lctpipe_full;}
+  unsigned  get_l1pipe_full()       const {return l1pipe_full;}
+  unsigned  get_lctpipe_empty()     const {return lctpipe_empty;}
+  unsigned  get_l1pipe_empty()      const {return l1pipe_empty;}
+  unsigned  get_buffer_warning()    const {return buffer_warning;}
+  unsigned  get_buffer_count()      const {return buffer_count;}
+  unsigned  get_L1A_number()        const {return L1A_number;}
+
  private:
   unsigned short theSamples[96];
 
@@ -94,15 +107,12 @@ class CSCCFEBTimeSlice {
   unsigned l1pipe_empty  : 1;
   unsigned blank_space_1 : 4;
 
-  /// WORD 99
-  unsigned l1pipe_cnt : 8;
-  /// indicates that a used SCA block is now available
-  unsigned lct_pop    : 1;
-  /// CFEB_PUSH indicates that data is being sent to the DMB
-  unsigned cfeb_push  : 1;
-  unsigned sca_full   : 1;
-  unsigned busy       : 1;
-  unsigned blank_space_2 : 4;
+
+  ///Word 99
+  unsigned buffer_warning : 1;
+  unsigned buffer_count : 5;
+  unsigned L1A_number :6;
+  unsigned blank_space_3 : 4; 
 
   /// word 100 is a dummy: 0x7FFF
   unsigned dummy : 16;
