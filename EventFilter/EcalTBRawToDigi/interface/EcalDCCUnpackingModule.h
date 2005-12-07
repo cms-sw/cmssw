@@ -4,8 +4,8 @@
 /** \class EcalUnpackingModule
  * 
  *
- *  $Date: 2005/10/18 09:06:15 $
- *  $Revision: 1.3 $
+ *  $Date: 2005/11/17 08:43:30 $
+ *  $Revision: 1.4 $
  * \author N. Marinelli 
  * \author G. Della Ricca
  */
@@ -44,8 +44,6 @@ class EcalTBDaqFormatter;
     EcalTBDaqFormatter* formatter;
 
     DaqMonitorBEInterface* dbe;
-
-    MonitorElement* meIntegrity[36];
 
     string outputFile;
   };
