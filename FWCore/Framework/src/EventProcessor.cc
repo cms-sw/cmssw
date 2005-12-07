@@ -209,8 +209,7 @@ namespace edm {
                      0); // how is this specifified? Where does it come from?
      
      input_= makeInput(*params_, common_, preg_);
-     ScheduleBuilder sbuilder= 
-        ScheduleBuilder(*params_, wreg_, preg_, act_table_);
+     ScheduleBuilder sbuilder(*params_, wreg_, preg_, act_table_);
      
      workers_= (sbuilder.getPathList());
      runner_ = std::auto_ptr<ScheduleExecutor>(new ScheduleExecutor(workers_,act_table_));
