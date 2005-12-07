@@ -148,38 +148,53 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   /*parameter set parsing and pool environment setting
    */
   unsigned int auth=iConfig.getUntrackedParameter<unsigned int>("authenticationMethod",0) ;
-  if( auth==1 ){
-    pool::POOLContext::loadComponent( "POOL/Services/XMLAuthenticationService" );
-  }else{
-    pool::POOLContext::loadComponent( "POOL/Services/EnvironmentAuthenticationService" );
+  std::string catconnect;
+  try{
+    if( auth==1 ){
+      pool::POOLContext::loadComponent( "POOL/Services/XMLAuthenticationService" );
+    }else{
+      pool::POOLContext::loadComponent( "POOL/Services/EnvironmentAuthenticationService" );
+    }
+    catconnect=iConfig.getUntrackedParameter<std::string>("catalog","");
+    pool::POOLContext::loadComponent( "SEAL/Services/MessageService" );
+    unsigned int message_level=iConfig.getUntrackedParameter<unsigned int>("messagelevel",0);
+    switch (message_level) {
+    case 0 :
+      pool::POOLContext::setMessageVerbosityLevel( seal::Msg::Error );
+      break;    
+    case 1:
+      pool::POOLContext::setMessageVerbosityLevel( seal::Msg::Warning );
+      break;
+    case 2:
+      pool::POOLContext::setMessageVerbosityLevel( seal::Msg::Info );
+      break;
+    case 3:
+      pool::POOLContext::setMessageVerbosityLevel( seal::Msg::Debug );
+      break;  
+    default:
+      pool::POOLContext::setMessageVerbosityLevel( seal::Msg::Error );
+    }
+    if(message_level>=2){
+      std::vector< seal::IHandle<pool::IAuthenticationService> > v_authSvc;
+      pool::POOLContext::context()->query( v_authSvc );
+      if ( ! v_authSvc.empty() ) {
+	seal::IHandle<pool::IAuthenticationService>& authSvc = v_authSvc.front();
+	std::cerr<<"[PoolDBESSource] connect "<<m_con << '\n';
+	std::cerr<<"[PoolDBESSource] user "<<authSvc->valueForItem( m_con,"user" ) << '\n';
+	std::cerr<<"[PoolDBESSource] password "<<authSvc->valueForItem( m_con,"password" ) << '\n';
+	std::cerr<<"[PoolDBESSource] catalog "<< catconnect << '\n';
+	std::cerr<<"[PoolDBESSource] timetype "<< m_timetype << std::endl;
+      }
+    }
+  }catch( const seal::Exception& e){
+    std::cerr << e.what() << std::endl;
+    throw cms::Exception( e.what() );
+  } catch ( const std::exception& e ) {
+    std::cerr << e.what() << std::endl;
+    throw cms::Exception( e.what() );
+  } catch ( ... ) {
+    throw cms::Exception("Funny error");
   }
-  std::vector< seal::IHandle<pool::IAuthenticationService> > v_authSvc;
-  pool::POOLContext::context()->query( v_authSvc );
-  if ( ! v_authSvc.empty() ) {
-    seal::IHandle<pool::IAuthenticationService>& authSvc = v_authSvc.front();
-    //std::cout<<"user "<<authSvc->valueForItem( m_con,"user" ) << std::endl;
-    //std::cout<<"password "<<authSvc->valueForItem( m_con,"password" ) << std::endl;
-  }
-  std::string catconnect=iConfig.getUntrackedParameter<std::string>("catalog","");
-  pool::POOLContext::loadComponent( "SEAL/Services/MessageService" );
-  unsigned int message_level=iConfig.getUntrackedParameter<unsigned int>("messagelevel",0);
-  switch (message_level) {
-  case 0 :
-    pool::POOLContext::setMessageVerbosityLevel( seal::Msg::Error );
-    break;    
-  case 1:
-    pool::POOLContext::setMessageVerbosityLevel( seal::Msg::Warning );
-    break;
-  case 2:
-    pool::POOLContext::setMessageVerbosityLevel( seal::Msg::Info );
-    break;
-  case 3:
-    pool::POOLContext::setMessageVerbosityLevel( seal::Msg::Debug );
-    break;  
-  default:
-    pool::POOLContext::setMessageVerbosityLevel( seal::Msg::Error );
-  }
-  
   //std::cout<<"PoolDBESSource::PoolDBESSource"<<std::endl;
   using namespace std;
   using namespace edm;
@@ -271,7 +286,6 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
 
 PoolDBESSource::~PoolDBESSource()
 {
-  //std::cout<<"PoolDBESSource::~PoolDBESSource"<<std::endl;
   this->closePool();
 }
 
