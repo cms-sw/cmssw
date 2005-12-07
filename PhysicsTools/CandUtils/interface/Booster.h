@@ -15,7 +15,7 @@ private:
 };
 
 struct CenterOfMassBooster : public Booster {
-  CenterOfMassBooster( const aod::Candidate & c ) : Booster( - c.p4().BoostVector() ) {
+  CenterOfMassBooster( const aod::Candidate & c ) : Booster( - c.boostVector() ) {
   }
 };
 
