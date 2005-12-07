@@ -147,7 +147,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
 {		
   /*parameter set parsing and pool environment setting
    */
-  unsigned int auth=iConfig.getParameter<unsigned int>("authenticationMethod") ;
+  unsigned int auth=iConfig.getUntrackedParameter<unsigned int>("authenticationMethod",0) ;
   if( auth==1 ){
     pool::POOLContext::loadComponent( "POOL/Services/XMLAuthenticationService" );
   }else{
@@ -157,12 +157,12 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   pool::POOLContext::context()->query( v_authSvc );
   if ( ! v_authSvc.empty() ) {
     seal::IHandle<pool::IAuthenticationService>& authSvc = v_authSvc.front();
-    std::cout<<"user "<<authSvc->valueForItem( m_con,"user" ) << std::endl;
-    std::cout<<"password "<<authSvc->valueForItem( m_con,"password" ) << std::endl;
+    //std::cout<<"user "<<authSvc->valueForItem( m_con,"user" ) << std::endl;
+    //std::cout<<"password "<<authSvc->valueForItem( m_con,"password" ) << std::endl;
   }
-  std::string catconnect=iConfig.getParameter<std::string>("catalog");
+  std::string catconnect=iConfig.getUntrackedParameter<std::string>("catalog","");
   pool::POOLContext::loadComponent( "SEAL/Services/MessageService" );
-  unsigned int message_level=iConfig.getParameter<unsigned int>("messagelevel");
+  unsigned int message_level=iConfig.getUntrackedParameter<unsigned int>("messagelevel",0);
   switch (message_level) {
   case 0 :
     pool::POOLContext::setMessageVerbosityLevel( seal::Msg::Error );
