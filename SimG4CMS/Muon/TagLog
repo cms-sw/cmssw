@@ -1,3 +1,6 @@
+** V00-04-04  [Wed Dec  7 12:23:45 2005]
+fix a bug on ROU initialization
+
 ** V00-04-03  [Tue Dec  6 20:06:16 2005]
 fix the mag field configurator
 
