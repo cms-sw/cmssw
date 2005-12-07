@@ -11,7 +11,6 @@
 #include "SimDataFormats/SimHitMaker/interface/TrackingSlaveSD.h"
 
 #include "SimG4CMS/Tracker/interface/TkAccumulatingSensitiveDetector.h"
-#include "SimG4CMS/Tracker/interface/TrackingSlaveSDWithRenumbering.h"
 #include "SimG4CMS/Tracker/interface/FakeFrameRotation.h"
 #include "SimG4CMS/Tracker/interface/StandardFrameRotation.h"
 #include "SimG4CMS/Tracker/interface/TrackerFrameRotation.h"
