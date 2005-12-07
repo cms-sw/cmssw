@@ -10,7 +10,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Fri Sep 23 11:38:38 CEST 2005
-// $Id: TestMix.cc,v 1.5 2005/11/29 13:47:07 uberthon Exp $
+// $Id: TestMix.cc,v 1.6 2005/12/06 10:18:53 uberthon Exp $
 //
 //
 
@@ -69,7 +69,6 @@ TestMix::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     // and print
     std::cout<<std::endl;
-    std::cout<<*(cf.product())<<std::endl;
     cf.product()->print(level_);
 
     // test accesses to CrossingFrame

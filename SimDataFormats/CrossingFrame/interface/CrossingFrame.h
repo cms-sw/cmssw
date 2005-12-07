@@ -33,7 +33,7 @@ using namespace edm;
     public:
       // con- and destructors
 
-      CrossingFrame():  bunchSpace_(75), firstCrossing_(0) {;}
+      CrossingFrame():  bunchSpace_(75), firstCrossing_(0), lastCrossing_(0) {;}
       CrossingFrame(int minb, int maxb, int bunchsp, std::vector<std::string> trackersubdetectors,std::vector<std::string> calosubdetectors);
 
       ~CrossingFrame();
@@ -45,20 +45,18 @@ using namespace edm;
       void addSignalCaloHits(const std::string subdet, const edm::PCaloHitContainer *);
       void addSignalTracks(const edm::EmbdSimTrackContainer *);
       void addSignalVertices(const edm::EmbdSimVertexContainer *);
-      void addPileupSimHits(const int bcr, const std::string subdet, const edm::PSimHitContainer *, int trackoffset=0);
+      void addPileupSimHits(const int bcr, const std::string subdet, const edm::PSimHitContainer *, int trackoffset, bool checkTof);
       void addPileupCaloHits(const int bcr, const std::string subdet, const edm::PCaloHitContainer *, int trackoffset=0);
       void addPileupTracks(const int bcr, const edm::EmbdSimTrackContainer *, int vertexoffset=0);
       void addPileupVertices(const int bcr, const edm::EmbdSimVertexContainer *, int trackoffset=0);      
       void print(int level=0) const ;
       void setEventID(edm::EventID id) {id_=id;}
       edm::EventID getEventID() const {return id_;}
-      int getFirstCrossingNr() const {return firstCrossing_;}
+      std::pair<int,int> getBunchRange() const {return std::pair<int,int>(firstCrossing_,lastCrossing_);}
       int getBunchSpace() const {return bunchSpace_;}
-      
-
+      bool knownDetector  (const std::string subdet) const {return signalSimHits_.count(subdet) ? true : signalCaloHits_.count(subdet);}
 
       //getters for collections
-
       template <class T> void getSignal(const std::string subdet,std::vector<T> *&);
       void getSignal(const std::string subdet, std::vector<PSimHit>* &v) { v=&(signalSimHits_[subdet]);  }
       void getSignal(const std::string subdet, std::vector<PCaloHit> * &v) { v=&signalCaloHits_[subdet];}
@@ -80,6 +78,7 @@ using namespace edm;
       edm::EventID id_;
       int bunchSpace_;  //in nsec
       int firstCrossing_;
+      int lastCrossing_;
 
       // signal
       std::map <std::string, edm::PSimHitContainer> signalSimHits_;

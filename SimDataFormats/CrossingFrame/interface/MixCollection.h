@@ -14,7 +14,7 @@ private:
  public:
   typedef std::pair<int,int> range;
   MixCollection(const CrossingFrame *cf, 
-		   const std::string subdet=" ", const range bunchRange =range(-999,999));
+		   const std::string subdet="", const range bunchRange =range(-999,999));
 
   range bunchrange() const {return bunchRange_;}
 
@@ -28,7 +28,6 @@ private:
     /** constructors */
     MixItr() {;}
     MixItr(typename std::vector<T>::iterator it) :    pMixItr_(it) {;}
-
      MixItr(MixCollection *shc, int firstcr,int lastcr) :     
        mixCol_(shc),curBunchCrossing_(firstcr),lastBunchCrossing_(lastcr),first_(true) {;}
 
@@ -38,6 +37,7 @@ private:
 
     /**operators*/
     const T* operator->() const { return pMixItr_.operator->(); }
+    const T& operator*() const { return pMixItr_.operator*(); }
     MixItr operator++ () {return next();}
     MixItr operator++ (int) {return next();}
     bool operator!= (const MixItr& itr){return pMixItr_!=itr.pMixItr_;}
@@ -89,12 +89,8 @@ MixCollection<T>::MixCollection(const CrossingFrame *cf, const std::string subde
 {
   bunchRange_=bunchRange;
 
-
   //verify whether bunchrange is ok
-
-  cf_->getPileups(subdet,pileups_);
-  int firstcr=cf_->getFirstCrossingNr();
-  range defaultrange=range(firstcr,firstcr+pileups_->size()-1);
+  range defaultrange=cf_->getBunchRange();
   if (bunchRange_==range(-999,999)) bunchRange_=defaultrange;
   else if (bunchRange_!=defaultrange ) {
     int first=defaultrange.first;
@@ -103,21 +99,28 @@ MixCollection<T>::MixCollection(const CrossingFrame *cf, const std::string subde
     bunchRange_=range(first,last);
   }
 
+
+  //verify whether detector is known
+  if (subdet.size()>0 && !cf_->knownDetector(subdet))
+     throw cms::Exception("UnknownSubdetector")<< " No detector "<<subdet<<" known in CrossingFrame\n";
+
+
   //verify whether detector is present
   cf_->getSignal(subdet,signals_);
+  cf_->getPileups(subdet,pileups_);
   if (!signals_->size()) {
-    //     throw cms::Exception("UnknownSubdetector")<< " No signals for detector "<<subdet<<" in CrossingFrame\n";
-    //    return;
-     std::cout<<" No signals for detector "<<subdet<<" in CrossingFrame\n"<< std::endl;
-     return;
+    std::cout<<" No signal for subdetector "<<subdet<<std::endl;
+    return;
   }
  
-  //should never happen!!!
+  // this should never happen!!
   if (!pileups_->size()) {
-         throw cms::Exception("UnknownSubdetector")<< " No pileups for detector "<<subdet<<" in CrossingFrame (Should never happen!)\n";
+     throw cms::Exception("UnknownSubdetector")<< " Should not happen: no pileups for detector "<<subdet<<" in CrossingFrame\n";
+    return;
   }
-}
 
+
+}
 template <class T>
 typename MixCollection<T>::MixItr MixCollection<T>::MixItr::next() {
 

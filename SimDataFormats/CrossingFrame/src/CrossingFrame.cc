@@ -5,7 +5,7 @@ using namespace edm;
 const int  CrossingFrame::lowTrackTof = -36;
 const int  CrossingFrame::highTrackTof = 36;
 
-CrossingFrame::CrossingFrame(int minb, int maxb, int bunchsp, std::vector<std::string> trackersubdetectors,std::vector<std::string> calosubdetectors): bunchSpace_(bunchsp), firstCrossing_(minb) {
+CrossingFrame::CrossingFrame(int minb, int maxb, int bunchsp, std::vector<std::string> trackersubdetectors,std::vector<std::string> calosubdetectors): bunchSpace_(bunchsp), firstCrossing_(minb), lastCrossing_(maxb) {
 
     // create and insert vectors into the map
     // for tracker
@@ -58,14 +58,18 @@ void CrossingFrame::addSignalVertices(const EmbdSimVertexContainer *simvertices)
 }
 
 
-void CrossingFrame::addPileupSimHits(const int bcr, const std::string subdet, const PSimHitContainer *simhits, int trackoffset) { 
+void CrossingFrame::addPileupSimHits(const int bcr, const std::string subdet, const PSimHitContainer *simhits, int trackoffset, bool checkTof) { 
   // add individual PSimHits to this bunchcrossing
-  // eliminate those which a TOF outside of the bounds to be sonsidered
+  // eliminate those which a TOF outside of the bounds to be considered for corresponding detectors only
 
   int count=0;
   for (unsigned int i=0;i<simhits->size();++i) {
-    float newtof=(*simhits)[i].timeOfFlight() + bcr*bunchSpace_;
-    if (newtof>=lowTrackTof && newtof <=highTrackTof) {
+    bool accept=true;
+    if (checkTof) {
+      float newtof=(*simhits)[i].timeOfFlight() + bcr*bunchSpace_;
+      accept=newtof>=lowTrackTof && newtof <=highTrackTof;
+    }
+    if (!checkTof || accept) {
       PSimHit hit((*simhits)[i].entryPoint(), (*simhits)[i].exitPoint(),(*simhits)[i].pabs(),
 		  (*simhits)[i].timeOfFlight() + bcr*bunchSpace_, 
 		  (*simhits)[i].energyLoss(), (*simhits)[i].particleType(),
@@ -77,8 +81,8 @@ void CrossingFrame::addPileupSimHits(const int bcr, const std::string subdet, co
   }
 }
 
-void CrossingFrame::addPileupCaloHits(const int bcr, const std::string subdet, const PCaloHitContainer *calohits, int trackoffset) { 
-  for (unsigned int i=0;i<calohits->size();++i) {
+  void CrossingFrame::addPileupCaloHits(const int bcr, const std::string subdet, const PCaloHitContainer *calohits, int trackoffset) { 
+    for (unsigned int i=0;i<calohits->size();++i) {
     PCaloHit hit((*calohits)[i].id(),(*calohits)[i].energy(),(*calohits)[i].time()+bcr*bunchSpace_,(*calohits)[i].geantTrackId()+trackoffset);
     //      (pileupCaloHits_[subdet])[bcr-firstCrossing_].insertHit(hit);
     (pileupCaloHits_[subdet])[bcr-firstCrossing_].push_back(hit);
@@ -111,8 +115,11 @@ void CrossingFrame::addPileupVertices(const int bcr, const EmbdSimVertexContaine
 
 void CrossingFrame::print(int level) const {
 
-  std::cout<<"\nCrossingFrame for "<<id_<<",  minbunch = "<<firstCrossing_
-	   <<", bunchSpace "<<bunchSpace_<<std::endl;    // print for lowest level (signals)
+  std::cout<<*this<<std::endl;
+  //"\nCrossingFrame for "<<id_<<",  minbunch = "<<firstCrossing_
+  //	   <<", bunchSpace "<<bunchSpace_<<std::endl;
+
+    // print for lowest level (signals)
   //
   // signals
   cout<<"\nSignals:"<<endl;
@@ -194,7 +201,8 @@ void CrossingFrame::print(int level) const {
 
 std::ostream &operator<<(std::ostream& o, const CrossingFrame &cf)
 {
-  o <<"\nCrossingFrame for "<<cf.getEventID()<<",  minbunch = "<<cf.getFirstCrossingNr()
+  std::pair<int,int> range=cf.getBunchRange();
+  o <<"\nCrossingFrame for "<<cf.getEventID()<<",  bunchrange = "<<range.first<<","<<range.second
 	   <<", bunchSpace "<<cf.getBunchSpace();
 
   return o;

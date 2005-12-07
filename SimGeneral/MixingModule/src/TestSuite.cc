@@ -10,7 +10,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Fri Sep 23 11:38:38 CEST 2005
-// $Id: TestSuite.cc,v 1.5 2005/11/29 13:47:07 uberthon Exp $
+// $Id: TestSuite.cc,v 1.1 2005/12/06 10:18:53 uberthon Exp $
 //
 //
 
@@ -91,13 +91,30 @@ TestSuite::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      }
 
 //vertex histo
-    char histovertices[10],histovertexindices[17],histovertexindicessig[24];
-    sprintf(histovertices,"Vertices_%d",bunchcr_);
-    sprintf(histovertexindices,"TrackPointers_%d",bunchcr_);
-    sprintf(histovertexindicessig,"TrackPointers_signal_%d",bunchcr_);
-    TH1I * vtxhist = new TH1I(histovertices,"Bunchcrossings",8,-5,3);
-    TH1I * vtxindhist = new TH1I(histovertexindices,"Vertex to Track Indices",100,0,500);
-    TH1I * vtxindhistsig = new TH1I(histovertexindicessig,"SignalVertex to Track Indices",100,0,500);
+//     char histovertices[10],histovertexindices[17],histovertexindicessig[24];
+//     sprintf(histovertices,"Vertices_%d",bunchcr_);
+//     sprintf(histovertexindices,"TrackPointers_%d",bunchcr_);
+//     sprintf(histovertexindicessig,"TrackPointers_signal_%d",bunchcr_);
+//     TH1I * vtxhist = new TH1I(histovertices,"Bunchcrossings",8,-5,3);
+//     TH1I * vtxindhist = new TH1I(histovertexindices,"Vertex to Track Indices",100,0,500);
+//     TH1I * vtxindhistsig = new TH1I(histovertexindicessig,"SignalVertex to Track Indices",100,0,500);
+//     std::auto_ptr<MixCollection<EmbdSimVertex> > col2(new MixCollection<EmbdSimVertex>(cf.product()));
+//     MixCollection<EmbdSimVertex>::iterator cfi2;
+//     for (cfi2=col2->begin(); cfi2!=col2->end();cfi2++) {
+//       vtxhist->Fill(cfi2.bunch());
+//       vtxindhist->Fill(cfi2->parentIndex());
+//       if (cfi2.getTrigger())  vtxindhistsig->Fill(cfi2->parentIndex());
+//     }
+// 
+	
+ //PSimHit histo
+    char psimhitvertices[10],psimhitvertexindices[17],psimhitvertexindicessig[24];
+    sprintf(psimhitvertices,"Vertices_%d",bunchcr_);
+    sprintf(psimhitvertexindices,"TrackPointers_%d",bunchcr_);
+    sprintf(psimhitvertexindicessig,"TrackPointers_signal_%d",bunchcr_);
+    TH1I * vtxhist = new TH1I(psimhitvertices,"Bunchcrossings",8,-5,3);
+    TH1I * vtxindhist = new TH1I(psimhitvertexindices,"Vertex to Track Indices",100,0,500);
+    TH1I * vtxindhistsig = new TH1I(psimhitvertexindicessig,"SignalVertex to Track Indices",100,0,500);
     std::auto_ptr<MixCollection<EmbdSimVertex> > col2(new MixCollection<EmbdSimVertex>(cf.product()));
     MixCollection<EmbdSimVertex>::iterator cfi2;
     for (cfi2=col2->begin(); cfi2!=col2->end();cfi2++) {

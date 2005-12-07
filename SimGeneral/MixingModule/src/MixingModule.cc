@@ -26,7 +26,6 @@ namespace edm
       // See FWCore/Framework/interface/BranchDescription.h
       // BranchDescription contains all the information for the product.
       edm::BranchDescription desc = it->second;
-      printf("Instance Name:%s\n",desc.productInstanceName_.c_str());
       if (!desc.productInstanceName_.compare(0,8,"EcalHits") || !desc.productInstanceName_.compare(0,8,"HcalHits" )) caloSubdetectors_.push_back(desc.productInstanceName_);
       else if (!desc.productInstanceName_.compare(0,11,"TrackerHits") || !desc.productInstanceName_.compare(0,4,"Muon")) trackerSubdetectors_.push_back(desc.productInstanceName_);
     }
@@ -75,13 +74,12 @@ namespace edm
     e.getByLabel("r",simvertices);
     if (simvertices.isValid())     simcf_->addSignalVertices(simvertices.product());
     else cout <<"Invalid simvertices"<<endl;
-    //cout <<" Got "<<(simvertices.product())->size()<<" simvertices"<<endl;
   }
 
   void MixingModule::addPileups(const int bcr, Event *e) {
 
     //    std::cout<<"\naddPileups from event  "<<e->id()<<endl;
-    // first all simhits
+   // first all simhits
     for(std::vector<std::string >::iterator itstr = trackerSubdetectors_.begin(); itstr != trackerSubdetectors_.end(); ++itstr) {
       std::vector<PSimHit> *sig;
       simcf_->getSignal((*itstr),sig);
@@ -95,14 +93,14 @@ namespace edm
       int shigh=(*itstr).find("HighTof");
       if (slow>0 )
 	if ( (tof<CrossingFrame::lowTrackTof || tof>0)) {
-	  continue;
+          continue;
 	}
 	else if (shigh>0 )
 	  if ( ((CrossingFrame::highTrackTof+tof)<CrossingFrame::lowTrackTof || tof>0)) {
-	    continue;
+	  continue;
 	  }
       e->getByLabel("r",(*itstr),simHits);
-      simcf_->addPileupSimHits(bcr,(*itstr),simHits.product(),trackoffset);
+      simcf_->addPileupSimHits(bcr,(*itstr),simHits.product(),trackoffset,slow>0||shigh>0);
     }
 
     //     //then all calohits
