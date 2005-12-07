@@ -7,7 +7,7 @@
    Declaration of class ProcessPSetBuilder
 
    \author Stefano ARGIRO
-   \version $Id: ProcessPSetBuilder.h,v 1.4 2005/09/07 20:59:00 wmtan Exp $
+   \version $Id: ProcessPSetBuilder.h,v 1.5 2005/09/08 07:15:46 chrjones Exp $
    \date 16 Jun 2005
 */
 
@@ -19,6 +19,7 @@
 namespace edm {
 
   namespace pset{class Node;class WrapperNode;}
+  typedef boost::shared_ptr<pset::WrapperNode> WrapperNodePtr;
   class ScheduleValidator;
   class ParameterSet;
   class ProcessDesc;
@@ -35,7 +36,7 @@ namespace edm {
 
   public:
     /// construct from the configuration language string
-    ProcessPSetBuilder(const std::string& config);
+    explicit ProcessPSetBuilder(const std::string& config);
 
     ~ProcessPSetBuilder();
  
@@ -48,13 +49,13 @@ namespace edm {
     std::string  getDependencies(const std::string& modulename);
 
     /// get the descriptions of the services
+    /// OBSOLETE
     boost::shared_ptr<std::vector<ParameterSet> > getServicesPSets() const;
-    
+
   private:
     
-    typedef boost::shared_ptr<pset::WrapperNode> WrapperNodePtr;
     typedef std::vector<std::string> Strs;
-    typedef std::map<std::string, WrapperNodePtr > SeqMap;
+    typedef std::map<std::string, edm::WrapperNodePtr > SeqMap;
     typedef boost::shared_ptr<pset::Node> NodePtr;
 
     /// recursively extract names of modules and store them in Strs;

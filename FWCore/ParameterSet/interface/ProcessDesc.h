@@ -9,7 +9,7 @@
 namespace edm
 {
   
-  typedef boost::shared_ptr<pset::WrapperNode> WrapperNodePtr ;
+  typedef boost::shared_ptr<pset::WrapperNode> WrapperNodePtr;
 
   struct ProcessDesc
   {

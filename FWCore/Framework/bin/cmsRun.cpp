@@ -4,7 +4,7 @@ This is a generic main that can be used with any plugin and a
 PSet script.   See notes in EventProcessor.cpp for details about
 it.
 
-$Id: cmsRun.cpp,v 1.5 2005/11/23 17:28:46 jbk Exp $
+$Id: cmsRun.cpp,v 1.6 2005/11/30 21:33:07 paterno Exp $
 
 ----------------------------------------------------------------------*/  
 
@@ -79,12 +79,18 @@ int main(int argc, char* argv[])
 			      << vm[kParameterSetOpt].as<std::string>();
     return 1;
   }
-  
+
+
+  // Create the several parameter sets that will be used to configure
+  // the program.
   string configstring;
   string line;
-  
+
   while(std::getline(configFile,line)) { configstring+=line; configstring+="\n"; }
   
+  edm::ParameterSet main;
+  std::vector<edm::ParameterSet> serviceparams;
+
   edm::AssertHandler ah;
 
   int rc = -1; // we should never return this value!
