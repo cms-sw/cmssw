@@ -1,3 +1,9 @@
+** V00-00-80  [Wed Dec  7 02:46:21 2005]
+- Added public methods for assessing the "global" status of monitoring
+structure (or any subdirectory)
+- First version of new package WebComponents
+- Misc. bugfixes
+
 ** V00-00-70  [Wed Nov 30 03:49:35 2005]
 - added support for quality tests &amp; TProfile2D + misc. bugfixes
 
