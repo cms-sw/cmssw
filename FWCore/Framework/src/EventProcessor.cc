@@ -186,28 +186,18 @@ namespace edm {
     shared_ptr<vector<ParameterSet> > pServiceSets;
     makeParameterSets(configstring_, params_, pServiceSets);
 
-    //ProcessPSetBuilder builder(configstring_);
-
     //create the services
-
-    //shared_ptr< std::vector<ParameterSet> > pServiceSets(builder.getServicesPSets());
-    //NOTE: FIX WHEN POOL BUG FIXED
-    // we force in the LoadAllDictionaries service in order to work around a bug in POOL
-    {
-      ParameterSet ps;
-      std::string type("LoadAllDictionaries");
-      ps.addParameter("@service_type",type);
-      pServiceSets->push_back( ps );
-    }
     serviceToken_ = ServiceRegistry::createSet(*pServiceSets,
 					       iToken,iLegacy);
     serviceToken_.connectTo(activityRegistry_);
      
     //add the ProductRegistry as a service ONLY for the construction phase
-    shared_ptr<serviceregistry::ServiceWrapper<ConstProductRegistry> > 
-      reg(new serviceregistry::ServiceWrapper<ConstProductRegistry>( 
-								    std::auto_ptr<ConstProductRegistry>(new ConstProductRegistry(preg_))));
-    ServiceToken tempToken( ServiceRegistry::createContaining(reg, serviceToken_, serviceregistry::kOverlapIsError));
+    typedef serviceregistry::ServiceWrapper<ConstProductRegistry> w_CPR;
+    shared_ptr<w_CPR>
+      reg(new w_CPR( std::auto_ptr<ConstProductRegistry>(new ConstProductRegistry(preg_))));
+    ServiceToken tempToken( ServiceRegistry::createContaining(reg, 
+							      serviceToken_, 
+							      serviceregistry::kOverlapIsError));
     //make the services available
     ServiceRegistry::Operate operate(tempToken);
      
@@ -434,11 +424,12 @@ namespace edm {
     iImpl->activityRegistry_.preProcessEventSignal_.connect(iEP->preProcessEventSignal);
     iImpl->activityRegistry_.postProcessEventSignal_.connect(iEP->postProcessEventSignal);
   }
-  EventProcessor::EventProcessor(int argc, char* argv[]):
-    impl_(new FwkImpl(argc,argv))
-  {
-    connectSigs(this, impl_);
-  } 
+
+//   EventProcessor::EventProcessor(int argc, char* argv[]):
+//     impl_(new FwkImpl(argc,argv))
+//   {
+//     connectSigs(this, impl_);
+//   } 
   
   EventProcessor::EventProcessor(const string& config):
     impl_(new FwkImpl(config))
@@ -446,32 +437,33 @@ namespace edm {
     connectSigs(this, impl_);
   } 
   
-  EventProcessor::EventProcessor(int argc, char* argv[], const string& config):
-    impl_(new FwkImpl(argc,argv,config))
-  {
-    connectSigs(this, impl_);
-  }
+//   EventProcessor::EventProcessor(int argc, char* argv[], const string& config):
+//     impl_(new FwkImpl(argc,argv,config))
+//   {
+//     connectSigs(this, impl_);
+//   }
 
-  EventProcessor::EventProcessor(int argc, char* argv[],
-                                 const ServiceToken& iToken,serviceregistry::ServiceLegacy iLegacy):
-    impl_(new FwkImpl(argc,argv,iToken,iLegacy))
-  {
-    connectSigs(this, impl_);
-  } 
+//   EventProcessor::EventProcessor(int argc, char* argv[],
+//                                  const ServiceToken& iToken,serviceregistry::ServiceLegacy iLegacy):
+//     impl_(new FwkImpl(argc,argv,iToken,iLegacy))
+//   {
+//     connectSigs(this, impl_);
+//   } 
   
   EventProcessor::EventProcessor(const string& config,
-                                 const ServiceToken& iToken,serviceregistry::ServiceLegacy iLegacy):
-    impl_(new FwkImpl(config,iToken,iLegacy))
-  {
-    connectSigs(this, impl_);
-  } 
+				 const ServiceToken& iToken,
+				 serviceregistry::ServiceLegacy iLegacy):
+     impl_(new FwkImpl(config,iToken,iLegacy))
+   {
+     connectSigs(this, impl_);
+   } 
   
-  EventProcessor::EventProcessor(int argc, char* argv[], const string& config,
-                                 const ServiceToken& iToken,serviceregistry::ServiceLegacy iLegacy):
-    impl_(new FwkImpl(argc,argv,config,iToken,iLegacy))
-  {
-    connectSigs(this, impl_);
-  }
+//   EventProcessor::EventProcessor(int argc, char* argv[], const string& config,
+//                                  const ServiceToken& iToken,serviceregistry::ServiceLegacy iLegacy):
+//     impl_(new FwkImpl(argc,argv,config,iToken,iLegacy))
+//   {
+//     connectSigs(this, impl_);
+//   }
   
   EventProcessor::~EventProcessor()
   {
