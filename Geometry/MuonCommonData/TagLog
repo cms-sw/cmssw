@@ -1,3 +1,7 @@
+** V00-02-12  [Thu Dec  8 18:33:53 2005]
+removed all traces of ME42 and fixed some offset rotations for ME*SpaceDivision
+and ME*Space.
+
 ** V00-02-11  [Wed Dec  7 00:24:32 2005]
 put pedro's fix in for pre4
 
