@@ -7,8 +7,8 @@
 
 /** \class HcalRecHitMonitor
   *  
-  * $Date: 2005/11/17 22:51:55 $
-  * $Revision: 1.1 $
+  * $Date: 2005/11/30 22:05:36 $
+  * $Revision: 1.2 $
   * \author W. Fisher - FNAL
   */
 class HcalRecHitMonitor: public HcalBaseMonitor {
@@ -24,12 +24,17 @@ private:  ///Monitoring elements
 
   bool m_doPerChannel;
 
+  MonitorElement* m_meRECHIT_E_all;
+
+  MonitorElement* m_meRECHIT_E_hb_all;
   MonitorElement* m_meRECHIT_E_hb_tot;
   MonitorElement* m_meRECHIT_T_hb_tot;
 
+  MonitorElement* m_meRECHIT_E_hf_all;
   MonitorElement* m_meRECHIT_E_hf_tot;
   MonitorElement* m_meRECHIT_T_hf_tot;
 
+  MonitorElement* m_meRECHIT_E_ho_all;
   MonitorElement* m_meRECHIT_E_ho_tot;
   MonitorElement* m_meRECHIT_T_ho_tot;
 

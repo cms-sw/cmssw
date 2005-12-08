@@ -3,8 +3,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2005/11/17 22:55:26 $
- * $Revision: 1.3 $
+ * $Date: 2005/11/30 22:05:56 $
+ * $Revision: 1.4 $
  * \author W Fisher
  *
 */
@@ -41,6 +41,13 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   m_dfMon = NULL;
   m_rhMon = NULL;
 
+
+
+  if ( ps.getUntrackedParameter<bool>("RecHitMonitor", false) ) {
+    m_rhMon = new HcalRecHitMonitor();
+    m_rhMon->setup(ps, m_dbe);
+  }
+
   if ( ps.getUntrackedParameter<bool>("DigiMonitor", false) ) {
     m_digiMon = new HcalDigiMonitor();
     m_digiMon->setup(ps, m_dbe);
@@ -49,11 +56,6 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   if ( ps.getUntrackedParameter<bool>("DataFormatMonitor", false) ) {
     m_dfMon = new HcalDataFormatMonitor();
     m_dfMon->setup(ps, m_dbe);
-  }
-
-  if ( ps.getUntrackedParameter<bool>("RecHitMonitor", false) ) {
-    m_rhMon = new HcalRecHitMonitor();
-    m_rhMon->setup(ps, m_dbe);
   }
 
   if ( m_dbe ) m_dbe->showDirStructure();
@@ -85,7 +87,7 @@ void HcalMonitorModule::endJob(void) {
   if ( m_meStatus ) m_meStatus->Fill(2);
   if ( m_outputFile.size() != 0  && m_dbe ) m_dbe->save(m_outputFile);
 
-  usleep(100);
+  //  usleep(100);
 }
 
 void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& c){

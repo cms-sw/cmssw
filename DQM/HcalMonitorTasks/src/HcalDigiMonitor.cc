@@ -20,6 +20,7 @@ namespace HcalDigiErrs{
     }
     return;
   }
+
   template<class Digi>
   static bool digiErr(const Digi& digi){
     int last = -1;
@@ -36,33 +37,33 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* 
 
   if ( m_dbe ) {
     m_dbe->setCurrentFolder("Hcal/DigiMonitor/HBHE");
-    hbHists.DIGI_NUM =  m_dbe->book1D("HB/HE # of Digis","HB/HE # of Digis",100,0,1000);
-    hbHists.DIGI_SIZE =  m_dbe->book1D("HB/HE Digi Size","HB/HE Digi Size",100,0,100);
-    hbHists.DIGI_PRESAMPLE =  m_dbe->book1D("HB/HE Digi Presamples","HB/HE Digi Presamples",100,0,100);
+    hbHists.DIGI_NUM =  m_dbe->book1D("HB/HE # of Digis","HB/HE # of Digis",100,0,200);
+    hbHists.DIGI_SIZE =  m_dbe->book1D("HB/HE Digi Size","HB/HE Digi Size",50,0,50);
+    hbHists.DIGI_PRESAMPLE =  m_dbe->book1D("HB/HE Digi Presamples","HB/HE Digi Presamples",50,0,50);
     hbHists.QIE_CAPID =  m_dbe->book1D("HB/HE QIE Cap-ID","HB/HE QIE Cap-ID",6,-0.5,5.5);
-    hbHists.QIE_ADC = m_dbe->book1D("HB/HE QIE ADC Value","HB/HE QIE ADC Value",100,0,1000);
+    hbHists.QIE_ADC = m_dbe->book1D("HB/HE QIE ADC Value","HB/HE QIE ADC Value",100,0,200);
     hbHists.QIE_DV = m_dbe->book1D("HB/HE QIE Data Value","HB/HE QIE Data Value",2,-0.5,1.5);
     hbHists.ERR_MAP_GEO = m_dbe->book2D("HB/HE Digi Geo Error Map","HB/HE Digi Geo Error Map",59,-29.5,29.5,40,0,40);
     hbHists.ERR_MAP_ELEC = m_dbe->book2D("HB/HE Digi Elec Error Map","HB/HE Digi Elec Error Map",10,0,10,10,0,10);
 
     m_dbe->setCurrentFolder("Hcal/DigiMonitor/HF");
-    hfHists.DIGI_NUM =  m_dbe->book1D("HF # of Digis","HF # of Digis",100,0,1000);
-    hfHists.DIGI_SIZE =  m_dbe->book1D("HF Digi Size","HF Digi Size",100,0,100);
-    hfHists.DIGI_PRESAMPLE =  m_dbe->book1D("HF Digi Presamples","HF Digi Presamples",100,0,100);
+    hfHists.DIGI_NUM =  m_dbe->book1D("HF # of Digis","HF # of Digis",100,0,200);
+    hfHists.DIGI_SIZE =  m_dbe->book1D("HF Digi Size","HF Digi Size",50,0,50);
+    hfHists.DIGI_PRESAMPLE =  m_dbe->book1D("HF Digi Presamples","HF Digi Presamples",50,0,50);
     hfHists.QIE_CAPID =  m_dbe->book1D("HF QIE Cap-ID","HF QIE Cap-ID",6,-0.5,5.5);
-    hfHists.QIE_ADC = m_dbe->book1D("HF QIE ADC Value","HF QIE ADC Value",100,0,1000);
+    hfHists.QIE_ADC = m_dbe->book1D("HF QIE ADC Value","HF QIE ADC Value",100,0,200);
     hfHists.QIE_DV = m_dbe->book1D("HF QIE Data Value","HF QIE Data Value",2,-0.5,1.5);
     hfHists.ERR_MAP_GEO = m_dbe->book2D("HF Digi Geo Error Map","HF Digi Geo Error Map",59,-29.5,29.5,40,0,40);
     hfHists.ERR_MAP_ELEC = m_dbe->book2D("HF Digi Elec Error Map","HF Digi Elec Error Map",10,0,10,10,0,10);
 
     m_dbe->setCurrentFolder("Hcal/DigiMonitor/HO");
-    hoHists.DIGI_NUM =  m_dbe->book1D("HO # of Digis","HO # of Digis",100,0,1000);
-    hoHists.DIGI_SIZE =  m_dbe->book1D("HO Digi Size","HO Digi Size",100,0,100);
-    hoHists.DIGI_PRESAMPLE =  m_dbe->book1D("HO Digi Presamples","HO Digi Presamples",100,0,100);
+    hoHists.DIGI_NUM =  m_dbe->book1D("HO # of Digis","HO # of Digis",100,0,200);
+    hoHists.DIGI_SIZE =  m_dbe->book1D("HO Digi Size","HO Digi Size",50,0,50);
+    hoHists.DIGI_PRESAMPLE =  m_dbe->book1D("HO Digi Presamples","HO Digi Presamples",50,0,50);
     hoHists.QIE_CAPID =  m_dbe->book1D("HO QIE Cap-ID","HO QIE Cap-ID",6,-0.5,5.5);
-    hoHists.QIE_ADC = m_dbe->book1D("HO QIE ADC Value","HO QIE ADC Value",100,0,1000);
+    hoHists.QIE_ADC = m_dbe->book1D("HO QIE ADC Value","HO QIE ADC Value",100,0,200);
     hoHists.QIE_DV = m_dbe->book1D("HO QIE Data Value","HO QIE Data Value",2,-0.5,1.5);
-     hoHists.ERR_MAP_GEO = m_dbe->book2D("HO Digi Geo Error Map","HO Digi Geo Error Map",59,-29.5,29.5,40,0,40);
+    hoHists.ERR_MAP_GEO = m_dbe->book2D("HO Digi Geo Error Map","HO Digi Geo Error Map",59,-29.5,29.5,40,0,40);
     hoHists.ERR_MAP_ELEC = m_dbe->book2D("HO Digi Elec Error Map","HO Digi Elec Error Map",10,0,10,10,0,10);
   }
 
