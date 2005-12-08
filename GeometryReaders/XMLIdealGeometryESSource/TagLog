@@ -1,3 +1,6 @@
+** V00-04-00  [Thu Dec  8 22:50:07 2005]
+label used to get the DDCompactView now comes from modules label in the configuration file
+
 ** V00-03-01  [Tue Nov 15 18:39:27 2005]
 Removed DDLDocumentProvider.cc
 
