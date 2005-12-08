@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Tue Nov 22 16:41:33 EST 2005
-// $Id$
+// $Id: SimTracer.h,v 1.1 2005/11/22 22:03:04 chrjones Exp $
 //
 
 // system include files
@@ -25,6 +25,8 @@
 // user include files
 #include "SimG4Core/Notification/interface/Observer.h"
 #include "SimG4Core/Watcher/interface/SimWatcher.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "G4Step.hh"
 
 // forward declarations
 class DDDWorld;
@@ -53,7 +55,9 @@ OBSERVES(EndOfTrack)
 {
 
    public:
-     SimTracer(const edm::ParameterSet&) {}
+   SimTracer(const edm::ParameterSet& pSet) : 
+   m_verbose(pSet.getUntrackedParameter<bool>("verbose",false)) {
+   }
      //virtual ~SimTracer();
 
       // ---------- const member functions ---------------------
@@ -66,7 +70,19 @@ UPDATE(BeginOfJob)
 UPDATE(BeginOfRun)
 UPDATE(BeginOfEvent)
 UPDATE(BeginOfTrack)
-UPDATE(G4Step)
+   void update(const G4Step* iStep) { 
+   std::cout <<"++ signal G4Step " ;
+   if(m_verbose) {
+      const G4StepPoint* post = iStep->GetPostStepPoint();
+      const G4ThreeVector pos = post->GetPosition();
+      std::cout << "( "<<pos.x()<<","<<pos.y()<<","<<pos.z()<<") ";
+      if(post->GetPhysicalVolume()) {
+	 std::cout << post->GetPhysicalVolume()->GetName();
+      }
+   }
+   std::cout <<std::endl; 
+}
+//UPDATE(G4Step)
 UPDATE(EndOfRun)
 UPDATE(EndOfEvent)
 UPDATE(EndOfTrack)
@@ -77,7 +93,7 @@ UPDATE(EndOfTrack)
      //const SimTracer& operator=(const SimTracer&); // stop default
 
      // ---------- member data --------------------------------
-
+     bool m_verbose;
 };
 
 
