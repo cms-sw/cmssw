@@ -1,3 +1,6 @@
+** V00-00-01  [Thu Dec  8 22:27:03 2005]
+Adding missing .eps file so that document build succeeds outside CERN
+
 ** V00-00-00  [Thu Oct 27 16:02:01 2005]
 Adding CodingRules to Documentation.
 
