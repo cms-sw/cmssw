@@ -1,3 +1,6 @@
+** V01-00-03  [Thu Dec  8 18:21:17 2005]
+fixed rotations in some Divisions
+
 ** V01-00-02  [Wed Nov 16 10:22:44 2005]
 Second attempt removing DDLDocumentProvider.c
 
