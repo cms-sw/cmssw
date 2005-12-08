@@ -87,7 +87,12 @@ CSCDCCUnpacker::~CSCDCCUnpacker(){
 void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 
   //move this outside of producer
-  CSCReadoutMappingFromFile theMapping = CSCReadoutMappingFromFile("csc_slice_test_map.txt");
+  std::string releasetop(getenv("CMSSW_BASE"));
+  std::string mappingFilePath= releasetop + "/src/CondFormats/CSCObjects/test/";
+  std::string mappingFileName = mappingFilePath + "csc_slice_test_map.txt";
+  CSCReadoutMappingFromFile theMapping( mappingFileName );
+ 
+
 
   // Get a handle to the FED data collection
   edm::Handle<FEDRawDataCollection> rawdata;
