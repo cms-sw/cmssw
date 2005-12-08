@@ -60,13 +60,13 @@ bool cond::MetaData::addMapping(const std::string& name, const std::string& iovt
 
 const std::string cond::MetaData::getToken( const std::string& name ){
   (*m_log)<<seal::Msg::Debug<<"cond::MetaData::getToken "<<name<<seal::flush;
+  if ( ! m_session->transaction().start() ) {
+    throw cms::Exception( "cond::MetaData::getToken: Could not start a new transaction" );
+  }
   if(!m_table){
     m_table=&(m_session->userSchema().tableHandle( cond::MetaDataNames::metadataTable() ));
   }
   std::string iovtoken;
-  if ( ! m_session->transaction().start() ) {
-    throw cms::Exception( "cond::MetaData::getToken: Could not start a new transaction" );
-  }
   std::auto_ptr< pool::IRelationalQuery > query( m_table->createQuery() );
   query->setRowCacheSize( 10 );
   pool::AttributeList emptyBindVariableList;
@@ -91,9 +91,9 @@ const std::string cond::MetaData::getToken( const std::string& name ){
   return iovtoken;
 }
 void cond::MetaData::createTable(const std::string& tabname){
-  if ( ! m_session->transaction().start() ) {
-    throw cms::Exception( "cond::MetaData::createTable Could not start transaction." );
-  }
+  //if ( ! m_session->transaction().start() ) {
+  //  throw cms::Exception( "cond::MetaData::createTable Could not start transaction." );
+  //}
   pool::IRelationalSchema& schema=m_session->userSchema();
   seal::IHandle<pool::IRelationalService> serviceHandle=pool::POOLContext::context()->query<pool::IRelationalService>( "POOL/Services/RelationalService" );
   pool::IRelationalDomain& domain = serviceHandle->domainForConnection(m_con);
@@ -106,7 +106,7 @@ void cond::MetaData::createTable(const std::string& tabname){
   desc->setNotNullConstraint( cond::MetaDataNames::tokenColumn() );
   m_table=&(schema.createTable(tabname,*desc));  
   m_table->privilegeManager().grantToPublic( pool::IRelationalTablePrivilegeManager::SELECT );
-  if ( ! m_session->transaction().commit() ) {
-    throw cms::Exception( "cond::MetaData::createTable: Could not commit a transaction" );
-  }
+  //if ( ! m_session->transaction().commit() ) {
+  //  throw cms::Exception( "cond::MetaData::createTable: Could not commit a transaction" );
+  //}
 }
