@@ -1,3 +1,6 @@
+** V00-03-03  [Thu Dec  8 23:30:03 2005]
+in MagneticFieldVolumes.xml made SpecPars relative to MAGF
+
 ** V00-03-02  [Wed Dec  7 17:14:29 2005]
 Remove color.xml and add production cuts
 
