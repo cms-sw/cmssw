@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2005/09/27 15:15:52 $
- *  $Revision: 1.3 $
+ *  $Date: 2005/10/26 18:33:19 $
+ *  $Revision: 1.4 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -40,6 +40,7 @@
 
 #include "Geometry/Vector/interface/Pi.h"
 
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <string>
 #include <vector>
@@ -133,20 +134,27 @@ void MagGeoBuilderFromDDD::build(const DDCompactView & cpva)
 
   // Look for MAGF tree (any better way to find out???)
   //  fv.reset();
-  bool doSubDets = fv.firstChild();
 
-  bool go=true;
-  while(go) {
-    if (fv.logicalPart().name().name()=="MAGF")
-      break;
-    else
-      go = fv.nextSibling();
+  if (fv.logicalPart().name().name()!="MAGF") {
+     std::string topNodeName(fv.logicalPart().name().name());
+
+     //see if one of the children is MAGF
+     bool doSubDets = fv.firstChild();
+     
+     bool go=true;
+     while(go&& doSubDets) {
+	if (fv.logicalPart().name().name()=="MAGF")
+	   break;
+	else
+	   go = fv.nextSibling();
+     }
+     if (!go) {
+	throw cms::Exception("NoMAGFinDDD")<<" Neither he top node, nor any child node of the DDCompactView is \"MAGF\" but the top node is instead \""<<topNodeName<<"\"";
+     }
   }
-  if (!go) return;
-
   // Loop over MAGF volumes and create volumeHandles. 
   if (bldVerb::debugOut) cout << endl << "*** In MAGF: " << endl;
-  doSubDets = fv.firstChild();
+  bool doSubDets = fv.firstChild();
   while (doSubDets){
     
     string name = fv.logicalPart().name().name();
