@@ -146,7 +146,7 @@ double DDDividedTubsPhi::getMaxParameter() const
 DDRotation DDDividedTubsPhi::makeDDRotation(const int copyNo) const
 {
   DDRotation myddrot; // sets to identity.
-  double posi = copyNo*compWidth_;
+  double posi = ( copyNo - 1 ) * compWidth_; // This should put the first one at the 0 of the parent.
   DDRotationMatrix * rotMat = changeRotMatrix( posi );
   // how to name the rotation??
   // i hate this crap :-)
@@ -183,8 +183,8 @@ DDLogicalPart DDDividedTubsPhi::makeDDLogicalPart (const int copyNo ) const
       double pRMin = msol.rIn();
       double pRMax = msol.rOut();
       double pDz = msol.zhalf();
-      double pSPhi = msol.startPhi()+div_.offset();
-      double pDPhi = compWidth_;
+      double pSPhi = msol.startPhi()+div_.offset(); 
+      double pDPhi = compWidth_;  
       ddtubs = DDSolidFactory::tubs(DDName(solname), pDz, pRMin, pRMax, pSPhi, pDPhi);
       ddlp = DDLogicalPart(solname, usemat, ddtubs);
     }

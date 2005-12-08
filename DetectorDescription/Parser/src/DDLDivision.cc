@@ -92,6 +92,8 @@ void DDLDivision::processElement (const std::string& type, const std::string& nm
     else if (atts.find("width")     != atts.end()
 	     && atts.find("offset") != atts.end())
       {
+	std::cout << " width = " << ev.eval(nmspace, atts.find("width")->second) << std::endl;
+	std::cout << " offset = " << ev.eval(nmspace, atts.find("offset")->second) << std::endl;
 	div = DDDivision(getDDName(nmspace)
 		       , parent
 		       , DDAxes(ax)

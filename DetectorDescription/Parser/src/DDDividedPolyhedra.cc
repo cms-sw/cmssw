@@ -260,7 +260,7 @@ DDTranslation DDDividedPolyhedraPhi::makeDDTranslation( const int copyNo ) const
 DDRotation DDDividedPolyhedraPhi::makeDDRotation( const int copyNo ) const
 {
 
-  double posi = copyNo*compWidth_;
+  double posi = ( copyNo - 1 ) * compWidth_;
 
   DCOUT_V ('P', " DDDividedPolyhedraPhi - position: " << posi/deg << "\n copyNo: " << copyNo << " - compWidth_: " << compWidth_/deg << "\n");
   

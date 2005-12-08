@@ -172,7 +172,7 @@ double DDDividedConsPhi::getMaxParameter() const
 DDRotation DDDividedConsPhi::makeDDRotation(const int copyNo) const
 {
   DDRotation myddrot; // sets to identity.
-  double posi = copyNo*compWidth_;
+  double posi = ( copyNo - 1 ) * compWidth_;
   DDRotationMatrix* rotMat = changeRotMatrix( posi );
   // how to name the rotation??
   // i hate this crap :-)

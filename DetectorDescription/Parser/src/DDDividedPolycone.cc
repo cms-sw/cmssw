@@ -218,7 +218,7 @@ double DDDividedPolyconePhi::getMaxParameter() const
 DDRotation DDDividedPolyconePhi::makeDDRotation(const int copyNo) const
 {
   DDRotation myddrot; // sets to identity.
-  double posi = copyNo * compWidth_;
+  double posi = ( copyNo - 1 ) * compWidth_;
   DDRotationMatrix* rotMat = changeRotMatrix( posi );
   // how to name the rotation??
   // i do not like this
