@@ -1,3 +1,6 @@
+** V03-06-00  [Thu Dec  8 23:35:20 2005]
+changed runP.cfg to respond to changes in how the magnetic field is setup
+
 ** V03-05-00  [Tue Dec  6 23:11:29 2005]
 updated version files
 
