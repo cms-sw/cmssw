@@ -1,3 +1,6 @@
+** V00-00-05  [Thu Dec  8 13:08:39 2005]
+remove authentication service loading
+
 ** V00-00-04  [Mon Nov 21 20:07:00 2005]
 remove debug printout
 
