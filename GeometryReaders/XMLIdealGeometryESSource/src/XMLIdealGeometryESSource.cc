@@ -24,10 +24,13 @@ XMLIdealGeometryESSource::XMLIdealGeometryESSource(const edm::ParameterSet & p):
     if (result2 != 0) throw DDException("DDD-Parser: parsing failed!");
     if(rootNodeName_ == "" || rootNodeName_ == "\""){
        rootNodeName_ = DDRootDef::instance().root().ddname();
-       //std::cout <<"default name \""<<rootNodeName_<<"\""<<std::endl;
+    }
+    //use the label specified in the configuration file as the 
+    // label client code must use to get the DDCompactView
+    if(""==p.getParameter<std::string>("@module_label")){
        setWhatProduced(this);
     }else {
-       setWhatProduced(this,rootNodeName_);
+       setWhatProduced(this,p.getParameter<std::string>("@module_label"));
     }
     findingRecord<IdealGeometryRecord>();
 }
