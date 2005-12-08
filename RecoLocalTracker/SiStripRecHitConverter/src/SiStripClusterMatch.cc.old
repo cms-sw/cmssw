@@ -1,0 +1,52 @@
+#include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripClusterMatch.h"
+
+#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
+#include "Geometry/CommonDetAlgo/interface/MeasurementPoint.h"
+
+#include "Geometry/Surface/interface/LocalError.h"
+#include "Geometry/Vector/interface/LocalPoint.h"
+#include "Geometry/Vector/interface/GlobalPoint.h"
+
+SiStripClusterMatch::SiStripClusterMatch(){}
+
+template<class T> 
+own_vector<SiStripRecHit2DLocalPos> SiStripClusterMatch::match(const SiStripCluster *cluster,ClusterIterator &begin, ClusterIterator &end, const DetId &detId, const T& topol,const GeomDetUnit* stripdet,const GeomDetUnit * partnerstripdet){
+  //own_vector<SiStripRecHit2DLocalPos> SiStripClusterMatch::match(const SiStripCluster *cluster,ClusterIterator &begin, ClusterIterator &end, const DetId &detId, const RectangularStripTopology& topol,const GeomDetUnit* stripdet,const GeomDetUnit * partnerstripdet){
+  own_vector<SiStripRecHit2DLocalPos> collector;
+  LocalPoint position;
+  const  LocalError dummy;
+  MeasurementPoint RPHIpointini=MeasurementPoint(cluster->barycenter(),-0.5);
+  MeasurementPoint RPHIpointend=MeasurementPoint(cluster->barycenter(),0.5);
+  LocalPoint RPHIpositionini=topol.localPosition(RPHIpointini); 
+  LocalPoint RPHIpositionend=topol.localPosition(RPHIpointend); 
+  std::cout<<"Local position of first point X="<<RPHIpositionini.x()<<", Y="<<RPHIpositionini.y()<<", Z="<<RPHIpositionini.z()<<std::endl;
+  std::cout<<"Local position of second point X="<<RPHIpositionend.x()<<", Y="<<RPHIpositionend.y()<<", Z="<<RPHIpositionend.z()<<std::endl;
+  GlobalPoint rphiglobalpointini=(stripdet->surface()).toGlobal(RPHIpositionini);
+  GlobalPoint rphiglobalpointend=(stripdet->surface()).toGlobal(RPHIpositionend);
+  std::cout<<"Global position of first point X="<<rphiglobalpointini.x()<<", Y="<<rphiglobalpointini.y()<<std::endl;
+  std::cout<<"Global position of second point X="<<rphiglobalpointend.x()<<", Y="<<rphiglobalpointend.y()<<std::endl;
+  //  const T& partnertopol=(T&)partnerstripdet->topology();
+  const RectangularStripTopology& partnertopol=(RectangularStripTopology&)partnerstripdet->topology();
+  LocalPoint RPHIpositiononStereoini=(partnerstripdet->surface()).toLocal(rphiglobalpointini);
+  LocalPoint RPHIpositiononStereoend=(partnerstripdet->surface()).toLocal(rphiglobalpointend);
+  std::cout<<"Local position on stereo of first point X="<<RPHIpositiononStereoini.x()<<", Y="<<RPHIpositiononStereoini.y()<<", Z="<<RPHIpositiononStereoini.z()<<std::endl;
+  std::cout<<"Local position on stereo of second point X="<<RPHIpositiononStereoend.x()<<", Y="<<RPHIpositiononStereoend.y()<<", Z="<<RPHIpositiononStereoend.z()<<std::endl;
+  SiStripClusterCollection::ContainerIterator seconditer;    
+  for(seconditer=begin;seconditer!=end;++seconditer){
+    Surface::LocalPoint partnerposition=partnertopol.localPosition(seconditer->barycenter());
+    float y=RPHIpositiononStereoini.y()+(RPHIpositiononStereoend.y()-RPHIpositiononStereoini.y())/(RPHIpositiononStereoend.x()-RPHIpositiononStereoini.x())*(partnerposition.x()-RPHIpositiononStereoini.x());
+    std::cout<<"X="<<partnerposition.x()<<", Y="<<y<<std::endl;
+    //y-y_1==(y_2-y_1)/(x_2-x_1)(x-x_1).
+    if(y>-(partnertopol.stripLength()/2)&&y<partnertopol.stripLength()/2){
+      //then we can add it to the Rechit collection 
+      position=LocalPoint(partnerposition.x(),y);
+      collector.push_back(new SiStripRecHit2DLocalPos(position, dummy, stripdet,detId,cluster));
+      //		if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 0 ) {
+      std::cout << "[SiStripRecHitConverterAlgorithm] found a matched RecHit" << std::endl; 
+      std::cout << "X=" << partnerposition.x() <<", Y="<<y<< std::endl;
+      //		}
+    }
+  }
+  //  if (!ismatch) nunmatch++;
+  return collector;
+}

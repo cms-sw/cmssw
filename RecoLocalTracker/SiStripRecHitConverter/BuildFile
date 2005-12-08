@@ -1,0 +1,26 @@
+<flags SEAL_PLUGIN_NAME="RecoLocalTrackerSiStripRecHitConverter">
+<use name=FWCore/Framework>
+<use name=FWCore/EDProduct>
+<use name=FWCore/ParameterSet>
+<use name=DataFormats/TrackingRecHit2D>
+<use name=DataFormats/SiStripCluster>
+<use name=DataFormats/SiStripDetId>
+<use name=PhysicsTools/Candidate>
+<use name=Geometry/CommonDetUnit>
+<use name=Geometry/TrackerSimAlgo>
+<use name=Geometry/Surface>
+<use name=Geometry/Records>
+<export>
+<lib name=RecoLocalTrackerSiStripRecHitConverter>
+<use name=FWCore/EDProduct>
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=DataFormats/TrackingRecHit2D>
+<use name=DataFormats/SiStripCluster>
+<use name=DataFormats/SiStripDetId>
+<use name=PhysicsTools/Candidate>
+<use name=Geometry/CommonDetUnit>
+<use name=Geometry/TrackerSimAlgo>
+<use name=Geometry/Surface>
+<use name=Geometry/Records>
+</export>
