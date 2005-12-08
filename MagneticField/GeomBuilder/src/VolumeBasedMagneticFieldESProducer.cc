@@ -29,7 +29,7 @@ VolumeBasedMagneticFieldESProducer::VolumeBasedMagneticFieldESProducer(const edm
 std::auto_ptr<MagneticField> VolumeBasedMagneticFieldESProducer::produce(const IdealMagneticFieldRecord & iRecord)
 {
   edm::ESHandle<DDCompactView> cpv;
-  iRecord.getRecord<IdealGeometryRecord>().get( cpv );
+  iRecord.getRecord<IdealGeometryRecord>().get("magfield",cpv );
   MagGeoBuilderFromDDD builder;
   builder.build(*cpv);
   
