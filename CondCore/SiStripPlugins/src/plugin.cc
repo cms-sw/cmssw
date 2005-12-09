@@ -16,6 +16,6 @@
 
 
 DEFINE_SEAL_MODULE();
-REGISTER_PLUGIN(SiStripReadOutCablingRcd, SiStripReadOutCabling);
+REGISTER_PLUGIN(SiStripReadoutCablingRcd, SiStripReadoutCabling);
 REGISTER_PLUGIN(SiStripControlCablingRcd, SiStripControlCabling);
 REGISTER_PLUGIN(SiStripPedestalsRcd,SiStripPedestals);
