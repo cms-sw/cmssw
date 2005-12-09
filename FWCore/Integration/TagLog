@@ -1,3 +1,6 @@
+** V00-01-00  [Fri Dec  9 20:33:14 2005]
+Fix tests so they run from scram.
+
 ** V00-00-01  [Fri Dec  2 06:56:44 2005]
 Improve edm::Ref so that EventRegistry is not needed
 
