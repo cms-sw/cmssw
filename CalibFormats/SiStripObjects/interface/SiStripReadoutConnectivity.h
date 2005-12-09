@@ -3,52 +3,50 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 
+
 #include <vector>
 #include <map>
+
+class SiStripReadoutCabling; 
+
 using namespace std;
 
-class SiStripReadoutConnectivity {
-public:
-  typedef pair<DetId,unsigned short> DetPair;
-  typedef pair<unsigned short, unsigned short> FedReference; 
-  //  typedef map<FedReference, DetPair>  MapType;
 
-  SiStripReadoutConnectivity(){}
+class SiStripReadoutConnectivity {
+
+public:
+
+  typedef pair<DetId,unsigned short> APVPairId;
+  typedef pair<unsigned short, unsigned short> FedChannelId; 
+
+  SiStripReadoutConnectivity();
+
+  SiStripReadoutConnectivity(const SiStripReadoutCabling *);
+
   ~SiStripReadoutConnectivity(){}
 
-  DetId getDetId(FedReference& in);
-  DetId getDetId(unsigned short fed_id, unsigned short fed_channel);
+  inline const APVPairId & getAPVPair(unsigned short fed_id, unsigned short fed_channel) const {return ;
 
-  int getDetIds(unsigned short fed_num, unsigned short max_channels, vector<DetId>&);
-  unsigned short getFedIdAndChannels(DetId id,map<unsigned short, 
-                                        unsigned short>& fedChannels);
+  const APVPairId & getAPVPair(const FEDChannelId & fedch_id) const;
 
-  unsigned short getPairNumber(SiStripReadoutConnectivity::FedReference& );
-  unsigned short getPairNumber(unsigned short fed_id, unsigned short fed_channel);
+  const vector<unsigned short> & getFeds() const;
 
-  void getDetPair(SiStripReadoutConnectivity::FedReference& fed_ref, DetPair& det_pair);
+  const FEDChannelId & getFEDChannel(const DetId & det, unsigned short apvpair) const;
 
-  /** Returns (by reference in the argument list) DetPair information
-      (DetUnit*, APVpair) for given FED id and channel. */
-  void getDetPair(unsigned short fed_id, unsigned short fed_channel, DetPair& det_pair);
+  const FEDChannelId & getFEDChannel(const APVPairId & apvpair) const;
 
-  int getStripNumber(SiStripReadoutConnectivity::FedReference&,int);
-  int getStripNumber(unsigned short& fed_id, unsigned short& fed_channel);
+  //  int getStripNumber(SiStripReadoutConnectivity::FEDChannel&,int);
+  //  int getStripNumber(unsigned short& fed_id, unsigned short& fed_channel);
+  //  void addConnection(FEDChannelId&, APVPairId&);
+  //  void clean(){detUnitMap_.clear();}
 
-  void setPair(FedReference&, DetPair&);
-  
-  void clean(){detUnitMap_.clear();}
-  void debug();
+  void debug() const;
 
+private:
 
-  void getConnectedFedNumbers(vector<unsigned short>& feds);
-  //  void getDetPartitions(map<unsigned short, vector<DetId> >& partitions);
-
- private:
-  //  MapType theMap;
-  
-  /** DetPair info for FED id (1st dim) and channel (2nd dim). */
-  vector< vector<DetPair> > detUnitMap_; // M.W, R.B 
+  map<DetId, vector<FEDChannelId> > theDetConnections;
+  vector< vector<APVPairId> > theFEDConnections; 
+  vector<unsigned short> theFEDs;
 
 };
 
