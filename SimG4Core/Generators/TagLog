@@ -1,3 +1,6 @@
+** V00-02-02  [Fri Dec  9 16:32:14 2005]
+throw an exception if can not open the generator file
+
 ** V00-02-01  [Tue Dec  6 23:11:33 2005]
 updated version files
 
