@@ -1,3 +1,6 @@
+** V01-04-01  [Fri Dec  9 02:51:35 2005]
+properly scale the field value by multiplying by 'tesla' constant
+
 ** V01-04-00  [Tue Dec  6 23:11:37 2005]
 updated version files
 
