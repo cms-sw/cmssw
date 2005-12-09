@@ -9,3 +9,10 @@ template std::vector<SiStripPedestals::Item>::const_iterator;
 template std::map< int, SiStripPedestals::SiStripPedestalsVector>::iterator;
 template std::map< int, SiStripPedestals::SiStripPedestalsVector>::const_iterator;
 
+template std::vector<std::pair<uint32_t, unsigned short> >::iterator;
+template std::vector<std::pair<uint32_t, unsigned short> >::const_iterator;
+
+template std::vector< std::vector<std::pair<uint32_t, unsigned short> > >::iterator;
+template std::vector< std::vector<std::pair<uint32_t, unsigned short> > >::const_iterator;
+template std::vector<unsigned short>::iterator;
+template std::vector<unsigned short>::const_iterator;

@@ -5,12 +5,15 @@
  <class name="std::vector<SiStripPedestals::Item>"/>
  <class name="std::pair<const int, std::vector<SiStripPedestals::Item> >"/>
 
- <class name="SiStripReadOutCabling" id="7EFEE4BD-036A-AA70-BF2D-477C23CB2F78"/>
- <class name="SiStripReadOutCabling::Item"/>
+
+ <class name="SiStripReadoutCabling" id="7EFEE4BD-036A-AA70-BF2D-477C23CB2F78"/>
  <class name="SiStripControlCabling" id="DD8ED99A-A237-6B30-60A5-0F1BFC1C4EDF"/>
  <class name="SiStripControlCabling::RingItem"/>
  <class name="SiStripControlCabling::RingItem::I2CItem"/>
+<class pattern="*pair*"/>
+<class pattern="*vector*"/>
+<class pattern="*map*"/>
+<class pattern="*iterator*"/>
 
- <class pattern="*map*"/>
- <class pattern="*iterator*"/>
+
 </lcgdict>   

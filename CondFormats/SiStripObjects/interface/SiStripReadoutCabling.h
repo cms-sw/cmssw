@@ -1,21 +1,36 @@
 #ifndef SISTRIPREADOUTCABLING_H
 #define SISTRIPREADOUTCABLING_H
-#include <map>
+//#include <map>
 #include <vector>
-class SiStripReadOutCabling{
+#include <boost/cstdint.hpp>
+
+using namespace std;
+
+class SiStripReadoutCabling{
 public:
-  SiStripReadOutCabling();
-  virtual ~SiStripReadOutCabling();
-  struct Item{
-    short fedchannelid;//[0,95]
-    int detid; //detid
-    short apvpair; //apvpair[0,2]
-  };
-  //map of fed_id[0,449] to SiStripReadOutCabling::Item
-  std::map<short, std::vector<Item> > cablingmap;
-  //  typedef std::vector<Item>::const_iterator ItemIterator;  
+
+  //APV pairs identifier (DetId according to convention in DataFormats/SiStripId, apv on Det [0,2])
+  typedef pair<uint32_t, unsigned short>  APVPairId;  
+  typedef pair<unsigned short, unsigned short> FEDChannelId;
+
+  SiStripReadoutCabling();
+  SiStripReadoutCabling(const vector< vector< APVPairId > > & cabling);
+  virtual ~SiStripReadoutCabling();
+
+  const APVPairId & getAPVPair(unsigned short fed_id, unsigned short fed_channel) const;		
+
+  const APVPairId & getAPVPair(const FEDChannelId & fedch_id) const;
+
+  const vector<unsigned short> & getFEDs() const;
+
+  const vector< vector< APVPairId >  > & getFEDConnections() const;
 
 private:
+
+  //matching of fed channels ([0,1023] feds (only the Tk strip ones have non empty vector<APVPairId>), [0,95] channels) to APV pairs)
+  vector< vector< pair<uint32_t, unsigned short> >  > theFEDConnections;
+  //active si strip feds
+  vector<unsigned short> theFEDs;
 
 };
 #endif
