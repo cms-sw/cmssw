@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  * 
- * $Date: 2005/12/01 15:11:42 $
- * $Revision: 1.40 $
+ * $Date: 2005/12/02 15:48:25 $
+ * $Revision: 1.41 $
  * \author G. Della Ricca
  *
 */
@@ -73,12 +73,13 @@ void EBIntegrityClient::beginRun(const edm::EventSetup& c){
   for ( int i = 0; i < 36; i++ ) {
 
     if ( h_[i] ) delete h_[i];
+    h_[i] = 0;
 
     if ( h01_[i] ) delete h01_[i];
     if ( h02_[i] ) delete h02_[i];
     if ( h03_[i] ) delete h03_[i];
     if ( h04_[i] ) delete h04_[i];
-    h_[i] = 0;
+
     h01_[i] = 0;
     h02_[i] = 0;
     h03_[i] = 0;
