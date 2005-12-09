@@ -1,6 +1,8 @@
 #include "SimG4Core/Generators/interface/Generator.h"
 #include "SimG4Core/Generators/interface/HepMCParticle.h"
 
+#include "FWCore/Utilities/interface/Exception.h"
+
 #include "G4Event.hh"
 #include "G4EventManager.hh"
 #include "G4HEPEvtParticle.hh"
@@ -39,6 +41,10 @@ Generator::Generator(const ParameterSet & p) :
     else
     {
        inputFile = new std::ifstream(inputFileName.c_str(),std::ios::in);
+       if(!*inputFile) {
+	  delete inputFile;
+	  throw cms::Exception("FailedFileOpen")<<" Unable to open the generator file "<<inputFileName<<".\n  Please check to see if file name correct for parameter 'InputFileName'";
+       }
     }
     std::cout << " Generator constructed " << std::endl;
 }
