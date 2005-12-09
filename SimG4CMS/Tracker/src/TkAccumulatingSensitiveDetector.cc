@@ -51,13 +51,24 @@ using std::endl;
 using std::vector;
 using std::string;
 
+static 
+TrackerG4SimHitNumberingScheme&
+numberingScheme(const DDCompactView& cpv)
+{
+   static TrackerG4SimHitNumberingScheme s_scheme(cpv);
+   return s_scheme;
+}
+
+
 TkAccumulatingSensitiveDetector::TkAccumulatingSensitiveDetector(string name, 
 								 const DDCompactView & cpv,
 								 edm::ParameterSet const & p,
 								 const SimTrackManager* manager) : 
-  SensitiveTkDetector(name, cpv, p), myName(name), myRotation(0),  mySimHit(0),theManager(manager),
-  oldVolume(0), lastId(0), lastTrack(0), eventno(0) ,rTracker(1200.*mm),zTracker(3000.*mm){
-
+   SensitiveTkDetector(name, cpv, p), myName(name), myRotation(0),  mySimHit(0),theManager(manager),
+   oldVolume(0), lastId(0), lastTrack(0), eventno(0) ,rTracker(1200.*mm),zTracker(3000.*mm),
+   numberingScheme_(&(numberingScheme(cpv)))
+{
+   
   edm::ParameterSet m_TrackerSD = p.getParameter<edm::ParameterSet>("TrackerSD");
   allowZeroEnergyLoss = m_TrackerSD.getParameter<bool>("ZeroEnergyLoss");
   neverAccumulate     = m_TrackerSD.getParameter<bool>("NeverAccumulate");
@@ -142,7 +153,7 @@ bool TkAccumulatingSensitiveDetector::ProcessHits(G4Step * aStep, G4TouchableHis
 
 uint32_t TkAccumulatingSensitiveDetector::setDetUnitId(G4Step * s)
 { 
- unsigned int detId = TrackerG4SimHitNumberingScheme::instance().g4ToNumberingScheme(s->GetPreStepPoint()->GetTouchable());
+ unsigned int detId = numberingScheme_->g4ToNumberingScheme(s->GetPreStepPoint()->GetTouchable());
 
 #ifdef DEBUG_ID
  std::cout << " DetID = "<<detId<<std::endl; 

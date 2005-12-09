@@ -25,6 +25,7 @@ class FrameRotation;
 class UpdatablePSimHit;
 class G4ProcessTypeEnumerator;
 class G4TrackToParticleID;
+class TrackerG4SimHitNumberingScheme;
 
 class TkAccumulatingSensitiveDetector : 
 public SensitiveTkDetector, 
@@ -89,6 +90,8 @@ private:
     //
     float rTracker;
     float zTracker;
+
+    TrackerG4SimHitNumberingScheme* numberingScheme_;
 };
 
 #endif

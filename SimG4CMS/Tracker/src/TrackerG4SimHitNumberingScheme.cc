@@ -9,8 +9,8 @@
 unsigned int TrackerG4SimHitNumberingScheme::g4ToNumberingScheme(const G4VTouchable* pv){
   return ts->touchableToInt(pv);
 }
-TrackerG4SimHitNumberingScheme::TrackerG4SimHitNumberingScheme(){
-  ts = new TouchableToHistory;
+TrackerG4SimHitNumberingScheme::TrackerG4SimHitNumberingScheme(const DDCompactView& cpv){
+   ts = new TouchableToHistory(cpv);
 }
 void TrackerG4SimHitNumberingScheme::clear(){
   if (ts) delete ts;

@@ -20,8 +20,8 @@ void TouchableToHistory::buildAll(){
 
   std::vector<nav_type> allSensitiveDets = TrackerMapDDDtoID::instance().allNavTypes();
   std::cout <<" TouchableTo History: got "<<allSensitiveDets.size()<<" sensitive detectors from TrackerMapDDDtoID."<<std::endl;
-  DDCompactView cv;
-  DDExpandedView view(cv);
+  //DDCompactView cv;
+  DDExpandedView view(*myCompactView);
   G4Navigator* theStdNavigator = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking();
   G4Navigator* theNavigator = new G4Navigator();
   theNavigator->SetWorldVolume(theStdNavigator->GetWorldVolume());

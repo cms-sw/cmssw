@@ -10,6 +10,7 @@
 class G4VTouchable;
 class G4VPhysicalVolume;
 class DDFilteredView;
+class DDCompactView;
 
 class TouchableToHistory{
  public:
@@ -19,7 +20,7 @@ class TouchableToHistory{
   typedef std::vector<std::pair<int,std::string> > Nav_Story;
   typedef std::map <Nav_Story,nav_type> MapType;
   typedef std::map <Nav_Story,int> DirectMapType;
-  TouchableToHistory() : alreadySet(false) {} 
+  TouchableToHistory(const DDCompactView&cpv): alreadySet(false), myCompactView(&cpv) {} 
   G4VPhysicalVolume& getTouchable(DDFilteredView&);
   Nav_Story getNavStory(DDFilteredView&);
   void buildAll();
@@ -33,6 +34,7 @@ class TouchableToHistory{
   MapType myMap;
   DirectMapType myDirectMap;
   bool alreadySet;
+  const DDCompactView* myCompactView;
 };
 
 #endif
