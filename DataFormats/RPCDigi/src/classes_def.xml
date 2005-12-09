@@ -1,0 +1,8 @@
+<lcgdict>
+<class name="RPCDigi"/>
+<class name="std::vector<RPCDigi>"/>
+<class name="std::map<RPCDetId,std::vector<RPCDigi> >"/>
+<class name="RPCDigi::PersistentPacking"/>
+<class name="MuonDigiCollection<RPCDetId,RPCDigi>"/> 
+<class name="edm::Wrapper<MuonDigiCollection<RPCDetId,RPCDigi>>"/> 
+</lcgdict>
