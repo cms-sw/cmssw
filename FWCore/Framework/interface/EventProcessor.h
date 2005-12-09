@@ -21,35 +21,6 @@ configure moddules entirely with passed arguments, rather than using
 the ParameterSet which the module is passed at the time of its
 creation.
 
-The simplest 'main' that uses this should look like:
-
-#include "FWCore/Framework/interface/EventProcessor.h"
-int main(int argc, char* argv[])
-{
-  edm::EventProcessor app(argc, argv);
-  return app.run();
-}
-
-CAUTION: The phase 1 release does not deal gracefully with exceptions
-thrown by the constructor, for this simple version of main.
-More friendly is:
-
-#include <iostream>
-#include "FWCore/Framework/interface/EventProcessor.h"
-int main(int argc, char* argv[])
-{
-  try 
-  {
-    edm::EventProcessor app(argc, argv);
-    return app.run();
-  }
-  catch (...)
-  {
-    std::cerr << "Failed to create framework object\n";
-  }
-}
-
-More sophisticated error handling is also possible.
 
 problems:
   specification of "pass" and other things like it - things that
@@ -61,7 +32,7 @@ problems:
   where does the pluginmanager initialise call go?
 
 
-$Id: EventProcessor.h,v 1.11 2005/11/01 17:37:58 jbk Exp $
+$Id: EventProcessor.h,v 1.12 2005/12/08 21:59:44 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -92,36 +63,23 @@ namespace edm {
     //   1     exception of unknown type caught
     //   2     everything else
 
-    // This accepts the argc, argv from main(). Only 'switches' and
-    // 'options' are expected. 
-    //EventProcessor(int argc, char* argv[]);
 
-    // The input string contains the entire contents of a
-    // configuration file.    
+    /// The input string contains the entire contents of a
+    /// configuration file. Uses default constructed ServiceToken, so
+    /// an EventProcessor created with this constructor will allow
+    /// access to no externally-created services.
+    /// This should become pretty much useless when construction of
+    /// services is moved outside of the EventProcessor.
     explicit EventProcessor(const std::string& config);
 
-    // This constructor combines the effect of the two above.
-//     EventProcessor(int argc, 
-// 		   char* argv[], 
-// 		   const std::string& config);
 
-    //Same as previous constructors except allow attachement of services
-//     EventProcessor(int argc, 
-// 		   char* argv[], 
-// 		   const ServiceToken&,
-// 		   serviceregistry::ServiceLegacy);
+    // The input string contains the entire contents of a
+    // configuration file.  Same as previous constructor, except allow
+    // attachement of pre-existing services.
+    EventProcessor(const std::string& config,
+		   const ServiceToken&,
+		   serviceregistry::ServiceLegacy);
 
-     EventProcessor(const std::string& config,
-                    const ServiceToken&,
-		    serviceregistry::ServiceLegacy);
-
-//      EventProcessor(int argc, 
-// 		    char* argv[], 
-// 		    const std::string& config,
-//                     const ServiceToken&,
-// 		    serviceregistry::ServiceLegacy);
-    
-    
     ~EventProcessor();
 
     /**This should be called before the first call to 'run'
@@ -134,6 +92,7 @@ namespace edm {
        returns false if any module's endJob throws an exception
        */
     bool endJob();
+
     // Invoke event processing.  We will process a total of
     // 'numberToProcess' events. If numberToProcess is zero, we will
     // process events intil the input sources are exhausted. If it is
@@ -144,12 +103,21 @@ namespace edm {
 
     InputSource& getInputSource();
 
-    template <class T> T& getSpecificInputSource();
+    /// Get the main input source, dynamic_casting it to type T. This
+    /// will throw an execption if an inappropriate type T is used.
+    template <class T> 
+    T& 
+    getSpecificInputSource();
 
-    /// signal is emitted after the Event has been created by the InputSource but before any modules have seen the Event
-    boost::signal<void (const EventID&, const Timestamp&)> preProcessEventSignal;
-    /// signal is emitted after all modules have finished processing the Event
-    boost::signal<void (const Event&, const EventSetup&)> postProcessEventSignal;
+    /// signal is emitted after the Event has been created by the
+    /// InputSource but before any modules have seen the Event
+    boost::signal<void (const EventID&, const Timestamp&)> 
+    preProcessEventSignal;
+
+    /// signal is emitted after all modules have finished processing
+    /// the Event
+    boost::signal<void (const Event&, const EventSetup&)> 
+    postProcessEventSignal;
     
   private:
     FwkImpl* impl_;

@@ -47,8 +47,16 @@
 
 using namespace std;
 using boost::shared_ptr;
+using edm::serviceregistry::ServiceLegacy; 
+using edm::serviceregistry::kOverlapIsError;
 
 namespace edm {
+
+  typedef vector<string>   StrVec;
+  typedef list<string>     StrList;
+  typedef Worker*          WorkerPtr;
+  typedef list<WorkerPtr>  WorkerList;
+  typedef list<WorkerList> PathList;
 
   struct CommonParams
   {
@@ -59,13 +67,8 @@ namespace edm {
     string                  processName_;
     unsigned long           version_;
     unsigned long           pass_;
-  };
+  }; // struct CommonParams
 
-  typedef vector<string> StrVec;
-  typedef list<string> StrList;
-  typedef Worker* WorkerPtr;
-  typedef list<WorkerPtr> WorkerList;
-  typedef list<WorkerList> PathList;
 
   // temporary function because we do not know how to do this
   unsigned long getVersion() { return 0; }
@@ -128,68 +131,80 @@ namespace edm {
     }
   }
 
-  // -------------------------------------------------------------------
-  //              implementation class
+
+  //need a wrapper to let me 'copy' references to EventSetup
+  namespace eventprocessor 
+  {
+    struct ESRefWrapper 
+    {
+      EventSetup const & es_;
+      ESRefWrapper(EventSetup const &iES) : es_(iES) {}
+      operator const EventSetup&() { return es_; }
+    };
+  }
+
+  using eventprocessor::ESRefWrapper;
+
+  //----------------------------------------------------------------------
+  // Implementation of FwkImpl, the 'pimpl' for EventProcessor
+  //----------------------------------------------------------------------
+  //
   // right now we only support a pset string from constructor or
   // pset read from file
 
-  struct FwkImpl
+  class FwkImpl
   {
-    FwkImpl(int argc, char* argv[],
-            const ServiceToken& = ServiceToken(),
-            serviceregistry::ServiceLegacy=serviceregistry::kOverlapIsError);
-    FwkImpl(int argc, char* argv[], const string& config,
-            const ServiceToken& = ServiceToken(),
-            serviceregistry::ServiceLegacy=serviceregistry::kOverlapIsError);
+  public:
     explicit FwkImpl(const string& config,
                      const ServiceToken& = ServiceToken(),
-                     serviceregistry::ServiceLegacy=serviceregistry::kOverlapIsError);
+                     ServiceLegacy=kOverlapIsError);
 
     EventProcessor::StatusCode run(unsigned long numberToProcess);
-    void beginJob();
-    bool endJob();
-    
-    StrVec                  args_;
-    string                  configstring_;
-    shared_ptr<ParameterSet> params_;
-    CommonParams            common_;
-    WorkerRegistry          wreg_;
-    SignallingProductRegistry preg_;
-    PathList                workers_;
+    void                       beginJob();
+    bool                       endJob();
 
-    ActivityRegistry activityRegistry_;
-    ServiceToken serviceToken_;
-    
-    shared_ptr<InputSource> input_;
-    std::auto_ptr<ScheduleExecutor> runner_;
-    eventsetup::EventSetupProvider esp_;    
 
-    bool emittedBeginJob_;
-    ActionTable act_table_;
-    
-    StrVec fillArgs(int argc, char* argv[]);
-    string readFile(const StrVec& args);
-    
-    
+    ServiceToken   getToken();
+    void           connectSigs(EventProcessor* ep);
+    InputSource&   getInputSource();
+
   private:
-    void initialize(const ServiceToken& iToken, serviceregistry::ServiceLegacy iLegacy);
+    
+    shared_ptr<ParameterSet>        params_;
+    CommonParams                    common_;
+    WorkerRegistry                  wreg_;
+    SignallingProductRegistry       preg_;
+    PathList                        workers_;
 
-  };
+    ActivityRegistry                actReg_;
+    ServiceToken                    serviceToken_;
+    shared_ptr<InputSource>         input_;
+    std::auto_ptr<ScheduleExecutor> runner_;
+    eventsetup::EventSetupProvider  esp_;    
+
+    bool                            emittedBeginJob_;
+    ActionTable                     act_table_;
+  }; // class FwkImpl
 
   // ---------------------------------------------------------------
-  void FwkImpl::initialize(const ServiceToken& iToken, serviceregistry::ServiceLegacy iLegacy)
+
+  FwkImpl::FwkImpl(const string& config,
+                   const ServiceToken& iToken, 
+		   ServiceLegacy iLegacy):
+    //configstring_(config),
+    emittedBeginJob_(false) 
   {
     // TODO: Fix const-correctness. The ParameterSets that are
     // returned here should be const, so that we can be sure they are
     // not modified.
 
     shared_ptr<vector<ParameterSet> > pServiceSets;
-    makeParameterSets(configstring_, params_, pServiceSets);
+    makeParameterSets(config, params_, pServiceSets);
 
     //create the services
     serviceToken_ = ServiceRegistry::createSet(*pServiceSets,
 					       iToken,iLegacy);
-    serviceToken_.connectTo(activityRegistry_);
+    serviceToken_.connectTo(actReg_);
      
     //add the ProductRegistry as a service ONLY for the construction phase
     typedef serviceregistry::ServiceWrapper<ConstProductRegistry> w_CPR;
@@ -197,7 +212,7 @@ namespace edm {
       reg(new w_CPR( std::auto_ptr<ConstProductRegistry>(new ConstProductRegistry(preg_))));
     ServiceToken tempToken( ServiceRegistry::createContaining(reg, 
 							      serviceToken_, 
-							      serviceregistry::kOverlapIsError));
+							      kOverlapIsError));
     //make the services available
     ServiceRegistry::Operate operate(tempToken);
      
@@ -213,89 +228,74 @@ namespace edm {
      
     workers_= (sbuilder.getPathList());
     runner_ = std::auto_ptr<ScheduleExecutor>(new ScheduleExecutor(workers_,act_table_));
-    runner_->preModuleSignal.connect(activityRegistry_.preModuleSignal_);
-    runner_->postModuleSignal.connect(activityRegistry_.postModuleSignal_);
+    runner_->preModuleSignal.connect(actReg_.preModuleSignal_);
+    runner_->postModuleSignal.connect(actReg_.postModuleSignal_);
      
      
     fillEventSetupProvider(esp_, *params_, common_);
+    //   initialize(iToken,iLegacy);
+    FDEBUG(2) << params_->toString() << std::endl;
   }
-  
-  FwkImpl::FwkImpl(int argc, char* argv[],
-		   const ServiceToken& iToken, serviceregistry::ServiceLegacy iLegacy):
-    args_(fillArgs(argc,argv)),
-    configstring_(readFile(args_)),
-    emittedBeginJob_(false)
-  {
-    initialize(iToken,iLegacy);
-  }
-  
-  FwkImpl::FwkImpl(int argc, char* argv[], const string& config,
-                   const ServiceToken& iToken, serviceregistry::ServiceLegacy iLegacy):
-    args_(fillArgs(argc,argv)),
-    configstring_(config),
-    emittedBeginJob_(false) {
-      initialize(iToken,iLegacy);
-    }
 
-  FwkImpl::FwkImpl(const string& config,
-                   const ServiceToken& iToken, serviceregistry::ServiceLegacy iLegacy):
-    args_(),
-    configstring_(config),
-    emittedBeginJob_(false) {
-      initialize(iToken,iLegacy);
-      FDEBUG(2) << params_->toString() << std::endl;
-    }
-
-  StrVec FwkImpl::fillArgs(int argc, char* argv[])
+  EventProcessor::StatusCode
+  FwkImpl::run(unsigned long numberToProcess)
   {
-    StrVec args;
-    copy(&argv[0],&argv[argc],back_inserter(args));
-    return args;
-  }
-  
-  string FwkImpl::readFile(const StrVec& args)
-  {
-    string param_name("--parameter-set");
+    //make the services available
+    ServiceRegistry::Operate operate(serviceToken_);
 
-    if(args.size()<3 || args[1]!=param_name)
+    bool runforever = numberToProcess==0;
+    unsigned int eventcount=0;
+
+    //make sure this was called
+    beginJob();
+
+    while(runforever || eventcount<numberToProcess)
       {
- 	throw edm::Exception(errors::Configuration,"MissingArgument")
-	  << "No input file argument given (pset name).\n"
-	  << "Usage: " << args[0] << " --parameter-set pset_file_name"
-	  << endl;
+	++eventcount;
+	FDEBUG(1) << eventcount << std::endl;
+	auto_ptr<EventPrincipal> pep = input_->readEvent();
+        
+	if(pep.get()==0) break;
+	IOVSyncValue ts(pep->id(), pep->time());
+	EventSetup const& es = esp_.eventSetupForInstance(ts);
+
+	try
+	  {
+            ModuleDescription dummy;
+            {
+              actReg_.preProcessEventSignal_(pep->id(),pep->time());
+            }
+	    runner_->runOneEvent(*pep.get(),es);
+            {
+              actReg_.postProcessEventSignal_(Event(*pep.get(),dummy) , es);
+            }
+	  }
+	catch(cms::Exception& e)
+	  {
+	    actions::ActionCodes code = act_table_.find(e.rootCause());
+	    if(code==actions::IgnoreCompletely)
+	      {
+		// change to error logger!
+		cerr << "Ignoring exception from Event ID=" << pep->id()
+		     << ", message:\n" << e.what()
+		     << endl;
+		continue;
+	      }
+	    else if(code==actions::SkipEvent)
+	      {
+		cerr << "Skipping Event ID=" << pep->id()
+		     << ", message:\n" << e.what()
+		     << endl;
+		continue;
+	      }
+	    else
+	      throw edm::Exception(errors::EventProcessorFailure,
+				   "EventProcessingStopped",e);
+	  }
       }
 
-    ifstream ist(args[2].c_str());
-    
-    if(!ist)
-      {
- 	throw edm::Exception(errors::Configuration,"OpenFile")
-	  << "pset input file could not be opened\n"
-	  << "Input file " << args[2] << " could not be opened"
-	  << endl;
-      }
-
-    string configstring;
-    string line;
-
-    while(std::getline(ist,line)) { configstring+=line; configstring+="\n"; }
-
-    FDEBUG(2) << "configuration:\n"
-	      << configstring << std::endl;
-    return configstring;
+    return 0;
   }
-
-  // notice that exception catching is missing...
-
-  //need a wrapper to let me 'copy' references to EventSetup
-  namespace eventprocessor {
-    struct ESRefWrapper {
-      EventSetup const & es_;
-      ESRefWrapper(EventSetup const &iES) : es_(iES) {}
-      operator const EventSetup&() { return es_; }
-    };
-  }
-  using eventprocessor::ESRefWrapper;
 
   void
   FwkImpl::beginJob() 
@@ -318,7 +318,7 @@ namespace edm {
 		      boost::bind(boost::mem_fn(&Worker::beginJob), _1, wrapper));
       }
       emittedBeginJob_ = true;
-      activityRegistry_.postBeginJobSignal_();
+      actReg_.postBeginJobSignal_();
     }
   }
 
@@ -351,124 +351,58 @@ namespace edm {
       }
     }     
      
-    activityRegistry_.postEndJobSignal_();
+    actReg_.postEndJobSignal_();
     return returnValue;
   }
-  
-  EventProcessor::StatusCode
-  FwkImpl::run(unsigned long numberToProcess)
+
+  ServiceToken
+  FwkImpl::getToken()
   {
-    //make the services available
-    ServiceRegistry::Operate operate(serviceToken_);
+    return serviceToken_;
+  }
+  
 
-    bool runforever = numberToProcess==0;
-    unsigned int eventcount=0;
-
-    //make sure this was called
-    beginJob();
-
-    while(runforever || eventcount<numberToProcess)
-      {
-	++eventcount;
-	FDEBUG(1) << eventcount << std::endl;
-	auto_ptr<EventPrincipal> pep = input_->readEvent();
-        
-	if(pep.get()==0) break;
-	IOVSyncValue ts(pep->id(), pep->time());
-	EventSetup const& es = esp_.eventSetupForInstance(ts);
-
-	try
-	  {
-            ModuleDescription dummy;
-            {
-              activityRegistry_.preProcessEventSignal_(pep->id(),pep->time());
-            }
-	    runner_->runOneEvent(*pep.get(),es);
-            {
-              activityRegistry_.postProcessEventSignal_(Event(*pep.get(),dummy) , es);
-            }
-	  }
-	catch(cms::Exception& e)
-	  {
-	    actions::ActionCodes code = act_table_.find(e.rootCause());
-	    if(code==actions::IgnoreCompletely)
-	      {
-		// change to error logger!
-		cerr << "Ignoring exception from Event ID=" << pep->id()
-		     << ", message:\n" << e.what()
-		     << endl;
-		continue;
-	      }
-	    else if(code==actions::SkipEvent)
-	      {
-		cerr << "Skipping Event ID=" << pep->id()
-		     << ", message:\n" << e.what()
-		     << endl;
-		continue;
-	      }
-	    else
-	      throw edm::Exception(errors::EventProcessorFailure,
-				   "EventProcessingStopped",e);
-	  }
-      }
-
-    return 0;
+  void
+  FwkImpl::connectSigs(EventProcessor* ep)
+  {
+    // When the FwkImpl signals are given, pass them to the
+    // appropriate EventProcessor signals so that the outside world
+    // can see the signal.
+    actReg_.preProcessEventSignal_.connect(ep->preProcessEventSignal);
+    actReg_.postProcessEventSignal_.connect(ep->postProcessEventSignal);
   }
 
-
-  // ------------------------------------------
-
-  static void connectSigs(EventProcessor* iEP, FwkImpl* iImpl) {
-    //When the FwkImpl signals are given, pass them to the appropriate EventProcessor
-    // signals so that the outside world can see the signal
-    iImpl->activityRegistry_.preProcessEventSignal_.connect(iEP->preProcessEventSignal);
-    iImpl->activityRegistry_.postProcessEventSignal_.connect(iEP->postProcessEventSignal);
+  InputSource&
+  FwkImpl::getInputSource()
+  {
+    return *input_;
   }
 
-//   EventProcessor::EventProcessor(int argc, char* argv[]):
-//     impl_(new FwkImpl(argc,argv))
-//   {
-//     connectSigs(this, impl_);
-//   } 
-  
-  EventProcessor::EventProcessor(const string& config):
-    impl_(new FwkImpl(config))
+  //----------------------------------------------------------------------
+  // Implementation of EventProcessor
+  //----------------------------------------------------------------------
+  EventProcessor::EventProcessor(const string& config) :
+    impl_(new FwkImpl(config, 
+		      ServiceToken(), //  no pre-made services
+		      kOverlapIsError))
   {
-    connectSigs(this, impl_);
+    impl_->connectSigs(this);
+    //connectSigs(this, impl_);
   } 
-  
-//   EventProcessor::EventProcessor(int argc, char* argv[], const string& config):
-//     impl_(new FwkImpl(argc,argv,config))
-//   {
-//     connectSigs(this, impl_);
-//   }
-
-//   EventProcessor::EventProcessor(int argc, char* argv[],
-//                                  const ServiceToken& iToken,serviceregistry::ServiceLegacy iLegacy):
-//     impl_(new FwkImpl(argc,argv,iToken,iLegacy))
-//   {
-//     connectSigs(this, impl_);
-//   } 
   
   EventProcessor::EventProcessor(const string& config,
 				 const ServiceToken& iToken,
-				 serviceregistry::ServiceLegacy iLegacy):
-     impl_(new FwkImpl(config,iToken,iLegacy))
-   {
-     connectSigs(this, impl_);
-   } 
-  
-//   EventProcessor::EventProcessor(int argc, char* argv[], const string& config,
-//                                  const ServiceToken& iToken,serviceregistry::ServiceLegacy iLegacy):
-//     impl_(new FwkImpl(argc,argv,config,iToken,iLegacy))
-//   {
-//     connectSigs(this, impl_);
-//   }
+				 ServiceLegacy iLegacy):
+    impl_(new FwkImpl(config,iToken,iLegacy))
+  {
+    impl_->connectSigs(this);
+    //connectSigs(this, impl_);
+  } 
   
   EventProcessor::~EventProcessor()
   {
     //make the service's available while everything is being deleted
-    ServiceToken token = impl_->serviceToken_;
+    ServiceToken token = impl_->getToken();
     ServiceRegistry::Operate op(token); 
     delete impl_;
   }
@@ -494,6 +428,10 @@ namespace edm {
   InputSource&
   EventProcessor::getInputSource()
   {
-    return *impl_->input_;
+    //return *impl_->input_;
+    return impl_->getInputSource();
   }
+
+
+
 }
