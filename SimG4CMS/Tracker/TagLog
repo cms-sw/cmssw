@@ -1,3 +1,6 @@
+** V01-00-04  [Fri Dec  9 04:22:59 2005]
+made changes to accommodate TrackerMapDDDtoID no longer being a singleton
+
 ** V01-00-03  [Fri Dec  9 02:36:32 2005]
 TouchableToHistory now gets the DDCompactView passed to TkAccumulatingSensitiveDetector. This guarantees consistency.
 
