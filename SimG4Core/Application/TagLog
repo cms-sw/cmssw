@@ -1,3 +1,6 @@
+** V03-06-01  [Fri Dec  9 04:36:42 2005]
+After changes to the tracking code, runP.cfg seems to handle the magnetic field fine (but turned off for now just to be safe)
+
 ** V03-06-00  [Thu Dec  8 23:35:20 2005]
 changed runP.cfg to respond to changes in how the magnetic field is setup
 
