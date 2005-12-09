@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <iostream>
 
-#include "RecoLocalTracker/ReadRecHit/interface/ReadRecHitAlgorithm.h"
+#include "RecoLocalTracker/SiStripRecHitConverter/test/ReadRecHitAlgorithm.h"
 #include "PhysicsTools/Candidate/interface/own_vector.h"
 
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
@@ -36,7 +36,7 @@ ReadRecHitAlgorithm::~ReadRecHitAlgorithm() {
 }
 
 
-void ReadRecHitAlgorithm::run(const SiStripRecHit2DLocalPosCollection* input,SiStripRecHit2DLocalPosCollection & output)
+void ReadRecHitAlgorithm::run(const SiStripRecHit2DLocalPosCollection* input)
 {
   
   // get vector of detunit ids

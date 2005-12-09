@@ -15,7 +15,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "CommonDet/RecHit/interface/SiStripRecHit2DLocalPosCollection.h"
+#include "DataFormats/TrackingRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
 
 class ReadRecHitAlgorithm 
 {
@@ -26,7 +26,7 @@ class ReadRecHitAlgorithm
   
 
   /// Runs the algorithm
-    void run(const SiStripRecHit2DLocalPosCollection* input, SiStripRecHit2DLocalPosCollection&  output);
+    void run(const SiStripRecHit2DLocalPosCollection* input);
 
  private:
 

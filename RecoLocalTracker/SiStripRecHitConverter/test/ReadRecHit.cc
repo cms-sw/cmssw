@@ -8,10 +8,10 @@
 #include <string>
 #include <iostream>
 
-#include "RecoLocalTracker/ReadRecHit/interface/ReadRecHit.h"
+#include "RecoLocalTracker/SiStripRecHitConverter/test/ReadRecHit.h"
 
 #include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
-#include "CommonDet/RecHit/interface/SiStripRecHit2DLocalPosCollection.h"
+#include "DataFormats/TrackingRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -29,7 +29,7 @@ namespace cms
     readRecHitAlgorithm_(conf) ,
     conf_(conf)
   {
-    produces<SiStripRecHit2DLocalPosCollection>();
+    //    produces<SiStripRecHit2DLocalPosCollection>();
   }
 
 
@@ -37,7 +37,7 @@ namespace cms
   ReadRecHit::~ReadRecHit() { }  
 
   // Functions that gets called by framework every event
-  void ReadRecHit::produce(edm::Event& e, const edm::EventSetup& es)
+  void ReadRecHit::analyze(const edm::Event& e, const edm::EventSetup& es)
   {
     using namespace edm;
     std::string rechitProducer = conf_.getParameter<std::string>("RecHitProducer");
@@ -46,15 +46,7 @@ namespace cms
     edm::Handle<SiStripRecHit2DLocalPosCollection> rechits;
     e.getByLabel(rechitProducer, rechits);
 
-    // Step B: create empty output collection
-    std::auto_ptr<SiStripRecHit2DLocalPosCollection> output(new SiStripRecHit2DLocalPosCollection);
-
-    // Step C: Invoke the seed finding algorithm
-    readRecHitAlgorithm_.run(rechits.product(),*output);
-
-    // Step D: write output to file
-    e.put(output);
-
+    readRecHitAlgorithm_.run(rechits.product());
   }
 
 }

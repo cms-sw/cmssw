@@ -12,7 +12,7 @@
  *
  ************************************************************/
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -21,11 +21,11 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "RecoLocalTracker/ReadRecHit/interface/ReadRecHitAlgorithm.h"
+#include "RecoLocalTracker/SiStripRecHitConverter/test/ReadRecHitAlgorithm.h"
 
 namespace cms
 {
-  class ReadRecHit : public edm::EDProducer
+  class ReadRecHit : public edm::EDAnalyzer
   {
   public:
 
@@ -33,7 +33,7 @@ namespace cms
 
     virtual ~ReadRecHit();
 
-    virtual void produce(edm::Event& e, const edm::EventSetup& c);
+    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
 
   private:
     ReadRecHitAlgorithm readRecHitAlgorithm_;
