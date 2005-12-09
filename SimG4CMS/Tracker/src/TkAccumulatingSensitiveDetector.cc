@@ -53,9 +53,9 @@ using std::string;
 
 static 
 TrackerG4SimHitNumberingScheme&
-numberingScheme(const DDCompactView& cpv)
+numberingScheme(const DDCompactView& cpv, const GeometricDet& det)
 {
-   static TrackerG4SimHitNumberingScheme s_scheme(cpv);
+   static TrackerG4SimHitNumberingScheme s_scheme(cpv, det);
    return s_scheme;
 }
 
@@ -66,7 +66,7 @@ TkAccumulatingSensitiveDetector::TkAccumulatingSensitiveDetector(string name,
 								 const SimTrackManager* manager) : 
    SensitiveTkDetector(name, cpv, p), myName(name), myRotation(0),  mySimHit(0),theManager(manager),
    oldVolume(0), lastId(0), lastTrack(0), eventno(0) ,rTracker(1200.*mm),zTracker(3000.*mm),
-   numberingScheme_(&(numberingScheme(cpv)))
+   numberingScheme_(0)
 {
    
   edm::ParameterSet m_TrackerSD = p.getParameter<edm::ParameterSet>("TrackerSD");
@@ -447,6 +447,11 @@ void TkAccumulatingSensitiveDetector::update(const BeginOfJob * i)
     edm::ESHandle<GeometricDet> pDD;
     const edm::EventSetup* es = (*i)();
     es->get<IdealGeometryRecord>().get( pDD );
+
+    edm::ESHandle<DDCompactView> pView;
+    es->get<IdealGeometryRecord>().get(pView);
+
+    numberingScheme_=&(numberingScheme(*pView,*pDD));
 }
 
 void TkAccumulatingSensitiveDetector::clearHits()

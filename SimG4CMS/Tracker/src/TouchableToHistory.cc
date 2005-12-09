@@ -18,7 +18,8 @@ void TouchableToHistory::buildAll(){
   if (alreadySet == true) return;
   alreadySet = true;
 
-  std::vector<nav_type> allSensitiveDets = TrackerMapDDDtoID::instance().allNavTypes();
+  TrackerMapDDDtoID dddToID(myGeomDet);
+  std::vector<nav_type> allSensitiveDets = dddToID.allNavTypes();
   std::cout <<" TouchableTo History: got "<<allSensitiveDets.size()<<" sensitive detectors from TrackerMapDDDtoID."<<std::endl;
   //DDCompactView cv;
   DDExpandedView view(*myCompactView);
@@ -37,7 +38,7 @@ void TouchableToHistory::buildAll(){
     int oldsize = myDirectMap.size();
 #endif
     myMap[st] = *it;
-    myDirectMap[st] = TrackerMapDDDtoID::instance().id(*it);
+    myDirectMap[st] = dddToID.id(*it);
 #ifdef DEBUG
     std::cout << " INSERTING "<<view.logicalPart().name()<<" "<<t<<" "<<*it<<" "<<hist->GetVolume()->GetLogicalVolume()->GetName();
     std::cout <<" Sensitive: "<<hist->GetVolume()->GetLogicalVolume()->GetSensitiveDetector()<<std::endl;
@@ -54,7 +55,6 @@ void TouchableToHistory::buildAll(){
     std::cout <<" ERROR: DDD sensitive detectors do not match Geant4 ones."<<std::endl;
     abort();
   }
-  TrackerMapDDDtoID::instance().clear();
 
   delete theNavigator;
 
