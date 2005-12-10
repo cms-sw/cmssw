@@ -8,8 +8,8 @@
 
 /** \class HcalTriggerPrimitiveDigi
     
-$Date: 2005/10/04 13:37:35 $
-$Revision: 1.4 $
+$Date: 2005/10/04 14:43:44 $
+$Revision: 1.5 $
 \author J. Mans - Minnesota
 */
 class HcalTriggerPrimitiveDigi {
@@ -36,7 +36,7 @@ private:
   HcalTrigTowerDetId id_;
   int size_;
   int hcalPresamples_;
-  std::vector<HcalTriggerPrimitiveSample> data_;
+  HcalTriggerPrimitiveSample data_[MAXSAMPLES];
 };
 
 std::ostream& operator<<(std::ostream& s, const HcalTriggerPrimitiveDigi& digi);

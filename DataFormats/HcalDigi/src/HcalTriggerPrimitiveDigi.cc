@@ -1,10 +1,10 @@
 #include "DataFormats/HcalDigi/interface/HcalTriggerPrimitiveDigi.h"
 
 
-HcalTriggerPrimitiveDigi::HcalTriggerPrimitiveDigi() : size_(0), hcalPresamples_(0),data_(MAXSAMPLES) {
+HcalTriggerPrimitiveDigi::HcalTriggerPrimitiveDigi() : size_(0), hcalPresamples_(0) {
 }
 HcalTriggerPrimitiveDigi::HcalTriggerPrimitiveDigi(const HcalTrigTowerDetId& id) : id_(id),
-										   size_(0), hcalPresamples_(0),data_(MAXSAMPLES) {
+										   size_(0), hcalPresamples_(0) {
 }
   
 void HcalTriggerPrimitiveDigi::setSize(int size) {
