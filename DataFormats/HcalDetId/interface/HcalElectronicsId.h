@@ -24,6 +24,7 @@ public:
   HcalElectronicsId(int fiberChan, int fiberIndex, int spigot, int dccid);
   uint32_t operator()() { return hcalElectronicsId_; }
 
+  uint32_t rawId() const { return hcalElectronicsId_; }
 
   /** Set the htr-related information 1=top, 0=bottom*/
   void setHTR(int crate, int slot, int tb);
