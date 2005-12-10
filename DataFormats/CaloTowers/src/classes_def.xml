@@ -3,5 +3,5 @@
   <class name="CaloTower"/>
   <class name="std::vector<CaloTower>"/>
   <class name="edm::SortedCollection<CaloTower,edm::StrictWeakOrdering<CaloTower> >"/>
-  <class name="edm::Wrapper<edm::SortedCollection<CaloTower,edm::StrictWeakOrdering<CaloTower> > >" id="3463A2EF-8B4C-4E8A-851B-A348838CF0A9"/>
+  <class name="edm::Wrapper<edm::SortedCollection<CaloTower,edm::StrictWeakOrdering<CaloTower> > >"/> 
 </lcgdict>
