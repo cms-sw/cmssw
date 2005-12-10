@@ -8,6 +8,7 @@ using namespace std;
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloHitResponse.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloTDigitizer.h"
+#include "SimCalorimetry/CaloSimAlgos/interface/CaloShapeIntegrator.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSimParameterMap.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalShape.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HFShape.h"
@@ -55,6 +56,10 @@ private:
   CaloVSimParameterMap * theParameterMap;
   CaloVShape * theHcalShape;
   CaloVShape * theHFShape;
+  CaloVShape * theHcalIntegratedShape;
+  CaloVShape * theHFIntegratedShape;
+
+
 
   CaloHitResponse * theHcalResponse;
   CaloHitResponse * theHFResponse;
@@ -77,9 +82,13 @@ HcalDigiProducer::HcalDigiProducer(const edm::ParameterSet& ps) {
   theParameterMap = new HcalSimParameterMap();
   theHcalShape = new HcalShape();
   theHFShape = new HFShape();
+  theHcalIntegratedShape = new CaloShapeIntegrator(theHcalShape);
+  theHFIntegratedShape = new CaloShapeIntegrator(theHFShape);
 
-  theHcalResponse = new CaloHitResponse(theParameterMap, theHcalShape);
-  theHFResponse = new CaloHitResponse(theParameterMap, theHFShape);
+
+
+  theHcalResponse = new CaloHitResponse(theParameterMap, theHcalIntegratedShape);
+  theHFResponse = new CaloHitResponse(theParameterMap, theHFIntegratedShape);
 
 
   theNoisifier = new HcalNoisifier();
@@ -97,6 +106,8 @@ HcalDigiProducer::~HcalDigiProducer() {
   delete theParameterMap;
   delete theHcalShape;
   delete theHFShape;
+  delete theHcalIntegratedShape;
+  delete theHFIntegratedShape;
   delete theHcalResponse;
   delete theHFResponse;
   delete theElectronicsSim;
@@ -109,7 +120,10 @@ void HcalDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
 std::cout << "DIGIPRODUCER" << std::endl;
   // get the appropriate gains, noises, & widths for this event
   edm::ESHandle<HcalDbService> conditions;
-  eventSetup.get<HcalDbRecord>().get(conditions);
+//  eventSetup.get<HcalDbRecord>().get(conditions);
+  HcalDbRecord & record = eventSetup.get<HcalDbRecord>();
+std::cout << "GOT " << std::endl;
+  record.get(conditions);
   theNoisifier->setDbService(conditions.product());
 
   // get the correct geometry
