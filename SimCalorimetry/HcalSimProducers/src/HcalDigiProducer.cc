@@ -22,7 +22,7 @@ using namespace std;
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalNoisifier.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalDigitizerTraits.h"
-#include "SimDataFormats/CaloHit/interface/PCaloHit.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 
 using namespace cms;
 
@@ -38,6 +38,8 @@ public:
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
 
 private:
+  /// fills the vectors for each subdetector
+  void sortHits(const edm::PCaloHitContainer & hits);
   /// some hits in each subdetector, just for testing purposes
   void fillFakeHits();
   /// make sure the digitizer has the correct list of all cells that
@@ -117,13 +119,9 @@ HcalDigiProducer::~HcalDigiProducer() {
 
 
 void HcalDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
-std::cout << "DIGIPRODUCER" << std::endl;
   // get the appropriate gains, noises, & widths for this event
   edm::ESHandle<HcalDbService> conditions;
-//  eventSetup.get<HcalDbRecord>().get(conditions);
-  HcalDbRecord & record = eventSetup.get<HcalDbRecord>();
-std::cout << "GOT " << std::endl;
-  record.get(conditions);
+  eventSetup.get<HcalDbRecord>().get(conditions);
   theNoisifier->setDbService(conditions.product());
 
   // get the correct geometry
@@ -133,9 +131,11 @@ std::cout << "GOT " << std::endl;
   theHOHits.clear();
   theHFHits.clear();
   // Step A: Get Inputs
-  //edm::Handle<vector<CaloHit> > allHits;  //Fancy Event Pointer to CaloTowers
-  //e.getByLabel("CaloHits", allHits);           //Set pointer to CaloTowers
-  fillFakeHits();
+
+  edm::Handle<edm::PCaloHitContainer> hcalHits;
+  e.getByLabel("r", "HcalHits", hcalHits);
+  sortHits(*hcalHits);
+//  fillFakeHits();
 
 
   // Step B: Create empty output
@@ -158,6 +158,27 @@ std::cout << "GOT " << std::endl;
 
 }
 
+
+void HcalDigiProducer::sortHits(const edm::PCaloHitContainer & hits)
+{
+  for(edm::PCaloHitContainer::const_iterator hitItr = hits.begin();
+      hitItr != hits.end(); ++hitItr)
+  {
+    HcalSubdetector subdet = HcalDetId(hitItr->id()).subdet();
+    if(subdet == HcalBarrel || subdet == HcalEndcap) {
+      theHBHEHits.push_back(*hitItr);
+    }
+    else if(subdet == HcalForward) {
+      theHFHits.push_back(*hitItr);
+    }
+    else if(subdet == HcalOuter) {
+      theHOHits.push_back(*hitItr);
+    }
+    else {
+      std::cerr << "ERROR : bad HcalHit subdetector " << std::endl;
+    }
+  }
+}
 
 void HcalDigiProducer::fillFakeHits() {
   HcalDetId barrelDetId(HcalBarrel, 1, 1, 1);
