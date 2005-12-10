@@ -4,8 +4,8 @@
 /*
  * \file EBIntegrityTask.h
  *
- * $Date: 2005/11/24 15:10:10 $
- * $Revision: 1.12 $
+ * $Date: 2005/12/07 07:28:53 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */
@@ -21,6 +21,8 @@
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
 #include <iostream>
 #include <fstream>
