@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  * 
- * $Date: 2005/11/24 10:55:51 $
- * $Revision: 1.29 $
+ * $Date: 2005/12/06 09:55:11 $
+ * $Revision: 1.30 $
  * \author G. Della Ricca
  *
 */
@@ -84,7 +84,7 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   ievt_++;
 
-  edm::Handle<EBDigiCollection>  digis;
+  edm::Handle<EBDigiCollection> digis;
   e.getByLabel("ecalEBunpacker", digis);
 
 //  int nebd = digis->size();
@@ -97,9 +97,8 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
 //    int ie = id.ieta();
 //    int ip = id.iphi();
-//    int iz = id.zside();
 
-//    float xie = iz * (ie - 0.5);
+//    float xie = ie - 0.5;
 //    float xip = ip - 0.5;
 
     int ism = id.ism();
@@ -134,7 +133,7 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   }
 
-  edm::Handle<EcalPnDiodeDigiCollection>  pns;
+  edm::Handle<EcalPnDiodeDigiCollection> pns;
   e.getByLabel("ecalEBunpacker", pns);
 
   float adc[36];
@@ -170,7 +169,7 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   }
 
-  edm::Handle<EcalUncalibratedRecHitCollection>  hits;
+  edm::Handle<EcalUncalibratedRecHitCollection> hits;
   e.getByLabel("ecalUncalibHitMaker", "EcalEBUncalibRecHits", hits);
 
 //  int neh = hits->size();
@@ -183,9 +182,8 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
     int ie = id.ieta();
     int ip = id.iphi();
-    int iz = id.zside();
 
-    float xie = iz * (ie - 0.5);
+    float xie = ie - 0.5;
     float xip = ip - 0.5;
 
     int ism = id.ism();

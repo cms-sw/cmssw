@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  * 
- * $Date: 2005/11/24 18:19:18 $
- * $Revision: 1.27 $
+ * $Date: 2005/11/25 12:57:37 $
+ * $Revision: 1.28 $
  * \author G. Della Ricca
  *
 */
@@ -62,7 +62,7 @@ void EBCosmicTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   ievt_++;
 
-  edm::Handle<EcalUncalibratedRecHitCollection>  hits;
+  edm::Handle<EcalUncalibratedRecHitCollection> hits;
   e.getByLabel("ecalUncalibHitMaker", "EcalEBUncalibRecHits", hits);
 
 //  int nebh = hits->size();
@@ -75,9 +75,8 @@ void EBCosmicTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
     int ie = id.ieta();
     int ip = id.iphi();
-    int iz = id.zside();
 
-    float xie = iz * (ie - 0.5);
+    float xie = ie - 0.5;
     float xip = ip - 0.5;
 
     int ism = id.ism();

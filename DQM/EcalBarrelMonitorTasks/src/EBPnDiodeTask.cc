@@ -1,8 +1,8 @@
 /*
  * \file EBPnDiodeTask.cc
  * 
- * $Date: 2005/12/01 10:04:49 $
- * $Revision: 1.4 $
+ * $Date: 2005/12/05 07:54:29 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  *
 */
@@ -68,7 +68,7 @@ void EBPnDiodeTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   ievt_++;
 
-  edm::Handle<EcalPnDiodeDigiCollection>  pns;
+  edm::Handle<EcalPnDiodeDigiCollection> pns;
   e.getByLabel("ecalEBunpacker", pns);
 
 //  int nep = pns->size();

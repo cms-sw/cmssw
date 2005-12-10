@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalTask.cc
  * 
- * $Date: 2005/11/14 08:52:30 $
- * $Revision: 1.20 $
+ * $Date: 2005/11/20 16:43:39 $
+ * $Revision: 1.21 $
  * \author G. Della Ricca
  *
 */
@@ -60,7 +60,7 @@ void EBPedestalTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   ievt_++;
 
-  edm::Handle<EBDigiCollection>  digis;
+  edm::Handle<EBDigiCollection> digis;
   e.getByLabel("ecalEBunpacker", digis);
 
 //  int nebd = digis->size();
@@ -73,9 +73,8 @@ void EBPedestalTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
     int ie = id.ieta();
     int ip = id.iphi();
-    int iz = id.zside();
 
-    float xie = iz * (ie - 0.5);
+    float xie = ie - 0.5;
     float xip = ip - 0.5;
 
     int ism = id.ism();

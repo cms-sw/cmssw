@@ -1,8 +1,8 @@
 /*
  * \file EBPedPreSampleTask.cc
  * 
- * $Date: 2005/11/16 15:19:36 $
- * $Revision: 1.6 $
+ * $Date: 2005/11/20 16:43:39 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  *
 */
@@ -49,7 +49,7 @@ void EBPedPreSampleTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   ievt_++;
 
-  edm::Handle<EBDigiCollection>  digis;
+  edm::Handle<EBDigiCollection> digis;
   e.getByLabel("ecalEBunpacker", digis);
 
 //  int nebd = digis->size();
@@ -62,9 +62,8 @@ void EBPedPreSampleTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
     int ie = id.ieta();
     int ip = id.iphi();
-    int iz = id.zside();
 
-    float xie = iz * (ie - 0.5);
+    float xie = ie - 0.5;
     float xip = ip - 0.5;
 
     int ism = id.ism();
