@@ -3,8 +3,8 @@
    <class name="HcalTBRunData"/>
    <class name="HcalTBEventPosition"/>
    <class name="HcalTBTiming"/>
-   <class name="edm::Wrapper<HcalTBTriggerData>" id="4C402902-A3EC-5826-5721-71C0FFD71026"/>
-   <class name="edm::Wrapper<HcalTBRunData>" id="AEB84CAE-A620-C52C-378B-127461B1F421"/>
-   <class name="edm::Wrapper<HcalTBEventPosition>" id="4D390C04-0F10-B06B-37B3-E94E86DA7143"/>
-   <class name="edm::Wrapper<HcalTBTiming>" id="D1DFD5B6-9AF2-7BFB-2A6C-2CC2860DD291"/>
+   <class name="edm::Wrapper<HcalTBTriggerData>"/>
+   <class name="edm::Wrapper<HcalTBRunData>"/>
+   <class name="edm::Wrapper<HcalTBEventPosition>"/>
+   <class name="edm::Wrapper<HcalTBTiming>"/>
 </lcgdict>
