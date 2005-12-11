@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  * 
- * $Date: 2005/12/06 09:27:15 $
- * $Revision: 1.60 $
+ * $Date: 2005/12/07 07:28:52 $
+ * $Revision: 1.61 $
  * \author G. Della Ricca
  *
 */
@@ -27,7 +27,16 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
 
   irun_ = ps.getUntrackedParameter<int>("runNumber", 999999);
 
-  dbe_ = EcalBarrelMonitorDaemon::dbe();
+  dbe_ = 0;
+
+  // get hold of back-end interface
+  dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
+
+  if ( dbe_ ) dbe_->setVerbose(1);
+
+  //We put this here for the moment since there is no better place 
+  edm::Service<MonitorDaemon> daemon;
+  daemon.operator->();
 
   Char_t histo[20];
 
