@@ -1,4 +1,4 @@
-// $Id: TwoBodyCombiner.cc,v 1.5 2005/10/25 08:47:05 llista Exp $
+// $Id: TwoBodyCombiner.cc,v 1.6 2005/10/25 09:08:31 llista Exp $
 #include "PhysicsTools/CandAlgos/src/TwoBodyCombiner.h"
 #include "PhysicsTools/CandUtils/interface/MassWindowSelector.h"
 #include "FWCore/Framework/interface/Handle.h"
@@ -17,14 +17,14 @@ candmodules::TwoBodyCombiner::TwoBodyCombiner( const ParameterSet & p ) :
     p.getParameter<bool>( "checkCharge" ) ? p.getParameter<int>( "charge" ) : 0 ),
   source1( p.getParameter<string>( "src1" ) ),
   source2( p.getParameter<string>( "src2" ) ) {
-  produces<Candidates>();
+  produces<CandidateCollection>();
 }
 
 candmodules::TwoBodyCombiner::~TwoBodyCombiner() {
 }
 
 void candmodules::TwoBodyCombiner::produce( Event& evt, const EventSetup& ) {
-  Handle<Candidates> cands1, cands2;
+  Handle<CandidateCollection> cands1, cands2;
   evt.getByLabel( source1, cands1 );
   evt.getByLabel( source2, cands2 );
   evt.put( combiner.combine( & * cands1, & * cands2 ) );

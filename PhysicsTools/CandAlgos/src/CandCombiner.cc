@@ -1,4 +1,4 @@
-// $Id: CandCombiner.cc,v 1.3 2005/10/25 08:47:05 llista Exp $
+// $Id: CandCombiner.cc,v 1.4 2005/10/25 09:08:31 llista Exp $
 #include "PhysicsTools/CandAlgos/src/CandCombiner.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -20,7 +20,7 @@ CandCombiner::CandCombiner( const ParameterSet & cfg ) :
     for( vector<ConjInfo>::iterator label = labels_.begin();
          label != labels_.end(); ++label ) {
       if( label->mode_ == ConjInfo::kPlus ) charge += 1;
-      else if ( label->mode_ ==ConjInfo::kMinus ) charge -= 1;
+      else if ( label->mode_ == ConjInfo::kMinus ) charge -= 1;
     }
   } else {
     throw edm::Exception( edm::errors::Configuration,
@@ -44,7 +44,7 @@ CandCombiner::CandCombiner( const ParameterSet & cfg ) :
 
   combiner_.reset( new TwoBodyCombiner( select, true, charge ) );
 
-  produces<Candidates>();
+  produces<CandidateCollection>();
 }
 
 CandCombiner::~CandCombiner() {
@@ -53,10 +53,10 @@ CandCombiner::~CandCombiner() {
 void CandCombiner::produce( Event& evt, const EventSetup& ) {
   int n = labels_.size();
   assert( n == 1 || n == 2 );
-  std::vector<Handle<Candidates> > colls( n );
+  std::vector<Handle<CandidateCollection> > colls( n );
   for( int i = 0; i < n; ++i ) {
     evt.getByLabel( labels_[ i ].label_, colls[ i ] );
   }
-  const Candidates * c1 = & * colls[ 0 ], * c2 = & * colls[ n - 1 ];
+  const CandidateCollection * c1 = & * colls[ 0 ], * c2 = & * colls[ n - 1 ];
   evt.put( combiner_->combine( c1, c2 ) );
 }

@@ -1,4 +1,4 @@
-// $Id: CandSelectorBase.cc,v 1.2 2005/10/25 08:47:05 llista Exp $
+// $Id: CandSelectorBase.cc,v 1.3 2005/10/25 09:08:31 llista Exp $
 #include <memory>
 #include "PhysicsTools/CandAlgos/interface/CandSelectorBase.h"
 #include "PhysicsTools/Candidate/interface/Candidate.h"
@@ -6,12 +6,11 @@
 
 using namespace aod;
 using namespace edm;
-typedef Candidate::collection Candidates;
 
 CandSelectorBase::CandSelectorBase( const std::string & src, 
 				    const boost::shared_ptr<CandSelector> & sel ) :
   select_( sel ), src_( src ) {
-  produces<Candidates>();
+  produces<CandidateCollection>();
 }
 
 CandSelectorBase::~CandSelectorBase() {
@@ -19,10 +18,10 @@ CandSelectorBase::~CandSelectorBase() {
 
 void CandSelectorBase::produce( edm::Event& evt, const edm::EventSetup& ) {
  
-  Handle<Candidates> cands;
+  Handle<CandidateCollection> cands;
   evt.getByLabel( src_, cands );
-  std::auto_ptr<Candidates> comp( new Candidates );
-  for( Candidates::const_iterator c = cands->begin(); c != cands->end(); ++c ) {
+  std::auto_ptr<CandidateCollection> comp( new CandidateCollection );
+  for( CandidateCollection::const_iterator c = cands->begin(); c != cands->end(); ++c ) {
     std::auto_ptr<Candidate> cand( ( * c )->clone() );
     if( ( * select_ )( * cand ) ) {
       comp->push_back( cand.release() );

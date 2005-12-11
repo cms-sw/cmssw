@@ -1,4 +1,4 @@
-// $Id: CandSelector.cc,v 1.6 2005/10/25 08:47:05 llista Exp $
+// $Id: CandSelector.cc,v 1.7 2005/10/25 09:08:31 llista Exp $
 #include <memory>
 #include "PhysicsTools/CandAlgos/src/CandSelector.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -9,7 +9,6 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 
 using namespace aod;
-typedef Candidate::collection Candidates;
 
 candmodules::CandSelector::CandSelector( const edm::ParameterSet& cfg ) :
   CandSelectorBase( cfg.getParameter<std::string>("src") ) {
@@ -19,7 +18,7 @@ candmodules::CandSelector::CandSelector( const edm::ParameterSet& cfg ) :
     throw edm::Exception( edm::errors::Configuration, 
 			  "failed to parse \"" + cut + "\"" );
   }
-  produces<Candidates>();
+  produces<CandidateCollection>();
 }
 
 candmodules::CandSelector::~CandSelector() {
