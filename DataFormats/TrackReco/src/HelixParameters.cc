@@ -1,6 +1,7 @@
-// $Id: HelixParameters.cc,v 1.1 2005/11/22 13:51:44 llista Exp $
+// $Id: HelixParameters.cc,v 1.2 2005/11/24 11:58:21 llista Exp $
 // Author : Luca Lista, INFN
 #include "DataFormats/TrackReco/interface/HelixParameters.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include <cmath>
 using namespace reco;
 using namespace reco::helix;
@@ -60,7 +61,9 @@ void reco::helix::setFromCartesian( int q, const Point & v, const Vector & p,
   par.phi0() = - atan2( px, py );
 
   // check v is the p.o.c.a. to ( 0, 0, 0 )
-  assert( fabs( p.x() * v.x() + p.y() * v.y() ) < 1.e-4 );
+  double epsi =  fabs( p.x() * v.x() + p.y() * v.y() ) / pt;
+  if( epsi < 1.e-3 )
+    throw cms::Exception( "InvalidInput" ) << "Vertex outside tolerance: " << epsi << std::endl;
 
  // first, remove degeneracy:
   // pt = sqrt( px^2 + py^2 )
