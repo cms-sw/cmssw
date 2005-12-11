@@ -62,8 +62,8 @@ void reco::helix::setFromCartesian( int q, const Point & v, const Vector & p,
 
   // check v is the p.o.c.a. to ( 0, 0, 0 )
   double epsi =  fabs( p.x() * v.x() + p.y() * v.y() ) / pt;
-  if( epsi < 1.e-3 )
-    throw cms::Exception( "InvalidInput" ) << "Vertex outside tolerance: " << epsi << std::endl;
+  if( epsi > 1.e-4 )
+    throw cms::Exception( "InvalidInput" ) << "Vertex (x, y) outside tolerance: " << epsi << std::endl;
 
  // first, remove degeneracy:
   // pt = sqrt( px^2 + py^2 )
