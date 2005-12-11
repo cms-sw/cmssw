@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  * 
- * $Date: 2005/12/05 09:31:35 $
- * $Revision: 1.49 $
+ * $Date: 2005/12/05 12:43:00 $
+ * $Revision: 1.50 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -121,6 +121,7 @@ void EcalBarrelMonitorClient::beginJob(const edm::EventSetup& c){
 
   this->beginRun(c);
   begin_run_done_ = true;
+  end_run_done_ = true;
 
 }
 
@@ -400,11 +401,6 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
       cout << endl;
     }
 
-    if ( status_ == "unknown" ) {
-      begin_run_done_ = false;
-      end_run_done_ = false;
-    }
-
     if ( status_ == "begin-of-run" ) {
       if ( ! begin_run_done_ ) {
         this->beginRun(c);
@@ -414,8 +410,11 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
     }
 
     if ( status_ == "running" ) {
-      begin_run_done_ = false;
-      end_run_done_ = false;
+      if ( ! begin_run_done_ ) {
+        this->beginRun(c);
+        begin_run_done_ = true;
+        end_run_done_ = false;
+      }
       if ( last_update_ == 0 || updates % 5 == 0 ) {
         if (                                    integrity_client_ ) integrity_client_->analyze(e, c);
         if ( h_ && h_->GetBinContent(2) != 0 && laser_client_ ) laser_client_->analyze(e, c);
@@ -454,13 +453,9 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
 
     cout << "Forcing end-of-run ... NOW !" << endl;
 
+    begin_run_done_ = false;
     this->endRun();
     end_run_done_ = true;
-
-    cout << "Forcing begin-of-run ... NOW !" << endl;
-
-    this->beginRun(c);
-    begin_run_done_ = true;
 
   }
 
