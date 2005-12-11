@@ -10,6 +10,7 @@
 
 #include "SimG4CMS/Calo/interface/CaloHit.h"
 #include "SimG4CMS/Calo/interface/HcalQie.h"
+#include "SimG4CMS/Calo/interface/HcalTestHistoManager.h"
 #include "SimG4CMS/Calo/interface/HcalTestHistoClass.h"
 #include "SimG4CMS/Calo/interface/HcalTestNumberingScheme.h"
 #include "Geometry/HcalCommonData/interface/HcalNumberingFromDDD.h"
@@ -19,6 +20,7 @@
 #include <vector>
 #include <string>
 #include <CLHEP/Vector/LorentzVector.h>
+
 
 class G4Step;
 class BeginOfJob;
@@ -48,9 +50,9 @@ private:
   // analysis-related stuff
   std::vector<int> layerGrouping(int);
   std::vector<int> towersToAdd(int centre, int nadd);
-  void  fill(const EndOfEvent * ev);
-  void  qieAnalysis();
-  void  layerAnalysis();
+  void   fill(const EndOfEvent * ev);
+  void   qieAnalysis();
+  void   layerAnalysis();
   double timeOfFlight(int det, int layer, double eta);
 
 private:
@@ -70,7 +72,8 @@ private:
   int                       addTower;
 
   // Private Tuples
-  HcalTestHistoClass *      tuples;
+  std::auto_ptr<HcalTestHistoManager>    tuplesManager;
+  HcalTestHistoClass   *    tuples;
 
   // Numbering scheme
   HcalNumberingFromDDD *    numberingFromDDD;

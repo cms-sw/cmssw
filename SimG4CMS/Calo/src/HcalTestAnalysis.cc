@@ -34,7 +34,7 @@
 #define debugStep
 
 HcalTestAnalysis::HcalTestAnalysis(const edm::ParameterSet &p): 
-  myqie(0), addTower(3), tuples(0), numberingFromDDD(0), org(0) {
+  myqie(0), addTower(3), tuplesManager(0), tuples(0), numberingFromDDD(0), org(0) {
 
   edm::ParameterSet m_Anal = p.getParameter<edm::ParameterSet>("HcalTestAnalysis");
   verbosity    = m_Anal.getParameter<int>("Verbosity");
@@ -81,10 +81,6 @@ HcalTestAnalysis::~HcalTestAnalysis() {
   if (myqie)  {
     if (verbosity > 0) std::cout << "Delete HcalQie" << std::endl;
     delete myqie;
-  }
-  if (tuples) {
-    if (verbosity > 0) std::cout << "Delete HistogramClass" << std::endl;
-    delete tuples;
   }
   if (numberingFromDDD) {
     if (verbosity > 0) std::cout << "Delete HcalNumberingFromDDD" << std::endl;
@@ -182,7 +178,7 @@ void HcalTestAnalysis::update(const BeginOfJob * job) {
   numberingFromDDD = new HcalNumberingFromDDD(verbosDDD, names[0], (*pDD));
 
   // Ntuples
-  tuples = new HcalTestHistoClass(verbosHisto, fileName);
+  tuplesManager.reset(new HcalTestHistoManager(verbosHisto, fileName));
 
   // Numbering scheme
   org    = new HcalTestNumberingScheme(verbosNumber);
@@ -259,6 +255,8 @@ void HcalTestAnalysis::update(const BeginOfRun * run) {
 //=================================================================== per EVENT
 void HcalTestAnalysis::update(const BeginOfEvent * evt) {
  
+  // create tuple object
+  tuples = new HcalTestHistoClass(verbosHisto);
   // Reset counters
   tuples->setCounters();
  
@@ -350,6 +348,7 @@ void HcalTestAnalysis::update(const EndOfEvent * evt) {
   count++;
   // Fill event input 
   fill(evt);
+
 #ifdef ddebug
   if (verbosity > 1) 
     std::cout << "HcalTestAnalysis:: ---  after Fill " << std::endl;
@@ -370,7 +369,9 @@ void HcalTestAnalysis::update(const EndOfEvent * evt) {
 #endif
 
   // Writing the data to the Tree
-  tuples->fillTree();
+  tuplesManager->fillTree(tuples); // (no need to delete it...)
+  tuples = 0; // but avoid to reuse it...
+
 #ifdef ddebug
   if (verbosity > 1) 
     std::cout << "HcalTestAnalysis:: --- fillTree  " << std::endl;

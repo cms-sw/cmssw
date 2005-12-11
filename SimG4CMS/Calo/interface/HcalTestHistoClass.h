@@ -1,26 +1,24 @@
 ///////////////////////////////////////////////////////////////////////////////
 // File: HcalTestHistoClass.h
-// Histogram handling class for analysis in HCALTest
+// Histogram handling class for analysis in HcalTest
 ///////////////////////////////////////////////////////////////////////////////
 #ifndef HcalTestHistoClass_H
 #define HcalTestHistoClass_H
 
 #include "SimG4CMS/Calo/interface/CaloHit.h"
 
-#include "TROOT.h"
-#include "TFile.h"
-#include "TTree.h"
-
 #include <boost/cstdint.hpp>
 #include <string>
 #include <vector>
+#include <memory>
 
-class HcalTestHistoClass : public TObject {
+class HcalTestHistoClass {
 
 public: 
 
-  HcalTestHistoClass(int, std::string);
-  virtual ~HcalTestHistoClass();
+  HcalTestHistoClass(int i) : verbosity(i) {}
+  explicit HcalTestHistoClass() {}
+  virtual ~HcalTestHistoClass() {}
 
   void setCounters();
   void fillLayers (double el[], double ho, double hbhe, double muxy[]);
@@ -29,29 +27,47 @@ public:
 		   std::vector<double> longs,  std::vector<double> longq,
 		   int nTower, std::vector<double> latphi, 
 		   std::vector<double> latfs, std::vector<double> latfq);
-  void fillTree   ();
+
+  struct Layer {
+    Layer() {}
+    float e;
+    float muDist;
+  };
+
+  struct Hit {
+    Hit() {}
+    int   layer;
+    int   id;
+    float eta;
+    float phi;
+    float e;
+    float t;
+    float jitter;
+  };
+
+  struct QIE {
+    QIE() {}
+    float sim;
+    float qie;
+    int   id;
+    std::vector<float> lats, latq;
+    std::vector<float> lngs, lngq;
+    std::vector<int>   tow;
+  };
 
 private:
 
-  TTree *tree;
-  TFile *froot;
+  int                verbosity;
+  const static int   nLayersMAX = 20;
+  int                nLayers;
+  std::vector<Layer> layers;
+  float              eHO, eHBHE;
+ 
+  int                nHits; 
+  std::vector<Hit>   hits;
 
-  int     verbosity;
-  const static Int_t nLayersMAX = 20;
-  Int_t   nLayers;
-  Float_t eLayer[nLayersMAX], muDist[nLayersMAX], eHO, eHBHE;
- 
-  const static Int_t nHitsMAX = 15000;
-  Int_t   nHits, layerHits[nHitsMAX], idHits[nHitsMAX];
-  Float_t etaHits[nHitsMAX], phiHits[nHitsMAX], eHits[nHitsMAX];
-  Float_t tHits[nHitsMAX], jitterHits[nHitsMAX];
- 
-  const static Int_t nQIEMAX = 4, nTowerQIEMAX = 100, nGroupQIEMAX = 20;
-  Int_t   nQIE, nTowerQIE, nGroupQIE;
-  Float_t simQIE[nQIEMAX],  qieQIE[nQIEMAX];
-  Float_t latsQIE[nQIEMAX][nTowerQIEMAX], latqQIE[nQIEMAX][nTowerQIEMAX];
-  Float_t lngsQIE[nQIEMAX][nGroupQIEMAX], lngqQIE[nQIEMAX][nGroupQIEMAX];
-  Int_t   idQIE[nQIEMAX], towQIE[nQIEMAX][nTowerQIEMAX];
+  int                nQIE, nTowerQIE, nGroupQIE;
+  std::vector<QIE>   qie;
 
 };
 
