@@ -25,6 +25,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include "CLHEP/Random/RandFlat.h"
 
@@ -58,8 +59,8 @@ FlatEGunASCIIWriter::FlatEGunASCIIWriter( const ParameterSet& pset )
   ifstream PDFile( TableFullName.c_str() ) ;
   if( !PDFile ) 
   {
-      cerr << "cannot open " << TableFullName << endl;
-      exit(-1);
+      throw cms::Exception("FileNotFound", "FlatEGunASCIIWriter::FlatEGunASCIIWriter()")
+	<< "File " << TableFullName << " cannot be opened.\n";
   }
 
   HepPDT::TableBuilder tb(*fPDGTable) ;
@@ -88,8 +89,8 @@ void FlatEGunASCIIWriter::beginJob( const EventSetup& )
   ifstream PDFile( TableFullName.c_str() ) ;
   if( !PDFile ) 
   {
-      cerr << "cannot open " << TableFullName << endl;
-      exit(-1);
+      throw cms::Exception("FileNotFound", "FlatEGunASCIIWriter::beginJob()")
+	<< "File " << TableFullName << " cannot be opened.\n";
   }
 
   HepPDT::TableBuilder tb(*fPDGTable) ;

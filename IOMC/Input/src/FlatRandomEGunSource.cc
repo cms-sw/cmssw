@@ -1,6 +1,6 @@
 /*
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2005/11/21 23:32:20 $
+ *  $Revision: 1.1 $
  *  \author Julia Yarba
  */
 
@@ -14,7 +14,8 @@
 
 #include "FWCore/EDProduct/interface/EDProduct.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
-#include <FWCore/EDProduct/interface/Wrapper.h>
+#include "FWCore/EDProduct/interface/Wrapper.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include "PluginManager/ModuleDef.h"
 #include "FWCore/Framework/interface/InputSourceMacros.h"
@@ -61,8 +62,8 @@ FlatRandomEGunSource::FlatRandomEGunSource( const ParameterSet& pset,
   ifstream PDFile( TableFullName.c_str() ) ;
   if( !PDFile ) 
   {
-      cerr << "cannot open " << TableFullName << endl;
-      exit(-1);
+      throw cms::Exception("FileNotFound", "FlatRandomEGunSource::FlatRandomEGunSource()")
+	<< "File " << TableFullName << " cannot be opened.\n";
   }
 
   HepPDT::TableBuilder tb(*fPDGTable) ;
