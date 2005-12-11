@@ -1,9 +1,9 @@
 <lcgdict>
   <class name="reco::Vector<3>" />
   <class name="reco::Error<3>" />
-  <class name="edm::Ref<std::vector<reco::Track> >" />
-  <class name="edm::RefVector<std::vector<reco::Track> >" />
   <class name="reco::Vertex" />
   <class name="std::vector<reco::Vertex>" />
   <class name="edm::Wrapper<std::vector<reco::Vertex> >" />
+  <class name="edm::Ref<std::vector<reco::Vertex> >" />
+  <class name="edm::RefVector<std::vector<reco::Vertex> >" />
 </lcgdict>

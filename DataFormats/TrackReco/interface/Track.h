@@ -1,7 +1,7 @@
 #ifndef TrackReco_Track_h
 #define TrackReco_Track_h
 //
-// $Id: Track.h,v 1.3 2005/11/24 12:12:08 llista Exp $
+// $Id: Track.h,v 1.4 2005/11/29 13:40:29 llista Exp $
 //
 // Definition of Track class for RECO
 //
@@ -67,5 +67,7 @@ namespace reco {
   };
 
 }
+
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #endif

@@ -4,7 +4,7 @@
 
 Dummy class to be replaced by real RecHits
 
-$Id: RecHit.h,v 1.2 2005/11/21 12:55:16 llista Exp $
+$Id: RecHit.h,v 1.1 2005/11/22 13:51:44 llista Exp $
 
 */
 #include <Rtypes.h>
@@ -23,5 +23,7 @@ namespace reco {
   };
 
 }
+
+#include "DataFormats/TrackReco/interface/RecHitFwd.h"
 
 #endif

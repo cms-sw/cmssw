@@ -1,14 +1,14 @@
 #ifndef VertexReco_Vertex_h
 #define VertexReco_Vertex_h
 //
-// $Id: Vertex.h,v 1.7 2005/11/21 12:55:16 llista Exp $
+// $Id: Vertex.h,v 1.1 2005/11/22 14:00:31 llista Exp $
 //
 // RECO Vertex class
 //
 #include <Rtypes.h>
 #include "DataFormats/TrackReco/interface/Error.h"
 #include "DataFormats/TrackReco/interface/Vector.h"
-#include "FWCore/EDProduct/interface/Ref.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "FWCore/EDProduct/interface/RefVector.h"
 #include <vector>
 
@@ -20,16 +20,13 @@ namespace reco {
   public:
     typedef Vector3D Point;
     typedef Error3D Error;
-    typedef edm::Ref<std::vector<Track> > TrackRef;
-    typedef edm::RefVector<std::vector<Track> > TrackRefs;
-    typedef TrackRefs::iterator tracks_iterator;
     Vertex() { }
     Vertex( double chi2, unsigned short ndof, 
 	    double x, double y, double z, const Error & err, 
 	    size_t size );
     void add( const TrackRef & r ) { tracks_.push_back( r ); }
-    tracks_iterator tracks_begin() const { return tracks_.begin(); }
-    tracks_iterator tracks_end() const { return tracks_.end(); }
+    track_iterator tracks_begin() const { return tracks_.begin(); }
+    track_iterator tracks_end() const { return tracks_.end(); }
     size_t tracksSize() const { return tracks_.size(); }
     double chi2() const { return chi2_; }
     unsigned short ndof() const { return ndof_; }
@@ -48,5 +45,7 @@ namespace reco {
   };
   
 }
+
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #endif

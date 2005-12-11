@@ -1,7 +1,7 @@
 #ifndef TrackReco_TrackExtra_h
 #define TrackReco_TrackExtra_h
 //
-// $Id: TrackExtra.h,v 1.7 2005/11/22 10:51:19 llista Exp $
+// $Id: TrackExtra.h,v 1.1 2005/11/22 13:51:44 llista Exp $
 //
 // Definition of TrackExtra class for RECO
 //
@@ -9,20 +9,15 @@
 //
 #include <Rtypes.h>
 #include "DataFormats/TrackReco/interface/Vector.h"
+#include "DataFormats/TrackReco/interface/RecHitFwd.h"
 #include "FWCore/EDProduct/interface/Ref.h"
 #include "FWCore/EDProduct/interface/RefVector.h"
 #include <CLHEP/Geometry/Vector3D.h>
 #include <CLHEP/Geometry/Point3D.h>
 
 namespace reco {
-
-  class RecHit;
-
   class TrackExtra {
   public:
-    typedef edm::Ref<std::vector<RecHit> > RecHitRef;
-    typedef edm::RefVector<std::vector<RecHit> > RecHitRefs;
-    typedef RecHitRefs::iterator rechit_iterator;
     TrackExtra() { }
     TrackExtra( double x, double y, double z,
 		double px, double py, double pz,
@@ -35,8 +30,8 @@ namespace reco {
     }
     bool outerOk() const { return outerOk_; }
     void add( const RecHitRef & r ) { recHits_.push_back( r ); }
-    rechit_iterator recHitsBegin() const { return recHits_.begin(); }
-    rechit_iterator recHitsEnd() const { return recHits_.end(); }
+    recHit_iterator recHitsBegin() const { return recHits_.begin(); }
+    recHit_iterator recHitsEnd() const { return recHits_.end(); }
     size_t recHitsSize() const { return recHits_.size(); }
     double outerPx() const { return outerMomentum_.get<0>(); }
     double outerPy() const { return outerMomentum_.get<1>(); }
@@ -62,5 +57,7 @@ namespace reco {
   };
 
 }
+
+#include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
 
 #endif

@@ -15,14 +15,18 @@ namespace {
 
     std::vector<reco::Track> v1;
     edm::Wrapper<std::vector<reco::Track> > c1;
+    edm::Ref<std::vector<reco::Track> > r1;
+    edm::RefVector<std::vector<reco::Track> > rv1;
 
     std::vector<reco::RecHit> v2;
     edm::Wrapper<std::vector<reco::RecHit> > c2;
+    edm::Ref<std::vector<reco::RecHit> > r2;
+    edm::RefVector<std::vector<reco::RecHit> > rv2;
 
     reco::Vector<5> v3_3;
-    edm::Ref<std::vector<reco::RecHit> > r3;
-    edm::RefVector<std::vector<reco::RecHit> > rv3;
     std::vector<reco::TrackExtra> v3;
     edm::Wrapper<std::vector<reco::TrackExtra> > c3;
+    edm::Ref<std::vector<reco::TrackExtra> > r13;
+    edm::RefVector<std::vector<reco::TrackExtra> > rv13;
   }
 }

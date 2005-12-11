@@ -2,5 +2,7 @@
   <class name="reco::Muon" />
   <class name="std::vector<reco::Muon>" />
   <class name="edm::Wrapper<std::vector<reco::Muon> >" />
+  <class name="edm::Ref<std::vector<reco::Muon> >" />
+  <class name="edm::RefVector<std::vector<reco::Muon> >" />
 </lcgdict>
  
