@@ -1,3 +1,6 @@
+** V00-01-02  [Sun Dec 11 16:34:20 2005]
+Replace exit() with exception throw
+
 ** V00-01-01  [Tue Dec  6 17:11:16 2005]
 fixed memory leak
 
