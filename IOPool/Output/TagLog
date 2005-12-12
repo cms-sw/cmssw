@@ -1,3 +1,6 @@
+** V01-01-04  [Mon Dec 12 23:28:26 2005]
+fix problem with output branch selection
+
 ** V01-01-03  [Sun Dec 11 16:00:42 2005]
 Make IOPool tests runnable from scram b runtests
 
