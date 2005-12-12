@@ -7,10 +7,11 @@
 class VolumeBasedMagneticField : public MagneticField {
  public:
   //  VolumeBasedMagneticField(const DDCompactView & cpv);
-  VolumeBasedMagneticField(  std::vector<MagBLayer *> theBLayers,
-			     std::vector<MagESector *> theESectors,
-			     std::vector<MagVolume6Faces*> theBVolumes,
-			     std::vector<MagVolume6Faces*> theEVolumes);
+  VolumeBasedMagneticField( const edm::ParameterSet& config,
+			    std::vector<MagBLayer *> theBLayers,
+			    std::vector<MagESector *> theESectors,
+			    std::vector<MagVolume6Faces*> theBVolumes,
+			    std::vector<MagVolume6Faces*> theEVolumes);
   virtual ~VolumeBasedMagneticField() {;}
   GlobalVector inTesla ( const GlobalPoint& g) const;
  private:

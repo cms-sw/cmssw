@@ -17,7 +17,7 @@
 
 using namespace magneticfield;
 
-VolumeBasedMagneticFieldESProducer::VolumeBasedMagneticFieldESProducer(const edm::ParameterSet& /*iConfig*/)
+VolumeBasedMagneticFieldESProducer::VolumeBasedMagneticFieldESProducer(const edm::ParameterSet& iConfig) : pset(iConfig)
 {
   setWhatProduced(this);
 }
@@ -33,10 +33,11 @@ std::auto_ptr<MagneticField> VolumeBasedMagneticFieldESProducer::produce(const I
   MagGeoBuilderFromDDD builder;
   builder.build(*cpv);
   
-  std::auto_ptr<MagneticField> s(new VolumeBasedMagneticField(builder.barrelLayers(),
-									 builder.endcapSectors(),
-									 builder.barrelVolumes(),
-									 builder.endcapVolumes()));
+  std::auto_ptr<MagneticField> s(new VolumeBasedMagneticField(pset,
+							      builder.barrelLayers(),
+							      builder.endcapSectors(),
+							      builder.barrelVolumes(),
+							      builder.endcapVolumes()));
   return s;
 }
 
