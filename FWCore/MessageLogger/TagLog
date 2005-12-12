@@ -1,3 +1,6 @@
+** V01-00-02  [Mon Dec 12 22:51:40 2005]
+Replace exit() and abort() with exception throws
+
 ** V01-00-01  [Wed Dec  7 01:19:14 2005]
 Add more documentation and fix one test.
 
