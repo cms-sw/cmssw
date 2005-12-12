@@ -10,7 +10,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Fri Sep 23 11:38:38 CEST 2005
-// $Id: TestSuite.h,v 1.1 2005/10/10 16:32:04 uberthon Exp $
+// $Id: TestSuite.h,v 1.1 2005/12/06 10:18:52 uberthon Exp $
 //
 //
 
@@ -40,8 +40,10 @@ class TestSuite : public edm::EDAnalyzer {
 
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
    private:
-      int bunchcr_;
       std::string filename_;
+      int bunchcr_;
+      int minbunch_;
+      int maxbunch_;
       TFile *histfile_;
 };
 }//edm

@@ -9,6 +9,7 @@
 <use name=SimDataFormats/Track>
 <use name=SimDataFormats/Vertex>
 <use name=SimDataFormats/CrossingFrame>
+<use name=DataFormats/EcalDetId>
 <use name=Foundation/PluginManager>
 <export>
  <use name=root>
@@ -21,5 +22,6 @@
  <use name=SimDataFormats/Track>
  <use name=SimDataFormats/Vertex>
  <use name=SimDataFormats/CrossingFrame>
+ <use name=DataFormats/EcalDetId>
  <use name=Foundation/PluginManager>
 </export>
