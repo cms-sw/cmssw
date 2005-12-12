@@ -45,8 +45,11 @@ namespace cms
     float angrandom1,angrandom2;
     float xexrand,xentrand, yexrand,yentrand, zexrand,zentrand;
     std::vector<PSimHit> thePixelHits;
-    std::vector<PSimHit> detPixelHits;
     std::vector<PixelDigi> collector;
+    typedef std::map<unsigned int, std::vector<PSimHit>,std::less<unsigned int> > simhit_map;
+    typedef simhit_map::iterator simhit_map_iterator;
+    simhit_map SimHitMap;
+
   };
 }
 

@@ -181,7 +181,6 @@ class SiPixelDigitizerAlgorithm
   int numRows;    // number          rows
   float moduleThickness; // sensor thickness 
   //  int digis; 
-  GeomDetType::SubDetector pixelPart;            // is it barrel on forward
   const PixelGeomDetUnit* _detp;
   std::vector<PSimHit> _PixelHits; //cache
    PixelTopology* topol;
@@ -216,7 +215,7 @@ class SiPixelDigitizerAlgorithm
   // The eloss fluctuation class from G4. Is the right place? 
   SiG4UniversalFluctuation fluctuate; //
   GaussianTailNoiseGenerator* theNoiser; //
-
+  int detID;
  
  std::vector<EnergyDepositUnit> _ionization_points;
   std::vector<SignalPoint> _collection_points;
