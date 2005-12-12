@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: HcalHardcodeCalibrations.cc,v 1.2 2005/10/28 01:30:47 fedor Exp $
+// $Id: HcalHardcodeCalibrations.cc,v 1.3 2005/12/05 00:25:31 fedor Exp $
 //
 //
 
@@ -32,6 +32,8 @@
 #include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
 #include "CondFormats/DataRecord/interface/HcalQIEDataRcd.h"
 
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
+
 
 #include "HcalHardcodeCalibrations.h"
 //
@@ -42,37 +44,16 @@ using namespace cms;
 
 namespace {
 
-bool validHcalCell (const HcalDetId& fCell) {
-  if (fCell.iphi () <=0)  return false;
-  int absEta = abs (fCell.ieta ());
-  int phi = fCell.iphi ();
-  int depth = fCell.depth ();
-  HcalSubdetector det = fCell.subdet ();
-  // phi ranges
-  if ((absEta >= 40 && phi > 18) ||
-      (absEta >= 21 && phi > 36) ||
-      phi > 72)   return false;
-  if (absEta <= 0)       return false;
-  else if (absEta <= 14) return (depth == 1 || depth == 4) && det == HcalBarrel; 
-  else if (absEta == 15) return (depth == 1 || depth == 2 || depth == 4) && det == HcalBarrel; 
-  else if (absEta == 16) return depth >= 1 && depth <= 2 && det == HcalBarrel || depth == 3 && det == HcalEndcap; 
-  else if (absEta == 17) return depth == 1 && det == HcalEndcap; 
-  else if (absEta <= 26) return depth >= 1 && depth <= 2 && det == HcalEndcap; 
-  else if (absEta <= 28) return depth >= 1 && depth <= 3 && det == HcalEndcap; 
-  else if (absEta == 29) return depth >= 1 && depth <= 2 && (det == HcalEndcap || det == HcalForward); 
-  else if (absEta <= 41) return depth >= 1 && depth <= 2 && det == HcalForward;
-  else return false;
-}
-
 std::vector<unsigned long> allCells () {
   static std::vector<unsigned long> result;
   if (result.size () <= 0) {
+    HcalTopology topology;
     for (int eta = -50; eta < 50; eta++) {
       for (int phi = 0; phi < 100; phi++) {
 	for (int depth = 1; depth < 5; depth++) {
 	  for (int det = 1; det < 5; det++) {
 	    HcalDetId cell ((HcalSubdetector) det, eta, phi, depth);
-	    if (validHcalCell(cell)) result.push_back (cell.rawId ());
+	    if (topology.valid(cell)) result.push_back (cell.rawId ());
 	  }
 	}
       }

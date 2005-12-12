@@ -15,6 +15,8 @@
 #include "CondFormats/HcalObjects/interface/HcalGainWidths.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
+
 bool validHcalCell (const HcalDetId& fCell) {
   if (fCell.iphi () <=0)  return false;
   int absEta = abs (fCell.ieta ());
@@ -59,13 +61,13 @@ int main (int argn, char** argv){
   HcalGainWidths* gainWidths=new HcalGainWidths;
 
   int counter = 0;
-
+  HcalTopology topology;
   for (int eta = -50; eta < 50; eta++) {
     for (int phi = 0; phi < 100; phi++) {
       for (int depth = 1; depth < 5; depth++) {
 	for (int det = 1; det < 5; det++) {
 	  HcalDetId cell ((HcalSubdetector) det, eta, phi, depth);
-	  if ( validHcalCell(cell)) {
+	  if (topology.valid(cell)) {
 	    uint32_t cellId = cell.rawId(); 
 	    HcalDbServiceHardcode srv;
 	    pedestals->addValue (cellId, srv.pedestals (cell));

@@ -5,6 +5,7 @@
 <use name=FWCore/ParameterSet>
 <use name=CalibFormats/HcalObjects>
 <use name=CalibCalorimetry/HcalAlgos>
+<use name=Geometry/CaloTopology>
 <export>
   <use name=boost>
   <use name=FWCore/Framework>
@@ -12,4 +13,5 @@
   <use name=FWCore/ParameterSet>
   <use name=CalibFormats/HcalObjects>
   <use name=CalibCalorimetry/HcalAlgos>
+  <use name=Geometry/CaloTopology>
 </export>
