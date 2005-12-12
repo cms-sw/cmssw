@@ -1,5 +1,5 @@
 //------------------------------------------------------------
-// $Id: TestHelper.cc,v 1.1 2005/11/21 15:39:17 paterno Exp $
+// $Id: TestHelper.cc,v 1.2 2005/11/21 22:36:45 paterno Exp $
 //------------------------------------------------------------
 #include <iostream>
 #include <string>
@@ -32,7 +32,7 @@ int run_script(const std::string& shell, const std::string& script)
   if (pid==0) // child
     {
       execlp(shell.c_str(), "sh", "-c", script.c_str(), 0);
-      _exit(127);
+      _exit(127); // signal parent and children processes
     }
   else // parent
     {
