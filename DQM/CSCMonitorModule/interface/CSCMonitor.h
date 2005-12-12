@@ -1,6 +1,17 @@
 #ifndef CSCMonitor_H
 #define CSCMonitor_H
 
+/** \class CSCMonitor
+ *
+ * Class for CSC Detector Monitoring.
+ *  
+ *  $Date: 2005/11/11 16:23:56 $
+ *  $Revision: 1.4 $
+ *
+ * \author Ilaria Segoni (CERN)
+ *
+ */
+
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -30,7 +41,7 @@ public:
   void process(CSCDCCEventData & dccData);
   
   void MonitorDDU(const CSCDDUEventData& dduEvent, int dduNumber);
-  void MonitorDMB(std::vector<CSCEventData>::iterator data);
+  void MonitorDMB(std::vector<CSCEventData>::iterator data, int dduNumber);
  
   
   map<string, MonitorElement*> book_chamber(int chamberID);
@@ -39,6 +50,12 @@ public:
   static const int maxDDU=50; 
   static const int maxCMBID=36; 
 
+  static const int CSC_DMB_ID_MASK  = 0XF;
+  static const int CSC_DMB_ID_SHIFT = 0;
+  
+  static const int CSC_CRATE_ID_MASK  = 0XFFF;
+  static const int CSC_CRATE_ID_SHIFT = 4;
+ 
 private:
 
 
@@ -55,9 +72,8 @@ private:
   
   int nEvents;
   
-  int dataLength;
-  int dduBX;
-  int L1ANumber;
+  int dduBX[maxDDU];
+  int L1ANumber[maxDDU];
   
   int FEBUnpacked;
 
