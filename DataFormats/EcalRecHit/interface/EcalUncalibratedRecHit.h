@@ -12,11 +12,11 @@ class EcalUncalibratedRecHit {
                           const double& jit, const double& chi2);
 
    virtual ~EcalUncalibratedRecHit();
-   double amplitude() { return amplitude_; }
-   double pedestal() { return pedestal_; }
-   double jitter() { return jitter_; }
-   double chi2() { return chi2_; }
-   DetId  id() { return id_; }
+   double amplitude() const { return amplitude_; }
+   double pedestal() const { return pedestal_; }
+   double jitter() const { return jitter_; }
+   double chi2() const { return chi2_; }
+   DetId  id() const { return id_; }
 
  private:
    double amplitude_;   //< Reconstructed amplitude
