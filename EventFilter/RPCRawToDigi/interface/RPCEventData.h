@@ -1,10 +1,10 @@
 #ifndef RPCEventData_h
 #define RPCEventData_h
 
-/** \file
- * Container for Event Data
+/** \class RPCEventData
+ * Container for Unpacked RPC Data, used by DQM module
  *
- *  $Date: 2005/11/07 15:43:50 $
+ *  $Date: 2005/11/24 18:06:54 $
  *  $Revision: 1.1 $
  * \author Ilaria Segoni - CERN
  */
