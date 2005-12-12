@@ -1,3 +1,6 @@
+** V00-03-03  [Mon Dec 12 18:40:02 2005]
+add various protections+ small fixes, complete test-suite
+
 ** V00-03-02  [Tue Dec  6 17:19:15 2005]
 adapt to new input data, new structure of directories and add validation test
 
