@@ -1,3 +1,6 @@
+** V01-01-00  [Mon Dec 12 20:45:03 2005]
+New convention for Phi
+
 ** V01-00-00  [Mon Nov 21 21:47:54 2005]
 Move HCAL DB tools from CondCore/HcalPlugins to CondTools/Hcal
 
