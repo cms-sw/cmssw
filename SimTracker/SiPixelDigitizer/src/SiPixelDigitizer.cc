@@ -13,7 +13,7 @@
 //
 // Original Author:  Michele Pioppi-INFN perugia
 //         Created:  Mon Sep 26 11:08:32 CEST 2005
-// $Id: SiPixelDigitizer.cc,v 1.3 2005/11/23 19:33:45 pioppi Exp $
+// $Id: SiPixelDigitizer.cc,v 1.4 2005/11/25 17:00:20 pioppi Exp $
 //
 //
 
@@ -37,7 +37,7 @@
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/TrackerSimAlgo/interface/PixelGeomDetType.h"
-
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -111,33 +111,34 @@ namespace cms
  
     edm::ESHandle<MagneticField> pSetup;
     iSetup.get<IdealMagneticFieldRecord>().get(pSetup);
-    // Step C: LOOP on PixelGeomDetUnit //
 
+    //Loop on PSimHit
+    SimHitMap.clear();
+
+    for (std::vector<PSimHit>::iterator isim = thePixelHits.begin();
+	 isim != thePixelHits.end(); ++isim){
+      DetId detid=DetId((*isim).detUnitId());
+      //      cout<<"ko"<<GeomDetType::SubDetector::PixelBarrel<<endl;
+      if ((detid.subdetId()==  PixelSubdetector::PixelBarrel) || (detid.subdetId()== PixelSubdetector::PixelEndcap)) {
+	SimHitMap[(*isim).detUnitId()].push_back((*isim));
+      }
+    }
+
+    // Step C: LOOP on PixelGeomDetUnit //
     for(TrackingGeometry::DetContainer::iterator iu = pDD->dets().begin(); iu != pDD->dets().end(); iu ++){
   
       GlobalVector bfield=pSetup->inTesla((*iu)->surface().position());
-
-
-
 
       if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 1 ) {
 	std::cout << "B-field(T) at "<<(*iu)->surface().position()<<"(cm): " 
 		  << pSetup->inTesla((*iu)->surface().position()) << std::endl;
       }
-
+ 
       if (dynamic_cast<PixelGeomDetUnit*>((*iu))!=0){
-
-	detPixelHits.clear();
-	//Loop on SimHit collections
-	for (std::vector<PSimHit>::iterator isim = thePixelHits.begin();
-	     isim != thePixelHits.end(); ++isim){
-		  if((*iu)->geographicalId().rawId()==(*isim).detUnitId()){
-		    detPixelHits.push_back((*isim));
-		  }
-	}
-
-	//take back the vector of PixelDigi 
-	collector= _pixeldigialgo.run(detPixelHits,dynamic_cast<PixelGeomDetUnit*>((*iu)),bfield);	
+	
+	collector= _pixeldigialgo.run(SimHitMap[(*iu)->geographicalId().rawId()],
+				      dynamic_cast<PixelGeomDetUnit*>((*iu)),
+				      bfield);
 	PixelDigiCollection::Range outputRange;
 	outputRange.first = collector.begin();
 	outputRange.second = collector.end();

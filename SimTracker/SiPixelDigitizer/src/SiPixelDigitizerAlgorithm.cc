@@ -16,6 +16,7 @@
 #include "CLHEP/Random/RandGauss.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "SimTracker/SiPixelDigitizer/interface/PixelChipIndices.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
 using namespace std;
 
@@ -61,7 +62,7 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   //tMax = 0.030; // In MeV.  
   tMax =conf_.getParameter<double>("DeltaProductionCut");  
  
-
+  thePixelLuminosity=conf_.getParameter<int>("AddPixelInefficiency");
   // Get the constants for the miss-calibration studies
   doMissCalibrate=conf_.getParameter<bool>("MissCalibrate"); // Enable miss-calibration
   theGainSmearing=conf_.getParameter<double>("GainSmearing"); // sigma of the gain smearing
@@ -109,9 +110,9 @@ vector<PixelDigi>  SiPixelDigitizerAlgorithm::run(const std::vector<PSimHit> &in
   // enum PixelGeomDetType::SubDetector pixelPart;
 
   pixelPart=pixdet->type().subDetector();
+  detID= _detp->geographicalId().rawId();
 
 
-  thePixelLuminosity=conf_.getParameter<int>("AddPixelInefficiency");
   if (thePixelLuminosity==0) {
     pixelInefficiency=false;
     for (int i=0; i<3;i++) {
@@ -122,6 +123,7 @@ vector<PixelDigi>  SiPixelDigitizerAlgorithm::run(const std::vector<PSimHit> &in
       thePixelChipEfficiency[i] = 1.; // chips = 99.75%
     }
   }
+
   if (thePixelLuminosity>0) {
     pixelInefficiency=true;
     // Default efficiencies 
@@ -139,21 +141,13 @@ vector<PixelDigi>  SiPixelDigitizerAlgorithm::run(const std::vector<PSimHit> &in
     
     // Special cases 
 
-    //MP DA VERIFICARE il valore di pixelpart
-//     if( pixelPart == barrel ) {  // For the barrel
-    if( pixelPart == 0 ) {  // For the barrel
+ 
+    if    (DetId(detID).subdetId()==  PixelSubdetector::PixelBarrel){
       if(thePixelLuminosity==10) { // For high luminosity
  	thePixelColEfficiency[0] = 1.-0.034; // 3.4% for r=4 only
 	thePixelEfficiency[0]    = 1.-0.015; // 1.5% for r=4
       }        
-      // For the reset assume the default.
-      //} else if ( pixelPart == forward ) {  // For endcaps
-      //if(thePixelLuminosity==10) { // high luminosity
-      //thePixelColEfficiency[0]  = 1.-0.025; // 2.5% for disk 1, like r7
-      //} else if (thePixelLuminosity==2) {
-      //thePixelColEfficiency[0]  = 1.-0.008; // 0.8% for disk 1, like r7
-      //} else if (thePixelLuminosity==1) {  //1*10^33 all deafult
-      //}  
+ 
     }
 
 
@@ -179,16 +173,17 @@ vector<PixelDigi>  SiPixelDigitizerAlgorithm::run(const std::vector<PSimHit> &in
       }
     }
   }
-   _signal.clear();
- 
+
+    _signal.clear();
+
 
   //Digitization of the SimHits of a given pixdet
   vector<PixelDigi> collector =digitize(pixdet);
-  int detID= _detp->geographicalId().rawId();
+
   //Fill the pixidigicollection
 
 
-   if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 0 ) {
+  if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 0 ) {
     cout << "[SiPixelDigitizerAlgorithm] converted " << collector.size() << " PixelDigis in DetUnit" << detID << endl; 
    }
    return collector;
@@ -249,13 +244,7 @@ vector<PixelDigi> SiPixelDigitizerAlgorithm::digitize(PixelGeomDetUnit *det){
 
       // compute induced signal on readout elements and add to _signal
       induce_signal(*ssbegin); //*ihit needed only for SimHit<-->Digi link
-
-
-				      //      int adc=10;
-				      //   int row=10;
-				      //    int col=10; 
-      //      internal_coll.push_back(PixelDigi(row,col,adc));
-    }
+				   }
 
     if(addNoise) add_noise();  // generate noise
     // Do only if needed 
@@ -411,7 +400,7 @@ void SiPixelDigitizerAlgorithm::drift(const PSimHit& hit){
 
   if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 1 ) {  
     cout << " enter drift " << endl;
-  }
+    }
   
   _collection_points.resize( _ionization_points.size()); // set size
 
@@ -745,12 +734,11 @@ void SiPixelDigitizerAlgorithm::make_digis() {
 
     // Do only for pixels above threshold
     if ( signalInElectrons >= thePixelThresholdInE) {  
-
+ 
       int adc = int( signalInElectrons / theElectronPerADC ); // calibrate gain
       adc = min(adc, theAdcFullScale); // Check maximum value
        
-      
-      int chan =  (*i).first;  // channel number
+     int chan =  (*i).first;  // channel number
       pair<int,int> ip = PixelDigi::channelToPixel(chan);
       if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 0 ) {
 	cout << (*i).first << " " << (*i).second << " " << signalInElectrons 
@@ -852,10 +840,8 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency() {
 
   // setup the chip indices conversion
   // At the moment I do not have a better way to find out the layer number? 
-  //MP da verificare
-  //  if ( pixelPart == barrel ) {  // barrel layers
-  if ( pixelPart == 0 ) {  // barrel layers
-
+ 
+  if    (DetId(detID).subdetId()==  PixelSubdetector::PixelBarrel){// barrel layers
     double radius = _detp->surface().position().perp();
     int layerIndex = 0;
     if( radius < 5.5 ) {
@@ -1005,13 +991,15 @@ LocalVector SiPixelDigitizerAlgorithm::DriftDirection(){
   //good Drift direction estimation only for pixel barrel
   Frame detFrame(_detp->surface().position(),_detp->surface().rotation());
   LocalVector Bfield=detFrame.toLocal(_bfield);
-  float dir_x = tanLorentzAnglePerTesla * Bfield.y();
-  float dir_y = -tanLorentzAnglePerTesla * Bfield.x();
-  float dir_z = 1.; // E field always in z direction
-  LocalVector theDriftDirection = LocalVector(dir_x,dir_y,dir_z);
-  if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 0 ) {
-    cout << " The drift direction in local coordinate is " <<  
-      theDriftDirection    << endl;
-  }
-  return theDriftDirection;
+  //  if    (DetId(detID).subdetId()==  PixelSubdetector::PixelBarrel){
+    float dir_x = tanLorentzAnglePerTesla * Bfield.y();
+    float dir_y = -tanLorentzAnglePerTesla * Bfield.x();
+    float dir_z = 1.; // E field always in z direction
+    LocalVector theDriftDirection = LocalVector(dir_x,dir_y,dir_z);
+    if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 0 ) {
+      cout << " The drift direction in local coordinate is " <<  
+	theDriftDirection    << endl;
+    }
+    return theDriftDirection;
+    //  }
 }
