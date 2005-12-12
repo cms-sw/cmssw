@@ -107,9 +107,9 @@ vector<PixelDigi>  SiPixelDigitizerAlgorithm::run(const std::vector<PSimHit> &in
   // Pixel Efficiency moved from the constructor to the method run because
   // the information of the det are nota available in the constructor
   // Effciency parameters. 0 - no inefficiency, 1-low lumi, 10-high lumi
-  // enum PixelGeomDetType::SubDetector pixelPart;
 
-  pixelPart=pixdet->type().subDetector();
+
+
   detID= _detp->geographicalId().rawId();
 
 
@@ -213,7 +213,7 @@ vector<PixelDigi> SiPixelDigitizerAlgorithm::digitize(PixelGeomDetUnit *det){
 
 
     if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 0 ){
-       cout << " PixelDigitizer " << pixelPart << " " 
+       cout << " PixelDigitizer "  
 	    << numColumns << " " << numRows << " " << moduleThickness<<endl;
     //MP DA SCOMMENTARE
 //       cout << thePixelThreshold << " " << thePixelThresholdInE << " " 
