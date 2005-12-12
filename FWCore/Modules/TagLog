@@ -1,3 +1,6 @@
+** V00-03-01  [Mon Dec 12 23:30:13 2005]
+fix problem with output branch selection
+
 ** V00-03-00  [Fri Dec  2 23:56:41 2005]
 Can now request data with a label.  The format is 'type/label'.
 
