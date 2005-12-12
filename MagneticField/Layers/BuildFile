@@ -2,11 +2,7 @@
 <export>
  <lib name=MagneticFieldLayers>
  <use name=MagneticField/VolumeGeometry>
-# <use name=Utilities/BinningTools>
- <use name=boost>
 </export>
 
 <use name=MagneticField/VolumeGeometry>
-#<use name=Utilities/BinningTools>
-<use name=boost>
 
