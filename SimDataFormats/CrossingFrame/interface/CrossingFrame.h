@@ -51,12 +51,18 @@ using namespace edm;
       void addPileupVertices(const int bcr, const edm::EmbdSimVertexContainer *, int trackoffset=0);      
       void print(int level=0) const ;
       void setEventID(edm::EventID id) {id_=id;}
+
+      //getters
       edm::EventID getEventID() const {return id_;}
       std::pair<int,int> getBunchRange() const {return std::pair<int,int>(firstCrossing_,lastCrossing_);}
       int getBunchSpace() const {return bunchSpace_;}
       bool knownDetector  (const std::string subdet) const {return signalSimHits_.count(subdet) ? true : signalCaloHits_.count(subdet);}
+      std::string getType(std::string subdet) {
+	if (signalSimHits_.count(subdet)) return std::string("PSimHit");
+        else if (signalCaloHits_.count(subdet)) return std::string("PCaloHit"); 
+	else return std::string();}
 
-      //getters for collections
+      //templated getters for collections
       template <class T> void getSignal(const std::string subdet,std::vector<T> *&);
       void getSignal(const std::string subdet, std::vector<PSimHit>* &v) { v=&(signalSimHits_[subdet]);  }
       void getSignal(const std::string subdet, std::vector<PCaloHit> * &v) { v=&signalCaloHits_[subdet];}

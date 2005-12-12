@@ -101,14 +101,22 @@ MixCollection<T>::MixCollection(const CrossingFrame *cf, const std::string subde
 
 
   //verify whether detector is known
-  if (subdet.size()>0 && !cf_->knownDetector(subdet))
-     throw cms::Exception("UnknownSubdetector")<< " No detector "<<subdet<<" known in CrossingFrame\n";
+  if ( strstr(typeid(T).name(),"Hit")  && !cf_->knownDetector(subdet))
+     throw cms::Exception("UnknownSubdetector")<< " No detector '"<<subdet<<"' for hits known in CrossingFrame (must be non-blank)\n";
 
 
+  //verify whether detector/T type correspond
+  cf_->getSignal(subdet,signals_);
+  std::string type=cf_->getType(subdet);
+  if (!type.empty()) { //test only for SimHits and CaloHits
+     if (!strstr(typeid(T).name(),type.c_str()))
+     throw cms::Exception("TypeMismatch")<< "Given template type "<<type<<" does not correspond to detecetor "<<subdet<<"\n";
+  }
+ 
   //verify whether detector is present
   cf_->getSignal(subdet,signals_);
   cf_->getPileups(subdet,pileups_);
-  if (!signals_->size()) {
+   if (!signals_->size()) {
     std::cout<<" No signal for subdetector "<<subdet<<std::endl;
     return;
   }
@@ -118,24 +126,23 @@ MixCollection<T>::MixCollection(const CrossingFrame *cf, const std::string subde
      throw cms::Exception("UnknownSubdetector")<< " Should not happen: no pileups for detector "<<subdet<<" in CrossingFrame\n";
     return;
   }
-
-
 }
+
 template <class T>
 typename MixCollection<T>::MixItr MixCollection<T>::MixItr::next() {
 
-  // initialisation
+ // initialisation
   if (first_) {
     first_=false;
     trigger_=true;
     pMixItr_=(mixCol_->getSignal())->begin();
     pMixItrEnd_=(mixCol_->getSignal())->end();
-    if((mixCol_->getSignal())->size()) return *this;
+    if((mixCol_->getSignal())->size()) return *this;  //FIXME: if no signals, no pileups
   } else {
     if (++pMixItr_!=pMixItrEnd_) return *this;
   }
   
-  // container changes
+ // container changes
   if (trigger_) {
     trigger_=false;
     pileupItr_=(mixCol_->getPileups())->begin();
