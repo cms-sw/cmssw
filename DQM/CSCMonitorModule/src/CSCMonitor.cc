@@ -1,3 +1,13 @@
+/** \file
+ * 
+ *  implementation of CSCMonitor class
+ *
+ *  $Date: 2005/11/11 16:22:45 $
+ *  $Revision: 1.4 $
+ *
+ * \author Ilaria Segoni
+ */
+
 #include <memory>
 #include <iostream>
 
@@ -15,12 +25,14 @@ using namespace std;
 CSCMonitor::CSCMonitor(const edm::ParameterSet& iConfig ){
 
  printout=true;
- for(int ddu=0; ddu<maxDDU; ddu++) dduBooked[ddu]=false;
+ for(int ddu=0; ddu<maxDDU; ddu++) {
+   dduBooked[ddu]=false;
+   dduBX[ddu]=0;
+   L1ANumber[ddu]=0;
+ }
  for(int cmb=0; cmb<maxCMBID; cmb++) cmbBooked[cmb]=false;
 
  nEvents=0;
- dduBX=0;
- L1ANumber=0;
  FEBUnpacked =0;
  
  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
