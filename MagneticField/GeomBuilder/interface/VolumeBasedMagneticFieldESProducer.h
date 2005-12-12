@@ -25,6 +25,8 @@ private:
   VolumeBasedMagneticFieldESProducer(const VolumeBasedMagneticFieldESProducer&);
   const VolumeBasedMagneticFieldESProducer& operator=(const VolumeBasedMagneticFieldESProducer&);
       // ----------member data ---------------------------
+
+  edm::ParameterSet pset;
 };
 }
 
