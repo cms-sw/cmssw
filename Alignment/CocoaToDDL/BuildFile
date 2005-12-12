@@ -1,0 +1,10 @@
+<use name=CLHEP>
+<use name=OpticalAlignment/CocoaUtilities>
+<use name=OpticalAlignment/CocoaModel>
+<use name=OpticalAlignment/CocoaDDLObjects>
+
+<export>
+ <lib name=OpticalAlignmentCocoaToDDL>
+ <use name=OpticalAlignment/CocoaUtilities>
+</export>
+
