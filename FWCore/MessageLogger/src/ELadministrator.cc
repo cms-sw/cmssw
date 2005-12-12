@@ -25,7 +25,11 @@
 // 6/12/00 web  Attach cerr, rather than cout, in case of no previously-
 //              attached destination; using -> USING.
 // 3/6/00  mf   Attach taking name to id the destination, getELdestControl()
-// 3/14/10 mf   exitThreshold
+// 3/14/01 mf   exitThreshold
+//
+// ---- CMS version
+//
+// 12/12/05 mf  change exit() to throw edm::exception
 //
 //-----------------------------------------------------------------------
 
@@ -80,8 +84,10 @@
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
 #include "FWCore/MessageLogger/interface/ELcontextSupplier.h"
 #include "FWCore/MessageLogger/interface/ELoutput.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 #include <iostream>
+#include <sstream>
 using std::cerr;
 
 
@@ -270,14 +276,28 @@ int ELadministrator::severityCounts( const int lev ) const  {
 // Message handling:
 // ----------------------------------------------------------------------
 
+static inline void msgexit(int s) {
+  std::ostringstream os;
+  os << "msgexit - MessageLogger requested to exit with status " << s;
+  edm::Exception e(edm::errors::LogicError, os.str());
+  throw e;
+}
+
+static inline void msgabort() {
+  std::ostringstream os;
+  os << "msgabort - MessageLogger requested to abort";
+  edm::Exception e(edm::errors::LogicError, os.str());
+  throw e;
+}
+
 static inline void possiblyAbortOrExit (int s, int a, int e) {
   if (s < a && s < e) return;
   if (a < e) {
-    if ( s < e ) abort();
-    exit(s);
+    if ( s < e ) msgabort();
+    msgexit(s);
   } else {
-    if ( s < a ) exit(s);
-    abort();
+    if ( s < a ) msgexit(s);
+    msgabort();
   }
 }
 
