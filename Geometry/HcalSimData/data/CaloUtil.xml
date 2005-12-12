@@ -5,7 +5,7 @@
   <SpecPar name="calo">
    <PartSelector path="//CALO" />
    <Parameter name="SensitiveDetector" value="CaloTrkProcessing" eval="false"/>
-   <Parameter name="ReadOutName" value="EcalHitsEB" eval="false"/>
+   <Parameter name="ReadOutName" value="CaloHitsTk" eval="false"/>
    <Parameter name="Calorimeter" value="CALO"       eval="false"/>
    <Parameter name="Calorimeter" value="VCAL"       eval="false"/>
    <Parameter name="Inside"      value="BEAM"       eval="false"/>
