@@ -6,7 +6,7 @@
 //   Pedro Arce
 
 #include "OpticalAlignment/CocoaModel/interface/OpticalObject.h"
-//-#include "OpticalAlignment/CocoaModel/interface/OpticalObjectMgr.h"
+#include "OpticalAlignment/CocoaModel/interface/OpticalObjectMgr.h"
 #include "OpticalAlignment/CocoaModel/interface/OptOLaser.h"
 #include "OpticalAlignment/CocoaModel/interface/OptOSource.h"
 #include "OpticalAlignment/CocoaModel/interface/OptOXLaser.h"
@@ -56,7 +56,7 @@ OpticalObject::OpticalObject( OpticalObject* parent, const ALIstring& type, cons
     std::cout << std::endl << "@@@@ Creating OpticalObject: NAME= " << theName << " TYPE= " <<theType << " fcopyData " <<fcopyData <<std::endl;
   }
 
-//-  OpticalObjectMgr::getInstance()->registerMe( this );
+  OpticalObjectMgr::getInstance()->registerMe( this );
 }
 
 
