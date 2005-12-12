@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  * 
- * $Date: 2005/12/07 07:28:52 $
- * $Revision: 1.61 $
+ * $Date: 2005/12/11 09:08:05 $
+ * $Revision: 1.62 $
  * \author G. Della Ricca
  *
 */
@@ -58,6 +58,10 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
     meRunType_ = dbe_->bookInt("RUNTYPE");
     meRunType_->setResetMe(true);
 
+    // this should give enough time to the control MEs to reach the Collector,
+    // and then hopefully the clients
+    sleep(10);
+
     dbe_->setCurrentFolder("EcalBarrel");
     meEBdigi_ = dbe_->book1D("EBMM digi", "EBMM digi", 100, 0., 61201.);
     meEBhits_ = dbe_->book1D("EBMM hits", "EBMM hits", 100, 0., 61201.);
@@ -79,7 +83,7 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
   pedpresample_task_ = 0;
   testpulse_task_ = 0;
 
-//                       integrity_task_ = new EBIntegrityTask(ps, dbe_);
+                       integrity_task_ = new EBIntegrityTask(ps, dbe_);
 
   if ( runType_ == 0 ) cosmic_task_ = new EBCosmicTask(ps, dbe_);
 

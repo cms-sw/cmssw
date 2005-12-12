@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  * 
- * $Date: 2005/12/05 12:43:00 $
- * $Revision: 1.50 $
+ * $Date: 2005/12/11 16:35:56 $
+ * $Revision: 1.51 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -121,7 +121,6 @@ void EcalBarrelMonitorClient::beginJob(const edm::EventSetup& c){
 
   this->beginRun(c);
   begin_run_done_ = true;
-  end_run_done_ = true;
 
 }
 
@@ -339,6 +338,8 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
   MonitorElement* me;
   string s;
 
+  bool update = false;
+
   if ( stay_in_loop && updates != last_update_ ) {
 
     me = mui_->get("Collector/FU0/EcalBarrel/STATUS");
@@ -401,33 +402,34 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
       cout << endl;
     }
 
-    if ( status_ == "begin-of-run" ) {
-      if ( ! begin_run_done_ ) {
-        this->beginRun(c);
-        begin_run_done_ = true;
-        end_run_done_ = false;
-      }
+    update = true;
+
+    last_update_ = updates;
+
+    last_jevt_ = jevt_;
+
+  }
+
+  if ( status_ == "begin-of-run" ) {
+
+    if ( ! begin_run_done_ ) {
+      this->beginRun(c);
+      begin_run_done_ = true;
+      end_run_done_ = false;
     }
 
-    if ( status_ == "running" ) {
-      if ( ! begin_run_done_ ) {
-        this->beginRun(c);
-        begin_run_done_ = true;
-        end_run_done_ = false;
-      }
-      if ( last_update_ == 0 || updates % 5 == 0 ) {
-        if (                                    integrity_client_ ) integrity_client_->analyze(e, c);
-        if ( h_ && h_->GetBinContent(2) != 0 && laser_client_ ) laser_client_->analyze(e, c);
-        if ( h_ && h_->GetBinContent(2) != 0 && pndiode_client_ ) pndiode_client_->analyze(e, c);
-        if ( h_ && h_->GetBinContent(3) != 0 && pedestal_client_ ) pedestal_client_->analyze(e, c);
-        if (                                    pedpresample_client_ ) pedpresample_client_->analyze(e, c);
-        if ( h_ && h_->GetBinContent(4) != 0 && testpulse_client_ ) testpulse_client_->analyze(e, c);
+  }
 
-        if ( h_ && h_->GetBinContent(1) != 0 && cosmic_client_ ) cosmic_client_->analyze(e, c);
-      }
+  if ( status_ == "running" ) {
+
+    if ( ! begin_run_done_ ) {
+      this->beginRun(c);
+      begin_run_done_ = true;
+      end_run_done_ = false;
     }
 
-    if ( status_ == "end-of-run" ) {
+    if ( update && updates % 5 == 0 ) {
+
       if (                                    integrity_client_ ) integrity_client_->analyze(e, c);
       if ( h_ && h_->GetBinContent(2) != 0 && laser_client_ ) laser_client_->analyze(e, c);
       if ( h_ && h_->GetBinContent(2) != 0 && pndiode_client_ ) pndiode_client_->analyze(e, c);
@@ -436,14 +438,30 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
       if ( h_ && h_->GetBinContent(4) != 0 && testpulse_client_ ) testpulse_client_->analyze(e, c);
 
       if ( h_ && h_->GetBinContent(1) != 0 && cosmic_client_ ) cosmic_client_->analyze(e, c);
-      begin_run_done_ = false;
-      this->endRun();
-      end_run_done_ = true;
+
     }
 
-    last_update_ = updates;
+  }
 
-    last_jevt_ = jevt_;
+  if ( status_ == "end-of-run" ) {
+
+    if ( ! end_run_done_ ) {
+
+      if (                                    integrity_client_ ) integrity_client_->analyze(e, c);
+      if ( h_ && h_->GetBinContent(2) != 0 && laser_client_ ) laser_client_->analyze(e, c);
+      if ( h_ && h_->GetBinContent(2) != 0 && pndiode_client_ ) pndiode_client_->analyze(e, c);
+      if ( h_ && h_->GetBinContent(3) != 0 && pedestal_client_ ) pedestal_client_->analyze(e, c);
+      if (                                    pedpresample_client_ ) pedpresample_client_->analyze(e, c);
+      if ( h_ && h_->GetBinContent(4) != 0 && testpulse_client_ ) testpulse_client_->analyze(e, c);
+
+      if ( h_ && h_->GetBinContent(1) != 0 && cosmic_client_ ) cosmic_client_->analyze(e, c);
+
+      begin_run_done_ = false;
+
+      this->endRun();
+      end_run_done_ = true;
+
+    }
 
   }
 
@@ -454,6 +472,7 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
     cout << "Forcing end-of-run ... NOW !" << endl;
 
     begin_run_done_ = false;
+
     this->endRun();
     end_run_done_ = true;
 
