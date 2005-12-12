@@ -2,8 +2,8 @@
 #define EcalTBDaqFormatter_H
 /** \class EcalTBDaqFormatter
  *
- *  $Date: 2005/10/18 09:06:15 $
- *  $Revision: 1.4 $
+ *  $Date: 2005/11/23 18:54:07 $
+ *  $Revision: 1.5 $
  *  \author N. Marinelli  IASA-Athens
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -11,13 +11,12 @@
  *
  */
 #include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
+#include <DataFormats/EcalDetId/interface/EcalDetIdCollections.h>
 #include <vector> 
 #include <map>
 using namespace std;
 #include <iostream>
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 class FEDRawData;
@@ -27,12 +26,11 @@ class EcalTBDaqFormatter   {
  public:
 
 
-  EcalTBDaqFormatter(DaqMonitorBEInterface* dbe);
+  EcalTBDaqFormatter();
   virtual ~EcalTBDaqFormatter(){cout << " Destroying EcalTBDaqFormatter " << endl; };
   
   
-  //  void  interpretRawData( const FEDRawData & data , EBDigiCollection& digicollection );
-  void  interpretRawData( const FEDRawData & data , EBDigiCollection& digicollection , EcalPnDiodeDigiCollection & pndigicollection );
+  void  interpretRawData( const FEDRawData & data , EBDigiCollection& digicollection , EcalPnDiodeDigiCollection & pndigicollection , EBDetIdCollection & dccsizecollection , EcalTrigTowerDetIdCollection & ttidcollection , EcalTrigTowerDetIdCollection & blocksizecollection, EBDetIdCollection & chidcollection , EBDetIdCollection & gaincollection);
   
  private:
   
@@ -58,11 +56,6 @@ class EcalTBDaqFormatter   {
      kChannelsPerCard = 5    // Number of channels per VFE card
    };
 
-  MonitorElement* meIntegrityChId[36];  
-  MonitorElement* meIntegrityGain[36];
-  MonitorElement* meIntegrityTTId[36];
-  MonitorElement* meIntegrityTTBlockSize[36];
-  MonitorElement* meIntegrityDCCSize;
 
   // used for mem boxes unpacking
   int fem[5][5][11];            // store raw data for one mem

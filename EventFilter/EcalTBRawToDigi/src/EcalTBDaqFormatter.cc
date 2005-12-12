@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2005/11/24 09:08:49 $
- *  $Revision: 1.10 $
+ *  $Date: 2005/11/24 09:18:38 $
+ *  $Revision: 1.11 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -12,6 +12,7 @@
 #include "EcalTBDaqFormatter.h"
 #include <DataFormats/FEDRawData/interface/FEDRawData.h>
 #include <DataFormats/EcalDetId/interface/EBDetId.h>
+#include <DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h>
 #include <DataFormats/EcalDigi/interface/EBDataFrame.h>
 #include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
 
@@ -26,7 +27,7 @@ using namespace std;
 #include <iostream>
 
 
-EcalTBDaqFormatter::EcalTBDaqFormatter (DaqMonitorBEInterface *dbe) {
+EcalTBDaqFormatter::EcalTBDaqFormatter () {
 
   cout << " EcalTBDaqFormatter CTOR " << endl;
   vector<ulong> parameters;
@@ -43,54 +44,13 @@ EcalTBDaqFormatter::EcalTBDaqFormatter (DaqMonitorBEInterface *dbe) {
 
   theParser_ = new DCCDataParser(parameters);
 
-  //! booking histograms to collect data integrity errors
-
-  Char_t histo[20];
-
-  // checking when gain=0
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalBarrel");
-    dbe->setCurrentFolder("EcalBarrel/EcalIntegrity");
-    dbe->setCurrentFolder("EcalBarrel/EcalIntegrity/Gain");
-    for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EI gain SM%02d", i+1);
-      meIntegrityGain[i] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
-    } 
-    
-    // checking when channel has unexpected or invalid ID
-    dbe->setCurrentFolder("EcalBarrel/EcalIntegrity/ChId");
-    for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EI ChId SM%02d", i+1);
-      meIntegrityChId[i] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
-    } 
-
-    // checking when trigger tower has unexpected or invalid ID
-    dbe->setCurrentFolder("EcalBarrel/EcalIntegrity/TTId");
-    for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EI TTId SM%02d", i+1);
-      meIntegrityTTId[i] = dbe->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
-    }
-
-    dbe->setCurrentFolder("EcalBarrel/EcalIntegrity/TTBlockSize");
-    for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EI TTBlockSize SM%02d", i+1);
-      meIntegrityTTBlockSize[i] = dbe->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
-    } 
-
-    // checking when number of towers in data different than expected from header
-    dbe->setCurrentFolder("EcalBarrel/EcalIntegrity");
-    sprintf(histo, "DCC size error");
-    meIntegrityDCCSize = dbe->book1D(histo, histo, 36, 1, 37.);
-
-  }
-
 }
 
 
 
 
 
-void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData , EBDigiCollection& digicollection, EcalPnDiodeDigiCollection & pndigicollection ){
+void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData , EBDigiCollection& digicollection, EcalPnDiodeDigiCollection & pndigicollection , EBDetIdCollection & dccsizecollection , EcalTrigTowerDetIdCollection & ttidcollection , EcalTrigTowerDetIdCollection & blocksizecollection, EBDetIdCollection & chidcollection , EBDetIdCollection & gaincollection){
 
   const unsigned char * pData = fedData.data();
   int length = fedData.size();
@@ -167,7 +127,10 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData , EBDigiCol
 	     << ") differs from expected ("
 	     << numExpectedTowers 
 	     << ") skipping event"   << endl; 
-	if ( meIntegrityDCCSize ) meIntegrityDCCSize->Fill(dccID+1);
+
+	EBDetId idsm(1, 1 + 20 * dccID);
+	dccsizecollection.push_back(idsm);
+
 	return;
       }
       
@@ -182,6 +145,8 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData , EBDigiCol
       previousTT = tower;
       // checking if tt in data is the same as tt expected 
       // else skip tower and increment problem counter
+	    
+      EcalTrigTowerDetId idtt(expTowersIndex);
 
       if (  !(tower == ExpectedTowers[expTowersIndex])	  )
 	{	
@@ -195,10 +160,8 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData , EBDigiCol
 	    
 	  // report on failed tt_id - ASSUME that
 	    
-	  short abscissa = (ExpectedTowers[expTowersIndex]-1)  /4;
-	  short ordinate = (ExpectedTowers[expTowersIndex]-1)  %4;
-	    
-	  if ( meIntegrityTTId[dccID] ) meIntegrityTTId[dccID]->Fill(abscissa,ordinate);
+	  ttidcollection.push_back(idtt);
+
 	  ++ expTowersIndex;
 	  continue;	
 	}// if TT id found  different than expected 
@@ -220,12 +183,8 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData , EBDigiCol
 		 << " for TT " << ExpectedTowers[expTowersIndex] 
 		 << endl;
 
-	    short abscissa = (ExpectedTowers[expTowersIndex]-1)  /4;
-	    short ordinate = (ExpectedTowers[expTowersIndex]-1)  %4;
-	    if ( meIntegrityTTBlockSize[dccID] ){
-	      meIntegrityTTBlockSize[dccID]->Fill(abscissa,ordinate);
-	    }
-
+            blocksizecollection.push_back(idtt);
+        
 	    ++ expTowersIndex;
 	    continue;	
 	  }
@@ -268,20 +227,20 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData , EBDigiCol
 	      // 		       << "  cry " << ch <<  endl;
 	      // 		}
 		
-	      // filling histogram reporting chID errors
-	      if ( meIntegrityChId[dccID] ) {
-		meIntegrityChId[dccID]->Fill(cryIdInSM /20, cryIdInSM %20);  
-	      }
+              pair<int,int> cellIndExp=cellIndex(tower, expStripInTower, expCryInStrip); 
+              EBDetId  idExp(cellIndExp.first, cellIndExp.second );           
+
+              chidcollection.push_back(idExp);
 
 	      expCryInTower++; continue;
 		
 	    }
 
 
-	     // data  to be stored in EBDataFrame, identified by EBDetId
-	     pair<int,int> cellInd=cellIndex(tower, strip, ch); 
-	     EBDetId  id(cellInd.first, cellInd.second );           
-
+      // data  to be stored in EBDataFrame, identified by EBDetId
+      pair<int,int> cellInd=cellIndex(tower, strip, ch); 
+      EBDetId  id(cellInd.first, cellInd.second );           
+      
 	     EBDataFrame theFrame ( id );
 	     vector<int> xtalDataSamples = (*itXtalBlock)->xtalDataSamples();   
 	     theFrame.setSize(xtalDataSamples.size());
@@ -296,12 +255,8 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData , EBDigiCol
 		 {gainIsOk =false;}
 	     }
 
-	     if (! gainIsOk) 
-	       { if ( meIntegrityGain[dccID] ){
-		   meIntegrityGain[dccID]->Fill(cryIdInSM /20, cryIdInSM %20);
-		 }
-	       }
-	     
+	     if (! gainIsOk) gaincollection.push_back(id);
+
 	     digicollection.push_back(theFrame);
 	     
 	     expCryInTower++; 

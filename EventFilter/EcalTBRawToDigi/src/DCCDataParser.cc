@@ -95,8 +95,10 @@ void DCCDataParser::parseFile(string fileName, bool singleEvent ){
 		
   		inputFile.close();
   		
-  		parseBuffer( buffer_, bufferSize_, singleEvent );			
-  	
+  		try { parseBuffer( buffer_, bufferSize_, singleEvent ); }
+  		catch (ECALParserException &e){
+			throw 1;
+		}
 	}else{ 
 		string errorMessage = string(" Error::Unable to open file :") + fileName;
 		throw ECALParserException(errorMessage);
