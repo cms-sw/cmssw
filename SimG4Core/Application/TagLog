@@ -1,3 +1,6 @@
+** V03-06-02  [Mon Dec 12 20:11:54 2005]
+OscarProducer nows makes a PCaloHitContainer with label 'CaloHitsTk'
+
 ** V03-06-01  [Fri Dec  9 04:36:42 2005]
 After changes to the tracking code, runP.cfg seems to handle the magnetic field fine (but turned off for now just to be safe)
 
