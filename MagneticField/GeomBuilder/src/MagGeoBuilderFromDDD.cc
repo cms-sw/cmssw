@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2005/10/26 18:33:19 $
- *  $Revision: 1.4 $
+ *  $Date: 2005/12/08 22:13:25 $
+ *  $Revision: 1.5 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -20,9 +20,7 @@
 #include "MagneticField/Layers/interface/MagBLayer.h"
 #include "MagneticField/Layers/interface/MagESector.h"
 
-// #include "Utilities/UI/interface/SimpleConfigurable.h"
-#include "Utilities/General/interface/envUtil.h"
-#include "Utilities/General/interface/FileInPath.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
@@ -433,31 +431,20 @@ void MagGeoBuilderFromDDD::buildInterpolator(const volumeHandle * vol, map<strin
     cout << "***WARNING wrong sector? " << endl;
   }
 
+
+  // FIXME: should be a configurable parameter
+  string version="grid_85l_030919"; 
+  string fullPath;
+
   try {
-    string fullPath;
-    static string path;
-    static string relPath;    
-    if (path=="") {
-      // If Magfield_PATH is set, look for tables therein
-      envUtil eU("Magfield_PATH","");
-      path = eU.getEnv();
-      // Otherwise look within Geometry_PATH
-      if (path=="") {
-	envUtil eU("Geometry_PATH","");
-	path = eU.getEnv();
-	relPath = "Data/FieldTables/";
-      }
-    }
-     
-    FileInPath mydata(path, relPath+vol->magFile);
-    if (mydata()) {
-      fullPath = mydata.name();
-    } else {
-      cout << "ERROR: MagGeoBuilderFromDDD: table " << vol->magFile 
-	   << " not found!" << endl;
-      return;
-    }
-    
+    edm::FileInPath mydata("MagneticField/Interpolation/data/"+version+"/"+vol->magFile);
+    fullPath = mydata.fullPath();
+  } catch (edm::Exception& exc) {
+    cerr << "MagGeoBuilderFromDDD: exception in reading table; " << exc.what() << endl;
+    throw;
+  }
+  
+  try{
     if (vol->toExpand()){
       //FIXME
 //       interpolators[vol->magFile] =
