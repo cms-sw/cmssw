@@ -1,9 +1,9 @@
 /** \class EcalAnalFitUncalibRecHitProducer
  *   produce ECAL uncalibrated rechits from dataframes with the analytical fit method
  *
-  *  $Id: EcalAnalFitUncalibRecHitProducer.cc,v 1.4 2005/10/25 14:08:30 rahatlou Exp $
-  *  $Date: 2005/10/25 14:08:30 $
-  *  $Revision: 1.4 $
+  *  $Id: EcalAnalFitUncalibRecHitProducer.cc,v 1.1 2005/11/28 16:40:27 rahatlou Exp $
+  *  $Date: 2005/11/28 16:40:27 $
+  *  $Revision: 1.1 $
   *  \author Shahram Rahatlou, University of Rome & INFN, Sept 2005
   *
   */
@@ -69,12 +69,14 @@ EcalAnalFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup
           algo_.makeRecHit(*itdg, pedVec, weights, chi2mat);
      uncalibRechits->push_back( aHit );
 
+     /*
      if(aHit.amplitude()>0. && !counterExceeded() ) {
         std::cout << "EcalAnalFitUncalibRecHitProducer: processed EBDataFrame with id: "
                   << itdg->id() << "\n"
                   << "uncalib rechit amplitude: " << aHit.amplitude()
                   << std::endl;
      }
+     */
    }
 
    // put the collection of recunstructed hits in the event
