@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.4 2005/12/01 22:33:01 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.5 2005/12/02 22:40:21 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
@@ -28,7 +28,7 @@ using namespace std;
 
 namespace edm {
   PoolOutputModule::PoolOutputModule(ParameterSet const& pset) :
-    OutputModule(pset.getUntrackedParameter("select", ParameterSet())),
+    OutputModule(pset),
     catalog_(PoolCatalog::WRITE,
       PoolCatalog::toPhysical(pset.getUntrackedParameter("catalog", std::string()))),
     context_(catalog_, true, false),

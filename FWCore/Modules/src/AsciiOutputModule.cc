@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: AsciiOutputModule.cc,v 1.1 2005/10/11 17:09:22 wmtan Exp $
+$Id: AsciiOutputModule.cc,v 1.2 2005/10/12 02:34:02 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -16,7 +16,7 @@ $Id: AsciiOutputModule.cc,v 1.1 2005/10/11 17:09:22 wmtan Exp $
 namespace edm {
 
   AsciiOutputModule::AsciiOutputModule(ParameterSet const& pset, std::ostream* os) :
-    OutputModule(pset.getUntrackedParameter("select", ParameterSet())),
+    OutputModule(pset),
     prescale_(pset.getUntrackedParameter("prescale", 1U)),
     verbosity_(pset.getUntrackedParameter("verbosity", 1U)),
     counter_(0),
