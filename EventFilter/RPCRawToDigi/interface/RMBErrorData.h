@@ -2,10 +2,10 @@
 #define RMBErrorData_h
 
 
-/** \file
+/** \class RMBErrorData
  * Unpacks Information of RMB Discarded or Corrupted Data
  *
- *  $Date: 2005/11/07 15:44:09 $
+ *  $Date: 2005/11/09 11:33:10 $
  *  $Revision: 1.1 $
  * \author Ilaria Segoni - CERN
  */
@@ -14,7 +14,7 @@ class RMBErrorData{
 public:
   
   /// Constructor
-  RMBErrorData(const unsigned char* index);
+  RMBErrorData(const unsigned int* index);
 
   /// Destructor
   virtual ~RMBErrorData() {};

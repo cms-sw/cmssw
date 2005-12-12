@@ -2,15 +2,14 @@
 #define RPCChannelData_h
 
 
-/** \file
- * Unpacks Firs record of Channel Data
+/** \class RPCChannelData 
+ * Unpacks RPC Channel Data Record (needs pointer to beginning of buffer)
  *
- *  $Date: 2005/11/07 15:43:50 $
+ *  $Date: 2005/11/24 18:06:23 $
  *  $Revision: 1.1 $
  * \author Ilaria Segoni - CERN
  */
  
-#include <EventFilter/RPCRawToDigi/interface/ChamberData.h>
 
 #include <vector>
 
@@ -21,7 +20,7 @@ class RPCChannelData {
 public:
   
   /// Constructor
-  RPCChannelData(const unsigned char* index);
+  RPCChannelData(const unsigned int* index);
 
   /// Destructor
   virtual ~RPCChannelData() {}
@@ -29,9 +28,8 @@ public:
   /// unpacked data access methods
   int channel();
   int tbRmb();
-  int chamber();
 
-  vector<ChamberData> chambData(){return chambersData;}
+  //vector<ChamberData> chambData(){return chambersData;}
 
 
   static const int CHANNEL_MASK  = 0X1F;
@@ -40,20 +38,15 @@ public:
   static const int TB_RMB_MASK = 0X3F;
   static const int TB_RMB_SHIFT =5;
 
-  static const int CHAMBER_MASK = 0X3;
-  static const int CHAMBER_SHIFT =14;
-
-
-
 private:
 
   const unsigned int * word_;
  
   int channel_;
   int tbRmb_;
-  int chamber_;
   
-  vector<ChamberData> chambersData;
+  //vector<ChamberData> chambersData;
+
 };
 
 

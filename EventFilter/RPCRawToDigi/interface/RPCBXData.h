@@ -2,17 +2,20 @@
 #define RPCBXData_h
 
 
-/** \file
- * BX number
+/** \class RPCBXData
  *
- *  $Date: 2005/11/09 11:37:16 $
+ * Class for unpacking "Start of BX Data" record in RPC raw data
+ * (needs pointer to buffer).
+ *  
+ *  $Date: 2005/11/11 16:23:56 $
  *  $Revision: 1.1 $
- * \author Ilaria Segoni - CERN
+ *
+ * \author Ilaria Segoni (CERN)
+ *
  */
  
 
 #include <vector>
-#include <EventFilter/RPCRawToDigi/interface/RPCChannelData.h>
 
 using namespace std;
 
@@ -21,7 +24,7 @@ class RPCBXData {
 public:
   
   /// Constructor
-  RPCBXData(const unsigned char* index);
+  RPCBXData(const unsigned int* index);
 
   /// Destructor
   virtual ~RPCBXData() {}
@@ -29,7 +32,7 @@ public:
   /// unpacked data access methods
   int bx();
 
-  vector<RPCChannelData> chanData(){return channelsData;}
+  //vector<RPCChannelData> chanData(){return channelsData;}
   
   static const int BX_MASK  = 0XC;
   static const int BX_SHIFT = 0;
@@ -40,7 +43,7 @@ private:
  
   int bx_;
   
-  vector<RPCChannelData> channelsData;
+  //vector<RPCChannelData> channelsData;
 
 };
 
