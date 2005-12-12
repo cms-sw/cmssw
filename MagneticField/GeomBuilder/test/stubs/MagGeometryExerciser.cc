@@ -3,13 +3,13 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2005/09/13 10:45:10 $
- *  $Revision: 1.8 $
+ *  $Date: 2005/09/27 15:13:11 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - INFN Torino
  */
 
 #include "MagneticField/GeomBuilder/test/stubs/MagGeometryExerciser.h"
-#include "MagneticField/GeomBuilder/interface/MagGeometry.h"
+#include "MagneticField/VolumeBasedEngine/interface/MagGeometry.h"
 #include "MagneticField/VolumeGeometry/interface/MagVolume6Faces.h"
 #include "Geometry/Vector/interface/Pi.h"
 #include "Utilities/Timing/interface/TimingReport.h"
