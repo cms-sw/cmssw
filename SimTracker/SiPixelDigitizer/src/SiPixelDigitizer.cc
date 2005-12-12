@@ -13,7 +13,7 @@
 //
 // Original Author:  Michele Pioppi-INFN perugia
 //         Created:  Mon Sep 26 11:08:32 CEST 2005
-// $Id: SiPixelDigitizer.cc,v 1.4 2005/11/25 17:00:20 pioppi Exp $
+// $Id: SiPixelDigitizer.cc,v 1.5 2005/12/12 18:04:05 pioppi Exp $
 //
 //
 
@@ -118,7 +118,6 @@ namespace cms
     for (std::vector<PSimHit>::iterator isim = thePixelHits.begin();
 	 isim != thePixelHits.end(); ++isim){
       DetId detid=DetId((*isim).detUnitId());
-      //      cout<<"ko"<<GeomDetType::SubDetector::PixelBarrel<<endl;
       if ((detid.subdetId()==  PixelSubdetector::PixelBarrel) || (detid.subdetId()== PixelSubdetector::PixelEndcap)) {
 	SimHitMap[(*isim).detUnitId()].push_back((*isim));
       }
