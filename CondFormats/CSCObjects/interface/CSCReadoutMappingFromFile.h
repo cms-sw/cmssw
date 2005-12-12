@@ -15,6 +15,7 @@ class CSCReadoutMappingFromFile : public CSCReadoutMappingForSliceTest {
 
   /// Constructor
    explicit CSCReadoutMappingFromFile( std::string filename );
+   CSCReadoutMappingFromFile() {}
 
   /// Destructor
    virtual ~CSCReadoutMappingFromFile();
