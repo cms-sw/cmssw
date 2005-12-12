@@ -73,22 +73,23 @@ namespace edm {
   // temporary function because we do not know how to do this
   unsigned long getVersion() { return 0; }
 
-
-  shared_ptr<InputSource> makeInput(ParameterSet const& params_,
-				    const CommonParams& common,
-				    ProductRegistry& preg)
+  shared_ptr<InputSource> 
+  makeInput(ParameterSet const& params,
+	    const CommonParams& common,
+	    ProductRegistry& preg)
   {
     // find single source
     bool sourceSpecified = false;
     try {
-      ParameterSet main_input = params_.getParameter<ParameterSet>("@main_input");
+      ParameterSet main_input = 
+	params.getParameter<ParameterSet>("@main_input");
       sourceSpecified = true;
       InputSourceDescription isdesc(common.processName_,common.pass_,preg);
 
-      shared_ptr<InputSource> input_
+      shared_ptr<InputSource> input
 	(InputSourceFactory::get()->makeInputSource(main_input, isdesc).release());
     
-      return input_;
+      return input;
     } catch(const edm::Exception& iException) {
       if(sourceSpecified == false && errors::Configuration == iException.categoryCode()) {
         throw edm::Exception(errors::Configuration, "NoInputSource")
@@ -100,34 +101,37 @@ namespace edm {
     return shared_ptr<InputSource>();
   }
   
-  void fillEventSetupProvider(eventsetup::EventSetupProvider& cp,
-			      ParameterSet const& params_,
-			      const CommonParams& common)
+  void 
+  fillEventSetupProvider(eventsetup::EventSetupProvider& cp,
+			 ParameterSet const& params,
+			 const CommonParams& common)
   {
     using namespace std;
     using namespace edm::eventsetup;
-    vector<string> providers = params_.getParameter<vector<string> >("@all_esmodules");
+    vector<string> providers = params.getParameter<vector<string> >("@all_esmodules");
     for(vector<string>::iterator itName = providers.begin();
 	itName != providers.end();
-	++itName) {
-      ParameterSet providerPSet = params_.getParameter<ParameterSet>(*itName);
-      ModuleFactory::get()->addTo(cp, 
-				  providerPSet, 
-				  common.processName_, 
-				  common.version_, 
-				  common.pass_);
-    }
-
-    vector<string> sources = params_.getParameter<vector<string> >("@all_essources");
+	++itName) 
+      {
+	ParameterSet providerPSet = params.getParameter<ParameterSet>(*itName);
+	ModuleFactory::get()->addTo(cp, 
+				    providerPSet, 
+				    common.processName_, 
+				    common.version_, 
+				    common.pass_);
+      }
+    
+    vector<string> sources = params.getParameter<vector<string> >("@all_essources");
     for(vector<string>::iterator itName = sources.begin();
 	itName != sources.end();
-	++itName) {
-      ParameterSet providerPSet = params_.getParameter<ParameterSet>(*itName);
-      SourceFactory::get()->addTo(cp, 
-				  providerPSet, 
-				  common.processName_, 
-				  common.version_, 
-				  common.pass_);
+	++itName) 
+      {
+	ParameterSet providerPSet = params.getParameter<ParameterSet>(*itName);
+	SourceFactory::get()->addTo(cp, 
+				    providerPSet, 
+				    common.processName_, 
+				    common.version_, 
+				    common.pass_);
     }
   }
 
@@ -169,8 +173,11 @@ namespace edm {
     InputSource&   getInputSource();
 
   private:
-    
-    shared_ptr<ParameterSet>        params_;
+
+    // Are all these data members really needed? Some of them are used
+    // only during construction, and never again. If they aren't
+    // really needed, we should remove them.    
+    //shared_ptr<ParameterSet>        params_;
     CommonParams                    common_;
     WorkerRegistry                  wreg_;
     SignallingProductRegistry       preg_;
@@ -190,15 +197,26 @@ namespace edm {
 
   FwkImpl::FwkImpl(const string& config,
                    const ServiceToken& iToken, 
-		   ServiceLegacy iLegacy):
-    //configstring_(config),
-    emittedBeginJob_(false) 
+		   ServiceLegacy iLegacy) :
+    //params_(),
+    common_(),
+    wreg_(),
+    preg_(),
+    workers_(),
+    actReg_(),
+    serviceToken_(),
+    input_(),
+    runner_(),
+    esp_(),
+    emittedBeginJob_(false),
+    act_table_()
   {
     // TODO: Fix const-correctness. The ParameterSets that are
     // returned here should be const, so that we can be sure they are
     // not modified.
 
     shared_ptr<vector<ParameterSet> > pServiceSets;
+    shared_ptr<ParameterSet>          params_; // change this name!
     makeParameterSets(config, params_, pServiceSets);
 
     //create the services
@@ -360,7 +378,6 @@ namespace edm {
   {
     return serviceToken_;
   }
-  
 
   void
   FwkImpl::connectSigs(EventProcessor* ep)
@@ -387,7 +404,6 @@ namespace edm {
 		      kOverlapIsError))
   {
     impl_->connectSigs(this);
-    //connectSigs(this, impl_);
   } 
   
   EventProcessor::EventProcessor(const string& config,
@@ -396,12 +412,11 @@ namespace edm {
     impl_(new FwkImpl(config,iToken,iLegacy))
   {
     impl_->connectSigs(this);
-    //connectSigs(this, impl_);
   } 
   
   EventProcessor::~EventProcessor()
   {
-    //make the service's available while everything is being deleted
+    // Make the services available while everything is being deleted.
     ServiceToken token = impl_->getToken();
     ServiceRegistry::Operate op(token); 
     delete impl_;
@@ -428,7 +443,6 @@ namespace edm {
   InputSource&
   EventProcessor::getInputSource()
   {
-    //return *impl_->input_;
     return impl_->getInputSource();
   }
 

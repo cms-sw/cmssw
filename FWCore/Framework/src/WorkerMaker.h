@@ -54,7 +54,7 @@ namespace edm {
 
     const ParameterSet& conf = *p.pset_;
     ModuleDescription md;
-    md.pid = PS_ID("oink"); // conf.id();
+    md.pid = conf.id();
     md.moduleName_ = conf.template getParameter<std::string>("@module_type");
     md.moduleLabel_ = conf.template getParameter<std::string>("@module_label");
     md.versionNumber_ = p.versionNumber__;
