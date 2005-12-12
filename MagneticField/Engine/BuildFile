@@ -1,0 +1,6 @@
+<use name=FWCore/Framework>
+
+<export>
+ <lib name=MagneticFieldEngine>
+ <use name=FWCore/Framework>
+</export>
