@@ -1,6 +1,8 @@
 /** \file
  *
- *  $Date: 2005/11/07 15:42:14 $
+ * Implementation of RMBErrorData
+ *
+ *  $Date: 2005/11/09 11:32:42 $
  *  $Revision: 1.1 $
  *  \author Ilaria Segoni
  */
@@ -8,8 +10,8 @@
 
 #include <EventFilter/RPCRawToDigi/interface/RMBErrorData.h>
 
-RMBErrorData::RMBErrorData(const unsigned char* index): 
-    word_(reinterpret_cast<const unsigned int*>(index)) {
+RMBErrorData::RMBErrorData(const unsigned int* index): 
+    word_(index) {
     
     channel_= (*word_>> CHANNEL_SHIFT )& CHANNEL_MASK;
     tbRmb_  = (*word_>> TB_RMB_SHIFT)  & TB_RMB_MASK;

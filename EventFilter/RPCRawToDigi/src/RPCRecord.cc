@@ -1,12 +1,22 @@
 /** \file
  *
- *  $Date: 2005/11/03 15:23:54 $
- *  $Revision: 1.3 $
+ *  Implementation of RPCRecord Class
+ *
+ *  $Date: 2005/11/09 11:35:09 $
+ *  $Revision: 1.4 $
  *  \author Ilaria Segoni
  */
 
 
 #include <EventFilter/RPCRawToDigi/interface/RPCRecord.h>
+#include <EventFilter/RPCRawToDigi/interface/RPCBXData.h>
+#include <EventFilter/RPCRawToDigi/interface/RMBErrorData.h>
+#include <EventFilter/RPCRawToDigi/interface/RPCChannelData.h>
+#include <EventFilter/RPCRawToDigi/interface/RPCChamberData.h>
+
+#include <iostream>
+
+using namespace std;
 
 
 RPCRecord::recordTypes RPCRecord::type(){ 
@@ -35,12 +45,49 @@ if ( (int)((*word_ >> RECORD_TYPE_SHIFT) & RECORD_TYPE_MASK) == controlWordFlag)
 	}
 }
 
+
 return wordType;
 }
 
 
-void RPCRecord::next() 
-{ 
-	word_ += RPC_RECORD_BIT_SIZE; 
-}
+void RPCRecord::recordUnpack(recordTypes  type){
 
+/// BX Data type
+ if(type==StartOfBXData){
+    RPCBXData bxData(word_);
+    if(verbosity) cout<<"Found BX record, BX= "<<bxData.bx()<<endl;
+
+   // rpcData.addBXData(bxData);
+ } 
+
+/// Start of Channel Data Type
+ if(type==StartOfChannelData){
+    RPCChannelData chnData(word_);
+    if(verbosity) cout<<"Found start of Channel Data Record, Channel: "<< chnData.channel()<<
+ 	 " Readout/Trigger Mother Board: "<<chnData.tbRmb()<<endl;
+ } 
+
+/// Chamber Data 
+ if(type==ChamberData){
+   RPCChamberData cmbData(word_);
+    if(verbosity) cout<< "Found Chamber Data, Chamber Number: "<<cmbData.chamberNumber()<<
+ 	" Partition Data "<<cmbData.partitionData()<<
+ 	" Half Partition " << cmbData.halfP()<<
+ 	" Data Truncated: "<<cmbData.eod()<<
+ 	" Partition Number " <<  cmbData.partitionNumber()
+ 	<<endl;
+ }
+
+/// RMB Discarded
+ if(type==RMBDiscarded){
+  RMBErrorData  discarded(word_);
+  //	rpcData.addRMBDiscarded(discarded);
+  //   rpcData.addRMBCorrupted(corrupted);
+ }
+
+/// DCC Discraded
+ if(type==DCCDiscarded){
+    // rpcData.addDCCDiscarded();
+ }
+
+}
