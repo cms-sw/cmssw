@@ -21,7 +21,7 @@ public:
   virtual const BoundSurface& surface() const = 0;
   virtual const BoundPlane&   specificSurface() const = 0;
 
-  virtual cms::DetId geographicalId() const = 0;
+  virtual DetId geographicalId() const = 0;
 
   /** Return pointer to alignment errors (defaults to "null" if not 
    *  reimplemented in the derived classes) */
