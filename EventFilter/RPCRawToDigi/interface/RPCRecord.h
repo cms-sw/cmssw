@@ -1,12 +1,21 @@
 #ifndef RPCRecord_h
 #define RPCRecord_h
 
-/** \file
+/** \class RPCRecord
  *
- *  Class that finds whether record contains chamber data or a control word
+ *  Class that finds out the type of RPC record,
+ *  possible types are: 
+ *      StartOfBXData,
+ *    	StartOfChannelData,
+ *   	ChamberData,
+ *    	EmptyWord,
+ *      RMBDiscarded,
+ *	RMBCorrupted,
+ *	DCCDiscarded,
+ *      UndefinedType.
  *
- *  $Date: 2005/11/03 15:23:06 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/11/09 11:34:44 $
+ *  $Revision: 1.3 $
  *  \author Ilaria Segoni
   */
 
@@ -15,8 +24,8 @@ class RPCRecord {
 public:
   
   /// Constructor
-  RPCRecord(const unsigned char* index): 
-    word_(reinterpret_cast<const unsigned int*>(index)) {};
+  RPCRecord(const unsigned char* index, bool printout): 
+    word_(reinterpret_cast<const unsigned int*>(index)), verbosity(printout){};
 
   /// Destructor
   virtual ~RPCRecord() {};
@@ -37,13 +46,9 @@ public:
   /// Record type getter 
   enum recordTypes type(); 
    
-   /// Record Unpacker 
-  void recordUnpack(enum recordTypes); 
+  /// Record Unpacker 
+  void recordUnpack(recordTypes  type ); 
     
-   /// Go to beginning of next Record (16 bits jump) 
-  void next(); 
- 
-
   /// Control bits definitions
   static const int MaxChamberFlag  = 2;
   static const int controlWordFlag = 3;
@@ -74,7 +79,7 @@ public:
 private:
 
   const unsigned int * word_;
-  
+  bool verbosity;
 
 
 };
