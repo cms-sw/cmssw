@@ -1,3 +1,13 @@
+/** \file
+ *
+ * implementation of CSCMonitor::MonitorDDU(...) method
+ * 
+ *  $Date: 2005/11/11 16:22:45 $
+ *  $Revision: 1.4 $
+ *
+ * \author Ilaria Segoni
+ */
+
 #include "DQM/CSCMonitorModule/interface/CSCMonitor.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDDUEventData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDDUHeader.h"
@@ -85,35 +95,35 @@ void CSCMonitor::MonitorDDU(const CSCDDUEventData& dduEvent, int dduNumber){
 
 ///	BXN from DDU Header 
 
-    dduBX=dduHeader.bxnum();
+    dduBX[dduNumber]=dduHeader.bxnum();
 
     if(printout)  
       cout << "CSCMonitor::MonitorDDU event #" << dec << nEvents 
-  	 << "> DDU Header BX Number = " << dec << dduBX << endl;
+  	 << "> DDU Header BX Number = " << dec << dduBX[dduNumber] << endl;
   
     meName = Form("DDU_BXN_%d",dduNumber);
-    me[meName]->Fill(dduBX);
+    me[meName]->Fill(dduBX[dduNumber]);
 
 ///	L1A number from DDU Header
-    int L1ANumber_previous_event = L1ANumber;
-      L1ANumber = (int)(dduHeader.lvl1num());
+    int L1ANumber_previous_event = L1ANumber[dduNumber];
+      L1ANumber[dduNumber] = (int)(dduHeader.lvl1num());
   
     if(printout)  
       cout << "CSCMonitor::MonitorDDU event #" << dec << nEvents 
-  	 << "> DDU Header L1A Number = " << dec << L1ANumber << endl;
+  	 << "> DDU Header L1A Number = " << dec << L1ANumber[dduNumber] <<" L1A Number Previous="<< L1ANumber_previous_event<<"difference"<<L1ANumber[dduNumber] - L1ANumber_previous_event<<endl;
  
      meName = Form("DDU_L1A_Increment_%d",dduNumber);
-     me[meName]->Fill(L1ANumber - L1ANumber_previous_event);
+     me[meName]->Fill(L1ANumber[dduNumber] - L1ANumber_previous_event);
       
      
      meName = Form("DDU_L1A_Increment_vs_nEvents_%d",dduNumber);
-      if(L1ANumber - L1ANumber_previous_event == 0) {
+      if(L1ANumber[dduNumber] - L1ANumber_previous_event == 0) {
         me[meName]->Fill((int)(nEvents), 0.0);
       }
-      if(L1ANumber - L1ANumber_previous_event == 1) {
+      if(L1ANumber[dduNumber] - L1ANumber_previous_event == 1) {
         me[meName]->Fill((int)(nEvents), 1.0);
       }
-      if(L1ANumber - L1ANumber_previous_event > 1) {
+      if(L1ANumber[dduNumber] - L1ANumber_previous_event > 1) {
         me[meName]->Fill((int)(nEvents), 2.0);
       }
     //me[meName]->SetAxisRange(0, nEvents, "X");
@@ -212,7 +222,7 @@ void CSCMonitor::MonitorDDU(const CSCDDUEventData& dduEvent, int dduNumber){
   	     << "> Found DMB " << dec << unpacked_dmb_cnt<< endl;
         }
          
-         MonitorDMB(chamberDataItr);
+         MonitorDMB(chamberDataItr, dduNumber);
          
         if(printout) {
   	cout << "CSCMonitor::MonitorDDU event #" << dec << nEvents 

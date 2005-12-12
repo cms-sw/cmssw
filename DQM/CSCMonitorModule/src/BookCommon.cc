@@ -1,3 +1,14 @@
+/** \file
+ * implementation of 
+ * map<string, MonitorElement*> CSCMonitor::book_common(int dduNumber)
+ * method
+ * 
+ *  $Date: 2005/11/11 16:22:45 $
+ *  $Revision: 1.4 $
+ *
+ * \author Ilaria Segoni
+ */
+
 #include <memory>
 #include <iostream>
 
@@ -31,18 +42,18 @@ map<string, MonitorElement*> CSCMonitor::book_common(int dduNumber) {
 // meName = Form("DDUBinCheck_Warnings_%d",dduNumber);
 // meMap[meName] = dbe->book2D(meName.c_str(), "DDU Data Format Warnings", 1, 0, 1, bin_checker.nWARNINGS, 0, bin_checker.nWARNINGS);
 
- //meName = Form("CSC_Unpacked_%d",dduNumber);
- //meMap[meName] = dbe->book2D(meName.c_str(), "", 300 ,0 , 300, 16, 0, 16);
+ meName = Form("CSC_Unpacked_%d",dduNumber);
+ meMap[meName] = dbe->book2D(meName.c_str(), "", 300 ,0 , 300, 16, 0, 16);
 
  meName = Form("DDU_BXN_%d",dduNumber);
  meMap[meName] = dbe->book1D(meName.c_str(), "", 4096 ,  0 , 4096);
 
  meName = Form("DDU_L1A_Increment_%d",dduNumber);
- meMap[meName] = dbe->book1D(meName.c_str(), "Incremental change in DDU L1A number since previous event", 100 ,  0 , 100);
+ meMap[meName] = dbe->book1D(meName.c_str(), "Incremental change in DDU L1A number since previous event", 20 ,  0 , 20);
 
 ///KK
  meName = Form("DDU_DMB_Connected_Inputs_Rate_%d",dduNumber);
- meMap[meName] = (meName.c_str(), "DDU_DMB_Connected_Inputs_Rate", 16 ,  0 , 16);
+ meMap[meName] = dbe->book1D(meName.c_str(), "DDU_DMB_Connected_Inputs_Rate", 16 ,  0 , 16);
 
  //meName = Form("DDU_DMB_Connected_Inputs_%d",dduNumber);
  //meMap[meName] = dbe->book1D(meName.c_str(), "DDU Inputs connected to DMBs", 16 ,  0 , 16);
@@ -67,15 +78,15 @@ map<string, MonitorElement*> CSCMonitor::book_common(int dduNumber) {
  //meMap[meName] = dbe->book2D(meName.c_str(), "Check DDU Data Format", 100000, 0, 100000, 3,  0 , 3);
 
  meName = Form("DDU_Unpacking_Match_vs_nEvents_%d",dduNumber);
- meMap[meName] = dbe->book2D(meName.c_str(), "Match: Unpacked DMBs and DMBs Reporting DAV", 100000, 0, 100000, 2, 0, 2);
+ meMap[meName] = dbe->book2D(meName.c_str(), "Match: Unpacked DMBs and DMBs Reporting DAV", 3000, 0, 3000, 2, 0, 2);
 
 
  meName = Form("DDU_L1A_Increment_vs_nEvents_%d",dduNumber);
- meMap[meName] = dbe->book2D(meName.c_str(), "Incremental L1A", 100000, 0, 100000, 3, 0, 3);
+ meMap[meName] = dbe->book2D(meName.c_str(), "Incremental L1A", 3000, 0, 3000, 3, 0, 3);
 
 
  meName = Form("DDU_Trailer_ErrorStat_vs_nEvents_%d",dduNumber);
- meMap[meName] = dbe->book2D(meName.c_str(), "", 100000,  0 , 100000, 32, 0, 32);
+ meMap[meName] = dbe->book2D(meName.c_str(), "", 3000,  0 , 3000, 32, 0, 32);
 
  meName = Form("DDU_Trailer_ErrorStat_Table_%d",dduNumber);
  meMap[meName] = dbe->book2D(meName.c_str(), "DDU Trailer Status Error Table", 1,  0 , 1, 32, 0, 32);

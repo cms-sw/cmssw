@@ -1,3 +1,15 @@
+/** \file
+ * 
+ * implementation of 
+ *  map<string, MonitorElement*> CSCMonitor::book_chamber(int ChamberID) 
+ * method
+ *
+ *  $Date: 2005/11/11 16:22:45 $
+ *  $Revision: 1.4 $
+ *
+ * \author Ilaria Segoni
+ */
+
 #include <memory>
 #include <iostream>
 
@@ -13,34 +25,36 @@ using namespace std;
 map<string, MonitorElement*> CSCMonitor::book_chamber(int ChamberID) {
 
 	int id = ChamberID;
+	int dmbID=(ChamberID>>CSC_DMB_ID_SHIFT) & CSC_DMB_ID_MASK;
+	int crateID=(ChamberID>>CSC_CRATE_ID_SHIFT) & CSC_CRATE_ID_MASK;
+
+	
         string dir;
 	string meName;
 	map<string, MonitorElement*> me;
 
 //CSC
-	if(printout) 	cout << "CSCMonitor::book_chamber> New CSC Canvases are booking ..." << endl;
+	if(printout) 	cout << "CSCMonitor::book_chamber, Booking ME's for Chamber: "<< ChamberID <<
+	"DMB: "<<dmbID<<"CRATE: "<< crateID<<endl;
 
-//KK additional information for each particular chamber
-
-	
-	dir= Form("Data/Chamber_%d",id);
+	dir= Form("DMB_%d/crate_%d",dmbID,crateID);
         dbe->setCurrentFolder(dir);
 
+                // BINCHECKER USED FOR NEXT FOUR ME'S
 
-		meName = Form("%dBinCheck_ErrorStat_Table",id);
-		me[meName] = dbe->book2D(meName.c_str(), "DDU Data Format Errors Table", 1, 0, 1, 19, 0, 19);
+		//meName = Form("%dBinCheck_ErrorStat_Table",id);
+		//me[meName] = dbe->book2D(meName.c_str(), "DDU Data Format Errors Table", 1, 0, 1, 19, 0, 19);
 
-		meName = Form("%dBinCheck_ErrorStat_Frecuency",id);
-		me[meName] = dbe->book1D(meName.c_str(), "DDU Data Format Errors Frequency", 19, 0, 19);
+		//meName = Form("%dBinCheck_ErrorStat_Frequency",id);
+		//me[meName] = dbe->book1D(meName.c_str(), "DDU Data Format Errors Frequency", 19, 0, 19);
 
 
-		meName = Form("%dBinCheck_WarningStat_Table",id);
-		me[meName] = dbe->book2D(meName.c_str(), "DDU Data Format Warnings Table", 1, 0, 1, 1, 0, 1);
+		//meName = Form("%dBinCheck_WarningStat_Table",id);
+		//me[meName] = dbe->book2D(meName.c_str(), "DDU Data Format Warnings Table", 1, 0, 1, 1, 0, 1);
 
-		meName = Form("%dBinCheck_WarningStat_Frequency",id);
-		me[meName] = dbe->book2D(meName.c_str(), "DDU Data Format Warnings Frequency", 1, 0, 1, 1/*bin_checker.nWARNINGS*/, 0, 1/*bin_checker.nWARNINGS*/);
+		//meName = Form("%dBinCheck_WarningStat_Frequency",id);
+		//me[meName] = dbe->book2D(meName.c_str(), "DDU Data Format Warnings Frequency", 1, 0, 1, 1/*bin_checker.nWARNINGS*/, 0, 1/*bin_checker.nWARNINGS*/);
 
-//KK end
 
 
 		meName = Form("%d_CSC_Efficiency", id);
@@ -53,7 +67,7 @@ map<string, MonitorElement*> CSCMonitor::book_chamber(int ChamberID) {
 //DMBs
 //	if(debug_printout) 	cout << "D**EmuBookChamber> New DMB Canvases are booking ..." << endl;
 
-        dir = Form("Data/Chamber_%d/DMB",id);
+	dir= Form("DMB_%d/crate_%d/DMB",dmbID,crateID);
         dbe->setCurrentFolder(dir);
 
 
@@ -70,24 +84,14 @@ map<string, MonitorElement*> CSCMonitor::book_chamber(int ChamberID) {
 		meName = Form("%dDMB_CFEB_Active", id);
 		me[meName] = dbe->book1D(meName.c_str(), "Active CFEBs combinations as reported by TMB", 32,  0 , 32);
 
-//KK
-
-//KK end
-
-
 		meName = Form("%dDMB_CFEB_DAV", id);
 		me[meName] = dbe->book1D(meName.c_str(), "CFEBs combinations reporting DAV", 32,  0 , 32);
-
-//KK
-
-//KK end
-
 
 		meName = Form("%dDMB_CFEB_DAV_multiplicity", ChamberID);
 		me[meName] = dbe->book1D(meName.c_str(), "Number of CFEBs reporting DAV per event", 6,  0 , 6);
 
 		meName = Form("%dDMB_CFEB_MOVLP", id);
-		me[meName] = dbe->book1D(meName.c_str(), "", 32, 0, 32);
+		me[meName] = dbe->book1D(meName.c_str(), "DMB_CFEB_MOVLP", 32, 0, 32);
 
 		meName = Form("%dDMB_CFEB_Sync", ChamberID);
 		me[meName] = dbe->book1D(meName.c_str(), "Counter of BXNs since last SyncReset to L1A", 16, 0, 16);
@@ -103,7 +107,7 @@ map<string, MonitorElement*> CSCMonitor::book_chamber(int ChamberID) {
 
 //ALCTs
 	//if(debug_printout) 	cout << "D**EmuBookChamber> New ALCT Canvases are booking ..." << endl;
-        dir = Form("Data/Chamber_%d/ALCT",id);
+	dir= Form("DMB_%d/crate_%d/ALCT",dmbID,crateID);
         dbe->setCurrentFolder(dir);
 
 
@@ -147,7 +151,7 @@ map<string, MonitorElement*> CSCMonitor::book_chamber(int ChamberID) {
 
 //TMB
 	//if(debug_printout) 	cout << "D**EmuBookChamber> New TMB Canvases are booking ..." << endl;
-        dir = Form("Data/Chamber_%d/TMB",id);
+	dir= Form("DMB_%d/crate_%d/TMB",dmbID,crateID);
         dbe->setCurrentFolder(dir);
 
 
@@ -254,7 +258,7 @@ map<string, MonitorElement*> CSCMonitor::book_chamber(int ChamberID) {
 
 // CFEBs
 	//if(debug_printout) 	cout << "D**EmuBookChamber> New CFEB Canvases are booking ..." << endl;
-        dir = Form("Data/Chamber_%d/CFEB",id);
+	dir= Form("DMB_%d/crate_%d/CFEB",dmbID,crateID);
         dbe->setCurrentFolder(dir);
 
  
@@ -330,7 +334,7 @@ map<string, MonitorElement*> CSCMonitor::book_chamber(int ChamberID) {
 
 //SYNC
 	//if(debug_printout) 	cout << "D**EmuBookChamber> New SYNC Canvases are booking ..." << endl;
-        dir = Form("Data/Chamber_%d/SYNC",id);
+	dir= Form("DMB_%d/crate_%d/SYNC",dmbID,crateID);
         dbe->setCurrentFolder(dir);
 
 
@@ -418,6 +422,7 @@ map<string, MonitorElement*> CSCMonitor::book_chamber(int ChamberID) {
 		me[meName] = dbe->book2D(meName.c_str(), Form("LCT Phase vs L1A Phase. CFEB%d", nCFEB), 2, 0, 2, 2, 0, 2);
 	}
 
+	
 	return me;
 }
 
