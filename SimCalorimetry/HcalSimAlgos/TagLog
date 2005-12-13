@@ -1,3 +1,6 @@
+** V00-00-01  [Tue Dec 13 20:28:15 2005]
+Update for first digi release; compatible with CMSSW_0_3_0_pre4 with Fedor's fix to CaliubCalorimetry
+
 ** V00-00-00  [Wed Oct 26 18:08:17 2005]
 Base tag on CMSSW_0_2_0_pre5
 
