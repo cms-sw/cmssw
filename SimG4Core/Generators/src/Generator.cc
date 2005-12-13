@@ -49,7 +49,10 @@ Generator::Generator(const ParameterSet & p) :
     std::cout << " Generator constructed " << std::endl;
 }
 
-Generator::~Generator() { delete inputFile; }
+Generator::~Generator() 
+{ 
+   if ( inputFile != 0 ) delete inputFile; 
+}
 
 const HepMC::GenEvent * Generator::generateEvent()
 {
