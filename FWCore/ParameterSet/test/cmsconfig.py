@@ -1,6 +1,6 @@
 #------------------------------------------------------------
 #
-# $Id: cmsconfig.py,v 1.2 2005/09/06 16:51:58 paterno Exp $
+# $Id: cmsconfig.py,v 1.3 2005/12/13 20:16:51 paterno Exp $
 #
 # cmsconfig: a class to provide convenient access to the Python form
 # of a parsed CMS configuration file.
@@ -101,6 +101,7 @@ class cmsconfig:
         return len(self.getOutputModuleNames())
 
     def moduleNames(self):
+        """Return the names of modules. Returns a list."""
         return self.psdata['modules'].keys()
 
     def module(self, name):
@@ -110,6 +111,34 @@ class cmsconfig:
 
     def outputModuleNames(self):
         return self.psdata['output_modules']
+
+    def esSourceNames(self):
+        """Return the names of all *named* ESSources. Note that there
+        can also be anonymous ESSources. Returns a list."""
+        return self.psdata['named_es_sources'].keys()
+
+    def esModuleNames(self):
+        """Return the names of all *named* ESModules. Note that there
+        can also be anonymous ESModules. Returns a list."""
+        return self.psdata['named_es_modules'].keys()
+
+    def esSource(self, name):
+        """Get the ESSource with this name. Exception raised if name is
+        not known. Returns a dictionary."""
+        return self.psdata['named_es_sources'][name]
+
+    def esModule(self, name):
+        """Get the ESModule with this name. Exception raised if name is
+        not known. Returns a dictionary."""
+        return self.psdata['named_es_modules'][name]
+
+    def anonymousESSources(self):
+        """Get the list of anonymous ESSources."""
+        return self.psdata['anonymous_es_sources']
+
+    def anonymousESModules(self):
+        """Get the list of anonymous ESModules."""
+        return self.psdata['anonymous_es_modules']    
 
     def pathNames(self):
         return self.psdata['paths'].keys()
@@ -182,7 +211,9 @@ class cmsconfig:
         # TODO: introduce, and deal with, top-level PSet objects and
         # top-level block objects.        
         self.__write_main_source(fileobj)
+        self.__write_es_sources(fileobj)        
         self.__write_modules(fileobj)
+        self.__write_es_modules(fileobj)
         self.__write_sequences(fileobj)
         self.__write_paths(fileobj)
         self.__write_endpaths(fileobj)
@@ -197,6 +228,64 @@ class cmsconfig:
             self.__write_module_guts(moddict, fileobj)
             fileobj.write('}\n')
 
+    def __write_es_sources(self, fileobj):
+        """Private method.
+        Return None
+        Write all named an anonymous ESSources to the file-like object
+        fileobj."""
+        self.__write_named_es_sources(fileobj)
+        self.__write_anonymous_es_sources(fileobj)
+
+    def __write_named_es_sources(self, fileobj):
+        """Private method.
+        Return None
+        Write all the named ESSources to the file-like object
+        fileobj."""
+        for name in self.esSourceNames():
+            es_source_dict = self.esSource(name)
+            fileobj.write("es_source %s = %s\n{\n" % (name, es_source_dict['classname'][2]))
+            self.__write_module_guts(es_source_dict, fileobj)
+            fileobj.write('}\n')
+
+    def __write_named_es_modules(self, fileobj):
+        """Private method.
+        Return None
+        Write all the named ESModules to the file-like object
+        fileobj."""
+        for name in self.esModuleNames():
+            es_mod_dict = self.esModule(name)
+            fileobj.write("es_source %s = %s\n{\n" % (name, es_mod_dict['classname'][2]))
+            self.__write_module_guts(es_mod_dict, fileobj)
+            fileobj.write('}\n')
+            
+    def __write_anonymous_es_sources(self, fileobj):
+        """Private method.
+        Return None
+        Write all the anonymous ESSources to the file-like object
+        fileobj."""
+        for es_source_dict in self.anonymousESSources():
+            fileobj.write("es_source = %s\n{\n" % es_source_dict['classname'][2])
+            self.__write_module_guts(es_source_dict, fileobj)
+            fileobj.write('}\n')
+
+    def __write_anonymous_es_modules(self, fileobj):
+        """Private method.
+        Return None
+        Write all the anonymous ESModules to the file-like object
+        fileobj."""
+        for es_mod_dict in self.anonymousESModules():
+            fileobj.write("es_source = %s\n{\n" % es_mod_dict['classname'][2])
+            self.__write_module_guts(es_mod_dict, fileobj)
+            fileobj.write('}\n')
+
+
+    def __write_es_modules(self, fileobj):
+        """Private method.
+        Return None
+        Write all named an anonymous ESModules to the file-like object
+        fileobj."""
+        self.__write_named_es_modules(fileobj)
+        self.__write_anonymous_es_modules(fileobj)
 
     def __write_sequences(self, fileobj):
         """Private method.
