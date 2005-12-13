@@ -46,7 +46,8 @@
 #include <iostream>
 
 
-CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset){
+CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset) :
+  numOfEvents(0){
 
 
   instatiateDQM = pset.getUntrackedParameter<bool>("runDQM", false);
@@ -73,7 +74,12 @@ CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset){
   CSCDCCEventData::setDebug(true);
   CSCDDUEventData::setDebug(true);
   CSCTMBHeader::setDebug(true);
-
+  //move this outside of producer
+  std::string releasetop(getenv("CMSSW_BASE"));
+  std::string mappingFilePath= releasetop + "/src/CondFormats/CSCObjects/test/";    
+  std::string mappingFileName = mappingFilePath + "csc_slice_test_map.txt";
+  theMapping  = CSCReadoutMappingFromFile( mappingFileName );
+  
 }
 
 CSCDCCUnpacker::~CSCDCCUnpacker(){
@@ -86,11 +92,6 @@ CSCDCCUnpacker::~CSCDCCUnpacker(){
 
 void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 
-  //move this outside of producer
-  std::string releasetop(getenv("CMSSW_BASE"));
-  std::string mappingFilePath= releasetop + "/src/CondFormats/CSCObjects/test/";
-  std::string mappingFileName = mappingFilePath + "csc_slice_test_map.txt";
-  CSCReadoutMappingFromFile theMapping( mappingFileName );
  
 
 

@@ -106,7 +106,7 @@ class CSCReadoutMapping {
      */
     int swId( int endcap, int station, int ring, int chamber) const;
 
-    const std::string myName_;
+    std::string myName_;
     bool debugV_;
     std::vector< CSCLabel > mapping_;
     std::map< int, int > hw2sw_;

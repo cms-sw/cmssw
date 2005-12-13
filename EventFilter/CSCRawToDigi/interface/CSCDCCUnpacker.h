@@ -4,14 +4,16 @@
 /** \class CSCDCCUnpacker
  * 
  *
- *  $Date: 2005/12/01 17:56:09 $
- *  $Revision: 1.4 $
+ *  $Date: 2005/12/07 15:01:53 $
+ *  $Revision: 1.5 $
  * \author Alex Tumanov 
  */
 
 #include <FWCore/Framework/interface/EDProducer.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include "CondFormats/CSCObjects/interface/CSCReadoutMappingFromFile.h"
+
 
 class CSCMonitorInterface;
 
@@ -32,7 +34,7 @@ class CSCDCCUnpacker: public edm::EDProducer {
  private:
  
   int numOfEvents;
-  
+  CSCReadoutMappingFromFile theMapping;
   bool instatiateDQM;
   CSCMonitorInterface * monitor;
 
