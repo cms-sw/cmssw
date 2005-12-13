@@ -1,3 +1,6 @@
+** V01-00-08  [Tue Dec 13 07:36:40 2005]
+Use ParameterSetID instead of PS_ID.
+
 ** V01-00-07  [Tue Dec  6 21:35:50 2005]
 Modify cmsRun to use MessageLogger for messages
 
