@@ -109,7 +109,6 @@ void HcalTriggerPrimitiveAlgo::transverseComponent(CaloSamples & samples,
 
 
 void HcalTriggerPrimitiveAlgo::addSignal(const CaloSamples & samples) {
-std::cout << "SIGNAL " << samples << std::endl;
   HcalTrigTowerDetId id(samples.id());
   SumMap::iterator itr = theSumMap.find(id);
   if(itr == theSumMap.end()) {
