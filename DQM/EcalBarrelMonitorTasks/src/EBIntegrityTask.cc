@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  * 
- * $Date: 2005/12/07 07:28:54 $
- * $Revision: 1.1 $
+ * $Date: 2005/12/12 07:26:28 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  *
 */
@@ -140,8 +140,8 @@ void EBIntegrityTask::analyze(const edm::Event& e, const edm::EventSetup& c){
     int ie = id.ieta();
     int ip = id.iphi();
 
-    float xie = ie - 0.5;
-    float xip = ip - 0.5;
+    float xie = ie + 0.5;
+    float xip = ip + 0.5;
 
 //    int ism = id.ism();
     int ism = 1;
@@ -160,8 +160,8 @@ void EBIntegrityTask::analyze(const edm::Event& e, const edm::EventSetup& c){
     int ie = id.ieta();
     int ip = id.iphi();
 
-    float xie = ie - 0.5;
-    float xip = ip - 0.5;
+    float xie = ie + 0.5;
+    float xip = ip + 0.5;
 
 //    int ism = id.ism();
     int ism = 1;
