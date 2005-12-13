@@ -33,7 +33,7 @@ namespace cms {
       // frame will already be in fC
       frame[tbin] += pedestal / gain;
     }
-    std::cout << frame << std::endl;
+    //std::cout << frame << std::endl;
   }
 }
 
