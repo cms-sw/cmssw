@@ -4,8 +4,8 @@
 /*
  * \file EBPedPreSampleClient.h
  *
- * $Date: 2005/11/16 15:19:36 $
- * $Revision: 1.11 $
+ * $Date: 2005/12/01 09:50:06 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -86,6 +86,10 @@ private:
 
 int ievt_;
 int jevt_;
+
+bool collateSources_;
+
+bool verbose_;
 
 MonitorUserInterface* mui_;
 

@@ -4,8 +4,8 @@
 /*
  * \file EBIntegrityClient.h
  *
- * $Date: 2005/11/22 18:11:34 $
- * $Revision: 1.10 $
+ * $Date: 2005/12/01 15:11:42 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  *
 */
@@ -85,6 +85,10 @@ private:
 
 int ievt_;
 int jevt_;
+
+bool collateSources_;
+
+bool verbose_;
 
 MonitorUserInterface* mui_;
 

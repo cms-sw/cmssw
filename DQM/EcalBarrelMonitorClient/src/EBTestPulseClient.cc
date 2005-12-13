@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  * 
- * $Date: 2005/12/06 09:56:43 $
- * $Revision: 1.37 $
+ * $Date: 2005/12/06 10:55:30 $
+ * $Revision: 1.38 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -50,6 +50,12 @@ EBTestPulseClient::EBTestPulseClient(const edm::ParameterSet& ps, MonitorUserInt
   RMSThreshold_ = 300.0;
   threshold_on_AmplitudeErrorsNumber_ = 0.02;
 
+  // collateSources switch
+  collateSources_ = ps.getUntrackedParameter<bool>("collateSources", false);
+
+  // verbosity switch
+  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+
 }
 
 EBTestPulseClient::~EBTestPulseClient(){
@@ -82,7 +88,7 @@ EBTestPulseClient::~EBTestPulseClient(){
 
 void EBTestPulseClient::beginJob(const edm::EventSetup& c){
 
-  cout << "EBTestPulseClient: beginJob" << endl;
+  if ( verbose_ ) cout << "EBTestPulseClient: beginJob" << endl;
 
   ievt_ = 0;
 
@@ -92,7 +98,7 @@ void EBTestPulseClient::beginJob(const edm::EventSetup& c){
 
 void EBTestPulseClient::beginRun(const edm::EventSetup& c){
 
-  cout << "EBTestPulseClient: beginRun" << endl;
+  if ( verbose_ ) cout << "EBTestPulseClient: beginRun" << endl;
 
   jevt_ = 0;
 
@@ -143,7 +149,7 @@ void EBTestPulseClient::beginRun(const edm::EventSetup& c){
 
 void EBTestPulseClient::endJob(void) {
 
-  cout << "EBTestPulseClient: endJob, ievt = " << ievt_ << endl;
+  if ( verbose_ ) cout << "EBTestPulseClient: endJob, ievt = " << ievt_ << endl;
 
   this->unsubscribe();
 
@@ -151,7 +157,7 @@ void EBTestPulseClient::endJob(void) {
 
 void EBTestPulseClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* runtag) {
 
-  cout << "EBTestPulseClient: endRun, jevt = " << jevt_ << endl;
+  if ( verbose_ ) cout << "EBTestPulseClient: endRun, jevt = " << jevt_ << endl;
 
   if ( jevt_ == 0 ) return;
 
@@ -334,19 +340,19 @@ void EBTestPulseClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
               }
             }
 
-            cout << "sample01= " << flush;
+            cout << "sample01 = " << flush;
             for ( unsigned int i = 0; i < sample01.size(); i++ ) {
               cout << sample01[i] << " " << flush;
             }
             cout << endl;
 
-            cout << "sample02= " << flush;
+            cout << "sample02 = " << flush;
             for ( unsigned int i = 0; i < sample02.size(); i++ ) {
               cout << sample02[i] << " " << flush;
             }
             cout << endl;
 
-            cout << "sample03= " << flush;
+            cout << "sample03 = " << flush;
             for ( unsigned int i = 0; i < sample03.size(); i++ ) {
               cout << sample03[i] << " " << flush;
             }
@@ -391,7 +397,7 @@ void EBTestPulseClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
 
 void EBTestPulseClient::subscribe(void){
 
-  cout << "EBTestPulseClient: subscribe" << endl;
+  if ( verbose_ ) cout << "EBTestPulseClient: subscribe" << endl;
 
   // subscribe to all monitorable matching pattern
   mui_->subscribe("*/EcalBarrel/EBTestPulseTask/Gain01/EBTT amplitude SM*");
@@ -404,56 +410,60 @@ void EBTestPulseClient::subscribe(void){
   mui_->subscribe("*/EcalBarrel/EBTestPulseTask/Gain12/EBTT shape SM*");
   mui_->subscribe("*/EcalBarrel/EBTestPulseTask/Gain12/EBTT amplitude error SM*");
 
-  cout << "EBTestPulseClient: collate" << endl;
+  if ( collateSources_ ) {
 
-  Char_t histo[80];
+    if ( verbose_ ) cout << "EBTestPulseClient: collate" << endl;
 
-  for ( int ism = 1; ism <= 36; ism++ ) {
+    Char_t histo[80];
 
-    sprintf(histo, "EBTT amplitude SM%02d G01", ism);
-    me_ha01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBTestPulseTask/Gain01");
-    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain01/EBTT amplitude SM%02d G01", ism);
-    mui_->add(me_ha01_[ism-1], histo);
+    for ( int ism = 1; ism <= 36; ism++ ) {
 
-    sprintf(histo, "EBTT amplitude SM%02d G06", ism);
-    me_ha02_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBTestPulseTask/Gain06");
-    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain06/EBTT amplitude SM%02d G06", ism);
-    mui_->add(me_ha02_[ism-1], histo);
+      sprintf(histo, "EBTT amplitude SM%02d G01", ism);
+      me_ha01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBTestPulseTask/Gain01");
+      sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain01/EBTT amplitude SM%02d G01", ism);
+      mui_->add(me_ha01_[ism-1], histo);
 
-    sprintf(histo, "EBTT amplitude SM%02d G12", ism);
-    me_ha03_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBTestPulseTask/Gain12");
-    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain12/EBTT amplitude SM%02d G12", ism);
-    mui_->add(me_ha03_[ism-1], histo);
+      sprintf(histo, "EBTT amplitude SM%02d G06", ism);
+      me_ha02_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBTestPulseTask/Gain06");
+      sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain06/EBTT amplitude SM%02d G06", ism);
+      mui_->add(me_ha02_[ism-1], histo);
 
-    sprintf(histo, "EBTT shape SM%02d G01", ism);
-    me_hs01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBTestPulseTask/Gain01");
-    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain01/EBTT shape SM%02d G01", ism);
-    mui_->add(me_hs01_[ism-1], histo);
+      sprintf(histo, "EBTT amplitude SM%02d G12", ism);
+      me_ha03_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBTestPulseTask/Gain12");
+      sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain12/EBTT amplitude SM%02d G12", ism);
+      mui_->add(me_ha03_[ism-1], histo);
 
-    sprintf(histo, "EBTT shape SM%02d G06", ism);
-    me_hs02_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBTestPulseTask/Gain06");
-    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain06/EBTT shape SM%02d G06", ism);
-    mui_->add(me_hs02_[ism-1], histo);
+      sprintf(histo, "EBTT shape SM%02d G01", ism);
+      me_hs01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBTestPulseTask/Gain01");
+      sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain01/EBTT shape SM%02d G01", ism);
+      mui_->add(me_hs01_[ism-1], histo);
 
-    sprintf(histo, "EBTT shape SM%02d G12", ism);
-    me_hs03_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBTestPulseTask/Gain12");
-    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain12/EBTT shape SM%02d G12", ism);
-    mui_->add(me_hs03_[ism-1], histo);
+      sprintf(histo, "EBTT shape SM%02d G06", ism);
+      me_hs02_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBTestPulseTask/Gain06");
+      sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain06/EBTT shape SM%02d G06", ism);
+      mui_->add(me_hs02_[ism-1], histo);
 
-    sprintf(histo, "EBTT amplitude error SM%02d G01", ism);
-    me_he01_[ism-1] = mui_->collate2D(histo, histo, "EcalBarrel/Sums/EBTestPulseTask/Gain01");
-    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain01/EBTT amplitude error SM%02d G01", ism);
-    mui_->add(me_he01_[ism-1], histo);
+      sprintf(histo, "EBTT shape SM%02d G12", ism);
+      me_hs03_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBTestPulseTask/Gain12");
+      sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain12/EBTT shape SM%02d G12", ism);
+      mui_->add(me_hs03_[ism-1], histo);
 
-    sprintf(histo, "EBTT amplitude error SM%02d G06", ism);
-    me_he02_[ism-1] = mui_->collate2D(histo, histo, "EcalBarrel/Sums/EBTestPulseTask/Gain06");
-    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain06/EBTT amplitude error SM%02d G06", ism);
-    mui_->add(me_he02_[ism-1], histo);
+      sprintf(histo, "EBTT amplitude error SM%02d G01", ism);
+      me_he01_[ism-1] = mui_->collate2D(histo, histo, "EcalBarrel/Sums/EBTestPulseTask/Gain01");
+      sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain01/EBTT amplitude error SM%02d G01", ism);
+      mui_->add(me_he01_[ism-1], histo);
 
-    sprintf(histo, "EBTT amplitude error SM%02d G12", ism);
-    me_he03_[ism-1] = mui_->collate2D(histo, histo, "EcalBarrel/Sums/EBTestPulseTask/Gain12");
-    sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain12/EBTT amplitude error SM%02d G12", ism);
-    mui_->add(me_he03_[ism-1], histo);
+      sprintf(histo, "EBTT amplitude error SM%02d G06", ism);
+      me_he02_[ism-1] = mui_->collate2D(histo, histo, "EcalBarrel/Sums/EBTestPulseTask/Gain06");
+      sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain06/EBTT amplitude error SM%02d G06", ism);
+      mui_->add(me_he02_[ism-1], histo);
+
+      sprintf(histo, "EBTT amplitude error SM%02d G12", ism);
+      me_he03_[ism-1] = mui_->collate2D(histo, histo, "EcalBarrel/Sums/EBTestPulseTask/Gain12");
+      sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain12/EBTT amplitude error SM%02d G12", ism);
+      mui_->add(me_he03_[ism-1], histo);
+
+    }
 
   }
 
@@ -476,7 +486,7 @@ void EBTestPulseClient::subscribeNew(void){
 
 void EBTestPulseClient::unsubscribe(void){
 
-  cout << "EBTestPulseClient: unsubscribe" << endl;
+  if ( verbose_ ) cout << "EBTestPulseClient: unsubscribe" << endl;
 
   // unsubscribe to all monitorable matching pattern
   mui_->unsubscribe("*/EcalBarrel/EBTestPulseTask/Gain01/EBTT amplitude SM*");
@@ -495,8 +505,9 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   ievt_++;
   jevt_++;
-  if ( ievt_ % 10 == 0 )  
-    cout << "EBTestPulseClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+  if ( ievt_ % 10 == 0 ) { 
+    if ( verbose_ ) cout << "EBTestPulseClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+  }
 
   Char_t histo[150];
 
@@ -505,11 +516,14 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
-//    sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain01/EBTT amplitude SM%02d G01", ism);
-    sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain01/EBTT amplitude SM%02d G01", ism);
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain01/EBTT amplitude SM%02d G01", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain01/EBTT amplitude SM%02d G01", ism);
+    }
     me = mui_->get(histo);
     if ( me ) {
-      cout << "Found '" << histo << "'" << endl;
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( ha01_[ism-1] ) delete ha01_[ism-1];
@@ -519,11 +533,14 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
     }
 
-//    sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain06/EBTT amplitude SM%02d G06", ism);
-    sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain06/EBTT amplitude SM%02d G06", ism);
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain06/EBTT amplitude SM%02d G06", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain06/EBTT amplitude SM%02d G06", ism);
+    }
     me = mui_->get(histo);
     if ( me ) {
-      cout << "Found '" << histo << "'" << endl;
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( ha02_[ism-1] ) delete ha02_[ism-1];
@@ -533,11 +550,14 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
     }
 
-//    sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain12/EBTT amplitude SM%02d G12", ism);
-    sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain12/EBTT amplitude SM%02d G12", ism);
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain12/EBTT amplitude SM%02d G12", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain12/EBTT amplitude SM%02d G12", ism);
+    }
     me = mui_->get(histo);
     if ( me ) {
-      cout << "Found '" << histo << "'" << endl;
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( ha03_[ism-1] ) delete ha03_[ism-1];
@@ -547,11 +567,14 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
     }
 
-//    sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain01/EBTT shape SM%02d G01", ism);
-    sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain01/EBTT shape SM%02d G01", ism);
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain01/EBTT shape SM%02d G01", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain01/EBTT shape SM%02d G01", ism);
+    }
     me = mui_->get(histo);
     if ( me ) {
-      cout << "Found '" << histo << "'" << endl;
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( hs01_[ism-1] ) delete hs01_[ism-1];
@@ -561,11 +584,14 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
     }
 
-//    sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain06/EBTT shape SM%02d G06", ism);
-    sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain06/EBTT shape SM%02d G06", ism);
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain06/EBTT shape SM%02d G06", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain06/EBTT shape SM%02d G06", ism);
+    }
     me = mui_->get(histo);
     if ( me ) {
-      cout << "Found '" << histo << "'" << endl;
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( hs02_[ism-1] ) delete hs02_[ism-1];
@@ -575,11 +601,14 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
     }
 
-//    sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain12/EBTT shape SM%02d G12", ism);
-    sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain12/EBTT shape SM%02d G12", ism);
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain12/EBTT shape SM%02d G12", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain12/EBTT shape SM%02d G12", ism);
+    }
     me = mui_->get(histo);
     if ( me ) {
-      cout << "Found '" << histo << "'" << endl;
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( hs03_[ism-1] ) delete hs03_[ism-1];
@@ -589,11 +618,14 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
     }
 
-//    sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain01/EBTT amplitude error SM%02d G01", ism);
-    sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain01/EBTT amplitude error SM%02d G01", ism);
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain01/EBTT amplitude error SM%02d G01", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain01/EBTT amplitude error SM%02d G01", ism);
+    }
     me = mui_->get(histo);
     if ( me ) {
-      cout << "Found '" << histo << "'" << endl;
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( he01_[ism-1] ) delete he01_[ism-1];
@@ -603,11 +635,14 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
     }
 
-//    sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain06/EBTT amplitude error SM%02d G06", ism);
-    sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain06/EBTT amplitude error SM%02d G06", ism);
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain06/EBTT amplitude error SM%02d G06", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain06/EBTT amplitude error SM%02d G06", ism);
+    }
     me = mui_->get(histo);
     if ( me ) {
-      cout << "Found '" << histo << "'" << endl;
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( he02_[ism-1] ) delete he02_[ism-1];
@@ -617,11 +652,14 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
     }
 
-//    sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain12/EBTT amplitude error SM%02d G12", ism);
-    sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain12/EBTT amplitude error SM%02d G12", ism);
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain12/EBTT amplitude error SM%02d G12", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain12/EBTT amplitude error SM%02d G12", ism);
+    }
     me = mui_->get(histo);
     if ( me ) {
-      cout << "Found '" << histo << "'" << endl;
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( he03_[ism-1] ) delete he03_[ism-1];

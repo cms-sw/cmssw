@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  * 
- * $Date: 2005/12/01 14:59:46 $
- * $Revision: 1.33 $
+ * $Date: 2005/12/02 15:48:25 $
+ * $Revision: 1.34 $
  * \author G. Della Ricca
  *
 */
@@ -57,6 +57,12 @@ EBLaserClient::EBLaserClient(const edm::ParameterSet& ps, MonitorUserInterface* 
 
   percentVariation_ = 0.4; 
 
+  // collateSources switch
+  collateSources_ = ps.getUntrackedParameter<bool>("collateSources", false);
+
+  // verbosity switch
+  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+
 }
 
 EBLaserClient::~EBLaserClient(){
@@ -93,7 +99,7 @@ EBLaserClient::~EBLaserClient(){
 
 void EBLaserClient::beginJob(const edm::EventSetup& c){
 
-  cout << "EBLaserClient: beginJob" << endl;
+  if ( verbose_ ) cout << "EBLaserClient: beginJob" << endl;
 
   ievt_ = 0;
 
@@ -103,7 +109,7 @@ void EBLaserClient::beginJob(const edm::EventSetup& c){
 
 void EBLaserClient::beginRun(const edm::EventSetup& c){
 
-  cout << "EBLaserClient: beginRun" << endl;
+  if ( verbose_ ) cout << "EBLaserClient: beginRun" << endl;
 
   jevt_ = 0;
 
@@ -158,7 +164,7 @@ void EBLaserClient::beginRun(const edm::EventSetup& c){
 
 void EBLaserClient::endJob(void) {
 
-  cout << "EBLaserClient: endJob, ievt = " << ievt_ << endl;
+  if ( verbose_ ) cout << "EBLaserClient: endJob, ievt = " << ievt_ << endl;
 
   this->unsubscribe();
 
@@ -166,7 +172,7 @@ void EBLaserClient::endJob(void) {
 
 void EBLaserClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* runtag) {
 
-  cout << "EBLaserClient: endRun, jevt = " << jevt_ << endl;
+  if ( verbose_ ) cout << "EBLaserClient: endRun, jevt = " << jevt_ << endl;
 
   if ( jevt_ == 0 ) return;
 
@@ -389,7 +395,7 @@ void EBLaserClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* r
 
 void EBLaserClient::subscribe(void){
 
-  cout << "EBLaserClient: subscribe" << endl;
+  if ( verbose_ ) cout << "EBLaserClient: subscribe" << endl;
 
   // subscribe to all monitorable matching pattern
   mui_->subscribe("*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude SM*");
@@ -401,52 +407,56 @@ void EBLaserClient::subscribe(void){
   mui_->subscribe("*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude SM*");
   mui_->subscribe("*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN SM*");
 
-  cout << "EBLaserClient: collate" << endl;
+  if ( collateSources_ ) {
 
-  Char_t histo[80];
+    if ( verbose_ ) cout << "EBLaserClient: collate" << endl;
 
-  for ( int ism = 1; ism <= 36; ism++ ) {
+    Char_t histo[80];
 
-    sprintf(histo, "EBLT amplitude SM%02d L1", ism);
-    me_h01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser1");
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude SM%02d L1", ism);
-    mui_->add(me_h01_[ism-1], histo);
+    for ( int ism = 1; ism <= 36; ism++ ) {
 
-    sprintf(histo, "EBLT amplitude over PN SM%02d L1", ism);
-    me_h02_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser1");
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude over PN SM%02d L1", ism);
-    mui_->add(me_h02_[ism-1], histo);
+      sprintf(histo, "EBLT amplitude SM%02d L1", ism);
+      me_h01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser1");
+      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude SM%02d L1", ism);
+      mui_->add(me_h01_[ism-1], histo);
 
-    sprintf(histo, "EBLT amplitude SM%02d L2", ism);
-    me_h03_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser2");
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude SM%02d L2", ism);
-    mui_->add(me_h03_[ism-1], histo);
+      sprintf(histo, "EBLT amplitude over PN SM%02d L1", ism);
+      me_h02_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser1");
+      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude over PN SM%02d L1", ism);
+      mui_->add(me_h02_[ism-1], histo);
 
-    sprintf(histo, "EBLT amplitude over PN SM%02d L2", ism);
-    me_h04_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser2");
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude over PN SM%02d L2", ism);
-    mui_->add(me_h04_[ism-1], histo);
+      sprintf(histo, "EBLT amplitude SM%02d L2", ism);
+      me_h03_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser2");
+      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude SM%02d L2", ism);
+      mui_->add(me_h03_[ism-1], histo);
 
-    sprintf(histo, "EBLT amplitude SM%02d L3", ism);
-    me_h05_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser3");
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude SM%02d L3", ism);
-    mui_->add(me_h05_[ism-1], histo);
+      sprintf(histo, "EBLT amplitude over PN SM%02d L2", ism);
+      me_h04_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser2");
+      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude over PN SM%02d L2", ism);
+      mui_->add(me_h04_[ism-1], histo);
 
-    sprintf(histo, "EBLT amplitude over PN SM%02d L3", ism);
-    me_h06_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser3");
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude over PN SM%02d L3", ism);
-    mui_->add(me_h06_[ism-1], histo);
+      sprintf(histo, "EBLT amplitude SM%02d L3", ism);
+      me_h05_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser3");
+      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude SM%02d L3", ism);
+      mui_->add(me_h05_[ism-1], histo);
 
-    sprintf(histo, "EBLT amplitude SM%02d L4", ism);
-    me_h07_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser4");
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude SM%02d L4", ism);
-    mui_->add(me_h07_[ism-1], histo);
+      sprintf(histo, "EBLT amplitude over PN SM%02d L3", ism);
+      me_h06_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser3");
+      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude over PN SM%02d L3", ism);
+      mui_->add(me_h06_[ism-1], histo);
 
-    sprintf(histo, "EBLT amplitude over PN SM%02d L4", ism);
-    me_h08_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser4");
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN SM%02d L4", ism);
-    mui_->add(me_h08_[ism-1], histo);
-    
+      sprintf(histo, "EBLT amplitude SM%02d L4", ism);
+      me_h07_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser4");
+      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude SM%02d L4", ism);
+      mui_->add(me_h07_[ism-1], histo);
+
+      sprintf(histo, "EBLT amplitude over PN SM%02d L4", ism);
+      me_h08_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser4");
+      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN SM%02d L4", ism);
+      mui_->add(me_h08_[ism-1], histo);
+
+    }
+
   }
 
 }
@@ -467,7 +477,7 @@ void EBLaserClient::subscribeNew(void){
 
 void EBLaserClient::unsubscribe(void){
 
-  cout << "EBLaserClient: unsubscribe" << endl;
+  if ( verbose_ ) cout << "EBLaserClient: unsubscribe" << endl;
 
   // unsubscribe to all monitorable matching pattern
   mui_->unsubscribe("*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude SM*");
@@ -485,8 +495,9 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   ievt_++;
   jevt_++;
-  if ( ievt_ % 10 == 0 )  
-    cout << "EBLaserClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+  if ( ievt_ % 10 == 0 ) { 
+    if ( verbose_ ) cout << "EBLaserClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+  }
 
   Char_t histo[150];
   
@@ -495,11 +506,14 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
-    //sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude SM%02d L1", ism);
-    sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser1/EBLT amplitude SM%02d L1", ism);
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser1/EBLT amplitude SM%02d L1", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude SM%02d L1", ism);
+    }
     me = mui_->get(histo);
     if ( me ) {
-      cout << "Found '" << histo << "'" << endl;
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( h01_[ism-1] ) delete h01_[ism-1];
@@ -509,11 +523,14 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
     }
 
-    //sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude over PN SM%02d L1", ism);
-    sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser1/EBLT amplitude over PN SM%02d L1", ism);
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser1/EBLT amplitude over PN SM%02d L1", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude over PN SM%02d L1", ism);
+    }
     me = mui_->get(histo);
     if ( me ) {
-      cout << "Found '" << histo << "'" << endl;
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( h02_[ism-1] ) delete h02_[ism-1];
@@ -523,11 +540,14 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       } 
     }
 
-    //sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude SM%02d L2", ism);
-    sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser2/EBLT amplitude SM%02d L2", ism);
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser2/EBLT amplitude SM%02d L2", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude SM%02d L2", ism);
+    }
     me = mui_->get(histo);
     if ( me ) {
-      cout << "Found '" << histo << "'" << endl;
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( h03_[ism-1] ) delete h03_[ism-1];
@@ -537,11 +557,14 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       } 
     }
 
-    //sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude over PN SM%02d L2", ism);
-    sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser2/EBLT amplitude over PN SM%02d L2", ism);
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser2/EBLT amplitude over PN SM%02d L2", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude over PN SM%02d L2", ism);
+    }
     me = mui_->get(histo);
     if ( me ) {
-      cout << "Found '" << histo << "'" << endl;
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( h04_[ism-1] ) delete h04_[ism-1];
@@ -551,11 +574,14 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       } 
     }
 
-    //sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude SM%02d L3", ism);
-    sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser3/EBLT amplitude SM%02d L3", ism);
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser3/EBLT amplitude SM%02d L3", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude SM%02d L3", ism);
+    }
     me = mui_->get(histo);
     if ( me ) {
-      cout << "Found '" << histo << "'" << endl;
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( h05_[ism-1] ) delete h05_[ism-1];
@@ -565,11 +591,14 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
     }
 
-    //sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude over PN SM%02d L3", ism);
-    sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser3/EBLT amplitude over PN SM%02d L3", ism);
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser3/EBLT amplitude over PN SM%02d L3", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude over PN SM%02d L3", ism);
+    }
     me = mui_->get(histo);
     if ( me ) {
-      cout << "Found '" << histo << "'" << endl;
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( h06_[ism-1] ) delete h06_[ism-1];
@@ -579,11 +608,14 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
     }
 
-    //sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude SM%02d L4", ism);
-    sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser4/EBLT amplitude SM%02d L4", ism);
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser4/EBLT amplitude SM%02d L4", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude SM%02d L4", ism);
+    }
     me = mui_->get(histo);
     if ( me ) {
-      cout << "Found '" << histo << "'" << endl;
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( h07_[ism-1] ) delete h07_[ism-1];
@@ -593,11 +625,14 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
     }
 
-    //sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN SM%02d L4", ism);
-    sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser4/EBLT amplitude over PN SM%02d L4", ism);
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser4/EBLT amplitude over PN SM%02d L4", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN SM%02d L4", ism);
+    }
     me = mui_->get(histo);
     if ( me ) {
-      cout << "Found '" << histo << "'" << endl;
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( h08_[ism-1] ) delete h08_[ism-1];

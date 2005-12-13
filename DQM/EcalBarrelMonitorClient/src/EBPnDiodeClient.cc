@@ -1,8 +1,8 @@
 /*
  * \file EBPnDiodeClient.cc
  * 
- * $Date: 2005/12/05 08:15:47 $
- * $Revision: 1.13 $
+ * $Date: 2005/12/06 15:52:14 $
+ * $Revision: 1.14 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -23,6 +23,12 @@ EBPnDiodeClient::EBPnDiodeClient(const edm::ParameterSet& ps, MonitorUserInterfa
 
   }
 
+  // collateSources switch
+  collateSources_ = ps.getUntrackedParameter<bool>("collateSources", false);
+
+  // verbosity switch
+  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+
 }
 
 EBPnDiodeClient::~EBPnDiodeClient(){
@@ -40,7 +46,7 @@ EBPnDiodeClient::~EBPnDiodeClient(){
 
 void EBPnDiodeClient::beginJob(const edm::EventSetup& c){
 
-  cout << "EBPnDiodeClient: beginJob" << endl;
+  if ( verbose_ ) cout << "EBPnDiodeClient: beginJob" << endl;
 
   ievt_ = 0;
 
@@ -50,7 +56,7 @@ void EBPnDiodeClient::beginJob(const edm::EventSetup& c){
 
 void EBPnDiodeClient::beginRun(const edm::EventSetup& c){
 
-  cout << "EBPnDiodeClient: beginRun" << endl;
+  if ( verbose_ ) cout << "EBPnDiodeClient: beginRun" << endl;
 
   jevt_ = 0;
 
@@ -71,7 +77,7 @@ void EBPnDiodeClient::beginRun(const edm::EventSetup& c){
 
 void EBPnDiodeClient::endJob(void) {
 
-  cout << "EBPnDiodeClient: endJob, ievt = " << ievt_ << endl;
+  if ( verbose_ ) cout << "EBPnDiodeClient: endJob, ievt = " << ievt_ << endl;
 
   this->unsubscribe();
 
@@ -79,7 +85,7 @@ void EBPnDiodeClient::endJob(void) {
 
 void EBPnDiodeClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* runtag) {
 
-  cout << "EBPnDiodeClient: endRun, jevt = " << jevt_ << endl;
+  if ( verbose_ ) cout << "EBPnDiodeClient: endRun, jevt = " << jevt_ << endl;
 
   if ( jevt_ == 0 ) return;
 
@@ -189,7 +195,7 @@ void EBPnDiodeClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag*
 
 void EBPnDiodeClient::subscribe(void){
 
-  cout << "EBPnDiodeClient: subscribe" << endl;
+  if ( verbose_ ) cout << "EBPnDiodeClient: subscribe" << endl;
 
   // subscribe to all monitorable matching pattern
   mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/Laser1/EBDT PNs SM*");
@@ -197,31 +203,35 @@ void EBPnDiodeClient::subscribe(void){
   mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/Laser3/EBDT PNs SM*");
   mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/Laser4/EBDT PNs SM*");
 
-  cout << "EBPnDiodeClient: collate" << endl;
+  if ( collateSources_ ) {
 
-  Char_t histo[80];
+    if ( verbose_ ) cout << "EBPnDiodeClient: collate" << endl;
 
-  for ( int ism = 1; ism <= 36; ism++ ) {
+    Char_t histo[80];
 
-    sprintf(histo, "EBDT PNs SM%02d L1", ism);
-    me_h01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1");
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/EBDT PNs SM%02d L1", ism);
-    mui_->add(me_h01_[ism-1], histo);
+    for ( int ism = 1; ism <= 36; ism++ ) {
 
-    sprintf(histo, "EBDT PNs SM%02d L2", ism);
-    me_h02_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser2");
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/EBDT PNs SM%02d L2", ism);
-    mui_->add(me_h02_[ism-1], histo);
+      sprintf(histo, "EBDT PNs SM%02d L1", ism);
+      me_h01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1");
+      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/EBDT PNs SM%02d L1", ism);
+      mui_->add(me_h01_[ism-1], histo);
 
-    sprintf(histo, "EBDT PNs SM%02d L3", ism);
-    me_h03_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser3");
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/EBDT PNs SM%02d L3", ism);
-    mui_->add(me_h03_[ism-1], histo);
+      sprintf(histo, "EBDT PNs SM%02d L2", ism);
+      me_h02_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser2");
+      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/EBDT PNs SM%02d L2", ism);
+      mui_->add(me_h02_[ism-1], histo);
 
-    sprintf(histo, "EBDT PNs SM%02d L4", ism);
-    me_h04_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser4");
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/EBDT PNs SM%02d L4", ism);
-    mui_->add(me_h04_[ism-1], histo);
+      sprintf(histo, "EBDT PNs SM%02d L3", ism);
+      me_h03_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser3");
+      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/EBDT PNs SM%02d L3", ism);
+      mui_->add(me_h03_[ism-1], histo);
+
+      sprintf(histo, "EBDT PNs SM%02d L4", ism);
+      me_h04_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser4");
+      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/EBDT PNs SM%02d L4", ism);
+      mui_->add(me_h04_[ism-1], histo);
+
+    }
 
   }
 
@@ -239,7 +249,7 @@ void EBPnDiodeClient::subscribeNew(void){
 
 void EBPnDiodeClient::unsubscribe(void){
 
-  cout << "EBPnDiodeClient: unsubscribe" << endl;
+  if ( verbose_ ) cout << "EBPnDiodeClient: unsubscribe" << endl;
 
   // unsubscribe to all monitorable matching pattern
   mui_->unsubscribe("*/EcalBarrel/EBPnDiodeTask/Laser1/EBDT PNs SM*");
@@ -253,8 +263,9 @@ void EBPnDiodeClient::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   ievt_++;
   jevt_++;
-  if ( ievt_ % 10 == 0 )  
-    cout << "EBPnDiodeClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+  if ( ievt_ % 10 == 0 ) { 
+    if ( verbose_ ) cout << "EBPnDiodeClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+  }
 
   Char_t histo[150];
 
@@ -263,11 +274,14 @@ void EBPnDiodeClient::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
-//    sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser1/EBDT PNs SM%02d L1", ism);
-    sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1/EBDT PNs SM%02d L1", ism);
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1/EBDT PNs SM%02d L1", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser1/EBDT PNs SM%02d L1", ism);
+    }
     me = mui_->get(histo);
     if ( me ) {
-      cout << "Found '" << histo << "'" << endl;
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( h01_[ism-1] ) delete h01_[ism-1];
@@ -277,11 +291,14 @@ void EBPnDiodeClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
     }
 
-//    sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser2/EBDT PNs SM%02d L2", ism);
-    sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser2/EBDT PNs SM%02d L2", ism);
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser2/EBDT PNs SM%02d L2", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser2/EBDT PNs SM%02d L2", ism);
+    }
     me = mui_->get(histo);
     if ( me ) {
-      cout << "Found '" << histo << "'" << endl;
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( h02_[ism-1] ) delete h02_[ism-1];
@@ -291,11 +308,14 @@ void EBPnDiodeClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
     }
 
-//    sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser3/EBDT PNs SM%02d L3", ism);
-    sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser3/EBDT PNs SM%02d L3", ism);
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser3/EBDT PNs SM%02d L3", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser3/EBDT PNs SM%02d L3", ism);
+    }
     me = mui_->get(histo);
     if ( me ) {
-      cout << "Found '" << histo << "'" << endl;
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( h03_[ism-1] ) delete h03_[ism-1];
@@ -305,11 +325,14 @@ void EBPnDiodeClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
     }
 
-//    sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser4/EBDT PNs SM%02d L4", ism);
-    sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser4/EBDT PNs SM%02d L4", ism);
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser4/EBDT PNs SM%02d L4", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser4/EBDT PNs SM%02d L4", ism);
+    }
     me = mui_->get(histo);
     if ( me ) {
-      cout << "Found '" << histo << "'" << endl;
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( h04_[ism-1] ) delete h04_[ism-1];

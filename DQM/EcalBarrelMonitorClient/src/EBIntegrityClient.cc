@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  * 
- * $Date: 2005/12/02 15:48:25 $
- * $Revision: 1.41 $
+ * $Date: 2005/12/09 17:19:44 $
+ * $Revision: 1.42 $
  * \author G. Della Ricca
  *
 */
@@ -32,6 +32,12 @@ EBIntegrityClient::EBIntegrityClient(const edm::ParameterSet& ps, MonitorUserInt
 
   threshCry_ = 0.;
 
+  // collateSources switch
+  collateSources_ = ps.getUntrackedParameter<bool>("collateSources", false);
+
+  // verbosity switch
+  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+
 }
 
 EBIntegrityClient::~EBIntegrityClient(){
@@ -54,7 +60,7 @@ EBIntegrityClient::~EBIntegrityClient(){
 
 void EBIntegrityClient::beginJob(const edm::EventSetup& c){
 
-  cout << "EBIntegrityClient: beginJob" << endl;
+  if ( verbose_ ) cout << "EBIntegrityClient: beginJob" << endl;
 
   ievt_ = 0;
 
@@ -64,7 +70,7 @@ void EBIntegrityClient::beginJob(const edm::EventSetup& c){
 
 void EBIntegrityClient::beginRun(const edm::EventSetup& c){
 
-  cout << "EBIntegrityClient: beginRun" << endl;
+  if ( verbose_ ) cout << "EBIntegrityClient: beginRun" << endl;
 
   jevt_ = 0;
 
@@ -101,7 +107,7 @@ void EBIntegrityClient::beginRun(const edm::EventSetup& c){
 
 void EBIntegrityClient::endJob(void) {
 
-  cout << "EBIntegrityClient: endJob, ievt = " << ievt_ << endl;
+  if ( verbose_ ) cout << "EBIntegrityClient: endJob, ievt = " << ievt_ << endl;
 
   this->unsubscribe();
 
@@ -109,7 +115,7 @@ void EBIntegrityClient::endJob(void) {
 
 void EBIntegrityClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* runtag) {
 
-  cout << "EBIntegrityClient: endRun, jevt = " << jevt_ << endl;
+  if ( verbose_ ) cout << "EBIntegrityClient: endRun, jevt = " << jevt_ << endl;
 
   if ( jevt_ == 0 ) return;
 
@@ -232,7 +238,7 @@ void EBIntegrityClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
 
 void EBIntegrityClient::subscribe(void){
 
-  cout << "EBIntegrityClient: subscribe" << endl;
+  if ( verbose_ ) cout << "EBIntegrityClient: subscribe" << endl;
 
   // subscribe to all monitorable matching pattern
   mui_->subscribe("*/EcalBarrel/EBPedPreSampleTask/Gain12/EBPT pedestal PreSample SM*");
@@ -242,43 +248,47 @@ void EBIntegrityClient::subscribe(void){
   mui_->subscribe("*/EcalBarrel/EcalIntegrity/TTId/EI TTId SM*");
   mui_->subscribe("*/EcalBarrel/EcalIntegrity/TTBlockSize/EI TTBlockSize SM*");
 
-  cout << "EBIntegrityClient: collate" << endl;
+  if ( collateSources_ ) {
 
-  Char_t histo[80];
+    if ( verbose_ ) cout << "EBIntegrityClient: collate" << endl;
 
-  sprintf(histo, "DCC size error"); 
-  me_h00_ = mui_->collate1D(histo, histo, "EcalBarrel/Sums/EcalIntegrity");
-  sprintf(histo, "*/EcalBarrel/EcalIntegrity/DCC size error");
-  mui_->add(me_h00_, histo);
+    Char_t histo[80];
 
-  for ( int ism = 1; ism <= 36; ism++ ) {
+    sprintf(histo, "DCC size error"); 
+    me_h00_ = mui_->collate1D(histo, histo, "EcalBarrel/Sums/EcalIntegrity");
+    sprintf(histo, "*/EcalBarrel/EcalIntegrity/DCC size error");
+    mui_->add(me_h00_, histo);
 
-// not needed: the same CollateMonitorElements are built in EBPedPreSample.cc
+    for ( int ism = 1; ism <= 36; ism++ ) {
 
-//    sprintf(histo, "EBPT pedestal PreSample SM%02d G12", ism);
-//    me_h_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPedPreSampleTask/Gain12");
-//    sprintf(histo, "*/EcalBarrel/EBPedPreSampleTask/Gain12/EBPT pedestal PreSample SM%02d G12", ism);
-//    mui_->add(me_h_[ism-1], histo);
+//   not needed: the same CollateMonitorElements are built in EBPedPreSample.cc
 
-    sprintf(histo, "EI gain SM%02d", ism);
-    me_h01_[ism-1] = mui_->collate2D(histo, histo, "EcalBarrel/Sums/EcalIntegrity/Gain");
-    sprintf(histo, "*/EcalBarrel/EcalIntegrity/Gain/EI gain SM%02d", ism);
-    mui_->add(me_h01_[ism-1], histo);
+//      sprintf(histo, "EBPT pedestal PreSample SM%02d G12", ism);
+//      me_h_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPedPreSampleTask/Gain12");
+//      sprintf(histo, "*/EcalBarrel/EBPedPreSampleTask/Gain12/EBPT pedestal PreSample SM%02d G12", ism);
+//      mui_->add(me_h_[ism-1], histo);
 
-    sprintf(histo, "EI ChId SM%02d", ism);
-    me_h02_[ism-1] = mui_->collate2D(histo, histo, "EcalBarrel/Sums/EcalIntegrity/ChId");
-    sprintf(histo, "*/EcalBarrel/EcalIntegrity/ChId/EI ChId SM%02d", ism);
-    mui_->add(me_h02_[ism-1], histo);
+      sprintf(histo, "EI gain SM%02d", ism);
+      me_h01_[ism-1] = mui_->collate2D(histo, histo, "EcalBarrel/Sums/EcalIntegrity/Gain");
+      sprintf(histo, "*/EcalBarrel/EcalIntegrity/Gain/EI gain SM%02d", ism);
+      mui_->add(me_h01_[ism-1], histo);
 
-    sprintf(histo, "EI TTId SM%02d", ism);
-    me_h03_[ism-1] = mui_->collate2D(histo, histo, "EcalBarrel/Sums/EcalIntegrity/TTId");
-    sprintf(histo, "*/EcalBarrel/EcalIntegrity/TTId/EI TTId SM%02d", ism);
-    mui_->add(me_h03_[ism-1], histo);
+      sprintf(histo, "EI ChId SM%02d", ism);
+      me_h02_[ism-1] = mui_->collate2D(histo, histo, "EcalBarrel/Sums/EcalIntegrity/ChId");
+      sprintf(histo, "*/EcalBarrel/EcalIntegrity/ChId/EI ChId SM%02d", ism);
+      mui_->add(me_h02_[ism-1], histo);
 
-    sprintf(histo, "EI TTBlockSize SM%02d", ism);
-    me_h04_[ism-1] = mui_->collate2D(histo, histo, "EcalBarrel/Sums/EcalIntegrity/TTBlockSize");
-    sprintf(histo, "*/EcalBarrel/EcalIntegrity/TTBlockSize/EI TTBlockSize SM%02d", ism);
-    mui_->add(me_h04_[ism-1], histo);
+      sprintf(histo, "EI TTId SM%02d", ism);
+      me_h03_[ism-1] = mui_->collate2D(histo, histo, "EcalBarrel/Sums/EcalIntegrity/TTId");
+      sprintf(histo, "*/EcalBarrel/EcalIntegrity/TTId/EI TTId SM%02d", ism);
+      mui_->add(me_h03_[ism-1], histo);
+
+      sprintf(histo, "EI TTBlockSize SM%02d", ism);
+      me_h04_[ism-1] = mui_->collate2D(histo, histo, "EcalBarrel/Sums/EcalIntegrity/TTBlockSize");
+      sprintf(histo, "*/EcalBarrel/EcalIntegrity/TTBlockSize/EI TTBlockSize SM%02d", ism);
+      mui_->add(me_h04_[ism-1], histo);
+
+    }
 
   }
 
@@ -298,7 +308,7 @@ void EBIntegrityClient::subscribeNew(void){
 
 void EBIntegrityClient::unsubscribe(void){
   
-  cout << "EBIntegrityClient: unsubscribe" << endl;
+  if ( verbose_ ) cout << "EBIntegrityClient: unsubscribe" << endl;
 
   // unsubscribe to all monitorable matching pattern
   mui_->unsubscribe("*/EcalBarrel/EBPedPreSampleTask/Gain12/EBPT pedestal PreSample SM*");
@@ -314,19 +324,23 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   ievt_++;
   jevt_++;
-  if ( ievt_ % 10 == 0 )
-    cout << "EBIntegrityClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+  if ( ievt_ % 10 == 0 ) {
+    if ( verbose_ ) cout << "EBIntegrityClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+  }
 
   Char_t histo[150];
   
   MonitorElement* me;
   MonitorElementT<TNamed>* ob;
 
-//  sprintf(histo, "Collector/FU0/EcalBarrel/EcalIntegrity/DCC size error");
-  sprintf(histo, "EcalBarrel/Sums/EcalIntegrity/DCC size error");
+  if ( collateSources_ ) {
+    sprintf(histo, "EcalBarrel/Sums/EcalIntegrity/DCC size error");
+  } else {
+    sprintf(histo, "Collector/FU0/EcalBarrel/EcalIntegrity/DCC size error");
+  }
   me = mui_->get(histo);
   if ( me ) {
-    cout << "Found '" << histo << "'" << endl;
+    if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
     ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
     if ( ob ) {
       if ( h00_ ) delete h00_;
@@ -338,11 +352,14 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
-//    sprintf(histo, "Collector/FU0/EcalBarrel/EBPedPreSampleTask/Gain12/EBPT pedestal PreSample SM%02d G12", ism);
-    sprintf(histo, "EcalBarrel/Sums/EBPedPreSampleTask/Gain12/EBPT pedestal PreSample SM%02d G12", ism);
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBPedPreSampleTask/Gain12/EBPT pedestal PreSample SM%02d G12", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBPedPreSampleTask/Gain12/EBPT pedestal PreSample SM%02d G12", ism);
+    }
     me = mui_->get(histo);
     if ( me ) {
-      cout << "Found '" << histo << "'" << endl;
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( h_[ism-1] ) delete h_[ism-1];
@@ -352,11 +369,14 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
     }
 
-//    sprintf(histo, "Collector/FU0/EcalBarrel/EcalIntegrity/Gain/EI gain SM%02d", ism);
-    sprintf(histo, "EcalBarrel/Sums/EcalIntegrity/Gain/EI gain SM%02d", ism);
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EcalIntegrity/Gain/EI gain SM%02d", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EcalIntegrity/Gain/EI gain SM%02d", ism);
+    }
     me = mui_->get(histo);
     if ( me ) {
-      cout << "Found '" << histo << "'" << endl;
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( h01_[ism-1] ) delete h01_[ism-1];
@@ -366,11 +386,14 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
     }
 
-//    sprintf(histo, "Collector/FU0/EcalBarrel/EcalIntegrity/ChId/EI ChId SM%02d", ism);
-    sprintf(histo, "EcalBarrel/Sums/EcalIntegrity/ChId/EI ChId SM%02d", ism);
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EcalIntegrity/ChId/EI ChId SM%02d", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EcalIntegrity/ChId/EI ChId SM%02d", ism);
+    }
     me = mui_->get(histo);
     if ( me ) {
-      cout << "Found '" << histo << "'" << endl;
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( h02_[ism-1] ) delete h02_[ism-1];
@@ -380,11 +403,14 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
     }
 
-//    sprintf(histo, "Collector/FU0/EcalBarrel/EcalIntegrity/TTId/EI TTId SM%02d", ism);
-    sprintf(histo, "EcalBarrel/Sums/EcalIntegrity/TTId/EI TTId SM%02d", ism);
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EcalIntegrity/TTId/EI TTId SM%02d", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EcalIntegrity/TTId/EI TTId SM%02d", ism);
+    }
     me = mui_->get(histo);
     if ( me ) {
-      cout << "Found '" << histo << "'" << endl;
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( h03_[ism-1] ) delete h03_[ism-1];
@@ -394,11 +420,14 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
     }
 
-//    sprintf(histo, "Collector/FU0/EcalBarrel/EcalIntegrity/TTBlockSize/EI TTBlockSize SM%02d", ism);
-    sprintf(histo, "EcalBarrel/Sums/EcalIntegrity/TTBlockSize/EI TTBlockSize SM%02d", ism);
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EcalIntegrity/TTBlockSize/EI TTBlockSize SM%02d", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EcalIntegrity/TTBlockSize/EI TTBlockSize SM%02d", ism);
+    }
     me = mui_->get(histo);
     if ( me ) {
-      cout << "Found '" << histo << "'" << endl;
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( h04_[ism-1] ) delete h04_[ism-1];

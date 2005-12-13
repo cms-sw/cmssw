@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  * 
- * $Date: 2005/12/05 09:31:35 $
- * $Revision: 1.33 $
+ * $Date: 2005/12/08 09:34:37 $
+ * $Revision: 1.34 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -56,6 +56,12 @@ EBPedestalClient::EBPedestalClient(const edm::ParameterSet& ps, MonitorUserInter
   RMSThreshold_[0] = 1;
   RMSThreshold_[1] = 1;
   RMSThreshold_[2] = 2;
+
+  // collateSources switch
+  collateSources_ = ps.getUntrackedParameter<bool>("collateSources", false);
+
+  // verbosity switch
+  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
  
 }
 
@@ -85,7 +91,7 @@ EBPedestalClient::~EBPedestalClient(){
 
 void EBPedestalClient::beginJob(const edm::EventSetup& c){
 
-  cout << "EBPedestalClient: beginJob" << endl;
+  if ( verbose_ ) cout << "EBPedestalClient: beginJob" << endl;
 
   ievt_ = 0;
 
@@ -95,7 +101,7 @@ void EBPedestalClient::beginJob(const edm::EventSetup& c){
 
 void EBPedestalClient::beginRun(const edm::EventSetup& c){
 
-  cout << "EBPedestalClient: beginRun" << endl;
+  if ( verbose_ ) cout << "EBPedestalClient: beginRun" << endl;
 
   jevt_ = 0;
 
@@ -136,7 +142,7 @@ void EBPedestalClient::beginRun(const edm::EventSetup& c){
 
 void EBPedestalClient::endJob(void) {
 
-  cout << "EBPedestalClient: endJob, ievt = " << ievt_ << endl;
+  if ( verbose_ ) cout << "EBPedestalClient: endJob, ievt = " << ievt_ << endl;
 
   this->unsubscribe();
 
@@ -144,7 +150,7 @@ void EBPedestalClient::endJob(void) {
 
 void EBPedestalClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* runtag) {
 
-  cout << "EBPedestalClient: endRun, jevt = " << jevt_ << endl;
+  if ( verbose_ ) cout << "EBPedestalClient: endRun, jevt = " << jevt_ << endl;
 
   if ( jevt_ == 0 ) return;
 
@@ -290,33 +296,37 @@ void EBPedestalClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag
 
 void EBPedestalClient::subscribe(void){
 
-  cout << "EBPedestalClient: subscribe" << endl;
+  if ( verbose_ ) cout << "EBPedestalClient: subscribe" << endl;
 
   // subscribe to all monitorable matching pattern
   mui_->subscribe("*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal SM*");
   mui_->subscribe("*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM*");
   mui_->subscribe("*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM*");
 
-  cout << "EBPedestalClient: collate" << endl;
+  if ( collateSources_ ) {
 
-  Char_t histo[80];
+    if ( verbose_ ) cout << "EBPedestalClient: collate" << endl;
 
-  for ( int ism = 1; ism <= 36; ism++ ) {
+    Char_t histo[80];
 
-    sprintf(histo, "EBPT pedestal SM%02d G01", ism);
-    me_h01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPedestalTask/Gain01");
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal SM%02d G01", ism);
-    mui_->add(me_h01_[ism-1], histo);
+    for ( int ism = 1; ism <= 36; ism++ ) {
 
-    sprintf(histo, "EBPT pedestal SM%02d G06", ism);
-    me_h02_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPedestalTask/Gain06");
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM%02d G06", ism);
-    mui_->add(me_h02_[ism-1], histo);
+      sprintf(histo, "EBPT pedestal SM%02d G01", ism);
+      me_h01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPedestalTask/Gain01");
+      sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal SM%02d G01", ism);
+      mui_->add(me_h01_[ism-1], histo);
 
-    sprintf(histo, "EBPT pedestal SM%02d G12", ism);
-    me_h03_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPedestalTask/Gain12");
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM%02d G12", ism);
-    mui_->add(me_h03_[ism-1], histo);
+      sprintf(histo, "EBPT pedestal SM%02d G06", ism);
+      me_h02_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPedestalTask/Gain06");
+      sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM%02d G06", ism);
+      mui_->add(me_h02_[ism-1], histo);
+
+      sprintf(histo, "EBPT pedestal SM%02d G12", ism);
+      me_h03_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPedestalTask/Gain12");
+      sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM%02d G12", ism);
+      mui_->add(me_h03_[ism-1], histo);
+
+    }
 
   }
 
@@ -333,7 +343,7 @@ void EBPedestalClient::subscribeNew(void){
 
 void EBPedestalClient::unsubscribe(void){
 
-  cout << "EBPedestalClient: unsubscribe" << endl;
+  if ( verbose_ ) cout << "EBPedestalClient: unsubscribe" << endl;
 
   // unsubscribe to all monitorable matching pattern
   mui_->unsubscribe("*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal SM*");
@@ -346,8 +356,9 @@ void EBPedestalClient::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   ievt_++;
   jevt_++;
-  if ( ievt_ % 10 == 0 )  
-    cout << "EBPedestalClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+  if ( ievt_ % 10 == 0 ) { 
+    if ( verbose_ ) cout << "EBPedestalClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+  }
 
   Char_t histo[150];
 
@@ -356,11 +367,14 @@ void EBPedestalClient::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
-//    sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal SM%02d G01", ism);
-    sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain01/EBPT pedestal SM%02d G01", ism);
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain01/EBPT pedestal SM%02d G01", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal SM%02d G01", ism);
+    }
     me = mui_->get(histo);
     if ( me ) {
-      cout << "Found '" << histo << "'" << endl;
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( h01_[ism-1] ) delete h01_[ism-1];
@@ -370,11 +384,14 @@ void EBPedestalClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
     }
 
-//    sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM%02d G06", ism);
-    sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain06/EBPT pedestal SM%02d G06", ism);
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain06/EBPT pedestal SM%02d G06", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM%02d G06", ism);
+    }
     me = mui_->get(histo);
     if ( me ) {
-      cout << "Found '" << histo << "'" << endl;
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( h02_[ism-1] ) delete h02_[ism-1];
@@ -384,11 +401,14 @@ void EBPedestalClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
     }
 
-//    sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM%02d G12", ism);
-    sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain12/EBPT pedestal SM%02d G12", ism);
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain12/EBPT pedestal SM%02d G12", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM%02d G12", ism);
+    }
     me = mui_->get(histo);
     if ( me ) {
-      cout << "Found '" << histo << "'" << endl;
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( h03_[ism-1] ) delete h03_[ism-1];

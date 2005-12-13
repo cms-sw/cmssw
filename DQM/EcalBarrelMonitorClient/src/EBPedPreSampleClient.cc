@@ -1,8 +1,8 @@
 /*
  * \file EBPedPreSampleClient.cc
  * 
- * $Date: 2005/12/02 15:48:25 $
- * $Revision: 1.38 $
+ * $Date: 2005/12/05 09:31:35 $
+ * $Revision: 1.39 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -37,6 +37,12 @@ EBPedPreSampleClient::EBPedPreSampleClient(const edm::ParameterSet& ps, MonitorU
 
    RMSThreshold_ = 2;
 
+  // collateSources switch
+  collateSources_ = ps.getUntrackedParameter<bool>("collateSources", false);
+
+  // verbosity switch
+  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+
 }
 
 EBPedPreSampleClient::~EBPedPreSampleClient(){
@@ -57,7 +63,7 @@ EBPedPreSampleClient::~EBPedPreSampleClient(){
 
 void EBPedPreSampleClient::beginJob(const edm::EventSetup& c){
 
-  cout << "EBPedPreSampleClient: beginJob" << endl;
+  if ( verbose_ ) cout << "EBPedPreSampleClient: beginJob" << endl;
 
   ievt_ = 0;
 
@@ -67,7 +73,7 @@ void EBPedPreSampleClient::beginJob(const edm::EventSetup& c){
 
 void EBPedPreSampleClient::beginRun(const edm::EventSetup& c){
 
-  cout << "EBPedPreSampleClient: beginRun" << endl;
+  if ( verbose_ ) cout << "EBPedPreSampleClient: beginRun" << endl;
 
   jevt_ = 0;
 
@@ -96,7 +102,7 @@ void EBPedPreSampleClient::beginRun(const edm::EventSetup& c){
 
 void EBPedPreSampleClient::endJob(void) {
 
-  cout << "EBPedPreSampleClient: endJob, ievt = " << ievt_ << endl;
+  if ( verbose_ ) cout << "EBPedPreSampleClient: endJob, ievt = " << ievt_ << endl;
 
   this->unsubscribe();
 
@@ -104,7 +110,7 @@ void EBPedPreSampleClient::endJob(void) {
 
 void EBPedPreSampleClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* runtag) {
 
-  cout << "EBPedPreSampleClient: endRun, jevt = " << jevt_ << endl;
+  if ( verbose_ ) cout << "EBPedPreSampleClient: endRun, jevt = " << jevt_ << endl;
 
   if ( jevt_ == 0 ) return;
 
@@ -199,21 +205,25 @@ void EBPedPreSampleClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, Ru
 
 void EBPedPreSampleClient::subscribe(void){
 
-  cout << "EBPedPreSampleClient: subscribe" << endl;
+  if ( verbose_ ) cout << "EBPedPreSampleClient: subscribe" << endl;
 
   // subscribe to all monitorable matching pattern
   mui_->subscribe("*/EcalBarrel/EBPedPreSampleTask/Gain12/EBPT pedestal PreSample SM*");
 
-  cout << "EBPedPreSampleClient: collate" << endl;
+  if ( collateSources_ ) {
 
-  Char_t histo[80];
+    if ( verbose_ ) cout << "EBPedPreSampleClient: collate" << endl;
 
-  for ( int ism = 1; ism <= 36; ism++ ) {
+    Char_t histo[80];
 
-    sprintf(histo, "EBPT pedestal PreSample SM%02d G12", ism);
-    me_h03_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPedPreSampleTask/Gain12");
-    sprintf(histo, "*/EcalBarrel/EBPedPreSampleTask/Gain12/EBPT pedestal PreSample SM%02d G12", ism);
-    mui_->add(me_h03_[ism-1], histo);
+    for ( int ism = 1; ism <= 36; ism++ ) {
+
+      sprintf(histo, "EBPT pedestal PreSample SM%02d G12", ism);
+      me_h03_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPedPreSampleTask/Gain12");
+      sprintf(histo, "*/EcalBarrel/EBPedPreSampleTask/Gain12/EBPT pedestal PreSample SM%02d G12", ism);
+      mui_->add(me_h03_[ism-1], histo);
+
+    }
 
   }
 
@@ -228,7 +238,7 @@ void EBPedPreSampleClient::subscribeNew(void){
 
 void EBPedPreSampleClient::unsubscribe(void){
 
-  cout << "EBPedPreSampleClient: unsubscribe" << endl;
+  if ( verbose_ ) cout << "EBPedPreSampleClient: unsubscribe" << endl;
 
   // unsubscribe to all monitorable matching pattern
   mui_->unsubscribe("*/EcalBarrel/EBPedPreSampleTask/Gain12/EBPT pedestal PreSample SM*");
@@ -239,8 +249,9 @@ void EBPedPreSampleClient::analyze(const edm::Event& e, const edm::EventSetup& c
 
   ievt_++;
   jevt_++;
-  if ( ievt_ % 10 == 0 )  
-    cout << "EBPedPreSampleClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+  if ( ievt_ % 10 == 0 ) {
+    if ( verbose_ ) cout << "EBPedPreSampleClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+  }
 
   Char_t histo[150];
 
@@ -249,11 +260,14 @@ void EBPedPreSampleClient::analyze(const edm::Event& e, const edm::EventSetup& c
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
-//    sprintf(histo, "Collector/FU0/EcalBarrel/EBPedPreSampleTask/Gain12/EBPT pedestal PreSample SM%02d G12", ism);
-    sprintf(histo, "EcalBarrel/Sums/EBPedPreSampleTask/Gain12/EBPT pedestal PreSample SM%02d G12", ism);
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBPedPreSampleTask/Gain12/EBPT pedestal PreSample SM%02d G12", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBPedPreSampleTask/Gain12/EBPT pedestal PreSample SM%02d G12", ism);
+    }
     me = mui_->get(histo);
     if ( me ) {
-      cout << "Found '" << histo << "'" << endl;
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( h03_[ism-1] ) delete h03_[ism-1];

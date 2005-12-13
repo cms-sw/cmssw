@@ -4,8 +4,8 @@
 /*
  * \file EBLaserClient.h
  *
- * $Date: 2005/11/26 18:43:10 $
- * $Revision: 1.10 $
+ * $Date: 2005/12/01 15:10:48 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  *
 */
@@ -88,6 +88,10 @@ private:
 
 int ievt_;
 int jevt_;
+
+bool collateSources_;
+
+bool verbose_;
 
 MonitorUserInterface* mui_;
 

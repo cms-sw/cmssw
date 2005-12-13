@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  * 
- * $Date: 2005/12/11 16:35:56 $
- * $Revision: 1.51 $
+ * $Date: 2005/12/12 07:26:25 $
+ * $Revision: 1.52 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -24,23 +24,70 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps){
 
   h_ = 0;
 
-  // default client name
+  // DQM default client name
   clientName_ = ps.getUntrackedParameter<string>("clientName", "EcalBarrelMonitorClient");
 
-  // default collector host name
+  // DQM default collector host name
   hostName_ = ps.getUntrackedParameter<string>("hostName", "localhost");
 
-  // default host port
+  // DQM default host port
   hostPort_ = ps.getUntrackedParameter<int>("hostPort", 9090);;
 
-  cout << " Client " << clientName_
-       << " will connect to Collector on host " << hostName_
-       << " on port " << hostPort_ << endl;
+  cout << " Client '" << clientName_ << "' " << endl
+       << " Collector on host '" << hostName_ << "'"
+       << " on port '" << hostPort_ << "'" << endl;
 
-  // start user interface instance
+  // Ecal Cond DB
+  dbName_ = ps.getUntrackedParameter<string>("dbName", "");
+  dbHostName_ = ps.getUntrackedParameter<string>("dbHostName", "");
+  dbUserName_ = ps.getUntrackedParameter<string>("dbUserName", "");
+  dbPassword_ = ps.getUntrackedParameter<string>("dbPassword", "");
+
+  if ( dbName_.size() != 0 ) {
+    cout << " DB output will go to"
+         << " dbName = '" << dbName_ << "'"
+         << " dbHostName = '" << dbHostName_ << "'"
+         << " dbUserName = '" << dbUserName_ << "'" << endl;
+  } else {
+    cout << " DB output is disabled" << endl;
+  }
+
+  // base Html output directory
+  baseHtmlDir_ = ps.getUntrackedParameter<string>("baseHtmlDir", ".");
+
+  if ( baseHtmlDir_.size() != 0 ) {
+    cout << " HTML output will go to"
+         << " baseHtmlDir = '" << baseHtmlDir_ << "'" << endl;
+  } else {
+    cout << " HTML output is disabled" << endl;
+  }
+
+  // collateSources switch
+  collateSources_ = ps.getUntrackedParameter<bool>("collateSources", false);
+
+  if ( collateSources_ ) {
+    cout << " collateSources switch is ON" << endl;
+  } else {
+    cout << " collateSources switch is OFF" << endl;
+  }
+
+  // verbosity switch
+  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+
+  if ( verbose_ ) {
+    cout << " verbose switch is ON" << endl;
+  } else {
+    cout << " verbose switch is OFF" << endl;
+  }
+
+  // start DQM user interface instance
   mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_);
 
-  mui_->setVerbose(1);
+  if ( verbose_ ) {
+    mui_->setVerbose(1);
+  } else {
+    mui_->setVerbose(0);
+  }
 
   // will attempt to reconnect upon connection problems (w/ a 5-sec delay)
   mui_->setReconnectDelay(5);
@@ -53,31 +100,6 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps){
   testpulse_client_ = new EBTestPulseClient(ps, mui_);
 
   cosmic_client_ = new EBCosmicClient(ps, mui_);
-
-  // Ecal Cond DB
-  dbName_ = ps.getUntrackedParameter<string>("dbName", "");
-  dbHostName_ = ps.getUntrackedParameter<string>("dbHostName", "");
-  dbUserName_ = ps.getUntrackedParameter<string>("dbUserName", "");
-  dbPassword_ = ps.getUntrackedParameter<string>("dbPassword", "");
-
-  if ( dbName_.size() != 0 ) {
-    cout << " DB output will go to"
-         << " dbName = " << dbName_
-         << " dbHostName = " << dbHostName_
-         << " dbUserName = " << dbUserName_ << endl;
-  } else {
-    cout << " DB output is disabled" << endl;
-  }
-
-  // base Html output directory
-  baseHtmlDir_ = ps.getUntrackedParameter<string>("baseHtmlDir", ".");
-
-  if ( baseHtmlDir_.size() != 0 ) {
-    cout << " HTML output will go to"
-         << " baseHtmlDir = " << baseHtmlDir_ << endl;
-  } else {
-    cout << " HTML output is disabled" << endl;
-  }
 
 }
 
@@ -104,7 +126,7 @@ EcalBarrelMonitorClient::~EcalBarrelMonitorClient(){
 
 void EcalBarrelMonitorClient::beginJob(const edm::EventSetup& c){
 
-  cout << "EcalBarrelMonitorClient: beginJob" << endl;
+  if ( verbose_ ) cout << "EcalBarrelMonitorClient: beginJob" << endl;
 
   ievt_ = 0;
 
@@ -126,7 +148,7 @@ void EcalBarrelMonitorClient::beginJob(const edm::EventSetup& c){
 
 void EcalBarrelMonitorClient::beginRun(const edm::EventSetup& c){
   
-  cout << "EcalBarrelMonitorClient: beginRun" << endl;
+  if ( verbose_ ) cout << "EcalBarrelMonitorClient: beginRun" << endl;
 
   jevt_ = 0;
 
@@ -155,7 +177,7 @@ void EcalBarrelMonitorClient::beginRun(const edm::EventSetup& c){
 
 void EcalBarrelMonitorClient::endJob(void) {
 
-  cout << "EcalBarrelMonitorClient: endJob, ievt = " << ievt_ << endl;
+  if ( verbose_ ) cout << "EcalBarrelMonitorClient: endJob, ievt = " << ievt_ << endl;
 
   this->unsubscribe();
 
@@ -172,7 +194,7 @@ void EcalBarrelMonitorClient::endJob(void) {
 
 void EcalBarrelMonitorClient::endRun(void) {
 
-  cout << "EcalBarrelMonitorClient: endRun, jevt = " << jevt_ << endl;
+  if ( verbose_ ) cout << "EcalBarrelMonitorClient: endRun, jevt = " << jevt_ << endl;
 
   mui_->save("EcalBarrelMonitorClient.root");
 
@@ -266,7 +288,7 @@ void EcalBarrelMonitorClient::endRun(void) {
 
 void EcalBarrelMonitorClient::subscribe(void){
 
-  cout << "EcalBarrelMonitorClient: subscribe" << endl;
+  if ( verbose_ ) cout << "EcalBarrelMonitorClient: subscribe" << endl;
 
   // subscribe to monitorable matching pattern
   mui_->subscribe("*/EcalBarrel/STATUS");
@@ -275,14 +297,18 @@ void EcalBarrelMonitorClient::subscribe(void){
   mui_->subscribe("*/EcalBarrel/EVTTYPE");
   mui_->subscribe("*/EcalBarrel/RUNTYPE");
 
-  cout << "EcalBarrelMonitorClient: collate" << endl;
+  if ( collateSources_ ) {
 
-  Char_t histo[80];
+    if ( verbose_ ) cout << "EcalBarrelMonitorClient: collate" << endl;
 
-  sprintf(histo, "EVTTYPE");
-  me_h_ = mui_->collate1D(histo, histo, "EcalBarrel/Sums");
-  sprintf(histo, "*/EcalBarrel/EVTTYPE");
-  mui_->add(me_h_, histo);
+    Char_t histo[80];
+
+    sprintf(histo, "EVTTYPE");
+    me_h_ = mui_->collate1D(histo, histo, "EcalBarrel/Sums");
+    sprintf(histo, "*/EcalBarrel/EVTTYPE");
+    mui_->add(me_h_, histo);
+
+  }
 
 }
 
@@ -299,7 +325,7 @@ void EcalBarrelMonitorClient::subscribeNew(void){
 
 void EcalBarrelMonitorClient::unsubscribe(void) {
 
-  cout << "EcalBarrelMonitorClient: unsubscribe" << endl;
+  if ( verbose_ ) cout << "EcalBarrelMonitorClient: unsubscribe" << endl;
 
   // subscribe to all monitorable matching pattern 
   mui_->unsubscribe("*/EcalBarrel/STATUS");
@@ -314,8 +340,9 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
 
   ievt_++;
   jevt_++;
-  if ( ievt_ % 10 == 0 )
-    cout << "EcalBarrelMonitorClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+  if ( ievt_ % 10 == 0 ) {
+    if ( verbose_ ) cout << "EcalBarrelMonitorClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+  }
 
   bool stay_in_loop = mui_->update();
 
@@ -362,14 +389,17 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
       sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &evt_);
     }
 
-//    sprintf(histo, "Collector/FU0/EcalBarrel/EVTTYPE");
-    sprintf(histo, "EcalBarrel/Sums/EVTTYPE");
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EVTTYPE");
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EVTTYPE");
+    }
     me = mui_->get(histo);
     if ( me ) {
       MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( h_ ) delete h_;
-        cout << "Found '" << histo << "'" << endl;
+        if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
         sprintf(histo, "ME EVTTYPE");
         h_ = dynamic_cast<TH1F*> ((ob->operator->())->Clone(histo));
 //        h_ = dynamic_cast<TH1F*> (ob->operator->());
@@ -387,17 +417,27 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
 
     location_ = "H4";
 
+    if ( verbose_ ) cout << " updates = "  << updates << endl;
+
     cout << " run = "      << run_      <<
-            " event = "    << evt_      << endl;
-    cout << " updates = "  << updates   <<
-            " status = "   << status_   <<
-            " runtype = "  << runtype_  <<
+            " event = "    << evt_      <<
+            " status = "   << status_   << endl;
+
+    cout << " runtype = "  << runtype_  <<
             " location = " << location_ << endl;
 
     if ( h_ ) {
       cout << " event type = " << flush;
       for ( int i = 1; i <=10; i++ ) {
         cout << h_->GetBinContent(i) << " " << flush;
+      }
+      if ( h_->GetEntries() != 0 ) {
+        cout << "  ( " << flush;
+        if ( h_->GetBinContent(1) != 0 ) cout << "cosmic " << flush;
+        if ( h_->GetBinContent(2) != 0 ) cout << "laser " << flush;
+        if ( h_->GetBinContent(3) != 0 ) cout << "pedestal " << flush;
+        if ( h_->GetBinContent(4) != 0 ) cout << "testpulse " << flush;
+        cout << ")" << flush;
       }
       cout << endl;
     }
@@ -422,7 +462,7 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
 
   if ( status_ == "running" ) {
 
-    if ( ! begin_run_done_ ) {
+    if ( ! begin_run_done_ && ! end_run_done_ ) {
       this->beginRun(c);
       begin_run_done_ = true;
       end_run_done_ = false;

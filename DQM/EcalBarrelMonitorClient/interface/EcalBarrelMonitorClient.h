@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2005/12/01 09:50:06 $
- * $Revision: 1.18 $
+ * $Date: 2005/12/05 09:31:34 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -92,22 +92,24 @@ private:
 int ievt_;
 int jevt_;
 
-int last_update_;
+bool collateSources_;
 
-int last_jevt_;
-
-MonitorUserInterface* mui_;
+bool verbose_;
 
 string clientName_;
 string hostName_;
 int hostPort_;
 
-EcalCondDBInterface* econn_;
-
 string dbName_;
 string dbHostName_;
 string dbUserName_;
 string dbPassword_;
+
+string baseHtmlDir_;
+
+MonitorUserInterface* mui_;
+
+EcalCondDBInterface* econn_;
 
 RunIOV* runiov_;
 RunTag* runtag_;
@@ -121,7 +123,9 @@ int evt_;
 bool begin_run_done_;
 bool end_run_done_;
 
-string baseHtmlDir_;
+int last_update_;
+
+int last_jevt_;
 
 EBIntegrityClient* integrity_client_;
 EBLaserClient* laser_client_;

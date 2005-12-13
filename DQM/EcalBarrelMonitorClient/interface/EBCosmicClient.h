@@ -4,8 +4,8 @@
 /*
  * \file EBCosmicClient.h
  *
- * $Date: 2005/11/24 15:16:38 $
- * $Revision: 1.2 $
+ * $Date: 2005/12/01 09:50:06 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -87,6 +87,10 @@ private:
 
 int ievt_;
 int jevt_;
+
+bool collateSources_;
+
+bool verbose_;
 
 MonitorUserInterface* mui_;
 

@@ -4,8 +4,8 @@
 /*
  * \file EBTestPulseClient.h
  *
- * $Date: 2005/12/01 13:49:51 $
- * $Revision: 1.9 $
+ * $Date: 2005/12/05 09:31:34 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -87,6 +87,10 @@ private:
 
 int ievt_;
 int jevt_;
+
+bool collateSources_;
+
+bool verbose_;
 
 MonitorUserInterface* mui_;
 

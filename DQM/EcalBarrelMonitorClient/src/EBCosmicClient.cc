@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  * 
- * $Date: 2005/12/02 15:48:25 $
- * $Revision: 1.12 $
+ * $Date: 2005/12/05 09:31:35 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -22,6 +22,12 @@ EBCosmicClient::EBCosmicClient(const edm::ParameterSet& ps, MonitorUserInterface
 
   }
 
+  // collateSources switch
+  collateSources_ = ps.getUntrackedParameter<bool>("collateSources", false);
+
+  // verbosity switch
+  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+
 }
 
 EBCosmicClient::~EBCosmicClient(){
@@ -38,7 +44,7 @@ EBCosmicClient::~EBCosmicClient(){
 
 void EBCosmicClient::beginJob(const edm::EventSetup& c){
 
-  cout << "EBCosmicClient: beginJob" << endl;
+  if ( verbose_ ) cout << "EBCosmicClient: beginJob" << endl;
 
   ievt_ = 0;
 
@@ -48,7 +54,7 @@ void EBCosmicClient::beginJob(const edm::EventSetup& c){
 
 void EBCosmicClient::beginRun(const edm::EventSetup& c){
 
-  cout << "EBCosmicClient: beginRun" << endl;
+  if ( verbose_ ) cout << "EBCosmicClient: beginRun" << endl;
 
   jevt_ = 0;
 
@@ -67,7 +73,7 @@ void EBCosmicClient::beginRun(const edm::EventSetup& c){
 
 void EBCosmicClient::endJob(void) {
 
-  cout << "EBCosmicClient: endJob, ievt = " << ievt_ << endl;
+  if ( verbose_ ) cout << "EBCosmicClient: endJob, ievt = " << ievt_ << endl;
 
   this->unsubscribe();
 
@@ -75,7 +81,7 @@ void EBCosmicClient::endJob(void) {
 
 void EBCosmicClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* runtag) {
 
-  cout << "EBCosmicClient: endRun, jevt = " << jevt_ << endl;
+  if ( verbose_ ) cout << "EBCosmicClient: endRun, jevt = " << jevt_ << endl;
 
   if ( jevt_ == 0 ) return;
 
@@ -167,33 +173,37 @@ void EBCosmicClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* 
 
 void EBCosmicClient::subscribe(void){
 
-  cout << "EBCosmicClient: subscribe" << endl;
+  if ( verbose_ ) cout << "EBCosmicClient: subscribe" << endl;
 
   // subscribe to all monitorable matching pattern
   mui_->subscribe("*/EcalBarrel/EBCosmicTask/Sel/EBCT amplitude sel SM*");
   mui_->subscribe("*/EcalBarrel/EBCosmicTask/Cut/EBCT amplitude cut SM*");
   mui_->subscribe("*/EcalBarrel/EBCosmicTask/Spectrum/EBCT amplitude spectrum SM*");
 
-  cout << "EBCosmicClient: collate" << endl;
+  if ( collateSources_ ) {
 
-  Char_t histo[80];
+    if ( verbose_ ) cout << "EBCosmicClient: collate" << endl;
 
-  for ( int ism = 1; ism <= 36; ism++ ) {
+    Char_t histo[80];
 
-    sprintf(histo, "EBCT amplitude sel SM%02d", ism);
-    me_h01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBCosmicTask/Sel");
-    sprintf(histo, "*/EcalBarrel/EBCosmicTask/Sel/EBCT amplitude sel SM%02d", ism);
-    mui_->add(me_h01_[ism-1], histo);
+    for ( int ism = 1; ism <= 36; ism++ ) {
 
-    sprintf(histo, "EBCT amplitude cut SM%02d", ism);
-    me_h02_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBCosmicTask/Cut");
-    sprintf(histo, "*/EcalBarrel/EBCosmicTask/Cut/EBCT amplitude cut SM%02d", ism);
-    mui_->add(me_h02_[ism-1], histo);
+      sprintf(histo, "EBCT amplitude sel SM%02d", ism);
+      me_h01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBCosmicTask/Sel");
+      sprintf(histo, "*/EcalBarrel/EBCosmicTask/Sel/EBCT amplitude sel SM%02d", ism);
+      mui_->add(me_h01_[ism-1], histo);
 
-    sprintf(histo, "EBCT amplitude spectrum SM%02d", ism);
-    me_h03_[ism-1] = mui_->collate1D(histo, histo, "EcalBarrel/Sums/EBCosmicTask/Spectrum");
-    sprintf(histo, "*/EcalBarrel/EBCosmicTask/Spectrum/EBCT amplitude spectrum SM%02d", ism);
-    mui_->add(me_h03_[ism-1], histo);
+      sprintf(histo, "EBCT amplitude cut SM%02d", ism);
+      me_h02_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBCosmicTask/Cut");
+      sprintf(histo, "*/EcalBarrel/EBCosmicTask/Cut/EBCT amplitude cut SM%02d", ism);
+      mui_->add(me_h02_[ism-1], histo);
+
+      sprintf(histo, "EBCT amplitude spectrum SM%02d", ism);
+      me_h03_[ism-1] = mui_->collate1D(histo, histo, "EcalBarrel/Sums/EBCosmicTask/Spectrum");
+      sprintf(histo, "*/EcalBarrel/EBCosmicTask/Spectrum/EBCT amplitude spectrum SM%02d", ism);
+      mui_->add(me_h03_[ism-1], histo);
+
+    }
 
   }
 
@@ -210,7 +220,7 @@ void EBCosmicClient::subscribeNew(void){
 
 void EBCosmicClient::unsubscribe(void){
 
-  cout << "EBCosmicClient: unsubscribe" << endl;
+  if ( verbose_ ) cout << "EBCosmicClient: unsubscribe" << endl;
 
   // unsubscribe to all monitorable matching pattern
   mui_->unsubscribe("*/EcalBarrel/EBCosmicTask/Sel/EBCT amplitude sel SM*");
@@ -223,8 +233,9 @@ void EBCosmicClient::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   ievt_++;
   jevt_++;
-  if ( ievt_ % 10 == 0 )  
-    cout << "EBCosmicClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+  if ( ievt_ % 10 == 0 ) {
+    if ( verbose_ ) cout << "EBCosmicClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+  }
 
   Char_t histo[150];
 
@@ -233,11 +244,14 @@ void EBCosmicClient::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
-//    sprintf(histo, "Collector/FU0/EcalBarrel/EBCosmicTask/Sel/EBCT amplitude sel SM%02d", ism);
-    sprintf(histo, "EcalBarrel/Sums/EBCosmicTask/Sel/EBCT amplitude sel SM%02d", ism);
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBCosmicTask/Sel/EBCT amplitude sel SM%02d", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBCosmicTask/Sel/EBCT amplitude sel SM%02d", ism);
+    }
     me = mui_->get(histo);
     if ( me ) {
-      cout << "Found '" << histo << "'" << endl;
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( h01_[ism-1] ) delete h01_[ism-1];
@@ -247,11 +261,14 @@ void EBCosmicClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
     }
 
-//    sprintf(histo, "Collector/FU0/EcalBarrel/EBCosmicTask/Cut/EBCT amplitude cut SM%02d", ism);
-    sprintf(histo, "EcalBarrel/Sums/EBCosmicTask/Cut/EBCT amplitude cut SM%02d", ism);
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBCosmicTask/Cut/EBCT amplitude cut SM%02d", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBCosmicTask/Cut/EBCT amplitude cut SM%02d", ism);
+    }
     me = mui_->get(histo);
     if ( me ) {
-      cout << "Found '" << histo << "'" << endl;
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( h02_[ism-1] ) delete h02_[ism-1];
@@ -261,11 +278,14 @@ void EBCosmicClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
     }
 
-//    sprintf(histo, "Collector/FU0/EcalBarrel/EBCosmicTask/Spectrum/EBCT amplitude spectrum SM%02d", ism);
-    sprintf(histo, "EcalBarrel/Sums/EBCosmicTask/Spectrum/EBCT amplitude spectrum SM%02d", ism);
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBCosmicTask/Spectrum/EBCT amplitude spectrum SM%02d", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBCosmicTask/Spectrum/EBCT amplitude spectrum SM%02d", ism);
+    }
     me = mui_->get(histo);
     if ( me ) {
-      cout << "Found '" << histo << "'" << endl;
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( h03_[ism-1] ) delete h03_[ism-1];
