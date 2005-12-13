@@ -1,3 +1,6 @@
+** V00-02-07  [Tue Dec 13 07:49:40 2005]
+Changes needed for consistency with changes in EventProcessor.cc
+
 ** V00-02-06  [Thu Dec  8 12:25:28 2005]
 Changes to FileInPath to use real path variable CMSSW_SEARCH_PATH. Remove setenv from test which overrides scram runtime.
 
