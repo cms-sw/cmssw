@@ -1,3 +1,6 @@
+** V00-02-03  [Tue Dec 13 07:10:33 2005]
+fixed dtor for Generator
+
 ** V00-02-02  [Fri Dec  9 16:32:14 2005]
 throw an exception if can not open the generator file
 
