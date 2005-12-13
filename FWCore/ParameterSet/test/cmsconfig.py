@@ -1,6 +1,6 @@
 #------------------------------------------------------------
 #
-# $Id:$
+# $Id: cmsconfig.py,v 1.2 2005/09/06 16:51:58 paterno Exp $
 #
 # cmsconfig: a class to provide convenient access to the Python form
 # of a parsed CMS configuration file.
@@ -129,9 +129,12 @@ class cmsconfig:
         string."""
         return self.psdata['sequences'][name]
 
-    def endpath(self):
+    def endpathNames(self):
+        return self.psdata['endpaths'].keys()
+
+    def endpath(self, name):
         """Return the endpath description, as a string."""
-        return self.psdata['endpath']
+        return self.psdata['endpaths'][name]
 
     def mainInputSource(self):
         """Return the description of the main input source, as a
@@ -182,7 +185,7 @@ class cmsconfig:
         self.__write_modules(fileobj)
         self.__write_sequences(fileobj)
         self.__write_paths(fileobj)
-        self.__write_endpath(fileobj)
+        self.__write_endpaths(fileobj)
 
     def __write_modules(self, fileobj):
         """Private method.
@@ -211,12 +214,13 @@ class cmsconfig:
             fileobj.write("path %s = {%s}\n" % (name, self.path(name)))
 
         
-    def __write_endpath(self, fileobj):
+    def __write_endpaths(self, fileobj):
         """Private method.
         Return None
-        Write the endpath statement to the file-like object
+        Write all the endpaths to the file-like object
         fileobj."""
-        fileobj.write( "endpath = {%s}\n" % self.endpath())
+        for name in self.endpathNames():
+            fileobj.write("endpath %s = {%s}\n" % (name, self.endpath(name)))
 
     def __write_main_source(self, fileobj):
         """Private method.
@@ -247,8 +251,9 @@ class cmsconfig:
 
             
 
-
+        
+if __name__ == "__main__":
+    txt = file("complete.pycfg").read()
+    cfg = cmsconfig(txt)
+    print cfg.asConfigurationString()
     
-        
-
-        
