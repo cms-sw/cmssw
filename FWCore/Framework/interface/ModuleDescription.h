@@ -5,7 +5,7 @@
   
 ModuleDescription: The description of a producer module.
 
-$Id: ModuleDescription.h,v 1.5 2005/07/30 23:44:24 wmtan Exp $
+$Id: ModuleDescription.h,v 1.6 2005/12/12 23:07:48 paterno Exp $
 ----------------------------------------------------------------------*/
 #include <string>
 #include <iostream>
@@ -15,6 +15,10 @@ $Id: ModuleDescription.h,v 1.5 2005/07/30 23:44:24 wmtan Exp $
 #include "FWCore/Framework/interface/VersionNumber.h"
 
 namespace edm {
+
+  // Needed temporarily for backward compatibility.
+  // Other input services still refer to PS_ID.
+  typedef ParameterSetID PS_ID;
 
   // once a module is born, these parts of the module's product provenance
   // are constant   (change to ModuleDescription)
