@@ -1,6 +1,5 @@
-// $Id: Booster.cc,v 1.2 2005/10/03 10:12:11 llista Exp $
+// $Id: Booster.cc,v 1.3 2005/12/05 14:44:53 llista Exp $
 #include "PhysicsTools/CandUtils/interface/Booster.h"
-#include "PhysicsTools/Candidate/interface/daughter_iterator.h"
 using namespace std;
 using namespace aod;
 

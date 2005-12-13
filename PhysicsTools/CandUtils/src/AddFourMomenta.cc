@@ -1,6 +1,5 @@
-// $Id: AddFourMomenta.cc,v 1.2 2005/10/03 10:12:11 llista Exp $
+// $Id: AddFourMomenta.cc,v 1.3 2005/12/05 14:44:53 llista Exp $
 #include "PhysicsTools/CandUtils/interface/AddFourMomenta.h"
-#include "PhysicsTools/Candidate/interface/daughter_iterator.h"
 using namespace aod;
 
 AddFourMomenta::~AddFourMomenta() { }

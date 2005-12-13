@@ -1,4 +1,4 @@
-// $Id: TwoBodyCombiner.cc,v 1.6 2005/10/25 09:08:31 llista Exp $
+// $Id: TwoBodyCombiner.cc,v 1.7 2005/12/11 19:02:17 llista Exp $
 #include "PhysicsTools/CandUtils/interface/TwoBodyCombiner.h"
 using namespace aod;
 using namespace std;
@@ -33,9 +33,9 @@ TwoBodyCombiner::combine( const CandidateCollection * src1, const CandidateColle
     const CandidateCollection & cands = * src1;
     const int n = cands.size();
     for( int i1 = 0; i1 < n; ++ i1 ) {
-      const Candidate & c1 = * cands[ i1 ];
+      const Candidate & c1 = cands[ i1 ];
       for ( int i2 = i1 + 1; i2 < n; ++ i2 ) {
-	const Candidate & c2 = * cands[ i2 ];
+	const Candidate & c2 = cands[ i2 ];
 	if ( preselect( c1, c2 ) ) {
 	  std::auto_ptr<Candidate> c( combine( c1, c2 ) );
 	  if ( (*select)( * c ) )
@@ -47,9 +47,9 @@ TwoBodyCombiner::combine( const CandidateCollection * src1, const CandidateColle
     const CandidateCollection & cands1 = * src1, & cands2 = * src2;
     const int n1 = cands1.size(), n2 = cands2.size();
     for( int i1 = 0; i1 < n1; ++ i1 ) {
-      const Candidate & c1 = * cands1[ i1 ];
+      const Candidate & c1 = cands1[ i1 ];
       for ( int i2 = 0; i2 < n2; ++ i2 ) {
-	const Candidate & c2 = * cands2[ i2 ];
+	const Candidate & c2 = cands2[ i2 ];
 	if ( preselect( c1, c2 ) ) {
 	  std::auto_ptr<Candidate> c( combine( c1, c2 ) );
 	  if ( (*select)( * c ) )

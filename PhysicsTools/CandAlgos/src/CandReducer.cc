@@ -1,4 +1,4 @@
-// $Id: CandSelector.cc,v 1.8 2005/12/11 19:02:14 llista Exp $
+// $Id: CandReducer.cc,v 1.1 2005/12/12 21:31:24 llista Exp $
 #include <memory>
 #include "PhysicsTools/CandAlgos/src/CandReducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -25,7 +25,7 @@ void CandReducer::produce( Event& evt, const EventSetup& ) {
   evt.getByLabel( src_, cands );
   std::auto_ptr<CandidateCollection> comp( new CandidateCollection );
   for( CandidateCollection::const_iterator c = cands->begin(); c != cands->end(); ++c ) {
-    std::auto_ptr<Candidate> cand( new LeafCandidate( * * c ) );
+    std::auto_ptr<Candidate> cand( new LeafCandidate( * c ) );
     comp->push_back( cand.release() );
   }
   evt.put( comp );

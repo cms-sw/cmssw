@@ -1,4 +1,4 @@
-// $Id: CandSelectorBase.cc,v 1.3 2005/10/25 09:08:31 llista Exp $
+// $Id: CandSelectorBase.cc,v 1.4 2005/12/11 19:02:14 llista Exp $
 #include <memory>
 #include "PhysicsTools/CandAlgos/interface/CandSelectorBase.h"
 #include "PhysicsTools/Candidate/interface/Candidate.h"
@@ -22,7 +22,7 @@ void CandSelectorBase::produce( edm::Event& evt, const edm::EventSetup& ) {
   evt.getByLabel( src_, cands );
   std::auto_ptr<CandidateCollection> comp( new CandidateCollection );
   for( CandidateCollection::const_iterator c = cands->begin(); c != cands->end(); ++c ) {
-    std::auto_ptr<Candidate> cand( ( * c )->clone() );
+    std::auto_ptr<Candidate> cand( c->clone() );
     if( ( * select_ )( * cand ) ) {
       comp->push_back( cand.release() );
     }
