@@ -1,3 +1,6 @@
+** V00-03-06  [Tue Dec 13 14:32:05 2005]
+Add FieldConfiguration.xml to data/
+
 ** V00-03-05  [Mon Dec 12 17:59:44 2005]
 Parallel top level volumes for simulation and mag field geometry
 
