@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  * 
- * $Date: 2005/12/11 09:08:05 $
- * $Revision: 1.62 $
+ * $Date: 2005/12/12 07:26:26 $
+ * $Revision: 1.63 $
  * \author G. Della Ricca
  *
 */
@@ -27,23 +27,42 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
 
   irun_ = ps.getUntrackedParameter<int>("runNumber", 999999);
 
+  // DQM ROOT output
+  outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
+
+  if ( outputFile_.size() != 0 ) {
+    cout << " Ecal Barrel Monitoring histograms will be saved to '" << outputFile_.c_str() << "'" << endl;
+  } else {
+    cout << " Ecal Barrel Monitoring histograms will NOT be saved" << endl;
+  }
+
+  // verbosity switch
+  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+
+  if ( verbose_ ) {
+    cout << " verbose switch is ON" << endl;
+  } else {
+    cout << " verbose switch is OFF" << endl;
+  }
+
   dbe_ = 0;
 
   // get hold of back-end interface
   dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
 
-  if ( dbe_ ) dbe_->setVerbose(1);
+  if ( dbe_ ) {
+    if ( verbose_ ) {
+      dbe_->setVerbose(1);
+    } else {
+      dbe_->setVerbose(0);
+    }
+  }
 
   //We put this here for the moment since there is no better place 
   edm::Service<MonitorDaemon> daemon;
   daemon.operator->();
 
   Char_t histo[20];
-
-  outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
-  if ( outputFile_.size() != 0 ) {
-    cout << "Ecal Barrel Monitoring histograms will be saved to " << outputFile_.c_str() << endl;
-  }
 
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalBarrel");
@@ -97,7 +116,9 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
 
   if ( runType_ == 3 ) testpulse_task_ = new EBTestPulseTask(ps, dbe_);
 
-  if ( dbe_ ) dbe_->showDirStructure();
+  if ( dbe_ ) {
+    if ( verbose_ ) dbe_->showDirStructure();
+  }
 
   // this should give enough time to all the MEs to reach the Collector,
   // and then hopefully the clients, even for short runs
