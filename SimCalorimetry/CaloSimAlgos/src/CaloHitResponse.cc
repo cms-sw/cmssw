@@ -5,6 +5,7 @@ using namespace std;
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloSimParameters.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVShape.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVHitCorrection.h"
+#include "CLHEP/Random/Random.h"
 #include<iostream>
 
 using namespace cms;
@@ -13,6 +14,7 @@ CaloHitResponse::CaloHitResponse(CaloVSimParameterMap * parametersMap, CaloVShap
 : theParameterMap(parametersMap), 
   theShape(shape),  
   theHitCorrection(0),
+  theRandomPoisson(*HepRandom::getTheEngine()),
   theMinBunch(-10), 
   theMaxBunch(10)
 {
@@ -85,7 +87,7 @@ double CaloHitResponse::analogSignalAmplitude(const PCaloHit & hit, const CaloSi
   int npe = (int)(hit.energy() * parameters.simHitToPhotoelectrons());
   // do we need to doPoisson statistics for the photoelectrons?
   if(parameters.doPhotostatistics()) {
-    //npe = RandPoissonQ::shoot(npe)
+    npe = theRandomPoisson.shoot(npe);
   }
   // convert to whatever units get read out: charge, voltage, whatever
   return npe * parameters.photoelectronsToAnalog();

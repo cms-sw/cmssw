@@ -3,6 +3,7 @@
 
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include "CLHEP/Random/RandPoissonQ.h"
 #include <map>
 #include<vector>
 
@@ -71,6 +72,8 @@ protected:
   CaloVSimParameterMap * theParameterMap;
   CaloVShape * theShape;
   CaloVHitCorrection * theHitCorrection;
+
+  RandPoissonQ theRandomPoisson;
 
   int theMinBunch;
   int theMaxBunch;
