@@ -46,8 +46,8 @@ class SiStripDigitizerAlgorithm
   ~SiStripDigitizerAlgorithm();
 
   // Runs the algorithm
-  //  void run(const PSimHit* input, StripDigiCollection &output);
-  void run(const std::vector<PSimHit*> &input, StripDigiCollection &output,StripGeomDetUnit *det,GlobalVector);
+  //  void run(const std::vector<PSimHit*> &input, StripDigiCollection &output,StripGeomDetUnit *det,GlobalVector);
+  void run(const std::vector<PSimHit> &input, StripDigiCollection &output,StripGeomDetUnit *det,GlobalVector);
 
  private:
   int ndigis; 

@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea GIAMMANCO
 //         Created:  Thu Sep 22 14:23:22 CEST 2005
-// $Id: SiStripDigitizer.cc,v 1.4 2005/11/12 17:33:49 giamman Exp $
+// $Id: SiStripDigitizer.cc,v 1.5 2005/11/30 20:42:53 giamman Exp $
 //
 //
 
@@ -73,15 +73,21 @@ namespace cms
   // Functions that gets called by framework every event
   void SiStripDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   {
-    //   using namespace edm;
+    // Step A: Get Inputs
+    theStripHits.clear();
+
+    edm::Handle<edm::PSimHitContainer> StripHits;
+    iEvent.getByLabel("r","TrackerHitsHighTof", StripHits);
+    //(comment by MP): waiting for container bug fix
+    
+    theStripHits.insert(theStripHits.end(), StripHits->begin(), StripHits->end()); 
 
 
-   // Step B: create empty output collection
-   std::auto_ptr<StripDigiCollection> output(new StripDigiCollection);
+    // Step B: create empty output collection
+    std::auto_ptr<StripDigiCollection> output(new StripDigiCollection);
 
 
 
-    // Step A: Get Inputs 
     /*
     edm::Handle<PSimHit> simHitsTrackerHitsTECHighTof;
     e.getByLabel("TrackerHitsTECHighTof",simHitsTrackerHitsTECHighTof);
@@ -106,7 +112,6 @@ namespace cms
     // Temporary: generate random collections of pseudo-hits:
     //PseudoHitContainer pseudoHitContainer;// for some reason this class isn't recognized!!!
 
-    // Step A: Create Inputs
  
     edm::ESHandle<TrackingGeometry> pDD;
  
@@ -116,6 +121,7 @@ namespace cms
     iSetup.get<IdealMagneticFieldRecord>().get(pSetup);
 
     int i=0;
+    // Step C: LOOP on PixelGeomDetUnit //
     for(TrackingGeometry::DetContainer::iterator iu = pDD->dets().begin(); iu != pDD->dets().end(); iu ++){
 
       GlobalVector bfield=pSetup->inTesla((*iu)->surface().position());
@@ -149,11 +155,14 @@ namespace cms
 	    //Local3DPoint exit();
 	    int hh=1298553623;
 	    
-	    PSimHit *pseudoHit = new PSimHit(entry,exit ,frandom3, frandom4, frandom5, irandom1, hh, irandom3, angrandom1, angrandom2, idummy);
 
+	    //// temporary:
+	    PSimHit *pseudoHit = new PSimHit(entry,exit ,frandom3, frandom4, frandom5, irandom1, hh, irandom3, angrandom1, angrandom2, idummy);
 	    pseudoHitSingleContainer.push_back(pseudoHit);
+	    ////
 	  }
-	  stripDigitizer_.run(pseudoHitSingleContainer,*output,dynamic_cast<StripGeomDetUnit*>((*iu)),bfield);
+	  //	  stripDigitizer_.run(pseudoHitSingleContainer,*output,dynamic_cast<StripGeomDetUnit*>((*iu)),bfield);
+	  stripDigitizer_.run(theStripHits,*output,dynamic_cast<StripGeomDetUnit*>((*iu)),bfield);
 	}
 
       }

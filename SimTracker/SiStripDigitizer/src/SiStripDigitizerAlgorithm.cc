@@ -34,7 +34,8 @@ SiStripDigitizerAlgorithm::~SiStripDigitizerAlgorithm(){
 
 //  Run the algorithm
 //  ------------------
-void SiStripDigitizerAlgorithm::run(const std::vector<PSimHit*> &input,
+//void SiStripDigitizerAlgorithm::run(const std::vector<PSimHit*> &input,
+void SiStripDigitizerAlgorithm::run(const std::vector<PSimHit> &input,
 				    StripDigiCollection &output,
 				    StripGeomDetUnit *det,
 				    GlobalVector bfield)
@@ -96,24 +97,31 @@ void SiStripDigitizerAlgorithm::run(const std::vector<PSimHit*> &input,
   //
   // First: loop on the SimHits
   //
-  vector<PSimHit*>::const_iterator simHitIter = input.begin();
-  vector<PSimHit*>::const_iterator simHitIterEnd = input.end();
+  //  vector<PSimHit*>::const_iterator simHitIter = input.begin();
+  //  vector<PSimHit*>::const_iterator simHitIterEnd = input.end();
+  vector<PSimHit>::const_iterator simHitIter = input.begin();
+  vector<PSimHit>::const_iterator simHitIterEnd = input.end();
   for (;simHitIter != simHitIterEnd; ++simHitIter) {
     if (ndigis%100 == 0) cout << "# digis: " << ndigis << endl;
     ++ndigis;
     //pointer to the simhit
-    const PSimHit *ihit = *simHitIter;
+    //    const PSimHit *ihit = *simHitIter;
+    const PSimHit ihit = *simHitIter;
     // detID (AG)
     if ( first ) {
-      detID = ihit->detUnitId();
+      //      detID = ihit->detUnitId();
+      detID = ihit.detUnitId();
       first = false;
     }
     //
     // Compute the different charges;
     //
-    if ( abs(ihit->tof()) < tofCut && ihit->energyLoss()>0) {
-      SiHitDigitizer::hit_map_type _temp = theSiHitDigitizer->processHit(*ihit,*det,bfield);
-      theSiPileUpSignals->add(_temp,*ihit);
+    //    if ( abs(ihit->tof()) < tofCut && ihit->energyLoss()>0) {
+    if ( abs(ihit.tof()) < tofCut && ihit.energyLoss()>0) {
+      //      SiHitDigitizer::hit_map_type _temp = theSiHitDigitizer->processHit(*ihit,*det,bfield);
+      //      theSiPileUpSignals->add(_temp,*ihit);
+      SiHitDigitizer::hit_map_type _temp = theSiHitDigitizer->processHit(ihit,*det,bfield);
+      theSiPileUpSignals->add(_temp,ihit);
     }
   }
   SiPileUpSignals::signal_map_type theSignal = theSiPileUpSignals->dumpSignal();

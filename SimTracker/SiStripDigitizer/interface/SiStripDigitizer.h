@@ -42,7 +42,8 @@ namespace cms
     float frandom1,frandom2,frandom3,frandom4,frandom5;
     float angrandom1,angrandom2;
     float xexrand,xentrand, yexrand,yentrand, zexrand,zentrand;
-    std::vector<PSimHit*> pseudoHitSingleContainer;
+    std::vector<PSimHit*> pseudoHitSingleContainer; // temporary! to be removed...
+    std::vector<PSimHit> theStripHits;
 
     int numStrips;    // number of strips in the module
   };
