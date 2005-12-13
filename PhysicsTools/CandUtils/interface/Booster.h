@@ -3,7 +3,7 @@
 #include "PhysicsTools/Candidate/interface/CompositeCandidate.h"
 
 struct Booster : public aod::Candidate::setup {
-  typedef TVector3 Vector;
+  typedef aod::Candidate::Vector Vector;
   Booster( const Vector & b ) : 
     aod::Candidate::setup( setupCharge( false ), setupP4( true ) ), 
     boost( b ) { }
@@ -15,7 +15,7 @@ private:
 };
 
 struct CenterOfMassBooster : public Booster {
-  CenterOfMassBooster( const aod::Candidate & c ) : Booster( - c.boostVector() ) {
+  CenterOfMassBooster( const aod::Candidate & c ) : Booster( c.boostToCM() ) {
   }
 };
 
