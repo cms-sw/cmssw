@@ -4,6 +4,8 @@
 
 #if 1
 #include "IOPool/StreamerData/interface/StreamTestThing.h"
+#include "IOPool/StreamerData/interface/StreamTestTmpl.h"
+#include "IOPool/StreamerData/interface/StreamTestSimple.h"
 typedef edmtestprod::StreamTestThing WriteThis;
 #else
 #include "FWCore/Integration/interface/IntArray.h"
@@ -20,6 +22,8 @@ using namespace edmtestprod;
 
 namespace edmtest_thing
 {
+  typedef StreamTestTmpl<OSimple> TestDbl;
+
   StreamThingProducer::StreamThingProducer(edm::ParameterSet const& ps):
     size_(ps.getParameter<int>("array_size")),
     inst_count_(ps.getParameter<int>("instance_count")),
@@ -32,6 +36,10 @@ namespace edmtest_thing
 	names_.push_back(ost.str());
 	produces<WriteThis>(ost.str());
       }
+
+    // produces<TestDbl>();
+    //produces<StreamTestSimple>();
+    // produces<Pig>();
   }
 
   StreamThingProducer::~StreamThingProducer()
@@ -46,6 +54,13 @@ namespace edmtest_thing
 	std::auto_ptr<WriteThis> result(new WriteThis(size_));
 	e.put(result,names_[i]);
       }
+
+    //std::auto_ptr<TestDbl> d(new TestDbl);
+    //e.put(d);
+    //std::auto_ptr<StreamTestSimple> d1(new StreamTestSimple);
+    //e.put(d1);
+    //std::auto_ptr<Pig> d1(new Pig);
+    //e.put(d1);
   }
 }
 

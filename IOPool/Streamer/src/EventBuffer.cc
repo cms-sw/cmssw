@@ -39,7 +39,8 @@ namespace edm
     boost::mutex::scoped_lock sl(pool_lock_);
     ++pos_;
     buffer_pool_[pos_] = v;
-    pool_cond_.notify_all();
+    pool_cond_.notify_one();
+    // pool_cond_.notify_all();
   }
 
   void EventBuffer::commitProducerBuffer(void* v, int len)
@@ -56,7 +57,8 @@ namespace edm
     queue_[fpos_ % max_queue_depth_]=Buffer(v,len);
     ++fpos_;
     // signal consumer
-    pop_cond_.notify_all();
+    pop_cond_.notify_one();
+    // pop_cond_.notify_all();
   }
   
   EventBuffer::Buffer EventBuffer::getConsumerBuffer()
@@ -73,7 +75,8 @@ namespace edm
     ++bpos_;
     // note that these operations cannot throw
     // signal producer
-    push_cond_.notify_all();
+    push_cond_.notify_one();
+    // push_cond_.notify_all();
     return v;
   }
 

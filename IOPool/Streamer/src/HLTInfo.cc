@@ -6,30 +6,32 @@ namespace
 {
   // 250KB/fragment, allocate room for 20 fragments
   const int fragment_count = 20;
+  const int frag_size = sizeof(stor::FragEntry);
+  const int ptr_size = sizeof(void*);
 }
 
 namespace stor 
 {
 
   HLTInfo::HLTInfo():
-    cmd_q_(edm::getEventBuffer(4,50)),
-    evtbuf_q_(edm::getEventBuffer(4*fragment_count+4,100)),
-    frag_q_(edm::getEventBuffer(4,200))
+    cmd_q_(edm::getEventBuffer(ptr_size,50)),
+    evtbuf_q_(edm::getEventBuffer(ptr_size,100)),
+    frag_q_(edm::getEventBuffer(frag_size,200))
   {
   }
 
   HLTInfo::HLTInfo(const edm::ParameterSet& ps):
-    cmd_q_(edm::getEventBuffer(4,50)),
-    evtbuf_q_(edm::getEventBuffer(4*fragment_count+4,100)),
-    frag_q_(edm::getEventBuffer(4,200))
+    cmd_q_(edm::getEventBuffer(ptr_size,50)),
+    evtbuf_q_(edm::getEventBuffer(ptr_size,100)),
+    frag_q_(edm::getEventBuffer(frag_size,200))
   {
   }
 
   HLTInfo::HLTInfo(const edm::ProductRegistry& pr):
     prods_(pr),
-    cmd_q_(edm::getEventBuffer(4,50)),
-    evtbuf_q_(edm::getEventBuffer(4*fragment_count+4,100)),
-    frag_q_(edm::getEventBuffer(4,200))
+    cmd_q_(edm::getEventBuffer(ptr_size,50)),
+    evtbuf_q_(edm::getEventBuffer(ptr_size,100)),
+    frag_q_(edm::getEventBuffer(frag_size,200))
   {
   }
 

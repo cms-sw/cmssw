@@ -9,6 +9,7 @@
 #include "boost/scoped_array.hpp"
 
 #include <algorithm>
+#include <cstdlib>
 #include <iterator>
 
 using namespace std;
@@ -21,7 +22,7 @@ namespace edmtestp
   {
     struct BufHelper
     {
-      explicit BufHelper(int len): buf_(new char(len)) { }
+      explicit BufHelper(int len): buf_(new char[len]) { }
       ~BufHelper() { delete [] buf_; }
       char* release() { char* rc = buf_; buf_=0; return rc; }
       char* get() const { return buf_; }
@@ -83,13 +84,15 @@ namespace edmtestp
   {
     while(1)
       {
-	EventBuffer::ProducerBuffer b(*to_);
+
+	//cout << "Reader: " << (void*)this << " " << (void*)to_ << endl;
 
 	int len=0;
 	ist_.read((char*)&len,sizeof(int));
 
-	if(!ist_ || len==0) break;
+	if(!ist_ || len==0 || ist_.eof()) break;
 
+	EventBuffer::ProducerBuffer b(*to_);
 	// Pay attention here.
 	// This is a bit of a mess.
 	// Here we allocate an array (on the heap), fill it with data
@@ -100,11 +103,19 @@ namespace edmtestp
 	// that are on the queue.
 
 	BufHelper data(len);
+	//cout << "allocated frag " << len << endl;
+	ist_.read((char*)data.get(),len);
+	//cout << "read frag to " << (void*)data.get() << endl;
+	if(!ist_ || ist_.eof()) cerr << "got end!!!!" << endl;
 	stor::FragEntry* msg = 
 	  new (b.buffer()) stor::FragEntry(data.get(),data.get(),len);
-	ist_.read((char*)msg->buffer_address_,len);
-	b.commit(len);
+	//new (b.buffer()) stor::FragEntry(0,0,len);
+	//cout << "make entry for frag " << (void*)msg << " " << msg->buffer_address_ << endl;
 	data.release();
+	//cout << "release frag" << endl;
+	b.commit(sizeof(stor::FragEntry));
+	//cout << "commit frag " << sizeof(stor::FragEntry) << endl;
+	//sleep(2);
       }
   }
 

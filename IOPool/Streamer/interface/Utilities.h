@@ -12,6 +12,7 @@
 #include "IOPool/Streamer/interface/EventBuffer.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/ProductRegistry.h"
+#include "FWCore/Utilities/interface/DebugMacros.h"
 
 #include "TBuffer.h"
 #include "TClass.h"
@@ -21,6 +22,7 @@
 #include <fstream>
 #include <vector>
 #include <utility>
+#include <iostream>
 
 namespace edm
 {
@@ -105,7 +107,9 @@ namespace edm
       std::auto_ptr<EventPrincipal> p = decoder_.decodeEvent(msg,prods);
       EventBuffer::ProducerBuffer b(*buf_);
       void** v = (void**)b.buffer();
+	  FDEBUG(2) << "Insert: event ptr = " << (void*)p.get() << std::endl;
       *v = p.release();
+	  FDEBUG(2) << "Insert: " << b.buffer() << " " << b.size() << std::endl;
       b.commit(sizeof(void*));
     }
   private:
@@ -120,7 +124,9 @@ namespace edm
     std::auto_ptr<EventPrincipal> extract()
     {
       EventBuffer::ConsumerBuffer b(*buf_);
-      std::auto_ptr<EventPrincipal> p((EventPrincipal*)b.buffer());
+	  FDEBUG(2) << "Extract: " << b.buffer() << " " << b.size() << std::endl;
+      std::auto_ptr<EventPrincipal> p(*(EventPrincipal**)b.buffer());
+	  FDEBUG(2) << "Extract: event ptr = " << (void*)p.get() << std::endl;
       return p;
     }
   private:

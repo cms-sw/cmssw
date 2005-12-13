@@ -14,6 +14,7 @@ typedef edmtestprod::IntArray WriteThis;
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+// #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
 #include <algorithm>
@@ -53,6 +54,9 @@ namespace edmtest_thing
         abort();
     }
 	out_ << "event instance value" << endl;
+
+	//LogDebug("StreamThing") << "ctor completing"; // << endl;
+	//edm::LogInfo("stuff") << "again, ctor completing";
   }
     
   StreamThingAnalyzer::~StreamThingAnalyzer()
@@ -72,6 +76,7 @@ namespace edmtest_thing
       total_ = accumulate((*i)->data_.begin(),(*i)->data_.end(),total_);
     //cout << tot << endl;
 
+#if 0
     for(i=prod.begin();i!=end;++i)
 	{
 	  vector<int>::const_iterator ii((*i)->data_.begin()),
@@ -81,6 +86,7 @@ namespace edmtest_thing
          out_ << cnt_ << " " << i->id() << " " << *ii << "\n" ;
 	  }
 	}
+#endif
 
     ++cnt_;
   }

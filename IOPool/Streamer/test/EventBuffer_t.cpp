@@ -26,7 +26,7 @@ void Consumer::operator()()
       EventBuffer::ConsumerBuffer ob(*b_);
       if(ob.size()==0) break;
       int* i = (int*)ob.buffer();
-      cout << "C" << *i << endl;
+      //cout << "C" << *i << endl;
     }
 }
 
@@ -51,7 +51,7 @@ void Producer::operator()()
       EventBuffer::ProducerBuffer ib(*b_);
       int* v = (int*)ib.buffer();
       *v = i;
-      cout << "P" << i << endl;
+      //cout << "P" << i << endl;
       ib.commit(sizeof(int));
     }
 

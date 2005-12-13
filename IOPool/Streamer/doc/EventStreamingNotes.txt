@@ -159,3 +159,10 @@ This package is in need of a major cleanup:
    and loadextraclasses need to be clearly identified and shared 
    properly.
 
+13-12-05 jbk:
+
+added some debugging code.  changed some of the default parameters in the
+HLTInfo class.  changed the order of some of the processing in the 
+testfilereader.
+
+Fixed a bug in Utilities.h.
