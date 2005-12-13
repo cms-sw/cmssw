@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2005/11/24 09:18:38 $
- *  $Revision: 1.11 $
+ *  $Date: 2005/12/12 07:25:30 $
+ *  $Revision: 1.12 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -131,6 +131,8 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData , EBDigiCol
 	EBDetId idsm(1, 1 + 20 * dccID);
 	dccsizecollection.push_back(idsm);
 
+    // cout << "ERROR 1 " << idsm.ism() << endl;
+
 	return;
       }
       
@@ -146,7 +148,10 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData , EBDigiCol
       // checking if tt in data is the same as tt expected 
       // else skip tower and increment problem counter
 	    
-      EcalTrigTowerDetId idtt(expTowersIndex);
+      int etaTT = (ExpectedTowers[expTowersIndex]-1)  /4;
+      int phiTT = (ExpectedTowers[expTowersIndex]-1)  %4;
+
+      EcalTrigTowerDetId idtt(etaTT, phiTT);
 
       if (  !(tower == ExpectedTowers[expTowersIndex])	  )
 	{	
@@ -161,6 +166,8 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData , EBDigiCol
 	  // report on failed tt_id - ASSUME that
 	    
 	  ttidcollection.push_back(idtt);
+      
+      // cout << "ERROR 2 " << idtt.ieta() << "  " << idtt.iphi() << endl;
 
 	  ++ expTowersIndex;
 	  continue;	
@@ -184,6 +191,8 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData , EBDigiCol
 		 << endl;
 
             blocksizecollection.push_back(idtt);
+      
+            // cout << "ERROR 3 " << idtt.ieta() << "  " << idtt.iphi() << endl;
         
 	    ++ expTowersIndex;
 	    continue;	
@@ -206,10 +215,10 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData , EBDigiCol
 	  expCryInStrip   =  expCryInTower%5 +1;
 	  
 	  // FIXME: waiting for geometry to do (TT, strip,chNum) <--> (SMChId)
-	  short abscissa = (ExpectedTowers[expTowersIndex]-1)  /4;
-	  short ordinate = (ExpectedTowers[expTowersIndex]-1)  %4;
+	  // short abscissa = (ExpectedTowers[expTowersIndex]-1)  /4;
+	  // short ordinate = (ExpectedTowers[expTowersIndex]-1)  %4;
 	  // temporarily choosing central crystal in trigger tower
-	  int cryIdInSM  = 45 + ordinate*5 + abscissa * 100;
+	  // int cryIdInSM  = 45 + ordinate*5 + abscissa * 100;
     
 	  // comparison: expectation VS crystal in data
 	  if(!	   (strip == expStripInTower &&
@@ -231,6 +240,8 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData , EBDigiCol
               EBDetId  idExp(cellIndExp.first, cellIndExp.second );           
 
               chidcollection.push_back(idExp);
+
+              // cout << "ERROR 4 " << idExp.ieta() << " " << idExp.iphi() << endl;
 
 	      expCryInTower++; continue;
 		
@@ -255,7 +266,13 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData , EBDigiCol
 		 {gainIsOk =false;}
 	     }
 
-	     if (! gainIsOk) gaincollection.push_back(id);
+	     if (! gainIsOk) {
+
+           gaincollection.push_back(id);
+
+           // cout << "ERROR 5 " << id.ieta() << " " << id.iphi() << endl;
+         
+         }
 
 	     digicollection.push_back(theFrame);
 	     
