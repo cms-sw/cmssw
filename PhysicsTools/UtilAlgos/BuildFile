@@ -1,0 +1,4 @@
+<export>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
+</export>
