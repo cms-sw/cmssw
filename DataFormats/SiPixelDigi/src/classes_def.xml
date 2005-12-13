@@ -1,5 +1,4 @@
 <lcgdict>
-  <class name="PixelDigi::Packing"/>
   <class name="PixelDigi"/>
   <class name="std::vector<PixelDigi>"/>
   <class name="std::pair<unsigned int, unsigned int>"/>

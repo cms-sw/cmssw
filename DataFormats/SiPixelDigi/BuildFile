@@ -1,7 +1,9 @@
 <use name=clhep>
 <use name=FWCore/EDProduct>
+<use name=DataFormats/SiPixelDetId>
 <export>
  <lib name=DataFormatsSiPixelDigi>
  <use name=FWCore/EDProduct>
+<use name=DataFormats/SiPixelDetId>
  <use name=clhep>
 </export>

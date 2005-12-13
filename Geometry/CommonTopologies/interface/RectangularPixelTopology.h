@@ -7,7 +7,7 @@
  */
 
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
-#include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
+#include "DataFormats/SiPixelDetId/interface/PixelChannelIdentifier.h"
 
   /**
    * Topology for rectangular pixel detector. The only available.
@@ -41,7 +41,7 @@ public:
 
   virtual int channel( const LocalPoint& lp) const {
     std::pair<float,float> p = pixel(lp);
-    return PixelDigi::pixelToChannel( int(p.first), int(p.second));
+    return PixelChannelIdentifier::pixelToChannel( int(p.first), int(p.second));
   }
 
   // PixelTopology interface
