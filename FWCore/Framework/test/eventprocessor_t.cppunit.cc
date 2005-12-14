@@ -2,12 +2,13 @@
 
 Test of the EventProcessor class.
 
-$Id: eventprocessor_t.cppunit.cc,v 1.9 2005/09/09 14:56:50 chrjones Exp $
+$Id: eventprocessor_t.cppunit.cc,v 1.10 2005/09/28 04:44:55 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <exception>
 #include <iostream>
 #include <string>
+#include "boost/regex.hpp"
 
 //I need to open a 'back door' in order to test the functionality
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
@@ -29,6 +30,7 @@ CPPUNIT_TEST(parseTest);
 CPPUNIT_TEST(prepostTest);
 CPPUNIT_TEST(beginEndJobTest);
 CPPUNIT_TEST(activityRegistryTest);
+CPPUNIT_TEST(moduleFailureTest);
 CPPUNIT_TEST_SUITE_END();
 public:
   void setUp(){}
@@ -37,6 +39,7 @@ public:
   void prepostTest();
   void beginEndJobTest();
   void activityRegistryTest();
+  void moduleFailureTest();
 private:
 void work()
 {
@@ -229,4 +232,84 @@ testeventprocessor::activityRegistryTest()
    CPPUNIT_ASSERT(listener.postModule_);      
    
    CPPUNIT_ASSERT(listener.allCalled());
+}
+
+static
+bool
+findModuleName(const std::string& iMessage) {
+   static const boost::regex expr("TestFailuresAnalyzer");
+   return regex_search(iMessage,expr);
+}
+
+void 
+testeventprocessor::moduleFailureTest()
+{
+   try {
+      const std::string preC("process p = {\n"
+                             "source = EmptySource { untracked int32 maxEvents = 2 }\n"
+                             "module m1 = TestFailuresAnalyzer { int32 whichFailure =");
+      const std::string postC(" }\n"
+                              "path p1 = { m1 }\n"
+                              "}\n");
+      {
+         const std::string configuration = preC +"0"+postC;
+         bool threw = true;
+         try {
+            edm::EventProcessor proc(configuration);
+            threw = false;
+         } catch(const cms::Exception& iException){
+            if(!findModuleName(iException.what())) {
+               std::cout <<iException.what()<<std::endl;
+               CPPUNIT_ASSERT(0 == "module name not in exception message");
+            }
+         }
+         CPPUNIT_ASSERT(threw && 0 != "exception never thrown");
+      }
+      {
+         const std::string configuration = preC +"1"+postC;
+         bool threw = true;
+         edm::EventProcessor proc(configuration);
+         
+         try {
+            proc.beginJob();
+            threw = false;
+         } catch(const cms::Exception& iException){
+            if(!findModuleName(iException.what())) {
+               std::cout <<iException.what()<<std::endl;
+               CPPUNIT_ASSERT(0 == "module name not in exception message");
+            }
+         }
+         CPPUNIT_ASSERT(threw && 0 != "exception never thrown");
+      }
+      
+      {
+         const std::string configuration = preC +"2"+postC;
+         bool threw = true;
+         edm::EventProcessor proc(configuration);
+         
+         proc.beginJob();
+         try {
+            proc.run(1);
+            threw = false;
+         } catch(const cms::Exception& iException){
+            if(!findModuleName(iException.what())) {
+               std::cout <<iException.what()<<std::endl;
+               CPPUNIT_ASSERT(0 == "module name not in exception message");
+            }
+         }
+         CPPUNIT_ASSERT(threw && 0 != "exception never thrown");
+         proc.endJob();
+      }
+      {
+         const std::string configuration = preC +"3"+postC;
+         edm::EventProcessor proc(configuration);
+         
+         proc.beginJob();
+
+         CPPUNIT_ASSERT(!(proc.endJob()));
+      }
+   } catch(const cms::Exception& iException) {
+      std::cout <<"Unexpected exception "<<iException.what()<<std::endl;
+      throw;
+   }
 }
