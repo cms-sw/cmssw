@@ -1,7 +1,7 @@
 <lcgdict>
 <selection>
-  <class name="ROOT::Math::PxPyPzE4D<double>" />
-  <class name="ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >" />
+  <class name="ROOT::Math::PtEtaPhiE4D<double>" />
+  <class name="ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<double> >" />
   <class name="CaloTowerDetId"/>
   <class name="CaloTower"/>
   <class name="std::vector<CaloTower>"/>
@@ -13,10 +13,10 @@
   <class name="edm::Wrapper<std::vector<reco::CaloJet> >"/>
 </selection>
 <exclusion>
-  <class name="ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >">
-    <function name="SetEta" />
-    <function name="SetPhi" />
-    <function name="SetPt" />
+  <class name="ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<double> >">
+    <function name="SetPx" />
+    <function name="SetPy" />
+    <function name="SetPz" />
     <function name="SetM" />
   </class>
 </exclusion>

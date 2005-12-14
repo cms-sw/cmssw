@@ -6,8 +6,8 @@
 
 namespace {
   namespace {
-    ROOT::Math::PxPyPzE4D<Double32_t> p4;
-    ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<Double32_t> > lv;
+    ROOT::Math::PtEtaPhiE4D<Double32_t> p4;
+    ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<Double32_t> > lv;
 
     std::vector<CaloTower> vc1;
     edm::SortedCollection<CaloTower> c1;
