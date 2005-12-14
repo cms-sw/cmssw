@@ -3,6 +3,7 @@
 <use name=FWCore/Framework>
 <use name=Dictionary/Reflex>
 <use name=root>
+<lib name=MathCore>
 <use name=boost>
 <flags LCGDICT_ARGS="--deep">
 <export>
@@ -12,5 +13,6 @@
  <use name=FWCore/Framework>
  <use name=Dictionary/Reflex>
  <use name=root>
+ <lib name=MathCore>
  <use name=boost>
 </export>

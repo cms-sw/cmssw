@@ -2,7 +2,7 @@
 #define JetReco_CaloJet_h
 
 /** \class CaloJet
- * $Id: CaloJet.h,v 1.2 2005/11/28 15:33:50 llista Exp $
+ * $Id: CaloJet.h,v 1.3 2005/11/29 09:34:05 llista Exp $
  *
  * Ported from original version in JetObjects package
  *
@@ -18,7 +18,9 @@
  * \version   2nd Version Oct 19, 2005, R. Harris, modified to work 
  *            with real CaloTowers. No energy fractions yet.
  ************************************************************/
-#include "TLorentzVector.h"
+#include <Rtypes.h>
+#include <Math/PtEtaPhiE4D.h>
+#include <Math/LorentzVector.h>
 #include "FWCore/EDProduct/interface/Ref.h"
 #include "FWCore/EDProduct/interface/RefVector.h"
 #include "FWCore/EDProduct/interface/SortedCollection.h"
@@ -29,6 +31,7 @@ namespace reco {
   
   class CaloJet {
   public:
+    typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<Double32_t> > LorentzVector;
     
     /** Default constructor*/
     CaloJet();
@@ -43,7 +46,7 @@ namespace reco {
     ~CaloJet();
     
     /** The Jet four-vector as a true Lorentz vector **/
-    const TLorentzVector & p4() const { return p4_; }
+    const LorentzVector & p4() const { return p4_; }
     /* Return the jet momentum component along the x axis */
     double px() const { return p4_.Px(); }
     /** Returns the jet momentum component along the y axis */
@@ -51,7 +54,7 @@ namespace reco {
     /** Returns the jet momentum component along the z axis */
     double pz() const { return p4_.Pz(); }
     /** Returns the total energy of the jet*/
-    double energy() const { return p4_.Energy(); }
+    double energy() const { return p4_.E(); }
     
     /** Standard quantities derived from the Jet Lorentz vector
 	/\return the modulus of the momentum of the jet */
@@ -96,7 +99,7 @@ namespace reco {
     
   private:
     // Data members
-    TLorentzVector p4_;
+    LorentzVector p4_;
     /** List of CaloTower IDs the Jet consists of*/
     ConstituentRefs constituents_;
     //Variables specific to to the CaloJet class
