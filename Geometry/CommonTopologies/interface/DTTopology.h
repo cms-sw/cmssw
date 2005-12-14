@@ -3,12 +3,22 @@
 
 /** \class DTTopology
  *
- * interface for the DriftTube detector. 
- * Extends the Topology interface with methods relevant for
- * the DT detectors.
+ * Conversion between the local frame of the DT DetUnits (i.e. a layer
+ * of cells in a superlayer) and the "measurement frame".
+ * This is a rectangular frame where x runs between (FirstCellNumber-0.5)
+ * and (LastCellNumber+0.5). Note that cell numbers follow the hardware
+ * convention, so that FirstCellNumber is either 1 or 2 depending of the layer.
+ *
+ * Note that DTs measure a time, not a position, so unlike for strip detectors,
+ * there is no guarantee that a measurement in a cell will not end up in
+ * the neighbouring cell. This must be taken into account for all cases where a * LocalPoint is used as an argument, e.g. to get back the channel number.
+ * This will be an issue if wire misalignment is introduced.
+ *
+ * The Topology interface is extended with methods relevant for
+ * the DT detectors, e.g. wirePosition(int), etc.
  *  
- *  $Date: 2005/11/30 14:53:55 $
- *  $Revision: 1.4 $
+ *  $Date: 2005/12/05 09:09:44 $
+ *  $Revision: 1.5 $
  *
  * \author R. Bellan - INFN Torino
  *
@@ -20,36 +30,59 @@
 class DTTopology: public Topology {
  public:
   
-  //Constructor: number of first wire, total # of wires in the layer and their lenght
-  DTTopology(int firstWire, int nChannels,float lenght); 
+  /// Constructor: number of first wire, total # of wires in the layer and their lenght
+  DTTopology(int firstWire, int nChannels, float lenght); 
 
   virtual ~DTTopology() {}
   
-  // Conversion between measurement coordinates
-  // and local cartesian coordinates
-
+  /// Conversion between measurement coordinates
+  /// and local cartesian coordinates.
   LocalPoint localPosition( const MeasurementPoint& ) const;
 
+  /// Conversion between measurement coordinates
+  /// and local cartesian coordinates.
   LocalError localError( const MeasurementPoint&, const MeasurementError& ) const;
 
+  /// Conversion to the measurement frame.
+  /// (Caveat: when converting the position of a rechit, there is no
+  /// guarantee that the converted value can be interpreted as the cell
+  /// where the hit belongs, see note on neighbouring cells in the class
+  /// header.
   MeasurementPoint measurementPosition( const LocalPoint&) const;
 
+  /// Conversion to the measurement frame.
   MeasurementError measurementError( const LocalPoint&, const LocalError& ) const;
 
-  // return the wire number, starting from a LocalPoint
+  /// Return the wire number, starting from a LocalPoint.
+  /// This method is deprecated: when converting the position of a rechit,
+  /// there is no guarantee that the converted value can be
+  /// interpreted as the cell where the hit belongs, see note on
+  /// neighbouring cells in the class header.
   int channel( const LocalPoint& p) const;
 
-  // return the x-wire position in the layer, starting from its wire number.
+  /// Returns the x position in the layer of a given wire number.
   float wirePosition(int wireNumber) const;
   
-  // They return the cell dimensions:
+  /// Returns the cell width.
   const float cellWidth() const {return theWidth;}
+  /// Returns the cell height.
   const float cellHeight() const {return theHeight;}
+  /// Returns the cell lenght.
   const float cellLenght() const {return theLength;}
   
-  // They return the dimensions of the sensible volume of the cell:
+  /// Returns the width of the actual sensible volume of the cell.
   const float sensibleWidth() const;
+  /// Returns the height of the actual sensible volume of the cell.
   const float sensibleHeight() const;
+
+  /// Sides of the cell
+  enum Side {zMin,zMax,xMin,xMax,yMin,yMax,none}; 
+
+  /// Returns the side of the cell in which resides the point (x,y,z) (new cell geometry, 
+  /// i.e. with I-beam profiles).
+  Side onWhichBorder(float x, float y, float z) const;
+  /// Returns the side of the cell in which resides the point (x,y,z) (old cell geometry).
+  Side onWhichBorder_old(float x, float y, float z) const;
   
 private: 
   int theFirstChannel;
@@ -58,6 +91,11 @@ private:
   static const float theWidth;
   static const float theHeight;
   float theLength;
+
+  static const float IBeamWingThickness;
+  static const float IBeamWingLength;
+  static const float plateThickness;
+  static const float IBeamThickness;
 
   Local2DPoint theOffSet;
 };
