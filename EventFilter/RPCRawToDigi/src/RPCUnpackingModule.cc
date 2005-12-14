@@ -1,8 +1,8 @@
 /** \file
- * implementation of class RPCUnpackingModule
+ * Implementation of class RPCUnpackingModule
  *
- *  $Date: 2005/11/11 16:22:45 $
- *  $Revision: 1.4 $
+ *  $Date: 2005/12/12 17:32:11 $
+ *  $Revision: 1.6 $
  *
  * \author Ilaria Segoni
  */
@@ -31,8 +31,9 @@ using namespace std;
 
 RPCUnpackingModule::RPCUnpackingModule(const edm::ParameterSet& pset)  
 {
-
+  nEvents=0;
   printout = pset.getUntrackedParameter<bool>("PrintOut", false); 
+  hexprintout = pset.getUntrackedParameter<bool>("PrintHexDump", false); 
   produces<RPCDigiCollection>();
 
 }
@@ -46,15 +47,19 @@ void RPCUnpackingModule::produce(Event & e, const EventSetup& c){
  if(printout) cout<<"Entering RPCUnpackingModule::produce"<<endl;
  
  
- /// Get Data from all FEDS
+ /// Get Data from all FEDs
  Handle<FEDRawDataCollection> allFEDRawData; 
- e.getByLabel("DaqRawData", allFEDRawData); //FED Raw data for all feds in the event
+ e.getByLabel("DaqRawData", allFEDRawData); 
  if(printout) cout<<"Got FEDRawData"<<endl;
  
  auto_ptr<RPCDigiCollection> producedRPCDigis(new RPCDigiCollection);
 
  std::pair<int,int> rpcFEDS=FEDNumbering::getRPCFEDIds();
  if(printout) cout<<"Starting loop on FEDs, RPC FED ID RANGE: "<<rpcFEDS.first<<" - "<<rpcFEDS.second<<endl;
+ 
+ nEvents++;
+ 
+ if(printout) cout<<"Beginning To Unpack Event: "<<nEvents<<endl;
  
  for (int id= rpcFEDS.first; id<=rpcFEDS.second; ++id){  
 
@@ -79,22 +84,44 @@ void RPCUnpackingModule::produce(Event & e, const EventSetup& c){
       
       /// Beginning of RPC Records Unpacking
       index += numberOfHeaders*SLINK_WORD_SIZE; 
-
+       
+      /// Loop on S-LINK words 
        while( index != trailerIndex ){
-
-          RPCRecord theRecord(index,printout);
-        
-        /// Find what type of record it is
-          RPCRecord::recordTypes typeOfRecord = theRecord.type();
-          if(printout) cout<<"Found Record of Type: "<<typeOfRecord<<endl;
-	  
-	  theRecord.recordUnpack(typeOfRecord);
+       
+         
+	 /// Loop on RPC Records
+         int numOfRecords=0;
+         for(int nRecord=0; nRecord<4; nRecord++){
           
-        ///Go to beginning of next record
-          index+=RPC_RECORD_SIZE;
+	  const unsigned char* recordIndex;
+	  recordIndex=index+SLINK_WORD_SIZE-(nRecord+1)*RPC_RECORD_SIZE;
+	   
+	   if(hexprintout) {	  
+	     numOfRecords++;
+	     const unsigned int* word;	  
+             word=reinterpret_cast<const unsigned int*>(recordIndex);
+	     cout<<oct<<*word<<" ";
+	     if(numOfRecords==4) {
+	        cout<<endl;
+	      }		
+	    }
+          
+	  RPCRecord theRecord(recordIndex,printout);
+        
+          /// Find out type of record
+          RPCRecord::recordTypes typeOfRecord = theRecord.type();
+	 
+	  /// Unpack the Record 
+	  theRecord.recordUnpack(typeOfRecord);
+	  
+	  }
+          
+	  
+          ///Go to beginning of next word
+          index+=SLINK_WORD_SIZE;
 
 
-       }
+        }
  // Now check that next word is the Trailer as expected
 		
     }
@@ -155,7 +182,7 @@ int RPCUnpackingModule::TrailerUnpacker(const unsigned char* trailerIndex){
        if(printout) cout<<"Trailer length: "<< fedTrailer.lenght()<<
           " CRC "<<fedTrailer.crc()<<
           " Event Fragment Status "<< fedTrailer.evtStatus()<<
-          " Value of Trigger Throttling System ssss"<<fedTrailer.ttsBits()<<
+          " Value of Trigger Throttling System "<<fedTrailer.ttsBits()<<
           " more Trailers: "<<fedTrailer.moreTrailers()<<endl;
     
   
