@@ -5,7 +5,7 @@
  <SpecPar name="castor_plate">
    <PartSelector path="//CASR"/>
    <Parameter name="SensitiveDetector" value="CastorSensitiveDetector" eval="false"/>
-   <Parameter name="ReadOutName" value="CASTPL" eval="false"/>
+   <Parameter name="ReadOutName" value="CastorPL" eval="false"/>
  </SpecPar>  
  <SpecPar name="castor_fibre">
    <PartSelector path="//C3TF"/>
@@ -32,9 +32,8 @@
    <PartSelector path="//CP05"/>
    <PartSelector path="//CP06"/>
    <Parameter name="SensitiveDetector" value="CastorSensitiveDetector" eval="false"/>
-   <Parameter name="ReadOutName" value="CASTFI" eval="false"/>
+   <Parameter name="ReadOutName" value="CastorFI" eval="false"/>
  </SpecPar>  
-
  <SpecPar name="castor_bundle">
    <PartSelector path="//CAAL"/>
    <PartSelector path="//CAAI"/>
@@ -48,13 +47,12 @@
    <PartSelector path="//CAEL"/>
    <PartSelector path="//CABA"/>
    <Parameter name="SensitiveDetector" value="CastorSensitiveDetector" eval="false"/>
-   <Parameter name="ReadOutName" value="CASTBU" eval="false"/>
+   <Parameter name="ReadOutName" value="CastorBU" eval="false"/>
  </SpecPar>  
-
  <SpecPar name="castor_tungsten">
    <PartSelector path="//CASL"/>
    <Parameter name="SensitiveDetector" value="CastorSensitiveDetector" eval="false"/>
-   <Parameter name="ReadOutName" value="CASTTU" eval="false"/>
+   <Parameter name="ReadOutName" value="CastorTU" eval="false"/>
  </SpecPar>  
 </SpecParSection>
 
