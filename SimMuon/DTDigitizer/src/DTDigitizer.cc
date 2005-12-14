@@ -1,10 +1,9 @@
 /** \file
  *
- *  $Date: $
- *  $Revision: $
- *  \author G. Bevilacqua, N. Amapane, G. Cerminara, R. Bellan
+ *  $Date: 2005/12/06 15:32:07 $
+ *  $Revision: 1.4 $
+ *  \authors: G. Bevilacqua, N. Amapane, G. Cerminara, R. Bellan
  */
-
 
 // system include files
 #include <memory>
@@ -42,15 +41,15 @@
 #include "DataFormats/MuonDetId/interface/DTDetId.h"
 
 // DTDigitizer
+#include "SimMuon/DTDigitizer/interface/DTDigiSyncFactory.h"
+#include "SimMuon/DTDigitizer/interface/DTDigiSyncBase.h"
+
 #include "SimMuon/DTDigitizer/src/DTDriftTimeParametrization.h"
 #include "SimMuon/DTDigitizer/src/DTDigitizer.h"
 
 // namespaces
 using namespace edm;
 using namespace std;
-
-
-//FIXME- ReCheck the "hit nature" (is it a pointer?)
 
 // Constructor
 DTDigitizer::DTDigitizer(const ParameterSet& conf_) {
@@ -82,11 +81,15 @@ DTDigitizer::DTDigitizer(const ParameterSet& conf_) {
   
   // further configurable smearing
   smearing=conf_.getParameter<double>("Smearing"); // 3.
+
+  // Sync Algo
+  syncName = conf_.getParameter<string>("SyncName");
+  theSync = DTDigiSyncFactory::get()->create(syncName,conf_.getParameter<ParameterSet>("pset"));
+
 }
 
 // Destructor
 DTDigitizer::~DTDigitizer(){}
-
 
 // method called to produce the data
 void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
@@ -95,22 +98,19 @@ void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
   
   // create the container for the SimHits
   Handle<PSimHitContainer> simHits; 
-  iEvent.getByLabel("MuonDTHits",simHits);
-
+  iEvent.getByLabel("r","MuonDTHits",simHits);
+                    
   // create the pointer to the Digi container
   auto_ptr<DTDigiCollection> output(new DTDigiCollection());
   
   ESHandle<DTGeometry> muonGeom;
   iSetup.get<MuonGeometryRecord>().get(muonGeom);
 
-
   //************ 2 ***************
 
   // These are sorted by DetId, i.e. by layer and then by wire #
   map<DTDetId, vector<const PSimHit*> > wireMap;     
   
-  // loop over the SimHits -  FIXME check the iterator...
-  // maybe can be: PSimHitContainer::const_iterator...
   for(vector<PSimHit>::const_iterator simHit = simHits->begin();
        simHit != simHits->end(); simHit++){
     
@@ -130,12 +130,14 @@ void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
     // SimHit Container associated to the wire
     const vector<const PSimHit*> & vhit = (*wire).second; 
     if(vhit.size()!=0) {
-      TDContainer tdCont; // Is a vector<pair<const PSimHit*,float> >;
+      TDContainer tdCont; // It is a vector<pair<const PSimHit*,float> >;
       
       //************ 4 ***************
       DTDetId wireId = (*wire).first;
 
-      const DTGeomDetUnit* layer = dynamic_cast< const DTGeomDetUnit* > (muonGeom->idToDet(wireId)); 
+      //FIXME
+      //      const DTGeomDetUnit* layer = dynamic_cast< const DTGeomDetUnit* > (muonGeom->idToDet(wireId)); 
+      const DTGeomDetUnit *layer = new DTGeomDetUnit(); 
 
       // Loop on the hits of this wire    
       for (vector<const PSimHit*>::const_iterator hit=vhit.begin();
@@ -144,9 +146,8 @@ void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
 	//************ 5 ***************
 	
 	time = computeTime(layer,wireId, *hit); 
-	
-	//************ 6 ***************
 
+	//************ 6 ***************
 	if (time.second) {
 	  tdCont.push_back(make_pair((*hit),time.first));
 	} else {
@@ -169,24 +170,31 @@ void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
   iEvent.put(output);
 }
 
-//FIXME PSimHit (pointer-obj) possible inconsistency:
-pair<float,bool> DTDigitizer::computeTime(const DTGeomDetUnit* layer,const DTDetId &wireId, const PSimHit *hit) 
-{
+pair<float,bool> DTDigitizer::computeTime(const DTGeomDetUnit* layer,
+					  const DTDetId &wireId, const PSimHit *hit){
   LocalPoint entryP = hit->entryPoint();
   LocalPoint exitP = hit->exitPoint();
   int partType = hit->particleType();
 
   // Check if hits starts/ends on one of the cell's edges
 
-  const DTTopology &topo = layer->Topology();
-
-  float xwire = topo.wirePosition(wireId.wire()); 
-
+  //FIXME
+  // const DTTopology &topo = dynamic_cast<DTTopology>( layer->topology() );
+  // float xwire = topo.wirePosition(wireId.wire()); 
+  
+  const DTTopology topo(0,0,0);
+  float xwire = 0;
+  
   float xEntry = entryP.x()-xwire;
   float xExit  = exitP.x()-xwire;
 
-  sides entrySide = onWhichBorder(xEntry,entryP.y(),entryP.z(),topo);
-  sides exitSide  = onWhichBorder(xExit,exitP.y(),exitP.z(),topo);
+  DTTopology::Side entrySide = topo.onWhichBorder(xEntry,entryP.y(),entryP.z());
+  DTTopology::Side exitSide  = topo.onWhichBorder(xExit,exitP.y(),exitP.z());
+
+  //very temp
+  //cout<<"###############"<<xEntry<<"\t\t"<<entryP.z()<<"\t\t"
+  //    <<xExit<<"\t\t"<<exitP.z()<<"\t\t"<<partType<<endl; //"\t\t"<<(int)entrySide<<"\t\t"<<(int)exitSide<<endl;
+  
 
   if (debug) dumpHit(hit, xEntry, xExit,topo);
 
@@ -195,15 +203,14 @@ pair<float,bool> DTDigitizer::computeTime(const DTGeomDetUnit* layer,const DTDet
 
   // if delta in gas->ignore, since it is included in the parametrisation.
   // FIXME: should check that it is actually a delta ray produced by a nearby
-  // muon hit. NON mi e' molto chiara il perche' e' messo in modo esplicito
-  if (partType == 11 && entrySide == none) {
+  // muon hit. 
+  if (partType == 11 && entrySide == DTTopology::none) {
     if (debug) cout << "    e- hit in gas; discarding " << endl;
     return driftTime;
   }
 
   // Local magnetic field  FIXME
   LocalPoint locPt = hit->localPosition();
-  //event setu -> Record -> Magnetc Field
   LocalVector BLoc;
     
   //FIXME 
@@ -255,10 +262,10 @@ pair<float,bool> DTDigitizer::computeTime(const DTGeomDetUnit* layer,const DTDet
 
   // Select cases where parametrization can not be used.
   bool noParametrisation = 
-    ( ( entrySide == none || exitSide == none ) // case # 2,3,8,9 or 11
+    ( ( entrySide == DTTopology::none || exitSide == DTTopology::none ) // case # 2,3,8,9 or 11
       || (entrySide == exitSide)                   // case # 4 or 10
-      || ((entrySide == xMin && exitSide == xMax) || 
-	  (entrySide == xMax && exitSide == xMin)) // Hit is case # 7
+      || ((entrySide == DTTopology::xMin && exitSide == DTTopology::xMax) || 
+	  (entrySide == DTTopology::xMax && exitSide == DTTopology::xMin)) // Hit is case # 7
       );
 
   // FIXME: now, debug warning only; consider treating those 
@@ -281,6 +288,8 @@ pair<float,bool> DTDigitizer::computeTime(const DTGeomDetUnit* layer,const DTDet
     //    float theta = atan(dir0.x()/-dir0.z())*180/M_PI;
     float x;
     Local3DPoint pt = hit->localPosition(); //ex     Measurement3DPoint pt = hit->measurementPosition();
+    
+    // FIXME new shape of the cell!!
     if(fabs(pt.z()) < 0.002) { 
       // hit center within 20 um from z=0, no need to extrapolate.
       x = pt.x();
@@ -288,6 +297,10 @@ pair<float,bool> DTDigitizer::computeTime(const DTGeomDetUnit* layer,const DTDet
       x = xEntry - (entryP.z()*(xExit-xEntry))/(exitP.z()-entryP.z());
     }
     driftTime = driftTimeFromParametrization(x, theta, By, Bz);
+
+    //very temp
+    //cout<<"###############"<<xEntry<<"\t\t"<<entryP.z()<<"\t\t"
+    //  <<xExit<<"\t\t"<<exitP.z()<<"\t\t"<<partType<<"\t"<<(int)entrySide<<"\t"<<(int)exitSide<<endl;
   }
 
  
@@ -300,84 +313,16 @@ pair<float,bool> DTDigitizer::computeTime(const DTGeomDetUnit* layer,const DTDet
 
   // Signal propagation, TOF etc.
   if (driftTime.second) {
-    driftTime.first += externalDelays(topo,wireId,hit);
+    driftTime.first += externalDelays(topo,layer,wireId,hit);
   }
   return driftTime;
 } 
-
-//Old geometry of the DT
-DTDigitizer::sides DTDigitizer::onWhichBorder_old(float x, float y, float z,
-					      const DTTopology& topo){
-
-  // epsilon = Tolerance to determine if a hit starts/ends on the cell border.
-  // Current value comes from CMSIM, where hit position is
-  // always ~10um far from surface. For OSCAR the discrepancy is < 1um.
-  const float epsilon = 0.0015; // 15 um
-  const float plateThickness = 0.15; // aluminium plate: 1.5 mm
-  const float IBeamThickness = 0.1;  // I-beam : 1 mm
-
-  sides side = none;
-
-  if ( fabs(z) > ((topo.cellHeight()-plateThickness)/2.-epsilon)) {
-    if (z > 0.) { 
-      side = zMax; // This is currently the INNER surface.
-    } else {
-      side = zMin;
-    }
-  } else if ( fabs(x) > ((topo.cellWidth()-IBeamThickness)/2.-epsilon)) {
-    if (x > 0.) {
-      side = xMax; 
-    } else {
-      side = xMin;
-    }
-  }   // FIXME: else if ymax, ymin...
-  
-  return side;
-}
-
-//New cell geometry
-DTDigitizer::sides DTDigitizer::onWhichBorder(float x, float y, float z,
-					      const DTTopology& topo){
-
-  // epsilon = Tolerance to determine if a hit starts/ends on the cell border.
-  // Current value comes from CMSIM, where hit position is
-  // always ~10um far from surface. For OSCAR the discrepancy is < 1um.
-  const float epsilon = 0.0015; // 15 um
-
-  // with new geometry (2) the cell shape is not rectangular, but is a
-  // rectangular with the I-beam "Wing" subtracted.
-  // The height of the Wing is 1.4 mm and the length is 6.35 mm: these 4
-  // volumens must be taken into account when the border is computed
-
-  const float IBeamWingThickness = 0.14; // cm
-  const float IBeamWingLength    = 0.635; // cm
-
-  sides side = none;
-
-  if ( fabs(z) > (topo.cellHeight()/2.-epsilon) ||
-       ( fabs(x) > (topo.cellWidth()/2.-IBeamWingLength-epsilon) &&
-	 fabs(z) > (topo.cellHeight()/2.-IBeamWingThickness-epsilon))) {
-    if (z > 0.) {
-      side = zMax; // This is currently the INNER surface.
-    } else {
-      side = zMin;
-    }
-	 } else if ( fabs(x) > (topo.cellWidth()/2.-epsilon)) {
-	   if (x > 0.) {
-	     side = xMax;
-	   } else {
-	     side = xMin;
-	   }
-	 }   // FIXME: else if ymax, ymin...
-  
-  return side;
-}
 
 //************ 5A ***************
 
 pair<float,bool> DTDigitizer::driftTimeFromParametrization(float x, float theta, float By, float Bz) const {
 
-  // Convert from ORCA frame/units r.f. to parametrization ones.
+  // Convert from CMSSW frame/units r.f. to parametrization ones.
   x *= 10.;  //cm -> mm 
 
   // FIXME: Current parametrisation can extrapolate above 21 mm,
@@ -434,7 +379,6 @@ pair<float,bool> DTDigitizer::driftTimeFromParametrization(float x, float theta,
 
   if (debug) cout << "  drift time = " << time << endl;
 
-
   // Do not allow the smearing to lead to negative values
   return pair<float,bool>(max(time,0.f),true); 
 
@@ -463,8 +407,8 @@ pair<float,bool> DTDigitizer::driftTimeFromTimeMap() const {
 
 //************ 5B ***************
 
-//FIXME PSimHit (pointer-obj) inconsistency:
-float DTDigitizer::externalDelays(const DTTopology &topo, 
+float DTDigitizer::externalDelays(const DTTopology &topo,
+				  const DTGeomDetUnit* layer,
 				  const DTDetId &wireId, 
 				  const PSimHit *hit) const {
   
@@ -481,9 +425,8 @@ float DTDigitizer::externalDelays(const DTTopology &topo,
 
   // Delays and t0 according to theSync
 
-  //FIXME what is the analogous in CMSSW?
+  double sync= theSync->digitizerOffset(&wireId,layer);
 
-  double sync=0.; //= theSync->digitizerOffset(&wireId);
 
   if (debug) {
     cout << "    propDelay =" << propDelay
@@ -501,15 +444,6 @@ float DTDigitizer::externalDelays(const DTTopology &topo,
 void DTDigitizer::storeDigis(DTDetId &wireId, 
 			     TDContainer &hits,
 			     DTDigiCollection &output){
-
-  //Just for check poi magari lo tolgo
-  static DTDetId lastWireId;
-  if(debug)
-    if(lastWireId==wireId){
-      cout<<"Error in accumulateDigis"<<endl;
-    }
-    else lastWireId=wireId;
-
 
   //************ 7A ***************
 
@@ -534,56 +468,29 @@ void DTDigitizer::storeDigis(DTDetId &wireId,
       // Note that digi is constructed with a float value (in ns)
       DTDigi digi(wireId.wire(), time, digiN);
       
-      /* Devo e se si come, tradurre questo?
+      //very tmp
+      //     cout << "###################### " << digi.time() << endl;
+  
+      // FIXME- not yet ported in CMSSW
 
       // Add association between THIS digi and the corresponding SimTrack
       // FIXME: still, several hits in this cell may have the same
       // SimTrack ID (eg. those coming from secondaries), so the association 
       // is not univoque.
-      stat->det().simDet()->addLink(Digi.channel(),
-				    (*hit).first->packedTrackId(),1.);
+      // stat->det().simDet()->addLink(Digi.channel(),
+      // (*hit).first->packedTrackId(),1.);
       // int localId = wireId.wire();
       // theAssociationMap.createLinks(localId, stat->det().simDet());
-      */
 
       //************ 7D ***************
 
       DTDetId layerID = wireId.layerId();  //taking the layer in which reside the wire
-      output.insertDigi(layerID, digi);
-      //>>>>>>>>>>>>>>>>>
-//       static vector<DTDigi> digis;
-//       static DTDetId lastID;
-      
-      
-//       if(lastID==layerID) digis.push_back(digi);
-//       else{
-// 	if(digis.size()) loadOutput(output,digis,layerID); //ex output.put(digis,layerID);
-// 	digis.clear();
-// 	digis.push_back(digi);
-// 	lastID=layerID;
-//       }
-//       //FIXME!! 
-//       //      if(wire==(end-- ) && digis.size()!=0) 
-//       if(wire==(end--) && digis.size()!=0) 
-// 	loadOutput(output,digis,layerID); // ex output.put(digis,layerID);
-              
-      //<<<<<<<<<<<<<<<<<
+      output.insertDigi(layerID, digi); // ordering Digis by layer
       digiN++;
       wakeTime = time + deadTime;
     }
   }
-
-}
-
-void DTDigitizer::loadOutput(DTDigiCollection &output,
-			     vector<DTDigi> &digis, DTDetId &layerID){
   
-  DTDigiCollection::Range outputRange;
-  outputRange.first = digis.begin();
-  outputRange.second = digis.end();
-  output.put(outputRange,layerID); //non funziona ma devo farlo funzionare!!!!
-
-  digis.clear();
 }
 
 void DTDigitizer::dumpHit(const PSimHit * hit,
@@ -593,8 +500,8 @@ void DTDigitizer::dumpHit(const PSimHit * hit,
   LocalPoint entryP = hit->entryPoint();
   LocalPoint exitP = hit->exitPoint();
   
-  sides entrySide = onWhichBorder(xEntry,entryP.y(),entryP.z(),topo);
-  sides exitSide  = onWhichBorder(xExit,exitP.y(),exitP.z(),topo);
+  DTTopology::Side entrySide = topo.onWhichBorder(xEntry,entryP.y(),entryP.z());
+  DTTopology::Side exitSide  = topo.onWhichBorder(xExit,exitP.y(),exitP.z());
   //  ProcessTypeEnumerator pTypes;
   
   cout << endl
