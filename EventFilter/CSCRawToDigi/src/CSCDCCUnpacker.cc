@@ -100,7 +100,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
   std::auto_ptr<CSCStripDigiCollection> stripProduct(new CSCStripDigiCollection);
   //std::auto_ptr<CSCALCTDigiCollection> alctProduct(new CSCALCTDigiCollection);
   //std::auto_ptr<CSCCLCTpDigiCollection> clctProduct(new CSCCLCTDigiCollection);
-  std::auto_ptr<CSCComparatorDigiCollection> ComparatorProduct(new CSCComparatorDigiCollection);
+  std::auto_ptr<CSCComparatorDigiCollection> comparatorProduct(new CSCComparatorDigiCollection);
   //std::auto_ptr<CSCRPCDigiCollection> RPCProduct(new CSCRPCDigiCollection);
   
   //std::cout <<"in the producer now " << std::endl;  
@@ -171,16 +171,19 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
             for (int i=0; i<stripDigis.size() ; i++) {
               stripProduct->insertDigi(layer, stripDigis[i]);
             }
-	  }
 
-	 
-	  int nclct = cscData[iCSC].dmbHeader().nclct();
-	  if (nclct) {
-	    std::vector <CSCComparatorDigi> comparatorDigis = 
-	      cscData[iCSC].clctData().comparatorDigis(3);
-	      
+            if (ilayer == 3) { 
+	      int nclct = cscData[iCSC].dmbHeader().nclct();
+	      if (nclct) {
+		std::vector <CSCComparatorDigi> comparatorDigis =
+		  cscData[iCSC].clctData().comparatorDigis(3);
+		for (int i=0; i<comparatorDigis.size() ; i++) {
+		  comparatorProduct->insertDigi(layer, comparatorDigis[i]);
+		}
+	      }
+	    }
 	  }
-	}
+	}  
       }     
     }
   }
@@ -189,7 +192,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
   e.put(stripProduct);
   //e.put(ALCTProduct);
   //e.put(CLCTProduct);
-  e.put(ComparatorProduct);
+  e.put(comparatorProduct);
   //e.put(RPCProduct);
 
   std::cout<<"**************[DCCUnpackingModule]:"<< std::dec << numOfEvents<<" events analyzed "<<std::endl;
