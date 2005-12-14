@@ -9,7 +9,7 @@ feed them into the event.
 According to our current definition, a single producer can only
 appear in one worker.
 
-$Id: ProducerWorker.h,v 1.12 2005/09/01 23:30:49 wmtan Exp $
+$Id: ProducerWorker.h,v 1.13 2005/09/08 10:57:35 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -39,10 +39,11 @@ namespace edm
     static std::auto_ptr<EDProducer> makeOne(const ModuleDescription& md,
 					     const WorkerParams& wp);
   private:
-    virtual bool doWork(EventPrincipal& e, EventSetup const& c);
+    virtual bool implDoWork(EventPrincipal& e, EventSetup const& c);
 
-    virtual void beginJob(EventSetup const&) ;
-    virtual void endJob() ;
+    virtual void implBeginJob(EventSetup const&) ;
+    virtual void implEndJob() ;
+    virtual std::string workerType() const;
     
     boost::shared_ptr<EDProducer> producer_;
     const ActionTable* actions_; // memory assumed to be managed elsewhere

@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: ProducerWorker.cc,v 1.14 2005/10/03 19:05:24 wmtan Exp $
+$Id: ProducerWorker.cc,v 1.15 2005/10/11 19:33:05 chrjones Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/src/ProducerWorker.h"
@@ -81,9 +81,8 @@ namespace edm
   ProducerWorker::ProducerWorker(std::auto_ptr<EDProducer> ed,
 				 const ModuleDescription& md,
 				 const WorkerParams& wp):
-    Worker(md),
-    producer_(ed),
-    actions_(wp.actions_) {
+    Worker(md,wp),
+    producer_(ed) {
     
     if (producer_->typeLabelList().empty() && producer_->registrationCallback().empty()) {
       throw edm::Exception(errors::NoProductSpecified,"Producer")
@@ -122,71 +121,26 @@ namespace edm
   ProducerWorker::~ProducerWorker() {
   }
 
-  bool ProducerWorker::doWork(EventPrincipal& ep, EventSetup const& c) {
+  bool ProducerWorker::implDoWork(EventPrincipal& ep, EventSetup const& c) {
     bool rc = false;
 
-    try {
-      Event e(ep,description());
-      producer_->produce(e,c);
-      e.commit_();
-      rc=true;
-    }
-    catch(cms::Exception& e) {
-	// should event id be included?
-	e << "A cms::Exception is going through EDProducer:\n"
-	  << description();
-
-	switch(actions_->find(e.rootCause())) {
-	  case actions::IgnoreCompletely: {
-	    rc=true;
-	    cerr << "Producer ignored an exception for event " << ep.id()
-	         << "\nmessage from exception:\n" << e.what()
-	         << endl;
-	    break;
-	  }
-	  case actions::FailModule: {
-	    cerr << "Producer failed due to exception for event " << ep.id()
-		 << "\nmessage from exception:\n" << e.what()
-		 << endl;
-	    break;
-	  }
-	  default: throw;
-	}
-    }
-    catch(seal::Error& e) {
-	cerr << "A seal::Error is going through EDProducer:\n"
-	     << description()
-	     << endl;
-	throw;
-    }
-    catch(std::exception& e) {
-	cerr << "An std::exception is going through EDProducer:\n"
-	     << description()
-	     << endl;
-	throw;
-    }
-    catch(std::string& s) {
-	throw cms::Exception("BadExceptionType","std::string") 
-	  << "string = " << s << "\n"
-	  << description() ;
-    }
-    catch(const char* c) {
-	throw cms::Exception("BadExceptionType","const char*") 
-	  << "cstring = " << c << "\n"
-	  << description() ;
-    }
-    catch(...) {
-	cerr << "An unknown Exception occured in\n" << description();
-	throw;
-    }
+    Event e(ep,description());
+    producer_->produce(e,c);
+    e.commit_();
+    rc=true;
     return rc;
   }
 
-  void ProducerWorker::beginJob(EventSetup const& es) {
+  void ProducerWorker::implBeginJob(EventSetup const& es) {
     producer_->beginJob(es);
   }
 
-  void ProducerWorker::endJob() {
+  void ProducerWorker::implEndJob() {
     producer_->endJob();
   }
+  
+  std::string ProducerWorker::workerType() const {
+    return "EDProducer";
+  }
+  
 }

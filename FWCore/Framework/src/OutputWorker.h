@@ -9,7 +9,7 @@ this object is to call the output module.
 According to our current definition, a single output module can only
 appear in one worker.
 
-$Id: OutputWorker.h,v 1.12 2005/09/08 10:57:35 chrjones Exp $
+$Id: OutputWorker.h,v 1.13 2005/10/12 02:30:39 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -40,13 +40,13 @@ namespace edm
     static std::auto_ptr<OutputModule> makeOne(const ModuleDescription& md,
 					const WorkerParams& wp);
   private:
-    virtual bool doWork(EventPrincipal& e, EventSetup const& c);
+    virtual bool implDoWork(EventPrincipal& e, EventSetup const& c);
 
-    virtual void beginJob(EventSetup const&) ;
-    virtual void endJob() ;
+    virtual void implBeginJob(EventSetup const&) ;
+    virtual void implEndJob() ;
+    virtual std::string workerType() const;
     
     boost::shared_ptr<OutputModule> mod_;
-    const ActionTable* actions_; // memory assumed to be managed elsewhere
   };
 
   template <> 
