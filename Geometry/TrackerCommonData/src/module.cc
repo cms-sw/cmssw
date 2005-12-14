@@ -1,6 +1,7 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 
 #include "Geometry/TrackerCommonData/interface/DDPixBarLayerAlgo.h"
+#include "Geometry/TrackerCommonData/interface/DDPixFwdBlades.h"
 #include "Geometry/TrackerCommonData/interface/DDTECAxialCableAlgo.h"
 #include "Geometry/TrackerCommonData/interface/DDTECCoolAlgo.h"
 #include "Geometry/TrackerCommonData/interface/DDTECModuleAlgo.h"
@@ -25,6 +26,7 @@
 
 DEFINE_SEAL_MODULE ();
 DEFINE_SEAL_PLUGIN (DDAlgorithmFactory, DDPixBarLayerAlgo,   "track:DDPixBarLayerAlgo");
+DEFINE_SEAL_PLUGIN (DDAlgorithmFactory, DDPixFwdBlades,      "track:DDPixFwdBlades");
 DEFINE_SEAL_PLUGIN (DDAlgorithmFactory, DDTECAxialCableAlgo, "track:DDTECAxialCableAlgo");
 DEFINE_SEAL_PLUGIN (DDAlgorithmFactory, DDTECCoolAlgo,       "track:DDTECCoolAlgo");
 DEFINE_SEAL_PLUGIN (DDAlgorithmFactory, DDTECModuleAlgo,     "track:DDTECModuleAlgo");
