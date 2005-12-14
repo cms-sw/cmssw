@@ -36,10 +36,10 @@ CSCCLCTData::CSCCLCTData(int ncfebs, int ntbins, const unsigned short * buf)
 }
 
 #ifndef UNPCK_ONLY
-/*
-std::vector<CSCComparatorOutput>  CSCCLCTData::comparatorOutputs(int layer) {
+
+std::vector<CSCComparatorDigi>  CSCCLCTData::comparatorDigis(int layer) {
   //cout << "looking for comp output on layer " << layer << endl;
-  std::vector<CSCComparatorOutput> result;
+  std::vector<CSCComparatorDigi> result;
   assert(layer>0 && layer<= 6);
   // this is pretty sparse data, so I wish we could check the
   // data word by word, not bit by bit, but I don't see how to
@@ -50,9 +50,9 @@ std::vector<CSCComparatorOutput>  CSCCLCTData::comparatorOutputs(int layer) {
       for(int tbin = 0; tbin < ntbins_-2; ++tbin) {
         if(bitValue(cfeb, tbin, layer, distrip)) {
           /// first do some checks
-          //CSCCLCTDataWord word = dataWord(cfeb, tbin, layer);
-          //assert(word.tbin_ == tbin);
-          //assert(word.cfeb_ == cfeb);
+          CSCCLCTDataWord word = dataWord(cfeb, tbin, layer);
+          assert(word.tbin_ == tbin);
+          assert(word.cfeb_ == cfeb);
           // we have a hit.  The next two time samples
           // are the other two bits in the triad
           int bit2 = bitValue(cfeb, tbin+1, layer, distrip);
@@ -62,14 +62,14 @@ std::vector<CSCComparatorOutput>  CSCCLCTData::comparatorOutputs(int layer) {
           int HalfStrip = 4*chamberDistrip + bit2*2 + bit3;
           int output = 4 + bit2*2 + bit3;
           if (debug)
-	    std::cout << "fillComparatorOutputs: layer = " 
+	    std::cout << std::dec << "fillComparatorOutputs: layer = " 
 		      << layer << " timebin = " << tbin
 		      << " cfeb = " << cfeb
-		      << " distrip = " << dec << chamberDistrip
-		      << " HalfStrip = " << dec << HalfStrip 
+		      << " distrip = " << chamberDistrip
+		      << " HalfStrip = " << HalfStrip 
 		      << " Output " << output << std::endl;
           result.push_back(
-			   CSCComparatorOutput(tbin, chamberDistrip, output, 0.)
+			   CSCComparatorDigi(chamberDistrip, output)
 			   );
           tbin += 2;
         }
@@ -79,7 +79,7 @@ std::vector<CSCComparatorOutput>  CSCCLCTData::comparatorOutputs(int layer) {
   return result;
 }
 
-
+/*
 void CSCCLCTData::add(const CSCComparatorOutput & comparator, int layer) {
   int cfeb = comparator.element() / 8;
   int distrip = comparator.element() % 8;

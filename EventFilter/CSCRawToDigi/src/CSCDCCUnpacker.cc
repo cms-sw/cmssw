@@ -63,7 +63,8 @@ CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset) :
 
   produces<CSCWireDigiCollection>();
   produces<CSCStripDigiCollection>();
-   
+  produces<CSCComparatorDigiCollection>();  
+ 
   CSCAnodeData::setDebug(debugPrintouts);
   CSCALCTHeader::setDebug(debugPrintouts);
   CSCCLCTData::setDebug(debugPrintouts);
@@ -99,7 +100,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
   std::auto_ptr<CSCStripDigiCollection> stripProduct(new CSCStripDigiCollection);
   //std::auto_ptr<CSCALCTDigiCollection> alctProduct(new CSCALCTDigiCollection);
   //std::auto_ptr<CSCCLCTpDigiCollection> clctProduct(new CSCCLCTDigiCollection);
-  //std::auto_ptr<CSCComparatorDigiCollection> ComparatorProduct(new CSCComparatorDigiCollection);
+  std::auto_ptr<CSCComparatorDigiCollection> ComparatorProduct(new CSCComparatorDigiCollection);
   //std::auto_ptr<CSCRPCDigiCollection> RPCProduct(new CSCRPCDigiCollection);
   
   //std::cout <<"in the producer now " << std::endl;  
@@ -138,10 +139,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 	
 	for (int iCSC=0; iCSC<cscData.size(); ++iCSC) { //loop over CSCs
 
-	  ///Digis for each chamber must be obtained here	
-	  ///below is an example for  wire digis 
-	  ///it must be repeated for all 6 types!
-	  
+	  //this loop stores strip and wire digis:
 	  for (int ilayer = 1; ilayer <= 6; ilayer++) { 
 	    int endcap = 1;
 	    int station = 1;
@@ -173,7 +171,14 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
             for (int i=0; i<stripDigis.size() ; i++) {
               stripProduct->insertDigi(layer, stripDigis[i]);
             }
+	  }
 
+	 
+	  int nclct = cscData[iCSC].dmbHeader().nclct();
+	  if (nclct) {
+	    std::vector <CSCComparatorDigi> comparatorDigis = 
+	      cscData[iCSC].clctData().comparatorDigis(3);
+	      
 	  }
 	}
       }     
@@ -184,7 +189,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
   e.put(stripProduct);
   //e.put(ALCTProduct);
   //e.put(CLCTProduct);
-  //e.put(ComparatorProduct);
+  e.put(ComparatorProduct);
   //e.put(RPCProduct);
 
   std::cout<<"**************[DCCUnpackingModule]:"<< std::dec << numOfEvents<<" events analyzed "<<std::endl;

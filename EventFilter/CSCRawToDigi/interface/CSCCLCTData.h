@@ -31,7 +31,7 @@ public:
 #ifndef UNPCK_ONLY
 
   /// layers count from one
-  //std::vector<CSCComparatorOutput> comparatorOutputs(int layer);
+  std::vector<CSCComparatorDigi> comparatorDigis(int layer);
 
 #endif
 
