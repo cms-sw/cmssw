@@ -5,8 +5,8 @@
 /** \class RPCUnpackingModule
  *  Driver class for unpacking RPC raw data (DCC format)
  *
- *  $Date: 2005/10/06 18:25:22 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/12/12 17:29:50 $
+ *  $Revision: 1.5 $
  *  \author Ilaria Segoni - CERN
  */
 
@@ -43,8 +43,10 @@ class RPCUnpackingModule: public edm::EDProducer {
 
   private:
   
-    bool printout;  
+    bool printout;
+    bool hexprintout;  
     RPCEventData rpcData; 
+    int nEvents;
    
 
   };
