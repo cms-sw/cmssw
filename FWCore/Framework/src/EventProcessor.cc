@@ -39,8 +39,6 @@
 #include "FWCore/ParameterSet/interface/ProcessPSetBuilder.h"
 #include "FWCore/ParameterSet/interface/MakeParameterSets.h"
 
-#include "FWCore/EDProduct/interface/EDProductGetter.h"
-
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
