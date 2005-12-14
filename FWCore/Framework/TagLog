@@ -1,3 +1,6 @@
+** V01-00-09  [Wed Dec 14 23:55:32 2005]
+Change Worker classes to improve error handling/reporting
+
 ** V01-00-08  [Tue Dec 13 07:36:40 2005]
 Use ParameterSetID instead of PS_ID.
 
