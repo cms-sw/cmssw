@@ -49,6 +49,9 @@
 CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset) :
   numOfEvents(0){
 
+  bool debugPrintouts = pset.getUntrackedParameter<bool>("Debug", false);
+  std::string mappingFileName = pset.getUntrackedParameter<std::string>("theMappingFile",
+								  "csc_slice_test_map.txt");
 
   instatiateDQM = pset.getUntrackedParameter<bool>("runDQM", false);
   if(instatiateDQM){
@@ -58,26 +61,18 @@ CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset) :
   }
   
 
-  //std::cout << "starting DCCConstructor";   
-
-  //fill constructor here
-  //dccData = 0;
   produces<CSCWireDigiCollection>();
   produces<CSCStripDigiCollection>();
-  //std::cout <<"... and finished " << std::endl;  
    
-  CSCAnodeData::setDebug(true);
-  CSCALCTHeader::setDebug(true);
-  CSCCLCTData::setDebug(true);
-  CSCEventData::setDebug(true);
-  CSCTMBData::setDebug(true);
-  CSCDCCEventData::setDebug(true);
-  CSCDDUEventData::setDebug(true);
-  CSCTMBHeader::setDebug(true);
-  //move this outside of producer
-  std::string releasetop(getenv("CMSSW_BASE"));
-  std::string mappingFilePath= releasetop + "/src/CondFormats/CSCObjects/test/";    
-  std::string mappingFileName = mappingFilePath + "csc_slice_test_map.txt";
+  CSCAnodeData::setDebug(debugPrintouts);
+  CSCALCTHeader::setDebug(debugPrintouts);
+  CSCCLCTData::setDebug(debugPrintouts);
+  CSCEventData::setDebug(debugPrintouts);
+  CSCTMBData::setDebug(debugPrintouts);
+  CSCDCCEventData::setDebug(debugPrintouts);
+  CSCDDUEventData::setDebug(debugPrintouts);
+  CSCTMBHeader::setDebug(debugPrintouts);
+  
   theMapping  = CSCReadoutMappingFromFile( mappingFileName );
   
 }
@@ -132,10 +127,6 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
      
 
       if(instatiateDQM) monitor->process(dccData);
-
-      std::cout<<"**************[DCCUnpackingModule]:"<<numOfEvents<<" events analyzed"<<std::endl;
-
-
 
       //get a reference to dduData
       const std::vector<CSCDDUEventData> & dduData = dccData.dduData(); 
@@ -195,6 +186,8 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
   //e.put(CLCTProduct);
   //e.put(ComparatorProduct);
   //e.put(RPCProduct);
+
+  std::cout<<"**************[DCCUnpackingModule]:"<< std::dec << numOfEvents<<" events analyzed "<<std::endl;
 
 }
 
