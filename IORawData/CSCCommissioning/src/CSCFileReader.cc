@@ -50,6 +50,8 @@ bool CSCFileReader::fillRawData(edm::EventID& eID, edm::Timestamp& tstamp, FEDRa
 		throw cms::Exception("EndOfStream")<<"CSCFileReader: "<<err.what()<<" (errno="<<errno<<")";
 	}
 
+	if(!length) return false;
+
 	int runNumber   = 0; // Unknown at the level of EMu local DAQ
 	int eventNumber = dduBuf[2] | ((dduBuf[3]&0x00FF)<<16); // L1A Number
 	eID = EventID(runNumber,eventNumber);
