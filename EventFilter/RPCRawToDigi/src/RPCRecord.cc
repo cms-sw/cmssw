@@ -2,8 +2,8 @@
  *
  *  Implementation of RPCRecord Class
  *
- *  $Date: 2005/11/09 11:35:09 $
- *  $Revision: 1.4 $
+ *  $Date: 2005/12/12 17:32:11 $
+ *  $Revision: 1.5 $
  *  \author Ilaria Segoni
  */
 
@@ -50,44 +50,3 @@ return wordType;
 }
 
 
-void RPCRecord::recordUnpack(recordTypes  type){
-
-/// BX Data type
- if(type==StartOfBXData){
-    RPCBXData bxData(word_);
-    if(verbosity) cout<<"Found BX record, BX= "<<bxData.bx()<<endl;
-
-   // rpcData.addBXData(bxData);
- } 
-
-/// Start of Channel Data Type
- if(type==StartOfChannelData){
-    RPCChannelData chnData(word_);
-    if(verbosity) cout<<"Found start of Channel Data Record, Channel: "<< chnData.channel()<<
- 	 " Readout/Trigger Mother Board: "<<chnData.tbRmb()<<endl;
- } 
-
-/// Chamber Data 
- if(type==ChamberData){
-   RPCChamberData cmbData(word_);
-    if(verbosity) cout<< "Found Chamber Data, Chamber Number: "<<cmbData.chamberNumber()<<
- 	" Partition Data "<<cmbData.partitionData()<<
- 	" Half Partition " << cmbData.halfP()<<
- 	" Data Truncated: "<<cmbData.eod()<<
- 	" Partition Number " <<  cmbData.partitionNumber()
- 	<<endl;
- }
-
-/// RMB Discarded
- if(type==RMBDiscarded){
-  RMBErrorData  discarded(word_);
-  //	rpcData.addRMBDiscarded(discarded);
-  //   rpcData.addRMBCorrupted(corrupted);
- }
-
-/// DCC Discraded
- if(type==DCCDiscarded){
-    // rpcData.addDCCDiscarded();
- }
-
-}
