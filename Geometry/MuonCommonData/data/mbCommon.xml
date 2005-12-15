@@ -109,7 +109,7 @@
  <!--%% Effective gas volume.
 This volume should not include the Ibeam horizontal bars (those that make the 'I' shape; without them it would be a '|') -->
  <Box name="MBChimSLPhiGas_a" dx="20.35*mm" dz="[MBGas_height]" dy="[MBChimSLPhiBareWire_length]"/>
- <Box name="MBChimSLPhiIBeamWing" dx="3.175*mm" dz="[MBAlPlate_height]" dy="[MBChimSLPhiBareWire_length]"/>
+ <Box name="MBChimSLPhiIBeamWing" dx="3.175*mm" dz="0.65*mm" dy="[MBChimSLPhiBareWire_length]"/>
  <SubtractionSolid name="MBChimSLPhiGas_b">
    <rSolid name="MBChimSLPhiGas_a"/>
    <rSolid name="MBChimSLPhiIBeamWing"/>
