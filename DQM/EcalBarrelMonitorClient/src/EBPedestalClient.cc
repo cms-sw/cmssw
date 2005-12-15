@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  * 
- * $Date: 2005/12/08 09:34:37 $
- * $Revision: 1.34 $
+ * $Date: 2005/12/13 09:02:24 $
+ * $Revision: 1.35 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -349,6 +349,32 @@ void EBPedestalClient::unsubscribe(void){
   mui_->unsubscribe("*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal SM*");
   mui_->unsubscribe("*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM*");
   mui_->unsubscribe("*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM*");
+
+  if ( collateSources_ ) {
+
+    if ( verbose_ ) cout << "EBPedestalClient: uncollate" << endl;
+
+    DaqMonitorBEInterface* bei = mui_->getBEInterface();
+
+    Char_t histo[80];
+
+    for ( int ism = 1; ism <= 36; ism++ ) {
+
+      sprintf(histo, "EBPT pedestal SM%02d G01", ism);
+      bei->setCurrentFolder("EcalBarrel/Sums/EBPedestalTask/Gain01");
+      bei->removeElement(histo);
+
+      sprintf(histo, "EBPT pedestal SM%02d G06", ism);
+      bei->setCurrentFolder("EcalBarrel/Sums/EBPedestalTask/Gain06");
+      bei->removeElement(histo);
+
+      sprintf(histo, "EBPT pedestal SM%02d G12", ism);
+      bei->setCurrentFolder("EcalBarrel/Sums/EBPedestalTask/Gain12");
+      bei->removeElement(histo);
+
+    }
+
+  }
 
 }
 

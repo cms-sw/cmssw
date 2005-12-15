@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  * 
- * $Date: 2005/12/02 15:48:25 $
- * $Revision: 1.34 $
+ * $Date: 2005/12/13 09:02:24 $
+ * $Revision: 1.35 $
  * \author G. Della Ricca
  *
 */
@@ -488,6 +488,52 @@ void EBLaserClient::unsubscribe(void){
   mui_->unsubscribe("*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude over PN SM*");
   mui_->unsubscribe("*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude SM*");
   mui_->unsubscribe("*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN SM*");
+
+  if ( collateSources_ ) {
+
+    if ( verbose_ ) cout << "EBLaserClient: uncollate" << endl;
+
+    DaqMonitorBEInterface* bei = mui_->getBEInterface();
+
+    Char_t histo[80];
+
+    for ( int ism = 1; ism <= 36; ism++ ) {
+
+      sprintf(histo, "EBLT amplitude SM%02d L1", ism);
+      bei->setCurrentFolder("EcalBarrel/Sums/EBLaserTask/Laser1");
+      bei->removeElement(histo);
+
+      sprintf(histo, "EBLT amplitude over PN SM%02d L1", ism);
+      bei->setCurrentFolder("EcalBarrel/Sums/EBLaserTask/Laser1");
+      bei->removeElement(histo);
+
+      sprintf(histo, "EBLT amplitude SM%02d L2", ism);
+      bei->setCurrentFolder("EcalBarrel/Sums/EBLaserTask/Laser2");
+      bei->removeElement(histo);
+
+      sprintf(histo, "EBLT amplitude over PN SM%02d L2", ism);
+      bei->setCurrentFolder("EcalBarrel/Sums/EBLaserTask/Laser2");
+      bei->removeElement(histo);
+
+      sprintf(histo, "EBLT amplitude SM%02d L3", ism);
+      bei->setCurrentFolder("EcalBarrel/Sums/EBLaserTask/Laser3");
+      bei->removeElement(histo);
+
+      sprintf(histo, "EBLT amplitude over PN SM%02d L3", ism);
+      bei->setCurrentFolder("EcalBarrel/Sums/EBLaserTask/Laser3");
+      bei->removeElement(histo);
+
+      sprintf(histo, "EBLT amplitude SM%02d L4", ism);
+      bei->setCurrentFolder("EcalBarrel/Sums/EBLaserTask/Laser4");
+      bei->removeElement(histo);
+
+      sprintf(histo, "EBLT amplitude over PN SM%02d L4", ism);
+      bei->setCurrentFolder("EcalBarrel/Sums/EBLaserTask/Laser4");
+      bei->removeElement(histo);
+
+    }
+
+  }
 
 }
 

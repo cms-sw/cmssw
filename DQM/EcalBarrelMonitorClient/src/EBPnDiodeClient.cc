@@ -1,8 +1,8 @@
 /*
  * \file EBPnDiodeClient.cc
  * 
- * $Date: 2005/12/06 15:52:14 $
- * $Revision: 1.14 $
+ * $Date: 2005/12/13 09:02:24 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -256,6 +256,36 @@ void EBPnDiodeClient::unsubscribe(void){
   mui_->unsubscribe("*/EcalBarrel/EBPnDiodeTask/Laser2/EBDT PNs SM*");
   mui_->unsubscribe("*/EcalBarrel/EBPnDiodeTask/Laser3/EBDT PNs SM*");
   mui_->unsubscribe("*/EcalBarrel/EBPnDiodeTask/Laser4/EBDT PNs SM*");
+
+  if ( collateSources_ ) {
+ 
+    if ( verbose_ ) cout << "EBPnDiodeClient: uncollate" << endl;
+
+    DaqMonitorBEInterface* bei = mui_->getBEInterface();
+
+    Char_t histo[80];
+
+    for ( int ism = 1; ism <= 36; ism++ ) {
+
+      sprintf(histo, "EBDT PNs SM%02d L1", ism);
+      bei->setCurrentFolder("EcalBarrel/Sums/EBPnDiodeTask/Laser1");
+      bei->removeElement(histo);
+
+      sprintf(histo, "EBDT PNs SM%02d L2", ism);
+      bei->setCurrentFolder("EcalBarrel/Sums/EBPnDiodeTask/Laser2");
+      bei->removeElement(histo);
+
+      sprintf(histo, "EBDT PNs SM%02d L3", ism);
+      bei->setCurrentFolder("EcalBarrel/Sums/EBPnDiodeTask/Laser3");
+      bei->removeElement(histo);
+
+      sprintf(histo, "EBDT PNs SM%02d L4", ism);
+      bei->setCurrentFolder("EcalBarrel/Sums/EBPnDiodeTask/Laser4");
+      bei->removeElement(histo);
+
+    }
+
+  }
 
 }
 

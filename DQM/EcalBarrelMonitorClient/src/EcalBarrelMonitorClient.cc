@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  * 
- * $Date: 2005/12/12 07:26:25 $
- * $Revision: 1.52 $
+ * $Date: 2005/12/13 09:02:24 $
+ * $Revision: 1.53 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -333,6 +333,20 @@ void EcalBarrelMonitorClient::unsubscribe(void) {
   mui_->unsubscribe("*/EcalBarrel/EVT");
   mui_->unsubscribe("*/EcalBarrel/EVTTYPE");
   mui_->unsubscribe("*/EcalBarrel/RUNTYPE");
+
+  if ( collateSources_ ) {
+
+    if ( verbose_ ) cout << "EcalBarrelMonitorClient: uncollate" << endl;
+
+    DaqMonitorBEInterface* bei = mui_->getBEInterface();
+
+    Char_t histo[80];
+
+    sprintf(histo, "EVTTYPE");
+    bei->setCurrentFolder("EcalBarrel/Sums");
+    bei->removeElement(histo);
+
+  }
 
 }
 

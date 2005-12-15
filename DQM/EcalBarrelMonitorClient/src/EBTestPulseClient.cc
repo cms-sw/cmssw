@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  * 
- * $Date: 2005/12/06 10:55:30 $
- * $Revision: 1.38 $
+ * $Date: 2005/12/13 09:02:24 $
+ * $Revision: 1.39 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -498,6 +498,56 @@ void EBTestPulseClient::unsubscribe(void){
   mui_->unsubscribe("*/EcalBarrel/EBTestPulseTask/Gain12/EBTT amplitude SM*");
   mui_->unsubscribe("*/EcalBarrel/EBTestPulseTask/Gain12/EBTT shape SM*");
   mui_->unsubscribe("*/EcalBarrel/EBTestPulseTask/Gain12/EBTT amplitude error SM*");
+
+  if ( collateSources_ ) {
+ 
+    if ( verbose_ ) cout << "EBTestPulseClient: uncollate" << endl;
+
+    DaqMonitorBEInterface* bei = mui_->getBEInterface();
+
+    Char_t histo[80];
+
+    for ( int ism = 1; ism <= 36; ism++ ) {
+
+      sprintf(histo, "EBTT amplitude SM%02d G01", ism);
+      bei->setCurrentFolder("EcalBarrel/Sums/EBTestPulseTask/Gain01");
+      bei->removeElement(histo);
+  
+      sprintf(histo, "EBTT amplitude SM%02d G06", ism);
+      bei->setCurrentFolder("EcalBarrel/Sums/EBTestPulseTask/Gain06");
+      bei->removeElement(histo);
+
+      sprintf(histo, "EBTT amplitude SM%02d G12", ism);
+      bei->setCurrentFolder("EcalBarrel/Sums/EBTestPulseTask/Gain12");
+      bei->removeElement(histo);
+
+      sprintf(histo, "EBTT shape SM%02d G01", ism);
+      bei->setCurrentFolder("EcalBarrel/Sums/EBTestPulseTask/Gain01");
+      bei->removeElement(histo);
+
+      sprintf(histo, "EBTT shape SM%02d G06", ism);
+      bei->setCurrentFolder("EcalBarrel/Sums/EBTestPulseTask/Gain06");
+      bei->removeElement(histo);
+
+      sprintf(histo, "EBTT shape SM%02d G12", ism);
+      bei->setCurrentFolder("EcalBarrel/Sums/EBTestPulseTask/Gain12");
+      bei->removeElement(histo);
+
+      sprintf(histo, "EBTT amplitude error SM%02d G01", ism);
+      bei->setCurrentFolder("EcalBarrel/Sums/EBTestPulseTask/Gain01");
+      bei->removeElement(histo);
+
+      sprintf(histo, "EBTT amplitude error SM%02d G06", ism);
+      bei->setCurrentFolder("EcalBarrel/Sums/EBTestPulseTask/Gain06");
+      bei->removeElement(histo);
+
+      sprintf(histo, "EBTT amplitude error SM%02d G12", ism);
+      bei->setCurrentFolder("EcalBarrel/Sums/EBTestPulseTask/Gain12");
+      bei->removeElement(histo);
+
+    }
+
+  }
 
 }
 
