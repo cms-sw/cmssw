@@ -21,9 +21,9 @@ class CSCDDUTrailer {
   static unsigned sizeInWords() {return 12;}
   
   bool check() const {
-    std::cout << "DDUTRAILER CHECK " << trailer2_1 << " " 
-	      << trailer2_2  << " " << trailer2_3 << " " 
-	      << trailer2_4 << std::endl;
+    //std::cout << std:: hex << "DDUTRAILER CHECK " << trailer2_1 << " " 
+    //      << trailer2_2  << " " << trailer2_3 << " " 
+    //      << trailer2_4 << std:: dec << std::endl;
     return trailer2_1 == 0x8000 && trailer2_2 == 0x8000
                    && trailer2_3 == 0xFFFF && trailer2_4 == 0x8000;}
   

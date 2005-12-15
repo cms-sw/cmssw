@@ -49,7 +49,7 @@
 CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset) :
   numOfEvents(0){
 
-  bool debugPrintouts = pset.getUntrackedParameter<bool>("Debug", false);
+  debug = pset.getUntrackedParameter<bool>("Debug", false);
   std::string mappingFileName = pset.getUntrackedParameter<std::string>("theMappingFile",
 								  "csc_slice_test_map.txt");
 
@@ -65,14 +65,14 @@ CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset) :
   produces<CSCStripDigiCollection>();
   produces<CSCComparatorDigiCollection>();  
  
-  CSCAnodeData::setDebug(debugPrintouts);
-  CSCALCTHeader::setDebug(debugPrintouts);
-  CSCCLCTData::setDebug(debugPrintouts);
-  CSCEventData::setDebug(debugPrintouts);
-  CSCTMBData::setDebug(debugPrintouts);
-  CSCDCCEventData::setDebug(debugPrintouts);
-  CSCDDUEventData::setDebug(debugPrintouts);
-  CSCTMBHeader::setDebug(debugPrintouts);
+  CSCAnodeData::setDebug(debug);
+  CSCALCTHeader::setDebug(debug);
+  CSCCLCTData::setDebug(debug);
+  CSCEventData::setDebug(debug);
+  CSCTMBData::setDebug(debug);
+  CSCDCCEventData::setDebug(debug);
+  CSCDDUEventData::setDebug(debug);
+  CSCTMBHeader::setDebug(debug);
   
   theMapping  = CSCReadoutMappingFromFile( mappingFileName );
   
@@ -147,8 +147,8 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
  	    int vmecrate = cscData[iCSC].dmbHeader().crateID(); 
 	    int dmb = cscData[iCSC].dmbHeader().dmbID();
 
-	    std::cout << "crate = " << vmecrate << "; dmb = " << dmb << std::endl;           
-
+	    if (debug) std::cout << "crate = " << vmecrate << "; dmb = " << dmb << std::endl;
+ 
 	    CSCDetId layer(1, //endcap
 			   1, //station
 			   1, //ring
