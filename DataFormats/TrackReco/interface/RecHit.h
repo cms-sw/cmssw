@@ -4,26 +4,27 @@
 
 Dummy class to be replaced by real RecHits
 
-$Id: RecHit.h,v 1.1 2005/11/22 13:51:44 llista Exp $
+$Id: RecHit.h,v 1.2 2005/12/11 17:58:16 llista Exp $
 
 */
-#include <Rtypes.h>
+#include "DataFormats/Math/interface/Point3D.h"
+#include "DataFormats/TrackReco/interface/RecHitFwd.h"
 
 namespace reco {
 
   class RecHit {
   public:
+    typedef math::XYZPoint Point;
     RecHit() {}
-    RecHit( double x, double y, double z );
-    double localX() const { return x_; }
-    double localY() const { return y_; }
-    double localZ() const { return z_; }
+    RecHit( const Point & p );
+    const Point & position() const { return position_; }
+    double localX() const { return position_.X(); }
+    double localY() const { return position_.Y(); }
+    double localZ() const { return position_.Z(); }
   private:
-    Double32_t x_, y_, z_;
+    Point position_;
   };
 
 }
-
-#include "DataFormats/TrackReco/interface/RecHitFwd.h"
 
 #endif

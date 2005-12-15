@@ -1,6 +1,4 @@
 <lcgdict>
-  <class name="reco::Vector<3>" />
-  <class name="reco::Error<3>" />
   <class name="reco::Vertex" />
   <class name="std::vector<reco::Vertex>" />
   <class name="edm::Wrapper<std::vector<reco::Vertex> >" />

@@ -1,29 +1,31 @@
 #ifndef TrackReco_HelixParameters_h
 #define TrackReco_HelixParameters_h
 /*----------------------------
- $Id: HelixParameters.h,v 1.1 2005/11/22 13:51:44 llista Exp $
+ $Id: HelixParameters.h,v 1.3 2005/11/24 12:12:08 llista Exp $
  Helix Track Parametrization
 
  Author: Luca Lista, INFN
 ------------------------------*/
-#include <CLHEP/Geometry/Vector3D.h>
-#include <CLHEP/Geometry/Point3D.h>
-#include "DataFormats/TrackReco/interface/Error.h"
-#include "DataFormats/TrackReco/interface/Vector.h"
+#include "DataFormats/Math/interface/Vector3D.h"
+#include "DataFormats/Math/interface/Point3D.h"
+#include "DataFormats/Math/interface/Error.h"
+#include "DataFormats/Math/interface/Vector.h"
 #include <cmath>
 
 namespace reco {
   namespace helix {
     enum index { i_d0 = 0, i_phi0, i_omega, i_dz, i_tanDip }; 
-    typedef HepGeom::Vector3D<double> Vector;
-    typedef HepGeom::Point3D<double> Point;
-    typedef Error<6> PosMomError;
+    typedef math::Error<6> PosMomError;
+    typedef math::XYZVector Vector;
+    typedef math::XYZPoint Point;
+    typedef math::Vector<5> ParameterVector;
+    typedef math::Error<5> ParameterError;
  
     class Parameters {
     public:
       Parameters() { }
       Parameters( const double * par ) : par_( par ) { }
-      typedef reco::Vector<5>::index index;
+      typedef ParameterVector::index index;
       /* removed for consistency with Covariance. See comment below...
       template<index i>
       double get() const { return par_.get<i>(); }
@@ -48,14 +50,14 @@ namespace reco {
       Point vertex() const;
       
     private:
-      reco::Vector<5> par_;
+      ParameterVector par_;
     };
   
     class Covariance {
     public:
       Covariance() {} 
       Covariance( const double * cov ) : cov_( cov ) { }
-      typedef Error<5>::index index;
+      typedef ParameterError::index index;
       /* those methods templates don't compile under LCG reflex dicts.
       template<index i, index j>
       double get() const { return cov_.get<i, j>(); }
@@ -71,7 +73,7 @@ namespace reco {
       double tanDipError() const { return sqrt( cov_.get<i_tanDip, i_tanDip>() ); }
 
     private:
-      Error<5> cov_;
+      ParameterError cov_;
     };
     
     void setFromCartesian( int q, const Point &, const Vector &, 

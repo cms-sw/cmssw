@@ -1,10 +1,8 @@
 #ifndef MuonReco_Muon_h
 #define MuonReco_Muon_h
-// $Id: Muon.h,v 1.3 2005/11/29 14:42:15 llista Exp $
+// $Id: Muon.h,v 1.4 2005/12/11 17:58:15 llista Exp $
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/Error.h"
-#include <CLHEP/Geometry/Point3D.h>
-#include <CLHEP/Geometry/Vector3D.h>
+#include"DataFormats/MuonReco/interface/MuonFwd.h"
 
 namespace reco {
  
@@ -19,7 +17,5 @@ namespace reco {
   };
 
 }
-
-#include"DataFormats/MuonReco/interface/MuonFwd.h"
 
 #endif

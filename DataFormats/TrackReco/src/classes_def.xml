@@ -1,6 +1,4 @@
 <lcgdict>
-  <class name="reco::Error<5>" />
-  <class name="reco::Vector<5>" />
   <class name="reco::helix::Covariance" />
   <class name="reco::helix::Parameters" />
 
@@ -16,7 +14,6 @@
   <class name="edm::Ref<std::vector<reco::RecHit> >" />
   <class name="edm::RefVector<std::vector<reco::RecHit> >" />
 
-  <class name="reco::Vector<3>" />
   <class name="reco::TrackExtra" />
   <class name="std::vector<reco::TrackExtra>" />
   <class name="edm::Wrapper<std::vector<reco::TrackExtra> >" />

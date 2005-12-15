@@ -2,7 +2,7 @@
 #define JetReco_CaloJet_h
 
 /** \class CaloJet
- * $Id: CaloJet.h,v 1.4 2005/12/14 17:04:05 llista Exp $
+ * $Id: CaloJet.h,v 1.5 2005/12/15 02:11:21 llista Exp $
  *
  * Ported from original version in JetObjects package
  *
@@ -29,7 +29,7 @@ namespace reco {
   
   class CaloJet {
   public:
-  
+    typedef math::PtEtaPhiELorentzVector LorentzVector;
     /** Default constructor*/
     CaloJet();
     

@@ -1,14 +1,8 @@
+<use name=DataFormats/Math>
 <use name=FWCore/EDProduct>
-<use name=FWCore/Framework>
-<use name=Dictionary/Reflex>
-<use name=rootcore>
-<use name=clhep>
 <flags LCGDICT_ARGS="--deep">
 <export>
  <lib name=DataFormatsTrackReco>
+ <use name=DataFormats/Math>
  <use name=FWCore/EDProduct>
- <use name=FWCore/Framework>
- <use name=Dictionary/Reflex>
- <use name=rootcore>
- <use name=clhep>
 </export>

@@ -5,8 +5,6 @@
 
 namespace {
   namespace {
-    reco::Error<3> e31;
-    reco::Vector<3> v31;
     std::vector<reco::Vertex> v1;
     edm::Wrapper<std::vector<reco::Vertex> > wc1;
     edm::Ref<std::vector<reco::Vertex> > r1;

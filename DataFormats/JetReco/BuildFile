@@ -1,20 +1,10 @@
 <use name=DataFormats/CaloTowers>
 <use name=DataFormats/Math>
 <use name=FWCore/EDProduct>
-<use name=FWCore/Framework>
-<use name=Dictionary/Reflex>
-<use name=root>
-<lib name=MathCore>
-<use name=boost>
 <flags LCGDICT_ARGS="--deep">
 <export>
  <lib name=DataFormatsJetReco>
  <use name=DataFormats/CaloTowers>
  <use name=DataFormats/Math>
  <use name=FWCore/EDProduct>
- <use name=FWCore/Framework>
- <use name=Dictionary/Reflex>
- <use name=root>
- <lib name=MathCore>
- <use name=boost>
 </export>

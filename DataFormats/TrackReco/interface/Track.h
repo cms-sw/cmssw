@@ -1,14 +1,14 @@
 #ifndef TrackReco_Track_h
 #define TrackReco_Track_h
 //
-// $Id: Track.h,v 1.4 2005/11/29 13:40:29 llista Exp $
+// $Id: Track.h,v 1.5 2005/12/11 17:58:16 llista Exp $
 //
 // Definition of Track class for RECO
 //
 // Author: Luca Lista
 //
-#include <Rtypes.h>
 #include "DataFormats/TrackReco/interface/HelixParameters.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 namespace reco {
 
@@ -19,6 +19,7 @@ namespace reco {
     typedef helix::PosMomError PosMomError;
     typedef helix::Point Point;
     typedef helix::Vector Vector;
+
     Track() { }
     Track( float chi2, unsigned short ndof, int found, int invalid, int lost,
 	   const Parameters &, const Covariance & );
@@ -45,16 +46,16 @@ namespace reco {
     unsigned short found() const { return found_; }
     unsigned short lost() const { return lost_; }
     unsigned short invalid() const { return invalid_; }
-    double p() const { return momentum().mag(); }
-    double px() const { return momentum().x(); }
-    double py() const { return momentum().y(); }
-    double pz() const { return momentum().z(); }
-    double phi() const { return momentum().phi(); }
-    double eta() const { return momentum().eta(); }
-    double theta() const { return momentum().theta(); }
-    double x() const { return vertex().x(); }
-    double y() const { return vertex().y(); }
-    double z() const { return vertex().z(); }
+    double p() const { return momentum().R(); }
+    double px() const { return momentum().X(); }
+    double py() const { return momentum().Y(); }
+    double pz() const { return momentum().Z(); }
+    double phi() const { return momentum().Phi(); }
+    double eta() const { return momentum().Eta(); }
+    double theta() const { return momentum().Theta(); }
+    double x() const { return vertex().X(); }
+    double y() const { return vertex().Y(); }
+    double z() const { return vertex().Z(); }
 
   private:
     Double32_t chi2_;
@@ -67,7 +68,5 @@ namespace reco {
   };
 
 }
-
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #endif

@@ -19,9 +19,11 @@ void testVertex::checkAll() {
   const int ndof = 10;
   const size_t size = 0; // can't test refs at the moment
   const double x = 1.0, y = 2.0, z = 3.0;
-  const double ee[ reco::Vertex::Error::size ] = { 1.1, 1.2, 1.3, 2.2, 2.3, 3.3 };
+  const double ee[ math::Error3D::size ] = { 1.1, 1.2, 1.3, 
+                                                   2.2, 2.3, 
+                                                        3.3 };
   reco::Vertex::Error err( ee );
-  reco::Vertex t( chi2, ndof, x, y, z, err, size );
+  reco::Vertex t( reco::Vertex::Point( x, y, z ), err, chi2, ndof, size );
   CPPUNIT_ASSERT( t.tracksSize() == 0 );
   CPPUNIT_ASSERT( t.chi2() == chi2 );
   CPPUNIT_ASSERT( t.ndof() == ndof );
@@ -29,7 +31,7 @@ void testVertex::checkAll() {
   CPPUNIT_ASSERT( t.x() == x );
   CPPUNIT_ASSERT( t.y() == y );
   CPPUNIT_ASSERT( t.z() == z );
-  const reco::Vertex::Error & e = t.error();
+  const math::Error3D & e = t.error();
   const double 
     e00 = e.get<0,0>(), e01 = e.get<0,1>(), e02 = e.get<0,2>(),
     e10 = e.get<1,0>(), e11 = e.get<1,1>(), e12 = e.get<1,2>(),

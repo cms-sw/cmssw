@@ -7,12 +7,6 @@
 
 namespace {
   namespace {
-    HepGeom::Vector3D<double> v0;
-    HepGeom::Point3D<double> p0;
-
-    reco::Vector<5> v5_1;
-    reco::Error<5> e5_1;
-
     std::vector<reco::Track> v1;
     edm::Wrapper<std::vector<reco::Track> > c1;
     edm::Ref<std::vector<reco::Track> > r1;
@@ -23,7 +17,6 @@ namespace {
     edm::Ref<std::vector<reco::RecHit> > r2;
     edm::RefVector<std::vector<reco::RecHit> > rv2;
 
-    reco::Vector<5> v3_3;
     std::vector<reco::TrackExtra> v3;
     edm::Wrapper<std::vector<reco::TrackExtra> > c3;
     edm::Ref<std::vector<reco::TrackExtra> > r13;

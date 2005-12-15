@@ -1,14 +1,8 @@
-<use name=DataFormats/TrackReco>
+<use name=DataFormats/Math>
 <use name=FWCore/EDProduct>
-<use name=Dictionary/Reflex>
-<use name=clhep>
-<use name=rootcore>
 <flags LCGDICT_ARGS="--deep">
 <export>
  <lib name=DataFormatsVertexReco>
- <use name=DataFormats/TrackReco>
+ <use name=DataFormats/Math>
  <use name=FWCore/EDProduct>
- <use name=Dictionary/Reflex>
- <use name=clhep>
- <use name=rootcore>
 </export>

@@ -1,12 +1,8 @@
 <use name=DataFormats/TrackReco>
 <use name=FWCore/EDProduct>
-<use name=Dictionary/Reflex>
-<use name=clhep>
 <flags LCGDICT_ARGS="--deep">
 <export>
  <lib name=DataFormatsMuonReco>
  <use name=DataFormats/TrackReco>
  <use name=FWCore/EDProduct>
- <use name=Dictionary/Reflex>
- <use name=clhep>
 </export>

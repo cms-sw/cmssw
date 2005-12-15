@@ -8,8 +8,8 @@
 
 /** \struct CaloTower
     
-$Date: 2005/09/15 14:42:57 $
-$Revision: 1.1 $
+$Date: 2005/10/04 20:34:51 $
+$Revision: 1.2 $
 \author J. Mans - Minnesota
 */
 struct CaloTower {
@@ -31,5 +31,9 @@ struct CaloTower {
 };
 
 std::ostream& operator<<(std::ostream& s, const CaloTower& ct);
+
+inline bool operator==( const CaloTower & t1, const CaloTower & t2 ) {
+  return t1.id() == t2.id();
+} 
 
 #endif

@@ -1,10 +1,6 @@
 <use name=FWCore/EDProduct>
-<use name=FWCore/Framework>
-<use name=Dictionary/Reflex>
 <flags LCGDICT_ARGS="--deep">
 <export>
  <lib name=DataFormatsHLTReco>
  <use name=FWCore/EDProduct>
- <use name=FWCore/Framework>
- <use name=Dictionary/Reflex>
 </export>
