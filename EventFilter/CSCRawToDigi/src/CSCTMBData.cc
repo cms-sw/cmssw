@@ -4,6 +4,11 @@
 //  Unpacks and collects all TMB data
 //_________________________________________________________
 //
+//THere are serious problems with this class!!!
+//findline() gets confused with random data looking like the markers
+//need to fix A.Tumanov
+//
+
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBScope.h"
 #include <iostream>
@@ -33,17 +38,23 @@ CSCTMBData::~CSCTMBData() {
 }
 
 // returns -1 if not found
+//
+//
 int findLine(unsigned short *buf, unsigned short marker,int first,  int maxToDo) {
-  //std::cout << "finding line " << hex << marker << "  from "<< dec << first << " to " <<maxToDo<< hex <<std::endl;
+  //std::cout << "finding line " << std::hex << marker << "  from "<< std::dec 
+  //    << first << " to " <<maxToDo<< std::hex <<std::endl;
   for(int i = first; i < maxToDo; ++i) {
-    //std::cout << "buf[i]=" << buf[i] << " i=" << dec << i << hex << std::endl;
-    if(buf[i] == marker) 
-      {
-	//std::cout << "found!" << std::endl;
+    //std::cout << "buf[i]=" << buf[i] << " i=" << std::dec << i << std::hex << std::endl;
+    if(buf[i] == marker)  {
+      //std::cout << "found!" << std::endl;
 	return i;
-      }
+    }
+    
   }
+
+  //std::cout << "Failed to find " << marker << " line " << std::endl;
   return -1;
+
 }
   
 int CSCTMBData::TMBCRCcalc() {
@@ -80,8 +91,9 @@ int CSCTMBData::UnpackTMB(unsigned short *buf) {
   int NHeaderFrames = buf[b0cLine+4]&0x1f;
   //
   int TotTMBReadout = 27+Ntbins*6*5+1+Ntbins*2*4+2+8*256+8; //see tmb2004 manual (version v2p06) page54.
-
+  int MaxSizeRPC = 1+Ntbins*2*4+1;
   int e0bLine = findLine(buf, 0x6e0b, 0, TotTMBReadout);
+  
 
   if(e0bLine == -1) {
     std::cout << "+++ CSCTMBData warning: No e0b line!" << std::endl;
@@ -112,10 +124,10 @@ int CSCTMBData::UnpackTMB(unsigned short *buf) {
   }
 
   // look for RPC
-  int b04Line = findLine(buf, 0x6b04, afterHeader, TotTMBReadout);
+  int b04Line = findLine(buf, 0x6b04, afterHeader, afterHeader+MaxSizeRPC);
   if(b04Line != -1 ) {
     // we need an e04 line to calculate the size
-    int e04Line = findLine(buf, 0x6e04, afterHeader, TotTMBReadout);
+    int e04Line = findLine(buf, 0x6e04, afterHeader, afterHeader+MaxSizeRPC);
     if(e04Line != -1) {
       if (e04Line < b04Line ) {
 	std::cout << "RPC data is corrupt! e04Line < b04Line " << std::endl;
@@ -126,6 +138,9 @@ int CSCTMBData::UnpackTMB(unsigned short *buf) {
 	theRPCData = CSCRPCData(buf+b04Line, e04Line-b04Line+1);
 	afterHeader+=theRPCData.sizeInWords();
       }
+    } else {
+      std::cout << "CSCTMBData::corrupt RPC data! Failed to find end! " << std::endl;
+      return 0;
     }
   }
 
@@ -139,6 +154,7 @@ int CSCTMBData::UnpackTMB(unsigned short *buf) {
        theTMBScope = new CSCTMBScope(buf,b05Line, e05Line);
        afterHeader+=theTMBScope->sizeInWords();
      }
+
   }
 
   int maxLine = findLine(buf, 0xde0f, afterHeader, TotTMBReadout);

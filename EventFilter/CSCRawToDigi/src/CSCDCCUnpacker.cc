@@ -104,6 +104,9 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
   //std::auto_ptr<CSCRPCDigiCollection> RPCProduct(new CSCRPCDigiCollection);
   
   //std::cout <<"in the producer now " << std::endl;  
+  numOfEvents++;
+  
+  //if (numOfEvents>1308) {
 
   for (int id=FEDNumbering::getCSCFEDIds().first;
        id<=FEDNumbering::getCSCFEDIds().second; ++id){ //for each of our DCCs
@@ -124,7 +127,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
       //get a pointer to data and pass it to constructor for unpacking
       CSCDCCEventData dccData((short unsigned int *) fedData.data()); 
       
-      numOfEvents++; 
+      
      
 
       if(instatiateDQM) monitor->process(dccData);
@@ -189,6 +192,8 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
       }     
     }
   }
+  std::cout<<"**************[DCCUnpackingModule]:"<< std::dec << numOfEvents<<" events analyzed "<<std::endl;
+  //}
   // commit to the event
   e.put(wireProduct);
   e.put(stripProduct);
@@ -196,8 +201,6 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
   //e.put(CLCTProduct);
   e.put(comparatorProduct);
   //e.put(RPCProduct);
-
-  std::cout<<"**************[DCCUnpackingModule]:"<< std::dec << numOfEvents<<" events analyzed "<<std::endl;
 
 }
 
