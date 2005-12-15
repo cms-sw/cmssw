@@ -1,5 +1,8 @@
 <use name=DataFormats/DetId>
+<use name=FWCore/EDProduct>
+
 <export>
    <lib name=DataFormatsEcalDetId>
    <use name=DataFormats/DetId>
+   <use name=FWCore/EDProduct>
 </export>
