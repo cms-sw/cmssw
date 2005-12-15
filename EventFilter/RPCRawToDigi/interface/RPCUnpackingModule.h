@@ -5,18 +5,20 @@
 /** \class RPCUnpackingModule
  *  Driver class for unpacking RPC raw data (DCC format)
  *
- *  $Date: 2005/12/12 17:29:50 $
- *  $Revision: 1.5 $
+ *  $Date: 2005/12/14 13:36:29 $
+ *  $Revision: 1.6 $
  *  \author Ilaria Segoni - CERN
  */
 
 
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include <FWCore/Framework/interface/EDProducer.h>
+#include <EventFilter/RPCRawToDigi/interface/RPCRecord.h>
 #include <EventFilter/RPCRawToDigi/interface/RPCEventData.h>
 
 #include <iostream>
 
+class RPCMonitorInterface;
 
 class RPCUnpackingModule: public edm::EDProducer {
   public:
@@ -38,8 +40,12 @@ class RPCUnpackingModule: public edm::EDProducer {
     /// Unpacks FED Trailer(s), returns number of Trailers 
     int TrailerUnpacker(const unsigned char* trailererIndex);
     
+    /// Record Unpacker 
+    void recordUnpack(RPCRecord::recordTypes  type , const unsigned char* recordIndex); 
+    
     ///Fills Container for DQM imformation
     RPCEventData eventData(){return rpcData;}
+
 
   private:
   
@@ -47,7 +53,11 @@ class RPCUnpackingModule: public edm::EDProducer {
     bool hexprintout;  
     RPCEventData rpcData; 
     int nEvents;
-   
+    int currentBX;
+    int currentChn;
+    
+    bool instatiateDQM;   
+    RPCMonitorInterface * monitor;
 
   };
 
