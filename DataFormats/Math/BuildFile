@@ -1,0 +1,10 @@
+<use name=Dictionary/Reflex>
+<use name=root>
+<lib name=MathCore>
+<flags LCGDICT_ARGS="--deep">
+<export>
+ <lib name=DataFormatsMath>
+ <use name=Dictionary/Reflex>
+ <use name=root>
+ <lib name=MathCore>
+</export>
