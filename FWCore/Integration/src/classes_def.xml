@@ -3,8 +3,9 @@
  <class name="edmreftest::OtherThing"/>
  <class name="std::vector<edmreftest::Thing>"/>
  <class name="std::vector<edmreftest::OtherThing>"/>
- <class name="edm::Ref<std::vector<edmreftest::Thing> >"/>
- <class name="edm::RefVector<std::vector<edmreftest::Thing> >"/>
+ <class name="edm::RefProd<std::vector<edmreftest::Thing> >"/>
+ <class name="edm::Ref<std::vector<edmreftest::Thing>, edmreftest::Thing >"/>
+ <class name="edm::RefVector<std::vector<edmreftest::Thing>, edmreftest::Thing >"/>
  <class name="edm::Wrapper<std::vector<edmreftest::Thing> >"/>
  <class name="edm::Wrapper<std::vector<edmreftest::OtherThing> >"/>
 </lcgdict>
