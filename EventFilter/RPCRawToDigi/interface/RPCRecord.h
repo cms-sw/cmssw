@@ -14,8 +14,8 @@
  *	DCCDiscarded,
  *      UndefinedType.
  *
- *  $Date: 2005/11/09 11:34:44 $
- *  $Revision: 1.3 $
+ *  $Date: 2005/12/12 17:29:24 $
+ *  $Revision: 1.4 $
  *  \author Ilaria Segoni
   */
 
@@ -46,8 +46,6 @@ public:
   /// Record type getter 
   enum recordTypes type(); 
    
-  /// Record Unpacker 
-  void recordUnpack(recordTypes  type ); 
     
   /// Control bits definitions
   static const int MaxChamberFlag  = 2;
