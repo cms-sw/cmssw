@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbProducer.h,v 1.2 2005/10/04 18:03:03 fedor Exp $
+// $Id: HcalDbXml.cc,v 1.1 2005/11/02 21:31:24 fedor Exp $
 //
 #include <vector>
 #include <string>
@@ -9,7 +9,6 @@
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
-#include "CalibCalorimetry/HcalAlgos/interface/HcalDetIdDb.h"
 
 #include "CondFormats/HcalObjects/interface/AllObjects.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbXml.h"
@@ -38,30 +37,33 @@ namespace {
     fOutput << "</ROOT>" << std::endl;
   }
 
-  void dumpChannelId (std::ostream& fOutput, unsigned long fChannel) {
-    HcalDetId id ((uint32_t) fChannel);
-    fOutput << "      <CHANNEL>" << std::endl;
-    fOutput << "        <EXTENSION_TABLE_NAME>HCAL_CHANNELS</EXTENSION_TABLE_NAME>" << std::endl;
-    fOutput << "        <ETA>" << id.ietaAbs() << "</ETA>" << std::endl;
-    fOutput << "        <PHI>" << id.iphi() << "</PHI>" << std::endl;
-    fOutput << "        <DEPTH>" << id.depth() << "</DEPTH>" << std::endl;
-    fOutput << "        <Z>" << (id.zside() > 0 ? '+' : '-') << "</Z>" << std::endl;
-    fOutput << "        <DETECTOR_NAME>" << (id.subdet() == HcalBarrel ? "HB" : id.subdet() == HcalEndcap ? "HE" : "HF") << "</DETECTOR_NAME>" << std::endl;
-    fOutput << "        <HCAL_CHANNEL_ID>" << fChannel << "</HCAL_CHANNEL_ID>" << std::endl;
-    fOutput << "      </CHANNEL>   " << std::endl;
+  void dumpChannelId (std::ostream& fOutput, HcalDetId fChannel) {
+    fOutput << "      ";
+    fOutput << "<CHANNEL> ";
+    fOutput << "<EXTENSION_TABLE_NAME>HCAL_CHANNELS</EXTENSION_TABLE_NAME> ";
+    fOutput << "<ETA>" << fChannel.ietaAbs() << "</ETA>";
+    fOutput << "<PHI>" << fChannel.iphi() << "</PHI> ";
+    fOutput << "<DEPTH>" << fChannel.depth() << "</DEPTH> ";
+    fOutput << "<Z>" << (fChannel.zside() > 0 ? '+' : '-') << "</Z> ";
+    fOutput << "<DETECTOR_NAME>" << (fChannel.subdet() == HcalBarrel ? "HB" : fChannel.subdet() == HcalEndcap ? "HE" : "HF") << "</DETECTOR_NAME> ";
+    fOutput << "<HCAL_CHANNEL_ID>" << fChannel << "</HCAL_CHANNEL_ID> ";
+    fOutput << "</CHANNEL>";
+    fOutput << std::endl;
   }
 
   void dumpData (std::ostream& fOutput, const float* fValues, const float* fErrors) {
-    fOutput << "      <DATA>" << std::endl;
-    fOutput << "        <CAPACITOR_0_VALUE>" << fValues [0] << "</CAPACITOR_0_VALUE>" << std::endl;
-    fOutput << "        <CAPACITOR_1_VALUE>" << fValues [1] << "</CAPACITOR_1_VALUE>" << std::endl;
-    fOutput << "        <CAPACITOR_2_VALUE>" << fValues [2] << "</CAPACITOR_2_VALUE>" << std::endl;	
-    fOutput << "        <CAPACITOR_3_VALUE>" << fValues [3] << "</CAPACITOR_3_VALUE>" << std::endl;
-    fOutput << "        <CAPACITOR_0_ERROR>" << fErrors [0] << "</CAPACITOR_0_ERROR>" << std::endl;	
-    fOutput << "        <CAPACITOR_1_ERROR>" << fErrors [1] << "</CAPACITOR_1_ERROR>" << std::endl;	
-    fOutput << "        <CAPACITOR_2_ERROR>" << fErrors [2] << "</CAPACITOR_2_ERROR>" << std::endl;	
-    fOutput << "        <CAPACITOR_3_ERROR>" << fErrors [3] << "</CAPACITOR_3_ERROR>" << std::endl;	
-    fOutput << "      </DATA>" << std::endl;
+    fOutput << "      ";
+    fOutput << "<DATA> ";
+    fOutput << "<CAPACITOR_0_VALUE>" << fValues [0] << "</CAPACITOR_0_VALUE> ";
+    fOutput << "<CAPACITOR_1_VALUE>" << fValues [1] << "</CAPACITOR_1_VALUE> ";
+    fOutput << "<CAPACITOR_2_VALUE>" << fValues [2] << "</CAPACITOR_2_VALUE> ";	
+    fOutput << "<CAPACITOR_3_VALUE>" << fValues [3] << "</CAPACITOR_3_VALUE> ";
+    fOutput << "<CAPACITOR_0_ERROR>" << fErrors [0] << "</CAPACITOR_0_ERROR> ";	
+    fOutput << "<CAPACITOR_1_ERROR>" << fErrors [1] << "</CAPACITOR_1_ERROR> ";	
+    fOutput << "<CAPACITOR_2_ERROR>" << fErrors [2] << "</CAPACITOR_2_ERROR> ";	
+    fOutput << "<CAPACITOR_3_ERROR>" << fErrors [3] << "</CAPACITOR_3_ERROR> ";	
+    fOutput << "</DATA>";
+    fOutput << std::endl;
   }
 
   void dumpDataset (std::ostream& fOutput, const std::string& fFileName, const std::string& fDescription) {
@@ -81,13 +83,13 @@ bool HcalDbXml::dumpObject (std::ostream& fOutput, unsigned fRun, const std::str
 
   dumpHeader (fOutput, fRun, fTag, "WSLED_PEDESTAL_CLBRTN", "HCAL Pedestals");
 
-  std::vector<unsigned long> channels = fObject.getAllChannels ();
-  for (std::vector<unsigned long>::iterator channel = channels.begin ();
+  std::vector<HcalDetId> channels = fObject.getAllChannels ();
+  for (std::vector<HcalDetId>::iterator channel = channels.begin ();
        channel !=  channels.end ();
        channel++) {
-    unsigned long chId = *channel;
-    const float* values = fObject.getValues (chId);
-    const float* errors = fError.getValues (chId);
+    HcalDetId chId = *channel;
+    const float* values = fObject.getValues (chId)->getValues ();
+    const float* errors = fError.getValues (chId)->getValues ();
     if (!values) {
       std::cerr << "HcalDbXml::dumpObject-> Can not get data for channel " << chId << std::endl;
       continue;
@@ -97,7 +99,7 @@ bool HcalDbXml::dumpObject (std::ostream& fOutput, unsigned fRun, const std::str
       errors = dummyErrors;
     }
     dumpDataset (fOutput, "na", "na");
-    dumpChannelId (fOutput,chId); 
+    dumpChannelId (fOutput,chId.rawId ()); 
     dumpData (fOutput, values, errors);
     endDataset (fOutput);
   }
@@ -110,13 +112,13 @@ bool HcalDbXml::dumpObject (std::ostream& fOutput, unsigned fRun, const std::str
 
   dumpHeader (fOutput, fRun, fTag, "WSLED_GAIN_CLBRTN", "HCAL Gains");
 
-  std::vector<unsigned long> channels = fObject.getAllChannels ();
-  for (std::vector<unsigned long>::iterator channel = channels.begin ();
+  std::vector<HcalDetId> channels = fObject.getAllChannels ();
+  for (std::vector<HcalDetId>::iterator channel = channels.begin ();
        channel !=  channels.end ();
        channel++) {
-    unsigned long chId = *channel;
-    const float* values = fObject.getValues (chId);
-    const float* errors = fError.getValues (chId);
+    HcalDetId chId = *channel;
+    const float* values = fObject.getValues (chId)->getValues ();
+    const float* errors = fError.getValues (chId)->getValues ();
     if (!values) {
       std::cerr << "HcalDbXml::dumpObject-> Can not get data for channel " << chId << std::endl;
       continue;

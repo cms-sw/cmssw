@@ -5,12 +5,12 @@
     
     Container for retrieving uncertainties of calibration constants for HCAL
    $Author: ratnikov
-   $Date: 2005/08/02 01:31:24 $
-   $Revision: 1.2 $
+   $Date: 2005/10/04 18:05:54 $
+   $Revision: 1.3 $
 */
 class HcalCalibrationWidths {
  public:
- public:
+  HcalCalibrationWidths () {};
   HcalCalibrationWidths (const float fGain [4], const float fPedestal [4]);
   double gain (int fCapId) const {return mGain [fCapId];}
   double pedestal (int fCapId) const {return mPedestal [fCapId];}

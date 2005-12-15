@@ -2,15 +2,16 @@
     
     coder which uses DB services to convert to fC
     $Author: ratnikov
-    $Date: 2005/08/18 23:41:41 $
-    $Revision: 1.1 $
+    $Date: 2005/10/05 00:37:56 $
+    $Revision: 1.2 $
 */
 
-#include "CalibFormats/HcalObjects/interface/HcalChannelCoder.h"
-#include "CalibFormats/HcalObjects/interface/QieShape.h"
+#include "CondFormats/HcalObjects/interface/HcalQIEShape.h"
+#include "CondFormats/HcalObjects/interface/HcalQIECoder.h"
+
 #include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
 
-HcalCoderDb::HcalCoderDb (const HcalChannelCoder& fCoder, const QieShape& fShape)
+HcalCoderDb::HcalCoderDb (const HcalQIECoder& fCoder, const HcalQIEShape& fShape)
   : mCoder (&fCoder),
     mShape (&fShape)
 {}

@@ -13,7 +13,7 @@
    \class HcalDbASCIIIO
    \brief IO for ASCII instances of Hcal Calibrations
    \author Fedor Ratnikov Oct. 28, 2005
-   $Id: HcalDbASCIIIO.h,v 1.1 2005/11/02 21:31:24 fedor Exp $
+   $Id: HcalDbASCIIIO.h,v 1.2 2005/12/06 23:20:34 fedor Exp $
    
 Text file formats for different data types is as following:
 - # in first column comments the line
@@ -37,8 +37,6 @@ namespace HcalDbASCIIIO {
   bool dumpObject (std::ostream& fOutput, const HcalGains& fObject);
   bool getObject (std::istream& fInput, HcalGainWidths* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalGainWidths& fObject);
-  bool getObject (std::istream& fInput, HcalQIEShape* fObject);
-  bool dumpObject (std::ostream& fOutput, const HcalQIEShape& fObject);
   bool getObject (std::istream& fInput, HcalQIEData* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalQIEData& fObject);
   bool getObject (std::istream& fInput, HcalChannelQuality* fObject);

@@ -1,8 +1,10 @@
 <flags LCGDICT_ARGS="--">
 <use name=Dictionary/Reflex>
+<use name=DataFormats/HcalDetId>
 <use name=FWCore/Framework>
 <export>
   <use name=Dictionary/Reflex>
+  <use name=DataFormats/HcalDetId>
   <use name=FWCore/Framework>
   <lib name=CondFormatsHcalObjects>
 </export>

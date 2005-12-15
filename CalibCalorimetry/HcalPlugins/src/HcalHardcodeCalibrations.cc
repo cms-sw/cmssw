@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: HcalHardcodeCalibrations.cc,v 1.3 2005/12/05 00:25:31 fedor Exp $
+// $Id: HcalHardcodeCalibrations.cc,v 1.4 2005/12/12 18:57:18 fedor Exp $
 //
 //
 
@@ -12,8 +12,7 @@
 #include "FWCore/Framework/interface/ValidityInterval.h"
 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
-#include "CalibCalorimetry/HcalAlgos/interface/HcalDbServiceHardcode.h"
-#include "CalibCalorimetry/HcalAlgos/interface/HcalDetIdDb.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalDbHardcode.h"
 #include "CondFormats/HcalObjects/interface/HcalPedestals.h"
 #include "CondFormats/HcalObjects/interface/HcalPedestalWidths.h"
 #include "CondFormats/HcalObjects/interface/HcalGains.h"
@@ -44,8 +43,8 @@ using namespace cms;
 
 namespace {
 
-std::vector<unsigned long> allCells () {
-  static std::vector<unsigned long> result;
+std::vector<HcalDetId> allCells () {
+  static std::vector<HcalDetId> result;
   if (result.size () <= 0) {
     HcalTopology topology;
     for (int eta = -50; eta < 50; eta++) {
@@ -53,7 +52,7 @@ std::vector<unsigned long> allCells () {
 	for (int depth = 1; depth < 5; depth++) {
 	  for (int det = 1; det < 5; det++) {
 	    HcalDetId cell ((HcalSubdetector) det, eta, phi, depth);
-	    if (topology.valid(cell)) result.push_back (cell.rawId ());
+	    if (topology.valid(cell)) result.push_back (cell);
 	  }
 	}
       }
@@ -87,10 +86,6 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
     if ((*objectName == "GainWidths") || all) {
       setWhatProduced (this, &HcalHardcodeCalibrations::produceGainWidths);
       findingRecord <HcalGainWidthsRcd> ();
-    }
-    if ((*objectName == "QIEShape") || all) {
-      setWhatProduced (this, &HcalHardcodeCalibrations::produceQIEShape);
-      findingRecord <HcalQIEShapeRcd> ();
     }
     if ((*objectName == "QIEData") || all) {
       setWhatProduced (this, &HcalHardcodeCalibrations::produceQIEData);
@@ -127,10 +122,10 @@ HcalHardcodeCalibrations::setIntervalFor( const edm::eventsetup::EventSetupRecor
 std::auto_ptr<HcalPedestals> HcalHardcodeCalibrations::producePedestals (const HcalPedestalsRcd&) {
   std::cout << "HcalHardcodeCalibrations::producePedestals-> ..." << std::endl;
   std::auto_ptr<HcalPedestals> result (new HcalPedestals ());
-  HcalDbServiceHardcode srv;
-  std::vector <unsigned long> cells = allCells ();
-  for (std::vector <unsigned long>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
-    result->addValue (*cell, srv.pedestals (*cell));
+  std::vector <HcalDetId> cells = allCells ();
+  for (std::vector <HcalDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
+    HcalPedestal item = HcalDbHardcode::makePedestal (*cell);
+    result->addValue (*cell, item.getValues ());
   }
   result->sort ();
   return result;
@@ -139,10 +134,10 @@ std::auto_ptr<HcalPedestals> HcalHardcodeCalibrations::producePedestals (const H
 std::auto_ptr<HcalPedestalWidths> HcalHardcodeCalibrations::producePedestalWidths (const HcalPedestalWidthsRcd&) {
   std::cout << "HcalHardcodeCalibrations::producePedestalWidths-> ..." << std::endl;
   std::auto_ptr<HcalPedestalWidths> result (new HcalPedestalWidths ());
-  HcalDbServiceHardcode srv;
-  std::vector <unsigned long> cells = allCells ();
-  for (std::vector <unsigned long>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
-    result->addValue (*cell, srv.pedestalErrors (*cell));
+  std::vector <HcalDetId> cells = allCells ();
+  for (std::vector <HcalDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
+    HcalPedestalWidth item = HcalDbHardcode::makePedestalWidth (*cell);
+    result->addValue (*cell, item.getValues ());
   }
   result->sort ();
   return result;
@@ -151,10 +146,10 @@ std::auto_ptr<HcalPedestalWidths> HcalHardcodeCalibrations::producePedestalWidth
 std::auto_ptr<HcalGains> HcalHardcodeCalibrations::produceGains (const HcalGainsRcd&) {
   std::cout << "HcalHardcodeCalibrations::produceGains-> ..." << std::endl;
   std::auto_ptr<HcalGains> result (new HcalGains ());
-  HcalDbServiceHardcode srv;
-  std::vector <unsigned long> cells = allCells ();
-  for (std::vector <unsigned long>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
-    result->addValue (*cell, srv.gains (*cell));
+  std::vector <HcalDetId> cells = allCells ();
+  for (std::vector <HcalDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
+    HcalGain item = HcalDbHardcode::makeGain (*cell);
+    result->addValue (*cell, item.getValues ());
   }
   result->sort ();
   return result;
@@ -163,47 +158,26 @@ std::auto_ptr<HcalGains> HcalHardcodeCalibrations::produceGains (const HcalGains
 std::auto_ptr<HcalGainWidths> HcalHardcodeCalibrations::produceGainWidths (const HcalGainWidthsRcd&) {
   std::cout << "HcalHardcodeCalibrations::produceGainWidths-> ..." << std::endl;
   std::auto_ptr<HcalGainWidths> result (new HcalGainWidths ());
-  HcalDbServiceHardcode srv;
-  std::vector <unsigned long> cells = allCells ();
-  for (std::vector <unsigned long>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
-    result->addValue (*cell, srv.gainErrors (*cell));
+  std::vector <HcalDetId> cells = allCells ();
+  for (std::vector <HcalDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
+    HcalGainWidth item = HcalDbHardcode::makeGainWidth (*cell);
+    result->addValue (*cell, item.getValues ());
   }
   result->sort ();
-  return result;
-}
-
-std::auto_ptr<HcalQIEShape> HcalHardcodeCalibrations::produceQIEShape (const HcalQIEShapeRcd&) {
-  std::cout << "HcalHardcodeCalibrations::produceQIEShape-> ..." << std::endl;
-  std::auto_ptr<HcalQIEShape> result (new HcalQIEShape ());
-  
-  HcalDbServiceHardcode srv;
-  float lowEdges [33];
-  for (int i = 0; i < 32; i++) {
-    lowEdges [i] = srv.adcShape (i);
-  }
-  lowEdges [32] = 2 * lowEdges [31] - lowEdges [30];
-  result->setLowEdges (lowEdges);
   return result;
 }
 
 std::auto_ptr<HcalQIEData> HcalHardcodeCalibrations::produceQIEData (const HcalQIEDataRcd& rcd) {
   std::cout << "HcalHardcodeCalibrations::produceQIEData-> ..." << std::endl;
   std::auto_ptr<HcalQIEData> result (new HcalQIEData ());
-  HcalDbServiceHardcode srv;
-  std::vector <unsigned long> cells = allCells ();
-  for (std::vector <unsigned long>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
-    HcalDetId id (HcalDetIdDb::HcalDetId (*cell));
-    const float* offsetsIn = srv.offsets (id);
-    const float* slopesIn = srv.slopes (id);
-    float offsetsOut [16];
-    float slopesOut [16];
-    for (int range = 0; range < 4; range++) {
-      for (int cap = 0; cap < 4; cap++) {
-	offsetsOut [HcalQIEData::index (range, cap)] = offsetsIn [HcalDbServiceHardcode::index (range, cap)];
-	slopesOut [HcalQIEData::index (range, cap)] = slopesIn [HcalDbServiceHardcode::index (range, cap)];
-      }
-    }
-    result->addValue (*cell, offsetsOut, slopesOut);
+  HcalQIEShape shape = HcalDbHardcode::makeQIEShape ();
+  float shapes [32];
+  for (unsigned i = 0; i < 32; i++) shapes [i] = shape.lowEdge (i);
+  result->setShape (shapes);
+  std::vector <HcalDetId> cells = allCells ();
+  for (std::vector <HcalDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
+    HcalQIECoder coder = HcalDbHardcode::makeQIECoder (*cell);
+    result->addCoder (*cell, coder);
   }
   result->sort ();
   return result;
@@ -212,9 +186,9 @@ std::auto_ptr<HcalQIEData> HcalHardcodeCalibrations::produceQIEData (const HcalQ
 std::auto_ptr<HcalChannelQuality> HcalHardcodeCalibrations::produceChannelQuality (const HcalChannelQualityRcd& rcd) {
   std::cout << "HcalHardcodeCalibrations::produceChannelQuality-> ..." << std::endl;
   std::auto_ptr<HcalChannelQuality> result (new HcalChannelQuality ());
-  std::vector <unsigned long> cells = allCells ();
-  for (std::vector <unsigned long>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
-    result->setChannel (*cell, HcalChannelQuality::GOOD);
+  std::vector <HcalDetId> cells = allCells ();
+  for (std::vector <HcalDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
+    result->setChannel (cell->rawId (), HcalChannelQuality::GOOD);
   }
   result->sort ();
   return result;

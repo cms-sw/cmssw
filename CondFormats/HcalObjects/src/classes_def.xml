@@ -1,15 +1,15 @@
 <lcgdict>
+ <class name="HcalPedestal"/>
  <class name="HcalPedestals" id="3BCA6124-EEB5-5245-CB96-73E512AE3428"/>
- <class name="HcalPedestals::Item"/>
  <class name="HcalPedestalWidths" id="0EF09007-0FB3-3DD7-7F74-5274C6C28842"/>
- <class name="HcalPedestalWidths::Item"/>
+ <class name="HcalPedestalWidth"/>
  <class name="HcalGains" id="A069207D-22A2-1BAD-FD51-13613F781A97"/>
- <class name="HcalGains::Item"/>
+ <class name="HcalGain"/>
  <class name="HcalGainWidths" id="2726EDFB-D5A8-4EEA-822B-5F0DE6784CB2"/>
- <class name="HcalGainWidths::Item"/>
+ <class name="HcalGainWidth"/>
  <class name="HcalQIEData" id="3A102A5E-7773-02EF-7B98-A838BED8D66A"/>
- <class name="HcalQIEData::Item"/>
- <class name="HcalQIEShape" id="2529240C-E328-B3FC-70BE-451A388F2D8F"/>
+ <class name="HcalQIECoder"/>
+ <class name="HcalQIEShape"/>
  <class name="HcalElectronicsMap" id="1EC50DB8-886B-ABB4-E875-20AF1C0C66E3"/>
  <class name="HcalElectronicsMap::Item"/>
  <class name="HcalChannelQuality" id="6AD128B1-6893-20A1-F739-079F9223BF21"/>

@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.1 2005/11/02 21:31:24 fedor Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.2 2005/12/05 00:25:30 fedor Exp $
 //
 #include <vector>
 #include <string>
@@ -9,7 +9,6 @@
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
-#include "CalibCalorimetry/HcalAlgos/interface/HcalDetIdDb.h"
 
 #include "CondFormats/HcalObjects/interface/AllObjects.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
@@ -64,7 +63,7 @@ bool getHcalObject (std::istream& fInput, T* fObject) {
       std::cerr << "Bad line: " << buffer << "\n line must contain 8 items: eta, phi, depth, subdet, 4x values" << std::endl;
       continue;
     }
-    fObject->addValue (HcalDetIdDb::HcalDetIdDb (getId (items)), 
+    fObject->addValue (getId (items), 
 		       atof (items [4].c_str()), atof (items [5].c_str()), 
 		       atof (items [6].c_str()), atof (items [7].c_str()));
   }
@@ -77,16 +76,15 @@ bool dumpHcalObject (std::ostream& fOutput, const T& fObject) {
   char buffer [1024];
   sprintf (buffer, "# %4s %4s %4s %4s %8s %8s %8s %8s %10s\n", "eta", "phi", "dep", "det", "cap1", "cap2", "cap3", "cap4", "HcalDetId");
   fOutput << buffer;
-  std::vector<unsigned long> channels = fObject.getAllChannels ();
-  for (std::vector<unsigned long>::iterator channel = channels.begin ();
+  std::vector<HcalDetId> channels = fObject.getAllChannels ();
+  for (std::vector<HcalDetId>::iterator channel = channels.begin ();
        channel !=  channels.end ();
        channel++) {
-    HcalDetId id ((uint32_t) *channel);
-    const float* values = fObject.getValues (*channel);
+    const float* values = fObject.getValues (*channel)->getValues ();
     if (values) {
-      dumpId (fOutput, id);
+      dumpId (fOutput, *channel);
       sprintf (buffer, " %8.5f %8.5f %8.5f %8.5f %10X\n",
-	       values[0], values[1], values[2], values[3], HcalDetIdDb::HcalDetIdDb (id));
+	       values[0], values[1], values[2], values[3], channel->rawId ());
       fOutput << buffer;
     }
   }
@@ -103,41 +101,41 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalGains& fObject)
 bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalGainWidths* fObject) {return getHcalObject (fInput, fObject);}
 bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalGainWidths& fObject) {return dumpHcalObject (fOutput, fObject);}
 
-bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalQIEShape* fObject) {
-  char buffer [1024];
-  while (fInput.getline(buffer, 1024)) {
-    if (buffer [0] == '#') continue; //ignore comment
-    std::vector <std::string> items = splitString (std::string (buffer));
-    if (items.size () < 33) {
-      std::cerr << "Bad line: " << buffer << "\n line must contain 32 items: counts for first 33 QIE channels" << std::endl;
-      continue;
-    }
-    for (unsigned i = 0; i <= 32; i++)  fObject->setLowEdge (atof (items [i].c_str ()), i);
-    return true;
-  }
-  return false;
-}
-
-bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalQIEShape& fObject) {
-  fOutput << "# QIE Shape: low edges for first 33 channels" << std::endl;
-  for (unsigned i = 0; i <= 32; i++)  fOutput << fObject.lowEdge (i) << ' ';
-  fOutput << std::endl;
-  return true;
-}
-
 bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalQIEData* fObject) {
   char buffer [1024];
   while (fInput.getline(buffer, 1024)) {
     if (buffer [0] == '#') continue; //ignore comment
     std::vector <std::string> items = splitString (std::string (buffer));
-    if (items.size () < 36) {
-      std::cerr << "Bad line: " << buffer << "\n line must contain 36 items: eta, phi, depth, subdet, 4 capId x 4 Ranges x offsets, 4 capId x 4 Ranges x slopes" << std::endl;
-      continue;
+    if (items [0] == "SHAPE") { // basic shape
+      if (items.size () < 33) {
+	std::cerr << "Bad line: " << buffer << "\n line must contain 33 items: SHAPE  32 x low QIE edges for first 32 bins" << std::endl;
+	continue;
+      }
+      float lowEdges [32];
+      int i = 32;
+      while (--i >= 0) lowEdges [i] = atof (items [i+1].c_str ());
+      fObject->setShape (lowEdges);
     }
-    float values [32];
-    for (int i = 0; i < 32; i++) values [i] = atof (items [i+4].c_str());
-    fObject->addValue (HcalDetIdDb::HcalDetIdDb (getId (items)),
-		       &values[0], &values[16]);
+    else { // QIE parameters
+      if (items.size () < 36) {
+	std::cerr << "Bad line: " << buffer << "\n line must contain 36 items: eta, phi, depth, subdet, 4 capId x 4 Ranges x offsets, 4 capId x 4 Ranges x slopes" << std::endl;
+	continue;
+      }
+      HcalDetId id = getId (items);
+      HcalQIECoder coder (id.rawId ());
+      int index = 4;
+      for (unsigned capid = 0; capid < 4; capid++) {
+	for (unsigned range = 0; range < 4; range++) {
+	  coder.setOffset (capid, range, atof (items [index++].c_str ()));
+	}
+      }
+      for (unsigned capid = 0; capid < 4; capid++) {
+	for (unsigned range = 0; range < 4; range++) {
+	  coder.setSlope (capid, range, atof (items [index++].c_str ()));
+	}
+      }
+      fObject->addCoder (id, coder);
+    }
   }
   fObject->sort ();
   return true;
@@ -145,23 +143,40 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalQIEData* fObject) {
 
 bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalQIEData& fObject) {
   char buffer [1024];
+  fOutput << "# QIE basic shape: SHAPE 32 x low edge values for first 32 channels" << std::endl;
+  sprintf (buffer, "SHAPE ");
+  fOutput << buffer;
+  for (unsigned bin = 0; bin < 32; bin++) {
+    sprintf (buffer, " %8.5f", fObject.getShape ().lowEdge (bin));
+    fOutput << buffer;
+  }
+  fOutput << std::endl;
+
+  fOutput << "# QIE data" << std::endl;
   sprintf (buffer, "# %4s %4s %4s %4s %36s %36s %36s %36s %36s %36s %36s %36s\n", 
 	   "eta", "phi", "dep", "det", 
 	   "4 x offsets cap1", "4 x offsets cap2", "4 x offsets cap3", "4 x offsets cap4",
 	   "4 x slopes cap1", "4 x slopes cap2", "4 x slopes cap3", "4 x slopes cap4");
   fOutput << buffer;
-  std::vector<unsigned long> channels = fObject.getAllChannels ();
-  for (std::vector<unsigned long>::iterator channel = channels.begin ();
+  std::vector<HcalDetId> channels = fObject.getAllChannels ();
+  for (std::vector<HcalDetId>::iterator channel = channels.begin ();
        channel !=  channels.end ();
        channel++) {
-    HcalDetId id ((uint32_t) *channel);
-    const float* offsets = fObject.getOffsets (*channel);
-    const float* slopes = fObject.getSlopes (*channel);
-    if (offsets && slopes) {
-      dumpId (fOutput, id);
-      for (int i = 0; i < 16; i++) sprintf (buffer, " %8.5f", offsets [i]); fOutput << buffer;
-      for (int i = 0; i < 16; i++) sprintf (buffer, " %8.5f", slopes [i]); fOutput << buffer;
-      sprintf (buffer, " %10X\n", HcalDetIdDb::HcalDetIdDb (id)); fOutput << buffer;
+    const HcalQIECoder* coder = fObject.getCoder (*channel);
+    if (coder) {
+      dumpId (fOutput, *channel);
+      for (unsigned capid = 0; capid < 4; capid++) {
+	for (unsigned range = 0; range < 4; range++) {
+	  sprintf (buffer, " %8.5f", coder->offset (capid, range));
+	  fOutput << buffer;
+	}
+      }
+      for (unsigned capid = 0; capid < 4; capid++) {
+	for (unsigned range = 0; range < 4; range++) {
+	  sprintf (buffer, " %8.5f", coder->slope (capid, range));
+	  fOutput << buffer;
+	}
+      }
     }
   }
   return true;
@@ -182,8 +197,7 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalChannelQuality* fObject
 	value = (HcalChannelQuality::Quality) i;
       }
     }
-    fObject->setChannel (HcalDetIdDb::HcalDetIdDb (getId (items)),
-			 value);
+    fObject->setChannel (getId (items).rawId (), value);
   }
   fObject->sort ();
   return true;

@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: HcalHardcodeCalibrations.cc,v 1.2 2005/10/28 01:30:47 fedor Exp $
+// $Id: HcalTextCalibrations.cc,v 1.1 2005/12/05 00:25:31 fedor Exp $
 //
 //
 
@@ -15,7 +15,6 @@
 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbServiceHardcode.h"
-#include "CalibCalorimetry/HcalAlgos/interface/HcalDetIdDb.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 #include "CondFormats/HcalObjects/interface/HcalPedestals.h"
 #include "CondFormats/HcalObjects/interface/HcalPedestalWidths.h"
@@ -70,10 +69,6 @@ HcalTextCalibrations::HcalTextCalibrations ( const edm::ParameterSet& iConfig )
       setWhatProduced (this, &HcalTextCalibrations::produceGainWidths);
       findingRecord <HcalGainWidthsRcd> ();
     }
-    else if (objectName == "QIEShape") {
-      setWhatProduced (this, &HcalTextCalibrations::produceQIEShape);
-      findingRecord <HcalQIEShapeRcd> ();
-    }
     else if (objectName == "QIEData") {
       setWhatProduced (this, &HcalTextCalibrations::produceQIEData);
       findingRecord <HcalQIEDataRcd> ();
@@ -89,7 +84,7 @@ HcalTextCalibrations::HcalTextCalibrations ( const edm::ParameterSet& iConfig )
     else {
       std::cerr << "HcalTextCalibrations-> Unknown object name '" << objectName 
 		<< "', known names are: "
-		<< "Pedestals PedestalWidths Gains GainWidths QIEShape QIEData ChannelQuality ElectronicsMap"
+		<< "Pedestals PedestalWidths Gains GainWidths QIEData ChannelQuality ElectronicsMap"
 		<< std::endl;
     }
   }
@@ -146,11 +141,6 @@ std::auto_ptr<HcalGains> HcalTextCalibrations::produceGains (const HcalGainsRcd&
 std::auto_ptr<HcalGainWidths> HcalTextCalibrations::produceGainWidths (const HcalGainWidthsRcd&) {
   std::cout << "HcalTextCalibrations::produceGainWidths-> ..." << std::endl;
   return produce_impl<HcalGainWidths> (mInputs ["GainWidths"]);
-}
-
-std::auto_ptr<HcalQIEShape> HcalTextCalibrations::produceQIEShape (const HcalQIEShapeRcd&) {
-  std::cout << "HcalTextCalibrations::produceQIEShape-> ..." << std::endl;
-  return produce_impl<HcalQIEShape> (mInputs ["QIEShape"]);
 }
 
 std::auto_ptr<HcalQIEData> HcalTextCalibrations::produceQIEData (const HcalQIEDataRcd& rcd) {

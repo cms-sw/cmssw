@@ -13,7 +13,7 @@
 //
 // Original Author:  Fedor Ratnikov
 //         Created:  Tue Aug  9 19:10:10 CDT 2005
-// $Id: HcalDbProducer.cc,v 1.7 2005/11/02 21:10:56 fedor Exp $
+// $Id: HcalDbProducer.cc,v 1.8 2005/11/04 11:40:59 sashby Exp $
 //
 //
 
@@ -56,7 +56,6 @@ HcalDbProducer::HcalDbProducer( const edm::ParameterSet&)
 			  &HcalDbProducer::pedestalWidthsCallback &
 			  &HcalDbProducer::gainsCallback &
 			  &HcalDbProducer::gainWidthsCallback &
-			  &HcalDbProducer::QIEShapeCallback &
 			  &HcalDbProducer::QIEDataCallback &
 			  &HcalDbProducer::channelQualityCallback &
 			  &HcalDbProducer::electronicsMapCallback
@@ -113,13 +112,6 @@ void HcalDbProducer::pedestalsCallback (const HcalPedestalsRcd& fRecord) {
   void HcalDbProducer::gainWidthsCallback (const HcalGainWidthsRcd& fRecord) {
   std::cout << "HcalDbProducer::poolGainWidthsCallback->..." << std::endl;
   edm::ESHandle <HcalGainWidths> item;
-  fRecord.get (item);
-  mService->setData (item.product ());
-}
-
-void HcalDbProducer::QIEShapeCallback (const HcalQIEShapeRcd& fRecord) {
-  std::cout << "HcalDbProducer::QIEShapeCallback->..." << std::endl;
-  edm::ESHandle <HcalQIEShape> item;
   fRecord.get (item);
   mService->setData (item.product ());
 }

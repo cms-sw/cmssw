@@ -13,7 +13,7 @@
 //
 // Original Author:  Fedor Ratnikov
 //         Created:  Tue Aug  9 19:10:10 CDT 2005
-// $Id: HcalDbProducer.h,v 1.6 2005/11/04 11:40:59 sashby Exp $
+// $Id: HcalDbProducer.h,v 1.7 2005/12/05 00:25:31 fedor Exp $
 //
 //
 
@@ -36,7 +36,6 @@ class HcalDbRecord;
 #include "CondFormats/DataRecord/interface/HcalPedestalWidthsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalPedestalsRcd.h" 
 #include "CondFormats/DataRecord/interface/HcalQIEDataRcd.h"
-#include "CondFormats/DataRecord/interface/HcalQIEShapeRcd.h"
 
 
 
@@ -53,7 +52,6 @@ class HcalDbProducer : public edm::ESProducer {
   void pedestalWidthsCallback (const HcalPedestalWidthsRcd& fRecord);
   void gainsCallback (const HcalGainsRcd& fRecord);
   void gainWidthsCallback (const HcalGainWidthsRcd& fRecord);
-  void QIEShapeCallback (const HcalQIEShapeRcd& fRecord);
   void QIEDataCallback (const HcalQIEDataRcd& fRecord);
   void channelQualityCallback (const HcalChannelQualityRcd& fRecord);
   void electronicsMapCallback (const HcalElectronicsMapRcd& fRecord);

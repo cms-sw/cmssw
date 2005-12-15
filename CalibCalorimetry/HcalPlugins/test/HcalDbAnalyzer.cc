@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 19:13:25 EDT 2005
-// $Id: HcalDbAnalyzer.cc,v 1.5 2005/12/05 00:25:32 fedor Exp $
+// $Id: HcalDbAnalyzer.cc,v 1.6 2005/12/06 23:46:25 fedor Exp $
 //
 //
 
@@ -38,6 +38,10 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbServiceHardcode.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 
+#include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
+#include "CalibFormats/HcalObjects/interface/HcalCalibrationWidths.h"
+#include "CondFormats/HcalObjects/interface/HcalQIEShape.h"
+#include "CondFormats/HcalObjects/interface/HcalQIECoder.h"
 
 class HcalDbAnalyzer : public edm::EDAnalyzer {
    public:
@@ -92,32 +96,34 @@ HcalDbAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
   std::cout << "HcalDbAnalyzer::analyze-> got HcalDbRecord: " << std::endl;
   std::cout << "HcalDbAnalyzer::analyze-> getting information for HB channel eta=1, phi=1, depth=1..." << std::endl;
   HcalDetId cell (HcalBarrel, 1, 1, 1);
-  std::auto_ptr<HcalCalibrations> calibrations = pSetup->getHcalCalibrations (cell);
-  std::auto_ptr<HcalCalibrationWidths> widths = pSetup->getHcalCalibrationWidths (cell);
-  std::auto_ptr<HcalChannelCoder> coder = pSetup->getChannelCoder (cell);
-  const QieShape* shape = pSetup->getBasicShape ();
+  HcalCalibrations calibrations;
+  pSetup->makeHcalCalibration (cell, &calibrations);
+  HcalCalibrationWidths widths;
+  pSetup->makeHcalCalibrationWidth (cell, &widths);
+  const HcalQIECoder* coder = pSetup->getHcalCoder (cell);
+  const HcalQIEShape* shape = pSetup->getHcalShape ();
   
   std::cout << "Values-> pedestals: " 
-	    << calibrations->pedestal (0) << '/'
-	    << calibrations->pedestal (1) << '/'
-	    << calibrations->pedestal (2) << '/'
-	    << calibrations->pedestal (3)
+	    << calibrations.pedestal (0) << '/'
+	    << calibrations.pedestal (1) << '/'
+	    << calibrations.pedestal (2) << '/'
+	    << calibrations.pedestal (3)
 	    << ",  gains: "
-	    << calibrations->gain (0) << '/'
-	    << calibrations->gain (1) << '/'
-	    << calibrations->gain (2) << '/'
-	    << calibrations->gain (3)
+	    << calibrations.gain (0) << '/'
+	    << calibrations.gain (1) << '/'
+	    << calibrations.gain (2) << '/'
+	    << calibrations.gain (3)
 	    << std::endl;
-  std::cout << "Widths-> pedestals: " 
-	    << widths->pedestal (0) << '/'
-	    << widths->pedestal (1) << '/'
-	    << widths->pedestal (2) << '/'
-	    << widths->pedestal (3)
+  std::cout << "Widths. pedestals: " 
+	    << widths.pedestal (0) << '/'
+	    << widths.pedestal (1) << '/'
+	    << widths.pedestal (2) << '/'
+	    << widths.pedestal (3)
 	    << ",  gains: "
-	    << widths->gain (0) << '/'
-	    << widths->gain (1) << '/'
-	    << widths->gain (2) << '/'
-	    << widths->gain (3) 
+	    << widths.gain (0) << '/'
+	    << widths.gain (1) << '/'
+	    << widths.gain (2) << '/'
+	    << widths.gain (3) 
 	    << std::endl;
   
   std::cout << "QIE shape:" << std::endl;

@@ -43,7 +43,9 @@ using namespace std;
       // get conditions
       edm::ESHandle<HcalDbService> conditions;
       eventSetup.get<HcalDbRecord>().get(conditions);
-      const QieShape* qieShape = conditions->getBasicShape (); // this one is generic
+      const HcalQIEShape* shape = conditions->getHcalShape (); // this one is generic
+
+      HcalCalibrations calibrations;
       
       if (subdet_==HcalBarrel || subdet_==HcalEndcap) {
 	edm::Handle<HBHEDigiCollection> digi;
@@ -56,10 +58,10 @@ using namespace std;
 	HBHEDigiCollection::const_iterator i;
 	for (i=digi->begin(); i!=digi->end(); i++) {
 	  HcalDetId cell = i->id();
-	  std::auto_ptr<HcalCalibrations> calibrations = conditions->getHcalCalibrations (cell);
-	  std::auto_ptr<HcalChannelCoder> channelCoder = conditions->getChannelCoder (cell);
-	  HcalCoderDb coder (*channelCoder, *qieShape);
-	  rec->push_back(reco_.reconstruct(*i,coder,*calibrations));
+	  conditions->makeHcalCalibration (cell, &calibrations);
+	  const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
+	  HcalCoderDb coder (*channelCoder, *shape);
+	  rec->push_back(reco_.reconstruct(*i,coder,calibrations));
 	}
 	// return result
 	e.put(rec);
@@ -74,10 +76,10 @@ using namespace std;
 	HODigiCollection::const_iterator i;
 	for (i=digi->begin(); i!=digi->end(); i++) {
 	  HcalDetId cell = i->id();
-	  std::auto_ptr<HcalCalibrations> calibrations = conditions->getHcalCalibrations (cell);
-	  std::auto_ptr<HcalChannelCoder> channelCoder = conditions->getChannelCoder (cell);
-	  HcalCoderDb coder (*channelCoder, *qieShape);
-	  rec->push_back(reco_.reconstruct(*i,coder,*calibrations));
+	  conditions->makeHcalCalibration (cell, &calibrations);
+	  const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
+	  HcalCoderDb coder (*channelCoder, *shape);
+	  rec->push_back(reco_.reconstruct(*i,coder,calibrations));
 	}
 	// return result
 	e.put(rec);    
@@ -92,10 +94,10 @@ using namespace std;
 	HFDigiCollection::const_iterator i;
 	for (i=digi->begin(); i!=digi->end(); i++) {
 	  HcalDetId cell = i->id();	  
-	  std::auto_ptr<HcalCalibrations> calibrations = conditions->getHcalCalibrations (cell);
-	  std::auto_ptr<HcalChannelCoder> channelCoder = conditions->getChannelCoder (cell);
-	  HcalCoderDb coder (*channelCoder, *qieShape);
-	  rec->push_back(reco_.reconstruct(*i,coder,*calibrations));
+	  conditions->makeHcalCalibration (cell, &calibrations);
+	  const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
+	  HcalCoderDb coder (*channelCoder, *shape);
+	  rec->push_back(reco_.reconstruct(*i,coder,calibrations));
 	}
 	// return result
 	e.put(rec);     
