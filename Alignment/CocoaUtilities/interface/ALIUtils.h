@@ -108,6 +108,13 @@ public:
   static void setMaximumDeviationDerivative( ALIdouble val ) {
     maximum_deviation_derivative = val; }
 
+  static std::vector<double> GetRotationAnglesFromMatrix( CLHEP::HepRotation& rmLocal, double origAngleX, double origAngleY, double origAngleZ );
+  static double diff2pi( double ang1, double ang2 );
+  static bool eq2ang( double ang1, double ang2 );
+  static double approxTo0( double val );
+  static double addPii( double val );
+  static int checkMatrixEquations( double angleX, double angleY, double angleZ, CLHEP::HepRotation* rot);
+
 
  private:
   static ALIdouble _LengthValueDimensionFactor;
