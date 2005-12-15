@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  * 
- * $Date: 2005/12/15 10:23:23 $
- * $Revision: 1.36 $
+ * $Date: 2005/12/15 14:20:30 $
+ * $Revision: 1.37 $
  * \author G. Della Ricca
  *
 */
@@ -480,6 +480,56 @@ void EBLaserClient::unsubscribe(void){
 
   if ( verbose_ ) cout << "EBLaserClient: unsubscribe" << endl;
 
+  if ( collateSources_ ) {
+
+    if ( verbose_ ) cout << "EBLaserClient: uncollate" << endl;
+
+    DaqMonitorBEInterface* bei = mui_->getBEInterface();
+
+    if ( bei ) {
+
+      Char_t histo[80];
+
+      for ( int ism = 1; ism <= 36; ism++ ) {
+
+        sprintf(histo, "EBLT amplitude SM%02d L1", ism);
+        bei->setCurrentFolder("EcalBarrel/Sums/EBLaserTask/Laser1");
+        bei->removeElement(histo);
+
+        sprintf(histo, "EBLT amplitude over PN SM%02d L1", ism);
+        bei->setCurrentFolder("EcalBarrel/Sums/EBLaserTask/Laser1");
+        bei->removeElement(histo);
+
+        sprintf(histo, "EBLT amplitude SM%02d L2", ism);
+        bei->setCurrentFolder("EcalBarrel/Sums/EBLaserTask/Laser2");
+        bei->removeElement(histo);
+
+        sprintf(histo, "EBLT amplitude over PN SM%02d L2", ism);
+        bei->setCurrentFolder("EcalBarrel/Sums/EBLaserTask/Laser2");
+        bei->removeElement(histo);
+
+        sprintf(histo, "EBLT amplitude SM%02d L3", ism);
+        bei->setCurrentFolder("EcalBarrel/Sums/EBLaserTask/Laser3");
+        bei->removeElement(histo);
+
+        sprintf(histo, "EBLT amplitude over PN SM%02d L3", ism);
+        bei->setCurrentFolder("EcalBarrel/Sums/EBLaserTask/Laser3");
+        bei->removeElement(histo);
+
+        sprintf(histo, "EBLT amplitude SM%02d L4", ism);
+        bei->setCurrentFolder("EcalBarrel/Sums/EBLaserTask/Laser4");
+        bei->removeElement(histo);
+
+        sprintf(histo, "EBLT amplitude over PN SM%02d L4", ism);
+        bei->setCurrentFolder("EcalBarrel/Sums/EBLaserTask/Laser4");
+        bei->removeElement(histo);
+
+      }
+
+    }
+
+  }
+
   // unsubscribe to all monitorable matching pattern
   mui_->unsubscribe("*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude SM*");
   mui_->unsubscribe("*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude over PN SM*");
@@ -489,52 +539,6 @@ void EBLaserClient::unsubscribe(void){
   mui_->unsubscribe("*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude over PN SM*");
   mui_->unsubscribe("*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude SM*");
   mui_->unsubscribe("*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN SM*");
-
-  if ( collateSources_ ) {
-
-    if ( verbose_ ) cout << "EBLaserClient: uncollate" << endl;
-
-    DaqMonitorBEInterface* bei = mui_->getBEInterface();
-
-    Char_t histo[80];
-
-    for ( int ism = 1; ism <= 36; ism++ ) {
-
-      sprintf(histo, "EBLT amplitude SM%02d L1", ism);
-      bei->setCurrentFolder("EcalBarrel/Sums/EBLaserTask/Laser1");
-      bei->removeElement(histo);
-
-      sprintf(histo, "EBLT amplitude over PN SM%02d L1", ism);
-      bei->setCurrentFolder("EcalBarrel/Sums/EBLaserTask/Laser1");
-      bei->removeElement(histo);
-
-      sprintf(histo, "EBLT amplitude SM%02d L2", ism);
-      bei->setCurrentFolder("EcalBarrel/Sums/EBLaserTask/Laser2");
-      bei->removeElement(histo);
-
-      sprintf(histo, "EBLT amplitude over PN SM%02d L2", ism);
-      bei->setCurrentFolder("EcalBarrel/Sums/EBLaserTask/Laser2");
-      bei->removeElement(histo);
-
-      sprintf(histo, "EBLT amplitude SM%02d L3", ism);
-      bei->setCurrentFolder("EcalBarrel/Sums/EBLaserTask/Laser3");
-      bei->removeElement(histo);
-
-      sprintf(histo, "EBLT amplitude over PN SM%02d L3", ism);
-      bei->setCurrentFolder("EcalBarrel/Sums/EBLaserTask/Laser3");
-      bei->removeElement(histo);
-
-      sprintf(histo, "EBLT amplitude SM%02d L4", ism);
-      bei->setCurrentFolder("EcalBarrel/Sums/EBLaserTask/Laser4");
-      bei->removeElement(histo);
-
-      sprintf(histo, "EBLT amplitude over PN SM%02d L4", ism);
-      bei->setCurrentFolder("EcalBarrel/Sums/EBLaserTask/Laser4");
-      bei->removeElement(histo);
-
-    }
-
-  }
 
 }
 

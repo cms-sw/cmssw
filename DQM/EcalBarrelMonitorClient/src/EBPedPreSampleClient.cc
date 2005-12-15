@@ -1,8 +1,8 @@
 /*
  * \file EBPedPreSampleClient.cc
  * 
- * $Date: 2005/12/15 10:23:23 $
- * $Revision: 1.41 $
+ * $Date: 2005/12/15 14:20:30 $
+ * $Revision: 1.42 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -241,26 +241,30 @@ void EBPedPreSampleClient::unsubscribe(void){
 
   if ( verbose_ ) cout << "EBPedPreSampleClient: unsubscribe" << endl;
 
-  // unsubscribe to all monitorable matching pattern
-  mui_->unsubscribe("*/EcalBarrel/EBPedPreSampleTask/Gain12/EBPT pedestal PreSample SM*");
-
   if ( collateSources_ ) {
 
     if ( verbose_ ) cout << "EBPedPreSampleClient: uncollate" << endl;
 
     DaqMonitorBEInterface* bei = mui_->getBEInterface();
 
-    Char_t histo[80];
+    if ( bei ) {
 
-    for ( int ism = 1; ism <= 36; ism++ ) {
+      Char_t histo[80];
 
-      sprintf(histo, "EBPT pedestal PreSample SM%02d G12", ism);
-      bei->setCurrentFolder("EcalBarrel/Sums/EBPedPreSampleTask/Gain12");
-      bei->removeElement(histo);
+      for ( int ism = 1; ism <= 36; ism++ ) {
+
+        sprintf(histo, "EBPT pedestal PreSample SM%02d G12", ism);
+        bei->setCurrentFolder("EcalBarrel/Sums/EBPedPreSampleTask/Gain12");
+        bei->removeElement(histo);
+
+      }
 
     }
 
   }
+
+  // unsubscribe to all monitorable matching pattern
+  mui_->unsubscribe("*/EcalBarrel/EBPedPreSampleTask/Gain12/EBPT pedestal PreSample SM*");
 
 }
 

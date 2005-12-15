@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  * 
- * $Date: 2005/12/15 10:23:23 $
- * $Revision: 1.44 $
+ * $Date: 2005/12/15 14:20:30 $
+ * $Revision: 1.45 $
  * \author G. Della Ricca
  *
 */
@@ -311,6 +311,50 @@ void EBIntegrityClient::unsubscribe(void){
   
   if ( verbose_ ) cout << "EBIntegrityClient: unsubscribe" << endl;
 
+  if ( collateSources_ ) {
+
+    if ( verbose_ ) cout << "EBIntegrityClient: uncollate" << endl;
+
+    DaqMonitorBEInterface* bei = mui_->getBEInterface();
+
+    if ( bei ) {
+
+      Char_t histo[80];
+
+      sprintf(histo, "DCC size error");
+      bei->setCurrentFolder("EcalBarrel/Sums/EcalIntegrity");
+      bei->removeElement(histo);
+
+      for ( int ism = 1; ism <= 36; ism++ ) {
+
+//     not needed: the same CollateMonitorElements are built in EBPedPreSample.cc
+
+//        sprintf(histo, "EBPT pedestal PreSample SM%02d G12", ism);
+//        bei->setCurrentFolder("EcalBarrel/Sums/EBPedPreSampleTask/Gain12");
+//        bei->removeElement(histo);
+
+        sprintf(histo, "EI gain SM%02d", ism);
+        bei->setCurrentFolder("EcalBarrel/Sums/EcalIntegrity/Gain");
+        bei->removeElement(histo);
+
+        sprintf(histo, "EI ChId SM%02d", ism);
+        bei->setCurrentFolder("EcalBarrel/Sums/EcalIntegrity/ChId");
+        bei->removeElement(histo);
+
+        sprintf(histo, "EI TTId SM%02d", ism);
+        bei->setCurrentFolder("EcalBarrel/Sums/EcalIntegrity/TTId");
+        bei->removeElement(histo);
+
+        sprintf(histo, "EI TTBlockSize SM%02d", ism);
+        bei->setCurrentFolder("EcalBarrel/Sums/EcalIntegrity/TTBlockSize");
+        bei->removeElement(histo);
+
+      }
+
+    }
+
+  }
+
   // unsubscribe to all monitorable matching pattern
   //mui_->unsubscribe("*/EcalBarrel/EBPedPreSampleTask/Gain12/EBPT pedestal PreSample SM*");
   mui_->unsubscribe("*/EcalBarrel/EcalIntegrity/DCC size error");
@@ -318,46 +362,6 @@ void EBIntegrityClient::unsubscribe(void){
   mui_->unsubscribe("*/EcalBarrel/EcalIntegrity/ChId/EI ChId SM*");
   mui_->unsubscribe("*/EcalBarrel/EcalIntegrity/TTId/EI TTId SM*");
   mui_->unsubscribe("*/EcalBarrel/EcalIntegrity/TTBlockSize/EI TTBlockSize SM*");
-
-  if ( collateSources_ ) {
-
-    if ( verbose_ ) cout << "EBIntegrityClient: uncollate" << endl;
-
-    DaqMonitorBEInterface* bei = mui_->getBEInterface();
-
-    Char_t histo[80];
-
-    sprintf(histo, "DCC size error");
-    bei->setCurrentFolder("EcalBarrel/Sums/EcalIntegrity");
-    bei->removeElement(histo);
-
-    for ( int ism = 1; ism <= 36; ism++ ) {
-
-//   not needed: the same CollateMonitorElements are built in EBPedPreSample.cc
-
-//      sprintf(histo, "EBPT pedestal PreSample SM%02d G12", ism);
-//      bei->setCurrentFolder("EcalBarrel/Sums/EBPedPreSampleTask/Gain12");
-//      bei->removeElement(histo);
-
-      sprintf(histo, "EI gain SM%02d", ism);
-      bei->setCurrentFolder("EcalBarrel/Sums/EcalIntegrity/Gain");
-      bei->removeElement(histo);
-
-      sprintf(histo, "EI ChId SM%02d", ism);
-      bei->setCurrentFolder("EcalBarrel/Sums/EcalIntegrity/ChId");
-      bei->removeElement(histo);
-
-      sprintf(histo, "EI TTId SM%02d", ism);
-      bei->setCurrentFolder("EcalBarrel/Sums/EcalIntegrity/TTId");
-      bei->removeElement(histo);
-
-      sprintf(histo, "EI TTBlockSize SM%02d", ism);
-      bei->setCurrentFolder("EcalBarrel/Sums/EcalIntegrity/TTBlockSize");
-      bei->removeElement(histo);
-
-    }
-
-  }
 
 }
 

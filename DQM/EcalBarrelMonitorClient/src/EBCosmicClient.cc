@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  * 
- * $Date: 2005/12/15 10:23:23 $
- * $Revision: 1.15 $
+ * $Date: 2005/12/15 14:20:30 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -223,36 +223,40 @@ void EBCosmicClient::unsubscribe(void){
 
   if ( verbose_ ) cout << "EBCosmicClient: unsubscribe" << endl;
 
-  // unsubscribe to all monitorable matching pattern
-  mui_->unsubscribe("*/EcalBarrel/EBCosmicTask/Sel/EBCT amplitude sel SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBCosmicTask/Cut/EBCT amplitude cut SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBCosmicTask/Spectrum/EBCT amplitude spectrum SM*");
-
   if ( collateSources_ ) {
   
     if ( verbose_ ) cout << "EBCosmicClient: uncollate" << endl;
 
     DaqMonitorBEInterface* bei = mui_->getBEInterface();
-  
-    Char_t histo[80];
 
-    for ( int ism = 1; ism <= 36; ism++ ) {
+    if ( bei ) { 
 
-      sprintf(histo, "EBCT amplitude sel SM%02d", ism);
-      bei->setCurrentFolder("EcalBarrel/Sums/EBCosmicTask/Sel");
-      bei->removeElement(histo);
+      Char_t histo[80];
 
-      sprintf(histo, "EBCT amplitude cut SM%02d", ism);
-      bei->setCurrentFolder("EcalBarrel/Sums/EBCosmicTask/Cut");
-      bei->removeElement(histo);
+      for ( int ism = 1; ism <= 36; ism++ ) {
 
-      sprintf(histo, "EBCT amplitude spectrum SM%02d", ism);
-      bei->setCurrentFolder("EcalBarrel/Sums/EBCosmicTask/Spectrum");
-      bei->removeElement(histo);
+        sprintf(histo, "EBCT amplitude sel SM%02d", ism);
+        bei->setCurrentFolder("EcalBarrel/Sums/EBCosmicTask/Sel");
+        bei->removeElement(histo);
+
+        sprintf(histo, "EBCT amplitude cut SM%02d", ism);
+        bei->setCurrentFolder("EcalBarrel/Sums/EBCosmicTask/Cut");
+        bei->removeElement(histo);
+
+        sprintf(histo, "EBCT amplitude spectrum SM%02d", ism);
+        bei->setCurrentFolder("EcalBarrel/Sums/EBCosmicTask/Spectrum");
+        bei->removeElement(histo);
+
+      }
 
     }
 
   }
+
+  // unsubscribe to all monitorable matching pattern
+  mui_->unsubscribe("*/EcalBarrel/EBCosmicTask/Sel/EBCT amplitude sel SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBCosmicTask/Cut/EBCT amplitude cut SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBCosmicTask/Spectrum/EBCT amplitude spectrum SM*");
 
 }
 

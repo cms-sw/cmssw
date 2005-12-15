@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  * 
- * $Date: 2005/12/15 10:23:23 $
- * $Revision: 1.36 $
+ * $Date: 2005/12/15 14:20:30 $
+ * $Revision: 1.37 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -346,36 +346,40 @@ void EBPedestalClient::unsubscribe(void){
 
   if ( verbose_ ) cout << "EBPedestalClient: unsubscribe" << endl;
 
-  // unsubscribe to all monitorable matching pattern
-  mui_->unsubscribe("*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM*");
-
   if ( collateSources_ ) {
 
     if ( verbose_ ) cout << "EBPedestalClient: uncollate" << endl;
 
     DaqMonitorBEInterface* bei = mui_->getBEInterface();
 
-    Char_t histo[80];
+    if ( bei ) {
 
-    for ( int ism = 1; ism <= 36; ism++ ) {
+      Char_t histo[80];
 
-      sprintf(histo, "EBPT pedestal SM%02d G01", ism);
-      bei->setCurrentFolder("EcalBarrel/Sums/EBPedestalTask/Gain01");
-      bei->removeElement(histo);
+      for ( int ism = 1; ism <= 36; ism++ ) {
 
-      sprintf(histo, "EBPT pedestal SM%02d G06", ism);
-      bei->setCurrentFolder("EcalBarrel/Sums/EBPedestalTask/Gain06");
-      bei->removeElement(histo);
+        sprintf(histo, "EBPT pedestal SM%02d G01", ism);
+        bei->setCurrentFolder("EcalBarrel/Sums/EBPedestalTask/Gain01");
+        bei->removeElement(histo);
 
-      sprintf(histo, "EBPT pedestal SM%02d G12", ism);
-      bei->setCurrentFolder("EcalBarrel/Sums/EBPedestalTask/Gain12");
-      bei->removeElement(histo);
+        sprintf(histo, "EBPT pedestal SM%02d G06", ism);
+        bei->setCurrentFolder("EcalBarrel/Sums/EBPedestalTask/Gain06");
+        bei->removeElement(histo);
+
+        sprintf(histo, "EBPT pedestal SM%02d G12", ism);
+        bei->setCurrentFolder("EcalBarrel/Sums/EBPedestalTask/Gain12");
+        bei->removeElement(histo);
+
+      }
 
     }
 
   }
+
+  // unsubscribe to all monitorable matching pattern
+  mui_->unsubscribe("*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM*");
 
 }
 
