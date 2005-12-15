@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCUnpackingModule
  *
- *  $Date: 2005/12/12 17:32:11 $
- *  $Revision: 1.6 $
+ *  $Date: 2005/12/14 13:35:22 $
+ *  $Revision: 1.7 $
  *
  * \author Ilaria Segoni
  */
@@ -19,6 +19,9 @@
 #include <FWCore/Framework/interface/Handle.h>
 #include <FWCore/Framework/interface/Event.h>
 
+#include <EventFilter/RPCRawToDigi/interface/RPCMonitorInterface.h>
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
 using namespace edm;
 using namespace std;
 
@@ -32,8 +35,21 @@ using namespace std;
 RPCUnpackingModule::RPCUnpackingModule(const edm::ParameterSet& pset)  
 {
   nEvents=0;
+  currentBX=0;
+  currentChn=0;
+  
   printout = pset.getUntrackedParameter<bool>("PrintOut", false); 
   hexprintout = pset.getUntrackedParameter<bool>("PrintHexDump", false); 
+  
+  instatiateDQM = pset.getUntrackedParameter<bool>("runDQM", false);
+  if(instatiateDQM){
+   
+   monitor = edm::Service<RPCMonitorInterface>().operator->(); 
+  
+  }
+  
+  
+  
   produces<RPCDigiCollection>();
 
 }
@@ -58,6 +74,7 @@ void RPCUnpackingModule::produce(Event & e, const EventSetup& c){
  if(printout) cout<<"Starting loop on FEDs, RPC FED ID RANGE: "<<rpcFEDS.first<<" - "<<rpcFEDS.second<<endl;
  
  nEvents++;
+ 
  
  if(printout) cout<<"Beginning To Unpack Event: "<<nEvents<<endl;
  
@@ -112,7 +129,7 @@ void RPCUnpackingModule::produce(Event & e, const EventSetup& c){
           RPCRecord::recordTypes typeOfRecord = theRecord.type();
 	 
 	  /// Unpack the Record 
-	  theRecord.recordUnpack(typeOfRecord);
+	  recordUnpack(typeOfRecord,recordIndex);
 	  
 	  }
           
@@ -122,11 +139,12 @@ void RPCUnpackingModule::produce(Event & e, const EventSetup& c){
 
 
         }
- // Now check that next word is the Trailer as expected
 		
-    }
+      ///Send information to DQM
+      if(instatiateDQM) monitor->process(rpcData);
+   }
 		
- }
+  }
        
         // Insert the new product in the event  
 	//e.put(producedRPCDigis);
@@ -199,6 +217,64 @@ int RPCUnpackingModule::TrailerUnpacker(const unsigned char* trailerIndex){
 
 
 
+void RPCUnpackingModule::recordUnpack(RPCRecord::recordTypes  type, const unsigned char* recordIndex){
+
+const unsigned int* recordIndexInt=reinterpret_cast<const unsigned int*>(recordIndex);
+/// BX Data type
+ if(type==RPCRecord::StartOfBXData){
+   
+    RPCBXData bxData(recordIndexInt);
+    if(printout) cout<<"Found BX record, BX= "<<bxData.bx()<<endl;
+    currentBX=bxData.bx();
+    rpcData.addBXData(bxData);
+
+ } 
+
+/// Start of Channel Data Type
+ if(type==RPCRecord::StartOfChannelData){
+   
+    RPCChannelData chnData(recordIndexInt);
+    if(printout) cout<<"Found start of Channel Data Record, Channel: "<< chnData.channel()<<
+ 	 " Readout/Trigger Mother Board: "<<chnData.tbRmb()<<endl;
+    currentChn=chnData.channel();
+    rpcData.addChnData(chnData);
+ 
+ } 
+
+/// Chamber Data 
+ if(type==RPCRecord::ChamberData){
+  
+   RPCChamberData cmbData(recordIndexInt);
+    if(printout) cout<< "Found Chamber Data, Chamber Number: "<<cmbData.chamberNumber()<<
+ 	" Partition Data "<<cmbData.partitionData()<<
+ 	" Half Partition " << cmbData.halfP()<<
+ 	" Data Truncated: "<<cmbData.eod()<<
+ 	" Partition Number " <<  cmbData.partitionNumber()
+ 	<<endl;
+    rpcData.addRPCChamberData(cmbData);
+
+ }
+
+/// RMB Discarded
+ if(type==RPCRecord::RMBDiscarded){
+ 
+  RMBErrorData  discarded(recordIndexInt);
+     rpcData.addRMBDiscarded(discarded);
+     rpcData.addRMBCorrupted(discarded);
+
+ }
+
+/// DCC Discraded
+ if(type==RPCRecord::DCCDiscarded){
+     rpcData.addDCCDiscarded();
+ }
+
+ //delete recordIndexInt;
+ //delete recordIndex;
+ //recordIndexInt=0;
+// recordIndex=0;
+
+}
 
 
 DEFINE_FWK_MODULE(RPCUnpackingModule)
