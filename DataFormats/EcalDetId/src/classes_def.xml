@@ -4,4 +4,10 @@
   <class name="ESDetId"/>
   <class name="EcalTrigTowerDetId"/>
   <class name="EcalPnDiodeDetId"/>
+  <class name="std::vector<EBDetId>"/>
+  <class name="std::vector<EcalTrigTowerDetId>"/>
+  <class name="edm::EDCollection<EBDetId> "/>
+  <class name="edm::EDCollection<EcalTrigTowerDetId> "/>
+  <class name="edm::Wrapper<edm::EDCollection<EBDetId> > "/>
+  <class name="edm::Wrapper<edm::EDCollection<EcalTrigTowerDetId> > "/>
 </lcgdict>
