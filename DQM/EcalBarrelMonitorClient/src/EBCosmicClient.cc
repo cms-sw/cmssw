@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  * 
- * $Date: 2005/12/13 09:02:24 $
- * $Revision: 1.14 $
+ * $Date: 2005/12/15 10:23:23 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -47,8 +47,7 @@ void EBCosmicClient::beginJob(const edm::EventSetup& c){
   if ( verbose_ ) cout << "EBCosmicClient: beginJob" << endl;
 
   ievt_ = 0;
-
-  this->subscribe();
+  jevt_ = 0;
 
 }
 
@@ -69,13 +68,13 @@ void EBCosmicClient::beginRun(const edm::EventSetup& c){
 
   }
 
+  this->subscribe();
+
 }
 
 void EBCosmicClient::endJob(void) {
 
   if ( verbose_ ) cout << "EBCosmicClient: endJob, ievt = " << ievt_ << endl;
-
-  this->unsubscribe();
 
 }
 
@@ -168,6 +167,8 @@ void EBCosmicClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* 
       cerr << e.what() << endl;
     }
   }
+
+  this->unsubscribe();
 
 }
 

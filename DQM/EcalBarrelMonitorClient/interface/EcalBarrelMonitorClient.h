@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2005/12/05 09:31:34 $
- * $Revision: 1.19 $
+ * $Date: 2005/12/13 09:02:23 $
+ * $Revision: 1.20 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -128,13 +128,13 @@ int last_update_;
 int last_jevt_;
 
 EBIntegrityClient* integrity_client_;
+
+EBCosmicClient* cosmic_client_;
 EBLaserClient* laser_client_;
 EBPnDiodeClient* pndiode_client_;
 EBPedestalClient* pedestal_client_;
 EBPedPreSampleClient* pedpresample_client_;
 EBTestPulseClient* testpulse_client_;
-
-EBCosmicClient* cosmic_client_;
 
 CollateMonitorElement* me_h_;
 

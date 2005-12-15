@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  * 
- * $Date: 2005/12/13 09:02:24 $
- * $Revision: 1.35 $
+ * $Date: 2005/12/15 10:23:23 $
+ * $Revision: 1.36 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -94,8 +94,7 @@ void EBPedestalClient::beginJob(const edm::EventSetup& c){
   if ( verbose_ ) cout << "EBPedestalClient: beginJob" << endl;
 
   ievt_ = 0;
-
-  this->subscribe();
+  jevt_ = 0;
 
 }
 
@@ -137,6 +136,8 @@ void EBPedestalClient::beginRun(const edm::EventSetup& c){
     r03_[ism-1]->Reset();
 
   }
+
+  this->subscribe();
 
 }
 

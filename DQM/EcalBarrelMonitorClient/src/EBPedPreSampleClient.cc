@@ -1,8 +1,8 @@
 /*
  * \file EBPedPreSampleClient.cc
  * 
- * $Date: 2005/12/13 09:02:24 $
- * $Revision: 1.40 $
+ * $Date: 2005/12/15 10:23:23 $
+ * $Revision: 1.41 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -66,8 +66,7 @@ void EBPedPreSampleClient::beginJob(const edm::EventSetup& c){
   if ( verbose_ ) cout << "EBPedPreSampleClient: beginJob" << endl;
 
   ievt_ = 0;
-
-  this->subscribe();
+  jevt_ = 0;
 
 }
 
@@ -98,13 +97,13 @@ void EBPedPreSampleClient::beginRun(const edm::EventSetup& c){
 
   }
 
+  this->subscribe();
+
 }
 
 void EBPedPreSampleClient::endJob(void) {
 
   if ( verbose_ ) cout << "EBPedPreSampleClient: endJob, ievt = " << ievt_ << endl;
-
-  this->unsubscribe();
 
 }
 
@@ -200,6 +199,8 @@ void EBPedPreSampleClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, Ru
       cerr << e.what() << endl;
     }
   }
+
+  this->unsubscribe();
 
 }
 

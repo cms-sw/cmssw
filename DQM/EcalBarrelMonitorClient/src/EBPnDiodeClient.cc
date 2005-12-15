@@ -1,8 +1,8 @@
 /*
  * \file EBPnDiodeClient.cc
  * 
- * $Date: 2005/12/13 09:02:24 $
- * $Revision: 1.15 $
+ * $Date: 2005/12/15 10:23:23 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -49,8 +49,7 @@ void EBPnDiodeClient::beginJob(const edm::EventSetup& c){
   if ( verbose_ ) cout << "EBPnDiodeClient: beginJob" << endl;
 
   ievt_ = 0;
-
-  this->subscribe();
+  jevt_ = 0;
 
 }
 
@@ -73,13 +72,13 @@ void EBPnDiodeClient::beginRun(const edm::EventSetup& c){
 
   }
 
+  this->subscribe();
+
 }
 
 void EBPnDiodeClient::endJob(void) {
 
   if ( verbose_ ) cout << "EBPnDiodeClient: endJob, ievt = " << ievt_ << endl;
-
-  this->unsubscribe();
 
 }
 
@@ -190,6 +189,8 @@ void EBPnDiodeClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag*
       cerr << e.what() << endl;
     }
   }
+
+  this->unsubscribe();
 
 }
 

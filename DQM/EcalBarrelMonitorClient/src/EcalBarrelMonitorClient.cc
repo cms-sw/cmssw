@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  * 
- * $Date: 2005/12/13 09:02:24 $
- * $Revision: 1.53 $
+ * $Date: 2005/12/15 10:23:23 $
+ * $Revision: 1.54 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -16,13 +16,21 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps){
   cout << " *** Ecal Barrel Generic Monitor Client ***" << endl;
   cout << endl;
 
-  begin_run_done_ = false;
-  end_run_done_ = false;
-
   mui_ = 0;
   econn_ = 0;
 
+  begin_run_done_ = false;
+  end_run_done_ = false;
+
   h_ = 0;
+
+  status_  = "unknown";
+  run_     = -1;
+  evt_     = -1;
+  runtype_ = "unknown";
+
+  last_jevt_ = -1;
+  last_update_ = 0;
 
   // DQM default client name
   clientName_ = ps.getUntrackedParameter<string>("clientName", "EcalBarrelMonitorClient");
@@ -92,14 +100,14 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps){
   // will attempt to reconnect upon connection problems (w/ a 5-sec delay)
   mui_->setReconnectDelay(5);
 
-  integrity_client_ = new EBIntegrityClient(ps, mui_);
-  laser_client_ = new EBLaserClient(ps, mui_);
-  pndiode_client_ = new EBPnDiodeClient(ps, mui_);
-  pedestal_client_ = new EBPedestalClient(ps, mui_);
-  pedpresample_client_ = new EBPedPreSampleClient(ps, mui_);
-  testpulse_client_ = new EBTestPulseClient(ps, mui_);
+  integrity_client_    = new EBIntegrityClient(ps, mui_);
 
-  cosmic_client_ = new EBCosmicClient(ps, mui_);
+  cosmic_client_       = new EBCosmicClient(ps, mui_);
+  laser_client_        = new EBLaserClient(ps, mui_);
+  pndiode_client_      = new EBPnDiodeClient(ps, mui_);
+  pedestal_client_     = new EBPedestalClient(ps, mui_);
+  pedpresample_client_ = new EBPedPreSampleClient(ps, mui_);
+  testpulse_client_    = new EBTestPulseClient(ps, mui_);
 
 }
 
@@ -109,15 +117,28 @@ EcalBarrelMonitorClient::~EcalBarrelMonitorClient(){
 
   if ( h_ ) delete h_;
 
-  if ( integrity_client_ ) delete integrity_client_;
-  if ( laser_client_ ) delete laser_client_;
-  if ( pndiode_client_ ) delete pndiode_client_;
-  if ( pedestal_client_ ) delete pedestal_client_;
-  if ( pedpresample_client_ ) delete pedpresample_client_;
-  if ( testpulse_client_ ) delete testpulse_client_;
+  if ( integrity_client_ ) {
+    delete integrity_client_;
+  }
 
-  if ( cosmic_client_ ) delete cosmic_client_;
-
+  if ( cosmic_client_ ) {
+    delete cosmic_client_;
+  }
+  if ( laser_client_ ) {
+    delete laser_client_;
+  }
+  if ( pndiode_client_ ) {
+    delete pndiode_client_;
+  }
+  if ( pedestal_client_ ) {
+    delete pedestal_client_;
+  }
+  if ( pedpresample_client_ ) {
+    delete pedpresample_client_;
+  }
+  if ( testpulse_client_ ) {
+    delete testpulse_client_;
+  }
   usleep(100);
 
   if ( mui_ ) delete mui_;
@@ -129,20 +150,32 @@ void EcalBarrelMonitorClient::beginJob(const edm::EventSetup& c){
   if ( verbose_ ) cout << "EcalBarrelMonitorClient: beginJob" << endl;
 
   ievt_ = 0;
+  jevt_ = 0;
 
   this->subscribe();
 
-  if ( integrity_client_ ) integrity_client_->beginJob(c);
-  if ( laser_client_ ) laser_client_->beginJob(c);
-  if ( pndiode_client_ ) pndiode_client_->beginJob(c);
-  if ( pedestal_client_ ) pedestal_client_->beginJob(c);
-  if ( pedpresample_client_ ) pedpresample_client_->beginJob(c);
-  if ( testpulse_client_ ) testpulse_client_->beginJob(c);
+  if ( integrity_client_ ) {
+    integrity_client_->beginJob(c);
+  }
 
-  if ( cosmic_client_ ) cosmic_client_->beginJob(c);
-
-  this->beginRun(c);
-  begin_run_done_ = true;
+  if ( cosmic_client_ ) {
+    cosmic_client_->beginJob(c);
+  }
+  if ( laser_client_ ) {
+    laser_client_->beginJob(c);
+  }
+  if ( pndiode_client_ ) {
+    pndiode_client_->beginJob(c);
+  }
+  if ( pedestal_client_ ) {
+    pedestal_client_->beginJob(c);
+  }
+  if ( pedpresample_client_ ) {
+    pedpresample_client_->beginJob(c);
+  }
+  if ( testpulse_client_ ) {
+    testpulse_client_->beginJob(c);
+  }
 
 }
 
@@ -152,26 +185,38 @@ void EcalBarrelMonitorClient::beginRun(const edm::EventSetup& c){
 
   jevt_ = 0;
 
-  last_jevt_ = -1;
+  if ( integrity_client_ ) {
+    integrity_client_->beginRun(c);
+  }
 
-  last_update_ = 0;
-
-  if ( h_ ) delete h_;
-  h_ = 0;
-
-  status_  = "unknown";
-  run_     = 0;
-  evt_     = 0;
-  runtype_ = "unknown";
-
-  if ( integrity_client_ ) integrity_client_->beginRun(c);
-  if ( laser_client_ ) laser_client_->beginRun(c);
-  if ( pndiode_client_ ) pndiode_client_->beginRun(c);
-  if ( pedestal_client_ ) pedestal_client_->beginRun(c);
-  if ( pedpresample_client_ ) pedpresample_client_->beginRun(c);
-  if ( testpulse_client_ ) testpulse_client_->beginRun(c);
-
-  if ( cosmic_client_ ) cosmic_client_->beginRun(c);
+  if ( cosmic_client_ ) {
+    if ( runtype_ == "cosmic" ) {
+      cosmic_client_->beginRun(c);
+    }
+  }
+  if ( laser_client_ ) {
+    if ( runtype_ == "cosmic" || runtype_ == "laser" ) {
+      laser_client_->beginRun(c);
+    }
+  }
+  if ( pndiode_client_ ) {
+    if ( runtype_ == "cosmic" || runtype_ == "laser" ) {
+      pndiode_client_->beginRun(c);
+    }
+  }
+  if ( pedestal_client_ ) {
+    if ( runtype_ == "pedestal" ) {
+      pedestal_client_->beginRun(c);
+    }
+  }
+  if ( pedpresample_client_ ) {
+    pedpresample_client_->beginRun(c);
+  }
+  if ( testpulse_client_ ) {
+    if ( runtype_ == "testpulse" ) {
+      testpulse_client_->beginRun(c);
+    }
+  }
 
 }
 
@@ -181,14 +226,37 @@ void EcalBarrelMonitorClient::endJob(void) {
 
   this->unsubscribe();
 
-  if ( integrity_client_ ) integrity_client_->endJob();
-  if ( laser_client_ ) laser_client_->endJob();
-  if ( pndiode_client_ ) pndiode_client_->endJob();
-  if ( pedestal_client_ ) pedestal_client_->endJob();
-  if ( pedpresample_client_ ) pedpresample_client_->endJob();
-  if ( testpulse_client_ ) testpulse_client_->endJob();
-
-  if ( cosmic_client_ ) cosmic_client_->endJob();
+  if ( integrity_client_ ) {
+    integrity_client_->endJob();
+  }
+  if ( cosmic_client_ ) {
+    if ( runtype_ == "cosmic" ) {
+      cosmic_client_->endJob();
+    }
+  }
+  if ( laser_client_ ) {
+    if ( runtype_ == "cosmic" || runtype_ == "laser" ) {
+      laser_client_->endJob();
+    }
+  }
+  if ( pndiode_client_ ) {
+    if ( runtype_ == "cosmic" || runtype_ == "laser" ) {
+      pndiode_client_->endJob();
+    }
+  }
+  if ( pedestal_client_ ) {
+    if ( runtype_ == "pedestal" ) {
+      pedestal_client_->endJob();
+    }
+  }
+  if ( pedpresample_client_ ) {
+    pedpresample_client_->endJob();
+  }
+  if ( testpulse_client_ ) {
+    if ( runtype_ == "testpulse" ) {
+      testpulse_client_->endJob();
+    }
+  }
 
 }
 
@@ -260,14 +328,28 @@ void EcalBarrelMonitorClient::endRun(void) {
     }
   }
 
-  if ( integrity_client_ ) integrity_client_->endRun(econn_, runiov_, runtag_);
-  if ( laser_client_ ) laser_client_->endRun(econn_, runiov_, runtag_);
-  if ( pndiode_client_ ) pndiode_client_->endRun(econn_, runiov_, runtag_);
-  if ( pedestal_client_ ) pedestal_client_->endRun(econn_, runiov_, runtag_);
-  if ( pedpresample_client_ ) pedpresample_client_->endRun(econn_, runiov_, runtag_);
-  if ( testpulse_client_ ) testpulse_client_->endRun(econn_, runiov_, runtag_);
+  if ( integrity_client_ ) {
+    integrity_client_->endRun(econn_, runiov_, runtag_);
+  }
 
-  cosmic_client_->endRun(econn_, runiov_, runtag_);
+  if ( cosmic_client_ ) {
+    cosmic_client_->endRun(econn_, runiov_, runtag_);
+  }
+  if ( laser_client_ ) {
+    laser_client_->endRun(econn_, runiov_, runtag_);
+  }
+  if ( pndiode_client_ ) {
+    pndiode_client_->endRun(econn_, runiov_, runtag_);
+  }
+  if ( pedestal_client_ ) {
+    pedestal_client_->endRun(econn_, runiov_, runtag_);
+  }
+  if ( pedpresample_client_ ) {
+    pedpresample_client_->endRun(econn_, runiov_, runtag_);
+  }
+  if ( testpulse_client_ ) {
+    testpulse_client_->endRun(econn_, runiov_, runtag_);
+  }
 
   if ( econn_ ) {
     try {
@@ -283,6 +365,17 @@ void EcalBarrelMonitorClient::endRun(void) {
   if ( runtag_ ) delete runtag_;
 
   if ( baseHtmlDir_.size() != 0 ) this->htmlOutput();
+
+  if ( h_ ) delete h_;
+  h_ = 0;
+
+  status_  = "unknown";
+  run_     = -1;
+  evt_     = -1;
+  runtype_ = "unknown";
+
+  last_jevt_ = -1;
+  last_update_ = 0;
 
 }
 
@@ -362,14 +455,28 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
 
   this->subscribeNew();
 
-  if ( integrity_client_ ) integrity_client_->subscribeNew();
-  if ( laser_client_ ) laser_client_->subscribeNew();
-  if ( pndiode_client_ ) pndiode_client_->subscribeNew();
-  if ( pedestal_client_ ) pedestal_client_->subscribeNew();
-  if ( pedpresample_client_ ) pedpresample_client_->subscribeNew();
-  if ( testpulse_client_ ) testpulse_client_->subscribeNew();
+  if ( integrity_client_ ) {
+    integrity_client_->subscribeNew();
+  }
 
-  if ( cosmic_client_ ) cosmic_client_->subscribeNew();
+  if ( cosmic_client_ ) {
+    cosmic_client_->subscribeNew();
+  }
+  if ( laser_client_ ) {
+    laser_client_->subscribeNew();
+  }
+  if ( pndiode_client_ ) {
+    pndiode_client_->subscribeNew();
+  }
+  if ( pedestal_client_ ) {
+    pedestal_client_->subscribeNew();
+  }
+  if ( pedpresample_client_ ) {
+    pedpresample_client_->subscribeNew();
+  }
+  if ( testpulse_client_ ) {
+    testpulse_client_->subscribeNew();
+  }
 
   // # of full monitoring cycles processed
   int updates = mui_->getNumUpdates();
@@ -383,24 +490,33 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
 
   if ( stay_in_loop && updates != last_update_ ) {
 
-    me = mui_->get("Collector/FU0/EcalBarrel/STATUS");
+    sprintf(histo, "Collector/FU0/EcalBarrel/STATUS");
+    me = mui_->get(histo);
     if ( me ) {
       s = me->valueString();
+      status_ = "unknown";
       if ( s.substr(2,1) == "0" ) status_ = "begin-of-run";
       if ( s.substr(2,1) == "1" ) status_ = "running";
       if ( s.substr(2,1) == "2" ) status_ = "end-of-run";
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
     }
 
-    me = mui_->get("Collector/FU0/EcalBarrel/RUN");
+    sprintf(histo, "Collector/FU0/EcalBarrel/RUN");
+    me = mui_->get(histo);
     if ( me ) {
       s = me->valueString();
+      run_ = -1;
       sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &run_);
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
     }
 
-    me = mui_->get("Collector/FU0/EcalBarrel/EVT");
+    sprintf(histo, "Collector/FU0/EcalBarrel/EVT");
+    me = mui_->get(histo);
     if ( me ) {
       s = me->valueString();
+      evt_ = -1;
       sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &evt_);
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
     }
 
     if ( collateSources_ ) {
@@ -423,6 +539,7 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
     me = mui_->get("Collector/FU0/EcalBarrel/RUNTYPE");
     if ( me ) {
       s = me->valueString();
+      runtype_ = "unknown";
       if ( s.substr(2,1) == "0" ) runtype_ = "cosmic";
       if ( s.substr(2,1) == "1" ) runtype_ = "laser";
       if ( s.substr(2,1) == "2" ) runtype_ = "pedestal";
@@ -484,14 +601,48 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
 
     if ( update && updates % 5 == 0 ) {
 
-      if (                                    integrity_client_ ) integrity_client_->analyze(e, c);
-      if ( h_ && h_->GetBinContent(2) != 0 && laser_client_ ) laser_client_->analyze(e, c);
-      if ( h_ && h_->GetBinContent(2) != 0 && pndiode_client_ ) pndiode_client_->analyze(e, c);
-      if ( h_ && h_->GetBinContent(3) != 0 && pedestal_client_ ) pedestal_client_->analyze(e, c);
-      if (                                    pedpresample_client_ ) pedpresample_client_->analyze(e, c);
-      if ( h_ && h_->GetBinContent(4) != 0 && testpulse_client_ ) testpulse_client_->analyze(e, c);
+      if ( integrity_client_ ) {
+        integrity_client_->analyze(e, c);
+      }
 
-      if ( h_ && h_->GetBinContent(1) != 0 && cosmic_client_ ) cosmic_client_->analyze(e, c);
+      if ( cosmic_client_ ) {
+        if ( h_ && h_->GetBinContent(1) != 0 ) {
+          if ( runtype_ == "cosmic" ) {
+            cosmic_client_->analyze(e, c);
+          }
+        }
+      }
+      if ( laser_client_ ) {
+        if ( h_ && h_->GetBinContent(2) != 0 ) {
+          if ( runtype_ == "cosmic" || runtype_ == "laser" ) {
+            laser_client_->analyze(e, c);
+          }
+        }
+      }
+      if ( pndiode_client_ ) {
+        if ( h_ && h_->GetBinContent(2) != 0 ) {
+          if ( runtype_ == "cosmic" || runtype_ == "laser" ) {
+            pndiode_client_->analyze(e, c);
+          }
+        }
+      }
+      if ( pedestal_client_ ) {
+        if ( h_ && h_->GetBinContent(3) != 0 ) {
+          if ( runtype_ == "pedestal" ) {
+            pedestal_client_->analyze(e, c);
+          }
+        }
+      }
+      if ( pedpresample_client_ ) {
+        pedpresample_client_->analyze(e, c);
+      }
+      if ( testpulse_client_ ) {
+        if ( h_ && h_->GetBinContent(4) != 0 ) {
+          if ( runtype_ == "testpulse" ) {
+            testpulse_client_->analyze(e, c);
+          }
+        }
+      }
 
     }
 
@@ -501,14 +652,37 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
 
     if ( ! end_run_done_ ) {
 
-      if (                                    integrity_client_ ) integrity_client_->analyze(e, c);
-      if ( h_ && h_->GetBinContent(2) != 0 && laser_client_ ) laser_client_->analyze(e, c);
-      if ( h_ && h_->GetBinContent(2) != 0 && pndiode_client_ ) pndiode_client_->analyze(e, c);
-      if ( h_ && h_->GetBinContent(3) != 0 && pedestal_client_ ) pedestal_client_->analyze(e, c);
-      if (                                    pedpresample_client_ ) pedpresample_client_->analyze(e, c);
-      if ( h_ && h_->GetBinContent(4) != 0 && testpulse_client_ ) testpulse_client_->analyze(e, c);
-
-      if ( h_ && h_->GetBinContent(1) != 0 && cosmic_client_ ) cosmic_client_->analyze(e, c);
+      if ( integrity_client_ ) {
+        integrity_client_->analyze(e, c);
+      }
+      if ( cosmic_client_ ) {
+        if ( h_ && h_->GetBinContent(1) != 0 ) {
+          cosmic_client_->analyze(e, c);
+        }
+      }
+      if ( laser_client_ ) {
+        if ( h_ && h_->GetBinContent(2) != 0 ) {
+          laser_client_->analyze(e, c);
+        }
+      }
+      if ( pndiode_client_ ) {
+        if ( h_ && h_->GetBinContent(2) != 0 ) {
+          pndiode_client_->analyze(e, c);
+        }
+      }
+      if ( pedestal_client_ ) {
+        if ( h_ && h_->GetBinContent(3) != 0 ) {
+          pedestal_client_->analyze(e, c);
+        }
+      }
+      if ( pedpresample_client_ ) {
+        pedpresample_client_->analyze(e, c);
+      }
+      if ( testpulse_client_ ) {
+        if ( h_ && h_->GetBinContent(4) != 0 ) {
+          testpulse_client_->analyze(e, c);
+        }
+      }
 
       begin_run_done_ = false;
 
@@ -519,7 +693,7 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
 
   }
 
-  if ( ! end_run_done_ && run_ != 0 && evt_ != 0 && ( jevt_ - last_jevt_ ) > 200 ) {
+  if ( ! end_run_done_ && run_ > 0 && evt_ > 0 && ( jevt_ - last_jevt_ ) > 200 ) {
 
     cout << "Running with no updates since too long ..." << endl;
 

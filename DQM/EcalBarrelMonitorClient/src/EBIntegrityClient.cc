@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  * 
- * $Date: 2005/12/13 09:02:24 $
- * $Revision: 1.43 $
+ * $Date: 2005/12/15 10:23:23 $
+ * $Revision: 1.44 $
  * \author G. Della Ricca
  *
 */
@@ -63,8 +63,7 @@ void EBIntegrityClient::beginJob(const edm::EventSetup& c){
   if ( verbose_ ) cout << "EBIntegrityClient: beginJob" << endl;
 
   ievt_ = 0;
-
-  this->subscribe();
+  jevt_ = 0;
 
 }
 
@@ -103,13 +102,13 @@ void EBIntegrityClient::beginRun(const edm::EventSetup& c){
 
   }
 
+  this->subscribe();
+
 }
 
 void EBIntegrityClient::endJob(void) {
 
   if ( verbose_ ) cout << "EBIntegrityClient: endJob, ievt = " << ievt_ << endl;
-
-  this->unsubscribe();
 
 }
 
@@ -234,6 +233,8 @@ void EBIntegrityClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
     }
   }
 
+  this->unsubscribe();
+
 }
 
 void EBIntegrityClient::subscribe(void){
@@ -241,7 +242,7 @@ void EBIntegrityClient::subscribe(void){
   if ( verbose_ ) cout << "EBIntegrityClient: subscribe" << endl;
 
   // subscribe to all monitorable matching pattern
-  mui_->subscribe("*/EcalBarrel/EBPedPreSampleTask/Gain12/EBPT pedestal PreSample SM*");
+  //mui_->subscribe("*/EcalBarrel/EBPedPreSampleTask/Gain12/EBPT pedestal PreSample SM*");
   mui_->subscribe("*/EcalBarrel/EcalIntegrity/DCC size error");
   mui_->subscribe("*/EcalBarrel/EcalIntegrity/Gain/EI gain SM*");
   mui_->subscribe("*/EcalBarrel/EcalIntegrity/ChId/EI ChId SM*");
@@ -297,7 +298,7 @@ void EBIntegrityClient::subscribe(void){
 void EBIntegrityClient::subscribeNew(void){
 
   // subscribe to new monitorable matching pattern
-  mui_->subscribeNew("*/EcalBarrel/EBPedPreSampleTask/Gain12/EBPT pedestal PreSample SM*");
+  //mui_->subscribeNew("*/EcalBarrel/EBPedPreSampleTask/Gain12/EBPT pedestal PreSample SM*");
   mui_->subscribeNew("*/EcalBarrel/EcalIntegrity/DCC size error");
   mui_->subscribeNew("*/EcalBarrel/EcalIntegrity/Gain/EI gain SM*");
   mui_->subscribeNew("*/EcalBarrel/EcalIntegrity/ChId/EI ChId SM*");
@@ -311,7 +312,7 @@ void EBIntegrityClient::unsubscribe(void){
   if ( verbose_ ) cout << "EBIntegrityClient: unsubscribe" << endl;
 
   // unsubscribe to all monitorable matching pattern
-  mui_->unsubscribe("*/EcalBarrel/EBPedPreSampleTask/Gain12/EBPT pedestal PreSample SM*");
+  //mui_->unsubscribe("*/EcalBarrel/EBPedPreSampleTask/Gain12/EBPT pedestal PreSample SM*");
   mui_->unsubscribe("*/EcalBarrel/EcalIntegrity/DCC size error");
   mui_->unsubscribe("*/EcalBarrel/EcalIntegrity/Gain/EI gain SM*");
   mui_->unsubscribe("*/EcalBarrel/EcalIntegrity/ChId/EI ChId SM*");

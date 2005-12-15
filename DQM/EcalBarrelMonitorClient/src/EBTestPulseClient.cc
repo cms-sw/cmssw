@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  * 
- * $Date: 2005/12/13 09:02:24 $
- * $Revision: 1.39 $
+ * $Date: 2005/12/15 10:23:23 $
+ * $Revision: 1.40 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -91,8 +91,7 @@ void EBTestPulseClient::beginJob(const edm::EventSetup& c){
   if ( verbose_ ) cout << "EBTestPulseClient: beginJob" << endl;
 
   ievt_ = 0;
-
-  this->subscribe();
+  jevt_ = 0;
 
 }
 
@@ -145,13 +144,13 @@ void EBTestPulseClient::beginRun(const edm::EventSetup& c){
 
   }
 
+  this->subscribe();
+
 }
 
 void EBTestPulseClient::endJob(void) {
 
   if ( verbose_ ) cout << "EBTestPulseClient: endJob, ievt = " << ievt_ << endl;
-
-  this->unsubscribe();
 
 }
 
@@ -392,6 +391,8 @@ void EBTestPulseClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
       cerr << e.what() << endl;
     }
   }
+
+  this->unsubscribe();
 
 }
 

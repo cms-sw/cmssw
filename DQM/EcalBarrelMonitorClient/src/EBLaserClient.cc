@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  * 
- * $Date: 2005/12/13 09:02:24 $
- * $Revision: 1.35 $
+ * $Date: 2005/12/15 10:23:23 $
+ * $Revision: 1.36 $
  * \author G. Della Ricca
  *
 */
@@ -102,8 +102,7 @@ void EBLaserClient::beginJob(const edm::EventSetup& c){
   if ( verbose_ ) cout << "EBLaserClient: beginJob" << endl;
 
   ievt_ = 0;
-
-  this->subscribe();
+  jevt_ = 0;
 
 }
 
@@ -160,13 +159,13 @@ void EBLaserClient::beginRun(const edm::EventSetup& c){
 
   }
 
+  this->subscribe();
+
 }
 
 void EBLaserClient::endJob(void) {
 
   if ( verbose_ ) cout << "EBLaserClient: endJob, ievt = " << ievt_ << endl;
-
-  this->unsubscribe();
 
 }
 
@@ -390,6 +389,8 @@ void EBLaserClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* r
       cerr << e.what() << endl;
     }
   }
+
+  this->unsubscribe();
 
 }
 
