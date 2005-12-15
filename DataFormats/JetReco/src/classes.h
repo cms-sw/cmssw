@@ -6,9 +6,6 @@
 
 namespace {
   namespace {
-    ROOT::Math::PtEtaPhiE4D<Double32_t> p4;
-    ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<Double32_t> > lv;
-
     std::vector<CaloTower> vc1;
     edm::SortedCollection<CaloTower> c1;
 

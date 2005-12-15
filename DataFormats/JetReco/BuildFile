@@ -1,4 +1,5 @@
 <use name=DataFormats/CaloTowers>
+<use name=DataFormats/Math>
 <use name=FWCore/EDProduct>
 <use name=FWCore/Framework>
 <use name=Dictionary/Reflex>
@@ -9,6 +10,7 @@
 <export>
  <lib name=DataFormatsJetReco>
  <use name=DataFormats/CaloTowers>
+ <use name=DataFormats/Math>
  <use name=FWCore/EDProduct>
  <use name=FWCore/Framework>
  <use name=Dictionary/Reflex>
