@@ -1,6 +1,6 @@
 #------------------------------------------------------------
 #
-# $Id: cmsconfig.py,v 1.3 2005/12/13 20:16:51 paterno Exp $
+# $Id: cmsconfig.py,v 1.4 2005/12/13 23:13:39 paterno Exp $
 #
 # cmsconfig: a class to provide convenient access to the Python form
 # of a parsed CMS configuration file.
@@ -75,6 +75,12 @@ class printable_parameter:
 
         if self.type == "PSet":
             self.value = pset_dict_to_string(self.value)
+        if self.type == "VPSet":
+            temp = '{'
+            tup = [ pset_dict_to_string(x) for x in self.value ]
+            temp += ", ".join( tup )
+            temp += '}'
+            self.value = temp
 
     def __str__(self):
         """Print this parameter in the right format for a
