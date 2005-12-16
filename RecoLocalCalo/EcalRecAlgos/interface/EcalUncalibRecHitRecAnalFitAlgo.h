@@ -5,9 +5,9 @@
   *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
   *  using an analytical fit
   *
-  *  $Id: EcalUncalibRecHitRecAnalFitAlgo.h,v 1.1 2005/11/28 16:38:26 rahatlou Exp $
-  *  $Date: 2005/11/28 16:38:26 $
-  *  $Revision: 1.1 $
+  *  $Id: EcalUncalibRecHitRecAnalFitAlgo.h,v 1.2 2005/12/05 16:41:39 rahatlou Exp $
+  *  $Date: 2005/12/05 16:41:39 $
+  *  $Revision: 1.2 $
   *  \author A. Palma, Sh. Rahatlou Roma1
   */
 
@@ -24,9 +24,31 @@
 
 template<class C> class EcalUncalibRecHitRecAnalFitAlgo : public EcalUncalibRecHitRecAbsAlgo<C>
 {
+
+
+ private:
+
+  double pulseShapeFunction(double* var, double* par) {
+    double  x     = var[0];
+    double  ampl  = par[0];
+    double  tp    = par[1];
+    double  alpha = par[2];
+    double  t0    = par[3];
+
+    double f = pow( (x-t0)/tp , alpha ) * exp( -alpha*(x-tp-t0)/tp );
+    return   ampl*f;
+  };
+
+  double pedestalFunction(double* var, double* par) {
+    double  x     = var[0];
+    double ped    = par[0];
+    return ped;
+  };
+
  public:
   // destructor
   virtual ~EcalUncalibRecHitRecAnalFitAlgo<C>() { };
+
 
   /// Compute parameters
   virtual EcalUncalibratedRecHit makeRecHit(const C& dataFrame, const std::vector<double>& pedestals,
@@ -55,56 +77,69 @@ template<class C> class EcalUncalibRecHitRecAnalFitAlgo : public EcalUncalibRecH
     // Compute parameters
     //std::cout << "EcalUncalibRecHitRecAnalFitAlgo::makeRecHit() not yey implemented. returning dummy rechit" << std::endl;
 
-    //analytic fit section
+    // prepare TGraph for analytic fit
     double  xarray[10]={0.,1.,2.,3.,4.,5.,6.,7.,8.,9.};
-    TGraph *graph=new TGraph(10,xarray,frame);
-    TF1 pulseShape = TF1("pulseShape","[0]*pow((x - [3])/[1],[2])*exp(-[2]*(x - [1] - [3])/[1])",imax-1.,imax+3.);
+    TGraph graph(10,xarray,frame);
+
+    // fit functions
+    TF1 pulseShape = TF1("pulseShape",
+                         "[0]*pow((x - [3])/[1],[2])*exp(-[2]*(x - [1] - [3])/[1])",
+                         imax-1.,imax+3.);
     TF1 pedestal = TF1("pedestal","[0]",0.,2.);
 
+    //TF1 pulseShape = TF1("pulseShape",pulseShapeFunction,imax-1.,imax+3.);
+    //TF1 pedestal = TF1("pedestal",pedestalFunction,0.,2.);
+    TF1 pluseAndPed = TF1("pulseAndPed","pedestal+pulseShape");
+
     //pulseShape parameters
-    double FIT_A=(double)maxsample;  //Amplitude
-    double FIT_Tp=(double)imax;  //T peak
-    double FIT_ALFA=1.5;  //Alpha
-    double FIT_To=3.;  //T off
     // Amplitude
+    double FIT_A=(double)maxsample;  //Amplitude
     pulseShape.SetParameter(0,FIT_A);
+    pulseShape.SetParName(0,"Amplitude");
     // T peak
+    double FIT_Tp=(double)imax;  //T peak
     pulseShape.SetParameter(1,FIT_Tp);
+    pulseShape.SetParName(1,"t_{P}");
     // Alpha
+    double FIT_ALFA=1.5;  //Alpha
     pulseShape.SetParameter(2,FIT_ALFA);
+    pulseShape.SetParName(2,"\\alpha");
     // T off
+    double FIT_To=3.;  //T off
     pulseShape.SetParameter(3,FIT_To);
+    pulseShape.SetParName(3,"t_{0}");
 
-    /*SINGLE XTAL TEST BEGIN
-      if((itdg->id()).ieta()==85 && (itdg->id()).iphi()==19){
-      TCanvas *canvas=new TCanvas("canvas","canvas",200,10,700,500); 
-      graph->SetMarkerStyle(21);
-      graph->SetMarkerColor(4);
-      graph->Fit("pulseShape","QR"); 
-      graph->Draw("AP");
-      canvas->Update();
-      canvas->Print("canvas.root");
-      }
-      else graph->Fit("pulseShape","QR"); 
-      SINGLE XTAL TEST END*/
+    // pedestal
+    pedestal.SetParameter(0,frame[0]);
+    pedestal.SetParName(0,"Pedestal");
 
-    graph->Fit("pulseShape","QRM");
-    //TF1 *pulseShape2=graph->GetFunction("pulseShape");
+
+
+    graph.Fit("pulseShape","QRM");
+    //TF1 *pulseShape2=graph.GetFunction("pulseShape");
+
     if ( std::string(gMinuit->fCstatu.Data()) == std::string("CONVERGED ") ) {
 
       double amplitude_value=pulseShape.GetParameter(0);
 
-      graph->Fit("pedestal","QR");
-      //TF1 *pedestal2=graph->GetFunction("pedestal");
+      graph.Fit("pedestal","QRL");
+      //TF1 *pedestal2=graph.GetFunction("pedestal");
       double pedestal_value=pedestal.GetParameter(0);
 
       amplitude_ = amplitude_value - pedestal_value;
       pedestal_  = pedestal_value;
       jitter_    = pulseShape.GetParameter(3);
+      chi2_ = 1.; // successful fit
+
+      /*
+      std::cout << "separate fits\nA: " <<  amplitude_value << ", Ped: " << pedestal_value
+                << ", t0: " << jitter_ << ", tp: " << pulseShape.GetParameter(1)
+                << ", alpha: " << pulseShape.GetParameter(2)
+                << std::endl;
+      */
 
     }
 
-    delete graph;
     return EcalUncalibratedRecHit( dataFrame.id(), amplitude_, pedestal_, jitter_, chi2_);
   }
 };
