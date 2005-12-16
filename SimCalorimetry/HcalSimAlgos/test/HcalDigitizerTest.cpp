@@ -10,7 +10,7 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalShape.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HFShape.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalElectronicsSim.h"
-#include "CalibCalorimetry/HcalAlgos/interface/HcalDbServiceHardcode.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalDbHardcode.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalNoisifier.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalTriggerPrimitiveAlgo.h"
@@ -76,17 +76,16 @@ int main() {
   CaloHitResponse hcalResponse(&parameterMap, &hcalShapeIntegrator);
   CaloHitResponse hfResponse(&parameterMap, &hfShapeIntegrator);
 
-  HcalDbServiceHardcode hardcode;
   HcalPedestals pedestals;
   HcalPedestalWidths pedestalWidths;
   HcalGains gains;
   HcalGainWidths gainWidths;
   // make a calibration service by hand
   for(vector<DetId>::const_iterator detItr = allDetIds.begin(); detItr != allDetIds.end(); ++detItr) {
-    pedestals.addValue(detItr->rawId(), hardcode.pedestals(HcalDetId(*detItr)) );
-    pedestalWidths.addValue(detItr->rawId(), hardcode.pedestalErrors(HcalDetId(*detItr)) );
-    gains.addValue(detItr->rawId(), hardcode.gains(HcalDetId(*detItr)) );
-    gainWidths.addValue(detItr->rawId(), hardcode.gainErrors(HcalDetId(*detItr)) );
+    pedestals.addValue(detItr->rawId(), HcalDbHardcode::makePedestal(HcalDetId(*detItr)).getValues ());
+    pedestalWidths.addValue(detItr->rawId(), HcalDbHardcode::makePedestalWidth(HcalDetId(*detItr)).getValues ());
+    gains.addValue(detItr->rawId(), HcalDbHardcode::makeGain(HcalDetId(*detItr)).getValues ());
+    gainWidths.addValue(detItr->rawId(), HcalDbHardcode::makeGainWidth(HcalDetId(*detItr)).getValues ());
   }
 
   pedestals.sort();
