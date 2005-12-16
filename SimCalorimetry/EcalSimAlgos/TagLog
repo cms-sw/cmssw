@@ -1,3 +1,6 @@
+** V00-00-02  [Fri Dec 16 16:04:35 2005]
+Removed as plugin. Removed CalibCalorimetry/EcalAlgos dependecen
+
 ** V00-00-01  [Tue Dec 13 20:35:24 2005]
 Update for first digi release; compatible with CMSSW_0_3_0_pre4 with Fedor's fix to CaliubCalorimetry
 
