@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 16:56:05 EDT 2005
-// $Id: ComponentMaker.h,v 1.6 2005/09/01 05:44:00 wmtan Exp $
+// $Id: ComponentMaker.h,v 1.7 2005/09/01 23:30:48 wmtan Exp $
 //
 
 // system include files
@@ -24,6 +24,7 @@
 #include "boost/shared_ptr.hpp"
 
 // user include files
+#include "FWCore/Framework/interface/DataProxyProvider.h"
 
 // forward declarations
 
@@ -66,6 +67,11 @@ template <class T, class TComponent>
 
       const ComponentMaker& operator=(const ComponentMaker&); // stop default
 
+      void setDescription(DataProxyProvider* iProv, const ComponentDescription& iDesc) const {
+        iProv->setDescription(iDesc);
+      }
+      void setDescription(void*, const ComponentDescription&) const {
+      }
       // ---------- member data --------------------------------
 
 };
@@ -80,6 +86,10 @@ ComponentMaker<T,TComponent>:: addTo(EventSetupProvider& iProvider,
 {
    boost::shared_ptr<TComponent> component(new TComponent(iConfiguration));
    
+   DataProxyProvider::Description description;
+   description.type_ = iConfiguration.template getParameter<std::string>("@module_type");
+   description.label_ = iConfiguration.template getParameter<std::string>("@module_label");
+   setDescription(component.get(),description);
    T::addTo(iProvider, component);
 }
    }

@@ -14,6 +14,7 @@
 
 // system include files
 #include <set>
+#include "boost/bind.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/EventSetupProvider.h"
@@ -173,6 +174,32 @@ EventSetupProvider::eventSetupForInstance(const IOVSyncValue& iValue)
 
    
 }
+namespace {
+   struct InsertAll : public std::unary_function< const std::set<ComponentDescription>&, void>{
+      
+      typedef std::set<ComponentDescription> Set;
+      Set* container_;
+      InsertAll(Set& iSet) : container_(&iSet) {}
+      void operator()(const Set& iSet) {
+         container_->insert(iSet.begin(), iSet.end());
+      }
+   };
+}
+std::set<ComponentDescription> 
+EventSetupProvider::proxyProviderDescriptions() const
+{
+   using boost::bind;
+   typedef std::set<ComponentDescription> Set;
+   Set descriptions;
+
+   std::for_each(providers_.begin(), providers_.end(),
+                 bind(InsertAll(descriptions),
+                      bind(&EventSetupRecordProvider::proxyProviderDescriptions,
+                           bind(&Providers::value_type::second,_1))));
+                       
+   return descriptions;
+}
+
 //
 // static member functions
 //

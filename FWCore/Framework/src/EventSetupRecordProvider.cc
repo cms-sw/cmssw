@@ -11,6 +11,9 @@
 //
 
 // system include files
+#include <algorithm>
+#include <iterator>
+#include "boost/bind.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/EventSetupRecordProvider.h"
@@ -135,6 +138,16 @@ std::set<EventSetupRecordKey>
 EventSetupRecordProvider::dependentRecords() const
 {
    return std::set<EventSetupRecordKey>();
+}
+
+std::set<ComponentDescription> 
+EventSetupRecordProvider::proxyProviderDescriptions() const
+{
+   std::set<ComponentDescription> descriptions;
+   std::transform(providers_.begin(), providers_.end(),
+                  std::inserter(descriptions,descriptions.end()),
+                  boost::bind(&DataProxyProvider::description,_1) );
+   return descriptions;
 }
 
 //

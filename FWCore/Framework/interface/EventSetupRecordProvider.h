@@ -34,6 +34,7 @@ namespace edm {
    namespace eventsetup {
       class EventSetupProvider;
       class DataProxyProvider;
+      class ComponentDescription;
       
 class EventSetupRecordProvider
 {
@@ -51,6 +52,8 @@ class EventSetupRecordProvider
 
       ///Returns the list of Records the provided Record depends on (usually none)
       virtual std::set<EventSetupRecordKey> dependentRecords() const;
+      
+      std::set<ComponentDescription> proxyProviderDescriptions() const;
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------

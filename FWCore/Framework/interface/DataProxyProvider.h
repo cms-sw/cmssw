@@ -27,16 +27,21 @@
 // user include files
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/Framework/interface/DataKey.h"
+#include "FWCore/Framework/interface/ComponentDescription.h"
 
 // forward declarations
 namespace edm {
    class ValidityInterval;
    namespace eventsetup {
       class DataProxy;
+      
+      
 class DataProxyProvider
 {
 
    public:
+      typedef edm::eventsetup::ComponentDescription Description;
+   
       typedef std::vector< EventSetupRecordKey> Keys;
       typedef std::vector<std::pair<DataKey, 
                                     boost::shared_ptr<DataProxy> > > KeyedProxies ;
@@ -52,6 +57,7 @@ class DataProxyProvider
       
       const KeyedProxies& keyedProxies(const EventSetupRecordKey& iRecordKey) const ;
       
+      const Description& description() const { return description_;}
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
@@ -60,6 +66,10 @@ class DataProxyProvider
       virtual void newInterval(const EventSetupRecordKey& iRecordType,
                                 const ValidityInterval& iInterval) = 0;
       
+      void setDescription(const Description& iDescription) {
+         description_ = iDescription;
+      }
+
    protected:
       template< class T>
       void usingRecord() {
@@ -83,6 +93,7 @@ class DataProxyProvider
 
       // ---------- member data --------------------------------
       RecordProxies recordProxies_;
+      Description description_;
 };
 
 template<class ProxyT>

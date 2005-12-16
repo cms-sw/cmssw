@@ -21,6 +21,7 @@
 // system include files
 #include <memory>
 #include <map>
+#include <set>
 
 #include "boost/shared_ptr.hpp"
 
@@ -35,6 +36,7 @@ namespace edm {
    namespace eventsetup {
       class EventSetupRecordProvider;
       class DataProxyProvider;
+      class ComponentDescription;
       
 class EventSetupProvider
 {
@@ -44,6 +46,7 @@ class EventSetupProvider
       virtual ~EventSetupProvider();
 
       // ---------- const member functions ---------------------
+      std::set<ComponentDescription> proxyProviderDescriptions() const;
 
       // ---------- static member functions --------------------
 
