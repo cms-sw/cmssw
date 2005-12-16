@@ -89,6 +89,14 @@ const map<unsigned short, SiStripReadoutCabling::FEDChannelId> & SiStripReverseR
 
 }
 
+
+const map<uint32_t, map<unsigned short, SiStripReadoutCabling::FEDChannelId> > & SiStripReverseReadoutCabling::getDetConnections() const {
+
+  return theDetConnections;
+
+}
+
+
 void SiStripReverseReadoutCabling::debug() const{
 
   for (map<uint32_t, map<unsigned short, SiStripReadoutCabling::FEDChannelId> >::const_iterator i = theDetConnections.begin() ; i !=theDetConnections.end() ; i++) {

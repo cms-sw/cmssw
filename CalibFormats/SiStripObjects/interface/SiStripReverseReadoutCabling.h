@@ -25,6 +25,8 @@ public:
 
   const  std::map<unsigned short, SiStripReadoutCabling::FEDChannelId> & getAPVPairs(const uint32_t det_id) const;
 
+  const std::map<uint32_t, std::map<unsigned short, SiStripReadoutCabling::FEDChannelId> > & getDetConnections() const;
+
   void debug() const;
 
 private:
