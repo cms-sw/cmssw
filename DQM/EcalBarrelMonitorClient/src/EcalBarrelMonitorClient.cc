@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  * 
- * $Date: 2005/12/15 14:20:30 $
- * $Revision: 1.55 $
+ * $Date: 2005/12/15 15:54:46 $
+ * $Revision: 1.56 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -44,6 +44,9 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps){
   cout << " Client '" << clientName_ << "' " << endl
        << " Collector on host '" << hostName_ << "'"
        << " on port '" << hostPort_ << "'" << endl;
+
+  // DQM ROOT output
+  outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
 
   // Ecal Cond DB
   dbName_ = ps.getUntrackedParameter<string>("dbName", "");
@@ -264,7 +267,7 @@ void EcalBarrelMonitorClient::endRun(void) {
 
   if ( verbose_ ) cout << "EcalBarrelMonitorClient: endRun, jevt = " << jevt_ << endl;
 
-  mui_->save("EcalBarrelMonitorClient.root");
+  if ( outputFile_.size() != 0 ) mui_->save(outputFile_);
 
   econn_ = 0;
 
