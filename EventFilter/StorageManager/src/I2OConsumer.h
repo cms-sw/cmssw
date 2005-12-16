@@ -13,10 +13,15 @@
        Initial implementation. Using a temporary event counter
        for the event ID. Need this provided by the EventProcessor
        in the service set, or directly from basic streamer code.
+     version 1.2 2005/12/15
+       Added passing of the run and event numbers to include in
+       the I2O output frames. Also added a function to block on
+       memory pool allocation if too full.
 
 */
 
 #include "IOPool/Streamer/interface/EventBuffer.h"
+#include "FWCore/EDProduct/interface/EventID.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 namespace edmtest
@@ -38,11 +43,13 @@ namespace edmtest
   private:
     I2OWorker* worker_;
     edm::EventBuffer* bufs_;
-    // temporary event counter until we can get the real event id
-    int SMEventCounter_;
     void writeI2OOther(const char* buffer, unsigned int size);
-    void writeI2OData(const char* buffer, unsigned int size);
     void writeI2ORegistry(const char* buffer, unsigned int size);
+    void writeI2OData(const char* buffer, unsigned int size,
+                      edm::RunNumber_t runid, edm::EventNumber_t eventid);
+
+    // function used to block until memory pool is not full
+    int i2oyield(unsigned int seconds);  // should really yield to other threads instead of blocking
 
   };
 }
