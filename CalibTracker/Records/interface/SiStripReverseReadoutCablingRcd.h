@@ -16,16 +16,16 @@
 //
 // Author:      
 // Created:     Wed Aug 10 08:13:43 CEST 2005
-// $Id: SiStripReadoutConnectivityRcd.h,v 1.1 2005/11/29 14:18:35 gbruno Exp $
+// $Id: SiStripReadoutConnectivityRcd.h,v 1.2 2005/11/30 22:16:40 dutta Exp $
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
-#include "CondFormats/DataRecord/interface/SiStripReadOutCablingRcd.h"
+#include "CondFormats/DataRecord/interface/SiStripReadoutCablingRcd.h"
 #include "boost/mpl/vector.hpp"
 
-class SiStripReadoutConnectivityRcd : public edm::eventsetup::DependentRecordImplementation<SiStripReadoutConnectivityRcd,
-  boost::mpl::vector<SiStripReadOutCablingRcd> > {};
+class SiStripReverseReadoutCablingRcd : public edm::eventsetup::DependentRecordImplementation<SiStripReverseReadoutCablingRcd,
+  boost::mpl::vector<SiStripReadoutCablingRcd> > {};
 
 #endif /* RECORDS_SISTRIPREADOUTCONNECTIVITY_H */
 
