@@ -3,10 +3,9 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store pedestal values 4xCapId
 $Author: ratnikov
-$Date: 2005/11/07 22:15:09 $
-$Revision: 1.3 $
+$Date: 2005/12/15 23:38:04 $
+$Revision: 1.4 $
 */
-
 #include "CondFormats/HcalObjects/interface/HcalQIEShape.h"
 
 namespace {
@@ -29,9 +28,9 @@ void HcalQIEShape::expand () {
   for (unsigned range = 1; range < 4; range++) {
     scale = scale * 5;
     unsigned index = range * 32;
-    mValues [index] = mValues [index - 3]; // link to previous range
-    for (unsigned i = 1; i <= 32; i++) {
-      mValues [index + i] =  mValues [index] + scale * (mValues [i] - mValues [i - 1]);
+    mValues [index] = mValues [index - 2]; // link to previous range
+    for (unsigned i = 1; i < 32; i++) {
+      mValues [index + i] =  mValues [index + i - 1] + scale * (mValues [i] - mValues [i - 1]);
     }
   }
   mValues [128] = 2 * mValues [127] - mValues [126]; // extrapolate
@@ -43,7 +42,10 @@ float HcalQIEShape::lowEdge (unsigned fAdc) const {
 }
 
 float HcalQIEShape::center (unsigned fAdc) const {
-  if (fAdc < 128) return 0.5 * (mValues [fAdc] + mValues [fAdc + 1]);
+  if (fAdc < 128) {
+    if (fAdc % 32 == 31) return 0.5 * (3 * mValues [fAdc] - mValues [fAdc - 1]); // extrapolate
+    else       return 0.5 * (mValues [fAdc] + mValues [fAdc + 1]); // interpolate
+  }
   return 0.;
 }
 
