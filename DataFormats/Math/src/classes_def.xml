@@ -1,0 +1,40 @@
+<lcgdict>
+<selection>
+  <class name="ROOT::Math::PtEtaPhiE4D<double>" />
+  <class name="ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<double> >" />
+  <class name="ROOT::Math::PxPyPzE4D<double>" />
+  <class name="ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >" />
+  <class name="ROOT::Math::Cartesian3D<double>" />
+  <class name="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double> >" />
+  <class name="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<double> >" />
+</selection>
+<exclusion>
+  <class pattern="ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<*>">
+    <method name="SetPx" />
+    <method name="SetPy" />
+    <method name="SetPz" />
+    <method name="SetM" />
+  </class>
+  <class pattern="ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<*>">
+    <method name="SetRho" />
+    <method name="SetPhi" />
+    <method name="SetEta" />
+    <method name="SetM" />
+    <method name="SetPt" />
+  </class>
+  <class pattern="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<*>">
+    <method name="SetRho" />
+    <method name="SetEta" />
+    <method name="SetTheta" />
+    <method name="SetPhi" />
+    <method name="SetR" />
+  </class>
+  <class pattern="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<*>">
+    <method name="SetRho" />
+    <method name="SetEta" />
+    <method name="SetTheta" />
+    <method name="SetPhi" />
+    <method name="SetR" />
+  </class>
+</exclusion>
+</lcgdict>
