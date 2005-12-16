@@ -1,20 +1,13 @@
-<use name=Geometry/CommonTopologies>
-<use name=Geometry/TrackerSimAlgo>
-<use name=DataFormats/DetId>
-<use name=Geometry/Records>
-<use name=DataFormats/SiStripDetId>
-<use name=xerces-c>
+<use name=FWCore/Framework>
+<use name=CondFormats/SiStripObjects>
 <use name=boost>
-<flags SEAL_PLUGIN_NAME="CalibFormatsSiStripObjects">
+#<flags SEAL_PLUGIN_NAME="CalibFormatsSiStripObjects">
 
 <export>
- <lib name=CalibFormatsSiStripObjects>
- <use name=Geometry/CommonTopologies>
- <use name=Geometry/TrackerSimAlgo>
- <use name=DataFormats/DetId>
- <use name=DataFormats/SiStripDetId>
-
- <use name=boost>
+<lib name=CalibFormatsSiStripObjects>
+<use name=FWCore/Framework>
+<use name=CondFormats/SiStripObjects>
+<use name=boost>
 </export>
 
 

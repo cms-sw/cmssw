@@ -7,7 +7,7 @@ using namespace std;
 //
 // -- Given Control References returns the Corresponding DetUnitId
 //
-DetId SiStripControlConnectivity::getDetId (short fec,short ring,short ccu,short i2c){
+uint32_t SiStripControlConnectivity::getDetId (short fec,short ring,short ccu,short i2c){
   for (SiStripControlConnectivity::MapType::iterator it = theMap.begin();
        it != theMap.end(); it++) {
     if (it->second.fecNumber  == fec &&
@@ -15,12 +15,12 @@ DetId SiStripControlConnectivity::getDetId (short fec,short ring,short ccu,short
         it->second.ccuAddress == ccu &&
         it->second.i2cChannel == i2c) return it->first;
   }
-  return DetId(0);
+  return 0;
 }
 //
 // Get Connection Information
 //
-void SiStripControlConnectivity::getConnectionInfo(DetId det_id, 
+void SiStripControlConnectivity::getConnectionInfo(uint32_t det_id, 
                               short& fec,short& ring,short& ccu,short& i2c){
   SiStripControlConnectivity::MapType::iterator CPos = theMap.find(det_id);
   if (CPos != theMap.end()) {
@@ -33,7 +33,7 @@ void SiStripControlConnectivity::getConnectionInfo(DetId det_id,
 //
 //  Set Pair
 //
-void SiStripControlConnectivity::setPair(DetId det_id,short& fec, 
+void SiStripControlConnectivity::setPair(uint32_t det_id,short& fec, 
     short& ring,short& ccu,short& i2c, vector<short>& apvs){
   SiStripControlConnectivity::DetControlInfo detInfo;
   detInfo.fecNumber  = fec;
@@ -49,7 +49,7 @@ void SiStripControlConnectivity::setPair(DetId det_id,short& fec,
 // Get Detector IDs for a given set of Fec#, Ring# and CCU#
 //
 int SiStripControlConnectivity::getDetIds(short fec, short ring, 
-					  short ccu, vector<DetId>& dets) {
+					  short ccu, vector<uint32_t>& dets) {
   dets.clear();
   for (SiStripControlConnectivity::MapType::iterator it = theMap.begin();
        it != theMap.end(); it++) {
@@ -62,7 +62,7 @@ int SiStripControlConnectivity::getDetIds(short fec, short ring,
 //
 // Get Detector IDs for a given set of Fec#, Ring# 
 //
-int SiStripControlConnectivity::getDetIds(short fec, short ring, vector<DetId>& dets) {
+int SiStripControlConnectivity::getDetIds(short fec, short ring, vector<uint32_t>& dets) {
   dets.clear();
   for (SiStripControlConnectivity::MapType::iterator it = theMap.begin();
        it != theMap.end(); it++) {
@@ -74,7 +74,7 @@ int SiStripControlConnectivity::getDetIds(short fec, short ring, vector<DetId>& 
 //
 // Get Detector IDs for a given set of Fec#, Ring# 
 //
-int SiStripControlConnectivity::getDetIds(short fec, vector<DetId>& dets) {
+int SiStripControlConnectivity::getDetIds(short fec, vector<uint32_t>& dets) {
   dets.clear();
   for (SiStripControlConnectivity::MapType::iterator it = theMap.begin();
        it != theMap.end(); it++) {
