@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Thu Mar 31 12:49:19 EST 2005
-// $Id: DataProxy.cc,v 1.2 2005/06/23 19:59:48 wmtan Exp $
+// $Id: DataProxy.cc,v 1.3 2005/07/14 22:50:53 wmtan Exp $
 //
 
 // system include files
@@ -30,7 +30,8 @@ namespace edm {
 // constructors and destructor
 //
 DataProxy::DataProxy() :
-   cacheIsValid_(false)
+   cacheIsValid_(false),
+   description_(0)
 {
 }
 

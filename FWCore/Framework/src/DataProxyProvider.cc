@@ -14,6 +14,7 @@
 #include <algorithm>
 #include <iterator>
 #include <cassert>
+#include "boost/bind.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/DataProxyProvider.h"
@@ -110,8 +111,14 @@ DataProxyProvider::keyedProxies(const EventSetupRecordKey& iRecordKey) const
    
    if(itFind->second.empty()) {
       //delayed registration
+      KeyedProxies& proxies = const_cast<KeyedProxies&>(itFind->second);
       const_cast<DataProxyProvider*>(this)->registerProxies(iRecordKey,
-                                                            const_cast<KeyedProxies&>(itFind->second));
+                                                            proxies);
+      for(KeyedProxies::iterator itProxy = proxies.begin();
+          itProxy != proxies.end();
+          ++itProxy) {
+         itProxy->second->setProviderDescription(&description());
+      }
    }
    
    return itFind->second;
