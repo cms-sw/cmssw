@@ -72,8 +72,14 @@ const vector<unsigned short> & SiStripReadoutCabling::getFEDs() const{
 
 }
 
-const vector< vector< SiStripReadoutCabling::APVPairId >  > & SiStripReadoutCabling::getFEDConnections() const{
+const  vector< SiStripReadoutCabling::APVPairId > & SiStripReadoutCabling:: getFEDAPVPairs(unsigned short fed_id) const{
 
-  return theFEDConnections;
+  static const vector<APVPairId> stdRetVal;
+
+  if ( fed_id > theFEDConnections.size() || theFEDConnections[fed_id].size() == 0 ) {
+    cout << "SiStripReadoutCabling::getFEDAPVPairs(...) - ERROR : requested FED ("<< fed_id<<") is not active. Returning empty vector of FED channel ids" <<endl;
+    return stdRetVal;
+  } 
+  else return theFEDConnections[fed_id];
 
 }

@@ -23,7 +23,7 @@ public:
 
   const vector<unsigned short> & getFEDs() const;
 
-  const vector< vector< APVPairId >  > & getFEDConnections() const;
+  const vector< APVPairId > & getFEDAPVPairs(unsigned short fed_id) const;
 
 private:
 
