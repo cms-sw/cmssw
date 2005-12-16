@@ -17,10 +17,21 @@
        Uses a global variable instead of service set provided by
        the FU EventProcessor (eventually). 
        Needs changes for production version.
+    version 1.2 2005/12/15
+       Added passing of the run and event numbers to include in
+       the I2O output frames. 
+       Added HLT process identification information.
+       Added a function to block on memory pool allocation if too full,
+         only data I2O frames are blocked, registry and other are not.
+         Code assumes the toolbox::mem::CommittedHeapAllocator is used!
+       Added code to get performance measurements if used with SMi2oSender,
+         should comment out if not using SMi2oSender!
+
 */
 
 #include "EventFilter/StorageManager/interface/i2oStorageManagerMsg.h"
 #include "EventFilter/StorageManager/src/I2OConsumer.h"
+#include "IOPool/StreamerData/interface/Messages.h"
 #include "EventFilter/StorageManager/interface/SMi2oSender.h"
 
 #include "FWCore/Utilities/interface/DebugMacros.h"
@@ -33,6 +44,11 @@
 #include "toolbox/mem/MemoryPoolFactory.h"
 #include "toolbox/mem/HeapAllocator.h"
 #include "toolbox/mem/Reference.h"
+#include "toolbox/mem/Pool.h"
+
+// for performance measurements
+#include "xdata/UnsignedLong.h"
+#include "xdata/Double.h"
 
 #include "xcept/tools.h"
 
@@ -45,9 +61,25 @@
 #include <fstream>
 #include <iostream>
 
+#include <wait.h>
+
 extern xdaq::Application* getMyXDAQPtr();
 extern toolbox::mem::Pool *getMyXDAQPool();
 extern xdaq::ApplicationDescriptor* getMyXDAQDest();
+
+// for performance measurements
+extern void addMyXDAQMeasurement(unsigned long size);
+extern xdata::UnsignedLong getMyXDAQsamples();
+extern xdata::Double getMyXDAQdatabw();
+extern xdata::Double getMyXDAQdatarate();
+extern xdata::Double getMyXDAQdatalatency();
+extern xdata::UnsignedLong getMyXDAQtotalsamples();
+extern xdata::Double getMyXDAQduration();
+extern xdata::Double getMyXDAQmeandatabw();
+extern xdata::Double getMyXDAQmeandatarate();
+extern xdata::Double getMyXDAQmeandatalatency();
+extern xdata::Double getMyXDAQmaxdatabw();
+extern xdata::Double getMyXDAQmindatabw();
 
 using namespace edm;
 using namespace std;
@@ -80,8 +112,7 @@ namespace edmtest
   I2OConsumer::I2OConsumer(edm::ParameterSet const& ps, 
 			     edm::EventBuffer* buf):
     worker_(new I2OWorker(ps.getParameter<string>("DestinationName"))),
-    bufs_(buf),
-    SMEventCounter_(0) // temp until we get the real eventID
+    bufs_(buf)
   {
     FDEBUG(10) << "I2OConsumer: Constructor" << std::endl;
   }
@@ -90,18 +121,61 @@ namespace edmtest
   {
     delete worker_;
   }
+
+  int I2OConsumer::i2oyield(unsigned int seconds)
+  {
+    // used to block (should yield to other threads)
+    sleep(seconds);
+    return 0;
+  }
   
   void I2OConsumer::bufferReady()
   {
     EventBuffer::ConsumerBuffer cb(*bufs_);
 
-    FDEBUG(11) << "I2OConsumer: write event to destination" << std::endl;
+    FDEBUG(10) << "I2OConsumer: write event to destination" << std::endl;
     int sz = cb.size();
-    FDEBUG(11) << "I2OConsumer: event sz = " << sz << std::endl;
-    // temporary event counter so frame fragments can be identified with
-    // a particular event (however there is no HLT id yet)
-    SMEventCounter_++;
-    writeI2OData((const char*)cb.buffer(),sz);
+    FDEBUG(10) << "I2OConsumer: event sz = " << sz << std::endl;
+    // Should block if memory pool is too full until it has more room
+    // (Is this the only thread posting frames to do with this process?)
+    // should really check if the high threshold is actually set!
+    if (!worker_->pool_->isHighThresholdExceeded())
+    {
+      edm::EventMsg msg(cb.buffer(),cb.size());
+      edm::RunNumber_t runID     = msg.getRunNumber();
+      edm::EventNumber_t eventID = msg.getEventNumber();
+      // now we can post the data
+      writeI2OData((const char*)cb.buffer(),sz,runID,eventID);
+      // should test here is there was an error posting the data
+    }
+    else
+    {
+      LOG4CPLUS_INFO(worker_->app_->getApplicationLogger(),
+        "I2OConsumer: High threshold exceeded in memory pool, blocking on I2O output");
+      // instead of really blocking for a set amount of time
+      // we yield to other threads until low threshold is reached
+      // check the settings at the beginning
+      std::cout << " max committed size "
+                << worker_->pool_->getMemoryUsage().getCommitted() << std::endl;
+      std::cout << " mem size used (bytes) " 
+                << worker_->pool_->getMemoryUsage().getUsed() << std::endl;
+      std::cout << " max possible mem size " 
+                << worker_->pool_->getMemoryUsage().getMax() << std::endl;
+      while (worker_->pool_->isLowThresholdExceeded())
+      {
+        LOG4CPLUS_INFO(worker_->app_->getApplicationLogger(),
+          "I2OConsumer: Yield till low threshold reached");
+        // Does this work? We need to receive e.g. the halt XOAP message!
+        // this is probably not thread safe!
+        this->i2oyield(1);
+      }
+      // get run and event numbers here from the buffer
+      edm::EventMsg msg(cb.buffer(),cb.size());
+      edm::RunNumber_t runID     = msg.getRunNumber();
+      edm::EventNumber_t eventID = msg.getEventNumber();
+      // now we can post the data
+      writeI2OData((const char*)cb.buffer(),sz,runID,eventID);
+    }
   }
 
   void I2OConsumer::stop()
@@ -120,7 +194,6 @@ namespace edmtest
     FDEBUG(10) << "I2OConsumer: sending registry" << std::endl;
     FDEBUG(10) << "I2OConsumer: registry len = " << len << std::endl;
     writeI2ORegistry((const char*)buf,len);    
-
   }
 
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -171,12 +244,38 @@ namespace edmtest
       // Hardwired to a zero size message for now, meaning terminate run
       // Need to change this
       msg->otherData = size;
-      msg->hltID = 1;    // need the real hltID
+      // Fill in the long form of the source (HLT) identifier
+      std::string url = worker_->app_->getApplicationDescriptor()->getContextDescriptor()->getURL();
+      if(url.size() > MAX_I2O_SM_URLCHARS)
+      {
+        LOG4CPLUS_INFO(worker_->app_->getApplicationLogger(),
+          "I2OConsumer: Error! Source URL truncated");
+        for(int i=0; i< MAX_I2O_SM_URLCHARS; i++) msg->hltURL[i] = url[i];
+      } else {
+        //for(int i=0; i< MAX_I2O_SM_URLCHARS; i++) msg->hltURL[i] = " ";
+        for(int i=0; i< (int)url.size(); i++) msg->hltURL[i] = url[i];
+      } 
+      std::string classname = worker_->app_->getApplicationDescriptor()->getClassName();
+      if(classname.size() > MAX_I2O_SM_URLCHARS)
+      {
+        LOG4CPLUS_INFO(worker_->app_->getApplicationLogger(),
+          "I2OConsumer: Error! Source ClassName truncated");
+        for(int i=0; i< MAX_I2O_SM_URLCHARS; i++) msg->hltClassName[i] = classname[i];
+      } else {
+        //for(int i=0; i< MAX_I2O_SM_URLCHARS; i++) msg->hltClassName[i] = " ";
+        for(int i=0; i< (int)url.size(); i++) msg->hltClassName[i] = classname[i];
+      } 
+      msg->hltLocalId = worker_->app_->getApplicationDescriptor()->getLocalId();
+      msg->hltInstance = worker_->app_->getApplicationDescriptor()->getInstance();
+      msg->hltTid = i2o::utils::getAddressMap()->getTid(worker_->app_->getApplicationDescriptor());
+
       bufRef->setDataSize(msgSizeInBytes);
       if(worker_->destination_ !=0)
         {
           worker_->app_->getApplicationContext()->postFrame(bufRef,
                          worker_->app_->getApplicationDescriptor(),worker_->destination_);
+          // for performance measurements only using global variable!
+          addMyXDAQMeasurement((unsigned long)msgSizeInBytes);
         }
       else
         std::cerr << "I2OConsumer:No " << worker_->destinationName_
@@ -197,14 +296,14 @@ namespace edmtest
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   void I2OConsumer::writeI2ORegistry(const char* buffer, unsigned int size)
   {
-    FDEBUG(11) << "writeI2ORegistry: size = " << size << std::endl;
+    FDEBUG(10) << "writeI2ORegistry: size = " << size << std::endl;
     // should really get rid of this
     std::string temp4print(buffer,size);
     FDEBUG(10) << "writeI2ORegistry data = " << temp4print << std::endl;
     size_t msgSizeInBytes = sizeof(I2O_SM_PREAMBLE_MESSAGE_FRAME);
-    FDEBUG(11) << "msgSizeInBytes registry frame size = " << msgSizeInBytes << std::endl;
-    FDEBUG(11) << "I2O_MESSAGE_FRAME size = " << sizeof(I2O_MESSAGE_FRAME) << std::endl;
-    FDEBUG(11) << "I2O_PRIVATE_MESSAGE_FRAME size = " << sizeof(I2O_PRIVATE_MESSAGE_FRAME) << std::endl;
+    FDEBUG(10) << "msgSizeInBytes registry frame size = " << msgSizeInBytes << std::endl;
+    FDEBUG(10) << "I2O_MESSAGE_FRAME size = " << sizeof(I2O_MESSAGE_FRAME) << std::endl;
+    FDEBUG(10) << "I2O_PRIVATE_MESSAGE_FRAME size = " << sizeof(I2O_PRIVATE_MESSAGE_FRAME) << std::endl;
 
     try
     {
@@ -248,13 +347,37 @@ namespace edmtest
       pvtMsg->XFunctionCode    = I2O_SM_PREAMBLE;
       pvtMsg->OrganizationID   = XDAQ_ORGANIZATION_ID;
       msg->dataSize = size;
-      msg->hltID = 1;    // need the real HLT id
+      // Fill in the long form of the source (HLT) identifier
+      std::string url = worker_->app_->getApplicationDescriptor()->getContextDescriptor()->getURL();
+      if(url.size() > MAX_I2O_SM_URLCHARS)
+      {
+        LOG4CPLUS_INFO(worker_->app_->getApplicationLogger(),
+          "I2OConsumer: Error! Source URL truncated");
+        for(int i=0; i< MAX_I2O_SM_URLCHARS; i++) msg->hltURL[i] = url[i];
+      } else {
+        //for(int i=0; i< MAX_I2O_SM_URLCHARS; i++) msg->hltURL[i] = " ";
+        for(int i=0; i< (int)url.size(); i++) msg->hltURL[i] = url[i];
+      } 
+      std::string classname = worker_->app_->getApplicationDescriptor()->getClassName();
+      if(classname.size() > MAX_I2O_SM_URLCHARS)
+      {
+        LOG4CPLUS_INFO(worker_->app_->getApplicationLogger(),
+          "I2OConsumer: Error! Source ClassName truncated");
+        for(int i=0; i< MAX_I2O_SM_URLCHARS; i++) msg->hltClassName[i] = classname[i];
+      } else {
+        //for(int i=0; i< MAX_I2O_SM_URLCHARS; i++) msg->hltClassName[i] = " ";
+        for(int i=0; i< (int)url.size(); i++) msg->hltClassName[i] = classname[i];
+      } 
+      msg->hltLocalId = worker_->app_->getApplicationDescriptor()->getLocalId();
+      msg->hltInstance = worker_->app_->getApplicationDescriptor()->getInstance();
+      msg->hltTid = i2o::utils::getAddressMap()->getTid(worker_->app_->getApplicationDescriptor());
+
       for (unsigned int i=0; i<size; i++){
         msg->data[i] = *(buffer+i);
       }
       // should really get rid of this
       std::string temp4print(msg->data,size);
-      FDEBUG(11) << "I2OConsumer::WriteI2ORegistry: string msg_>data = " 
+      FDEBUG(10) << "I2OConsumer::WriteI2ORegistry: string msg_>data = " 
                  << temp4print << std::endl;
 
       bufRef->setDataSize(msgSizeInBytes);
@@ -265,6 +388,8 @@ namespace edmtest
           FDEBUG(10) << "I2OConsumer::WriteI2ORegistry: posting registry frame " << std::endl;
           worker_->app_->getApplicationContext()->postFrame(bufRef,
                          worker_->app_->getApplicationDescriptor(),worker_->destination_);
+          // for performance measurements only using global variable!
+          addMyXDAQMeasurement((unsigned long)msgSizeInBytes);
         }
       else
         std::cerr << "I2OConsumer::WriteI2ORegistry: No " << worker_->destinationName_
@@ -283,19 +408,20 @@ namespace edmtest
     }
   }
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-  void I2OConsumer::writeI2OData(const char* buffer, unsigned int size)
+  void I2OConsumer::writeI2OData(const char* buffer, unsigned int size,
+                                 edm::RunNumber_t runid, edm::EventNumber_t eventid)
   //
   // function to write the data buffer in I2O frames. If more than one
   // frame is needed a chain is created and then posted.
   {
     // should really test the size >0
-    FDEBUG(11) << "I2OConsumer::writeI2OData: data size (in bytes) = " << size << std::endl;
+    FDEBUG(10) << "I2OConsumer::writeI2OData: data size (in bytes) = " << size << std::endl;
     // must decide how many frames we need to use to send this message
     unsigned int maxSizeInBytes = MAX_I2O_SM_DATASIZE;
     unsigned int numFramesNeeded = size/maxSizeInBytes;
     unsigned int remainder = size%maxSizeInBytes;
     if (remainder > 0) numFramesNeeded++;
-    FDEBUG(11) << "I2OConsumer::writeI2OData: number of frames needed = " << numFramesNeeded 
+    FDEBUG(10) << "I2OConsumer::writeI2OData: number of frames needed = " << numFramesNeeded 
                << " remainder = " << remainder << std::endl;
     // We need to set up a chain of frames and send this
     // chains are sent together once we post the head frame
@@ -304,6 +430,7 @@ namespace edmtest
     unsigned int thisSize = 0;
     toolbox::mem::Reference *head = 0;
     toolbox::mem::Reference *tail = 0;
+
     for (int i=0; i<(int)numFramesNeeded; i++)
     {
       thisCount = i;
@@ -319,10 +446,10 @@ namespace edmtest
       int minlen = 50;
       if(minlen > (int)thisSize) minlen = thisSize;
       std::string temp4print(buffer+start,minlen);
-      FDEBUG(11) << "I2OConsumer::writeI2OData: data = " << temp4print << std::endl;
+      FDEBUG(10) << "I2OConsumer::writeI2OData: data = " << temp4print << std::endl;
 
       size_t msgSizeInBytes = sizeof(I2O_SM_DATA_MESSAGE_FRAME);
-      FDEBUG(11) << "I2OConsumer::writeI2OData: msgSizeInBytes data frame size = " 
+      FDEBUG(10) << "I2OConsumer::writeI2OData: msgSizeInBytes data frame size = " 
                  << msgSizeInBytes << std::endl;
       if(thisSize > MAX_I2O_SM_DATASIZE)
       {
@@ -371,8 +498,33 @@ namespace edmtest
         pvtMsg->XFunctionCode    = I2O_SM_DATA;
         pvtMsg->OrganizationID   = XDAQ_ORGANIZATION_ID;
         msg->dataSize = thisSize;
-        msg->hltID = 1;    // need the real HLT id to collect from multiple FUs
-        msg->eventID = (unsigned long)SMEventCounter_;  // Need the real event id
+        // Fill in the long form of the source (HLT) identifier
+        std::string url = worker_->app_->getApplicationDescriptor()->getContextDescriptor()->getURL();
+        if(url.size() > MAX_I2O_SM_URLCHARS)
+        {
+          LOG4CPLUS_INFO(worker_->app_->getApplicationLogger(),
+            "I2OConsumer: Error! Source URL truncated");
+          for(int i=0; i< MAX_I2O_SM_URLCHARS; i++) msg->hltURL[i] = url[i];
+        } else {
+          //for(int i=0; i< MAX_I2O_SM_URLCHARS; i++) msg->hltURL[i] = " "; // needed?
+          for(int i=0; i< (int)url.size(); i++) msg->hltURL[i] = url[i];
+        } 
+        std::string classname = worker_->app_->getApplicationDescriptor()->getClassName();
+        if(classname.size() > MAX_I2O_SM_URLCHARS)
+        {
+          LOG4CPLUS_INFO(worker_->app_->getApplicationLogger(),
+            "I2OConsumer: Error! Source ClassName truncated");
+          for(int i=0; i< MAX_I2O_SM_URLCHARS; i++) msg->hltClassName[i] = classname[i];
+        } else {
+          //for(int i=0; i< MAX_I2O_SM_URLCHARS; i++) msg->hltClassName[i] = " "; // needed?
+          for(int i=0; i< (int)url.size(); i++) msg->hltClassName[i] = classname[i];
+        } 
+        msg->hltLocalId = worker_->app_->getApplicationDescriptor()->getLocalId();
+        msg->hltInstance = worker_->app_->getApplicationDescriptor()->getInstance();
+        msg->hltTid = i2o::utils::getAddressMap()->getTid(worker_->app_->getApplicationDescriptor());
+
+        msg->runID = (unsigned long)runid;     // convert to known size
+        msg->eventID = (unsigned long)eventid; // convert to known size
         msg->numFrames = numFramesNeeded;
         msg->frameCount = thisCount;
         msg->originalSize = size;
@@ -397,7 +549,7 @@ namespace edmtest
           minlen = 50;
           if(minlen > (int)thisSize) minlen = thisSize;
           std::string temp4print(msg->data,minlen);
-          FDEBUG(11) << "I2OConsumer::writeI2OData: msg data = " << temp4print << std::endl;
+          FDEBUG(10) << "I2OConsumer::writeI2OData: msg data = " << temp4print << std::endl;
         } else {
           std::cout << "I2OConsumer::writeI2OData: Error! Sending zero size data!?" << std::endl;
         }
@@ -423,9 +575,11 @@ namespace edmtest
     // need to make a test here later
     if(worker_->destination_ !=0)
       {
-        FDEBUG(11) << "I2OConsumer::writeI2OData: posting data chain frame " << std::endl;
+        FDEBUG(10) << "I2OConsumer::writeI2OData: posting data chain frame " << std::endl;
         worker_->app_->getApplicationContext()->postFrame(head,
                        worker_->app_->getApplicationDescriptor(),worker_->destination_);
+        // for performance measurements only using global variable!
+        addMyXDAQMeasurement((unsigned long)(numFramesNeeded * sizeof(I2O_SM_DATA_MESSAGE_FRAME)));
       }
     else
       std::cerr << "I2OConsumer::writeI2OData: No " << worker_->destinationName_
