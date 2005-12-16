@@ -13,13 +13,14 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 19:13:25 EDT 2005
-// $Id: WhatsItAnalyzer.cc,v 1.5 2005/09/28 23:41:43 wmtan Exp $
+// $Id: WhatsItAnalyzer.cc,v 1.6 2005/10/15 01:46:18 wmtan Exp $
 //
 //
 
 
 // system include files
 #include <memory>
+#include <iostream>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -90,6 +91,8 @@ WhatsItAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iS
    using namespace edm;
    ESHandle<WhatsIt> pSetup;
    iSetup.get<GadgetRcd>().get(pSetup);
+
+   std::cout <<"WhatsIt "<<pSetup->a<<std::endl;
 }
 
 }
