@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 16:56:05 EDT 2005
-// $Id: ComponentMaker.h,v 1.7 2005/09/01 23:30:48 wmtan Exp $
+// $Id: ComponentMaker.h,v 1.8 2005/12/16 00:29:28 chrjones Exp $
 //
 
 // system include files
@@ -24,7 +24,7 @@
 #include "boost/shared_ptr.hpp"
 
 // user include files
-#include "FWCore/Framework/interface/DataProxyProvider.h"
+#include "FWCore/Framework/interface/ComponentDescription.h"
 
 // forward declarations
 
@@ -32,7 +32,8 @@ namespace edm {
    class ParameterSet;
    namespace eventsetup {
       class EventSetupProvider;
-      
+      class DataProxyProvider;
+     
 template <class T>
       class ComponentMakerBase {
 public:
@@ -86,7 +87,7 @@ ComponentMaker<T,TComponent>:: addTo(EventSetupProvider& iProvider,
 {
    boost::shared_ptr<TComponent> component(new TComponent(iConfiguration));
    
-   DataProxyProvider::Description description;
+   ComponentDescription description;
    description.type_ = iConfiguration.template getParameter<std::string>("@module_type");
    description.label_ = iConfiguration.template getParameter<std::string>("@module_label");
    setDescription(component.get(),description);

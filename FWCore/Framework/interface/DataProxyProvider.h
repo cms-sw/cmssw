@@ -39,9 +39,7 @@ namespace edm {
 class DataProxyProvider
 {
 
-   public:
-      typedef edm::eventsetup::ComponentDescription Description;
-   
+   public:   
       typedef std::vector< EventSetupRecordKey> Keys;
       typedef std::vector<std::pair<DataKey, 
                                     boost::shared_ptr<DataProxy> > > KeyedProxies ;
@@ -57,7 +55,7 @@ class DataProxyProvider
       
       const KeyedProxies& keyedProxies(const EventSetupRecordKey& iRecordKey) const ;
       
-      const Description& description() const { return description_;}
+      const ComponentDescription& description() const { return description_;}
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
@@ -66,7 +64,7 @@ class DataProxyProvider
       virtual void newInterval(const EventSetupRecordKey& iRecordType,
                                 const ValidityInterval& iInterval) = 0;
       
-      void setDescription(const Description& iDescription) {
+      void setDescription(const ComponentDescription& iDescription) {
          description_ = iDescription;
       }
 
@@ -93,7 +91,7 @@ class DataProxyProvider
 
       // ---------- member data --------------------------------
       RecordProxies recordProxies_;
-      Description description_;
+      ComponentDescription description_;
 };
 
 template<class ProxyT>
