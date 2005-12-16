@@ -1,18 +1,13 @@
-
-<use name=seal>
-<use name=boost>
-<use name=clhep>
 <use name=SimDataFormats/CaloHit>
 <use name=DataFormats/EcalDigi>
 <use name=DataFormats/EcalDetId>
 <use name=SimCalorimetry/CaloSimAlgos>
 <use name=CondFormats/EcalObjects>
 <use name=CalibFormats/CaloObjects>
-
+<use name=clhep>
 
 <export>
-  <use name=seal>
-  <use name=boost>
+  <lib name=SimCalorimetryEcalSimAlgos>
   <use name=clhep>
   <use name=SimDataFormats/CaloHit>
   <use name=DataFormats/EcalDigi>
@@ -20,9 +15,7 @@
   <use name=SimCalorimetry/CaloSimAlgos>
   <use name=CondFormats/EcalObjects>
   <use name=CalibFormats/CaloObjects>
-
-
-  <lib name=SimCalorimetryEcalSimAlgos>
 </export>
-<flags SEAL_PLUGIN_NAME="SimCalorimetryEcalSimAlgos">
+
+
 
