@@ -1,3 +1,6 @@
+** V00-01-01  [Fri Dec 16 21:05:35 2005]
+added building of DoodadESProducer library
+
 ** V00-01-00  [Fri Dec  9 20:33:14 2005]
 Fix tests so they run from scram.
 
