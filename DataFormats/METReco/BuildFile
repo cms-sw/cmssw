@@ -1,6 +1,8 @@
 <use name=FWCore/EDProduct>
+<use name=rootcore>
 <flags LCGDICT_ARGS="--deep">
 <export>
  <lib name=DataFormatsMETReco>
  <use name=FWCore/EDProduct>
+ <use name=rootcore>
 </export>
