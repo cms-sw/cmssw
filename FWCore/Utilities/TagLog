@@ -1,3 +1,6 @@
+** V00-01-01  [Fri Dec 16 20:35:38 2005]
+Added comment to TestHelper.cc
+
 ** V00-01-00  [Tue Nov 29 23:36:59 2005]
 Support for MessageLogger
 
