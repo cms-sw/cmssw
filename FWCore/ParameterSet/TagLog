@@ -1,3 +1,6 @@
+** V00-03-00  [Sat Dec 17 04:23:42 2005]
+Adding Python format writer, test, and support
+
 ** V00-02-07  [Tue Dec 13 07:49:40 2005]
 Changes needed for consistency with changes in EventProcessor.cc
 
