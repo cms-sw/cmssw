@@ -1,12 +1,13 @@
 <lcgdict>
 <selection>
-  <class name="ROOT::Math::PtEtaPhiE4D<double>" />
-  <class name="ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<double> >" />
-  <class name="ROOT::Math::PxPyPzE4D<double>" />
-  <class name="ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >" />
-  <class name="ROOT::Math::Cartesian3D<double>" />
-  <class name="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double> >" />
-  <class name="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<double> >" />
+  <class pattern="ROOT::Math::PtEtaPhiE4D<*>" />
+  <class pattern="ROOT::Math::PxPyPzE4D<*>" />
+  <class pattern="ROOT::Math::Cartesian3D<*>" />
+  <class pattern="ROOT::Math::LorentzVector<*>" />
+  <class pattern="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<*> >" />
+  <class pattern="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<*> >" />
+  <class pattern="math::Vector<*>" />
+  <class pattern="math::Error<*>" />
 </selection>
 <exclusion>
   <class pattern="ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<*>">
