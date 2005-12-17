@@ -1,3 +1,6 @@
+** V00-01-00  [Sat Dec 17 01:35:13 2005]
+using new Candidate interface
+
 ** V00-00-00  [Thu Oct 27 11:42:52 2005]
 PhysicsTools/CandAlgos include in pre6.
 
