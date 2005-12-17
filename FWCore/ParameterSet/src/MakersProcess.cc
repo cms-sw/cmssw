@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 18 19:09:01 EDT 2005
-// $Id: MakersProcess.cc,v 1.13 2005/11/17 17:27:29 paterno Exp $
+// $Id: MakersProcess.cc,v 1.14 2005/12/06 23:39:48 paterno Exp $
 //
 
 // system include files
@@ -221,9 +221,13 @@ namespace edm {
       fill(ParseResults const& parsetree,
 	   edm::ProcessDesc & iToFill) 
       {
+	// The 'list of nodes' must really be the root of a tree
 	assert(parsetree->size() == 1);
 	procDesc_ = &iToFill;
-	(*parsetree->begin())->accept(*this);
+
+	// Walk the tree...
+	edm::pset::NodePtr root = parsetree->front();
+	root->accept(*this);
       }
    
    

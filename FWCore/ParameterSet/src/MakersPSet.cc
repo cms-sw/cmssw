@@ -279,13 +279,6 @@ namespace edm {
                                             const NamedPSets& blocks ,
                                             const NamedPSets& psets)
       {
-      #if 0
-         // this used to be here - moved to caller
-        if(nodes.empty()==true)
-          {
-            throw runtime_error("ParameterSets cannot be empty");
-          }
-      #endif
         // verify that this ia not a process related node
         // this is a cheesy way to check this
         if(nodes.empty()==false && nodes.front()->type()=="process")
