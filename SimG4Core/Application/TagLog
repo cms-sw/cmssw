@@ -1,3 +1,6 @@
+** V03-06-03  [Sat Dec 17 03:46:05 2005]
+for the test, the root nodes of the geometry are now determined from the xml files, the magnetic field producer has its new parameters and the magnetic field is turned on by default
+
 ** V03-06-02  [Mon Dec 12 20:11:54 2005]
 OscarProducer nows makes a PCaloHitContainer with label 'CaloHitsTk'
 
