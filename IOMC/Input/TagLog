@@ -1,3 +1,6 @@
+** V00-01-03  [Sat Dec 17 01:35:45 2005]
+PGuns moved into separated package IOMC/ParticleGuns
+
 ** V00-01-02  [Sun Dec 11 16:34:20 2005]
 Replace exit() with exception throw
 
