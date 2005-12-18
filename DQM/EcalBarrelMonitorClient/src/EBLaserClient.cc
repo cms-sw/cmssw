@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  * 
- * $Date: 2005/12/15 14:20:30 $
- * $Revision: 1.37 $
+ * $Date: 2005/12/15 15:54:46 $
+ * $Revision: 1.38 $
  * \author G. Della Ricca
  *
 */
@@ -192,52 +192,21 @@ void EBLaserClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* r
   
   for ( int ism = 1; ism <= 36; ism++ ) {
 
-    float num01, num02, num03, num04;
-    float mean01, mean02, mean03, mean04;
-    float rms01, rms02, rms03, rms04;
-
-    float meanAmplL1, meanAmplL2;
-    int nCryL1, nCryL2;
-    meanAmplL1 = meanAmplL2 = -1.;
-    nCryL1 = nCryL2 = 0;
+    float num01, num02, num03, num04, num05, num06, num07, num08;
+    float mean01, mean02, mean03, mean04, mean05, mean06, mean07, mean08;
+    float rms01, rms02, rms03, rms04, rms05, rms06, rms07, rms08;
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
 
-        num01 = num03 = -1;
-
-        if ( h01_[ism-1] && h01_[ism-1]->GetEntries() >= n_min_tot ) {
-          num01 = h01_[ism-1]->GetBinEntries(h01_[ism-1]->GetBin(ie, ip));
-          if ( num01 >= n_min_bin ) {
-            meanAmplL1 += h01_[ism-1]->GetBinContent(h01_[ism-1]->GetBin(ie, ip));
-            nCryL1++;
-          }
-        }
-
-        if ( h03_[ism-1] && h03_[ism-1]->GetEntries() >= n_min_tot ) {
-          num03 = h03_[ism-1]->GetBinEntries(h03_[ism-1]->GetBin(ie, ip));
-          if ( num03 >= n_min_bin ) {
-            meanAmplL2 += h03_[ism-1]->GetBinContent(h03_[ism-1]->GetBin(ie, ip));
-            nCryL2++;
-          }
-        }
-        
-      }
-    }
-    
-    if ( nCryL1 > 0 ) meanAmplL1 /= float (nCryL1);
-    if ( nCryL2 > 0 ) meanAmplL2 /= float (nCryL2);
-
-
-    for ( int ie = 1; ie <= 85; ie++ ) {
-      for ( int ip = 1; ip <= 20; ip++ ) {
-
-        num01  = num02  = num03  = num04  = -1.;
-        mean01 = mean02 = mean03 = mean04 = -1.;
-        rms01  = rms02  = rms03  = rms04  = -1.;
+        num01  = num02  = num03  = num04  = num05  = num06  = num07  = num08  = -1.;
+        mean01 = mean02 = mean03 = mean04 = mean05 = mean06 = mean07 = mean08 = -1.;
+        rms01  = rms02  = rms03  = rms04  = rms05  = rms06  = rms07  = rms08  = -1.;
 
         bool update_channel1 = false;
         bool update_channel2 = false;
+        bool update_channel3 = false;
+        bool update_channel4 = false;
 
         if ( h01_[ism-1] && h01_[ism-1]->GetEntries() >= n_min_tot ) {
           num01 = h01_[ism-1]->GetBinEntries(h01_[ism-1]->GetBin(ie, ip));
@@ -275,6 +244,42 @@ void EBLaserClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* r
           }
         }
 
+        if ( h05_[ism-1] && h05_[ism-1]->GetEntries() >= n_min_tot ) {
+          num05 = h05_[ism-1]->GetBinEntries(h05_[ism-1]->GetBin(ie, ip));
+          if ( num05 >= n_min_bin ) {
+            mean05 = h05_[ism-1]->GetBinContent(h05_[ism-1]->GetBin(ie, ip));
+            rms05  = h05_[ism-1]->GetBinError(h05_[ism-1]->GetBin(ie, ip));
+            update_channel3 = true;
+          }
+        }
+
+        if ( h06_[ism-1] && h06_[ism-1]->GetEntries() >= n_min_tot ) {
+          num06 = h06_[ism-1]->GetBinEntries(h06_[ism-1]->GetBin(ie, ip));
+          if ( num06 >= n_min_bin ) {
+            mean06 = h06_[ism-1]->GetBinContent(h06_[ism-1]->GetBin(ie, ip));
+            rms06  = h06_[ism-1]->GetBinError(h06_[ism-1]->GetBin(ie, ip));
+            update_channel3 = true;
+          }
+        }
+
+        if ( h07_[ism-1] && h07_[ism-1]->GetEntries() >= n_min_tot ) {
+          num07 = h07_[ism-1]->GetBinEntries(h07_[ism-1]->GetBin(ie, ip));
+          if ( num07 >= n_min_bin ) {
+            mean07 = h07_[ism-1]->GetBinContent(h07_[ism-1]->GetBin(ie, ip));
+            rms07  = h07_[ism-1]->GetBinError(h07_[ism-1]->GetBin(ie, ip));
+            update_channel4 = true;
+          }
+        }
+
+        if ( h08_[ism-1] && h08_[ism-1]->GetEntries() >= n_min_tot ) {
+          num08 = h08_[ism-1]->GetBinEntries(h08_[ism-1]->GetBin(ie, ip));
+          if ( num08 >= n_min_bin ) {
+            mean08 = h08_[ism-1]->GetBinContent(h08_[ism-1]->GetBin(ie, ip));
+            rms08  = h08_[ism-1]->GetBinError(h08_[ism-1]->GetBin(ie, ip));
+            update_channel4 = true;
+          }
+        }
+
         if ( update_channel1 ) {
 
           if ( ie == 1 && ip == 1 ) {
@@ -294,25 +299,10 @@ void EBLaserClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* r
           apd_bl.setAPDOverPNMean(mean02);
           apd_bl.setAPDOverPNRMS(rms02);
 
-          apd_bl.setTaskStatus(1);
-
-          float val;
-
-          if ( g01_[ism-1] ) {
-            val = 1.;
-            if ( abs(mean01 - meanAmplL1) > abs(percentVariation_ * meanAmplL1) )
-              val = 0.;
-            g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), val);
-          }
-          
-          if ( a01_[ism-1] ) {
-            a01_[ism-1]->SetBinContent(ip+20*(ie-1), mean01);
-            a01_[ism-1]->SetBinError(ip+20*(ie-1), rms01);
-          }
-
-          if ( aopn01_[ism-1] ) {
-            aopn01_[ism-1]->SetBinContent(ip+20*(ie-1), mean02);
-            aopn01_[ism-1]->SetBinError(ip+20*(ie-1), rms02);
+          if ( g01_[ism-1]->GetBinContent(g01_[ism-1]->GetBin(ie, ip)) == 1. ) {
+            apd_bl.setTaskStatus(true);
+          } else {
+            apd_bl.setTaskStatus(false);
           }
 
           if ( econn ) {
@@ -342,31 +332,82 @@ void EBLaserClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* r
           apd_ir.setAPDOverPNMean(mean04);
           apd_ir.setAPDOverPNRMS(rms04);
 
-          apd_ir.setTaskStatus(1);
-
-          float val;
-
-          if ( g02_[ism-1] ) {
-            val = 1.;
-            if ( abs(mean03 - meanAmplL2) > abs(percentVariation_ * meanAmplL2) )
-              val = 0.;
-            g02_[ism-1]->SetBinContent(g02_[ism-1]->GetBin(ie, ip), val);
-          }
-          
-          if ( a02_[ism-1] ) {
-            a02_[ism-1]->SetBinContent(ip+20*(ie-1), mean03);
-            a02_[ism-1]->SetBinError(ip+20*(ie-1), rms03);
-          }
-
-          if ( aopn02_[ism-1] ) {
-            aopn02_[ism-1]->SetBinContent(ip+20*(ie-1), mean04);
-            aopn02_[ism-1]->SetBinError(ip+20*(ie-1), rms04);
+          if ( g02_[ism-1]->GetBinContent(g02_[ism-1]->GetBin(ie, ip)) == 1. ) {
+            apd_ir.setTaskStatus(true);
+          } else {
+            apd_ir.setTaskStatus(false);
           }
 
           if ( econn ) {
             try {
               ecid = econn->getEcalLogicID("EB_crystal_index", ism, ie-1, ip-1);
               dataset_ir[ecid] = apd_ir;
+            } catch (runtime_error &e) {
+              cerr << e.what() << endl;
+            }
+          }
+
+        }
+
+        if ( update_channel3 ) {
+
+          if ( ie == 1 && ip == 1 ) {
+
+            cout << "Inserting dataset for SM=" << ism << endl;
+
+            cout << "L3 (" << ie << "," << ip << ") " << num05 << " " << mean05 << " " << rms05 << endl;
+
+          }
+
+          apd_gr.setAPDMean(mean05);
+          apd_gr.setAPDRMS(rms05);
+
+          apd_gr.setAPDOverPNMean(mean06);
+          apd_gr.setAPDOverPNRMS(rms06);
+
+          if ( g03_[ism-1]->GetBinContent(g03_[ism-1]->GetBin(ie, ip)) == 1. ) {
+            apd_gr.setTaskStatus(true);
+          } else {
+            apd_gr.setTaskStatus(false);
+          }
+
+          if ( econn ) {
+            try {
+              ecid = econn->getEcalLogicID("EB_crystal_index", ism, ie-1, ip-1);
+              dataset_gr[ecid] = apd_gr;
+            } catch (runtime_error &e) {
+              cerr << e.what() << endl;
+            }
+          }
+
+        }
+
+        if ( update_channel4 ) {
+
+          if ( ie == 1 && ip == 1 ) {
+
+            cout << "Inserting dataset for SM=" << ism << endl;
+
+            cout << "L4 (" << ie << "," << ip << ") " << num07 << " " << mean07 << " " << rms07 << endl;
+
+          }
+
+          apd_rd.setAPDMean(mean07);
+          apd_rd.setAPDRMS(rms07);
+
+          apd_rd.setAPDOverPNMean(mean08);
+          apd_rd.setAPDOverPNRMS(rms08);
+
+          if ( g04_[ism-1]->GetBinContent(g04_[ism-1]->GetBin(ie, ip)) == 1. ) {
+            apd_rd.setTaskStatus(true);
+          } else {
+            apd_rd.setTaskStatus(false);
+          }
+
+          if ( econn ) {
+            try {
+              ecid = econn->getEcalLogicID("EB_crystal_index", ism, ie-1, ip-1);
+              dataset_rd[ecid] = apd_rd;
             } catch (runtime_error &e) {
               cerr << e.what() << endl;
             }
@@ -690,6 +731,238 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
         sprintf(histo, "ME EBLT amplitude over PN SM%02d L4", ism);
         h08_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
 //        h08_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+      }
+    }
+
+    const float n_min_tot = 1000.;
+    const float n_min_bin = 50.;
+
+    float num01, num02, num03, num04, num05, num06, num07, num08;
+    float mean01, mean02, mean03, mean04, mean05, mean06, mean07, mean08;
+    float rms01, rms02, rms03, rms04, rms05, rms06, rms07, rms08;
+
+    g01_[ism-1]->Reset();
+    g02_[ism-1]->Reset();
+    g03_[ism-1]->Reset();
+    g04_[ism-1]->Reset();
+
+    a01_[ism-1]->Reset();
+    a02_[ism-1]->Reset();
+    a03_[ism-1]->Reset();
+    a04_[ism-1]->Reset();
+
+    aopn01_[ism-1]->Reset();
+    aopn02_[ism-1]->Reset();
+    aopn03_[ism-1]->Reset();
+    aopn04_[ism-1]->Reset();
+
+    float meanAmplL1, meanAmplL2, meanAmplL3, meanAmplL4;
+    int nCryL1, nCryL2, nCryL3, nCryL4;
+    meanAmplL1 = meanAmplL2 = meanAmplL3 = meanAmplL4 = -1.;
+    nCryL1 = nCryL2 = nCryL3 = nCryL4 = 0;
+
+    for ( int ie = 1; ie <= 85; ie++ ) { 
+      for ( int ip = 1; ip <= 20; ip++ ) {
+
+        num01 = num03 = num05 = num07 = -1;
+
+        g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), 2.);
+        g02_[ism-1]->SetBinContent(g02_[ism-1]->GetBin(ie, ip), 2.);
+        g03_[ism-1]->SetBinContent(g03_[ism-1]->GetBin(ie, ip), 2.);
+        g04_[ism-1]->SetBinContent(g04_[ism-1]->GetBin(ie, ip), 2.);
+
+        if ( h01_[ism-1] && h01_[ism-1]->GetEntries() >= n_min_tot ) {
+          num01 = h01_[ism-1]->GetBinEntries(h01_[ism-1]->GetBin(ie, ip));
+          if ( num01 >= n_min_bin ) {
+            meanAmplL1 += h01_[ism-1]->GetBinContent(h01_[ism-1]->GetBin(ie, ip));
+            nCryL1++;
+          }
+        }
+
+        if ( h03_[ism-1] && h03_[ism-1]->GetEntries() >= n_min_tot ) {
+          num03 = h03_[ism-1]->GetBinEntries(h03_[ism-1]->GetBin(ie, ip));
+          if ( num03 >= n_min_bin ) {
+            meanAmplL2 += h03_[ism-1]->GetBinContent(h03_[ism-1]->GetBin(ie, ip));
+            nCryL2++;
+          }
+        }
+
+        if ( h05_[ism-1] && h05_[ism-1]->GetEntries() >= n_min_tot ) {
+          num05 = h05_[ism-1]->GetBinEntries(h05_[ism-1]->GetBin(ie, ip));
+          if ( num05 >= n_min_bin ) {
+            meanAmplL3 += h05_[ism-1]->GetBinContent(h05_[ism-1]->GetBin(ie, ip));
+            nCryL3++;
+          }
+        }
+
+        if ( h07_[ism-1] && h07_[ism-1]->GetEntries() >= n_min_tot ) {
+          num07 = h07_[ism-1]->GetBinEntries(h07_[ism-1]->GetBin(ie, ip));
+          if ( num07 >= n_min_bin ) {
+            meanAmplL4 += h07_[ism-1]->GetBinContent(h07_[ism-1]->GetBin(ie, ip));
+            nCryL4++;
+          }
+        }
+
+      }
+    }
+
+    if ( nCryL1 > 0 ) meanAmplL1 /= float (nCryL1);
+    if ( nCryL2 > 0 ) meanAmplL2 /= float (nCryL2);
+    if ( nCryL3 > 0 ) meanAmplL3 /= float (nCryL3);
+    if ( nCryL4 > 0 ) meanAmplL4 /= float (nCryL4);
+
+    for ( int ie = 1; ie <= 85; ie++ ) {
+      for ( int ip = 1; ip <= 20; ip++ ) {
+
+        num01  = num02  = num03  = num04  = num05  = num06  = num07  = num08  = -1.;
+        mean01 = mean02 = mean03 = mean04 = mean05 = mean06 = mean07 = mean08 = -1.;
+        rms01  = rms02  = rms03  = rms04  = rms05  = rms06  = rms07  = rms08  = -1.;
+
+        bool update_channel1 = false;
+        bool update_channel2 = false;
+        bool update_channel3 = false;
+        bool update_channel4 = false;
+
+        if ( h01_[ism-1] && h01_[ism-1]->GetEntries() >= n_min_tot ) {
+          num01 = h01_[ism-1]->GetBinEntries(h01_[ism-1]->GetBin(ie, ip));
+          if ( num01 >= n_min_bin ) {
+            mean01 = h01_[ism-1]->GetBinContent(h01_[ism-1]->GetBin(ie, ip));
+            rms01  = h01_[ism-1]->GetBinError(h01_[ism-1]->GetBin(ie, ip));
+            update_channel1 = true;
+          }
+        }
+
+        if ( h02_[ism-1] && h02_[ism-1]->GetEntries() >= n_min_tot ) {
+          num02 = h02_[ism-1]->GetBinEntries(h02_[ism-1]->GetBin(ie, ip));
+          if ( num02 >= n_min_bin ) {
+            mean02 = h02_[ism-1]->GetBinContent(h02_[ism-1]->GetBin(ie, ip));
+            rms02  = h02_[ism-1]->GetBinError(h02_[ism-1]->GetBin(ie, ip));
+            update_channel1 = true;
+          }
+        }
+
+        if ( h03_[ism-1] && h03_[ism-1]->GetEntries() >= n_min_tot ) {
+          num03 = h03_[ism-1]->GetBinEntries(h03_[ism-1]->GetBin(ie, ip));
+          if ( num03 >= n_min_bin ) {
+            mean03 = h03_[ism-1]->GetBinContent(h03_[ism-1]->GetBin(ie, ip));
+            rms03  = h03_[ism-1]->GetBinError(h03_[ism-1]->GetBin(ie, ip));
+            update_channel2 = true;
+          }
+        }
+
+        if ( h04_[ism-1] && h04_[ism-1]->GetEntries() >= n_min_tot ) {
+          num04 = h04_[ism-1]->GetBinEntries(h04_[ism-1]->GetBin(ie, ip));
+          if ( num04 >= n_min_bin ) {
+            mean04 = h04_[ism-1]->GetBinContent(h04_[ism-1]->GetBin(ie, ip));
+            rms04  = h04_[ism-1]->GetBinError(h04_[ism-1]->GetBin(ie, ip));
+            update_channel2 = true;
+          }
+        }
+
+        if ( h05_[ism-1] && h05_[ism-1]->GetEntries() >= n_min_tot ) {
+          num05 = h05_[ism-1]->GetBinEntries(h05_[ism-1]->GetBin(ie, ip));
+          if ( num05 >= n_min_bin ) {
+            mean05 = h05_[ism-1]->GetBinContent(h05_[ism-1]->GetBin(ie, ip));
+            rms05  = h05_[ism-1]->GetBinError(h05_[ism-1]->GetBin(ie, ip));
+            update_channel3 = true;
+          }
+        }
+
+        if ( h06_[ism-1] && h06_[ism-1]->GetEntries() >= n_min_tot ) {
+          num06 = h06_[ism-1]->GetBinEntries(h06_[ism-1]->GetBin(ie, ip));
+          if ( num06 >= n_min_bin ) {
+            mean06 = h06_[ism-1]->GetBinContent(h06_[ism-1]->GetBin(ie, ip));
+            rms06  = h06_[ism-1]->GetBinError(h06_[ism-1]->GetBin(ie, ip));
+            update_channel3 = true;
+          }
+        }
+
+        if ( h07_[ism-1] && h07_[ism-1]->GetEntries() >= n_min_tot ) {
+          num07 = h07_[ism-1]->GetBinEntries(h07_[ism-1]->GetBin(ie, ip));
+          if ( num07 >= n_min_bin ) {
+            mean07 = h07_[ism-1]->GetBinContent(h07_[ism-1]->GetBin(ie, ip));
+            rms07  = h07_[ism-1]->GetBinError(h07_[ism-1]->GetBin(ie, ip));
+            update_channel4 = true;
+          }
+        }
+
+        if ( h08_[ism-1] && h08_[ism-1]->GetEntries() >= n_min_tot ) {
+          num08 = h08_[ism-1]->GetBinEntries(h08_[ism-1]->GetBin(ie, ip));
+          if ( num08 >= n_min_bin ) {
+            mean08 = h08_[ism-1]->GetBinContent(h08_[ism-1]->GetBin(ie, ip));
+            rms08  = h08_[ism-1]->GetBinError(h08_[ism-1]->GetBin(ie, ip));
+            update_channel4 = true;
+          }
+        }
+
+        if ( update_channel1 ) {
+
+          float val;
+
+          val = 1.;
+          if ( abs(mean01 - meanAmplL1) > abs(percentVariation_ * meanAmplL1) )
+            val = 0.;
+          g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), val);
+
+          a01_[ism-1]->SetBinContent(ip+20*(ie-1), mean01);
+          a01_[ism-1]->SetBinError(ip+20*(ie-1), rms01);
+
+          aopn01_[ism-1]->SetBinContent(ip+20*(ie-1), mean02);
+          aopn01_[ism-1]->SetBinError(ip+20*(ie-1), rms02);
+
+        }
+
+        if ( update_channel2 ) {
+
+          float val;
+
+          val = 1.;
+          if ( abs(mean03 - meanAmplL2) > abs(percentVariation_ * meanAmplL2) )
+            val = 0.;
+          g02_[ism-1]->SetBinContent(g02_[ism-1]->GetBin(ie, ip), val);
+
+          a02_[ism-1]->SetBinContent(ip+20*(ie-1), mean03);
+          a02_[ism-1]->SetBinError(ip+20*(ie-1), rms03);
+
+          aopn02_[ism-1]->SetBinContent(ip+20*(ie-1), mean04);
+          aopn02_[ism-1]->SetBinError(ip+20*(ie-1), rms04);
+
+        }
+
+        if ( update_channel3 ) {
+
+          float val;
+
+          val = 1.;
+          if ( abs(mean05 - meanAmplL3) > abs(percentVariation_ * meanAmplL3) )
+            val = 0.;
+          g03_[ism-1]->SetBinContent(g03_[ism-1]->GetBin(ie, ip), val);
+
+          a03_[ism-1]->SetBinContent(ip+20*(ie-1), mean05);
+          a03_[ism-1]->SetBinError(ip+20*(ie-1), rms05);
+
+          aopn03_[ism-1]->SetBinContent(ip+20*(ie-1), mean06);
+          aopn03_[ism-1]->SetBinError(ip+20*(ie-1), rms06);
+
+        }
+
+        if ( update_channel4 ) {
+
+          float val;
+
+          val = 1.;
+          if ( abs(mean07 - meanAmplL4) > abs(percentVariation_ * meanAmplL4) )
+            val = 0.;
+          g04_[ism-1]->SetBinContent(g04_[ism-1]->GetBin(ie, ip), val);
+
+          a04_[ism-1]->SetBinContent(ip+20*(ie-1), mean07);
+          a04_[ism-1]->SetBinError(ip+20*(ie-1), rms07);
+
+          aopn04_[ism-1]->SetBinContent(ip+20*(ie-1), mean08);
+          aopn04_[ism-1]->SetBinError(ip+20*(ie-1), rms08);
+
+        }
+
       }
     }
 
