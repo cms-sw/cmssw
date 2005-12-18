@@ -10,7 +10,7 @@ namespace cms {
  */
  
   EcalSimParameterMap::EcalSimParameterMap() :
-    theBarrelParameters(2500., 1./2500., 
+    theBarrelParameters(2250., 1./2250., 
                      1., 47., 
                      10, 6, true),
     theEndcapParameters( 1800., 1./1800., 

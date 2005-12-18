@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.h
  *
- * $Date: 2005/11/17 22:55:26 $
- * $Revision: 1.3 $
+ * $Date: 2005/11/13 17:20:53 $
+ * $Revision: 1.1 $
  * \author W. Fisher
  *
 */
@@ -18,10 +18,8 @@
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include <DQM/HcalMonitorModule/interface/HcalMonitorSelector.h>
 #include <DQM/HcalMonitorTasks/interface/HcalDigiMonitor.h>
 #include <DQM/HcalMonitorTasks/interface/HcalDataFormatMonitor.h>
-#include <DQM/HcalMonitorTasks/interface/HcalRecHitMonitor.h>
 
 
 #include <memory>
@@ -56,21 +54,18 @@ void endJob(void);
 
 private:
 
-  int m_ievt;
-  DaqMonitorBEInterface* m_dbe;
-  
-  MonitorElement* m_meStatus;
-  MonitorElement* m_meRun;
-  MonitorElement* m_meEvt;
-  
-  HcalMonitorSelector*    m_evtSel;
-  HcalDigiMonitor*        m_digiMon;
-  HcalDataFormatMonitor*  m_dfMon;
-  HcalRecHitMonitor*      m_rhMon;
-  
-  string m_outputFile;
-  ofstream m_logFile;
-  
+int m_ievt;
+DaqMonitorBEInterface* m_dbe;
+MonitorElement* m_meStatus;
+MonitorElement* m_meRun;
+MonitorElement* m_meEvt;
+
+HcalDigiMonitor*  m_digiMon;
+HcalDataFormatMonitor*  m_dfMon;
+
+string m_outputFile;
+ofstream m_logFile;
+
 };
 
 #endif

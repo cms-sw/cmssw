@@ -14,8 +14,8 @@
  *
  *  Memory usage for electronics --> logical ~= 64kB (precision)
  *  Memory usage for logical --> electronics (optional) ~= 300kB 
- *  $Date: 2005/10/10 14:28:17 $
- *  $Revision: 1.3 $
+ *  $Date: 2005/10/04 14:32:40 $
+ *  $Revision: 1.2 $
  *  \author J. Mans - Minnesota
  */
 class HcalMapping {

@@ -2,11 +2,12 @@
 *  See header file for a description of this class.
 *
 *
-*  $Date: 2005/08/19 09:01:04 $
-*  $Revision: 1.4 $
+*  $Date: 2005/10/05 04:45:33 $
+*  $Revision: 1.1 $
 *  \author Jo. Weng  - CERN, Ph Division & Uni Karlsruhe
 */
 #include "IOMC/Input/interface/HepMCFileReader.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include "CLHEP/HepMC/ReadHepMC.h"
 #include "CLHEP/HepMC/GenEvent.h"
@@ -64,8 +65,8 @@ void HepMCFileReader::initialize(const string & filename){
 	
 	input_ = new ifstream(filename.c_str(), ios::in | ios::binary);
 	if(! (*input_)) {
-		cout<<"HepMCFileReader: the input file: "<<filename <<" is not present. Exiting program... "  << endl;
-		exit(1);
+	      throw cms::Exception("FileNotFound", "HepMCFileReader::initialize()")
+		<< "File " << filename << " was not found.\n";
 	}
 	
 	initialized_ = true;   

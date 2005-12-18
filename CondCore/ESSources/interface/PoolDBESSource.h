@@ -1,5 +1,3 @@
-#ifndef POOLDBESSOURCE_H
-#define POOLDBESSOURCE_H
 // system include files
 #include <memory>
 #include <string>
@@ -49,9 +47,8 @@ private:
   std::auto_ptr<pool::IFileCatalog> m_cat;
   pool::IDataSvc* m_svc;
 private:
-  void initPool( const std::string& catcontact );
+  void initPool();
   void closePool();
   bool initIOV( const std::vector< std::pair<std::string,std::string> >& record2tag );
 };
 
-#endif

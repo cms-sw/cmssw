@@ -17,6 +17,7 @@
 #include "FWCore/MessageLogger/interface/ELadministrator.h"
 #include "FWCore/MessageLogger/interface/ELoutput.h"
 #include "FWCore/MessageLogger/interface/ELcontextSupplier.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 #include <iostream>
 #include <iomanip>
@@ -295,6 +296,12 @@ bool ELtsErrorLog::pokeMsg ( ErrorObj & msg )  {
 
 }
 
+static inline void msgabort() {
+  edm::Exception e(edm::errors::LogicError, 
+  	"msgabort - MessageLogger tsErrorLog requested to abort");
+  throw e;
+}
+
 void ELtsErrorLog::dispatch ( ErrorObj & msg )  {
 
   // NOTE -- this is never called except in cases where a <Mutex> LOCK
@@ -327,7 +334,7 @@ void ELtsErrorLog::dispatch ( ErrorObj & msg )  {
   if ( msg.xid().severity.getLevel() >= a->abortThreshold().getLevel()
                        &&
         a->abortThreshold() != ELhighestSeverity) {
-    abort();
+    msgabort();
   }
 
 }

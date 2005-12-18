@@ -10,30 +10,18 @@ Before Phase 1 Initial Release
 To Complete Phase 1
 -------------------
 
-Guide to Issuing CMS MessageLogger Messages
-
-Finalize decision on  whether to hoist LogWarning etc to not be in 
-edm namespace (JBK likes it the way we have it).
-
-If no destinations attached, re-enable cerr.
-
+<ALL DONE!>
 		
-Decide whether debug is lowest or highest level.  (Have Jim's statement that
-it is lowest.)
-
-Add string name for debug's severity of DEBUG to map.
-
-Figure out how to allow proper specification of directory in which destination
-files are to appear.  First, CMS has to resolve how they want to do this sort of
-thing in general.
 
 Known for Phase 2
 -----------------
 
 statistics destination(s) 
 
-Destination connecting to log4cplusplus - or discussion about that with
-CMS and decision on what to do instead.
+Destination connecting to log4cplus - set up the basics involving
+EventFilter package dependency and so forth.
+
+Destination connecting to log4cplus - polish
 
 Information order (is time etc first or last...)
 
@@ -44,6 +32,24 @@ Deal with case of ofstream failing to construct.
 Multiple types in a message ID (note - this requires ErrorLogger work) -
 we need first to discuss the meaning of this, both in filtering and in
 statistics.
+
+Vet the Guide to Issuing CMS MessageLogger Messages
+
+If no destinations attached, re-enable cerr (may already be done)
+
+Add string name for debug's severity of DEBUG to map (may already be done)
+
+Figure out how CMS wants to specify which directory the log files should go to
+
+other filtering options
+
+context
+
+endl support
+
+multi-statement message building
+
+logger control after configuration - first decide if this is to be done at all
 
 			Recommended options
 			-------------------

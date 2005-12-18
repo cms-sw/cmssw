@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: FileInPath.cc,v 1.6 2005/11/15 14:38:57 paterno Exp $
+// $Id: FileInPath.cc,v 1.7.2.1 2005/12/08 11:21:26 sashby Exp $
 //
 // ----------------------------------------------------------------------
 
@@ -29,12 +29,12 @@ namespace
   /// These are the names of the environment variables which control
   /// the behavior  of the FileInPath  class.  They are local to  this
   /// class; other code should not even know about them!
-
+    
   const std::string PathVariableName("CMSSW_SEARCH_PATH");
-  const std::string DataVariableName("CMSSW_DATA_PATH");
-  const std::string ScramVariableName("LOCALRT");
-
-
+  // Environment variables for local and release areas: 
+  const std::string LOCALTOP("CMSSW_BASE");
+  const std::string RELEASETOP("CMSSW_RELEASE_BASE");
+        
   // Return false if the environment variable 'name is not found, and
   // true if it is found. If it is found, put the translation of the
   // environment variable into 'result'.
@@ -209,68 +209,25 @@ namespace edm
 	      tokens.end(),
 	      std::back_inserter<stringvec_t>(pathElements));
 
-
     stringvec_t::const_iterator it =  pathElements.begin();
     stringvec_t::const_iterator end = pathElements.end();
     while (it != end)
       {
-	
 	bf::path pathPrefix;
-	if ( *it == "."  || *it == "LOCAL" ) 
-	  {
-	    std::string prefix;
-	    if (getenv(ScramVariableName.c_str()) )
-	      {
-		envstring(ScramVariableName, prefix);
-	      }
-	    else
-	      {
-		if (getenv("SCRAMRT_LOCALRT"))
-		  {
-		    envstring("SCRAMRT_LOCALRT", prefix);
-		  }
-		else
-		  {
-		    throw edm::Exception(edm::errors::FileInPathError)
-		      << ScramVariableName
-		      << " is not defined\n";
-		  }
-	      }
-	    pathPrefix = prefix;
-	    pathPrefix /= "src";
-	  }
-	else if ( *it == DataVariableName )
-	  {
-	    std::string dirname;
-	    // We've already tested this translation, so don't bother
-	    // doing it again. We shouldn't even bother translating it
-	    // again...
-	    envstring(*it, dirname);
-	    pathPrefix = dirname;
-	  }
-	else
-	  {
-	    // This path entry is illegal.
-	    throw edm::Exception(edm::errors::FileInPathError)
-	      << "Illegal entry in "
-	      << PathVariableName
-	      << ": "
-	      << *it
-	      << ";\nLegal entries are LOCAL and "
-	      << DataVariableName
-	      << '\n';
-	  }
 
+	// Set the boost::fs path to the current element of
+	// CMSSW_SEARCH_PATH:
+	pathPrefix = *it;
 
 	// Does the a file exist? locateFile throws is it finds
 	// something goofy.
 	if ( locateFile(pathPrefix, relativePath_) )
 	  {
-	    // Convert relative path to canonical form, and save it.
-	    relativePath_ = bf::path(relativePath_).normalize().string();
-
-	    // Save the absolute path.
-	    canonicalFilename_ = bf::complete(relativePath_, 
+	  // Convert relative path to canonical form, and save it.
+	  relativePath_ = bf::path(relativePath_).normalize().string();
+	  
+	  // Save the absolute path.
+	  canonicalFilename_ = bf::complete(relativePath_, 
 					      pathPrefix ).string();
 	    if (canonicalFilename_.empty() )
 	      throw edm::Exception(edm::errors::FileInPathError)
@@ -279,12 +236,30 @@ namespace edm
 		<< "\npath prefix is: " << pathPrefix.string()
 		<< '\n';
 
-	    // Remember if the file was local.
-	    isLocal_ = ( (*it == ".") || 
-			 (*it == "LOCAL") );
+	    // From the current path element, find the branch path (basically the path minus the
+	    // last directory, e.g. /src or /share):
+	    bf::path br = pathPrefix.branch_path();	   	    
 
-	    // We're done...
+	    std::string localtop_;
+	    isLocal_ = false;
 
+	    // Check that LOCALTOP really has a value and store it:
+	    if (!envstring(LOCALTOP, localtop_))
+		throw edm::Exception(edm::errors::FileInPathError)
+		    << LOCALTOP
+		    << " must be defined - is runtime environment set correctly?\n";
+
+	    // Create a path object for our local path LOCALTOP:
+	    bf::path local_ = localtop_;
+	    
+	    // If the branch path matches the local path, the file was found locally:
+	    if (br == local_)
+	       {
+		   isLocal_ = true;
+	       }
+	    
+	    // We're done...indeed.
+	    
 	    // This is really gross --- this organization of if/else
 	    // inside the while-loop should be changed so that
 	    // this break isn't needed.
@@ -293,7 +268,7 @@ namespace edm
 	// Keep trying
 	++it;
       }
-
+    
     // If we got here, we ran out of path elements without finding
     // what we're looking found.
     throw edm::Exception(edm::errors::FileInPathError)
@@ -308,13 +283,9 @@ namespace edm
       << getenv(PathVariableName.c_str())
       << "\nCurrent directory is: "
       << bf::initial_path().string()
-      << "\n${"
-      << DataVariableName
-      << "} is: "
-      << getenv(DataVariableName.c_str())
-      << '\n';
+      << "\n";    
   }
-
+    
   
 }
 

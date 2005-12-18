@@ -4,10 +4,8 @@
  <use name=Utilities/General>
  <use name=DetectorDescription/Core>
  <use name=Geometry/Surface>
- <use name=boost>
 </export>
 
 <use name=Utilities/General>
 <use name=DetectorDescription/Core>
 <use name=Geometry/Surface>
-<use name=boost>

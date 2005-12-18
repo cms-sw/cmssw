@@ -40,9 +40,9 @@ void Field::GetFieldValue(const double xyz[3],double bfield[3]) const
     const GlobalPoint g(xyz[0]/cm,xyz[1]/cm,xyz[2]/cm);
 //    std::cout << "B-field(T) at " << g << (cm): " << pSetup->inTesla(g) << std::endl;
     GlobalVector v = theCMSMagneticField->inTesla(g);
-    b[0] = v.x();
-    b[1] = v.y();
-    b[2] = v.z();
+    b[0] = v.x()*tesla;
+    b[1] = v.y()*tesla;
+    b[2] = v.z()*tesla;
 
     oldx[0] = xyz[0]; 
     oldx[1] = xyz[1]; 

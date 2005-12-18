@@ -116,7 +116,15 @@
 </SolidSection>
 
 <LogicalPartSection label="cms.xml">
+ <LogicalPart name="World" category="unspecified">
+  <rSolid name="OCMS"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
  <LogicalPart name="OCMS" category="unspecified">
+  <rSolid name="OCMS"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
+ <LogicalPart name="MCMS" category="unspecified">
   <rSolid name="OCMS"/>
   <rMaterial name="materials:Air"/>
  </LogicalPart>
@@ -163,6 +171,14 @@
 </LogicalPartSection>
 
 <PosPartSection label="cms.xml">
+ <PosPart copyNumber="1">
+   <rParent name="cms:World"/>
+   <rChild name="cms:OCMS"/>
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="cms:World"/>
+   <rChild name="cms:MCMS"/>
+ </PosPart>
  <PosPart copyNumber="1">
    <rParent name="cms:OCMS"/>
    <rChild name="cms:CMSE"/>

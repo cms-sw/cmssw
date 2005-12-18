@@ -108,11 +108,11 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
   
   //std::cout <<"in the producer now " << std::endl;  
 
-  //for (int id=FEDNumbering::getCSCFEDIds().first;
-  //     id<=FEDNumbering::getCSCFEDIds().second; ++id){ //for each of our DCCs
+  for (int id=FEDNumbering::getCSCFEDIds().first;
+       id<=FEDNumbering::getCSCFEDIds().second; ++id){ //for each of our DCCs
 
     
-  for (int id=1873;id<=1873; ++id){ //for each of our DCCs
+  //for (int id=1873;id<=1873; ++id){ //for each of our DCCs
 
 
   //std::cout <<"in the loop of CSCFEDs now " << std::endl;

@@ -12,7 +12,6 @@
    <field name="branchName_" transient="true"/>
    <field name="productPtr_" transient="true"/>
  </class>
- <class name="edm::PS_ID"/>
  <class name="edmtest::DummyProduct"/>
  <class name="edmtest::IntProduct"/>
  <class name="edmtest::DoubleProduct"/>

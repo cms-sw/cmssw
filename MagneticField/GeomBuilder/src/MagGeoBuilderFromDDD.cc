@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2005/09/27 15:15:52 $
- *  $Revision: 1.3 $
+ *  $Date: 2005/12/08 22:13:25 $
+ *  $Revision: 1.5 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -20,9 +20,7 @@
 #include "MagneticField/Layers/interface/MagBLayer.h"
 #include "MagneticField/Layers/interface/MagESector.h"
 
-// #include "Utilities/UI/interface/SimpleConfigurable.h"
-#include "Utilities/General/interface/envUtil.h"
-#include "Utilities/General/interface/FileInPath.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
@@ -40,6 +38,7 @@
 
 #include "Geometry/Vector/interface/Pi.h"
 
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <string>
 #include <vector>
@@ -133,20 +132,27 @@ void MagGeoBuilderFromDDD::build(const DDCompactView & cpva)
 
   // Look for MAGF tree (any better way to find out???)
   //  fv.reset();
-  bool doSubDets = fv.firstChild();
 
-  bool go=true;
-  while(go) {
-    if (fv.logicalPart().name().name()=="MAGF")
-      break;
-    else
-      go = fv.nextSibling();
+  if (fv.logicalPart().name().name()!="MAGF") {
+     std::string topNodeName(fv.logicalPart().name().name());
+
+     //see if one of the children is MAGF
+     bool doSubDets = fv.firstChild();
+     
+     bool go=true;
+     while(go&& doSubDets) {
+	if (fv.logicalPart().name().name()=="MAGF")
+	   break;
+	else
+	   go = fv.nextSibling();
+     }
+     if (!go) {
+	throw cms::Exception("NoMAGFinDDD")<<" Neither he top node, nor any child node of the DDCompactView is \"MAGF\" but the top node is instead \""<<topNodeName<<"\"";
+     }
   }
-  if (!go) return;
-
   // Loop over MAGF volumes and create volumeHandles. 
   if (bldVerb::debugOut) cout << endl << "*** In MAGF: " << endl;
-  doSubDets = fv.firstChild();
+  bool doSubDets = fv.firstChild();
   while (doSubDets){
     
     string name = fv.logicalPart().name().name();
@@ -425,31 +431,20 @@ void MagGeoBuilderFromDDD::buildInterpolator(const volumeHandle * vol, map<strin
     cout << "***WARNING wrong sector? " << endl;
   }
 
+
+  // FIXME: should be a configurable parameter
+  string version="grid_85l_030919"; 
+  string fullPath;
+
   try {
-    string fullPath;
-    static string path;
-    static string relPath;    
-    if (path=="") {
-      // If Magfield_PATH is set, look for tables therein
-      envUtil eU("Magfield_PATH","");
-      path = eU.getEnv();
-      // Otherwise look within Geometry_PATH
-      if (path=="") {
-	envUtil eU("Geometry_PATH","");
-	path = eU.getEnv();
-	relPath = "Data/FieldTables/";
-      }
-    }
-     
-    FileInPath mydata(path, relPath+vol->magFile);
-    if (mydata()) {
-      fullPath = mydata.name();
-    } else {
-      cout << "ERROR: MagGeoBuilderFromDDD: table " << vol->magFile 
-	   << " not found!" << endl;
-      return;
-    }
-    
+    edm::FileInPath mydata("MagneticField/Interpolation/data/"+version+"/"+vol->magFile);
+    fullPath = mydata.fullPath();
+  } catch (edm::Exception& exc) {
+    cerr << "MagGeoBuilderFromDDD: exception in reading table; " << exc.what() << endl;
+    throw;
+  }
+  
+  try{
     if (vol->toExpand()){
       //FIXME
 //       interpolators[vol->magFile] =

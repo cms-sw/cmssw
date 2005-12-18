@@ -179,7 +179,7 @@ void CSCDDUEventData::unpack_data(unsigned short *buf) {
   if (errorstat != 0) {
     std::cout << "+++ CSCDDUEventData warning: DDU Trailer errors = " << std::hex
          << errorstat << std::dec << " +++ " << std::endl;
-    if (debug) decodeStatus(errorstat);
+    decodeStatus(errorstat);
   }
    
   if (debug) std::cout << " Final errorstat " << std::hex << errorstat << std::endl;

@@ -2,7 +2,7 @@
 #include "SimG4Core/Physics/interface/DDG4ProductionCuts.h"
 
 PhysicsList::PhysicsList(const edm::ParameterSet & p) 
-    : G4VModularPhysicsList(), m_pPhysics(p) 
+  : G4VModularPhysicsList(), m_pPhysics(p),  prodCuts(0)
 {
     //if (m_pPhysics.getParameter<bool>("CutsPerRegion")) 
       // prodCuts = new DDG4ProductionCuts();	

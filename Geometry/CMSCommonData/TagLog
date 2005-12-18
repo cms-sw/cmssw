@@ -1,3 +1,12 @@
+** V00-03-05  [Mon Dec 12 17:59:44 2005]
+Parallel top level volumes for simulation and mag field geometry
+
+** V00-03-04  [Sun Dec 11 17:16:05 2005]
+mike's simple test cfg
+
+** V00-03-03  [Thu Dec  8 23:30:03 2005]
+in MagneticFieldVolumes.xml made SpecPars relative to MAGF
+
 ** V00-03-02  [Wed Dec  7 17:14:29 2005]
 Remove color.xml and add production cuts
 

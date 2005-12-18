@@ -5,23 +5,27 @@
   
 ModuleDescription: The description of a producer module.
 
-$Id: ModuleDescription.h,v 1.4 2005/07/26 23:12:02 wmtan Exp $
+$Id: ModuleDescription.h,v 1.6 2005/12/12 23:07:48 paterno Exp $
 ----------------------------------------------------------------------*/
 #include <string>
 #include <iostream>
 
 #include "FWCore/Framework/interface/PassID.h"
-#include "FWCore/Framework/interface/PS_ID.h"
+#include "FWCore/EDProduct/interface/ParameterSetID.h"
 #include "FWCore/Framework/interface/VersionNumber.h"
 
 namespace edm {
+
+  // Needed temporarily for backward compatibility.
+  // Other input services still refer to PS_ID.
+  typedef ParameterSetID PS_ID;
 
   // once a module is born, these parts of the module's product provenance
   // are constant   (change to ModuleDescription)
   struct ModuleDescription {
 
     // ID of parameter set of the creator
-    PS_ID pid;
+    ParameterSetID pid;
 
     // The class name of the creator
     std::string moduleName_;    

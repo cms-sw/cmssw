@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2005/09/27 15:15:52 $
- *  $Revision: 1.3 $
+ *  $Date: 2005/10/26 18:33:19 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -31,7 +31,7 @@ MagGeometry::MagGeometry(const edm::ParameterSet& config, std::vector<MagBLayer 
 {
   
   tolerance = config.getParameter<double>("findVolumeTolerance");
-  cacheLastVolume = config.getParameter<bool>("cacheLastVolume");
+  cacheLastVolume = config.getUntrackedParameter<bool>("cacheLastVolume");
   timerOn = config.getUntrackedParameter<bool>("timerOn", false);
 
 

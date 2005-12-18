@@ -67,7 +67,6 @@ class PixelThresholdClusterizer : public PixelClusterizerBase
   std::vector<SiPixelCluster> 
     clusterizeDetUnit( DigiIterator begin, DigiIterator end,
 		       unsigned int detid,
-		       const PixelGeomDetUnit * pixDet,
 		       const std::vector<float>& noiseVec,
 		       const std::vector<short>& badChannels);
   
@@ -85,13 +84,13 @@ class PixelThresholdClusterizer : public PixelClusterizerBase
   // TO DO: vector<RecHit> theRecHits;
   
   //! Clustering-related quantities:
-  float thePixelThresholdInNoiseUnits;    // Pixel threshold in units of noise
-  float theSeedThresholdInNoiseUnits;     // Pixel cluster seed in units of noise
-  float theClusterThresholdInNoiseUnits;  // Cluster threshold in units of noise
+  float thePixelThresholdInNoiseUnits;  //Pixel threshold in units of noise
+  float theSeedThresholdInNoiseUnits;  //Pixel cluster seed in units of noise
+  float theClusterThresholdInNoiseUnits;//Cluster threshold in units of noise
 
-  int   thePixelThreshold;    // Pixel threshold in adc counts
-  int   theSeedThreshold;     // Seed threshold in units of adc counts 
-  float theClusterThreshold;  // Cluster threshold in units of adc counts
+  int   thePixelThreshold;   //Pixel threshold in adc counts
+  int   theSeedThreshold;    //Seed threshold in units of adc counts 
+  float theClusterThreshold; //Cluster threshold in units of adc counts
 
 
   //! Geometry-related information
@@ -100,7 +99,7 @@ class PixelThresholdClusterizer : public PixelClusterizerBase
 
 
   //! Private helper methods:
-  bool setup( unsigned int detid, const PixelGeomDetUnit * pixDet );
+  bool setup( unsigned int detid );
   void copy_to_buffer( DigiIterator begin, DigiIterator end );   
   void clear_buffer( DigiIterator begin, DigiIterator end );   
   SiPixelCluster make_cluster( const SiPixelCluster::PixelPos& pix );
@@ -119,3 +118,7 @@ class PixelThresholdClusterizer : public PixelClusterizerBase
 };
 
 #endif
+
+
+
+

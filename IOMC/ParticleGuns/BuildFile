@@ -1,0 +1,13 @@
+<use name=boost>
+<use name=FWCore/Framework>
+<use name=SimDataFormats/HepMCProduct>
+<use name=clhep> 
+<flags SEAL_PLUGIN_NAME="IOMCParticleGuns">
+<export>
+ <lib name=IOMCParticleGuns>
+ <use name=boost>
+ <use name=FWCore/Framework>
+ <use name=SimDataFormats/HepMCProduct>
+ <use name=clhep> 
+</export>
+

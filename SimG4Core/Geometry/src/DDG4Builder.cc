@@ -174,7 +174,7 @@ G4LogicalVolume * DDG4Builder::BuildGeometry()
 	}  
     }
       
-    G4LogicalVolume * world = logs_[DDCompactView().root()];
+    G4LogicalVolume * world = logs_[compactView->root()];
 
     //
     //  needed for building sensitive detectors

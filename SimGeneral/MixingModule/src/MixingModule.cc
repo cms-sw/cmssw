@@ -29,11 +29,7 @@ namespace edm
       if (!desc.productInstanceName_.compare(0,8,"EcalHits") || !desc.productInstanceName_.compare(0,8,"HcalHits" )) caloSubdetectors_.push_back(desc.productInstanceName_);
       else if (!desc.productInstanceName_.compare(0,11,"TrackerHits") || !desc.productInstanceName_.compare(0,4,"Muon")) trackerSubdetectors_.push_back(desc.productInstanceName_);
     }
-    // just for test
-    for(std::vector<std::string >::const_iterator itstr = trackerSubdetectors_.begin(); itstr != trackerSubdetectors_.end(); ++itstr) printf("Tracker subdetector %s\n",(*itstr).c_str());
-    for(std::vector<std::string >::const_iterator itstr = caloSubdetectors_.begin(); itstr != caloSubdetectors_.end(); ++itstr) printf("Calo subdetector %s\n",(*itstr).c_str());
 
-       // end test
     produces<CrossingFrame> ();
      
   }

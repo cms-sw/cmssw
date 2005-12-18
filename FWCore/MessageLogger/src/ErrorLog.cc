@@ -28,6 +28,10 @@
 // 3/17/04 mf   spaces after ints.
 // 3/17/04 mf   exit threshold
 //
+// --- CMS
+//
+// 12/12/05 mf	replace exit() with throw
+//
 // ----------------------------------------------------------------------
 
 
@@ -41,9 +45,11 @@
 #include "FWCore/MessageLogger/interface/ELoutput.h"
 #include "FWCore/MessageLogger/interface/ELrecv.h"
 #include "FWCore/MessageLogger/interface/ELcontextSupplier.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 #include <iostream>
 #include <iomanip>
+#include <sstream>
 
 // Possible Traces:
 // #define ErrorLogCONSTRUCTOR_TRACE
@@ -151,14 +157,28 @@ void ErrorLog::setSubroutine( const ELstring & subName )  {
 
 }  // setSubroutine()
 
+static inline void msgexit(int s) {
+  std::ostringstream os;
+  os << "msgexit - MessageLogger Log requested to exit with status " << s;
+  edm::Exception e(edm::errors::LogicError, os.str());
+  throw e;
+}
+
+static inline void msgabort() {
+  std::ostringstream os;
+  os << "msgabort - MessageLogger Log requested to abort";
+  edm::Exception e(edm::errors::LogicError, os.str());
+  throw e;
+}
+
 static inline void possiblyAbOrEx (int s, int a, int e) {
   if (s < a && s < e) return;
   if (a < e) {
-    if ( s < e ) abort();
-    exit(s);
+    if ( s < e ) msgabort();
+    msgexit(s);
   } else {
-    if ( s < a ) exit(s);
-    abort();
+    if ( s < a ) msgexit(s);
+    msgabort();
   }
 }
 

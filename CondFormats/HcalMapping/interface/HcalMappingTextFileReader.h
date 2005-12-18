@@ -22,8 +22,8 @@
    Column 11: IPHI
    Column 12: Depth
     
-   $Date: 2005/10/04 14:32:40 $
-   $Revision: 1.2 $
+   $Date: 2005/07/26 15:11:32 $
+   $Revision: 1.1 $
    \author J. Mans - Minnesota
 */
 class HcalMappingTextFileReader {

@@ -1,3 +1,6 @@
+** V01-00-03  [Fri Dec  9 02:36:32 2005]
+TouchableToHistory now gets the DDCompactView passed to TkAccumulatingSensitiveDetector. This guarantees consistency.
+
 ** V01-00-02  [Wed Dec  7 16:01:01 2005]
 bug fix
 

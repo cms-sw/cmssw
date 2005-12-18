@@ -5,10 +5,8 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCEventData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDDUEventData.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCMonitorInterface.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
@@ -21,7 +19,7 @@ using namespace std;
 
 
 
-class CSCMonitor : public CSCMonitorInterface{
+class CSCMonitor {
 public:
    explicit CSCMonitor( const edm::ParameterSet& );
    ~CSCMonitor();
@@ -29,15 +27,11 @@ public:
  
   void process(CSCDCCEventData & dccData);
   
-  void MonitorDDU(const CSCDDUEventData& dduEvent, int dduNumber);
-  void MonitorDMB(std::vector<CSCEventData>::iterator data);
- 
+  void MonitorDDU(const CSCDDUEventData& dduEvent);
+  
   
   map<string, MonitorElement*> book_chamber(int chamberID);
-  map<string, MonitorElement*> book_common(int dduNumber);
-
-  static const int maxDDU=50; 
-  static const int maxCMBID=36; 
+  map<string, MonitorElement*> book_common();
 
 private:
 
@@ -46,11 +40,8 @@ private:
   DaqMonitorBEInterface * dbe;
 
 
-  map<int, map<string, MonitorElement *> > meDDU;
-  map<int, map<string, MonitorElement *> > meChamber;
-  bool dduBooked[maxDDU];
-  bool cmbBooked[maxCMBID];
-
+  map<int, map<string, MonitorElement *> > meCollection;
+  
   bool printout;
   
   int nEvents;

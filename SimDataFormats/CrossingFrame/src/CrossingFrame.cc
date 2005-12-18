@@ -12,7 +12,7 @@ CrossingFrame::CrossingFrame(int minb, int maxb, int bunchsp, std::vector<std::s
     for(std::vector<std::string >::const_iterator it = trackersubdetectors.begin(); it != trackersubdetectors.end(); ++it) {  
       vector<PSimHitContainer> myvec(-minb+maxb+1);
       pileupSimHits_.insert(map <string, vector<PSimHitContainer> >::value_type((*it),myvec));
-    }
+     }
 
     // for calos
     for(vector<string >::const_iterator it = calosubdetectors.begin(); it != calosubdetectors.end(); ++it) {  
@@ -145,14 +145,14 @@ void CrossingFrame::print(int level) const {
       cout<<" track "<<j<<" has vertex pointer "<< signalTracks_[j].vertIndex()<<" and genpartindex "<<signalTracks_[j].genpartIndex()<<endl;
   }
   cout <<" Number of vertices in signal "<< signalVertices_.size()<<endl;
-  // 	if (level>=2) {
-  // 	  for (unsigned int j=0;j<signalVertices_.size();++j) 
-  //  	    cout<<" vertex "<<j<<" has track pointer "<< signalVertices_[j].parentIndex()<<endl;
-  // 	}
+  	if (level>=2) {
+  	  for (unsigned int j=0;j<signalVertices_.size();++j) 
+   	    cout<<" vertex "<<j<<" has track pointer "<< signalVertices_[j].parentIndex()<<endl;
+  	}
 
-  //
-  // print for next higher level (pileups)
-  //
+  
+	//  print for next higher level (pileups)
+  
   if (level<1) return;
   cout<<"\nPileups:"<<endl;
   map<string,vector<PSimHitContainer> >::const_iterator itsim;

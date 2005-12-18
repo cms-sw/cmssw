@@ -8,6 +8,6 @@
   <class name="std::map<std::string,std::vector<std::vector<PCaloHit> > >"/>
   <class name="std::map<std::string,std::vector<std::vector<PSimHit> > >"/>
   <class name="CrossingFrame"/>
-  <class name="edm::Wrapper<CrossingFrame>" id="9CD9116F-67FF-A3D8-EB12-11C02FE4F9A3"/>
+  <class name="edm::Wrapper<CrossingFrame>"/>
 </lcgdict>
 

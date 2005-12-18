@@ -1,71 +1,15 @@
 using namespace std;
+#include "SimCalorimetry/HcalSimProducers/src/HcalDigiProducer.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/EDProduct/interface/EDProduct.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Handle.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "SimCalorimetry/CaloSimAlgos/interface/CaloHitResponse.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloTDigitizer.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HcalSimParameterMap.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HcalShape.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HFShape.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HcalElectronicsSim.h"
+#include "SimCalorimetry/CaloSimAlgos/interface/CaloShapeIntegrator.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
-#include "CalibFormats/HcalObjects/interface/HcalNominalCoder.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HcalNoisifier.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HcalDigitizerTraits.h"
-#include "SimDataFormats/CaloHit/interface/PCaloHit.h"
-
-using namespace cms;
-
-
-class HcalDigiProducer : public edm::EDProducer
-{
-public:
-
-  explicit HcalDigiProducer(const edm::ParameterSet& ps);
-  virtual ~HcalDigiProducer();
-
-  /**Produces the EDM products,*/
-  virtual void produce(edm::Event& e, const edm::EventSetup& c);
-
-private:
-  /// some hits in each subdetector, just for testing purposes
-  void fillFakeHits();
-  /// make sure the digitizer has the correct list of all cells that
-  /// exist in the geometry
-  void checkGeometry(const edm::EventSetup& eventSetup);
-
-  /** Reconstruction algorithm*/
-  typedef CaloTDigitizer<HBHEDigitizerTraits> HBHEDigitizer;
-  typedef CaloTDigitizer<HODigitizerTraits> HODigitizer;
-  typedef CaloTDigitizer<HFDigitizerTraits> HFDigitizer;
-
-  HBHEDigitizer * theHBHEDigitizer;
-  HODigitizer* theHODigitizer;
-  HFDigitizer* theHFDigitizer;
-
-  CaloVSimParameterMap * theParameterMap;
-  CaloVShape * theHcalShape;
-  CaloVShape * theHFShape;
-
-  CaloHitResponse * theHcalResponse;
-  CaloHitResponse * theHFResponse;
-
-  HcalNoisifier * theNoisifier;
-  HcalCoder * theCoder;
-
-  HcalElectronicsSim * theElectronicsSim;
-
-  std::vector<PCaloHit> theHBHEHits, theHOHits, theHFHits;
-};
 
 
 HcalDigiProducer::HcalDigiProducer(const edm::ParameterSet& ps) {
@@ -77,9 +21,13 @@ HcalDigiProducer::HcalDigiProducer(const edm::ParameterSet& ps) {
   theParameterMap = new HcalSimParameterMap();
   theHcalShape = new HcalShape();
   theHFShape = new HFShape();
+  theHcalIntegratedShape = new CaloShapeIntegrator(theHcalShape);
+  theHFIntegratedShape = new CaloShapeIntegrator(theHFShape);
 
-  theHcalResponse = new CaloHitResponse(theParameterMap, theHcalShape);
-  theHFResponse = new CaloHitResponse(theParameterMap, theHFShape);
+
+
+  theHcalResponse = new CaloHitResponse(theParameterMap, theHcalIntegratedShape);
+  theHFResponse = new CaloHitResponse(theParameterMap, theHFIntegratedShape);
 
 
   theNoisifier = new HcalNoisifier();
@@ -97,6 +45,8 @@ HcalDigiProducer::~HcalDigiProducer() {
   delete theParameterMap;
   delete theHcalShape;
   delete theHFShape;
+  delete theHcalIntegratedShape;
+  delete theHFIntegratedShape;
   delete theHcalResponse;
   delete theHFResponse;
   delete theElectronicsSim;
@@ -106,7 +56,6 @@ HcalDigiProducer::~HcalDigiProducer() {
 
 
 void HcalDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
-std::cout << "DIGIPRODUCER" << std::endl;
   // get the appropriate gains, noises, & widths for this event
   edm::ESHandle<HcalDbService> conditions;
   eventSetup.get<HcalDbRecord>().get(conditions);
@@ -119,9 +68,11 @@ std::cout << "DIGIPRODUCER" << std::endl;
   theHOHits.clear();
   theHFHits.clear();
   // Step A: Get Inputs
-  //edm::Handle<vector<CaloHit> > allHits;  //Fancy Event Pointer to CaloTowers
-  //e.getByLabel("CaloHits", allHits);           //Set pointer to CaloTowers
-  fillFakeHits();
+
+  edm::Handle<edm::PCaloHitContainer> hcalHits;
+  e.getByLabel("r", "HcalHits", hcalHits);
+  sortHits(*hcalHits);
+//  fillFakeHits();
 
 
   // Step B: Create empty output
@@ -144,6 +95,27 @@ std::cout << "DIGIPRODUCER" << std::endl;
 
 }
 
+
+void HcalDigiProducer::sortHits(const edm::PCaloHitContainer & hits)
+{
+  for(edm::PCaloHitContainer::const_iterator hitItr = hits.begin();
+      hitItr != hits.end(); ++hitItr)
+  {
+    HcalSubdetector subdet = HcalDetId(hitItr->id()).subdet();
+    if(subdet == HcalBarrel || subdet == HcalEndcap) {
+      theHBHEHits.push_back(*hitItr);
+    }
+    else if(subdet == HcalForward) {
+      theHFHits.push_back(*hitItr);
+    }
+    else if(subdet == HcalOuter) {
+      theHOHits.push_back(*hitItr);
+    }
+    else {
+      std::cerr << "ERROR : bad HcalHit subdetector " << std::endl;
+    }
+  }
+}
 
 void HcalDigiProducer::fillFakeHits() {
   HcalDetId barrelDetId(HcalBarrel, 1, 1, 1);
@@ -188,9 +160,4 @@ void HcalDigiProducer::checkGeometry(const edm::EventSetup & eventSetup) {
   theHFDigitizer->setDetIds(hfCells);
 }
 
-
-#include "PluginManager/ModuleDef.h"
-
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(HcalDigiProducer)
 

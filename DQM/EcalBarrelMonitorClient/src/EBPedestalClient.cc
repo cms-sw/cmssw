@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  * 
- * $Date: 2005/12/05 09:31:35 $
- * $Revision: 1.33 $
+ * $Date: 2005/12/02 15:48:25 $
+ * $Revision: 1.32 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -45,17 +45,17 @@ EBPedestalClient::EBPedestalClient(const edm::ParameterSet& ps, MonitorUserInter
 
   }
 
-  expectedMean_[0] = 200;
   expectedMean_[1] = 200;
   expectedMean_[2] = 200;
+  expectedMean_[3] = 200;
 
-  discrepancyMean_[0] = 20;
   discrepancyMean_[1] = 20;
   discrepancyMean_[2] = 20;
+  discrepancyMean_[3] = 20;
 
-  RMSThreshold_[0] = 1;
   RMSThreshold_[1] = 1;
-  RMSThreshold_[2] = 2;
+  RMSThreshold_[2] = 1;
+  RMSThreshold_[3] = 2;
  
 }
 
@@ -218,9 +218,9 @@ void EBPedestalClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag
 
           if ( g01_[ism-1] ) {
             val = 1.;
-            if ( abs(mean01 - expectedMean_[0]) > discrepancyMean_[0] )
+            if ( abs(mean01 - expectedMean_[1]) > discrepancyMean_[1] )
               val = 0.;
-            if ( rms01 > RMSThreshold_[0] )
+            if ( rms01 > RMSThreshold_[1] )
               val = 0.;
             g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), val);
           }
@@ -233,9 +233,9 @@ void EBPedestalClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag
 
           if ( g02_[ism-1] ) {
             val = 1.;
-            if ( abs(mean02 - expectedMean_[1]) > discrepancyMean_[1] )
+            if ( abs(mean02 - expectedMean_[2]) > discrepancyMean_[2] )
               val = 0.;
-            if ( rms02 > RMSThreshold_[1] )
+            if ( rms02 > RMSThreshold_[2] )
               val = 0.;
             g02_[ism-1]->SetBinContent(g02_[ism-1]->GetBin(ie, ip), val);
           }
@@ -248,9 +248,9 @@ void EBPedestalClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag
 
           if ( g03_[ism-1] ) {
             val = 1.;
-            if ( abs(mean03 - expectedMean_[2]) > discrepancyMean_[2] )
+            if ( abs(mean03 - expectedMean_[3]) > discrepancyMean_[3] )
               val = 0.;
-            if ( rms03 > RMSThreshold_[2] )
+            if ( rms03 > RMSThreshold_[3] )
               val = 0.;
             g03_[ism-1]->SetBinContent(g03_[ism-1]->GetBin(ie, ip), val);
           }

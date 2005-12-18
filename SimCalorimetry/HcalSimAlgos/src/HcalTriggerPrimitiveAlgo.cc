@@ -21,7 +21,7 @@ HcalTriggerPrimitiveAlgo::HcalTriggerPrimitiveAlgo()
   HcalSimParameterMap parameterMap;
   theHBHECalibrationConstant = parameterMap.hbheParameters().calibrationConstant();
   theHFCalibrationConstant = parameterMap.hfParameters1().calibrationConstant();
-  std::cout << "Calibration constants for HCAL Trigger: " << theHBHECalibrationConstant << " " << theHFCalibrationConstant << std::endl;
+  std::cout << "[HcalTriggerPrimitiveAlgo] Calibration constants: " << theHBHECalibrationConstant << " " << theHFCalibrationConstant << std::endl;
 }
 
 
@@ -109,7 +109,6 @@ void HcalTriggerPrimitiveAlgo::transverseComponent(CaloSamples & samples,
 
 
 void HcalTriggerPrimitiveAlgo::addSignal(const CaloSamples & samples) {
-std::cout << "SIGNAL " << samples << std::endl;
   HcalTrigTowerDetId id(samples.id());
   SumMap::iterator itr = theSumMap.find(id);
   if(itr == theSumMap.end()) {
@@ -147,6 +146,7 @@ void HcalTriggerPrimitiveAlgo::analyze(const CaloSamples & samples,
         int bunch = ibin-5;
         ++n;
         HcalTriggerPrimitiveRecHit trigPrim(detId, et, 0., bunch, 0, n);
+std::cout << trigPrim << std::endl;
         result.push_back( trigPrim );
       }
     }
