@@ -1,8 +1,8 @@
 /*
  * \file EBPedPreSampleClient.cc
  * 
- * $Date: 2005/12/15 15:54:46 $
- * $Revision: 1.43 $
+ * $Date: 2005/12/18 09:38:54 $
+ * $Revision: 1.44 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -158,16 +158,11 @@ void EBPedPreSampleClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, Ru
 //          p.setPedMeanG12(mean03);
 //          p.setPedRMSG12(rms03);
 
-          float val;
-
-          val = 1.;
-
-          if ( abs(mean03 - expectedMean_) > discrepancyMean_ )
-            val = 0.;
-          if ( rms03 > RMSThreshold_ )
-            val = 0.;
-
-//          p.setTaskStatus(val);
+//          if ( g03_[ism-1]->GetBinContent(g03_[ism-1]->GetBin(ie, ip)) == 1. ) {
+//             p.setTaskStatus(true);
+//          } else {
+//             p.setTaskStatus(false);
+//          }
 
           if ( econn ) {
             try {
@@ -301,6 +296,8 @@ void EBPedPreSampleClient::analyze(const edm::Event& e, const edm::EventSetup& c
     float num03;
     float mean03;
     float rms03;
+
+    g03_[ism-1]->Reset();
 
     p03_[ism-1]->Reset();
 

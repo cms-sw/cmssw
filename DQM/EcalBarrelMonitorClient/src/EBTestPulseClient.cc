@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  * 
- * $Date: 2005/12/15 15:54:46 $
- * $Revision: 1.42 $
+ * $Date: 2005/12/18 10:40:52 $
+ * $Revision: 1.43 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -239,44 +239,19 @@ void EBTestPulseClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
           adc.setADCMean(mean01);
           adc.setADCRMS(rms01);
 
-          float val;
-
-          val = 1.;
-
-          if ( mean01 < amplitudeThreshold_ )
-            val = 0.;
-          if ( rms01 > RMSThreshold_ )
-            val = 0.;
-          if ( he01_[ism-1] ) {
-            float errorRate = he01_[ism-1]->GetBinContent(he01_[ism-1]->GetBin(ie, ip)) / numEventsinCry[1];
-            if ( errorRate > threshold_on_AmplitudeErrorsNumber_ ) val = 0.;
-          }
-
           // adc.setADCMean(mean02);
           // adc.setADCRMS(rms02);
-
-          if ( mean02 < amplitudeThreshold_ )
-            val = 0.;
-          if ( rms02 > RMSThreshold_ )
-            val = 0.;
-          if ( he02_[ism-1] ) {
-            float errorRate = he02_[ism-1]->GetBinContent(he02_[ism-1]->GetBin(ie, ip)) / numEventsinCry[2];
-            if ( errorRate > threshold_on_AmplitudeErrorsNumber_ ) val = 0.;
-          }
 
           // adc.setADCMean(mean03);
           // adc.setADCRMS(rms03);
 
-          if ( mean03 < amplitudeThreshold_ )
-            val = 0.;
-          if ( rms03 > RMSThreshold_ )
-            val = 0.;
-          if ( he03_[ism-1] ) {
-            float errorRate = he03_[ism-1]->GetBinContent(he03_[ism-1]->GetBin(ie, ip)) / numEventsinCry[3];
-            if ( errorRate > threshold_on_AmplitudeErrorsNumber_ ) val = 0.;
+          if ( g01_[ism-1]->GetBinContent(g01_[ism-1]->GetBin(ie, ip)) == 1. &&
+               g02_[ism-1]->GetBinContent(g02_[ism-1]->GetBin(ie, ip)) == 1. &&
+               g03_[ism-1]->GetBinContent(g03_[ism-1]->GetBin(ie, ip)) == 1. ) {
+            adc.setTaskStatus(true);
+          } else {
+            adc.setTaskStatus(false);
           }
-
-          adc.setTaskStatus(val);
 
           if ( ie == 1 && ip == 1 ) {
 
@@ -688,6 +663,10 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
     float num01, num02, num03;
     float mean01, mean02, mean03;
     float rms01, rms02, rms03;
+
+    g01_[ism-1]->Reset();
+    g02_[ism-1]->Reset();
+    g03_[ism-1]->Reset();
 
     a01_[ism-1]->Reset();
     a02_[ism-1]->Reset();

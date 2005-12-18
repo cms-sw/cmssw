@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  * 
- * $Date: 2005/12/15 15:54:46 $
- * $Revision: 1.38 $
+ * $Date: 2005/12/18 09:38:54 $
+ * $Revision: 1.39 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -227,26 +227,13 @@ void EBPedestalClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag
           p.setPedMeanG12(mean03);
           p.setPedRMSG12(rms03);
 
-          float val;
-
-          val = 1.;
-
-          if ( abs(mean01 - expectedMean_[0]) > discrepancyMean_[0] )
-            val = 0.;
-          if ( rms01 > RMSThreshold_[0] )
-            val = 0.;
-
-          if ( abs(mean02 - expectedMean_[1]) > discrepancyMean_[1] )
-            val = 0.;
-          if ( rms02 > RMSThreshold_[1] )
-            val = 0.;
-
-          if ( abs(mean03 - expectedMean_[2]) > discrepancyMean_[2] )
-            val = 0.;
-          if ( rms03 > RMSThreshold_[2] )
-            val = 0.;
-
-          p.setTaskStatus(val);
+          if ( g01_[ism-1]->GetBinContent(g01_[ism-1]->GetBin(ie, ip)) == 1. &&
+               g02_[ism-1]->GetBinContent(g02_[ism-1]->GetBin(ie, ip)) == 1. &&
+               g03_[ism-1]->GetBinContent(g03_[ism-1]->GetBin(ie, ip)) == 1. ) {
+            p.setTaskStatus(true);
+          } else {
+            p.setTaskStatus(false);
+          }
 
           if ( econn ) {
             try {
@@ -436,6 +423,10 @@ void EBPedestalClient::analyze(const edm::Event& e, const edm::EventSetup& c){
     float num01, num02, num03;
     float mean01, mean02, mean03;
     float rms01, rms02, rms03;
+
+    g01_[ism-1]->Reset();
+    g02_[ism-1]->Reset();
+    g03_[ism-1]->Reset();
 
     p01_[ism-1]->Reset();
     p02_[ism-1]->Reset();
