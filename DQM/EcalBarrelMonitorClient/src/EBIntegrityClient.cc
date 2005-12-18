@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  * 
- * $Date: 2005/12/15 14:20:30 $
- * $Revision: 1.45 $
+ * $Date: 2005/12/15 15:54:46 $
+ * $Revision: 1.46 $
  * \author G. Della Ricca
  *
 */
@@ -124,6 +124,7 @@ void EBIntegrityClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
 
   cout << "Writing RunConsistencyDatObjects to database ..." << endl;
 
+  const float n_min_tot = 0.;
   const float n_min_bin = 0.;
 
   float num00;
@@ -140,41 +141,37 @@ void EBIntegrityClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
         
         // cout << "Number of events per crystal (" << ie << "," << ip << ") SM " << ism << " " << numEventsinCry << endl;
 
-        if ( numEventsinCry > n_min_bin ) {
+        if ( numEventsinCry > n_min_tot ) {
           
           num00 = -1.;
-          
-          if ( h00_ ) {
-            num00  = h00_->GetBinContent(h00_->GetBin(ie, ip));
-          }
-          
+
           num01 = num02 = num03 = num04 = -1.;
-          
+
           bool update_channel = false;
-          bool update_channel_db = false;
-          
+
+          if ( h00_ ) {
+            num00  = h00_->GetBinContent(h00_->GetBin(ism));
+//            if ( num00 > n_min_bin ) update_channel = true;
+          }
+
           if ( h01_[ism-1] ) {
             num01  = h01_[ism-1]->GetBinContent(h01_[ism-1]->GetBin(ie, ip));
-            update_channel = true;
-            if ( num01 > 0 ) update_channel_db = true;
+            if ( num01 > n_min_bin ) update_channel = true;
           }
 
           if ( h02_[ism-1] ) {
             num02  = h02_[ism-1]->GetBinContent(h02_[ism-1]->GetBin(ie, ip));
-            update_channel = true;
-            if ( num02 > 0 ) update_channel_db = true;
+            if ( num02 > n_min_bin ) update_channel = true;
           }
 
           if ( h03_[ism-1] ) {
             num03  = h03_[ism-1]->GetBinContent(h03_[ism-1]->GetBin(ie, ip));
-            update_channel = true;
-            if ( num03 > 0 ) update_channel_db = true;
+            if ( num03 > n_min_bin ) update_channel = true;
           }
 
           if ( h04_[ism-1] ) {
             num04  = h04_[ism-1]->GetBinContent(h04_[ism-1]->GetBin(ie, ip));
-            update_channel = true;
-            if ( num04 > 0 ) update_channel_db = true;
+            if ( num04 > n_min_bin ) update_channel = true;
           }
 
           if ( update_channel ) {
@@ -187,37 +184,31 @@ void EBIntegrityClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
 
             }
 
-            if ( update_channel_db ) {
-              c.setExpectedEvents(0);
-              c.setProblemsInGain(int(num01));
-              c.setProblemsInId(int(num02));
-              c.setProblemsInSample(int(-999));
-              c.setProblemsInADC(int(-999));
-            }
+            c.setExpectedEvents(0);
+            c.setProblemsInGain(int(num01));
+            c.setProblemsInId(int(num02));
+            c.setProblemsInSample(int(-999));
+            c.setProblemsInADC(int(-999));
 
-            float val;
+//            if ( g01_[ism-1]->GetBinContent(g01_[ism-1]->GetBin(ie, ip)) == 1. ) {
+//               c.setTaskStatus(true);
+//            } else {
+//               c.setTaskStatus(false);
+//            }
 
-            if ( g01_[ism-1] ) {
-              val = 1.;
-              if ( (( num01 + num02 ) / numEventsinCry / 2. ) > threshCry_ ) 
-                val = 0.;
-              g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), val);
-            }
-
-            if ( update_channel_db ) {
-              if ( econn ) {
-                try {
-                  ecid = econn->getEcalLogicID("EB_crystal_index", ism, ie-1, ip-1);
-                  dataset[ecid] = c;
-                } catch (runtime_error &e) {
-                  cerr << e.what() << endl;
-                }
+            if ( econn ) {
+              try {
+                ecid = econn->getEcalLogicID("EB_crystal_index", ism, ie-1, ip-1);
+                dataset[ecid] = c;
+              } catch (runtime_error &e) {
+                cerr << e.what() << endl;
               }
             }
 
           }
         
         }
+
       }
     }
     
@@ -479,6 +470,70 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
         sprintf(histo, "ME EI TTBlockSize SM%02d", ism);
         h04_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
 //        h04_[ism-1] = dynamic_cast<TH2F*> (ob->operator->());
+      }
+    }
+
+    const float n_min_bin = 0.;
+
+    float num00;
+
+    float num01, num02, num03, num04;
+
+    for ( int ie = 1; ie <= 85; ie++ ) {
+      for ( int ip = 1; ip <= 20; ip++ ) {
+
+        float numEventsinCry = 0.;
+        if ( h_[ism-1] ) numEventsinCry = h_[ism-1]->GetBinEntries(h_[ism-1]->GetBin(ie, ip)) / 3.;
+
+        // cout << "Number of events per crystal (" << ie << "," << ip << ") SM " << ism << " " << numEventsinCry << endl;
+
+        if ( numEventsinCry > n_min_bin ) {
+
+          num00 = 0.;
+
+          if ( h00_ ) {
+            num00  = h00_->GetBinContent(h00_->GetBin(ie, ip));
+          }
+
+          num01 = num02 = num03 = num04 = 0.;
+
+          bool update_channel = false;
+
+          g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), 2.);
+
+          if ( h01_[ism-1] ) {
+            num01  = h01_[ism-1]->GetBinContent(h01_[ism-1]->GetBin(ie, ip));
+            update_channel = true;
+          }
+
+          if ( h02_[ism-1] ) {
+            num02  = h02_[ism-1]->GetBinContent(h02_[ism-1]->GetBin(ie, ip));
+            update_channel = true;
+          }
+
+          if ( h03_[ism-1] ) {
+            num03  = h03_[ism-1]->GetBinContent(h03_[ism-1]->GetBin(ie, ip));
+            update_channel = true;
+          }
+
+          if ( h04_[ism-1] ) {
+            num04  = h04_[ism-1]->GetBinContent(h04_[ism-1]->GetBin(ie, ip));
+            update_channel = true;
+          }
+
+          if ( update_channel ) {
+
+            float val;
+
+            val = 1.;
+            if ( (( num01 + num02 + num03 + num04 ) / numEventsinCry / 2. ) > threshCry_ )
+              val = 0.;
+            g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), val);
+
+          }
+
+        }
+
       }
     }
 
