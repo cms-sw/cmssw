@@ -39,6 +39,10 @@ OscarProducer::OscarProducer(edm::ParameterSet const & p)
     produces<edm::PSimHitContainer>("MuonDTHits");
     produces<edm::PSimHitContainer>("MuonCSCHits");
     produces<edm::PSimHitContainer>("MuonRPCHits");
+    produces<edm::PCaloHitContainer>("CastorPL");
+    produces<edm::PCaloHitContainer>("CastorFI");
+    produces<edm::PCaloHitContainer>("CastorBU");
+    produces<edm::PCaloHitContainer>("CastorTU");
     m_runManager = RunManager::init(p);
 
     //register any products 
