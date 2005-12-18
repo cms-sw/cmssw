@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  * 
- * $Date: 2005/12/15 14:20:30 $
- * $Revision: 1.16 $
+ * $Date: 2005/12/15 15:54:46 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -140,7 +140,7 @@ void EBCosmicClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* 
 //          p.setPedMeanG12(mean03);
 //          p.setPedRMSG12(rms03);
 
-//          p.setTaskStatus(1);
+//          p.setTaskStatus(true);
 
           if ( econn ) {
             try {

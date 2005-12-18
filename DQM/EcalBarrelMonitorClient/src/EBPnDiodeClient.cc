@@ -1,8 +1,8 @@
 /*
  * \file EBPnDiodeClient.cc
  * 
- * $Date: 2005/12/15 14:20:30 $
- * $Revision: 1.17 $
+ * $Date: 2005/12/15 15:54:46 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -163,7 +163,7 @@ void EBPnDiodeClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag*
         p.setADCMean(mean01);
         p.setADCRMS(rms01);
 
-        p.setTaskStatus(1);
+        p.setTaskStatus(true);
 
         if ( econn ) {
           try {
