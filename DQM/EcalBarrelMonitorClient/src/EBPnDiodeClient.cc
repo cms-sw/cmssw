@@ -1,8 +1,8 @@
 /*
  * \file EBPnDiodeClient.cc
  * 
- * $Date: 2005/12/15 15:54:46 $
- * $Revision: 1.18 $
+ * $Date: 2005/12/18 12:01:08 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -406,10 +406,10 @@ void EBPnDiodeClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
   htmlFile << " style=\"color: rgb(0, 0, 153);\">PNDIODE</span></h2> " << endl;
   htmlFile << "<hr>" << endl;
-  htmlFile << "<table border=1><tr><td bgcolor=red>channel has problems in this task</td>" << endl;
-  htmlFile << "<td bgcolor=lime>channel has NO problems</td>" << endl;
-  htmlFile << "<td bgcolor=white>channel is missing</td></table>" << endl;
-  htmlFile << "<hr>" << endl;
+//  htmlFile << "<table border=1><tr><td bgcolor=red>channel has problems in this task</td>" << endl;
+//  htmlFile << "<td bgcolor=lime>channel has NO problems</td>" << endl;
+//  htmlFile << "<td bgcolor=yellow>channel is missing</td></table>" << endl;
+//  htmlFile << "<hr>" << endl;
 
   // Produce the plots to be shown as .jpg files from existing histograms
 

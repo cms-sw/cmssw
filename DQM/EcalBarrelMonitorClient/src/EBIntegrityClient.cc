@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  * 
- * $Date: 2005/12/18 13:05:59 $
- * $Revision: 1.49 $
+ * $Date: 2005/12/18 13:53:39 $
+ * $Revision: 1.50 $
  * \author G. Della Ricca
  *
 */
@@ -574,14 +574,14 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<hr>" << endl;
   htmlFile << "<table border=1><tr><td bgcolor=red>channel has problems in this task</td>" << endl;
   htmlFile << "<td bgcolor=lime>channel has NO problems</td>" << endl;
-  htmlFile << "<td bgcolor=white>channel is missing</td></table>" << endl;
+  htmlFile << "<td bgcolor=yellow>channel is missing</td></table>" << endl;
   htmlFile << "<hr>" << endl;
 
   // Produce the plots to be shown as .jpg files from existing histograms
 
   int csize = 250;
 
-  int pCol3[3] = { 2, 3, 10 };
+  int pCol3[3] = { 2, 3, 5 };
   int pCol4[10];
   for( int i=0; i<10; i++ ) pCol4[i] = 30+i;
 //  pCol4[0] = 10;

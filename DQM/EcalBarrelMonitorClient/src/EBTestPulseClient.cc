@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  * 
- * $Date: 2005/12/18 10:40:52 $
- * $Revision: 1.43 $
+ * $Date: 2005/12/18 11:59:20 $
+ * $Revision: 1.44 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -800,7 +800,7 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<hr>" << endl;
   htmlFile << "<table border=1><tr><td bgcolor=red>channel has problems in this task</td>" << endl;
   htmlFile << "<td bgcolor=lime>channel has NO problems</td>" << endl;
-  htmlFile << "<td bgcolor=white>channel is missing</td></table>" << endl;
+  htmlFile << "<td bgcolor=yellow>channel is missing</td></table>" << endl;
   htmlFile << "<hr>" << endl;
 
   // Produce the plots to be shown as .jpg files from existing histograms
@@ -809,7 +809,7 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   double histMax = 1.e15;
 
-  int pCol3[3] = { 2, 3, 10 };
+  int pCol3[3] = { 2, 3, 5 };
 
   TH2C dummy( "dummy", "dummy for sm", 85, 0., 85., 20, 0., 20. );
   for( int i = 0; i < 68; i++ ) {
