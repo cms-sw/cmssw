@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  * 
- * $Date: 2005/12/18 12:29:45 $
- * $Revision: 1.47 $
+ * $Date: 2005/12/18 13:00:15 $
+ * $Revision: 1.48 $
  * \author G. Della Ricca
  *
 */
@@ -164,8 +164,8 @@ void EBIntegrityClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
             if ( num02 > n_min_bin ) update_channel = true;
           }
 
-          int iet = 1 + (ie/5);
-          int ipt = 1 + (ip/5);
+          int iet = 1 + ((ie-1)/5);
+          int ipt = 1 + ((ip-1)/5);
 
           if ( h03_[ism-1] ) {
             num03  = h03_[ism-1]->GetBinContent(h03_[ism-1]->GetBin(iet, ipt));
@@ -514,8 +514,8 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
             update_channel = true;
           }
 
-          int iet = 1 + (ie/5);
-          int ipt = 1 + (ip/5);
+          int iet = 1 + ((ie-1)/5);
+          int ipt = 1 + ((ip-1)/5);
 
           if ( h03_[ism-1] ) {
             num03  = h03_[ism-1]->GetBinContent(h03_[ism-1]->GetBin(iet, ipt));
