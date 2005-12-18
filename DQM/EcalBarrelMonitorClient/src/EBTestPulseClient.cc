@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  * 
- * $Date: 2005/12/15 14:20:30 $
- * $Revision: 1.41 $
+ * $Date: 2005/12/15 15:54:46 $
+ * $Revision: 1.42 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -101,46 +101,46 @@ void EBTestPulseClient::beginRun(const edm::EventSetup& c){
 
   jevt_ = 0;
 
-  for ( int i = 0; i < 36; i++ ) {
+  for ( int ism = 1; ism <= 36; ism++ ) {
 
-    if ( ha01_[i] ) delete ha01_[i];
-    if ( ha02_[i] ) delete ha02_[i];
-    if ( ha03_[i] ) delete ha03_[i];
-    ha01_[i] = 0;
-    ha02_[i] = 0;
-    ha03_[i] = 0;
+    if ( ha01_[ism-1] ) delete ha01_[ism-1];
+    if ( ha02_[ism-1] ) delete ha02_[ism-1];
+    if ( ha03_[ism-1] ) delete ha03_[ism-1];
+    ha01_[ism-1] = 0;
+    ha02_[ism-1] = 0;
+    ha03_[ism-1] = 0;
 
-    if ( hs01_[i] ) delete hs01_[i];
-    if ( hs02_[i] ) delete hs02_[i];
-    if ( hs03_[i] ) delete hs03_[i];
-    hs01_[i] = 0;
-    hs02_[i] = 0;
-    hs03_[i] = 0;
+    if ( hs01_[ism-1] ) delete hs01_[ism-1];
+    if ( hs02_[ism-1] ) delete hs02_[ism-1];
+    if ( hs03_[ism-1] ) delete hs03_[ism-1];
+    hs01_[ism-1] = 0;
+    hs02_[ism-1] = 0;
+    hs03_[ism-1] = 0;
 
-    if ( he01_[i] ) delete he01_[i];
-    if ( he02_[i] ) delete he02_[i];
-    if ( he03_[i] ) delete he03_[i];
-    he01_[i] = 0;
-    he02_[i] = 0;
-    he03_[i] = 0;
+    if ( he01_[ism-1] ) delete he01_[ism-1];
+    if ( he02_[ism-1] ) delete he02_[ism-1];
+    if ( he03_[ism-1] ) delete he03_[ism-1];
+    he01_[ism-1] = 0;
+    he02_[ism-1] = 0;
+    he03_[ism-1] = 0;
 
-    g01_[i]->Reset();
-    g02_[i]->Reset();
-    g03_[i]->Reset();
+    g01_[ism-1]->Reset();
+    g02_[ism-1]->Reset();
+    g03_[ism-1]->Reset();
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
 
-        g01_[i]->SetBinContent(g01_[i]->GetBin(ie, ip), 2.);
-        g02_[i]->SetBinContent(g02_[i]->GetBin(ie, ip), 2.);
-        g03_[i]->SetBinContent(g03_[i]->GetBin(ie, ip), 2.);
+        g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), 2.);
+        g02_[ism-1]->SetBinContent(g02_[ism-1]->GetBin(ie, ip), 2.);
+        g03_[ism-1]->SetBinContent(g03_[ism-1]->GetBin(ie, ip), 2.);
 
       }
     }
 
-    a01_[i]->Reset();
-    a02_[i]->Reset();
-    a03_[i]->Reset();
+    a01_[ism-1]->Reset();
+    a02_[ism-1]->Reset();
+    a03_[ism-1]->Reset();
 
   }
 
@@ -173,34 +173,18 @@ void EBTestPulseClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
-    float num01;
-    float mean01;
-    float rms01;
-
-    float num02;
-    float mean02;
-    float rms02;
-
-    float num03;
-    float mean03;
-    float rms03;
+    float num01, num02, num03;
+    float mean01, mean02, mean03;
+    float rms01, rms02, rms03;
 
     vector<int> sample01, sample02, sample03;
 
     for ( int ie = 1; ie <= 85; ie++ ) { 
       for ( int ip = 1; ip <= 20; ip++ ) {
 
-        num01  = -1.;
-        mean01 = -1.;
-        rms01  = -1.;
-
-        num02  = -1.;
-        mean02 = -1.;
-        rms02  = -1.;
-
-        num03  = -1.;
-        mean03 = -1.;
-        rms03  = -1.;
+        num01  = num02  = num03  = -1.;
+        mean01 = mean02 = mean03 = -1.;
+        rms01  = rms02  = rms03  = -1.;
 
         sample01.clear();
         sample02.clear();
@@ -257,67 +241,42 @@ void EBTestPulseClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
 
           float val;
 
-          if ( g01_[ism-1] ) {
-            val = 1.;
-            if ( mean01 < amplitudeThreshold_ )
-              val = 0.;
-            if ( rms01 > RMSThreshold_ )
-              val = 0.;
-            if ( he01_[ism-1] ) {
-              float errorRate = he01_[ism-1]->GetBinContent(he01_[ism-1]->GetBin(ie, ip)) / numEventsinCry[1];
-              if ( errorRate > threshold_on_AmplitudeErrorsNumber_ ) val = 0.;
-            }
-            g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), val);
+          val = 1.;
+
+          if ( mean01 < amplitudeThreshold_ )
+            val = 0.;
+          if ( rms01 > RMSThreshold_ )
+            val = 0.;
+          if ( he01_[ism-1] ) {
+            float errorRate = he01_[ism-1]->GetBinContent(he01_[ism-1]->GetBin(ie, ip)) / numEventsinCry[1];
+            if ( errorRate > threshold_on_AmplitudeErrorsNumber_ ) val = 0.;
           }
 
-          if ( a01_[ism-1] ) {
-            a01_[ism-1]->SetBinContent(ip+20*(ie-1), mean01);
-            a01_[ism-1]->SetBinError(ip+20*(ie-1), rms01);
-          }
-          
           // adc.setADCMean(mean02);
           // adc.setADCRMS(rms02);
 
-          if ( g02_[ism-1] ) {
-            val = 1.;
-            if ( mean02 < amplitudeThreshold_ )
-              val = 0.;
-            if ( rms02 > RMSThreshold_ )
-              val = 0.;
-            if ( he02_[ism-1] ) {
-              float errorRate = he02_[ism-1]->GetBinContent(he02_[ism-1]->GetBin(ie, ip)) / numEventsinCry[2];
-              if ( errorRate > threshold_on_AmplitudeErrorsNumber_ ) val = 0.;
-            }
-            g02_[ism-1]->SetBinContent(g02_[ism-1]->GetBin(ie, ip), val);
+          if ( mean02 < amplitudeThreshold_ )
+            val = 0.;
+          if ( rms02 > RMSThreshold_ )
+            val = 0.;
+          if ( he02_[ism-1] ) {
+            float errorRate = he02_[ism-1]->GetBinContent(he02_[ism-1]->GetBin(ie, ip)) / numEventsinCry[2];
+            if ( errorRate > threshold_on_AmplitudeErrorsNumber_ ) val = 0.;
           }
 
-          if ( a02_[ism-1] ) {
-            a02_[ism-1]->SetBinContent(ip+20*(ie-1), mean02);
-            a02_[ism-1]->SetBinError(ip+20*(ie-1), rms02);
-          }
-          
           // adc.setADCMean(mean03);
           // adc.setADCRMS(rms03);
 
-          if ( g03_[ism-1] ) {
-            val = 1.;
-            if ( mean03 < amplitudeThreshold_ )
-              val = 0.;
-            if ( rms03 > RMSThreshold_ )
-              val = 0.;
-            if ( he03_[ism-1] ) {
-              float errorRate = he03_[ism-1]->GetBinContent(he03_[ism-1]->GetBin(ie, ip)) / numEventsinCry[3];
-              if ( errorRate > threshold_on_AmplitudeErrorsNumber_ ) val = 0.;
-            }
-            g03_[ism-1]->SetBinContent(g03_[ism-1]->GetBin(ie, ip), val);
+          if ( mean03 < amplitudeThreshold_ )
+            val = 0.;
+          if ( rms03 > RMSThreshold_ )
+            val = 0.;
+          if ( he03_[ism-1] ) {
+            float errorRate = he03_[ism-1]->GetBinContent(he03_[ism-1]->GetBin(ie, ip)) / numEventsinCry[3];
+            if ( errorRate > threshold_on_AmplitudeErrorsNumber_ ) val = 0.;
           }
 
-          if ( a03_[ism-1] ) {
-            a03_[ism-1]->SetBinContent(ip+20*(ie-1), mean03);
-            a03_[ism-1]->SetBinError(ip+20*(ie-1), rms03);
-          }
-          
-          adc.setTaskStatus(1);
+          adc.setTaskStatus(val);
 
           if ( ie == 1 && ip == 1 ) {
 
@@ -720,6 +679,114 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
         sprintf(histo, "ME EBTT amplitude error SM%02d G12", ism);
         he03_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
 //        he03_[ism-1] = dynamic_cast<TH2F*> (ob->operator->());
+      }
+    }
+
+    const float n_min_tot = 1000.;
+    const float n_min_bin = 10.;
+
+    float num01, num02, num03;
+    float mean01, mean02, mean03;
+    float rms01, rms02, rms03;
+
+    a01_[ism-1]->Reset();
+    a02_[ism-1]->Reset();
+    a03_[ism-1]->Reset();
+
+    for ( int ie = 1; ie <= 85; ie++ ) {
+      for ( int ip = 1; ip <= 20; ip++ ) {
+
+        num01  = num02  = num03  = -1.;
+        mean01 = mean02 = mean03 = -1.;
+        rms01  = rms02  = rms03  = -1.;
+
+        g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), 2.);
+        g02_[ism-1]->SetBinContent(g02_[ism-1]->GetBin(ie, ip), 2.);
+        g03_[ism-1]->SetBinContent(g03_[ism-1]->GetBin(ie, ip), 2.);
+
+        bool update_channel = false;
+
+        float numEventsinCry[3] = {0., 0., 0.};
+
+        if ( ha01_[ism-1] ) numEventsinCry[1] = ha01_[ism-1]->GetBinEntries(ha01_[ism-1]->GetBin(ie, ip));
+        if ( ha02_[ism-1] ) numEventsinCry[2] = ha02_[ism-1]->GetBinEntries(ha02_[ism-1]->GetBin(ie, ip));
+        if ( ha03_[ism-1] ) numEventsinCry[3] = ha03_[ism-1]->GetBinEntries(ha03_[ism-1]->GetBin(ie, ip));
+
+        if ( ha01_[ism-1] && ha01_[ism-1]->GetEntries() >= n_min_tot ) {
+          num01 = ha01_[ism-1]->GetBinEntries(ha01_[ism-1]->GetBin(ie, ip));
+          if ( num01 >= n_min_bin ) {
+            mean01 = ha01_[ism-1]->GetBinContent(ha01_[ism-1]->GetBin(ie, ip));
+            rms01  = ha01_[ism-1]->GetBinError(ha01_[ism-1]->GetBin(ie, ip));
+            update_channel = true;
+          }
+        }
+
+        if ( ha02_[ism-1] && ha02_[ism-1]->GetEntries() >= n_min_tot ) {
+          num02 = ha02_[ism-1]->GetBinEntries(ha02_[ism-1]->GetBin(ie, ip));
+          if ( num02 >= n_min_bin ) {
+            mean02 = ha02_[ism-1]->GetBinContent(ha02_[ism-1]->GetBin(ie, ip));
+            rms02  = ha02_[ism-1]->GetBinError(ha02_[ism-1]->GetBin(ie, ip));
+            update_channel = true;
+          }
+        }
+
+        if ( ha03_[ism-1] && ha03_[ism-1]->GetEntries() >= n_min_tot ) {
+          num03 = ha03_[ism-1]->GetBinEntries(ha03_[ism-1]->GetBin(ie, ip));
+          if ( num03 >= n_min_bin ) {
+            mean03 = ha03_[ism-1]->GetBinContent(ha03_[ism-1]->GetBin(ie, ip));
+            rms03  = ha03_[ism-1]->GetBinError(ha03_[ism-1]->GetBin(ie, ip));
+            update_channel = true;
+          }
+        }
+
+        if ( update_channel ) {
+
+          float val;
+
+          val = 1.;
+          if ( mean01 < amplitudeThreshold_ )
+            val = 0.;
+          if ( rms01 > RMSThreshold_ )
+            val = 0.;
+          if ( he01_[ism-1] ) {
+            float errorRate = he01_[ism-1]->GetBinContent(he01_[ism-1]->GetBin(ie, ip)) / numEventsinCry[1];
+            if ( errorRate > threshold_on_AmplitudeErrorsNumber_ ) val = 0.;
+          }
+          g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), val);
+
+          a01_[ism-1]->SetBinContent(ip+20*(ie-1), mean01);
+          a01_[ism-1]->SetBinError(ip+20*(ie-1), rms01);
+
+          val = 1.;
+          if ( mean02 < amplitudeThreshold_ )
+            val = 0.;
+          if ( rms02 > RMSThreshold_ )
+            val = 0.;
+          if ( he02_[ism-1] ) {
+            float errorRate = he02_[ism-1]->GetBinContent(he02_[ism-1]->GetBin(ie, ip)) / numEventsinCry[2];
+            if ( errorRate > threshold_on_AmplitudeErrorsNumber_ ) val = 0.;
+          }
+          g02_[ism-1]->SetBinContent(g02_[ism-1]->GetBin(ie, ip), val);
+
+          a02_[ism-1]->SetBinContent(ip+20*(ie-1), mean02);
+          a02_[ism-1]->SetBinError(ip+20*(ie-1), rms02);
+
+          val = 1.;
+          if ( mean03 < amplitudeThreshold_ )
+            val = 0.;
+          if ( rms03 > RMSThreshold_ )
+            val = 0.;
+          if ( he03_[ism-1] ) {
+            float errorRate = he03_[ism-1]->GetBinContent(he03_[ism-1]->GetBin(ie, ip)) / numEventsinCry[3];
+            if ( errorRate > threshold_on_AmplitudeErrorsNumber_ ) val = 0.;
+          }
+          g03_[ism-1]->SetBinContent(g03_[ism-1]->GetBin(ie, ip), val);
+
+          a03_[ism-1]->SetBinContent(ip+20*(ie-1), mean03);
+          a03_[ism-1]->SetBinError(ip+20*(ie-1), rms03);
+
+        }
+
       }
     }
 
