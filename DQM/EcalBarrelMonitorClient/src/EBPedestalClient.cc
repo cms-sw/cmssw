@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  * 
- * $Date: 2005/12/18 11:59:20 $
- * $Revision: 1.40 $
+ * $Date: 2005/12/18 15:28:41 $
+ * $Revision: 1.41 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -45,17 +45,15 @@ EBPedestalClient::EBPedestalClient(const edm::ParameterSet& ps, MonitorUserInter
 
   }
 
-  expectedMean_[0] = 200;
-  expectedMean_[1] = 200;
-  expectedMean_[2] = 200;
-
-  discrepancyMean_[0] = 20;
-  discrepancyMean_[1] = 20;
-  discrepancyMean_[2] = 20;
-
-  RMSThreshold_[0] = 1;
-  RMSThreshold_[1] = 1;
-  RMSThreshold_[2] = 2;
+  expectedMean_[0] = 200.0;
+  expectedMean_[1] = 200.0;
+  expectedMean_[2] = 200.0;
+  discrepancyMean_[0] = 20.0;
+  discrepancyMean_[1] = 20.0;
+  discrepancyMean_[2] = 20.0;
+  RMSThreshold_[0] = 1.0;
+  RMSThreshold_[1] = 1.5;
+  RMSThreshold_[2] = 2.0;
 
   // collateSources switch
   collateSources_ = ps.getUntrackedParameter<bool>("collateSources", false);

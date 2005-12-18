@@ -1,8 +1,8 @@
 /*
  * \file EBPedPreSampleClient.cc
  * 
- * $Date: 2005/12/18 11:59:20 $
- * $Revision: 1.45 $
+ * $Date: 2005/12/18 15:28:41 $
+ * $Revision: 1.46 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -31,11 +31,9 @@ EBPedPreSampleClient::EBPedPreSampleClient(const edm::ParameterSet& ps, MonitorU
 
   }
 
-   expectedMean_ = 200;
-
-   discrepancyMean_ = 20;
-
-   RMSThreshold_ = 2;
+   expectedMean_ = 200.0;
+   discrepancyMean_ = 20.0;
+   RMSThreshold_ = 2.0;
 
   // collateSources switch
   collateSources_ = ps.getUntrackedParameter<bool>("collateSources", false);
