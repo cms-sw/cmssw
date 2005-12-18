@@ -1,8 +1,8 @@
 /*
  * \file EBPedPreSampleClient.cc
  * 
- * $Date: 2005/12/15 14:20:30 $
- * $Revision: 1.42 $
+ * $Date: 2005/12/15 15:54:46 $
+ * $Revision: 1.43 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -160,19 +160,14 @@ void EBPedPreSampleClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, Ru
 
           float val;
 
-          if ( g03_[ism-1] ) {
-            val = 1.;
-            if ( abs(mean03 - expectedMean_) > discrepancyMean_ )
-              val = 0.;
-            if ( rms03 > RMSThreshold_ )
-              val = 0.;
-            g03_[ism-1]->SetBinContent(g03_[ism-1]->GetBin(ie, ip), val);
-          }
+          val = 1.;
 
-          if ( p03_[ism-1] ) p03_[ism-1]->Fill(mean03);
-          if ( r03_[ism-1] ) r03_[ism-1]->Fill(rms03);
+          if ( abs(mean03 - expectedMean_) > discrepancyMean_ )
+            val = 0.;
+          if ( rms03 > RMSThreshold_ )
+            val = 0.;
 
-//          p.setTaskStatus(1);
+//          p.setTaskStatus(val);
 
           if ( econn ) {
             try {
@@ -297,6 +292,56 @@ void EBPedPreSampleClient::analyze(const edm::Event& e, const edm::EventSetup& c
         sprintf(histo, "ME EBPT pedestal PreSample SM%02d G12", ism);
         h03_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
 //        h03_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+      }
+    }
+
+    const float n_min_tot = 1000.;
+    const float n_min_bin = 50.;
+
+    float num03;
+    float mean03;
+    float rms03;
+
+    p03_[ism-1]->Reset();
+
+    r03_[ism-1]->Reset();
+
+    for ( int ie = 1; ie <= 85; ie++ ) {
+      for ( int ip = 1; ip <= 20; ip++ ) {
+
+        num03  = -1.;
+        mean03 = -1.;
+        rms03  = -1.;
+
+        g03_[ism-1]->SetBinContent(g03_[ism-1]->GetBin(ie, ip), 2.);
+
+        bool update_channel = false;
+
+        if ( h03_[ism-1] && h03_[ism-1]->GetEntries() >= n_min_tot ) {
+          num03 = h03_[ism-1]->GetBinEntries(h03_[ism-1]->GetBin(ie, ip));
+          if ( num03 >= n_min_bin ) {
+            mean03 = h03_[ism-1]->GetBinContent(h03_[ism-1]->GetBin(ie, ip));
+            rms03  = h03_[ism-1]->GetBinError(h03_[ism-1]->GetBin(ie, ip));
+            update_channel = true;
+          }
+        }
+
+        if ( update_channel ) {
+
+          float val;
+
+          val = 1.;
+          if ( abs(mean03 - expectedMean_) > discrepancyMean_ )
+            val = 0.;
+          if ( rms03 > RMSThreshold_ )
+            val = 0.;
+          g03_[ism-1]->SetBinContent(g03_[ism-1]->GetBin(ie, ip), val);
+
+          p03_[ism-1]->Fill(mean03);
+          r03_[ism-1]->Fill(rms03);
+
+        }
+
       }
     }
 
