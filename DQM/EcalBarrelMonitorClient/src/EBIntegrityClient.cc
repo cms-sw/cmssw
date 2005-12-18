@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  * 
- * $Date: 2005/12/15 15:54:46 $
- * $Revision: 1.46 $
+ * $Date: 2005/12/18 12:29:45 $
+ * $Revision: 1.47 $
  * \author G. Della Ricca
  *
 */
@@ -164,13 +164,16 @@ void EBIntegrityClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
             if ( num02 > n_min_bin ) update_channel = true;
           }
 
+          int iet = 1 + (ie/5);
+          int ipt = 1 + (ip/5);
+
           if ( h03_[ism-1] ) {
-            num03  = h03_[ism-1]->GetBinContent(h03_[ism-1]->GetBin(ie, ip));
+            num03  = h03_[ism-1]->GetBinContent(h03_[ism-1]->GetBin(iet, ipt));
             if ( num03 > n_min_bin ) update_channel = true;
           }
 
           if ( h04_[ism-1] ) {
-            num04  = h04_[ism-1]->GetBinContent(h04_[ism-1]->GetBin(ie, ip));
+            num04  = h04_[ism-1]->GetBinContent(h04_[ism-1]->GetBin(iet, ipt));
             if ( num04 > n_min_bin ) update_channel = true;
           }
 
@@ -473,7 +476,7 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
     }
 
-    const float n_min_bin = 0.;
+    const float n_min_tot = 0.;
 
     float num00;
 
@@ -487,7 +490,7 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
 
         // cout << "Number of events per crystal (" << ie << "," << ip << ") SM " << ism << " " << numEventsinCry << endl;
 
-        if ( numEventsinCry > n_min_bin ) {
+        if ( numEventsinCry > n_min_tot ) {
 
           num00 = 0.;
 
@@ -511,13 +514,16 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
             update_channel = true;
           }
 
+          int iet = 1 + (ie/5);
+          int ipt = 1 + (ip/5);
+
           if ( h03_[ism-1] ) {
-            num03  = h03_[ism-1]->GetBinContent(h03_[ism-1]->GetBin(ie, ip));
+            num03  = h03_[ism-1]->GetBinContent(h03_[ism-1]->GetBin(iet, ipt));
             update_channel = true;
           }
 
           if ( h04_[ism-1] ) {
-            num04  = h04_[ism-1]->GetBinContent(h04_[ism-1]->GetBin(ie, ip));
+            num04  = h04_[ism-1]->GetBinContent(h04_[ism-1]->GetBin(iet, ipt));
             update_channel = true;
           }
 
