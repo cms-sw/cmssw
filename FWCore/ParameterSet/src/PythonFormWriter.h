@@ -3,7 +3,7 @@
 
 
 //------------------------------------------------------------
-// $Id:$
+// $Id: PythonFormWriter.h,v 1.1 2005/12/17 01:55:54 paterno Exp $
 //
 //
 // PythonFormWriter defines a class that is to be used to walk the
@@ -56,6 +56,8 @@ namespace edm
       virtual void visitVPSet(const VPSetNode&);
       virtual void visitModule(const ModuleNode&);
       virtual void visitWrapper(const WrapperNode&);
+      virtual void visitOperator(const OperatorNode&); 
+      virtual void visitOperand(const OperandNode&); 
       
 
       // Function to be called from the 'outside', to walk the given
@@ -73,7 +75,10 @@ namespace edm
       std::stack<std::string> moduleStack_;
       ModuleCache             modules_;
       std::list<std::string>  outputModuleNames_;
-
+      
+      bool                    processingVPSet_;
+      unsigned int            nVPSetChildren_;
+      
     }; // struct PythonFormWriter
   } // namespace pset
 } // namespace edm

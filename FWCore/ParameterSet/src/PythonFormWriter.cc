@@ -92,15 +92,19 @@ namespace edm
     PythonFormWriter::PythonFormWriter() :
       procname_(),
       moduleStack_(),
-      modules_()
+      modules_(),
+      processingVPSet_(false),
+      nVPSetChildren_(0)
     {
       list<string> emptylist;
       modules_.insert(make_pair(string("es_module"), emptylist));
-      modules_.insert(make_pair(string("anonymous_es_module"), emptylist));
       modules_.insert(make_pair(string("es_source"), emptylist));
-      modules_.insert(make_pair(string("anonymous_es_source"), emptylist));
       modules_.insert(make_pair(string("module"), emptylist));
       modules_.insert(make_pair(string("source"), emptylist));
+      modules_.insert(make_pair(string("sequence"),emptylist));
+      modules_.insert(make_pair(string("path"),emptylist));
+      modules_.insert(make_pair(string("endpath"),emptylist));
+      modules_.insert(make_pair(string("service"),emptylist));
     }
 
     PythonFormWriter::~PythonFormWriter()
@@ -200,6 +204,12 @@ namespace edm
       // currently working), or on the process block itself.
       if ( ! moduleStack_.empty() )
 	{
+         if(processingVPSet_ && nVPSetChildren_++) {
+            //if this is actually a PSet embedded in a VPSet then we will need
+            // to comma separate the children
+            moduleStack_.top()+= ",";
+         }
+         
 	  moduleStack_.top() += "{";
 
 	  // We can't just call acceptForChildren, because we need to
@@ -271,15 +281,18 @@ namespace edm
       ostringstream out;
       out << "'"
 	  << n.name()
-	  << "': ('VPSet', 'tracked', ";
+	  << "': ('VPSet', 'tracked', [";
       moduleStack_.top() += out.str();
 
       
-      moduleStack_.top() += "\nstart acceptForChildren in VPSetNode\n";
+      moduleStack_.top() += "\n#start acceptForChildren in VPSetNode\n";
+      processingVPSet_ = true;
+      nVPSetChildren_=0;
       n.acceptForChildren(*this);
-      moduleStack_.top() += "\nend acceptForChildren in VPSetNode\n";
+      processingVPSet_ = false;
+      moduleStack_.top() += "\n#end acceptForChildren in VPSetNode\n";
 
-      moduleStack_.top() += ")";
+      moduleStack_.top() += "])";
     }
 
     void
@@ -294,15 +307,28 @@ namespace edm
       // es_modules, nor the name 'main_es_input' for unnamed
       // es_sources, nor an empty string for the unnamed (main)
       // source.
-      if ( (n.type() == "es_module" && n.name() == "nameless") ||
-	   (n.type() == "es_source" && n.name() == "main_es_input"))
+      if ( (n.type() == "es_module" /*&& n.name() == "nameless"*/)  ||
+	   (n.type() == "es_source" /*&& n.name() == "main_es_input"*/))
 	{
-	  header << "{";
+          //es_* items are unique based on 'C++ class' and 'label'
+          string label("");
+          string name("@");
+          if((n.type() == "es_module" && n.name()!="nameless" ||
+              n.type() == "es_source" && n.name()!="main_es_input"))
+          {
+             label = n.name();
+             name += n.name();
+          }
+	  header <<"'"<< n.class_ <<name<<"': { 'label': ('string','tracked', '" <<label<<"'), ";
 	}
       else if (n.type() == "source" && n.name().empty())
 	{
 	  // no header to write...
 	}
+      else if(n.type()=="service") 
+        {
+          header<<"'"<<n.class_<<"': {";
+        }
       else
 	{
 	  header << "'" << n.name() << "': {";
@@ -329,8 +355,8 @@ namespace edm
 
       moduleStack_.push(header.str());
 
-       // We can't just call 'acceptForChildren', beacuse we have to
-       // take action between children.
+      // We can't just call 'acceptForChildren', beacuse we have to
+      // take action between children.
       //n.acceptForChildren(*this);
      
       NodePtrList::const_iterator i(n.nodes_->begin());
@@ -348,18 +374,7 @@ namespace edm
 
       moduleStack_.top() += '}'; // add trailer
 
-      // TODO: deal more gracefull with a unnamed es_sources... Why
-      // can we have more than one of them? If we really need to do
-      // so, they should be dealt with more uniformly throughout.
       string section_label = n.type();
-      if (section_label == "es_source" && n.name() == "main_es_input")
-	{
-	  section_label = "anonymous_es_source";
-	}
-      else if (section_label == "es_module" && n.name() == "nameless" )
-	{
-	  section_label = "anonymous_es_module";
-	}
       modules_[section_label].push_back(moduleStack_.top());
       moduleStack_.pop();
     }
@@ -369,9 +384,35 @@ namespace edm
     void
     PythonFormWriter::visitWrapper(const WrapperNode& n)
     {
+      ostringstream header;
+      header<<"'"<<n.name()<<"' : '";
+      moduleStack_.push(header.str());
+      
+      //processes the node held by the wrapper
+      n.wrapped_->accept(*this);
+
+      moduleStack_.top()+="'";
+      modules_[n.type_].push_back(moduleStack_.top());
+      moduleStack_.pop();
       MYDEBUG(5) << "Saw a WrapperNode, name: "
 		 << n.name() << '\n';
     }
+    
+    void 
+    PythonFormWriter::visitOperator(const OperatorNode& n)
+    {
+      moduleStack_.top()+="(";
+      n.left_->accept(*this);
+      moduleStack_.top()+=n.type_;
+      n.right_->accept(*this);
+      moduleStack_.top()+=")";
+    }
+    void 
+    PythonFormWriter::visitOperand(const OperandNode& n)
+    {
+      moduleStack_.top()+=n.name();
+    }
+
 
     void
     PythonFormWriter::write(ParseResults& parsetree, ostream& out)
@@ -389,8 +430,15 @@ namespace edm
 	  << "'\n";
 
       out << ", 'main_input': {\n";
-      // print guts of main input here
-      out << "} # end of main_input\n";
+      {
+         list<string> const& input = modules_["source"];
+         if(!input.empty()){
+	    out << *(input.begin()) << '\n';
+         }
+         // print guts of main input here
+      }
+      //NOTE: no extra '}' added since it is added in the previous printing
+      out << " # end of main_input\n";
 
       //------------------------------
       // Print real modules
@@ -414,63 +462,34 @@ namespace edm
       //------------------------------
       out << "# es_modules\n";
       {
-	out << ", 'named_es_modules': {\n";
+	out << ", 'es_modules': {\n";
 	list<string> const& mods = modules_["es_module"];
 	list<string>::const_iterator i = mods.begin();
 	list<string>::const_iterator e = mods.end();
-	for ( bool first = true; i!=e; ++i)
+	for ( bool first = true; i!=e; first=false,++i)
 	  {
 	    if (!first) out << ',';
 	    out << *i << '\n';
 	  }
-	out << "} #end of named_es_modules\n";
+	out << "} #end of es_modules\n";
       }
-
-      out << "# ... anonymous\n";
-      {
-	out << ", 'anonymous_es_modules': [\n";
-	list<string> const& mods = modules_["anonymous_es_module"];
-	list<string>::const_iterator i = mods.begin();
-	list<string>::const_iterator e = mods.end();
-	for ( bool first = true; i!=e; ++i)
-	  {
-	    if (!first) out << ',';
-	    out << *i << '\n';
-	  }
-	out << "] # end of anonymous_es_modules\n";
-      }
-
 
       //------------------------------
       // Print es_sources
       //------------------------------
       out << "# es_sources\n";
       {
-	out << "# ... named\n";
-	out << ", 'named_es_sources': {\n";
+	out << ", 'es_sources': {\n";
 	
 	list<string> const& sources = modules_["es_source"];
 	list<string>::const_iterator i = sources.begin();
 	list<string>::const_iterator e = sources.end();
-	for ( bool first = true; i!=e; ++i)
+	for ( bool first = true; i!=e; first=false,++i)
 	  {
 	    if (!first) out << ',';
 	    out << *i << '\n';
 	  }
-	cout << "} #end of named_es_sources\n";
-      }
-      {
-	out << "# ... anonymous\n";
-	out << ", 'anonymous_es_sources': [\n";
-	list<string> const& sources = modules_["anonymous_es_source"];
-	list<string>::const_iterator i = sources.begin();
-	list<string>::const_iterator e = sources.end();
-	for ( bool first = true; i!=e; ++i)
-	  {
-	    if (!first) out << ',';
-	    out << *i << '\n';
-	  }
-	out << "] # end of anonymous_es_sources\n";
+	cout << "} #end of es_sources\n";
       }
 
       out << "# output modules (names)\n";
@@ -486,8 +505,62 @@ namespace edm
 	out << " ]\n" ;
       }
       out << "# sequences\n";
+      {
+         out <<", 'sequences': { \n";
+	list<string> const& sources = modules_["sequence"];
+	list<string>::const_iterator i = sources.begin();
+	list<string>::const_iterator e = sources.end();
+	for ( bool first = true; i!=e; first=false,++i)
+        {
+          if (!first) out << ',';
+          out << *i << '\n';
+        }
+        out <<"}\n";
+      }
       out << "# paths\n";
+      {
+         out <<", 'paths': { \n";
+	list<string> const& sources = modules_["path"];
+	list<string>::const_iterator i = sources.begin();
+	list<string>::const_iterator e = sources.end();
+	for ( bool first = true; i!=e; first=false,++i)
+        {
+          if (!first) out << ',';
+          out << *i << '\n';
+        }
+        out <<"}\n";
+      }
       out << "# endpaths\n";
+      {
+         out <<", 'endpaths': { \n";
+	list<string> const& sources = modules_["endpath"];
+	list<string>::const_iterator i = sources.begin();
+	list<string>::const_iterator e = sources.end();
+	for ( bool first = true; i!=e; first=false,++i)
+        {
+          if (!first) out << ',';
+          out << *i << '\n';
+        }
+        out <<"}\n";
+      }
+      
+      //------------------------------
+      // Print services
+      //------------------------------
+      out << "# services\n";
+      {
+	out << ", 'services': {\n";
+	list<string> const& mods = modules_["service"];
+	list<string>::const_iterator i = mods.begin();
+	list<string>::const_iterator e = mods.end();
+	for ( bool first = true; i!=e; first=false,++i)
+        {
+          if (!first) out << ',';
+          out << *i << '\n';
+        }
+	out << "} #end of es_modules\n";
+      }
+      
       out << '}';
     }
 
