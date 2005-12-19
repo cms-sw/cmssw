@@ -1,3 +1,6 @@
+** V00-04-00  [Mon Dec 19 02:11:54 2005]
+PythonFormatWriter handles EventSetup components, services, sequences, paths and endpaths
+
 ** V00-03-00  [Sat Dec 17 04:23:42 2005]
 Adding Python format writer, test, and support
 
