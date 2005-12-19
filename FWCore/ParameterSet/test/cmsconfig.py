@@ -1,6 +1,6 @@
 #------------------------------------------------------------
 #
-# $Id: cmsconfig.py,v 1.5 2005/12/16 23:22:17 paterno Exp $
+# $Id: cmsconfig.py,v 1.6 2005/12/18 20:26:32 chrjones Exp $
 #
 # cmsconfig: a class to provide convenient access to the Python form
 # of a parsed CMS configuration file.
@@ -233,7 +233,7 @@ class cmsconfig:
         Write all the modules to the file-like object fileobj."""
         for name in self.moduleNames():
             moddict = self.module(name)
-            fileobj.write("module %s = %s\n{\n" % (name, moddict['classname'][2]))
+            fileobj.write("module %s = %s\n{\n" % (name, moddict['@classname'][2]))
             self.__write_module_guts(moddict, fileobj)
             fileobj.write('}\n')
 
@@ -244,7 +244,7 @@ class cmsconfig:
         fileobj."""
         for name in self.esSourceNames():
             es_source_dict = self.esSource(name)
-            fileobj.write("es_source %s = %s\n{\n" % (es_source_dict['label'][2], es_source_dict['classname'][2]))
+            fileobj.write("es_source %s = %s\n{\n" % (es_source_dict['@label'][2], es_source_dict['@classname'][2]))
             self.__write_module_guts(es_source_dict, fileobj)
             fileobj.write('}\n')
 
@@ -255,7 +255,7 @@ class cmsconfig:
         fileobj."""
         for name in self.esModuleNames():
             es_mod_dict = self.esModule(name)
-            fileobj.write("es_module %s = %s\n{\n" % (es_mod_dict['label'][2], es_mod_dict['classname'][2]))
+            fileobj.write("es_module %s = %s\n{\n" % (es_mod_dict['@label'][2], es_mod_dict['@classname'][2]))
             self.__write_module_guts(es_mod_dict, fileobj)
             fileobj.write('}\n')
 
@@ -266,7 +266,7 @@ class cmsconfig:
         fileobj."""
         for name in self.serviceNames():
             es_mod_dict = self.service(name)
-            fileobj.write("service = %s\n{\n" % (es_mod_dict['classname'][2]))
+            fileobj.write("service = %s\n{\n" % (es_mod_dict['@classname'][2]))
             self.__write_module_guts(es_mod_dict, fileobj)
             fileobj.write('}\n')
 
@@ -300,7 +300,7 @@ class cmsconfig:
         Write the (main) source block to the file-like object
         fileobj."""
         mis = self.mainInputSource()  # this is a dictionary
-        fileobj.write('source = %s\n{\n' % mis['classname'][2])
+        fileobj.write('source = %s\n{\n' % mis['@classname'][2])
         self.__write_module_guts(mis, fileobj)
         fileobj.write('}\n')
 
@@ -317,7 +317,7 @@ class cmsconfig:
         rely on a new-enough version of Python to make use of static
         methods."""
         for name, value in moddict.iteritems():
-            if (name != 'classname') and (name != 'label'):
+            if name[0] != '@':
                 fileobj.write('%s' % printable_parameter(name, value))
                 fileobj.write('\n')
 

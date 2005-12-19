@@ -319,7 +319,7 @@ namespace edm
              label = n.name();
              name += n.name();
           }
-	  header <<"'"<< n.class_ <<name<<"': { 'label': ('string','tracked', '" <<label<<"'), ";
+	  header <<"'"<< n.class_ <<name<<"': { '@label': ('string','tracked', '" <<label<<"'), ";
 	}
       else if (n.type() == "source" && n.name().empty())
 	{
@@ -333,7 +333,7 @@ namespace edm
 	{
 	  header << "'" << n.name() << "': {";
 	}
-      header << "'classname': ('string', 'tracked', '"
+      header << "'@classname': ('string', 'tracked', '"
 	     << n.class_
 	     << "')";
 
