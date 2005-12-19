@@ -11,6 +11,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/IOVSyncValue.h"
@@ -18,6 +19,8 @@
 #include "FWCore/Framework/interface/eventSetupGetImplementation.icc"
 
 #include "FWCore/Framework/test/DummyRecord.h"
+#include "FWCore/Framework/test/DummyProxyProvider.h"
+
 //class DummyRecord : public edm::eventsetup::EventSetupRecordImplementation<DummyRecord> {};
 
 #include "FWCore/Framework/interface/HCMethods.icc"
@@ -40,9 +43,13 @@ CPPUNIT_TEST(constructTest);
 CPPUNIT_TEST(getTest);
 CPPUNIT_TEST_EXCEPTION(getExcTest,edm::eventsetup::NoRecordException<DummyRecord>);
 CPPUNIT_TEST(recordProviderTest);
-CPPUNIT_TEST_EXCEPTION(recordValidityTest,edm::eventsetup::NoRecordException<DummyRecord>);
+CPPUNIT_TEST_EXCEPTION(recordValidityTest,edm::eventsetup::NoRecordException<DummyRecord>); 
 CPPUNIT_TEST_EXCEPTION(recordValidityExcTest,edm::eventsetup::NoRecordException<DummyRecord>);
 CPPUNIT_TEST(proxyProviderTest);
+
+CPPUNIT_TEST_EXCEPTION(producerConflictTest,cms::Exception);
+CPPUNIT_TEST_EXCEPTION(sourceConflictTest,cms::Exception);
+CPPUNIT_TEST(sourceProducerResolutionTest);
 
 CPPUNIT_TEST_SUITE_END();
 public:
@@ -56,6 +63,11 @@ public:
   void recordValidityTest();
   void recordValidityExcTest();
   void proxyProviderTest();
+  
+  void producerConflictTest();
+  void sourceConflictTest();
+  void sourceProducerResolutionTest();
+  
 };
 
 ///registration of the test so that the runner can find it
@@ -236,3 +248,98 @@ void testEventsetup::proxyProviderTest()
    const DummyRecord& gottenRecord = eventSetup.get<DummyRecord>();
    CPPUNIT_ASSERT(0 != &gottenRecord);
 }
+
+void testEventsetup::producerConflictTest()
+{
+   edm::eventsetup::ComponentDescription description("DummyProxyProvider","",false);
+   using edm::eventsetup::test::DummyProxyProvider;
+   eventsetup::EventSetupProvider provider;
+   {
+      boost::shared_ptr<eventsetup::DataProxyProvider> dummyProv(new DummyProxyProvider());
+      dummyProv->setDescription(description);
+      provider.add(dummyProv);
+   }
+   {
+      boost::shared_ptr<eventsetup::DataProxyProvider> dummyProv(new DummyProxyProvider());
+      dummyProv->setDescription(description);
+      provider.add(dummyProv);
+   }
+
+}
+void testEventsetup::sourceConflictTest()
+{
+   edm::eventsetup::ComponentDescription description("DummyProxyProvider","",true);
+   using edm::eventsetup::test::DummyProxyProvider;
+   eventsetup::EventSetupProvider provider;
+   {
+      boost::shared_ptr<eventsetup::DataProxyProvider> dummyProv(new DummyProxyProvider());
+      dummyProv->setDescription(description);
+      provider.add(dummyProv);
+   }
+   {
+      boost::shared_ptr<eventsetup::DataProxyProvider> dummyProv(new DummyProxyProvider());
+      dummyProv->setDescription(description);
+      provider.add(dummyProv);
+   }
+   
+}
+void testEventsetup::sourceProducerResolutionTest()
+{
+   using edm::eventsetup::test::DummyProxyProvider;
+   using edm::eventsetup::test::DummyData;
+   DummyData kGood; kGood.value_ = 1;
+   DummyData kBad; kBad.value_=0;
+
+   {
+      eventsetup::EventSetupProvider provider;
+      {
+         edm::eventsetup::ComponentDescription description("DummyProxyProvider","",true);
+         boost::shared_ptr<eventsetup::DataProxyProvider> dummyProv(new DummyProxyProvider(kBad));
+         dummyProv->setDescription(description);
+         provider.add(dummyProv);
+      }
+      {
+         edm::eventsetup::ComponentDescription description("DummyProxyProvider","",false);
+         boost::shared_ptr<eventsetup::DataProxyProvider> dummyProv(new DummyProxyProvider(kGood));
+         dummyProv->setDescription(description);
+         provider.add(dummyProv);
+      }
+      //NOTE: use 'invalid' timestamp since the default 'interval of validity'
+      //       for a Record is presently an 'invalid' timestamp on both ends.
+      //       Since the EventSetup::get<> will only retrieve a Record if its
+      //       interval of validity is 'valid' for the present 'instance'
+      //       this is a 'hack' to have the 'get' succeed
+      EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue());
+      edm::ESHandle<DummyData> data;
+      eventSetup.getData(data);
+      CPPUNIT_ASSERT(kGood.value_==data->value_);
+   }
+
+   //reverse order
+   {
+      eventsetup::EventSetupProvider provider;
+      {
+         edm::eventsetup::ComponentDescription description("DummyProxyProvider","",false);
+         boost::shared_ptr<eventsetup::DataProxyProvider> dummyProv(new DummyProxyProvider(kGood));
+         dummyProv->setDescription(description);
+         provider.add(dummyProv);
+      }
+      {
+         edm::eventsetup::ComponentDescription description("DummyProxyProvider","",true);
+         boost::shared_ptr<eventsetup::DataProxyProvider> dummyProv(new DummyProxyProvider(kBad));
+         dummyProv->setDescription(description);
+         provider.add(dummyProv);
+      }
+      //NOTE: use 'invalid' timestamp since the default 'interval of validity'
+      //       for a Record is presently an 'invalid' timestamp on both ends.
+      //       Since the EventSetup::get<> will only retrieve a Record if its
+      //       interval of validity is 'valid' for the present 'instance'
+      //       this is a 'hack' to have the 'get' succeed
+      EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue());
+      edm::ESHandle<DummyData> data;
+      eventSetup.getData(data);
+      CPPUNIT_ASSERT(kGood.value_==data->value_);
+   }
+   
+}
+
