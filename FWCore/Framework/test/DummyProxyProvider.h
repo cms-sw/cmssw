@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Thu May 26 13:37:48 EDT 2005
-// $Id: DummyProxyProvider.h,v 1.5 2005/09/01 04:24:28 wmtan Exp $
+// $Id: DummyProxyProvider.h,v 1.6 2005/09/01 23:30:49 wmtan Exp $
 //
 
 // system include files
@@ -50,7 +50,7 @@ private:
 
 class DummyProxyProvider : public edm::eventsetup::DataProxyProvider {
 public:
-   DummyProxyProvider() {
+   DummyProxyProvider(const DummyData& iData=DummyData()): dummy_(iData) {
       //std::cout <<"constructed provider"<<std::endl;
       usingRecord<DummyRecord>();
    }
