@@ -6,8 +6,8 @@
 template std::vector<SiStripPedestals::Item>::iterator;
 template std::vector<SiStripPedestals::Item>::const_iterator;
 
-template std::map< int, SiStripPedestals::SiStripPedestalsVector>::iterator;
-template std::map< int, SiStripPedestals::SiStripPedestalsVector>::const_iterator;
+template std::map< uint32_t, SiStripPedestals::SiStripPedestalsVector>::iterator;
+template std::map< uint32_t, SiStripPedestals::SiStripPedestalsVector>::const_iterator;
 
 template std::vector<std::pair<uint32_t, unsigned short> >::iterator;
 template std::vector<std::pair<uint32_t, unsigned short> >::const_iterator;

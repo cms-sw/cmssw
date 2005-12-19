@@ -3,7 +3,7 @@
  <class name="SiStripPedestals" id="e63da36a5e362e91c2b64a16b5962310"/>
  <class name="SiStripPedestals::Item"/>
  <class name="std::vector<SiStripPedestals::Item>"/>
- <class name="std::pair<const int, std::vector<SiStripPedestals::Item> >"/>
+ <class name="std::pair<const unsigned int, std::vector<SiStripPedestals::Item> >"/>
 
 
  <class name="SiStripReadoutCabling" id="7EFEE4BD-036A-AA70-BF2D-477C23CB2F78"/>
