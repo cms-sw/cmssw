@@ -1,3 +1,6 @@
+** V01-00-00  [Mon Dec 19 18:40:00 2005]
+changed name of conditions object (o in SiStripReadoutCabling is now lower case)
+
 ** V00-00-01  [Tue Nov 29 21:11:11 2005]
 added new objects
 
