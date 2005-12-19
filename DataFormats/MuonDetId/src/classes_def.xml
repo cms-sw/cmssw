@@ -1,4 +1,7 @@
 <lcgdict>
-  <class name="DTDetId"/>
+  <class name="DTChamberId"/>
+  <class name="DTSLId"/>
+  <class name="DTLayerId"/>
+  <class name="DTWireId"/>
   <class name="CSCDetId"/>
 </lcgdict>
