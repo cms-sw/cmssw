@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2005/12/12 07:25:30 $
- *  $Revision: 1.12 $
+ *  $Date: 2005/12/13 16:32:21 $
+ *  $Revision: 1.13 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -13,6 +13,7 @@
 #include <DataFormats/FEDRawData/interface/FEDRawData.h>
 #include <DataFormats/EcalDetId/interface/EBDetId.h>
 #include <DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h>
+#include <DataFormats/EcalDetId/interface/EcalSubdetector.h>
 #include <DataFormats/EcalDigi/interface/EBDataFrame.h>
 #include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
 
@@ -151,7 +152,7 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData , EBDigiCol
       int etaTT = (ExpectedTowers[expTowersIndex]-1)  /4;
       int phiTT = (ExpectedTowers[expTowersIndex]-1)  %4;
 
-      EcalTrigTowerDetId idtt(etaTT, phiTT);
+      EcalTrigTowerDetId idtt(1, EcalBarrel, etaTT, phiTT);
 
       if (  !(tower == ExpectedTowers[expTowersIndex])	  )
 	{	
