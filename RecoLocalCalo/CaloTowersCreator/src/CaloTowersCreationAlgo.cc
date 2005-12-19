@@ -153,20 +153,34 @@ void CaloTowersCreationAlgo::assignHit(const CaloRecHit * recHit) {
       
       DetId::Detector det = detId.det();
       if(det == DetId::Ecal) {
-	tower.eT_em += eT;
-	tower.eT += eT;
+        tower.eT_em += eT;
+        tower.eT += eT;
       }
       // HCAL
       else {
-	HcalDetId hcalDetId(detId);
-	if(hcalDetId.subdet() == HcalOuter) {
-	  tower.eT_outer += eT;
-	  if(theHOIsUsed) tower.eT += eT;
-	} 
-	else {
-	  tower.eT_had += eT;
-	  tower.eT += eT;
-	}
+        HcalDetId hcalDetId(detId);
+        if(hcalDetId.subdet() == HcalOuter) {
+          tower.eT_outer += eT;
+          if(theHOIsUsed) tower.eT += eT;
+        } 
+        // HF calculates EM fraction differently
+        else if(hcalDetId.subdet() == HcalForward) {
+          if(hcalDetId.depth() == 1) {
+            // long fiber, so E_EM = E(Long) - E(Short)
+            tower.eT_em += eT;
+          } 
+          else {
+            // short fiber, EHAD = 2 * E(Short)
+            tower.eT_em -= eT;
+            tower.eT_had += 2. * eT;
+          }
+          tower.eT += eT;
+        }
+        else {
+          // HCAL situation normal
+          tower.eT_had += eT;
+          tower.eT += eT;
+        }
       }
       tower.constituents.push_back(detId);
     } 
