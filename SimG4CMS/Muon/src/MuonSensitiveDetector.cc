@@ -131,9 +131,6 @@ bool MuonSensitiveDetector::ProcessHits(G4Step * aStep, G4TouchableHistory * ROh
     // do not count neutrals that are killed by User Limits MinEKine
     if( aStep->GetTrack()->GetDynamicParticle()->GetCharge() != 0 ){
   
-      //----- Discard hits that would be produced where chimneys are
-      if( hitInChimney(aStep) ) return false;
-    
       if (newHit(aStep)) {
 	saveHit();
 	createHit(aStep);
@@ -147,80 +144,6 @@ bool MuonSensitiveDetector::ProcessHits(G4Step * aStep, G4TouchableHistory * ROh
     }
   }
   return false;
-}
-
-bool MuonSensitiveDetector::hitInChimney(G4Step * aStep)
-{
-  bool inChimney = false;
-  //This should go to DDD.....
-  double zlowRPC = 142.*cm;
-  double zuppRPC = 185.5*cm;
-  double zlowDT = 142.*cm;
-  double zuppDT = 188.8*cm;
-
-  G4ThreeVector pos = aStep->GetPreStepPoint()->GetPosition();
-  G4double Zabs = fabs( pos.z() );
-
-  if( Zabs < zlowDT && Zabs > zuppDT ) return false;
-
-
-  const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
-  //----- If step is in RPC sensitive, second mother will be MB*S, if it is in DT sensitive, third mother will be MB*S
-  G4String mName;
-  G4int chambNo = -1, wheelNo = -1;
-  G4bool stepToCheck = false;
-  G4double zlow = -1, zupp = -1;
-
-  for( int ii = 0; ii < std::min(4,touch->GetHistoryDepth()); ii++ ){
-    mName = touch->GetVolume(ii)->GetName();
-    if( mName.length() == 4 ){
-      if( mName.substr(0,2) == "MB" && mName.substr(3,1) == "S" ) {
-        if(ii == 2 ){
-          //--- Hit in RPC
-          zlow = zlowRPC; 
-          zupp = zuppRPC;
-        } else if(ii == 3 ){
-          //--- Hit in DT
-          zlow = zlowDT; 
-          zupp = zuppDT;
-        }
-        stepToCheck = true;
-        chambNo = touch->GetReplicaNumber(ii);
-        wheelNo = touch->GetReplicaNumber(ii+1);
-      }
-    }
-  }
-  
-  //----- If step in MB*S, check it
-  if( stepToCheck ) {
-    G4ThreeVector pos = aStep->GetPreStepPoint()->GetPosition();
-
-    //--- Check first the Z is within limits
-    if( Zabs < zlow || Zabs > zupp ) {
-      return false;
-    }
-    //--- Check if it is inside chambers touched by chimneys
-    if( wheelNo%10 == 2 ) { // wheel +1
-      G4int chamberRingID = (chambNo/100)%10;
-      if( chamberRingID == 1 || chamberRingID == 2 || chamberRingID == 3 ){
-	G4int chamberPhiID = chambNo%100;
-	if( chamberPhiID == 4 ) inChimney = true;
-      } else if( chamberRingID == 5){
-	G4int chamberPhiID = chambNo%100;
-	if( chamberPhiID == 1 || chamberPhiID == 2 ) inChimney = true;
-      }
-    } else if( wheelNo%10 == 3 ) {    // wheel -1
-      G4int chamberRingID = (chambNo/100)%10;
-      if( chamberRingID == 1 || chamberRingID == 2 || chamberRingID == 3 || chamberRingID == 4 ){
-	G4int chamberPhiID = chambNo%100;
-	if( chamberPhiID == 3 ) inChimney = true;
-      }
-    }
-
-#ifdef DEBUG
-#endif
-  }
-  return inChimney;
 }
 
 uint32_t MuonSensitiveDetector::setDetUnitId(G4Step * aStep)

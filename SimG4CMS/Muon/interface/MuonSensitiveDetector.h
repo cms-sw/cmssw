@@ -63,7 +63,6 @@ public Observer<const EndOfEvent*>
     return slaveMuon; }
   
  private:
-  bool hitInChimney(G4Step * aStep);
   void update(const BeginOfEvent *);
   void update(const ::EndOfEvent *);
   virtual void clearHits();
