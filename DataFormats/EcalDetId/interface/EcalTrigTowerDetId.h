@@ -11,7 +11,7 @@
     
    Cell id for an Calo Trigger tower
 
-   $Id: EcalTrigTowerDetId.h,v 1.2 2005/07/27 19:41:12 mansj Exp $
+   $Id: EcalTrigTowerDetId.h,v 1.3 2005/10/06 11:02:55 meridian Exp $
 */
 
 
@@ -42,10 +42,18 @@ class EcalTrigTowerDetId : public DetId {
   /// get a compact index for arrays [TODO: NEEDS WORK]
   int hashedIndex() const;
 
+  /// get the ECAL DCC id - in the  barrrel ism == iDCC
+  int iDCC() const;
+
+  /// sequential index within one DCC
+  int iTT() const;
+
   static const int MIN_IETA = 1;
   static const int MIN_IPHI = 1;
   static const int MAX_IETA = 32;
   static const int MAX_IPHI = 72;
+  static const int kTowersInPhi = 4; // per SM
+  static const int kTowersPerSM = 68; // per SM
 };
 
 std::ostream& operator<<(std::ostream&,const EcalTrigTowerDetId& id);
