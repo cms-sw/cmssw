@@ -92,7 +92,7 @@ std::cout << "NUMBER OF HITS " << hbheHits.size() << " " << hoHits.size() << " "
   for(CaloTowerCollection::const_iterator towerItr = collection2.begin();
       towerItr != collection2.end(); ++towerItr)
   {
-    std::cout << towerItr->id().ieta() << " " << towerItr->e() << std::endl;
+    std::cout << towerItr->id().ieta() << " " << towerItr->e() << " EM " << towerItr->e_em() << " HAD " << towerItr->e_had() << std::endl;
   }
 
 }
