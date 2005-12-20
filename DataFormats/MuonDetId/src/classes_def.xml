@@ -4,4 +4,5 @@
   <class name="DTLayerId"/>
   <class name="DTWireId"/>
   <class name="CSCDetId"/>
+  <class name="RPCDetId"/>
 </lcgdict>
