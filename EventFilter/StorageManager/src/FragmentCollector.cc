@@ -1,13 +1,18 @@
 
 #include "EventFilter/StorageManager/interface/FragmentCollector.h"
+#include "IOPool/StreamerData/interface/Messages.h"
 
 #include "boost/bind.hpp"
 
 #include <algorithm>
 #include <utility>
+#include <cstdlib>
 
 using namespace edm;
 using namespace std;
+
+static const bool debugme = getenv("FRAG_DEBUG")!=0;  
+#define FR_DEBUG if(debugme) std::cerr
 
 namespace stor
 {
@@ -42,7 +47,7 @@ namespace stor
   {
     me_->join();
   }
-  
+
   void FragmentCollector::processFragments()
   {
     // everything comes in on the fragment queue, even
@@ -55,27 +60,40 @@ namespace stor
     while(!done)
       {
 	EventBuffer::ConsumerBuffer cb(*frag_q_);
+	if(cb.size()==0) break;
 	FragEntry* entry = (FragEntry*)cb.buffer();
+	FR_DEBUG << "FragColl: " << (void*)this << " Got a buffer size="
+		 << entry->buffer_size_ << endl;
 	MsgCode mc(entry->buffer_address_,entry->buffer_size_);
 	
 	switch(mc.getCode())
 	  {
 	  case MsgCode::EVENT:
-	    processEvent(entry);
-	    break;
+	    {
+	      FR_DEBUG << "FragColl: Got an Event" << endl;
+	      processEvent(entry);
+	      break;
+	    }
 	  case MsgCode::DONE:
-	    // make sure that this is actually sent by the controller! (JBK)
-	    done=true;
-	    break;
+	    {
+	      // make sure that this is actually sent by the controller! (JBK)
+	      FR_DEBUG << "FragColl: Got a Done" << endl;
+	      done=true;
+	      break;
+	    }
 	  default:
-	    break; // lets ignore other things for now
+	    {
+	      FR_DEBUG << "FragColl: Got junk" << endl;
+	      break; // lets ignore other things for now
+	    }
 	  }
       }
     
+	FR_DEBUG << "FragColl: DONE!" << endl;
     edm::EventBuffer::ProducerBuffer cb(*evtbuf_q_);
-    MsgCode mc(cb.buffer(),MsgCode::DONE);
-    mc.setCode(MsgCode::DONE);
-    cb.commit();
+	long* vp = (long*)cb.buffer();
+	*vp=0;
+	cb.commit(sizeof(void*));
   }
 
   void FragmentCollector::stop()
@@ -87,7 +105,7 @@ namespace stor
     edm::EventBuffer::ProducerBuffer cb(*cmd_q_);
     MsgCode mc(cb.buffer(),MsgCode::DONE);
     mc.setCode(MsgCode::DONE);
-    cb.commit();
+    cb.commit(sizeof(int));
   }
 
   void FragmentCollector::processEvent(FragEntry* entry)
@@ -96,9 +114,13 @@ namespace stor
 
     if(msg.getTotalSegs()==1)
       {
+	FR_DEBUG << "FragColl: Got an Event with one segment" << endl;
+	FR_DEBUG << "FragColl: Event size " << entry->buffer_size_ << endl;
+	FR_DEBUG << "FragColl: Event ID " << msg.getEventNumber() << endl;
 	// send immediately
 	inserter_.insert(msg,*prods_);
-	// if the buffer properly released (deleted)? (JBK)
+	// is the buffer properly released (deleted)? (JBK)
+	(*buffer_deleter_)(entry);
 	return;
       }
 
@@ -106,9 +128,12 @@ namespace stor
       fragment_area_.insert(make_pair(msg.getEventNumber(),Fragments()));
     
     rc.first->second.push_back(*entry);
+    FR_DEBUG << "FragColl: added fragment" << endl;
     
     if((int)rc.first->second.size()==msg.getTotalSegs())
       {
+	FR_DEBUG << "FragColl: completed an event with "
+		 << msg.getTotalSegs() << " segments" << endl;
 	// we are done with this event
 	// assemble parts
 	EventMsg em(&event_area_[0],event_area_.size(),
