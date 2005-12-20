@@ -90,11 +90,16 @@ void
   char *  severity_array[] = {"WARNING", "INFO", "ERROR", "DEBUG"};
   vString const  severities(severity_array+0, severity_array+4);
 
-  // grab list of messageIDs:
+  // grab list of categories
+  vString  categories
+     = p->getUntrackedParameter<vString>("categories", empty_vString);
+
+  // grab list of messageIDs -- these are a synonym for categories
+  // Note -- the use of messageIDs is deprecated in favor of categories
   vString  messageIDs
      = p->getUntrackedParameter<vString>("messageIDs", empty_vString);
 
-  // grab default limit/timespan common to all destinations/messageIDs:
+  // grab default limit/timespan common to all destinations/categories:
   PSet  default_pset
      = p->getUntrackedParameter<PSet>("default", empty_PSet);
   int  default_limit
@@ -144,7 +149,25 @@ void
     int  dest_default_timespan
       = dest_default_pset.getUntrackedParameter<int>("timespan", default_timespan);
 
-    // establish this destination's limit/timespan for each messageID:
+    // establish this destination's limit/timespan for each of the categories:
+    for( vString::const_iterator id_it = categories.begin()
+       ; id_it != categories.end()
+       ; ++id_it
+       )
+    {
+      String  msgID = *id_it;
+      PSet  messageIDpset
+         = dest_pset.getUntrackedParameter<PSet>(msgID, empty_PSet);
+      int  limit
+        = messageIDpset.getUntrackedParameter<int>("limit", dest_default_limit);
+      int  timespan
+        = messageIDpset.getUntrackedParameter<int>("timespan", dest_default_timespan);
+      if( limit    >= 0 )  dest_ctrl.setLimit(msgID, limit   );
+      if( timespan >= 0 )  dest_ctrl.setLimit(msgID, timespan);
+    }  // for
+
+    // establish this destination's limit/timespan for each of the messageIDs:
+    // Note -- the use of messageIDs is deprecated in favor of categories
     for( vString::const_iterator id_it = messageIDs.begin()
        ; id_it != messageIDs.end()
        ; ++id_it
@@ -186,6 +209,20 @@ void
       if( timespan >= 0 )  dest_ctrl.setLimit(severity, timespan);
     }  // for
 
-  }  // for
+    // establish this destination's linebreak policy:
+    bool noLineBreaks = 
+            dest_pset.getUntrackedParameter<bool> ("noLineBreaks",false);
+    if (noLineBreaks) {
+      dest_ctrl.setLineLength(32000);
+    } else {
+      int  lenDef = 80; 
+      int  lineLen = 
+            dest_pset.getUntrackedParameter<int> ("lineLength",lenDef);
+      if (lineLen != lenDef) {
+        dest_ctrl.setLineLength(lineLen);
+      }  
+    }
+
+  }  // for [it = destinations.begin() to end()]
 
 }  // MessageLoggerScribe::configure()
