@@ -1,0 +1,14 @@
+
+Timing service - 20-12-05 jbk
+
+ Initial version.  It prints one record per module and per event that
+ indicates how long that step took.  There is no currently no configuration.
+ The report is not going out to the logger yet, mainly because of the 
+ ugly output format.
+ The framework does not give callbacks for start path / end path yet.
+ When is does, this thing should sum the times across all modules that
+ executed in that path (even if they did not run because they ran in an
+ earlier path) and report that time for the path.
+ No summaries are being kept now either.  Histograms would be nice
+ (per module or across all events).  A big listing of total times spent
+ in each module/path would also be nice.
