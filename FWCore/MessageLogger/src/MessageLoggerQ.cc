@@ -1,4 +1,5 @@
 #include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
+#include "FWCore/MessageLogger/interface/ELdestination.h"
 #include <cstring>
 
 
@@ -76,6 +77,19 @@ void
   b.commit(buf_size);
 }  // MessageLoggerQ::CFG()
 
+void
+MessageLoggerQ::EXT( ELdestination* p )
+{
+  SingleConsumerQ::ProducerBuffer b(buf);
+  char * slot_p = static_cast<char *>(b.buffer());
+
+  OpCode o(EXTERN_DEST);
+  void * v(static_cast<void *>(p));
+
+  std::memcpy(slot_p+0             , &o, sizeof(OpCode));
+  std::memcpy(slot_p+sizeof(OpCode), &v, sizeof(void *));
+  b.commit(buf_size);  
+}
 
 void
   MessageLoggerQ::consume( OpCode & opcode, void * & operand )

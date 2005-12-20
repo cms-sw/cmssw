@@ -69,12 +69,18 @@ void
         delete pset_p;  // dispose of our (copy of the) ParameterSet
         break;
       }
+      case MessageLoggerQ::EXTERN_DEST: {
+        ELdestination *  dest_p = static_cast<ELdestination *>(operand);
+        admin_p->attach( *dest_p );
+        delete dest_p;  // dispose of our (copy of the) dest
+        break;
+	
+      }
     }  // switch
 
   } while(! done);
 
 }  // MessageLoggerScribe::run()
-
 
 void
   MessageLoggerScribe::configure_errorlog( ParameterSet const * p )

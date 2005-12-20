@@ -95,6 +95,8 @@ public:
   void setTimespan( const ELstring & id, int n );
   void setTimespan( const ELseverityLevel& sev, int n );
 
+  ELlimitsTable & operator= (const ELlimitsTable & t);
+
 // -----  Tables and auxilliary private data:
 //
 protected:
@@ -110,7 +112,6 @@ protected:
 
 // -----  Support for internal operations:
 //
-  ELlimitsTable & operator= (const ELlimitsTable & t);
 
 // -----  Maintenance and Testing Methods -- Users should not invoke these:
 //

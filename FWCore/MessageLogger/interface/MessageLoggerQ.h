@@ -12,6 +12,7 @@ namespace edm
 // --- forward declarations:
 class ErrorObj;
 class ParameterSet;
+class ELdestination;
 
 
 class MessageLoggerQ
@@ -22,6 +23,7 @@ public:
   { END_THREAD     // END
   , LOG_A_MESSAGE  // LOG
   , CONFIGURE      // CFG
+  , EXTERN_DEST    // EXT
   };  // OpCode
 
   // ---  birth via a surrogate:
@@ -31,6 +33,7 @@ public:
   static  void  END();
   static  void  LOG( ErrorObj * p );
   static  void  CFG( ParameterSet * p );
+  static  void  EXT( ELdestination* p );
 
   // ---  obtain a message from the queue:
   static  void  consume( OpCode & opcode, void * & operand );
