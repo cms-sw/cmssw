@@ -562,6 +562,10 @@
   <rSolid name="MB1ChimSLZLayer_47Cells"/>
   <rMaterial name="materials:Aluminium"/>
  </LogicalPart>
+ <LogicalPart name="MB1ChimSLZLayer_47Cells_startCell2" category="unspecified">
+  <rSolid name="MB1ChimSLZLayer_47Cells"/>
+  <rMaterial name="materials:Aluminium"/>
+ </LogicalPart>
  <LogicalPart name="MB1ChimSLZLayer_48Cells" category="unspecified">
   <rSolid name="MB1ChimSLZLayer_48Cells"/>
   <rMaterial name="materials:Aluminium"/>
@@ -1201,11 +1205,11 @@
   <Translation x="0.*fm" y="-([mb1:MB1SLZPlO_z]-35./2.*mm)" z="0.*fm" />
  </PosPart>
 
- <AlgoPosPart algo="global:linear" start="1" end="56" incr="1" >
+ <AlgoPosPart algo="global:linear" start="2" end="57" incr="1" >
    <rParent name="mb1:MB1SLZLayer_56Cells"/>
    <rChild name="mb1:MB1SLZGas"/>
    <ParE name="delta" value="[mbCommon:MBCell_width]*2."/>
-   <ParE name="base" value="-[mbCommon:MBSLZL56]+[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall]"/>
+   <ParE name="base" value="-[mbCommon:MBSLZL56]-3*[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall]"/>
    <ParE name="base" value="0.*mm"/>
    <ParE name="base" value="0.*mm"/>
    <ParE name="theta" value="90.*deg" />
@@ -1215,7 +1219,7 @@
    <rParent name="mb1:MB1SLZLayer_57Cells"/>
    <rChild name="mb1:MB1SLZGas"/>
    <ParE name="delta" value="[mbCommon:MBCell_width]*2."/>
-   <ParE name="base" value="-[mbCommon:MBSLZL57]+[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall]"/>
+   <ParE name="base" value="-[mbCommon:MBSLZL57]-[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall]"/>
    <ParE name="base" value="0.*mm"/>
    <ParE name="base" value="0.*mm"/>
    <ParE name="theta" value="90.*deg" />
@@ -1225,7 +1229,7 @@
    <rParent name="mb1:MB1SLZLayer_58Cells"/>
    <rChild name="mb1:MB1SLZGas"/>
    <ParE name="delta" value="[mbCommon:MBCell_width]*2."/>
-   <ParE name="base" value="-[mbCommon:MBSLZL58]+[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall]"/>
+   <ParE name="base" value="-[mbCommon:MBSLZL58]-[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall]"/>
    <ParE name="base" value="0.*mm"/>
    <ParE name="base" value="0.*mm"/>
    <ParE name="theta" value="90.*deg" />
@@ -1698,7 +1702,7 @@
  </PosPart>
  <PosPart copyNumber="4">
    <rParent name="mb1:MB1ChimSuperLayerZ"/>
-   <rChild name="mb1:MB1ChimSLZLayer_47Cells"/>
+   <rChild name="mb1:MB1ChimSLZLayer_47Cells_startCell2"/>
   <Translation x="10.5*mm" y="0*fm" z="-3*[mbCommon:MBCell_height]" />
  </PosPart>
 
@@ -1778,7 +1782,17 @@
    <rParent name="mb1:MB1ChimSLZLayer_47Cells"/>
    <rChild name="mb1:MB1SLZGas"/>
    <ParE name="delta" value="[mbCommon:MBCell_width]*2."/>
-   <ParE name="base" value="-[mbCommon:MBChimSLZL47]+[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall]"/>
+   <ParE name="base" value="-[mbCommon:MBChimSLZL47]-[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall]"/>
+   <ParE name="base" value="0.*mm"/>
+   <ParE name="base" value="0.*mm"/>
+   <ParE name="theta" value="90.*deg" />
+   <ParE name="phi" value="0.*deg" />
+ </AlgoPosPart>
+ <AlgoPosPart algo="global:linear" start="2" end="48" incr="1" >
+   <rParent name="mb1:MB1ChimSLZLayer_47Cells_startCell2"/>
+   <rChild name="mb1:MB1SLZGas"/>
+   <ParE name="delta" value="[mbCommon:MBCell_width]*2."/>
+   <ParE name="base" value="-[mbCommon:MBChimSLZL47]-3*[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall]"/>
    <ParE name="base" value="0.*mm"/>
    <ParE name="base" value="0.*mm"/>
    <ParE name="theta" value="90.*deg" />
@@ -1788,7 +1802,7 @@
    <rParent name="mb1:MB1ChimSLZLayer_48Cells"/>
    <rChild name="mb1:MB1SLZGas"/>
    <ParE name="delta" value="[mbCommon:MBCell_width]*2."/>
-   <ParE name="base" value="-[mbCommon:MBChimSLZL48]+[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall]"/>
+   <ParE name="base" value="-[mbCommon:MBChimSLZL48]-[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall]"/>
    <ParE name="base" value="0.*mm"/>
    <ParE name="base" value="0.*mm"/>
    <ParE name="theta" value="90.*deg" />
@@ -1805,6 +1819,15 @@
    <rChild name="mb1:MB1ChimSLZElectronics_47Cells"/>
   <Translation x="0.*fm" y="-([mb1:MB1SLZLayer_length]-[mbCommon:MBLayerElectronics_width])" z="0.*fm" />
  </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="mb1:MB1ChimSLZLayer_47Cells_startCell2"/>
+   <rChild name="mb1:MB1ChimSLZElectronics_47Cells"/>
+  <Translation x="0.*fm" y="[mb1:MB1SLZLayer_length]-[mbCommon:MBLayerElectronics_width]" z="0.*fm" />
+ </PosPart>
+ <PosPart copyNumber="2">
+   <rParent name="mb1:MB1ChimSLZLayer_47Cells_startCell2"/>
+   <rChild name="mb1:MB1ChimSLZElectronics_47Cells"/>
+  <Translation x="0.*fm" y="-([mb1:MB1SLZLayer_length]-[mbCommon:MBLayerElectronics_width])" z="0.*fm" /> </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb1:MB1ChimSLZLayer_48Cells"/>
    <rChild name="mb1:MB1ChimSLZElectronics_48Cells"/>
