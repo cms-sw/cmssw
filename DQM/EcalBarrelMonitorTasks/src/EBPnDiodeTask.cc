@@ -1,8 +1,8 @@
 /*
  * \file EBPnDiodeTask.cc
  * 
- * $Date: 2005/12/05 07:54:29 $
- * $Revision: 1.5 $
+ * $Date: 2005/12/10 10:44:59 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  *
 */
@@ -87,6 +87,18 @@ void EBPnDiodeTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 //    logFile << " det id = " << id << endl;
 //    logFile << " sm, num " << ism << " " << num << endl;
 
+    float xvalped = 0.;
+
+    for (int i = 0; i < 4; i++) {
+
+      EcalFEMSample sample = pn.sample(i);
+
+      xvalped = xvalped + sample.adc();
+
+    }
+
+    xvalped = xvalped / 4;
+
     float xvalmax = 0.;
 
     MonitorElement* mePN = 0;
@@ -102,6 +114,8 @@ void EBPnDiodeTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( xval >= xvalmax ) xvalmax = xval;
 
     }
+
+    xvalmax = xvalmax - xvalped;
 
     if ( ievt_ >=    1 && ievt_ <=  600 ) mePN = mePNL1_[ism-1];
     if ( ievt_ >=  601 && ievt_ <= 1200 ) mePN = mePNL1_[ism-1];
