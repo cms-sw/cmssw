@@ -51,9 +51,9 @@
 <!-- ####  MB1: DTBX chamber -->
  <!--%% In MB1 the widest superlayer in x is the Z one -->
  <Box name="MB1_a" dx="[MB1_x]" dy="[mbCommon:MBSLPhiPlO_z]+12.*mm" dz="[mbCommon:MBHeight_With2RPC]"/>
- <Box name="MB1_OLAP1" dx="17.*mm" dy="[mbCommon:MBSLPhiPlO_z]+12.*mm" dz="10.*mm"/>
- <Box name="MB1_OLAP2" dx="14.*mm" dy="[mbCommon:MBSLPhiPlO_z]+12.*mm" dz="37.5*mm"/>
- <Box name="MB1_OLAP3" dx="1.*mm" dy="[mbCommon:MBSLPhiPlO_z]+12.*mm" dz="2.5*mm"/>
+ <Box name="MB1_OLAP1" dx="17.*mm" dy="[mbCommon:MBSLPhiPlO_z]+13.*mm" dz="10.*mm"/>
+ <Box name="MB1_OLAP2" dx="14.*mm" dy="[mbCommon:MBSLPhiPlO_z]+13.*mm" dz="37.5*mm"/>
+ <Box name="MB1_OLAP3" dx="1.*mm" dy="[mbCommon:MBSLPhiPlO_z]+13.*mm" dz="2.5*mm"/>
 
  <SubtractionSolid name="MB1P_b">
   <rSolid name="MB1_a"/>

@@ -47,46 +47,33 @@
 <!-- ####  MB3: DTBX chamber -->
  <!--%% In MB3 the widest superlayer in x is the Z one -->
  <Box name="MB3_a" dx="[MB3_x]" dy="[mbCommon:MBSLPhiPlO_z]+12.*mm" dz="[mbCommon:MBHeight_With1RPC]"/>
- <Box name="MB3_OLAP1a" dx="29.*mm" dy="[mbCommon:MBSLPhiPlO_z]+12.*mm" dz="19.*mm"/>
- <Box name="MB3_OLAP1b" dx="32.*mm" dy="[mbCommon:MBSLPhiPlO_z]+12.*mm" dz="8.*mm"/>
- <Box name="MB3_OLAP2" dx="25.5*mm" dy="[mbCommon:MBSLPhiPlO_z]+12.*mm" dz="44.*mm"/>
+ <Box name="MB3_OLAP1" dx="28.*mm" dy="[mbCommon:MBSLPhiPlO_z]+13.*mm" dz="19.*mm"/>
+ <Box name="MB3_OLAP2" dx="25.5*mm" dy="[mbCommon:MBSLPhiPlO_z]+13.*mm" dz="44.*mm"/>
 
  <SubtractionSolid name="MB3P_b">
    <rSolid name="MB3_a"/>
-   <rSolid name="MB3_OLAP1a"/>
+   <rSolid name="MB3_OLAP1"/>
    <rRotation name="rotations:000D"/>
-   <Translation x="-[MB3_x]+28.6*mm" y="0.*fm" z="-[mbCommon:MBHeight_With1RPC]+18.*mm"/>
- </SubtractionSolid>
- <SubtractionSolid name="MB3P_c">
-   <rSolid name="MB3P_b"/>
-   <rSolid name="MB3_OLAP1b"/>
-   <rRotation name="rotations:000D"/>
-   <Translation x="-[MB3_x]+30.6*mm" y="0.*fm" z="-[mbCommon:MBHeight_With1RPC]+6.*mm"/>
+   <Translation x="-[MB3_x]+27.6*mm" y="0.*fm" z="-[mbCommon:MBHeight_With1RPC]+18.*mm"/>
  </SubtractionSolid>
  <SubtractionSolid name="MB3P">
-   <rSolid name="MB3P_c"/>
+   <rSolid name="MB3P_b"/>
    <rSolid name="MB3_OLAP2"/>
    <rRotation name="rotations:000D"/>
-   <Translation x="-[MB3_x]+25.11*mm" y="0.*fm" z="[mbCommon:MBHeight_With1RPC]-53.5*mm"/>
+   <Translation x="-[MB3_x]+25.11*mm" y="0.*fm" z="[mbCommon:MBHeight_With1RPC]-43.5*mm"/>
  </SubtractionSolid>
 
  <SubtractionSolid name="MB3N_b">
    <rSolid name="MB3_a"/>
-   <rSolid name="MB3_OLAP1a"/>
+   <rSolid name="MB3_OLAP1"/>
    <rRotation name="rotations:000D"/>
    <Translation x="[MB3_x]-28.6*mm" y="0.*fm" z="-[mbCommon:MBHeight_With1RPC]+18.*mm"/>
  </SubtractionSolid>
- <SubtractionSolid name="MB3N_c">
-   <rSolid name="MB3N_b"/>
-   <rSolid name="MB3_OLAP1b"/>
-   <rRotation name="rotations:000D"/>
-   <Translation x="[MB3_x]-30.6*mm" y="0.*fm" z="-[mbCommon:MBHeight_With1RPC]+6.*mm"/>
- </SubtractionSolid>
  <SubtractionSolid name="MB3N">
-   <rSolid name="MB3N_c"/>
+   <rSolid name="MB3N_b"/>
    <rSolid name="MB3_OLAP2"/>
    <rRotation name="rotations:000D"/>
-   <Translation x="[MB3_x]-25.11*mm" y="0.*fm" z="[mbCommon:MBHeight_With1RPC]-53.5*mm"/>
+   <Translation x="[MB3_x]-25.11*mm" y="0.*fm" z="[mbCommon:MBHeight_With1RPC]-43.5*mm"/>
  </SubtractionSolid>
  
 <!-- ####  MB3: Superlayers Phi -->
@@ -190,18 +177,12 @@
 
  <SubtractionSolid name="MB3ChimP_b">
    <rSolid name="MB3Chim_a"/>
-   <rSolid name="MB3_OLAP1a"/>
+   <rSolid name="MB3_OLAP1"/>
    <rRotation name="rotations:000D"/>
    <Translation x="-[MB3_x]+28.6*mm" y="0.*fm" z="-[mbCommon:MBHeight_With1RPC]+18.*mm"/>
  </SubtractionSolid>
- <SubtractionSolid name="MB3ChimP_c">
-   <rSolid name="MB3ChimP_b"/>
-   <rSolid name="MB3_OLAP1b"/>
-   <rRotation name="rotations:000D"/>
-   <Translation x="-[MB3_x]+30.6*mm" y="0.*fm" z="-[mbCommon:MBHeight_With1RPC]+6.*mm"/>
- </SubtractionSolid>
  <SubtractionSolid name="MB3ChimP">
-   <rSolid name="MB3ChimP_c"/>
+   <rSolid name="MB3ChimP_b"/>
    <rSolid name="MB3_OLAP2"/>
    <rRotation name="rotations:000D"/>
    <Translation x="-[MB3_x]+25.11*mm" y="0.*fm" z="[mbCommon:MBHeight_With1RPC]-53.5*mm"/>
@@ -209,18 +190,12 @@
 
  <SubtractionSolid name="MB3ChimN_b">
    <rSolid name="MB3Chim_a"/>
-   <rSolid name="MB3_OLAP1a"/>
+   <rSolid name="MB3_OLAP1"/>
    <rRotation name="rotations:000D"/>
    <Translation x="[MB3_x]-28.6*mm" y="0.*fm" z="-[mbCommon:MBHeight_With1RPC]+18.*mm"/>
  </SubtractionSolid>
- <SubtractionSolid name="MB3ChimN_c">
-   <rSolid name="MB3ChimN_b"/>
-   <rSolid name="MB3_OLAP1b"/>
-   <rRotation name="rotations:000D"/>
-   <Translation x="[MB3_x]-30.6*mm" y="0.*fm" z="-[mbCommon:MBHeight_With1RPC]+6.*mm"/>
- </SubtractionSolid>
  <SubtractionSolid name="MB3ChimN">
-   <rSolid name="MB3ChimN_c"/>
+   <rSolid name="MB3ChimN_b"/>
    <rSolid name="MB3_OLAP2"/>
    <rRotation name="rotations:000D"/>
    <Translation x="[MB3_x]-25.11*mm" y="0.*fm" z="[mbCommon:MBHeight_With1RPC]-53.5*mm"/>
