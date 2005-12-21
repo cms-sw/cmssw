@@ -50,6 +50,7 @@ CPPUNIT_TEST(proxyProviderTest);
 CPPUNIT_TEST_EXCEPTION(producerConflictTest,cms::Exception);
 CPPUNIT_TEST_EXCEPTION(sourceConflictTest,cms::Exception);
 CPPUNIT_TEST(sourceProducerResolutionTest);
+CPPUNIT_TEST(preferTest);
 
 CPPUNIT_TEST_SUITE_END();
 public:
@@ -67,6 +68,7 @@ public:
   void producerConflictTest();
   void sourceConflictTest();
   void sourceProducerResolutionTest();
+  void preferTest();
   
 };
 
@@ -264,6 +266,8 @@ void testEventsetup::producerConflictTest()
       dummyProv->setDescription(description);
       provider.add(dummyProv);
    }
+   //checking for conflicts is now delayed until first time EventSetup is requested
+   EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue());
 
 }
 void testEventsetup::sourceConflictTest()
@@ -281,8 +285,11 @@ void testEventsetup::sourceConflictTest()
       dummyProv->setDescription(description);
       provider.add(dummyProv);
    }
+   //checking for conflicts is now delayed until first time EventSetup is requested
+   EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue());
    
 }
+
 void testEventsetup::sourceProducerResolutionTest()
 {
    using edm::eventsetup::test::DummyProxyProvider;
@@ -341,5 +348,114 @@ void testEventsetup::sourceProducerResolutionTest()
       CPPUNIT_ASSERT(kGood.value_==data->value_);
    }
    
+}
+
+
+void testEventsetup::preferTest()
+{
+   try {
+      using edm::eventsetup::test::DummyProxyProvider;
+      using edm::eventsetup::test::DummyData;
+      DummyData kGood; kGood.value_ = 1;
+      DummyData kBad; kBad.value_=0;
+      
+      {
+         using namespace edm::eventsetup;
+         EventSetupProvider::PreferredProviderInfo preferInfo;
+         EventSetupProvider::RecordToDataMap recordToData;
+         //default means use all proxies
+         preferInfo[ComponentDescription("DummyProxyProvider","",false)]=recordToData;
+         
+         eventsetup::EventSetupProvider provider(&preferInfo);
+         {
+            edm::eventsetup::ComponentDescription description("DummyProxyProvider","bad",false);
+            boost::shared_ptr<eventsetup::DataProxyProvider> dummyProv(new DummyProxyProvider(kBad));
+            dummyProv->setDescription(description);
+            provider.add(dummyProv);
+         }
+         {
+            edm::eventsetup::ComponentDescription description("DummyProxyProvider","",false);
+            boost::shared_ptr<eventsetup::DataProxyProvider> dummyProv(new DummyProxyProvider(kGood));
+            dummyProv->setDescription(description);
+            provider.add(dummyProv);
+         }
+         //NOTE: use 'invalid' timestamp since the default 'interval of validity'
+         //       for a Record is presently an 'invalid' timestamp on both ends.
+         //       Since the EventSetup::get<> will only retrieve a Record if its
+         //       interval of validity is 'valid' for the present 'instance'
+         //       this is a 'hack' to have the 'get' succeed
+         EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue());
+         edm::ESHandle<DummyData> data;
+         eventSetup.getData(data);
+         CPPUNIT_ASSERT(kGood.value_==data->value_);
+      }
+      
+      //sources
+      {
+         using namespace edm::eventsetup;
+         EventSetupProvider::PreferredProviderInfo preferInfo;
+         EventSetupProvider::RecordToDataMap recordToData;
+         //default means use all proxies
+         preferInfo[ComponentDescription("DummyProxyProvider","",false)]=recordToData;
+         eventsetup::EventSetupProvider provider(&preferInfo);
+         {
+            edm::eventsetup::ComponentDescription description("DummyProxyProvider","",true);
+            boost::shared_ptr<eventsetup::DataProxyProvider> dummyProv(new DummyProxyProvider(kGood));
+            dummyProv->setDescription(description);
+            provider.add(dummyProv);
+         }
+         {
+            edm::eventsetup::ComponentDescription description("DummyProxyProvider","bad",true);
+            boost::shared_ptr<eventsetup::DataProxyProvider> dummyProv(new DummyProxyProvider(kBad));
+            dummyProv->setDescription(description);
+            provider.add(dummyProv);
+         }
+         //NOTE: use 'invalid' timestamp since the default 'interval of validity'
+         //       for a Record is presently an 'invalid' timestamp on both ends.
+         //       Since the EventSetup::get<> will only retrieve a Record if its
+         //       interval of validity is 'valid' for the present 'instance'
+         //       this is a 'hack' to have the 'get' succeed
+         EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue());
+         edm::ESHandle<DummyData> data;
+         eventSetup.getData(data);
+         CPPUNIT_ASSERT(kGood.value_==data->value_);
+      }
+
+      //specific name
+      {
+         using namespace edm::eventsetup;
+         EventSetupProvider::PreferredProviderInfo preferInfo;
+         EventSetupProvider::RecordToDataMap recordToData;
+         recordToData.insert(std::make_pair(std::string("DummyRecord"),
+                                            std::make_pair(std::string("DummyData"),std::string())));
+         preferInfo[ComponentDescription("DummyProxyProvider","",false)]=recordToData;
+         eventsetup::EventSetupProvider provider(&preferInfo);
+         {
+            edm::eventsetup::ComponentDescription description("DummyProxyProvider","",true);
+            boost::shared_ptr<eventsetup::DataProxyProvider> dummyProv(new DummyProxyProvider(kGood));
+            dummyProv->setDescription(description);
+            provider.add(dummyProv);
+         }
+         {
+            edm::eventsetup::ComponentDescription description("DummyProxyProvider","bad",true);
+            boost::shared_ptr<eventsetup::DataProxyProvider> dummyProv(new DummyProxyProvider(kBad));
+            dummyProv->setDescription(description);
+            provider.add(dummyProv);
+         }
+         //NOTE: use 'invalid' timestamp since the default 'interval of validity'
+         //       for a Record is presently an 'invalid' timestamp on both ends.
+         //       Since the EventSetup::get<> will only retrieve a Record if its
+         //       interval of validity is 'valid' for the present 'instance'
+         //       this is a 'hack' to have the 'get' succeed
+         EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue());
+         edm::ESHandle<DummyData> data;
+         eventSetup.getData(data);
+         CPPUNIT_ASSERT(kGood.value_==data->value_);
+      }
+      
+   }catch(const cms::Exception& iException) {
+      std::cout <<"caught "<<iException.what()<<std::endl;
+      throw;
+   }
 }
 
