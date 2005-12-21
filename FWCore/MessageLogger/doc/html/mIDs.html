@@ -24,7 +24,7 @@ process TEST = {
 			   , "cout"
 			   , "cerr"
 			   }
-    <font color=red>vstring messageIDs = { "unimportant"
+    <font color=red>vstring categories = { "unimportant"
 			 , "trkwarning"
  			 , "serious_matter"
                          }</font>
@@ -66,16 +66,16 @@ process TEST = {
 }
 </pre>
 
-The  <font color=red>vstring messageIDs = { ... }</font>
+The  <font color=red>vstring categories = { ... }</font>
 parameter lists the set of ID's that may be configured 
 specially with regards to limits of how many of each id 
-will be treated to be a given destination.  The message ID
-is the string placed as the argument of edm::LogError(<font color=red>"ID"</a>)
+will be reated to be a given destination.  The message ID
+is the string placed as the argument of edm::LogError(<font colr=red>"ID"</a>)
 or the other message-issuing functions.
 <p>
 This is a <em>vstring</em> parameter, so the ID's are comma-separated.
 <a>
-For each destination, any or all of the messageIDs listed may be used as
+For each destination, any or all of the categories listed may be used as
 a PSet name, to establish limits and timescales for that destination reacting 
 to messages of that type.
 <p><center>

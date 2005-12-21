@@ -84,9 +84,9 @@ a message, one of these functions can be used:
 
 <font color=blue>
 <pre>
-  edm::LogError   ("msgId") << a << b << ... << z;
-  edm::LogWarning ("msgId") << a << b << ... << z;
-  edm::LogInfo    ("msgId") << a << b << ... << z;
+  edm::LogError   ("category") << a << b << ... << z;
+  edm::LogWarning ("category") << a << b << ... << z;
+  edm::LogInfo    ("category") << a << b << ... << z;
 </pre>
 </font>
 When issuing messages:
@@ -99,15 +99,16 @@ represent three levels of "severity" of the message.  It is possible
 to configure the job to ignore all <font color=blue>LogInfo</font> messages,
 or all messages of severity less than <font color=blue>LogError</font>.
 <li>
-<font color=blue>msgId</font> is going to be included as the first 
+<font color=blue>category</font> should specify what this message is about.
+<font color=blue>category</font> is going to be included as the first 
 part of the message, but it also plays two other roles:
 <ol>
 <li> It is possible to set limits on how many times some specific 
 type of message will be sent to the outputs of the logger.  
-By "type" we mean any messages with some specific msgId.  See
+By "type" we mean any messages with some specific category.  See
 <a href="parameters.html"> MessageLogger Parameters</a> for details.
 <li> When message statistics are provided, the counts of how many times
-messages of a given type were issued again keyed to msgId.
+messages of a given type were issued again keyed to category.
 </ol>
 <li>
 An arbitrary number of additional 
@@ -127,7 +128,7 @@ object would cause the line to exceed 80 characters.
 There is an additional form for issuing a message:
 <font color=blue>
 <pre>
-    LogDebug    ("msgId") << a << b << ... << z;
+    LogDebug    ("category") << a << b << ... << z;
 </pre>
 </font>
 This is identical to the others, except:
@@ -139,6 +140,11 @@ message.
 <li>
 LogDebug messages are considered to be lower in severity than LogInfo
 messages.
+<li>
+By default, destinations will not report messages issued via LogDebug.
+The user must specify that a destination is to enable LogDebug messages; 
+see <a href="parameters.html"> MessageLogger Parameters </a> for how 
+that is done.
 <li>
 Because it must get <b>__FILE__</b> and <b>__LINE__</b> from the spot
 issuing the message, <font color=blue>LogDebug</font> 

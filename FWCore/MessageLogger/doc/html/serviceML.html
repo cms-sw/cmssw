@@ -24,9 +24,9 @@ process TEST = {
                              , "cout"
                              , "cerr"
                                              }
-    PSet critical.txt     = { string setThreshold = "ERROR"   }
-    PSet detailedInfo.txt = { string setThreshold = "INFO"    } 
-    PSet cerr             = { string setThreshold = "WARNING" }
+    PSet critical.txt     = { string threshold = "ERROR"   }
+    PSet detailedInfo.txt = { string threshold = "INFO"    } 
+    PSet cerr             = { string threshold = "WARNING" }
   }
   path p = { myAnalysisModule }
   module myAnalysisModule = ModuleThatIssuesMessages { }

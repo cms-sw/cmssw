@@ -24,7 +24,7 @@ process TEST = {
 			   , "cout"
 			   , "cerr"
 			   }
-    vstring messageIDs = { "unimportant"
+    vstring categories = { "unimportant"
 			 , "trkwarning"
  			 , "serious_matter"
                          }
@@ -68,7 +68,7 @@ process TEST = {
 
 Each destination can (in addition to limits by message ID) be configured to 
 react to only some limited number of messages of a specified severity level.
-For example, detailedInfo.txt would react to only the first 100 messages
+For example, detailedInfo.txt would react to only the first 100 messaes
 issued via edm::LogWarning(...), and the first 100 issued via 
 edm::LogError(...), with exponential backoff thereafter.  (Typically, one might 
 limit the number of INFO or WARNING messages and let all the ERROR messages

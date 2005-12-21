@@ -24,9 +24,9 @@ process TEST = {
                              , "cout"
                              , "cerr"
                                              }
-    PSet critical.txt     = { string setThreshold = "ERROR"   }
-    PSet detailedInfo.txt = { string setThreshold = "INFO"    } 
-    PSet cerr             = { <font color=red>string setThreshold = "WARNING"</font> }
+    PSet critical.txt     = { string threshold = "ERROR"   }
+    PSet detailedInfo.txt = { string threshold = "INFO"    } 
+    PSet cerr             = { <font color=red>string threshold = "WARNING"</font> }
   }
   path p = { myAnalysisModule }
   module myAnalysisModule = ModuleThatIssuesMessages { }
@@ -35,7 +35,7 @@ process TEST = {
 </pre>
 
 
-The <font color=red>string setThreshold = "WARNING"</font> parameter
+The <font color=red>string threshold = "WARNING"</font> parameter
 in the PSet configuring <font color=red>cerr</font> tells the 
 destination writing to cerr to ignore all messages
 with severity below <font color=red>WARNING</font>.  Thus messages

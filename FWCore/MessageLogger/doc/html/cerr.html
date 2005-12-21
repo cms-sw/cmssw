@@ -24,9 +24,9 @@ process TEST = {
                              , "cout"
                              , <font color=red>"cerr"</font>
                                              }
-    PSet critical.txt     = { string setThreshold = "ERROR"   }
-    PSet detailedInfo.txt = { string setThreshold = "INFO"    } 
-    PSet <font color=red>cerr</font>             = { string setThreshold = "WARNING" }
+    PSet critical.txt     = { string threshold = "ERROR"   }
+    PSet detailedInfo.txt = { string threshold = "INFO"    } 
+    PSet <font color=red>cerr</font>             = { string threshold = "WARNING" }
   }
   path p = { myAnalysisModule }
   module myAnalysisModule = ModuleThatIssuesMessages { }

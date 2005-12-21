@@ -25,7 +25,9 @@ job's configuration file (.cfg).
 <p>
 <ul>
 <li> <a href="#Concepts"> Message Logging Concepts </a>
-<li> <a href="#example"> Example .cfg File </a>
+<li> <a href="#cms"> Routine MessageLogger Parameters </a>
+<li> <a href="#debug"> Enamble Specific LogDebug Messages </a>
+<li> <a href="#example"> Example .cfg File Exercising Some Options</a>
 <li> <a href="#complete"> Examples of all MessageLogger Parameters </a> 
 </ul>
 <p>
@@ -57,9 +59,11 @@ be familiar with the following concepts:
 <li><font color=blue><b> Message ID
   </b></font>
   <ul>
-  Each message is given an ID when issued.  For example, several messages
-  with different detailed content could all be of type <b>TrackingProblem</b>.
-  The behavior for message with a given ID can be controlled.
+  Each message is given a category when issued.  This is intended to represent
+  what this message is about.  For example, several messages
+  with different detailed content could all be of type <b>tracking</b>.
+  Limits can be imposed on the reporting of messages in a given category,
+  and statistics can be obtained by category.
   </ul>
 <li><font color=blue><b> Severity
   </b></font>
@@ -77,38 +81,49 @@ be familiar with the following concepts:
   </ul>
 <li><font color=blue><b> Threshold
   </b></font>
+  <ul>
   For any given destination, the .cfg file can specify that every
   message with a severity lower than a given <font color=blue>threshold</font>
-  shall be ignored.  Setting a threshold to <font color=blue>DEBUG</font> is
-  valid but moot, since no messages will have severity lower than that.
-  <ul>
+  shall be ignored.  
+  <font color=green>By default, a destination will have a threshold of
+  <font color=blue>INFO</font>; responses to messages issued via LogDebug
+  can be enabled by setting a threshold to <font color=blue>DEBUG</font>.
+  </font> 
   </ul>
 <li><font color=blue><b> Limit
   </b></font>
   <ul>
-  For each message id, or for messages in general, or for a specified severity
+  For each message category, 
+  or for messages in general, or for a specified severity
   level, the .cfg file can instruct the logger to ignore messages after some
   number (the <font color=blue>limit</font>) have been encountered.  
   (Actually, beyond the applicable limit, an occasional further message will
   appear, based on an exponential backoff.  Thus, if the a limit is set at 
   5, and 100 messages of that id are issued, then that destination will react
-  to the messages number 1, 2, 3, 4, 5, 10, 15, 25, 45, and 85.) 
+  to the messages number 1, 2, 3, 4, 5, 10, 15, 25, 45, and 85.)  A limit of
+  zero will disable reporting that category of messages.
   </ul>
 <li><font color=blue><b> Timespan
   </b></font>
-  When a limit is set, it is possible to specify that if no occurrences of that
+  <ul>
+  When a limit is set, it is possible to specify that if no occurences of that
   type of message are seen in some number of seconds (the 
   <font color=blue>timespan</font>), then the count toward that limit is to 
-  be reset.  Thus if you wish to suppress most of the thousands of warnings of
+  be reset.  Thus if you wish to supress most of the thousands of warnings of
   some type expected at startup, but would like to know if another one happens
   after a gap of ten minutes, this can be specified as a timespan of 600.
-  <ul>
   </ul> 
 </ul>
 <p>
 The typical user may not be interested in specifying limits of how many times
-messages of types will be displayed.  By default, the MessageLogger service
-will output to each destination every messages meeting the severity threshold 
+messages of types will be displayed.  
+<font color=green> By default, the MessageLogger service
+will impose a limit of 5 occurences of each category of 
+LogInfo messages, except for framework event messages which will be 
+unlimited. </font>
+
+
+output to each destination every messages meeting the severity threshold 
 criteria specific for that destination.  In fact, the user need not specify
 any thresholds; then every message will be output.  And if the user does not
 specify any destinations, then a single destination of cerr is assumed.
@@ -118,8 +133,62 @@ In the near future, concepts for establishing and/or controlling a destination
 involving the <font color=blue> log4cplus </font> service may also
 be listed here.
 
+
+<a name="cms">
+<h2> Routine MessageLogger Parameters </h2>
+
+The following is a portion of a .cfg file requesting the MessageLogger
+Service, and setting up setting a destination which will write messages
+to the file <font color=blue>messages.txt</font>.  The default threshold
+and limits will apply:  No LogDebug messages will be reported, and 
+only the first five messages of each category will be reported.
+<font color=blue>
+<pre>
+process TEST = 
+{
+  service = MessageLoggger { vstring destinations = { "messages.txt" } }
+}
+</pre>
+</font>
+
+
+<a name="cms">
+<h2> Enabling Specific LogDebug Messages </h2>
+
+The following is a portion of a .cfg file appropriate for a job that will
+run code instrumented with many LogDebug messages.  The hypothetical user
+cares only about those LogDebug messages in the category 
+<font color=blue>interestingToMe</font> and, in this file, prefers not
+to see any other LogDebug or LogInfo messages.
+
+<font color=blue>
+<pre>
+process TEST = 
+{
+  service = MessageLoggger 
+  {
+  vstring destinations   = { "debugmessages.txt" }
+  vstring categories     = { "interestingToMe" }
+  PSet debugmessages.txt = { string threshold = "DEBUG"
+                             PSet INFO  = { int32 limit = 0 }
+                             PSet DEBUG = { int32 limit = 0 }
+			     PSet interestingToMe = {int32 limit = 10000000}
+  } 
+}
+</pre>
+</font>
+
+Here, for the <font color=blue>debugmessages.txt</font>, the user
+enables LogDebug messages by lowering the threshold to "DEBUG".  
+The next two lines establish that for any category of messages 
+without its own limit specification, if the message has severity 
+INFO or DEBUG, use a limit of zero (which means don't report those
+messages).  Finally, the .cfg file overrides this for messages in the
+category <font color=blue>interestingToMe</font>, permitting messages of
+that category to be reported.
+
 <a name="example">
-<h2> Example .cfg File </h2>
+<h2> Example .cfg File Exercising Some Options </h2>
 
 The following is an example .cfg file, requesting the MessageLogger
 Service, setting up some destinations, and specifying some thresholds
@@ -135,9 +204,9 @@ process TEST = {
                              , <a href="cout.html">"cout"</a>
                              , <a href="cerr.html">"cerr"</a>
                       }
-    <a href="filename.html">PSet critical.txt</a>     = { <a href="errorthreshold.html">string setThreshold = "ERROR"</a>   }
-    <a href="filename.html">PSet detailedInfo.txt</a> = { <a href="infothreshold.html">string setThreshold = "INFO"</a>    } 
-    <a href="cerr.html">PSet cerr</a>             = { <a href="warnthreshold.html">string setThreshold = "WARNING"</a> }
+    <a href="filename.html">PSet critical.txt</a>     = { <a href="errorthreshold.html">string threshold = "ERROR"</a>   }
+    <a href="filename.html">PSet detailedInfo.txt</a> = { <a href="infothreshold.html">string threshold = "INFO"</a>    } 
+    <a href="cerr.html">PSet cerr</a>             = { <a href="warnthreshold.html">string threshold = "WARNING"</a> }
   }
   path p = { myAnalysisModule }
   module myAnalysisModule = ModuleThatIssuesMessages { }
@@ -153,7 +222,7 @@ The following is an example .cfg file, requesting the MessageLogger
 Service, setting up some destinations, and specifying some  
 choices for thresholds, and for limits and timespans applicable 
 to severities, to specific
-message ID's, and to all non-specified (default) message ID's.
+missage ID's, and to all non-specified (default) message ID's.
 <p>
 The .cfg file contains not only a list of files, but also a list of message 
 ID's that the author wishes to control individually.
@@ -173,7 +242,7 @@ process TEST = {
 			   <a href="destinations.html">, "cout"</a>
 			   <a href="destinations.html">, "cerr"</a>
 			   <a href="destinations.html">}</a>
-    <a href="mIDs.html">vstring messageIDs = { "unimportant"</a>
+    <a href="mIDs.html">vstring categories = { "unimportant"</a>
 			 <a href="mIDs.html">, "trkwarning"</a>
  			 <a href="mIDs.html">, "serious_matter"</a>
                          <a href="mIDs.html">}</a>
@@ -183,7 +252,7 @@ process TEST = {
 					     <a href="defaults.html">}</a>
 			      <a href="notimespan.html">PSet serious_matter = { int32 limit = 100000 }</a>
                         }
-    <a href="destname.html">PSet detailedInfo.txt = {</a>  <a href="thresh.html">string threshold = "INFO"</a>
+    <a href="destname.html">PSet detailedInfo.txt = {</a> <a href="thresh.html">string threshold = "INFO"</a>
 			      <a href="defaults.html">PSet default        = {</a> <a href="limits.html">int32 limit    =  10</a>
 					              <a href="limits.html">int32 timespan =  60</a>
 					            <a href="defaults.html">}</a>

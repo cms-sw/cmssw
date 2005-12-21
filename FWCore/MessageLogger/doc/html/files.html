@@ -24,9 +24,9 @@ process TEST = {
                              , "cout"
                              , "cerr"
                                              }
-    PSet critical.txt     = { string setThreshold = "ERROR"   }
-    PSet detailedInfo.txt = { string setThreshold = "INFO"    } 
-    PSet cerr             = { string setThreshold = "WARNING" }
+    PSet critical.txt     = { string threshold = "ERROR"   }
+    PSet detailedInfo.txt = { string threshold = "INFO"    } 
+    PSet cerr             = { string threshold = "WARNING" }
   }
   path p = { myAnalysisModule }
   module myAnalysisModule = ModuleThatIssuesMessages { }
@@ -42,7 +42,7 @@ filtering of messages.
 
 <p>
 If messages are issued prior to the initiation of the MessageLogger service,
-the configuration of these destinations will not yet have occurred.  Such
+the configuration of these destinations will not yet have occured.  Such
 messages will be sent to cerr.
 
 <p><center>

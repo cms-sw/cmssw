@@ -24,7 +24,7 @@ process TEST = {
 			   , "cout"
 			   , "cerr"
 			   }
-    vstring messageIDs = { "unimportant"
+    vstring categories = { "unimportant"
 			 , "trkwarning"
  			 , "serious_matter"
                          }
@@ -66,20 +66,20 @@ process TEST = {
 }
 </pre>
 
-The <font color=red>string setThreshold = "ERROR"</font> (or "INFO" or 
+The <font color=red>string threshold = "ERROR"</font> (or "INFO" or 
 "WARNING") parameter
 in the PSets configuring critical.txt, detailedInfo.txt, and cerr respectively,
 tells the  
 destination to ignore all messages
 with severity below <font color=red>ERROR</font> (or INFO or WARNING).  
-Thus the destination writing critical.txt will ignore all messages issued  
+Thus the destination writing critical.txt will ignore all messges issued  
 using <font color=blue>LogDegbug</font>,   
 <font color=blue>LogInfo</font>, and  <font color=blue>LogWarning</font>.
 <p>
 This parameter is optional; if it is not present, the destination will 
 not filter out messages by their severity.  We do not illustrate setting the
 threshold to DEBUG, because there is no lower severity; thus 
-<em>string setThreshold = "DEBUG"</em> would be equivalent to omitting that 
+<em>string threshold = "DEBUG"</em> would be equivalent to omitting that 
 parameter.
 
 <p><center>

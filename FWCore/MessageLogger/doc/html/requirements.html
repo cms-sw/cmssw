@@ -40,7 +40,7 @@ message.
 <h3> Questions </h3>
 
 What does it mean to be two types of message.  The easiest thing to do would
-be to issue two distinct messages, but it is assumed that that is not the most desirable
+be to issue two distinct messagesm but assumedly that is not the most desirable
 behavior.  The questions include:
 <ul>
 <li> How should the output message look?  (We implied that just including the 
@@ -49,7 +49,7 @@ or-ed ID's as the ID would be OK.)
 that would react to either of the combined ID's.)
 <li> What should this do to the message counts for each ID for each destination?
 <li> How is this treated for statistics?  (Probably one message of each type;
-but the first-two, last-one contexts might want to behave specially.)
+but the first-two, last-one contexts might mant to behave specially.)
 </ul>
 
 <h3> Proposed treatment </h3>
@@ -71,12 +71,12 @@ and one "overflow" message; thus the total of counts by message ID will no
 longer match the total of counts by severity.  The context (of the first 
 two and last one of each type of message) kept by the statistics destination
 will react as it would to a single ID message of each type of ID.  Thus it
-is possible to have the same context (event number or whatever) noted twice
+is possble to have the same context (event number or whatever) noted twice
 (in two different ID's) caused by this one error message.
    
 <h3> Work consequences </h3>
 
-The "issue the message twice" attitude would require no work on ErrorLogger
+The "issue the message twice" attitude would requiure no work on ErrorLogger
 internals, and routine work in the LogXYZ() functions. However, that is not
 the desired behavior.
 <p>
@@ -135,7 +135,7 @@ There are three potentially significant areas of work:
 product is mature and well documented) or arbitrarily hard.  We can give no
 estimate on how long this will take until we try it out.
 <li> Creating the ELlog4cplus destination will be some non-trivial but
-fixed amount of semi-routine work, since it is done with some knowledge of 
+fixed amount of semi-routine work, since it is done with some knowlege of 
 how ELoutput works.
 <li> Providing the parameters to control flexibility will take about half a day
 per parameter, once we know what sort of .cfg control (if any) is needed by CMS.
@@ -147,7 +147,7 @@ per parameter, once we know what sort of .cfg control (if any) is needed by CMS.
 
 <h3> The requirement </h3>
 
-The ErrorLogger has a nice ELstatistics destination for summarizing 
+The ErrorLogger has anice ELstatistics destination for summarizing 
 the messages.
 <p>
 We need a way for MessageLogger service users to to specify a 
@@ -171,7 +171,7 @@ feature?
 
 <ul>
 <li>
-We treat the statistics destinations analogously to the output destinations,
+We treat the statistics destinations analagously to the output destinations,
 allowing the user to provide a list.  This allows the user to control those
 features of the statistics destinations (including threshold and output control)
 which are needed.
@@ -326,7 +326,7 @@ How should the message be fired off to the log?
 </ul>
 <h3> Proposed treatment </h3>
 
-The ErrorObj in the ErrorLogger package already has its severity and ID embedded
+The ErrorObj in the ErrorLogger package already has its severity and ID imbedded
 upon construction, and we propose to do the same here.  
 We would provide 3 classes (the Debug form has complications we choose not to
 deal with:  InfoMessage, WarningMessage, and ErrorMessage.  The ctor would take
@@ -396,7 +396,7 @@ documentation for how to use these.
 If we can stick to our guns about just providing handles to raw ErrorLogger 
 objects, this should not be too hard.  There may be a bit of work in developing
 an interface to get the ELdestControl for a given destination, but we
-probably already have the structures in place for that.
+probably already have the structures in placve for that.
 <p>
 If we need to develop a separate CMS-approved interface for post-configuration 
 adjustment of behavior, this will be a hopeless and endless task.

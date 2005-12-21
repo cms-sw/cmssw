@@ -24,7 +24,7 @@ process TEST = {
 			   , "cout"
 			   , "cerr"
 			   }
-    vstring messageIDs = { "unimportant"
+    vstring categories = { "unimportant"
 			 , "trkwarning"
  			 , "serious_matter"
                          }
@@ -67,7 +67,7 @@ process TEST = {
 </pre>
 
 The configuration file can specify options for a given destination, via a 
-PSet with that destination as its name.  These options include setting 
+PSet with that destination as its name.  These options invclude setting 
 thresholds for reacting to messages, setting limits of how many times this
 destination will react to a messages of a given type (either ID or severity).
 <p>
