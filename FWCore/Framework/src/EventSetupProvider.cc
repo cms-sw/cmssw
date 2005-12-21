@@ -15,6 +15,7 @@
 // system include files
 #include <set>
 #include "boost/bind.hpp"
+#include <algorithm>
 
 // user include files
 #include "FWCore/Framework/interface/EventSetupProvider.h"
@@ -36,8 +37,9 @@ namespace edm {
 //
 // constructors and destructor
 //
-EventSetupProvider::EventSetupProvider() :
-mustFinishConfiguration_(true)
+EventSetupProvider::EventSetupProvider(const PreferredProviderInfo* iInfo) :
+mustFinishConfiguration_(true),
+preferredProviderInfo_( (0!=iInfo) ? (new PreferredProviderInfo(*iInfo)): 0)
 {
 }
 
@@ -117,15 +119,165 @@ EventSetupProvider::add(boost::shared_ptr<EventSetupRecordIntervalFinder> iFinde
       itFound->second->addFinder(iFinder);
    }
 }
+
+typedef std::map<EventSetupRecordKey, boost::shared_ptr<EventSetupRecordProvider> > Providers;
+typedef std::map<EventSetupRecordKey, EventSetupRecordProvider::DataToPreferredProviderMap> RecordToPreferred;
+///find everything made by a DataProxyProvider and add it to the 'preferred' list
+static
+void 
+preferEverything(const ComponentDescription& iComponent,
+                 const Providers& iProviders,
+                 RecordToPreferred& iReturnValue)
+{
+   //need to get our hands on the actual DataProxyProvider
+   bool foundProxyProvider = false;
+   for(Providers::const_iterator itProvider = iProviders.begin();
+       itProvider!= iProviders.end();
+       ++itProvider) {
+      std::set<ComponentDescription> components = itProvider->second->proxyProviderDescriptions();
+      if(components.find(iComponent)!= components.end()) {
+         boost::shared_ptr<DataProxyProvider> proxyProv = 
+         itProvider->second->proxyProvider(*(components.find(iComponent)));
+         assert(proxyProv.get());
+         
+         std::set<EventSetupRecordKey> records = proxyProv->usingRecords();
+         for(std::set<EventSetupRecordKey>::iterator itRecord =records.begin();
+             itRecord != records.end();
+             ++itRecord){
+            const DataProxyProvider::KeyedProxies& keyedProxies = proxyProv->keyedProxies(*itRecord);
+            if( !keyedProxies.empty()){
+               //add them to our output
+               EventSetupRecordProvider::DataToPreferredProviderMap& dataToProviderMap =
+               iReturnValue[*itRecord];
+               
+               for(DataProxyProvider::KeyedProxies::const_iterator itProxy = keyedProxies.begin();
+                   itProxy != keyedProxies.end();
+                   ++itProxy) {
+                  EventSetupRecordProvider::DataToPreferredProviderMap::iterator itFind =
+                  dataToProviderMap.find(itProxy->first);
+                  if(itFind != dataToProviderMap.end()){
+                     throw cms::Exception("ESPreferConflict") <<"Two providers have been set to be preferred for\n"
+                     <<itProxy->first.type().name()<<" \""<<itProxy->first.name().value()<<"\""
+                     <<"\n the providers are "
+                     <<"\n 1) type="<<itFind->second.type_<<" label=\""<<itFind->second.label_<<"\""
+                     <<"\n 2) type="<<iComponent.type_<<" label=\""<<iComponent.label_<<"\""
+                     <<"\nPlease modify configuration so only one is preferred";
+                  }
+                  dataToProviderMap.insert(std::make_pair(itProxy->first,iComponent));
+               }
+            }
+         }
+         foundProxyProvider=true;
+         break;
+      }
+   }
+   if(!foundProxyProvider) {
+      throw cms::Exception("ESPreferNoProvider")<<"Could not make type=\""<<iComponent.type_
+      <<"\" label=\""<<iComponent.label_<<"\" a preferred Provider."<<
+      "\n  Please check spelling of name, or that it was loaded into the job.";
+   }
+}
+static
+RecordToPreferred determinePreferred(const EventSetupProvider::PreferredProviderInfo* iInfo, 
+                                     const Providers& iProviders)
+{
+   using namespace edm::eventsetup;
+   RecordToPreferred returnValue;
+   if(0 != iInfo){
+      for(EventSetupProvider::PreferredProviderInfo::const_iterator itInfo=iInfo->begin();
+          itInfo != iInfo->end();
+          ++itInfo) {
+         if(itInfo->second.empty()) {
+            //want everything
+            preferEverything(itInfo->first, iProviders, returnValue);
+         } else {
+            for(EventSetupProvider::RecordToDataMap::const_iterator itRecData = itInfo->second.begin();
+                itRecData != itInfo->second.end();
+                ++itRecData) {
+               std::string recordName= itRecData->first;
+               EventSetupRecordKey recordKey(eventsetup::EventSetupRecordKey::TypeTag::findType(recordName));
+               if(recordKey.type() == eventsetup::EventSetupRecordKey::TypeTag()) {
+                  throw cms::Exception("ESPreferUnknownRecord") <<"Unknown record \""<<recordName
+                  <<"\" used in es_prefer statement for type="
+                  <<itInfo->first.type_<<" label=\""<<itInfo->first.label_
+                  <<"\"\n Please check spelling.";
+                  //record not found
+               }
+               //See if the ProxyProvider provides something for this Record
+               Providers::const_iterator itRecordProvider = iProviders.find(recordKey);
+               assert(itRecordProvider != iProviders.end());
+               
+               std::set<ComponentDescription> components = itRecordProvider->second->proxyProviderDescriptions();
+               std::set<ComponentDescription>::iterator itProxyProv = components.find(itInfo->first);
+               if(itProxyProv == components.end()){
+                  throw cms::Exception("ESPreferWrongRecord")<<"The type="<<itInfo->first.type_<<" label=\""<<
+                  itInfo->first.label_<<"\" does not provide data for the Record "<<recordName;
+               }
+               //Does it data type exist?
+               eventsetup::TypeTag datumType = eventsetup::TypeTag::findType(itRecData->second.first);
+               if(datumType == eventsetup::TypeTag()) {
+                  //not found
+                  throw cms::Exception("ESPreferWrongDataType")<<"The es_prefer statement for type="<<itInfo->first.type_<<" label=\""<<
+                  itInfo->first.label_<<"\" has the unknown data type \""<<itRecData->second.first<<"\""
+                  <<"\n Please check spelling";
+               }
+               eventsetup::DataKey datumKey(datumType, itRecData->second.second.c_str());
+               
+               //Does the proxyprovider make this?
+               boost::shared_ptr<DataProxyProvider> proxyProv = 
+                  itRecordProvider->second->proxyProvider(*itProxyProv);
+               const DataProxyProvider::KeyedProxies& keyedProxies = proxyProv->keyedProxies(recordKey);
+               if( std::find_if(keyedProxies.begin(), keyedProxies.end(), 
+                                boost::bind( std::equal_to<DataKey>(), datumKey, boost::bind(&DataProxyProvider::KeyedProxies::value_type::first,_1))) ==
+                   keyedProxies.end()){
+                  throw cms::Exception("ESPreferWrongData")<<"The es_prefer statement for type="<<itInfo->first.type_<<" label=\""<<
+                  itInfo->first.label_<<"\" specifies the data item \n"
+                  <<"  type=\""<<itRecData->second.first<<"\" label=\""<<itRecData->second.second<<"\""
+                  <<"  which is not provided.  Please check spelling.";
+               }
+               
+               EventSetupRecordProvider::DataToPreferredProviderMap& dataToProviderMap
+                  =returnValue[recordKey];
+               //has another provider already been specified?
+               if(dataToProviderMap.end()!= dataToProviderMap.find(datumKey)) {
+                  EventSetupRecordProvider::DataToPreferredProviderMap::iterator itFind =
+                  dataToProviderMap.find(datumKey);
+                  throw cms::Exception("ESPreferConflict") <<"Two providers have been set to be preferred for\n"
+                  <<datumKey.type().name()<<" \""<<datumKey.name().value()<<"\""
+                  <<"\n the providers are "
+                  <<"\n 1) type="<<itFind->second.type_<<" label=\""<<itFind->second.label_<<"\""
+                  <<"\n 2) type="<<itProxyProv->type_<<" label=\""<<itProxyProv->label_<<"\""
+                  <<"\nPlease modify configuration so only one is preferred";
+               }
+               dataToProviderMap.insert(std::make_pair(datumKey,*itProxyProv));
+            }
+         }
+      }
+   }
+   return returnValue;
+}
+
 void
 EventSetupProvider::finishConfiguration()
 {
+   //used for the case where no preferred Providers have been specified for the Record
+   static const EventSetupRecordProvider::DataToPreferredProviderMap kEmptyMap;
+   
+   RecordToPreferred recordToPreferred = determinePreferred(preferredProviderInfo_.get(),providers_);
    //For each Provider, find all the Providers it depends on.  If a dependent Provider
    // can not be found pass in an empty list
    Providers::iterator itEnd = providers_.end();
    for(Providers::iterator itProvider = providers_.begin();
         itProvider != itEnd;
         ++itProvider) {
+      const EventSetupRecordProvider::DataToPreferredProviderMap* preferredInfo = &kEmptyMap;
+      RecordToPreferred::const_iterator itRecordFound = recordToPreferred.find( itProvider->first );
+      if( itRecordFound != recordToPreferred.end()) {
+         preferredInfo = &(itRecordFound->second);
+      }
+      //Give it our list of preferred 
+      itProvider->second->usePreferred(*preferredInfo);
+      
       std::set<EventSetupRecordKey> records = itProvider->second->dependentRecords();
       if(records.size() != 0) {
          std::vector<boost::shared_ptr<EventSetupRecordProvider> > depProviders;

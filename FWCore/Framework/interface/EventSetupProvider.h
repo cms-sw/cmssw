@@ -42,7 +42,13 @@ class EventSetupProvider
 {
 
    public:
-      EventSetupProvider();
+      typedef std::string RecordName;
+      typedef std::string DataType;
+      typedef std::string DataLabel;
+      typedef std::pair<DataType,DataLabel> DataKeyInfo;
+      typedef std::multimap<RecordName,DataKeyInfo> RecordToDataMap;
+      typedef std::map<ComponentDescription,RecordToDataMap > PreferredProviderInfo;
+      EventSetupProvider(const PreferredProviderInfo* iInfo=0);
       virtual ~EventSetupProvider();
 
       // ---------- const member functions ---------------------
@@ -88,6 +94,8 @@ class EventSetupProvider
       typedef std::map<EventSetupRecordKey, boost::shared_ptr<EventSetupRecordProvider> > Providers;
       Providers providers_;
       bool mustFinishConfiguration_;
+      
+      std::auto_ptr<PreferredProviderInfo> preferredProviderInfo_;
 };
 
    }

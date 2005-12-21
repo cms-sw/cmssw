@@ -61,14 +61,24 @@ template<class T>
    }
    
 protected:
-      virtual void addProxiesToRecord(boost::shared_ptr<DataProxyProvider> iProvider) {
+      virtual void addProxiesToRecord(boost::shared_ptr<DataProxyProvider> iProvider,
+                                      const EventSetupRecordProvider::DataToPreferredProviderMap& iMap) {
          typedef DataProxyProvider::KeyedProxies ProxyList ;
+         typedef EventSetupRecordProvider::DataToPreferredProviderMap PreferredMap;
 
          const ProxyList& keyedProxies(iProvider->keyedProxies(key())) ;
          ProxyList::const_iterator finishedProxyList(keyedProxies.end()) ;
          for (ProxyList::const_iterator keyedProxy(keyedProxies.begin()) ;
                keyedProxy != finishedProxyList ;
                ++keyedProxy) {
+            PreferredMap::const_iterator itFound = iMap.find(keyedProxy->first);
+            if(iMap.end() != itFound) {
+               if( itFound->second.type_ != keyedProxy->second->providerDescription()->type_ ||
+                   itFound->second.label_ != keyedProxy->second->providerDescription()->label_ ) {
+                  //this is not the preferred provider
+                  continue;
+               }
+            }
             record_.add((*keyedProxy).first , (*keyedProxy).second.get()) ;
          }
       }

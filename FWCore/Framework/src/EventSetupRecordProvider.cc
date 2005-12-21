@@ -71,8 +71,6 @@ EventSetupRecordProvider::add(boost::shared_ptr<DataProxyProvider> iProvider)
                                           iProvider));
    
    providers_.push_back(iProvider);
-   //do it now, in future may delay this till later
-   addProxiesToRecord(iProvider);
 }
 
 void 
@@ -89,6 +87,12 @@ EventSetupRecordProvider::setValidityInterval(const ValidityInterval& iInterval)
 void 
 EventSetupRecordProvider::setDependentProviders(const std::vector< boost::shared_ptr<EventSetupRecordProvider> >&)
 {
+}
+void 
+EventSetupRecordProvider::usePreferred(const DataToPreferredProviderMap& iMap)
+{
+   std::for_each(providers_.begin(),providers_.end(), 
+                 boost::bind(&EventSetupRecordProvider::addProxiesToRecord,this,_1,iMap));
 }
 
 //
@@ -149,6 +153,21 @@ EventSetupRecordProvider::proxyProviderDescriptions() const
                   boost::bind(&DataProxyProvider::description,_1) );
    return descriptions;
 }
+
+boost::shared_ptr<DataProxyProvider> 
+EventSetupRecordProvider::proxyProvider(const ComponentDescription& iDesc) const {
+   std::vector<boost::shared_ptr<DataProxyProvider> >::const_iterator itFound =
+   std::find_if(providers_.begin(),providers_.end(),
+                boost::bind(std::equal_to<ComponentDescription>(), 
+                            iDesc, 
+                            boost::bind(&DataProxyProvider::description,_1))
+                );
+   if(itFound == providers_.end()){
+      return boost::shared_ptr<DataProxyProvider>();
+   }
+   return *itFound;
+}
+
 
 //
 // static member functions

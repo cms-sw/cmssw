@@ -21,6 +21,7 @@
 // system include files
 #include <vector>
 #include <set>
+#include <map>
 #include "boost/shared_ptr.hpp"
 
 // user include files
@@ -35,11 +36,14 @@ namespace edm {
       class EventSetupProvider;
       class DataProxyProvider;
       class ComponentDescription;
+      class DataKey;
       
 class EventSetupRecordProvider
 {
 
    public:
+      typedef std::map<DataKey, ComponentDescription> DataToPreferredProviderMap;
+   
       EventSetupRecordProvider(const EventSetupRecordKey& iKey);
       virtual ~EventSetupRecordProvider();
 
@@ -53,7 +57,12 @@ class EventSetupRecordProvider
       ///Returns the list of Records the provided Record depends on (usually none)
       virtual std::set<EventSetupRecordKey> dependentRecords() const;
       
+      ///return information on which DataProxyProviders are supplying information
       std::set<ComponentDescription> proxyProviderDescriptions() const;
+      
+      ///returns the DataProxyProvider or a 'null' if not found
+      boost::shared_ptr<DataProxyProvider> proxyProvider(const ComponentDescription&) const;
+
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
@@ -71,8 +80,12 @@ class EventSetupRecordProvider
       ///If the provided Record depends on other Records, here are the dependent Providers
       virtual void setDependentProviders(const std::vector< boost::shared_ptr<EventSetupRecordProvider> >&);
 
+      /**In the case of a conflict, sets what Provider to call.  This must be called after
+         all providers have been added.  An empty map is acceptable. */
+      void usePreferred(const DataToPreferredProviderMap&);
    protected:
-      virtual void addProxiesToRecord(boost::shared_ptr<DataProxyProvider>) = 0;
+      virtual void addProxiesToRecord(boost::shared_ptr<DataProxyProvider>,
+                                      const DataToPreferredProviderMap& ) = 0;
    private:
       EventSetupRecordProvider(const EventSetupRecordProvider&); // stop default
 
