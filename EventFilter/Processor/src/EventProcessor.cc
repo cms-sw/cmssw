@@ -135,7 +135,7 @@ void EventProcessor::init(std::string &config)
 						 getVersion(), 
 						 getPass());
   }
-  cout << "FPEventProcessor::init() complete " << endl; 
+  cout << "FPEventProcessor::init() complete. eventcount= " << eventcount << endl; 
 }
 
 
@@ -244,9 +244,8 @@ void EventProcessor::run()
 	  pause();
 	  cout << "continuing with next event " << endl;
 	}
-      ++eventcount;
       auto_ptr<edm::EventPrincipal> pep = input_->readEvent();
-      
+      ++eventcount;
       if(pep.get()==0) break;
       edm::IOVSyncValue ts(pep->id(), pep->time());
       edm::EventSetup const& es = esp_.eventSetupForInstance(ts);
@@ -299,10 +298,25 @@ void EventProcessor::run()
 #include "extern/cgicc/linuxx86/include/cgicc/HTTPHTMLHeader.h"
 #include "extern/cgicc/linuxx86/include/cgicc/HTMLClasses.h"
 
-void EventProcessor::taskWebPage(xgi::Input *in, xgi::Output *out)
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "EventFilter/Utilities/interface/ModuleWebRegistry.h"
+
+
+void EventProcessor::taskWebPage(xgi::Input *in, xgi::Output *out, 
+				 const std::string &urn)
 {
 
   evf::filter *filt = 0;
+  edm::ServiceRegistry::Operate operate(serviceToken_);
+  ModuleWebRegistry *mwr = 0;
+  cout << "Checking the module web registry " << endl;
+  try{
+    if(edm::Service<ModuleWebRegistry>().isAvailable())
+      mwr = edm::Service<ModuleWebRegistry>().operator->();
+  }
+  catch(...)
+    { cout <<"exception when trying to get the service registry " << endl;}
+  cout << "Module web registry found ? " << (int) mwr << " eventcount = " << eventcount << endl; 
 
   *out << "<table frame=\"void\" rules=\"groups\" class=\"states\">" << std::endl;
   *out << "<colgroup> <colgroup align=\"rigth\">"                    << std::endl;
@@ -325,7 +339,7 @@ void EventProcessor::taskWebPage(xgi::Input *in, xgi::Output *out)
 	*out << "Processed Events" << std::endl;
 	*out << "</td>" << std::endl;
 	*out << "<td>" << std::endl;
-	*out << eventcount-1 << std::endl;
+	*out << eventcount << std::endl;
 	*out << "</td>" << std::endl;
     *out << "  </tr>"                                            << endl;
   *out << "</table>" << std::endl;
@@ -334,6 +348,12 @@ void EventProcessor::taskWebPage(xgi::Input *in, xgi::Output *out)
     *out << "  <tr>"                                                   << endl;
     *out << "    <th colspan=3>"                                       << endl;
     *out << "      " << "Application"                                  << endl;
+
+    if(descs_.size()>0)
+      *out << " (Process name=" << descs_[0].processName_ << ")"       << endl;
+
+
+
     *out << "    </th>"                                                << endl;
     *out << "  </tr>"                                                  << endl;
 
@@ -342,10 +362,10 @@ void EventProcessor::taskWebPage(xgi::Input *in, xgi::Output *out)
 	*out << "Module" << std::endl;
 	*out << "</th>" << std::endl;
 	*out << "<th >" << std::endl;
-	*out << "Version" << std::endl;
+	*out << "Label" << std::endl;
 	*out << "</th>" << std::endl;
 	*out << "<th >" << std::endl;
-	*out << "Process" << std::endl;
+	*out << "Version" << std::endl;
 	*out << "</th>" << std::endl;
 	*out << "</tr>" << std::endl;
 
@@ -353,13 +373,17 @@ void EventProcessor::taskWebPage(xgi::Input *in, xgi::Output *out)
     {
         *out << "<tr>" << std::endl;
 	*out << "<td >" << std::endl;
-	*out << descs_[idesc].moduleName_ << std::endl;
+	if(mwr && mwr->checkWeb(descs_[idesc].moduleName_))
+	  *out << "<a href=\"/" << urn << "/moduleWeb?module=" << descs_[idesc].moduleName_ << "\">" 
+	       << descs_[idesc].moduleName_ << "</a>" << std::endl;
+	else
+	  *out << descs_[idesc].moduleName_ << std::endl;
+	*out << "</td>" << std::endl;
+	*out << "<td >" << std::endl;
+	*out << descs_[idesc].moduleLabel_ << std::endl;
 	*out << "</td>" << std::endl;
 	*out << "<td >" << std::endl;
 	*out << descs_[idesc].versionNumber_ << std::endl;
-	*out << "</td>" << std::endl;
-	*out << "<td >" << std::endl;
-	*out << descs_[idesc].processName_ << std::endl;
 	*out << "</td>" << std::endl;
 	*out << "</tr>" << std::endl;
     }
@@ -381,3 +405,22 @@ void EventProcessor::taskWebPage(xgi::Input *in, xgi::Output *out)
   
 }
 
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "EventFilter/Utilities/interface/ModuleWebRegistry.h"
+
+void EventProcessor::moduleWebPage(xgi::Input *in, xgi::Output *out, 
+				   const std::string &mod)
+{
+  edm::ServiceRegistry::Operate operate(serviceToken_);
+  ModuleWebRegistry *mwr = 0;
+  cout << "Checking the module web registry for " << mod << endl;
+  try{
+    if(edm::Service<ModuleWebRegistry>().isAvailable())
+      mwr = edm::Service<ModuleWebRegistry>().operator->();
+  }
+  catch(...)
+    { 
+      cout <<"exception when trying to get the service registry " << endl;
+    }
+  mwr->invoke(in,out,mod);
+}
