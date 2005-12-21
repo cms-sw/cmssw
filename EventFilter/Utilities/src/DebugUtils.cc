@@ -19,7 +19,7 @@ string evf::dumpFrame(unsigned char* data, unsigned int len)
   int pos = 0;
       
       
-  for (int i = 0; i < (len/8); i++) {
+  for (unsigned int i = 0; i < (len/8); i++) {
     int rpos = 0;
     for (pos = 0; pos < 8*3; pos += 3) {
       sprintf (&left[pos],"%2.2x ", ((unsigned char*)data)[c]);
