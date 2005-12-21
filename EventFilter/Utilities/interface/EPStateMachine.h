@@ -120,7 +120,21 @@ namespace evf
       void fireEvent(toolbox::Event::Reference e) 
 	throw (toolbox::fsm::exception::Exception)
 	{
-	  FiniteStateMachine::fireEvent(e);
+	  try{
+	    FiniteStateMachine::fireEvent(e);
+	  }
+	  catch(toolbox::fsm::exception::Exception ex)
+	    {
+	      LOG4CPLUS_ERROR(logger_,"EPStateMachine fireEvent failed " 
+			      << ex.what());
+	    }  
+	  catch(...)
+	    {
+	      LOG4CPLUS_ERROR(logger_,"EPStateMachine fireEvent failed " 
+			      << " Unknown Exception " << " state is " 
+			      << FiniteStateMachine::getCurrentState());
+	    }
+	      
 	  
 	  state_     = FiniteStateMachine::getCurrentState();
 	  stateName_ = FiniteStateMachine::getStateName(state_);
