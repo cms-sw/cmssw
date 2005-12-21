@@ -2,4 +2,6 @@
 <lib name=EventFilterUtilities>
 <use name=xdaq>
 </export>
+<flags SEAL_PLUGIN_NAME="EventFilterUtilities">
 <use name=xdaq>
+<use name=FWCore/ServiceRegistry>
