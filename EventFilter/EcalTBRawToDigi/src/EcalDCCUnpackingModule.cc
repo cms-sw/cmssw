@@ -1,7 +1,7 @@
 /* \file EcalDCCUnpackingModule.h
  *
- *  $Date: 2005/12/06 08:26:17 $
- *  $Revision: 1.17 $
+ *  $Date: 2005/12/12 07:25:30 $
+ *  $Revision: 1.18 $
  *  \author N. Marinelli
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -36,6 +36,8 @@ EcalDCCUnpackingModule::EcalDCCUnpackingModule(const edm::ParameterSet& pset){
   produces<EcalTrigTowerDetIdCollection>("EcalIntegrityBlockSizeErrors");
   produces<EBDetIdCollection>("EcalIntegrityChIdErrors");
   produces<EBDetIdCollection>("EcalIntegrityGainErrors");
+  produces<EBDetIdCollection>("EcalIntegrityGainSwitchErrors");
+  produces<EBDetIdCollection>("EcalIntegrityGainSwitchStayErrors");
 
 }
 
@@ -80,6 +82,12 @@ void EcalDCCUnpackingModule::produce(edm::Event & e, const edm::EventSetup& c){
   // create the collection of Ecal Integrity Gain
   auto_ptr<EBDetIdCollection> productGain(new EBDetIdCollection);
 
+  // create the collection of Ecal Integrity Gain Switch
+  auto_ptr<EBDetIdCollection> productGainSwitch(new EBDetIdCollection);
+
+  // create the collection of Ecal Integrity Gain Switch Stay
+  auto_ptr<EBDetIdCollection> productGainSwitchStay(new EBDetIdCollection);
+
 
   for (unsigned int id= 0; id<=FEDNumbering::lastFEDId(); ++id){ 
 
@@ -90,9 +98,8 @@ void EcalDCCUnpackingModule::produce(edm::Event & e, const edm::EventSetup& c){
     if (data.size()){
       
       // do the data unpacking and fill the collections
-      formatter->interpretRawData(data,  *productEb, *productPN, *productDCCSize, *productTTId, *productBlockSize, *productChId, *productGain);
-      
-
+      formatter->interpretRawData(data,  *productEb, *productPN, *productDCCSize, *productTTId, *productBlockSize, *productChId, *productGain, *productGainSwitch, *productGainSwitchStay);
+ 
     }// endif 
   }//endfor
   
@@ -106,5 +113,7 @@ void EcalDCCUnpackingModule::produce(edm::Event & e, const edm::EventSetup& c){
   e.put(productBlockSize,"EcalIntegrityBlockSizeErrors");
   e.put(productChId,"EcalIntegrityChIdErrors");
   e.put(productGain,"EcalIntegrityGainErrors");
+  e.put(productGainSwitch,"EcalIntegrityGainSwitchErrors");
+  e.put(productGainSwitchStay,"EcalIntegrityGainSwitchStayErrors");
 
 }
