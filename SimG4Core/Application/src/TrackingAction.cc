@@ -13,7 +13,7 @@
 
 TrackingAction::TrackingAction(EventAction * e, const edm::ParameterSet & p) 
 : eventAction_(e),currentTrack_(0),
-  detailedTiming(p.getParameter<bool>("DetailedTiming")) {}
+  detailedTiming(p.getUntrackedParameter<bool>("DetailedTiming",false)) {}
 
 TrackingAction::~TrackingAction() {}
 

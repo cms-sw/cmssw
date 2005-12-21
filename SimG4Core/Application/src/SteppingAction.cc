@@ -10,7 +10,7 @@ SteppingAction::SteppingAction(const edm::ParameterSet & p)
     : killBeamPipe(p.getParameter<bool>("KillBeamPipe")),
       theCriticalEnergyForVacuum(p.getParameter<double>("CriticalEnergyForVacuum")*MeV),
       theCriticalDensity(p.getParameter<double>("CriticalDensity")*g/cm3),
-      verbose(p.getParameter<int>("Verbosity"))
+      verbose(p.getUntrackedParameter<int>("Verbosity",0))
 {}
 
 SteppingAction::~SteppingAction() {}

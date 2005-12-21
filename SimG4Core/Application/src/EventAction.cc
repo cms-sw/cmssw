@@ -14,7 +14,7 @@ EventAction::EventAction(const edm::ParameterSet & p,
 			 SimTrackManager* iManager) 
     : m_trackManager(iManager),
       m_stopFile(p.getParameter<std::string>("StopFile")),
-      m_debug(p.getParameter<bool>("debug"))
+      m_debug(p.getUntrackedParameter<bool>("debug",false))
 {
   m_trackManager->setCollapsePrimaryVertices(p.getParameter<bool>("CollapsePrimaryVertices"));
 }

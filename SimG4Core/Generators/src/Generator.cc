@@ -29,9 +29,9 @@ Generator::Generator(const ParameterSet & p) :
     theMinEtaCut(p.getParameter<double>("MinEtaCut")),
     theMaxEtaCut(p.getParameter<double>("MaxEtaCut")),
     theMinPtCut(p.getParameter<double>("MinPtCut")*MeV),
-    theMaxPtCut(p.getParameter<double>("MaxPtCut")*MeV),
-    inputFileName(p.getParameter<std::string>("InputFileName")),
-    verbose(p.getParameter<int>("Verbosity")),
+    theMaxPtCut(p.getParameter<double>("MaxPtCut")*MeV),   
+    inputFileName(p.getUntrackedParameter<std::string>("InputFileName","Internal")),
+    verbose(p.getUntrackedParameter<int>("Verbosity",0)),
     evt_(0),vtx_(HepLorentzVector(0.,0.,0.,0.)),weight_(0),runNumber_(0)
 {
     if ( inputFileName == "Internal" )
