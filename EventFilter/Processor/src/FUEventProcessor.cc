@@ -17,6 +17,7 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s) : xdaq::Application
   // Bind web interface
   xgi::bind(this, &FUEventProcessor::css           , "styles.css");
   xgi::bind(this, &FUEventProcessor::defaultWebPage, "Default"   );
+  xgi::bind(this, &FUEventProcessor::moduleWeb     , "moduleWeb"    );
 }
 FUEventProcessor::~FUEventProcessor()
 {
@@ -24,12 +25,32 @@ FUEventProcessor::~FUEventProcessor()
   delete fsm_;
   delete ah_;
 }
+
+#include "EventFilter/Utilities/interface/Exception.h"
+
 void FUEventProcessor::configureAction(toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception)
 {
   proc_ = new EventProcessor(getApplicationDescriptor()->getInstance());
   group_ = new TaskGroup();
   proc_->initTaskGroup(group_);
-  proc_->init(offConfig_.value_);
+  try{
+    proc_->init(offConfig_.value_);
+  }
+  catch(seal::Error& e)
+    {
+      XCEPT_RAISE (toolbox::fsm::exception::Exception, 
+		   e.explainSelf());
+    }
+  catch(std::exception &e)
+    {
+      XCEPT_RAISE (toolbox::fsm::exception::Exception, 
+		   e.what());
+    }
+  catch(...)
+    {
+      XCEPT_RAISE (toolbox::fsm::exception::Exception, 
+		   "Unknown Exception");
+    }
 }
 
 void FUEventProcessor::enableAction(toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception)
@@ -90,10 +111,13 @@ xoap::MessageReference FUEventProcessor::fireEvent(xoap::MessageReference msg)
 void FUEventProcessor::defaultWebPage (xgi::Input  *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
+  std::string urn = getApplicationDescriptor()->getURN();
+  *out << "<!-- base href=\"/" <<  urn
+       << "\"> -->" << endl;
   *out << "<html>"                                                   << endl;
   *out << "<head>"                                                   << endl;
   *out << "<link type=\"text/css\" rel=\"stylesheet\"";
-  *out << " href=\"/" <<  getApplicationDescriptor()->getURN()
+  *out << " href=\"/" <<  urn
        << "/styles.css\"/>"                   << endl;
   *out << "<title>" << getApplicationDescriptor()->getClassName() 
        << getApplicationDescriptor()->getInstance() 
@@ -130,7 +154,7 @@ void FUEventProcessor::defaultWebPage (xgi::Input  *in, xgi::Output *out)
     *out << "  <td width=\"32\">"                                      << endl;
     *out << "  </td>"                                                  << endl;
     *out << "  <td width=\"32\">"                                      << endl;
-    *out << "    <a href=\"/" << getApplicationDescriptor()->getURN() 
+    *out << "    <a href=\"/" << urn 
 	 << "/debug\">"                   << endl;
     *out << "      <img"                                               << endl;
     *out << "       align=\"middle\""                                  << endl;
@@ -150,7 +174,7 @@ void FUEventProcessor::defaultWebPage (xgi::Input  *in, xgi::Output *out)
   *out << "  <td>"                                                   << endl;
 
   if(proc_)
-    proc_->taskWebPage(in,out);
+    proc_->taskWebPage(in,out,urn);
   else
     *out << "Unconfigured" << endl;
   *out << "  </td>"                                                  << endl;
@@ -164,5 +188,22 @@ void FUEventProcessor::defaultWebPage (xgi::Input  *in, xgi::Output *out)
   *out << "</html>"                                                  << endl;
 
 }
+#include "extern/cgicc/linuxx86/include/cgicc/CgiDefs.h"
+#include "extern/cgicc/linuxx86/include/cgicc/Cgicc.h"
+#include "extern/cgicc/linuxx86/include/cgicc/FormEntry.h"
 
+void FUEventProcessor::moduleWeb(xgi::Input  *in, xgi::Output *out)
+  throw (xgi::exception::Exception)
+{
+  using namespace cgicc;
+  Cgicc cgi(in);
+  vector<FormEntry> el1;
+  cgi.getElement("module",el1);
+  if(el1.size()!=0)
+    {
+      string modnam = el1[0].getValue();
+      if(proc_)
+	proc_->moduleWebPage(in, out, modnam);
+    }
+}
 XDAQ_INSTANTIATOR_IMPL(evf::FUEventProcessor)
