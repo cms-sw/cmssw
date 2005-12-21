@@ -16,10 +16,17 @@ class AlignmentPositionError;
 class GeomDet {
 public:
 
-  virtual ~GeomDet() {}
+  /// empty constructor, requires a call to setSurface from derived class constructor
+  // GeomDet();
+
+  explicit GeomDet( BoundPlane* plane);
+
+  explicit GeomDet( const ReferenceCountingPointer<BoundPlane>& plane);
+
+  virtual ~GeomDet();
   
-  virtual const BoundSurface& surface() const = 0;
-  virtual const BoundPlane&   specificSurface() const = 0;
+  virtual const BoundPlane& surface() const {return *thePlane;}
+  virtual const BoundPlane& specificSurface() const {return *thePlane;} // obsolete?
 
   virtual DetId geographicalId() const = 0;
 
@@ -30,29 +37,39 @@ public:
   /// Returns direct components, if any
   virtual std::vector< const GeomDet*> components() const = 0;
 
+protected:
+
+  // setSurface( const ReferenceCountingPointer<BoundPlane>& plane);
+
 private:
 
   ReferenceCountingPointer<BoundPlane>  thePlane;
+  AlignmentPositionError*               theAlignmentPositionError;
 
   // alignment part of interface available only to friend 
   friend class AlignableDetUnit;
 
   /// Relative displacement (with respect to current position)
-  void move( const Surface::PositionType& displacement);
+  /// Does not move components (if any).
+  void move( const GlobalVector& displacement);
 
   /// Relative rotation (with respect to current orientation)
+  /// Does not move components (if any).
   void rotate( const Surface::RotationType& rotation);
 
   /** Replaces the current position and rotation with new ones; actually replaces the 
    *  surface with a new surface.
+   *  Does not move components (if any).
    */
   void setPosition( const Surface::PositionType& position, 
-                    const Surface::RotationType& rotation);
+		    const Surface::RotationType& rotation);
 
   /** create the AlignmentPositionError for this Det if not existing yet,
    *  or replace the existing one by the given one. For adding, use the
-   *  +=,-=  methods of the AlignmentPositionError*/
-  virtual void setAlignmentPositionError (const AlignmentPositionError& ape) {} 
+   *  +=,-=  methods of the AlignmentPositionError
+   *  Does not affect the AlignmentPositionError of components (if any).
+   */
+  virtual void setAlignmentPositionError (const AlignmentPositionError& ape); 
 
 };
   
