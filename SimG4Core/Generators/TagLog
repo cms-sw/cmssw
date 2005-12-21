@@ -1,3 +1,6 @@
+** V00-02-04  [Wed Dec 21 06:56:53 2005]
+introduced untracked config.params
+
 ** V00-02-03  [Tue Dec 13 07:10:33 2005]
 fixed dtor for Generator
 
