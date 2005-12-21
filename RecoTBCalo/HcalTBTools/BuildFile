@@ -1,0 +1,12 @@
+<flags SEAL_PLUGIN_NAME="RecoTBCaloHcalTBTools">
+<use name=FWCore/Framework>
+<use name=FWCore/EDProduct>
+<use name=TBDataFormats/HcalTBObjects>
+
+<export>
+  <lib name=RecoTBCaloHcalTBTools>
+  <use name=TBDataFormats/HcalTBObjects>
+  <use name=FWCore/Framework>
+  <use name=FWCore/EDProduct>
+</export>
+
