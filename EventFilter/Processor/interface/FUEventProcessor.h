@@ -36,6 +36,8 @@ namespace evf
       void css(xgi::Input  *in,
 	       xgi::Output *out) throw (xgi::exception::Exception)
 	{css_.css(in,out);}
+      void moduleWeb
+	(xgi::Input  *in, xgi::Output *out) throw (xgi::exception::Exception);
 	  
       xdata::String offConfig_;
       EventProcessor *proc_;

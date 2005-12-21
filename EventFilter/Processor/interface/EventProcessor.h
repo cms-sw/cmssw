@@ -9,6 +9,9 @@
 //
 //  MODIFICATION:
 //    $Log: EventProcessor.h,v $
+//    Revision 1.4  2005/12/02 16:34:39  meschi
+//    removed EventRegistry reference
+//
 //    Revision 1.3  2005/11/10 14:32:33  meschi
 //    cosmetics
 //
@@ -72,7 +75,8 @@ namespace evf
       EventProcessor(unsigned long/*, boost::shared_ptr<edm::InputService> */);
       ~EventProcessor();
       
-      void taskWebPage(xgi::Input *, xgi::Output *);
+      void taskWebPage(xgi::Input *, xgi::Output *, const std::string &);
+      void moduleWebPage(xgi::Input *, xgi::Output *, const std::string &);
       void init(std::string &/*edm::ParameterSet &*/);
       void suspend(){paused_=true;}
       void resume(){paused_=false; wakeup();}
