@@ -16,8 +16,8 @@ namespace cms {
 
   /** \class HcalTBObjectDump
       
-  $Date: 2005/08/23 01:07:18 $
-  $Revision: 1.1 $
+  $Date: 2005/10/06 22:21:33 $
+  $Revision: 1.2 $
   \author J. Mans - Minnesota
   */
   class HcalTBObjectDump : public edm::EDAnalyzer {
@@ -27,80 +27,57 @@ namespace cms {
   };
 
 
-
- class HTBOHappySelector : public edm::Selector {
-  public:
-    HTBOHappySelector() { }
-  private:
-    virtual bool doMatch(const edm::Provenance& p) const {
-      //      cout << p << endl;
-      return true;
-    }
- };
-
-
   HcalTBObjectDump::HcalTBObjectDump(edm::ParameterSet const& conf) {
   }
   
   void HcalTBObjectDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
-    HTBOHappySelector s;
     
     try {
-      std::vector<edm::Handle<HcalTBTriggerData> > td;
+      edm::Handle<HcalTBTriggerData> td;
 
-      e.getMany(s,td);
-      std::vector<edm::Handle<HcalTBTriggerData> >::iterator i;
-      for (i=td.begin(); i!=td.end(); i++) {
-	const HcalTBTriggerData& info=*(*i);
+      e.getByType(td);
+      const HcalTBTriggerData& info=*(td);
 
-	cout << "TRIGGER DATA: ";
-	cout << info;
-      }
+      cout << "TRIGGER DATA: ";
+      cout << info;    
     } catch (...) {
       cout << "No HcalTBTriggerData." << endl;
     }
 
     try {
-      std::vector<edm::Handle<HcalTBRunData> > td;
+      edm::Handle<HcalTBRunData> td;
 
-      e.getMany(s,td);
-      std::vector<edm::Handle<HcalTBRunData> >::iterator i;
-      for (i=td.begin(); i!=td.end(); i++) {
-	const HcalTBRunData& info=*(*i);
+      e.getByType(td);
+      const HcalTBRunData& info=*(td);
 
-	cout << "RUN DATA: ";
-	cout << info;
-      }
+      cout << "RUN DATA: ";
+      cout << info;      
     } catch (...) {
       cout << "No HcalTBRunData." << endl;
     }
 
     try {
-      std::vector<edm::Handle<HcalTBEventPosition> > td;
+      edm::Handle<HcalTBEventPosition> td;
 
-      e.getMany(s,td);
-      std::vector<edm::Handle<HcalTBEventPosition> >::iterator i;
-      for (i=td.begin(); i!=td.end(); i++) {
-	const HcalTBEventPosition& info=*(*i);
+      e.getByType(td);
+      const HcalTBEventPosition& info=*td;
 
-	cout << "Event position info: ";
-	cout << info;
-      }
+      cout << "Event position info: ";
+      cout << info;      
     } catch (...) {
       cout << "No HcalTBEventPosition." << endl;
     }
 
     try {
-      std::vector<edm::Handle<HcalTBTiming> > td;
+      
+      edm::Handle<HcalTBTiming>td;
 
-      e.getMany(s,td);
-      std::vector<edm::Handle<HcalTBTiming> >::iterator i;
-      for (i=td.begin(); i!=td.end(); i++) {
-	const HcalTBTiming& info=*(*i);
+      e.getByType(td);
+      const HcalTBTiming& info=*(td);
 
-	cout << "Timing: ";
-	cout << info;
-      }
+      cout << "Timing: ";
+      cout << info;
+      
     } catch (...) {
       cout << "No HcalTBTiming." << endl;
     }

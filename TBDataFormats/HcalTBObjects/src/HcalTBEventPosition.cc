@@ -62,13 +62,13 @@ using namespace std;
   }
 
   ostream& operator<<(ostream& s, const HcalTBEventPosition& htbep) {
-    char str[80];
+    char str[180];
 
-    sprintf (str, "HF Table (X,Y,V) = (%f,%f,%f)\n",
+    snprintf (str,180, "HF Table (X,Y,V) = (%f,%f,%f)\n",
 	     htbep.hfTableX(),htbep.hfTableY(),htbep.hfTableV());
     s << str;
 
-    sprintf (str, "HB/HE Table (eta,phi) = (%f,%f)\n",
+    snprintf (str, 180, "HB/HE Table (eta,phi) = (%f,%f)\n",
 	     htbep.hbheTableEta(),htbep.hbheTablePhi());
     s << str;
 
