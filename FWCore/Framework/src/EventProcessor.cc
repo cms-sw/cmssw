@@ -99,8 +99,76 @@ namespace edm {
     return shared_ptr<InputSource>();
   }
   
+  static
+  std::auto_ptr<eventsetup::EventSetupProvider>
+   makeEventSetupProvider(ParameterSet const& params)
+  {
+     using namespace std;
+     using namespace edm::eventsetup;
+     vector<string> prefers = params.getParameter<vector<string> >("@all_esprefers");
+     if(prefers.empty()){
+        return std::auto_ptr<EventSetupProvider>(new EventSetupProvider());
+     }
+
+     EventSetupProvider::PreferredProviderInfo preferInfo;
+     EventSetupProvider::RecordToDataMap recordToData;
+     //recordToData.insert(std::make_pair(std::string("DummyRecord"),
+     //                                   std::make_pair(std::string("DummyData"),std::string())));
+     //preferInfo[ComponentDescription("DummyProxyProvider","",false)]=recordToData;
+
+     for(vector<string>::iterator itName = prefers.begin();
+         itName != prefers.end();
+         ++itName) 
+     {
+        recordToData.clear();
+	ParameterSet preferPSet = params.getParameter<ParameterSet>(*itName);
+        std::vector<std::string> recordNames = preferPSet.getParameterNames();
+        for(std::vector<std::string>::iterator itRecordName = recordNames.begin();
+            itRecordName != recordNames.end();
+            ++itRecordName) {
+           if( (*itRecordName)[0]=='@'){
+              //this is a 'hidden parameter' so skip it
+              continue;
+           }
+           //this should be a record name with its info
+           try {
+              std::vector<std::string> dataInfo = preferPSet.getParameter<vector<std::string> >(*itRecordName);
+
+              if(dataInfo.empty()) {
+                 //FUTURE: empty should just mean all data
+                 throw cms::Exception("Configuration")<<"The record named "<<*itRecordName<<" specifies no data items";
+              }
+              //FUTURE: 'any' should be a special name
+              for(std::vector<std::string>::iterator itDatum = dataInfo.begin();
+                  itDatum != dataInfo.end();
+                  ++itDatum){
+                 std::string datumName(*itDatum, 0, itDatum->find_first_of("/"));
+                 std::string labelName;
+                 if(itDatum->size() != datumName.size()) {
+                    labelName = std::string(*itDatum, datumName.size()+1);
+                 }
+                 recordToData.insert(std::make_pair(std::string(*itRecordName),
+                                                    std::make_pair(datumName,
+                                                                   labelName)));
+              }
+           } catch(const cms::Exception& iException) {
+              cms::Exception theError("ESPreferConfigurationError");
+              theError<<"While parsing the es_prefer statement for type="<<preferPSet.getParameter<std::string>("@module_type")
+                 <<" label=\""<<preferPSet.getParameter<std::string>("@module_label")<<"\" an error occurred.";
+              theError.append(iException);
+              throw theError;
+           }
+        }
+        preferInfo[ComponentDescription(preferPSet.getParameter<std::string>("@module_type"),
+                                        preferPSet.getParameter<std::string>("@module_label"),
+                                        false)]
+           =recordToData;
+     }
+     return std::auto_ptr<EventSetupProvider>(new EventSetupProvider(&preferInfo));
+  }
+  
   void 
-  fillEventSetupProvider(eventsetup::EventSetupProvider& cp,
+  fillEventSetupProvider(edm::eventsetup::EventSetupProvider& cp,
 			 ParameterSet const& params,
 			 const CommonParams& common)
   {
@@ -185,7 +253,8 @@ namespace edm {
     ServiceToken                    serviceToken_;
     shared_ptr<InputSource>         input_;
     std::auto_ptr<ScheduleExecutor> runner_;
-    eventsetup::EventSetupProvider  esp_;    
+    std::auto_ptr<eventsetup::EventSetupProvider>  
+                                    esp_;    
 
     bool                            emittedBeginJob_;
     ActionTable                     act_table_;
@@ -247,8 +316,8 @@ namespace edm {
     runner_->preModuleSignal.connect(actReg_.preModuleSignal_);
     runner_->postModuleSignal.connect(actReg_.postModuleSignal_);
      
-     
-    fillEventSetupProvider(esp_, *params_, common_);
+    esp_ = makeEventSetupProvider(*params_);
+    fillEventSetupProvider(*esp_, *params_, common_);
     //   initialize(iToken,iLegacy);
     FDEBUG(2) << params_->toString() << std::endl;
   }
@@ -273,7 +342,7 @@ namespace edm {
         
 	if(pep.get()==0) break;
 	IOVSyncValue ts(pep->id(), pep->time());
-	EventSetup const& es = esp_.eventSetupForInstance(ts);
+	EventSetup const& es = esp_->eventSetupForInstance(ts);
 
 	try
 	  {
@@ -324,7 +393,7 @@ namespace edm {
       // If it really means once per 'application' then this code will have to be changed.
       // Also have to deal with case where have 'run' then new Module added and do 'run'
       // again.  In that case the newly added Module needs its 'beginJob' to be called.
-      EventSetup const& es = esp_.eventSetupForInstance(IOVSyncValue::beginOfTime());
+      EventSetup const& es = esp_->eventSetupForInstance(IOVSyncValue::beginOfTime());
       PathList::iterator itWorkerList = workers_.begin();
       PathList::iterator itEnd = workers_.end();
       ESRefWrapper wrapper(es);
