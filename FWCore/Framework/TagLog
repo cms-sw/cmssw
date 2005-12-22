@@ -1,3 +1,6 @@
+** V01-00-11  [Thu Dec 22 01:20:46 2005]
+move EDProduct definitions to FWCore/EDProduct/interface/EDProductfwd.h
+
 ** V01-00-10  [Fri Dec 16 21:22:20 2005]
 Added Component Description
 
