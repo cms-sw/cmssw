@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Thu May 26 13:48:03 EDT 2005
-// $Id: LoadableDummyESSource.cc,v 1.3 2005/07/14 22:50:53 wmtan Exp $
+// $Id: LoadableDummyESSource.cc,v 1.1 2005/12/16 00:24:54 chrjones Exp $
 //
 
 // system include files
@@ -27,7 +27,11 @@ namespace edm {
 class LoadableDummyESSource : public edm::eventsetup::test::DummyProxyProvider, public DummyFinder
 {
 public:
-   LoadableDummyESSource(const edm::ParameterSet&) {}
+   LoadableDummyESSource(const edm::ParameterSet& iPSet)
+   : DummyProxyProvider( edm::eventsetup::test::DummyData(iPSet.getUntrackedParameter<int>("value",2))){
+      setInterval(edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(),
+                                        edm::IOVSyncValue::endOfTime()));
+   }
 };
 
 DEFINE_FWK_EVENTSETUP_SOURCE(LoadableDummyESSource)
