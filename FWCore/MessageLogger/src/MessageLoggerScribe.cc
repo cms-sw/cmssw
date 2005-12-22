@@ -25,7 +25,9 @@ MessageLoggerScribe::MessageLoggerScribe()
 , early_dest( admin_p->attach(ELoutput(std::cerr, false)) )
 , errorlog_p( new ErrorLog() )
 , file_ps   ( )
-{ }
+{
+  admin_p->setContextSupplier(msg_context);
+}
 
 
 MessageLoggerScribe::~MessageLoggerScribe()
@@ -59,6 +61,11 @@ void
       case MessageLoggerQ::LOG_A_MESSAGE:  {
         ErrorObj *  errorobj_p = static_cast<ErrorObj *>(operand);
         //std::cout << "MessageLoggerQ::LOG_A_MESSAGE " << errorobj_p << '\n';
+
+	ELcontextSupplier& cs = 
+	  const_cast<ELcontextSupplier&>(admin_p->getContextSupplier());
+	MsgContext& mc = dynamic_cast<MsgContext&>(cs);
+	mc.setContext(errorobj_p->context());
         (*errorlog_p)( *errorobj_p );  // route the message text
         delete errorobj_p;  // dispose of the message text
         break;

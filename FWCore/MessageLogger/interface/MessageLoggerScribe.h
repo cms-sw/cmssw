@@ -4,6 +4,7 @@
 #include "FWCore/MessageLogger/interface/ELadministrator.h"
 #include "FWCore/MessageLogger/interface/ELdestControl.h"
 #include "FWCore/MessageLogger/interface/ErrorLog.h"
+#include "FWCore/MessageLogger/interface/MsgContext.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -34,6 +35,7 @@ private:
   ELdestControl                early_dest;
   ErrorLog                  *  errorlog_p;
   std::vector<std::ofstream *> file_ps;
+  edm::MsgContext              msg_context;
 
 };  // MessageLoggerScribe
 

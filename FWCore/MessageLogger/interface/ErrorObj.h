@@ -78,6 +78,7 @@ public:
   const ELlist_string &  items() const;
   bool                   reactedTo() const;
   ELstring               fullText() const;
+  ELstring               context() const;
 
   // mutators:
   //
@@ -85,6 +86,7 @@ public:
   virtual void  setID        ( const ELstring & ID );
   virtual void  setModule    ( const ELstring & module );
   virtual void  setSubroutine( const ELstring & subroutine );
+  virtual void  setContext   ( const ELstring & context );
   virtual void  setProcess   ( const ELstring & proc );
 		//-| process is always determined through ErrorLog or
 		//-| an ELdestControl, both of which talk to ELadministrator.
@@ -112,6 +114,7 @@ private:
   time_t         myTimestamp;
   ELlist_string  myItems;
   bool           myReactedTo;
+  ELstring       myContext;
 
 };  // ErrorObj
 

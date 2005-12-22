@@ -17,7 +17,7 @@
 //
 // Original Author:  W. Brown and M. Fischler
 //         Created:  Fri Nov 11 16:38:19 CST 2005
-// $Id: MessageLogger.h,v 1.3 2005/11/18 21:59:07 fischler Exp $
+// $Id: MessageLogger.h,v 1.1 2005/11/22 22:07:08 fischler Exp $
 //
 
 // system include files
@@ -29,9 +29,11 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/MessageLogger/interface/MessageSender.h"
+#include "FWCore/MessageLogger/interface/ErrorObj.h"
+#include "FWCore/EDProduct/interface/EventID.h"
 
 #include <memory>
-
+#include <string>
 
 namespace edm  {
 namespace service  {
@@ -51,8 +53,13 @@ public:
   void  preModule ( ModuleDescription const & );
   void  postModule( ModuleDescription const & );
 
+  void  fillErrorObj(edm::ErrorObj& obj) const;
+
 private:
   // put an ErrorLog object here, and maybe more
+
+  edm::EventID curr_event_;
+  std::string curr_module_;
 
 };  // MessageLogger
 

@@ -114,6 +114,10 @@ const ELlist_string & ErrorObj::items()      const  { return myItems; }
 bool                  ErrorObj::reactedTo()  const  { return myReactedTo; }
 
 
+ELstring ErrorObj::context() const {
+  return myContext;
+}
+
 ELstring ErrorObj::fullText() const  {
 
   ELstring result;
@@ -146,6 +150,8 @@ void ErrorObj::setID( const ELstring & id )  {
 
 
 void ErrorObj::setModule( const ELstring & module )  { myXid.module = module; }
+
+void ErrorObj::setContext( const ELstring & c )  { myContext = c; }
 
 
 void ErrorObj::setSubroutine( const ELstring & subroutine )  {
