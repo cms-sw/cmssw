@@ -71,10 +71,10 @@ specifies that for all types of messages <em>other than those explicitly dealt w
 Pset's in this destination</em>, there should be a given limit on number of times this destination
 will report messages of the same ID.
 <p>
-For example, having been assigned a default limit of 10 occurences and timespan of 180 seconds, 
-critical.txt would report the first 10 occurences of a edm::LogError("thisID") message, and the first
-10 occurences of a edm::LogError("thatID") message.  After the 10 occurences, an exponential backoff
-kicks in.  After 180 seconds of no messages of that type, the count is reset, so that 10 more occurances
+For example, having been assigned a default limit of 10 occurrences and timespan of 180 seconds, 
+critical.txt would report the first 10 occurrences of a edm::LogError("thisID") message, and the first
+10 occurrences of a edm::LogError("thatID") message.  After the 10 occurrences, an exponential backoff
+kicks in.  After 180 seconds of no messages of that type, the count is reset, so that 10 more occurrences
 could appear.
 
 <p>

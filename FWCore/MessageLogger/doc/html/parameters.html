@@ -26,7 +26,7 @@ job's configuration file (.cfg).
 <ul>
 <li> <a href="#Concepts"> Message Logging Concepts </a>
 <li> <a href="#cms"> Routine MessageLogger Parameters </a>
-<li> <a href="#debug"> Enamble Specific LogDebug Messages </a>
+<li> <a href="#debug"> Enable Specific LogDebug Messages </a>
 <li> <a href="#example"> Example .cfg File Exercising Some Options</a>
 <li> <a href="#complete"> Examples of all MessageLogger Parameters </a> 
 </ul>
@@ -106,10 +106,10 @@ be familiar with the following concepts:
 <li><font color=blue><b> Timespan
   </b></font>
   <ul>
-  When a limit is set, it is possible to specify that if no occurences of that
+  When a limit is set, it is possible to specify that if no occurrences of that
   type of message are seen in some number of seconds (the 
   <font color=blue>timespan</font>), then the count toward that limit is to 
-  be reset.  Thus if you wish to supress most of the thousands of warnings of
+  be reset.  Thus if you wish to suppress most of the thousands of warnings of
   some type expected at startup, but would like to know if another one happens
   after a gap of ten minutes, this can be specified as a timespan of 600.
   </ul> 
@@ -118,7 +118,7 @@ be familiar with the following concepts:
 The typical user may not be interested in specifying limits of how many times
 messages of types will be displayed.  
 <font color=green> By default, the MessageLogger service
-will impose a limit of 5 occurences of each category of 
+will impose a limit of 5 occurrences of each category of 
 LogInfo messages, except for framework event messages which will be 
 unlimited. </font>
 
@@ -222,7 +222,7 @@ The following is an example .cfg file, requesting the MessageLogger
 Service, setting up some destinations, and specifying some  
 choices for thresholds, and for limits and timespans applicable 
 to severities, to specific
-missage ID's, and to all non-specified (default) message ID's.
+message ID's, and to all non-specified (default) message ID's.
 <p>
 The .cfg file contains not only a list of files, but also a list of message 
 ID's that the author wishes to control individually.
