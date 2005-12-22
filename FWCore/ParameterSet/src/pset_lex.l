@@ -1,5 +1,5 @@
 /*
- * $Id: pset_lex.l,v 1.4 2005/11/01 22:31:51 paterno Exp $
+ * $Id: pset_lex.l,v 1.5 2005/12/06 23:39:48 paterno Exp $
  * Author: Us
  * Date: 4/28/05
  * History:
@@ -72,6 +72,7 @@ comment2 "//".*[\n]?
 "module"        { return MODULE_tok; }
 "service"       { return SERVICE_tok; }
 "es_module"     { return ES_MODULE_tok; }
+"es_prefer"     { return ES_PREFER_tok; }
 "mixer"         { return MIXER_tok; }
 "mixer_path"    { return MIXERPATH_tok; }
 

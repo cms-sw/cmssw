@@ -1,6 +1,6 @@
 #------------------------------------------------------------
 #
-# $Id: cmsconfig.py,v 1.6 2005/12/18 20:26:32 chrjones Exp $
+# $Id: cmsconfig.py,v 1.7 2005/12/19 14:34:20 chrjones Exp $
 #
 # cmsconfig: a class to provide convenient access to the Python form
 # of a parsed CMS configuration file.
@@ -138,6 +138,16 @@ class cmsconfig:
         not known. Returns a dictionary."""
         return self.psdata['es_modules'][name]
 
+    def esPreferNames(self):
+        """Return the names of all es_prefer statements. Names are of the form 'esprefer_<C++ type>@<label>' where
+        label can be empty. Returns a list."""
+        return self.psdata['es_prefers'].keys()
+
+    def esPrefer(self, name):
+        """Get the es_prefer statement with this name. Exception raised if name is
+        not known. Returns a dictionary."""
+        return self.psdata['es_prefers'][name]
+
     def serviceNames(self):
         """Return the names of all Services. Names are actually the C++ class names
         Returns a list."""
@@ -220,8 +230,9 @@ class cmsconfig:
         # top-level block objects.        
         self.__write_main_source(fileobj)
         self.__write_es_sources(fileobj)        
-        self.__write_modules(fileobj)
         self.__write_es_modules(fileobj)
+        self.__write_es_prefers(fileobj)
+        self.__write_modules(fileobj)
         self.__write_services(fileobj)
         self.__write_sequences(fileobj)
         self.__write_paths(fileobj)
@@ -256,6 +267,17 @@ class cmsconfig:
         for name in self.esModuleNames():
             es_mod_dict = self.esModule(name)
             fileobj.write("es_module %s = %s\n{\n" % (es_mod_dict['@label'][2], es_mod_dict['@classname'][2]))
+            self.__write_module_guts(es_mod_dict, fileobj)
+            fileobj.write('}\n')
+
+    def __write_es_prefers(self, fileobj):
+        """Private method.
+        Return None
+        Write all es_prefer statements to the file-like object
+        fileobj."""
+        for name in self.esPreferNames():
+            es_mod_dict = self.esPrefer(name)
+            fileobj.write("es_prefer %s = %s\n{\n" % (es_mod_dict['@label'][2], es_mod_dict['@classname'][2]))
             self.__write_module_guts(es_mod_dict, fileobj)
             fileobj.write('}\n')
 

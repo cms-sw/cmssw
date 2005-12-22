@@ -99,6 +99,7 @@ namespace edm
       list<string> emptylist;
       modules_.insert(make_pair(string("es_module"), emptylist));
       modules_.insert(make_pair(string("es_source"), emptylist));
+      modules_.insert(make_pair(string("es_prefer"), emptylist));
       modules_.insert(make_pair(string("module"), emptylist));
       modules_.insert(make_pair(string("source"), emptylist));
       modules_.insert(make_pair(string("sequence"),emptylist));
@@ -307,19 +308,25 @@ namespace edm
       // es_modules, nor the name 'main_es_input' for unnamed
       // es_sources, nor an empty string for the unnamed (main)
       // source.
-      if ( (n.type() == "es_module" /*&& n.name() == "nameless"*/)  ||
-	   (n.type() == "es_source" /*&& n.name() == "main_es_input"*/))
+      if ( (n.type() == "es_module") ||
+	   (n.type() == "es_source") ||
+           (n.type() == "es_prefer")   )
 	{
           //es_* items are unique based on 'C++ class' and 'label'
+          string prefix("");
           string label("");
           string name("@");
           if((n.type() == "es_module" && n.name()!="nameless" ||
-              n.type() == "es_source" && n.name()!="main_es_input"))
+              n.type() == "es_source" && n.name()!="main_es_input") ||
+              n.type() == "es_prefer" && n.name()!="nameless")
           {
              label = n.name();
              name += n.name();
           }
-	  header <<"'"<< n.class_ <<name<<"': { '@label': ('string','tracked', '" <<label<<"'), ";
+          if(n.type() =="es_prefer") {
+            prefix = "esprefer_";
+          }
+	  header <<"'"<< prefix << n.class_ <<name<<"': { '@label': ('string','tracked', '" <<label<<"'), ";
 	}
       else if (n.type() == "source" && n.name().empty())
 	{
@@ -490,6 +497,23 @@ namespace edm
 	    out << *i << '\n';
 	  }
 	cout << "} #end of es_sources\n";
+      }
+
+      //------------------------------
+      // Print es_prefers
+      //------------------------------
+      out << "# es_prefers\n";
+      {
+	out << ", 'es_prefers': {\n";
+	list<string> const& mods = modules_["es_prefer"];
+	list<string>::const_iterator i = mods.begin();
+	list<string>::const_iterator e = mods.end();
+	for ( bool first = true; i!=e; first=false,++i)
+        {
+          if (!first) out << ',';
+          out << *i << '\n';
+        }
+	out << "} #end of es_prefers\n";
       }
 
       out << "# output modules (names)\n";

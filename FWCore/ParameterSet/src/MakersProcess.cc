@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 18 19:09:01 EDT 2005
-// $Id: MakersProcess.cc,v 1.14 2005/12/06 23:39:48 paterno Exp $
+// $Id: MakersProcess.cc,v 1.15 2005/12/17 01:55:54 paterno Exp $
 //
 
 // system include files
@@ -56,6 +56,7 @@ namespace edm {
 	  static const std::string kSecSource("secsource");
 	  static const std::string kESSource("es_source");
 	  static const std::string kService("service");
+	  static const std::string kESPrefer("es_prefer");
 
 	  moduleTypes_[kModule];
 	  moduleTypes_[kESModule];
@@ -63,10 +64,12 @@ namespace edm {
 	  moduleTypes_[kSecSource];
 	  moduleTypes_[kESSource];
 	  moduleTypes_[kService];
+          moduleTypes_[kESPrefer];
 	  handleTypes_[kModule] = &FillProcess::handleModule;
 	  handleTypes_[kSource] = &FillProcess::handleSource;
 	  handleTypes_[kSecSource] = &FillProcess::handleSource;
 	  handleTypes_[kESModule] = &FillProcess::handleESModule;
+	  handleTypes_[kESPrefer] = &FillProcess::handleESPrefer;
 	  handleTypes_[kESSource] = &FillProcess::handleESSource;
 	  handleTypes_[kService] = &FillProcess::handleService;
 
@@ -75,6 +78,7 @@ namespace edm {
 	  namesToTypes_["@all_sources"]=kSource;
 	  namesToTypes_["@all_esmodules"]=kESModule;
 	  namesToTypes_["@all_essources"]=kESSource;
+	  namesToTypes_["@all_esprefers"]=kESPrefer;
 	}
 
       virtual void visitContents(const edm::pset::ContentsNode& iNode) {
@@ -202,7 +206,17 @@ namespace edm {
 	oPSet.insert(true, "@module_type", Entry(iNode.class_,true));
 	return iNode.class_+"@"+label;
       }
-      edm::ParameterSet& pset_;
+       std::string handleESPrefer(const edm::pset::ModuleNode&iNode, edm::ParameterSet& oPSet) {
+          std::string label("");
+          static const std::string kPrefix("esprefer_");
+          if(iNode.name_ != "nameless") {
+             label = iNode.name_;
+          }
+          oPSet.insert(true, "@module_label", Entry(label, true));
+          oPSet.insert(true, "@module_type", Entry(iNode.class_,true));
+          return kPrefix+iNode.class_+"@"+label;
+       }
+       edm::ParameterSet& pset_;
       std::vector< boost::shared_ptr<edm::pset::WrapperNode> >& wrappers_;
       std::vector< edm::ParameterSet>& services_;
    

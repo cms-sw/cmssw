@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.10 2005/11/17 17:27:29 paterno Exp $
+ * $Id: pset_parse.y,v 1.11 2005/12/06 23:39:48 paterno Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -137,6 +137,7 @@ inline string toString(char* arg) { string s(arg); free(arg); return s; }
 %token MODULE_tok
 %token SERVICE_tok
 %token ES_MODULE_tok
+%token ES_PREFER_tok
 %token MIXER_tok
 %token MIXERPATH_tok
 %token PROCESS_tok
@@ -590,6 +591,25 @@ procnode:        allpset
                    string type(toString($<str>3));
                    NodePtrListPtr nodelist($<_NodePtrList>4);
                    ModuleNode* wn(new ModuleNode("es_module","nameless",type,nodelist,lines));
+                   $<_Node>$ = wn;
+                 }
+               |
+                 ES_PREFER_tok LETTERSTART_tok EQUAL_tok LETTERSTART_tok scoped
+                 {
+                   DBPRINT("procnode: ES_PREFER");
+                   string name(toString($<str>2));
+                   string type(toString($<str>4));
+                   NodePtrListPtr nodelist($<_NodePtrList>5);
+                   ModuleNode* wn(new ModuleNode("es_prefer",name,type,nodelist,lines));
+                   $<_Node>$ = wn;
+                 }
+               |
+                 ES_PREFER_tok EQUAL_tok LETTERSTART_tok scoped
+                 {
+                   DBPRINT("procnode: namelistES_PREFER");
+                   string type(toString($<str>3));
+                   NodePtrListPtr nodelist($<_NodePtrList>4);
+                   ModuleNode* wn(new ModuleNode("es_prefer","nameless",type,nodelist,lines));
                    $<_Node>$ = wn;
                  }
                |
