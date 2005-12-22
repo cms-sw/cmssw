@@ -15,6 +15,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/EventSetupRecord.h"
+#include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/Framework/interface/DataProxy.h"
 #include "FWCore/Framework/interface/ComponentDescription.h"
 
@@ -87,12 +88,13 @@ EventSetupRecord::add(const DataKey& iKey ,
          //should lookup to see if there is a specified 'chosen' one and only if not, throw the exception
          throw cms::Exception("EventSetupConflict") <<"two EventSetup "<< 
          (proxy->providerDescription()->isSource_? "Sources":"Producers")
-         <<" want to deliver type=\""<< iKey.type().name() <<"\" label=\""<<iKey.name().value()<<"\".\n"
-         <<" the two providers are \n"
+         <<" want to deliver type=\""<< iKey.type().name() <<"\" label=\""<<iKey.name().value()<<"\"\n"
+         <<" from record "<<key().type().name() <<". The two providers are \n"
          <<"1) type=\""<<proxy->providerDescription()->type_<<"\" label=\""<<proxy->providerDescription()->label_<<"\"\n"
          <<"2) type=\""<<iProxy->providerDescription()->type_<<"\" label=\""<<iProxy->providerDescription()->label_<<"\"\n"
          <<"Please either\n   remove one of these "<<(proxy->providerDescription()->isSource_?"Sources":"Producers")
-         <<"\n   or find a way of configuring one of them so it does not deliver this data";
+         <<"\n   or find a way of configuring one of them so it does not deliver this data"
+         <<"\n   or use an es_prefer statement in the configuration to choose one.";
       } else if(proxy->providerDescription()->isSource_) {
          (*proxies_.find(iKey)).second = iProxy ;
       } else {
