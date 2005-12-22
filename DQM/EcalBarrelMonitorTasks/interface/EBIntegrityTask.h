@@ -4,8 +4,8 @@
 /*
  * \file EBIntegrityTask.h
  *
- * $Date: 2005/12/10 11:31:38 $
- * $Revision: 1.2 $
+ * $Date: 2005/12/12 07:26:27 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
@@ -60,6 +60,8 @@ int ievt_;
 
 MonitorElement* meIntegrityChId[36];  
 MonitorElement* meIntegrityGain[36];
+MonitorElement* meIntegrityGainSwitch[36];
+MonitorElement* meIntegrityGainSwitchStay[36];
 MonitorElement* meIntegrityTTId[36];
 MonitorElement* meIntegrityTTBlockSize[36];
 MonitorElement* meIntegrityDCCSize;

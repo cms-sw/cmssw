@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  * 
- * $Date: 2005/12/12 07:26:28 $
- * $Revision: 1.2 $
+ * $Date: 2005/12/13 16:26:18 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
@@ -36,6 +36,20 @@ EBIntegrityTask::EBIntegrityTask(const edm::ParameterSet& ps, DaqMonitorBEInterf
       sprintf(histo, "EI ChId SM%02d", i+1);
       meIntegrityChId[i] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
     } 
+
+    // checking when channel has unexpected or invalid ID
+    dbe->setCurrentFolder("EcalBarrel/EcalIntegrity/GainSwitch");
+    for (int i = 0; i < 36 ; i++) {
+      sprintf(histo, "EI gain switch SM%02d", i+1);
+      meIntegrityGainSwitch[i] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    }
+
+    // checking when channel has unexpected or invalid ID
+    dbe->setCurrentFolder("EcalBarrel/EcalIntegrity/GainSwitchStay");
+    for (int i = 0; i < 36 ; i++) {
+      sprintf(histo, "EI gain switch stay SM%02d", i+1);
+      meIntegrityGainSwitchStay[i] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    }
 
     // checking when trigger tower has unexpected or invalid ID
     dbe->setCurrentFolder("EcalBarrel/EcalIntegrity/TTId");
@@ -130,10 +144,48 @@ void EBIntegrityTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   }
 
-  edm::Handle<EcalTrigTowerDetIdCollection> ids3;
-  e.getByLabel("ecalEBunpacker", "EcalIntegrityTTIdErrors", ids3);
+  edm::Handle<EBDetIdCollection> ids3;
+  e.getByLabel("ecalEBunpacker", "EcalIntegrityGainSwitchErrors", ids3);
 
-  for ( EcalTrigTowerDetIdCollection::const_iterator idItr = ids3->begin(); idItr != ids3->end(); ++ idItr ) {
+  for ( EBDetIdCollection::const_iterator idItr = ids3->begin(); idItr != ids3->end(); ++ idItr ) {
+
+    EBDetId id = (*idItr);
+
+    int ie = id.ieta();
+    int ip = id.iphi();
+
+    float xie = ie - 0.5;
+    float xip = ip - 0.5;
+
+    int ism = id.ism();
+
+    if ( meIntegrityGainSwitch[ism-1] ) meIntegrityGainSwitch[ism-1]->Fill(xie, xip);
+
+  }
+
+  edm::Handle<EBDetIdCollection> ids4;
+  e.getByLabel("ecalEBunpacker", "EcalIntegrityGainSwitchStayErrors", ids4);
+
+  for ( EBDetIdCollection::const_iterator idItr = ids4->begin(); idItr != ids4->end(); ++ idItr ) {
+
+    EBDetId id = (*idItr);
+
+    int ie = id.ieta();
+    int ip = id.iphi();
+
+    float xie = ie - 0.5;
+    float xip = ip - 0.5;
+
+    int ism = id.ism();
+
+    if ( meIntegrityGainSwitchStay[ism-1] ) meIntegrityGainSwitchStay[ism-1]->Fill(xie, xip);
+
+  }
+
+  edm::Handle<EcalTrigTowerDetIdCollection> ids5;
+  e.getByLabel("ecalEBunpacker", "EcalIntegrityTTIdErrors", ids5);
+
+  for ( EcalTrigTowerDetIdCollection::const_iterator idItr = ids5->begin(); idItr != ids5->end(); ++ idItr ) {
 
     EcalTrigTowerDetId id = (*idItr);
 
@@ -150,10 +202,10 @@ void EBIntegrityTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   }
 
-  edm::Handle<EcalTrigTowerDetIdCollection> ids4;
-  e.getByLabel("ecalEBunpacker", "EcalIntegrityBlockSizeErrors", ids4);
+  edm::Handle<EcalTrigTowerDetIdCollection> ids6;
+  e.getByLabel("ecalEBunpacker", "EcalIntegrityBlockSizeErrors", ids6);
 
-  for ( EcalTrigTowerDetIdCollection::const_iterator idItr = ids4->begin(); idItr != ids4->end(); ++ idItr ) {
+  for ( EcalTrigTowerDetIdCollection::const_iterator idItr = ids6->begin(); idItr != ids6->end(); ++ idItr ) {
 
     EcalTrigTowerDetId id = (*idItr);
 
@@ -169,6 +221,8 @@ void EBIntegrityTask::analyze(const edm::Event& e, const edm::EventSetup& c){
     if ( meIntegrityTTBlockSize[ism-1] ) meIntegrityTTBlockSize[ism-1]->Fill(xie, xip);
 
   }
+
+
 
 }
 
