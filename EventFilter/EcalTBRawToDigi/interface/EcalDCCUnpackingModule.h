@@ -4,16 +4,14 @@
 /** \class EcalUnpackingModule
  * 
  *
- *  $Date: 2005/12/07 07:39:18 $
- *  $Revision: 1.5 $
+ *  $Date: 2005/12/12 07:25:30 $
+ *  $Revision: 1.6 $
  * \author N. Marinelli 
  * \author G. Della Ricca
  */
 
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include <FWCore/Framework/interface/EDProducer.h>
-
-#include <DQM/EcalBarrelMonitorModule/interface/EcalBarrelMonitorDaemon.h>
 
 #include <iostream>
 #include <string>
