@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Thu May 26 13:48:03 EDT 2005
-// $Id: LoadableDummyProvider.cc,v 1.2 2005/06/23 20:01:12 wmtan Exp $
+// $Id: LoadableDummyProvider.cc,v 1.3 2005/07/14 22:50:53 wmtan Exp $
 //
 
 // system include files
@@ -24,7 +24,8 @@ namespace edm {
 }
 class LoadableDummyProvider : public edm::eventsetup::test::DummyProxyProvider {
 public:
-   LoadableDummyProvider(const edm::ParameterSet&) {}
+   LoadableDummyProvider(const edm::ParameterSet& iPSet) 
+   :DummyProxyProvider( edm::eventsetup::test::DummyData(iPSet.getUntrackedParameter<int>("value",1))) {}
 };
 
 DEFINE_FWK_EVENTSETUP_MODULE(LoadableDummyProvider)
