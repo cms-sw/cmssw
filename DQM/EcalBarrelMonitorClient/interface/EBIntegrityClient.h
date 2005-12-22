@@ -4,8 +4,8 @@
 /*
  * \file EBIntegrityClient.h
  *
- * $Date: 2005/12/01 15:11:42 $
- * $Revision: 1.11 $
+ * $Date: 2005/12/13 09:02:23 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  *
 */
@@ -98,6 +98,8 @@ CollateMonitorElement* me_h01_[36];
 CollateMonitorElement* me_h02_[36];
 CollateMonitorElement* me_h03_[36];
 CollateMonitorElement* me_h04_[36];
+CollateMonitorElement* me_h05_[36];
+CollateMonitorElement* me_h06_[36];
 
 TH1F* h00_;
 
@@ -105,6 +107,8 @@ TH2F* h01_[36];
 TH2F* h02_[36];
 TH2F* h03_[36];
 TH2F* h04_[36];
+TH2F* h05_[36];
+TH2F* h06_[36];
 
 TH2F* g01_[36];
 

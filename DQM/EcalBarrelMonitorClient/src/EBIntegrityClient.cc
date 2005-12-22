@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  * 
- * $Date: 2005/12/18 13:53:39 $
- * $Revision: 1.50 $
+ * $Date: 2005/12/18 15:28:41 $
+ * $Revision: 1.51 $
  * \author G. Della Ricca
  *
 */
@@ -24,6 +24,8 @@ EBIntegrityClient::EBIntegrityClient(const edm::ParameterSet& ps, MonitorUserInt
     h02_[i] = 0;
     h03_[i] = 0;
     h04_[i] = 0;
+    h05_[i] = 0;
+    h06_[i] = 0;
 
     sprintf(histo, "EBPT data integrity quality SM%02d", i+1);
     g01_[i] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
@@ -51,6 +53,8 @@ EBIntegrityClient::~EBIntegrityClient(){
     if ( h02_[i] ) delete h02_[i];
     if ( h03_[i] ) delete h03_[i];
     if ( h04_[i] ) delete h04_[i];
+    if ( h05_[i] ) delete h05_[i];
+    if ( h06_[i] ) delete h06_[i];
 
     delete g01_[i];
 
@@ -84,11 +88,15 @@ void EBIntegrityClient::beginRun(const edm::EventSetup& c){
     if ( h02_[i] ) delete h02_[i];
     if ( h03_[i] ) delete h03_[i];
     if ( h04_[i] ) delete h04_[i];
+    if ( h05_[i] ) delete h05_[i];
+    if ( h06_[i] ) delete h06_[i];
 
     h01_[i] = 0;
     h02_[i] = 0;
     h03_[i] = 0;
     h04_[i] = 0;
+    h05_[i] = 0;
+    h06_[i] = 0;
 
     g01_[i]->Reset();
 
@@ -131,7 +139,7 @@ void EBIntegrityClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
-    float num01, num02, num03, num04;
+    float num01, num02, num03, num04, num05, num06;
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
@@ -145,7 +153,7 @@ void EBIntegrityClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
           
           num00 = -1.;
 
-          num01 = num02 = num03 = num04 = -1.;
+          num01 = num02 = num03 = num04 = num05 = num06 = -1.;
 
           bool update_channel = false;
 
@@ -164,17 +172,27 @@ void EBIntegrityClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
             if ( num02 > n_min_bin ) update_channel = true;
           }
 
-          int iet = 1 + ((ie-1)/5);
-          int ipt = 1 + ((ip-1)/5);
-
           if ( h03_[ism-1] ) {
-            num03  = h03_[ism-1]->GetBinContent(h03_[ism-1]->GetBin(iet, ipt));
+            num03  = h03_[ism-1]->GetBinContent(h03_[ism-1]->GetBin(ie, ip));
             if ( num03 > n_min_bin ) update_channel = true;
           }
 
           if ( h04_[ism-1] ) {
-            num04  = h04_[ism-1]->GetBinContent(h04_[ism-1]->GetBin(iet, ipt));
+            num04  = h04_[ism-1]->GetBinContent(h04_[ism-1]->GetBin(ie, ip));
             if ( num04 > n_min_bin ) update_channel = true;
+          }
+
+          int iet = 1 + ((ie-1)/5);
+          int ipt = 1 + ((ip-1)/5);
+
+          if ( h05_[ism-1] ) {
+            num05  = h05_[ism-1]->GetBinContent(h05_[ism-1]->GetBin(iet, ipt));
+            if ( num05 > n_min_bin ) update_channel = true;
+          }
+
+          if ( h06_[ism-1] ) {
+            num06  = h06_[ism-1]->GetBinContent(h06_[ism-1]->GetBin(iet, ipt));
+            if ( num06 > n_min_bin ) update_channel = true;
           }
 
           if ( update_channel ) {
@@ -183,7 +201,7 @@ void EBIntegrityClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
 
               cout << "Inserting dataset for SM=" << ism << endl;
 
-              cout << "(" << ie << "," << ip << ") " << num00 << " " << num01 << " " << num02 << " " << num03 << " " << num04 << endl;
+              cout << "(" << ie << "," << ip << ") " << num00 << " " << num01 << " " << num02 << " " << num03 << " " << num04 << " " << num05 << " " << num06 << endl;
 
             }
 
@@ -240,6 +258,8 @@ void EBIntegrityClient::subscribe(void){
   mui_->subscribe("*/EcalBarrel/EcalIntegrity/DCC size error");
   mui_->subscribe("*/EcalBarrel/EcalIntegrity/Gain/EI gain SM*");
   mui_->subscribe("*/EcalBarrel/EcalIntegrity/ChId/EI ChId SM*");
+  mui_->subscribe("*/EcalBarrel/EcalIntegrity/GainSwitch/EI gain switch SM*");
+  mui_->subscribe("*/EcalBarrel/EcalIntegrity/GainSwitchStay/EI gain switch stay SM*");
   mui_->subscribe("*/EcalBarrel/EcalIntegrity/TTId/EI TTId SM*");
   mui_->subscribe("*/EcalBarrel/EcalIntegrity/TTBlockSize/EI TTBlockSize SM*");
 
@@ -273,15 +293,24 @@ void EBIntegrityClient::subscribe(void){
       sprintf(histo, "*/EcalBarrel/EcalIntegrity/ChId/EI ChId SM%02d", ism);
       mui_->add(me_h02_[ism-1], histo);
 
-      sprintf(histo, "EI TTId SM%02d", ism);
-      me_h03_[ism-1] = mui_->collate2D(histo, histo, "EcalBarrel/Sums/EcalIntegrity/TTId");
-      sprintf(histo, "*/EcalBarrel/EcalIntegrity/TTId/EI TTId SM%02d", ism);
+      sprintf(histo, "EI gain switch SM%02d", ism);
+      me_h03_[ism-1] = mui_->collate2D(histo, histo, "EcalBarrel/Sums/EcalIntegrity/GainSwitch");
       mui_->add(me_h03_[ism-1], histo);
 
-      sprintf(histo, "EI TTBlockSize SM%02d", ism);
-      me_h04_[ism-1] = mui_->collate2D(histo, histo, "EcalBarrel/Sums/EcalIntegrity/TTBlockSize");
+      sprintf(histo, "EI gain switch stay SM%02d", ism);
+      me_h04_[ism-1] = mui_->collate2D(histo, histo, "EcalBarrel/Sums/EcalIntegrity/GainSwitchStay");
       sprintf(histo, "*/EcalBarrel/EcalIntegrity/TTBlockSize/EI TTBlockSize SM%02d", ism);
       mui_->add(me_h04_[ism-1], histo);
+
+      sprintf(histo, "EI TTId SM%02d", ism);
+      me_h05_[ism-1] = mui_->collate2D(histo, histo, "EcalBarrel/Sums/EcalIntegrity/TTId");
+      sprintf(histo, "*/EcalBarrel/EcalIntegrity/TTId/EI TTId SM%02d", ism);
+      mui_->add(me_h05_[ism-1], histo);
+
+      sprintf(histo, "EI TTBlockSize SM%02d", ism);
+      me_h06_[ism-1] = mui_->collate2D(histo, histo, "EcalBarrel/Sums/EcalIntegrity/TTBlockSize");
+      sprintf(histo, "*/EcalBarrel/EcalIntegrity/TTBlockSize/EI TTBlockSize SM%02d", ism);
+      mui_->add(me_h06_[ism-1], histo);
 
     }
 
@@ -296,6 +325,8 @@ void EBIntegrityClient::subscribeNew(void){
   mui_->subscribeNew("*/EcalBarrel/EcalIntegrity/DCC size error");
   mui_->subscribeNew("*/EcalBarrel/EcalIntegrity/Gain/EI gain SM*");
   mui_->subscribeNew("*/EcalBarrel/EcalIntegrity/ChId/EI ChId SM*");
+  mui_->subscribeNew("*/EcalBarrel/EcalIntegrity/GainSwitch/EI gain switch SM*");
+  mui_->subscribeNew("*/EcalBarrel/EcalIntegrity/GainSwitchStay/EI gain switch stay SM*");
   mui_->subscribeNew("*/EcalBarrel/EcalIntegrity/TTId/EI TTId SM*");
   mui_->subscribeNew("*/EcalBarrel/EcalIntegrity/TTBlockSize/EI TTBlockSize SM*");
 
@@ -335,6 +366,14 @@ void EBIntegrityClient::unsubscribe(void){
         bei->setCurrentFolder("EcalBarrel/Sums/EcalIntegrity/ChId");
         bei->removeElement(histo);
 
+        sprintf(histo, "EI gain switch SM%02d", ism);
+        bei->setCurrentFolder("EcalBarrel/Sums/EcalIntegrity/GainSwitch");
+        bei->removeElement(histo);
+
+        sprintf(histo, "EI gain switch stay SM%02d", ism);
+        bei->setCurrentFolder("EcalBarrel/Sums/EcalIntegrity/GainSwitchStay");
+        bei->removeElement(histo);
+
         sprintf(histo, "EI TTId SM%02d", ism);
         bei->setCurrentFolder("EcalBarrel/Sums/EcalIntegrity/TTId");
         bei->removeElement(histo);
@@ -354,6 +393,8 @@ void EBIntegrityClient::unsubscribe(void){
   mui_->unsubscribe("*/EcalBarrel/EcalIntegrity/DCC size error");
   mui_->unsubscribe("*/EcalBarrel/EcalIntegrity/Gain/EI gain SM*");
   mui_->unsubscribe("*/EcalBarrel/EcalIntegrity/ChId/EI ChId SM*");
+  mui_->unsubscribe("*/EcalBarrel/EcalIntegrity/GainSwitch/EI gain switch SM*");
+  mui_->unsubscribe("*/EcalBarrel/EcalIntegrity/GainSwitchStay/EI gain switch stay SM*");
   mui_->unsubscribe("*/EcalBarrel/EcalIntegrity/TTId/EI TTId SM*");
   mui_->unsubscribe("*/EcalBarrel/EcalIntegrity/TTBlockSize/EI TTBlockSize SM*");
 
@@ -443,6 +484,40 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
     }
 
     if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EcalIntegrity/GainSwitch/EI gain switch SM%02d", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EcalIntegrity/GainSwitch/EI gain switch SM%02d", ism);
+    }
+    me = mui_->get(histo);
+    if ( me ) {
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
+      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
+      if ( ob ) {
+        if ( h03_[ism-1] ) delete h03_[ism-1];
+        sprintf(histo, "ME EI gain switch SM%02d", ism);
+        h03_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
+//        h03_[ism-1] = dynamic_cast<TH2F*> (ob->operator->());
+      }
+    }
+
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EcalIntegrity/GainSwitchStay/EI gain switch stay SM%02d", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EcalIntegrity/GainSwitchStay/EI gain switch stay SM%02d", ism);
+    }
+    me = mui_->get(histo);
+    if ( me ) {
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
+      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
+      if ( ob ) {
+        if ( h04_[ism-1] ) delete h04_[ism-1];
+        sprintf(histo, "ME EI gain switch staySM%02d", ism);
+        h04_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
+//        h04_[ism-1] = dynamic_cast<TH2F*> (ob->operator->());
+      }
+    }
+
+    if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EcalIntegrity/TTId/EI TTId SM%02d", ism);
     } else {
       sprintf(histo, "Collector/FU0/EcalBarrel/EcalIntegrity/TTId/EI TTId SM%02d", ism);
@@ -452,10 +527,10 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
-        if ( h03_[ism-1] ) delete h03_[ism-1];
+        if ( h05_[ism-1] ) delete h05_[ism-1];
         sprintf(histo, "ME EI TTId SM%02d", ism);
-        h03_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
-//        h03_[ism-1] = dynamic_cast<TH2F*> (ob->operator->());
+        h05_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
+//        h05_[ism-1] = dynamic_cast<TH2F*> (ob->operator->());
       }
     }
 
@@ -469,10 +544,10 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
-        if ( h04_[ism-1] ) delete h04_[ism-1];
+        if ( h06_[ism-1] ) delete h06_[ism-1];
         sprintf(histo, "ME EI TTBlockSize SM%02d", ism);
-        h04_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
-//        h04_[ism-1] = dynamic_cast<TH2F*> (ob->operator->());
+        h06_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
+//        h06_[ism-1] = dynamic_cast<TH2F*> (ob->operator->());
       }
     }
 
@@ -480,7 +555,7 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
 
     float num00;
 
-    float num01, num02, num03, num04;
+    float num01, num02, num03, num04, num05, num06;
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
@@ -498,7 +573,7 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
             num00  = h00_->GetBinContent(h00_->GetBin(ie, ip));
           }
 
-          num01 = num02 = num03 = num04 = 0.;
+          num01 = num02 = num03 = num04 = num05 = num06 = 0.;
 
           bool update_channel = false;
 
@@ -514,16 +589,26 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
             update_channel = true;
           }
 
-          int iet = 1 + ((ie-1)/5);
-          int ipt = 1 + ((ip-1)/5);
-
           if ( h03_[ism-1] ) {
-            num03  = h03_[ism-1]->GetBinContent(h03_[ism-1]->GetBin(iet, ipt));
+            num03  = h03_[ism-1]->GetBinContent(h03_[ism-1]->GetBin(ie, ip));
             update_channel = true;
           }
 
           if ( h04_[ism-1] ) {
-            num04  = h04_[ism-1]->GetBinContent(h04_[ism-1]->GetBin(iet, ipt));
+            num04  = h04_[ism-1]->GetBinContent(h04_[ism-1]->GetBin(ie, ip));
+            update_channel = true;
+          }
+
+          int iet = 1 + ((ie-1)/5);
+          int ipt = 1 + ((ip-1)/5);
+
+          if ( h05_[ism-1] ) {
+            num05  = h05_[ism-1]->GetBinContent(h05_[ism-1]->GetBin(iet, ipt));
+            update_channel = true;
+          }
+
+          if ( h06_[ism-1] ) {
+            num06  = h06_[ism-1]->GetBinContent(h06_[ism-1]->GetBin(iet, ipt));
             update_channel = true;
           }
 
@@ -532,7 +617,7 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
             float val;
 
             val = 1.;
-            if ( (( num01 + num02 + num03 + num04 ) / numEventsinCry / 4. ) > threshCry_ )
+            if ( (( num01 + num02 + num03 + num04 + num05 + num06) / numEventsinCry / 6. ) > threshCry_ )
               val = 0.;
             g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), val);
 
@@ -603,7 +688,7 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
   }
   dummy2.SetMarkerSize(2);
 
-  string imgNameDCC, imgNameQual, imgNameME[4], imgName , meName;
+  string imgNameDCC, imgNameQual, imgNameME[6], imgName , meName;
   
   if ( h00_ ) {
     
@@ -655,8 +740,10 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   for ( int ism = 1 ; ism <= 36 ; ism++ ) {
     
-    if ( g01_[ism-1] && h01_[ism-1] && h02_[ism-1] 
-         && h03_[ism-1] && h04_[ism-1] ) {
+    if ( g01_[ism-1] && 
+         h01_[ism-1] && h02_[ism-1] &&
+         h03_[ism-1] && h04_[ism-1] &&
+         h05_[ism-1] && h06_[ism-1] ) {
 
       // Quality plots
       
@@ -688,7 +775,7 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       // Monitoring elements plots
       
-      for ( int iCanvas = 1; iCanvas <= 4; iCanvas++ ) {
+      for ( int iCanvas = 1; iCanvas <= 6; iCanvas++ ) {
       
         switch ( iCanvas ) {
         case 1:
@@ -706,6 +793,14 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
         case 4:
           meName = h04_[ism-1]->GetName();
           obj2f = h04_[ism-1];
+          break;
+        case 5:
+          meName = h05_[ism-1]->GetName();
+          obj2f = h05_[ism-1];
+          break;
+        case 6:
+          meName = h06_[ism-1]->GetName();
+          obj2f = h06_[ism-1];
           break;
         default:
           break;
@@ -728,7 +823,7 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
 //        obj2f->SetMinimum(-0.00000001);
         obj2f->SetMaximum();
         obj2f->Draw("colz");
-        if ( iCanvas < 3 ) 
+        if ( iCanvas < 5 ) 
           dummy1.Draw("text,same");
         else
           dummy2.Draw("text,same");
@@ -760,12 +855,29 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile << "<tr align=\"center\">" << endl;
 
     for ( int iCanvas = 1 ; iCanvas <= 4 ; iCanvas++ ) {
-      
+
       if ( imgNameME[iCanvas-1].size() != 0 ) 
         htmlFile << "<td><img src=\"" << imgNameME[iCanvas-1] << "\"></td>" << endl;
       else
         htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
-      
+
+    }
+
+    htmlFile << "</tr>" << endl;
+    htmlFile << "</table>" << endl;
+    htmlFile << "<br>" << endl;
+    
+    htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+    htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+    htmlFile << "<tr align=\"center\">" << endl;
+
+    for ( int iCanvas = 5 ; iCanvas <= 6 ; iCanvas++ ) {
+     
+      if ( imgNameME[iCanvas-1].size() != 0 )
+        htmlFile << "<td><img src=\"" << imgNameME[iCanvas-1] << "\"></td>" << endl;
+      else
+        htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+
     }
 
     htmlFile << "</tr>" << endl;
