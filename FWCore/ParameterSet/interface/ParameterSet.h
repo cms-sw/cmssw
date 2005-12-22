@@ -2,7 +2,7 @@
 #define ParameterSet_ParameterSet_h
 
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.h,v 1.11 2005/11/01 22:31:51 paterno Exp $
+// $Id: ParameterSet.h,v 1.12 2005/11/11 19:57:58 paterno Exp $
 //
 // Declaration for ParameterSet(parameter set) and related types
 // ----------------------------------------------------------------------
@@ -76,6 +76,8 @@ namespace edm {
     std::vector<edm::FileInPath>::size_type
     getAllFileInPaths(std::vector<edm::FileInPath>& output) const;
 
+    std::vector<std::string> getParameterNames()const;
+    
     template <class T>
     void
     addUntrackedParameter(std::string const& name, T value)

@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.cc,v 1.11 2005/11/01 22:31:51 paterno Exp $
+// $Id: ParameterSet.cc,v 1.12 2005/11/11 19:57:58 paterno Exp $
 //
 // definition of ParameterSet's function members
 // ----------------------------------------------------------------------
@@ -16,6 +16,8 @@
 #include "FWCore/ParameterSet/interface/split.h"
 #include "FWCore/ParameterSet/interface/types.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+
+#include "boost/bind.hpp"
 
 #include <algorithm>
 #include <utility>
@@ -253,6 +255,13 @@ namespace edm {
     return count;
   }
 
+   std::vector<std::string>
+   ParameterSet::getParameterNames() const {
+      std::vector<std::string> returnValue(tbl_.size());
+      std::transform(tbl_.begin(), tbl_.end(),returnValue.begin(),
+                     boost::bind(&std::pair<const std::string, Entry>::first,_1));
+      return returnValue;
+   }
   
 } // namespace edm
 // ----------------------------------------------------------------------
