@@ -1,3 +1,6 @@
+** V01-01-00  [Fri Dec 23 01:17:58 2005]
+additions for using log4cplus service and destination. added code for including context information to ErrorObj and making use of it.
+
 ** V01-00-04  [Thu Dec 22 01:12:38 2005]
 Add destinations from services, and also update documentation
 
