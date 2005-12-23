@@ -17,7 +17,14 @@ then
 	echo "No version of Root is set up. Aborting."
 	exit
 fi
+releaseBin=$CMSSW_RELEASE_BASE/bin/`scramv1 arch`
 here=`dirname $0`
+if [ -f ${here}/inventory.C ]
+then
+  rootMacro=${here}/inventory.C
+else
+  rootMacro=${releaseBin}/inventory.C
+fi
 #
 # Cycle through the list of input files one by one. If the
 # file exists, process it.  Otherwise complain and move on.
@@ -29,8 +36,8 @@ do
 		echo " "
 		echo "Processing file $1"
 		echo " "
-		root -l << EOF
-.x ${here}/inventory.C+
+		root -l -b -n << EOF
+.x ${rootMacro}
 $1
 quit
 .q
