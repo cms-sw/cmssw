@@ -1,3 +1,6 @@
+** V01-02-00  [Fri Dec 23 01:47:42 2005]
+new configuration command 'es_prefer'
+
 ** V01-01-00  [Thu Dec 22 01:22:43 2005]
 Added code to handle setting a preferred DataProxyProvider
 
