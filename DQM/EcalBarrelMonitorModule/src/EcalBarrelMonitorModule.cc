@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  * 
- * $Date: 2005/12/13 08:43:58 $
- * $Revision: 1.64 $
+ * $Date: 2005/12/15 14:20:31 $
+ * $Revision: 1.65 $
  * \author G. Della Ricca
  *
 */
@@ -23,6 +23,8 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
     runType_ = 2;
   } else if ( s == "testpulse" ) {
     runType_ = 3;
+  } else if ( s == "electron" ) {
+    runType_ = 4;
   }
 
   irun_ = ps.getUntrackedParameter<int>("runNumber", 999999);
@@ -109,6 +111,7 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
   pedestal_task_     = 0;
   pedpresample_task_ = 0;
   testpulse_task_    = 0;
+  electron_task_     = 0;
 
   integrity_task_ = new EBIntegrityTask(ps, dbe_);
 
@@ -129,6 +132,10 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
 
   if ( runType_ == 3 ) {
     testpulse_task_ = new EBTestPulseTask(ps, dbe_);
+  }
+
+  if ( runType_ == 4 ) {
+    electron_task_ = new EBElectronTask(ps, dbe_);
   }
 
   if ( dbe_ ) {
@@ -160,6 +167,9 @@ EcalBarrelMonitorModule::~EcalBarrelMonitorModule(){
   }
   if ( testpulse_task_ ) {
     delete testpulse_task_;
+  }
+  if ( electron_task_ ) {
+    delete electron_task_;
   }
 
 //  logFile_.close();
@@ -197,6 +207,9 @@ void EcalBarrelMonitorModule::beginJob(const edm::EventSetup& c){
   if ( testpulse_task_ ) {
     testpulse_task_->beginJob(c);
   }
+  if ( electron_task_ ) {
+    electron_task_->beginJob(c);
+  }
 
   // this should give enough time to all the MEs to reach the Collector,
   // and then hopefully the clients, even for short runs
@@ -227,6 +240,9 @@ void EcalBarrelMonitorModule::endJob(void) {
   }
   if ( testpulse_task_ ) {
     testpulse_task_->endJob();
+  }
+  if ( electron_task_ ) {
+    electron_task_->endJob();
   }
 
   cout << "EcalBarrelMonitorModule: analyzed " << ievt_ << " events" << endl;
@@ -345,6 +361,11 @@ void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
   if ( testpulse_task_ ) {
     if ( evtType_ == 3 ) {
       testpulse_task_->analyze(e, c);
+    }
+  }
+  if ( electron_task_ ) {
+    if ( evtType_ == 4 ) {
+      electron_task_->analyze(e, c);
     }
   }
 

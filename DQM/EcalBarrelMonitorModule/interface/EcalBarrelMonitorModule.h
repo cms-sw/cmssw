@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorModule.h
  *
- * $Date: 2005/12/11 09:08:03 $
- * $Revision: 1.21 $
+ * $Date: 2005/12/13 08:43:57 $
+ * $Revision: 1.22 $
  * \author G. Della Ricca
  *
 */
@@ -34,6 +34,7 @@
 #include <DQM/EcalBarrelMonitorTasks/interface/EBPedestalTask.h>
 #include <DQM/EcalBarrelMonitorTasks/interface/EBPedPreSampleTask.h>
 #include <DQM/EcalBarrelMonitorTasks/interface/EBTestPulseTask.h>
+#include <DQM/EcalBarrelMonitorTasks/interface/EBElectronTask.h>
 
 #include <memory>
 #include <iostream>
@@ -98,6 +99,7 @@ EBPnDiodeTask* pndiode_task_;
 EBPedestalTask* pedestal_task_;
 EBPedPreSampleTask* pedpresample_task_;
 EBTestPulseTask* testpulse_task_;
+EBElectronTask* electron_task_;
 
 string outputFile_;
 
