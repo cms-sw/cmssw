@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2005/12/15 14:20:28 $
- * $Revision: 1.21 $
+ * $Date: 2005/12/16 08:48:59 $
+ * $Revision: 1.22 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -35,6 +35,7 @@
 #include <DQM/EcalBarrelMonitorClient/interface/EBTestPulseClient.h>
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBCosmicClient.h>
+#include <DQM/EcalBarrelMonitorClient/interface/EBElectronClient.h>
 
 #include "CalibCalorimetry/EcalDBInterface/interface/EcalCondDBInterface.h"
 #include "CalibCalorimetry/EcalDBInterface/interface/RunTag.h"
@@ -137,6 +138,7 @@ EBPnDiodeClient* pndiode_client_;
 EBPedestalClient* pedestal_client_;
 EBPedPreSampleClient* pedpresample_client_;
 EBTestPulseClient* testpulse_client_;
+EBElectronClient* electron_client_;
 
 CollateMonitorElement* me_h_;
 

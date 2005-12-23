@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  * 
- * $Date: 2005/12/15 15:54:46 $
- * $Revision: 1.56 $
+ * $Date: 2005/12/16 08:49:00 $
+ * $Revision: 1.57 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -111,6 +111,7 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps){
   pedestal_client_     = new EBPedestalClient(ps, mui_);
   pedpresample_client_ = new EBPedPreSampleClient(ps, mui_);
   testpulse_client_    = new EBTestPulseClient(ps, mui_);
+  electron_client_     = new EBElectronClient(ps, mui_);
 
 }
 
@@ -141,6 +142,9 @@ EcalBarrelMonitorClient::~EcalBarrelMonitorClient(){
   }
   if ( testpulse_client_ ) {
     delete testpulse_client_;
+  }
+  if ( electron_client_ ) {
+    delete electron_client_;
   }
   usleep(100);
 
@@ -178,6 +182,9 @@ void EcalBarrelMonitorClient::beginJob(const edm::EventSetup& c){
   }
   if ( testpulse_client_ ) {
     testpulse_client_->beginJob(c);
+  }
+  if ( electron_client_ ) {
+    electron_client_->beginJob(c);
   }
 
 }
@@ -220,6 +227,11 @@ void EcalBarrelMonitorClient::beginRun(const edm::EventSetup& c){
       testpulse_client_->beginRun(c);
     }
   }
+  if ( electron_client_ ) {
+    if ( runtype_ == "electron" ) {
+      electron_client_->beginRun(c);
+    }
+  }
 
 }
 
@@ -258,6 +270,11 @@ void EcalBarrelMonitorClient::endJob(void) {
   if ( testpulse_client_ ) {
     if ( runtype_ == "testpulse" ) {
       testpulse_client_->endJob();
+    }
+  }
+  if ( electron_client_ ) {
+    if ( runtype_ == "electron" ) {
+      electron_client_->endJob();
     }
   }
 
@@ -361,6 +378,11 @@ void EcalBarrelMonitorClient::endRun(void) {
   if ( testpulse_client_ ) {
     if ( runtype_ == "testpulse" ) {
       testpulse_client_->endRun(econn_, runiov_, runtag_);
+    }
+  }
+  if ( electron_client_ ) {
+    if ( runtype_ == "electron" ) {
+      electron_client_->endRun(econn_, runiov_, runtag_);
     }
   }
 
@@ -504,6 +526,11 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
       testpulse_client_->subscribeNew();
     }
   }
+  if ( electron_client_ ) {
+    if ( runtype_ == "electron" ) {
+      electron_client_->subscribeNew();
+    }
+  }
 
   // # of full monitoring cycles processed
   int updates = mui_->getNumUpdates();
@@ -571,6 +598,7 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
       if ( s.substr(2,1) == "1" ) runtype_ = "laser";
       if ( s.substr(2,1) == "2" ) runtype_ = "pedestal";
       if ( s.substr(2,1) == "3" ) runtype_ = "testpulse";
+      if ( s.substr(2,1) == "4" ) runtype_ = "electron";
     }
 
     location_ = "H4";
@@ -595,6 +623,7 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
         if ( h_->GetBinContent(2) != 0 ) cout << "laser " << flush;
         if ( h_->GetBinContent(3) != 0 ) cout << "pedestal " << flush;
         if ( h_->GetBinContent(4) != 0 ) cout << "testpulse " << flush;
+        if ( h_->GetBinContent(5) != 0 ) cout << "electron " << flush;
         cout << ")" << flush;
       }
       cout << endl;
@@ -670,6 +699,13 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
           }
         }
       }
+      if ( electron_client_ ) {
+        if ( h_ && h_->GetBinContent(5) != 0 ) {
+          if ( runtype_ == "electron" ) {
+            electron_client_->analyze(e, c);
+          }
+        }
+      }
 
     }
 
@@ -718,6 +754,13 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
         if ( h_ && h_->GetBinContent(4) != 0 ) {
           if ( runtype_ == "testpulse" ) {
             testpulse_client_->analyze(e, c);
+          }
+        }
+      }
+      if ( electron_client_ ) {
+        if ( h_ && h_->GetBinContent(5) != 0 ) {
+          if ( runtype_ == "electron" ) {
+            electron_client_->analyze(e, c);
           }
         }
       }
@@ -792,6 +835,16 @@ void EcalBarrelMonitorClient::htmlOutput(void){
     }
   }
 
+  // Cosmic check
+
+  if ( h_ && h_->GetBinContent(1) != 0 ) {
+    if ( cosmic_client_ ) {
+      htmlName = "EBCosmicClient.html";
+      cosmic_client_->htmlOutput(run_, htmlDir, htmlName);
+      htmlFile << "<li><a href=\"" << htmlName << "\">Cosmic</a></li>" << endl;
+    }
+  }
+
   // Laser check
 
   if ( h_ && h_->GetBinContent(2) != 0 ) {
@@ -842,13 +895,13 @@ void EcalBarrelMonitorClient::htmlOutput(void){
     }
   }
 
-  // Cosmic check
+  // Electron check
 
-  if ( h_ && h_->GetBinContent(1) != 0 ) {
-    if ( cosmic_client_ ) {
-      htmlName = "EBCosmicClient.html";
-      cosmic_client_->htmlOutput(run_, htmlDir, htmlName);
-      htmlFile << "<li><a href=\"" << htmlName << "\">Cosmic</a></li>" << endl;
+  if ( h_ && h_->GetBinContent(5) != 0 ) {
+    if ( electron_client_ ) {
+      htmlName = "EBElectronClient.html";
+      electron_client_->htmlOutput(run_, htmlDir, htmlName);
+      htmlFile << "<li><a href=\"" << htmlName << "\">Electron</a></li>" << endl;
     }
   }
 
