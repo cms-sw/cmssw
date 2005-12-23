@@ -8,6 +8,17 @@
     <Parameter name="SensitiveDetector" value="TkAccumulatingSensitiveDetector" />
     <Parameter name="ReadOutName" value="TrackerHitsPixelBarrel" />
   </SpecPar>
+  <SpecPar name="ROUHitsTrackerPixelEndcap">
+    <PartSelector path="//PixelForwardActive1x2Right" />
+    <PartSelector path="//PixelForwardActive1x2Left" />
+    <PartSelector path="//PixelForwardActive1x5Right" />
+    <PartSelector path="//PixelForwardActive1x5Left" />
+    <PartSelector path="//PixelForwardActive2x3" />
+    <PartSelector path="//PixelForwardActive2x4" />
+    <PartSelector path="//PixelForwardActive2x5" />
+    <Parameter name="SensitiveDetector" value="TkAccumulatingSensitiveDetector" />
+    <Parameter name="ReadOutName" value="TrackerHitsPixelEndcap" />
+  </SpecPar>
   <SpecPar name="ROUHitsTrackerTIB">
     <PartSelector path="//TIBActiveRphi0" />
     <PartSelector path="//TIBActiveSter0" />
