@@ -1,8 +1,8 @@
 /*
  * \file EBPedPreSampleTask.cc
  * 
- * $Date: 2005/11/20 16:43:39 $
- * $Revision: 1.7 $
+ * $Date: 2005/12/10 10:44:59 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  *
 */
