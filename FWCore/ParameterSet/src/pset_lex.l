@@ -1,5 +1,5 @@
 /*
- * $Id: pset_lex.l,v 1.5 2005/12/06 23:39:48 paterno Exp $
+ * $Id: pset_lex.l,v 1.6 2005/12/22 20:30:43 chrjones Exp $
  * Author: Us
  * Date: 4/28/05
  * History:
@@ -184,6 +184,7 @@ namespace edm {
 
      extern NodePtrList* global_gunk;
 
+     std::string& errorMessage();
      // This is the function that actually creates the tree of nodes.
      // This function will either return a ParseResults object that
      // contains the parse results in "tree form", or will throw an
@@ -195,6 +196,9 @@ namespace edm {
        if (global_gunk)
 	 throw edm::Exception(errors::Configuration, "BadParserState")
 	   << "The configuration parser's global data is corrupt\n";
+        
+       // reset the error system
+       errorMessage().clear();
 
        // Make the tokenizer read from the character buffer
        // rather than a FILE*.
@@ -210,13 +214,17 @@ namespace edm {
 
        yy_delete_buffer(buf);
 
-       // Can global_gunk be zero? I don't think so, but just to be
-       // sure...
-       if (!global_gunk)
+       // global_gunk is zero if there was an error
+       if (!global_gunk) {
+         //parser error?
+         if(errorMessage().size()) {
+            throw edm::Exception(errors::Configuration)<<errorMessage()<<"\n";
+         }
+         //something wierd must have happened.
 	 throw edm::Exception(errors::Configuration, "BadParserState")
 	   << "The configuration parser failed to set its global data\n";
-
-
+       }
+       errorMessage().clear();
        // ParseResults ps(global_gunk);
        // Don't delete global_gunk! The ParseResults object has taken
        // ownership.

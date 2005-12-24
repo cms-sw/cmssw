@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.11 2005/12/06 23:39:48 paterno Exp $
+ * $Id: pset_parse.y,v 1.12 2005/12/22 20:30:43 chrjones Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -719,11 +719,23 @@ worker:          LETTERSTART_tok
 
 %%
 
+
+namespace edm {
+   namespace pset {
+      std::string& errorMessage()
+      {
+         static std::string s_message;
+         return s_message;
+      }
+   }
+}
+
 extern char *pset_text;
 int yyerror(char const* msg)
 {
-  cerr << "Parse error on line: " << lines << " token: " << pset_text << endl;
-  cerr << "message: " << msg << endl;
+  std::stringstream err;
+  err << "Parse error on line: " << lines << " token: " << pset_text << "\n";
+  err << "message: " << msg << "\n";
+  errorMessage() = err.str();
   return 0;
 }
-
