@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  * 
- * $Date: 2005/12/18 11:58:28 $
- * $Revision: 1.39 $
+ * $Date: 2005/12/18 15:28:41 $
+ * $Revision: 1.40 $
  * \author G. Della Ricca
  *
 */
@@ -287,9 +287,6 @@ void EBLaserClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* r
             cout << "Inserting dataset for SM=" << ism << endl;
 
             cout << "L1 (" << ie << "," << ip << ") " << num01 << " " << mean01 << " " << rms01 << endl;
-            cout << "L2 (" << ie << "," << ip << ") " << num02 << " " << mean02 << " " << rms02 << endl;
-            cout << "L3 (" << ie << "," << ip << ") " << num03 << " " << mean03 << " " << rms03 << endl;
-            cout << "L4 (" << ie << "," << ip << ") " << num04 << " " << mean04 << " " << rms04 << endl;
 
           }
 
