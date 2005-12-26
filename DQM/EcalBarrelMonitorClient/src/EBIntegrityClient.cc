@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  * 
- * $Date: 2005/12/22 11:33:20 $
- * $Revision: 1.52 $
+ * $Date: 2005/12/26 09:01:56 $
+ * $Revision: 1.53 $
  * \author G. Della Ricca
  *
 */
@@ -49,20 +49,7 @@ EBIntegrityClient::EBIntegrityClient(const edm::ParameterSet& ps, MonitorUserInt
 
 EBIntegrityClient::~EBIntegrityClient(){
 
-  if ( h00_ ) delete h00_;
-
-  for ( int i = 0; i < 36; i++ ) {
-    
-    if ( h_[i] ) delete h_[i];
-  
-    if ( h01_[i] ) delete h01_[i];
-    if ( h02_[i] ) delete h02_[i];
-    if ( h03_[i] ) delete h03_[i];
-    if ( h04_[i] ) delete h04_[i];
-    if ( h05_[i] ) delete h05_[i];
-    if ( h06_[i] ) delete h06_[i];
-
-  }
+  this->cleanup();
 
   for ( int i = 0; i < 36; i++ ) {
 
@@ -87,28 +74,7 @@ void EBIntegrityClient::beginRun(const edm::EventSetup& c){
 
   jevt_ = 0;
 
-  if ( h00_ ) delete h00_;
-  h00_ = 0;
-
-  for ( int i = 0; i < 36; i++ ) {
-
-    if ( h_[i] ) delete h_[i];
-    h_[i] = 0;
-
-    if ( h01_[i] ) delete h01_[i];
-    if ( h02_[i] ) delete h02_[i];
-    if ( h03_[i] ) delete h03_[i];
-    if ( h04_[i] ) delete h04_[i];
-    if ( h05_[i] ) delete h05_[i];
-    if ( h06_[i] ) delete h06_[i];
-    h01_[i] = 0;
-    h02_[i] = 0;
-    h03_[i] = 0;
-    h04_[i] = 0;
-    h05_[i] = 0;
-    h06_[i] = 0;
-
-  }
+  this->cleanup();
 
   for ( int i = 0; i < 36; i++ ) {
 
@@ -139,6 +105,12 @@ void EBIntegrityClient::endRun(void) {
   if ( verbose_ ) cout << "EBIntegrityClient: endRun, jevt = " << jevt_ << endl;
 
   this->unsubscribe();
+
+  this->cleanup();
+
+}
+
+void EBIntegrityClient::cleanup(void) {
 
   if ( h00_ ) delete h00_;
   h00_ = 0;
