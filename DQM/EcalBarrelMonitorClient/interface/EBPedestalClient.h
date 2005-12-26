@@ -4,8 +4,8 @@
 /*
  * \file EBPedestalClient.h
  *
- * $Date: 2005/12/13 09:02:23 $
- * $Revision: 1.12 $
+ * $Date: 2005/12/26 09:01:54 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -79,8 +79,11 @@ void beginRun(const edm::EventSetup& c);
 // EndRun
 void endRun(void);
 
+// Cleanup
+void cleanup(void);
+
 // HtmlOutput
-virtual void htmlOutput(int run, string htmlDir, string htmlName);
+void htmlOutput(int run, string htmlDir, string htmlName);
 
 // WriteDB
 void writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* runtag);

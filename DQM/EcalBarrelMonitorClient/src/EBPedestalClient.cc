@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  * 
- * $Date: 2005/12/18 19:25:47 $
- * $Revision: 1.42 $
+ * $Date: 2005/12/26 09:01:56 $
+ * $Revision: 1.43 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -69,13 +69,7 @@ EBPedestalClient::EBPedestalClient(const edm::ParameterSet& ps, MonitorUserInter
 
 EBPedestalClient::~EBPedestalClient(){
 
-  for ( int i = 0 ; i < 36 ; i++ ) {
-
-    if ( h01_[i] ) delete h01_[i];
-    if ( h02_[i] ) delete h02_[i];
-    if ( h03_[i] ) delete h03_[i];
-
-  }
+  this->cleanup();
 
   for ( int i = 0 ; i < 36 ; i++ ) {
 
@@ -110,16 +104,7 @@ void EBPedestalClient::beginRun(const edm::EventSetup& c){
 
   jevt_ = 0;
 
-  for ( int ism = 1; ism <= 36; ism++ ) {
-
-    if ( h01_[ism-1] ) delete h01_[ism-1];
-    if ( h02_[ism-1] ) delete h02_[ism-1];
-    if ( h03_[ism-1] ) delete h03_[ism-1];
-    h01_[ism-1] = 0;
-    h02_[ism-1] = 0;
-    h03_[ism-1] = 0;
-
-  }
+  this->cleanup();
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
@@ -164,6 +149,12 @@ void EBPedestalClient::endRun(void) {
   if ( verbose_ ) cout << "EBPedestalClient: endRun, jevt = " << jevt_ << endl;
 
   this->unsubscribe();
+
+  this->cleanup();
+
+}
+
+void EBPedestalClient::cleanup(void) {
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 

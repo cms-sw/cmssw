@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  * 
- * $Date: 2005/12/25 08:42:31 $
- * $Revision: 1.41 $
+ * $Date: 2005/12/26 09:01:56 $
+ * $Revision: 1.42 $
  * \author G. Della Ricca
  *
 */
@@ -71,18 +71,7 @@ EBLaserClient::EBLaserClient(const edm::ParameterSet& ps, MonitorUserInterface* 
 
 EBLaserClient::~EBLaserClient(){
 
-  for ( int i = 0; i < 36; i++ ) {
-
-    if ( h01_[i] ) delete h01_[i];
-    if ( h02_[i] ) delete h02_[i];
-    if ( h03_[i] ) delete h03_[i];
-    if ( h04_[i] ) delete h04_[i];
-    if ( h05_[i] ) delete h05_[i];
-    if ( h06_[i] ) delete h06_[i];
-    if ( h07_[i] ) delete h07_[i];
-    if ( h08_[i] ) delete h08_[i];
-
-  }
+  this->cleanup();
 
   for ( int i = 0; i < 36; i++ ) {
 
@@ -120,26 +109,7 @@ void EBLaserClient::beginRun(const edm::EventSetup& c){
 
   jevt_ = 0;
 
-  for ( int i = 0; i < 36; i++ ) {
-
-    if ( h01_[i] ) delete h01_[i];
-    if ( h02_[i] ) delete h02_[i];
-    if ( h03_[i] ) delete h03_[i];
-    if ( h04_[i] ) delete h04_[i];
-    if ( h05_[i] ) delete h05_[i];
-    if ( h06_[i] ) delete h06_[i];
-    if ( h07_[i] ) delete h07_[i];
-    if ( h08_[i] ) delete h08_[i];
-    h01_[i] = 0;
-    h02_[i] = 0;
-    h03_[i] = 0;
-    h04_[i] = 0;
-    h05_[i] = 0;
-    h06_[i] = 0;
-    h07_[i] = 0;
-    h08_[i] = 0;
-
-  }
+  this->cleanup();
 
   for ( int i = 0; i < 36; i++ ) {
 
@@ -187,8 +157,14 @@ void EBLaserClient::endRun(void) {
 
   this->unsubscribe();
 
+  this->cleanup();
+
+}
+
+void EBLaserClient::cleanup(void) {
+
   for ( int i = 0; i < 36; i++ ) {
-  
+ 
     if ( h01_[i] ) delete h01_[i];
     if ( h02_[i] ) delete h02_[i];
     if ( h03_[i] ) delete h03_[i];
@@ -197,7 +173,7 @@ void EBLaserClient::endRun(void) {
     if ( h06_[i] ) delete h06_[i];
     if ( h07_[i] ) delete h07_[i];
     if ( h08_[i] ) delete h08_[i];
-    h01_[i] = 0; 
+    h01_[i] = 0;
     h02_[i] = 0;
     h03_[i] = 0;
     h04_[i] = 0;

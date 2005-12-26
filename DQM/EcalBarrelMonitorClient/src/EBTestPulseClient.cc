@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  * 
- * $Date: 2005/12/18 15:28:41 $
- * $Revision: 1.45 $
+ * $Date: 2005/12/26 09:01:56 $
+ * $Revision: 1.46 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -64,21 +64,7 @@ EBTestPulseClient::EBTestPulseClient(const edm::ParameterSet& ps, MonitorUserInt
 
 EBTestPulseClient::~EBTestPulseClient(){
 
-  for ( int i = 0; i < 36; i++ ) {
-
-    if ( ha01_[i] ) delete ha01_[i];
-    if ( ha02_[i] ) delete ha02_[i];
-    if ( ha03_[i] ) delete ha03_[i];
-
-    if ( hs01_[i] ) delete hs01_[i];
-    if ( hs02_[i] ) delete hs02_[i];
-    if ( hs03_[i] ) delete hs03_[i];
-
-    if ( he01_[i] ) delete he01_[i];
-    if ( he02_[i] ) delete he02_[i];
-    if ( he03_[i] ) delete he03_[i];
-
-  }
+  this->cleanup(); 
 
   for ( int i = 0; i < 36; i++ ) {
 
@@ -109,30 +95,7 @@ void EBTestPulseClient::beginRun(const edm::EventSetup& c){
 
   jevt_ = 0;
 
-  for ( int ism = 1; ism <= 36; ism++ ) {
-
-    if ( ha01_[ism-1] ) delete ha01_[ism-1];
-    if ( ha02_[ism-1] ) delete ha02_[ism-1];
-    if ( ha03_[ism-1] ) delete ha03_[ism-1];
-    ha01_[ism-1] = 0;
-    ha02_[ism-1] = 0;
-    ha03_[ism-1] = 0;
-
-    if ( hs01_[ism-1] ) delete hs01_[ism-1];
-    if ( hs02_[ism-1] ) delete hs02_[ism-1];
-    if ( hs03_[ism-1] ) delete hs03_[ism-1];
-    hs01_[ism-1] = 0;
-    hs02_[ism-1] = 0;
-    hs03_[ism-1] = 0;
-
-    if ( he01_[ism-1] ) delete he01_[ism-1];
-    if ( he02_[ism-1] ) delete he02_[ism-1];
-    if ( he03_[ism-1] ) delete he03_[ism-1];
-    he01_[ism-1] = 0;
-    he02_[ism-1] = 0;
-    he03_[ism-1] = 0;
-
-  }
+  this->cleanup(); 
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
@@ -171,6 +134,12 @@ void EBTestPulseClient::endRun(void) {
   if ( verbose_ ) cout << "EBTestPulseClient: endRun, jevt = " << jevt_ << endl;
 
   this->unsubscribe();
+
+  this->cleanup(); 
+
+}
+
+void EBTestPulseClient::cleanup(void) {
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 

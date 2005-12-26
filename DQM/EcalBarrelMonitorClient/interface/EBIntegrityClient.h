@@ -4,8 +4,8 @@
 /*
  * \file EBIntegrityClient.h
  *
- * $Date: 2005/12/22 11:33:18 $
- * $Revision: 1.13 $
+ * $Date: 2005/12/26 09:01:54 $
+ * $Revision: 1.14 $
  * \author G. Della Ricca
  *
 */
@@ -66,22 +66,25 @@ void unsubscribe();
 /// Analyze
 void analyze(const edm::Event& e, const edm::EventSetup& c);
 
-// BeginJob
+/// BeginJob
 void beginJob(const edm::EventSetup& c);
 
-// EndJob
+/// EndJob
 void endJob(void);
 
-// BeginRun
+/// BeginRun
 void beginRun(const edm::EventSetup& c);
 
-// EndRun
+/// EndRun
 void endRun(void);
 
-// HtmlOutput
+/// Cleanup
+void cleanup(void);
+
+/// HtmlOutput
 void htmlOutput(int run, string htmlDir, string htmlName);
 
-// WriteDB
+/// WriteDB
 void writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* runtag);
 
 private:

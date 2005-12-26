@@ -1,8 +1,8 @@
 /*
  * \file EBPnDiodeClient.cc
  * 
- * $Date: 2005/12/18 15:28:41 $
- * $Revision: 1.20 $
+ * $Date: 2005/12/26 09:01:56 $
+ * $Revision: 1.21 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -33,14 +33,7 @@ EBPnDiodeClient::EBPnDiodeClient(const edm::ParameterSet& ps, MonitorUserInterfa
 
 EBPnDiodeClient::~EBPnDiodeClient(){
 
-  for ( int i = 0; i < 36; i++ ) {
-
-    if ( h01_[i] ) delete h01_[i];
-    if ( h02_[i] ) delete h02_[i];
-    if ( h03_[i] ) delete h03_[i];
-    if ( h04_[i] ) delete h04_[i];
-
-  }
+  this->cleanup();
 
 }
 
@@ -59,18 +52,7 @@ void EBPnDiodeClient::beginRun(const edm::EventSetup& c){
 
   jevt_ = 0;
 
-  for ( int ism = 1; ism <= 36; ism++ ) {
-
-    if ( h01_[ism-1] ) delete h01_[ism-1];
-    if ( h02_[ism-1] ) delete h02_[ism-1];
-    if ( h03_[ism-1] ) delete h03_[ism-1];
-    if ( h04_[ism-1] ) delete h04_[ism-1];
-    h01_[ism-1] = 0;
-    h02_[ism-1] = 0;
-    h03_[ism-1] = 0;
-    h04_[ism-1] = 0;
-
-  }
+  this->cleanup();
 
   this->subscribe();
 
@@ -87,6 +69,12 @@ void EBPnDiodeClient::endRun(void) {
   if ( verbose_ ) cout << "EBPnDiodeClient: endRun, jevt = " << jevt_ << endl;
 
   this->unsubscribe();
+
+  this->cleanup();
+
+}
+
+void EBPnDiodeClient::cleanup(void) {
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 

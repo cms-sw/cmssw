@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2005/12/23 09:08:55 $
- * $Revision: 1.23 $
+ * $Date: 2005/12/26 09:01:54 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -73,22 +73,25 @@ virtual void unsubscribe();
 /// Analyze
 virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
 
-// BeginJob
+/// BeginJob
 virtual void beginJob(const edm::EventSetup& c);
 
-// EndJob
+/// EndJob
 virtual void endJob(void);
 
-// BeginRun
+/// BeginRun
 virtual void beginRun(const edm::EventSetup& c);
 
-// EndRun
+/// EndRun
 virtual void endRun(void);
 
-// HtmlOutput
+/// Cleanup
+void cleanup(void);
+
+/// HtmlOutput
 virtual void htmlOutput(void);
 
-// WriteDB
+/// WriteDB
 virtual void writeDb(void);
 
 private:

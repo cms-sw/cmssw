@@ -1,8 +1,8 @@
 /*
  * \file EBPedPreSampleClient.cc
  * 
- * $Date: 2005/12/18 19:25:47 $
- * $Revision: 1.47 $
+ * $Date: 2005/12/26 09:01:56 $
+ * $Revision: 1.48 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -49,11 +49,7 @@ EBPedPreSampleClient::EBPedPreSampleClient(const edm::ParameterSet& ps, MonitorU
 
 EBPedPreSampleClient::~EBPedPreSampleClient(){
 
-  for ( int i = 0; i < 36; i++ ) {
-
-    if ( h03_[i] ) delete h03_[i];
-
-  }
+  this->cleanup();
 
   for ( int i = 0; i < 36; i++ ) {
 
@@ -82,12 +78,7 @@ void EBPedPreSampleClient::beginRun(const edm::EventSetup& c){
 
   jevt_ = 0;
 
-  for ( int ism = 1; ism <= 36; ism++ ) {
-
-    if ( h03_[ism-1] ) delete h03_[ism-1];
-    h03_[ism-1] = 0;
-
-  }
+  this->cleanup();
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
@@ -122,6 +113,12 @@ void EBPedPreSampleClient::endRun(void) {
   if ( verbose_ ) cout << "EBPedPreSampleClient: endRun, jevt = " << jevt_ << endl;
 
   this->unsubscribe();
+
+  this->cleanup();
+
+}
+
+void EBPedPreSampleClient::cleanup(void) {
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 

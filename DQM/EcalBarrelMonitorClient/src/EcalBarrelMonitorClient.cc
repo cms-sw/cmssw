@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  * 
- * $Date: 2005/12/23 09:08:56 $
- * $Revision: 1.58 $
+ * $Date: 2005/12/26 09:01:56 $
+ * $Revision: 1.59 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -118,7 +118,7 @@ EcalBarrelMonitorClient::~EcalBarrelMonitorClient(){
 
   cout << "Exit ..." << endl;
 
-  if ( h_ ) delete h_;
+  this->cleanup();
 
   if ( integrity_client_ ) {
     delete integrity_client_;
@@ -244,37 +244,25 @@ void EcalBarrelMonitorClient::endJob(void) {
     integrity_client_->endJob();
   }
   if ( cosmic_client_ ) {
-    if ( runtype_ == "cosmic" ) {
-      cosmic_client_->endJob();
-    }
+    cosmic_client_->endJob();
   }
   if ( laser_client_ ) {
-    if ( runtype_ == "cosmic" || runtype_ == "laser" ) {
-      laser_client_->endJob();
-    }
+    laser_client_->endJob();
   }
   if ( pndiode_client_ ) {
-    if ( runtype_ == "cosmic" || runtype_ == "laser" ) {
-      pndiode_client_->endJob();
-    }
+    pndiode_client_->endJob();
   }
   if ( pedestal_client_ ) {
-    if ( runtype_ == "pedestal" ) {
-      pedestal_client_->endJob();
-    }
+    pedestal_client_->endJob();
   }
   if ( pedpresample_client_ ) {
     pedpresample_client_->endJob();
   }
   if ( testpulse_client_ ) {
-    if ( runtype_ == "testpulse" ) {
-      testpulse_client_->endJob();
-    }
+    testpulse_client_->endJob();
   }
   if ( electron_client_ ) {
-    if ( runtype_ == "electron" ) {
-      electron_client_->endJob();
-    }
+    electron_client_->endJob();
   }
 
 }
@@ -288,9 +276,6 @@ void EcalBarrelMonitorClient::endRun(void) {
   this->writeDb();
 
   if ( baseHtmlDir_.size() != 0 ) this->htmlOutput();
-
-  if ( h_ ) delete h_;
-  h_ = 0;
 
   if ( integrity_client_ ) {
     integrity_client_->endRun();
@@ -330,6 +315,8 @@ void EcalBarrelMonitorClient::endRun(void) {
     }
   }
 
+  this->cleanup();
+
   status_  = "unknown";
   run_     = -1;
   evt_     = -1;
@@ -337,6 +324,13 @@ void EcalBarrelMonitorClient::endRun(void) {
 
   last_jevt_ = -1;
   last_update_ = 0;
+
+}
+
+void EcalBarrelMonitorClient::cleanup(void) {
+
+  if ( h_ ) delete h_;
+  h_ = 0;
 
 }
 

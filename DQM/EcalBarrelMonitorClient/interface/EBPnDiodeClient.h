@@ -4,8 +4,8 @@
 /*
  * \file EBPnDiodeClient.h
  *
- * $Date: 2005/12/13 09:02:23 $
- * $Revision: 1.5 $
+ * $Date: 2005/12/26 09:01:54 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -67,22 +67,25 @@ void unsubscribe();
 /// Analyze
 void analyze(const edm::Event& e, const edm::EventSetup& c);
 
-// BeginJob
+/// BeginJob
 void beginJob(const edm::EventSetup& c);
 
-// EndJob
+/// EndJob
 void endJob(void);
 
-// BeginRun
+/// BeginRun
 void beginRun(const edm::EventSetup& c);
 
-// EndRun
+/// EndRun
 void endRun(void);
 
-// HtmlOutput
-virtual void htmlOutput(int run, string htmlDir, string htmlName);
+/// Cleanup
+void cleanup(void);
 
-// WriteDB
+/// HtmlOutput
+void htmlOutput(int run, string htmlDir, string htmlName);
+
+/// WriteDB
 void writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* runtag);
 
 private:
