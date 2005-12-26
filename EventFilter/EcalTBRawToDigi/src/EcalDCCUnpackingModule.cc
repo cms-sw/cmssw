@@ -1,7 +1,7 @@
 /* \file EcalDCCUnpackingModule.h
  *
- *  $Date: 2005/12/12 07:25:30 $
- *  $Revision: 1.18 $
+ *  $Date: 2005/12/21 16:00:52 $
+ *  $Revision: 1.19 $
  *  \author N. Marinelli
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -9,6 +9,8 @@
 
 #include <EventFilter/EcalTBRawToDigi/interface/EcalDCCUnpackingModule.h>
 #include <EventFilter/EcalTBRawToDigi/src/EcalTBDaqFormatter.h>
+#include <EventFilter/EcalTBRawToDigi/src/ECALParserException.h>
+#include <EventFilter/EcalTBRawToDigi/src/ECALParserBlockException.h>
 #include <DataFormats/FEDRawData/interface/FEDRawData.h>
 #include <DataFormats/FEDRawData/interface/FEDNumbering.h>
 #include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
@@ -88,6 +90,7 @@ void EcalDCCUnpackingModule::produce(edm::Event & e, const edm::EventSetup& c){
   // create the collection of Ecal Integrity Gain Switch Stay
   auto_ptr<EBDetIdCollection> productGainSwitchStay(new EBDetIdCollection);
 
+  try {
 
   for (unsigned int id= 0; id<=FEDNumbering::lastFEDId(); ++id){ 
 
@@ -115,5 +118,13 @@ void EcalDCCUnpackingModule::produce(edm::Event & e, const edm::EventSetup& c){
   e.put(productGain,"EcalIntegrityGainErrors");
   e.put(productGainSwitch,"EcalIntegrityGainSwitchErrors");
   e.put(productGainSwitchStay,"EcalIntegrityGainSwitchStayErrors");
+
+  } catch (ECALParserException &e) {
+    cout << e.what() << endl;
+  } catch (ECALParserBlockException &e) {
+    cout << e.what() << endl;
+  } catch (...) {
+    cout << "Unknown exception ..." << endl;
+  }
 
 }
