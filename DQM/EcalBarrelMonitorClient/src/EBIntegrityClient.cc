@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  * 
- * $Date: 2005/12/18 15:28:41 $
- * $Revision: 1.51 $
+ * $Date: 2005/12/22 11:33:20 $
+ * $Revision: 1.52 $
  * \author G. Della Ricca
  *
 */
@@ -16,6 +16,7 @@ EBIntegrityClient::EBIntegrityClient(const edm::ParameterSet& ps, MonitorUserInt
   Char_t histo[50];
 
   h00_ = 0;
+
   for ( int i = 0; i < 36; i++ ) {
 
     h_[i] = 0;
@@ -26,6 +27,10 @@ EBIntegrityClient::EBIntegrityClient(const edm::ParameterSet& ps, MonitorUserInt
     h04_[i] = 0;
     h05_[i] = 0;
     h06_[i] = 0;
+
+  }
+
+  for ( int i = 0; i < 36; i++ ) {
 
     sprintf(histo, "EBPT data integrity quality SM%02d", i+1);
     g01_[i] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
@@ -45,6 +50,7 @@ EBIntegrityClient::EBIntegrityClient(const edm::ParameterSet& ps, MonitorUserInt
 EBIntegrityClient::~EBIntegrityClient(){
 
   if ( h00_ ) delete h00_;
+
   for ( int i = 0; i < 36; i++ ) {
     
     if ( h_[i] ) delete h_[i];
@@ -55,6 +61,10 @@ EBIntegrityClient::~EBIntegrityClient(){
     if ( h04_[i] ) delete h04_[i];
     if ( h05_[i] ) delete h05_[i];
     if ( h06_[i] ) delete h06_[i];
+
+  }
+
+  for ( int i = 0; i < 36; i++ ) {
 
     delete g01_[i];
 
@@ -79,6 +89,7 @@ void EBIntegrityClient::beginRun(const edm::EventSetup& c){
 
   if ( h00_ ) delete h00_;
   h00_ = 0;
+
   for ( int i = 0; i < 36; i++ ) {
 
     if ( h_[i] ) delete h_[i];
@@ -90,13 +101,16 @@ void EBIntegrityClient::beginRun(const edm::EventSetup& c){
     if ( h04_[i] ) delete h04_[i];
     if ( h05_[i] ) delete h05_[i];
     if ( h06_[i] ) delete h06_[i];
-
     h01_[i] = 0;
     h02_[i] = 0;
     h03_[i] = 0;
     h04_[i] = 0;
     h05_[i] = 0;
     h06_[i] = 0;
+
+  }
+
+  for ( int i = 0; i < 36; i++ ) {
 
     g01_[i]->Reset();
 
@@ -120,11 +134,38 @@ void EBIntegrityClient::endJob(void) {
 
 }
 
-void EBIntegrityClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* runtag) {
+void EBIntegrityClient::endRun(void) {
 
   if ( verbose_ ) cout << "EBIntegrityClient: endRun, jevt = " << jevt_ << endl;
 
-  if ( jevt_ == 0 ) return;
+  this->unsubscribe();
+
+  if ( h00_ ) delete h00_;
+  h00_ = 0;
+  
+  for ( int i = 0; i < 36; i++ ) {
+
+    if ( h_[i] ) delete h_[i];
+    h_[i] = 0;
+
+    if ( h01_[i] ) delete h01_[i];
+    if ( h02_[i] ) delete h02_[i];
+    if ( h03_[i] ) delete h03_[i];
+    if ( h04_[i] ) delete h04_[i];
+    if ( h05_[i] ) delete h05_[i];
+    if ( h06_[i] ) delete h06_[i];
+    h01_[i] = 0;
+    h02_[i] = 0;
+    h03_[i] = 0;
+    h04_[i] = 0;
+    h05_[i] = 0;
+    h06_[i] = 0;
+
+  }
+
+}
+
+void EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* runtag) {
 
   EcalLogicID ecid;
   RunConsistencyDat c;
@@ -238,14 +279,12 @@ void EBIntegrityClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
   if ( econn ) {
     try {
       cout << "Inserting dataset ... " << flush;
-      econn->insertDataSet(&dataset, runiov, runtag );
+      econn->insertDataSet(&dataset, runiov, runtag);
       cout << "done." << endl; 
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
   }
-
-  this->unsubscribe();
 
 }
 

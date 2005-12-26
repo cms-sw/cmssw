@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  * 
- * $Date: 2005/12/16 08:49:00 $
- * $Revision: 1.57 $
+ * $Date: 2005/12/23 09:08:56 $
+ * $Revision: 1.58 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -17,7 +17,6 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps){
   cout << endl;
 
   mui_ = 0;
-  econn_ = 0;
 
   begin_run_done_ = false;
   end_run_done_ = false;
@@ -286,20 +285,80 @@ void EcalBarrelMonitorClient::endRun(void) {
 
   if ( outputFile_.size() != 0 ) mui_->save(outputFile_);
 
-  econn_ = 0;
+  this->writeDb();
+
+  if ( baseHtmlDir_.size() != 0 ) this->htmlOutput();
+
+  if ( h_ ) delete h_;
+  h_ = 0;
+
+  if ( integrity_client_ ) {
+    integrity_client_->endRun();
+  }
+
+  if ( cosmic_client_ ) {
+    if ( runtype_ == "cosmic" ) {
+      cosmic_client_->endRun();
+    }
+  }
+  if ( laser_client_ ) {
+    if ( runtype_ == "cosmic" || runtype_ == "laser" ) {
+      laser_client_->endRun();
+    }
+  }
+  if ( pndiode_client_ ) {
+    if ( runtype_ == "cosmic" || runtype_ == "laser" ) {
+      pndiode_client_->endRun();
+    }
+  }
+  if ( pedestal_client_ ) {
+    if ( runtype_ == "pedestal" ) {
+      pedestal_client_->endRun();
+    }
+  }
+  if ( pedpresample_client_ ) {
+    pedpresample_client_->endRun();
+  }
+  if ( testpulse_client_ ) {
+    if ( runtype_ == "testpulse" ) {
+      testpulse_client_->endRun();
+    }
+  }
+  if ( electron_client_ ) {
+    if ( runtype_ == "electron" ) {
+      electron_client_->endRun();
+    }
+  }
+
+  status_  = "unknown";
+  run_     = -1;
+  evt_     = -1;
+  runtype_ = "unknown";
+
+  last_jevt_ = -1;
+  last_update_ = 0;
+
+}
+
+void EcalBarrelMonitorClient::writeDb(void) {
+
+  EcalCondDBInterface* econn;
+
+  econn = 0;
 
   if ( dbName_.size() != 0 ) {
     try {
       cout << "Opening DB connection." << endl;
-      econn_ = new EcalCondDBInterface(dbHostName_, dbName_, dbUserName_, dbPassword_);
+      econn = new EcalCondDBInterface(dbHostName_, dbName_, dbUserName_, dbPassword_);
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
   }
 
   // The objects necessary to identify a dataset
-  runiov_ = new RunIOV();
-  runtag_ = new RunTag();
+
+  RunIOV runiov;
+  RunTag runtag;
 
   Tm startTm;
 
@@ -309,12 +368,12 @@ void EcalBarrelMonitorClient::endRun(void) {
 
   cout << "Setting run " << run_ << " start_time " << startTm.str() << endl;
 
-  runiov_->setRunNumber(run_);
-  runiov_->setRunStart(startTm);
+  runiov.setRunNumber(run_);
+  runiov.setRunStart(startTm);
 
-  runtag_->setRunType(runtype_);
-  runtag_->setLocation(location_);
-  runtag_->setMonitoringVersion("version 1");
+  runtag.setRunType(runtype_);
+  runtag.setLocation(location_);
+  runtag.setMonitoringVersion("version 1");
 
   EcalLogicID ecid;
   RunDat r;
@@ -328,20 +387,20 @@ void EcalBarrelMonitorClient::endRun(void) {
 
   r.setNumEvents(int(nevt));
 
-  if ( econn_ ) {
+  if ( econn ) {
     try {
       int ism = 1;
-      ecid = econn_->getEcalLogicID("EB_supermodule", ism);
+      ecid = econn->getEcalLogicID("EB_supermodule", ism);
       dataset[ecid] = r;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
   }
 
-  if ( econn_ ) {
+  if ( econn ) {
     try {
       cout << "Inserting dataset ... " << flush;
-      econn_->insertDataSet(&dataset, runiov_, runtag_ );
+      econn->insertDataSet(&dataset, &runiov, &runtag);
       cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
@@ -349,68 +408,51 @@ void EcalBarrelMonitorClient::endRun(void) {
   }
 
   if ( integrity_client_ ) {
-    integrity_client_->endRun(econn_, runiov_, runtag_);
+    integrity_client_->writeDb(econn, &runiov, &runtag);
   }
 
   if ( cosmic_client_ ) {
     if ( runtype_ == "cosmic" ) {
-      cosmic_client_->endRun(econn_, runiov_, runtag_);
+      cosmic_client_->writeDb(econn, &runiov, &runtag);
     }
   }
   if ( laser_client_ ) {
     if ( runtype_ == "cosmic" || runtype_ == "laser" ) {
-      laser_client_->endRun(econn_, runiov_, runtag_);
+      laser_client_->writeDb(econn, &runiov, &runtag);
     }
   }
   if ( pndiode_client_ ) {
     if ( runtype_ == "cosmic" || runtype_ == "laser" ) {
-      pndiode_client_->endRun(econn_, runiov_, runtag_);
+      pndiode_client_->writeDb(econn, &runiov, &runtag);
     }
   }
   if ( pedestal_client_ ) {
     if ( runtype_ == "pedestal" ) {
-      pedestal_client_->endRun(econn_, runiov_, runtag_);
+      pedestal_client_->writeDb(econn, &runiov, &runtag);
     }
   }
   if ( pedpresample_client_ ) {
-    pedpresample_client_->endRun(econn_, runiov_, runtag_);
+    pedpresample_client_->writeDb(econn, &runiov, &runtag);
   }
   if ( testpulse_client_ ) {
     if ( runtype_ == "testpulse" ) {
-      testpulse_client_->endRun(econn_, runiov_, runtag_);
+      testpulse_client_->writeDb(econn, &runiov, &runtag);
     }
   }
   if ( electron_client_ ) {
     if ( runtype_ == "electron" ) {
-      electron_client_->endRun(econn_, runiov_, runtag_);
+      electron_client_->writeDb(econn, &runiov, &runtag);
     }
   }
 
-  if ( econn_ ) {
+  if ( econn ) {
     try {
       cout << "Closing DB connection." << endl;
-      delete econn_;
-      econn_ = 0;
+      delete econn;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
   }
-
-  if ( runiov_ ) delete runiov_;
-  if ( runtag_ ) delete runtag_;
-
-  if ( baseHtmlDir_.size() != 0 ) this->htmlOutput();
-
-  if ( h_ ) delete h_;
-  h_ = 0;
-
-  status_  = "unknown";
-  run_     = -1;
-  evt_     = -1;
-  runtype_ = "unknown";
-
-  last_jevt_ = -1;
-  last_update_ = 0;
 
 }
 

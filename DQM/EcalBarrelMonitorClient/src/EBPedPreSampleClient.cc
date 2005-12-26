@@ -1,8 +1,8 @@
 /*
  * \file EBPedPreSampleClient.cc
  * 
- * $Date: 2005/12/18 15:28:41 $
- * $Revision: 1.46 $
+ * $Date: 2005/12/18 19:25:47 $
+ * $Revision: 1.47 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -19,6 +19,10 @@ EBPedPreSampleClient::EBPedPreSampleClient(const edm::ParameterSet& ps, MonitorU
   for ( int i = 0; i < 36; i++ ) {
 
     h03_[i] = 0;
+
+  }
+
+  for ( int i = 0; i < 36; i++ ) {
 
     sprintf(histo, "EBPT pedestal PreSample quality G12 SM%02d", i+1);
     g03_[i] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
@@ -48,6 +52,10 @@ EBPedPreSampleClient::~EBPedPreSampleClient(){
   for ( int i = 0; i < 36; i++ ) {
 
     if ( h03_[i] ) delete h03_[i];
+
+  }
+
+  for ( int i = 0; i < 36; i++ ) {
 
     delete g03_[i];
 
@@ -79,6 +87,10 @@ void EBPedPreSampleClient::beginRun(const edm::EventSetup& c){
     if ( h03_[ism-1] ) delete h03_[ism-1];
     h03_[ism-1] = 0;
 
+  }
+
+  for ( int ism = 1; ism <= 36; ism++ ) {
+
     g03_[ism-1]->Reset();
 
     for ( int ie = 1; ie <= 85; ie++ ) {
@@ -105,11 +117,22 @@ void EBPedPreSampleClient::endJob(void) {
 
 }
 
-void EBPedPreSampleClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* runtag) {
+void EBPedPreSampleClient::endRun(void) {
 
   if ( verbose_ ) cout << "EBPedPreSampleClient: endRun, jevt = " << jevt_ << endl;
 
-  if ( jevt_ == 0 ) return;
+  this->unsubscribe();
+
+  for ( int ism = 1; ism <= 36; ism++ ) {
+
+    if ( h03_[ism-1] ) delete h03_[ism-1];
+    h03_[ism-1] = 0;
+
+  }
+
+}
+
+void EBPedPreSampleClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* runtag) {
 
   EcalLogicID ecid;
 //  MonPedestalsDat p;
@@ -181,14 +204,12 @@ void EBPedPreSampleClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, Ru
   if ( econn ) {
     try {
       cout << "Inserting dataset ... " << flush;
-//      econn->insertDataSet(&dataset, runiov, runtag );
+//      econn->insertDataSet(&dataset, runiov, runtag);
       cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
   }
-
-  this->unsubscribe();
 
 }
 

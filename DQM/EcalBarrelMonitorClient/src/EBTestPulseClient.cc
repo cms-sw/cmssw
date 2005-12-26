@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  * 
- * $Date: 2005/12/18 11:59:20 $
- * $Revision: 1.44 $
+ * $Date: 2005/12/18 15:28:41 $
+ * $Revision: 1.45 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -29,6 +29,10 @@ EBTestPulseClient::EBTestPulseClient(const edm::ParameterSet& ps, MonitorUserInt
     he01_[i] = 0;
     he02_[i] = 0;
     he03_[i] = 0;
+
+  }
+
+  for ( int i = 0; i < 36; i++ ) {
 
     sprintf(histo, "EBPT test pulse quality G01 SM%02d", i+1);
     g01_[i] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
@@ -73,6 +77,10 @@ EBTestPulseClient::~EBTestPulseClient(){
     if ( he01_[i] ) delete he01_[i];
     if ( he02_[i] ) delete he02_[i];
     if ( he03_[i] ) delete he03_[i];
+
+  }
+
+  for ( int i = 0; i < 36; i++ ) {
 
     delete g01_[i];
     delete g02_[i];
@@ -124,6 +132,10 @@ void EBTestPulseClient::beginRun(const edm::EventSetup& c){
     he02_[ism-1] = 0;
     he03_[ism-1] = 0;
 
+  }
+
+  for ( int ism = 1; ism <= 36; ism++ ) {
+
     g01_[ism-1]->Reset();
     g02_[ism-1]->Reset();
     g03_[ism-1]->Reset();
@@ -154,11 +166,40 @@ void EBTestPulseClient::endJob(void) {
 
 }
 
-void EBTestPulseClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* runtag) {
+void EBTestPulseClient::endRun(void) {
 
   if ( verbose_ ) cout << "EBTestPulseClient: endRun, jevt = " << jevt_ << endl;
 
-  if ( jevt_ == 0 ) return;
+  this->unsubscribe();
+
+  for ( int ism = 1; ism <= 36; ism++ ) {
+
+    if ( ha01_[ism-1] ) delete ha01_[ism-1];
+    if ( ha02_[ism-1] ) delete ha02_[ism-1];
+    if ( ha03_[ism-1] ) delete ha03_[ism-1];
+    ha01_[ism-1] = 0;
+    ha02_[ism-1] = 0;
+    ha03_[ism-1] = 0;
+
+    if ( hs01_[ism-1] ) delete hs01_[ism-1];
+    if ( hs02_[ism-1] ) delete hs02_[ism-1];
+    if ( hs03_[ism-1] ) delete hs03_[ism-1];
+    hs01_[ism-1] = 0;
+    hs02_[ism-1] = 0;
+    hs03_[ism-1] = 0;
+
+    if ( he01_[ism-1] ) delete he01_[ism-1];
+    if ( he02_[ism-1] ) delete he02_[ism-1];
+    if ( he03_[ism-1] ) delete he03_[ism-1];
+    he01_[ism-1] = 0;
+    he02_[ism-1] = 0;
+    he03_[ism-1] = 0;
+
+  }
+
+}
+
+void EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* runtag) {
 
   EcalLogicID ecid;
   MonTestPulseDat adc;
@@ -318,15 +359,13 @@ void EBTestPulseClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
   if ( econn ) {
     try {
       cout << "Inserting dataset ... " << flush;
-      econn->insertDataSet(&dataset1, runiov, runtag );
-      econn->insertDataSet(&dataset2, runiov, runtag );
+      econn->insertDataSet(&dataset1, runiov, runtag);
+      econn->insertDataSet(&dataset2, runiov, runtag);
       cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
   }
-
-  this->unsubscribe();
 
 }
 

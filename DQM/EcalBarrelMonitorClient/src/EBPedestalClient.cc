@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  * 
- * $Date: 2005/12/18 15:28:41 $
- * $Revision: 1.41 $
+ * $Date: 2005/12/18 19:25:47 $
+ * $Revision: 1.42 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -21,6 +21,10 @@ EBPedestalClient::EBPedestalClient(const edm::ParameterSet& ps, MonitorUserInter
     h01_[i] = 0;
     h02_[i] = 0;
     h03_[i] = 0;
+
+  }
+
+  for ( int i = 0; i < 36; i++ ) {
 
     sprintf(histo, "EBPT pedestal quality G01 SM%02d", i+1);
     g01_[i] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
@@ -71,6 +75,10 @@ EBPedestalClient::~EBPedestalClient(){
     if ( h02_[i] ) delete h02_[i];
     if ( h03_[i] ) delete h03_[i];
 
+  }
+
+  for ( int i = 0 ; i < 36 ; i++ ) {
+
     delete g01_[i];
     delete g02_[i];
     delete g03_[i];
@@ -111,6 +119,10 @@ void EBPedestalClient::beginRun(const edm::EventSetup& c){
     h02_[ism-1] = 0;
     h03_[ism-1] = 0;
 
+  }
+
+  for ( int ism = 1; ism <= 36; ism++ ) {
+
     g01_[ism-1]->Reset();
     g02_[ism-1]->Reset();
     g03_[ism-1]->Reset();
@@ -147,11 +159,26 @@ void EBPedestalClient::endJob(void) {
 
 }
 
-void EBPedestalClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* runtag) {
+void EBPedestalClient::endRun(void) {
 
   if ( verbose_ ) cout << "EBPedestalClient: endRun, jevt = " << jevt_ << endl;
 
-  if ( jevt_ == 0 ) return;
+  this->unsubscribe();
+
+  for ( int ism = 1; ism <= 36; ism++ ) {
+
+    if ( h01_[ism-1] ) delete h01_[ism-1];
+    if ( h02_[ism-1] ) delete h02_[ism-1];
+    if ( h03_[ism-1] ) delete h03_[ism-1];
+    h01_[ism-1] = 0;
+    h02_[ism-1] = 0;
+    h03_[ism-1] = 0;
+
+  }
+
+}
+
+void EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* runtag) {
 
   EcalLogicID ecid;
   MonPedestalsDat p;
@@ -252,7 +279,7 @@ void EBPedestalClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag
   if ( econn ) {
     try {
       cout << "Inserting dataset ... " << flush;
-      econn->insertDataSet(&dataset, runiov, runtag );
+      econn->insertDataSet(&dataset, runiov, runtag);
       cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;

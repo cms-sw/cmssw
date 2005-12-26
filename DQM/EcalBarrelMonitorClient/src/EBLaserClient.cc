@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  * 
- * $Date: 2005/12/18 15:28:41 $
- * $Revision: 1.40 $
+ * $Date: 2005/12/25 08:42:31 $
+ * $Revision: 1.41 $
  * \author G. Della Ricca
  *
 */
@@ -25,6 +25,10 @@ EBLaserClient::EBLaserClient(const edm::ParameterSet& ps, MonitorUserInterface* 
     h06_[i] = 0;
     h07_[i] = 0;
     h08_[i] = 0;
+
+  }
+
+  for ( int i = 0; i < 36; i++ ) {
 
     sprintf(histo, "EBLT laser quality L1 SM%02d", i+1);
     g01_[i] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
@@ -77,6 +81,10 @@ EBLaserClient::~EBLaserClient(){
     if ( h06_[i] ) delete h06_[i];
     if ( h07_[i] ) delete h07_[i];
     if ( h08_[i] ) delete h08_[i];
+
+  }
+
+  for ( int i = 0; i < 36; i++ ) {
 
     delete g01_[i];
     delete g02_[i];
@@ -131,6 +139,10 @@ void EBLaserClient::beginRun(const edm::EventSetup& c){
     h07_[i] = 0;
     h08_[i] = 0;
 
+  }
+
+  for ( int i = 0; i < 36; i++ ) {
+
     g01_[i]->Reset();
     g02_[i]->Reset();
     g03_[i]->Reset();
@@ -169,11 +181,36 @@ void EBLaserClient::endJob(void) {
 
 }
 
-void EBLaserClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* runtag) {
+void EBLaserClient::endRun(void) {
 
   if ( verbose_ ) cout << "EBLaserClient: endRun, jevt = " << jevt_ << endl;
 
-  if ( jevt_ == 0 ) return;
+  this->unsubscribe();
+
+  for ( int i = 0; i < 36; i++ ) {
+  
+    if ( h01_[i] ) delete h01_[i];
+    if ( h02_[i] ) delete h02_[i];
+    if ( h03_[i] ) delete h03_[i];
+    if ( h04_[i] ) delete h04_[i];
+    if ( h05_[i] ) delete h05_[i];
+    if ( h06_[i] ) delete h06_[i];
+    if ( h07_[i] ) delete h07_[i];
+    if ( h08_[i] ) delete h08_[i];
+    h01_[i] = 0; 
+    h02_[i] = 0;
+    h03_[i] = 0;
+    h04_[i] = 0;
+    h05_[i] = 0;
+    h06_[i] = 0;
+    h07_[i] = 0;
+    h08_[i] = 0;
+
+  }
+
+}
+
+void EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* runtag) {
 
   EcalLogicID ecid;
   MonLaserBlueDat apd_bl;
@@ -420,15 +457,13 @@ void EBLaserClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* r
   if ( econn ) {
     try {
       cout << "Inserting dataset ... " << flush;
-      econn->insertDataSet(&dataset_bl, runiov, runtag );
-      econn->insertDataSet(&dataset_ir, runiov, runtag );
+      econn->insertDataSet(&dataset_bl, runiov, runtag);
+      econn->insertDataSet(&dataset_ir, runiov, runtag);
       cout << "done." << endl; 
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
   }
-
-  this->unsubscribe();
 
 }
 

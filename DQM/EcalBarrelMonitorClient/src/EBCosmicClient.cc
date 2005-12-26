@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  * 
- * $Date: 2005/12/18 12:01:08 $
- * $Revision: 1.18 $
+ * $Date: 2005/12/18 15:28:41 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -78,11 +78,26 @@ void EBCosmicClient::endJob(void) {
 
 }
 
-void EBCosmicClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* runtag) {
+void EBCosmicClient::endRun(void) {
 
   if ( verbose_ ) cout << "EBCosmicClient: endRun, jevt = " << jevt_ << endl;
 
-  if ( jevt_ == 0 ) return;
+  this->unsubscribe();
+
+  for ( int ism = 1; ism <= 36; ism++ ) {
+
+    if ( h01_[ism-1] ) delete h01_[ism-1];
+    if ( h02_[ism-1] ) delete h02_[ism-1];
+    if ( h03_[ism-1] ) delete h03_[ism-1];
+    h01_[ism-1] = 0;
+    h02_[ism-1] = 0;
+    h03_[ism-1] = 0;
+
+  }
+
+}
+
+void EBCosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* runtag) {
 
   EcalLogicID ecid;
 //  MonPedestalsDat p;
@@ -161,14 +176,12 @@ void EBCosmicClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* 
   if ( econn ) {
     try {
       cout << "Inserting dataset ... " << flush;
-//      econn->insertDataSet(&dataset, runiov, runtag );
+//      econn->insertDataSet(&dataset, runiov, runtag);
       cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
   }
-
-  this->unsubscribe();
 
 }
 

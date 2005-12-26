@@ -1,8 +1,8 @@
 /*
  * \file EBElectronClient.cc
  * 
- * $Date: 2005/12/18 15:28:41 $
- * $Revision: 1.19 $
+ * $Date: 2005/12/23 09:08:56 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -51,11 +51,15 @@ void EBElectronClient::endJob(void) {
 
 }
 
-void EBElectronClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* runtag) {
+void EBElectronClient::endRun(void) {
 
   if ( verbose_ ) cout << "EBElectronClient: endRun, jevt = " << jevt_ << endl;
 
-  if ( jevt_ == 0 ) return;
+  this->unsubscribe();
+
+}
+
+void EBElectronClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* runtag) {
 
   if ( econn ) {
     try {
@@ -66,8 +70,6 @@ void EBElectronClient::endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag
       cerr << e.what() << endl;
     }
   }
-
-  this->unsubscribe();
 
 }
 

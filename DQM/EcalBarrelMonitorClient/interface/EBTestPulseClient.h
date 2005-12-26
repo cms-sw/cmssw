@@ -4,8 +4,8 @@
 /*
  * \file EBTestPulseClient.h
  *
- * $Date: 2005/12/05 09:31:34 $
- * $Revision: 1.10 $
+ * $Date: 2005/12/13 09:02:23 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -78,10 +78,13 @@ void endJob(void);
 void beginRun(const edm::EventSetup& c);
 
 // EndRun
-void endRun(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* runtag);
+void endRun(void);
 
 // HtmlOutput
 virtual void htmlOutput(int run, string htmlDir, string htmlName);
+
+// WriteDB
+void writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* runtag);
 
 private:
 

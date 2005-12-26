@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2005/12/16 08:48:59 $
- * $Revision: 1.22 $
+ * $Date: 2005/12/23 09:08:55 $
+ * $Revision: 1.23 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -88,6 +88,9 @@ virtual void endRun(void);
 // HtmlOutput
 virtual void htmlOutput(void);
 
+// WriteDB
+virtual void writeDb(void);
+
 private:
 
 int ievt_;
@@ -111,11 +114,6 @@ string dbPassword_;
 string baseHtmlDir_;
 
 MonitorUserInterface* mui_;
-
-EcalCondDBInterface* econn_;
-
-RunIOV* runiov_;
-RunTag* runtag_;
 
 string location_;
 string runtype_;
