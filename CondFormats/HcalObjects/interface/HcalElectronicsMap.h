@@ -6,36 +6,49 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store map between detector ID, electronics ID and trigger ID
 $Author: ratnikov
-$Date: 2005/10/20 05:18:37 $
-$Revision: 1.2 $
+$Date: 2005/12/05 00:25:36 $
+$Revision: 1.3 $
 */
 
 #include <vector>
 #include <algorithm>
+
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
 
 // 
 class HcalElectronicsMap {
  public:
   HcalElectronicsMap();
   ~HcalElectronicsMap();
-  // Electronics ID
-  unsigned long chId2eId (unsigned long fChId, bool fWarning = true) const;
-  unsigned long tId2eId (unsigned long fTriggerId, bool fWarning = true) const;
-  // Trigger ID
-  unsigned long chId2tId (unsigned long fChId, bool fWarning = true) const;
-  unsigned long eId2tId (unsigned long fElectronicsId, bool fWarning = true) const;
-  // Channel ID
-  unsigned long eId2chId (unsigned long fElectronicsId, bool fWarning = true) const;
-  unsigned long tId2chId (unsigned long fTriggerId, bool fWarning = true) const;
 
-  std::vector <unsigned long> allElectronicsId () const;
-  std::vector <unsigned long> allDetectorId () const;
-  std::vector <unsigned long> allTriggerId () const;
+  /// lookup the logical detid associated with the given electronics id
+  //return Null item if no such mapping
+  const HcalDetId lookup(HcalElectronicsId fId, bool fWarning = true) const;
+
+  /// brief lookup the electronics detid associated with the given logical id
+  //return Null item if no such mapping
+  const HcalElectronicsId lookup(HcalDetId fId, bool fWarning = true) const;
+
+  /// brief lookup the trigger logical detid associated with the given electronics id
+  //return Null item if no such mapping
+  const HcalTrigTowerDetId lookupTrigger(HcalElectronicsId fId, bool fWarning = true) const;
+
+  /// brief lookup the electronics detid associated with the given trigger logical id
+  //return Null item if no such mapping
+  const HcalElectronicsId lookupTrigger(HcalTrigTowerDetId fId, bool fWarning = true) const;
+  
+
+
+  std::vector <HcalElectronicsId> allElectronicsId () const;
+  std::vector <HcalDetId> allDetectorId () const;
+  std::vector <HcalTrigTowerDetId> allTriggerId () const;
 
   // map channels
-  bool setMapping (unsigned long fChId, unsigned long fElectronicsId, unsigned long fTriggerId);
-  bool mapEId2tId (unsigned long fElectronicsId, unsigned long fTriggerId);
-  bool mapEId2chId (unsigned long fElectronicsId, unsigned long fChId);
+  bool setMapping (HcalDetId fChId, HcalElectronicsId fElectronicsId, HcalTrigTowerDetId fTriggerId);
+  bool mapEId2tId (HcalElectronicsId fElectronicsId, HcalTrigTowerDetId fTriggerId);
+  bool mapEId2chId (HcalElectronicsId fElectronicsId, HcalDetId fChId);
   // sorting
   void sortByChaId ();
   void sortByElectronicsId ();

@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 19:13:25 EDT 2005
-// $Id: HcalDbAnalyzer.cc,v 1.6 2005/12/06 23:46:25 fedor Exp $
+// $Id: HcalDbAnalyzer.cc,v 1.7 2005/12/15 23:37:59 fedor Exp $
 //
 //
 
@@ -42,6 +42,7 @@
 #include "CalibFormats/HcalObjects/interface/HcalCalibrationWidths.h"
 #include "CondFormats/HcalObjects/interface/HcalQIEShape.h"
 #include "CondFormats/HcalObjects/interface/HcalQIECoder.h"
+#include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 
 class HcalDbAnalyzer : public edm::EDAnalyzer {
    public:
@@ -136,6 +137,19 @@ HcalDbAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
   }
   
   // dump mapping
+  const HcalElectronicsMap* emap = pSetup->getHcalMapping ();
+  if (emap) {
+    std::cout << "Mapping: all Hcal IDs:" << std::endl;
+    std::vector <HcalElectronicsId> elIds = emap->allElectronicsId ();
+    std::vector <HcalElectronicsId>::iterator id = elIds.begin ();
+    for (; id != elIds.end (); id++) {
+      std::cout << "ElectronicsID: " << *id << " , Detector ID: " << emap->lookup (*id) 
+		<< " , Trigger ID: " << emap->lookupTrigger (*id) << std::endl;
+    }
+  }
+  else {
+    std::cerr << "HcalDbAnalyzer::analyze-> CAN NOT GET HCAL ELECTRONICS MAP" << std::endl;
+  }
 //   std::auto_ptr <HcalMapping> emap = pSetup->getHcalMapping ();
 //   std::cout << "Mapping: all Hcal IDs:" << std::endl;
 //   std::vector <HcalElectronicsId> detIds = emap->allElectronicsId ();

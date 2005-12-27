@@ -37,7 +37,7 @@ class HcalDbService {
   bool makeHcalCalibrationWidth (const HcalDetId& fId, HcalCalibrationWidths* fObject) const;
   const HcalQIECoder* getHcalCoder (const HcalDetId& fId) const;
   const HcalQIEShape* getHcalShape () const;
-  std::auto_ptr<HcalMapping> getHcalMapping () const;
+  const HcalElectronicsMap* getHcalMapping () const;
   
   void setData (const HcalPedestals* fItem) {mPedestals = fItem;}
   void setData (const HcalPedestalWidths* fItem) {mPedestalWidths = fItem;}

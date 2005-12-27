@@ -3,8 +3,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store mapping for Hcal channels
 $Author: ratnikov
-$Date: 2005/10/20 05:18:37 $
-$Revision: 1.2 $
+$Date: 2005/12/05 00:25:36 $
+$Revision: 1.3 $
 */
 
 #include <iostream>
@@ -69,74 +69,72 @@ const HcalElectronicsMap::Item* HcalElectronicsMap::findByTrigId (unsigned long 
 }
 
 
-
-unsigned long HcalElectronicsMap::chId2eId (unsigned long fChId, bool fWarning) const {
-  const Item* item = findByChId (fChId, fWarning);
-  return item ? item->mElId : 0;
+const HcalDetId HcalElectronicsMap::lookup(HcalElectronicsId fId, bool fWarning ) const {
+  const Item* item = findByElId (fId.rawId (), fWarning);
+  return HcalDetId (item ? item->mChId : 0);
 }
 
-unsigned long HcalElectronicsMap::chId2tId (unsigned long fChId, bool fWarning) const {
-  const Item* item = findByChId (fChId, fWarning);
-  return item ? item->mTrigId : 0;
+const HcalElectronicsId HcalElectronicsMap::lookup(HcalDetId fId, bool fWarning) const {
+  const Item* item = findByChId (fId.rawId (), fWarning);
+  return HcalElectronicsId (item ? item->mElId : 0);
 }
 
-unsigned long HcalElectronicsMap::eId2tId (unsigned long fElectronicsId, bool fWarning) const {
-  const Item* item = findByElId (fElectronicsId, fWarning);
-  return item ? item->mTrigId : 0;
-}
-unsigned long HcalElectronicsMap::eId2chId (unsigned long fElectronicsId, bool fWarning) const {
-  const Item* item = findByElId (fElectronicsId, fWarning);
-  return item ? item->mChId : 0;
-}
-unsigned long HcalElectronicsMap::tId2eId (unsigned long fTriggerId, bool fWarning) const {
-  const Item* item = findByTrigId (fTriggerId, fWarning);
-  return item ? item->mElId : 0;
-}
-unsigned long HcalElectronicsMap::tId2chId (unsigned long fTriggerId, bool fWarning) const {
-  const Item* item = findByTrigId (fTriggerId, fWarning);
-  return item ? item->mChId : 0;
+const HcalTrigTowerDetId HcalElectronicsMap::lookupTrigger(HcalElectronicsId fId, bool fWarning) const {
+  const Item* item = findByElId (fId.rawId (), fWarning);
+  return HcalTrigTowerDetId (item ? item->mTrigId : 0);
 }
 
-bool HcalElectronicsMap::setMapping (unsigned long fChId, unsigned long fElectronicsId, unsigned long fTriggerId) {
-  Item item (fChId, fElectronicsId, fTriggerId);
+const HcalElectronicsId HcalElectronicsMap::lookupTrigger(HcalTrigTowerDetId fId, bool fWarning) const {
+  const Item* item = findByTrigId (fId.rawId (), fWarning);
+  return HcalElectronicsId (item ? item->mElId : 0);
+}
+
+bool HcalElectronicsMap::setMapping (HcalDetId fChId, HcalElectronicsId fElectronicsId, HcalTrigTowerDetId fTriggerId) {
+  Item item (fChId.rawId (), fElectronicsId.rawId (), fTriggerId.rawId ());
   mItems.push_back (item);
   mSortedByChId = mSortedByElId = mSortedByTrigId = false;
   return true;
 }
 
-std::vector <unsigned long> HcalElectronicsMap::allElectronicsId () const {
-  std::vector <unsigned long> result;
+std::vector <HcalElectronicsId> HcalElectronicsMap::allElectronicsId () const {
+  std::vector <HcalElectronicsId> result;
   std::set <unsigned long> allIds;
   for (std::vector<Item>::const_iterator item = mItems.begin (); item != mItems.end (); item++) 
     if (item->mElId) allIds.insert (item->mElId);
-  return std::vector <unsigned long> (allIds.begin (), allIds.end ());
+  for (std::set <unsigned long>::const_iterator channel = allIds.begin (); channel != allIds.end (); channel++)
+    result.push_back (HcalElectronicsId (*channel));
+  return result;
 }
 
-std::vector <unsigned long> HcalElectronicsMap::allDetectorId () const {
-  std::vector <unsigned long> result;
+std::vector <HcalDetId> HcalElectronicsMap::allDetectorId () const {
+  std::vector <HcalDetId> result;
   std::set <unsigned long> allIds;
   for (std::vector<Item>::const_iterator item = mItems.begin (); item != mItems.end (); item++)  
     if (item->mChId) allIds.insert (item->mChId);
-  return std::vector <unsigned long> (allIds.begin (), allIds.end ());
+  for (std::set <unsigned long>::const_iterator channel = allIds.begin (); channel != allIds.end (); channel++)
+    result.push_back (HcalDetId (*channel));
+  return result;
 }
 
-std::vector <unsigned long> HcalElectronicsMap::allTriggerId () const {
-  std::vector <unsigned long> result;
+std::vector <HcalTrigTowerDetId> HcalElectronicsMap::allTriggerId () const {
+  std::vector <HcalTrigTowerDetId> result;
   std::set <unsigned long> allIds;
   for (std::vector<Item>::const_iterator item = mItems.begin (); item != mItems.end (); item++)  
     if (item->mTrigId) allIds.insert (item->mTrigId);
-  return std::vector <unsigned long> (allIds.begin (), allIds.end ());
+  for (std::set <unsigned long>::const_iterator channel = allIds.begin (); channel != allIds.end (); channel++)
+    result.push_back (HcalTrigTowerDetId (*channel));
+  return result;
 }
 
-bool HcalElectronicsMap::mapEId2tId (unsigned long fElectronicsId, unsigned long fTriggerId) {
-  const Item* item = findByElId (fElectronicsId, false);
+bool HcalElectronicsMap::mapEId2tId (HcalElectronicsId fElectronicsId, HcalTrigTowerDetId fTriggerId) {
+  const Item* item = findByElId (fElectronicsId.rawId (), false);
   if (item) { // record exists
     if (item->mTrigId == 0) {
-      ((Item*)item)->mTrigId = fTriggerId; // just cast avoiding long machinery
+      ((Item*)item)->mTrigId = fTriggerId.rawId (); // just cast avoiding long machinery
     } 
-    else if (item->mTrigId != fTriggerId) {
-      std::cerr << "HcalElectronicsMap::mapEId2tId-> Electronics channel " <<  fElectronicsId << " already mapped to trigger channel " 
-		<< item->mTrigId << ". New value " << fTriggerId << " is ignored" << std::endl;
+    else if (item->mTrigId != fTriggerId.rawId ()) {
+      std::cerr << "HcalElectronicsMap::mapEId2tId-> Electronics channel " <<  fElectronicsId.rawId () << " already mapped to trigger channel " 
+		<< item->mTrigId << ". New value " << fTriggerId.rawId () << " is ignored" << std::endl;
       return false;
     }
     return true;
@@ -146,15 +144,15 @@ bool HcalElectronicsMap::mapEId2tId (unsigned long fElectronicsId, unsigned long
   }
 }
 
-bool HcalElectronicsMap::mapEId2chId (unsigned long fElectronicsId, unsigned long fChId) {
-  const Item* item = findByElId (fElectronicsId, false);
+bool HcalElectronicsMap::mapEId2chId (HcalElectronicsId fElectronicsId, HcalDetId fChId) {
+  const Item* item = findByElId (fElectronicsId.rawId (), false);
   if (item) { // record exists
     if (item->mChId == 0) {
-      ((Item*)item)->mChId = fChId; // just cast avoiding long machinery
+      ((Item*)item)->mChId = fChId.rawId (); // just cast avoiding long machinery
     } 
-    else if (item->mChId != fChId) {
-      std::cerr << "HcalElectronicsMap::mapEId2tId-> Electronics channel " <<  fElectronicsId << " already mapped to channel " 
-		<< item->mChId << ". New value " << fChId << " is ignored" << std::endl;
+    else if (item->mChId != fChId.rawId ()) {
+      std::cerr << "HcalElectronicsMap::mapEId2tId-> Electronics channel " <<  fElectronicsId.rawId () << " already mapped to channel " 
+		<< item->mChId << ". New value " << fChId.rawId () << " is ignored" << std::endl;
       return false;
     }
     return true;
