@@ -3,8 +3,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store pedestal values 4xCapId
 $Author: ratnikov
-$Date: 2005/10/28 01:37:10 $
-$Revision: 1.1 $
+$Date: 2005/11/02 21:49:19 $
+$Revision: 1.2 $
 */
 
 #include <iostream>
@@ -54,7 +54,7 @@ void HcalChannelQuality::sort () {
   }
 }
 
-static const char* HcalChannelQuality::str (Quality fQuality) {
+const char* HcalChannelQuality::str (Quality fQuality) {
   switch (fQuality) {
   case BAD: return "BAD";
   case GOOD: return "GOOD";
