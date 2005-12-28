@@ -57,7 +57,7 @@ void ReadRecHitAlgorithm::run(const SiStripRecHit2DLocalPosCollection* input)
 	  LocalError error=rechit.localPositionError();
 	  //GeomDet& det=rechit->det();
 	  DetId id=rechit.geographicalId();
-	  const SiStripCluster* clust=rechit.cluster();
+	  std::vector<const SiStripCluster*> clust=rechit.cluster();
 	  std::cout<<"local position: "<<position.x()<<" "<<position.y()<<" "<<position.z()<<" "<<std::endl;
 	  //std::cout<<"local error: "<<error.x()<<" "<<error.y()<<" "<<error.z()<<" "<<std::endl;
 	  //	  std::cout<<"det id: "<<id.rawid<<std::endl;

@@ -25,7 +25,7 @@ public:
   template<class T>  
     own_vector<SiStripRecHit2DLocalPos> match(const SiStripCluster *cluster,ClusterIterator &begin, ClusterIterator &end, const DetId &detId, const T &topol,const GeomDetUnit* stripdet,const GeomDetUnit * partnerstripdet){
     own_vector<SiStripRecHit2DLocalPos> collector;
-    LocalPoint position;
+    LocalPoint position;    
     const  LocalError dummy;
     // position of the initial and final point of the strip (RPHI cluster)
     MeasurementPoint RPHIpointini=MeasurementPoint(cluster->barycenter(),-0.5);
@@ -33,6 +33,8 @@ public:
     // position of the initial and final point of the strip in local coordinates (RPHI cluster)
     LocalPoint RPHIpositionini=topol.localPosition(RPHIpointini); 
     LocalPoint RPHIpositionend=topol.localPosition(RPHIpointend); 
+    std::cout<<"First point x="<<RPHIpositionini.x()<<" y"<<RPHIpositionini.y()<<std::endl;
+    std::cout<<"Second point x="<<RPHIpositionend.x()<<" y"<<RPHIpositionend.y()<<std::endl;
     // position of the initial and final point of the strip in global coordinates (RPHI cluster)
     GlobalPoint rphiglobalpointini=(stripdet->surface()).toGlobal(RPHIpositionini);
     GlobalPoint rphiglobalpointend=(stripdet->surface()).toGlobal(RPHIpositionend);
@@ -57,7 +59,11 @@ public:
       if(solution(2)>-(partnertopol.stripLength()/2)&&solution(2)<partnertopol.stripLength()/2){//(to be modified)
 	//then we can add it to the Rechit collection 
 	position=LocalPoint(solution(1),solution(2));
-	collector.push_back(new SiStripRecHit2DLocalPos(position, dummy, stripdet,detId,cluster));
+	SiStripCluster secondcluster=*seconditer;
+	std::vector<const SiStripCluster*> clusters;
+	clusters.push_back(cluster); clusters.push_back(&secondcluster);
+	std::cout<<"X= "<<solution(1)<<" Y= "<<solution(2)<<std::endl;
+	collector.push_back(new SiStripRecHit2DLocalPos(position, dummy, stripdet,detId,clusters));
       }
     }
     return collector;
