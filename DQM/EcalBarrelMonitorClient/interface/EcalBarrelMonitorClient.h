@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2005/12/26 09:01:54 $
- * $Revision: 1.24 $
+ * $Date: 2005/12/26 13:14:24 $
+ * $Revision: 1.25 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -85,8 +85,11 @@ virtual void beginRun(const edm::EventSetup& c);
 /// EndRun
 virtual void endRun(void);
 
+/// Setup
+virtual void setup(void);
+
 /// Cleanup
-void cleanup(void);
+virtual void cleanup(void);
 
 /// HtmlOutput
 virtual void htmlOutput(void);

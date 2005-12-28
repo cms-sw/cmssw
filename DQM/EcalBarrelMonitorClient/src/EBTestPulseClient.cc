@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  * 
- * $Date: 2005/12/26 09:01:56 $
- * $Revision: 1.46 $
+ * $Date: 2005/12/26 13:14:26 $
+ * $Revision: 1.47 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -14,39 +14,31 @@ EBTestPulseClient::EBTestPulseClient(const edm::ParameterSet& ps, MonitorUserInt
 
   mui_ = mui;
 
-  Char_t histo[50];
+  for ( int ism = 1; ism <= 36; ism++ ) {
 
-  for ( int i = 0; i < 36; i++ ) {
+    ha01_[ism-1] = 0;
+    ha02_[ism-1] = 0;
+    ha03_[ism-1] = 0;
 
-    ha01_[i] = 0;
-    ha02_[i] = 0;
-    ha03_[i] = 0;
+    hs01_[ism-1] = 0;
+    hs02_[ism-1] = 0;
+    hs03_[ism-1] = 0;
 
-    hs01_[i] = 0;
-    hs02_[i] = 0;
-    hs03_[i] = 0;
-
-    he01_[i] = 0;
-    he02_[i] = 0;
-    he03_[i] = 0;
+    he01_[ism-1] = 0;
+    he02_[ism-1] = 0;
+    he03_[ism-1] = 0;
 
   }
 
-  for ( int i = 0; i < 36; i++ ) {
+  for ( int ism = 1; ism <= 36; ism++ ) {
 
-    sprintf(histo, "EBPT test pulse quality G01 SM%02d", i+1);
-    g01_[i] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
-    sprintf(histo, "EBPT test pulse quality G06 SM%02d", i+1);
-    g02_[i] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
-    sprintf(histo, "EBPT test pulse quality G12 SM%02d", i+1);
-    g03_[i] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
+    g01_[ism-1] = 0;
+    g02_[ism-1] = 0;
+    g03_[ism-1] = 0;
 
-    sprintf(histo, "EBPT test pulse amplitude G01 SM%02d", i+1);
-    a01_[i] = new TH1F(histo, histo, 1700, 0., 1700.);
-    sprintf(histo, "EBPT test pulse amplitude G06 SM%02d", i+1);
-    a02_[i] = new TH1F(histo, histo, 1700, 0., 1700.);
-    sprintf(histo, "EBPT test pulse amplitude G12 SM%02d", i+1);
-    a03_[i] = new TH1F(histo, histo, 1700, 0., 1700.);
+    a01_[ism-1] = 0;
+    a02_[ism-1] = 0;
+    a03_[ism-1] = 0;
 
   }
 
@@ -66,18 +58,6 @@ EBTestPulseClient::~EBTestPulseClient(){
 
   this->cleanup(); 
 
-  for ( int i = 0; i < 36; i++ ) {
-
-    delete g01_[i];
-    delete g02_[i];
-    delete g03_[i];
-
-    delete a01_[i];
-    delete a02_[i];
-    delete a03_[i];
-
-  }
-
 }
 
 void EBTestPulseClient::beginJob(const edm::EventSetup& c){
@@ -95,7 +75,55 @@ void EBTestPulseClient::beginRun(const edm::EventSetup& c){
 
   jevt_ = 0;
 
+  this->setup(); 
+
+  this->subscribe();
+
+}
+
+void EBTestPulseClient::endJob(void) {
+
+  if ( verbose_ ) cout << "EBTestPulseClient: endJob, ievt = " << ievt_ << endl;
+
+}
+
+void EBTestPulseClient::endRun(void) {
+
+  if ( verbose_ ) cout << "EBTestPulseClient: endRun, jevt = " << jevt_ << endl;
+
+  this->unsubscribe();
+
   this->cleanup(); 
+
+}
+
+void EBTestPulseClient::setup(void) {
+
+  Char_t histo[50];
+
+  for ( int ism = 1; ism <= 36; ism++ ) {
+
+    if ( g01_[ism-1] ) delete g01_[ism-1];
+    sprintf(histo, "EBPT test pulse quality G01 SM%02d", ism);
+    g01_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
+    if ( g02_[ism-1] ) delete g02_[ism-1];
+    sprintf(histo, "EBPT test pulse quality G06 SM%02d", ism);
+    g02_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
+    if ( g03_[ism-1] ) delete g03_[ism-1];
+    sprintf(histo, "EBPT test pulse quality G12 SM%02d", ism);
+    g03_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
+
+    if ( a01_[ism-1] ) delete a01_[ism-1];
+    sprintf(histo, "EBPT test pulse amplitude G01 SM%02d", ism);
+    a01_[ism-1] = new TH1F(histo, histo, 1700, 0., 1700.);
+    if ( a02_[ism-1] ) delete a02_[ism-1];
+    sprintf(histo, "EBPT test pulse amplitude G06 SM%02d", ism);
+    a02_[ism-1] = new TH1F(histo, histo, 1700, 0., 1700.);
+    if ( a03_[ism-1] ) delete a03_[ism-1];
+    sprintf(histo, "EBPT test pulse amplitude G12 SM%02d", ism);
+    a03_[ism-1] = new TH1F(histo, histo, 1700, 0., 1700.);
+
+  }
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
@@ -119,24 +147,6 @@ void EBTestPulseClient::beginRun(const edm::EventSetup& c){
 
   }
 
-  this->subscribe();
-
-}
-
-void EBTestPulseClient::endJob(void) {
-
-  if ( verbose_ ) cout << "EBTestPulseClient: endJob, ievt = " << ievt_ << endl;
-
-}
-
-void EBTestPulseClient::endRun(void) {
-
-  if ( verbose_ ) cout << "EBTestPulseClient: endRun, jevt = " << jevt_ << endl;
-
-  this->unsubscribe();
-
-  this->cleanup(); 
-
 }
 
 void EBTestPulseClient::cleanup(void) {
@@ -144,25 +154,43 @@ void EBTestPulseClient::cleanup(void) {
   for ( int ism = 1; ism <= 36; ism++ ) {
 
     if ( ha01_[ism-1] ) delete ha01_[ism-1];
-    if ( ha02_[ism-1] ) delete ha02_[ism-1];
-    if ( ha03_[ism-1] ) delete ha03_[ism-1];
     ha01_[ism-1] = 0;
+    if ( ha02_[ism-1] ) delete ha02_[ism-1];
     ha02_[ism-1] = 0;
+    if ( ha03_[ism-1] ) delete ha03_[ism-1];
     ha03_[ism-1] = 0;
 
     if ( hs01_[ism-1] ) delete hs01_[ism-1];
-    if ( hs02_[ism-1] ) delete hs02_[ism-1];
-    if ( hs03_[ism-1] ) delete hs03_[ism-1];
     hs01_[ism-1] = 0;
+    if ( hs02_[ism-1] ) delete hs02_[ism-1];
     hs02_[ism-1] = 0;
+    if ( hs03_[ism-1] ) delete hs03_[ism-1];
     hs03_[ism-1] = 0;
 
     if ( he01_[ism-1] ) delete he01_[ism-1];
-    if ( he02_[ism-1] ) delete he02_[ism-1];
-    if ( he03_[ism-1] ) delete he03_[ism-1];
     he01_[ism-1] = 0;
+    if ( he02_[ism-1] ) delete he02_[ism-1];
     he02_[ism-1] = 0;
+    if ( he03_[ism-1] ) delete he03_[ism-1];
     he03_[ism-1] = 0;
+
+  }
+
+  for ( int ism = 1; ism <= 36; ism++ ) {
+
+    if ( g01_[ism-1] ) delete g01_[ism-1];
+    g01_[ism-1] = 0;
+    if ( g02_[ism-1] ) delete g02_[ism-1];
+    g02_[ism-1] = 0;
+    if ( g03_[ism-1] ) delete g03_[ism-1];
+    g03_[ism-1] = 0;
+
+    if ( a01_[ism-1] ) delete a01_[ism-1];
+    a01_[ism-1] = 0;
+    if ( a02_[ism-1] ) delete a02_[ism-1];
+    a02_[ism-1] = 0;
+    if ( a03_[ism-1] ) delete a03_[ism-1];
+    a03_[ism-1] = 0;
 
   }
 
@@ -204,9 +232,9 @@ void EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunT
 
         float numEventsinCry[3] = {0., 0., 0.};
 
-        if ( ha01_[ism-1] ) numEventsinCry[1] = ha01_[ism-1]->GetBinEntries(ha01_[ism-1]->GetBin(ie, ip));
-        if ( ha02_[ism-1] ) numEventsinCry[2] = ha02_[ism-1]->GetBinEntries(ha02_[ism-1]->GetBin(ie, ip));
-        if ( ha03_[ism-1] ) numEventsinCry[3] = ha03_[ism-1]->GetBinEntries(ha03_[ism-1]->GetBin(ie, ip));
+        if ( ha01_[ism-1] ) numEventsinCry[0] = ha01_[ism-1]->GetBinEntries(ha01_[ism-1]->GetBin(ie, ip));
+        if ( ha02_[ism-1] ) numEventsinCry[1] = ha02_[ism-1]->GetBinEntries(ha02_[ism-1]->GetBin(ie, ip));
+        if ( ha03_[ism-1] ) numEventsinCry[2] = ha03_[ism-1]->GetBinEntries(ha03_[ism-1]->GetBin(ie, ip));
 
         if ( ha01_[ism-1] && ha01_[ism-1]->GetEntries() >= n_min_tot ) {
           num01 = ha01_[ism-1]->GetBinEntries(ha01_[ism-1]->GetBin(ie, ip));
@@ -695,9 +723,9 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
 
         float numEventsinCry[3] = {0., 0., 0.};
 
-        if ( ha01_[ism-1] ) numEventsinCry[1] = ha01_[ism-1]->GetBinEntries(ha01_[ism-1]->GetBin(ie, ip));
-        if ( ha02_[ism-1] ) numEventsinCry[2] = ha02_[ism-1]->GetBinEntries(ha02_[ism-1]->GetBin(ie, ip));
-        if ( ha03_[ism-1] ) numEventsinCry[3] = ha03_[ism-1]->GetBinEntries(ha03_[ism-1]->GetBin(ie, ip));
+        if ( ha01_[ism-1] ) numEventsinCry[0] = ha01_[ism-1]->GetBinEntries(ha01_[ism-1]->GetBin(ie, ip));
+        if ( ha02_[ism-1] ) numEventsinCry[1] = ha02_[ism-1]->GetBinEntries(ha02_[ism-1]->GetBin(ie, ip));
+        if ( ha03_[ism-1] ) numEventsinCry[2] = ha03_[ism-1]->GetBinEntries(ha03_[ism-1]->GetBin(ie, ip));
 
         if ( ha01_[ism-1] && ha01_[ism-1]->GetEntries() >= n_min_tot ) {
           num01 = ha01_[ism-1]->GetBinEntries(ha01_[ism-1]->GetBin(ie, ip));
@@ -736,7 +764,7 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
           if ( rms01 > RMSThreshold_ )
             val = 0.;
           if ( he01_[ism-1] ) {
-            float errorRate = he01_[ism-1]->GetBinContent(he01_[ism-1]->GetBin(ie, ip)) / numEventsinCry[1];
+            float errorRate = he01_[ism-1]->GetBinContent(he01_[ism-1]->GetBin(ie, ip)) / numEventsinCry[0];
             if ( errorRate > threshold_on_AmplitudeErrorsNumber_ ) val = 0.;
           }
           g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), val);
@@ -750,7 +778,7 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
           if ( rms02 > RMSThreshold_ )
             val = 0.;
           if ( he02_[ism-1] ) {
-            float errorRate = he02_[ism-1]->GetBinContent(he02_[ism-1]->GetBin(ie, ip)) / numEventsinCry[2];
+            float errorRate = he02_[ism-1]->GetBinContent(he02_[ism-1]->GetBin(ie, ip)) / numEventsinCry[1];
             if ( errorRate > threshold_on_AmplitudeErrorsNumber_ ) val = 0.;
           }
           g02_[ism-1]->SetBinContent(g02_[ism-1]->GetBin(ie, ip), val);
@@ -764,7 +792,7 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
           if ( rms03 > RMSThreshold_ )
             val = 0.;
           if ( he03_[ism-1] ) {
-            float errorRate = he03_[ism-1]->GetBinContent(he03_[ism-1]->GetBin(ie, ip)) / numEventsinCry[3];
+            float errorRate = he03_[ism-1]->GetBinContent(he03_[ism-1]->GetBin(ie, ip)) / numEventsinCry[2];
             if ( errorRate > threshold_on_AmplitudeErrorsNumber_ ) val = 0.;
           }
           g03_[ism-1]->SetBinContent(g03_[ism-1]->GetBin(ie, ip), val);
@@ -829,10 +857,14 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   string imgNameQual[3] , imgNameAmp[3] , imgNameShape[3] , imgName , meName;
 
+  TCanvas* cQual = new TCanvas("cQual" , "Temp", 2*csize , csize );
+  TCanvas* cAmp = new TCanvas("cAmp" , "Temp", csize , csize );
+  TCanvas* cShape = new TCanvas("cShape" , "Temp", csize , csize );
+
   // Loop on barrel supermodules
 
   for ( int ism = 1 ; ism <= 36 ; ism++ ) {
-    
+ 
     if (  g01_[ism-1] &&  g02_[ism-1] &&  g03_[ism-1] &&
           a01_[ism-1] &&  a02_[ism-1] &&  a03_[ism-1] &&
          hs01_[ism-1] && hs02_[ism-1] && hs03_[ism-1] ) {
@@ -843,26 +875,22 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
 
         // Quality plots
 
-      TH2F* obj2f = 0; 
-
-      switch ( iCanvas ) {
-        case 1:
-          meName = g01_[ism-1]->GetName();
-          obj2f = g01_[ism-1];
-          break;
-        case 2:
-          meName = g02_[ism-1]->GetName();
-          obj2f = g02_[ism-1];
-          break;
-        case 3:
-          meName = g03_[ism-1]->GetName();
-          obj2f = g03_[ism-1];
-          break;
-        default:
-          break;
+        TH2F* obj2f = 0; 
+        switch ( iCanvas ) {
+          case 1:
+            obj2f = g01_[ism-1];
+            break;
+          case 2:
+            obj2f = g02_[ism-1];
+            break;
+          case 3:
+            obj2f = g03_[ism-1];
+            break;
+          default:
+            break;
         }
+        meName = obj2f->GetName();
 
-        TCanvas *cQual = new TCanvas("cQual" , "Temp", 2*csize , csize );
         for ( unsigned int iQual = 0 ; iQual < meName.size(); iQual++ ) {
           if ( meName.substr(iQual, 1) == " " )  {
             meName.replace(iQual, 1, "_");
@@ -882,30 +910,25 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
         dummy.Draw("text,same");
         cQual->Update();
         cQual->SaveAs(imgName.c_str());
-        delete cQual;
 
         // Amplitude distributions
         
         TH1F* obj1f = 0; 
-        
         switch ( iCanvas ) {
           case 1:
-            meName = a01_[ism-1]->GetName();
             obj1f = a01_[ism-1];
             break;
           case 2:
-            meName = a02_[ism-1]->GetName();
             obj1f = a02_[ism-1];
             break;
           case 3:
-            meName = a03_[ism-1]->GetName();
             obj1f = a03_[ism-1];
             break;
           default:
             break;
-          }
-        
-        TCanvas *cAmp = new TCanvas("cAmp" , "Temp", csize , csize );
+        }
+        meName = obj1f->GetName();
+
         for ( unsigned int iAmp=0 ; iAmp < meName.size(); iAmp++ ) {
           if ( meName.substr(iAmp,1) == " " )  {
             meName.replace(iAmp, 1 ,"_" );
@@ -929,30 +952,25 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
           stAmp->SetY1NDC(0.75);
         }
         cAmp->SaveAs(imgName.c_str());
-        delete cAmp;
-        
-        // Shape distributions
-        
-        TH1D* obj1d = 0;
 
+        // Shape distributions
+
+        TH1D* obj1d = 0;
         switch ( iCanvas ) {
           case 1:
-            meName = hs01_[ism-1]->GetName();
             obj1d = hs01_[ism-1]->ProjectionY("_py", 1, 10, "e");
             break;
           case 2:
-            meName = hs02_[ism-1]->GetName();
             obj1d = hs02_[ism-1]->ProjectionY("_py", 1, 10, "e");
             break;
           case 3:
-            meName = hs03_[ism-1]->GetName();
             obj1d = hs03_[ism-1]->ProjectionY("_py", 1, 10, "e");
             break;
           default:
             break;
-          }
-        
-        TCanvas *cShape = new TCanvas("cShape" , "Temp", csize , csize );
+        }
+        meName = obj1d->GetName();
+
         for ( unsigned int iShape=0 ; iShape < meName.size(); iShape++ ) {
           if ( meName.substr(iShape,1) == " " )  {
             meName.replace(iShape, 1, "_");
@@ -976,9 +994,9 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
         }
         cShape->SaveAs(imgName.c_str());
         gPad->SetLogy(0);
-        delete cShape;
 
         delete obj1d; 
+
       }
 
       htmlFile << "<h3><strong>Supermodule&nbsp;&nbsp;" << ism << "</strong></h3>" << endl;
@@ -1016,10 +1034,14 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
       htmlFile << "<tr align=\"center\"><td colspan=\"2\">Gain 1</td><td colspan=\"2\">Gain 6</td><td colspan=\"2\">Gain 12</td></tr>" << endl;
       htmlFile << "</table>" << endl;
       htmlFile << "<br>" << endl;
-    
+
     }
 
   }
+
+  delete cQual;
+  delete cAmp;
+  delete cShape;
 
   // html page footer
   htmlFile << "</body> " << endl;

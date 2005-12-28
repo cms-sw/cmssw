@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  * 
- * $Date: 2005/12/26 09:01:56 $
- * $Revision: 1.43 $
+ * $Date: 2005/12/26 13:14:26 $
+ * $Revision: 1.44 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -14,38 +14,27 @@ EBPedestalClient::EBPedestalClient(const edm::ParameterSet& ps, MonitorUserInter
 
   mui_ = mui;
 
-  Char_t histo[50];
+  for ( int ism = 1; ism <= 36; ism++ ) {
 
-  for ( int i = 0; i < 36; i++ ) {
-
-    h01_[i] = 0;
-    h02_[i] = 0;
-    h03_[i] = 0;
+    h01_[ism-1] = 0;
+    h02_[ism-1] = 0;
+    h03_[ism-1] = 0;
 
   }
 
-  for ( int i = 0; i < 36; i++ ) {
+  for ( int ism = 1; ism <= 36; ism++ ) {
 
-    sprintf(histo, "EBPT pedestal quality G01 SM%02d", i+1);
-    g01_[i] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
-    sprintf(histo, "EBPT pedestal quality G06 SM%02d", i+1);
-    g02_[i] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
-    sprintf(histo, "EBPT pedestal quality G12 SM%02d", i+1);
-    g03_[i] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
+    g01_[ism-1] = 0;
+    g02_[ism-1] = 0;
+    g03_[ism-1] = 0;
 
-    sprintf(histo, "EBPT pedestal mean G01 SM%02d", i+1);
-    p01_[i] = new TH1F(histo, histo, 100, 150., 250.);
-    sprintf(histo, "EBPT pedestal mean G06 SM%02d", i+1);
-    p02_[i] = new TH1F(histo, histo, 100, 150., 250.);
-    sprintf(histo, "EBPT pedestal mean G12 SM%02d", i+1);
-    p03_[i] = new TH1F(histo, histo, 100, 150., 250.);
+    p01_[ism-1] = 0;
+    p02_[ism-1] = 0;
+    p03_[ism-1] = 0;
 
-    sprintf(histo, "EBPT pedestal rms G01 SM%02d", i+1);
-    r01_[i] = new TH1F(histo, histo, 100, 0., 10.);
-    sprintf(histo, "EBPT pedestal rms G06 SM%02d", i+1);
-    r02_[i] = new TH1F(histo, histo, 100, 0., 10.);
-    sprintf(histo, "EBPT pedestal rms G12 SM%02d", i+1);
-    r03_[i] = new TH1F(histo, histo, 100, 0., 10.);
+    r01_[ism-1] = 0;
+    r02_[ism-1] = 0;
+    r03_[ism-1] = 0;
 
   }
 
@@ -71,22 +60,6 @@ EBPedestalClient::~EBPedestalClient(){
 
   this->cleanup();
 
-  for ( int i = 0 ; i < 36 ; i++ ) {
-
-    delete g01_[i];
-    delete g02_[i];
-    delete g03_[i];
-
-    delete p01_[i];
-    delete p02_[i];
-    delete p03_[i];
-
-    delete r01_[i];
-    delete r02_[i];
-    delete r03_[i];
-
-  }
-
 }
 
 void EBPedestalClient::beginJob(const edm::EventSetup& c){
@@ -104,7 +77,67 @@ void EBPedestalClient::beginRun(const edm::EventSetup& c){
 
   jevt_ = 0;
 
+  this->setup();
+
+  this->subscribe();
+
+}
+
+void EBPedestalClient::endJob(void) {
+
+  if ( verbose_ ) cout << "EBPedestalClient: endJob, ievt = " << ievt_ << endl;
+
+  this->unsubscribe();
+
+}
+
+void EBPedestalClient::endRun(void) {
+
+  if ( verbose_ ) cout << "EBPedestalClient: endRun, jevt = " << jevt_ << endl;
+
+  this->unsubscribe();
+
   this->cleanup();
+
+}
+
+void EBPedestalClient::setup(void) {
+
+  Char_t histo[50];
+
+  for ( int ism = 1; ism <= 36; ism++ ) {
+
+    if ( g01_[ism-1] ) delete g01_[ism-1];
+    sprintf(histo, "EBPT pedestal quality G01 SM%02d", ism);
+    g01_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
+    if ( g02_[ism-1] ) delete g02_[ism-1];
+    sprintf(histo, "EBPT pedestal quality G06 SM%02d", ism);
+    g02_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
+    if ( g03_[ism-1] ) delete g03_[ism-1];
+    sprintf(histo, "EBPT pedestal quality G12 SM%02d", ism);
+    g03_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
+
+    if ( p01_[ism-1] ) delete p01_[ism-1];
+    sprintf(histo, "EBPT pedestal mean G01 SM%02d", ism);
+    p01_[ism-1] = new TH1F(histo, histo, 100, 150., 250.);
+    if ( p02_[ism-1] ) delete p02_[ism-1];
+    sprintf(histo, "EBPT pedestal mean G06 SM%02d", ism);
+    p02_[ism-1] = new TH1F(histo, histo, 100, 150., 250.);
+    if ( p03_[ism-1] ) delete p03_[ism-1];
+    sprintf(histo, "EBPT pedestal mean G12 SM%02d", ism);
+    p03_[ism-1] = new TH1F(histo, histo, 100, 150., 250.);
+
+    if ( r01_[ism-1] ) delete r01_[ism-1];
+    sprintf(histo, "EBPT pedestal rms G01 SM%02d", ism);
+    r01_[ism-1] = new TH1F(histo, histo, 100, 0., 10.);
+    if ( r02_[ism-1] ) delete r02_[ism-1];
+    sprintf(histo, "EBPT pedestal rms G06 SM%02d", ism);
+    r02_[ism-1] = new TH1F(histo, histo, 100, 0., 10.);
+    if ( r03_[ism-1] ) delete r03_[ism-1];
+    sprintf(histo, "EBPT pedestal rms G12 SM%02d", ism);
+    r03_[ism-1] = new TH1F(histo, histo, 100, 0., 10.);
+    
+  }
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
@@ -132,26 +165,6 @@ void EBPedestalClient::beginRun(const edm::EventSetup& c){
 
   }
 
-  this->subscribe();
-
-}
-
-void EBPedestalClient::endJob(void) {
-
-  if ( verbose_ ) cout << "EBPedestalClient: endJob, ievt = " << ievt_ << endl;
-
-  this->unsubscribe();
-
-}
-
-void EBPedestalClient::endRun(void) {
-
-  if ( verbose_ ) cout << "EBPedestalClient: endRun, jevt = " << jevt_ << endl;
-
-  this->unsubscribe();
-
-  this->cleanup();
-
 }
 
 void EBPedestalClient::cleanup(void) {
@@ -159,11 +172,36 @@ void EBPedestalClient::cleanup(void) {
   for ( int ism = 1; ism <= 36; ism++ ) {
 
     if ( h01_[ism-1] ) delete h01_[ism-1];
-    if ( h02_[ism-1] ) delete h02_[ism-1];
-    if ( h03_[ism-1] ) delete h03_[ism-1];
     h01_[ism-1] = 0;
+    if ( h02_[ism-1] ) delete h02_[ism-1];
     h02_[ism-1] = 0;
+    if ( h03_[ism-1] ) delete h03_[ism-1];
     h03_[ism-1] = 0;
+
+  }
+
+  for ( int ism = 1; ism <= 36; ism++ ) {
+
+    if ( g01_[ism-1] ) delete g01_[ism-1];
+    g01_[ism-1] = 0;
+    if ( g02_[ism-1] ) delete g02_[ism-1];
+    g02_[ism-1] = 0;
+    if ( g03_[ism-1] ) delete g03_[ism-1];
+    g03_[ism-1] = 0;
+
+    if ( p01_[ism-1] ) delete p01_[ism-1];
+    p01_[ism-1] = 0;
+    if ( p02_[ism-1] ) delete p02_[ism-1];
+    p02_[ism-1] = 0;
+    if ( p03_[ism-1] ) delete p03_[ism-1];
+    p03_[ism-1] = 0;
+
+    if ( r01_[ism-1] ) delete r01_[ism-1];
+    r01_[ism-1] = 0;
+    if ( r02_[ism-1] ) delete r02_[ism-1];
+    r02_[ism-1] = 0;
+    if ( r03_[ism-1] ) delete r03_[ism-1];
+    r03_[ism-1] = 0;
 
   }
 
@@ -583,10 +621,14 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   string imgNameQual[3] , imgNameMean[3] , imgNameRMS[3] , imgName , meName;
 
+  TCanvas* cQual = new TCanvas("cQual" , "Temp", 2*csize , csize );
+  TCanvas* cMean = new TCanvas("cMean" , "Temp", csize , csize );
+  TCanvas* cRMS = new TCanvas("cRMS" , "Temp", csize , csize );
+
   // Loop on barrel supermodules
 
   for ( int ism = 1 ; ism <= 36 ; ism++ ) {
-    
+
     if ( g01_[ism-1] && g02_[ism-1] && g03_[ism-1] &&
          p01_[ism-1] && p02_[ism-1] && p03_[ism-1] &&
          r01_[ism-1] && r02_[ism-1] && r03_[ism-1] ) {
@@ -597,26 +639,22 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
 
         // Quality plots
 
-      TH2F* obj2f = 0; 
-
-      switch ( iCanvas ) {
-        case 1:
-          meName = g01_[ism-1]->GetName();
-          obj2f = g01_[ism-1];
-          break;
-        case 2:
-          meName = g02_[ism-1]->GetName();
-          obj2f = g02_[ism-1];
-          break;
-        case 3:
-          meName = g03_[ism-1]->GetName();
-          obj2f = g03_[ism-1];
-          break;
-        default:
-          break;
+        TH2F* obj2f = 0; 
+        switch ( iCanvas ) {
+          case 1:
+            obj2f = g01_[ism-1];
+            break;
+          case 2:
+            obj2f = g02_[ism-1];
+            break;
+          case 3:
+            obj2f = g03_[ism-1];
+            break;
+          default:
+            break;
         }
+        meName = obj2f->GetName();
 
-        TCanvas *cQual = new TCanvas("cQual" , "Temp", 2*csize , csize );
         for ( unsigned int iQual = 0 ; iQual < meName.size(); iQual++ ) {
           if ( meName.substr(iQual, 1) == " " )  {
             meName.replace(iQual, 1, "_");
@@ -636,30 +674,25 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
         dummy.Draw("text,same");
         cQual->Update();
         cQual->SaveAs(imgName.c_str());
-        delete cQual;
 
         // Mean distributions
-        
+
         TH1F* obj1f = 0; 
-        
         switch ( iCanvas ) {
           case 1:
-            meName = p01_[ism-1]->GetName();
             obj1f = p01_[ism-1];
             break;
           case 2:
-            meName = p02_[ism-1]->GetName();
             obj1f = p02_[ism-1];
             break;
           case 3:
-            meName = p03_[ism-1]->GetName();
             obj1f = p03_[ism-1];
             break;
           default:
             break;
-          }
-        
-        TCanvas *cMean = new TCanvas("cMean" , "Temp", csize , csize );
+        }
+        meName = obj1f->GetName();
+
         for ( unsigned int iMean=0 ; iMean < meName.size(); iMean++ ) {
           if ( meName.substr(iMean,1) == " " )  {
             meName.replace(iMean, 1 ,"_" );
@@ -683,28 +716,24 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
           stMean->SetY1NDC(0.75);
         }
         cMean->SaveAs(imgName.c_str());
-        delete cMean;
-        
+
         // RMS distributions
-        
+
         switch ( iCanvas ) {
           case 1:
-            meName = r01_[ism-1]->GetName();
             obj1f = r01_[ism-1];
             break;
           case 2:
-            meName = r02_[ism-1]->GetName();
             obj1f = r02_[ism-1];
             break;
           case 3:
-            meName = r03_[ism-1]->GetName();
             obj1f = r03_[ism-1];
             break;
           default:
             break;
-          }
-        
-        TCanvas *cRMS = new TCanvas("cRMS" , "Temp", csize , csize );
+        }
+        meName = obj1f->GetName();
+
         for ( unsigned int iRMS=0 ; iRMS < meName.size(); iRMS++ ) {
           if ( meName.substr(iRMS,1) == " " )  {
             meName.replace(iRMS, 1, "_");
@@ -728,8 +757,7 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
         }
         cRMS->SaveAs(imgName.c_str());
         gPad->SetLogy(0);
-        delete cRMS;
-        
+
       }
 
       htmlFile << "<h3><strong>Supermodule&nbsp;&nbsp;" << ism << "</strong></h3>" << endl;
@@ -754,7 +782,7 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
           htmlFile << "<td><img src=\"" << imgNameMean[iCanvas-1] << "\"></td>" << endl;
         else
           htmlFile << "<img src=\"" << " " << "\"></td>" << endl;
-        
+
         if ( imgNameRMS[iCanvas-1].size() != 0 ) 
           htmlFile << "<td><img src=\"" << imgNameRMS[iCanvas-1] << "\"></td>" << endl;
         else
@@ -767,10 +795,14 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
       htmlFile << "<tr align=\"center\"><td colspan=\"2\">Gain 1</td><td colspan=\"2\">Gain 6</td><td colspan=\"2\">Gain 12</td></tr>" << endl;
       htmlFile << "</table>" << endl;
       htmlFile << "<br>" << endl;
-    
+
     }
 
   }
+
+  delete cQual;
+  delete cMean;
+  delete cRMS;
 
   // html page footer
   htmlFile << "</body> " << endl;

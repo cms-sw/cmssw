@@ -4,8 +4,8 @@
 /*
  * \file EBCosmicClient.h
  *
- * $Date: 2005/12/26 09:01:54 $
- * $Revision: 1.5 $
+ * $Date: 2005/12/26 13:14:24 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -79,6 +79,9 @@ void beginRun(const edm::EventSetup& c);
 
 /// EndRun
 void endRun(void);
+
+/// Setup
+void setup(void);
 
 /// Cleanup
 void cleanup(void);

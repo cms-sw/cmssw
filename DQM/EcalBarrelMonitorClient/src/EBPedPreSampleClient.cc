@@ -1,8 +1,8 @@
 /*
  * \file EBPedPreSampleClient.cc
  * 
- * $Date: 2005/12/26 09:01:56 $
- * $Revision: 1.48 $
+ * $Date: 2005/12/26 13:14:26 $
+ * $Revision: 1.49 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -14,24 +14,19 @@ EBPedPreSampleClient::EBPedPreSampleClient(const edm::ParameterSet& ps, MonitorU
 
   mui_ = mui;
 
-  Char_t histo[50];
+  for ( int ism = 1; ism <= 36; ism++ ) {
 
-  for ( int i = 0; i < 36; i++ ) {
-
-    h03_[i] = 0;
+    h03_[ism-1] = 0;
 
   }
 
-  for ( int i = 0; i < 36; i++ ) {
+  for ( int ism = 1; ism <= 36; ism++ ) {
 
-    sprintf(histo, "EBPT pedestal PreSample quality G12 SM%02d", i+1);
-    g03_[i] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
+    g03_[ism-1] = 0;
 
-    sprintf(histo, "EBPT pedestal PreSample mean G12 SM%02d", i+1);
-    p03_[i] = new TH1F(histo, histo, 100, 150., 250.);
+    p03_[ism-1] = 0;
 
-    sprintf(histo, "EBPT pedestal PreSample rms G12 SM%02d", i+1);
-    r03_[i] = new TH1F(histo, histo, 100, 0.,  10.);
+    r03_[ism-1] = 0;
 
   }
 
@@ -51,16 +46,6 @@ EBPedPreSampleClient::~EBPedPreSampleClient(){
 
   this->cleanup();
 
-  for ( int i = 0; i < 36; i++ ) {
-
-    delete g03_[i];
-
-    delete p03_[i];
-
-    delete r03_[i];
-
-  }
-
 }
 
 void EBPedPreSampleClient::beginJob(const edm::EventSetup& c){
@@ -78,25 +63,7 @@ void EBPedPreSampleClient::beginRun(const edm::EventSetup& c){
 
   jevt_ = 0;
 
-  this->cleanup();
-
-  for ( int ism = 1; ism <= 36; ism++ ) {
-
-    g03_[ism-1]->Reset();
-
-    for ( int ie = 1; ie <= 85; ie++ ) {
-      for ( int ip = 1; ip <= 20; ip++ ) {
-
-        g03_[ism-1]->SetBinContent(g03_[ism-1]->GetBin(ie, ip), 2.);
-
-      }
-    }
-
-    p03_[ism-1]->Reset();
-
-    r03_[ism-1]->Reset();
-
-  }
+  this->setup();
 
   this->subscribe();
 
@@ -118,12 +85,65 @@ void EBPedPreSampleClient::endRun(void) {
 
 }
 
+void EBPedPreSampleClient::setup(void) {
+
+  Char_t histo[50];
+
+  for ( int ism = 1; ism <= 36; ism++ ) {
+
+    if ( g03_[ism-1] ) delete g03_[ism-1];
+    sprintf(histo, "EBPT pedestal PreSample quality G12 SM%02d", ism);
+    g03_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
+
+    if ( p03_[ism-1] ) delete p03_[ism-1];
+    sprintf(histo, "EBPT pedestal PreSample mean G12 SM%02d", ism);
+    p03_[ism-1] = new TH1F(histo, histo, 100, 150., 250.);
+
+    if ( r03_[ism-1] ) delete r03_[ism-1];
+    sprintf(histo, "EBPT pedestal PreSample rms G12 SM%02d", ism);
+    r03_[ism-1] = new TH1F(histo, histo, 100, 0.,  10.);
+
+  }
+
+  for ( int ism = 1; ism <= 36; ism++ ) {
+
+    g03_[ism-1]->Reset();
+
+    for ( int ie = 1; ie <= 85; ie++ ) {
+      for ( int ip = 1; ip <= 20; ip++ ) {
+
+        g03_[ism-1]->SetBinContent(g03_[ism-1]->GetBin(ie, ip), 2.);
+
+      }
+    }
+
+    p03_[ism-1]->Reset();
+
+    r03_[ism-1]->Reset();
+
+  }
+
+}
+
 void EBPedPreSampleClient::cleanup(void) {
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
     if ( h03_[ism-1] ) delete h03_[ism-1];
     h03_[ism-1] = 0;
+
+  }
+
+  for ( int ism = 1; ism <= 36; ism++ ) {
+
+    if ( g03_[ism-1] ) delete g03_[ism-1];
+    g03_[ism-1] = 0;
+
+    if ( p03_[ism-1] ) delete p03_[ism-1];
+    p03_[ism-1] = 0;
+
+    if ( r03_[ism-1] ) delete r03_[ism-1];
+    r03_[ism-1] = 0;
 
   }
 
@@ -410,18 +430,20 @@ void EBPedPreSampleClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   string imgNameQual , imgNameMean , imgNameRMS , imgName , meName;
 
+  TCanvas* cQual = new TCanvas("cQual" , "Temp", 2*csize , csize );
+  TCanvas* cMean = new TCanvas("cMean" , "Temp", csize , csize );
+  TCanvas* cRMS = new TCanvas("cRMS" , "Temp", csize , csize );
+
   // Loop on barrel supermodules
 
   for ( int ism = 1 ; ism <= 36 ; ism++ ) {
-    
+
     if ( g03_[ism-1] && p03_[ism-1] && r03_[ism-1] ) {
 
       TH2F* obj2f = 0; 
-
-      meName = g03_[ism-1]->GetName();
       obj2f = g03_[ism-1];
+      meName = obj2f->GetName();
 
-      TCanvas *cQual = new TCanvas("cQual" , "Temp", 2*csize , csize );
       for ( unsigned int iQual = 0 ; iQual < meName.size(); iQual++ ) {
         if ( meName.substr(iQual, 1) == " " )  {
           meName.replace(iQual, 1, "_");
@@ -441,16 +463,13 @@ void EBPedPreSampleClient::htmlOutput(int run, string htmlDir, string htmlName){
       dummy.Draw("text,same");
       cQual->Update();
       cQual->SaveAs(imgName.c_str());
-      delete cQual;
 
       // Mean distributions
-        
+
       TH1F* obj1f = 0; 
-        
-      meName = p03_[ism-1]->GetName();
       obj1f = p03_[ism-1];
-        
-      TCanvas *cMean = new TCanvas("cMean" , "Temp", csize , csize );
+      meName = obj1f->GetName();
+
       for ( unsigned int iMean=0 ; iMean < meName.size(); iMean++ ) {
         if ( meName.substr(iMean,1) == " " )  {
           meName.replace(iMean, 1 ,"_" );
@@ -474,14 +493,12 @@ void EBPedPreSampleClient::htmlOutput(int run, string htmlDir, string htmlName){
       }
       cMean->SaveAs(imgName.c_str());
       gPad->SetLogy(0);
-      delete cMean;
-      
-      // RMS distributions
-      
-          meName = r03_[ism-1]->GetName();
-          obj1f = r03_[ism-1];
 
-      TCanvas *cRMS = new TCanvas("cRMS" , "Temp", csize , csize );
+      // RMS distributions
+
+      obj1f = r03_[ism-1];
+      meName = obj1f->GetName();
+
       for ( unsigned int iRMS=0 ; iRMS < meName.size(); iRMS++ ) {
         if ( meName.substr(iRMS,1) == " " )  {
           meName.replace(iRMS, 1, "_");
@@ -505,7 +522,6 @@ void EBPedPreSampleClient::htmlOutput(int run, string htmlDir, string htmlName){
       }
       cRMS->SaveAs(imgName.c_str());
       gPad->SetLogy(0);
-      delete cRMS;
 
       htmlFile << "<h3><strong>Supermodule&nbsp;&nbsp;" << ism << "</strong></h3>" << endl;
       htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
@@ -524,7 +540,7 @@ void EBPedPreSampleClient::htmlOutput(int run, string htmlDir, string htmlName){
         htmlFile << "<td><img src=\"" << imgNameMean << "\"></td>" << endl;
       else
         htmlFile << "<img src=\"" << " " << "\"></td>" << endl;
-      
+
       if ( imgNameRMS.size() != 0 ) 
         htmlFile << "<td><img src=\"" << imgNameRMS << "\"></td>" << endl;
       else
@@ -534,10 +550,14 @@ void EBPedPreSampleClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       htmlFile << "</table>" << endl;
       htmlFile << "<br>" << endl;
-    
+
     }
 
   }
+
+  delete cQual;
+  delete cMean;
+  delete cRMS;
 
   // html page footer
   htmlFile << "</body> " << endl;

@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  * 
- * $Date: 2005/12/26 09:01:56 $
- * $Revision: 1.59 $
+ * $Date: 2005/12/26 13:14:26 $
+ * $Revision: 1.60 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -17,6 +17,16 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps){
   cout << endl;
 
   mui_ = 0;
+
+  integrity_client_    = 0;
+
+  cosmic_client_       = 0;
+  laser_client_        = 0;
+  pndiode_client_      = 0;
+  pedestal_client_     = 0;
+  pedpresample_client_ = 0;
+  testpulse_client_    = 0;
+  electron_client_     = 0;
 
   begin_run_done_ = false;
   end_run_done_ = false;
@@ -63,7 +73,7 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps){
   }
 
   // base Html output directory
-  baseHtmlDir_ = ps.getUntrackedParameter<string>("baseHtmlDir", ".");
+  baseHtmlDir_ = ps.getUntrackedParameter<string>("baseHtmlDir", "");
 
   if ( baseHtmlDir_.size() != 0 ) {
     cout << " HTML output will go to"
@@ -118,8 +128,6 @@ EcalBarrelMonitorClient::~EcalBarrelMonitorClient(){
 
   cout << "Exit ..." << endl;
 
-  this->cleanup();
-
   if ( integrity_client_ ) {
     delete integrity_client_;
   }
@@ -145,7 +153,10 @@ EcalBarrelMonitorClient::~EcalBarrelMonitorClient(){
   if ( electron_client_ ) {
     delete electron_client_;
   }
-  usleep(100);
+
+  this->cleanup();
+
+  sleep(10);
 
   if ( mui_ ) delete mui_;
 
@@ -194,39 +205,49 @@ void EcalBarrelMonitorClient::beginRun(const edm::EventSetup& c){
 
   jevt_ = 0;
 
+  this->setup();
+
   if ( integrity_client_ ) {
+    integrity_client_->cleanup();
     integrity_client_->beginRun(c);
   }
 
   if ( cosmic_client_ ) {
+    cosmic_client_->cleanup();
     if ( runtype_ == "cosmic" ) {
       cosmic_client_->beginRun(c);
     }
   }
   if ( laser_client_ ) {
+    laser_client_->cleanup();
     if ( runtype_ == "cosmic" || runtype_ == "laser" ) {
       laser_client_->beginRun(c);
     }
   }
   if ( pndiode_client_ ) {
+    pndiode_client_->cleanup();
     if ( runtype_ == "cosmic" || runtype_ == "laser" ) {
       pndiode_client_->beginRun(c);
     }
   }
   if ( pedestal_client_ ) {
+    pedestal_client_->cleanup();
     if ( runtype_ == "pedestal" ) {
       pedestal_client_->beginRun(c);
     }
   }
   if ( pedpresample_client_ ) {
+    pedpresample_client_->cleanup();
     pedpresample_client_->beginRun(c);
   }
   if ( testpulse_client_ ) {
+    testpulse_client_->cleanup();
     if ( runtype_ == "testpulse" ) {
       testpulse_client_->beginRun(c);
     }
   }
   if ( electron_client_ ) {
+    electron_client_->cleanup();
     if ( runtype_ == "electron" ) {
       electron_client_->beginRun(c);
     }
@@ -324,6 +345,10 @@ void EcalBarrelMonitorClient::endRun(void) {
 
   last_jevt_ = -1;
   last_update_ = 0;
+
+}
+
+void EcalBarrelMonitorClient::setup(void) {
 
 }
 

@@ -1,8 +1,8 @@
 /*
  * \file EBPnDiodeClient.cc
  * 
- * $Date: 2005/12/26 09:01:56 $
- * $Revision: 1.21 $
+ * $Date: 2005/12/26 13:14:26 $
+ * $Revision: 1.22 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -14,12 +14,12 @@ EBPnDiodeClient::EBPnDiodeClient(const edm::ParameterSet& ps, MonitorUserInterfa
 
   mui_ = mui;
 
-  for ( int i = 0; i < 36; i++ ) {
+  for ( int ism = 1; ism <= 36; ism++ ) {
 
-    h01_[i] = 0;
-    h02_[i] = 0;
-    h03_[i] = 0;
-    h04_[i] = 0;
+    h01_[ism-1] = 0;
+    h02_[ism-1] = 0;
+    h03_[ism-1] = 0;
+    h04_[ism-1] = 0;
 
   }
 
@@ -52,7 +52,7 @@ void EBPnDiodeClient::beginRun(const edm::EventSetup& c){
 
   jevt_ = 0;
 
-  this->cleanup();
+  this->setup();
 
   this->subscribe();
 
@@ -74,17 +74,21 @@ void EBPnDiodeClient::endRun(void) {
 
 }
 
+void EBPnDiodeClient::setup(void) {
+
+}
+
 void EBPnDiodeClient::cleanup(void) {
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
     if ( h01_[ism-1] ) delete h01_[ism-1];
-    if ( h02_[ism-1] ) delete h02_[ism-1];
-    if ( h03_[ism-1] ) delete h03_[ism-1];
-    if ( h04_[ism-1] ) delete h04_[ism-1];
     h01_[ism-1] = 0;
+    if ( h02_[ism-1] ) delete h02_[ism-1];
     h02_[ism-1] = 0;
+    if ( h03_[ism-1] ) delete h03_[ism-1];
     h03_[ism-1] = 0;
+    if ( h04_[ism-1] ) delete h04_[ism-1];
     h04_[ism-1] = 0;
 
   }
@@ -422,40 +426,39 @@ void EBPnDiodeClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   string imgNameME[2], imgName, meName;
 
+  TCanvas* cAmp = new TCanvas("cAmp" , "Temp", csize , csize );
+
   // Loop on barrel supermodules
 
   for ( int ism = 1 ; ism <= 36 ; ism++ ) {
 
     if ( h01_[ism-1] && h02_[ism-1] && h03_[ism-1] && h04_[ism-1] ) {
 
-      // Loop on wavelenght
+      // Loop on wavelength
 
       for ( int iCanvas=1 ; iCanvas <= 2 ; iCanvas++ ) {
 
         // Monitoring elements plots
 
         TH1D* obj1d = 0;
-
         switch ( iCanvas ) { 
-        case 1:
-          meName = h01_[ism-1]->GetName();
-          obj1d = h01_[ism-1]->ProjectionY("_py", 1, 10, "e");
-          break;
-        case 2:
-          meName = h02_[ism-1]->GetName();
-          obj1d = h02_[ism-1]->ProjectionY("_py", 1, 10, "e");
-          break;
-        case 3:
-          meName = h03_[ism-1]->GetName();
-          obj1d = h03_[ism-1]->ProjectionY("_py", 1, 10, "e");
-          break;
-        case 4:
-          meName = h04_[ism-1]->GetName();
-          obj1d = h04_[ism-1]->ProjectionY("_py", 1, 10, "e");
-          break;
+          case 1:
+            obj1d = h01_[ism-1]->ProjectionY("_py", 1, 10, "e");
+            break;
+          case 2:
+            obj1d = h02_[ism-1]->ProjectionY("_py", 1, 10, "e");
+            break;
+          case 3:
+            obj1d = h03_[ism-1]->ProjectionY("_py", 1, 10, "e");
+            break;
+          case 4:
+            obj1d = h04_[ism-1]->ProjectionY("_py", 1, 10, "e");
+            break;
+          default:
+            break;
         }
+        meName = obj1d->GetName();
 
-        TCanvas *cAmp = new TCanvas("cAmp" , "Temp", csize , csize );
         for ( unsigned int iAmp=0 ; iAmp < meName.size(); iAmp++ ) {
           if ( meName.substr(iAmp,1) == " " )  {
             meName.replace(iAmp, 1 ,"_" );
@@ -479,9 +482,9 @@ void EBPnDiodeClient::htmlOutput(int run, string htmlDir, string htmlName){
         }
         cAmp->SaveAs(imgName.c_str());
         gPad->SetLogy(0);
-        delete cAmp;
 
         delete obj1d;
+
       }
     }
 
@@ -503,6 +506,8 @@ void EBPnDiodeClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile << "<br>" << endl;
 
   }
+
+  delete cAmp;
 
   // html page footer
   htmlFile << "</body> " << endl;

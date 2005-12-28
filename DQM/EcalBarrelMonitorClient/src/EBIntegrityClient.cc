@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  * 
- * $Date: 2005/12/26 09:01:56 $
- * $Revision: 1.53 $
+ * $Date: 2005/12/26 17:32:07 $
+ * $Revision: 1.54 $
  * \author G. Della Ricca
  *
 */
@@ -13,27 +13,24 @@ EBIntegrityClient::EBIntegrityClient(const edm::ParameterSet& ps, MonitorUserInt
 
   mui_ = mui;
 
-  Char_t histo[50];
-
   h00_ = 0;
 
-  for ( int i = 0; i < 36; i++ ) {
+  for ( int ism = 1; ism <= 36; ism++ ) {
 
-    h_[i] = 0;
+    h_[ism-1] = 0;
 
-    h01_[i] = 0;
-    h02_[i] = 0;
-    h03_[i] = 0;
-    h04_[i] = 0;
-    h05_[i] = 0;
-    h06_[i] = 0;
+    h01_[ism-1] = 0;
+    h02_[ism-1] = 0;
+    h03_[ism-1] = 0;
+    h04_[ism-1] = 0;
+    h05_[ism-1] = 0;
+    h06_[ism-1] = 0;
 
   }
 
-  for ( int i = 0; i < 36; i++ ) {
+  for ( int ism = 1; ism <= 36; ism++ ) {
 
-    sprintf(histo, "EBPT data integrity quality SM%02d", i+1);
-    g01_[i] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
+    g01_[ism-1] = 0;
 
   }
 
@@ -50,12 +47,6 @@ EBIntegrityClient::EBIntegrityClient(const edm::ParameterSet& ps, MonitorUserInt
 EBIntegrityClient::~EBIntegrityClient(){
 
   this->cleanup();
-
-  for ( int i = 0; i < 36; i++ ) {
-
-    delete g01_[i];
-
-  }
 
 }
 
@@ -74,21 +65,7 @@ void EBIntegrityClient::beginRun(const edm::EventSetup& c){
 
   jevt_ = 0;
 
-  this->cleanup();
-
-  for ( int i = 0; i < 36; i++ ) {
-
-    g01_[i]->Reset();
-
-    for ( int ie = 1; ie <= 85; ie++ ) {
-      for ( int ip = 1; ip <= 20; ip++ ) {
-
-        g01_[i]->SetBinContent(g01_[i]->GetBin(ie, ip), 2.);
-
-      }
-    }
-
-  }
+  this->setup();
 
   this->subscribe();
 
@@ -110,28 +87,63 @@ void EBIntegrityClient::endRun(void) {
 
 }
 
+void EBIntegrityClient::setup(void) {
+
+  Char_t histo[50];
+
+  for ( int ism = 1; ism <= 36; ism++ ) { 
+
+    if ( g01_[ism-1] ) delete g01_[ism-1];
+    sprintf(histo, "EBPT data integrity quality SM%02d", ism);
+    g01_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
+
+  }
+
+  for ( int ism = 1; ism <= 36; ism++ ) {
+
+    g01_[ism-1]->Reset();
+
+    for ( int ie = 1; ie <= 85; ie++ ) {
+      for ( int ip = 1; ip <= 20; ip++ ) {
+
+        g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), 2.);
+
+      }
+    }
+
+  }
+
+}
+
 void EBIntegrityClient::cleanup(void) {
 
   if ( h00_ ) delete h00_;
   h00_ = 0;
   
-  for ( int i = 0; i < 36; i++ ) {
+  for ( int ism = 1; ism <= 36; ism++ ) {
 
-    if ( h_[i] ) delete h_[i];
-    h_[i] = 0;
+    if ( h_[ism-1] ) delete h_[ism-1];
+    h_[ism-1] = 0;
 
-    if ( h01_[i] ) delete h01_[i];
-    if ( h02_[i] ) delete h02_[i];
-    if ( h03_[i] ) delete h03_[i];
-    if ( h04_[i] ) delete h04_[i];
-    if ( h05_[i] ) delete h05_[i];
-    if ( h06_[i] ) delete h06_[i];
-    h01_[i] = 0;
-    h02_[i] = 0;
-    h03_[i] = 0;
-    h04_[i] = 0;
-    h05_[i] = 0;
-    h06_[i] = 0;
+    if ( h01_[ism-1] ) delete h01_[ism-1];
+    h01_[ism-1] = 0;
+    if ( h02_[ism-1] ) delete h02_[ism-1];
+    h02_[ism-1] = 0;
+    if ( h03_[ism-1] ) delete h03_[ism-1];
+    h03_[ism-1] = 0;
+    if ( h04_[ism-1] ) delete h04_[ism-1];
+    h04_[ism-1] = 0;
+    if ( h05_[ism-1] ) delete h05_[ism-1];
+    h05_[ism-1] = 0;
+    if ( h06_[ism-1] ) delete h06_[ism-1];
+    h06_[ism-1] = 0;
+
+  }
+
+  for ( int ism = 1; ism <= 36; ism++ ) {
+
+    if ( g01_[ism-1] ) delete g01_[ism-1];
+    g01_[ism-1] = 0;
 
   }
 
@@ -522,7 +534,7 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( h04_[ism-1] ) delete h04_[ism-1];
-        sprintf(histo, "ME EI gain switch staySM%02d", ism);
+        sprintf(histo, "ME EI gain switch stay SM%02d", ism);
         h04_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
 //        h04_[ism-1] = dynamic_cast<TH2F*> (ob->operator->());
       }
@@ -680,8 +692,6 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
   int pCol3[3] = { 2, 3, 5 };
   int pCol4[10];
   for( int i=0; i<10; i++ ) pCol4[i] = 30+i;
-//  pCol4[0] = 10;
-
 
   TH2C dummy1( "dummy1", "dummy1 for sm", 85, 0, 85, 20, 0, 20 );
   for( short i=0; i<68; i++ ) {
@@ -700,16 +710,19 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
   dummy2.SetMarkerSize(2);
 
   string imgNameDCC, imgNameQual, imgNameME[6], imgName , meName;
-  
+
+  TCanvas* cDCC = new TCanvas("cDCC" , "Temp", 2*csize , csize );
+  TCanvas* cQual = new TCanvas("cQual" , "Temp", 2*csize , csize );
+  TCanvas* cMe = new TCanvas("cMe" , "Temp", 2*csize , csize );
+
   if ( h00_ ) {
-    
+
     // DCC size error
-    
+
     TH1F* obj1f = 0; 
-    meName = h00_->GetName();
     obj1f = h00_;
-    
-    TCanvas *cDCC = new TCanvas("cDCC" , "Temp", 2*csize , csize );
+    meName = obj1f->GetName();
+
     for ( unsigned int iDCC = 0 ; iDCC < meName.size(); iDCC++ ) {
       if ( meName.substr(iDCC, 1) == " " )  {
         meName.replace(iDCC, 1, "_");
@@ -728,21 +741,20 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
     obj1f->Draw("col");
     cDCC->Update();
     cDCC->SaveAs(imgName.c_str());
-    delete cDCC;
     
   }
-  
+
   htmlFile << "<h3><strong>DCC size error</strong></h3>" << endl;
   
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
   htmlFile << "cellpadding=\"10\"> " << endl;
   htmlFile << "<tr align=\"left\">" << endl;
-  
+
   if ( imgNameDCC.size() != 0 ) 
     htmlFile << "<td><img src=\"" << imgNameDCC << "\"></td>" << endl;
   else
     htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
-  
+
   htmlFile << "</tr>" << endl;
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
@@ -750,19 +762,18 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
   // Loop on barrel supermodules
 
   for ( int ism = 1 ; ism <= 36 ; ism++ ) {
-    
+
     if ( g01_[ism-1] && 
          h01_[ism-1] && h02_[ism-1] &&
          h03_[ism-1] && h04_[ism-1] &&
          h05_[ism-1] && h06_[ism-1] ) {
 
       // Quality plots
-      
+
       TH2F* obj2f = 0; 
-      meName = g01_[ism-1]->GetName();
       obj2f = g01_[ism-1];
-      
-      TCanvas *cQual = new TCanvas("cQual" , "Temp", 2*csize , csize );
+      meName = obj2f->GetName();
+
       for ( unsigned int iQual = 0 ; iQual < meName.size(); iQual++ ) {
         if ( meName.substr(iQual, 1) == " " )  {
           meName.replace(iQual, 1, "_");
@@ -782,42 +793,35 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
       dummy1.Draw("text,same");
       cQual->Update();
       cQual->SaveAs(imgName.c_str());
-      delete cQual;
 
       // Monitoring elements plots
-      
+
       for ( int iCanvas = 1; iCanvas <= 6; iCanvas++ ) {
-      
+
         switch ( iCanvas ) {
-        case 1:
-          meName = h01_[ism-1]->GetName();
-          obj2f = h01_[ism-1];
-          break;
-        case 2:
-          meName = h02_[ism-1]->GetName();
-          obj2f = h02_[ism-1];
-          break;
-        case 3:
-          meName = h03_[ism-1]->GetName();
-          obj2f = h03_[ism-1];
-          break;
-        case 4:
-          meName = h04_[ism-1]->GetName();
-          obj2f = h04_[ism-1];
-          break;
-        case 5:
-          meName = h05_[ism-1]->GetName();
-          obj2f = h05_[ism-1];
-          break;
-        case 6:
-          meName = h06_[ism-1]->GetName();
-          obj2f = h06_[ism-1];
-          break;
-        default:
-          break;
+          case 1:
+            obj2f = h01_[ism-1];
+            break;
+          case 2:
+            obj2f = h02_[ism-1];
+            break;
+          case 3:
+            obj2f = h03_[ism-1];
+            break;
+          case 4:
+            obj2f = h04_[ism-1];
+            break;
+          case 5:
+            obj2f = h05_[ism-1];
+            break;
+          case 6:
+            obj2f = h06_[ism-1];
+            break;
+          default:
+            break;
         }
-        
-        TCanvas *cMe = new TCanvas("cMe" , "Temp", 2*csize , csize );
+        meName = obj2f->GetName();
+
         for ( unsigned int iMe = 0 ; iMe < meName.size(); iMe++ ) {
           if ( meName.substr(iMe, 1) == " " )  {
             meName.replace(iMe, 1, "_");
@@ -840,18 +844,17 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
           dummy2.Draw("text,same");
         cMe->Update();
         cMe->SaveAs(imgName.c_str());
-        delete cMe;
 
       }
 
     }
 
     htmlFile << "<h3><strong>Supermodule&nbsp;&nbsp;" << ism << "</strong></h3>" << endl;
-    
+
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\"> " << endl;
     htmlFile << "<tr align=\"left\">" << endl;
-    
+
     if ( imgNameQual.size() != 0 ) 
       htmlFile << "<td><img src=\"" << imgNameQual << "\"></td>" << endl;
     else
@@ -860,7 +863,7 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile << "</tr>" << endl;
     htmlFile << "</table>" << endl;
     htmlFile << "<br>" << endl;
-    
+
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr align=\"center\">" << endl;
@@ -877,13 +880,13 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile << "</tr>" << endl;
     htmlFile << "</table>" << endl;
     htmlFile << "<br>" << endl;
-    
+
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr align=\"center\">" << endl;
 
     for ( int iCanvas = 5 ; iCanvas <= 6 ; iCanvas++ ) {
-     
+
       if ( imgNameME[iCanvas-1].size() != 0 )
         htmlFile << "<td><img src=\"" << imgNameME[iCanvas-1] << "\"></td>" << endl;
       else
@@ -894,14 +897,18 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile << "</tr>" << endl;
     htmlFile << "</table>" << endl;
     htmlFile << "<br>" << endl;
-    
+
   }
-  
+
+  delete cDCC;
+  delete cQual;
+  delete cMe;
+
   // html page footer
   htmlFile << "</body> " << endl;
   htmlFile << "</html> " << endl;
-  
+
   htmlFile.close();
-  
+
 }
 

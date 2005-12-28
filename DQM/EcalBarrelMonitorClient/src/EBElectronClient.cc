@@ -1,8 +1,8 @@
 /*
  * \file EBElectronClient.cc
  * 
- * $Date: 2005/12/26 09:01:56 $
- * $Revision: 1.2 $
+ * $Date: 2005/12/26 13:14:26 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -41,6 +41,8 @@ void EBElectronClient::beginRun(const edm::EventSetup& c){
 
   jevt_ = 0;
 
+  this->setup();
+
   this->subscribe();
 
 }
@@ -56,6 +58,12 @@ void EBElectronClient::endRun(void) {
   if ( verbose_ ) cout << "EBElectronClient: endRun, jevt = " << jevt_ << endl;
 
   this->unsubscribe();
+
+  this->cleanup();
+
+}
+
+void EBElectronClient::setup(void) {
 
 }
 

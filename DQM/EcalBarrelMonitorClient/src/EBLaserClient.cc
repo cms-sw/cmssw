@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  * 
- * $Date: 2005/12/26 09:01:56 $
- * $Revision: 1.42 $
+ * $Date: 2005/12/26 13:14:26 $
+ * $Revision: 1.43 $
  * \author G. Della Ricca
  *
 */
@@ -13,49 +13,35 @@ EBLaserClient::EBLaserClient(const edm::ParameterSet& ps, MonitorUserInterface* 
 
   mui_ = mui;
 
-  Char_t histo[50];
+  for ( int ism = 1; ism <= 36; ism++ ) {
 
-  for ( int i = 0; i < 36; i++ ) {
-
-    h01_[i] = 0;
-    h02_[i] = 0;
-    h03_[i] = 0;
-    h04_[i] = 0;
-    h05_[i] = 0;
-    h06_[i] = 0;
-    h07_[i] = 0;
-    h08_[i] = 0;
+    h01_[ism-1] = 0;
+    h02_[ism-1] = 0;
+    h03_[ism-1] = 0;
+    h04_[ism-1] = 0;
+    h05_[ism-1] = 0;
+    h06_[ism-1] = 0;
+    h07_[ism-1] = 0;
+    h08_[ism-1] = 0;
 
   }
 
-  for ( int i = 0; i < 36; i++ ) {
+  for ( int ism = 1; ism <= 36; ism++ ) {
 
-    sprintf(histo, "EBLT laser quality L1 SM%02d", i+1);
-    g01_[i] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
-    sprintf(histo, "EBLT laser quality L2 SM%02d", i+1);
-    g02_[i] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
-    sprintf(histo, "EBLT laser quality L3 SM%02d", i+1);
-    g03_[i] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
-    sprintf(histo, "EBLT laser quality L4 SM%02d", i+1);
-    g04_[i] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
+    g01_[ism-1] = 0;
+    g02_[ism-1] = 0;
+    g03_[ism-1] = 0;
+    g04_[ism-1] = 0;
 
-    sprintf(histo, "EBLT laser amplitude L1 SM%02d", i+1);
-    a01_[i] = new TH1F(histo, histo, 1700, 0., 1700.);
-    sprintf(histo, "EBLT laser amplitude L2 SM%02d", i+1);
-    a02_[i] = new TH1F(histo, histo, 1700, 0., 1700.);
-    sprintf(histo, "EBLT laser amplitude L3 SM%02d", i+1);
-    a03_[i] = new TH1F(histo, histo, 1700, 0., 1700.);
-    sprintf(histo, "EBLT laser amplitude L4 SM%02d", i+1);
-    a04_[i] = new TH1F(histo, histo, 1700, 0., 1700.);
+    a01_[ism-1] = 0;
+    a02_[ism-1] = 0;
+    a03_[ism-1] = 0;
+    a04_[ism-1] = 0;
 
-    sprintf(histo, "EBLT laser amplitude over PN L1 SM%02d", i+1);
-    aopn01_[i] = new TH1F(histo, histo, 1700, 0., 1700.);
-    sprintf(histo, "EBLT laser amplitude over PN L2 SM%02d", i+1);
-    aopn02_[i] = new TH1F(histo, histo, 1700, 0., 1700.);
-    sprintf(histo, "EBLT laser amplitude over PN L3 SM%02d", i+1);
-    aopn03_[i] = new TH1F(histo, histo, 1700, 0., 1700.);
-    sprintf(histo, "EBLT laser amplitude over PN L4 SM%02d", i+1);
-    aopn04_[i] = new TH1F(histo, histo, 1700, 0., 1700.);
+    aopn01_[ism-1] = 0;
+    aopn02_[ism-1] = 0;
+    aopn03_[ism-1] = 0;
+    aopn04_[ism-1] = 0;
 
   }
 
@@ -72,25 +58,6 @@ EBLaserClient::EBLaserClient(const edm::ParameterSet& ps, MonitorUserInterface* 
 EBLaserClient::~EBLaserClient(){
 
   this->cleanup();
-
-  for ( int i = 0; i < 36; i++ ) {
-
-    delete g01_[i];
-    delete g02_[i];
-    delete g03_[i];
-    delete g04_[i];
-
-    delete a01_[i];
-    delete a02_[i];
-    delete a03_[i];
-    delete a04_[i];
-
-    delete aopn01_[i];
-    delete aopn02_[i];
-    delete aopn03_[i];
-    delete aopn04_[i];
-
-  }
 
 }
 
@@ -109,37 +76,7 @@ void EBLaserClient::beginRun(const edm::EventSetup& c){
 
   jevt_ = 0;
 
-  this->cleanup();
-
-  for ( int i = 0; i < 36; i++ ) {
-
-    g01_[i]->Reset();
-    g02_[i]->Reset();
-    g03_[i]->Reset();
-    g04_[i]->Reset();
-
-    for ( int ie = 1; ie <= 85; ie++ ) {
-      for ( int ip = 1; ip <= 20; ip++ ) {
-
-        g01_[i]->SetBinContent(g01_[i]->GetBin(ie, ip), 2.);
-        g02_[i]->SetBinContent(g02_[i]->GetBin(ie, ip), 2.);
-        g03_[i]->SetBinContent(g03_[i]->GetBin(ie, ip), 2.);
-        g04_[i]->SetBinContent(g04_[i]->GetBin(ie, ip), 2.);
-
-      }
-    }
-
-    a01_[i]->Reset();
-    a02_[i]->Reset();
-    a03_[i]->Reset();
-    a04_[i]->Reset();
-
-    aopn01_[i]->Reset();
-    aopn02_[i]->Reset();
-    aopn03_[i]->Reset();
-    aopn04_[i]->Reset();
-
-  }
+  this->setup();
 
   this->subscribe();
 
@@ -161,26 +98,136 @@ void EBLaserClient::endRun(void) {
 
 }
 
+void EBLaserClient::setup(void) {
+
+  Char_t histo[50];
+
+  for ( int ism = 1; ism <= 36; ism++ ) {
+
+    if ( g01_[ism-1] ) delete g01_[ism-1];
+    sprintf(histo, "EBLT laser quality L1 SM%02d", ism);
+    g01_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
+    if ( g02_[ism-1] ) delete g02_[ism-1];
+    sprintf(histo, "EBLT laser quality L2 SM%02d", ism);
+    g02_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
+    if ( g03_[ism-1] ) delete g03_[ism-1];
+    sprintf(histo, "EBLT laser quality L3 SM%02d", ism);
+    g03_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
+    if ( g04_[ism-1] ) delete g04_[ism-1];
+    sprintf(histo, "EBLT laser quality L4 SM%02d", ism);
+    g04_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
+
+    if ( a01_[ism-1] ) delete a01_[ism-1];
+    sprintf(histo, "EBLT laser amplitude L1 SM%02d", ism);
+    a01_[ism-1] = new TH1F(histo, histo, 1700, 0., 1700.);
+    if ( a02_[ism-1] ) delete a02_[ism-1];
+    sprintf(histo, "EBLT laser amplitude L2 SM%02d", ism);
+    a02_[ism-1] = new TH1F(histo, histo, 1700, 0., 1700.);
+    if ( a03_[ism-1] ) delete a03_[ism-1];
+    sprintf(histo, "EBLT laser amplitude L3 SM%02d", ism);
+    a03_[ism-1] = new TH1F(histo, histo, 1700, 0., 1700.);
+    if ( a04_[ism-1] ) delete a04_[ism-1];
+    sprintf(histo, "EBLT laser amplitude L4 SM%02d", ism);
+    a04_[ism-1] = new TH1F(histo, histo, 1700, 0., 1700.);
+
+    if ( aopn01_[ism-1] ) delete aopn01_[ism-1];
+    sprintf(histo, "EBLT laser amplitude over PN L1 SM%02d", ism);
+    aopn01_[ism-1] = new TH1F(histo, histo, 1700, 0., 1700.);
+    if ( aopn02_[ism-1] ) delete aopn02_[ism-1];
+    sprintf(histo, "EBLT laser amplitude over PN L2 SM%02d", ism);
+    aopn02_[ism-1] = new TH1F(histo, histo, 1700, 0., 1700.);
+    if ( aopn03_[ism-1] ) delete aopn03_[ism-1];
+    sprintf(histo, "EBLT laser amplitude over PN L3 SM%02d", ism);
+    aopn03_[ism-1] = new TH1F(histo, histo, 1700, 0., 1700.);
+    if ( aopn04_[ism-1] ) delete aopn04_[ism-1];
+    sprintf(histo, "EBLT laser amplitude over PN L4 SM%02d", ism);
+    aopn04_[ism-1] = new TH1F(histo, histo, 1700, 0., 1700.);
+
+  }
+
+  for ( int ism = 1; ism <= 36; ism++ ) {
+
+    g01_[ism-1]->Reset();
+    g02_[ism-1]->Reset();
+    g03_[ism-1]->Reset();
+    g04_[ism-1]->Reset();
+
+    for ( int ie = 1; ie <= 85; ie++ ) {
+      for ( int ip = 1; ip <= 20; ip++ ) {
+
+        g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), 2.);
+        g02_[ism-1]->SetBinContent(g02_[ism-1]->GetBin(ie, ip), 2.);
+        g03_[ism-1]->SetBinContent(g03_[ism-1]->GetBin(ie, ip), 2.);
+        g04_[ism-1]->SetBinContent(g04_[ism-1]->GetBin(ie, ip), 2.);
+
+      }
+    }
+
+    a01_[ism-1]->Reset();
+    a02_[ism-1]->Reset();
+    a03_[ism-1]->Reset();
+    a04_[ism-1]->Reset();
+
+    aopn01_[ism-1]->Reset();
+    aopn02_[ism-1]->Reset();
+    aopn03_[ism-1]->Reset();
+    aopn04_[ism-1]->Reset();
+
+  }
+
+}
+
 void EBLaserClient::cleanup(void) {
 
-  for ( int i = 0; i < 36; i++ ) {
+  for ( int ism = 1; ism <= 36; ism++ ) {
  
-    if ( h01_[i] ) delete h01_[i];
-    if ( h02_[i] ) delete h02_[i];
-    if ( h03_[i] ) delete h03_[i];
-    if ( h04_[i] ) delete h04_[i];
-    if ( h05_[i] ) delete h05_[i];
-    if ( h06_[i] ) delete h06_[i];
-    if ( h07_[i] ) delete h07_[i];
-    if ( h08_[i] ) delete h08_[i];
-    h01_[i] = 0;
-    h02_[i] = 0;
-    h03_[i] = 0;
-    h04_[i] = 0;
-    h05_[i] = 0;
-    h06_[i] = 0;
-    h07_[i] = 0;
-    h08_[i] = 0;
+    if ( h01_[ism-1] ) delete h01_[ism-1];
+    h01_[ism-1] = 0;
+    if ( h02_[ism-1] ) delete h02_[ism-1];
+    h02_[ism-1] = 0;
+    if ( h03_[ism-1] ) delete h03_[ism-1];
+    h03_[ism-1] = 0;
+    if ( h04_[ism-1] ) delete h04_[ism-1];
+    h04_[ism-1] = 0;
+    if ( h05_[ism-1] ) delete h05_[ism-1];
+    h05_[ism-1] = 0;
+    if ( h06_[ism-1] ) delete h06_[ism-1];
+    h06_[ism-1] = 0;
+    if ( h07_[ism-1] ) delete h07_[ism-1];
+    h07_[ism-1] = 0;
+    if ( h08_[ism-1] ) delete h08_[ism-1];
+    h08_[ism-1] = 0;
+
+  }
+
+  for ( int ism = 1; ism <= 36; ism++ ) {
+
+    if ( g01_[ism-1] ) delete g01_[ism-1];
+    g01_[ism-1] = 0;
+    if ( g02_[ism-1] ) delete g02_[ism-1];
+    g02_[ism-1] = 0;
+    if ( g03_[ism-1] ) delete g03_[ism-1];
+    g03_[ism-1] = 0;
+    if ( g04_[ism-1] ) delete g04_[ism-1];
+    g04_[ism-1] = 0;
+
+    if ( a01_[ism-1] ) delete a01_[ism-1];
+    a01_[ism-1] = 0;
+    if ( a02_[ism-1] ) delete a02_[ism-1];
+    a02_[ism-1] = 0;
+    if ( a03_[ism-1] ) delete a03_[ism-1];
+    a03_[ism-1] = 0;
+    if ( a04_[ism-1] ) delete a04_[ism-1];
+    a04_[ism-1] = 0;
+
+    if ( aopn01_[ism-1] ) delete aopn01_[ism-1];
+    aopn01_[ism-1] = 0;
+    if ( aopn02_[ism-1] ) delete aopn02_[ism-1];
+    aopn02_[ism-1] = 0;
+    if ( aopn03_[ism-1] ) delete aopn03_[ism-1];
+    aopn03_[ism-1] = 0;
+    if ( aopn04_[ism-1] ) delete aopn04_[ism-1];
+    aopn04_[ism-1] = 0;
 
   }
 
@@ -1026,36 +1073,37 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   string imgNameQual[2] , imgNameAmp[2] , imgNameAmpoPN[2] , imgName , meName;
 
+  TCanvas* cQual = new TCanvas("cQual" , "Temp", 2*csize , csize );
+  TCanvas* cAmp = new TCanvas("cAmp" , "Temp", csize , csize );
+  TCanvas* cAmpoPN = new TCanvas("cAmpoPN" , "Temp", csize , csize );
+
   // Loop on barrel supermodules
 
   for ( int ism = 1 ; ism <= 36 ; ism++ ) {
-    
+
     if ( g01_[ism-1] && g02_[ism-1] &&
          a01_[ism-1] && a02_[ism-1] &&
          aopn01_[ism-1] && aopn02_[ism-1] ) {
 
-      // Loop on wavelenght
+      // Loop on wavelength
 
       for ( int iCanvas=1 ; iCanvas <= 2 ; iCanvas++ ) {
 
         // Quality plots
 
         TH2F* obj2f = 0; 
-
         switch ( iCanvas ) {
-        case 1:
-          meName = g01_[ism-1]->GetName();
-          obj2f = g01_[ism-1];
-          break;
-        case 2:
-          meName = g02_[ism-1]->GetName();
-          obj2f = g02_[ism-1];
-          break;
-        default:
-          break;
+          case 1:
+            obj2f = g01_[ism-1];
+            break;
+          case 2:
+            obj2f = g02_[ism-1];
+            break;
+          default:
+           break;
         }
+        meName = obj2f->GetName();
 
-        TCanvas *cQual = new TCanvas("cQual" , "Temp", 2*csize , csize );
         for ( unsigned int iQual = 0 ; iQual < meName.size(); iQual++ ) {
           if ( meName.substr(iQual, 1) == " " )  {
             meName.replace(iQual, 1, "_");
@@ -1075,26 +1123,22 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         dummy.Draw("text,same");
         cQual->Update();
         cQual->SaveAs(imgName.c_str());
-        delete cQual;
 
         // Amplitude distributions
-        
+
         TH1F* obj1f = 0; 
-        
         switch ( iCanvas ) {
-        case 1:
-          meName = a01_[ism-1]->GetName();
-          obj1f = a01_[ism-1];
-          break;
-        case 2:
-          meName = a02_[ism-1]->GetName();
-          obj1f = a02_[ism-1];
-          break;
-        default:
-          break;
+          case 1:
+            obj1f = a01_[ism-1];
+            break;
+          case 2:
+            obj1f = a02_[ism-1];
+            break;
+          default:
+            break;
         }
-        
-        TCanvas *cAmp = new TCanvas("cAmp" , "Temp", csize , csize );
+        meName = obj1f->GetName();
+
         for ( unsigned int iAmp=0 ; iAmp < meName.size(); iAmp++ ) {
           if ( meName.substr(iAmp,1) == " " )  {
             meName.replace(iAmp, 1 ,"_" );
@@ -1118,24 +1162,21 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
           stAmp->SetY1NDC(0.75);
         }
         cAmp->SaveAs(imgName.c_str());
-        delete cAmp;
-        
+
         // Amplitude over PN distributions
-        
+
         switch ( iCanvas ) {
-        case 1:
-          meName = aopn01_[ism-1]->GetName();
-          obj1f = aopn01_[ism-1];
-          break;
-        case 2:
-          meName = aopn02_[ism-1]->GetName();
-          obj1f = aopn02_[ism-1];
-          break;
-        default:
+          case 1:
+            obj1f = aopn01_[ism-1];
             break;
-          }
-        
-        TCanvas *cAmpoPN = new TCanvas("cAmpoPN" , "Temp", csize , csize );
+          case 2:
+            obj1f = aopn02_[ism-1];
+            break;
+          default:
+            break;
+        }
+        meName = obj1f->GetName();
+
         for ( unsigned int iAmpoPN=0 ; iAmpoPN < meName.size(); iAmpoPN++ ) {
           if ( meName.substr(iAmpoPN,1) == " " )  {
             meName.replace(iAmpoPN, 1, "_");
@@ -1159,8 +1200,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         }
         cAmpoPN->SaveAs(imgName.c_str());
         gPad->SetLogy(0);
-        delete cAmpoPN;
-        
+
       }
 
       htmlFile << "<h3><strong>Supermodule&nbsp;&nbsp;" << ism << "</strong></h3>" << endl;
@@ -1185,7 +1225,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
           htmlFile << "<td><img src=\"" << imgNameAmp[iCanvas-1] << "\"></td>" << endl;
         else
           htmlFile << "<img src=\"" << " " << "\"></td>" << endl;
-        
+
         if ( imgNameAmpoPN[iCanvas-1].size() != 0 ) 
           htmlFile << "<td><img src=\"" << imgNameAmpoPN[iCanvas-1] << "\"></td>" << endl;
         else
@@ -1198,10 +1238,14 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
       htmlFile << "<tr align=\"center\"><td colspan=\"2\">Laser 1</td><td colspan=\"2\">Laser 2</td></tr>" << endl;
       htmlFile << "</table>" << endl;
       htmlFile << "<br>" << endl;
-    
+
     }
 
   }
+
+  delete cQual;
+  delete cAmp;
+  delete cAmpoPN;
 
   // html page footer
   htmlFile << "</body> " << endl;

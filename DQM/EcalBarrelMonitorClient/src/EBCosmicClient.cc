@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  * 
- * $Date: 2005/12/26 09:01:56 $
- * $Revision: 1.20 $
+ * $Date: 2005/12/26 13:14:26 $
+ * $Revision: 1.21 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -14,11 +14,11 @@ EBCosmicClient::EBCosmicClient(const edm::ParameterSet& ps, MonitorUserInterface
 
   mui_ = mui;
 
-  for ( int i = 0; i < 36; i++ ) {
+  for ( int ism = 1; ism <= 36; ism++ ) {
 
-    h01_[i] = 0;
-    h02_[i] = 0;
-    h03_[i] = 0;
+    h01_[ism-1] = 0;
+    h02_[ism-1] = 0;
+    h03_[ism-1] = 0;
 
   }
 
@@ -51,7 +51,7 @@ void EBCosmicClient::beginRun(const edm::EventSetup& c){
 
   jevt_ = 0;
 
-  this->cleanup();
+  this->setup();
 
   this->subscribe();
 
@@ -73,15 +73,19 @@ void EBCosmicClient::endRun(void) {
 
 }
 
+void EBCosmicClient::setup(void) {
+
+}
+
 void EBCosmicClient::cleanup(void) {
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
     if ( h01_[ism-1] ) delete h01_[ism-1];
-    if ( h02_[ism-1] ) delete h02_[ism-1];
-    if ( h03_[ism-1] ) delete h03_[ism-1];
     h01_[ism-1] = 0;
+    if ( h02_[ism-1] ) delete h02_[ism-1];
     h02_[ism-1] = 0;
+    if ( h03_[ism-1] ) delete h03_[ism-1];
     h03_[ism-1] = 0;
 
   }
@@ -372,8 +376,6 @@ void EBCosmicClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   int pCol4[10];
   for( int i=0; i<10; i++ ) pCol4[i] = 30+i;
-//  pCol4[0] = 10;
-
 
   TH2C dummy( "dummy", "dummy for sm", 85, 0., 85., 20, 0., 20. );
   for( int i = 0; i < 68; i++ ) {
@@ -385,32 +387,32 @@ void EBCosmicClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   string imgNameME[3], imgName, meName;
 
+  TCanvas* cMe = new TCanvas("cMe" , "Temp", 2*csize , csize );
+  TCanvas* cAmp = new TCanvas("cAmp" , "Temp", csize , csize );
+
   // Loop on barrel supermodules
 
   for ( int ism = 1 ; ism <= 36 ; ism++ ) {
-    
+
     if ( h01_[ism-1] && h02_[ism-1] && h03_[ism-1] ) {
 
       // Monitoring elements plots
-      
+
       for ( int iCanvas = 1; iCanvas <= 2; iCanvas++ ) {
 
         TProfile2D* objp = 0;
-      
         switch ( iCanvas ) {
-        case 1:
-          meName = h01_[ism-1]->GetName();
-          objp = h01_[ism-1];
-          break;
-        case 2:
-          meName = h02_[ism-1]->GetName();
-          objp = h02_[ism-1];
-          break;
-        default:
-          break;
+          case 1:
+            objp = h01_[ism-1];
+            break;
+          case 2:
+            objp = h02_[ism-1];
+            break;
+          default:
+            break;
         }
-        
-        TCanvas *cMe = new TCanvas("cMe" , "Temp", 2*csize , csize );
+        meName = objp->GetName();
+
         for ( unsigned int iMe = 0 ; iMe < meName.size(); iMe++ ) {
           if ( meName.substr(iMe, 1) == " " )  {
             meName.replace(iMe, 1, "_");
@@ -430,18 +432,15 @@ void EBCosmicClient::htmlOutput(int run, string htmlDir, string htmlName){
         dummy.Draw("text,same");
         cMe->Update();
         cMe->SaveAs(imgName.c_str());
-        delete cMe;
 
       }
 
       // Energy spectrum distributions
-      
+
       TH1F* obj1f = 0; 
-    
-      meName = h03_[ism-1]->GetName();
       obj1f = h03_[ism-1];
-    
-      TCanvas *cAmp = new TCanvas("cAmp" , "Temp", csize , csize );
+      meName = obj1f->GetName();
+
       for ( unsigned int iAmp=0 ; iAmp < meName.size(); iAmp++ ) {
         if ( meName.substr(iAmp,1) == " " )  {
           meName.replace(iAmp, 1 ,"_" );
@@ -465,10 +464,9 @@ void EBCosmicClient::htmlOutput(int run, string htmlDir, string htmlName){
       }
       cAmp->SaveAs(imgName.c_str());
       gPad->SetLogy(0);
-      delete cAmp;
 
     }
-      
+
     htmlFile << "<h3><strong>Supermodule&nbsp;&nbsp;" << ism << "</strong></h3>" << endl;
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
@@ -500,6 +498,9 @@ void EBCosmicClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile << "<br>" << endl;
 
   }
+
+  delete cMe;
+  delete cAmp;
 
   // html page footer
   htmlFile << "</body> " << endl;
