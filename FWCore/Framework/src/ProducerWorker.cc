@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: ProducerWorker.cc,v 1.15 2005/10/11 19:33:05 chrjones Exp $
+$Id: ProducerWorker.cc,v 1.16 2005/12/14 01:35:44 chrjones Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/src/ProducerWorker.h"
@@ -11,7 +11,9 @@ $Id: ProducerWorker.cc,v 1.15 2005/10/11 19:33:05 chrjones Exp $
 #include "FWCore/Framework/interface/Actions.h"
 #include "FWCore/Framework/src/WorkerParams.h"
 #include "FWCore/Framework/interface/BranchDescription.h"
+#include "FWCore/Framework/interface/ModuleDescription.h"
 #include "FWCore/Framework/interface/ProductRegistry.h"
+#include "FWCore/Framework/interface/ProductRegistryHelper.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -26,22 +28,6 @@ using namespace std;
 
 namespace edm
 {
-   static void addToRegistry(const EDProducer::TypeLabelList::const_iterator& iBegin,
-                             const EDProducer::TypeLabelList::const_iterator& iEnd,
-                             const ModuleDescription& iDesc,
-                             ProductRegistry& iReg,
-                             bool iIsListener=false){
-      for(EDProducer::TypeLabelList::const_iterator p=iBegin; p!=iEnd; ++p) {
-         
-         
-         BranchDescription pdesc(iDesc,
-                                 p->typeID_.userClassName(),
-                                 p->typeID_.friendlyClassName(), 
-                                 p->productInstanceName_,
-                                 p->productPtr_);
-         iReg.addProduct(pdesc,iIsListener);
-      }//for
-   }
    namespace {
      class CallbackWrapper {
        public:  
@@ -63,7 +49,7 @@ namespace edm
            if(lastSize_!=plist.size()){
               EDProducer::TypeLabelList::const_iterator pStart = plist.begin();
               advance(pStart,lastSize_);
-              edm::addToRegistry(pStart,plist.end(),mdesc_,*reg_);
+              ProductRegistryHelper::addToRegistry(pStart,plist.end(),mdesc_,*reg_);
               lastSize_ = plist.size();
            }
         }
@@ -110,7 +96,7 @@ namespace edm
     }
     EDProducer::TypeLabelList const& plist = producer_->typeLabelList();
 
-    addToRegistry(plist.begin(),plist.end(),md,*(wp.reg_),isListener);
+    ProductRegistryHelper::addToRegistry(plist.begin(),plist.end(),md,*(wp.reg_),isListener);
     if(!(producer_->registrationCallback().empty())) {
        Service<ConstProductRegistry> regService;
        regService->watchProductAdditions(CallbackWrapper(producer_,producer_->registrationCallback(),

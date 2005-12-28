@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: InputSource.cc,v 1.7 2005/07/30 23:47:52 wmtan Exp $
+$Id: InputSource.cc,v 1.1 2005/09/28 05:19:26 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <cassert>
 
@@ -28,4 +28,7 @@ namespace edm {
     }
     return ep;
   }
+
+  void
+  InputSource::addToReg(ModuleDescription const&) {}
 }

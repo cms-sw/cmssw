@@ -79,13 +79,24 @@ namespace edm {
     // find single source
     bool sourceSpecified = false;
     try {
+      const std::string& processName = params.getUntrackedParameter<string>("@process_name");
       ParameterSet main_input = 
 	params.getParameter<ParameterSet>("@main_input");
+
+      ModuleDescription md;
+      md.pid = main_input.id();
+      md.moduleName_ = main_input.template getUntrackedParameter<std::string>("@module_type");
+      md.moduleLabel_ = main_input.template getUntrackedParameter<std::string>("module_label", "@module_type");
+      md.processName_ = processName;
+//#warning version and pass are hardcoded
+      md.versionNumber_ = 1;
+      md.pass = 1; 
+
       sourceSpecified = true;
       InputSourceDescription isdesc(common.processName_,common.pass_,preg);
-
       shared_ptr<InputSource> input
 	(InputSourceFactory::get()->makeInputSource(main_input, isdesc).release());
+      input->addToRegistry(md);
     
       return input;
     } catch(const edm::Exception& iException) {
