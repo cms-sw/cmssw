@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Sep 24 10:57:51 CEST 2005
-// $Id$
+// $Id: TestPRegisterModule2.h,v 1.1 2005/09/28 17:32:55 chrjones Exp $
 //
 
 // system include files
@@ -25,6 +25,12 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 
 // forward declarations
+
+namespace edm {
+  class Event;
+  class EventSetup;
+  class ParameterSet;
+}
 
 class TestPRegisterModule2 : public edm::EDProducer
 {

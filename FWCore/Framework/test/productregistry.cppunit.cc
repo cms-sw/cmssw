@@ -3,7 +3,7 @@
    test for ProductRegistry 
 
    \author Stefano ARGIRO
-   \version $Id: productregistry.cppunit.cc,v 1.4 2005/10/03 19:02:41 wmtan Exp $
+   \version $Id: productregistry.cppunit.cc,v 1.5 2005/10/11 19:36:22 chrjones Exp $
    \date 21 July 2005
 */
 
@@ -150,7 +150,7 @@ void  testProductRegistry:: testProductRegistration(){
       "module m1 = TestPRegisterModule1{ } \n"
       "module m2 = TestPRegisterModule2{ } \n" 
       "path p = {m1,m2}\n"
-      "source = TestInputSource4ProductRegistry{ }\n"
+      "source = DummySource{ untracked int32 maxEvents = 1 }\n"
     "}\n";
 
   try {
