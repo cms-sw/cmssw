@@ -1,3 +1,6 @@
+** V00-06-01  [Wed Dec 28 23:50:08 2005]
+improved reporting of configuration file parsing errors
+
 ** V00-06-00  [Fri Dec 23 01:49:02 2005]
 new configuration command 'es_prefer'
 
