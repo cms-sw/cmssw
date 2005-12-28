@@ -2,7 +2,7 @@
 #define Modules_EmptySource_h
 
 /*----------------------------------------------------------------------
-$Id: EmptySource.h,v 1.1 2005/10/17 19:22:41 wmtan Exp $
+$Id: EmptySource.h,v 1.2 2005/12/28 00:52:54 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/GeneratedInputSource.h"
@@ -13,7 +13,7 @@ namespace edm {
     explicit EmptySource(ParameterSet const&, InputSourceDescription const&);
     ~EmptySource();
   private:
-    virtual void produce(Event &);
+    virtual bool produce(Event &);
   };
 }
 #endif

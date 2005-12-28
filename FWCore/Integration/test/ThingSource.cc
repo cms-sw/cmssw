@@ -13,7 +13,7 @@ namespace edmreftest {
   ThingSource::~ThingSource() { }  
 
   // Functions that gets called by framework every event
-  void ThingSource::produce(edm::Event& e) {
+  bool ThingSource::produce(edm::Event& e) {
     // Step A: Get Inputs 
 
     // Step B: Create empty output 
@@ -24,6 +24,8 @@ namespace edmreftest {
 
     // Step D: Put outputs into event
     e.put(result);
+
+    return true;
   }
 }
 using edmreftest::ThingSource;

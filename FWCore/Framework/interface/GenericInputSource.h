@@ -2,7 +2,7 @@
 #define Framework_GenericInputSource_h
 
 /*----------------------------------------------------------------------
-$Id: GenericInputSource.h,v 1.1 2005/10/17 19:22:41 wmtan Exp $
+$Id: GenericInputSource.h,v 1.1 2005/12/28 00:30:09 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -32,7 +32,7 @@ namespace edm {
 
   protected:
     virtual void setRunAndEventInfo();
-    virtual void produce(Event & e) = 0;
+    virtual bool produce(Event & e) = 0;
 
     void setRunNumber(RunNumber_t r) {eventID_ = EventID(r, 0);} 
     void setEventNumber(EventNumber_t e) {

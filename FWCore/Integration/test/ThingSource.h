@@ -23,7 +23,7 @@ namespace edmreftest {
 
     virtual ~ThingSource();
 
-    virtual void produce(edm::Event& e);
+    virtual bool produce(edm::Event& e);
 
   private:
     ThingAlgorithm alg_;

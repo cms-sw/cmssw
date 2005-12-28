@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EmptySource.cc,v 1.2 2005/11/14 21:22:31 wmtan Exp $
+$Id: EmptySource.cc,v 1.3 2005/12/28 00:52:54 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <stdexcept>
@@ -17,7 +17,8 @@ namespace edm {
   EmptySource::~EmptySource() {
   }
 
-  void
+  bool
   EmptySource::produce(edm::Event &) {
+    return true;
   }
 }
