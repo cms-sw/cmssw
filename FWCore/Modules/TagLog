@@ -1,3 +1,6 @@
+** V00-04-00  [Thu Dec 29 00:05:33 2005]
+InputSource Standardization/Simplificationi, and make inventory.sh more location independent
+
 ** V00-03-01  [Mon Dec 12 23:30:13 2005]
 fix problem with output branch selection
 
