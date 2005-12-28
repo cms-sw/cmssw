@@ -1,8 +1,8 @@
 /*
  * \file EBElectronClient.cc
  * 
- * $Date: 2005/12/26 13:14:26 $
- * $Revision: 1.3 $
+ * $Date: 2005/12/28 11:11:31 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -165,7 +165,7 @@ void EBElectronClient::htmlOutput(int run, string htmlDir, string htmlName){
 //  htmlFile << "<td bgcolor=yellow>channel is missing</td></table>" << endl;
 //  htmlFile << "<hr>" << endl;
 
-  // Produce the plots to be shown as .jpg files from existing histograms
+  // Produce the plots to be shown as .png files from existing histograms
 
   // html page footer
   htmlFile << "</body> " << endl;

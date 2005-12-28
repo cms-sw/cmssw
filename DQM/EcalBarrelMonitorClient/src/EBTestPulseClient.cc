@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  * 
- * $Date: 2005/12/26 13:14:26 $
- * $Revision: 1.47 $
+ * $Date: 2005/12/28 11:11:31 $
+ * $Revision: 1.48 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -839,7 +839,7 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<td bgcolor=yellow>channel is missing</td></table>" << endl;
   htmlFile << "<hr>" << endl;
 
-  // Produce the plots to be shown as .jpg files from existing histograms
+  // Produce the plots to be shown as .png files from existing histograms
 
   int csize = 250;
 
@@ -896,8 +896,10 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
             meName.replace(iQual, 1, "_");
           }
         }
-        imgNameQual[iCanvas-1] = meName + ".jpg";
+        imgNameQual[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgNameQual[iCanvas-1];
+
+        cQual->cd();
         gStyle->SetOptStat(" ");
         gStyle->SetPalette(3, pCol3);
         obj2f->GetXaxis()->SetNdivisions(17);
@@ -909,7 +911,11 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
         obj2f->Draw("col");
         dummy.Draw("text,same");
         cQual->Update();
-        cQual->SaveAs(imgName.c_str());
+//        cQual->SaveAs(imgName.c_str());
+        gErrorIgnoreLevel = kWarning;
+        cQual->Print(imgName.c_str(), "eps");
+        gErrorIgnoreLevel = kInfo;
+        system(("/usr/bin/convert eps:" + imgName + " png:" + imgName).c_str());
 
         // Amplitude distributions
         
@@ -934,8 +940,10 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
             meName.replace(iAmp, 1 ,"_" );
           }
         }
-        imgNameAmp[iCanvas-1] = meName + ".jpg";
+        imgNameAmp[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgNameAmp[iCanvas-1];
+
+        cAmp->cd();
         gStyle->SetOptStat("euomr");
         obj1f->SetStats(kTRUE);
         if ( obj1f->GetMaximum(histMax) > 0. ) {
@@ -951,7 +959,12 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
           stAmp->SetX1NDC(0.6);
           stAmp->SetY1NDC(0.75);
         }
-        cAmp->SaveAs(imgName.c_str());
+//        cAmp->SaveAs(imgName.c_str());
+        gErrorIgnoreLevel = kWarning;
+        cAmp->Print(imgName.c_str(), "eps");
+        gErrorIgnoreLevel = kInfo;
+        system(("/usr/bin/convert eps:" + imgName + " png:" + imgName).c_str());
+        gPad->SetLogy(0);
 
         // Shape distributions
 
@@ -976,8 +989,10 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
             meName.replace(iShape, 1, "_");
           }
         }
-        imgNameShape[iCanvas-1] = meName + ".jpg";
+        imgNameShape[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgNameShape[iCanvas-1];
+
+        cShape->cd();
         gStyle->SetOptStat("euomr");
         obj1d->SetStats(kTRUE);
 //        if ( obj1d->GetMaximum(histMax) > 0. ) {
@@ -992,7 +1007,11 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
           stShape->SetX1NDC(0.6);
           stShape->SetY1NDC(0.75);
         }
-        cShape->SaveAs(imgName.c_str());
+//        cShape->SaveAs(imgName.c_str());
+        gErrorIgnoreLevel = kWarning;
+        cShape->Print(imgName.c_str(), "eps");
+        gErrorIgnoreLevel = kInfo;
+        system(("/usr/bin/convert eps:" + imgName + " png:" + imgName).c_str());
         gPad->SetLogy(0);
 
         delete obj1d; 

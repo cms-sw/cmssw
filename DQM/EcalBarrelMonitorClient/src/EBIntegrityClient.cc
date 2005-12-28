@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  * 
- * $Date: 2005/12/28 11:11:31 $
- * $Revision: 1.55 $
+ * $Date: 2005/12/28 13:42:26 $
+ * $Revision: 1.56 $
  * \author G. Della Ricca
  *
 */
@@ -685,7 +685,7 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<td bgcolor=yellow>channel is missing</td></table>" << endl;
   htmlFile << "<hr>" << endl;
 
-  // Produce the plots to be shown as .jpg files from existing histograms
+  // Produce the plots to be shown as .png files from existing histograms
 
   int csize = 250;
 
@@ -728,8 +728,10 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
         meName.replace(iDCC, 1, "_");
       }
     }
-    imgNameDCC = meName + ".jpg";
+    imgNameDCC = meName + ".png";
     imgName = htmlDir + imgNameDCC;
+
+    cDCC->cd();
     gStyle->SetOptStat(" ");
     gStyle->SetPalette(3, pCol3);
     obj1f->GetXaxis()->SetNdivisions(17);
@@ -740,7 +742,11 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
     obj1f->SetMaximum(2.0);
     obj1f->Draw("col");
     cDCC->Update();
-    cDCC->SaveAs(imgName.c_str());
+//    cDCC->SaveAs(imgName.c_str());
+    gErrorIgnoreLevel = kWarning;
+    cDCC->Print(imgName.c_str(), "eps");
+    gErrorIgnoreLevel = kInfo;
+    system(("/usr/bin/convert eps:" + imgName + " png:" + imgName).c_str());
  
   }
 
@@ -779,8 +785,10 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
           meName.replace(iQual, 1, "_");
         }
       }
-      imgNameQual = meName + ".jpg";
+      imgNameQual = meName + ".png";
       imgName = htmlDir + imgNameQual;
+
+      cQual->cd();
       gStyle->SetOptStat(" ");
       gStyle->SetPalette(3, pCol3);
       obj2f->GetXaxis()->SetNdivisions(17);
@@ -792,7 +800,11 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj2f->Draw("col");
       dummy1.Draw("text,same");
       cQual->Update();
-      cQual->SaveAs(imgName.c_str());
+//      cQual->SaveAs(imgName.c_str());
+      gErrorIgnoreLevel = kWarning;
+      cQual->Print(imgName.c_str(), "eps");
+      gErrorIgnoreLevel = kInfo;
+      system(("/usr/bin/convert eps:" + imgName + " png:" + imgName).c_str());
 
       // Monitoring elements plots
 
@@ -827,15 +839,16 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
             meName.replace(iMe, 1, "_");
           }
         }
-        imgNameME[iCanvas-1] = meName + ".jpg";
+        imgNameME[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgNameME[iCanvas-1];
+
+        cMe->cd();
         gStyle->SetOptStat(" ");
-        gStyle->SetPalette( 10, pCol4 );
+        gStyle->SetPalette(10, pCol4);
         obj2f->GetXaxis()->SetNdivisions(17);
         obj2f->GetYaxis()->SetNdivisions(4);
         cMe->SetGridx();
         cMe->SetGridy();
-//        obj2f->SetMinimum(-0.00000001);
         obj2f->SetMaximum();
         obj2f->Draw("colz");
         if ( iCanvas < 5 ) 
@@ -843,7 +856,11 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
         else
           dummy2.Draw("text,same");
         cMe->Update();
-        cMe->SaveAs(imgName.c_str());
+//        cMe->SaveAs(imgName.c_str());
+        gErrorIgnoreLevel = kWarning;
+        cMe->Print(imgName.c_str(), "eps");
+        gErrorIgnoreLevel = kInfo;
+        system(("/usr/bin/convert eps:" + imgName + " png:" + imgName).c_str());
 
       }
 

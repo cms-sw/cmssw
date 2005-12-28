@@ -1,8 +1,8 @@
 /*
  * \file EBPnDiodeClient.cc
  * 
- * $Date: 2005/12/26 13:14:26 $
- * $Revision: 1.22 $
+ * $Date: 2005/12/28 11:11:31 $
+ * $Revision: 1.23 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -418,7 +418,7 @@ void EBPnDiodeClient::htmlOutput(int run, string htmlDir, string htmlName){
 //  htmlFile << "<td bgcolor=yellow>channel is missing</td></table>" << endl;
 //  htmlFile << "<hr>" << endl;
 
-  // Produce the plots to be shown as .jpg files from existing histograms
+  // Produce the plots to be shown as .png files from existing histograms
 
   int csize = 250;
 
@@ -464,8 +464,10 @@ void EBPnDiodeClient::htmlOutput(int run, string htmlDir, string htmlName){
             meName.replace(iAmp, 1 ,"_" );
           }
         }
-        imgNameME[iCanvas-1] = meName + ".jpg";
+        imgNameME[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgNameME[iCanvas-1];
+
+        cAmp->cd();
         gStyle->SetOptStat("euomr");
         obj1d->SetStats(kTRUE);
 //        if ( obj1d->GetMaximum(histMax) > 0. ) {
@@ -480,7 +482,11 @@ void EBPnDiodeClient::htmlOutput(int run, string htmlDir, string htmlName){
           stAmp->SetX1NDC(0.6);
           stAmp->SetY1NDC(0.75);
         }
-        cAmp->SaveAs(imgName.c_str());
+//        cAmp->SaveAs(imgName.c_str());
+        gErrorIgnoreLevel = kWarning;
+        cAmp->Print(imgName.c_str(), "eps");
+        gErrorIgnoreLevel = kInfo;
+        system(("/usr/bin/convert eps:" + imgName + " png:" + imgName).c_str());
         gPad->SetLogy(0);
 
         delete obj1d;

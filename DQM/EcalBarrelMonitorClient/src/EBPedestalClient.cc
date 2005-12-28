@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  * 
- * $Date: 2005/12/26 13:14:26 $
- * $Revision: 1.44 $
+ * $Date: 2005/12/28 11:11:31 $
+ * $Revision: 1.45 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -603,7 +603,7 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<td bgcolor=yellow>channel is missing</td></table>" << endl;
   htmlFile << "<hr>" << endl;
 
-  // Produce the plots to be shown as .jpg files from existing histograms
+  // Produce the plots to be shown as .png files from existing histograms
 
   int csize = 250;
 
@@ -660,8 +660,10 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
             meName.replace(iQual, 1, "_");
           }
         }
-        imgNameQual[iCanvas-1] = meName + ".jpg";
+        imgNameQual[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgNameQual[iCanvas-1];
+
+        cQual->cd();
         gStyle->SetOptStat(" ");
         gStyle->SetPalette(3, pCol3);
         obj2f->GetXaxis()->SetNdivisions(17);
@@ -673,7 +675,11 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
         obj2f->Draw("col");
         dummy.Draw("text,same");
         cQual->Update();
-        cQual->SaveAs(imgName.c_str());
+//        cQual->SaveAs(imgName.c_str());
+        gErrorIgnoreLevel = kWarning;
+        cQual->Print(imgName.c_str(), "eps");
+        gErrorIgnoreLevel = kInfo;
+        system(("/usr/bin/convert eps:" + imgName + " png:" + imgName).c_str());
 
         // Mean distributions
 
@@ -698,8 +704,10 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
             meName.replace(iMean, 1 ,"_" );
           }
         }
-        imgNameMean[iCanvas-1] = meName + ".jpg";
+        imgNameMean[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgNameMean[iCanvas-1];
+
+        cMean->cd();
         gStyle->SetOptStat("euomr");
         obj1f->SetStats(kTRUE);
         if ( obj1f->GetMaximum(histMax) > 0. ) {
@@ -715,7 +723,12 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
           stMean->SetX1NDC(0.6);
           stMean->SetY1NDC(0.75);
         }
-        cMean->SaveAs(imgName.c_str());
+//        cMean->SaveAs(imgName.c_str());
+        gErrorIgnoreLevel = kWarning;
+        cMean->Print(imgName.c_str(), "eps");
+        gErrorIgnoreLevel = kInfo;
+        system(("/usr/bin/convert eps:" + imgName + " png:" + imgName).c_str());
+        gPad->SetLogy(0);
 
         // RMS distributions
 
@@ -739,8 +752,10 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
             meName.replace(iRMS, 1, "_");
           }
         }
-        imgNameRMS[iCanvas-1] = meName + ".jpg";
+        imgNameRMS[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgNameRMS[iCanvas-1];
+
+        cRMS->cd();
         gStyle->SetOptStat("euomr");
         obj1f->SetStats(kTRUE);
         if ( obj1f->GetMaximum(histMax) > 0. ) {
@@ -755,7 +770,11 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
           stRMS->SetX1NDC(0.6);
           stRMS->SetY1NDC(0.75);
         }
-        cRMS->SaveAs(imgName.c_str());
+//        cRMS->SaveAs(imgName.c_str());
+        gErrorIgnoreLevel = kWarning;
+        cRMS->Print(imgName.c_str(), "eps");
+        gErrorIgnoreLevel = kInfo;
+        system(("/usr/bin/convert eps:" + imgName + " png:" + imgName).c_str());
         gPad->SetLogy(0);
 
       }

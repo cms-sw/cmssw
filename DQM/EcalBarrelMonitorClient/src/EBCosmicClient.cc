@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  * 
- * $Date: 2005/12/26 13:14:26 $
- * $Revision: 1.21 $
+ * $Date: 2005/12/28 11:11:30 $
+ * $Revision: 1.22 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -368,7 +368,7 @@ void EBCosmicClient::htmlOutput(int run, string htmlDir, string htmlName){
 //  htmlFile << "<td bgcolor=yellow>channel is missing</td></table>" << endl;
 //  htmlFile << "<hr>" << endl;
 
-  // Produce the plots to be shown as .jpg files from existing histograms
+  // Produce the plots to be shown as .png files from existing histograms
 
   int csize = 250;
 
@@ -418,20 +418,25 @@ void EBCosmicClient::htmlOutput(int run, string htmlDir, string htmlName){
             meName.replace(iMe, 1, "_");
           }
         }
-        imgNameME[iCanvas-1] = meName + ".jpg";
+        imgNameME[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgNameME[iCanvas-1];
+
+        cMe->cd();
         gStyle->SetOptStat(" ");
         gStyle->SetPalette( 10, pCol4 );
         objp->GetXaxis()->SetNdivisions(17);
         objp->GetYaxis()->SetNdivisions(4);
         cMe->SetGridx();
         cMe->SetGridy();
-//        objp->SetMinimum(-0.00000001);
         objp->SetMaximum();
         objp->Draw("colz");
         dummy.Draw("text,same");
         cMe->Update();
-        cMe->SaveAs(imgName.c_str());
+//        cMe->SaveAs(imgName.c_str());
+        gErrorIgnoreLevel = kWarning;
+        cMe->Print(imgName.c_str(), "eps");
+        gErrorIgnoreLevel = kInfo;
+        system(("/usr/bin/convert eps:" + imgName + " png:" + imgName).c_str());
 
       }
 
@@ -446,8 +451,10 @@ void EBCosmicClient::htmlOutput(int run, string htmlDir, string htmlName){
           meName.replace(iAmp, 1 ,"_" );
         }
       }
-      imgNameME[2] = meName + ".jpg";
+      imgNameME[2] = meName + ".png";
       imgName = htmlDir + imgNameME[2];
+
+      cAmp->cd();
       gStyle->SetOptStat("euomr");
       obj1f->SetStats(kTRUE);
       if ( obj1f->GetMaximum(histMax) > 0. ) {
@@ -462,7 +469,11 @@ void EBCosmicClient::htmlOutput(int run, string htmlDir, string htmlName){
         stAmp->SetX1NDC(0.6);
         stAmp->SetY1NDC(0.75);
       }
-      cAmp->SaveAs(imgName.c_str());
+//      cAmp->SaveAs(imgName.c_str());
+      gErrorIgnoreLevel = kWarning;
+      cAmp->Print(imgName.c_str(), "eps");
+      gErrorIgnoreLevel = kInfo;
+      system(("/usr/bin/convert eps:" + imgName + " png:" + imgName).c_str());
       gPad->SetLogy(0);
 
     }
