@@ -1,3 +1,6 @@
+** V02-00-00  [Wed Dec 28 01:40:06 2005]
+Major redesign of Hcal Condition classes
+
 ** V01-04-00  [Wed Dec  7 01:08:50 2005]
 include Hcal mapping into conditions by a regular way
 
