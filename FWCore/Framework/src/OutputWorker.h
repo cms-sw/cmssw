@@ -9,23 +9,22 @@ this object is to call the output module.
 According to our current definition, a single output module can only
 appear in one worker.
 
-$Id: OutputWorker.h,v 1.13 2005/10/12 02:30:39 wmtan Exp $
+$Id: OutputWorker.h,v 1.14 2005/12/14 01:35:44 chrjones Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
 
 #include "boost/shared_ptr.hpp"
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/OutputModule.h"
-#include "FWCore/Framework/interface/ModuleDescription.h"
 #include "FWCore/Framework/src/Worker.h"
-#include "FWCore/Framework/src/WorkerParams.h"
 
 namespace edm
 {
-  class ParameterSet;
   class ActionTable;
+  class ModuleDescription;
+  class OutputModule;
+  class ParameterSet;
+  class WorkerParams;
 
   class OutputWorker : public Worker
   {

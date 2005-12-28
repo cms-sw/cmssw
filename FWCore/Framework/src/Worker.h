@@ -6,16 +6,17 @@
 Worker: this is a basic scheduling unit - an abstract base class to
 something that is really a producer or filter.
 
-$Id: Worker.h,v 1.5 2005/09/08 10:57:35 chrjones Exp $
+$Id: Worker.h,v 1.6 2005/12/14 01:35:44 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ModuleDescription.h"
 #include "FWCore/Framework/src/WorkerParams.h"
 
 namespace edm {
   class ActionTable;
+  class EventPrincipal;
+  class EventSetup;
 
   class Worker
   {

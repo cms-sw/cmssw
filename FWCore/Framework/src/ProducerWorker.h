@@ -9,7 +9,7 @@ feed them into the event.
 According to our current definition, a single producer can only
 appear in one worker.
 
-$Id: ProducerWorker.h,v 1.13 2005/09/08 10:57:35 chrjones Exp $
+$Id: ProducerWorker.h,v 1.14 2005/12/14 01:35:44 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -17,14 +17,15 @@ $Id: ProducerWorker.h,v 1.13 2005/09/08 10:57:35 chrjones Exp $
 
 #include "boost/shared_ptr.hpp"
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/src/Worker.h"
-#include "FWCore/Framework/src/WorkerParams.h"
 
 namespace edm
 {
   class ActionTable;
+  class EDProducer;
+  class ModuleDescription;
   class ParameterSet;
+  class WorkerParams;
 
   class ProducerWorker : public Worker
   {
