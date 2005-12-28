@@ -1,6 +1,6 @@
 #ifndef RECOLOCALTRACKER_SISTRIPCLUSTERIZER_SISTRIPCLUSTERMATCH_H
 #define RECOLOCALTRACKER_SISTRIPCLUSTERIZER_SISTRIPCLUSTERMATCH_H
-#include "PhysicsTools/Candidate/interface/own_vector.h"
+#include "PhysicsTools/Utilities/interface/own_vector.h"
 #include "DataFormats/TrackingRecHit2D/interface/SiStripRecHit2DLocalPos.h"
 #include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
 #include "DataFormats/DetId/interface/DetId.h"

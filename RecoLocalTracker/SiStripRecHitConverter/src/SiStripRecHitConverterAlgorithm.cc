@@ -8,7 +8,6 @@
 #include <iostream>
 
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitConverterAlgorithm.h"
-#include "PhysicsTools/Candidate/interface/own_vector.h"
 
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 
@@ -130,9 +129,9 @@ void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,
 	}
 
       }
-      SiStripRecHit2DLocalPosCollection::Range inputRange;
-      inputRange.first = collector.begin();
-      inputRange.second = collector.end();
+      SiStripRecHit2DLocalPosCollection::Range inputRange(collector.begin(),collector.end());
+      //      inputRange.first = collector.begin();
+      //inputRange.second = collector.end();
       output.put(inputRange,id);
       if (collector.size() > 0) {
         output.put(inputRange,id);
