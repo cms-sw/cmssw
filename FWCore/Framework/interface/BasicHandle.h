@@ -19,7 +19,7 @@ Handles can have:
 
 To check validity, one can use the isValid() function.
 
-$Id: BasicHandle.h,v 1.6 2005/09/01 05:45:11 wmtan Exp $
+$Id: BasicHandle.h,v 1.7 2005/10/11 21:33:38 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -30,11 +30,11 @@ $Id: BasicHandle.h,v 1.6 2005/09/01 05:45:11 wmtan Exp $
 #include "boost/utility/enable_if.hpp"
 #include "boost/type_traits.hpp"
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Provenance.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 namespace edm {
+  class EDProduct;
   class BasicHandle {
   public:
     // Default constructed handles are invalid.

@@ -6,14 +6,13 @@
 BranchDescription: The full description of a product and how it came into
 existence.
 
-$Id: BranchDescription.h,v 1.10 2005/08/04 03:02:39 wmtan Exp $
+$Id: BranchDescription.h,v 1.1 2005/10/03 18:58:33 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <ostream>
 #include <string>
 
 #include "FWCore/EDProduct/interface/ProductID.h"
 #include "FWCore/Framework/interface/ModuleDescription.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 
 /*
   BranchDescription
@@ -24,6 +23,7 @@ $Id: BranchDescription.h,v 1.10 2005/08/04 03:02:39 wmtan Exp $
 */
 
 namespace edm {
+  class EDProduct;
   struct BranchDescription {
 
     BranchDescription();

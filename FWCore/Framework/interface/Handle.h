@@ -19,7 +19,7 @@ Handles can have:
 
 To check validity, one can use the isValid() function.
 
-$Id: Handle.h,v 1.12 2005/09/02 05:17:49 wmtan Exp $
+$Id: Handle.h,v 1.13 2005/10/11 21:33:38 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -31,13 +31,15 @@ $Id: Handle.h,v 1.12 2005/09/02 05:17:49 wmtan Exp $
 #include "boost/type_traits.hpp"
 
 #include "FWCore/EDProduct/interface/ProductID.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/BasicHandle.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 namespace edm
 {
-  template <class T>
+  class EDProduct;
+  template <typename T> class Wrapper;
+
+  template <typename T>
   class Handle
   {
   public:

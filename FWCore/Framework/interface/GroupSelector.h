@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: GroupSelector.h,v 1.6 2005/09/01 05:27:41 wmtan Exp $
+// $Id: GroupSelector.h,v 1.7 2005/10/03 19:03:40 wmtan Exp $
 //
 // Class GroupSelector. Class for user to select specific groups in event.
 //
@@ -15,9 +15,9 @@
 #include <string>
 #include <map>
 #include <iosfwd>
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 
 namespace edm {
+  class BranchDescription;
   class ParameterSet;
 
   class GroupSelector {

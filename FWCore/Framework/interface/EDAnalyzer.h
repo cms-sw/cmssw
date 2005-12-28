@@ -3,12 +3,11 @@
 
 // EDAnalyzer is the base class for all reconstruction "modules".
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-
-namespace edm
-  {
-  class EDAnalyzer
-    {
+namespace edm {
+  class Event;
+  class EventSetup;
+  class ParameterSet;
+  class EDAnalyzer {
     public:
       typedef EDAnalyzer ModuleType;
 
