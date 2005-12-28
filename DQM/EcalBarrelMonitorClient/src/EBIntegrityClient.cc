@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  * 
- * $Date: 2005/12/26 17:32:07 $
- * $Revision: 1.54 $
+ * $Date: 2005/12/28 11:11:31 $
+ * $Revision: 1.55 $
  * \author G. Della Ricca
  *
 */
@@ -741,7 +741,7 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
     obj1f->Draw("col");
     cDCC->Update();
     cDCC->SaveAs(imgName.c_str());
-    
+ 
   }
 
   htmlFile << "<h3><strong>DCC size error</strong></h3>" << endl;
