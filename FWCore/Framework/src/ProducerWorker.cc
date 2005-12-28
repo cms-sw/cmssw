@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: ProducerWorker.cc,v 1.16 2005/12/14 01:35:44 chrjones Exp $
+$Id: ProducerWorker.cc,v 1.17 2005/12/28 00:32:04 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/src/ProducerWorker.h"
@@ -18,7 +18,6 @@ $Id: ProducerWorker.cc,v 1.16 2005/12/14 01:35:44 chrjones Exp $
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
-
 
 #include <string>
 #include <sstream>

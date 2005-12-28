@@ -1,9 +1,8 @@
 /*----------------------------------------------------------------------
-$Id: RandomAccessInputSource.cc,v 1.1 2005/09/28 05:15:59 wmtan Exp $
+$Id: RandomAccessInputSource.cc,v 1.2 2005/12/28 00:32:04 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/RandomAccessInputSource.h"
-#include "FWCore/Framework/interface/EventPrincipal.h"
 
 namespace edm {
 
@@ -17,4 +16,5 @@ namespace edm {
   RandomAccessInputSource::skipEvents(int offset) {
     this->skip(offset);
   }
+
 }

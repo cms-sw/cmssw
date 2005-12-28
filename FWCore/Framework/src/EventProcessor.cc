@@ -524,6 +524,4 @@ namespace edm {
     return impl_->getInputSource();
   }
 
-
-
 }

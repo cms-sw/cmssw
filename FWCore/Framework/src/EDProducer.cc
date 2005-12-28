@@ -1,14 +1,12 @@
 /*----------------------------------------------------------------------
   
-$Id: EDProducer.cc,v 1.6 2005/10/11 19:32:28 chrjones Exp $
+$Id: EDProducer.cc,v 1.7 2005/12/28 00:32:04 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
-#include "FWCore/EDProduct/interface/EDProduct.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 
-namespace edm
-{
+namespace edm {
   EDProducer::~EDProducer() { }
 
   void EDProducer::beginJob(EventSetup const&) {
@@ -20,6 +18,4 @@ namespace edm
    boost::function<void(const BranchDescription&)> EDProducer::registrationCallback() const {
       return callWhenNewProductsRegistered_;
    }
-
 }
-  

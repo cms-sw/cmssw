@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: InputSource.cc,v 1.1 2005/09/28 05:19:26 wmtan Exp $
+$Id: InputSource.cc,v 1.2 2005/12/28 00:32:04 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <cassert>
 
@@ -20,8 +20,7 @@ namespace edm {
 
   std::auto_ptr<EventPrincipal>
   InputSource::readEvent() {
-    // Do we need any error handling (e.g. exception translation)
-    // here?
+    // Do we need any error handling (e.g. exception translation) here?
     std::auto_ptr<EventPrincipal> ep(this->read());
     if (ep.get()) {
 	ep->addToProcessHistory(process_);
