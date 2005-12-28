@@ -4,10 +4,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-namespace edm {
-  class ParameterSet;
-}
-
 namespace edmreftest {
 
   class OtherThingAnalyzer : public edm::EDAnalyzer {

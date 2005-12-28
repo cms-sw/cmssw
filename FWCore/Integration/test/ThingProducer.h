@@ -12,10 +12,6 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Integration/test/ThingAlgorithm.h"
 
-namespace edm {
-  class ParameterSet;
-}
-
 namespace edmreftest {
   class ThingProducer : public edm::EDProducer {
   public:

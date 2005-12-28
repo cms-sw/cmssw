@@ -5,13 +5,8 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Integration/test/OtherThingAlgorithm.h"
 
-namespace edm {
-  class ParameterSet;
-}
-
 namespace edmreftest {
-  class OtherThingProducer : public edm::EDProducer
-  {
+  class OtherThingProducer : public edm::EDProducer {
   public:
 
     // The following is not yet used, but will be the primary
