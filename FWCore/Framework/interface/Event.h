@@ -6,7 +6,7 @@
 Event: This is the primary interface for accessing
 EDProducts from a single collision and inserting new derived products.
 
-$Id: Event.h,v 1.22 2005/10/12 21:59:15 wmtan Exp $
+$Id: Event.h,v 1.23 2005/11/02 06:45:55 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
@@ -14,7 +14,6 @@ $Id: Event.h,v 1.22 2005/10/12 21:59:15 wmtan Exp $
 
 #include "boost/shared_ptr.hpp"
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/EDProduct/interface/Wrapper.h"
 
 #include "FWCore/EDProduct/interface/EventID.h"
@@ -29,6 +28,12 @@ $Id: Event.h,v 1.22 2005/10/12 21:59:15 wmtan Exp $
 #include "FWCore/Framework/src/TypeID.h"
 
 namespace edm {
+  class EventPrincipal;
+  class LuminositySection;
+  class ModuleDescription;
+  class Provenance;
+  class Run;
+  class Selector;
 
   class Event
   {
@@ -97,10 +102,11 @@ namespace edm {
     //
     // commit() is called to complete the transaction represented by
     // this Event. The friendship required seems gross, but any
-    // alternative is not great either.  and putting it into the
+    // alternative is not great either.  Putting it into the
     // public interface is asking for trouble
     void commit_();
     friend class ProducerWorker;
+    friend class GenericInputSource;
 
     // The following 'get' functions serve to isolate the Event class
     // from the EventPrincipal class.

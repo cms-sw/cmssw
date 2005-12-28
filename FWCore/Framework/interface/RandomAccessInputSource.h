@@ -5,7 +5,7 @@
 /*----------------------------------------------------------------------
   
 RandomAccessInputSource: Abstract interface for all random access input sources.
-$Id: RandomAccessInputSource.h,v 1.6 2005/09/01 23:30:49 wmtan Exp $
+$Id: RandomAccessInputSource.h,v 1.1 2005/09/28 05:16:27 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -20,7 +20,6 @@ namespace edm {
     explicit RandomAccessInputSource(InputSourceDescription const&);
     virtual ~RandomAccessInputSource();
 
-    std::auto_ptr<EventPrincipal> readEvent(EventID const& id);
     void skipEvents(int offset);
 
   private:
