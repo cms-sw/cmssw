@@ -9,7 +9,9 @@
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
 #include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
 #include "FWCore/MessageLogger/interface/MessageLoggerScribe.h"
+#include "FWCore/MessageLogger/interface/NamedDestination.h"
 
+#include <algorithm>
 #include <cassert>
 #include <fstream>
 #include <iostream>
@@ -25,6 +27,8 @@ MessageLoggerScribe::MessageLoggerScribe()
 , early_dest( admin_p->attach(ELoutput(std::cerr, false)) )
 , errorlog_p( new ErrorLog() )
 , file_ps   ( )
+, job_pset_p( 0 )
+, extern_dests( )
 {
   admin_p->setContextSupplier(msg_context);
 }
@@ -36,6 +40,8 @@ MessageLoggerScribe::~MessageLoggerScribe()
   for( ;  not file_ps.empty();  file_ps.pop_back() )  {
     delete file_ps.back();
   }
+  delete job_pset_p; // dispose of our (copy of the) ParameterSet
+  assert( extern_dests.empty() );  // nothing to do
 }
 
 
@@ -62,7 +68,7 @@ void
         ErrorObj *  errorobj_p = static_cast<ErrorObj *>(operand);
         //std::cout << "MessageLoggerQ::LOG_A_MESSAGE " << errorobj_p << '\n';
 
-	ELcontextSupplier& cs = 
+	ELcontextSupplier& cs =
 	  const_cast<ELcontextSupplier&>(admin_p->getContextSupplier());
 	MsgContext& mc = dynamic_cast<MsgContext&>(cs);
 	mc.setContext(errorobj_p->context());
@@ -71,17 +77,14 @@ void
         break;
       }
       case MessageLoggerQ::CONFIGURE:  {
-        ParameterSet *  pset_p = static_cast<ParameterSet *>(operand);
-        configure_errorlog( pset_p );
-        delete pset_p;  // dispose of our (copy of the) ParameterSet
+        job_pset_p = static_cast<PSet *>(operand);
+        configure_errorlog();
         break;
       }
       case MessageLoggerQ::EXTERN_DEST: {
-        ELdestination *  dest_p = static_cast<ELdestination *>(operand);
-        admin_p->attach( *dest_p );
-        delete dest_p;  // dispose of our (copy of the) dest
+	extern_dests.push_back( static_cast<NamedDestination *>(operand) );
+	configure_external_dests();
         break;
-	
       }
     }  // switch
 
@@ -89,40 +92,15 @@ void
 
 }  // MessageLoggerScribe::run()
 
+
 void
-  MessageLoggerScribe::configure_errorlog( ParameterSet const * p )
+  MessageLoggerScribe::configure_errorlog()
 {
-  typedef std::string          String;
-  typedef std::vector<String>  vString;
-  typedef ParameterSet         PSet;
-
   vString  empty_vString;
-  PSet     empty_PSet;
-  String   empty_String;
-
-  char *  severity_array[] = {"WARNING", "INFO", "ERROR", "DEBUG"};
-  vString const  severities(severity_array+0, severity_array+4);
-
-  // grab list of categories
-  vString  categories
-     = p->getUntrackedParameter<vString>("categories", empty_vString);
-
-  // grab list of messageIDs -- these are a synonym for categories
-  // Note -- the use of messageIDs is deprecated in favor of categories
-  vString  messageIDs
-     = p->getUntrackedParameter<vString>("messageIDs", empty_vString);
-
-  // grab default limit/timespan common to all destinations/categories:
-  PSet  default_pset
-     = p->getUntrackedParameter<PSet>("default", empty_PSet);
-  int  default_limit
-    = default_pset.getUntrackedParameter<int>("limit", -1);
-  int  default_timespan
-    = default_pset.getUntrackedParameter<int>("timespan", -1);
 
   // grab list of destinations:
   vString  destinations
-     = p->getUntrackedParameter<vString>("destinations", empty_vString);
+     = job_pset_p->getUntrackedParameter<vString>("destinations", empty_vString);
 
   // dial down the early destination if other dest's are supplied:
   if( ! destinations.empty() )
@@ -151,91 +129,133 @@ void
     }
     //(*errorlog_p)( ELinfo, "added_dest") << filename << endmsg;
 
-    // grab all of this destination's parameters:
-    PSet  dest_pset = p->getUntrackedParameter<PSet>(filename,empty_PSet);
-
-    // grab this destination's default limit/timespan:
-    PSet  dest_default_pset
-       = dest_pset.getUntrackedParameter<PSet>("default", empty_PSet);
-    int  dest_default_limit
-      = dest_default_pset.getUntrackedParameter<int>("limit", default_limit);
-    int  dest_default_timespan
-      = dest_default_pset.getUntrackedParameter<int>("timespan", default_timespan);
-
-    // establish this destination's limit/timespan for each of the categories:
-    for( vString::const_iterator id_it = categories.begin()
-       ; id_it != categories.end()
-       ; ++id_it
-       )
-    {
-      String  msgID = *id_it;
-      PSet  messageIDpset
-         = dest_pset.getUntrackedParameter<PSet>(msgID, empty_PSet);
-      int  limit
-        = messageIDpset.getUntrackedParameter<int>("limit", dest_default_limit);
-      int  timespan
-        = messageIDpset.getUntrackedParameter<int>("timespan", dest_default_timespan);
-      if( limit    >= 0 )  dest_ctrl.setLimit(msgID, limit   );
-      if( timespan >= 0 )  dest_ctrl.setLimit(msgID, timespan);
-    }  // for
-
-    // establish this destination's limit/timespan for each of the messageIDs:
-    // Note -- the use of messageIDs is deprecated in favor of categories
-    for( vString::const_iterator id_it = messageIDs.begin()
-       ; id_it != messageIDs.end()
-       ; ++id_it
-       )
-    {
-      String  msgID = *id_it;
-      PSet  messageIDpset
-         = dest_pset.getUntrackedParameter<PSet>(msgID, empty_PSet);
-      int  limit
-        = messageIDpset.getUntrackedParameter<int>("limit", dest_default_limit);
-      int  timespan
-        = messageIDpset.getUntrackedParameter<int>("timespan", dest_default_timespan);
-      if( limit    >= 0 )  dest_ctrl.setLimit(msgID, limit   );
-      if( timespan >= 0 )  dest_ctrl.setLimit(msgID, timespan);
-    }  // for
-
-    // establish this destination's threshold:
-    String  severity_name
-      = dest_pset.getUntrackedParameter<String>("threshold", empty_String);
-    ELseverityLevel  lev = ELseverityLevel(severity_name);
-    if( lev != ELunspecified )
-      dest_ctrl.setThreshold(lev);
-
-    // establish this destination's limit for each severity:
-    for( vString::const_iterator sev_it = severities.begin()
-       ; sev_it != severities.end()
-       ; ++sev_it
-       )
-    {
-      String  sevID = *sev_it;
-      ELseverityLevel  severity(sevID);
-      PSet  sev_pset
-         = dest_pset.getUntrackedParameter<PSet>(sevID, empty_PSet);
-      int  limit
-        = sev_pset.getUntrackedParameter<int>("limit", -1);
-      int  timespan
-        = sev_pset.getUntrackedParameter<int>("timespan", -1);
-      if( limit    >= 0 )  dest_ctrl.setLimit(severity, limit   );
-      if( timespan >= 0 )  dest_ctrl.setLimit(severity, timespan);
-    }  // for
-
-    // establish this destination's linebreak policy:
-    bool noLineBreaks = 
-            dest_pset.getUntrackedParameter<bool> ("noLineBreaks",false);
-    if (noLineBreaks) {
-      dest_ctrl.setLineLength(32000);
-    } else {
-      int  lenDef = 80; 
-      int  lineLen = 
-            dest_pset.getUntrackedParameter<int> ("lineLength",lenDef);
-      if (lineLen != lenDef) {
-        dest_ctrl.setLineLength(lineLen);
-      }  
-    }
+    // now configure this destination:
+    configure_dest(dest_ctrl, filename);
 
   }  // for [it = destinations.begin() to end()]
 
-}  // MessageLoggerScribe::configure()
+  configure_external_dests();
+
+}  // MessageLoggerScribe::configure_errorlog()
+
+
+void
+  MessageLoggerScribe::configure_dest( ELdestControl & dest_ctrl
+                                     , String const &  filename
+				     )
+{
+  vString  empty_vString;
+  PSet     empty_PSet;
+  String   empty_String;
+
+  char *  severity_array[] = {"WARNING", "INFO", "ERROR", "DEBUG"};
+  vString const  severities(severity_array+0, severity_array+4);
+
+  // grab list of categories
+  vString  categories
+     = job_pset_p->getUntrackedParameter<vString>("categories", empty_vString);
+
+  // grab list of messageIDs -- these are a synonym for categories
+  // Note -- the use of messageIDs is deprecated in favor of categories
+  {
+    vString  messageIDs
+      = job_pset_p->getUntrackedParameter<vString>("messageIDs", empty_vString);
+
+  // combine the lists, not caring about possible duplicates (for now)
+    std::copy( messageIDs.begin(), messageIDs.end(),
+               std::back_inserter(categories)
+             );
+  }  // no longer need messageIDs
+
+  // grab default limit/timespan common to all destinations/categories:
+  PSet  default_pset
+     = job_pset_p->getUntrackedParameter<PSet>("default", empty_PSet);
+  int  default_limit
+    = default_pset.getUntrackedParameter<int>("limit", -1);
+  int  default_timespan
+    = default_pset.getUntrackedParameter<int>("timespan", -1);
+
+  // grab all of this destination's parameters:
+  PSet  dest_pset = job_pset_p->getUntrackedParameter<PSet>(filename,empty_PSet);
+
+  // grab this destination's default limit/timespan:
+  PSet  dest_default_pset
+     = dest_pset.getUntrackedParameter<PSet>("default", empty_PSet);
+  int  dest_default_limit
+    = dest_default_pset.getUntrackedParameter<int>("limit", default_limit);
+  int  dest_default_timespan
+    = dest_default_pset.getUntrackedParameter<int>("timespan", default_timespan);
+
+  // establish this destination's limit/timespan for each of the categories:
+  for( vString::const_iterator id_it = categories.begin()
+     ; id_it != categories.end()
+     ; ++id_it
+     )
+  {
+    String  msgID = *id_it;
+    PSet  category_pset
+       = dest_pset.getUntrackedParameter<PSet>(msgID, empty_PSet);
+    int  limit
+      = category_pset.getUntrackedParameter<int>("limit", dest_default_limit);
+    int  timespan
+      = category_pset.getUntrackedParameter<int>("timespan", dest_default_timespan);
+    if( limit    >= 0 )  dest_ctrl.setLimit(msgID, limit   );
+    if( timespan >= 0 )  dest_ctrl.setTimespan(msgID, timespan);
+  }  // for
+
+  // establish this destination's limit for each severity:
+  for( vString::const_iterator sev_it = severities.begin()
+     ; sev_it != severities.end()
+     ; ++sev_it
+     )
+  {
+    String  sevID = *sev_it;
+    ELseverityLevel  severity(sevID);
+    PSet  sev_pset
+       = dest_pset.getUntrackedParameter<PSet>(sevID, empty_PSet);
+    int  limit
+      = sev_pset.getUntrackedParameter<int>("limit", -1);
+    int  timespan
+      = sev_pset.getUntrackedParameter<int>("timespan", -1);
+    if( limit    >= 0 )  dest_ctrl.setLimit(severity, limit   );
+    if( timespan >= 0 )  dest_ctrl.setLimit(severity, timespan);
+  }  // for
+
+  // establish this destination's linebreak policy:
+  bool noLineBreaks =
+          dest_pset.getUntrackedParameter<bool> ("noLineBreaks",false);
+  if (noLineBreaks) {
+    dest_ctrl.setLineLength(32000);
+  }
+  else {
+    int  lenDef = 80;
+    int  lineLen =
+          dest_pset.getUntrackedParameter<int> ("lineLength",lenDef);
+    if (lineLen != lenDef) {
+      dest_ctrl.setLineLength(lineLen);
+    }
+  }
+
+}  // MessageLoggerScribe::configure_dest()
+
+
+void
+  MessageLoggerScribe::configure_external_dests()
+{
+  if( ! job_pset_p )  return;
+
+  for( std::vector<NamedDestination*>::const_iterator it = extern_dests.begin()
+     ; it != extern_dests.end()
+     ;  ++it
+     )
+  {
+    ELdestination *  dest_p = (*it)->dest_p().get();
+    ELdestControl  dest_ctrl = admin_p->attach( *dest_p );
+
+    // configure the newly-attached destination:
+    configure_dest( dest_ctrl, (*it)->name() );
+    delete *it;  // dispose of our (copy of the) NamedDestination
+  }
+  extern_dests.clear();
+
+}  // MessageLoggerScribe::configure_external_dests

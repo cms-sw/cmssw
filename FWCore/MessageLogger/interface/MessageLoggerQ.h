@@ -2,6 +2,7 @@
 #define FWCore_MessageLogger_MessageLoggerQ_h
 
 
+#include "FWCore/MessageLogger/interface/NamedDestination.h"
 #include "FWCore/Utilities/interface/SingleConsumerQ.h"
 #include <memory>
 
@@ -33,7 +34,7 @@ public:
   static  void  END();
   static  void  LOG( ErrorObj * p );
   static  void  CFG( ParameterSet * p );
-  static  void  EXT( ELdestination* p );
+  static  void  EXT( NamedDestination* p );
 
   // ---  obtain a message from the queue:
   static  void  consume( OpCode & opcode, void * & operand );

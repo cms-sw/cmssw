@@ -78,7 +78,7 @@ void
 }  // MessageLoggerQ::CFG()
 
 void
-MessageLoggerQ::EXT( ELdestination* p )
+MessageLoggerQ::EXT( NamedDestination* p )
 {
   SingleConsumerQ::ProducerBuffer b(buf);
   char * slot_p = static_cast<char *>(b.buffer());
