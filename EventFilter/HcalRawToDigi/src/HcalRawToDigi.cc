@@ -8,6 +8,7 @@ using namespace std;
 #include "FWCore/Framework/interface/Selector.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
 HcalRawToDigi::HcalRawToDigi(edm::ParameterSet const& conf):
@@ -19,10 +20,10 @@ HcalRawToDigi::HcalRawToDigi(edm::ParameterSet const& conf):
   fedUnpackList_(conf.getParameter<std::vector<int> >("FEDs")),
   firstFED_(conf.getParameter<int>("HcalFirstFED"))
 {
-  std::cout << "HcalRawToDigi will unpack FEDs ";
+  std::ostringstream ss;
   for (unsigned int i=0; i<fedUnpackList_.size(); i++) 
-    std::cout << fedUnpackList_[i] << " ";
-  std::cout << std::endl;
+    ss << fedUnpackList_[i] << " ";
+  edm::LogInfo("HCAL") << "HcalRawToDigi will unpack FEDs ( " << ss.str() << ")";
     
   // products produced...
   produces<HBHEDigiCollection>();

@@ -2,8 +2,10 @@
 <use name=DataFormats/HcalDetId>
 <use name=DataFormats/HcalDigi>
 <use name=DataFormats/FEDRawData>
-<use name=CondFormats/HcalMapping>
+<use name=CondFormats/HcalObjects>
+<use name=CalibFormats/HcalObjects>
 <use name=FWCore/Framework>
+<use name=FWCore/MessageLogger>
 <use name=FWCore/EDProduct>
 <use name=boost>
 <use name=Dictionary/Reflection>
@@ -14,9 +16,11 @@
   <use name=DataFormats/HcalDetId>
   <use name=DataFormats/HcalDigi>
   <use name=DataFormats/FEDRawData>
-  <use name=CondFormats/HcalMapping>
+  <use name=CondFormats/HcalObjects>
+  <use name=CalibFormats/HcalObjects>
   <use name=FWCore/Framework>
   <use name=FWCore/EDProduct>
+  <use name=FWCore/MessageLogger>
   <use name=boost>
   <use name=Dictionary/Reflection>
   <use name=Framework/SealKernel>

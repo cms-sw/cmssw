@@ -3,6 +3,7 @@
 #include "EventFilter/HcalRawToDigi/interface/HcalHTRData.h"
 #include "DataFormats/HcalDigi/interface/HcalQIESample.h"
 #include <iostream>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace HcalUnpacker_impl {
   template <class DigiClass>
@@ -83,7 +84,7 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
 	HcalTrigTowerDetId id=emap.lookupTrigger(eid);
 	if (id.null()) {
 	  if (unknownIds_.find(eid)==unknownIds_.end()) {
-	    std::cerr << "No match found for " << eid << std::endl;
+	    edm::LogWarning("HCAL") << "HcalUnpacker: No match found for electronics id :" << eid;
 	    unknownIds_.insert(eid);
 	  }
 	  valid=false;
@@ -139,7 +140,7 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
 	}
       } else {
 	if (unknownIds_.find(eid)==unknownIds_.end()) {
-	  std::cerr << "No match found for " << eid << std::endl;
+	  edm::LogWarning("HCAL") << "HcalUnpacker: No match found for electronics id :" << eid;
 	  unknownIds_.insert(eid);
 	}
 	for (int fiberC=qie_work->fiberAndChan();
