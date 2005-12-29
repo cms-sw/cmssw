@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.2 2005/12/05 00:25:30 fedor Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.3 2005/12/15 23:37:58 fedor Exp $
 //
 #include <vector>
 #include <string>
@@ -241,6 +241,7 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalElectronicsMap* fObject
     int fiberCh = atoi (items [7].c_str());
     HcalSubdetector subdet = HcalBarrel;
     if (items [8] == "HE") subdet = HcalEndcap;
+    else if (items [8] == "HO") subdet = HcalOuter;
     else if (items [8] == "HF") subdet = HcalForward;
     else if (items [8] == "HT") subdet = HcalTriggerTower;
     int eta = atoi (items [9].c_str());
