@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2005/12/28 11:11:28 $
- * $Revision: 1.26 $
+ * $Date: 2005/12/28 21:10:48 $
+ * $Revision: 1.27 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -43,7 +43,7 @@
 #include "CalibCalorimetry/EcalDBInterface/interface/RunIOV.h"
 
 #include "TROOT.h"
-#include "TError.h"
+#include "TGaxis.h"
 
 #include <memory>
 #include <iostream>

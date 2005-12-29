@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  * 
- * $Date: 2005/12/28 21:10:50 $
- * $Revision: 1.49 $
+ * $Date: 2005/12/29 08:15:34 $
+ * $Revision: 1.50 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -104,23 +104,23 @@ void EBTestPulseClient::setup(void) {
   for ( int ism = 1; ism <= 36; ism++ ) {
 
     if ( g01_[ism-1] ) delete g01_[ism-1];
-    sprintf(histo, "EBPT test pulse quality G01 SM%02d", ism);
+    sprintf(histo, "EBTT test pulse quality G01 SM%02d", ism);
     g01_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
     if ( g02_[ism-1] ) delete g02_[ism-1];
-    sprintf(histo, "EBPT test pulse quality G06 SM%02d", ism);
+    sprintf(histo, "EBTT test pulse quality G06 SM%02d", ism);
     g02_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
     if ( g03_[ism-1] ) delete g03_[ism-1];
-    sprintf(histo, "EBPT test pulse quality G12 SM%02d", ism);
+    sprintf(histo, "EBTT test pulse quality G12 SM%02d", ism);
     g03_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
 
     if ( a01_[ism-1] ) delete a01_[ism-1];
-    sprintf(histo, "EBPT test pulse amplitude G01 SM%02d", ism);
+    sprintf(histo, "EBTT test pulse amplitude G01 SM%02d", ism);
     a01_[ism-1] = new TH1F(histo, histo, 1700, 0., 1700.);
     if ( a02_[ism-1] ) delete a02_[ism-1];
-    sprintf(histo, "EBPT test pulse amplitude G06 SM%02d", ism);
+    sprintf(histo, "EBTT test pulse amplitude G06 SM%02d", ism);
     a02_[ism-1] = new TH1F(histo, histo, 1700, 0., 1700.);
     if ( a03_[ism-1] ) delete a03_[ism-1];
-    sprintf(histo, "EBPT test pulse amplitude G12 SM%02d", ism);
+    sprintf(histo, "EBTT test pulse amplitude G12 SM%02d", ism);
     a03_[ism-1] = new TH1F(histo, histo, 1700, 0., 1700.);
 
   }
@@ -911,11 +911,7 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
         obj2f->Draw("col");
         dummy.Draw("text,same");
         cQual->Update();
-//        cQual->SaveAs(imgName.c_str());
-        gErrorIgnoreLevel = kWarning;
-        cQual->Print(imgName.c_str(), "eps");
-        gErrorIgnoreLevel = kInfo;
-        system(("/usr/bin/convert -geometry 500x250 eps:" + imgName + " png:" + imgName).c_str());
+        cQual->SaveAs(imgName.c_str());
 
         // Amplitude distributions
         
@@ -954,16 +950,7 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
         obj1f->Draw();
         cAmp->Update();
         gPad->SetLogy(0);
-        TPaveStats* stAmp = dynamic_cast<TPaveStats*>(obj1f->FindObject("stats"));
-        if ( stAmp ) {
-          stAmp->SetX1NDC(0.6);
-          stAmp->SetY1NDC(0.75);
-        }
-//        cAmp->SaveAs(imgName.c_str());
-        gErrorIgnoreLevel = kWarning;
-        cAmp->Print(imgName.c_str(), "eps");
-        gErrorIgnoreLevel = kInfo;
-        system(("/usr/bin/convert -geometry 250x250 eps:" + imgName + " png:" + imgName).c_str());
+        cAmp->SaveAs(imgName.c_str());
         gPad->SetLogy(0);
 
         // Shape distributions
@@ -1002,16 +989,7 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
 //        }
         obj1d->Draw();
         cShape->Update();
-        TPaveStats* stShape = dynamic_cast<TPaveStats*>(obj1d->FindObject("stats"));
-        if ( stShape ) {
-          stShape->SetX1NDC(0.6);
-          stShape->SetY1NDC(0.75);
-        }
-//        cShape->SaveAs(imgName.c_str());
-        gErrorIgnoreLevel = kWarning;
-        cShape->Print(imgName.c_str(), "eps");
-        gErrorIgnoreLevel = kInfo;
-        system(("/usr/bin/convert -geometry 250x250 eps:" + imgName + " png:" + imgName).c_str());
+        cShape->SaveAs(imgName.c_str());
         gPad->SetLogy(0);
 
         delete obj1d; 

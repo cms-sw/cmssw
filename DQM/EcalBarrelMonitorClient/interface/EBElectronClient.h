@@ -4,8 +4,8 @@
 /*
  * \file EBElectronClient.h
  *
- * $Date: 2005/12/28 11:11:28 $
- * $Revision: 1.4 $
+ * $Date: 2005/12/28 21:10:48 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -35,8 +35,6 @@
 
 #include "TROOT.h"
 #include "TStyle.h"
-#include "TPaveStats.h"
-#include "TError.h"
 
 #include <memory>
 #include <iostream>

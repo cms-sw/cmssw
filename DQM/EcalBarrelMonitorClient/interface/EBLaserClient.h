@@ -4,8 +4,8 @@
 /*
  * \file EBLaserClient.h
  *
- * $Date: 2005/12/28 11:11:28 $
- * $Revision: 1.15 $
+ * $Date: 2005/12/28 21:10:48 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  *
 */
@@ -36,8 +36,6 @@
 
 #include "TROOT.h"
 #include "TStyle.h"
-#include "TPaveStats.h"
-#include "TError.h"
 
 #include <memory>
 #include <iostream>

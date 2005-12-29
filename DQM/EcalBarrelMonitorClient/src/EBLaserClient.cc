@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  * 
- * $Date: 2005/12/28 21:10:50 $
- * $Revision: 1.45 $
+ * $Date: 2005/12/29 08:15:34 $
+ * $Revision: 1.46 $
  * \author G. Della Ricca
  *
 */
@@ -1124,11 +1124,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         obj2f->Draw("col");
         dummy.Draw("text,same");
         cQual->Update();
-//        cQual->SaveAs(imgName.c_str());
-        gErrorIgnoreLevel = kWarning;
-        cQual->Print(imgName.c_str(), "eps");
-        gErrorIgnoreLevel = kInfo;
-        system(("/usr/bin/convert -geometry 500x250 eps:" + imgName + " png:" + imgName).c_str());
+        cQual->SaveAs(imgName.c_str());
 
         // Amplitude distributions
 
@@ -1164,16 +1160,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         obj1f->Draw();
         cAmp->Update();
         gPad->SetLogy(0);
-        TPaveStats* stAmp = dynamic_cast<TPaveStats*>(obj1f->FindObject("stats"));
-        if ( stAmp ) {
-          stAmp->SetX1NDC(0.6);
-          stAmp->SetY1NDC(0.75);
-        }
-//        cAmp->SaveAs(imgName.c_str());
-        gErrorIgnoreLevel = kWarning;
-        cAmp->Print(imgName.c_str(), "eps");
-        gErrorIgnoreLevel = kInfo;
-        system(("/usr/bin/convert -geometry 250x250 eps:" + imgName + " png:" + imgName).c_str());
+        cAmp->SaveAs(imgName.c_str());
         gPad->SetLogy(0);
 
         // Amplitude over PN distributions
@@ -1208,16 +1195,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 //        }
         obj1f->Draw();
         cAmpoPN->Update();
-        TPaveStats* stAmpoPN = dynamic_cast<TPaveStats*>(obj1f->FindObject("stats"));
-        if ( stAmpoPN ) {
-          stAmpoPN->SetX1NDC(0.6);
-          stAmpoPN->SetY1NDC(0.75);
-        }
-//        cAmpoPN->SaveAs(imgName.c_str());
-        gErrorIgnoreLevel = kWarning;
-        cAmpoPN->Print(imgName.c_str(), "eps");
-        gErrorIgnoreLevel = kInfo;
-        system(("/usr/bin/convert -geometry 250x250 eps:" + imgName + " png:" + imgName).c_str());
+        cAmpoPN->SaveAs(imgName.c_str());
         gPad->SetLogy(0);
 
       }

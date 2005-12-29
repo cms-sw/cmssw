@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  * 
- * $Date: 2005/12/28 21:10:50 $
- * $Revision: 1.57 $
+ * $Date: 2005/12/29 08:15:34 $
+ * $Revision: 1.58 $
  * \author G. Della Ricca
  *
 */
@@ -733,20 +733,9 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     cDCC->cd();
     gStyle->SetOptStat(" ");
-    gStyle->SetPalette(3, pCol3);
-    obj1f->GetXaxis()->SetNdivisions(17);
-    obj1f->GetYaxis()->SetNdivisions(4);
-    cDCC->SetGridx();
-    cDCC->SetGridy();
-    obj1f->SetMinimum(-0.00000001);
-    obj1f->SetMaximum(2.0);
-    obj1f->Draw("col");
+    obj1f->Draw();
     cDCC->Update();
-//    cDCC->SaveAs(imgName.c_str());
-    gErrorIgnoreLevel = kWarning;
-    cDCC->Print(imgName.c_str(), "eps");
-    gErrorIgnoreLevel = kInfo;
-    system(("/usr/bin/convert -geometry 500x250 eps:" + imgName + " png:" + imgName).c_str());
+    cDCC->SaveAs(imgName.c_str());
  
   }
 
@@ -800,11 +789,7 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj2f->Draw("col");
       dummy1.Draw("text,same");
       cQual->Update();
-//      cQual->SaveAs(imgName.c_str());
-      gErrorIgnoreLevel = kWarning;
-      cQual->Print(imgName.c_str(), "eps");
-      gErrorIgnoreLevel = kInfo;
-      system(("/usr/bin/convert -geometry 500x250 eps:" + imgName + " png:" + imgName).c_str());
+      cQual->SaveAs(imgName.c_str());
 
       // Monitoring elements plots
 
@@ -856,11 +841,7 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
         else
           dummy2.Draw("text,same");
         cMe->Update();
-//        cMe->SaveAs(imgName.c_str());
-        gErrorIgnoreLevel = kWarning;
-        cMe->Print(imgName.c_str(), "eps");
-        gErrorIgnoreLevel = kInfo;
-        system(("/usr/bin/convert -geometry 500x250 eps:" + imgName + " png:" + imgName).c_str());
+        cMe->SaveAs(imgName.c_str());
 
       }
 

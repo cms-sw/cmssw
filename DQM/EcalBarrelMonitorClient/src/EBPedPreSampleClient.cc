@@ -1,8 +1,8 @@
 /*
  * \file EBPedPreSampleClient.cc
  * 
- * $Date: 2005/12/28 21:10:50 $
- * $Revision: 1.51 $
+ * $Date: 2005/12/29 08:15:34 $
+ * $Revision: 1.52 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -464,11 +464,7 @@ void EBPedPreSampleClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj2f->Draw("col");
       dummy.Draw("text,same");
       cQual->Update();
-//      cQual->SaveAs(imgName.c_str());
-      gErrorIgnoreLevel = kWarning;
-      cQual->Print(imgName.c_str(), "eps");
-      gErrorIgnoreLevel = kInfo;
-      system(("/usr/bin/convert -geometry 500x250 eps:" + imgName + " png:" + imgName).c_str());
+      cQual->SaveAs(imgName.c_str());
 
       // Mean distributions
 
@@ -494,16 +490,7 @@ void EBPedPreSampleClient::htmlOutput(int run, string htmlDir, string htmlName){
       }
       obj1f->Draw();
       cMean->Update();
-      TPaveStats* stMean = dynamic_cast<TPaveStats*>(obj1f->FindObject("stats"));
-      if ( stMean ) {
-        stMean->SetX1NDC(0.6);
-        stMean->SetY1NDC(0.75);
-      }
-//      cMean->SaveAs(imgName.c_str());
-      gErrorIgnoreLevel = kWarning;
-      cMean->Print(imgName.c_str(), "eps");
-      gErrorIgnoreLevel = kInfo;
-      system(("/usr/bin/convert -geometry 250x250 eps:" + imgName + " png:" + imgName).c_str());
+      cMean->SaveAs(imgName.c_str());
       gPad->SetLogy(0);
 
       // RMS distributions
@@ -529,16 +516,7 @@ void EBPedPreSampleClient::htmlOutput(int run, string htmlDir, string htmlName){
       }
       obj1f->Draw();
       cRMS->Update();
-      TPaveStats* stRMS = dynamic_cast<TPaveStats*>(obj1f->FindObject("stats"));
-      if ( stRMS ) {
-        stRMS->SetX1NDC(0.6);
-        stRMS->SetY1NDC(0.75);
-      }
-//      cRMS->SaveAs(imgName.c_str());
-      gErrorIgnoreLevel = kWarning;
-      cRMS->Print(imgName.c_str(), "eps");
-      gErrorIgnoreLevel = kInfo;
-      system(("/usr/bin/convert -geometry 250x250 eps:" + imgName + " png:" + imgName).c_str());
+      cRMS->SaveAs(imgName.c_str());
       gPad->SetLogy(0);
 
       htmlFile << "<h3><strong>Supermodule&nbsp;&nbsp;" << ism << "</strong></h3>" << endl;

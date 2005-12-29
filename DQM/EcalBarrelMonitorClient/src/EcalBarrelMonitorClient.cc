@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  * 
- * $Date: 2005/12/26 13:14:26 $
- * $Revision: 1.60 $
+ * $Date: 2005/12/28 11:11:31 $
+ * $Revision: 1.61 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -42,12 +42,15 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps){
   last_update_ = 0;
 
   // DQM default client name
+
   clientName_ = ps.getUntrackedParameter<string>("clientName", "EcalBarrelMonitorClient");
 
   // DQM default collector host name
+
   hostName_ = ps.getUntrackedParameter<string>("hostName", "localhost");
 
   // DQM default host port
+
   hostPort_ = ps.getUntrackedParameter<int>("hostPort", 9090);;
 
   cout << " Client '" << clientName_ << "' " << endl
@@ -55,9 +58,11 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps){
        << " on port '" << hostPort_ << "'" << endl;
 
   // DQM ROOT output
+
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
 
   // Ecal Cond DB
+
   dbName_ = ps.getUntrackedParameter<string>("dbName", "");
   dbHostName_ = ps.getUntrackedParameter<string>("dbHostName", "");
   dbUserName_ = ps.getUntrackedParameter<string>("dbUserName", "");
@@ -73,6 +78,7 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps){
   }
 
   // base Html output directory
+
   baseHtmlDir_ = ps.getUntrackedParameter<string>("baseHtmlDir", "");
 
   if ( baseHtmlDir_.size() != 0 ) {
@@ -83,6 +89,7 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps){
   }
 
   // collateSources switch
+
   collateSources_ = ps.getUntrackedParameter<bool>("collateSources", false);
 
   if ( collateSources_ ) {
@@ -92,6 +99,7 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps){
   }
 
   // verbosity switch
+
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
   if ( verbose_ ) {
@@ -101,6 +109,7 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps){
   }
 
   // start DQM user interface instance
+
   mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_);
 
   if ( verbose_ ) {
@@ -110,7 +119,45 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps){
   }
 
   // will attempt to reconnect upon connection problems (w/ a 5-sec delay)
+
   mui_->setReconnectDelay(5);
+
+  // global ROOT style
+
+  gStyle->Reset("Plain");
+
+  gStyle->SetCanvasColor(10);
+  gStyle->SetPadColor(10);
+  gStyle->SetFillColor(10);
+  gStyle->SetStatColor(10);
+  gStyle->SetTitleColor(10);
+  gStyle->SetTitleFillColor(10);
+
+  TGaxis::SetMaxDigits(4);
+
+  gStyle->SetOptTitle(kTRUE);
+  gStyle->SetTitleX(0.00);
+  gStyle->SetTitleY(0.99);
+  gStyle->SetTitleW(0.00);
+  gStyle->SetTitleH(0.08);
+  gStyle->SetTitleBorderSize(0);
+  gStyle->SetTitleFont(43, " ");
+  gStyle->SetTitleFontSize(15);
+
+  gStyle->SetOptStat(kTRUE);
+  gStyle->SetStatX(0.99);
+  gStyle->SetStatY(0.99);
+  gStyle->SetStatW(0.25);
+  gStyle->SetStatH(0.20);
+  gStyle->SetStatBorderSize(1);
+  gStyle->SetStatFont(43);
+  gStyle->SetStatFontSize(10);
+
+  gStyle->SetOptFit(kFALSE);
+
+  gROOT->ForceStyle();
+
+  // clients' constructors
 
   integrity_client_    = new EBIntegrityClient(ps, mui_);
 

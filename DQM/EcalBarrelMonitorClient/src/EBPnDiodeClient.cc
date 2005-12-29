@@ -1,8 +1,8 @@
 /*
  * \file EBPnDiodeClient.cc
  * 
- * $Date: 2005/12/28 21:10:50 $
- * $Revision: 1.24 $
+ * $Date: 2005/12/29 08:15:34 $
+ * $Revision: 1.25 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -477,16 +477,7 @@ void EBPnDiodeClient::htmlOutput(int run, string htmlDir, string htmlName){
 //        }
         obj1d->Draw();
         cAmp->Update();
-        TPaveStats* stAmp = dynamic_cast<TPaveStats*>(obj1d->FindObject("stats"));
-        if ( stAmp ) {
-          stAmp->SetX1NDC(0.6);
-          stAmp->SetY1NDC(0.75);
-        }
-//        cAmp->SaveAs(imgName.c_str());
-        gErrorIgnoreLevel = kWarning;
-        cAmp->Print(imgName.c_str(), "eps");
-        gErrorIgnoreLevel = kInfo;
-        system(("/usr/bin/convert -geometry 250x250 eps:" + imgName + " png:" + imgName).c_str());
+        cAmp->SaveAs(imgName.c_str());
         gPad->SetLogy(0);
 
         delete obj1d;
