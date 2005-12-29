@@ -1,3 +1,6 @@
+** V02-00-01  [Fri Dec 30 00:49:03 2005]
+Add HO as a valid mapping subdetector
+
 ** V02-00-00  [Wed Dec 28 01:36:24 2005]
 Major redesign of Hcal Condition classes
 
