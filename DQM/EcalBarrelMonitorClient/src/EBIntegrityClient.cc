@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  * 
- * $Date: 2005/12/28 13:42:26 $
- * $Revision: 1.56 $
+ * $Date: 2005/12/28 21:10:50 $
+ * $Revision: 1.57 $
  * \author G. Della Ricca
  *
 */
@@ -746,7 +746,7 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
     gErrorIgnoreLevel = kWarning;
     cDCC->Print(imgName.c_str(), "eps");
     gErrorIgnoreLevel = kInfo;
-    system(("/usr/bin/convert eps:" + imgName + " png:" + imgName).c_str());
+    system(("/usr/bin/convert -geometry 500x250 eps:" + imgName + " png:" + imgName).c_str());
  
   }
 
@@ -804,7 +804,7 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
       gErrorIgnoreLevel = kWarning;
       cQual->Print(imgName.c_str(), "eps");
       gErrorIgnoreLevel = kInfo;
-      system(("/usr/bin/convert eps:" + imgName + " png:" + imgName).c_str());
+      system(("/usr/bin/convert -geometry 500x250 eps:" + imgName + " png:" + imgName).c_str());
 
       // Monitoring elements plots
 
@@ -860,7 +860,7 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
         gErrorIgnoreLevel = kWarning;
         cMe->Print(imgName.c_str(), "eps");
         gErrorIgnoreLevel = kInfo;
-        system(("/usr/bin/convert eps:" + imgName + " png:" + imgName).c_str());
+        system(("/usr/bin/convert -geometry 500x250 eps:" + imgName + " png:" + imgName).c_str());
 
       }
 

@@ -1,8 +1,8 @@
 /*
  * \file EBPnDiodeClient.cc
  * 
- * $Date: 2005/12/28 11:11:31 $
- * $Revision: 1.23 $
+ * $Date: 2005/12/28 21:10:50 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -486,7 +486,7 @@ void EBPnDiodeClient::htmlOutput(int run, string htmlDir, string htmlName){
         gErrorIgnoreLevel = kWarning;
         cAmp->Print(imgName.c_str(), "eps");
         gErrorIgnoreLevel = kInfo;
-        system(("/usr/bin/convert eps:" + imgName + " png:" + imgName).c_str());
+        system(("/usr/bin/convert -geometry 250x250 eps:" + imgName + " png:" + imgName).c_str());
         gPad->SetLogy(0);
 
         delete obj1d;

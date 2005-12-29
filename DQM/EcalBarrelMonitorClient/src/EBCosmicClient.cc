@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  * 
- * $Date: 2005/12/28 11:11:30 $
- * $Revision: 1.22 $
+ * $Date: 2005/12/28 21:10:50 $
+ * $Revision: 1.23 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -436,7 +436,7 @@ void EBCosmicClient::htmlOutput(int run, string htmlDir, string htmlName){
         gErrorIgnoreLevel = kWarning;
         cMe->Print(imgName.c_str(), "eps");
         gErrorIgnoreLevel = kInfo;
-        system(("/usr/bin/convert eps:" + imgName + " png:" + imgName).c_str());
+        system(("/usr/bin/convert -geometry 500x250 eps:" + imgName + " png:" + imgName).c_str());
 
       }
 
@@ -473,7 +473,7 @@ void EBCosmicClient::htmlOutput(int run, string htmlDir, string htmlName){
       gErrorIgnoreLevel = kWarning;
       cAmp->Print(imgName.c_str(), "eps");
       gErrorIgnoreLevel = kInfo;
-      system(("/usr/bin/convert eps:" + imgName + " png:" + imgName).c_str());
+      system(("/usr/bin/convert -geometry 250x250 eps:" + imgName + " png:" + imgName).c_str());
       gPad->SetLogy(0);
 
     }

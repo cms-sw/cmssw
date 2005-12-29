@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  * 
- * $Date: 2005/12/28 11:11:31 $
- * $Revision: 1.44 $
+ * $Date: 2005/12/28 21:10:50 $
+ * $Revision: 1.45 $
  * \author G. Della Ricca
  *
 */
@@ -1128,7 +1128,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         gErrorIgnoreLevel = kWarning;
         cQual->Print(imgName.c_str(), "eps");
         gErrorIgnoreLevel = kInfo;
-        system(("/usr/bin/convert eps:" + imgName + " png:" + imgName).c_str());
+        system(("/usr/bin/convert -geometry 500x250 eps:" + imgName + " png:" + imgName).c_str());
 
         // Amplitude distributions
 
@@ -1173,7 +1173,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         gErrorIgnoreLevel = kWarning;
         cAmp->Print(imgName.c_str(), "eps");
         gErrorIgnoreLevel = kInfo;
-        system(("/usr/bin/convert eps:" + imgName + " png:" + imgName).c_str());
+        system(("/usr/bin/convert -geometry 250x250 eps:" + imgName + " png:" + imgName).c_str());
         gPad->SetLogy(0);
 
         // Amplitude over PN distributions
@@ -1217,7 +1217,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         gErrorIgnoreLevel = kWarning;
         cAmpoPN->Print(imgName.c_str(), "eps");
         gErrorIgnoreLevel = kInfo;
-        system(("/usr/bin/convert eps:" + imgName + " png:" + imgName).c_str());
+        system(("/usr/bin/convert -geometry 250x250 eps:" + imgName + " png:" + imgName).c_str());
         gPad->SetLogy(0);
 
       }

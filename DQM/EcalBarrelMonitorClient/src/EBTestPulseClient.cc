@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  * 
- * $Date: 2005/12/28 11:11:31 $
- * $Revision: 1.48 $
+ * $Date: 2005/12/28 21:10:50 $
+ * $Revision: 1.49 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -915,7 +915,7 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
         gErrorIgnoreLevel = kWarning;
         cQual->Print(imgName.c_str(), "eps");
         gErrorIgnoreLevel = kInfo;
-        system(("/usr/bin/convert eps:" + imgName + " png:" + imgName).c_str());
+        system(("/usr/bin/convert -geometry 500x250 eps:" + imgName + " png:" + imgName).c_str());
 
         // Amplitude distributions
         
@@ -963,7 +963,7 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
         gErrorIgnoreLevel = kWarning;
         cAmp->Print(imgName.c_str(), "eps");
         gErrorIgnoreLevel = kInfo;
-        system(("/usr/bin/convert eps:" + imgName + " png:" + imgName).c_str());
+        system(("/usr/bin/convert -geometry 250x250 eps:" + imgName + " png:" + imgName).c_str());
         gPad->SetLogy(0);
 
         // Shape distributions
@@ -1011,7 +1011,7 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
         gErrorIgnoreLevel = kWarning;
         cShape->Print(imgName.c_str(), "eps");
         gErrorIgnoreLevel = kInfo;
-        system(("/usr/bin/convert eps:" + imgName + " png:" + imgName).c_str());
+        system(("/usr/bin/convert -geometry 250x250 eps:" + imgName + " png:" + imgName).c_str());
         gPad->SetLogy(0);
 
         delete obj1d; 

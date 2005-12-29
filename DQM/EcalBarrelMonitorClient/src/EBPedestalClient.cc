@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  * 
- * $Date: 2005/12/28 11:11:31 $
- * $Revision: 1.45 $
+ * $Date: 2005/12/28 21:10:50 $
+ * $Revision: 1.46 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -679,7 +679,7 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
         gErrorIgnoreLevel = kWarning;
         cQual->Print(imgName.c_str(), "eps");
         gErrorIgnoreLevel = kInfo;
-        system(("/usr/bin/convert eps:" + imgName + " png:" + imgName).c_str());
+        system(("/usr/bin/convert -geometry 500x250 eps:" + imgName + " png:" + imgName).c_str());
 
         // Mean distributions
 
@@ -727,7 +727,7 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
         gErrorIgnoreLevel = kWarning;
         cMean->Print(imgName.c_str(), "eps");
         gErrorIgnoreLevel = kInfo;
-        system(("/usr/bin/convert eps:" + imgName + " png:" + imgName).c_str());
+        system(("/usr/bin/convert -geometry 250x250 eps:" + imgName + " png:" + imgName).c_str());
         gPad->SetLogy(0);
 
         // RMS distributions
@@ -774,7 +774,7 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
         gErrorIgnoreLevel = kWarning;
         cRMS->Print(imgName.c_str(), "eps");
         gErrorIgnoreLevel = kInfo;
-        system(("/usr/bin/convert eps:" + imgName + " png:" + imgName).c_str());
+        system(("/usr/bin/convert -geometry 250x250 eps:" + imgName + " png:" + imgName).c_str());
         gPad->SetLogy(0);
 
       }
