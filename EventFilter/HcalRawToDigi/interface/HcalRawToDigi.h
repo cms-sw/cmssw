@@ -33,7 +33,6 @@ public:
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
 private:
   HcalUnpacker unpacker_;
-  std::auto_ptr<HcalMapping> readoutMap_;
   HcalDataFrameFilter filter_;
   std::string readoutMapSource_;
   std::vector<int> fedUnpackList_;

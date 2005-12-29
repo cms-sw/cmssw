@@ -4,10 +4,11 @@ using namespace std;
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "FWCore/EDProduct/interface/EDCollection.h"
 #include "FWCore/Framework/interface/Handle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Selector.h"
-#include "CondFormats/HcalMapping/interface/HcalMappingTextFileReader.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include <iostream>
-
 
 HcalRawToDigi::HcalRawToDigi(edm::ParameterSet const& conf):
   unpacker_(conf.getParameter<int>("HcalFirstFED"),conf.getParameter<int>("firstSample"),conf.getParameter<int>("lastSample")),
@@ -15,18 +16,9 @@ HcalRawToDigi::HcalRawToDigi(edm::ParameterSet const& conf):
 	  conf.getParameter<bool>("FilterAmplitude"),
 	  conf.getParameter<int>("FilterAmpBegin"),conf.getParameter<int>("FilterAmpEnd"),
 	  conf.getParameter<double>("FilterAmpLevel")),
-  readoutMapSource_(conf.getParameter<std::string>("readoutMapSource")),
   fedUnpackList_(conf.getParameter<std::vector<int> >("FEDs")),
   firstFED_(conf.getParameter<int>("HcalFirstFED"))
 {
-  // load the readout map from a file, if desired.
-  const std::string filePrefix("file://");
-  if (readoutMapSource_.find(filePrefix)==0) {
-    std::string theFile=readoutMapSource_;
-    theFile.erase(0,filePrefix.length());
-    std::cout << "Reading HcalMapping from '" << theFile << "'\n";
-    readoutMap_=HcalMappingTextFileReader::readFromFile(theFile.c_str(),true); // maintain L2E for no real reason
-  }
   std::cout << "HcalRawToDigi will unpack FEDs ";
   for (unsigned int i=0; i<fedUnpackList_.size(); i++) 
     std::cout << fedUnpackList_[i] << " ";
@@ -43,12 +35,16 @@ HcalRawToDigi::HcalRawToDigi(edm::ParameterSet const& conf):
 HcalRawToDigi::~HcalRawToDigi() { }  
 
 // Functions that gets called by framework every event
-void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup&)
+void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
 {
   // Step A: Get Inputs 
   edm::Handle<FEDRawDataCollection> rawraw;  
   // edm::ProcessNameSelector s("PROD"); 
   e.getByType(rawraw);           // HACK!
+  // get the mapping
+  edm::ESHandle<HcalDbService> pSetup;
+  es.get<HcalDbRecord>().get( pSetup );
+  const HcalElectronicsMap* readoutMap=pSetup->getHcalMapping();
   
   // Step B: Create empty output  : three vectors for three classes...
   std::vector<HBHEDataFrame> hbhe;
@@ -59,14 +55,8 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup&)
   // Step C: unpack all requested FEDs
   for (std::vector<int>::const_iterator i=fedUnpackList_.begin(); i!=fedUnpackList_.end(); i++) {
     const FEDRawData& fed = rawraw->FEDData(*i);
-    //      std::cout << "Processing FED " << *i << std::endl;
-    // look only at the potential ones, to save time.
-    if (readoutMap_->subdetectorPresent(HcalBarrel,*i-firstFED_) || readoutMap_->subdetectorPresent(HcalEndcap,*i-firstFED_)) 
-      unpacker_.unpack(fed,*readoutMap_,hbhe, htp);   
-    if (readoutMap_->subdetectorPresent(HcalOuter,*i-firstFED_)) 
-      unpacker_.unpack(fed,*readoutMap_,ho, htp);
-    if (readoutMap_->subdetectorPresent(HcalForward,*i-firstFED_)) 
-      unpacker_.unpack(fed,*readoutMap_,hf, htp);
+    
+    unpacker_.unpack(fed,*readoutMap,hbhe,ho,hf,htp);
   }
 
   // Step B: encapsulate vectors in actual collections

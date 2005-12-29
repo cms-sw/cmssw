@@ -4,25 +4,18 @@ using namespace std;
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "FWCore/EDProduct/interface/EDCollection.h"
 #include "FWCore/Framework/interface/Handle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Selector.h"
-#include "CondFormats/HcalMapping/interface/HcalMappingTextFileReader.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include <iostream>
 
 
 HcalHistogramRawToDigi::HcalHistogramRawToDigi(edm::ParameterSet const& conf):
   unpacker_(conf.getParameter<int>("HcalFirstFED")),
-  readoutMapSource_(conf.getParameter<std::string>("readoutMapSource")),
   fedUnpackList_(conf.getParameter<std::vector<int> >("FEDs")),
   firstFED_(conf.getParameter<int>("HcalFirstFED"))
 {
-  // load the readout map from a file, if desired.
-  const std::string filePrefix("file://");
-  if (readoutMapSource_.find(filePrefix)==0) {
-    std::string theFile=readoutMapSource_;
-    theFile.erase(0,filePrefix.length());
-    std::cout << "Reading HcalMapping from '" << theFile << "'\n";
-    readoutMap_=HcalMappingTextFileReader::readFromFile(theFile.c_str(),true); // maintain L2E for no real reason
-  }
   std::cout << "HcalHistogramRawToDigi will unpack FEDs ";
   for (unsigned int i=0; i<fedUnpackList_.size(); i++) 
     std::cout << fedUnpackList_[i] << " ";
@@ -36,13 +29,17 @@ HcalHistogramRawToDigi::HcalHistogramRawToDigi(edm::ParameterSet const& conf):
 HcalHistogramRawToDigi::~HcalHistogramRawToDigi() { }  
 
 // Functions that gets called by framework every event
-void HcalHistogramRawToDigi::produce(edm::Event& e, const edm::EventSetup&)
+void HcalHistogramRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
 {
   // Step A: Get Inputs 
   edm::Handle<FEDRawDataCollection> rawraw;  
   // edm::ProcessNameSelector s("PROD"); 
   e.getByType(rawraw);           // HACK!
-  
+  // get the mapping
+  edm::ESHandle<HcalDbService> pSetup;
+  es.get<HcalDbRecord>().get( pSetup );
+  const HcalElectronicsMap* readoutMap=pSetup->getHcalMapping();
+
   // Step B: Create empty output
   std::auto_ptr<HcalHistogramDigiCollection> prod(new HcalHistogramDigiCollection());
   std::vector<HcalHistogramDigi> digis;
@@ -51,7 +48,7 @@ void HcalHistogramRawToDigi::produce(edm::Event& e, const edm::EventSetup&)
   for (std::vector<int>::const_iterator i=fedUnpackList_.begin(); i!=fedUnpackList_.end(); i++) {
     const FEDRawData& fed = rawraw->FEDData(*i);
 
-    unpacker_.unpack(fed,*readoutMap_,digis);
+    unpacker_.unpack(fed,*readoutMap,digis);
   }
 
   // Step B2: encapsulate vectors in actual collections
