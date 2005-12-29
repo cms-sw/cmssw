@@ -2,7 +2,7 @@
 #define Framework_GenericInputSource_h
 
 /*----------------------------------------------------------------------
-$Id: GenericInputSource.h,v 1.1 2005/12/28 00:30:09 wmtan Exp $
+$Id: GenericInputSource.h,v 1.2 2005/12/28 21:49:50 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -11,6 +11,7 @@ $Id: GenericInputSource.h,v 1.1 2005/12/28 00:30:09 wmtan Exp $
 #include "FWCore/Framework/interface/ModuleDescription.h"
 #include "FWCore/Framework/interface/ProductRegistryHelper.h"
 #include "FWCore/EDProduct/interface/EventID.h"
+#include "FWCore/EDProduct/interface/Timestamp.h"
 
 namespace edm {
   class Event;
@@ -21,10 +22,9 @@ namespace edm {
     explicit GenericInputSource(ParameterSet const& pset, InputSourceDescription const& desc);
     virtual ~GenericInputSource();
 
-
     int remainingEvents() const {return remainingEvents_;}
     unsigned long numberEventsInRun() const {return numberEventsInRun_;} 
-    unsigned long long presentTime() const {return presentTime_;}
+    TimeValue_t presentTime() const {return presentTime_;}
     unsigned long timeBetweenEvents() const {return timeBetweenEvents_;}
     unsigned long numberEventsInThisRun() const {return numberEventsInThisRun_;}
     RunNumber_t run() const {return eventID_.run();}
@@ -39,7 +39,7 @@ namespace edm {
       RunNumber_t r = run();
       eventID_ = EventID(r, e);
     } 
-    void setTime(unsigned long long t) {presentTime_ = t;}
+    void setTime(TimeValue_t t) {presentTime_ = t;}
 
   private:
     virtual std::auto_ptr<EventPrincipal> read();
@@ -48,7 +48,7 @@ namespace edm {
 
     int remainingEvents_;
     unsigned long numberEventsInRun_;
-    unsigned long long presentTime_;
+    TimeValue_t presentTime_;
     unsigned long timeBetweenEvents_;
 
     unsigned long numberEventsInThisRun_;

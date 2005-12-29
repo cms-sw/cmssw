@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: GenericInputSource.cc,v 1.2 2005/11/14 21:22:31 wmtan Exp $
+$Id: GenericInputSource.cc,v 1.1 2005/12/28 00:49:48 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <stdexcept>
@@ -39,19 +39,14 @@ namespace edm {
   GenericInputSource::read() {
     std::auto_ptr<EventPrincipal> result(0);
     
-    if (remainingEvents_-- != 0) {
+    if (remainingEvents_ != 0) {
       setRunAndEventInfo();
-      if (++numberEventsInThisRun_ <= numberEventsInRun_) {
-        eventID_ = eventID_.next();
-      } else {
-        eventID_ = eventID_.nextRunFirstEvent();
-        numberEventsInThisRun_ = 0;
-      }
-      presentTime_ += timeBetweenEvents_;
       result = std::auto_ptr<EventPrincipal>(new EventPrincipal(eventID_, Timestamp(presentTime_), productRegistry()));
       Event e(*result, module_);
       produce(e);
       e.commit_();
+      ++numberEventsInThisRun_;
+      --remainingEvents_;
     }
     return result;
   }
@@ -65,5 +60,13 @@ namespace edm {
   }
 
   void
-  GenericInputSource::setRunAndEventInfo() {}
+  GenericInputSource::setRunAndEventInfo() {
+    if (numberEventsInThisRun_ < numberEventsInRun_) {
+      eventID_ = eventID_.next();
+    } else {
+      eventID_ = eventID_.nextRunFirstEvent();
+      numberEventsInThisRun_ = 0;
+    }
+    presentTime_ += timeBetweenEvents_;
+  }
 }
