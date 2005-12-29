@@ -1,8 +1,8 @@
 /*
  * \file EBPnDiodeTask.cc
  * 
- * $Date: 2005/12/10 10:44:59 $
- * $Revision: 1.6 $
+ * $Date: 2005/12/20 13:51:51 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  *
 */
@@ -20,25 +20,25 @@ EBPnDiodeTask::EBPnDiodeTask(const edm::ParameterSet& ps, DaqMonitorBEInterface*
 
     dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Laser1");
     for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBDT PNs SM%02d L1", i+1);
+      sprintf(histo, "EBPDT PNs SM%02d L1", i+1);
       mePNL1_[i] = dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096.);
     }
 
     dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Laser2");
     for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBDT PNs SM%02d L2", i+1);
+      sprintf(histo, "EBPDT PNs SM%02d L2", i+1);
       mePNL2_[i] = dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096.);
     }
 
     dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Laser3");
     for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBDT PNs SM%02d L3", i+1);
+      sprintf(histo, "EBPDT PNs SM%02d L3", i+1);
       mePNL3_[i] = dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096.);
     }
 
     dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Laser4");
     for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBDT PNs SM%02d L4", i+1);
+      sprintf(histo, "EBPDT PNs SM%02d L4", i+1);
       mePNL4_[i] = dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096.);
     }
 

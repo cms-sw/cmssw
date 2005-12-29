@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  * 
- * $Date: 2005/12/29 08:15:34 $
- * $Revision: 1.50 $
+ * $Date: 2005/12/29 14:57:15 $
+ * $Revision: 1.51 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -104,23 +104,23 @@ void EBTestPulseClient::setup(void) {
   for ( int ism = 1; ism <= 36; ism++ ) {
 
     if ( g01_[ism-1] ) delete g01_[ism-1];
-    sprintf(histo, "EBTT test pulse quality G01 SM%02d", ism);
+    sprintf(histo, "EBTPT test pulse quality G01 SM%02d", ism);
     g01_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
     if ( g02_[ism-1] ) delete g02_[ism-1];
-    sprintf(histo, "EBTT test pulse quality G06 SM%02d", ism);
+    sprintf(histo, "EBTPT test pulse quality G06 SM%02d", ism);
     g02_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
     if ( g03_[ism-1] ) delete g03_[ism-1];
-    sprintf(histo, "EBTT test pulse quality G12 SM%02d", ism);
+    sprintf(histo, "EBTPT test pulse quality G12 SM%02d", ism);
     g03_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
 
     if ( a01_[ism-1] ) delete a01_[ism-1];
-    sprintf(histo, "EBTT test pulse amplitude G01 SM%02d", ism);
+    sprintf(histo, "EBTPT test pulse amplitude G01 SM%02d", ism);
     a01_[ism-1] = new TH1F(histo, histo, 1700, 0., 1700.);
     if ( a02_[ism-1] ) delete a02_[ism-1];
-    sprintf(histo, "EBTT test pulse amplitude G06 SM%02d", ism);
+    sprintf(histo, "EBTPT test pulse amplitude G06 SM%02d", ism);
     a02_[ism-1] = new TH1F(histo, histo, 1700, 0., 1700.);
     if ( a03_[ism-1] ) delete a03_[ism-1];
-    sprintf(histo, "EBTT test pulse amplitude G12 SM%02d", ism);
+    sprintf(histo, "EBTPT test pulse amplitude G12 SM%02d", ism);
     a03_[ism-1] = new TH1F(histo, histo, 1700, 0., 1700.);
 
   }
@@ -371,15 +371,15 @@ void EBTestPulseClient::subscribe(void){
   if ( verbose_ ) cout << "EBTestPulseClient: subscribe" << endl;
 
   // subscribe to all monitorable matching pattern
-  mui_->subscribe("*/EcalBarrel/EBTestPulseTask/Gain01/EBTT amplitude SM*");
-  mui_->subscribe("*/EcalBarrel/EBTestPulseTask/Gain01/EBTT shape SM*");
-  mui_->subscribe("*/EcalBarrel/EBTestPulseTask/Gain01/EBTT amplitude error SM*");
-  mui_->subscribe("*/EcalBarrel/EBTestPulseTask/Gain06/EBTT amplitude SM*");
-  mui_->subscribe("*/EcalBarrel/EBTestPulseTask/Gain06/EBTT shape SM*");
-  mui_->subscribe("*/EcalBarrel/EBTestPulseTask/Gain06/EBTT amplitude error SM*");
-  mui_->subscribe("*/EcalBarrel/EBTestPulseTask/Gain12/EBTT amplitude SM*");
-  mui_->subscribe("*/EcalBarrel/EBTestPulseTask/Gain12/EBTT shape SM*");
-  mui_->subscribe("*/EcalBarrel/EBTestPulseTask/Gain12/EBTT amplitude error SM*");
+  mui_->subscribe("*/EcalBarrel/EBTestPulseTask/Gain01/EBTPT amplitude SM*");
+  mui_->subscribe("*/EcalBarrel/EBTestPulseTask/Gain01/EBTPT shape SM*");
+  mui_->subscribe("*/EcalBarrel/EBTestPulseTask/Gain01/EBTPT amplitude error SM*");
+  mui_->subscribe("*/EcalBarrel/EBTestPulseTask/Gain06/EBTPT amplitude SM*");
+  mui_->subscribe("*/EcalBarrel/EBTestPulseTask/Gain06/EBTPT shape SM*");
+  mui_->subscribe("*/EcalBarrel/EBTestPulseTask/Gain06/EBTPT amplitude error SM*");
+  mui_->subscribe("*/EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude SM*");
+  mui_->subscribe("*/EcalBarrel/EBTestPulseTask/Gain12/EBTPT shape SM*");
+  mui_->subscribe("*/EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude error SM*");
 
   if ( collateSources_ ) {
 
@@ -389,49 +389,49 @@ void EBTestPulseClient::subscribe(void){
 
     for ( int ism = 1; ism <= 36; ism++ ) {
 
-      sprintf(histo, "EBTT amplitude SM%02d G01", ism);
+      sprintf(histo, "EBTPT amplitude SM%02d G01", ism);
       me_ha01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBTestPulseTask/Gain01");
-      sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain01/EBTT amplitude SM%02d G01", ism);
+      sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain01/EBTPT amplitude SM%02d G01", ism);
       mui_->add(me_ha01_[ism-1], histo);
 
-      sprintf(histo, "EBTT amplitude SM%02d G06", ism);
+      sprintf(histo, "EBTPT amplitude SM%02d G06", ism);
       me_ha02_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBTestPulseTask/Gain06");
-      sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain06/EBTT amplitude SM%02d G06", ism);
+      sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain06/EBTPT amplitude SM%02d G06", ism);
       mui_->add(me_ha02_[ism-1], histo);
 
-      sprintf(histo, "EBTT amplitude SM%02d G12", ism);
+      sprintf(histo, "EBTPT amplitude SM%02d G12", ism);
       me_ha03_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBTestPulseTask/Gain12");
-      sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain12/EBTT amplitude SM%02d G12", ism);
+      sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude SM%02d G12", ism);
       mui_->add(me_ha03_[ism-1], histo);
 
-      sprintf(histo, "EBTT shape SM%02d G01", ism);
+      sprintf(histo, "EBTPT shape SM%02d G01", ism);
       me_hs01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBTestPulseTask/Gain01");
-      sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain01/EBTT shape SM%02d G01", ism);
+      sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain01/EBTPT shape SM%02d G01", ism);
       mui_->add(me_hs01_[ism-1], histo);
 
-      sprintf(histo, "EBTT shape SM%02d G06", ism);
+      sprintf(histo, "EBTPT shape SM%02d G06", ism);
       me_hs02_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBTestPulseTask/Gain06");
-      sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain06/EBTT shape SM%02d G06", ism);
+      sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain06/EBTPT shape SM%02d G06", ism);
       mui_->add(me_hs02_[ism-1], histo);
 
-      sprintf(histo, "EBTT shape SM%02d G12", ism);
+      sprintf(histo, "EBTPT shape SM%02d G12", ism);
       me_hs03_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBTestPulseTask/Gain12");
-      sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain12/EBTT shape SM%02d G12", ism);
+      sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain12/EBTPT shape SM%02d G12", ism);
       mui_->add(me_hs03_[ism-1], histo);
 
-      sprintf(histo, "EBTT amplitude error SM%02d G01", ism);
+      sprintf(histo, "EBTPT amplitude error SM%02d G01", ism);
       me_he01_[ism-1] = mui_->collate2D(histo, histo, "EcalBarrel/Sums/EBTestPulseTask/Gain01");
-      sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain01/EBTT amplitude error SM%02d G01", ism);
+      sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain01/EBTPT amplitude error SM%02d G01", ism);
       mui_->add(me_he01_[ism-1], histo);
 
-      sprintf(histo, "EBTT amplitude error SM%02d G06", ism);
+      sprintf(histo, "EBTPT amplitude error SM%02d G06", ism);
       me_he02_[ism-1] = mui_->collate2D(histo, histo, "EcalBarrel/Sums/EBTestPulseTask/Gain06");
-      sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain06/EBTT amplitude error SM%02d G06", ism);
+      sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain06/EBTPT amplitude error SM%02d G06", ism);
       mui_->add(me_he02_[ism-1], histo);
 
-      sprintf(histo, "EBTT amplitude error SM%02d G12", ism);
+      sprintf(histo, "EBTPT amplitude error SM%02d G12", ism);
       me_he03_[ism-1] = mui_->collate2D(histo, histo, "EcalBarrel/Sums/EBTestPulseTask/Gain12");
-      sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain12/EBTT amplitude error SM%02d G12", ism);
+      sprintf(histo, "*/EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude error SM%02d G12", ism);
       mui_->add(me_he03_[ism-1], histo);
 
     }
@@ -443,15 +443,15 @@ void EBTestPulseClient::subscribe(void){
 void EBTestPulseClient::subscribeNew(void){
 
   // subscribe to new monitorable matching pattern
-  mui_->subscribeNew("*/EcalBarrel/EBTestPulseTask/Gain01/EBTT amplitude SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBTestPulseTask/Gain01/EBTT shape SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBTestPulseTask/Gain01/EBTT amplitude error SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBTestPulseTask/Gain06/EBTT amplitude SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBTestPulseTask/Gain06/EBTT shape SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBTestPulseTask/Gain06/EBTT amplitude error SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBTestPulseTask/Gain12/EBTT amplitude SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBTestPulseTask/Gain12/EBTT shape SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBTestPulseTask/Gain12/EBTT amplitude error SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBTestPulseTask/Gain01/EBTPT amplitude SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBTestPulseTask/Gain01/EBTPT shape SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBTestPulseTask/Gain01/EBTPT amplitude error SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBTestPulseTask/Gain06/EBTPT amplitude SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBTestPulseTask/Gain06/EBTPT shape SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBTestPulseTask/Gain06/EBTPT amplitude error SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBTestPulseTask/Gain12/EBTPT shape SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude error SM*");
 
 }
 
@@ -470,39 +470,39 @@ void EBTestPulseClient::unsubscribe(void){
 
       for ( int ism = 1; ism <= 36; ism++ ) {
 
-        sprintf(histo, "EBTT amplitude SM%02d G01", ism);
+        sprintf(histo, "EBTPT amplitude SM%02d G01", ism);
         bei->setCurrentFolder("EcalBarrel/Sums/EBTestPulseTask/Gain01");
         bei->removeElement(histo);
   
-        sprintf(histo, "EBTT amplitude SM%02d G06", ism);
+        sprintf(histo, "EBTPT amplitude SM%02d G06", ism);
         bei->setCurrentFolder("EcalBarrel/Sums/EBTestPulseTask/Gain06");
         bei->removeElement(histo);
 
-        sprintf(histo, "EBTT amplitude SM%02d G12", ism);
+        sprintf(histo, "EBTPT amplitude SM%02d G12", ism);
         bei->setCurrentFolder("EcalBarrel/Sums/EBTestPulseTask/Gain12");
         bei->removeElement(histo);
 
-        sprintf(histo, "EBTT shape SM%02d G01", ism);
+        sprintf(histo, "EBTPT shape SM%02d G01", ism);
         bei->setCurrentFolder("EcalBarrel/Sums/EBTestPulseTask/Gain01");
         bei->removeElement(histo);
 
-        sprintf(histo, "EBTT shape SM%02d G06", ism);
+        sprintf(histo, "EBTPT shape SM%02d G06", ism);
         bei->setCurrentFolder("EcalBarrel/Sums/EBTestPulseTask/Gain06");
         bei->removeElement(histo);
 
-        sprintf(histo, "EBTT shape SM%02d G12", ism);
+        sprintf(histo, "EBTPT shape SM%02d G12", ism);
         bei->setCurrentFolder("EcalBarrel/Sums/EBTestPulseTask/Gain12");
         bei->removeElement(histo);
 
-        sprintf(histo, "EBTT amplitude error SM%02d G01", ism);
+        sprintf(histo, "EBTPT amplitude error SM%02d G01", ism);
         bei->setCurrentFolder("EcalBarrel/Sums/EBTestPulseTask/Gain01");
         bei->removeElement(histo);
 
-        sprintf(histo, "EBTT amplitude error SM%02d G06", ism);
+        sprintf(histo, "EBTPT amplitude error SM%02d G06", ism);
         bei->setCurrentFolder("EcalBarrel/Sums/EBTestPulseTask/Gain06");
         bei->removeElement(histo);
 
-        sprintf(histo, "EBTT amplitude error SM%02d G12", ism);
+        sprintf(histo, "EBTPT amplitude error SM%02d G12", ism);
         bei->setCurrentFolder("EcalBarrel/Sums/EBTestPulseTask/Gain12");
         bei->removeElement(histo);
 
@@ -513,15 +513,15 @@ void EBTestPulseClient::unsubscribe(void){
   }
 
   // unsubscribe to all monitorable matching pattern
-  mui_->unsubscribe("*/EcalBarrel/EBTestPulseTask/Gain01/EBTT amplitude SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBTestPulseTask/Gain01/EBTT shape SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBTestPulseTask/Gain01/EBTT amplitude error SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBTestPulseTask/Gain06/EBTT amplitude SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBTestPulseTask/Gain06/EBTT shape SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBTestPulseTask/Gain06/EBTT amplitude error SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBTestPulseTask/Gain12/EBTT amplitude SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBTestPulseTask/Gain12/EBTT shape SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBTestPulseTask/Gain12/EBTT amplitude error SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBTestPulseTask/Gain01/EBTPT amplitude SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBTestPulseTask/Gain01/EBTPT shape SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBTestPulseTask/Gain01/EBTPT amplitude error SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBTestPulseTask/Gain06/EBTPT amplitude SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBTestPulseTask/Gain06/EBTPT shape SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBTestPulseTask/Gain06/EBTPT amplitude error SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBTestPulseTask/Gain12/EBTPT shape SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude error SM*");
 
 }
 
@@ -541,9 +541,9 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
   for ( int ism = 1; ism <= 36; ism++ ) {
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain01/EBTT amplitude SM%02d G01", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain01/EBTPT amplitude SM%02d G01", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain01/EBTT amplitude SM%02d G01", ism);
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain01/EBTPT amplitude SM%02d G01", ism);
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -551,16 +551,16 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( ha01_[ism-1] ) delete ha01_[ism-1];
-        sprintf(histo, "ME EBTT amplitude SM%02d G01", ism);
+        sprintf(histo, "ME EBTPT amplitude SM%02d G01", ism);
         ha01_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
 //        ha01_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
       }
     }
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain06/EBTT amplitude SM%02d G06", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain06/EBTPT amplitude SM%02d G06", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain06/EBTT amplitude SM%02d G06", ism);
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain06/EBTPT amplitude SM%02d G06", ism);
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -568,16 +568,16 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( ha02_[ism-1] ) delete ha02_[ism-1];
-        sprintf(histo, "ME EBTT amplitude SM%02d G06", ism);
+        sprintf(histo, "ME EBTPT amplitude SM%02d G06", ism);
         ha02_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
 //        ha02_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
       }
     }
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain12/EBTT amplitude SM%02d G12", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain12/EBTPT amplitude SM%02d G12", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain12/EBTT amplitude SM%02d G12", ism);
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude SM%02d G12", ism);
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -585,16 +585,16 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( ha03_[ism-1] ) delete ha03_[ism-1];
-        sprintf(histo, "ME EBTT amplitude SM%02d G12", ism);
+        sprintf(histo, "ME EBTPT amplitude SM%02d G12", ism);
         ha03_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
 //        ha03_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
       }
     }
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain01/EBTT shape SM%02d G01", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain01/EBTPT shape SM%02d G01", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain01/EBTT shape SM%02d G01", ism);
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain01/EBTPT shape SM%02d G01", ism);
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -602,16 +602,16 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( hs01_[ism-1] ) delete hs01_[ism-1];
-        sprintf(histo, "ME EBTT shape SM%02d G01", ism);
+        sprintf(histo, "ME EBTPT shape SM%02d G01", ism);
         hs01_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
 //        hs01_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
       }
     }
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain06/EBTT shape SM%02d G06", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain06/EBTPT shape SM%02d G06", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain06/EBTT shape SM%02d G06", ism);
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain06/EBTPT shape SM%02d G06", ism);
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -619,16 +619,16 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( hs02_[ism-1] ) delete hs02_[ism-1];
-        sprintf(histo, "ME EBTT shape SM%02d G06", ism);
+        sprintf(histo, "ME EBTPT shape SM%02d G06", ism);
         hs02_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
 //        hs02_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
       }
     }
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain12/EBTT shape SM%02d G12", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain12/EBTPT shape SM%02d G12", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain12/EBTT shape SM%02d G12", ism);
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain12/EBTPT shape SM%02d G12", ism);
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -636,16 +636,16 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( hs03_[ism-1] ) delete hs03_[ism-1];
-        sprintf(histo, "ME EBTT shape SM%02d G12", ism);
+        sprintf(histo, "ME EBTPT shape SM%02d G12", ism);
         hs03_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
 //        hs03_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
       }
     }
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain01/EBTT amplitude error SM%02d G01", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain01/EBTPT amplitude error SM%02d G01", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain01/EBTT amplitude error SM%02d G01", ism);
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain01/EBTPT amplitude error SM%02d G01", ism);
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -653,16 +653,16 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( he01_[ism-1] ) delete he01_[ism-1];
-        sprintf(histo, "ME EBTT amplitude error SM%02d G01", ism);
+        sprintf(histo, "ME EBTPT amplitude error SM%02d G01", ism);
         he01_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
 //        he01_[ism-1] = dynamic_cast<TH2F*> (ob->operator->());
       }
     }
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain06/EBTT amplitude error SM%02d G06", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain06/EBTPT amplitude error SM%02d G06", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain06/EBTT amplitude error SM%02d G06", ism);
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain06/EBTPT amplitude error SM%02d G06", ism);
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -670,16 +670,16 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( he02_[ism-1] ) delete he02_[ism-1];
-        sprintf(histo, "ME EBTT amplitude error SM%02d G06", ism);
+        sprintf(histo, "ME EBTPT amplitude error SM%02d G06", ism);
         he02_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
 //        he02_[ism-1] = dynamic_cast<TH2F*> (ob->operator->());
       }
     }
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain12/EBTT amplitude error SM%02d G12", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBTestPulseTask/Gain12/EBTPT amplitude error SM%02d G12", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain12/EBTT amplitude error SM%02d G12", ism);
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude error SM%02d G12", ism);
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -687,7 +687,7 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( he03_[ism-1] ) delete he03_[ism-1];
-        sprintf(histo, "ME EBTT amplitude error SM%02d G12", ism);
+        sprintf(histo, "ME EBTPT amplitude error SM%02d G12", ism);
         he03_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
 //        he03_[ism-1] = dynamic_cast<TH2F*> (ob->operator->());
       }

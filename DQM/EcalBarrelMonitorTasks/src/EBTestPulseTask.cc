@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  * 
- * $Date: 2005/12/06 09:55:11 $
- * $Revision: 1.29 $
+ * $Date: 2005/12/10 10:44:59 $
+ * $Revision: 1.30 $
  * \author G. Della Ricca
  *
 */
@@ -20,31 +20,31 @@ EBTestPulseTask::EBTestPulseTask(const edm::ParameterSet& ps, DaqMonitorBEInterf
 
     dbe->setCurrentFolder("EcalBarrel/EBTestPulseTask/Gain01");
     for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBTT shape SM%02d G01", i+1);
+      sprintf(histo, "EBTPT shape SM%02d G01", i+1);
       meShapeMapG01_[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096.);
-      sprintf(histo, "EBTT amplitude SM%02d G01", i+1);
+      sprintf(histo, "EBTPT amplitude SM%02d G01", i+1);
       meAmplMapG01_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
-      sprintf(histo, "EBTT amplitude error SM%02d G01", i+1);
+      sprintf(histo, "EBTPT amplitude error SM%02d G01", i+1);
       meAmplErrorMapG01_[i] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
     }
 
     dbe->setCurrentFolder("EcalBarrel/EBTestPulseTask/Gain06");
     for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBTT shape SM%02d G06", i+1);
+      sprintf(histo, "EBTPT shape SM%02d G06", i+1);
       meShapeMapG06_[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096.);
-      sprintf(histo, "EBTT amplitude SM%02d G06", i+1);
+      sprintf(histo, "EBTPT amplitude SM%02d G06", i+1);
       meAmplMapG06_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
-      sprintf(histo, "EBTT amplitude error SM%02d G06", i+1);
+      sprintf(histo, "EBTPT amplitude error SM%02d G06", i+1);
       meAmplErrorMapG06_[i] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
     }
 
     dbe->setCurrentFolder("EcalBarrel/EBTestPulseTask/Gain12");
     for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBTT shape SM%02d G12", i+1);
+      sprintf(histo, "EBTPT shape SM%02d G12", i+1);
       meShapeMapG12_[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096.);
-      sprintf(histo, "EBTT amplitude SM%02d G12", i+1);
+      sprintf(histo, "EBTPT amplitude SM%02d G12", i+1);
       meAmplMapG12_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
-      sprintf(histo, "EBTT amplitude error SM%02d G12", i+1);
+      sprintf(histo, "EBTPT amplitude error SM%02d G12", i+1);
       meAmplErrorMapG12_[i] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
    }
   }

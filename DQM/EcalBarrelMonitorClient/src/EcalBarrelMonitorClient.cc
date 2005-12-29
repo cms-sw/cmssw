@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  * 
- * $Date: 2005/12/28 11:11:31 $
- * $Revision: 1.61 $
+ * $Date: 2005/12/29 14:57:15 $
+ * $Revision: 1.62 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -124,7 +124,7 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps){
 
   // global ROOT style
 
-  gStyle->Reset("Plain");
+  gStyle->Reset("Default");
 
   gStyle->SetCanvasColor(10);
   gStyle->SetPadColor(10);
@@ -137,14 +137,14 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps){
 
   gStyle->SetOptTitle(kTRUE);
   gStyle->SetTitleX(0.00);
-  gStyle->SetTitleY(0.99);
+  gStyle->SetTitleY(1.00);
   gStyle->SetTitleW(0.00);
-  gStyle->SetTitleH(0.08);
+  gStyle->SetTitleH(0.06);
   gStyle->SetTitleBorderSize(0);
-  gStyle->SetTitleFont(43, " ");
-  gStyle->SetTitleFontSize(15);
+  gStyle->SetTitleFont(43, "c");
+  gStyle->SetTitleFontSize(11);
 
-  gStyle->SetOptStat(kTRUE);
+  gStyle->SetOptStat(kFALSE);
   gStyle->SetStatX(0.99);
   gStyle->SetStatY(0.99);
   gStyle->SetStatW(0.25);

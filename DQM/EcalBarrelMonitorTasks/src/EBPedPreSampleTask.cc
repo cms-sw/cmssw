@@ -1,8 +1,8 @@
 /*
  * \file EBPedPreSampleTask.cc
  * 
- * $Date: 2005/12/10 10:44:59 $
- * $Revision: 1.8 $
+ * $Date: 2005/12/23 08:35:39 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */
@@ -20,7 +20,7 @@ EBPedPreSampleTask::EBPedPreSampleTask(const edm::ParameterSet& ps, DaqMonitorBE
 
     dbe->setCurrentFolder("EcalBarrel/EBPedPreSampleTask/Gain12");
     for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBPT pedestal PreSample SM%02d G12", i+1);
+      sprintf(histo, "EBPPST pedestal SM%02d G12", i+1);
       mePedMapG12_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
     }
 

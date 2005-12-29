@@ -1,8 +1,8 @@
 /*
  * \file EBPedPreSampleClient.cc
  * 
- * $Date: 2005/12/29 08:15:34 $
- * $Revision: 1.52 $
+ * $Date: 2005/12/29 14:57:15 $
+ * $Revision: 1.53 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -92,15 +92,15 @@ void EBPedPreSampleClient::setup(void) {
   for ( int ism = 1; ism <= 36; ism++ ) {
 
     if ( g03_[ism-1] ) delete g03_[ism-1];
-    sprintf(histo, "EBPT pedestal PreSample quality G12 SM%02d", ism);
+    sprintf(histo, "EBPPST pedestal quality G12 SM%02d", ism);
     g03_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
 
     if ( p03_[ism-1] ) delete p03_[ism-1];
-    sprintf(histo, "EBPT pedestal PreSample mean G12 SM%02d", ism);
+    sprintf(histo, "EBPPST pedestal mean G12 SM%02d", ism);
     p03_[ism-1] = new TH1F(histo, histo, 100, 150., 250.);
 
     if ( r03_[ism-1] ) delete r03_[ism-1];
-    sprintf(histo, "EBPT pedestal PreSample rms G12 SM%02d", ism);
+    sprintf(histo, "EBPPST pedestal rms G12 SM%02d", ism);
     r03_[ism-1] = new TH1F(histo, histo, 100, 0.,  10.);
 
   }
@@ -235,7 +235,7 @@ void EBPedPreSampleClient::subscribe(void){
   if ( verbose_ ) cout << "EBPedPreSampleClient: subscribe" << endl;
 
   // subscribe to all monitorable matching pattern
-  mui_->subscribe("*/EcalBarrel/EBPedPreSampleTask/Gain12/EBPT pedestal PreSample SM*");
+  mui_->subscribe("*/EcalBarrel/EBPedPreSampleTask/Gain12/EBPPST pedestal SM*");
 
   if ( collateSources_ ) {
 
@@ -245,9 +245,9 @@ void EBPedPreSampleClient::subscribe(void){
 
     for ( int ism = 1; ism <= 36; ism++ ) {
 
-      sprintf(histo, "EBPT pedestal PreSample SM%02d G12", ism);
+      sprintf(histo, "EBPPST pedestal SM%02d G12", ism);
       me_h03_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPedPreSampleTask/Gain12");
-      sprintf(histo, "*/EcalBarrel/EBPedPreSampleTask/Gain12/EBPT pedestal PreSample SM%02d G12", ism);
+      sprintf(histo, "*/EcalBarrel/EBPedPreSampleTask/Gain12/EBPPST pedestal SM%02d G12", ism);
       mui_->add(me_h03_[ism-1], histo);
 
     }
@@ -259,7 +259,7 @@ void EBPedPreSampleClient::subscribe(void){
 void EBPedPreSampleClient::subscribeNew(void){
 
   // subscribe to new monitorable matching pattern
-  mui_->subscribeNew("*/EcalBarrel/EBPedPreSampleTask/Gain12/EBPT pedestal PreSample SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBPedPreSampleTask/Gain12/EBPPST pedestal SM*");
 
 }
 
@@ -279,7 +279,7 @@ void EBPedPreSampleClient::unsubscribe(void){
 
       for ( int ism = 1; ism <= 36; ism++ ) {
 
-        sprintf(histo, "EBPT pedestal PreSample SM%02d G12", ism);
+        sprintf(histo, "EBPPST pedestal SM%02d G12", ism);
         bei->setCurrentFolder("EcalBarrel/Sums/EBPedPreSampleTask/Gain12");
         bei->removeElement(histo);
 
@@ -290,7 +290,7 @@ void EBPedPreSampleClient::unsubscribe(void){
   }
 
   // unsubscribe to all monitorable matching pattern
-  mui_->unsubscribe("*/EcalBarrel/EBPedPreSampleTask/Gain12/EBPT pedestal PreSample SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBPedPreSampleTask/Gain12/EBPPST pedestal SM*");
 
 }
 
@@ -310,9 +310,9 @@ void EBPedPreSampleClient::analyze(const edm::Event& e, const edm::EventSetup& c
   for ( int ism = 1; ism <= 36; ism++ ) {
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBPedPreSampleTask/Gain12/EBPT pedestal PreSample SM%02d G12", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPedPreSampleTask/Gain12/EBPPST pedestal SM%02d G12", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBPedPreSampleTask/Gain12/EBPT pedestal PreSample SM%02d G12", ism);
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBPedPreSampleTask/Gain12/EBPPST pedestal SM%02d G12", ism);
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -320,7 +320,7 @@ void EBPedPreSampleClient::analyze(const edm::Event& e, const edm::EventSetup& c
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( h03_[ism-1] ) delete h03_[ism-1];
-        sprintf(histo, "ME EBPT pedestal PreSample SM%02d G12", ism);
+        sprintf(histo, "ME EBPPST pedestal SM%02d G12", ism);
         h03_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
 //        h03_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
       }
