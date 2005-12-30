@@ -1,7 +1,7 @@
 #ifndef Integration_OtherThingAlgorithm_h
 #define Integration_OtherThingAlgorithm_h
 
-#include <vector>
+#include "FWCore/Integration/test/OtherThingCollectionfwd.h"
 
 namespace edm {
   class Event;
@@ -9,9 +9,6 @@ namespace edm {
   
 namespace edmreftest {
 
-  class OtherThing;
-  typedef std::vector<OtherThing> OtherThingCollection;
-  
   class OtherThingAlgorithm {
   public:
     OtherThingAlgorithm() : theDebugLevel(0) {}

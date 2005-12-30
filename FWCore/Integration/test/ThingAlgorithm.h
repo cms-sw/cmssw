@@ -4,14 +4,9 @@
 /** \class ThingAlgorithm
  *
  ************************************************************/
-
-
-#include <vector>
+#include "FWCore/Integration/test/ThingCollectionfwd.h"
 
 namespace edmreftest {
-  class Thing;
-  typedef std::vector<Thing> ThingCollection;
-
   class ThingAlgorithm {
   public:
     ThingAlgorithm() : theDebugLevel(0) {}
