@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2005/12/29 19:41:37 $
- * $Revision: 1.60 $
+ * $Date: 2005/12/30 11:19:36 $
+ * $Revision: 1.61 $
  * \author G. Della Ricca
  *
 */
@@ -155,9 +155,8 @@ void EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunT
   RunConsistencyDat c;
   map<EcalLogicID, RunConsistencyDat> dataset;
 
-  cout << "Writing RunConsistencyDatObjects to database ..." << endl;
+  cout << "Creating RunConsistencyDatObjects for the database ..." << endl;
 
-  const float n_min_tot = 0.;
   const float n_min_bin = 0.;
 
   float num00;
@@ -169,88 +168,79 @@ void EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunT
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
 
-        float numEventsinCry = 0.;
-        if ( h_[ism-1] ) numEventsinCry = h_[ism-1]->GetBinEntries(h_[ism-1]->GetBin(ie, ip)) / 3.;
+        num00 = -1.;
 
-        // cout << "Number of events per crystal (" << ie << "," << ip << ") SM " << ism << " " << numEventsinCry << endl;
+        num01 = num02 = num03 = num04 = num05 = num06 = -1.;
 
-        if ( numEventsinCry > n_min_tot ) {
+        bool update_channel = false;
 
-          num00 = -1.;
+        if ( h00_ ) {
+          num00  = h00_->GetBinContent(h00_->GetBin(ism));
+          if ( num00 > n_min_bin ) update_channel = true;
+        }
 
-          num01 = num02 = num03 = num04 = num05 = num06 = -1.;
+        if ( h01_[ism-1] ) {
+          num01  = h01_[ism-1]->GetBinContent(h01_[ism-1]->GetBin(ie, ip));
+          if ( num01 > n_min_bin ) update_channel = true;
+        }
 
-          bool update_channel = false;
+        if ( h02_[ism-1] ) {
+          num02  = h02_[ism-1]->GetBinContent(h02_[ism-1]->GetBin(ie, ip));
+          if ( num02 > n_min_bin ) update_channel = true;
+        }
 
-          if ( h00_ ) {
-            num00  = h00_->GetBinContent(h00_->GetBin(ism));
-//            if ( num00 > n_min_bin ) update_channel = true;
+        if ( h03_[ism-1] ) {
+          num03  = h03_[ism-1]->GetBinContent(h03_[ism-1]->GetBin(ie, ip));
+          if ( num03 > n_min_bin ) update_channel = true;
+        }
+
+        if ( h04_[ism-1] ) {
+          num04  = h04_[ism-1]->GetBinContent(h04_[ism-1]->GetBin(ie, ip));
+          if ( num04 > n_min_bin ) update_channel = true;
+        }
+
+        int iet = 1 + ((ie-1)/5);
+        int ipt = 1 + ((ip-1)/5);
+
+        if ( h05_[ism-1] ) {
+          num05  = h05_[ism-1]->GetBinContent(h05_[ism-1]->GetBin(iet, ipt));
+          if ( num05 > n_min_bin ) update_channel = true;
+        }
+
+        if ( h06_[ism-1] ) {
+          num06  = h06_[ism-1]->GetBinContent(h06_[ism-1]->GetBin(iet, ipt));
+          if ( num06 > n_min_bin ) update_channel = true;
+        }
+
+        if ( update_channel ) {
+
+          if ( ie == 1 && ip == 1 ) {
+
+            cout << "Preparing dataset for SM=" << ism << endl;
+
+            cout << "(" << ie << "," << ip << ") " << num00 << " " << num01 << " " << num02 << " " << num03 << " " << num04 << " " << num05 << " " << num06 << endl;
+
           }
 
-          if ( h01_[ism-1] ) {
-            num01  = h01_[ism-1]->GetBinContent(h01_[ism-1]->GetBin(ie, ip));
-            if ( num01 > n_min_bin ) update_channel = true;
-          }
+          c.setExpectedEvents(0);
+          c.setProblemsInGain(int(num01));
+          c.setProblemsInId(int(num02));
+          c.setProblemsInSample(int(-999));
+          c.setProblemsInADC(int(-999));
 
-          if ( h02_[ism-1] ) {
-            num02  = h02_[ism-1]->GetBinContent(h02_[ism-1]->GetBin(ie, ip));
-            if ( num02 > n_min_bin ) update_channel = true;
-          }
+//          if ( g01_[ism-1]->GetBinContent(g01_[ism-1]->GetBin(ie, ip)) == 1. ) {
+//             c.setTaskStatus(true);
+//          } else {
+//             c.setTaskStatus(false);
+//          }
 
-          if ( h03_[ism-1] ) {
-            num03  = h03_[ism-1]->GetBinContent(h03_[ism-1]->GetBin(ie, ip));
-            if ( num03 > n_min_bin ) update_channel = true;
-          }
-
-          if ( h04_[ism-1] ) {
-            num04  = h04_[ism-1]->GetBinContent(h04_[ism-1]->GetBin(ie, ip));
-            if ( num04 > n_min_bin ) update_channel = true;
-          }
-
-          int iet = 1 + ((ie-1)/5);
-          int ipt = 1 + ((ip-1)/5);
-
-          if ( h05_[ism-1] ) {
-            num05  = h05_[ism-1]->GetBinContent(h05_[ism-1]->GetBin(iet, ipt));
-            if ( num05 > n_min_bin ) update_channel = true;
-          }
-
-          if ( h06_[ism-1] ) {
-            num06  = h06_[ism-1]->GetBinContent(h06_[ism-1]->GetBin(iet, ipt));
-            if ( num06 > n_min_bin ) update_channel = true;
-          }
-
-          if ( update_channel ) {
-
-            if ( ie == 1 && ip == 1 ) {
-
-              cout << "Inserting dataset for SM=" << ism << endl;
-
-              cout << "(" << ie << "," << ip << ") " << num00 << " " << num01 << " " << num02 << " " << num03 << " " << num04 << " " << num05 << " " << num06 << endl;
-
+          if ( econn ) {
+            try {
+              ecid = econn->getEcalLogicID("EB_crystal_index", ism, ie-1, ip-1);
+              dataset[ecid] = c;
+            } catch (runtime_error &e) {
+              cerr << e.what() << endl;
             }
-
-            c.setExpectedEvents(0);
-            c.setProblemsInGain(int(num01));
-            c.setProblemsInId(int(num02));
-            c.setProblemsInSample(int(-999));
-            c.setProblemsInADC(int(-999));
-
-//            if ( g01_[ism-1]->GetBinContent(g01_[ism-1]->GetBin(ie, ip)) == 1. ) {
-//               c.setTaskStatus(true);
-//            } else {
-//               c.setTaskStatus(false);
-//            }
-
-            if ( econn ) {
-              try {
-                ecid = econn->getEcalLogicID("EB_crystal_index", ism, ie-1, ip-1);
-                dataset[ecid] = c;
-              } catch (runtime_error &e) {
-                cerr << e.what() << endl;
-              }
-            }
-
           }
 
         }
@@ -574,77 +564,77 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
     }
 
-    const float n_min_tot = 0.;
-
     float num00;
 
     float num01, num02, num03, num04, num05, num06;
 
+    g01_[ism-1]->Reset();
+
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
 
+        num00 = 0.;
+
+        num01 = num02 = num03 = num04 = num05 = num06 = 0.;
+
+        g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), 2.);
+
+        bool update_channel = false;
+
         float numEventsinCry = 0.;
+
         if ( h_[ism-1] ) numEventsinCry = h_[ism-1]->GetBinEntries(h_[ism-1]->GetBin(ie, ip)) / 3.;
 
-        // cout << "Number of events per crystal (" << ie << "," << ip << ") SM " << ism << " " << numEventsinCry << endl;
+        if ( h00_ ) {
+          num00  = h00_->GetBinContent(h00_->GetBin(ism));
+          update_channel = true;
+        }
 
-        if ( numEventsinCry > n_min_tot ) {
+        if ( h01_[ism-1] ) {
+          num01  = h01_[ism-1]->GetBinContent(h01_[ism-1]->GetBin(ie, ip));
+          update_channel = true;
+        }
 
-          num00 = 0.;
+        if ( h02_[ism-1] ) {
+          num02  = h02_[ism-1]->GetBinContent(h02_[ism-1]->GetBin(ie, ip));
+          update_channel = true;
+        }
 
-          if ( h00_ ) {
-            num00  = h00_->GetBinContent(h00_->GetBin(ie, ip));
+        if ( h03_[ism-1] ) {
+          num03  = h03_[ism-1]->GetBinContent(h03_[ism-1]->GetBin(ie, ip));
+          update_channel = true;
+        }
+
+        if ( h04_[ism-1] ) {
+          num04  = h04_[ism-1]->GetBinContent(h04_[ism-1]->GetBin(ie, ip));
+          update_channel = true;
+        }
+
+        int iet = 1 + ((ie-1)/5);
+        int ipt = 1 + ((ip-1)/5);
+
+        if ( h05_[ism-1] ) {
+          num05  = h05_[ism-1]->GetBinContent(h05_[ism-1]->GetBin(iet, ipt));
+          update_channel = true;
+        }
+
+        if ( h06_[ism-1] ) {
+          num06  = h06_[ism-1]->GetBinContent(h06_[ism-1]->GetBin(iet, ipt));
+          update_channel = true;
+        }
+
+        if ( update_channel ) {
+
+          float val;
+
+          val = 1.;
+          if ( numEventsinCry > 0 ) {
+            float errorRate = ( num01 + num02 + num03 + num04 + num05 + num06) / numEventsinCry / 6.;
+            if ( errorRate > threshCry_ ) val = 0.;
+          } else {
+            if ( ( num01 + num02 + num03 + num04 + num05 + num06) > 0 ) val = 0.;
           }
-
-          num01 = num02 = num03 = num04 = num05 = num06 = 0.;
-
-          bool update_channel = false;
-
-          g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), 2.);
-
-          if ( h01_[ism-1] ) {
-            num01  = h01_[ism-1]->GetBinContent(h01_[ism-1]->GetBin(ie, ip));
-            update_channel = true;
-          }
-
-          if ( h02_[ism-1] ) {
-            num02  = h02_[ism-1]->GetBinContent(h02_[ism-1]->GetBin(ie, ip));
-            update_channel = true;
-          }
-
-          if ( h03_[ism-1] ) {
-            num03  = h03_[ism-1]->GetBinContent(h03_[ism-1]->GetBin(ie, ip));
-            update_channel = true;
-          }
-
-          if ( h04_[ism-1] ) {
-            num04  = h04_[ism-1]->GetBinContent(h04_[ism-1]->GetBin(ie, ip));
-            update_channel = true;
-          }
-
-          int iet = 1 + ((ie-1)/5);
-          int ipt = 1 + ((ip-1)/5);
-
-          if ( h05_[ism-1] ) {
-            num05  = h05_[ism-1]->GetBinContent(h05_[ism-1]->GetBin(iet, ipt));
-            update_channel = true;
-          }
-
-          if ( h06_[ism-1] ) {
-            num06  = h06_[ism-1]->GetBinContent(h06_[ism-1]->GetBin(iet, ipt));
-            update_channel = true;
-          }
-
-          if ( update_channel ) {
-
-            float val;
-
-            val = 1.;
-            if ( (( num01 + num02 + num03 + num04 + num05 + num06) / numEventsinCry / 6. ) > threshCry_ )
-              val = 0.;
-            g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), val);
-
-          }
+          g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), val);
 
         }
 

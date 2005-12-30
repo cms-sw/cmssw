@@ -1,8 +1,8 @@
 /*
  * \file EBPedPreSampleClient.cc
  *
- * $Date: 2005/12/29 19:41:37 $
- * $Revision: 1.54 $
+ * $Date: 2005/12/30 11:19:36 $
+ * $Revision: 1.55 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -155,7 +155,7 @@ void EBPedPreSampleClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, R
 //  MonPedestalsDat p;
 //  map<EcalLogicID, MonPedestalsDat> dataset;
 
-  cout << "Writing MonPedPreSampleDatObjects to database ..." << endl;
+  cout << "Creating MonPedPreSampleDatObjects to database ..." << endl;
 
   const float n_min_tot = 1000.;
   const float n_min_bin = 50.;
@@ -188,7 +188,7 @@ void EBPedPreSampleClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, R
 
           if ( ie == 1 && ip == 1 ) {
 
-            cout << "Inserting dataset for SM=" << ism << endl;
+            cout << "Preparing dataset for SM=" << ism << endl;
 
             cout << "G12 (" << ie << "," << ip << ") " << num03  << " " << mean03 << " " << rms03  << endl;
           }

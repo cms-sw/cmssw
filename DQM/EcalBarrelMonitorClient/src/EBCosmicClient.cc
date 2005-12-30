@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  * 
- * $Date: 2005/12/29 14:57:15 $
- * $Revision: 1.25 $
+ * $Date: 2005/12/30 11:19:36 $
+ * $Revision: 1.26 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -98,7 +98,7 @@ void EBCosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunTag*
 //  MonPedestalsDat p;
 //  map<EcalLogicID, MonPedestalsDat> dataset;
 
-  cout << "Writing MonCosmicDatObjects to database ..." << endl;
+  cout << "Creating MonCosmicDatObjects for the database ..." << endl;
 
   const float n_min_tot = 1000.;
   const float n_min_bin = 50.;
@@ -140,7 +140,7 @@ void EBCosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunTag*
 
           if ( ie == 1 && ip == 1 ) {
 
-            cout << "Inserting dataset for SM=" << ism << endl;
+            cout << "Preparing dataset for SM=" << ism << endl;
 
             cout << "Sel (" << ie << "," << ip << ") " << num01  << " " << mean01 << " " << rms01  << endl;
             cout << "Cut (" << ie << "," << ip << ") " << num02  << " " << mean02 << " " << rms02  << endl;

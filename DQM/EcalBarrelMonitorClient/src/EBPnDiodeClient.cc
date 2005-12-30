@@ -1,8 +1,8 @@
 /*
  * \file EBPnDiodeClient.cc
  *
- * $Date: 2005/12/29 19:41:37 $
- * $Revision: 1.27 $
+ * $Date: 2005/12/30 11:19:36 $
+ * $Revision: 1.28 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -101,7 +101,7 @@ void EBPnDiodeClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunTag
   MonPNDat p;
   map<EcalLogicID, MonPNDat> dataset;
 
-  cout << "Writing MonPnDatObjects to database ..." << endl;
+  cout << "Creating MonPnDatObjects to database ..." << endl;
 
   const float n_min_tot = 1000.;
   const float n_min_bin = 50.;
@@ -160,7 +160,7 @@ void EBPnDiodeClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunTag
 
         if ( i == 1 ) {
 
-          cout << "Inserting dataset for SM=" << ism << endl;
+          cout << "Preparing dataset for SM=" << ism << endl;
 
           cout << "PNs (" << i << ") L1 " << num01  << " " << mean01 << " " << rms01  << endl;
           cout << "PNs (" << i << ") L2 " << num02  << " " << mean02 << " " << rms02  << endl;

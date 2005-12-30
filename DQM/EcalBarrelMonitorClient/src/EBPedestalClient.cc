@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2005/12/29 14:57:15 $
- * $Revision: 1.48 $
+ * $Date: 2005/12/30 11:19:36 $
+ * $Revision: 1.49 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -213,7 +213,7 @@ void EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
   MonPedestalsDat p;
   map<EcalLogicID, MonPedestalsDat> dataset;
 
-  cout << "Writing MonPedestalsDatObjects to database ..." << endl;
+  cout << "Creating MonPedestalsDatObjects to database ..." << endl;
 
   const float n_min_tot = 1000.;
   const float n_min_bin = 50.;
@@ -264,7 +264,7 @@ void EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
 
           if ( ie == 1 && ip == 1 ) {
 
-            cout << "Inserting dataset for SM=" << ism << endl;
+            cout << "Preparing dataset for SM=" << ism << endl;
 
             cout << "G01 (" << ie << "," << ip << ") " << num01  << " " << mean01 << " " << rms01  << endl;
             cout << "G06 (" << ie << "," << ip << ") " << num02  << " " << mean02 << " " << rms02  << endl;

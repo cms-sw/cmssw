@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2005/12/29 14:57:15 $
- * $Revision: 1.47 $
+ * $Date: 2005/12/30 11:19:36 $
+ * $Revision: 1.48 $
  * \author G. Della Ricca
  *
 */
@@ -245,7 +245,7 @@ void EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* 
   MonLaserRedDat apd_rd;
   map<EcalLogicID, MonLaserRedDat> dataset_rd;
 
-  cout << "Writing MonLaserDatObjects to database ..." << endl;
+  cout << "Creating MonLaserDatObjects to database ..." << endl;
 
   const float n_min_tot = 1000.;
   const float n_min_bin = 50.;
@@ -344,7 +344,7 @@ void EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* 
 
           if ( ie == 1 && ip == 1 ) {
 
-            cout << "Inserting dataset for SM=" << ism << endl;
+            cout << "Preparing dataset for SM=" << ism << endl;
 
             cout << "L1 (" << ie << "," << ip << ") " << num01 << " " << mean01 << " " << rms01 << endl;
 
@@ -377,7 +377,7 @@ void EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* 
 
           if ( ie == 1 && ip == 1 ) {
 
-            cout << "Inserting dataset for SM=" << ism << endl;
+            cout << "Preparing dataset for SM=" << ism << endl;
 
             cout << "L2 (" << ie << "," << ip << ") " << num03 << " " << mean03 << " " << rms03 << endl;
 
@@ -410,7 +410,7 @@ void EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* 
 
           if ( ie == 1 && ip == 1 ) {
 
-            cout << "Inserting dataset for SM=" << ism << endl;
+            cout << "Preparing dataset for SM=" << ism << endl;
 
             cout << "L3 (" << ie << "," << ip << ") " << num05 << " " << mean05 << " " << rms05 << endl;
 
@@ -443,7 +443,7 @@ void EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* 
 
           if ( ie == 1 && ip == 1 ) {
 
-            cout << "Inserting dataset for SM=" << ism << endl;
+            cout << "Preparing dataset for SM=" << ism << endl;
 
             cout << "L4 (" << ie << "," << ip << ") " << num07 << " " << mean07 << " " << rms07 << endl;
 
@@ -821,11 +821,6 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
 
         num01 = num03 = num05 = num07 = -1;
 
-        g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), 2.);
-        g02_[ism-1]->SetBinContent(g02_[ism-1]->GetBin(ie, ip), 2.);
-        g03_[ism-1]->SetBinContent(g03_[ism-1]->GetBin(ie, ip), 2.);
-        g04_[ism-1]->SetBinContent(g04_[ism-1]->GetBin(ie, ip), 2.);
-
         if ( h01_[ism-1] && h01_[ism-1]->GetEntries() >= n_min_tot ) {
           num01 = h01_[ism-1]->GetBinEntries(h01_[ism-1]->GetBin(ie, ip));
           if ( num01 >= n_min_bin ) {
@@ -872,6 +867,11 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
         num01  = num02  = num03  = num04  = num05  = num06  = num07  = num08  = -1.;
         mean01 = mean02 = mean03 = mean04 = mean05 = mean06 = mean07 = mean08 = -1.;
         rms01  = rms02  = rms03  = rms04  = rms05  = rms06  = rms07  = rms08  = -1.;
+
+        g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), 2.);
+        g02_[ism-1]->SetBinContent(g02_[ism-1]->GetBin(ie, ip), 2.);
+        g03_[ism-1]->SetBinContent(g03_[ism-1]->GetBin(ie, ip), 2.);
+        g04_[ism-1]->SetBinContent(g04_[ism-1]->GetBin(ie, ip), 2.);
 
         bool update_channel1 = false;
         bool update_channel2 = false;

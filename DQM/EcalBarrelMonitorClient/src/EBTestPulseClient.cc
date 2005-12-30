@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2005/12/29 19:41:37 $
- * $Revision: 1.52 $
+ * $Date: 2005/12/30 11:19:36 $
+ * $Revision: 1.53 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -204,7 +204,7 @@ void EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunT
   MonPulseShapeDat shape;
   map<EcalLogicID, MonPulseShapeDat> dataset2;
 
-  cout << "Writing MonTestPulseDatObjects to database ..." << endl;
+  cout << "Creating MonTestPulseDatObjects to database ..." << endl;
 
   const float n_min_tot = 1000.;
   const float n_min_bin = 10.;
@@ -229,12 +229,6 @@ void EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunT
         sample03.clear();
 
         bool update_channel = false;
-
-        float numEventsinCry[3] = {0., 0., 0.};
-
-        if ( ha01_[ism-1] ) numEventsinCry[0] = ha01_[ism-1]->GetBinEntries(ha01_[ism-1]->GetBin(ie, ip));
-        if ( ha02_[ism-1] ) numEventsinCry[1] = ha02_[ism-1]->GetBinEntries(ha02_[ism-1]->GetBin(ie, ip));
-        if ( ha03_[ism-1] ) numEventsinCry[2] = ha03_[ism-1]->GetBinEntries(ha03_[ism-1]->GetBin(ie, ip));
 
         if ( ha01_[ism-1] && ha01_[ism-1]->GetEntries() >= n_min_tot ) {
           num01 = ha01_[ism-1]->GetBinEntries(ha01_[ism-1]->GetBin(ie, ip));
@@ -267,7 +261,7 @@ void EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunT
 
           if ( ie == 1 && ip == 1 ) {
 
-            cout << "Inserting dataset for SM=" << ism << endl;
+            cout << "Preparing dataset for SM=" << ism << endl;
             cout << "G01 (" << ie << "," << ip << ") " << num01 << " " << mean01 << " " << rms01 << endl;
             cout << "G06 (" << ie << "," << ip << ") " << num02 << " " << mean02 << " " << rms02 << endl;
             cout << "G12 (" << ie << "," << ip << ") " << num03 << " " << mean03 << " " << rms03 << endl;
@@ -719,7 +713,9 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
         g02_[ism-1]->SetBinContent(g02_[ism-1]->GetBin(ie, ip), 2.);
         g03_[ism-1]->SetBinContent(g03_[ism-1]->GetBin(ie, ip), 2.);
 
-        bool update_channel = false;
+        bool update_channel1 = false;
+        bool update_channel2 = false;
+        bool update_channel3 = false;
 
         float numEventsinCry[3] = {0., 0., 0.};
 
@@ -732,7 +728,7 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
           if ( num01 >= n_min_bin ) {
             mean01 = ha01_[ism-1]->GetBinContent(ha01_[ism-1]->GetBin(ie, ip));
             rms01  = ha01_[ism-1]->GetBinError(ha01_[ism-1]->GetBin(ie, ip));
-            update_channel = true;
+            update_channel1 = true;
           }
         }
 
@@ -741,7 +737,7 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
           if ( num02 >= n_min_bin ) {
             mean02 = ha02_[ism-1]->GetBinContent(ha02_[ism-1]->GetBin(ie, ip));
             rms02  = ha02_[ism-1]->GetBinError(ha02_[ism-1]->GetBin(ie, ip));
-            update_channel = true;
+            update_channel2 = true;
           }
         }
 
@@ -750,11 +746,11 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
           if ( num03 >= n_min_bin ) {
             mean03 = ha03_[ism-1]->GetBinContent(ha03_[ism-1]->GetBin(ie, ip));
             rms03  = ha03_[ism-1]->GetBinError(ha03_[ism-1]->GetBin(ie, ip));
-            update_channel = true;
+            update_channel3 = true;
           }
         }
 
-        if ( update_channel ) {
+        if ( update_channel1 ) {
 
           float val;
 
@@ -763,7 +759,7 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
             val = 0.;
           if ( rms01 > RMSThreshold_ )
             val = 0.;
-          if ( he01_[ism-1] ) {
+          if ( he01_[ism-1] && numEventsinCry[0] > 0 ) {
             float errorRate = he01_[ism-1]->GetBinContent(he01_[ism-1]->GetBin(ie, ip)) / numEventsinCry[0];
             if ( errorRate > threshold_on_AmplitudeErrorsNumber_ ) val = 0.;
           }
@@ -772,12 +768,18 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
           a01_[ism-1]->SetBinContent(ip+20*(ie-1), mean01);
           a01_[ism-1]->SetBinError(ip+20*(ie-1), rms01);
 
+        }
+
+        if ( update_channel2 ) {
+
+          float val;
+
           val = 1.;
           if ( mean02 < amplitudeThreshold_ )
             val = 0.;
           if ( rms02 > RMSThreshold_ )
             val = 0.;
-          if ( he02_[ism-1] ) {
+          if ( he02_[ism-1] && numEventsinCry[1] > 0 ) {
             float errorRate = he02_[ism-1]->GetBinContent(he02_[ism-1]->GetBin(ie, ip)) / numEventsinCry[1];
             if ( errorRate > threshold_on_AmplitudeErrorsNumber_ ) val = 0.;
           }
@@ -786,12 +788,18 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
           a02_[ism-1]->SetBinContent(ip+20*(ie-1), mean02);
           a02_[ism-1]->SetBinError(ip+20*(ie-1), rms02);
 
+        }
+
+        if ( update_channel3 ) {
+
+          float val;
+
           val = 1.;
           if ( mean03 < amplitudeThreshold_ )
             val = 0.;
           if ( rms03 > RMSThreshold_ )
             val = 0.;
-          if ( he03_[ism-1] ) {
+          if ( he03_[ism-1] && numEventsinCry[2] > 0 ) {
             float errorRate = he03_[ism-1]->GetBinContent(he03_[ism-1]->GetBin(ie, ip)) / numEventsinCry[2];
             if ( errorRate > threshold_on_AmplitudeErrorsNumber_ ) val = 0.;
           }
