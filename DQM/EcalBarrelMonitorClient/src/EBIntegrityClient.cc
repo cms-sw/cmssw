@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2005/12/30 14:05:30 $
- * $Revision: 1.62 $
+ * $Date: 2005/12/30 15:18:47 $
+ * $Revision: 1.63 $
  * \author G. Della Ricca
  *
 */
@@ -94,7 +94,7 @@ void EBIntegrityClient::setup(void) {
   for ( int ism = 1; ism <= 36; ism++ ) {
 
     if ( g01_[ism-1] ) delete g01_[ism-1];
-    sprintf(histo, "EBPT data integrity quality SM%02d", ism);
+    sprintf(histo, "EBIT data integrity quality SM%02d", ism);
     g01_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
 
   }
