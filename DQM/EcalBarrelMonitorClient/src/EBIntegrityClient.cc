@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2005/12/30 11:19:36 $
- * $Revision: 1.61 $
+ * $Date: 2005/12/30 14:05:30 $
+ * $Revision: 1.62 $
  * \author G. Della Ricca
  *
 */
@@ -632,6 +632,7 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
             float errorRate = ( num01 + num02 + num03 + num04 + num05 + num06) / numEventsinCry / 6.;
             if ( errorRate > threshCry_ ) val = 0.;
           } else {
+            val = 2.;
             if ( ( num01 + num02 + num03 + num04 + num05 + num06) > 0 ) val = 0.;
           }
           g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), val);
