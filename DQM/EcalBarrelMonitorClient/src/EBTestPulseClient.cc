@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
- * 
- * $Date: 2005/12/29 14:57:15 $
- * $Revision: 1.51 $
+ *
+ * $Date: 2005/12/29 19:41:37 $
+ * $Revision: 1.52 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -56,7 +56,7 @@ EBTestPulseClient::EBTestPulseClient(const edm::ParameterSet& ps, MonitorUserInt
 
 EBTestPulseClient::~EBTestPulseClient(){
 
-  this->cleanup(); 
+  this->cleanup();
 
 }
 
@@ -75,7 +75,7 @@ void EBTestPulseClient::beginRun(const edm::EventSetup& c){
 
   jevt_ = 0;
 
-  this->setup(); 
+  this->setup();
 
   this->subscribe();
 
@@ -93,7 +93,7 @@ void EBTestPulseClient::endRun(void) {
 
   this->unsubscribe();
 
-  this->cleanup(); 
+  this->cleanup();
 
 }
 
@@ -217,7 +217,7 @@ void EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunT
 
     vector<int> sample01, sample02, sample03;
 
-    for ( int ie = 1; ie <= 85; ie++ ) { 
+    for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
 
         num01  = num02  = num03  = -1.;
@@ -460,7 +460,7 @@ void EBTestPulseClient::unsubscribe(void){
   if ( verbose_ ) cout << "EBTestPulseClient: unsubscribe" << endl;
 
   if ( collateSources_ ) {
- 
+
     if ( verbose_ ) cout << "EBTestPulseClient: uncollate" << endl;
 
     DaqMonitorBEInterface* bei = mui_->getBEInterface();
@@ -473,7 +473,7 @@ void EBTestPulseClient::unsubscribe(void){
         sprintf(histo, "EBTPT amplitude SM%02d G01", ism);
         bei->setCurrentFolder("EcalBarrel/Sums/EBTestPulseTask/Gain01");
         bei->removeElement(histo);
-  
+
         sprintf(histo, "EBTPT amplitude SM%02d G06", ism);
         bei->setCurrentFolder("EcalBarrel/Sums/EBTestPulseTask/Gain06");
         bei->removeElement(histo);
@@ -529,7 +529,7 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   ievt_++;
   jevt_++;
-  if ( ievt_ % 10 == 0 ) { 
+  if ( ievt_ % 10 == 0 ) {
     if ( verbose_ ) cout << "EBTestPulseClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
@@ -829,7 +829,7 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<body>  " << endl;
   htmlFile << "<br>  " << endl;
   htmlFile << "<h2>Run:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << endl;
-  htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl; 
+  htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
   htmlFile << " style=\"color: rgb(0, 0, 153);\">" << run << "</span></h2>" << endl;
   htmlFile << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
   htmlFile << " style=\"color: rgb(0, 0, 153);\">TEST PULSE</span></h2> " << endl;
@@ -855,45 +855,50 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
   }
   dummy.SetMarkerSize(2);
 
-  string imgNameQual[3] , imgNameAmp[3] , imgNameShape[3] , imgName , meName;
+  string imgNameQual[3], imgNameAmp[3], imgNameShape[3], imgName, meName;
 
-  TCanvas* cQual = new TCanvas("cQual" , "Temp", 2*csize , csize );
-  TCanvas* cAmp = new TCanvas("cAmp" , "Temp", csize , csize );
-  TCanvas* cShape = new TCanvas("cShape" , "Temp", csize , csize );
+  TCanvas* cQual = new TCanvas("cQual", "Temp", 2*csize, csize);
+  TCanvas* cAmp = new TCanvas("cAmp", "Temp", csize, csize);
+  TCanvas* cShape = new TCanvas("cShape", "Temp", csize, csize);
+
+  TH2F* obj2f;
+  TH1F* obj1f;
+  TH1D* obj1d;
 
   // Loop on barrel supermodules
 
   for ( int ism = 1 ; ism <= 36 ; ism++ ) {
- 
-    if (  g01_[ism-1] &&  g02_[ism-1] &&  g03_[ism-1] &&
-          a01_[ism-1] &&  a02_[ism-1] &&  a03_[ism-1] &&
-         hs01_[ism-1] && hs02_[ism-1] && hs03_[ism-1] ) {
 
-      // Loop on gains
+    // Loop on gains
 
-      for ( int iCanvas=1 ; iCanvas <= 3 ; iCanvas++ ) {
+    for ( int iCanvas = 1 ; iCanvas <= 3 ; iCanvas++ ) {
 
-        // Quality plots
+      // Quality plots
 
-        TH2F* obj2f = 0; 
-        switch ( iCanvas ) {
-          case 1:
-            obj2f = g01_[ism-1];
-            break;
-          case 2:
-            obj2f = g02_[ism-1];
-            break;
-          case 3:
-            obj2f = g03_[ism-1];
-            break;
-          default:
-            break;
-        }
+      imgNameQual[iCanvas-1] = "";
+
+      obj2f = 0;
+      switch ( iCanvas ) {
+        case 1:
+          obj2f = g01_[ism-1];
+          break;
+        case 2:
+          obj2f = g02_[ism-1];
+          break;
+        case 3:
+          obj2f = g03_[ism-1];
+          break;
+        default:
+          break;
+      }
+
+      if ( obj2f ) {
+
         meName = obj2f->GetName();
 
-        for ( unsigned int iQual = 0 ; iQual < meName.size(); iQual++ ) {
-          if ( meName.substr(iQual, 1) == " " )  {
-            meName.replace(iQual, 1, "_");
+        for ( unsigned int i = 0; i < meName.size(); i++ ) {
+          if ( meName.substr(i, 1) == " " )  {
+            meName.replace(i, 1, "_");
           }
         }
         imgNameQual[iCanvas-1] = meName + ".png";
@@ -913,27 +918,34 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
         cQual->Update();
         cQual->SaveAs(imgName.c_str());
 
-        // Amplitude distributions
-        
-        TH1F* obj1f = 0; 
-        switch ( iCanvas ) {
-          case 1:
-            obj1f = a01_[ism-1];
-            break;
-          case 2:
-            obj1f = a02_[ism-1];
-            break;
-          case 3:
-            obj1f = a03_[ism-1];
-            break;
-          default:
-            break;
-        }
+      }
+
+      // Amplitude distributions
+
+      imgNameAmp[iCanvas-1] = "";
+
+      obj1f = 0;
+      switch ( iCanvas ) {
+        case 1:
+          obj1f = a01_[ism-1];
+          break;
+        case 2:
+          obj1f = a02_[ism-1];
+          break;
+        case 3:
+          obj1f = a03_[ism-1];
+          break;
+        default:
+          break;
+      }
+
+      if ( obj1f ) {
+
         meName = obj1f->GetName();
 
-        for ( unsigned int iAmp=0 ; iAmp < meName.size(); iAmp++ ) {
-          if ( meName.substr(iAmp,1) == " " )  {
-            meName.replace(iAmp, 1 ,"_" );
+        for ( unsigned int i = 0; i < meName.size(); i++ ) {
+          if ( meName.substr(i, 1) == " " )  {
+            meName.replace(i, 1 ,"_" );
           }
         }
         imgNameAmp[iCanvas-1] = meName + ".png";
@@ -953,27 +965,34 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
         cAmp->SaveAs(imgName.c_str());
         gPad->SetLogy(0);
 
-        // Shape distributions
+      }
 
-        TH1D* obj1d = 0;
-        switch ( iCanvas ) {
-          case 1:
-            obj1d = hs01_[ism-1]->ProjectionY("_py", 1, 10, "e");
-            break;
-          case 2:
-            obj1d = hs02_[ism-1]->ProjectionY("_py", 1, 10, "e");
-            break;
-          case 3:
-            obj1d = hs03_[ism-1]->ProjectionY("_py", 1, 10, "e");
-            break;
-          default:
-            break;
-        }
+      // Shape distributions
+
+      imgNameShape[iCanvas-1] = "";
+
+      obj1d = 0;
+      switch ( iCanvas ) {
+        case 1:
+          if ( hs01_[ism-1] ) obj1d = hs01_[ism-1]->ProjectionY("_py", 1, 10, "e");
+          break;
+        case 2:
+          if ( hs02_[ism-1] ) obj1d = hs02_[ism-1]->ProjectionY("_py", 1, 10, "e");
+          break;
+        case 3:
+          if ( hs03_[ism-1] ) obj1d = hs03_[ism-1]->ProjectionY("_py", 1, 10, "e");
+          break;
+        default:
+          break;
+      }
+
+      if ( obj1d ) {
+
         meName = obj1d->GetName();
 
-        for ( unsigned int iShape=0 ; iShape < meName.size(); iShape++ ) {
-          if ( meName.substr(iShape,1) == " " )  {
-            meName.replace(iShape, 1, "_");
+        for ( unsigned int i = 0; i < meName.size(); i++ ) {
+          if ( meName.substr(i, 1) == " " )  {
+            meName.replace(i, 1, "_");
           }
         }
         imgNameShape[iCanvas-1] = meName + ".png";
@@ -992,47 +1011,48 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
         cShape->SaveAs(imgName.c_str());
         gPad->SetLogy(0);
 
-        delete obj1d; 
+        delete obj1d;
 
       }
 
-      htmlFile << "<h3><strong>Supermodule&nbsp;&nbsp;" << ism << "</strong></h3>" << endl;
-      htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
-      htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
-      htmlFile << "<tr align=\"center\">" << endl;
+    }
 
-      for ( int iCanvas = 1 ; iCanvas <= 3 ; iCanvas++ ) {
+    htmlFile << "<h3><strong>Supermodule&nbsp;&nbsp;" << ism << "</strong></h3>" << endl;
+    htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+    htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+    htmlFile << "<tr align=\"center\">" << endl;
 
-      if ( imgNameQual[iCanvas-1].size() != 0 ) 
+    for ( int iCanvas = 1 ; iCanvas <= 3 ; iCanvas++ ) {
+
+      if ( imgNameQual[iCanvas-1].size() != 0 )
         htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameQual[iCanvas-1] << "\"></td>" << endl;
       else
         htmlFile << "<img src=\"" << " " << "\"></td>" << endl;
 
-      }
-      htmlFile << "</tr>" << endl;
-      htmlFile << "<tr>" << endl;
+    }
 
-      for ( int iCanvas = 1 ; iCanvas <= 3 ; iCanvas++ ) {
+    htmlFile << "</tr>" << endl;
+    htmlFile << "<tr>" << endl;
 
-        if ( imgNameAmp[iCanvas-1].size() != 0 ) 
-          htmlFile << "<td><img src=\"" << imgNameAmp[iCanvas-1] << "\"></td>" << endl;
-        else
-          htmlFile << "<img src=\"" << " " << "\"></td>" << endl;
-        
-        if ( imgNameShape[iCanvas-1].size() != 0 ) 
-          htmlFile << "<td><img src=\"" << imgNameShape[iCanvas-1] << "\"></td>" << endl;
-        else
-          htmlFile << "<img src=\"" << " " << "\"></td>" << endl;
+    for ( int iCanvas = 1 ; iCanvas <= 3 ; iCanvas++ ) {
 
-      }
+      if ( imgNameAmp[iCanvas-1].size() != 0 )
+        htmlFile << "<td><img src=\"" << imgNameAmp[iCanvas-1] << "\"></td>" << endl;
+      else
+        htmlFile << "<img src=\"" << " " << "\"></td>" << endl;
 
-      htmlFile << "</tr>" << endl;
-
-      htmlFile << "<tr align=\"center\"><td colspan=\"2\">Gain 1</td><td colspan=\"2\">Gain 6</td><td colspan=\"2\">Gain 12</td></tr>" << endl;
-      htmlFile << "</table>" << endl;
-      htmlFile << "<br>" << endl;
+      if ( imgNameShape[iCanvas-1].size() != 0 )
+        htmlFile << "<td><img src=\"" << imgNameShape[iCanvas-1] << "\"></td>" << endl;
+      else
+        htmlFile << "<img src=\"" << " " << "\"></td>" << endl;
 
     }
+
+    htmlFile << "</tr>" << endl;
+
+    htmlFile << "<tr align=\"center\"><td colspan=\"2\">Gain 1</td><td colspan=\"2\">Gain 6</td><td colspan=\"2\">Gain 12</td></tr>" << endl;
+    htmlFile << "</table>" << endl;
+    htmlFile << "<br>" << endl;
 
   }
 

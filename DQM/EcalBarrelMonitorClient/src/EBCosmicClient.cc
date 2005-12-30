@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  * 
- * $Date: 2005/12/29 08:15:34 $
- * $Revision: 1.24 $
+ * $Date: 2005/12/29 14:57:15 $
+ * $Revision: 1.25 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -375,7 +375,7 @@ void EBCosmicClient::htmlOutput(int run, string htmlDir, string htmlName){
   double histMax = 1.e15;
 
   int pCol4[10];
-  for( int i=0; i<10; i++ ) pCol4[i] = 30+i;
+  for ( int i = 0; i < 10; i++ ) pCol4[i] = 30+i;
 
   TH2C dummy( "dummy", "dummy for sm", 85, 0., 85., 20, 0., 20. );
   for( int i = 0; i < 68; i++ ) {
@@ -387,35 +387,41 @@ void EBCosmicClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   string imgNameME[3], imgName, meName;
 
-  TCanvas* cMe = new TCanvas("cMe" , "Temp", 2*csize , csize );
-  TCanvas* cAmp = new TCanvas("cAmp" , "Temp", csize , csize );
+  TCanvas* cMe = new TCanvas("cMe", "Temp", 2*csize, csize);
+  TCanvas* cAmp = new TCanvas("cAmp", "Temp", csize, csize);
+
+  TProfile2D* objp;
+  TH1F* obj1f; 
 
   // Loop on barrel supermodules
 
   for ( int ism = 1 ; ism <= 36 ; ism++ ) {
 
-    if ( h01_[ism-1] && h02_[ism-1] && h03_[ism-1] ) {
+    // Monitoring elements plots
 
-      // Monitoring elements plots
+    for ( int iCanvas = 1; iCanvas <= 2; iCanvas++ ) {
 
-      for ( int iCanvas = 1; iCanvas <= 2; iCanvas++ ) {
+      imgNameME[iCanvas-1] = "";
 
-        TProfile2D* objp = 0;
-        switch ( iCanvas ) {
-          case 1:
-            objp = h01_[ism-1];
-            break;
-          case 2:
-            objp = h02_[ism-1];
-            break;
-          default:
-            break;
-        }
+      objp = 0;
+      switch ( iCanvas ) {
+        case 1:
+          objp = h01_[ism-1];
+          break;
+        case 2:
+          objp = h02_[ism-1];
+          break;
+        default:
+          break;
+      }
+
+      if ( objp ) {
+
         meName = objp->GetName();
 
-        for ( unsigned int iMe = 0 ; iMe < meName.size(); iMe++ ) {
-          if ( meName.substr(iMe, 1) == " " )  {
-            meName.replace(iMe, 1, "_");
+        for ( unsigned int i = 0; i < meName.size(); i++ ) {
+          if ( meName.substr(i, 1) == " " )  {
+            meName.replace(i, 1, "_");
           }
         }
         imgNameME[iCanvas-1] = meName + ".png";
@@ -436,15 +442,21 @@ void EBCosmicClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       }
 
-      // Energy spectrum distributions
+    }
 
-      TH1F* obj1f = 0; 
-      obj1f = h03_[ism-1];
+    // Energy spectrum distributions
+
+    imgNameME[2] = "";
+
+    obj1f = h03_[ism-1];
+
+    if ( obj1f ) {
+
       meName = obj1f->GetName();
 
-      for ( unsigned int iAmp=0 ; iAmp < meName.size(); iAmp++ ) {
-        if ( meName.substr(iAmp,1) == " " )  {
-          meName.replace(iAmp, 1 ,"_" );
+      for ( unsigned int i = 0; i < meName.size(); i++ ) {
+        if ( meName.substr(i, 1) == " " )  {
+          meName.replace(i, 1 ,"_" );
         }
       }
       imgNameME[2] = meName + ".png";
@@ -478,6 +490,7 @@ void EBCosmicClient::htmlOutput(int run, string htmlDir, string htmlName){
         htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
 
     }
+
     htmlFile << "</tr>" << endl;
     htmlFile << "</table>" << endl;
     htmlFile << "<br>" << endl;

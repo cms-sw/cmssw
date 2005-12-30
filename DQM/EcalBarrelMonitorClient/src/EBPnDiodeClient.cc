@@ -1,8 +1,8 @@
 /*
  * \file EBPnDiodeClient.cc
- * 
- * $Date: 2005/12/29 14:57:15 $
- * $Revision: 1.26 $
+ *
+ * $Date: 2005/12/29 19:41:37 $
+ * $Revision: 1.27 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -260,7 +260,7 @@ void EBPnDiodeClient::unsubscribe(void){
   if ( verbose_ ) cout << "EBPnDiodeClient: unsubscribe" << endl;
 
   if ( collateSources_ ) {
- 
+
     if ( verbose_ ) cout << "EBPnDiodeClient: uncollate" << endl;
 
     DaqMonitorBEInterface* bei = mui_->getBEInterface();
@@ -305,7 +305,7 @@ void EBPnDiodeClient::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   ievt_++;
   jevt_++;
-  if ( ievt_ % 10 == 0 ) { 
+  if ( ievt_ % 10 == 0 ) {
     if ( verbose_ ) cout << "EBPnDiodeClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
@@ -408,7 +408,7 @@ void EBPnDiodeClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<body>  " << endl;
   htmlFile << "<br>  " << endl;
   htmlFile << "<h2>Run:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << endl;
-  htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl; 
+  htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
   htmlFile << " style=\"color: rgb(0, 0, 153);\">" << run << "</span></h2>" << endl;
   htmlFile << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
   htmlFile << " style=\"color: rgb(0, 0, 153);\">PNDIODE</span></h2> " << endl;
@@ -426,42 +426,47 @@ void EBPnDiodeClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   string imgNameME[2], imgName, meName;
 
-  TCanvas* cAmp = new TCanvas("cAmp" , "Temp", csize , csize );
+  TCanvas* cAmp = new TCanvas("cAmp", "Temp", csize, csize);
+
+  TH1D* obj1d;
 
   // Loop on barrel supermodules
 
   for ( int ism = 1 ; ism <= 36 ; ism++ ) {
 
-    if ( h01_[ism-1] && h02_[ism-1] && h03_[ism-1] && h04_[ism-1] ) {
+    // Loop on wavelength
 
-      // Loop on wavelength
+    for ( int iCanvas = 1 ; iCanvas <= 2 ; iCanvas++ ) {
 
-      for ( int iCanvas=1 ; iCanvas <= 2 ; iCanvas++ ) {
+      // Monitoring elements plots
 
-        // Monitoring elements plots
+      imgNameME[iCanvas-1] = "";
 
-        TH1D* obj1d = 0;
-        switch ( iCanvas ) { 
-          case 1:
-            obj1d = h01_[ism-1]->ProjectionY("_py", 1, 10, "e");
-            break;
-          case 2:
-            obj1d = h02_[ism-1]->ProjectionY("_py", 1, 10, "e");
-            break;
-          case 3:
-            obj1d = h03_[ism-1]->ProjectionY("_py", 1, 10, "e");
-            break;
-          case 4:
-            obj1d = h04_[ism-1]->ProjectionY("_py", 1, 10, "e");
-            break;
-          default:
-            break;
-        }
+      obj1d = 0;
+      switch ( iCanvas ) {
+        case 1:
+          if ( h01_[ism-1] ) obj1d = h01_[ism-1]->ProjectionY("_py", 1, 10, "e");
+          break;
+        case 2:
+          if ( h02_[ism-1] ) obj1d = h02_[ism-1]->ProjectionY("_py", 1, 10, "e");
+          break;
+        case 3:
+          if ( h03_[ism-1] ) obj1d = h03_[ism-1]->ProjectionY("_py", 1, 10, "e");
+          break;
+        case 4:
+          if ( h04_[ism-1] ) obj1d = h04_[ism-1]->ProjectionY("_py", 1, 10, "e");
+          break;
+        default:
+          break;
+      }
+
+      if ( obj1d ) {
+
         meName = obj1d->GetName();
 
-        for ( unsigned int iAmp=0 ; iAmp < meName.size(); iAmp++ ) {
-          if ( meName.substr(iAmp,1) == " " )  {
-            meName.replace(iAmp, 1 ,"_" );
+        for ( unsigned int i = 0; i < meName.size(); i++ ) {
+          if ( meName.substr(i, 1) == " " )  {
+            meName.replace(i, 1 ,"_" );
           }
         }
         imgNameME[iCanvas-1] = meName + ".png";
@@ -483,6 +488,7 @@ void EBPnDiodeClient::htmlOutput(int run, string htmlDir, string htmlName){
         delete obj1d;
 
       }
+
     }
 
     htmlFile << "<h3><strong>Supermodule&nbsp;&nbsp;" << ism << "</strong></h3>" << endl;
@@ -498,6 +504,7 @@ void EBPnDiodeClient::htmlOutput(int run, string htmlDir, string htmlName){
         htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
 
     }
+
     htmlFile << "</tr>" << endl;
     htmlFile << "</table>" << endl;
     htmlFile << "<br>" << endl;

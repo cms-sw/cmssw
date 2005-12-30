@@ -1,8 +1,8 @@
 /*
  * \file EBPedPreSampleClient.cc
- * 
- * $Date: 2005/12/29 14:57:15 $
- * $Revision: 1.53 $
+ *
+ * $Date: 2005/12/29 19:41:37 $
+ * $Revision: 1.54 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -402,7 +402,7 @@ void EBPedPreSampleClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<body>  " << endl;
   htmlFile << "<br>  " << endl;
   htmlFile << "<h2>Run:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << endl;
-  htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl; 
+  htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
   htmlFile << " style=\"color: rgb(0, 0, 153);\">" << run << "</span></h2>" << endl;
   htmlFile << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
   htmlFile << " style=\"color: rgb(0, 0, 153);\">PEDESTAL ON PRESAMPLE</span></h2> " << endl;
@@ -428,25 +428,32 @@ void EBPedPreSampleClient::htmlOutput(int run, string htmlDir, string htmlName){
   }
   dummy.SetMarkerSize(2);
 
-  string imgNameQual , imgNameMean , imgNameRMS , imgName , meName;
+  string imgNameQual, imgNameMean, imgNameRMS, imgName, meName;
 
-  TCanvas* cQual = new TCanvas("cQual" , "Temp", 2*csize , csize );
-  TCanvas* cMean = new TCanvas("cMean" , "Temp", csize , csize );
-  TCanvas* cRMS = new TCanvas("cRMS" , "Temp", csize , csize );
+  TCanvas* cQual = new TCanvas("cQual", "Temp", 2*csize, csize);
+  TCanvas* cMean = new TCanvas("cMean", "Temp", csize, csize);
+  TCanvas* cRMS = new TCanvas("cRMS", "Temp", csize, csize);
+
+  TH2F* obj2f;
+  TH1F* obj1f;
 
   // Loop on barrel supermodules
 
   for ( int ism = 1 ; ism <= 36 ; ism++ ) {
 
-    if ( g03_[ism-1] && p03_[ism-1] && r03_[ism-1] ) {
+    // Quality plots
 
-      TH2F* obj2f = 0; 
-      obj2f = g03_[ism-1];
+    imgNameQual = "";
+
+    obj2f = g03_[ism-1];
+
+    if ( obj2f ) {
+
       meName = obj2f->GetName();
 
-      for ( unsigned int iQual = 0 ; iQual < meName.size(); iQual++ ) {
-        if ( meName.substr(iQual, 1) == " " )  {
-          meName.replace(iQual, 1, "_");
+      for ( unsigned int i = 0; i < meName.size(); i++ ) {
+        if ( meName.substr(i, 1) == " " )  {
+          meName.replace(i, 1, "_");
         }
       }
       imgNameQual = meName + ".png";
@@ -466,15 +473,21 @@ void EBPedPreSampleClient::htmlOutput(int run, string htmlDir, string htmlName){
       cQual->Update();
       cQual->SaveAs(imgName.c_str());
 
-      // Mean distributions
+    }
 
-      TH1F* obj1f = 0; 
-      obj1f = p03_[ism-1];
+    // Mean distributions
+
+    imgNameMean = "";
+
+    obj1f = p03_[ism-1];
+
+    if ( obj1f ) {
+
       meName = obj1f->GetName();
 
-      for ( unsigned int iMean=0 ; iMean < meName.size(); iMean++ ) {
-        if ( meName.substr(iMean,1) == " " )  {
-          meName.replace(iMean, 1 ,"_" );
+      for ( unsigned int i = 0; i < meName.size(); i++ ) {
+        if ( meName.substr(i, 1) == " " )  {
+          meName.replace(i, 1 ,"_" );
         }
       }
       imgNameMean = meName + ".png";
@@ -493,14 +506,21 @@ void EBPedPreSampleClient::htmlOutput(int run, string htmlDir, string htmlName){
       cMean->SaveAs(imgName.c_str());
       gPad->SetLogy(0);
 
-      // RMS distributions
+    }
 
-      obj1f = r03_[ism-1];
+    // RMS distributions
+
+    obj1f = r03_[ism-1];
+
+    imgNameRMS = "";
+
+    if ( obj1f ) {
+
       meName = obj1f->GetName();
 
-      for ( unsigned int iRMS=0 ; iRMS < meName.size(); iRMS++ ) {
-        if ( meName.substr(iRMS,1) == " " )  {
-          meName.replace(iRMS, 1, "_");
+      for ( unsigned int i = 0; i < meName.size(); i++ ) {
+        if ( meName.substr(i, 1) == " " )  {
+          meName.replace(i, 1, "_");
         }
       }
       imgNameRMS = meName + ".png";
@@ -519,35 +539,35 @@ void EBPedPreSampleClient::htmlOutput(int run, string htmlDir, string htmlName){
       cRMS->SaveAs(imgName.c_str());
       gPad->SetLogy(0);
 
-      htmlFile << "<h3><strong>Supermodule&nbsp;&nbsp;" << ism << "</strong></h3>" << endl;
-      htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
-      htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
-      htmlFile << "<tr align=\"center\">" << endl;
-
-      if ( imgNameQual.size() != 0 ) 
-        htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameQual << "\"></td>" << endl;
-      else
-        htmlFile << "<img src=\"" << " " << "\"></td>" << endl;
-
-      htmlFile << "</tr>" << endl;
-      htmlFile << "<tr>" << endl;
-
-      if ( imgNameMean.size() != 0 ) 
-        htmlFile << "<td><img src=\"" << imgNameMean << "\"></td>" << endl;
-      else
-        htmlFile << "<img src=\"" << " " << "\"></td>" << endl;
-
-      if ( imgNameRMS.size() != 0 ) 
-        htmlFile << "<td><img src=\"" << imgNameRMS << "\"></td>" << endl;
-      else
-        htmlFile << "<img src=\"" << " " << "\"></td>" << endl;
-
-      htmlFile << "</tr>" << endl;
-
-      htmlFile << "</table>" << endl;
-      htmlFile << "<br>" << endl;
-
     }
+
+    htmlFile << "<h3><strong>Supermodule&nbsp;&nbsp;" << ism << "</strong></h3>" << endl;
+    htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+    htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+    htmlFile << "<tr align=\"center\">" << endl;
+
+    if ( imgNameQual.size() != 0 )
+      htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameQual << "\"></td>" << endl;
+    else
+      htmlFile << "<img src=\"" << " " << "\"></td>" << endl;
+
+    htmlFile << "</tr>" << endl;
+    htmlFile << "<tr>" << endl;
+
+    if ( imgNameMean.size() != 0 )
+      htmlFile << "<td><img src=\"" << imgNameMean << "\"></td>" << endl;
+    else
+      htmlFile << "<img src=\"" << " " << "\"></td>" << endl;
+
+    if ( imgNameRMS.size() != 0 )
+      htmlFile << "<td><img src=\"" << imgNameRMS << "\"></td>" << endl;
+    else
+      htmlFile << "<img src=\"" << " " << "\"></td>" << endl;
+
+    htmlFile << "</tr>" << endl;
+
+    htmlFile << "</table>" << endl;
+    htmlFile << "<br>" << endl;
 
   }
 

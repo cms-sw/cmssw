@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
- * 
- * $Date: 2005/12/29 14:57:15 $
- * $Revision: 1.62 $
+ *
+ * $Date: 2005/12/29 19:41:37 $
+ * $Revision: 1.63 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -247,7 +247,7 @@ void EcalBarrelMonitorClient::beginJob(const edm::EventSetup& c){
 }
 
 void EcalBarrelMonitorClient::beginRun(const edm::EventSetup& c){
-  
+
   if ( verbose_ ) cout << "EcalBarrelMonitorClient: beginRun" << endl;
 
   jevt_ = 0;
@@ -581,7 +581,7 @@ void EcalBarrelMonitorClient::unsubscribe(void) {
 
   }
 
-  // unsubscribe to all monitorable matching pattern 
+  // unsubscribe to all monitorable matching pattern
   mui_->unsubscribe("*/EcalBarrel/STATUS");
   mui_->unsubscribe("*/EcalBarrel/RUN");
   mui_->unsubscribe("*/EcalBarrel/EVT");
@@ -722,7 +722,7 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
 
     if ( h_ ) {
       cout << " event type = " << flush;
-      for ( int i = 1; i <=10; i++ ) {
+      for ( int i = 1; i <= 10; i++ ) {
         cout << h_->GetBinContent(i) << " " << flush;
       }
       if ( h_->GetEntries() != 0 ) {

@@ -1,8 +1,8 @@
 /*
  * \file EBElectronClient.cc
- * 
- * $Date: 2005/12/28 11:11:31 $
- * $Revision: 1.4 $
+ *
+ * $Date: 2005/12/28 21:10:50 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -110,12 +110,12 @@ void EBElectronClient::unsubscribe(void){
   if ( verbose_ ) cout << "EBElectronClient: unsubscribe" << endl;
 
   if ( collateSources_ ) {
-  
+
     if ( verbose_ ) cout << "EBElectronClient: uncollate" << endl;
 
     DaqMonitorBEInterface* bei = mui_->getBEInterface();
 
-    if ( bei ) { 
+    if ( bei ) {
 
     }
 
@@ -155,7 +155,7 @@ void EBElectronClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<body>  " << endl;
   htmlFile << "<br>  " << endl;
   htmlFile << "<h2>Run:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << endl;
-  htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl; 
+  htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
   htmlFile << " style=\"color: rgb(0, 0, 153);\">" << run << "</span></h2>" << endl;
   htmlFile << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
   htmlFile << " style=\"color: rgb(0, 0, 153);\">Electron</span></h2> " << endl;

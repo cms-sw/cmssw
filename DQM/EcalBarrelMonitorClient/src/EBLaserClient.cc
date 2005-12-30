@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
- * 
- * $Date: 2005/12/29 08:15:34 $
- * $Revision: 1.46 $
+ *
+ * $Date: 2005/12/29 14:57:15 $
+ * $Revision: 1.47 $
  * \author G. Della Ricca
  *
 */
@@ -45,7 +45,7 @@ EBLaserClient::EBLaserClient(const edm::ParameterSet& ps, MonitorUserInterface* 
 
   }
 
-  percentVariation_ = 0.4; 
+  percentVariation_ = 0.4;
 
   // collateSources switch
   collateSources_ = ps.getUntrackedParameter<bool>("collateSources", false);
@@ -180,7 +180,7 @@ void EBLaserClient::setup(void) {
 void EBLaserClient::cleanup(void) {
 
   for ( int ism = 1; ism <= 36; ism++ ) {
- 
+
     if ( h01_[ism-1] ) delete h01_[ism-1];
     h01_[ism-1] = 0;
     if ( h02_[ism-1] ) delete h02_[ism-1];
@@ -249,7 +249,7 @@ void EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* 
 
   const float n_min_tot = 1000.;
   const float n_min_bin = 50.;
-  
+
   for ( int ism = 1; ism <= 36; ism++ ) {
 
     float num01, num02, num03, num04, num05, num06, num07, num08;
@@ -352,7 +352,7 @@ void EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* 
 
           apd_bl.setAPDMean(mean01);
           apd_bl.setAPDRMS(rms01);
-          
+
           apd_bl.setAPDOverPNMean(mean02);
           apd_bl.setAPDOverPNRMS(rms02);
 
@@ -474,7 +474,7 @@ void EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* 
 
       }
     }
-  
+
   }
 
   if ( econn ) {
@@ -482,7 +482,7 @@ void EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* 
       cout << "Inserting dataset ... " << flush;
       econn->insertDataSet(&dataset_bl, runiov, runtag);
       econn->insertDataSet(&dataset_ir, runiov, runtag);
-      cout << "done." << endl; 
+      cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
@@ -642,12 +642,12 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   ievt_++;
   jevt_++;
-  if ( ievt_ % 10 == 0 ) { 
+  if ( ievt_ % 10 == 0 ) {
     if ( verbose_ ) cout << "EBLaserClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
   Char_t histo[150];
-  
+
   MonitorElement* me;
   MonitorElementT<TNamed>* ob;
 
@@ -684,7 +684,7 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
         sprintf(histo, "ME EBLT amplitude over PN SM%02d L1", ism);
         h02_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
 //        h02_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
-      } 
+      }
     }
 
     if ( collateSources_ ) {
@@ -701,7 +701,7 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
         sprintf(histo, "ME EBLT amplitude SM%02d L2", ism);
         h03_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
 //        h03_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
-      } 
+      }
     }
 
     if ( collateSources_ ) {
@@ -718,7 +718,7 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
         sprintf(histo, "ME EBLT amplitude over PN SM%02d L2", ism);
         h04_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
 //        h04_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
-      } 
+      }
     }
 
     if ( collateSources_ ) {
@@ -816,7 +816,7 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
     meanAmplL1 = meanAmplL2 = meanAmplL3 = meanAmplL4 = -1.;
     nCryL1 = nCryL2 = nCryL3 = nCryL4 = 0;
 
-    for ( int ie = 1; ie <= 85; ie++ ) { 
+    for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
 
         num01 = num03 = num05 = num07 = -1;
@@ -1045,7 +1045,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<body>  " << endl;
   htmlFile << "<br>  " << endl;
   htmlFile << "<h2>Run:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << endl;
-  htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl; 
+  htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
   htmlFile << " style=\"color: rgb(0, 0, 153);\">" << run << "</span></h2>" << endl;
   htmlFile << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
   htmlFile << " style=\"color: rgb(0, 0, 153);\">LASER</span></h2> " << endl;
@@ -1071,42 +1071,46 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
   }
   dummy.SetMarkerSize(2);
 
-  string imgNameQual[2] , imgNameAmp[2] , imgNameAmpoPN[2] , imgName , meName;
+  string imgNameQual[2], imgNameAmp[2], imgNameAmpoPN[2], imgName, meName;
 
-  TCanvas* cQual = new TCanvas("cQual" , "Temp", 2*csize , csize );
-  TCanvas* cAmp = new TCanvas("cAmp" , "Temp", csize , csize );
-  TCanvas* cAmpoPN = new TCanvas("cAmpoPN" , "Temp", csize , csize );
+  TCanvas* cQual = new TCanvas("cQual", "Temp", 2*csize , csize);
+  TCanvas* cAmp = new TCanvas("cAmp", "Temp", csize , csize);
+  TCanvas* cAmpoPN = new TCanvas("cAmpoPN", "Temp", csize, csize);
+
+  TH2F* obj2f;
+  TH1F* obj1f;
 
   // Loop on barrel supermodules
 
   for ( int ism = 1 ; ism <= 36 ; ism++ ) {
 
-    if ( g01_[ism-1] && g02_[ism-1] &&
-         a01_[ism-1] && a02_[ism-1] &&
-         aopn01_[ism-1] && aopn02_[ism-1] ) {
+    // Loop on wavelength
 
-      // Loop on wavelength
+    for ( int iCanvas = 1 ; iCanvas <= 2 ; iCanvas++ ) {
 
-      for ( int iCanvas=1 ; iCanvas <= 2 ; iCanvas++ ) {
+      // Quality plots
 
-        // Quality plots
+      imgNameQual[iCanvas-1] = "";
 
-        TH2F* obj2f = 0; 
-        switch ( iCanvas ) {
-          case 1:
-            obj2f = g01_[ism-1];
-            break;
-          case 2:
-            obj2f = g02_[ism-1];
-            break;
-          default:
-           break;
-        }
+      obj2f = 0;
+      switch ( iCanvas ) {
+        case 1:
+          obj2f = g01_[ism-1];
+          break;
+        case 2:
+          obj2f = g02_[ism-1];
+          break;
+        default:
+         break;
+      }
+
+      if ( obj2f ) {
+
         meName = obj2f->GetName();
 
-        for ( unsigned int iQual = 0 ; iQual < meName.size(); iQual++ ) {
-          if ( meName.substr(iQual, 1) == " " )  {
-            meName.replace(iQual, 1, "_");
+        for ( unsigned int i = 0; i < meName.size(); i++ ) {
+          if ( meName.substr(i, 1) == " " )  {
+            meName.replace(i, 1, "_");
           }
         }
         imgNameQual[iCanvas-1] = meName + ".png";
@@ -1126,24 +1130,31 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         cQual->Update();
         cQual->SaveAs(imgName.c_str());
 
-        // Amplitude distributions
+      }
 
-        TH1F* obj1f = 0; 
-        switch ( iCanvas ) {
-          case 1:
-            obj1f = a01_[ism-1];
-            break;
-          case 2:
-            obj1f = a02_[ism-1];
-            break;
-          default:
-            break;
-        }
+      // Amplitude distributions
+
+      imgNameAmp[iCanvas-1] = "";
+
+      obj1f = 0;
+      switch ( iCanvas ) {
+        case 1:
+          obj1f = a01_[ism-1];
+          break;
+        case 2:
+          obj1f = a02_[ism-1];
+          break;
+        default:
+          break;
+      }
+
+      if ( obj1f ) {
+
         meName = obj1f->GetName();
 
-        for ( unsigned int iAmp=0 ; iAmp < meName.size(); iAmp++ ) {
-          if ( meName.substr(iAmp,1) == " " )  {
-            meName.replace(iAmp, 1 ,"_" );
+        for ( unsigned int i = 0; i < meName.size(); i++ ) {
+          if ( meName.substr(i, 1) == " " )  {
+            meName.replace(i, 1 ,"_" );
           }
         }
         imgNameAmp[iCanvas-1] = meName + ".png";
@@ -1163,23 +1174,31 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         cAmp->SaveAs(imgName.c_str());
         gPad->SetLogy(0);
 
-        // Amplitude over PN distributions
+      }
 
-        switch ( iCanvas ) {
-          case 1:
-            obj1f = aopn01_[ism-1];
-            break;
-          case 2:
-            obj1f = aopn02_[ism-1];
-            break;
-          default:
-            break;
-        }
+      // Amplitude over PN distributions
+
+      imgNameAmpoPN[iCanvas-1] = "";
+
+      obj1f = 0;
+      switch ( iCanvas ) {
+        case 1:
+          obj1f = aopn01_[ism-1];
+          break;
+        case 2:
+          obj1f = aopn02_[ism-1];
+          break;
+        default:
+          break;
+      }
+
+      if ( obj1f ) {
+
         meName = obj1f->GetName();
 
-        for ( unsigned int iAmpoPN=0 ; iAmpoPN < meName.size(); iAmpoPN++ ) {
-          if ( meName.substr(iAmpoPN,1) == " " )  {
-            meName.replace(iAmpoPN, 1, "_");
+        for ( unsigned int i = 0; i < meName.size(); i++ ) {
+          if ( meName.substr(i, 1) == " " )  {
+            meName.replace(i, 1, "_");
           }
         }
         imgNameAmpoPN[iCanvas-1] = meName + ".png";
@@ -1200,43 +1219,44 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       }
 
-      htmlFile << "<h3><strong>Supermodule&nbsp;&nbsp;" << ism << "</strong></h3>" << endl;
-      htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
-      htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
-      htmlFile << "<tr align=\"center\">" << endl;
+    }
 
-      for ( int iCanvas = 1 ; iCanvas <= 2 ; iCanvas++ ) {
+    htmlFile << "<h3><strong>Supermodule&nbsp;&nbsp;" << ism << "</strong></h3>" << endl;
+    htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+    htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+    htmlFile << "<tr align=\"center\">" << endl;
 
-        if ( imgNameQual[iCanvas-1].size() != 0 ) 
-          htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameQual[iCanvas-1] << "\"></td>" << endl;
-        else
-          htmlFile << "<img src=\"" << " " << "\"></td>" << endl;
+    for ( int iCanvas = 1 ; iCanvas <= 2 ; iCanvas++ ) {
 
-      }
-      htmlFile << "</tr>" << endl;
-      htmlFile << "<tr>" << endl;
-
-      for ( int iCanvas = 1 ; iCanvas <= 2 ; iCanvas++ ) {
-
-        if ( imgNameAmp[iCanvas-1].size() != 0 ) 
-          htmlFile << "<td><img src=\"" << imgNameAmp[iCanvas-1] << "\"></td>" << endl;
-        else
-          htmlFile << "<img src=\"" << " " << "\"></td>" << endl;
-
-        if ( imgNameAmpoPN[iCanvas-1].size() != 0 ) 
-          htmlFile << "<td><img src=\"" << imgNameAmpoPN[iCanvas-1] << "\"></td>" << endl;
-        else
-          htmlFile << "<img src=\"" << " " << "\"></td>" << endl;
-
-      }
-
-      htmlFile << "</tr>" << endl;
-
-      htmlFile << "<tr align=\"center\"><td colspan=\"2\">Laser 1</td><td colspan=\"2\">Laser 2</td></tr>" << endl;
-      htmlFile << "</table>" << endl;
-      htmlFile << "<br>" << endl;
+      if ( imgNameQual[iCanvas-1].size() != 0 )
+        htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameQual[iCanvas-1] << "\"></td>" << endl;
+      else
+        htmlFile << "<img src=\"" << " " << "\"></td>" << endl;
 
     }
+
+    htmlFile << "</tr>" << endl;
+    htmlFile << "<tr>" << endl;
+
+    for ( int iCanvas = 1 ; iCanvas <= 2 ; iCanvas++ ) {
+
+      if ( imgNameAmp[iCanvas-1].size() != 0 )
+        htmlFile << "<td><img src=\"" << imgNameAmp[iCanvas-1] << "\"></td>" << endl;
+      else
+        htmlFile << "<img src=\"" << " " << "\"></td>" << endl;
+
+      if ( imgNameAmpoPN[iCanvas-1].size() != 0 )
+        htmlFile << "<td><img src=\"" << imgNameAmpoPN[iCanvas-1] << "\"></td>" << endl;
+      else
+        htmlFile << "<img src=\"" << " " << "\"></td>" << endl;
+
+    }
+
+    htmlFile << "</tr>" << endl;
+
+    htmlFile << "<tr align=\"center\"><td colspan=\"2\">Laser 1</td><td colspan=\"2\">Laser 2</td></tr>" << endl;
+    htmlFile << "</table>" << endl;
+    htmlFile << "<br>" << endl;
 
   }
 
