@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
- * 
- * $Date: 2005/12/22 08:49:21 $
- * $Revision: 1.4 $
+ *
+ * $Date: 2005/12/29 19:41:38 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  *
 */
@@ -28,14 +28,14 @@ EBIntegrityTask::EBIntegrityTask(const edm::ParameterSet& ps, DaqMonitorBEInterf
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBIT gain SM%02d", i+1);
       meIntegrityGain[i] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
-    } 
-    
+    }
+
     // checking when channel has unexpected or invalid ID
     dbe->setCurrentFolder("EcalBarrel/EcalIntegrity/ChId");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBIT ChId SM%02d", i+1);
       meIntegrityChId[i] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
-    } 
+    }
 
     // checking when channel has unexpected or invalid ID
     dbe->setCurrentFolder("EcalBarrel/EcalIntegrity/GainSwitch");
@@ -63,7 +63,7 @@ EBIntegrityTask::EBIntegrityTask(const edm::ParameterSet& ps, DaqMonitorBEInterf
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBIT TTBlockSize SM%02d", i+1);
       meIntegrityTTBlockSize[i] = dbe->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
-    } 
+    }
 
   }
 

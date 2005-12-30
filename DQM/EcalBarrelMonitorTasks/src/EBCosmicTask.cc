@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
- * 
- * $Date: 2005/11/25 12:57:37 $
- * $Revision: 1.28 $
+ *
+ * $Date: 2005/12/10 10:44:59 $
+ * $Revision: 1.29 $
  * \author G. Della Ricca
  *
 */

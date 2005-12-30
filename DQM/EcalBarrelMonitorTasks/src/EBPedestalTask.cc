@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalTask.cc
- * 
- * $Date: 2005/11/20 16:43:39 $
- * $Revision: 1.21 $
+ *
+ * $Date: 2005/12/10 10:44:59 $
+ * $Revision: 1.22 $
  * \author G. Della Ricca
  *
 */
@@ -48,7 +48,7 @@ EBPedestalTask::~EBPedestalTask(){
 void EBPedestalTask::beginJob(const edm::EventSetup& c){
 
   ievt_ = 0;
-    
+
 }
 
 void EBPedestalTask::endJob(){

@@ -1,8 +1,8 @@
 /*
  * \file EBPedPreSampleTask.cc
- * 
- * $Date: 2005/12/23 08:35:39 $
- * $Revision: 1.1 $
+ *
+ * $Date: 2005/12/29 19:41:38 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  *
 */
@@ -37,7 +37,7 @@ EBPedPreSampleTask::~EBPedPreSampleTask(){
 void EBPedPreSampleTask::beginJob(const edm::EventSetup& c){
 
   ievt_ = 0;
-    
+
 }
 
 void EBPedPreSampleTask::endJob(){

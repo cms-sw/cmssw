@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
- * 
- * $Date: 2005/12/10 10:44:59 $
- * $Revision: 1.30 $
+ *
+ * $Date: 2005/12/29 19:41:38 $
+ * $Revision: 1.31 $
  * \author G. Della Ricca
  *
 */
@@ -63,7 +63,7 @@ EBTestPulseTask::~EBTestPulseTask(){
 void EBTestPulseTask::beginJob(const edm::EventSetup& c){
 
   ievt_ = 0;
-    
+
 }
 
 void EBTestPulseTask::endJob(){

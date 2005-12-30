@@ -4,8 +4,8 @@
 /*
  * \file EBPedPreSampleClient.h
  *
- * $Date: 2005/12/28 21:10:48 $
- * $Revision: 1.17 $
+ * $Date: 2005/12/29 14:57:13 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -115,7 +115,7 @@ TH1F* r03_[36];
 
 float expectedMean_;
 float discrepancyMean_;
-float RMSThreshold_; 
+float RMSThreshold_;
 
 };
 

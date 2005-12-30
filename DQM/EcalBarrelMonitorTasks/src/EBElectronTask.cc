@@ -1,7 +1,7 @@
 /*
  * \file EBElectronTask.cc
- * 
- * $Date: 2005/12/23 08:35:39 $
+ *
+ * $Date: 2005/12/23 08:57:18 $
  * $Revision: 1.1 $
  * \author G. Della Ricca
  *
@@ -29,7 +29,7 @@ EBElectronTask::~EBElectronTask(){
 void EBElectronTask::beginJob(const edm::EventSetup& c){
 
   ievt_ = 0;
-    
+
 }
 
 void EBElectronTask::endJob(){

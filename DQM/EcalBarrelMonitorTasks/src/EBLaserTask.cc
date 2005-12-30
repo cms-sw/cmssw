@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
- * 
- * $Date: 2005/12/06 09:55:11 $
- * $Revision: 1.30 $
+ *
+ * $Date: 2005/12/10 10:44:59 $
+ * $Revision: 1.31 $
  * \author G. Della Ricca
  *
 */
@@ -71,7 +71,7 @@ EBLaserTask::~EBLaserTask(){
 void EBLaserTask::beginJob(const edm::EventSetup& c){
 
   ievt_ = 0;
-    
+
 }
 
 void EBLaserTask::endJob(){

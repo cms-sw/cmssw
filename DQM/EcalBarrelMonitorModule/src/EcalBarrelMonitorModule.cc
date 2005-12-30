@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
- * 
- * $Date: 2005/12/27 07:34:38 $
- * $Revision: 1.68 $
+ *
+ * $Date: 2005/12/28 11:00:10 $
+ * $Revision: 1.69 $
  * \author G. Della Ricca
  *
 */
@@ -60,7 +60,7 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
     }
   }
 
-  //We put this here for the moment since there is no better place 
+  //We put this here for the moment since there is no better place
   edm::Service<MonitorDaemon> daemon;
   daemon.operator->();
 

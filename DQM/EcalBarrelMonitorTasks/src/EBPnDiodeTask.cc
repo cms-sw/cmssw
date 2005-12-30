@@ -1,8 +1,8 @@
 /*
  * \file EBPnDiodeTask.cc
- * 
- * $Date: 2005/12/20 13:51:51 $
- * $Revision: 1.7 $
+ *
+ * $Date: 2005/12/29 19:41:38 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  *
 */
@@ -55,7 +55,7 @@ EBPnDiodeTask::~EBPnDiodeTask(){
 void EBPnDiodeTask::beginJob(const edm::EventSetup& c){
 
   ievt_ = 0;
-    
+
 }
 
 void EBPnDiodeTask::endJob(){
