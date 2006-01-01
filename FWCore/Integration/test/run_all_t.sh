@@ -8,6 +8,8 @@ ${LOCAL_TEST_DIR}/refTest.sh || die 'Failed in refTest.sh' $?
 
 ${LOCAL_TEST_DIR}/inputSourceTest.sh || die 'Failed in inputSourceTest.sh' $?
 
+${LOCAL_TEST_DIR}/inputExtSourceTest.sh || die 'Failed in inputExtSourceTest.sh' $?
+
 ${LOCAL_TEST_DIR}/eventSetupTest.sh || die 'Failed in eventSetupTest.sh' $?
 
 ${LOCAL_TEST_DIR}/context_using_example.sh || die 'Failed in context_using_example.sh' $?
