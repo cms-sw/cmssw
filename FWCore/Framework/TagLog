@@ -1,3 +1,6 @@
+** V01-03-02  [Sun Jan  1 19:52:21 2006]
+External input source must terminate when no more data is available
+
 ** V01-03-01  [Thu Dec 29 21:13:31 2005]
 A fix for InputSource Standardization/Simplification
 
