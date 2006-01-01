@@ -1,3 +1,6 @@
+** V00-04-00  [Sun Jan  1 19:55:54 2006]
+Add specific test for ExternalInputSource
+
 ** V00-03-01  [Fri Dec 30 19:21:00 2005]
 Eliminate duplicate typedefs
 
