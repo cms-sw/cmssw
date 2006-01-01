@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: GenericInputSource.cc,v 1.1 2005/12/28 00:49:48 wmtan Exp $
+$Id: GenericInputSource.cc,v 1.2 2005/12/29 20:10:29 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <stdexcept>
@@ -43,7 +43,9 @@ namespace edm {
       setRunAndEventInfo();
       result = std::auto_ptr<EventPrincipal>(new EventPrincipal(eventID_, Timestamp(presentTime_), productRegistry()));
       Event e(*result, module_);
-      produce(e);
+      if (!produce(e)) {
+        return std::auto_ptr<EventPrincipal>(0); 
+      }
       e.commit_();
       ++numberEventsInThisRun_;
       --remainingEvents_;
