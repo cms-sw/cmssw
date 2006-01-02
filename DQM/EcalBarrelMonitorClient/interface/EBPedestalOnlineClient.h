@@ -1,11 +1,11 @@
-#ifndef EBPedPreSampleClient_H
-#define EBPedPreSampleClient_H
+#ifndef EBPedestalOnlineClient_H
+#define EBPedestalOnlineClient_H
 
 /*
- * \file EBPedPreSampleClient.h
+ * \file EBPedestalOnlineClient.h
  *
- * $Date: 2005/12/29 14:57:13 $
- * $Revision: 1.18 $
+ * $Date: 2005/12/30 10:26:42 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -29,8 +29,9 @@
 #include "CalibCalorimetry/EcalDBInterface/interface/EcalCondDBInterface.h"
 #include "CalibCalorimetry/EcalDBInterface/interface/RunTag.h"
 #include "CalibCalorimetry/EcalDBInterface/interface/RunIOV.h"
+#include "CalibCalorimetry/EcalDBInterface/interface/MonRunIOV.h"
 
-//#include "CalibCalorimetry/EcalDBInterface/interface/MonPedPreSampleDat.h"
+#include "CalibCalorimetry/EcalDBInterface/interface/MonPedestalsOnlineDat.h"
 
 #include "TROOT.h"
 #include "TStyle.h"
@@ -44,17 +45,17 @@
 using namespace cms;
 using namespace std;
 
-class EBPedPreSampleClient: public edm::EDAnalyzer{
+class EBPedestalOnlineClient: public edm::EDAnalyzer{
 
 friend class EcalBarrelMonitorClient;
 
 public:
 
 /// Constructor
-EBPedPreSampleClient(const edm::ParameterSet& ps, MonitorUserInterface* mui);
+EBPedestalOnlineClient(const edm::ParameterSet& ps, MonitorUserInterface* mui);
 
 /// Destructor
-virtual ~EBPedPreSampleClient();
+virtual ~EBPedestalOnlineClient();
 
 protected:
 
@@ -88,7 +89,7 @@ void cleanup(void);
 void htmlOutput(int run, string htmlDir, string htmlName);
 
 /// WriteDB
-void writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* runtag);
+void writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov);
 
 private:
 
