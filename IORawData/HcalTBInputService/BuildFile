@@ -4,6 +4,7 @@
 <use name=root>
 <use name=Dictionary/Reflection>
 <use name=Framework/SealKernel>
+<use name=FWCore/MessageLogger>
 <use name=DataFormats/FEDRawData>
 <flags SEAL_PLUGIN_NAME="IORawDataHcalTBInputService">
 
@@ -13,6 +14,7 @@
  <use name=FWCore/Framework>
  <use name=Dictionary/Reflection>
  <use name=Framework/SealKernel>
+ <use name=FWCore/MessageLogger>
  <use name=boost> 
  <use name=root>
  <use name=DataFormats/FEDRawData>
