@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2005/12/30 11:19:36 $
- * $Revision: 1.48 $
+ * $Date: 2005/12/30 14:05:30 $
+ * $Revision: 1.49 $
  * \author G. Della Ricca
  *
 */
@@ -233,19 +233,19 @@ void EBLaserClient::cleanup(void) {
 
 }
 
-void EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* runtag) {
+void EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
 
   EcalLogicID ecid;
   MonLaserBlueDat apd_bl;
   map<EcalLogicID, MonLaserBlueDat> dataset_bl;
   MonLaserGreenDat apd_gr;
   map<EcalLogicID, MonLaserGreenDat> dataset_gr;
-  MonLaserInfraredDat apd_ir;
-  map<EcalLogicID, MonLaserInfraredDat> dataset_ir;
+  MonLaserIRedDat apd_ir;
+  map<EcalLogicID, MonLaserIRedDat> dataset_ir;
   MonLaserRedDat apd_rd;
   map<EcalLogicID, MonLaserRedDat> dataset_rd;
 
-  cout << "Creating MonLaserDatObjects to database ..." << endl;
+  cout << "Creating MonLaserDatObjects for the database ..." << endl;
 
   const float n_min_tot = 1000.;
   const float n_min_bin = 50.;
@@ -480,8 +480,10 @@ void EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* 
   if ( econn ) {
     try {
       cout << "Inserting dataset ... " << flush;
-      econn->insertDataSet(&dataset_bl, runiov, runtag);
-      econn->insertDataSet(&dataset_ir, runiov, runtag);
+      if ( dataset_bl.size() != 0 ) econn->insertDataSet(&dataset_bl, moniov);
+      if ( dataset_ir.size() != 0 ) econn->insertDataSet(&dataset_ir, moniov);
+      if ( dataset_gr.size() != 0 ) econn->insertDataSet(&dataset_gr, moniov);
+      if ( dataset_rd.size() != 0 ) econn->insertDataSet(&dataset_rd, moniov);
       cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
@@ -796,20 +798,20 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
     float mean01, mean02, mean03, mean04, mean05, mean06, mean07, mean08;
     float rms01, rms02, rms03, rms04, rms05, rms06, rms07, rms08;
 
-    g01_[ism-1]->Reset();
-    g02_[ism-1]->Reset();
-    g03_[ism-1]->Reset();
-    g04_[ism-1]->Reset();
+    if ( g01_[ism-1] ) g01_[ism-1]->Reset();
+    if ( g02_[ism-1] ) g02_[ism-1]->Reset();
+    if ( g03_[ism-1] ) g03_[ism-1]->Reset();
+    if ( g04_[ism-1] ) g04_[ism-1]->Reset();
 
-    a01_[ism-1]->Reset();
-    a02_[ism-1]->Reset();
-    a03_[ism-1]->Reset();
-    a04_[ism-1]->Reset();
+    if ( g01_[ism-1] ) a01_[ism-1]->Reset();
+    if ( a02_[ism-1] ) a02_[ism-1]->Reset();
+    if ( a03_[ism-1] ) a03_[ism-1]->Reset();
+    if ( a04_[ism-1] ) a04_[ism-1]->Reset();
 
-    aopn01_[ism-1]->Reset();
-    aopn02_[ism-1]->Reset();
-    aopn03_[ism-1]->Reset();
-    aopn04_[ism-1]->Reset();
+    if ( aopn01_[ism-1] ) aopn01_[ism-1]->Reset();
+    if ( aopn01_[ism-1] ) aopn02_[ism-1]->Reset();
+    if ( aopn01_[ism-1] ) aopn03_[ism-1]->Reset();
+    if ( aopn01_[ism-1] ) aopn04_[ism-1]->Reset();
 
     float meanAmplL1, meanAmplL2, meanAmplL3, meanAmplL4;
     int nCryL1, nCryL2, nCryL3, nCryL4;
@@ -868,10 +870,10 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
         mean01 = mean02 = mean03 = mean04 = mean05 = mean06 = mean07 = mean08 = -1.;
         rms01  = rms02  = rms03  = rms04  = rms05  = rms06  = rms07  = rms08  = -1.;
 
-        g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), 2.);
-        g02_[ism-1]->SetBinContent(g02_[ism-1]->GetBin(ie, ip), 2.);
-        g03_[ism-1]->SetBinContent(g03_[ism-1]->GetBin(ie, ip), 2.);
-        g04_[ism-1]->SetBinContent(g04_[ism-1]->GetBin(ie, ip), 2.);
+        if ( g01_[ism-1] ) g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), 2.);
+        if ( g02_[ism-1] ) g02_[ism-1]->SetBinContent(g02_[ism-1]->GetBin(ie, ip), 2.);
+        if ( g03_[ism-1] ) g03_[ism-1]->SetBinContent(g03_[ism-1]->GetBin(ie, ip), 2.);
+        if ( g04_[ism-1] ) g04_[ism-1]->SetBinContent(g04_[ism-1]->GetBin(ie, ip), 2.);
 
         bool update_channel1 = false;
         bool update_channel2 = false;
@@ -957,13 +959,13 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
           val = 1.;
           if ( abs(mean01 - meanAmplL1) > abs(percentVariation_ * meanAmplL1) )
             val = 0.;
-          g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), val);
+          if ( g01_[ism-1] ) g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), val);
 
-          a01_[ism-1]->SetBinContent(ip+20*(ie-1), mean01);
-          a01_[ism-1]->SetBinError(ip+20*(ie-1), rms01);
+          if ( a01_[ism-1] ) a01_[ism-1]->SetBinContent(ip+20*(ie-1), mean01);
+          if ( a01_[ism-1] ) a01_[ism-1]->SetBinError(ip+20*(ie-1), rms01);
 
-          aopn01_[ism-1]->SetBinContent(ip+20*(ie-1), mean02);
-          aopn01_[ism-1]->SetBinError(ip+20*(ie-1), rms02);
+          if ( aopn01_[ism-1] ) aopn01_[ism-1]->SetBinContent(ip+20*(ie-1), mean02);
+          if ( aopn01_[ism-1] ) aopn01_[ism-1]->SetBinError(ip+20*(ie-1), rms02);
 
         }
 
@@ -974,13 +976,13 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
           val = 1.;
           if ( abs(mean03 - meanAmplL2) > abs(percentVariation_ * meanAmplL2) )
             val = 0.;
-          g02_[ism-1]->SetBinContent(g02_[ism-1]->GetBin(ie, ip), val);
+          if ( g02_[ism-1] ) g02_[ism-1]->SetBinContent(g02_[ism-1]->GetBin(ie, ip), val);
 
-          a02_[ism-1]->SetBinContent(ip+20*(ie-1), mean03);
-          a02_[ism-1]->SetBinError(ip+20*(ie-1), rms03);
+          if ( a02_[ism-1] ) a02_[ism-1]->SetBinContent(ip+20*(ie-1), mean03);
+          if ( a02_[ism-1] ) a02_[ism-1]->SetBinError(ip+20*(ie-1), rms03);
 
-          aopn02_[ism-1]->SetBinContent(ip+20*(ie-1), mean04);
-          aopn02_[ism-1]->SetBinError(ip+20*(ie-1), rms04);
+          if ( aopn02_[ism-1] ) aopn02_[ism-1]->SetBinContent(ip+20*(ie-1), mean04);
+          if ( aopn02_[ism-1] ) aopn02_[ism-1]->SetBinError(ip+20*(ie-1), rms04);
 
         }
 
@@ -991,13 +993,13 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
           val = 1.;
           if ( abs(mean05 - meanAmplL3) > abs(percentVariation_ * meanAmplL3) )
             val = 0.;
-          g03_[ism-1]->SetBinContent(g03_[ism-1]->GetBin(ie, ip), val);
+          if ( g03_[ism-1] ) g03_[ism-1]->SetBinContent(g03_[ism-1]->GetBin(ie, ip), val);
 
-          a03_[ism-1]->SetBinContent(ip+20*(ie-1), mean05);
-          a03_[ism-1]->SetBinError(ip+20*(ie-1), rms05);
+          if ( a03_[ism-1] ) a03_[ism-1]->SetBinContent(ip+20*(ie-1), mean05);
+          if ( a03_[ism-1] ) a03_[ism-1]->SetBinError(ip+20*(ie-1), rms05);
 
-          aopn03_[ism-1]->SetBinContent(ip+20*(ie-1), mean06);
-          aopn03_[ism-1]->SetBinError(ip+20*(ie-1), rms06);
+          if ( aopn03_[ism-1] ) aopn03_[ism-1]->SetBinContent(ip+20*(ie-1), mean06);
+          if ( aopn03_[ism-1] ) aopn03_[ism-1]->SetBinError(ip+20*(ie-1), rms06);
 
         }
 
@@ -1008,13 +1010,13 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
           val = 1.;
           if ( abs(mean07 - meanAmplL4) > abs(percentVariation_ * meanAmplL4) )
             val = 0.;
-          g04_[ism-1]->SetBinContent(g04_[ism-1]->GetBin(ie, ip), val);
+          if ( g04_[ism-1] ) g04_[ism-1]->SetBinContent(g04_[ism-1]->GetBin(ie, ip), val);
 
-          a04_[ism-1]->SetBinContent(ip+20*(ie-1), mean07);
-          a04_[ism-1]->SetBinError(ip+20*(ie-1), rms07);
+          if ( a04_[ism-1] ) a04_[ism-1]->SetBinContent(ip+20*(ie-1), mean07);
+          if ( a04_[ism-1] ) a04_[ism-1]->SetBinError(ip+20*(ie-1), rms07);
 
-          aopn04_[ism-1]->SetBinContent(ip+20*(ie-1), mean08);
-          aopn04_[ism-1]->SetBinError(ip+20*(ie-1), rms08);
+          if ( aopn04_[ism-1] ) aopn04_[ism-1]->SetBinContent(ip+20*(ie-1), mean08);
+          if ( aopn04_[ism-1] ) aopn04_[ism-1]->SetBinError(ip+20*(ie-1), rms08);
 
         }
 

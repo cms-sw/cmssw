@@ -1,8 +1,8 @@
 /*
  * \file EBElectronClient.cc
  *
- * $Date: 2005/12/30 11:19:36 $
- * $Revision: 1.6 $
+ * $Date: 2005/12/30 14:05:30 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -71,14 +71,14 @@ void EBElectronClient::cleanup(void) {
 
 }
 
-void EBElectronClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* runtag) {
+void EBElectronClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
 
   cout << "Creating MonElectronDatObjects for the database ..." << endl;
 
   if ( econn ) {
     try {
-      cout << "Preparing dataset ... " << flush;
-//      econn->insertDataSet(&dataset, runiov, runtag );
+      cout << "Inserting dataset ..." << flush;
+//      econn->insertDataSet(&dataset, moniov );
       cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;

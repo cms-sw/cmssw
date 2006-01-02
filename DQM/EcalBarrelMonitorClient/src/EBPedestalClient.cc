@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2005/12/30 11:19:36 $
- * $Revision: 1.49 $
+ * $Date: 2005/12/30 14:05:30 $
+ * $Revision: 1.50 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -207,13 +207,13 @@ void EBPedestalClient::cleanup(void) {
 
 }
 
-void EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* runtag) {
+void EBPedestalClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
 
   EcalLogicID ecid;
   MonPedestalsDat p;
   map<EcalLogicID, MonPedestalsDat> dataset;
 
-  cout << "Creating MonPedestalsDatObjects to database ..." << endl;
+  cout << "Creating MonPedestalsDatObjects for the database ..." << endl;
 
   const float n_min_tot = 1000.;
   const float n_min_bin = 50.;
@@ -281,9 +281,9 @@ void EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
           p.setPedMeanG12(mean03);
           p.setPedRMSG12(rms03);
 
-          if ( g01_[ism-1]->GetBinContent(g01_[ism-1]->GetBin(ie, ip)) == 1. &&
-               g02_[ism-1]->GetBinContent(g02_[ism-1]->GetBin(ie, ip)) == 1. &&
-               g03_[ism-1]->GetBinContent(g03_[ism-1]->GetBin(ie, ip)) == 1. ) {
+          if ( g01_[ism-1] && g01_[ism-1]->GetBinContent(g01_[ism-1]->GetBin(ie, ip)) == 1. &&
+               g02_[ism-1] && g02_[ism-1]->GetBinContent(g02_[ism-1]->GetBin(ie, ip)) == 1. &&
+               g03_[ism-1] && g03_[ism-1]->GetBinContent(g03_[ism-1]->GetBin(ie, ip)) == 1. ) {
             p.setTaskStatus(true);
           } else {
             p.setTaskStatus(false);
@@ -308,7 +308,7 @@ void EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunTa
   if ( econn ) {
     try {
       cout << "Inserting dataset ... " << flush;
-      econn->insertDataSet(&dataset, runiov, runtag);
+      if ( dataset.size() != 0 ) econn->insertDataSet(&dataset, moniov);
       cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
@@ -478,17 +478,17 @@ void EBPedestalClient::analyze(const edm::Event& e, const edm::EventSetup& c){
     float mean01, mean02, mean03;
     float rms01, rms02, rms03;
 
-    g01_[ism-1]->Reset();
-    g02_[ism-1]->Reset();
-    g03_[ism-1]->Reset();
+    if ( g01_[ism-1] ) g01_[ism-1]->Reset();
+    if ( g02_[ism-1] ) g02_[ism-1]->Reset();
+    if ( g03_[ism-1] ) g03_[ism-1]->Reset();
 
-    p01_[ism-1]->Reset();
-    p02_[ism-1]->Reset();
-    p03_[ism-1]->Reset();
+    if ( p01_[ism-1] ) p01_[ism-1]->Reset();
+    if ( p02_[ism-1] ) p02_[ism-1]->Reset();
+    if ( p03_[ism-1] ) p03_[ism-1]->Reset();
 
-    r01_[ism-1]->Reset();
-    r02_[ism-1]->Reset();
-    r03_[ism-1]->Reset();
+    if ( r01_[ism-1] ) r01_[ism-1]->Reset();
+    if ( r02_[ism-1] ) r02_[ism-1]->Reset();
+    if ( r03_[ism-1] ) r03_[ism-1]->Reset();
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
@@ -497,9 +497,9 @@ void EBPedestalClient::analyze(const edm::Event& e, const edm::EventSetup& c){
         mean01 = mean02 = mean03 = -1.;
         rms01  = rms02  = rms03  = -1.;
 
-        g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), 2.);
-        g02_[ism-1]->SetBinContent(g02_[ism-1]->GetBin(ie, ip), 2.);
-        g03_[ism-1]->SetBinContent(g03_[ism-1]->GetBin(ie, ip), 2.);
+        if ( g01_[ism-1] ) g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), 2.);
+        if ( g02_[ism-1] ) g02_[ism-1]->SetBinContent(g02_[ism-1]->GetBin(ie, ip), 2.);
+        if ( g03_[ism-1] ) g03_[ism-1]->SetBinContent(g03_[ism-1]->GetBin(ie, ip), 2.);
 
         bool update_channel = false;
 
@@ -539,30 +539,30 @@ void EBPedestalClient::analyze(const edm::Event& e, const edm::EventSetup& c){
             val = 0.;
           if ( rms01 > RMSThreshold_[0] )
             val = 0.;
-          g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), val);
+          if ( g01_[ism-1] ) g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), val);
 
-          p01_[ism-1]->Fill(mean01);
-          r01_[ism-1]->Fill(rms01);
+          if ( p01_[ism-1] ) p01_[ism-1]->Fill(mean01);
+          if ( r01_[ism-1] ) r01_[ism-1]->Fill(rms01);
 
           val = 1.;
           if ( abs(mean02 - expectedMean_[1]) > discrepancyMean_[1] )
             val = 0.;
           if ( rms02 > RMSThreshold_[1] )
             val = 0.;
-          g02_[ism-1]->SetBinContent(g02_[ism-1]->GetBin(ie, ip), val);
+          if ( g02_[ism-1] ) g02_[ism-1]->SetBinContent(g02_[ism-1]->GetBin(ie, ip), val);
 
-          p02_[ism-1]->Fill(mean02);
-          r02_[ism-1]->Fill(rms02);
+          if ( p02_[ism-1] ) p02_[ism-1]->Fill(mean02);
+          if ( r02_[ism-1] ) r02_[ism-1]->Fill(rms02);
 
           val = 1.;
           if ( abs(mean03 - expectedMean_[2]) > discrepancyMean_[2] )
             val = 0.;
           if ( rms03 > RMSThreshold_[2] )
             val = 0.;
-          g03_[ism-1]->SetBinContent(g03_[ism-1]->GetBin(ie, ip), val);
+          if ( g03_[ism-1] ) g03_[ism-1]->SetBinContent(g03_[ism-1]->GetBin(ie, ip), val);
 
-          p03_[ism-1]->Fill(mean03);
-          r03_[ism-1]->Fill(rms03);
+          if ( p03_[ism-1] ) p03_[ism-1]->Fill(mean03);
+          if ( r03_[ism-1] ) r03_[ism-1]->Fill(rms03);
 
         }
 

@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2005/12/30 15:18:47 $
- * $Revision: 1.63 $
+ * $Date: 2005/12/30 15:24:57 $
+ * $Revision: 1.64 $
  * \author G. Della Ricca
  *
 */
@@ -149,13 +149,15 @@ void EBIntegrityClient::cleanup(void) {
 
 }
 
-void EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* runtag) {
+void EBIntegrityClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
 
   EcalLogicID ecid;
-  RunConsistencyDat c;
-  map<EcalLogicID, RunConsistencyDat> dataset;
+  MonCrystalConsistencyDat c1;
+  map<EcalLogicID, MonCrystalConsistencyDat> dataset1;
+  MonTTConsistencyDat c2;
+  map<EcalLogicID, MonTTConsistencyDat> dataset2;
 
-  cout << "Creating RunConsistencyDatObjects for the database ..." << endl;
+  cout << "Creating MonConsistencyDatObjects for the database ..." << endl;
 
   const float n_min_bin = 0.;
 
@@ -163,40 +165,47 @@ void EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunT
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
+    num00 = 0.;
+
+    bool update_channel = false;
+
+    if ( h00_ ) {
+      num00  = h00_->GetBinContent(h00_->GetBin(ism));
+      if ( num00 > n_min_bin ) update_channel = true;
+    }
+
     float num01, num02, num03, num04, num05, num06;
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
 
-        num00 = -1.;
+        num01 = num02 = num03 = num04 = num05 = num06 = 0.;
 
-        num01 = num02 = num03 = num04 = num05 = num06 = -1.;
+        bool update_channel1 = false;
+        bool update_channel2 = false;
 
-        bool update_channel = false;
+        float numTot = 0.;
 
-        if ( h00_ ) {
-          num00  = h00_->GetBinContent(h00_->GetBin(ism));
-          if ( num00 > n_min_bin ) update_channel = true;
-        }
+        if ( h_[ism-1] ) numTot = h_[ism-1]->GetBinEntries(h_[ism-1]->GetBin(ie, ip)) / 3.;
 
         if ( h01_[ism-1] ) {
           num01  = h01_[ism-1]->GetBinContent(h01_[ism-1]->GetBin(ie, ip));
-          if ( num01 > n_min_bin ) update_channel = true;
+          if ( num01 > n_min_bin ) update_channel1 = true;
         }
 
         if ( h02_[ism-1] ) {
           num02  = h02_[ism-1]->GetBinContent(h02_[ism-1]->GetBin(ie, ip));
-          if ( num02 > n_min_bin ) update_channel = true;
+          if ( num02 > n_min_bin ) update_channel1 = true;
         }
 
         if ( h03_[ism-1] ) {
           num03  = h03_[ism-1]->GetBinContent(h03_[ism-1]->GetBin(ie, ip));
-          if ( num03 > n_min_bin ) update_channel = true;
+          if ( num03 > n_min_bin ) update_channel1 = true;
         }
 
         if ( h04_[ism-1] ) {
           num04  = h04_[ism-1]->GetBinContent(h04_[ism-1]->GetBin(ie, ip));
-          if ( num04 > n_min_bin ) update_channel = true;
+          if ( num04 > n_min_bin ) update_channel1 = true;
         }
 
         int iet = 1 + ((ie-1)/5);
@@ -204,40 +213,102 @@ void EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunT
 
         if ( h05_[ism-1] ) {
           num05  = h05_[ism-1]->GetBinContent(h05_[ism-1]->GetBin(iet, ipt));
-          if ( num05 > n_min_bin ) update_channel = true;
+          if ( num05 > n_min_bin ) update_channel2 = true;
         }
 
         if ( h06_[ism-1] ) {
           num06  = h06_[ism-1]->GetBinContent(h06_[ism-1]->GetBin(iet, ipt));
-          if ( num06 > n_min_bin ) update_channel = true;
+          if ( num06 > n_min_bin ) update_channel2 = true;
         }
 
-        if ( update_channel ) {
+        if ( update_channel || update_channel1 ) {
 
           if ( ie == 1 && ip == 1 ) {
 
             cout << "Preparing dataset for SM=" << ism << endl;
 
-            cout << "(" << ie << "," << ip << ") " << num00 << " " << num01 << " " << num02 << " " << num03 << " " << num04 << " " << num05 << " " << num06 << endl;
+            cout << "(" << ie << "," << ip << ") " << num00 << " " << num01 << " " << num02 << " " << num03 << " " << num04 << endl;
 
           }
 
-          c.setExpectedEvents(0);
-          c.setProblemsInGain(int(num01));
-          c.setProblemsInId(int(num02));
-          c.setProblemsInSample(int(-999));
-          c.setProblemsInADC(int(-999));
+          c1.setProcessedEvents(int(numTot));
+          c1.setProblematicEvents(int(num01+num02+num03+num04));
+          c1.setProblemsGainZero(int(num01));
+          c1.setProblemsID(int(num02));
+          c1.setProblemsGainSwitch(int(num03+num04));
 
-//          if ( g01_[ism-1]->GetBinContent(g01_[ism-1]->GetBin(ie, ip)) == 1. ) {
-//             c.setTaskStatus(true);
-//          } else {
-//             c.setTaskStatus(false);
-//          }
+          bool val;
+
+          val = true;
+          if ( numTot > 0 ) {
+            float errorRate1 = num00 / numTot;
+            if ( errorRate1 > threshCry_ )
+              val = false;
+            errorRate1 = ( num01 + num02 + num03 + num04 ) / numTot / 4.;
+            if ( errorRate1 > threshCry_ )
+              val = false;
+          } else {
+            if ( num00 > 0 )
+              val = false;
+            if ( ( num01 + num02 + num03 + num04 ) > 0 )
+              val = false;
+          }
+          c1.setTaskStatus(val);
 
           if ( econn ) {
             try {
               ecid = econn->getEcalLogicID("EB_crystal_index", ism, ie-1, ip-1);
-              dataset[ecid] = c;
+              dataset1[ecid] = c1;
+            } catch (runtime_error &e) {
+              cerr << e.what() << endl;
+            }
+          }
+
+        }
+
+        // update each TT only once
+
+        update_channel2 = update_channel2 && ( ie%5 == 1 && ip%5 == 1 );
+
+        if ( update_channel || update_channel2 ) {
+
+          if ( iet == 1 && ipt == 1 ) {
+
+            cout << "Preparing dataset for SM=" << ism << endl;
+
+            cout << "(" << iet << "," << ipt << ") " << num00 << " " << num05 << " " << num06 << endl;
+
+          }
+
+          c2.setProcessedEvents(int(numTot));
+          c2.setProblematicEvents(int(num05+num06));
+          c2.setProblemsID(int(num05));
+          c2.setProblemsSize(int(num06));
+          c2.setProblemsLV1(int(-1.));
+          c2.setProblemsBunchX(int(-1.));
+
+          bool val;
+
+          val = true;
+          if ( numTot > 0 ) {
+            float errorRate2 = num00 / numTot;
+            if ( errorRate2 > threshCry_ )
+              val = false;
+            errorRate2 = ( num05 + num06 ) / numTot / 2.;
+            if ( errorRate2 > threshCry_ )
+              val = false;
+          } else {
+            if ( num00 > 0 )
+              val = false;
+            if ( ( num05 + num06 ) > 0 )
+              val = false;
+          }
+          c2.setTaskStatus(val);
+
+          if ( econn ) {
+            try {
+              ecid = econn->getEcalLogicID("EB_crystal_index", ism, iet-1, ipt-1);
+              dataset2[ecid] = c2;
             } catch (runtime_error &e) {
               cerr << e.what() << endl;
             }
@@ -253,7 +324,8 @@ void EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunT
   if ( econn ) {
     try {
       cout << "Inserting dataset ... " << flush;
-      econn->insertDataSet(&dataset, runiov, runtag);
+      if ( dataset1.size() != 0 ) econn->insertDataSet(&dataset1, moniov);
+      if ( dataset1.size() != 0 ) econn->insertDataSet(&dataset2, moniov);
       cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
@@ -267,7 +339,7 @@ void EBIntegrityClient::subscribe(void){
   if ( verbose_ ) cout << "EBIntegrityClient: subscribe" << endl;
 
   // subscribe to all monitorable matching pattern
-  //mui_->subscribe("*/EcalBarrel/EBPedPreSampleTask/Gain12/EBPPST pedestal SM*");
+  //mui_->subscribe("*/EcalBarrel/EBPedestalOnlineTask/Gain12/EBPOT pedestal SM*");
   mui_->subscribe("*/EcalBarrel/EcalIntegrity/EBIT DCC size error");
   mui_->subscribe("*/EcalBarrel/EcalIntegrity/Gain/EBIT gain SM*");
   mui_->subscribe("*/EcalBarrel/EcalIntegrity/ChId/EBIT ChId SM*");
@@ -289,11 +361,11 @@ void EBIntegrityClient::subscribe(void){
 
     for ( int ism = 1; ism <= 36; ism++ ) {
 
-//   not needed: the same CollateMonitorElements are built in EBPedPreSample.cc
+//   not needed: the same CollateMonitorElements are built in EBPedestalOnline.cc
 
-//      sprintf(histo, "EBPPST pedestal SM%02d G12", ism);
-//      me_h_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPedPreSampleTask/Gain12");
-//      sprintf(histo, "*/EcalBarrel/EBPedPreSampleTask/Gain12/EBPPST pedestal SM%02d G12", ism);
+//      sprintf(histo, "EBPOT pedestal SM%02d G12", ism);
+//      me_h_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPedestalOnlineTask/Gain12");
+//      sprintf(histo, "*/EcalBarrel/EBPedestalOnlineTask/Gain12/EBPOT pedestal SM%02d G12", ism);
 //      mui_->add(me_h_[ism-1], histo);
 
       sprintf(histo, "EBIT gain SM%02d", ism);
@@ -334,7 +406,7 @@ void EBIntegrityClient::subscribe(void){
 void EBIntegrityClient::subscribeNew(void){
 
   // subscribe to new monitorable matching pattern
-  //mui_->subscribeNew("*/EcalBarrel/EBPedPreSampleTask/Gain12/EBPPST pedestal SM*");
+  //mui_->subscribeNew("*/EcalBarrel/EBPedestalOnlineTask/Gain12/EBPOT pedestal SM*");
   mui_->subscribeNew("*/EcalBarrel/EcalIntegrity/EBIT DCC size error");
   mui_->subscribeNew("*/EcalBarrel/EcalIntegrity/Gain/EBIT gain SM*");
   mui_->subscribeNew("*/EcalBarrel/EcalIntegrity/ChId/EBIT ChId SM*");
@@ -365,10 +437,10 @@ void EBIntegrityClient::unsubscribe(void){
 
       for ( int ism = 1; ism <= 36; ism++ ) {
 
-//     not needed: the same CollateMonitorElements are built in EBPedPreSample.cc
+//     not needed: the same CollateMonitorElements are built in EBPedestalOnline.cc
 
-//        sprintf(histo, "EBPPST pedestal SM%02d G12", ism);
-//        bei->setCurrentFolder("EcalBarrel/Sums/EBPedPreSampleTask/Gain12");
+//        sprintf(histo, "EBPOT pedestal SM%02d G12", ism);
+//        bei->setCurrentFolder("EcalBarrel/Sums/EBPedestalOnlineTask/Gain12");
 //        bei->removeElement(histo);
 
         sprintf(histo, "EBIT gain SM%02d", ism);
@@ -402,7 +474,7 @@ void EBIntegrityClient::unsubscribe(void){
   }
 
   // unsubscribe to all monitorable matching pattern
-  //mui_->unsubscribe("*/EcalBarrel/EBPedPreSampleTask/Gain12/EBPPST pedestal SM*");
+  //mui_->unsubscribe("*/EcalBarrel/EBPedestalOnlineTask/Gain12/EBPOT pedestal SM*");
   mui_->unsubscribe("*/EcalBarrel/EcalIntegrity/EBIT DCC size error");
   mui_->unsubscribe("*/EcalBarrel/EcalIntegrity/Gain/EBIT gain SM*");
   mui_->unsubscribe("*/EcalBarrel/EcalIntegrity/ChId/EBIT ChId SM*");
@@ -446,9 +518,9 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
   for ( int ism = 1; ism <= 36; ism++ ) {
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBPedPreSampleTask/Gain12/EBPPST pedestal SM%02d G12", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPedestalOnlineTask/Gain12/EBPOT pedestal SM%02d G12", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBPedPreSampleTask/Gain12/EBPPST pedestal SM%02d G12", ism);
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalOnlineTask/Gain12/EBPOT pedestal SM%02d G12", ism);
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -456,7 +528,7 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( h_[ism-1] ) delete h_[ism-1];
-        sprintf(histo, "ME EBPPST pedestal SM%02d G12", ism);
+        sprintf(histo, "ME EBPOT pedestal SM%02d G12", ism);
         h_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
 //        h_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
       }
@@ -566,48 +638,51 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
 
     float num00;
 
-    float num01, num02, num03, num04, num05, num06;
+    if ( g01_[ism-1] ) g01_[ism-1]->Reset();
 
-    g01_[ism-1]->Reset();
+    num00 = 0.;
+
+    bool update_channel = false;
+
+    if ( h00_ ) {
+      num00  = h00_->GetBinContent(h00_->GetBin(ism));
+      update_channel = true;
+    }
+
+    float num01, num02, num03, num04, num05, num06;
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
 
-        num00 = 0.;
-
         num01 = num02 = num03 = num04 = num05 = num06 = 0.;
 
-        g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), 2.);
+        if ( g01_[ism-1] ) g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), 2.);
 
-        bool update_channel = false;
+        bool update_channel1 = false;
+        bool update_channel2 = false;
 
-        float numEventsinCry = 0.;
+        float numTot = -1.;
 
-        if ( h_[ism-1] ) numEventsinCry = h_[ism-1]->GetBinEntries(h_[ism-1]->GetBin(ie, ip)) / 3.;
-
-        if ( h00_ ) {
-          num00  = h00_->GetBinContent(h00_->GetBin(ism));
-          update_channel = true;
-        }
+        if ( h_[ism-1] ) numTot = h_[ism-1]->GetBinEntries(h_[ism-1]->GetBin(ie, ip)) / 3.;
 
         if ( h01_[ism-1] ) {
           num01  = h01_[ism-1]->GetBinContent(h01_[ism-1]->GetBin(ie, ip));
-          update_channel = true;
+          update_channel1 = true;
         }
 
         if ( h02_[ism-1] ) {
           num02  = h02_[ism-1]->GetBinContent(h02_[ism-1]->GetBin(ie, ip));
-          update_channel = true;
+          update_channel1 = true;
         }
 
         if ( h03_[ism-1] ) {
           num03  = h03_[ism-1]->GetBinContent(h03_[ism-1]->GetBin(ie, ip));
-          update_channel = true;
+          update_channel1 = true;
         }
 
         if ( h04_[ism-1] ) {
           num04  = h04_[ism-1]->GetBinContent(h04_[ism-1]->GetBin(ie, ip));
-          update_channel = true;
+          update_channel1 = true;
         }
 
         int iet = 1 + ((ie-1)/5);
@@ -615,27 +690,39 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
 
         if ( h05_[ism-1] ) {
           num05  = h05_[ism-1]->GetBinContent(h05_[ism-1]->GetBin(iet, ipt));
-          update_channel = true;
+          update_channel2 = true;
         }
 
         if ( h06_[ism-1] ) {
           num06  = h06_[ism-1]->GetBinContent(h06_[ism-1]->GetBin(iet, ipt));
-          update_channel = true;
+          update_channel2 = true;
         }
 
-        if ( update_channel ) {
+        if ( update_channel || update_channel1 || update_channel2 ) {
 
           float val;
 
           val = 1.;
-          if ( numEventsinCry > 0 ) {
-            float errorRate = ( num01 + num02 + num03 + num04 + num05 + num06) / numEventsinCry / 6.;
-            if ( errorRate > threshCry_ ) val = 0.;
+          if ( numTot > 0 ) {
+            float errorRate1 =  num00 / numTot;
+            if ( errorRate1 > threshCry_ )
+              val = 0.;
+            errorRate1 = ( num01 + num02 + num03 + num04 ) / numTot / 4.;
+            if ( errorRate1 > threshCry_ )
+              val = 0.;
+            float errorRate2 = ( num05 + num06 ) / numTot / 2.;
+            if ( errorRate2 > threshCry_ )
+              val = 0.;
           } else {
             val = 2.;
-            if ( ( num01 + num02 + num03 + num04 + num05 + num06) > 0 ) val = 0.;
+            if ( num00 > 0 )
+              val = 0.;
+            if ( ( num01 + num02 + num03 + num04 ) > 0 )
+              val = 0.;
+            if ( ( num05 + num06 ) > 0 )
+              val = 0.;
           }
-          g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), val);
+          if ( g01_[ism-1] ) g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), val);
 
         }
 

@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2005/12/30 11:19:36 $
- * $Revision: 1.53 $
+ * $Date: 2005/12/30 14:05:30 $
+ * $Revision: 1.54 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -196,7 +196,7 @@ void EBTestPulseClient::cleanup(void) {
 
 }
 
-void EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* runtag) {
+void EBTestPulseClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
 
   EcalLogicID ecid;
   MonTestPulseDat adc;
@@ -204,7 +204,7 @@ void EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunT
   MonPulseShapeDat shape;
   map<EcalLogicID, MonPulseShapeDat> dataset2;
 
-  cout << "Creating MonTestPulseDatObjects to database ..." << endl;
+  cout << "Creating MonTestPulseDatObjects for the database ..." << endl;
 
   const float n_min_tot = 1000.;
   const float n_min_bin = 10.;
@@ -215,7 +215,7 @@ void EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunT
     float mean01, mean02, mean03;
     float rms01, rms02, rms03;
 
-    vector<int> sample01, sample02, sample03;
+    vector<float> sample01, sample02, sample03;
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
@@ -268,14 +268,14 @@ void EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunT
 
           }
 
-          adc.setADCMean(mean01);
-          adc.setADCRMS(rms01);
+          adc.setADCMeanG1(mean01);
+          adc.setADCRMSG1(rms01);
 
-          // adc.setADCMean(mean02);
-          // adc.setADCRMS(rms02);
+          adc.setADCMeanG6(mean02);
+          adc.setADCRMSG6(rms02);
 
-          // adc.setADCMean(mean03);
-          // adc.setADCRMS(rms03);
+          adc.setADCMeanG12(mean03);
+          adc.setADCRMSG12(rms03);
 
           if ( g01_[ism-1]->GetBinContent(g01_[ism-1]->GetBin(ie, ip)) == 1. &&
                g02_[ism-1]->GetBinContent(g02_[ism-1]->GetBin(ie, ip)) == 1. &&
@@ -291,18 +291,24 @@ void EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunT
               for ( int i = 1; i <= 10; i++ ) {
                 sample01.push_back(int(hs01_[ism-1]->GetBinContent(hs01_[ism-1]->GetBin(1, i))));
               }
+            } else {
+              for ( int i = 1; i <= 10; i++ ) { sample01.push_back(-1.); }
             }
 
             if ( hs02_[ism-1] && hs02_[ism-1]->GetEntries() >= n_min_tot ) {
               for ( int i = 1; i <= 10; i++ ) {
                 sample02.push_back(int(hs02_[ism-1]->GetBinContent(hs02_[ism-1]->GetBin(1, i))));
               }
+            } else {
+              for ( int i = 1; i <= 10; i++ ) { sample03.push_back(-1.); }
             }
 
             if ( hs03_[ism-1] && hs03_[ism-1]->GetEntries() >= n_min_tot ) {
               for ( int i = 1; i <= 10; i++ ) {
                 sample03.push_back(int(hs03_[ism-1]->GetBinContent(hs03_[ism-1]->GetBin(1, i))));
               }
+            } else {
+              for ( int i = 1; i <= 10; i++ ) { sample03.push_back(-1.); }
             }
 
             cout << "sample01 = " << flush;
@@ -323,9 +329,9 @@ void EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunT
             }
             cout << endl;
 
-            shape.setSamples(sample01);
-//            shape.setSamples(sample02);
-//            shape.setSamples(sample03);
+            shape.setSamples(sample01,  1);
+            shape.setSamples(sample02,  6);
+            shape.setSamples(sample03, 12);
 
             if ( econn ) {
               try {
@@ -350,8 +356,8 @@ void EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunT
   if ( econn ) {
     try {
       cout << "Inserting dataset ... " << flush;
-      econn->insertDataSet(&dataset1, runiov, runtag);
-      econn->insertDataSet(&dataset2, runiov, runtag);
+      if ( dataset1.size() != 0 ) econn->insertDataSet(&dataset1, moniov);
+      if ( dataset2.size() != 0 ) econn->insertDataSet(&dataset2, moniov);
       cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
@@ -694,13 +700,13 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
     float mean01, mean02, mean03;
     float rms01, rms02, rms03;
 
-    g01_[ism-1]->Reset();
-    g02_[ism-1]->Reset();
-    g03_[ism-1]->Reset();
+    if ( g01_[ism-1] ) g01_[ism-1]->Reset();
+    if ( g02_[ism-1] ) g02_[ism-1]->Reset();
+    if ( g03_[ism-1] ) g03_[ism-1]->Reset();
 
-    a01_[ism-1]->Reset();
-    a02_[ism-1]->Reset();
-    a03_[ism-1]->Reset();
+    if ( a01_[ism-1] ) a01_[ism-1]->Reset();
+    if ( a02_[ism-1] ) a02_[ism-1]->Reset();
+    if ( a03_[ism-1] ) a03_[ism-1]->Reset();
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
@@ -709,9 +715,9 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
         mean01 = mean02 = mean03 = -1.;
         rms01  = rms02  = rms03  = -1.;
 
-        g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), 2.);
-        g02_[ism-1]->SetBinContent(g02_[ism-1]->GetBin(ie, ip), 2.);
-        g03_[ism-1]->SetBinContent(g03_[ism-1]->GetBin(ie, ip), 2.);
+        if ( g01_[ism-1] ) g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), 2.);
+        if ( g02_[ism-1] ) g02_[ism-1]->SetBinContent(g02_[ism-1]->GetBin(ie, ip), 2.);
+        if ( g03_[ism-1] ) g03_[ism-1]->SetBinContent(g03_[ism-1]->GetBin(ie, ip), 2.);
 
         bool update_channel1 = false;
         bool update_channel2 = false;
@@ -763,10 +769,10 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
             float errorRate = he01_[ism-1]->GetBinContent(he01_[ism-1]->GetBin(ie, ip)) / numEventsinCry[0];
             if ( errorRate > threshold_on_AmplitudeErrorsNumber_ ) val = 0.;
           }
-          g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), val);
+          if ( g01_[ism-1] ) g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), val);
 
-          a01_[ism-1]->SetBinContent(ip+20*(ie-1), mean01);
-          a01_[ism-1]->SetBinError(ip+20*(ie-1), rms01);
+          if ( a01_[ism-1] ) a01_[ism-1]->SetBinContent(ip+20*(ie-1), mean01);
+          if ( a01_[ism-1] ) a01_[ism-1]->SetBinError(ip+20*(ie-1), rms01);
 
         }
 
@@ -783,10 +789,10 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
             float errorRate = he02_[ism-1]->GetBinContent(he02_[ism-1]->GetBin(ie, ip)) / numEventsinCry[1];
             if ( errorRate > threshold_on_AmplitudeErrorsNumber_ ) val = 0.;
           }
-          g02_[ism-1]->SetBinContent(g02_[ism-1]->GetBin(ie, ip), val);
+          if ( g02_[ism-1] ) g02_[ism-1]->SetBinContent(g02_[ism-1]->GetBin(ie, ip), val);
 
-          a02_[ism-1]->SetBinContent(ip+20*(ie-1), mean02);
-          a02_[ism-1]->SetBinError(ip+20*(ie-1), rms02);
+          if ( a02_[ism-1] ) a02_[ism-1]->SetBinContent(ip+20*(ie-1), mean02);
+          if ( a02_[ism-1] ) a02_[ism-1]->SetBinError(ip+20*(ie-1), rms02);
 
         }
 
@@ -803,10 +809,10 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
             float errorRate = he03_[ism-1]->GetBinContent(he03_[ism-1]->GetBin(ie, ip)) / numEventsinCry[2];
             if ( errorRate > threshold_on_AmplitudeErrorsNumber_ ) val = 0.;
           }
-          g03_[ism-1]->SetBinContent(g03_[ism-1]->GetBin(ie, ip), val);
+          if ( g03_[ism-1] ) g03_[ism-1]->SetBinContent(g03_[ism-1]->GetBin(ie, ip), val);
 
-          a03_[ism-1]->SetBinContent(ip+20*(ie-1), mean03);
-          a03_[ism-1]->SetBinError(ip+20*(ie-1), rms03);
+          if ( a03_[ism-1] ) a03_[ism-1]->SetBinContent(ip+20*(ie-1), mean03);
+          if ( a03_[ism-1] ) a03_[ism-1]->SetBinError(ip+20*(ie-1), rms03);
 
         }
 
@@ -982,13 +988,13 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj1d = 0;
       switch ( iCanvas ) {
         case 1:
-          if ( hs01_[ism-1] ) obj1d = hs01_[ism-1]->ProjectionY("_py", 1, 10, "e");
+          if ( hs01_[ism-1] ) obj1d = hs01_[ism-1]->ProjectionY("_py", 1, 1, "e");
           break;
         case 2:
-          if ( hs02_[ism-1] ) obj1d = hs02_[ism-1]->ProjectionY("_py", 1, 10, "e");
+          if ( hs02_[ism-1] ) obj1d = hs02_[ism-1]->ProjectionY("_py", 1, 1, "e");
           break;
         case 3:
-          if ( hs03_[ism-1] ) obj1d = hs03_[ism-1]->ProjectionY("_py", 1, 10, "e");
+          if ( hs03_[ism-1] ) obj1d = hs03_[ism-1]->ProjectionY("_py", 1, 1, "e");
           break;
         default:
           break;

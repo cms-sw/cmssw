@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2005/12/29 19:41:37 $
- * $Revision: 1.63 $
+ * $Date: 2005/12/30 11:19:36 $
+ * $Revision: 1.64 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -18,18 +18,21 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps){
 
   mui_ = 0;
 
-  integrity_client_    = 0;
+  integrity_client_      = 0;
 
-  cosmic_client_       = 0;
-  laser_client_        = 0;
-  pndiode_client_      = 0;
-  pedestal_client_     = 0;
-  pedpresample_client_ = 0;
-  testpulse_client_    = 0;
-  electron_client_     = 0;
+  cosmic_client_         = 0;
+  laser_client_          = 0;
+  pndiode_client_        = 0;
+  pedestal_client_       = 0;
+  pedestalonline_client_ = 0;
+  testpulse_client_      = 0;
+  electron_client_       = 0;
 
   begin_run_done_ = false;
-  end_run_done_ = false;
+  end_run_done_   = true;
+
+  forced_begin_run_ = false;
+  forced_end_run_   = false;
 
   h_ = 0;
 
@@ -38,7 +41,7 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps){
   evt_     = -1;
   runtype_ = "unknown";
 
-  last_jevt_ = -1;
+  last_jevt_   = -1;
   last_update_ = 0;
 
   // DQM default client name
@@ -76,6 +79,10 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps){
   } else {
     cout << " DB output is disabled" << endl;
   }
+
+  // location
+
+  location_ =  ps.getUntrackedParameter<string>("location", "H4");
 
   // base Html output directory
 
@@ -159,15 +166,15 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps){
 
   // clients' constructors
 
-  integrity_client_    = new EBIntegrityClient(ps, mui_);
+  integrity_client_      = new EBIntegrityClient(ps, mui_);
 
-  cosmic_client_       = new EBCosmicClient(ps, mui_);
-  laser_client_        = new EBLaserClient(ps, mui_);
-  pndiode_client_      = new EBPnDiodeClient(ps, mui_);
-  pedestal_client_     = new EBPedestalClient(ps, mui_);
-  pedpresample_client_ = new EBPedPreSampleClient(ps, mui_);
-  testpulse_client_    = new EBTestPulseClient(ps, mui_);
-  electron_client_     = new EBElectronClient(ps, mui_);
+  cosmic_client_         = new EBCosmicClient(ps, mui_);
+  laser_client_          = new EBLaserClient(ps, mui_);
+  pndiode_client_        = new EBPnDiodeClient(ps, mui_);
+  pedestal_client_       = new EBPedestalClient(ps, mui_);
+  pedestalonline_client_ = new EBPedestalOnlineClient(ps, mui_);
+  testpulse_client_      = new EBTestPulseClient(ps, mui_);
+  electron_client_       = new EBElectronClient(ps, mui_);
 
 }
 
@@ -191,8 +198,8 @@ EcalBarrelMonitorClient::~EcalBarrelMonitorClient(){
   if ( pedestal_client_ ) {
     delete pedestal_client_;
   }
-  if ( pedpresample_client_ ) {
-    delete pedpresample_client_;
+  if ( pedestalonline_client_ ) {
+    delete pedestalonline_client_;
   }
   if ( testpulse_client_ ) {
     delete testpulse_client_;
@@ -234,8 +241,8 @@ void EcalBarrelMonitorClient::beginJob(const edm::EventSetup& c){
   if ( pedestal_client_ ) {
     pedestal_client_->beginJob(c);
   }
-  if ( pedpresample_client_ ) {
-    pedpresample_client_->beginJob(c);
+  if ( pedestalonline_client_ ) {
+    pedestalonline_client_->beginJob(c);
   }
   if ( testpulse_client_ ) {
     testpulse_client_->beginJob(c);
@@ -253,6 +260,8 @@ void EcalBarrelMonitorClient::beginRun(const edm::EventSetup& c){
   jevt_ = 0;
 
   this->setup();
+
+  this->beginRunDb();
 
   if ( integrity_client_ ) {
     integrity_client_->cleanup();
@@ -283,9 +292,9 @@ void EcalBarrelMonitorClient::beginRun(const edm::EventSetup& c){
       pedestal_client_->beginRun(c);
     }
   }
-  if ( pedpresample_client_ ) {
-    pedpresample_client_->cleanup();
-    pedpresample_client_->beginRun(c);
+  if ( pedestalonline_client_ ) {
+    pedestalonline_client_->cleanup();
+    pedestalonline_client_->beginRun(c);
   }
   if ( testpulse_client_ ) {
     testpulse_client_->cleanup();
@@ -323,8 +332,8 @@ void EcalBarrelMonitorClient::endJob(void) {
   if ( pedestal_client_ ) {
     pedestal_client_->endJob();
   }
-  if ( pedpresample_client_ ) {
-    pedpresample_client_->endJob();
+  if ( pedestalonline_client_ ) {
+    pedestalonline_client_->endJob();
   }
   if ( testpulse_client_ ) {
     testpulse_client_->endJob();
@@ -369,8 +378,8 @@ void EcalBarrelMonitorClient::endRun(void) {
       pedestal_client_->endRun();
     }
   }
-  if ( pedpresample_client_ ) {
-    pedpresample_client_->endRun();
+  if ( pedestalonline_client_ ) {
+    pedestalonline_client_->endRun();
   }
   if ( testpulse_client_ ) {
     if ( runtype_ == "testpulse" ) {
@@ -382,6 +391,8 @@ void EcalBarrelMonitorClient::endRun(void) {
       electron_client_->endRun();
     }
   }
+
+  this->endRunDb();
 
   this->cleanup();
 
@@ -406,7 +417,9 @@ void EcalBarrelMonitorClient::cleanup(void) {
 
 }
 
-void EcalBarrelMonitorClient::writeDb(void) {
+void EcalBarrelMonitorClient::beginRunDb(void) {
+
+  subrun_ = 0;
 
   EcalCondDBInterface* econn;
 
@@ -414,50 +427,95 @@ void EcalBarrelMonitorClient::writeDb(void) {
 
   if ( dbName_.size() != 0 ) {
     try {
-      cout << "Opening DB connection." << endl;
+      cout << "Opening DB connection ..." << endl;
       econn = new EcalCondDBInterface(dbHostName_, dbName_, dbUserName_, dbPassword_);
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
   }
 
-  // The objects necessary to identify a dataset
+  // create the objects necessary to identify a dataset
 
-  RunIOV runiov;
+  LocationDef locdef;
+
+  locdef.setLocation(location_);
+
+  RunTypeDef rundef;
+
+  rundef.setRunType(runtype_);
+  rundef.setConfigTag("config_v01");
+  rundef.setConfigVersion(1);
+
   RunTag runtag;
 
-  Tm startTm;
+  runtag.setLocationDef(locdef);
+  runtag.setRunTypeDef(rundef);
+  runtag.setGeneralTag("");
 
-  // Set the beginning time
-  startTm.setToCurrentGMTime();
-  startTm.setToMicrosTime(startTm.microsTime());
+  Tm startRun;
 
-  cout << "Setting run " << run_ << " start_time " << startTm.str() << endl;
+  startRun.setToCurrentGMTime();
+  startRun.setToMicrosTime(startRun.microsTime());
 
-  runiov.setRunNumber(run_);
-  runiov.setRunStart(startTm);
+  cout << "Setting run " << run_ << " start time " << startRun.str() << endl;
 
-  runtag.setRunType(runtype_);
-  runtag.setLocation(location_);
-  runtag.setMonitoringVersion("version 1");
+  // set the properties of RunIOV (should be done by the DAQ)
 
-  EcalLogicID ecid;
-  RunDat r;
-  map<EcalLogicID, RunDat> dataset;
+  runiov_.setRunNumber(run_);
+  runiov_.setRunStart(startRun);
+  runiov_.setRunTag(runtag);
 
-  cout << "Writing RunDatObjects to database ..." << endl;
-
-  float nevt = 0.;
-
-  if ( h_ ) nevt = h_->GetEntries();
-
-  r.setNumEvents(int(nevt));
+  cout << "Creating RunIOV for the database ..." << endl;
 
   if ( econn ) {
     try {
-      int ism = 1;
-      ecid = econn->getEcalLogicID("EB_supermodule", ism);
-      dataset[ecid] = r;
+      cout << "Inserting RunIOV ... " << flush;
+      econn->insertRunIOV(&runiov_);
+      cout << "done." << endl;
+    } catch (runtime_error &e) {
+      cerr << e.what() << endl;
+    }
+  }
+
+  MonVersionDef monverdef;
+
+  monverdef.setMonitoringVersion("test01");
+
+  MonRunTag montag;
+
+  montag.setMonVersionDef(monverdef);
+  montag.setGeneralTag("CMSSW");
+
+  // set the properties of MonIOV
+
+  moniov_.setMonRunTag(montag);
+  moniov_.setRunIOV(runiov_);
+
+  int taskl = 0x00000000;
+  int tasko = 0x00000000;
+
+  EcalLogicID ecid;
+  MonRunDat md;
+  map<EcalLogicID, MonRunDat> dataset;
+
+  MonRunOutcomeDef monRunOutcomeDef;
+
+  monRunOutcomeDef.setShortDesc("unknown");
+
+  float nevt = -1.;
+
+  md.setNumEvents(int(nevt));
+  md.setMonRunOutcomeDef(monRunOutcomeDef);
+  md.setRootfileName(outputFile_);
+  md.setTaskList(taskl);
+  md.setTaskOutcome(tasko);
+
+  cout << "Creating MonRunDatObjects for the database ..." << endl;
+
+  if ( econn ) {
+    try {
+      ecid = econn->getEcalLogicID(-1);
+      dataset[ecid] = md;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
@@ -466,55 +524,216 @@ void EcalBarrelMonitorClient::writeDb(void) {
   if ( econn ) {
     try {
       cout << "Inserting dataset ... " << flush;
-      econn->insertDataSet(&dataset, &runiov, &runtag);
+      econn->insertDataSet(&dataset, &moniov_);
       cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
   }
 
+  if ( econn ) {
+    try {
+      cout << "Closing DB connection ..." << endl;
+      delete econn;
+      econn = 0;
+    } catch (runtime_error &e) {
+      cerr << e.what() << endl;
+    }
+  }
+
+}
+
+void EcalBarrelMonitorClient::writeDb(void) {
+
+  subrun_++;
+
+  EcalCondDBInterface* econn;
+
+  econn = 0;
+
+  if ( dbName_.size() != 0 ) {
+    try {
+      cout << "Opening DB connection ..." << endl;
+      econn = new EcalCondDBInterface(dbHostName_, dbName_, dbUserName_, dbPassword_);
+    } catch (runtime_error &e) {
+      cerr << e.what() << endl;
+    }
+  }
+
+  Tm startSubRun;
+
+  startSubRun.setToCurrentGMTime();
+  startSubRun.setToMicrosTime(startSubRun.microsTime());
+
+  cout << "Setting run/subrun " << run_ << "/" << subrun_ << " start time " << startSubRun.str() << endl;
+
+  // set the properties of MonIOV
+
+  moniov_.setSubRunNumber(subrun_);
+  moniov_.setSubRunStart(startSubRun);
+
+  int taskl = 0x00000000;
+  int tasko = 0x00000000;
+
   if ( integrity_client_ ) {
-    integrity_client_->writeDb(econn, &runiov, &runtag);
+    if ( status_ == "end-of-run" || ( runtype_ == "cosmic" || runtype_ == "electron" ) ) {
+      taskl |= 0x0000000f;
+      integrity_client_->writeDb(econn, &moniov_);
+      tasko |= 0x00000000;
+    }
   }
 
   if ( cosmic_client_ ) {
-    if ( runtype_ == "cosmic" ) {
-      cosmic_client_->writeDb(econn, &runiov, &runtag);
+    if ( status_ == "end-of-run" && runtype_ == "cosmic" ) {
+      taskl |= 0x000000f0;
+      cosmic_client_->writeDb(econn, &moniov_);
+      tasko |= 0x00000000;
     }
   }
   if ( laser_client_ ) {
-    if ( runtype_ == "cosmic" || runtype_ == "laser" ) {
-      laser_client_->writeDb(econn, &runiov, &runtag);
+    if ( status_ == "end-of-run" && ( runtype_ == "cosmic" || runtype_ == "electron" || runtype_ == "laser" ) ) {
+      taskl |= 0x00000f00;
+      laser_client_->writeDb(econn, &moniov_);
+      tasko |= 0x00000000;
     }
   }
   if ( pndiode_client_ ) {
-    if ( runtype_ == "cosmic" || runtype_ == "laser" ) {
-      pndiode_client_->writeDb(econn, &runiov, &runtag);
+    if ( status_ == "end-of-run" && ( runtype_ == "cosmic" || runtype_ == "electron" || runtype_ == "laser" ) ) {
+      taskl |= 0x0000f000;
+      pndiode_client_->writeDb(econn, &moniov_);
+      tasko |= 0x00000000;
     }
   }
   if ( pedestal_client_ ) {
-    if ( runtype_ == "pedestal" ) {
-      pedestal_client_->writeDb(econn, &runiov, &runtag);
+    if ( status_ == "end-of-run" && runtype_ == "pedestal" ) {
+      taskl |= 0x000f0000;
+      pedestal_client_->writeDb(econn, &moniov_);
+      tasko |= 0x00000000;
     }
   }
-  if ( pedpresample_client_ ) {
-    pedpresample_client_->writeDb(econn, &runiov, &runtag);
+  if ( pedestalonline_client_ ) {
+    if ( status_ == "end-of-run" || ( runtype_ == "cosmic" || runtype_ == "electron" ) ) {
+      taskl |= 0x00f00000;
+      pedestalonline_client_->writeDb(econn, &moniov_);
+      tasko |= 0x00000000;
+    }
   }
   if ( testpulse_client_ ) {
-    if ( runtype_ == "testpulse" ) {
-      testpulse_client_->writeDb(econn, &runiov, &runtag);
+    if ( status_ == "end-of-run" && runtype_ == "testpulse" ) {
+      taskl |= 0x0f000000;
+      testpulse_client_->writeDb(econn, &moniov_);
+      tasko |= 0x00000000;
     }
   }
   if ( electron_client_ ) {
-    if ( runtype_ == "electron" ) {
-      electron_client_->writeDb(econn, &runiov, &runtag);
+    if ( status_ == "end-of-run" && runtype_ == "electron" ) {
+      taskl |= 0xf0000000;
+      electron_client_->writeDb(econn, &moniov_);
+      tasko |= 0x00000000;
+    }
+  }
+
+  EcalLogicID ecid;
+  MonRunDat md;
+  map<EcalLogicID, MonRunDat> dataset;
+
+  MonRunOutcomeDef monRunOutcomeDef;
+
+  monRunOutcomeDef.setShortDesc("success");
+
+  float nevt = -1.;
+
+  if ( h_ ) nevt = h_->GetEntries();
+
+  md.setNumEvents(int(nevt));
+  md.setMonRunOutcomeDef(monRunOutcomeDef);
+  md.setRootfileName(outputFile_);
+  md.setTaskList(taskl);
+  md.setTaskOutcome(tasko);
+
+  cout << "Creating MonRunDatObjects for the database ..." << endl;
+
+  if ( econn ) {
+    try {
+      ecid = econn->getEcalLogicID(-1);
+      dataset[ecid] = md;
+    } catch (runtime_error &e) {
+      cerr << e.what() << endl;
     }
   }
 
   if ( econn ) {
     try {
-      cout << "Closing DB connection." << endl;
+      cout << "Inserting dataset ... " << flush;
+      econn->insertDataSet(&dataset, &moniov_);
+      cout << "done." << endl;
+    } catch (runtime_error &e) {
+      cerr << e.what() << endl;
+    }
+  }
+
+  if ( econn ) {
+    try {
+      cout << "Closing DB connection ..." << endl;
       delete econn;
+      econn = 0;
+    } catch (runtime_error &e) {
+      cerr << e.what() << endl;
+    }
+  }
+
+}
+
+void EcalBarrelMonitorClient::endRunDb(void) {
+
+  EcalCondDBInterface* econn;
+
+  econn = 0;
+
+  if ( dbName_.size() != 0 ) {
+    try {
+      cout << "Opening DB connection ..." << endl;
+      econn = new EcalCondDBInterface(dbHostName_, dbName_, dbUserName_, dbPassword_);
+    } catch (runtime_error &e) {
+      cerr << e.what() << endl;
+    }
+  }
+
+  EcalLogicID ecid;
+  RunDat rd;
+  map<EcalLogicID, RunDat> dataset;
+
+  float nevt = -1.;
+
+  if ( h_ ) nevt = h_->GetEntries();
+
+  rd.setNumEvents(int(nevt));
+
+  if ( econn ) {
+    try {
+      int ism = 1;
+      ecid = econn->getEcalLogicID("EB_supermodule", ism);
+      dataset[ecid] = rd;
+    } catch (runtime_error &e) {
+      cerr << e.what() << endl;
+    }
+  }
+
+  if ( econn ) {
+    try {
+      cout << "Inserting dataset ... " << flush;
+      econn->insertDataSet(&dataset, &runiov_);
+      cout << "done." << endl;
+    } catch (runtime_error &e) {
+      cerr << e.what() << endl;
+    }
+  }
+
+  if ( econn ) {
+    try {
+      cout << "Closing DB connection ..." << endl;
+      delete econn;
+      econn = 0;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
@@ -626,8 +845,8 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
       pedestal_client_->subscribeNew();
     }
   }
-  if ( pedpresample_client_ ) {
-    pedpresample_client_->subscribeNew();
+  if ( pedestalonline_client_ ) {
+    pedestalonline_client_->subscribeNew();
   }
   if ( testpulse_client_ ) {
     if ( runtype_ == "testpulse" ) {
@@ -709,8 +928,6 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
       if ( s.substr(2,1) == "4" ) runtype_ = "electron";
     }
 
-    location_ = "H4";
-
     if ( verbose_ ) cout << " updates = "  << updates << endl;
 
     cout << " run = "      << run_      <<
@@ -748,71 +965,119 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
   if ( status_ == "begin-of-run" ) {
 
     if ( ! begin_run_done_ ) {
+
       this->beginRun(c);
       begin_run_done_ = true;
+      forced_begin_run_ = false;
+
       end_run_done_ = false;
+
     }
 
   }
 
   if ( status_ == "running" ) {
 
-    if ( ! begin_run_done_ && ! end_run_done_ ) {
-      this->beginRun(c);
-      begin_run_done_ = true;
-      end_run_done_ = false;
+    if ( ! begin_run_done_ && ! end_run_done_ && ! forced_end_run_ ) {
+
+      if ( run_ > 0 && evt_ > 0 && runtype_ != "unknown" ) {
+
+        cout << "Running with no begin_run ..." << endl;
+
+        cout << "Forcing begin-of-run ... NOW !" << endl;
+
+        status_ = "begin-of-run";
+        this->beginRun(c);
+        begin_run_done_ = true;
+        forced_begin_run_ = true;
+
+        end_run_done_ = false;
+
+      }
+
     }
 
-    if ( update && updates % 5 == 0 ) {
+    if ( begin_run_done_ && ! forced_begin_run_ && ! end_run_done_ ) {
 
-      if ( integrity_client_ ) {
-        integrity_client_->analyze(e, c);
+      if ( run_ > 0 && evt_ > 0 && runtype_ != "unknown" ) {
+
+        if ( ( jevt_ - last_jevt_ ) > 200 ) {
+
+          cout << "Running with no updates since too long ..." << endl;
+
+          cout << "Forcing end-of-run ... NOW !" << endl;
+
+          begin_run_done_ = false;
+
+          status_ = "end-of-run";
+          this->endRun();
+          end_run_done_ = true;
+          forced_end_run_ = true;
+
+        }
+
       }
 
-      if ( cosmic_client_ ) {
-        if ( h_ && h_->GetBinContent(1) != 0 ) {
-          if ( runtype_ == "cosmic" ) {
-            cosmic_client_->analyze(e, c);
+    }
+
+    if ( begin_run_done_ && ! end_run_done_ ) {
+
+      if ( update && updates % 5 == 0 ) {
+
+        if ( integrity_client_ ) {
+          integrity_client_->analyze(e, c);
+        }
+
+        if ( cosmic_client_ ) {
+          if ( h_ && h_->GetBinContent(1) != 0 ) {
+            if ( runtype_ == "cosmic" ) {
+              cosmic_client_->analyze(e, c);
+            }
           }
         }
-      }
-      if ( laser_client_ ) {
-        if ( h_ && h_->GetBinContent(2) != 0 ) {
-          if ( runtype_ == "cosmic" || runtype_ == "laser" ) {
-            laser_client_->analyze(e, c);
+        if ( laser_client_ ) {
+          if ( h_ && h_->GetBinContent(2) != 0 ) {
+            if ( runtype_ == "cosmic" || runtype_ == "laser" ) {
+              laser_client_->analyze(e, c);
+            }
           }
         }
-      }
-      if ( pndiode_client_ ) {
-        if ( h_ && h_->GetBinContent(2) != 0 ) {
-          if ( runtype_ == "cosmic" || runtype_ == "laser" ) {
-            pndiode_client_->analyze(e, c);
+        if ( pndiode_client_ ) {
+          if ( h_ && h_->GetBinContent(2) != 0 ) {
+            if ( runtype_ == "cosmic" || runtype_ == "laser" ) {
+              pndiode_client_->analyze(e, c);
+            }
           }
         }
-      }
-      if ( pedestal_client_ ) {
-        if ( h_ && h_->GetBinContent(3) != 0 ) {
-          if ( runtype_ == "pedestal" ) {
-            pedestal_client_->analyze(e, c);
+        if ( pedestal_client_ ) {
+          if ( h_ && h_->GetBinContent(3) != 0 ) {
+            if ( runtype_ == "pedestal" ) {
+              pedestal_client_->analyze(e, c);
+            }
           }
         }
-      }
-      if ( pedpresample_client_ ) {
-        pedpresample_client_->analyze(e, c);
-      }
-      if ( testpulse_client_ ) {
-        if ( h_ && h_->GetBinContent(4) != 0 ) {
-          if ( runtype_ == "testpulse" ) {
-            testpulse_client_->analyze(e, c);
+        if ( pedestalonline_client_ ) {
+          pedestalonline_client_->analyze(e, c);
+        }
+        if ( testpulse_client_ ) {
+          if ( h_ && h_->GetBinContent(4) != 0 ) {
+            if ( runtype_ == "testpulse" ) {
+              testpulse_client_->analyze(e, c);
+            }
           }
         }
-      }
-      if ( electron_client_ ) {
-        if ( h_ && h_->GetBinContent(5) != 0 ) {
-          if ( runtype_ == "electron" ) {
-            electron_client_->analyze(e, c);
+        if ( electron_client_ ) {
+          if ( h_ && h_->GetBinContent(5) != 0 ) {
+            if ( runtype_ == "electron" ) {
+              electron_client_->analyze(e, c);
+            }
           }
         }
+
+        if ( update && updates % 10 == 0 ) {
+          if ( runtype_ == "cosmic" || runtype_ == "electron" ) this->writeDb();
+        }
+
       }
 
     }
@@ -821,7 +1086,7 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
 
   if ( status_ == "end-of-run" ) {
 
-    if ( ! end_run_done_ ) {
+    if ( begin_run_done_ && ! end_run_done_ ) {
 
       if ( integrity_client_ ) {
         integrity_client_->analyze(e, c);
@@ -855,8 +1120,8 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
           }
         }
       }
-      if ( pedpresample_client_ ) {
-        pedpresample_client_->analyze(e, c);
+      if ( pedestalonline_client_ ) {
+        pedestalonline_client_->analyze(e, c);
       }
       if ( testpulse_client_ ) {
         if ( h_ && h_->GetBinContent(4) != 0 ) {
@@ -877,21 +1142,9 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
 
       this->endRun();
       end_run_done_ = true;
+      forced_end_run_ = false;
 
     }
-
-  }
-
-  if ( ! end_run_done_ && run_ > 0 && evt_ > 0 && ( jevt_ - last_jevt_ ) > 200 ) {
-
-    cout << "Running with no updates since too long ..." << endl;
-
-    cout << "Forcing end-of-run ... NOW !" << endl;
-
-    begin_run_done_ = false;
-
-    this->endRun();
-    end_run_done_ = true;
 
   }
 
@@ -986,10 +1239,10 @@ void EcalBarrelMonitorClient::htmlOutput(void){
   // Pedestal check (pre-sample)
 
   if ( h_ && h_->GetEntries() != 0 ) {
-    if ( pedpresample_client_ ) {
-      htmlName = "EBPedPreSampleClient.html";
-      pedpresample_client_->htmlOutput(run_, htmlDir, htmlName);
-      htmlFile << "<li><a href=\"" << htmlName << "\">Pedestal on Presample</a></li>" << endl;
+    if ( pedestalonline_client_ ) {
+      htmlName = "EBPedestalOnlineClient.html";
+      pedestalonline_client_->htmlOutput(run_, htmlDir, htmlName);
+      htmlFile << "<li><a href=\"" << htmlName << "\">Pedestal Online</a></li>" << endl;
     }
   }
 

@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2005/12/28 21:10:48 $
- * $Revision: 1.27 $
+ * $Date: 2005/12/29 14:57:13 $
+ * $Revision: 1.28 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -31,7 +31,7 @@
 #include <DQM/EcalBarrelMonitorClient/interface/EBLaserClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBPnDiodeClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBPedestalClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBPedPreSampleClient.h>
+#include <DQM/EcalBarrelMonitorClient/interface/EBPedestalOnlineClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBTestPulseClient.h>
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBCosmicClient.h>
@@ -41,6 +41,9 @@
 #include "CalibCalorimetry/EcalDBInterface/interface/RunTag.h"
 #include "CalibCalorimetry/EcalDBInterface/interface/RunDat.h"
 #include "CalibCalorimetry/EcalDBInterface/interface/RunIOV.h"
+
+#include "CalibCalorimetry/EcalDBInterface/interface/MonRunDat.h"
+#include "CalibCalorimetry/EcalDBInterface/interface/MonRunIOV.h"
 
 #include "TROOT.h"
 #include "TGaxis.h"
@@ -95,8 +98,14 @@ virtual void cleanup(void);
 /// HtmlOutput
 virtual void htmlOutput(void);
 
+/// BeginRunDB
+virtual void beginRunDb(void);
+
 /// WriteDB
 virtual void writeDb(void);
+
+/// EndRunDB
+virtual void endRunDb(void);
 
 private:
 
@@ -118,6 +127,10 @@ string dbHostName_;
 string dbUserName_;
 string dbPassword_;
 
+RunIOV runiov_;
+MonRunIOV moniov_;
+int subrun_;
+
 string baseHtmlDir_;
 
 MonitorUserInterface* mui_;
@@ -131,6 +144,9 @@ int evt_;
 bool begin_run_done_;
 bool end_run_done_;
 
+bool forced_begin_run_;
+bool forced_end_run_;
+
 int last_update_;
 
 int last_jevt_;
@@ -141,7 +157,7 @@ EBCosmicClient* cosmic_client_;
 EBLaserClient* laser_client_;
 EBPnDiodeClient* pndiode_client_;
 EBPedestalClient* pedestal_client_;
-EBPedPreSampleClient* pedpresample_client_;
+EBPedestalOnlineClient* pedestalonline_client_;
 EBTestPulseClient* testpulse_client_;
 EBElectronClient* electron_client_;
 

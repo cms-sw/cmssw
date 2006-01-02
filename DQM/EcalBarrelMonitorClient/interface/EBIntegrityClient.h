@@ -4,8 +4,8 @@
 /*
  * \file EBIntegrityClient.h
  *
- * $Date: 2005/12/28 21:10:48 $
- * $Revision: 1.17 $
+ * $Date: 2005/12/29 14:57:13 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  *
 */
@@ -28,8 +28,10 @@
 #include "CalibCalorimetry/EcalDBInterface/interface/EcalCondDBInterface.h"
 #include "CalibCalorimetry/EcalDBInterface/interface/RunTag.h"
 #include "CalibCalorimetry/EcalDBInterface/interface/RunIOV.h"
+#include "CalibCalorimetry/EcalDBInterface/interface/MonRunIOV.h"
 
-#include "CalibCalorimetry/EcalDBInterface/interface/RunConsistencyDat.h"
+#include "CalibCalorimetry/EcalDBInterface/interface/MonCrystalConsistencyDat.h"
+#include "CalibCalorimetry/EcalDBInterface/interface/MonTTConsistencyDat.h"
 
 #include "TROOT.h"
 #include "TStyle.h"
@@ -87,7 +89,7 @@ void cleanup(void);
 void htmlOutput(int run, string htmlDir, string htmlName);
 
 /// WriteDB
-void writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* runtag);
+void writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov);
 
 private:
 

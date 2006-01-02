@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  * 
- * $Date: 2005/12/30 11:19:36 $
- * $Revision: 1.26 $
+ * $Date: 2005/12/30 14:05:30 $
+ * $Revision: 1.27 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -92,7 +92,7 @@ void EBCosmicClient::cleanup(void) {
 
 }
 
-void EBCosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* runtag) {
+void EBCosmicClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
 
   EcalLogicID ecid;
 //  MonPedestalsDat p;
@@ -171,7 +171,7 @@ void EBCosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunTag*
   if ( econn ) {
     try {
       cout << "Inserting dataset ... " << flush;
-//      econn->insertDataSet(&dataset, runiov, runtag);
+//      econn->insertDataSet(&dataset, moniov);
       cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;

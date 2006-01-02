@@ -1,8 +1,8 @@
 /*
  * \file EBPnDiodeClient.cc
  *
- * $Date: 2005/12/30 11:19:36 $
- * $Revision: 1.28 $
+ * $Date: 2005/12/30 14:05:30 $
+ * $Revision: 1.29 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -95,13 +95,13 @@ void EBPnDiodeClient::cleanup(void) {
 
 }
 
-void EBPnDiodeClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunTag* runtag) {
+void EBPnDiodeClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
 
   EcalLogicID ecid;
-  MonPNDat p;
-  map<EcalLogicID, MonPNDat> dataset;
+//  MonPNDat p;
+//  map<EcalLogicID, MonPNDat> dataset;
 
-  cout << "Creating MonPnDatObjects to database ..." << endl;
+  cout << "Creating MonPnDatObjects for the database ..." << endl;
 
   const float n_min_tot = 1000.;
   const float n_min_bin = 50.;
@@ -169,15 +169,15 @@ void EBPnDiodeClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunTag
 
         }
 
-        p.setADCMean(mean01);
-        p.setADCRMS(rms01);
+//        p.setADCMean(mean01);
+//        p.setADCRMS(rms01);
 
-        p.setTaskStatus(true);
+//        p.setTaskStatus(true);
 
         if ( econn ) {
           try {
             ecid = econn->getEcalLogicID("EB_LM_PN", ism, i-1);
-            dataset[ecid] = p;
+//            dataset[ecid] = p;
           } catch (runtime_error &e) {
             cerr << e.what() << endl;
           }
@@ -192,7 +192,7 @@ void EBPnDiodeClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, RunTag
   if ( econn ) {
     try {
       cout << "Inserting dataset ... " << flush;
-      econn->insertDataSet(&dataset, runiov, runtag);
+//      if ( dataset.size() != 0 ) econn->insertDataSet(&dataset, moniov);
       cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
@@ -445,16 +445,16 @@ void EBPnDiodeClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj1d = 0;
       switch ( iCanvas ) {
         case 1:
-          if ( h01_[ism-1] ) obj1d = h01_[ism-1]->ProjectionY("_py", 1, 10, "e");
+          if ( h01_[ism-1] ) obj1d = h01_[ism-1]->ProjectionY("_py", 1, 1, "e");
           break;
         case 2:
-          if ( h02_[ism-1] ) obj1d = h02_[ism-1]->ProjectionY("_py", 1, 10, "e");
+          if ( h02_[ism-1] ) obj1d = h02_[ism-1]->ProjectionY("_py", 1, 1, "e");
           break;
         case 3:
-          if ( h03_[ism-1] ) obj1d = h03_[ism-1]->ProjectionY("_py", 1, 10, "e");
+          if ( h03_[ism-1] ) obj1d = h03_[ism-1]->ProjectionY("_py", 1, 1, "e");
           break;
         case 4:
-          if ( h04_[ism-1] ) obj1d = h04_[ism-1]->ProjectionY("_py", 1, 10, "e");
+          if ( h04_[ism-1] ) obj1d = h04_[ism-1]->ProjectionY("_py", 1, 1, "e");
           break;
         default:
           break;
