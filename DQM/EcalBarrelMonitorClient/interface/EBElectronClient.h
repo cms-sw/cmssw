@@ -4,8 +4,8 @@
 /*
  * \file EBElectronClient.h
  *
- * $Date: 2005/12/29 14:57:13 $
- * $Revision: 1.6 $
+ * $Date: 2006/01/02 09:18:01 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -32,7 +32,7 @@
 #include "CalibCalorimetry/EcalDBInterface/interface/RunIOV.h"
 #include "CalibCalorimetry/EcalDBInterface/interface/MonRunIOV.h"
 
-//#include "CalibCalorimetry/EcalDBInterface/interface/MonElectronDat.h"
+#include "CalibCalorimetry/EcalDBInterface/interface/MonOccupancyDat.h"
 
 #include "TROOT.h"
 #include "TStyle.h"

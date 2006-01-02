@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  * 
- * $Date: 2006/01/02 09:18:03 $
- * $Revision: 1.28 $
+ * $Date: 2006/01/02 12:31:06 $
+ * $Revision: 1.29 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -95,10 +95,10 @@ void EBCosmicClient::cleanup(void) {
 void EBCosmicClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
 
   EcalLogicID ecid;
-//  MonPedestalsDat p;
-//  map<EcalLogicID, MonPedestalsDat> dataset;
+  MonOccupancyDat o;
+  map<EcalLogicID, MonOccupancyDat> dataset;
 
-  cout << "Creating MonCosmicDatObjects for the database ..." << endl;
+  cout << "Creating MonOccupancyDatObjects for the database ..." << endl;
 
   const float n_min_tot = 1000.;
   const float n_min_bin = 50.;
@@ -147,15 +147,15 @@ void EBCosmicClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
 
           }
 
-//          p.setPedMeanG12(mean03);
-//          p.setPedRMSG12(rms03);
+          o.setEventsOverLowThreshold(int(num01));
+          o.setEventsOverHighThreshold(int(num02));
 
-//          p.setTaskStatus(true);
+          o.setAvgEnergy(mean02);
 
           if ( econn ) {
             try {
               ecid = econn->getEcalLogicID("EB_crystal_index", ism, ie-1, ip-1);
-//              dataset[ecid] = p;
+              dataset[ecid] = o;
             } catch (runtime_error &e) {
               cerr << e.what() << endl;
             }
@@ -171,7 +171,7 @@ void EBCosmicClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
   if ( econn ) {
     try {
       cout << "Inserting dataset ... " << flush;
-//      econn->insertDataSet(&dataset, moniov);
+      if ( dataset.size() != 0 ) econn->insertDataSet(&dataset, moniov);
       cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
