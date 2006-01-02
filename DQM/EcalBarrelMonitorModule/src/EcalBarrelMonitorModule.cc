@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2005/12/28 11:00:10 $
- * $Revision: 1.69 $
+ * $Date: 2005/12/30 10:24:26 $
+ * $Revision: 1.70 $
  * \author G. Della Ricca
  *
 */
@@ -98,15 +98,15 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
     }
   }
 
-  integrity_task_    = 0;
+  integrity_task_      = 0;
 
-  cosmic_task_       = 0;
-  laser_task_        = 0;
-  pndiode_task_      = 0;
-  pedestal_task_     = 0;
-  pedpresample_task_ = 0;
-  testpulse_task_    = 0;
-  electron_task_     = 0;
+  cosmic_task_         = 0;
+  laser_task_          = 0;
+  pndiode_task_        = 0;
+  pedestal_task_       = 0;
+  pedestalonline_task_ = 0;
+  testpulse_task_      = 0;
+  electron_task_       = 0;
 
   integrity_task_ = new EBIntegrityTask(ps, dbe_);
 
@@ -123,7 +123,7 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
     pedestal_task_ = new EBPedestalTask(ps, dbe_);
   }
 
-  pedpresample_task_ = new EBPedPreSampleTask(ps, dbe_);
+  pedestalonline_task_ = new EBPedestalOnlineTask(ps, dbe_);
 
   if ( runType_ == 3 ) {
     testpulse_task_ = new EBTestPulseTask(ps, dbe_);
@@ -157,8 +157,8 @@ EcalBarrelMonitorModule::~EcalBarrelMonitorModule(){
   if ( pedestal_task_ ) {
     delete pedestal_task_;
   }
-  if ( pedpresample_task_ ) {
-    delete pedpresample_task_;
+  if ( pedestalonline_task_ ) {
+    delete pedestalonline_task_;
   }
   if ( testpulse_task_ ) {
     delete testpulse_task_;
@@ -178,6 +178,8 @@ void EcalBarrelMonitorModule::beginJob(const edm::EventSetup& c){
   // begin-of-run
   if ( meStatus_ ) meStatus_->Fill(0);
 
+  if ( meRun_ ) meRun_->Fill(irun_);
+  if ( meEvt_ ) meEvt_->Fill(ievt_);
   if ( meRunType_ ) meRunType_->Fill(runType_);
 
   if ( integrity_task_ ) {
@@ -196,8 +198,8 @@ void EcalBarrelMonitorModule::beginJob(const edm::EventSetup& c){
   if ( pedestal_task_ ) {
     pedestal_task_->beginJob(c);
   }
-  if ( pedpresample_task_ ) {
-    pedpresample_task_->beginJob(c);
+  if ( pedestalonline_task_ ) {
+    pedestalonline_task_->beginJob(c);
   }
   if ( testpulse_task_ ) {
     testpulse_task_->beginJob(c);
@@ -230,8 +232,8 @@ void EcalBarrelMonitorModule::endJob(void) {
   if ( pedestal_task_ ) {
     pedestal_task_->endJob();
   }
-  if ( pedpresample_task_ ) {
-    pedpresample_task_->endJob();
+  if ( pedestalonline_task_ ) {
+    pedestalonline_task_->endJob();
   }
   if ( testpulse_task_ ) {
     testpulse_task_->endJob();
@@ -245,6 +247,10 @@ void EcalBarrelMonitorModule::endJob(void) {
   // end-of-run
   if ( meStatus_ ) meStatus_->Fill(2);
 
+  if ( meRun_ ) meRun_->Fill(irun_);
+  if ( meEvt_ ) meEvt_->Fill(ievt_);
+  if ( meRunType_ ) meRunType_->Fill(runType_);
+
   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
 
   // this should give enough time to meStatus_ to reach the Collector,
@@ -255,18 +261,18 @@ void EcalBarrelMonitorModule::endJob(void) {
 
 void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& c){
 
+  ievt_++;
+
   // running
   if ( meStatus_ ) meStatus_->Fill(1);
 
-  ievt_++;
-
   if ( meRun_ ) meRun_->Fill(irun_);
   if ( meEvt_ ) meEvt_->Fill(ievt_);
+  if ( meRunType_ ) meRunType_->Fill(runType_);
 
   evtType_ = runType_;
 
   if ( meEvtType_ ) meEvtType_->Fill(evtType_+0.5);
-  if ( meRunType_ ) meRunType_->Fill(runType_);
 
   edm::Handle<EBDigiCollection>  digis;
   e.getByLabel("ecalEBunpacker", digis);
@@ -350,8 +356,8 @@ void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
       pedestal_task_->analyze(e, c);
     }
   }
-  if ( pedpresample_task_ ) {
-    pedpresample_task_->analyze(e, c);
+  if ( pedestalonline_task_ ) {
+    pedestalonline_task_->analyze(e, c);
   }
   if ( testpulse_task_ ) {
     if ( evtType_ == 3 ) {

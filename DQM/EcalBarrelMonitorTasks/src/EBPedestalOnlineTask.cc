@@ -1,26 +1,26 @@
 /*
- * \file EBPedPreSampleTask.cc
+ * \file EBPedestalOnlineTask.cc
  *
- * $Date: 2005/12/29 19:41:38 $
- * $Revision: 1.2 $
+ * $Date: 2005/12/30 10:24:29 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
 
-#include <DQM/EcalBarrelMonitorTasks/interface/EBPedPreSampleTask.h>
+#include <DQM/EcalBarrelMonitorTasks/interface/EBPedestalOnlineTask.h>
 
-EBPedPreSampleTask::EBPedPreSampleTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe){
+EBPedestalOnlineTask::EBPedestalOnlineTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe){
 
-//  logFile_.open("EBPedPreSampleTask.log");
+//  logFile_.open("EBPedestalOnlineTask.log");
 
   Char_t histo[20];
 
   if ( dbe ) {
-    dbe->setCurrentFolder("EcalBarrel/EBPedPreSampleTask");
+    dbe->setCurrentFolder("EcalBarrel/EBPedestalOnlineTask");
 
-    dbe->setCurrentFolder("EcalBarrel/EBPedPreSampleTask/Gain12");
+    dbe->setCurrentFolder("EcalBarrel/EBPedestalOnlineTask/Gain12");
     for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBPPST pedestal SM%02d G12", i+1);
+      sprintf(histo, "EBPOT pedestal SM%02d G12", i+1);
       mePedMapG12_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
     }
 
@@ -28,24 +28,24 @@ EBPedPreSampleTask::EBPedPreSampleTask(const edm::ParameterSet& ps, DaqMonitorBE
 
 }
 
-EBPedPreSampleTask::~EBPedPreSampleTask(){
+EBPedestalOnlineTask::~EBPedestalOnlineTask(){
 
 //  logFile_.close();
 
 }
 
-void EBPedPreSampleTask::beginJob(const edm::EventSetup& c){
+void EBPedestalOnlineTask::beginJob(const edm::EventSetup& c){
 
   ievt_ = 0;
 
 }
 
-void EBPedPreSampleTask::endJob(){
+void EBPedestalOnlineTask::endJob(){
 
-  cout << "EBPedPreSampleTask: analyzed " << ievt_ << " events" << endl;
+  cout << "EBPedestalOnlineTask: analyzed " << ievt_ << " events" << endl;
 }
 
-void EBPedPreSampleTask::analyze(const edm::Event& e, const edm::EventSetup& c){
+void EBPedestalOnlineTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   ievt_++;
 
@@ -53,7 +53,7 @@ void EBPedPreSampleTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   e.getByLabel("ecalEBunpacker", digis);
 
 //  int nebd = digis->size();
-//  cout << "EBPedPreSampleTask: event " << ievt_ << " digi collection size " << nebd << endl;
+//  cout << "EBPedestalOnlineTask: event " << ievt_ << " digi collection size " << nebd << endl;
 
   for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
