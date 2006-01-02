@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2005/12/30 10:24:26 $
- * $Revision: 1.70 $
+ * $Date: 2006/01/02 08:49:58 $
+ * $Revision: 1.71 $
  * \author G. Della Ricca
  *
 */
@@ -91,11 +91,19 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
     meEBdigi_ = dbe_->book1D("EBMM digi", "EBMM digi", 100, 0., 61201.);
     meEBhits_ = dbe_->book1D("EBMM hits", "EBMM hits", 100, 0., 61201.);
 
-    dbe_->setCurrentFolder("EcalBarrel/EBMonitorEvent");
+    dbe_->setCurrentFolder("EcalBarrel/EcalEvent");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBMM event SM%02d", i+1);
       meEvent_[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+      meEvent_[i]->setResetMe(true);
     }
+
+    dbe_->setCurrentFolder("EcalBarrel/EcalOccupancy");
+    for (int i = 0; i < 36 ; i++) {
+      sprintf(histo, "EBMM occupancy SM%02d", i+1);
+      meOccupancy_[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    }
+
   }
 
   integrity_task_      = 0;
@@ -318,6 +326,8 @@ void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
       cout << "ERROR:" << xie << " " << xip << " " << ie << " " << ip << " " << iz << endl;
       return;
     }
+
+    if ( meOccupancy_[ism-1] ) meOccupancy_[ism-1]->Fill(xie, xip);
 
     float xval = hit.amplitude();
 

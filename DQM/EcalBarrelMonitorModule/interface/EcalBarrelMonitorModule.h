@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorModule.h
  *
- * $Date: 2005/12/23 08:57:15 $
- * $Revision: 1.23 $
+ * $Date: 2006/01/02 08:49:55 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  *
 */
@@ -90,6 +90,7 @@ MonitorElement* meEBdigi_;
 MonitorElement* meEBhits_;
 
 MonitorElement* meEvent_[36];
+MonitorElement* meOccupancy_[36];
 
 EBIntegrityTask* integrity_task_;
 
