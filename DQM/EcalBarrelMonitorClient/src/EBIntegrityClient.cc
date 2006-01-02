@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2005/12/30 15:24:57 $
- * $Revision: 1.64 $
+ * $Date: 2006/01/02 09:18:03 $
+ * $Revision: 1.65 $
  * \author G. Della Ricca
  *
 */
@@ -159,8 +159,6 @@ void EBIntegrityClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
 
   cout << "Creating MonConsistencyDatObjects for the database ..." << endl;
 
-  const float n_min_bin = 0.;
-
   float num00;
 
   for ( int ism = 1; ism <= 36; ism++ ) {
@@ -171,7 +169,7 @@ void EBIntegrityClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
 
     if ( h00_ ) {
       num00  = h00_->GetBinContent(h00_->GetBin(ism));
-      if ( num00 > n_min_bin ) update_channel = true;
+      if ( num00 > 0 ) update_channel = true;
     }
 
     float num01, num02, num03, num04, num05, num06;
@@ -184,28 +182,28 @@ void EBIntegrityClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
         bool update_channel1 = false;
         bool update_channel2 = false;
 
-        float numTot = 0.;
+        float numTot = -1.;
 
-        if ( h_[ism-1] ) numTot = h_[ism-1]->GetBinEntries(h_[ism-1]->GetBin(ie, ip)) / 3.;
+        if ( h_[ism-1] ) numTot = h_[ism-1]->GetBinContent(h_[ism-1]->GetBin(ie, ip)) / 3.;
 
         if ( h01_[ism-1] ) {
           num01  = h01_[ism-1]->GetBinContent(h01_[ism-1]->GetBin(ie, ip));
-          if ( num01 > n_min_bin ) update_channel1 = true;
+          if ( num01 > 0 ) update_channel1 = true;
         }
 
         if ( h02_[ism-1] ) {
           num02  = h02_[ism-1]->GetBinContent(h02_[ism-1]->GetBin(ie, ip));
-          if ( num02 > n_min_bin ) update_channel1 = true;
+          if ( num02 > 0 ) update_channel1 = true;
         }
 
         if ( h03_[ism-1] ) {
           num03  = h03_[ism-1]->GetBinContent(h03_[ism-1]->GetBin(ie, ip));
-          if ( num03 > n_min_bin ) update_channel1 = true;
+          if ( num03 > 0 ) update_channel1 = true;
         }
 
         if ( h04_[ism-1] ) {
           num04  = h04_[ism-1]->GetBinContent(h04_[ism-1]->GetBin(ie, ip));
-          if ( num04 > n_min_bin ) update_channel1 = true;
+          if ( num04 > 0 ) update_channel1 = true;
         }
 
         int iet = 1 + ((ie-1)/5);
@@ -213,12 +211,12 @@ void EBIntegrityClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
 
         if ( h05_[ism-1] ) {
           num05  = h05_[ism-1]->GetBinContent(h05_[ism-1]->GetBin(iet, ipt));
-          if ( num05 > n_min_bin ) update_channel2 = true;
+          if ( num05 > 0 ) update_channel2 = true;
         }
 
         if ( h06_[ism-1] ) {
           num06  = h06_[ism-1]->GetBinContent(h06_[ism-1]->GetBin(iet, ipt));
-          if ( num06 > n_min_bin ) update_channel2 = true;
+          if ( num06 > 0 ) update_channel2 = true;
         }
 
         if ( update_channel || update_channel1 ) {
@@ -339,7 +337,7 @@ void EBIntegrityClient::subscribe(void){
   if ( verbose_ ) cout << "EBIntegrityClient: subscribe" << endl;
 
   // subscribe to all monitorable matching pattern
-  //mui_->subscribe("*/EcalBarrel/EBPedestalOnlineTask/Gain12/EBPOT pedestal SM*");
+  mui_->subscribe("*/EcalBarrel/EcalOccupancy/EBMM occupancy SM*");
   mui_->subscribe("*/EcalBarrel/EcalIntegrity/EBIT DCC size error");
   mui_->subscribe("*/EcalBarrel/EcalIntegrity/Gain/EBIT gain SM*");
   mui_->subscribe("*/EcalBarrel/EcalIntegrity/ChId/EBIT ChId SM*");
@@ -361,12 +359,10 @@ void EBIntegrityClient::subscribe(void){
 
     for ( int ism = 1; ism <= 36; ism++ ) {
 
-//   not needed: the same CollateMonitorElements are built in EBPedestalOnline.cc
-
-//      sprintf(histo, "EBPOT pedestal SM%02d G12", ism);
-//      me_h_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPedestalOnlineTask/Gain12");
-//      sprintf(histo, "*/EcalBarrel/EBPedestalOnlineTask/Gain12/EBPOT pedestal SM%02d G12", ism);
-//      mui_->add(me_h_[ism-1], histo);
+      sprintf(histo, "EBMM occupancy SM%02d", ism);
+      me_h_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EcalOccupancy");
+      sprintf(histo, "*/EcalBarrel/EcalOccupancy/EBMM occupancy SM%02d", ism);
+      mui_->add(me_h_[ism-1], histo);
 
       sprintf(histo, "EBIT gain SM%02d", ism);
       me_h01_[ism-1] = mui_->collate2D(histo, histo, "EcalBarrel/Sums/EcalIntegrity/Gain");
@@ -406,7 +402,7 @@ void EBIntegrityClient::subscribe(void){
 void EBIntegrityClient::subscribeNew(void){
 
   // subscribe to new monitorable matching pattern
-  //mui_->subscribeNew("*/EcalBarrel/EBPedestalOnlineTask/Gain12/EBPOT pedestal SM*");
+  mui_->subscribeNew("*/EcalBarrel/EcalOccupancy/EBMM occupancy SM*");
   mui_->subscribeNew("*/EcalBarrel/EcalIntegrity/EBIT DCC size error");
   mui_->subscribeNew("*/EcalBarrel/EcalIntegrity/Gain/EBIT gain SM*");
   mui_->subscribeNew("*/EcalBarrel/EcalIntegrity/ChId/EBIT ChId SM*");
@@ -437,11 +433,9 @@ void EBIntegrityClient::unsubscribe(void){
 
       for ( int ism = 1; ism <= 36; ism++ ) {
 
-//     not needed: the same CollateMonitorElements are built in EBPedestalOnline.cc
-
-//        sprintf(histo, "EBPOT pedestal SM%02d G12", ism);
-//        bei->setCurrentFolder("EcalBarrel/Sums/EBPedestalOnlineTask/Gain12");
-//        bei->removeElement(histo);
+        sprintf(histo, "EBMM occupancy SM%02d", ism);
+        bei->setCurrentFolder("EcalBarrel/Sums/EcalOccupancy");
+        bei->removeElement(histo);
 
         sprintf(histo, "EBIT gain SM%02d", ism);
         bei->setCurrentFolder("EcalBarrel/Sums/EcalIntegrity/Gain");
@@ -474,7 +468,7 @@ void EBIntegrityClient::unsubscribe(void){
   }
 
   // unsubscribe to all monitorable matching pattern
-  //mui_->unsubscribe("*/EcalBarrel/EBPedestalOnlineTask/Gain12/EBPOT pedestal SM*");
+  mui_->unsubscribe("*/EcalBarrel/EcalOccupancy/EBMM occupancy SM*");
   mui_->unsubscribe("*/EcalBarrel/EcalIntegrity/EBIT DCC size error");
   mui_->unsubscribe("*/EcalBarrel/EcalIntegrity/Gain/EBIT gain SM*");
   mui_->unsubscribe("*/EcalBarrel/EcalIntegrity/ChId/EBIT ChId SM*");
@@ -518,9 +512,9 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
   for ( int ism = 1; ism <= 36; ism++ ) {
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBPedestalOnlineTask/Gain12/EBPOT pedestal SM%02d G12", ism);
+      sprintf(histo, "EcalBarrel/Sums/EcalOccupancy/EBMM occupancy SM%02d", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalOnlineTask/Gain12/EBPOT pedestal SM%02d G12", ism);
+      sprintf(histo, "Collector/FU0/EcalBarrel/EcalOccupancy/EBMM occupancy SM%02d", ism);
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -528,9 +522,9 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
         if ( h_[ism-1] ) delete h_[ism-1];
-        sprintf(histo, "ME EBPOT pedestal SM%02d G12", ism);
-        h_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
-//        h_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        sprintf(histo, "ME EBMM occupancy SM%02d", ism);
+        h_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
+//        h_[ism-1] = dynamic_cast<TH2F*> (ob->operator->());
       }
     }
 
@@ -663,7 +657,7 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
 
         float numTot = -1.;
 
-        if ( h_[ism-1] ) numTot = h_[ism-1]->GetBinEntries(h_[ism-1]->GetBin(ie, ip)) / 3.;
+        if ( h_[ism-1] ) numTot = h_[ism-1]->GetBinContent(h_[ism-1]->GetBin(ie, ip)) / 3.;
 
         if ( h01_[ism-1] ) {
           num01  = h01_[ism-1]->GetBinContent(h01_[ism-1]->GetBin(ie, ip));
@@ -787,9 +781,10 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
   }
   dummy2.SetMarkerSize(2);
 
-  string imgNameDCC, imgNameQual, imgNameME[6], imgName , meName;
+  string imgNameDCC, imgNameOcc, imgNameQual, imgNameME[6], imgName , meName;
 
   TCanvas* cDCC = new TCanvas("cDCC", "Temp", 2*csize, csize);
+  TCanvas* cOcc = new TCanvas("cOcc", "Temp", 2*csize, csize);
   TCanvas* cQual = new TCanvas("cQual", "Temp", 2*csize, csize);
   TCanvas* cMe = new TCanvas("cMe", "Temp", 2*csize, csize);
 
@@ -875,6 +870,40 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     }
 
+    // Occupancy plots
+
+    imgNameOcc = "";
+
+    obj2f = h_[ism-1];
+
+    if ( obj2f ) {
+
+      meName = obj2f->GetName();
+
+      for ( unsigned int i = 0; i < meName.size(); i++ ) {
+        if ( meName.substr(i, 1) == " " )  {
+          meName.replace(i, 1, "_");
+        }
+      }
+
+      imgNameOcc = meName + ".png";
+      imgName = htmlDir + imgNameOcc;
+
+      cOcc->cd();
+      gStyle->SetOptStat(" ");
+      gStyle->SetPalette(10, pCol4);
+      obj2f->GetXaxis()->SetNdivisions(17);
+      obj2f->GetYaxis()->SetNdivisions(4);
+      cOcc->SetGridx();
+      cOcc->SetGridy();
+      obj2f->SetMaximum();
+      obj2f->Draw("colz");
+      dummy1.Draw("text,same");
+      cOcc->Update();
+      cOcc->SaveAs(imgName.c_str());
+
+    }
+
     // Monitoring elements plots
 
     for ( int iCanvas = 1; iCanvas <= 6; iCanvas++ ) {
@@ -948,6 +977,11 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
     else
       htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
 
+    if ( imgNameOcc.size() != 0 )
+      htmlFile << "<td><img src=\"" << imgNameOcc << "\"></td>" << endl;
+    else
+      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+
     htmlFile << "</tr>" << endl;
     htmlFile << "</table>" << endl;
     htmlFile << "<br>" << endl;
@@ -1006,6 +1040,7 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
   }
 
   delete cDCC;
+  delete cOcc;
   delete cQual;
   delete cMe;
 

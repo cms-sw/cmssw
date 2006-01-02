@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  * 
- * $Date: 2005/12/30 14:05:30 $
- * $Revision: 1.27 $
+ * $Date: 2006/01/02 09:18:03 $
+ * $Revision: 1.28 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -429,7 +429,7 @@ void EBCosmicClient::htmlOutput(int run, string htmlDir, string htmlName){
 
         cMe->cd();
         gStyle->SetOptStat(" ");
-        gStyle->SetPalette( 10, pCol4 );
+        gStyle->SetPalette(10, pCol4);
         objp->GetXaxis()->SetNdivisions(17);
         objp->GetYaxis()->SetNdivisions(4);
         cMe->SetGridx();

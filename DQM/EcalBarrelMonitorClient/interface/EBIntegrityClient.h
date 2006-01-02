@@ -4,8 +4,8 @@
 /*
  * \file EBIntegrityClient.h
  *
- * $Date: 2005/12/29 14:57:13 $
- * $Revision: 1.18 $
+ * $Date: 2006/01/02 09:18:01 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  *
 */
@@ -124,7 +124,7 @@ TH2F* g01_[36];
 
 CollateMonitorElement* me_h_[36];
 
-TProfile2D* h_[36];
+TH2F* h_[36];
 
 // Quality criteria for data integrity
 
