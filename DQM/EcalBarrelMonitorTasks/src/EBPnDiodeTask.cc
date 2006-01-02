@@ -1,8 +1,8 @@
 /*
  * \file EBPnDiodeTask.cc
  *
- * $Date: 2005/12/29 19:41:38 $
- * $Revision: 1.8 $
+ * $Date: 2005/12/30 10:24:29 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  *
 */
@@ -12,6 +12,13 @@
 EBPnDiodeTask::EBPnDiodeTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe){
 
 //  logFile.open("EBPnDiodeTask.log");
+
+  for (int i = 0; i < 36 ; i++) {
+    mePNL1_[i] = 0;
+    mePNL2_[i] = 0;
+    mePNL3_[i] = 0;
+    mePNL4_[i] = 0;
+  }
 
   Char_t histo[20];
 

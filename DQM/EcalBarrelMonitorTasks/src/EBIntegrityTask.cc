@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2005/12/29 19:41:38 $
- * $Revision: 1.5 $
+ * $Date: 2005/12/30 10:24:29 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  *
 */
@@ -12,6 +12,16 @@
 EBIntegrityTask::EBIntegrityTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe){
 
 //  logFile_.open("EBIntegrityTask.log");
+
+  meIntegrityDCCSize = 0;
+  for (int i = 0; i < 36 ; i++) {
+    meIntegrityGain[i] = 0;
+    meIntegrityChId[i] = 0;
+    meIntegrityGainSwitch[i] = 0;
+    meIntegrityGainSwitchStay[i] = 0;
+    meIntegrityTTId[i] = 0;
+    meIntegrityTTBlockSize[i] = 0;
+  }
 
   Char_t histo[20];
 

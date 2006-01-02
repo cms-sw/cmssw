@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineTask.cc
  *
- * $Date: 2005/12/30 10:24:29 $
- * $Revision: 1.3 $
+ * $Date: 2006/01/02 08:49:59 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */
@@ -12,6 +12,10 @@
 EBPedestalOnlineTask::EBPedestalOnlineTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe){
 
 //  logFile_.open("EBPedestalOnlineTask.log");
+
+  for (int i = 0; i < 36 ; i++) {
+    mePedMapG12_[i] = 0;
+  }
 
   Char_t histo[20];
 

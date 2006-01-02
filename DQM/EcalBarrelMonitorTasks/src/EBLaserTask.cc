@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2005/12/10 10:44:59 $
- * $Revision: 1.31 $
+ * $Date: 2005/12/30 10:24:29 $
+ * $Revision: 1.32 $
  * \author G. Della Ricca
  *
 */
@@ -12,6 +12,21 @@
 EBLaserTask::EBLaserTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe){
 
 //  logFile.open("EBLaserTask.log");
+
+  for (int i = 0; i < 36 ; i++) {
+    meShapeMapL1_[i] = 0;
+    meAmplMapL1_[i] = 0;
+    meAmplPNMapL1_[i] = 0;
+    meShapeMapL2_[i] = 0;
+    meAmplMapL2_[i] = 0;
+    meAmplPNMapL2_[i] = 0;
+    meShapeMapL3_[i] = 0;
+    meAmplMapL3_[i] = 0;
+    meAmplPNMapL3_[i] = 0;
+    meShapeMapL4_[i] = 0;
+    meAmplMapL4_[i] = 0;
+    meAmplPNMapL4_[i] = 0;
+  }
 
   Char_t histo[20];
 

@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  *
- * $Date: 2005/12/29 19:41:38 $
- * $Revision: 1.31 $
+ * $Date: 2005/12/30 10:24:29 $
+ * $Revision: 1.32 $
  * \author G. Della Ricca
  *
 */
@@ -12,6 +12,18 @@
 EBTestPulseTask::EBTestPulseTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe){
 
 //  logFile_.open("EBTestPulseTask.log");
+
+  for (int i = 0; i < 36 ; i++) {
+    meShapeMapG01_[i] = 0;
+    meAmplMapG01_[i] = 0;
+    meAmplErrorMapG01_[i] = 0;
+    meShapeMapG06_[i] = 0;
+    meAmplMapG06_[i] = 0;
+    meAmplErrorMapG06_[i] = 0;
+    meShapeMapG12_[i] = 0;
+    meAmplMapG12_[i] = 0;
+    meAmplErrorMapG12_[i] = 0;
+  }
 
   Char_t histo[20];
 

@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2006/01/02 08:49:58 $
- * $Revision: 1.71 $
+ * $Date: 2006/01/02 10:55:38 $
+ * $Revision: 1.72 $
  * \author G. Della Ricca
  *
 */
@@ -64,11 +64,16 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
   edm::Service<MonitorDaemon> daemon;
   daemon.operator->();
 
-  Char_t histo[20];
+  meStatus_ = 0;
+  meRun_ = 0;
+  meEvt_ = 0;
+  meEvtType_ = 0;
+  meRunType_ = 0;
 
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalBarrel");
     meStatus_ = dbe_->bookInt("STATUS");
+
     meRun_ = dbe_->bookInt("RUN");
     meEvt_ = dbe_->bookInt("EVT");
 
@@ -77,14 +82,25 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
   }
 
   if ( meStatus_ ) meStatus_->Fill(-1);
-  if ( meEvt_ ) meEvt_->Fill(-1);
+
   if ( meRun_ ) meRun_->Fill(-1);
+  if ( meEvt_ ) meEvt_->Fill(-1);
 
   if ( meRunType_ ) meRunType_->Fill(-1);
 
   // this should give enough time to the control MEs to reach the Collector,
   // and then hopefully the clients
   sleep(10);
+
+  meEBdigi_ = 0;
+  meEBhits_ = 0;
+
+  for (int i = 0; i < 36 ; i++) {
+    meEvent_[i] = 0;
+    meOccupancy_[i] = 0;
+  }
+
+  Char_t histo[20];
 
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalBarrel");
@@ -95,7 +111,7 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBMM event SM%02d", i+1);
       meEvent_[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
-      meEvent_[i]->setResetMe(true);
+      if ( meEvent_[i] ) meEvent_[i]->setResetMe(true);
     }
 
     dbe_->setCurrentFolder("EcalBarrel/EcalOccupancy");
@@ -103,7 +119,6 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
       sprintf(histo, "EBMM occupancy SM%02d", i+1);
       meOccupancy_[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
     }
-
   }
 
   integrity_task_      = 0;
@@ -188,6 +203,7 @@ void EcalBarrelMonitorModule::beginJob(const edm::EventSetup& c){
 
   if ( meRun_ ) meRun_->Fill(irun_);
   if ( meEvt_ ) meEvt_->Fill(ievt_);
+
   if ( meRunType_ ) meRunType_->Fill(runType_);
 
   if ( integrity_task_ ) {
@@ -257,6 +273,7 @@ void EcalBarrelMonitorModule::endJob(void) {
 
   if ( meRun_ ) meRun_->Fill(irun_);
   if ( meEvt_ ) meEvt_->Fill(ievt_);
+
   if ( meRunType_ ) meRunType_->Fill(runType_);
 
   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
@@ -276,6 +293,7 @@ void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
 
   if ( meRun_ ) meRun_->Fill(irun_);
   if ( meEvt_ ) meEvt_->Fill(ievt_);
+
   if ( meRunType_ ) meRunType_->Fill(runType_);
 
   evtType_ = runType_;
