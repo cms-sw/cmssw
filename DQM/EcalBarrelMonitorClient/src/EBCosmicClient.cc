@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  * 
- * $Date: 2006/01/02 12:31:06 $
- * $Revision: 1.29 $
+ * $Date: 2006/01/02 14:04:38 $
+ * $Revision: 1.30 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -101,7 +101,7 @@ void EBCosmicClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
   cout << "Creating MonOccupancyDatObjects for the database ..." << endl;
 
   const float n_min_tot = 1000.;
-  const float n_min_bin = 50.;
+  const float n_min_bin = 10.;
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
@@ -147,10 +147,10 @@ void EBCosmicClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
 
           }
 
-          o.setEventsOverLowThreshold(int(num01));
-          o.setEventsOverHighThreshold(int(num02));
+          o.setEventsOverHighThreshold(int(num01));
+          o.setEventsOverLowThreshold(int(num02));
 
-          o.setAvgEnergy(mean02);
+          o.setAvgEnergy(mean01);
 
           if ( econn ) {
             try {

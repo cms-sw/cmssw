@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2005/12/30 11:19:36 $
- * $Revision: 1.64 $
+ * $Date: 2006/01/02 09:18:03 $
+ * $Revision: 1.65 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -584,7 +584,7 @@ void EcalBarrelMonitorClient::writeDb(void) {
   }
 
   if ( cosmic_client_ ) {
-    if ( status_ == "end-of-run" && runtype_ == "cosmic" ) {
+    if ( status_ == "end-of-run" || runtype_ == "cosmic" ) {
       taskl |= 0x000000f0;
       cosmic_client_->writeDb(econn, &moniov_);
       tasko |= 0x00000000;
@@ -626,7 +626,7 @@ void EcalBarrelMonitorClient::writeDb(void) {
     }
   }
   if ( electron_client_ ) {
-    if ( status_ == "end-of-run" && runtype_ == "electron" ) {
+    if ( status_ == "end-of-run" || runtype_ == "electron" ) {
       taskl |= 0xf0000000;
       electron_client_->writeDb(econn, &moniov_);
       tasko |= 0x00000000;
