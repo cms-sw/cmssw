@@ -459,25 +459,108 @@ which would be ignored will cost only one conditional on the cached boolean.
 <h3> Questions </h3>
 
 Should we also try to automate this checking, to avoid the cost of the 
-operator &less&less when 
+operator &lt;&lt; when the user appends items to the line to log a message?
+<p>
+Since the cost of a probe will not be trivial, should we cache results and
+consider the probe of each message type to be a one-shot affair?
+That is,
+if you have learned whether this type of message is reported, 
+should we assume that this answer will not change. 
+This is not strictly true because of limits, but it may be a useful shortcut.
+ 
 <h3> Proposed treatment </h3>
 
-The ErrorLogger package implementers originally attempted use std::endl 
-as a message terminator.
-This led to technical difficulties we could not, at that time, surmount
-(thus the introduction of the errmsg manipulator.
+Create 4 new functions:
+<font color=blue>
+<pre>
+  ProbeLogError   (const std::string & category);  
+  ProbeLogWarning (const std::string & category);  
+  ProbeLogInfo    (const std::string & category);  
+  ProbeLogDebug   (const std::string & category);  
+</pre>
+</font>
+
+These would return true if any destination would respond to the 
+corresponding message.
 <p>
-Jim Kowalkowski and Marc Paterno claim they know how to do this without 
-those difficulties.  If so, we will adapt that technique, treating endl as
-a "force line termination" directive (as opposed to a message terminator).
+The first time a message type is probed, we must issue some sort of special 
+two-phase command to the MessageLoggerScribe, and it must cause an actual check 
+useing ErrorLogger code.
+Once a message type has been probed in this way, the answer will be cached.
+We should implement this cache via a map
+(in the local thread, to avoid the complications of locking against new
+entries by other threads) of all messages already probed.
+When the same message type is probed again, the map is consulted.  
 <p>
-If this is not easy, we should not do it, as the gain is slight.   
+In order that we eventually get the efficiency of rapidly ignoring 
+which were previously reported but 
+have reached their limit, when a true result is found in the map,
+one time in about twenty we should re-check.
+<p>
+We can 
+automate the check of the cached map to occur 
+whenever messages are issued.  (The user still has the option of probing
+to avoid work to prepare the items to be added to the message.)
+The rules would be:
+<ul>
+<li>
+If a message has never been probed, the LogXYZ commands always send that
+message along to the ErrorLogger.
+<li>
+If a message has ever been probed and found not to be reportable, 
+then the result of a probe (automatic or explicit) will be that the 
+message is not reportable.  For unreportable messages, 
+operator &lt;&lt to the results of the LogXYZ commands become no-ops.
+<li>
+Every 19-th time the cache of results is used and delivers true,
+that message is re-probed in case it is now being ignored.   
+<li>
+If a message has been probed and found to be reportable (either by the cache
+or by a new actual probe), 
+then LogXYZ will send that message along to the ErrorLogger.
+</ul>
+However, we can check the local map:  
+if a message has already been probed and found to be ignored, 
+then the  operator &lt;&lt can become a no-op.  
+<p>
+This presents another mode of usage, one which we can recommend:  
+The user probes a message category 
+just once, and relies on the system to obviate extra work by automatically
+checking when appropriate.
+<p>
+We do have to warn about the effect of this on message statistics:
+Messaages which are sent to the logger but ignored make it into the statistics,
+but messages which are never even sent do not.  (Assumedly, the user would
+not care about the count of messages in categories which are completely 
+ignored.)
+
+<h3> Quick temporary treatment </h3>
+
+We can quickly implement the propbe functions as returning true, thus 
+allowing user code to start using this mechanism (with no efficiency gain
+until we implement the actual probing) immediately.
+
 <h3> Work consequences </h3>
 
-Requires learning how to handle endl, and implementing that in ELoutput
-and other destinations.  The danger is that the problem issues may be subtle, in
-which case it is best to abandon the idea.
-
+The ErrorLogger currently has no means of probing for responding destinations.
+This will need to be created.  The difficulty should be slight (time estimate
+of 1/2 day).
+<p>
+The MessageLoggerScribe will need a new opcode to do the probe.  The probe
+data structure would be a pointer to one integer (not a bool, because the 
+probing end has to know when the result is now valid).  The probe routine
+(on the client side) will need to either sleep on that value changing, or
+otherwise wait till the true/false value is established.  This is not as
+easy as the other part, but probably will take another 1/2 day.
+<p>
+The establishment of the cache will be easy, 
+but the re-writes of LogWarning etc. to take 
+advantage of known non-response results will be subtle.
+In particular, the LogDebug macro may be very subtle if we don't want 
+to take the cost of forming and passing __FILE__ and __LINE__ when we don't 
+have to.  
+<p> 
+The total time estimate for this feature is two solid days.
 
 <p><center>
 <img src="bar.gif"></center>

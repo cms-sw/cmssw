@@ -17,7 +17,7 @@
 //
 // Original Author:  W. Brown and M. Fischler
 //         Created:  Fri Nov 11 16:38:19 CST 2005
-// $Id: MessageLogger.h,v 1.1 2005/11/22 22:07:08 fischler Exp $
+// $Id: MessageLogger.h,v 1.2 2005/12/22 16:30:27 jbk Exp $
 //
 
 // system include files
@@ -134,6 +134,10 @@ private:
 
 };  // LogDebug_
 
+inline bool ProbeLogError   ( ELstring const & id ) { return true; }
+inline bool ProbeLogWarning ( ELstring const & id ) { return true; }
+inline bool ProbeLogInfo    ( ELstring const & id ) { return true; }
+inline bool ProbeLogDebug   ( ELstring const & id ) { return true; }
 
 }  // namespace edm
 
