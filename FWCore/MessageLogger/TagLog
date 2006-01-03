@@ -1,3 +1,6 @@
+** V01-02-00  [Tue Jan  3 18:35:00 2006]
+log4cplus destination now configurable (in the sense of MessageLogger limits, thresholds, and so forth)
+
 ** V01-01-00  [Fri Dec 23 01:17:58 2005]
 additions for using log4cplus service and destination. added code for including context information to ErrorObj and making use of it.
 
