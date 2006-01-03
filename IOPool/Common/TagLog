@@ -1,3 +1,6 @@
+** V01-00-03  [Tue Jan  3 20:40:23 2006]
+Remove workaround for ROOT bug fixed in iROOT 5.08.00
+
 ** V01-00-02  [Fri Dec  2 06:57:12 2005]
 Improve edm::Ref so that EventRegistry is not needed
 
