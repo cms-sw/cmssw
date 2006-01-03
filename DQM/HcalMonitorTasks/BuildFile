@@ -5,6 +5,7 @@
 <use name=DataFormats/HcalDigi>
 <use name=EventFilter/HcalRawToDigi>
 <use name=DQMServices/CoreROOT>
+<use name=CalibFormats/HcalObjects>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <export>
@@ -16,6 +17,7 @@
   <use name=DataFormats/HcalDigi>
   <use name=EventFilter/HcalRawToDigi>
   <use name=DQMServices/CoreROOT>
+  <use name=CalibFormats/HcalObjects>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
 </export>
