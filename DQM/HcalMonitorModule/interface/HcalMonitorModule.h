@@ -4,25 +4,26 @@
 /*
  * \file HcalMonitorModule.h
  *
- * $Date: 2005/11/17 22:55:26 $
- * $Revision: 1.3 $
+ * $Date: 2005/11/30 22:05:56 $
+ * $Revision: 1.4 $
  * \author W. Fisher
  *
 */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include <DQM/HcalMonitorModule/interface/HcalMonitorSelector.h>
-#include <DQM/HcalMonitorTasks/interface/HcalDigiMonitor.h>
-#include <DQM/HcalMonitorTasks/interface/HcalDataFormatMonitor.h>
-#include <DQM/HcalMonitorTasks/interface/HcalRecHitMonitor.h>
-
+#include "DQM/HcalMonitorModule/interface/HcalMonitorSelector.h"
+#include "DQM/HcalMonitorTasks/interface/HcalDigiMonitor.h"
+#include "DQM/HcalMonitorTasks/interface/HcalDataFormatMonitor.h"
+#include "DQM/HcalMonitorTasks/interface/HcalRecHitMonitor.h"
+#include "DQM/HcalMonitorTasks/interface/HcalPedestalMonitor.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include <memory>
 #include <iostream>
@@ -67,6 +68,7 @@ private:
   HcalDigiMonitor*        m_digiMon;
   HcalDataFormatMonitor*  m_dfMon;
   HcalRecHitMonitor*      m_rhMon;
+  HcalPedestalMonitor*    m_pedMon;
   
   string m_outputFile;
   ofstream m_logFile;

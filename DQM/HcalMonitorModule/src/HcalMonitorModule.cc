@@ -3,8 +3,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2005/11/30 22:05:56 $
- * $Revision: 1.4 $
+ * $Date: 2005/12/08 21:18:16 $
+ * $Revision: 1.5 $
  * \author W Fisher
  *
 */
@@ -40,8 +40,7 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   m_digiMon = NULL;
   m_dfMon = NULL;
   m_rhMon = NULL;
-
-
+  m_pedMon = NULL;
 
   if ( ps.getUntrackedParameter<bool>("RecHitMonitor", false) ) {
     m_rhMon = new HcalRecHitMonitor();
@@ -58,14 +57,20 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
     m_dfMon->setup(ps, m_dbe);
   }
 
+  if ( ps.getUntrackedParameter<bool>("PedestalMonitor", false) ) {
+    m_pedMon = new HcalPedestalMonitor();
+    m_pedMon->setup(ps, m_dbe);
+  }
+
   if ( m_dbe ) m_dbe->showDirStructure();
   
 }
 
 HcalMonitorModule::~HcalMonitorModule(){
-  if(m_digiMon!=NULL) delete m_digiMon;
-  if(m_dfMon!=NULL) delete m_dfMon;
-  if(m_rhMon!=NULL) delete m_rhMon;
+  if(m_digiMon!=NULL) { delete m_digiMon; m_digiMon=NULL; }
+  if(m_dfMon!=NULL) { delete m_dfMon; m_dfMon=NULL; }
+  if(m_rhMon!=NULL) { delete m_rhMon; m_rhMon=NULL; }
+  if(m_pedMon!=NULL) { delete m_pedMon; m_pedMon=NULL; }
   delete m_evtSel;
 
   m_logFile.close();
@@ -83,6 +88,7 @@ void HcalMonitorModule::endJob(void) {
   if(m_digiMon!=NULL) m_digiMon->done();
   if(m_dfMon!=NULL) m_dfMon->done();
   if(m_rhMon!=NULL) m_rhMon->done();
+  if(m_pedMon!=NULL) m_pedMon->done();
 
   if ( m_meStatus ) m_meStatus->Fill(2);
   if ( m_outputFile.size() != 0  && m_dbe ) m_dbe->save(m_outputFile);
@@ -90,7 +96,7 @@ void HcalMonitorModule::endJob(void) {
   //  usleep(100);
 }
 
-void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& c){
+void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& eventSetup){
 
   m_ievt++;
 
@@ -113,7 +119,21 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& c){
     e.getByType(ho);
     m_digiMon->processEvent(*hbhe, *ho, *hf);
   }
-  
+
+  if((m_pedMon != NULL) && (evtMask&DO_HCAL_PED_CALIBMON)){
+    edm::Handle<HBHEDigiCollection> hbhe;
+    edm::Handle<HODigiCollection> ho;
+    edm::Handle<HFDigiCollection> hf;
+    e.getByType(hbhe);
+    e.getByType(hf);
+    e.getByType(ho);
+    // get conditions
+    edm::ESHandle<HcalDbService> conditions;
+    eventSetup.get<HcalDbRecord>().get(conditions);
+    m_pedMon->processEvent(*hbhe, *ho, *hf, *conditions);
+  }
+
+    
   /////Daata Format monitor stuff
   if((m_dfMon != NULL) && (evtMask&DO_HCAL_DFMON)){
     edm::Handle<FEDRawDataCollection> rawraw;  
