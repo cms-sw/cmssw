@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: PoolCatalog.cc,v 1.1 2005/11/01 22:42:45 wmtan Exp $
+// $Id: PoolCatalog.cc,v 1.2 2005/11/23 02:17:56 wmtan Exp $
 //
 // Author: Luca Lista
 // Co-Author: Bill Tanenbaum
@@ -53,26 +53,13 @@ namespace edm {
   void PoolCatalog::findFile(std::string & pfn, std::string const& lfn) {
     if (isPhysical(lfn)) {
       pfn = lfn;
-      // BEGIN KLUDGE due to pool bug: 
-      if (pfn.find("file:") == 0) {
-        // file: fails if catalog is not present.
-        pool::FClookup action;
-        catalog_.setAction(action);
-        pool::FileCatalog::FileID fid;
-        std::string fileType;
-        action.lookupFileByPFN(pfn, fid, fileType);
-        if (fid == pool::FileCatalog::FileID()) {
-          // strip off "file:"
-          pfn = pfn.substr(5);
-        }
-      } // END KLUDGE
     } else {
       pool::FClookup action;
       catalog_.setAction(action);
       pool::FileCatalog::FileID fid;
       action.lookupFileByLFN(lfn, fid);
       if (fid == pool::FileCatalog::FileID()) {
-        pfn = lfn;
+        pfn = "file:" + lfn;
       } else {
         std::string fileType;
         action.lookupBestPFN(fid, pool::FileCatalog::READ, pool::FileCatalog::SEQUENTIAL, pfn, fileType);
