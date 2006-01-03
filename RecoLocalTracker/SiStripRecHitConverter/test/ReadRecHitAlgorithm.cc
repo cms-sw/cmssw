@@ -8,7 +8,7 @@
 #include <iostream>
 
 #include "RecoLocalTracker/SiStripRecHitConverter/test/ReadRecHitAlgorithm.h"
-#include "PhysicsTools/Utilities/interface/own_vector.h"
+#include "DataFormats/Common/interface/own_vector.h"
 
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 
@@ -54,9 +54,9 @@ void ReadRecHitAlgorithm::run(const SiStripRecHit2DLocalPosCollection* input)
       for(iter=rechitRangeIteratorBegin;iter!=rechitRangeIteratorEnd;++iter){//loop on the rechit
 	  SiStripRecHit2DLocalPos const rechit=*iter;
 	  LocalPoint position=rechit.localPosition();
-	  LocalError error=rechit.localPositionError();
+	  //	  LocalError error=rechit.localPositionError();
 	  //GeomDet& det=rechit->det();
-	  DetId id=rechit.geographicalId();
+	  //DetId id=rechit.geographicalId();
 	  std::vector<const SiStripCluster*> clust=rechit.cluster();
 	  std::cout<<"local position: "<<position.x()<<" "<<position.y()<<" "<<position.z()<<" "<<std::endl;
 	  //std::cout<<"local error: "<<error.x()<<" "<<error.y()<<" "<<error.z()<<" "<<std::endl;

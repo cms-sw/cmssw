@@ -1,6 +1,6 @@
 #ifndef RECOLOCALTRACKER_SISTRIPCLUSTERIZER_SISTRIPCLUSTERMATCH_H
 #define RECOLOCALTRACKER_SISTRIPCLUSTERIZER_SISTRIPCLUSTERMATCH_H
-#include "PhysicsTools/Utilities/interface/own_vector.h"
+#include "DataFormats/Common/interface/own_vector.h"
 #include "DataFormats/TrackingRecHit2D/interface/SiStripRecHit2DLocalPos.h"
 #include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
 #include "DataFormats/DetId/interface/DetId.h"
@@ -33,8 +33,6 @@ public:
     // position of the initial and final point of the strip in local coordinates (RPHI cluster)
     LocalPoint RPHIpositionini=topol.localPosition(RPHIpointini); 
     LocalPoint RPHIpositionend=topol.localPosition(RPHIpointend); 
-    std::cout<<"First point x="<<RPHIpositionini.x()<<" y"<<RPHIpositionini.y()<<std::endl;
-    std::cout<<"Second point x="<<RPHIpositionend.x()<<" y"<<RPHIpositionend.y()<<std::endl;
     // position of the initial and final point of the strip in global coordinates (RPHI cluster)
     GlobalPoint rphiglobalpointini=(stripdet->surface()).toGlobal(RPHIpositionini);
     GlobalPoint rphiglobalpointend=(stripdet->surface()).toGlobal(RPHIpositionend);
@@ -62,7 +60,6 @@ public:
 	SiStripCluster secondcluster=*seconditer;
 	std::vector<const SiStripCluster*> clusters;
 	clusters.push_back(cluster); clusters.push_back(&secondcluster);
-	std::cout<<"X= "<<solution(1)<<" Y= "<<solution(2)<<std::endl;
 	collector.push_back(new SiStripRecHit2DLocalPos(position, dummy, stripdet,detId,clusters));
       }
     }

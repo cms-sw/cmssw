@@ -42,7 +42,7 @@ SiStripRecHitConverterAlgorithm::~SiStripRecHitConverterAlgorithm() {
 void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,SiStripRecHit2DLocalPosCollection & output, const TrackingGeometry& tracker)
 {
   int nmono=0;
-  int nstereo=0;
+  //  int nstereo=0;
   int nmatch=0;
   int nunmatch=0;
   // get vector of detunit ids
@@ -78,7 +78,6 @@ void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,
 	  SiStripCluster cluster=*iter;
 	  if(partnerid!=0){ //If exist a cluster in the partner det
 	    nmono++;
-	    bool ismatch=false;
 	    DetId partnerdetId(partnerid);
 	    const GeomDetUnit * partnerstripdet=tracker.idToDet(partnerdetId);
 	    const SiStripClusterCollection::Range clusterpartnerRange = input->get(partnerid);
@@ -93,9 +92,6 @@ void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,
       else if (detId.subdetId()==static_cast<int>(StripSubdetector::TID)||detId.subdetId()==static_cast<int>(StripSubdetector::TEC)){    //if TID or TEC use trapoeziodalstrip topology
 	const TrapezoidalStripTopology& Ttopol=(TrapezoidalStripTopology&)stripdet->topology();
 	// get the partner id only if the detector is r-phi
-	if (detId.subdetId()==static_cast<int>(StripSubdetector::TID))std::cout<<"This is TID"<<std::endl;
-	if (detId.subdetId()==static_cast<int>(StripSubdetector::TEC))std::cout<<"This is TEC"<<std::endl;
-	std::cout<<"Radius= "<<Ttopol.radius()<<std::endl;
 	unsigned int partnerid=0;
 	TIDDetId TIDspecDetId(detId.rawId());
 	TECDetId TECspecDetId(detId.rawId());
@@ -113,7 +109,6 @@ void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,
 	  SiStripCluster cluster=*iter;
 	  if(partnerid!=0){ //If exist a cluster in the partner det
 	    nmono++;
-	    bool ismatch=false;
 	    DetId partnerdetId(partnerid);
 	    const GeomDetUnit * partnerstripdet=tracker.idToDet(partnerdetId);
 	    const SiStripClusterCollection::Range clusterpartnerRange = input->get(partnerid);
