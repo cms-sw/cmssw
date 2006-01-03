@@ -183,7 +183,7 @@ class SiPixelDigitizerAlgorithm
   //  int digis; 
   const PixelGeomDetUnit* _detp;
   std::vector<PSimHit> _PixelHits; //cache
-   PixelTopology* topol;
+  const PixelTopology* topol;
 
   std::vector<PixelDigi> internal_coll; //empty vector of PixelDigi used in digitize
 

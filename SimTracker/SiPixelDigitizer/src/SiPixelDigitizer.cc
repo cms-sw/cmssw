@@ -13,7 +13,7 @@
 //
 // Original Author:  Michele Pioppi-INFN perugia
 //         Created:  Mon Sep 26 11:08:32 CEST 2005
-// $Id: SiPixelDigitizer.cc,v 1.5 2005/12/12 18:04:05 pioppi Exp $
+// $Id: SiPixelDigitizer.cc,v 1.6 2005/12/12 18:15:28 pioppi Exp $
 //
 //
 
@@ -69,8 +69,8 @@ using namespace std;
 namespace cms
 {
   SiPixelDigitizer::SiPixelDigitizer(const edm::ParameterSet& iConfig):
-    _pixeldigialgo(iConfig) ,
-    conf_(iConfig)
+    conf_(iConfig),
+    _pixeldigialgo(iConfig) 
   {
     
     produces<PixelDigiCollection>();
@@ -118,13 +118,14 @@ namespace cms
     for (std::vector<PSimHit>::iterator isim = thePixelHits.begin();
 	 isim != thePixelHits.end(); ++isim){
       DetId detid=DetId((*isim).detUnitId());
-      if ((detid.subdetId()==  PixelSubdetector::PixelBarrel) || (detid.subdetId()== PixelSubdetector::PixelEndcap)) {
+      unsigned int subid=detid.subdetId();
+      if ((subid==  PixelSubdetector::PixelBarrel) || (subid== PixelSubdetector::PixelEndcap)) {
 	SimHitMap[(*isim).detUnitId()].push_back((*isim));
       }
     }
 
     // Step C: LOOP on PixelGeomDetUnit //
-    for(TrackingGeometry::DetContainer::iterator iu = pDD->dets().begin(); iu != pDD->dets().end(); iu ++){
+    for(TrackingGeometry::DetContainer::const_iterator iu = pDD->dets().begin(); iu != pDD->dets().end(); iu ++){
   
       GlobalVector bfield=pSetup->inTesla((*iu)->surface().position());
 

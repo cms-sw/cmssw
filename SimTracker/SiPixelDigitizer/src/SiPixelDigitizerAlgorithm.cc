@@ -141,8 +141,8 @@ vector<PixelDigi>  SiPixelDigitizerAlgorithm::run(const std::vector<PSimHit> &in
     
     // Special cases 
 
- 
-    if    (DetId(detID).subdetId()==  PixelSubdetector::PixelBarrel){
+    unsigned int Subid=DetId(detID).subdetId();
+    if    (Subid==  PixelSubdetector::PixelBarrel){
       if(thePixelLuminosity==10) { // For high luminosity
  	thePixelColEfficiency[0] = 1.-0.034; // 3.4% for r=4 only
 	thePixelEfficiency[0]    = 1.-0.015; // 1.5% for r=4
@@ -840,8 +840,8 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency() {
 
   // setup the chip indices conversion
   // At the moment I do not have a better way to find out the layer number? 
- 
-  if    (DetId(detID).subdetId()==  PixelSubdetector::PixelBarrel){// barrel layers
+  unsigned int Subid=DetId(detID).subdetId();
+  if    (Subid==  PixelSubdetector::PixelBarrel){// barrel layers
     double radius = _detp->surface().position().perp();
     int layerIndex = 0;
     if( radius < 5.5 ) {
