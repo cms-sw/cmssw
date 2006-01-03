@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/01/02 09:18:03 $
- * $Revision: 1.65 $
+ * $Date: 2006/01/02 16:37:41 $
+ * $Revision: 1.66 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -457,15 +457,11 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
   startRun.setToCurrentGMTime();
   startRun.setToMicrosTime(startRun.microsTime());
 
-  cout << "Setting run " << run_ << " start time " << startRun.str() << endl;
-
-  // set the properties of RunIOV (should be done by the DAQ)
+  // setup the RunIOV (on behalf of the DAQ)
 
   runiov_.setRunNumber(run_);
   runiov_.setRunStart(startRun);
   runiov_.setRunTag(runtag);
-
-  cout << "Creating RunIOV for the database ..." << endl;
 
   if ( econn ) {
     try {
@@ -477,6 +473,34 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
     }
   }
 
+  // fetch the RunIOV back from the DB
+
+  if ( econn ) {
+    try {
+      cout << "Fetching RunIOV ... " << flush;
+      runiov_ = econn->fetchRunIOV(run_);
+      cout << "done." << endl;
+    } catch (runtime_error &e) {
+      cerr << e.what() << endl;
+    }
+  }
+
+  cout << endl;
+  cout << "=============RunIOV:" << endl;
+  cout << "Run Number:         " << runiov_.getRunNumber() << endl;
+  cout << "Run Start:          " << runiov_.getRunStart().str() << endl;
+  cout << "Run End:            " << runiov_.getRunEnd().str() << endl;
+  cout << "====================" << endl;
+  cout << endl;
+  cout << "=============RunTag:" << endl;
+  cout << "GeneralTag:         " << runiov_.getRunTag().getGeneralTag() << endl;
+  cout << "Location:           " << runiov_.getRunTag().getLocationDef().getLocation() << endl;
+  cout << "Run Type:           " << runiov_.getRunTag().getRunTypeDef().getRunType() << endl;
+  cout << "Config Tag:         " << runiov_.getRunTag().getRunTypeDef().getConfigTag() << endl;
+  cout << "Config Ver:         " << runiov_.getRunTag().getRunTypeDef().getConfigVersion() << endl;
+  cout << "====================" << endl;
+  cout << endl;
+
   MonVersionDef monverdef;
 
   monverdef.setMonitoringVersion("test01");
@@ -486,10 +510,22 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
   montag.setMonVersionDef(monverdef);
   montag.setGeneralTag("CMSSW");
 
-  // set the properties of MonIOV
+  // setup the MonIOV
 
   moniov_.setMonRunTag(montag);
   moniov_.setRunIOV(runiov_);
+
+  cout << "==========MonRunIOV:" << endl;
+  cout << "SubRun Number:      " << moniov_.getSubRunNumber() << endl;
+  cout << "SubRun Start:       " << moniov_.getSubRunStart().str() << endl;
+  cout << "SubRun End:         " << moniov_.getSubRunEnd().str() << endl;
+  cout << "====================" << endl;
+  cout << endl;
+  cout << "==========MonRunTag:" << endl;
+  cout << "GeneralTag:         " << moniov_.getMonRunTag().getGeneralTag() << endl;
+  cout << "Monitoring Ver:     " << moniov_.getMonRunTag().getMonVersionDef().getMonitoringVersion() << endl;
+  cout << "====================" << endl;
+  cout << endl;
 
   int taskl = 0x00000000;
   int tasko = 0x00000000;
@@ -565,12 +601,18 @@ void EcalBarrelMonitorClient::writeDb(void) {
   startSubRun.setToCurrentGMTime();
   startSubRun.setToMicrosTime(startSubRun.microsTime());
 
-  cout << "Setting run/subrun " << run_ << "/" << subrun_ << " start time " << startSubRun.str() << endl;
-
-  // set the properties of MonIOV
+  // setup the MonIOV
 
   moniov_.setSubRunNumber(subrun_);
   moniov_.setSubRunStart(startSubRun);
+
+  cout << endl;
+  cout << "==========MonRunIOV:" << endl;
+  cout << "SubRun Number:      " << moniov_.getSubRunNumber() << endl;
+  cout << "SubRun Start:       " << moniov_.getSubRunStart().str() << endl;
+  cout << "SubRun End:         " << moniov_.getSubRunEnd().str() << endl;
+  cout << "====================" << endl;
+  cout << endl;
 
   int taskl = 0x00000000;
   int tasko = 0x00000000;
