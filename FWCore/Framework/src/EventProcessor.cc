@@ -83,10 +83,13 @@ namespace edm {
       ParameterSet main_input = 
 	params.getParameter<ParameterSet>("@main_input");
 
+      // Fill in "ModuleDescription", in case the input source produces any EDproducts,
+      // which would be registered in the ProductRegistry.
       ModuleDescription md;
       md.pid = main_input.id();
       md.moduleName_ = main_input.template getUntrackedParameter<std::string>("@module_type");
-      md.moduleLabel_ = main_input.template getUntrackedParameter<std::string>("module_label", "@module_type");
+      // There is no module label for the unnamed input source, so just use the module name.
+      md.moduleLabel_ = md.moduleName_;
       md.processName_ = processName;
 //#warning version and pass are hardcoded
       md.versionNumber_ = 1;
