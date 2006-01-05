@@ -1,3 +1,6 @@
+** V00-06-02  [Thu Jan  5 15:30:33 2006]
+Two bug fixes, one fix for a test and one fix for the type of vdouble parameters
+
 ** V00-06-01  [Wed Dec 28 23:50:08 2005]
 improved reporting of configuration file parsing errors
 
