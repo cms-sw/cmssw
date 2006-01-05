@@ -8,7 +8,7 @@
 //
 // Original Author:  W. Brown, M. Fischler
 //         Created:  Fri Nov 11 16:42:39 CST 2005
-// $Id: MessageLogger.cc,v 1.5 2005/11/29 22:07:53 fischler Exp $
+// $Id: MessageLogger.cc,v 1.6 2005/12/22 16:30:29 jbk Exp $
 //
 
 // system include files
@@ -36,13 +36,31 @@ using namespace edm::service;
 // static data member definitions
 //
 
+bool MessageLogger::anyDebugEnabled_ = false;
+
 //
 // constructors and destructor
 //
 MessageLogger::MessageLogger( ParameterSet const & iPS
                             , ActivityRegistry   & iRegistry
                             )
+			    : debugEnabled_(false)
 {
+  typedef std::vector<std::string>  vString;
+   vString  empty_vString;
+  
+  // grab list of debug-enabled modules
+  vString  debugModules
+     = iPS.getUntrackedParameter<vString>("debugModules", empty_vString);
+  // set up for tracking whether current module is debug-enabled
+  if (!debugModules.empty()) anyDebugEnabled_ = true;
+  std::cout << "anyDebugEnabled_ = " << anyDebugEnabled_ << "\n";
+  for( vString::const_iterator it = debugModules.begin()
+     ; it != debugModules.end()
+     ; ++it
+     ) { std::cout << "Module " << *it << "\n";
+         debugEnabledModules_.insert(*it); }
+  
   MessageLoggerQ::CFG( new ParameterSet(iPS) );
 
   iRegistry.watchPostBeginJob(this,&MessageLogger::postBeginJob);
@@ -129,6 +147,7 @@ MessageLogger::preModule(const ModuleDescription& desc)
   curr_module_ = desc.moduleName_;
   curr_module_ += ":";
   curr_module_ += desc.moduleLabel_;
+  debugEnabled_ = debugEnabledModules_.count(desc.moduleLabel_);
 }
 
 void

@@ -260,7 +260,7 @@ const ELstring  ELseverityLevel::getInputStr() const  {
     default                   : result =  "?no value?" ; break;
     case ELsev_zeroSeverity   : result =  "ZERO"       ; break;
     case ELsev_incidental     : result =  "INCIDENTAL" ; break;
-    case ELsev_success        : result =  "SUCCESS"    ; break;
+    case ELsev_success        : result =  "DEBUG"      ; break;
     case ELsev_info           : result =  "INFO"       ; break;
     case ELsev_warning        : result =  "WARNING"    ; break;
     case ELsev_warning2       : result =  "WARNING2"   ; break;

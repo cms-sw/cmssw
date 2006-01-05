@@ -17,10 +17,14 @@
 //
 // Original Author:  W. Brown and M. Fischler
 //         Created:  Fri Nov 11 16:38:19 CST 2005
-// $Id: MessageLogger.h,v 1.2 2005/12/22 16:30:27 jbk Exp $
+// $Id: MessageLogger.h,v 1.3 2006/01/03 18:01:33 fischler Exp $
 //
 
 // system include files
+
+#include <memory>
+#include <string>
+#include <set>
 
 // user include files
 
@@ -28,12 +32,10 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageSender.h"
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
 #include "FWCore/EDProduct/interface/EventID.h"
-
-#include <memory>
-#include <string>
 
 namespace edm  {
 namespace service  {
@@ -54,12 +56,21 @@ public:
   void  postModule( ModuleDescription const & );
 
   void  fillErrorObj(edm::ErrorObj& obj) const;
+  bool  debugEnabled() const { return debugEnabled_; }
 
+  static 
+  bool  anyDebugEnabled() { return anyDebugEnabled_; }
+  
 private:
   // put an ErrorLog object here, and maybe more
 
   edm::EventID curr_event_;
   std::string curr_module_;
+
+  std::set<std::string> debugEnabledModules_;
+  bool debugEnabled_;
+  static 
+  bool anyDebugEnabled_;
 
 };  // MessageLogger
 
@@ -80,7 +91,7 @@ public:
 
 private:
   std::auto_ptr<MessageSender> ap; 
-
+  
 };  // LogWarning
 
 
@@ -114,7 +125,7 @@ public:
 
 private:
   std::auto_ptr<MessageSender> ap; 
-
+  
 };  // LogInfo
 
 
@@ -134,15 +145,12 @@ private:
 
 };  // LogDebug_
 
-inline bool ProbeLogError   ( ELstring const & id ) { return true; }
-inline bool ProbeLogWarning ( ELstring const & id ) { return true; }
-inline bool ProbeLogInfo    ( ELstring const & id ) { return true; }
-inline bool ProbeLogDebug   ( ELstring const & id ) { return true; }
-
 }  // namespace edm
 
 
-#define LogDebug(id)  edm::LogDebug_(id, __FILE__, __LINE__)
-
+#define LogDebug(id)                                                   \
+  if ( edm::service::MessageLogger::anyDebugEnabled () &&               \
+       edm::Service<edm::service::MessageLogger>()->debugEnabled () )    \
+          edm::LogDebug_(id, __FILE__, __LINE__)                               
 
 #endif  // Services_MessageLogger_h

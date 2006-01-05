@@ -50,7 +50,6 @@ void
 {
   MessageLoggerQ::OpCode  opcode;
   void *                  operand;
-
   bool  done = false;
   do  {
     MessageLoggerQ::consume(opcode, operand);  // grab next work item from Q
@@ -66,13 +65,17 @@ void
       }
       case MessageLoggerQ::LOG_A_MESSAGE:  {
         ErrorObj *  errorobj_p = static_cast<ErrorObj *>(operand);
-        //std::cout << "MessageLoggerQ::LOG_A_MESSAGE " << errorobj_p << '\n';
-
+        // std::cout << "MessageLoggerQ::LOG_A_MESSAGE " << errorobj_p << '\n';
 	ELcontextSupplier& cs =
 	  const_cast<ELcontextSupplier&>(admin_p->getContextSupplier());
 	MsgContext& mc = dynamic_cast<MsgContext&>(cs);
 	mc.setContext(errorobj_p->context());
-        (*errorlog_p)( *errorobj_p );  // route the message text
+	std::vector<std::string> categories;
+	parseCategories(errorobj_p->xid().id, categories);
+	for (unsigned int icat = 0; icat < categories.size(); ++icat) {
+	  errorobj_p->setID(categories[icat]);
+          (*errorlog_p)( *errorobj_p );  // route the message text
+	}
         delete errorobj_p;  // dispose of the message text
         break;
       }
@@ -257,5 +260,22 @@ void
     delete *it;  // dispose of our (copy of the) NamedDestination
   }
   extern_dests.clear();
-
+ 
 }  // MessageLoggerScribe::configure_external_dests
+
+void
+  MessageLoggerScribe::parseCategories (std::string const & s,
+  				        std::vector<std::string> & cats)
+{
+  const std::string::size_type npos = std::string::npos;
+        std::string::size_type i    = 0;
+  while ( i != npos ) {    
+    std::string::size_type j = s.find('&',i);   
+    cats.push_back (s.substr(i,j-i));
+    i = j;
+    while ( (i != npos) && (s[i] == '&') ) ++i; 
+    // the above handles cases of && and also & at end of string
+  } 
+  // Note:  This algorithm assigns, as desired, one null category if it
+  //        encounters an empty categories string
+}

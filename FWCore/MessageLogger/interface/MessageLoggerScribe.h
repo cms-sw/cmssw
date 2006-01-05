@@ -40,6 +40,9 @@ private:
 		      );
   void  configure_external_dests( );
 
+  // --- other helpers
+  void parseCategories (std::string const & s, std::vector<std::string> & cats);
+  
   // --- data:
   ELadministrator               * admin_p;
   ELdestControl                   early_dest;
