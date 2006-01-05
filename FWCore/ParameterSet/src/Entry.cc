@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: Entry.cc,v 1.5 2005/11/01 22:31:51 paterno Exp $
+// $Id: Entry.cc,v 1.6 2005/11/11 19:57:58 paterno Exp $
 //
 // definition of Entry's function members
 // ----------------------------------------------------------------------
@@ -447,7 +447,7 @@ namespace edm {
 
   std::vector<double>
   Entry::getVDouble() const {
-    if(type != 'u')
+    if(type != 'd')
       throw ValueError("value's type is not vDouble");
     std::vector<double>  val;
     if(!decode(val, rep))
