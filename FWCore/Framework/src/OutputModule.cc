@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: OutputModule.cc,v 1.6 2005/08/25 20:26:19 wmtan Exp $
+$Id: OutputModule.cc,v 1.7 2005/10/12 02:31:50 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/OutputModule.h"
@@ -26,5 +26,9 @@ namespace edm {
   }
 
   void OutputModule::endJob() {
+  }
+
+  unsigned long OutputModule::nextID() const {
+    return nextID_;
   }
 }

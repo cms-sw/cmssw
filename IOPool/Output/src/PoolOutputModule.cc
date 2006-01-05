@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.5 2005/12/02 22:40:21 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.6 2005/12/12 22:22:04 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
@@ -86,7 +86,7 @@ namespace edm {
     makePlacement(poolNames::eventTreeName(), poolNames::auxiliaryBranchName(), auxiliaryPlacement_);
     makePlacement(poolNames::metaDataTreeName(), poolNames::productDescriptionBranchName(), productDescriptionPlacement_);
     ProductRegistry pReg;
-    pReg.setNextID(om->nextID_);
+    pReg.setNextID(om->nextID());
     for (Selections::const_iterator it = om->descVec_.begin();
       it != om->descVec_.end(); ++it) {
       pReg.copyProduct(**it);

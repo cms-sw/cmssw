@@ -6,7 +6,7 @@
 OutputModule: The base class of all "modules" that write Events to an
 output stream.
 
-$Id: OutputModule.h,v 1.14 2005/10/03 19:03:40 wmtan Exp $
+$Id: OutputModule.h,v 1.15 2005/10/12 02:31:50 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -30,8 +30,11 @@ namespace edm {
     virtual void endJob();
     virtual void write(EventPrincipal const& e) = 0;
     bool selected(BranchDescription const& desc) const {return groupSelector_.selected(desc);}
-  protected:
+
+    unsigned long nextID() const;
+  private:
     unsigned long nextID_;
+  protected:
     Selections descVec_;
   private:
     GroupSelector groupSelector_;
