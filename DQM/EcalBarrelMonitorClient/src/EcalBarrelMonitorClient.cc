@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/01/03 16:31:46 $
- * $Revision: 1.67 $
+ * $Date: 2006/01/05 08:56:56 $
+ * $Revision: 1.68 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -554,6 +554,7 @@ void EcalBarrelMonitorClient::writeDb(void) {
   moniov_.setSubRunStart(startSubRun);
   moniov_.setMonRunTag(montag);
 
+  cout << endl;
   cout << "==========MonRunIOV:" << endl;
   cout << "SubRun Number:      " << moniov_.getSubRunNumber() << endl;
   cout << "SubRun Start:       " << moniov_.getSubRunStart().str() << endl;
