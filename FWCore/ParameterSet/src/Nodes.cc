@@ -346,7 +346,11 @@ std::string ModuleNode::name() const { return name_; }
 
 void ModuleNode::print(std::ostream& ost) const
 {
-  ost << type_ << " " << name_ << " = " << class_ << "\n{\n";
+  std::string name( name_ );
+  if( name_ == "nameless") {
+    name = "";
+  }
+  ost << type_ << " " << name << " = " << class_ << "\n{\n";
   std::copy(nodes_->begin(),nodes_->end(),
 	    std::ostream_iterator<NodePtr>(ost,"\n"));
   ost << "\n}\n";
