@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/01/05 10:50:47 $
- * $Revision: 1.69 $
+ * $Date: 2006/01/05 11:41:39 $
+ * $Revision: 1.70 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -175,6 +175,8 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps){
   pedestalonline_client_ = new EBPedestalOnlineClient(ps, mui_);
   testpulse_client_      = new EBTestPulseClient(ps, mui_);
   electron_client_       = new EBElectronClient(ps, mui_);
+
+  cout << endl;
 
 }
 
@@ -403,6 +405,10 @@ void EcalBarrelMonitorClient::endRun(void) {
 
   last_jevt_ = -1;
   last_update_ = 0;
+
+  // this is an effective way to avoid ROOT memory leaks ...
+
+  exit(0);
 
 }
 
