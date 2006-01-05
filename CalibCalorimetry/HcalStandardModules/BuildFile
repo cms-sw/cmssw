@@ -1,0 +1,20 @@
+<flags SEAL_PLUGIN_NAME="CalibCalorimetryHcalStdModules">
+<use name=boost>
+<use name=root>
+<use name=FWCore/Framework>
+<use name=DataFormats/HcalDetId>
+<use name=CondFormats/HcalObjects>
+<use name=DataFormats/HcalDigi>
+<use name=CalibFormats/HcalObjects>
+<use name=CalibCalorimetry/HcalAlgos>
+<export>
+  <lib name=CalibCalorimetryHcalStdModules>
+  <use name=boost>
+  <use name=root>
+  <use name=FWCore/Framework>
+  <use name=DataFormats/HcalDetId>
+  <use name=CondFormats/HcalObjects>
+  <use name=DataFormats/HcalDigi>
+  <use name=CalibFormats/HcalObjects>
+  <use name=CalibCalorimetry/HcalAlgos>
+</export>
