@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/01/05 08:56:56 $
- * $Revision: 1.68 $
+ * $Date: 2006/01/05 10:50:47 $
+ * $Revision: 1.69 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -676,6 +676,8 @@ void EcalBarrelMonitorClient::writeDb(void) {
       cerr << e.what() << endl;
     }
   }
+
+  cout << endl;
 
 }
 
