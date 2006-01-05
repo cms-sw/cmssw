@@ -1,8 +1,8 @@
 /*
  * \file EBPnDiodeClient.cc
  *
- * $Date: 2005/12/30 14:05:30 $
- * $Revision: 1.29 $
+ * $Date: 2006/01/02 09:18:03 $
+ * $Revision: 1.30 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -420,7 +420,7 @@ void EBPnDiodeClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   // Produce the plots to be shown as .png files from existing histograms
 
-  int csize = 250;
+  const int csize = 250;
 
 //  double histMax = 1.e15;
 

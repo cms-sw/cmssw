@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  * 
- * $Date: 2006/01/02 14:04:38 $
- * $Revision: 1.30 $
+ * $Date: 2006/01/02 16:37:41 $
+ * $Revision: 1.31 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -370,9 +370,9 @@ void EBCosmicClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   // Produce the plots to be shown as .png files from existing histograms
 
-  int csize = 250;
+  const int csize = 250;
 
-  double histMax = 1.e15;
+  const double histMax = 1.e15;
 
   int pCol4[10];
   for ( int i = 0; i < 10; i++ ) pCol4[i] = 30+i;

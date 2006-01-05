@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2005/12/30 14:05:30 $
- * $Revision: 1.56 $
+ * $Date: 2006/01/02 09:21:15 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -414,9 +414,9 @@ void EBPedestalOnlineClient::htmlOutput(int run, string htmlDir, string htmlName
 
   // Produce the plots to be shown as .png files from existing histograms
 
-  int csize = 250;
+  const int csize = 250;
 
-  double histMax = 1.e15;
+  const double histMax = 1.e15;
 
   int pCol3[3] = { 2, 3, 5 };
 

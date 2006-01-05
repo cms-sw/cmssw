@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2006/01/02 09:18:03 $
- * $Revision: 1.65 $
+ * $Date: 2006/01/02 12:31:06 $
+ * $Revision: 1.66 $
  * \author G. Della Ricca
  *
 */
@@ -172,19 +172,18 @@ void EBIntegrityClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
       if ( num00 > 0 ) update_channel = true;
     }
 
-    float num01, num02, num03, num04, num05, num06;
+    float num01, num02, num03, num04;
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
 
-        num01 = num02 = num03 = num04 = num05 = num06 = 0.;
+        num01 = num02 = num03 = num04 = 0.;
 
         bool update_channel1 = false;
-        bool update_channel2 = false;
 
         float numTot = -1.;
 
-        if ( h_[ism-1] ) numTot = h_[ism-1]->GetBinContent(h_[ism-1]->GetBin(ie, ip)) / 3.;
+        if ( h_[ism-1] ) numTot = h_[ism-1]->GetBinContent(h_[ism-1]->GetBin(ie, ip));
 
         if ( h01_[ism-1] ) {
           num01  = h01_[ism-1]->GetBinContent(h01_[ism-1]->GetBin(ie, ip));
@@ -204,19 +203,6 @@ void EBIntegrityClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
         if ( h04_[ism-1] ) {
           num04  = h04_[ism-1]->GetBinContent(h04_[ism-1]->GetBin(ie, ip));
           if ( num04 > 0 ) update_channel1 = true;
-        }
-
-        int iet = 1 + ((ie-1)/5);
-        int ipt = 1 + ((ip-1)/5);
-
-        if ( h05_[ism-1] ) {
-          num05  = h05_[ism-1]->GetBinContent(h05_[ism-1]->GetBin(iet, ipt));
-          if ( num05 > 0 ) update_channel2 = true;
-        }
-
-        if ( h06_[ism-1] ) {
-          num06  = h06_[ism-1]->GetBinContent(h06_[ism-1]->GetBin(iet, ipt));
-          if ( num06 > 0 ) update_channel2 = true;
         }
 
         if ( update_channel || update_channel1 ) {
@@ -264,11 +250,40 @@ void EBIntegrityClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
 
         }
 
-        // update each TT only once
+      }
+    }
 
-        update_channel2 = update_channel2 && ( ie%5 == 1 && ip%5 == 1 );
+    float num05, num06;
 
-        if ( update_channel || update_channel2 ) {
+    for ( int iet = 1; iet <= 17; iet++ ) {
+      for ( int ipt = 1; ipt <= 4; ipt++ ) {
+
+        num05 = num06 = 0.;
+
+        bool update_channel1 = false;
+
+        float numTot = -1.;
+
+        if ( h_[ism-1] ) {
+          numTot = 0.;
+          for ( int ie = 1 + 5*(iet-1); ie <= 5*iet; ie++ ) {
+            for ( int ip = 1 + 5*(ipt-1); ip <= 5*ipt; ip++ ) {
+              numTot += h_[ism-1]->GetBinContent(h_[ism-1]->GetBin(ie, ip));
+            }
+          }
+        }
+
+        if ( h05_[ism-1] ) {
+          num05  = h05_[ism-1]->GetBinContent(h05_[ism-1]->GetBin(iet, ipt));
+          if ( num05 > 0 ) update_channel1 = true;
+        }
+
+        if ( h06_[ism-1] ) {
+          num06  = h06_[ism-1]->GetBinContent(h06_[ism-1]->GetBin(iet, ipt));
+          if ( num06 > 0 ) update_channel1 = true;
+        }
+
+        if ( update_channel || update_channel1 ) {
 
           if ( iet == 1 && ipt == 1 ) {
 
@@ -303,9 +318,11 @@ void EBIntegrityClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
           }
           c2.setTaskStatus(val);
 
+          int itt = (ipt-1) + 4*(iet-1) + 1;
+
           if ( econn ) {
             try {
-              ecid = econn->getEcalLogicID("EB_crystal_index", ism, iet-1, ipt-1);
+              ecid = econn->getEcalLogicID("EB_trigger_tower", ism, itt);
               dataset2[ecid] = c2;
             } catch (runtime_error &e) {
               cerr << e.what() << endl;
@@ -657,7 +674,7 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
 
         float numTot = -1.;
 
-        if ( h_[ism-1] ) numTot = h_[ism-1]->GetBinContent(h_[ism-1]->GetBin(ie, ip)) / 3.;
+        if ( h_[ism-1] ) numTot = h_[ism-1]->GetBinContent(h_[ism-1]->GetBin(ie, ip));
 
         if ( h01_[ism-1] ) {
           num01  = h01_[ism-1]->GetBinContent(h01_[ism-1]->GetBin(ie, ip));
@@ -759,7 +776,7 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   // Produce the plots to be shown as .png files from existing histograms
 
-  int csize = 250;
+  const int csize = 250;
 
   int pCol3[3] = { 2, 3, 5 };
   int pCol4[10];

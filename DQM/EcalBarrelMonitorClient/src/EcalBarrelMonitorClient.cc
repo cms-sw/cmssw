@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/01/02 16:37:41 $
- * $Revision: 1.66 $
+ * $Date: 2006/01/03 16:31:46 $
+ * $Revision: 1.67 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -485,6 +485,9 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
     }
   }
 
+  location_ = runiov_.getRunTag().getLocationDef().getLocation();
+  runtype_ = runiov_.getRunTag().getRunTypeDef().getRunType();
+
   cout << endl;
   cout << "=============RunIOV:" << endl;
   cout << "Run Number:         " << runiov_.getRunNumber() << endl;
@@ -500,72 +503,6 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
   cout << "Config Ver:         " << runiov_.getRunTag().getRunTypeDef().getConfigVersion() << endl;
   cout << "====================" << endl;
   cout << endl;
-
-  MonVersionDef monverdef;
-
-  monverdef.setMonitoringVersion("test01");
-
-  MonRunTag montag;
-
-  montag.setMonVersionDef(monverdef);
-  montag.setGeneralTag("CMSSW");
-
-  // setup the MonIOV
-
-  moniov_.setMonRunTag(montag);
-  moniov_.setRunIOV(runiov_);
-
-  cout << "==========MonRunIOV:" << endl;
-  cout << "SubRun Number:      " << moniov_.getSubRunNumber() << endl;
-  cout << "SubRun Start:       " << moniov_.getSubRunStart().str() << endl;
-  cout << "SubRun End:         " << moniov_.getSubRunEnd().str() << endl;
-  cout << "====================" << endl;
-  cout << endl;
-  cout << "==========MonRunTag:" << endl;
-  cout << "GeneralTag:         " << moniov_.getMonRunTag().getGeneralTag() << endl;
-  cout << "Monitoring Ver:     " << moniov_.getMonRunTag().getMonVersionDef().getMonitoringVersion() << endl;
-  cout << "====================" << endl;
-  cout << endl;
-
-  int taskl = 0x00000000;
-  int tasko = 0x00000000;
-
-  EcalLogicID ecid;
-  MonRunDat md;
-  map<EcalLogicID, MonRunDat> dataset;
-
-  MonRunOutcomeDef monRunOutcomeDef;
-
-  monRunOutcomeDef.setShortDesc("unknown");
-
-  float nevt = -1.;
-
-  md.setNumEvents(int(nevt));
-  md.setMonRunOutcomeDef(monRunOutcomeDef);
-  md.setRootfileName(outputFile_);
-  md.setTaskList(taskl);
-  md.setTaskOutcome(tasko);
-
-  cout << "Creating MonRunDatObjects for the database ..." << endl;
-
-  if ( econn ) {
-    try {
-      ecid = econn->getEcalLogicID(-1);
-      dataset[ecid] = md;
-    } catch (runtime_error &e) {
-      cerr << e.what() << endl;
-    }
-  }
-
-  if ( econn ) {
-    try {
-      cout << "Inserting dataset ... " << flush;
-      econn->insertDataSet(&dataset, &moniov_);
-      cout << "done." << endl;
-    } catch (runtime_error &e) {
-      cerr << e.what() << endl;
-    }
-  }
 
   if ( econn ) {
     try {
@@ -596,6 +533,15 @@ void EcalBarrelMonitorClient::writeDb(void) {
     }
   }
 
+  MonVersionDef monverdef;
+
+  monverdef.setMonitoringVersion("test01");
+
+  MonRunTag montag;
+
+  montag.setMonVersionDef(monverdef);
+  montag.setGeneralTag("CMSSW");
+
   Tm startSubRun;
 
   startSubRun.setToCurrentGMTime();
@@ -603,75 +549,81 @@ void EcalBarrelMonitorClient::writeDb(void) {
 
   // setup the MonIOV
 
+  moniov_.setRunIOV(runiov_);
   moniov_.setSubRunNumber(subrun_);
   moniov_.setSubRunStart(startSubRun);
+  moniov_.setMonRunTag(montag);
 
-  cout << endl;
   cout << "==========MonRunIOV:" << endl;
   cout << "SubRun Number:      " << moniov_.getSubRunNumber() << endl;
   cout << "SubRun Start:       " << moniov_.getSubRunStart().str() << endl;
   cout << "SubRun End:         " << moniov_.getSubRunEnd().str() << endl;
   cout << "====================" << endl;
   cout << endl;
+  cout << "==========MonRunTag:" << endl;
+  cout << "GeneralTag:         " << moniov_.getMonRunTag().getGeneralTag() << endl;
+  cout << "Monitoring Ver:     " << moniov_.getMonRunTag().getMonVersionDef().getMonitoringVersion() << endl;
+  cout << "====================" << endl;
+  cout << endl;
 
-  int taskl = 0x00000000;
-  int tasko = 0x00000000;
+  int taskl = 0x0;
+  int tasko = 0x0;
 
   if ( integrity_client_ ) {
     if ( status_ == "end-of-run" || ( runtype_ == "cosmic" || runtype_ == "electron" ) ) {
-      taskl |= 0x0000000f;
+      taskl |= 0x1;
       integrity_client_->writeDb(econn, &moniov_);
-      tasko |= 0x00000000;
+      tasko |= 0x0;
     }
   }
 
   if ( cosmic_client_ ) {
     if ( status_ == "end-of-run" || runtype_ == "cosmic" ) {
-      taskl |= 0x000000f0;
+      taskl |= 0x1 << 1;
       cosmic_client_->writeDb(econn, &moniov_);
-      tasko |= 0x00000000;
+      tasko |= 0x0 << 1;
     }
   }
   if ( laser_client_ ) {
     if ( status_ == "end-of-run" && ( runtype_ == "cosmic" || runtype_ == "electron" || runtype_ == "laser" ) ) {
-      taskl |= 0x00000f00;
+      taskl |= 0x1 << 2;
       laser_client_->writeDb(econn, &moniov_);
-      tasko |= 0x00000000;
+      tasko |= 0x0 << 2;
     }
   }
   if ( pndiode_client_ ) {
     if ( status_ == "end-of-run" && ( runtype_ == "cosmic" || runtype_ == "electron" || runtype_ == "laser" ) ) {
-      taskl |= 0x0000f000;
+      taskl |= 0x1 << 3;
       pndiode_client_->writeDb(econn, &moniov_);
-      tasko |= 0x00000000;
+      tasko |= 0x0 << 3;
     }
   }
   if ( pedestal_client_ ) {
     if ( status_ == "end-of-run" && runtype_ == "pedestal" ) {
-      taskl |= 0x000f0000;
+      taskl |= 0x1 << 4;
       pedestal_client_->writeDb(econn, &moniov_);
-      tasko |= 0x00000000;
+      tasko |= 0x0 << 4;
     }
   }
   if ( pedestalonline_client_ ) {
     if ( status_ == "end-of-run" || ( runtype_ == "cosmic" || runtype_ == "electron" ) ) {
-      taskl |= 0x00f00000;
+      taskl |= 0x1 << 5;
       pedestalonline_client_->writeDb(econn, &moniov_);
-      tasko |= 0x00000000;
+      tasko |= 0x0 << 5;
     }
   }
   if ( testpulse_client_ ) {
     if ( status_ == "end-of-run" && runtype_ == "testpulse" ) {
-      taskl |= 0x0f000000;
+      taskl |= 0x1 << 6;
       testpulse_client_->writeDb(econn, &moniov_);
-      tasko |= 0x00000000;
+      tasko |= 0x0 << 6;
     }
   }
   if ( electron_client_ ) {
     if ( status_ == "end-of-run" || runtype_ == "electron" ) {
-      taskl |= 0xf0000000;
+      taskl |= 0x1 << 7;
       electron_client_->writeDb(econn, &moniov_);
-      tasko |= 0x00000000;
+      tasko |= 0x0 << 7;
     }
   }
 
@@ -697,7 +649,7 @@ void EcalBarrelMonitorClient::writeDb(void) {
 
   if ( econn ) {
     try {
-      ecid = econn->getEcalLogicID(-1);
+      ecid = econn->getEcalLogicID(-1); // ECAL
       dataset[ecid] = md;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
@@ -749,12 +701,15 @@ void EcalBarrelMonitorClient::endRunDb(void) {
 
   if ( h_ ) nevt = h_->GetEntries();
 
+  // setup the RunDat (on behalf of the DAQ)
+
   rd.setNumEvents(int(nevt));
+
+  cout << "Creating RunDatObjects for the database ..." << endl;
 
   if ( econn ) {
     try {
-      int ism = 1;
-      ecid = econn->getEcalLogicID("EB_supermodule", ism);
+      ecid = econn->getEcalLogicID(-1); // SM
       dataset[ecid] = rd;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
