@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  *
- * $Date: 2005/12/30 10:24:29 $
- * $Revision: 1.30 $
+ * $Date: 2006/01/02 12:29:22 $
+ * $Revision: 1.31 $
  * \author G. Della Ricca
  *
 */
@@ -94,11 +94,14 @@ void EBCosmicTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
 //    logFile_ << " hit amplitude " << xval << endl;
 
-    if ( xval >= 5. ) {
+    const float lowThreshold = 5.;
+    const float highThreshold = 10.;
+
+    if ( xval >= lowThreshold ) {
       if ( meCutMap_[ism-1] ) meCutMap_[ism-1]->Fill(xie, xip, xval);
     }
 
-    if ( xval >= 10. ) {
+    if ( xval >= highThreshold ) {
       if ( meSelMap_[ism-1] ) meSelMap_[ism-1]->Fill(xie, xip, xval);
     }
 
