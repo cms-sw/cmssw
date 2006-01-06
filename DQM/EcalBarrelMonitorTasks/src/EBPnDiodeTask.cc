@@ -1,8 +1,8 @@
 /*
  * \file EBPnDiodeTask.cc
  *
- * $Date: 2005/12/30 10:24:29 $
- * $Revision: 1.9 $
+ * $Date: 2006/01/02 12:29:22 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  *
 */
@@ -18,6 +18,10 @@ EBPnDiodeTask::EBPnDiodeTask(const edm::ParameterSet& ps, DaqMonitorBEInterface*
     mePNL2_[i] = 0;
     mePNL3_[i] = 0;
     mePNL4_[i] = 0;
+    mePNPedL1_[i] = 0;
+    mePNPedL2_[i] = 0;
+    mePNPedL3_[i] = 0;
+    mePNPedL4_[i] = 0;
   }
 
   Char_t histo[20];
@@ -29,24 +33,32 @@ EBPnDiodeTask::EBPnDiodeTask(const edm::ParameterSet& ps, DaqMonitorBEInterface*
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBPDT PNs SM%02d L1", i+1);
       mePNL1_[i] = dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096.);
+      sprintf(histo, "EBPDT PNs pedestal SM%02d L1", i+1);
+      mePNPedL1_[i] = dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096.);
     }
 
     dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Laser2");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBPDT PNs SM%02d L2", i+1);
       mePNL2_[i] = dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096.);
+      sprintf(histo, "EBPDT PNs pedestal SM%02d L2", i+1);
+      mePNPedL2_[i] = dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096.);
     }
 
     dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Laser3");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBPDT PNs SM%02d L3", i+1);
       mePNL3_[i] = dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096.);
+      sprintf(histo, "EBPDT PNs pedestal SM%02d L3", i+1);
+      mePNPedL3_[i] = dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096.);
     }
 
     dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Laser4");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBPDT PNs SM%02d L4", i+1);
       mePNL4_[i] = dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096.);
+      sprintf(histo, "EBPDT PNs pedestal SM%02d L4", i+1);
+      mePNPedL4_[i] = dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096.);
     }
 
   }
@@ -96,9 +108,18 @@ void EBPnDiodeTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
     float xvalped = 0.;
 
+    MonitorElement* mePNPed = 0;
+
     for (int i = 0; i < 4; i++) {
 
       EcalFEMSample sample = pn.sample(i);
+
+      if ( ievt_ >=    1 && ievt_ <=  600 ) mePNPed = mePNPedL1_[ism-1];
+      if ( ievt_ >=  601 && ievt_ <= 1200 ) mePNPed = mePNPedL1_[ism-1];
+      if ( ievt_ >= 1201 && ievt_ <= 1800 ) mePNPed = mePNPedL2_[ism-1];
+      if ( ievt_ >= 1801 && ievt_ <= 2400 ) mePNPed = mePNPedL2_[ism-1];
+
+      if ( mePNPed ) mePNPed->Fill(0.5, num - 0.5, sample.adc());
 
       xvalped = xvalped + sample.adc();
 

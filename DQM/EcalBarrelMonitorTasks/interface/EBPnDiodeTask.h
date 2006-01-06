@@ -4,8 +4,8 @@
 /*
  * \file EBPnDiodeTask.h
  *
- * $Date: 2005/11/24 09:47:00 $
- * $Revision: 1.1 $
+ * $Date: 2005/12/01 09:37:13 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  *
 */
@@ -65,6 +65,11 @@ MonitorElement* mePNL1_[36];
 MonitorElement* mePNL2_[36];
 MonitorElement* mePNL3_[36];
 MonitorElement* mePNL4_[36];
+
+MonitorElement* mePNPedL1_[36];
+MonitorElement* mePNPedL2_[36];
+MonitorElement* mePNPedL3_[36];
+MonitorElement* mePNPedL4_[36];
 
 ofstream logFile_;
 
