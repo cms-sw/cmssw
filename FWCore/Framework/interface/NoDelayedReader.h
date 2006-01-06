@@ -2,7 +2,7 @@
 #define Framework_NoDelayedReader_h
 
 /*----------------------------------------------------------------------
-$Id: NoDelayedReader.h,v 1.2 2005/12/01 22:14:54 wmtan Exp $
+$Id: NoDelayedReader.h,v 1.3 2005/12/28 00:14:52 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -13,7 +13,7 @@ $Id: NoDelayedReader.h,v 1.2 2005/12/01 22:14:54 wmtan Exp $
 namespace edm {
   struct NoDelayedReader : public DelayedReader {
     virtual ~NoDelayedReader();
-    virtual std::auto_ptr<EDProduct> get(BranchKey const& k, EventPrincipal const* ep) const;
+    virtual std::auto_ptr<EDProduct> get(BranchKey const& k, EDProductGetter const* ep) const;
   };
 }
 #endif
