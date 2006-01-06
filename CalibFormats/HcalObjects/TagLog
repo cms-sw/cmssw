@@ -1,3 +1,6 @@
+** V02-01-00  [Fri Jan  6 18:53:59 2006]
+Add capId offset to coder interface
+
 ** V02-00-00  [Wed Dec 28 01:40:06 2005]
 Major redesign of Hcal Condition classes
 
