@@ -2,14 +2,16 @@
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=IOPool/Common>
+<use name=IOPool/CommonInput>
 <use name=boost>
 <use name=root>
 <use name=rootcore>
 <export>
- <lib name=IOPoolSource>
+ <lib name=IOPoolInput>
  <use name=FWCore/Framework>
  <use name=FWCore/MessageLogger>
  <use name=IOPool/Common>
+ <use name=IOPool/CommonInput>
  <use name=boost>
  <use name=root>
  <use name=rootcore>
