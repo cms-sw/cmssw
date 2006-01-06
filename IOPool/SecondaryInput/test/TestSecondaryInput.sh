@@ -32,7 +32,7 @@ process PROD  = {
 	module OtherThing = SecondaryProducer {
 	       secsource input = PoolSecondarySource  {
 			untracked string catalog = '${LOCAL_TMP_DIR}/SecondaryInputTestCatalog.xml'
-			string fileName = 'PoolTest.root'
+			untracked vstring fileNames = {'PoolTest.root'}
 	       }
 	}
 	module Analysis = OtherThingAnalyzer {}
