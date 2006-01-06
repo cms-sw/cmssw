@@ -5,7 +5,7 @@
 /*----------------------------------------------------------------------
   
 SecondaryInputSource: Abstract interface for secondary input sources.
-$Id: SecondaryInputSource.h,v 1.1 2005/09/28 05:17:39 wmtan Exp $
+$Id: SecondaryInputSource.h,v 1.2 2005/10/11 21:48:29 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -23,7 +23,7 @@ namespace edm {
     void readMany(int idx, int number, std::vector<EventPrincipal*>& result);
 
   private:
-    virtual void read(int idx, int number, std::vector<EventPrincipal*>& result) = 0;
+    virtual void read_(int idx, int number, std::vector<EventPrincipal*>& result) = 0;
   };
 }
 

@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: SecondaryInputSource.cc,v 1.1 2005/09/28 05:17:13 wmtan Exp $
+$Id: SecondaryInputSource.cc,v 1.2 2005/10/11 21:48:46 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include "FWCore/Framework/interface/SecondaryInputSource.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
@@ -16,6 +16,6 @@ namespace edm {
      std::vector<EventPrincipal*>& result) {
     // Do we need any error handling (e.g. exception translation)
     // here?
-    this->read(idx, number, result);
+    this->read_(idx, number, result);
   }
 }
