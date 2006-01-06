@@ -255,8 +255,13 @@ void SiStripRawToDigi::zeroSuppr( unsigned short fed_id, StripDigiCollection& di
       
       // retrieve DetId and APV pair from SiStripConnections
       pair<DetId,unsigned short> det_pair;
+      ////////////////////////////////////////////////////////
+      //SiStripConnection::FedReference ref(*ifed, ichan);
+      //connections_.getDetPair( ref, det_pair );
+      ///////////////////////////////////////////////////////
       connections_.getDetPair( fed_id, ichan, det_pair );
       unsigned int det_id = static_cast<unsigned int>( det_pair.first.rawId() );
+      if (det_id) {
       unsigned short apv_pair = det_pair.second;
       
       //// StripDigi container for extracted ADC values
@@ -279,7 +284,7 @@ void SiStripRawToDigi::zeroSuppr( unsigned short fed_id, StripDigiCollection& di
 
     }
      
-    
+    }
 }
 
 // -----------------------------------------------------------------------------
@@ -305,7 +310,10 @@ void SiStripRawToDigi::Raw( unsigned short fed_id, StripDigiCollection& digis ) 
     // Retrieve DetId and APV pair from SiStripConnections
     pair<DetId,unsigned short> det_pair;
     connections_.getDetPair( fed_id, ichan, det_pair );
+
     unsigned int det_id = static_cast<unsigned int>( det_pair.first.rawId() );
+
+  if (det_id) {
     unsigned short apv_pair = det_pair.second;
     
     // Retrieve data samples from FED channel
@@ -337,7 +345,8 @@ void SiStripRawToDigi::Raw( unsigned short fed_id, StripDigiCollection& digis ) 
       digis.add( det_id, channel_digis );
       
     }  
-  }
+    }
+}
 }
 
 // -----------------------------------------------------------------------------

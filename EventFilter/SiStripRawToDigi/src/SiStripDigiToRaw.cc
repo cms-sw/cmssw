@@ -11,8 +11,9 @@ SiStripDigiToRaw::SiStripDigiToRaw( SiStripConnection& connections,
   readoutPath_("SLINK"), readoutMode_("VIRGIN_RAW"),
   fedids_(), // FED identifier list
   position_(), landau_(), // debug counters
-  nFeds_(0), nDets_(0), nDigis_(0) // debug counters
+  nFeds_(0), nDigis_(0) // debug counters
 {
+ 
   if (verbosity_>1) std::cout << "[SiStripDigiToRaw::SiStripDigiToRaw] " 
 			      << "Constructing object..." << endl;
 
@@ -36,8 +37,9 @@ SiStripDigiToRaw::SiStripDigiToRaw( SiStripConnection& connections,
     for ( ifed = fedids_.begin(); ifed != fedids_.end(); ifed++ ) {
       //   if (*ifed == *iter) { new_id = false; break; }
     }
-    if ( new_id ) { fedids_.push_back(*iter); }
-  }
+    if ( new_id ) { fedids_.push_back(*iter);}
+    }
+
   //some debug
   if (verbosity_>2) { 
     std::cout << "[SiStripDigiToRaw::createDigis] "
@@ -76,7 +78,6 @@ SiStripDigiToRaw::~SiStripDigiToRaw() {
   // counters
   std::cout << "[SiStripDigiToRaw::~SiStripDigiToRaw] Some cumulative counters: "
 	    << "#FEDs: " << nFeds_ 
-	    << "  #Dets: " << nDets_ 
 	    << "  #Digis_: " << nDigis_ << std::endl;
 
   // ndigis
@@ -113,7 +114,7 @@ void SiStripDigiToRaw::createFedBuffers( StripDigiCollection& digis,
   if (verbosity_>2) std::cout << "[SiStripDigiToRaw::createFedBuffers] " << endl;
 
   try {
-    
+   
     // Some temporary debug...
     if (verbosity_>2) {
       std::vector<unsigned int> dets = digis.detIDs();
@@ -143,58 +144,68 @@ void SiStripDigiToRaw::createFedBuffers( StripDigiCollection& digis,
 
 	// retrieve DetId and APV pair from SiStripConnections
       pair<DetId,unsigned short> det_pair;
+      ////////////////////////////////////////////////////////
+      //SiStripConnection::FedReference ref(*ifed, ichan);
+      //connections_.getDetPair( ref, det_pair );
+      ///////////////////////////////////////////////////////
       connections_.getDetPair( *ifed, ichan, det_pair );
       unsigned int det_id = static_cast<unsigned int>( det_pair.first.rawId() );
+      
+      if (det_id) { //M.W.
+ 
       unsigned short apv_pair = det_pair.second;
      
 	// Loop through Digis
 	StripDigiCollection::Range my_digis = digis.get( det_id );
 	StripDigiCollection::ContainerIterator idigi;
-	for ( idigi = my_digis.first; idigi != my_digis.second; idigi++ ) {
-	  if ((idigi->strip() >= apv_pair*256) && (idigi->strip()< (apv_pair + 1)*256)) {
-	    if (idigi->strip() >= (apv_pair + 1)*256) break;
 
-	  // calc strip position (within scope of FED) of digi
-	  unsigned short strip = ichan*256 + (*idigi).strip()%256;
-	  
-	  if ( strip >= strips_per_fed ) {
-	    std::cout << "[SiStripDigiToRaw::createFedBuffers] "
-		      << "ERROR : strip >= strips_per_fed" << std::endl;
-	  }
-	  
-	  // check if buffer has already been filled with digi ADC value. 
-	  // if not or if filled with different value, fill it.
-	  if ( data_buffer[strip] ) { // if yes, cross-check values
-	    if ( data_buffer[strip] != (*idigi).adc() ) {
-	      std::stringstream os; 
-	      os << "SiStripDigiToRaw::createFedBuffers(.): " 
-		 << "WARNING: Incompatible ADC values in buffer: "
-		 << "FED id: " << *ifed << ", FED channel: " << ichan
-		 << ", detector strip: " << (*idigi).strip() 
-		 << ", FED strip: " << strip
-		 << ", ADC value: " << (*idigi).adc()
-		 << ", data_buffer["<<strip<<"]: " << data_buffer[strip];
-	      std::cout << os.str() << endl;
+	for ( idigi = my_digis.first; idigi != my_digis.second; idigi++ ) {
+
+	  if ((idigi->strip() >= apv_pair*256) && (idigi->strip() < (apv_pair + 1)*256)) {
+	    if (idigi->strip() >= (apv_pair + 1)*256) break;
+	    
+	    // calc strip position (within scope of FED) of digi
+	    unsigned short strip = ichan*256 + (*idigi).strip()%256;
+	    
+	    if ( strip >= strips_per_fed ) {
+	      std::cout << "[SiStripDigiToRaw::createFedBuffers] "
+			<< "ERROR : strip >= strips_per_fed" << std::endl;
 	    }
-	  } else { // if no, update buffer with digi ADC value
-	    data_buffer[strip] = (*idigi).adc(); 
-	    // debug: update counters
-	    if (verbosity_>0) {
-	      position_[ (*idigi).strip() ]++;
-	      landau_[ (*idigi).adc()<100 ? (*idigi).adc() : 0 ]++;
-	      nDigis_++;
-	    }
-	    if (verbosity_>2) {
-	      std::cout << "FED id: " << *ifed << ", FED channel: " << ichan
-			<< ", detector strip: " << (*idigi).strip() 
-			<< ", FED strip: " << strip << ", ADC value: " << (*idigi).adc() 
-			<< ", data_buffer["<<strip<<"]: " << data_buffer[strip] << std::endl;
+	    
+	    // check if buffer has already been filled with digi ADC value. 
+	    // if not or if filled with different value, fill it.
+	    if ( data_buffer[strip] ) { // if yes, cross-check values
+	      if ( data_buffer[strip] != (*idigi).adc() ) {
+		std::stringstream os; 
+		os << "SiStripDigiToRaw::createFedBuffers(.): " 
+		   << "WARNING: Incompatible ADC values in buffer: "
+		   << "FED id: " << *ifed << ", FED channel: " << ichan
+		   << ", detector strip: " << (*idigi).strip() 
+		   << ", FED strip: " << strip
+		   << ", ADC value: " << (*idigi).adc()
+		   << ", data_buffer["<<strip<<"]: " << data_buffer[strip];
+		std::cout << os.str() << endl;
+	      }
+	    } else { // if no, update buffer with digi ADC value
+	      data_buffer[strip] = (*idigi).adc(); 
+	      // debug: update counters
+	      if (verbosity_>0) {
+		position_[ (*idigi).strip() ]++;
+		landau_[ (*idigi).adc()<100 ? (*idigi).adc() : 0 ]++;
+		nDigis_++;
+	      }
+	      if (verbosity_>2) {
+		std::cout << "FED id: " << *ifed << ", FED channel: " << ichan
+			  << ", detector strip: " << (*idigi).strip() 
+			  << ", FED strip: " << strip << ", ADC value: " << (*idigi).adc() 
+			  << ", data_buffer["<<strip<<"]: " << data_buffer[strip] << std::endl;
+	      }
 	    }
 	  }
 	}
       }
       }
-          
+
       // instantiate appropriate buffer creator object depending on readout mode
       Fed9U::Fed9UBufferCreator* creator = 0;
       if ( readoutMode_ == "SCOPE_MODE" ) {

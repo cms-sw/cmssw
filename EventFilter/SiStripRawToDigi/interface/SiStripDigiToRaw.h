@@ -67,7 +67,6 @@ class SiStripDigiToRaw {
   vector<unsigned int> position_;
   vector<unsigned int> landau_;
   unsigned long nFeds_;
-  unsigned long nDets_;
   unsigned long nDigis_;
 
 };

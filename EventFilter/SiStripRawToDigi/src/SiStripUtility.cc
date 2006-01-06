@@ -43,7 +43,7 @@ SiStripUtility::~SiStripUtility() {
 void SiStripUtility::siStripConnection( SiStripConnection& connections ) {
   if (verbose_) std::cout << "[SiStripUtility::siStripConnection]" << std::endl;
   // loop through detectors
-  for ( int idet = 0; idet < nDets_; idet++ ) { 
+  for ( int idet = 1; idet < (nDets_+1); idet++ ) { 
     pair<unsigned short, unsigned short> fed; 
     pair<DetId,unsigned short> det_pair; 
     DetId det = DetId(idet);
@@ -66,26 +66,30 @@ int SiStripUtility::stripDigiCollection( StripDigiCollection& collection ) {
   // loop through detectors
 
   int ndigiTotal = 0;
-  for ( int idet = 0; idet < nDets_; idet++ ) { 
+  for ( int idet = 1; idet < (nDets_+1); idet++ ) { 
     int ndigi = 5;//rand() % 51; // number of hits per det (~3% occupancy)
-    ndigiTotal += ndigi;
     std::vector<int> strips; strips.reserve(ndigi);
     std::vector<int>::iterator iter;
     std::vector<StripDigi> digis; digis.reserve(ndigi);
-    // loop through and create digis
-    for ( int idigi = 0; idigi < ndigi; idigi++ ) { 
+    
+    // loop through and create digis    
+    int idigi = 0;
+    while (idigi < ndigi) {
+      int value = (rand() % 99) + 1; // adc value
       int strip = rand() % 512; // strip position of hit
-      int value = rand() % 99 + 1; // adc value
       iter = find( strips.begin(), strips.end(), strip );
       if ( iter == strips.end() ) { 
 	strips.push_back( strip ); 
 	digis.push_back( StripDigi(strip,value) ); 
+	ndigiTotal ++;
+	idigi++;
       }
     }
+    
     // digi range
     StripDigiCollection::Range range = StripDigiCollection::Range( digis.begin(), digis.end() );
     // put digis in collection
-    if ( !digis.empty() ) { collection.put(range, idet); }
+    if ( !digis.empty() ) { collection.put( range, static_cast<unsigned int>(idet)); }
   }
   return ndigiTotal;
 }
@@ -94,13 +98,13 @@ int SiStripUtility::stripDigiCollection( StripDigiCollection& collection ) {
 //
 void SiStripUtility::fedRawDataCollection( FEDRawDataCollection& collection ) {
   if (verbose_) std::cout << "[SiStripUtility::fedRawDataCollection]" << std::endl;
-
+  
   // calculate number of FEDs for given number of detectors 
   unsigned int nFeds = nDets_%48 ? (nDets_/48)+1 : (nDets_/48);
-
+  
   // loop over FEDs
   for ( unsigned int ifed = 0; ifed < nFeds; ifed++ ) { 
-
+    
     // temp container for adc values
     std::vector<unsigned short> adc(96*256,0);
     // loop through FED channels
