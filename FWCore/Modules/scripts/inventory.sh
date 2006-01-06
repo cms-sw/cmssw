@@ -26,27 +26,57 @@ else
   rootMacro=${releaseBin}/inventory.C
 fi
 #
-# Cycle through the list of input files one by one. If the
-# file exists, process it.  Otherwise complain and move on.
+# For the file specified by $1, cycle through the list of tree
+# names in $2, $3 etc, one by one. If the tree exists, process
+# it.  Otherwise complain and move on.
 #
-while [ $# != 0 ]
-do
-	if [ -f $1 ]
-	then
-		echo " "
-		echo "Processing file $1"
-		echo " "
-		root -l -b -n << EOF
+# Pick off the file name and verify that it exists
+#
+filename=$1
+if [ ! -f $filename ]
+then
+	echo " "
+	echo "There is no file named $filename.  Aborting."
+	exit 1
+fi
+shift
+#
+#  If no TTree name is specified, 
+#  use TTree Events as the default.
+#
+if [ $# -eq 0 ]
+then
+	treename="Events"
+	echo " "
+	echo "Processing TTree named $treename on file $filename"
+	echo " "
+	root -l -b -n << EOF
 .x ${rootMacro}
-$1
+$filename
+$treename
 quit
 .q
 EOF
-	else
+	exit
+#
+#  Otherwise cycle over the list of specified TTree names
+#
+else
+	while [ $# != 0 ]
+	do
+		treename=$1
 		echo " "
-		echo "There is no file named $1.  Skipping."
-	fi
+		echo "Processing TTree named $treename on file $filename"
+		echo " "
+		root -l -b -n << EOF
+.x ${rootMacro}
+$filename
+$treename
+quit
+.q
+EOF
 	shift
-done
+	done
+fi
 #
 exit
