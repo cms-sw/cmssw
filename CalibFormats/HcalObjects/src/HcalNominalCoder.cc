@@ -18,27 +18,29 @@ void HcalNominalCoder::adc2fC(const HFDataFrame& df, CaloSamples& lf) const {
 
 namespace HcalNominalCoderTemplate {
   template <class Digi>
-  void process(const CaloSamples& clf, Digi& df) {
+  void process(const CaloSamples& clf, Digi& df, int fCapIdOffset) {
     df=Digi(clf.id());
     df.setSize(clf.size());
     df.setPresamples(clf.presamples());
-    for (int i=0; i<clf.size(); i++) 
+    for (int i=0; i<clf.size(); i++) {
+      int capId = (fCapIdOffset + i) % 4;
       for (int q=1; q<128; q++) {
-	df.setSample(i,HcalQIESample(q,i%4,0,0));
+	df.setSample(i,HcalQIESample(q,capId,0,0));
 	if (df[i].nominal_fC()>clf[i]) {
-	  df.setSample(i,HcalQIESample(q-1,i%4,0,0));
+	  df.setSample(i,HcalQIESample(q-1,capId,0,0));
 	  break;
 	}
       }
+    }
   }
 }
 
-void HcalNominalCoder::fC2adc(const CaloSamples& clf, HBHEDataFrame& df) const {
-  HcalNominalCoderTemplate::process(clf,df);
+void HcalNominalCoder::fC2adc(const CaloSamples& clf, HBHEDataFrame& df, int fCapIdOffset) const {
+  HcalNominalCoderTemplate::process(clf,df, fCapIdOffset);
 }
-void HcalNominalCoder::fC2adc(const CaloSamples& clf, HFDataFrame& df) const {
-  HcalNominalCoderTemplate::process(clf,df);
+void HcalNominalCoder::fC2adc(const CaloSamples& clf, HFDataFrame& df, int fCapIdOffset) const {
+  HcalNominalCoderTemplate::process(clf,df, fCapIdOffset);
 }
-void HcalNominalCoder::fC2adc(const CaloSamples& clf, HODataFrame& df) const {
-  HcalNominalCoderTemplate::process(clf,df);
+void HcalNominalCoder::fC2adc(const CaloSamples& clf, HODataFrame& df, int fCapIdOffset) const {
+  HcalNominalCoderTemplate::process(clf,df, fCapIdOffset);
 }

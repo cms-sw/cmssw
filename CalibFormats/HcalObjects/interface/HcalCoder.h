@@ -11,17 +11,17 @@
     Abstract interface of a coder/decoder which converts ADC values to
     and from femtocolumbs of collected charge.
 
-   $Date: 2005/08/04 18:16:18 $
-   $Revision: 1.2 $
+   $Date: 2005/10/05 00:37:56 $
+   $Revision: 1.3 $
 */
 class HcalCoder {
 public:
   virtual void adc2fC(const HBHEDataFrame& df, CaloSamples& lf) const = 0;
   virtual void adc2fC(const HODataFrame& df, CaloSamples& lf) const = 0;
   virtual void adc2fC(const HFDataFrame& df, CaloSamples& lf) const = 0;
-  virtual void fC2adc(const CaloSamples& clf, HBHEDataFrame& df) const = 0;
-  virtual void fC2adc(const CaloSamples& clf, HFDataFrame& df) const = 0;
-  virtual void fC2adc(const CaloSamples& clf, HODataFrame& df) const = 0;
+  virtual void fC2adc(const CaloSamples& clf, HBHEDataFrame& df, int fCapIdOffset) const = 0;
+  virtual void fC2adc(const CaloSamples& clf, HFDataFrame& df, int fCapIdOffset) const = 0;
+  virtual void fC2adc(const CaloSamples& clf, HODataFrame& df, int fCapIdOffset) const = 0;
 };
 
 #endif

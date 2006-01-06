@@ -1,9 +1,9 @@
-/** \class HcalNominalCoder
+/** \class HcalCoderDB
     
     coder which uses DB services to convert to fC
     $Author: ratnikov
-    $Date: 2005/10/05 00:37:56 $
-    $Revision: 1.2 $
+    $Date: 2005/12/15 23:38:00 $
+    $Revision: 1.3 $
 */
 
 #include "CondFormats/HcalObjects/interface/HcalQIEShape.h"
@@ -39,7 +39,7 @@ void HcalCoderDb::adc2fC(const HBHEDataFrame& df, CaloSamples& lf) const {adc2fC
 void HcalCoderDb::adc2fC(const HODataFrame& df, CaloSamples& lf) const {adc2fC_ (df, lf);}
 void HcalCoderDb::adc2fC(const HFDataFrame& df, CaloSamples& lf) const {adc2fC_ (df, lf);}
 
-void HcalCoderDb::fC2adc(const CaloSamples& clf, HBHEDataFrame& df) const {fC2adc_ (clf, df);}
-void HcalCoderDb::fC2adc(const CaloSamples& clf, HFDataFrame& df) const {fC2adc_ (clf, df);}
-void HcalCoderDb::fC2adc(const CaloSamples& clf, HODataFrame& df) const {fC2adc_ (clf, df);}
+void HcalCoderDb::fC2adc(const CaloSamples& clf, HBHEDataFrame& df, int fCapIdOffset) const {fC2adc_ (clf, df, fCapIdOffset);}
+void HcalCoderDb::fC2adc(const CaloSamples& clf, HFDataFrame& df, int fCapIdOffset) const {fC2adc_ (clf, df, fCapIdOffset);}
+void HcalCoderDb::fC2adc(const CaloSamples& clf, HODataFrame& df, int fCapIdOffset) const {fC2adc_ (clf, df, fCapIdOffset);}
 
