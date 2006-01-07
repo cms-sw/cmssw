@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2006/01/02 10:55:38 $
- * $Revision: 1.72 $
+ * $Date: 2006/01/02 12:29:20 $
+ * $Revision: 1.73 $
  * \author G. Della Ricca
  *
 */
@@ -125,7 +125,6 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
 
   cosmic_task_         = 0;
   laser_task_          = 0;
-  pndiode_task_        = 0;
   pedestal_task_       = 0;
   pedestalonline_task_ = 0;
   testpulse_task_      = 0;
@@ -137,9 +136,8 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
     cosmic_task_ = new EBCosmicTask(ps, dbe_);
   }
 
-  if ( runType_ == 0 || runType_ == 1 ) {
+  if ( runType_ == 1 ) {
     laser_task_   = new EBLaserTask(ps, dbe_);
-    pndiode_task_ = new EBPnDiodeTask(ps, dbe_);
   }
 
   if ( runType_ == 2 ) {
@@ -173,9 +171,6 @@ EcalBarrelMonitorModule::~EcalBarrelMonitorModule(){
   }
   if ( laser_task_ ) {
     delete laser_task_;
-  }
-  if ( pndiode_task_ ) {
-    delete pndiode_task_;
   }
   if ( pedestal_task_ ) {
     delete pedestal_task_;
@@ -216,9 +211,6 @@ void EcalBarrelMonitorModule::beginJob(const edm::EventSetup& c){
   if ( laser_task_ ) {
     laser_task_->beginJob(c);
   }
-  if ( pndiode_task_ ) {
-    pndiode_task_->beginJob(c);
-  }
   if ( pedestal_task_ ) {
     pedestal_task_->beginJob(c);
   }
@@ -249,9 +241,6 @@ void EcalBarrelMonitorModule::endJob(void) {
   }
   if ( laser_task_ ) {
     laser_task_->endJob();
-  }
-  if ( pndiode_task_ ) {
-    pndiode_task_->endJob();
   }
   if ( pedestal_task_ ) {
     pedestal_task_->endJob();
@@ -372,11 +361,6 @@ void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
   if ( laser_task_ ) {
     if ( evtType_ == 1 ) {
       laser_task_->analyze(e, c);
-    }
-  }
-  if ( pndiode_task_ ) {
-    if ( evtType_ == 1 ) {
-      pndiode_task_->analyze(e, c);
     }
   }
   if ( pedestal_task_ ) {

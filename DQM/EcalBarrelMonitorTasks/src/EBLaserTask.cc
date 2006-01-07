@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2005/12/30 10:24:29 $
- * $Revision: 1.32 $
+ * $Date: 2006/01/02 12:29:22 $
+ * $Revision: 1.33 $
  * \author G. Della Ricca
  *
 */
@@ -17,15 +17,31 @@ EBLaserTask::EBLaserTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe
     meShapeMapL1_[i] = 0;
     meAmplMapL1_[i] = 0;
     meAmplPNMapL1_[i] = 0;
+    mePnAmplMapG01L1_[i] = 0;
+    mePnPedMapG01L1_[i] = 0;
+    mePnAmplMapG16L1_[i] = 0;
+    mePnPedMapG16L1_[i] = 0;
     meShapeMapL2_[i] = 0;
     meAmplMapL2_[i] = 0;
     meAmplPNMapL2_[i] = 0;
+    mePnAmplMapG01L2_[i] = 0;
+    mePnPedMapG01L2_[i] = 0;
+    mePnAmplMapG16L2_[i] = 0;
+    mePnPedMapG16L2_[i] = 0;
     meShapeMapL3_[i] = 0;
     meAmplMapL3_[i] = 0;
     meAmplPNMapL3_[i] = 0;
+    mePnAmplMapG01L3_[i] = 0;
+    mePnPedMapG01L3_[i] = 0;
+    mePnAmplMapG16L3_[i] = 0;
+    mePnPedMapG16L3_[i] = 0;
     meShapeMapL4_[i] = 0;
     meAmplMapL4_[i] = 0;
     meAmplPNMapL4_[i] = 0;
+    mePnAmplMapG01L4_[i] = 0; 
+    mePnPedMapG01L4_[i] = 0;
+    mePnAmplMapG16L4_[i] = 0;
+    mePnPedMapG16L4_[i] = 0;
   }
 
   Char_t histo[20];
@@ -71,6 +87,80 @@ EBLaserTask::EBLaserTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe
       meAmplMapL4_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
       sprintf(histo, "EBLT amplitude over PN SM%02d L4", i+1);
       meAmplPNMapL4_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
+    }
+
+    dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask");
+
+    dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Laser1");
+
+    dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Laser1/Gain01");
+    for (int i = 0; i < 36 ; i++) {
+      sprintf(histo, "EBPDT PNs amplitude SM%02d G01 L1", i+1);
+      mePnAmplMapG01L1_[i] = dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096.);
+      sprintf(histo, "EBPDT PNs pedestal SM%02d G01 L1", i+1);
+      mePnPedMapG01L1_[i] = dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096.);
+    }
+
+    dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Laser1/Gain16");
+    for (int i = 0; i < 36 ; i++) {
+      sprintf(histo, "EBPDT PNs amplitude SM%02d G16 L1", i+1);
+      mePnAmplMapG16L1_[i] = dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096.);
+      sprintf(histo, "EBPDT PNs pedestal SM%02d G16 L1", i+1);
+      mePnPedMapG16L1_[i] = dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096.);
+    }
+
+    dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Laser2");
+
+    dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Laser2/Gain01");
+    for (int i = 0; i < 36 ; i++) {
+      sprintf(histo, "EBPDT PNs amplitude SM%02d G01 L2", i+1);
+      mePnAmplMapG01L2_[i] = dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096.);
+      sprintf(histo, "EBPDT PNs pedestal SM%02d G01 L2", i+1);
+      mePnPedMapG01L2_[i] = dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096.);
+    }
+
+    dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Laser2/Gain16");
+    for (int i = 0; i < 36 ; i++) {
+      sprintf(histo, "EBPDT PNs amplitude SM%02d G16 L2", i+1);
+      mePnAmplMapG16L2_[i] = dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096.);
+      sprintf(histo, "EBPDT PNs pedestal SM%02d G16 L2", i+1);
+      mePnPedMapG16L2_[i] = dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096.);
+    }
+
+    dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Laser3");
+
+    dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Laser3/Gain01");
+    for (int i = 0; i < 36 ; i++) {
+      sprintf(histo, "EBPDT PNs amplitude SM%02d G01 L3", i+1);
+      mePnAmplMapG01L3_[i] = dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096.);
+      sprintf(histo, "EBPDT PNs pedestal SM%02d G01 L3", i+1);
+      mePnPedMapG01L3_[i] = dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096.);
+    }
+
+    dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Laser3/Gain16");
+    for (int i = 0; i < 36 ; i++) {
+      sprintf(histo, "EBPDT PNs amplitude SM%02d G16 L3", i+1);
+      mePnAmplMapG16L3_[i] = dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096.);
+      sprintf(histo, "EBPDT PNs pedestal SM%02d G16 L3", i+1);
+      mePnPedMapG16L3_[i] = dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096.);
+    }
+
+    dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Laser4");
+
+    dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Laser4/Gain01");
+    for (int i = 0; i < 36 ; i++) {
+      sprintf(histo, "EBPDT PNs amplitude SM%02d G01 L4", i+1);
+      mePnAmplMapG01L4_[i] = dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096.);
+      sprintf(histo, "EBPDT PNs pedestal SM%02d G01 L4", i+1);
+      mePnPedMapG01L4_[i] = dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096.);
+    }
+
+    dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Laser4/Gain16");
+    for (int i = 0; i < 36 ; i++) {
+      sprintf(histo, "EBPDT PNs amplitude SM%02d G16 L4", i+1);
+      mePnAmplMapG16L4_[i] = dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096.);
+      sprintf(histo, "EBPDT PNs pedestal SM%02d G16 L4", i+1);
+      mePnPedMapG16L4_[i] = dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096.);
     }
 
   }
@@ -163,24 +253,89 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
     EcalPnDiodeDigi pn = (*pnItr);
     EcalPnDiodeDetId id = pn.id();
 
-
 //    int ism = id.ism();
     int ism = id.iDCCId();
     int num = id.iPnId();
 
+//    logFile << " det id = " << id << endl;
+//    logFile << " sm, num " << ism << " " << num << endl;
+
+    float xvalped = 0.;
+
+    for (int i = 0; i < 4; i++) {
+
+      EcalFEMSample sample = pn.sample(i);
+      int adc = sample.adc();
+      float gain = 1.;
+
+      MonitorElement* mePNPed = 0;
+
+      if ( sample.gainId() == 1 ) {
+        gain = 1./ 1.;
+        if ( ievt_ >=    1 && ievt_ <=  600 ) mePNPed = mePnPedMapG01L1_[ism-1];
+        if ( ievt_ >=  601 && ievt_ <= 1200 ) mePNPed = mePnPedMapG01L1_[ism-1];
+        if ( ievt_ >= 1201 && ievt_ <= 1800 ) mePNPed = mePnPedMapG01L2_[ism-1];
+        if ( ievt_ >= 1801 && ievt_ <= 2400 ) mePNPed = mePnPedMapG01L2_[ism-1];
+      }
+      if ( sample.gainId() == 2 ) {
+        gain = 1./16.;
+        if ( ievt_ >=    1 && ievt_ <=  600 ) mePNPed = mePnPedMapG16L1_[ism-1];
+        if ( ievt_ >=  601 && ievt_ <= 1200 ) mePNPed = mePnPedMapG16L1_[ism-1];
+        if ( ievt_ >= 1201 && ievt_ <= 1800 ) mePNPed = mePnPedMapG16L2_[ism-1];
+        if ( ievt_ >= 1801 && ievt_ <= 2400 ) mePNPed = mePnPedMapG16L2_[ism-1];
+      }
+
+      float xval = float(adc) * gain;
+
+      if ( mePNPed ) mePNPed->Fill(0.5, num - 0.5, xval);
+
+      xvalped = xvalped + xval;
+
+    }
+
+    xvalped = xvalped / 4;
+
     float xvalmax = 0.;
+    int gainmax = 1;
+
+    MonitorElement* mePN = 0;
 
     for (int i = 0; i < 50; i++) {
 
       EcalFEMSample sample = pn.sample(i);
+      int adc = sample.adc();
+      float gain = 1.;
 
-      float xval = sample.adc();
+      if ( sample.gainId() == 1 ) gain = 1./ 1.;
+      if ( sample.gainId() == 2 ) gain = 1./16.;
 
-      if ( xval >= xvalmax ) xvalmax = xval;
+      float xval = float(adc) * gain;
 
-      if ( num == 1 ) adc[ism-1] = xvalmax;
+      if ( xval >= xvalmax ) {
+        xvalmax = xval;
+        gainmax = sample.gainId();
+      }
 
     }
+
+    xvalmax = xvalmax - xvalped;
+
+    if ( gainmax == 1 ) {
+      if ( ievt_ >=    1 && ievt_ <=  600 ) mePN = mePnAmplMapG01L1_[ism-1];
+      if ( ievt_ >=  601 && ievt_ <= 1200 ) mePN = mePnAmplMapG01L1_[ism-1];
+      if ( ievt_ >= 1201 && ievt_ <= 1800 ) mePN = mePnAmplMapG01L2_[ism-1];
+      if ( ievt_ >= 1801 && ievt_ <= 2400 ) mePN = mePnAmplMapG01L2_[ism-1];
+    }
+    if ( gainmax == 2 ) {
+      if ( ievt_ >=    1 && ievt_ <=  600 ) mePN = mePnAmplMapG16L1_[ism-1];
+      if ( ievt_ >=  601 && ievt_ <= 1200 ) mePN = mePnAmplMapG16L1_[ism-1];
+      if ( ievt_ >= 1201 && ievt_ <= 1800 ) mePN = mePnAmplMapG16L2_[ism-1];
+      if ( ievt_ >= 1801 && ievt_ <= 2400 ) mePN = mePnAmplMapG16L2_[ism-1];
+    }
+
+    if ( mePN ) mePN->Fill(0.5, num - 0.5, xvalmax);
+
+    if ( num == 1 ) adc[ism-1] = xvalmax;
 
   }
 

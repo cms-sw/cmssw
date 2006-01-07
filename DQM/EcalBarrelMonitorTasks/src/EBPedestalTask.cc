@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalTask.cc
  *
- * $Date: 2005/12/30 10:24:29 $
- * $Revision: 1.23 $
+ * $Date: 2006/01/02 12:29:22 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  *
 */
@@ -17,6 +17,8 @@ EBPedestalTask::EBPedestalTask(const edm::ParameterSet& ps, DaqMonitorBEInterfac
     mePedMapG01_[i] = 0;
     mePedMapG06_[i] = 0;
     mePedMapG12_[i] = 0;
+    mePnPedMapG01_[i] = 0;
+    mePnPedMapG16_[i] = 0;
   }
 
   Char_t histo[20];
@@ -41,6 +43,21 @@ EBPedestalTask::EBPedestalTask(const edm::ParameterSet& ps, DaqMonitorBEInterfac
       sprintf(histo, "EBPT pedestal SM%02d G12", i+1);
       mePedMapG12_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
     }
+
+    dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask");
+
+    dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Gain01");
+    for (int i = 0; i < 36 ; i++) {
+      sprintf(histo, "EBPDT PNs pedestal SM%02d G01", i+1);
+      mePnPedMapG01_[i] =  dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
+    }
+
+    dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Gain16");
+    for (int i = 0; i < 36 ; i++) {
+      sprintf(histo, "EBPDT PNs pedestal SM%02d G16", i+1);
+      mePnPedMapG01_[i] =  dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
+    }
+
   }
 
 }
@@ -102,6 +119,42 @@ void EBPedestalTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       float xval = float(adc);
 
       if ( mePedMap ) mePedMap->Fill(xie, xip, xval);
+
+    }
+
+  }
+
+  edm::Handle<EcalPnDiodeDigiCollection> pns;
+  e.getByLabel("ecalEBunpacker", pns);
+
+//  int nep = pns->size();
+//  cout << "EBTestPulseTask: event " << ievt_ << " pns collection size " << nep << endl;
+
+  for ( EcalPnDiodeDigiCollection::const_iterator pnItr = pns->begin(); pnItr != pns->end(); ++pnItr ) {
+
+    EcalPnDiodeDigi pn = (*pnItr);
+    EcalPnDiodeDetId id = pn.id();
+
+//    int ism = id.ism();
+    int ism = id.iDCCId();
+    int num = id.iPnId();
+
+//    logFile << " det id = " << id << endl;
+//    logFile << " sm, num " << ism << " " << num << endl;
+
+    for (int i = 0; i < 50; i++) {
+
+      EcalFEMSample sample = pn.sample(i);
+      int adc = sample.adc();
+
+      MonitorElement* mePNPed = 0;
+
+      if ( sample.gainId() == 1 ) mePNPed = mePnPedMapG01_[ism-1];
+      if ( sample.gainId() == 2 ) mePNPed = mePnPedMapG16_[ism-1];
+
+      float xval = float(adc);
+
+      if ( mePNPed ) mePNPed->Fill(0.5, num - 0.5, xval);
 
     }
 

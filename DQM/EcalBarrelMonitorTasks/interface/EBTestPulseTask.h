@@ -4,8 +4,8 @@
 /*
  * \file EBTestPulseTask.h
  *
- * $Date: 2005/11/14 08:52:30 $
- * $Revision: 1.11 $
+ * $Date: 2005/11/23 13:37:35 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  *
 */
@@ -72,6 +72,12 @@ MonitorElement* meAmplMapG12_[36];
 MonitorElement* meAmplErrorMapG01_[36];
 MonitorElement* meAmplErrorMapG06_[36];
 MonitorElement* meAmplErrorMapG12_[36];
+
+MonitorElement* mePnAmplMapG01_[36];
+MonitorElement* mePnAmplMapG16_[36];
+
+MonitorElement* mePnPedMapG01_[36];
+MonitorElement* mePnPedMapG16_[36];
 
 ofstream logFile_;
 

@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  *
- * $Date: 2005/12/30 10:24:29 $
- * $Revision: 1.32 $
+ * $Date: 2006/01/02 12:29:22 $
+ * $Revision: 1.33 $
  * \author G. Della Ricca
  *
 */
@@ -23,6 +23,10 @@ EBTestPulseTask::EBTestPulseTask(const edm::ParameterSet& ps, DaqMonitorBEInterf
     meShapeMapG12_[i] = 0;
     meAmplMapG12_[i] = 0;
     meAmplErrorMapG12_[i] = 0;
+    mePnAmplMapG01_[i] = 0;
+    mePnPedMapG01_[i] = 0;
+    mePnAmplMapG16_[i] = 0;
+    mePnPedMapG16_[i] = 0;
   }
 
   Char_t histo[20];
@@ -59,6 +63,25 @@ EBTestPulseTask::EBTestPulseTask(const edm::ParameterSet& ps, DaqMonitorBEInterf
       sprintf(histo, "EBTPT amplitude error SM%02d G12", i+1);
       meAmplErrorMapG12_[i] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
    }
+
+    dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask");
+
+    dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Gain01");
+    for (int i = 0; i < 36 ; i++) {
+      sprintf(histo, "EBPDT PNs amplitude SM%02d G01", i+1);
+      mePnAmplMapG01_[i] = dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096.);
+      sprintf(histo, "EBPDT PNs pedestal SM%02d G01", i+1);
+      mePnPedMapG01_[i] =  dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
+    }
+
+    dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Gain16");
+    for (int i = 0; i < 36 ; i++) {
+      sprintf(histo, "EBPDT PNs amplitude SM%02d G16", i+1);
+      mePnAmplMapG01_[i] = dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096.);
+      sprintf(histo, "EBPDT PNs pedestal SM%02d G16", i+1);
+      mePnPedMapG01_[i] =  dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
+    }
+
   }
 
   // amplitudeThreshold_ = 200;
@@ -183,6 +206,84 @@ void EBTestPulseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( meAmplErrorMap ) meAmplErrorMap->Fill(xie, xip);
 
     }
+
+  }
+
+  edm::Handle<EcalPnDiodeDigiCollection> pns;
+  e.getByLabel("ecalEBunpacker", pns);
+
+//  int nep = pns->size();
+//  cout << "EBTestPulseTask: event " << ievt_ << " pns collection size " << nep << endl;
+
+  for ( EcalPnDiodeDigiCollection::const_iterator pnItr = pns->begin(); pnItr != pns->end(); ++pnItr ) {
+
+    EcalPnDiodeDigi pn = (*pnItr);
+    EcalPnDiodeDetId id = pn.id();
+
+//    int ism = id.ism();
+    int ism = id.iDCCId();
+    int num = id.iPnId();
+
+//    logFile << " det id = " << id << endl;
+//    logFile << " sm, num " << ism << " " << num << endl;
+
+    float xvalped = 0.;
+
+    for (int i = 0; i < 4; i++) {
+
+      EcalFEMSample sample = pn.sample(i);
+      int adc = sample.adc();
+      float gain = 1.;
+
+      MonitorElement* mePNPed = 0;
+
+      if ( sample.gainId() == 1 ) {
+        gain = 1./ 1.;
+        mePNPed = mePnPedMapG01_[ism-1];
+      }
+      if ( sample.gainId() == 2 ) {
+        gain = 1./16.;
+        mePNPed = mePnPedMapG16_[ism-1];
+      }
+
+      float xval = float(adc) * gain;
+
+      if ( mePNPed ) mePNPed->Fill(0.5, num - 0.5, xval);
+
+      xvalped = xvalped + xval;
+
+    }
+
+    xvalped = xvalped / 4;
+
+    float xvalmax = 0.;
+    int gainmax = 1;
+
+    MonitorElement* mePN = 0;
+
+    for (int i = 0; i < 50; i++) {
+
+      EcalFEMSample sample = pn.sample(i);
+      int adc = sample.adc();
+      float gain = 1.;
+
+      if ( sample.gainId() == 1 ) gain = 1./ 1.;
+      if ( sample.gainId() == 2 ) gain = 1./16.;
+
+      float xval = float(adc) * gain;
+
+      if ( xval >= xvalmax ) {
+        xvalmax = xval;
+        gainmax = sample.gainId();
+      }
+    }
+
+    xvalmax = xvalmax - xvalped;
+
+    if ( gainmax == 1 ) mePN = mePnAmplMapG01_[ism-1];
+    if ( gainmax == 2 ) mePN = mePnAmplMapG16_[ism-1];
+
+    if ( mePN ) mePN->Fill(0.5, num - 0.5, xvalmax);
 
   }
 

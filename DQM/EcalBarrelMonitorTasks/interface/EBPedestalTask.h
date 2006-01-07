@@ -4,8 +4,8 @@
 /*
  * \file EBPedestalTask.h
  *
- * $Date: 2005/10/30 14:16:19 $
- * $Revision: 1.10 $
+ * $Date: 2005/11/14 08:52:30 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  *
 */
@@ -64,6 +64,9 @@ int ievt_;
 MonitorElement* mePedMapG01_[36];
 MonitorElement* mePedMapG06_[36];
 MonitorElement* mePedMapG12_[36];
+
+MonitorElement* mePnPedMapG01_[36];
+MonitorElement* mePnPedMapG16_[36];
 
 ofstream logFile_;
 
