@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/01/05 17:22:43 $
- * $Revision: 1.71 $
+ * $Date: 2006/01/06 11:02:03 $
+ * $Revision: 1.72 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -22,7 +22,6 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps){
 
   cosmic_client_         = 0;
   laser_client_          = 0;
-  pndiode_client_        = 0;
   pedestal_client_       = 0;
   pedestalonline_client_ = 0;
   testpulse_client_      = 0;
@@ -170,7 +169,6 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps){
 
   cosmic_client_         = new EBCosmicClient(ps, mui_);
   laser_client_          = new EBLaserClient(ps, mui_);
-  pndiode_client_        = new EBPnDiodeClient(ps, mui_);
   pedestal_client_       = new EBPedestalClient(ps, mui_);
   pedestalonline_client_ = new EBPedestalOnlineClient(ps, mui_);
   testpulse_client_      = new EBTestPulseClient(ps, mui_);
@@ -193,9 +191,6 @@ EcalBarrelMonitorClient::~EcalBarrelMonitorClient(){
   }
   if ( laser_client_ ) {
     delete laser_client_;
-  }
-  if ( pndiode_client_ ) {
-    delete pndiode_client_;
   }
   if ( pedestal_client_ ) {
     delete pedestal_client_;
@@ -237,9 +232,6 @@ void EcalBarrelMonitorClient::beginJob(const edm::EventSetup& c){
   if ( laser_client_ ) {
     laser_client_->beginJob(c);
   }
-  if ( pndiode_client_ ) {
-    pndiode_client_->beginJob(c);
-  }
   if ( pedestal_client_ ) {
     pedestal_client_->beginJob(c);
   }
@@ -278,14 +270,8 @@ void EcalBarrelMonitorClient::beginRun(const edm::EventSetup& c){
   }
   if ( laser_client_ ) {
     laser_client_->cleanup();
-    if ( runtype_ == "cosmic" || runtype_ == "laser" ) {
+    if ( runtype_ == "cosmic" || runtype_ == "laser" || runtype_ == "electron" ) {
       laser_client_->beginRun(c);
-    }
-  }
-  if ( pndiode_client_ ) {
-    pndiode_client_->cleanup();
-    if ( runtype_ == "cosmic" || runtype_ == "laser" ) {
-      pndiode_client_->beginRun(c);
     }
   }
   if ( pedestal_client_ ) {
@@ -328,9 +314,6 @@ void EcalBarrelMonitorClient::endJob(void) {
   if ( laser_client_ ) {
     laser_client_->endJob();
   }
-  if ( pndiode_client_ ) {
-    pndiode_client_->endJob();
-  }
   if ( pedestal_client_ ) {
     pedestal_client_->endJob();
   }
@@ -370,13 +353,8 @@ void EcalBarrelMonitorClient::endRun(void) {
     }
   }
   if ( laser_client_ ) {
-    if ( runtype_ == "cosmic" || runtype_ == "laser" ) {
+    if ( runtype_ == "cosmic" || runtype_ == "laser" || runtype_ == "electron" ) {
       laser_client_->endRun();
-    }
-  }
-  if ( pndiode_client_ ) {
-    if ( runtype_ == "cosmic" || runtype_ == "laser" ) {
-      pndiode_client_->endRun();
     }
   }
   if ( pedestal_client_ ) {
@@ -596,45 +574,38 @@ void EcalBarrelMonitorClient::writeDb(void) {
     }
   }
   if ( laser_client_ ) {
-    if ( status_ == "end-of-run" && ( runtype_ == "cosmic" || runtype_ == "electron" || runtype_ == "laser" ) ) {
+    if ( status_ == "end-of-run" && ( runtype_ == "cosmic" || runtype_ == "laser" || runtype_ == "electron" ) ) {
       taskl |= 0x1 << 2;
       laser_client_->writeDb(econn, &moniov_);
       tasko |= 0x0 << 2;
     }
   }
-  if ( pndiode_client_ ) {
-    if ( status_ == "end-of-run" && ( runtype_ == "cosmic" || runtype_ == "electron" || runtype_ == "laser" ) ) {
-      taskl |= 0x1 << 3;
-      pndiode_client_->writeDb(econn, &moniov_);
-      tasko |= 0x0 << 3;
-    }
-  }
   if ( pedestal_client_ ) {
     if ( status_ == "end-of-run" && runtype_ == "pedestal" ) {
-      taskl |= 0x1 << 4;
+      taskl |= 0x1 << 3;
       pedestal_client_->writeDb(econn, &moniov_);
-      tasko |= 0x0 << 4;
+      tasko |= 0x0 << 3;
     }
   }
   if ( pedestalonline_client_ ) {
     if ( status_ == "end-of-run" || ( runtype_ == "cosmic" || runtype_ == "electron" ) ) {
-      taskl |= 0x1 << 5;
+      taskl |= 0x1 << 4;
       pedestalonline_client_->writeDb(econn, &moniov_);
-      tasko |= 0x0 << 5;
+      tasko |= 0x0 << 4;
     }
   }
   if ( testpulse_client_ ) {
     if ( status_ == "end-of-run" && runtype_ == "testpulse" ) {
-      taskl |= 0x1 << 6;
+      taskl |= 0x1 << 5;
       testpulse_client_->writeDb(econn, &moniov_);
-      tasko |= 0x0 << 6;
+      tasko |= 0x0 << 5;
     }
   }
   if ( electron_client_ ) {
     if ( status_ == "end-of-run" || runtype_ == "electron" ) {
-      taskl |= 0x1 << 7;
+      taskl |= 0x1 << 6;
       electron_client_->writeDb(econn, &moniov_);
-      tasko |= 0x0 << 7;
+      tasko |= 0x0 << 6;
     }
   }
 
@@ -841,13 +812,8 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
     }
   }
   if ( laser_client_ ) {
-    if ( runtype_ == "cosmic" || runtype_ == "laser" ) {
+    if ( runtype_ == "cosmic" || runtype_ == "laser" || runtype_ == "electron" ) {
       laser_client_->subscribeNew();
-    }
-  }
-  if ( pndiode_client_ ) {
-    if ( runtype_ == "cosmic" || runtype_ == "laser" ) {
-      pndiode_client_->subscribeNew();
     }
   }
   if ( pedestal_client_ ) {
@@ -1047,15 +1013,8 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
         }
         if ( laser_client_ ) {
           if ( h_ && h_->GetBinContent(2) != 0 ) {
-            if ( runtype_ == "cosmic" || runtype_ == "laser" ) {
+            if ( runtype_ == "cosmic" || runtype_ == "laser" || runtype_ == "electron" ) {
               laser_client_->analyze(e, c);
-            }
-          }
-        }
-        if ( pndiode_client_ ) {
-          if ( h_ && h_->GetBinContent(2) != 0 ) {
-            if ( runtype_ == "cosmic" || runtype_ == "laser" ) {
-              pndiode_client_->analyze(e, c);
             }
           }
         }
@@ -1111,15 +1070,8 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
       }
       if ( laser_client_ ) {
         if ( h_ && h_->GetBinContent(2) != 0 ) {
-          if ( runtype_ == "cosmic" || runtype_ == "laser" ) {
+          if ( runtype_ == "cosmic" || runtype_ == "laser" || runtype_ == "electron" ) {
             laser_client_->analyze(e, c);
-          }
-        }
-      }
-      if ( pndiode_client_ ) {
-        if ( h_ && h_->GetBinContent(2) != 0 ) {
-          if ( runtype_ == "cosmic" || runtype_ == "laser" ) {
-            pndiode_client_->analyze(e, c);
           }
         }
       }
@@ -1226,16 +1178,6 @@ void EcalBarrelMonitorClient::htmlOutput(void){
     }
   }
 
-  // PNs check
-
-  if ( h_ && h_->GetBinContent(2) != 0 ) {
-    if ( pndiode_client_ ) {
-      htmlName = "EBPnDiodeClient.html";
-      pndiode_client_->htmlOutput(run_, htmlDir, htmlName);
-      htmlFile << "<li><a href=\"" << htmlName << "\">PNdiode</a></li>" << endl;
-    }
-  }
-
   // Pedestal check (normal)
 
   if ( h_ && h_->GetBinContent(3) != 0 ) {
@@ -1283,6 +1225,8 @@ void EcalBarrelMonitorClient::htmlOutput(void){
   htmlFile << "</html> " << endl;
 
   htmlFile.close();
+
+  cout << endl;
 
 }
 

@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2005/12/29 14:57:13 $
- * $Revision: 1.28 $
+ * $Date: 2006/01/02 09:18:01 $
+ * $Revision: 1.29 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -29,7 +29,6 @@
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBIntegrityClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBLaserClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBPnDiodeClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBPedestalClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBPedestalOnlineClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBTestPulseClient.h>
@@ -155,7 +154,6 @@ EBIntegrityClient* integrity_client_;
 
 EBCosmicClient* cosmic_client_;
 EBLaserClient* laser_client_;
-EBPnDiodeClient* pndiode_client_;
 EBPedestalClient* pedestal_client_;
 EBPedestalOnlineClient* pedestalonline_client_;
 EBTestPulseClient* testpulse_client_;
