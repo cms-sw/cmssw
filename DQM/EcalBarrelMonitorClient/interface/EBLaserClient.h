@@ -4,8 +4,8 @@
 /*
  * \file EBLaserClient.h
  *
- * $Date: 2005/12/29 14:57:13 $
- * $Revision: 1.17 $
+ * $Date: 2006/01/02 09:18:01 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  *
 */
@@ -34,6 +34,11 @@
 #include "CalibCalorimetry/EcalDBInterface/interface/MonLaserGreenDat.h"
 #include "CalibCalorimetry/EcalDBInterface/interface/MonLaserIRedDat.h"
 #include "CalibCalorimetry/EcalDBInterface/interface/MonLaserRedDat.h"
+
+#include "CalibCalorimetry/EcalDBInterface/interface/MonPNBlueDat.h"
+#include "CalibCalorimetry/EcalDBInterface/interface/MonPNGreenDat.h"
+#include "CalibCalorimetry/EcalDBInterface/interface/MonPNIRedDat.h"
+#include "CalibCalorimetry/EcalDBInterface/interface/MonPNRedDat.h"
 
 #include "TROOT.h"
 #include "TStyle.h"
@@ -136,6 +141,42 @@ TH1F* aopn01_[36];
 TH1F* aopn02_[36];
 TH1F* aopn03_[36];
 TH1F* aopn04_[36];
+
+CollateMonitorElement* me_i01_[36];
+CollateMonitorElement* me_i02_[36];
+CollateMonitorElement* me_i03_[36];
+CollateMonitorElement* me_i04_[36];
+CollateMonitorElement* me_i05_[36];
+CollateMonitorElement* me_i06_[36];
+CollateMonitorElement* me_i07_[36];
+CollateMonitorElement* me_i08_[36];
+
+TProfile2D* i01_[36];
+TProfile2D* i02_[36];
+TProfile2D* i03_[36];
+TProfile2D* i04_[36];
+TProfile2D* i05_[36];
+TProfile2D* i06_[36];
+TProfile2D* i07_[36];
+TProfile2D* i08_[36];
+
+CollateMonitorElement* me_j01_[36];
+CollateMonitorElement* me_j02_[36];
+CollateMonitorElement* me_j03_[36];
+CollateMonitorElement* me_j04_[36];
+CollateMonitorElement* me_j05_[36];
+CollateMonitorElement* me_j06_[36];
+CollateMonitorElement* me_j07_[36];
+CollateMonitorElement* me_j08_[36];
+
+TProfile2D* j01_[36];
+TProfile2D* j02_[36];
+TProfile2D* j03_[36];
+TProfile2D* j04_[36];
+TProfile2D* j05_[36];
+TProfile2D* j06_[36];
+TProfile2D* j07_[36];
+TProfile2D* j08_[36];
 
 // Quality check on crystals
 

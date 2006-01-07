@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2006/01/02 09:18:03 $
- * $Revision: 1.50 $
+ * $Date: 2006/01/05 08:56:56 $
+ * $Revision: 1.51 $
  * \author G. Della Ricca
  *
 */
@@ -23,6 +23,24 @@ EBLaserClient::EBLaserClient(const edm::ParameterSet& ps, MonitorUserInterface* 
     h06_[ism-1] = 0;
     h07_[ism-1] = 0;
     h08_[ism-1] = 0;
+
+    i01_[ism-1] = 0;
+    i02_[ism-1] = 0;
+    i03_[ism-1] = 0;
+    i04_[ism-1] = 0;
+    i05_[ism-1] = 0;
+    i06_[ism-1] = 0;
+    i07_[ism-1] = 0;
+    i08_[ism-1] = 0;
+
+    j01_[ism-1] = 0;
+    j02_[ism-1] = 0;
+    j03_[ism-1] = 0;
+    j04_[ism-1] = 0;
+    j05_[ism-1] = 0;
+    j06_[ism-1] = 0;
+    j07_[ism-1] = 0;
+    j08_[ism-1] = 0;
 
   }
 
@@ -198,6 +216,40 @@ void EBLaserClient::cleanup(void) {
     if ( h08_[ism-1] ) delete h08_[ism-1];
     h08_[ism-1] = 0;
 
+    if ( i01_[ism-1] ) delete i01_[ism-1];
+    i01_[ism-1] = 0;
+    if ( i02_[ism-1] ) delete i02_[ism-1];
+    i02_[ism-1] = 0;
+    if ( i03_[ism-1] ) delete i03_[ism-1];
+    i03_[ism-1] = 0;
+    if ( i04_[ism-1] ) delete i04_[ism-1];
+    i04_[ism-1] = 0;
+    if ( i05_[ism-1] ) delete i05_[ism-1];
+    i05_[ism-1] = 0;
+    if ( i06_[ism-1] ) delete i06_[ism-1];
+    i06_[ism-1] = 0;
+    if ( i07_[ism-1] ) delete i07_[ism-1];
+    i07_[ism-1] = 0;
+    if ( i08_[ism-1] ) delete i08_[ism-1];
+    i08_[ism-1] = 0;
+
+    if ( j01_[ism-1] ) delete j01_[ism-1];
+    j01_[ism-1] = 0;
+    if ( j02_[ism-1] ) delete j02_[ism-1];
+    j02_[ism-1] = 0;
+    if ( j03_[ism-1] ) delete j03_[ism-1];
+    j03_[ism-1] = 0;
+    if ( j04_[ism-1] ) delete j04_[ism-1];
+    j04_[ism-1] = 0;
+    if ( j05_[ism-1] ) delete j05_[ism-1];
+    j05_[ism-1] = 0;
+    if ( j06_[ism-1] ) delete j06_[ism-1];
+    j06_[ism-1] = 0;
+    if ( j07_[ism-1] ) delete j07_[ism-1];
+    j07_[ism-1] = 0;
+    if ( j08_[ism-1] ) delete j08_[ism-1];
+    j08_[ism-1] = 0;
+
   }
 
   for ( int ism = 1; ism <= 36; ism++ ) {
@@ -237,13 +289,13 @@ void EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
 
   EcalLogicID ecid;
   MonLaserBlueDat apd_bl;
-  map<EcalLogicID, MonLaserBlueDat> dataset_bl;
+  map<EcalLogicID, MonLaserBlueDat> dataset1_bl;
   MonLaserGreenDat apd_gr;
-  map<EcalLogicID, MonLaserGreenDat> dataset_gr;
+  map<EcalLogicID, MonLaserGreenDat> dataset1_gr;
   MonLaserIRedDat apd_ir;
-  map<EcalLogicID, MonLaserIRedDat> dataset_ir;
+  map<EcalLogicID, MonLaserIRedDat> dataset1_ir;
   MonLaserRedDat apd_rd;
-  map<EcalLogicID, MonLaserRedDat> dataset_rd;
+  map<EcalLogicID, MonLaserRedDat> dataset1_rd;
 
   cout << "Creating MonLaserDatObjects for the database ..." << endl;
 
@@ -365,7 +417,7 @@ void EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
           if ( econn ) {
             try {
               ecid = econn->getEcalLogicID("EB_crystal_index", ism, ie-1, ip-1);
-              dataset_bl[ecid] = apd_bl;
+              dataset1_bl[ecid] = apd_bl;
             } catch (runtime_error &e) {
               cerr << e.what() << endl;
             }
@@ -398,7 +450,7 @@ void EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
           if ( econn ) {
             try {
               ecid = econn->getEcalLogicID("EB_crystal_index", ism, ie-1, ip-1);
-              dataset_ir[ecid] = apd_ir;
+              dataset1_ir[ecid] = apd_ir;
             } catch (runtime_error &e) {
               cerr << e.what() << endl;
             }
@@ -431,7 +483,7 @@ void EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
           if ( econn ) {
             try {
               ecid = econn->getEcalLogicID("EB_crystal_index", ism, ie-1, ip-1);
-              dataset_gr[ecid] = apd_gr;
+              dataset1_gr[ecid] = apd_gr;
             } catch (runtime_error &e) {
               cerr << e.what() << endl;
             }
@@ -464,7 +516,7 @@ void EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
           if ( econn ) {
             try {
               ecid = econn->getEcalLogicID("EB_crystal_index", ism, ie-1, ip-1);
-              dataset_rd[ecid] = apd_rd;
+              dataset1_rd[ecid] = apd_rd;
             } catch (runtime_error &e) {
               cerr << e.what() << endl;
             }
@@ -480,10 +532,354 @@ void EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
   if ( econn ) {
     try {
       cout << "Inserting dataset ... " << flush;
-      if ( dataset_bl.size() != 0 ) econn->insertDataSet(&dataset_bl, moniov);
-      if ( dataset_ir.size() != 0 ) econn->insertDataSet(&dataset_ir, moniov);
-      if ( dataset_gr.size() != 0 ) econn->insertDataSet(&dataset_gr, moniov);
-      if ( dataset_rd.size() != 0 ) econn->insertDataSet(&dataset_rd, moniov);
+      if ( dataset1_bl.size() != 0 ) econn->insertDataSet(&dataset1_bl, moniov);
+      if ( dataset1_ir.size() != 0 ) econn->insertDataSet(&dataset1_ir, moniov);
+      if ( dataset1_gr.size() != 0 ) econn->insertDataSet(&dataset1_gr, moniov);
+      if ( dataset1_rd.size() != 0 ) econn->insertDataSet(&dataset1_rd, moniov);
+      cout << "done." << endl;
+    } catch (runtime_error &e) {
+      cerr << e.what() << endl;
+    }
+  }
+
+  MonPNBlueDat pn_bl;
+  map<EcalLogicID, MonPNBlueDat> dataset2_bl;
+  MonPNGreenDat pn_gr;
+  map<EcalLogicID, MonPNGreenDat> dataset2_gr;
+  MonPNIRedDat pn_ir;
+  map<EcalLogicID, MonPNIRedDat> dataset2_ir;
+  MonPNRedDat pn_rd;
+  map<EcalLogicID, MonPNRedDat> dataset2_rd;
+
+  cout << "Creating MonPnDatObjects for the database ..." << endl;
+
+  const float m_min_tot = 1000.;
+  const float m_min_bin = 50.;
+
+  for ( int ism = 1; ism <= 36; ism++ ) {
+
+    float num01, num02, num03, num04, num05, num06, num07, num08;
+    float num09, num10, num11, num12, num13, num14, num15, num16;
+    float mean01, mean02, mean03, mean04, mean05, mean06, mean07, mean08;
+    float mean09, mean10, mean11, mean12, mean13, mean14, mean15, mean16;
+    float rms01, rms02, rms03, rms04, rms05, rms06, rms07, rms08;
+    float rms09, rms10, rms11, rms12, rms13, rms14, rms15, rms16;
+
+    for ( int i = 1; i <= 10; i++ ) {
+
+      num01  = num02  = num03  = num04  = num05  = num06  = num07  = num08  = -1.;
+      num09  = num10  = num11  = num12  = num13  = num14  = num15  = num16  = -1.;
+      mean01 = mean02 = mean03 = mean04 = mean05 = mean06 = mean07 = mean08 = -1.;
+      mean09 = mean10 = mean11 = mean12 = mean13 = mean14 = mean15 = mean16 = -1.;
+      rms01  = rms02  = rms03  = rms04  = rms05  = rms06  = rms07  = rms08  = -1.;
+      rms09  = rms10  = rms11  = rms12  = rms13  = rms14  = rms15  = rms16  = -1.;
+
+      bool update_channel1 = false;
+      bool update_channel2 = false;
+      bool update_channel3 = false;
+      bool update_channel4 = false;
+      bool update_channel5 = false;
+      bool update_channel6 = false;
+      bool update_channel7 = false;
+      bool update_channel8 = false;
+
+      if ( i01_[ism-1] && i01_[ism-1]->GetEntries() >= m_min_tot ) {
+        num01 = i01_[ism-1]->GetBinEntries(i01_[ism-1]->GetBin(1, i));
+        if ( num01 >= m_min_bin ) {
+          mean01 = i01_[ism-1]->GetBinContent(i01_[ism-1]->GetBin(1, i));
+          rms01  = i01_[ism-1]->GetBinError(i01_[ism-1]->GetBin(1, i));
+          update_channel1 = true;
+        }
+      }
+
+      if ( i02_[ism-1] && i02_[ism-1]->GetEntries() >= m_min_tot ) {
+        num02 = i02_[ism-1]->GetBinEntries(i02_[ism-1]->GetBin(1, i));
+        if ( num02 >= m_min_bin ) {
+          mean02 = i02_[ism-1]->GetBinContent(i02_[ism-1]->GetBin(1, i));
+          rms02  = i02_[ism-1]->GetBinError(i02_[ism-1]->GetBin(1, i));
+          update_channel2 = true;
+        }
+      }
+
+      if ( i03_[ism-1] && i03_[ism-1]->GetEntries() >= m_min_tot ) {
+        num03 = i03_[ism-1]->GetBinEntries(i03_[ism-1]->GetBin(i));
+        if ( num03 >= m_min_bin ) {
+          mean03 = i03_[ism-1]->GetBinContent(i03_[ism-1]->GetBin(1, i));
+          rms03  = i03_[ism-1]->GetBinError(i03_[ism-1]->GetBin(1, i));
+          update_channel3 = true;
+        }
+      }
+
+      if ( i04_[ism-1] && i04_[ism-1]->GetEntries() >= m_min_tot ) {
+        num04 = i04_[ism-1]->GetBinEntries(i04_[ism-1]->GetBin(1, i));
+        if ( num04 >= m_min_bin ) {
+          mean04 = i04_[ism-1]->GetBinContent(i04_[ism-1]->GetBin(1, i));
+          rms04  = i04_[ism-1]->GetBinError(i04_[ism-1]->GetBin(1, i));
+          update_channel4 = true;
+        }
+      }
+
+      if ( i05_[ism-1] && i05_[ism-1]->GetEntries() >= m_min_tot ) {
+        num05 = i05_[ism-1]->GetBinEntries(i05_[ism-1]->GetBin(1, i));
+        if ( num05 >= m_min_bin ) {
+          mean05 = i05_[ism-1]->GetBinContent(i05_[ism-1]->GetBin(1, i));
+          rms05  = i05_[ism-1]->GetBinError(i05_[ism-1]->GetBin(1, i));
+          update_channel5 = true;
+        }
+      }
+      if ( i06_[ism-1] && i06_[ism-1]->GetEntries() >= m_min_tot ) {
+        num06 = i06_[ism-1]->GetBinEntries(i06_[ism-1]->GetBin(1, i));
+        if ( num06 >= m_min_bin ) {
+          mean06 = i06_[ism-1]->GetBinContent(i06_[ism-1]->GetBin(1, i));
+          rms06  = i06_[ism-1]->GetBinError(i06_[ism-1]->GetBin(1, i));
+          update_channel6 = true;
+        }
+      }
+
+      if ( i07_[ism-1] && i07_[ism-1]->GetEntries() >= m_min_tot ) {
+        num07 = i07_[ism-1]->GetBinEntries(i07_[ism-1]->GetBin(1, i));
+        if ( num07 >= m_min_bin ) {
+          mean07 = i07_[ism-1]->GetBinContent(i07_[ism-1]->GetBin(1, i));
+          rms07  = i07_[ism-1]->GetBinError(i07_[ism-1]->GetBin(1, i));
+          update_channel7 = true;
+        }
+      }
+
+      if ( i08_[ism-1] && i08_[ism-1]->GetEntries() >= m_min_tot ) {
+        num08 = i08_[ism-1]->GetBinEntries(i08_[ism-1]->GetBin(1, i));
+        if ( num08 >= m_min_bin ) {
+          mean08 = i08_[ism-1]->GetBinContent(i08_[ism-1]->GetBin(1, i));
+          rms08  = i08_[ism-1]->GetBinError(i08_[ism-1]->GetBin(1, i));
+          update_channel8 = true;
+        }
+      }
+
+      if ( j01_[ism-1] && j01_[ism-1]->GetEntries() >= m_min_tot ) {
+        num09 = j01_[ism-1]->GetBinEntries(j01_[ism-1]->GetBin(1, i));
+        if ( num09 >= m_min_bin ) {
+          mean09 = j01_[ism-1]->GetBinContent(j01_[ism-1]->GetBin(1, i));
+          rms09  = j01_[ism-1]->GetBinError(j01_[ism-1]->GetBin(1, i));
+          update_channel1 = true;
+        }
+      }
+
+      if ( j02_[ism-1] && j02_[ism-1]->GetEntries() >= m_min_tot ) {
+        num10 = j02_[ism-1]->GetBinEntries(j02_[ism-1]->GetBin(1, i));
+        if ( num10 >= m_min_bin ) {
+          mean10 = j02_[ism-1]->GetBinContent(j02_[ism-1]->GetBin(1, i));
+          rms10  = j02_[ism-1]->GetBinError(j02_[ism-1]->GetBin(1, i));
+          update_channel2 = true;
+        }
+      }
+
+      if ( j03_[ism-1] && j03_[ism-1]->GetEntries() >= m_min_tot ) {
+        num11 = j03_[ism-1]->GetBinEntries(j03_[ism-1]->GetBin(i));
+        if ( num11 >= m_min_bin ) {
+          mean11 = j03_[ism-1]->GetBinContent(j03_[ism-1]->GetBin(1, i));
+          rms11  = j03_[ism-1]->GetBinError(j03_[ism-1]->GetBin(1, i));
+          update_channel3 = true;
+        }
+      }
+
+      if ( j04_[ism-1] && j04_[ism-1]->GetEntries() >= m_min_tot ) {
+        num12 = j04_[ism-1]->GetBinEntries(j04_[ism-1]->GetBin(1, i));
+        if ( num12 >= m_min_bin ) {
+          mean12 = j04_[ism-1]->GetBinContent(j04_[ism-1]->GetBin(1, i));
+          rms12  = j04_[ism-1]->GetBinError(j04_[ism-1]->GetBin(1, i));
+          update_channel4 = true;
+        }
+      }
+
+      if ( j05_[ism-1] && j05_[ism-1]->GetEntries() >= m_min_tot ) {
+        num13 = j05_[ism-1]->GetBinEntries(j05_[ism-1]->GetBin(1, i));
+        if ( num13 >= m_min_bin ) {
+          mean13 = j05_[ism-1]->GetBinContent(j05_[ism-1]->GetBin(1, i));
+          rms13  = j05_[ism-1]->GetBinError(j05_[ism-1]->GetBin(1, i));
+          update_channel5 = true;
+        }
+      }
+      if ( j06_[ism-1] && j06_[ism-1]->GetEntries() >= m_min_tot ) {
+        num14 = j06_[ism-1]->GetBinEntries(j06_[ism-1]->GetBin(1, i));
+        if ( num14 >= m_min_bin ) {
+          mean14 = j06_[ism-1]->GetBinContent(j06_[ism-1]->GetBin(1, i));
+          rms14  = j06_[ism-1]->GetBinError(j06_[ism-1]->GetBin(1, i));
+          update_channel6 = true;
+        }
+      }
+
+      if ( j07_[ism-1] && j07_[ism-1]->GetEntries() >= m_min_tot ) {
+        num15 = j07_[ism-1]->GetBinEntries(j07_[ism-1]->GetBin(1, i));
+        if ( num15 >= m_min_bin ) {
+          mean15 = j07_[ism-1]->GetBinContent(j07_[ism-1]->GetBin(1, i));
+          rms15  = j07_[ism-1]->GetBinError(j07_[ism-1]->GetBin(1, i));
+          update_channel7 = true;
+        }
+      }
+
+      if ( j08_[ism-1] && j08_[ism-1]->GetEntries() >= m_min_tot ) {
+        num16 = j08_[ism-1]->GetBinEntries(j08_[ism-1]->GetBin(1, i));
+        if ( num16 >= m_min_bin ) {
+          mean16 = j08_[ism-1]->GetBinContent(j08_[ism-1]->GetBin(1, i));
+          rms16  = j08_[ism-1]->GetBinError(j08_[ism-1]->GetBin(1, i));
+          update_channel8 = true;
+        }
+      }
+
+      if ( update_channel1 ) {
+
+        if ( i == 1 ) {
+
+          cout << "Preparing dataset for SM=" << ism << endl;
+
+          cout << "PNs (" << i << ") L1 G01 " << num01  << " " << mean01 << " " << rms01  << endl;
+          cout << "PNs (" << i << ") L1 G16 " << num09  << " " << mean09 << " " << rms09  << endl;
+
+        }
+
+        pn_bl.setADCMeanG1(mean01);
+        pn_bl.setADCRMSG1(rms01);
+
+        pn_bl.setPedMeanG1(mean05);
+        pn_bl.setPedRMSG1(rms05);
+
+        pn_bl.setADCMeanG16(mean09);
+        pn_bl.setADCRMSG16(rms09);
+
+        pn_bl.setPedMeanG16(mean13);
+        pn_bl.setPedRMSG16(rms13);
+
+        pn_bl.setTaskStatus(true);
+
+        if ( econn ) {
+          try {
+            ecid = econn->getEcalLogicID("EB_LM_PN", ism, i-1);
+            dataset2_bl[ecid] = pn_bl;
+          } catch (runtime_error &e) {
+            cerr << e.what() << endl;
+          }
+        }
+
+      }
+
+      if ( update_channel2 ) {
+
+        if ( i == 1 ) {
+
+          cout << "Preparing dataset for SM=" << ism << endl;
+
+          cout << "PNs (" << i << ") L2 G01 " << num02  << " " << mean02 << " " << rms02  << endl;
+          cout << "PNs (" << i << ") L2 G16 " << num10  << " " << mean10 << " " << rms10  << endl;
+
+        }
+
+        pn_ir.setADCMeanG1(mean02);
+        pn_ir.setADCRMSG1(rms02);
+
+        pn_ir.setPedMeanG1(mean06);
+        pn_ir.setPedRMSG1(rms06);
+
+        pn_ir.setADCMeanG16(mean10);
+        pn_ir.setADCRMSG16(rms10);
+
+        pn_ir.setPedMeanG16(mean14);
+        pn_ir.setPedRMSG16(rms14);
+
+        pn_ir.setTaskStatus(true);
+
+        if ( econn ) {
+          try {
+            ecid = econn->getEcalLogicID("EB_LM_PN", ism, i-1);
+            dataset2_ir[ecid] = pn_ir;
+          } catch (runtime_error &e) {
+            cerr << e.what() << endl;
+          }
+        }
+
+      }
+
+      if ( update_channel3 ) {
+
+        if ( i == 1 ) {
+
+          cout << "Preparing dataset for SM=" << ism << endl;
+
+          cout << "PNs (" << i << ") L3 G01 " << num03  << " " << mean03 << " " << rms03  << endl;
+          cout << "PNs (" << i << ") L3 G16 " << num11  << " " << mean11 << " " << rms11  << endl;
+
+        }
+
+        pn_gr.setADCMeanG1(mean03);
+        pn_gr.setADCRMSG1(rms03);
+
+        pn_gr.setPedMeanG1(mean07);
+        pn_gr.setPedRMSG1(rms07);
+
+        pn_gr.setADCMeanG16(mean11);
+        pn_gr.setADCRMSG16(rms11);
+
+        pn_gr.setPedMeanG16(mean15);
+        pn_gr.setPedRMSG16(rms15);
+
+        pn_gr.setTaskStatus(true);
+
+        if ( econn ) {
+          try {
+            ecid = econn->getEcalLogicID("EB_LM_PN", ism, i-1);
+            dataset2_gr[ecid] = pn_gr;
+          } catch (runtime_error &e) {
+            cerr << e.what() << endl;
+          }
+        }
+
+      }
+
+      if ( update_channel4 ) {
+
+        if ( i == 1 ) {
+
+          cout << "Preparing dataset for SM=" << ism << endl;
+
+          cout << "PNs (" << i << ") L4 G01 " << num04  << " " << mean04 << " " << rms04  << endl;
+          cout << "PNs (" << i << ") L4 G16 " << num12  << " " << mean12 << " " << rms12  << endl;
+
+        }
+
+        pn_rd.setADCMeanG1(mean04);
+        pn_rd.setADCRMSG1(rms04);
+
+        pn_rd.setPedMeanG1(mean08);
+        pn_rd.setPedRMSG1(mean08);
+
+        pn_rd.setADCMeanG16(mean12);
+        pn_rd.setADCRMSG16(rms12);
+
+        pn_rd.setPedMeanG16(mean16);
+        pn_rd.setPedRMSG16(rms16);
+
+        pn_rd.setTaskStatus(true);
+
+        if ( econn ) {
+          try {
+            ecid = econn->getEcalLogicID("EB_LM_PN", ism, i-1);
+            dataset2_rd[ecid] = pn_rd;
+          } catch (runtime_error &e) {
+            cerr << e.what() << endl;
+          }
+        }
+
+      }
+
+    }
+
+  }
+
+  if ( econn ) {
+    try {
+      cout << "Inserting dataset ... " << flush;
+      if ( dataset2_bl.size() != 0 ) econn->insertDataSet(&dataset2_bl, moniov);
+      if ( dataset2_ir.size() != 0 ) econn->insertDataSet(&dataset2_ir, moniov);
+      if ( dataset2_gr.size() != 0 ) econn->insertDataSet(&dataset2_gr, moniov);
+      if ( dataset2_rd.size() != 0 ) econn->insertDataSet(&dataset2_rd, moniov);
       cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
@@ -505,6 +901,24 @@ void EBLaserClient::subscribe(void){
   mui_->subscribe("*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude over PN SM*");
   mui_->subscribe("*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude SM*");
   mui_->subscribe("*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN SM*");
+
+  mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs amplitude SM*");
+  mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs amplitude SM*");
+  mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs amplitude SM*");
+  mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs amplitude SM*");
+  mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs pedestal SM*");
+  mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs pedestal SM*");
+  mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs pedestal SM*");
+  mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs pedestal SM*");
+
+  mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs amplitude SM*");
+  mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs amplitude SM*");
+  mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs amplitude SM*");
+  mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs amplitude SM*");
+  mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs pedestal SM*");
+  mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs pedestal SM*");
+  mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs pedestal SM*");
+  mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs pedestal SM*");
 
   if ( collateSources_ ) {
 
@@ -554,6 +968,86 @@ void EBLaserClient::subscribe(void){
       sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN SM%02d L4", ism);
       mui_->add(me_h08_[ism-1], histo);
 
+      sprintf(histo, "EBPDT PNs amplitude SM%02d G01 L1", ism);
+      me_i01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain01");
+      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs amplitude SM%02d G01 L1", ism);
+      mui_->add(me_i01_[ism-1], histo);
+
+      sprintf(histo, "EBPDT PNs amplitude SM%02d G01 L2", ism);
+      me_i02_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser2/Gain01");
+      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs amplitude SM%02d G01 L2", ism);
+      mui_->add(me_i02_[ism-1], histo);
+
+      sprintf(histo, "EBPDT PNs amplitude SM%02d G01 L3", ism);
+      me_i03_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser3/Gain01");
+      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs amplitude SM%02d G01 L3", ism);
+      mui_->add(me_i03_[ism-1], histo);
+
+      sprintf(histo, "EBPDT PNs amplitude SM%02d G01 L4", ism);
+      me_i04_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser4/Gain01");
+      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs amplitude SM%02d G01 L4", ism);
+      mui_->add(me_i04_[ism-1], histo);
+
+      sprintf(histo, "EBPDT PNs pedestal SM%02d G01 L1", ism);
+      me_i05_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain01");
+      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs pedestal SM%02d G01 L1", ism);
+      mui_->add(me_i05_[ism-1], histo);
+
+      sprintf(histo, "EBPDT PNs pedestal SM%02d G01 L2", ism);
+      me_i06_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser2/Gain01");
+      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs pedestal SM%02d G01 L2", ism);
+      mui_->add(me_i06_[ism-1], histo);
+
+      sprintf(histo, "EBPDT PNs pedestal SM%02d G01 L3", ism);
+      me_i07_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser3/Gain01");
+      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs pedestal SM%02d G01 L3", ism);
+      mui_->add(me_i07_[ism-1], histo);
+
+      sprintf(histo, "EBPDT PNs pedestal SM%02d G01 L4", ism);
+      me_i08_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser4/Gain01");
+      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs pedestal SM%02d G01 L4", ism);
+      mui_->add(me_i08_[ism-1], histo);
+
+      sprintf(histo, "EBPDT PNs amplitude SM%02d G16 L1", ism);
+      me_j01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain16");
+      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs amplitude SM%02d G16 L1", ism);
+      mui_->add(me_j01_[ism-1], histo);
+
+      sprintf(histo, "EBPDT PNs amplitude SM%02d G16 L2", ism);
+      me_j02_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser2/Gain16");
+      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs amplitude SM%02d G16 L2", ism);
+      mui_->add(me_j02_[ism-1], histo);
+
+      sprintf(histo, "EBPDT PNs amplitude SM%02d G16 L3", ism);
+      me_j03_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser3/Gain16");
+      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs amplitude SM%02d G16 L3", ism);
+      mui_->add(me_j03_[ism-1], histo);
+
+      sprintf(histo, "EBPDT PNs amplitude SM%02d G16 L4", ism);
+      me_j04_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser4/Gain16");
+      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs amplitude SM%02d G16 L4", ism);
+      mui_->add(me_j04_[ism-1], histo);
+
+      sprintf(histo, "EBPDT PNs pedestal SM%02d G16 L1", ism);
+      me_j05_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain16");
+      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs pedestal SM%02d G16 L1", ism);
+      mui_->add(me_j05_[ism-1], histo);
+
+      sprintf(histo, "EBPDT PNs pedestal SM%02d G16 L2", ism);
+      me_j06_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser2/Gain16");
+      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs pedestal SM%02d G16 L2", ism);
+      mui_->add(me_j06_[ism-1], histo);
+
+      sprintf(histo, "EBPDT PNs pedestal SM%02d G16 L3", ism);
+      me_j07_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser3/Gain16");
+      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs pedestal SM%02d G16 L3", ism);
+      mui_->add(me_j07_[ism-1], histo);
+
+      sprintf(histo, "EBPDT PNs pedestal SM%02d G16 L4", ism);
+      me_j08_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser4/Gain16");
+      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs pedestal SM%02d G16 L4", ism);
+      mui_->add(me_j08_[ism-1], histo);
+
     }
 
   }
@@ -571,6 +1065,24 @@ void EBLaserClient::subscribeNew(void){
   mui_->subscribeNew("*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude over PN SM*");
   mui_->subscribeNew("*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude SM*");
   mui_->subscribeNew("*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN SM*");
+
+  mui_->subscribeNew("*/EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs amplitude SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs amplitude SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs amplitude SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs amplitude SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs pedestal SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs pedestal SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs pedestal SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs pedestal SM*");
+
+  mui_->subscribeNew("*/EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs amplitude SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs amplitude SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs amplitude SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs amplitude SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs pedestal SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs pedestal SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs pedestal SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs pedestal SM*");
 
 }
 
@@ -622,6 +1134,70 @@ void EBLaserClient::unsubscribe(void){
         bei->setCurrentFolder("EcalBarrel/Sums/EBLaserTask/Laser4");
         bei->removeElement(histo);
 
+        sprintf(histo, "EBPDT PNs amplitude SM%02d G01 L1", ism);
+        bei->setCurrentFolder("EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain01");
+        bei->removeElement(histo);
+
+        sprintf(histo, "EBPDT PNs amplitude SM%02d G01 L2", ism);
+        bei->setCurrentFolder("EcalBarrel/Sums/EBPnDiodeTask/Laser2/Gain01");
+        bei->removeElement(histo);
+
+        sprintf(histo, "EBPDT PNs amplitude SM%02d G01 L3", ism);
+        bei->setCurrentFolder("EcalBarrel/Sums/EBPnDiodeTask/Laser3/Gain01");
+        bei->removeElement(histo);
+
+        sprintf(histo, "EBPDT PNs amplitude SM%02d G01 L4", ism);
+        bei->setCurrentFolder("EcalBarrel/Sums/EBPnDiodeTask/Laser4/Gain01");
+        bei->removeElement(histo);
+
+        sprintf(histo, "EBPDT PNs pedestal SM%02d G01 L1", ism);
+        bei->setCurrentFolder("EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain01");
+        bei->removeElement(histo);
+
+        sprintf(histo, "EBPDT PNs pedestal SM%02d G01 L2", ism);
+        bei->setCurrentFolder("EcalBarrel/Sums/EBPnDiodeTask/Laser2/Gain01");
+        bei->removeElement(histo);
+
+        sprintf(histo, "EBPDT PNs pedestal SM%02d G01 L3", ism);
+        bei->setCurrentFolder("EcalBarrel/Sums/EBPnDiodeTask/Laser3/Gain01");
+        bei->removeElement(histo);
+
+        sprintf(histo, "EBPDT PNs pedestal SM%02d G01 L4", ism);
+        bei->setCurrentFolder("EcalBarrel/Sums/EBPnDiodeTask/Laser4/Gain01");
+        bei->removeElement(histo);
+
+        sprintf(histo, "EBPDT PNs amplitude SM%02d G16 L1", ism);
+        bei->setCurrentFolder("EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain16");
+        bei->removeElement(histo);
+
+        sprintf(histo, "EBPDT PNs amplitude SM%02d G16 L2", ism);
+        bei->setCurrentFolder("EcalBarrel/Sums/EBPnDiodeTask/Laser2/Gain16");
+        bei->removeElement(histo);
+
+        sprintf(histo, "EBPDT PNs amplitude SM%02d G16 L3", ism);
+        bei->setCurrentFolder("EcalBarrel/Sums/EBPnDiodeTask/Laser3/Gain16");
+        bei->removeElement(histo);
+
+        sprintf(histo, "EBPDT PNs amplitude SM%02d G16 L4", ism);
+        bei->setCurrentFolder("EcalBarrel/Sums/EBPnDiodeTask/Laser4/Gain16");
+        bei->removeElement(histo);
+
+        sprintf(histo, "EBPDT PNs pedestal SM%02d G16 L1", ism);
+        bei->setCurrentFolder("EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain16");
+        bei->removeElement(histo);
+
+        sprintf(histo, "EBPDT PNs pedestal SM%02d G16 L2", ism);
+        bei->setCurrentFolder("EcalBarrel/Sums/EBPnDiodeTask/Laser2/Gain16");
+        bei->removeElement(histo);
+
+        sprintf(histo, "EBPDT PNs pedestal SM%02d G16 L3", ism);
+        bei->setCurrentFolder("EcalBarrel/Sums/EBPnDiodeTask/Laser3/Gain16");
+        bei->removeElement(histo);
+
+        sprintf(histo, "EBPDT PNs pedestal SM%02d G16 L4", ism);
+        bei->setCurrentFolder("EcalBarrel/Sums/EBPnDiodeTask/Laser4/Gain16");
+        bei->removeElement(histo);
+
       }
 
     }
@@ -637,6 +1213,24 @@ void EBLaserClient::unsubscribe(void){
   mui_->unsubscribe("*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude over PN SM*");
   mui_->unsubscribe("*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude SM*");
   mui_->unsubscribe("*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN SM*");
+
+  mui_->unsubscribe("*/EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs amplitude SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs amplitude SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs amplitude SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs amplitude SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs pedestal SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs pedestal SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs pedestal SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs pedestal SM*");
+
+  mui_->unsubscribe("*/EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs amplitude SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs amplitude SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs amplitude SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs amplitude SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs pedestal SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs pedestal SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs pedestal SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs pedestal SM*");
 
 }
 
@@ -788,6 +1382,278 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
         sprintf(histo, "ME EBLT amplitude over PN SM%02d L4", ism);
         h08_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
 //        h08_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+      }
+    }
+
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs amplitude SM%02d G01 L1", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs amplitude SM%02d G01 L1", ism);
+    }
+    me = mui_->get(histo);
+    if ( me ) {
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
+      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
+      if ( ob ) {
+        if ( i01_[ism-1] ) delete i01_[ism-1];
+        sprintf(histo, "ME EBPDT PNs amplitude SM%02d G01 L1", ism);
+        i01_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+//        i01_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+      }
+    }
+
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs amplitude SM%02d G01 L2", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs amplitude SM%02d G01 L2", ism);
+    }
+    me = mui_->get(histo);
+    if ( me ) {
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
+      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
+      if ( ob ) {
+        if ( i02_[ism-1] ) delete i02_[ism-1];
+        sprintf(histo, "ME EBPDT PNs amplitude SM%02d G01 L2", ism);
+        i02_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+//        i02_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+      }
+    }
+
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs amplitude SM%02d G01 L3", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs amplitude SM%02d G01 L3", ism);
+    }
+    me = mui_->get(histo);
+    if ( me ) {
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
+      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
+      if ( ob ) {
+        if ( i03_[ism-1] ) delete i03_[ism-1];
+        sprintf(histo, "ME EBPDT PNs amplitude SM%02d G01 L3", ism);
+        i03_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+//        i03_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+      }
+    }
+
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs amplitude SM%02d G01 L4", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs amplitude SM%02d G01 L4", ism);
+    }
+    me = mui_->get(histo);
+    if ( me ) {
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
+      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
+      if ( ob ) {
+        if ( i04_[ism-1] ) delete i04_[ism-1];
+        sprintf(histo, "ME EBPDT PNs amplitude SM%02d G01 L4", ism);
+        i04_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+//        i04_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+      }
+    }
+
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs pedestal SM%02d G01 L1", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs pedestal SM%02d G01 L1", ism);
+    }
+    me = mui_->get(histo);
+    if ( me ) {
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
+      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
+      if ( ob ) {
+        if ( i05_[ism-1] ) delete i05_[ism-1];
+        sprintf(histo, "ME EBPDT PNs pedestal SM%02d G01 L1", ism);
+        i05_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+//        i05_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+      }
+    }
+
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs pedestal SM%02d G01 L2", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs pedestal SM%02d G01 L2", ism);
+    }
+    me = mui_->get(histo);
+    if ( me ) {
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
+      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
+      if ( ob ) {
+        if ( i06_[ism-1] ) delete i06_[ism-1];
+        sprintf(histo, "ME EBPDT PNs pedestal SM%02d G01 L2", ism);
+        i06_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+//        i06_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+      }
+    }
+
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs pedestal SM%02d G01 L3", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs pedestal SM%02d G01 L3", ism);
+    }
+    me = mui_->get(histo);
+    if ( me ) {
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
+      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
+      if ( ob ) {
+        if ( i07_[ism-1] ) delete i07_[ism-1];
+        sprintf(histo, "ME EBPDT PNs pedestal SM%02d G01 L3", ism);
+        i07_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+//        i07_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+      }
+    }
+
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs pedestal SM%02d G01 L4", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs pedestal SM%02d G01 L4", ism);
+    }
+    me = mui_->get(histo);
+    if ( me ) {
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
+      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
+      if ( ob ) {
+        if ( i08_[ism-1] ) delete i08_[ism-1];
+        sprintf(histo, "ME EBPDT PNs pedestal SM%02d G01 L4", ism);
+        i08_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+//        i08_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+      }
+    }
+
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs amplitude SM%02d G16 L1", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs amplitude SM%02d G16 L1", ism);
+    }
+    me = mui_->get(histo);
+    if ( me ) {
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
+      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
+      if ( ob ) {
+        if ( j01_[ism-1] ) delete j01_[ism-1];
+        sprintf(histo, "ME EBPDT PNs amplitude SM%02d G16 L1", ism);
+        j01_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+//        j01_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+      }
+    }
+
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs amplitude SM%02d G16 L2", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs amplitude SM%02d G16 L2", ism);
+    }
+    me = mui_->get(histo);
+    if ( me ) {
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
+      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
+      if ( ob ) {
+        if ( j02_[ism-1] ) delete j02_[ism-1];
+        sprintf(histo, "ME EBPDT PNs amplitude SM%02d G16 L2", ism);
+        j02_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+//        j02_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+      }
+    }
+
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs amplitude SM%02d G16 L3", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs amplitude SM%02d G16 L3", ism);
+    }
+    me = mui_->get(histo);
+    if ( me ) {
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
+      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
+      if ( ob ) {
+        if ( j03_[ism-1] ) delete j03_[ism-1];
+        sprintf(histo, "ME EBPDT PNs amplitude SM%02d G16 L3", ism);
+        j03_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+//        j03_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+      }
+    }
+
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs amplitude SM%02d G16 L4", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs amplitude SM%02d G16 L4", ism);
+    }
+    me = mui_->get(histo);
+    if ( me ) {
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
+      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
+      if ( ob ) {
+        if ( j04_[ism-1] ) delete j04_[ism-1];
+        sprintf(histo, "ME EBPDT PNs amplitude SM%02d G16 L4", ism);
+        j04_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+//        j04_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+      }
+    }
+
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs pedestal SM%02d G16 L1", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs pedestal SM%02d G16 L1", ism);
+    }
+    me = mui_->get(histo);
+    if ( me ) {
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
+      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
+      if ( ob ) {
+        if ( j05_[ism-1] ) delete j05_[ism-1];
+        sprintf(histo, "ME EBPDT PNs pedestal SM%02d G16 L1", ism);
+        j05_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+//        j05_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+      }
+    }
+
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs pedestal SM%02d G16 L2", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs pedestal SM%02d G16 L2", ism);
+    }
+    me = mui_->get(histo);
+    if ( me ) {
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
+      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
+      if ( ob ) {
+        if ( j06_[ism-1] ) delete j06_[ism-1];
+        sprintf(histo, "ME EBPDT PNs pedestal SM%02d G16 L2", ism);
+        j06_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+//        j06_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+      }
+    }
+
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs pedestal SM%02d G16 L3", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs pedestal SM%02d G16 L3", ism);
+    }
+    me = mui_->get(histo);
+    if ( me ) {
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
+      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
+      if ( ob ) {
+        if ( j07_[ism-1] ) delete j07_[ism-1];
+        sprintf(histo, "ME EBPDT PNs pedestal SM%02d G16 L3", ism);
+        j07_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+//        j07_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+      }
+    }
+
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs pedestal SM%02d G16 L4", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs pedestal SM%02d G16 L4", ism);
+    }
+    me = mui_->get(histo);
+    if ( me ) {
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
+      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
+      if ( ob ) {
+        if ( j08_[ism-1] ) delete j08_[ism-1];
+        sprintf(histo, "ME EBPDT PNs pedestal SM%02d G16 L4", ism);
+        j08_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+//        j08_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
       }
     }
 
@@ -1073,14 +1939,16 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
   }
   dummy.SetMarkerSize(2);
 
-  string imgNameQual[2], imgNameAmp[2], imgNameAmpoPN[2], imgName, meName;
+  string imgNameQual[4], imgNameAmp[4], imgNameAmpoPN[4], imgNameMEPnG01[4], imgNameMEPnPedG01[4], imgNameMEPnG16[4], imgNameMEPnPedG16[4], imgName, meName;
 
   TCanvas* cQual = new TCanvas("cQual", "Temp", 2*csize , csize);
   TCanvas* cAmp = new TCanvas("cAmp", "Temp", csize , csize);
   TCanvas* cAmpoPN = new TCanvas("cAmpoPN", "Temp", csize, csize);
+  TCanvas* cPed = new TCanvas("cPed", "Temp", csize, csize);
 
   TH2F* obj2f;
   TH1F* obj1f;
+  TH1D* obj1d;
 
   // Loop on barrel supermodules
 
@@ -1221,6 +2089,210 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       }
 
+      // Monitoring elements plots
+
+      imgNameMEPnG01[iCanvas-1] = "";
+
+      obj1d = 0;
+      switch ( iCanvas ) {
+        case 1:
+          if ( i01_[ism-1] ) obj1d = i01_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          break;
+        case 2:
+          if ( i02_[ism-1] ) obj1d = i02_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          break;
+        case 3:
+          if ( i03_[ism-1] ) obj1d = i03_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          break;
+        case 4:
+          if ( i04_[ism-1] ) obj1d = i04_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          break;
+        default:
+          break;
+      }
+
+      if ( obj1d ) {
+
+        meName = obj1d->GetName();
+
+        for ( unsigned int i = 0; i < meName.size(); i++ ) {
+          if ( meName.substr(i, 1) == " " )  {
+            meName.replace(i, 1 ,"_" );
+          }
+        }
+        imgNameMEPnG01[iCanvas-1] = meName + ".png";
+        imgName = htmlDir + imgNameMEPnG01[iCanvas-1];
+
+        cAmp->cd();
+        gStyle->SetOptStat("euomr");
+        obj1d->SetStats(kTRUE);
+//        if ( obj1d->GetMaximum(histMax) > 0. ) {
+//          gPad->SetLogy(1);
+//        } else {
+//          gPad->SetLogy(0);
+//        }
+        obj1d->SetMinimum(0.);
+        obj1d->Draw();
+        cAmp->Update();
+        cAmp->SaveAs(imgName.c_str());
+        gPad->SetLogy(0);
+
+        delete obj1d;
+
+      }
+
+      imgNameMEPnG16[iCanvas-1] = "";
+
+      obj1d = 0;
+      switch ( iCanvas ) {
+        case 1:
+          if ( j01_[ism-1] ) obj1d = j01_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          break;
+        case 2:
+          if ( j02_[ism-1] ) obj1d = j02_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          break;
+        case 3:
+          if ( j03_[ism-1] ) obj1d = j03_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          break;
+        case 4:
+          if ( j04_[ism-1] ) obj1d = j04_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          break;
+        default:
+          break;
+      }
+
+      if ( obj1d ) {
+
+        meName = obj1d->GetName();
+
+        for ( unsigned int i = 0; i < meName.size(); i++ ) {
+          if ( meName.substr(i, 1) == " " )  {
+            meName.replace(i, 1 ,"_" );
+          }
+        }
+        imgNameMEPnG16[iCanvas-1] = meName + ".png";
+        imgName = htmlDir + imgNameMEPnG16[iCanvas-1];
+
+        cAmp->cd();
+        gStyle->SetOptStat("euomr");
+        obj1d->SetStats(kTRUE);
+//        if ( obj1d->GetMaximum(histMax) > 0. ) {
+//          gPad->SetLogy(1);
+//        } else {
+//          gPad->SetLogy(0);
+//        }
+        obj1d->SetMinimum(0.);
+        obj1d->Draw();
+        cAmp->Update();
+        cAmp->SaveAs(imgName.c_str());
+        gPad->SetLogy(0);
+
+        delete obj1d;
+
+      }
+
+      // Monitoring elements plots
+
+      imgNameMEPnPedG01[iCanvas-1] = "";
+
+      obj1d = 0;
+      switch ( iCanvas ) {
+        case 1:
+          if ( i05_[ism-1] ) obj1d = i05_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          break;
+        case 2:
+          if ( i06_[ism-1] ) obj1d = i06_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          break;
+        case 3:
+          if ( i07_[ism-1] ) obj1d = i07_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          break;
+        case 4:
+          if ( i08_[ism-1] ) obj1d = i08_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          break;
+        default:
+          break;
+      }
+
+      if ( obj1d ) {
+
+        meName = obj1d->GetName();
+
+        for ( unsigned int i = 0; i < meName.size(); i++ ) {
+          if ( meName.substr(i, 1) == " " )  {
+            meName.replace(i, 1 ,"_" );
+          }
+        }
+        imgNameMEPnPedG01[iCanvas-1] = meName + ".png";
+        imgName = htmlDir + imgNameMEPnPedG01[iCanvas-1];
+
+        cPed->cd();
+        gStyle->SetOptStat("euomr");
+        obj1d->SetStats(kTRUE);
+//        if ( obj1d->GetMaximum(histMax) > 0. ) {
+//          gPad->SetLogy(1);
+//        } else {
+//          gPad->SetLogy(0);
+//        }
+        obj1d->SetMinimum(0.);
+        obj1d->Draw();
+        cPed->Update();
+        cPed->SaveAs(imgName.c_str());
+        gPad->SetLogy(0);
+
+        delete obj1d;
+
+      }
+
+      imgNameMEPnPedG16[iCanvas-1] = "";
+
+      obj1d = 0;
+      switch ( iCanvas ) {
+        case 1:
+          if ( j05_[ism-1] ) obj1d = j05_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          break;
+        case 2:
+          if ( j06_[ism-1] ) obj1d = j06_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          break;
+        case 3:
+          if ( j07_[ism-1] ) obj1d = j07_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          break;
+        case 4:
+          if ( j08_[ism-1] ) obj1d = j08_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          break;
+        default:
+          break;
+      }
+
+      if ( obj1d ) {
+
+        meName = obj1d->GetName();
+
+        for ( unsigned int i = 0; i < meName.size(); i++ ) {
+          if ( meName.substr(i, 1) == " " )  {
+            meName.replace(i, 1 ,"_" );
+          }
+        }
+        imgNameMEPnPedG16[iCanvas-1] = meName + ".png";
+        imgName = htmlDir + imgNameMEPnPedG16[iCanvas-1];
+
+        cPed->cd();
+        gStyle->SetOptStat("euomr");
+        obj1d->SetStats(kTRUE);
+//        if ( obj1d->GetMaximum(histMax) > 0. ) {
+//          gPad->SetLogy(1);
+//        } else {
+//          gPad->SetLogy(0);
+//        }
+        obj1d->SetMinimum(0.);
+        obj1d->Draw();
+        cPed->Update();
+        cPed->SaveAs(imgName.c_str());
+        gPad->SetLogy(0);
+
+        delete obj1d;
+
+      }
+
     }
 
     htmlFile << "<h3><strong>Supermodule&nbsp;&nbsp;" << ism << "</strong></h3>" << endl;
@@ -1260,11 +2332,47 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile << "</table>" << endl;
     htmlFile << "<br>" << endl;
 
+    for ( int iCanvas = 1 ; iCanvas <= 2 ; iCanvas++ ) {
+
+      htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+      htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+      htmlFile << "<tr align=\"center\">" << endl;
+
+      if ( imgNameMEPnPedG01[iCanvas-1].size() != 0 )
+        htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameMEPnPedG01[iCanvas-1] << "\"></td>" << endl;
+      else
+        htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+
+      if ( imgNameMEPnG01[iCanvas-1].size() != 0 )
+        htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameMEPnG01[iCanvas-1] << "\"></td>" << endl;
+      else
+        htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+
+      if ( imgNameMEPnPedG16[iCanvas-1].size() != 0 )
+        htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameMEPnPedG16[iCanvas-1] << "\"></td>" << endl;
+      else
+        htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+
+      if ( imgNameMEPnG16[iCanvas-1].size() != 0 )
+        htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameMEPnG16[iCanvas-1] << "\"></td>" << endl;
+      else
+        htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+
+      htmlFile << "</tr>" << endl;
+
+      htmlFile << "<tr align=\"center\"><td colspan=\"4\">Gain 1</td><td colspan=\"4\">Gain 16</td></tr>" << endl;
+      htmlFile << "</table>" << endl;
+
+    }
+
+    htmlFile << "<br>" << endl;
+
   }
 
   delete cQual;
   delete cAmp;
   delete cAmpoPN;
+  delete cPed;
 
   // html page footer
   htmlFile << "</body> " << endl;

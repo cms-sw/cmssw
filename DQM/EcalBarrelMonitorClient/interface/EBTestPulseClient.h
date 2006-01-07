@@ -4,8 +4,8 @@
 /*
  * \file EBTestPulseClient.h
  *
- * $Date: 2005/12/29 14:57:13 $
- * $Revision: 1.16 $
+ * $Date: 2006/01/02 09:18:01 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -33,6 +33,8 @@
 
 #include "CalibCalorimetry/EcalDBInterface/interface/MonTestPulseDat.h"
 #include "CalibCalorimetry/EcalDBInterface/interface/MonPulseShapeDat.h"
+
+#include "CalibCalorimetry/EcalDBInterface/interface/MonPNMGPADat.h"
 
 #include "TROOT.h"
 #include "TStyle.h"
@@ -134,6 +136,16 @@ TH2F* g03_[36];
 TH1F* a01_[36];
 TH1F* a02_[36];
 TH1F* a03_[36];
+
+CollateMonitorElement* me_i01_[36];
+CollateMonitorElement* me_i02_[36];
+CollateMonitorElement* me_i03_[36];
+CollateMonitorElement* me_i04_[36];
+
+TProfile2D* i01_[36];
+TProfile2D* i02_[36];
+TProfile2D* i03_[36];
+TProfile2D* i04_[36];
 
 // Quality check on crystals, one per each gain
 

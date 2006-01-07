@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2006/01/02 09:18:03 $
- * $Revision: 1.51 $
+ * $Date: 2006/01/05 08:56:56 $
+ * $Revision: 1.52 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -19,6 +19,9 @@ EBPedestalClient::EBPedestalClient(const edm::ParameterSet& ps, MonitorUserInter
     h01_[ism-1] = 0;
     h02_[ism-1] = 0;
     h03_[ism-1] = 0;
+
+    i01_[ism-1] = 0;
+    i02_[ism-1] = 0;
 
   }
 
@@ -178,6 +181,11 @@ void EBPedestalClient::cleanup(void) {
     if ( h03_[ism-1] ) delete h03_[ism-1];
     h03_[ism-1] = 0;
 
+    if ( i01_[ism-1] ) delete i01_[ism-1];
+    i01_[ism-1] = 0;
+    if ( i02_[ism-1] ) delete i02_[ism-1];
+    i02_[ism-1] = 0;
+
   }
 
   for ( int ism = 1; ism <= 36; ism++ ) {
@@ -211,7 +219,7 @@ void EBPedestalClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
 
   EcalLogicID ecid;
   MonPedestalsDat p;
-  map<EcalLogicID, MonPedestalsDat> dataset;
+  map<EcalLogicID, MonPedestalsDat> dataset1;
 
   cout << "Creating MonPedestalsDatObjects for the database ..." << endl;
 
@@ -292,7 +300,7 @@ void EBPedestalClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
           if ( econn ) {
             try {
               ecid = econn->getEcalLogicID("EB_crystal_index", ism, ie-1, ip-1);
-              dataset[ecid] = p;
+              dataset1[ecid] = p;
             } catch (runtime_error &e) {
               cerr << e.what() << endl;
             }
@@ -308,7 +316,91 @@ void EBPedestalClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
   if ( econn ) {
     try {
       cout << "Inserting dataset ... " << flush;
-      if ( dataset.size() != 0 ) econn->insertDataSet(&dataset, moniov);
+      if ( dataset1.size() != 0 ) econn->insertDataSet(&dataset1, moniov);
+      cout << "done." << endl;
+    } catch (runtime_error &e) {
+      cerr << e.what() << endl;
+    }
+  }
+
+  MonPNPedDat pn;
+  map<EcalLogicID, MonPNPedDat> dataset2;
+
+  cout << "Creating MonPnDatObjects for the database ..." << endl;
+
+  const float m_min_tot = 1000.;
+  const float m_min_bin = 50.;
+
+  for ( int ism = 1; ism <= 36; ism++ ) {
+
+    float num01, num02;
+    float mean01, mean02;
+    float rms01, rms02;
+
+    for ( int i = 1; i <= 10; i++ ) {
+
+      num01  = num02  = -1.;
+      mean01 = mean02 = -1.;
+      rms01  = rms02  = -1.;
+
+      bool update_channel = false;
+
+      if ( i01_[ism-1] && i01_[ism-1]->GetEntries() >= m_min_tot ) {
+        num01 = i01_[ism-1]->GetBinEntries(i01_[ism-1]->GetBin(1, i));
+        if ( num01 >= m_min_bin ) {
+          mean01 = i01_[ism-1]->GetBinContent(i01_[ism-1]->GetBin(1, i));
+          rms01  = i01_[ism-1]->GetBinError(i01_[ism-1]->GetBin(1, i));
+          update_channel = true;
+        }
+      }
+
+      if ( i02_[ism-1] && i02_[ism-1]->GetEntries() >= m_min_tot ) {
+        num02 = i02_[ism-1]->GetBinEntries(i02_[ism-1]->GetBin(1, i));
+        if ( num02 >= m_min_bin ) {
+          mean02 = i02_[ism-1]->GetBinContent(i02_[ism-1]->GetBin(1, i));
+          rms02  = i02_[ism-1]->GetBinError(i02_[ism-1]->GetBin(1, i));
+          update_channel = true;
+        }
+      }
+
+      if ( update_channel ) {
+
+        if ( i == 1 ) {
+
+          cout << "Preparing dataset for SM=" << ism << endl;
+
+          cout << "PNs (" << i << ") G01 " << num01  << " " << mean01 << " " << rms01  << endl;
+          cout << "PNs (" << i << ") G16 " << num01  << " " << mean01 << " " << rms01  << endl;
+
+        }
+
+        pn.setPedMeanG1(mean01);
+        pn.setPedRMSG1(rms01);
+
+        pn.setPedMeanG16(mean02);
+        pn.setPedRMSG16(rms02);
+
+        pn.setTaskStatus(true);
+
+        if ( econn ) {
+          try {
+            ecid = econn->getEcalLogicID("EB_LM_PN", ism, i-1);
+            dataset2[ecid] = pn;
+          } catch (runtime_error &e) {
+            cerr << e.what() << endl;
+          }
+        }
+
+      }
+
+    }
+
+  }
+
+  if ( econn ) {
+    try {
+      cout << "Inserting dataset ... " << flush;
+      if ( dataset2.size() != 0 ) econn->insertDataSet(&dataset2, moniov);
       cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
@@ -325,6 +417,9 @@ void EBPedestalClient::subscribe(void){
   mui_->subscribe("*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal SM*");
   mui_->subscribe("*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM*");
   mui_->subscribe("*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM*");
+
+  mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs pedestal SM*");
+  mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs pedestal SM*");
 
   if ( collateSources_ ) {
 
@@ -349,6 +444,16 @@ void EBPedestalClient::subscribe(void){
       sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM%02d G12", ism);
       mui_->add(me_h03_[ism-1], histo);
 
+      sprintf(histo, "EBPDT PNs pedestal SM%02d G01", ism);
+      me_i01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Gain01");
+      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs pedestal SM%02d G01", ism);
+      mui_->add(me_i01_[ism-1], histo);
+
+      sprintf(histo, "EBPDT PNs pedestal SM%02d G16", ism);
+      me_i02_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Gain16");
+      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs pedestal SM%02d G16", ism);
+      mui_->add(me_i02_[ism-1], histo);
+
     }
 
   }
@@ -361,6 +466,9 @@ void EBPedestalClient::subscribeNew(void){
   mui_->subscribeNew("*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal SM*");
   mui_->subscribeNew("*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM*");
   mui_->subscribeNew("*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM*");
+
+  mui_->subscribeNew("*/EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs pedestal SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs pedestal SM*");
 
 }
 
@@ -392,6 +500,14 @@ void EBPedestalClient::unsubscribe(void){
         bei->setCurrentFolder("EcalBarrel/Sums/EBPedestalTask/Gain12");
         bei->removeElement(histo);
 
+        sprintf(histo, "EBPDT PNs pedestal SM%02d G01", ism);
+        bei->setCurrentFolder("EcalBarrel/Sums/EBPnDiodeTask/Gain01");
+        bei->removeElement(histo);
+
+        sprintf(histo, "EBPDT PNs pedestal SM%02d G16", ism);
+        bei->setCurrentFolder("EcalBarrel/Sums/EBPnDiodeTask/Gain16");
+        bei->removeElement(histo);
+
       }
 
     }
@@ -402,6 +518,9 @@ void EBPedestalClient::unsubscribe(void){
   mui_->unsubscribe("*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal SM*");
   mui_->unsubscribe("*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM*");
   mui_->unsubscribe("*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM*");
+
+  mui_->unsubscribe("*/EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs pedestal SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs pedestal SM*");
 
 }
 
@@ -468,6 +587,40 @@ void EBPedestalClient::analyze(const edm::Event& e, const edm::EventSetup& c){
         sprintf(histo, "ME EBPT pedestal SM%02d G12", ism);
         h03_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
 //        h03_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+      }
+    }
+
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Gain01/EBPDT PNs pedestal SM%02d G01", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs pedestal SM%02d G01", ism);
+    }
+    me = mui_->get(histo);
+    if ( me ) {
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
+      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
+      if ( ob ) {
+        if ( i01_[ism-1] ) delete i01_[ism-1];
+        sprintf(histo, "ME EBPDT PNs pedestal SM%02d G01", ism);
+        i01_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+//        i01_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+      }
+    }
+
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Gain16/EBPDT PNs pedestal SM%02d G16", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs pedestal SM%02d G16", ism);
+    }
+    me = mui_->get(histo);
+    if ( me ) {
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
+      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
+      if ( ob ) {
+        if ( i02_[ism-1] ) delete i02_[ism-1];
+        sprintf(histo, "ME EBPDT PNs pedestal SM%02d G16", ism);
+        i02_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+//        i02_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
       }
     }
 
@@ -619,14 +772,16 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
   }
   dummy.SetMarkerSize(2);
 
-  string imgNameQual[3], imgNameMean[3], imgNameRMS[3], imgName, meName;
+  string imgNameQual[3], imgNameMean[3], imgNameRMS[3], imgNameMEPnPed[2], imgName, meName;
 
   TCanvas* cQual = new TCanvas("cQual", "Temp", 2*csize, csize);
   TCanvas* cMean = new TCanvas("cMean", "Temp", csize, csize);
   TCanvas* cRMS = new TCanvas("cRMS", "Temp", csize, csize);
+  TCanvas* cPed = new TCanvas("cPed", "Temp", csize, csize);
 
   TH2F* obj2f;
   TH1F* obj1f;
+  TH1D* obj1d;
 
   // Loop on barrel supermodules
 
@@ -778,6 +933,58 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     }
 
+    // Loop on gains
+
+    for ( int iCanvas = 1 ; iCanvas <= 2 ; iCanvas++ ) {
+
+      // Monitoring elements plots
+
+      imgNameMEPnPed[iCanvas-1] = "";
+
+      obj1d = 0;
+      switch ( iCanvas ) {
+        case 1:
+          if ( i01_[ism-1] ) obj1d = i01_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          break;
+        case 2:
+          if ( i02_[ism-1] ) obj1d = i02_[ism-1]->ProjectionY("_py", 1, 1, "e");
+          break;
+        default:
+          break;
+      }
+
+      if ( obj1d ) {
+
+        meName = obj1d->GetName();
+
+        for ( unsigned int i = 0; i < meName.size(); i++ ) {
+          if ( meName.substr(i, 1) == " " )  {
+            meName.replace(i, 1 ,"_" );
+          }
+        }
+        imgNameMEPnPed[iCanvas-1] = meName + ".png";
+        imgName = htmlDir + imgNameMEPnPed[iCanvas-1];
+
+        cPed->cd();
+        gStyle->SetOptStat("euomr");
+        obj1d->SetStats(kTRUE);
+//        if ( obj1d->GetMaximum(histMax) > 0. ) {
+//          gPad->SetLogy(1);
+//        } else {
+//          gPad->SetLogy(0);
+//        }
+        obj1d->SetMinimum(0.);
+        obj1d->Draw();
+        cPed->Update();
+        cPed->SaveAs(imgName.c_str());
+        gPad->SetLogy(0);
+
+        delete obj1d;
+
+      }
+
+    }
+
     htmlFile << "<h3><strong>Supermodule&nbsp;&nbsp;" << ism << "</strong></h3>" << endl;
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
@@ -815,11 +1022,31 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile << "</table>" << endl;
     htmlFile << "<br>" << endl;
 
+    htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+    htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+    htmlFile << "<tr align=\"center\">" << endl;
+
+    for ( int iCanvas = 1 ; iCanvas <= 2 ; iCanvas++ ) {
+
+      if ( imgNameMEPnPed[iCanvas-1].size() != 0 )
+        htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameMEPnPed[iCanvas-1] << "\"></td>" << endl;
+      else
+        htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+
+    }
+
+    htmlFile << "</tr>" << endl;
+
+    htmlFile << "<tr align=\"center\"><td colspan=\"2\">Gain 1</td><td colspan=\"2\">Gain 16</td></tr>" << endl;
+    htmlFile << "</table>" << endl;
+    htmlFile << "<br>" << endl;
+
   }
 
   delete cQual;
   delete cMean;
   delete cRMS;
+  delete cPed;
 
   // html page footer
   htmlFile << "</body> " << endl;
