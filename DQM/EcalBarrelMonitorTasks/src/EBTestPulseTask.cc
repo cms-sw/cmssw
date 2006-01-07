@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  *
- * $Date: 2006/01/02 12:29:22 $
- * $Revision: 1.33 $
+ * $Date: 2006/01/07 11:46:49 $
+ * $Revision: 1.34 $
  * \author G. Della Ricca
  *
 */
@@ -71,15 +71,15 @@ EBTestPulseTask::EBTestPulseTask(const edm::ParameterSet& ps, DaqMonitorBEInterf
       sprintf(histo, "EBPDT PNs amplitude SM%02d G01", i+1);
       mePnAmplMapG01_[i] = dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096.);
       sprintf(histo, "EBPDT PNs pedestal SM%02d G01", i+1);
-      mePnPedMapG01_[i] =  dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
+      mePnPedMapG01_[i] =  dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096.);
     }
 
     dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Gain16");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBPDT PNs amplitude SM%02d G16", i+1);
-      mePnAmplMapG01_[i] = dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096.);
+      mePnAmplMapG16_[i] = dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096.);
       sprintf(histo, "EBPDT PNs pedestal SM%02d G16", i+1);
-      mePnPedMapG01_[i] =  dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
+      mePnPedMapG16_[i] =  dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096.);
     }
 
   }
@@ -237,11 +237,11 @@ void EBTestPulseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
       MonitorElement* mePNPed = 0;
 
-      if ( sample.gainId() == 1 ) {
+      if ( sample.gainId() == 0 ) {
         gain = 1./ 1.;
         mePNPed = mePnPedMapG01_[ism-1];
       }
-      if ( sample.gainId() == 2 ) {
+      if ( sample.gainId() == 1 ) {
         gain = 1./16.;
         mePNPed = mePnPedMapG16_[ism-1];
       }
@@ -257,7 +257,7 @@ void EBTestPulseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
     xvalped = xvalped / 4;
 
     float xvalmax = 0.;
-    int gainmax = 1;
+    int gainIdmax = 0;
 
     MonitorElement* mePN = 0;
 
@@ -265,23 +265,23 @@ void EBTestPulseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
       EcalFEMSample sample = pn.sample(i);
       int adc = sample.adc();
-      float gain = 1.;
+      float gain = 0.;
 
-      if ( sample.gainId() == 1 ) gain = 1./ 1.;
-      if ( sample.gainId() == 2 ) gain = 1./16.;
+      if ( sample.gainId() == 0 ) gain = 1./ 1.;
+      if ( sample.gainId() == 1 ) gain = 1./16.;
 
       float xval = float(adc) * gain;
 
       if ( xval >= xvalmax ) {
         xvalmax = xval;
-        gainmax = sample.gainId();
+        gainIdmax = sample.gainId();
       }
     }
 
     xvalmax = xvalmax - xvalped;
 
-    if ( gainmax == 1 ) mePN = mePnAmplMapG01_[ism-1];
-    if ( gainmax == 2 ) mePN = mePnAmplMapG16_[ism-1];
+    if ( gainIdmax == 0 ) mePN = mePnAmplMapG01_[ism-1];
+    if ( gainIdmax == 1 ) mePN = mePnAmplMapG16_[ism-1];
 
     if ( mePN ) mePN->Fill(0.5, num - 0.5, xvalmax);
 

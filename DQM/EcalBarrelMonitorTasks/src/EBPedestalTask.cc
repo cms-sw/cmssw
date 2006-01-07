@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalTask.cc
  *
- * $Date: 2006/01/02 12:29:22 $
- * $Revision: 1.24 $
+ * $Date: 2006/01/07 11:46:49 $
+ * $Revision: 1.25 $
  * \author G. Della Ricca
  *
 */
@@ -49,13 +49,13 @@ EBPedestalTask::EBPedestalTask(const edm::ParameterSet& ps, DaqMonitorBEInterfac
     dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Gain01");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBPDT PNs pedestal SM%02d G01", i+1);
-      mePnPedMapG01_[i] =  dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
+      mePnPedMapG01_[i] =  dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096.);
     }
 
     dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Gain16");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBPDT PNs pedestal SM%02d G16", i+1);
-      mePnPedMapG01_[i] =  dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
+      mePnPedMapG16_[i] =  dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096.);
     }
 
   }
@@ -149,8 +149,8 @@ void EBPedestalTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
       MonitorElement* mePNPed = 0;
 
-      if ( sample.gainId() == 1 ) mePNPed = mePnPedMapG01_[ism-1];
-      if ( sample.gainId() == 2 ) mePNPed = mePnPedMapG16_[ism-1];
+      if ( sample.gainId() == 0 ) mePNPed = mePnPedMapG01_[ism-1];
+      if ( sample.gainId() == 1 ) mePNPed = mePnPedMapG16_[ism-1];
 
       float xval = float(adc);
 

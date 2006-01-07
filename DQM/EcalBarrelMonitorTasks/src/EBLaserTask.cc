@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2006/01/02 12:29:22 $
- * $Revision: 1.33 $
+ * $Date: 2006/01/07 11:46:49 $
+ * $Revision: 1.34 $
  * \author G. Della Ricca
  *
 */
@@ -270,14 +270,14 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
       MonitorElement* mePNPed = 0;
 
-      if ( sample.gainId() == 1 ) {
+      if ( sample.gainId() == 0 ) {
         gain = 1./ 1.;
         if ( ievt_ >=    1 && ievt_ <=  600 ) mePNPed = mePnPedMapG01L1_[ism-1];
         if ( ievt_ >=  601 && ievt_ <= 1200 ) mePNPed = mePnPedMapG01L1_[ism-1];
         if ( ievt_ >= 1201 && ievt_ <= 1800 ) mePNPed = mePnPedMapG01L2_[ism-1];
         if ( ievt_ >= 1801 && ievt_ <= 2400 ) mePNPed = mePnPedMapG01L2_[ism-1];
       }
-      if ( sample.gainId() == 2 ) {
+      if ( sample.gainId() == 1 ) {
         gain = 1./16.;
         if ( ievt_ >=    1 && ievt_ <=  600 ) mePNPed = mePnPedMapG16L1_[ism-1];
         if ( ievt_ >=  601 && ievt_ <= 1200 ) mePNPed = mePnPedMapG16L1_[ism-1];
@@ -296,7 +296,7 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
     xvalped = xvalped / 4;
 
     float xvalmax = 0.;
-    int gainmax = 1;
+    int gainIdmax = 0;
 
     MonitorElement* mePN = 0;
 
@@ -304,29 +304,29 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
       EcalFEMSample sample = pn.sample(i);
       int adc = sample.adc();
-      float gain = 1.;
+      float gain = 0.;
 
-      if ( sample.gainId() == 1 ) gain = 1./ 1.;
-      if ( sample.gainId() == 2 ) gain = 1./16.;
+      if ( sample.gainId() == 0 ) gain = 1./ 1.;
+      if ( sample.gainId() == 1 ) gain = 1./16.;
 
       float xval = float(adc) * gain;
 
       if ( xval >= xvalmax ) {
         xvalmax = xval;
-        gainmax = sample.gainId();
+        gainIdmax = sample.gainId();
       }
 
     }
 
     xvalmax = xvalmax - xvalped;
 
-    if ( gainmax == 1 ) {
+    if ( gainIdmax == 0 ) {
       if ( ievt_ >=    1 && ievt_ <=  600 ) mePN = mePnAmplMapG01L1_[ism-1];
       if ( ievt_ >=  601 && ievt_ <= 1200 ) mePN = mePnAmplMapG01L1_[ism-1];
       if ( ievt_ >= 1201 && ievt_ <= 1800 ) mePN = mePnAmplMapG01L2_[ism-1];
       if ( ievt_ >= 1801 && ievt_ <= 2400 ) mePN = mePnAmplMapG01L2_[ism-1];
     }
-    if ( gainmax == 2 ) {
+    if ( gainIdmax == 1 ) {
       if ( ievt_ >=    1 && ievt_ <=  600 ) mePN = mePnAmplMapG16L1_[ism-1];
       if ( ievt_ >=  601 && ievt_ <= 1200 ) mePN = mePnAmplMapG16L1_[ism-1];
       if ( ievt_ >= 1201 && ievt_ <= 1800 ) mePN = mePnAmplMapG16L2_[ism-1];
