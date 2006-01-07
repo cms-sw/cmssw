@@ -13,7 +13,7 @@
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/SecondaryInputSource.h"
+#include "FWCore/Framework/interface/VectorInputSource.h"
 
 namespace edm {
   class SecondaryProducer: public edm::EDProducer {
@@ -33,9 +33,9 @@ namespace edm {
 
     virtual void put(edm::Event &e) {}
 
-    boost::shared_ptr<SecondaryInputSource> makeSecInput(ParameterSet const& ps);
+    boost::shared_ptr<VectorInputSource> makeSecInput(ParameterSet const& ps);
 
-    boost::shared_ptr<SecondaryInputSource> secInput_;
+    boost::shared_ptr<VectorInputSource> secInput_;
   };
 }//edm
 

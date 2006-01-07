@@ -9,7 +9,9 @@
 #include "FWCore/Framework/interface/BasicHandle.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/src/SecondaryInputSourceFactory.h"
+#include "FWCore/Framework/interface/InputSourceDescription.h"
+#include "FWCore/Framework/interface/ProductRegistry.h"
+#include "FWCore/Framework/src/VectorInputSourceFactory.h"
 #include "FWCore/Integration/test/OtherThingCollection.h"
 #include "FWCore/Integration/test/ThingCollection.h"
 
@@ -39,7 +41,8 @@ namespace edm {
     typedef edm::Wrapper<OTC> WOTC;
 
     std::vector<EventPrincipal*> result;
-    secInput_->readMany(e.id().event()-1, 1, result);
+    secInput_->readMany(1, result);
+    // secInput_->readMany(e.id().event()-1, 1, result);
 
     EventPrincipal &p = *result[0];
     EDProduct const* ep = p.getByType(TypeID(typeid(TC))).wrapper();
@@ -61,11 +64,12 @@ namespace edm {
   }
 
 
-  boost::shared_ptr<SecondaryInputSource> SecondaryProducer::makeSecInput(ParameterSet const& ps) {
+  boost::shared_ptr<VectorInputSource> SecondaryProducer::makeSecInput(ParameterSet const& ps) {
     ParameterSet sec_input = ps.getParameter<ParameterSet>("input");
 
-    boost::shared_ptr<SecondaryInputSource> input_(static_cast<SecondaryInputSource *>
-      (SecondaryInputSourceFactory::get()->makeSecondaryInputSource(sec_input).release()));
+    boost::shared_ptr<VectorInputSource> input_(static_cast<VectorInputSource *>
+      (VectorInputSourceFactory::get()->makeVectorInputSource(sec_input,
+      InputSourceDescription()).release()));
     return input_;
   }
 

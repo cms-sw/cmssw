@@ -30,7 +30,7 @@ process PROD  = {
 		untracked int32 maxEvents = 42
 	}
 	module OtherThing = SecondaryProducer {
-	       secsource input = PoolSecondarySource  {
+	       secsource input = PoolRASource  {
 			untracked string catalog = '${LOCAL_TMP_DIR}/SecondaryInputTestCatalog.xml'
 			untracked vstring fileNames = {'PoolTest.root'}
 	       }
