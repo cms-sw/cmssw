@@ -2,7 +2,6 @@
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=IOPool/Common>
-<use name=IOPool/CommonInput>
 <use name=boost>
 <use name=root>
 <use name=rootcore>
@@ -11,7 +10,6 @@
  <use name=FWCore/Framework>
  <use name=FWCore/MessageLogger>
  <use name=IOPool/Common>
- <use name=IOPool/CommonInput>
  <use name=boost>
  <use name=root>
  <use name=rootcore>

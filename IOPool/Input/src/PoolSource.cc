@@ -1,9 +1,9 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.13 2005/12/02 22:40:21 wmtan Exp $
+$Id: PoolSource.cc,v 1.14 2006/01/06 02:38:07 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/PoolSource.h"
-#include "IOPool/CommonInput/interface/RootFile.h"
+#include "IOPool/Input/src/RootFile.h"
 #include "IOPool/Common/interface/ClassFiller.h"
 
 #include "FWCore/Framework/interface/BranchDescription.h"
@@ -14,10 +14,9 @@ $Id: PoolSource.cc,v 1.13 2005/12/02 22:40:21 wmtan Exp $
 
 namespace edm {
   PoolRASource::PoolRASource(ParameterSet const& pset, InputSourceDescription const& desc) :
-    RandomAccessInputSource(desc),
+    InputSource(desc),
     catalog_(PoolCatalog::READ,
       PoolCatalog::toPhysical(pset.getUntrackedParameter("catalog", std::string()))),
-    productMap_(),
     file_(pset.getUntrackedParameter("fileName", std::string())),
     files_(pset.getUntrackedParameter("fileNames", std::vector<std::string>())),
     fileIter_(files_.begin()),
@@ -34,14 +33,20 @@ namespace edm {
     } else {
       init(file_);
     }
+    updateRegistry();
   }
 
   void PoolRASource::init(std::string const& file) {
 
+    // delete the old RootFile, if any.  The file will be closed.
+    rootFile_.reset();
     std::string pfn;
     catalog_.findFile(pfn, file);
 
     rootFile_ = boost::shared_ptr<RootFile>(new RootFile(pfn));
+  }
+
+  void PoolRASource::updateRegistry() const {
     if (rootFile_->productRegistry().nextID() > productRegistry().nextID()) {
       productRegistry().setNextID(rootFile_->productRegistry().nextID());
     }
@@ -49,11 +54,6 @@ namespace edm {
     for (ProductRegistry::ProductList::const_iterator it = prodList.begin();
         it != prodList.end(); ++it) {
       productRegistry().copyProduct(it->second);
-    }
-
-    for (ProductRegistry::ProductList::const_iterator it = productRegistry().productList().begin();
-         it != productRegistry().productList().end(); ++it) {
-      productMap_.insert(std::make_pair(it->second.productID_, it->second));
     }
   }
 
@@ -64,13 +64,8 @@ namespace edm {
     // save the product registry from the current file, temporarily
     boost::shared_ptr<ProductRegistry const> pReg(rootFile_->productRegistrySharedPtr());
 
-    // delete the old RootFile.  The file will be closed.
-    rootFile_.reset();
-    
-    std::string pfn;
-    catalog_.findFile(pfn, *fileIter_);
+    init(*fileIter_);
 
-    rootFile_ = boost::shared_ptr<RootFile>(new RootFile(pfn));
     // make sure the new product registry is identical to the old one
     if (*pReg != rootFile_->productRegistry()) {
       throw cms::Exception("MismatchedInput","PoolSource::next()")
@@ -106,7 +101,7 @@ namespace edm {
       return std::auto_ptr<EventPrincipal>(0);
     }
     --remainingEvents_;
-    return rootFile_->read(productRegistry(), productMap_); 
+    return rootFile_->read(productRegistry()); 
   }
 
   std::auto_ptr<EventPrincipal>
@@ -114,7 +109,7 @@ namespace edm {
     // For now, don't support multiple runs.
     assert (id.run() == rootFile_->eventID().run());
     // For now, assume EventID's are all there.
-    RootDelayedReader::EntryNumber offset = static_cast<long>(id.event()) - static_cast<long>(rootFile_->eventID().event());
+    int offset = static_cast<long>(id.event()) - static_cast<long>(rootFile_->eventID().event());
     rootFile_->entryNumber() += offset;
     return read();
   }

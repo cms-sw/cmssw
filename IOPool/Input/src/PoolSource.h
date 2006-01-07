@@ -5,7 +5,7 @@
 
 PoolSource: This is an InputSource
 
-$Id: PoolSource.h,v 1.9 2005/12/01 22:35:23 wmtan Exp $
+$Id: PoolSource.h,v 1.10 2006/01/06 02:38:07 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -14,17 +14,16 @@ $Id: PoolSource.h,v 1.9 2005/12/01 22:35:23 wmtan Exp $
 #include <string>
 
 #include "IOPool/Common/interface/PoolCatalog.h"
-#include "IOPool/CommonInput/interface/RootDelayedReader.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/RandomAccessInputSource.h"
+#include "FWCore/Framework/interface/InputSource.h"
 
 #include "boost/shared_ptr.hpp"
 
 namespace edm {
 
   class RootFile;
-  class PoolRASource : public RandomAccessInputSource {
+  class PoolRASource : public InputSource {
   public:
     explicit PoolRASource(ParameterSet const& pset, InputSourceDescription const& desc);
     virtual ~PoolRASource();
@@ -36,15 +35,15 @@ namespace edm {
     virtual std::auto_ptr<EventPrincipal> read(EventID const& id);
     virtual void skip(int offset);
     void init(std::string const& file);
+    void updateRegistry() const;
     bool next();
 
     PoolCatalog catalog_;
-    RootDelayedReader::ProductMap productMap_;
     std::string const file_;
     std::vector<std::string> const files_;
     std::vector<std::string>::const_iterator fileIter_;
     boost::shared_ptr<RootFile> rootFile_;
-    RootDelayedReader::EntryNumber remainingEvents_;
+    int remainingEvents_;
   }; // class PoolRASource
 }
 #endif
