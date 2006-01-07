@@ -5,7 +5,7 @@
   
 Forward declarations of types in the EDM.
 
-$Id: Frameworkfwd.h,v 1.12 2005/12/15 23:15:41 wmtan Exp $
+$Id: Frameworkfwd.h,v 1.13 2005/12/28 16:39:34 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -39,7 +39,6 @@ namespace edm {
   class ProductRegistry;
   class ProductRegistryHelper;
   class Provenance;
-  class RandomAccessInputSource;
   class Run;
   class RunHandler;
   class SecondaryInputSource;

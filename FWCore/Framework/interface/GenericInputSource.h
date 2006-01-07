@@ -2,7 +2,7 @@
 #define Framework_GenericInputSource_h
 
 /*----------------------------------------------------------------------
-$Id: GenericInputSource.h,v 1.2 2005/12/28 21:49:50 wmtan Exp $
+$Id: GenericInputSource.h,v 1.3 2005/12/29 20:10:27 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -43,6 +43,8 @@ namespace edm {
 
   private:
     virtual std::auto_ptr<EventPrincipal> read();
+    virtual std::auto_ptr<EventPrincipal> read(EventID const& eventID);
+    virtual void skip (int offset);
     
     virtual void addToReg(ModuleDescription const& md);
 

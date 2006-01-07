@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: GenericInputSource.cc,v 1.2 2005/12/29 20:10:29 wmtan Exp $
+$Id: GenericInputSource.cc,v 1.3 2006/01/01 18:51:03 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <stdexcept>
@@ -52,7 +52,23 @@ namespace edm {
     }
     return result;
   }
+
+  std::auto_ptr<EventPrincipal>
+  GenericInputSource::read(EventID const& eventID) {
+    eventID_ = eventID.previous();
+    return read();
+  }
  
+  void
+  GenericInputSource::skip(int offset) {
+    for (; offset < 0; ++offset) {
+       eventID_ = eventID_.previous();
+    }
+    for (; offset > 0; --offset) {
+       eventID_ = eventID_.next();
+    }
+  }
+
   void
   GenericInputSource::addToReg(ModuleDescription const& md) {
     module_ = md;
@@ -71,4 +87,5 @@ namespace edm {
     }
     presentTime_ += timeBetweenEvents_;
   }
+
 }
