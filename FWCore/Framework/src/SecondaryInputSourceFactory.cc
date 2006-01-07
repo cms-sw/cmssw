@@ -19,7 +19,7 @@ namespace edm {
   }
 
   SecondaryInputSourceFactory::SecondaryInputSourceFactory(): 
-    seal::PluginFactory<ISFunc>("CMS EDM Framework SecondaryInputSource")
+    seal::PluginFactory<ISSecFunc>("CMS EDM Framework SecondaryInputSource")
   {
   }
 

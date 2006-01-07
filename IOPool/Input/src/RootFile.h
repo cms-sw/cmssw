@@ -5,7 +5,7 @@
 
 RootFile.h // used by ROOT input sources
 
-$Id: RootFile.h,v 1.1 2006/01/06 02:35:45 wmtan Exp $
+$Id: RootFile.h,v 1.1 2006/01/07 00:46:23 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -32,13 +32,16 @@ namespace edm {
     explicit RootFile(std::string const& fileName);
     ~RootFile();
     bool next() {return ++entryNumber_ < entries_;} 
+    bool previous() {return --entryNumber_ >= 0;} 
     std::auto_ptr<EventPrincipal> read(ProductRegistry const& pReg);
     ProductRegistry const& productRegistry() const {return *productRegistry_;}
     boost::shared_ptr<ProductRegistry> productRegistrySharedPtr() const {return productRegistry_;}
     TBranch *auxBranch() {return auxBranch_;}
     TBranch *provBranch() {return provBranch_;}
     EventID & eventID() {return eventID_;}
-    EntryNumber & entryNumber() {return entryNumber_;}
+    EntryNumber const& entryNumber() {return entryNumber_;}
+    EntryNumber const& entries() {return entries_;}
+    void setEntryNumber(EntryNumber entryNumber) {entryNumber_ = entryNumber;}
 
   private:
     RootFile(RootFile const&); // disable copy construction

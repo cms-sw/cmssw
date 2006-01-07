@@ -10,10 +10,10 @@
 
 namespace edm {
 
-  typedef SecondaryInputSource* (ISFunc)(ParameterSet const&);
+  typedef SecondaryInputSource* (ISSecFunc)(ParameterSet const&);
 
   class SecondaryInputSourceFactory :
-    public seal::PluginFactory<ISFunc>
+    public seal::PluginFactory<ISSecFunc>
   {
   public:
     ~SecondaryInputSourceFactory();

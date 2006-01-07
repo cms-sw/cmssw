@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.14 2006/01/06 02:38:07 wmtan Exp $
+$Id: PoolSource.cc,v 1.15 2006/01/07 00:46:23 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/PoolSource.h"
@@ -14,26 +14,19 @@ $Id: PoolSource.cc,v 1.14 2006/01/06 02:38:07 wmtan Exp $
 
 namespace edm {
   PoolRASource::PoolRASource(ParameterSet const& pset, InputSourceDescription const& desc) :
-    InputSource(desc),
+    VectorInputSource(desc),
     catalog_(PoolCatalog::READ,
       PoolCatalog::toPhysical(pset.getUntrackedParameter("catalog", std::string()))),
-    file_(pset.getUntrackedParameter("fileName", std::string())),
     files_(pset.getUntrackedParameter("fileNames", std::vector<std::string>())),
     fileIter_(files_.begin()),
     rootFile_(),
-    remainingEvents_(pset.getUntrackedParameter<int>("maxEvents", -1)) {
+    remainingEvents_(pset.getUntrackedParameter<int>("maxEvents", -1)),
+    mainInput_(pset.getUntrackedParameter<std::string>("@module_label") == std::string("@main_input")) {
     ClassFiller();
-    if (file_.empty()) {
-      if (files_.empty()) { // this will throw;
-        pset.getUntrackedParameter<std::string>("fileName");
-      } else {
-        init(*fileIter_);
-        ++fileIter_;
-      }
-    } else {
-      init(file_);
+    init(*fileIter_);
+    if (mainInput_) {
+      updateRegistry();
     }
-    updateRegistry();
   }
 
   void PoolRASource::init(std::string const& file) {
@@ -59,7 +52,14 @@ namespace edm {
 
   bool PoolRASource::next() {
     if(rootFile_->next()) return true;
-    if(fileIter_ == files_.end()) return false;
+    ++fileIter_;
+    if(fileIter_ == files_.end()) {
+      if (mainInput_) {
+        return false;
+      } else {
+        fileIter_ = files_.begin();
+      }
+    }
 
     // save the product registry from the current file, temporarily
     boost::shared_ptr<ProductRegistry const> pReg(rootFile_->productRegistrySharedPtr());
@@ -71,8 +71,32 @@ namespace edm {
       throw cms::Exception("MismatchedInput","PoolSource::next()")
         << "File " << *fileIter_ << "\nhas different product registry than previous files\n";
     }
-    ++fileIter_;
     return next();
+  }
+
+  bool PoolRASource::previous() {
+    if(rootFile_->previous()) return true;
+    if(fileIter_ == files_.begin()) {
+      if (mainInput_) {
+        return false;
+      } else {
+        fileIter_ = files_.end();
+      }
+    }
+    --fileIter_;
+
+    // save the product registry from the current file, temporarily
+    boost::shared_ptr<ProductRegistry const> pReg(rootFile_->productRegistrySharedPtr());
+
+    init(*fileIter_);
+
+    // make sure the new product registry is identical to the old one
+    if (*pReg != rootFile_->productRegistry()) {
+      throw cms::Exception("MismatchedInput","PoolSource::previous()")
+        << "File " << *fileIter_ << "\nhas different product registry than previous files\n";
+    }
+    rootFile_->setEntryNumber(rootFile_->entries());
+    return previous();
   }
 
   PoolRASource::~PoolRASource() {
@@ -101,7 +125,7 @@ namespace edm {
       return std::auto_ptr<EventPrincipal>(0);
     }
     --remainingEvents_;
-    return rootFile_->read(productRegistry()); 
+    return rootFile_->read(mainInput_ ? productRegistry() : rootFile_->productRegistry()); 
   }
 
   std::auto_ptr<EventPrincipal>
@@ -109,13 +133,62 @@ namespace edm {
     // For now, don't support multiple runs.
     assert (id.run() == rootFile_->eventID().run());
     // For now, assume EventID's are all there.
-    int offset = static_cast<long>(id.event()) - static_cast<long>(rootFile_->eventID().event());
-    rootFile_->entryNumber() += offset;
+    int offset = id.event() - rootFile_->eventID().event() -1;
+    skip(offset);
     return read();
   }
 
+  // Advance "offset" events. Entry numbers begin at 0.
+  // The current entry number is the last one read, not the next one read.
+  // The current entry number may be -1, if none have been read yet.
   void
   PoolRASource::skip(int offset) {
-    rootFile_->entryNumber() += offset;
+    EntryNumber newEntry = rootFile_->entryNumber() + offset;
+    if (newEntry >= rootFile_->entries()) {
+
+      // We must go to the next file
+      // Calculate how much we will advance in this file,
+      // including one for the next() call below
+      int increment = rootFile_->entries() - rootFile_->entryNumber();    
+
+      // Set the entry to the last entry in this file
+      rootFile_->setEntryNumber(rootFile_->entries() -1);
+
+      // Advance to the first entry of the next file, if there is a next file.
+      if(!next()) return;
+
+      // Now skip the remaining offset.
+      skip(offset - increment);
+
+    } else if (newEntry < -1) {
+
+      // We must go to the previous file
+      // Calculate how much we will back up in this file,
+      // including one for the previous() call below
+      int decrement = rootFile_->entryNumber() + 1;    
+
+      // Set the entry to the first entry in this file
+      rootFile_->setEntryNumber(0);
+
+      // Back up to the last entry of the previous file, if there is a previous file.
+      if(!previous()) return;
+
+      // Now skip the remaining offset.
+      skip(offset + decrement);
+    } else {
+      // The same file.
+      rootFile_->setEntryNumber(newEntry);
+    }
+  }
+
+  void
+  PoolRASource::readMany_(int number, std::vector<EventPrincipal *>& result) {
+    for (int i = 0; i < number; ++i) {
+      std::auto_ptr<EventPrincipal> ev = read();
+      if (ev.get() == 0) {
+        return;
+      }
+      result.push_back(ev.release());
+    }
   }
 }
