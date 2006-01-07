@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSecondarySource.cc,v 1.12 2005/12/02 22:40:22 wmtan Exp $
+$Id: PoolSecondarySource.cc,v 1.13 2006/01/06 02:39:17 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/SecondaryInput/src/PoolSecondarySource.h"
@@ -16,38 +16,51 @@ namespace edm {
     SecondaryInputSource(),
     catalog_(PoolCatalog::READ,
       PoolCatalog::toPhysical(pset.getUntrackedParameter("catalog", std::string()))),
-    productMap_(),
-    files_(pset.getUntrackedParameter<std::vector<std::string> >("fileNames")),
+    file_(pset.getUntrackedParameter("fileName", std::string())),
+    files_(pset.getUntrackedParameter("fileNames", std::vector<std::string>())),
     fileIter_(files_.begin()),
     rootFile_() {
     ClassFiller();
-    init(*fileIter_);
-    ++fileIter_;
+    if (file_.empty()) {
+      if (files_.empty()) { // this will throw;
+        pset.getUntrackedParameter<std::string>("fileName");
+      } else {
+        init(*fileIter_);
+        ++fileIter_;
+      }
+    } else {
+      init(file_);
+    }
   }
 
   void PoolSecondarySource::init(std::string const& file) {
-    productMap_.clear();
+    // delete the old RootFile, if any.  The file will be closed.
+    rootFile_.reset();
     std::string pfn;
     catalog_.findFile(pfn, file);
 
     rootFile_ = boost::shared_ptr<RootFile>(new RootFile(pfn));
-    ProductRegistry::ProductList const& prodList = rootFile_->productRegistry().productList();
-
-    for (ProductRegistry::ProductList::const_iterator it = prodList.begin();
-        it != prodList.end(); ++it) {
-      productMap_.insert(std::make_pair(it->second.productID_, it->second));
-    }
   }
 
   bool PoolSecondarySource::next() {
     if(rootFile_->next()) return true;
+    if (files_.empty()) {
+      rootFile_.reset();
+      init(file_);
+      return next();
+    }
     if(fileIter_ == files_.end()) fileIter_ = files_.begin();
 
-    // delete the old RootFile.  The file will be closed.
-    rootFile_.reset();
+    // save the product registry from the current file, temporarily
+    boost::shared_ptr<ProductRegistry const> pReg(rootFile_->productRegistrySharedPtr());
 
     init(*fileIter_);
 
+    // make sure the new product registry is identical to the old one
+    if (*pReg != rootFile_->productRegistry()) {
+      throw cms::Exception("MismatchedInput","PoolSource::next()")
+        << "File " << *fileIter_ << "\nhas different product registry than previous files\n";
+    }
     ++fileIter_;
     return next();
   }
@@ -74,7 +87,7 @@ namespace edm {
     
     for (int entry = idx, i = 0; i < number; ++entry, ++i) {
       next();
-      std::auto_ptr<EventPrincipal> ev = rootFile_->read(rootFile_->productRegistry(), productMap_);
+      std::auto_ptr<EventPrincipal> ev = rootFile_->read(rootFile_->productRegistry());
       result.push_back(ev.release());
     }
   }

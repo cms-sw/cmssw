@@ -5,7 +5,7 @@
 
 PoolSecondarySource: This is a SecondaryInputSource
 
-$Id: PoolSecondarySource.h,v 1.7 2005/12/01 22:36:08 wmtan Exp $
+$Id: PoolSecondarySource.h,v 1.8 2006/01/06 02:39:17 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -14,7 +14,7 @@ $Id: PoolSecondarySource.h,v 1.7 2005/12/01 22:36:08 wmtan Exp $
 #include <string>
 
 #include "IOPool/Common/interface/PoolCatalog.h"
-#include "IOPool/CommonInput/interface/RootFile.h"
+#include "IOPool/Input/src/RootFile.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/SecondaryInputSource.h"
@@ -36,7 +36,7 @@ namespace edm {
     bool next();
 
     PoolCatalog catalog_;
-    std::map<ProductID, BranchDescription> productMap_;
+    std::string const file_;
     std::vector<std::string> const files_;
     std::vector<std::string>::const_iterator fileIter_;
     boost::shared_ptr<RootFile> rootFile_;

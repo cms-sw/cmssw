@@ -1,6 +1,6 @@
 <flags SEAL_PLUGIN_NAME="IOPoolSecondaryInput">
 <use name=IOPool/Common>
-<use name=IOPool/CommonInput>
+<use name=IOPool/Input>
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=boost>
@@ -9,7 +9,7 @@
 <export>
  <lib name=IOPoolSecondaryInput>
  <use name=IOPool/Common>
- <use name=IOPool/CommonInput>
+ <use name=IOPool/Input>
  <use name=FWCore/Framework>
  <use name=FWCore/MessageLogger>
  <use name=boost>
