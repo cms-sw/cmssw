@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  *
- * $Date: 2006/01/07 11:46:49 $
- * $Revision: 1.34 $
+ * $Date: 2006/01/07 16:27:59 $
+ * $Revision: 1.35 $
  * \author G. Della Ricca
  *
 */
@@ -233,20 +233,13 @@ void EBTestPulseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
       EcalFEMSample sample = pn.sample(i);
       int adc = sample.adc();
-      float gain = 1.;
 
       MonitorElement* mePNPed = 0;
 
-      if ( sample.gainId() == 0 ) {
-        gain = 1./ 1.;
-        mePNPed = mePnPedMapG01_[ism-1];
-      }
-      if ( sample.gainId() == 1 ) {
-        gain = 1./16.;
-        mePNPed = mePnPedMapG16_[ism-1];
-      }
+      if ( sample.gainId() == 0 ) mePNPed = mePnPedMapG01_[ism-1];
+      if ( sample.gainId() == 1 ) mePNPed = mePnPedMapG16_[ism-1];
 
-      float xval = float(adc) * gain;
+      float xval = float(adc);
 
       if ( mePNPed ) mePNPed->Fill(0.5, num - 0.5, xval);
 
@@ -257,7 +250,6 @@ void EBTestPulseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
     xvalped = xvalped / 4;
 
     float xvalmax = 0.;
-    int gainIdmax = 0;
 
     MonitorElement* mePN = 0;
 
@@ -265,23 +257,17 @@ void EBTestPulseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
       EcalFEMSample sample = pn.sample(i);
       int adc = sample.adc();
-      float gain = 0.;
 
-      if ( sample.gainId() == 0 ) gain = 1./ 1.;
-      if ( sample.gainId() == 1 ) gain = 1./16.;
+      float xval = float(adc);
 
-      float xval = float(adc) * gain;
+      if ( xval >= xvalmax ) xvalmax = xval;
 
-      if ( xval >= xvalmax ) {
-        xvalmax = xval;
-        gainIdmax = sample.gainId();
-      }
     }
 
     xvalmax = xvalmax - xvalped;
 
-    if ( gainIdmax == 0 ) mePN = mePnAmplMapG01_[ism-1];
-    if ( gainIdmax == 1 ) mePN = mePnAmplMapG16_[ism-1];
+    if ( pn.sample(0).gainId() == 0 ) mePN = mePnAmplMapG01_[ism-1];
+    if ( pn.sample(0).gainId() == 1 ) mePN = mePnAmplMapG16_[ism-1];
 
     if ( mePN ) mePN->Fill(0.5, num - 0.5, xvalmax);
 
