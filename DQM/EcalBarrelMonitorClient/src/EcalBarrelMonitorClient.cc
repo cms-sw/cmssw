@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/01/06 11:02:03 $
- * $Revision: 1.72 $
+ * $Date: 2006/01/07 16:54:43 $
+ * $Revision: 1.73 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -209,6 +209,8 @@ EcalBarrelMonitorClient::~EcalBarrelMonitorClient(){
 
   sleep(10);
 
+  mui_->disconnect();
+
   if ( mui_ ) delete mui_;
 
 }
@@ -327,10 +329,6 @@ void EcalBarrelMonitorClient::endJob(void) {
     electron_client_->endJob();
   }
 
-  // this is an effective way to avoid ROOT memory leaks ...
-
-  exit(0);
-
 }
 
 void EcalBarrelMonitorClient::endRun(void) {
@@ -390,7 +388,11 @@ void EcalBarrelMonitorClient::endRun(void) {
 
   // this is an effective way to avoid ROOT memory leaks ...
 
+  cout << endl;
+  cout << ">>> exit after End-Of-Run <<<" << endl;
+  cout << endl;
   this->endJob();
+  throw exception();
 
 }
 
