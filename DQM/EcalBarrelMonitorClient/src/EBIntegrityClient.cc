@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2006/01/05 08:56:56 $
- * $Revision: 1.67 $
+ * $Date: 2006/01/08 11:52:59 $
+ * $Revision: 1.68 $
  * \author G. Della Ricca
  *
 */
@@ -798,7 +798,7 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
   }
   dummy2.SetMarkerSize(2);
 
-  string imgNameDCC, imgNameOcc, imgNameQual, imgNameME[6], imgName , meName;
+  string imgNameDCC, imgNameOcc, imgNameQual, imgNameME[6], imgName, meName;
 
   TCanvas* cDCC = new TCanvas("cDCC", "Temp", 2*csize, csize);
   TCanvas* cOcc = new TCanvas("cOcc", "Temp", 2*csize, csize);

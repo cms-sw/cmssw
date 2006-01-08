@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2006/01/05 08:56:56 $
- * $Revision: 1.51 $
+ * $Date: 2006/01/07 17:53:24 $
+ * $Revision: 1.52 $
  * \author G. Della Ricca
  *
 */
@@ -1941,8 +1941,8 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   string imgNameQual[4], imgNameAmp[4], imgNameAmpoPN[4], imgNameMEPnG01[4], imgNameMEPnPedG01[4], imgNameMEPnG16[4], imgNameMEPnPedG16[4], imgName, meName;
 
-  TCanvas* cQual = new TCanvas("cQual", "Temp", 2*csize , csize);
-  TCanvas* cAmp = new TCanvas("cAmp", "Temp", csize , csize);
+  TCanvas* cQual = new TCanvas("cQual", "Temp", 2*csize, csize);
+  TCanvas* cAmp = new TCanvas("cAmp", "Temp", csize, csize);
   TCanvas* cAmpoPN = new TCanvas("cAmpoPN", "Temp", csize, csize);
   TCanvas* cPed = new TCanvas("cPed", "Temp", csize, csize);
 
