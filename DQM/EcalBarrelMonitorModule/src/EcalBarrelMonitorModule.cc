@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2006/01/02 12:29:20 $
- * $Revision: 1.73 $
+ * $Date: 2006/01/07 11:46:48 $
+ * $Revision: 1.74 $
  * \author G. Della Ricca
  *
 */
@@ -298,6 +298,39 @@ void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
 
   if ( meEBdigi_ ) meEBdigi_->Fill(float(nebd));
 
+  // pause the shipping of monitoring elements
+  dbe_->lock();
+
+  for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
+
+    EBDataFrame dataframe = (*digiItr);
+    EBDetId id = dataframe.id();
+
+    int ie = id.ieta();
+    int ip = id.iphi();
+
+    float xie = ie - 0.5;
+    float xip = ip - 0.5;
+
+    int ism = id.ism();
+
+//    logFile_ << " det id = " << id << endl;
+//    logFile_ << " sm, eta, phi " << ism << " " << ie << " " << ip << endl;
+
+    if ( xie <= 0. || xie >= 85. || xip <= 0. || xip >= 20. ) {
+      cout << " det id = " << id << endl;
+      cout << " sm, eta, phi " << ism << " " << ie << " " << ip << endl;
+      cout << "ERROR:" << xie << " " << xip << endl;
+      return;
+    }
+
+    if ( meOccupancy_[ism-1] ) meOccupancy_[ism-1]->Fill(xie, xip);
+
+  }
+
+  // resume the shipping of monitoring elements
+  dbe_->unlock();
+
   edm::Handle<EcalUncalibratedRecHitCollection>  hits;
   e.getByLabel("ecalUncalibHitMaker", "EcalEBUncalibRecHits", hits);
 
@@ -317,24 +350,21 @@ void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
 
     int ie = id.ieta();
     int ip = id.iphi();
-    int iz = id.zside();
 
-    float xie = iz * (ie - 0.5);
+    float xie = ie - 0.5;
     float xip = ip - 0.5;
 
     int ism = id.ism();
 
 //    logFile_ << " det id = " << id << endl;
-//    logFile_ << " sm, eta, phi " << ism << " " << ie*iz << " " << ip << endl;
+//    logFile_ << " sm, eta, phi " << ism << " " << ie << " " << ip << endl;
 
     if ( xie <= 0. || xie >= 85. || xip <= 0. || xip >= 20. ) {
       cout << " det id = " << id << endl;
-      cout << " sm, eta, phi " << ism << " " << ie*iz << " " << ip << endl;
-      cout << "ERROR:" << xie << " " << xip << " " << ie << " " << ip << " " << iz << endl;
+      cout << " sm, eta, phi " << ism << " " << ie << " " << ip << endl;
+      cout << "ERROR:" << xie << " " << xip << endl;
       return;
     }
-
-    if ( meOccupancy_[ism-1] ) meOccupancy_[ism-1]->Fill(xie, xip);
 
     float xval = hit.amplitude();
 
