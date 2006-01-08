@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  * 
- * $Date: 2006/01/02 16:37:41 $
- * $Revision: 1.31 $
+ * $Date: 2006/01/05 08:56:56 $
+ * $Revision: 1.32 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -434,7 +434,6 @@ void EBCosmicClient::htmlOutput(int run, string htmlDir, string htmlName){
         objp->GetYaxis()->SetNdivisions(4);
         cMe->SetGridx();
         cMe->SetGridy();
-        objp->SetMaximum();
         objp->Draw("colz");
         dummy.Draw("text,same");
         cMe->Update();

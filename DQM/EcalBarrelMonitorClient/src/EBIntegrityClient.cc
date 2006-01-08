@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2006/01/02 12:31:06 $
- * $Revision: 1.66 $
+ * $Date: 2006/01/05 08:56:56 $
+ * $Revision: 1.67 $
  * \author G. Della Ricca
  *
 */
@@ -913,7 +913,6 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj2f->GetYaxis()->SetNdivisions(4);
       cOcc->SetGridx();
       cOcc->SetGridy();
-      obj2f->SetMaximum();
       obj2f->Draw("colz");
       dummy1.Draw("text,same");
       cOcc->Update();
@@ -970,7 +969,6 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
         obj2f->GetYaxis()->SetNdivisions(4);
         cMe->SetGridx();
         cMe->SetGridy();
-        obj2f->SetMaximum();
         obj2f->Draw("colz");
         if ( iCanvas < 5 )
           dummy1.Draw("text,same");
