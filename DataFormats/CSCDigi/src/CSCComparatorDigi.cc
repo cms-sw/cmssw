@@ -1,7 +1,7 @@
 /** \file
  * 
- *  $Date: 2005/11/18 19:22:37 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/11/19 13:58:18 $
+ *  $Revision: 1.3 $
  *
  * \author M.Schmitt, Northwestern
  */
@@ -12,8 +12,8 @@
 using namespace std;
 
 // Constructors
-CSCComparatorDigi::CSCComparatorDigi (int strip, int comparator){
-  set(strip, comparator);
+CSCComparatorDigi::CSCComparatorDigi (int strip, int comparator, int timeBin){
+  set(strip, comparator, timeBin);
 }
 
 CSCComparatorDigi::CSCComparatorDigi (theComparatorDigi aComparatorDigi){
@@ -21,7 +21,7 @@ CSCComparatorDigi::CSCComparatorDigi (theComparatorDigi aComparatorDigi){
 }
 
 CSCComparatorDigi::CSCComparatorDigi (){
-  set(0,0);
+  set(0,0, 0);
 }
 
 // Copy constructor
@@ -44,9 +44,25 @@ CSCComparatorDigi::operator == (const CSCComparatorDigi& digi) const {
   return true;
 }
 
+
+bool 
+CSCComparatorDigi::operator<(const CSCComparatorDigi& digi) const {
+  bool result = true;
+  // sort on time first, then strip
+  if(getTimeBin() == digi.getTimeBin()) {
+    result = (getStrip() < digi.getStrip());
+  }
+  else {
+    result = (getTimeBin() == digi.getTimeBin());
+  }
+  return result;
+}
+
+
 // Getters
 int CSCComparatorDigi::getStrip() const { return data()->strip; }
 int CSCComparatorDigi::getComparator() const { return data()->comparator; }
+int CSCComparatorDigi::getTimeBin() const {return data()->timeBin; }
 
 // Setters
 void CSCComparatorDigi::setStrip(int strip) {
@@ -71,9 +87,10 @@ CSCComparatorDigi::dump() const {
 
 // ----- Private members
 void
-CSCComparatorDigi::set(int strip, int comparator) {
+CSCComparatorDigi::set(int strip, int comparator, int timeBin) {
   data()->strip = strip;
   data()->comparator = comparator;
+  data()->timeBin = timeBin;
 }
 
 CSCComparatorDigi::theComparatorDigi*

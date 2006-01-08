@@ -5,8 +5,8 @@
  *
  * Digi for CSC Comparators.
  *  
- *  $Date: 2005/11/18 19:22:07 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/11/19 13:57:32 $
+ *  $Revision: 1.3 $
  *
  * \author M. Schmitt, Northwestern
  *
@@ -24,10 +24,11 @@ public:
   struct theComparatorDigi {
     unsigned int strip;
     int comparator;
+    int timeBin;
   };
 
   // Construct from the strip number and the ADC readings.
-  explicit CSCComparatorDigi (int strip, int comparator);
+  explicit CSCComparatorDigi (int strip, int comparator, int timeBin);
 
   // Construct from the structure directly
   explicit CSCComparatorDigi (theComparatorDigi aComparatorDigi);
@@ -44,11 +45,16 @@ public:
   // Digis are equal if they are on the same strip and have same Comparator data
   bool operator==(const CSCComparatorDigi& digi) const;
 
+  // sort by time first, then by strip
+  bool operator<(const CSCComparatorDigi& digi) const;
+
   // Get the strip number
   int getStrip() const;
 
   // Get Comparator readings
   int getComparator() const;
+
+  int getTimeBin() const;
 
   // Set the strip number
   void setStrip(int strip);
@@ -66,7 +72,7 @@ private:
   friend class testCSCComparatorDigis;
 
   // Set data words
-  void set(int strip, int comparator);
+  void set(int strip, int comparator, int timeBin);
   void setData(theComparatorDigi p);
 
   // access
