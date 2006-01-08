@@ -38,14 +38,13 @@ the section on
 <p>
 <ul>
 <li> <a href="#howSend"> Issuing Messages </a>
-<li><a href="http://www.uscms.org/LPC/lpc_offl/MessageLogger/parameters.html"> MessageLogger Parameters </a> - Configuring 
-Destinations and their filtering behaviors  
-<li><a href="http://www.uscms.org/LPC/lpc_offl/MessageLogger/requirements.html"> 
-	Open Issues Concerning Features Wanted by CMS </a>
-<li> An <a href="http://uimon.cern.ch/twiki/bin/view/CMS/OpenIssuesDiscussion">
-OpenIssuesDiscussion wiki is provided. 
-<!-- <li> <a href="parameters.html"> 
-	Modifying Behavior via the MessageLogger Service  </a> -->
+<li><a href="parameters.html"> MessageLogger Parameters </a> - Configuring 
+Destinations and their filtering and formatting behaviors  
+<li> <a href="http://uimon.cern.ch/twiki/bin/view/CMS/OpenIssuesDiscussion">
+OpenIssuesDiscussion wiki</a>, concerning MessageLogger features wanted by CMS, 
+is provided. 
+<li> <a href="#features">Feature List</a> -- and where to find documentation of
+how to use each feature.
 </ul>
 
 <hr><p></hr>
@@ -75,6 +74,7 @@ MessageLogger behavior
 if no parameters are supplied, a sensible CMS default behavior is
 provided.  
 <p>
+<a name="preconfig">
 If the .cfg file does not specify the MessageLogger service,
 or if a message is issued in code executed before any services are initiated,  
 then the response to issuing a message will be that the content will
@@ -99,6 +99,10 @@ represent three levels of "severity" of the message.  It is possible
 (see <a href="parameters.html"> MessageLogger Parameters </a>)
 to configure the job to ignore all <font color=blue>LogInfo</font> messages,
 or all messages of severity less than <font color=blue>LogError</font>.
+<p>
+See <a href="guidelines.html">CMS Guidelines for Messages and Categories</a> 
+for advice on which severity
+is appropriate, and on choosing category names.
 <li>
 <font color=blue>category</font> should specify what this message is about.
 <font color=blue>category</font> is going to be included as the first 
@@ -109,14 +113,21 @@ type of message will be sent to the outputs of the logger.
 By "type" we mean any messages with some specific category.  See
 <a href="parameters.html"> MessageLogger Parameters</a> for details.
 <li> When message statistics are provided, the counts of how many times
-messages of a given type were issued again keyed to category.
+messages of a given type were issued are keyed to category, module label,
+and (if provided) subroutine.
 </ol>
+<a name="modulelable">
+<li> It is unnecessary to explicitly specify the module label or the run/event number;
+these are automatically provided by the logger.
 <li>
 An arbitrary number of additional 
 objects <font color=blue> << a << b << ... << z </font> can be
 appended to the message.  These can be strings, ints, doubles, or any object
 that has an <b>operator<< </b> to an ostream. 
 (Or the message can be issued with no additional objects at all.)  
+<li>
+There is no need to add spaces at the beginning or end of text items sent to the message,
+or to add text separators between numberical items.  This spacing is taken care of by the logger.
 <li>
 There is no need to affix any sort of <b>endl</b>; when the
 statement ends the message will be dispatched.
@@ -126,6 +137,7 @@ necessary:  Line breaks are automatically inserted if the next appended
 object would cause the line to exceed 80 characters.  
 </ul>
 
+<a name="logdebug">
 There is an additional form for issuing a message:
 <font color=blue>
 <pre>
@@ -142,9 +154,11 @@ message.
 LogDebug messages are considered to be lower in severity than LogInfo
 messages.
 <li>
-By default, destinations will not report messages issued via LogDebug.
-The user must specify that a destination is to enable LogDebug messages; 
-see <a href="parameters.html"> MessageLogger Parameters </a> for how 
+By default, LogDebug messages will be rapidly discarded with a minimum of overhead.
+The user must specify in the .cfg file  LogDebug messages from various modules are
+to be enabled;  
+see <a href="debug.html#enabling"> 
+Controlling LogDebug Behavior: Enabling LogDebug Messages </a> for how 
 that is done.
 <li>
 Because it must get <b>__FILE__</b> and <b>__LINE__</b> from the spot
@@ -155,6 +169,126 @@ Because <font color=blue>LogDebug</font>  is a macro, it is not
 prepended with the <font color=blue>edm::</font>  namespace
 designation.
 </ul>
+
+<p>
+Some other wrinkles about issuing messages:
+<ul>
+<a name="compound">
+The category of a message can instead be a "compound" category, with individiual 
+categories separated by an ampersand (&amp;), as in 
+<pre>
+  LogWarning("ReadoutError&TimeBudgetExceeded") << "Processed " << nitems 
+                                                << "items and ran out of time";
+</pre>
+Compound messges will be reported if any of the individual categories would be reported.
+<a name="sub">
+<li> The first item streamed to a message can optionally be of the form 
+<font color=blue><code>"@SUB=methodName"</code></font> (note no spaces).  
+This will indicate that the message came from that method; 
+two messages from different "subroutines" are considered, for statistics and
+limits purposes, to be two different types of messages even if they are in the same
+category and from the same module.  
+</ul>
+
+<hr><p></hr>
+
+<a name="features">
+<p>
+<h2> Feature List </h2>
+
+<h3>Issuing messages</h3>
+<ul>
+<li>
+Header file to include in code issuing messages --
+<a href="#howSend"> Issuing Messages </a>
+<li>
+Issuing LogError, LogWarning, LogInfo and LogDebug Messages --
+<a href="#howSend"> Issuing Messages </a>
+<li>
+Specifying that the MessageLogger service be configured --  
+<a href="#howSend"> Issuing Messages </a>
+or
+<a href="parameters.html#cms"> MessageLogger Parameters </a> 
+<li>
+Guidelines for assigning categories and shoosing which type of message to issue --
+<a href="guidelines.html"> CMS Guidelines for Messages and Categories </a>
+<li>
+Messages can be assigned multiple categories --
+<a href="#compound"> Issuing Messages </a>
+<li>
+The module label will and run/event context will automaticaaly be included in the
+reported message -- 
+<a href="#modulelabel"> Issuing Messages </a>
+<li>
+There is an optional mechanism for specifying the method or subroutine from which the 
+message has been issued --
+<a href="#sub"> Issuing Messages </a>
+<li>
+It is permissible for messages to be issued from code which may execute
+before the MessageLogger service has been configured --  
+<a href="#preconfig"> Issuing Messages </a>
+</ul>
+
+<h3>Configuring destinations</h3>
+<ul>
+<li>
+Specifying a destination for messages, which will write the messages to a file --
+<a href="parameters.html#example"> MessageLogger Parameters: Example .cfg file </a> 
+Specifying a destination for messages, which will write the messages to
+cerr or cout  --
+<a href="parameters.html#example"> MessageLogger Parameters: Example .cfg file </a> 
+<li>
+Specifying a destination which will forward messages to log4cplus --
+<a href="parameters.html#log4cplus"> MessageLogger Parameters: Connecting to log4cplus </a> 
+<li>
+Specifying a threshold for a destination (for example, directing the destination to ignore
+LogInfo and LogDebug messages) --
+<a href="parameters.html#example"> MessageLogger Parameters: Example .cfg file </a> 
+<li>
+Specifying limits on how many times a destination will respond to a given message category --
+<a href="parameters.html#complete"> MessageLogger Parameters: 
+Examples of Limits and Timespan Parameters</a> 
+<li>
+Dictating the line-break policy followed by a destination --
+<a href="parameters.html#linelength"> MessageLogger Parameters: 
+Adjusting Linebreak Policy</a> 
+</ul>
+<h3>Debug messages</h3>
+<ul>
+<li>
+Issuing LogDebug Messages --
+<a href="#logdebug"> Issuing Messages </a>
+or
+<a href="debug.html"> Controlling LogDebug Behavior </a>
+<li>
+By default, LogDebug messages will efficiently be ignored -- 
+<a href="debug.html#enabling"> Controlling LogDebug Behavior: Enabling LogDebug Messages</a>
+<li>
+Enabling all LogDebug messages --
+<a href="debug.html#star"> Controlling LogDebug Behavior: Enabling all LogDebug Messages</a>
+<li>
+Enabling LogDebug messages issued by a specific module --
+<a href="debug.html#enabling"> Controlling LogDebug Behavior: Enabling LogDebug Messages</a>
+<li>
+Lowering the threshold for a destination, so it will respond to enabled LogDebug messages -- 
+<a href="debug.html#enabling"> Controlling LogDebug Behavior </a>
+<li>
+<code>#define NDEBUG</code> will cause compile-time elimination of LogDebug message overhead --
+<a href="debug.html#ML_NDEBUG"> Controlling LogDebug Behavior:  
+Compile-time Elimination of LogDebug Messages </a>
+<li>
+<code>#define ML_NDEBUG</code> to cause compile-time elimination of LogDebug message overhead 
+when <code>NDEBUG</code> is not defined --
+<a href="debug.html#ML_NDEBUG"> Controlling LogDebug Behavior:  
+Compile-time Elimination of LogDebug Messages </a>
+<li>
+<code>#define ML_DEBUG</code> will force LogDebug compilation, 
+even if <code>NDEBUG</code> is defined --
+<a href="debug.html#ML_NDEBUG"> Controlling LogDebug Behavior:  
+Compile-time Elimination of LogDebug Messages </a>
+</ul>
+
+
 
 <p><center>
 <img src="bar.gif"></center>

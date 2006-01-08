@@ -26,9 +26,11 @@ job's configuration file (.cfg).
 <ul>
 <li> <a href="#Concepts"> Message Logging Concepts </a>
 <li> <a href="#cms"> Routine MessageLogger Parameters </a>
-<li> <a href="#debug"> Enable Specific LogDebug Messages </a>
 <li> <a href="#example"> Example .cfg File Exercising Some Options</a>
-<li> <a href="#complete"> Examples of all MessageLogger Parameters </a> 
+<li> <a href="#log4cplus"> Routing messages to log4cplus </a>
+<li> <a href="#debug"> Enable Specific LogDebug Messages </a>
+<li> <a href="#complete"> Examples of Limits and Timespan Parameters </a> 
+<li> <a href="#linelength"> Adjusting Linebreak Policy </a>
 </ul>
 <p>
 
@@ -152,7 +154,34 @@ process TEST =
 </font>
 
 
-<a name="cms">
+<a name="example">
+<h2> Example .cfg File Exercising Some Options </h2>
+
+The following is an example .cfg file, requesting the MessageLogger
+Service, setting up some destinations, and specifying some thresholds
+for how "severe" a message must be in order for it to appear in each
+destination.
+
+<pre>
+process TEST = {
+
+  <a href="serviceML.html">service = MessageLogger</a> {
+    <a href="files.html">vstring destinations = </a>{   <a href="filename.html">"detailedInfo.txt"</a>
+                             , <a href="filename.html">"critical.txt"</a>
+                             , <a href="cout.html">"cout"</a>
+                             , <a href="cerr.html">"cerr"</a>
+                      }
+    <a href="filename.html">PSet critical.txt</a>     = { <a href="errorthreshold.html">string threshold = "ERROR"</a>   }
+    <a href="filename.html">PSet detailedInfo.txt</a> = { <a href="infothreshold.html">string threshold = "INFO"</a>    } 
+    <a href="cerr.html">PSet cerr</a>             = { <a href="warnthreshold.html">string threshold = "WARNING"</a> }
+  }
+  path p = { myAnalysisModule }
+  module myAnalysisModule = ModuleThatIssuesMessages { }
+  source = EmptySource {untracked int32 maxEvents = 5}
+}
+</pre>
+
+<a name="debug">
 <h2> Enabling Specific LogDebug Messages </h2>
 
 The following is a portion of a .cfg file appropriate for a job that will
@@ -187,26 +216,23 @@ messages).  Finally, the .cfg file overrides this for messages in the
 category <font color=blue>interestingToMe</font>, permitting messages of
 that category to be reported.
 
-<a name="example">
-<h2> Example .cfg File Exercising Some Options </h2>
+<a name="log4cplus">
+<h2> Routing messages to log4cplus </h2>
 
-The following is an example .cfg file, requesting the MessageLogger
-Service, setting up some destinations, and specifying some thresholds
-for how "severe" a message must be in order for it to appear in each
-destination.
+The MessageLogger will route messages to <b><code>log4cplus</code></b>
+if the .cfg file requests the <b><code>MLlog4cplus</code></b> service.
+The following is an example .cfg file, requesting the 
+<code>MLlog4cplus</code>
+service, and specifying a threshold
+for how "severe" a message must be in order for it to be routed to 
+<code>log4cplus</code>.
 
 <pre>
 process TEST = {
-
-  <a href="serviceML.html">service = MessageLogger</a> {
-    <a href="files.html">vstring destinations = </a>{   <a href="filename.html">"detailedInfo.txt"</a>
-                             , <a href="filename.html">"critical.txt"</a>
-                             , <a href="cout.html">"cout"</a>
-                             , <a href="cerr.html">"cerr"</a>
-                      }
-    <a href="filename.html">PSet critical.txt</a>     = { <a href="errorthreshold.html">string threshold = "ERROR"</a>   }
-    <a href="filename.html">PSet detailedInfo.txt</a> = { <a href="infothreshold.html">string threshold = "INFO"</a>    } 
-    <a href="cerr.html">PSet cerr</a>             = { <a href="warnthreshold.html">string threshold = "WARNING"</a> }
+  <a href="log4cplus.html">service = MLlog4cplus</a>
+  service = MessageLogger {
+    vstring destinations = {   "detailedInfo.txt"  }
+    <a href="log4cplus.html">PSet log4cplus     = { string threshold = "ERROR"   }</a>
   }
   path p = { myAnalysisModule }
   module myAnalysisModule = ModuleThatIssuesMessages { }
@@ -214,9 +240,23 @@ process TEST = {
 }
 </pre>
 
+The four severities of MessageLogger messages correspond to the four 
+directives for issuing to <code>log4cplus</code>.  For instance,
+<code>LogWarning("category")</code> leads to a <code>LOG4CPLUS_WARN(...)</code>
+call.
+<p>
+<code>log4cplus</code> dispatches to "appenders". For example, a 
+<code>fileAppender</code> may be established to write the text to 
+a file, or a <code>consoleAppender</code> to write to the job console.
+It is up to the user code or configuration file to establish which
+appenders are wanted.
+In the current implementation, 
+the <code>MLlog4cplus</code> service automatically
+establishes a <code>fileAppender</code> writing <code>log4cplus.ouput</code>.
+
 
 <a name="complete">
-<h2> Examples of all MessageLogger Parameters </h2>
+<h2> Examples of Limits and Timespan Parameters  </h2>
 
 The following is an example .cfg file, requesting the MessageLogger
 Service, setting up some destinations, and specifying some  
@@ -226,11 +266,6 @@ message ID's, and to all non-specified (default) message ID's.
 <p>
 The .cfg file contains not only a list of files, but also a list of message 
 ID's that the author wishes to control individually.
-<p>
-This example documents all options available for configuration of MessageLogger
-behavior.  
-If further features are made available, they will be reflected by additional 
-illustrations in this example.
 <pre>
 process TEST = {
 
@@ -284,6 +319,36 @@ process TEST = {
 }
 </pre>
 
+<a name="linelength">
+<h2> Adjusting Linebreak Policy  </h2>
+
+By default, output destinations format the message, breaking the text (at
+boundaries where there was a new item of information or an operator&lt;&lt;)
+to avoid lines of greater than 80 columns.
+<p>
+If this is not the desired behavior (for example, if the output file will be 
+processed by an automated parsing tool which prefers each message to be on a
+single line) then this can be controled in the .cfg file:
+<pre>
+process TEST = {
+
+ service = MessageLogger {
+    vstring destinations = {   "detailedInfo.txt"
+                             , "critical.txt"
+                           }
+    PSet critical.txt     = { <a href="linebreak.html">string noLineBreaks = "true"</a>   }
+    PSet detailedInfo.txt = { <a href="linebreak.html">int32  lineLength = 132</a>    } 
+  }
+  path p = { myAnalysisModule }
+  module myAnalysisModule = ModuleThatIssuesMessages { }
+  source = EmptySource {untracked int32 maxEvents = 5}
+}
+</pre>
+
+<em> These features are implemented.
+However, 
+the links documenting the meanings of noLineBreaks and LineLength have
+not yet been written.  </em>
 
 <p><center>
 <img src="bar.gif"></center>
