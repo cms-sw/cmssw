@@ -348,11 +348,11 @@ namespace edm
       // use a cheesy heuristic; see looks_like_an_output_module for
       // the details
 
-      assert ( looks_like_an_output_module ("AsciiOutputModule") );
-      assert ( looks_like_an_output_module ("PoolOutputModule") );
-      assert ( !looks_like_an_output_module ("NotOutputModuleX") );
-      assert ( !looks_like_an_output_module ("") );
-      assert ( !looks_like_an_output_module ("X") );
+//       assert ( looks_like_an_output_module ("AsciiOutputModule") );
+//       assert ( looks_like_an_output_module ("PoolOutputModule") );
+//       assert ( !looks_like_an_output_module ("NotOutputModuleX") );
+//       assert ( !looks_like_an_output_module ("") );
+//       assert ( !looks_like_an_output_module ("X") );
 
       if ( n.type() == "module" && 
 	   looks_like_an_output_module(n.class_) )
