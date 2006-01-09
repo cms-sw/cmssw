@@ -174,6 +174,7 @@ designation.
 Some other wrinkles about issuing messages:
 <ul>
 <a name="compound">
+<li>
 The category of a message can instead be a "compound" category, with individiual 
 categories separated by an ampersand (&amp;), as in 
 <pre>
@@ -216,7 +217,7 @@ Guidelines for assigning categories and shoosing which type of message to issue 
 Messages can be assigned multiple categories --
 <a href="#compound"> Issuing Messages </a>
 <li>
-The module label will and run/event context will automaticaaly be included in the
+The module label will and run/event context will automatically be included in the
 reported message -- 
 <a href="#modulelabel"> Issuing Messages </a>
 <li>
@@ -234,12 +235,13 @@ before the MessageLogger service has been configured --
 <li>
 Specifying a destination for messages, which will write the messages to a file --
 <a href="parameters.html#example"> MessageLogger Parameters: Example .cfg file </a> 
+<li>
 Specifying a destination for messages, which will write the messages to
 cerr or cout  --
 <a href="parameters.html#example"> MessageLogger Parameters: Example .cfg file </a> 
 <li>
 Specifying a destination which will forward messages to log4cplus --
-<a href="parameters.html#log4cplus"> MessageLogger Parameters: Connecting to log4cplus </a> 
+<a href="parameters.html#log4cplus"> MessageLogger Parameters: Routing Messages to log4cplus </a> 
 <li>
 Specifying a threshold for a destination (for example, directing the destination to ignore
 LogInfo and LogDebug messages) --
@@ -294,8 +296,8 @@ Compile-time Elimination of LogDebug Messages </a>
 <img src="bar.gif"></center>
 
 <p><center>
-<a href="http://www.uscms.org/SoftwareComputing/index.html">
-USCMS Software and Computing Home Page </a> 
+<a href="https://uimon.cern.ch/twiki/bin/view/CMS/EDM">
+CMS Framework/EDM Wiki </a> 
 </center>
 
 <p>

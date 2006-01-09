@@ -17,7 +17,7 @@
 //
 // Original Author:  W. Brown and M. Fischler
 //         Created:  Fri Nov 11 16:38:19 CST 2005
-// $Id: MessageLogger.h,v 1.3 2006/01/03 18:01:33 fischler Exp $
+// $Id: MessageLogger.h,v 1.4 2006/01/05 23:11:14 fischler Exp $
 //
 
 // system include files
@@ -69,8 +69,8 @@ private:
 
   std::set<std::string> debugEnabledModules_;
   bool debugEnabled_;
-  static 
-  bool anyDebugEnabled_;
+  static bool   anyDebugEnabled_;
+  static bool everyDebugEnabled_;
 
 };  // MessageLogger
 
@@ -128,13 +128,21 @@ private:
   
 };  // LogInfo
 
+static 
+std::string
+onlyLowestDirectory(const std::string & file) {
+  std::string::size_type lastSlash = file.find_last_of('/');
+  if (lastSlash == std::string::npos) return file;
+  if (lastSlash == file.size()-1)     return file;
+  return file.substr(lastSlash+1, file.size()-lastSlash-1);
+}
 
 class LogDebug_
 {
 public:
-  explicit LogDebug_( ELstring const & id, std::string file, int line ) 
+  explicit LogDebug_( ELstring const & id, std::string const & file, int line ) 
     : ap( new MessageSender(ELsuccess,id) )
-  { *this << file << ':' << line << ' '; }
+  { *this << onlyLowestDirectory(file) << ':' << line << ' '; }
 
   template< class T >
     LogDebug_ & 
@@ -145,12 +153,42 @@ private:
 
 };  // LogDebug_
 
+class Suppress_LogDebug_ 
+{ 
+  // With any decent optimization, use of Suppress_LogDebug_ (...)
+  // including streaming of items to it via operator<<
+  // will produce absolutely no executable code.
+public:
+  template< class T >
+    Suppress_LogDebug_ & 
+    operator<< (T const & t)  { return *this; }
+};  // Suppress_LogDebug_
+
 }  // namespace edm
 
 
+// If ML_DEBUG is defined, LogDebug is active.  
+// Otherwise, LogDebug is supressed if either ML_NDEBUG or NDEBUG is defined.
+#undef EDM_MESSAGELOGGER_SUPPRESS_LOGDEBUG
+#ifdef NDEBUG
+#define EDM_MESSAGELOGGER_SUPPRESS_LOGDEBUG
+#endif
+#ifdef ML_NDEBUG
+#define EDM_MESSAGELOGGER_SUPPRESS_LOGDEBUG
+#endif
+#ifdef ML_DEBUG
+#undef EDM_MESSAGELOGGER_SUPPRESS_LOGDEBUG
+#endif
+
+#ifdef EDM_MESSAGELOGGER_SUPPRESS_LOGDEBUG 
+#define LogDebug(id) edm::Suppress_LogDebug_();
+#else
 #define LogDebug(id)                                                   \
   if ( edm::service::MessageLogger::anyDebugEnabled () &&               \
        edm::Service<edm::service::MessageLogger>()->debugEnabled () )    \
           edm::LogDebug_(id, __FILE__, __LINE__)                               
+#endif
+#undef EDM_MESSAGELOGGER_SUPPRESS_LOGDEBUG
 
 #endif  // Services_MessageLogger_h
+

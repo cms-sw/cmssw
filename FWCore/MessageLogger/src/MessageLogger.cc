@@ -8,7 +8,7 @@
 //
 // Original Author:  W. Brown, M. Fischler
 //         Created:  Fri Nov 11 16:42:39 CST 2005
-// $Id: MessageLogger.cc,v 1.6 2005/12/22 16:30:29 jbk Exp $
+// $Id: MessageLogger.cc,v 1.7 2006/01/05 23:11:14 fischler Exp $
 //
 
 // system include files
@@ -36,7 +36,8 @@ using namespace edm::service;
 // static data member definitions
 //
 
-bool MessageLogger::anyDebugEnabled_ = false;
+bool MessageLogger::anyDebugEnabled_   = false;
+bool MessageLogger::everyDebugEnabled_ = false;
 
 //
 // constructors and destructor
@@ -54,12 +55,14 @@ MessageLogger::MessageLogger( ParameterSet const & iPS
      = iPS.getUntrackedParameter<vString>("debugModules", empty_vString);
   // set up for tracking whether current module is debug-enabled
   if (!debugModules.empty()) anyDebugEnabled_ = true;
-  std::cout << "anyDebugEnabled_ = " << anyDebugEnabled_ << "\n";
-  for( vString::const_iterator it = debugModules.begin()
-     ; it != debugModules.end()
-     ; ++it
-     ) { std::cout << "Module " << *it << "\n";
-         debugEnabledModules_.insert(*it); }
+  for( vString::const_iterator it  = debugModules.begin();
+                               it != debugModules.end(); ++it ) {
+    if (*it == "*") { 
+        everyDebugEnabled_ = true;
+      } else {
+        debugEnabledModules_.insert(*it); 
+      }
+  }
   
   MessageLoggerQ::CFG( new ParameterSet(iPS) );
 
@@ -147,7 +150,13 @@ MessageLogger::preModule(const ModuleDescription& desc)
   curr_module_ = desc.moduleName_;
   curr_module_ += ":";
   curr_module_ += desc.moduleLabel_;
-  debugEnabled_ = debugEnabledModules_.count(desc.moduleLabel_);
+  if (!anyDebugEnabled_) {
+    debugEnabled_ = false;
+  } else if (everyDebugEnabled_) {
+    debugEnabled_ = false;
+  } else {
+    debugEnabled_ = debugEnabledModules_.count(desc.moduleLabel_);
+  }
 }
 
 void
