@@ -1,7 +1,9 @@
 <lcgdict>
  <class name="edm::EventAux"/>
  <class name="edm::EventProvenance"/>
- <class name="edm::ProductRegistry"/>
+ <class name="edm::ProductRegistry">
+   <field name="frozen_" transient="true"/>
+ </class>
  <class name="std::vector<edm::BranchEntryDescription>"/>
  <class name="std::map<edm::BranchKey, edm::BranchDescription>"/>
  <class name="edm::BranchKey"/>

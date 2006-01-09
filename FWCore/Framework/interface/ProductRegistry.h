@@ -7,7 +7,7 @@
 
    \author Stefano ARGIRO
    \co-author Bill Tanenbaum
-   \version $Id: ProductRegistry.h,v 1.13 2005/10/11 19:28:20 chrjones Exp $
+   \version $Id: ProductRegistry.h,v 1.14 2005/10/26 22:34:13 wmtan Exp $
    \date 19 Jul 2005
 */
 
@@ -28,7 +28,7 @@ namespace edm {
   class ProductRegistry {
 
   public:
-    ProductRegistry() : productList_(), nextID_(0) {}
+    ProductRegistry() : productList_(), nextID_(0), frozen_(false) {}
 
     virtual ~ProductRegistry() {}
   
@@ -48,8 +48,12 @@ namespace edm {
 
   private:
     virtual void addCalled(BranchDescription const&, bool iFromListener);
+    void setFrozen() {frozen_ = true;}
+    void throwIfFrozen() const;
+
     ProductList productList_;
     unsigned long nextID_;
+    bool frozen_;
   };
 
   inline
