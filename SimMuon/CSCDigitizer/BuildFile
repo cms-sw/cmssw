@@ -13,7 +13,7 @@
 <use name=DataFormats/CSCDigi>
 <use name=DataFormats/DetId>
 <use name=boost>
-<flags SEAL_PLUGIN_NAME="SimMuonCSCSimProducers">
+<flags SEAL_PLUGIN_NAME="SimMuonCSCDigitizer">
 
 <export>
   <lib name=SimMuonCSCDigitizer>
