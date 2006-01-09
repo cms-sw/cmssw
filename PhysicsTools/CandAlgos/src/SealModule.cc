@@ -7,7 +7,7 @@
 #include "PhysicsTools/CandAlgos/src/CandReducer.h"
 #include "PhysicsTools/Candidate/interface/Candidate.h"
 #include "PhysicsTools/UtilAlgos/interface/Merger.h"
-#include "PhysicsTools/Utilities/interface/ClonePolicy.h"
+#include "DataFormats/Common/interface/ClonePolicy.h"
 //#include "PhysicsTools/Candidate/interface/NewPolicy.h"
 
 namespace candmodules {
