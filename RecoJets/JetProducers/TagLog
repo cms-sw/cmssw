@@ -1,3 +1,6 @@
+** V00-00-03  [Mon Jan  9 17:39:28 2006]
+modified make_CaloTowers_HB_HO.txt to fix crash and use noise thresholds from Physics TDR volume I.  As of CMSSW_0_3_0 the job that creates CaloTowers.root needs to be built with V01-04-00 of CalibCalorimetry/HcalPlugins to run without crashing. Checked in corresponding CaloTowers.root file and xml file
+
 ** V00-00-02  [Wed Nov 23 03:43:41 2005]
 Bring CaloTowers creation config file up to date with external changes
 
