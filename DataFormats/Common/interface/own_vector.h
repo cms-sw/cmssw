@@ -1,6 +1,6 @@
 #ifndef Common_own_vector_h
 #define Common_own_vector_h
-// $Id: own_vector.h,v 1.1 2005/12/13 03:38:06 llista Exp $
+// $Id: own_vector.h,v 1.1 2006/01/03 13:46:48 llista Exp $
 #include <vector>
 #include <algorithm>
 #include "DataFormats/Common/interface/ClonePolicy.h"
@@ -14,28 +14,8 @@ class own_vector  {
   typedef T value_type;
   typedef T & reference;
   typedef const T & const_reference;
-  struct iterator {
-    typedef T value_type;
-    typedef T * pointer;
-    typedef T & reference;
-    typedef ptrdiff_t difference_type;
-    typedef typename base::iterator::iterator_category iterator_category;
-    iterator( const typename base::iterator & it ) : i( it ) { }
-    iterator( const iterator & it ) : i( it.i ) { }
-    iterator & operator=( const iterator & it ) { i = it.i; return *this; }
-    iterator& operator++() { ++i; return *this; }
-    iterator operator++( int ) { iterator ci = *this; ++i; return ci; }
-    bool operator==( const iterator& ci ) const { return i == ci.i; }
-    bool operator!=( const iterator& ci ) const { return i != ci.i; }
-    T & operator * () const { return * * i; }
-    operator T * () const { return & * * i; }
-    T * & get() { return * i; }
-    T * operator->() const { return & ( operator*() ); }
-    iterator & operator +=( difference_type d ) { i += d; return *this; }
-    iterator & operator -=( difference_type d ) { i -= d; return *this; }
-  private:
-    typename base::iterator i;
-  };
+
+  struct iterator;
   struct const_iterator {
     typedef T value_type;
     typedef T * pointer;
@@ -44,19 +24,58 @@ class own_vector  {
     typedef typename base::const_iterator::iterator_category iterator_category;
     const_iterator( const typename base::const_iterator & it ) : i( it ) { }
     const_iterator( const const_iterator & it ) : i( it.i ) { }
+    const_iterator( const iterator & it ) : i( it.i ) { }
+    const_iterator() {}
     const_iterator & operator=( const const_iterator & it ) { i = it.i; return *this; }
     const_iterator& operator++() { ++i; return *this; }
     const_iterator operator++( int ) { const_iterator ci = *this; ++i; return ci; }
+    const_iterator& operator--() { --i; return *this; }
+    const_iterator operator--( int ) { const_iterator ci = *this; --i; return ci; }
+    difference_type operator-( const const_iterator & o ) { return i - o.i; }
+    const_iterator operator+( difference_type n ) { return const_iterator( i + n ); }
+    const_iterator operator-( difference_type n ) { return const_iterator( i - n ); }
+    bool operator<( const const_iterator & o ) { return i < o.i; }
     bool operator==( const const_iterator& ci ) const { return i == ci.i; }
     bool operator!=( const const_iterator& ci ) const { return i != ci.i; }
     const T & operator * () const { return * * i; }
-    operator const T * () const { return & * * i; }
+    //    operator const T * () const { return & * * i; }
     const T * operator->() const { return & ( operator*() ); }
     const_iterator & operator +=( difference_type d ) { i += d; return *this; }
     const_iterator & operator -=( difference_type d ) { i -= d; return *this; }
   private:
     typename base::const_iterator i;
   };
+  struct iterator {
+    typedef T value_type;
+    typedef T * pointer;
+    typedef T & reference;
+    typedef ptrdiff_t difference_type;
+    typedef typename base::iterator::iterator_category iterator_category;
+    iterator( const typename base::iterator & it ) : i( it ) { }
+    iterator( const iterator & it ) : i( it.i ) { }
+    iterator() {}
+    iterator & operator=( const iterator & it ) { i = it.i; return *this; }
+    iterator& operator++() { ++i; return *this; }
+    iterator operator++( int ) { iterator ci = *this; ++i; return ci; }
+    iterator& operator--() { --i; return *this; }
+    iterator operator--( int ) { iterator ci = *this; --i; return ci; }
+    difference_type operator-( const iterator & o ) { return i - o.i; }
+    iterator operator+( difference_type n ) { return iterator( i + n ); }
+    iterator operator-( difference_type n ) { return iterator( i - n ); }
+    bool operator<( const iterator & o ) { return i < o.i; }
+    bool operator==( const iterator& ci ) const { return i == ci.i; }
+    bool operator!=( const iterator& ci ) const { return i != ci.i; }
+    T & operator * () const { return * * i; }
+    //    operator T * () const { return & * * i; }
+    T * & get() { return * i; }
+    T * operator->() const { return & ( operator*() ); }
+    iterator & operator +=( difference_type d ) { i += d; return *this; }
+    iterator & operator -=( difference_type d ) { i -= d; return *this; }
+  private:
+    typename base::iterator i;
+    friend const_iterator::const_iterator( const iterator & );
+  };
+
   own_vector();
   own_vector( size_type );
   own_vector( const own_vector & );
