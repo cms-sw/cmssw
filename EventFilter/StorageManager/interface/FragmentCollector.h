@@ -63,6 +63,7 @@ namespace stor
     edm::EventInserter inserter_;
     boost::shared_ptr<boost::thread> me_;
     const edm::ProductRegistry* prods_; // change to shared_ptr ? 
+	const stor::HLTInfo* info_;
   };
 }
 

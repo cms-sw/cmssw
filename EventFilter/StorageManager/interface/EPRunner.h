@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/EventProcessor.h"
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
+#include "FWCore/Utilities/interface/ProblemTracker.h"
 #include "IOPool/Streamer/interface/HLTInfo.h"
 
 #include "boost/thread/thread.hpp"
@@ -27,10 +28,14 @@ namespace stor
     HLTInfo* getInfo() { return info_; }
 
   private:
+    EPRunner(const EPRunner&);
+	EPRunner& operator=(const EPRunner&);
+
     static void run(EPRunner*);
     void dowork();
     HLTInfo* info_;
     edm::ServiceToken tok_;
+	edm::AssertHandler ah_;
     edm::EventProcessor ep_;
     boost::shared_ptr<boost::thread> me_;
   };

@@ -1,6 +1,8 @@
 
 #include "EventFilter/StorageManager/interface/FragmentCollector.h"
+#include "EventFilter/StorageManager/test/SillyLockService.h"
 #include "IOPool/StreamerData/interface/Messages.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "boost/bind.hpp"
 
@@ -25,7 +27,8 @@ namespace stor
     buffer_deleter_(d),
     event_area_(1000*1000*7),
     inserter_(*evtbuf_q_),
-    prods_(&p)
+    prods_(&p),
+	info_(&h)
   {
   }
 
@@ -118,6 +121,7 @@ namespace stor
 	FR_DEBUG << "FragColl: Event size " << entry->buffer_size_ << endl;
 	FR_DEBUG << "FragColl: Event ID " << msg.getEventNumber() << endl;
 	// send immediately
+	boost::mutex::scoped_lock sl(info_->getExtraLock());
 	inserter_.insert(msg,*prods_);
 	// is the buffer properly released (deleted)? (JBK)
 	(*buffer_deleter_)(entry);
@@ -156,6 +160,7 @@ namespace stor
 	    (*buffer_deleter_)(i->buffer_object_);
 	  }
 	em.setDataSize(sum);
+	boost::mutex::scoped_lock sl(info_->getExtraLock());
 	inserter_.insert(em,*prods_);
 	// remove the entry from the map
 	fragment_area_.erase(rc.first);

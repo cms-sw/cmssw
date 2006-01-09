@@ -1,6 +1,7 @@
 
 #include "EventFilter/StorageManager/interface/EPRunner.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/Framework/interface/InputSource.h"
@@ -13,14 +14,19 @@
 #include <exception>
 #include <iostream>
 
+using namespace std;
+using namespace edm;
+
 namespace stor
 {
   EPRunner::EPRunner(const std::string& config_string,
 		     std::auto_ptr<HLTInfo> info):
     info_(info.get()),
     tok_(edm::ServiceRegistry::createContaining(info)),
+	ah_(),
     ep_(config_string,tok_,edm::serviceregistry::kOverlapIsError)
   {
+  	FDEBUG(4) << "EPRunner ctor body" << endl;
   }
 
   EPRunner::~EPRunner()
