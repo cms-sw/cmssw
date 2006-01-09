@@ -7,7 +7,7 @@
 const float DTTopology::theWidth  = 4.2;  // cm 
 const float DTTopology::theHeight = 1.3; // cm ...
 
-const float DTTopology::IBeamWingThickness = 0.1;   // cm 
+const float DTTopology::IBeamWingThickness = 0.13;   // cm 
 const float DTTopology::IBeamWingLength    = 0.635; // cm
 
 const float DTTopology::plateThickness = 0.15;  // aluminium plate:  1.5 mm
