@@ -176,9 +176,9 @@ Some other wrinkles about issuing messages:
 <a name="compound">
 <li>
 The category of a message can instead be a "compound" category, with individiual 
-categories separated by an ampersand (&amp;), as in 
+categories separated by a vertical bar (|), as in 
 <pre>
-  LogWarning("ReadoutError&TimeBudgetExceeded") << "Processed " << nitems 
+  LogWarning("ReadoutError<a font color=red>|</a>TimeBudgetExceeded") << "Processed " << nitems 
                                                 << "items and ran out of time";
 </pre>
 Compound messges will be reported if any of the individual categories would be reported.
