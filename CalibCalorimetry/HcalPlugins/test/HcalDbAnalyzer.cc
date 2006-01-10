@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 19:13:25 EDT 2005
-// $Id: HcalDbAnalyzer.cc,v 1.7 2005/12/15 23:37:59 fedor Exp $
+// $Id: HcalDbAnalyzer.cc,v 1.8 2005/12/27 23:50:25 fedor Exp $
 //
 //
 
@@ -35,7 +35,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
-#include "CalibCalorimetry/HcalAlgos/interface/HcalDbServiceHardcode.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"

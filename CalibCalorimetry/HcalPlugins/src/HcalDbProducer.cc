@@ -13,7 +13,7 @@
 //
 // Original Author:  Fedor Ratnikov
 //         Created:  Tue Aug  9 19:10:10 CDT 2005
-// $Id: HcalDbProducer.cc,v 1.8 2005/11/04 11:40:59 sashby Exp $
+// $Id: HcalDbProducer.cc,v 1.9 2005/12/15 23:37:58 fedor Exp $
 //
 //
 
@@ -25,13 +25,16 @@
 
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
-#include "CalibCalorimetry/HcalAlgos/interface/HcalDbServiceHardcode.h"
 
 
-#include "CondFormats/HcalObjects/interface/AllObjects.h"
+#include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
+#include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
+#include "CondFormats/HcalObjects/interface/HcalGainWidths.h"
+#include "CondFormats/HcalObjects/interface/HcalGains.h"
+#include "CondFormats/HcalObjects/interface/HcalPedestalWidths.h"
+#include "CondFormats/HcalObjects/interface/HcalPedestals.h"
+#include "CondFormats/HcalObjects/interface/HcalQIEData.h"
 
-//fix for Release of pre 7 - stefano.argiro@cern.ch, 20051104
-//#include "CondFormats/DataRecord/interface/AllHcalRecords.h"
 #include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h" 
 #include "CondFormats/DataRecord/interface/HcalElectronicsMapRcd.h"  	 
 #include "CondFormats/DataRecord/interface/HcalGainWidthsRcd.h"
@@ -39,10 +42,6 @@
 #include "CondFormats/DataRecord/interface/HcalPedestalWidthsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalPedestalsRcd.h" 
 #include "CondFormats/DataRecord/interface/HcalQIEDataRcd.h"
-#include "CondFormats/DataRecord/interface/HcalQIEShapeRcd.h"
-// end fix
-
-
 
 #include "HcalDbProducer.h"
 

@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Oct 21, 2005
-// $Id: HcalHardcodeCalibrations.h,v 1.2 2005/10/28 01:30:47 fedor Exp $
+// $Id: HcalTextCalibrations.h,v 1.1 2005/12/05 00:25:31 fedor Exp $
 //
 //
 #include <map>
@@ -11,19 +11,19 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class ParameterSet;
+
 class HcalPedestals;
 class HcalPedestalWidths;
 class HcalGains;
 class HcalGainWidths;
-class HcalQIEShape;
 class HcalQIEData;
 class HcalChannelQuality;
 class HcalElectronicsMap;
+
 class HcalPedestalsRcd;
 class HcalPedestalWidthsRcd;
 class HcalGainsRcd;
 class HcalGainWidthsRcd;
-class HcalQIEShapeRcd;
 class HcalQIEDataRcd;
 class HcalChannelQualityRcd;
 class HcalElectronicsMapRcd;
@@ -46,7 +46,6 @@ protected:
   std::auto_ptr<HcalPedestalWidths> producePedestalWidths (const HcalPedestalWidthsRcd& rcd);
   std::auto_ptr<HcalGains> produceGains (const HcalGainsRcd& rcd);
   std::auto_ptr<HcalGainWidths> produceGainWidths (const HcalGainWidthsRcd& rcd);
-  std::auto_ptr<HcalQIEShape> produceQIEShape (const HcalQIEShapeRcd& rcd);
   std::auto_ptr<HcalQIEData> produceQIEData (const HcalQIEDataRcd& rcd);
   std::auto_ptr<HcalChannelQuality> produceChannelQuality (const HcalChannelQualityRcd& rcd);
   std::auto_ptr<HcalElectronicsMap> produceElectronicsMap (const HcalElectronicsMapRcd& rcd);

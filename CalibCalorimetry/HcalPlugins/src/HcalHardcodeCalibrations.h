@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Oct 21, 2005
-// $Id: HcalHardcodeCalibrations.h,v 1.3 2005/12/05 00:25:31 fedor Exp $
+// $Id: HcalHardcodeCalibrations.h,v 1.4 2005/12/15 23:37:58 fedor Exp $
 //
 // ESSource to generate default HCAL calibration objects 
 //
@@ -12,6 +12,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class ParameterSet;
+
 class HcalPedestals;
 class HcalPedestalWidths;
 class HcalGains;
@@ -19,11 +20,11 @@ class HcalGainWidths;
 class HcalQIEData;
 class HcalChannelQuality;
 class HcalElectronicsMap;
+
 class HcalPedestalsRcd;
 class HcalPedestalWidthsRcd;
 class HcalGainsRcd;
 class HcalGainWidthsRcd;
-class HcalQIEShapeRcd;
 class HcalQIEDataRcd;
 class HcalChannelQualityRcd;
 class HcalElectronicsMapRcd;
