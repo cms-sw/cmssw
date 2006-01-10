@@ -96,7 +96,7 @@ namespace stor
     edm::EventBuffer::ProducerBuffer cb(*evtbuf_q_);
 	long* vp = (long*)cb.buffer();
 	*vp=0;
-	cb.commit(sizeof(void*));
+	cb.commit(sizeof(long));
   }
 
   void FragmentCollector::stop()
@@ -105,10 +105,11 @@ namespace stor
     // fragment collector, which will cause a completion of the 
     // event processor
 
-    edm::EventBuffer::ProducerBuffer cb(*cmd_q_);
+    edm::EventBuffer::ProducerBuffer cb(*frag_q_);
     MsgCode mc(cb.buffer(),MsgCode::DONE);
     mc.setCode(MsgCode::DONE);
-    cb.commit(sizeof(int));
+    // cb.commit(mc.totalSize());
+    cb.commit();
   }
 
   void FragmentCollector::processEvent(FragEntry* entry)

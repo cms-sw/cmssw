@@ -24,12 +24,7 @@ namespace stor
 {
   namespace 
   {
-    string readConfig(const string& config)
-    {
-      return "none";
-    }
-
-    void changeToPhony(const string& config)
+    string changeToPhony(const string& config)
     {
     }
   }
@@ -38,15 +33,15 @@ namespace stor
   {
   }
 
-  JobController::JobController(const std::string& fu_config_file,
-			       const std::string& my_config_file,
+  JobController::JobController(const std::string& fu_config,
+			       const std::string& my_config,
 			       FragmentCollector::Deleter deleter)
   {
     // read trigger config
-    string fu_config = readConfig(fu_config_file);
-    changeToPhony(fu_config); // change to phony input source
-    setRegistry(fu_config);
-    init(my_config_file,deleter);
+    // change to phony input source
+    string new_config = changeToPhony(fu_config);
+    setRegistry(new_config);
+    init(my_config,deleter);
   } 
 
   JobController::JobController(const edm::ProductRegistry& reg,
@@ -58,10 +53,9 @@ namespace stor
   }
 
 
-  void JobController::init(const std::string& my_config_file,
+  void JobController::init(const std::string& my_config,
 			   FragmentCollector::Deleter deleter)
   {
-    string my_config = readConfig(my_config_file);
     std::auto_ptr<HLTInfo> inf(new HLTInfo(prods_));
 
     std::auto_ptr<FragmentCollector> 
@@ -105,7 +99,7 @@ namespace stor
     edm::EventBuffer::ProducerBuffer cb(ep_runner_->getInfo()->getCommandQueue());
     MsgCode mc(cb.buffer(),MsgCode::DONE);
     mc.setCode(MsgCode::DONE);
-    cb.commit();
+    cb.commit(mc.totalSize());
 
     // should we wait here until the event processor and fragment
     // collectors are done?  Right now the wait is in the join.
