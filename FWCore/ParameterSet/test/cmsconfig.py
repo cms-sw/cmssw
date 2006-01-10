@@ -1,6 +1,6 @@
 #------------------------------------------------------------
 #
-# $Id: cmsconfig.py,v 1.7 2005/12/19 14:34:20 chrjones Exp $
+# $Id: cmsconfig.py,v 1.8 2005/12/22 20:30:39 chrjones Exp $
 #
 # cmsconfig: a class to provide convenient access to the Python form
 # of a parsed CMS configuration file.
@@ -209,6 +209,13 @@ class cmsconfig:
             stream.close()
         
         return result
+
+    def asPythonString(self):
+       """Return a string containing the python psdata source of
+       this object to facilitate saving and loading of python format"""
+       result = "#!/usr/bin/env python\n"
+       result += str(self.psdata)
+       return result 
 
     def __write_self_to_stream(self, fileobj):
         """Private method.
