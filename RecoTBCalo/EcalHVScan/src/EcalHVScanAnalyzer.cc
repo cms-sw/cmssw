@@ -8,11 +8,12 @@
 //
 // Original Author:  Shahram RAHATLOU
 //         Created:  Tue Aug  2 16:15:01 CEST 2005
-// $Id$
+// $Id: EcalHVScanAnalyzer.cc,v 1.1 2006/01/02 14:43:57 rahatlou Exp $
 //
 //
 #include "RecoTBCalo/EcalHVScan/src/EcalHVScanAnalyzer.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalPnDiodeDigi.h"
