@@ -1,3 +1,6 @@
+** V00-03-07  [Tue Jan 10 18:31:20 2006]
+Modified to work with 0_4_0_pre2 based on best guess.
+
 ** V00-03-06  [Tue Dec 13 14:32:05 2005]
 Add FieldConfiguration.xml to data/
 
