@@ -5,7 +5,7 @@
   
 Forward declarations of types in the EDM.
 
-$Id: Frameworkfwd.h,v 1.13 2005/12/28 16:39:34 wmtan Exp $
+$Id: Frameworkfwd.h,v 1.14 2006/01/07 00:38:14 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -43,6 +43,7 @@ namespace edm {
   class RunHandler;
   class SecondaryInputSource;
   class Selector;
+  class VectorInputSource;
 
   template <typename T> class Handle;
 }
