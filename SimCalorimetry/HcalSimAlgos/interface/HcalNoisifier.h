@@ -19,9 +19,11 @@ namespace cms {
 
     virtual void noisify(CaloSamples & linearFrame) const;
   
+    void setStartingCapId(int capId) {theStartingCapId = capId;}
+
   private:
-    unsigned theStartingCapId;
     const HcalDbService * theDbService;
+    unsigned theStartingCapId;
   };
 } 
 #endif
