@@ -1,3 +1,7 @@
+** V00-00-04  [Tue Jan 10 15:17:47 2006]
+added the analytic fit implemented by Alessandro Palma.
+This is used for the analysis of the HV scan laser data of ECAL.
+
 ** V00-00-03  [Mon Nov 28 17:47:11 2005]
 added new algorithm based on analytical fit to compute the pulse shape. currently this is a placeholder and the fit is not perfomed yet
 
