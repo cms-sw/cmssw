@@ -1,3 +1,6 @@
+** V01-01-01  [Tue Jan 10 12:22:05 2006]
+Changed the EcalTrigTowerDetId interface. Consequent changes in other classes
+
 ** V01-00-01  [Fri Dec 16 16:17:07 2005]
 Added DetId collections
 
