@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep 19 11:49:35 CEST 2005
-// $Id: EventContentAnalyzer.h,v 1.2 2005/10/06 22:36:21 marafino Exp $
+// $Id: EventContentAnalyzer.h,v 1.1 2005/10/11 17:09:22 wmtan Exp $
 //
 
 // system include files
@@ -37,9 +37,11 @@ public:
    virtual void endJob();
 
 private:
-
+      
       // ----------member data ---------------------------
       std::string indentation_;
+      std::string verboseIndentation_;
+      bool        verbose_;  
       int         evno_;
       std::map<std::string, int>  cumulates_;
 };
