@@ -12,7 +12,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep 19 11:47:28 CEST 2005
-// $Id: EventContentAnalyzer.cc,v 1.2 2005/10/26 21:13:04 marafino Exp $
+// $Id: EventContentAnalyzer.cc,v 1.3 2006/01/10 17:23:08 chrjones Exp $
 //
 //
 
@@ -22,6 +22,7 @@
 #include <iomanip>
 #include <map>
 #include <sstream>
+#include <algorithm>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -119,23 +120,16 @@ static void printObject(const std::string& iName,
    using namespace seal::reflex;
    std::cout<<iIndent<<iName<<" "<<formatClassName(iObject.type().name())<<"\n";
 
-  // std::cout <<"# dataMembers "<<iObject.type().dataMemberCount()<<" #members"<<iObject.type().memberCount()<<"\n";
-   //std::cout <<iObject.type().typeTypeAsString()<<"\n";
    std::string indent(iIndent+iIndentDelta);
-   
-   //NOTE: asking for 'dataMember' always give 0
+   //print all the data members
    for(seal::reflex::member_iterator itMember = iObject.type().dataMember_begin();
        itMember != iObject.type().dataMember_end();
        ++itMember){
       //std::cout <<"     debug "<<itMember->name()<<" "<<itMember->type().name()<<"\n";
-      if(!itMember->type().isFunction()) {
-         printObject( itMember->name(),
-                      itMember->get( iObject),
-                      indent,
-                      iIndentDelta);
-      } else {
-         
-      }
+      printObject( itMember->name(),
+                   itMember->get( iObject),
+                   indent,
+                   iIndentDelta);
    }
 };
 
@@ -199,12 +193,13 @@ static void printObject(const edm::Event& iEvent,
 //
 EventContentAnalyzer::EventContentAnalyzer(const edm::ParameterSet& iConfig) :
   indentation_(iConfig.getUntrackedParameter("indentation",std::string("++"))),
-verboseIndentation_(iConfig.getUntrackedParameter("verboseIndention",std::string("  "))),
-  verbose_(iConfig.getUntrackedParameter("verbose",false)),
+  verboseIndentation_(iConfig.getUntrackedParameter("verboseIndention",std::string("  "))),
+  moduleLabels_(iConfig.getUntrackedParameter("verboseLabels",std::vector<std::string>())),
+  verbose_(iConfig.getUntrackedParameter("verbose",false) || moduleLabels_.size()>0),
   evno_(0)
 {
    //now do what ever initialization is needed
-
+   std::sort(moduleLabels_.begin(),moduleLabels_.end());
 }
 
 EventContentAnalyzer::~EventContentAnalyzer()
@@ -255,14 +250,17 @@ EventContentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
                 << " \"" << modLabel
                 << "\" \"" << instanceName <<"\"" << std::endl;
       if(verbose_){
-         //indent one level before starting to print
-         std::string startIndent = indentation_+verboseIndentation_;
-         printObject(iEvent,
-                     (*itProv)->product.fullClassName_,
-                     (*itProv)->product.module.moduleLabel_,
-                     (*itProv)->product.productInstanceName_,
-                     startIndent,
-                     verboseIndentation_);
+         if( moduleLabels_.size() ==0 ||
+             std::binary_search(moduleLabels_.begin(),moduleLabels_.end(),modLabel)) {
+            //indent one level before starting to print
+            std::string startIndent = indentation_+verboseIndentation_;
+            printObject(iEvent,
+                        (*itProv)->product.fullClassName_,
+                        (*itProv)->product.module.moduleLabel_,
+                        (*itProv)->product.productInstanceName_,
+                        startIndent,
+                        verboseIndentation_);
+         }
       }
       
       key = friendlyName
