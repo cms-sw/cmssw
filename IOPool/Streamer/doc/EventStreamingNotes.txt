@@ -166,3 +166,13 @@ HLTInfo class.  changed the order of some of the processing in the
 testfilereader.
 
 Fixed a bug in Utilities.h.
+
+10-01-06 jbk:
+
+The message class and derived classes need to be reviewed.  There is a
+problem with the size functions.  There are lots of them and it is unclear
+when to use which one.  The storage of the message code and the reported
+size of the message is also a problem - is the msgcode included in the
+payload size or is it part of the header?  It is currently not reported
+as part of the payload if only the MsgCode class is used.
+
