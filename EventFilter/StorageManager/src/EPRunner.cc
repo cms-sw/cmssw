@@ -57,9 +57,15 @@ namespace stor
   {
     try
       {
-	ep_.beginJob();
+	  {
+	  	boost::mutex::scoped_lock sl(info_->getExtraLock());
+	    ep_.beginJob();
+	  }
 	ep_.run();
-	ep_.endJob();
+	  {
+	  	boost::mutex::scoped_lock sl(info_->getExtraLock());
+	    ep_.endJob();
+      }
       }
     catch (seal::Error& e)
       {
