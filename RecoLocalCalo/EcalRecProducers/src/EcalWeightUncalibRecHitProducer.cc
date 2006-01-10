@@ -1,9 +1,9 @@
 /** \class EcalWeightUncalibRecHitProducer
  *   produce ECAL uncalibrated rechits from dataframes
  *
-  *  $Id: EcalWeightUncalibRecHitProducer.cc,v 1.4 2005/10/25 14:08:30 rahatlou Exp $
-  *  $Date: 2005/10/25 14:08:30 $
-  *  $Revision: 1.4 $
+  *  $Id: EcalWeightUncalibRecHitProducer.cc,v 1.5 2005/11/03 14:55:51 rahatlou Exp $
+  *  $Date: 2005/11/03 14:55:51 $
+  *  $Revision: 1.5 $
   *  \author Shahram Rahatlou, University of Rome & INFN, Sept 2005
   *
   */
@@ -21,6 +21,7 @@
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 #include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "CondFormats/EcalObjects/interface/EcalWeightRecAlgoWeights.h"
 #include "CondFormats/DataRecord/interface/EcalWeightRecAlgoWeightsRcd.h"
 

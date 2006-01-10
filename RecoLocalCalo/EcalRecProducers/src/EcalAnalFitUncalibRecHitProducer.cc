@@ -1,9 +1,9 @@
 /** \class EcalAnalFitUncalibRecHitProducer
  *   produce ECAL uncalibrated rechits from dataframes with the analytical fit method
  *
-  *  $Id: EcalAnalFitUncalibRecHitProducer.cc,v 1.1 2005/11/28 16:40:27 rahatlou Exp $
-  *  $Date: 2005/11/28 16:40:27 $
-  *  $Revision: 1.1 $
+  *  $Id: EcalAnalFitUncalibRecHitProducer.cc,v 1.2 2005/12/12 15:40:20 rahatlou Exp $
+  *  $Date: 2005/12/12 15:40:20 $
+  *  $Revision: 1.2 $
   *  \author Shahram Rahatlou, University of Rome & INFN, Sept 2005
   *
   */
@@ -21,6 +21,7 @@
 //#include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 //#include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 //#include "CLHEP/Matrix/Matrix.h"
 //#include "CLHEP/Matrix/SymMatrix.h"
