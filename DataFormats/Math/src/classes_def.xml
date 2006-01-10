@@ -3,13 +3,36 @@
   <class pattern="ROOT::Math::PtEtaPhiE4D<*>" />
   <class pattern="ROOT::Math::PxPyPzE4D<*>" />
   <class pattern="ROOT::Math::Cartesian3D<*>" />
+  <class pattern="ROOT::Math::CylindricalEta3D<*>" />
   <class pattern="ROOT::Math::LorentzVector<*>" />
-  <class pattern="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<*> >" />
-  <class pattern="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<*> >" />
+  <class pattern="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<*>" />
+  <class pattern="ROOT::Math::DisplacementVector3D<ROOT::Math::CylindricalEta3D<*>" />
+  <class pattern="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<*>" />
   <class pattern="math::Vector<*>" />
   <class pattern="math::Error<*>" />
 </selection>
 <exclusion>
+  <class pattern="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<*>">
+    <method name="SetRho" />
+    <method name="SetEta" />
+    <method name="SetTheta" />
+    <method name="SetPhi" />
+    <method name="SetR" />
+  </class>
+  <class pattern="ROOT::Math::DisplacementVector3D<ROOT::Math::CylindricalEta3D<*>">
+    <method name="SetX" />
+    <method name="SetY" />
+    <method name="SetZ" />
+    <method name="SetR" />
+    <method name="SetTheta" />
+  </class>
+  <class pattern="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<*>">
+    <method name="SetRho" />
+    <method name="SetEta" />
+    <method name="SetTheta" />
+    <method name="SetPhi" />
+    <method name="SetR" />
+  </class>
   <class pattern="ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<*>">
     <method name="SetPx" />
     <method name="SetPy" />
@@ -22,20 +45,6 @@
     <method name="SetEta" />
     <method name="SetM" />
     <method name="SetPt" />
-  </class>
-  <class pattern="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<*>">
-    <method name="SetRho" />
-    <method name="SetEta" />
-    <method name="SetTheta" />
-    <method name="SetPhi" />
-    <method name="SetR" />
-  </class>
-  <class pattern="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<*>">
-    <method name="SetRho" />
-    <method name="SetEta" />
-    <method name="SetTheta" />
-    <method name="SetPhi" />
-    <method name="SetR" />
   </class>
 </exclusion>
 </lcgdict>
