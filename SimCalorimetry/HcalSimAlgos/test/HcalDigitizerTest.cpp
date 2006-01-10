@@ -14,7 +14,6 @@
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalNoisifier.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalTriggerPrimitiveAlgo.h"
-#include "CalibFormats/HcalObjects/interface/HcalNominalCoder.h"
 #include "CondFormats/HcalObjects/interface/HcalPedestals.h"
 #include "CondFormats/HcalObjects/interface/HcalPedestalWidths.h"
 #include "CondFormats/HcalObjects/interface/HcalGains.h"
@@ -29,9 +28,11 @@
 using namespace std;
 using namespace cms;
 
+
 int main() {
   // make a silly little hit in each subdetector, which should
   // correspond to a 100 GeV particle
+
   HcalDetId barrelDetId(HcalBarrel, 1, 1, 1);
   PCaloHit barrelHit(barrelDetId.rawId(),  0.855, 0.);
 
@@ -102,9 +103,8 @@ std::cout << " {TESTPED " << pedestals.getValue(barrelDetId.rawId(),  1) << std:
   calibratorHandle.setData(&gainWidths);
 
   HcalNoisifier noisifier;
-  noisifier.setDbService(&calibratorHandle);
-  HcalNominalCoder coder; 
-  HcalElectronicsSim electronicsSim(&noisifier, &coder);
+  HcalElectronicsSim electronicsSim(&noisifier);
+  electronicsSim.setDbService(&calibratorHandle);
 
   CaloTDigitizer<HBHEDigitizerTraits> hbheDigitizer(&hcalResponse, &electronicsSim);
   CaloTDigitizer<HODigitizerTraits> hoDigitizer(&hcalResponse, &electronicsSim);
