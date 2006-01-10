@@ -3,53 +3,13 @@
 SiStripPedestals::SiStripPedestals(){}
 SiStripPedestals::~SiStripPedestals(){}
 
-
-std::vector<SiStripPed> SiStripPedestals::getPed(uint32_t DetId) const
-{
-  std::vector<SiStripPed> _ped;
+const std::vector<SiStripPedestals::SiStripData> & SiStripPedestals::getSiStripPedestalsVector(const uint32_t & DetId) const {
   SiStripPedestalsMapIterator mapiter=m_pedestals.find(DetId);
   if (mapiter!=m_pedestals.end())
-    for (SiStripPedestalsVectorIterator iter=mapiter->second.begin();iter!=mapiter->second.end();iter++)
-      _ped.push_back(static_cast<SiStripPed>(( (*iter).StripData >> 22) &0x000003FF)); 
-  
-  return _ped;
+    return mapiter->second;
+  return SiStripPedestalsVector();
 };
-std::vector<SiStripNoise> SiStripPedestals::getNoise(uint32_t DetId) const
-{
-  std::vector<SiStripNoise> _noise;
-  SiStripPedestalsMapIterator mapiter=m_pedestals.find(DetId);
-  if (mapiter!=m_pedestals.end())
-    for (SiStripPedestalsVectorIterator iter=mapiter->second.begin();iter!=mapiter->second.end();iter++)
-      _noise.push_back(static_cast<SiStripNoise>(( (*iter).StripData >> 13) &0x000001FF)/10.0);   
-  return _noise;
-}
-std::vector<SiStripDisable>  SiStripPedestals::getDisable(uint32_t DetId) const
-{
-  std::vector<SiStripDisable> _disable;
-  SiStripPedestalsMapIterator mapiter=m_pedestals.find(DetId);
-  if (mapiter!=m_pedestals.end())
-    for (SiStripPedestalsVectorIterator iter=mapiter->second.begin();iter!=mapiter->second.end();iter++)
-      _disable.push_back(static_cast<SiStripDisable>( (*iter).StripData &0x00000001)); 
-  return _disable;
-}
-std::vector<SiStripLowTh>   SiStripPedestals::getLowTh(uint32_t DetId) const
-{
-  std::vector<SiStripLowTh> _lowth;
-  SiStripPedestalsMapIterator mapiter=m_pedestals.find(DetId);
-  if (mapiter!=m_pedestals.end())
-    for (SiStripPedestalsVectorIterator iter=mapiter->second.begin();iter!=mapiter->second.end();iter++)
-      _lowth.push_back(static_cast<SiStripLowTh>(( (*iter).StripData >> 1) &0x0000003F)/5.0);
-  return _lowth;
-}
-std::vector<SiStripHighTh>   SiStripPedestals::getHighTh(uint32_t DetId) const
-{
-  std::vector<SiStripHighTh> _highth;
-  SiStripPedestalsMapIterator mapiter=m_pedestals.find(DetId);
-  if (mapiter!=m_pedestals.end())
-    for (SiStripPedestalsVectorIterator iter=mapiter->second.begin();iter!=mapiter->second.end();iter++)
-      _highth.push_back(static_cast<SiStripHighTh>(( (*iter).StripData >> 7) &0x0000003F)/5.0);
-  return _highth;
-}
+
 
 uint32_t SiStripPedestals::EncodeStripData(float ped_, float noise_, float lowTh_, float highTh_, bool disable_)
 {

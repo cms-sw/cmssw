@@ -1,8 +1,8 @@
 <lcgdict>
 
  <class name="SiStripPedestals" id="CE0311EF-7671-DA11-9F37-000E0C5CE043"/>
- <class name="SiStripPedestals::Item"/>
- <class name="std::vector<SiStripPedestals::Item>"/>
+ <class name="SiStripPedestals::SiStripData"/>
+ <class name="std::vector<SiStripPedestals::SiStripData>"/>
 
  <class name="SiStripReadoutCabling" id="7EFEE4BD-036A-AA70-BF2D-477C23CB2F78"/>
  <class name="SiStripControlCabling" id="DD8ED99A-A237-6B30-60A5-0F1BFC1C4EDF"/>
