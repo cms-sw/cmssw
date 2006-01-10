@@ -164,6 +164,12 @@ namespace edm {
 	  // jbk - I'm leaving this out unless we really need it -
 	  // its job is to declare each of the types to ROOT
       fillChildren(cl,cc,do_children==true?10000:1);
+
+
+      TClass* ttest = TClass::GetClass(getName(cc).c_str());
+
+      if(ttest != 0) 
+	    ttest->BuildRealData();
     } 
     catch(...) {
       std::cerr << "Error: could not find Class object for "
@@ -172,6 +178,19 @@ namespace edm {
     }
   }
 
+  void doBuildRealData(const std::string& name)
+  {
+  	FDEBUG(3) << "doing BuildRealData for " << name << "\n";
+      seal::reflex::Type cc = seal::reflex::Type::byName(name);
+      TClass* ttest = TClass::GetClass(getName(cc).c_str());
+      if(ttest != 0) 
+	    ttest->BuildRealData();
+	  else
+	  {
+	  	throw cms::Exception("Configuration")
+			<< "Could not find TClass for " << name << "\n";
+	  }
+  }
   // ---------------------
 
   void loadExtraClasses(bool do_children) {

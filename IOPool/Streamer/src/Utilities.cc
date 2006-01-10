@@ -144,26 +144,47 @@ namespace edm
   // useful information about what classes have dictionaries and
   // what ones do not.
 
+  string getTheRealName(const string& fullclassname)
+  {
+    static const string wrapBeg("edm::Wrapper<");
+    static const string wrapEnd1(">");
+    static const string wrapEnd2(" >");
+    
+	string real_name(wrapBeg+fullclassname);
+	real_name += *(real_name.rbegin()) == '>' ? wrapEnd2:wrapEnd1;
+    return real_name;
+  }
+
   void declareStreamers(ProductRegistry& reg)
   {
     typedef edm::ProductRegistry::ProductList ProdList; 
     ProdList plist(reg.productList());
     ProdList::iterator pi(plist.begin()),pe(plist.end());
 
-    static const string wrapBeg("edm::Wrapper<");
-    static const string wrapEnd1(">");
-    static const string wrapEnd2(" >");
-    
     for(;pi!=pe;++pi)
       {
 	//pi->second.init();
-	string real_name(wrapBeg+pi->second.fullClassName_);
-	real_name += *(real_name.rbegin()) == '>' ? wrapEnd2:wrapEnd1;
+	string real_name = getTheRealName(pi->second.fullClassName_);
 	FDEBUG(6) << "declare: " << real_name << endl;
 	edm::loadCap(real_name);
       }    
   }
   
+  void buildClassCache(ProductRegistry& reg)
+  {
+    typedef edm::ProductRegistry::ProductList ProdList; 
+    ProdList plist(reg.productList());
+    ProdList::iterator pi(plist.begin()),pe(plist.end());
+
+    for(;pi!=pe;++pi)
+      {
+	//pi->second.init();
+	string real_name = getTheRealName(pi->second.fullClassName_);
+	FDEBUG(6) << "BuildReadData: " << real_name << endl;
+	edm::doBuildRealData(real_name);
+      }    
+  }
+
   // ---------------------------------------
 
   EventDecoder::EventDecoder():

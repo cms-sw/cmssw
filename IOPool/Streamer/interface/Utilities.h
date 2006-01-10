@@ -31,6 +31,7 @@ namespace edm
   bool registryIsSubset(const SendJobHeader&, const ProductRegistry&);
   void mergeWithRegistry(const SendJobHeader&, ProductRegistry&);
   void declareStreamers(ProductRegistry& reg);
+  void buildClassCache(ProductRegistry& reg);
 
   class JobHeaderDecoder
   {

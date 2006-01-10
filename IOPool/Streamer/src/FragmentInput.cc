@@ -25,6 +25,7 @@ namespace stor
 
 	// jbk - hopefully the next line is not needed
     // edm::declareStreamers(productRegistry());
+    edm::buildClassCache(productRegistry());
 
     edm::loadExtraClasses();
   }

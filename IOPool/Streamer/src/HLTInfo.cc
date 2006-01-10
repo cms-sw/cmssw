@@ -53,6 +53,8 @@ namespace stor
 	pr.copyProduct(pi->second);
       }
   }
+
+  boost::mutex HLTInfo::lock_;
 }
 
 

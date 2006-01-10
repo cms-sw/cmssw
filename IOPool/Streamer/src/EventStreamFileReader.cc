@@ -33,6 +33,7 @@ namespace edmtestp
 
 	// jbk - the next line should not be needed
     // edm::declareStreamers(productRegistry());
+    edm::buildClassCache(productRegistry());
 
     loadExtraClasses();
   }

@@ -18,6 +18,8 @@
 #include "FWCore/Framework/interface/ProductRegistry.h"
 #include "IOPool/Streamer/interface/EventBuffer.h"
 
+#include "boost/thread/mutex.hpp"
+
 namespace stor 
 {
 
@@ -51,6 +53,8 @@ namespace stor
     edm::EventBuffer& getCommandQueue() const { return *cmd_q_; }
     edm::EventBuffer& getFragmentQueue() const { return *frag_q_; }
 
+	boost::mutex& getExtraLock() const { return lock_; }
+
   private:
     HLTInfo(const HLTInfo&);
     const HLTInfo& operator=(const HLTInfo&);
@@ -59,6 +63,8 @@ namespace stor
     edm::EventBuffer* cmd_q_;
     edm::EventBuffer* evtbuf_q_;
     edm::EventBuffer* frag_q_;
+
+	static boost::mutex lock_;
   };
 }
 
