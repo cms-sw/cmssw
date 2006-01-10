@@ -32,6 +32,9 @@ class EcalCoder
   virtual void analogToDigital(const CaloSamples& clf, EBDataFrame& df, bool addNoise) const;
   virtual void analogToDigital(const CaloSamples& clf, EEDataFrame& df, bool addNoise) const;
  
+  ///  anything that needs to be done once per event
+  void newEvent() {}
+
  private:
   double fullScaleEnergy(const DetId & ) const {return 1600.;}
 
