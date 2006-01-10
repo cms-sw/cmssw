@@ -60,8 +60,6 @@ private:
   CaloHitResponse * theHFResponse;
 
   HcalNoisifier * theNoisifier;
-  HcalCoder * theCoder;
-
   HcalElectronicsSim * theElectronicsSim;
 
   std::vector<PCaloHit> theHBHEHits, theHOHits, theHFHits;

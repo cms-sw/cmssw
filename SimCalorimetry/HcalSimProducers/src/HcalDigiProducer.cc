@@ -31,8 +31,7 @@ HcalDigiProducer::HcalDigiProducer(const edm::ParameterSet& ps) {
 
 
   theNoisifier = new HcalNoisifier();
-  theCoder = new HcalNominalCoder();
-  theElectronicsSim = new HcalElectronicsSim(theNoisifier, theCoder);
+  theElectronicsSim = new HcalElectronicsSim(theNoisifier);
 
   theHBHEDigitizer = new HBHEDigitizer(theHcalResponse, theElectronicsSim);
   theHODigitizer = new HODigitizer(theHcalResponse, theElectronicsSim);
@@ -51,7 +50,6 @@ HcalDigiProducer::~HcalDigiProducer() {
   delete theHFResponse;
   delete theElectronicsSim;
   delete theNoisifier;
-  delete theCoder;
 }
 
 
@@ -60,6 +58,9 @@ void HcalDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   edm::ESHandle<HcalDbService> conditions;
   eventSetup.get<HcalDbRecord>().get(conditions);
   theNoisifier->setDbService(conditions.product());
+
+//  const HcalQIECoder* coder = conditions->getHcalCoder(cell);
+//  const HcalQIEShape* shape = conditions->getHcalShape ();
 
   // get the correct geometry
   checkGeometry(eventSetup);
@@ -145,6 +146,9 @@ void HcalDigiProducer::checkGeometry(const edm::EventSetup & eventSetup) {
   // TODO find a way to avoid doing this every event
   edm::ESHandle<CaloGeometry> geometry;
   eventSetup.get<IdealGeometryRecord>().get(geometry);
+
+  theHcalResponse->setGeometry(&*geometry);
+  theHFResponse->setGeometry(&*geometry);
 
   vector<DetId> hbCells =  geometry->getValidDetIds(DetId::Hcal, HcalBarrel);
   vector<DetId> heCells =  geometry->getValidDetIds(DetId::Hcal, HcalEndcap);
