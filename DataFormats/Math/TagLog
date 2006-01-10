@@ -1,3 +1,6 @@
+** V00-00-02  [Tue Jan 10 12:02:47 2006]
+patched dictionary xml to bypass a seal bug
+
 ** V00-00-01  [Sat Dec 17 01:20:46 2005]
 fixed dictionary
 
