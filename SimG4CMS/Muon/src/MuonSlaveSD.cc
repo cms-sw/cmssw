@@ -52,13 +52,7 @@ bool FormatBarrelHits::operator() (const PSimHit & a, const PSimHit & b)
 
 int FormatBarrelHits::sortId(const PSimHit & a)  const 
 {
-  MuBarIDPacking packing;
-  int duId = a.detUnitId();
-  return packing.sector(duId)
-         +100*packing.stat(duId)
-         +1000*packing.wheel(duId)
-         +10000*packing.slayer(duId)
-         +100000*packing.layer(duId);
+  return a.detUnitId();
 }
 
 bool FormatEndcapHits::operator() (const PSimHit & a, const PSimHit & b)
