@@ -1,3 +1,6 @@
+** V00-00-01  [Tue Jan 10 10:36:20 2006]
+moved hit classes common to tracking detectors to TrackingRecHit
+
 ** V00-00-00  [Mon Jan  9 16:42:17 2006]
 version number corrected
 
