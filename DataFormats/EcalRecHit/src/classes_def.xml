@@ -1,7 +1,8 @@
 <lcgdict>
   <class name="EcalUncalibratedRecHit"/>
   <class name="std::vector<EcalUncalibratedRecHit>"/>
-  <class name="edm::Wrapper< std::vector<EcalUncalibratedRecHit> >" id="1F628802-CBB2-416D-81E9-27CB7A7D70A3"/>
+  <class name="edm::SortedCollection<EcalUncalibratedRecHit,edm::StrictWeakOrdering<EcalUncalibratedRecHit> >"/>
+  <class name="edm::Wrapper<edm::SortedCollection<EcalUncalibratedRecHit,edm::StrictWeakOrdering<EcalUncalibratedRecHit> > >" id="883F00E4-8F8D-836A-0627-6151E3B9BF1D"/>
   <class name="EcalRecHit"/>
   <class name="std::vector<EcalRecHit>"/>
   <class name="edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> >"/>
