@@ -1,0 +1,12 @@
+<lcgdict>
+  <class name="TrackingRecHit"/>
+  <class name="RecHit2DLocalPos"/>
+  <class name="SiStripRecHit2DLocalPos"/>
+  <class name="std::vector<short>"/>
+  <class name="std::vector<SiStripRecHit2DLocalPos*>"/>
+  <class name="own_vector<SiStripRecHit2DLocalPos, ClonePolicy<SiStripRecHit2DLocalPos> >"/>
+  <class name="std::pair<unsigned int, unsigned int>"/>
+  <class name="std::map<unsigned int, std::pair<unsigned int, unsigned int> >"/>
+  <class name="SiStripRecHit2DLocalPosCollection"/>
+  <class name="edm::Wrapper<SiStripRecHit2DLocalPosCollection>/>
+</lcgdict>
