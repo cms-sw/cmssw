@@ -26,6 +26,7 @@ namespace stor
   {
     string changeToPhony(const string& config)
     {
+      return config;
     }
   }
 
@@ -99,7 +100,7 @@ namespace stor
     edm::EventBuffer::ProducerBuffer cb(ep_runner_->getInfo()->getCommandQueue());
     MsgCode mc(cb.buffer(),MsgCode::DONE);
     mc.setCode(MsgCode::DONE);
-    cb.commit(mc.totalSize());
+    cb.commit(mc.codeSize());
 
     // should we wait here until the event processor and fragment
     // collectors are done?  Right now the wait is in the join.

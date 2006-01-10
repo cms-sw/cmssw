@@ -106,8 +106,8 @@ namespace stor
     // event processor
 
     edm::EventBuffer::ProducerBuffer cb(*frag_q_);
-    MsgCode mc(cb.buffer(),MsgCode::DONE);
-    mc.setCode(MsgCode::DONE);
+    // MsgCode mc(cb.buffer(),MsgCode::DONE);
+    // mc.setCode(MsgCode::DONE);
     // cb.commit(mc.totalSize());
     cb.commit();
   }
