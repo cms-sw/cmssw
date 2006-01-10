@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/01/08 10:04:22 $
- * $Revision: 1.74 $
+ * $Date: 2006/01/10 13:12:11 $
+ * $Revision: 1.75 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -28,7 +28,7 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps){
   electron_client_       = 0;
 
   begin_run_done_ = false;
-  end_run_done_   = true;
+  end_run_done_   = false;
 
   forced_begin_run_ = false;
   forced_end_run_   = false;
@@ -42,6 +42,8 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps){
 
   last_jevt_   = -1;
   last_update_ = 0;
+
+  unknowns_ = 0;
 
   // DQM default client name
 
@@ -937,6 +939,22 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
     last_update_ = updates;
 
     last_jevt_ = jevt_;
+
+  }
+
+  if ( status_ == "unknown" ) {
+
+    if ( update ) unknowns_++;
+
+    if ( unknowns_ >= 10 ) {
+
+      cout << "Too many 'unknown' states ..." << endl;
+
+      cout << "Forcing begin-of-job ... NOW !" << endl;
+
+      this->beginJob(c);
+
+    }
 
   }
 

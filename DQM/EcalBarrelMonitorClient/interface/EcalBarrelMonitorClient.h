@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2006/01/02 09:18:01 $
- * $Revision: 1.29 $
+ * $Date: 2006/01/07 16:54:43 $
+ * $Revision: 1.30 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -149,6 +149,8 @@ bool forced_end_run_;
 int last_update_;
 
 int last_jevt_;
+
+int unknowns_;
 
 EBIntegrityClient* integrity_client_;
 
