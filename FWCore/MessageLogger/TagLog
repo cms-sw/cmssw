@@ -1,3 +1,6 @@
+** V01-03-00  [Tue Jan 10 22:16:43 2006]
+compound categories working. parameter-driven enabling of LogDebug messages work...
+
 ** V01-02-00  [Tue Jan  3 18:35:00 2006]
 log4cplus destination now configurable (in the sense of MessageLogger limits, thresholds, and so forth)
 
