@@ -2,6 +2,6 @@
   <class name="reco::Vertex" />
   <class name="std::vector<reco::Vertex>" />
   <class name="edm::Wrapper<std::vector<reco::Vertex> >" />
-  <class name="edm::Ref<std::vector<reco::Vertex> >" />
-  <class name="edm::RefVector<std::vector<reco::Vertex> >" />
+  <class name="edm::Ref<std::vector<reco::Vertex>, reco::Vertex>" />
+  <class name="edm::RefVector<std::vector<reco::Vertex>, reco::Vertex>" />
 </lcgdict>

@@ -1,8 +1,5 @@
 #include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
-#include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "FWCore/EDProduct/interface/Wrapper.h"
-#include <vector>
 
 namespace {
   namespace {
