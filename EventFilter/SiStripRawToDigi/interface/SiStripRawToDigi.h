@@ -1,66 +1,56 @@
-#ifndef SiStripRawToDigi_H
-#define SiStripRawToDigi_H
+#ifndef EventFilter_SiStripRawToDigi_H
+#define EventFilter_SiStripRawToDigi_H
 
-#include "CalibTracker/SiStripConnectivity/interface/SiStripConnection.h"
-//
-#include "DataFormats/SiStripDigi/interface/StripDigiCollection.h"
-#include "DataFormats/SiStripDigi/interface/StripDigi.h"
-//
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-#include "DataFormats/FEDRawData/interface/FEDRawData.h"
-//
+#include <FWCore/Framework/interface/Handle.h>
+#include <FWCore/Framework/interface/ESHandle.h>
 #include "Fed9UUtils.hh"
+
+class SiStripReadoutCabling;
+class FEDRawDataCollection;
+class StripDigiCollection;
 
 /**
    \class SiStripRawToDigi
-   \brief Input: FEDRawDataCollection. Output: StripDigiCollection.
+   \brief Takes a FEDRawDataCollection as input and creates a
+      StripDigiCollection.
    \author M.Wingham, R.Bainbridge
-   \version 0.1
-   \date 05/09/05
-
-   Input: FEDRawDataCollection. 
-   Output: StripDigiCollection.
 */
 class SiStripRawToDigi {
   
  public: // ----- public interface -----
   
-  /** */
-  SiStripRawToDigi( SiStripConnection& conns,
-		    unsigned short verbosity = 0 );
-  /** */
+  SiStripRawToDigi( unsigned short verbosity );
   ~SiStripRawToDigi();
   
   /** Takes a FEDRawDataCollection as input and creates a
       StripDigiCollection. */
-  void createDigis( FEDRawDataCollection& fed_buffers,
-		    StripDigiCollection& digis );
+  void createDigis( edm::ESHandle<SiStripReadoutCabling>& cabling,
+		    edm::Handle<FEDRawDataCollection>& buffers,
+		    std::auto_ptr<StripDigiCollection>& digis ); //@@ <- is this good?
   
-  /** */
   inline void fedReadoutPath( std::string readout_path );
-  /** */
   inline void fedReadoutMode( std::string readout_mode );
   
  private: // ----- private methods -----
   
-  /** private default constructor */
-  SiStripRawToDigi() {;}
-
   /** */
   void zeroSuppr( unsigned short fed_id,
-		  StripDigiCollection& digis );
+		  edm::ESHandle<SiStripReadoutCabling>& cabling,
+		  std::auto_ptr<StripDigiCollection>& digis );
+  /** */
+  void rawModes( unsigned short fed_id,
+		 edm::ESHandle<SiStripReadoutCabling>& cabling,
+		 std::auto_ptr<StripDigiCollection>& digis );
   /** */
   void scopeMode( unsigned short fed_id,
-		  StripDigiCollection& digis );
-  /** */
-  void Raw( unsigned short fed_id,
-		  StripDigiCollection& digis );
+		  edm::ESHandle<SiStripReadoutCabling>& cabling,
+		  std::auto_ptr<StripDigiCollection>& digis );
   
   /** */
   inline int readoutOrder( int physical_order );
   /** */
   inline int physicalOrder( int readout_order ); 
-
+  
   /** */
   void extractHeaderInfo() {;} //@@ needs implementing!
   /** */
@@ -74,12 +64,10 @@ class SiStripRawToDigi {
  private: // ----- private data members -----
   
   /** */
-  SiStripConnection connections_;
-  /** */
   unsigned short verbosity_;
 
   /** */
-  Fed9U::Fed9UDescription* description_;
+  Fed9U::Fed9UDescription* fedDescription_;
   /** */
   Fed9U::Fed9UEvent* fedEvent_;
 
@@ -88,19 +76,16 @@ class SiStripRawToDigi {
   /** */
   std::string readoutMode_; // unsigned short readoutMode_;
 
-  /** FED identifiers. */
-  vector<unsigned short> fedids_;
-
   // some debug counters
-  vector<unsigned int> position_;
-  vector<unsigned int> landau_;
+  std::vector<unsigned int> position_;
+  std::vector<unsigned int> landau_;
   unsigned long nFeds_;
   unsigned long nDets_;
   unsigned long nDigis_;
 
 };
 
-#endif // SiStripRawToDigi_H
+#endif // EventFilter_SiStripRawToDigi_H
 
 // inline methods
 

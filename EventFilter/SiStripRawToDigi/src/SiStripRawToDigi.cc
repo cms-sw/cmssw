@@ -1,175 +1,164 @@
 #include "EventFilter/SiStripRawToDigi/interface/SiStripRawToDigi.h"
-#include <iostream>
-#include<vector>
 #include "Utilities/Timing/interface/TimingReport.h"
+#include "CondFormats/SiStripObjects/interface/SiStripReadoutCabling.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/SiStripDigi/interface/StripDigiCollection.h"
+#include <iostream>
+#include <iomanip>
+#include <sstream>
+#include <vector>
 
 // -----------------------------------------------------------------------------
 // constructor
-SiStripRawToDigi::SiStripRawToDigi( SiStripConnection& connections,
-				    unsigned short verbosity ) : 
-  connections_(), // cabling map
+SiStripRawToDigi::SiStripRawToDigi( unsigned short verbosity ) : 
   verbosity_(verbosity), 
-  description_(0), fedEvent_(0), // Fed9U classes
+  fedDescription_(0), fedEvent_(0),
   readoutPath_("SLINK"), readoutMode_("ZERO_SUPPRESSED"),
-  fedids_(), // FED identifier list
   position_(), landau_(), // debug counters
   nFeds_(0), nDets_(0), nDigis_(0) // debug counters
 {
-   if (verbosity_>1) std::cout << "[SiStripRawToDigi::SiStripRawToDigi] " 
-			       << "constructing SiStripRawToDigi object..." << std::endl;
-
-  // initialisation of cabling map object
-  connections_ = connections;
-
-  // initialise container holding FED ids.
-  fedids_.clear(); fedids_.reserve(500);
-
+  if ( verbosity_>0 ) {
+    std::cout << "[SiStripRawToDigi::SiStripRawToDigi] " 
+	      << "Constructing object..." << std::endl;
+  }
   // initialise some containers holding debug info
   landau_.clear(); landau_.reserve(100); landau_.resize(100,0);
   position_.clear(); position_.reserve(512); position_.resize(512,0);
   
-  // extract list of FED ids 
-  vector<unsigned short> feds; // temp container
-  connections_.getConnectedFedNumbers( feds ); //@@ arg should read "fedids_"
-  
-  //@@ below is temporary due to bug in SiStripConnections class!
 
-  std::vector<unsigned short>::iterator iter; 
-  for ( iter = feds.begin(); iter != feds.end(); iter++) {
-    bool new_id = true;
-    std::vector<unsigned short>::iterator ifed;
-    for ( ifed = fedids_.begin(); ifed != fedids_.end(); ifed++ ) {
-      if (*ifed == *iter) { new_id = false; break; }
-    }
-    if ( new_id ) { fedids_.push_back(*iter); }
-  }
-
-  //some debug
-   if (verbosity_>2) { 
-     std::cout << "[SiStripRawToDigi::createDigis] "
- 	      << "Number of FED ids: " << fedids_.size() << ", "
- 	      << "List of FED ids: ";
-     for ( unsigned int ifed = 0; ifed < fedids_.size(); ifed++ ) { 
-       std::cout << fedids_[ifed] << ", ";
-     }
-     cout << std::endl;
-   }
+//   //some debug
+//    if (verbosity_>2) { 
+//      std::cout << "[SiStripRawToDigi::createDigis] "
+//  	      << "Number of FED ids: " << fedids_.size() << ", "
+//  	      << "List of FED ids: ";
+//      for ( unsigned int ifed = 0; ifed < fedids_.size(); ifed++ ) { 
+//        std::cout << fedids_[ifed] << ", ";
+//      }
+//      cout << std::endl;
+//    }
   
-  //some debug
-   if (verbosity_>2) { 
-     std::map< unsigned short, vector<DetId> > partitions;
-     std::map< unsigned short, std::vector<DetId> >::iterator ifed;
-     connections_.getDetPartitions( partitions );
-     std::cout << "[SiStripRawToDigi::SiStripDigiToRaw] "
- 	      << "Number of FED \"partitions\": " 
- 	      << partitions.size() << std::endl
- 	      << " FedId/nDets: ";
-     for ( ifed = partitions.begin(); ifed != partitions.end(); ifed++ ) { 
-       std::cout << (*ifed).first << "/"
- 		<< ((*ifed).second).size() << ", ";
-     }
-     cout << std::endl;
-   }
+//   //some debug
+//    if (verbosity_>2) { 
+//      std::map< unsigned short, vector<DetId> > partitions;
+//      std::map< unsigned short, std::vector<DetId> >::iterator ifed;
+//      connections_.getDetPartitions( partitions );
+//      std::cout << "[SiStripRawToDigi::SiStripDigiToRaw] "
+//  	      << "Number of FED \"partitions\": " 
+//  	      << partitions.size() << std::endl
+//  	      << " FedId/nDets: ";
+//      for ( ifed = partitions.begin(); ifed != partitions.end(); ifed++ ) { 
+//        std::cout << (*ifed).first << "/"
+//  		<< ((*ifed).second).size() << ", ";
+//      }
+//      cout << std::endl;
+//    }
   
 }
 
 // -----------------------------------------------------------------------------
 // destructor
 SiStripRawToDigi::~SiStripRawToDigi() {
-    if (verbosity_>1) std::cout << "[SiStripRawToDigi::~SiStripRawToDigi] " 
- 			      << "destructing SiStripRawToDigi object..." << std::endl;
-    
+  if ( verbosity_>0 ) {
+    std::cout << "[SiStripRawToDigi::~SiStripRawToDigi]" 
+	      << " Destructing object..." << std::endl;
+  }
   // counters
-  if (verbosity_>0) {
-   std::cout << "[SiStripRawToDigi::~SiStripRawToDigi] Some cumulative counters: "
- 	    << "#FEDs: " << nFeds_ 
- 	    << "  #Dets: " << nDets_ 
- 	    << "  #Digis_: " << nDigis_ << std::endl;
-
-   // ndigis
-   std::cout << "[SiStripRawToDigi::~SiStripRawToDigi] "
- 	    << "Digi statistics (vs strip position): " << std::endl;
-   int tmp1 = 0;
-   for (unsigned int i=0; i<position_.size(); i++) {
-     if ( i<10 ) { 
-       std::cout << "Strip: " << i << ",  Digis: " << position_[i] << std::endl; 
-     }
-     tmp1 += position_[i];
-   }
-   std::cout << "Ndigis: " << tmp1 << std::endl;
-
-   // landau
-   std::cout << "[SiStripRawToDigi::~SiStripRawToDigi] Landau statistics: " << std::endl;
-   int tmp2 = 0;
-   for (unsigned int i=0; i<landau_.size(); i++) {
-     if ( i<10 ) { 
-       std::cout << "ADC: " << i << ",  Digis: " << landau_[i] << std::endl; 
-     }
-     tmp2 += landau_[i];
-   }
-   std::cout << "Ndigis: " << tmp1 << std::endl;
- 
+  if ( verbosity_>0 ) {
+    std::cout << "[SiStripRawToDigi::~SiStripRawToDigi] Some cumulative counters: "
+	      << "#FEDs: " << nFeds_ 
+	      << "  #Dets: " << nDets_ 
+	      << "  #Digis_: " << nDigis_ << std::endl;
+  }
+  if ( verbosity_>2 ) {
+    // ndigis
+    std::cout << "[SiStripRawToDigi::~SiStripRawToDigi] "
+	      << "Digi statistics (vs strip position): " << std::endl;
+    int tmp1 = 0;
+    for (unsigned int i=0; i<position_.size(); i++) {
+      if ( i<10 ) { 
+	std::cout << "Strip: " << i << ",  Digis: " << position_[i] << std::endl; 
+      }
+      tmp1 += position_[i];
+    }
+    std::cout << "Ndigis: " << tmp1 << std::endl;
+    // landau
+    std::cout << "[SiStripRawToDigi::~SiStripRawToDigi] Landau statistics: " << std::endl;
+    int tmp2 = 0;
+    for (unsigned int i=0; i<landau_.size(); i++) {
+      if ( i<10 ) { 
+	std::cout << "ADC: " << i << ",  Digis: " << landau_[i] << std::endl; 
+      }
+      tmp2 += landau_[i];
+    }
+    std::cout << "Ndigis: " << tmp1 << std::endl;
   }
 }
+
 // -----------------------------------------------------------------------------
 // method to create a FEDRawDataCollection using a StripDigiCollection as input
-void SiStripRawToDigi::createDigis( FEDRawDataCollection& fed_buffers,
-				    StripDigiCollection& digis ) { 
-   if (verbosity_>2) std::cout << "[SiStripRawToDigi::createDigis] " << std::endl;
+void SiStripRawToDigi::createDigis( edm::ESHandle<SiStripReadoutCabling>& cabling,
+				    edm::Handle<FEDRawDataCollection>& buffers,
+				    std::auto_ptr<StripDigiCollection>& digis ) {
+
+  if ( verbosity_>1 ) {
+    std::cout << "[SiStripRawToDigi::createDigis]" << std::endl;
+  }
 
   try {
+
     
-    // some temporary debug...
-     if (verbosity_>2) {
-      vector<unsigned int> dets = digis.detIDs();
-       int filled = 0;
-       for ( int ifed = 0; ifed < 1023; ifed++ ) {
- 	if ( ( fed_buffers.FEDData(ifed) ).size() ) { filled++; } 
-       }
-       std::cout << "[SiStripRawToDigi::createDigis] " 
+    // Some debug
+    if (verbosity_>2) {
+      int filled = 0;
+      for ( int ifed = 0; ifed < 1023; ifed++ ) { 
+ 	if ( ( buffers->FEDData(ifed) ).size() ) { filled++; } 
+      }
+      std::vector<unsigned int> det_ids;
+      digis->detIDs( det_ids );
+      std::cout << "[SiStripRawToDigi::createDigis] " 
  		<< "Number of FEDRawData objects is " << filled << ", "
  		<< "Number of detectors with digis: " 
- 		<< dets.size() << std::endl;
-     }
+ 		<< det_ids.size() << std::endl;
+    }
+    
+    // Retrieve FED ids, iterate through FEDs and extract payload
+    const std::vector<unsigned short> fed_ids = cabling->getFEDs();
+    std::vector<unsigned short>::const_iterator ifed;
+    for ( ifed = fed_ids.begin(); ifed != fed_ids.end(); ifed++ ) {
 
-    // loop through FEDs and extract payload
-    std::vector<unsigned short>::iterator ifed;
-
-    for ( ifed = fedids_.begin(); ifed != fedids_.end(); ifed++ ) {
-
-       if (verbosity_>2) { 
+      if ( verbosity_>1 ) { 
  	std::cout << "[SiStripRawToDigi::createDigis] "
  		  << "Extracting digis from FED id: " << *ifed << std::endl;
-       }
+      }
 
-      // extract FEDRawData structure from FEDRawDataCollection
-      FEDRawData& fed_buffer = fed_buffers.FEDData( static_cast<int>(*ifed) );
+      // Extract FEDRawData from collection
+      const FEDRawData& fed_buffer = buffers->FEDData( static_cast<int>(*ifed) );
      
-      //// get the data buffer (in I8 format), reinterpret as array in U32 format (as
-      //// required by Fed9UEvent) and get buffer size (convert from units of I8 to U32)
+      // Get the data buffer (in I8 format), reinterpret as array in U32 format (as
+      // required by Fed9UEvent) and get buffer size (convert from units of I8 to U32)
       unsigned char* buffer = const_cast<unsigned char*>(fed_buffer.data());
       unsigned long* buffer_u32 = reinterpret_cast<unsigned long*>( buffer );
       unsigned long size = (static_cast<unsigned long>(fed_buffer.size())) / 4; 
 
       // dump FED buffer to stdout
-       if (verbosity_>3) { dumpFedBuffer( *ifed, buffer, size ); }
+      if (verbosity_>3) { dumpFedBuffer( *ifed, buffer, size*4 ); }
 
       // check if FED buffer is of non-zero size
-       if ( !size ) { 
- 	stringstream os; 
+      if ( !size ) { 
+	std::stringstream os; 
  	os << "[SiStripRawToDigi::createDigis] "
  	   << "Buffer of FED id " << *ifed << " is of zero size";
  	throw string( os.str() );
  	continue; 
-       } 
-
+      } 
+      
       // counter for debug purposes
       nFeds_++; 
       
-       if (verbosity_>2) { 
+      if ( verbosity_>1 ) { 
  	std::cout << "[SiStripRawToDigi::createDigis] "
  		  << "FED buffer size (32 bit words): " << size << std::endl;
-       }
+      }
       
       // remove VME header (if present) from start of FED buffer
       if ( readoutPath_ == "VME" ) { 
@@ -178,23 +167,23 @@ void SiStripRawToDigi::createDigis( FEDRawDataCollection& fed_buffers,
 	unsigned int start = 10 + shift + nchan;
 	size -= start; // recalculate buffer size (size after "start" pos)
       }   
-  
+      
       // create new Fed9UEvent object using present FED buffer
       fedEvent_ = new Fed9U::Fed9UEvent(); //@@ temporary
-      fedEvent_->Init(buffer_u32, description_, size); 
+      fedEvent_->Init(buffer_u32, fedDescription_, size); 
    
       // get FED readout mode from the FED buffer (using Fed9UEvent)
       // and call appropriate method to extract payload
  
       //readoutMode_ = static_cast<unsigned short>( fedEvent_->getSpecialTrackerEventType() );
       //readoutMode_ = fedEvent_->getDaqMode();
-       if (verbosity_>2) { std::cout << "Readout mode : " << readoutMode_ << std::endl; }
-      if ( readoutMode_ == "SCOPE_MODE" )           { scopeMode( *ifed, digis ); }
-      else if ( readoutMode_ == "VIRGIN_RAW" )      { Raw( *ifed, digis ); } 
-      else if ( readoutMode_ == "PROCESSED_RAW" )   { Raw( *ifed, digis ); }
-      else if ( readoutMode_ == "ZERO_SUPPRESSED" ) { zeroSuppr( *ifed, digis ); } 
+      if (verbosity_>2) { std::cout << "Readout mode : " << readoutMode_ << std::endl; }
+      if ( readoutMode_ == "SCOPE_MODE" )           { scopeMode( *ifed, cabling, digis ); }
+      else if ( readoutMode_ == "VIRGIN_RAW" )      { rawModes( *ifed, cabling, digis ); } 
+      else if ( readoutMode_ == "PROCESSED_RAW" )   { rawModes( *ifed, cabling, digis ); }
+      else if ( readoutMode_ == "ZERO_SUPPRESSED" ) { zeroSuppr( *ifed, cabling, digis ); } 
       else { std::cout << "Unknown readout mode : " << readoutMode_ << std::endl; }
-
+      
       //readoutMode_ = static_cast<unsigned short>( fedEvent_->getSpecialTrackerEventType() );
       //readoutMode_ = fedEvent_->getDaqMode();
       //std::cout << "Readout mode : " << readoutMode_ << std::endl;
@@ -204,18 +193,20 @@ void SiStripRawToDigi::createDigis( FEDRawDataCollection& fed_buffers,
       //else if ( readoutMode_ == 10/*1*/ ) { zeroSuppr( *ifed, digis ); } 
       //else { std::cout << "Unknown readout mode : " << readoutMode_ << std::endl; }
 
+      if ( fedEvent_ ) { delete fedEvent_; }
+
     } // loop over FED ids
    
     //  some debug
      if (verbosity_>0) { 
        std::vector<unsigned int> dets;
-       digis.detIDs(dets);
+       digis->detIDs(dets);
        long cntr = 0;
        std::vector<unsigned int>::iterator idet;
        for( idet = dets.begin(); idet != dets.end(); idet++ ) {
  	nDets_++;
  	std::vector<StripDigi> temp;
-	digis.digis(*idet, temp);
+	digis->digis(*idet, temp);
  	std::vector<StripDigi>::const_iterator idigi;
  	for ( idigi = temp.begin(); idigi != temp.end(); idigi++ ) {
  	  if ( (*idigi).adc() ) {
@@ -240,83 +231,82 @@ void SiStripRawToDigi::createDigis( FEDRawDataCollection& fed_buffers,
 	      << "Exception caught : " << err << std::endl;
   }
   
-  delete fedEvent_; //@@ temporary
-  
 }
 
 // -----------------------------------------------------------------------------
 //
-void SiStripRawToDigi::zeroSuppr( unsigned short fed_id, StripDigiCollection& digis ) {
+void SiStripRawToDigi::zeroSuppr( unsigned short fed_id, 
+				  edm::ESHandle<SiStripReadoutCabling>& cabling,
+				  std::auto_ptr<StripDigiCollection>& digis ) {
+
   if (verbosity_>2) std::cout << "[SiStripRawToDigi::zeroSuppr] " << std::endl;
 
-// Loop through FED channels for given FED
+  // Loop through all channels of given FED id
+  for ( unsigned short ichan = 0; ichan < fedEvent_->totalChannels(); ichan++ ) {
+    
+    // Retrieve pair containing DetId and APV pair number
+    pair<unsigned int, unsigned short> apv_pair_id = cabling->getAPVPair( fed_id, ichan );
 
-    for ( unsigned short ichan = 0; ichan < fedEvent_->totalChannels(); ichan++ ) {
-      
-      // retrieve DetId and APV pair from SiStripConnections
-      pair<DetId,unsigned short> det_pair;
-      ////////////////////////////////////////////////////////
-      //SiStripConnection::FedReference ref(*ifed, ichan);
-      //connections_.getDetPair( ref, det_pair );
-      ///////////////////////////////////////////////////////
-      connections_.getDetPair( fed_id, ichan, det_pair );
-      unsigned int det_id = static_cast<unsigned int>( det_pair.first.rawId() );
-      if (det_id) {
-      unsigned short apv_pair = det_pair.second;
-      
-      //// StripDigi container for extracted ADC values
-      std::vector<StripDigi> channel_digis;
-      channel_digis.clear();
-      channel_digis.reserve(256);
-      
-      // Iterate through payload for given channel
-      Fed9U::Fed9UEventIterator fed_iter = const_cast<Fed9U::Fed9UEventChannel&>(fedEvent_->channel( ichan )).getIterator();
-      for (Fed9U::Fed9UEventIterator i = fed_iter+7; i.size() > 0; /**/) {
-	unsigned char first_strip = *i++; // first strip position of cluster
-	unsigned char width = *i++; // strip width of cluster 
-	for (unsigned short istr = 0; istr < width; istr++) {
-	  unsigned short strip = apv_pair*256 + first_strip + istr;
-	  channel_digis.push_back( StripDigi(static_cast<int>(strip),static_cast<int>(*i)) );
-	  *i++;
-	}
+    // Check DetId is non-zero
+    if ( !apv_pair_id.first ) { 
+      if ( verbosity_ > 2 ) { 
+	std::cout  << "[SiStripRawToDigi::zeroSuppr]"
+		   << " Zero DetId returned for FED id " << fed_id
+		   << " and channel " << ichan << std::endl; 
       }
-      digis.add( det_id, channel_digis );
-
+      continue;
     }
-     
+      
+    // Define digi container
+    std::vector<StripDigi> channel_digis;
+    channel_digis.clear(); channel_digis.reserve(256);
+    
+    // Retrieve channel payload and create digis
+    Fed9U::Fed9UEventIterator fed_iter = const_cast<Fed9U::Fed9UEventChannel&>(fedEvent_->channel( ichan )).getIterator();
+    for (Fed9U::Fed9UEventIterator i = fed_iter+7; i.size() > 0; /**/) {
+      unsigned char first_strip = *i++; // first strip position of cluster
+      unsigned char width = *i++; // strip width of cluster 
+      for (unsigned short istr = 0; istr < width; istr++) {
+	unsigned short strip = apv_pair_id.second*256 + first_strip + istr;
+	channel_digis.push_back( StripDigi(static_cast<int>(strip),static_cast<int>(*i)) );
+	*i++;
+      }
     }
+    digis->add( apv_pair_id.first, channel_digis );
+    
+    
+  }
 }
 
 // -----------------------------------------------------------------------------
 //
-void SiStripRawToDigi::Raw( unsigned short fed_id, StripDigiCollection& digis ) {
+void SiStripRawToDigi::rawModes( unsigned short fed_id, 
+				 edm::ESHandle<SiStripReadoutCabling>& cabling,
+				 std::auto_ptr<StripDigiCollection>& digis ) {
   
-  if (verbosity_>2) {
-    if (readoutMode_ == "VIRGIN_RAW"){
-      std::cout << "[SiStripRawToDigi::virginRaw] " << std::endl;
-    }
-    else {std::cout << "[SiStripRawToDigi::processedRaw] " << std::endl;}
-  }
+  if (verbosity_>2) { std::cout << "[SiStripRawToDigi::rawModes] " << std::endl; }
   
-  //Loop through FED channels for given FED
-  
+  // Loop through FED channels of given FED
   for ( unsigned short ichan = 0; ichan < fedEvent_->totalChannels(); ichan++ ) {
     
-    // StripDigi container for extracted ADC values
+    // Retrieve pair containing DetId and APV pair number
+    pair<unsigned int, unsigned short> apv_pair_id = cabling->getAPVPair( fed_id, ichan );
+
+    // Check DetId is non-zero
+    if ( !apv_pair_id.first ) { 
+      if ( verbosity_ > 2 ) { 
+	std::cout  << "[SiStripRawToDigi::rawModes]"
+		   << " Zero DetId returned for FED id " << fed_id
+		   << " and channel " << ichan << std::endl; 
+      }
+      continue;
+    }
+
+    // Define digi container
     std::vector<StripDigi> channel_digis;
-    channel_digis.clear();
-    channel_digis.reserve( 256);
-    
-    // Retrieve DetId and APV pair from SiStripConnections
-    pair<DetId,unsigned short> det_pair;
-    connections_.getDetPair( fed_id, ichan, det_pair );
+    channel_digis.clear(); channel_digis.reserve(256);
 
-    unsigned int det_id = static_cast<unsigned int>( det_pair.first.rawId() );
-
-  if (det_id) {
-    unsigned short apv_pair = det_pair.second;
-    
-    // Retrieve data samples from FED channel
+    // Retrieve channel payload and create digis
     vector<unsigned short> adc = fedEvent_->channel( ichan ).getSamples();
     if ( adc.size() != 256 ) { 
       stringstream os;
@@ -325,35 +315,39 @@ void SiStripRawToDigi::Raw( unsigned short fed_id, StripDigiCollection& digis ) 
       throw string( os.str() );
     }
     
-    if (readoutMode_ == "VIRGIN_RAW") {
-      
+    if ( readoutMode_ == "VIRGIN_RAW" ) {
       // Account for APV readout order and multiplexed data
       for ( unsigned short i = 0; i < adc.size(); i++ ) {
 	int j = readoutOrder(i%128);
 	(i/128) ? j=j*2+1 : j=j*2; // true=APV1, false=APV0
-	unsigned short strip = apv_pair*256 + i;
+	unsigned short strip = apv_pair_id.second*256 + i;
 	channel_digis.push_back( StripDigi(strip, adc[j]) );
 
       }
-      digis.add( det_id,channel_digis  );
-    }
-    else { //PROCESSED_RAW
+    } else if ( readoutMode_ == "PROCESSED_RAW" ) { 
       for ( unsigned short i = 0; i < adc.size(); i++ ) {
-	unsigned short strip = apv_pair*256 + i;
+	unsigned short strip = apv_pair_id.second*256 + i;
 	channel_digis.push_back( StripDigi(strip, adc[i]) );
       }
-      digis.add( det_id, channel_digis );
-      
-    }  
+    } else {
+      std::stringstream os; 
+      os << "[SiStripRawToDigi::rawModes]"
+	 << " Unexpected readout mode!"; 
+      throw std::string( os.str() );
     }
-}
+    digis->add( apv_pair_id.first, channel_digis );
+  
+  }  
+  
 }
 
 // -----------------------------------------------------------------------------
 //
-void SiStripRawToDigi::scopeMode( unsigned short fed_id, StripDigiCollection& digis ) {
+void SiStripRawToDigi::scopeMode( unsigned short fed_id, 
+				  edm::ESHandle<SiStripReadoutCabling>& cabling,
+				  std::auto_ptr<StripDigiCollection>& digis ) {
   /* needs implementation */ 
-  stringstream os;
+  std::stringstream os;
   os << "[SiStripRawToDigi::scopeMode] "
      << " This method has not been implemented yet!";
   throw string( os.str() );
@@ -367,8 +361,8 @@ void SiStripRawToDigi::dumpFedBuffer( unsigned short fed, unsigned char* start, 
 	    << "Dump of FED buffer to stdout:" << std::endl;
   std::cout << "Reinterpreting FED data as " 
 	    << 8*sizeof(unsigned long long int) << "-bit words" << std::endl;
-  std::cout << "Buffer from FED id: " << dec << fed 
-	    << " has length [64-bit words]: " << dec << size/8 << std::endl;
+  std::cout << "Buffer from FED id: " << std::dec << fed 
+	    << " has length [64-bit words]: " << std::dec << size/8 << std::endl;
   std::cout << "NB: payload is byte-swapped and empty words have been removed." << std::endl;
   unsigned int* buffer_u32 = reinterpret_cast<unsigned int*>( start );
   unsigned int empty = 0;
@@ -381,10 +375,10 @@ void SiStripRawToDigi::dumpFedBuffer( unsigned short fed, unsigned char* start, 
 	std::cout << "     : [ empty  words ]" << std::endl; 
 	empty = 0; 
       }
-      std::cout << setw(5) << dec << i << ": " << hex 
-		<< setfill('0') << setw(8) << temp0 
-		<< setfill('0') << setw(8) << temp1 
-		<< dec << std::endl;
+      std::cout << std::setw(5) << std::dec << i << ": " << std::hex 
+		<< std::setfill('0') << std::setw(8) << temp0 
+		<< std::setfill('0') << std::setw(8) << temp1 
+		<< std::dec << std::endl;
     }
   }
   std::cout << "[SiStripRawToDigi::dumpFedBuffer] "

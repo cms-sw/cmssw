@@ -1,56 +1,38 @@
-#ifndef SiStripDigiToRaw_H
-#define SiStripDigiToRaw_H
+#ifndef EventFilter_SiStripDigiToRaw_H
+#define EventFilter_SiStripDigiToRaw_H
 
-#include "CalibTracker/SiStripConnectivity/interface/SiStripConnection.h"
-//
-#include "DataFormats/SiStripDigi/interface/StripDigiCollection.h"
-#include "DataFormats/SiStripDigi/interface/StripDigi.h"
-//
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-#include "DataFormats/FEDRawData/interface/FEDRawData.h"
-//
+#include <FWCore/Framework/interface/Handle.h>
+#include <FWCore/Framework/interface/ESHandle.h>
 #include "Fed9UUtils.hh"
+
+class SiStripReadoutCabling;
+class StripDigiCollection;
+class FEDRawDataCollection;
 
 /**
    \class SiStripDigiToRaw
-
-   \brief Input: StripDigiCollection. Output: FEDRawDataCollection.
+   \brief Takes a StripDigiCollection as input and creates a
+   FEDRawDataCollection.
    \author M.Wingham, R.Bainbridge
-   \version 0.1
-   \date 05/09/05
-   
-   Input: StripDigiCollection. 
-   Output: FEDRawDataCollection.
 */
 class SiStripDigiToRaw {
   
  public: // ----- public interface -----
   
-  /** */
-  SiStripDigiToRaw( SiStripConnection& conns,
-		    unsigned short verbosity = 0 );
-  /** */
+  SiStripDigiToRaw( unsigned short verbosity );
   ~SiStripDigiToRaw();
   
   /** Takes a StripDigiCollection as input and creates a
       FEDRawDataCollection. */
-  void createFedBuffers( StripDigiCollection& digis, 
-			 FEDRawDataCollection& fed_buffers );
+  void createFedBuffers( edm::ESHandle<SiStripReadoutCabling>& cabling,
+			 edm::Handle<StripDigiCollection>& digis,
+			 std::auto_ptr<FEDRawDataCollection>& buffers );
 
-  /** */
-  inline void fedReadoutPath( std::string rpath );
-  /** */
-  inline void fedReadoutMode( std::string rmode );
-
- private: // ----- private methods -----
-
-  /** private default constructor */
-  SiStripDigiToRaw() {;}
+  inline void fedReadoutPath( std::string readout_path );
+  inline void fedReadoutMode( std::string readout_mode );
 
  private: // ----- private data members -----
 
-  /** */
-  SiStripConnection connections_;
   /** */
   unsigned short verbosity_;
 
@@ -59,19 +41,15 @@ class SiStripDigiToRaw {
   /** */
   std::string readoutMode_;
 
-
-  /** FED identifiers. */
-  vector<unsigned short> fedids_;
-
   // some debug counters
-  vector<unsigned int> position_;
-  vector<unsigned int> landau_;
+  std::vector<unsigned int> position_;
+  std::vector<unsigned int> landau_;
   unsigned long nFeds_;
   unsigned long nDigis_;
 
 };
 
-#endif // SiStripDigiToRaw_H
+#endif // EventFilter_SiStripDigiToRaw_H
 
 // inline methods 
 
