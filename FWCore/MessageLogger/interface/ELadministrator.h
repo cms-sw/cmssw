@@ -45,6 +45,8 @@
 //		an additional signature for attach(), 
 //		and getELdestControl() method
 // 3/17/04 mf	exitThreshold and setExitThreshold
+// 1/10/06 mf	finish
+//
 // ----------------------------------------------------------------------
 
 
@@ -142,7 +144,8 @@ public:
   void setTimespans ( const ELstring        & id,  int seconds );
   void setTimespans ( const ELseverityLevel & sev, int seconds );
   void wipe();
-
+  void finish();
+  
 protected:
   // ---  member data accessors:
   //

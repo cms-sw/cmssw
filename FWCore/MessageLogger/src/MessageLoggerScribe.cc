@@ -6,6 +6,7 @@
 
 
 #include "FWCore/MessageLogger/interface/ELoutput.h"
+#include "FWCore/MessageLogger/interface/ELfwkJobReport.h"
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
 #include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
 #include "FWCore/MessageLogger/interface/MessageLoggerScribe.h"
@@ -36,6 +37,7 @@ MessageLoggerScribe::MessageLoggerScribe()
 
 MessageLoggerScribe::~MessageLoggerScribe()
 {
+  admin_p->finish();
   delete errorlog_p;
   for( ;  not file_ps.empty();  file_ps.pop_back() )  {
     delete file_ps.back();
@@ -137,6 +139,32 @@ void
 
   }  // for [it = destinations.begin() to end()]
 
+  // grab list of fwkJobReports:
+  vString  fwkJobReports
+     = job_pset_p->getUntrackedParameter<vString>("fwkJobReports", empty_vString);
+
+  // dial down the early destination if other dest's are supplied:
+  if( ! fwkJobReports.empty() )
+    early_dest.setThreshold(ELhighestSeverity);
+
+  // establish each fwkJobReports destination:
+  for( vString::const_iterator it = fwkJobReports.begin()
+     ; it != fwkJobReports.end()
+     ; ++it
+     )
+  {
+    // attach the current destination, keeping a control handle to it:
+    ELdestControl dest_ctrl;
+    String filename = *it;
+    std::ofstream * os_p = new std::ofstream(filename.c_str());
+    file_ps.push_back(os_p);
+    dest_ctrl = admin_p->attach( ELfwkJobReport(*os_p) );
+
+    // now configure this destination:
+    configure_dest(dest_ctrl, filename);
+
+  }  // for [it = fwkJobReports.begin() to end()]
+
   configure_external_dests();
 
 }  // MessageLoggerScribe::configure_errorlog()
@@ -237,6 +265,13 @@ void
     if (lineLen != lenDef) {
       dest_ctrl.setLineLength(lineLen);
     }
+  }
+
+  // if indicated, suppress time stamps in this destination's output
+  bool suppressTime =
+          dest_pset.getUntrackedParameter<bool> ("noTimeStamps",false);
+  if (suppressTime) {
+    dest_ctrl.suppressTime();
   }
 
 }  // MessageLoggerScribe::configure_dest()

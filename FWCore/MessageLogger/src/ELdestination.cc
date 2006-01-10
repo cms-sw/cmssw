@@ -19,6 +19,7 @@
 // 4/05/01      mf      multi-module filtering
 // 4/12/01      mf      repair multi-module filtering
 // 6/23/03      mf      changeFile(), flush()
+// 1/10/06      mf      finish()
 //
 // ----------------------------------------------------------------------
 
@@ -176,6 +177,7 @@ void ELdestination::summary( ELstring & s, const ELstring & title )  {
 
 }  // summary()
 
+void ELdestination::finish() {  }
 
 void ELdestination::setTableLimit( int n )  { limits.setTableLimit( n ); }
 

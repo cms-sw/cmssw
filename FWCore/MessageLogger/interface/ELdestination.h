@@ -24,6 +24,7 @@
 // 3/13/01 mf	statisticsMap()
 // 04/04/01 mf  add ignoreMOdule and respondToModule
 //  6/23/03 mf  changeFile() and flush() 
+// 1/10/06 mf	finish
 //
 // ----------------------------------------------------------------------
 
@@ -83,6 +84,8 @@ public:
    		const ELstring & sumLines );
 
   virtual ELstring getNewline() const;
+
+  virtual void finish();
 
   // -----  Methods invoked through the ELdestControl handle:
   //

@@ -26,6 +26,7 @@
 //              attached destination; using -> USING.
 // 3/6/00  mf   Attach taking name to id the destination, getELdestControl()
 // 3/14/01 mf   exitThreshold
+// 1/10/06 mf   finish()
 //
 // ---- CMS version
 //
@@ -61,6 +62,7 @@
 // ELadministrator::setTimespans( const ELstring & id, int seconds )
 // ELadministrator::setTimespans( const ELseverityLevel & sev, int seconds )
 // ELadministrator::wipe()
+// ELadministrator::finish()
 //
 // ELadministrator::process() const
 // ELadministrator::context() const
@@ -416,6 +418,14 @@ void ELadministrator::wipe()  {
   ELlist_dest::iterator d;
   for ( d = sinks().begin();  d != sinks().end();  ++d )
     (*d)->limits.wipe();
+
+}  // wipe()
+
+void ELadministrator::finish()  {
+
+  ELlist_dest::iterator d;
+  for ( d = sinks().begin();  d != sinks().end();  ++d )
+    (*d)->finish();
 
 }  // wipe()
 
