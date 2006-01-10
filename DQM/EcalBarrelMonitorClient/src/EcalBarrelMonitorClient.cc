@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/01/07 16:54:43 $
- * $Revision: 1.73 $
+ * $Date: 2006/01/08 10:04:22 $
+ * $Revision: 1.74 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -440,7 +440,7 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
 
   runtag.setLocationDef(locdef);
   runtag.setRunTypeDef(rundef);
-  runtag.setGeneralTag("");
+  runtag.setGeneralTag("default");
 
   Tm startRun;
 
