@@ -16,7 +16,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripClusterMatch.h"
 
-#include "DataFormats/TrackingRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
 #include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
 
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"

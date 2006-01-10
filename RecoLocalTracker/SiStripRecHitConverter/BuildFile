@@ -2,7 +2,7 @@
 <use name=FWCore/Framework>
 <use name=FWCore/EDProduct>
 <use name=FWCore/ParameterSet>
-<use name=DataFormats/TrackingRecHit2D>
+<use name=DataFormats/TrackerRecHit2D>
 <use name=DataFormats/SiStripCluster>
 <use name=DataFormats/SiStripDetId>
 <use name=DataFormats/Common>
@@ -15,7 +15,7 @@
 <use name=FWCore/EDProduct>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
-<use name=DataFormats/TrackingRecHit2D>
+<use name=DataFormats/TrackerRecHit2D>
 <use name=DataFormats/SiStripCluster>
 <use name=DataFormats/SiStripDetId>
 <use name=DataFormats/Common>
