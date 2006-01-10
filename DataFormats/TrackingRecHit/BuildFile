@@ -1,7 +1,7 @@
 <use name=boost>
 <use name=clhep>
 <export>
- <lib name=Dataformats/TrackingRecHit>
+ <lib name=DataFormatsTrackingRecHit>
  <use name=boost>
  <use name=clhep>
 </export>
