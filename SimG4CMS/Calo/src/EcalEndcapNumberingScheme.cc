@@ -40,6 +40,7 @@ uint32_t EcalEndcapNumberingScheme::getUnitID(const G4Step* aStep) const {
 
   //pack it into an integer
   // to be consistent with EEDetId definition
+  //FIXME to checked and most surely corrected
   uint32_t intindex = EEDetId(eta,phi,zside).rawId();
 
   if (verbosity>1) 
