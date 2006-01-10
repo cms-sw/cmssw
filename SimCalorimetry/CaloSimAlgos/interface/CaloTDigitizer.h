@@ -39,6 +39,8 @@ namespace cms {
 
       theHitResponse->run(input);
 
+      theElectronicsSim->newEvent();
+ 
       // make a raw digi for evey cell
       for(std::vector<DetId>::const_iterator idItr = theDetIds.begin();
           idItr != theDetIds.end(); ++idItr)
