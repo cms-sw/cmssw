@@ -3,7 +3,7 @@
 
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include "CLHEP/Random/RandPoissonQ.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include <map>
 #include<vector>
 
@@ -31,19 +31,22 @@ public:
   // get this from somewhere external
   enum {BUNCHSPACE=25};
 
-  CaloHitResponse(CaloVSimParameterMap * parameterMap, CaloVShape * shape);
+  CaloHitResponse(const CaloVSimParameterMap * parameterMap, const CaloVShape * shape);
 
   /// doesn't delete the pointers passed in
   ~CaloHitResponse() {}
 
-  /// tell sit which pileup bunches to do
+  /// tells it which pileup bunches to do
   void setBunchRange(int minBunch, int maxBunch);
+
+  /// geometry needed for time-of-flight
+  void setGeometry(const CaloGeometry * geometry) { theGeometry = geometry; }
 
   /// Complete cell digitization.
   void run(const std::vector<PCaloHit> & hits);
 
   /// If you want to correct hits, for attenuation or delay, set this.
-  void setHitCorrection(CaloVHitCorrection * hitCorrection) {
+  void setHitCorrection(const CaloVHitCorrection * hitCorrection) {
     theHitCorrection = hitCorrection;
   }
 
@@ -63,17 +66,19 @@ public:
   /// users can look for the signal for a given cell
   CaloSamples findSignal(const DetId & cell) const;
 
+  /// time-of-flight, in ns, to get to this cell
+  /// returns 0 if no geometry has been set
+  double timeOfFlight(const DetId & detId) const;
+
 protected:
 
   AnalogSignalMap theAnalogSignalMap;
-  // a little prototype to return when there's no signal
-  mutable CaloSamples theBlankFrame;
 
-  CaloVSimParameterMap * theParameterMap;
-  CaloVShape * theShape;
-  CaloVHitCorrection * theHitCorrection;
+  const CaloVSimParameterMap * theParameterMap;
+  const CaloVShape * theShape;
+  const CaloVHitCorrection * theHitCorrection;
 
-  RandPoissonQ theRandomPoisson;
+  const CaloGeometry * theGeometry;
 
   int theMinBunch;
   int theMaxBunch;
