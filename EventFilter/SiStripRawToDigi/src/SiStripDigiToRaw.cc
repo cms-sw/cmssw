@@ -18,7 +18,7 @@ SiStripDigiToRaw::SiStripDigiToRaw( unsigned short verbosity ) :
 {
   
   std::cout << "[SiStripDigiToRaw::SiStripDigiToRaw]" 
-	    << " Constructing object..." << endl;
+	    << " Constructing object..." << std::endl;
   
   // initialise some containers holding debug info
   landau_.clear(); landau_.reserve(100); landau_.resize(100,0);
@@ -68,7 +68,7 @@ SiStripDigiToRaw::SiStripDigiToRaw( unsigned short verbosity ) :
 // destructor
 SiStripDigiToRaw::~SiStripDigiToRaw() {
   std::cout << "[SiStripDigiToRaw::~SiStripDigiToRaw]" 
-	    << " Destructing object..." << endl;
+	    << " Destructing object..." << std::endl;
 
   // counters
   std::cout << "[SiStripDigiToRaw::~SiStripDigiToRaw] Some cumulative counters: "
@@ -108,7 +108,7 @@ void SiStripDigiToRaw::createFedBuffers( edm::ESHandle<SiStripReadoutCabling>& c
 					 edm::Handle<StripDigiCollection>& collection,
 					 std::auto_ptr<FEDRawDataCollection>& buffers ) {
 
-  if (verbosity_>2) std::cout << "[SiStripDigiToRaw::createFedBuffers] " << endl;
+  if (verbosity_>2) std::cout << "[SiStripDigiToRaw::createFedBuffers] " << std::endl;
 
   try {
    
@@ -126,7 +126,7 @@ void SiStripDigiToRaw::createFedBuffers( edm::ESHandle<SiStripReadoutCabling>& c
 
     // Define container for (raw) ADC values
     const unsigned short strips_per_fed = 96 * 256; 
-    vector<unsigned short> data_buffer; 
+    std::vector<unsigned short> data_buffer; 
     data_buffer.reserve(strips_per_fed);
 
     // Retrieve FED ids, iterate through FEDs and extract payload
@@ -150,7 +150,7 @@ void SiStripDigiToRaw::createFedBuffers( edm::ESHandle<SiStripReadoutCabling>& c
       for (unsigned short ichan = 0; ichan < 96; ichan++) {
 	
 	// Retrieve pair containing DetId and APV pair number
-	pair<unsigned int, unsigned short> apv_pair_id = cabling->getAPVPair( *ifed, ichan );
+	std::pair<unsigned int, unsigned short> apv_pair_id = cabling->getAPVPair( *ifed, ichan );
 	
 	// Check DetId is non-zero
 	if ( !apv_pair_id.first ) { 
@@ -163,11 +163,11 @@ void SiStripDigiToRaw::createFedBuffers( edm::ESHandle<SiStripReadoutCabling>& c
 	}
 	
 	// Retrieve and iterate through Digis
-	vector<StripDigi> digis;
+	std::vector<StripDigi> digis;
 	collection->digis( apv_pair_id.first, digis );
-	if ( !digis.empty() ) cout << "size " << digis.size() << endl; 
+	if ( !digis.empty() ) std::cout << "size " << digis.size() << std::endl; 
 
-	vector<StripDigi>::const_iterator idigi;
+	std::vector<StripDigi>::const_iterator idigi;
 	for ( idigi = digis.begin(); idigi != digis.end(); idigi++ ) {
 	  // Check strip is within range appropriate for this APV pair
 	  
@@ -179,7 +179,7 @@ void SiStripDigiToRaw::createFedBuffers( edm::ESHandle<SiStripReadoutCabling>& c
 	      std::stringstream os;
 	      os << "[SiStripDigiToRaw::createFedBuffers]"
 		 << " strip >= strips_per_fed";
-	      throw string( os.str() );
+	      throw std::string( os.str() );
 	    }
 	    // check if buffer has already been filled with digi ADC value. 
 	    // if not or if filled with different value, fill it.
@@ -193,7 +193,7 @@ void SiStripDigiToRaw::createFedBuffers( edm::ESHandle<SiStripReadoutCabling>& c
 		   << ", FED strip: " << strip
 		   << ", ADC value: " << (*idigi).adc()
 		   << ", data_buffer["<<strip<<"]: " << data_buffer[strip];
-		std::cout << os.str() << endl;
+		std::cout << os.str() << std::endl;
 	      }
 	    } else { // if no, update buffer with digi ADC value
 	      data_buffer[strip] = (*idigi).adc(); 
@@ -220,7 +220,7 @@ void SiStripDigiToRaw::createFedBuffers( edm::ESHandle<SiStripReadoutCabling>& c
       // instantiate appropriate buffer creator object depending on readout mode
       Fed9U::Fed9UBufferCreator* creator = 0;
       if ( readoutMode_ == "SCOPE_MODE" ) {
-	throw string("WARNING : Fed9UBufferCreatorScopeMode not implemented yet!");
+	throw std::string("WARNING : Fed9UBufferCreatorScopeMode not implemented yet!");
       } else if ( readoutMode_ == "VIRGIN_RAW" ) {
 	creator = new Fed9U::Fed9UBufferCreatorRaw();
       } else if ( readoutMode_ == "PROCESSED_RAW" ) {
@@ -255,7 +255,7 @@ void SiStripDigiToRaw::createFedBuffers( edm::ESHandle<SiStripReadoutCabling>& c
 //     }
 
   }
-  catch ( string err ) {
+  catch ( std::string err ) {
     std::cout << "SiStripDigiToRaw::createFedBuffers] " 
 	      << "Exception caught : " << err << std::endl;
   }

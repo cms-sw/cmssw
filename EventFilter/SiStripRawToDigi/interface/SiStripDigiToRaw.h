@@ -1,10 +1,9 @@
 #ifndef EventFilter_SiStripDigiToRaw_H
 #define EventFilter_SiStripDigiToRaw_H
 
-#include <FWCore/Framework/interface/Handle.h>
-#include <FWCore/Framework/interface/ESHandle.h>
+#include "FWCore/Framework/interface/Handle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "Fed9UUtils.hh"
-
 class SiStripReadoutCabling;
 class StripDigiCollection;
 class FEDRawDataCollection;
