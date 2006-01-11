@@ -6,7 +6,7 @@
 BranchDescription: The full description of a product and how it came into
 existence.
 
-$Id: BranchDescription.h,v 1.1 2005/10/03 18:58:33 wmtan Exp $
+$Id: BranchDescription.h,v 1.2 2005/12/28 00:09:58 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <ostream>
 #include <string>
@@ -29,7 +29,10 @@ namespace edm {
     BranchDescription();
 
     explicit BranchDescription(ModuleDescription const& m,
-      std::string const& name, std::string const& fName, std::string const& pin, EDProduct const* edp);
+			       std::string const& name, 
+			       std::string const& fName, 
+			       std::string const& pin, 
+			       EDProduct const* edp);
 
     ~BranchDescription() {}
 
@@ -47,11 +50,13 @@ namespace edm {
     // that are produced by the same producer
     std::string productInstanceName_;
 
-    // A pointer to a default constructed Wrapper<T>, where T is the product type.
-    // If T is a user-defined class, the Wrapper contains a null T*.
+    // A pointer to a default constructed Wrapper<T>, where T is the
+    // product type.  If T is a user-defined class, the Wrapper
+    // contains a null T*.
     EDProduct const * productPtr_;
 
-    // The branch name, which is currently derivable fron the other attributes. 
+    // The branch name, which is currently derivable fron the other
+    // attributes.
     mutable std::string branchName_;
 
     void init() const;
@@ -61,6 +66,12 @@ namespace edm {
     bool operator<(BranchDescription const& rh) const;
 
     bool operator==(BranchDescription const& rh) const;
+
+    // It is probably sensible to inline these functions.
+    std::string productType() const;
+    std::string moduleLabel() const;
+    std::string productInstanceName() const;
+    std::string processName() const;
   };
   
   inline

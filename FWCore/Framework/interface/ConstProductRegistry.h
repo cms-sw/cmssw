@@ -7,19 +7,21 @@
 // 
 /**\class ConstProductRegistry ConstProductRegistry.h FWCore/Framework/interface/ConstProductRegistry.h
 
- Description: Provides a 'service' interface to the ProductRegistry
+Description: Provides a 'service' interface to the ProductRegistry
 
- Usage:
-    <usage>
+Usage:
+<usage>
 
 */
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Sep 22 18:01:21 CEST 2005
-// $Id: ConstProductRegistry.h,v 1.1 2005/09/22 16:19:34 chrjones Exp $
+// $Id: ConstProductRegistry.h,v 1.2 2005/10/07 19:20:05 chrjones Exp $
 //
 
 // system include files
+#include <vector>
+#include <string>
 
 // user include files
 #include "FWCore/Framework/src/SignallingProductRegistry.h"
@@ -27,36 +29,52 @@
 
 // forward declarations
 namespace edm {
-   class ConstProductRegistry
+  class ConstProductRegistry
   {
 
-   public:
-     typedef ProductRegistry::ProductList ProductList;
+  public:
+    typedef ProductRegistry::ProductList ProductList;
      
-     ConstProductRegistry(SignallingProductRegistry& iReg) : reg_(&iReg) {}
-     //virtual ~ConstProductRegistry();
+    ConstProductRegistry(SignallingProductRegistry& iReg) : reg_(&iReg) { }
      
-      // ---------- const member functions ---------------------
-     ProductList const& productList() const {return reg_->productList();}
-     
-     unsigned long nextID() const {return reg_->nextID();}
-     
-     template< class T>
-        void watchProductAdditions(const T& iFunc){
-           serviceregistry::connect_but_block_self( reg_->productAddedSignal_, iFunc);
-        }
-     template< class T, class TMethod>
-        void watchProductAdditions(T& iObj, TMethod iMethod){
-           serviceregistry::connect_but_block_self(reg_->productAddedSignal_, boost::bind(iMethod, iObj,_1));
-        }
-     
-   private:
-      ConstProductRegistry(const ConstProductRegistry&); // stop default
+    // ---------- const member functions ---------------------
+    ProductList const& productList() const {return reg_->productList();}
 
-      const ConstProductRegistry& operator=(const ConstProductRegistry&); // stop default
+    // Return all the branch names currently known to *this.  This
+    // does a return-by-value of the vector so that it may be used in
+    // a colon-initialization list.
+    std::vector<std::string> allBranchNames() const;
 
-      // ---------- member data --------------------------------
-      SignallingProductRegistry* reg_;
+    // Return pointers to (const) BranchDescriptions for all the
+    // BranchDescriptions known to *this.  This does a
+    // return-by-value of the vector so that it may be used in a
+    // colon-initialization list.
+    std::vector<BranchDescription const*> allBranchDescriptions() const;
+     
+    unsigned long nextID() const {return reg_->nextID();}
+     
+    template< class T>
+    void watchProductAdditions(const T& iFunc)
+    {
+      serviceregistry::connect_but_block_self(reg_->productAddedSignal_, 
+					      iFunc);
+    }
+    template< class T, class TMethod>
+    void watchProductAdditions(T& iObj, TMethod iMethod)
+    {
+      serviceregistry::connect_but_block_self(reg_->productAddedSignal_, 
+					      boost::bind(iMethod, iObj,_1));
+    }
+     
+  private:
+    // stop default
+    ConstProductRegistry(const ConstProductRegistry&); 
+
+    // stop default
+    const ConstProductRegistry& operator=(const ConstProductRegistry&); 
+
+    // ---------- member data --------------------------------
+    SignallingProductRegistry* reg_;
   };
 }
 

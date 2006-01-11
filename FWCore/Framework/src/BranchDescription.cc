@@ -2,7 +2,7 @@
 
 /*----------------------------------------------------------------------
 
-$Id: BranchDescription.cc,v 1.10 2005/09/28 04:53:20 wmtan Exp $
+$Id: BranchDescription.cc,v 1.1 2005/10/03 18:58:47 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -17,15 +17,18 @@ namespace edm {
   { }
 
   BranchDescription::BranchDescription(ModuleDescription const& md,
-      std::string const& name, std::string const& fName, std::string const& pin, EDProduct const* edp) :
+				       std::string const& name, 
+				       std::string const& fName, 
+				       std::string const& pin, 
+				       EDProduct const* edp) :
     module(md),
     productID_(),
     fullClassName_(name),
     friendlyClassName_(fName),
     productInstanceName_(pin),
-    productPtr_(edp) {
-      init();
-    }
+    productPtr_(edp)  {
+    init();
+  }
 
   void
   BranchDescription::init() const {
@@ -44,6 +47,31 @@ namespace edm {
     }
     branchName_ = friendlyClassName_ + underscore + module.moduleLabel_ + underscore +
       productInstanceName_ + underscore + module.processName_ + period;
+  }
+
+  // TODO: It is probably sensible to inline these functions.
+  std::string 
+  BranchDescription::productType() const
+  {
+    return friendlyClassName_;
+  }
+
+  std::string
+  BranchDescription::moduleLabel() const
+  {
+    return module.moduleLabel_;
+  }
+
+  std::string
+  BranchDescription::productInstanceName() const
+  {
+    return productInstanceName_;
+  }
+  
+  std::string
+  BranchDescription::processName() const
+  {
+    return module.processName_;    
   }
 
   void
