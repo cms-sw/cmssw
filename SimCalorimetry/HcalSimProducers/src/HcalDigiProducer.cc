@@ -83,15 +83,19 @@ void HcalDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   std::auto_ptr<HODigiCollection> hoResult(new HODigiCollection());
   std::auto_ptr<HFDigiCollection> hfResult(new HFDigiCollection());
 
+  edm::LogInfo("HcalDigiProducer") << "HCAL HBHE hits : " << theHBHEHits.size();
+  edm::LogInfo("HcalDigiProducer") << "HCAL HO hits   : " << theHOHits.size();
+  edm::LogInfo("HcalDigiProducer") << "HCAL HF hits   : " << theHFHits.size();
+
 
   // Step C: Invoke the algorithm, passing in inputs and getting back outputs.
   theHBHEDigitizer->run(theHBHEHits, *hbheResult);
   theHODigitizer->run(theHOHits, *hoResult);
   theHFDigitizer->run(theHFHits, *hfResult);
 
-  edm::LogInfo("HcalDigiProducer") << "HCAL HBHE digis: " << hbheResult->size();
-  edm::LogInfo("HcalDigiProducer") << "HCAL HO digis: " << hoResult->size();
-  edm::LogInfo("HcalDigiProducer") << "HCAL HF digis: " << hfResult->size();
+  edm::LogInfo("HcalDigiProducer") << "HCAL HBHE digis : " << hbheResult->size();
+  edm::LogInfo("HcalDigiProducer") << "HCAL HO digis   : " << hoResult->size();
+  edm::LogInfo("HcalDigiProducer") << "HCAL HF digis   : " << hfResult->size();
 
   // Step D: Put outputs into event
   e.put(hbheResult);
