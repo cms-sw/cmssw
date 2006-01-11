@@ -71,9 +71,10 @@ void FUEventProcessor::resumeAction(toolbox::Event::Reference e) throw (toolbox:
 
 void FUEventProcessor::haltAction(toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception)
 {
-  proc_->stopEventLoop();
-  proc_->kill();
+  proc_->stopEventLoop(2);
+  //  proc_->kill();
   //  group_->join();
+
   proc_->endRun();
 
   delete proc_;
