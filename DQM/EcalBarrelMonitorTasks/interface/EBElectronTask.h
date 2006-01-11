@@ -4,8 +4,8 @@
 /*
  * \file EBElectronTask.h
  *
- * $Date: 2005/11/16 15:19:36 $
- * $Revision: 1.5 $
+ * $Date: 2005/12/23 08:57:17 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */
@@ -24,6 +24,7 @@
 
 #include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include <DataFormats/EcalDetId/interface/EBDetId.h>
 #include <DataFormats/EcalDigi/interface/EBDataFrame.h>
 

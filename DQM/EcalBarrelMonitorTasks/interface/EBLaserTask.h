@@ -4,8 +4,8 @@
 /*
  * \file EBLaserTask.h
  *
- * $Date: 2005/11/22 16:04:29 $
- * $Revision: 1.12 $
+ * $Date: 2006/01/07 11:46:48 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  *
 */
@@ -24,6 +24,7 @@
 
 #include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include <DataFormats/EcalDetId/interface/EBDetId.h>
 #include <DataFormats/EcalDigi/interface/EBDataFrame.h>
 
