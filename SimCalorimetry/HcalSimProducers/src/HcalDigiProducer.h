@@ -13,7 +13,6 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HFShape.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalElectronicsSim.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloHitResponse.h"
-#include "CalibFormats/HcalObjects/interface/HcalNominalCoder.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalNoisifier.h"
 
 
