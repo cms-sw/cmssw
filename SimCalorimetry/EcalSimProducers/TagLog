@@ -1,3 +1,6 @@
+** V00-01-00  [Wed Jan 11 08:00:22 2006]
+Has time-of-flight correction
+
 ** V00-00-01  [Tue Dec 13 20:36:56 2005]
 Update for first digi release; compatible with CMSSW_0_3_0_pre4
 
