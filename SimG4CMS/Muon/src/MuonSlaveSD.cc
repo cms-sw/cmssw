@@ -2,7 +2,6 @@
 #include "Geometry/MuonBaseAlgo/interface/MuonSubDetector.h"
 
 #include "SimG4Core/Application/interface/SimTrackManager.h"
-#include "Geometry/MuonBaseAlgo/interface/MuBarIDPacking.h"
 
 #include <iostream>
 
