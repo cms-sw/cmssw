@@ -12,7 +12,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep 19 11:47:28 CEST 2005
-// $Id: EventContentAnalyzer.cc,v 1.3 2006/01/10 17:23:08 chrjones Exp $
+// $Id: EventContentAnalyzer.cc,v 1.4 2006/01/10 22:11:16 chrjones Exp $
 //
 //
 
@@ -194,7 +194,7 @@ static void printObject(const edm::Event& iEvent,
 EventContentAnalyzer::EventContentAnalyzer(const edm::ParameterSet& iConfig) :
   indentation_(iConfig.getUntrackedParameter("indentation",std::string("++"))),
   verboseIndentation_(iConfig.getUntrackedParameter("verboseIndention",std::string("  "))),
-  moduleLabels_(iConfig.getUntrackedParameter("verboseLabels",std::vector<std::string>())),
+  moduleLabels_(iConfig.getUntrackedParameter("verboseForModuleLabels",std::vector<std::string>())),
   verbose_(iConfig.getUntrackedParameter("verbose",false) || moduleLabels_.size()>0),
   evno_(0)
 {
