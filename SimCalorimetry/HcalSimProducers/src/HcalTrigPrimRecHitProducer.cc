@@ -1,5 +1,5 @@
-using namespace std;
 #include "SimCalorimetry/HcalSimProducers/src/HcalTrigPrimRecHitProducer.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "FWCore/EDProduct/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Handle.h"
@@ -7,6 +7,8 @@ using namespace std;
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 
 using namespace cms;
 
@@ -27,14 +29,21 @@ void HcalTrigPrimRecHitProducer::produce(edm::Event& e, const edm::EventSetup& e
   e.getByType(hbheDigis);
   e.getByType(hfDigis);
 
+  // get the conditions, for the decoding
+  edm::ESHandle<HcalDbService> conditions;
+  eventSetup.get<HcalDbRecord>().get(conditions);
+  theAlgo.setDbService(conditions.product());
+
 
 
   // Step B: Create empty output
 
-  auto_ptr<HcalTrigPrimRecHitCollection> result(new HcalTrigPrimRecHitCollection());
+  std::auto_ptr<HcalTrigPrimRecHitCollection> result(new HcalTrigPrimRecHitCollection());
 
   // Step C: Invoke the algorithm, passing in inputs and getting back outputs.
   theAlgo.run(*hbheDigis,  *hfDigis, *result);
+
+  edm::LogInfo("HcalTrigPrimRecHitProducer") << "HcalTrigPrims: " << result->size();
 
   // Step D: Put outputs into event
   e.put(result);

@@ -3,6 +3,7 @@ using namespace std;
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloTDigitizer.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloShapeIntegrator.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
@@ -57,7 +58,7 @@ void HcalDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   // get the appropriate gains, noises, & widths for this event
   edm::ESHandle<HcalDbService> conditions;
   eventSetup.get<HcalDbRecord>().get(conditions);
-  theNoisifier->setDbService(conditions.product());
+  theElectronicsSim->setDbService(conditions.product());
 
 //  const HcalQIECoder* coder = conditions->getHcalCoder(cell);
 //  const HcalQIEShape* shape = conditions->getHcalShape ();
@@ -73,14 +74,14 @@ void HcalDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   edm::Handle<edm::PCaloHitContainer> hcalHits;
   e.getByLabel("r", "HcalHits", hcalHits);
   sortHits(*hcalHits);
-//  fillFakeHits();
+  //fillFakeHits();
 
 
   // Step B: Create empty output
 
-  auto_ptr<HBHEDigiCollection> hbheResult(new HBHEDigiCollection());
-  auto_ptr<HODigiCollection> hoResult(new HODigiCollection());
-  auto_ptr<HFDigiCollection> hfResult(new HFDigiCollection());
+  std::auto_ptr<HBHEDigiCollection> hbheResult(new HBHEDigiCollection());
+  std::auto_ptr<HODigiCollection> hoResult(new HODigiCollection());
+  std::auto_ptr<HFDigiCollection> hfResult(new HFDigiCollection());
 
 
   // Step C: Invoke the algorithm, passing in inputs and getting back outputs.
@@ -88,6 +89,9 @@ void HcalDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   theHODigitizer->run(theHOHits, *hoResult);
   theHFDigitizer->run(theHFHits, *hfResult);
 
+  edm::LogInfo("HcalDigiProducer") << "HCAL HBHE digis: " << hbheResult->size();
+  edm::LogInfo("HcalDigiProducer") << "HCAL HO digis: " << hoResult->size();
+  edm::LogInfo("HcalDigiProducer") << "HCAL HF digis: " << hfResult->size();
 
   // Step D: Put outputs into event
   e.put(hbheResult);
@@ -113,7 +117,7 @@ void HcalDigiProducer::sortHits(const edm::PCaloHitContainer & hits)
       theHOHits.push_back(*hitItr);
     }
     else {
-      std::cerr << "ERROR : bad HcalHit subdetector " << std::endl;
+      edm::LogError("HcalDigiProducer") << "Bad HcalHit subdetector " << subdet;
     }
   }
 }
