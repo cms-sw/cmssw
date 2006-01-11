@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2006/01/07 17:53:24 $
- * $Revision: 1.52 $
+ * $Date: 2006/01/08 13:51:17 $
+ * $Revision: 1.53 $
  * \author G. Della Ricca
  *
 */
@@ -414,9 +414,11 @@ void EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
             apd_bl.setTaskStatus(false);
           }
 
+          int ic = (ip-1) + 20*(ie-1) + 1;
+
           if ( econn ) {
             try {
-              ecid = econn->getEcalLogicID("EB_crystal_index", ism, ie-1, ip-1);
+              ecid = econn->getEcalLogicID("EB_crystal_number", ism, ic);
               dataset1_bl[ecid] = apd_bl;
             } catch (runtime_error &e) {
               cerr << e.what() << endl;
@@ -447,9 +449,11 @@ void EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
             apd_ir.setTaskStatus(false);
           }
 
+          int ic = (ip-1) + 20*(ie-1) + 1;
+
           if ( econn ) {
             try {
-              ecid = econn->getEcalLogicID("EB_crystal_index", ism, ie-1, ip-1);
+              ecid = econn->getEcalLogicID("EB_crystal_number", ism, ic);
               dataset1_ir[ecid] = apd_ir;
             } catch (runtime_error &e) {
               cerr << e.what() << endl;
@@ -480,9 +484,11 @@ void EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
             apd_gr.setTaskStatus(false);
           }
 
+          int ic = (ip-1) + 20*(ie-1) + 1;
+
           if ( econn ) {
             try {
-              ecid = econn->getEcalLogicID("EB_crystal_index", ism, ie-1, ip-1);
+              ecid = econn->getEcalLogicID("EB_crystal_number", ism, ic);
               dataset1_gr[ecid] = apd_gr;
             } catch (runtime_error &e) {
               cerr << e.what() << endl;
@@ -513,9 +519,11 @@ void EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
             apd_rd.setTaskStatus(false);
           }
 
+          int ic = (ip-1) + 20*(ie-1) + 1;
+
           if ( econn ) {
             try {
-              ecid = econn->getEcalLogicID("EB_crystal_index", ism, ie-1, ip-1);
+              ecid = econn->getEcalLogicID("EB_crystal_number", ism, ic);
               dataset1_rd[ecid] = apd_rd;
             } catch (runtime_error &e) {
               cerr << e.what() << endl;

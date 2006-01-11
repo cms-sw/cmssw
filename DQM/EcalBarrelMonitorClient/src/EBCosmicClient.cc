@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  * 
- * $Date: 2006/01/05 08:56:56 $
- * $Revision: 1.32 $
+ * $Date: 2006/01/08 11:52:59 $
+ * $Revision: 1.33 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -152,9 +152,11 @@ void EBCosmicClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
 
           o.setAvgEnergy(mean01);
 
+          int ic = (ip-1) + 20*(ie-1) + 1;
+
           if ( econn ) {
             try {
-              ecid = econn->getEcalLogicID("EB_crystal_index", ism, ie-1, ip-1);
+              ecid = econn->getEcalLogicID("EB_crystal_number", ism, ic);
               dataset[ecid] = o;
             } catch (runtime_error &e) {
               cerr << e.what() << endl;

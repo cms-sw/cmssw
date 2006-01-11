@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/01/10 13:12:11 $
- * $Revision: 1.75 $
+ * $Date: 2006/01/10 15:11:18 $
+ * $Revision: 1.76 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -635,7 +635,7 @@ void EcalBarrelMonitorClient::writeDb(void) {
 
   if ( econn ) {
     try {
-      ecid = econn->getEcalLogicID(-1); // ECAL
+      ecid = econn->getEcalLogicID("ECAL");
       dataset[ecid] = md;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
@@ -697,7 +697,7 @@ void EcalBarrelMonitorClient::endRunDb(void) {
 
   if ( econn ) {
     try {
-      ecid = econn->getEcalLogicID(-1); // SM
+      ecid = econn->getEcalLogicID("ECAL");
       dataset[ecid] = rd;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;

@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2006/01/08 13:51:17 $
- * $Revision: 1.69 $
+ * $Date: 2006/01/08 16:55:19 $
+ * $Revision: 1.70 $
  * \author G. Della Ricca
  *
 */
@@ -239,9 +239,11 @@ void EBIntegrityClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
           }
           c1.setTaskStatus(val);
 
+          int ic = (ip-1) + 20*(ie-1) + 1;
+
           if ( econn ) {
             try {
-              ecid = econn->getEcalLogicID("EB_crystal_index", ism, ie-1, ip-1);
+              ecid = econn->getEcalLogicID("EB_crystal_number", ism, ic);
               dataset1[ecid] = c1;
             } catch (runtime_error &e) {
               cerr << e.what() << endl;
