@@ -1,3 +1,6 @@
+** V02-00-00  [Wed Jan 11 14:36:27 2006]
+Removed dependency between EcalTBRawToDigi and DQM
+
 ** V01-00-03  [Wed Nov 30 17:20:55 2005]
 Pn diodes unformatting added
 
