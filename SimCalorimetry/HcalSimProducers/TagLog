@@ -1,3 +1,6 @@
+** V00-01-00  [Wed Jan 11 08:02:15 2006]
+has time-of-flight correction, and tries to use HcalCoderDb.  Doesn't seem to do coding correctly at the moment
+
 ** V00-00-02  [Tue Dec 13 20:25:47 2005]
 Forgot to commit HcalTrigPrimRecHitProducer
 
