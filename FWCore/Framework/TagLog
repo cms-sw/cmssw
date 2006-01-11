@@ -1,3 +1,6 @@
+** V01-05-00  [Wed Jan 11 02:37:19 2006]
+Enhance product selection for output modules
+
 ** V01-04-00  [Tue Jan 10 20:12:39 2006]
 Add VectorInputSource.  Collapse RandomAccessInputSource into InputSource.
 
