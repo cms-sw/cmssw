@@ -1,5 +1,6 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalElectronicsSim.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalNoisifier.h"
+#include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
 #include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
 #include "DataFormats/HcalDigi/interface/HODataFrame.h"
 #include "DataFormats/HcalDigi/interface/HFDataFrame.h"
@@ -12,6 +13,21 @@ namespace cms {
     : theNoisifier(noisifier),
       theDbService(0)
   {
+  }
+
+
+  template<class Digi> 
+  void HcalElectronicsSim::convert(CaloSamples & frame, Digi & result, bool addNoise) {
+    // make a coder first
+    assert(theDbService != 0);
+    const HcalQIECoder * qieCoder = theDbService->getHcalCoder( HcalDetId(frame.id()) );
+    const HcalQIEShape * qieShape = theDbService->getHcalShape();
+    HcalCoderDb coder(*qieCoder, *qieShape);
+
+    result.setSize(frame.size());
+    if(addNoise) theNoisifier->noisify(frame);
+    coder.fC2adc(frame, result, theStartingCapId);
+
   }
 
   void HcalElectronicsSim::analogToDigital(CaloSamples & lf, HBHEDataFrame & result, bool addNoise) {
