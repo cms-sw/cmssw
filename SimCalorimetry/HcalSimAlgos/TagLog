@@ -1,3 +1,6 @@
+** V00-01-00  [Wed Jan 11 08:01:13 2006]
+has time-of-flight correction, and tries to use HcalCoderDb.  Doesn't seem to do coding correctly at the moment
+
 ** V00-00-01  [Tue Dec 13 20:28:15 2005]
 Update for first digi release; compatible with CMSSW_0_3_0_pre4 with Fedor's fix to CaliubCalorimetry
 
