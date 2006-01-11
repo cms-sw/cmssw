@@ -1,3 +1,6 @@
+** V01-01-00  [Wed Jan 11 03:03:50 2006]
+Add new class for randomization of pileup
+
 ** V01-00-00  [Thu Oct 27 15:19:49 2005]
 introduction of MixingModule Baseclass
 
