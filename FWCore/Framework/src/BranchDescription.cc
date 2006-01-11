@@ -1,8 +1,9 @@
 #include "FWCore/Framework/interface/BranchDescription.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 /*----------------------------------------------------------------------
 
-$Id: BranchDescription.cc,v 1.1 2005/10/03 18:58:47 wmtan Exp $
+$Id: BranchDescription.cc,v 1.2 2006/01/11 00:21:31 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -36,6 +37,26 @@ namespace edm {
     char const period('.');
     std::string const prod("PROD");
 
+    if (friendlyClassName_.find(underscore) != std::string::npos) {
+      throw cms::Exception("IllegalCharacter") << "Class name '" << friendlyClassName_
+      << "' contains an underscore ('_'), which is illegal in the name of a product.\n";
+    }
+
+    if (module.moduleLabel_.find(underscore) != std::string::npos) {
+      throw cms::Exception("IllegalCharacter") << "Module label '" << module.moduleLabel_
+      << "' contains an underscore ('_'), which is illegal in a module label.\n";
+    }
+
+    if (productInstanceName_.find(underscore) != std::string::npos) {
+      throw cms::Exception("IllegalCharacter") << "Product instance name '" << productInstanceName_
+      << "' contains an underscore ('_'), which is illegal in a product instance name.\n";
+    }
+
+    if (module.processName_.find(underscore) != std::string::npos) {
+      throw cms::Exception("IllegalCharacter") << "Process name '" << module.processName_
+      << "' contains an underscore ('_'), which is illegal in a process name.\n";
+    }
+
     if (module.processName_ == prod) {
       if (productInstanceName_.empty()) {
         branchName_ = friendlyClassName_ + underscore + module.moduleLabel_ + period;
@@ -47,31 +68,6 @@ namespace edm {
     }
     branchName_ = friendlyClassName_ + underscore + module.moduleLabel_ + underscore +
       productInstanceName_ + underscore + module.processName_ + period;
-  }
-
-  // TODO: It is probably sensible to inline these functions.
-  std::string 
-  BranchDescription::productType() const
-  {
-    return friendlyClassName_;
-  }
-
-  std::string
-  BranchDescription::moduleLabel() const
-  {
-    return module.moduleLabel_;
-  }
-
-  std::string
-  BranchDescription::productInstanceName() const
-  {
-    return productInstanceName_;
-  }
-  
-  std::string
-  BranchDescription::processName() const
-  {
-    return module.processName_;    
   }
 
   void
