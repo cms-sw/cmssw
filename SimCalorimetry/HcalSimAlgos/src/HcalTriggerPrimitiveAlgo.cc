@@ -1,5 +1,9 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalTriggerPrimitiveAlgo.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSimParameterMap.h"
+#include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+
 #include <iostream>
 using namespace cms;
 
@@ -21,7 +25,8 @@ HcalTriggerPrimitiveAlgo::HcalTriggerPrimitiveAlgo()
   HcalSimParameterMap parameterMap;
   theHBHECalibrationConstant = parameterMap.hbheParameters().calibrationConstant();
   theHFCalibrationConstant = parameterMap.hfParameters1().calibrationConstant();
-  std::cout << "[HcalTriggerPrimitiveAlgo] Calibration constants: " << theHBHECalibrationConstant << " " << theHFCalibrationConstant << std::endl;
+  LogDebug("HcalTriggerPrimitiveAlgo") << " Calibration constants: " 
+   << theHBHECalibrationConstant << " " << theHFCalibrationConstant;
 }
 
 
@@ -51,6 +56,7 @@ void HcalTriggerPrimitiveAlgo::run(const HBHEDigiCollection & hbheDigis,
     addSignal(*hfItr);
   }
 
+
   for(SumMap::const_iterator mapItr = theSumMap.begin(); mapItr != theSumMap.end(); ++mapItr)
   {
     analyze(mapItr->second, result);
@@ -61,11 +67,19 @@ void HcalTriggerPrimitiveAlgo::run(const HBHEDigiCollection & hbheDigis,
 
 
 void HcalTriggerPrimitiveAlgo::addSignal(const HBHEDataFrame & frame) {
+
+  // get the calibration service
+  assert(theDbService != 0);
+  const HcalQIECoder * qieCoder = theDbService->getHcalCoder( HcalDetId(frame.id()) );
+  const HcalQIEShape * qieShape = theDbService->getHcalShape();
+  HcalCoderDb coder(*qieCoder, *qieShape);
+
   std::vector<HcalTrigTowerDetId> ids = theTrigTowerGeometry.towerIds(frame.id());
   assert(ids.size() == 1 || ids.size() == 2);
   CaloSamples samples1(ids[0], frame.size());
-  theCoder.adc2fC(frame, samples1);
+  coder.adc2fC(frame, samples1);
   transverseComponent(samples1, ids[0]);
+
 
   if(ids.size() == 2) {
     // make a second trigprim for the other one, and split the energy
@@ -81,12 +95,19 @@ void HcalTriggerPrimitiveAlgo::addSignal(const HBHEDataFrame & frame) {
 
 
 void HcalTriggerPrimitiveAlgo::addSignal(const HFDataFrame & frame) {
+
+  // get the calibration service
+  assert(theDbService != 0);
+  const HcalQIECoder * qieCoder = theDbService->getHcalCoder( HcalDetId(frame.id()) );
+  const HcalQIEShape * qieShape = theDbService->getHcalShape();
+  HcalCoderDb coder(*qieCoder, *qieShape);
+
   // HF short fibers off
   if(frame.id().depth() == 1) {
     std::vector<HcalTrigTowerDetId> ids = theTrigTowerGeometry.towerIds(frame.id());
     assert(ids.size() == 1);
     CaloSamples samples(ids[0], frame.size());
-    theCoder.adc2fC(frame, samples);
+    coder.adc2fC(frame, samples);
     transverseComponent(samples, ids[0]);
     addSignal(samples);
   }
@@ -126,6 +147,7 @@ void HcalTriggerPrimitiveAlgo::addSignal(const CaloSamples & samples) {
 void HcalTriggerPrimitiveAlgo::analyze(const CaloSamples & samples, 
                                     HcalTrigPrimRecHitCollection & result) const 
 {
+std::cout << "RCK TRIG ANA: " << samples << std::endl;
   // look for local maxima over threshold
   for(int ibin = 1; ibin < samples.size(); ++ibin) {
     // number of trigprims from this sample
@@ -140,13 +162,13 @@ void HcalTriggerPrimitiveAlgo::analyze(const CaloSamples & samples,
         // correct for charge out of the time window
         et = (samples[ibin] + samples[ibin+1]) * 1.139 * theHBHECalibrationConstant;
       }
-   
+  std::cout << "ET " << et << "THRESH " << theThreshold << std::endl; 
       if(et > theThreshold) {
         // signal should be in 5th time bin
         int bunch = ibin-5;
         ++n;
         HcalTriggerPrimitiveRecHit trigPrim(detId, et, 0., bunch, 0, n);
-std::cout << trigPrim << std::endl;
+        LogDebug("HcalTriggerPrimitiveAlgo") << trigPrim;
         result.push_back( trigPrim );
       }
     }
