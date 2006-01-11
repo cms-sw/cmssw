@@ -1,3 +1,6 @@
+** V00-05-01  [Wed Jan 11 02:59:01 2006]
+changed parameter name from verboseLabels to verboseForModuleLabels
+
 ** V00-05-00  [Wed Jan 11 01:03:22 2006]
 Add verbose mode to EventContentAnalyzer
 
