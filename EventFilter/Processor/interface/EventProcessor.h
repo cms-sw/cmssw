@@ -9,6 +9,9 @@
 //
 //  MODIFICATION:
 //    $Log: EventProcessor.h,v $
+//    Revision 1.6  2006/01/06 11:31:58  meschi
+//    added missing InputSource include
+//
 //    Revision 1.5  2005/12/21 15:42:51  meschi
 //    added module web
 //
@@ -85,7 +88,7 @@ namespace evf
       void suspend(){paused_=true;}
       void resume(){paused_=false; wakeup();}
       inline int svc(){run();return 0;} //final
-      void stopEventLoop(){running_ = false;}
+      void stopEventLoop(unsigned int);
       void run();
 
       void beginRun(); 
@@ -115,8 +118,10 @@ namespace evf
       unsigned long eventcount;
       edm::ActionTable act_table_;
       std::vector<edm::ModuleDescription> descs_;
+      pthread_mutex_t mutex_; //used to synchronize the worker and control thread
+      pthread_cond_t exit_;
       friend class FUEventProcessor;
-      friend int main(int argc, char* argv[]);
+
     };
   
 }
