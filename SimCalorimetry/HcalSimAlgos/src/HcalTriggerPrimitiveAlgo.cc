@@ -147,7 +147,6 @@ void HcalTriggerPrimitiveAlgo::addSignal(const CaloSamples & samples) {
 void HcalTriggerPrimitiveAlgo::analyze(const CaloSamples & samples, 
                                     HcalTrigPrimRecHitCollection & result) const 
 {
-std::cout << "RCK TRIG ANA: " << samples << std::endl;
   // look for local maxima over threshold
   for(int ibin = 1; ibin < samples.size(); ++ibin) {
     // number of trigprims from this sample
@@ -162,7 +161,6 @@ std::cout << "RCK TRIG ANA: " << samples << std::endl;
         // correct for charge out of the time window
         et = (samples[ibin] + samples[ibin+1]) * 1.139 * theHBHECalibrationConstant;
       }
-  std::cout << "ET " << et << "THRESH " << theThreshold << std::endl; 
       if(et > theThreshold) {
         // signal should be in 5th time bin
         int bunch = ibin-5;
