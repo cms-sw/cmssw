@@ -47,18 +47,17 @@ EventProcessor::EventProcessor(unsigned long tid) :
   emittedBeginJob_(false), running_(false), paused_(false), exited_(false),
   eventcount(0)
 {
-  cout << "EventProcessor constructor " << endl;
+  pthread_mutex_init(&mutex_,0);
+  pthread_cond_init(&exit_,0);
 }
 
 EventProcessor::~EventProcessor()
 {
-  cout << "EventProcessor destructor " << endl;
 
 }
 
 void EventProcessor::init(std::string &config) 
 {
-  cout<<"FPEventProcessor::init()"<<endl;
   edm::ServiceToken iToken;
   edm::serviceregistry::ServiceLegacy iLegacy = edm::serviceregistry::kOverlapIsError;
   edm::ProcessPSetBuilder builder(config);
@@ -135,7 +134,7 @@ void EventProcessor::init(std::string &config)
 						 getVersion(), 
 						 getPass());
   }
-  cout << "FPEventProcessor::init() complete. eventcount= " << eventcount << endl; 
+
 }
 
 
@@ -153,7 +152,6 @@ using eventprocessor::ESRefWrapper;
 void EventProcessor::beginRun() 
 {
   eventcount = 0;
-  std::cout << "EventProcessor beginRun() " << std::endl;
   //make the services available
   edm::ServiceRegistry::Operate operate(serviceToken_);
   running_=true;
@@ -176,11 +174,28 @@ void EventProcessor::beginRun()
     activityRegistry_.postBeginJobSignal_();
   }
 }
-
+#include <sys/time.h>
+void EventProcessor::stopEventLoop(unsigned int delay)
+{
+  struct timeval now;
+  struct timespec timeout;
+  int retcode = 0;
+  gettimeofday(&now,0);
+  timeout.tv_sec = now.tv_sec + delay; //allow two seconds timeout before ending run
+  timeout.tv_nsec = now.tv_usec * 1000;
+  pthread_mutex_lock(&mutex_);
+  running_ = false;
+  retcode = pthread_cond_timedwait(&exit_,&mutex_,&timeout);
+  pthread_mutex_unlock(&mutex_);
+  if(retcode == ETIMEDOUT)
+    {
+      kill();
+    }
+}
 bool EventProcessor::endRun() 
 {
   bool returnValue = true;
-  std::cout << "EventProcessor endRun() " << std::endl;
+
   if(running_)
     {    
       returnValue = false;
@@ -212,7 +227,7 @@ bool EventProcessor::endRun()
 	  }
 	}
       }
-      
+
     }     
   
   activityRegistry_.postEndJobSignal_();
@@ -228,7 +243,7 @@ bool EventProcessor::endRun()
 
 void EventProcessor::run()
 {
-  std::cout << "EventProcessor run() " << std::endl;
+
   int oldState;
   pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, &oldState);
 
@@ -237,12 +252,10 @@ void EventProcessor::run()
   if(exited_) exited_ = false;
   while(running_)
     {
-
+      //      pthread_testcancel();
       if(paused_) 
 	{
-	  cout << "checking if event processor must be paused " << endl;
 	  pause();
-	  cout << "continuing with next event " << endl;
 	}
       auto_ptr<edm::EventPrincipal> pep = input_->readEvent();
       ++eventcount;
@@ -290,6 +303,9 @@ void EventProcessor::run()
 	  throw;
 	}
     }
+  pthread_mutex_lock(&mutex_);
+  pthread_cond_signal(&exit_);
+  pthread_mutex_unlock(&mutex_);
   exited_ = true;
 }
 
@@ -309,14 +325,13 @@ void EventProcessor::taskWebPage(xgi::Input *in, xgi::Output *out,
   evf::filter *filt = 0;
   edm::ServiceRegistry::Operate operate(serviceToken_);
   ModuleWebRegistry *mwr = 0;
-  cout << "Checking the module web registry " << endl;
+
   try{
     if(edm::Service<ModuleWebRegistry>().isAvailable())
       mwr = edm::Service<ModuleWebRegistry>().operator->();
   }
   catch(...)
     { cout <<"exception when trying to get the service registry " << endl;}
-  cout << "Module web registry found ? " << (int) mwr << " eventcount = " << eventcount << endl; 
 
   *out << "<table frame=\"void\" rules=\"groups\" class=\"states\">" << std::endl;
   *out << "<colgroup> <colgroup align=\"rigth\">"                    << std::endl;
@@ -413,7 +428,6 @@ void EventProcessor::moduleWebPage(xgi::Input *in, xgi::Output *out,
 {
   edm::ServiceRegistry::Operate operate(serviceToken_);
   ModuleWebRegistry *mwr = 0;
-  cout << "Checking the module web registry for " << mod << endl;
   try{
     if(edm::Service<ModuleWebRegistry>().isAvailable())
       mwr = edm::Service<ModuleWebRegistry>().operator->();
