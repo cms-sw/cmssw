@@ -1,7 +1,7 @@
 #include "PluginManager/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "PhysicsTools/UtilAlgos/interface/Merger.h"
-#include "PhysicsTools/Utilities/interface/CopyPolicy.h"
+#include "DataFormats/Common/interface/CopyPolicy.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/EGammaReco/interface/Electron.h"
