@@ -1,3 +1,6 @@
+** V00-05-00  [Wed Jan 11 01:03:22 2006]
+Add verbose mode to EventContentAnalyzer
+
 ** V00-04-00  [Thu Dec 29 00:05:33 2005]
 InputSource Standardization/Simplificationi, and make inventory.sh more location independent
 
