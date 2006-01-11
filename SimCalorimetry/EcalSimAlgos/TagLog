@@ -1,3 +1,6 @@
+** V00-01-00  [Wed Jan 11 08:00:10 2006]
+Has time-of-flight correction
+
 ** V00-00-02  [Fri Dec 16 16:04:35 2005]
 Removed as plugin. Removed CalibCalorimetry/EcalAlgos dependecen
 
