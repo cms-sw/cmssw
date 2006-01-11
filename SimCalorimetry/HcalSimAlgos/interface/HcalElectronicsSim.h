@@ -7,7 +7,6 @@
    */
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalQIESim.h"
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
-#include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 
 class HBHEDataFrame;
@@ -35,17 +34,7 @@ namespace cms {
     void newEvent();
 
   private:
-    template<class Digi> void convert(CaloSamples & frame, Digi & result, bool addNoise) {
-      // make a coder first
-      assert(theDbService != 0);
-      const HcalQIECoder * qieCoder = theDbService->getHcalCoder( HcalDetId(frame.id()) );
-      const HcalQIEShape * qieShape = theDbService->getHcalShape();
-      HcalCoderDb coder(*qieCoder, *qieShape);
-
-      result.setSize(frame.size());
-      if(addNoise) theNoisifier->noisify(frame);
-      coder.fC2adc(frame, result, theStartingCapId);
-    }
+    template<class Digi> void convert(CaloSamples & frame, Digi & result, bool addNoise);
   
     HcalNoisifier * theNoisifier;
     const HcalDbService * theDbService;
