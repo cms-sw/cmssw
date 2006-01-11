@@ -14,6 +14,12 @@ namespace edm {
 
     void readPileUp(std::vector<std::vector<EventPrincipal *> > & result);
 
+    int minBunch() const {return minBunch_;}
+    int maxBunch() const {return maxBunch_;}
+    double averageNumber() const {return averageNumber_;}
+    bool poisson() const {return poisson_;}
+    long seed() const {return seed_;}
+
   private:
     int const minBunch_;
     int const maxBunch_;
