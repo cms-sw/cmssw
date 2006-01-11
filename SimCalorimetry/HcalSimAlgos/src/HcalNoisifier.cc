@@ -4,6 +4,7 @@
 #include "CalibFormats/HcalObjects/interface/HcalCalibrationWidths.h"
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CLHEP/Random/RandGaussQ.h"
 
 #include<iostream>
@@ -16,7 +17,6 @@ namespace cms {
 
 
   void HcalNoisifier::noisify(CaloSamples & frame) const {
-std::cout << "NOISIFY " <<  frame.presamples() << std::endl;
     assert(theDbService != 0);
     HcalDetId hcalDetId(frame.id());
     HcalCalibrations calibrations;
@@ -24,13 +24,14 @@ std::cout << "NOISIFY " <<  frame.presamples() << std::endl;
     if (!theDbService->makeHcalCalibration (hcalDetId, &calibrations) ||
         !theDbService->makeHcalCalibrationWidth (hcalDetId, &widths)) 
     {
-      //TODO handle this gracefully
-      assert (0);
+      edm::LogError("HcalNoisifier") << "Could not fetch HCAL conditions" ;
     }
 
     for(int tbin = 0; tbin < frame.size(); ++tbin) {
       int capId = (theStartingCapId + tbin)%4;
-//std::cout << "PEDS " << capId << " " << calibrations->pedestal(capId) << " " << widths->pedestal(capId) << " " << calibrations->gain(capId) <<" " << widths->gain(capId) << std::endl;
+      LogDebug("HcalNoisifier") << "PEDS " << capId << " " << calibrations.pedestal(capId)
+          << " " << widths.pedestal(capId) << " " << calibrations.gain(capId) 
+          <<" " << widths.gain(capId);
       double pedestal = RandGauss::shoot(calibrations.pedestal(capId), widths.pedestal(capId));
       double gain0 = calibrations.gain(capId);
       double gain = RandGauss::shoot(gain0, widths.gain(capId));
@@ -38,7 +39,7 @@ std::cout << "NOISIFY " <<  frame.presamples() << std::endl;
       frame[tbin] += pedestal; // noisify pedestal
       frame[tbin] = frame[tbin] / gain * gain0; // nosify gain
     }
-    //std::cout << frame << std::endl;
+    LogDebug("HcalNoisifier") << frame;
   }
 }
 
