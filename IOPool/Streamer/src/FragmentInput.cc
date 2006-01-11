@@ -23,10 +23,9 @@ namespace stor
     edm::Service<HLTInfo> info;
     info->mergeRegistry(productRegistry());
 
-	// jbk - hopefully the next line is not needed
-    // edm::declareStreamers(productRegistry());
+    // jbk - hopefully the next line is not needed
+    edm::declareStreamers(productRegistry());
     edm::buildClassCache(productRegistry());
-
     edm::loadExtraClasses();
   }
 

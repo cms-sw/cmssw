@@ -31,10 +31,9 @@ namespace edmtestp
     std::auto_ptr<SendJobHeader> p = readHeaderFromStream(ist_);
     edm::mergeWithRegistry(*p,productRegistry());
 
-	// jbk - the next line should not be needed
-    // edm::declareStreamers(productRegistry());
+    // jbk - the next line should not be needed
+    edm::declareStreamers(productRegistry());
     edm::buildClassCache(productRegistry());
-
     loadExtraClasses();
   }
 

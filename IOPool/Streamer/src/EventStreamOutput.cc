@@ -1,7 +1,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: EventStreamOutput.cc,v 1.10 2005/11/11 19:27:25 jbk Exp $
+// $Id: EventStreamOutput.cc,v 1.11 2005/12/05 03:17:46 jbk Exp $
 //
 // Class EventStreamOutput module
 //
@@ -80,6 +80,7 @@ namespace edm
     prod_reg_len_()
   {
     FDEBUG(6) << "StreamOutput constructor" << endl;
+    // unsure whether or not we need to do the declareStreamer call or not
     //fillStreamers(reg);
     loadExtraClasses();
     tc_ = getTClass(typeid(SendEvent));
