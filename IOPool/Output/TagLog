@@ -1,3 +1,6 @@
+** V01-01-05  [Wed Jan 11 02:34:58 2006]
+nextID_ is now private
+
 ** V01-01-04  [Mon Dec 12 23:28:26 2005]
 fix problem with output branch selection
 
