@@ -1,11 +1,13 @@
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: PoolCatalog.cc,v 1.2 2005/11/23 02:17:56 wmtan Exp $
+// $Id: PoolCatalog.cc,v 1.3 2006/01/03 19:38:59 wmtan Exp $
 //
 // Author: Luca Lista
 // Co-Author: Bill Tanenbaum
 //
 //////////////////////////////////////////////////////////////////////
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "IOPool/Common/interface/PoolCatalog.h"
 #include "POOLCore/POOLContext.h"
@@ -59,8 +61,11 @@ namespace edm {
       pool::FileCatalog::FileID fid;
       action.lookupFileByLFN(lfn, fid);
       if (fid == pool::FileCatalog::FileID()) {
+        LogWarning("FwkJob") << "LFN: " << lfn << " not found";
         pfn = "file:" + lfn;
+        LogWarning("FwkJob") << "PFN defaulted: " << pfn ;
       } else {
+        LogInfo("FwkJob") << "LFN: " << lfn;
         std::string fileType;
         action.lookupBestPFN(fid, pool::FileCatalog::READ, pool::FileCatalog::SEQUENTIAL, pfn, fileType);
       }
