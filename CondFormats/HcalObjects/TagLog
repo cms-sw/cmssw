@@ -1,3 +1,6 @@
+** V02-00-01  [Wed Jan 11 21:23:27 2006]
+fix bug in HcalQIECoder::adc
+
 ** V02-00-00  [Wed Dec 28 01:19:42 2005]
 Major redesign of Hcal Condition classes
 
