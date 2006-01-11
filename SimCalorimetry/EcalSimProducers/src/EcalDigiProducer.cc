@@ -52,8 +52,8 @@ private:
   EBDigitizer * theBarrelDigitizer;
   EEDigitizer * theEndcapDigitizer;
 
-  CaloVSimParameterMap * theParameterMap;
-  CaloVShape * theEcalShape;
+  const CaloVSimParameterMap * theParameterMap;
+  const CaloVShape * theEcalShape;
 
   CaloHitResponse * theEcalResponse;
 
@@ -136,7 +136,7 @@ void EcalDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   std::vector<edm::Provenance const*> provenances;
   e.getAllProvenance(provenances);
 
-  for(int i = 0; i < provenances.size() ; ++i) {
+  for(unsigned int i = 0; i < provenances.size() ; ++i) {
     std::cout << *(provenances[i]) << std::endl;
   } 
   // Step A: Get Inputs
@@ -179,6 +179,8 @@ void EcalDigiProducer::checkGeometry(const edm::EventSetup & eventSetup) {
   // TODO find a way to avoid doing this every event
   edm::ESHandle<CaloGeometry> geometry;
   eventSetup.get<IdealGeometryRecord>().get(geometry);
+
+  theEcalResponse->setGeometry(&*geometry);
 
   theBarrelDets.clear();
   theEndcapDets.clear();
