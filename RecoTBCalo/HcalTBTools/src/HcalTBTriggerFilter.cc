@@ -1,5 +1,6 @@
 #include "RecoTBCalo/HcalTBTools/interface/HcalTBTriggerFilter.h"
 #include "TBDataFormats/HcalTBObjects/interface/HcalTBTriggerData.h"
+#include "FWCore/Framework/interface/Handle.h"
 
 HcalTBTriggerFilter::HcalTBTriggerFilter(const edm::ParameterSet& ps) :
   allowPedestal_(ps.getParameter<bool>("AllowPedestal")),
