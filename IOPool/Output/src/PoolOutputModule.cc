@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.6 2005/12/12 22:22:04 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.7 2006/01/05 22:40:27 paterno Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
@@ -94,12 +94,13 @@ namespace edm {
       makePlacement(poolNames::eventTreeName(), (*it)->branchName_, placement);
       outputItemList_.push_back(std::make_pair(*it, placement));
     }
-    LogInfo("FwkJob") << "Output file " << file_ << " is about to be opened.";
+    LogInfo("FwkJob") << "Output file is about to be opened.";
+    LogInfo("FwkJob") << "PFN: " << file_;
     startTransaction();
     pool::Ref<ProductRegistry const> rp(om->context(), &pReg);
     rp.markWrite(productDescriptionPlacement_);
     commitAndFlushTransaction();
-    LogInfo("FwkJob") << "Output file " << file_ << " has been opened successfully.";
+    LogInfo("FwkJob") << "Output file opened successfully.";
     om->catalog_.registerFile(file_, lfn_);
   }
 

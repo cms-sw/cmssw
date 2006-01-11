@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.1 2006/01/06 02:35:46 wmtan Exp $
+$Id: RootFile.cc,v 1.1 2006/01/07 00:46:23 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/RootFile.h"
@@ -31,13 +31,14 @@ namespace edm {
     provBranch_(0),
     filePtr_(0) {
 
-    LogInfo("FwkJob") << "Input file " << file_ << " is about to be opened.";
+    LogInfo("FwkJob") << "Input file is about to be opened.";
+    LogInfo("FwkJob") << "PFN: " << file_;
     filePtr_ = TFile::Open(file_.c_str());
     if (filePtr_ == 0) {
       throw cms::Exception("FileNotFound","RootFile::RootFile()")
         << "File " << file_ << " was not found.\n";
     }
-    LogInfo("FwkJob") << "Input file " << file_ << " has been opened successfully.";
+    LogInfo("FwkJob") << "Input file opened successfully.";
 
     TTree *metaDataTree = dynamic_cast<TTree *>(filePtr_->Get(poolNames::metaDataTreeName().c_str()));
     assert(metaDataTree != 0);
