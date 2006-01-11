@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: HcalHardcodeCalibrations.cc,v 1.4 2005/12/12 18:57:18 fedor Exp $
+// $Id: HcalHardcodeCalibrations.cc,v 1.5 2005/12/15 23:37:58 fedor Exp $
 //
 //
 
@@ -18,7 +18,6 @@
 #include "CondFormats/HcalObjects/interface/HcalGains.h"
 #include "CondFormats/HcalObjects/interface/HcalGainWidths.h"
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
-#include "CondFormats/HcalObjects/interface/HcalQIEShape.h"
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
 #include "CondFormats/HcalObjects/interface/HcalQIEData.h"
 
@@ -27,7 +26,6 @@
 #include "CondFormats/DataRecord/interface/HcalGainsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalGainWidthsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalElectronicsMapRcd.h"
-#include "CondFormats/DataRecord/interface/HcalQIEShapeRcd.h"
 #include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
 #include "CondFormats/DataRecord/interface/HcalQIEDataRcd.h"
 
