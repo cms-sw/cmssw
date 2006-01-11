@@ -36,8 +36,9 @@ void CaloHitResponse::run(const vector<PCaloHit> & hits) {
   for(vector<PCaloHit>::const_iterator hitItr = hits.begin();
       hitItr != hits.end(); ++hitItr)
   {
-std::cout << *hitItr << std::endl;
+    LogDebug("CaloHitResponse") << *hitItr;
     CaloSamples signal = makeAnalogSignal(*hitItr);
+    LogDebug("CaloHitResponse") << signal;
     // if there's already a frame for this in the map, superimpose it
     const DetId id(hitItr->id());
     map<DetId, CaloSamples>::iterator mapItr = theAnalogSignalMap.find(id);
