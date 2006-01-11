@@ -3,8 +3,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store QIE coder parameters for one channel
 $Author: ratnikov
-$Date: 2005/11/07 22:15:09 $
-$Revision: 1.3 $
+$Date: 2005/12/15 23:38:04 $
+$Revision: 1.1 $
 */
 
 #include <iostream>
@@ -25,25 +25,24 @@ float HcalQIECoder::charge (const HcalQIEShape& fShape, unsigned fAdc, unsigned 
 }
 
 unsigned HcalQIECoder::adc (const HcalQIEShape& fShape, float fCharge, unsigned fCapId) const {
-  unsigned adc = 0; //nothing found yet
   // search for the range
   for (unsigned range = 0; range < 4; range++) {
     float qieCharge = fCharge * slope (fCapId, range) + offset (fCapId, range);
     unsigned minBin = 32*range;
     float qieChargeMax = fShape.highEdge (minBin + 31);
-    if (range == 3 && qieCharge > qieChargeMax) {
-      adc = 127; // overflow
-      break;
-    }
-    if (qieCharge > qieChargeMax) continue; // next range
-    for (unsigned bin = minBin; bin <= minBin + 31; bin++) {
-      if (qieCharge < fShape.highEdge (bin)) {
-        adc = bin;
-        break;
+    if (qieCharge <= qieChargeMax) {
+      for (unsigned bin = minBin; bin <= minBin + 31; bin++) {
+	if (qieCharge < fShape.highEdge (bin)) {
+	  return bin;
+	}
       }
+      return minBin; // underflow
+    }
+    else if (range == 3) {
+      return 127; // overflow
     }
   }
-  return adc;
+  return 0; //should never get here
 }
 
 float HcalQIECoder::offset (unsigned fCapId, unsigned fRange) const {
