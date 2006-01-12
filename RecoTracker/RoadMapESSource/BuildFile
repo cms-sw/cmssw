@@ -1,0 +1,14 @@
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=RecoTracker/RoadMapRecord>
+<use name=Geometry/Records>
+<flags SEAL_PLUGIN_NAME="RecoTrackerRoadMapESSource">
+<export>
+   <lib name=RecoTrackerRoadMapESSource>
+   <use name=FWCore/Framework>
+   <use name=Foundation/PluginManager>
+   <use name=FWCore/ParameterSet>
+   <use name=RecoTracker/RoadMapRecord>
+   <use name=Geometry/Records>
+</export>
