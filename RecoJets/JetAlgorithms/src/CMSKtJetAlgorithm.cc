@@ -21,6 +21,9 @@ using std::endl;
     19-Oct-2005: R. Harris Wasn't able to port it to the new CaloTower implementation, 
                  so it just returns an empty jet collection, and couts an error message.
                  See comments below in the code.
+    12-Jan-2006  R. Harris.  Now works with the new CaloTower implementation. Discovered
+                 algorithm only successfully clusters 2 or more towers: fails to cluster 
+		 TB events with single pions putting energy in a single tower. Caveat Emptor!
 */
 
 
@@ -73,11 +76,6 @@ void CMSKtJetAlgorithm::setKtJetECut(float aKtJetECut)
 CaloJetCollection* CMSKtJetAlgorithm::findJets(const CaloTowerCollection & aTowerCollection)
 {
   CaloJetCollection* result = new CaloJetCollection;
-
-  // Return immediately because Kt jets don't work until the line below commented out
-  // and mareked by FIXME is fixed.  R. Harris, 10-Oct-2005
-  std::cout << "ERROR: Kt Jets Needs to be Fixed.  No Jets made." << std::endl;
-  return result;
   
   // fill the KtLorentzVector
   std::vector<KtJet::KtLorentzVector> avec;
@@ -100,6 +98,10 @@ CaloJetCollection* CMSKtJetAlgorithm::findJets(const CaloTowerCollection & aTowe
       avec.push_back(theLorentzVector);
     }
   }
+  
+  // R. Harris, 1/12/06, If there are no inputs, simply return empty CaloJetCollection.
+  // Prevents call to KtEvent which crashes if called with empty vector of inputs.
+  if( avec.size() == 0 ) return result;
   
   // construct the KtEvent object
   KtJet::KtEvent ev(avec,theKtJetType,theKtJetAngle,theKtJetRecom,theKtJetRParameter);
@@ -145,14 +147,10 @@ CaloJetCollection* CMSKtJetAlgorithm::findJets(const CaloTowerCollection & aTowe
       //Everything went ok -> pick the subset of CaloTowers forming the Jet:
       //Instancite the Sub Collection of CaloTowers
       std::vector<const CaloTower*> jetSubCollection;
+
       //Populate the subcollection with objects from the input collection
-
-      // FIXME: the line below is needed for kt jets.  It doesn't work with the
-      // new CaloTower collection, which is an EDM Sorted Collection, not an
-      // STL Vector. R. Harris, 10-Oct-2005
-
-      //for(unsigned int k = 0; k < listAssignedInputs.size(); k++)
-      //jetSubCollection.push_back(&aTowerCollection[listAssignedInputs[k]]);
+      for(unsigned int k = 0; k < listAssignedInputs.size(); k++)
+      jetSubCollection.push_back(&aTowerCollection[listAssignedInputs[k]]);
 
       ProtoJet pj;
       
