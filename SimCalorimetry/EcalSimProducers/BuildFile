@@ -2,6 +2,7 @@
 <use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=SimCalorimetry/EcalSimAlgos>
+<use name=SimDataFormats/CrossingFrame>
 <use name=Geometry/CaloEventSetup>
 <use name=CondFormats/DataRecord>
 
@@ -9,6 +10,7 @@
 <export>
    <lib name=SimCalorimetryEcalSimProducers>
    <use name=SimCalorimetry/EcalSimAlgos>
+   <use name=SimDataFormats/CrossingFrame>
    <use name=Geometry/CaloEventSetup>
    <use name=FWCore/Framework>
    <use name=Foundation/PluginManager>
