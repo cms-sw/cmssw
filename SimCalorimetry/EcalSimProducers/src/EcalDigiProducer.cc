@@ -19,7 +19,9 @@ using namespace std;
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
-
+#include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
+#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Provenance.h"
 
 using namespace cms;
@@ -59,8 +61,6 @@ private:
 
   EcalCoder * theCoder;
 
-  // temporary stuff, until geometry and conditions work
-  std::vector<PCaloHit> theBarrelHits, theEndcapHits;
   std::vector<DetId> theBarrelDets;
   std::vector<DetId> theEndcapDets;
   EcalPedestals thePedestals;
@@ -129,10 +129,6 @@ void EcalDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
 //  eventSetup.get<EcalPedestalsRcd>().get( pedHandle );
 //  theCoder->setPedestals(pedHandle.product());
 
- //  NOTE not needed
-  theBarrelHits.clear();
-  theEndcapHits.clear();
-
   std::vector<edm::Provenance const*> provenances;
   e.getAllProvenance(provenances);
 
@@ -144,22 +140,37 @@ void EcalDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   checkCalibrations(eventSetup);
   checkGeometry(eventSetup);
 
-  edm::Handle<edm::PCaloHitContainer> barrelHits;
-  edm::Handle<edm::PCaloHitContainer> endcapHits;
-  e.getByLabel("r", "EcalHitsEB", barrelHits);
-  e.getByLabel("r", "EcalHitsEE", endcapHits);
+//  edm::Handle<edm::PCaloHitContainer> barrelHits;
+//  edm::Handle<edm::PCaloHitContainer> endcapHits;
+//  e.getByLabel("r", "EcalHitsEB", barrelHits);
+//  e.getByLabel("r", "EcalHitsEE", endcapHits);
+
+  // Get input
+  edm::Handle<CrossingFrame> cf;
+  e.getByType(cf);
+
+  // test access to SimHits
+  const std::string barrelHitsName("EcalHitsEB");
+  const std::string endcapHitsName("EcalHitsEE");
+
+
+  std::auto_ptr<MixCollection<PCaloHit> > barrelHits(new MixCollection<PCaloHit>(cf.product(), 
+                                              barrelHitsName, std::pair<int,int>(-1,2)));
+  std::auto_ptr<MixCollection<PCaloHit> > endcapHits(new MixCollection<PCaloHit>(cf.product(),
+                                              endcapHitsName, std::pair<int,int>(-1,2)));
+
 
 
   // Step B: Create empty output
   auto_ptr<EBDigiCollection> barrelResult(new EBDigiCollection());
   auto_ptr<EEDigiCollection> endcapResult(new EEDigiCollection());
 
-  // Step C: Invoke the algorithm, passing in inputs and getting back outputs.
-  // temporary hack until Bill fixes the containers
-  theBarrelHits.insert(theBarrelHits.end(), barrelHits->begin(), barrelHits->end()); 
-  theEndcapHits.insert(theEndcapHits.end(), endcapHits->begin(), endcapHits->end());
 
-  theBarrelDigitizer->run(theBarrelHits, *barrelResult);
+  // run the algorithm
+  theBarrelDigitizer->run(*barrelHits, *barrelResult);
+
+  edm::LogInfo("EcalDigiProducer") << "EB Digis: " << barrelResult->size();
+
 // no endcap geometry yet
 //  theEndcapDigitizer->run(theEndcapHits, *endcapResult);
 
