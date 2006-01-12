@@ -1,0 +1,7 @@
+<use name=FWCore/Framework>
+<use name=DataFormats/DetId>
+<export>
+ <lib name=RecoTrackerRoadMapRecord>
+ <use name=DataFormats/DetId>
+ <use name=FWCore/Framework>
+</export>
