@@ -1,3 +1,6 @@
+** V00-00-02  [Fri Jan 13 00:18:48 2006]
+Fixed CMSKtJetAlgorithm.cc so it now works with the new CaloTower implementation. Discovered Kt algorithm only successfully clusters 2 or more towers: fails to cluster TB events with single pions putting energy in a single tower. Caveat Emptor!
+
 ** V00-00-01  [Fri Oct 28 03:35:37 2005]
 Correct name of preprocessor header guard in JetableObjectHelper.h.
 
