@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
   
-$Id: TypeID.cc,v 1.10 2005/10/06 20:59:26 wmtan Exp $
+$Id: TypeID.cc,v 1.11 2005/11/11 20:55:49 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 #include <ostream>
@@ -44,18 +44,27 @@ namespace edm {
 
   bool
   TypeID::stripTemplate(std::string& name) {
-    std::string::size_type idx = name.find('<');
-    bool ret = (idx != std::string::npos);
-    if (ret) {
-      std::string::size_type idx2 = name.rfind('>');
-      assert (idx2 != std::string::npos);
-      std::string::size_type idx3 = idx2;
-      char const space(' ');
-      while (space == name[--idx3]) --idx2;
-      ++idx;
-      name = name.substr(idx, idx2 - idx);
+    std::string const spec("<,>");
+    char const space = ' ';
+    std::string::size_type idx = name.find_first_of(spec);
+    if (idx == std::string::npos) {
+      return false;
     }
-    return ret;
+    std::string::size_type first = 0;
+    std::string::size_type after = idx;
+    if (name[idx] == '<') {
+      after = name.rfind('>');
+      assert (after != std::string::npos);
+      first = ++idx;
+    } else {
+      name = name.substr(0, idx);
+    }
+    std::string::size_type idxa = after;
+    while (space == name[--idxa]) --after;
+    std::string::size_type idxf = first;
+    while (space == name[idxf++]) ++first;
+    name = name.substr(first, after - first);
+    return true;
   }
 
   bool
