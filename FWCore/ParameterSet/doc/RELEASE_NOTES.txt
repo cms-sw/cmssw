@@ -1,3 +1,22 @@
+12-01-05 mfp. Fixed bug in pset_lex.l
+
+The bug was in the pattern that identified double-quoted strings.  The
+(wrong) behavior to was have a newline terminate a double-quoted
+string. This had at least two bad effects:
+  -- we would fail to catch errors in which a double-quoted string
+     did not have an ending double-quote, e.g.
+              string s = "Note the lack of trailing double-quote
+     did not produce a parse error
+  -- we would fail to parse what should have been a legal string,
+     e.g.
+        string s = "line 1
+                    line 2"
+     would cause a parse error.
+
+Note this problem only appeared for double-quoted
+strings. Single-quoted strings behaved correctly.
+  
+
 17-11-05 mfp & cdj. Fixed handling of unnamed source; "@main_input"
 magic name now injected into ParameterSet, not parse tree.
 
