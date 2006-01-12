@@ -36,6 +36,9 @@
 //                      correctly provide the time zone.  Had been providing
 //                      CST every time.
 //
+// 12/xx/06     mf	Tailoring to CMS MessageLogger 
+// 1/11/06	mf      Eliminate time stamp from starting message 
+//
 // ----------------------------------------------------------------------
 
 
@@ -122,10 +125,9 @@ ELoutput::ELoutput()
     std::cerr << "Constructor for ELoutput()\n";
   #endif
 
-  emit( "\n=======================================================", true );
-  emit( "\nMessageLogger service established\n" );
-  emit( formatTime(time(0)), true );
-  emit( "\n=======================================================\n", true );
+  emit( "\n=================================================", true );
+  emit( "\nMessage Log File written by MessageLogger service \n" );
+  emit( "\n=================================================\n", true );
 
 }  // ELoutput()
 
@@ -154,12 +156,9 @@ ELoutput::ELoutput( std::ostream & os_ , bool emitAtStart )
 
                                         // Enh 001 2/13/01 mf
   if (emitAtStart) {
-    emit( "\n=======================================================",
-                                                                true );
-    emit( "\nMessageLogger service established\n" );
-    emit( formatTime(time(0)), true );
-    emit( "\n=======================================================\n",
-                                                                true );
+  emit( "\n=================================================", true );
+  emit( "\nMessage Log File written by MessageLogger service \n" );
+  emit( "\n=================================================\n", true );
   }
 
 }  // ELoutput()

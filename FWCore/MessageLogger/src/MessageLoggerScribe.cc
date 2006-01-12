@@ -198,6 +198,10 @@ void
              );
   }  // no longer need messageIDs
 
+  // grab default threshold common to all destinations
+  String default_threshold
+     = job_pset_p->getUntrackedParameter<String>("threshold", "INFO");
+
   // grab default limit/timespan common to all destinations/categories:
   PSet  default_pset
      = job_pset_p->getUntrackedParameter<PSet>("default", empty_PSet);
@@ -216,6 +220,12 @@ void
     = dest_default_pset.getUntrackedParameter<int>("limit", default_limit);
   int  dest_default_timespan
     = dest_default_pset.getUntrackedParameter<int>("timespan", default_timespan);
+
+  // establish this destination's threshold:
+  String dest_threshold
+     = dest_pset.getUntrackedParameter<String>("threshold", default_threshold);
+  ELseverityLevel  threshold_sev(dest_threshold);
+  dest_ctrl.setThreshold(threshold_sev);
 
   // establish this destination's limit/timespan for each of the categories:
   for( vString::const_iterator id_it = categories.begin()

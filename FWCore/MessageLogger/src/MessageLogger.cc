@@ -8,7 +8,7 @@
 //
 // Original Author:  W. Brown, M. Fischler
 //         Created:  Fri Nov 11 16:42:39 CST 2005
-// $Id: MessageLogger.cc,v 1.7 2006/01/05 23:11:14 fischler Exp $
+// $Id: MessageLogger.cc,v 1.8 2006/01/09 18:09:07 fischler Exp $
 //
 
 // system include files
@@ -45,7 +45,8 @@ bool MessageLogger::everyDebugEnabled_ = false;
 MessageLogger::MessageLogger( ParameterSet const & iPS
                             , ActivityRegistry   & iRegistry
                             )
-			    : debugEnabled_(false)
+			    : curr_module_("BeginningJob"),
+			      debugEnabled_(false)
 {
   typedef std::vector<std::string>  vString;
    vString  empty_vString;
@@ -153,7 +154,7 @@ MessageLogger::preModule(const ModuleDescription& desc)
   if (!anyDebugEnabled_) {
     debugEnabled_ = false;
   } else if (everyDebugEnabled_) {
-    debugEnabled_ = false;
+    debugEnabled_ = true;
   } else {
     debugEnabled_ = debugEnabledModules_.count(desc.moduleLabel_);
   }

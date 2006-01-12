@@ -28,7 +28,7 @@ job's configuration file (.cfg).
 <li> <a href="#cms"> Routine MessageLogger Parameters </a>
 <li> <a href="#example"> Example .cfg File Exercising Some Options</a>
 <li> <a href="#log4cplus"> Routing Messages to log4cplus </a>
-<li> <a href="#debug"> Enable Specific LogDebug Messages </a>
+<li> <a href="#debug"> Enable LogDebug Messages </a>
 <li> <a href="#complete"> Examples of Limits and Timespan Parameters </a> 
 <li> <a href="#linelength"> Adjusting Linebreak Policy </a>
 </ul>
@@ -182,10 +182,10 @@ process TEST = {
 </pre>
 
 <a name="debug">
-<h2> Enabling Specific LogDebug Messages </h2>
+<h2> Enabling LogDebug Messages </h2>
 
 The following is a portion of a .cfg file appropriate for a job that will
-run code instrumented with many LogDebug messages.  The hypothetical user
+run code instrumented with many LogDebug messages.  This hypothetical user
 cares only about those LogDebug messages in the category 
 <font color=blue>interestingToMe</font> and, in this file, prefers not
 to see any other LogDebug or LogInfo messages.
@@ -198,6 +198,7 @@ process TEST =
   {
   vstring destinations   = { "debugmessages.txt" }
   vstring categories     = { "interestingToMe" }
+  vstring debugModules   = { "*" }
   PSet debugmessages.txt = { string threshold = "DEBUG"
                              PSet INFO  = { int32 limit = 0 }
                              PSet DEBUG = { int32 limit = 0 }
@@ -207,8 +208,24 @@ process TEST =
 </pre>
 </font>
 
-Here, for the <font color=blue>debugmessages.txt</font>, the user
-enables LogDebug messages by lowering the threshold to "DEBUG".  
+By default, all LogDebug messages issued from any modules would be
+rapidly discarded.  This user chooses to enable the LogDebug messages
+issued by all modules, via  
+<font color=blue>vstring debugModules   = { "*" }</font>.  (Instead,
+LogDebugs from a set of specific modules could be enabled; see
+<a href="debug.html#enabling"> 
+Controlling LogDebug Behavior: Enabling LogDebug Messages </a> for details.
+<p>
+Even if LogDebug messages are not rapidly discarded, destination have
+a default threshold of <code>INFO</code>, so no LogDebug messages would be
+reported.  
+Here, for the <code>debugmessages.txt</code> destination, 
+the user causes LogDebug messages to be reported by 
+<font color=blue>string threshold = "DEBUG"</font>.
+If the PSet for <code>debugmessages.txt</code> were to end there,
+all LogDebug messages would be reported by this destination.
+<p>
+This user, however, desires more selectivity.
 The next two lines establish that for any category of messages 
 without its own limit specification, if the message has severity 
 INFO or DEBUG, use a limit of zero (which means don't report those
