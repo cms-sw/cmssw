@@ -1,5 +1,5 @@
 /*
- * $Id: pset_lex.l,v 1.7 2005/12/24 00:53:26 chrjones Exp $
+ * $Id: pset_lex.l,v 1.8 2006/01/12 18:42:35 paterno Exp $
  * Author: Us
  * Date: 4/28/05
  * History:
@@ -99,15 +99,12 @@ comment2 "//".*[\n]?
 
 <DQ>((\\\")*[^\"]*(\\\")*)+ { yylval.str = stringDupQuoted(yytext,'"'); return DQWORD_tok; }
 <DQ>\"		{ BEGIN 0; break; }
-<DQ>\n		{ ++lines; BEGIN 0; break; }
 
 <SQ>((\\\')*[^\']*(\\\')*)+ { yylval.str = stringDupQuoted(yytext,'\''); return SQWORD_tok; }
 <SQ>\'		{ BEGIN 0; break; }
 
 
-
 %%
-
 
 /* 
    The following was removed from the patterns above, 
