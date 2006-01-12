@@ -1,0 +1,28 @@
+<flags SEAL_PLUGIN_NAME="RecoTrackerRoadMapMakerESProducer">
+<use name=Foundation/PluginManager>
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=Geometry/TrackerSimAlgo>
+<use name=Geometry/Records>
+<use name=Geometry/CommonDetUnit>
+<use name=Geometry/CommonTopologies>
+<use name=Geometry/Surface>
+<use name=DataFormats/DetId>
+<use name=DataFormats/SiStripDetId>
+<use name=DataFormats/SiPixelDetId>
+<use name=RecoTracker/RoadMapRecord>
+<export>
+   <lib name=RecoTrackerRoadMapMakerESProducer>
+   <use name=Foundation/PluginManager>
+   <use name=FWCore/Framework>
+   <use name=FWCore/ParameterSet>
+   <use name=Geometry/TrackerSimAlgo>
+   <use name=Geometry/Records>
+   <use name=Geometry/CommonDetUnit>
+   <use name=Geometry/CommonTopologies>
+   <use name=Geometry/Surface>
+   <use name=DataFormats/DetId>
+   <use name=DataFormats/SiStripDetId>
+   <use name=DataFormats/SiPixelDetId>
+   <use name=RecoTracker/RoadMapRecord>
+</export>
