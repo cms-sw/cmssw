@@ -1,15 +1,15 @@
 #ifndef Common_own_vector_h
 #define Common_own_vector_h
-// $Id: own_vector.h,v 1.1 2006/01/03 13:46:48 llista Exp $
+// $Id: own_vector.h,v 1.2 2006/01/09 08:13:29 llista Exp $
 #include <vector>
 #include <algorithm>
 #include "DataFormats/Common/interface/ClonePolicy.h"
 
 template <typename T, typename P = ClonePolicy<T> >
 class own_vector  {
-  private:
+private:
   typedef std::vector<T*> base;
-  public:
+public:
   typedef typename base::size_type size_type;
   typedef T value_type;
   typedef T & reference;

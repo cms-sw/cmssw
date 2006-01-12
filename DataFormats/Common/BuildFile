@@ -1,3 +1,4 @@
+<use name=FWCore/EDProduct>
 <export>
-  <use name=cxxcompiler>
+  <use name=FWCore/EDProduct>
 </export>
