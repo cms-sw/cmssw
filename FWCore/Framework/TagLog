@@ -1,3 +1,6 @@
+** V01-05-01  [Thu Jan 12 23:10:02 2006]
+Fix bug in TypeID::friendlyClassName()
+
 ** V01-05-00  [Wed Jan 11 02:37:19 2006]
 Enhance product selection for output modules
 
