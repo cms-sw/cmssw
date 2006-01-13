@@ -121,9 +121,19 @@ namespace stor
 	FR_DEBUG << "FragColl: Got an Event with one segment" << endl;
 	FR_DEBUG << "FragColl: Event size " << entry->buffer_size_ << endl;
 	FR_DEBUG << "FragColl: Event ID " << msg.getEventNumber() << endl;
+
 	// send immediately
-	boost::mutex::scoped_lock sl(info_->getExtraLock());
-	inserter_.insert(msg,*prods_);
+	std::auto_ptr<edm::EventPrincipal> evtp;
+	{
+	  boost::mutex::scoped_lock sl(info_->getExtraLock());
+	  evtp = inserter_.decode(msg,*prods_);
+	}
+	inserter_.send(evtp);
+
+	// used to be like next line, but that does decode and send in
+	// one operation, which can cause deadlock with the global junky lock
+	// inserter_.insert(msg,*prods_);
+
 	// is the buffer properly released (deleted)? (JBK)
 	(*buffer_deleter_)(entry);
 	return;
@@ -160,9 +170,18 @@ namespace stor
 	    // ask deleter to kill off the buffer
 	    (*buffer_deleter_)(i->buffer_object_);
 	  }
+
 	em.setDataSize(sum);
-	boost::mutex::scoped_lock sl(info_->getExtraLock());
-	inserter_.insert(em,*prods_);
+	std::auto_ptr<edm::EventPrincipal> evtp;
+	{
+	  boost::mutex::scoped_lock sl(info_->getExtraLock());
+	  evtp = inserter_.decode(em,*prods_);
+	}
+	inserter_.send(evtp);
+
+	// see inserter use comment above
+	// inserter_.insert(em,*prods_);
+
 	// remove the entry from the map
 	fragment_area_.erase(rc.first);
       }
