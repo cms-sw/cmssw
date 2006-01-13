@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/01/10 15:11:18 $
- * $Revision: 1.76 $
+ * $Date: 2006/01/11 09:37:03 $
+ * $Revision: 1.77 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -80,6 +80,8 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps){
   } else {
     cout << " DB output is disabled" << endl;
   }
+
+  enableSubRun_ = ps.getUntrackedParameter<bool>("enableSubRun", false);
 
   // location
 
@@ -1063,8 +1065,10 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
           }
         }
 
-        if ( update && updates % 10 == 0 ) {
-          if ( runtype_ == "cosmic" || runtype_ == "electron" ) this->writeDb();
+        if ( enableSubRun_ ) {
+          if ( update && updates % 10 == 0 ) {
+            if ( runtype_ == "cosmic" || runtype_ == "electron" ) this->writeDb();
+          }
         }
 
       }

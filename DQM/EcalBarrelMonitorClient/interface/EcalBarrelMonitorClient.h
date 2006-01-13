@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2006/01/07 16:54:43 $
- * $Revision: 1.30 $
+ * $Date: 2006/01/10 15:11:17 $
+ * $Revision: 1.31 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -128,6 +128,8 @@ string dbPassword_;
 
 RunIOV runiov_;
 MonRunIOV moniov_;
+
+bool enableSubRun_;
 int subrun_;
 
 string baseHtmlDir_;
