@@ -106,13 +106,25 @@ namespace edm
     void insert(const EventMsg& msg,const ProductRegistry& prods)
     {
       std::auto_ptr<EventPrincipal> p = decoder_.decodeEvent(msg,prods);
+	  send(p);
+    }
+
+	std::auto_ptr<EventPrincipal> decode(const EventMsg& msg,
+	                                     const ProductRegistry& prods)
+	{
+      return decoder_.decodeEvent(msg,prods);
+	}
+
+	void send(std::auto_ptr<EventPrincipal> p)
+	{
       EventBuffer::ProducerBuffer b(*buf_);
       void** v = (void**)b.buffer();
 	  FDEBUG(2) << "Insert: event ptr = " << (void*)p.get() << std::endl;
       *v = p.release();
 	  FDEBUG(2) << "Insert: " << b.buffer() << " " << b.size() << std::endl;
       b.commit(sizeof(void*));
-    }
+	}
+
   private:
     EventBuffer* buf_;
     EventDecoder decoder_;
