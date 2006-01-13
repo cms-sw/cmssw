@@ -1,8 +1,9 @@
 #ifndef Common_ref_collection_h
 #define Common_ref_collection_h
 #include "FWCore/EDProduct/interface/RefProd.h"
+#include "FWCore/EDProduct/interface/Ref.h"
 
-template<typename R, typename C>
+template<typename C, typename R>
 class ref_collection {
 public:
 public:
@@ -27,7 +28,7 @@ public:
   reference operator[]( size_type );
   const_reference operator[]( size_type ) const;
   
-  ref_collection<R, C> & operator=( const ref_collection<R, C> & );
+  ref_collection<C, R> & operator=( const ref_collection<C, R> & );
   
   void reserve( size_t );
   void push_back( const value_type & );  
@@ -41,82 +42,95 @@ private:
   edm::RefProd<R> ref_;
 };
 
-template<typename R, typename C>
-  inline ref_collection<R, C>::ref_collection() : data_(), ref_() { 
+template<typename C, typename R>
+const typename R::value_type & getAssociated( const  edm::Ref<ref_collection<C, R> > & ref ) {
+  // the following could be a method of edm::Ref
+  const edm::EDProduct * edp = ref.productGetter()->getIt( ref.id() );
+  const edm::Wrapper<ref_collection<C, R> > * w = 
+    dynamic_cast<const edm::Wrapper<ref_collection<C, R> > *>( edp );
+  const ref_collection<C, R> * coll = w->product();
+  // 
+  edm::RefProd<R> assocCollRef = coll->ref();
+  const typename R::value_type & ret = (*assocCollRef)[ ref.index() ];
+  return ret;
 }
 
-template<typename R, typename C>
-  inline ref_collection<R, C>::ref_collection( size_type n ) : data_( n ), ref_() { 
+template<typename C, typename R>
+  inline ref_collection<C, R>::ref_collection() : data_(), ref_() { 
 }
 
-template<typename R, typename C>
-  inline ref_collection<R, C>::ref_collection( const ref_collection<R, C> & o ) : 
+template<typename C, typename R>
+  inline ref_collection<C, R>::ref_collection( size_type n ) : data_( n ), ref_() { 
+}
+
+template<typename C, typename R>
+  inline ref_collection<C, R>::ref_collection( const ref_collection<C, R> & o ) : 
     data_( o.data_ ), ref_( o.ref_ ) { 
 }
 
-template<typename R, typename C>
-  inline ref_collection<R, C>::~ref_collection() { 
+template<typename C, typename R>
+  inline ref_collection<C, R>::~ref_collection() { 
 }
 
-template<typename R, typename C>
-  inline ref_collection<R, C> & ref_collection<R, C>::operator=( const ref_collection<R, C> & o ) {
+template<typename C, typename R>
+  inline ref_collection<C, R> & ref_collection<C, R>::operator=( const ref_collection<C, R> & o ) {
   data_ = o.data_;
   ref_ = o.ref_;
   return * this;
 }
 
-template<typename R, typename C>
-  inline typename ref_collection<R, C>::iterator ref_collection<R, C>::begin() {
+template<typename C, typename R>
+  inline typename ref_collection<C, R>::iterator ref_collection<C, R>::begin() {
   return data_.begin();
 }
 
-template<typename R, typename C>
-  inline typename ref_collection<R, C>::iterator ref_collection<R, C>::end() {
+template<typename C, typename R>
+  inline typename ref_collection<C, R>::iterator ref_collection<C, R>::end() {
   return data_.end();
 }
 
-template<typename R, typename C>
-  inline typename ref_collection<R, C>::const_iterator ref_collection<R, C>::begin() const {
+template<typename C, typename R>
+  inline typename ref_collection<C, R>::const_iterator ref_collection<C, R>::begin() const {
   return data_.begin();
 }
 
-template<typename R, typename C>
-  inline typename ref_collection<R, C>::const_iterator ref_collection<R, C>::end() const {
+template<typename C, typename R>
+  inline typename ref_collection<C, R>::const_iterator ref_collection<C, R>::end() const {
   return data_.end();
 }
 
-template<typename R, typename C>
-  inline typename ref_collection<R, C>::size_type ref_collection<R, C>::size() const {
+template<typename C, typename R>
+  inline typename ref_collection<C, R>::size_type ref_collection<C, R>::size() const {
   return data_.size();
 }
 
-template<typename R, typename C>
-  inline bool ref_collection<R, C>::empty() const {
+template<typename C, typename R>
+  inline bool ref_collection<C, R>::empty() const {
   return data_.empty();
 }
 
-template<typename R, typename C>
-  inline typename ref_collection<R, C>::reference ref_collection<R, C>::operator[]( size_type n ) {
+template<typename C, typename R>
+  inline typename ref_collection<C, R>::reference ref_collection<C, R>::operator[]( size_type n ) {
   return data_[ n ];
 }
 
-template<typename R, typename C>
-  inline typename ref_collection<R, C>::const_reference ref_collection<R, C>::operator[]( size_type n ) const {
+template<typename C, typename R>
+  inline typename ref_collection<C, R>::const_reference ref_collection<C, R>::operator[]( size_type n ) const {
   return data_[ n ];
 }
 
-template<typename R, typename C>
-  inline void ref_collection<R, C>::reserve( size_t n ) {
+template<typename C, typename R>
+  inline void ref_collection<C, R>::reserve( size_t n ) {
   data_.reserve( n );
 }
 
-template<typename R, typename C>
-  inline void ref_collection<R, C>::push_back( const value_type & t ) {
+template<typename C, typename R>
+  inline void ref_collection<C, R>::push_back( const value_type & t ) {
   data_.push_back( t );
 }
 
-template<typename R, typename C>
-  inline void ref_collection<R, C>::clear() {
+template<typename C, typename R>
+  inline void ref_collection<C, R>::clear() {
   data_.clear();
 }
 
