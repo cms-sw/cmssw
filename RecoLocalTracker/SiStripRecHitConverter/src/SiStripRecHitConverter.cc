@@ -29,7 +29,9 @@ namespace cms
     recHitConverterAlgorithm_(conf) ,
     conf_(conf)
   {
-    produces<SiStripRecHit2DLocalPosCollection>();
+    produces<SiStripRecHit2DLocalPosCollection>("matchedRecHit");
+    produces<SiStripRecHit2DLocalPosCollection>("rphiRecHit");
+    produces<SiStripRecHit2DLocalPosCollection>("stereoRecHit");
   }
 
 
@@ -51,14 +53,17 @@ namespace cms
     e.getByLabel(clusterProducer, clusters);
 
     // Step B: create empty output collection
-    std::auto_ptr<SiStripRecHit2DLocalPosCollection> output(new SiStripRecHit2DLocalPosCollection);
+    std::auto_ptr<SiStripRecHit2DLocalPosCollection> outputmatched(new SiStripRecHit2DLocalPosCollection);
+    std::auto_ptr<SiStripRecHit2DLocalPosCollection> outputrphi(new SiStripRecHit2DLocalPosCollection);
+    std::auto_ptr<SiStripRecHit2DLocalPosCollection> outputstereo(new SiStripRecHit2DLocalPosCollection);
 
     // Step C: Invoke the seed finding algorithm
-    recHitConverterAlgorithm_.run(clusters.product(),*output,tracker);
+    recHitConverterAlgorithm_.run(clusters.product(),*outputmatched,*outputrphi,*outputstereo,tracker);
 
     // Step D: write output to file
-    e.put(output);
-
+    e.put(outputmatched,"matchedRecHit");
+    e.put(outputrphi,"rphiRecHit");
+    e.put(outputstereo,"stereoRecHit");
   }
 
 }

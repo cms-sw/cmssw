@@ -43,10 +43,19 @@ namespace cms
     std::string rechitProducer = conf_.getParameter<std::string>("RecHitProducer");
 
     // Step A: Get Inputs 
-    edm::Handle<SiStripRecHit2DLocalPosCollection> rechits;
-    e.getByLabel(rechitProducer, rechits);
+    edm::Handle<SiStripRecHit2DLocalPosCollection> rechitsmatched;
+    edm::Handle<SiStripRecHit2DLocalPosCollection> rechitsrphi;
+    edm::Handle<SiStripRecHit2DLocalPosCollection> rechitsstereo;
+    e.getByLabel(rechitProducer,"matchedRecHit", rechitsmatched);
+    e.getByLabel(rechitProducer,"rphiRecHit", rechitsrphi);
+    e.getByLabel(rechitProducer,"stereoRecHit", rechitsstereo);
 
-    readRecHitAlgorithm_.run(rechits.product());
+    std::cout<<"Matched hits:"<<std::endl;
+    readRecHitAlgorithm_.run(rechitsmatched.product());
+    std::cout<<"Rphi hits:"<<std::endl;
+    readRecHitAlgorithm_.run(rechitsrphi.product());
+  std::cout<<"Stereo hits:"<<std::endl;
+    readRecHitAlgorithm_.run(rechitsstereo.product());
   }
 
 }
