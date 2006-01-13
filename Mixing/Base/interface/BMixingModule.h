@@ -36,7 +36,10 @@ namespace edm {
       /**Cumulates the pileup events onto this event*/
       virtual void produce(edm::Event& e1, const edm::EventSetup& c);
 
-    private:
+      int minBunch() const {return input_.minBunch();}
+      int maxBunch() const {return input_.maxBunch();}
+      double averageNumber() const {return input_.averageNumber();}
+      bool poisson() const {return input_.poisson();}
 
       virtual void createnewEDProduct() {std::cout << "BMixingModule::createnewEDProduct must be overwritten!" << std::endl;}
       void merge(const int bcr, const std::vector<Event *> vec);
