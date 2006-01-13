@@ -232,6 +232,14 @@ bool ELfwkJobReport::log( const ErrorObj & msg )  {
   // if it was not already present:
   //
   if ( msg.xid().severity < threshold  )  return false;
+  
+  if ( (xid.id == "BeginningJob")        ||
+       (xid.id == "postBeginJob")        ||
+       (xid.id == "preEventProcessing")  ||
+       (xid.id == "preModule")           ||
+       (xid.id == "postModule")          ||
+       (xid.id == "postEventProcessing") ||
+       (xid.id == "postEndJob")             ) return false; 
   if ( thisShouldBeIgnored(xid.module) )  return false;
   if ( ! limits.add( msg.xid() )       )  return false;
 
