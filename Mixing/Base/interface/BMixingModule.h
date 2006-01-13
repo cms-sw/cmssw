@@ -7,7 +7,7 @@
  * which fills the CrossingFrame object
  * It is the baseclass for all modules mnixing events 
  *
- * \author Ursula Berthon, LLR Palaiseau
+ * \author Ursula Berthon, LLR Palaiseau, Bill Tanenbaum
  *
  * \version   1st Version June 2005
  * \version   2nd Version Sep 2005
@@ -20,14 +20,11 @@
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/SecondaryInputSource.h"
-#include "Mixing/Base/interface/PUGenerator.h"
+#include "Mixing/Base/interface/PileUp.h"
 
 
-namespace edm
-{
-  class BMixingModule : public edm::EDProducer
-    {
+namespace edm {
+  class BMixingModule : public edm::EDProducer {
     public:
 
       /** standard constructor*/
@@ -39,29 +36,20 @@ namespace edm
       /**Cumulates the pileup events onto this event*/
       virtual void produce(edm::Event& e1, const edm::EventSetup& c);
 
-
     private:
-      double average_;
-      PUGenerator *generator_;
 
-      virtual void createnewEDProduct() {std::cout<<"BMixingModule::createnewEDProduct must be overwritten!"<<std::endl;}
-      virtual void getEvents(const unsigned int nrEvents);
+      virtual void createnewEDProduct() {std::cout << "BMixingModule::createnewEDProduct must be overwritten!" << std::endl;}
       void merge(const int bcr, const std::vector<Event *> vec);
       virtual void addSignals(const edm::Event &e) {;}
       virtual void addPileups(const int bcr, edm::Event*) {;}
       virtual void put(edm::Event &e) {;}
 
-      boost::shared_ptr<SecondaryInputSource> makeSecInput(ParameterSet const& ps);
     protected:
-      int minbunch_;
-      int maxbunch_;
       int bunchSpace_;
       static int trackoffset;
       static int vertexoffset;
 
-      boost::shared_ptr<SecondaryInputSource> secInput_;
-      std::vector<Event *> eventVector_;
-
+      PileUp input_;
     };
 }//edm
 

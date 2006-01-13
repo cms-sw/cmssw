@@ -3,6 +3,7 @@
 
 #include <vector>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/ModuleDescription.h"
 #include "CLHEP/Random/RandPoisson.h"
 #include "CLHEP/Random/TripleRand.h"
 
@@ -12,7 +13,7 @@ namespace edm {
     explicit PileUp(ParameterSet const& pset);
     ~PileUp() {}
 
-    void readPileUp(std::vector<std::vector<EventPrincipal *> > & result);
+    void readPileUp(std::vector<std::vector<Event *> > & result);
 
     int minBunch() const {return minBunch_;}
     int maxBunch() const {return maxBunch_;}
@@ -30,6 +31,7 @@ namespace edm {
     VectorInputSource * const input_;
     TripleRand eng_;
     RandPoisson distribution_;
+    ModuleDescription md_;
   };
 }
 
