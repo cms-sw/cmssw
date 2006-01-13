@@ -1,3 +1,6 @@
+** V00-01-00  [Fri Jan 13 10:34:34 2006]
+added ref_vector class
+
 ** V00-00-02  [Mon Jan  9 09:15:27 2006]
 fixed iterators functionalities
 
