@@ -2,8 +2,8 @@
 *  See header file for a description of this class.
 *
 *
-*  $Date: 2005/10/05 04:45:33 $
-*  $Revision: 1.1 $
+*  $Date: 2005/12/06 14:09:52 $
+*  $Revision: 1.3 $
 *  \author Jo. Weng  - CERN, Ph Division & Uni Karlsruhe
 *  \author F.Moortgat - CERN, Ph Division
 */
@@ -55,7 +55,7 @@ filename_( pset.getParameter<std::string>( "fileName" ) ) {
 	modDesc_.pass = 1UL;  
 	
 	branchDesc_.module = modDesc_;   
-	branchDesc_.fullClassName_= "HepMCProduct";
+	branchDesc_.fullClassName_= "edm::HepMCProduct";
 	branchDesc_.friendlyClassName_ = "HepMCProduct";   
 	preg_->addProduct(branchDesc_);
 }
@@ -91,6 +91,7 @@ auto_ptr<EventPrincipal> MCFileSource::read() {
 		auto_ptr<Provenance> prov(new Provenance(branchDesc_));
 		
 		result->put(prod, prov);
+		result->addToProcessHistory("HepMC");
 		cout << "MCFileSource:Reading Done " << endl;
 		if( ++numberEventsInThisRun_ < numberEventsInRun_ ) {
 			nextID_ = nextID_.next();
