@@ -35,7 +35,7 @@ namespace edm
   }
 
   void MixingModule::createnewEDProduct() {
-    simcf_=new CrossingFrame(minbunch_,maxbunch_,bunchSpace_,trackerSubdetectors_,caloSubdetectors_);
+    simcf_=new CrossingFrame(minBunch(),maxBunch(),bunchSpace_,trackerSubdetectors_,caloSubdetectors_);
   }
 
   // Virtual destructor needed.
