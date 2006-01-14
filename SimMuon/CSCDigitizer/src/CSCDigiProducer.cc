@@ -13,6 +13,7 @@ CSCDigiProducer::CSCDigiProducer(const edm::ParameterSet& ps) {
   produces<CSCStripDigiCollection>();
   produces<CSCComparatorDigiCollection>();
 
+  theFakeHitsAreUsed = ps.getUntrackedParameter<bool>("useFakeHits", false);
 }
 
 
@@ -41,7 +42,9 @@ void CSCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) 
 
   theDigitizer->setGeometry( pGeom );
 
-  addFakeHits(pGeom, cscHits);
+  if(theFakeHitsAreUsed) {
+    addFakeHits(pGeom, cscHits);
+  }
 
   // find the magnetic field
   edm::ESHandle<MagneticField> magfield;

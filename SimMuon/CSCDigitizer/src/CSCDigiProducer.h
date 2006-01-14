@@ -27,6 +27,7 @@ private:
 
   CSCDigitizer * theDigitizer;
 
+  bool theFakeHitsAreUsed;
 };
 
 #endif
