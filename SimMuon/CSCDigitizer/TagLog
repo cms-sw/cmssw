@@ -1,3 +1,6 @@
+** V00-00-01  [Sat Jan 14 02:11:03 2006]
+Don't always use fake hits.  Make configurable
+
 ** V00-00-00  [Sat Jan 14 02:09:12 2006]
 first release
 
