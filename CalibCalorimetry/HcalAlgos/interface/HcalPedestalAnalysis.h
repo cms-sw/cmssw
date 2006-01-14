@@ -4,8 +4,8 @@
 /*
  * \file HcalPedestalAnalysis.h
  *
- * $Date: 2005/11/30 22:05:56 $
- * $Revision: 1.4 $
+ * $Date: 2006/01/05 19:55:32 $
+ * $Revision: 1.1 $
  * \author W. Fisher
  *
 */
@@ -37,44 +37,36 @@
 
 using namespace std;
 
-class HcalPedestalAnalysis: public edm::EDAnalyzer{
-
+class HcalPedestalAnalysis{
+  
 public:
-
-/// Constructor
-HcalPedestalAnalysis(const edm::ParameterSet& ps);
-
-/// Destructor
-~HcalPedestalAnalysis();
+  
+  /// Constructor
+  HcalPedestalAnalysis(const edm::ParameterSet& ps);
+  
+  /// Destructor
+  ~HcalPedestalAnalysis();
+  
+  void done(void);  
+  void processEvent(const HBHEDigiCollection& hbhe,
+		    const HODigiCollection& ho,
+		    const HFDigiCollection& hf,
+		    const HcalDbService& cond);
 
 protected:
-
-/// Analyze
-void analyze(const edm::Event& e, const edm::EventSetup& c);
-
-// BeginJob
-void beginJob(const edm::EventSetup& c);
-
-// EndJob
-void endJob(void);
-
+  
+  
 private:
- void processEvent(const HBHEDigiCollection& hbhe,
-		   const HODigiCollection& ho,
-		   const HFDigiCollection& hf,
-		   const HcalDbService& cond);
- 
- void perChanHists(int id, const HcalDetId detid, const HcalQIESample& qie, map<HcalDetId, map<int, TH1F*> > &tool);
- 
-  int m_ievt;
+  
+  void perChanHists(int id, const HcalDetId detid, const HcalQIESample& qie, map<HcalDetId, map<int, TH1F*> > &tool);
+  
   string m_outputFileROOT;
   string m_outputFileMean;
   string m_outputFileWidth;
-  ofstream m_logFile;
-
+  
   int m_startSample;
   int m_endSample;
-
+  
   const HcalQIEShape* m_shape;
   const HcalQIECoder* m_coder;
   

@@ -1,12 +1,19 @@
 <use name=boost>
+<use name=root>
 <use name=FWCore/Framework>
 <use name=DataFormats/HcalDetId>
 <use name=CondFormats/HcalObjects>
+<use name=DataFormats/HcalDigi>
+<use name=CalibFormats/HcalObjects>
+
 <export>
   <lib name=CalibCalorimetryHcalAlgos>
+  <use name=root>
   <use name=boost>
   <use name=FWCore/Framework>
   <use name=Foundation/PluginManager>
   <use name=DataFormats/HcalDetId>
   <use name=CondFormats/HcalObjects>
+  <use name=DataFormats/HcalDigi>
+  <use name=CalibFormats/HcalObjects>
 </export>

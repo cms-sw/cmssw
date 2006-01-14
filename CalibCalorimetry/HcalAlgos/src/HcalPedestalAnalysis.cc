@@ -1,20 +1,19 @@
-#include <CalibCalorimetry/HcalStandardModules/interface/HcalPedestalAnalysis.h>
+#include <CalibCalorimetry/HcalAlgos/interface/HcalPedestalAnalysis.h>
+#include "CalibCalorimetry/HcalAlgos/interface/HcalAlgoUtils.h"
 #include <iostream>
 #include <fstream>
-#include "CalibCalorimetry/HcalAlgos/src/HcalAlgoUtils.h"
+
 
 /*
  * \file HcalPedestalAnalysis.cc
  * 
- * $Date: 2005/12/08 21:18:16 $
- * $Revision: 1.5 $
+ * $Date: 2006/01/05 19:55:32 $
+ * $Revision: 1.1 $
  * \author W Fisher
  *
 */
 
 HcalPedestalAnalysis::HcalPedestalAnalysis(const edm::ParameterSet& ps){
-
-  m_logFile.open("HcalPedestalAnalysis.log");
 
   m_outputFileMean = ps.getUntrackedParameter<string>("outputFileMeans", "");
   if ( m_outputFileMean.size() != 0 ) {
@@ -54,8 +53,6 @@ HcalPedestalAnalysis::HcalPedestalAnalysis(const edm::ParameterSet& ps){
 }
 
 HcalPedestalAnalysis::~HcalPedestalAnalysis(){
-  m_logFile.close();
-
   ///All done, clean up!!
   for(_meo=hbHists.PEDVALS.begin(); _meo!=hbHists.PEDVALS.end(); _meo++){
     for(int i=0; i<4; i++) _meo->second[i]->Delete();
@@ -86,13 +83,7 @@ HcalPedestalAnalysis::~HcalPedestalAnalysis(){
 
 }
 
-void HcalPedestalAnalysis::beginJob(const edm::EventSetup& c){
-  m_ievt = 0;
-}
-
-void HcalPedestalAnalysis::endJob(void) {
-
-  cout << "HcalPedestalAnalysis: analyzed " << m_ievt << " events" << endl;
+void HcalPedestalAnalysis::done() {
 
   HcalPedestals pedCan;
   HcalPedestalWidths widthCan;
@@ -197,68 +188,49 @@ void HcalPedestalAnalysis::endJob(void) {
 
 }
 
-void HcalPedestalAnalysis::analyze(const edm::Event& e, const edm::EventSetup& eventSetup){
-
-  m_ievt++;
-
-  ///get digis
-  edm::Handle<HBHEDigiCollection> hbhe; e.getByType(hbhe);
-  edm::Handle<HODigiCollection> ho;     e.getByType(ho);
-  edm::Handle<HFDigiCollection> hf;     e.getByType(hf);
-  // get conditions
-  edm::ESHandle<HcalDbService> conditions;
-  eventSetup.get<HcalDbRecord>().get(conditions);
-  processEvent(*hbhe, *ho, *hf, *conditions);
+void HcalPedestalAnalysis::processEvent(const HBHEDigiCollection& hbhe,
+					const HODigiCollection& ho,
+					const HFDigiCollection& hf,
+					const HcalDbService& cond){
   
-  if(m_ievt%1000 == 0)
-    cout << "HcalPedestalAnalysis: analyzed " << m_ievt << " events" << endl;
-
-  return;
-}
-
- void HcalPedestalAnalysis::processEvent(const HBHEDigiCollection& hbhe,
-		    const HODigiCollection& ho,
-		    const HFDigiCollection& hf,
-		   const HcalDbService& cond){
-
-   m_shape = cond.getHcalShape();
-   
-   try{
-     for (HBHEDigiCollection::const_iterator j=hbhe.begin(); j!=hbhe.end(); j++){
-       const HBHEDataFrame digi = (const HBHEDataFrame)(*j);
-       m_coder = cond.getHcalCoder(digi.id());
-       for (int i=m_startSample; i<digi.size() && i<m_endSample; i++) {
-	 perChanHists(0,digi.id(),digi.sample(i),hbHists.PEDVALS);
-       }
-     }
-   } catch (...) {
-     printf("HcalPedestalAnalysis::processEvent  No HB/HE Digis.\n");
-   }
-   
-   try{
-     for (HODigiCollection::const_iterator j=ho.begin(); j!=ho.end(); j++){
-       const HODataFrame digi = (const HODataFrame)(*j);
-       m_coder = cond.getHcalCoder(digi.id());
-       for (int i=m_startSample; i<digi.size() && i<m_endSample; i++) {	   
-	 perChanHists(1,digi.id(),digi.sample(i),hoHists.PEDVALS);
-       }
-     }        
-   } catch (...) {
-     cout << "HcalPedestalAnalysis::processEvent  No HO Digis." << endl;
-   }
-   
-   try{
-     for (HFDigiCollection::const_iterator j=hf.begin(); j!=hf.end(); j++){
-       const HFDataFrame digi = (const HFDataFrame)(*j);
-       m_coder = cond.getHcalCoder(digi.id());
-       for (int i=m_startSample; i<digi.size() && i<m_endSample; i++) {
-	 perChanHists(2,digi.id(),digi.sample(i),hfHists.PEDVALS);
-       }
-     }
-   } catch (...) {
-     cout << "HcalPedestalAnalysis::processEvent  No HF Digis." << endl;
-   }
-
+  m_shape = cond.getHcalShape();
+  
+  try{
+    for (HBHEDigiCollection::const_iterator j=hbhe.begin(); j!=hbhe.end(); j++){
+      const HBHEDataFrame digi = (const HBHEDataFrame)(*j);
+      m_coder = cond.getHcalCoder(digi.id());
+      for (int i=m_startSample; i<digi.size() && i<m_endSample; i++) {
+	perChanHists(0,digi.id(),digi.sample(i),hbHists.PEDVALS);
+      }
+    }
+  } catch (...) {
+    printf("HcalPedestalAnalysis::processEvent  No HB/HE Digis.\n");
+  }
+  
+  try{
+    for (HODigiCollection::const_iterator j=ho.begin(); j!=ho.end(); j++){
+      const HODataFrame digi = (const HODataFrame)(*j);
+      m_coder = cond.getHcalCoder(digi.id());
+      for (int i=m_startSample; i<digi.size() && i<m_endSample; i++) {	   
+	perChanHists(1,digi.id(),digi.sample(i),hoHists.PEDVALS);
+      }
+    }        
+  } catch (...) {
+    cout << "HcalPedestalAnalysis::processEvent  No HO Digis." << endl;
+  }
+  
+  try{
+    for (HFDigiCollection::const_iterator j=hf.begin(); j!=hf.end(); j++){
+      const HFDataFrame digi = (const HFDataFrame)(*j);
+      m_coder = cond.getHcalCoder(digi.id());
+      for (int i=m_startSample; i<digi.size() && i<m_endSample; i++) {
+	perChanHists(2,digi.id(),digi.sample(i),hfHists.PEDVALS);
+      }
+    }
+  } catch (...) {
+    cout << "HcalPedestalAnalysis::processEvent  No HF Digis." << endl;
+  }
+  
 }
 
 void HcalPedestalAnalysis::perChanHists(int id, const HcalDetId detid, const HcalQIESample& qie, map<HcalDetId, map<int, TH1F*> > &tool) {
