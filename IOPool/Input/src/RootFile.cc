@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.1 2006/01/07 00:46:23 wmtan Exp $
+$Id: RootFile.cc,v 1.2 2006/01/11 22:34:01 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/RootFile.h"
@@ -108,7 +108,6 @@ namespace edm {
     std::vector<BranchEntryDescription>::iterator pit = evProv.data_.begin();
     std::vector<BranchEntryDescription>::iterator pitEnd = evProv.data_.end();
     for (; pit != pitEnd; ++pit) {
-      if (pit->status != BranchEntryDescription::Success) continue;
       // BEGIN These lines read all branches
       // TBranch *br = branches_.find(poolNames::keyName(*pit))->second;
       // br->SetAddress(p);
