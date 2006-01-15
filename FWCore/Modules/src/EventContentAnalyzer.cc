@@ -12,7 +12,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep 19 11:47:28 CEST 2005
-// $Id: EventContentAnalyzer.cc,v 1.6 2006/01/15 00:24:31 chrjones Exp $
+// $Id: EventContentAnalyzer.cc,v 1.7 2006/01/15 01:17:59 chrjones Exp $
 //
 //
 
@@ -61,6 +61,15 @@ static const char* kNameValueSep = "=";
 template<typename T>
 static void doPrint(const std::string&iName,const seal::reflex::Object& iObject, const std::string& iIndent) {
    std::cout << iIndent<< iName <<kNameValueSep<<*reinterpret_cast<T*>(iObject.address())<<"\n";
+};
+
+template<>
+static void doPrint<char>(const std::string&iName,const seal::reflex::Object& iObject, const std::string& iIndent) {
+   std::cout << iIndent<< iName <<kNameValueSep<<static_cast<int>(*reinterpret_cast<char*>(iObject.address()))<<"\n";
+};
+template<>
+static void doPrint<unsigned char>(const std::string&iName,const seal::reflex::Object& iObject, const std::string& iIndent) {
+   std::cout << iIndent<< iName <<kNameValueSep<<static_cast<unsigned int>(*reinterpret_cast<unsigned char*>(iObject.address()))<<"\n";
 };
 
 typedef void(*FunctionType)(const std::string&,const seal::reflex::Object&, const std::string&);
@@ -176,7 +185,11 @@ static bool printAsContainer(const std::string& iName,
          sizeS << "["<<index<<"]";
          contained = atMember.invoke(iObject, Tools::makeVector(static_cast<void*>(&index)));
          //std::cout <<"invoked 'at'"<<std::endl;
-         printObject(sizeS.str(),contained,indexIndent,iIndentDelta);
+         try {
+            printObject(sizeS.str(),contained,indexIndent,iIndentDelta);
+         }catch(...) {
+            std::cout <<iIndent<<"<exception caught>"<<"\n";
+         }
       }
       return true;
    } catch(const std::exception& x){
