@@ -12,7 +12,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep 19 11:47:28 CEST 2005
-// $Id: EventContentAnalyzer.cc,v 1.8 2006/01/15 01:42:45 chrjones Exp $
+// $Id: EventContentAnalyzer.cc,v 1.9 2006/01/15 01:55:01 chrjones Exp $
 //
 //
 
@@ -72,6 +72,12 @@ static void doPrint<unsigned char>(const std::string&iName,const seal::reflex::O
    std::cout << iIndent<< iName <<kNameValueSep<<static_cast<unsigned int>(*reinterpret_cast<unsigned char*>(iObject.address()))<<"\n";
 };
 
+template<>
+static void doPrint<bool>(const std::string&iName,const seal::reflex::Object& iObject, const std::string& iIndent) {
+   std::cout << iIndent<< iName <<kNameValueSep<<((*reinterpret_cast<bool*>(iObject.address()))?"true":"false")<<"\n";
+};
+
+
 typedef void(*FunctionType)(const std::string&,const seal::reflex::Object&, const std::string&);
 typedef std::map<std::string, FunctionType> TypeToPrintMap;
 
@@ -88,6 +94,7 @@ static bool printAsBuiltin(const std::string& iName,
    static TypeToPrintMap s_map;
    static bool isFirst = true;
    if(isFirst){
+      addToMap<bool>(s_map);
       addToMap<char>(s_map);
       addToMap<short>(s_map);
       addToMap<int>(s_map);
