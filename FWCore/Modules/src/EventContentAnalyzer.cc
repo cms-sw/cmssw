@@ -12,7 +12,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep 19 11:47:28 CEST 2005
-// $Id: EventContentAnalyzer.cc,v 1.5 2006/01/11 00:18:00 chrjones Exp $
+// $Id: EventContentAnalyzer.cc,v 1.6 2006/01/15 00:24:31 chrjones Exp $
 //
 //
 
@@ -79,9 +79,11 @@ static bool printAsBuiltin(const std::string& iName,
    static TypeToPrintMap s_map;
    static bool isFirst = true;
    if(isFirst){
+      addToMap<char>(s_map);
       addToMap<short>(s_map);
       addToMap<int>(s_map);
       addToMap<long>(s_map);
+      addToMap<unsigned char>(s_map);
       addToMap<unsigned short>(s_map);
       addToMap<unsigned int>(s_map);
       addToMap<unsigned long>(s_map);
