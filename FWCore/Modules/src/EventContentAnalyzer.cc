@@ -12,7 +12,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep 19 11:47:28 CEST 2005
-// $Id: EventContentAnalyzer.cc,v 1.4 2006/01/10 22:11:16 chrjones Exp $
+// $Id: EventContentAnalyzer.cc,v 1.5 2006/01/11 00:18:00 chrjones Exp $
 //
 //
 
@@ -92,10 +92,6 @@ static bool printAsBuiltin(const std::string& iName,
    TypeToPrintMap::iterator itFound =s_map.find(iObject.type().typeInfo().name());
    if(itFound == s_map.end()){
       
-      if(iObject.type().isPointer()) {
-         std::cout<<iIndent<<iName<<kNameValueSep<<formatClassName(iObject.type().name())<<std::hex<<iObject.address()<<"\n";
-         return true;
-      }
       return false;
    }
    itFound->second(iName,iObject,iIndent);
@@ -110,20 +106,40 @@ static void printObject(const std::string& iName,
                         const seal::reflex::Object& iObject,
                         const std::string& iIndent,
                         const std::string& iIndentDelta) {
-   if(printAsBuiltin(iName,iObject,iIndent)) {
+   using namespace seal::reflex;
+   std::string printName = iName;
+   Object objectToPrint = iObject;
+   std::string indent(iIndent);
+   if(iObject.type().isPointer()) {
+      std::cout<<iIndent<<iName<<kNameValueSep<<formatClassName(iObject.type().name())<<std::hex<<iObject.address()<<"\n";
+      Type pointedType = iObject.type().toType();
+      if(seal::reflex::Type::byName("void") == pointedType ||
+         pointedType.isPointer() ||
+         iObject.address()==0) {
+         return;
+      }
+      //have the code that follows print the contents of the data to which the pointer points
+      objectToPrint = seal::reflex::Object(pointedType, *reinterpret_cast<void**>(iObject.address()));
+      objectToPrint = Object(objectToPrint.castObject(objectToPrint.dynamicType()));
+      printName = std::string("*")+iName;
+      indent +=iIndentDelta;
+   }
+   if(printAsBuiltin(printName,objectToPrint,indent)) {
       return;
    }
-   if(printAsContainer(iName,iObject,iIndent,iIndentDelta)){
+   if(printAsContainer(printName,objectToPrint,indent,iIndentDelta)){
       return;
    }
    
-   using namespace seal::reflex;
-   std::cout<<iIndent<<iName<<" "<<formatClassName(iObject.type().name())<<"\n";
-
-   std::string indent(iIndent+iIndentDelta);
+   std::string typeName(objectToPrint.type().name());
+   if(typeName.empty()){
+      typeName="<unknown>";
+   }
+   std::cout<<indent<<printName<<" "<<formatClassName(typeName)<<"\n";
+   indent+=iIndentDelta;
    //print all the data members
-   for(seal::reflex::member_iterator itMember = iObject.type().dataMember_begin();
-       itMember != iObject.type().dataMember_end();
+   for(seal::reflex::member_iterator itMember = objectToPrint.type().dataMember_begin();
+       itMember != objectToPrint.type().dataMember_end();
        ++itMember){
       //std::cout <<"     debug "<<itMember->name()<<" "<<itMember->type().name()<<"\n";
       printObject( itMember->name(),
