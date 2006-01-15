@@ -12,7 +12,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep 19 11:47:28 CEST 2005
-// $Id: EventContentAnalyzer.cc,v 1.7 2006/01/15 01:17:59 chrjones Exp $
+// $Id: EventContentAnalyzer.cc,v 1.8 2006/01/15 01:42:45 chrjones Exp $
 //
 //
 
@@ -153,10 +153,14 @@ static void printObject(const std::string& iName,
        itMember != objectToPrint.type().dataMember_end();
        ++itMember){
       //std::cout <<"     debug "<<itMember->name()<<" "<<itMember->type().name()<<"\n";
-      printObject( itMember->name(),
-                   itMember->get( iObject),
-                   indent,
-                   iIndentDelta);
+      try {
+         printObject( itMember->name(),
+                      itMember->get( iObject),
+                      indent,
+                      iIndentDelta);
+      }catch(...) {
+         std::cout <<indent<<"<exception caught>"<<"\n";
+      }
    }
 };
 
