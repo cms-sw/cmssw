@@ -1,0 +1,5 @@
+<lcgdict>
+  <class name="RoadSearchCloud"/>
+  <class name="std::vector<RoadSearchCloud>"/>
+  <class name="edm::Wrapper<std::vector<RoadSearchCloud> >"/>
+</lcgdict>

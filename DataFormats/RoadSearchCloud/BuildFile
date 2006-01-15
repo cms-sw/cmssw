@@ -1,0 +1,9 @@
+<use name=FWCore/EDProduct>
+<use name=DataFormats/TrackingSeed>
+<use name=DataFormats/TrackerRecHit2D>
+<export>
+ <lib name=DataFormatsRoadSearchCloud>
+ <use name=FWCore/EDProduct>
+ <use name=DataFormats/TrackingSeed>
+ <use name=DataFormats/TrackerRecHit2D>
+</export>
