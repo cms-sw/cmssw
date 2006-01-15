@@ -8,6 +8,7 @@
 #include "FWCore/MessageLogger/interface/ELoutput.h"
 #include "FWCore/MessageLogger/interface/ELfwkJobReport.h"
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
 #include "FWCore/MessageLogger/interface/MessageLoggerScribe.h"
 #include "FWCore/MessageLogger/interface/NamedDestination.h"
@@ -67,17 +68,7 @@ void
       }
       case MessageLoggerQ::LOG_A_MESSAGE:  {
         ErrorObj *  errorobj_p = static_cast<ErrorObj *>(operand);
-        // std::cout << "MessageLoggerQ::LOG_A_MESSAGE " << errorobj_p << '\n';
-	ELcontextSupplier& cs =
-	  const_cast<ELcontextSupplier&>(admin_p->getContextSupplier());
-	MsgContext& mc = dynamic_cast<MsgContext&>(cs);
-	mc.setContext(errorobj_p->context());
-	std::vector<std::string> categories;
-	parseCategories(errorobj_p->xid().id, categories);
-	for (unsigned int icat = 0; icat < categories.size(); ++icat) {
-	  errorobj_p->setID(categories[icat]);
-          (*errorlog_p)( *errorobj_p );  // route the message text
-	}
+        log (errorobj_p);        
         delete errorobj_p;  // dispose of the message text
         break;
       }
@@ -97,12 +88,54 @@ void
 
 }  // MessageLoggerScribe::run()
 
+void MessageLoggerScribe::log ( ErrorObj *  errorobj_p ) {
+
+  // TRACE0114
+  //std::cerr << "MessageLoggerQ::LOG_A_MESSAGE " << errorobj_p->xid().id << '\n';
+
+  ELcontextSupplier& cs =
+    const_cast<ELcontextSupplier&>(admin_p->getContextSupplier());
+  MsgContext& mc = dynamic_cast<MsgContext&>(cs);
+  mc.setContext(errorobj_p->context());
+  std::vector<std::string> categories;
+  parseCategories(errorobj_p->xid().id, categories);
+  for (unsigned int icat = 0; icat < categories.size(); ++icat) {
+    errorobj_p->setID(categories[icat]);
+    (*errorlog_p)( *errorobj_p );  // route the message text
+  } 
+}
+
 
 void
   MessageLoggerScribe::configure_errorlog()
 {
   vString  empty_vString;
+  String   empty_String;
 
+  // The following is present to test pre-configuration message handling:
+  String preconfiguration_message 
+       = job_pset_p->getUntrackedParameter<String>
+       	("generate_preconfiguration_message", empty_String);
+  if (preconfiguration_message != empty_String) {
+    // To test a preconfiguration message without first going thru the 
+    // configuration we are about to do, we issue the message (so it sits
+    // on the queue), then copy the processing that the LOG_A_MESSAE case
+    // does.  We suppress the timestamp to allow for automated unit testing.
+     
+    // TRACE0114
+    //std::cerr << "<<<<<< Preconfig message request noted\n";
+    
+    early_dest.suppressTime();
+    LogError ("preconfiguration") << preconfiguration_message;
+    MessageLoggerQ::OpCode  opcode;
+    void *                  operand;
+    MessageLoggerQ::consume(opcode, operand);  // grab next work item from Q
+    assert (opcode == MessageLoggerQ::LOG_A_MESSAGE);
+    ErrorObj *  errorobj_p = static_cast<ErrorObj *>(operand);
+    log (errorobj_p);        
+    delete errorobj_p;  // dispose of the message text
+  }
+  
   // grab list of destinations:
   vString  destinations
      = job_pset_p->getUntrackedParameter<vString>("destinations", empty_vString);

@@ -33,6 +33,9 @@ private:
   typedef std::vector<String>  vString;
   typedef ParameterSet         PSet;
 
+  // --- log one consumed message
+  void log(ErrorObj * errorobj_p);
+
   // --- handle details of configuring via a ParameterSet:
   void  configure_errorlog( );
   void  configure_dest( ELdestControl & dest_ctrl
