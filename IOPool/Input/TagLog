@@ -1,3 +1,6 @@
+** V01-01-01  [Sun Jan 15 07:15:22 2006]
+Fix copying problem with defaulted EDproducts
+
 ** V01-01-00  [Tue Jan 10 20:21:08 2006]
 Add VectorInputSource.  Collapse RandomAccessInputSource into InputSource.
 
