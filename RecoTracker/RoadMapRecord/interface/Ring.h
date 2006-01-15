@@ -1,13 +1,21 @@
-#ifndef Ring_h
-#define Ring_h
+#ifndef RECOTRACKER_RING_H
+#define RECOTRACKER_RING_H
 
-/** \class Ring
- *
- * \author Oliver Gutsche, Fermilab
- *
- * \version   1st Version Oct. 14, 2005  
- *
- ************************************************************/
+//
+// Package:         RecoTracker/RoadMapRecord
+// Class:           Ring
+// 
+// Description:     A Ring represents all DetId's
+//                  at a given radius and z
+//                  summed over phi
+//
+// Original Author: Oliver Gutsche, gutsche@fnal.gov
+// Created:         Thu Jan 12 21:00:00 UTC 2006
+//
+// $Author: gutsche $
+// $Date: 2006/01/14 22:00:00 $
+// $Revision: 1.1 $
+//
 
 #include <iostream>
 #include <map>

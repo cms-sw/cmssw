@@ -1,8 +1,16 @@
-// -*- C++ -*-
 //
-// Package:    RoadMapESSource
-// Class:      RoadMapESSource
+// Package:         RecoTracker/RoadMapESSource
+// Class:           RoadMapESSource
 // 
+// Description:     Reads in ASCII dump of Roads object
+//                  and provides it to the event.
+//
+// Original Author: Oliver Gutsche, gutsche@fnal.gov
+// Created:         Thu Jan 12 21:00:00 UTC 2006
+//
+// $Author: gutsche $
+// $Date: 2006/01/14 22:00:00 $
+// $Revision: 1.1 $
 //
 
 #include "RecoTracker/RoadMapESSource/interface/RoadMapESSource.h"

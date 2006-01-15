@@ -1,20 +1,20 @@
-// -*- C++ -*-
+#ifndef RECOTRACKER_ROADMAPESSOURCE_H
+#define RECOTRACKER_ROADMAPESSOURCE_H
+
 //
-// Package:    RoadMapESSource
-// Class:      RoadMapESSource
+// Package:         RecoTracker/RoadMapESSource
+// Class:           RoadMapESSource
 // 
-/**\class RoadMapESSource RoadMapESSource.h RecoTracker/RoadMapESSource/interface/RoadMapESSource.h
-
-Description: reads in RoadMap from ascii file
-
-*/
+// Description:     Reads in ASCII dump of Roads object
+//                  and provides it to the event.
 //
-// Original Author:  Oliver Gutsche
-//         Created:  Wed Nov 16 14:22:12 CST 2005
-// $Id: RoadMapESSource.h,v 1.1.1.1 2005/11/29 21:14:41 gutsche Exp $
+// Original Author: Oliver Gutsche, gutsche@fnal.gov
+// Created:         Thu Jan 12 21:00:00 UTC 2006
 //
+// $Author: gutsche $
+// $Date: 2006/01/14 22:00:00 $
+// $Revision: 1.1 $
 //
-
 
 // system include files
 #include <memory>
@@ -56,3 +56,5 @@ class RoadMapESSource : public edm::ESProducer, public edm::EventSetupRecordInte
   std::string fileName_;
   unsigned int verbosity_;
 };
+
+#endif

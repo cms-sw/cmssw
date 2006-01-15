@@ -1,20 +1,20 @@
-// -*- C++ -*-
+#ifndef RECOTRACKER_ROADMAPMAKERESPRODUCER_H
+#define RECOTRACKER_ROADMAPMAKERESPRODUCER_H
+
 //
-// Package:    RoadMapMakerESProducer
-// Class:      RoadMapMakerESProducer
+// Package:         RecoTracker/RoadMapMakerESProducer
+// Class:           RoadMapMakerESProducer
 // 
-/**\class RoadMapMakerESProducer RoadMapMakerESProducer.h RecoTracker/RoadMapMakerESProducer/interface/RoadMapMakerESProducer.h
-
-Description: constructs RoadMap using the tracker geometry
-
-*/
+// Description:     Uses the RoadMaker object to construct
+//                  and provide a Roads object.
 //
-// Original Author:  Oliver Gutsche
-//         Created:  Wed Nov 16 15:04:57 CST 2005
-// $Id: RoadMapMakerESProducer.h,v 1.2 2005/12/08 23:18:54 gutsche Exp $
+// Original Author: Oliver Gutsche, gutsche@fnal.gov
+// Created:         Thu Jan 12 21:00:00 UTC 2006
 //
+// $Author: gutsche $
+// $Date: 2006/01/14 22:00:00 $
+// $Revision: 1.1 $
 //
-
 
 // system include files
 #include <memory>
@@ -54,3 +54,4 @@ class RoadMapMakerESProducer : public edm::ESProducer {
   std::string fileNameOldStyle_;
 };
 
+#endif

@@ -1,8 +1,16 @@
-// -*- C++ -*-
 //
-// Package:    RoadMapMakerESProducer
-// Class:      RoadMapMakerESProducer
+// Package:         RecoTracker/RoadMapMakerESProducer
+// Class:           RoadMapMakerESProducer
 // 
+// Description:     Uses the RoadMaker object to construct
+//                  and provide a Roads object.
+//
+// Original Author: Oliver Gutsche, gutsche@fnal.gov
+// Created:         Thu Jan 12 21:00:00 UTC 2006
+//
+// $Author: gutsche $
+// $Date: 2006/01/14 22:00:00 $
+// $Revision: 1.1 $
 //
 
 #include "RecoTracker/RoadMapMakerESProducer/interface/RoadMapMakerESProducer.h"

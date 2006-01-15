@@ -1,9 +1,19 @@
-// File: RoadMaker.cc
-// Description:  see RoadMaker.h
-// Author:  O. Gutsche
-// Creation Date:  Oct. 14 2005 Initial version.
 //
-//--------------------------------------------
+// Package:         RecoTracker/RoadMapMakerESProducer
+// Class:           RoadMaker
+// 
+// Description:     Creates a Roads object by combining all
+//                  inner and outer SeedRings into RoadSeeds
+//                  and determines all Rings of the RoadSet
+//                  belonging to the RoadSeeds.     
+//
+// Original Author: Oliver Gutsche, gutsche@fnal.gov
+// Created:         Thu Jan 12 21:00:00 UTC 2006
+//
+// $Author: gutsche $
+// $Date: 2006/01/14 22:00:00 $
+// $Revision: 1.1 $
+//
 
 #include <iostream>
 #include <cmath>

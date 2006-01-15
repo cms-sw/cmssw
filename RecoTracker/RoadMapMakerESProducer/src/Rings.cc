@@ -1,9 +1,17 @@
-// File: Rings.cc
-// Description:  see Rings.h
-// Author:  O. Gutsche
-// Creation Date:  Oct. 14 2005 Initial version.
 //
-//--------------------------------------------
+// Package:         RecoTracker/RoadMapMakerESProducer
+// Class:           Rings
+// 
+// Description:     The Rings object creates and povides
+//                  all Rings in the detector.
+//
+// Original Author: Oliver Gutsche, gutsche@fnal.gov
+// Created:         Thu Jan 12 21:00:00 UTC 2006
+//
+// $Author: gutsche $
+// $Date: 2006/01/14 22:00:00 $
+// $Revision: 1.1 $
+//
 
 #include <iostream>
 #include <algorithm>

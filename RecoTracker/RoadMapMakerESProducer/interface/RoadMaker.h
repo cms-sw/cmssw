@@ -1,14 +1,22 @@
-#ifndef RoadMaker_h
-#define RoadMaker_h
+#ifndef RECOTRACKER_ROADMAKER_H
+#define RECOTRACKER_ROADMAKER_H
 
-/** \class RoadMaker
- *
- * \author Oliver Gutsche, Fermilab
- *
- * \version   1st Version Oct. 14, 2005  
-
- *
- ************************************************************/
+//
+// Package:         RecoTracker/RoadMapMakerESProducer
+// Class:           RoadMaker
+// 
+// Description:     Creates a Roads object by combining all
+//                  inner and outer SeedRings into RoadSeeds
+//                  and determines all Rings of the RoadSet
+//                  belonging to the RoadSeeds.     
+//
+// Original Author: Oliver Gutsche, gutsche@fnal.gov
+// Created:         Thu Jan 12 21:00:00 UTC 2006
+//
+// $Author: gutsche $
+// $Date: 2006/01/14 22:00:00 $
+// $Revision: 1.1 $
+//
 
 #include <vector>
 #include <string>

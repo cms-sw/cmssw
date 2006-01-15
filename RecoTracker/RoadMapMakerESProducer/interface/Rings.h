@@ -1,17 +1,20 @@
-#ifndef Rings_h
-#define Rings_h
+#ifndef RECOTRACKER_RINGS_H
+#define RECOTRACKER_RINGS_H
 
-/** \class Rings
- *
- * \author Oliver Gutsche, Fermilab
- *
- * \version   1st Version Oct. 14, 2005  
-
- all indices are given in C style and transformed to fortran style
- for final generation of the DetId's
-
- *
- ************************************************************/
+//
+// Package:         RecoTracker/RoadMapMakerESProducer
+// Class:           Rings
+// 
+// Description:     The Rings object creates and povides
+//                  all Rings in the detector.
+//
+// Original Author: Oliver Gutsche, gutsche@fnal.gov
+// Created:         Thu Jan 12 21:00:00 UTC 2006
+//
+// $Author: gutsche $
+// $Date: 2006/01/14 22:00:00 $
+// $Revision: 1.1 $
+//
 
 #include <vector>
 
