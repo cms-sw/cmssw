@@ -1,3 +1,6 @@
+** V01-01-06  [Sun Jan 15 07:12:32 2006]
+Fix copying problem with defaulted EDproducts
+
 ** V01-01-05  [Wed Jan 11 02:34:58 2006]
 nextID_ is now private
 
