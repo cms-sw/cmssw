@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EventPrincipal.cc,v 1.27 2005/10/21 20:20:21 wmtan Exp $
+$Id: EventPrincipal.cc,v 1.28 2005/12/01 22:14:54 wmtan Exp $
 ----------------------------------------------------------------------*/
 //#include <iostream>
 #include <memory>
@@ -398,8 +398,8 @@ namespace edm {
   }
 
   void
-  EventPrincipal::resolve_(Group const& g) const {
-    if (!g.isAccessible())
+  EventPrincipal::resolve_(Group const& g, bool unconditional) const {
+    if (!unconditional && !g.isAccessible())
       throw edm::Exception(errors::ProductNotFound,"InaccessibleProduct")
 	<< "resolve_: product is not accessible\n"
 	<< g.provenance();
