@@ -131,25 +131,23 @@ void MonitorElement::runQTests(void)
       // test should run if (a) ME has been modified, 
       // or (b) algorithm has been modified
       if(wasUpdated() || qr->getQCriterion()->wasModified() )
-	{
-	  qr->runTest();
-	  int status = qr->getStatus();
-	  switch(status)
-	    {
-	    case dqm::qstatus::WARNING:
-	      qwarnings_.push_back(qr);
-	      break;
-	    case dqm::qstatus::ERROR:
-	      qerrors_.push_back(qr);
-	      break;
-	    case dqm::qstatus::STATUS_OK:
-	      break;
-	    default:
-	      // all other cases go here
-	      qothers_.push_back(qr);
-	    }
+	qr->runTest();
 
-	} // check if test should run
+      int status = qr->getStatus();
+      switch(status)
+	{
+	case dqm::qstatus::WARNING:
+	  qwarnings_.push_back(qr);
+	  break;
+	case dqm::qstatus::ERROR:
+	  qerrors_.push_back(qr);
+	  break;
+	case dqm::qstatus::STATUS_OK:
+	  break;
+	default:
+	  // all other cases go here
+	  qothers_.push_back(qr);
+	}
 
     } // loop over QReports
 
