@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.15 2006/01/07 00:46:23 wmtan Exp $
+$Id: PoolSource.cc,v 1.16 2006/01/07 20:42:33 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/PoolSource.h"
@@ -20,7 +20,9 @@ namespace edm {
     files_(pset.getUntrackedParameter("fileNames", std::vector<std::string>())),
     fileIter_(files_.begin()),
     rootFile_(),
-    remainingEvents_(pset.getUntrackedParameter<int>("maxEvents", -1)),
+    rootFiles_(),
+    maxEvents_(pset.getUntrackedParameter<int>("maxEvents", -1)),
+    remainingEvents_(maxEvents_),
     mainInput_(pset.getUntrackedParameter<std::string>("@module_label") == std::string("@main_input")) {
     ClassFiller();
     init(*fileIter_);
@@ -31,12 +33,20 @@ namespace edm {
 
   void PoolRASource::init(std::string const& file) {
 
-    // delete the old RootFile, if any.  The file will be closed.
-    rootFile_.reset();
-    std::string pfn;
-    catalog_.findFile(pfn, file);
+    // For the moment, we keep all old files open.
+    // FIX: We will need to limit the number of open files.
+    // rootFiles[file]_.reset();
 
-    rootFile_ = boost::shared_ptr<RootFile>(new RootFile(pfn));
+    RootFileMap::const_iterator it = rootFiles_.find(file);
+    if (it == rootFiles_.end()) {
+      std::string pfn;
+      catalog_.findFile(pfn, file);
+      rootFile_ = RootFileSharedPtr(new RootFile(pfn));
+      rootFiles_.insert(std::make_pair(file, rootFile_));
+    } else {
+      rootFile_ = it->second;
+      rootFile_->setEntryNumber(-1);
+    }
   }
 
   void PoolRASource::updateRegistry() const {
@@ -119,6 +129,9 @@ namespace edm {
   PoolRASource::read() {
     // If we're done, or out of range, return a null auto_ptr
     if (remainingEvents_ == 0) {
+      if (!mainInput_) {
+        remainingEvents_ = maxEvents_;
+      }
       return std::auto_ptr<EventPrincipal>(0);
     }
     if (!next()) {

@@ -5,13 +5,14 @@
 
 PoolSource: This is an InputSource
 
-$Id: PoolSource.h,v 1.11 2006/01/07 00:46:23 wmtan Exp $
+$Id: PoolSource.h,v 1.12 2006/01/07 20:42:33 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include <memory>
 #include <vector>
 #include <string>
+#include <map>
 
 #include "IOPool/Common/interface/PoolCatalog.h"
 #include "IOPool/Input/src/Inputfwd.h"
@@ -30,6 +31,8 @@ namespace edm {
     virtual ~PoolRASource();
 
   private:
+    typedef boost::shared_ptr<RootFile> RootFileSharedPtr;
+    typedef std::map<std::string, RootFileSharedPtr> RootFileMap;
     typedef input::EntryNumber EntryNumber;
     PoolRASource(PoolRASource const&); // disable copy construction
     PoolRASource & operator=(PoolRASource const&); // disable assignment
@@ -45,7 +48,9 @@ namespace edm {
     PoolCatalog catalog_;
     std::vector<std::string> const files_;
     std::vector<std::string>::const_iterator fileIter_;
-    boost::shared_ptr<RootFile> rootFile_;
+    RootFileSharedPtr rootFile_;
+    RootFileMap rootFiles_;
+    int maxEvents_;
     int remainingEvents_;
     bool mainInput_;
   }; // class PoolRASource
