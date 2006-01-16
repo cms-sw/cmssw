@@ -12,7 +12,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep 19 11:47:28 CEST 2005
-// $Id: EventContentAnalyzer.cc,v 1.9 2006/01/15 01:55:01 chrjones Exp $
+// $Id: EventContentAnalyzer.cc,v 1.10 2006/01/15 02:01:32 chrjones Exp $
 //
 //
 
@@ -129,7 +129,7 @@ static void printObject(const std::string& iName,
    Object objectToPrint = iObject;
    std::string indent(iIndent);
    if(iObject.type().isPointer()) {
-      std::cout<<iIndent<<iName<<kNameValueSep<<formatClassName(iObject.type().name())<<std::hex<<iObject.address()<<"\n";
+     std::cout<<iIndent<<iName<<kNameValueSep<<formatClassName(iObject.type().name())<<std::hex<<iObject.address()<<std::dec<<"\n";
       Type pointedType = iObject.type().toType();
       if(seal::reflex::Type::byName("void") == pointedType ||
          pointedType.isPointer() ||
@@ -142,6 +142,15 @@ static void printObject(const std::string& iName,
       printName = std::string("*")+iName;
       indent +=iIndentDelta;
    }
+   std::string typeName(objectToPrint.type().name());
+   if(typeName.empty()){
+      typeName="<unknown>";
+   }
+
+   //see if we are dealing with a typedef
+   if(objectToPrint.type().isTypedef()){
+     objectToPrint = Object(objectToPrint.type().toType(),objectToPrint.address());
+   } 
    if(printAsBuiltin(printName,objectToPrint,indent)) {
       return;
    }
@@ -149,10 +158,6 @@ static void printObject(const std::string& iName,
       return;
    }
    
-   std::string typeName(objectToPrint.type().name());
-   if(typeName.empty()){
-      typeName="<unknown>";
-   }
    std::cout<<indent<<printName<<" "<<formatClassName(typeName)<<"\n";
    indent+=iIndentDelta;
    //print all the data members
@@ -162,11 +167,15 @@ static void printObject(const std::string& iName,
       //std::cout <<"     debug "<<itMember->name()<<" "<<itMember->type().name()<<"\n";
       try {
          printObject( itMember->name(),
-                      itMember->get( iObject),
+                      itMember->get( objectToPrint),
                       indent,
                       iIndentDelta);
-      }catch(...) {
-         std::cout <<indent<<"<exception caught>"<<"\n";
+      }catch(std::exception& iEx) {
+	std::cout <<indent<<itMember->name()<<" <exception caught("
+		  <<iEx.what()<<")>\n";
+      }
+      catch(...) {
+	std::cout <<indent<<itMember->name()<<"<unknown exception caught>"<<"\n";
       }
    }
 };
