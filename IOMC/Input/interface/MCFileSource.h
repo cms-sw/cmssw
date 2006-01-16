@@ -7,13 +7,8 @@
  * Joanna Weng & Filip Moortgat 08/2005 
  ***************************************/
 
-#include "FWCore/Framework/interface/InputSource.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ExternalInputSource.h"
 #include "IOMC/Input/interface/HepMCFileReader.h"
-#include "FWCore/Framework/interface/InputSourceDescription.h"
-#include "FWCore/Framework/interface/ProductRegistry.h"
-#include "FWCore/Framework/interface/BranchDescription.h"
-#include "FWCore/EDProduct/interface/EventID.h"
 #include <map>
 #include <string>
 
@@ -21,9 +16,9 @@ class HepMCFileReader;
 
 namespace edm
 {
-  class MCFileSource : public InputSource {
+  class MCFileSource : public ExternalInputSource {
   public:
-    MCFileSource(const ParameterSet &, const InputSourceDescription &  );
+    MCFileSource(const ParameterSet &, const InputSourceDescription &);
    virtual ~MCFileSource();
 // the following cannot be used anymore since an explicit InputSourceDescription is needed ?? FM
 /*
@@ -34,25 +29,12 @@ namespace edm
 
   private:
    
-   virtual std::auto_ptr<EventPrincipal> read();
+   virtual bool produce(Event &e);
     void clear();
-    
-    int remainingEvents_;
-    unsigned long numberEventsInRun_;
-    unsigned long presentRun_;
-    unsigned long nextTime_;
-    unsigned long timeBetweenEvents_;
-    unsigned long numberEventsInThisRun_;
-    EventID nextID_;
     
     HepMCFileReader * reader_;
     
     HepMC::GenEvent  *evt;
-    
-    std::string filename_;
-    BranchDescription branchDesc_;
-	
-    
     	
   };
 } 
