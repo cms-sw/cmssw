@@ -49,6 +49,7 @@ void
 fillRecordToTypeMap(std::multimap<std::string, std::string>& oToFill){
   //From the plugin manager get the list of our plugins
   // then from the plugin names, we can deduce the 'record to type' information
+  //std::cout<<"Entering fillRecordToTypeMap "<<std::endl;
   seal::PluginManager                       *db =  seal::PluginManager::get();
   seal::PluginManager::DirectoryIterator    dir;
   seal::ModuleCache::Iterator               plugin;
@@ -66,7 +67,19 @@ fillRecordToTypeMap(std::multimap<std::string, std::string>& oToFill){
 	//std::cout <<" "<<cache->child(i)->token(0)<<std::endl;
 	if (cache->child(i)->token(0) == mycat) {
 	  const std::string cap = cache->child(i)->token(1);
-	  oToFill.insert(deconstructName(cap));
+	  std::pair<std::string,std::string> pairName=deconstructName(cap);
+	  if( oToFill.find(pairName.first)==oToFill.end() ){
+	    //oToFill.insert(deconstructName(cap));
+	    oToFill.insert(pairName);
+	  }else{
+	    for(std::multimap<std::string, std::string>::iterator pos=oToFill.lower_bound(pairName.first); pos != oToFill.upper_bound(pairName.first); ++pos ){
+	      if(pos->second != pairName.second){
+		oToFill.insert(pairName);
+	      }else{
+		//std::cout<<"ignore "<<pairName.first<<" "<<pairName.second<<std::endl;
+	      }
+	    }
+	  }
 	}
       }
     }
@@ -147,6 +160,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
 {		
   /*parameter set parsing and pool environment setting
    */
+  //std::cout<<"PoolDBESSource::PoolDBESSource"<<std::endl;
   unsigned int auth=iConfig.getUntrackedParameter<unsigned int>("authenticationMethod",0) ;
   std::string catconnect;
   try{
@@ -348,6 +362,7 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
 void 
 PoolDBESSource::registerProxies(const edm::eventsetup::EventSetupRecordKey& iRecordKey , KeyedProxies& aProxyList) 
 {
+  //std::cout<<"Entering PoolDBESSource::registerProxies"<<std::endl;
    using namespace edm;
    using namespace edm::eventsetup;
    using namespace std;
@@ -356,20 +371,21 @@ PoolDBESSource::registerProxies(const edm::eventsetup::EventSetupRecordKey& iRec
    std::pair< RecordToTypes::iterator,RecordToTypes::iterator > typeItrs = m_recordToTypes.equal_range( iRecordKey.name() );
    //loop over types in the same record
    for( RecordToTypes::iterator itType = typeItrs.first; itType != typeItrs.second; ++itType ) {
-     //cout <<string("   ") + itType->second ;
+     //std::cout<<"Entering loop PoolDBESSource::registerProxies"<<std::endl;
+     //std::cout<<std::string("   ") + itType->second <<std::endl;
      static eventsetup::TypeTag defaultType;
      eventsetup::TypeTag type = eventsetup::TypeTag::findType( itType->second );
-     //std::cout<<"default type "<<std::string(defaultType.name())<<std::endl;
      if( type != defaultType ) {
        pProxyToToken pos=m_proxyToToken.find(buildName(iRecordKey.name(), type.name()));
        //m_svc->transaction().start(pool::ITransaction::READ);
        boost::shared_ptr<DataProxy> proxy(cond::ProxyFactory::get()->create( buildName(iRecordKey.name(), type.name() ), m_svc, pos));
        //m_svc->transaction().commit();
-       //cout <<string("   ") + type.name() ;
        if(0 != proxy.get()) {
 	 eventsetup::DataKey key( type, "");
 	 aProxyList.push_back(KeyedProxies::value_type(key,proxy));
        }
+     }else{
+       //std::cout<<"IS default type "<<std::endl;
      }
      //cout <<endl;
    }
