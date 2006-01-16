@@ -1,5 +1,5 @@
-#ifndef Common_getAssociated_h
-#define Common_getAssociated_h
+#ifndef Common_Associated_h
+#define Common_Associated_h
 #include "DataFormats/Common/interface/ext_collection.h"
 #include "FWCore/EDProduct/interface/Ref.h"
 #include "FWCore/EDProduct/interface/RefProd.h"
