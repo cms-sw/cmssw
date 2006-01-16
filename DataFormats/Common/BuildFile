@@ -1,4 +1,6 @@
 <use name=FWCore/EDProduct>
+<use name=boost>
 <export>
   <use name=FWCore/EDProduct>
+  <use name=boost>
 </export>
