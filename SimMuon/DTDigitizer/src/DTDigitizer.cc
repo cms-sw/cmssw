@@ -192,8 +192,8 @@ pair<float,bool> DTDigitizer::computeTime(const DTGeomDetUnit* layer,
   DTTopology::Side exitSide  = topo.onWhichBorder(xExit,exitP.y(),exitP.z());
 
   //very temp
-  //cout<<"###############"<<xEntry<<"\t\t"<<entryP.z()<<"\t\t"
-  //    <<xExit<<"\t\t"<<exitP.z()<<"\t\t"<<partType<<endl; //"\t\t"<<(int)entrySide<<"\t\t"<<(int)exitSide<<endl;
+  //  cout<<"###############"<<xEntry<<"\t\t"<<entryP.z()<<"\t\t"
+  //  <<xExit<<"\t\t"<<exitP.z()<<"\t\t"<<partType<<endl; //"\t\t"<<(int)entrySide<<"\t\t"<<(int)exitSide<<endl;
   
 
   if (debug) dumpHit(hit, xEntry, xExit,topo);
@@ -208,15 +208,17 @@ pair<float,bool> DTDigitizer::computeTime(const DTGeomDetUnit* layer,
     if (debug) cout << "    e- hit in gas; discarding " << endl;
     return driftTime;
   }
+  
+  LocalPoint locPt = hit->localPosition();
 
   // Local magnetic field  FIXME
-  LocalPoint locPt = hit->localPosition();
+  //  ESHandle<MagneticField> magnField;
+  //  iSetup.get<IdealMagneticFieldRecord>().get(magnField);
+  //  const LocalVector BLoc=layer->toLocal(magnField->inTesla(layer->toGlobal(locPt)));
+  
+  // FIXME
   LocalVector BLoc;
-    
-  //FIXME 
-//   ESHandle<MagneticField> magnField;
-//   iSetup.get<IdealMagneticFieldRecord>().get(magnField);
-//  const LocalVector BLoc=layer->toLocal(magnField->inTesla(layer->toGlobal(locPt)));
+
 
   float By = BLoc.y();
   float Bz = BLoc.z();
@@ -279,7 +281,7 @@ pair<float,bool> DTDigitizer::computeTime(const DTGeomDetUnit* layer,
 
   if (!noParametrisation) {
     
-    LocalVector dir = hit->momentumAtEntry(); // ex  Measurement3DVector dir = hit->measurementDirection(); //FIXME
+    LocalVector dir = hit->momentumAtEntry(); // ex Measurement3DVector dir = hit->measurementDirection(); //FIXME
     float theta = atan(dir.x()/-dir.z())*180/M_PI;
 
     // FIXME: use dir if M.S. is included as GARFIELD option...
@@ -287,20 +289,25 @@ pair<float,bool> DTDigitizer::computeTime(const DTGeomDetUnit* layer,
     //    LocalVector dir0 = (exitP-entryP).unit();
     //    float theta = atan(dir0.x()/-dir0.z())*180/M_PI;
     float x;
-    Local3DPoint pt = hit->localPosition(); //ex     Measurement3DPoint pt = hit->measurementPosition();
+
+    // FIXME they aren't the same thing. It is not a problem: I can subtract the xWirein the following...
+    Local3DPoint pt = hit->localPosition(); //ex Measurement3DPoint pt = hit->measurementPosition(); // FIXME
     
-    // FIXME new shape of the cell!!
     if(fabs(pt.z()) < 0.002) { 
       // hit center within 20 um from z=0, no need to extrapolate.
-      x = pt.x();
+      x = pt.x() - xwire;
     } else {
       x = xEntry - (entryP.z()*(xExit-xEntry))/(exitP.z()-entryP.z());
     }
     driftTime = driftTimeFromParametrization(x, theta, By, Bz);
 
     //very temp
-    //cout<<"###############"<<xEntry<<"\t\t"<<entryP.z()<<"\t\t"
-    //  <<xExit<<"\t\t"<<exitP.z()<<"\t\t"<<partType<<"\t"<<(int)entrySide<<"\t"<<(int)exitSide<<endl;
+    //    cout<<"###############"<<xEntry<<"\t\t"<<entryP.z()<<"\t\t"
+    //<<xExit<<"\t\t"<<exitP.z()<<"\t\t"<<partType<<"\t"<<(int)entrySide<<"\t"<<(int)exitSide<<endl;
+
+
+    if(abs(partType)==13 && (int)entrySide==0 && (int)exitSide==1) cout<<"############### ";
+    cout<<wireId<<endl;
   }
 
  
