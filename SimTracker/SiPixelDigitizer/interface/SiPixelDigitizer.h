@@ -40,10 +40,6 @@ namespace cms
   private:
     edm::ParameterSet conf_;
     SiPixelDigitizerAlgorithm  _pixeldigialgo;
-    int irandom1,irandom2,irandom3;
-    float frandom3,frandom4,frandom5;
-    float angrandom1,angrandom2;
-    float xexrand,xentrand, yexrand,yentrand, zexrand,zentrand;
     std::vector<PSimHit> thePixelHits;
     std::vector<PixelDigi> collector;
     typedef std::map<unsigned int, std::vector<PSimHit>,std::less<unsigned int> > simhit_map;
