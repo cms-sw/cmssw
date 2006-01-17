@@ -1,3 +1,6 @@
+** V00-00-02  [Tue Jan 17 19:59:36 2006]
+Roll back CSCWireElectronicsSim, because the new GeometryCSCSimAlgo isn't released yet
+
 ** V00-00-01  [Sat Jan 14 02:11:03 2006]
 Don't always use fake hits.  Make configurable
 
