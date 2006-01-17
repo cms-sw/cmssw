@@ -1,6 +1,6 @@
 /*
- *  $Date: 2005/12/11 15:30:20 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/12/17 00:12:20 $
+ *  $Revision: 1.1 $
  *  \author Julia Yarba
  */
 
@@ -12,14 +12,13 @@
 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
-#include "FWCore/EDProduct/interface/EDProduct.h"
-// #include "FWCore/Framework/interface/EventPrincipal.h"
-#include "FWCore/EDProduct/interface/Wrapper.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "PluginManager/ModuleDef.h"
-#include "FWCore/Framework/interface/InputSourceMacros.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
+//#include "PluginManager/ModuleDef.h"
+//#include "FWCore/Framework/interface/InputSourceMacros.h"
+//#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include <iostream>
 
@@ -29,19 +28,10 @@ using namespace edm;
 using namespace std;
 
 //used for defaults
-  static const unsigned long kNanoSecPerSec = 1000000000;
-  static const unsigned long kAveEventPerSec = 200;
 
 BaseFlatGunSource::BaseFlatGunSource( const ParameterSet& pset,
                                       const InputSourceDescription& desc ) : 
-  InputSource ( desc ),
-  fNEventsToProcess(pset.getUntrackedParameter<int>("maxEvents", -1)),
-  fCurrentEvent(0), 
-  fCurrentRun( pset.getUntrackedParameter<unsigned int>("firstRun",1)  ),
-  fNextTime(pset.getUntrackedParameter<unsigned int>("firstTime",1)),  //time in ns
-  fTimeBetweenEvents(pset.getUntrackedParameter<unsigned int>("timeBetweenEvents",kNanoSecPerSec/kAveEventPerSec) ),
-  fNextID( fCurrentRun, 1 ), 
-  fEvt(0),
+  GeneratedInputSource (pset, desc),
   fPDGTable( new DefaultConfig::ParticleDataTable("PDG Table") )
 {
 
@@ -74,31 +64,6 @@ BaseFlatGunSource::BaseFlatGunSource( const ParameterSet& pset,
 
 BaseFlatGunSource::~BaseFlatGunSource()
 {
-  if ( fEvt != NULL ) delete fEvt ; // double check
+  if (fEvt != NULL) delete fEvt ; // double check
   delete fPDGTable;
 }
-
-auto_ptr<EventPrincipal> BaseFlatGunSource::insertHepMCEvent( const BranchDescription& bds )
-{ 
-   
-   auto_ptr<EventPrincipal> epr(0) ;
-   epr = auto_ptr<EventPrincipal>(new EventPrincipal(fNextID ,
-                                                     Timestamp(fNextTime),  
-					             *preg_ ) ) ;
-						      
-   if(fEvt)  
-   {
-       auto_ptr<HepMCProduct> BProduct(new HepMCProduct()) ;
-       BProduct->addHepMCData( fEvt );
-       edm::Wrapper<HepMCProduct>* WProduct = 
-            new edm::Wrapper<HepMCProduct>(BProduct); 
-       auto_ptr<EDProduct>  FinalProduct(WProduct);
-       auto_ptr<Provenance> Prov(new Provenance(bds)) ;
-       epr->put(FinalProduct, Prov);
-   }
-    
-   return epr ;
-   
-}
-      
-

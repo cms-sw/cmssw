@@ -1,6 +1,6 @@
 /*
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2005/12/17 00:12:20 $
+ *  $Revision: 1.1 $
  *  \author Julia Yarba
  */
 
@@ -8,8 +8,11 @@
 
 #include "IOMC/ParticleGuns/interface/FlatRandomPtGunSource.h"
 
-#include "FWCore/Framework/src/TypeID.h" 
-#include "PluginManager/ModuleDef.h"
+#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+
+#include "FWCore/Framework/interface/Event.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -18,9 +21,9 @@
 using namespace edm;
 using namespace std;
 
-FlatRandomPtGunSource::FlatRandomPtGunSource( const ParameterSet& pset,
-                                              const InputSourceDescription& desc ) : 
-   BaseFlatGunSource( pset, desc )
+FlatRandomPtGunSource::FlatRandomPtGunSource(const ParameterSet& pset,
+                                             const InputSourceDescription& desc) : 
+   BaseFlatGunSource(pset, desc)
 {
 
 
@@ -29,65 +32,43 @@ FlatRandomPtGunSource::FlatRandomPtGunSource( const ParameterSet& pset,
   fMinPt = pgun_params.getParameter<double>("MinPt");
   fMaxPt = pgun_params.getParameter<double>("MaxPt");
   
-  // now do the "unique" stuff
-  //
-  ModuleDescription      ModDesc; 
-  ModDesc.pid            = PS_ID("FlatRandomPtGunSource");
-  ModDesc.moduleName_    = "FlatRandomPtGunSource";
-  ModDesc.moduleLabel_   = "FlatRandomPtGun";
-  ModDesc.versionNumber_ = 1UL;
-  ModDesc.processName_   = "HepMC";
-  ModDesc.pass           = 1UL;  
-      
-  fBranchDesc.module             = ModDesc ;
-  fBranchDesc.fullClassName_     = "HepMCProduct" ;
-  fBranchDesc.friendlyClassName_ = "HepMCProduct" ;
-  
-  // and register it (with BaseFlatGunSource, in fact !)
-  //
-  registerBranch( fBranchDesc ) ;
+  produces<HepMCProduct>();
 
   cout << "Internal FlatRandomPtGun is initialzed" << endl ;
-  cout << "It is going to generate " << fNEventsToProcess << "events" << endl ;
+  cout << "It is going to generate " << remainingEvents() << "events" << endl ;
    
 }
 
 FlatRandomPtGunSource::~FlatRandomPtGunSource()
 {
-  if ( fEvt != NULL ) delete fEvt ;
+  if (fEvt != NULL) delete fEvt ;
   fEvt = 0 ;
 }
 
-auto_ptr<EventPrincipal> FlatRandomPtGunSource::read() 
+bool FlatRandomPtGunSource::produce(Event &e) 
 {
 
-   // 0-result
-   auto_ptr<EventPrincipal> Result(0);
-  
-   // we generate here while NEvents < Max
-   if ( fCurrentEvent >= fNEventsToProcess ) return Result ; // 0-result will terminate the loop  
-   
    // event loop (well, another step in it...)
           
    // clean up GenEvent memory : also deletes all vtx/part in it
    // 
-   if ( fEvt != NULL ) delete fEvt ;
+   if (fEvt != NULL) delete fEvt ;
    
    // here re-create fEvt (memory)
    fEvt = new HepMC::GenEvent() ;
    
    // now actualy, cook up the event from PDGTable and gun parameters
    //
-   HepMC::GenVertex* Vtx = new HepMC::GenVertex( CLHEP::HepLorentzVector(0.,0.,0.) );
+   HepMC::GenVertex* Vtx = new HepMC::GenVertex(CLHEP::HepLorentzVector(0.,0.,0.));
 
    // loop over particles
    //
-   for ( unsigned int ip=0; ip<fPartIDs.size(); ip++ )
+   for (unsigned int ip=0; ip<fPartIDs.size(); ++ip)
    {
 
-       double pt     = RandFlat::shoot( fMinPt, fMaxPt ) ;
-       double eta    = RandFlat::shoot( fMinEta, fMaxEta ) ;
-       double phi    = RandFlat::shoot( fMinPhi, fMaxPhi ) ;
+       double pt     = RandFlat::shoot(fMinPt, fMaxPt) ;
+       double eta    = RandFlat::shoot(fMinEta, fMaxEta) ;
+       double phi    = RandFlat::shoot(fMinPhi, fMaxPhi) ;
        DefaultConfig::ParticleData* PData = fPDGTable->particle(HepPDT::ParticleID(fPartIDs[ip])) ;
        double mass   = PData->mass().value() ;
        double theta  = 2.*atan(exp(-eta)) ;
@@ -103,25 +84,18 @@ auto_ptr<EventPrincipal> FlatRandomPtGunSource::read()
        Vtx->add_particle_out(Part);
 
    }
-   fEvt->add_vertex( Vtx ) ;
-   fEvt->set_event_number( fCurrentEvent+1 ) ;
+   fEvt->add_vertex(Vtx) ;
+   fEvt->set_event_number(event()) ;
    fEvt->set_signal_process_id(20) ;      
 
-
-   Result = insertHepMCEvent( fBranchDesc ) ;
+   auto_ptr<HepMCProduct> BProduct(new HepMCProduct()) ;
+   BProduct->addHepMCData( fEvt );
+   e.put(BProduct);
     
-   fNextID = fNextID.next();
-   fNextTime += fTimeBetweenEvents;
-
    // for testing purpose only
    // fEvt->print() ;
    // cout << " FlatRandomPtGunSource : Event Generation Done " << endl;
-      
-   fCurrentEvent++ ;
-        
-   return Result;
 
+   return true;
 }
-      
- 
 
