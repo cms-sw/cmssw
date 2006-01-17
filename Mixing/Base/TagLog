@@ -1,3 +1,6 @@
+** V01-02-00  [Tue Jan 17 16:30:36 2006]
+add possibility not to pileup (type=none)
+
 ** V01-01-00  [Wed Jan 11 03:03:50 2006]
 Add new class for randomization of pileup
 
