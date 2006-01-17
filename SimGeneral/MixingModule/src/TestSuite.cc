@@ -10,7 +10,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Fri Sep 23 11:38:38 CEST 2005
-// $Id: TestSuite.cc,v 1.2 2005/12/07 16:59:10 uberthon Exp $
+// $Id: TestSuite.cc,v 1.3 2005/12/12 10:48:57 uberthon Exp $
 //
 //
 
@@ -108,11 +108,12 @@ TestSuite::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
 
 	
-    //simhit histos
-    char tof[10];
-    sprintf(tof,"Tof_bcr_%d",bunchcr_);
     int bsp=cf->getBunchSpace();
-    TH1I * tofhist = new TH1I(tof,"ToF",100,float(bsp*minbunch_),float(bsp*maxbunch_)+50.);//FIXME: decalage?
+    char tof[10];
+
+    //simhit histos
+    sprintf(tof,"SimHit_Tof_bcr_%d",bunchcr_);
+    TH1I * tofhist = new TH1I(tof,"SimHit_ToF",100,float(bsp*minbunch_),float(bsp*maxbunch_)+50.);//FIXME: decalage?
     std::string subdet("MuonCSCHits");
     std::auto_ptr<MixCollection<PSimHit> > colsh(new MixCollection<PSimHit>(cf.product(),std::string(subdet)));
     MixCollection<PSimHit>::iterator cfish;
@@ -120,5 +121,14 @@ TestSuite::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       tofhist->Fill(cfish->timeOfFlight());
    }
 
+    //calohit histos
+    sprintf(tof,"CaloHit_Tof_bcr_%d",bunchcr_);
+    TH1I * tofcalohist = new TH1I(tof,"CaloHitToF",100,float(bsp*minbunch_),float(bsp*maxbunch_)+50.);//FIXME: decalage?
+    std::string calosubdet("HcalHits");
+    std::auto_ptr<MixCollection<PCaloHit> > colch(new MixCollection<PCaloHit>(cf.product(),std::string(calosubdet)));
+    MixCollection<PCaloHit>::iterator cfich;
+    for (cfich=colch->begin(); cfish!=colsh->end();cfich++) {
+      tofcalohist->Fill(cfich->time());
+   }
 }
 

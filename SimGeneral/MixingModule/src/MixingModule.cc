@@ -18,7 +18,7 @@ namespace edm
   MixingModule::MixingModule(const edm::ParameterSet& ps) : BMixingModule(ps)
   {
 
-    // get tracker subdetector names
+    // get tracker + muon subdetector names
     edm::Service<edm::ConstProductRegistry> reg;
     // Loop over provenance of products in registry.
     for (edm::ProductRegistry::ProductList::const_iterator it = reg->productList().begin();
@@ -26,8 +26,12 @@ namespace edm
       // See FWCore/Framework/interface/BranchDescription.h
       // BranchDescription contains all the information for the product.
       edm::BranchDescription desc = it->second;
-      if (!desc.productInstanceName_.compare(0,8,"EcalHits") || !desc.productInstanceName_.compare(0,8,"HcalHits" )) caloSubdetectors_.push_back(desc.productInstanceName_);
-      else if (!desc.productInstanceName_.compare(0,11,"TrackerHits") || !desc.productInstanceName_.compare(0,4,"Muon")) trackerSubdetectors_.push_back(desc.productInstanceName_);
+      if (!desc.productInstanceName_.compare(0,8,"EcalHits") || !desc.productInstanceName_.compare(0,8,"HcalHits" )) {
+	caloSubdetectors_.push_back(desc.productInstanceName_);
+      }
+      else if (!desc.productInstanceName_.compare(0,11,"TrackerHits") || !desc.productInstanceName_.compare(0,4,"Muon")) {
+	trackerSubdetectors_.push_back(desc.productInstanceName_);
+      }
     }
 
     produces<CrossingFrame> ();
@@ -45,7 +49,7 @@ namespace edm
     // fill in signal part of CrossingFrame
     // first add eventID
     simcf_->setEventID(e.id());
-    std::cout<<"\naddsignals for  "<<e.id()<<endl;
+    //    std::cout<<"\naddsignals for  "<<e.id()<<endl;
 
     // tracker hits for all subdetectors
     for(std::vector<std::string >::const_iterator it = trackerSubdetectors_.begin(); it != trackerSubdetectors_.end(); ++it) {  
@@ -74,7 +78,7 @@ namespace edm
 
   void MixingModule::addPileups(const int bcr, Event *e) {
 
-    //    std::cout<<"\naddPileups from event  "<<e->id()<<endl;
+   //      std::cout<<"\naddPileups from event  "<<e->id()<<endl;
    // first all simhits
     for(std::vector<std::string >::iterator itstr = trackerSubdetectors_.begin(); itstr != trackerSubdetectors_.end(); ++itstr) {
       std::vector<PSimHit> *sig;
