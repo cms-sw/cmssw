@@ -1,3 +1,6 @@
+** V01-00-08  [Wed Jan 18 00:19:44 2006]
+added the declareStreamer call back in to prevent core dumps
+
 ** V01-00-07  [Wed Jan 11 00:58:08 2006]
 Add global lock. Also prepopulate ROOT TClass caches
 
