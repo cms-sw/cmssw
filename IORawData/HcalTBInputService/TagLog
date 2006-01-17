@@ -1,3 +1,6 @@
+** V00-02-00  [Tue Jan 17 16:48:27 2006]
+Updated to use ExternalInputSource as base class
+
 ** V00-01-00  [Mon Jan  2 23:00:05 2006]
 Added writer
 
