@@ -15,12 +15,8 @@ ClassImp(CDFEventInfo);
 using namespace edm;
 using namespace std;
 
-
-
 HcalTBSource::HcalTBSource(const edm::ParameterSet & pset, edm::InputSourceDescription const& desc) : 
-  edm::InputSource(desc),
-  files_( pset.getParameter<std::vector<std::string> >("fileNames") ),
-  m_imax( pset.getParameter<int>("maxEvents") ),
+  edm::ExternalInputSource(pset,desc),
   m_quiet( pset.getUntrackedParameter<bool>("quiet",true))
 {
   m_tree=0;
@@ -29,21 +25,8 @@ HcalTBSource::HcalTBSource(const edm::ParameterSet & pset, edm::InputSourceDescr
   m_itotal=0;
   m_i=0;
 
-  edm::Wrapper<FEDRawDataCollection> wrappedProd;
-  edm::TypeID myType(wrappedProd);
-  prodDesc_.fullClassName_=myType.userClassName();
-  prodDesc_.friendlyClassName_ = myType.friendlyClassName(); 
-
-  prodDesc_.module.pid = PS_ID("HcalTBSource");
-  prodDesc_.module.moduleName_ = "HcalTBSource";
-  prodDesc_.module.moduleLabel_ = "HcalTBSource";
-  prodDesc_.module.versionNumber_ = 2UL;
-  prodDesc_.module.processName_ =desc.processName_;
-  prodDesc_.module.pass = desc.pass;  
-
-  preg_->addProduct(prodDesc_);
-
   unpackSetup(pset.getParameter<std::vector<std::string> >("streams"));
+  produces<FEDRawDataCollection>();
 }
 
 void HcalTBSource::unpackSetup(const std::vector<std::string>& params) {
@@ -111,22 +94,43 @@ void HcalTBSource::openFile(const std::string& filename) {
   m_i=0;
 }
 
-std::auto_ptr<edm::EventPrincipal> HcalTBSource::read() {
-  if (m_imax>0 && m_imax<=m_itotal) return auto_ptr<EventPrincipal>(0);
+void HcalTBSource::setRunAndEventInfo() {
+  bool is_new=false;
+
   while (m_tree==0 || m_i==m_tree->GetEntries()) {
     fileCounter_++;
-    if (fileCounter_>=int(files_.size())) return  auto_ptr<EventPrincipal>(0);
-    openFile(files_[fileCounter_]);
+    if (fileCounter_>=int(fileNames().size())) return; // nothing good
+    openFile(fileNames()[fileCounter_]);
+    is_new=true;
   }
 
-  if (m_tree==0 || m_i==m_tree->GetEntries()) return  auto_ptr<EventPrincipal>(0);
+  if (m_tree==0 || m_i==m_tree->GetEntries()) return; //nothing good
 
   m_tree->GetEntry(m_i);
   m_i++;
   m_itotal++;
-  
-  EventID id=((m_eventInfo==0)?(EventID(fileCounter_,m_i-1)):(EventID(m_eventInfo->getRunNumber(),m_eventInfo->getEventNumber())));
-  unsigned long long evtTime=m_itotal*10000; // hack  -- time is only in the trigger blocks which I do not want to unpack here
+
+  if (m_eventInfo!=0) {
+    if (is_new) {
+      if (m_eventInfo->getEventNumber()==0) m_eventNumberOffset=1;
+      else m_eventNumberOffset=0;
+    }
+    setRunNumber(m_eventInfo->getRunNumber());
+    setEventNumber(m_eventInfo->getEventNumber()+m_eventNumberOffset);
+  } else {
+    setRunNumber(fileCounter_+10);
+    setEventNumber(m_i+1);
+  }  
+  // time is a hack
+  edm::TimeValue_t present_time = presentTime();
+  unsigned long time_between_events = timeBetweenEvents();
+
+  setTime(present_time + time_between_events);
+}
+
+bool HcalTBSource::produce(edm::Event& e) {
+
+  if (m_tree==0) return false;
  
   std::auto_ptr<FEDRawDataCollection> bare_product(new  FEDRawDataCollection());
   for (int i=0; i<n_chunks; i++) {
@@ -167,13 +171,9 @@ std::auto_ptr<edm::EventPrincipal> HcalTBSource::read() {
     */
   }
 
-  edm::Wrapper<FEDRawDataCollection>* full_prod=new edm::Wrapper<FEDRawDataCollection>(bare_product);
-  auto_ptr<EventPrincipal> result = auto_ptr<EventPrincipal>(new EventPrincipal(id, Timestamp(evtTime),*preg_));
-  auto_ptr<EDProduct>  prod(full_prod);
-  auto_ptr<Provenance> prov(new Provenance(prodDesc_));
-  result->put(prod, prov);
-  
-  return result;
+  e.put(bare_product);
+
+  return true;
 }
 
 
