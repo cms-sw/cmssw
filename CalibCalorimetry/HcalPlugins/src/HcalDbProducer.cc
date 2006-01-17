@@ -13,7 +13,7 @@
 //
 // Original Author:  Fedor Ratnikov
 //         Created:  Tue Aug  9 19:10:10 CDT 2005
-// $Id: HcalDbProducer.cc,v 1.9 2005/12/15 23:37:58 fedor Exp $
+// $Id: HcalDbProducer.cc,v 1.10 2006/01/10 19:29:40 fedor Exp $
 //
 //
 
@@ -50,7 +50,6 @@ HcalDbProducer::HcalDbProducer( const edm::ParameterSet&)
 {
   //the following line is needed to tell the framework what
   // data is being produced
-  setWhatProduced (this);
   setWhatProduced (this, (dependsOn (&HcalDbProducer::pedestalsCallback) &
 			  &HcalDbProducer::pedestalWidthsCallback &
 			  &HcalDbProducer::gainsCallback &
