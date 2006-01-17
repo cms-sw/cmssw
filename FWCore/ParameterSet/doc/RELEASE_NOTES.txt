@@ -1,4 +1,5 @@
 17-01-06 mfp. Added protection to prevent circular inclusion.
+   Also made EdmConfigToPython use preprocesser.
 
 17-01-06 mfp. Added 'include' functionality, via use of
     preprocessor. Also modified the lexer/parser to disallow

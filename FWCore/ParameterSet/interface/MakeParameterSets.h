@@ -5,7 +5,7 @@
 //----------------------------------------------------------------------
 // Declare functions used to create ParameterSets.
 //
-// $Id: MakeParameterSets.h,v 1.1 2005/12/07 22:05:49 paterno Exp $
+// $Id: MakeParameterSets.h,v 1.2 2006/01/17 20:32:31 paterno Exp $
 //
 //----------------------------------------------------------------------
 
@@ -41,7 +41,9 @@ namespace edm
   {
     bool read_whole_file(std::string const& filename, std::string& output);
     bool is_include_line(std::string const& input, std::string& filename);
-    void preprocessConfigString(std::string const& input, std::string& output);    
+    void preprocessConfigString(std::string const& input,
+				std::string& output,
+				std::vector<std::string>& openFileStack);    
   }
 
 
