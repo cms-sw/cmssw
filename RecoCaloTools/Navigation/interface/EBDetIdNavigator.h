@@ -5,8 +5,8 @@
 
 /** \class EBDetIdNavigator
   *  
-  * $Date: $
-  * $Revision: $
+  * $Date: 2006/01/17 22:50:43 $
+  * $Revision: 1.1 $
   * \author J. Mans - Minnesota
   */
 class EBDetIdNavigator {
@@ -34,6 +34,18 @@ public:
 
   /// move the nagivator to smaller iphi (wraps around the barrel)
   EBDetId decrementIphi();
+
+  /// move the navigator north (increment iphi)
+  EBDetId north() { return incrementIphi(); }
+
+  /// move the navigator south (decrement iphi)
+  EBDetId south() { return decrementIphi(); }
+
+  /// move the navigator east (negative ieta)
+  EBDetId east() { return decrementIeta(); }
+
+  /// move the navigator west (positive ieta)
+  EBDetId west() { return incrementIeta(); }
  
 private:
   EBDetId startingPoint_, currentPoint_;

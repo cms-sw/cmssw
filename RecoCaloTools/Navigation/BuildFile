@@ -1,0 +1,13 @@
+<use name=DataFormats/EcalDetId>
+<use name=DataFormats/HcalDetId>
+<use name=Geometry/CaloTopology>
+
+<export>
+  <lib name=RecoCaloToolsNavigation>
+  <use name=DataFormats/EcalDetId>
+  <use name=DataFormats/HcalDetId>
+  <use name=Geometry/CaloTopology>
+</export>
+
+
+
