@@ -5,7 +5,7 @@
 //----------------------------------------------------------------------
 // Declare functions used to create ParameterSets.
 //
-// $Id: EDProduct.h,v 1.6 2005/10/11 21:32:24 wmtan Exp $
+// $Id: MakeParameterSets.h,v 1.1 2005/12/07 22:05:49 paterno Exp $
 //
 //----------------------------------------------------------------------
 
@@ -18,6 +18,7 @@
 
 namespace edm
 {
+
   // Parse the given configuration text, filling in as output:
   //
   //   1. main, the ParameterSet to be used to configure the
@@ -32,6 +33,17 @@ namespace edm
   makeParameterSets(std::string const& configtext,
 		    boost::shared_ptr<ParameterSet>& main,
 		    boost::shared_ptr<std::vector<ParameterSet> >& serviceparams);
+
+
+  // The following are implementation details. The prototypes are here
+  // so that the functions may be tested.
+  namespace pset
+  {
+    bool read_whole_file(std::string const& filename, std::string& output);
+    bool is_include_line(std::string const& input, std::string& filename);
+    void preprocessConfigString(std::string const& input, std::string& output);    
+  }
+
 
 } // namespace edm
 

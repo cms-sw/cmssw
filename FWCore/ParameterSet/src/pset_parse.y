@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.12 2005/12/22 20:30:43 chrjones Exp $
+ * $Id: pset_parse.y,v 1.13 2005/12/24 00:53:26 chrjones Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -41,7 +41,9 @@
 //
 // Macro to handle debugging output
 //
-// #define EDM_VERBOSE_DEBUG 1
+//#define EDM_VERBOSE_DEBUG 1
+//#define YYERROR_VERBOSE 1
+
 #if defined (EDM_VERBOSE_DEBUG)
   #define DBPRINT(R) std::cout << "Rule " << R << " detected" << std::endl
   #define DBDUMP(c) std::cout << "\tData is: " << c << std::endl
@@ -94,6 +96,7 @@ inline string toString(char* arg) { string s(arg); free(arg); return s; }
   bool                        _bool;
 }
 
+%token ERROR_tok
 %token TYPE_tok
 %token LETTERSTART_tok
 %token EQUAL_tok
@@ -734,7 +737,7 @@ extern char *pset_text;
 int yyerror(char const* msg)
 {
   std::stringstream err;
-  err << "Parse error on line: " << lines << " token: " << pset_text << "\n";
+  err << "Parse error on line: " << lines << " token: '" << pset_text << "'\n";
   err << "message: " << msg << "\n";
   errorMessage() = err.str();
   return 0;

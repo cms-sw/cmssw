@@ -1,4 +1,17 @@
-12-01-05 mfp. Fixed bug in pset_lex.l
+17-01-06 mfp. Added 'include' functionality, via use of
+    preprocessor. Also modified the lexer/parser to disallow
+    multi-line strings, which (up to very recently) were not
+    working correctly anyway. This was done in order to make
+    the preprocessing simpler to understand, and so that the
+    preprocessing did not need to understand when it was
+    "within" a string.
+
+    The preprocessor is currently lacking protection against
+    circular inclusion. This will be added soon. This preliminary
+    check-in is being done so that Jim can work elsewhere in
+    ParameterSet without colliding.
+
+12-01-06 mfp. Fixed bug in pset_lex.l
 
 The bug was in the pattern that identified double-quoted strings.  The
 (wrong) behavior to was have a newline terminate a double-quoted

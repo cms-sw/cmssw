@@ -3,6 +3,7 @@
 <use name=FWCore/Utilities>
 <use name=FWCore/EDProduct>
 <lib name=boost_filesystem-gcc-mt> 
+<lib name=boost_regex-gcc-mt> 
 
 <export>
  <lib name=FWCoreParameterSet>
@@ -11,5 +12,6 @@
  <use name=boost>
  <use name=Foundation/SealZip>
  <lib name=boost_filesystem-gcc-mt> 
+ <lib name=boost_regex-gcc-mt> 
 </export>
 

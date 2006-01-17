@@ -1,5 +1,5 @@
 /*
- * $Id: pset_lex.l,v 1.8 2006/01/12 18:42:35 paterno Exp $
+ * $Id: pset_lex.l,v 1.9 2006/01/12 20:19:49 paterno Exp $
  * Author: Us
  * Date: 4/28/05
  * History:
@@ -34,12 +34,20 @@
   /* DQ is used to identify a double-quoted string                    */
   /* SQ is used to identify a single-quoted string                    */
 
+
+  /*
+     If we remove the ? from the comment rules, and require the newline,
+     out tests fail, complaining about a token #double.
+     If we remove [\n]? from the comment rules, we obtain the same failure
+     as when the [\n]? is there.
+  */
+
 %}
 
 letterstart	[a-zA-Z]+[a-zA-Z0-9\-_\.]*
 alphanumeric	[^\'\"\{\}\(\)\&=\n\t\r ,;:`]+
-comment	#.*[\n]?
-comment2 "//".*[\n]?
+comment	        #.*[\n]?
+comment2        "//".*[\n]?
 
 %x DQ
 %x SQ
@@ -97,11 +105,13 @@ comment2 "//".*[\n]?
 \t              { break ; }
 [ ]+		{ break ; }
 
-<DQ>((\\\")*[^\"]*(\\\")*)+ { yylval.str = stringDupQuoted(yytext,'"'); return DQWORD_tok; }
+<DQ>((\\\")*[^\"\n]*(\\\")*)+ { yylval.str = stringDupQuoted(yytext,'"'); return DQWORD_tok; }
 <DQ>\"		{ BEGIN 0; break; }
+<DQ>\n          { BEGIN 0; return ERROR_tok; }
 
-<SQ>((\\\')*[^\']*(\\\')*)+ { yylval.str = stringDupQuoted(yytext,'\''); return SQWORD_tok; }
+<SQ>((\\\')*[^\'\n]*(\\\')*)+ { yylval.str = stringDupQuoted(yytext,'\''); return SQWORD_tok; }
 <SQ>\'		{ BEGIN 0; break; }
+<SQ>\n          { BEGIN 0; return ERROR_tok;}
 
 
 %%
@@ -135,34 +145,6 @@ char* stringDupQuoted(const char* s,char quotetype)
   buffer[len+2]='\0';
   return buffer;
 }
-
-#if 0
-static char* copy_clean(char* buf, char type)
-{
-  int leave=0,j=0,i,len=strlen(buf);
-  char* x = (char*)malloc(len+2);
-  x[0]=type;
-  /* 
-     should return a copy of buf with backslashes cleared out
-     be careful about "\\", be sure to leave one of them 
-  */
-  for(i=0;i<len;i++)
-    {
-      if(leave || buf[i]!='\\')
-	{
-	  x[j+1]=buf[i];
-	  ++j;
-	  leave=0;
-	}
-      else
-	{
-	  if(buf[i+1]=='\\') leave=1;
-	}
-    }
-  x[j+1]='\0';
-  return x;
-}
-#endif
 
 
 #include "FWCore/ParameterSet/interface/parse.h"
