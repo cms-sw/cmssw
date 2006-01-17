@@ -65,7 +65,6 @@ namespace edm
     
       if ( !foundMatch )
 	{
-	  std::cerr << "No match found: '" << input << "'\n";
 	  return false;
 	}
       // If we got here, we've found a match.
@@ -88,17 +87,10 @@ namespace edm
 
       if ( ! good ) // trailing text is illegal
 	{
-	  std::cerr << "Found trailing garbage in line: " << input << '\n';
-	  throw 3;
+	  throw edm::Exception(edm::errors::Configuration, "BadInclude")
+	    <<  "Found trailing non-comment text in line: "
+	    << input << '\n';
 	}
-  
-      std::cout << "is_include_line found a filename: '" 
-		<< maybe_filename 
-		<< "'  and the rest of the line is: '"
-		<< trailing_text
-		<< "'"
-		<< std::endl;
-  
       filename = maybe_filename;
       return true;
     }
