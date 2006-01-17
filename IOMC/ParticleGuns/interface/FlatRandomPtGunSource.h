@@ -8,7 +8,6 @@
  ***************************************/
 
 #include "IOMC/ParticleGuns/interface/BaseFlatGunSource.h"
-#include "FWCore/Framework/interface/BranchDescription.h"
 
 namespace edm
 {
@@ -22,7 +21,7 @@ namespace edm
 
   private:
    
-    virtual std::auto_ptr<EventPrincipal> read();
+    virtual bool produce(Event & e);
     
   protected :
   
@@ -31,9 +30,6 @@ namespace edm
     double            fMinPt   ;
     double            fMaxPt   ;
 
-    // service stuff needed to put "product" into edm::Event
-    BranchDescription fBranchDesc ;
-    	    	
   };
 } 
 

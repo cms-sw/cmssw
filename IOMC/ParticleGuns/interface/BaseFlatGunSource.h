@@ -15,24 +15,12 @@
 
 #include "CLHEP/HepMC/GenEvent.h"
 
-#include "FWCore/Framework/interface/InputSource.h"
-
-#include "FWCore/Framework/interface/EventPrincipal.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "FWCore/Framework/interface/InputSourceDescription.h"
-
-#include "FWCore/Framework/interface/ProductRegistry.h"
-
-#include "FWCore/Framework/interface/BranchDescription.h"
-
-#include "FWCore/EDProduct/interface/EventID.h"
+#include "FWCore/Framework/interface/GeneratedInputSource.h"
 
 namespace edm
 {
   
-  class BaseFlatGunSource : public InputSource
+  class BaseFlatGunSource : public GeneratedInputSource
   {
   
   public:
@@ -42,24 +30,12 @@ namespace edm
 
   private:
    
-    virtual std::auto_ptr<EventPrincipal> read() = 0 ;
-    
   protected :
   
     // non-virtuals ! this and only way !
     //
-    void registerBranch( const BranchDescription& bds ) { preg_->addProduct( bds ) ; } 
-    std::auto_ptr<EventPrincipal> insertHepMCEvent( const BranchDescription&  ) ; 
-  
     // data members
     
-    unsigned long    fNEventsToProcess ;
-    unsigned long    fCurrentEvent ;
-    unsigned long    fCurrentRun;
-    unsigned long    fNextTime;
-    unsigned long    fTimeBetweenEvents;
-    EventID          fNextID;    
-
     // gun particle(s) characteristics
     std::vector<int> fPartIDs ;
     double           fMinEta ;
