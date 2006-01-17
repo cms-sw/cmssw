@@ -30,8 +30,8 @@ public:
   void reserve( size_t );
   void push_back( const value_type & );  
   void clear();
-  Ext & ext() { return ext(); }
-  const Ext & ext() const { return ext(); }
+  Ext & ext() { return ext_; }
+  const Ext & ext() const { return ext_; }
 private:
   C data_;
   Ext ext_;
