@@ -1,3 +1,6 @@
+** V00-00-01  [Tue Jan 17 13:13:10 2006]
+modified dictionary classes
+
 ** V00-00-00  [Tue Jan 10 10:55:39 2006]
 moved tracker specific classes from TrackingRecHit2D to TrackerRecHit2D
 
