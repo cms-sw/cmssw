@@ -1,3 +1,6 @@
+** V00-01-05  [Wed Jan 18 00:19:49 2006]
+fixed issue with negative PartID
+
 ** V00-01-04  [Tue Jan 17 02:37:25 2006]
 commit p.guns with new API (by Bill)
 
