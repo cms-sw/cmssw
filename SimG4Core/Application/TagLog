@@ -1,3 +1,6 @@
+** V03-06-08  [Tue Jan 17 03:05:01 2006]
+new fwdpix geom. in test/SimConfiguration.xml
+
 ** V03-06-07  [Tue Jan 10 23:33:01 2006]
 added PSet's for ECAL/HCAL to .cfg files
 
