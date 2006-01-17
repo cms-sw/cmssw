@@ -1,3 +1,6 @@
+** V00-02-01  [Tue Jan 17 13:50:50 2006]
+fixed ext_collection implementation
+
 ** V00-02-00  [Tue Jan 17 13:32:02 2006]
 ref_collection restructured as ext_collection
 
