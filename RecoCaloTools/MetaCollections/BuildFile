@@ -1,0 +1,11 @@
+<use name=DataFormats/CaloRecHit>
+<use name=DataFormats/HcalDetId>
+
+<export>
+  <lib name=RecoCaloToolsMetaCollections>
+  <use name=DataFormats/CaloRecHit>
+  <use name=DataFormats/HcalDetId>
+</export>
+
+
+
