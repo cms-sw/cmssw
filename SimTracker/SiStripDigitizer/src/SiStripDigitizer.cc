@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea GIAMMANCO
 //         Created:  Thu Sep 22 14:23:22 CEST 2005
-// $Id: SiStripDigitizer.cc,v 1.5 2005/11/30 20:42:53 giamman Exp $
+// $Id: SiStripDigitizer.cc,v 1.6 2005/12/13 15:43:12 giamman Exp $
 //
 //
 
@@ -52,7 +52,7 @@
 //needed for the magnetic field:
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 using namespace std;
 
 namespace cms
@@ -75,40 +75,52 @@ namespace cms
   {
     // Step A: Get Inputs
     theStripHits.clear();
+    edm::Handle<edm::PSimHitContainer> TIBHitsLowTof;
+    edm::Handle<edm::PSimHitContainer> TIBHitsHighTof;
+    edm::Handle<edm::PSimHitContainer> TIDHitsLowTof;
+    edm::Handle<edm::PSimHitContainer> TIDHitsHighTof;
+    edm::Handle<edm::PSimHitContainer> TOBHitsLowTof;
+    edm::Handle<edm::PSimHitContainer> TOBHitsHighTof;
+    edm::Handle<edm::PSimHitContainer> TECHitsLowTof;
+    edm::Handle<edm::PSimHitContainer> TECHitsHighTof;
 
-    edm::Handle<edm::PSimHitContainer> StripHits;
-    iEvent.getByLabel("r","TrackerHitsHighTof", StripHits);
-    //(comment by MP): waiting for container bug fix
+    iEvent.getByLabel("r","TrackerHitsTIBLowTof", TIBHitsLowTof);
+    iEvent.getByLabel("r","TrackerHitsTIBHighTof", TIBHitsHighTof);
+    iEvent.getByLabel("r","TrackerHitsTIDLowTof", TIDHitsLowTof);
+    iEvent.getByLabel("r","TrackerHitsTIDHighTof", TIDHitsHighTof);
+    iEvent.getByLabel("r","TrackerHitsTOBLowTof", TOBHitsLowTof);
+    iEvent.getByLabel("r","TrackerHitsTOBHighTof", TOBHitsHighTof);
+    iEvent.getByLabel("r","TrackerHitsTECLowTof", TECHitsLowTof);
+    iEvent.getByLabel("r","TrackerHitsTECHighTof", TECHitsHighTof);
     
-    theStripHits.insert(theStripHits.end(), StripHits->begin(), StripHits->end()); 
-
+    theStripHits.insert(theStripHits.end(), TIBHitsLowTof->begin(), TIBHitsLowTof->end()); 
+    theStripHits.insert(theStripHits.end(), TIBHitsHighTof->begin(), TIBHitsHighTof->end());
+    theStripHits.insert(theStripHits.end(), TIDHitsLowTof->begin(), TIDHitsLowTof->end()); 
+    theStripHits.insert(theStripHits.end(), TIDHitsHighTof->begin(), TIDHitsHighTof->end());
+    theStripHits.insert(theStripHits.end(), TOBHitsLowTof->begin(), TOBHitsLowTof->end()); 
+    theStripHits.insert(theStripHits.end(), TOBHitsHighTof->begin(), TOBHitsHighTof->end());
+    theStripHits.insert(theStripHits.end(), TECHitsLowTof->begin(), TECHitsLowTof->end()); 
+    theStripHits.insert(theStripHits.end(), TECHitsHighTof->begin(), TECHitsHighTof->end());
 
     // Step B: create empty output collection
     std::auto_ptr<StripDigiCollection> output(new StripDigiCollection);
 
+    //Loop on PSimHit
+    SimHitMap.clear();
 
+    for (std::vector<PSimHit>::iterator isim = theStripHits.begin();
+	 isim != theStripHits.end(); ++isim){
+      DetId detid=DetId((*isim).detUnitId());
+      unsigned int subid=detid.subdetId();
+      if ((subid==  StripSubdetector::TIB) || 
+	  (subid== StripSubdetector::TOB)  ||
+	  (subid==  StripSubdetector::TEC) || 
+	  (subid== StripSubdetector::TID)) {
+	SimHitMap[(*isim).detUnitId()].push_back((*isim));
+      }
+    }
+    
 
-    /*
-    edm::Handle<PSimHit> simHitsTrackerHitsTECHighTof;
-    e.getByLabel("TrackerHitsTECHighTof",simHitsTrackerHitsTECHighTof);
-    edm::Handle<PSimHit> simHitsTrackerHitsTECLowTof;
-    e.getByLabel("TrackerHitsTECLowTof",simHitsTrackerHitsTECLowTof);
-
-    edm::Handle<PSimHit> simHitsTrackerHitsTIBHighTof;
-    e.getByLabel("TrackerHitsTIBHighTof",simHitsTrackerHitsTIBHighTof);
-    edm::Handle<PSimHit> simHitsTrackerHitsTIBLowTof;
-    e.getByLabel("TrackerHitsTIBLowTof",simHitsTrackerHitsTIBLowTof);
-
-    edm::Handle<PSimHit> simHitsTrackerHitsTIDHighTof;
-    e.getByLabel("TrackerHitsTIDHighTof",simHitsTrackerHitsTIDHighTof);
-    edm::Handle<PSimHit> simHitsTrackerHitsTIDLowTof;
-    e.getByLabel("TrackerHitsTIDLowTof",simHitsTrackerHitsTIDLowTof);
-
-    edm::Handle<PSimHit> simHitsTrackerHitsTOBHighTof;
-    e.getByLabel("TrackerHitsTOBHighTof",simHitsTrackerHitsTOBHighTof);
-    edm::Handle<PSimHit> simHitsTrackerHitsTOBLowTof;
-    e.getByLabel("TrackerHitsTOBLowTof",simHitsTrackerHitsTOBLowTof);
-    */
     // Temporary: generate random collections of pseudo-hits:
     //PseudoHitContainer pseudoHitContainer;// for some reason this class isn't recognized!!!
 
@@ -120,61 +132,36 @@ namespace cms
     edm::ESHandle<MagneticField> pSetup;
     iSetup.get<IdealMagneticFieldRecord>().get(pSetup);
 
-    int i=0;
-    // Step C: LOOP on PixelGeomDetUnit //
-    for(TrackingGeometry::DetContainer::iterator iu = pDD->dets().begin(); iu != pDD->dets().end(); iu ++){
+  
+    // Step C: LOOP on StripGeomDetUnit //
+    for(TrackingGeometry::DetContainer::const_iterator iu = pDD->dets().begin(); iu != pDD->dets().end(); iu ++){
 
       GlobalVector bfield=pSetup->inTesla((*iu)->surface().position());
 
       //   const GeomDetUnit& iu(**iu);
       if (dynamic_cast<StripGeomDetUnit*>((*iu))!=0){
-	i++;
-	if (i<10){
-	  int idummy=0;
 
-	  // create 3 hits:
-	  for (int j=0;j<3;j++) {
-	    irandom1 = rand();
-	    irandom2 = rand();
-	    irandom3 = rand();
-	    
-	    
-	    xexrand = (1.6*rand()/RAND_MAX)-0.8;
-	    xentrand = (1.6*rand()/RAND_MAX)-0.8;	 
-	    yexrand= (6.4*rand()/RAND_MAX)-3.2;
-	    yentrand= (6.4*rand()/RAND_MAX)-3.2;
-	    zexrand= (0.028*rand()/RAND_MAX)-0.014;
-	    zentrand= (0.028*rand()/RAND_MAX)-0.014;
-	    frandom3 = rand();
-	    frandom4 = rand();
-	    frandom5 = (20*rand()/RAND_MAX)+70;
-	    angrandom1 = 3.14*rand()/RAND_MAX;
-	    angrandom2 = 6.28*rand()/RAND_MAX;
-	    Local3DPoint exit(xexrand,yexrand,zexrand);
-	    Local3DPoint entry(xentrand,yentrand,zentrand);
-	    //Local3DPoint exit();
-	    int hh=1298553623;
-	    
+	collector.clear();
+	collector= stripDigitizer_.run(SimHitMap[(*iu)->geographicalId().rawId()],
+				       dynamic_cast<StripGeomDetUnit*>((*iu)),
+				       bfield);
 
-	    //// temporary:
-	    PSimHit *pseudoHit = new PSimHit(entry,exit ,frandom3, frandom4, frandom5, irandom1, hh, irandom3, angrandom1, angrandom2, idummy);
-	    pseudoHitSingleContainer.push_back(pseudoHit);
-	    ////
-	  }
-	  //	  stripDigitizer_.run(pseudoHitSingleContainer,*output,dynamic_cast<StripGeomDetUnit*>((*iu)),bfield);
-	  stripDigitizer_.run(theStripHits,*output,dynamic_cast<StripGeomDetUnit*>((*iu)),bfield);
-	}
+	StripDigiCollection::Range outputRange;
+	
+	outputRange.first = collector.begin();
+	outputRange.second = collector.end();
+	output->put(outputRange,(*iu)->geographicalId().rawId());
 
       }
+
     }
+
 
     
 
-
-    std::cout << "pippo " << endl;
     // Step D: write output to file
     iEvent.put(output);
-    std::cout << "pluto " << endl;
+
 
   
   }

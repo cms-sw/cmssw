@@ -47,7 +47,7 @@ class SiStripDigitizerAlgorithm
 
   // Runs the algorithm
   //  void run(const std::vector<PSimHit*> &input, StripDigiCollection &output,StripGeomDetUnit *det,GlobalVector);
-  void run(const std::vector<PSimHit> &input, StripDigiCollection &output,StripGeomDetUnit *det,GlobalVector);
+  vector <StripDigi>  run(const std::vector<PSimHit> &input, StripGeomDetUnit *det,GlobalVector);
 
  private:
   int ndigis; 
@@ -106,8 +106,7 @@ class SiStripDigitizerAlgorithm
   bool fluctuateCharge;
   */
 
-  void push_digis(StripDigiCollection &,
-		  const DigitalMapType&,
+  void push_digis(const DigitalMapType&,
 		  const HitToDigisMapType&,
 		  const SiPileUpSignals::signal_map_type&,
 		  unsigned int);
@@ -137,7 +136,7 @@ class SiStripDigitizerAlgorithm
   StripTopology* topol;
 
   std::vector<StripDigi> internal_coll; //empty vector of StripDigi used in digitize
-
+  std::vector<StripDigi> digis;
   std::vector<StripDigi> digitize(StripGeomDetUnit *det);
 
 

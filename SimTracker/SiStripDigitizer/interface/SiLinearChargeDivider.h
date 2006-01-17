@@ -40,7 +40,7 @@ class SiLinearChargeDivider : public SiChargeDivider{
   //  static SimpleConfigurable<bool> fluctuateCharge;
   bool fluctuateCharge;
   //  static SimpleConfigurable<int>  chargeDivisionsPerStrip;
-  int  chargeDivisionsPerStrip;
+  int  chargedivisionsPerStrip;
   //  static SimpleConfigurable<double> deltaCut ;
   double deltaCut ;
   SiG4UniversalFluctuation fluctuate; 

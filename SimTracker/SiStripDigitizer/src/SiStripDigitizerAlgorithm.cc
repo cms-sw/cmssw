@@ -35,15 +35,15 @@ SiStripDigitizerAlgorithm::~SiStripDigitizerAlgorithm(){
 //  Run the algorithm
 //  ------------------
 //void SiStripDigitizerAlgorithm::run(const std::vector<PSimHit*> &input,
-void SiStripDigitizerAlgorithm::run(const std::vector<PSimHit> &input,
-				    StripDigiCollection &output,
-				    StripGeomDetUnit *det,
-				    GlobalVector bfield)
+vector <StripDigi> SiStripDigitizerAlgorithm::run(const std::vector<PSimHit> &input,
+						   StripGeomDetUnit *det,
+						   GlobalVector bfield)
 
 {
+
   /// Temporary solution: run() contains what was in the constructor of SiStripDigitizer in ORCA.
 
-  std::cout << "SiStripDigitizerAlgorithm is running!" << endl;
+  //  std::cout << "SiStripDigitizerAlgorithm is running!" << endl;
 
 
   NumberOfSegments = 20; // Default number of track segment divisions
@@ -77,53 +77,50 @@ void SiStripDigitizerAlgorithm::run(const std::vector<PSimHit> &input,
   moduleThickness = p.bounds().thickness();
   float noiseRMS = ENC*moduleThickness/(0.03);
   float min_adc = theThreshold*noiseRMS/theElectronPerADC;
-  std::cout << "module thickness: " << moduleThickness << ", noiseRMS: " << noiseRMS << ", min_adc: " << min_adc << endl;
-
+  // std::cout << "module thickness: " << moduleThickness << ", noiseRMS: " << noiseRMS << ", min_adc: " << min_adc << endl;
+ 
   theSiNoiseAdder = new SiGaussianTailNoiseAdder(numStrips,noiseRMS,theThreshold);
   theSiZeroSuppress = new SiTrivialZeroSuppress(conf_,noiseRMS/theElectronPerADC); 
   theSiHitDigitizer = new SiHitDigitizer(conf_,det);
   theSiPileUpSignals = new SiPileUpSignals();
   theSiDigitalConverter = new SiTrivialDigitalConverter(theElectronPerADC);
 
-  //};
 
 
   //vector<StripDigi> SiStripDigitizerAlgorithm::digitize(const std::vector<PSimHit*> &input,StripDigiCollection &output,StripGeomDetUnit *det){
 
   theSiPileUpSignals->reset();
-  unsigned int detID = 0; // AG
+  unsigned int detID = det->geographicalId().rawId();
   bool first = true; // AG
 
   //
   // First: loop on the SimHits
   //
+  //  ndigis=0;
   //  vector<PSimHit*>::const_iterator simHitIter = input.begin();
   //  vector<PSimHit*>::const_iterator simHitIterEnd = input.end();
   vector<PSimHit>::const_iterator simHitIter = input.begin();
   vector<PSimHit>::const_iterator simHitIterEnd = input.end();
   for (;simHitIter != simHitIterEnd; ++simHitIter) {
-    if (ndigis%100 == 0) cout << "# digis: " << ndigis << endl;
-    ++ndigis;
-    //pointer to the simhit
-    //    const PSimHit *ihit = *simHitIter;
+ 
     const PSimHit ihit = *simHitIter;
     // detID (AG)
     if ( first ) {
+ 
       //      detID = ihit->detUnitId();
       detID = ihit.detUnitId();
       first = false;
     }
-    //
-    // Compute the different charges;
-    //
-    //    if ( abs(ihit->tof()) < tofCut && ihit->energyLoss()>0) {
+ 
     if ( abs(ihit.tof()) < tofCut && ihit.energyLoss()>0) {
-      //      SiHitDigitizer::hit_map_type _temp = theSiHitDigitizer->processHit(*ihit,*det,bfield);
-      //      theSiPileUpSignals->add(_temp,*ihit);
+ 
       SiHitDigitizer::hit_map_type _temp = theSiHitDigitizer->processHit(ihit,*det,bfield);
+ 
       theSiPileUpSignals->add(_temp,ihit);
+ 
     }
   }
+ 
   SiPileUpSignals::signal_map_type theSignal = theSiPileUpSignals->dumpSignal();
   SiPileUpSignals::HitToDigisMapType theLink = theSiPileUpSignals->dumpLink();  
   SiPileUpSignals::signal_map_type afterNoise;
@@ -132,26 +129,29 @@ void SiStripDigitizerAlgorithm::run(const std::vector<PSimHit> &input,
   } else {
     afterNoise = theSiNoiseAdder->addNoise(theSignal);
   }
-  push_digis(output,theSiZeroSuppress->zeroSuppress(theSiDigitalConverter->convert(afterNoise)),
+
+  digis.clear();
+  push_digis(theSiZeroSuppress->zeroSuppress(theSiDigitalConverter->convert(afterNoise)),
 	       theLink,afterNoise,detID);
 
 
-
+  return digis;
 }
 
- void SiStripDigitizerAlgorithm::push_digis(StripDigiCollection &output,
-					    const DigitalMapType& dm,
+ void SiStripDigitizerAlgorithm::push_digis(const DigitalMapType& dm,
 					    const HitToDigisMapType& htd,
 					    const SiPileUpSignals::signal_map_type& afterNoise,
 					    unsigned int detID){
 
-   static vector<StripDigi> digis; 
+
+
    digis.reserve(50); 
    digis.clear();
    for ( DigitalMapType::const_iterator i=dm.begin(); 
 	 i!=dm.end(); i++) {
      digis.push_back( StripDigi( (*i).first, (*i).second));
-   }
+ndigis++; 
+  }
 
    //det.specificReadout().addDigis( digis); // ???
 
@@ -197,12 +197,7 @@ void SiStripDigitizerAlgorithm::run(const std::vector<PSimHit> &input,
 
    }
 
-   //Fill the stripidigicollection
-   StripDigiCollection::Range outputRange;
-   outputRange.first = digis.begin();
-   outputRange.second = digis.end();
-   output.put(outputRange,detID);
-   digis.clear();
+
 
  }
 

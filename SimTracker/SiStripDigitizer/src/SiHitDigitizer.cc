@@ -16,7 +16,7 @@ SiHitDigitizer::SiHitDigitizer(const edm::ParameterSet& conf, const StripGeomDet
   // Construct default classes
   //
   
-  theSiChargeDivider = new SiLinearChargeDivider();
+  theSiChargeDivider = new SiLinearChargeDivider(conf);
   
   depletionVoltage=conf_.getParameter<double>("DepletionVoltage");
   appliedVoltage=conf_.getParameter<double>("AppliedVoltage");
@@ -51,8 +51,9 @@ SiHitDigitizer::hit_map_type SiHitDigitizer::processHit(const PSimHit& hit, cons
   //
   // Fully process one SimHit
   //
+
   SiChargeCollectionDrifter::ionization_type ion = theSiChargeDivider->divide(hit, det);
-  
+
   //
   // Compute the drift direction for this det
   //
@@ -60,12 +61,12 @@ SiHitDigitizer::hit_map_type SiHitDigitizer::processHit(const PSimHit& hit, cons
   //  LocalPoint centre(0.,0.); // mi serve? (AG)
   //  LocalVector drift = det.driftDirection(centre); // aggiungere dopo! (AG)
   LocalVector driftDir = DriftDirection(&det,bfield);
-
+ 
   if(driftDir.z() ==0.) {
     cout << " pxlx: drift in z is zero " << endl;
     return;
   }
-  
+ 
   return theSiInduceChargeOnStrips->induce(
 					   theSiChargeCollectionDrifter->drift(ion,driftDir),
 					   det);

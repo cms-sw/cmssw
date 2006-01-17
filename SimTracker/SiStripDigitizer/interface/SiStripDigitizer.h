@@ -38,13 +38,11 @@ namespace cms
   private:
     SiStripDigitizerAlgorithm stripDigitizer_;
     edm::ParameterSet conf_;
-    int irandom1,irandom2,irandom3;
-    float frandom1,frandom2,frandom3,frandom4,frandom5;
-    float angrandom1,angrandom2;
-    float xexrand,xentrand, yexrand,yentrand, zexrand,zentrand;
-    std::vector<PSimHit*> pseudoHitSingleContainer; // temporary! to be removed...
     std::vector<PSimHit> theStripHits;
-
+    typedef std::map<unsigned int, std::vector<PSimHit>,std::less<unsigned int> > simhit_map;
+    typedef simhit_map::iterator simhit_map_iterator;
+    simhit_map SimHitMap;
+    std::vector<StripDigi> collector;
     int numStrips;    // number of strips in the module
   };
 }

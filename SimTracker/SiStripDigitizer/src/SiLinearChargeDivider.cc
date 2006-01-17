@@ -16,8 +16,8 @@ SiLinearChargeDivider::SiLinearChargeDivider(const edm::ParameterSet& conf):conf
   // Number of segments per strip into which charge is divided during
   // simulation. If large, precision of simulation improves.
   //SimpleConfigurable<int> SiLinearChargeDivider::chargeDivisionsPerStrip(10,"SiStripDigitizer:chargeDivisionsPerStrip");
-  chargeDivisionsPerStrip=conf_.getParameter<int>("chargeDivisionsPerStrip");
-  
+  chargedivisionsPerStrip=conf_.getParameter<int>("chargeDivisionsPerStrip");
+ 
   // delta cutoff in MeV, has to be same as in OSCAR (0.120425 MeV corresponding // to 100um range for electrons)
   //SimpleConfigurable<double>  SiLinearChargeDivider::deltaCut(0.120425,
   deltaCut=conf_.getParameter<double>("DeltaProductionCut");
@@ -26,31 +26,34 @@ SiLinearChargeDivider::SiLinearChargeDivider(const edm::ParameterSet& conf):conf
 SiChargeDivider::ionization_type 
 SiLinearChargeDivider::divide(
 			      const PSimHit& hit, const StripGeomDetUnit& det) {
-  
+ 
   LocalVector direction = hit.exitPoint() - hit.entryPoint();  
   double pitch=100; // temporary!
   int NumberOfSegmentation =  
   //    (int)(1+chargeDivisionsPerStrip*fabs(direction.x())/det.specificTopology().pitch()); 
-    (int)(1+chargeDivisionsPerStrip*fabs(direction.x())/pitch); 
-  
+    (int)(1+chargedivisionsPerStrip*fabs(direction.x())/pitch); 
+ 
   float eLoss = hit.energyLoss();  // Eloss in GeV
+ 
   float decSignal = TimeResponse(hit);
-  
+ 
   ionization_type _ionization_points;
+
   _ionization_points.resize(NumberOfSegmentation);
-  
+
   //  cout<<"Modified SiStripDigitizer"<<endl;
   float energy;
-  
+
   // Fluctuate charge in track subsegments
   float* eLossVector = new float[NumberOfSegmentation];
+ 
   if( fluctuateCharge ) {
     int pid = hit.particleType();
     float momentum = hit.pabs();
     float length = direction.mag();  // Track length in Silicon
     fluctuateEloss(pid, momentum, eLoss, length, NumberOfSegmentation, eLossVector);   
   }
-  
+ 
   for ( int i = 0; i != NumberOfSegmentation; i++) {
     if( fluctuateCharge ) {
       energy=eLossVector[i]*decSignal/eLoss;
@@ -62,6 +65,7 @@ SiLinearChargeDivider::divide(
       _ionization_points[i] = edu; //save
     }
   }
+ 
   delete[] eLossVector;
   return _ionization_points;
 }
