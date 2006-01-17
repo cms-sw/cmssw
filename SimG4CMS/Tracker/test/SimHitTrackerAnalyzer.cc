@@ -13,7 +13,7 @@
 //
 // Original Author:  Tommaso Boccali
 //         Created:  Tue Jul 26 08:47:57 CEST 2005
-// $Id: SimHitTrackerAnalyzer.cc,v 1.3 2005/10/18 19:50:54 fambrogl Exp $
+// $Id: SimHitTrackerAnalyzer.cc,v 1.1 2006/01/13 16:15:35 fambrogl Exp $
 //
 //
 
@@ -93,7 +93,7 @@ SimHitTrackerAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup&
 {
    using namespace edm;
 
-   std::vector<PSimHit> thePixelHits;
+   std::vector<PSimHit> theTrackerHits;
 
 
    edm::Handle<edm::PSimHitContainer> PixelBarrelHitsLowTof;
@@ -124,18 +124,18 @@ SimHitTrackerAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup&
    iEvent.getByLabel("r","TrackerHitsTECHighTof", TECHitsHighTof);
 
 
-   thePixelHits.insert(thePixelHits.end(), PixelBarrelHitsLowTof->begin(), PixelBarrelHitsLowTof->end()); 
-   thePixelHits.insert(thePixelHits.end(), PixelBarrelHitsHighTof->begin(), PixelBarrelHitsHighTof->end());
-   thePixelHits.insert(thePixelHits.end(), PixelEndcapHitsLowTof->begin(), PixelEndcapHitsLowTof->end()); 
-   thePixelHits.insert(thePixelHits.end(), PixelEndcapHitsHighTof->begin(), PixelEndcapHitsHighTof->end());
-   thePixelHits.insert(thePixelHits.end(), TIBHitsLowTof->begin(), TIBHitsLowTof->end()); 
-   thePixelHits.insert(thePixelHits.end(), TIBHitsHighTof->begin(), TIBHitsHighTof->end());
-   thePixelHits.insert(thePixelHits.end(), TIDHitsLowTof->begin(), TIDHitsLowTof->end()); 
-   thePixelHits.insert(thePixelHits.end(), TIDHitsHighTof->begin(), TIDHitsHighTof->end());
-   thePixelHits.insert(thePixelHits.end(), TOBHitsLowTof->begin(), TOBHitsLowTof->end()); 
-   thePixelHits.insert(thePixelHits.end(), TOBHitsHighTof->begin(), TOBHitsHighTof->end());
-   thePixelHits.insert(thePixelHits.end(), TECHitsLowTof->begin(), TECHitsLowTof->end()); 
-   thePixelHits.insert(thePixelHits.end(), TECHitsHighTof->begin(), TECHitsHighTof->end());
+   theTrackerHits.insert(theTrackerHits.end(), PixelBarrelHitsLowTof->begin(), PixelBarrelHitsLowTof->end()); 
+   theTrackerHits.insert(theTrackerHits.end(), PixelBarrelHitsHighTof->begin(), PixelBarrelHitsHighTof->end());
+   theTrackerHits.insert(theTrackerHits.end(), PixelEndcapHitsLowTof->begin(), PixelEndcapHitsLowTof->end()); 
+   theTrackerHits.insert(theTrackerHits.end(), PixelEndcapHitsHighTof->begin(), PixelEndcapHitsHighTof->end());
+   theTrackerHits.insert(theTrackerHits.end(), TIBHitsLowTof->begin(), TIBHitsLowTof->end()); 
+   theTrackerHits.insert(theTrackerHits.end(), TIBHitsHighTof->begin(), TIBHitsHighTof->end());
+   theTrackerHits.insert(theTrackerHits.end(), TIDHitsLowTof->begin(), TIDHitsLowTof->end()); 
+   theTrackerHits.insert(theTrackerHits.end(), TIDHitsHighTof->begin(), TIDHitsHighTof->end());
+   theTrackerHits.insert(theTrackerHits.end(), TOBHitsLowTof->begin(), TOBHitsLowTof->end()); 
+   theTrackerHits.insert(theTrackerHits.end(), TOBHitsHighTof->begin(), TOBHitsHighTof->end());
+   theTrackerHits.insert(theTrackerHits.end(), TECHitsLowTof->begin(), TECHitsLowTof->end()); 
+   theTrackerHits.insert(theTrackerHits.end(), TECHitsHighTof->begin(), TECHitsHighTof->end());
 
 
    edm::ESHandle<TrackingGeometry> pDD;
@@ -144,10 +144,12 @@ SimHitTrackerAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup&
    
    std::map<unsigned int, std::vector<PSimHit>,std::less<unsigned int> > SimHitMap;
 
-   for (std::vector<PSimHit>::iterator isim = thePixelHits.begin();
-	isim != thePixelHits.end(); ++isim){
+   for (std::vector<PSimHit>::iterator isim = theTrackerHits.begin();
+	isim != theTrackerHits.end(); ++isim){
      SimHitMap[(*isim).detUnitId()].push_back((*isim));
      std::cout<<" SimHit position  x = "<<isim->localPosition().x() <<" y = "<<isim->localPosition().y() <<" z = "<< isim->localPosition().z()<<std::endl;
+     std::cout<<" SimHit DetID = "<<isim->detUnitId()<<std::endl;	
+     std::cout<<" Time of flight = "<<isim->timeOfFlight()<<std::endl;
    }
 }
 
