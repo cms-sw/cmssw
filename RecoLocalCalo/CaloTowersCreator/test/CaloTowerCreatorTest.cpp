@@ -68,15 +68,20 @@ int main() {
 std::cout << "NUMBER OF HITS " << hbheHits.size() << " " << hoHits.size() << " " << hfHits.size() << std::endl;
   // do the actual tower building
   CaloTowerCollection collection;
-
-  algo.create(collection, hbheHits, hoHits, hfHits);
+  algo.begin();
+  algo.process(hbheHits);
+  algo.process(hoHits);
+  algo.process(hfHits);
+  algo.finish(collection);
 
 
   for(CaloTowerCollection::const_iterator towerItr = collection.begin();
       towerItr != collection.end(); ++towerItr)
   {
-//    std::cout << towerItr->id().ieta() << " " << towerItr->e() << std::endl;
+    std::cout << towerItr->id().ieta() << " " << towerItr->e() << " EM " << towerItr->e_em() << " HAD " << towerItr->e_had() << std::endl;
   }
+
+  std::cout << std::endl << "And now for something completely different..." << std::endl;
 
   // now make a messed-up one, which uses draconian thresholds on HED, and
   // silly weights on HF
@@ -88,7 +93,12 @@ std::cout << "NUMBER OF HITS " << hbheHits.size() << " " << hoHits.size() << " "
   sillyAlgo.setGeometry(&topology, &geometry);
   
   CaloTowerCollection collection2;
-  sillyAlgo.create(collection2, hbheHits, hoHits, hfHits);
+  sillyAlgo.begin();
+  sillyAlgo.process(hbheHits);
+  sillyAlgo.process(hoHits);
+  sillyAlgo.process(hfHits);
+  sillyAlgo.finish(collection2);
+
   for(CaloTowerCollection::const_iterator towerItr = collection2.begin();
       towerItr != collection2.end(); ++towerItr)
   {

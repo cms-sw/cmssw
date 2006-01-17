@@ -4,6 +4,7 @@
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 #include <map>
 class HcalTopology;
@@ -15,8 +16,8 @@ class DetId;
 
 /** \class CaloTowersCreationAlgo
   *  
-  * $Date: 2005/10/06 15:23:00 $
-  * $Revision: 1.3 $
+  * $Date: 2005/10/06 18:05:46 $
+  * $Revision: 1.4 $
   * \author R. Wilkinson - Caltech
   */
 class CaloTowersCreationAlgo {
@@ -33,11 +34,13 @@ public:
   
   void setGeometry(const HcalTopology* topo, const CaloGeometry* geo);
 
-  void create(CaloTowerCollection& destCollection,
-	      const HBHERecHitCollection& hbhe, 
-	      const HORecHitCollection& ho, 
-	      const HFRecHitCollection& hf); // eventually will need ECAL also.
+  void begin();
+  void process(const HBHERecHitCollection& hbhe);
+  void process(const HORecHitCollection& ho);
+  void process(const HFRecHitCollection& hf); 
+  void process(const EcalRecHitCollection& ecal); 
 
+  void finish(CaloTowerCollection& destCollection);
 
 private:
   /// adds a single hit to the tower

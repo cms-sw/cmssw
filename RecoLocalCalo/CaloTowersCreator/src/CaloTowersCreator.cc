@@ -24,7 +24,8 @@ CaloTowersCreator::CaloTowersCreator(const edm::ParameterSet& conf) :
 	conf.getParameter<double>("EcutTower"),
 	conf.getParameter<double>("EBSumThreshold"),
 	conf.getParameter<double>("EESumThreshold"),
-	true) // always uses HO!
+	true), // always uses HO!
+  allowMissingInputs_(conf.getUntrackedParameter<bool>("AllowMissingInputs",true))
 {
   produces<CaloTowerCollection>();
 }
@@ -35,21 +36,49 @@ void CaloTowersCreator::produce(edm::Event& e, const edm::EventSetup& c) {
   c.get<IdealGeometryRecord>().get(pG);
   
   algo_.setGeometry(&topo_,pG.product());
-  
-  // Step A: Get Inputs
-  edm::Handle<HBHERecHitCollection> hbhe;
-  edm::Handle<HORecHitCollection> ho;
-  edm::Handle<HFRecHitCollection> hf;
 
-  e.getByType(hbhe); // TODO : use selector
-  e.getByType(ho);   // TODO : use selector
-  e.getByType(hf);   // TODO : use selector
+  algo_.begin(); // clear the internal buffer
+  
+  // Step A/C: Get Inputs and process (repeatedly)
+  try {
+    edm::Handle<HBHERecHitCollection> hbhe;
+    e.getByType(hbhe); // TODO : use selector
+    algo_.process(*hbhe);
+  } catch (std::exception& e) { // can't find it!
+    if (!allowMissingInputs_) throw e;
+  }
+
+  try {
+    edm::Handle<HORecHitCollection> ho;
+    e.getByType(ho);   // TODO : use selector
+    algo_.process(*ho);
+  } catch (std::exception& e) { // can't find it!
+    if (!allowMissingInputs_) throw e;
+  }
+
+  try {
+    edm::Handle<HFRecHitCollection> hf;
+    e.getByType(hf);   // TODO : use selector
+    algo_.process(*hf);
+  } catch (std::exception& e) { // can't find it!
+    if (!allowMissingInputs_) throw e;
+  }
+
+  try {
+    std::vector<edm::Handle<EcalRecHitCollection> > ecs;
+    e.getManyByType(ecs);   // TODO : use selector
+    for (std::vector<edm::Handle<EcalRecHitCollection> >::const_iterator i=ecs.begin();
+	 i!=ecs.end(); i++)
+      algo_.process(*(*i));
+  } catch (std::exception& e) { // can't find it!
+    if (!allowMissingInputs_) throw e;
+  }
 
   // Step B: Create empty output
   std::auto_ptr<CaloTowerCollection> prod(new CaloTowerCollection());
 
   // Step C: Process
-  algo_.create(*prod,*hbhe,*ho, *hf);
+  algo_.finish(*prod);
 
   // Step D: Put into the event
   e.put(prod);

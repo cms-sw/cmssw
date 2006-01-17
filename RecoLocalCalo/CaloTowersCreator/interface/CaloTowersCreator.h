@@ -15,8 +15,8 @@
 
 /** \class CaloTowersCreator
   *  
-  * $Date: $
-  * $Revision: $
+  * $Date: 2005/10/06 19:41:01 $
+  * $Revision: 1.1 $
   * \author J. Mans - Minnesota
   */
 class CaloTowersCreator : public edm::EDProducer {
@@ -26,6 +26,7 @@ public:
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
 private:
   CaloTowersCreationAlgo algo_;
+  bool allowMissingInputs_;
   HcalTopology topo_; // TODO: will come from EventSetup eventually!!!!
 };
 

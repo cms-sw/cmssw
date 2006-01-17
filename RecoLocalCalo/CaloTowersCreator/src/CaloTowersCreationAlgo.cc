@@ -79,31 +79,40 @@ void CaloTowersCreationAlgo::setGeometry(const HcalTopology* topo, const CaloGeo
 }
 
 
-void CaloTowersCreationAlgo::create(CaloTowerCollection & result, const HBHERecHitCollection& hbhe, 
-                            const HORecHitCollection & ho, const HFRecHitCollection& hf)
-{
-
+void CaloTowersCreationAlgo::begin() {
   theTowerMap.clear();
-  
+}
+
+void CaloTowersCreationAlgo::process(const HBHERecHitCollection& hbhe) { 
   for(HBHERecHitCollection::const_iterator hbheItr = hbhe.begin();
       hbheItr != hbhe.end(); ++hbheItr)
     assignHit(&(*hbheItr));
-       
-  
+}
+
+void CaloTowersCreationAlgo::process(const HORecHitCollection& ho) { 
   for(HORecHitCollection::const_iterator hoItr = ho.begin();
       hoItr != ho.end(); ++hoItr)
     assignHit(&(*hoItr));
-  
+}  
 
+void CaloTowersCreationAlgo::process(const HFRecHitCollection& hf) { 
   for(HFRecHitCollection::const_iterator hfItr = hf.begin();
       hfItr != hf.end(); ++hfItr)  
     assignHit(&(*hfItr));
+}
 
+void CaloTowersCreationAlgo::process(const EcalRecHitCollection& ec) { 
+  for(EcalRecHitCollection::const_iterator ecItr = ec.begin();
+      ecItr != ec.end(); ++ecItr)  
+    assignHit(&(*ecItr));
+}
+
+void CaloTowersCreationAlgo::finish(CaloTowerCollection& result) {
   // now copy this map into the final collection
   for(CaloTowerMap::const_iterator mapItr = theTowerMap.begin();
       mapItr != theTowerMap.end(); ++ mapItr)
     result.push_back(mapItr->second);
-    
+  theTowerMap.clear(); // save the memory
 }
 
 
@@ -231,7 +240,7 @@ void CaloTowersCreationAlgo::getThresholdAndWeight(const DetId & detId, double &
     
     else if(subdet == HcalEndcap) {
       // check if it's single or double tower
-      if(hcalDetId.ieta() < theHcalTopology->firstHEDoublePhiRing()) {
+      if(hcalDetId.ietaAbs() < theHcalTopology->firstHEDoublePhiRing()) {
         threshold = theHESthreshold;
         weight = theHESweight;
       }
