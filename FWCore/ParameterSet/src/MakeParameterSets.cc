@@ -2,7 +2,6 @@
 #include <istream>
 #include <ostream>
 #include <sstream>
-#include <sstream>
 #include <string>
 #include <vector>
 
@@ -115,7 +114,8 @@ namespace edm
 
     // Read the input string, and write to the output string.
     void preprocessConfigString(std::string const& input,
-				std::string& output)
+				std::string& output,
+				std::vector<std::string>& openFiles)
     {
       std::istringstream in(input);
       std::string line;
@@ -132,8 +132,23 @@ namespace edm
 	      // anyway. This may no be necessary; the chance of the
 	      // file disappearing betwen this two calls is small.
 	      FileInPath realfilename(filename);
+
+	      // Make sure we don't have a circular inclusion.
+	      if ( std::find(openFiles.begin(), 
+			     openFiles.end(), 
+			     realfilename.fullPath())
+		   != openFiles.end() )
+		{
+		  throw edm::Exception(edm::errors::Configuration, "CircularInclude")
+		    << "The configuration file (or configuration fragment) file: " 
+		    << realfilename.fullPath()
+		    << " circularly includes itself";		    
+		}
+	      openFiles.push_back(realfilename.fullPath());
+
 	      // ... process the file we're to include.
 	      std::string filecontents;
+	      
 	      if (!read_whole_file(realfilename.fullPath(),
 				   filecontents))
 		{
@@ -141,7 +156,8 @@ namespace edm
 		    << "Could not find configuration include file:"
 		    << filename;				       
 		}
-	      preprocessConfigString(filecontents, output);
+	      preprocessConfigString(filecontents, output, openFiles);
+	      openFiles.pop_back();
 	    }
 	  else // not including a file
 	    {
@@ -152,7 +168,7 @@ namespace edm
 	      output += '\n';
 	    }	  
 	}
-    } // preprocessConfigString
+    } //preprocessConfigString
 
   } // namespace pset
 
@@ -166,7 +182,8 @@ namespace edm
     // it is simple enough that we need no such class.
 
     string finalConfigDoc;
-    pset::preprocessConfigString(configtext, finalConfigDoc);
+    vector<string> openFileStack;
+    pset::preprocessConfigString(configtext, finalConfigDoc, openFileStack);
     edm::ProcessPSetBuilder builder(finalConfigDoc);
 
     main = builder.getProcessPSet();
