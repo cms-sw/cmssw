@@ -1,4 +1,5 @@
 #include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollection.h"
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
 class CaloRecHitMetaCollectionItem {
 public:
@@ -74,5 +75,15 @@ void CaloRecHitMetaCollection::add(const HFRecHitCollection* hf) {
   size_+=hf->size();
   m_items.insert(std::pair<int,CaloRecHitMetaCollectionItem*>(size_-1,i));
   m_findTool.insert(std::pair<int,CaloRecHitMetaCollectionItem*>(findIndex(DetId(DetId::Hcal,HcalForward)),i));
+}
+
+
+void CaloRecHitMetaCollection::add(const EcalRecHitCollection* ecal) {
+  if (ecal->size()==0) return; // do not add empty collections (can cause problems)
+  CaloRecHitMetaCollectionItem* i=new CaloRecHitMetaCollectionItemT<EcalRecHitCollection>(ecal,size_);
+  size_+=ecal->size();
+  m_items.insert(std::pair<int,CaloRecHitMetaCollectionItem*>(size_-1,i));
+  m_findTool.insert(std::pair<int,CaloRecHitMetaCollectionItem*>(findIndex(DetId(DetId::Ecal,EcalBarrel)),i));
+  m_findTool.insert(std::pair<int,CaloRecHitMetaCollectionItem*>(findIndex(DetId(DetId::Ecal,EcalEndcap)),i));
 }
 

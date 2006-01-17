@@ -3,14 +3,15 @@
 
 #include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollectionV.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include <map>
 
 class CaloRecHitMetaCollectionItem;
 
 /** \class CaloRecHitMetaCollection
   *  
-  * $Date: $
-  * $Revision: $
+  * $Date: 2006/01/17 15:57:11 $
+  * $Revision: 1.1 $
   * \author J. Mans - Minnesota
   */
 class CaloRecHitMetaCollection : public CaloRecHitMetaCollectionV {
@@ -20,6 +21,7 @@ public:
   void add(const HBHERecHitCollection* hbhe);
   void add(const HORecHitCollection* ho);
   void add(const HFRecHitCollection* hf);
+  void add(const EcalRecHitCollection* ecal);
 
   virtual ~CaloRecHitMetaCollection();
   virtual const_iterator find(const DetId& id) const;
