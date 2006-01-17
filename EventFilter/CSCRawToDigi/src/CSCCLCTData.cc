@@ -69,7 +69,7 @@ std::vector<CSCComparatorDigi>  CSCCLCTData::comparatorDigis(int layer) {
 		      << " HalfStrip = " << HalfStrip 
 		      << " Output " << output << std::endl;
           result.push_back(
-			   CSCComparatorDigi(chamberDistrip, output)
+			   CSCComparatorDigi(chamberDistrip, output, tbin)
 			   );
           tbin += 2;
         }
