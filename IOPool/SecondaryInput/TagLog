@@ -1,3 +1,6 @@
+** V02-00-00  [Wed Jan 18 00:59:01 2006]
+Remove obsolete PoolSecondarySource
+
 ** V01-01-00  [Tue Jan 10 20:25:13 2006]
 Add VectorInputSource.  Collapse RandomAccessInputSource into InputSource.
 
