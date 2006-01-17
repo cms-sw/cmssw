@@ -1,3 +1,6 @@
+** V00-02-00  [Tue Jan 17 13:32:02 2006]
+ref_collection restructured as ext_collection
+
 ** V00-01-00  [Fri Jan 13 10:34:34 2006]
 added ref_vector class
 
