@@ -176,7 +176,7 @@ void CrossingFrame::print(int level) const {
       int bcr=firstCrossing_+i;
       cout <<" Bunchcrossing  "<<bcr<<", Calohit pileup size "<<(*it).second[i].size()<<endl;
       if (level>=3) {
-	for (unsigned int j=0;j<(*itsim).second[i].size();++j) 
+	for (unsigned int j=0;j<(*it).second[i].size();++j) 
 	  cout<<" CaloHit "<<j<<" has track pointer "<< ((*it).second[i])[j].geantTrackId() <<" ,tof "<<((*it).second[i])[j].time()<<"energy "<< ((*it).second[i])[j].energy()<<endl;
       }
     }
