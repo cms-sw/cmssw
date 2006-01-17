@@ -1,6 +1,6 @@
 /*
- *  $Date: 2005/12/17 00:12:20 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/01/17 01:33:44 $
+ *  $Revision: 1.2 $
  *  \author Julia Yarba
  */
 
@@ -30,7 +30,6 @@ FlatRandomEGunSource::FlatRandomEGunSource(const ParameterSet& pset,
   fMinE = pgun_params.getParameter<double>("MinE");
   fMaxE = pgun_params.getParameter<double>("MaxE");
   
-  // now do the "unique" stuff
   //
   produces<HepMCProduct>();
 
@@ -68,11 +67,18 @@ bool FlatRandomEGunSource::produce(Event & e)
        double energy = RandFlat::shoot(fMinE, fMaxE) ;
        double eta    = RandFlat::shoot(fMinEta, fMaxEta) ;
        double phi    = RandFlat::shoot(fMinPhi, fMaxPhi) ;
-       DefaultConfig::ParticleData* PData = fPDGTable->particle(HepPDT::ParticleID(fPartIDs[ip])) ;
+       DefaultConfig::ParticleData* PData = fPDGTable->particle(HepPDT::ParticleID(abs(fPartIDs[ip]))) ;
        double mass   = PData->mass().value() ;
        double mom2   = energy*energy - mass*mass ;
        double mom    = 0. ;
-       if (mom2 > 0.) mom = sqrt(mom2) ;
+       if (mom2 > 0.) 
+       {
+          mom = sqrt(mom2) ;
+       }
+       else
+       {
+          mom = 0. ;
+       }
        double theta  = 2.*atan(exp(-eta)) ;
        double px     = mom*sin(theta)*cos(phi) ;
        double py     = mom*sin(theta)*sin(phi) ;

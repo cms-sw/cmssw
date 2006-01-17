@@ -1,6 +1,6 @@
 /*
- *  $Date: 2005/12/17 00:12:20 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/01/17 01:33:44 $
+ *  $Revision: 1.2 $
  *  \author Julia Yarba
  */
 
@@ -35,7 +35,7 @@ FlatRandomPtGunSource::FlatRandomPtGunSource(const ParameterSet& pset,
   produces<HepMCProduct>();
 
   cout << "Internal FlatRandomPtGun is initialzed" << endl ;
-  cout << "It is going to generate " << remainingEvents() << "events" << endl ;
+  cout << "It is going to generate " << remainingEvents() << " events" << endl ;
    
 }
 
@@ -69,7 +69,7 @@ bool FlatRandomPtGunSource::produce(Event &e)
        double pt     = RandFlat::shoot(fMinPt, fMaxPt) ;
        double eta    = RandFlat::shoot(fMinEta, fMaxEta) ;
        double phi    = RandFlat::shoot(fMinPhi, fMaxPhi) ;
-       DefaultConfig::ParticleData* PData = fPDGTable->particle(HepPDT::ParticleID(fPartIDs[ip])) ;
+       DefaultConfig::ParticleData* PData = fPDGTable->particle(HepPDT::ParticleID(abs(fPartIDs[ip]))) ;
        double mass   = PData->mass().value() ;
        double theta  = 2.*atan(exp(-eta)) ;
        double mom    = pt/sin(theta) ;

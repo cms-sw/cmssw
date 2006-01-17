@@ -1,6 +1,6 @@
 /*
- *  $Date: 2005/12/17 00:12:20 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/01/17 01:33:44 $
+ *  $Revision: 1.2 $
  *  \author Julia Yarba
  */
 
@@ -36,7 +36,9 @@ BaseFlatGunSource::BaseFlatGunSource( const ParameterSet& pset,
 {
 
   ParameterSet pgun_params = pset.getParameter<ParameterSet>("PGunParameters") ;
+
   fPartIDs    = pgun_params.getParameter< vector<int> >("PartID");
+  
   fMinEta     = pgun_params.getParameter<double>("MinEta");
   fMaxEta     = pgun_params.getParameter<double>("MaxEta");
   fMinPhi     = pgun_params.getParameter<double>("MinPhi");
