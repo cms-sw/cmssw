@@ -13,7 +13,7 @@
 //
 // Original Author:  Michele Pioppi-INFN perugia
 //         Created:  Mon Sep 26 11:08:32 CEST 2005
-// $Id: SiPixelDigitizer.cc,v 1.6 2005/12/12 18:15:28 pioppi Exp $
+// $Id: SiPixelDigitizer.cc,v 1.7 2006/01/03 15:31:18 pioppi Exp $
 //
 //
 
@@ -94,12 +94,21 @@ namespace cms
     // Step A: Get Inputs
     thePixelHits.clear();
 
-    edm::Handle<edm::PSimHitContainer> PixelHits;
-    iEvent.getByLabel("r","TrackerHitsLowTof", PixelHits);
-    //MP waiting for container bug fix
 
-    thePixelHits.insert(thePixelHits.end(), PixelHits->begin(), PixelHits->end()); 
+    edm::Handle<edm::PSimHitContainer> PixelBarrelHitsLowTof;
+    edm::Handle<edm::PSimHitContainer> PixelBarrelHitsHighTof;
+    edm::Handle<edm::PSimHitContainer> PixelEndcapHitsLowTof;
+    edm::Handle<edm::PSimHitContainer> PixelEndcapHitsHighTof;
 
+    iEvent.getByLabel("r","TrackerHitsPixelBarrelLowTof", PixelBarrelHitsLowTof);
+    iEvent.getByLabel("r","TrackerHitsPixelBarrelHighTof", PixelBarrelHitsHighTof);
+    iEvent.getByLabel("r","TrackerHitsPixelEndcapLowTof", PixelEndcapHitsLowTof);
+    iEvent.getByLabel("r","TrackerHitsPixelEndcapHighTof", PixelEndcapHitsHighTof);
+
+    thePixelHits.insert(thePixelHits.end(), PixelBarrelHitsLowTof->begin(), PixelBarrelHitsLowTof->end()); 
+    thePixelHits.insert(thePixelHits.end(), PixelBarrelHitsHighTof->begin(), PixelBarrelHitsHighTof->end());
+    thePixelHits.insert(thePixelHits.end(), PixelEndcapHitsLowTof->begin(), PixelEndcapHitsLowTof->end()); 
+    thePixelHits.insert(thePixelHits.end(), PixelEndcapHitsHighTof->begin(), PixelEndcapHitsHighTof->end());
     // Step B: create empty output collection
     std::auto_ptr<PixelDigiCollection> output(new PixelDigiCollection);       
 
@@ -140,6 +149,7 @@ namespace cms
 				      dynamic_cast<PixelGeomDetUnit*>((*iu)),
 				      bfield);
 	PixelDigiCollection::Range outputRange;
+
 	outputRange.first = collector.begin();
 	outputRange.second = collector.end();
        	output->put(outputRange,(*iu)->geographicalId().rawId());
