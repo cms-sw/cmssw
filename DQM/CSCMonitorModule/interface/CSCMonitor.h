@@ -5,8 +5,8 @@
  *
  * Class for CSC Detector Monitoring.
  *  
- *  $Date: 2005/11/11 16:23:56 $
- *  $Revision: 1.4 $
+ *  $Date: 2005/12/12 09:49:04 $
+ *  $Revision: 1.7 $
  *
  * \author Ilaria Segoni (CERN)
  *
@@ -42,8 +42,8 @@ public:
   
   void MonitorDDU(const CSCDDUEventData& dduEvent, int dduNumber);
   void MonitorDMB(std::vector<CSCEventData>::iterator data, int dduNumber);
+  void MonitorCFEB(std::vector<CSCEventData>::iterator data, int  ChamberID);
  
-  
   map<string, MonitorElement*> book_chamber(int chamberID);
   map<string, MonitorElement*> book_common(int dduNumber);
 
