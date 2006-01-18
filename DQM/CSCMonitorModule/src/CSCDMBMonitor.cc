@@ -1,8 +1,8 @@
 /** \file
  * 
  * implementation of CSCMonitor::MonitorDMB(...) method
- *  $Date: 2005/11/11 16:22:45 $
- *  $Revision: 1.4 $
+ *  $Date: 2005/12/12 09:54:11 $
+ *  $Revision: 1.2 $
  *
  * \author Ilaria Segoni
  */
@@ -30,7 +30,7 @@ void CSCMonitor::MonitorDMB(std::vector<CSCEventData>::iterator data, int dduNum
  string meName ;
  map<string, MonitorElement*> meDDUInfo = meDDU[dduNumber];
 
-// DMB HEADER INFORMATION
+/// DMB HEADER INFORMATION
  
  if(printout) cout << "Monitoring DMB Header";
  	 
@@ -69,7 +69,7 @@ void CSCMonitor::MonitorDMB(std::vector<CSCEventData>::iterator data, int dduNum
  meName = Form("%dDMB_BXN_Distrib", ChamberID);
   me[meName]->Fill((int)(dmbHeader.bxn()));
 
-// DDU and DMB Timing: L1A
+/// DDU and DMB Timing: L1A
  
   meName = Form("%dDMB_L1A_vs_DDU_L1A", ChamberID);
   me[meName]->Fill((int)(L1ANumber[dduNumber]&0xFF), (int)dmbHeaderL1A);
@@ -107,7 +107,7 @@ void CSCMonitor::MonitorDMB(std::vector<CSCEventData>::iterator data, int dduNum
 
 
 
-// DMB TRAILER INFORMATION
+ /// DMB TRAILER INFORMATION
 
  if(printout) cout << "Monitoring DMB Trailer";
 
@@ -147,7 +147,7 @@ void CSCMonitor::MonitorDMB(std::vector<CSCEventData>::iterator data, int dduNum
  //me[meName]->SetEntries((int)DMBEvent);
 
 
-// CFEB information from DMB Header
+  /// CFEB information from DMB Header
 
   if(printout)  cout << "Monitoring CFEB information from DMB Header "<< endl;
    
@@ -170,14 +170,18 @@ void CSCMonitor::MonitorDMB(std::vector<CSCEventData>::iterator data, int dduNum
   meName = Form("%dDMB_CFEB_Sync", ChamberID);
   me[meName]->Fill(dmb_cfeb_sync);
 
+  //meName = Form("%dDMB_CFEB_Active", ChamberID);
+  //me[meName]->Fill(dmbHeader.cfebActive());
+
+  //meName = Form("%dDMB_CFEB_Active_vs_DAV", ChamberID);
+  //me[meName]->Fill(dmbHeader.cfebAvailable(),dmbHeader.cfebActive());
 
 
 
 
 
-
-
-
+  /// Fill ME's with Cathode Front End Boards Data
+  MonitorCFEB(data,ChamberID);
 
 
 
