@@ -1,3 +1,6 @@
+** V01-06-01  [Wed Jan 18 01:39:59 2006]
+Improved support of input sources
+
 ** V01-06-00  [Sun Jan 15 06:41:58 2006]
 Add parameter (with default) to EventPrincipal::resolve_ for unconditional reading
 
