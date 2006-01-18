@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version "1.0"?>
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DetectorDescription/Schema/DDLSchema.xsd">
 <ConstantsSection>
  <Constant name="MGNT_rmin" value="2.97*m"/>
@@ -134,58 +134,10 @@
   <rSolid name="COCF"/>
   <rMaterial name="materials:Coil average"/>
  </LogicalPart>
- <LogicalPart name="CHIMNEY_HOLE_P" category="unspecified">
-  <rSolid name="CHIMNEY_HOLE_P"/>
-  <rMaterial name="materials:Air"/>
- </LogicalPart>
- <LogicalPart name="CHIMNEY_HOLE_N" category="unspecified">
-  <rSolid name="CHIMNEY_HOLE_N"/>
-  <rMaterial name="materials:Air"/>
- </LogicalPart>
- <LogicalPart name="CHIMNEY_HOLE_N_a" category="unspecified">
-  <rSolid name="CHIMNEY_HOLE_N_a"/>
-  <rMaterial name="materials:Air"/>
- </LogicalPart>
- <LogicalPart name="CHIMNEY_HOLE_N_b" category="unspecified">
-  <rSolid name="CHIMNEY_HOLE_N_b"/>
-  <rMaterial name="materials:Air"/>
- </LogicalPart>
- <LogicalPart name="CHIMNEY_HOLE_N_c" category="unspecified">
-  <rSolid name="CHIMNEY_HOLE_N_c"/>
-  <rMaterial name="materials:Air"/>
- </LogicalPart>
 </LogicalPartSection>
 
 
 <PosPartSection label="mgnt.xml">
-
- <PosPart copyNumber="1">
-   <rParent name="cms:MUON"/>
-   <rChild name="mgnt:CHIMNEY_HOLE_P"/>
-   <rRotation name="rotations:RMCHIMHOLEP"/>
-   <Translation x="[ChimHole_posR]*sin(0.*deg)" y="[ChimHole_posR]*cos(0.*deg)" z="[ChimHole_posZ_P]"/>
- </PosPart>
- <PosPart copyNumber="1">
-   <rParent name="cms:MUON"/>
-   <rChild name="mgnt:CHIMNEY_HOLE_N"/>
-   <rRotation name="rotations:RMCHIMHOLEN"/>
-   <Translation x="[ChimHole_posR]*sin(30.*deg)" y="[ChimHole_posR]*cos(30.*deg)" z="[ChimHole_posZ_N]"/>
- </PosPart>
-
- <PosPart copyNumber="1">
-   <rParent name="cms:MUON"/>
-   <rChild name="mgnt:CHIMNEY_HOLE_N_c"/>
- </PosPart>
- <PosPart copyNumber="1">
-   <rParent name="cms:MUON"/>
-   <rChild name="mgnt:CHIMNEY_HOLE_N_a"/>
-   <Translation x="-0.15*m" y="0.*fm" z="0.*fm"/>
- </PosPart>
- <PosPart copyNumber="1">
-   <rParent name="cms:MUON"/>
-   <rChild name="mgnt:CHIMNEY_HOLE_N_b"/>
-   <Translation x="0.15*m" y="0.*fm" z="0.*fm"/>
- </PosPart>
 
  <PosPart copyNumber="1">
    <rParent name="cms:MUON"/>
