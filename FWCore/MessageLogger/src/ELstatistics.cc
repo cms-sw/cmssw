@@ -286,7 +286,7 @@ static ELstring  formSummary( ELmap_stats & stats )  {
     //
     if ( n == 0  || ! eq(lastProcess, (*i).first.process) )
       s << "\nProcess " << (lastProcess = (*i).first.process) << '\n'
-        << " type    message id       sev    module        "
+        << " type     category        sev    module        "
              "subroutine        count    total\n"
         << " ---- -------------------- -- ---------------- "
              "----------------  -----    -----\n"
@@ -321,7 +321,7 @@ static ELstring  formSummary( ELmap_stats & stats )  {
   // -----  Summary part II:
   //
   s << '\n'
-    << " type   message id   Examples: "
+    << " type    category    Examples: "
        "run/evt        run/evt          run/evt\n"
     << " ---- -------------------- ----"
        "------------ ---------------- ----------------\n"
