@@ -1,3 +1,6 @@
+** V00-03-04  [Wed Jan 18 01:29:04 2006]
+add option to skip pileup
+
 ** V00-03-03  [Mon Dec 12 18:40:02 2005]
 add various protections+ small fixes, complete test-suite
 
