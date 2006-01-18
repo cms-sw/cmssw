@@ -1,3 +1,6 @@
+** V01-03-00  [Wed Jan 18 01:35:48 2006]
+Add randomized skipping of pileup events
+
 ** V01-02-00  [Tue Jan 17 16:30:36 2006]
 add possibility not to pileup (type=none)
 
