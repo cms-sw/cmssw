@@ -1,3 +1,6 @@
+** V00-00-03  [Wed Jan 18 19:25:20 2006]
+Really roll back this time.  Previous tag didn't catch
+
 ** V00-00-02  [Tue Jan 17 19:59:36 2006]
 Roll back CSCWireElectronicsSim, because the new GeometryCSCSimAlgo isn't released yet
 
