@@ -193,8 +193,9 @@ float CSCWireElectronicsSim::timeOfFlightCalibration(int wireGroup) const {
   if(middleWireGroup > numberOfWireGroups) 
      middleWireGroup = numberOfWireGroups;
 
-  GlobalPoint centerOfGroupGroup = theLayer->centerOfWireGroup(middleWireGroup);
-  float averageDist = centerOfGroupGroup.mag();
+  LocalPoint centerOfGroupGroup = theLayerGeometry->centerOfWireGroup(middleWireGroup);
+  float averageDist = theLayer->surface().toGlobal(centerOfGroupGroup).mag();
+
   float averageTOF  = averageDist * cm / c_light; // Units of c_light: mm/ns
 
   LogDebug("CSCWireElectronicsSim") << "MEWES TofCalib:  wg = " << wireGroup << 
