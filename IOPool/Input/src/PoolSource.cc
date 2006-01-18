@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.16 2006/01/07 20:42:33 wmtan Exp $
+$Id: PoolSource.cc,v 1.17 2006/01/16 02:50:21 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/PoolSource.h"
@@ -195,13 +195,14 @@ namespace edm {
   }
 
   void
-  PoolRASource::readMany_(int number, std::vector<EventPrincipal *>& result) {
+  PoolRASource::readMany_(int number, EventPrincipalVector& result) {
     for (int i = 0; i < number; ++i) {
       std::auto_ptr<EventPrincipal> ev = read();
       if (ev.get() == 0) {
         return;
       }
-      result.push_back(ev.release());
+      EventPrincipalVectorElement e(ev.release());
+      result.push_back(e);
     }
   }
 }
