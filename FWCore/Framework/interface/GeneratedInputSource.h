@@ -2,15 +2,15 @@
 #define Framework_GeneratedInputSource_h
 
 /*----------------------------------------------------------------------
-$Id: GeneratedInputSource.h,v 1.1 2005/10/17 19:22:41 wmtan Exp $
+$Id: GeneratedInputSource.h,v 1.1 2005/12/28 00:30:09 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
 
-#include "FWCore/Framework/interface/GenericInputSource.h"
+#include "FWCore/Framework/interface/ConfigurableInputSource.h"
 
 namespace edm {
-  class GeneratedInputSource : public GenericInputSource {
+  class GeneratedInputSource : public ConfigurableInputSource {
   public:
     explicit GeneratedInputSource(ParameterSet const& pset, InputSourceDescription const& desc);
     virtual ~GeneratedInputSource();

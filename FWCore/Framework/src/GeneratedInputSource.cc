@@ -4,7 +4,7 @@
 namespace edm {
     GeneratedInputSource::GeneratedInputSource(ParameterSet const& pset,
         InputSourceDescription const& desc) :
-        GenericInputSource(pset, desc) {
+        ConfigurableInputSource(pset, desc) {
       // maxEvents has already been read in the base class, where it is defaulted.
       // For a generated input source, maxEvents is a required parameter.
       // Here We read it without a default,

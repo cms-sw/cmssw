@@ -3,7 +3,7 @@
 
 namespace edm {
     ExternalInputSource::ExternalInputSource(ParameterSet const& pset, InputSourceDescription const& desc) :
-      GenericInputSource(pset, desc),
+      ConfigurableInputSource(pset, desc),
       fileNames_(pset.getUntrackedParameter<std::vector<std::string> >("fileNames")) {
     }
     ExternalInputSource::~ExternalInputSource() {}

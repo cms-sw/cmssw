@@ -6,7 +6,7 @@
 Event: This is the primary interface for accessing
 EDProducts from a single collision and inserting new derived products.
 
-$Id: Event.h,v 1.23 2005/11/02 06:45:55 wmtan Exp $
+$Id: Event.h,v 1.24 2005/12/28 00:29:24 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
@@ -106,7 +106,8 @@ namespace edm {
     // public interface is asking for trouble
     void commit_();
     friend class ProducerWorker;
-    friend class GenericInputSource;
+    friend class ConfigurableInputSource;
+    friend class RawInputSource;
 
     // The following 'get' functions serve to isolate the Event class
     // from the EventPrincipal class.

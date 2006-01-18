@@ -2,17 +2,17 @@
 #define Framework_ExternalInputSource_h
 
 /*----------------------------------------------------------------------
-$Id: ExternalInputSource.h,v 1.1 2005/10/17 19:22:41 wmtan Exp $
+$Id: ExternalInputSource.h,v 1.1 2005/12/28 00:30:09 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
 #include <vector>
 #include <string>
 
-#include "FWCore/Framework/interface/GenericInputSource.h"
+#include "FWCore/Framework/interface/ConfigurableInputSource.h"
 
 namespace edm {
-  class ExternalInputSource : public GenericInputSource {
+  class ExternalInputSource : public ConfigurableInputSource {
   public:
     explicit ExternalInputSource(ParameterSet const& pset, InputSourceDescription const& desc);
     virtual ~ExternalInputSource();
