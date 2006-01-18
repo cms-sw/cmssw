@@ -55,7 +55,7 @@ ReadWriteORA::~ReadWriteORA () { }
 bool ReadWriteORA::writeDB ( ) {
 
   seal::PluginManager::get()->initialise();
-  seal::SealTimer t("ReadWriteORA::WriteFromMemoryToDB");
+  seal::SealTimer t("ReadWriteORA::WriteFromMemoryToDB", false);
 
   std::string token;
 
@@ -254,7 +254,7 @@ bool ReadWriteORA::writeDB ( ) {
 
 /// Read from XML files
 bool ReadWriteORA::readFromXML ( ) {
-  seal::SealTimer t("ReadWriteORA::readFromXML");
+  seal::SealTimer t("ReadWriteORA::readFromXML", false);
   DDLParser* myP = DDLParser::instance();
   DDLConfiguration dp;
   std::cout << "About to read configuration file: " << xmlConfiguration_ << std::endl; 
@@ -277,7 +277,7 @@ bool ReadWriteORA::readFromDB ( ) {
   std::cout << "Looking for ..." << name_ << std::endl;
   std::string aToken= meta->getToken(name_);
   delete meta;
-  seal::SealTimer timer("ReadWriteORA::readFromDB");
+  seal::SealTimer timer("ReadWriteORA::readFromDB", false);
   DDORAReader ddorar( "cms:OCMS", 
 		      aToken,
 		      userName_, 
