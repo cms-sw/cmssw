@@ -185,6 +185,8 @@ class MonitorUserInterface : public StringUtil
   // this action applies to all MEs already available or future ones
   void add(CollateMonitorElement* cme, const std::string& search_string) const;
 
+  // remove CollateMonitorElement
+  void removeCollate(CollateMonitorElement * cme);
 
   // -------------------- Quality tests on MonitorElements ------------------
 
@@ -225,8 +227,10 @@ class MonitorUserInterface : public StringUtil
   // collector name (e.g. <my_collector> or <collector1/collector2>
   std::string collector_name_;
 
-  // vector of collation MEs
-  std::vector<CollateMonitorElement *> collate_mes;
+  typedef std::set<CollateMonitorElement *> scme;
+  typedef scme::iterator scmeIt;
+  // set of collation MEs
+  scme collate_mes;
   // new MEs have been added; check if need to update collate-MEs
   void checkAddedContents(void);
   

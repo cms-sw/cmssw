@@ -16,8 +16,7 @@ MonitorUserInterface::MonitorUserInterface(const string & hostname, int port_no,
 
 MonitorUserInterface::~MonitorUserInterface(void)
 {
-  for(vector<CollateMonitorElement*>::iterator it = collate_mes.begin();
-      it != collate_mes.end(); ++it)
+  for(scmeIt it = collate_mes.begin(); it != collate_mes.end(); ++it)
     delete (*it);
 
   collate_mes.clear();
@@ -194,7 +193,7 @@ void MonitorUserInterface::add(CollateMonitorElement * cme,
 void MonitorUserInterface::checkAddedContents(void)
 {
   typedef vector<CollateMonitorElement *>::const_iterator It;
-  for(It cme = collate_mes.begin(); cme != collate_mes.end(); ++cme){
+  for(scmeIt cme = collate_mes.begin(); cme != collate_mes.end(); ++cme){
     // loop over collate-MEs
     for(csIt search_string = (*cme)->searchStrings.begin(); 
 	search_string != (*cme)->searchStrings.end(); ++search_string){
@@ -236,8 +235,7 @@ void MonitorUserInterface::doSummary(void)
   if(!bei->addedContents.empty())
     checkAddedContents();
   
-  for(vector<CollateMonitorElement *>::iterator it = collate_mes.begin(); 
-      it != collate_mes.end(); ++it)
+  for(scmeIt it = collate_mes.begin(); it != collate_mes.end(); ++it)
     {
       (*it)->summary();
     }
@@ -258,3 +256,15 @@ bool MonitorUserInterface::update(void)
   return ret;
 }
 
+// remove CollateMonitorElement
+void MonitorUserInterface::removeCollate(CollateMonitorElement * cme)
+{
+  if(!cme)
+    {
+      cerr << " *** Attempt to remove null CollateMonitorElement ! " << endl;
+      return;
+    }
+
+  collate_mes.erase(cme);
+  delete cme;
+}
