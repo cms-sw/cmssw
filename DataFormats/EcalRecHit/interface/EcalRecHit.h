@@ -17,7 +17,7 @@ public:
   EcalRecHit(const DetId& id, float energy, float time);
   /// get the id
   // For the moment not returning a specific id for subdetector
-  DetId id() { return DetId(detid());}
+  DetId id() const { return DetId(detid());}
 };
 
 std::ostream& operator<<(std::ostream& s, const EcalRecHit& hit);
