@@ -1,3 +1,6 @@
+** V00-06-00  [Wed Jan 18 03:28:13 2006]
+EventContentanalyzer improvements
+
 ** V00-05-01  [Wed Jan 11 02:59:01 2006]
 changed parameter name from verboseLabels to verboseForModuleLabels
 
