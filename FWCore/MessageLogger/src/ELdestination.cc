@@ -151,6 +151,8 @@ void ELdestination::excludeModule( ELstring const & moduleName )  {
   ignoreModule(moduleName);
 }
 
+void ELdestination::summary( )  { }
+
 void ELdestination::summary( ELdestControl & dest, const ELstring & title )  {
 
   ErrorObj msg( ELwarning2, noSummaryMsg );

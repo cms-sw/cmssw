@@ -36,6 +36,9 @@ private:
   // --- log one consumed message
   void log(ErrorObj * errorobj_p);
 
+  // --- cause statistics destinations to output
+  void triggerStatisticsSummaries();
+
   // --- handle details of configuring via a ParameterSet:
   void  configure_errorlog( );
   void  configure_dest( ELdestControl & dest_ctrl
@@ -54,7 +57,9 @@ private:
   edm::MsgContext                 msg_context;
   PSet *                          job_pset_p;
   std::vector<NamedDestination *> extern_dests;
-
+  std::map<String,std::ostream *> stream_ps;
+  std::vector<ELdestControl>      statisticsDestControls;
+  
 };  // MessageLoggerScribe
 
 

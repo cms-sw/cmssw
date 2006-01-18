@@ -102,6 +102,7 @@ protected:
   virtual void summary( ELdestControl & dest, const ELstring & title="" );
   virtual void summary( std::ostream  & os  , const ELstring & title="" );
   virtual void summary( ELstring      & s   , const ELstring & title="" );
+  virtual void summary( );
 
   virtual void setTableLimit( int n );
 

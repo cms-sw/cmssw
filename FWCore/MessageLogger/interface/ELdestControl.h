@@ -104,6 +104,7 @@ public:
   virtual void summary( ELdestControl & dest, char * title="" );
   virtual void summary( std::ostream  & os  , char * title="" );
   virtual void summary( ELstring      & s   , char * title="" );
+  virtual void summary( );
 
   virtual std::map<ELextendedID , StatsCount> statisticsMap() const;
 

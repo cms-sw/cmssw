@@ -25,6 +25,7 @@ public:
   , LOG_A_MESSAGE  // LOG
   , CONFIGURE      // CFG
   , EXTERN_DEST    // EXT
+  , SUMMARIZE      // SUM
   };  // OpCode
 
   // ---  birth via a surrogate:
@@ -35,6 +36,7 @@ public:
   static  void  LOG( ErrorObj * p );
   static  void  CFG( ParameterSet * p );
   static  void  EXT( NamedDestination* p );
+  static  void  SUM();
 
   // ---  obtain a message from the queue:
   static  void  consume( OpCode & opcode, void * & operand );

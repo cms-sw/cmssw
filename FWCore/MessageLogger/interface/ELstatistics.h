@@ -19,6 +19,7 @@
 // 3/13/01 mf	statisticsMap()
 //  4/4/01 mf   Removed moduleOfInterest and moduleToExclude, in favor
 //              of using base class method.
+// 1/17/06 mf	summary() for use in MessageLogger
 //
 // ----------------------------------------------------------------------
 
@@ -96,6 +97,7 @@ protected:
   virtual void summary( ELdestControl & dest, const ELstring & title="" );
   virtual void summary( std::ostream  & os  , const ELstring & title="" );
   virtual void summary( ELstring      & s   , const ELstring & title="" );
+  virtual void summary( );
   void noTerminationSummary();
 
   virtual std::map<ELextendedID,StatsCount> statisticsMap() const;

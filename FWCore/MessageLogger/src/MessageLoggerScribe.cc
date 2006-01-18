@@ -6,6 +6,7 @@
 
 
 #include "FWCore/MessageLogger/interface/ELoutput.h"
+#include "FWCore/MessageLogger/interface/ELstatistics.h"
 #include "FWCore/MessageLogger/interface/ELfwkJobReport.h"
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -82,6 +83,11 @@ void
 	configure_external_dests();
         break;
       }
+      case MessageLoggerQ::SUMMARIZE: {
+        assert( operand == 0 );
+	triggerStatisticsSummaries();
+        break;
+      }
     }  // switch
 
   } while(! done);
@@ -89,10 +95,6 @@ void
 }  // MessageLoggerScribe::run()
 
 void MessageLoggerScribe::log ( ErrorObj *  errorobj_p ) {
-
-  // TRACE0114
-  //std::cerr << "MessageLoggerQ::LOG_A_MESSAGE " << errorobj_p->xid().id << '\n';
-
   ELcontextSupplier& cs =
     const_cast<ELcontextSupplier&>(admin_p->getContextSupplier());
   MsgContext& mc = dynamic_cast<MsgContext&>(cs);
@@ -105,13 +107,13 @@ void MessageLoggerScribe::log ( ErrorObj *  errorobj_p ) {
   } 
 }
 
-
 void
   MessageLoggerScribe::configure_errorlog()
 {
   vString  empty_vString;
   String   empty_String;
-
+  PSet     empty_PSet;
+  
   // The following is present to test pre-configuration message handling:
   String preconfiguration_message 
        = job_pset_p->getUntrackedParameter<String>
@@ -121,10 +123,6 @@ void
     // configuration we are about to do, we issue the message (so it sits
     // on the queue), then copy the processing that the LOG_A_MESSAE case
     // does.  We suppress the timestamp to allow for automated unit testing.
-     
-    // TRACE0114
-    //std::cerr << "<<<<<< Preconfig message request noted\n";
-    
     early_dest.suppressTime();
     LogError ("preconfiguration") << preconfiguration_message;
     MessageLoggerQ::OpCode  opcode;
@@ -135,7 +133,8 @@ void
     log (errorobj_p);        
     delete errorobj_p;  // dispose of the message text
   }
-  
+
+  // We will need a map of   
   // grab list of destinations:
   vString  destinations
      = job_pset_p->getUntrackedParameter<vString>("destinations", empty_vString);
@@ -155,15 +154,18 @@ void
     String filename = *it;
     if( filename == "cout" )  {
       dest_ctrl = admin_p->attach( ELoutput(std::cout) );
+      stream_ps["cout"] = &std::cout;
     }
     else if( filename == "cerr" )  {
-      early_dest.setThreshold(ELzeroSeverity);  // or ELerror?
+      early_dest.setThreshold(ELzeroSeverity); 
       dest_ctrl = early_dest;
+      stream_ps["cerr"] = &std::cerr;
     }
     else  {
       std::ofstream * os_p = new std::ofstream(filename.c_str());
       file_ps.push_back(os_p);
       dest_ctrl = admin_p->attach( ELoutput(*os_p) );
+      stream_ps[filename] = os_p;
     }
     //(*errorlog_p)( ELinfo, "added_dest") << filename << endmsg;
 
@@ -192,11 +194,64 @@ void
     std::ofstream * os_p = new std::ofstream(filename.c_str());
     file_ps.push_back(os_p);
     dest_ctrl = admin_p->attach( ELfwkJobReport(*os_p) );
+    stream_ps[filename] = os_p;
 
     // now configure this destination:
     configure_dest(dest_ctrl, filename);
 
   }  // for [it = fwkJobReports.begin() to end()]
+
+  // grab list of statistics destinations:
+  vString  statistics 
+     = job_pset_p->getUntrackedParameter<vString>("statistics", empty_vString);
+
+   // establish each statistics destination:
+  for( vString::const_iterator it = statistics.begin()
+     ; it != statistics.end()
+     ; ++it
+     )
+  {
+    // determine the filename to be used:
+    // either the statistics name or if a Pset by that name has 
+    // file = somename, then that specified name.
+    String statname = *it;
+    PSet  stat_pset 
+    	= job_pset_p->getUntrackedParameter<PSet>(statname,empty_PSet);
+    String filename 
+        = stat_pset.getUntrackedParameter<String>("output",statname);
+    
+    // create (if statistics file does not match any destination file name)
+    // or note (if statistics file matches a destination file name) the ostream
+    std::ostream * os_p;
+    if ( stream_ps.find(filename) == stream_ps.end() ) {
+      if ( filename == "cout" ) {
+        os_p = &std::cout;
+      } else if ( filename == "cerr" ) {
+        os_p = &std::cerr;
+      } else {
+        std::ofstream * osf_p = new std::ofstream(filename.c_str());
+        os_p = osf_p;
+	file_ps.push_back(osf_p);
+      }
+      stream_ps[filename] = os_p;
+    } else { 
+      os_p = stream_ps[filename];
+    }
+       
+    // attach the statistics destination, keeping a control handle to it:
+    ELdestControl dest_ctrl;
+    dest_ctrl = admin_p->attach( ELstatistics(*os_p) );
+    statisticsDestControls.push_back(dest_ctrl);
+
+    // now configure this destination:
+    configure_dest(dest_ctrl, filename);
+
+    // and suppress the desire to do an extra termination summary just because
+    // of end-of-job info messages
+    dest_ctrl.noTerminationSummary();
+    
+
+  }  // for [it = statistics.begin() to end()]
 
   configure_external_dests();
 
@@ -356,4 +411,13 @@ void
   } 
   // Note:  This algorithm assigns, as desired, one null category if it
   //        encounters an empty categories string
+}
+
+void
+  MessageLoggerScribe::triggerStatisticsSummaries() {
+    typedef std::vector<ELdestControl>::iterator VDCit;
+    for ( VDCit it  = statisticsDestControls.begin(); 
+                it != statisticsDestControls.end(); ++it ) {
+      it->summary( );
+    }
 }

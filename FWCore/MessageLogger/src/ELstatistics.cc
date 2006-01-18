@@ -17,6 +17,7 @@
 //  11/01/01    web     Remove last vestige of GNU relic code; reordered
 //                      initializers to correspond to order of member
 //                      declarations
+//   1/17/06    mf	summary() for use in MessageLogger
 //
 //  ---------------------------------------------------------------------
 
@@ -364,6 +365,14 @@ void  ELstatistics::summary( ELdestControl & dest, const ELstring & title )  {
 void  ELstatistics::summary( std::ostream & os, const ELstring & title )  {
 
   os << title << std::endl << formSummary(stats) << std::flush;
+  updatedStats = false;
+
+}  // summary()
+
+void  ELstatistics::summary( )  {
+
+  termStream << "MessageLogger Summary" << std::endl << formSummary(stats) 
+             << std::flush;
   updatedStats = false;
 
 }  // summary()

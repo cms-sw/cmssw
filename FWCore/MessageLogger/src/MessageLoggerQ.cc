@@ -92,6 +92,20 @@ MessageLoggerQ::EXT( NamedDestination* p )
 }
 
 void
+  MessageLoggerQ::SUM( )
+{
+  SingleConsumerQ::ProducerBuffer b(buf);
+  char * slot_p = static_cast<char *>(b.buffer());
+
+  OpCode o(SUMMARIZE);
+  void * v(0);
+
+  std::memcpy(slot_p               , &o, sizeof(OpCode));
+  std::memcpy(slot_p+sizeof(OpCode), &v, sizeof(void *));
+  b.commit(buf_size);
+}  // MessageLoggerQ::SUM()
+
+void
   MessageLoggerQ::consume( OpCode & opcode, void * & operand )
 {
   SingleConsumerQ::ConsumerBuffer b(buf);

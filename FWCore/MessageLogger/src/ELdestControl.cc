@@ -205,6 +205,10 @@ void ELdestControl::summary( ELstring & s, char * title )  {
   if (d) d->summary( s, title );
 }
 
+void ELdestControl::summary( )  {
+  if (d) d->summary( );
+}
+
 
 ELdestControl & ELdestControl::clearSummary()  {
   if (d) d->clearSummary();
