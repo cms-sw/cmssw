@@ -1,3 +1,6 @@
+** V01-01-02  [Wed Jan 18 03:47:33 2006]
+Make id() a const method
+
 ** V01-01-01  [Tue Jan 10 12:26:32 2006]
 Added SortedCollection for EcalUncalibratedRecHit
 
