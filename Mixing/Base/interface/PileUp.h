@@ -1,9 +1,11 @@
 #ifndef Base_PileUp_h
 #define Base_PileUp_h
 
+#include <string>
 #include <vector>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ModuleDescription.h"
+#include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandPoisson.h"
 #include "CLHEP/Random/TripleRand.h"
 
@@ -22,15 +24,20 @@ namespace edm {
     long seed() const {return seed_;}
 
   private:
+    std::string const type_;
     int const minBunch_;
     int const maxBunch_;
     double const averageNumber_;
     int const intAverage_;
     bool const poisson_;
+    bool const fixed_;
+    bool const none_;
+    unsigned int const maxEventsToSkip_;
     long const seed_;
     VectorInputSource * const input_;
     TripleRand eng_;
-    RandPoisson distribution_;
+    RandPoisson poissonDistribution_;
+    RandFlat flatDistribution_;
     ModuleDescription md_;
   };
 }
