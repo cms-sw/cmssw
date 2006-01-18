@@ -4,6 +4,7 @@
 #include "DetectorDescription/Algorithm/interface/DDAlgorithmHandler.h"
 #include "DetectorDescription/Algorithm/interface/DDAlgorithmFactory.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
+#include "DetectorDescription/Base/interface/DDdebug.h"
 
 
 
@@ -30,7 +31,7 @@ void DDAlgorithmHandler::initialize(const std::string & algoName,
     std::cout << "FATAL!!! Could not initialize the PluginManager!!!" << std::endl;
   }
   algo_ = DDAlgorithmFactory::get()->create(algoNmNs.first);
-  std::cout << "ALGO: name=" << algoNmNs.first << " algo=" << algo_ << std::endl;
+  DCOUT ('T',"ALGO: name=" + algoNmNs.first + " algo=" + algoName);
   if (!algo_) {
     algo_ = DDAlgorithmFactory::get()->create(algoname_);
   }
