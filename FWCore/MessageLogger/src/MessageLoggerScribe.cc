@@ -229,7 +229,7 @@ void
       } else if ( filename == "cerr" ) {
         os_p = &std::cerr;
       } else {
-        std::ofstream * osf_p = new std::ofstream(filename.c_str());
+	std::ofstream * osf_p = new std::ofstream(filename.c_str());
         os_p = osf_p;
 	file_ps.push_back(osf_p);
       }
