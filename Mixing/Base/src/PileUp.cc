@@ -35,6 +35,11 @@ namespace edm {
 //#warning version and pass are hardcoded
     md_.versionNumber_ = 1;
     md_.pass = 1;
+    if (maxEventsToSkip_ != 0) {
+      int jump = static_cast<int>(flatDistribution_.fire());
+      // std::cout << "Initial SKIP: " << jump << std::endl;
+      input_->skipEvents(jump);
+    }
   }
 
   void
@@ -56,7 +61,7 @@ namespace edm {
           // std::cout << "EVENT: " << e->id().event() << std::endl;
         }
         n -= oneResult.size();
-        if (n > 0) {
+        if (n > 0 && maxEventsToSkip_ != 0) {
 	  int jump = static_cast<int>(flatDistribution_.fire());
           // std::cout << "SKIP: " << jump << std::endl;
           input_->skipEvents(jump);
