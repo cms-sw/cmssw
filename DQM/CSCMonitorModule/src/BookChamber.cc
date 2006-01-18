@@ -4,8 +4,8 @@
  *  map<string, MonitorElement*> CSCMonitor::book_chamber(int ChamberID) 
  * method
  *
- *  $Date: 2005/11/11 16:22:45 $
- *  $Revision: 1.4 $
+ *  $Date: 2005/12/12 09:53:55 $
+ *  $Revision: 1.5 $
  *
  * \author Ilaria Segoni
  */
@@ -77,12 +77,13 @@ map<string, MonitorElement*> CSCMonitor::book_chamber(int ChamberID) {
 		meName = Form("%dDMB_FEB_unpacked_vs_DAV", id);
 		me[meName] = dbe->book2D(meName.c_str(), "DMB Unpacked FEBs vs FEBs DAV", 8,  0 , 8, 8, 0, 8);
 
-		meName = Form("%dDMB_CFEB_Active_vs_DAV", id);
-		me[meName] = dbe->book2D(meName.c_str(), "CFEB_Active vs CFEB_DAV combinations", 32, 0, 32, 32,  0 , 32);
-
-
-		meName = Form("%dDMB_CFEB_Active", id);
-		me[meName] = dbe->book1D(meName.c_str(), "Active CFEBs combinations as reported by TMB", 32,  0 , 32);
+		/// Not filled because needs something like CSCDMBHeader::cfebActive():
+		//meName = Form("%dDMB_CFEB_Active_vs_DAV", id);
+		//me[meName] = dbe->book2D(meName.c_str(), "CFEB_Active vs CFEB_DAV combinations", 32, 0, 32, 32,  0 , 32);
+                
+		/// Not filled because needs something like CSCDMBHeader::cfebActive():
+		//meName = Form("%dDMB_CFEB_Active", id);
+		//me[meName] = dbe->book1D(meName.c_str(), "Active CFEBs combinations as reported by TMB", 32,  0 , 32);
 
 		meName = Form("%dDMB_CFEB_DAV", id);
 		me[meName] = dbe->book1D(meName.c_str(), "CFEBs combinations reporting DAV", 32,  0 , 32);

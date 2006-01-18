@@ -2,8 +2,8 @@
  * 
  *  implementation of CSCMonitor class
  *
- *  $Date: 2005/11/11 16:22:45 $
- *  $Revision: 1.4 $
+ *  $Date: 2005/12/12 09:53:15 $
+ *  $Revision: 1.8 $
  *
  * \author Ilaria Segoni
  */
@@ -23,8 +23,10 @@
 using namespace std;
 
 CSCMonitor::CSCMonitor(const edm::ParameterSet& iConfig ){
+ 
+ 
+ printout = iConfig.getUntrackedParameter<bool>("monitorVerbosity", false);
 
- printout=true;
  for(int ddu=0; ddu<maxDDU; ddu++) {
    dduBooked[ddu]=false;
    dduBX[ddu]=0;
