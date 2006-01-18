@@ -1,3 +1,7 @@
+** V00-00-90  [Wed Jan 18 02:36:47 2006]
+Attempting to fix a series of bugs;
+Some minor new features have also been added.
+
 ** V00-00-80  [Wed Dec  7 02:46:21 2005]
 - Added public methods for assessing the "global" status of monitoring
 structure (or any subdirectory)
