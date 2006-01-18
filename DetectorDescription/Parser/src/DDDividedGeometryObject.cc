@@ -130,14 +130,14 @@ const std::string& DDDividedGeometryObject::getType() const
 
 void DDDividedGeometryObject::execute()
 {
-  std::cout << "about to make " <<  compNDiv_ << " divisions." << std::endl;
+  DCOUT_V('D', "about to make " <<  compNDiv_ << " divisions." << std::endl);
   for (int i = theVoluFirstCopyNo_; i < compNDiv_+theVoluFirstCopyNo_; i++)
     {
-      std::cout << "Parent Volume: " << div_.parent() << std::endl;
-      std::cout << "Child Volume: " << makeDDLogicalPart(i) << std::endl;
-      std::cout << "   copyNo:" << i << std::endl;
-      std::cout << "   Translation: " << makeDDTranslation(i) << std::endl;
-      std::cout << "   rotation=" << makeDDRotation(i) << std::endl;
+      DCOUT_V('D',  "Parent Volume: " << div_.parent() << std::endl);
+      DCOUT_V('D',  "Child Volume: " << makeDDLogicalPart(i) << std::endl);
+      DCOUT_V('D',  "   copyNo:" << i << std::endl);
+      DCOUT_V('D',  "   Translation: " << makeDDTranslation(i) << std::endl);
+      DCOUT_V('D',  "   rotation=" << makeDDRotation(i) << std::endl);
 
       DDpos( makeDDLogicalPart(i)
 	     , div_.parent()

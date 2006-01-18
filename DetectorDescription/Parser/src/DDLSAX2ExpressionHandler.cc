@@ -59,7 +59,7 @@ void DDLSAX2ExpressionHandler::startElement(const XMLCh* const uri
                                    , const XMLCh* const qname
                                    , const Attributes& attrs)
 {
-  static seal::SealTimer tdseh("DDLSAX2ExpressionHandler::startElement(..)");
+  static seal::SealTimer tdseh("DDLSAX2ExpressionHandler::startElement(..)", false);
   
   elementCount_++;
   attrCount_ += attrs.getLength();

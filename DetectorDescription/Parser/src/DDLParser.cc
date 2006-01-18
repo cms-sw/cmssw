@@ -60,7 +60,7 @@ DDLParser::~DDLParser()
 DDLParser::DDLParser( )  : nFiles_(0) //, handler_(0) (seal::Context* )
 { 
   // Initialize the XML4C2 system
-  static seal::SealTimer tddlparser("DDLParser:Construct");
+  static seal::SealTimer tddlparser("DDLParser:Construct", false);
 
   try
     {
@@ -165,7 +165,7 @@ bool DDLParser::parseOneFile(const std::string& filename, const std::string& url
       //      std::cout << "fIndex= " << fIndex << std::endl;
       if (!foundFile) //parsed_[foundFile])
 	{
-	  seal::SealTimer tddlfname("DDLParser:"+filename.substr(filename.rfind('/')+1));
+	  seal::SealTimer tddlfname("DDLParser:"+filename.substr(filename.rfind('/')+1), false);
 	  pair <std::string, std::string> pss;
 	  pss.first = filename;
 	  if (url.size() && url.substr(url.size() - 1, 1) == "/")
@@ -204,7 +204,7 @@ bool DDLParser::parseOneFile(const std::string& filename, const std::string& url
 
       try
 	{ 
-	  seal::SealTimer t("DDLParser2:"+filename.substr(filename.rfind('/')+1));
+	  seal::SealTimer t("DDLParser2:"+filename.substr(filename.rfind('/')+1), false);
 
 	  //	  myFileHandler = new DDLSAX2FileHandler;
 	  SAX2Parser_->setContentHandler(fileHandler_);
@@ -314,7 +314,7 @@ int DDLParser::parse(const DDLDocumentProvider& dp)
       //      std::cout << "full file name" << fullFileName[fileIndex] << std::endl;
     }
 
-    seal::SealTimer * t = new seal::SealTimer("DDLParser1");
+    seal::SealTimer * t = new seal::SealTimer("DDLParser1", false);
 
     for (std::vector<std::string>::const_iterator fnit = fullFileName.begin(); 
 	 fnit != fullFileName.end();
@@ -375,7 +375,7 @@ int DDLParser::parse(const DDLDocumentProvider& dp)
   // PASS 2:
 
   DCOUT('P', "DDLParser::parse(): PASS2: Just before setting Xerces content and error handlers... ");
-  t = new seal::SealTimer("DDLParser2");
+  t = new seal::SealTimer("DDLParser2", false);
   //  DDLSAX2FileHandler* myFileHandler(0);
   try
     {
@@ -430,7 +430,7 @@ void DDLParser::parseFile(const int& numtoproc)
   if (!parsed_[numtoproc])
     {
       const std::string & fname = fileNames_[numtoproc].second;
-      seal::SealTimer t("DDLParser:"+fname.substr(fname.rfind('/')+1));
+      seal::SealTimer t("DDLParser:"+fname.substr(fname.rfind('/')+1), false);
 
       try
 	{
