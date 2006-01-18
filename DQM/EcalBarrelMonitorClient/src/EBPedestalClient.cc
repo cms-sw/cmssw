@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2006/01/07 17:53:24 $
- * $Revision: 1.53 $
+ * $Date: 2006/01/11 09:37:03 $
+ * $Revision: 1.54 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -482,33 +482,16 @@ void EBPedestalClient::unsubscribe(void){
 
     if ( verbose_ ) cout << "EBPedestalClient: uncollate" << endl;
 
-    DaqMonitorBEInterface* bei = mui_->getBEInterface();
-
-    if ( bei ) {
-
-      Char_t histo[80];
+    if ( mui_ ) {
 
       for ( int ism = 1; ism <= 36; ism++ ) {
 
-        sprintf(histo, "EBPT pedestal SM%02d G01", ism);
-        bei->setCurrentFolder("EcalBarrel/Sums/EBPedestalTask/Gain01");
-        bei->removeElement(histo);
+        mui_->removeCollate(me_h01_[ism-1]);
+        mui_->removeCollate(me_h02_[ism-1]);
+        mui_->removeCollate(me_h03_[ism-1]);
 
-        sprintf(histo, "EBPT pedestal SM%02d G06", ism);
-        bei->setCurrentFolder("EcalBarrel/Sums/EBPedestalTask/Gain06");
-        bei->removeElement(histo);
-
-        sprintf(histo, "EBPT pedestal SM%02d G12", ism);
-        bei->setCurrentFolder("EcalBarrel/Sums/EBPedestalTask/Gain12");
-        bei->removeElement(histo);
-
-        sprintf(histo, "EBPDT PNs pedestal SM%02d G01", ism);
-        bei->setCurrentFolder("EcalBarrel/Sums/EBPnDiodeTask/Gain01");
-        bei->removeElement(histo);
-
-        sprintf(histo, "EBPDT PNs pedestal SM%02d G16", ism);
-        bei->setCurrentFolder("EcalBarrel/Sums/EBPnDiodeTask/Gain16");
-        bei->removeElement(histo);
+        mui_->removeCollate(me_i01_[ism-1]);
+        mui_->removeCollate(me_i02_[ism-1]);
 
       }
 

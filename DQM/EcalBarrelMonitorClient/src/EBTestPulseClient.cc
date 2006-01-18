@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2006/01/07 17:53:24 $
- * $Revision: 1.57 $
+ * $Date: 2006/01/11 09:37:03 $
+ * $Revision: 1.58 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -617,64 +617,26 @@ void EBTestPulseClient::unsubscribe(void){
 
     if ( verbose_ ) cout << "EBTestPulseClient: uncollate" << endl;
 
-    DaqMonitorBEInterface* bei = mui_->getBEInterface();
-
-    if ( bei ) {
-      Char_t histo[80];
+    if ( mui_ ) {
 
       for ( int ism = 1; ism <= 36; ism++ ) {
 
-        sprintf(histo, "EBTPT amplitude SM%02d G01", ism);
-        bei->setCurrentFolder("EcalBarrel/Sums/EBTestPulseTask/Gain01");
-        bei->removeElement(histo);
+        mui_->removeCollate(me_ha01_[ism-1]);
+        mui_->removeCollate(me_ha02_[ism-1]);
+        mui_->removeCollate(me_ha03_[ism-1]);
 
-        sprintf(histo, "EBTPT amplitude SM%02d G06", ism);
-        bei->setCurrentFolder("EcalBarrel/Sums/EBTestPulseTask/Gain06");
-        bei->removeElement(histo);
+        mui_->removeCollate(me_hs01_[ism-1]);
+        mui_->removeCollate(me_hs02_[ism-1]);
+        mui_->removeCollate(me_hs03_[ism-1]);
 
-        sprintf(histo, "EBTPT amplitude SM%02d G12", ism);
-        bei->setCurrentFolder("EcalBarrel/Sums/EBTestPulseTask/Gain12");
-        bei->removeElement(histo);
+        mui_->removeCollate(me_he01_[ism-1]);
+        mui_->removeCollate(me_he02_[ism-1]);
+        mui_->removeCollate(me_he03_[ism-1]);
 
-        sprintf(histo, "EBTPT shape SM%02d G01", ism);
-        bei->setCurrentFolder("EcalBarrel/Sums/EBTestPulseTask/Gain01");
-        bei->removeElement(histo);
-
-        sprintf(histo, "EBTPT shape SM%02d G06", ism);
-        bei->setCurrentFolder("EcalBarrel/Sums/EBTestPulseTask/Gain06");
-        bei->removeElement(histo);
-
-        sprintf(histo, "EBTPT shape SM%02d G12", ism);
-        bei->setCurrentFolder("EcalBarrel/Sums/EBTestPulseTask/Gain12");
-        bei->removeElement(histo);
-
-        sprintf(histo, "EBTPT amplitude error SM%02d G01", ism);
-        bei->setCurrentFolder("EcalBarrel/Sums/EBTestPulseTask/Gain01");
-        bei->removeElement(histo);
-
-        sprintf(histo, "EBTPT amplitude error SM%02d G06", ism);
-        bei->setCurrentFolder("EcalBarrel/Sums/EBTestPulseTask/Gain06");
-        bei->removeElement(histo);
-
-        sprintf(histo, "EBTPT amplitude error SM%02d G12", ism);
-        bei->setCurrentFolder("EcalBarrel/Sums/EBTestPulseTask/Gain12");
-        bei->removeElement(histo);
-
-        sprintf(histo, "EBPDT PNs amplitude SM%02d G01", ism);
-        bei->setCurrentFolder("EcalBarrel/Sums/EBPnDiodeTask/Gain01");
-        bei->removeElement(histo);
-
-        sprintf(histo, "EBPDT PNs amplitude SM%02d G16", ism);
-        bei->setCurrentFolder("EcalBarrel/Sums/EBPnDiodeTask/Gain16");
-        bei->removeElement(histo);
-
-        sprintf(histo, "EBPDT PNs pedestal SM%02d G01", ism);
-        bei->setCurrentFolder("EcalBarrel/Sums/EBPnDiodeTask/Gain01");
-        bei->removeElement(histo);
-
-        sprintf(histo, "EBPDT PNs pedestal SM%02d G16", ism);
-        bei->setCurrentFolder("EcalBarrel/Sums/EBPnDiodeTask/Gain16");
-        bei->removeElement(histo);
+        mui_->removeCollate(me_i01_[ism-1]);
+        mui_->removeCollate(me_i02_[ism-1]);
+        mui_->removeCollate(me_i03_[ism-1]);
+        mui_->removeCollate(me_i04_[ism-1]);
 
       }
 

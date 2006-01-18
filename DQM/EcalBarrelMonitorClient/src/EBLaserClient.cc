@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2006/01/08 13:51:17 $
- * $Revision: 1.53 $
+ * $Date: 2006/01/11 09:37:03 $
+ * $Revision: 1.54 $
  * \author G. Della Ricca
  *
 */
@@ -1102,109 +1102,36 @@ void EBLaserClient::unsubscribe(void){
 
     if ( verbose_ ) cout << "EBLaserClient: uncollate" << endl;
 
-    DaqMonitorBEInterface* bei = mui_->getBEInterface();
-
-    if ( bei ) {
-
-      Char_t histo[80];
+    if ( mui_ ) {
 
       for ( int ism = 1; ism <= 36; ism++ ) {
 
-        sprintf(histo, "EBLT amplitude SM%02d L1", ism);
-        bei->setCurrentFolder("EcalBarrel/Sums/EBLaserTask/Laser1");
-        bei->removeElement(histo);
+        mui_->removeCollate(me_h01_[ism-1]);
+        mui_->removeCollate(me_h02_[ism-1]);
+        mui_->removeCollate(me_h03_[ism-1]);
+        mui_->removeCollate(me_h04_[ism-1]);
+        mui_->removeCollate(me_h05_[ism-1]);
+        mui_->removeCollate(me_h06_[ism-1]);
+        mui_->removeCollate(me_h07_[ism-1]);
+        mui_->removeCollate(me_h08_[ism-1]);
 
-        sprintf(histo, "EBLT amplitude over PN SM%02d L1", ism);
-        bei->setCurrentFolder("EcalBarrel/Sums/EBLaserTask/Laser1");
-        bei->removeElement(histo);
+        mui_->removeCollate(me_i01_[ism-1]);
+        mui_->removeCollate(me_i02_[ism-1]);
+        mui_->removeCollate(me_i03_[ism-1]);
+        mui_->removeCollate(me_i04_[ism-1]);
+        mui_->removeCollate(me_i05_[ism-1]);
+        mui_->removeCollate(me_i06_[ism-1]);
+        mui_->removeCollate(me_i07_[ism-1]);
+        mui_->removeCollate(me_i08_[ism-1]);
 
-        sprintf(histo, "EBLT amplitude SM%02d L2", ism);
-        bei->setCurrentFolder("EcalBarrel/Sums/EBLaserTask/Laser2");
-        bei->removeElement(histo);
-
-        sprintf(histo, "EBLT amplitude over PN SM%02d L2", ism);
-        bei->setCurrentFolder("EcalBarrel/Sums/EBLaserTask/Laser2");
-        bei->removeElement(histo);
-
-        sprintf(histo, "EBLT amplitude SM%02d L3", ism);
-        bei->setCurrentFolder("EcalBarrel/Sums/EBLaserTask/Laser3");
-        bei->removeElement(histo);
-
-        sprintf(histo, "EBLT amplitude over PN SM%02d L3", ism);
-        bei->setCurrentFolder("EcalBarrel/Sums/EBLaserTask/Laser3");
-        bei->removeElement(histo);
-
-        sprintf(histo, "EBLT amplitude SM%02d L4", ism);
-        bei->setCurrentFolder("EcalBarrel/Sums/EBLaserTask/Laser4");
-        bei->removeElement(histo);
-
-        sprintf(histo, "EBLT amplitude over PN SM%02d L4", ism);
-        bei->setCurrentFolder("EcalBarrel/Sums/EBLaserTask/Laser4");
-        bei->removeElement(histo);
-
-        sprintf(histo, "EBPDT PNs amplitude SM%02d G01 L1", ism);
-        bei->setCurrentFolder("EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain01");
-        bei->removeElement(histo);
-
-        sprintf(histo, "EBPDT PNs amplitude SM%02d G01 L2", ism);
-        bei->setCurrentFolder("EcalBarrel/Sums/EBPnDiodeTask/Laser2/Gain01");
-        bei->removeElement(histo);
-
-        sprintf(histo, "EBPDT PNs amplitude SM%02d G01 L3", ism);
-        bei->setCurrentFolder("EcalBarrel/Sums/EBPnDiodeTask/Laser3/Gain01");
-        bei->removeElement(histo);
-
-        sprintf(histo, "EBPDT PNs amplitude SM%02d G01 L4", ism);
-        bei->setCurrentFolder("EcalBarrel/Sums/EBPnDiodeTask/Laser4/Gain01");
-        bei->removeElement(histo);
-
-        sprintf(histo, "EBPDT PNs pedestal SM%02d G01 L1", ism);
-        bei->setCurrentFolder("EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain01");
-        bei->removeElement(histo);
-
-        sprintf(histo, "EBPDT PNs pedestal SM%02d G01 L2", ism);
-        bei->setCurrentFolder("EcalBarrel/Sums/EBPnDiodeTask/Laser2/Gain01");
-        bei->removeElement(histo);
-
-        sprintf(histo, "EBPDT PNs pedestal SM%02d G01 L3", ism);
-        bei->setCurrentFolder("EcalBarrel/Sums/EBPnDiodeTask/Laser3/Gain01");
-        bei->removeElement(histo);
-
-        sprintf(histo, "EBPDT PNs pedestal SM%02d G01 L4", ism);
-        bei->setCurrentFolder("EcalBarrel/Sums/EBPnDiodeTask/Laser4/Gain01");
-        bei->removeElement(histo);
-
-        sprintf(histo, "EBPDT PNs amplitude SM%02d G16 L1", ism);
-        bei->setCurrentFolder("EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain16");
-        bei->removeElement(histo);
-
-        sprintf(histo, "EBPDT PNs amplitude SM%02d G16 L2", ism);
-        bei->setCurrentFolder("EcalBarrel/Sums/EBPnDiodeTask/Laser2/Gain16");
-        bei->removeElement(histo);
-
-        sprintf(histo, "EBPDT PNs amplitude SM%02d G16 L3", ism);
-        bei->setCurrentFolder("EcalBarrel/Sums/EBPnDiodeTask/Laser3/Gain16");
-        bei->removeElement(histo);
-
-        sprintf(histo, "EBPDT PNs amplitude SM%02d G16 L4", ism);
-        bei->setCurrentFolder("EcalBarrel/Sums/EBPnDiodeTask/Laser4/Gain16");
-        bei->removeElement(histo);
-
-        sprintf(histo, "EBPDT PNs pedestal SM%02d G16 L1", ism);
-        bei->setCurrentFolder("EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain16");
-        bei->removeElement(histo);
-
-        sprintf(histo, "EBPDT PNs pedestal SM%02d G16 L2", ism);
-        bei->setCurrentFolder("EcalBarrel/Sums/EBPnDiodeTask/Laser2/Gain16");
-        bei->removeElement(histo);
-
-        sprintf(histo, "EBPDT PNs pedestal SM%02d G16 L3", ism);
-        bei->setCurrentFolder("EcalBarrel/Sums/EBPnDiodeTask/Laser3/Gain16");
-        bei->removeElement(histo);
-
-        sprintf(histo, "EBPDT PNs pedestal SM%02d G16 L4", ism);
-        bei->setCurrentFolder("EcalBarrel/Sums/EBPnDiodeTask/Laser4/Gain16");
-        bei->removeElement(histo);
+        mui_->removeCollate(me_j01_[ism-1]);
+        mui_->removeCollate(me_j02_[ism-1]);
+        mui_->removeCollate(me_j03_[ism-1]);
+        mui_->removeCollate(me_j04_[ism-1]);
+        mui_->removeCollate(me_j05_[ism-1]);
+        mui_->removeCollate(me_j06_[ism-1]);
+        mui_->removeCollate(me_j07_[ism-1]);
+        mui_->removeCollate(me_j08_[ism-1]);
 
       }
 

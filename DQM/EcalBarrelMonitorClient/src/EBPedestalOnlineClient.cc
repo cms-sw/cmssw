@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2006/01/05 08:56:56 $
- * $Revision: 1.2 $
+ * $Date: 2006/01/11 09:37:03 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -273,17 +273,11 @@ void EBPedestalOnlineClient::unsubscribe(void){
 
     if ( verbose_ ) cout << "EBPedestalOnlineClient: uncollate" << endl;
 
-    DaqMonitorBEInterface* bei = mui_->getBEInterface();
-
-    if ( bei ) {
-
-      Char_t histo[80];
+    if ( mui_ ) {
 
       for ( int ism = 1; ism <= 36; ism++ ) {
 
-        sprintf(histo, "EBPOT pedestal SM%02d G12", ism);
-        bei->setCurrentFolder("EcalBarrel/Sums/EBPedestalOnlineTask/Gain12");
-        bei->removeElement(histo);
+        mui_->removeCollate(me_h03_[ism-1]);
 
       }
 

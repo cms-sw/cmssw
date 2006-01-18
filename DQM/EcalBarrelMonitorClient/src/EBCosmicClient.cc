@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  * 
- * $Date: 2006/01/08 11:52:59 $
- * $Revision: 1.33 $
+ * $Date: 2006/01/11 09:37:03 $
+ * $Revision: 1.34 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -237,25 +237,13 @@ void EBCosmicClient::unsubscribe(void){
   
     if ( verbose_ ) cout << "EBCosmicClient: uncollate" << endl;
 
-    DaqMonitorBEInterface* bei = mui_->getBEInterface();
-
-    if ( bei ) { 
-
-      Char_t histo[80];
+    if ( mui_ ) { 
 
       for ( int ism = 1; ism <= 36; ism++ ) {
 
-        sprintf(histo, "EBCT amplitude sel SM%02d", ism);
-        bei->setCurrentFolder("EcalBarrel/Sums/EBCosmicTask/Sel");
-        bei->removeElement(histo);
-
-        sprintf(histo, "EBCT amplitude cut SM%02d", ism);
-        bei->setCurrentFolder("EcalBarrel/Sums/EBCosmicTask/Cut");
-        bei->removeElement(histo);
-
-        sprintf(histo, "EBCT amplitude spectrum SM%02d", ism);
-        bei->setCurrentFolder("EcalBarrel/Sums/EBCosmicTask/Spectrum");
-        bei->removeElement(histo);
+        mui_->removeCollate(me_h01_[ism-1]);
+        mui_->removeCollate(me_h02_[ism-1]);
+        mui_->removeCollate(me_h03_[ism-1]);
 
       }
 

@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2006/01/08 16:55:19 $
- * $Revision: 1.70 $
+ * $Date: 2006/01/11 09:37:03 $
+ * $Revision: 1.71 $
  * \author G. Della Ricca
  *
 */
@@ -440,45 +440,20 @@ void EBIntegrityClient::unsubscribe(void){
 
     if ( verbose_ ) cout << "EBIntegrityClient: uncollate" << endl;
 
-    DaqMonitorBEInterface* bei = mui_->getBEInterface();
+    if ( mui_ ) {
 
-    if ( bei ) {
-
-      Char_t histo[80];
-
-      sprintf(histo, "EBIT DCC size error");
-      bei->setCurrentFolder("EcalBarrel/Sums/EcalIntegrity");
-      bei->removeElement(histo);
+      mui_->removeCollate(me_h00_);
 
       for ( int ism = 1; ism <= 36; ism++ ) {
 
-        sprintf(histo, "EBMM occupancy SM%02d", ism);
-        bei->setCurrentFolder("EcalBarrel/Sums/EcalOccupancy");
-        bei->removeElement(histo);
+        mui_->removeCollate(me_h_[ism-1]);
 
-        sprintf(histo, "EBIT gain SM%02d", ism);
-        bei->setCurrentFolder("EcalBarrel/Sums/EcalIntegrity/Gain");
-        bei->removeElement(histo);
-
-        sprintf(histo, "EBIT ChId SM%02d", ism);
-        bei->setCurrentFolder("EcalBarrel/Sums/EcalIntegrity/ChId");
-        bei->removeElement(histo);
-
-        sprintf(histo, "EBIT gain switch SM%02d", ism);
-        bei->setCurrentFolder("EcalBarrel/Sums/EcalIntegrity/GainSwitch");
-        bei->removeElement(histo);
-
-        sprintf(histo, "EBIT gain switch stay SM%02d", ism);
-        bei->setCurrentFolder("EcalBarrel/Sums/EcalIntegrity/GainSwitchStay");
-        bei->removeElement(histo);
-
-        sprintf(histo, "EBIT TTId SM%02d", ism);
-        bei->setCurrentFolder("EcalBarrel/Sums/EcalIntegrity/TTId");
-        bei->removeElement(histo);
-
-        sprintf(histo, "EBIT TTBlockSize SM%02d", ism);
-        bei->setCurrentFolder("EcalBarrel/Sums/EcalIntegrity/TTBlockSize");
-        bei->removeElement(histo);
+        mui_->removeCollate(me_h01_[ism-1]);
+        mui_->removeCollate(me_h02_[ism-1]);
+        mui_->removeCollate(me_h03_[ism-1]);
+        mui_->removeCollate(me_h04_[ism-1]);
+        mui_->removeCollate(me_h05_[ism-1]);
+        mui_->removeCollate(me_h06_[ism-1]);
 
       }
 
