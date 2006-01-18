@@ -1,3 +1,6 @@
+** V01-04-00  [Wed Jan 18 03:50:35 2006]
+Implemented statistics destinations
+
 ** V01-03-00  [Tue Jan 10 22:16:43 2006]
 compound categories working. parameter-driven enabling of LogDebug messages work...
 
