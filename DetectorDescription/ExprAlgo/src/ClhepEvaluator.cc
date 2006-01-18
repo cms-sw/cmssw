@@ -102,7 +102,7 @@ double ClhepEvaluator::eval(const std::string & ns, const std::string & expr)
 {
 
   //   static TimerProxy timer_("ClhepEvaluator::eval(...)");
-   static seal::SealTimer tEval("ClhepEvaluator::eval(...)");
+   static seal::SealTimer tEval("ClhepEvaluator::eval(...)", false);
 
    // eval does not store std::strings in the values_!
    // eval throws if it can't evaluate!
