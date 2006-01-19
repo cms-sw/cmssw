@@ -5,7 +5,7 @@
   
 Forward declarations of types in the EDM.
 
-$Id: Frameworkfwd.h,v 1.14 2006/01/07 00:38:14 wmtan Exp $
+$Id: Frameworkfwd.h,v 1.15 2006/01/10 22:49:30 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -13,7 +13,9 @@ $Id: Frameworkfwd.h,v 1.14 2006/01/07 00:38:14 wmtan Exp $
 
 namespace edm {
   class BasicHandle;
+  class BranchDescription;
   class BranchKey;
+  class ConfigurableInputSource;
   class DelayedReader;
   class EDAnalyzer;
   class EDFilter;
@@ -35,14 +37,14 @@ namespace edm {
   class OutputModule;
   class ParameterSet;
   class ProcessNameSelector;
-  class BranchDescription;
   class ProductRegistry;
   class ProductRegistryHelper;
   class Provenance;
+  class RawInputSource;
   class Run;
   class RunHandler;
-  class SecondaryInputSource;
   class Selector;
+  class TypeID;
   class VectorInputSource;
 
   template <typename T> class Handle;
