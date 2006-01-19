@@ -3,6 +3,7 @@
   <use name=CalibFormats/CaloObjects>
   <use name=DataFormats/DetId>
   <use name=SimDataFormats/CaloHit>
+  <use name=SimDataFormats/CrossingFrame>
   <use name=Geometry/CaloGeometry>
   <use name=FWCore/MessageLogger>
 </export>
@@ -10,6 +11,7 @@
 <use name=CalibFormats/CaloObjects>
 <use name=DataFormats/DetId>
 <use name=SimDataFormats/CaloHit>
+<use name=SimDataFormats/CrossingFrame>
 <use name=Geometry/CaloGeometry>
 <use name=FWCore/MessageLogger>
 <use name=clhep>
