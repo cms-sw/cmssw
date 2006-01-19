@@ -1,9 +1,11 @@
 #include "TFile.h"
+#include "TKey.h"
 #include "TTree.h"
 #include "TError.h"
+#include "TCollection.h"
 #include <iostream>
 
-void EdmInventory()
+void branchlist()
 {
   std::string filename;
   std::string treename;
@@ -24,5 +26,4 @@ void EdmInventory()
       }
     }
   }
-  return;
 }
