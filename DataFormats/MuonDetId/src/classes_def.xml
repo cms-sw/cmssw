@@ -1,6 +1,6 @@
 <lcgdict>
   <class name="DTChamberId"/>
-  <class name="DTSLId"/>
+  <class name="DTSuperLayerId"/>
   <class name="DTLayerId"/>
   <class name="DTWireId"/>
   <class name="CSCDetId"/>

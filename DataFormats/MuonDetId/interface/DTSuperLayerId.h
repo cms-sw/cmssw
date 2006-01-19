@@ -1,40 +1,49 @@
-#ifndef MuonDetId_DTSLId_H
-#define MuonDetId_DTSLId_H
+#ifndef MuonDetId_DTSuperLayerId_H
+#define MuonDetId_DTSuperLayerId_H
 
-/** \class DTSLId
+/** \class DTSuperLayerId
  *  DetUnit identifier for DT SuperLayers (SL)
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2005/12/19 16:15:11 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
 #include <DataFormats/MuonDetId/interface/DTChamberId.h>
 
 
-class DTSLId : public DTChamberId {
+class DTSuperLayerId : public DTChamberId {
 public:
 
   /// Default constructor; fills the common part in the base
   /// and leaves 0 in all other fields
-  DTSLId();
+  DTSuperLayerId();
 
 
   /// Construct from a packed id. It is required that the Detector part of
   /// id is Muon and the SubDet part is DT, otherwise an exception is thrown.
-  explicit DTSLId(uint32_t id);
+  explicit DTSuperLayerId(uint32_t id);
 
 
   /// Construct from fully qualified identifier. 
   /// Input values are required to be within legal ranges, otherwise an
   /// exception is thrown.
-  DTSLId(int wheel, 
-	 int station, 
-	 int sector,
-	 int superlayer);
+  DTSuperLayerId(int wheel, 
+		 int station, 
+		 int sector,
+		 int superlayer);
 
 
-  /// superlayer id
+  /// Copy Constructor.
+  /// It takes care of masking fields which are not meaningful for a DTSuperLayerId
+  DTSuperLayerId(const DTSuperLayerId& slId);
+
+
+  /// Constructor from a camberId and SL number
+  DTSuperLayerId(const DTChamberId& chId, int superlayer);
+
+
+  /// Return the superlayer number
   int superlayer() const {
     return ((id_>>slayerStartBit_)&slMask_);
   }
