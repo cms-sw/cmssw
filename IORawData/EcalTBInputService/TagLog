@@ -1,3 +1,6 @@
+** V02-00-00  [Thu Jan 19 21:07:52 2006]
+Adapted for ExternalInputSource
+
 ** V01-00-00  [Thu Nov  3 15:27:19 2005]
 Memory leak removed
 
