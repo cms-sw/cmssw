@@ -1,3 +1,8 @@
+** V01-02-01  [Thu Jan 19 02:42:20 2006]
+Make calibration copy tool generic
+Create POOL and plain Oracle handles
+Cleanup
+
 ** V01-02-00  [Wed Dec 28 01:33:20 2005]
 Major redesign of Hcal Condition classes
 
