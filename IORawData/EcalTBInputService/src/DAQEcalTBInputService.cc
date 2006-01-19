@@ -1,20 +1,16 @@
 /*
- *  $Date: 2005/11/02 11:43:39 $
- *  $Revision: 1.7 $
+ *  $Date: 2005/11/03 14:24:56 $
+ *  $Revision: 1.8 $
  *  \author N. Amapane - S. Argiro'
  *  \author G. Franzoni
  */
 
 #include "DAQEcalTBInputService.h"
 
-#include <DataFormats/FEDRawData/interface/FEDRawData.h>
-#include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h> 
-
-
-
 #include "IORawData/EcalTBInputService/src/EcalTBDaqFileReader.h"
 
 #include <FWCore/EDProduct/interface/Timestamp.h>
+#include <FWCore/Framework/interface/Event.h>
 #include <FWCore/EDProduct/interface/EventID.h>
 #include <FWCore/EDProduct/interface/EDProduct.h>
 #include <FWCore/EDProduct/interface/Wrapper.h>
@@ -22,58 +18,26 @@
 #include <FWCore/Framework/interface/InputSourceDescription.h>
 #include <FWCore/Framework/interface/EventPrincipal.h>
 #include <FWCore/Framework/interface/ProductRegistry.h>
-
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
 #include <iostream>
 
 using namespace edm;
 using namespace std;
-using namespace raw;
 
 
 DAQEcalTBInputService::DAQEcalTBInputService(const ParameterSet& pset, 
-			 const InputSourceDescription& desc) : 
-  InputSource(desc),
-  description_(desc),
-  reader_(EcalTBDaqFileReader::instance()), 
-  remainingEvents_(pset.getUntrackedParameter<int>("maxEvents", -1))
-
+					     const InputSourceDescription& desc) : 
+  edm::ExternalInputSource(pset,desc), reader_(EcalTBDaqFileReader::instance()), fileCounter_(0)
 {    
-
-    ModuleDescription      mdesc;
-    mdesc.pid = PS_ID("DAQEcalTBInputService");
-    mdesc.moduleName_ = "DAQEcalTBInputService";
-
-    mdesc.moduleLabel_ = "EcalDaqRawData";
-
-#warning version number is hardcoded
-
-    mdesc.versionNumber_ = 1UL;
-    mdesc.processName_ = description_.processName_;
-    mdesc.pass = description_.pass;
-
-    fedrawdataDescription_.module= mdesc;
-
-    FEDRawDataCollection tmp;
-
-    edm::TypeID fedcoll_type(tmp);
-    fedrawdataDescription_.fullClassName_=fedcoll_type.userClassName();
-    fedrawdataDescription_.friendlyClassName_=fedcoll_type.friendlyClassName();
-
-    preg_->addProduct(fedrawdataDescription_); 
-
-
-    std::string filename= pset.getParameter<string>("fileName");
-    cout << "[DAQEcalTBInputService] input data file: " << filename << endl;
-    bool isBinary= pset.getUntrackedParameter<bool>("isBinary",true);
-    if ( isBinary ) {
-      cout << "[DAQEcalTBInputService] BINARY input data file" << endl;
-    } else {
-      cout << "[DAQEcalTBInputService] ASCII input data file" << endl;
-    }
-    reader_->initialize(filename,isBinary);
-
+  isBinary_= pset.getUntrackedParameter<bool>("isBinary",true);
+  if ( isBinary_ ) {
+    cout << "[DAQEcalTBInputService] BINARY input data file" << endl;
+  } else {
+    cout << "[DAQEcalTBInputService] ASCII input data file" << endl;
+  }
+  
+  produces<FEDRawDataCollection>("EcalDaqRawData");
 }
 
 
@@ -92,37 +56,47 @@ DAQEcalTBInputService::~DAQEcalTBInputService(){
 //   daqevdata_.clear();
 // }
 
+void DAQEcalTBInputService::setRunAndEventInfo()
+{
+  if ( !reader_->isInitialized() || reader_->checkEndOfFile() )
+    {
+      if (fileCounter_>=(unsigned int)(fileNames().size())) return; // nothing good
+      reader_->initialize(fileNames()[fileCounter_],isBinary_);
+      fileCounter_++;
+    }
+  
+  bool eventRead=reader_->fillDaqEventData();
+  
+  if (eventRead)
+    {
+      setRunNumber(reader_->getRunNumber());
+      //For the moment adding 1 by hand (CMS has event number starting from 1)
+      setEventNumber(reader_->getEventNumber()+1);
+      // time is a hack
+      edm::TimeValue_t present_time = presentTime();
+      unsigned long time_between_events = timeBetweenEvents();
+      setTime(present_time + time_between_events);
+    }
+  else
+    return;
+}
 
-auto_ptr<EventPrincipal> DAQEcalTBInputService::read() {
+bool DAQEcalTBInputService::produce(edm::Event& e) 
+{
 
-  auto_ptr<EventPrincipal> result(0);
-
- 
-  EventID id;
-  Timestamp tstamp;
+  if ( reader_->checkEndOfFile() )
+    return false;
 
   std::auto_ptr<FEDRawDataCollection> bare_product(new  FEDRawDataCollection());
-  
-  if (remainingEvents_-- == 0 || !reader_->fillDaqEventData(id, *bare_product)   )
-    return result;
 
-  cout << " DAQEcalTBInputService::read run " << id.run() << " ev " << id.event() << endl;
+  FEDRawData& eventfeddata = (*bare_product).FEDData(reader_->getFedId());
+  eventfeddata.resize(reader_->getFedData().len);
+  copy(reader_->getFedData().fedData, reader_->getFedData().fedData + reader_->getFedData().len , eventfeddata.data());
 
-  result = auto_ptr<EventPrincipal>(new EventPrincipal(id, tstamp, *preg_));
-  
-  edm::Wrapper<FEDRawDataCollection> *wrapped_product = 
-    new edm::Wrapper<FEDRawDataCollection> (bare_product);
+  cout << " DAQEcalTBInputService::read run " << reader_->getRunNumber() << " ev " << reader_->getEventNumber()<< endl;
+  e.put(bare_product,"EcalDaqRawData");
 
-  auto_ptr<EDProduct>  prod(wrapped_product);
-  
-  auto_ptr<Provenance> prov(new Provenance(fedrawdataDescription_));
-  
-   
-  
-  result->put(prod, prov);
-
-
-  return result;
+  return true;
 }
 
 
