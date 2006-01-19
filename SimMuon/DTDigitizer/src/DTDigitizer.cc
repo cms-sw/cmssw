@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2005/12/06 15:32:07 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/01/17 13:39:15 $
+ *  $Revision: 1.6 $
  *  \authors: G. Bevilacqua, N. Amapane, G. Cerminara, R. Bellan
  */
 
@@ -35,6 +35,8 @@
 // SimHits
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
+#include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
+#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 
 // Digis
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
@@ -97,9 +99,17 @@ void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
   //************ 1 ***************
   
   // create the container for the SimHits
-  Handle<PSimHitContainer> simHits; 
-  iEvent.getByLabel("r","MuonDTHits",simHits);
-                    
+  //  Handle<PSimHitContainer> simHits; 
+  //  iEvent.getByLabel("r","MuonDTHits",simHits);
+    
+  // use MixCollection instead of the previous
+  Handle<CrossingFrame> xFrame;
+  iEvent.getByType(xFrame);
+  
+  auto_ptr<MixCollection<PSimHit> > 
+    simHits( new MixCollection<PSimHit>(xFrame.product(),"MuonDTHits",pair<int,int>(-1,2)));
+  //
+  
   // create the pointer to the Digi container
   auto_ptr<DTDigiCollection> output(new DTDigiCollection());
   
@@ -111,7 +121,7 @@ void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
   // These are sorted by DetId, i.e. by layer and then by wire #
   map<DTDetId, vector<const PSimHit*> > wireMap;     
   
-  for(vector<PSimHit>::const_iterator simHit = simHits->begin();
+  for(MixCollection<PSimHit>::MixItr simHit = simHits->begin();
        simHit != simHits->end(); simHit++){
     
     // Create the id of the wire, the simHits in the DT known also the wireId
