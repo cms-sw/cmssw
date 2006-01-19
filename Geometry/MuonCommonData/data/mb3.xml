@@ -2,10 +2,10 @@
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
 <ConstantsSection label="mb3.xml">
 <!--- #### MB3: Positions -->
-  <!--%% Radial coordinates fo algos-->
-  <Constant name="MB3UnitRadius" value="6190.682479*mm"/>
-  <Constant name="MB3PosAngle" value="2.040675884*deg"/>
-
+  <!--%% Radial coordinates fo algos--> 
+  <Constant name="MB3UnitRadius" value="6182.6939277*mm"/>
+  <Constant name="MB3PosAngle" value="2.046615755*deg"/>
+                                      
 <!--- #### MB3: Constants for DT superlayer Phi -->
   <Constant name="MB3SLPhiPl_x" value="3066./2*mm"/>
   <Constant name="MB3SLPhiL71" value="[mbCommon:MBCell_width]*71+[mbCommon:MBIbeamWall]"/> 

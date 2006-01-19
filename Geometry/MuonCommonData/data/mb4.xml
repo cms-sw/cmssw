@@ -1,24 +1,36 @@
 <?xml version="1.0"?>
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
 <ConstantsSection label="mb4.xml">
-<!--- ### first sector -->
-  <Constant name="MB4BigUnitRadius" value="7282.0942*mm"/>
-  <Constant name="MB4BigPosAngle" value="-7.48763*deg"/>
-  <Constant name="MB4BigPos_x" value="7220.*mm"/> 
-  <Constant name="MB4BigPos_y" value="-948.945*mm-[mbCommon:MBSL_posDisp]"/>  
 
-<!--- ### right chambers-->
-  <Constant name="MB4SmallPos_x" value="5820.25*mm"/>
-  <Constant name="MB4SmallPos_y" value="-4359.02*mm-[mbCommon:MBSL_posDisp]"/>
+<!--- ### Radius and angle always refer to (eventual) sector 1 --> 
 
-  <Constant name="MB4TopPos_x" value="1607.5*mm"/>
-  <Constant name="MB4TopPos_y" value="7220.*mm-[mbCommon:MBSL_posDisp]"/>
+<!--- ### The center of the HC is at 7220-[mbCommon:MBSL_posDisp] for all the MB4 (but the feet???) -->
+
+  <Constant name="MB4BigUnitRadius" value="7267.02187986935951*mm"/>
+  <Constant name="MB4BigPosAngle" value="-7.67032050510571217*deg"/>
+
+  <Constant name="MB4BigPos_x" value="7220.*mm-[mbCommon:MBSL_posDisp]"/> 
+  <Constant name="MB4BigPos_y" value="-969.95*mm"/>  
+
+  <Constant name="MB4SmallUnitRadius" value="7253.75964586641112*mm"/>
+  <Constant name="MB4SmallPosAngle" value="-6.84873371708398970*deg"/>
+
+  <Constant name="MB4SmallPos_x" value="5804.61495805552568*mm"/>
+  <Constant name="MB4SmallPos_y" value="-4350.11197427354182*mm"/>
+
 
   <Constant name="MB4FeetPos_x" value="3570.28*mm"/>
   <Constant name="MB4FeetPos_y" value="-6303.92*mm-[mbCommon:MBSL_posDisp]"/>
 
+
+<!-- ### Top (MB3) and Bottom (MB4) chamers --> 
+
+  <Constant name="MB4TopPos_x" value="1607.5*mm"/>
+  <Constant name="MB4TopPos_y" value="7220.*mm-[mbCommon:MBSL_posDisp]"/>
+
   <Constant name="MB4BottomPos_x" value="1367.7*mm"/>
   <Constant name="MB4BottomPos_y" value="-7220.*mm-[mbCommon:MBSL_posDisp]"/>   
+
 
 
 <!--- #### MB4: Constants for DT superlayer Phi -->
@@ -1290,43 +1302,43 @@
  <PosPart copyNumber="1">
    <rParent name="mb4:MB4TopP"/>
    <rChild name="mb3:MB3SuperLayerPhi"/>
-  <Translation x="0*fm" y="0*fm" z="[mbCommon:MBSL_pos_z]-[mbCommon:MBSL_posDisp]-[mbCommon:MBSL_posDisp]" />
+  <Translation x="0*fm" y="0*fm" z="[mbCommon:MBSL_pos_z]-[mbCommon:MBSL_posDisp]" />
  </PosPart>
  <PosPart copyNumber="3">
    <rParent name="mb4:MB4TopP"/>
    <rChild name="mb3:MB3SuperLayerPhi"/>
-  <Translation x="0*fm" y="0*fm" z="-[mbCommon:MBSL_pos_z]-[mbCommon:MBSL_posDisp]-[mbCommon:MBSL_posDisp]" />
+  <Translation x="0*fm" y="0*fm" z="-[mbCommon:MBSL_pos_z]-[mbCommon:MBSL_posDisp]" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb4:MB4TopN"/>
    <rChild name="mb3:MB3SuperLayerPhi"/>
-  <Translation x="0*fm" y="0*fm" z="[mbCommon:MBSL_pos_z]-[mbCommon:MBSL_posDisp]-[mbCommon:MBSL_posDisp]" />
+  <Translation x="0*fm" y="0*fm" z="[mbCommon:MBSL_pos_z]-[mbCommon:MBSL_posDisp]" />
  </PosPart>
  <PosPart copyNumber="3">
    <rParent name="mb4:MB4TopN"/>
    <rChild name="mb3:MB3SuperLayerPhi"/>
-  <Translation x="0*fm" y="0*fm" z="-[mbCommon:MBSL_pos_z]-[mbCommon:MBSL_posDisp]-[mbCommon:MBSL_posDisp]" />
+  <Translation x="0*fm" y="0*fm" z="-[mbCommon:MBSL_pos_z]-[mbCommon:MBSL_posDisp]" />
  </PosPart>
 
  <PosPart copyNumber="1">
    <rParent name="mb4:MB4FeetP"/>
    <rChild name="mb4:MB4FeetSuperLayerPhi"/>
-  <Translation x="0*fm" y="0*fm" z="[mbCommon:MBSL_pos_z]-[mbCommon:MBSL_posDisp]-[mbCommon:MBSL_posDisp]" />
+  <Translation x="0*fm" y="0*fm" z="[mbCommon:MBSL_pos_z]-[mbCommon:MBSL_posDisp]" />
  </PosPart>
  <PosPart copyNumber="3">
    <rParent name="mb4:MB4FeetP"/>
    <rChild name="mb4:MB4FeetSuperLayerPhi"/>
-  <Translation x="0*fm" y="0*fm" z="-[mbCommon:MBSL_pos_z]-[mbCommon:MBSL_posDisp]-[mbCommon:MBSL_posDisp]" />
+  <Translation x="0*fm" y="0*fm" z="-[mbCommon:MBSL_pos_z]-[mbCommon:MBSL_posDisp]" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb4:MB4FeetN"/>
    <rChild name="mb4:MB4FeetSuperLayerPhi"/>
-  <Translation x="0*fm" y="0*fm" z="[mbCommon:MBSL_pos_z]-[mbCommon:MBSL_posDisp]-[mbCommon:MBSL_posDisp]" />
+  <Translation x="0*fm" y="0*fm" z="[mbCommon:MBSL_pos_z]-[mbCommon:MBSL_posDisp]" />
  </PosPart>
  <PosPart copyNumber="3">
    <rParent name="mb4:MB4FeetN"/>
    <rChild name="mb4:MB4FeetSuperLayerPhi"/>
-  <Translation x="0*fm" y="0*fm" z="-[mbCommon:MBSL_pos_z]-[mbCommon:MBSL_posDisp]-[mbCommon:MBSL_posDisp]" />
+  <Translation x="0*fm" y="0*fm" z="-[mbCommon:MBSL_pos_z]-[mbCommon:MBSL_posDisp]" />
  </PosPart>
 
 <!-- ## MB4Big: DT Superlayers Phi internal -->
@@ -2789,10 +2801,12 @@
  <PosPart copyNumber="1">
    <rParent name="mb4:MB4BigChimN"/>
    <rChild name="mb4:MB4BigChimHoneycombBox"/>
+  <Translation x="0*fm" y="0*fm" z="-[mbCommon:MBSL_posDisp]" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb4:MB4TopChimP"/>
    <rChild name="mb4:MB4TopChimHoneycombBox"/>
+  <Translation x="0*fm" y="0*fm" z="-[mbCommon:MBSL_posDisp]" />
  </PosPart>
 
  <PosPart copyNumber="1">
