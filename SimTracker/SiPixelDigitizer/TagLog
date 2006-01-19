@@ -1,3 +1,6 @@
+** V00-01-04  [Thu Jan 19 21:51:23 2006]
+SiPixelDigitizer cleaned and added a digi.size control
+
 ** V00-01-03  [Tue Jan  3 16:35:13 2006]
 no more warnings and working test 
 
