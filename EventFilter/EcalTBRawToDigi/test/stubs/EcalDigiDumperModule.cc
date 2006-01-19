@@ -3,8 +3,8 @@
  * dummy module  for the test of  DaqFileInputService
  *   
  * 
- * $Date: 2005/11/01 22:22:59 $
- * $Revision: 1.3 $
+ * $Date: 2005/11/23 18:49:51 $
+ * $Revision: 1.4 $
  * \author N. Amapane - S. Argiro'
  * \author G. Franzoni
  *
@@ -25,10 +25,14 @@ using namespace std;
 class EcalDigiDumperModule: public edm::EDAnalyzer{
   
  public:
-  EcalDigiDumperModule(const edm::ParameterSet& ps){   }
+  EcalDigiDumperModule(const edm::ParameterSet& ps){  
+    verbosity= ps.getUntrackedParameter<int>("verbosity",1);
+  }
+
   
  protected:
-  
+  int verbosity;
+
   void analyze( const edm::Event & e, const  edm::EventSetup& c){
     
     // retrieving crystal data from Event
@@ -44,42 +48,49 @@ class EcalDigiDumperModule: public edm::EDAnalyzer{
     cout << "                                  [EcalDigiDumperModule]  dumping some crystals\n"  << endl;
     short dumpConter =0;      
 
-    for ( EBDigiCollection::const_iterator digiItr= digis->begin();digiItr != digis->end(); 
-	  ++digiItr ) {
-	
-      cout << "i-phi: " 
-	   << (*digiItr).id().iphi() << " j-eta: " 
-	   << (*digiItr).id().ieta()
-	   << "   ";
-      for ( int i=0; i< (*digiItr).size() ; ++i ) {
-	if (i==5)	  cout << "\n\t";
-	cout <<  (*digiItr).sample(i) << " ";	  
-      }       
-      cout << " " << endl;
-	
-      if( (dumpConter++) > 10) break;
-
-    }	
+    if (verbosity>0)
+      {
+	for ( EBDigiCollection::const_iterator digiItr= digis->begin();digiItr != digis->end(); 
+	      ++digiItr ) {
+	  
+	  {
+	    cout << "i-phi: " 
+		 << (*digiItr).id().iphi() << " j-eta: " 
+		 << (*digiItr).id().ieta()
+		 << "   ";
+	    for ( int i=0; i< (*digiItr).size() ; ++i ) {
+	      if (i==5)	  cout << "\n\t";
+	      cout <<  (*digiItr).sample(i) << " ";	  
+	    }       
+	    cout << " " << endl;
+	    
+	    if( (dumpConter++) > 10) break;
+	    
+	  } 
+	}
+      }
     
     
 
     cout << " \n^^^^^^^^^^^^^^^^^^ EcalDigiDumperModule  digi PN collection.  Size: " << PNs->size() << endl;
     cout << "                                  [EcalDigiDumperModule]  dumping PN 1 "  << endl;
-
-    for ( EcalPnDiodeDigiCollection::const_iterator pnItr = PNs->begin(); pnItr != PNs->end(); ++pnItr ) {
-	
-      cout << "PN num: " 
-	   << (*pnItr).id().iPnId() << "\n";
-	
-      if ((*pnItr).id().iPnId() == 1){
-	for ( int samId=0; samId < (*pnItr).size() ; samId++ ) {
-	  cout <<  "sId: " << samId << " "
-	       << (*pnItr).sample(samId) 
-	       << "\t";
-	}// end loop on PN samples
-      }// end loop on PNs
-	
-    }
+    if (verbosity>0)
+      {
+	for ( EcalPnDiodeDigiCollection::const_iterator pnItr = PNs->begin(); pnItr != PNs->end(); ++pnItr ) {
+	  
+	  cout << "PN num: " 
+	       << (*pnItr).id().iPnId() << "\n";
+	  
+	  if ((*pnItr).id().iPnId() == 1){
+	    for ( int samId=0; samId < (*pnItr).size() ; samId++ ) {
+	      cout <<  "sId: " << samId << " "
+		   << (*pnItr).sample(samId) 
+		   << "\t";
+	    }// end loop on PN samples
+	  }// end loop on PNs
+	  
+	}
+      }
     
     
   } // produce
