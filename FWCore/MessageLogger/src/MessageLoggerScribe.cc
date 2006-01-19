@@ -242,6 +242,8 @@ void
     ELdestControl dest_ctrl;
     dest_ctrl = admin_p->attach( ELstatistics(*os_p) );
     statisticsDestControls.push_back(dest_ctrl);
+    bool reset = stat_pset.getUntrackedParameter<bool>("reset",false);
+    statisticsResets.push_back(reset);
 
     // now configure this destination:
     configure_dest(dest_ctrl, filename);
@@ -415,9 +417,9 @@ void
 
 void
   MessageLoggerScribe::triggerStatisticsSummaries() {
-    typedef std::vector<ELdestControl>::iterator VDCit;
-    for ( VDCit it  = statisticsDestControls.begin(); 
-                it != statisticsDestControls.end(); ++it ) {
-      it->summary( );
+    assert (statisticsDestControls.size() == statisticsResets.size());
+    for (unsigned int i = 0; i != statisticsDestControls.size(); ++i) {
+      statisticsDestControls[i].summary( );
+      if (statisticsResets[i]) statisticsDestControls[i].wipe( );
     }
 }

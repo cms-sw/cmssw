@@ -371,7 +371,8 @@ void  ELstatistics::summary( std::ostream & os, const ELstring & title )  {
 
 void  ELstatistics::summary( )  {
 
-  termStream << "MessageLogger Summary" << std::endl << formSummary(stats) 
+  termStream << "\n=============================================\n\n"
+  	     << "MessageLogger Summary" << std::endl << formSummary(stats) 
              << std::flush;
   updatedStats = false;
 

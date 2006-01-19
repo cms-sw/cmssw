@@ -8,7 +8,7 @@
 //
 // Original Author:  W. Brown, M. Fischler
 //         Created:  Fri Nov 11 16:42:39 CST 2005
-// $Id: MessageLogger.cc,v 1.9 2006/01/12 23:05:30 fischler Exp $
+// $Id: MessageLogger.cc,v 1.10 2006/01/18 00:36:09 fischler Exp $
 //
 
 // system include files
@@ -99,6 +99,15 @@ MessageLogger::MessageLogger( ParameterSet const & iPS
 //
 //   return *this;
 // }
+
+//
+// free funtions
+//
+
+void edm::LogStatistics() {
+  edm::MessageLoggerQ::SUM ( ); // trigger summary info.
+}
+
 
 //
 // member functions

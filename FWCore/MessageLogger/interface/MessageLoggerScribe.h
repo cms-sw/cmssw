@@ -59,6 +59,7 @@ private:
   std::vector<NamedDestination *> extern_dests;
   std::map<String,std::ostream *> stream_ps;
   std::vector<ELdestControl>      statisticsDestControls;
+  std::vector<bool>               statisticsResets;
   
 };  // MessageLoggerScribe
 

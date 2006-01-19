@@ -17,7 +17,7 @@
 //
 // Original Author:  W. Brown and M. Fischler
 //         Created:  Fri Nov 11 16:38:19 CST 2005
-// $Id: MessageLogger.h,v 1.4 2006/01/05 23:11:14 fischler Exp $
+// $Id: MessageLogger.h,v 1.5 2006/01/09 18:09:06 fischler Exp $
 //
 
 // system include files
@@ -136,6 +136,8 @@ onlyLowestDirectory(const std::string & file) {
   if (lastSlash == file.size()-1)     return file;
   return file.substr(lastSlash+1, file.size()-lastSlash-1);
 }
+
+void LogStatistics(); 
 
 class LogDebug_
 {
