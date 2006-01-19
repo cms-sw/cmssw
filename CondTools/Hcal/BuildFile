@@ -1,15 +1,21 @@
+<use name=boost>
+<use name=otl>
+<use name=oracle>
 <use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
-<use name=CondCore/PluginSystem>
+<use name=DataFormats/HcalDetId>
 <use name=CondFormats/HcalObjects>
-<use name=CondFormats/DataRecord>
-
-<flags SEAL_PLUGIN_NAME="CondToolsHcal">
+<use name=CondCore/MetaDataService>
+<use name=RelationalAccess>
+<use name=DataSvc> 
 <export>
-   <lib name=CondToolsHcal>
-   <use name=FWCore/Framework>
-   <use name=Foundation/PluginManager>
-   <use name=CondCore/PluginSystem>
-   <use name=CondFormats/HcalObjects>
-   <use name=CondFormats/DataRecord>
+  <lib name=CondToolsHcal>
+  <use name=boost>
+  <use name=oracle>
+  <use name=FWCore/Framework>
+  <use name=Foundation/PluginManager>
+  <use name=DataFormats/HcalDetId>
+  <use name=CondFormats/HcalObjects>
+  <use name=CondCore/MetaDataService>
+  <use name=RelationalAccess>
+  <use name=DataSvc> 
 </export>
