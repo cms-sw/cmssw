@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbXml.cc,v 1.1 2005/11/02 21:31:24 fedor Exp $
+// $Id: HcalDbXml.cc,v 1.2 2005/12/15 23:37:58 fedor Exp $
 //
 #include <vector>
 #include <string>
@@ -78,6 +78,19 @@ namespace {
 }
 
 
+bool HcalDbXml::dumpObject (std::ostream& fOutput, unsigned fRun, const std::string& fTag, const HcalPedestals& fObject) {
+  float dummyErrors [4] = {0.0001, 0.0001, 0.0001, 0.0001};
+  std::cout << "HcalDbXml::dumpObject-> set default errors: 0.0001, 0.0001, 0.0001, 0.0001" << std::endl;
+  HcalPedestalWidths widths;
+  std::vector<HcalDetId> channels = fObject.getAllChannels ();
+  for (std::vector<HcalDetId>::iterator channel = channels.begin ();
+       channel !=  channels.end ();
+       channel++) {
+    widths.addValue (*channel, dummyErrors);
+  }
+  return dumpObject (fOutput, fRun, fTag, fObject, widths);
+}
+
 bool HcalDbXml::dumpObject (std::ostream& fOutput, unsigned fRun, const std::string& fTag, const HcalPedestals& fObject, const HcalPedestalWidths& fError) {
   float dummyErrors [4] = {0.0001, 0.0001, 0.0001, 0.0001};
 
@@ -105,6 +118,19 @@ bool HcalDbXml::dumpObject (std::ostream& fOutput, unsigned fRun, const std::str
   }
   dumpFooter (fOutput);
   return true;
+}
+
+bool HcalDbXml::dumpObject (std::ostream& fOutput, unsigned fRun, const std::string& fTag, const HcalGains& fObject) {
+  float dummyErrors [4] = {0.0001, 0.0001, 0.0001, 0.0001};
+  std::cout << "HcalDbXml::dumpObject-> set default errors: 0.0001, 0.0001, 0.0001, 0.0001" << std::endl;
+  HcalGainWidths widths;
+  std::vector<HcalDetId> channels = fObject.getAllChannels ();
+  for (std::vector<HcalDetId>::iterator channel = channels.begin ();
+       channel !=  channels.end ();
+       channel++) {
+    widths.addValue (*channel, dummyErrors);
+  }
+  return dumpObject (fOutput, fRun, fTag, fObject, widths);
 }
 
 bool HcalDbXml::dumpObject (std::ostream& fOutput, unsigned fRun, const std::string& fTag, const HcalGains& fObject, const HcalGainWidths& fError) {

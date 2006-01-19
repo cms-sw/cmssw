@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.3 2005/12/15 23:37:58 fedor Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.4 2005/12/29 23:46:27 fedor Exp $
 //
 #include <vector>
 #include <string>
@@ -55,6 +55,7 @@ void dumpId (std::ostream& fOutput, HcalDetId id) {
 
 template <class T> 
 bool getHcalObject (std::istream& fInput, T* fObject) {
+  if (!fObject) fObject = new T;
   char buffer [1024];
   while (fInput.getline(buffer, 1024)) {
     if (buffer [0] == '#') continue; //ignore comment

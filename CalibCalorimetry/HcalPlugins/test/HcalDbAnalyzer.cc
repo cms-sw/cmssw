@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 19:13:25 EDT 2005
-// $Id: HcalDbAnalyzer.cc,v 1.8 2005/12/27 23:50:25 fedor Exp $
+// $Id: HcalDbAnalyzer.cc,v 1.9 2006/01/10 19:29:40 fedor Exp $
 //
 //
 
@@ -132,7 +132,14 @@ HcalDbAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
     double q1 = coder->charge (*shape, i, 1);
     double q2 = coder->charge (*shape, i, 2);
     double q3 = coder->charge (*shape, i, 3);
+
+    unsigned adc0 = coder->adc (*shape, q0, 0);
+    unsigned adc1 = coder->adc (*shape, q1, 0);
+    unsigned adc2 = coder->adc (*shape, q2, 0);
+    unsigned adc3 = coder->adc (*shape, q3, 0);
+
     std::cout << " ADC: " << i << " q1:" << q0 << " q2:" << q1 << " q3:" << q2 << " q4:" << q3 << std::endl;
+    std::cout << " reverse ADC: " << i << " q1:" << adc0 << " q2:" << adc1 << " q3:" << adc2 << " q4:" << adc3 << std::endl;
   }
   
   // dump mapping
