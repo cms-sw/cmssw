@@ -1,3 +1,6 @@
+** V00-00-02  [Thu Jan 19 20:45:54 2006]
+V00-00-02 did work against what's in Geometry/CSCSimAlgos after all
+
 ** V00-00-03  [Wed Jan 18 19:25:20 2006]
 Really roll back this time.  Previous tag didn't catch
 
