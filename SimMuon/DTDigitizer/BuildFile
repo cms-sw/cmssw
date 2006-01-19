@@ -3,6 +3,7 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/EDProduct>
 <use name=SimDataFormats/TrackingHit>
+<use name=SimDataFormats/CrossingFrame>
 <use name=DataFormats/DTDigi>
 <use name=Geometry/CommonTopologies>
 <use name=Geometry/Records>
