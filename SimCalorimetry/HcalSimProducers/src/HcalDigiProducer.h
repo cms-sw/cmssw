@@ -12,8 +12,11 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalShape.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HFShape.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalElectronicsSim.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HBHEHitFilter.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HFHitFilter.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HOHitFilter.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloHitResponse.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HcalNoisifier.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalAmplifier.h"
 
 
 using namespace cms;
@@ -55,11 +58,16 @@ private:
 
 
 
-  CaloHitResponse * theHcalResponse;
+  CaloHitResponse * theHBHEResponse;
+  CaloHitResponse * theHOResponse;
   CaloHitResponse * theHFResponse;
 
-  HcalNoisifier * theNoisifier;
+  HcalAmplifier * theAmplifier;
   HcalElectronicsSim * theElectronicsSim;
+
+  HBHEHitFilter theHBHEHitFilter;
+  HFHitFilter   theHFHitFilter;
+  HOHitFilter   theHOHitFilter;
 
   std::vector<PCaloHit> theHBHEHits, theHOHits, theHFHits;
 };

@@ -11,6 +11,9 @@ using namespace std;
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
+#include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
+#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
+
 
 
 HcalDigiProducer::HcalDigiProducer(const edm::ParameterSet& ps) {
@@ -27,15 +30,20 @@ HcalDigiProducer::HcalDigiProducer(const edm::ParameterSet& ps) {
 
 
 
-  theHcalResponse = new CaloHitResponse(theParameterMap, theHcalIntegratedShape);
+  theHBHEResponse = new CaloHitResponse(theParameterMap, theHcalIntegratedShape);
+  theHOResponse = new CaloHitResponse(theParameterMap, theHcalIntegratedShape);
   theHFResponse = new CaloHitResponse(theParameterMap, theHFIntegratedShape);
 
+  theHBHEResponse->setHitFilter(&theHBHEHitFilter);
+  theHOResponse->setHitFilter(&theHOHitFilter);
+  theHFResponse->setHitFilter(&theHFHitFilter);
 
-  theNoisifier = new HcalNoisifier();
-  theElectronicsSim = new HcalElectronicsSim(theNoisifier);
+  bool doNoise = ps.getUntrackedParameter<bool>("HcalDigiProducer:doNoise", true);
+  theAmplifier = new HcalAmplifier(doNoise);
+  theElectronicsSim = new HcalElectronicsSim(theAmplifier, HcalElectronicsSim::DB);
 
-  theHBHEDigitizer = new HBHEDigitizer(theHcalResponse, theElectronicsSim);
-  theHODigitizer = new HODigitizer(theHcalResponse, theElectronicsSim);
+  theHBHEDigitizer = new HBHEDigitizer(theHBHEResponse, theElectronicsSim);
+  theHODigitizer = new HODigitizer(theHOResponse, theElectronicsSim);
   theHFDigitizer = new HFDigitizer(theHFResponse, theElectronicsSim);
 
 }
@@ -47,10 +55,11 @@ HcalDigiProducer::~HcalDigiProducer() {
   delete theHFShape;
   delete theHcalIntegratedShape;
   delete theHFIntegratedShape;
-  delete theHcalResponse;
+  delete theHBHEResponse;
+  delete theHOResponse;
   delete theHFResponse;
   delete theElectronicsSim;
-  delete theNoisifier;
+  delete theAmplifier;
 }
 
 
@@ -70,10 +79,20 @@ void HcalDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   theHOHits.clear();
   theHFHits.clear();
   // Step A: Get Inputs
-
   edm::Handle<edm::PCaloHitContainer> hcalHits;
   e.getByLabel("r", "HcalHits", hcalHits);
   sortHits(*hcalHits);
+
+  // Get input
+  edm::Handle<CrossingFrame> cf;
+  e.getByType(cf);
+
+  // test access to SimHits
+  const std::string subdet("HcalHits");
+  std::cout<<"\n=================== Starting SimHit access, subdet "<<subdet<<"  ==================="<<std::endl;
+  std::auto_ptr<MixCollection<PCaloHit> > col(new MixCollection<PCaloHit>(cf.product(), subdet,std::pair<int,int>(-1,2)));
+  std::cout<<*(col.get())<<std::endl;
+
   //fillFakeHits();
 
 
@@ -83,15 +102,15 @@ void HcalDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   std::auto_ptr<HODigiCollection> hoResult(new HODigiCollection());
   std::auto_ptr<HFDigiCollection> hfResult(new HFDigiCollection());
 
-  edm::LogInfo("HcalDigiProducer") << "HCAL HBHE hits : " << theHBHEHits.size();
-  edm::LogInfo("HcalDigiProducer") << "HCAL HO hits   : " << theHOHits.size();
-  edm::LogInfo("HcalDigiProducer") << "HCAL HF hits   : " << theHFHits.size();
+//  edm::LogInfo("HcalDigiProducer") << "HCAL HBHE hits : " << theHBHEHits.size();
+//  edm::LogInfo("HcalDigiProducer") << "HCAL HO hits   : " << theHOHits.size();
+//  edm::LogInfo("HcalDigiProducer") << "HCAL HF hits   : " << theHFHits.size();
 
 
   // Step C: Invoke the algorithm, passing in inputs and getting back outputs.
-  theHBHEDigitizer->run(theHBHEHits, *hbheResult);
-  theHODigitizer->run(theHOHits, *hoResult);
-  theHFDigitizer->run(theHFHits, *hfResult);
+  theHBHEDigitizer->run(*col, *hbheResult);
+  theHODigitizer->run(*col, *hoResult);
+  theHFDigitizer->run(*col, *hfResult);
 
   edm::LogInfo("HcalDigiProducer") << "HCAL HBHE digis : " << hbheResult->size();
   edm::LogInfo("HcalDigiProducer") << "HCAL HO digis   : " << hoResult->size();
@@ -155,7 +174,8 @@ void HcalDigiProducer::checkGeometry(const edm::EventSetup & eventSetup) {
   edm::ESHandle<CaloGeometry> geometry;
   eventSetup.get<IdealGeometryRecord>().get(geometry);
 
-  theHcalResponse->setGeometry(&*geometry);
+  theHBHEResponse->setGeometry(&*geometry);
+  theHOResponse->setGeometry(&*geometry);
   theHFResponse->setGeometry(&*geometry);
 
   vector<DetId> hbCells =  geometry->getValidDetIds(DetId::Hcal, HcalBarrel);
