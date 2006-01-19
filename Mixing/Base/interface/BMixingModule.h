@@ -26,6 +26,7 @@
 namespace edm {
   class BMixingModule : public edm::EDProducer {
     public:
+      typedef PileUp::EventPrincipalVector EventPrincipalVector;
 
       /** standard constructor*/
       explicit BMixingModule(const edm::ParameterSet& ps);
@@ -42,7 +43,7 @@ namespace edm {
       bool poisson() const {return input_.poisson();}
 
       virtual void createnewEDProduct() {std::cout << "BMixingModule::createnewEDProduct must be overwritten!" << std::endl;}
-      void merge(const int bcr, const std::vector<Event *> vec);
+      void merge(const int bcr, const EventPrincipalVector& vec);
       virtual void addSignals(const edm::Event &e) {;}
       virtual void addPileups(const int bcr, edm::Event*) {;}
       virtual void put(edm::Event &e) {;}
@@ -52,7 +53,9 @@ namespace edm {
       static int trackoffset;
       static int vertexoffset;
 
+    private:
       PileUp input_;
+      ModuleDescription md_;
     };
 }//edm
 

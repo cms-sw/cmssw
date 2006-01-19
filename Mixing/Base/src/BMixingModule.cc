@@ -18,8 +18,17 @@ namespace edm {
 
   // Constructor 
   BMixingModule::BMixingModule(const edm::ParameterSet& pset) :
-      input_(pset.getParameter<ParameterSet>("input")) {
-    bunchSpace_ = pset.getParameter<int>("bunchspace");
+      bunchSpace_(pset.getParameter<int>("bunchspace")),
+      input_(pset.getParameter<ParameterSet>("input")),
+      md_() {
+    md_.pid = pset.id();
+    md_.moduleName_ = pset.getUntrackedParameter<std::string>("@module_type");
+    md_.moduleLabel_ = pset.getUntrackedParameter<std::string>("@module_label");
+//#warning process name is hard coded, for now.  Fix this.
+    md_.processName_ = "PILEUP";
+//#warning version and pass are hardcoded
+    md_.versionNumber_ = 1;
+    md_.pass = 1;
   }
 
   // Virtual destructor needed.
@@ -36,13 +45,13 @@ namespace edm {
     addSignals(e);
 
     // Read the PileUp
-    typedef std::vector<std::vector<Event *> > Events;
-    Events pileup;
+    std::vector<EventPrincipalVector> pileup;
     input_.readPileUp(pileup);
 
     // Do the merging
     int bunchCrossing = input_.minBunch();
-    for (Events::const_iterator it = pileup.begin(); it != pileup.end(); ++it, ++bunchCrossing) {
+    for (std::vector<EventPrincipalVector>::const_iterator it = pileup.begin();
+        it != pileup.end(); ++it, ++bunchCrossing) {
       merge(bunchCrossing, *it);
     }
 
@@ -51,20 +60,17 @@ namespace edm {
 
   }
 
-  void BMixingModule::merge(const int bcr, const std::vector<Event *> vec) {
+  void BMixingModule::merge(const int bcr, const EventPrincipalVector& vec) {
     //
     // main loop: loop over events and merge 
     //
     //    cout <<endl<<" For bunchcrossing "<<bcr<<",  "<<vec.size()<< " events will be merged"<<flush<<endl;
     trackoffset=0;
     vertexoffset=0;
-    for (std::vector<Event *>::const_iterator it =vec.begin(); it != vec.end(); it++) {
-      //      cout <<" merging Event:  id "<<(*it)->id()<<flush<<endl;
-      addPileups(bcr,(*it));
-
-      // delete the event
-      delete (*it);
-
+    for (EventPrincipalVector::const_iterator it = vec.begin(); it != vec.end(); ++it) {
+      Event e(**it, md_);
+      // cout <<" merging Event:  id " << e.id() << flush << endl;
+      addPileups(bcr, &e);
     }// end main loop
   }
 
