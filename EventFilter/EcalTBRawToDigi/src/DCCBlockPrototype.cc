@@ -130,7 +130,7 @@ void DCCBlockPrototype::displayData(  ostream & os  ){
 
 
 	set<DCCDataField *,DCCDataFieldComparator>::iterator it;
-	map<string,ulong>::iterator mapIt;
+	//map<string,ulong>::iterator mapIt;
 	bool process(true);
 	os<<"\n ======================================================================\n"; 
 	os<<" Block name : "<<name_<<", size : "<<dec<<blockSize_<<" bytes, event WOffset : "<<wordEventOffset_;

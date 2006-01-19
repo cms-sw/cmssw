@@ -5,11 +5,11 @@
 #define DCCDATAPARSER_HH
 
 
-#include <fstream.h>
-#include <iostream.h>
+#include <fstream>
+#include <iostream>
 #include <string>
 #include <vector>
-#include <stdio.h>
+#include <cstdio>
 #include <map>
 
 using namespace std;

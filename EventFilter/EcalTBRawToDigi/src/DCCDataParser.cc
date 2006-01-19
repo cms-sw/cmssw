@@ -88,7 +88,7 @@ void DCCDataParser::parseFile(string fileName, bool singleEvent ){
 
 		//fill buffer data with data from file lines ///////////////////////////////
 		for(ulong i = 1; i <= dataVector.size() ; i++, myData_++ ){
-			sscanf( (dataVector[i-1]).c_str(),"%x",myData_);
+			sscanf( (dataVector[i-1]).c_str(),"%lx",myData_);
 			//cout<<"\n data position"<<dec<<i<<" val = "<<getHexString(*myData_);
 		}
 		///////////////////////////////////////////////////////////////////////////
@@ -156,7 +156,8 @@ void DCCDataParser::parseBuffer(ulong * buffer, ulong bufferSize, bool singleEve
 	
 	ulong * myPointer =  buffer_;
 	
-	ulong processedBytes(0), wordIndex(0), lastEvIndex(0),eventSize(0), eventLength(0), errorMask(0) ;
+	//ulong processedBytes(0), wordIndex(0), lastEvIndex(0),eventSize(0), eventLength(0), errorMask(0) ;
+	ulong processedBytes(0), wordIndex(0), eventLength(0), errorMask(0) ;
 	
 	
 	while( processedBytes + EMPTYEVENTSIZE <= bufferSize ){
@@ -285,7 +286,7 @@ pair<ulong,ulong> DCCDataParser::checkEventLength(ulong * pointerToEvent, ulong 
 string DCCDataParser::index(ulong position){
 	
 	char indexBuffer[20];
-	sprintf(indexBuffer,"W[%08u]",position);
+	sprintf(indexBuffer,"W[%08lu]",position);
 	return string(indexBuffer);	
 	
 }
@@ -294,14 +295,14 @@ string DCCDataParser::index(ulong position){
 string DCCDataParser::getDecString(ulong data){
 	
 	char buffer[10];
-	sprintf(buffer,"%u",data);
+	sprintf(buffer,"%lu",data);
 	return string(buffer);	
 }
 
 string DCCDataParser::getHexString(ulong data){
 	
 	char buffer[10];
-	sprintf(buffer,"0x%08x",data);
+	sprintf(buffer,"0x%08lx",data);
 	return string(buffer);	
 }
 
@@ -313,8 +314,8 @@ string DCCDataParser::getIndexedData( ulong index, ulong * pointer){
 	char indexBuffer[20];
 	char dataBuffer[20];
 	
-	sprintf(indexBuffer,"W[%08u] = ",index);
-	sprintf(dataBuffer,"0x%08x",*pointer);
+	sprintf(indexBuffer,"W[%08lu] = ",index);
+	sprintf(dataBuffer,"0x%08lx",*pointer);
 	
 	ret = string(indexBuffer)+string(dataBuffer);
 	

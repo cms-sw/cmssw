@@ -1,7 +1,7 @@
 /* \file EcalDCCUnpackingModule.h
  *
- *  $Date: 2005/12/21 16:00:52 $
- *  $Revision: 1.19 $
+ *  $Date: 2005/12/26 18:36:31 $
+ *  $Revision: 1.20 $
  *  \author N. Marinelli
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -92,7 +92,7 @@ void EcalDCCUnpackingModule::produce(edm::Event & e, const edm::EventSetup& c){
 
   try {
 
-  for (unsigned int id= 0; id<=FEDNumbering::lastFEDId(); ++id){ 
+  for (int id= 0; id<=FEDNumbering::lastFEDId(); ++id){ 
 
     //     cout << "EcalDCCUnpackingModule::Got FED ID "<< id <<" ";
     const FEDRawData& data = rawdata->FEDData(id);

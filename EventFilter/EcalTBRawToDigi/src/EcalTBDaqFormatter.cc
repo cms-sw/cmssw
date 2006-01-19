@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2005/12/13 16:32:21 $
- *  $Revision: 1.13 $
+ *  $Date: 2005/12/21 16:01:51 $
+ *  $Revision: 1.15 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -55,13 +55,13 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData , EBDigiCol
   const unsigned char * pData = fedData.data();
   int length = fedData.size();
   bool shit=true;
-  int tower=0;
+  unsigned int tower=0;
   int ch=0;
   int strip=0;
 
   cout << " [EcalTBDaqFormatter][interpretRawData] size " << length << endl;
   
-  theParser_->parseBuffer( reinterpret_cast<ulong*>(pData), static_cast<ulong>(length), shit );
+  theParser_->parseBuffer( reinterpret_cast<ulong*>(const_cast<unsigned char*>(pData)), static_cast<ulong>(length), shit );
   
 
   vector< DCCEventBlock * > &   dccEventBlocks = theParser_->dccEvents();
@@ -266,7 +266,7 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData , EBDigiCol
 
           vector <int> xtalGain;
       
-          for (short i=0; i<xtalDataSamples.size(); ++i ) {
+          for (unsigned short i=0; i<xtalDataSamples.size(); ++i ) {
             theFrame.setSample (i, xtalDataSamples[i] );
             if((xtalDataSamples[i] & gain_mask) == 0)
               {gainIsOk =false;}
@@ -288,7 +288,7 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData , EBDigiCol
           short firstGainWrong=-1;
           short numGainWrong=0;
 
-          for (short i=0; i<xtalGain.size(); i++ ) {
+          for (unsigned short i=0; i<xtalGain.size(); i++ ) {
 
             if (i>0 && xtalGain[i-1]>xtalGain[i]) {
               numGainWrong++;
@@ -307,7 +307,7 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData , EBDigiCol
             short gainWrong = xtalGain[firstGainWrong];
     
             // does wrong gain stay the same after the forbidden transition?
-            for (short u=firstGainWrong+1; u<xtalGain.size(); u++){
+            for (unsigned short u=firstGainWrong+1; u<xtalGain.size(); u++){
 
               if( gainWrong == xtalGain[u]) 
                 wrongGainStaysTheSame=true; 
@@ -329,7 +329,7 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData , EBDigiCol
             else if (numGainWrong>1) {
               cout << "[EcalTBDaqFormatter][channelHasGainSwitchProblem] more than 1 wrong transition" << endl;
               
-              for (short i1=0; i1<xtalDataSamples.size(); ++i1 ) {
+              for (unsigned short i1=0; i1<xtalDataSamples.size(); ++i1 ) {
                 int countADC = 0x00000FFF;
                 countADC &= xtalDataSamples[i1];
                 cout << "Sample " << i1 << " ADC " << countADC << " Gain " << xtalGain[i1] << endl;

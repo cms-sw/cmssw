@@ -111,7 +111,7 @@ vector<int> DCCXtalBlock::xtalDataSamples() {
   vector<int> data;
 
 
-  for(int i=1;i <= parser_->numbXtalSamples();i++){
+  for(unsigned int i=1;i <= parser_->numbXtalSamples();i++){
     string name = string("ADC#") + parser_->getDecString(i);
     
     data.push_back ( getDataField( name )  );

@@ -80,7 +80,7 @@ DCCBlockPrototype(parser,"DCCHEADER", buffer, numbBytes,wordsToEnd)
 
 			// Build TCC blocks ////////////////////////////////////////////////////////////////////////////////////////
 			for(ulong i=1; i<=4;i++){
-				ulong tcc_ch, tccId ;
+				ulong tcc_ch, tccId(0);
 				if( i == 1){ tccId = parser_->tcc1Id();}
 				if( i == 2){ tccId = parser_->tcc2Id();}
 				if( i == 3){ tccId = parser_->tcc3Id();}	
@@ -122,7 +122,8 @@ DCCBlockPrototype(parser,"DCCHEADER", buffer, numbBytes,wordsToEnd)
 			
 			
 			
-			ulong chStatus, srFlag;
+			//ulong chStatus, srFlag;
+			ulong srFlag;
 			bool suppress(false);
 			
 			for( ulong i=1; i<=numbChannels; i++){
@@ -174,7 +175,7 @@ DCCBlockPrototype(parser,"DCCHEADER", buffer, numbBytes,wordsToEnd)
 	
 	}catch( ECALParserException & e){}
 	catch( ECALParserBlockException & e){
-		ulong nEv = (parser_->dccEvents()).size() +1;
+	        //ulong nEv = (parser_->dccEvents()).size() +1;
 		errorString_ += string(e.what());
 		blockError_=true;
 		//cout<<"cout"<<e.what();
