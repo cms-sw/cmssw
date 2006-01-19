@@ -1,7 +1,7 @@
 /* \file EcalDCCUnpackingModule.h
  *
- *  $Date: 2005/12/26 18:36:31 $
- *  $Revision: 1.20 $
+ *  $Date: 2006/01/19 12:49:14 $
+ *  $Revision: 1.21 $
  *  \author N. Marinelli
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -61,7 +61,7 @@ void EcalDCCUnpackingModule::endJob(){
 void EcalDCCUnpackingModule::produce(edm::Event & e, const edm::EventSetup& c){
 
   Handle<FEDRawDataCollection> rawdata;
-  e.getByLabel("EcalDaqRawData", rawdata);
+  e.getByType(rawdata);
   
   // create the collection of Ecal Digis
   auto_ptr<EBDigiCollection> productEb(new EBDigiCollection);

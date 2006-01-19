@@ -2,13 +2,15 @@ process TEST = {
 
      module ecalEBunpacker = EcalDCCUnpackingModule{ }
 
-     module digi = EcalDigiDumperModule{ }
+     module digi = EcalDigiDumperModule{
+	 untracked int32 verbosity = 0
+      }
      
      path p = {ecalEBunpacker, digi}
 
      source = DAQEcalTBInputService{
-               untracked string fileName = 'new_dcc_format.raw'
-               untracked int32 maxEvents = 6
+               untracked vstring fileNames = { '/data/meridian/data/h4/H4-000006709-SM5-LASER-STD' }
+	       untracked int32 maxEvents = -1
                untracked bool isBinary = false
     }
 
