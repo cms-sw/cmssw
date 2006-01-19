@@ -6,23 +6,20 @@
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
-#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 
 #include <map>
 #include <vector>
 class CaloGeometry;
 class CaloSamples;
 
+namespace cms {
+
+class HcalCoderFactory;
+
 class HcalTriggerPrimitiveAlgo {
 public:
-  HcalTriggerPrimitiveAlgo();
+  HcalTriggerPrimitiveAlgo(const HcalCoderFactory * coderFactory);
   ~HcalTriggerPrimitiveAlgo();
-
-    /// the Producer will probably update this every event
-  void setDbService(const HcalDbService * service) {
-    theDbService = service;
-  }
-
 
   void run(const HBHEDigiCollection & hbheDigis,
            const HFDigiCollection & hfDigis,
@@ -45,7 +42,7 @@ private:
 
   HcalTrigTowerGeometry theTrigTowerGeometry;
 
-  const HcalDbService * theDbService;
+  const HcalCoderFactory * theCoderFactory;
   // counts from 1
   double theSinThetaTable[33];
 
@@ -56,6 +53,8 @@ private:
   double theHBHECalibrationConstant;
   double theHFCalibrationConstant;
 };
+
+}
 
 #endif
 
