@@ -1,3 +1,6 @@
+** V01-06-02  [Thu Jan 19 20:09:07 2006]
+Use shared pointers, not bare pointers, in VectorInputSources
+
 ** V01-06-01  [Wed Jan 18 01:39:59 2006]
 Improved support of input sources
 
