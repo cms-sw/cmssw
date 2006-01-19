@@ -1,6 +1,6 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalTriggerPrimitiveAlgo.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSimParameterMap.h"
-#include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalCoderFactory.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
@@ -9,8 +9,9 @@ using namespace cms;
 
 inline double theta_from_eta(double eta){return (2.0*atan(exp(-eta)));}
 
-HcalTriggerPrimitiveAlgo::HcalTriggerPrimitiveAlgo()
-: theThreshold(0.5)
+HcalTriggerPrimitiveAlgo::HcalTriggerPrimitiveAlgo(const HcalCoderFactory * coderFactory)
+: theCoderFactory(coderFactory),
+  theThreshold(0.5)
 {
   // set up the table of sin(theta) for fast ET calculations
   int nTowers = theTrigTowerGeometry.nTowers();
@@ -68,16 +69,10 @@ void HcalTriggerPrimitiveAlgo::run(const HBHEDigiCollection & hbheDigis,
 
 void HcalTriggerPrimitiveAlgo::addSignal(const HBHEDataFrame & frame) {
 
-  // get the calibration service
-  assert(theDbService != 0);
-  const HcalQIECoder * qieCoder = theDbService->getHcalCoder( HcalDetId(frame.id()) );
-  const HcalQIEShape * qieShape = theDbService->getHcalShape();
-  HcalCoderDb coder(*qieCoder, *qieShape);
-
   std::vector<HcalTrigTowerDetId> ids = theTrigTowerGeometry.towerIds(frame.id());
   assert(ids.size() == 1 || ids.size() == 2);
   CaloSamples samples1(ids[0], frame.size());
-  coder.adc2fC(frame, samples1);
+  theCoderFactory->coder(frame.id())->adc2fC(frame, samples1);
   transverseComponent(samples1, ids[0]);
 
 
@@ -96,18 +91,12 @@ void HcalTriggerPrimitiveAlgo::addSignal(const HBHEDataFrame & frame) {
 
 void HcalTriggerPrimitiveAlgo::addSignal(const HFDataFrame & frame) {
 
-  // get the calibration service
-  assert(theDbService != 0);
-  const HcalQIECoder * qieCoder = theDbService->getHcalCoder( HcalDetId(frame.id()) );
-  const HcalQIEShape * qieShape = theDbService->getHcalShape();
-  HcalCoderDb coder(*qieCoder, *qieShape);
-
   // HF short fibers off
   if(frame.id().depth() == 1) {
     std::vector<HcalTrigTowerDetId> ids = theTrigTowerGeometry.towerIds(frame.id());
     assert(ids.size() == 1);
     CaloSamples samples(ids[0], frame.size());
-    coder.adc2fC(frame, samples);
+    theCoderFactory->coder(frame.id())->adc2fC(frame, samples);
     transverseComponent(samples, ids[0]);
     addSignal(samples);
   }
@@ -172,5 +161,4 @@ void HcalTriggerPrimitiveAlgo::analyze(const CaloSamples & samples,
     }
   }
 }
-
 
