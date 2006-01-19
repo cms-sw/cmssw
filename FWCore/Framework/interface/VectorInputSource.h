@@ -4,8 +4,8 @@
 
 /*----------------------------------------------------------------------
   
-VectorInputSource: Abstract interface for secondary input sources.
-$Id: VectorInputSource.h,v 1.1 2006/01/07 20:41:11 wmtan Exp $
+VectorInputSource: Abstract interface for vector input sources.
+$Id: VectorInputSource.h,v 1.2 2006/01/18 23:26:22 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
