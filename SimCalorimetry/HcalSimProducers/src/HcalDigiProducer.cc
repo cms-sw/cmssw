@@ -40,7 +40,8 @@ HcalDigiProducer::HcalDigiProducer(const edm::ParameterSet& ps) {
 
   bool doNoise = ps.getUntrackedParameter<bool>("HcalDigiProducer:doNoise", true);
   theAmplifier = new HcalAmplifier(doNoise);
-  theElectronicsSim = new HcalElectronicsSim(theAmplifier, HcalElectronicsSim::DB);
+  theCoderFactory = new HcalCoderFactory(HcalCoderFactory::DB);
+  theElectronicsSim = new HcalElectronicsSim(theAmplifier, theCoderFactory);
 
   theHBHEDigitizer = new HBHEDigitizer(theHBHEResponse, theElectronicsSim);
   theHODigitizer = new HODigitizer(theHOResponse, theElectronicsSim);
@@ -60,6 +61,7 @@ HcalDigiProducer::~HcalDigiProducer() {
   delete theHFResponse;
   delete theElectronicsSim;
   delete theAmplifier;
+  delete theCoderFactory;
 }
 
 
@@ -67,7 +69,8 @@ void HcalDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   // get the appropriate gains, noises, & widths for this event
   edm::ESHandle<HcalDbService> conditions;
   eventSetup.get<HcalDbRecord>().get(conditions);
-  theElectronicsSim->setDbService(conditions.product());
+  theAmplifier->setDbService(conditions.product());
+  theCoderFactory->setDbService(conditions.product());
 
 //  const HcalQIECoder* coder = conditions->getHcalCoder(cell);
 //  const HcalQIEShape* shape = conditions->getHcalShape ();

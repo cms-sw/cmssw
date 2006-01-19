@@ -3,9 +3,10 @@
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalCoderFactory.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalTriggerPrimitiveAlgo.h"
 
-
+using namespace cms;
 
 class HcalTrigPrimRecHitProducer : public edm::EDProducer
 {
@@ -19,8 +20,8 @@ public:
 
 private:
 
+  HcalCoderFactory theCoderFactory;
   HcalTriggerPrimitiveAlgo theAlgo;
-
 };
 
 #endif

@@ -14,7 +14,8 @@ using namespace cms;
 
 
 HcalTrigPrimRecHitProducer::HcalTrigPrimRecHitProducer(const edm::ParameterSet& ps)
-: theAlgo()
+: theCoderFactory(HcalCoderFactory::DB),
+  theAlgo(&theCoderFactory)
 {
   produces<HcalTrigPrimRecHitCollection>();
 }
@@ -32,7 +33,7 @@ void HcalTrigPrimRecHitProducer::produce(edm::Event& e, const edm::EventSetup& e
   // get the conditions, for the decoding
   edm::ESHandle<HcalDbService> conditions;
   eventSetup.get<HcalDbRecord>().get(conditions);
-  theAlgo.setDbService(conditions.product());
+  theCoderFactory.setDbService(conditions.product());
 
 
 

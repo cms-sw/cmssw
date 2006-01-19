@@ -17,6 +17,7 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HOHitFilter.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloHitResponse.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalAmplifier.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalCoderFactory.h"
 
 
 using namespace cms;
@@ -63,6 +64,7 @@ private:
   CaloHitResponse * theHFResponse;
 
   HcalAmplifier * theAmplifier;
+  HcalCoderFactory * theCoderFactory;
   HcalElectronicsSim * theElectronicsSim;
 
   HBHEHitFilter theHBHEHitFilter;
