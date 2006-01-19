@@ -36,31 +36,21 @@ namespace edm {
   void SecondaryProducer::produce(edm::Event& e, const edm::EventSetup&) { 
 
     typedef edmreftest::ThingCollection TC;
-    typedef edmreftest::OtherThingCollection OTC;
     typedef edm::Wrapper<TC> WTC;
-    typedef edm::Wrapper<OTC> WOTC;
 
-    std::vector<EventPrincipal*> result;
+    VectorInputSource::EventPrincipalVector result;
     secInput_->readMany(1, result);
-    // secInput_->readMany(e.id().event()-1, 1, result);
 
-    EventPrincipal &p = *result[0];
-    EDProduct const* ep = p.getByType(TypeID(typeid(TC))).wrapper();
+    EventPrincipal *p = &**result.begin();
+    EDProduct const* ep = p->getByType(TypeID(typeid(TC))).wrapper();
     assert(ep);
     WTC const* wtp = dynamic_cast<WTC const*>(ep);
     assert(wtp);
-    EDProduct const* epo = p.getByType(TypeID(typeid(OTC))).wrapper();
-    assert(epo);
-    WOTC const* wop = dynamic_cast<WOTC const*>(epo);
-    assert(wop);
     TC const* tp = wtp->product();
-    OTC const* op = wop->product();
     auto_ptr<TC> thing(new TC(*tp));
-    auto_ptr<OTC> otherThing(new OTC(*op));
 
     // Put output into event
     e.put(thing);
-    e.put(otherThing, "testUserTag");
   }
 
 

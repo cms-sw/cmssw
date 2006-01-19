@@ -29,15 +29,14 @@ process PROD  = {
 	source = EmptySource { 
 		untracked int32 maxEvents = 42
 	}
-	module OtherThing = SecondaryProducer {
+	module Thing = SecondaryProducer {
 	       secsource input = PoolRASource  {
 			untracked string catalog = '${LOCAL_TMP_DIR}/SecondaryInputTestCatalog.xml'
 			untracked vstring fileNames = {'PoolTest.root'}
 	       }
 	}
-	module Analysis = OtherThingAnalyzer {}
-	module Analysis2 = EventContentAnalyzer {}
-	path p = { OtherThing, Analysis, Analysis2 }
+	module Analysis = EventContentAnalyzer {untracked bool verbose = true}
+	path p = { Thing, Analysis }
 }
 !
 
