@@ -144,16 +144,16 @@ namespace cms
       }
  
       if (dynamic_cast<PixelGeomDetUnit*>((*iu))!=0){
-	
-	collector= _pixeldigialgo.run(SimHitMap[(*iu)->geographicalId().rawId()],
-				      dynamic_cast<PixelGeomDetUnit*>((*iu)),
-				      bfield);
-	PixelDigiCollection::Range outputRange;
-
-	outputRange.first = collector.begin();
-	outputRange.second = collector.end();
-       	output->put(outputRange,(*iu)->geographicalId().rawId());
-	//
+	if (collector.size()>0){
+	  collector= _pixeldigialgo.run(SimHitMap[(*iu)->geographicalId().rawId()],
+					dynamic_cast<PixelGeomDetUnit*>((*iu)),
+					bfield);
+	  PixelDigiCollection::Range outputRange;
+	  
+	  outputRange.first = collector.begin();
+	  outputRange.second = collector.end();
+	  output->put(outputRange,(*iu)->geographicalId().rawId());
+	}
       }
 
     }
