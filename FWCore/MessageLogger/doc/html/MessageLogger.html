@@ -291,7 +291,27 @@ even if <code>NDEBUG</code> is defined --
 Compile-time Elimination of LogDebug Messages </a>
 </ul>
 
-
+<h3>Message Statistics</h3>
+<ul>
+<li> Counts of various types of messages issued can be obtained -- 
+<a href="statistics.html"> Obtaining Message Statistics </a>
+<li> Statistics summaries are written automatically at end of job --
+<a href="statistics.html"> Obtaining Message Statistics </a>
+<li> Statistics destinations can be configured to use a specified 
+     severity threshold -- 
+<li> Statistics destinations can write to their own file or share a file
+     with an ordinary output destination --
+<a href="statistics.html"> Obtaining Message Statistics </a>
+<li> User code can trigger the statistics destinations to write out 
+the statistics accumulated thus far -- 
+<a href="statistics.html#LogStatistics">
+Obtaining Message Statistics: The edm::LogStatistics() Function </a>
+<li> Each statistics destination can be configured to reset after each 
+time the statistics are written out, or to continue accumulating further 
+statistics -- 
+<a href="statistics.html#LogStatistics">
+Obtaining Message Statistics: The edm::LogStatistics() Function </a>
+</ul>
 
 <p><center>
 <img src="bar.gif"></center>
