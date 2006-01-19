@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/01/18 11:40:54 $
- * $Revision: 1.79 $
+ * $Date: 2006/01/19 06:58:39 $
+ * $Revision: 1.80 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -449,7 +449,13 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
 
   RunTypeDef rundef;
 
-  rundef.setRunType(runtype_);
+  rundef.setRunType("TEST");
+  if ( runtype_ == "cosmic" ) rundef.setRunType("COSMICS");
+  if ( runtype_ == "laser" ) rundef.setRunType("LASER");
+  if ( runtype_ == "pedestal" ) rundef.setRunType("PEDESTAL");
+  if ( runtype_ == "testpulse" ) rundef.setRunType("TEST_PULSE");
+  if ( runtype_ == "electron" ) rundef.setRunType("BEAM");
+
   rundef.setConfigTag("config_v01");
   rundef.setConfigVersion(1);
 
