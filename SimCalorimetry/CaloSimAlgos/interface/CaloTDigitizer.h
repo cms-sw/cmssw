@@ -6,8 +6,10 @@
     interface Digi convert(const CaloSamples &)
 
 */
-class PCaloHit;
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloHitResponse.h"
+#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHit.h"
+
 
 namespace cms {
   template<class Traits>
@@ -34,7 +36,7 @@ namespace cms {
 
     /// turns hits into digis
     /// user must delete the pointer returned
-    void run(const std::vector<PCaloHit> & input, DigiCollection & output) {
+    void run(MixCollection<PCaloHit> & input, DigiCollection & output) {
       assert(theDetIds.size() != 0);
 
       theHitResponse->run(input);

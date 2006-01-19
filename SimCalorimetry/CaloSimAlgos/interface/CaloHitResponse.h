@@ -4,7 +4,9 @@
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include <map>
+#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHit.h"
+#include<map>
 #include<vector>
 
 /**
@@ -15,13 +17,13 @@
 
 */
 
-class PCaloHit;
 
 namespace cms {
 
 class CaloVShape;
 class CaloVSimParameterMap;
 class CaloVHitCorrection;
+class CaloVHitFilter;
 class CaloSimParameters;
 
 class CaloHitResponse 
@@ -43,7 +45,12 @@ public:
   void setGeometry(const CaloGeometry * geometry) { theGeometry = geometry; }
 
   /// Complete cell digitization.
-  void run(const std::vector<PCaloHit> & hits);
+  void run(MixCollection<PCaloHit> & hits);
+
+  /// if you want to reject hits, for example, from a certain subdetector, set this
+  void setHitFilter(const CaloVHitFilter * filter) {
+    theHitFilter = filter;
+  }
 
   /// If you want to correct hits, for attenuation or delay, set this.
   void setHitCorrection(const CaloVHitCorrection * hitCorrection) {
@@ -77,6 +84,7 @@ protected:
   const CaloVSimParameterMap * theParameterMap;
   const CaloVShape * theShape;
   const CaloVHitCorrection * theHitCorrection;
+  const CaloVHitFilter * theHitFilter;
 
   const CaloGeometry * theGeometry;
 

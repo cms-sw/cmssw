@@ -5,6 +5,7 @@ using namespace std;
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloSimParameters.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVShape.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVHitCorrection.h"
+#include "SimCalorimetry/CaloSimAlgos/interface/CaloVHitFilter.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
@@ -19,6 +20,7 @@ CaloHitResponse::CaloHitResponse(const CaloVSimParameterMap * parametersMap,
 : theParameterMap(parametersMap), 
   theShape(shape),  
   theHitCorrection(0),
+  theHitFilter(0),
   theGeometry(0),
   theMinBunch(-10), 
   theMaxBunch(10)
@@ -32,29 +34,32 @@ void CaloHitResponse::setBunchRange(int minBunch, int maxBunch) {
 }
 
 
-void CaloHitResponse::run(const vector<PCaloHit> & hits) {
-  for(vector<PCaloHit>::const_iterator hitItr = hits.begin();
+void CaloHitResponse::run(MixCollection<PCaloHit> & hits) {
+  for(MixCollection<PCaloHit>::MixItr hitItr = hits.begin();
       hitItr != hits.end(); ++hitItr)
   {
-    LogDebug("CaloHitResponse") << *hitItr;
-    CaloSamples signal = makeAnalogSignal(*hitItr);
-    LogDebug("CaloHitResponse") << signal;
-    // if there's already a frame for this in the map, superimpose it
-    const DetId id(hitItr->id());
-    map<DetId, CaloSamples>::iterator mapItr = theAnalogSignalMap.find(id);
-    if (mapItr == theAnalogSignalMap.end()) {
-      theAnalogSignalMap.insert(pair<DetId, CaloSamples>(id, signal));
-    } else  {
-      // need a "+=" to CaloSamples
-      int sampleSize =  mapItr->second.size();
-      assert(sampleSize == signal.size());
-      assert(signal.presamples() == mapItr->second.presamples());
-
-      for(int i = 0; i < sampleSize; ++i) {
-        (mapItr->second)[i] += signal[i];
+    // maybe it's not from this subdetector
+    if(theHitFilter == 0 || theHitFilter->accepts(*hitItr)) {
+      LogDebug("CaloHitResponse") << *hitItr;
+      CaloSamples signal = makeAnalogSignal(*hitItr);
+      LogDebug("CaloHitResponse") << signal;
+      // if there's already a frame for this in the map, superimpose it
+      const DetId id(hitItr->id());
+      map<DetId, CaloSamples>::iterator mapItr = theAnalogSignalMap.find(id);
+      if (mapItr == theAnalogSignalMap.end()) {
+        theAnalogSignalMap.insert(pair<DetId, CaloSamples>(id, signal));
+      } else  {
+        // need a "+=" to CaloSamples
+        int sampleSize =  mapItr->second.size();
+        assert(sampleSize == signal.size());
+        assert(signal.presamples() == mapItr->second.presamples());
+ 
+        for(int i = 0; i < sampleSize; ++i) {
+          (mapItr->second)[i] += signal[i];
+        }
       }
-    }
-  }
+    } //  filter accepts 
+  } // loop over hits
 }
 
 
