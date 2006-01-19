@@ -12,14 +12,17 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalElectronicsSim.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbHardcode.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HcalNoisifier.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalAmplifier.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalTriggerPrimitiveAlgo.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalCoderFactory.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HBHEHitFilter.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HOHitFilter.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HFHitFilter.h"
 #include "CondFormats/HcalObjects/interface/HcalPedestals.h"
 #include "CondFormats/HcalObjects/interface/HcalPedestalWidths.h"
 #include "CondFormats/HcalObjects/interface/HcalGains.h"
 #include "CondFormats/HcalObjects/interface/HcalGainWidths.h"
-
-
+#include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalDigitizerTraits.h"
 
 #include <vector>
@@ -60,12 +63,27 @@ int main() {
   allDetIds.insert(allDetIds.end(), hoDetIds.begin(), hoDetIds.end());
   allDetIds.insert(allDetIds.end(), hfDetIds.begin(), hfDetIds.end());
 
+/*
   vector<PCaloHit> hbheHits, hoHits, hfHits;
   hbheHits.push_back(barrelHit);
   hbheHits.push_back(endcapHit);
   hoHits.push_back(outerHit);
   hfHits.push_back(forwardHit1);
   hfHits.push_back(forwardHit2);
+i*/
+  vector<PCaloHit> hits;
+  hits.push_back(barrelHit);
+  hits.push_back(endcapHit);
+  hits.push_back(outerHit);
+  hits.push_back(forwardHit1);
+  hits.push_back(forwardHit2);
+
+  string hitsName = "HcalHits";
+  vector<string> caloDets, trackingDets;
+  caloDets.push_back(hitsName);
+
+  CrossingFrame crossingFrame(-5, 5, 25, trackingDets, caloDets);
+  crossingFrame.addSignalCaloHits(hitsName, &hits);
 
   HcalSimParameterMap parameterMap;
   HcalShape hcalShape;
@@ -74,8 +92,17 @@ int main() {
   CaloShapeIntegrator hcalShapeIntegrator(&hcalShape);
   CaloShapeIntegrator hfShapeIntegrator(&hfShape);
 
-  CaloHitResponse hcalResponse(&parameterMap, &hcalShapeIntegrator);
+  CaloHitResponse hbheResponse(&parameterMap, &hcalShapeIntegrator);
+  CaloHitResponse hoResponse(&parameterMap, &hcalShapeIntegrator);
   CaloHitResponse hfResponse(&parameterMap, &hfShapeIntegrator);
+
+  HBHEHitFilter hbheHitFilter;
+  HOHitFilter hoHitFilter;
+  HFHitFilter hfHitFilter;
+
+  hbheResponse.setHitFilter(&hbheHitFilter);
+  hoResponse.setHitFilter(&hoHitFilter);
+  hfResponse.setHitFilter(&hfHitFilter);
 
   HcalPedestals pedestals;
   HcalPedestalWidths pedestalWidths;
@@ -94,7 +121,7 @@ int main() {
   gains.sort();
   gainWidths.sort();
 
-std::cout << " {TESTPED " << pedestals.getValue(barrelDetId.rawId(),  1) << std::endl;
+std::cout << "TEST Pedestal " << pedestals.getValue(barrelDetId.rawId(),  1) << std::endl;
 
   HcalDbService calibratorHandle;
   calibratorHandle.setData(&pedestals);
@@ -102,12 +129,14 @@ std::cout << " {TESTPED " << pedestals.getValue(barrelDetId.rawId(),  1) << std:
   calibratorHandle.setData(&gains);
   calibratorHandle.setData(&gainWidths);
 
-  HcalNoisifier noisifier;
-  HcalElectronicsSim electronicsSim(&noisifier);
-  electronicsSim.setDbService(&calibratorHandle);
 
-  CaloTDigitizer<HBHEDigitizerTraits> hbheDigitizer(&hcalResponse, &electronicsSim);
-  CaloTDigitizer<HODigitizerTraits> hoDigitizer(&hcalResponse, &electronicsSim);
+  HcalAmplifier amplifier(false);
+  HcalCoderFactory coderFactory(HcalCoderFactory::NOMINAL);
+  HcalElectronicsSim electronicsSim(&amplifier, &coderFactory);
+  amplifier.setDbService(&calibratorHandle);
+
+  CaloTDigitizer<HBHEDigitizerTraits> hbheDigitizer(&hbheResponse, &electronicsSim);
+  CaloTDigitizer<HODigitizerTraits> hoDigitizer(&hoResponse, &electronicsSim);
   CaloTDigitizer<HFDigitizerTraits> hfDigitizer(&hfResponse, &electronicsSim);
   hbheDigitizer.setDetIds(hcalDetIds);
   hfDigitizer.setDetIds(hfDetIds);
@@ -117,9 +146,11 @@ std::cout << " {TESTPED " << pedestals.getValue(barrelDetId.rawId(),  1) << std:
   auto_ptr<HODigiCollection> hoResult(new HODigiCollection);
   auto_ptr<HFDigiCollection> hfResult(new HFDigiCollection);
 
-  hbheDigitizer.run(hbheHits, *hbheResult);
-  hoDigitizer.run(hoHits, *hoResult);
-  hfDigitizer.run(hfHits, *hfResult);
+  MixCollection<PCaloHit> hitCollection(&crossingFrame, hitsName);
+
+  hbheDigitizer.run(hitCollection, *hbheResult);
+  hoDigitizer.run(hitCollection, *hoResult);
+  hfDigitizer.run(hitCollection, *hfResult);
 
   // print out all the digis
   cout << "HBHE Frames" << endl;
@@ -137,7 +168,7 @@ std::cout << " {TESTPED " << pedestals.getValue(barrelDetId.rawId(),  1) << std:
 */
 
   HcalTrigPrimRecHitCollection trigPrims;
-  HcalTriggerPrimitiveAlgo triggerPrimitiveAlgo;
+  HcalTriggerPrimitiveAlgo triggerPrimitiveAlgo(&coderFactory);
   triggerPrimitiveAlgo.run(*hbheResult, *hfResult, trigPrims);
 
   copy(trigPrims.begin(), trigPrims.end(),  std::ostream_iterator<HcalTriggerPrimitiveRecHit>(std::cout, "\n"));
