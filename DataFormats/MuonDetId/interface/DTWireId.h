@@ -4,8 +4,8 @@
 /** \class DTWireId
  *  DetUnit identifier for DT wires
  *
- *  $Date: 2005/11/07 16:49:52 $
- *  $Revision: 1.10 $
+ *  $Date: 2005/12/19 16:15:11 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -35,10 +35,29 @@ class DTWireId :public DTLayerId {
 	   int layer,
 	   int wire);
   
-  /// wire id
+
+   /// Copy Constructor.
+  /// It takes care of masking fields which are not meaningful for a DTWireId
+  DTWireId(const DTWireId& wireId);
+
+
+  /// Constructor from a CamberId and SL, layer and wire numbers
+  DTWireId(const DTChamberId& chId, int superlayer, int layer, int wire);
+
+
+  /// Constructor from a SuperLayerId and layer and wire numbers
+  DTWireId(const DTSuperLayerId& slId, int layer, int wire);
+
+
+  /// Constructor from a layerId and a wire number
+  DTWireId(const DTLayerId& layerId, int wire);
+
+
+  /// Return the wire number
   int wire() const {
     return ((id_>>wireStartBit_)&wireMask_);
   }
+
 
   /// Return the corresponding LayerId
   DTLayerId layerId() const {

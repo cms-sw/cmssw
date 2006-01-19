@@ -4,8 +4,8 @@
 /** \class DTChamberId
  *  DetUnit identifier for DT chambers
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2005/12/19 16:15:11 $
+ *  $Revision: 1.1 $
  *  \author Stefano ARGIRO & G. Cerminara
  */
 
@@ -34,19 +34,24 @@ public:
 	      int sector);
 
 
-  /// wheel id
+  /// Copy Constructor.
+  /// It takes care of masking fields which are not meaningful for a DTChamberId
+  DTChamberId(const DTChamberId& chId);
+
+
+  /// Return the wheel number
   int wheel() const {
     return int((id_>>wheelStartBit_) & wheelMask_)+ minWheelId -1;
   }
 
 
-  /// station id
+  /// Return the station number
   int station() const {
     return ((id_>>stationStartBit_) & stationMask_);
   }
 
 
-  /// sector id
+  /// Return the sector number
   int sector() const {
     return ((id_>>sectorStartBit_)& sectorMask_);
   }
@@ -108,6 +113,10 @@ public:
   static const uint32_t chamberIdMask_ = ~((wireMask_<<wireStartBit_) |
 					   (lMask_<<layerStartBit_) |
 					   (slMask_<<slayerStartBit_));
+
+  // Perform a consistency check of the id with a DT Id
+  // It thorows an exception if this is not the case
+  void checkMuonId();
   
 };
 

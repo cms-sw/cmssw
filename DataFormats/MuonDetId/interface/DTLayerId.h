@@ -4,14 +4,14 @@
 /** \class DTLayerId
  *  DetUnit identifier for DT layers
  *
- *  $Date: 2005/11/07 16:49:52 $
- *  $Revision: 1.10 $
+ *  $Date: 2005/12/19 16:15:11 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
-#include <DataFormats/MuonDetId/interface/DTSLId.h>
+#include <DataFormats/MuonDetId/interface/DTSuperLayerId.h>
 
-class DTLayerId : public DTSLId {
+class DTLayerId : public DTSuperLayerId {
  public:
       
   /// Default constructor; fills the common part in the base
@@ -34,16 +34,28 @@ class DTLayerId : public DTSLId {
 	    int layer);
 
 
+  /// Copy Constructor.
+  /// It takes care of masking fields which are not meaningful for a DTLayerId
+  DTLayerId(const DTLayerId& layerId);
 
-  /// layer id
+
+  /// Constructor from a camberId and SL and layer numbers
+  DTLayerId(const DTChamberId& chId, int superlayer, int layer);
+
+
+  /// Constructor from a SuperLayerId and layer number
+  DTLayerId(const DTSuperLayerId& slId, int layer);
+
+
+  /// Return the layer number
   int layer() const {
     return ((id_>>layerStartBit_)&lMask_);
   }
 
 
   /// Return the corresponding SuperLayerId
-  DTSLId superlayerId() const {
-    return DTSLId(id_ & slIdMask_);
+  DTSuperLayerId superlayerId() const {
+    return DTSuperLayerId(id_ & slIdMask_);
   }
   
 

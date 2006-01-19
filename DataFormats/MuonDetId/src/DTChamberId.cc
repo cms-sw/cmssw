@@ -1,8 +1,8 @@
 /** \file
  *  See header file for a description of this class.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2005/12/19 16:15:12 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -10,18 +10,15 @@
 #include <DataFormats/MuonDetId/interface/DTChamberId.h>
 #include <FWCore/Utilities/interface/Exception.h>
 
+using namespace std;
 
 DTChamberId::DTChamberId():DetId(DetId::Muon, MuonSubdetId::DT){}
 
 
-
+// FIXME: Check this is a valid DTChamberId?
 DTChamberId::DTChamberId(uint32_t id):DetId(id) {
-  if (det()!=DetId::Muon || subdetId()!=MuonSubdetId::DT) {
-    throw cms::Exception("InvalidDetId") << "DTChamberId ctor:"
-					 << " det: " << det()
-					 << " subdet: " << subdetId()
-					 << " is not a valid DT id";  
-  }
+  checkMuonId();
+//   cout << "DTChamberId::DTChamberId(uint32_t id):DetId(id)" << endl;
 }
 
 
@@ -45,6 +42,24 @@ DTChamberId::DTChamberId(int wheel, int station, int sector):
       (station & stationMask_)      << stationStartBit_ |
       (sector  &sectorMask_ )       << sectorStartBit_;
 
+}
+
+
+
+DTChamberId::DTChamberId(const DTChamberId& chId):
+  DetId(chId.rawId() & chamberIdMask_) {
+//     cout << "DTChamberId::DTChamberId(const DTChamberId& chId)" << endl;
+  }
+
+
+
+void DTChamberId::checkMuonId() {
+  if (det()!=DetId::Muon || subdetId()!=MuonSubdetId::DT) {
+    throw cms::Exception("InvalidDetId") << "DTChamberId ctor:"
+					 << " det: " << det()
+					 << " subdet: " << subdetId()
+					 << " is not a valid DT id";  
+  }
 }
 
 
