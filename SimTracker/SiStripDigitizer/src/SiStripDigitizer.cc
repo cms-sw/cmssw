@@ -146,11 +146,16 @@ namespace cms
 				       dynamic_cast<StripGeomDetUnit*>((*iu)),
 				       bfield);
 
-	StripDigiCollection::Range outputRange;
+	if (collector.size()>0){
+	  StripDigiCollection::Range outputRange;
 	
-	outputRange.first = collector.begin();
-	outputRange.second = collector.end();
-	output->put(outputRange,(*iu)->geographicalId().rawId());
+	  outputRange.first = collector.begin();
+	  outputRange.second = collector.end();
+	  output->put(outputRange,(*iu)->geographicalId().rawId());
+	}
+	
+
+
 
       }
 
@@ -165,6 +170,10 @@ namespace cms
 
   
   }
+
+
+
+
 
 }
 //define this as a plug-in
