@@ -1,5 +1,5 @@
 #ifndef HcalCoderFactory_h
-#define HcalCoderFactory_g
+#define HcalCoderFactory_h
 
 #include <memory>
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
