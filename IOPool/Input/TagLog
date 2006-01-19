@@ -1,3 +1,6 @@
+** V01-02-00  [Thu Jan 19 20:13:21 2006]
+Use shared pointers, not bare pointers, in VectorInputSources
+
 ** V01-01-02  [Mon Jan 16 03:52:08 2006]
 Fix EOF bug on reading multiple events
 
