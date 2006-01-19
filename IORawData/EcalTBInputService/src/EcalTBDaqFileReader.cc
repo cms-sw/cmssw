@@ -42,6 +42,10 @@ EcalTBDaqFileReader::~EcalTBDaqFileReader(){
     //delete input_;
   }
   instance_=0;
+
+  //Cleaning the event
+  if (cachedData_.fedData)
+    delete[] cachedData_.fedData;
 }
 
 void EcalTBDaqFileReader::setInitialized(bool value){initialized_=value;}
@@ -60,7 +64,7 @@ void EcalTBDaqFileReader::initialize(const string & filename, bool isBinary){
 
   // case of ASCII input data file
   if (initialized_) {
-    cout << "EcalTB DaqFileReader was already initialized... reinitializing it " << endl;
+    //    cout << "EcalTB DaqFileReader was already initialized... reinitializing it " << endl;
     if(inputFile) {
       inputFile.close();
     }
@@ -85,6 +89,9 @@ void EcalTBDaqFileReader::initialize(const string & filename, bool isBinary){
     }
   }// end if not binary
 
+  // Initialize cachedData_
+  cachedData_.len=0;
+  cachedData_.fedData=0;
   initialized_ = true;
 }
 
@@ -92,10 +99,8 @@ void EcalTBDaqFileReader::initialize(const string & filename, bool isBinary){
 
 
 
-
-
-//retunrs a FedDataPair with event length and pointer to start of event 
-FedDataPair EcalTBDaqFileReader::getEventTrailer() {
+//Fill the event
+void EcalTBDaqFileReader::getEventTrailer() {
   
   if (isBinary_){
     ulong dataStore=1;
@@ -105,8 +110,8 @@ FedDataPair EcalTBDaqFileReader::getEventTrailer() {
     inputFile.read(reinterpret_cast<char *>(&dataStore),sizeof(ulong));
     inputFile.read(reinterpret_cast<char *>(&dataStore),sizeof(ulong));
     int size =  dataStore & 0xffffff ;
-    cout << "[EcalTB DaqFileReader::getEventTrailer] event size masked  "<<  size 
-	 << " (max size in byte is " << maxEventSizeInBytes_ << ")"<< endl;
+//     cout << "[EcalTB DaqFileReader::getEventTrailer] event size masked  "<<  size 
+// 	 << " (max size in byte is " << maxEventSizeInBytes_ << ")"<< endl;
     if (size > maxEventSizeInBytes_){
       cout << "[EcalTB DaqFileReader::getEventTrailer] event size larger than allowed"<< endl;
     }
@@ -120,11 +125,9 @@ FedDataPair EcalTBDaqFileReader::getEventTrailer() {
     char   * bufferChar =  new  char [8* size];
     inputFile.read (bufferChar,size*8);
     
-    FedDataPair aPair;
-    aPair.len         = size*8;
-    aPair.fedData = reinterpret_cast<unsigned char*>(bufferChar);
+    cachedData_.len         = size*8;
+    cachedData_.fedData = reinterpret_cast<unsigned char*>(bufferChar);
     
-    return aPair;
   }// end in case of binary file
   
 
@@ -142,7 +145,8 @@ FedDataPair EcalTBDaqFileReader::getEventTrailer() {
       sscanf( myWord.c_str(),"%x",buf);
       int val= *buf >> 28;
 
-      //    cout << " myWord " << myWord << " myWord >> 28 " << val << endl;
+//       if (i<4)
+// 	cout << " myWord " << myWord << " myWord >> 28 " << val << endl;
 
 
       if ( len%2!=0 ) {
@@ -158,22 +162,15 @@ FedDataPair EcalTBDaqFileReader::getEventTrailer() {
 
     }// end loop importing data word by word
 
-    //  cout << " Number of 32 words in the event " << len << endl;
+    //    cout << " Number of 32 words in the event " << len << endl;
     len*=4;
-    //cout << " Length in bytes " << len << endl;
+    //    cout << " Length in bytes " << len << endl;
 
-    FedDataPair aPair;
-    aPair.len = len;
-    //aPair.fedData = fedData;
+    cachedData_.len = len;
     //fedData = reinterpret_cast<unsigned char*>(tmp);
-    aPair.fedData = reinterpret_cast<unsigned char*>(tmp);
+    cachedData_.fedData = reinterpret_cast<unsigned char*>(tmp);
+    
 
-    for ( int i=0; i<20; ++i) {
-      //    cout << "i)"<< i << " " << hex<<(*fedData)<< endl; 
-      //fedData++;
-    }
-
-    return aPair;
   }// end in case of ASCII file
 
 }
@@ -183,97 +180,81 @@ FedDataPair EcalTBDaqFileReader::getEventTrailer() {
 
 
 
-bool EcalTBDaqFileReader::fillDaqEventData(edm::EventID & cID, FEDRawDataCollection& data ) {
+bool EcalTBDaqFileReader::fillDaqEventData() {
   //  cout<< "EcalTBDaqFileReader::fillDaqEventData() beginning " << endl;      
   const int MAXFEDID = 1024;
-  int evtNumber=0;
-  int runNumber=0;
 
+  //Cleaning the event before filling
+  if (cachedData_.fedData)
+    delete[] cachedData_.fedData;
 
   pair<int,int> fedInfo;  //int =FED id, int = event data length 
 
-  int fedId=0;
-
-
-  try {
-
-    //checkEndOfEvent()replaced by tru + getEventTrailer();
-
-    if( checkEndOfFile() ) throw 1;
-
-    // FedDataPair is struct: event lenght + pointer to beginning of event 
-    FedDataPair aPair = getEventTrailer();
-    fedInfo.second = aPair.len;
-
-
-    //    unsigned char* tmp = new unsigned char [fedInfo.second];
-    // allocate memory to fit event
-    unsigned long* tmp = new unsigned long [fedInfo.second];
-    tmp= reinterpret_cast<unsigned long*>(aPair.fedData);
-    
-    // extracting header information from event
-    getFEDHeader(tmp);
-
-    fedInfo.first=getFedId();
-    fedId=fedInfo.first; 
-
-    cout << " fillDaqEventData Fed Id " << fedId << " getEventLength() " 
-	 << getEventLength() << " run " << getRunNumber() << " Ev "
-	 << getEventNumber() << endl;
-    
-   
-    EventID ev( getRunNumber(), getEventNumber() );
-    cID=ev;
-
-
-    if(fedId<0){
-      cerr<<"DaqEvent::addFEDRawData - ERROR : negative FED Id. Adding no data"<<endl;
-    } else if (fedId>MAXFEDID){
-      cerr<<"DaqEvent::addFEDRawData - ERROR : FED Id("<<fedId<<") greater than maximum allowed ("<<MAXFEDID<<"). Adding no data"<<endl;
-    }  else {
-
-      //if ( infoV ) cout<<"DaqEvent: adding DaqFEDRawData of FED"<< fedId << endl;
-      cout<<"DaqEvent: adding DaqFEDRawData of FED "<< fedId << endl;
-
-      FEDRawData& eventfeddata = data.FEDData( fedInfo.first  );
-      eventfeddata.resize(fedInfo.second);
-      copy(aPair.fedData, aPair.fedData + fedInfo.second , eventfeddata.data());
-      cout<< "EcalTBDaqFileReader::fillDaqEventData() : read in full event information" << endl;
+  try 
+    {
+      
+      //checkEndOfEvent()replaced by tru + getEventTrailer();
+      
+      if( checkEndOfFile() ) throw 1;
+      
+      // FedDataPair is struct: event lenght + pointer to beginning of event 
+      getEventTrailer();
+      // extracting header information from event
+      setFEDHeader();
+      
+      fedInfo.first=getFedId();
+      fedInfo.second = cachedData_.len;
+      
+//       cout << " fillDaqEventData Fed Id " << fedInfo.first << " getEventLength() " 
+// 	   << getEventLength() << " run " << getRunNumber() << " Ev "
+// 	   << getEventNumber() << endl;
+      
+      
+      //     EventID ev( getRunNumber(), getEventNumber() );
+      //     cID=ev;
+      
+      if(fedInfo.first<0)
+	{
+	  cerr<<"DaqEvent::addFEDRawData - ERROR : negative FED Id. Adding no data"<<endl;
+	  throw 2;
+	} 
+      else if (fedInfo.first>MAXFEDID)
+	{
+	  cerr<<"DaqEvent::addFEDRawData - ERROR : FED Id("<<fedInfo.first<<") greater than maximum allowed ("<<MAXFEDID<<"). Adding no data"<<endl;
+	  throw 3;
+	} 
+      return true;
+    } 
+  catch(int i) 
+    {
+      if (i==1)
+	{
+	  cout<<"END OF FILE REACHED. No information read for the requested event"<<endl;
+	} 
+      else 
+	{
+	  cout<< "unkown exception in EcalTBDaqFileReader::fillDaqEventData()" << endl;
+	}
+      return false;
     }
-    // ShR 4Aug05: this is nasty but needed to fix big memory leak in current implementation
-    delete[] aPair.fedData;
-    return true;
-  } catch(int i) {
-    if (i==1){
-      cout<<"END OF FILE REACHED. No information read for the requested event"<<endl;
-    } else {
-      cout<< "unkown exception in EcalTBDaqFileReader::fillDaqEventData()" << endl;
-    }
-    return false;
-  }
 }
 
 
-void  EcalTBDaqFileReader::getFEDHeader(unsigned long* data) {
+void  EcalTBDaqFileReader::setFEDHeader() {
 
-  cout<<"getting FED Header "<<  endl;
+//   cout<<"getting FED Header "<<  endl;
   int headsize=16;
-  headValues_.clear();;
+  headValues_.clear();
 
-  //  int headsize = DaqFEDHeaderFormat::getSizeInBytes();
-  unsigned long * buf = new unsigned long[headsize]; 
-
-  copy(data, data + headsize , buf);
+  unsigned long* buf = reinterpret_cast<unsigned long*>(cachedData_.fedData);
+  //  int val=0;
   
-  
-  //for ( int i=0; i<4; ++i, buf++)
-  // cout << "i)"<< i << " " << hex<<(*buf)<< dec << endl;
-
-  int val=0;
   for ( int i=0; i< headsize/4; ++i) {
+    //    cout << i << " " << hex << buf << dec << endl ;
+    
     if ( i==0) {    
       headValues_.push_back((*buf>>8)&0xFFF);   // DCC id    
-     
+      
     } else if ( i==1) {
       headValues_.push_back( (*buf)&0xFFFFFF);      // Lv1 number
       //      cout << " LV1  " << ((*buf)&0xFFFFFF) << endl;
@@ -281,27 +262,15 @@ void  EcalTBDaqFileReader::getFEDHeader(unsigned long* data) {
       headValues_.push_back( ((*buf)&0xFFFFFF)*8 ); // Event length
       //      cout << " Event length " << ((*buf)&0xFFFFFF)*8 << endl;
     } else if ( i==3) {
-      int runN= (*buf)&0xFFFFFF;
-      //cout << " runN " << runN << endl; 
+      //      int runN= (*buf)&0xFFFFFF;
+      //      cout << " runN " << runN << endl; 
       headValues_.push_back( (*buf)&0xFFFFFF); // Run NUmber
-
+      
     }
-
-
     buf+=1;
   }
 
-
-
 }
-
-
-
-
-
-
-
-
 
 
 bool EcalTBDaqFileReader::checkEndOfFile() {
@@ -314,10 +283,3 @@ bool EcalTBDaqFileReader::checkEndOfFile() {
   return retval;
 }
 
-bool EcalTBDaqFileReader::checkEndOfEvent() {
-
-  //getEventTrailer();
-  cout << "EcalTBDaqFileReader::checkEndOfEvent() not implemented! returning dummy true value!"
-       << endl;
-  return true;
-}

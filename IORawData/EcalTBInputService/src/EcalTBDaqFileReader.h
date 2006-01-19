@@ -12,7 +12,6 @@
 
 using namespace std;
 
-class DaqInputEvent;
 namespace edm {class EventID; class Timestamp;}
 //namespace raw {class FEDRawDataCollection; }
 
@@ -27,51 +26,61 @@ class EcalTBDaqFileReader  {
 
   /// Constructor
   EcalTBDaqFileReader();
-
-
   /// Destructor
   virtual ~EcalTBDaqFileReader();
 
-
+  //Return the instance of the reader
   static EcalTBDaqFileReader * instance();
-  
 
+  //Set the initialization bit
   void setInitialized(bool value);
+  //Check if initialized or not
   bool isInitialized();
+  //Initialization 
+  void initialize(const std::string & filename, bool isBinary);
 
-  // Override virtual methods from DaqFileReader
-  virtual void initialize(const std::string & filename, bool isBinary);
-  virtual bool fillDaqEventData(edm::EventID & cID, FEDRawDataCollection& data);
-  virtual FedDataPair getEventTrailer();
-  virtual bool checkEndOfEvent();
-  virtual bool checkEndOfFile();
-  void getFEDHeader(unsigned long* buf);
+  //Check if the position in file is EOF
+  bool checkEndOfFile();
+
+  //Fill Data for an event from input file
+  bool fillDaqEventData();
+
+  //Return cachedData for the event 
+  const FedDataPair& getFedData() { return cachedData_;} 
+  //Return event FedId
   int getFedId() {return headValues_[0];}
+  //Return event number
   int getEventNumber() {return headValues_[1];}
+  //Return event size
   int getEventLength() {return headValues_[2];}
+  //Return run number
   int getRunNumber() {return headValues_[3];}
-
-  
-
-private:
-  static EcalTBDaqFileReader * instance_;
-  ifstream inputFile;
-
-  //static const int maxEventSizeInBytes_=42640;
-  static const int maxEventSizeInBytes_=100000;
-  static const int EOE_=10;
-  static const int BOE_=5;
-  vector<int> headValues_;
-  
-  //ulong* buf;
-  //int len;
-  //ulong* tmp;
-  //unsigned char* fedData;
 
 protected:
 
   bool initialized_;
   bool isBinary_;
-  //std::ifstream * input_;
+  
+private:
+
+  //Fill event header information
+  void setFEDHeader();
+  //Seek in the file for the event 
+  void getEventTrailer();
+
+  ifstream inputFile;
+
+  static EcalTBDaqFileReader * instance_;
+
+  //static const int maxEventSizeInBytes_=42640;
+  static const int maxEventSizeInBytes_=100000;
+  static const int EOE_=10;
+  static const int BOE_=5;
+
+  vector<int> headValues_;
+  FedDataPair cachedData_;
+
+
+
 };
 #endif
