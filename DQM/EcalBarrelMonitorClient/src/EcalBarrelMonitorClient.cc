@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/01/13 12:18:47 $
- * $Revision: 1.78 $
+ * $Date: 2006/01/18 11:40:54 $
+ * $Revision: 1.79 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -106,6 +106,16 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps){
     cout << " collateSources switch is ON" << endl;
   } else {
     cout << " collateSources switch is OFF" << endl;
+  }
+
+  // cloneME switch
+
+  cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
+
+  if ( cloneME_ ) {
+    cout << " cloneME switch is ON" << endl;
+  } else {
+    cout << " cloneME switch is OFF" << endl;
   }
 
   // verbosity switch
@@ -406,7 +416,10 @@ void EcalBarrelMonitorClient::setup(void) {
 
 void EcalBarrelMonitorClient::cleanup(void) {
 
-  if ( h_ ) delete h_;
+  if ( cloneME_ ) {
+    if ( h_ ) delete h_;
+  }
+
   h_ = 0;
 
 }
@@ -883,13 +896,16 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
     }
     me = mui_->get(histo);
     if ( me ) {
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
-        if ( h_ ) delete h_;
-        if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
-        sprintf(histo, "ME EVTTYPE");
-        h_ = dynamic_cast<TH1F*> ((ob->operator->())->Clone(histo));
-//        h_ = dynamic_cast<TH1F*> (ob->operator->());
+        if ( cloneME_ ) {
+          if ( h_ ) delete h_;
+          sprintf(histo, "ME EVTTYPE");
+          h_ = dynamic_cast<TH1F*> ((ob->operator->())->Clone(histo));
+        } else {
+          h_ = dynamic_cast<TH1F*> (ob->operator->());
+        }
       }
     }
 

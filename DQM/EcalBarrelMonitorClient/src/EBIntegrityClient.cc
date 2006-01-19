@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2006/01/11 09:37:03 $
- * $Revision: 1.71 $
+ * $Date: 2006/01/18 11:40:54 $
+ * $Revision: 1.72 $
  * \author G. Della Ricca
  *
 */
@@ -38,6 +38,9 @@ EBIntegrityClient::EBIntegrityClient(const edm::ParameterSet& ps, MonitorUserInt
 
   // collateSources switch
   collateSources_ = ps.getUntrackedParameter<bool>("collateSources", false);
+
+  // cloneME switch
+  cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
@@ -117,25 +120,32 @@ void EBIntegrityClient::setup(void) {
 
 void EBIntegrityClient::cleanup(void) {
 
-  if ( h00_ ) delete h00_;
+  if ( cloneME_ ) {
+    if ( h00_ ) delete h00_;
+  }
+
   h00_ = 0;
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
-    if ( h_[ism-1] ) delete h_[ism-1];
+    if ( cloneME_ ) {
+      if ( h_[ism-1] ) delete h_[ism-1];
+
+      if ( h01_[ism-1] ) delete h01_[ism-1];
+      if ( h02_[ism-1] ) delete h02_[ism-1];
+      if ( h03_[ism-1] ) delete h03_[ism-1];
+      if ( h04_[ism-1] ) delete h04_[ism-1];
+      if ( h05_[ism-1] ) delete h05_[ism-1];
+      if ( h06_[ism-1] ) delete h06_[ism-1];
+    }
+
     h_[ism-1] = 0;
 
-    if ( h01_[ism-1] ) delete h01_[ism-1];
     h01_[ism-1] = 0;
-    if ( h02_[ism-1] ) delete h02_[ism-1];
     h02_[ism-1] = 0;
-    if ( h03_[ism-1] ) delete h03_[ism-1];
     h03_[ism-1] = 0;
-    if ( h04_[ism-1] ) delete h04_[ism-1];
     h04_[ism-1] = 0;
-    if ( h05_[ism-1] ) delete h05_[ism-1];
     h05_[ism-1] = 0;
-    if ( h06_[ism-1] ) delete h06_[ism-1];
     h06_[ism-1] = 0;
 
   }
@@ -496,10 +506,13 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
     if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
     ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
     if ( ob ) {
-      if ( h00_ ) delete h00_;
-      sprintf(histo, "ME EBIT DCC size error");
-      h00_ = dynamic_cast<TH1F*> ((ob->operator->())->Clone(histo));
-//      h00_ = dynamic_cast<TH1F*> (ob->operator->());
+      if ( cloneME_ ) {
+        if ( h00_ ) delete h00_;
+        sprintf(histo, "ME EBIT DCC size error");
+        h00_ = dynamic_cast<TH1F*> ((ob->operator->())->Clone(histo));
+      } else {
+        h00_ = dynamic_cast<TH1F*> (ob->operator->());
+      }
     }
   }
 
@@ -515,10 +528,13 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
-        if ( h_[ism-1] ) delete h_[ism-1];
-        sprintf(histo, "ME EBMM occupancy SM%02d", ism);
-        h_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
-//        h_[ism-1] = dynamic_cast<TH2F*> (ob->operator->());
+        if ( cloneME_ ) {
+          if ( h_[ism-1] ) delete h_[ism-1];
+          sprintf(histo, "ME EBMM occupancy SM%02d", ism);
+          h_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
+        } else {
+          h_[ism-1] = dynamic_cast<TH2F*> (ob->operator->());
+        }
       }
     }
 
@@ -532,10 +548,13 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
-        if ( h01_[ism-1] ) delete h01_[ism-1];
-        sprintf(histo, "ME EBIT gain SM%02d", ism);
-        h01_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
-//        h01_[ism-1] = dynamic_cast<TH2F*> (ob->operator->());
+        if ( cloneME_ ) {
+          if ( h01_[ism-1] ) delete h01_[ism-1];
+          sprintf(histo, "ME EBIT gain SM%02d", ism);
+          h01_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
+        } else {
+          h01_[ism-1] = dynamic_cast<TH2F*> (ob->operator->());
+        }
       }
     }
 
@@ -549,10 +568,13 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
-        if ( h02_[ism-1] ) delete h02_[ism-1];
-        sprintf(histo, "ME EBIT ChId SM%02d", ism);
-        h02_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
-//        h02_[ism-1] = dynamic_cast<TH2F*> (ob->operator->());
+        if ( cloneME_ ) {
+          if ( h02_[ism-1] ) delete h02_[ism-1];
+          sprintf(histo, "ME EBIT ChId SM%02d", ism);
+          h02_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
+        } else {
+          h02_[ism-1] = dynamic_cast<TH2F*> (ob->operator->());
+        }
       }
     }
 
@@ -566,10 +588,13 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
-        if ( h03_[ism-1] ) delete h03_[ism-1];
-        sprintf(histo, "ME EBIT gain switch SM%02d", ism);
-        h03_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
-//        h03_[ism-1] = dynamic_cast<TH2F*> (ob->operator->());
+        if ( cloneME_ ) {
+          if ( h03_[ism-1] ) delete h03_[ism-1];
+          sprintf(histo, "ME EBIT gain switch SM%02d", ism);
+          h03_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
+        } else {
+          h03_[ism-1] = dynamic_cast<TH2F*> (ob->operator->());
+        }
       }
     }
 
@@ -583,10 +608,13 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
-        if ( h04_[ism-1] ) delete h04_[ism-1];
-        sprintf(histo, "ME EBIT gain switch stay SM%02d", ism);
-        h04_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
-//        h04_[ism-1] = dynamic_cast<TH2F*> (ob->operator->());
+        if ( cloneME_ ) {
+          if ( h04_[ism-1] ) delete h04_[ism-1];
+          sprintf(histo, "ME EBIT gain switch stay SM%02d", ism);
+          h04_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
+        } else {
+          h04_[ism-1] = dynamic_cast<TH2F*> (ob->operator->());
+        }
       }
     }
 
@@ -600,10 +628,13 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
-        if ( h05_[ism-1] ) delete h05_[ism-1];
-        sprintf(histo, "ME EBIT TTId SM%02d", ism);
-        h05_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
-//        h05_[ism-1] = dynamic_cast<TH2F*> (ob->operator->());
+        if ( cloneME_ ) {
+          if ( h05_[ism-1] ) delete h05_[ism-1];
+          sprintf(histo, "ME EBIT TTId SM%02d", ism);
+          h05_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
+        } else {
+          h05_[ism-1] = dynamic_cast<TH2F*> (ob->operator->());
+        }
       }
     }
 
@@ -617,10 +648,13 @@ void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
-        if ( h06_[ism-1] ) delete h06_[ism-1];
-        sprintf(histo, "ME EBIT TTBlockSize SM%02d", ism);
-        h06_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
-//        h06_[ism-1] = dynamic_cast<TH2F*> (ob->operator->());
+        if ( cloneME_ ) {
+          if ( h06_[ism-1] ) delete h06_[ism-1];
+          sprintf(histo, "ME EBIT TTBlockSize SM%02d", ism);
+          h06_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
+        } else {
+          h06_[ism-1] = dynamic_cast<TH2F*> (ob->operator->());
+        }
       }
     }
 

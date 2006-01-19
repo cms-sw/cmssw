@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2006/01/11 09:37:03 $
- * $Revision: 1.54 $
+ * $Date: 2006/01/18 11:40:54 $
+ * $Revision: 1.55 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -54,6 +54,9 @@ EBPedestalClient::EBPedestalClient(const edm::ParameterSet& ps, MonitorUserInter
   // collateSources switch
   collateSources_ = ps.getUntrackedParameter<bool>("collateSources", false);
 
+  // cloneME switch
+  cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
+
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
@@ -89,8 +92,6 @@ void EBPedestalClient::beginRun(const edm::EventSetup& c){
 void EBPedestalClient::endJob(void) {
 
   if ( verbose_ ) cout << "EBPedestalClient: endJob, ievt = " << ievt_ << endl;
-
-  this->unsubscribe();
 
 }
 
@@ -174,16 +175,20 @@ void EBPedestalClient::cleanup(void) {
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
-    if ( h01_[ism-1] ) delete h01_[ism-1];
+    if ( cloneME_ ) {
+      if ( h01_[ism-1] ) delete h01_[ism-1];
+      if ( h02_[ism-1] ) delete h02_[ism-1];
+      if ( h03_[ism-1] ) delete h03_[ism-1];
+
+      if ( i01_[ism-1] ) delete i01_[ism-1];
+      if ( i02_[ism-1] ) delete i02_[ism-1];
+    }
+
     h01_[ism-1] = 0;
-    if ( h02_[ism-1] ) delete h02_[ism-1];
     h02_[ism-1] = 0;
-    if ( h03_[ism-1] ) delete h03_[ism-1];
     h03_[ism-1] = 0;
 
-    if ( i01_[ism-1] ) delete i01_[ism-1];
     i01_[ism-1] = 0;
-    if ( i02_[ism-1] ) delete i02_[ism-1];
     i02_[ism-1] = 0;
 
   }
@@ -534,10 +539,13 @@ void EBPedestalClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
-        if ( h01_[ism-1] ) delete h01_[ism-1];
-        sprintf(histo, "ME EBPT pedestal SM%02d G01", ism);
-        h01_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
-//        h01_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        if ( cloneME_ ) {
+          if ( h01_[ism-1] ) delete h01_[ism-1];
+          sprintf(histo, "ME EBPT pedestal SM%02d G01", ism);
+          h01_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+        } else {
+          h01_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        }
       }
     }
 
@@ -551,10 +559,13 @@ void EBPedestalClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
-        if ( h02_[ism-1] ) delete h02_[ism-1];
-        sprintf(histo, "ME EBPT pedestal SM%02d G06", ism);
-        h02_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
-//        h02_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        if ( cloneME_ ) {
+          if ( h02_[ism-1] ) delete h02_[ism-1];
+          sprintf(histo, "ME EBPT pedestal SM%02d G06", ism);
+          h02_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+        } else {
+          h02_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        }
       }
     }
 
@@ -568,10 +579,13 @@ void EBPedestalClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
-        if ( h03_[ism-1] ) delete h03_[ism-1];
-        sprintf(histo, "ME EBPT pedestal SM%02d G12", ism);
-        h03_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
-//        h03_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        if ( cloneME_ ) {
+          if ( h03_[ism-1] ) delete h03_[ism-1];
+          sprintf(histo, "ME EBPT pedestal SM%02d G12", ism);
+          h03_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+        } else {
+          h03_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        }
       }
     }
 
@@ -585,10 +599,13 @@ void EBPedestalClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
-        if ( i01_[ism-1] ) delete i01_[ism-1];
-        sprintf(histo, "ME EBPDT PNs pedestal SM%02d G01", ism);
-        i01_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
-//        i01_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        if ( cloneME_ ) {
+          if ( i01_[ism-1] ) delete i01_[ism-1];
+          sprintf(histo, "ME EBPDT PNs pedestal SM%02d G01", ism);
+          i01_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+        } else {
+          i01_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        }
       }
     }
 
@@ -602,10 +619,13 @@ void EBPedestalClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
-        if ( i02_[ism-1] ) delete i02_[ism-1];
-        sprintf(histo, "ME EBPDT PNs pedestal SM%02d G16", ism);
-        i02_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
-//        i02_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        if ( cloneME_ ) {
+          if ( i02_[ism-1] ) delete i02_[ism-1];
+          sprintf(histo, "ME EBPDT PNs pedestal SM%02d G16", ism);
+          i02_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+        } else {
+          i02_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        }
       }
     }
 

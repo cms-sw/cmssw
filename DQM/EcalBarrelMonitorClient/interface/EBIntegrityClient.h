@@ -4,8 +4,8 @@
 /*
  * \file EBIntegrityClient.h
  *
- * $Date: 2006/01/02 09:18:01 $
- * $Revision: 1.19 $
+ * $Date: 2006/01/02 12:31:05 $
+ * $Revision: 1.20 $
  * \author G. Della Ricca
  *
 */
@@ -97,6 +97,7 @@ int ievt_;
 int jevt_;
 
 bool collateSources_;
+bool cloneME_;
 
 bool verbose_;
 

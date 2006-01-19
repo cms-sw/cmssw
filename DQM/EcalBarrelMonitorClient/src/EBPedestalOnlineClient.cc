@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2006/01/11 09:37:03 $
- * $Revision: 1.3 $
+ * $Date: 2006/01/18 11:40:54 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -36,6 +36,9 @@ EBPedestalOnlineClient::EBPedestalOnlineClient(const edm::ParameterSet& ps, Moni
 
   // collateSources switch
   collateSources_ = ps.getUntrackedParameter<bool>("collateSources", false);
+
+  // cloneME switch
+  cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
@@ -129,7 +132,10 @@ void EBPedestalOnlineClient::cleanup(void) {
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
-    if ( h03_[ism-1] ) delete h03_[ism-1];
+    if ( cloneME_ ) {
+      if ( h03_[ism-1] ) delete h03_[ism-1];
+    }
+
     h03_[ism-1] = 0;
 
   }
@@ -315,10 +321,13 @@ void EBPedestalOnlineClient::analyze(const edm::Event& e, const edm::EventSetup&
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
-        if ( h03_[ism-1] ) delete h03_[ism-1];
-        sprintf(histo, "ME EBPOT pedestal SM%02d G12", ism);
-        h03_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
-//        h03_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        if ( cloneME_ ) {
+          if ( h03_[ism-1] ) delete h03_[ism-1];
+          sprintf(histo, "ME EBPOT pedestal SM%02d G12", ism);
+          h03_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+        } else {
+          h03_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        }
       }
     }
 

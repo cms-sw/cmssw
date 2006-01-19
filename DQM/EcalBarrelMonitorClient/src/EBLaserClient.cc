@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2006/01/11 09:37:03 $
- * $Revision: 1.54 $
+ * $Date: 2006/01/18 11:40:54 $
+ * $Revision: 1.55 $
  * \author G. Della Ricca
  *
 */
@@ -67,6 +67,9 @@ EBLaserClient::EBLaserClient(const edm::ParameterSet& ps, MonitorUserInterface* 
 
   // collateSources switch
   collateSources_ = ps.getUntrackedParameter<bool>("collateSources", false);
+
+  // cloneME switch
+  cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
@@ -199,55 +202,60 @@ void EBLaserClient::cleanup(void) {
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
-    if ( h01_[ism-1] ) delete h01_[ism-1];
+    if ( cloneME_ ) {
+      if ( h01_[ism-1] ) delete h01_[ism-1];
+      if ( h02_[ism-1] ) delete h02_[ism-1];
+      if ( h03_[ism-1] ) delete h03_[ism-1];
+      if ( h04_[ism-1] ) delete h04_[ism-1];
+      if ( h05_[ism-1] ) delete h05_[ism-1];
+      if ( h06_[ism-1] ) delete h06_[ism-1];
+      if ( h07_[ism-1] ) delete h07_[ism-1];
+      if ( h08_[ism-1] ) delete h08_[ism-1];
+
+      if ( i01_[ism-1] ) delete i01_[ism-1];
+      if ( i02_[ism-1] ) delete i02_[ism-1];
+      if ( i03_[ism-1] ) delete i03_[ism-1];
+      if ( i04_[ism-1] ) delete i04_[ism-1];
+      if ( i05_[ism-1] ) delete i05_[ism-1];
+      if ( i06_[ism-1] ) delete i06_[ism-1];
+      if ( i07_[ism-1] ) delete i07_[ism-1];
+      if ( i08_[ism-1] ) delete i08_[ism-1];
+
+      if ( j01_[ism-1] ) delete j01_[ism-1];
+      if ( j02_[ism-1] ) delete j02_[ism-1];
+      if ( j03_[ism-1] ) delete j03_[ism-1];
+      if ( j04_[ism-1] ) delete j04_[ism-1];
+      if ( j05_[ism-1] ) delete j05_[ism-1];
+      if ( j06_[ism-1] ) delete j06_[ism-1];
+      if ( j07_[ism-1] ) delete j07_[ism-1];
+      if ( j08_[ism-1] ) delete j08_[ism-1];
+    }
+
     h01_[ism-1] = 0;
-    if ( h02_[ism-1] ) delete h02_[ism-1];
     h02_[ism-1] = 0;
-    if ( h03_[ism-1] ) delete h03_[ism-1];
     h03_[ism-1] = 0;
-    if ( h04_[ism-1] ) delete h04_[ism-1];
     h04_[ism-1] = 0;
-    if ( h05_[ism-1] ) delete h05_[ism-1];
     h05_[ism-1] = 0;
-    if ( h06_[ism-1] ) delete h06_[ism-1];
     h06_[ism-1] = 0;
-    if ( h07_[ism-1] ) delete h07_[ism-1];
     h07_[ism-1] = 0;
-    if ( h08_[ism-1] ) delete h08_[ism-1];
     h08_[ism-1] = 0;
 
-    if ( i01_[ism-1] ) delete i01_[ism-1];
     i01_[ism-1] = 0;
-    if ( i02_[ism-1] ) delete i02_[ism-1];
     i02_[ism-1] = 0;
-    if ( i03_[ism-1] ) delete i03_[ism-1];
     i03_[ism-1] = 0;
-    if ( i04_[ism-1] ) delete i04_[ism-1];
     i04_[ism-1] = 0;
-    if ( i05_[ism-1] ) delete i05_[ism-1];
     i05_[ism-1] = 0;
-    if ( i06_[ism-1] ) delete i06_[ism-1];
     i06_[ism-1] = 0;
-    if ( i07_[ism-1] ) delete i07_[ism-1];
     i07_[ism-1] = 0;
-    if ( i08_[ism-1] ) delete i08_[ism-1];
     i08_[ism-1] = 0;
 
-    if ( j01_[ism-1] ) delete j01_[ism-1];
     j01_[ism-1] = 0;
-    if ( j02_[ism-1] ) delete j02_[ism-1];
     j02_[ism-1] = 0;
-    if ( j03_[ism-1] ) delete j03_[ism-1];
     j03_[ism-1] = 0;
-    if ( j04_[ism-1] ) delete j04_[ism-1];
     j04_[ism-1] = 0;
-    if ( j05_[ism-1] ) delete j05_[ism-1];
     j05_[ism-1] = 0;
-    if ( j06_[ism-1] ) delete j06_[ism-1];
     j06_[ism-1] = 0;
-    if ( j07_[ism-1] ) delete j07_[ism-1];
     j07_[ism-1] = 0;
-    if ( j08_[ism-1] ) delete j08_[ism-1];
     j08_[ism-1] = 0;
 
   }
@@ -1194,10 +1202,13 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
-        if ( h01_[ism-1] ) delete h01_[ism-1];
-        sprintf(histo, "ME EBLT amplitude SM%02d L1", ism);
-        h01_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
-//        h01_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        if ( cloneME_ ) {
+          if ( h01_[ism-1] ) delete h01_[ism-1];
+          sprintf(histo, "ME EBLT amplitude SM%02d L1", ism);
+          h01_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+        } else {
+          h01_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        }
       }
     }
 
@@ -1211,10 +1222,13 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
-        if ( h02_[ism-1] ) delete h02_[ism-1];
-        sprintf(histo, "ME EBLT amplitude over PN SM%02d L1", ism);
-        h02_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
-//        h02_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        if ( cloneME_ ) {
+          if ( h02_[ism-1] ) delete h02_[ism-1];
+          sprintf(histo, "ME EBLT amplitude over PN SM%02d L1", ism);
+          h02_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+        } else {
+          h02_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        }
       }
     }
 
@@ -1228,10 +1242,13 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
-        if ( h03_[ism-1] ) delete h03_[ism-1];
-        sprintf(histo, "ME EBLT amplitude SM%02d L2", ism);
-        h03_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
-//        h03_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        if ( cloneME_ ) {
+          if ( h03_[ism-1] ) delete h03_[ism-1];
+          sprintf(histo, "ME EBLT amplitude SM%02d L2", ism);
+          h03_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+        } else {
+          h03_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        }
       }
     }
 
@@ -1245,10 +1262,13 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
-        if ( h04_[ism-1] ) delete h04_[ism-1];
-        sprintf(histo, "ME EBLT amplitude over PN SM%02d L2", ism);
-        h04_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
-//        h04_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        if ( cloneME_ ) {
+          if ( h04_[ism-1] ) delete h04_[ism-1];
+          sprintf(histo, "ME EBLT amplitude over PN SM%02d L2", ism);
+          h04_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+        } else {
+          h04_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        }
       }
     }
 
@@ -1262,10 +1282,13 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
-        if ( h05_[ism-1] ) delete h05_[ism-1];
-        sprintf(histo, "ME EBLT amplitude SM%02d L3", ism);
-        h05_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
-//        h05_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        if ( cloneME_ ) {
+          if ( h05_[ism-1] ) delete h05_[ism-1];
+          sprintf(histo, "ME EBLT amplitude SM%02d L3", ism);
+          h05_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+        } else {
+          h05_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        }
       }
     }
 
@@ -1279,10 +1302,13 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
-        if ( h06_[ism-1] ) delete h06_[ism-1];
-        sprintf(histo, "ME EBLT amplitude over PN SM%02d L3", ism);
-        h06_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
-//        h06_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        if ( cloneME_ ) {
+          if ( h06_[ism-1] ) delete h06_[ism-1];
+          sprintf(histo, "ME EBLT amplitude over PN SM%02d L3", ism);
+          h06_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+        } else {
+          h06_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        }
       }
     }
 
@@ -1296,10 +1322,13 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
-        if ( h07_[ism-1] ) delete h07_[ism-1];
-        sprintf(histo, "ME EBLT amplitude SM%02d L4", ism);
-        h07_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
-//        h07_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        if ( cloneME_ ) {
+          if ( h07_[ism-1] ) delete h07_[ism-1];
+          sprintf(histo, "ME EBLT amplitude SM%02d L4", ism);
+          h07_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+        } else {
+          h07_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        }
       }
     }
 
@@ -1313,10 +1342,13 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
-        if ( h08_[ism-1] ) delete h08_[ism-1];
-        sprintf(histo, "ME EBLT amplitude over PN SM%02d L4", ism);
-        h08_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
-//        h08_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        if ( cloneME_ ) {
+          if ( h08_[ism-1] ) delete h08_[ism-1];
+          sprintf(histo, "ME EBLT amplitude over PN SM%02d L4", ism);
+          h08_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+        } else {
+          h08_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        }
       }
     }
 
@@ -1330,10 +1362,13 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
-        if ( i01_[ism-1] ) delete i01_[ism-1];
-        sprintf(histo, "ME EBPDT PNs amplitude SM%02d G01 L1", ism);
-        i01_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
-//        i01_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        if ( cloneME_ ) {
+          if ( i01_[ism-1] ) delete i01_[ism-1];
+          sprintf(histo, "ME EBPDT PNs amplitude SM%02d G01 L1", ism);
+          i01_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+        } else {
+          i01_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        }
       }
     }
 
@@ -1347,10 +1382,13 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
-        if ( i02_[ism-1] ) delete i02_[ism-1];
-        sprintf(histo, "ME EBPDT PNs amplitude SM%02d G01 L2", ism);
-        i02_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
-//        i02_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        if ( cloneME_ ) {
+          if ( i02_[ism-1] ) delete i02_[ism-1];
+          sprintf(histo, "ME EBPDT PNs amplitude SM%02d G01 L2", ism);
+          i02_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+        } else {
+          i02_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        }
       }
     }
 
@@ -1364,10 +1402,13 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
-        if ( i03_[ism-1] ) delete i03_[ism-1];
-        sprintf(histo, "ME EBPDT PNs amplitude SM%02d G01 L3", ism);
-        i03_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
-//        i03_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        if ( cloneME_ ) {
+          if ( i03_[ism-1] ) delete i03_[ism-1];
+          sprintf(histo, "ME EBPDT PNs amplitude SM%02d G01 L3", ism);
+          i03_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+        } else {
+          i03_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        }
       }
     }
 
@@ -1381,10 +1422,13 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
-        if ( i04_[ism-1] ) delete i04_[ism-1];
-        sprintf(histo, "ME EBPDT PNs amplitude SM%02d G01 L4", ism);
-        i04_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
-//        i04_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        if ( cloneME_ ) {
+          if ( i04_[ism-1] ) delete i04_[ism-1];
+          sprintf(histo, "ME EBPDT PNs amplitude SM%02d G01 L4", ism);
+          i04_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+        } else {
+          i04_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        }
       }
     }
 
@@ -1398,10 +1442,13 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
-        if ( i05_[ism-1] ) delete i05_[ism-1];
-        sprintf(histo, "ME EBPDT PNs pedestal SM%02d G01 L1", ism);
-        i05_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
-//        i05_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        if ( cloneME_ ) {
+          if ( i05_[ism-1] ) delete i05_[ism-1];
+          sprintf(histo, "ME EBPDT PNs pedestal SM%02d G01 L1", ism);
+          i05_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+        } else {
+          i05_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        }
       }
     }
 
@@ -1415,10 +1462,13 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
-        if ( i06_[ism-1] ) delete i06_[ism-1];
-        sprintf(histo, "ME EBPDT PNs pedestal SM%02d G01 L2", ism);
-        i06_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
-//        i06_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        if ( cloneME_ ) {
+          if ( i06_[ism-1] ) delete i06_[ism-1];
+          sprintf(histo, "ME EBPDT PNs pedestal SM%02d G01 L2", ism);
+          i06_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+        } else {
+          i06_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        }
       }
     }
 
@@ -1432,10 +1482,13 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
-        if ( i07_[ism-1] ) delete i07_[ism-1];
-        sprintf(histo, "ME EBPDT PNs pedestal SM%02d G01 L3", ism);
-        i07_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
-//        i07_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        if ( cloneME_ ) {
+          if ( i07_[ism-1] ) delete i07_[ism-1];
+          sprintf(histo, "ME EBPDT PNs pedestal SM%02d G01 L3", ism);
+          i07_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+        } else {
+          i07_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        }
       }
     }
 
@@ -1449,10 +1502,13 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
-        if ( i08_[ism-1] ) delete i08_[ism-1];
-        sprintf(histo, "ME EBPDT PNs pedestal SM%02d G01 L4", ism);
-        i08_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
-//        i08_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        if ( cloneME_ ) {
+          if ( i08_[ism-1] ) delete i08_[ism-1];
+          sprintf(histo, "ME EBPDT PNs pedestal SM%02d G01 L4", ism);
+          i08_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+        } else {
+          i08_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        }
       }
     }
 
@@ -1466,10 +1522,13 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
-        if ( j01_[ism-1] ) delete j01_[ism-1];
-        sprintf(histo, "ME EBPDT PNs amplitude SM%02d G16 L1", ism);
-        j01_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
-//        j01_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        if ( cloneME_ ) {
+          if ( j01_[ism-1] ) delete j01_[ism-1];
+          sprintf(histo, "ME EBPDT PNs amplitude SM%02d G16 L1", ism);
+          j01_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+        } else {
+          j01_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        }
       }
     }
 
@@ -1483,10 +1542,13 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
-        if ( j02_[ism-1] ) delete j02_[ism-1];
-        sprintf(histo, "ME EBPDT PNs amplitude SM%02d G16 L2", ism);
-        j02_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
-//        j02_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        if ( cloneME_ ) {
+          if ( j02_[ism-1] ) delete j02_[ism-1];
+          sprintf(histo, "ME EBPDT PNs amplitude SM%02d G16 L2", ism);
+          j02_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+        } else {
+          j02_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        }
       }
     }
 
@@ -1500,10 +1562,13 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
-        if ( j03_[ism-1] ) delete j03_[ism-1];
-        sprintf(histo, "ME EBPDT PNs amplitude SM%02d G16 L3", ism);
-        j03_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
-//        j03_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        if ( cloneME_ ) {
+          if ( j03_[ism-1] ) delete j03_[ism-1];
+          sprintf(histo, "ME EBPDT PNs amplitude SM%02d G16 L3", ism);
+          j03_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+        } else {
+          j03_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        }
       }
     }
 
@@ -1517,10 +1582,13 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
-        if ( j04_[ism-1] ) delete j04_[ism-1];
-        sprintf(histo, "ME EBPDT PNs amplitude SM%02d G16 L4", ism);
-        j04_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
-//        j04_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        if ( cloneME_ ) {
+          if ( j04_[ism-1] ) delete j04_[ism-1];
+          sprintf(histo, "ME EBPDT PNs amplitude SM%02d G16 L4", ism);
+          j04_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+        } else {
+          j04_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        }
       }
     }
 
@@ -1534,10 +1602,13 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
-        if ( j05_[ism-1] ) delete j05_[ism-1];
-        sprintf(histo, "ME EBPDT PNs pedestal SM%02d G16 L1", ism);
-        j05_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
-//        j05_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        if ( cloneME_ ) {
+          if ( j05_[ism-1] ) delete j05_[ism-1];
+          sprintf(histo, "ME EBPDT PNs pedestal SM%02d G16 L1", ism);
+          j05_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+        } else {
+          j05_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        }
       }
     }
 
@@ -1551,10 +1622,13 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
-        if ( j06_[ism-1] ) delete j06_[ism-1];
-        sprintf(histo, "ME EBPDT PNs pedestal SM%02d G16 L2", ism);
-        j06_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
-//        j06_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        if ( cloneME_ ) {
+          if ( j06_[ism-1] ) delete j06_[ism-1];
+          sprintf(histo, "ME EBPDT PNs pedestal SM%02d G16 L2", ism);
+          j06_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+        } else {
+          j06_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        }
       }
     }
 
@@ -1568,10 +1642,13 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
-        if ( j07_[ism-1] ) delete j07_[ism-1];
-        sprintf(histo, "ME EBPDT PNs pedestal SM%02d G16 L3", ism);
-        j07_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
-//        j07_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        if ( cloneME_ ) {
+          if ( j07_[ism-1] ) delete j07_[ism-1];
+          sprintf(histo, "ME EBPDT PNs pedestal SM%02d G16 L3", ism);
+          j07_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+        } else {
+          j07_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        }
       }
     }
 
@@ -1585,10 +1662,13 @@ void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
-        if ( j08_[ism-1] ) delete j08_[ism-1];
-        sprintf(histo, "ME EBPDT PNs pedestal SM%02d G16 L4", ism);
-        j08_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
-//        j08_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        if ( cloneME_ ) {
+          if ( j08_[ism-1] ) delete j08_[ism-1];
+          sprintf(histo, "ME EBPDT PNs pedestal SM%02d G16 L4", ism);
+          j08_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+        } else {
+          j08_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        }
       }
     }
 

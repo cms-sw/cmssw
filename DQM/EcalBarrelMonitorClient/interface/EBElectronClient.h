@@ -4,8 +4,8 @@
 /*
  * \file EBElectronClient.h
  *
- * $Date: 2006/01/02 09:18:01 $
- * $Revision: 1.7 $
+ * $Date: 2006/01/02 14:04:36 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -98,6 +98,7 @@ int ievt_;
 int jevt_;
 
 bool collateSources_;
+bool cloneME_;
 
 bool verbose_;
 

@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2006/01/11 09:37:03 $
- * $Revision: 1.58 $
+ * $Date: 2006/01/18 11:40:54 $
+ * $Revision: 1.59 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -53,6 +53,9 @@ EBTestPulseClient::EBTestPulseClient(const edm::ParameterSet& ps, MonitorUserInt
 
   // collateSources switch
   collateSources_ = ps.getUntrackedParameter<bool>("collateSources", false);
+
+  // cloneME switch
+  cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
@@ -158,34 +161,40 @@ void EBTestPulseClient::cleanup(void) {
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
-    if ( ha01_[ism-1] ) delete ha01_[ism-1];
+    if ( cloneME_ ) {
+      if ( ha01_[ism-1] ) delete ha01_[ism-1];
+      if ( ha02_[ism-1] ) delete ha02_[ism-1];
+      if ( ha03_[ism-1] ) delete ha03_[ism-1];
+
+      if ( hs01_[ism-1] ) delete hs01_[ism-1];
+      if ( hs02_[ism-1] ) delete hs02_[ism-1];
+      if ( hs03_[ism-1] ) delete hs03_[ism-1];
+
+      if ( he01_[ism-1] ) delete he01_[ism-1];
+      if ( he02_[ism-1] ) delete he02_[ism-1];
+      if ( he03_[ism-1] ) delete he03_[ism-1];
+
+      if ( i01_[ism-1] ) delete i01_[ism-1];
+      if ( i02_[ism-1] ) delete i02_[ism-1];
+      if ( i03_[ism-1] ) delete i03_[ism-1];
+      if ( i04_[ism-1] ) delete i04_[ism-1];
+    }
+
     ha01_[ism-1] = 0;
-    if ( ha02_[ism-1] ) delete ha02_[ism-1];
     ha02_[ism-1] = 0;
-    if ( ha03_[ism-1] ) delete ha03_[ism-1];
     ha03_[ism-1] = 0;
 
-    if ( hs01_[ism-1] ) delete hs01_[ism-1];
     hs01_[ism-1] = 0;
-    if ( hs02_[ism-1] ) delete hs02_[ism-1];
     hs02_[ism-1] = 0;
-    if ( hs03_[ism-1] ) delete hs03_[ism-1];
     hs03_[ism-1] = 0;
 
-    if ( he01_[ism-1] ) delete he01_[ism-1];
     he01_[ism-1] = 0;
-    if ( he02_[ism-1] ) delete he02_[ism-1];
     he02_[ism-1] = 0;
-    if ( he03_[ism-1] ) delete he03_[ism-1];
     he03_[ism-1] = 0;
 
-    if ( i01_[ism-1] ) delete i01_[ism-1];
     i01_[ism-1] = 0;
-    if ( i02_[ism-1] ) delete i02_[ism-1];
     i02_[ism-1] = 0;
-    if ( i03_[ism-1] ) delete i03_[ism-1];
     i03_[ism-1] = 0;
-    if ( i04_[ism-1] ) delete i04_[ism-1];
     i04_[ism-1] = 0;
 
   }
@@ -687,10 +696,13 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
-        if ( ha01_[ism-1] ) delete ha01_[ism-1];
-        sprintf(histo, "ME EBTPT amplitude SM%02d G01", ism);
-        ha01_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
-//        ha01_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        if ( cloneME_ ) {
+          if ( ha01_[ism-1] ) delete ha01_[ism-1];
+          sprintf(histo, "ME EBTPT amplitude SM%02d G01", ism);
+          ha01_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+        } else {
+          ha01_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        }
       }
     }
 
@@ -704,10 +716,13 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
-        if ( ha02_[ism-1] ) delete ha02_[ism-1];
-        sprintf(histo, "ME EBTPT amplitude SM%02d G06", ism);
-        ha02_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
-//        ha02_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        if ( cloneME_ ) {
+          if ( ha02_[ism-1] ) delete ha02_[ism-1];
+          sprintf(histo, "ME EBTPT amplitude SM%02d G06", ism);
+          ha02_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+        } else {
+          ha02_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        }
       }
     }
 
@@ -721,10 +736,13 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
-        if ( ha03_[ism-1] ) delete ha03_[ism-1];
-        sprintf(histo, "ME EBTPT amplitude SM%02d G12", ism);
-        ha03_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
-//        ha03_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        if ( cloneME_ ) {
+          if ( ha03_[ism-1] ) delete ha03_[ism-1];
+          sprintf(histo, "ME EBTPT amplitude SM%02d G12", ism);
+          ha03_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+        } else {
+          ha03_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        }
       }
     }
 
@@ -738,10 +756,13 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
-        if ( hs01_[ism-1] ) delete hs01_[ism-1];
-        sprintf(histo, "ME EBTPT shape SM%02d G01", ism);
-        hs01_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
-//        hs01_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        if ( cloneME_ ) {
+          if ( hs01_[ism-1] ) delete hs01_[ism-1];
+          sprintf(histo, "ME EBTPT shape SM%02d G01", ism);
+          hs01_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+        } else {
+          hs01_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        }
       }
     }
 
@@ -755,10 +776,13 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
-        if ( hs02_[ism-1] ) delete hs02_[ism-1];
-        sprintf(histo, "ME EBTPT shape SM%02d G06", ism);
-        hs02_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
-//        hs02_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        if ( cloneME_ ) {
+          if ( hs02_[ism-1] ) delete hs02_[ism-1];
+          sprintf(histo, "ME EBTPT shape SM%02d G06", ism);
+          hs02_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+        } else {
+          hs02_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        }
       }
     }
 
@@ -772,10 +796,13 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
-        if ( hs03_[ism-1] ) delete hs03_[ism-1];
-        sprintf(histo, "ME EBTPT shape SM%02d G12", ism);
-        hs03_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
-//        hs03_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        if ( cloneME_ ) {
+          if ( hs03_[ism-1] ) delete hs03_[ism-1];
+          sprintf(histo, "ME EBTPT shape SM%02d G12", ism);
+          hs03_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+        } else {
+          hs03_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        }
       }
     }
 
@@ -789,10 +816,13 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
-        if ( he01_[ism-1] ) delete he01_[ism-1];
-        sprintf(histo, "ME EBTPT amplitude error SM%02d G01", ism);
-        he01_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
-//        he01_[ism-1] = dynamic_cast<TH2F*> (ob->operator->());
+        if ( cloneME_ ) {
+          if ( he01_[ism-1] ) delete he01_[ism-1];
+          sprintf(histo, "ME EBTPT amplitude error SM%02d G01", ism);
+          he01_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
+        } else {
+          he01_[ism-1] = dynamic_cast<TH2F*> (ob->operator->());
+        }
       }
     }
 
@@ -806,10 +836,13 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
-        if ( he02_[ism-1] ) delete he02_[ism-1];
-        sprintf(histo, "ME EBTPT amplitude error SM%02d G06", ism);
-        he02_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
-//        he02_[ism-1] = dynamic_cast<TH2F*> (ob->operator->());
+        if ( cloneME_ ) {
+          if ( he02_[ism-1] ) delete he02_[ism-1];
+          sprintf(histo, "ME EBTPT amplitude error SM%02d G06", ism);
+          he02_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
+        } else {
+          he02_[ism-1] = dynamic_cast<TH2F*> (ob->operator->());
+        }
       }
     }
 
@@ -823,10 +856,13 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
-        if ( he03_[ism-1] ) delete he03_[ism-1];
-        sprintf(histo, "ME EBTPT amplitude error SM%02d G12", ism);
-        he03_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
-//        he03_[ism-1] = dynamic_cast<TH2F*> (ob->operator->());
+        if ( cloneME_ ) {
+          if ( he03_[ism-1] ) delete he03_[ism-1];
+          sprintf(histo, "ME EBTPT amplitude error SM%02d G12", ism);
+          he03_[ism-1] = dynamic_cast<TH2F*> ((ob->operator->())->Clone(histo));
+        } else {
+          he03_[ism-1] = dynamic_cast<TH2F*> (ob->operator->());
+        }
       }
     }
 
@@ -840,10 +876,13 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
-        if ( i01_[ism-1] ) delete i01_[ism-1];
-        sprintf(histo, "ME EBPDT PNs amplitude SM%02d G01", ism);
-        i01_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
-//        i01_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        if ( cloneME_ ) {
+          if ( i01_[ism-1] ) delete i01_[ism-1];
+          sprintf(histo, "ME EBPDT PNs amplitude SM%02d G01", ism);
+          i01_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+        } else {
+          i01_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        }
       }
     }
 
@@ -857,10 +896,13 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
-        if ( i02_[ism-1] ) delete i02_[ism-1];
-        sprintf(histo, "ME EBPDT PNs amplitude SM%02d G16", ism);
-        i02_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
-//        i02_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        if ( cloneME_ ) {
+          if ( i02_[ism-1] ) delete i02_[ism-1];
+          sprintf(histo, "ME EBPDT PNs amplitude SM%02d G16", ism);
+          i02_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+        } else {
+          i02_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        }
       }
     }
 
@@ -874,10 +916,13 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
-        if ( i03_[ism-1] ) delete i03_[ism-1];
-        sprintf(histo, "ME EBPDT PNs pedestal SM%02d G01", ism);
-        i03_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
-//        i03_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        if ( cloneME_ ) {
+          if ( i03_[ism-1] ) delete i03_[ism-1];
+          sprintf(histo, "ME EBPDT PNs pedestal SM%02d G01", ism);
+          i03_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+        } else {
+          i03_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        }
       }
     }
 
@@ -891,10 +936,13 @@ void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
       ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
       if ( ob ) {
-        if ( i04_[ism-1] ) delete i04_[ism-1];
-        sprintf(histo, "ME EBPDT PNs pedestal SM%02d G16", ism);
-        i04_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
-//        i04_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        if ( cloneME_ ) {
+          if ( i04_[ism-1] ) delete i04_[ism-1];
+          sprintf(histo, "ME EBPDT PNs pedestal SM%02d G16", ism);
+          i04_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+        } else {
+          i04_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        }
       }
     }
 

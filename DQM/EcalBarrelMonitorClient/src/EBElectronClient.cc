@@ -1,8 +1,8 @@
 /*
  * \file EBElectronClient.cc
  *
- * $Date: 2006/01/02 09:18:03 $
- * $Revision: 1.8 $
+ * $Date: 2006/01/02 14:04:38 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -16,6 +16,9 @@ EBElectronClient::EBElectronClient(const edm::ParameterSet& ps, MonitorUserInter
 
   // collateSources switch
   collateSources_ = ps.getUntrackedParameter<bool>("collateSources", false);
+
+  // cloneME switch
+  cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
