@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: PoolCatalog.cc,v 1.3 2006/01/03 19:38:59 wmtan Exp $
+// $Id: PoolCatalog.cc,v 1.4 2006/01/11 22:33:25 wmtan Exp $
 //
 // Author: Luca Lista
 // Co-Author: Bill Tanenbaum
@@ -16,20 +16,30 @@
 #include "FileCatalog/IFCContainer.h"
 
 namespace edm {
-  PoolCatalog::PoolCatalog(unsigned int rw, std::string const& url) : catalog_() {
+  PoolCatalog::PoolCatalog(unsigned int rw, std::string url) : catalog_() {
     bool read = rw & READ;
     bool write = rw & WRITE;
     assert(read || write);
     pool::POOLContext::loadComponent("SEAL/Services/MessageService");
     //  POOLContext::setMessageVerbosityLevel(seal::Msg::Info);
 
+    if (url.empty()) {
+       std::string const defaultCatalog = "file:PoolFileCatalog.xml";
+       url = defaultCatalog;
+    } else {
+       url = toPhysical(url);
+    }
     pool::URIParser parser(url);
     parser.parse();
 
-    if (read)
+    if (read) {
+      LogInfo("FwkJob") << "READ_CATALOG: " << parser.contactstring();
       catalog_.addReadCatalog(parser.contactstring());
-    if (write)
+    }
+    if (write) {
+      LogInfo("FwkJob") << "WRITE_CATALOG: " << parser.contactstring();
       catalog_.setWriteCatalog(parser.contactstring());
+    }
     catalog_.connect();
     catalog_.start();
   }

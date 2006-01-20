@@ -2,7 +2,7 @@
 #define Common_PoolCatalog_h
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: PoolCatalog.h,v 1.1 2005/11/01 22:42:45 wmtan Exp $
+// $Id: PoolCatalog.h,v 1.2 2005/11/23 02:17:56 wmtan Exp $
 //
 // Class PoolCatalog. Common services to manage POOL catalog
 //
@@ -19,7 +19,7 @@ namespace edm {
   class PoolCatalog {
   public:
     enum { WRITE = 1, READ = 2 };
-    PoolCatalog(unsigned int rw, std::string const& url = std::string());
+    PoolCatalog(unsigned int rw, std::string url);
     ~PoolCatalog();
     void commitCatalog();
     void registerFile(std::string const& pfn, std::string const& lfn);
