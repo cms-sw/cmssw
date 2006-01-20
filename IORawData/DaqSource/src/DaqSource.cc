@@ -1,19 +1,15 @@
 /** \file 
  *
- *  $Date: 2005/10/18 13:10:54 $
- *  $Revision: 1.4 $
+ *  $Date: 2005/11/02 16:21:03 $
+ *  $Revision: 1.5 $
  *  \author N. Amapane - S. Argiro'
  */
 
 #include "DaqSource.h"
 #include <FWCore/EDProduct/interface/EventID.h>
 #include <FWCore/EDProduct/interface/Timestamp.h>
-#include <FWCore/EDProduct/interface/EDProduct.h>
-#include <FWCore/EDProduct/interface/Wrapper.h>
-#include <FWCore/Framework/src/TypeID.h> 
-#include <FWCore/Framework/interface/InputSourceDescription.h>
-#include <FWCore/Framework/interface/EventPrincipal.h>
-#include <FWCore/Framework/interface/ProductRegistry.h>
+//#include <FWCore/Framework/interface/InputSourceDescription.h>
+#include <FWCore/Framework/interface/Event.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
 #include <DataFormats/FEDRawData/interface/FEDRawData.h>
@@ -31,66 +27,35 @@ using namespace std;
 
 DaqSource::DaqSource(const ParameterSet& pset, 
 		     const InputSourceDescription& desc) : 
-  InputSource(desc),
-  reader_(0),
-  remainingEvents_(pset.getUntrackedParameter<int>("maxEvents", -1))
+  RawInputSource(pset, desc),
+  reader_(0)
 {
-  //Generate the ModuleDescription // FIXME: hardcoded?
-  ModuleDescription mdesc;
-  mdesc.pid = PS_ID("DaqSource");
-  mdesc.moduleName_ = "DaqSource";
-  mdesc.moduleLabel_ = "DaqRawData";  
-  mdesc.versionNumber_ = 1UL;
-  mdesc.processName_ = desc.processName_;
-  mdesc.pass = desc.pass;  
+  produces<FEDRawDataCollection>();
   
-  // Fill the ProductDescription // FIXME : ??
-  FEDRawDataCollection tmp;
-  edm::TypeID fedcoll_type(tmp);
-  fedrawdataDescription_.module = mdesc;
-  fedrawdataDescription_.fullClassName_=fedcoll_type.userClassName();
-  fedrawdataDescription_.friendlyClassName_=fedcoll_type.friendlyClassName();
-  productRegistry().addProduct(fedrawdataDescription_); 
-
   // Instantiate the requested data source
   string reader = pset.getParameter<string>("reader");
   reader_ = DaqReaderPluginFactory::get()->create(reader,pset.getParameter<ParameterSet>("pset"));
 }
 
-
-
 DaqSource::~DaqSource(){
   delete reader_;
 }
 
-
-auto_ptr<EventPrincipal>
-DaqSource::read() {
-  auto_ptr<EventPrincipal> result(0);
+std::auto_ptr<Event>
+DaqSource::readOneEvent() {
 
   EventID eventId;
   Timestamp tstamp;
 
   std::auto_ptr<FEDRawDataCollection> bare_product(new FEDRawDataCollection);
 
-  if (remainingEvents_-- == 0 ||!reader_->fillRawData(eventId, 
-						      tstamp, 
-						      *bare_product)){
-    return result;
+  if (!reader_->fillRawData(eventId, tstamp, *bare_product)) {
+    return std::auto_ptr<Event>(0);
   }
-  result = 
-    auto_ptr<EventPrincipal>(new EventPrincipal(eventId,tstamp,productRegistry()));
-   
-  edm::Wrapper<FEDRawDataCollection> *wrapped_product = 
-    new edm::Wrapper<FEDRawDataCollection> (bare_product);
+ 
+  std::auto_ptr<Event> e = makeEvent(eventId, tstamp);
 
-  auto_ptr<EDProduct>  prod(wrapped_product);
-  
-  auto_ptr<Provenance> prov(new Provenance(fedrawdataDescription_));
-    
-  result->put(prod, prov);
+  e->put(bare_product);
 
-  return result;
+  return e;
 }
-
-

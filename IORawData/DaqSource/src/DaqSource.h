@@ -5,21 +5,24 @@
  *  An input service for raw data. 
  *  The actual source can be the real DAQ, a file, a random generator, etc.
  *
- *  $Date: 2005/10/04 18:38:48 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/10/06 18:23:47 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane - S. Argiro'
  */
 
-#include <FWCore/Framework/interface/InputSource.h>
-#include <FWCore/Framework/interface/ProductDescription.h>
-#include <string>
+#include <memory>
 
-class FEDRawData;
-namespace edm {class ParameterSet; class InputSourceDescription;} 
+#include "FWCore/Framework/interface/RawInputSource.h"
+
+namespace edm {
+    class ParameterSet;
+    class InputSourceDescription;
+    class Event;
+}
+
 class DaqBaseReader;
 
-
-class DaqSource : public edm::InputSource {
+class DaqSource : public edm::RawInputSource {
 
  public:
   explicit DaqSource(const edm::ParameterSet& pset, 
@@ -28,12 +31,9 @@ class DaqSource : public edm::InputSource {
   virtual ~DaqSource();
 
  private:
-  virtual std::auto_ptr<edm::EventPrincipal> read();
 
+  virtual std::auto_ptr<edm::Event> readOneEvent();
   DaqBaseReader * reader_;
-  edm::ProductDescription fedrawdataDescription_;
-   
-  int remainingEvents_;
 };
 
 #endif
