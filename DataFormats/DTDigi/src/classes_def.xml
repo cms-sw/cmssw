@@ -1,8 +1,8 @@
 <lcgdict>
 <class name="DTDigi"/>
 <class name="std::vector<DTDigi>"/>
-<class name="std::map<DTDetId,std::vector<DTDigi> >"/>
+<class name="std::map<DTLayerId,std::vector<DTDigi> >"/>
 <class name="DTDigi::PersistentPacking"/>
-<class name="MuonDigiCollection<DTDetId,DTDigi>"/> 
-<class name="edm::Wrapper<MuonDigiCollection<DTDetId,DTDigi>>"/> 
+<class name="MuonDigiCollection<DTLayerId,DTDigi>"/> 
+<class name="edm::Wrapper<MuonDigiCollection<DTLayerId,DTDigi>>"/> 
 </lcgdict>

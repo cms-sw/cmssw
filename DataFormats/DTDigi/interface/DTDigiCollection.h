@@ -4,23 +4,23 @@
 /** \class DTDigiCollection
  *  ED
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2005/10/07 17:40:53 $
+ *  $Revision: 1.1 $
  *  \author Stefano ARGIRO
  */
 
 /** \class DTDigiCollection
    
    \author Stefano ARGIRO
-   \version $Id: DTDigiCollection.h,v 1.3 2005/08/23 09:09:41 argiro Exp $
+   \version $Id: DTDigiCollection.h,v 1.1 2005/10/07 17:40:53 namapane Exp $
    \date 21 Apr 2005
 */
 
-#include <DataFormats/MuonDetId/interface/DTDetId.h>
+#include <DataFormats/MuonDetId/interface/DTLayerId.h>
 #include <DataFormats/DTDigi/interface/DTDigi.h>
 #include <DataFormats/MuonData/interface/MuonDigiCollection.h>
 
-typedef MuonDigiCollection<DTDetId, DTDigi> DTDigiCollection;
+typedef MuonDigiCollection<DTLayerId, DTDigi> DTDigiCollection;
 
 #endif
 
