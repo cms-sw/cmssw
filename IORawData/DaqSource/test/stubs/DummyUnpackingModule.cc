@@ -3,8 +3,8 @@
  * dummy module  for the test of  DaqFileInputService
  *   
  * 
- * $Date: 2005/10/05 16:22:50 $
- * $Revision: 1.3 $
+ * $Date: 2005/10/06 18:23:47 $
+ * $Revision: 1.4 $
  * \author N. Amapane - S. Argiro'
  *
 */
@@ -40,7 +40,7 @@ namespace test{
       ++count_;
 
       Handle<FEDRawDataCollection> rawdata;
-      e.getByLabel("DaqRawData", rawdata);
+      e.getByLabel("DaqSource", rawdata);
       for (int i = 0; i<FEDNumbering::lastFEDId(); i++){
 	const FEDRawData& data = rawdata->FEDData(i);
 	if(size_t size=data.size()) {
