@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/01/19 06:58:39 $
- * $Revision: 1.80 $
+ * $Date: 2006/01/19 14:18:17 $
+ * $Revision: 1.81 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -499,7 +499,12 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
   }
 
   location_ = runiov_.getRunTag().getLocationDef().getLocation();
-  runtype_ = runiov_.getRunTag().getRunTypeDef().getRunType();
+
+  if ( runiov_.getRunTag().getRunTypeDef().getRunType() == "COSMIC" ) runtype_ = "cosmic";
+  if ( runiov_.getRunTag().getRunTypeDef().getRunType() == "LASER" ) runtype_ = "laser";
+  if ( runiov_.getRunTag().getRunTypeDef().getRunType() == "PEDESTAL" ) runtype_ = "pedestal";
+  if ( runiov_.getRunTag().getRunTypeDef().getRunType() == "TEST_PULSE" ) runtype_ = "testpulse";
+  if ( runiov_.getRunTag().getRunTypeDef().getRunType() == "BEAM" ) runtype_ = "electron";
 
   cout << endl;
   cout << "=============RunIOV:" << endl;
