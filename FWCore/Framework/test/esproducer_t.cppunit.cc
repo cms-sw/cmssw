@@ -16,6 +16,7 @@
 #include "FWCore/Framework/interface/ESProducts.h"
 #include <cppunit/extensions/HelperMacros.h>
 
+#include "FWCore/Utilities/interface/Exception.h"
 using edm::eventsetup::test::DummyData;
 using namespace edm::eventsetup;
 using edm::ESProducer;
@@ -31,6 +32,7 @@ CPPUNIT_TEST(getfromShareTest);
 CPPUNIT_TEST(decoratorTest);
 CPPUNIT_TEST(dependsOnTest);
 CPPUNIT_TEST(labelTest);
+CPPUNIT_TEST_EXCEPTION(failMultipleRegistration,cms::Exception);
 
 CPPUNIT_TEST_SUITE_END();
 public:
@@ -43,6 +45,7 @@ public:
   void decoratorTest();
   void dependsOnTest();
   void labelTest();
+  void failMultipleRegistration();
 
 private:
 class Test1Producer : public ESProducer {
@@ -59,6 +62,20 @@ public:
 private:
    DummyData data_;
 };
+
+class MultiRegisterProducer : public ESProducer {
+public:
+   MultiRegisterProducer() {
+      setWhatProduced(this);
+      setWhatProduced(this);
+   }
+   const DummyData* produce(const DummyRecord& /*iRecord*/) {
+      return &data_;
+   }
+private:
+   DummyData data_;
+};
+
 
 class ShareProducer : public ESProducer {
 public:
@@ -171,6 +188,7 @@ void testEsproducer::getfromShareTest()
 
 void testEsproducer::labelTest()
 {
+   try {
    EventSetupProvider provider;
    
    boost::shared_ptr<DataProxyProvider> pProxyProv(new LabelledProducer);
@@ -198,6 +216,10 @@ void testEsproducer::labelTest()
       CPPUNIT_ASSERT(0 != &(*pDummy));
       std::cout <<pDummy->value_ << std::endl;
       CPPUNIT_ASSERT(iTime == pDummy->value_);
+   }
+   } catch(const cms::Exception& iException) {
+      std::cout <<"caught exception "<<iException.what()<<std::endl;
+      throw;
    }
 }
 
@@ -307,4 +329,9 @@ void testEsproducer::dependsOnTest()
       CPPUNIT_ASSERT(0 != &(*pDummy));
       CPPUNIT_ASSERT(3*iTime == pDummy->value_);
    }
+}
+
+void testEsproducer::failMultipleRegistration()
+{
+   MultiRegisterProducer dummy;
 }
