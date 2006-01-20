@@ -8,6 +8,7 @@
 <use name=CalibFormats/HcalObjects>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
+<use name=CalibCalorimetry/HcalAlgos>
 <export>
   <lib name=DQMHcalMonitorTasks>
   <use name=root>
@@ -20,4 +21,5 @@
   <use name=CalibFormats/HcalObjects>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
+  <use name=CalibCalorimetry/HcalAlgos>
 </export>

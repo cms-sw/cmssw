@@ -1,7 +1,7 @@
 #include "DQM/HcalMonitorTasks/interface/HcalPedestalMonitor.h"
-#include "HcalMonitorUtils.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalAlgoUtils.h"
 #include "TH1F.h"
-#include "CalibCalorimetry/HcalAlgos/src/HcalAlgoUtils.h"
+
 
 HcalPedestalMonitor::HcalPedestalMonitor() {m_doPerChannel = false;}
 
