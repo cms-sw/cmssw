@@ -1,12 +1,16 @@
 #ifndef TrackReco_Track_h
 #define TrackReco_Track_h
 //
-// $Id: Track.h,v 1.5 2005/12/11 17:58:16 llista Exp $
+// $Id: Track.h,v 1.6 2005/12/15 20:42:49 llista Exp $
 //
 // Definition of Track class for RECO
 //
 // Author: Luca Lista
 //
+#include "DataFormats/Math/interface/Vector3D.h"
+#include "DataFormats/Math/interface/Point3D.h"
+#include "DataFormats/Math/interface/Error.h"
+#include "DataFormats/Math/interface/Vector.h"
 #include "DataFormats/TrackReco/interface/HelixParameters.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
@@ -16,9 +20,9 @@ namespace reco {
   public:
     typedef helix::Parameters Parameters;
     typedef helix::Covariance Covariance;
-    typedef helix::PosMomError PosMomError;
-    typedef helix::Point Point;
-    typedef helix::Vector Vector;
+    typedef math::Error<6> PosMomError;
+    typedef math::XYZVector Vector;
+    typedef math::XYZPoint Point;
 
     Track() { }
     Track( float chi2, unsigned short ndof, int found, int invalid, int lost,
