@@ -1,3 +1,6 @@
+** V01-01-07  [Fri Jan 20 21:50:34 2006]
+Give only proper logging message for catalog names
+
 ** V01-01-06  [Sun Jan 15 07:12:32 2006]
 Fix copying problem with defaulted EDproducts
 
