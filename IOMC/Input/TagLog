@@ -1,3 +1,6 @@
+** V00-02-00  [Fri Jan 20 12:35:35 2006]
+new API
+
 ** V00-01-03  [Sat Dec 17 01:35:45 2005]
 PGuns moved into separated package IOMC/ParticleGuns
 
