@@ -1,14 +1,14 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2005/05/02 13:57:51 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/12/14 11:58:00 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane, R. Bellan - INFN Torino
  */
 
 #include "SimMuon/DTDigitizer/src/DTDigiSyncTOFCorr.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/MuonDetId/interface/DTDetId.h"
+#include "DataFormats/MuonDetId/interface/DTWireId.h"
 
 #include "Geometry/DTSimAlgo/interface/DTGeomDetUnit.h"
 
@@ -25,7 +25,7 @@ DTDigiSyncTOFCorr::~DTDigiSyncTOFCorr(){}
 
 
 // Delays to be added to digi times during digitization, in ns.
-double DTDigiSyncTOFCorr::digitizerOffset(const DTDetId * id, const DTGeomDetUnit* layer) const {
+double DTDigiSyncTOFCorr::digitizerOffset(const DTWireId * id, const DTGeomDetUnit* layer) const {
 
   double offset = theOffset;
   const double cSpeed = 29.9792458; // cm/ns
@@ -65,6 +65,6 @@ double DTDigiSyncTOFCorr::digitizerOffset(const DTDetId * id, const DTGeomDetUni
 
 
 // Offset to obtain "raw" TDCs for the L1 emulator from digis.
-double DTDigiSyncTOFCorr::emulatorOffset(const DTDetId * id) const {
+double DTDigiSyncTOFCorr::emulatorOffset(const DTWireId * id) const {
   return theOffset;
 }

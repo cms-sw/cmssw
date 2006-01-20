@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/01/17 13:39:15 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/01/19 10:43:23 $
+ *  $Revision: 1.7 $
  *  \authors: G. Bevilacqua, N. Amapane, G. Cerminara, R. Bellan
  */
 
@@ -40,7 +40,9 @@
 
 // Digis
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
-#include "DataFormats/MuonDetId/interface/DTDetId.h"
+//#include "DataFormats/MuonDetId/interface/DTDetId.h"
+#include "DataFormats/MuonDetId/interface/DTWireId.h"
+#include "DataFormats/MuonDetId/interface/DTLayerId.h"
 
 // DTDigitizer
 #include "SimMuon/DTDigitizer/interface/DTDigiSyncFactory.h"
@@ -59,7 +61,7 @@ DTDigitizer::DTDigitizer(const ParameterSet& conf_) {
   if (debug) cout<<"Creating a DTDigitizer"<<endl;
   
   //register the Producer with a label
-  produces<DTDigiCollection>();
+  produces<DTDigiCollection>("MuonDTDigis"); // FIXME: Do I pass it by ParameterSet?
   
   //Parameters:
 
@@ -119,13 +121,15 @@ void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
   //************ 2 ***************
 
   // These are sorted by DetId, i.e. by layer and then by wire #
-  map<DTDetId, vector<const PSimHit*> > wireMap;     
+  //  map<DTDetId, vector<const PSimHit*> > wireMap;     
+  DTWireIdMap wireMap;     
   
   for(MixCollection<PSimHit>::MixItr simHit = simHits->begin();
        simHit != simHits->end(); simHit++){
     
     // Create the id of the wire, the simHits in the DT known also the wireId
-    DTDetId wireId(simHit->detUnitId());
+    //    DTDetId wireId(simHit->detUnitId());
+    DTWireId wireId(simHit->detUnitId());
     // Fill the map
     wireMap[wireId].push_back(&(*simHit));
   }
@@ -135,15 +139,14 @@ void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
   //************ 3 ***************
 
   // Loop over the wires
-  for(map<DTDetId, vector<const PSimHit*> >::const_iterator wire =
-	wireMap.begin(); wire!=wireMap.end(); wire++){
+  for(DTWireIdMapConstIter wire = wireMap.begin(); wire!=wireMap.end(); wire++){
     // SimHit Container associated to the wire
     const vector<const PSimHit*> & vhit = (*wire).second; 
     if(vhit.size()!=0) {
       TDContainer tdCont; // It is a vector<pair<const PSimHit*,float> >;
       
       //************ 4 ***************
-      DTDetId wireId = (*wire).first;
+      DTWireId wireId = (*wire).first;
 
       //FIXME
       //      const DTGeomDetUnit* layer = dynamic_cast< const DTGeomDetUnit* > (muonGeom->idToDet(wireId)); 
@@ -152,7 +155,6 @@ void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
       // Loop on the hits of this wire    
       for (vector<const PSimHit*>::const_iterator hit=vhit.begin();
 	   hit != vhit.end(); hit++){
-
 	//************ 5 ***************
 	
 	time = computeTime(layer,wireId, *hit); 
@@ -181,7 +183,7 @@ void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
 }
 
 pair<float,bool> DTDigitizer::computeTime(const DTGeomDetUnit* layer,
-					  const DTDetId &wireId, const PSimHit *hit){
+					  const DTWireId &wireId, const PSimHit *hit){
   LocalPoint entryP = hit->entryPoint();
   LocalPoint exitP = hit->exitPoint();
   int partType = hit->particleType();
@@ -426,7 +428,7 @@ pair<float,bool> DTDigitizer::driftTimeFromTimeMap() const {
 
 float DTDigitizer::externalDelays(const DTTopology &topo,
 				  const DTGeomDetUnit* layer,
-				  const DTDetId &wireId, 
+				  const DTWireId &wireId, 
 				  const PSimHit *hit) const {
   
   // Time of signal propagation along wire.
@@ -458,7 +460,7 @@ float DTDigitizer::externalDelays(const DTTopology &topo,
 
 // accumulate digis by layer
 
-void DTDigitizer::storeDigis(DTDetId &wireId, 
+void DTDigitizer::storeDigis(DTWireId &wireId, 
 			     TDContainer &hits,
 			     DTDigiCollection &output){
 
@@ -501,7 +503,7 @@ void DTDigitizer::storeDigis(DTDetId &wireId,
 
       //************ 7D ***************
 
-      DTDetId layerID = wireId.layerId();  //taking the layer in which reside the wire
+      DTLayerId layerID = wireId.layerId();  //taking the layer in which reside the wire
       output.insertDigi(layerID, digi); // ordering Digis by layer
       digiN++;
       wakeTime = time + deadTime;

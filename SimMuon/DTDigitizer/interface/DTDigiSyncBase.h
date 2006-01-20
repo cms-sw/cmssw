@@ -4,12 +4,12 @@
 /** \class DTDigiSyncBase
  *  Base class to define the offsets for digis.
  *
- *  $Date: 2005/12/08 11:30:16 $
- *  $Revision: 1.0 $
+ *  $Date: 2005/12/14 11:58:01 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane, G. Cerminara, R. Bellan - INFN Torino
  */
 
-class DTDetId;
+class DTWireId;
 class DTGeomDetUnit;
 
 class DTDigiSyncBase {
@@ -22,10 +22,10 @@ public:
   virtual ~DTDigiSyncBase(){};
 
   /// Delays to be added to digi times during digitization, in ns.
-  virtual double digitizerOffset(const DTDetId * id, const DTGeomDetUnit* layer) const = 0;
+  virtual double digitizerOffset(const DTWireId * id, const DTGeomDetUnit* layer) const = 0;
 
   /// Offset to obtain "raw" TDCs for the L1 emulator from digis.
-  virtual double emulatorOffset(const DTDetId * id) const = 0;
+  virtual double emulatorOffset(const DTWireId * id) const = 0;
 
 };
 #endif

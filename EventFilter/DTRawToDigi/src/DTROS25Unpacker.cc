@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2005/11/23 11:17:15 $
- *  $Revision: 1.4 $
+ *  $Date: 2005/11/25 18:12:53 $
+ *  $Revision: 1.5 $
  *  \author  M. Zanetti - INFN Padova 
  */
 
@@ -65,7 +65,7 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 	      DTTDCErrorWord dtTDCErrorWord(index);
 	      DTTDCErrorNotifier dtTDCError(dtTDCErrorWord);
 	      dtTDCError.print();
-	    } 
+	    }  
 		
 	    // The TDC information
 	    else if (wordType.type() == DTROSWordType::TDCMeasurement) {
@@ -75,7 +75,7 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 	      int tdcChannel = tdcMeasurementWord.tdcChannel(); 
 		  
 	      // Map the RO channel to the DetId and wire
-	      DTDetId layer; int wire = 0;
+	      DTLayerId layer; int wire = 0;
 	      //mapping->getId(dduID, rosID, robID, tdcID, tdcChannel, layer, wire);
 		  
 	      // Produce the digi

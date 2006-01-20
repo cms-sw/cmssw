@@ -4,14 +4,14 @@
 /** \class DTDigiSyncFromTable
  *  Digi offsets taken from a synchronization table.
  *
- *  $Date: 2005/12/08 11:30:50 $
- *  $Revision: 1.0 $
+ *  $Date: 2005/12/14 11:58:00 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane, R. Bellan - INFN Torino
  */
 
 #include "SimMuon/DTDigitizer/interface/DTDigiSyncBase.h"
 
-class DTDetId;
+class DTWireId;
 class DTGeomDetUnit;
 namespace edm{class ParameterSet;}
 
@@ -24,10 +24,10 @@ public:
   virtual ~DTDigiSyncFromTable();
 
   /// Delays to be added to digi times during digitization, in ns.
-  double digitizerOffset(const DTDetId * id, const DTGeomDetUnit* layer=0) const;
+  double digitizerOffset(const DTWireId * id, const DTGeomDetUnit* layer=0) const;
 
   /// Offset to obtain "raw" TDCs for the L1 emulator from digis.
-  double emulatorOffset(const DTDetId * id) const;
+  double emulatorOffset(const DTWireId * id) const;
 
 private:
 };

@@ -6,15 +6,16 @@
  *  The parametrisation function in DTDriftTimeParametrization 
  *  from P.G.Abia, J.Puerta is used in all cases where it is applicable. 
  *
- *  $Date: 2005/12/06 15:32:07 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/12/14 11:58:00 $
+ *  $Revision: 1.2 $
  *  \authors: G. Bevilacqua, N. Amapane, G. Cerminara, R. Bellan
  */
 
 #include "FWCore/Framework/interface/EDProducer.h"
 
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
-#include "DataFormats/MuonDetId/interface/DTDetId.h"
+//#include "DataFormats/MuonDetId/interface/DTDetId.h"
+#include "DataFormats/MuonDetId/interface/DTWireId.h"
 
 #include <vector>
 
@@ -39,9 +40,9 @@ class DTDigitizer : public edm::EDProducer {
   typedef std::pair<const PSimHit*,float> hitAndT; // hit & corresponding time
   typedef std::vector<hitAndT> TDContainer; // hits & times for one wire
 
-  typedef std::map<DTDetId, std::vector<PSimHit> > DTDetIdMap;
-  typedef std::map<DTDetId, std::vector<PSimHit> >::iterator DTDetIdMapIter;  
-  typedef std::map<DTDetId, std::vector<PSimHit> >::const_iterator DTDetIdMapConstIter;  
+  typedef std::map<DTWireId, std::vector<const PSimHit*> > DTWireIdMap; 
+  typedef DTWireIdMap::iterator DTWireIdMapIter;  
+  typedef DTWireIdMap::const_iterator DTWireIdMapConstIter;  
 
   // Sort hits container by time.
   struct hitLessT {
@@ -53,7 +54,7 @@ class DTDigitizer : public edm::EDProducer {
 
   // Calculate the drift time for one hit. 
   // if status flag == false, hit has to be discarded.
-  std::pair<float,bool> computeTime(const DTGeomDetUnit* layer,const DTDetId &wireId, const PSimHit *hit) ;
+  std::pair<float,bool> computeTime(const DTGeomDetUnit* layer,const DTWireId &wireId, const PSimHit *hit) ;
   
   // Calculate the drift time using the GARFIELD cell parametrization,
   // taking care of all conversions from CMSSW local coordinates
@@ -69,12 +70,12 @@ class DTDigitizer : public edm::EDProducer {
   // TOF etc.; subtract calibration time.
   float externalDelays(const DTTopology &topo,
 		       const DTGeomDetUnit* layer,
-		       const DTDetId &wireId, 
+		       const DTWireId &wireId, 
 		       const PSimHit *hit) const;
 
   // Store digis for one wire, taking into account the dead time.
   //FiXME put alias for the map.
-  void storeDigis(DTDetId &wireId, 
+  void storeDigis(DTWireId &wireId, 
 		  TDContainer &hits,
 		  DTDigiCollection &output);
   

@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2005/11/25 18:12:53 $
- *  $Revision: 1.5 $
+ *  $Date: 2005/12/01 08:49:29 $
+ *  $Revision: 1.6 $
  *  \author  M. Zanetti - INFN Padova 
  */
 
@@ -11,6 +11,7 @@
 #include <EventFilter/DTRawToDigi/src/DTTDCErrorNotifier.h>
 #include <CondFormats/DTObjects/interface/DTReadOutMapping.h>
 #include <FWCore/Utilities/interface/Exception.h>
+#include <DataFormats/MuonDetId/interface/DTWireId.h> 
 
 #include <iostream>
 #include <map>
@@ -23,7 +24,7 @@ void DTROS8Unpacker::interpretRawData(const unsigned int* index, int datasize,
 				      int dduID,
 				      edm::ESHandle<DTReadOutMapping>& mapping, 
 				      std::auto_ptr<DTDigiCollection>& product) {
-
+ 
 
   /// CopyAndPaste from P. Ronchese unpacker
   const int wordLength = 4;
@@ -75,7 +76,7 @@ void DTROS8Unpacker::interpretRawData(const unsigned int* index, int datasize,
 	dduID = 31;
 	
 	// Map the RO channel to the DetId and wire
-	DTDetId detId = mapping->readOutToGeometry(dduID, rosID, robID, tdcID, tdcChannel);
+	DTWireId detId = mapping->readOutToGeometry(dduID, rosID, robID, tdcID, tdcChannel);
 	int wire = detId.wire();
 	
 	// Produce the digi
