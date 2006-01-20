@@ -22,7 +22,12 @@
    
 */
 
-class otl_connect;
+namespace oracle {
+  namespace occi {
+    class Environment;
+    class Connection;
+  }
+}
 
 class HcalDbOnline {
  public:
@@ -32,6 +37,7 @@ class HcalDbOnline {
   std::auto_ptr <HcalPedestals> getPedestals (const std::string& fTag);
   std::auto_ptr <HcalGains> getGains (const std::string& fTag);
  private:
-  otl_connect* mConnect;
+  oracle::occi::Environment* mEnvironment;
+  oracle::occi::Connection* mConnect;
 };
 #endif

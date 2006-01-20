@@ -1,34 +1,45 @@
 
 //
 // F.Ratnikov (UMd), Dec 14, 2005
-// $Id: HcalDbHardcode.cc,v 1.1 2005/12/15 23:39:36 fedor Exp $
+// $Id: HcalDbOnline.cc,v 1.1 2006/01/19 01:32:02 fedor Exp $
 //
 #include <string>
 #include <iostream>
 
-#define OTL_ORA9I // Compile OTL 4.0/OCI9i
-#include "otlv4.h" // include the OTL 4.0 header file
+#include "occi.h" 
 
 #include "CondTools/Hcal/interface/HcalDbOnline.h"
 
 
 HcalDbOnline::HcalDbOnline (const std::string& fDb) 
-: mConnect (0) {
-  mConnect = new otl_connect;
-  otl_connect::otl_initialize(); // initialize OCI environment
-  try{
-    mConnect->rlogon(fDb.c_str ()); // connect to Oracle
+  : mConnect (0)
+{
+  mEnvironment = oracle::occi::Environment::createEnvironment (oracle::occi::Environment::OBJECT);
+  // decode connect string
+  unsigned ipass = fDb.find ('/');
+  unsigned ihost = fDb.find ('@');
+  
+  if (ipass == std::string::npos || ihost == std::string::npos) {
+    std::cerr << "HcalDbOnline::HcalDbOnline-> Error in connection string format: " << fDb
+	      << " Expect user/password@db" << std::endl;
   }
-  catch(otl_exception& p){ // intercept OTL exceptions
-    std::cerr << p.msg << std::endl; // print out error message
-    std::cerr << p.stm_text << std::endl; // print out SQL that caused the error
-    std::cerr << p.var_info << std::endl; // print out the variable that caused the error
+  else {
+    std::string user (fDb, 0, ipass);
+    std::string pass (fDb, ipass+1, ihost-ipass-1);
+    std::string host (fDb, ihost+1);
+    std::cout << "HcalDbOnline::HcalDbOnline-> Connecting " << user << '/' << pass << '@' << host << std::endl;
+    try {
+      mConnect = mEnvironment->createConnection(user, pass, host);
+    }
+    catch (oracle::occi::SQLException& sqlExcp) {
+      std::cerr << "HcalDbOnline::HcalDbOnline exception-> " << sqlExcp.getErrorCode () << ": " << sqlExcp.what () << std::endl;
+    }
   }
 }
 
 HcalDbOnline::~HcalDbOnline () {
-  if (mConnect) mConnect->logoff(); // disconnect from Oracle
-  delete mConnect;
+  mEnvironment->terminateConnection (mConnect);
+  oracle::occi::Environment::terminateEnvironment (mEnvironment);
 }
 
 std::auto_ptr <HcalPedestals> HcalDbOnline::getPedestals (const std::string& fTag) {
@@ -53,19 +64,26 @@ std::auto_ptr <HcalPedestals> HcalDbOnline::getPedestals (const std::string& fTa
   query += "KOC.NAME='HCAL Pedestals' and ";
   query += "RN.RUN_NAME='" + fTag + "'";
   
-  float value [4];
-  int z, eta, phi, depth;
-  char subdet_c [128];
-  
   try {
     std::cout << "executing query: \n" << query << std::endl;
-    otl_stream input (500, query.c_str (), *mConnect); 
-    while (!input.eof ()) {
-      input >> value [0] >> value [1] >> value [2] >> value [3];
-      input >> z >> eta >> phi >> depth >> subdet_c;
-//       std::cout << "getting data: " <<  value [0] << '/' <<  value [1] << '/' <<  value [2] << '/' <<  value [3]
-// 		<< '/' <<  z << '/' <<  eta << '/' <<  phi << '/' <<  depth << '/' <<  subdet_c << std::endl;
-      std::string subdet (subdet_c);
+    oracle::occi::Statement* stmt = mConnect->createStatement ();
+    stmt->setPrefetchRowCount (10000);
+    stmt->setSQL (query);
+    oracle::occi::ResultSet* rset = stmt->executeQuery ();
+    while (rset->next ()) {
+      float value [4];
+      value [0] = rset->getFloat (1);
+      value [1] = rset->getFloat (2);
+      value [2] = rset->getFloat (3);
+      value [3] = rset->getFloat (4);
+      int z = rset->getInt (5);
+      int eta = rset->getInt (6);
+      int phi = rset->getInt (7);
+      int depth = rset->getInt (8);
+      std::string subdet = rset->getString (9);
+
+      std::cout << "getting data: " <<  value [0] << '/' <<  value [1] << '/' <<  value [2] << '/' <<  value [3]
+ 		<< '/' <<  z << '/' <<  eta << '/' <<  phi << '/' <<  depth << '/' <<  subdet << std::endl;
       HcalSubdetector sub = subdet == "HB" ? HcalBarrel : 
 	subdet == "HE" ? HcalEndcap :
 	subdet == "HO" ? HcalOuter :
@@ -74,10 +92,8 @@ std::auto_ptr <HcalPedestals> HcalDbOnline::getPedestals (const std::string& fTa
       result->addValue (id, value);
     }
   }
-  catch(otl_exception& p){ // intercept OTL exceptions
-    std::cerr << "HcalDbOnline::getPedestals->" << p.msg << std::endl; // print out error message
-    std::cerr << p.stm_text << std::endl; // print out SQL that caused the error
-    std::cerr << p.var_info << std::endl; // print out the variable that caused the error
+  catch (oracle::occi::SQLException& sqlExcp) {
+    std::cerr << "HcalDbOnline::getPedestals exception-> " << sqlExcp.getErrorCode () << ": " << sqlExcp.what () << std::endl;
   }
   result->sort ();
   return result;

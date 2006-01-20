@@ -184,6 +184,7 @@ int main (int argn, char* argv []) {
     else if (asciiFile (input)) {
       std::cout << "USE INPUT: ASCII" << std::endl;
       std::ifstream inStream (input.c_str ());
+      object = new HcalPedestals;
       HcalDbASCIIIO::getObject (inStream, object); 
       readOK = true;
     }
@@ -206,7 +207,7 @@ int main (int argn, char* argv []) {
 	HcalDbASCIIIO::dumpObject (outStream, *object); 
       }
       else if (xmlFile (output)) {
-      std::cout << "USE OUTPUT: XML" << std::endl;
+	std::cout << "USE OUTPUT: XML" << std::endl;
 	std::ofstream outStream (output.c_str ());
 	HcalDbXml::dumpObject (outStream, outputRun, outputTag, *object);
       }
