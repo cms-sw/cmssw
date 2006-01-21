@@ -1,6 +1,5 @@
-#ifndef HcalDigitizerTraits_h
-#define HcalDigitizerTraits_h
-using namespace cms;
+#ifndef HcalSimAlgos_HcalDigitizerTraits_h
+#define HcalSimAlgos_HcalDigitizerTraits_h
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalElectronicsSim.h"
 

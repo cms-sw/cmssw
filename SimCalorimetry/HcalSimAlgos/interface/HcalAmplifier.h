@@ -1,30 +1,30 @@
-#ifndef HcalAmplifier_h
-#define HcalAmplifier_h
+#ifndef HcalSimAlgos_HcalAmplifier_h
+#define HcalSimAlgos_HcalAmplifier_h
   
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
 class HcalDbService;
+class HcalSimParameterMap;
 
-namespace cms {
-  
-  class HcalAmplifier {
-  public:
-    HcalAmplifier(bool addNoise);
-    /// doesn't delete the pointer
-    virtual ~HcalAmplifier(){}
-  
-    /// the Producer will probably update this every event
-    void setDbService(const HcalDbService * service) {
-      theDbService = service;
-     }
+class HcalAmplifier {
+public:
+  HcalAmplifier(const HcalSimParameterMap * parameters, bool addNoise);
+  /// doesn't delete the pointer
+  virtual ~HcalAmplifier(){}
 
-    virtual void amplify(CaloSamples & linearFrame) const;
-  
-    void setStartingCapId(int capId) {theStartingCapId = capId;}
+  /// the Producer will probably update this every event
+  void setDbService(const HcalDbService * service) {
+    theDbService = service;
+   }
 
-  private:
-    const HcalDbService * theDbService;
-    unsigned theStartingCapId;
-    bool addNoise_;
-  };
-} 
+  virtual void amplify(CaloSamples & linearFrame) const;
+
+  void setStartingCapId(int capId) {theStartingCapId = capId;}
+
+private:
+  const HcalDbService * theDbService;
+  const HcalSimParameterMap * theParameterMap;
+  unsigned theStartingCapId;
+  bool addNoise_;
+};
+
 #endif

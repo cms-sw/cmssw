@@ -1,5 +1,5 @@
-#ifndef HcalTriggerPrimitiveAlgo_h
-#define HcalTriggerPrimitiveAlgo_h
+#ifndef HcalSimAlgos_HcalTriggerPrimitiveAlgo_h
+#define HcalSimAlgos_HcalTriggerPrimitiveAlgo_h
 
 #include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
@@ -11,8 +11,6 @@
 #include <vector>
 class CaloGeometry;
 class CaloSamples;
-
-namespace cms {
 
 class HcalCoderFactory;
 
@@ -54,7 +52,6 @@ private:
   double theHFCalibrationConstant;
 };
 
-}
 
 #endif
 

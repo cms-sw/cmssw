@@ -1,11 +1,10 @@
-#ifndef HFHitFilter_h
-#define HFHitFilter_h
+#ifndef HcalSimAlgos_HFHitFilter_h
+#define HcalSimAlgos_HFHitFilter_h
 
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVHitFilter.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
-namespace cms {
 
 class HFHitFilter : public CaloVHitFilter {
   virtual bool accepts(const PCaloHit & hit) const {
@@ -14,6 +13,5 @@ class HFHitFilter : public CaloVHitFilter {
   }
 };
 
-}
 #endif
 

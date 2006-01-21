@@ -1,11 +1,9 @@
-#ifndef HcalCoderFactory_h
-#define HcalCoderFactory_h
+#ifndef HcalSimAlgos_HcalCoderFactory_h
+#define HcalSimAlgos_HcalCoderFactory_h
 
 #include <memory>
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoder.h"
-
-namespace cms {
 
 class HcalCoderFactory
 {
@@ -25,6 +23,5 @@ private:
   const HcalDbService * theDbService;
 };
 
-}
 #endif
 
