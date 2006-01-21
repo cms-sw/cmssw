@@ -1,8 +1,6 @@
 
-#ifndef EcalCoder_h
-#define EcalCoder_h 1
-
-#include "CLHEP/Random/RandGaussQ.h"
+#ifndef EcalSimAlgos_EcalCoder_h
+#define EcalSimAlgos_EcalCoder_h 1
 
 class EcalMGPASample;
 class EcalPedestals;
@@ -21,7 +19,8 @@ class EcalCoder
   /// 2^12 -1
   enum {MAXINT = 4095}; 
   enum {NGAINS = 3};
-  EcalCoder() ;
+
+  EcalCoder(bool addNoise) ;
   virtual ~EcalCoder() {}
 
   /// can be fetched every event from the EventSetup
@@ -29,8 +28,8 @@ class EcalCoder
 
   virtual void digitalToAnalog(const EBDataFrame& df, CaloSamples& lf) const;
   virtual void digitalToAnalog(const EEDataFrame& df, CaloSamples& lf) const;
-  virtual void analogToDigital(const CaloSamples& clf, EBDataFrame& df, bool addNoise) const;
-  virtual void analogToDigital(const CaloSamples& clf, EEDataFrame& df, bool addNoise) const;
+  virtual void analogToDigital(const CaloSamples& clf, EBDataFrame& df) const;
+  virtual void analogToDigital(const CaloSamples& clf, EEDataFrame& df) const;
  
   ///  anything that needs to be done once per event
   void newEvent() {}
@@ -38,7 +37,7 @@ class EcalCoder
  private:
   double fullScaleEnergy(const DetId & ) const {return 1600.;}
 
-  std::vector<EcalMGPASample> encode(const CaloSamples& timeframe, bool addNoise) const;
+  std::vector<EcalMGPASample> encode(const CaloSamples& timeframe) const;
 
   double decode(const EcalMGPASample & sample, const DetId & detId) const;
 
@@ -47,12 +46,11 @@ class EcalCoder
   void findPedestal(const DetId & detId, int gainId, 
                     double & pedestal, double & width) const;
   
-  mutable RandGaussQ theRandomGaussian;
-
   const EcalPedestals * thePedestals;
   double theGains[NGAINS];
   double theGainErrors[NGAINS];
-} ;
+  bool addNoise_;
+};
 
 
 #endif

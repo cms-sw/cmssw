@@ -4,13 +4,14 @@
 #include "DataFormats/EcalDigi/interface/EEDataFrame.h"
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
+#include "CLHEP/Random/RandGaussQ.h"
 #include <iostream>
 
 
 
-EcalCoder::EcalCoder()
-: theRandomGaussian(*HepRandom::getTheEngine()),
-  thePedestals(0)
+EcalCoder::EcalCoder(bool addNoise)
+:  thePedestals(0),
+   addNoise_(addNoise)
 
 {
   theGains[0] = 1.;
@@ -36,8 +37,8 @@ void EcalCoder::digitalToAnalog(const EEDataFrame& df, CaloSamples& lf) const {
 }
 
 
-void EcalCoder::analogToDigital(const CaloSamples& clf, EBDataFrame& df, bool addNoise) const {
-  std::vector<EcalMGPASample> mgpaSamples = encode(clf, addNoise);
+void EcalCoder::analogToDigital(const CaloSamples& clf, EBDataFrame& df) const {
+  std::vector<EcalMGPASample> mgpaSamples = encode(clf);
 
   df.setSize(clf.size());
   for(int i = 0; i < df.size(); ++i) {
@@ -47,8 +48,8 @@ void EcalCoder::analogToDigital(const CaloSamples& clf, EBDataFrame& df, bool ad
 }
 
 
-void EcalCoder::analogToDigital(const CaloSamples& clf, EEDataFrame& df, bool addNoise) const {
-  std::vector<EcalMGPASample> mgpaSamples = encode(clf, addNoise);
+void EcalCoder::analogToDigital(const CaloSamples& clf, EEDataFrame& df) const {
+  std::vector<EcalMGPASample> mgpaSamples = encode(clf);
 
   df.setSize(clf.size());
   for(int i = 0; i < df.size(); ++i) {
@@ -59,7 +60,7 @@ void EcalCoder::analogToDigital(const CaloSamples& clf, EEDataFrame& df, bool ad
 
 
 std::vector<EcalMGPASample>  
-EcalCoder::encode(const CaloSamples& timeframe, bool addNoise) const
+EcalCoder::encode(const CaloSamples& timeframe) const
 {
   assert(thePedestals != 0);
   std::vector<EcalMGPASample> results;
@@ -75,8 +76,8 @@ EcalCoder::encode(const CaloSamples& timeframe, bool addNoise) const
     // fill in the pedestal and width
     double width = 0.;
     findPedestal(detId, igain, pedestals[igain], width);
-    if(addNoise) {
-      pedestals[igain] = theRandomGaussian.fire(pedestals[igain], width);
+    if(addNoise_) {
+      pedestals[igain] = RandGauss::shoot(pedestals[igain], width);
     }
   }
 

@@ -1,25 +1,23 @@
-#ifndef EcalSimParameterMap_h
-#define EcalSimParameterMap_h
+#ifndef EcalSimAlgos_EcalSimParameterMap_h
+#define EcalSimAlgos_EcalSimParameterMap_h
 
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVSimParameterMap.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloSimParameters.h"
 
-namespace cms {
 
-  class EcalSimParameterMap : public CaloVSimParameterMap
-  {
-  public:
-    EcalSimParameterMap();
-    virtual ~EcalSimParameterMap() {}
+class EcalSimParameterMap : public CaloVSimParameterMap
+{
+public:
+  EcalSimParameterMap();
+  virtual ~EcalSimParameterMap() {}
 
-    virtual const CaloSimParameters & simParameters(const DetId & id) const;
+  virtual const CaloSimParameters & simParameters(const DetId & id) const;
 
-  private:
-    CaloSimParameters theBarrelParameters;
-    CaloSimParameters theEndcapParameters;
+private:
+  CaloSimParameters theBarrelParameters;
+  CaloSimParameters theEndcapParameters;
 };
 
-}
 
 #endif
 

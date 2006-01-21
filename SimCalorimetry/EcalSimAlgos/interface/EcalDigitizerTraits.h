@@ -1,20 +1,20 @@
-#ifndef EcalDigitizerTraits_h
-#define EcalDigitizerTraits_h
-using namespace cms;
+#ifndef EcalSimAlgos_EcalDigitizerTraits_h
+#define EcalSimAlgos_EcalDigitizerTraits_h
+
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-#include "SimCalorimetry/EcalSimAlgos/interface/EcalCoder.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/EcalElectronicsSim.h"
 
 class EBDigitizerTraits {
   typedef EBDigiCollection DigiCollection;
   typedef EBDataFrame Digi;
-  typedef EcalCoder ElectronicsSim;
+  typedef EcalElectronicsSim ElectronicsSim;
 };
 
 
 class EEDigitizerTraits {
   typedef EEDigiCollection DigiCollection;
   typedef EEDataFrame Digi;
-  typedef EcalCoder ElectronicsSim;
+  typedef EcalElectronicsSim ElectronicsSim;
 };
 
 
