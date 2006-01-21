@@ -3,13 +3,11 @@
 
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 
-namespace cms {
 
 class CaloVHitFilter {
 public:
   virtual bool accepts(const PCaloHit & hit) const = 0;
 };
 
-}
 #endif
 

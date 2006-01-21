@@ -1,5 +1,5 @@
-#ifndef CaloVShape_h
-#define CaloVShape_h 1
+#ifndef CaloSimAlgos_CaloVShape_h
+#define CaloSimAlgos_CaloVShape_h 1
 
 /**
 
@@ -8,25 +8,23 @@
    \brief Electronic response of the preamp
 */
 
-namespace cms {
-  class CaloVShape 
-  {
-  public:
-  
-    virtual ~CaloVShape(){}
-  
-    virtual double operator () (double) const=0;
+class CaloVShape 
+{
+public:
 
-    //virtual double derivative (double) const = 0;
-  
-    double getTpeak () const{return tpeak_;}
-  
-    void setTpeak (double value){tpeak_=value;}
+  virtual ~CaloVShape(){}
 
-  private:
-  
-    double tpeak_;
-  };
-}
+  virtual double operator () (double) const=0;
+
+  //virtual double derivative (double) const = 0;
+
+  double getTpeak () const{return tpeak_;}
+
+  void setTpeak (double value){tpeak_=value;}
+
+private:
+
+  double tpeak_;
+};
 
 #endif

@@ -1,5 +1,5 @@
-#ifndef CaloHitResponse_h
-#define CaloHitResponse_h
+#ifndef CaloSimAlgos_CaloHitResponse_h
+#define CaloSimAlgos_CaloHitResponse_h
 
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
 #include "DataFormats/DetId/interface/DetId.h"
@@ -17,8 +17,6 @@
 
 */
 
-
-namespace cms {
 
 class CaloVShape;
 class CaloVSimParameterMap;
@@ -63,15 +61,19 @@ public:
   /// adds the amplitude for a single hit to the frame
   void addHit(const PCaloHit * hit, CaloSamples & frame) const;
 
-  /// creates a new frame from this hit
-  CaloSamples makeAnalogSignal(const PCaloHit & hit) const;
+  /// creates the signal corresponding to this hit
+  CaloSamples makeAnalogSignal(const PCaloHit & inputHit) const;
 
   /// finds the amplitude contribution from this hit, applying
-  /// photostatistics, if needed
+  /// photostatistics, if needed.  Results are in photoelectrons
   double analogSignalAmplitude(const PCaloHit & hit, const CaloSimParameters & parameters) const;
 
   /// users can look for the signal for a given cell
-  CaloSamples findSignal(const DetId & cell) const;
+  CaloSamples * findSignal(const DetId & detId);
+
+  /// adds a blank signal to map & returns pointer
+  CaloSamples * makeNewSignal(const DetId & detId);
+
 
   /// time-of-flight, in ns, to get to this cell
   /// returns 0 if no geometry has been set
@@ -92,8 +94,6 @@ protected:
   int theMaxBunch;
 
 };
-
-}
 
 #endif
 

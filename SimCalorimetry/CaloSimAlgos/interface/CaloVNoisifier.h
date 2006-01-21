@@ -1,5 +1,5 @@
-#ifndef CaloVNoisifier_h
-#define CaloVNoisifier_h
+#ifndef CaloSimAlgos_CaloVNoisifier_h
+#define CaloSimAlgos_CaloVNoisifier_h
 
 /**
    \class CaloVNoisifier
@@ -10,13 +10,10 @@
 
 class CaloSamples;
 
-namespace cms {
-
-  class CaloVNoisifier
-  {
-  public:
-    virtual void noisify(CaloSamples & frame) const=0;
-  };
-}
+class CaloVNoisifier
+{
+public:
+  virtual void noisify(CaloSamples & frame) const=0;
+};
 
 #endif

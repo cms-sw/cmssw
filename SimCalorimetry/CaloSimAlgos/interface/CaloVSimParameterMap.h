@@ -1,17 +1,15 @@
-#ifndef CaloVSimParameterMap_h
-#define CaloVSimParameterMap_h
+#ifndef CaloSimAlgos_CaloVSimParameterMap_h
+#define CaloSimAlgos_CaloVSimParameterMap_h
 
 class DetId;
+class CaloSimParameters;
 
-namespace cms {
-  class CaloSimParameters;
+class CaloVSimParameterMap
+{
+public:
+  virtual const CaloSimParameters & simParameters(const DetId & id) const = 0;
+};
 
-  class CaloVSimParameterMap
-  {
-  public:
-    virtual const CaloSimParameters & simParameters(const DetId & id) const = 0;
-  };
-}
 
 #endif
 
