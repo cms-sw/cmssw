@@ -13,7 +13,6 @@ using namespace std;
 #include "CLHEP/Units/PhysicalConstants.h"
 #include<iostream>
 
-using namespace cms;
 
 CaloHitResponse::CaloHitResponse(const CaloVSimParameterMap * parametersMap, 
                                  const CaloVShape * shape)
@@ -44,18 +43,18 @@ void CaloHitResponse::run(MixCollection<PCaloHit> & hits) {
       CaloSamples signal = makeAnalogSignal(*hitItr);
       LogDebug("CaloHitResponse") << signal;
       // if there's already a frame for this in the map, superimpose it
-      const DetId id(hitItr->id());
-      map<DetId, CaloSamples>::iterator mapItr = theAnalogSignalMap.find(id);
-      if (mapItr == theAnalogSignalMap.end()) {
-        theAnalogSignalMap.insert(pair<DetId, CaloSamples>(id, signal));
+      DetId id(hitItr->id());
+      CaloSamples * oldSignal = findSignal(id);
+      if (oldSignal == 0) {
+        theAnalogSignalMap[id] = signal;
       } else  {
         // need a "+=" to CaloSamples
-        int sampleSize =  mapItr->second.size();
+        int sampleSize =  oldSignal->size();
         assert(sampleSize == signal.size());
-        assert(signal.presamples() == mapItr->second.presamples());
+        assert(signal.presamples() == oldSignal->presamples());
  
         for(int i = 0; i < sampleSize; ++i) {
-          (mapItr->second)[i] += signal[i];
+          (*oldSignal)[i] += signal[i];
         }
       }
     } //  filter accepts 
@@ -87,7 +86,6 @@ CaloSamples CaloHitResponse::makeAnalogSignal(const PCaloHit & inputHit) const {
   CaloSamples result(detId, parameters.readoutFrameSize());
   for(int bin = 0; bin < result.size(); bin++) {
     result[bin] += (*theShape)(binTime)* signal;
-   //std::cout << "BIN " << bin << " TIME " << binTime << " SHAPE " << (*theShape)(binTime) << " SIG " << signal << endl;
     binTime += BUNCHSPACE;
   }
 
@@ -104,23 +102,29 @@ double CaloHitResponse::analogSignalAmplitude(const PCaloHit & hit, const CaloSi
   if(parameters.doPhotostatistics()) {
     npe = RandPoisson::shoot(npe);
   }
-  // convert to whatever units get read out: charge, voltage, whatever
-  return npe * parameters.photoelectronsToAnalog();
+  return npe;
 }
 
 
-CaloSamples CaloHitResponse::findSignal(const DetId & detId) const {
-  AnalogSignalMap::const_iterator signalItr = theAnalogSignalMap.find(detId);
+CaloSamples * CaloHitResponse::findSignal(const DetId & detId) {
+  CaloSamples * result = 0;
+  AnalogSignalMap::iterator signalItr = theAnalogSignalMap.find(detId);
   if(signalItr == theAnalogSignalMap.end()) {
-     // return a blank signal if not found
-     const CaloSimParameters & parameters = theParameterMap->simParameters(detId);
-     CaloSamples result(detId, parameters.readoutFrameSize());
-     result.setPresamples(parameters.binOfMaximum()-1);
-     return result;
+     result = 0;
   } 
   else {
-     return signalItr->second;
+     result = &(signalItr->second);
   }
+  return result;
+}
+
+
+CaloSamples * CaloHitResponse::makeNewSignal(const DetId & detId) {
+  const CaloSimParameters & parameters = theParameterMap->simParameters(detId);
+  CaloSamples result(detId, parameters.readoutFrameSize());
+  result.setPresamples(parameters.binOfMaximum()-1);
+  theAnalogSignalMap[detId] = result;
+  return &(theAnalogSignalMap[detId]);
 }
 
 
