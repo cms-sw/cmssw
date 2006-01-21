@@ -130,14 +130,15 @@ std::cout << "TEST Pedestal " << pedestals.getValue(barrelDetId.rawId(),  1) << 
   calibratorHandle.setData(&gainWidths);
 
 
-  HcalAmplifier amplifier(false);
+  bool addNoise = false;
+  HcalAmplifier amplifier(&parameterMap, addNoise);
   HcalCoderFactory coderFactory(HcalCoderFactory::NOMINAL);
   HcalElectronicsSim electronicsSim(&amplifier, &coderFactory);
   amplifier.setDbService(&calibratorHandle);
 
-  CaloTDigitizer<HBHEDigitizerTraits> hbheDigitizer(&hbheResponse, &electronicsSim);
-  CaloTDigitizer<HODigitizerTraits> hoDigitizer(&hoResponse, &electronicsSim);
-  CaloTDigitizer<HFDigitizerTraits> hfDigitizer(&hfResponse, &electronicsSim);
+  CaloTDigitizer<HBHEDigitizerTraits> hbheDigitizer(&hbheResponse, &electronicsSim, addNoise);
+  CaloTDigitizer<HODigitizerTraits> hoDigitizer(&hoResponse, &electronicsSim, addNoise);
+  CaloTDigitizer<HFDigitizerTraits> hfDigitizer(&hfResponse, &electronicsSim, addNoise);
   hbheDigitizer.setDetIds(hcalDetIds);
   hfDigitizer.setDetIds(hfDetIds);
   hoDigitizer.setDetIds(hoDetIds);
