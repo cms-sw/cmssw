@@ -5,7 +5,6 @@
 
 
 #include <iostream>
-using namespace cms;
 
 inline double theta_from_eta(double eta){return (2.0*atan(exp(-eta)));}
 

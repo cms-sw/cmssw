@@ -4,8 +4,6 @@
 
 
 
-namespace cms {
-
 HcalCoderFactory::HcalCoderFactory(CoderType coderType) 
 : theCoderType(coderType),
   theDbService(0)
@@ -26,7 +24,5 @@ std::auto_ptr<HcalCoder> HcalCoderFactory::coder(const DetId & id) const {
     result = new HcalNominalCoder();
   }
   return std::auto_ptr<HcalCoder>(result);
-}
-
 }
 
