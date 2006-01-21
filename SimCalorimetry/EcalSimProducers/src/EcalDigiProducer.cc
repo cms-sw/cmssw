@@ -11,6 +11,7 @@ using namespace std;
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalSimParameterMap.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalShape.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/EcalElectronicsSim.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalCoder.h"
 #include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -23,8 +24,6 @@ using namespace std;
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Provenance.h"
-
-using namespace cms;
 
 
 class EcalDigiProducer : public edm::EDProducer
@@ -54,11 +53,12 @@ private:
   EBDigitizer * theBarrelDigitizer;
   EEDigitizer * theEndcapDigitizer;
 
-  const CaloVSimParameterMap * theParameterMap;
+  const EcalSimParameterMap * theParameterMap;
   const CaloVShape * theEcalShape;
 
   CaloHitResponse * theEcalResponse;
 
+  EcalElectronicsSim * theElectronicsSim;
   EcalCoder * theCoder;
 
   std::vector<DetId> theBarrelDets;
@@ -78,10 +78,13 @@ EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet& ps) {
   theEcalShape = new EcalShape();
 
   theEcalResponse = new CaloHitResponse(theParameterMap, theEcalShape);
-  theCoder = new EcalCoder();
+  
+  bool addNoise = ps.getUntrackedParameter<bool>("doNoise" , false);
+  theElectronicsSim = new EcalElectronicsSim(theParameterMap, theCoder);
+  theCoder = new EcalCoder(addNoise);
 
-  theBarrelDigitizer = new EBDigitizer(theEcalResponse, theCoder);
-  theEndcapDigitizer = new EEDigitizer(theEcalResponse, theCoder);
+  theBarrelDigitizer = new EBDigitizer(theEcalResponse, theElectronicsSim, addNoise);
+  theEndcapDigitizer = new EEDigitizer(theEcalResponse, theElectronicsSim, addNoise);
 
   // temporary hacks for missing pieces
   setupFakePedestals();
