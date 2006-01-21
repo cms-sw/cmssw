@@ -6,7 +6,6 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalCoderFactory.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalTriggerPrimitiveAlgo.h"
 
-using namespace cms;
 
 class HcalTrigPrimRecHitProducer : public edm::EDProducer
 {

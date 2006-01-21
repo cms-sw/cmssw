@@ -10,8 +10,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
-using namespace cms;
-
 
 HcalTrigPrimRecHitProducer::HcalTrigPrimRecHitProducer(const edm::ParameterSet& ps)
 : theCoderFactory(HcalCoderFactory::DB),

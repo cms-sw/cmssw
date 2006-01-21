@@ -38,14 +38,14 @@ HcalDigiProducer::HcalDigiProducer(const edm::ParameterSet& ps) {
   theHOResponse->setHitFilter(&theHOHitFilter);
   theHFResponse->setHitFilter(&theHFHitFilter);
 
-  bool doNoise = ps.getUntrackedParameter<bool>("HcalDigiProducer:doNoise", true);
-  theAmplifier = new HcalAmplifier(doNoise);
+  bool doNoise = ps.getUntrackedParameter<bool>("doNoise", true);
+  theAmplifier = new HcalAmplifier(theParameterMap, doNoise);
   theCoderFactory = new HcalCoderFactory(HcalCoderFactory::DB);
   theElectronicsSim = new HcalElectronicsSim(theAmplifier, theCoderFactory);
 
-  theHBHEDigitizer = new HBHEDigitizer(theHBHEResponse, theElectronicsSim);
-  theHODigitizer = new HODigitizer(theHOResponse, theElectronicsSim);
-  theHFDigitizer = new HFDigitizer(theHFResponse, theElectronicsSim);
+  theHBHEDigitizer = new HBHEDigitizer(theHBHEResponse, theElectronicsSim, doNoise);
+  theHODigitizer = new HODigitizer(theHOResponse, theElectronicsSim, doNoise);
+  theHFDigitizer = new HFDigitizer(theHFResponse, theElectronicsSim, doNoise);
 
 }
 

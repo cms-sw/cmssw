@@ -20,8 +20,6 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalCoderFactory.h"
 
 
-using namespace cms;
-
 
 class HcalDigiProducer : public edm::EDProducer
 {
@@ -51,7 +49,7 @@ private:
   HODigitizer* theHODigitizer;
   HFDigitizer* theHFDigitizer;
 
-  CaloVSimParameterMap * theParameterMap;
+  HcalSimParameterMap * theParameterMap;
   CaloVShape * theHcalShape;
   CaloVShape * theHFShape;
   CaloVShape * theHcalIntegratedShape;
@@ -72,6 +70,7 @@ private:
   HOHitFilter   theHOHitFilter;
 
   std::vector<PCaloHit> theHBHEHits, theHOHits, theHFHits;
+
 };
 
 #endif
