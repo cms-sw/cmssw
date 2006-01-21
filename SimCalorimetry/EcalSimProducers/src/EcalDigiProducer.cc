@@ -156,20 +156,16 @@ void EcalDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   const std::string barrelHitsName("EcalHitsEB");
   const std::string endcapHitsName("EcalHitsEE");
 
-std::cout << "!" << std::endl;
   std::auto_ptr<MixCollection<PCaloHit> > 
     barrelHits( new MixCollection<PCaloHit>(cf.product(), barrelHitsName) );
 //  std::auto_ptr<MixCollection<PCaloHit> > 
 //    endcapHits( new MixCollection<PCaloHit>(cf.product(),endcapHitsName) );
-
-std::cout << "2" << std::endl;
 
 
   // Step B: Create empty output
   auto_ptr<EBDigiCollection> barrelResult(new EBDigiCollection());
   auto_ptr<EEDigiCollection> endcapResult(new EEDigiCollection());
 
-std::cout << "3" << std::endl;
   // run the algorithm
   theBarrelDigitizer->run(*barrelHits, *barrelResult);
 
