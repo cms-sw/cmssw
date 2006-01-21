@@ -12,7 +12,7 @@
 #include "CondFormats/HcalObjects/interface/HcalGains.h"
 #include "CondFormats/HcalObjects/interface/HcalGainWidths.h"
 #include "CondFormats/HcalObjects/interface/HcalQIECoder.h"
-#include "CondFormats/HcalObjects/interface/HcalQIEShape.h"
+#include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 
 /**
 
@@ -34,10 +34,13 @@ class HcalDbOnline {
   HcalDbOnline (const std::string& fDb);
   ~HcalDbOnline ();
 
-  std::auto_ptr <HcalPedestals> getPedestals (const std::string& fTag);
-  std::auto_ptr <HcalGains> getGains (const std::string& fTag);
+  bool getObject (HcalPedestals* fObject, const std::string& fTag);
+  bool getObject (HcalGains* fObject, const std::string& fTag);
+  bool getObject (HcalElectronicsMap* fObject, const std::string& fTag);
  private:
   oracle::occi::Environment* mEnvironment;
   oracle::occi::Connection* mConnect;
+  template <class T> bool getObjectGeneric (T* fObject, const std::string& fTag);
+
 };
 #endif

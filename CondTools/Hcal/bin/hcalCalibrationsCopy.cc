@@ -25,7 +25,6 @@
 #include "CondFormats/HcalObjects/interface/HcalGains.h"
 #include "CondFormats/HcalObjects/interface/HcalGainWidths.h"
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
-#include "CondFormats/HcalObjects/interface/HcalQIEShape.h"
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
 #include "CondFormats/HcalObjects/interface/HcalQIEData.h"
 
@@ -106,11 +105,7 @@ void printHelp (const Args& args) {
   std::cout << "Tool to manipulate by Hcal Calibrations" << std::endl;
   std::cout << "    feedback -> ratnikov@fnal.gov" << std::endl;
   std::cout << "Use:" << std::endl;
-  sprintf (buffer, " %s dump <what> <options> <parameters>\n", args.command ().c_str());
-  std::cout << buffer;
-  sprintf (buffer, " %s fill <what> <options> <parameters>\n", args.command ().c_str());
-  std::cout << buffer;
-  sprintf (buffer, " %s add <what> <options> <parameters>\n", args.command ().c_str());
+  sprintf (buffer, " %s <what> <options> <parameters>\n", args.command ().c_str());
   std::cout << buffer;
   std::cout << "  where <what> is: \n    pedestals\n    gains\n    emap\n" << std::endl;
   args.printOptionsHelp ();
@@ -134,6 +129,55 @@ bool dbFile (const std::string fParam) {
 
 bool onlineFile (const std::string fParam) {
   return fParam.find ('@') != std::string::npos;
+}
+
+template <class T> bool copyObject (T* fObject, 
+				    const std::string& fInput, const std::string& fInputTag, int fInputRun,
+				    const std::string& fOutput, const std::string& fOutputTag, int fOutputRun
+				    ) {
+  bool result = false;
+  // get input
+  if (defaultsFile (fInput)) {
+    std::cout << "USE INPUT: defaults" << std::endl;
+    fillDefaults (fObject);
+    result = true;
+  }
+  else if (asciiFile (fInput)) {
+    std::cout << "USE INPUT: ASCII" << std::endl;
+    std::ifstream inStream (fInput.c_str ());
+    fObject = new T;
+    HcalDbASCIIIO::getObject (inStream, fObject); 
+    result = true;
+  }
+  else if (dbFile (fInput)) {
+    std::cout << "USE INPUT: Pool" << std::endl;
+    HcalDbPool poolDb (fInput);
+    result = poolDb.getObject (fObject, fInputTag, fInputRun);
+  }
+  else if (onlineFile (fInput)) {
+    std::cout << "USE INPUT: Online" << std::endl;
+    HcalDbOnline onlineDb (fInput);
+    fObject = new T;
+    result = onlineDb.getObject (fObject, fInputTag);
+  }
+  if (result) {
+    if (asciiFile (fOutput)) {
+      std::cout << "USE OUTPUT: ASCII" << std::endl;
+      std::ofstream outStream (fOutput.c_str ());
+      HcalDbASCIIIO::dumpObject (outStream, *fObject); 
+    }
+    else if (xmlFile (fOutput)) {
+      std::cout << "USE OUTPUT: XML" << std::endl;
+      std::ofstream outStream (fOutput.c_str ());
+      HcalDbXml::dumpObject (outStream, fOutputRun, fOutputTag, *fObject);
+    }
+    else if (dbFile (fOutput)) { //POOL
+      std::cout << "USE OUTPUT: Pool" << std::endl;
+      HcalDbPool poolDb (fOutput);
+      poolDb.putObject (fObject, fOutputTag, fOutputRun);
+    }
+  }
+  return result;
 }
 
 int main (int argn, char* argv []) {
@@ -164,59 +208,20 @@ int main (int argn, char* argv []) {
   unsigned outputRun = args.getParameter ("-outputrun").empty () ? 0 : atoi (args.getParameter ("-outputrun").c_str ());
   std::string inputTag = args.getParameter ("-inputtag");
   std::string outputTag = args.getParameter ("-outputtag");
-  bool online = args.optionIsSet ("-online");
-
-  bool getPedestals = arguments [0] == "pedestals";
-  bool getGains = arguments [0] == "gains";
-  bool emap = arguments [0] == "emap";
 
   std::string what = arguments [0];
 
-  if (arguments [0] == "pedestals") {
+  if (what == "pedestals") {
     HcalPedestals* object = 0;
-    bool readOK = false;
-    // get input
-    if (defaultsFile (input)) {
-      std::cout << "USE INPUT: defaults" << std::endl;
-      fillDefaults (object);
-      readOK = true;
-    }
-    else if (asciiFile (input)) {
-      std::cout << "USE INPUT: ASCII" << std::endl;
-      std::ifstream inStream (input.c_str ());
-      object = new HcalPedestals;
-      HcalDbASCIIIO::getObject (inStream, object); 
-      readOK = true;
-    }
-    else if (dbFile (input)) {
-      std::cout << "USE INPUT: Pool" << std::endl;
-      HcalDbPool poolDb (input);
-      readOK = poolDb.getObject (object, inputTag, inputRun);
-    }
-    else if (onlineFile (input)) {
-      std::cout << "USE INPUT: Online" << std::endl;
-      HcalDbOnline onlineDb (input);
-      std::auto_ptr<HcalPedestals> autoptr = onlineDb.getPedestals (inputTag);
-      object = autoptr.release ();
-      readOK = true;
-    }
-    if (readOK) {
-      if (asciiFile (output)) {
-	std::cout << "USE OUTPUT: ASCII" << std::endl;
-	std::ofstream outStream (output.c_str ());
-	HcalDbASCIIIO::dumpObject (outStream, *object); 
-      }
-      else if (xmlFile (output)) {
-	std::cout << "USE OUTPUT: XML" << std::endl;
-	std::ofstream outStream (output.c_str ());
-	HcalDbXml::dumpObject (outStream, outputRun, outputTag, *object);
-      }
-      else if (dbFile (output)) { //POOL
-	std::cout << "USE OUTPUT: Pool" << std::endl;
-	HcalDbPool poolDb (output);
-	poolDb.putObject (object, outputTag, outputRun);
-      }
-    }
+    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun);
+  }
+  else if (what == "gains") {
+    HcalGains* object = 0;
+    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun);
+  }
+  else if (what == "emap") {
+    HcalElectronicsMap* object = 0;
+    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun);
   }
 }
 
