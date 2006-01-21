@@ -93,7 +93,7 @@ void HcalDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   // test access to SimHits
   const std::string subdet("HcalHits");
   std::cout<<"\n=================== Starting SimHit access, subdet "<<subdet<<"  ==================="<<std::endl;
-  std::auto_ptr<MixCollection<PCaloHit> > col(new MixCollection<PCaloHit>(cf.product(), subdet,std::pair<int,int>(-1,2)));
+  std::auto_ptr<MixCollection<PCaloHit> > col(new MixCollection<PCaloHit>(cf.product(), subdet));
   std::cout<<*(col.get())<<std::endl;
 
   //fillFakeHits();

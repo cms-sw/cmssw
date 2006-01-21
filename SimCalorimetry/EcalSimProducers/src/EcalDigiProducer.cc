@@ -157,10 +157,10 @@ void EcalDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   const std::string endcapHitsName("EcalHitsEE");
 
 
-  std::auto_ptr<MixCollection<PCaloHit> > barrelHits(new MixCollection<PCaloHit>(cf.product(), 
-                                              barrelHitsName, std::pair<int,int>(-1,2)));
-  std::auto_ptr<MixCollection<PCaloHit> > endcapHits(new MixCollection<PCaloHit>(cf.product(),
-                                              endcapHitsName, std::pair<int,int>(-1,2)));
+  std::auto_ptr<MixCollection<PCaloHit> > 
+    barrelHits( new MixCollection<PCaloHit>(cf.product(), barrelHitsName) );
+  std::auto_ptr<MixCollection<PCaloHit> > 
+    endcapHits( new MixCollection<PCaloHit>(cf.product(),endcapHitsName) );
 
 
 
