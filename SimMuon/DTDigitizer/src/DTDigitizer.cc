@@ -61,8 +61,9 @@ DTDigitizer::DTDigitizer(const ParameterSet& conf_) {
   if (debug) cout<<"Creating a DTDigitizer"<<endl;
   
   //register the Producer with a label
-  produces<DTDigiCollection>("MuonDTDigis"); // FIXME: Do I pass it by ParameterSet?
-  
+  //  produces<DTDigiCollection>("MuonDTDigis"); // FIXME: Do I pass it by ParameterSet?
+  produces<DTDigiCollection>(); // FIXME: Do I pass it by ParameterSet?  
+
   //Parameters:
 
   // build digis only for mu hits (for debug purposes) 
@@ -97,6 +98,9 @@ DTDigitizer::~DTDigitizer(){}
 
 // method called to produce the data
 void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
+
+  cout << "--- Run: " << iEvent.id().run()
+       << " Event: " << iEvent.id().event() << endl;
   
   //************ 1 ***************
   
@@ -109,7 +113,8 @@ void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
   iEvent.getByType(xFrame);
   
   auto_ptr<MixCollection<PSimHit> > 
-    simHits( new MixCollection<PSimHit>(xFrame.product(),"MuonDTHits",pair<int,int>(-1,2)));
+    simHits( new MixCollection<PSimHit>(xFrame.product(),"MuonDTHits"));
+    //    simHits( new MixCollection<PSimHit>(xFrame.product(),"MuonDTHits",pair<int,int>(-1,2)));
   //
   
   // create the pointer to the Digi container
@@ -204,8 +209,8 @@ pair<float,bool> DTDigitizer::computeTime(const DTGeomDetUnit* layer,
   DTTopology::Side exitSide  = topo.onWhichBorder(xExit,exitP.y(),exitP.z());
 
   //very temp
-  //  cout<<"###############"<<xEntry<<"\t\t"<<entryP.z()<<"\t\t"
-  //  <<xExit<<"\t\t"<<exitP.z()<<"\t\t"<<partType<<endl; //"\t\t"<<(int)entrySide<<"\t\t"<<(int)exitSide<<endl;
+  //cout<<"###############"<<xEntry<<"\t\t"<<entryP.z()<<"\t\t"
+  //   <<xExit<<"\t\t"<<exitP.z()<<"\t\t"<<partType<<endl; //"\t\t"<<(int)entrySide<<"\t\t"<<(int)exitSide<<endl;
   
 
   if (debug) dumpHit(hit, xEntry, xExit,topo);
@@ -318,8 +323,8 @@ pair<float,bool> DTDigitizer::computeTime(const DTGeomDetUnit* layer,
     //<<xExit<<"\t\t"<<exitP.z()<<"\t\t"<<partType<<"\t"<<(int)entrySide<<"\t"<<(int)exitSide<<endl;
 
 
-    if(abs(partType)==13 && (int)entrySide==0 && (int)exitSide==1) cout<<"############### ";
-    cout<<wireId<<endl;
+    //    if(abs(partType)==13 && (int)entrySide==0 && (int)exitSide==1) cout<<"############### ";
+    //cout<<wireId<<endl;
   }
 
  
@@ -487,9 +492,12 @@ void DTDigitizer::storeDigis(DTWireId &wireId,
       // Note that digi is constructed with a float value (in ns)
       DTDigi digi(wireId.wire(), time, digiN);
       
-      //very tmp
-      //     cout << "###################### " << digi.time() << endl;
-  
+      if(debug){
+	cout<<"--------------"<<endl;
+	cout << "Digi time " << digi.time() << endl;
+	cout<<"id: "<<wireId<<endl;
+      }
+
       // FIXME- not yet ported in CMSSW
 
       // Add association between THIS digi and the corresponding SimTrack
