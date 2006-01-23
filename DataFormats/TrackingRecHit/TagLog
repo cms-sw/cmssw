@@ -1,3 +1,6 @@
+** V00-00-02  [Mon Jan 23 18:59:35 2006]
+Removed all Geometry dependencies
+
 ** V00-00-01  [Tue Jan 10 10:36:20 2006]
 moved hit classes common to tracking detectors to TrackingRecHit
 
