@@ -6,17 +6,8 @@
 #include <string>
 #include <vector>
 
-#include "FWCore/Framework/interface/InputSource.h"
-#include "FWCore/EDProduct/interface/EDProduct.h"
-#include "FWCore/Framework/interface/BranchKey.h"
-#include "FWCore/Framework/interface/EventProvenance.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventAux.h"
-#include "FWCore/Framework/interface/EventPrincipal.h"
-#include "FWCore/Framework/interface/InputSourceDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ProductRegistry.h"
-#include "FWCore/Framework/interface/ProductDescription.h"
 #include "FWCore/Framework/interface/ExternalInputSource.h"
 
 class TFile;
@@ -29,8 +20,8 @@ class CDFEventInfo;
 
    \note Notice that there is a hack to renumber events from runs where the first event number was zero.
     
-   $Date: 2005/10/04 16:15:25 $
-   $Revision: 1.1 $
+   $Date: 2006/01/17 15:47:30 $
+   $Revision: 1.2 $
    \author J. Mans - Minnesota
 */
 class HcalTBSource : public edm::ExternalInputSource {
@@ -55,7 +46,6 @@ private:
   int m_chunkIds[CHUNK_COUNT];
   std::map<std::string,int> m_sourceIdRemap;
   CDFEventInfo* m_eventInfo;
-  edm::ProductDescription prodDesc_;
   int m_eventNumberOffset;
 };
 
