@@ -4,11 +4,17 @@
   <class name="SiStripCluster"/>
   <class name="std::vector<const SiStripCluster*>"/>
   <class name="SiStripRecHit2DLocalPos"/>
+  <class name="SiStripRecHit2DMatchedLocalPos"/>
   <class name="std::vector<short>"/>
   <class name="std::vector<SiStripRecHit2DLocalPos*>"/>
+  <class name="std::vector<SiStripRecHit2DMatchedLocalPos*>"/>
   <class name="own_vector<SiStripRecHit2DLocalPos, ClonePolicy<SiStripRecHit2DLocalPos> >"/>
+  <class name="own_vector<SiStripRecHit2DMatchedLocalPos, ClonePolicy<SiStripRecHit2DMatchedLocalPos> >"/>
   <class name="std::pair<unsigned int, unsigned int>"/>
   <class name="std::map<unsigned int, std::pair<unsigned int, unsigned int> >"/>
+  <class name="SiStripRecHit2DMatchedLocalPosCollection"/>
+  <class name="edm::Wrapper<SiStripRecHit2DMatchedLocalPosCollection>"/>
   <class name="SiStripRecHit2DLocalPosCollection"/>
   <class name="edm::Wrapper<SiStripRecHit2DLocalPosCollection>"/>
+
 </lcgdict>
