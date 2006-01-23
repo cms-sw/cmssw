@@ -12,6 +12,7 @@
 
 #include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DMatchedLocalPosCollection.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -43,7 +44,7 @@ namespace cms
     std::string rechitProducer = conf_.getParameter<std::string>("RecHitProducer");
 
     // Step A: Get Inputs 
-    edm::Handle<SiStripRecHit2DLocalPosCollection> rechitsmatched;
+    edm::Handle<SiStripRecHit2DMatchedLocalPosCollection> rechitsmatched;
     edm::Handle<SiStripRecHit2DLocalPosCollection> rechitsrphi;
     edm::Handle<SiStripRecHit2DLocalPosCollection> rechitsstereo;
     e.getByLabel(rechitProducer,"matchedRecHit", rechitsmatched);

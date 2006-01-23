@@ -29,7 +29,7 @@
 using namespace std;
 
 SiStripRecHitConverterAlgorithm::SiStripRecHitConverterAlgorithm(const edm::ParameterSet& conf) : conf_(conf) { 
-  clustermatch_=new SiStripClusterMatch();
+  clustermatch_=new SiStripRecHitMatcher();
 }
 
 SiStripRecHitConverterAlgorithm::~SiStripRecHitConverterAlgorithm() {
@@ -39,7 +39,7 @@ SiStripRecHitConverterAlgorithm::~SiStripRecHitConverterAlgorithm() {
 }
 
 
-void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,SiStripRecHit2DLocalPosCollection & outmatched,SiStripRecHit2DLocalPosCollection & outrphi, SiStripRecHit2DLocalPosCollection & outstereo,const TrackingGeometry& tracker)
+void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,SiStripRecHit2DMatchedLocalPosCollection & outmatched,SiStripRecHit2DLocalPosCollection & outrphi, SiStripRecHit2DLocalPosCollection & outstereo,const TrackingGeometry& tracker)
 {
   int nmono=0;
   int nstereo=0;
@@ -50,7 +50,6 @@ void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,
   for ( std::vector<unsigned int>::const_iterator detunit_iterator = detIDs.begin(); detunit_iterator != detIDs.end(); detunit_iterator++ ) {//loop over detectors
     bool isstereo=0;
     unsigned int id = *detunit_iterator;
-    own_vector<SiStripRecHit2DLocalPos> collectormatched; 
     own_vector<SiStripRecHit2DLocalPos> collectorrphi; 
     own_vector<SiStripRecHit2DLocalPos> collectorstereo; 
     if(id!=999999999){ //if is valid detector
@@ -61,112 +60,125 @@ void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,
       SiStripClusterCollection::ContainerIterator clusterRangeIteratorBegin = clusterRange.first;
       SiStripClusterCollection::ContainerIterator clusterRangeIteratorEnd   = clusterRange.second;
       SiStripClusterCollection::ContainerIterator iter;
+      StripSubdetector specDetId=(StripSubdetector)(*detunit_iterator);
       if(detId.subdetId()==StripSubdetector::TIB||detId.subdetId()==StripSubdetector::TOB){// if TIB of TOB use the rectangualr strip topology 
 	const RectangularStripTopology& Rtopol=(RectangularStripTopology&)stripdet->topology();
 	// get the partner id only if the detector is r-phi
-	unsigned int partnerid=0;
-	TIBDetId TIBspecDetId(detId.rawId());
-	TOBDetId TOBspecDetId(detId.rawId());
-	switch(detId.subdetId()){
-	case StripSubdetector::TIB:
-	  if(!TIBspecDetId.stereo())partnerid=TIBspecDetId.partnerDetId();
-	  else isstereo=1;
-	  break;
-	case StripSubdetector::TOB:
-	  if(!TOBspecDetId.stereo())partnerid=TOBspecDetId.partnerDetId();
-	  else isstereo=1;
-	  break;
-	}
-	std::vector<unsigned int>::const_iterator partnerdetiter=std::find(detIDs.begin(),detIDs.end(),partnerid);
-	if(partnerdetiter==detIDs.end()) partnerid=0;	
 	for(iter=clusterRangeIteratorBegin;iter!=clusterRangeIteratorEnd;++iter){//loop on the cluster
-	  SiStripCluster cluster=*iter;
-	  LocalPoint position=Rtopol.localPosition(cluster.barycenter());
+	  //SiStripCluster cluster=*iter;
+	  LocalPoint position=Rtopol.localPosition(iter->barycenter());
 	  const  LocalError dummy;
 	  std::vector<const SiStripCluster*> clusters;
-	  clusters.push_back(&cluster);
-	  if(!isstereo){
-	    collectorrphi.push_back(new SiStripRecHit2DLocalPos(position, dummy, stripdet,detId,clusters));
+	  clusters.push_back(&(*iter));
+	  if(!specDetId.stereo()){
+	    collectorrphi.push_back(new SiStripRecHit2DLocalPos(position, dummy,detId,clusters));
 	    nmono++;
 	  }
-	  if(isstereo){
-	    collectorstereo.push_back(new SiStripRecHit2DLocalPos(position, dummy, stripdet,detId,clusters));
+	  if(specDetId.stereo()){
+	    collectorstereo.push_back(new SiStripRecHit2DLocalPos(position, dummy,detId,clusters));
 	    nstereo++;
 	  }
-	  if(partnerid!=0){ //If exist a cluster in the partner det
-	    bool ismatch=false;
-	    DetId partnerdetId(partnerid);
-	    const GeomDetUnit * partnerstripdet=tracker.idToDet(partnerdetId);
-	    const SiStripClusterCollection::Range clusterpartnerRange = input->get(partnerid);
-	    SiStripClusterCollection::ContainerIterator clusterpartnerRangeIteratorBegin = clusterpartnerRange.first;
-	    SiStripClusterCollection::ContainerIterator clusterpartnerRangeIteratorEnd   = clusterpartnerRange.second;
-	    collectormatched=clustermatch_->match<RectangularStripTopology>(&cluster,clusterpartnerRangeIteratorBegin,clusterpartnerRangeIteratorEnd,detId,Rtopol,stripdet,partnerstripdet);
-	    if(collectormatched.size()>0)nmatch+=collectormatched.size();
-	    else nunmatch++;
-	  }
 	}
-      }
-      else if (detId.subdetId()==(StripSubdetector::TID)||detId.subdetId()==(StripSubdetector::TEC)){    //if TID or TEC use trapoeziodalstrip topology
+      } else if (detId.subdetId()==(StripSubdetector::TID)||detId.subdetId()==(StripSubdetector::TEC)){    //if TID or TEC use trapoeziodalstrip topology
 	const TrapezoidalStripTopology& Ttopol=(TrapezoidalStripTopology&)stripdet->topology();
 	// get the partner id only if the detector is r-phi
-	unsigned int partnerid=0;
-	TIDDetId TIDspecDetId(detId.rawId());
-	TECDetId TECspecDetId(detId.rawId());
-	switch(detId.subdetId()){
-	case StripSubdetector::TID:
-	  if(!TIDspecDetId.stereo())partnerid=TIDspecDetId.partnerDetId();
-	  break;
-	case StripSubdetector::TEC:
-	  if(!TECspecDetId.stereo())partnerid=TECspecDetId.partnerDetId();
-	  break;
-	}
-	std::vector<unsigned int>::const_iterator partnerdetiter=std::find(detIDs.begin(),detIDs.end(),partnerid);
-	if(partnerdetiter==detIDs.end()) partnerid=0;	
-	for(iter=clusterRangeIteratorBegin;iter!=clusterRangeIteratorEnd;++iter){//loop on the cluster
-	  SiStripCluster cluster=*iter;
-	  LocalPoint position=Ttopol.localPosition(cluster.barycenter());
+    	for(iter=clusterRangeIteratorBegin;iter!=clusterRangeIteratorEnd;++iter){//loop on the cluster
+	  //SiStripCluster cluster=*iter;
+	  LocalPoint position=Ttopol.localPosition(iter->barycenter());
 	  const  LocalError dummy;
 	  std::vector<const SiStripCluster*> clusters;
-	  clusters.push_back(&cluster);
-	  if(!isstereo){
-	    collectorrphi.push_back(new SiStripRecHit2DLocalPos(position, dummy, stripdet,detId,clusters));
+	  clusters.push_back(&(*iter));
+	  if(!specDetId.stereo()){
+	    collectorrphi.push_back(new SiStripRecHit2DLocalPos(position, dummy,detId,clusters));
 	    nmono++;
 	  }
-	  if(isstereo){
-	    collectorstereo.push_back(new SiStripRecHit2DLocalPos(position, dummy, stripdet,detId,clusters));
+	  if(specDetId.stereo()){
+	    collectorstereo.push_back(new SiStripRecHit2DLocalPos(position, dummy,detId,clusters));
 	    nstereo++;
 	  }
-	  if(partnerid!=0){ //If exist a cluster in the partner det
-	    bool ismatch=false;
-	    DetId partnerdetId(partnerid);
-	    const GeomDetUnit * partnerstripdet=tracker.idToDet(partnerdetId);
-	    const SiStripClusterCollection::Range clusterpartnerRange = input->get(partnerid);
-	    SiStripClusterCollection::ContainerIterator clusterpartnerRangeIteratorBegin = clusterpartnerRange.first;
-	    SiStripClusterCollection::ContainerIterator clusterpartnerRangeIteratorEnd   = clusterpartnerRange.second;
-	    collectormatched=clustermatch_->match<TrapezoidalStripTopology>(&cluster,clusterpartnerRangeIteratorBegin,clusterpartnerRangeIteratorEnd,detId,Ttopol,stripdet,partnerstripdet);
-	    if(collectormatched.size()>0)nmatch+=collectormatched.size();
-	    else nunmatch++;
-	  }
 	}
-
-      }
-      SiStripRecHit2DLocalPosCollection::Range inputRangematched(collectormatched.begin(),collectormatched.end());
+      } 
       SiStripRecHit2DLocalPosCollection::Range inputRangerphi(collectorrphi.begin(),collectorrphi.end());
       SiStripRecHit2DLocalPosCollection::Range inputRangestereo(collectorstereo.begin(),collectorstereo.end());
-      //      inputRange.first = collectormatched.begin();
-      //inputRange.second = collectormatched.end();
-      //outmatched.put(inputRange,id);
-      if (collectormatched.size() > 0) {
-        outmatched.put(inputRangematched,id);
-      }
+      
       if (collectorrphi.size() > 0) {
-        outrphi.put(inputRangerphi,id);
+	outrphi.put(inputRangerphi,id);
       }
       if (collectorstereo.size() > 0) {
-        outstereo.put(inputRangestereo,id);
+	outstereo.put(inputRangestereo,id);
       }
     }
   }
+//
+// match the clusters
+//
+  
+  const std::vector<unsigned int> detIDs2 = outrphi.detIDs();
+  for ( std::vector<unsigned int>::const_iterator detunit_iterator = detIDs2.begin(); detunit_iterator != detIDs2.end(); detunit_iterator++ ) {//loop over detectors
+    own_vector<SiStripRecHit2DMatchedLocalPos> collectorMatched; 
+    SiStripRecHit2DLocalPosCollection::Range monoRecHitRange = outrphi.get(*detunit_iterator);
+    SiStripRecHit2DLocalPosCollection::ContainerIterator rhRangeIteratorBegin = monoRecHitRange.first;
+    SiStripRecHit2DLocalPosCollection::ContainerIterator rhRangeIteratorEnd   = monoRecHitRange.second;
+    SiStripRecHit2DLocalPosCollection::ContainerIterator iter;
+    unsigned int id = 0;
+    for(iter=rhRangeIteratorBegin;iter!=rhRangeIteratorEnd;++iter){//loop on the mono RH
+      own_vector<SiStripRecHit2DMatchedLocalPos> collectorMatchedSingleHit; 
+      StripSubdetector specDetId(*detunit_iterator);
+      id = specDetId.partnerDetId();
+      std::vector<unsigned int>::const_iterator partnerdetiter=std::find(detIDs.begin(),detIDs.end(),id);
+      if(partnerdetiter==detIDs.end()) id=0;	
+      if (id>0){
+	DetId partnerdetId(id);
+	const GeomDetUnit * monostripdet=tracker.idToDet(DetId(*detunit_iterator));
+	const GeomDetUnit * stereostripdet=tracker.idToDet(DetId(id));
+	
+	const SiStripRecHit2DLocalPosCollection::Range rhpartnerRange = outstereo.get(id);
+	SiStripRecHit2DLocalPosCollection::ContainerIterator rhpartnerRangeIteratorBegin = rhpartnerRange.first;
+	SiStripRecHit2DLocalPosCollection::ContainerIterator rhpartnerRangeIteratorEnd   = rhpartnerRange.second;
+	
+	//	own_vector<SiStripRecHit2DMatchedLocalPos> tempCollector; 
+	
+	const DetId theId(id);
+
+	if(partnerdetId.subdetId()==StripSubdetector::TIB||partnerdetId.subdetId()==StripSubdetector::TOB){// if TIB of TOB use the rectangualr strip topology 
+	  const RectangularStripTopology& Rtopol=(RectangularStripTopology&)stereostripdet->topology();
+	  collectorMatchedSingleHit=clustermatch_->match<RectangularStripTopology>(&(*iter),rhpartnerRangeIteratorBegin,rhpartnerRangeIteratorEnd,theId,Rtopol,monostripdet,stereostripdet);
+	}else{
+	  const TrapezoidalStripTopology& Ttopol=(TrapezoidalStripTopology&)stereostripdet->topology();
+	  collectorMatchedSingleHit=clustermatch_->match<TrapezoidalStripTopology>(&(*iter),rhpartnerRangeIteratorBegin,rhpartnerRangeIteratorEnd,theId,Ttopol,monostripdet,stereostripdet);
+	}
+	if (collectorMatchedSingleHit.size()>0) {
+	  nmatch++;
+	}else{
+	  nunmatch++;
+	}
+	//	SiStripRecHit2DMatchedLocalPosCollection::Range inputRangematched(collectorMatched.begin(),collectorMatched.end());
+
+	if (collectorMatchedSingleHit.size() > 0) {
+	  for (    own_vector<SiStripRecHit2DMatchedLocalPos>::iterator itt = collectorMatchedSingleHit.begin();  itt != collectorMatchedSingleHit.end() ; itt++)
+	    collectorMatched.push_back(new SiStripRecHit2DMatchedLocalPos(*itt));
+	}
+	//	for (own_vector<SiStripRecHit2DMatchedLocalPos>::iterator itt = tempCollector.begin(); itt!= tempCollector.end(); itt++)
+	//	  collectorMatched.push_back(itt);
+
+	//	copy(tempCollector.begin(), tempCollector.end(), back_inserter(collectorMatched.end()));
+	
+      
+      }
+    }
+    SiStripRecHit2DMatchedLocalPosCollection::Range inputRangematched(collectorMatched.begin(),collectorMatched.end());
+    
+    if (collectorMatched.size()>0){
+      outmatched.put(inputRangematched, *detunit_iterator);
+    }
+    //    SiStripRecHit2DLocalPosCollection::Range inputRangematched(collectorMatched.begin(),collectorMatched.end());
+    
+    //    if (collectormatched.size() > 0) {
+    //      outmatched.put(inputRangematched,id);
+    //}
+
+  }
+
   if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 0 ) {
     std::cout << "[SiStripRecHitConverterAlgorithm] found" << std::endl; 
     std::cout << nmono << "  clusters in mono detectors"<< std::endl;

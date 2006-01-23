@@ -14,9 +14,10 @@
 #include <string>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripClusterMatch.h"
+#include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitMatcher.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DMatchedLocalPosCollection.h"
 #include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
 
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
@@ -30,12 +31,12 @@ class SiStripRecHitConverterAlgorithm
   
 
   /// Runs the algorithm
-    void run(const SiStripClusterCollection* input, SiStripRecHit2DLocalPosCollection&  output, SiStripRecHit2DLocalPosCollection&  outrphi,SiStripRecHit2DLocalPosCollection&  outstereo,const TrackingGeometry & tracker);
+    void run(const SiStripClusterCollection* input, SiStripRecHit2DMatchedLocalPosCollection&  output, SiStripRecHit2DLocalPosCollection&  outrphi,SiStripRecHit2DLocalPosCollection&  outstereo,const TrackingGeometry & tracker);
 
  private:
 
   edm::ParameterSet conf_;
-  SiStripClusterMatch *clustermatch_;
+  SiStripRecHitMatcher *clustermatch_;
 };
 
 #endif
