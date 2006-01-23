@@ -44,8 +44,8 @@ class TECDetId : public DetId {
   /// positive or negative id
   /**
    * side() = 1 The DetId identify a module in the negative part
-     * side() = 2 The DetId identify a module in the positive part
-     */
+   * side() = 2 The DetId identify a module in the positive part
+   */
   unsigned int side() const{
     return int((id_>>sideStartBit_) & sideMask_);
   }
@@ -82,7 +82,7 @@ class TECDetId : public DetId {
     num.push_back(((id_>>detStartBit_) & detMask_));
     return num ;}
   
-  /// glued
+    /// glued
   /**
    * glued() = 0 it's not a glued module
    * glued() = 1 it's a glued module
@@ -96,6 +96,7 @@ class TECDetId : public DetId {
 	return 0;
       }
     }
+
   
   /// stereo 
   /**
@@ -110,7 +111,7 @@ class TECDetId : public DetId {
 	return 0;
       }
     }
-  
+
   /**
    * If the DetId identify a glued module return 
    * the DetId of your partner otherwise return 0
@@ -125,7 +126,7 @@ class TECDetId : public DetId {
 	return 0;
       }
     }
-  
+
  private:
   /// two bits would be enough, but  we could use the number "0" as a wildcard
   static const unsigned int sideStartBit_=           23;

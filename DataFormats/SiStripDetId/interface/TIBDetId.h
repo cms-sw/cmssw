@@ -9,7 +9,6 @@
 /** 
  *  Det identifier class for the TIB
  */
-
 class TIBDetId;
 
 std::ostream& operator<<(std::ostream& os,const TIBDetId& id);
@@ -61,8 +60,6 @@ class TIBDetId : public DetId {
   /// detector id
   unsigned int det() const 
     { return ((id_>>detStartBit_)& detMask_) ;}
-  
-  
   /// glued
   /**
    * glued() = 0 it's not a glued module
@@ -107,6 +104,8 @@ class TIBDetId : public DetId {
 	return 0;
       }
     }
+  
+  
 
  private:
   /// two bits would be enough, but  we could use the number "0" as a wildcard

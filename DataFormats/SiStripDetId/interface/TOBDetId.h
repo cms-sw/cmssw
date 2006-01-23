@@ -9,7 +9,6 @@
 /** 
  *  Det identifier class for the TOB
  */
-
 class TOBDetId;
 
 std::ostream& operator<<(std::ostream& os,const TOBDetId& id);
