@@ -15,17 +15,20 @@ PhysicsList::~PhysicsList()
 
 void PhysicsList::SetCuts() 
 { 
-    if (!m_pPhysics.getParameter<bool>("CutsPerRegion"))
-    {	 
-       SetDefaultCutValue(m_pPhysics.getParameter<double>("DefaultCutValue")*cm);
-       SetCutsWithDefault();
-    }
-    else
+
+    SetDefaultCutValue(m_pPhysics.getParameter<double>("DefaultCutValue")*cm);
+    SetCutsWithDefault();
+    
+    if ( m_pPhysics.getParameter<bool>("CutsPerRegion") )
     {
        DDG4ProductionCuts prodCuts;
        prodCuts.update();
     }
+
     if (m_pPhysics.getParameter<int>("Verbosity") > 1) 
 	G4VUserPhysicsList::DumpCutValuesTable();
+
+    return ;
+
 }
 
