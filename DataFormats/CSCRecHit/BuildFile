@@ -1,0 +1,9 @@
+<use name=DataFormats/TrackingRecHit>
+# Because DetId is not exported by CommonDetUnit and hence TrackingRecHit
+<use name=DataFormats/DetId>
+
+<export>
+ <lib name=DataFormatsCSCRecHit>
+ <use name=DataFormats/TrackingRecHit>
+ <use name=DataFormats/DetId>
+</export>
