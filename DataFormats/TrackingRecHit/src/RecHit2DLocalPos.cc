@@ -25,18 +25,9 @@ AlgebraicVector RecHit2DLocalPos::parameters() const
 AlgebraicSymMatrix RecHit2DLocalPos::parametersError() const {
   AlgebraicSymMatrix m(2);
   LocalError le( localPositionError());
-  if ( det().alignmentPositionError()) {
-    LocalError lape = 
-      ErrorFrameTransformer().transform( det().alignmentPositionError()->globalError(), 
-					 det().surface());
-    m[0][0] = le.xx()+lape.xx();
-    m[0][1] = le.xy()+lape.xy(); 
-    m[1][1] = le.yy()+lape.yy();
-  } else {
-    m[0][0] = le.xx();
-    m[0][1] = le.xy(); 
-    m[1][1] = le.yy();
-  };
+  m[0][0] = le.xx();
+  m[0][1] = le.xy();
+  m[1][1] = le.yy();
   return m;
 }
 
