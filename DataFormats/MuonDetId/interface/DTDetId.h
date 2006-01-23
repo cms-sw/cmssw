@@ -1,8 +1,8 @@
 #ifndef MuonDetId_DTDetId_h
 #define MuonDetId_DTDetId_h
 
-#include "DataFormats/MuonDetId/interface/DTWireId.h"
+#include "DataFormats/MuonDetId/interface/DTLayerId.h"
 
-typedef DTWireId DTDetId;
+typedef DTLayerId DTDetId;
 
 #endif

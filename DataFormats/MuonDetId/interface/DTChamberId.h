@@ -4,8 +4,8 @@
 /** \class DTChamberId
  *  DetUnit identifier for DT chambers
  *
- *  $Date: 2005/12/19 16:15:11 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/01/19 15:42:58 $
+ *  $Revision: 1.2 $
  *  \author Stefano ARGIRO & G. Cerminara
  */
 
@@ -13,6 +13,7 @@
 #include <DataFormats/DetId/interface/DetId.h>
 
 #include <iosfwd>
+#include <iostream> // FIXME
 
 class DTChamberId : public DetId {
 public:
@@ -32,6 +33,12 @@ public:
   DTChamberId(int wheel, 
 	      int station, 
 	      int sector);
+
+//   /// 
+//   DTChamberId(const DetId& id) {
+//     id_ = id.rawId();
+//     std::cout << "DTChamberId(const DetId& id)" << std:: endl;
+//   }
 
 
   /// Copy Constructor.
