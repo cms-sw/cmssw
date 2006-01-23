@@ -3,6 +3,7 @@
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "Geometry/Surface/interface/LocalError.h"
+#include "Geometry/Vector/interface/LocalPoint.h"
 
 class RecHit2DLocalPos : public TrackingRecHit {
 public:
