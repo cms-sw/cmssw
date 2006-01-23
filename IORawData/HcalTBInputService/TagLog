@@ -1,3 +1,6 @@
+** V00-02-01  [Mon Jan 23 22:34:13 2006]
+Remove unused data member and includes of unused headers
+
 ** V00-02-00  [Tue Jan 17 16:48:27 2006]
 Updated to use ExternalInputSource as base class
 
