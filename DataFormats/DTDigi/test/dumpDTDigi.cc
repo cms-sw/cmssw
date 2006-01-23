@@ -26,7 +26,7 @@ namespace test{
 	   detUnitIt!=digiCollection.end();
 	   ++detUnitIt){
 
-	const DTDetId& id = (*detUnitIt).first;
+	const DTLayerId& id = (*detUnitIt).first;
 	const DTDigiCollection::Range& range = (*detUnitIt).second;
 
 	// We have inserted digis for only one DetUnit...
