@@ -4,8 +4,6 @@
 #include "CDFChunk.h"
 #include "CDFEventInfo.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-#include "FWCore/EDProduct/interface/EventID.h"
-#include "FWCore/EDProduct/interface/Wrapper.h"
 #include "PluginManager/PluginCapabilities.h"
 #include <iostream>
 
