@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2006/01/07 16:27:59 $
- * $Revision: 1.35 $
+ * $Date: 2006/01/07 18:11:08 $
+ * $Revision: 1.36 $
  * \author G. Della Ricca
  *
 */
@@ -211,7 +211,7 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
     int ic = id.ic();
 
 //    logFile << " det id = " << id << endl;
-//    logFile << " sm, eta, phi " << ism << " " << ie*iz << " " << ip << endl;
+//    logFile << " sm, eta, phi " << ism << " " << ie << " " << ip << endl;
 
     for (int i = 0; i < 10; i++) {
 
@@ -348,7 +348,7 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
     int ism = id.ism();
 
 //    logFile << " det id = " << id << endl;
-//    logFile << " sm, eta, phi " << ism << " " << ie*iz << " " << ip << endl;
+//    logFile << " sm, eta, phi " << ism << " " << ie << " " << ip << endl;
 
     MonitorElement* meAmplMap = 0;
     MonitorElement* meAmplPNMap = 0;

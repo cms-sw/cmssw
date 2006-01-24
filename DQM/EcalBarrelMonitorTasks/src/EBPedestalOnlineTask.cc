@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineTask.cc
  *
- * $Date: 2006/01/02 08:49:59 $
- * $Revision: 1.1 $
+ * $Date: 2006/01/02 12:29:22 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  *
 */
@@ -73,7 +73,7 @@ void EBPedestalOnlineTask::analyze(const edm::Event& e, const edm::EventSetup& c
     int ism = id.ism();
 
 //    logFile_ << " det id = " << id << endl;
-//    logFile_ << " sm, eta, phi " << ism << " " << ie*iz << " " << ip << endl;
+//    logFile_ << " sm, eta, phi " << ism << " " << ie << " " << ip << endl;
 
     for (int i = 0; i < 3; i++) {
 
