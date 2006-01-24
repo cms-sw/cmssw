@@ -3,11 +3,11 @@
    Implementation of class ScheduleBuilder
 
    \author Stefano ARGIRO
-   \version $Id: ScheduleBuilder.cc,v 1.16 2005/10/28 01:42:56 chrjones Exp $
+   \version $Id: ScheduleBuilder.cc,v 1.17 2005/10/28 02:19:57 wmtan Exp $
    \date 18 May 2005
 */
 
-static const char CVSId[] = "$Id: ScheduleBuilder.cc,v 1.16 2005/10/28 01:42:56 chrjones Exp $";
+static const char CVSId[] = "$Id: ScheduleBuilder.cc,v 1.17 2005/10/28 02:19:57 wmtan Exp $";
 
 
 #include "FWCore/Framework/interface/ScheduleBuilder.h"
@@ -15,6 +15,7 @@ static const char CVSId[] = "$Id: ScheduleBuilder.cc,v 1.16 2005/10/28 01:42:56 
 #include "FWCore/Framework/interface/ProductRegistry.h"
 #include "FWCore/Framework/src/WorkerParams.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "PluginManager/PluginManager.h"
 
 #include <iostream>

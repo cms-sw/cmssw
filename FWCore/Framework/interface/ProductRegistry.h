@@ -7,9 +7,11 @@
 
    \author Stefano ARGIRO
    \co-author Bill Tanenbaum
-   \version $Id: ProductRegistry.h,v 1.14 2005/10/26 22:34:13 wmtan Exp $
+   \version $Id: ProductRegistry.h,v 1.15 2006/01/09 22:13:20 wmtan Exp $
    \date 19 Jul 2005
 */
+
+#include <map>
 
 #include "FWCore/Framework/interface/BranchKey.h"
 #include "FWCore/Framework/interface/BranchDescription.h"

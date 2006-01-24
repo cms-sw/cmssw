@@ -2,16 +2,17 @@
    \file
    class impl
 
-   \author Stefano ARGIRO
-   \co-author Bill Tanenbaum
-   \version $Id: ProductRegistry.cc,v 1.13 2005/10/11 19:28:17 chrjones Exp $
+   \Original author Stefano ARGIRO
+   \Current author Bill Tanenbaum
+   \version $Id: ProductRegistry.cc,v 1.14 2006/01/09 22:13:20 wmtan Exp $
    \date 19 Jul 2005
 */
 
-static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.13 2005/10/11 19:28:17 chrjones Exp $";
+static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.14 2006/01/09 22:13:20 wmtan Exp $";
 
 
-#include <FWCore/Framework/interface/ProductRegistry.h>
+#include "FWCore/Framework/interface/ProductRegistry.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include <algorithm>
 
 namespace edm {
