@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EventPrincipal.cc,v 1.28 2005/12/01 22:14:54 wmtan Exp $
+$Id: EventPrincipal.cc,v 1.29 2006/01/15 05:19:54 wmtan Exp $
 ----------------------------------------------------------------------*/
 //#include <iostream>
 #include <memory>
@@ -253,7 +253,7 @@ namespace edm {
     ProcessNameList::const_reverse_iterator eproc = aux_.process_history_.rend();
     while (iproc != eproc) {
 	string const& processName_ = *iproc;
-	BranchKey bk(id, label, productInstanceName, processName_);
+	BranchKey bk(id.friendlyClassName(), label, productInstanceName, processName_);
 	BranchDict::const_iterator i = branchDict_.find(bk);
 
 	if (i != branchDict_.end()) {
