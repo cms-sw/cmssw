@@ -1,17 +1,17 @@
 #include <DataFormats/CSCRecHit/interface/CSCRecHit2D.h>
 
 CSCRecHit2D::CSCRecHit2D() :
-  theDetId( 0 ), theDet( 0 ),
+  theDetId( 0 ),
   theLocalPosition(0.,0.), theLocalError(0.,0.,0.),
   theChaCo( ChannelContainer() ),     
   theChi2( -1. ), theProb( 0. )
 {}
 
-CSCRecHit2D::CSCRecHit2D( const DetId& id, const GeomDet* det, 
+CSCRecHit2D::CSCRecHit2D( const DetId& id, 
                const LocalPoint& pos, const LocalError& err, 
 	       const ChannelContainer& channels,
 	       float chi2, float prob ) :
-  theDetId( id ), theDet( det ),
+  theDetId( id ), 
   theLocalPosition( pos ), theLocalError( err ),
   theChaCo( channels ),
   theChi2(chi2), theProb(prob)

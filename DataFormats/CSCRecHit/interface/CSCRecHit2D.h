@@ -19,7 +19,8 @@ public:
   typedef std::vector<int> ChannelContainer;
 
   CSCRecHit2D();
-  CSCRecHit2D( const DetId& id, const GeomDet* det, 
+  //  CSCRecHit2D( const DetId& id, const GeomDet* det, 
+  CSCRecHit2D( const DetId& id, 
                const LocalPoint& pos, const LocalError& err, 
 	       const ChannelContainer& channels,
                float chi2, float prob );
@@ -31,7 +32,7 @@ public:
   LocalError localPositionError() const { return theLocalError;}
 
   /// TrackingRecHit base class interface
-  const GeomDet& det() const { return *theDet; }
+    //  const GeomDet& det() const { return *theDet; } // geom removed from TRH
   DetId geographicalId() const { return theDetId; }
 
   /// Probability from fit during rechit build
@@ -46,7 +47,7 @@ public:
     return theChaCo;
   }
 
-  // No longer handles global values?
+  // To handle global values must use DetId to identify Det, hence Surface, which can transform from local
   // GlobalPoint globalPosition() const;
 
   //  Useful when building segments...
@@ -55,7 +56,7 @@ public:
 
 private:
   DetId theDetId;
-  const GeomDet* theDet;
+  //  const GeomDet* theDet;
   LocalPoint theLocalPosition;
   LocalError theLocalError;
   ChannelContainer theChaCo;
