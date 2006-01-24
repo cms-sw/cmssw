@@ -93,3 +93,13 @@ end and retain the relative order of path and endpath
 statements from the original file.  The testing is woefully
 inadequate.
 
+18-01-06 jbk
+inject a new pset into a "process pset" now.  The injected one
+looks like this:
+  untracked pset @trigger_paths = 
+    { 
+      vstring @paths = { p1,p2,....,pn }
+      vstring @end_paths = { e1,e2,...,en }
+    }
+where p1... and e1... are all the names of the path and
+endpath statements in the main pset.
