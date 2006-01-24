@@ -1,0 +1,15 @@
+<use name=boost>
+<use name=FWCore/Framework>
+<use name=SimDataFormats/HepMCProduct>
+<use name=clhep>
+<use name=root> 
+<flags SEAL_PLUGIN_NAME="IOMCNtupleConverter">
+<export>
+ <lib name=NtupleConverter>
+ <use name=boost>
+ <use name=FWCore/Framework>
+ <use name=SimDataFormats/HepMCProduct>
+ <use name=clhep>  
+ <use name=root> 
+</export>
+
