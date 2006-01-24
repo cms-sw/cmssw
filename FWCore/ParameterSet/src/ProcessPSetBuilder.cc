@@ -3,11 +3,11 @@
    Implementation of calss ProcessPSetBuilder
 
    \author Stefano ARGIRO
-   \version $Id: ProcessPSetBuilder.cc,v 1.8 2005/12/06 23:39:48 paterno Exp $
+   \version $Id: ProcessPSetBuilder.cc,v 1.9 2005/12/07 22:05:50 paterno Exp $
    \date 17 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ProcessPSetBuilder.cc,v 1.8 2005/12/06 23:39:48 paterno Exp $";
+static const char CVSId[] = "$Id: ProcessPSetBuilder.cc,v 1.9 2005/12/07 22:05:50 paterno Exp $";
 
 
 #include <FWCore/ParameterSet/interface/ProcessPSetBuilder.h>
@@ -20,12 +20,15 @@ static const char CVSId[] = "$Id: ProcessPSetBuilder.cc,v 1.8 2005/12/06 23:39:4
 
 #include "FWCore/ParameterSet/src/ScheduleValidator.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/DebugMacros.h"
 
 #include "boost/shared_ptr.hpp"
 #include <vector>
 #include <map>
 #include <stdexcept>
 #include <iostream>
+#include <algorithm>
+#include <iterator>
 
 using namespace boost;
 using namespace std;
@@ -57,7 +60,7 @@ namespace edm
 
     // loop on path fragments
     ProcessDesc::PathContainer::iterator pathIt; 
-    Strs pathnames;
+    Strs endpaths, triggerpaths;
    
     for(pathIt= processDesc_->pathFragments_.begin();
 	pathIt!=processDesc_->pathFragments_.end();
@@ -69,19 +72,43 @@ namespace edm
      
       if ((*pathIt)->type()=="path") {
 	sequenceSubstitution((*pathIt)->wrapped_, sequences);
-	fillPath((*pathIt),pathnames,&processDesc_->pset_);
+	//fillPath((*pathIt),pathnames,&processDesc_->pset_);
+	fillPath((*pathIt),triggerpaths,&processDesc_->pset_);
       }
 
       if ((*pathIt)->type()=="endpath") {
 	//cout << "got endpath = " << (*pathIt)->name() << endl;
 	//cout << "pointer = " << typeid(*(*pathIt)->wrapped_.get()).name() << endl;
 	sequenceSubstitution((*pathIt)->wrapped_, sequences);
-	fillPath((*pathIt),pathnames,&processDesc_->pset_);
+	//fillPath((*pathIt),pathnames,&processDesc_->pset_);
+	fillPath((*pathIt),endpaths,&processDesc_->pset_);
       }
      
      
     } // loop on path fragments
-   
+    
+    Strs pathnames(triggerpaths);
+    pathnames.insert(pathnames.end(),endpaths.begin(),endpaths.end());
+
+    if(1 <= edm::debugit())
+      {
+	std::cerr << "\npathnames=\n  ";
+	std::copy(pathnames.begin(),pathnames.end(),
+		  std::ostream_iterator<std::string>(std::cerr,","));
+	std::cerr << "\ntriggernames=\n  ";
+	std::copy(triggerpaths.begin(),triggerpaths.end(),
+		  std::ostream_iterator<std::string>(std::cerr,","));
+	std::cerr << "\nendpaths=\n  ";
+	std::copy(endpaths.begin(),endpaths.end(),
+		  std::ostream_iterator<std::string>(std::cerr,","));
+	std::cerr << "\n";
+      }
+
+    ParameterSet paths_trig;
+    paths_trig.insert(true,"@paths",Entry(triggerpaths,true));
+    paths_trig.insert(true,"@end_paths",Entry(endpaths,true));
+
+    processDesc_->pset_.insert(true,"@trigger_paths",Entry(paths_trig,false));
     processDesc_->pset_.insert(true,"@paths",Entry(pathnames,true));
    
     validator_= 
