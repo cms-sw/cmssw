@@ -26,6 +26,9 @@
          Code assumes the toolbox::mem::CommittedHeapAllocator is used!
        Added code to get performance measurements if used with SMi2oSender,
          should comment out if not using SMi2oSender!
+    version 1.3 2006/01/24
+       Remake header for leading fragments, and put in header in other
+       fragments needed by the Storage Manager
 
 */
 
@@ -97,7 +100,8 @@ namespace edmtest
     xdaq::ApplicationDescriptor* destination_;
   };
 
-  I2OWorker::I2OWorker(const string& s = "testI2OReceiver" ):
+  //I2OWorker::I2OWorker(const string& s = "testI2OReceiver" ):
+  I2OWorker::I2OWorker(const string& s = "testStorageManager" ):
                       destinationName_(s),
                       app_(getMyXDAQPtr()),
                       pool_(getMyXDAQPool()),
@@ -418,8 +422,15 @@ namespace edmtest
     FDEBUG(10) << "I2OConsumer::writeI2OData: data size (in bytes) = " << size << std::endl;
     // must decide how many frames we need to use to send this message
     unsigned int maxSizeInBytes = MAX_I2O_SM_DATASIZE;
-    unsigned int numFramesNeeded = size/maxSizeInBytes;
-    unsigned int remainder = size%maxSizeInBytes;
+    unsigned int headerNeededSize = sizeof(MsgCode::Codes)+sizeof(EventMsg::Header);
+    std::cout << "headerNeededSize = " << headerNeededSize << std::endl;
+    unsigned int maxEvMsgDataFragSizeInBytes = maxSizeInBytes - headerNeededSize;
+//    unsigned int numFramesNeeded = size/maxSizeInBytes;
+//    unsigned int remainder = size%maxSizeInBytes;
+    int size4data = size - headerNeededSize;
+    unsigned int numFramesNeeded = size4data/maxEvMsgDataFragSizeInBytes;
+    unsigned int remainder = size4data%maxEvMsgDataFragSizeInBytes;
+
     if (remainder > 0) numFramesNeeded++;
     FDEBUG(10) << "I2OConsumer::writeI2OData: number of frames needed = " << numFramesNeeded 
                << " remainder = " << remainder << std::endl;
@@ -436,9 +447,11 @@ namespace edmtest
       thisCount = i;
       if (size != 0)  // should not be writing anything for size = 0!
       {
-        start = i*maxSizeInBytes;
+        //start = i*maxSizeInBytes;
+        start = i*maxEvMsgDataFragSizeInBytes;
         if (i < ((int)numFramesNeeded)-1 || remainder == 0)
-          thisSize = maxSizeInBytes;
+          //thisSize = maxSizeInBytes;
+          thisSize = maxEvMsgDataFragSizeInBytes;
         else
           thisSize = remainder;
       }
@@ -497,7 +510,8 @@ namespace edmtest
 
         pvtMsg->XFunctionCode    = I2O_SM_DATA;
         pvtMsg->OrganizationID   = XDAQ_ORGANIZATION_ID;
-        msg->dataSize = thisSize;
+        //msg->dataSize = thisSize;
+        msg->dataSize = thisSize+headerNeededSize;
         // Fill in the long form of the source (HLT) identifier
         std::string url = worker_->app_->getApplicationDescriptor()->getContextDescriptor()->getURL();
         if(url.size() > MAX_I2O_SM_URLCHARS)
@@ -543,8 +557,17 @@ namespace edmtest
         {
           for (unsigned int i=0; i<thisSize; i++)
           {
-            msg->data[i] = *(buffer+i + start);
+            msg->data[i+headerNeededSize] = *(buffer+headerNeededSize+i + start);
           }
+          // remake header
+          char dummyBuffer[MAX_I2O_SM_DATASIZE];
+          EventMsg msgFrag(dummyBuffer, thisSize+headerNeededSize, 
+            eventid, runid, thisCount+1, numFramesNeeded);
+          for (unsigned int i=0; i<headerNeededSize; i++)
+          {
+            msg->data[i] = dummyBuffer[i];
+          }
+
           // should get rid of this later - just used to create a dump for checking
           minlen = 50;
           if(minlen > (int)thisSize) minlen = thisSize;
