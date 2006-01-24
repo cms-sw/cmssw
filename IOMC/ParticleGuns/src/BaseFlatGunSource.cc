@@ -1,6 +1,6 @@
 /*
- *  $Date: 2006/01/17 01:33:44 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/01/17 23:17:25 $
+ *  $Revision: 1.3 $
  *  \author Julia Yarba
  */
 
@@ -8,17 +8,11 @@
 
 #include "IOMC/ParticleGuns/interface/BaseFlatGunSource.h"
 
-#include "FWCore/Framework/src/TypeID.h" 
-
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
-
-//#include "PluginManager/ModuleDef.h"
-//#include "FWCore/Framework/interface/InputSourceMacros.h"
-//#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include <iostream>
 
@@ -26,8 +20,6 @@
 
 using namespace edm;
 using namespace std;
-
-//used for defaults
 
 BaseFlatGunSource::BaseFlatGunSource( const ParameterSet& pset,
                                       const InputSourceDescription& desc ) : 
