@@ -1,6 +1,6 @@
 /*
- *  $Date: 2005/11/03 14:24:56 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/01/19 20:03:55 $
+ *  $Revision: 1.9 $
  *  \author N. Amapane - S. Argiro'
  *  \author G. Franzoni
  */
@@ -9,16 +9,9 @@
 
 #include "IORawData/EcalTBInputService/src/EcalTBDaqFileReader.h"
 
-#include <FWCore/EDProduct/interface/Timestamp.h>
 #include <FWCore/Framework/interface/Event.h>
-#include <FWCore/EDProduct/interface/EventID.h>
-#include <FWCore/EDProduct/interface/EDProduct.h>
-#include <FWCore/EDProduct/interface/Wrapper.h>
-#include <FWCore/Framework/src/TypeID.h> 
-#include <FWCore/Framework/interface/InputSourceDescription.h>
-#include <FWCore/Framework/interface/EventPrincipal.h>
-#include <FWCore/Framework/interface/ProductRegistry.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
+
 
 #include <iostream>
 

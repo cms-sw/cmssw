@@ -6,16 +6,12 @@
  *
  *  For the time being, reuses the services of DaqFileReader from DaqPrototype.
  *
- *  $Date: 2005/10/06 17:47:06 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/01/19 20:04:02 $
+ *  $Revision: 1.4 $
  *  \author N. Marinelli
  */
 
-//#include <PluginManager/ModuleDef.h>
-//#include "FWCore/Framework/interface/InputSourceMacros.h"
-#include <FWCore/Framework/interface/InputSource.h>
-#include <FWCore/Framework/interface/InputSourceDescription.h>
-#include <FWCore/Framework/interface/ProductDescription.h>
+
 #include "FWCore/Framework/interface/ExternalInputSource.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include <string>
