@@ -1,4 +1,4 @@
-<flags SEAL_PLUGIN_NAME="CalibCalorimetryHcalStdModules">
+<flags SEAL_PLUGIN_NAME="CalibCalorimetryHcalStandardModules">
 <use name=boost>
 <use name=root>
 <use name=FWCore/Framework>
@@ -8,7 +8,7 @@
 <use name=CalibFormats/HcalObjects>
 <use name=CalibCalorimetry/HcalAlgos>
 <export>
-  <lib name=CalibCalorimetryHcalStdModules>
+  <lib name=CalibCalorimetryHcalStandardModules>
   <use name=boost>
   <use name=root>
   <use name=FWCore/Framework>
