@@ -18,7 +18,8 @@
        a way to set its size.
        Expanded global variable to enable statistics to be collected.
        Added default home page to show statistics.
-
+     version 1.3 2006/01/24
+        Changed to hardwire to class testStorageManager as receiver
 */
 
 #include "EventFilter/StorageManager/interface/SMi2oSender.h"
@@ -197,7 +198,9 @@ SMi2oSender::SMi2oSender(xdaq::ApplicationStub * s)
   try{
     destinations_=
     getApplicationContext()->getApplicationGroup()->
-    getApplicationDescriptors("testI2OReceiver"); // hardwire here for now
+//HEREHERE
+    //getApplicationDescriptors("testI2OReceiver"); // hardwire here for now
+    getApplicationDescriptors("testStorageManager"); // hardwire here for now
   }
   catch(xdaq::exception::ApplicationDescriptorNotFound e)
   {
