@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/01/20 12:54:07 $
- * $Revision: 1.82 $
+ * $Date: 2006/01/20 17:04:46 $
+ * $Revision: 1.83 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -466,7 +466,7 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
   startRun.setToCurrentGMTime();
   startRun.setToMicrosTime(startRun.microsTime());
 
-  // setup the RunIOV (on behalf of the DAQ)
+  // begin - setup the RunIOV (on behalf of the DAQ)
 
   runiov_.setRunNumber(run_);
   runiov_.setRunStart(startRun);
@@ -482,12 +482,14 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
     }
   }
 
+  // end - setup the RunIOV (on behalf of the DAQ)
+
   // fetch the RunIOV back from the DB
 
   if ( econn ) {
     try {
       cout << "Fetching RunIOV ... " << flush;
-      runiov_ = econn->fetchRunIOV(run_);
+      runiov_ = econn->fetchRunIOV(&runtag, run_);
       cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
