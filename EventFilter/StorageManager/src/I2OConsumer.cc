@@ -423,7 +423,7 @@ namespace edmtest
     // must decide how many frames we need to use to send this message
     unsigned int maxSizeInBytes = MAX_I2O_SM_DATASIZE;
     unsigned int headerNeededSize = sizeof(MsgCode::Codes)+sizeof(EventMsg::Header);
-    std::cout << "headerNeededSize = " << headerNeededSize << std::endl;
+    //std::cout << "headerNeededSize = " << headerNeededSize << std::endl;
     unsigned int maxEvMsgDataFragSizeInBytes = maxSizeInBytes - headerNeededSize;
 //    unsigned int numFramesNeeded = size/maxSizeInBytes;
 //    unsigned int remainder = size%maxSizeInBytes;
