@@ -2,7 +2,7 @@
 
 Test of the EventProcessor class.
 
-$Id: eventprocessor_t.cppunit.cc,v 1.10 2005/09/28 04:44:55 wmtan Exp $
+$Id: eventprocessor_t.cppunit.cc,v 1.11 2005/12/14 01:34:16 chrjones Exp $
 
 ----------------------------------------------------------------------*/  
 #include <exception>
@@ -21,6 +21,8 @@ $Id: eventprocessor_t.cppunit.cc,v 1.10 2005/09/28 04:44:55 wmtan Exp $
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/test/stubs/TestBeginEndJobAnalyzer.h"
 
+#include "FWCore/Utilities/interface/ProblemTracker.h"
+
 #include <cppunit/extensions/HelperMacros.h>
 
 class testeventprocessor: public CppUnit::TestFixture
@@ -33,14 +35,15 @@ CPPUNIT_TEST(activityRegistryTest);
 CPPUNIT_TEST(moduleFailureTest);
 CPPUNIT_TEST_SUITE_END();
 public:
-  void setUp(){}
-  void tearDown(){}
+   void setUp(){m_handler = std::auto_ptr<edm::AssertHandler>(new edm::AssertHandler());}
+void tearDown(){ m_handler.reset();}
   void parseTest();
   void prepostTest();
   void beginEndJobTest();
   void activityRegistryTest();
   void moduleFailureTest();
 private:
+     std::auto_ptr<edm::AssertHandler> m_handler;
 void work()
 {
   std::string configuration("process p = {\n"
