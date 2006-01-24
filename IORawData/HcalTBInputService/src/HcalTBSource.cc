@@ -97,6 +97,11 @@ void HcalTBSource::setRunAndEventInfo() {
 
   while (m_tree==0 || m_i==m_tree->GetEntries()) {
     fileCounter_++;
+    if (m_file!=0) {
+       m_file->Close();
+       m_file=0; 
+       m_tree=0;
+    }
     if (fileCounter_>=int(fileNames().size())) return; // nothing good
     openFile(fileNames()[fileCounter_]);
     is_new=true;
