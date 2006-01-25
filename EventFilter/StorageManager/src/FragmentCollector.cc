@@ -157,6 +157,7 @@ namespace stor
 	unsigned char* pos = (unsigned char*)em.data();
 	
 	int sum=0;
+	unsigned int lastpos=0;
 	Fragments::iterator
 	  i(rc.first->second.begin()),e(rc.first->second.end());
 
@@ -166,9 +167,12 @@ namespace stor
 	    int dsize = frag.getDataSize();
 	    sum+=dsize;
 	    unsigned char* from=(unsigned char*)frag.data();
-	    copy(from,from+dsize,pos);
+	    //copy(from,from+dsize,pos);
+	    copy(from,from+dsize,pos+lastpos);
+            lastpos = lastpos + dsize;
 	    // ask deleter to kill off the buffer
-	    (*buffer_deleter_)(i->buffer_object_);
+	    //(*buffer_deleter_)(i->buffer_object_);
+	    (*buffer_deleter_)(&(*i));
 	  }
 
 	em.setDataSize(sum);
