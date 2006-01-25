@@ -1,3 +1,6 @@
+** V01-05-00  [Wed Jan 25 03:57:19 2006]
+Explicit triggering of statistics summaries via edm::LogStatistics()
+
 ** V01-04-00  [Wed Jan 18 03:50:35 2006]
 Implemented statistics destinations
 
