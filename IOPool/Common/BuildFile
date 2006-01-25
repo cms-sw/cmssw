@@ -1,11 +1,13 @@
 <use name=boost>
 <use name=DataSvc>
+<use name=StorageSvc>
 <use name=rootcore>
 <use name=FWCore/MessageLogger>
 <export>
  <lib name=IOPoolCommon>
  <use name=boost>
  <use name=DataSvc>
+ <use name=StorageSvc>
  <use name=rootcore>
  <use name=FWCore/MessageLogger>
 </export>
