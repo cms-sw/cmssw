@@ -13,11 +13,11 @@ using namespace std;
 
 
   HcalTBObjectUnpacker::HcalTBObjectUnpacker(edm::ParameterSet const& conf):
-    triggerFed_(conf.getParameter<int>("HcalTriggerFED")),
-    sdFed_(conf.getParameter<int>("HcalSlowDataFED")),
-    spdFed_(conf.getParameter<int>("HcalSourcePositionFED")),
-    tdcFed_(conf.getParameter<int>("HcalTDCFED")),
-    tdcUnpacker_(conf.getParameter<bool>("IncludeUnmatchedHits"))
+    triggerFed_(conf.getUntrackedParameter<int>("HcalTriggerFED",-1)),
+    sdFed_(conf.getUntrackedParameter<int>("HcalSlowDataFED",-1)),
+    spdFed_(conf.getUntrackedParameter<int>("HcalSourcePositionFED",-1)),
+    tdcFed_(conf.getUntrackedParameter<int>("HcalTDCFED",-1)),
+    tdcUnpacker_(conf.getUntrackedParameter<bool>("IncludeUnmatchedHits",false))
   {
     if (triggerFed_ >=0) {
       std::cout << "HcalTBObjectUnpacker will unpack FED ";
