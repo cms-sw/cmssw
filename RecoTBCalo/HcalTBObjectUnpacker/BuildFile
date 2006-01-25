@@ -1,6 +1,7 @@
 <flags SEAL_PLUGIN_NAME="RecoTBCaloHcalTBObjectUnpacker">
 <use name=TBDataFormats/HcalTBObjects>
 <use name=DataFormats/FEDRawData>
+<use name=DataFormats/HcalRecHit>
 <use name=FWCore/Framework>
 <use name=FWCore/EDProduct>
 <use name=boost>
@@ -11,6 +12,7 @@
   <lib name=RecoTBCaloHcalTBObjectUnpacker>
   <use name=TBDataFormats/HcalTBObjects>
   <use name=DataFormats/FEDRawData>
+  <use name=DataFormats/HcalRecHit>
   <use name=FWCore/Framework>
   <use name=FWCore/EDProduct>
   <use name=boost>
