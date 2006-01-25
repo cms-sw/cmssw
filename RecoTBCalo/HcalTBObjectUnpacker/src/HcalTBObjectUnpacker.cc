@@ -15,6 +15,7 @@ using namespace std;
   HcalTBObjectUnpacker::HcalTBObjectUnpacker(edm::ParameterSet const& conf):
     triggerFed_(conf.getParameter<int>("HcalTriggerFED")),
     sdFed_(conf.getParameter<int>("HcalSlowDataFED")),
+    spdFed_(conf.getParameter<int>("HcalSourcePositionFED")),
     tdcFed_(conf.getParameter<int>("HcalTDCFED")),
     tdcUnpacker_(conf.getParameter<bool>("IncludeUnmatchedHits"))
   {
@@ -33,10 +34,16 @@ using namespace std;
       std::cout << tdcFed_ << endl;
     }
 
+    if (spdFed_ >=0) {
+      std::cout << "HcalTBObjectUnpacker will unpack Source Position Data FED ";
+      std::cout << spdFed_ << endl;
+    }
+
     produces<HcalTBTriggerData>();
     produces<HcalTBRunData>();
     produces<HcalTBEventPosition>();
     produces<HcalTBTiming>();
+    produces<HcalSourcePositionData>();
   }
 
   // Virtual destructor needed.
@@ -63,25 +70,31 @@ using namespace std;
     std::auto_ptr<HcalTBTiming>
       tmgd(new HcalTBTiming);
 
+    std::auto_ptr<HcalSourcePositionData>
+      spd(new HcalSourcePositionData);
+    
     if (triggerFed_ >=0) {
-
       // Step C: unpack all requested FEDs
       const FEDRawData& fed = rawraw->FEDData(triggerFed_);
       tdUnpacker_.unpack(fed,*trigd);
     }
 
     if (sdFed_ >=0) {
-
       // Step C: unpack all requested FEDs
       const FEDRawData& fed = rawraw->FEDData(sdFed_);
       sdUnpacker_.unpack(fed, *rund, *epd);
     }
 
     if (tdcFed_ >=0) {
-
       // Step C: unpack all requested FEDs
       const FEDRawData& fed = rawraw->FEDData(tdcFed_);
       tdcUnpacker_.unpack(fed, *epd, *tmgd);
+    }
+
+    if (spdFed_ >=0) {      
+      // Step C: unpack all requested FEDs
+      const FEDRawData& fed = rawraw->FEDData(spdFed_);
+      spdUnpacker_.unpack(fed, *spd);
     }
 
     // Step D: Put outputs into event
@@ -89,4 +102,5 @@ using namespace std;
     e.put(rund);
     e.put(epd);
     e.put(tmgd);
+    e.put(spd);
   }
