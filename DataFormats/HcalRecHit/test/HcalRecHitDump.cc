@@ -14,8 +14,8 @@ namespace cms {
 
   /** \class HcalRecHitDump
       
-  $Date: 2005/10/04 20:33:14 $
-  $Revision: 1.2 $
+  $Date: 2006/01/25 00:57:14 $
+  $Revision: 1.3 $
   \author J. Mans - Minnesota
   */
   class HcalRecHitDump : public edm::EDAnalyzer {
@@ -75,7 +75,7 @@ namespace cms {
       e.getByType(spd);
       cout << *spd << std::endl;
     } catch (...) {
-      cout << "No Source Position Data" << endl;
+//      cout << "No Source Position Data" << endl;
     }
 
     cout << endl;    
