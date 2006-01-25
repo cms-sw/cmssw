@@ -3,6 +3,7 @@
    <class name="HORecHit"/>
    <class name="HFRecHit"/>
    <class name="HcalTriggerPrimitiveRecHit"/>
+   <class name="HcalSourcePositionData"/>
    <class name="std::vector<HBHERecHit>"/>
    <class name="std::vector<HORecHit>"/>
    <class name="std::vector<HFRecHit>"/>
@@ -15,4 +16,5 @@
    <class name="edm::Wrapper<edm::SortedCollection<HORecHit,edm::StrictWeakOrdering<HORecHit> > >"/>
    <class name="edm::Wrapper<edm::SortedCollection<HFRecHit,edm::StrictWeakOrdering<HFRecHit> > >"/>
    <class name="edm::Wrapper<edm::SortedCollection<HcalTriggerPrimitiveRecHit,edm::StrictWeakOrdering<HcalTriggerPrimitiveRecHit> > >"/>
+   <class name="edm::Wrapper<HcalSourcePositionData>"/>
 </lcgdict>
