@@ -4,6 +4,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/HcalRecHit/interface/HcalSourcePositionData.h"
 #include "FWCore/Framework/interface/Selector.h"
 #include <iostream>
 
@@ -13,8 +14,8 @@ namespace cms {
 
   /** \class HcalRecHitDump
       
-  $Date: 2005/08/04 18:14:50 $
-  $Revision: 1.1 $
+  $Date: 2005/10/04 20:33:14 $
+  $Revision: 1.2 $
   \author J. Mans - Minnesota
   */
   class HcalRecHitDump : public edm::EDAnalyzer {
@@ -30,7 +31,8 @@ namespace cms {
     std::vector<edm::Handle<HBHERecHitCollection> > hbhe;
     std::vector<edm::Handle<HORecHitCollection> > ho;
     std::vector<edm::Handle<HFRecHitCollection> > hf;
-    
+    edm::Handle<HcalSourcePositionData> spd;
+
     try {
       e.getManyByType(hbhe);
       std::vector<edm::Handle<HBHERecHitCollection> >::iterator i;
@@ -68,6 +70,12 @@ namespace cms {
       }
     } catch (...) {
       cout << "No HO RecHits." << endl;
+    }
+    try {
+      e.getByType(spd);
+      cout << *spd << std::endl;
+    } catch (...) {
+      cout << "No Source Position Data" << endl;
     }
 
     cout << endl;    
