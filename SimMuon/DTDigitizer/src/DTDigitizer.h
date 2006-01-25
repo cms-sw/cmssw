@@ -6,8 +6,8 @@
  *  The parametrisation function in DTDriftTimeParametrization 
  *  from P.G.Abia, J.Puerta is used in all cases where it is applicable. 
  *
- *  $Date: 2005/12/14 11:58:00 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/01/20 15:49:00 $
+ *  $Revision: 1.3 $
  *  \authors: G. Bevilacqua, N. Amapane, G. Cerminara, R. Bellan
  */
 
@@ -19,7 +19,7 @@
 
 #include <vector>
 
-class DTGeomDetUnit;
+class DTLayer;
 class PSimHit;
 class DTWireType;
 class DTBaseDigiSync;
@@ -54,7 +54,7 @@ class DTDigitizer : public edm::EDProducer {
 
   // Calculate the drift time for one hit. 
   // if status flag == false, hit has to be discarded.
-  std::pair<float,bool> computeTime(const DTGeomDetUnit* layer,const DTWireId &wireId, const PSimHit *hit) ;
+  std::pair<float,bool> computeTime(const DTLayer* layer,const DTWireId &wireId, const PSimHit *hit) ;
   
   // Calculate the drift time using the GARFIELD cell parametrization,
   // taking care of all conversions from CMSSW local coordinates
@@ -69,7 +69,7 @@ class DTDigitizer : public edm::EDProducer {
   // Add all delays other than drift times (signal propagation along the wire, 
   // TOF etc.; subtract calibration time.
   float externalDelays(const DTTopology &topo,
-		       const DTGeomDetUnit* layer,
+		       const DTLayer* layer,
 		       const DTWireId &wireId, 
 		       const PSimHit *hit) const;
 

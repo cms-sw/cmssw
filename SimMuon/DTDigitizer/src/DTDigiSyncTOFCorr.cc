@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2005/12/14 11:58:00 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/01/20 15:49:00 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane, R. Bellan - INFN Torino
  */
 
@@ -10,7 +10,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 
-#include "Geometry/DTSimAlgo/interface/DTGeomDetUnit.h"
+#include "Geometry/DTSimAlgo/interface/DTLayer.h"
 
 using namespace std;
 
@@ -25,7 +25,7 @@ DTDigiSyncTOFCorr::~DTDigiSyncTOFCorr(){}
 
 
 // Delays to be added to digi times during digitization, in ns.
-double DTDigiSyncTOFCorr::digitizerOffset(const DTWireId * id, const DTGeomDetUnit* layer) const {
+double DTDigiSyncTOFCorr::digitizerOffset(const DTWireId * id, const DTLayer* layer) const {
 
   double offset = theOffset;
   const double cSpeed = 29.9792458; // cm/ns

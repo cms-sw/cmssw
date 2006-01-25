@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/01/19 10:43:23 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/01/23 18:31:53 $
+ *  $Revision: 1.9 $
  *  \authors: G. Bevilacqua, N. Amapane, G. Cerminara, R. Bellan
  */
 
@@ -26,7 +26,7 @@
 // Geometry
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/DTSimAlgo/interface/DTGeometry.h"
-#include "Geometry/DTSimAlgo/interface/DTGeomDetUnit.h"
+#include "Geometry/DTSimAlgo/interface/DTLayer.h"
 #include "Geometry/CommonTopologies/interface/DTTopology.h"
 
 #include "Geometry/Vector/interface/LocalPoint.h"
@@ -154,8 +154,8 @@ void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
       DTWireId wireId = (*wire).first;
 
       //FIXME
-      //      const DTGeomDetUnit* layer = dynamic_cast< const DTGeomDetUnit* > (muonGeom->idToDet(wireId)); 
-      const DTGeomDetUnit *layer = new DTGeomDetUnit(); 
+      //      const DTLayer* layer = dynamic_cast< const DTLayer* > (muonGeom->idToDet(wireId)); 
+      const DTLayer *layer = new DTLayer(); 
 
       // Loop on the hits of this wire    
       for (vector<const PSimHit*>::const_iterator hit=vhit.begin();
@@ -187,7 +187,7 @@ void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
   iEvent.put(output);
 }
 
-pair<float,bool> DTDigitizer::computeTime(const DTGeomDetUnit* layer,
+pair<float,bool> DTDigitizer::computeTime(const DTLayer* layer,
 					  const DTWireId &wireId, const PSimHit *hit){
   LocalPoint entryP = hit->entryPoint();
   LocalPoint exitP = hit->exitPoint();
@@ -432,7 +432,7 @@ pair<float,bool> DTDigitizer::driftTimeFromTimeMap() const {
 //************ 5B ***************
 
 float DTDigitizer::externalDelays(const DTTopology &topo,
-				  const DTGeomDetUnit* layer,
+				  const DTLayer* layer,
 				  const DTWireId &wireId, 
 				  const PSimHit *hit) const {
   

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2005/12/14 11:58:00 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/01/20 15:49:00 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane, R. Bellan - INFN Torino
  */
 
@@ -11,14 +11,14 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "Geometry/DTSimAlgo/interface/DTGeomDetUnit.h"
+#include "Geometry/DTSimAlgo/interface/DTLayer.h"
 
 DTDigiSyncFromTable::DTDigiSyncFromTable(const edm::ParameterSet& pSet){}
 
 DTDigiSyncFromTable::~DTDigiSyncFromTable(){}
 
 // Delays to be added to digi times during digitization, in ns.
-double DTDigiSyncFromTable::digitizerOffset(const DTWireId * id, const DTGeomDetUnit* layer) const {
+double DTDigiSyncFromTable::digitizerOffset(const DTWireId * id, const DTLayer* layer) const {
   
   double result = 0;
 
