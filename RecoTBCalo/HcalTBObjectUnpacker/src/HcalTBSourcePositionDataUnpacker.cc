@@ -1,4 +1,5 @@
 #include "RecoTBCalo/HcalTBObjectUnpacker/interface/HcalTBSourcePositionDataUnpacker.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include <iostream>
 #include <string>
 #include <map>
@@ -36,22 +37,24 @@ namespace hcaltb {
     const struct xdaqSourcePositionDataFormat* sp =
       (const struct xdaqSourcePositionDataFormat*)(raw.data());
     
+    if (raw.size()<sizeof(xdaqSourcePositionDataFormat)) {
+      throw cms::Exception("DataFormatError","Fragment too small");
+    }
     
-    // Now fill the input object:
-    hspd.setGlobal(sp->globalStatus, sp->maxDrivers);
     
-    hspd.setDriver(sp->driverInfo[0].message_counter,//int message_counter,
-		   sp->driverInfo[0].timestamp1_sec,//int timestamp1_sec,
-		   sp->driverInfo[0].timestamp1_usec,//int timestamp1_usec,
-		   sp->driverInfo[0].timestamp2_sec,//int timestamp2_sec,
-		   sp->driverInfo[0].timestamp2_usec,//int timestamp2_usec,
-		   sp->driverInfo[0].status,//int status,
-		   sp->driverInfo[0].index_counter, //  int index_counter,
-		   sp->driverInfo[0].reel_counter,//int reel_counter,
-		   sp->driverInfo[0].motor_current,//int motor_current,
-		   sp->driverInfo[0].speed,//int speed,
-		   0,//int tube_number,
-		   0); //int motor_number);
+    hspd.set(sp->driverInfo[0].message_counter,//int message_counter,
+	     sp->driverInfo[0].timestamp1_sec,//int timestamp1_sec,
+	     sp->driverInfo[0].timestamp1_usec,//int timestamp1_usec,
+	     sp->driverInfo[0].timestamp2_sec,//int timestamp2_sec,
+	     sp->driverInfo[0].timestamp2_usec,//int timestamp2_usec,
+	     sp->driverInfo[0].status,//int status,
+	     sp->driverInfo[0].index_counter, //  int index_counter,
+	     sp->driverInfo[0].reel_counter,//int reel_counter,
+	     sp->driverInfo[0].motor_current,//int motor_current,
+	     sp->driverInfo[0].speed,//int speed,
+	     -1,//int tube_number,
+	     -1,// int driver_id 
+	     -1); //int source_id);
     
     return;
   }
