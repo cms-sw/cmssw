@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: PoolDataSvc.cc,v 1.1 2005/11/01 22:42:45 wmtan Exp $
+// $Id: PoolDataSvc.cc,v 1.1 2005/11/23 02:17:56 wmtan Exp $
 //
 // Author: Luca Lista
 // Co-Author: Bill Tanenbaum
@@ -16,6 +16,7 @@
 #include "PersistencySvc/IDatabase.h"
 #include "PersistencySvc/DatabaseConnectionPolicy.h"
 #include "PersistencySvc/ITechnologySpecificAttributes.h"
+#include "StorageSvc/DbLonglong.h"
 
 namespace edm {
   PoolDataSvc::PoolDataSvc(PoolCatalog & catalog_, bool write, bool del) : context_(0) {
@@ -38,6 +39,6 @@ namespace edm {
   PoolDataSvc::getFileSize(std::string const& fileName) {
     std::auto_ptr<pool::IDatabase>
       idb(context_->session().databaseHandle(fileName, pool::DatabaseSpecification::PFN));
-    return idb->technologySpecificAttributes().attribute<int>("FILE_SIZE");
+    return idb->technologySpecificAttributes().attribute<pool::DbLonglong>("FILE_SIZE");
   }
 }
