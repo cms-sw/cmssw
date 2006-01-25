@@ -25,6 +25,7 @@
 #include "RecoTBCalo/HcalTBObjectUnpacker/interface/HcalTBTriggerDataUnpacker.h"
 #include "RecoTBCalo/HcalTBObjectUnpacker/interface/HcalTBSlowDataUnpacker.h"
 #include "RecoTBCalo/HcalTBObjectUnpacker/interface/HcalTBTDCUnpacker.h"
+#include "RecoTBCalo/HcalTBObjectUnpacker/interface/HcalTBSourcePositionDataUnpacker.h"
 
 
   class HcalTBObjectUnpacker : public edm::EDProducer
@@ -36,10 +37,12 @@
   private:
     int triggerFed_;
     int sdFed_;
+    int spdFed_;
     int tdcFed_;
     hcaltb::HcalTBTriggerDataUnpacker tdUnpacker_;
     hcaltb::HcalTBSlowDataUnpacker    sdUnpacker_;
     hcaltb::HcalTBTDCUnpacker         tdcUnpacker_;
+    hcaltb::HcalTBSourcePositionDataUnpacker         spdUnpacker_;
   };
 
 
