@@ -3,7 +3,7 @@
    \class HcalDbPOOL
    \brief IO for POOL instances of Hcal Calibrations
    \author Fedor Ratnikov Oct. 28, 2005
-   $Id: HcalDbPool.h,v 1.3 2005/12/15 23:37:56 fedor Exp $
+   $Id: HcalDbPool.cc,v 1.1 2006/01/19 01:32:02 fedor Exp $
 */
 
 // pool
@@ -51,10 +51,14 @@ bool HcalDbPool::storeObject (T* fObject, const std::string& fContainer, pool::R
     fRef->markWrite (*mPlacement);
     service ()->transaction().commit();
   }
-  catch (...) {
-    std::cerr << "storeObject->  error "  << std::endl;
+  catch (seal::Exception& e) {
+    std::cerr << "storeObject->  POOL error: "  << e << std::endl;
     return false;
   }
+   catch (...) {
+     std::cerr << "storeObject->  not standard error "  << std::endl;
+     return false;
+   }
   return true;
 } 
 
@@ -66,8 +70,8 @@ bool HcalDbPool::updateObject (T* fObject, pool::Ref<T>* fUpdate) {
     fUpdate->markUpdate();
     service ()->transaction().commit();
   }
-  catch (...) {
-    std::cerr << "updateObject->  error "  << std::endl;
+  catch (std::exception& e) {
+    std::cerr << "updateObject->  error: " << e.what () << std::endl;
     return false;
   }
   return true;
@@ -118,11 +122,8 @@ bool HcalDbPool::getObject (const std::string& fToken, pool::Ref<T>* fObject) {
     fObject->isNull ();
     service ()->transaction().commit();
   }
-  catch( const pool::RelationalTableNotFound& e ){
-    std::cerr << "getObject-> pool::RelationalTableNotFound Exception" << std::endl;
-  }
   catch (const seal::Exception& e) {
-    std::cerr<<"getObject-> seal exception: " << e.what() << std::endl;
+    std::cerr<<"getObject-> POOL error: " << e << std::endl;
   }
   catch(...){
     std::cerr << "getObject-> Funny error" << std::endl;
@@ -178,16 +179,14 @@ bool HcalDbPool::putObject_ (T* fObject, const std::string& fClassName, const st
 
 HcalDbPool::HcalDbPool (const std::string& fConnect)
   : mConnect (fConnect) {
+  seal::PluginManager::get()->initialise();
+  pool::POOLContext::loadComponent( "SEAL/Services/MessageService" );
+  pool::POOLContext::loadComponent( "POOL/Services/EnvironmentAuthenticationService" );
 }
 
 pool::IDataSvc* HcalDbPool::service ()
 {
-  
   if (!mService.get ()) {
-    seal::PluginManager::get()->initialise();
-    pool::POOLContext::loadComponent( "SEAL/Services/MessageService" );
-    pool::POOLContext::loadComponent( "POOL/Services/EnvironmentAuthenticationService" );
-    
     pool::URIParser parser;
     parser.parse();
     
@@ -215,7 +214,12 @@ std::string HcalDbPool::metadataGetToken (const std::string& fTag) {
     cond::MetaData md (mConnect);
     result = md.getToken (fTag);
   }
+  catch (const seal::Exception& e) {
+    std::cerr<<"HcalDbPool::metadataGetToken-> POOL error: " << e << std::endl;
+    result.clear ();
+  }
   catch (...) {
+    std::cerr << "HcalDbPool::metadataGetToken-> General error" << std::endl;
     result.clear ();
   }
   return result;
@@ -227,7 +231,12 @@ bool HcalDbPool::metadataSetTag (const std::string& fTag, const std::string& fTo
     cond::MetaData md (mConnect);
     result = md.addMapping (fTag, fToken);
   }
+  catch (const seal::Exception& e) {
+    std::cerr<<"HcalDbPool::metadataSetTag-> POOL error: " << e << std::endl;
+    result = false;
+  }
   catch (...) {
+    std::cerr << "HcalDbPool::metadataSetTag-> General error" << std::endl;
     result = false;
   }
   return result;
