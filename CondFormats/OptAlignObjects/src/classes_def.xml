@@ -1,0 +1,12 @@
+<lcgdict>
+ <class name="OpticalAlignments"/>
+ <class name="OpticalAlignInfo"/>
+ <class name="OpticalAlignParam"/>
+ <class name="std::vector<OpticalAlignInfo>"/>
+ <class name="std::vector<OpticalAlignParam>"/>
+
+ <class name="edm::Wrapper<OpticalAlignments>"/>
+
+ <class pattern="*iterator*"/>
+ <class pattern="*vector*"/>
+</lcgdict>

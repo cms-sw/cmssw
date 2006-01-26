@@ -1,0 +1,15 @@
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=CondCore/PluginSystem>
+<use name=CondFormats/OptAlignObjects>
+<use name=CondFormats/DataRecord>
+
+<flags SEAL_PLUGIN_NAME="CondCoreOptAlignPlugins">
+<export>
+   <lib name=CondCoreOptAlignPlugins>
+   <use name=FWCore/Framework>
+   <use name=Foundation/PluginManager>
+   <use name=CondCore/PluginSystem>
+   <use name=CondFormats/OptAlignObjects>
+   <use name=CondFormats/DataRecord>
+</export>
