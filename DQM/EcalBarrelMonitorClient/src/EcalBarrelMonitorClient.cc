@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/01/20 17:04:46 $
- * $Revision: 1.83 $
+ * $Date: 2006/01/24 08:33:24 $
+ * $Revision: 1.84 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -915,7 +915,8 @@ void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
       }
     }
 
-    me = mui_->get("Collector/FU0/EcalBarrel/RUNTYPE");
+    sprintf(histo, "Collector/FU0/EcalBarrel/RUNTYPE");
+    me = mui_->get(histo);
     if ( me ) {
       s = me->valueString();
       runtype_ = "UNKNOWN";
