@@ -1,11 +1,37 @@
 #!/bin/bash
 #
+function printhelp ()
+{
+echo " "
+echo "Usage:"
+echo "	EdmInventory.sh [-h | -t | -b<treename>] filename"
+echo "	where:"
+echo "	-h		Print this text."
+echo "	-t		Print a list of TTree objects in the given file."
+echo "	-b<treename>	Print details of all branches in the given tree "
+echo "			  of the specified file. If treename is 'all'"
+echo "			  do this for all trees found."
+echo "	filename	is the name of the Root file of interest."
+echo " "
+}
+#
 function branchlist ()
 {
 root -l -b -n << EOF
 .x ${branchMacro}
-$filename
-$treename
+$1
+$2
+quit
+.q
+EOF
+return
+}
+#
+function allbranches ()
+{
+root -l -b -n << EOF
+.x ${allbranchMacro}
+$1
 quit
 .q
 EOF
@@ -16,14 +42,67 @@ function treelist ()
 {
 root -l -b -n << EOF
 .x ${treeMacro}
-$filename
+$1
 quit
 .q
 EOF
 return
 }
 #
-# Make sure the user has given at least one file name
+#	Initialize treename and branchname
+#
+b_option="false"
+t_option="false"
+treename="none"
+branchname="none"
+#
+#	Establish getopt
+#
+ TEMP=`getopt -n EdmInventory -o htb: --  "$@"`
+rc=$?
+if [ $rc -ne 0 ]
+then
+	echo "$getopt failure with error $rc"
+	exit 1
+fi
+eval set -- "$TEMP"
+#
+#	Make sure nothing bad happened
+#
+if [ $? != 0 ]
+then
+	echo "Incorrect getopt usage.  Quitting."
+	exit 2
+fi
+#
+#echo "`basename $0` $@"
+#echo "Input arguments appear to be:"
+#
+while true ; do
+	case "$1" in
+		-h) printhelp ;
+		    exit ;;
+		-t) t_option="true" ;
+		    shift ;;
+		-b) b_option="true" ;
+		    treename=$2 ;
+		    shift 2 ;;
+		-x) x_option="true" ;
+			# x has an optional argument. As we are in quoted mode,
+			# an empty parameter will be generated if its optional
+			# argument is not found.
+			case "$2" in
+				"") echo "Option x, no argument" ;
+				    treename="Events" ;
+				    shift 2 ;;
+				*)  echo "Option x, argument \`$2'" ;
+				    treename=$2 ;
+				    shift 2 ;;
+			esac ;;
+		--) shift ; break ;;
+		*) echo "Internal error!" ; exit 1 ;;
+	esac
+done
 #
 if [ $# -lt 1 ]
 then
@@ -31,8 +110,6 @@ then
 	echo "Please supply a file name as an argument."
 	exit
 fi
-#
-# Has the user set up some version of Root?
 #
 if [ -z "$ROOTSYS" ]
 then
@@ -48,6 +125,14 @@ then
 else
   branchMacro=${releaseBin}/branchlist.C
 fi
+#
+if [ -f ${here}/allbranches.C ]
+then
+  allbranchMacro=${here}/allbranches.C
+else
+  allbranchMacro=${releaseBin}/allbranches.C
+fi
+#
 if [ -f ${here}/treelist.C ]
 then
   treeMacro=${here}/treelist.C
@@ -62,43 +147,20 @@ then
 	echo "There is no file named $filename.  Aborting."
 	exit 1
 fi
-echo " "
-echo "Processing file $filename"
-echo " "
-treelist
-shift
 #
-# For the file specified by $1, cycle through the list of tree
-# names in $2, $3 etc, one by one. If the tree exists, process
-# it.  Otherwise complain and move on.
-#
-# Pick off the file name and verify that it exists
-#
-#
-#  If no TTree name is specified, 
-#  use TTree Events as the default.
-#
-if [ $# -eq 0 ]
+if [ $t_option = "true" ]
 then
-	treename="Events"
-	echo " "
-	echo "Processing file $filename"
-	echo " "
-	branchlist
-	exit
+	treelist $filename
+fi
 #
-#  Otherwise cycle over the list of specified TTree names
-#
-else
-	while [ $# != 0 ]
-	do
-		treename=$1
-		echo " "
-		echo "Processing file $filename"
-		echo " "
-		branchlist
-	shift
-	done
+if [ $b_option = "true" ]
+then
+	if [ $treename = "all" ]
+	then
+		allbranches $filename
+	else
+		branchlist $filename $treename
+	fi
 fi
 #
 exit
