@@ -1,3 +1,6 @@
+** V00-00-03  [Fri Jan 27 12:37:49 2006]
+Fix crash when writing on file
+
 ** V00-00-02  [Mon Jan 23 19:01:11 2006]
 Added a new class for matched rechits.
 
