@@ -25,6 +25,7 @@ using namespace std;
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Provenance.h"
 
+#include "SimCalorimetry/CaloSimAlgos/interface/CaloDigiCollectionSorter.h"
 
 class EcalDigiProducer : public edm::EDProducer
 {
@@ -132,21 +133,10 @@ void EcalDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
 //  eventSetup.get<EcalPedestalsRcd>().get( pedHandle );
 //  theCoder->setPedestals(pedHandle.product());
 
-  std::vector<edm::Provenance const*> provenances;
-  e.getAllProvenance(provenances);
-
-  for(unsigned int i = 0; i < provenances.size() ; ++i) {
-    std::cout << *(provenances[i]) << std::endl;
-  } 
   // Step A: Get Inputs
 
   checkCalibrations(eventSetup);
   checkGeometry(eventSetup);
-
-//  edm::Handle<edm::PCaloHitContainer> barrelHits;
-//  edm::Handle<edm::PCaloHitContainer> endcapHits;
-//  e.getByLabel("r", "EcalHitsEB", barrelHits);
-//  e.getByLabel("r", "EcalHitsEE", endcapHits);
 
   // Get input
   edm::Handle<CrossingFrame> cf;
@@ -175,7 +165,12 @@ void EcalDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
 // no endcap geometry yet
 //  theEndcapDigitizer->run(theEndcapHits, *endcapResult);
 
-
+//  CaloDigiCollectionSorter sorter(5);
+//  std::vector<EBDataFrame> sortedDigis = sorter.sortedVector(*barrelResult);
+//  std::cout << "Top 10 EB digis" << std::endl;
+//  for(int i = 0; i < std::min(10,(int) sortedDigis.size()); ++i) {
+//    std::cout << sortedDigis[i];
+//  }
   // Step D: Put outputs into event
   e.put(barrelResult);
   e.put(endcapResult);
@@ -200,7 +195,6 @@ void EcalDigiProducer::checkGeometry(const edm::EventSetup & eventSetup) {
   theBarrelDets =  geometry->getValidDetIds(DetId::Ecal, EcalBarrel);
   theEndcapDets =  geometry->getValidDetIds(DetId::Ecal, EcalEndcap);
 
-std::cout << "DETIDS found " <<  theBarrelDets.size() << " " << theEndcapDets.size() << std::endl;
   theBarrelDigitizer->setDetIds(theBarrelDets);
   theEndcapDigitizer->setDetIds(theEndcapDets);
 
