@@ -31,10 +31,12 @@
   <Constant name="MB3nSLZ_HC_dist" value="3*mm"/>
 
 <!--- #### MB3: Constants for RPCs -->
-  <Constant name="MB3RPC_x" value="3032./2*mm"/>
-  <Constant name="MB3RPC_Gas_x" value="1460./2*mm"/>
+  <Constant name="MB3RPC_x" value="3000./2*mm"/>
+  <Constant name="MB3RPC_Gas_x" value="1480./2*mm"/>
   <Constant name="MB3RPC_Gas_x_pos" value="75*cm"/>
 
+  <Constant name="MB3RPC_x_pos" value="3.6444*cm"/>
+  <Constant name="MB3RPC_z_pos" value="15.5*cm"/>
 
 <!--- #### MB3Chim: Constants for DT RPCs -->
   <Constant name="MB3ChimRPC_GasRight_y_pos" value="[mbCommon:MBRPC_GasRight_y_pos]-([mbCommon:MBRPC_z]-[mbCommon:MBChimRPC_z])"/>
@@ -1270,7 +1272,7 @@
 <PosPart copyNumber="1">
    <rParent name="mb3:MB3P"/>
    <rChild name="mb3:MB3RPC_P"/>
-  <Translation x="-[mbCommon:MBRPC_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]-[mbCommon:MBSL_posDisp]" />
+  <Translation x="[mb3:MB3RPC_x_pos]" y="0*fm" z="[mb3:MB3RPC_z_pos]-[mbCommon:MBSL_posDisp]" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb3:MB3RPC_P"/>
@@ -1296,7 +1298,7 @@
  <PosPart copyNumber="1">
    <rParent name="mb3:MB3N"/>
    <rChild name="mb3:MB3RPC_N"/>
-  <Translation x="-[mbCommon:MBRPC_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]-[mbCommon:MBSL_posDisp]" />
+  <Translation x="[mb3:MB3RPC_x_pos]" y="0*fm" z="[mb3:MB3RPC_z_pos]-[mbCommon:MBSL_posDisp]" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb3:MB3RPC_N"/>
@@ -1813,7 +1815,7 @@
  <PosPart copyNumber="1">
    <rParent name="mb3:MB3ChimP"/>
    <rChild name="mb3:MB3ChimRPC_P"/>
-  <Translation x="-[mbCommon:MBRPC_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]-[mbCommon:MBSL_posDisp]" />
+  <Translation x="[mb3:MB3RPC_x_pos]" y="0*fm" z="[mb3:MB3RPC_z_pos]-[mbCommon:MBSL_posDisp]" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb3:MB3ChimRPC_P"/>
@@ -1839,7 +1841,7 @@
  <PosPart copyNumber="1">
    <rParent name="mb3:MB3ChimN"/>
    <rChild name="mb3:MB3ChimRPC_N"/>
-  <Translation x="-[mbCommon:MBRPC_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]-[mbCommon:MBSL_posDisp]" />
+  <Translation x="[mb3:MB3RPC_x_pos]" y="0*fm" z="[mb3:MB3RPC_z_pos]-[mbCommon:MBSL_posDisp]" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb3:MB3ChimRPC_N"/>

@@ -35,9 +35,11 @@
   <Constant name="MB1nSLZ_HC_dist" value="5*mm"/>
 
 <!--- #### MB1: Constants for RPCs -->
-  <Constant name="MB1RPC_x" value="2070./2*mm"/>
-  <Constant name="MB1RPC_Gas_x" value="[mb1:MB1RPC_x]-50.*mm"/>
+  <Constant name="MB1RPC_x" value="2080./2*mm"/>
+  <Constant name="MB1RPC_Gas_x" value="[mb1:MB1RPC_x]-10.*mm"/>
 
+  <Constant name="MB1RPC_I_x_pos" value="15.2*mm"/>
+  <Constant name="MB1RPC_O_x_pos" value="60.2*mm"/>
 
 <!--- #### MB1Chim: Constants for DT RPCs -->
   <Constant name="MB1ChimRPC_GasRight_y_pos" value="[mbCommon:MBRPC_GasRight_y_pos]-([mbCommon:MBRPC_z]-[mbCommon:MBChimRPC_z])"/>
@@ -1368,7 +1370,7 @@
  <PosPart copyNumber="1">
    <rParent name="mb1:MB1P"/>
    <rChild name="mb1:MB1RPC_IP"/>
-  <Translation x="-[mbCommon:MBRPC_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]" />
+  <Translation x="[mb1:MB1RPC_I_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb1:MB1RPC_IP"/>
@@ -1384,7 +1386,7 @@
  <PosPart copyNumber="1">
    <rParent name="mb1:MB1P"/>
    <rChild name="mb1:MB1RPC_OP"/>
-  <Translation x="-[mbCommon:MBRPC_x_pos]" y="0*fm" z="-[mbCommon:MBRPC_z_pos]" />
+  <Translation x="[mb1:MB1RPC_O_x_pos]" y="0*fm" z="-[mbCommon:MBRPC_z_pos]" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb1:MB1RPC_OP"/>
@@ -1400,12 +1402,12 @@
  <PosPart copyNumber="1">
    <rParent name="mb1:MB1N"/>
    <rChild name="mb1:MB1RPC_IN"/>
-  <Translation x="-[mbCommon:MBRPC_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]" />
+  <Translation x="[mb1:MB1RPC_I_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb1:MB1N0P"/>
    <rChild name="mb1:MB1RPC_IP"/>
-  <Translation x="-[mbCommon:MBRPC_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]" />
+  <Translation x="[mb1:MB1RPC_I_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb1:MB1RPC_IN"/>
@@ -1421,12 +1423,12 @@
  <PosPart copyNumber="1">
    <rParent name="mb1:MB1N"/>
    <rChild name="mb1:MB1RPC_ON"/>
-  <Translation x="-[mbCommon:MBRPC_x_pos]" y="0*fm" z="-[mbCommon:MBRPC_z_pos]" />
+  <Translation x="[mb1:MB1RPC_O_x_pos]" y="0*fm" z="-[mbCommon:MBRPC_z_pos]" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb1:MB1N0P"/>
    <rChild name="mb1:MB1RPC_OP"/>
-  <Translation x="-[mbCommon:MBRPC_x_pos]" y="0*fm" z="-[mbCommon:MBRPC_z_pos]" />
+  <Translation x="[mb1:MB1RPC_O_x_pos]" y="0*fm" z="-[mbCommon:MBRPC_z_pos]" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb1:MB1RPC_ON"/>
@@ -1937,7 +1939,7 @@
  <PosPart copyNumber="1">
    <rParent name="mb1:MB1ChimP"/>
    <rChild name="mb1:MB1ChimRPC_IP"/>
-  <Translation x="-[mbCommon:MBRPC_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]" />
+  <Translation x="[mb1:MB1RPC_I_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb1:MB1ChimRPC_IP"/>
@@ -1953,7 +1955,7 @@
  <PosPart copyNumber="1">
    <rParent name="mb1:MB1ChimP"/>
    <rChild name="mb1:MB1ChimRPC_OP"/>
-  <Translation x="-[mbCommon:MBRPC_x_pos]" y="0*fm" z="-[mbCommon:MBRPC_z_pos]" />
+  <Translation x="[mb1:MB1RPC_O_x_pos]" y="0*fm" z="-[mbCommon:MBRPC_z_pos]" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb1:MB1ChimRPC_OP"/>
@@ -1969,7 +1971,7 @@
  <PosPart copyNumber="1">
    <rParent name="mb1:MB1ChimN"/>
    <rChild name="mb1:MB1ChimRPC_IN"/>
-  <Translation x="-[mbCommon:MBRPC_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]" />
+  <Translation x="[mb1:MB1RPC_I_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb1:MB1ChimRPC_IN"/>
@@ -1985,7 +1987,7 @@
  <PosPart copyNumber="1">
    <rParent name="mb1:MB1ChimN"/>
    <rChild name="mb1:MB1ChimRPC_ON"/>
-  <Translation x="-[mbCommon:MBRPC_x_pos]" y="0*fm" z="-[mbCommon:MBRPC_z_pos]" />
+  <Translation x="[mb1:MB1RPC_O_x_pos]" y="0*fm" z="-[mbCommon:MBRPC_z_pos]" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb1:MB1ChimRPC_ON"/>

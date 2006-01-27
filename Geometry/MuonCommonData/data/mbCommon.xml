@@ -60,7 +60,7 @@
 <!--- #### Constants for all RPCs --> 
   <Constant name="MBRPC_y" value="12./2*mm"/>
   <Constant name="MBRPC_Gas_y" value="4./2.*mm"/>
-  <Constant name="MBRPC_z" value="2471./2.*mm"/>
+  <Constant name="MBRPC_z" value="2455./2.*mm"/>
   <Constant name="MBChimRPC_OGasLeft_z" value="389.5*mm"/>
   <Constant name="MBRPC_GasLeft_z" value="584.5*mm"/>
   <Constant name="MBRPC_GasRight_z" value="626*mm"/>

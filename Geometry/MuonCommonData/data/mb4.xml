@@ -64,12 +64,20 @@
   <Constant name="MB4BottomSLPhi1_HC_dist" value="21.*mm"/>
   <Constant name="MB4BottomSLPhi2_HC_dist" value="-21.*mm"/>
 
-<!--- #### MB4: Constants for RPCs -->
-  <Constant name="MB4RPC_x" value="4086.64/2*mm"/>
-  <Constant name="MB4RPC_Gas_x" value="1960./2*mm"/>
-  <Constant name="MB4RPC_Gas_x_pos" value="100*cm"/>
+<!--- #### MB4: Constants for RPC_s -->
+  <Constant name="MB4RPC_x" value="4000/2*mm"/>
+  <Constant name="MB4SmallRPC_x" value="3500/2*mm"/>
+  <Constant name="MB4RPC_Gas_x" value="[mb4:MB4RPC_x]/2.-10.*mm"/>
+  <Constant name="MB4RPC_Gas_x_pos" value="[mb4:MB4RPC_x]/2."/>
+  <Constant name="MB4SmallRPC_SmallerGas_x_pos" value="[mb4:MB4SmallRPC_x]-[mb3:MB3RPC_x]/2."/>
+  <Constant name="MB4SmallRPC_BiggerGas_x_pos" value="[mb4:MB4SmallRPC_x]-[mb4:MB4RPC_x]/2."/>
 
-<!--- #### MB4Chim: Constants for DT RPCs -->
+  <Constant name="MB4RPC_x_pos" value="0*cm"/>
+  <Constant name="MB4SmallRPC_x_pos" value="19.782*cm"/>
+  <Constant name="MB4BottomRPC_x_pos" value="4.23*cm"/>
+  <Constant name="MB4RPC_z_pos" value="17.45*cm"/>
+
+<!--- #### MB4Chim: Constants for DT RPC_s -->
   <Constant name="MB4ChimRPC_GasRight_y_pos" value="[mbCommon:MBRPC_GasRight_y_pos]-([mbCommon:MBRPC_z]-[mbCommon:MBChimRPC_z])"/>
 </ConstantsSection>
 
@@ -167,9 +175,10 @@
 
 <!-- ####  MB4: RPC chambers -->
  <Box name="MB4RPC" dx="[mb4:MB4RPC_x]" dy="[mbCommon:MBRPC_z]" dz="[mbCommon:MBRPC_y]"/>
- <Box name="MB4TopRPC" dx="1538*mm" dy="[mbCommon:MBRPC_z]" dz="[mbCommon:MBRPC_y]"/>
- <Box name="MB4FeetRPC" dx="1026*mm" dy="[mbCommon:MBRPC_z]" dz="[mbCommon:MBRPC_y]"/>
- <Box name="MB4BottomRPC" dx="1265*mm" dy="[mbCommon:MBRPC_z]" dz="[mbCommon:MBRPC_y]"/>
+ <Box name="MB4SmallRPC" dx="1750*mm" dy="[mbCommon:MBRPC_z]" dz="[mbCommon:MBRPC_y]"/>
+ <Box name="MB4TopRPC" dx="1500*mm" dy="[mbCommon:MBRPC_z]" dz="[mbCommon:MBRPC_y]"/>
+ <Box name="MB4FeetRPC" dx="1000*mm" dy="[mbCommon:MBRPC_z]" dz="[mbCommon:MBRPC_y]"/>
+ <Box name="MB4BottomRPC" dx="1250*mm" dy="[mbCommon:MBRPC_z]" dz="[mbCommon:MBRPC_y]"/>
  <Box name="MB4RPC_GasLeft"  dx="[mb4:MB4RPC_Gas_x]" dy="[mbCommon:MBRPC_GasLeft_z]" dz="[mbCommon:MBRPC_Gas_y]"/>
  <Box name="MB4RPC_GasRight" dx="[mb4:MB4RPC_Gas_x]" dy="[mbCommon:MBRPC_GasRight_z]" dz="[mbCommon:MBRPC_Gas_y]"/>
 
@@ -178,7 +187,7 @@
  <Box name="MB4BigChim" dx="[MB4Big_x]" dy="[mbCommon:MBChimSLPhiPlO_z]+12.*mm" dz="[mbCommon:MBHeight_With1RPC]"/>
  <Box name="MB4TopChim" dx="[mb3:MB3_x]"  dy="[mbCommon:MBChimSLPhiPlO_z]+12.*mm" dz="[mbCommon:MBHeight_With1RPC]"/>
  <Box name="MB4BigChimRPC" dx="[mb4:MB4RPC_x]" dy="[mbCommon:MBChimRPC_z]" dz="[mbCommon:MBRPC_y]"/>
- <Box name="MB4TopChimRPC" dx="1538*mm" dy="[mbCommon:MBChimRPC_z]" dz="[mbCommon:MBRPC_y]"/>
+ <Box name="MB4TopChimRPC" dx="1500*mm" dy="[mbCommon:MBChimRPC_z]" dz="[mbCommon:MBRPC_y]"/>
 
 <!-- ####  MB4Chim: DT Superlayers Phi -->
  <Box name="MB4BigChimSuperLayerPhi" dx="[mb4:MB4BigSLPhiPl_x]+2.7*mm" dy="[mbCommon:MBChimSLPhiPlO_z]+12.*mm" dz="[mbCommon:MBSuperLayer_height]"/>
@@ -574,6 +583,14 @@
   <rSolid name="MB4RPC"/>
   <rMaterial name="materials:M_RPC_Bakelite"/>
  </LogicalPart>
+ <LogicalPart name="MB4SmallRPC_P" category="unspecified">
+  <rSolid name="MB4SmallRPC"/>
+  <rMaterial name="materials:M_RPC_Bakelite"/>
+ </LogicalPart>
+ <LogicalPart name="MB4SmallRPC_N" category="unspecified">
+  <rSolid name="MB4SmallRPC"/>
+  <rMaterial name="materials:M_RPC_Bakelite"/>
+ </LogicalPart>
  <LogicalPart name="MB4TopRPC_P" category="unspecified">
   <rSolid name="MB4TopRPC"/>
   <rMaterial name="materials:M_RPC_Bakelite"/>
@@ -607,6 +624,22 @@
   <rSolid name="MB4RPC_GasRight"/>
   <rMaterial name="materials:M_RPC_Gas"/>
  </LogicalPart>
+  <LogicalPart name="MB4SmallRPC_SmallerGasLeft" category="unspecified">
+  <rSolid name="mb3:MB3RPC_GasLeft"/>
+  <rMaterial name="materials:M_RPC_Gas"/>
+ </LogicalPart>
+ <LogicalPart name="MB4SmallRPC_SmallerGasRight" category="unspecified">
+  <rSolid name="mb3:MB3RPC_GasRight"/>
+  <rMaterial name="materials:M_RPC_Gas"/>
+ </LogicalPart>
+ <LogicalPart name="MB4SmallRPC_BiggerGasLeft" category="unspecified">
+  <rSolid name="MB4RPC_GasLeft"/>
+  <rMaterial name="materials:M_RPC_Gas"/>
+ </LogicalPart>
+ <LogicalPart name="MB4SmallRPC_BiggerGasRight" category="unspecified">
+  <rSolid name="MB4RPC_GasRight"/>
+  <rMaterial name="materials:M_RPC_Gas"/>
+ </LogicalPart>
  <LogicalPart name="MB4TopRPC_GasLeft" category="unspecified">
   <rSolid name="mb3:MB3RPC_GasLeft"/>
   <rMaterial name="materials:M_RPC_Gas"/>
@@ -616,11 +649,11 @@
   <rMaterial name="materials:M_RPC_Gas"/>
  </LogicalPart>
  <LogicalPart name="MB4FeetRPC_GasLeft" category="unspecified">
-  <rSolid name="mb1:MB1RPC_GasLeft"/>
+  <rSolid name="mb4:MB4RPC_GasLeft"/>
   <rMaterial name="materials:M_RPC_Gas"/>
  </LogicalPart>
  <LogicalPart name="MB4FeetRPC_GasRight" category="unspecified">
-  <rSolid name="mb1:MB1RPC_GasRight"/>
+  <rSolid name="mb4:MB4RPC_GasRight"/>
   <rMaterial name="materials:M_RPC_Gas"/>
  </LogicalPart>
  <LogicalPart name="MB4BottomRPC_GasLeft" category="unspecified">
@@ -2387,22 +2420,22 @@
  <PosPart copyNumber="1">
    <rParent name="mb4:MB4BigRightP"/>
    <rChild name="mb4:MB4RPC_P"/>
-  <Translation x="-[mbCommon:MBRPC_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]-[mbCommon:MBSL_posDisp]" />
+  <Translation x="[mb4:MB4RPC_x_pos]" y="0*fm" z="[mb4:MB4RPC_z_pos]-[mbCommon:MBSL_posDisp]" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb4:MB4BigLeftP"/>
    <rChild name="mb4:MB4RPC_P"/>
-  <Translation x="-[mbCommon:MBRPC_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]-[mbCommon:MBSL_posDisp]" />
+  <Translation x="[mb4:MB4RPC_x_pos]" y="0*fm" z="[mb4:MB4RPC_z_pos]-[mbCommon:MBSL_posDisp]" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb4:MB4SmallRightP"/>
-   <rChild name="mb4:MB4RPC_P"/>
-  <Translation x="-[mbCommon:MBRPC_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]-[mbCommon:MBSL_posDisp]" />
+   <rChild name="mb4:MB4SmallRPC_P"/>
+  <Translation x="[mb4:MB4SmallRPC_x_pos]" y="0*fm" z="[mb4:MB4RPC_z_pos]-[mbCommon:MBSL_posDisp]" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb4:MB4SmallLeftP"/>
-   <rChild name="mb4:MB4RPC_P"/>
-  <Translation x="-[mbCommon:MBRPC_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]-[mbCommon:MBSL_posDisp]" />
+   <rChild name="mb4:MB4SmallRPC_P"/>
+  <Translation x="-[mb4:MB4SmallRPC_x_pos]" y="0*fm" z="[mb4:MB4RPC_z_pos]-[mbCommon:MBSL_posDisp]" />
  </PosPart>
 
  <PosPart copyNumber="1">
@@ -2425,26 +2458,47 @@
    <rChild name="mb4:MB4RPC_GasRight"/>
   <Translation x="-[mb4:MB4RPC_Gas_x_pos]" y="[mbCommon:MBRPC_GasRight_y_pos]" z="0*cm" />
  </PosPart>
+<PosPart copyNumber="1">
+   <rParent name="mb4:MB4SmallRPC_P"/>
+   <rChild name="mb4:MB4SmallRPC_SmallerGasLeft"/>
+  <Translation x="-[mb4:MB4SmallRPC_SmallerGas_x_pos]" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="mb4:MB4SmallRPC_P"/>
+   <rChild name="mb4:MB4SmallRPC_BiggerGasLeft"/>
+  <Translation x="[mb4:MB4SmallRPC_BiggerGas_x_pos]" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm" />
+ </PosPart>
+ <PosPart copyNumber="2">
+   <rParent name="mb4:MB4SmallRPC_P"/>
+   <rChild name="mb4:MB4SmallRPC_SmallerGasRight"/>
+  <Translation x="-[mb4:MB4SmallRPC_SmallerGas_x_pos]" y="[mbCommon:MBRPC_GasRight_y_pos]" z="0*cm" />
+ </PosPart>
+ <PosPart copyNumber="2">
+   <rParent name="mb4:MB4SmallRPC_P"/>
+   <rChild name="mb4:MB4SmallRPC_BiggerGasRight"/>
+  <Translation x="[mb4:MB4SmallRPC_BiggerGas_x_pos]" y="[mbCommon:MBRPC_GasRight_y_pos]" z="0*cm" />
+ </PosPart>
+
 <!-- ##### MB4: RPC_N chamber -->
  <PosPart copyNumber="1">
    <rParent name="mb4:MB4BigRightN"/>
    <rChild name="mb4:MB4RPC_N"/>
-  <Translation x="-[mbCommon:MBRPC_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]-[mbCommon:MBSL_posDisp]" />
+  <Translation x="[mb4:MB4RPC_x_pos]" y="0*fm" z="[mb4:MB4RPC_z_pos]-[mbCommon:MBSL_posDisp]" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb4:MB4BigLeftN"/>
    <rChild name="mb4:MB4RPC_N"/>
-  <Translation x="-[mbCommon:MBRPC_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]-[mbCommon:MBSL_posDisp]" />
+  <Translation x="[mb4:MB4RPC_x_pos]" y="0*fm" z="[mb4:MB4RPC_z_pos]-[mbCommon:MBSL_posDisp]" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb4:MB4SmallRightN"/>
-   <rChild name="mb4:MB4RPC_N"/>
-  <Translation x="-[mbCommon:MBRPC_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]-[mbCommon:MBSL_posDisp]" />
+   <rChild name="mb4:MB4SmallRPC_N"/>
+  <Translation x="[mb4:MB4SmallRPC_x_pos]" y="0*fm" z="[mb4:MB4RPC_z_pos]-[mbCommon:MBSL_posDisp]" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb4:MB4SmallLeftN"/>
-   <rChild name="mb4:MB4RPC_N"/>
-  <Translation x="-[mbCommon:MBRPC_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]-[mbCommon:MBSL_posDisp]" />
+   <rChild name="mb4:MB4SmallRPC_N"/>
+  <Translation x="-[mb4:MB4SmallRPC_x_pos]" y="0*fm" z="[mb4:MB4RPC_z_pos]-[mbCommon:MBSL_posDisp]" />
  </PosPart>
 
  <PosPart copyNumber="1">
@@ -2467,13 +2521,33 @@
    <rChild name="mb4:MB4RPC_GasRight"/>
   <Translation x="-[mb4:MB4RPC_Gas_x_pos]" y="-[mbCommon:MBRPC_GasRight_y_pos]" z="0*cm" />
  </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="mb4:MB4SmallRPC_N"/>
+   <rChild name="mb4:MB4SmallRPC_SmallerGasLeft"/>
+  <Translation x="-[mb4:MB4SmallRPC_SmallerGas_x_pos]" y="[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="mb4:MB4SmallRPC_N"/>
+   <rChild name="mb4:MB4SmallRPC_BiggerGasLeft"/>
+  <Translation x="[mb4:MB4SmallRPC_BiggerGas_x_pos]" y="[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm" />
+ </PosPart>
+ <PosPart copyNumber="2">
+   <rParent name="mb4:MB4SmallRPC_N"/>
+   <rChild name="mb4:MB4SmallRPC_SmallerGasRight"/>
+  <Translation x="-[mb4:MB4SmallRPC_SmallerGas_x_pos]" y="-[mbCommon:MBRPC_GasRight_y_pos]" z="0*cm" />
+ </PosPart>
+ <PosPart copyNumber="2">
+   <rParent name="mb4:MB4SmallRPC_N"/>
+   <rChild name="mb4:MB4SmallRPC_BiggerGasRight"/>
+  <Translation x="[mb4:MB4SmallRPC_BiggerGas_x_pos]" y="-[mbCommon:MBRPC_GasRight_y_pos]" z="0*cm" />
+ </PosPart>
 
 <!-- ##### MB4: RPC chambers in MB4Top -->
 <!-- ##### MB4: RPC_P chamber -->
  <PosPart copyNumber="1">
    <rParent name="mb4:MB4TopP"/>
    <rChild name="mb4:MB4TopRPC_P"/>
-  <Translation x="-[mbCommon:MBRPC_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]-[mbCommon:MBSL_posDisp]" />
+  <Translation x="[mb4:MB4RPC_x_pos]" y="0*fm" z="[mb4:MB4RPC_z_pos]-[mbCommon:MBSL_posDisp]" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb4:MB4TopRPC_P"/>
@@ -2499,7 +2573,7 @@
  <PosPart copyNumber="1">
    <rParent name="mb4:MB4TopN"/>
    <rChild name="mb4:MB4TopRPC_N"/>
-  <Translation x="-[mbCommon:MBRPC_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]-[mbCommon:MBSL_posDisp]" />
+  <Translation x="[mb4:MB4RPC_x_pos]" y="0*fm" z="[mb4:MB4RPC_z_pos]-[mbCommon:MBSL_posDisp]" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb4:MB4TopRPC_N"/>
@@ -2527,7 +2601,7 @@
  <PosPart copyNumber="1">
    <rParent name="mb4:MB4FeetP"/>
    <rChild name="mb4:MB4FeetRPC_P"/>
-  <Translation x="-[mbCommon:MBRPC_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]-[mbCommon:MBSL_posDisp]" />
+  <Translation x="0*fm" y="0*fm" z="[mb4:MB4RPC_z_pos]-[mbCommon:MBSL_posDisp]" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb4:MB4FeetRPC_P"/>
@@ -2543,7 +2617,7 @@
  <PosPart copyNumber="1">
    <rParent name="mb4:MB4FeetN"/>
    <rChild name="mb4:MB4FeetRPC_N"/>
-  <Translation x="-[mbCommon:MBRPC_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]-[mbCommon:MBSL_posDisp]" />
+  <Translation x="0*fm" y="0*fm" z="[mb4:MB4RPC_z_pos]-[mbCommon:MBSL_posDisp]" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb4:MB4FeetRPC_N"/>
@@ -2561,12 +2635,12 @@
  <PosPart copyNumber="1">
    <rParent name="mb4:MB4BottomRightP"/>
    <rChild name="mb4:MB4BottomRPC_P"/>
-  <Translation x="-[mbCommon:MBRPC_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]-[mbCommon:MBSL_posDisp]" />
+  <Translation x="-[mb4:MB4BottomRPC_x_pos]" y="0*fm" z="[mb4:MB4RPC_z_pos]-[mbCommon:MBSL_posDisp]" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb4:MB4BottomLeftP"/>
    <rChild name="mb4:MB4BottomRPC_P"/>
-  <Translation x="-[mbCommon:MBRPC_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]-[mbCommon:MBSL_posDisp]" />
+  <Translation x="[mb4:MB4BottomRPC_x_pos]" y="0*fm" z="[mb4:MB4RPC_z_pos]-[mbCommon:MBSL_posDisp]" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb4:MB4BottomRPC_P"/>
@@ -2582,12 +2656,12 @@
  <PosPart copyNumber="1">
    <rParent name="mb4:MB4BottomRightN"/>
    <rChild name="mb4:MB4BottomRPC_N"/>
-  <Translation x="-[mbCommon:MBRPC_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]-[mbCommon:MBSL_posDisp]" />
+  <Translation x="[mb4:MB4RPC_x_pos]" y="0*fm" z="[mb4:MB4RPC_z_pos]-[mbCommon:MBSL_posDisp]" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb4:MB4BottomLeftN"/>
    <rChild name="mb4:MB4BottomRPC_N"/>
-  <Translation x="-[mbCommon:MBRPC_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]-[mbCommon:MBSL_posDisp]" />
+  <Translation x="[mb4:MB4RPC_x_pos]" y="0*fm" z="[mb4:MB4RPC_z_pos]-[mbCommon:MBSL_posDisp]" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb4:MB4BottomRPC_N"/>
@@ -2894,7 +2968,7 @@
  <PosPart copyNumber="1">
    <rParent name="mb4:MB4TopChimP"/>
    <rChild name="mb4:MB4TopChimRPC_P"/>
-  <Translation x="-[mbCommon:MBRPC_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]-[mbCommon:MBSL_posDisp]" />
+  <Translation x="[mb4:MB4RPC_x_pos]" y="0*fm" z="[mb4:MB4RPC_z_pos]-[mbCommon:MBSL_posDisp]" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb4:MB4TopChimRPC_P"/>
@@ -2920,7 +2994,7 @@
  <PosPart copyNumber="1">
    <rParent name="mb4:MB4BigChimN"/>
    <rChild name="mb4:MB4BigChimRPC_N"/>
-  <Translation x="-[mbCommon:MBRPC_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]-[mbCommon:MBSL_posDisp]" />
+  <Translation x="[mb4:MB4RPC_x_pos]" y="0*fm" z="[mb4:MB4RPC_z_pos]-[mbCommon:MBSL_posDisp]" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb4:MB4BigChimRPC_N"/>
