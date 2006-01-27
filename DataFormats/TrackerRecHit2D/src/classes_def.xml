@@ -2,8 +2,10 @@
   <class name="TrackingRecHit"/>
   <class name="RecHit2DLocalPos"/>
   <class name="SiStripCluster"/>
+  <class name="LocalError"/>
   <class name="std::vector<const SiStripCluster*>"/>
   <class name="SiStripRecHit2DLocalPos"/>
+  <class name="BaseSiStripRecHit2DLocalPos"/>
   <class name="SiStripRecHit2DMatchedLocalPos"/>
   <class name="std::vector<short>"/>
   <class name="std::vector<SiStripRecHit2DLocalPos*>"/>
