@@ -6,7 +6,7 @@
  *       Class to hold drift tubes TTrigs
  *             ( SL by SL time offsets )
  *
- *  $Date: 2005/11/23 17:15:00 $
+ *  $Date: 2005/12/01 12:48:05 $
  *  $Revision: 1.1 $
  *  \author Paolo Ronchese INFN Padova
  *
@@ -97,6 +97,10 @@ class DTTtrig {
   std::string dataVersion;
 
   std::vector<DTSLTtrigData> slData;
+  void getIdNumbers( int& minWheel,  int& minStation,
+                     int& minSector, int& minSL,
+                     int& maxWheel,  int& maxStation,
+                     int& maxSector, int& maxSL      ) const;
 
 };
 

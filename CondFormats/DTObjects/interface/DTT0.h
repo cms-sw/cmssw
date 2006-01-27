@@ -6,8 +6,8 @@
  *       Class to hold drift tubes T0s
  *             ( cell by cell time offsets )
  *
- *  $Date: 2005/11/15 18:38:13 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/12/01 12:48:05 $
+ *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -106,6 +106,12 @@ class DTT0 {
   std::string dataVersion;
 
   std::vector<DTCellT0Data> cellData;
+  void getIdNumbers( int& minWheel,   int& minStation,
+                     int& minSector,  int& minSL,
+                     int& minLayer,   int& minCell,
+                     int& maxWheel,   int& maxStation,
+                     int& maxSector,  int& maxSL,
+                     int& maxLayer,   int& maxCell    ) const;
 
   static int rmsFactor;
 
