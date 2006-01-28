@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2006/01/07 11:46:48 $
- * $Revision: 1.74 $
+ * $Date: 2006/01/08 10:51:11 $
+ * $Revision: 1.75 $
  * \author G. Della Ricca
  *
 */
@@ -14,6 +14,8 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
 //  logFile_.open("EcalBarrelMonitorModule.log");
 
   string s = ps.getUntrackedParameter<string>("runType", "unknown");
+
+  runType_ = -1;
 
   if ( s == "cosmic" ) {
     runType_ = 0;
@@ -27,7 +29,11 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
     runType_ = 4;
   }
 
+  cout << " Processing run type: " << runType_ << " (" << s << ")" << endl;
+
   irun_ = ps.getUntrackedParameter<int>("runNumber", 999999);
+
+  cout << " Processing run: " << irun_ << endl;
 
   // DQM ROOT output
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
