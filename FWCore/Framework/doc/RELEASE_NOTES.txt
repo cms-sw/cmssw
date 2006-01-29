@@ -79,3 +79,95 @@ message from exception and from printouts from ignored exceptions.
 
 Added a way to get at the InputSource from the EventProcessor interface.
 
+22-01-06
+
+output modules are not yet confined to endpaths.
+
+A dependency on MessageLogger cannot be added to the Framework because the
+plugin manager dies during "load all capabilities" service initialization.
+This may be due to the fact that MessageLogger needs to use ModuleDescription
+in the Framework library.  Anyway, there seems to be a problem with
+dependencies.
+
+Currently the LogError and LogWarning calls are not made to the MessageLogger
+because of the crash problems.   The Log.h file controls where the functions
+come from (local macros or MessageLogger API).
+
+The TriggerResults product and the TriggerResultInserter producer are both
+contained within the Framework library.  This is a temporary solution until
+we figure out how to split them out.
+
+An on-demand report of path/worker stats in not available.  The report only
+comes out at the endJob time.  The report does not include work-in-path stats, 
+only workers and paths.
+
+A "TriggerResultsAnalzer" is needed that looks at the trigger result to see
+if it is correct or not.  A test filter is needed that fails or succeed
+based on some configurable criteria (e.g. 50% pass or 1 out of N pass -
+prescale).
+
+26-01-06
+
+Things still missing:
+1) prepath/postpath callback for timing
+2) bitvector service for use in the output modules (bits to names mapping)
+3) move output modules to endpath and print warning
+
+(2 and 3 are now complete)
+
+The TriggerResult and TriggerNamesService do not have unit tests yet!
+The TriggerResult is valid in the output file.
+The OutputModules have not been modified to do writing based on bits.
+
+28-01-06
+
+Now triggerresults are only available if there is a filter in any
+path or if the is an untracked bool called makeTriggerResults set to
+true in the options pset of the process pset.
+
+All the existing unit tests now work.
+
+A TriggerResultInserter module only gets made if the TriggerResults
+object needs to be available.
+
+Verified that all the service callback are being called correctly
+using the Tracer service.
+
+29-01-06
+
+Everything is working in the first release of the new scheduler with 
+trigger results.  Some of the things that need to be addressed:
+
+ 1) The message logger is still not being used because of dependency
+    problems.
+ 2) There is now a Producer, Product, and Service directly in the Framework
+    library.  There is a way to separate them out, if necessary, bu it is
+	more than could be done in this release.
+ 3) The TriggerResults product is more complex than it needs to be.  The
+    stored entity is a vector<bool> instead of a bitbit<N> because I 
+	could not get the bitset working properly with ROOT.
+ 4) The path statistics report is somewhat crude and does not include 
+    information about the module-in-path.  It only does module stats and
+	path summary stats.
+ 5) There in no support in the parameter set language for addition 
+    path algebra.  This includes inverting decisions of paths or modules
+	and disabling modules in paths.
+ 6) The scheduler summary (paths/modules) in now going to what will be
+    the message logger.  Each line goes out as an individual message.  This
+	is undesirable behavior.  The report should go to std::cout, meaning
+	that routing cannot be easily done, or the report needs to be 
+	accumulated in an ostringstream and then sent as one message.  I prefer
+	this last option.
+ 7) Path pre/post signals posting is not implemented.
+ 8) The current statistics cannot be read out through an EventProcessor
+    interface.  This is interesting for the trigger so the control
+	system can query a processor for current statistics.
+
+ The output modules, as of this date,  have not been modified to 
+ include/exclude events based on trigger bits.  They will need to 
+ account for cases where there are zero, one, or more TriggerResults
+ objects in the event.  The parameters must be able to choose the
+ proper "process name".
+
+ As of this date, the TriggerResults interface has not been unit tested!
+

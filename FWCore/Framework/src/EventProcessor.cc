@@ -29,6 +29,8 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
+#include "FWCore/Framework/interface/TriggerNamesService.h"
+#include "FWCore/Framework/interface/Schedule.h"
 
 #include "FWCore/Framework/src/Worker.h"
 #include "FWCore/Framework/src/WorkerRegistry.h"
@@ -41,6 +43,7 @@
 
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#include "FWCore/Framework/interface/Log.h"
 
 
 using namespace std;
@@ -236,6 +239,14 @@ namespace edm {
   // right now we only support a pset string from constructor or
   // pset read from file
 
+  struct DoPluginInit
+  {
+	DoPluginInit()
+	{ seal::PluginManager::get()->initialise();
+	  // std::cerr << "Initialized pligin manager" << std::endl;
+	}
+  };
+
   class FwkImpl
   {
   public:
@@ -258,15 +269,15 @@ namespace edm {
     // only during construction, and never again. If they aren't
     // really needed, we should remove them.    
     //shared_ptr<ParameterSet>        params_;
+	DoPluginInit  plug_init_;
     CommonParams                    common_;
-    WorkerRegistry                  wreg_;
+    boost::shared_ptr<ActivityRegistry> actReg_;
+    WorkerRegistry wreg_;
     SignallingProductRegistry       preg_;
-    PathList                        workers_;
 
-    ActivityRegistry                actReg_;
     ServiceToken                    serviceToken_;
     shared_ptr<InputSource>         input_;
-    std::auto_ptr<ScheduleExecutor> runner_;
+    std::auto_ptr<Schedule> sched_;
     std::auto_ptr<eventsetup::EventSetupProvider>  
                                     esp_;    
 
@@ -281,13 +292,12 @@ namespace edm {
 		   ServiceLegacy iLegacy) :
     //params_(),
     common_(),
-    wreg_(),
+    actReg_(new ActivityRegistry),
+    wreg_(actReg_),
     preg_(),
-    workers_(),
-    actReg_(),
     serviceToken_(),
     input_(),
-    runner_(),
+    sched_(),
     esp_(),
     emittedBeginJob_(false),
     act_table_()
@@ -301,9 +311,8 @@ namespace edm {
     makeParameterSets(config, params_, pServiceSets);
 
     //create the services
-    serviceToken_ = ServiceRegistry::createSet(*pServiceSets,
-					       iToken,iLegacy);
-    serviceToken_.connectTo(actReg_);
+    serviceToken_ = ServiceRegistry::createSet(*pServiceSets,iToken,iLegacy);
+    serviceToken_.connectTo(*actReg_);
      
     //add the ProductRegistry as a service ONLY for the construction phase
     typedef serviceregistry::ServiceWrapper<ConstProductRegistry> w_CPR;
@@ -312,24 +321,31 @@ namespace edm {
     ServiceToken tempToken( ServiceRegistry::createContaining(reg, 
 							      serviceToken_, 
 							      kOverlapIsError));
+
+    // the next thing is ugly: pull out the trigger path pset and 
+    // create a service and extra token for it
+
+    typedef edm::service::TriggerNamesService TNS;
+    typedef serviceregistry::ServiceWrapper<TNS> w_TNS;
+    ParameterSet trigger_paths = (*params_).getUntrackedParameter<ParameterSet>("@trigger_paths");
+    shared_ptr<w_TNS> tnsptr(new w_TNS( std::auto_ptr<TNS>(new TNS(trigger_paths))));
+    ServiceToken tempToken2( ServiceRegistry::createContaining(tnsptr, 
+							      tempToken, 
+							      kOverlapIsError));
     //make the services available
-    ServiceRegistry::Operate operate(tempToken);
+    ServiceRegistry::Operate operate(tempToken2);
      
     //params_ = builder.getProcessPSet();
     act_table_ = ActionTable(*params_);
-    common_ = 
-      CommonParams((*params_).getParameter<string>("@process_name"),
-		   getVersion(), // this is not written for real yet
-		   0); // how is this specifified? Where does it come from?
+    common_ = CommonParams((*params_).getParameter<string>("@process_name"),
+			   getVersion(), // this is not written for real yet
+			   0); // how is this specifified? Where does it come from?
      
-    input_= makeInput(*params_, common_, preg_);
-    ScheduleBuilder sbuilder(*params_, wreg_, preg_, act_table_);
-     
-    workers_= (sbuilder.getPathList());
-    runner_ = std::auto_ptr<ScheduleExecutor>(new ScheduleExecutor(workers_,act_table_));
-    runner_->preModuleSignal.connect(actReg_.preModuleSignal_);
-    runner_->postModuleSignal.connect(actReg_.postModuleSignal_);
-     
+    input_= makeInput(*params_, common_, preg_);     
+    sched_ = std::auto_ptr<Schedule>(new Schedule(*params_,wreg_,
+						  preg_,act_table_,
+						  actReg_));
+
     esp_ = makeEventSetupProvider(*params_);
     fillEventSetupProvider(*esp_, *params_, common_);
     //   initialize(iToken,iLegacy);
@@ -358,39 +374,7 @@ namespace edm {
 	IOVSyncValue ts(pep->id(), pep->time());
 	EventSetup const& es = esp_->eventSetupForInstance(ts);
 
-	try
-	  {
-            ModuleDescription dummy;
-            {
-              actReg_.preProcessEventSignal_(pep->id(),pep->time());
-            }
-	    runner_->runOneEvent(*pep.get(),es);
-            {
-              actReg_.postProcessEventSignal_(Event(*pep.get(),dummy) , es);
-            }
-	  }
-	catch(cms::Exception& e)
-	  {
-	    actions::ActionCodes code = act_table_.find(e.rootCause());
-	    if(code==actions::IgnoreCompletely)
-	      {
-		// change to error logger!
-		cerr << "Ignoring exception from Event ID=" << pep->id()
-		     << ", message:\n" << e.what()
-		     << endl;
-		continue;
-	      }
-	    else if(code==actions::SkipEvent)
-	      {
-		cerr << "Skipping Event ID=" << pep->id()
-		     << ", message:\n" << e.what()
-		     << endl;
-		continue;
-	      }
-	    else
-	      throw edm::Exception(errors::EventProcessorFailure,
-				   "EventProcessingStopped",e);
-	  }
+	sched_->runOneEvent(*pep.get(),es);
       }
 
     return 0;
@@ -408,16 +392,9 @@ namespace edm {
       // Also have to deal with case where have 'run' then new Module added and do 'run'
       // again.  In that case the newly added Module needs its 'beginJob' to be called.
       EventSetup const& es = esp_->eventSetupForInstance(IOVSyncValue::beginOfTime());
-      PathList::iterator itWorkerList = workers_.begin();
-      PathList::iterator itEnd = workers_.end();
-      ESRefWrapper wrapper(es);
-        
-      for(; itWorkerList != itEnd; ++itEnd) {
-	std::for_each(itWorkerList->begin(), itWorkerList->end(), 
-		      boost::bind(boost::mem_fn(&Worker::beginJob), _1, wrapper));
-      }
+      sched_->beginJob(es);
       emittedBeginJob_ = true;
-      actReg_.postBeginJobSignal_();
+      actReg_->postBeginJobSignal_();
     }
   }
 
@@ -425,32 +402,31 @@ namespace edm {
   FwkImpl::endJob() 
   {
     //make the services available
-    ServiceRegistry::Operate operate(serviceToken_);
-     
-    bool returnValue = true;
-    PathList::const_iterator itWorkerList = workers_.begin();
-    PathList::const_iterator itEnd = workers_.end();
-    for(; itWorkerList != itEnd; ++itEnd) {
-      for(WorkerList::const_iterator itWorker = itWorkerList->begin();
-	  itWorker != itWorkerList->end();
-	  ++itWorker) {
-	try {
-	  (*itWorker)->endJob();
-	} catch(cms::Exception& iException) {
-	  cerr<<"Caught cms::Exception in endJob: "<< iException.what()<<endl;
-	  returnValue = false;
-	} catch(std::exception& iException) {
-	  cerr<<"Caught std::exception in endJob: "<< iException.what()<<endl;
-	  cerr<<endl;
-	  returnValue = false;
-	} catch(...) {
-	  cerr<<"Caught unknown exception in endJob."<<endl;
-	  returnValue = false;
-	}
+    ServiceRegistry::Operate operate(serviceToken_);  
+    bool returnValue = false;
+
+    try
+      {
+	sched_->endJob();
+	returnValue=true;
       }
-    }     
-     
-    actReg_.postEndJobSignal_();
+    catch(cms::Exception& iException)
+      {
+	LogError(iException.category())
+	  << "Caught cms::Exception in endJob: "<< iException.what() << "\n";
+      }
+    catch(std::exception& iException)
+      {
+	LogError("std::exception")
+	  << "Caught std::exception in endJob: "<< iException.what() << "\n";
+      }
+    catch(...)
+      {
+	LogError("ignored_exception")
+	  << "Caught unknown exception in endJob. (ignoring it!!!!)\n";
+      }
+    
+    actReg_->postEndJobSignal_();
     return returnValue;
   }
 
@@ -466,8 +442,8 @@ namespace edm {
     // When the FwkImpl signals are given, pass them to the
     // appropriate EventProcessor signals so that the outside world
     // can see the signal.
-    actReg_.preProcessEventSignal_.connect(ep->preProcessEventSignal);
-    actReg_.postProcessEventSignal_.connect(ep->postProcessEventSignal);
+    actReg_->preProcessEventSignal_.connect(ep->preProcessEventSignal);
+    actReg_->postProcessEventSignal_.connect(ep->postProcessEventSignal);
   }
 
   InputSource&

@@ -1,4 +1,7 @@
+
 #include <vector>
+
+#include "FWCore/Framework/interface/TriggerResults.h"
 #include "FWCore/Framework/interface/EventAux.h"
 #include "FWCore/Framework/interface/EventProvenance.h"
 #include "FWCore/Framework/interface/BranchDescription.h"
@@ -16,5 +19,6 @@ namespace{
 	edm::Wrapper<edmtest::DoubleProduct> dummy2;
 	edm::Wrapper<edmtest::StringProduct> dummy3;
 	edm::Wrapper<edmtest::SCSimpleProduct> dummy4;
+	edm::Wrapper<edm::TriggerResults> dummy5;
 }
 }

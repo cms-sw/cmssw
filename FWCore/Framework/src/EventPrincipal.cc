@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EventPrincipal.cc,v 1.29 2006/01/15 05:19:54 wmtan Exp $
+$Id: EventPrincipal.cc,v 1.30 2006/01/24 16:33:12 wmtan Exp $
 ----------------------------------------------------------------------*/
 //#include <iostream>
 #include <memory>
@@ -284,8 +284,10 @@ namespace edm {
     TypeDict::const_iterator i = typeDict_.find(id.friendlyClassName());
 
     if(i==typeDict_.end()) {
-	throw edm::Exception(errors::ProductNotFound,"NoMatch")
-	  << "getMany: no products found of correct type\n" << id;
+	return;
+	// it is not an error to return no items
+	// throw edm::Exception(errors::ProductNotFound,"NoMatch")
+	//   << "getMany: no products found of correct type\n" << id;
     }
 
     vector<int> const& vint = i->second;
@@ -348,8 +350,10 @@ namespace edm {
     TypeDict::const_iterator i = typeDict_.find(id.friendlyClassName());
 
     if(i==typeDict_.end()) {
-      throw edm::Exception(errors::ProductNotFound,"NoMatch")
-        << "getManyByType: no products found of correct type\n" << id;
+		return;
+      // it is not an error to find no match
+      // throw edm::Exception(errors::ProductNotFound,"NoMatch")
+      //   << "getManyByType: no products found of correct type\n" << id;
     }
 
     vector<int> const& vint = i->second;

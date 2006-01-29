@@ -25,4 +25,11 @@
  <class name="edm::Wrapper<edmtest::DoubleProduct>"/>
  <class name="edm::Wrapper<edmtest::StringProduct>"/>
  <class name="edm::Wrapper<edm::SortedCollection<edmtest::Simple, edm::StrictWeakOrdering<edmtest::Simple> > >"/>
+  <class name="std::vector<bool>"/>
+  <class name="edm::TriggerResults">
+   <field name="bits_" transient="true"/>
+   <field name="insync_" transient="true"/>
+  </class>
+  <class name="edm::Wrapper<edm::TriggerResults>"/>
+
 </lcgdict>

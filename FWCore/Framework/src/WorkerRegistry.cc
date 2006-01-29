@@ -3,11 +3,11 @@
    Implementation of class WorkerRegistry
 
    \author Stefano ARGIRO
-   \version $Id: WorkerRegistry.cc,v 1.6 2005/07/20 03:00:36 jbk Exp $
+   \version $Id: WorkerRegistry.cc,v 1.7 2005/07/30 23:45:45 wmtan Exp $
    \date 18 May 2005
 */
 
-static const char CVSId[] = "$Id: WorkerRegistry.cc,v 1.6 2005/07/20 03:00:36 jbk Exp $";
+static const char CVSId[] = "$Id: WorkerRegistry.cc,v 1.7 2005/07/30 23:45:45 wmtan Exp $";
 
 
 #include "FWCore/Framework/src/WorkerRegistry.h"
@@ -20,8 +20,15 @@ static const char CVSId[] = "$Id: WorkerRegistry.cc,v 1.6 2005/07/20 03:00:36 jb
 using namespace std;
 using namespace edm;
 
+WorkerRegistry::WorkerRegistry():
+  act_reg_(new ActivityRegistry)
+{
+}
 
-
+WorkerRegistry::WorkerRegistry(boost::shared_ptr<ActivityRegistry> areg):
+  act_reg_(areg)
+{
+}
 
 WorkerRegistry:: ~WorkerRegistry(){
 
@@ -45,8 +52,11 @@ Worker* WorkerRegistry::getWorker(const WorkerParams& p) {
     std::auto_ptr<Worker> workerPtr=
       Factory::get()->makeWorker(p);
     
-    Worker* w =  workerPtr.release(); // take ownership
+    workerPtr->connect(act_reg_->preModuleSignal_,act_reg_->postModuleSignal_);
+
+    Worker* w =  workerPtr.get(); // take ownership
     m_workerMap[workerid] = w;
+    workerPtr.release();
     return w;
     
   } 
