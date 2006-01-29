@@ -1,17 +1,19 @@
 /*
  * \file EBPedestalTask.cc
  *
- * $Date: 2006/01/07 16:27:59 $
- * $Revision: 1.26 $
+ * $Date: 2006/01/24 14:34:26 $
+ * $Revision: 1.27 $
  * \author G. Della Ricca
  *
 */
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBPedestalTask.h>
 
-EBPedestalTask::EBPedestalTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe){
+EBPedestalTask::EBPedestalTask(const edm::ParameterSet& ps){
 
 //  logFile_.open("EBPedestalTask.log");
+
+  init_ = false;
 
   for (int i = 0; i < 36 ; i++) {
     mePedMapG01_[i] = 0;
@@ -21,7 +23,36 @@ EBPedestalTask::EBPedestalTask(const edm::ParameterSet& ps, DaqMonitorBEInterfac
     mePnPedMapG16_[i] = 0;
   }
 
+  // this is a hack, used to fake the EcalBarrel run header
+  TH1F* tmp = (TH1F*) gROOT->FindObjectAny("tmp");
+  if ( tmp && tmp->GetBinContent(1) != 2 ) return;
+
+  this->setup();
+
+}
+
+EBPedestalTask::~EBPedestalTask(){
+
+//  logFile_.close();
+
+}
+
+void EBPedestalTask::beginJob(const edm::EventSetup& c){
+
+  ievt_ = 0;
+
+}
+
+void EBPedestalTask::setup(void){
+
+  init_ = true;
+
   Char_t histo[20];
+
+  DaqMonitorBEInterface* dbe = 0;
+
+  // get hold of back-end interface
+  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
 
   if ( dbe ) {
     dbe->setCurrentFolder("EcalBarrel/EBPedestalTask");
@@ -62,24 +93,18 @@ EBPedestalTask::EBPedestalTask(const edm::ParameterSet& ps, DaqMonitorBEInterfac
 
 }
 
-EBPedestalTask::~EBPedestalTask(){
-
-//  logFile_.close();
-
-}
-
-void EBPedestalTask::beginJob(const edm::EventSetup& c){
-
-  ievt_ = 0;
-
-}
-
 void EBPedestalTask::endJob(){
 
   cout << "EBPedestalTask: analyzed " << ievt_ << " events" << endl;
 }
 
 void EBPedestalTask::analyze(const edm::Event& e, const edm::EventSetup& c){
+
+  // this is a hack, used to fake the EcalBarrel event header
+  TH1F* tmp = (TH1F*) gROOT->FindObjectAny("tmp");
+  if ( tmp && tmp->GetBinContent(2) != 2 ) return;
+
+  if ( ! init_ ) this->setup();
 
   ievt_++;
 

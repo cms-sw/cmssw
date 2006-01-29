@@ -1,17 +1,19 @@
 /*
  * \file EBCosmicTask.cc
  *
- * $Date: 2006/01/05 08:59:20 $
- * $Revision: 1.32 $
+ * $Date: 2006/01/24 14:34:26 $
+ * $Revision: 1.33 $
  * \author G. Della Ricca
  *
 */
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBCosmicTask.h>
 
-EBCosmicTask::EBCosmicTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe){
+EBCosmicTask::EBCosmicTask(const edm::ParameterSet& ps){
 
 //  logFile_.open("EBCosmicTask.log");
+
+  init_ = false;
 
   for (int i = 0; i < 36 ; i++) {
     meCutMap_[i] = 0;
@@ -19,7 +21,36 @@ EBCosmicTask::EBCosmicTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* d
     meSpectrumMap_[i] = 0;
   }
 
+  // this is a hack, used to fake the EcalBarrel run header
+  TH1F* tmp = (TH1F*) gROOT->FindObjectAny("tmp");
+  if ( tmp && tmp->GetBinContent(1) != 0 ) return;
+
+  this->setup();
+
+}
+
+EBCosmicTask::~EBCosmicTask(){
+
+//  logFile_.close();
+
+}
+
+void EBCosmicTask::beginJob(const edm::EventSetup& c){
+
+  ievt_ = 0;
+
+}
+
+void EBCosmicTask::setup(void){
+
+  init_ = true;
+
   Char_t histo[20];
+
+  DaqMonitorBEInterface* dbe = 0;
+
+  // get hold of back-end interface
+  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
 
   if ( dbe ) {
     dbe->setCurrentFolder("EcalBarrel/EBCosmicTask");
@@ -46,18 +77,6 @@ EBCosmicTask::EBCosmicTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* d
 
 }
 
-EBCosmicTask::~EBCosmicTask(){
-
-//  logFile_.close();
-
-}
-
-void EBCosmicTask::beginJob(const edm::EventSetup& c){
-
-  ievt_ = 0;
-
-}
-
 void EBCosmicTask::endJob(){
 
   cout << "EBCosmicTask: analyzed " << ievt_ << " events" << endl;
@@ -65,6 +84,12 @@ void EBCosmicTask::endJob(){
 }
 
 void EBCosmicTask::analyze(const edm::Event& e, const edm::EventSetup& c){
+
+  // this is a hack, used to fake the EcalBarrel event header
+  TH1F* tmp = (TH1F*) gROOT->FindObjectAny("tmp");
+  if ( tmp && tmp->GetBinContent(2) != 0 ) return;
+
+  if ( ! init_ ) this->setup();
 
   ievt_++;
 

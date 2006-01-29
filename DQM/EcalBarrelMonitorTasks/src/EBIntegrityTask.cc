@@ -1,17 +1,19 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2005/12/30 10:24:29 $
- * $Revision: 1.6 $
+ * $Date: 2006/01/02 12:29:22 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  *
 */
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBIntegrityTask.h>
 
-EBIntegrityTask::EBIntegrityTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe){
+EBIntegrityTask::EBIntegrityTask(const edm::ParameterSet& ps){
 
 //  logFile_.open("EBIntegrityTask.log");
+
+  init_ = false;
 
   meIntegrityDCCSize = 0;
   for (int i = 0; i < 36 ; i++) {
@@ -23,7 +25,32 @@ EBIntegrityTask::EBIntegrityTask(const edm::ParameterSet& ps, DaqMonitorBEInterf
     meIntegrityTTBlockSize[i] = 0;
   }
 
+  this->setup();
+
+}
+
+EBIntegrityTask::~EBIntegrityTask(){
+
+//  logFile_.close();
+
+}
+
+void EBIntegrityTask::beginJob(const edm::EventSetup& c){
+
+  ievt_ = 0;
+
+}
+
+void EBIntegrityTask::setup(void){
+
+  init_ = true;
+
   Char_t histo[20];
+
+  DaqMonitorBEInterface* dbe = 0;
+
+  // get hold of back-end interface
+  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
 
   if ( dbe ) {
     dbe->setCurrentFolder("EcalBarrel");
@@ -79,18 +106,6 @@ EBIntegrityTask::EBIntegrityTask(const edm::ParameterSet& ps, DaqMonitorBEInterf
 
 }
 
-EBIntegrityTask::~EBIntegrityTask(){
-
-//  logFile_.close();
-
-}
-
-void EBIntegrityTask::beginJob(const edm::EventSetup& c){
-
-  ievt_ = 0;
-
-}
-
 void EBIntegrityTask::endJob(){
 
   cout << "EBIntegrityTask: analyzed " << ievt_ << " events" << endl;
@@ -98,6 +113,8 @@ void EBIntegrityTask::endJob(){
 }
 
 void EBIntegrityTask::analyze(const edm::Event& e, const edm::EventSetup& c){
+
+  if ( ! init_ ) this->setup();
 
   ievt_++;
 

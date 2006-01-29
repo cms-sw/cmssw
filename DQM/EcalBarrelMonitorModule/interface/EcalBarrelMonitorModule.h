@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorModule.h
  *
- * $Date: 2006/01/02 10:55:36 $
- * $Revision: 1.25 $
+ * $Date: 2006/01/07 11:46:47 $
+ * $Revision: 1.26 $
  * \author G. Della Ricca
  *
 */
@@ -25,15 +25,6 @@
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
-#include <DQM/EcalBarrelMonitorTasks/interface/EBIntegrityTask.h>
-
-#include <DQM/EcalBarrelMonitorTasks/interface/EBCosmicTask.h>
-#include <DQM/EcalBarrelMonitorTasks/interface/EBLaserTask.h>
-#include <DQM/EcalBarrelMonitorTasks/interface/EBPedestalTask.h>
-#include <DQM/EcalBarrelMonitorTasks/interface/EBPedestalOnlineTask.h>
-#include <DQM/EcalBarrelMonitorTasks/interface/EBTestPulseTask.h>
-#include <DQM/EcalBarrelMonitorTasks/interface/EBElectronTask.h>
 
 #include <memory>
 #include <iostream>
@@ -90,15 +81,6 @@ MonitorElement* meEBhits_;
 
 MonitorElement* meEvent_[36];
 MonitorElement* meOccupancy_[36];
-
-EBIntegrityTask* integrity_task_;
-
-EBCosmicTask* cosmic_task_;
-EBLaserTask* laser_task_;
-EBPedestalTask* pedestal_task_;
-EBPedestalOnlineTask* pedestalonline_task_;
-EBTestPulseTask* testpulse_task_;
-EBElectronTask* electron_task_;
 
 string outputFile_;
 

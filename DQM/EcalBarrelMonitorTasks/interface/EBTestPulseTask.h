@@ -4,8 +4,8 @@
 /*
  * \file EBTestPulseTask.h
  *
- * $Date: 2006/01/07 11:46:48 $
- * $Revision: 1.13 $
+ * $Date: 2006/01/11 11:56:47 $
+ * $Revision: 1.14 $
  * \author G. Della Ricca
  *
 */
@@ -42,7 +42,7 @@ friend class EcalBarrelMonitorModule;
 public:
 
 /// Constructor
-EBTestPulseTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe);
+EBTestPulseTask(const edm::ParameterSet& ps);
 
 /// Destructor
 virtual ~EBTestPulseTask();
@@ -52,11 +52,14 @@ protected:
 /// Analyze
 void analyze(const edm::Event& e, const edm::EventSetup& c);
 
-// BeginJob
+/// BeginJob
 void beginJob(const edm::EventSetup& c);
 
-// EndJob
+/// EndJob
 void endJob(void);
+
+/// Setup
+void setup(void);
 
 private:
 
@@ -85,6 +88,8 @@ ofstream logFile_;
 // Quality check on crystals, one per each gain
 
 float amplitudeThreshold_;
+
+bool init_;
 
 };
 

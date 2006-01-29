@@ -4,8 +4,8 @@
 /*
  * \file EBIntegrityTask.h
  *
- * $Date: 2005/12/22 08:49:19 $
- * $Revision: 1.4 $
+ * $Date: 2005/12/30 10:24:29 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  *
 */
@@ -38,7 +38,7 @@ friend class EcalBarrelMonitorModule;
 public:
 
 /// Constructor
-EBIntegrityTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe);
+EBIntegrityTask(const edm::ParameterSet& ps);
 
 /// Destructor
 virtual ~EBIntegrityTask();
@@ -48,11 +48,14 @@ protected:
 /// Analyze
 void analyze(const edm::Event& e, const edm::EventSetup& c);
 
-// BeginJob
+/// BeginJob
 void beginJob(const edm::EventSetup& c);
 
-// EndJob
+/// EndJob
 void endJob(void);
+
+/// Setup
+void setup(void);
 
 private:
 
@@ -67,6 +70,8 @@ MonitorElement* meIntegrityTTBlockSize[36];
 MonitorElement* meIntegrityDCCSize;
 
 ofstream logFile_;
+
+bool init_;
 
 };
 

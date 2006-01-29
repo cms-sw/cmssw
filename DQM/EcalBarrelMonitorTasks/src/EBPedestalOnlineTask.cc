@@ -1,34 +1,25 @@
 /*
  * \file EBPedestalOnlineTask.cc
  *
- * $Date: 2006/01/02 12:29:22 $
- * $Revision: 1.2 $
+ * $Date: 2006/01/24 14:34:26 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBPedestalOnlineTask.h>
 
-EBPedestalOnlineTask::EBPedestalOnlineTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe){
+EBPedestalOnlineTask::EBPedestalOnlineTask(const edm::ParameterSet& ps){
 
 //  logFile_.open("EBPedestalOnlineTask.log");
+
+  init_ = false;
 
   for (int i = 0; i < 36 ; i++) {
     mePedMapG12_[i] = 0;
   }
 
-  Char_t histo[20];
-
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalBarrel/EBPedestalOnlineTask");
-
-    dbe->setCurrentFolder("EcalBarrel/EBPedestalOnlineTask/Gain12");
-    for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBPOT pedestal SM%02d G12", i+1);
-      mePedMapG12_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
-    }
-
-  }
+  this->setup();
 
 }
 
@@ -44,12 +35,38 @@ void EBPedestalOnlineTask::beginJob(const edm::EventSetup& c){
 
 }
 
+void EBPedestalOnlineTask::setup(void){
+
+  init_ = true;
+
+  Char_t histo[20];
+
+  DaqMonitorBEInterface* dbe = 0;
+
+  // get hold of back-end interface
+  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+
+  if ( dbe ) {
+    dbe->setCurrentFolder("EcalBarrel/EBPedestalOnlineTask");
+
+    dbe->setCurrentFolder("EcalBarrel/EBPedestalOnlineTask/Gain12");
+    for (int i = 0; i < 36 ; i++) {
+      sprintf(histo, "EBPOT pedestal SM%02d G12", i+1);
+      mePedMapG12_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
+    }
+
+  }
+
+}
+
 void EBPedestalOnlineTask::endJob(){
 
   cout << "EBPedestalOnlineTask: analyzed " << ievt_ << " events" << endl;
 }
 
 void EBPedestalOnlineTask::analyze(const edm::Event& e, const edm::EventSetup& c){
+
+  if ( ! init_ ) this->setup();
 
   ievt_++;
 
