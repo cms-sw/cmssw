@@ -13,7 +13,7 @@
 //
 // Original Author:  Michele Pioppi-INFN perugia
 //         Created:  Mon Sep 26 11:08:32 CEST 2005
-// $Id: SiPixelDigitizer.cc,v 1.7 2006/01/03 15:31:18 pioppi Exp $
+// $Id: SiPixelDigitizer.cc,v 1.9 2006/01/19 20:48:58 pioppi Exp $
 //
 //
 
@@ -144,15 +144,18 @@ namespace cms
       }
  
       if (dynamic_cast<PixelGeomDetUnit*>((*iu))!=0){
+
+	collector.clear();
+	collector= _pixeldigialgo.run(SimHitMap[(*iu)->geographicalId().rawId()],
+				      dynamic_cast<PixelGeomDetUnit*>((*iu)),
+				      bfield);
 	if (collector.size()>0){
-	  collector= _pixeldigialgo.run(SimHitMap[(*iu)->geographicalId().rawId()],
-					dynamic_cast<PixelGeomDetUnit*>((*iu)),
-					bfield);
-	  PixelDigiCollection::Range outputRange;
-	  
+
+	  PixelDigiCollection::Range outputRange;	  
 	  outputRange.first = collector.begin();
 	  outputRange.second = collector.end();
 	  output->put(outputRange,(*iu)->geographicalId().rawId());
+
 	}
       }
 
