@@ -21,7 +21,7 @@ static float default_couplings_from_vitaliano[2] =  {.76,.12};
 
 
 SiInduceChargeOnStrips::hit_map_type SiTrivialInduceChargeOnStrips::induce(SiChargeCollectionDrifter::collection_type _collection_points, const StripGeomDetUnit& det){
-
+  signalCoupling.clear();
   signalCoupling.push_back(default_couplings_from_vitaliano[0]);
   signalCoupling.push_back(default_couplings_from_vitaliano[1]);
 
