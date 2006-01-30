@@ -9,7 +9,7 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/01/14 22:00:00 $
+// $Date: 2006/01/15 01:06:52 $
 // $Revision: 1.1 $
 //
 
@@ -54,7 +54,7 @@ namespace cms
   
     // get Inputs 
     edm::Handle<SiStripRecHit2DLocalPosCollection> recHits;
-    e.getByLabel(recHitProducer, recHits);
+    e.getByLabel(recHitProducer, "stereoRecHit", recHits);
 
     // Step B: create empty output collection
     std::auto_ptr<RoadSearchCloudCollection> output(new RoadSearchCloudCollection);
