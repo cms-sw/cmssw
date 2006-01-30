@@ -48,7 +48,7 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/01/14 22:00:00 $
+// $Date: 2006/01/15 01:06:52 $
 // $Revision: 1.1 $
 //
 
@@ -218,16 +218,24 @@ void RoadSearchCloudMakerAlgorithm::run(const TrackingSeedCollection* input,
 
 	    const double pi = 3.14159265358979312;
 
+	    const std::vector<unsigned int> availableIDs = inputRecHits->detIDs();
+
 	    if ( lowerPhiRangeBorder <= upperPhiRangeBorder ) {
 	      for ( Ring::const_iterator detid = ring->lower_bound(lowerPhiRangeBorder); detid != ring->upper_bound(upperPhiRangeBorder); ++detid) {
-		FillRecHitsIntoCloud(detid->second,inputRecHits,phi0,k0,roadType,ringPhi,&(*seed),usedLayersArray,numberOfLayersPerSubdetector,tracker.product(),cloud);
+		if ( availableIDs.end() != std::find(availableIDs.begin(),availableIDs.end(),detid->second.rawId()) ) {
+		  FillRecHitsIntoCloud(detid->second,inputRecHits,phi0,k0,roadType,ringPhi,&(*seed),usedLayersArray,numberOfLayersPerSubdetector,tracker.product(),cloud);
+		}
 	      }
 	    } else {
 	      for ( Ring::const_iterator detid = ring->lower_bound(lowerPhiRangeBorder); detid != ring->upper_bound(2*pi); ++detid) {
-		FillRecHitsIntoCloud(detid->second,inputRecHits,phi0,k0,roadType,ringPhi,&(*seed),usedLayersArray,numberOfLayersPerSubdetector,tracker.product(),cloud);
+		if ( availableIDs.end() != std::find(availableIDs.begin(),availableIDs.end(),detid->second.rawId()) ) {
+		  FillRecHitsIntoCloud(detid->second,inputRecHits,phi0,k0,roadType,ringPhi,&(*seed),usedLayersArray,numberOfLayersPerSubdetector,tracker.product(),cloud);
+		}
 	      }
 	      for ( Ring::const_iterator detid = ring->lower_bound(0); detid != ring->upper_bound(upperPhiRangeBorder); ++detid) {
-		FillRecHitsIntoCloud(detid->second,inputRecHits,phi0,k0,roadType,ringPhi,&(*seed),usedLayersArray,numberOfLayersPerSubdetector,tracker.product(),cloud);
+		if ( availableIDs.end() != std::find(availableIDs.begin(),availableIDs.end(),detid->second.rawId()) ) {
+		  FillRecHitsIntoCloud(detid->second,inputRecHits,phi0,k0,roadType,ringPhi,&(*seed),usedLayersArray,numberOfLayersPerSubdetector,tracker.product(),cloud);
+		}
 	      }
 	    }
 
@@ -454,8 +462,8 @@ void RoadSearchCloudMakerAlgorithm::setLayerNumberArray(DetId id, std::vector<bo
   // order always: TIB, TOB, TID, TEC, PXB, PXF
 
   unsigned int index = getIndexInUsedLayersArray(id,numberOfLayersPerSubdetector);
-  if ( (index != 999999) && (index < usedLayersArray.size()) ) {
-    usedLayersArray[index] = true;
+  if ( (index != 999999) && (index <= usedLayersArray.size()) ) {
+    usedLayersArray[index-1] = true;
   } else {
     std::cout << "[RoadSearchCloudMakerAlgorithm]: setLayerNumberArray couldn't set array entry for unknown Subdetector Component of DetId: " << id.rawId() << std::endl;
   }
