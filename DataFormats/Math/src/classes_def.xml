@@ -4,6 +4,7 @@
   <class pattern="ROOT::Math::PxPyPzE4D<*>" />
   <class pattern="ROOT::Math::Cartesian3D<*>" />
   <class pattern="ROOT::Math::CylindricalEta3D<*>" />
+  <class pattern="ROOT::Math::Polar3D<*>" />
   <class pattern="ROOT::Math::LorentzVector<*>" />
   <class pattern="ROOT::Math::DisplacementVector3D<*>" />
   <class pattern="ROOT::Math::PositionVector3D<*>" />
@@ -24,6 +25,13 @@
     <method name="SetZ" />
     <method name="SetR" />
     <method name="SetTheta" />
+  </class>
+  <class pattern="ROOT::Math::DisplacementVector3D<ROOT::Math::Polar3D<*>">
+    <method name="SetX" />
+    <method name="SetY" />
+    <method name="SetZ" />
+    <method name="SetRho" />
+    <method name="SetEta" />
   </class>
   <class pattern="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<*>">
     <method name="SetRho" />

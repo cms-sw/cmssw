@@ -14,6 +14,8 @@ namespace {
     ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<Double32_t> > v31;
     ROOT::Math::CylindricalEta3D<Double32_t> c32;
     ROOT::Math::DisplacementVector3D<ROOT::Math::CylindricalEta3D<Double32_t> > v32;
+    ROOT::Math::Polar3D<Double32_t> c33;
+    ROOT::Math::DisplacementVector3D<ROOT::Math::Polar3D<Double32_t> > v33;
     ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t> > p3;
 
     math::Vector<1> v1;
