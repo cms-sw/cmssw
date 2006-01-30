@@ -18,10 +18,6 @@
 #include "DataFormats/SiStripDigi/interface/StripDigiCollection.h"
 #include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
-
-class SiStripPedestals;
-
 class ThreeThresholdStripClusterizer;
 
 class SiStripClusterizerAlgorithm 
@@ -33,9 +29,7 @@ class SiStripClusterizerAlgorithm
 
   /// Runs the algorithm
   void run(const StripDigiCollection* input,
-	   SiStripClusterCollection &output,
-	   const edm::ESHandle<SiStripPedestals> & ped
-	   );
+	   SiStripClusterCollection &output);
 
  private:
   edm::ParameterSet conf_;

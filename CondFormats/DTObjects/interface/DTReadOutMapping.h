@@ -5,8 +5,8 @@
  *  Description:
  *       Class to map read-out channels to physical drift tubes
  *
- *  $Date: 2005/11/15 13:52:00 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/11/14 19:17:18 $
+ *  $Revision: 1.1 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -19,7 +19,7 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
-#include "DataFormats/MuonDetId/interface/DTWireId.h"
+#include "DataFormats/MuonDetId/interface/DTDetId.h"
 
 //---------------
 // C++ Headers --
@@ -73,11 +73,11 @@ class DTReadOutMapping {
   void initSetup() const;
 
   /// transform identifiers
-  DTWireId readOutToGeometry( int      dduId,
-                              int      rosId,
-                              int      robId,
-                              int      tdcId,
-                              int  channelId ) const;
+  DTDetId readOutToGeometry( int      dduId,
+                             int      rosId,
+                             int      robId,
+                             int      tdcId,
+                             int  channelId ) const;
 
   void readOutToGeometry( int      dduId,
                           int      rosId,
@@ -138,18 +138,6 @@ class DTReadOutMapping {
   std::string  robMapVersion;
 
   std::vector<DTReadOutGeometryLink> readOutChannelDriftTubeMap;
-  void getIdNumbers( int& minWheel,   int& minStation,
-                     int& minSector,  int& minSL,
-                     int& minLayer,   int& minCell,
-                     int& minDDU,     int& minROS,
-                     int& minROB,     int& minTDC,
-                     int& minChannel,
-                     int& maxWheel,   int& maxStation,
-                     int& maxSector,  int& maxSL,
-                     int& maxLayer,   int& maxCell,
-                     int& maxDDU,     int& maxROS,
-                     int& maxROB,     int& maxTDC,
-                     int& maxChannel ) const;
 
 };
 

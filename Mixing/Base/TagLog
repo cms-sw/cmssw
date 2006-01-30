@@ -1,6 +1,3 @@
-** V01-04-00  [Thu Jan 19 20:19:11 2006]
-Fix Memory Leak
-
 ** V01-03-00  [Wed Jan 18 01:35:48 2006]
 Add randomized skipping of pileup events
 

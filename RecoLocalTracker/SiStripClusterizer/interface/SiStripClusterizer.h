@@ -23,11 +23,6 @@
 
 #include "RecoLocalTracker/SiStripClusterizer/interface/SiStripClusterizerAlgorithm.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
-#include "CondFormats/DataRecord/interface/SiStripPedestalsRcd.h"
-
-
 namespace cms
 {
   class SiStripClusterizer : public edm::EDProducer
@@ -38,14 +33,12 @@ namespace cms
 
     virtual ~SiStripClusterizer();
 
-    virtual void beginJob( const edm::EventSetup& );
-
     virtual void produce(edm::Event& e, const edm::EventSetup& c);
 
   private:
     SiStripClusterizerAlgorithm siStripClusterizerAlgorithm_;
     edm::ParameterSet conf_;
-    edm::ESHandle<SiStripPedestals> ped;
+
   };
 }
 

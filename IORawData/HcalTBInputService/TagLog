@@ -1,6 +1,3 @@
-** V00-02-02  [Tue Jan 24 23:58:38 2006]
-Fix problem with end of last file
-
 ** V00-02-01  [Mon Jan 23 22:34:13 2006]
 Remove unused data member and includes of unused headers
 

@@ -1,6 +1,3 @@
-** V00-00-02  [Mon Jan 23 17:07:28 2006]
-Methods moved to the common Strip class
-
 ** V00-00-01  [Wed Nov  9 17:17:25 2005]
 fix a bug in TIDDetId
 

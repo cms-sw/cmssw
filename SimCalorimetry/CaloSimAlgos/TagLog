@@ -1,6 +1,3 @@
-** V00-02-00  [Sat Jan 21 08:23:12 2006]
-Redid how noise was passed along, got HCAL gains from DB, and got rid of namespaces and fixed include guards
-
 ** V00-01-00  [Wed Jan 11 07:59:58 2006]
 Has time-of-flight correction
 

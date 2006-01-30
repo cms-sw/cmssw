@@ -1,19 +1,17 @@
 /*
  * \file EBTestPulseTask.cc
  *
- * $Date: 2006/01/24 14:34:26 $
- * $Revision: 1.37 $
+ * $Date: 2006/01/07 16:27:59 $
+ * $Revision: 1.35 $
  * \author G. Della Ricca
  *
 */
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBTestPulseTask.h>
 
-EBTestPulseTask::EBTestPulseTask(const edm::ParameterSet& ps){
+EBTestPulseTask::EBTestPulseTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe){
 
 //  logFile_.open("EBTestPulseTask.log");
-
-  init_ = false;
 
   for (int i = 0; i < 36 ; i++) {
     meShapeMapG01_[i] = 0;
@@ -31,39 +29,7 @@ EBTestPulseTask::EBTestPulseTask(const edm::ParameterSet& ps){
     mePnPedMapG16_[i] = 0;
   }
 
-  // amplitudeThreshold_ = 200;
-  amplitudeThreshold_ = 0;
-
-  // this is a hack, used to fake the EcalBarrel run header
-  TH1F* tmp = (TH1F*) gROOT->FindObjectAny("tmp");
-  if ( tmp && tmp->GetBinContent(1) != 3 ) return;
-
-  this->setup();
-
-}
-
-EBTestPulseTask::~EBTestPulseTask(){
-
-//  logFile_.close();
-
-}
-
-void EBTestPulseTask::beginJob(const edm::EventSetup& c){
-
-  ievt_ = 0;
-
-}
-
-void EBTestPulseTask::setup(void){
-
-  init_ = true;
-
   Char_t histo[20];
-
-  DaqMonitorBEInterface* dbe = 0;
-
-  // get hold of back-end interface
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
 
   if ( dbe ) {
     dbe->setCurrentFolder("EcalBarrel/EBTestPulseTask");
@@ -118,6 +84,21 @@ void EBTestPulseTask::setup(void){
 
   }
 
+  // amplitudeThreshold_ = 200;
+  amplitudeThreshold_ = 0;
+
+}
+
+EBTestPulseTask::~EBTestPulseTask(){
+
+//  logFile_.close();
+
+}
+
+void EBTestPulseTask::beginJob(const edm::EventSetup& c){
+
+  ievt_ = 0;
+
 }
 
 void EBTestPulseTask::endJob(){
@@ -127,12 +108,6 @@ void EBTestPulseTask::endJob(){
 }
 
 void EBTestPulseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
-
-  // this is a hack, used to fake the EcalBarrel event header
-  TH1F* tmp = (TH1F*) gROOT->FindObjectAny("tmp");
-  if ( tmp && tmp->GetBinContent(2) != 3 ) return;
-
-  if ( ! init_ ) this->setup();
 
   ievt_++;
 
@@ -158,7 +133,7 @@ void EBTestPulseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
     int ic = id.ic();
 
 //    logFile_ << " det id = " << id << endl;
-//    logFile_ << " sm, eta, phi " << ism << " " << ie << " " << ip << endl;
+//    logFile_ << " sm, eta, phi " << ism << " " << ie*iz << " " << ip << endl;
 
     for (int i = 0; i < 10; i++) {
 
@@ -204,7 +179,7 @@ void EBTestPulseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
     int ism = id.ism();
 
 //    logFile_ << " det id = " << id << endl;
-//    logFile_ << " sm, eta, phi " << ism << " " << ie << " " << ip << endl;
+//    logFile_ << " sm, eta, phi " << ism << " " << ie*iz << " " << ip << endl;
 
     MonitorElement* meAmplMap = 0;
 

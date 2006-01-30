@@ -1,6 +1,3 @@
-** V00-00-02  [Wed Jan 11 15:13:12 2006]
-Fixes to follow Fedor's changes
-
 ** V00-00-01  [Tue Nov 29 23:16:54 2005]
 Remove comment output and change from HappySelector to getByType
 

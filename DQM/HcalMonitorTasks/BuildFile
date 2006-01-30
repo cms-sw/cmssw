@@ -5,10 +5,8 @@
 <use name=DataFormats/HcalDigi>
 <use name=EventFilter/HcalRawToDigi>
 <use name=DQMServices/CoreROOT>
-<use name=CalibFormats/HcalObjects>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
-<use name=CalibCalorimetry/HcalAlgos>
 <export>
   <lib name=DQMHcalMonitorTasks>
   <use name=root>
@@ -18,8 +16,6 @@
   <use name=DataFormats/HcalDigi>
   <use name=EventFilter/HcalRawToDigi>
   <use name=DQMServices/CoreROOT>
-  <use name=CalibFormats/HcalObjects>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
-  <use name=CalibCalorimetry/HcalAlgos>
 </export>

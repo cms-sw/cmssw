@@ -4,8 +4,8 @@
 /*
  * \file EBLaserTask.h
  *
- * $Date: 2006/01/11 11:56:47 $
- * $Revision: 1.14 $
+ * $Date: 2006/01/07 11:46:48 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  *
 */
@@ -42,7 +42,7 @@ friend class EcalBarrelMonitorModule;
 public:
 
 /// Constructor
-EBLaserTask(const edm::ParameterSet& ps);
+EBLaserTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe);
 
 /// Destructor
 virtual ~EBLaserTask();
@@ -52,14 +52,11 @@ protected:
 /// Analyze
 void analyze(const edm::Event& e, const edm::EventSetup& c);
 
-/// BeginJob
+// BeginJob
 void beginJob(const edm::EventSetup& c);
 
-/// EndJob
+// EndJob
 void endJob(void);
-
-/// Setup
-void setup(void);
 
 private:
 
@@ -98,8 +95,6 @@ MonitorElement* mePnAmplMapG16L4_[36];
 MonitorElement* mePnPedMapG16L4_[36];
 
 ofstream logFile_;
-
-bool init_;
 
 };
 

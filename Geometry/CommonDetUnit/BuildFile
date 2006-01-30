@@ -1,8 +1,6 @@
 <export>
  <lib name=GeometryCommonDetUnit>
  <use name=Geometry/Surface>
- <use name=clhep>
 </export>
  <use name=Geometry/Surface>
 <use name=FWCore/Framework>
-<use name=clhep>

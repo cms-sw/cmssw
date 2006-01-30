@@ -5,6 +5,7 @@
 <use name=DataFormats/EcalDetId>
 <use name=DataFormats/EcalDigi>
 <use name=DataFormats/EcalRecHit>
+<use name=DQM/EcalBarrelMonitorTasks>
 <use name=boost>
 <use name=root>
 
@@ -16,6 +17,7 @@
  <use name=DataFormats/EcalDetId>
  <use name=DataFormats/EcalDigi>
  <use name=DataFormats/EcalRecHit>
+ <use name=DQM/EcalBarrelMonitorTasks>
  <use name=boost>
  <use name=root>
 </export>

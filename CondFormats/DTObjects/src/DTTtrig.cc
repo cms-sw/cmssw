@@ -1,7 +1,7 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2005/12/01 12:42:36 $
+ *  $Date: 2005/11/23 17:15:00 $
  *  $Revision: 1.1 $
  *  \author Paolo Ronchese INFN Padova
  *
@@ -62,22 +62,10 @@ DTSLTtrigData::~DTSLTtrigData() {
 void DTTtrig::initSetup() const {
 
   std::string tTrigVersion = dataVersion + "_tTrig";
-  int minWheel;
-  int minStation;
-  int minSector;
-  int minSL;
-  int maxWheel;
-  int maxStation;
-  int maxSector;
-  int maxSL;
-  getIdNumbers( minWheel, minStation, minSector, minSL,
-                maxWheel, maxStation, maxSector, maxSL );
-  DTDataBuffer<int>::openBuffer(   "superlayer", tTrigVersion,
-                minWheel, minStation, minSector, minSL, 0, 0,
-                maxWheel, maxStation, maxSector, maxSL, 1, 1,
-                -999 );
   std::vector<DTSLTtrigData>::const_iterator iter = slData.begin();
   std::vector<DTSLTtrigData>::const_iterator iend = slData.end();
+  DTDataBuffer<int>::openBuffer(   "superlayer", tTrigVersion, -999 );
+  DTDataBuffer<float>::openBuffer( "superlayer", tTrigVersion, -999 );
   while ( iter != iend ) {
     const DTSLTtrigData& data = *iter++;
     DTDataBuffer<int>::insertSLData( tTrigVersion,
@@ -85,7 +73,8 @@ void DTTtrig::initSetup() const {
                                      data.stationId,
                                      data. sectorId,
                                      data.     slId,
-                                     data.    tTrig );
+                                     data.    tTrig,
+                                     -9999999 );
   }
 
   return;
@@ -103,7 +92,7 @@ int DTTtrig::slTtrig( int   wheelId,
   tTrig = 0;
 
   std::string tTrigVersion = dataVersion + "_tTrig";
-  if( !DTDataBuffer<int>::findBuffer( "superlayer", tTrigVersion ) )
+  if( DTDataBuffer<int>::findBuffer( "superlayer", tTrigVersion ) == 0 )
       initSetup();
 
   tTrig = DTDataBuffer<int>::getSLData( tTrigVersion,
@@ -141,6 +130,22 @@ int DTTtrig::setSLTtrig( int   wheelId,
                          int      slId,
                          int     tTrig ) {
 
+/*
+  std::vector<DTSLTtrigData>::const_iterator iter = slData.begin();
+  std::vector<DTSLTtrigData>::const_iterator iend = slData.end();
+  bool exist = false;
+  while ( iter != iend ) {
+    const DTSLTtrigData& data = *iter++;
+    exist = true;
+    if ( ( data.  wheelId ==   wheelId ) &&
+         ( data.stationId == stationId ) &&
+         ( data. sectorId ==  sectorId ) &&
+         ( data.     slId ==      slId ) ) break;
+    exist = false;
+  }
+  if ( exist ) return 1;
+*/
+
   DTSLTtrigData data;
   data.  wheelId =   wheelId;
   data.stationId = stationId;
@@ -151,14 +156,12 @@ int DTTtrig::setSLTtrig( int   wheelId,
   slData.push_back( data );
 
   std::string tTrigVersion = dataVersion + "_tTrig";
-  if( !DTDataBuffer<int>::findBuffer( "superlayer", tTrigVersion ) )
-      return 0;
   DTDataBuffer<int>::insertSLData( tTrigVersion,
                                        wheelId,
                                      stationId,
                                       sectorId,
                                           slId,
-                                         tTrig );
+                                         tTrig, -999999 );
 
   return 0;
 
@@ -172,38 +175,5 @@ DTTtrig::const_iterator DTTtrig::begin() const {
 
 DTTtrig::const_iterator DTTtrig::end() const {
   return slData.end();
-}
-
-
-void DTTtrig::getIdNumbers( int& minWheel,  int& minStation,
-                            int& minSector, int& minSL,
-                            int& maxWheel,  int& maxStation,
-                            int& maxSector, int& maxSL      ) const {
-
-  std::vector<DTSLTtrigData>::const_iterator iter = slData.begin();
-  std::vector<DTSLTtrigData>::const_iterator iend = slData.end();
-  minWheel   = 99999999;
-  minStation = 99999999;
-  minSector  = 99999999;
-  minSL      = 99999999;
-  maxWheel   = 0;
-  maxStation = 0;
-  maxSector  = 0;
-  maxSL      = 0;
-  int id;
-  while ( iter != iend ) {
-    const DTSLTtrigData& data = *iter++;
-    if ( ( id = data.  wheelId ) < minWheel   ) minWheel   = id;
-    if ( ( id = data.stationId ) < minStation ) minStation = id;
-    if ( ( id = data. sectorId ) < minSector  ) minSector  = id;
-    if ( ( id = data.     slId ) < minSL      ) minSL      = id;
-    if ( ( id = data.  wheelId ) > maxWheel   ) maxWheel   = id;
-    if ( ( id = data.stationId ) > maxStation ) maxStation = id;
-    if ( ( id = data. sectorId ) > maxSector  ) maxSector  = id;
-    if ( ( id = data.     slId ) > maxSL      ) maxSL      = id;
-  }
-
-  return;
-
 }
 

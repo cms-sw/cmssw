@@ -1,19 +1,17 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2006/01/24 14:34:26 $
- * $Revision: 1.37 $
+ * $Date: 2006/01/07 16:27:59 $
+ * $Revision: 1.35 $
  * \author G. Della Ricca
  *
 */
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBLaserTask.h>
 
-EBLaserTask::EBLaserTask(const edm::ParameterSet& ps){
+EBLaserTask::EBLaserTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe){
 
 //  logFile.open("EBLaserTask.log");
-
-  init_ = false;
 
   for (int i = 0; i < 36 ; i++) {
     meShapeMapL1_[i] = 0;
@@ -46,36 +44,7 @@ EBLaserTask::EBLaserTask(const edm::ParameterSet& ps){
     mePnPedMapG16L4_[i] = 0;
   }
 
-  // this is a hack, used to fake the EcalBarrel run header
-  TH1F* tmp = (TH1F*) gROOT->FindObjectAny("tmp");
-  if ( tmp && tmp->GetBinContent(1) != 1 ) return;
-
-  this->setup();
-
-}
-
-EBLaserTask::~EBLaserTask(){
-
-//  logFile.close();
-
-}
-
-void EBLaserTask::beginJob(const edm::EventSetup& c){
-
-  ievt_ = 0;
-
-}
-
-void EBLaserTask::setup(void){
-
-  init_ = true;
-
   Char_t histo[20];
-
-  DaqMonitorBEInterface* dbe = 0;
-
-  // get hold of back-end interface
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
 
   if ( dbe ) {
     dbe->setCurrentFolder("EcalBarrel/EBLaserTask");
@@ -198,6 +167,18 @@ void EBLaserTask::setup(void){
 
 }
 
+EBLaserTask::~EBLaserTask(){
+
+//  logFile.close();
+
+}
+
+void EBLaserTask::beginJob(const edm::EventSetup& c){
+
+  ievt_ = 0;
+
+}
+
 void EBLaserTask::endJob(){
 
   cout << "EBLaserTask: analyzed " << ievt_ << " events" << endl;
@@ -205,12 +186,6 @@ void EBLaserTask::endJob(){
 }
 
 void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
-
-  // this is a hack, used to fake the EcalBarrel event header
-  TH1F* tmp = (TH1F*) gROOT->FindObjectAny("tmp");
-  if ( tmp && tmp->GetBinContent(2) != 1 ) return;
-
-  if ( ! init_ ) this->setup();
 
   ievt_++;
 
@@ -236,7 +211,7 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
     int ic = id.ic();
 
 //    logFile << " det id = " << id << endl;
-//    logFile << " sm, eta, phi " << ism << " " << ie << " " << ip << endl;
+//    logFile << " sm, eta, phi " << ism << " " << ie*iz << " " << ip << endl;
 
     for (int i = 0; i < 10; i++) {
 
@@ -373,7 +348,7 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
     int ism = id.ism();
 
 //    logFile << " det id = " << id << endl;
-//    logFile << " sm, eta, phi " << ism << " " << ie << " " << ip << endl;
+//    logFile << " sm, eta, phi " << ism << " " << ie*iz << " " << ip << endl;
 
     MonitorElement* meAmplMap = 0;
     MonitorElement* meAmplPNMap = 0;

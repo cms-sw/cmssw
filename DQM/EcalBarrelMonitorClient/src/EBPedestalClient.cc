@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2006/01/19 06:58:39 $
- * $Revision: 1.56 $
+ * $Date: 2006/01/18 11:40:54 $
+ * $Revision: 1.55 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -44,11 +44,11 @@ EBPedestalClient::EBPedestalClient(const edm::ParameterSet& ps, MonitorUserInter
   expectedMean_[0] = 200.0;
   expectedMean_[1] = 200.0;
   expectedMean_[2] = 200.0;
-  discrepancyMean_[0] = 25.0;
-  discrepancyMean_[1] = 25.0;
-  discrepancyMean_[2] = 25.0;
+  discrepancyMean_[0] = 20.0;
+  discrepancyMean_[1] = 20.0;
+  discrepancyMean_[2] = 20.0;
   RMSThreshold_[0] = 1.0;
-  RMSThreshold_[1] = 1.2;
+  RMSThreshold_[1] = 1.5;
   RMSThreshold_[2] = 2.0;
 
   // collateSources switch

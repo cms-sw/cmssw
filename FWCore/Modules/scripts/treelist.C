@@ -7,15 +7,15 @@
 
 void treelist()
 {
-  std::string fname;
+  std::string filename;
   gErrorIgnoreLevel = kError;
-  std::cin >> fname;
-  if(fname == "quit")  return;
+  std::cin >> filename;
+  if(filename == "quit")  return;
   TObject * obj;
   TKey * key;
-  TFile * file = new TFile(fname.c_str(),"READ","Test file");
+  TFile * file = new TFile(filename.c_str(),"READ","Test file");
   if(file) {
-    std::cout << "\nNames of TTree objects in file: " << fname << std::endl;
+    std::cout << "Names of TTree objects in file: " << filename << std::endl;
     gErrorIgnoreLevel = kError;
     TIter next(file->GetListOfKeys());
     while( (key = (TKey*)next()) ) {

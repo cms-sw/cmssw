@@ -5,7 +5,7 @@
  *  Description:
  *       Class to hold drift tubes T0s
  *
- *  $Date: 2005/11/14 19:17:18 $
+ *  $Date: 2005/10/14 16:00:00 $
  *  $Revision: 1.1 $
  *  \author Paolo Ronchese INFN Padova
  *
@@ -48,53 +48,57 @@ class DTDataBuffer {
    */
   /// access internal buffer
   static
-  bool openBuffer( const std::string& bType,
-                   const std::string& bName,
-                   int min1, int min2, int min3, int min4, int min5, int min6, 
-                   int max1, int max2, int max3, int max4, int max5, int max6, 
-                   const T& init );
-  static
-  bool findBuffer( const std::string& bType,
-                   const std::string& bName );
+  T* openBuffer( const std::string& bType,
+                 const std::string& bName,
+                 const T& init );
+  static const
+  T* findBuffer( const std::string& bType,
+                 const std::string& bName );
 
   /// set content
   static
-  bool insertCellData( const std::string& name,
+  void insertCellData( const std::string& name,
                        int   wheelId,
                        int stationId,
                        int  sectorId,
                        int      slId,
                        int   layerId,
                        int    cellId,
-                       const T& current );
-  bool insertLayerData( const std::string& name,
+                       const T& current,
+                       const T& init );
+  static
+  void insertLayerData( const std::string& name,
                         int   wheelId,
                         int stationId,
                         int  sectorId,
                         int      slId,
                         int   layerId,
-                        const T& current );
+                        const T& current,
+                        const T& init );
   static
-  bool insertSLData( const std::string& name,
+  void insertSLData( const std::string& name,
                      int   wheelId,
                      int stationId,
                      int  sectorId,
                      int      slId,
-                     const T& current );
+                     const T& current,
+                     const T& init );
   static
-  bool insertChamberData( const std::string& name,
+  void insertChamberData( const std::string& name,
                           int   wheelId,
                           int stationId,
                           int  sectorId,
-                          const T& current );
+                          const T& current,
+                          const T& init );
   static
-  bool insertTDCChannelData( const std::string& name,
+  void insertTDCChannelData( const std::string& name,
                              int        dduId,
                              int        rosId,
                              int        robId,
                              int        tdcId,
                              int tdcChannelId,
-                             const T& current );
+                             const T& current,
+                             const T& init );
 
   /// get content
   static
@@ -139,68 +143,18 @@ class DTDataBuffer {
 
     NamedBuffer( const std::string& bType,
                  const std::string& bName,
-                 int min1, int min2, int min3, int min4, int min5, int min6, 
-                 int num1, int num2, int num3, int num4, int num5, int num6, 
                  const T& init );
     ~NamedBuffer();
 
     const std::string& type() const;
     const std::string& name() const;
+    T* data() const;
+
+   private:
 
     std::string bufferType;
     std::string bufferName;
-    T* data;
-
-    int nMaxWheel;
-    int nMaxStation;
-    int nMaxSector;
-    int nMaxSL;
-    int nMaxLayer;
-    int nMaxCell;
-    int nMaxDDU;
-    int nMaxROS;
-    int nMaxROB;
-    int nMaxTDC;
-    int nMaxTDCChannel;
-
-    int nMinWheel;
-    int nMinStation;
-    int nMinSector;
-    int nMinSL;
-    int nMinLayer;
-    int nMinCell;
-    int nMinDDU;
-    int nMinROS;
-    int nMinROB;
-    int nMinTDC;
-    int nMinTDCChannel;
-
-    int geometryGlobalId( int   wheelId,
-                          int stationId,
-                          int  sectorId,
-                          int      slId,
-                          int   layerId,
-                          int    cellId );
-    int geometryGlobalId( int   wheelId,
-                          int stationId,
-                          int  sectorId,
-                          int      slId,
-                          int   layerId );
-    int geometryGlobalId( int   wheelId,
-                          int stationId,
-                          int  sectorId,
-                          int      slId );
-    int geometryGlobalId( int   wheelId,
-                          int stationId,
-                          int  sectorId );
-    int  readoutGlobalId( int        dduId,
-                          int        rosId,
-                          int        robId,
-                          int        tdcId,
-                          int tdcChannelId );
-
-
-   private:
+    T* dataBufPtr;
 
   };
 
@@ -208,11 +162,56 @@ class DTDataBuffer {
   typedef typename std::vector<NamedBuffer*>::iterator buf_iter;
   typedef typename std::vector<NamedBuffer*>::const_iterator const_iter;
 
+  static int geometryGlobalId( int   wheelId,
+                               int stationId,
+                               int  sectorId,
+                               int      slId,
+                               int   layerId,
+                               int    cellId );
+  static int geometryGlobalId( int   wheelId,
+                               int stationId,
+                               int  sectorId,
+                               int      slId,
+                               int   layerId );
+  static int geometryGlobalId( int   wheelId,
+                               int stationId,
+                               int  sectorId,
+                               int      slId );
+  static int geometryGlobalId( int   wheelId,
+                               int stationId,
+                               int  sectorId );
+  static int readoutGlobalId( int        dduId,
+                              int        rosId,
+                              int        robId,
+                              int        tdcId,
+                              int tdcChannelId );
+
   static std::vector<NamedBuffer*> dataBuffer;
   static T defaultObject;
 
-  static NamedBuffer* findNamedBuffer( const std::string& bType,
-                                       const std::string& bName );
+  static int nMaxWheel;
+  static int nMaxStation;
+  static int nMaxSector;
+  static int nMaxSL;
+  static int nMaxLayer;
+  static int nMaxCell;
+  static int nMaxDDU;
+  static int nMaxROS;
+  static int nMaxROB;
+  static int nMaxTDC;
+  static int nMaxTDCChannel;
+
+  static int nMinWheel;
+  static int nMinStation;
+  static int nMinSector;
+  static int nMinSL;
+  static int nMinLayer;
+  static int nMinCell;
+  static int nMinDDU;
+  static int nMinROS;
+  static int nMinROB;
+  static int nMinTDC;
+  static int nMinTDCChannel;
 
 };
 

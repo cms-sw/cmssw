@@ -3,14 +3,16 @@
   
 HODataFrame::HODataFrame() : id_(0), 
 			     size_(0),
-			     hcalPresamples_(0)
+			     hcalPresamples_(0),
+			     data_(MAXSAMPLES)
 {
 }
 
 HODataFrame::HODataFrame(const HcalDetId& id) : 
   id_(id), 
   size_(0),
-  hcalPresamples_(0)
+  hcalPresamples_(0),
+  data_(MAXSAMPLES)
 {
   // TODO : test id for HcalOuter
 }
