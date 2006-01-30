@@ -1,3 +1,6 @@
+** V00-01-00  [Mon Jan 30 22:31:40 2006]
+added polar 3d vector
+
 ** V00-00-02  [Tue Jan 10 12:02:47 2006]
 patched dictionary xml to bypass a seal bug
 
