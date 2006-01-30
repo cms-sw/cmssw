@@ -1,5 +1,7 @@
 <lcgdict>
-  <class name="RoadSearchCloud"/>
+  <class name="RoadSearchCloud">
+        <field name="seed_" transient="true"/>
+  </class>
   <class name="std::vector<RoadSearchCloud>"/>
   <class name="edm::Wrapper<std::vector<RoadSearchCloud> >"/>
 </lcgdict>
