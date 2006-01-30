@@ -1,6 +1,6 @@
 #ifndef Common_own_vector_h
 #define Common_own_vector_h
-// $Id: own_vector.h,v 1.2 2006/01/09 08:13:29 llista Exp $
+// $Id: own_vector.h,v 1.3 2006/01/12 16:36:04 llista Exp $
 #include <vector>
 #include <algorithm>
 #include "DataFormats/Common/interface/ClonePolicy.h"
@@ -31,10 +31,10 @@ public:
     const_iterator operator++( int ) { const_iterator ci = *this; ++i; return ci; }
     const_iterator& operator--() { --i; return *this; }
     const_iterator operator--( int ) { const_iterator ci = *this; --i; return ci; }
-    difference_type operator-( const const_iterator & o ) { return i - o.i; }
-    const_iterator operator+( difference_type n ) { return const_iterator( i + n ); }
-    const_iterator operator-( difference_type n ) { return const_iterator( i - n ); }
-    bool operator<( const const_iterator & o ) { return i < o.i; }
+    difference_type operator-( const const_iterator & o ) const { return i - o.i; }
+    const_iterator operator+( difference_type n ) const { return const_iterator( i + n ); }
+    const_iterator operator-( difference_type n ) const { return const_iterator( i - n ); }
+    bool operator<( const const_iterator & o ) const { return i < o.i; }
     bool operator==( const const_iterator& ci ) const { return i == ci.i; }
     bool operator!=( const const_iterator& ci ) const { return i != ci.i; }
     const T & operator * () const { return * * i; }
@@ -59,9 +59,9 @@ public:
     iterator operator++( int ) { iterator ci = *this; ++i; return ci; }
     iterator& operator--() { --i; return *this; }
     iterator operator--( int ) { iterator ci = *this; --i; return ci; }
-    difference_type operator-( const iterator & o ) { return i - o.i; }
-    iterator operator+( difference_type n ) { return iterator( i + n ); }
-    iterator operator-( difference_type n ) { return iterator( i - n ); }
+    difference_type operator-( const iterator & o ) const { return i - o.i; }
+    iterator operator+( difference_type n ) const { return iterator( i + n ); }
+    iterator operator-( difference_type n ) const { return iterator( i - n ); }
     bool operator<( const iterator & o ) { return i < o.i; }
     bool operator==( const iterator& ci ) const { return i == ci.i; }
     bool operator!=( const iterator& ci ) const { return i != ci.i; }
