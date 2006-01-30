@@ -1,3 +1,6 @@
+** V00-03-01  [Mon Jan 30 22:08:31 2006]
+fixed own_vector iterator interface
+
 ** V00-03-00  [Mon Jan 30 20:56:26 2006]
 added SortedCollection
 
