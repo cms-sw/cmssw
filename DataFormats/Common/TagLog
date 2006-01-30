@@ -1,3 +1,6 @@
+** V00-03-00  [Mon Jan 30 20:56:26 2006]
+added SortedCollection
+
 ** V00-02-01  [Tue Jan 17 13:50:50 2006]
 fixed ext_collection implementation
 
