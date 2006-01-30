@@ -22,46 +22,82 @@
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 #include "DQMServices/UI/interface/CollectorRoot.h"
 
-class XdaqCollector: public xdaq::Application 
+#include "DQMServices/Components/interface/StateMachine.h"
+#include <iostream>
+
+class XdaqCollector : public dqm::StateMachine
 {
 	
  public:
   
   XDAQ_INSTANTIATOR();
-  XdaqCollector(xdaq::ApplicationStub * s): xdaq::Application(s)
-    {	
-      clientport_ = 9090;
-      sourceport_ = 9050;
-      xdata::InfoSpace *sp = getApplicationInfoSpace();
-      sp->fireItemAvailable("sourcePort",&sourceport_);
-      sp->fireItemAvailable("clientPort",&clientport_);
-      DummyConsumerServer::instance(clientport_,sourceport_);
-    }
+  XdaqCollector(xdaq::ApplicationStub * s);
+
+  void Default(xgi::Input * in, xgi::Output * out ) throw (xgi::exception::Exception);
+  void general(xgi::Input * in, xgi::Output * out ) throw (xgi::exception::Exception);
+  void css(xgi::Input  *in,
+	   xgi::Output *out) throw (xgi::exception::Exception);
+
+  
+protected:
+
+  virtual void configureAction(toolbox::Event::Reference e) 
+    throw (toolbox::fsm::exception::Exception);
+  
+  virtual void enableAction(toolbox::Event::Reference e) 
+    throw (toolbox::fsm::exception::Exception);
+    
+  virtual void suspendAction(toolbox::Event::Reference e) 
+    throw (toolbox::fsm::exception::Exception);
+
+  virtual void resumeAction(toolbox::Event::Reference e) 
+    throw (toolbox::fsm::exception::Exception);
+
+  virtual void haltAction(toolbox::Event::Reference e) 
+    throw (toolbox::fsm::exception::Exception);
+
  private:
   class DummyConsumerServer : public CollectorRoot, public Task
     {
       
     public:
       virtual void process(){}
-      DummyConsumerServer(int c, int s) : CollectorRoot("EvF",1,c,s), Task("Collector")
+      DummyConsumerServer(int p) : CollectorRoot("EvF",1,p), Task("Collector")
 	{
 	  inputAvail_=true;
 	}
       int svc(){run(); return 0;}
-      static CollectorRoot *instance(int cport, int sport){
+      static CollectorRoot *instance(int port){
 	if(instance_==0)
-	  instance_ = new DummyConsumerServer(cport,sport);
-	((DummyConsumerServer*)instance_)->activate();
+	  instance_ = new DummyConsumerServer(port);
 	return instance_;
       }
-      
+      static void start()
+	{
+	  std::cout << "calling activate " << std::endl;
+	  ((DummyConsumerServer*)instance_)->activate();
+	}
+      static void stopAndKill()
+	{
+	  DummyConsumerServer *dcs = (DummyConsumerServer*)instance_;
+	  std::cout << "DCS instance at " << hex << (int) dcs << dec 
+		    << std::endl;
+	  std::cout << "Attempting to kill thread " << std::endl;
+	  dcs->kill();
+	  std::cout << "killed, deleting instance and resetting " << std::endl;
+	  delete dcs;
+	  instance_ = 0;
+	}
+
+      static CollectorRoot *instance(){
+	return instance_;
+      }
     private:
       static CollectorRoot * instance_;
     };
   
   
-  xdata::Integer sourceport_;
-  xdata::Integer clientport_;
+  xdata::Integer port_;
 };
 
 #endif
