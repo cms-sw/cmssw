@@ -1,3 +1,6 @@
+** V00-00-05  [Mon Jan 30 18:03:50 2006]
+excluded pointers to SiStripRecHit2DLocalPos from being written to file in order to prevent crashes
+
 ** V00-00-04  [Mon Jan 30 10:45:15 2006]
 mono and stereo rechits were inverted in the ctor
 
