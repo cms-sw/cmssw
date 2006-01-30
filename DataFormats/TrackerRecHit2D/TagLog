@@ -1,3 +1,6 @@
+** V00-00-04  [Mon Jan 30 10:45:15 2006]
+mono and stereo rechits were inverted in the ctor
+
 ** V00-00-03  [Fri Jan 27 12:37:49 2006]
 Fix crash when writing on file
 
