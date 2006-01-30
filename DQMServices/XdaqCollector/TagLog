@@ -1,3 +1,7 @@
+** V00-00-95  [Mon Jan 30 18:14:13 2006]
+New package added: Components (components for client specialization)
+Various bugfixes: memory leaks, fixed Buildfiles, fixes for crashes, etc
+
 ** V00-00-90  [Wed Jan 18 02:36:47 2006]
 Attempting to fix a series of bugs;
 Some minor new features have also been added.
