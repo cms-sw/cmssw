@@ -27,7 +27,7 @@ public:
   
   ext_collection<C, Ext> & operator=( const ext_collection<C, Ext> & );
   
-  void reserve( size_t );
+  void reserve( size_type );
   void push_back( const value_type & );  
   void clear();
   Ext & ext() { return ext_; }
@@ -102,7 +102,7 @@ template<typename C, typename Ext>
 }
 
 template<typename C, typename Ext>
-  inline void ext_collection<C, Ext>::reserve( size_t n ) {
+  inline void ext_collection<C, Ext>::reserve( size_type n ) {
   data_.reserve( n );
 }
 
