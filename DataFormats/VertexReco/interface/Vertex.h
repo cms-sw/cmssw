@@ -1,17 +1,14 @@
 #ifndef VertexReco_Vertex_h
 #define VertexReco_Vertex_h
 //
-// $Id: Vertex.h,v 1.2 2005/12/11 17:58:17 llista Exp $
+// $Id: Vertex.h,v 1.3 2005/12/15 20:42:51 llista Exp $
 //
 // RECO Vertex class
 //
 #include <Rtypes.h>
 #include "DataFormats/Math/interface/Error.h"
 #include "DataFormats/Math/interface/Point3D.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "FWCore/EDProduct/interface/RefVector.h"
 #include <vector>
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 namespace reco {
 
@@ -21,10 +18,13 @@ namespace reco {
   public:
     typedef math::XYZPoint Point;
     typedef math::Error3D Error;
+    typedef unsigned short TrackIndex;
+    typedef std::vector<TrackIndex> TrackRefs;
+    typedef TrackRefs::const_iterator track_iterator;
     Vertex() { }
     Vertex( const Point &, const Error &, 
 	    double chi2, unsigned short ndof, size_t size );
-    void add( const TrackRef & r ) { tracks_.push_back( r ); }
+    void add( TrackIndex r ) { tracks_.push_back( r ); }
     track_iterator tracks_begin() const { return tracks_.begin(); }
     track_iterator tracks_end() const { return tracks_.end(); }
     size_t tracksSize() const { return tracks_.size(); }
@@ -43,9 +43,11 @@ namespace reco {
     unsigned short ndof_;
     Point position_;
     Error error_;
-    TrackRefs tracks_;
+    std::vector<TrackIndex> tracks_;
   };
   
 }
+
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #endif

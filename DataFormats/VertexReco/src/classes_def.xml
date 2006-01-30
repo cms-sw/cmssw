@@ -1,7 +1,11 @@
 <lcgdict>
+  <class name="std::vector<unsigned short>" />
   <class name="reco::Vertex" />
+  <class name="reco::VertexRefProds" />
   <class name="std::vector<reco::Vertex>" />
-  <class name="edm::Wrapper<std::vector<reco::Vertex> >" />
-  <class name="edm::Ref<std::vector<reco::Vertex>, reco::Vertex>" />
-  <class name="edm::RefVector<std::vector<reco::Vertex>, reco::Vertex>" />
+  <class name="ext_collection<std::vector<reco::Vertex>, reco::VertexRefProds>" />
+  <class name="edm::Wrapper<ext_collection<std::vector<reco::Vertex>, reco::VertexRefProds> >" />
+  <class name="edm::RefProd<ext_collection<std::vector<reco::Vertex>, reco::VertexRefProds> >" />
+  <class name="edm::Ref<ext_collection<std::vector<reco::Vertex>, reco::VertexRefProds>, reco::Vertex>" />
+  <class name="edm::RefVector<ext_collection<std::vector<reco::Vertex>, reco::VertexRefProds>, reco::Vertex>" />
 </lcgdict>
