@@ -1,5 +1,6 @@
 <export>
  <lib name=DQMServicesCore>
+ <use name=FWCore/ParameterSet>
  <use name=Utilities/Threads>
  <use name=boost>
 </export>
