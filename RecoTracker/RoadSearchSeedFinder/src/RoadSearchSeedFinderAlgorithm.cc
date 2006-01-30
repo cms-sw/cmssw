@@ -12,13 +12,14 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/01/14 22:00:00 $
+// $Date: 2006/01/15 01:04:14 $
 // $Revision: 1.1 $
 //
 
 #include <vector>
 #include <iostream>
 #include <cmath>
+#include <algorithm>
 
 #include "RecoTracker/RoadSearchSeedFinder/interface/RoadSearchSeedFinderAlgorithm.h"
 
@@ -50,6 +51,8 @@ void RoadSearchSeedFinderAlgorithm::run(const edm::Handle<SiStripRecHit2DLocalPo
 
   const SiStripRecHit2DLocalPosCollection* input = handle.product();
 
+  const std::vector<unsigned int> availableIDs = input->detIDs();
+
   // get roads
   edm::ESHandle<Roads> roads;
   es.get<TrackerDigiGeometryRecord>().get(roads);
@@ -66,52 +69,59 @@ void RoadSearchSeedFinderAlgorithm::run(const edm::Handle<SiStripRecHit2DLocalPo
     // loop over detid's in seed rings
     for ( Ring::const_iterator innerRingDetId = seed.first.begin(); innerRingDetId != seed.first.end(); ++innerRingDetId ) {
 
-      SiStripRecHit2DLocalPosCollection::Range innerSeedDetHits = input->get(innerRingDetId->second.rawId());
-      
-      // loop over inner dethits
-      for ( SiStripRecHit2DLocalPosCollection::ContainerIterator innerSeedDetHit = innerSeedDetHits.first;
-	    innerSeedDetHit != innerSeedDetHits.second; ++innerSeedDetHit ) {
+      if ( availableIDs.end() != std::find(availableIDs.begin(),availableIDs.end(),innerRingDetId->second.rawId()) ) {
 
 	for ( Ring::const_iterator outerRingDetId = seed.second.begin(); outerRingDetId != seed.second.end(); ++outerRingDetId ) {
 
-	  SiStripRecHit2DLocalPosCollection::Range outerSeedDetHits = input->get(outerRingDetId->second.rawId());
+	  if ( availableIDs.end() != std::find(availableIDs.begin(),availableIDs.end(),outerRingDetId->second.rawId()) ) {
 
-	  for ( SiStripRecHit2DLocalPosCollection::ContainerIterator outerSeedDetHit = outerSeedDetHits.first;
-		outerSeedDetHit != outerSeedDetHits.second; ++outerSeedDetHit ) {
-	    GlobalPoint inner = tracker->idToDet(innerSeedDetHit->geographicalId())->surface().toGlobal(innerSeedDetHit->localPosition());
-	    GlobalPoint outer = tracker->idToDet(outerSeedDetHit->geographicalId())->surface().toGlobal(outerSeedDetHit->localPosition());
+	    SiStripRecHit2DLocalPosCollection::Range innerSeedDetHits = input->get(innerRingDetId->second.rawId());
+      
+	    // loop over inner dethits
+	    for ( SiStripRecHit2DLocalPosCollection::ContainerIterator innerSeedDetHit = innerSeedDetHits.first;
+		  innerSeedDetHit != innerSeedDetHits.second; ++innerSeedDetHit ) {
 
-	    // calculate deltaPhi in [0,2pi]
-	    double deltaPhi = std::abs(inner.phi() - outer.phi());
-	    double pi = 3.14159265358979312;
-	    if ( deltaPhi < 0 ) deltaPhi = 2*pi - deltaPhi;
+	      SiStripRecHit2DLocalPosCollection::Range outerSeedDetHits = input->get(outerRingDetId->second.rawId());
+
+	      for ( SiStripRecHit2DLocalPosCollection::ContainerIterator outerSeedDetHit = outerSeedDetHits.first;
+		    outerSeedDetHit != outerSeedDetHits.second; ++outerSeedDetHit ) {
+
+		GlobalPoint inner = tracker->idToDet(innerSeedDetHit->geographicalId())->surface().toGlobal(innerSeedDetHit->localPosition());
+		GlobalPoint outer = tracker->idToDet(outerSeedDetHit->geographicalId())->surface().toGlobal(outerSeedDetHit->localPosition());
+
+		// calculate deltaPhi in [0,2pi]
+		double deltaPhi = std::abs(inner.phi() - outer.phi());
+		double pi = 3.14159265358979312;
+		if ( deltaPhi < 0 ) deltaPhi = 2*pi - deltaPhi;
 	    
-	    // calculate maximal possible delta phi for given delta r and parameter pTmin
-	    double ptmin = conf_.getParameter<double>("MinimalReconstructedTransverseMomentum");
-	    double innerr = std::sqrt(inner.x()*inner.x()+inner.y()*inner.y());
-	    double outerr = std::sqrt(outer.x()*outer.x()+outer.y()*outer.y());
+		// calculate maximal possible delta phi for given delta r and parameter pTmin
+		double ptmin = conf_.getParameter<double>("MinimalReconstructedTransverseMomentum");
+		double innerr = std::sqrt(inner.x()*inner.x()+inner.y()*inner.y());
+		double outerr = std::sqrt(outer.x()*outer.x()+outer.y()*outer.y());
 
-	    // correction for B given in T, delta r given in cm, ptmin given in GeV/c
-	    double speedOfLight = 2.99792458e8;
-	    double unitCorrection = speedOfLight * 1e-2 * 1e-9;
+		// correction for B given in T, delta r given in cm, ptmin given in GeV/c
+		double speedOfLight = 2.99792458e8;
+		double unitCorrection = speedOfLight * 1e-2 * 1e-9;
 
-	    // B in T, right now hardcoded, has to come from magnetic field service
-	    double B = 4.0;
+		// B in T, right now hardcoded, has to come from magnetic field service
+		double B = 4.0;
 
-	    // calculate maximal delta phi in [0,2pi]
-	    double deltaPhiMax = std::abs( std::asin(unitCorrection * B * innerr / ptmin) - std::asin(unitCorrection * B * outerr / ptmin) );
-	    if ( deltaPhiMax < 0 ) deltaPhiMax = 2*pi - deltaPhiMax;
+		// calculate maximal delta phi in [0,2pi]
+		double deltaPhiMax = std::abs( std::asin(unitCorrection * B * innerr / ptmin) - std::asin(unitCorrection * B * outerr / ptmin) );
+		if ( deltaPhiMax < 0 ) deltaPhiMax = 2*pi - deltaPhiMax;
 
-	    if ( deltaPhi <= deltaPhiMax ) {
+		if ( deltaPhi <= deltaPhiMax ) {
 	      
-	      // add dethits passing deltaPhi cut, first inner, second outer
-	      TrackingSeed productSeed;
-	      productSeed.addHit(&(*innerSeedDetHit));
-	      productSeed.addHit(&(*outerSeedDetHit));
+		  // add dethits passing deltaPhi cut, first inner, second outer
+		  TrackingSeed productSeed;
+		  productSeed.addHit(&(*innerSeedDetHit));
+		  productSeed.addHit(&(*outerSeedDetHit));
 	      
-	      // add seed to collection
-	      output.push_back(productSeed);
+		  // add seed to collection
+		  output.push_back(productSeed);
 
+		}
+	      }
 	    }
 	  }
 	}
