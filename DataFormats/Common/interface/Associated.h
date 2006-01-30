@@ -8,8 +8,16 @@ template<typename C, typename T = typename C::value_type>
 struct Associated {
   template<typename CExt, typename Ext>
   static const T & get( const edm::Ref<ext_collection<CExt, Ext> > & ref, 
-				 const edm::RefProd<C> & ( Ext:: * getRef )() const ) {
-    return ( * (ref.product()->ext().* getRef)() )[ ref.index() ];
+			const edm::RefProd<C> & ( Ext:: * getRef )() const,
+			size_t index
+			) {
+    return ( * (ref.product()->ext().* getRef)() )[ index ];
+  }
+  template<typename CExt, typename Ext>
+  static const T & get( const edm::Ref<ext_collection<CExt, Ext> > & ref, 
+			const edm::RefProd<C> & ( Ext:: * getRef )() const
+			) {
+    return get( ref, getRef, ref.index() );
   }
 };
 
