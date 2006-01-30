@@ -1,3 +1,6 @@
+** V00-00-01  [Tue Jan 31 00:23:41 2006]
+use stereoRecHit collection for now and fix in RecHitCollection access
+
 ** V00-00-00  [Sun Jan 15 02:04:59 2006]
 Initial release of RecoTracker/RoadSearchFinder.
 
