@@ -85,6 +85,15 @@ i*/
   CrossingFrame crossingFrame(-5, 5, 25, trackingDets, caloDets);
   crossingFrame.addSignalCaloHits(hitsName, &hits);
 
+  // make 1 GeV pileup hit
+  PCaloHit barrelPileup(barrelDetId.rawId(), 0.00855, 0.);
+  // 10 GeV pileup hit
+  PCaloHit forwardPileup(forwardDetId1.rawId(), 3.52, 0.);
+  vector<PCaloHit> pileups;
+  pileups.push_back(barrelPileup);
+  pileups.push_back(forwardPileup);
+  crossingFrame.addPileupCaloHits(-3, hitsName, &pileups);
+
   HcalSimParameterMap parameterMap;
   HcalShape hcalShape;
   HFShape hfShape;
