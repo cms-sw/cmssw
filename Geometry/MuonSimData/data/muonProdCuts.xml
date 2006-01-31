@@ -24,9 +24,7 @@
     <PartSelector path="//ShieldingME4.*"/>  
     <PartSelector path="//ShieldingBoronPoly.*"/>  
     <PartSelector path="//ME11SupportDisk"/>  
-<!-- MEC: Commented out to make the rest of the cuts work. 29Jan2006 
     <PartSelector path="//MBAT"/>
--->
       <Parameter name="CMSCutsRegion"  value="MuonIron" eval="false" />  
       <Parameter name="ProdCutsForGamma"  value="10.*mm"  />  
       <Parameter name="ProdCutsForElectrons"  value="1.*mm"  />  
