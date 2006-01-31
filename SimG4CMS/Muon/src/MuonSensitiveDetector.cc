@@ -1,5 +1,7 @@
 #include "SimG4CMS/Muon/interface/MuonSensitiveDetector.h"
 #include "SimG4CMS/Muon/interface/MuonSlaveSD.h"
+#include "SimG4CMS/Muon//interface/MuonEndcapFrameRotation.h"
+#include "SimG4CMS/Muon/interface/MuonRpcFrameRotation.h"
 #include "Geometry/MuonBaseAlgo/interface/MuonSubDetector.h"
 
 #include "Geometry/Vector/interface/LocalPoint.h"
@@ -47,6 +49,16 @@ MuonSensitiveDetector::MuonSensitiveDetector(std::string name,
 #endif
   detector = new MuonSubDetector(name);
 #ifdef DEBUG 
+  cout << "create MuonFrameRotation"<<endl;
+#endif
+ if (detector->isEndcap()) {
+   //    cout << "MuonFrameRotation create MuonEndcapFrameRotation"<<endl;
+    theRotation=new MuonEndcapFrameRotation();
+  } else if (detector->isRpc()) {
+    //    cout << "MuonFrameRotation create MuonRpcFrameRotation"<<endl;
+    theRotation=new MuonRpcFrameRotation();
+  } 
+#ifdef DEBUG 
   std::cout << "create MuonSlaveSD"<<std::endl;
 #endif
   slaveMuon  = new MuonSlaveSD(detector,theManager);
@@ -88,6 +100,7 @@ MuonSensitiveDetector::~MuonSensitiveDetector() {
   delete g4numbering;
   delete numbering;
   delete slaveMuon;
+  delete theRotation;
   delete detector;
 
   delete theG4ProcessTypeEnumerator;
@@ -153,6 +166,14 @@ uint32_t MuonSensitiveDetector::setDetUnitId(G4Step * aStep)
   return numbering->baseNumberToUnitNumber(num);
 }
 
+
+Local3DPoint MuonSensitiveDetector::toOrcaRef(Local3DPoint in ,G4Step * s){
+  if (theRotation !=0 ) {
+    return theRotation->transformPoint(in,s);
+  }
+  return (in);
+}
+
 Local3DPoint MuonSensitiveDetector::toOrcaUnits(Local3DPoint in){
   return Local3DPoint(in.x()/cm,in.y()/cm,in.z()/cm);
 }
@@ -186,8 +207,8 @@ void MuonSensitiveDetector::createHit(G4Step * aStep){
 
   G4Track * theTrack  = aStep->GetTrack(); 
 
-  Local3DPoint theEntryPoint= toOrcaUnits(InitialStepPosition(aStep,LocalCoordinates));  
-  Local3DPoint theExitPoint = toOrcaUnits(FinalStepPosition(aStep,LocalCoordinates)); 
+  Local3DPoint theEntryPoint= toOrcaUnits(toOrcaRef(InitialStepPosition(aStep,LocalCoordinates),aStep));  
+  Local3DPoint theExitPoint = toOrcaUnits(toOrcaRef(FinalStepPosition(aStep,LocalCoordinates),aStep)); 
   float thePabs             = aStep->GetPreStepPoint()->GetMomentum().mag()/GeV;
   float theTof              = aStep->GetPreStepPoint()->GetGlobalTime()/nanosecond;
   float theEnergyLoss       = aStep->GetTotalEnergyDeposit()/GeV;
@@ -196,7 +217,7 @@ void MuonSensitiveDetector::createHit(G4Step * aStep){
   G4ThreeVector gmd  = aStep->GetPreStepPoint()->GetMomentumDirection();
   G4ThreeVector lmd = ((G4TouchableHistory *)(aStep->GetPreStepPoint()->GetTouchable()))->GetHistory()
     ->GetTopTransform().TransformAxis(gmd);
-  Local3DPoint lnmd = ConvertToLocal3DPoint(lmd);
+  Local3DPoint lnmd = toOrcaRef(ConvertToLocal3DPoint(lmd),aStep);
   float theThetaAtEntry = lnmd.theta();
   float thePhiAtEntry = lnmd.phi();
 
@@ -278,7 +299,7 @@ void MuonSensitiveDetector::createHit(G4Step * aStep){
 void MuonSensitiveDetector::updateHit(G4Step * aStep){
   //  float thePabs             = aStep->GetPreStepPoint()->GetMomentum().mag()/GeV;
   //  Local3DPoint theEntryPoint= InitialStepPosition(aStep,LocalCoordinates);  
-  Local3DPoint theExitPoint = toOrcaUnits(FinalStepPosition(aStep,LocalCoordinates)); 
+  Local3DPoint theExitPoint = toOrcaUnits(toOrcaRef(FinalStepPosition(aStep,LocalCoordinates),aStep)); 
   float theEnergyLoss = aStep->GetTotalEnergyDeposit()/GeV;  
 
   if( theHit == 0 ){ 

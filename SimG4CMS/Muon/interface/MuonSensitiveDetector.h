@@ -30,6 +30,7 @@
 
 class MuonSlaveSD;
 class MuonSimHitNumberingScheme;
+class MuonFrameRotation;
 class UpdatablePSimHit;
 class MuonSubDetector;
 class MuonG4Numbering;
@@ -67,15 +68,17 @@ public Observer<const EndOfEvent*>
   void update(const ::EndOfEvent *);
   virtual void clearHits();
 
+  Local3DPoint toOrcaRef(Local3DPoint in ,G4Step * s);
   Local3DPoint toOrcaUnits(Local3DPoint);
   Global3DPoint toOrcaUnits(Global3DPoint);
-  
+
   TrackInformation* getOrCreateTrackInformation( const G4Track* theTrack );
 
  private:
   MuonSlaveSD* slaveMuon;
   MuonSimHitNumberingScheme* numbering;
   MuonSubDetector* detector;
+  MuonFrameRotation* theRotation;
   MuonG4Numbering* g4numbering;
 
   void storeVolumeAndTrack(G4Step *);
