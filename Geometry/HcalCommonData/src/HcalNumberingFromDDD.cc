@@ -160,7 +160,15 @@ HcalNumberingFromDDD::HcalID HcalNumberingFromDDD::unitID(int det, int zside,
     det = static_cast<int>(HcalOuter);
   }
 
-  HcalNumberingFromDDD::HcalID tmp(det,zside,depth,etaR,phi,lay);
+  const double fiveDegInRad = 2*M_PI/72;
+
+  int iphi_skip=phi;
+  int units=int(phibin[etaR-1]/fiveDegInRad+0.5);
+  if (units==2) iphi_skip=(phi-1)*2+1;
+  else if (units==4) iphi_skip=(phi-1)*4+1;
+
+  HcalNumberingFromDDD::HcalID tmp(det,zside,depth,etaR,phi,iphi_skip,lay);
+
 #ifdef debug
   if (verbosity>1)
     std::cout << "HcalNumberingFromDDD: det = " << det << " " << tmp.subdet 

@@ -24,9 +24,9 @@ public:
   ~HcalNumberingFromDDD();
 	 
   struct HcalID {
-    int subdet, zside, depth, etaR, phi, lay;
-    HcalID(int det=0, int zs=0, int d=0, int et=0, int fi=0, int ly=-1) :
-      subdet(det), zside(zs), depth(d), etaR(et), phi(fi), lay(ly) {}
+    int subdet, zside, depth, etaR, phi, phis, lay;
+    HcalID(int det=0, int zs=0, int d=0, int et=0, int fi=0, int phiskip=0, int ly=-1) :
+      subdet(det), zside(zs), depth(d), etaR(et), phi(fi), phis(phiskip), lay(ly) {}
   };
 
   HcalID         unitID(int det, Hep3Vector pos, int depth, int lay=-1) const;
