@@ -1,3 +1,6 @@
+** V01-01-07  [Tue Jan 31 22:55:37 2006]
+bug fix (memory leak)
+
 ** V01-01-05  [Fri Jan 20 18:15:14 2006]
 this version can really read real simhits with correct containers
 
