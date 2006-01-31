@@ -1,9 +1,17 @@
 <lcgdict>
   <class name="CommonMETData"/>
   <class name="BaseMET"/>
+  <class name="MET"/>
   <class name="TowerMET"/>
+  <class name="CorrMET"/>
   <class name="edm::Wrapper<BaseMET>"/>
+  <class name="edm::Wrapper<MET>" id="20145548-21F3-49A6-9EDE-36DB78DC1D54"/>
+  <class name="edm::Wrapper<std::vector<MET> >"/>
+  <class name="std::vector<MET>"/>
   <class name="edm::Wrapper<TowerMET>" id="83414CC1-1BDD-0922-4752-1589391CBC4B"/>
   <class name="edm::Wrapper<std::vector<TowerMET> >"/>
   <class name="std::vector<TowerMET>"/>
+  <class name="edm::Wrapper<CorrMET>" id="73BE21E0-C19E-453A-BAC4-1DFAFF0E811F"/>
+  <class name="edm::Wrapper<std::vector<CorrMET> >"/>
+  <class name="std::vector<CorrMET>"/>
 </lcgdict>

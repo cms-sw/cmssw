@@ -15,11 +15,11 @@ BaseMET::BaseMET() {
 
 void BaseMET::clearMET() {
 
-  mdata.met = 0.;
-  mdata.metx = 0.;
-  mdata.mety = 0.;
-  mdata.metz = 0.;
-  mdata.sumet = 0.;
-  mdata.phi = 0.;
+  data.met = 0.;
+  data.metx = 0.;
+  data.mety = 0.;
+  data.metz = 0.;
+  data.sumet = 0.;
+  data.phi = 0.;
 
 }

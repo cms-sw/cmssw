@@ -25,31 +25,31 @@ public:
   BaseMET();
 
   // Setters
-  void setLabel(const char *Label) { strcpy(mdata.label,Label); }
+  void setLabel(const char *Label) { strcpy(data.label,Label); }
 
-  void setMET(double MET) { mdata.met = MET; }
-  void setMETx(double METx) { mdata.metx = METx; }
-  void setMETy(double METy) { mdata.mety = METy; }
-  void setMETz(double METz) { mdata.metz = METz; }
-  void setSumEt(double SumEt) { mdata.sumet = SumEt; }
-  void setPhi(double Phi) { mdata.phi = Phi; }
+  void setMET(double MET) { data.met = MET; }
+  void setMETx(double METx) { data.metx = METx; }
+  void setMETy(double METy) { data.mety = METy; }
+  void setMETz(double METz) { data.metz = METz; }
+  void setSumEt(double SumEt) { data.sumet = SumEt; }
+  void setPhi(double Phi) { data.phi = Phi; }
 
   // Getters
-  char *getLabel() { return mdata.label; }
+  char *getLabel() { return data.label; }
 
-  double getMET() const { return mdata.met; }
-  double getMETx() const { return mdata.metx; }
-  double getMETy() const { return mdata.mety; }
-  double getMETz() const { return mdata.metz; }
-  double getSumEt() const { return mdata.sumet; }
-  double getPhi() const { return mdata.phi; }
+  double getMET() const { return data.met; }
+  double getMETx() const { return data.metx; }
+  double getMETy() const { return data.mety; }
+  double getMETz() const { return data.metz; }
+  double getSumEt() const { return data.sumet; }
+  double getPhi() const { return data.phi; }
 
   // Methods
   virtual void clearMET();
 
 private:
 
-  CommonMETData mdata;
+  CommonMETData data;
 
 };
 
