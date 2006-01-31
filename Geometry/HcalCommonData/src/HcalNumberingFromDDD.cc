@@ -163,7 +163,10 @@ HcalNumberingFromDDD::HcalID HcalNumberingFromDDD::unitID(int det, int zside,
   const double fiveDegInRad = 2*M_PI/72;
 
   int iphi_skip=phi;
-  int units=int(phibin[etaR-1]/fiveDegInRad+0.5);
+  int units=0;
+  if (det==HcalForward) units=int(phibin[nEta+etaR-etaMin[2]-1]/fiveDegInRad+0.5);
+  else units=int(phibin[etaR-1]/fiveDegInRad+0.5);
+
   if (units==2) iphi_skip=(phi-1)*2+1;
   else if (units==4) iphi_skip=(phi-1)*4+1;
 
