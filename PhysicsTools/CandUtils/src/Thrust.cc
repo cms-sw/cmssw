@@ -1,14 +1,7 @@
 #include "PhysicsTools/CandUtils/interface/Thrust.h"
-#include "DataFormats/Math/interface/LorentzVector.h"
 #include <cmath>
 using namespace aod;
-typedef math::XYZTLorentzVector LorentzVector;
-
 const double pi = M_PI, pi2 = 2 * pi, pi_2 = pi / 2, pi_4 = pi / 4;
-const double epsilon = 0.0001;
-const int nSegsTheta = 10; // number of initial segments in theta
-const int nSegsPhi = 10; // number of initial segments in phi
-const int nSegs = nSegsTheta * nSegsPhi; // total number of segments
 
 Thrust::Thrust( const_iterator begin, const_iterator end ) : 
   thrust_( 0 ), axis_( 0, 0, 0 ), pSum_( 0 ), 
@@ -19,11 +12,12 @@ Thrust::Thrust( const_iterator begin, const_iterator end ) :
     pSum_ += ( p_[ i ] = t->p3() ).r();
 
   axis_ = axis( finalAxis( initialAxis() ) );
-  if ( cos( axis_.theta() ) < 0 ) axis_ *= -1;
+  if ( axis_.z() < 0 ) axis_ *= -1;
   thrust_ = thrust( axis_ );
 }
 
 Thrust::ThetaPhi Thrust::initialAxis() const {
+  static const int nSegsTheta = 10, nSegsPhi = 10, nSegs = nSegsTheta * nSegsPhi;
   int i, j;
   double thr[ nSegs ], max = 0;
   int indI = 0, indJ = 0, index = -1;
@@ -43,7 +37,7 @@ Thrust::ThetaPhi Thrust::initialAxis() const {
 
   // take max and one point on either size, fitting to a parabola and
   // extrapolating to the real max.  Do this separately for each dimension.
-  // y = ax^2 + bx + c.  At the max, x = 0, on either side, x = +/-1.
+  // y = a x^2 + b x + c.  At the max, x = 0, on either side, x = +/-1.
   // do phi first
   double a, b, c = max;
   int ind1 = indJ + 1;
@@ -65,12 +59,12 @@ Thrust::ThetaPhi Thrust::initialAxis() const {
     maxThetaInd = 0;
     if ( a != 0 ) maxThetaInd = - b / ( 2 * a );
   }
-
   return ThetaPhi( pi * ( maxThetaInd + indI ) / ( nSegsTheta - 1 ),
 		   pi2 * ( maxPhiInd + indJ ) / nSegsPhi );
 }
 
 Thrust::ThetaPhi Thrust::finalAxis( ThetaPhi best ) const {
+  static const double epsilon = 0.0001;
   double maxChange1, maxChange2, a, b, c, thr;
   int mandCt = 3, maxCt = 1000;
   bool done;
@@ -89,7 +83,7 @@ Thrust::ThetaPhi Thrust::finalAxis( ThetaPhi best ) const {
 		axis( best ),
 		axis( best.theta + epsilon, best.phi ),
 		axis( best.theta - epsilon, best.phi ) );
-      maxChange1 = 10 * ( b < 0 ? -1 : 1 ); // linear 
+      maxChange1 = 10 * ( b < 0 ? -1 : 1 );
       if ( a != 0 ) maxChange1 = - b / ( 2 * a );
     }
     do {
@@ -124,11 +118,9 @@ Thrust::ThetaPhi Thrust::finalAxis( ThetaPhi best ) const {
     best.phi += maxChange2 * epsilon;
     if ( best.phi > pi2 ) best.phi -= pi2;
     if ( best.phi < 0 ) best.phi += pi2;
-    if ( mandCt > 0 ) mandCt--;
-    maxCt--;
-    done = ( maxChange1 * maxChange1 > 1 ||
-	     maxChange2 * maxChange2 > 1 ||
-	     mandCt ) && ( maxCt > 0 );
+    if ( mandCt > 0 ) mandCt --;
+    maxCt --;
+    done = ( fabs( maxChange1 ) > 1 || fabs( maxChange2 ) > 1 || mandCt ) && ( maxCt > 0 );
   } while ( done );
 
   return best;
@@ -144,7 +136,7 @@ void Thrust::parabola( double & a, double & b, double & c,
 
 Thrust::Vector Thrust::axis( double theta, double phi ) const {
   double theSin = sin( theta );
-  return Vector( theSin * cos(phi), theSin * sin(phi), cos(theta) );
+  return Vector( theSin * cos( phi ), theSin * sin( phi ), cos( theta ) );
 }
 
 double Thrust::thrust( const Vector & axis ) const {
