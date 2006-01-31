@@ -4,7 +4,7 @@
 //Author: Matthew Pearson, March 2003, ported to CMSSW by Andrea Giammanco, November 2005
 
 //Constructor
-SiTrivialZeroSuppress::SiTrivialZeroSuppress(const edm::ParameterSet const& conf, float noise) : conf_(conf), theNumFEDalgos(4)
+SiTrivialZeroSuppress::SiTrivialZeroSuppress(const edm::ParameterSet& conf, float noise) : conf_(conf), theNumFEDalgos(4)
 {
   noiseInAdc=noise;
   initParams(conf_);

@@ -42,9 +42,9 @@ class SiTrivialZeroSuppress : public SiZeroSuppress{
   short theFEDalgorithm;
   float theFEDlowThresh;
   float theFEDhighThresh;
+  edm::ParameterSet conf_;
   short theNumFEDalgos;
 
-  edm::ParameterSet conf_;
   int algoConf;
   double lowthreshConf;
   double highthreshConf;
