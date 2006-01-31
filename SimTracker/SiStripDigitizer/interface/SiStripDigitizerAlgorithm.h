@@ -133,7 +133,7 @@ class SiStripDigitizerAlgorithm
   
   GeomDetType::SubDetector stripPart;            // is it barrel on forward
   const StripGeomDetUnit* _detp;
-  StripTopology* topol;
+  const StripTopology* topol;
 
   std::vector<StripDigi> internal_coll; //empty vector of StripDigi used in digitize
   std::vector<StripDigi> digis;

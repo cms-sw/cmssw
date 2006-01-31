@@ -2,7 +2,7 @@
 #include "Geometry/TrackerSimAlgo/interface/StripGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include <gsl/gsl_sf_erf.h>
-
+#include<iostream>
 static float default_couplings_from_vitaliano[2] =  {.76,.12};
 // aggiungere dopo (AG):
 // ConfigurableVector<float> 
@@ -53,7 +53,7 @@ SiInduceChargeOnStrips::hit_map_type SiTrivialInduceChargeOnStrips::induce(SiCha
       else {
 	gsl_sf_result result;
 	int status = gsl_sf_erf_Q_e((i-chargePosition)/chargeSpread, &result);
-	//	if (status != 0) throw DetLogicError("GaussianTailNoiseGenerator::could not compute gaussian tail probability for the threshold chosen");
+	if (status != 0) cerr<<"GaussianTailNoiseGenerator::could not compute gaussian tail probability for the threshold chosen"<<endl;
 	lowerBound = 1. - result.val;
 	//      float       olowerBound = freq_((i-chargePosition)/chargeSpread);
         //      cout <<" UPPERB "<<olowerBound<<" " <<lowerBound<<" " <<lowerBound-olowerBound<<endl;
@@ -64,7 +64,7 @@ SiInduceChargeOnStrips::hit_map_type SiTrivialInduceChargeOnStrips::induce(SiCha
       else {
 	gsl_sf_result result;
 	int status = gsl_sf_erf_Q_e((i-chargePosition+1)/chargeSpread, &result);
-	//	if (status != 0) throw DetLogicError("GaussianTailNoiseGenerator::could not compute gaussian tail probability for the threshold chosen");
+		if (status != 0) cerr<<"GaussianTailNoiseGenerator::could not compute gaussian tail probability for the threshold chosen"<<endl;
 	upperBound = 1. - result.val;
 	//      float       oupperBound = freq_((i-chargePosition+1)/chargeSpread);
 	//      cout <<" UPPERB "<<oupperBound<<" " <<upperBound<<" " <<upperBound-oupperBound<<endl;

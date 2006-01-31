@@ -5,7 +5,6 @@
 
 #include <vector>
 #include <iostream>
-
 #include "SimTracker/SiStripDigitizer/interface/SiStripDigitizerAlgorithm.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
@@ -26,6 +25,7 @@ using namespace std;
 SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& conf):conf_(conf){
   cout << "Creating a SiStripDigitizerAlgorithm." << endl;
   ndigis=0;
+
 }
 SiStripDigitizerAlgorithm::~SiStripDigitizerAlgorithm(){
   cout << "Destroying a SiStripDigitizerAlgorithm." << endl;
@@ -66,17 +66,15 @@ vector <StripDigi> SiStripDigitizerAlgorithm::run(const std::vector<PSimHit> &in
       cout<<"APVs running in deconvolution mode (good time resolution)"<<endl;
     }
   };
-  //  numStripsMax=conf_.getParameter<int>("NumStripsMax");
-  //  cout<<theElectronPerADC<<" elettroni"<<endl;
  
   topol=&det->specificTopology(); // cache topology
   numStrips = topol->nstrips();  // det module number of strips
    
   //thickness:
-  BoundSurface& p = (dynamic_cast<StripGeomDetUnit*>((det)))->surface();
+  const BoundSurface& p = (dynamic_cast<StripGeomDetUnit*>((det)))->surface();
   moduleThickness = p.bounds().thickness();
   float noiseRMS = ENC*moduleThickness/(0.03);
-  float min_adc = theThreshold*noiseRMS/theElectronPerADC;
+  //  float min_adc = theThreshold*noiseRMS/theElectronPerADC;
   // std::cout << "module thickness: " << moduleThickness << ", noiseRMS: " << noiseRMS << ", min_adc: " << min_adc << endl;
  
   theSiNoiseAdder = new SiGaussianTailNoiseAdder(numStrips,noiseRMS,theThreshold);
@@ -91,48 +89,43 @@ vector <StripDigi> SiStripDigitizerAlgorithm::run(const std::vector<PSimHit> &in
 
   theSiPileUpSignals->reset();
   unsigned int detID = det->geographicalId().rawId();
-  bool first = true; // AG
+   bool first = true; // AG
 
-  //
-  // First: loop on the SimHits
-  //
-  //  ndigis=0;
-  //  vector<PSimHit*>::const_iterator simHitIter = input.begin();
-  //  vector<PSimHit*>::const_iterator simHitIterEnd = input.end();
-  vector<PSimHit>::const_iterator simHitIter = input.begin();
-  vector<PSimHit>::const_iterator simHitIterEnd = input.end();
-  for (;simHitIter != simHitIterEnd; ++simHitIter) {
+   //
+   // First: loop on the SimHits
+   //
+   vector<PSimHit>::const_iterator simHitIter = input.begin();
+   vector<PSimHit>::const_iterator simHitIterEnd = input.end();
+   for (;simHitIter != simHitIterEnd; ++simHitIter) {
  
-    const PSimHit ihit = *simHitIter;
-    // detID (AG)
-    if ( first ) {
+     const PSimHit ihit = *simHitIter;
+     // detID (AG)
+     if ( first ) {
+       detID = ihit.detUnitId();
+       first = false;
+     }
  
-      //      detID = ihit->detUnitId();
-      detID = ihit.detUnitId();
-      first = false;
-    }
+     if ( abs(ihit.tof()) < tofCut && ihit.energyLoss()>0) {
  
-    if ( abs(ihit.tof()) < tofCut && ihit.energyLoss()>0) {
+       SiHitDigitizer::hit_map_type _temp = theSiHitDigitizer->processHit(ihit,*det,bfield);
  
-      SiHitDigitizer::hit_map_type _temp = theSiHitDigitizer->processHit(ihit,*det,bfield);
+       theSiPileUpSignals->add(_temp,ihit);
  
-      theSiPileUpSignals->add(_temp,ihit);
+     }
+   }
  
-    }
-  }
- 
-  SiPileUpSignals::signal_map_type theSignal = theSiPileUpSignals->dumpSignal();
-  SiPileUpSignals::HitToDigisMapType theLink = theSiPileUpSignals->dumpLink();  
-  SiPileUpSignals::signal_map_type afterNoise;
-  if (noNoise) {
-    afterNoise = theSignal;
-  } else {
-    afterNoise = theSiNoiseAdder->addNoise(theSignal);
-  }
+   SiPileUpSignals::signal_map_type theSignal = theSiPileUpSignals->dumpSignal();
+   SiPileUpSignals::HitToDigisMapType theLink = theSiPileUpSignals->dumpLink();  
+   SiPileUpSignals::signal_map_type afterNoise;
+   if (noNoise) {
+     afterNoise = theSignal;
+   } else {
+     afterNoise = theSiNoiseAdder->addNoise(theSignal);
+   }
 
   digis.clear();
   push_digis(theSiZeroSuppress->zeroSuppress(theSiDigitalConverter->convert(afterNoise)),
-	       theLink,afterNoise,detID);
+	     theLink,afterNoise,detID);
 
 
   delete theSiNoiseAdder;

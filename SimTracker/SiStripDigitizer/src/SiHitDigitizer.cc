@@ -46,6 +46,14 @@ SiHitDigitizer::SiHitDigitizer(const edm::ParameterSet& conf, const StripGeomDet
   theSiInduceChargeOnStrips = new SiTrivialInduceChargeOnStrips(gevperelectron);
 }
 
+
+SiHitDigitizer::~SiHitDigitizer(){
+    delete theSiChargeDivider;
+    delete theSiChargeCollectionDrifter;
+    delete theSiInduceChargeOnStrips;
+  }
+
+
 SiHitDigitizer::hit_map_type SiHitDigitizer::processHit(const PSimHit& hit, const StripGeomDetUnit& det, GlobalVector bfield){
 
   //
@@ -58,22 +66,19 @@ SiHitDigitizer::hit_map_type SiHitDigitizer::processHit(const PSimHit& hit, cons
   // Compute the drift direction for this det
   //
   
-  //  LocalPoint centre(0.,0.); // mi serve? (AG)
-  //  LocalVector drift = det.driftDirection(centre); // aggiungere dopo! (AG)
   LocalVector driftDir = DriftDirection(&det,bfield);
  
-  if(driftDir.z() ==0.) {
-    cout << " pxlx: drift in z is zero " << endl;
-    return;
-  }
- 
-  return theSiInduceChargeOnStrips->induce(
+  //  if(driftDir.z() ==0.) {
+  //    cout << " pxlx: drift in z is zero " << endl; 
+  //  }  else  
+  return theSiInduceChargeOnStrips->induce(	
 					   theSiChargeCollectionDrifter->drift(ion,driftDir),
 					   det);
 }
 
 LocalVector SiHitDigitizer::DriftDirection(const StripGeomDetUnit* _detp,GlobalVector _bfield){
   //good Drift direction estimation only for tracker barrel
+
   Frame detFrame(_detp->surface().position(),_detp->surface().rotation());
   LocalVector Bfield=detFrame.toLocal(_bfield);
 

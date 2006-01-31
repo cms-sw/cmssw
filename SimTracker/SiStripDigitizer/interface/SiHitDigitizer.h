@@ -24,11 +24,7 @@ class SiHitDigitizer{
  
   SiHitDigitizer(const edm::ParameterSet& conf, const StripGeomDetUnit *det);
 
-  ~SiHitDigitizer(){
-    delete theSiChargeDivider;
-    delete theSiChargeCollectionDrifter;
-    delete theSiInduceChargeOnStrips;
-  }
+  ~SiHitDigitizer();
 
   void setChargeDivider(SiChargeDivider* cd){
     if (theSiChargeDivider) delete theSiChargeDivider;
