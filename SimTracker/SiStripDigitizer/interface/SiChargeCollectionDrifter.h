@@ -16,6 +16,7 @@ class SiChargeCollectionDrifter{
   typedef vector <SignalPoint> collection_type;
   typedef vector <EnergyDepositUnit> ionization_type;
 
+  virtual ~SiChargeCollectionDrifter() { }
   virtual collection_type drift (const ionization_type, const LocalVector&) = 0;
 };
 

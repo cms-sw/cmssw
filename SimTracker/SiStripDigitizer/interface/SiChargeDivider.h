@@ -18,6 +18,7 @@ class SiChargeDivider{
   
   typedef vector< EnergyDepositUnit > ionization_type;
   
+  virtual ~SiChargeDivider() { }
   //  virtual ionization_type divide(const SimHit&, const StripDet& det) = 0;
   virtual ionization_type divide(const PSimHit&, const StripGeomDetUnit& det) = 0;
 };

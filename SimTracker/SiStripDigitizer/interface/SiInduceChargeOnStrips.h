@@ -16,6 +16,7 @@ class SiInduceChargeOnStrips{
   typedef map< int, float, less<int> > hit_map_type;
   
   
+  virtual ~SiInduceChargeOnStrips() { }
   virtual hit_map_type induce(SiChargeCollectionDrifter::collection_type, const StripGeomDetUnit&) = 0 ;
 };
 #endif

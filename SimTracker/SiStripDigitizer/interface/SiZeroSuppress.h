@@ -10,6 +10,7 @@ class SiZeroSuppress{
   
   typedef  SiDigitalConverter::DigitalMapType DigitalMapType;
     
+  virtual ~SiZeroSuppress() {  }
   virtual DigitalMapType zeroSuppress(const DigitalMapType&) = 0;
 };
  

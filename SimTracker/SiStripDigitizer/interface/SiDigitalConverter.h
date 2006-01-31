@@ -12,6 +12,7 @@ class SiDigitalConverter{
   typedef map< int, int, less<int> >         DigitalMapType;
   typedef SiPileUpSignals::signal_map_type   signal_map_type;
   
+  virtual ~SiDigitalConverter() { }
   virtual DigitalMapType convert(const signal_map_type &) = 0;
 };
 
