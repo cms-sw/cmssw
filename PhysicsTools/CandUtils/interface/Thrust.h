@@ -39,6 +39,8 @@ private:
   Vector axis( const ThetaPhi & tp ) const  {
     return axis( tp.theta, tp.phi );
   }
+  void parabola( double & a, double & b, double & c, 
+		 const Vector &, const Vector &, const Vector & ) const;
 };
 
 #endif

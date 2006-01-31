@@ -75,32 +75,26 @@ Thrust::ThetaPhi Thrust::finalAxis( ThetaPhi best ) const {
   int mandCt = 3, maxCt = 1000;
   bool done;
   do { 
-    Vector axis1 = axis( best );
-    Vector axis2 = axis( best.theta + epsilon, best.phi );
-    Vector axis3 = axis( best.theta - epsilon, best.phi );
-    c = thrust( axis1 );
-    a = ( thrust( axis2 ) - 2 * c + thrust( axis3 ) ) / 2;
-    b = thrust( axis2 ) - a - c; 
+    parabola( a, b, c, 
+	      axis( best ), 
+	      axis( best.theta + epsilon, best.phi ), 
+	      axis( best.theta - epsilon, best.phi ) );
     maxChange1 = 10 * ( b < 0 ? -1 : 1 );
-    if ( a != 0 ) maxChange1 = -b / ( 2 * a );
+    if ( a != 0 ) maxChange1 = - b / ( 2 * a );
     while ( fabs( maxChange1 * epsilon ) > pi_4 ) maxChange1 /= 2;
     if ( maxChange1 == 0 && ( best.theta == 0 || best.theta == pi ) ) { 
       best.phi += pi_2;
       if ( best.phi > pi2 ) best.phi -= pi2;
-      axis1 = axis( best );
-      axis2 = axis( best.theta + epsilon, best.phi );
-      axis3 = axis( best.theta - epsilon, best.phi );
-      double t2 = thrust( axis2 );
-      c = thrust( axis1 );
-      a = ( t2 - 2 * c + thrust( axis3 ) ) / 2;
-      b = t2 - a - c;
+      parabola( a, b, c, 
+		axis( best ),
+		axis( best.theta + epsilon, best.phi ),
+		axis( best.theta - epsilon, best.phi ) );
       maxChange1 = 10 * ( b < 0 ? -1 : 1 ); // linear 
       if ( a != 0 ) maxChange1 = - b / ( 2 * a );
     }
     do {
-      axis2 = axis( best.theta + maxChange1 * epsilon, best.phi );
       // L.L.: fixed odd behavoir adding epsilon (???)
-      thr = thrust( axis2 ) + epsilon;
+      thr = thrust( axis( best.theta + maxChange1 * epsilon, best.phi ) ) + epsilon;
       if ( thr < c ) maxChange1 /= 2;
     } while ( thr < c );
 
@@ -115,20 +109,16 @@ Thrust::ThetaPhi Thrust::finalAxis( ThetaPhi best ) const {
       best.phi += pi;
       if ( best.phi > pi2 ) best.phi -= pi2;
     }
-    axis1 = axis( best );
-    axis2 = axis( best.theta, best.phi + epsilon );
-    axis3 = axis( best.theta, best.phi - epsilon );
-    double t2 = thrust( axis2 );
-    c = thrust( axis1 );
-    a = ( t2 - 2 * c + thrust( axis3 ) ) / 2;
-    b = t2 - a - c;
+    parabola( a, b, c, 
+	      axis( best ),
+	      axis( best.theta, best.phi + epsilon ),
+	      axis( best.theta, best.phi - epsilon ) );
     maxChange2 = 10 * ( b < 0 ? -1 : 1 );
     if ( a != 0 ) maxChange2 = - b / ( 2 * a );
     while ( fabs( maxChange2 * epsilon ) > pi_4 ) { maxChange2 /= 2; }
     do {
-      axis2 = axis( best.theta, best.phi + maxChange2 * epsilon );
       // L.L.: fixed odd behavoir adding epsilon
-      thr = thrust( axis2 ) + epsilon;
+      thr = thrust( axis( best.theta, best.phi + maxChange2 * epsilon ) ) + epsilon;
       if ( thr < c ) maxChange2 /= 2;
     } while ( thr < c );
     best.phi += maxChange2 * epsilon;
@@ -142,6 +132,14 @@ Thrust::ThetaPhi Thrust::finalAxis( ThetaPhi best ) const {
   } while ( done );
 
   return best;
+}
+
+void Thrust::parabola( double & a, double & b, double & c, 
+		       const Vector & a1, const Vector & a2, const Vector & a3 ) const {
+  double t1 = thrust( a1 ), t2 = thrust( a2 ), t3 = thrust( a3 );
+  a = ( t2 - 2 * c + t3 ) / 2;
+  b = t2 - a - c;
+  c = t1;
 }
 
 Thrust::Vector Thrust::axis( double theta, double phi ) const {
