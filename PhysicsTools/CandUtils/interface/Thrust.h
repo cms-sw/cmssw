@@ -4,7 +4,6 @@
 // Ported from BaBar implementation
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "PhysicsTools/Candidate/interface/Candidate.h"
-#include <vector>
 
 namespace aod {
   class Candidate;
@@ -23,22 +22,21 @@ private:
   // Member data 
   double _thrust;
   Vector _axis;
-  double _denom_sum;
+  double _pSum;
   const unsigned int n_;
+  std::vector<Vector> p_;
+  struct ThetaPhi {
+    ThetaPhi( double t, double p ) : theta( t ), phi( p ) { }
+    double theta, phi;
+  };
 
-  void calc_denom(const std::vector<double> & X, const std::vector<double> & Y,
-		  const std::vector<double> & Z);
-
-  double calc_thrust(const std::vector<double> & theAxis, const std::vector<double> & X,
-		     const std::vector<double> & Y, const std::vector<double> & Z) const; 
-
-  std::vector<double> get_initial_axis(const std::vector<double> & X, const std::vector<double> & Y,
-			    const std::vector<double> & Z) const;
-
-  std::vector<double> get_final_axis(double thetaInit, double phiInit, const std::vector<double> &  X,
-			  const std::vector<double> & Y, const std::vector<double> & Z) const;
-
-  std::vector<double> get_axis(double theta,double phi) const; // take care of memory
+  double thrust(const Vector & theAxis) const; 
+  ThetaPhi initialAxis() const;
+  ThetaPhi finalAxis( ThetaPhi ) const;
+  Vector axis( double theta, double phi ) const;
+  Vector axis( const ThetaPhi & tp ) const  {
+    return axis( tp.theta, tp.phi );
+  }
 };
 
 #endif
