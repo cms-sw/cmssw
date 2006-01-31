@@ -10,22 +10,21 @@ const int nSegsTheta = 10; // number of initial segments in theta
 const int nSegsPhi = 10; // number of initial segments in phi
 const int nSegs = nSegsTheta * nSegsPhi; // total number of segments
 
-Thrust::Thrust( const_iterator begin, const_iterator end ) 
-  : _thrust( 0 ), _axis( 0, 0, 0 ), _pSum( 0 ), 
-    n_( end - begin ), p_( n_ ) {
+Thrust::Thrust( const_iterator begin, const_iterator end ) : 
+  thrust_( 0 ), axis_( 0, 0, 0 ), pSum_( 0 ), 
+  n_( end - begin ), p_( n_ ) {
   if ( n_ == 0 ) return;
   int i = 0;
-  for( const_iterator t = begin; t != end; ++t, ++i ) {
-    p_[ i ] = t->p3();
-    _pSum += p_[ i ].r();
-  }
-  _axis = axis( finalAxis( initialAxis() ) );
-  if ( cos( _axis.theta() ) < 0 ) _axis *= -1;
-  _thrust = thrust( _axis );
+  for( const_iterator t = begin; t != end; ++ t, ++ i )
+    pSum_ += ( p_[ i ] = t->p3() ).r();
+
+  axis_ = axis( finalAxis( initialAxis() ) );
+  if ( cos( axis_.theta() ) < 0 ) axis_ *= -1;
+  thrust_ = thrust( axis_ );
 }
 
 Thrust::ThetaPhi Thrust::initialAxis() const {
-  int i,j;
+  int i, j;
   double thr[ nSegs ], max = 0;
   int indI = 0, indJ = 0, index = -1;
 
@@ -148,7 +147,7 @@ Thrust::ThetaPhi Thrust::finalAxis( ThetaPhi best ) const {
     b = t2 - a - c;
 
     maxChange2 = 10 * ( b<0 ? -1 : 1 ); // linear 
-    if ( a != 0 ) maxChange2 = -b/(2*a);
+    if ( a != 0 ) maxChange2 = - b / ( 2 * a );
 
     while ( fabs( maxChange2 * epsilon ) > M_PI / 4 ) { maxChange2 /= 2; }
 
@@ -178,11 +177,11 @@ Thrust::Vector Thrust::axis( double theta, double phi ) const {
   return Vector( theSin * cos(phi), theSin * sin(phi), cos(theta) );
 }
 
-double Thrust::thrust(const Vector & axis) const {
+double Thrust::thrust( const Vector & axis ) const {
   double result = 0;
   double sum = 0;
   for ( unsigned int i = 0; i < n_; ++i )
     sum += fabs( axis.Dot( p_[i] ) );
-  if ( _pSum > 0 ) result = sum / _pSum;
+  if ( pSum_ > 0 ) result = sum / pSum_;
   return result;
 }
