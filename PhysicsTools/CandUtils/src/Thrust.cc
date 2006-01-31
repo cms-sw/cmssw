@@ -29,16 +29,13 @@ Thrust::ThetaPhi Thrust::initialAxis() const {
   int indI = 0, indJ = 0, index = -1;
   for ( i = 0; i < nSegsTheta ; ++i ) {
     double z = cos( pi * i / ( nSegsTheta - 1 ) );
-    double invZ = sqrt( 1 - z * z );
+    double r = sqrt( 1 - z * z );
     for ( j = 0; j < nSegsPhi ; ++j ) {
-      Vector rInitial( invZ * cos( pi2 * j / nSegsPhi ),
-		       invZ * sin( pi2 * j / nSegsPhi ),
-		       z );
-      thr[ i * nSegsPhi + j ] = thrust( rInitial );
+      double phi = pi2 * j / nSegsPhi;
+      thr[ i * nSegsPhi + j ] = thrust( Vector( r * cos( phi ), r * sin( phi ), z ) );
       if ( thr[ i * nSegsPhi + j ] > max ) {
         index = i * nSegsPhi + j;
-        indI = i;
-	indJ = j;
+        indI = i; indJ = j;
         max = thr[ index ];
       }
     }
@@ -145,7 +142,7 @@ Thrust::ThetaPhi Thrust::finalAxis( ThetaPhi best ) const {
     a = ( t2 - 2 * c + thrust( Axis3 ) ) / 2;
     b = t2 - a - c;
 
-    maxChange2 = 10 * ( b<0 ? -1 : 1 ); // linear 
+    maxChange2 = 10 * ( b < 0 ? -1 : 1 ); // linear 
     if ( a != 0 ) maxChange2 = - b / ( 2 * a );
 
     while ( fabs( maxChange2 * epsilon ) > pi_4 ) { maxChange2 /= 2; }
