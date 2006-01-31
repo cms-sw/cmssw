@@ -1,3 +1,10 @@
+17-01-31 mfp. Remove unnecessary rejection of empty parameter sets
+   from MakersProcess.cc
+   Add test for overriding 'used' blocks and PSets; test is commented
+   out because the current code fails! The test/sample.txt file is
+   correct in its use. The failure is not in the parser, but in the tree
+   walker code.
+
 17-01-06 mfp. Added protection to prevent circular inclusion.
    Also made EdmConfigToPython use preprocesser.
 
