@@ -1,3 +1,6 @@
+** V00-04-01  [Tue Jan 31 22:27:14 2006]
+Fixes for HF high eta
+
 ** V00-04-00  [Tue Jan 31 17:35:50 2006]
 Added "odd" iphi convention needed by CMSSW HcalDetId
 
