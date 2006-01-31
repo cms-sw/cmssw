@@ -24,7 +24,8 @@ class SiTrivialZeroSuppress : public SiZeroSuppress{
    
   /**Constructor. This reads in the noise in the strips.*/
   SiTrivialZeroSuppress(const edm::ParameterSet& conf, float noise);
-  
+  virtual ~SiTrivialZeroSuppress() {}
+
   /** This calculates the lower and high signal thresholds using the noise. It also
    *  checks for a valid choice of zero suppression algorithm.*/
   void initParams(const edm::ParameterSet& conf_);

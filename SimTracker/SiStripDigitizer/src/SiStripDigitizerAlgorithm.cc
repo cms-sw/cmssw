@@ -135,6 +135,12 @@ vector <StripDigi> SiStripDigitizerAlgorithm::run(const std::vector<PSimHit> &in
 	       theLink,afterNoise,detID);
 
 
+  delete theSiNoiseAdder;
+  delete theSiZeroSuppress;
+  delete theSiHitDigitizer;
+  delete theSiPileUpSignals;
+  delete theSiDigitalConverter;
+
   return digis;
 }
 

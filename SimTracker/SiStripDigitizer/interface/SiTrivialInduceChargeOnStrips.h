@@ -16,6 +16,7 @@ class SiTrivialInduceChargeOnStrips: public SiInduceChargeOnStrips{
  public:
   
   SiTrivialInduceChargeOnStrips(double g){clusterWidth=3.; geVperElectron = g;}
+  virtual ~SiTrivialInduceChargeOnStrips() {}
   SiInduceChargeOnStrips::hit_map_type induce(SiChargeCollectionDrifter::collection_type, const StripGeomDetUnit&);
 
  private:
