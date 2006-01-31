@@ -10,5 +10,5 @@ std::ostream& operator<<(std::ostream& os,const PXBDetId& id) {
   return os << "(PixelBarrel " 
 	   << id.layer() << ',' 
 	   << id.ladder() << ',' 
-	   << id.det() << ')'; 
+	   << id.module() << ')'; 
 }

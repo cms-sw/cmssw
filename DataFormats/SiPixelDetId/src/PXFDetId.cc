@@ -10,5 +10,6 @@ std::ostream& operator<<(std::ostream& os,const PXFDetId& id) {
   return os << "(PixelEndcap " 
 	   << id.disk() << ',' 
 	   << id.blade()  << ',' 
-	   << id.det()   << ')'; 
+	   << id.panel()  << ',' 
+	   << id.module()   << ')'; 
 }

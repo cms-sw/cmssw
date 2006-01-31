@@ -26,13 +26,13 @@ class TIBDetId : public DetId {
 	   uint32_t str_fw_bw,
 	   uint32_t str_int_ext,
 	   uint32_t str,
-	   uint32_t det,
+	   uint32_t module,
 	   uint32_t ster) : DetId(DetId::Tracker,StripSubdetector::TIB){
     id_ |= (layer& layerMask_) << layerStartBit_ |
       (str_fw_bw& str_fw_bwMask_) << str_fw_bwStartBit_ |
       (str_int_ext& str_int_extMask_) << str_int_extStartBit_ |
       (str& strMask_) << strStartBit_ |
-      (det& detMask_) << detStartBit_ |
+      (module& moduleMask_) << moduleStartBit_ |
       (ster& sterMask_) << sterStartBit_ ;
   }
   
@@ -58,8 +58,8 @@ class TIBDetId : public DetId {
     return num ;}
   
   /// detector id
-  unsigned int det() const 
-    { return ((id_>>detStartBit_)& detMask_) ;}
+  unsigned int module() const 
+    { return ((id_>>moduleStartBit_)& moduleMask_) ;}
   /// glued
   /**
    * glued() = 0 it's not a glued module
@@ -113,7 +113,7 @@ class TIBDetId : public DetId {
   static const unsigned int str_fw_bwStartBit_=       15;
   static const unsigned int str_int_extStartBit_=     14;
   static const unsigned int strStartBit_=             8;
-  static const unsigned int detStartBit_=             2;
+  static const unsigned int moduleStartBit_=          2;
   static const unsigned int sterStartBit_=            0;
   /// two bits would be enough, but  we could use the number "0" as a wildcard
   
@@ -121,7 +121,7 @@ class TIBDetId : public DetId {
   static const unsigned int str_fw_bwMask_=   0x1;
   static const unsigned int str_int_extMask_= 0x1;
   static const unsigned int strMask_=         0x3F;
-  static const unsigned int detMask_=         0x3F;
+  static const unsigned int moduleMask_=      0x3F;
   static const unsigned int sterMask_=        0x3;
 };
 

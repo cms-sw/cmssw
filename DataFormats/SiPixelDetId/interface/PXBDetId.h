@@ -24,10 +24,10 @@ class PXBDetId : public DetId {
   
   PXBDetId(uint32_t layer,
 	   uint32_t ladder,
-	   uint32_t det) : DetId(DetId::Tracker,PixelSubdetector::PixelBarrel){
+	   uint32_t module) : DetId(DetId::Tracker,PixelSubdetector::PixelBarrel){
     id_ |= (layer& layerMask_) << layerStartBit_     |
       (ladder& ladderMask_) << ladderStartBit_  |
-      (det& detMask_) << detStartBit_;
+      (module& moduleMask_) << moduleStartBit_;
   }
   
   
@@ -40,18 +40,18 @@ class PXBDetId : public DetId {
     { return ((id_>>ladderStartBit_) & ladderMask_) ;}
   
   /// det id
-  unsigned int det() const 
-    { return ((id_>>detStartBit_)& detMask_) ;}
+  unsigned int module() const 
+    { return ((id_>>moduleStartBit_)& moduleMask_) ;}
   
  private:
   /// two bits would be enough, but  we could use the number "0" as a wildcard
   static const unsigned int layerStartBit_=   16;
   static const unsigned int ladderStartBit_=   8;
-  static const unsigned int detStartBit_=      2;
+  static const unsigned int moduleStartBit_=      2;
   /// two bits would be enough, but  we could use the number "0" as a wildcard
   static const unsigned int layerMask_=       0xF;
   static const unsigned int ladderMask_=      0xFF;
-  static const unsigned int detMask_=         0x3F;
+  static const unsigned int moduleMask_=         0x3F;
 };
 
 

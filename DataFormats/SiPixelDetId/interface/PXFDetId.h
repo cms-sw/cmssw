@@ -24,11 +24,13 @@ class PXFDetId : public DetId {
   PXFDetId(uint32_t side,
 	   uint32_t disk,
 	   uint32_t blade,
-	   uint32_t det) : DetId(DetId::Tracker,PixelSubdetector::PixelEndcap){
+	   uint32_t panel,
+	   uint32_t module) : DetId(DetId::Tracker,PixelSubdetector::PixelEndcap){
     id_ |= (side& sideMask_)  << sideStartBit_   |
       (disk& diskMask_)        << diskStartBit_      |
       (blade& bladeMask_)      << bladeStartBit_     |
-      (det& detMask_)          << detStartBit_  ;
+      (panel& panelMask_)      << panelStartBit_     |
+      (module& moduleMask_)    << moduleStartBit_  ;
   }
   
   
@@ -46,22 +48,28 @@ class PXFDetId : public DetId {
   unsigned int blade() const
     { return ((id_>>bladeStartBit_) & bladeMask_) ;}
   
+ /// panel id
+  unsigned int panel() const
+    { return ((id_>>panelStartBit_) & panelMask_) ;}
+
   /// det id
-  unsigned int det() const
-    { return ((id_>>detStartBit_) & detMask_) ;}
+  unsigned int module() const
+    { return ((id_>>moduleStartBit_) & moduleMask_) ;}
   
  private:
   /// two bits would be enough, but  we could use the number "0" as a wildcard
-  static const unsigned int sideStartBit_=  23;
-  static const unsigned int diskStartBit_=     16;
-  static const unsigned int bladeStartBit_=     8;
-  static const unsigned int detStartBit_=       2;
+  static const unsigned int sideStartBit_=   23;
+  static const unsigned int diskStartBit_=   16;
+  static const unsigned int bladeStartBit_=  10;
+  static const unsigned int panelStartBit_=  2;
+  static const unsigned int moduleStartBit_= 2;
   /// two bits would be enough, but  we could use the number "0" as a wildcard
   
   static const unsigned int sideMask_=     0x3;
-  static const unsigned int diskMask_=        0xF;
-  static const unsigned int bladeMask_=       0xFF;
-  static const unsigned int detMask_=         0x3F;
+  static const unsigned int diskMask_=     0xF;
+  static const unsigned int bladeMask_=    0x3F;
+  static const unsigned int panelMask_=    0x3;
+  static const unsigned int moduleMask_=   0x3F;
 };
 
 #endif

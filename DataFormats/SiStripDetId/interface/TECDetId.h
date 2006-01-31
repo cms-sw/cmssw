@@ -27,16 +27,16 @@ class TECDetId : public DetId {
 	   uint32_t petal_fw_bw,
 	   uint32_t petal,
 	   uint32_t ring,
-	   uint32_t det_fw_bw,
-	   uint32_t det,
+	   uint32_t module_fw_bw,
+	   uint32_t module,
 	   uint32_t ster) : DetId(DetId::Tracker,StripSubdetector::TEC){
     id_ |= (side& sideMask_)         << sideStartBit_ |
       (wheel& wheelMask_)             << wheelStartBit_ |
       (petal_fw_bw& petal_fw_bwMask_) << petal_fw_bwStartBit_ |
       (petal& petalMask_)             << petalStartBit_ |
       (ring& ringMask_)               << ringStartBit_ |
-      (det_fw_bw& det_fw_bwMask_)     << det_fw_bwStartBit_ |
-      (det& detMask_)                 << detStartBit_ |
+      (module_fw_bw& module_fw_bwMask_)     << module_fw_bwStartBit_ |
+      (module& moduleMask_)                 << moduleStartBit_ |
       (ster& sterMask_)               << sterStartBit_ ;
   }
   
@@ -76,10 +76,10 @@ class TECDetId : public DetId {
    * vector[0] = 1 -> bw det
    * vector[1] -> det
    */
-  std::vector<unsigned int> det() const
+  std::vector<unsigned int> module() const
     { std::vector<unsigned int> num;
-    num.push_back(((id_>>det_fw_bwStartBit_) & det_fw_bwMask_));
-    num.push_back(((id_>>detStartBit_) & detMask_));
+    num.push_back(((id_>>module_fw_bwStartBit_) & module_fw_bwMask_));
+    num.push_back(((id_>>moduleStartBit_) & moduleMask_));
     return num ;}
   
     /// glued
@@ -130,21 +130,21 @@ class TECDetId : public DetId {
  private:
   /// two bits would be enough, but  we could use the number "0" as a wildcard
   static const unsigned int sideStartBit_=           23;
-  static const unsigned int wheelStartBit_=             16;  
-  static const unsigned int petal_fw_bwStartBit_=       15;
-  static const unsigned int petalStartBit_=             8;
-  static const unsigned int ringStartBit_=              5;
-  static const unsigned int det_fw_bwStartBit_=         4;
-  static const unsigned int detStartBit_=               2;
-  static const unsigned int sterStartBit_=              0;
+  static const unsigned int wheelStartBit_=          16;  
+  static const unsigned int petal_fw_bwStartBit_=    15;
+  static const unsigned int petalStartBit_=          8;
+  static const unsigned int ringStartBit_=           5;
+  static const unsigned int module_fw_bwStartBit_=   4;
+  static const unsigned int moduleStartBit_=         2;
+  static const unsigned int sterStartBit_=           0;
   /// two bits would be enough, but  we could use the number "0" as a wildcard
-  static const unsigned int sideMask_=       0x3;
+  static const unsigned int sideMask_=          0x3;
   static const unsigned int wheelMask_=         0xF;
   static const unsigned int petal_fw_bwMask_=   0x1;
   static const unsigned int petalMask_=         0x7F;
   static const unsigned int ringMask_=          0x7;
-  static const unsigned int det_fw_bwMask_=     0x1;
-  static const unsigned int detMask_=           0x3;
+  static const unsigned int module_fw_bwMask_=  0x1;
+  static const unsigned int moduleMask_=        0x3;
   static const unsigned int sterMask_=          0x3;
 };
 
