@@ -1,7 +1,6 @@
 #include <cmath>
 #include "PhysicsTools/CandUtils/interface/Thrust.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
-#include "PhysicsTools/Candidate/interface/Candidate.h"
 using namespace std;
 using namespace aod;
 typedef math::XYZTLorentzVector LorentzVector;
@@ -12,16 +11,8 @@ const int nSegsTheta = 10; // number of initial segments in theta
 const int nSegsPhi = 10; // number of initial segments in phi
 const int nSegs = nSegsTheta * nSegsPhi; // total number of segments
 
-Thrust::Thrust()
-  : _thrust(0), _denom_sum(0), _cutInCms(false), _charged(false) {
-}
-
-
-void Thrust::compute( const_iterator begin, const_iterator end ) {
-
-  // initialize
-  reset();
-  
+Thrust::Thrust( const_iterator begin, const_iterator end ) 
+  : _thrust(0), _axis( 0, 0, 0 ), _denom_sum(0) {
   const_iterator::difference_type maxNtracks = end - begin;
    
   // copy momentum components to local variables for speed
@@ -38,15 +29,6 @@ void Thrust::compute( const_iterator begin, const_iterator end ) {
     denominator += Vector(cmList).r();
     nTracks++;
   } // end while
-  // forward information to other init
-  init( valX, valY, valZ, denominator, nTracks );
-}
-
-
-void
-Thrust::init(const vector<double> & valX, const vector<double> & valY,
-	     const vector<double> & valZ, const double denominator,
-	     const unsigned nTracks) {
 
   if (nTracks>0) { // make sure there is at least one track
     // calculate denominator
@@ -67,14 +49,6 @@ Thrust::init(const vector<double> & valX, const vector<double> & valY,
     // set thrust
     _thrust = calc_thrust( theAxis, valX, valY, valZ, nTracks );
   } // end if nTracks>0
-}
-
-void
-Thrust::reset() 
-{
-  _thrust=0;
-  _axis = Vector(0.,0.,0.);
-  _denom_sum=0.;
 }
 
 // return theta, phi initial

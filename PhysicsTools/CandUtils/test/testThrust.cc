@@ -1,4 +1,4 @@
-// $Id: testParticle.cc,v 1.5 2005/12/13 23:27:24 llista Exp $
+// $Id: testThrust.cc,v 1.1 2006/01/31 08:24:15 llista Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include "PhysicsTools/Candidate/interface/LeafCandidate.h"
 #include "PhysicsTools/CandUtils/interface/Thrust.h"
@@ -22,8 +22,7 @@ void testParticle::checkAll() {
   CandidateCollection cands;
   cands.push_back( new LeafCandidate( +1, Particle::LorentzVector( 1, 1, 0, 1 ) ) );
   cands.push_back( new LeafCandidate( +1, Particle::LorentzVector( -1, -1, 0, 1 ) ) );
-  Thrust t;
-  t.compute( cands.begin(), cands.end() );
+  Thrust t( cands.begin(), cands.end() );
   cerr << t.thrust() << ", " << t.axis() << endl;
   CPPUNIT_ASSERT( fabs( t.thrust() - 1.0 ) < 1.e-6 );
 }

@@ -1,9 +1,9 @@
 #ifndef CandUtils_Thrust_h
 #define CandUtils_Thrust_h
-// $Id$
+// $Id: Thrust.h,v 1.1 2006/01/31 08:24:14 llista Exp $
 // Ported from BaBar implementation
 #include "DataFormats/Math/interface/Vector3D.h"
-#include "DataFormats/Common/interface/own_vector.h"
+#include "PhysicsTools/Candidate/interface/Candidate.h"
 #include <vector>
 
 namespace aod {
@@ -13,10 +13,8 @@ namespace aod {
 class Thrust  {
 public:
   typedef math::XYZVector Vector;
-  typedef own_vector<aod::Candidate>::const_iterator const_iterator;
-  Thrust();
-  void compute( const_iterator begin, const_iterator end );
-  void reset();
+  typedef aod::CandidateCollection::const_iterator const_iterator;
+  Thrust( const_iterator begin, const_iterator end );
   double thrust() const { return _thrust; } 
   const Vector& axis() const { return _axis; } 
 
@@ -26,14 +24,6 @@ private:
   double     _thrust;
   Vector _axis;
   double     _denom_sum;
-  bool _cutInCms, _charged;
-
-  //
-  // These are original functions by Scott
-  //
-  void init(const std::vector<double> & valX, const std::vector<double> & valY, 
-	    const std::vector<double> & valZ,
-	    const double denominator, const unsigned nTracks );
 
   void calc_denom(const std::vector<double> & X, const std::vector<double> & Y,
 		  const std::vector<double> & Z, const unsigned nTracks);
