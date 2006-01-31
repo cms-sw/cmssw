@@ -1,3 +1,6 @@
+** V00-04-00  [Tue Jan 31 17:35:50 2006]
+Added "odd" iphi convention needed by CMSSW HcalDetId
+
 ** V00-03-01  [Mon Dec  5 18:37:44 2005]
 Move all xml files to data
 
