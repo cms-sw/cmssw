@@ -4,7 +4,7 @@
 using namespace aod;
 typedef math::XYZTLorentzVector LorentzVector;
 
-// constants global to this file
+const double pi = M_PI, pi2 = 2 * pi, pi_2 = pi / 2, pi_4 = pi / 4;
 const double epsilon = 0.0001;
 const int nSegsTheta = 10; // number of initial segments in theta
 const int nSegsPhi = 10; // number of initial segments in phi
@@ -27,13 +27,12 @@ Thrust::ThetaPhi Thrust::initialAxis() const {
   int i, j;
   double thr[ nSegs ], max = 0;
   int indI = 0, indJ = 0, index = -1;
-
   for ( i = 0; i < nSegsTheta ; ++i ) {
-    double z = cos( M_PI * i / ( nSegsTheta - 1 ) );
+    double z = cos( pi * i / ( nSegsTheta - 1 ) );
     double invZ = sqrt( 1 - z * z );
     for ( j = 0; j < nSegsPhi ; ++j ) {
-      Vector rInitial( invZ * cos( 2 * M_PI * j / nSegsPhi ),
-		       invZ * sin( 2 * M_PI * j / nSegsPhi ),
+      Vector rInitial( invZ * cos( pi2 * j / nSegsPhi ),
+		       invZ * sin( pi2 * j / nSegsPhi ),
 		       z );
       thr[ i * nSegsPhi + j ] = thrust( rInitial );
       if ( thr[ i * nSegsPhi + j ] > max ) {
@@ -70,8 +69,8 @@ Thrust::ThetaPhi Thrust::initialAxis() const {
     if ( a != 0 ) maxThetaInd = - b / ( 2 * a );
   }
 
-  return ThetaPhi( M_PI * ( maxThetaInd + indI ) / ( nSegsTheta - 1 ),
-		   2 * M_PI * ( maxPhiInd + indJ ) / nSegsPhi );
+  return ThetaPhi( pi * ( maxThetaInd + indI ) / ( nSegsTheta - 1 ),
+		   pi2 * ( maxPhiInd + indJ ) / nSegsPhi );
 }
 
 Thrust::ThetaPhi Thrust::finalAxis( ThetaPhi best ) const {
@@ -96,12 +95,12 @@ Thrust::ThetaPhi Thrust::finalAxis( ThetaPhi best ) const {
     if ( a != 0 ) maxChange1 = -b / ( 2 * a );
 
     // make sure change is small to avoid convergence problems
-    while ( fabs( maxChange1 * epsilon ) > M_PI/4 ) maxChange1 /= 2; // small changes
+    while ( fabs( maxChange1 * epsilon ) > pi_4 ) maxChange1 /= 2; // small changes
 
     // special case, use a different phi
-    if ( maxChange1 == 0 && ( best.theta == 0 || best.theta == M_PI ) ) { 
-      best.phi += M_PI_2;
-      if ( best.phi > 2 * M_PI ) best.phi -= 2 * M_PI;
+    if ( maxChange1 == 0 && ( best.theta == 0 || best.theta == pi ) ) { 
+      best.phi += pi_2;
+      if ( best.phi > pi2 ) best.phi -= pi2;
 
       theAxis = axis( best );
       Axis2 = axis( best.theta + epsilon, best.phi ); // do differential
@@ -125,15 +124,15 @@ Thrust::ThetaPhi Thrust::finalAxis( ThetaPhi best ) const {
     } while ( theThrust < c );
 
     best.theta += maxChange1 * epsilon;
-    if ( best.theta > M_PI) {
-      best.theta = M_PI - ( best.theta - M_PI );
-      best.phi += M_PI;
-      if ( best.phi > 2 * M_PI ) best.phi -= 2 * M_PI;
+    if ( best.theta > pi) {
+      best.theta = pi - ( best.theta - pi );
+      best.phi += pi;
+      if ( best.phi > pi2 ) best.phi -= pi2;
     }
     if ( best.theta < 0 ) {
       best.theta *= -1;
-      best.phi += M_PI;
-      if ( best.phi > 2 * M_PI ) best.phi -= 2 * M_PI;
+      best.phi += pi;
+      if ( best.phi > pi2 ) best.phi -= pi2;
     }
 
     theAxis = axis( best );
@@ -149,7 +148,7 @@ Thrust::ThetaPhi Thrust::finalAxis( ThetaPhi best ) const {
     maxChange2 = 10 * ( b<0 ? -1 : 1 ); // linear 
     if ( a != 0 ) maxChange2 = - b / ( 2 * a );
 
-    while ( fabs( maxChange2 * epsilon ) > M_PI / 4 ) { maxChange2 /= 2; }
+    while ( fabs( maxChange2 * epsilon ) > pi_4 ) { maxChange2 /= 2; }
 
     do {
       Axis2 = axis( best.theta, best.phi + maxChange2 * epsilon );
@@ -159,8 +158,8 @@ Thrust::ThetaPhi Thrust::finalAxis( ThetaPhi best ) const {
     } while ( theThrust < c );
 
     best.phi += maxChange2 * epsilon;
-    if ( best.phi > 2 * M_PI ) best.phi -= 2 * M_PI;
-    if ( best.phi < 0 ) best.phi += 2 * M_PI;
+    if ( best.phi > pi2 ) best.phi -= pi2;
+    if ( best.phi < 0 ) best.phi += pi2;
 
     if ( mand_ct > 0 ) mand_ct--;
     max_ct--;

@@ -27,11 +27,11 @@ private:
   double pSum_;
   const unsigned int n_;
   std::vector<Vector> p_;
+
   struct ThetaPhi {
     ThetaPhi( double t, double p ) : theta( t ), phi( p ) { }
     double theta, phi;
   };
-
   double thrust(const Vector & theAxis) const; 
   ThetaPhi initialAxis() const;
   ThetaPhi finalAxis( ThetaPhi ) const;
