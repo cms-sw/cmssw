@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 18 19:09:01 EDT 2005
-// $Id: MakersProcess.cc,v 1.15 2005/12/17 01:55:54 paterno Exp $
+// $Id: MakersProcess.cc,v 1.16 2005/12/22 20:30:43 chrjones Exp $
 //
 
 // system include files
@@ -95,12 +95,14 @@ namespace edm {
 	static const std::string kPSet("PSet");
 	static const std::string kBlock("block");
 	if(iNode.type() == kPSet) {
-	  if(iNode.value_.value_->empty()==true)
-	    {
-	      throw edm::Exception(errors::Configuration,"EmptySet")
-		<< "ParameterSet: Empty ParameterSets are not allowed.\n"
-		<< "name = " << iNode.name();
-	    }
+	  // The following test is inappropriate: empty parameter sets
+	  // are fine!
+	  // if(iNode.value_.value_->empty()==true)
+// 	    {
+// 	      throw edm::Exception(errors::Configuration,"EmptySet")
+// 		<< "ParameterSet: Empty ParameterSets are not allowed.\n"
+// 		<< "name = " << iNode.name();
+// 	    }
 
 	  boost::shared_ptr<edm::ParameterSet> tmp_pset = 
             makePSet(*(iNode.value_.value_),usingBlocks_,pSets_)
