@@ -12,32 +12,25 @@ const int nSegsPhi = 10; // number of initial segments in phi
 const int nSegs = nSegsTheta * nSegsPhi; // total number of segments
 
 Thrust::Thrust( const_iterator begin, const_iterator end ) 
-  : _thrust(0), _axis( 0, 0, 0 ), _denom_sum(0) {
-  const_iterator::difference_type maxNtracks = end - begin;
-   
-  // copy momentum components to local variables for speed
-  vector<double> valX(maxNtracks), valY(maxNtracks), valZ(maxNtracks);
-  int nTracks = 0; // number of tracks, initialized to 0
-  double denominator = 0; // sum of magnitudes of momentum
-  // start a loop over the all tracks
-  const_iterator trkptr = begin;
-  while ( (++trkptr ) != end ) {
-    LorentzVector cmList(trkptr->p4());
-    valX[nTracks] = Vector(cmList).x();
-    valY[nTracks] = Vector(cmList).y();
-    valZ[nTracks] = Vector(cmList).z();
-    denominator += Vector(cmList).r();
-    nTracks++;
-  } // end while
+  : _thrust(0), _axis( 0, 0, 0 ), _denom_sum(0), n_( end - begin ) {
+  if (n_>0) { // make sure there is at least one track
+    // copy momentum components to local variables for speed
+    vector<double> valX(n_), valY(n_), valZ(n_);
+    int i = 0;
+    for( const_iterator trkptr = begin; trkptr != end; ++trkptr ) {
+      LorentzVector cmList(trkptr->p4());
+      valX[i] = Vector(cmList).x();
+      valY[i] = Vector(cmList).y();
+      valZ[i] = Vector(cmList).z();
+      _denom_sum += Vector(cmList).r();
+      i++;
+    } // end while
 
-  if (nTracks>0) { // make sure there is at least one track
-    // calculate denominator
-    calc_denom(valX,valY,valZ,nTracks);
     // get initial estimate for thrust axis
-    vector<double> init_axis = get_initial_axis(valX,valY,valZ,nTracks);
+    vector<double> init_axis = get_initial_axis(valX,valY,valZ);
     // use initial estimate to get more refined axis
     vector<double> final_axis = get_final_axis(init_axis[0],init_axis[1],valX,valY,
-                            valZ,nTracks);
+                            valZ);
     // convert theta,phi to x,y,z
     vector<double> theAxis = get_axis(final_axis[0],final_axis[1]);
     // set axis
@@ -47,15 +40,14 @@ Thrust::Thrust( const_iterator begin, const_iterator end )
 	_axis *= -1;
       } // reverse
     // set thrust
-    _thrust = calc_thrust( theAxis, valX, valY, valZ, nTracks );
-  } // end if nTracks>0
+    _thrust = calc_thrust( theAxis, valX, valY, valZ );
+  } // end if n_>0
 }
 
 // return theta, phi initial
 vector<double> Thrust::get_initial_axis(const vector<double> & valX, 
-				  const vector<double> & valY,
-				  const vector<double> & valZ, 
-				  const unsigned nTracks) const {
+					const vector<double> & valY,
+					const vector<double> & valZ ) const {
 
   int i,j;
   // get initial estimate for thrust axis
@@ -72,7 +64,7 @@ vector<double> Thrust::get_initial_axis(const vector<double> & valX,
       rInitial[1] = invZ * sin( 2 * M_PI * j / nSegsPhi ); // x
       rInitial[2] = z;
       // get thrust for this axis
-      thrust[i*nSegsPhi+j] = calc_thrust(rInitial,valX,valY,valZ,nTracks);
+      thrust[i*nSegsPhi+j] = calc_thrust(rInitial,valX,valY,valZ);
       if (thrust[i*nSegsPhi+j]>max) {
         index = i*nSegsPhi+j;
         indI = i;
@@ -125,10 +117,9 @@ vector<double> Thrust::get_initial_axis(const vector<double> & valX,
 
 // get the final axis to be used
 vector<double> Thrust::get_final_axis(double bestTheta, double bestPhi,
-				const vector<double> & valX, 
-				const vector<double> & valY,
-				const vector<double> & valZ, 
-				const unsigned nTracks) const {
+				      const vector<double> & valX, 
+				      const vector<double> & valY,
+				      const vector<double> & valZ ) const {
 
   double maxChange1,maxChange2;
   double a,b,c;
@@ -145,10 +136,10 @@ vector<double> Thrust::get_final_axis(double bestTheta, double bestPhi,
     vector<double> Axis3 = get_axis(bestTheta-epsilon,bestPhi); // do differential
 
     // use parabolic approx as above
-    c = calc_thrust(theAxis,valX,valY,valZ,nTracks);
-    a = ( calc_thrust(Axis2,valX,valY,valZ,nTracks) - 2 * c +
-          calc_thrust(Axis3,valX,valY,valZ,nTracks) ) / 2;
-    b = calc_thrust(Axis2,valX,valY,valZ,nTracks) - a - c; 
+    c = calc_thrust(theAxis,valX,valY,valZ);
+    a = ( calc_thrust(Axis2,valX,valY,valZ) - 2 * c +
+          calc_thrust(Axis3,valX,valY,valZ) ) / 2;
+    b = calc_thrust(Axis2,valX,valY,valZ) - a - c; 
 
     // calculate max
     maxChange1 = 10 * ( b<0 ? -1 : 1 ); // linear 
@@ -170,10 +161,10 @@ vector<double> Thrust::get_final_axis(double bestTheta, double bestPhi,
       Axis3 = get_axis(bestTheta-epsilon,bestPhi); // do differential
 
       // use parabolic approx as above
-      c = calc_thrust(theAxis,valX,valY,valZ,nTracks);
-      a = ( calc_thrust(Axis2,valX,valY,valZ,nTracks) - 2 * c +
-            calc_thrust(Axis3,valX,valY,valZ,nTracks) ) / 2;
-      b = calc_thrust(Axis2,valX,valY,valZ,nTracks) - a - c;
+      c = calc_thrust(theAxis,valX,valY,valZ);
+      a = ( calc_thrust(Axis2,valX,valY,valZ) - 2 * c +
+            calc_thrust(Axis3,valX,valY,valZ) ) / 2;
+      b = calc_thrust(Axis2,valX,valY,valZ) - a - c;
 
       // calculate max
       maxChange1 = 10 * ( b<0 ? -1 : 1 ); // linear 
@@ -185,7 +176,7 @@ vector<double> Thrust::get_final_axis(double bestTheta, double bestPhi,
     // loop until change is at least good enough as started with
     do {
       Axis2 = get_axis(bestTheta+maxChange1*epsilon,bestPhi);
-      theThrust = calc_thrust(Axis2,valX,valY,valZ,nTracks);
+      theThrust = calc_thrust(Axis2,valX,valY,valZ);
       if (theThrust<c)
         maxChange1 /= 2; // don't trust large jumps so be willing to reduce
 
@@ -212,10 +203,10 @@ vector<double> Thrust::get_final_axis(double bestTheta, double bestPhi,
     Axis3 = get_axis(bestTheta,bestPhi-epsilon); // do differential
 
     // use parabolic approx as above
-    c = calc_thrust(theAxis,valX,valY,valZ,nTracks);
-    a = ( calc_thrust(Axis2,valX,valY,valZ,nTracks) - 2 * c +
-          calc_thrust(Axis3,valX,valY,valZ,nTracks) ) / 2;
-    b = calc_thrust(Axis2,valX,valY,valZ,nTracks) - a - c;
+    c = calc_thrust(theAxis,valX,valY,valZ);
+    a = ( calc_thrust(Axis2,valX,valY,valZ) - 2 * c +
+          calc_thrust(Axis3,valX,valY,valZ) ) / 2;
+    b = calc_thrust(Axis2,valX,valY,valZ) - a - c;
 
     // get maximum
     maxChange2 = 10 * ( b<0 ? -1 : 1 ); // linear 
@@ -228,7 +219,7 @@ vector<double> Thrust::get_final_axis(double bestTheta, double bestPhi,
     // loop until change is at least as good as started with
     do {
       Axis2 = get_axis(bestTheta,bestPhi+maxChange2*epsilon);
-      theThrust = calc_thrust(Axis2,valX,valY,valZ,nTracks);
+      theThrust = calc_thrust(Axis2,valX,valY,valZ);
       if (theThrust<c)
         maxChange2 /= 2; // don't trust large jumps so be willing to reduce
 
@@ -273,13 +264,12 @@ vector<double> Thrust::get_axis(double theta, double phi) const {
 double Thrust::calc_thrust(const vector<double> & axis, 
 			   const vector<double> & valX, 
 			   const vector<double> & valY,
-			   const vector<double> & valZ,
-			   const unsigned nTracks) const {
+			   const vector<double> & valZ) const {
   
   double result = 0;
   double num_sum = 0;
 
-  for (unsigned int i=0;i<nTracks;i++)
+  for (unsigned int i=0;i<n_;i++)
     // calculate sum of dot products
     num_sum += fabs( axis[0]*valX[i] + axis[1]*valY[i] + axis[2]*valZ[i] );
 
@@ -287,14 +277,4 @@ double Thrust::calc_thrust(const vector<double> & axis,
   if (_denom_sum>0) 
     result = num_sum/_denom_sum;
   return result;
-}
-
-void Thrust::calc_denom(const vector<double> & valX, const vector<double> & valY,
-			const vector<double> & valZ, 
-			const unsigned nTracks) {
-
-    for (unsigned int i=0;i<nTracks;i++) // loop over all tracks
-      // calculate denominator 
-      _denom_sum += sqrt( valX[i]*valX[i] + valY[i]*valY[i] + 
-			  valZ[i]*valZ[i] );
 }

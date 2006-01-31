@@ -21,23 +21,22 @@ public:
 private:
 
   // Member data 
-  double     _thrust;
+  double _thrust;
   Vector _axis;
-  double     _denom_sum;
+  double _denom_sum;
+  const unsigned int n_;
 
   void calc_denom(const std::vector<double> & X, const std::vector<double> & Y,
-		  const std::vector<double> & Z, const unsigned nTracks);
+		  const std::vector<double> & Z);
 
   double calc_thrust(const std::vector<double> & theAxis, const std::vector<double> & X,
-		     const std::vector<double> & Y, const std::vector<double> & Z,
-		     const unsigned nTracks) const; 
+		     const std::vector<double> & Y, const std::vector<double> & Z) const; 
 
   std::vector<double> get_initial_axis(const std::vector<double> & X, const std::vector<double> & Y,
-			    const std::vector<double> & Z, const unsigned nTracks) const;
+			    const std::vector<double> & Z) const;
 
   std::vector<double> get_final_axis(double thetaInit, double phiInit, const std::vector<double> &  X,
-			  const std::vector<double> & Y, const std::vector<double> & Z,
-			  const unsigned nTracks) const;
+			  const std::vector<double> & Y, const std::vector<double> & Z) const;
 
   std::vector<double> get_axis(double theta,double phi) const; // take care of memory
 };
