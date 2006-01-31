@@ -6,7 +6,7 @@
 // Implementation:
 //
 // Original Author:  Jim Kowalkowski
-// $Id: Memory.cc,v 1.1 2006/01/30 05:09:24 jbk Exp $
+// $Id: Memory.cc,v 1.2 2006/01/31 03:45:07 jbk Exp $
 //
 
 #include "FWCore/Services/src/Memory.h"
@@ -204,6 +204,7 @@ namespace edm {
     void SimpleMemoryCheck::postEventProcessing(const Event& e,
 						const EventSetup&)
     {
+	  ++count_;
     }
 
     void SimpleMemoryCheck::preModule(const ModuleDescription& md)
@@ -230,7 +231,6 @@ namespace edm {
 	  
 	  max_ = *current_;
 	}
-	  ++count_;
 
     }
 
