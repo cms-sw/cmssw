@@ -1,0 +1,10 @@
+
+<export>
+<lib name=GeometryMTCCTrackerCommonData>
+</export>
+
+<use name=DetectorDescription/Parser>
+<use name=Geometry/TrackerCommonData>
+
+# Build a SEAL plugin:
+<Flags SEAL_PLUGIN_NAME="GeometryMTCCTrackerCommonData">
