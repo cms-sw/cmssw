@@ -1,3 +1,6 @@
+** V02-00-00  [Wed Feb  1 03:14:38 2006]
+Move from seal::reflex to ROOT::Reflex
+
 ** V01-00-08  [Wed Jan 18 00:19:44 2006]
 added the declareStreamer call back in to prevent core dumps
 
