@@ -1,3 +1,6 @@
+** V00-01-01  [Wed Feb  1 21:33:34 2006]
+remove unnecessary dependencies
+
 ** V00-01-00  [Wed Jan 25 03:24:56 2006]
 Add source position data unpacker
 
