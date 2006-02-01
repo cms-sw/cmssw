@@ -80,8 +80,9 @@ CaloSamples CaloHitResponse::makeAnalogSignal(const PCaloHit & inputHit) const {
 
   // assume bins count from zero, go for center of bin
   const double tzero = parameters.timePhase() -jitter -
-     BUNCHSPACE*(parameters.binOfMaximum()-0.5);
+     BUNCHSPACE*(parameters.binOfMaximum()-1);
   double binTime = tzero;
+
   CaloSamples result(detId, parameters.readoutFrameSize());
   for(int bin = 0; bin < result.size(); bin++) {
     result[bin] += (*theShape)(binTime)* signal;
