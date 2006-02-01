@@ -5,8 +5,6 @@
 <use name=FWCore/Framework>
 <use name=FWCore/EDProduct>
 <use name=boost>
-<use name=Dictionary/Reflection>
-<use name=Framework/SealKernel>
 
 <export>
   <lib name=RecoTBCaloHcalTBObjectUnpacker>
@@ -16,7 +14,5 @@
   <use name=FWCore/Framework>
   <use name=FWCore/EDProduct>
   <use name=boost>
-  <use name=Dictionary/Reflection>
-  <use name=Framework/SealKernel>
 </export>
 
