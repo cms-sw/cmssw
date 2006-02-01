@@ -1,7 +1,7 @@
 <use name=DataSvc>
-<use name=Dictionary/Reflex>
+<use name=rootrflx>
 <export>
   <use name=DataSvc>
-  <use name=Dictionary/Reflex>
+  <use name=rootrflx>
   <lib name=CondCoreDBCommon>
 </export>

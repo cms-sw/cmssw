@@ -25,7 +25,7 @@ namespace cond{
     }catch (const seal::Exception &e){
       std::cout << "caught seal::Exception: "<< e.what() << std::endl;
     }
-    seal::reflex::Type myclass=seal::reflex::Type::byName(className);
+    ROOT::Reflex::Type myclass=ROOT::Reflex::Type::ByName(className);
     m_token->setDb(fid);
     m_token->setClassID(pool::DbReflex::guid(myclass));
     m_token->setCont(containerName);
