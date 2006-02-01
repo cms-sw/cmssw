@@ -165,12 +165,12 @@ void EcalDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
 // no endcap geometry yet
 //  theEndcapDigitizer->run(theEndcapHits, *endcapResult);
 
-//  CaloDigiCollectionSorter sorter(5);
-//  std::vector<EBDataFrame> sortedDigis = sorter.sortedVector(*barrelResult);
-//  std::cout << "Top 10 EB digis" << std::endl;
-//  for(int i = 0; i < std::min(10,(int) sortedDigis.size()); ++i) {
-//    std::cout << sortedDigis[i];
-//  }
+  CaloDigiCollectionSorter sorter(5);
+  std::vector<EBDataFrame> sortedDigis = sorter.sortedVector(*barrelResult);
+  std::cout << "Top 10 EB digis" << std::endl;
+  for(int i = 0; i < std::min(10,(int) sortedDigis.size()); ++i) {
+    std::cout << sortedDigis[i];
+  }
   // Step D: Put outputs into event
   e.put(barrelResult);
   e.put(endcapResult);
