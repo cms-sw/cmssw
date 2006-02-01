@@ -57,7 +57,9 @@ MuonSensitiveDetector::MuonSensitiveDetector(std::string name,
   } else if (detector->isRpc()) {
     //    cout << "MuonFrameRotation create MuonRpcFrameRotation"<<endl;
     theRotation=new MuonRpcFrameRotation();
-  } 
+  }  else {
+    theRotation = 0;
+  }
 #ifdef DEBUG 
   std::cout << "create MuonSlaveSD"<<std::endl;
 #endif
