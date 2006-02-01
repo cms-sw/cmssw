@@ -1,10 +1,10 @@
 <use name=FWCore/EDProduct>
 <use name=boost>
-<use name=Dictionary/Reflex>
+<use name=rootrflx>
 
 <export>
    <lib name=DataFormatsEcalRawData>
-   <use name=Dictionary/Reflex>
+   <use name=rootrflx>
    <use name=FWCore/EDProduct>
    <use name=boost>
 </export>
