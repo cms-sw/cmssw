@@ -76,12 +76,11 @@ CaloSamples CaloHitResponse::makeAnalogSignal(const PCaloHit & inputHit) const {
 
   double signal = analogSignalAmplitude(hit, parameters);
 
-  //@@ make absolutely sure this time has the bunch spacing folded in!
-  //@@ and get the geometry service, when it's available
-  double jitter = hit.time(); - timeOfFlight(detId);
+  double jitter = hit.time() - timeOfFlight(detId);
 
+  // assume bins count from zero, go for center of bin
   const double tzero = parameters.timePhase() -jitter -
-     BUNCHSPACE*parameters.binOfMaximum();
+     BUNCHSPACE*(parameters.binOfMaximum()-0.5);
   double binTime = tzero;
   CaloSamples result(detId, parameters.readoutFrameSize());
   for(int bin = 0; bin < result.size(); bin++) {
