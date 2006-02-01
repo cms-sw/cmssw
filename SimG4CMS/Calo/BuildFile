@@ -14,7 +14,7 @@
 <use name=geant4>
 <use name=root>
 <use name=DataSvc>
-<use name=Dictionary/Reflex>
+<use name=rootrflx>
 
 <export>
  <lib name=SimG4CMSCalo>
