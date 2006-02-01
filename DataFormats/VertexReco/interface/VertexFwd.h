@@ -5,7 +5,7 @@
 #include "FWCore/EDProduct/interface/RefProd.h"
 #include "FWCore/EDProduct/interface/RefVector.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/Common/interface/ext_collection.h"
+#include "DataFormats/Common/interface/ExtCollection.h"
 
 namespace reco {
   class Vertex;
@@ -17,7 +17,7 @@ namespace reco {
   private:
     TracksRef tracks_;
   };
-  typedef ext_collection<std::vector<Vertex>, VertexRefProds> VertexCollection;
+  typedef edm::ExtCollection<std::vector<Vertex>, VertexRefProds> VertexCollection;
   typedef edm::Ref<VertexCollection> VertexRef;
   typedef edm::RefVector<VertexCollection> VertexRefs;
   typedef VertexRefs::iterator vertex_iterator;

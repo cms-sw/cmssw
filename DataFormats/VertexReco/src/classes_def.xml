@@ -3,9 +3,9 @@
   <class name="reco::Vertex" />
   <class name="reco::VertexRefProds" />
   <class name="std::vector<reco::Vertex>" />
-  <class name="ext_collection<std::vector<reco::Vertex>, reco::VertexRefProds>" />
-  <class name="edm::Wrapper<ext_collection<std::vector<reco::Vertex>, reco::VertexRefProds> >" />
-  <class name="edm::RefProd<ext_collection<std::vector<reco::Vertex>, reco::VertexRefProds> >" />
-  <class name="edm::Ref<ext_collection<std::vector<reco::Vertex>, reco::VertexRefProds>, reco::Vertex>" />
-  <class name="edm::RefVector<ext_collection<std::vector<reco::Vertex>, reco::VertexRefProds>, reco::Vertex>" />
+  <class name="edm::ExtCollection<std::vector<reco::Vertex>, reco::VertexRefProds>" />
+  <class name="edm::Wrapper<edm::ExtCollection<std::vector<reco::Vertex>, reco::VertexRefProds> >" />
+  <class name="edm::RefProd<edm::ExtCollection<std::vector<reco::Vertex>, reco::VertexRefProds> >" />
+  <class name="edm::Ref<edm::ExtCollection<std::vector<reco::Vertex>, reco::VertexRefProds>, reco::Vertex>" />
+  <class name="edm::RefVector<edm::ExtCollection<std::vector<reco::Vertex>, reco::VertexRefProds>, reco::Vertex>" />
 </lcgdict>
