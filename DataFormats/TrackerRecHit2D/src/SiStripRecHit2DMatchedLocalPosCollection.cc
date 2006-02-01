@@ -12,7 +12,7 @@ void SiStripRecHit2DMatchedLocalPosCollection::put(SiStripRecHit2DMatchedLocalPo
   // put in SiStripRecHit2DMatchedLocalPoss from input
   
   // fill input in temporary vector for sorting
-  own_vector<SiStripRecHit2DMatchedLocalPos, ClonePolicy<SiStripRecHit2DMatchedLocalPos> > temporary;
+  Container temporary;
   SiStripRecHit2DMatchedLocalPosCollection::ContainerIterator sort_begin(input.first);
   SiStripRecHit2DMatchedLocalPosCollection::ContainerIterator sort_end(input.second);
   for ( ;sort_begin != sort_end; ++sort_begin ) {

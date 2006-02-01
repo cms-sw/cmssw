@@ -13,8 +13,8 @@
   <class name="std::vector<short>"/>
   <class name="std::vector<SiStripRecHit2DLocalPos*>"/>
   <class name="std::vector<SiStripRecHit2DMatchedLocalPos*>"/>
-  <class name="own_vector<SiStripRecHit2DLocalPos, ClonePolicy<SiStripRecHit2DLocalPos> >"/>
-  <class name="own_vector<SiStripRecHit2DMatchedLocalPos, ClonePolicy<SiStripRecHit2DMatchedLocalPos> >"/>
+  <class name="edm::OwnVector<SiStripRecHit2DLocalPos, edm::ClonePolicy<SiStripRecHit2DLocalPos> >"/>
+  <class name="edm::OwnVector<SiStripRecHit2DMatchedLocalPos, edm::ClonePolicy<SiStripRecHit2DMatchedLocalPos> >"/>
   <class name="std::pair<unsigned int, unsigned int>"/>
   <class name="std::map<unsigned int, std::pair<unsigned int, unsigned int> >"/>
   <class name="SiStripRecHit2DMatchedLocalPosCollection"/>

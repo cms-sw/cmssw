@@ -2,7 +2,7 @@
 #define DATAFORMATS_SISTRIPRECHIT2DMATCHEDLOCALPOSCOLLECTION_H
 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DMatchedLocalPos.h"
-#include "DataFormats/Common/interface/own_vector.h"
+#include "DataFormats/Common/interface/OwnVector.h"
 #include "FWCore/EDProduct/interface/Ref.h"
 #include <vector>
 #include <map>
@@ -11,8 +11,8 @@
 class SiStripRecHit2DMatchedLocalPosCollection {
 
  public:
-
-  typedef own_vector<SiStripRecHit2DMatchedLocalPos,ClonePolicy<SiStripRecHit2DMatchedLocalPos> >::iterator ContainerIterator;
+  typedef edm::OwnVector<SiStripRecHit2DMatchedLocalPos, edm::ClonePolicy<SiStripRecHit2DMatchedLocalPos> > Container;
+  typedef Container::iterator ContainerIterator;
   typedef std::pair<ContainerIterator, ContainerIterator> Range;
   typedef std::pair<unsigned int, unsigned int> IndexRange;
   typedef std::map<unsigned int, IndexRange> Registry;
@@ -25,7 +25,7 @@ class SiStripRecHit2DMatchedLocalPosCollection {
   const std::vector<unsigned int> detIDs() const;
   
  private:
-  mutable own_vector<SiStripRecHit2DMatchedLocalPos, ClonePolicy<SiStripRecHit2DMatchedLocalPos> >  container_;
+  mutable Container container_;
   mutable Registry map_;
 
 };
