@@ -6,8 +6,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store map between detector ID, electronics ID and trigger ID
 $Author: ratnikov
-$Date: 2005/12/05 00:25:36 $
-$Revision: 1.3 $
+$Date: 2005/12/27 23:50:28 $
+$Revision: 1.4 $
 */
 
 #include <vector>
@@ -54,7 +54,6 @@ class HcalElectronicsMap {
   void sortByElectronicsId ();
   void sortByTriggerId ();
   void sort () {sortByElectronicsId ();}
- protected:
   class Item { 
   public:
     Item () {mChId = mElId = mTrigId = 0;}
@@ -67,6 +66,7 @@ class HcalElectronicsMap {
     unsigned long mElId;
     unsigned long mTrigId;
   };
+ protected:
   const Item* findByChId (unsigned long fChId, bool fWarning) const;
   const Item* findByElId (unsigned long fElId, bool fWarning) const;
   const Item* findByTrigId (unsigned long fTrigId, bool fWarning) const;

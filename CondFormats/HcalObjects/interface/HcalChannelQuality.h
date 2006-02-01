@@ -6,8 +6,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store channel quality information
 $Author: ratnikov
-$Date: 2005/10/28 01:37:10 $
-$Revision: 1.1 $
+$Date: 2005/11/02 21:54:11 $
+$Revision: 1.2 $
 */
 
 #include <vector>
@@ -33,7 +33,6 @@ class HcalChannelQuality {
   bool setChannel (unsigned long fId, Quality fQuality = UNKNOWN);
   void sort ();
   static const char* str (Quality fQuality);
- protected:
   class Item {
   public:
     bool operator< (const Item& other) const {return mId < other.mId;}
@@ -41,8 +40,10 @@ class HcalChannelQuality {
     unsigned long mId;
     unsigned mQuality;
   };
+ protected:
   std::vector<Item> mItems;
   bool mSorted;
 };
 
 #endif
+
