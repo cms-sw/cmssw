@@ -14,13 +14,15 @@ class CaloValidationStatistics
 public:
   CaloValidationStatistics(std::string name, float expectedMean, float expectedRMS);
 
-  void addEntry(float value);
+  void addEntry(float value, float weight=1.);
 
   std::string name() const {return name_;}
 
   float mean() const;
 
   float RMS() const;
+
+  float weightedMean() const;
 
   float expectedMean() const {return expectedMean_;}
 
@@ -35,6 +37,8 @@ private:
   float expectedRMS_;
   float sum_;
   float sumOfSquares_;
+  float weightedSum_;
+  float sumOfWeights_;
   int n_;
 };
 
