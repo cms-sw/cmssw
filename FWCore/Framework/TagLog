@@ -1,3 +1,6 @@
+** V02-00-00  [Wed Feb  1 03:05:21 2006]
+Move from seal::reflex to ROOT::Reflex
+
 ** V01-07-00  [Mon Jan 30 16:25:05 2006]
 Add TriggerResults
 
