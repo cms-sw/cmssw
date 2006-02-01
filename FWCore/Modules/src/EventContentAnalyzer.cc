@@ -12,7 +12,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep 19 11:47:28 CEST 2005
-// $Id: EventContentAnalyzer.cc,v 1.11 2006/01/16 02:46:35 chrjones Exp $
+// $Id: EventContentAnalyzer.cc,v 1.12 2006/01/24 21:00:49 chrjones Exp $
 //
 //
 
@@ -59,26 +59,26 @@ std::string formatClassName(const std::string& iName) {
 static const char* kNameValueSep = "=";
 ///convert the object information to the correct type and print it
 template<typename T>
-static void doPrint(const std::string&iName,const seal::reflex::Object& iObject, const std::string& iIndent) {
-   std::cout << iIndent<< iName <<kNameValueSep<<*reinterpret_cast<T*>(iObject.address())<<"\n";
+static void doPrint(const std::string&iName,const ROOT::Reflex::Object& iObject, const std::string& iIndent) {
+   std::cout << iIndent<< iName <<kNameValueSep<<*reinterpret_cast<T*>(iObject.Address())<<"\n";
 };
 
 template<>
-static void doPrint<char>(const std::string&iName,const seal::reflex::Object& iObject, const std::string& iIndent) {
-   std::cout << iIndent<< iName <<kNameValueSep<<static_cast<int>(*reinterpret_cast<char*>(iObject.address()))<<"\n";
+static void doPrint<char>(const std::string&iName,const ROOT::Reflex::Object& iObject, const std::string& iIndent) {
+   std::cout << iIndent<< iName <<kNameValueSep<<static_cast<int>(*reinterpret_cast<char*>(iObject.Address()))<<"\n";
 };
 template<>
-static void doPrint<unsigned char>(const std::string&iName,const seal::reflex::Object& iObject, const std::string& iIndent) {
-   std::cout << iIndent<< iName <<kNameValueSep<<static_cast<unsigned int>(*reinterpret_cast<unsigned char*>(iObject.address()))<<"\n";
+static void doPrint<unsigned char>(const std::string&iName,const ROOT::Reflex::Object& iObject, const std::string& iIndent) {
+   std::cout << iIndent<< iName <<kNameValueSep<<static_cast<unsigned int>(*reinterpret_cast<unsigned char*>(iObject.Address()))<<"\n";
 };
 
 template<>
-static void doPrint<bool>(const std::string&iName,const seal::reflex::Object& iObject, const std::string& iIndent) {
-   std::cout << iIndent<< iName <<kNameValueSep<<((*reinterpret_cast<bool*>(iObject.address()))?"true":"false")<<"\n";
+static void doPrint<bool>(const std::string&iName,const ROOT::Reflex::Object& iObject, const std::string& iIndent) {
+   std::cout << iIndent<< iName <<kNameValueSep<<((*reinterpret_cast<bool*>(iObject.Address()))?"true":"false")<<"\n";
 };
 
 
-typedef void(*FunctionType)(const std::string&,const seal::reflex::Object&, const std::string&);
+typedef void(*FunctionType)(const std::string&,const ROOT::Reflex::Object&, const std::string&);
 typedef std::map<std::string, FunctionType> TypeToPrintMap;
 
 template<typename T>
@@ -87,9 +87,9 @@ static void addToMap(TypeToPrintMap& iMap){
 }
 
 static bool printAsBuiltin(const std::string& iName,
-                           const seal::reflex::Object iObject,
+                           const ROOT::Reflex::Object iObject,
                            const std::string& iIndent){
-   typedef void(*FunctionType)(const std::string&,const seal::reflex::Object&, const std::string&);
+   typedef void(*FunctionType)(const std::string&,const ROOT::Reflex::Object&, const std::string&);
    typedef std::map<std::string, FunctionType> TypeToPrintMap;
    static TypeToPrintMap s_map;
    static bool isFirst = true;
@@ -107,7 +107,7 @@ static bool printAsBuiltin(const std::string& iName,
       addToMap<double>(s_map);
       isFirst=false;
    }
-   TypeToPrintMap::iterator itFound =s_map.find(iObject.type().typeInfo().name());
+   TypeToPrintMap::iterator itFound =s_map.find(iObject.TypeOf().TypeInfo().name());
    if(itFound == s_map.end()){
       
       return false;
@@ -116,24 +116,24 @@ static bool printAsBuiltin(const std::string& iName,
    return true;
 };
 static bool printAsContainer(const std::string& iName,
-                             const seal::reflex::Object& iObject,
+                             const ROOT::Reflex::Object& iObject,
                              const std::string& iIndent,
                              const std::string& iIndentDelta);
 
 static void printObject(const std::string& iName,
-                        const seal::reflex::Object& iObject,
+                        const ROOT::Reflex::Object& iObject,
                         const std::string& iIndent,
                         const std::string& iIndentDelta) {
-   using namespace seal::reflex;
+   using namespace ROOT::Reflex;
    std::string printName = iName;
    Object objectToPrint = iObject;
    std::string indent(iIndent);
-   if(iObject.type().isPointer()) {
-     std::cout<<iIndent<<iName<<kNameValueSep<<formatClassName(iObject.type().name())<<std::hex<<iObject.address()<<std::dec<<"\n";
-      Type pointedType = iObject.type().toType();
-      if(seal::reflex::Type::byName("void") == pointedType ||
-         pointedType.isPointer() ||
-         iObject.address()==0) {
+   if(iObject.TypeOf().IsPointer()) {
+     std::cout<<iIndent<<iName<<kNameValueSep<<formatClassName(iObject.TypeOf().Name())<<std::hex<<iObject.Address()<<std::dec<<"\n";
+      Type pointedType = iObject.TypeOf().ToType();
+      if(ROOT::Reflex::Type::ByName("void") == pointedType ||
+         pointedType.IsPointer() ||
+         iObject.Address()==0) {
          return;
       }
       return;
@@ -141,20 +141,20 @@ static void printObject(const std::string& iName,
        This code causes seg-faults.  Needs further work before deployment.
        
       //have the code that follows print the contents of the data to which the pointer points
-      objectToPrint = seal::reflex::Object(pointedType, *reinterpret_cast<void**>(iObject.address()));
+      objectToPrint = ROOT::Reflex::Object(pointedType, *reinterpret_cast<void**>(iObject.Address()));
       objectToPrint = Object(objectToPrint.castObject(objectToPrint.dynamicType()));
       printName = std::string("*")+iName;
       indent +=iIndentDelta;
        */
    }
-   std::string typeName(objectToPrint.type().name());
+   std::string typeName(objectToPrint.TypeOf().Name());
    if(typeName.empty()){
       typeName="<unknown>";
    }
 
    //see if we are dealing with a typedef
-   if(objectToPrint.type().isTypedef()){
-     objectToPrint = Object(objectToPrint.type().toType(),objectToPrint.address());
+   if(objectToPrint.TypeOf().IsTypedef()){
+     objectToPrint = Object(objectToPrint.TypeOf().ToType(),objectToPrint.Address());
    } 
    if(printAsBuiltin(printName,objectToPrint,indent)) {
       return;
@@ -166,38 +166,38 @@ static void printObject(const std::string& iName,
    std::cout<<indent<<printName<<" "<<formatClassName(typeName)<<"\n";
    indent+=iIndentDelta;
    //print all the data members
-   for(seal::reflex::member_iterator itMember = objectToPrint.type().dataMember_begin();
-       itMember != objectToPrint.type().dataMember_end();
+   for(ROOT::Reflex::Member_Iterator itMember = objectToPrint.TypeOf().DataMember_Begin();
+       itMember != objectToPrint.TypeOf().DataMember_End();
        ++itMember){
-      //std::cout <<"     debug "<<itMember->name()<<" "<<itMember->type().name()<<"\n";
+      //std::cout <<"     debug "<<itMember->Name()<<" "<<itMember->TypeOf().Name()<<"\n";
       try {
-         printObject( itMember->name(),
-                      itMember->get( objectToPrint),
+         printObject( itMember->Name(),
+                      itMember->Get( objectToPrint),
                       indent,
                       iIndentDelta);
       }catch(std::exception& iEx) {
-	std::cout <<indent<<itMember->name()<<" <exception caught("
+	std::cout <<indent<<itMember->Name()<<" <exception caught("
 		  <<iEx.what()<<")>\n";
       }
       catch(...) {
-	std::cout <<indent<<itMember->name()<<"<unknown exception caught>"<<"\n";
+	std::cout <<indent<<itMember->Name()<<"<unknown exception caught>"<<"\n";
       }
    }
 };
 
 static bool printAsContainer(const std::string& iName,
-                             const seal::reflex::Object& iObject,
+                             const ROOT::Reflex::Object& iObject,
                              const std::string& iIndent,
                              const std::string& iIndentDelta){
-   using namespace seal::reflex;
+   using namespace ROOT::Reflex;
    Object sizeObj;
    try {
-      sizeObj = iObject.invoke("size");
-      assert(sizeObj.type().typeInfo() == typeid(size_t));
-      size_t size = *reinterpret_cast<size_t*>(sizeObj.address());
+      sizeObj = iObject.Invoke("size");
+      assert(sizeObj.TypeOf().TypeInfo() == typeid(size_t));
+      size_t size = *reinterpret_cast<size_t*>(sizeObj.Address());
       Member atMember;
       try {
-         atMember = iObject.type().member("at");
+         atMember = iObject.TypeOf().MemberByName("at");
       } catch(const std::exception& x) {
          //std::cerr <<"could not get 'at' member because "<< x.what()<<std::endl;
          return false;
@@ -208,7 +208,7 @@ static bool printAsContainer(const std::string& iName,
       for(size_t index = 0; index != size; ++index) {
          std::ostringstream sizeS;
          sizeS << "["<<index<<"]";
-         contained = atMember.invoke(iObject, Tools::makeVector(static_cast<void*>(&index)));
+         contained = atMember.Invoke(iObject, Tools::MakeVector(static_cast<void*>(&index)));
          //std::cout <<"invoked 'at'"<<std::endl;
          try {
             printObject(sizeS.str(),contained,indexIndent,iIndentDelta);

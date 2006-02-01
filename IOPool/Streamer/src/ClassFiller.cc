@@ -19,9 +19,9 @@ using namespace std;
 namespace edm {
 namespace {
 
-  string getName(seal::reflex::Type& cc)
+  string getName(ROOT::Reflex::Type& cc)
   {
-    return cc.name(seal::reflex::SCOPED);
+    return cc.Name(ROOT::Reflex::SCOPED);
   }
 
   pool::IClassLoader* getClassLoader() {
@@ -50,18 +50,18 @@ namespace {
 
 
   // ---------------------
-  void fillChildren(pool::IClassLoader* cl, seal::reflex::Type cc, int rcnt)
+  void fillChildren(pool::IClassLoader* cl, ROOT::Reflex::Type cc, int rcnt)
   {
     rcnt--;
     FDEBUG(9) << "JBK: parent - " << getName(cc) << endl;
 
-    while(cc.isPointer() == true || cc.isArray() == true)
+    while(cc.IsPointer() == true || cc.IsArray() == true)
       {
 	//seal::Reflex::Pointer rp(*cc);
-	cc = cc.toType();
+	cc = cc.ToType();
       }
 
-    if(cc.isFundamental()) return;
+    if(cc.IsFundamental()) return;
 
     // this probably need to be corrected also (JBK)
     if(getName(cc).find("std::basic_string<char>")==0 ||
@@ -78,27 +78,27 @@ namespace {
 
     if(rcnt)
       {
-	if(cc.isTemplateInstance())
+	if(cc.IsTemplateInstance())
 	  {
 	    FDEBUG(9) << "JBK: Got template instance " << getName(cc) << endl;
-	    int cnt = cc.templateArgumentCount();
+	    int cnt = cc.TemplateArgumentSize();
 	    for(int i=0;i<cnt;++i)
 	      {
-		seal::reflex::Type t = cc.templateArgument(i);
+		ROOT::Reflex::Type t = cc.TemplateArgumentAt(i);
 		fillChildren(cl,t,rcnt);
 	      }
 	  }
 
 	FDEBUG(9) << "JBK: declare members " << getName(cc) << endl;
 
-	int cnt = cc.memberCount();
+	int cnt = cc.MemberSize();
 	for(int i=0;i<cnt;++i)
 	  {
-	    seal::reflex::Member m = cc.member(i);
-	    if(m.isTransient() || m.isStatic()) continue;
-	    if(!m.isDataMember()) continue;
+	    ROOT::Reflex::Member m = cc.MemberAt(i);
+	    if(m.IsTransient() || m.IsStatic()) continue;
+	    if(!m.IsDataMember()) continue;
 
-	    seal::reflex::Type t = m.type();
+	    ROOT::Reflex::Type t = m.TypeOf();
 	    fillChildren(cl,t,rcnt);
 	  }
       }
@@ -156,7 +156,7 @@ namespace edm {
     seal::PluginCapabilities::get()->load(fname);
 	
     try {
-      seal::reflex::Type cc = seal::reflex::Type::byName(name);
+      ROOT::Reflex::Type cc = ROOT::Reflex::Type::ByName(name);
 
       // next two lines are for explicitly causing every object to get defined
       pool::IClassLoader* cl = getClassLoader();
@@ -181,7 +181,7 @@ namespace edm {
   void doBuildRealData(const std::string& name)
   {
   	FDEBUG(3) << "doing BuildRealData for " << name << "\n";
-      seal::reflex::Type cc = seal::reflex::Type::byName(name);
+      ROOT::Reflex::Type cc = ROOT::Reflex::Type::ByName(name);
       TClass* ttest = TClass::GetClass(getName(cc).c_str());
       if(ttest != 0) 
 	    ttest->BuildRealData();
@@ -208,8 +208,8 @@ namespace edm {
   }
 
   namespace {
-    seal::reflex::Type const getReflectClass(std::type_info const& ti) {
-      seal::reflex::Type const typ = seal::reflex::Type::byTypeInfo(ti);
+    ROOT::Reflex::Type const getReflectClass(std::type_info const& ti) {
+      ROOT::Reflex::Type const typ = ROOT::Reflex::Type::ByTypeInfo(ti);
       return typ;
     }
 
@@ -234,7 +234,7 @@ namespace edm {
 
   // ---------------------
   TClass* getTClass(std::type_info const& ti) {
-    seal::reflex::Type const typ = getReflectClass(ti);
-    return getRootClass(typ.name(seal::reflex::SCOPED));
+    ROOT::Reflex::Type const typ = getReflectClass(ti);
+    return getRootClass(typ.Name(ROOT::Reflex::SCOPED));
   }
 }

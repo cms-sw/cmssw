@@ -10,7 +10,7 @@
  Description: Allows interaction with data in the Event without actually using the C++ class
 
  Usage:
-    The GenericHandle allows one to get data back from the edm::Event as a seal::reflex::Object instead
+    The GenericHandle allows one to get data back from the edm::Event as a ROOT::Reflex::Object instead
   of as the actual C++ class type.
 
   //make a handle to hold an instance of 'MyClass'
@@ -24,7 +24,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jan  7 15:40:43 EST 2006
-// $Id$
+// $Id: GenericHandle.h,v 1.1 2006/01/10 17:21:35 chrjones Exp $
 //
 
 // system include files
@@ -47,29 +47,29 @@ class Handle<GenericObject> {
 public:
       ///Throws exception if iName is not a known C++ class type
       Handle(const std::string& iName) : 
-        type_(seal::reflex::Type::byName(iName)),prov_(0),id_(0) {
-           if(type_ == seal::reflex::Type()) {
+        type_(ROOT::Reflex::Type::ByName(iName)),prov_(0),id_(0) {
+           if(type_ == ROOT::Reflex::Type()) {
               throw edm::Exception(edm::errors::NotFound)<<"Handle<GenericObject> told to use uknown type '"<<iName<<"'.\n Please check spelling or that a module uses this type in the job.";
            }
-           if(type_.isTypedef()){
-              //For a 'reflex::Typedef' the 'toType' method returns the actual type
+           if(type_.IsTypedef()){
+              //For a 'Reflex::Typedef' the 'toType' method returns the actual type
               // this is needed since you are now allowed to 'invoke' methods of a 'Typedef'
               // only for a 'real' class
-              type_ = type_.toType();
+              type_ = type_.ToType();
            }
         }
    
    ///Throws exception if iType is invalid
-   Handle(const seal::reflex::Type& iType):
+   Handle(const ROOT::Reflex::Type& iType):
       type_(iType),prov_(0),id_(0) {
-         if(iType == seal::reflex::Type()) {
-            throw edm::Exception(edm::errors::NotFound)<<"Handle<GenericObject> given an invalid seal::reflex::Type";
+         if(iType == ROOT::Reflex::Type()) {
+            throw edm::Exception(edm::errors::NotFound)<<"Handle<GenericObject> given an invalid ROOT::Reflex::Type";
          }
-         if(type_.isTypedef()){
-            //For a 'reflex::Typedef' the 'toType' method returns the actual type
+         if(type_.IsTypedef()){
+            //For a 'Reflex::Typedef' the 'toType' method returns the actual type
             // this is needed since you are now allowed to 'invoke' methods of a 'Typedef'
             // only for a 'real' class
-            type_ = type_.toType();
+            type_ = type_.ToType();
          }
       }
    
@@ -80,8 +80,8 @@ public:
    id_(h.id_)
    { }
    
-   Handle(seal::reflex::Object const& prod, Provenance const* prov):
-   type_(prod.type()),
+   Handle(ROOT::Reflex::Object const& prod, Provenance const* prov):
+   type_(prod.TypeOf()),
    prod_(prod),
    prov_(prov),
    id_(prov->event.productID_) { 
@@ -113,18 +113,18 @@ public:
       return prod_ && 0!= prov_;
    }
       
-   seal::reflex::Object const* product() const {return &prod_;}
-   seal::reflex::Object const* operator->() const {return &prod_;}
-   seal::reflex::Object const& operator*() const {return prod_;}
+   ROOT::Reflex::Object const* product() const {return &prod_;}
+   ROOT::Reflex::Object const* operator->() const {return &prod_;}
+   ROOT::Reflex::Object const& operator*() const {return prod_;}
    
-   seal::reflex::Type const& type() const {return type_;}
+   ROOT::Reflex::Type const& type() const {return type_;}
    Provenance const* provenance() const {return prov_;}
    
    ProductID id() const {return id_;}
       
 private:
-   seal::reflex::Type type_;
-   seal::reflex::Object prod_;
+   ROOT::Reflex::Type type_;
+   ROOT::Reflex::Object prod_;
    Provenance const* prov_;    
    ProductID id_;
 };
@@ -135,7 +135,7 @@ typedef Handle<GenericObject> GenericHandle;
 void convert_handle(BasicHandle const& orig,
                     Handle<GenericObject>& result)
 {
-   using namespace seal::reflex;
+   using namespace ROOT::Reflex;
    EDProduct const* originalWrap = orig.wrapper();
    if (originalWrap == 0)
       throw edm::Exception(edm::errors::InvalidReference,"NullPointer")
@@ -143,29 +143,29 @@ void convert_handle(BasicHandle const& orig,
 
    //Since a pointer to an EDProduct is not necessarily the same as a pointer to the actual type
    // (compilers are allowed to offset the two) we must get our object via a two step process
-   Object edproductObject(Type::byTypeInfo(typeid(EDProduct)), const_cast<EDProduct*>(originalWrap));
+   Object edproductObject(Type::ByTypeInfo(typeid(EDProduct)), const_cast<EDProduct*>(originalWrap));
    assert(edproductObject != Object());
 
-   Object wrap(edproductObject.castObject(edproductObject.dynamicType()));
+   Object wrap(edproductObject.CastObject(edproductObject.DynamicType()));
    assert(wrap != Object());
    
-   Object product(wrap.get("obj"));
+   Object product(wrap.Get("obj"));
    if(!product){
       throw edm::Exception(edm::errors::LogicError)<<"GenericObject could not find 'obj' member";
    }
-   if(product.type().isTypedef()){
-      //For a 'reflex::Typedef' the 'toType' method returns the actual type
+   if(product.TypeOf().IsTypedef()){
+      //For a 'Reflex::Typedef' the 'ToType' method returns the actual type
       // this is needed since you are now allowed to 'invoke' methods of a 'Typedef'
       // only for a 'real' class
-      product = Object(product.type().toType(), product.address());
-      assert(!product.type().isTypedef());
+      product = Object(product.TypeOf().ToType(), product.Address());
+      assert(!product.TypeOf().IsTypedef());
    }
    //NOTE: comparing on type doesn't seem to always work! The problem appears to be if we have a typedef
-   if(product.type()!=result.type() &&
-      !product.type().isEquivalentTo(result.type()) &&
-      product.type().typeInfo()!= result.type().typeInfo()){
-      throw edm::Exception(edm::errors::LogicError)<<"GenericObject asked for "<<result.type().name()
-      <<" but was given a "<<product.type().name();
+   if(product.TypeOf()!=result.type() &&
+      !product.TypeOf().IsEquivalentTo(result.type()) &&
+      product.TypeOf().TypeInfo()!= result.type().TypeInfo()){
+      throw edm::Exception(edm::errors::LogicError)<<"GenericObject asked for "<<result.type().Name()
+      <<" but was given a "<<product.TypeOf().Name();
    }
    
    Handle<GenericObject> h(product, orig.provenance());
@@ -179,7 +179,7 @@ edm::Event::getByLabel<GenericObject>(std::string const& label,
                                       const std::string& productInstanceName,
                                       Handle<GenericObject>& result) const
 {
-   BasicHandle bh = this->getByLabel_(TypeID(result.type().typeInfo()), label, productInstanceName);
+   BasicHandle bh = this->getByLabel_(TypeID(result.type().TypeInfo()), label, productInstanceName);
    gotProductIDs_.push_back(bh.id());
    convert_handle(bh, result);  // throws on conversion error
 }

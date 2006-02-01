@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
   
-$Id: TypeID.cc,v 1.11 2005/11/11 20:55:49 chrjones Exp $
+$Id: TypeID.cc,v 1.12 2006/01/12 22:07:42 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <ostream>
@@ -17,12 +17,12 @@ namespace edm {
 
   std::string
   TypeID::className() const {
-    seal::reflex::Type t = seal::reflex::Type::byTypeInfo(typeInfo());
+    ROOT::Reflex::Type t = ROOT::Reflex::Type::ByTypeInfo(typeInfo());
     if (!bool(t)) {
       throw edm::Exception(errors::ProductNotFound,"NoMatch")
         << "TypeID::className: No dictionary for class " << name() << '\n';
     }
-    return t.name(seal::reflex::SCOPED);
+    return t.Name(ROOT::Reflex::SCOPED);
   }
 
   std::string 
