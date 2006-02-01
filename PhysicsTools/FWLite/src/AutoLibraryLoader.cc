@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Nov 30 14:55:01 EST 2005
-// $Id: AutoLibraryLoader.cc,v 1.1 2005/12/01 14:56:55 chrjones Exp $
+// $Id: AutoLibraryLoader.cc,v 1.2 2005/12/06 17:07:22 chrjones Exp $
 //
 
 // system include files
@@ -41,7 +41,7 @@ AutoLibraryLoader::AutoLibraryLoader()
 {
    seal::PluginManager::get()->initialise();
    gROOT->AddClassGenerator(this);
-   seal::cintex::Cintex::enable();
+   ROOT::Cintex::Cintex::Enable();
 }
 
 
@@ -59,8 +59,8 @@ AutoLibraryLoader::GetClass(const char* classname, Bool_t load)
       //std::cout <<"asking to find "<<cPrefix+classname<<std::endl;
       seal::PluginCapabilities::get()->load(cPrefix+classname);
 
-      seal::reflex::Type t = seal::reflex::Type::byName(classname);
-      if(seal::reflex::Type() != t ) {
+      ROOT::Reflex::Type t = ROOT::Reflex::Type::ByName(classname);
+      if(ROOT::Reflex::Type() != t ) {
 	 //std::cout <<"loaded "<<classname<<std::endl;
 	 return gROOT->GetClass(classname,kFALSE);
       } else {
@@ -69,8 +69,8 @@ AutoLibraryLoader::GetClass(const char* classname, Bool_t load)
 
 	 seal::PluginCapabilities::get()->load(cPrefix+name);
 
-	 seal::reflex::Type t = seal::reflex::Type::byName(classname);
-	 if(seal::reflex::Type() != t ) {
+	 ROOT::Reflex::Type t = ROOT::Reflex::Type::ByName(classname);
+	 if(ROOT::Reflex::Type() != t ) {
 	    //std::cout <<"loaded "<<classname<<std::endl;
 	    return gROOT->GetClass(classname,kFALSE);
 	 }
