@@ -14,10 +14,10 @@ HcalSimParameterMap::HcalSimParameterMap() :
   theHOParameters( 4000., 0.3065, 217., -2, 10, 5, true),
   theHFParameters1(1., 18.93,
                  2.84 , -6,
-                6, 3, false),
+                6, 4, false),
   theHFParameters2(1., 13.93,
                  2.09 , -6,
-                6, 3, false)
+                6, 4, false)
 {
 }
 /*
