@@ -1,3 +1,6 @@
+** V00-02-02  [Wed Feb  1 20:23:28 2006]
+move to ROOT::Reflex; move to CORAL
+
 ** V00-02-01  [Tue Jan 17 10:16:16 2006]
 test duplicate data proxy loading
 
