@@ -1,8 +1,8 @@
-<flags LCGDICT_ARGS="--">
-<use name=Dictionary/Reflex>
+<flags GENREFLEX_ARGS="--">
+<use name=rootrflx>
 <use name=FWCore/Framework>
 <export>
-  <use name=Dictionary/Reflex>
+  <use name=rootrflx>
   <use name=FWCore/Framework>
   <lib name=CondFormatsSiStripObjects>
 </export>
