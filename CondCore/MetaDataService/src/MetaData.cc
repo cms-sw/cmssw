@@ -1,112 +1,122 @@
 #include "CondCore/MetaDataService/interface/MetaData.h"
 #include "CondCore/MetaDataService/interface/MetaDataNames.h"
-#include "RelationalAccess/RelationalException.h"
 #include "RelationalAccess/IRelationalService.h"
+#include "RelationalAccess/RelationalServiceException.h"
 #include "RelationalAccess/IRelationalDomain.h"
-#include "RelationalAccess/IRelationalSession.h"
-#include "RelationalAccess/IRelationalTransaction.h"
-#include "RelationalAccess/IRelationalSchema.h"
-#include "RelationalAccess/IRelationalTable.h"
-#include "RelationalAccess/RelationalEditableTableDescription.h"
-#include "RelationalAccess/IRelationalTablePrivilegeManager.h"
-#include "RelationalAccess/IRelationalPrimaryKey.h"
-#include "RelationalAccess/IRelationalCursor.h"
-#include "RelationalAccess/IRelationalQuery.h"
-#include "RelationalAccess/IRelationalTableDataEditor.h"
-#include "AttributeList/AttributeList.h"
-#include "POOLCore/POOLContext.h"
+#include "RelationalAccess/SchemaException.h"
+#include "RelationalAccess/ISession.h"
+#include "RelationalAccess/ITransaction.h"
+#include "RelationalAccess/ISchema.h"
+#include "RelationalAccess/ITable.h"
+#include "RelationalAccess/TableDescription.h"
+#include "RelationalAccess/ITablePrivilegeManager.h"
+#include "RelationalAccess/IPrimaryKey.h"
+#include "RelationalAccess/ICursor.h"
+#include "RelationalAccess/IQuery.h"
+#include "RelationalAccess/ITableDataEditor.h"
+#include "CoralBase/Exception.h"
+#include "CoralBase/AttributeList.h"
+#include "CoralBase/AttributeSpecification.h"
+#include "CoralBase/Attribute.h"
+#include "PluginManager/PluginManager.h"
 #include "SealKernel/Context.h"
-#include "SealKernel/Service.h"
+#include "SealKernel/ComponentLoader.h"
+
 #include "FWCore/Utilities/interface/Exception.h"
-cond::MetaData::MetaData(const std::string& connectionString):m_con(connectionString),m_table(0){
-  pool::POOLContext::loadComponent( "POOL/Services/RelationalService" );
-  m_log.reset(new seal::MessageStream(pool::POOLContext::context(), "MetaDataService" ));  
-  seal::IHandle<pool::IRelationalService> serviceHandle=pool::POOLContext::context()->query<pool::IRelationalService>( "POOL/Services/RelationalService" );
-  if ( ! serviceHandle ) {
-    throw cms::Exception( "cond::MetaData::MetaData: Could not retrieve the relational service" );
+cond::MetaData::MetaData(const std::string& connectionString):m_con(connectionString),m_table(0),m_context(new seal::Context){
+  seal::PluginManager* pm = seal::PluginManager::get();
+  pm->initialise();
+  seal::Handle<seal::ComponentLoader> loader = new seal::ComponentLoader( m_context );
+  loader->load( "CORAL/Services/RelationalService" );
+  std::vector< seal::IHandle<coral::IRelationalService> > v_svc;
+  m_context->query( v_svc );
+  if ( v_svc.empty() ) {
+    throw cms::Exception( "could not locate the coral relational service" );
   }
-  pool::IRelationalDomain& domain = serviceHandle->domainForConnection(m_con);
+  seal::IHandle<coral::IRelationalService>& relationalService = v_svc.front();
+  coral::IRelationalDomain& domain = relationalService->domainForConnection(m_con);
   m_session.reset( domain.newSession( m_con ) );
-  if ( ! m_session->connect() ) {
+  try{
+    m_session->connect();
+    m_session->startUserSession();
+  }catch(...){
     throw cms::Exception( "cond::MetaData::MetaData Could not connect to the database server." );
   }
 }
 
 cond::MetaData::~MetaData(){
-  (*m_log)<<seal::Msg::Debug<< "Disconnecting..." << seal::flush;
+  //(*m_log)<<seal::Msg::Debug<< "Disconnecting..." << seal::flush;
   m_session->disconnect();
+  delete m_context;
 }
 
 bool cond::MetaData::addMapping(const std::string& name, const std::string& iovtoken){
-  (*m_log)<<seal::Msg::Debug<<"cond::MetaData::addMapping"<<seal::flush;
-  if ( ! m_session->transaction().start() ) {
+  //(*m_log)<<seal::Msg::Debug<<"cond::MetaData::addMapping"<<seal::flush;
+  try{
+    m_session->transaction().start();
+  }catch(...){
     throw cms::Exception( "cond::MetaData::addMapping Could not start transaction");
   }
-  if(!m_session->userSchema().existsTable(cond::MetaDataNames::metadataTable())){
-    this->createTable(cond::MetaDataNames::metadataTable());
-  }else{
-    m_table=&(m_session->userSchema().tableHandle(cond::MetaDataNames::metadataTable()));
-  }
-  pool::AttributeList data( m_table->description().columnNamesAndTypes() );
-  pool::IRelationalTableDataEditor& dataEditor = m_table->dataEditor();
-  data[cond::MetaDataNames::tagColumn()].setValue<std::string>(name);
-  data[cond::MetaDataNames::tokenColumn()].setValue<std::string>(iovtoken);
-  bool status= dataEditor.insertNewRow( data );
-  if ( ! m_session->transaction().commit() ) {
+  try{
+    if(!m_session->nominalSchema().existsTable(cond::MetaDataNames::metadataTable())){
+      this->createTable(cond::MetaDataNames::metadataTable());
+    }else{
+      m_table=&(m_session->nominalSchema().tableHandle(cond::MetaDataNames::metadataTable()));
+    }
+    coral::AttributeList rowBuffer;
+    coral::ITableDataEditor& dataEditor = m_table->dataEditor();
+    dataEditor.rowBuffer( rowBuffer );
+    rowBuffer[cond::MetaDataNames::tagColumn()].data<std::string>()=name;
+    rowBuffer[cond::MetaDataNames::tokenColumn()].data<std::string>()=iovtoken;
+    dataEditor.insertRow( rowBuffer );
+    m_session->transaction().commit() ;
+  }catch(...){
     throw cms::Exception("cond::MetaData::addMapping Could not commit the transaction");
   }
-  return status;
+  return true;
 }
 
 const std::string cond::MetaData::getToken( const std::string& name ){
-  (*m_log)<<seal::Msg::Debug<<"cond::MetaData::getToken "<<name<<seal::flush;
-  if ( ! m_session->transaction().start() ) {
+  //(*m_log)<<seal::Msg::Debug<<"cond::MetaData::getToken "<<name<<seal::flush;
+  try{
+    m_session->transaction().start();
+  }catch(...){
     throw cms::Exception( "cond::MetaData::getToken: Could not start a new transaction" );
   }
   if(!m_table){
-    m_table=&(m_session->userSchema().tableHandle( cond::MetaDataNames::metadataTable() ));
+    m_table=&(m_session->nominalSchema().tableHandle( cond::MetaDataNames::metadataTable() ));
   }
   std::string iovtoken;
-  std::auto_ptr< pool::IRelationalQuery > query( m_table->createQuery() );
-  query->setRowCacheSize( 10 );
-  pool::AttributeList emptyBindVariableList;
+  // coral::IQuery* query4 = workingSchema.newQuery();
+  std::auto_ptr< coral::IQuery > query( m_session->nominalSchema().newQuery() );
+  query->setRowCacheSize( 100 );
+  coral::AttributeList emptyBindVariableList;
   std::string condition=cond::MetaDataNames::tagColumn()+"='"+name+"'";
   query->setCondition( condition, emptyBindVariableList );
   query->addToOutputList( cond::MetaDataNames::tokenColumn() );
-  pool::IRelationalCursor& cursor = query->process();
-  if ( cursor.start() ) {
-    while( cursor.next() ) {
-      const pool::AttributeList& row = cursor.currentRow();
-      for ( pool::AttributeList::const_iterator iColumn = row.begin();
-	    iColumn != row.end(); ++iColumn ) {
-	//std::cout << iColumn->spec().name() << " : " << iColumn->getValueAsString() << "\t";
-	iovtoken=iColumn->getValueAsString();
-      }
-      //std::cout << std::endl;
-    }
+  coral::ICursor& cursor = query->execute();
+  while( cursor.next() ) {
+    const coral::AttributeList& row = cursor.currentRow();
+    iovtoken=row[ cond::MetaDataNames::tokenColumn() ].data<std::string>();
   }
-  if ( ! m_session->transaction().commit() ) {
+  try{
+    m_session->transaction().commit();
+  }catch(...){
     throw cms::Exception( "cond::MetaData::getToken: Could not commit a transaction" );
   }
   return iovtoken;
 }
 void cond::MetaData::createTable(const std::string& tabname){
-  //if ( ! m_session->transaction().start() ) {
-  //  throw cms::Exception( "cond::MetaData::createTable Could not start transaction." );
-  //}
-  pool::IRelationalSchema& schema=m_session->userSchema();
-  seal::IHandle<pool::IRelationalService> serviceHandle=pool::POOLContext::context()->query<pool::IRelationalService>( "POOL/Services/RelationalService" );
-  pool::IRelationalDomain& domain = serviceHandle->domainForConnection(m_con);
-  std::auto_ptr< pool::IRelationalEditableTableDescription > desc( new pool::RelationalAccess::RelationalEditableTableDescription( *m_log, domain.flavorName() ) );
-  desc->insertColumn(  cond::MetaDataNames::tagColumn(), pool::AttributeStaticTypeInfo<std::string>::type_name() );
-  desc->insertColumn( cond::MetaDataNames::tokenColumn(), pool::AttributeStaticTypeInfo<std::string>::type_name() );
+  coral::ISchema& schema=m_session->nominalSchema();
+  coral::TableDescription description;
+  description.setName( tabname );
+  description.insertColumn(  cond::MetaDataNames::tagColumn(), coral::AttributeSpecification::typeNameForId( typeid(std::string)) );
+  description.insertColumn( cond::MetaDataNames::tokenColumn(), coral::AttributeSpecification::typeNameForId( typeid(std::string)) );
   std::vector<std::string> cols;
   cols.push_back( cond::MetaDataNames::tagColumn() );
-  desc->setPrimaryKey(cols);
-  desc->setNotNullConstraint( cond::MetaDataNames::tokenColumn() );
-  m_table=&(schema.createTable(tabname,*desc));  
-  m_table->privilegeManager().grantToPublic( pool::IRelationalTablePrivilegeManager::SELECT );
-  //if ( ! m_session->transaction().commit() ) {
-  //  throw cms::Exception( "cond::MetaData::createTable: Could not commit a transaction" );
-  //}
+  description.setPrimaryKey(cols);
+  description.setNotNullConstraint( cond::MetaDataNames::tokenColumn() );
+  coral::ITable& table=schema.createTable(description);
+  table.privilegeManager().grantToPublic( coral::ITablePrivilegeManager::Select);
+  m_table=&table;
 }

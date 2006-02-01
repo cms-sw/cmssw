@@ -2,10 +2,13 @@
 #define COND_METADATA_H
 #include <string>
 #include <memory>
-#include "RelationalAccess/IRelationalSession.h"
-#include "SealKernel/MessageStream.h"
-namespace pool{
-  class IRelationalTable;
+#include "RelationalAccess/ISession.h"
+//#include "SealKernel/MessageStream.h"
+namespace seal{
+  class Context;
+}
+namespace coral{
+  class ITable;
 }
 namespace cond{
   class MetaData {
@@ -17,9 +20,10 @@ namespace cond{
   private:
     void createTable(const std::string& tabname);
     std::string m_con;
-    std::auto_ptr< pool::IRelationalSession > m_session;
-    std::auto_ptr< seal::MessageStream > m_log;
-    pool::IRelationalTable* m_table;
+    std::auto_ptr< coral::ISession > m_session;
+    //std::auto_ptr< seal::MessageStream > m_log;
+    coral::ITable* m_table;
+    seal::Context* m_context;
   };
 }
 #endif
