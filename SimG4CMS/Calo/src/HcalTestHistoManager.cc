@@ -6,7 +6,7 @@
 #include "SimG4CMS/Calo/interface/HcalTestHistoManager.h"
 #include "SimG4CMS/Calo/interface/HcalTestHistoClass.h"
 
-#include "Reflection/Class.h"
+//#include "Reflection/Class.h"
 #include "PluginManager/PluginManager.h"
 #include "POOLCore/Token.h"
 #include "FileCatalog/URIParser.h"
@@ -28,7 +28,7 @@
 HcalTestHistoManager::HcalTestHistoManager(int iv, const std::string & file) : 
   verbosity(iv), svc(pool::DataSvcFactory::instance(&lcat)),
   placeH(file, pool::DatabaseSpecification::PFN, "HcalTestAnalysis", 
-	 seal::reflex::Type(), pool::ROOTTREE_StorageType.type()), h(*svc) {
+	  ROOT::Reflex::Type(), pool::ROOTTREE_StorageType.type()), h(*svc) {
   
   pool::URIParser p("file:HcalTestHistoCatalog.cat");
   p.parse();
