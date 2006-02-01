@@ -82,23 +82,38 @@ EcalCoder::encode(const CaloSamples& timeframe) const
   }
 
 
-  for (int i = 0 ; i < timeframe.size() ; i++)
+  int wait = 0 ;
+  int gainId = NGAINS - 1 ;
+  for (int i = 0 ; i < timeframe.size() ; ++i)
   {    
      int adc = MAXINT;
-     int gainId = NGAINS;
+     if (wait == 0) gainId = NGAINS - 1;
 
      // see which gain bin it fits in
-     int igain = NGAINS;
-     bool found = false;
-     while(!found && igain != 0) {
+     int igain = gainId + 1 ;
+     while (igain != 0) {
        --igain;
        int tmpadc = int((timeframe[i]+pedestals[igain])/LSB[igain]);
        if(tmpadc <= MAXINT ) {
          adc = tmpadc;
-         gainId = igain;
-         found = true;
+         break ;
        }
      }
+     
+     if (igain == NGAINS - 1) 
+       {
+         wait = 0 ;
+         gainId = igain ;
+       }
+     else 
+       {
+         if (igain == gainId) --wait ;
+         else 
+           {
+             wait = 5 ;
+             gainId = igain ;
+           }
+       }
 
      results.push_back(EcalMGPASample(adc, gainId));
   }
