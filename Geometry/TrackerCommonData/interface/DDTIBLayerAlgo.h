@@ -57,6 +57,23 @@ private:
   std::string              ribMat;         //Rib material
   std::vector<double>      ribW;           //Rib width
   std::vector<double>      ribPhi;         //Rib Phi position
+
+  int                      dohmN;              //Number of phi sectors for DOHMs
+  std::vector<double>      dohmList;           //List of DOHMs
+  double                   dohmCarrierW;       //DOHM Carrier Width
+  double                   dohmCarrierT;       //DOHM Carrier Thickness
+  double                   dohmCarrierR;       //DOHM Carrier Radial Height
+  std::string              dohmCarrierMaterial;//DOHM Carrier Material
+  std::string              dohmCableMaterial;  //DOHM Cable Material
+  double                   dohmPrimW;          //DOHM PRIMary Width
+  double                   dohmPrimL;          //DOHM PRIMary Length
+  double                   dohmPrimT;          //DOHM PRIMary Thickness
+  std::string              dohmPrimMaterial;   //DOHM PRIMary Material
+  double                   dohmAuxW;           //DOHM AUXiliary Width
+  double                   dohmAuxL;           //DOHM AUXiliary Length
+  double                   dohmAuxT;           //DOHM AUXiliary Thickness
+  std::string              dohmAuxMaterial;    //DOHM AUXiliary Material
+
 };
 
 #endif

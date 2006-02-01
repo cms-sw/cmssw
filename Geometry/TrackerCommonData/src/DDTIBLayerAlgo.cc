@@ -76,6 +76,47 @@ void DDTIBLayerAlgo::initialize(const DDNumericArguments & nArgs,
   DCOUT('A', "DDTIBLayerAlgo debug: Cylinder Material/thickness " << cylinderMat << " " << cylinderT << " Support Wall Material/" << "Width/Thickness " << supportMat << " " << supportW << " "	<< supportT << " Rib Material " << ribMat << " at " << ribW.size() << " positions with width/phi ");
   for (unsigned int i = 0; i < ribW.size(); i++)
     DCOUT('A', "\t " << i << " " <<  ribW[i] << " " << ribPhi[i]/deg);
+  
+  dohmN               = int(nArgs["DOHMPhiNumber"]);
+  dohmCarrierW        = nArgs["DOHMCarrierWidth"];
+  dohmCarrierT        = nArgs["DOHMCarrierThickness"];
+  dohmCarrierR        = nArgs["DOHMCarrierRadialHeight"];
+  dohmCarrierMaterial = sArgs["DOHMCarrierMaterial"];
+  dohmCableMaterial   = sArgs["DOHMCableMaterial"];
+  dohmPrimW           = nArgs["DOHMPRIMWidth"];
+  dohmPrimL           = nArgs["DOHMPRIMLength"];
+  dohmPrimT           = nArgs["DOHMPRIMThickness"];
+  dohmPrimMaterial    = sArgs["DOHMPRIMMaterial"];
+  dohmAuxW            = nArgs["DOHMAUXWidth"];
+  dohmAuxL            = nArgs["DOHMAUXLength"];
+  dohmAuxT            = nArgs["DOHMAUXThickness"];
+  dohmAuxMaterial     = sArgs["DOHMAUXMaterial"];
+  dohmList            = vArgs["DOHMList"];
+  DCOUT('r', "DDTIBLayerAlgo debug: DOHM PRIMary " << dohmN
+	<< " Width/Length/Thickness " 
+	<< " Material " << dohmPrimMaterial
+	<< dohmPrimW << " " << dohmPrimL << " " << dohmPrimT
+	<< " at positions: ");
+  for(unsigned int i=0; i<dohmList.size(); i++) {
+    if((int)dohmList[i]>0) DCOUT('r', i+1 << ",");
+  }
+  DCOUT('r', "DDTIBLayerAlgo debug: DOHM AUXiliary "
+	<< " Material " << dohmAuxMaterial
+	<< dohmAuxW << " " << dohmAuxL << " " << dohmAuxT
+	<< " at positions: ");
+  for(unsigned int i=0; i<dohmList.size(); i++) {
+    if((int)dohmList[i]==2) DCOUT('r', i+1 << ",");
+  }
+  DCOUT('r', " in Carrier Width/Thickness/Radius " 
+	<< dohmCarrierW << " " << dohmCarrierT << " " << dohmCarrierR
+	<< " Carrier Material " << dohmCarrierMaterial);
+  DCOUT('r', " with cables and connectors Material " << dohmCableMaterial);
+  DCOUT('r', "DDTIBLayerAlgo debug: no DOHM "
+	<< " at positions: ");
+  for(unsigned int i=0; i<dohmList.size(); i++) {
+    if((int)dohmList[i]==0) DCOUT('r', i+1 << ",");
+  }
+  
 }
 
 void DDTIBLayerAlgo::execute() {
@@ -243,4 +284,290 @@ void DDTIBLayerAlgo::execute() {
     DDpos (cylinderRib, cylinderIn, 2, tran, rotation);
     DCOUT('a', "DDTIBLayer test " << cylinderRib.name() << " number 2" << " positioned in " << cylinderIn.name() << " at " << tran << " with " << rotation);
   }
+
+  // DOHM + carrier (portadohm)
+  double dz_dohm    = 0.5*dohmCarrierW;
+  double dphi_dohm  = twopi/((double)dohmN);
+  double rout_dohm  = 0.5*(radiusLo+radiusUp+cylinderT)+dohmCarrierR;
+  
+  // DOHM Carrier TIB+ & TIB-
+  // lower
+  name = idName + "DOHMCarrier_lo";
+  double rin_lo  = rout_dohm;
+  double rout_lo = rin_lo + dohmCarrierT;
+  solid = DDSolidFactory::tubs(DDName(name, idNameSpace), dz_dohm, 
+			       rin_lo, rout_lo, 
+			       -0.5*dphi_dohm, dphi_dohm);
+  DCOUT('r', "DDTIBLayerAlgo test: " << DDName(name, idNameSpace) 
+	<< " Tubs made of " << dohmCarrierMaterial << " from " << -0.5*(dphi_dohm)/deg
+	<< " to " << -0.5*(dphi_dohm)/deg+dphi_dohm/deg << " with Rin " << rin_lo 
+	<< " Rout " << rout_lo << " ZHalf "  << dz_dohm);
+  // create different name objects for only PRIMary DOHMs and PRIMary+AUXiliary DOHM Carriers
+  string name_lo_r = name + "_PRIM_AUX" + "_lo" + "_r";
+  string name_lo_l = name + "_PRIM_AUX" + "_lo" + "_l";
+  DDLogicalPart dohmCarrierPrimAux_lo_r(name_lo_r, DDMaterial(dohmCarrierMaterial), solid);
+  DDLogicalPart dohmCarrierPrimAux_lo_l(name_lo_l, DDMaterial(dohmCarrierMaterial), solid);
+  name_lo_r = name + "_PRIM" + "_lo" + "_r";
+  name_lo_l = name + "_PRIM" + "_lo" + "_l";
+  DDLogicalPart dohmCarrierPrim_lo_r(name_lo_r, DDMaterial(dohmCarrierMaterial), solid);
+  DDLogicalPart dohmCarrierPrim_lo_l(name_lo_l, DDMaterial(dohmCarrierMaterial), solid);
+  // upper
+  name = idName + "DOHMCarrier_up";
+  double rin_up  = rout_lo + 2.*dohmAuxT;
+  double rout_up = rin_up + dohmCarrierT;
+  solid = DDSolidFactory::tubs(DDName(name, idNameSpace), dz_dohm, 
+			       rin_up, rout_up, 
+			       -0.5*dphi_dohm, dphi_dohm);
+  DCOUT('r', "DDTIBLayerAlgo test: " << DDName(name, idNameSpace) 
+	<< " Tubs made of " << dohmCarrierMaterial << " from " << -0.5*(dphi_dohm)/deg
+	<< " to " << -0.5*(dphi_dohm)/deg+dphi_dohm/deg << " with Rin " << rin_up 
+	<< " Rout " << rout_up << " ZHalf "  << dz_dohm);
+  // create different name objects for only PRIMary DOHMs and PRIMary+AUXiliary DOHM Carriers
+  string name_up_r = name + "_PRIM_AUX" + "_up" + "_r";
+  string name_up_l = name + "_PRIM_AUX" + "_up" + "_l";
+  DDLogicalPart dohmCarrierPrimAux_up_r(name_up_r, DDMaterial(dohmCarrierMaterial), solid);
+  DDLogicalPart dohmCarrierPrimAux_up_l(name_up_l, DDMaterial(dohmCarrierMaterial), solid);
+  name_up_r = name + "_PRIM" + "_up" + "_r";
+  name_up_l = name + "_PRIM" + "_up" + "_l";
+  DDLogicalPart dohmCarrierPrim_up_r(name_up_r, DDMaterial(dohmCarrierMaterial), solid);
+  DDLogicalPart dohmCarrierPrim_up_l(name_up_l, DDMaterial(dohmCarrierMaterial), solid);
+  //
+  for (unsigned int i = 0; i < (unsigned int)dohmN; i++) {
+    DDLogicalPart dohmCarrier_lo_r;
+    DDLogicalPart dohmCarrier_lo_l;
+    DDLogicalPart dohmCarrier_up_r;
+    DDLogicalPart dohmCarrier_up_l;
+    // create different name objects for only PRIMary DOHMs and PRIMary+AUXiliary DOHMs
+    bool prim = false;
+    bool aux  = false;
+    if((unsigned int)dohmList[i]==2) {
+      prim = true;
+      aux  = true;
+    } else if((unsigned int)dohmList[i]==1) {
+      prim = true;
+      aux  = false;
+    } else {
+      prim = false;
+      aux  = false;      
+    }
+    
+    if(prim) {
+      dohmCarrier_lo_r = dohmCarrierPrim_lo_r;
+      dohmCarrier_lo_l = dohmCarrierPrim_lo_l;
+      dohmCarrier_up_r = dohmCarrierPrim_up_r;
+      dohmCarrier_up_l = dohmCarrierPrim_up_l;
+    }
+    if(prim && aux) {
+      dohmCarrier_lo_r = dohmCarrierPrimAux_lo_r;
+      dohmCarrier_lo_l = dohmCarrierPrimAux_lo_l;
+      dohmCarrier_up_r = dohmCarrierPrimAux_up_r;
+      dohmCarrier_up_l = dohmCarrierPrimAux_up_l;
+    }
+    //
+    
+    if(prim) {
+      double phix   = ((double)i+0.5)*dphi_dohm;
+      double phideg = phix/deg;
+      //    if( phideg>=phiMin/deg && phideg<phiMax/deg ) { // phi range
+      DDRotation rotation;
+      if (phideg != 0) {
+	double theta  = 90*deg;
+	double phiy   = phix + 90.*deg;
+	string rotstr = idName + dbl_to_string(phideg*10.);
+	rotation = DDRotation(DDName(rotstr, idNameSpace));
+	if (!rotation) {
+	  DCOUT('r', "DDTIBLayer test: Creating a new rotation: " 
+		<< rotstr << "\t90., " << phix/deg << ", 90.," << phiy/deg
+		<< ", 0, 0");
+	  rotation = DDrot(DDName(rotstr, idNameSpace), theta, phix, theta, phiy,
+			   0., 0.);
+	}
+      }
+      // TIB+ DOHM Carrier - lower
+      DDTranslation tran(0, 0, +0.5*(layerL+supportW)-dz_dohm);
+      DDpos (dohmCarrier_lo_r, parent(), i+1, tran, rotation );
+      DCOUT('r', "DDTIBLayer test " << dohmCarrier_lo_r.name() << " z+ number " << i+1
+	    << " positioned in " << parent().name() << " at " << tran
+	    << " with " << rotation);
+      // TIB+ DOHM Carrier - upper
+      DDpos (dohmCarrier_up_r, parent(), i+1+(unsigned int)dohmN, tran, rotation );
+      DCOUT('r', "DDTIBLayer test " << dohmCarrier_up_r.name() << " z+ number " << i+1
+	    << " positioned in " << parent().name() << " at " << tran
+	    << " with " << rotation);
+      // TIB- DOHM Carrier - lower
+      tran = DDTranslation(0, 0, -0.5*(layerL+supportW)+dz_dohm);
+      DDpos (dohmCarrier_lo_l, parent(), i+1, tran, rotation);
+      DCOUT('r', "DDTIBLayer test " << dohmCarrier_lo_l.name() << " z- number " << i+1
+	    << " positioned in " << parent().name() << " at " << tran
+	    << " with " << rotation);
+      // TIB- DOHM Carrier - upper
+      DDpos (dohmCarrier_up_l, parent(), i+1, tran, rotation);
+      DCOUT('r', "DDTIBLayer test " << dohmCarrier_up_l.name() << " z- number " << i+1
+	    << " positioned in " << parent().name() << " at " << tran
+	    << " with " << rotation);
+    }
+    
+    //    } // phi range
+  }
+  
+  // DOHM only PRIMary
+  double dx = 0.5*dohmPrimT;
+  double dy = 0.5*dohmPrimW;
+  double dz = 0.5*dohmPrimL;
+  name = idName + "DOHM_PRIM";
+  solid = DDSolidFactory::box(DDName(name, idNameSpace), dx, dy, dz);
+  DDLogicalPart dohmPrim(solid.ddname(), DDMaterial(dohmPrimMaterial), solid);
+  DCOUT('r', "DDTIBLayerAlgo_MTCC test: " << DDName(name, idNameSpace) 
+	<< " Box made of " << dohmPrimMaterial
+	<< " of dimensions " << dx << ", " 
+	<< dy << ", " << dz);
+  name = idName + "DOHM_PRIM_Cable";
+  double dx_cable = 0.25*dohmPrimT;
+  double dy_cable = 0.40*dohmPrimW;
+  double dz_cable = 0.5*dohmPrimL;
+  solid = DDSolidFactory::box(DDName(name, idNameSpace), dx_cable, dy_cable, dz_cable);
+  DDLogicalPart dohmCablePrim(solid.ddname(), DDMaterial(dohmCableMaterial), solid);
+  DCOUT('r', "DDTIBLayerAlgo_MTCC test: " << DDName(name, idNameSpace) 
+	<< " Box made of " << dohmCableMaterial
+	<< " of dimensions " << dx_cable << ", " 
+	<< dy_cable << ", " << dz_cable);
+  // TIB+ DOHM
+  DDTranslation tran(rout_dohm+0.5*dohmPrimT, 0. , -0.5*dz_dohm);
+  DDpos (dohmPrim, dohmCarrierPrim_lo_r, 1, tran, DDRotation() );
+  DCOUT('r', "DDTIBLayer_MTCC test " << dohmPrim.name() << " z+ number " << 1
+	<< " positioned in " << dohmCarrierPrim_lo_r.name()
+	<< " at " << tran << " with no rotation");
+  tran = DDTranslation(rout_dohm+dx_cable, 0.5*dohmPrimW , -0.5*dz_dohm);
+  DDpos (dohmCablePrim, dohmCarrierPrim_lo_r, 1, tran, DDRotation() );
+  DCOUT('r', "DDTIBLayer_MTCC test " << dohmCablePrim.name() << " copy number " << 1
+	<< " positioned in " << dohmCarrierPrim_lo_r.name()
+	<< " at " << tran << " with no rotation");
+  tran = DDTranslation(rout_dohm+dx_cable, -0.5*dohmPrimW , -0.5*dz_dohm);
+  DDpos (dohmCablePrim, dohmCarrierPrim_lo_r, 2, tran, DDRotation() );
+  DCOUT('r', "DDTIBLayer_MTCC test " << dohmCablePrim.name() << " copy number " << 2
+	<< " positioned in " << dohmCarrierPrim_lo_r.name()
+	<< " at " << tran << " with no rotation");
+  // TIB- DOHM
+  tran = DDTranslation(rout_dohm+0.5*dohmPrimT, 0. , +0.5*dz_dohm);
+  DCOUT('r', "DDTIBLayer_MTCC test: Creating a new rotation: " 
+	<< "\t90., 0., 90., 270., 180., 0.");
+  string rotstr = "D180";
+  DDRotation rotation_l = DDrot(DDName(rotstr, idNameSpace), 90.*deg, 0., 
+				90.*deg, 270.*deg, 180.*deg, 0.);
+  DDpos (dohmPrim, dohmCarrierPrim_lo_l, 1, tran, rotation_l );
+  DCOUT('r', "DDTIBLayer_MTCC test " << dohmPrim.name() << " z+ number " << 1
+	<< " positioned in " << dohmCarrierPrim_lo_l.name()
+	<< " at " << tran << " with rotation " << rotation_l);
+  tran = DDTranslation(rout_dohm+dx_cable, 0.5*dohmPrimW , +0.5*dz_dohm);
+  DDpos (dohmCablePrim, dohmCarrierPrim_lo_l, 1, tran, rotation_l );
+  DCOUT('r', "DDTIBLayer_MTCC test " << dohmCablePrim.name() << " copy number " << 1
+	<< " positioned in " << dohmCarrierPrim_lo_l.name()
+	<< " at " << tran << " with rotation " << rotation_l);
+  tran = DDTranslation(rout_dohm+dx_cable, -0.5*dohmPrimW , +0.5*dz_dohm);
+  DDpos (dohmCablePrim, dohmCarrierPrim_lo_l, 2, tran, rotation_l );
+  DCOUT('r', "DDTIBLayer_MTCC test " << dohmCablePrim.name() << " copy number " << 2
+	<< " positioned in " << dohmCarrierPrim_lo_l.name()
+	<< " at " << tran << " with rotation " << rotation_l);
+  
+  // DOHM PRIMary + AUXiliary
+  dx = 0.5*dohmPrimT;
+  dy = 0.5*dohmPrimW;
+  dz = 0.5*dohmPrimL;
+  name = idName + "DOHM_PRIM";
+  solid = DDSolidFactory::box(DDName(name, idNameSpace), dx, dy, dz);
+  DCOUT('r', "DDTIBLayerAlgo_MTCC test: " << DDName(name, idNameSpace) 
+	<< " Box made of " << dohmPrimMaterial
+	<< " of dimensions " << dx << ", " 
+	<< dy << ", " << dz);
+  dohmPrim = DDLogicalPart(solid.ddname(), DDMaterial(dohmPrimMaterial), solid);
+  name = idName + "DOHM_PRIM_Cable";
+  dx_cable = 0.25*dohmPrimT;
+  dy_cable = 0.40*dohmPrimW;
+  dz_cable = 0.5*dohmPrimL;
+  solid = DDSolidFactory::box(DDName(name, idNameSpace), dx_cable, dy_cable, dz_cable);
+  dohmCablePrim = DDLogicalPart(solid.ddname(), DDMaterial(dohmCableMaterial), solid);
+  DCOUT('r', "DDTIBLayerAlgo_MTCC test: " << DDName(name, idNameSpace) 
+	<< " Box made of " << dohmCableMaterial
+	<< " of dimensions " << dx_cable << ", " 
+	<< dy_cable << ", " << dz_cable);
+  dx = 0.5*dohmAuxT;
+  dy = 0.5*dohmAuxW;
+  dz = 0.5*dohmAuxL;
+  name = idName + "DOHM_AUX";
+  solid = DDSolidFactory::box(DDName(name, idNameSpace), dx, dy, dz);
+  DDLogicalPart dohmAux(solid.ddname(), DDMaterial(dohmAuxMaterial), solid);
+  DCOUT('r', "DDTIBLayerAlgo_MTCC test: " << DDName(name, idNameSpace) 
+	<< " Box made of " << dohmAuxMaterial
+	<< " of dimensions " << dx << ", " 
+	<< dy << ", " << dz);
+  name = idName + "DOHM_AUX_Cable";
+  solid = DDSolidFactory::box(DDName(name, idNameSpace), dx_cable, dy_cable, dz_cable);
+  DDLogicalPart dohmCableAux(solid.ddname(), DDMaterial(dohmCableMaterial), solid);
+  DCOUT('r', "DDTIBLayerAlgo_MTCC test: " << DDName(name, idNameSpace) 
+	<< " Box made of " << dohmCableMaterial
+	<< " of dimensions " << dx_cable << ", " 
+	<< dy_cable << ", " << dz_cable);
+  // TIB+ DOHM
+  tran = DDTranslation(rout_dohm+0.5*dohmPrimT, -0.75*dohmPrimW , -0.5*dz_dohm);
+  DDpos (dohmPrim, dohmCarrierPrimAux_lo_r, 1, tran, DDRotation() );
+  DCOUT('r', "DDTIBLayer_MTCC test " << dohmAux.name() << " z+ number " << 1
+	<< " positioned in " << dohmCarrierPrimAux_lo_r.name()
+	<< " at " << tran << " with no rotation");
+  tran = DDTranslation(rout_dohm+dx_cable, -0.75*dohmPrimW+0.5*dohmPrimW , -0.5*dz_dohm);
+  DDpos (dohmCablePrim, dohmCarrierPrimAux_lo_r, 1, tran, DDRotation() );
+  DCOUT('r', "DDTIBLayer_MTCC test " << dohmCablePrim.name() << " copy number " << 1
+	<< " positioned in " << dohmCarrierPrimAux_lo_r.name()
+	<< " at " << tran << " with no rotation");
+  tran = DDTranslation(rout_dohm+dx_cable, -0.75*dohmPrimW-0.5*dohmPrimW , -0.5*dz_dohm);
+  DDpos (dohmCablePrim, dohmCarrierPrimAux_lo_r, 2, tran, DDRotation() );
+  DCOUT('r', "DDTIBLayer_MTCC test " << dohmCablePrim.name() << " copy number " << 2
+	<< " positioned in " << dohmCarrierPrimAux_lo_r.name()
+	<< " at " << tran << " with no rotation");
+  tran = DDTranslation(rout_dohm+0.5*dohmAuxT, 0.75*dohmAuxW , -0.5*dz_dohm);
+  DDpos (dohmAux, dohmCarrierPrimAux_lo_r, 1, tran, DDRotation() );
+  DCOUT('r', "DDTIBLayer_MTCC test " << dohmAux.name() << " z+ number " << 1
+	<< " positioned in " << dohmCarrierPrimAux_lo_r.name()
+	<< " at (0,0,0) with no rotation");
+  tran = DDTranslation(rout_dohm+dx_cable, 0.75*dohmAuxW+0.5*dohmPrimW , -0.5*dz_dohm);
+  DDpos (dohmCableAux, dohmCarrierPrimAux_lo_r, 1, tran, DDRotation() );
+  DCOUT('r', "DDTIBLayer_MTCC test " << dohmCableAux.name() << " copy number " << 1
+	<< " positioned in " << dohmCarrierPrimAux_lo_r.name()
+	<< " at " << tran << " with no rotation");
+  // TIB- DOHM
+  tran = DDTranslation(rout_dohm+0.5*dohmPrimT, 0.75*dohmPrimW , +0.5*dz_dohm);
+  DCOUT('r', "DDTIBLayer_MTCC test: Creating a new rotation: " 
+	<< "\t90., 0., 90., 270., 180., 0.");
+  rotstr = "D180";
+  rotation_l = DDrot(DDName(rotstr, idNameSpace), 90.*deg, 0., 
+		     90.*deg, 270.*deg, 180.*deg, 0.);
+  DDpos (dohmPrim, dohmCarrierPrimAux_lo_l, 1, tran, rotation_l );
+  DCOUT('r', "DDTIBLayer_MTCC test " << dohmPrim.name() << " z+ number " << 1
+	<< " positioned in " << dohmCarrierPrimAux_lo_l.name()
+	<< " at "<< tran << " with rotation " << rotation_l);
+  tran = DDTranslation(rout_dohm+dx_cable, 0.75*dohmPrimW+0.5*dohmPrimW , +0.5*dz_dohm);
+  DDpos (dohmCablePrim, dohmCarrierPrimAux_lo_l, 1, tran, rotation_l );
+  DCOUT('r', "DDTIBLayer_MTCC test " << dohmCablePrim.name() << " copy number " << 1
+	<< " positioned in " << dohmCarrierPrimAux_lo_l.name()
+	<< " at " << tran << " with rotation " << rotation_l);
+  tran = DDTranslation(rout_dohm+dx_cable, -0.75*dohmPrim+0.5*dohmPrimW , +0.5*dz_dohm);
+  DDpos (dohmCablePrim, dohmCarrierPrimAux_lo_l, 2, tran, rotation_l );
+  DCOUT('r', "DDTIBLayer_MTCC test " << dohmCablePrim.name() << " copy number " << 2
+	<< " positioned in " << dohmCarrierPrimAux_lo_l.name()
+	<< " at " << tran << " with rotation " << rotation_l);
+  tran = DDTranslation(rout_dohm+0.5*dohmAuxT, -0.75*dohmAuxW , +0.5*dz_dohm);
+  DCOUT('r', "DDTIBLayer_MTCC test: Creating a new rotation: " 
+	<< "\t90., 0., 90., 270., 180., 0.");
+  rotstr = "D180";
+  rotation_l = DDrot(DDName(rotstr, idNameSpace), 90.*deg, 0., 
+		     90.*deg, 270.*deg, 180.*deg, 0.);
+  DDpos (dohmAux, dohmCarrierPrimAux_lo_l, 1, tran, rotation_l );
+  DCOUT('r', "DDTIBLayer_MTCC test " << dohmAux.name() << " z+ number " << 1
+	<< " positioned in " << dohmCarrierPrimAux_lo_l.name()
+	<< " at " << tran << " with rotation " << rotation_l);  
+  tran = DDTranslation(rout_dohm+dx_cable, -0.75*dohmAuxW-0.5*dohmPrimW , +0.5*dz_dohm);
+  DDpos (dohmCableAux, dohmCarrierPrimAux_lo_l, 1, tran, rotation_l );
+  DCOUT('r', "DDTIBLayer_MTCC test " << dohmCableAux.name() << " copy number " << 1
+	<< " positioned in " << dohmCarrierPrimAux_lo_l.name()
+	<< " at " << tran << " with rotation " << rotation_l);
+  
 }
