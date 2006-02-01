@@ -1,6 +1,6 @@
-<flags LCGDICT_ARGS="--">
-<use name=Dictionary/Reflex>
+<flags GENREFLEX_ARGS="--">
+<use name=rootrflx>
 <export>
- <use name=Dictionary/Reflex>
+ <use name=rootrflx>
  <lib name=CondCoreIOVService>
 </export>
