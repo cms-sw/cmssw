@@ -17,10 +17,13 @@
 #include "DataSvc/DataSvcFactory.h"
 #include "DataSvc/IDataSvc.h"
 #include "SealKernel/Context.h"
-#include "POOLCore/POOLContext.h"
 #include "SealKernel/Exception.h"
-#include "RelationalAccess/RelationalException.h"
+//#include "RelationalAccess/RelationalException.h"
 #include "RelationalAccess/IAuthenticationService.h"
+#include "RelationalAccess/IAuthenticationCredentials.h"
+#include "SealKernel/IMessageService.h"
+#include "PluginManager/PluginManager.h"
+#include "SealKernel/ComponentLoader.h"
 //
 // static data member definitions
 //
@@ -135,9 +138,9 @@ bool PoolDBESSource::initIOV( const std::vector< std::pair < std::string, std::s
       pool::Ref<cond::IOV> iov(m_svc, iovToken);
       m_recordToIOV.insert(std::make_pair(it->first,iov));
     }
-  }catch( const pool::RelationalTableNotFound& e ){
-    std::cerr<<"Caught pool::RelationalTableNotFound Exception"<<std::endl;
-    throw cms::Exception( e.what() );
+    //}catch( const coral::RelationalTableNotFound& e ){
+    //std::cerr<<"Caught pool::RelationalTableNotFound Exception"<<std::endl;
+    //throw cms::Exception( e.what() );
   }catch(const seal::Exception&e ){
     std::cerr<<"Caught seal exception"<<std::endl;
     std::cerr<<e.what()<<std::endl;
@@ -156,46 +159,56 @@ bool PoolDBESSource::initIOV( const std::vector< std::pair < std::string, std::s
 //
 PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   m_con(iConfig.getParameter<std::string>("connect") ),
-  m_timetype(iConfig.getParameter<std::string>("timetype") )
+  m_timetype(iConfig.getParameter<std::string>("timetype") ),
+  m_context(new seal::Context)
 {		
   /*parameter set parsing and pool environment setting
    */
   //std::cout<<"PoolDBESSource::PoolDBESSource"<<std::endl;
   unsigned int auth=iConfig.getUntrackedParameter<unsigned int>("authenticationMethod",0) ;
   std::string catconnect;
+  seal::PluginManager* pm = seal::PluginManager::get();
+  pm->initialise();
+  seal::Handle<seal::ComponentLoader> loader = new seal::ComponentLoader( m_context );
   try{
     if( auth==1 ){
-      pool::POOLContext::loadComponent( "POOL/Services/XMLAuthenticationService" );
+      loader->load( "CORAL/Services/XMLAuthenticationService" );
     }else{
-      pool::POOLContext::loadComponent( "POOL/Services/EnvironmentAuthenticationService" );
+      loader->load( "CORAL/Services/EnvironmentAuthenticationService" );
     }
     catconnect=iConfig.getUntrackedParameter<std::string>("catalog","");
-    pool::POOLContext::loadComponent( "SEAL/Services/MessageService" );
+    loader->load( "SEAL/Services/MessageService" );
     unsigned int message_level=iConfig.getUntrackedParameter<unsigned int>("messagelevel",0);
+    std::vector< seal::Handle<seal::IMessageService> > v_msgSvc;
+    m_context->query( v_msgSvc );
+    seal::Handle<seal::IMessageService> msgSvc;
+    if ( ! v_msgSvc.empty() ) {
+      msgSvc = v_msgSvc.front();
+    }
     switch (message_level) {
     case 0 :
-      pool::POOLContext::setMessageVerbosityLevel( seal::Msg::Error );
+      msgSvc->setOutputLevel( seal::Msg::Error);
       break;    
     case 1:
-      pool::POOLContext::setMessageVerbosityLevel( seal::Msg::Warning );
+      msgSvc->setOutputLevel( seal::Msg::Warning );
       break;
     case 2:
-      pool::POOLContext::setMessageVerbosityLevel( seal::Msg::Info );
+      msgSvc->setOutputLevel( seal::Msg::Info );
       break;
     case 3:
-      pool::POOLContext::setMessageVerbosityLevel( seal::Msg::Debug );
+      msgSvc->setOutputLevel( seal::Msg::Debug );
       break;  
     default:
-      pool::POOLContext::setMessageVerbosityLevel( seal::Msg::Error );
+      msgSvc->setOutputLevel( seal::Msg::Error );
     }
     if(message_level>=2){
-      std::vector< seal::IHandle<pool::IAuthenticationService> > v_authSvc;
-      pool::POOLContext::context()->query( v_authSvc );
+      std::vector< seal::IHandle<coral::IAuthenticationService> > v_authSvc;
+      m_context->query( v_authSvc );
       if ( ! v_authSvc.empty() ) {
-	seal::IHandle<pool::IAuthenticationService>& authSvc = v_authSvc.front();
+	seal::IHandle<coral::IAuthenticationService>& authSvc = v_authSvc.front();
 	std::cerr<<"[PoolDBESSource] connect "<<m_con << '\n';
-	std::cerr<<"[PoolDBESSource] user "<<authSvc->valueForItem( m_con,"user" ) << '\n';
-	std::cerr<<"[PoolDBESSource] password "<<authSvc->valueForItem( m_con,"password" ) << '\n';
+	std::cerr<<"[PoolDBESSource] user "<<authSvc->credentials( m_con ).valueForItem( "user" ) << '\n';
+	std::cerr<<"[PoolDBESSource] password "<<authSvc->credentials( m_con ).valueForItem( "password" ) << '\n';
 	std::cerr<<"[PoolDBESSource] catalog "<< catconnect << '\n';
 	std::cerr<<"[PoolDBESSource] timetype "<< m_timetype << std::endl;
       }
@@ -301,6 +314,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
 PoolDBESSource::~PoolDBESSource()
 {
   this->closePool();
+  delete m_context;
 }
 
 
