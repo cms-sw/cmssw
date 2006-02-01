@@ -1,9 +1,9 @@
-<flags LCGDICT_ARGS="--">
-<use name=Dictionary/Reflex>
+<flags GENREFLEX_ARGS="--">
+<use name=rootrflx>
 <use name=FWCore/Framework>
 <use name=DataFormats/MuonDetId>>
 <export>
-  <use name=Dictionary/Reflex>
+  <use name=rootrflx>
   <use name=FWCore/Framework>
   <use name=DataFormats/MuonDetId>>
   <lib name=CondFormatsCSCObjects>
