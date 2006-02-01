@@ -1,3 +1,6 @@
+** V00-03-00  [Wed Feb  1 15:28:37 2006]
+Bugs in timing, time-of-flight subtraction fixed, and ValidationStatistics added
+
 ** V00-02-00  [Sat Jan 21 08:23:12 2006]
 Redid how noise was passed along, got HCAL gains from DB, and got rid of namespaces and fixed include guards
 
