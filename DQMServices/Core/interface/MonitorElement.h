@@ -104,7 +104,8 @@ class MonitorElement
   virtual float getBinError(int binx, int biny, int binz) const = 0;
   // # of entries
   virtual float getEntries(void) = 0;
-
+  // # of bin entries (for profiles)
+  virtual float getBinEntries(int bin) = 0;
   LockMutex::Mutex mutex;
 
  private:

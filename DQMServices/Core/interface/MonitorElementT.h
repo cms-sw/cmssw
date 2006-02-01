@@ -92,7 +92,9 @@ class MonitorElementT : public MonitorElement
   {return doNotUseMethod("getBinError(binx,biny,binz)");}
   // # of entries
   virtual float getEntries(void){return 1;}
-  
+  // # of bin entries (for profiles)
+  virtual float getBinEntries(int bin)
+  {return doNotUseMethod("getBinEntries");}
  private:
   
   std::string name_;
