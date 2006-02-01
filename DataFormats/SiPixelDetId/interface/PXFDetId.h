@@ -61,7 +61,7 @@ class PXFDetId : public DetId {
   static const unsigned int sideStartBit_=   23;
   static const unsigned int diskStartBit_=   16;
   static const unsigned int bladeStartBit_=  10;
-  static const unsigned int panelStartBit_=  2;
+  static const unsigned int panelStartBit_=  8;
   static const unsigned int moduleStartBit_= 2;
   /// two bits would be enough, but  we could use the number "0" as a wildcard
   
