@@ -1,3 +1,6 @@
+** V02-01-00  [Thu Feb  2 00:55:57 2006]
+Switch to using rootrflx
+
 ** V02-00-01  [Wed Jan 11 21:23:27 2006]
 fix bug in HcalQIECoder::adc
 
