@@ -1,3 +1,6 @@
+** V00-00-07  [Wed Feb  1 20:26:20 2006]
+move to CORAL
+
 ** V00-00-06  [Wed Dec 21 16:34:02 2005]
 change to commit in each function;add name storage class
 
