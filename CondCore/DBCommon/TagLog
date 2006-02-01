@@ -1,3 +1,6 @@
+** V00-01-01  [Wed Feb  1 20:22:04 2006]
+move to ROOT::Reflex; move to CORAL
+
 ** V00-01-00  [Wed Nov 30 20:29:55 2005]
 token builder adopt to seal::reflex
 
