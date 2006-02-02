@@ -1,3 +1,6 @@
+** V00-04-00  [Thu Feb  2 10:03:42 2006]
+renamed common classes
+
 ** V00-03-01  [Mon Jan 30 22:08:31 2006]
 fixed own_vector iterator interface
 
