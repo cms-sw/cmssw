@@ -8,10 +8,9 @@
 #include "PhysicsTools/Candidate/interface/Candidate.h"
 #include "PhysicsTools/UtilAlgos/interface/Merger.h"
 #include "DataFormats/Common/interface/ClonePolicy.h"
-//#include "PhysicsTools/Candidate/interface/NewPolicy.h"
 
 namespace candmodules {
-typedef Merger<aod::CandidateCollection, ClonePolicy<aod::Candidate> > CandMerger;
+typedef Merger<aod::CandidateCollection, edm::ClonePolicy<aod::Candidate> > CandMerger;
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE( CandSelector );
 DEFINE_ANOTHER_FWK_MODULE( CandCombiner );
