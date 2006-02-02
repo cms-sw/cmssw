@@ -2,8 +2,8 @@
  *
  *  Implementation of RPCWebClient
  *
- *  $Date: 2006/01/25 16:29:11 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/01/30 17:39:13 $
+ *  $Revision: 1.1 $
  *  \author Ilaria Segoni
  */
 #include "DQM/RPCMonitorClient/interface/RPCWebClient.h"
@@ -14,8 +14,6 @@
 #include "DQMServices/WebComponents/interface/Navigator.h"
 #include "DQMServices/WebComponents/interface/ContentViewer.h"
 #include "DQMServices/WebComponents/interface/GifDisplay.h"
-
-#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
 RPCWebClient::RPCWebClient(xdaq::ApplicationStub * s) : DQMWebClient(s)
 {
@@ -90,14 +88,12 @@ void RPCWebClient::SetupQTestsRequest(xgi::Input * in, xgi::Output *out) throw (
     return;     
   } 
   
- if(printout) std::cout << "Quality Tests are being set up" << std::endl;
+  if(printout) std::cout << "Quality Tests are being set up" << std::endl;
  
   qualityTests->SetupTests(mui);
- //qualityTests->SetupTests(mui);
- //qualityTests->AttachTests(mui);
  
- testsWereSet=true;
- return;
+  testsWereSet=true;
+  return;
 
 }
 
