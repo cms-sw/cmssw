@@ -1,3 +1,6 @@
+** V00-00-03  [Thu Feb  2 20:18:27 2006]
+builds against DT geom
+
 ** V00-00-02  [Wed Jan 25 19:59:16 2006]
 DTGeomDetUnit-&gt;DTLayer
 
