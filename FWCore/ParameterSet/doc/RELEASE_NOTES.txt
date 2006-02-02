@@ -1,5 +1,6 @@
-02-02-06 mfp. Starting to fix long-standing mishandling of untracked
+02-02-06 mfp. Removed default c'tor for Entry class.
 
+02-02-06 mfp. Starting to fix long-standing mishandling of untracked
    parameters. Removed check for 'label' entry in the ParameterSet's
    table; this seems to have been a leftover from a previous
    misunderstanding regarding ParameterSet objects having names. This
