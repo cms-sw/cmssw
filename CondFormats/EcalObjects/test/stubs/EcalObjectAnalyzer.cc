@@ -53,7 +53,7 @@ using namespace std;
     int channelID=1656;
     //EcalPedestals* myped=const_cast<EcalPedestals*>(pPeds.product());
     const EcalPedestals* myped=pPeds.product();
-    std::map<int,EcalPedestals::Item>::const_iterator it=myped->m_pedestals.find(channelID);
+    std::map<const unsigned int,EcalPedestals::Item>::const_iterator it=myped->m_pedestals.find(channelID);
     if( it!=myped->m_pedestals.end() ){
       std::cout << "Ecal channel: " << channelID
                 << "  mean_x1:  " <<it->second.mean_x1 << " rms_x1: " << it->second.rms_x1
@@ -75,8 +75,8 @@ using namespace std;
     std::cout << "before switch [0,0]: " << (mat1[0])[0]() << endl;
     std::cout << "after  switch [0,0]: " << (mat2[0])[0]() << endl;
 
-    HepMatrix clmat1(3,8,0.);
-    HepMatrix clmat2(3,8,0.);
+    HepMatrix clmat1(3,8,0);
+    HepMatrix clmat2(3,8,0);
     for(int irow=0; irow<3; irow++) {
      for(int icol=0; icol<8; icol++) {
        clmat1[irow][icol] = (mat1[irow])[icol]();

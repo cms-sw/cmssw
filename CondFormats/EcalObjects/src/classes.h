@@ -1,6 +1,14 @@
+#include <boost/cstdint.hpp>
+namespace {
+  namespace {
+    uint32_t i32;
+  }
+}
+
+
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
-template std::map< int, EcalPedestals::Item >::iterator;
-template std::map< int, EcalPedestals::Item >::const_iterator;
+template std::map< uint32_t, EcalPedestals::Item >::iterator;
+template std::map< uint32_t, EcalPedestals::Item >::const_iterator;
 
 #include "CondFormats/EcalObjects/interface/EcalWeightRecAlgoWeights.h"
 #include "CondFormats/EcalObjects/interface/EcalWeight.h"

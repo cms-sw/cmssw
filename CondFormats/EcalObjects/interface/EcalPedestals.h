@@ -2,6 +2,7 @@
 #define EcalPedestals_h
 
 #include <map>
+#include <boost/cstdint.hpp>
 
 class EcalPedestals {
  public:
@@ -15,10 +16,10 @@ class EcalPedestals {
     float mean_x1;
     float rms_x1;
   };
-  std::map<int, Item> m_pedestals;
+  std::map<uint32_t, Item> m_pedestals;
 };
 
-typedef std::map<int, EcalPedestals::Item>                 EcalPedestalsMap;
-typedef std::map<int, EcalPedestals::Item>::const_iterator EcalPedestalsMapIterator;
+typedef std::map<uint32_t, EcalPedestals::Item>                 EcalPedestalsMap;
+typedef std::map<uint32_t, EcalPedestals::Item>::const_iterator EcalPedestalsMapIterator;
 
 #endif

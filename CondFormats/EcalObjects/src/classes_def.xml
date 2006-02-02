@@ -1,9 +1,9 @@
 <lcgdict>
- <class name="EcalPedestals" id="2F16F0A9-79D5-4881-CE0B-C271DD84A7F1"/>
+ <class name="EcalPedestals"/>
  <class name="EcalPedestals::Item"/>
- <class name="std::pair<const int, EcalPedestals::Item>"/>
+ <class name="std::pair<const unsigned int, EcalPedestals::Item>"/>
 
- <class name="EcalWeightRecAlgoWeights" id="D28B80AA-FB53-401B-9D0E-F2EA72F339BE"/>
+ <class name="EcalWeightRecAlgoWeights"/>
  <class name="EcalWeight"/>
  <class name="std::vector<EcalWeight>"/>
  <class name="std::vector< std::vector<EcalWeight> >"/>

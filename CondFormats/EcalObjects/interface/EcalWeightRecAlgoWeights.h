@@ -30,7 +30,7 @@ class EcalWeightRecAlgoWeights {
     const EcalWeightMatrix& getChi2WeightsBeforeGainSwitch()             const { return wgtChi2BeforeSwitch_; }
     const EcalWeightMatrix& getChi2WeightsAfterGainSwitch()             const { return wgtChi2AfterSwitch_; }
 
-  //private:
+  private:
      std::vector< std::vector< EcalWeight > > wgtBeforeSwitch_;
      std::vector< std::vector< EcalWeight > > wgtAfterSwitch_;
      std::vector< std::vector< EcalWeight > > wgtChi2BeforeSwitch_;
