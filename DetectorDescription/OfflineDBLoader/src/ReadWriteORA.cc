@@ -1,7 +1,7 @@
 #include "DetectorDescription/OfflineDBLoader/interface/ReadWriteORA.h"
 
 #include "DetectorDescription/Parser/interface/DDLParser.h"
-#include "DetectorDescription/Parser/interface/DDLConfiguration.h"
+#include "DetectorDescription/Parser/interface/FIPConfiguration.h"
 //#include "DetectorDescription/Base/interface/DDException.h"
 #include "DetectorDescription/PersistentDDDObjects/interface/PersistentDDDObjects.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
@@ -256,7 +256,7 @@ bool ReadWriteORA::writeDB ( ) {
 bool ReadWriteORA::readFromXML ( ) {
   seal::SealTimer t("ReadWriteORA::readFromXML", false);
   DDLParser* myP = DDLParser::instance();
-  DDLConfiguration dp;
+  FIPConfiguration dp;
   std::cout << "About to read configuration file: " << xmlConfiguration_ << std::endl; 
   int success = dp.readConfig(xmlConfiguration_);
   if ( success != 0) {

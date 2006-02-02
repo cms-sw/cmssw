@@ -20,7 +20,7 @@
 #include <stdlib.h>
 
 #include "DetectorDescription/Parser/interface/DDLParser.h"
-#include "DetectorDescription/Parser/interface/DDLConfiguration.h"
+#include "DetectorDescription/Parser/interface/FIPConfiguration.h"
 #include "DetectorDescription/Core/interface/DDMap.h"
 #include "DetectorDescription/Core/interface/DDRoot.h"
 #include "DetectorDescription/Core/interface/DDVector.h"
@@ -46,9 +46,9 @@ int main(int argc, char *argv[])
   std::cout << "main::initialize DDL parser" << std::endl;
   DDLParser* myP = DDLParser::instance();
 
-  DDLConfiguration dp;
+  FIPConfiguration dp;
 
-  dp.readConfig("configuration.xml");
+  dp.readConfig("Geometry/CMSCommonData/data/configuration.xml");
 
   std::cout << "main::about to start parsing" << std::endl;
  
@@ -59,45 +59,22 @@ int main(int argc, char *argv[])
   std::cout << std::endl << std::endl << "main::Start checking!" << std::endl << std::endl;
   DDCheckMaterials(std::cout);
 
-  std::cout << "======== ev - node - pospart test ======" << std::endl;
-  DDName ddn("MUON","cms");
-  std::cout << DDRootDef::instance().root().ddname() << std::endl;
-  DDLogicalPart lp(ddn);
-  std::cout << "lp = " << lp << std::endl;
-  std::cout << "== about to get du cpv ==" << std::endl;
-  DDRootDef::instance().set(ddn);
-//   std::cout << DDRootDef::instance().root().ddname() << std::endl;
-  DDCompactView cpvglobal;
-  DDCompactView cpv(lp);
-  cpv.writeableGraph() = cpvglobal.graph();
-  std::cout << "== done got du cpv ==" << std::endl;
+  DDCompactView cpv;
+
   DDExpandedView ev(cpv);
   std::cout << "== got the epv ==" << std::endl;
-  ev.firstChild();
-  ev.nextSibling();
-  std::cout << ev.geoHistory() << std::endl;
-  ev.nextSibling();
-  std::cout << ev.geoHistory() << std::endl;
-  ev.firstChild();
-  std::cout << ev.geoHistory() << std::endl;
-  ev.nextSibling();
-  std::cout << ev.geoHistory() << std::endl;
-  ev.nextSibling();
-  std::cout << ev.geoHistory() << std::endl;
-  ev.firstChild();
-  std::cout << ev.geoHistory() << std::endl;
-  ev.nextSibling();
-  std::cout << ev.geoHistory() << std::endl;
-  ev.firstChild();
-  std::cout << ev.geoHistory() << std::endl;
-  ev.nextSibling();
-  std::cout << ev.geoHistory() << std::endl;
-  ev.firstChild();
-  std::cout << ev.geoHistory() << std::endl;
-  ev.nextSibling();
-  std::cout << ev.geoHistory() << std::endl;
+
+  while ( ev.next() ) {
+    if ( ev.logicalPart().name().name() == "MBAT" ) {
+      std::cout << ev.geoHistory() << std::endl;
+    }
+    if ( ev.logicalPart().name().name() == "MUON" ) {
+      std::cout << ev.geoHistory() << std::endl;
+    }
+  }
+
   return EXIT_SUCCESS;
 
-    cpvglobal.clear();
+    cpv.clear();
     std::cout << "cleared DDCompactView.  " << std::endl;
 }
