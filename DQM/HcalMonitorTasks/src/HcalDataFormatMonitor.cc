@@ -41,37 +41,16 @@ void HcalDataFormatMonitor::processEvent(const FEDRawDataCollection& rawraw)
 {
 
   if(!m_dbe) { printf("HcalDataFormatMonitor::processEvent   DaqMonitorBEInterface not instantiated!!!\n");  return;}
-  /*
-  for(int i=0; i<200; i++){
 
-    if (m_readoutMap.subdetectorPresent(HcalBarrel,i) 
-	|| m_readoutMap.subdetectorPresent(HcalEndcap,i)) printf("HB/HE present: %d\n",i);
-      
-    if (m_readoutMap.subdetectorPresent(HcalOuter,i)) printf("HO present: %d\n",i);
-
-    if (m_readoutMap.subdetectorPresent(HcalForward,i)) printf("HF present: %d\n",i);
-
-    const FEDRawData& fed = rawraw.FEDData(i);
-    const HcalDCCHeader* dccHeader=(const HcalDCCHeader*)(fed.data());
-    if(dccHeader!=NULL) printf("We have FED %d\n",i);
-
-  }
-  */
   for (vector<int>::const_iterator i=m_fedUnpackList.begin(); i!=m_fedUnpackList.end(); i++) {
     const FEDRawData& fed = rawraw.FEDData(*i);
     //   cout << "Processing FED " << *i << endl;
     // look only at the potential ones, to save time.
-    if (m_readoutMap.subdetectorPresent(HcalBarrel,*i-m_firstFED) 
-	|| m_readoutMap.subdetectorPresent(HcalEndcap,*i-m_firstFED)){// printf("Unpacking %d\n",*i);
-      unpack(fed,0,0,10);}
-    else if (m_readoutMap.subdetectorPresent(HcalOuter,*i-m_firstFED)) {// printf("Unpacking %d\n",*i);
-      unpack(fed,0,0,10);}
-    else if (m_readoutMap.subdetectorPresent(HcalForward,*i-m_firstFED)) {// printf("Unpacking %d\n",*i);
-      unpack(fed,0,0,10);}
-  }
+    unpack(fed);
+   }
 }
 
-void HcalDataFormatMonitor::unpack(const FEDRawData& raw, int f_offset, int f_start, int f_end){
+void HcalDataFormatMonitor::unpack(const FEDRawData& raw){
 
   // get the DataFormat header
   const HcalDCCHeader* dccHeader=(const HcalDCCHeader*)(raw.data());
