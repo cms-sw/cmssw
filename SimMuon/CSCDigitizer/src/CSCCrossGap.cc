@@ -8,11 +8,17 @@ CSCCrossGap:: CSCCrossGap(int iam, float mom,  LocalVector gap)
   : theGap( gap )
 {
   iam = setParticle( iam ); // treat some types as others
-  //theParticleData = HepPDT::getParticleData(iam);
-  LogDebug("CSCCrossGap") << "output type = " << iam;
-  //double mass = theParticleData->mass();
-  edm::LogWarning("CSCCrossGap") << "Assuming mass = .0.105";
+//  theParticleData = HepPDT::getParticleData(iam);
+//  LogDebug("CSCCrossGap") << "output type = " << iam << " pointer " << theParticleData;
+
+  // HepPDT doesn't work at the moment, so hardcode a few masses
   double mass = 0.105;
+  if(iam == 11 || iam == -11) {
+    mass = 0.000511;
+  }
+  
+//  double mass = theParticleData->mass();
+//  edm::LogWarning("CSCCrossGap") << "Assuming mass = .0.105";
   
   logGamma( mass, mom);
   LogDebug("CSCCrossGap")
