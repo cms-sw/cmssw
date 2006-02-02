@@ -71,13 +71,15 @@ EcalCoder::encode(const CaloSamples& timeframe) const
 
   double LSB[NGAINS];
   double pedestals[NGAINS];
+  double widths[NGAINS];
+  double threeSigmaADCNoise[NGAINS];
   for(int igain = 0; igain < NGAINS; ++igain) {
     LSB[igain]= Emax/(MAXINT*theGains[igain]);
     // fill in the pedestal and width
     double width = 0.;
-    findPedestal(detId, igain, pedestals[igain], width);
+    findPedestal(detId, igain, pedestals[igain], widths[igain]);
     if(addNoise_) {
-      pedestals[igain] = RandGauss::shoot(pedestals[igain], width);
+      threeSigmaADCNoise[igain] = widths[igain]/LSB[igain] * 3.;
     }
   }
 
@@ -93,7 +95,16 @@ EcalCoder::encode(const CaloSamples& timeframe) const
      int igain = gainId + 1 ;
      while (igain != 0) {
        --igain;
-       int tmpadc = int((timeframe[i]+pedestals[igain])/LSB[igain]);
+
+       double ped = + pedestals[igain];
+       int tmpadc = int((timeframe[i]+ped)/LSB[igain]);
+
+       // see if it's close enough to the boundary that we have to throw noise
+       if(addNoise_ && (tmpadc <= MAXINT+threeSigmaADCNoise[igain]) ) {
+          ped = RandGauss::shoot(ped, widths[igain]);
+          tmpadc = int((timeframe[i]+ped)/LSB[igain]);
+       }
+         
        if(tmpadc <= MAXINT ) {
          adc = tmpadc;
          break ;
