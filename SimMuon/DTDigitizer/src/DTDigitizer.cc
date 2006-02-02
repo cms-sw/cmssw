@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/01/25 11:07:39 $
- *  $Revision: 1.10 $
+ *  $Date: 2006/02/02 18:24:02 $
+ *  $Revision: 1.11 $
  *  \authors: G. Bevilacqua, N. Amapane, G. Cerminara, R. Bellan
  */
 
@@ -226,7 +226,7 @@ pair<float,bool> DTDigitizer::computeTime(const DTLayer* layer,
     return driftTime;
   }
   
-  LocalPoint locPt = hit->localPosition();
+  //  LocalPoint locPt = hit->localPosition();
 
   // Local magnetic field  FIXME
   //  ESHandle<MagneticField> magnField;
