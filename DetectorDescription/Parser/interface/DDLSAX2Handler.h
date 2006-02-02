@@ -14,7 +14,7 @@
 #include <iostream>
 
 
-namespace xercesc_2_3{} using namespace xercesc_2_3;
+namespace xercesc_2_7{} using namespace xercesc_2_7;
 
 ///  DDLSAX2Handler inherits from Xerces C++ DefaultHandler.
 /** @class DDLSAX2Handler

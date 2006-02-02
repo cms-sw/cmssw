@@ -10,7 +10,7 @@
  *           DDLConfiguration sub-component of DDD                                *
  *                                                                         *
  ***************************************************************************/
-//using namespace xercesc_2_3;
+
 //--------------------------------------------------------------------------
 //  Includes
 //--------------------------------------------------------------------------
@@ -32,6 +32,8 @@
 #include <string>
 #include <iostream>
 #include <map>
+
+namespace xercesc_2_7{} using namespace xercesc_2_7;
 
 namespace std{} using namespace std;
 
