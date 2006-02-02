@@ -1,3 +1,6 @@
+** V00-00-07  [Fri Feb  3 00:20:58 2006]
+Forgot to name the ComparatorDigi collection
+
 ** V00-00-06  [Thu Feb  2 19:25:37 2006]
 Gave names to the Digi collections, because CSCDetId needs to be associated with a name.  First version that I claim to be working
 
