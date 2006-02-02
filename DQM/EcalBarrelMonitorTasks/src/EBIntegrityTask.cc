@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2006/01/02 12:29:22 $
- * $Revision: 1.7 $
+ * $Date: 2006/01/29 17:21:28 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  *
 */
@@ -56,47 +56,47 @@ void EBIntegrityTask::setup(void){
     dbe->setCurrentFolder("EcalBarrel");
 
     // checking when number of towers in data different than expected from header
-    dbe->setCurrentFolder("EcalBarrel/EcalIntegrity");
+    dbe->setCurrentFolder("EcalBarrel/EBIntegrityTask");
     sprintf(histo, "EBIT DCC size error");
     meIntegrityDCCSize = dbe->book1D(histo, histo, 36, 1, 37.);
 
     // checking when the gain is 0
-    dbe->setCurrentFolder("EcalBarrel/EcalIntegrity/Gain");
+    dbe->setCurrentFolder("EcalBarrel/EBIntegrityTask/Gain");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBIT gain SM%02d", i+1);
       meIntegrityGain[i] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
     }
 
     // checking when channel has unexpected or invalid ID
-    dbe->setCurrentFolder("EcalBarrel/EcalIntegrity/ChId");
+    dbe->setCurrentFolder("EcalBarrel/EBIntegrityTask/ChId");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBIT ChId SM%02d", i+1);
       meIntegrityChId[i] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
     }
 
     // checking when channel has unexpected or invalid ID
-    dbe->setCurrentFolder("EcalBarrel/EcalIntegrity/GainSwitch");
+    dbe->setCurrentFolder("EcalBarrel/EBIntegrityTask/GainSwitch");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBIT gain switch SM%02d", i+1);
       meIntegrityGainSwitch[i] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
     }
 
     // checking when channel has unexpected or invalid ID
-    dbe->setCurrentFolder("EcalBarrel/EcalIntegrity/GainSwitchStay");
+    dbe->setCurrentFolder("EcalBarrel/EBIntegrityTask/GainSwitchStay");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBIT gain switch stay SM%02d", i+1);
       meIntegrityGainSwitchStay[i] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
     }
 
     // checking when trigger tower has unexpected or invalid ID
-    dbe->setCurrentFolder("EcalBarrel/EcalIntegrity/TTId");
+    dbe->setCurrentFolder("EcalBarrel/EBIntegrityTask/TTId");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBIT TTId SM%02d", i+1);
       meIntegrityTTId[i] = dbe->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
     }
 
     // checking when trigger tower has unexpected or invalid size
-    dbe->setCurrentFolder("EcalBarrel/EcalIntegrity/TTBlockSize");
+    dbe->setCurrentFolder("EcalBarrel/EBIntegrityTask/TTBlockSize");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBIT TTBlockSize SM%02d", i+1);
       meIntegrityTTBlockSize[i] = dbe->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
