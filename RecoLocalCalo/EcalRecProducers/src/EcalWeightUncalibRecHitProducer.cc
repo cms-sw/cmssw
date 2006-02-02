@@ -1,9 +1,9 @@
 /** \class EcalWeightUncalibRecHitProducer
  *   produce ECAL uncalibrated rechits from dataframes
  *
-  *  $Id: EcalWeightUncalibRecHitProducer.cc,v 1.5 2005/11/03 14:55:51 rahatlou Exp $
-  *  $Date: 2005/11/03 14:55:51 $
-  *  $Revision: 1.5 $
+  *  $Id: EcalWeightUncalibRecHitProducer.cc,v 1.6 2006/01/10 11:28:51 meridian Exp $
+  *  $Date: 2006/01/10 11:28:51 $
+  *  $Revision: 1.6 $
   *  \author Shahram Rahatlou, University of Rome & INFN, Sept 2005
   *
   */
@@ -109,14 +109,12 @@ EcalWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup&
    EcalPedestals::Item aped; // pedestal object for a single xtal
    for(EBDigiCollection::const_iterator itdg = digis->begin(); itdg != digis->end(); ++itdg) {
      // find pedestals for this channel
-     //int channelId = 1566; // should use itdg->id() via EcalMapping
-     int channelId = (itdg->id().ieta() - 1)*EBDetId::MAX_IPHI/18 + itdg->id().iphi(); // should use itdg->id() via EcalMapping
      if(!counterExceeded()) std::cout << "looking up pedestal for crystal: " << itdg->id() << std::endl;
-     pedIter = pedMap.find(channelId);
+     pedIter = pedMap.find(itdg->id().rawId());
      if( pedIter != pedMap.end() ) {
         aped = pedIter->second;
      } else {
-       std::cout << "error!! could not find pedestals for channel: " << channelId << std::endl;
+        std::cout << "error!! could not find pedestals for channel: " << itdg->id() << std::endl;
      }
      std::vector<double> pedVec;
      pedVec.push_back(aped.mean_x1);pedVec.push_back(aped.mean_x6);pedVec.push_back(aped.mean_x12);
