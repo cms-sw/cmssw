@@ -13,7 +13,6 @@
 #include "CalibFormats/HcalObjects/interface/HcalChannelCoder.h"
 #include "CalibFormats/HcalObjects/interface/QieShape.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoder.h"
-#include "CondFormats/HcalMapping/interface/HcalMapping.h"
 
 
 class HcalCalibrations;

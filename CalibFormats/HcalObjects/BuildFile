@@ -4,7 +4,6 @@
 <use name=CalibFormats/CaloObjects>
 <use name=CondFormats/HcalObjects>
 <use name=CondFormats/DataRecord>
-<use name=CondFormats/HcalMapping>
 <use name=boost>
 
 <export>
@@ -15,7 +14,6 @@
    <use name=CalibFormats/CaloObjects>
    <use name=CondFormats/HcalObjects>
    <use name=CondFormats/DataRecord>
-   <use name=CondFormats/HcalMapping>
    <use name=boost>
 </export>
 
