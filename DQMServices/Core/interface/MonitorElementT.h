@@ -59,42 +59,71 @@ class MonitorElementT : public MonitorElement
     return -999;
   }
 
-  // mean value of histogram along x, y or z axis (axis=1, 2, 3 respectively)
+  // get mean value of histogram along x, y or z axis (axis=1, 2, 3 respectively)
   virtual float getMean(int axis = 1) const
   {return doNotUseMethod("getMean");}
-  // mean value uncertainty of histogram along x, y or z axis 
-  // (axis=1, 2, 3 respectively)
+  // get mean value uncertainty of histogram along x, y or z axis 
+  // get (axis=1, 2, 3 respectively)
   virtual float getMeanError(int axis = 1) const
   {return doNotUseMethod("getMeanError");}
-  // RMS of histogram along x, y or z axis (axis=1, 2, 3 respectively)
+  // get RMS of histogram along x, y or z axis (axis=1, 2, 3 respectively)
   virtual float getRMS(int axis = 1) const
   {return doNotUseMethod("getRMS");}
-  // RMS uncertainty of histogram along x, y or z axis (axis=1, 2, 3 respectively)
+  // get RMS uncertainty of histogram along x, y or z axis (axis=1,2,3 respectively)
   virtual float getRMSError(int axis = 1) const
   {return doNotUseMethod("getRMSError");}
-  // content of bin (1-D)
+  // get content of bin (1-D)
   virtual float getBinContent(int binx) const
   {return doNotUseMethod("getBinContent(binx)");}
-  // content of bin (2-D)
+  // get content of bin (2-D)
   virtual float getBinContent(int binx, int biny) const
   {return doNotUseMethod("getBinContent(binx,biny)");}
-  // content of bin (3-D)
+  // get content of bin (3-D)
   virtual float getBinContent(int binx, int biny, int binz) const
   {return doNotUseMethod("getBinContent(binx,biny,binz)");}
-  // uncertainty on content of bin (1-D) - See TH1::GetBinError for details
+  // get uncertainty on content of bin (1-D) - See TH1::GetBinError for details
   virtual float getBinError(int binx) const
   {return doNotUseMethod("getBinError(binx)");}
-  // uncertainty on content of bin (2-D) - See TH1::GetBinError for details
+  // get uncertainty on content of bin (2-D) - See TH1::GetBinError for details
   virtual float getBinError(int binx, int biny) const
   {return doNotUseMethod("getBinError(binx,biny)");}
-  // uncertainty on content of bin (3-D) - See TH1::GetBinError for details
+  // get uncertainty on content of bin (3-D) - See TH1::GetBinError for details
   virtual float getBinError(int binx, int biny, int binz) const
   {return doNotUseMethod("getBinError(binx,biny,binz)");}
-  // # of entries
+  // get # of entries
   virtual float getEntries(void){return 1;}
-  // # of bin entries (for profiles)
+  // get # of bin entries (for profiles)
   virtual float getBinEntries(int bin)
   {return doNotUseMethod("getBinEntries");}
+
+  // set content of bin (1-D)
+  virtual void setBinContent(int binx, float content)
+  {doNotUseMethod("setBinContent(binx,content)");}
+  // set content of bin (2-D)
+  virtual void setBinContent(int binx, int biny, float content)
+  {doNotUseMethod("setBinContent(binx,biny,content)");}
+  // set content of bin (3-D)
+  virtual void setBinContent(int binx, int biny, int binz, float content)
+  {doNotUseMethod("setBinContent(binx,biny,binz,content)");}
+  // set uncertainty on content of bin (1-D)
+  virtual void setBinError(int binx, float error)
+  {doNotUseMethod("setBinError(binx,error)");}
+  // set uncertainty on content of bin (2-D)
+  virtual void setBinError(int binx, int biny, float error)
+  {doNotUseMethod("setBinError(binx,biny,error)");}
+  // set uncertainty on content of bin (3-D)
+  virtual void setBinError(int binx, int biny, int binz, float error)
+  {doNotUseMethod("setBinError(binx,biny,binz,error)");}
+  // set # of entries
+  virtual void setEntries(float nentries){}
+  // set bin label for x, y or z axis (axis=1, 2, 3 respectively)
+  virtual void setBinLabel(int bin, std::string label, int axis = 1)
+  {doNotUseMethod("setBinLabel");}
+  // set x-, y- or z-axis range (axis=1, 2, 3 respectively)
+  virtual void setAxisRange(float xmin, float xmax, int axis = 1)
+  {doNotUseMethod("setAxisRange");}
+
+
  private:
   
   std::string name_;

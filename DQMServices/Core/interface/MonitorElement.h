@@ -81,31 +81,53 @@ class MonitorElement
 
   /*** getter methods (wrapper around ROOT methods) ****/
   // 
-  // mean value of histogram along x, y or z axis (axis=1, 2, 3 respectively)
+  // get mean value of histogram along x, y or z axis (axis=1, 2, 3 respectively)
   virtual float getMean(int axis = 1) const = 0;
-  // mean value uncertainty of histogram along x, y or z axis 
+  // get mean value uncertainty of histogram along x, y or z axis 
   // (axis=1, 2, 3 respectively)
   virtual float getMeanError(int axis = 1) const = 0;
-  // RMS of histogram along x, y or z axis (axis=1, 2, 3 respectively)
+  // get RMS of histogram along x, y or z axis (axis=1, 2, 3 respectively)
   virtual float getRMS(int axis = 1) const = 0;
-  // RMS uncertainty of histogram along x, y or z axis (axis=1, 2, 3 respectively)
+  // get RMS uncertainty of histogram along x, y or z axis (axis=1,2,3 respectively)
   virtual float getRMSError(int axis = 1) const = 0;
-  // content of bin (1-D)
+  // get content of bin (1-D)
   virtual float getBinContent(int binx) const = 0;
-  // content of bin (2-D)
+  // get content of bin (2-D)
   virtual float getBinContent(int binx, int biny) const = 0;
-  // content of bin (3-D)
+  // get content of bin (3-D)
   virtual float getBinContent(int binx, int biny, int binz) const = 0;
-  // uncertainty on content of bin (1-D) - See TH1::GetBinError for details
+  // get uncertainty on content of bin (1-D) - See TH1::GetBinError for details
   virtual float getBinError(int binx) const = 0;
-  // uncertainty on content of bin (2-D) - See TH1::GetBinError for details
+  // get uncertainty on content of bin (2-D) - See TH1::GetBinError for details
   virtual float getBinError(int binx, int biny) const = 0;
-  // uncertainty on content of bin (3-D) - See TH1::GetBinError for details
+  // get uncertainty on content of bin (3-D) - See TH1::GetBinError for details
   virtual float getBinError(int binx, int biny, int binz) const = 0;
-  // # of entries
+  // get # of entries
   virtual float getEntries(void) = 0;
-  // # of bin entries (for profiles)
+  // get # of bin entries (for profiles)
   virtual float getBinEntries(int bin) = 0;
+
+  /*** setter methods (wrapper around ROOT methods) ****/
+  // 
+  // set content of bin (1-D)
+  virtual void setBinContent(int binx, float content) = 0;
+  // set content of bin (2-D)
+  virtual void setBinContent(int binx, int biny, float content) = 0;
+  // set content of bin (3-D)
+  virtual void setBinContent(int binx, int biny, int binz, float content) = 0;
+  // set uncertainty on content of bin (1-D)
+  virtual void setBinError(int binx, float error) = 0;
+  // set uncertainty on content of bin (2-D)
+  virtual void setBinError(int binx, int biny, float error) = 0;
+  // set uncertainty on content of bin (3-D)
+  virtual void setBinError(int binx, int biny, int binz, float error) = 0;
+  // set # of entries
+  virtual void setEntries(float nentries) = 0;
+  // set bin label for x, y or z axis (axis=1, 2, 3 respectively)
+  virtual void setBinLabel(int bin, std::string label, int axis = 1) = 0;
+  // set x-, y- or z-axis range (axis=1, 2, 3 respectively)
+  virtual void setAxisRange(float xmin, float xmax, int axis = 1) = 0;
+
   LockMutex::Mutex mutex;
 
  private:
