@@ -1,3 +1,6 @@
+** V01-00-00  [Thu Feb  2 17:04:59 2006]
+change the method name det() to module()
+
 ** V00-00-01  [Tue Dec 13 17:42:07 2005]
 new Channel
 
