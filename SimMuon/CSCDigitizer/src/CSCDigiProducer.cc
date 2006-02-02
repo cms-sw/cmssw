@@ -5,6 +5,9 @@
 #include "SimMuon/CSCDigitizer/src/CSCDigitizer.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
+#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
+
 
 
 CSCDigiProducer::CSCDigiProducer(const edm::ParameterSet& ps) {
@@ -12,8 +15,6 @@ CSCDigiProducer::CSCDigiProducer(const edm::ParameterSet& ps) {
   produces<CSCWireDigiCollection>();
   produces<CSCStripDigiCollection>();
   produces<CSCComparatorDigiCollection>();
-
-  theFakeHitsAreUsed = ps.getUntrackedParameter<bool>("useFakeHits", false);
 }
 
 
@@ -24,11 +25,16 @@ CSCDigiProducer::~CSCDigiProducer() {
 
 void CSCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
 
-  edm::Handle<edm::PSimHitContainer> hCscHits;
-  e.getByLabel("r", "MuonCSCHits", hCscHits);
-  edm::PSimHitContainer cscHits = *hCscHits;
+  edm::Handle<CrossingFrame> cf;
+  e.getByType(cf);
 
-  std::cout << "HITS SIZE " << cscHits.size() << std::endl;
+  // test access to SimHits
+  const std::string hitsName("MuonCSCHits");
+
+  std::auto_ptr<MixCollection<PSimHit> > 
+    hits( new MixCollection<PSimHit>(cf.product(), hitsName) );
+
+
   // Create empty output
 
   std::auto_ptr<CSCWireDigiCollection> pWireDigis(new CSCWireDigiCollection());
@@ -42,9 +48,6 @@ void CSCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) 
 
   theDigitizer->setGeometry( pGeom );
 
-  if(theFakeHitsAreUsed) {
-    addFakeHits(pGeom, cscHits);
-  }
 
   // find the magnetic field
   edm::ESHandle<MagneticField> magfield;
@@ -53,7 +56,7 @@ void CSCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) 
   theDigitizer->setMagneticField(&*magfield);
 
   // run the digitizer
-  theDigitizer->doAction(cscHits, *pWireDigis, *pStripDigis, *pComparatorDigis);
+  theDigitizer->doAction(*hits, *pWireDigis, *pStripDigis, *pComparatorDigis);
 
 
   // store them in the event
@@ -63,20 +66,3 @@ void CSCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) 
 
 }
 
-void
-CSCDigiProducer::addFakeHits(const TrackingGeometry * geom, 
-                             edm::PSimHitContainer & hits) 
-{
-  
-  Local3DPoint entry(0.,0.,-0.5);
-  Local3DPoint exit(0.,0., 0.5);
-  float pabs = 100.;
-  double tof = 0.;
-  double eloss = 0.0001;
-  int particleType = 13;
-  unsigned int trackId = 0;
-  float theta = 0.;
-  float phi = 0.;
-  int firstDetId = geom->detIds().begin()->rawId();
-  hits.push_back(PSimHit(entry, exit, pabs, tof, eloss, particleType, firstDetId, trackId, theta, phi));
-}

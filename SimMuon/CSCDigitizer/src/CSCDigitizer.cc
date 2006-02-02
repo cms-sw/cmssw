@@ -34,14 +34,14 @@ CSCDigitizer::~CSCDigitizer() {
 
 
 
-void CSCDigitizer::doAction(const edm::PSimHitContainer & simHits, 
+void CSCDigitizer::doAction(MixCollection<PSimHit> & simHits, 
                             CSCWireDigiCollection & wireDigis, 
                             CSCStripDigiCollection & stripDigis, 
                             CSCComparatorDigiCollection & comparators) 
 {
   // arrange the hits by layer
   std::map<int, edm::PSimHitContainer> hitMap;
-  for(edm::PSimHitContainer::const_iterator hitItr = simHits.begin();
+  for(MixCollection<PSimHit>::MixItr hitItr = simHits.begin();
       hitItr != simHits.end(); ++hitItr) 
   {
     hitMap[hitItr->detUnitId()].push_back(*hitItr);

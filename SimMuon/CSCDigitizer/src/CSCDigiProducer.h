@@ -22,9 +22,6 @@ public:
 
 private:
 
-  void addFakeHits(const TrackingGeometry * geom,
-                   edm::PSimHitContainer & hits);
-
   CSCDigitizer * theDigitizer;
 
   bool theFakeHitsAreUsed;

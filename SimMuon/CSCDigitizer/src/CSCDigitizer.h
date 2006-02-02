@@ -19,6 +19,8 @@
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
+#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
+
 
 class CSCDriftSim;
 class CSCWireHitSim;
@@ -36,7 +38,7 @@ public:
 
   /**  digitize
    */
-  void doAction(const edm::PSimHitContainer & simHits,
+  void doAction(MixCollection<PSimHit> & simHits,
                 CSCWireDigiCollection & wireDigis,
                 CSCStripDigiCollection & stripDigis,
                 CSCComparatorDigiCollection & comparators);
