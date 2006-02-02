@@ -1,3 +1,6 @@
+** V00-00-01  [Fri Feb  3 00:40:38 2006]
+Migrate from seal::reflex to Root::Reflex
+
 ** V00-00-00  [Wed Oct 26 18:08:17 2005]
 Base tag on CMSSW_0_2_0_pre5
 
