@@ -1,3 +1,6 @@
+** V00-01-00  [Thu Feb  2 18:50:48 2006]
+adapted to the new EcalPedestals class that now uses DetId::rawid() to lookup pedestals for indivisual channels instead of the old channelId defined by eta and phi indices
+
 ** V00-00-04  [Tue Jan 10 15:17:47 2006]
 added the analytic fit implemented by Alessandro Palma.
 This is used for the analysis of the HV scan laser data of ECAL.
