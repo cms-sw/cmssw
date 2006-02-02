@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/01/23 18:31:53 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/01/25 11:07:39 $
+ *  $Revision: 1.10 $
  *  \authors: G. Bevilacqua, N. Amapane, G. Cerminara, R. Bellan
  */
 
@@ -154,8 +154,8 @@ void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
       DTWireId wireId = (*wire).first;
 
       //FIXME
-      //      const DTLayer* layer = dynamic_cast< const DTLayer* > (muonGeom->idToDet(wireId)); 
-      const DTLayer *layer = new DTLayer(); 
+            const DTLayer* layer = dynamic_cast< const DTLayer* > (muonGeom->idToDet(wireId)); 
+      // const DTLayer *layer = new DTLayer(); 
 
       // Loop on the hits of this wire    
       for (vector<const PSimHit*>::const_iterator hit=vhit.begin();

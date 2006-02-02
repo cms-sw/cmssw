@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/01/20 15:49:00 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/01/25 11:07:39 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane, R. Bellan - INFN Torino
  */
 
@@ -32,26 +32,39 @@ double DTDigiSyncTOFCorr::digitizerOffset(const DTWireId * id, const DTLayer* la
 
   if (corrType==1) {
     // Subtraction of assumed TOF, per CHAMBER
-    //FIXME: implement chamberId() in MuBarWireId!
-    /*
-    MuBarChamberId chId(id->wheel(),id->station(),id->sector());
-    MuBarChamber* chamber = theMuMap.getChamber(chId);
-    double flightL = chamber->position().mag();
-    */
-    double flightL = layer->position().mag(); //FIXME
+    //FIXME:
+
+    // ORCA
+    //implement chamberId() in MuBarWireId!
+    //MuBarChamberId chId(id->wheel(),id->station(),id->sector());
+    //MuBarChamber* chamber = theMuMap.getChamber(chId);
+    //double flightL = chamber->position().mag();
+
+    //Wish list for CMSSW:
+    // a mf to extract the DTChamber from the DTlayer
+    // DTChamber *chamber layer->chamber();
+    // double flightL = chamber->position().mag();
+    
+    double flightL = layer->surface().position().mag(); //FIXME
 
     offset -= flightL/cSpeed;
     
   } else if (corrType==2) {
     // Subtraction of assumed TOF, per WIRE 
     // (legacy mode, cf. previous versions)
-    //FIXME: implement layerId() in MuBarWireId!
-    /*
-    MuBarLayerId lId(id->wheel(),id->station(),id->sector(),id->superlayer(),id->layer());
-    MuBarLayer* layer = theMuMap.getLayer(lId);
-    double flightL = layer->toGlobal(layer->getWire(*id)->positionInLayer()).mag();
-    */
-    double flightL = layer->position().mag(); //FIXME
+
+    //FIXME:
+
+    // ORCA
+    //implement layerId() in MuBarWireId!
+    //MuBarLayerId lId(id->wheel(),id->station(),id->sector(),id->superlayer(),id->layer());
+    //MuBarLayer* layer = theMuMap.getLayer(lId);
+    //double flightL = layer->toGlobal(layer->getWire(*id)->positionInLayer()).mag();
+
+    //Wish list for CMSSW:
+    // double flightL = layer->toGlobal(layer->getWire(*id)->positionInLayer()).mag();
+    
+    double flightL = layer->surface().position().mag(); //FIXME
 
     offset -= flightL/cSpeed;
 
