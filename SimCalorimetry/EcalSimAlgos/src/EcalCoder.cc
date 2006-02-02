@@ -17,9 +17,10 @@ EcalCoder::EcalCoder(bool addNoise)
   theGains[0] = 1.;
   theGains[1] = 6.;
   theGains[2] = 12.;
-  theGainErrors[0] = 0.;
-  theGainErrors[1] = 0.;
-  theGainErrors[2] = 0.;
+  // 0.2% gain variation
+  theGainErrors[0] = 0.002;
+  theGainErrors[1] = 0.002;
+  theGainErrors[2] = 0.002;
 }
 
 
@@ -72,15 +73,18 @@ EcalCoder::encode(const CaloSamples& timeframe) const
   double LSB[NGAINS];
   double pedestals[NGAINS];
   double widths[NGAINS];
+  double gains[NGAINS];
   double threeSigmaADCNoise[NGAINS];
   for(int igain = 0; igain < NGAINS; ++igain) {
-    LSB[igain]= Emax/(MAXINT*theGains[igain]);
     // fill in the pedestal and width
-    double width = 0.;
     findPedestal(detId, igain, pedestals[igain], widths[igain]);
+    // set nominal value first
+    gains[igain] = theGains[igain];
     if(addNoise_) {
-      threeSigmaADCNoise[igain] = widths[igain]/LSB[igain] * 3.;
+      gains[igain] *= RandGauss::shoot(1., theGainErrors[igain]);
     }
+    LSB[igain]= Emax/(MAXINT*gains[igain]);
+    threeSigmaADCNoise[igain] = widths[igain]/LSB[igain] * 3.;
   }
 
 
