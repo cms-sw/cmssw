@@ -1,3 +1,6 @@
+** V01-00-00  [Thu Feb  2 17:02:32 2006]
+change the method name det() to module()
+
 ** V00-00-02  [Mon Jan 23 17:07:28 2006]
 Methods moved to the common Strip class
 
