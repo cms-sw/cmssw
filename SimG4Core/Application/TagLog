@@ -1,3 +1,6 @@
+** V03-06-09  [Thu Feb  2 23:31:13 2006]
+updates: XML from Mike, correct Hcal num.scheme, digis
+
 ** V03-06-08  [Tue Jan 17 03:05:01 2006]
 new fwdpix geom. in test/SimConfiguration.xml
 
