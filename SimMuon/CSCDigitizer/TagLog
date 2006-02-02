@@ -1,3 +1,6 @@
+** V00-00-05  [Thu Feb  2 13:16:42 2006]
+Added MixCollections, put in a mass for electrons so delta rays don't wreak such havoc
+
 ** V00-00-02  [Thu Jan 19 20:45:54 2006]
 V00-00-02 did work against what's in Geometry/CSCSimAlgos after all
 
