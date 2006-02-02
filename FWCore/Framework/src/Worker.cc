@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: Worker.cc,v 1.3 2005/12/14 01:35:44 chrjones Exp $
+$Id: Worker.cc,v 1.4 2006/01/29 23:33:58 jbk Exp $
 ----------------------------------------------------------------------*/
 
 #include <iostream>
@@ -65,7 +65,7 @@ namespace edm
     switch(state_)
       {
       case Ready: break;
-      case Pass: return true;
+      case Pass: break;
       case Fail: return false;
       case Exception:
 	{
