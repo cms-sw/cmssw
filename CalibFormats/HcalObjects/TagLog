@@ -1,3 +1,6 @@
+** V02-01-01  [Thu Feb  2 20:14:10 2006]
+Get rid of HcalMapping reference
+
 ** V02-01-00  [Fri Jan  6 18:53:59 2006]
 Add capId offset to coder interface
 
