@@ -383,6 +383,9 @@ CSCStripDigi CSCStripElectronicsSim::createDigi(int channel,
       scaCounts[scaBin] += static_cast< int >( RandGaussQ::shoot() * sca_noise 
 						 / theSpecs->chargePerCount() );
     }
+
+    // do saturation of 12-bit ADC
+    scaCounts[scaBin] = std::min(scaCounts[scaBin], 4095);
   }
   //int adcCounts = static_cast< int >( signal.getTotal() / theSpecs->chargePerCount() );
   CSCStripDigi newDigi(channel, scaCounts);
