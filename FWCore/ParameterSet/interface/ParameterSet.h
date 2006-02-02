@@ -2,7 +2,7 @@
 #define ParameterSet_ParameterSet_h
 
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.h,v 1.12 2005/11/11 19:57:58 paterno Exp $
+// $Id: ParameterSet.h,v 1.13 2005/12/22 15:40:13 chrjones Exp $
 //
 // Declaration for ParameterSet(parameter set) and related types
 // ----------------------------------------------------------------------
@@ -83,8 +83,15 @@ namespace edm {
     addUntrackedParameter(std::string const& name, T value)
     {
       // No need to invalidate: this is modifying an untracked parameter!
+      // The 2nd argument to the c'tor of Entry should be *false*!!!
       insert(true, name, Entry(value, true));
     }
+
+    bool empty() const
+    {
+      return tbl_.empty();
+    }
+
 
 private:
     typedef std::map<std::string, Entry> table;

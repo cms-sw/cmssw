@@ -1,4 +1,12 @@
-17-01-31 mfp. Remove unnecessary rejection of empty parameter sets
+02-02-06 mfp. Starting to fix long-standing mishandling of untracked
+
+   parameters. Removed check for 'label' entry in the ParameterSet's
+   table; this seems to have been a leftover from a previous
+   misunderstanding regarding ParameterSet objects having names. This
+   was also probably the source of the (defunct) error messages
+   regarding 'anonymous parameter sets'.
+
+31-01-06 mfp. Remove unnecessary rejection of empty parameter sets
    from MakersProcess.cc
    Add test for overriding 'used' blocks and PSets; test is commented
    out because the current code fails! The test/sample.txt file is
