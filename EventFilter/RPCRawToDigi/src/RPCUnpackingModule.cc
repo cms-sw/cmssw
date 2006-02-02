@@ -1,13 +1,14 @@
 /** \file
  * Implementation of class RPCUnpackingModule
  *
- *  $Date: 2005/12/14 13:35:22 $
- *  $Revision: 1.7 $
+ *  $Date: 2005/12/15 17:49:45 $
+ *  $Revision: 1.8 $
  *
  * \author Ilaria Segoni
  */
 
 #include <EventFilter/RPCRawToDigi/interface/RPCUnpackingModule.h>
+#include <EventFilter/RPCRawToDigi/interface/RPCUnpackingParameters.h>
 #include <EventFilter/RPCRawToDigi/interface/RPCRecord.h>
 
 #include <DataFormats/FEDRawData/interface/FEDRawData.h>
@@ -27,10 +28,6 @@ using namespace std;
 
 
 #include <iostream>
-
-#define SLINK_WORD_SIZE 8
-#define RPC_RECORD_SIZE 2
-
 
 RPCUnpackingModule::RPCUnpackingModule(const edm::ParameterSet& pset)  
 {
@@ -55,6 +52,8 @@ RPCUnpackingModule::RPCUnpackingModule(const edm::ParameterSet& pset)
 }
 
 RPCUnpackingModule::~RPCUnpackingModule(){
+  delete monitor;
+  monitor = NULL;
 }
 
 
@@ -90,17 +89,17 @@ void RPCUnpackingModule::produce(Event & e, const EventSetup& c){
       const unsigned char* index = fedData.data();
        
       /// Unpack FED Header(s)
-      int numberOfHeaders= HeaderUnpacker(index);
+      int numberOfHeaders= this->HeaderUnpacker(index);
  
       /// Unpack FED Trailer(s)
-      const unsigned char* trailerIndex=index+fedData.size()-SLINK_WORD_SIZE;
-      int numberOfTrailers=TrailerUnpacker(trailerIndex);
+      const unsigned char* trailerIndex=index+fedData.size()- rpc::Unpacking::SLINK_WORD_SIZE;
+      int numberOfTrailers=this->TrailerUnpacker(trailerIndex);
        
       if(printout) cout<<"Found "<<numberOfHeaders<<" Headers and "<<numberOfTrailers<<" Trailers"<<endl;		
   
       
       /// Beginning of RPC Records Unpacking
-      index += numberOfHeaders*SLINK_WORD_SIZE; 
+      index += numberOfHeaders* rpc::Unpacking::SLINK_WORD_SIZE; 
        
       /// Loop on S-LINK words 
        while( index != trailerIndex ){
@@ -111,7 +110,7 @@ void RPCUnpackingModule::produce(Event & e, const EventSetup& c){
          for(int nRecord=0; nRecord<4; nRecord++){
           
 	  const unsigned char* recordIndex;
-	  recordIndex=index+SLINK_WORD_SIZE-(nRecord+1)*RPC_RECORD_SIZE;
+	  recordIndex=index+ rpc::Unpacking::SLINK_WORD_SIZE -(nRecord+1)* rpc::Unpacking::RPC_RECORD_SIZE;
 	   
 	   if(hexprintout) {	  
 	     numOfRecords++;
@@ -129,13 +128,13 @@ void RPCUnpackingModule::produce(Event & e, const EventSetup& c){
           RPCRecord::recordTypes typeOfRecord = theRecord.type();
 	 
 	  /// Unpack the Record 
-	  recordUnpack(typeOfRecord,recordIndex);
+	  this->recordUnpack(typeOfRecord,recordIndex);
 	  
 	  }
           
 	  
           ///Go to beginning of next word
-          index+=SLINK_WORD_SIZE;
+          index+= rpc::Unpacking::SLINK_WORD_SIZE;
 
 
         }
@@ -195,7 +194,7 @@ int RPCUnpackingModule::TrailerUnpacker(const unsigned char* trailerIndex){
   if(fedTrailer.check())  {
        
        numberOfTrailers++;	   
-       trailerIndex -= SLINK_WORD_SIZE;     
+       trailerIndex -= rpc::Unpacking::SLINK_WORD_SIZE;     
 
        if(printout) cout<<"Trailer length: "<< fedTrailer.lenght()<<
           " CRC "<<fedTrailer.crc()<<
