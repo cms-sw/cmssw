@@ -12,8 +12,8 @@
 
 CSCDigiProducer::CSCDigiProducer(const edm::ParameterSet& ps) {
   theDigitizer = new CSCDigitizer();
-  produces<CSCWireDigiCollection>();
-  produces<CSCStripDigiCollection>();
+  produces<CSCWireDigiCollection>("MuonCSCWireDigi");
+  produces<CSCStripDigiCollection>("MuonCSCStripDigi");
   produces<CSCComparatorDigiCollection>();
 }
 
@@ -60,8 +60,8 @@ void CSCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) 
 
 
   // store them in the event
-  e.put(pWireDigis);
-  e.put(pStripDigis);
+  e.put(pWireDigis, "MuonCSCWireDigi");
+  e.put(pStripDigis, "MuonCSCStripDigi");
   e.put(pComparatorDigis);
 
 }
