@@ -1,3 +1,6 @@
+** V00-02-01  [Thu Feb  2 21:02:26 2006]
+Moved HF max to bin 4, added pileup to test
+
 ** V00-02-00  [Sat Jan 21 08:23:24 2006]
 Redid how noise was passed along, got HCAL gains from DB, and got rid of namespaces and fixed include guards
 
