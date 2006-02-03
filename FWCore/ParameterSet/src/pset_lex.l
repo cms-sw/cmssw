@@ -1,5 +1,5 @@
 /*
- * $Id: pset_lex.l,v 1.9 2006/01/12 20:19:49 paterno Exp $
+ * $Id: pset_lex.l,v 1.10 2006/01/17 20:32:31 paterno Exp $
  * Author: Us
  * Date: 4/28/05
  * History:
@@ -45,6 +45,7 @@
 %}
 
 letterstart	[a-zA-Z]+[a-zA-Z0-9\-_\.]*
+bangstart	\![a-zA-Z]+[a-zA-Z0-9\-_\.]*
 alphanumeric	[^\'\"\{\}\(\)\&=\n\t\r ,;:`]+
 comment	        #.*[\n]?
 comment2        "//".*[\n]?
@@ -89,6 +90,7 @@ comment2        "//".*[\n]?
 \)		{ return GROUP_END_tok; }
 
 {letterstart}	{ yylval.str = stringDup(yytext); return LETTERSTART_tok; }
+{bangstart}	{ yylval.str = stringDup(yytext); return BANGSTART_tok; }
 {alphanumeric}	{ yylval.str = stringDup(yytext); return VALUE_tok; }
 {comment}	{ ++lines; break ; }
 {comment2}	{ ++lines; break ; }

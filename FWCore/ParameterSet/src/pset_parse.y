@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.13 2005/12/24 00:53:26 chrjones Exp $
+ * $Id: pset_parse.y,v 1.14 2006/01/17 20:32:31 paterno Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -99,6 +99,7 @@ inline string toString(char* arg) { string s(arg); free(arg); return s; }
 %token ERROR_tok
 %token TYPE_tok
 %token LETTERSTART_tok
+%token BANGSTART_tok
 %token EQUAL_tok
 %left COMMA_tok
 %token VALUE_tok
@@ -705,7 +706,7 @@ pathseq:         pathseq COMMA_tok worker
                ;
 
 /* Returns a Node pointer */
-worker:          LETTERSTART_tok
+worker:          bangorletter
                  {
                    DBPRINT("worker: NAME");
                    string name(toString($<str>1));
@@ -719,6 +720,12 @@ worker:          LETTERSTART_tok
                    $<_Node>$ = $<_Node>2;
                  }
                ;
+
+bangorletter: LETTERSTART_tok
+      { $<str>$=$<str>1 }
+      | BANGSTART_tok
+      { $<str>$=$<str>1 }
+	  ;
 
 %%
 
