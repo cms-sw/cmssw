@@ -8,8 +8,6 @@
 <use name=FWCore/MessageLogger>
 <use name=FWCore/EDProduct>
 <use name=boost>
-<use name=Dictionary/Reflection>
-<use name=Framework/SealKernel>
 
 <export>
   <lib name=EventFilterHcalRawToDigi>
@@ -22,7 +20,5 @@
   <use name=FWCore/EDProduct>
   <use name=FWCore/MessageLogger>
   <use name=boost>
-  <use name=Dictionary/Reflection>
-  <use name=Framework/SealKernel>
 </export>
 
