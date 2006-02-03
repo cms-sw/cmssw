@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.cc,v 1.13 2005/12/22 15:40:08 chrjones Exp $
+// $Id: ParameterSet.cc,v 1.14 2006/02/02 15:46:27 paterno Exp $
 //
 // definition of ParameterSet's function members
 // ----------------------------------------------------------------------
@@ -106,22 +106,36 @@ namespace edm {
   { return p.second; }
   
   Entry const&
-  ParameterSet::retrieve(std::string const& name) const {
+  ParameterSet::retrieve(std::string const& name) const 
+  {
     table::const_iterator  it = tbl_.find(name);
-    if(it == tbl_.end()) {
-      throw edm::Exception(errors::Configuration,"MissingParameter:")
+    if ( it == tbl_.end() )
+      {
+	throw edm::Exception(errors::Configuration,"MissingParameter:")
 	  << "Parameter '" << name
-	  << "' not found.\n";
-    }
+	  << "' not found.";
+      }
+    if ( it->second.isTracked() == false )
+      {
+	throw edm::Exception(errors::Configuration,"StatusMismatch:")
+	  << "Parameter '" << name
+	  << "' is untracked, not tracked.";
+      }
     return it->second;
   }  // retrieve()
-  
+
   Entry const* const
-  ParameterSet::retrieveUntracked(std::string const& name) const {
+  ParameterSet::retrieveUntracked(std::string const& name) const 
+  {
     table::const_iterator  it = tbl_.find(name);
-    if(it == tbl_.end())  {
-      return 0;
-    }
+    
+    if ( it == tbl_.end() ) return 0; 
+    if (it->second.isTracked() )
+      {
+	throw edm::Exception(errors::Configuration,"StatusMismatch:")
+	  << "Parameter '" << name
+	  << "' is tracked, not untracked."; 
+      }
     return &it->second;
   }  // retrieve()
   
@@ -251,13 +265,13 @@ namespace edm {
     return count;
   }
 
-   std::vector<std::string>
-   ParameterSet::getParameterNames() const {
-      std::vector<std::string> returnValue(tbl_.size());
-      std::transform(tbl_.begin(), tbl_.end(),returnValue.begin(),
-                     boost::bind(&std::pair<const std::string, Entry>::first,_1));
-      return returnValue;
-   }
+  std::vector<std::string>
+  ParameterSet::getParameterNames() const {
+    std::vector<std::string> returnValue(tbl_.size());
+    std::transform(tbl_.begin(), tbl_.end(),returnValue.begin(),
+		   boost::bind(&std::pair<const std::string, Entry>::first,_1));
+    return returnValue;
+  }
   
 } // namespace edm
 // ----------------------------------------------------------------------

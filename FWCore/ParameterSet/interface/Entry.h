@@ -2,7 +2,7 @@
 #define ParameterSet_Entry_h
 
 // ----------------------------------------------------------------------
-// $Id: Entry.h,v 1.6 2005/11/01 22:31:51 paterno Exp $
+// $Id: Entry.h,v 1.7 2006/02/02 16:43:07 paterno Exp $
 //
 // interface to edm::Entry and related types
 //
@@ -18,7 +18,7 @@
 #include <vector>
 #include <map>
 
-#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
 // ----------------------------------------------------------------------
@@ -28,31 +28,6 @@ namespace edm {
   // forward declarations:
   class ParameterSet;
 
-  // ----------------------------------------------------------------------
-  // EntryError
-  
-  class EntryError : public cms::Exception 
-  {
-  public:
-    explicit EntryError(std::string const& mesg)
-      : cms::Exception("EntryError",mesg) {}
-  
-    virtual ~EntryError() throw() {}
-  
-  };  // EntryError
-  
-  // ----------------------------------------------------------------------
-  // ValueError
-  
-  class ValueError : public cms::Exception 
-  {
-  public:
-    explicit ValueError(std::string const& mesg)
-      : cms::Exception("ValueError",mesg) {}
-  
-    virtual ~ValueError() throw() {}
-  };  // ValueError
-  
   // ----------------------------------------------------------------------
   // Entry
   
@@ -121,9 +96,8 @@ namespace edm {
   
     // access
     bool isTracked() const { return tracked == '+'; }
-  
+
     char typeCode() const { return type; }
-  
   private:
     std::string  rep;
     char         type;
