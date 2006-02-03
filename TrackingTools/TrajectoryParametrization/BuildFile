@@ -1,0 +1,11 @@
+
+<export>
+  <lib name=TrackingToolsTrajectoryParametrization>
+  <use name=Geometry/CommonDetAlgo>
+  <use name=clhep>
+  <use name=boost>
+</export>
+
+<use name=Geometry/CommonDetAlgo> 
+<use name=clhep>
+<use name=boost>

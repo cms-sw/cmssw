@@ -1,0 +1,9 @@
+
+<export>
+ <lib name=DataFormats/TrajectoryState>
+ <use name=Geometry/Vector>
+ <use name=clhep>
+</export>
+
+<use name=Geometry/Vector>
+<use name=clhep>
