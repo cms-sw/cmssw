@@ -4,8 +4,8 @@
 /*
  * \file EBLaserTask.h
  *
- * $Date: 2006/01/11 11:56:47 $
- * $Revision: 1.14 $
+ * $Date: 2006/01/29 17:21:27 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  *
 */
@@ -36,8 +36,6 @@ using namespace cms;
 using namespace std;
 
 class EBLaserTask: public edm::EDAnalyzer{
-
-friend class EcalBarrelMonitorModule;
 
 public:
 

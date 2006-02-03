@@ -4,8 +4,8 @@
 /*
  * \file EBIntegrityTask.h
  *
- * $Date: 2005/12/30 10:24:29 $
- * $Revision: 1.5 $
+ * $Date: 2006/01/29 17:21:27 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  *
 */
@@ -32,8 +32,6 @@ using namespace cms;
 using namespace std;
 
 class EBIntegrityTask: public edm::EDAnalyzer{
-
-friend class EcalBarrelMonitorModule;
 
 public:
 

@@ -4,8 +4,8 @@
 /*
  * \file EBPedestalOnlineTask.h
  *
- * $Date: 2006/01/11 11:56:47 $
- * $Revision: 1.2 $
+ * $Date: 2006/01/29 17:21:27 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
@@ -36,8 +36,6 @@ using namespace cms;
 using namespace std;
 
 class EBPedestalOnlineTask: public edm::EDAnalyzer{
-
-friend class EcalBarrelMonitorModule;
 
 public:
 
