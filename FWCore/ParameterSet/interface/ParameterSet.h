@@ -2,7 +2,7 @@
 #define ParameterSet_ParameterSet_h
 
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.h,v 1.13 2005/12/22 15:40:13 chrjones Exp $
+// $Id: ParameterSet.h,v 1.14 2006/02/02 15:46:26 paterno Exp $
 //
 // Declaration for ParameterSet(parameter set) and related types
 // ----------------------------------------------------------------------
@@ -41,6 +41,7 @@ namespace edm {
 
     // Entry-handling
     Entry const& retrieve(std::string const&) const;
+
     Entry const* const retrieveUntracked(std::string const&) const;
     void insert(bool ok_to_replace, std::string const& , Entry const&);
     void augment(ParameterSet const& from);
@@ -83,8 +84,7 @@ namespace edm {
     addUntrackedParameter(std::string const& name, T value)
     {
       // No need to invalidate: this is modifying an untracked parameter!
-      // The 2nd argument to the c'tor of Entry should be *false*!!!
-      insert(true, name, Entry(value, true));
+      insert(true, name, Entry(value, false));
     }
 
     bool empty() const
