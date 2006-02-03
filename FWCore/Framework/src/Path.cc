@@ -42,7 +42,7 @@ namespace edm
     timesPassed_(),
     timesVisited_(),
     enabled_(true),
-    invertDecision_(true),
+    invertDecision_(false),
     pass_(false),
     bitpos_(bitpos),
     name_(path_name),
