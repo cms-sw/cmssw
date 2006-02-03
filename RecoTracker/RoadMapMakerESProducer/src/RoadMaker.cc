@@ -11,8 +11,8 @@
 // Created:         Thu Jan 12 21:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/01/14 22:00:00 $
-// $Revision: 1.1 $
+// $Date: 2006/01/15 01:00:30 $
+// $Revision: 1.2 $
 //
 
 #include <iostream>
@@ -489,7 +489,7 @@ void RoadMaker::printTrackerDetUnits(const TrackingGeometry &tracker) {
 		<< " fw(0)/bw(1): " << tibid.string()[0]
 		<< " ext(0)/int(0): " << tibid.string()[1] 
 		<< " string: " << tibid.string()[2] 
-		<< " detector: " << tibid.det()
+		<< " detector: " << tibid.module()
 		<< " not stereo(0)/stereo(1): " << tibid.stereo() 
 		<< " not glued(0)/glued(1): " << tibid.glued() 
 		<< std::endl; 
@@ -499,7 +499,7 @@ void RoadMaker::printTrackerDetUnits(const TrackingGeometry &tracker) {
 		<< " layer: " << tobid.layer() 
 		<< " fw(0)/bw(1): " << tobid.rod()[0]
 		<< " rod: " << tobid.rod()[1] 
-		<< " detector: " << tobid.det()
+		<< " detector: " << tobid.module()
 		<< " not stereo(0)/stereo(1): " << tobid.stereo() 
 		<< " not glued(0)/glued(1): " << tobid.glued() 
 		<< std::endl; 
@@ -509,8 +509,8 @@ void RoadMaker::printTrackerDetUnits(const TrackingGeometry &tracker) {
 		<< " side neg(1)/pos(2): " << tidid.side() 
 		<< " wheel: " << tidid.wheel()
 		<< " ring: " << tidid.ring()
-		<< " detector fw(0)/bw(1): " << tidid.det()[0]
-		<< " detector: " << tidid.det()[1] 
+		<< " detector fw(0)/bw(1): " << tidid.module()[0]
+		<< " detector: " << tidid.module()[1] 
 		<< " not stereo(0)/stereo(1): " << tidid.stereo() 
 		<< " not glued(0)/glued(1): " << tidid.glued() 
 		<< std::endl; 
@@ -522,8 +522,8 @@ void RoadMaker::printTrackerDetUnits(const TrackingGeometry &tracker) {
 		<< " petal fw(0)/bw(1): " << tecid.petal()[0]
 		<< " petal: " << tecid.petal()[1] 
 		<< " ring: " << tecid.ring()
-		<< " detector fw(0)/bw(1): " << tecid.det()[0]
-		<< " detector: " << tecid.det()[1] 
+		<< " detector fw(0)/bw(1): " << tecid.module()[0]
+		<< " detector: " << tecid.module()[1] 
 		<< " not stereo(0)/stereo(1): " << tecid.stereo() 
 		<< " not glued(0)/glued(1): " << tecid.glued() 
 		<< std::endl; 
@@ -532,7 +532,7 @@ void RoadMaker::printTrackerDetUnits(const TrackingGeometry &tracker) {
       std::cout << "[RoadMaker] DetUnit for PXB ring DetId: " << id.rawId() 
 		<< " layer: " << pxbid.layer()
 		<< " ladder: " << pxbid.ladder()
-		<< " detector: " << pxbid.det()
+		<< " detector: " << pxbid.module()
 		<< std::endl; 
     } else if ( (unsigned int)id.subdetId() == PixelSubdetector::PixelEndcap ) {
       PXFDetId pxfid(id.rawId()); 
@@ -540,7 +540,7 @@ void RoadMaker::printTrackerDetUnits(const TrackingGeometry &tracker) {
 		<< " side: " << pxfid.side()
 		<< " disk: " << pxfid.disk()
 		<< " blade: " << pxfid.blade()
-		<< " detector: " << pxfid.det()
+		<< " detector: " << pxfid.module()
 		<< std::endl; 
     }
 

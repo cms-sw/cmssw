@@ -9,8 +9,8 @@
 // Created:         Thu Jan 12 21:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/01/14 22:00:00 $
-// $Revision: 1.1 $
+// $Date: 2006/01/15 01:00:30 $
+// $Revision: 1.2 $
 //
 
 #include <iostream>
@@ -364,7 +364,7 @@ DetId Rings::constructTrackerTIDDetId(unsigned int fw_bw,
 
   if ( verbosity_ > 3 ) {
     std::cout << "[Rings] constructed TID ring DetId for side: " << id.side() << " wheel: " << id.wheel() 
-	      << " ring: " << id.ring() << "detector fw(0)/bw(1): " << id.det()[0] << " detector: " << id.det()[1] 
+	      << " ring: " << id.ring() << "detector fw(0)/bw(1): " << id.module()[0] << " detector: " << id.module()[1] 
 	      << " stereo: " << id.stereo() << std::endl; 
   }
 	
@@ -848,7 +848,7 @@ DetId Rings::constructTrackerTECDetId(unsigned int fw_bw,
   if ( verbosity_ > 3 ) {
     std::cout << "[Rings] constructed TEC ring DetId for side: " << id.side() << " wheel: " << id.wheel() 
 	      << " ring: " << id.ring() << " petal fw(0)/bw(0): " << id.petal()[0] << " petal: " << id.petal()[1] 
-	      << "detector fw(0)/bw(1): " << id.det()[0] << " detector: " << id.det()[1] << " stereo: " << id.stereo() << std::endl; 
+	      << "detector fw(0)/bw(1): " << id.module()[0] << " detector: " << id.module()[1] << " stereo: " << id.stereo() << std::endl; 
   }
 
   return DetId(id.rawId());
@@ -993,7 +993,7 @@ DetId Rings::constructTrackerPXFDetId(unsigned int fw_bw,
 				      unsigned int blade,
 				      unsigned int detector) {
 
-  PXFDetId id(fw_bw+1,disk+1,blade+1,detector+1);
+  PXFDetId id(fw_bw+1,disk+1,blade+1,detector+1,0);
 
   if ( verbosity_ > 3 ) {
     std::cout << "[Rings] constructed PXF ring DetId for fw_bw: " << id.side() << " disk: " << id.disk() 
@@ -1117,7 +1117,7 @@ Ring* Rings::getTrackerPXFRing(unsigned int fw_bw,
   // construct DetID from info using else the first of all entities and return Ring
   unsigned int blade = 0;
 
-  PXFDetId id(fw_bw+1,disk+1,blade+1,detector+1);
+  PXFDetId id(fw_bw+1,disk+1,blade+1,detector+1,0);
 
   return getTrackerRing(DetId(id.rawId()));
 }
@@ -1505,8 +1505,8 @@ double Rings::determineExtensions(const TrackingGeometry &tracker, DetId id, flo
 		<< " side neg(1)/pos(2): " << tidid.side() 
 		<< " wheel: " << tidid.wheel()
 		<< " ring: " << tidid.ring()
-		<< " detector fw(0)/bw(1): " << tidid.det()[0]
-		<< " detector: " << tidid.det()[1] 
+		<< " detector fw(0)/bw(1): " << tidid.module()[0]
+		<< " detector: " << tidid.module()[1] 
 		<< " not stereo(0)/stereo(1): " << tidid.stereo() 
 		<< " not glued(0)/glued(1): " << tidid.glued() 
 		<< std::endl; 
@@ -1518,8 +1518,8 @@ double Rings::determineExtensions(const TrackingGeometry &tracker, DetId id, flo
 		<< " petal fw(0)/bw(1): " << tecid.petal()[0]
 		<< " petal: " << tecid.petal()[1] 
 		<< " ring: " << tecid.ring()
-		<< " detector fw(0)/bw(1): " << tecid.det()[0]
-		<< " detector: " << tecid.det()[1] 
+		<< " detector fw(0)/bw(1): " << tecid.module()[0]
+		<< " detector: " << tecid.module()[1] 
 		<< " not stereo(0)/stereo(1): " << tecid.stereo() 
 		<< " not glued(0)/glued(1): " << tecid.glued() 
 		<< std::endl; 
@@ -1528,7 +1528,7 @@ double Rings::determineExtensions(const TrackingGeometry &tracker, DetId id, flo
       std::cout << "[Rings] problem resolving DetUnit for PXB ring DetId: " << id.rawId() 
 		<< " layer: " << pxbid.layer()
 		<< " ladder: " << pxbid.ladder()
-		<< " detector: " << pxbid.det()
+		<< " detector: " << pxbid.module()
 		<< std::endl; 
     } else if ( type == Ring::PXFRing ) {
       PXFDetId pxfid(id.rawId()); 
@@ -1536,7 +1536,7 @@ double Rings::determineExtensions(const TrackingGeometry &tracker, DetId id, flo
 		<< " side: " << pxfid.side()
 		<< " disk: " << pxfid.disk()
 		<< " blade: " << pxfid.blade()
-		<< " detector: " << pxfid.det()
+		<< " detector: " << pxfid.module()
 		<< std::endl; 
     }
   }
