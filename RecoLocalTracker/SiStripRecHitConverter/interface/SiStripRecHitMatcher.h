@@ -1,6 +1,6 @@
 #ifndef RECOLOCALTRACKER_SISTRIPCLUSTERIZER_SISTRIPRECHITMATCH_H
 #define RECOLOCALTRACKER_SISTRIPCLUSTERIZER_SISTRIPRECHITRMATCH_H
-#include "DataFormats/Common/interface/own_vector.h"
+#include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPos.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DMatchedLocalPosCollection.h"
@@ -24,10 +24,10 @@ public:
   typedef  SiStripRecHit2DLocalPosCollection::ContainerIterator RecHitIterator;
   SiStripRecHitMatcher(){};
   template<class T>  
-    own_vector<SiStripRecHit2DMatchedLocalPos> match(const  SiStripRecHit2DLocalPos *monoRH,RecHitIterator &begin, RecHitIterator &end, const DetId &detId, const T &topol,const GeomDetUnit* stripdet,const GeomDetUnit * partnerstripdet){
+    edm::OwnVector<SiStripRecHit2DMatchedLocalPos> match(const  SiStripRecHit2DLocalPos *monoRH,RecHitIterator &begin, RecHitIterator &end, const DetId &detId, const T &topol,const GeomDetUnit* stripdet,const GeomDetUnit * partnerstripdet){
     // stripdet = mono
     // partnerstripdet = stereo
-    own_vector<SiStripRecHit2DMatchedLocalPos> collector;
+    edm::OwnVector<SiStripRecHit2DMatchedLocalPos> collector;
     LocalPoint position;    
     const  LocalError dummy;
     // position of the initial and final point of the strip (RPHI cluster)

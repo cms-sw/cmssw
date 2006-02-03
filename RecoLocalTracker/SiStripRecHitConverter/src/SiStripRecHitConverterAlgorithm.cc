@@ -50,8 +50,8 @@ void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,
   for ( std::vector<unsigned int>::const_iterator detunit_iterator = detIDs.begin(); detunit_iterator != detIDs.end(); detunit_iterator++ ) {//loop over detectors
     bool isstereo=0;
     unsigned int id = *detunit_iterator;
-    own_vector<SiStripRecHit2DLocalPos> collectorrphi; 
-    own_vector<SiStripRecHit2DLocalPos> collectorstereo; 
+    edm::OwnVector<SiStripRecHit2DLocalPos> collectorrphi; 
+    edm::OwnVector<SiStripRecHit2DLocalPos> collectorstereo; 
     if(id!=999999999){ //if is valid detector
       DetId detId(id);
       //get geometry 
@@ -115,14 +115,14 @@ void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,
   
   const std::vector<unsigned int> detIDs2 = outrphi.detIDs();
   for ( std::vector<unsigned int>::const_iterator detunit_iterator = detIDs2.begin(); detunit_iterator != detIDs2.end(); detunit_iterator++ ) {//loop over detectors
-    own_vector<SiStripRecHit2DMatchedLocalPos> collectorMatched; 
+    edm::OwnVector<SiStripRecHit2DMatchedLocalPos> collectorMatched; 
     SiStripRecHit2DLocalPosCollection::Range monoRecHitRange = outrphi.get(*detunit_iterator);
     SiStripRecHit2DLocalPosCollection::ContainerIterator rhRangeIteratorBegin = monoRecHitRange.first;
     SiStripRecHit2DLocalPosCollection::ContainerIterator rhRangeIteratorEnd   = monoRecHitRange.second;
     SiStripRecHit2DLocalPosCollection::ContainerIterator iter;
     unsigned int id = 0;
     for(iter=rhRangeIteratorBegin;iter!=rhRangeIteratorEnd;++iter){//loop on the mono RH
-      own_vector<SiStripRecHit2DMatchedLocalPos> collectorMatchedSingleHit; 
+      edm::OwnVector<SiStripRecHit2DMatchedLocalPos> collectorMatchedSingleHit; 
       StripSubdetector specDetId(*detunit_iterator);
       id = specDetId.partnerDetId();
       std::vector<unsigned int>::const_iterator partnerdetiter=std::find(detIDs.begin(),detIDs.end(),id);
@@ -136,7 +136,7 @@ void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,
 	SiStripRecHit2DLocalPosCollection::ContainerIterator rhpartnerRangeIteratorBegin = rhpartnerRange.first;
 	SiStripRecHit2DLocalPosCollection::ContainerIterator rhpartnerRangeIteratorEnd   = rhpartnerRange.second;
 	
-	//	own_vector<SiStripRecHit2DMatchedLocalPos> tempCollector; 
+	//	edm::OwnVector<SiStripRecHit2DMatchedLocalPos> tempCollector; 
 	
 	const DetId theId(id);
 
@@ -155,10 +155,10 @@ void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,
 	//	SiStripRecHit2DMatchedLocalPosCollection::Range inputRangematched(collectorMatched.begin(),collectorMatched.end());
 
 	if (collectorMatchedSingleHit.size() > 0) {
-	  for (    own_vector<SiStripRecHit2DMatchedLocalPos>::iterator itt = collectorMatchedSingleHit.begin();  itt != collectorMatchedSingleHit.end() ; itt++)
+	  for (    edm::OwnVector<SiStripRecHit2DMatchedLocalPos>::iterator itt = collectorMatchedSingleHit.begin();  itt != collectorMatchedSingleHit.end() ; itt++)
 	    collectorMatched.push_back(new SiStripRecHit2DMatchedLocalPos(*itt));
 	}
-	//	for (own_vector<SiStripRecHit2DMatchedLocalPos>::iterator itt = tempCollector.begin(); itt!= tempCollector.end(); itt++)
+	//	for (edm::OwnVector<SiStripRecHit2DMatchedLocalPos>::iterator itt = tempCollector.begin(); itt!= tempCollector.end(); itt++)
 	//	  collectorMatched.push_back(itt);
 
 	//	copy(tempCollector.begin(), tempCollector.end(), back_inserter(collectorMatched.end()));

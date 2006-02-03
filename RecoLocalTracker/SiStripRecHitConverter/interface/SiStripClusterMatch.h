@@ -1,6 +1,6 @@
 #ifndef RECOLOCALTRACKER_SISTRIPCLUSTERIZER_SISTRIPCLUSTERMATCH_H
 #define RECOLOCALTRACKER_SISTRIPCLUSTERIZER_SISTRIPCLUSTERMATCH_H
-#include "DataFormats/Common/interface/own_vector.h"
+#include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPos.h"
 #include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
 #include "DataFormats/DetId/interface/DetId.h"
@@ -23,8 +23,8 @@ public:
   typedef  SiStripClusterCollection::ContainerIterator ClusterIterator;
   SiStripClusterMatch(){};
   template<class T>  
-    own_vector<SiStripRecHit2DLocalPos> match(const SiStripCluster *cluster,ClusterIterator &begin, ClusterIterator &end, const DetId &detId, const T &topol,const GeomDetUnit* stripdet,const GeomDetUnit * partnerstripdet){
-    own_vector<SiStripRecHit2DLocalPos> collector;
+    edm::OwnVector<SiStripRecHit2DLocalPos> match(const SiStripCluster *cluster,ClusterIterator &begin, ClusterIterator &end, const DetId &detId, const T &topol,const GeomDetUnit* stripdet,const GeomDetUnit * partnerstripdet){
+    edm::OwnVector<SiStripRecHit2DLocalPos> collector;
     LocalPoint position;    
     const  LocalError dummy;
     // position of the initial and final point of the strip (RPHI cluster)
