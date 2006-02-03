@@ -202,4 +202,12 @@ List of tasks:
   6) complete the module-by-path stats report at end of job
   7) fix the scheduler summary report (and others) so that the entire report
   comes out as a single LogMessage (not individual lines)
+  8) need run info and process info stored in the output files.  This includes
+  parameter sets.
 
+  For event selection based on trigger bits, targeted TriggerResults from
+  prior runs cannot be used until ParameterSets and additional run information
+  are stored in the input file.  The output module needs to translate the
+  names from is configuration to bits in the TriggerResults at module
+  construction time.  The only way to do this is to get the names-to-bits
+  information from the file header.
