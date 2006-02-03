@@ -4,8 +4,6 @@
 <use name=FWCore/Framework>
 <use name=FWCore/EDProduct>
 <use name=boost>
-<use name=Dictionary/Reflection>
-<use name=Framework/SealKernel>
 
 <export>
   <lib name="RecoLocalCaloHcalRecProducers">
@@ -14,7 +12,5 @@
   <use name=FWCore/Framework>
   <use name=FWCore/EDProduct>
   <use name=boost>
-  <use name=Dictionary/Reflection>
-  <use name=Framework/SealKernel>
 </export>
 
