@@ -3,7 +3,7 @@
    \class HcalDbPOOL
    \brief IO for POOL instances of Hcal Calibrations
    \author Fedor Ratnikov Oct. 28, 2005
-   $Id: HcalDbPool.cc,v 1.2 2006/01/26 17:37:36 fedor Exp $
+   $Id: HcalDbPool.cc,v 1.3 2006/02/03 05:40:30 wmtan Exp $
 */
 
 // pool
@@ -122,7 +122,7 @@ bool HcalDbPool::getObject (const std::string& fToken, pool::Ref<T>* fObject) {
     fObject->isNull ();
     service ()->transaction().commit();
   }
-  catch( const coral::TableNotExistingException& e ){
+  catch(const coral::TableNotExistingException& e) {
     std::cerr << "getObject-> coral::TableNotExisting Exception" << std::endl;
   }
   catch (const seal::Exception& e) {
