@@ -171,3 +171,18 @@ trigger results.  Some of the things that need to be addressed:
 
  As of this date, the TriggerResults interface has not been unit tested!
 
+02-02-06
+
+Currently the endpath processing is trivial.  All modules in all 
+endpaths see the event regardless of trigger bits or prior success/failure
+of modules in the endpaths.  This means that if a filter-like path is
+in the endpath, it will not stop further processing in that endpath.
+This is unlike regular paths.  This may need to be changed.  Another
+issue is running endpath modules if all trigger bits are off.  Should
+processing of this event be truncated if all bits are off?
+
+The OutputModule modifications are complete for allowing selecting
+events based on trigger bits.
+
+The unit testing is still not complete for TriggerResults.  Only the
+functions that provide information to the outputmodule are tested.

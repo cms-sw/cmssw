@@ -6,12 +6,17 @@
 OutputModule: The base class of all "modules" that write Events to an
 output stream.
 
-$Id: OutputModule.h,v 1.16 2006/01/05 22:40:26 paterno Exp $
+$Id: OutputModule.h,v 1.17 2006/01/11 00:21:31 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/GroupSelector.h"
+#include "FWCore/Framework/interface/EventSelector.h"
 #include "FWCore/Framework/interface/BranchDescription.h"
+#include "FWCore/Framework/interface/ModuleDescription.h"
+#include "FWCore/Framework/interface/Provenance.h"
+#include "FWCore/Framework/interface/Selector.h"
+
 #include <vector>
 
 namespace edm {
@@ -19,6 +24,7 @@ namespace edm {
   class EventPrincipal;
   class EventSetup;
   class BranchDescription;
+
   class OutputModule {
   public:
     typedef OutputModule ModuleType;
@@ -28,7 +34,7 @@ namespace edm {
     virtual ~OutputModule();
     virtual void beginJob(EventSetup const&);
     virtual void endJob();
-    virtual void write(EventPrincipal const& e) = 0;
+    void writeEvent(EventPrincipal const& e, ModuleDescription const&);
     bool selected(BranchDescription const& desc) const;
 
     unsigned long nextID() const;
@@ -53,7 +59,26 @@ namespace edm {
     Selections descVec_;
 
   private:
+    class ResultsSelector : public edm::Selector
+    {
+    public:
+      explicit ResultsSelector(const std::string& proc_name):
+	name_(proc_name) {}
+      
+      virtual bool doMatch(const edm::Provenance& p) const {
+	return p.product.module.processName_==name_;
+      }
+    private:
+      std::string name_;
+    };
+
+    virtual void write(EventPrincipal const& e) = 0;
+    bool wantEvent(EventPrincipal const& e, ModuleDescription const&);
+
+    std::string process_name_;
     GroupSelector groupSelector_;
+    EventSelector eventSelector_;
+    ResultsSelector selectResult_;
   };
 }
 

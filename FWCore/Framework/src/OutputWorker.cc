@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: OutputWorker.cc,v 1.12 2005/12/14 01:35:44 chrjones Exp $
+$Id: OutputWorker.cc,v 1.13 2005/12/28 00:21:58 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/EventPrincipal.h"
@@ -33,7 +33,7 @@ namespace edm {
     // OutputModule?
     bool rc = false;
 
-    mod_->write(ep);
+    mod_->writeEvent(ep,description());
     rc=true;
     return rc;
   }

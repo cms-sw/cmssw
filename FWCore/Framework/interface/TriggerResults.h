@@ -3,7 +3,7 @@
 
 /*
   Author: Jim Kowalkowski 13-01-06
-  $Id$
+  $Id: TriggerResults.h,v 1.1 2006/01/29 23:33:57 jbk Exp $
 
   The trigger path results are maintained here as a sequence of bits,
   one per trigger path.  They are assigned in the order they appeared in
@@ -29,6 +29,7 @@
 #include <string>
 #include <vector>
 #include <bitset>
+#include <iostream>
 
 namespace edm
 {
@@ -84,7 +85,6 @@ namespace edm
       return (bits_ & compare).any();
     }
 
-    // need to compare as BitVector?
     bool isSet(const BitVector& compare) const
     {
       toBitset();
@@ -100,15 +100,22 @@ namespace edm
       return result;
     }
 
-    // int getPosition(const std::string& path_name) const;
-    // std::string getName(int bit_position) const;
-    // BitMask getMask(const std::vector<std::string>& path_names) const;
+    bool applyMasks(const BitVector& accept,const BitVector& veto) const
+    {
+      toBitset();
+      // not implemented
+      return false;
+    }
 
   private:
     void toBitset() const
     {
       if(insync_) return;
-      for(unsigned int i=0;i<saved_names_.size();++i) bits_[i]=stored_[i];      
+      for(unsigned int i=0;i<saved_names_.size();++i)
+	{
+	  bits_[i]=stored_[i];
+	  vetobits_[i]=!stored_[i];
+	}
       insync_=true;
     }
 
@@ -122,12 +129,23 @@ namespace edm
     // could change in the future
     mutable bool insync_; // transient
     mutable BitMask bits_; // transient for now
+    mutable BitMask vetobits_; // transient for now
     BitVector stored_;
     edm::ParameterSetID id_;
     Strings saved_names_;
     // job that generated this pset, used to locate path names
     // next is needed until the file metadata caches psets
   };
+
+inline std::ostream& operator<<(std::ostream& ost, const TriggerResults& tr)
+{
+	int tot = tr.numBitsUsed();
+	for(int i=0;i<tot;++i)
+	{
+		ost << tr.isSet(i)?"1":"0";
+	}
+    return ost;
+}
 
   // ---------------------
 #if 0

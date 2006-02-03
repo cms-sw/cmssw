@@ -28,6 +28,7 @@
   <class name="std::vector<bool>"/>
   <class name="edm::TriggerResults">
    <field name="bits_" transient="true"/>
+   <field name="vetobits_" transient="true"/>
    <field name="insync_" transient="true"/>
   </class>
   <class name="edm::Wrapper<edm::TriggerResults>"/>

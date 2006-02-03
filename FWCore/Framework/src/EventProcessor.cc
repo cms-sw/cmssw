@@ -324,12 +324,16 @@ namespace edm {
 
     // the next thing is ugly: pull out the trigger path pset and 
     // create a service and extra token for it
+    string proc_name = params_->getParameter<string>("@process_name");
 
     typedef edm::service::TriggerNamesService TNS;
     typedef serviceregistry::ServiceWrapper<TNS> w_TNS;
-    ParameterSet trigger_paths = (*params_).getUntrackedParameter<ParameterSet>("@trigger_paths");
-    shared_ptr<w_TNS> tnsptr(new w_TNS( std::auto_ptr<TNS>(new TNS(trigger_paths))));
-    ServiceToken tempToken2( ServiceRegistry::createContaining(tnsptr, 
+
+    ParameterSet trigger_paths =
+      (*params_).getUntrackedParameter<ParameterSet>("@trigger_paths");
+    shared_ptr<w_TNS> tnsptr
+      (new w_TNS( std::auto_ptr<TNS>(new TNS(trigger_paths,proc_name))));
+    ServiceToken tempToken2(ServiceRegistry::createContaining(tnsptr, 
 							      tempToken, 
 							      kOverlapIsError));
     //make the services available
@@ -337,9 +341,9 @@ namespace edm {
      
     //params_ = builder.getProcessPSet();
     act_table_ = ActionTable(*params_);
-    common_ = CommonParams((*params_).getParameter<string>("@process_name"),
+    common_ = CommonParams(proc_name,
 			   getVersion(), // this is not written for real yet
-			   0); // how is this specifified? Where does it come from?
+			   0); // Where does it come from?
      
     input_= makeInput(*params_, common_, preg_);     
     sched_ = std::auto_ptr<Schedule>(new Schedule(*params_,wreg_,
