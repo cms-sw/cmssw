@@ -14,7 +14,31 @@
   </SpecPar>    
   <SpecPar name="rpc">
       <PartSelector path="//MB.*RPC.*Gas.*" />
-      <Parameter name="SensitiveDetector" value="MuonSensitiveDetector" />
+      <PartSelector path="//REA1" />
+      <PartSelector path="//REA2" />
+      <PartSelector path="//REA3" />
+      <PartSelector path="//REA4" />
+      <PartSelector path="//REB1" />
+      <PartSelector path="//REB2" />
+      <PartSelector path="//REB3" />
+      <PartSelector path="//REC1" />
+      <PartSelector path="//REC2" />
+      <PartSelector path="//REC3" />
+      <PartSelector path="//RED1" />
+      <PartSelector path="//RED2" />
+      <PartSelector path="//RED3" />
+      <PartSelector path="//RED4" />
+      <PartSelector path="//REE1" />
+      <PartSelector path="//REE2" />
+      <PartSelector path="//REE3" />
+      <PartSelector path="//REF1" />
+      <PartSelector path="//REF2" />
+      <PartSelector path="//REF3" />
+      <PartSelector path="//REG1" />
+      <PartSelector path="//REG2" />
+      <PartSelector path="//REH1" />
+      <PartSelector path="//REH2" />
+       <Parameter name="SensitiveDetector" value="MuonSensitiveDetector" />
       <Parameter name="ReadOutName" value="MuonRPCHits" />
   </SpecPar>    
   <SpecPar name="endcap">
