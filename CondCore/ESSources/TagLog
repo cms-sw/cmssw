@@ -1,3 +1,6 @@
+** V00-02-03  [Fri Feb  3 21:55:38 2006]
+changed int to unsigned int to fix build problem in EcalPedestalsAnalyzer.cc
+
 ** V00-02-02  [Wed Feb  1 20:23:28 2006]
 move to ROOT::Reflex; move to CORAL
 
