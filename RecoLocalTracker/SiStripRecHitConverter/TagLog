@@ -1,3 +1,6 @@
+** V00-00-05  [Fri Feb  3 08:30:41 2006]
+own_vector changed to edm::OwnVector
+
 ** V00-00-04  [Mon Jan 23 19:03:49 2006]
 New RecHit matching
 
