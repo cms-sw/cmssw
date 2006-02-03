@@ -211,3 +211,13 @@ List of tasks:
   names from is configuration to bits in the TriggerResults at module
   construction time.  The only way to do this is to get the names-to-bits
   information from the file header.
+
+  The endpath processing needs to be fixed.  Use a second set of objects 
+  analogous to the path processing to do so. (place endpath modules into
+  Paths whos results do not contribute to the saved TriggerResult)
+
+  To get the veto or inverted decision going for modules-in-paths, the
+  temporary "Workers" collection needs to be pair<bool inverted, Worker*>
+  instead of just the Worker*.  The Path will need to take this
+  and use it in the construction of the WorkerInPath.
+
