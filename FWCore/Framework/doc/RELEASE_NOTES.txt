@@ -186,3 +186,20 @@ events based on trigger bits.
 
 The unit testing is still not complete for TriggerResults.  Only the
 functions that provide information to the outputmodule are tested.
+
+03-02-06
+
+List of tasks:
+  1) assign module numbers to each module and make the total and the
+  number available to Services during construction or through a signal.
+  2) change the existing service over to use this instead of doing a 
+  lookup by module_label.
+  3) finish automated unit testing of the TriggerResults and
+  TriggerNamesService and Scheduler.
+  4) Add path signals so that Services can track time spent in paths
+  5) make an interface to retrieve the trigger summary info on demand as the
+  program is running
+  6) complete the module-by-path stats report at end of job
+  7) fix the scheduler summary report (and others) so that the entire report
+  comes out as a single LogMessage (not individual lines)
+
