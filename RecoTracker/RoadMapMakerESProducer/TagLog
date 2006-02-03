@@ -1,3 +1,6 @@
+** V00-00-02  [Fri Feb  3 10:52:10 2006]
+changes for changed access functions in SiStripDetId classes, decativated forward pixel ring generation changed for changed constructor of PXFDetId, has to be changed to activate
+
 ** V00-00-01  [Sun Jan 15 02:01:06 2006]
 Cleanup and more description.
 
