@@ -1,8 +1,8 @@
 /*
  * \file EBElectronClient.cc
  *
- * $Date: 2006/01/02 14:04:38 $
- * $Revision: 1.9 $
+ * $Date: 2006/01/19 06:58:39 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -29,7 +29,7 @@ EBElectronClient::~EBElectronClient(){
 
 }
 
-void EBElectronClient::beginJob(const edm::EventSetup& c){
+void EBElectronClient::beginJob(void){
 
   if ( verbose_ ) cout << "EBElectronClient: beginJob" << endl;
 
@@ -38,7 +38,7 @@ void EBElectronClient::beginJob(const edm::EventSetup& c){
 
 }
 
-void EBElectronClient::beginRun(const edm::EventSetup& c){
+void EBElectronClient::beginRun(void){
 
   if ( verbose_ ) cout << "EBElectronClient: beginRun" << endl;
 
@@ -134,7 +134,7 @@ void EBElectronClient::unsubscribe(void){
 
 }
 
-void EBElectronClient::analyze(const edm::Event& e, const edm::EventSetup& c){
+void EBElectronClient::analyze(void){
 
   ievt_++;
   jevt_++;

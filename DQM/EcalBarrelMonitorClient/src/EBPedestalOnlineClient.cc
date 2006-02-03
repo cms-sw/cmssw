@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2006/01/18 11:40:54 $
- * $Revision: 1.4 $
+ * $Date: 2006/01/19 06:58:39 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -51,7 +51,7 @@ EBPedestalOnlineClient::~EBPedestalOnlineClient(){
 
 }
 
-void EBPedestalOnlineClient::beginJob(const edm::EventSetup& c){
+void EBPedestalOnlineClient::beginJob(void){
 
   if ( verbose_ ) cout << "EBPedestalOnlineClient: beginJob" << endl;
 
@@ -60,7 +60,7 @@ void EBPedestalOnlineClient::beginJob(const edm::EventSetup& c){
 
 }
 
-void EBPedestalOnlineClient::beginRun(const edm::EventSetup& c){
+void EBPedestalOnlineClient::beginRun(void){
 
   if ( verbose_ ) cout << "EBPedestalOnlineClient: beginRun" << endl;
 
@@ -296,7 +296,7 @@ void EBPedestalOnlineClient::unsubscribe(void){
 
 }
 
-void EBPedestalOnlineClient::analyze(const edm::Event& e, const edm::EventSetup& c){
+void EBPedestalOnlineClient::analyze(void){
 
   ievt_++;
   jevt_++;

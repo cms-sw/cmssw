@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2006/01/18 11:40:54 $
- * $Revision: 1.59 $
+ * $Date: 2006/01/19 06:58:39 $
+ * $Revision: 1.60 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -68,7 +68,7 @@ EBTestPulseClient::~EBTestPulseClient(){
 
 }
 
-void EBTestPulseClient::beginJob(const edm::EventSetup& c){
+void EBTestPulseClient::beginJob(void){
 
   if ( verbose_ ) cout << "EBTestPulseClient: beginJob" << endl;
 
@@ -77,7 +77,7 @@ void EBTestPulseClient::beginJob(const edm::EventSetup& c){
 
 }
 
-void EBTestPulseClient::beginRun(const edm::EventSetup& c){
+void EBTestPulseClient::beginRun(void){
 
   if ( verbose_ ) cout << "EBTestPulseClient: beginRun" << endl;
 
@@ -671,7 +671,7 @@ void EBTestPulseClient::unsubscribe(void){
 
 }
 
-void EBTestPulseClient::analyze(const edm::Event& e, const edm::EventSetup& c){
+void EBTestPulseClient::analyze(void){
 
   ievt_++;
   jevt_++;

@@ -4,15 +4,12 @@
 /*
  * \file EBTestPulseClient.h
  *
- * $Date: 2006/01/07 17:53:23 $
- * $Revision: 1.18 $
+ * $Date: 2006/01/19 06:58:38 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
 */
-
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include <FWCore/Framework/interface/EDAnalyzer.h>
 
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
@@ -21,7 +18,6 @@
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
@@ -48,9 +44,7 @@
 using namespace cms;
 using namespace std;
 
-class EBTestPulseClient: public edm::EDAnalyzer{
-
-friend class EcalBarrelMonitorClient;
+class EBTestPulseClient{
 
 public:
 
@@ -60,24 +54,22 @@ EBTestPulseClient(const edm::ParameterSet& ps, MonitorUserInterface* mui);
 /// Destructor
 virtual ~EBTestPulseClient();
 
-protected:
-
 /// Subscribe/Unsubscribe to Monitoring Elements
-void subscribe();
-void subscribeNew();
-void unsubscribe();
+void subscribe(void);
+void subscribeNew(void);
+void unsubscribe(void);
 
 /// Analyze
-void analyze(const edm::Event& e, const edm::EventSetup& c);
+void analyze(void);
 
 /// BeginJob
-void beginJob(const edm::EventSetup& c);
+void beginJob(void);
 
 /// EndJob
 void endJob(void);
 
 /// BeginRun
-void beginRun(const edm::EventSetup& c);
+void beginRun(void);
 
 /// EndRun
 void endRun(void);

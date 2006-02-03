@@ -4,14 +4,13 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2006/01/13 12:18:46 $
- * $Revision: 1.32 $
+ * $Date: 2006/01/19 06:58:38 $
+ * $Revision: 1.33 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
 */
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 
 #include <FWCore/Framework/interface/Event.h>
@@ -21,7 +20,6 @@
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/CollateMonitorElement.h"
@@ -62,49 +60,53 @@ public:
 
 /// Constructor
 EcalBarrelMonitorClient(const edm::ParameterSet& ps);
+EcalBarrelMonitorClient(const edm::ParameterSet& ps, MonitorUserInterface* mui);
 
 /// Destructor
-virtual ~EcalBarrelMonitorClient();
-
-protected:
+~EcalBarrelMonitorClient();
 
 /// Subscribe/Unsubscribe to Monitoring Elements
-virtual void subscribe();
-virtual void subscribeNew();
-virtual void unsubscribe();
+void subscribe(void);
+void subscribeNew(void);
+void unsubscribe(void);
+
+// Initialize
+void initialize(const edm::ParameterSet& ps);
 
 /// Analyze
-virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+void analyze(void);
+void analyze(const edm::Event& e, const edm::EventSetup& c){ this->analyze(); }
 
 /// BeginJob
-virtual void beginJob(const edm::EventSetup& c);
+void beginJob(void);
+void beginJob(const edm::EventSetup& c){ this->beginJob(); }
 
 /// EndJob
-virtual void endJob(void);
+void endJob(void);
 
 /// BeginRun
-virtual void beginRun(const edm::EventSetup& c);
+void beginRun(void);
 
 /// EndRun
-virtual void endRun(void);
+void endRun(void);
 
 /// Setup
-virtual void setup(void);
+void setup(void);
 
 /// Cleanup
-virtual void cleanup(void);
+void cleanup(void);
 
 /// HtmlOutput
-virtual void htmlOutput(void);
+void htmlOutput(void);
 
 /// BeginRunDB
-virtual void beginRunDb(void);
+void beginRunDb(void);
 
 /// WriteDB
-virtual void writeDb(void);
+void writeDb(void);
 
 /// EndRunDB
-virtual void endRunDb(void);
+void endRunDb(void);
 
 private:
 
@@ -148,6 +150,8 @@ bool end_run_done_;
 
 bool forced_begin_run_;
 bool forced_end_run_;
+
+bool enableExit_;
 
 int last_update_;
 

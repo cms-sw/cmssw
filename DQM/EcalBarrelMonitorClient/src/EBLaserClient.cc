@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2006/01/18 11:40:54 $
- * $Revision: 1.55 $
+ * $Date: 2006/01/19 06:58:39 $
+ * $Revision: 1.56 $
  * \author G. Della Ricca
  *
 */
@@ -82,7 +82,7 @@ EBLaserClient::~EBLaserClient(){
 
 }
 
-void EBLaserClient::beginJob(const edm::EventSetup& c){
+void EBLaserClient::beginJob(void){
 
   if ( verbose_ ) cout << "EBLaserClient: beginJob" << endl;
 
@@ -91,7 +91,7 @@ void EBLaserClient::beginJob(const edm::EventSetup& c){
 
 }
 
-void EBLaserClient::beginRun(const edm::EventSetup& c){
+void EBLaserClient::beginRun(void){
 
   if ( verbose_ ) cout << "EBLaserClient: beginRun" << endl;
 
@@ -1177,7 +1177,7 @@ void EBLaserClient::unsubscribe(void){
 
 }
 
-void EBLaserClient::analyze(const edm::Event& e, const edm::EventSetup& c){
+void EBLaserClient::analyze(void){
 
   ievt_++;
   jevt_++;

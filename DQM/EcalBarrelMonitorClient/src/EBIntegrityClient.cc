@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2006/01/19 06:58:39 $
- * $Revision: 1.73 $
+ * $Date: 2006/02/02 08:32:44 $
+ * $Revision: 1.74 $
  * \author G. Della Ricca
  *
 */
@@ -53,7 +53,7 @@ EBIntegrityClient::~EBIntegrityClient(){
 
 }
 
-void EBIntegrityClient::beginJob(const edm::EventSetup& c){
+void EBIntegrityClient::beginJob(void){
 
   if ( verbose_ ) cout << "EBIntegrityClient: beginJob" << endl;
 
@@ -62,7 +62,7 @@ void EBIntegrityClient::beginJob(const edm::EventSetup& c){
 
 }
 
-void EBIntegrityClient::beginRun(const edm::EventSetup& c){
+void EBIntegrityClient::beginRun(void){
 
   if ( verbose_ ) cout << "EBIntegrityClient: beginRun" << endl;
 
@@ -483,7 +483,7 @@ void EBIntegrityClient::unsubscribe(void){
 
 }
 
-void EBIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& c){
+void EBIntegrityClient::analyze(void){
 
   ievt_++;
   jevt_++;

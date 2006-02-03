@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  * 
- * $Date: 2006/01/18 11:40:54 $
- * $Revision: 1.35 $
+ * $Date: 2006/01/19 06:58:39 $
+ * $Revision: 1.36 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -39,7 +39,7 @@ EBCosmicClient::~EBCosmicClient(){
 
 }
 
-void EBCosmicClient::beginJob(const edm::EventSetup& c){
+void EBCosmicClient::beginJob(void){
 
   if ( verbose_ ) cout << "EBCosmicClient: beginJob" << endl;
 
@@ -48,7 +48,7 @@ void EBCosmicClient::beginJob(const edm::EventSetup& c){
 
 }
 
-void EBCosmicClient::beginRun(const edm::EventSetup& c){
+void EBCosmicClient::beginRun(void){
 
   if ( verbose_ ) cout << "EBCosmicClient: beginRun" << endl;
 
@@ -264,7 +264,7 @@ void EBCosmicClient::unsubscribe(void){
 
 }
 
-void EBCosmicClient::analyze(const edm::Event& e, const edm::EventSetup& c){
+void EBCosmicClient::analyze(void){
 
   ievt_++;
   jevt_++;
