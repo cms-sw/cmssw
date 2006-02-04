@@ -243,7 +243,15 @@ the veto specification for modules in paths is complete.  you can now
 place a ! in front of any module in a path and reverse its decision for
 that path only.
 
-the "listOfTriggers" feature is still not complete. (see previous entry)
+The "listOfTriggers" feature is still not complete. (see previous entry)
+One way this might work is to prepare a better PSet to give to
+the scheduler and the triggernameservice.  The better one would have
+a list of trigger paths, a list of none-trigger paths, and a list of
+endpaths (or perhaps just move all none-trigger paths to endpaths.
+Must be careful here for bad interactions if paths are reordered.
+It should not matter since paths are supposed to be independent.
+Need to communicate a bit more with Martin about this reordering or
+marking.
 
 Warning: the SelectEvents pset untracked option is not working properly
 because of problems in the parameterset library.  The test scripts
