@@ -5,9 +5,9 @@
  * 
  *  DetUnit identifier for RPCs
  *
- *  $Date: 2005/11/01 15:18:40 $
- *  \version $Id: RPCDetId.h,v 1.5 2005/11/01 15:18:40 segoni Exp $
- *  $Revision: 1.5 $
+ *  $Date: 2005/11/21 18:56:03 $
+ *  \version $Id: RPCDetId.h,v 1.6 2005/11/21 18:56:03 namapane Exp $
+ *  $Revision: 1.6 $
  *  \author Ilaria Segoni
  */
 
@@ -38,6 +38,9 @@ class RPCDetId :public DetId {
 	   int subsector,
 	   int roll);
 	   
+  /// Built from the trigger det Index
+  void buildfromTrIndex(int trIndex);
+
   /// Region id
   int region() const{
     return int((id_>>RegionStartBit_) & RegionMask_) + minRegionId;
@@ -155,7 +158,15 @@ class RPCDetId :public DetId {
   static const int RollStartBit_ =  SubSectorStartBit_+SubSectorNumBits_;  
   static const unsigned int RollMask_     =  0X3;
  
-
+ private:
+  void init(int region, 
+	    int ring,
+	    int station, 
+	    int sector,
+	    int layer,
+	    int subsector,
+	    int roll);
+  
 }; // RPCDetId
 
 std::ostream& operator<<( std::ostream& os, const RPCDetId& id );

@@ -2,7 +2,7 @@
  * Impl of RPCDetId
  *
  * \author Ilaria Segoni
- * \version $Id: RPCDetId.cc,v 1.4 2005/10/28 08:36:56 segoni Exp $
+ * \version $Id: RPCDetId.cc,v 1.5 2005/11/01 15:19:03 segoni Exp $
  * \date 02 Aug 2005
  */
 
@@ -22,18 +22,41 @@ RPCDetId::RPCDetId(uint32_t id):DetId(id) {
 }
 
 
+
 RPCDetId::RPCDetId(int region, int ring, int station, int sector, int layer,int subsector, int roll):	      
         DetId(DetId::Muon, MuonSubdetId::RPC)
 {
+  this->init(region,ring,station,sector,layer,subsector,roll);
+}
 
-      int minRing=RPCDetId::minRingForwardId;
-      int maxRing=RPCDetId::maxRingForwardId;
-      if (!region) 
-      {
-	minRing=RPCDetId::minRingBarrelId;
-	maxRing=RPCDetId::maxRingBarrelId;
-      } 
-	      
+
+void
+RPCDetId::buildfromTrIndex(int trIndex)
+{
+  int region=0;
+  int ring=0;
+  int station=0;
+  int sector=0;
+  int layer=0;
+  int subsector=0;
+  int roll=0;
+  this->init(region,ring,station,sector,layer,subsector,roll);
+}
+
+
+
+void
+RPCDetId::init(int region,int ring,int station,int sector,
+	       int layer,int subsector,int roll)
+{
+  int minRing=RPCDetId::minRingForwardId;
+  int maxRing=RPCDetId::maxRingForwardId;
+  if (!region) 
+    {
+      minRing=RPCDetId::minRingBarrelId;
+      maxRing=RPCDetId::maxRingBarrelId;
+    } 
+  
   if ( region     < minRegionId    || region    > maxRegionId ||
        ring       < minRing        || ring      > maxRing ||
        station    < minStationId   || station   > maxStationId ||
@@ -53,9 +76,8 @@ RPCDetId::RPCDetId(int region, int ring, int station, int sector, int layer,int 
 					 << std::endl;
   }
 	      
-
-  int regionInBits=region-minRegionId;
   
+  int regionInBits=region-minRegionId;
   int ringInBits =0;
   if(region != 0) ringInBits = ring - minRingForwardId;
   if(!region) ringInBits = ring + RingBarrelOffSet - minRingBarrelId;
@@ -74,7 +96,8 @@ RPCDetId::RPCDetId(int region, int ring, int station, int sector, int layer,int 
          ( subSectorInBits & SubSectorMask_) << SubSectorStartBit_ |
          ( rollInBits      & RollMask_)      << RollStartBit_        ;
    
-  }
+}
+
 
 
 std::ostream& operator<<( std::ostream& os, const RPCDetId& id ){
