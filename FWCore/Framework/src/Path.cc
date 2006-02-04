@@ -34,11 +34,11 @@ namespace edm
   
 
   Path::Path(int bitpos, const std::string& path_name,
-	     const std::vector<Worker*>& workers,
-	     boost::shared_ptr<TriggerResults::BitMask> bitmask,
+	     const Workers& workers,
+	     BitMaskPtr bitmask,
 	     ParameterSet const& proc_pset,
 	     ActionTable& actions,
-	     boost::shared_ptr<ActivityRegistry> areg):
+	     ActivityRegistryPtr areg):
     timesPassed_(),
     timesVisited_(),
     enabled_(true),
@@ -49,16 +49,8 @@ namespace edm
     bitmask_(bitmask),
     act_reg_(areg),
     act_table_(&actions),
-    workers_()
+    workers_(workers)
   {
-    // enabling/inverting decision logic yet
-
-    std::vector<Worker*>::const_iterator i(workers.begin()),e(workers.end());
-    for(;i!=e;++i)
-      {
-	workers_.push_back(WorkerInPath(*i));
-      }
-    
   }
 
 #if 0
@@ -69,7 +61,6 @@ namespace edm
     sigs_.postPathSignal.connect(post);
   }
 #endif
-
   
   void Path::runOneEvent(EventPrincipal& ep, EventSetup const& es)
   {

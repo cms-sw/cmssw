@@ -221,3 +221,27 @@ List of tasks:
   instead of just the Worker*.  The Path will need to take this
   and use it in the construction of the WorkerInPath.
 
+  Martin requested adding a vstring named "listOfTriggers" that can be
+  used to explicitly list the paths that will have bits assigned to them.
+  In addition, we need a control that stops event propagation through
+  endpaths if all trigger bits are false. (the outputmodules in "veto"
+  mode will not see these then).
+
+03-02-06
+
+completed unit test scripts testBits*.cfg that excerise the trigger bit
+logic.
+
+endpaths are now real paths
+
+all output modules in regular paths now get moved to a single new endpath.
+if the output module makes a regular path empty, then that path is not
+included in the processing of the schedule.
+
+the veto specification for modules in paths is complete.  you can now
+place a ! in front of any module in a path and reverse its decision for
+that path only.
+
+the "listOfTriggers" is still not complete.
+
+

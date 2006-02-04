@@ -89,6 +89,9 @@ namespace edm
 	      }
 	  }
       }
+
+	  if(not_star_done && star_done)
+	  	accept_all_ = true;
   }
   
   bool EventSelector::acceptEvent(TriggerResults const& tr) const

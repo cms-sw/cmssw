@@ -5,7 +5,7 @@
 
   Author: Jim Kowalkowski 28-01-06
 
-  $Id$
+  $Id: Path.h,v 1.1 2006/01/29 23:33:58 jbk Exp $
 
   An object of this type represents one path in a job configuration.
   It holds the assigned bit position and the list of workers that are
@@ -36,16 +36,19 @@ namespace edm
   class Path
   {
   public:
+    typedef std::vector<WorkerInPath> Workers;
+    typedef std::vector<Worker*> WorkerPtrs;
+    typedef boost::shared_ptr<TriggerResults::BitMask> BitMaskPtr;
+    typedef boost::shared_ptr<ActivityRegistry> ActivityRegistryPtr;
+
     Path(int bitpos, const std::string& path_name,
-	 const std::vector<Worker*>& workers,
-	 boost::shared_ptr<TriggerResults::BitMask> bitmask,
+	 const Workers& workers,
+	 BitMaskPtr bitmask,
 	 ParameterSet const& proc_pset,
 	 ActionTable& actions,
-	 boost::shared_ptr<ActivityRegistry>);
+	 ActivityRegistryPtr reg);
 
     void runOneEvent(EventPrincipal&, EventSetup const&);
-
-    typedef std::vector<WorkerInPath> Workers;
 
     bool passed() const { return pass_; }
     bool enabled() const { return enabled_; }
@@ -65,8 +68,8 @@ namespace edm
     bool pass_;
     int bitpos_;
     std::string name_;
-    boost::shared_ptr<TriggerResults::BitMask> bitmask_;
-    boost::shared_ptr<ActivityRegistry> act_reg_;
+    BitMaskPtr bitmask_;
+    ActivityRegistryPtr act_reg_;
     ActionTable* act_table_;
 
     Workers workers_;

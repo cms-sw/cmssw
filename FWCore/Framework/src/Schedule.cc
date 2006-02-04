@@ -2,6 +2,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/src/ProducerWorker.h"
+#include "FWCore/Framework/src/WorkerInPath.h"
 #include "FWCore/Framework/interface/ModuleDescription.h"
 #include "FWCore/Framework/interface/Schedule.h"
 #include "FWCore/Framework/src/TriggerResultInserter.h"
@@ -22,25 +23,21 @@
 #include <vector>
 #include <iomanip>
 #include <list>
+#include <algorithm>
 
 using namespace std;
 
 namespace edm
 {
-  typedef TriggerResults::BitMask BitMask;
-  typedef boost::shared_ptr<BitMask> BitMaskPtr;
-  typedef boost::shared_ptr<Worker> WorkerPtr;
-  typedef vector<string> vstring;
-
   namespace
   {
     // Here we make the trigger results inserter directly.  This should
     // probably be a utility in the WorkerRegistry or elsewhere.
 
-    WorkerPtr makeInserter(const ParameterSet& pset,
-			   ProductRegistry& preg,
-			   ActionTable& actions,
-			   BitMaskPtr bm)
+    Schedule::WorkerPtr makeInserter(const ParameterSet& pset,
+				     ProductRegistry& preg,
+				     ActionTable& actions,
+				     Schedule::BitMaskPtr bm)
     {
 #if 1
       ParameterSet trig_pset(pset.getUntrackedParameter<ParameterSet>("@trigger_paths"));
@@ -57,9 +54,9 @@ namespace edm
 
       auto_ptr<EDProducer> producer(new TriggerResultInserter(trig_pset,bm));
 
-      WorkerPtr ptr(new ProducerWorker(producer,md,work_args));
+      Schedule::WorkerPtr ptr(new ProducerWorker(producer,md,work_args));
 #else
-      WorkerPtr ptr;
+      Schedule::WorkerPtr ptr;
 #endif
       return ptr;
     }
@@ -94,7 +91,7 @@ namespace edm
 		     WorkerRegistry& wreg,
 		     ProductRegistry& preg,
 		     ActionTable& actions,
-		     boost::shared_ptr<ActivityRegistry> areg):
+		     ActivityRegistryPtr areg):
     pset_(proc_pset),
     worker_reg_(&wreg),
     prod_reg_(&preg),
@@ -105,7 +102,13 @@ namespace edm
     state_(Ready),
     path_name_list_(trig_pset_.getParameter<vstring>("@paths")),
     end_path_name_list_(trig_pset_.getParameter<vstring>("@end_paths")),
-    results_(new BitMask(path_name_list_.size())),
+
+    results_(new BitMask),
+    results_bit_count_(path_name_list_.size()),
+    endpath_results_(new BitMask),
+    // extra position in endpath_results is for wrongly-placed modules
+    endpath_results_bit_count_(end_path_name_list_.size()+1),
+
     results_inserter_(),
     trig_paths_(),
     end_paths_(),
@@ -120,9 +123,7 @@ namespace edm
 	wantSummary_ = opts.getUntrackedParameter("wantSummary",false);
 	makeTriggerResults_ = opts.getUntrackedParameter("makeTriggerResults",false);
       }
-    catch(edm::Exception& e)
-      {
-      }
+    catch(edm::Exception& e) { }
 
     vstring& trigs = path_name_list_;
     vstring& ends = end_path_name_list_;
@@ -131,92 +132,135 @@ namespace edm
     vstring::iterator ib(trigs.begin()),ie(trigs.end());
     for(int bitpos=0;ib!=ie;++ib,++bitpos)
       {
-	hasFilter = fillTrigPath(bitpos,*ib);
+	hasFilter += fillTrigPath(bitpos,*ib);
       }
-
-    // the results inserter is first in the end path
+    
+    // the results inserter stands alone
     if(hasFilter || makeTriggerResults_)
       {
-    results_inserter_=makeInserter(proc_pset,preg,actions,results_);
-	end_paths_.insert(end_paths_.begin(),results_inserter_.get());
+	results_inserter_=makeInserter(proc_pset,preg,actions,results_);
 	all_workers_.insert(results_inserter_.get());
       }
 
+    handleWronglyPlacedModules();
+
     vstring::iterator eib(ends.begin()),eie(ends.end());
-    for(;eib!=eie;++eib)
+    for(int bitpos=0;eib!=eie;++eib,++bitpos)
       {
-	fillEndPath(*eib);
+	fillEndPath(bitpos,*eib);
       }
 
     prod_reg_->setProductIDs();
   }
 
-  void Schedule::fillWorkers(const std::string& name, Workers& out)
+  void Schedule::handleWronglyPlacedModules()
+  {
+    // the wrongly placed workers (always output modules)
+    // are already accounted for, but are not yet in paths.
+    // Here we do that path assignment.
+
+    if(!tmp_wrongly_placed_.empty())
+      {
+	unsigned int pos = endpath_results_bit_count_-1;
+	Path p(pos,"WronglyPlaced",tmp_wrongly_placed_,
+	       endpath_results_,pset_,*act_table_,act_reg_);
+    end_paths_.push_back(p);
+      }
+  }
+
+
+  void Schedule::fillWorkers(const std::string& name, PathWorkers& out)
   {
     vstring modnames = pset_.getParameter<vstring>(name);
     vstring::iterator it(modnames.begin()),ie(modnames.end());
-    Workers tmpworkers;
+    PathWorkers tmpworkers;
 
     for(;it!=ie;++it)
       {
-	ParameterSet modpset = pset_.getParameter<ParameterSet>(*it);
+	bool invert = (*it)[0]=='!';
+	string realname = invert?string(it->begin()+1,it->end()):*it;
+	WorkerInPath::State state =
+	  invert ? WorkerInPath::Veto : WorkerInPath::Normal;
+
+	ParameterSet modpset = pset_.getParameter<ParameterSet>(realname);
 	unsigned long version=1, pass=1;
 	WorkerParams params(modpset, *prod_reg_, *act_table_,
                             proc_name_, version, pass);
-	Worker* w = worker_reg_->getWorker(params);
+	WorkerInPath w(worker_reg_->getWorker(params),state);
 	tmpworkers.push_back(w);
       }
 
     out.swap(tmpworkers);
   }
 
+  struct ToWorker
+  {
+    Worker* operator()(WorkerInPath& w) const { return w.getWorker(); }
+  };
+
   bool Schedule::fillTrigPath(int bitpos,const string& name)
   {
-    Workers tmpworkers;
-    Workers goodworkers;
+    PathWorkers tmpworkers;
+    PathWorkers goodworkers;
+    Workers holder;
     fillWorkers(name,tmpworkers);
     bool hasFilter = false;
 
     // check for any OutputModules
-    for(Workers::iterator wi(tmpworkers.begin()),
+    for(PathWorkers::iterator wi(tmpworkers.begin()),
 	  we(tmpworkers.end());wi!=we;++wi)
       {
-	if(dynamic_cast<OutputWorker*>(*wi)!=0)
+	Worker* tworker = wi->getWorker();
+	if(dynamic_cast<OutputWorker*>(tworker)!=0)
 	  {
-	    LogWarning("path") << "OutputModule " 
-			       << (*wi)->description().moduleLabel_
-			       << " appears in path " << name << ".\n"
-			       << "This will not be allowed in future releases.\n"
-			       << "This module has been moved to the endpath.\n";
+	    LogWarning("path")
+	      << "OutputModule " 
+	      << tworker->description().moduleLabel_
+	      << " appears in path " << name << ".\n"
+	      << "This will not be allowed in future releases.\n"
+	      << "This module has been moved to the endpath.\n";
 
-	    end_paths_.push_back(*wi);
+	    tmp_wrongly_placed_.push_back(*wi);
 	  }
 	else
 	  goodworkers.push_back(*wi);
 
-	if(dynamic_cast<FilterWorker*>(*wi)!=0)
+	if(dynamic_cast<FilterWorker*>(tworker)!=0)
 	  hasFilter = true;
+
+	holder.push_back(tworker);
       }
 
-    Path p(bitpos,name,goodworkers,results_,pset_,*act_table_,act_reg_);
-    trig_paths_.push_back(p);
-    all_workers_.insert(tmpworkers.begin(),tmpworkers.end());
+    // an empty path will cause an extra bit that is not used
+    if(!goodworkers.empty())
+	{
+        Path p(bitpos,name,goodworkers,results_,pset_,*act_table_,act_reg_);
+        trig_paths_.push_back(p);
+	}
+    all_workers_.insert(holder.begin(),holder.end());
 
     return hasFilter;
   }
 
-  void Schedule::fillEndPath(const string& name)
+  void Schedule::fillEndPath(int bitpos,const string& name)
   {
-    Workers tmpworkers;
+    PathWorkers tmpworkers;
     fillWorkers(name,tmpworkers);
-    end_paths_.insert(end_paths_.end(),tmpworkers.begin(),tmpworkers.end());
-    all_workers_.insert(tmpworkers.begin(),tmpworkers.end());
+    Workers holder;
+
+    transform(tmpworkers.begin(),tmpworkers.end(),
+	      back_inserter(holder),ToWorker());
+    
+    Path p(bitpos,name,tmpworkers,endpath_results_,pset_,*act_table_,act_reg_);
+    end_paths_.push_back(p);
+    all_workers_.insert(holder.begin(),holder.end());
   }
 
   void Schedule::runOneEvent(EventPrincipal& ep, EventSetup const& es)
   {
     resetWorkers();
     results_->reset();
+    endpath_results_->reset();
     state_ = Running;
     ++total_events_;
 
@@ -226,23 +270,24 @@ namespace edm
 
 	// go through triggering paths first
 	bool result = false;
-	int which_one = 0;
+
 	TrigPaths::iterator ti(trig_paths_.begin()),te(trig_paths_.end());
-	for(;ti!=te;++ti)
+	for(int which_one=0;ti!=te;++ti,++which_one)
 	  {
 	    ti->runOneEvent(ep,es);
 	    result += (*results_)[which_one];
-	    ++which_one;
 	  }
 
 	if(result) ++total_passed_;
 	state_ = Latched;
+
+	if(results_inserter_.get()) results_inserter_->doWork(ep,es);
 	
 	// go through end paths next
-	NonTrigPaths::iterator ei(end_paths_.begin()),ee(end_paths_.end());
+	TrigPaths::iterator ei(end_paths_.begin()),ee(end_paths_.end());
 	for(;ei!=ee;++ei)
 	  {
-	    (*ei)->doWork(ep,es);
+	    ei->runOneEvent(ep,es);
 	  }
       }
     catch(cms::Exception& e)

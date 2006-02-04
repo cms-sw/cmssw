@@ -1,6 +1,7 @@
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/OutputModule.h"
 #include "FWCore/Framework/interface/Selector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -35,7 +36,10 @@ namespace edmtest
     int passed_;
     int failed_;
     bool dump_;
+    string name_;
   };
+
+  // -------
 
   class TestFilterModule : public edm::EDFilter
   {
@@ -52,12 +56,30 @@ namespace edmtest
     bool onlyOne_;
   };
 
+  // -------
+
+  class SewerModule : public edm::OutputModule
+  {
+  public:
+    explicit SewerModule(edm::ParameterSet const&);
+    virtual ~SewerModule();
+
+    virtual void write(edm::EventPrincipal const& e);
+    void endJob();
+
+  private:
+    string name_;
+    int num_pass_;
+    int total_;
+  };
+
   // -----------------------------------------------------------------
 
   TestResultAnalyzer::TestResultAnalyzer(edm::ParameterSet const& ps):
     passed_(),
     failed_(),
-    dump_(ps.getUntrackedParameter<bool>("dump",false))
+    dump_(ps.getUntrackedParameter<bool>("dump",false)),
+    name_(ps.getUntrackedParameter<string>("name","DEFAULT"))
   {
   }
     
@@ -84,7 +106,7 @@ namespace edmtest
 
   void TestResultAnalyzer::endJob()
   {
-    cerr << "TESTRESULTANALYZER: "
+    cerr << "TESTRESULTANALYZER " << name_ << ": "
 	 << "passed=" << passed_ << " failed=" << failed_ << "\n";
   }
 
@@ -114,11 +136,39 @@ namespace edmtest
   {
   }
 
+  // ---------
+
+  SewerModule::SewerModule(edm::ParameterSet const& ps):
+    edm::OutputModule(ps),
+    name_(ps.getParameter<string>("name")),
+    num_pass_(ps.getParameter<int>("shouldPass")),
+    total_()
+  {
+  }
+    
+  SewerModule::~SewerModule()
+  {
+  }
+
+  void SewerModule::write(edm::EventPrincipal const& e)
+  {
+    ++total_;
+  }
+
+  void SewerModule::endJob()
+  {
+    cerr << "SEWERMODULE " << name_ << ": should pass " << num_pass_
+	 << ", did pass " << total_ << "\n";
+
+    if(total_!=num_pass_) abort();
+  }
 }
 
 using edmtest::TestFilterModule;
 using edmtest::TestResultAnalyzer;
+using edmtest::SewerModule;
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(TestFilterModule)
 DEFINE_ANOTHER_FWK_MODULE(TestResultAnalyzer)
+DEFINE_ANOTHER_FWK_MODULE(SewerModule)

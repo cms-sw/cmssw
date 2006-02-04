@@ -5,7 +5,7 @@
 
 	Author: Jim Kowalkowski 28-01-06
 
-	$Id$
+	$Id: WorkerInPath.h,v 1.1 2006/01/29 23:33:58 jbk Exp $
 
 	A wrapper around a Worker, so that statistics can be managed
 	per path.  A Path holds Workers as these things.
@@ -35,6 +35,8 @@ namespace edm
     int timesPassed() const { return timesPassed_; }
     int timesFailed() const { return timesFailed_; }
     int timesExcept() const { return timesExcept_; }
+
+    Worker* getWorker() { return worker_; }
 
   private:
     int timesVisited_;

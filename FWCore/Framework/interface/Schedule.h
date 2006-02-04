@@ -4,7 +4,7 @@
 /*
 	Author: Jim Kowalkowski  28-01-06
 
-	$Id$
+	$Id: Schedule.h,v 1.1 2006/01/29 23:33:57 jbk Exp $
 
 	A class for creating a schedule based on paths in the configuration file.
 	The schedule is maintained as a sequence of paths.
@@ -50,6 +50,7 @@
 #include "FWCore/Framework/interface/TriggerResults.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/src/Worker.h"
+#include "FWCore/Framework/src/WorkerInPath.h"
 #include "FWCore/Framework/src/Path.h"
 #include "FWCore/Framework/interface/Actions.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -68,29 +69,38 @@ namespace edm
   class Schedule
   {
   public:
+    typedef std::vector<std::string> vstring;
+    typedef std::vector<Path> TrigPaths;
+    typedef std::vector<Path> NonTrigPaths;
+    typedef TriggerResults::BitMask BitMask;
+    typedef boost::shared_ptr<BitMask> BitMaskPtr;
+    typedef boost::shared_ptr<Worker> WorkerPtr;
+    typedef boost::shared_ptr<ActivityRegistry> ActivityRegistryPtr;
+    typedef std::set<Worker*> AllWorkers;
+    typedef std::vector<Worker*> Workers;
+    typedef std::vector<WorkerInPath> PathWorkers;
+
     Schedule(ParameterSet const& processDesc,
 	     WorkerRegistry& wregistry,
 	     ProductRegistry& pregistry,
 	     ActionTable& actions,
-	     boost::shared_ptr<ActivityRegistry> areg);
+	     ActivityRegistryPtr areg);
     ~Schedule();
 
-    typedef std::vector<Path> TrigPaths;
-    typedef std::set<Worker*> AllWorkers;
-    typedef std::vector<Worker*> NonTrigPaths;
-    typedef std::vector<Worker*> Workers;
     enum State { Ready=0, Running, Latched };
 
-    void runOneEvent(EventPrincipal& eventPrincipal, EventSetup const& eventSetup);
+    void runOneEvent(EventPrincipal& eventPrincipal, 
+		     EventSetup const& eventSetup);
 
     void beginJob(EventSetup const&);
     void endJob();
 
   private:
     void resetWorkers();
-    void fillWorkers(const std::string& name, Workers& out);
+    void fillWorkers(const std::string& name, PathWorkers& out);
     bool fillTrigPath(int bitpos,const std::string& name);
-    void fillEndPath(const std::string& name);
+    void fillEndPath(int bitpos,const std::string& name);
+    void handleWronglyPlacedModules();
 
     ParameterSet pset_;
     WorkerRegistry* worker_reg_;
@@ -98,16 +108,23 @@ namespace edm
     ActionTable* act_table_;
     std::string proc_name_;
     ParameterSet trig_pset_;
-    boost::shared_ptr<ActivityRegistry> act_reg_;
+    ActivityRegistryPtr act_reg_;
 
     State state_;
-    std::vector<std::string> path_name_list_;
-    std::vector<std::string> end_path_name_list_;
-    boost::shared_ptr<TriggerResults::BitMask> results_;
-    boost::shared_ptr<Worker> results_inserter_;
+    vstring path_name_list_;
+    vstring end_path_name_list_;
+
+    BitMaskPtr results_;
+    int results_bit_count_;
+    BitMaskPtr endpath_results_;
+    int endpath_results_bit_count_;
+
+    WorkerPtr results_inserter_;
     AllWorkers all_workers_;
     TrigPaths trig_paths_;
-    NonTrigPaths end_paths_;
+    TrigPaths end_paths_;
+
+    PathWorkers tmp_wrongly_placed_;
 
     bool wantSummary_;
     bool makeTriggerResults_;
