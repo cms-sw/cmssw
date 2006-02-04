@@ -230,7 +230,8 @@ List of tasks:
 03-02-06
 
 completed unit test scripts testBits*.cfg that excerise the trigger bit
-logic.
+logic.  They also test the output module interface - in particular 
+they test the event selection logic.
 
 endpaths are now real paths
 
@@ -242,6 +243,6 @@ the veto specification for modules in paths is complete.  you can now
 place a ! in front of any module in a path and reverse its decision for
 that path only.
 
-the "listOfTriggers" is still not complete.
+the "listOfTriggers" feature is still not complete. (see previous entry)
 
 
