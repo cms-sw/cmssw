@@ -34,11 +34,11 @@ public:
   // The following is not yet used, but will be the primary
   // constructor when the parameter set system is available.
   //
-  explicit EcalDigiProducer(const edm::ParameterSet& ps);
+  explicit EcalDigiProducer(const edm::ParameterSet& params);
   virtual ~EcalDigiProducer();
 
   /**Produces the EDM products,*/
-  virtual void produce(edm::Event& e, const edm::EventSetup& c);
+  virtual void produce(edm::Event& event, const edm::EventSetup& eventSetup);
 
 private:
   // some hits in each subdetector, just for testing purposes
@@ -70,8 +70,8 @@ private:
 };
 
 
-EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet& ps) {
-
+EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet& params) 
+{
   produces<EBDigiCollection>();
   produces<EEDigiCollection>();
 
@@ -80,7 +80,7 @@ EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet& ps) {
 
   theEcalResponse = new CaloHitResponse(theParameterMap, theEcalShape);
   
-  bool addNoise = ps.getUntrackedParameter<bool>("doNoise" , false);
+  bool addNoise = params.getUntrackedParameter<bool>("doNoise" , false);
   theCoder = new EcalCoder(addNoise);
   theElectronicsSim = new EcalElectronicsSim(theParameterMap, theCoder);
 
@@ -93,7 +93,8 @@ EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet& ps) {
 
 
 
-void EcalDigiProducer::setupFakePedestals() {
+void EcalDigiProducer::setupFakePedestals() 
+{
   thePedestals.m_pedestals.clear();
   // make pedestals for each of these
   EcalPedestals::Item item;
@@ -120,7 +121,8 @@ void EcalDigiProducer::setupFakePedestals() {
 }
 
 
-EcalDigiProducer::~EcalDigiProducer() {
+EcalDigiProducer::~EcalDigiProducer() 
+{
   delete theParameterMap;
   delete theEcalShape;
   delete theEcalResponse;
@@ -128,7 +130,8 @@ EcalDigiProducer::~EcalDigiProducer() {
 }
 
 
-void EcalDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
+void EcalDigiProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup) 
+{
 //  edm::ESHandle<EcalPedestals> pedHandle;
 //  eventSetup.get<EcalPedestalsRcd>().get( pedHandle );
 //  theCoder->setPedestals(pedHandle.product());
@@ -139,18 +142,17 @@ void EcalDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   checkGeometry(eventSetup);
 
   // Get input
-  edm::Handle<CrossingFrame> cf;
-  e.getByType(cf);
+  edm::Handle<CrossingFrame> crossingFrame;
+  event.getByType(crossingFrame);
 
   // test access to SimHits
   const std::string barrelHitsName("EcalHitsEB");
   const std::string endcapHitsName("EcalHitsEE");
 
   std::auto_ptr<MixCollection<PCaloHit> > 
-    barrelHits( new MixCollection<PCaloHit>(cf.product(), barrelHitsName) );
+    barrelHits( new MixCollection<PCaloHit>(crossingFrame.product(), barrelHitsName) );
 //  std::auto_ptr<MixCollection<PCaloHit> > 
-//    endcapHits( new MixCollection<PCaloHit>(cf.product(),endcapHitsName) );
-
+//    endcapHits( new MixCollection<PCaloHit>(crossingFrame.product(),endcapHitsName) );
 
   // Step B: Create empty output
   auto_ptr<EBDigiCollection> barrelResult(new EBDigiCollection());
@@ -158,7 +160,6 @@ void EcalDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
 
   // run the algorithm
   theBarrelDigitizer->run(*barrelHits, *barrelResult);
-
 
   edm::LogInfo("EcalDigiProducer") << "EB Digis: " << barrelResult->size();
 
@@ -168,21 +169,24 @@ void EcalDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   CaloDigiCollectionSorter sorter(5);
   std::vector<EBDataFrame> sortedDigis = sorter.sortedVector(*barrelResult);
   std::cout << "Top 10 EB digis" << std::endl;
-  for(int i = 0; i < std::min(10,(int) sortedDigis.size()); ++i) {
+  for(int i = 0; i < std::min(10,(int) sortedDigis.size()); ++i) 
+   {
     std::cout << sortedDigis[i];
-  }
+   }
   // Step D: Put outputs into event
-  e.put(barrelResult);
-  e.put(endcapResult);
+  event.put(barrelResult);
+  event.put(endcapResult);
 
 }
 
 
 
-void  EcalDigiProducer::checkCalibrations(const edm::EventSetup & eventSetup) {
-}
+void  EcalDigiProducer::checkCalibrations(const edm::EventSetup & eventSetup) 
+{}
 
-void EcalDigiProducer::checkGeometry(const edm::EventSetup & eventSetup) {
+
+void EcalDigiProducer::checkGeometry(const edm::EventSetup & eventSetup) 
+{
   // TODO find a way to avoid doing this every event
   edm::ESHandle<CaloGeometry> geometry;
   eventSetup.get<IdealGeometryRecord>().get(geometry);
@@ -199,7 +203,6 @@ void EcalDigiProducer::checkGeometry(const edm::EventSetup & eventSetup) {
   theEndcapDigitizer->setDetIds(theEndcapDets);
 
   setupFakePedestals();
-
 }
 
 

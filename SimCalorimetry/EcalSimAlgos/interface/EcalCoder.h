@@ -35,7 +35,8 @@ class EcalCoder
   void newEvent() {}
 
  private:
-  double fullScaleEnergy(const DetId & ) const {return 1818.18;}
+
+  double fullScaleEnergy (const DetId & ) const ;
 
   std::vector<EcalMGPASample> encode(const CaloSamples& timeframe) const;
 

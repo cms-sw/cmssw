@@ -8,7 +8,6 @@
 #include <iostream>
 
 
-
 EcalCoder::EcalCoder(bool addNoise)
 :  thePedestals(0),
    addNoise_(addNoise)
@@ -21,6 +20,17 @@ EcalCoder::EcalCoder(bool addNoise)
   theGainErrors[0] = 0.002;
   theGainErrors[1] = 0.002;
   theGainErrors[2] = 0.002;
+}
+
+
+double EcalCoder::fullScaleEnergy(const DetId & ) const 
+{
+ //PG Emax = x MeV/ADC * 4095 ADC * 12(gain) / 1000 MeV/GeV
+ //PG for the Barrel
+  return 1719.9 ;  //PG assuming 35 MeV/ADC
+//  return 1818.18 ; //PG assuming 37 MeV/ADC
+ //PG for the Endcap
+//  return 2948.40 ; //PG assuming 60 MeV/ADC
 }
 
 
