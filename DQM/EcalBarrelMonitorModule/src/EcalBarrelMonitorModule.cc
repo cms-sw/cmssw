@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2006/01/28 18:04:25 $
- * $Revision: 1.76 $
+ * $Date: 2006/01/29 17:21:26 $
+ * $Revision: 1.77 $
  * \author G. Della Ricca
  *
 */
@@ -75,9 +75,16 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
     }
   }
 
-  //We put this here for the moment since there is no better place
-  edm::Service<MonitorDaemon> daemon;
-  daemon.operator->();
+  // MonitorDaemon switch
+  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+
+  if ( enableMonitorDaemon_ ) {
+    cout << " enableMonitorDaemon switch is ON" << endl;
+    edm::Service<MonitorDaemon> daemon;
+    daemon.operator->();
+  } else {
+    cout << " enableMonitorDaemon switch is OFF" << endl;
+  }
 
   meStatus_ = 0;
   meRun_ = 0;
@@ -105,7 +112,7 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
 
   // this should give enough time to the control MEs to reach the Collector,
   // and then hopefully the clients
-  sleep(10);
+  if ( enableMonitorDaemon_ ) sleep(10);
 
   meEBdigi_ = 0;
   meEBhits_ = 0;
@@ -162,7 +169,7 @@ void EcalBarrelMonitorModule::beginJob(const edm::EventSetup& c){
 
   // this should give enough time to all the MEs to reach the Collector,
   // and then hopefully the clients, even for short runs
-  sleep(120);
+  if ( enableMonitorDaemon_ ) sleep(120);
 
 }
 
@@ -182,7 +189,7 @@ void EcalBarrelMonitorModule::endJob(void) {
 
   // this should give enough time to meStatus_ to reach the Collector,
   // and then hopefully the clients ...
-  sleep(60);
+  if ( enableMonitorDaemon_ ) sleep(60);
 
 }
 
@@ -300,7 +307,7 @@ void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
   // resume the shipping of monitoring elements
   dbe_->unlock();
 
-//  sleep(1);
+//  if ( enableMonitorDaemon_ ) sleep(1);
 
 }
 

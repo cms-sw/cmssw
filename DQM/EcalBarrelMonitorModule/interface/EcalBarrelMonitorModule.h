@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorModule.h
  *
- * $Date: 2006/01/29 17:21:25 $
- * $Revision: 1.27 $
+ * $Date: 2006/02/02 12:54:54 $
+ * $Revision: 1.28 $
  * \author G. Della Ricca
  *
 */
@@ -65,6 +65,8 @@ int ievt_;
 int irun_;
 
 bool verbose_;
+
+bool enableMonitorDaemon_;
 
 DaqMonitorBEInterface* dbe_;
 
