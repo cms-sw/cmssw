@@ -245,4 +245,9 @@ that path only.
 
 the "listOfTriggers" feature is still not complete. (see previous entry)
 
+Warning: the SelectEvents pset untracked option is not working properly
+because of problems in the parameterset library.  The test scripts
+will need to be upgraded when it is fixed.
+
+
 
