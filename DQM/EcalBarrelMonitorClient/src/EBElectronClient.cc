@@ -1,8 +1,8 @@
 /*
  * \file EBElectronClient.cc
  *
- * $Date: 2006/01/19 06:58:39 $
- * $Revision: 1.10 $
+ * $Date: 2006/02/03 09:39:06 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -121,12 +121,6 @@ void EBElectronClient::unsubscribe(void){
   if ( collateSources_ ) {
 
     if ( verbose_ ) cout << "EBElectronClient: uncollate" << endl;
-
-    DaqMonitorBEInterface* bei = mui_->getBEInterface();
-
-    if ( bei ) {
-
-    }
 
   }
 
