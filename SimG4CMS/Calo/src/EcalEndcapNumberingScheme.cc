@@ -35,17 +35,17 @@ uint32_t EcalEndcapNumberingScheme::getUnitID(const G4Step* aStep) const {
 		<< "alveole ! Use default id=1 " << std::endl;
 
   int zside= HitPoint.z()>0 ? 1: -1;
-  int eta  = MVid;
-  int phi  = PVid;
+  int module_number  = MVid;
+  int crystal_number  = PVid;
 
   //pack it into an integer
   // to be consistent with EEDetId definition
   //FIXME to checked and most surely corrected
-  uint32_t intindex = EEDetId(eta,phi,zside).rawId();
+  uint32_t intindex = EEDetId(module_number,crystal_number,zside,EEDetId::SCCRYSTALMODE).rawId();
 
   if (verbosity>1) 
     std::cout << "EcalEndcapNumberingScheme: zside = "  << zside 
-	      << " super crystal = " << eta << " crystal = " << phi
+	      << " super crystal = " << module_number << " crystal = " << crystal_number
 	      << " packed index = 0x" << std::hex << intindex << std::dec 
 	      << std::endl;
   return intindex;
