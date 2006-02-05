@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2006/01/19 06:58:39 $
- * $Revision: 1.5 $
+ * $Date: 2006/02/03 09:39:06 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -10,7 +10,7 @@
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBPedestalOnlineClient.h>
 
-EBPedestalOnlineClient::EBPedestalOnlineClient(const edm::ParameterSet& ps, MonitorUserInterface* mui){
+EBPedestalOnlineClient::EBPedestalOnlineClient(const ParameterSet& ps, MonitorUserInterface* mui){
 
   mui_ = mui;
 

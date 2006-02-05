@@ -1,15 +1,15 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2006/02/02 08:32:44 $
- * $Revision: 1.74 $
+ * $Date: 2006/02/03 09:39:06 $
+ * $Revision: 1.75 $
  * \author G. Della Ricca
  *
 */
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBIntegrityClient.h>
 
-EBIntegrityClient::EBIntegrityClient(const edm::ParameterSet& ps, MonitorUserInterface* mui){
+EBIntegrityClient::EBIntegrityClient(const ParameterSet& ps, MonitorUserInterface* mui){
 
   mui_ = mui;
 

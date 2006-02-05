@@ -1,15 +1,15 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2006/01/19 06:58:39 $
- * $Revision: 1.56 $
+ * $Date: 2006/02/03 09:39:06 $
+ * $Revision: 1.57 $
  * \author G. Della Ricca
  *
 */
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBLaserClient.h>
 
-EBLaserClient::EBLaserClient(const edm::ParameterSet& ps, MonitorUserInterface* mui){
+EBLaserClient::EBLaserClient(const ParameterSet& ps, MonitorUserInterface* mui){
 
   mui_ = mui;
 

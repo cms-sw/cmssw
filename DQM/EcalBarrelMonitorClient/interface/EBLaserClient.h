@@ -4,14 +4,16 @@
 /*
  * \file EBLaserClient.h
  *
- * $Date: 2006/01/19 06:58:38 $
- * $Revision: 1.20 $
+ * $Date: 2006/02/03 09:39:06 $
+ * $Revision: 1.21 $
  * \author G. Della Ricca
  *
 */
 
-#include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -46,6 +48,7 @@
 #include <string>
 
 using namespace cms;
+using namespace edm;
 using namespace std;
 
 class EBLaserClient{
@@ -53,7 +56,7 @@ class EBLaserClient{
 public:
 
 /// Constructor
-EBLaserClient(const edm::ParameterSet& ps, MonitorUserInterface* mui);
+EBLaserClient(const ParameterSet& ps, MonitorUserInterface* mui);
 
 /// Destructor
 virtual ~EBLaserClient();

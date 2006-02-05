@@ -4,17 +4,19 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2006/01/19 06:58:38 $
- * $Revision: 1.33 $
+ * $Date: 2006/02/03 09:39:06 $
+ * $Revision: 1.34 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
 */
 
-#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -54,13 +56,13 @@
 using namespace cms;
 using namespace std;
 
-class EcalBarrelMonitorClient: public edm::EDAnalyzer{
+class EcalBarrelMonitorClient: public EDAnalyzer{
 
 public:
 
 /// Constructor
-EcalBarrelMonitorClient(const edm::ParameterSet& ps);
-EcalBarrelMonitorClient(const edm::ParameterSet& ps, MonitorUserInterface* mui);
+EcalBarrelMonitorClient(const ParameterSet& ps);
+EcalBarrelMonitorClient(const ParameterSet& ps, MonitorUserInterface* mui);
 
 /// Destructor
 ~EcalBarrelMonitorClient();
@@ -71,15 +73,15 @@ void subscribeNew(void);
 void unsubscribe(void);
 
 // Initialize
-void initialize(const edm::ParameterSet& ps);
+void initialize(const ParameterSet& ps);
 
 /// Analyze
 void analyze(void);
-void analyze(const edm::Event& e, const edm::EventSetup& c){ this->analyze(); }
+void analyze(const Event& e, const EventSetup& c){ this->analyze(); }
 
 /// BeginJob
 void beginJob(void);
-void beginJob(const edm::EventSetup& c){ this->beginJob(); }
+void beginJob(const EventSetup& c){ this->beginJob(); }
 
 /// EndJob
 void endJob(void);

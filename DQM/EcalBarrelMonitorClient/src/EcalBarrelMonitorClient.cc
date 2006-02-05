@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/01/26 14:11:31 $
- * $Revision: 1.85 $
+ * $Date: 2006/02/03 09:39:06 $
+ * $Revision: 1.86 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -10,7 +10,7 @@
 
 #include <DQM/EcalBarrelMonitorClient/interface/EcalBarrelMonitorClient.h>
 
-EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps, MonitorUserInterface* mui){
+EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps, MonitorUserInterface* mui){
 
   mui_ = mui;
 
@@ -18,7 +18,7 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps, Mo
 
 }
 
-EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps){
+EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps){
 
   mui_ = 0;
 
@@ -26,7 +26,7 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps){
 
 }
 
-void EcalBarrelMonitorClient::initialize(const edm::ParameterSet& ps){
+void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
 
   cout << endl;
   cout << " *** Ecal Barrel Generic Monitor Client ***" << endl;

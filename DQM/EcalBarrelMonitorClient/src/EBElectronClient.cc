@@ -1,8 +1,8 @@
 /*
  * \file EBElectronClient.cc
  *
- * $Date: 2006/02/03 09:39:06 $
- * $Revision: 1.11 $
+ * $Date: 2006/02/04 18:56:52 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -10,7 +10,7 @@
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBElectronClient.h>
 
-EBElectronClient::EBElectronClient(const edm::ParameterSet& ps, MonitorUserInterface* mui){
+EBElectronClient::EBElectronClient(const ParameterSet& ps, MonitorUserInterface* mui){
 
   mui_ = mui;
 

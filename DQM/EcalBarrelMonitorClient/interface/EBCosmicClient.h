@@ -4,15 +4,17 @@
 /*
  * \file EBCosmicClient.h
  *
- * $Date: 2006/01/19 06:58:38 $
- * $Revision: 1.12 $
+ * $Date: 2006/02/03 09:39:06 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
 */
 
-#include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -39,6 +41,7 @@
 #include <string>
 
 using namespace cms;
+using namespace edm;
 using namespace std;
 
 class EBCosmicClient{
@@ -46,7 +49,7 @@ class EBCosmicClient{
 public:
 
 /// Constructor
-EBCosmicClient(const edm::ParameterSet& ps, MonitorUserInterface* mui);
+EBCosmicClient(const ParameterSet& ps, MonitorUserInterface* mui);
 
 /// Destructor
 virtual ~EBCosmicClient();
