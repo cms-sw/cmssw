@@ -1,17 +1,15 @@
 /*
  * \file EBPedestalOnlineTask.cc
  *
- * $Date: 2006/01/24 14:34:26 $
- * $Revision: 1.3 $
+ * $Date: 2006/01/29 17:21:28 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  *
 */
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBPedestalOnlineTask.h>
 
-EBPedestalOnlineTask::EBPedestalOnlineTask(const edm::ParameterSet& ps){
-
-//  logFile_.open("EBPedestalOnlineTask.log");
+EBPedestalOnlineTask::EBPedestalOnlineTask(const ParameterSet& ps){
 
   init_ = false;
 
@@ -25,11 +23,9 @@ EBPedestalOnlineTask::EBPedestalOnlineTask(const edm::ParameterSet& ps){
 
 EBPedestalOnlineTask::~EBPedestalOnlineTask(){
 
-//  logFile_.close();
-
 }
 
-void EBPedestalOnlineTask::beginJob(const edm::EventSetup& c){
+void EBPedestalOnlineTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
 
@@ -44,7 +40,7 @@ void EBPedestalOnlineTask::setup(void){
   DaqMonitorBEInterface* dbe = 0;
 
   // get hold of back-end interface
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe = Service<DaqMonitorBEInterface>().operator->();
 
   if ( dbe ) {
     dbe->setCurrentFolder("EcalBarrel/EBPedestalOnlineTask");
@@ -61,20 +57,20 @@ void EBPedestalOnlineTask::setup(void){
 
 void EBPedestalOnlineTask::endJob(){
 
-  cout << "EBPedestalOnlineTask: analyzed " << ievt_ << " events" << endl;
+  LogInfo("EBPedestalOnlineTask") << "analyzed " << ievt_ << " events";
 }
 
-void EBPedestalOnlineTask::analyze(const edm::Event& e, const edm::EventSetup& c){
+void EBPedestalOnlineTask::analyze(const Event& e, const EventSetup& c){
 
   if ( ! init_ ) this->setup();
 
   ievt_++;
 
-  edm::Handle<EBDigiCollection> digis;
+  Handle<EBDigiCollection> digis;
   e.getByLabel("ecalEBunpacker", digis);
 
-//  int nebd = digis->size();
-//  cout << "EBPedestalOnlineTask: event " << ievt_ << " digi collection size " << nebd << endl;
+  int nebd = digis->size();
+  LogDebug("EBPedestalOnlineTask") << "event " << ievt_ << " digi collection size " << nebd;
 
   for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
@@ -89,8 +85,8 @@ void EBPedestalOnlineTask::analyze(const edm::Event& e, const edm::EventSetup& c
 
     int ism = id.ism();
 
-//    logFile_ << " det id = " << id << endl;
-//    logFile_ << " sm, eta, phi " << ism << " " << ie << " " << ip << endl;
+    LogDebug("EBPedestalOnlineTask") << " det id = " << id;
+    LogDebug("EBPedestalOnlineTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
 
     for (int i = 0; i < 3; i++) {
 

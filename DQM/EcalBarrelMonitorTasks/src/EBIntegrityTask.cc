@@ -1,17 +1,15 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2006/01/29 17:21:28 $
- * $Revision: 1.8 $
+ * $Date: 2006/02/02 08:32:43 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  *
 */
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBIntegrityTask.h>
 
-EBIntegrityTask::EBIntegrityTask(const edm::ParameterSet& ps){
-
-//  logFile_.open("EBIntegrityTask.log");
+EBIntegrityTask::EBIntegrityTask(const ParameterSet& ps){
 
   init_ = false;
 
@@ -31,11 +29,9 @@ EBIntegrityTask::EBIntegrityTask(const edm::ParameterSet& ps){
 
 EBIntegrityTask::~EBIntegrityTask(){
 
-//  logFile_.close();
-
 }
 
-void EBIntegrityTask::beginJob(const edm::EventSetup& c){
+void EBIntegrityTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
 
@@ -50,7 +46,7 @@ void EBIntegrityTask::setup(void){
   DaqMonitorBEInterface* dbe = 0;
 
   // get hold of back-end interface
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe = Service<DaqMonitorBEInterface>().operator->();
 
   if ( dbe ) {
     dbe->setCurrentFolder("EcalBarrel");
@@ -108,17 +104,17 @@ void EBIntegrityTask::setup(void){
 
 void EBIntegrityTask::endJob(){
 
-  cout << "EBIntegrityTask: analyzed " << ievt_ << " events" << endl;
+  LogInfo("EBIntegrityTask") << "analyzed " << ievt_ << " events";
 
 }
 
-void EBIntegrityTask::analyze(const edm::Event& e, const edm::EventSetup& c){
+void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   if ( ! init_ ) this->setup();
 
   ievt_++;
 
-  edm::Handle<EBDetIdCollection> ids0;
+  Handle<EBDetIdCollection> ids0;
   e.getByLabel("ecalEBunpacker", "EcalIntegrityDCCSizeErrors", ids0);
 
   for ( EBDetIdCollection::const_iterator idItr = ids0->begin(); idItr != ids0->end(); ++ idItr ) {
@@ -133,7 +129,7 @@ void EBIntegrityTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   }
 
-  edm::Handle<EBDetIdCollection> ids1;
+  Handle<EBDetIdCollection> ids1;
   e.getByLabel("ecalEBunpacker", "EcalIntegrityGainErrors", ids1);
 
   for ( EBDetIdCollection::const_iterator idItr = ids1->begin(); idItr != ids1->end(); ++ idItr ) {
@@ -152,7 +148,7 @@ void EBIntegrityTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   }
 
-  edm::Handle<EBDetIdCollection> ids2;
+  Handle<EBDetIdCollection> ids2;
   e.getByLabel("ecalEBunpacker", "EcalIntegrityChIdErrors", ids2);
 
   for ( EBDetIdCollection::const_iterator idItr = ids2->begin(); idItr != ids2->end(); ++ idItr ) {
@@ -171,7 +167,7 @@ void EBIntegrityTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   }
 
-  edm::Handle<EBDetIdCollection> ids3;
+  Handle<EBDetIdCollection> ids3;
   e.getByLabel("ecalEBunpacker", "EcalIntegrityGainSwitchErrors", ids3);
 
   for ( EBDetIdCollection::const_iterator idItr = ids3->begin(); idItr != ids3->end(); ++ idItr ) {
@@ -190,7 +186,7 @@ void EBIntegrityTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   }
 
-  edm::Handle<EBDetIdCollection> ids4;
+  Handle<EBDetIdCollection> ids4;
   e.getByLabel("ecalEBunpacker", "EcalIntegrityGainSwitchStayErrors", ids4);
 
   for ( EBDetIdCollection::const_iterator idItr = ids4->begin(); idItr != ids4->end(); ++ idItr ) {
@@ -209,7 +205,7 @@ void EBIntegrityTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   }
 
-  edm::Handle<EcalTrigTowerDetIdCollection> ids5;
+  Handle<EcalTrigTowerDetIdCollection> ids5;
   e.getByLabel("ecalEBunpacker", "EcalIntegrityTTIdErrors", ids5);
 
   for ( EcalTrigTowerDetIdCollection::const_iterator idItr = ids5->begin(); idItr != ids5->end(); ++ idItr ) {
@@ -229,7 +225,7 @@ void EBIntegrityTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   }
 
-  edm::Handle<EcalTrigTowerDetIdCollection> ids6;
+  Handle<EcalTrigTowerDetIdCollection> ids6;
   e.getByLabel("ecalEBunpacker", "EcalIntegrityBlockSizeErrors", ids6);
 
   for ( EcalTrigTowerDetIdCollection::const_iterator idItr = ids6->begin(); idItr != ids6->end(); ++ idItr ) {

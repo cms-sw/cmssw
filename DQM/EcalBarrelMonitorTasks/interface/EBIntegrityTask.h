@@ -4,17 +4,17 @@
 /*
  * \file EBIntegrityTask.h
  *
- * $Date: 2006/01/29 17:21:27 $
- * $Revision: 1.6 $
+ * $Date: 2006/02/03 08:08:31 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  *
 */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -24,19 +24,22 @@
 
 #include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include <iostream>
 #include <fstream>
 #include <vector>
 
 using namespace cms;
+using namespace edm;
 using namespace std;
 
-class EBIntegrityTask: public edm::EDAnalyzer{
+class EBIntegrityTask: public EDAnalyzer{
 
 public:
 
 /// Constructor
-EBIntegrityTask(const edm::ParameterSet& ps);
+EBIntegrityTask(const ParameterSet& ps);
 
 /// Destructor
 virtual ~EBIntegrityTask();
@@ -44,10 +47,10 @@ virtual ~EBIntegrityTask();
 protected:
 
 /// Analyze
-void analyze(const edm::Event& e, const edm::EventSetup& c);
+void analyze(const Event& e, const EventSetup& c);
 
 /// BeginJob
-void beginJob(const edm::EventSetup& c);
+void beginJob(const EventSetup& c);
 
 /// EndJob
 void endJob(void);
@@ -66,8 +69,6 @@ MonitorElement* meIntegrityGainSwitchStay[36];
 MonitorElement* meIntegrityTTId[36];
 MonitorElement* meIntegrityTTBlockSize[36];
 MonitorElement* meIntegrityDCCSize;
-
-ofstream logFile_;
 
 bool init_;
 

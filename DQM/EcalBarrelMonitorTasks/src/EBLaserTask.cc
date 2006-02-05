@@ -1,17 +1,15 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2006/01/24 14:34:26 $
- * $Revision: 1.37 $
+ * $Date: 2006/01/29 17:21:28 $
+ * $Revision: 1.38 $
  * \author G. Della Ricca
  *
 */
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBLaserTask.h>
 
-EBLaserTask::EBLaserTask(const edm::ParameterSet& ps){
-
-//  logFile.open("EBLaserTask.log");
+EBLaserTask::EBLaserTask(const ParameterSet& ps){
 
   init_ = false;
 
@@ -56,11 +54,9 @@ EBLaserTask::EBLaserTask(const edm::ParameterSet& ps){
 
 EBLaserTask::~EBLaserTask(){
 
-//  logFile.close();
-
 }
 
-void EBLaserTask::beginJob(const edm::EventSetup& c){
+void EBLaserTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
 
@@ -75,7 +71,7 @@ void EBLaserTask::setup(void){
   DaqMonitorBEInterface* dbe = 0;
 
   // get hold of back-end interface
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe = Service<DaqMonitorBEInterface>().operator->();
 
   if ( dbe ) {
     dbe->setCurrentFolder("EcalBarrel/EBLaserTask");
@@ -200,11 +196,11 @@ void EBLaserTask::setup(void){
 
 void EBLaserTask::endJob(){
 
-  cout << "EBLaserTask: analyzed " << ievt_ << " events" << endl;
+  LogInfo("EBLaserTask") << "analyzed " << ievt_ << " events";
 
 }
 
-void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
+void EBLaserTask::analyze(const Event& e, const EventSetup& c){
 
   // this is a hack, used to fake the EcalBarrel event header
   TH1F* tmp = (TH1F*) gROOT->FindObjectAny("tmp");
@@ -214,29 +210,26 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   ievt_++;
 
-  edm::Handle<EBDigiCollection> digis;
+  Handle<EBDigiCollection> digis;
   e.getByLabel("ecalEBunpacker", digis);
 
-//  int nebd = digis->size();
-//  cout << "EBLaserTask: event " << ievt_ << " digi collection size " << nebd << endl;
+  int nebd = digis->size();
+  LogDebug("EBLaserTask") << "event " << ievt_ << " digi collection size " << nebd;
 
   for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
     EBDataFrame dataframe = (*digiItr);
     EBDetId id = dataframe.id();
 
-//    int ie = id.ieta();
-//    int ip = id.iphi();
-
-//    float xie = ie - 0.5;
-//    float xip = ip - 0.5;
+    int ie = id.ieta();
+    int ip = id.iphi();
 
     int ism = id.ism();
 
     int ic = id.ic();
 
-//    logFile << " det id = " << id << endl;
-//    logFile << " sm, eta, phi " << ism << " " << ie << " " << ip << endl;
+    LogDebug("EBLaserTask") << " det id = " << id;
+    LogDebug("EBLaserTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
 
     for (int i = 0; i < 10; i++) {
 
@@ -263,15 +256,15 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   }
 
-  edm::Handle<EcalPnDiodeDigiCollection> pns;
+  Handle<EcalPnDiodeDigiCollection> pns;
   e.getByLabel("ecalEBunpacker", pns);
 
   float adc[36];
 
   for ( int i = 0; i < 36; i++ ) adc[i] = 0.;
 
-//  int nep = pns->size();
-//  cout << "EBTestPulseTask: event " << ievt_ << " pns collection size " << nep << endl;
+  int nep = pns->size();
+  LogDebug("EBLaserTask") << "event " << ievt_ << " pns collection size " << nep;
 
   for ( EcalPnDiodeDigiCollection::const_iterator pnItr = pns->begin(); pnItr != pns->end(); ++pnItr ) {
 
@@ -282,8 +275,8 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
     int ism = id.iDCCId();
     int num = id.iPnId();
 
-//    logFile << " det id = " << id << endl;
-//    logFile << " sm, num " << ism << " " << num << endl;
+    LogDebug("EBLaserTask") << " det id = " << id;
+    LogDebug("EBLaserTask") << " sm, num " << ism << " " << num;
 
     float xvalped = 0.;
 
@@ -353,11 +346,11 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   }
 
-  edm::Handle<EcalUncalibratedRecHitCollection> hits;
+  Handle<EcalUncalibratedRecHitCollection> hits;
   e.getByLabel("ecalUncalibHitMaker", "EcalEBUncalibRecHits", hits);
 
-//  int neh = hits->size();
-//  cout << "EBTestPulseTask: event " << ievt_ << " hits collection size " << neh << endl;
+  int neh = hits->size();
+  LogDebug("EBLaserTask") << "event " << ievt_ << " hits collection size " << neh;
 
   for ( EcalUncalibratedRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
 
@@ -372,8 +365,8 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
     int ism = id.ism();
 
-//    logFile << " det id = " << id << endl;
-//    logFile << " sm, eta, phi " << ism << " " << ie << " " << ip << endl;
+    LogDebug("EBLaserTask") << " det id = " << id;
+    LogDebug("EBLaserTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
 
     MonitorElement* meAmplMap = 0;
     MonitorElement* meAmplPNMap = 0;
@@ -397,14 +390,14 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
     float xval = hit.amplitude();
 
-//    logFile << " hit amplitude " << xval << endl;
+    LogDebug("EBLaserTask") << " hit amplitude " << xval;
 
     if ( meAmplMap ) meAmplMap->Fill(xie, xip, xval);
 
     float yval = 0.;
     if ( adc[ism-1] != 0. ) yval = xval / adc[ism-1];
 
-//    logFile << " hit amplitude over PN " << yval << endl;
+    LogDebug("EBLaserTask") << " hit amplitude over PN " << yval;
 
     if ( meAmplPNMap ) meAmplPNMap->Fill(xie, xip, yval);
 

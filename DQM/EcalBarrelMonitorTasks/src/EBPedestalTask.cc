@@ -1,17 +1,15 @@
 /*
  * \file EBPedestalTask.cc
  *
- * $Date: 2006/01/24 14:34:26 $
- * $Revision: 1.27 $
+ * $Date: 2006/01/29 17:21:28 $
+ * $Revision: 1.28 $
  * \author G. Della Ricca
  *
 */
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBPedestalTask.h>
 
-EBPedestalTask::EBPedestalTask(const edm::ParameterSet& ps){
-
-//  logFile_.open("EBPedestalTask.log");
+EBPedestalTask::EBPedestalTask(const ParameterSet& ps){
 
   init_ = false;
 
@@ -33,11 +31,9 @@ EBPedestalTask::EBPedestalTask(const edm::ParameterSet& ps){
 
 EBPedestalTask::~EBPedestalTask(){
 
-//  logFile_.close();
-
 }
 
-void EBPedestalTask::beginJob(const edm::EventSetup& c){
+void EBPedestalTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
 
@@ -52,7 +48,7 @@ void EBPedestalTask::setup(void){
   DaqMonitorBEInterface* dbe = 0;
 
   // get hold of back-end interface
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe = Service<DaqMonitorBEInterface>().operator->();
 
   if ( dbe ) {
     dbe->setCurrentFolder("EcalBarrel/EBPedestalTask");
@@ -95,10 +91,10 @@ void EBPedestalTask::setup(void){
 
 void EBPedestalTask::endJob(){
 
-  cout << "EBPedestalTask: analyzed " << ievt_ << " events" << endl;
+  LogInfo("EBPedestalTask") << "analyzed " << ievt_ << " events";
 }
 
-void EBPedestalTask::analyze(const edm::Event& e, const edm::EventSetup& c){
+void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
 
   // this is a hack, used to fake the EcalBarrel event header
   TH1F* tmp = (TH1F*) gROOT->FindObjectAny("tmp");
@@ -108,11 +104,11 @@ void EBPedestalTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   ievt_++;
 
-  edm::Handle<EBDigiCollection> digis;
+  Handle<EBDigiCollection> digis;
   e.getByLabel("ecalEBunpacker", digis);
 
-//  int nebd = digis->size();
-//  cout << "EBPedestalTask: event " << ievt_ << " digi collection size " << nebd << endl;
+  int nebd = digis->size();
+  LogDebug("EBPedestalTask") << "event " << ievt_ << " digi collection size " << nebd;
 
   for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
@@ -127,8 +123,8 @@ void EBPedestalTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
     int ism = id.ism();
 
-//    logFile_ << " det id = " << id << endl;
-//    logFile_ << " sm, eta, phi " << ism << " " << ie << " " << ip << endl;
+    LogDebug("EBPedestalTask") << " det id = " << id;
+    LogDebug("EBPedestalTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
 
     for (int i = 0; i < 10; i++) {
 
@@ -149,11 +145,11 @@ void EBPedestalTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   }
 
-  edm::Handle<EcalPnDiodeDigiCollection> pns;
+  Handle<EcalPnDiodeDigiCollection> pns;
   e.getByLabel("ecalEBunpacker", pns);
 
-//  int nep = pns->size();
-//  cout << "EBTestPulseTask: event " << ievt_ << " pns collection size " << nep << endl;
+  int nep = pns->size();
+  LogDebug("EBPedestalTask") << "event " << ievt_ << " pns collection size " << nep;
 
   for ( EcalPnDiodeDigiCollection::const_iterator pnItr = pns->begin(); pnItr != pns->end(); ++pnItr ) {
 
@@ -164,8 +160,8 @@ void EBPedestalTask::analyze(const edm::Event& e, const edm::EventSetup& c){
     int ism = id.iDCCId();
     int num = id.iPnId();
 
-//    logFile << " det id = " << id << endl;
-//    logFile << " sm, num " << ism << " " << num << endl;
+    LogDebug("EBPedestalTask") << " det id = " << id;
+    LogDebug("EBPedestalTask") << " sm, num " << ism << " " << num;
 
     for (int i = 0; i < 50; i++) {
 

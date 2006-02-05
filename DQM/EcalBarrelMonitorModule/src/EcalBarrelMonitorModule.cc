@@ -1,17 +1,15 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2006/01/29 17:21:26 $
- * $Revision: 1.77 $
+ * $Date: 2006/02/04 18:27:24 $
+ * $Revision: 1.78 $
  * \author G. Della Ricca
  *
 */
 
 #include <DQM/EcalBarrelMonitorModule/interface/EcalBarrelMonitorModule.h>
 
-EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
-
-//  logFile_.open("EcalBarrelMonitorModule.log");
+EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
 
   // this is a hack, used to fake the EcalBarrel run & event headers
   TH1F* tmp = new TH1F("tmp", "tmp", 2, 0., 1.);
@@ -38,34 +36,34 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
   // this is a hack, used to fake the EcalBarrel run header
   tmp->SetBinContent(1, runType_);
 
-  cout << " Processing run type: " << runType_ << " (" << s << ")" << endl;
+  LogInfo("EcalBarrelMonitor") << " Processing run type: " << runType_ << " (" << s << ")";
 
   irun_ = ps.getUntrackedParameter<int>("runNumber", 999999);
 
-  cout << " Processing run: " << irun_ << endl;
+  LogInfo("EcalBarrelMonitor") << " Processing run: " << irun_;
 
   // DQM ROOT output
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
 
   if ( outputFile_.size() != 0 ) {
-    cout << " Ecal Barrel Monitoring histograms will be saved to '" << outputFile_.c_str() << "'" << endl;
+    LogInfo("EcalBarrelMonitor") << " Ecal Barrel Monitoring histograms will be saved to '" << outputFile_.c_str() << "'";
   } else {
-    cout << " Ecal Barrel Monitoring histograms will NOT be saved" << endl;
+    LogInfo("EcalBarrelMonitor") << " Ecal Barrel Monitoring histograms will NOT be saved";
   }
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
   if ( verbose_ ) {
-    cout << " verbose switch is ON" << endl;
+    LogInfo("EcalBarrelMonitor") << " verbose switch is ON";
   } else {
-    cout << " verbose switch is OFF" << endl;
+    LogInfo("EcalBarrelMonitor") << " verbose switch is OFF";
   }
 
   dbe_ = 0;
 
   // get hold of back-end interface
-  dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe_ = Service<DaqMonitorBEInterface>().operator->();
 
   if ( dbe_ ) {
     if ( verbose_ ) {
@@ -79,11 +77,11 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
   enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
 
   if ( enableMonitorDaemon_ ) {
-    cout << " enableMonitorDaemon switch is ON" << endl;
-    edm::Service<MonitorDaemon> daemon;
+    LogInfo("EcalBarrelMonitor") << " enableMonitorDaemon switch is ON";
+    Service<MonitorDaemon> daemon;
     daemon.operator->();
   } else {
-    cout << " enableMonitorDaemon switch is OFF" << endl;
+    LogInfo("EcalBarrelMonitor") << " enableMonitorDaemon switch is OFF";
   }
 
   meStatus_ = 0;
@@ -117,7 +115,7 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
   meEBdigi_ = 0;
   meEBhits_ = 0;
 
-  for (int i = 0; i < 36 ; i++) {
+  for (int i = 0; i < 36; i++) {
     meEvent_[i] = 0;
     meOccupancy_[i] = 0;
   }
@@ -130,14 +128,14 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
     meEBhits_ = dbe_->book1D("EBMM hits", "EBMM hits", 100, 0., 61201.);
 
     dbe_->setCurrentFolder("EcalBarrel/EcalEvent");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBMM event SM%02d", i+1);
       meEvent_[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
       if ( meEvent_[i] ) meEvent_[i]->setResetMe(true);
     }
 
     dbe_->setCurrentFolder("EcalBarrel/EcalOccupancy");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBMM occupancy SM%02d", i+1);
       meOccupancy_[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
     }
@@ -151,11 +149,9 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
 
 EcalBarrelMonitorModule::~EcalBarrelMonitorModule(){
 
-//  logFile_.close();
-
 }
 
-void EcalBarrelMonitorModule::beginJob(const edm::EventSetup& c){
+void EcalBarrelMonitorModule::beginJob(const EventSetup& c){
 
   ievt_ = 0;
 
@@ -175,7 +171,7 @@ void EcalBarrelMonitorModule::beginJob(const edm::EventSetup& c){
 
 void EcalBarrelMonitorModule::endJob(void) {
 
-  cout << "EcalBarrelMonitorModule: analyzed " << ievt_ << " events" << endl;
+  LogInfo("EcalBarrelMonitor") << "analyzed " << ievt_ << " events";
 
   // end-of-run
   if ( meStatus_ ) meStatus_->Fill(2);
@@ -193,7 +189,7 @@ void EcalBarrelMonitorModule::endJob(void) {
 
 }
 
-void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& c){
+void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
@@ -217,12 +213,12 @@ void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
 
   if ( meEvtType_ ) meEvtType_->Fill(evtType_+0.5);
 
-  edm::Handle<EBDigiCollection>  digis;
+  Handle<EBDigiCollection>  digis;
   e.getByLabel("ecalEBunpacker", digis);
 
   int nebd = digis->size();
 
-  cout << "EcalBarrelMonitorModule: event " << ievt_ << " digi collection size " << nebd << endl;
+  LogInfo("EcalBarrelMonitor") << "event " << ievt_ << " digi collection size " << nebd;
 
   if ( meEBdigi_ ) meEBdigi_->Fill(float(nebd));
 
@@ -242,13 +238,13 @@ void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
 
     int ism = id.ism();
 
-//    logFile_ << " det id = " << id << endl;
-//    logFile_ << " sm, eta, phi " << ism << " " << ie << " " << ip << endl;
+    LogDebug("EcalBarrelMonitor") << " det id = " << id;
+    LogDebug("EcalBarrelMonitor") << " sm, eta, phi " << ism << " " << ie << " " << ip;
 
     if ( xie <= 0. || xie >= 85. || xip <= 0. || xip >= 20. ) {
-      cout << " det id = " << id << endl;
-      cout << " sm, eta, phi " << ism << " " << ie << " " << ip << endl;
-      cout << "ERROR:" << xie << " " << xip << endl;
+      LogWarning("EcalBarrelMonitor") << " det id = " << id;
+      LogWarning("EcalBarrelMonitor") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+      LogWarning("EcalBarrelMonitor") << "ERROR:" << xie << " " << xip;
       return;
     }
 
@@ -259,12 +255,12 @@ void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
   // resume the shipping of monitoring elements
   dbe_->unlock();
 
-  edm::Handle<EcalUncalibratedRecHitCollection>  hits;
+  Handle<EcalUncalibratedRecHitCollection>  hits;
   e.getByLabel("ecalUncalibHitMaker", "EcalEBUncalibRecHits", hits);
 
   int nebh = hits->size();
 
-  cout << "EcalBarrelMonitorModule: event " << ievt_ << " hits collection size " << nebh << endl;
+  LogInfo("EcalBarrelMonitor") << "event " << ievt_ << " hits collection size " << nebh;
 
   if ( meEBhits_ ) meEBhits_->Fill(float(nebh));
 
@@ -284,19 +280,19 @@ void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
 
     int ism = id.ism();
 
-//    logFile_ << " det id = " << id << endl;
-//    logFile_ << " sm, eta, phi " << ism << " " << ie << " " << ip << endl;
+    LogDebug("EcalBarrelMonitor") << " det id = " << id;
+    LogDebug("EcalBarrelMonitor") << " sm, eta, phi " << ism << " " << ie << " " << ip;
 
     if ( xie <= 0. || xie >= 85. || xip <= 0. || xip >= 20. ) {
-      cout << " det id = " << id << endl;
-      cout << " sm, eta, phi " << ism << " " << ie << " " << ip << endl;
-      cout << "ERROR:" << xie << " " << xip << endl;
+      LogWarning("EcalBarrelMonitor") << " det id = " << id;
+      LogWarning("EcalBarrelMonitor") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+      LogWarning("EcalBarrelMonitor") << "ERROR:" << xie << " " << xip;
       return;
     }
 
     float xval = hit.amplitude();
 
-//    logFile_ << " hit amplitude " << xval << endl;
+    LogDebug("EcalBarrelMonitor") << " hit amplitude " << xval;
 
     if ( xval >= 10 ) {
        if ( meEvent_[ism-1] ) meEvent_[ism-1]->Fill(xie, xip, xval);

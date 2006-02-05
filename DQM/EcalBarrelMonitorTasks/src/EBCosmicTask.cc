@@ -1,17 +1,15 @@
 /*
  * \file EBCosmicTask.cc
  *
- * $Date: 2006/01/24 14:34:26 $
- * $Revision: 1.33 $
+ * $Date: 2006/01/29 17:21:28 $
+ * $Revision: 1.34 $
  * \author G. Della Ricca
  *
 */
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBCosmicTask.h>
 
-EBCosmicTask::EBCosmicTask(const edm::ParameterSet& ps){
-
-//  logFile_.open("EBCosmicTask.log");
+EBCosmicTask::EBCosmicTask(const ParameterSet& ps){
 
   init_ = false;
 
@@ -31,11 +29,9 @@ EBCosmicTask::EBCosmicTask(const edm::ParameterSet& ps){
 
 EBCosmicTask::~EBCosmicTask(){
 
-//  logFile_.close();
-
 }
 
-void EBCosmicTask::beginJob(const edm::EventSetup& c){
+void EBCosmicTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
 
@@ -50,7 +46,7 @@ void EBCosmicTask::setup(void){
   DaqMonitorBEInterface* dbe = 0;
 
   // get hold of back-end interface
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe = Service<DaqMonitorBEInterface>().operator->();
 
   if ( dbe ) {
     dbe->setCurrentFolder("EcalBarrel/EBCosmicTask");
@@ -79,11 +75,11 @@ void EBCosmicTask::setup(void){
 
 void EBCosmicTask::endJob(){
 
-  cout << "EBCosmicTask: analyzed " << ievt_ << " events" << endl;
+  LogInfo("EBCosmicTask") << "analyzed " << ievt_ << " events";
 
 }
 
-void EBCosmicTask::analyze(const edm::Event& e, const edm::EventSetup& c){
+void EBCosmicTask::analyze(const Event& e, const EventSetup& c){
 
   // this is a hack, used to fake the EcalBarrel event header
   TH1F* tmp = (TH1F*) gROOT->FindObjectAny("tmp");
@@ -93,11 +89,11 @@ void EBCosmicTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   ievt_++;
 
-  edm::Handle<EcalUncalibratedRecHitCollection> hits;
+  Handle<EcalUncalibratedRecHitCollection> hits;
   e.getByLabel("ecalUncalibHitMaker", "EcalEBUncalibRecHits", hits);
 
-//  int nebh = hits->size();
-//  cout << "EBCosmicTask: event " << ievt_ << " hits collection size " << nebh << endl;
+  int nebh = hits->size();
+  LogDebug("EBCosmicTask") << "event " << ievt_ << " hits collection size " << nebh;
 
   for ( EcalUncalibratedRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
 
@@ -112,12 +108,12 @@ void EBCosmicTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
     int ism = id.ism();
 
-//    logFile_ << " det id = " << id << endl;
-//    logFile_ << " sm, eta, phi " << ism << " " << ie << " " << ip << endl;
+    LogDebug("EBCosmicTask") << " det id = " << id;
+    LogDebug("EBCosmicTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
 
     float xval = hit.amplitude();
 
-//    logFile_ << " hit amplitude " << xval << endl;
+    LogDebug("EBCosmicTask") << " hit amplitude " << xval;
 
     const float lowThreshold = 5.;
     const float highThreshold = 10.;
