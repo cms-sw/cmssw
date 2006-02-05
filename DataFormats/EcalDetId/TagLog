@@ -1,3 +1,6 @@
+** V02-00-00  [Sun Feb  5 13:38:26 2006]
+Conversion for EE from SC,ic -&gt; ix,iy
+
 ** V01-01-01  [Tue Jan 10 12:22:05 2006]
 Changed the EcalTrigTowerDetId interface. Consequent changes in other classes
 
