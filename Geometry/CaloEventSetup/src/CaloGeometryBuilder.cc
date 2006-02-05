@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Mon Oct  3 11:35:27 CDT 2005
-// $Id: CaloGeometryBuilder.cc,v 1.4 2005/11/02 07:55:24 meridian Exp $
+// $Id: CaloGeometryBuilder.cc,v 1.5 2005/12/01 16:29:24 mansj Exp $
 //
 //
 
@@ -68,6 +68,8 @@ CaloGeometryBuilder::produce(const IdealGeometryRecord& iRecord)
    // TODO: Look for ECAL parts
    iRecord.get("EcalBarrel", pG); 
    pCaloGeom->setSubdetGeometry(DetId::Ecal,EcalBarrel,pG.product());
+   iRecord.get("EcalEndcap", pG); 
+   pCaloGeom->setSubdetGeometry(DetId::Ecal,EcalEndcap,pG.product());
 
    // look for TOWER parts
    iRecord.get("TOWER",pG);
