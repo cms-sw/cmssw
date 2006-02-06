@@ -23,7 +23,7 @@ static const float nominal_adc2fc[128] = {-0.5f,0.5f,1.5f,2.5f,3.5f,4.5f,5.5f,6.
 
 HcalQIESample::HcalQIESample(int adc, int capid, int fiber, int fiberchan, bool dv, bool er) {
   theSample=(adc&0x7f) | ((capid&0x3)<<7) |
-    ((fiber&0x7)<<13) | ((fiberchan&0x3)<<11) |
+    (((fiber-1)&0x7)<<13) | ((fiberchan&0x3)<<11) |
     ((dv)?(0x0200):(0)) | ((er)?(0x0400):(0));
 }
 

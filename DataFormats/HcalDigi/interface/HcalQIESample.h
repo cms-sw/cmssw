@@ -8,8 +8,8 @@
  *  Simple container packer/unpacker for a single QIE data word
  *
  *
- *  $Date: 2005/07/26 14:45:36 $
- *  $Revision: 1.3 $
+ *  $Date: 2005/10/04 13:37:35 $
+ *  $Revision: 1.4 $
  *  \author J. Mans - Minnesota
  */
 class HcalQIESample {
@@ -31,7 +31,7 @@ public:
   /// is the error bit set?
   bool er() const { return (theSample&0x0400)!=0; }
   /// get the fiber number
-  int fiber() const { return (theSample>>13)&0x7; }
+  int fiber() const { return ((theSample>>13)&0x7)+1; }
   /// get the fiber channel number
   int fiberChan() const { return (theSample>>11)&0x3; }
   /// get the id channel

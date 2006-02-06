@@ -10,7 +10,7 @@ HcalElectronicsId::HcalElectronicsId(uint32_t id) {
 }
 
 HcalElectronicsId::HcalElectronicsId(int fiberChan, int fiberIndex, int spigot, int dccid) {
-  hcalElectronicsId_=(fiberChan&0x3) | ((fiberIndex&0x7)<<2) |
+  hcalElectronicsId_=(fiberChan&0x3) | (((fiberIndex-1)&0x7)<<2) |
     ((spigot&0xF)<<5) | ((dccid&0x1F)<<9);
 }
 
