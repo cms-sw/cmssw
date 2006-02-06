@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCUnpackingModule
  *
- *  $Date: 2006/02/06 09:25:19 $
- *  $Revision: 1.10 $
+ *  $Date: 2006/02/06 11:36:44 $
+ *  $Revision: 1.11 $
  *
  * \author Ilaria Segoni
  */
@@ -21,8 +21,9 @@
 #include <FWCore/Framework/interface/Handle.h>
 #include <FWCore/Framework/interface/Event.h>
 
-#include <EventFilter/RPCRawToDigi/interface/RPCMonitorInterface.h>
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "EventFilter/RPCRawToDigi/interface/RPCMonitorInterface.h"
 
 #include <iostream>
 
@@ -52,28 +53,29 @@ RPCUnpackingModule::~RPCUnpackingModule(){
 
 void RPCUnpackingModule::produce(Event & e, const EventSetup& c){
 
- if(printout) cout<<"Entering RPCUnpackingModule::produce"<<endl;
+ edm::LogInfo ("UnpackingFlow") <<"Entering RPCUnpackingModule::produce";
  
  /// Get Data from all FEDs
  Handle<FEDRawDataCollection> allFEDRawData; 
  e.getByLabel("DaqRawData", allFEDRawData); 
- if(printout) cout<<"Got FEDRawData"<<endl;
+
+ edm::LogInfo ("UnpackingFlow") <<"Got FEDRawData";
  
  auto_ptr<RPCDigiCollection> producedRPCDigis(new RPCDigiCollection);
 
  std::pair<int,int> rpcFEDS=FEDNumbering::getRPCFEDIds();
- if(printout) cout<<"Starting loop on FEDs, RPC FED ID RANGE: "<<rpcFEDS.first<<" - "<<rpcFEDS.second<<endl;
+ edm::LogInfo ("UnpackingFlow") <<"Starting loop on FEDs, RPC FED ID RANGE: "<<rpcFEDS.first<<" - "<<rpcFEDS.second;
  
  nEvents++; 
  
- if(printout) cout<<"Beginning To Unpack Event: "<<nEvents<<endl;
- 
+ edm::LogInfo ("UnpackingFlow") <<"Beginning To Unpack Event: "<<nEvents;
+
 	RPCRecordFormatter interpreter(printout);
 	for (int id= rpcFEDS.first; id<=rpcFEDS.second; ++id){  
 
  		const FEDRawData & fedData = allFEDRawData->FEDData(id);
    
- 		if(printout) cout<<"Beginning to Unpack FED number "<<id<<", FED size: "<<fedData.size()<<" bytes"<<endl;			 
+                edm::LogInfo ("UnpackingFlow") <<"Beginning to Unpack FED number "<<id<<", FED size: "<<fedData.size()<<" bytes";			 
 
 		if(fedData.size()){
      
@@ -86,7 +88,7 @@ void RPCUnpackingModule::produce(Event & e, const EventSetup& c){
       			const unsigned char* trailerIndex=index+fedData.size()- rpc::unpacking::SLINK_WORD_SIZE;
       			int numberOfTrailers=this->unpackTrailer(trailerIndex);
        
-      			if(printout) cout<<"Found "<<numberOfHeaders<<" Headers and "<<numberOfTrailers<<" Trailers"<<endl;		  
+      			edm::LogInfo ("UnpackingFlow") <<"Found "<<numberOfHeaders<<" Headers and "<<numberOfTrailers<<" Trailers";		  
       
       			/// Beginning of RPC Records Unpacking
       			index += numberOfHeaders* rpc::unpacking::SLINK_WORD_SIZE; 
@@ -152,14 +154,12 @@ int RPCUnpackingModule::unpackHeader(const unsigned char* headerIndex) const {
  while(moreHeaders){
   FEDHeader fedHeader(headerIndex); 
   numberOfHeaders++;
-  
-  if(printout) cout<<"Trigger type: "<<fedHeader.triggerType()
+  edm::LogInfo ("UnpackingFlow") <<"Trigger type: "<<fedHeader.triggerType()
      <<", L1A: "<<fedHeader.lvl1ID()
      <<", BX: "<<fedHeader.bxID()
      <<", soucre ID: "<<fedHeader.sourceID()
      <<", version: "<<fedHeader.version()
-     <<", more headers: "<<fedHeader.moreHeaders()
-     <<endl;
+     <<", more headers: "<<fedHeader.moreHeaders();
   
   moreHeaders=fedHeader.moreHeaders();
   headerIndex++;
@@ -187,11 +187,11 @@ int RPCUnpackingModule::unpackTrailer(const unsigned char* trailerIndex) const {
        numberOfTrailers++;	   
        trailerIndex -= rpc::unpacking::SLINK_WORD_SIZE;     
 
-       if(printout) cout<<"Trailer length: "<< fedTrailer.lenght()<<
+       edm::LogInfo ("UnpackingFlow") <<"Trailer length: "<< fedTrailer.lenght()<<
           " CRC "<<fedTrailer.crc()<<
           " Event Fragment Status "<< fedTrailer.evtStatus()<<
           " Value of Trigger Throttling System "<<fedTrailer.ttsBits()<<
-          " more Trailers: "<<fedTrailer.moreTrailers()<<endl;
+          " more Trailers: "<<fedTrailer.moreTrailers();
     
   
        

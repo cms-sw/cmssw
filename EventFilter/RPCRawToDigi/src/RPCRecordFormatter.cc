@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCRecordFormatter
  *
- *  $Date: 2006/02/06 09:25:19 $
- *  $Revision: 1.10 $
+ *  $Date: 2006/02/06 11:36:58 $
+ *  $Revision: 1.1 $
  *
  * \author Ilaria Segoni
  */
@@ -17,6 +17,9 @@
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 #include "DataFormats/RPCDigi/interface/RPCDigi.h"
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <vector>
 
@@ -69,7 +72,7 @@ int RPCRecordFormatter::unpackBXRecord(const unsigned char* recordIndex) {
 const unsigned int* recordIndexInt=reinterpret_cast<const unsigned int*>(recordIndex);
 
     RPCBXData bxData(recordIndexInt);
-    if(verbosity) std::cout<<"Found BX record, BX= "<<bxData.bx()<<std::endl;
+    edm::LogInfo ("UnpackingFlow")<<"Found BX record, BX= "<<bxData.bx();
     return bxData.bx();
     rpcData.addBXData(bxData);
 
@@ -81,8 +84,8 @@ RPCDetId RPCRecordFormatter::unpackChannelRecord(const unsigned char* recordInde
 const unsigned int* recordIndexInt=reinterpret_cast<const unsigned int*>(recordIndex);
 
     RPCChannelData chnData(recordIndexInt);
-    if(verbosity) std::cout<<"Found start of Channel Data Record, Channel: "<< chnData.channel()<<
- 	 " Readout/Trigger Mother Board: "<<chnData.tbRmb()<<std::endl;
+    edm::LogInfo ("UnpackingFlow")<<"Found start of Channel Data Record, Channel: "<< chnData.channel()<<
+ 	 " Readout/Trigger Mother Board: "<<chnData.tbRmb();
     
     RPCDetId detId/*=chnData.detId()*/;
     return detId;
@@ -96,12 +99,11 @@ std::vector<int> RPCRecordFormatter::unpackChamberRecord(const unsigned char* re
 const unsigned int* recordIndexInt=reinterpret_cast<const unsigned int*>(recordIndex);
 
    RPCChamberData cmbData(recordIndexInt);
-    if(verbosity) std::cout<< "Found Chamber Data, Chamber Number: "<<cmbData.chamberNumber()<<
+    edm::LogInfo ("UnpackingFlow")<< "Found Chamber Data, Chamber Number: "<<cmbData.chamberNumber()<<
  	" Partition Data "<<cmbData.partitionData()<<
  	" Half Partition " << cmbData.halfP()<<
  	" Data Truncated: "<<cmbData.eod()<<
- 	" Partition Number " <<  cmbData.partitionNumber()
- 	<<std::endl;
+ 	" Partition Number " <<  cmbData.partitionNumber();
 	
     vector<int> stripID/*=cmbData.getStrips()*/;
     return stripID;
