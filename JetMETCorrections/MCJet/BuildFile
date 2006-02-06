@@ -1,0 +1,18 @@
+<use name=clhep>
+<use name=FWCore/EDProduct>
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=DataFormats/JetObjects>
+<use name=Dictionary/Reflex>
+<flags SEAL_PLUGIN_NAME="JetMETCorrectionsMCJet">
+<export>
+   <lib name=JetMETCorrectionsMCJet>
+   <use name=FWCore/Framework>
+   <use name=Foundation/PluginManager>
+   <use name=FWCore/ParameterSet>
+   <use name=DataFormats/JetObjects>
+   <use name=FWCore/EDProduct>
+   <use name=Dictionary/Reflex>
+   <use name=clhep>
+</export>
