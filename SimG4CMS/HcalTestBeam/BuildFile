@@ -10,9 +10,6 @@
 <use name=FWCore/ParameterSet>
 <use name=boost>
 <use name=geant4>
-<use name=root>
-<use name=DataSvc>
-<use name=Dictionary/Reflex>
 
 <export>
  <lib name=SimG4CMSHcalTestBeam>
