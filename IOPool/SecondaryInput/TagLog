@@ -1,3 +1,6 @@
+** V02-01-01  [Mon Feb  6 23:08:45 2006]
+output module must be in endpath, not path
+
 ** V02-01-00  [Thu Jan 19 20:16:21 2006]
 Use shared pointers, not bare pointers, in VectorInputSources
 
