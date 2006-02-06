@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCUnpackingModule
  *
- *  $Date: 2006/02/02 16:25:51 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/02/06 09:25:19 $
+ *  $Revision: 1.10 $
  *
  * \author Ilaria Segoni
  */
@@ -10,6 +10,7 @@
 #include <EventFilter/RPCRawToDigi/interface/RPCUnpackingModule.h>
 #include <EventFilter/RPCRawToDigi/interface/RPCUnpackingParameters.h>
 #include <EventFilter/RPCRawToDigi/interface/RPCRecord.h>
+#include <EventFilter/RPCRawToDigi/interface/RPCRecordFormatter.h>
 
 #include <DataFormats/FEDRawData/interface/FEDRawData.h>
 #include <DataFormats/FEDRawData/interface/FEDNumbering.h>
@@ -23,16 +24,13 @@
 #include <EventFilter/RPCRawToDigi/interface/RPCMonitorInterface.h>
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-
-#include <DataFormats/MuonDetId/interface/RPCDetId.h>
-
 #include <iostream>
 
 using namespace edm;
 using namespace std;
 
 RPCUnpackingModule::RPCUnpackingModule(const edm::ParameterSet& pset) 
-:nEvents(0), currentBX(0), currentChn(0){
+:nEvents(0){
   
   printout = pset.getUntrackedParameter<bool>("PrintOut", false); 
   hexprintout = pset.getUntrackedParameter<bool>("PrintHexDump", false); 
@@ -56,7 +54,6 @@ void RPCUnpackingModule::produce(Event & e, const EventSetup& c){
 
  if(printout) cout<<"Entering RPCUnpackingModule::produce"<<endl;
  
- 
  /// Get Data from all FEDs
  Handle<FEDRawDataCollection> allFEDRawData; 
  e.getByLabel("DaqRawData", allFEDRawData); 
@@ -67,128 +64,85 @@ void RPCUnpackingModule::produce(Event & e, const EventSetup& c){
  std::pair<int,int> rpcFEDS=FEDNumbering::getRPCFEDIds();
  if(printout) cout<<"Starting loop on FEDs, RPC FED ID RANGE: "<<rpcFEDS.first<<" - "<<rpcFEDS.second<<endl;
  
- nEvents++;
- 
+ nEvents++; 
  
  if(printout) cout<<"Beginning To Unpack Event: "<<nEvents<<endl;
  
- for (int id= rpcFEDS.first; id<=rpcFEDS.second; ++id){  
+	RPCRecordFormatter interpreter(printout);
+	for (int id= rpcFEDS.first; id<=rpcFEDS.second; ++id){  
 
-    const FEDRawData & fedData = allFEDRawData->FEDData(id);
+ 		const FEDRawData & fedData = allFEDRawData->FEDData(id);
    
-    if(printout) cout<<"Beginning to Unpack FED number "<<id<<", FED size: "<<fedData.size()<<" bytes"<<endl;		
-	 
+ 		if(printout) cout<<"Beginning to Unpack FED number "<<id<<", FED size: "<<fedData.size()<<" bytes"<<endl;			 
 
-    if(fedData.size()){
-
-      const unsigned char* index = fedData.data();
+		if(fedData.size()){
+     
+     			const unsigned char* index = fedData.data();
        
-      /// Unpack FED Header(s)
-      int numberOfHeaders= this->unpackHeader(index);
+      			/// Unpack FED Header(s)
+      			int numberOfHeaders= this->unpackHeader(index);
  
-      /// Unpack FED Trailer(s)
-      const unsigned char* trailerIndex=index+fedData.size()- rpc::unpacking::SLINK_WORD_SIZE;
-      int numberOfTrailers=this->unpackTrailer(trailerIndex);
+      			/// Unpack FED Trailer(s)
+      			const unsigned char* trailerIndex=index+fedData.size()- rpc::unpacking::SLINK_WORD_SIZE;
+      			int numberOfTrailers=this->unpackTrailer(trailerIndex);
        
-      if(printout) cout<<"Found "<<numberOfHeaders<<" Headers and "<<numberOfTrailers<<" Trailers"<<endl;		
-  
+      			if(printout) cout<<"Found "<<numberOfHeaders<<" Headers and "<<numberOfTrailers<<" Trailers"<<endl;		  
       
-      /// Beginning of RPC Records Unpacking
-      index += numberOfHeaders* rpc::unpacking::SLINK_WORD_SIZE; 
+      			/// Beginning of RPC Records Unpacking
+      			index += numberOfHeaders* rpc::unpacking::SLINK_WORD_SIZE; 
        
-      /// Loop on S-LINK words 
-       int bx=0;
-       vector<int> stripsOn;
-       RPCDetId detId;
-       
-       while( index != trailerIndex ){
-       
-       
+      			/// Loop on S-LINK words        
+      			 while( index != trailerIndex ){            
          
-	 /// Loop on RPC Records
-         int numOfRecords=0;
-	 RPCRecord::recordTypes expectedRecord=RPCRecord::UndefinedType;
+	 			/// Loop on RPC Records
+         			int numOfRecords=0;
+	 			//RPCRecord::recordTypes expectedRecord=RPCRecord::UndefinedType;
          
-	 for(int nRecord=0; nRecord<4; nRecord++){
+	 			for(int nRecord=0; nRecord<4; nRecord++){
           
-	  const unsigned char* recordIndex;
-	  recordIndex=index+ rpc::unpacking::SLINK_WORD_SIZE -(nRecord+1)* rpc::unpacking::RPC_RECORD_SIZE;
+	 				 const unsigned char* recordIndex;
+	  				 recordIndex=index+ rpc::unpacking::SLINK_WORD_SIZE -(nRecord+1)* rpc::unpacking::RPC_RECORD_SIZE;
 	   
-	   if(hexprintout) {	  
-	     numOfRecords++;
-	     const unsigned int* word;	  
-             word=reinterpret_cast<const unsigned int*>(recordIndex);
-	     cout<<oct<<*word<<" ";
-	     if(numOfRecords==4) {
-	        cout<<endl;
-	      }		
-	    }
+	   				if(hexprintout) {	  
+	     					numOfRecords++;
+	     					const unsigned int* word;	  
+             					word=reinterpret_cast<const unsigned int*>(recordIndex);
+	     					cout<<oct<<*word<<" ";
+	     					if(numOfRecords==4) {
+	        					cout<<endl;
+	      					}		
+	   			 	}	
           
-	  RPCRecord theRecord(recordIndex,printout);
+	  				RPCRecord theRecord(recordIndex,printout);
         
-          /// Find out type of record
-          RPCRecord::recordTypes typeOfRecord = theRecord.type();
+          				/// Find out type of record
+          				RPCRecord::recordTypes typeOfRecord = theRecord.type();
 	 
-	  /// Unpack the Record 
-	  
-	  if(typeOfRecord==RPCRecord::StartOfBXData)      {
-	      bx= this->unpackBXRecord(recordIndex);
-	  }	 
-	  
-	  
-	  if(typeOfRecord==RPCRecord::StartOfChannelData) {
-	       detId=this->unpackChannelRecord(recordIndex);
-	  }
-	  
-	  
-	  /// Unpacking Strips With Hit
-	  if(typeOfRecord==RPCRecord::ChamberData)        {
-	       stripsOn=this->unpackChamberRecord(recordIndex);
-	  
-	  
-          for(std::vector<int>::iterator pStrip = stripsOn.begin(); pStrip !=
-	                    stripsOn.end(); ++pStrip){
-                int strip = *(pStrip);
-          	  
-                /// Creating RPC digi
-	        RPCDigi digi(bx, strip);
-
-	        /// Committing to the event
-	        producedRPCDigis->insertDigi(detId,digi);
-	  }
-	  
-	  
-	  
-	  }
-	  
-          if(typeOfRecord==RPCRecord::RMBDiscarded)       this->unpackRMBCorruptedRecord(recordIndex);
-	  
+	  				/// Unpack the Record 	  
+	  				interpreter.recordUnpack(typeOfRecord,recordIndex,producedRPCDigis);	  
+	 		 	}
           
-	  if(typeOfRecord==RPCRecord::DCCDiscarded) rpcData.addDCCDiscarded();
+          			///Go to beginning of next word
+          			index+= rpc::unpacking::SLINK_WORD_SIZE;
 
-	  
-	  }
-          
-	  
-          ///Go to beginning of next word
-          index+= rpc::unpacking::SLINK_WORD_SIZE;
-
-
-      }
+      			}
 		
-      ///Send information to DQM
-      if(instatiateDQM) monitor->process(rpcData);
-   }
+      			///Send information to DQM
+      			if(instatiateDQM){ 
+         			 RPCEventData rpcEvent= interpreter.eventData();
+          			 monitor->process(rpcEvent);
+      			}	
+		}
 		
-  }
-       
+	}       
         // Insert the new product in the event  
-	//e.put(producedRPCDigis);
-  
- 
-   
-  
+	e.put(producedRPCDigis);  
+     
 }
+
+
+
+
 
 int RPCUnpackingModule::unpackHeader(const unsigned char* headerIndex) const {
  
@@ -250,68 +204,6 @@ int RPCUnpackingModule::unpackTrailer(const unsigned char* trailerIndex) const {
   
  return numberOfTrailers;
 }
-
-
-
-
-int RPCUnpackingModule::unpackBXRecord(const unsigned char* recordIndex) {
-
-const unsigned int* recordIndexInt=reinterpret_cast<const unsigned int*>(recordIndex);
-
-    RPCBXData bxData(recordIndexInt);
-    if(printout) cout<<"Found BX record, BX= "<<bxData.bx()<<endl;
-    return bxData.bx();
-    rpcData.addBXData(bxData);
-
-} 
-
-
-RPCDetId RPCUnpackingModule::unpackChannelRecord(const unsigned char* recordIndex) {
-
-const unsigned int* recordIndexInt=reinterpret_cast<const unsigned int*>(recordIndex);
-
-    RPCChannelData chnData(recordIndexInt);
-    if(printout) cout<<"Found start of Channel Data Record, Channel: "<< chnData.channel()<<
- 	 " Readout/Trigger Mother Board: "<<chnData.tbRmb()<<endl;
-    
-    RPCDetId detId/*=chnData.detId()*/;
-    return detId;
-    
-    rpcData.addChnData(chnData);
-
-} 
-
-vector<int> RPCUnpackingModule::unpackChamberRecord(const unsigned char* recordIndex) {
-
-const unsigned int* recordIndexInt=reinterpret_cast<const unsigned int*>(recordIndex);
-
-   RPCChamberData cmbData(recordIndexInt);
-    if(printout) cout<< "Found Chamber Data, Chamber Number: "<<cmbData.chamberNumber()<<
- 	" Partition Data "<<cmbData.partitionData()<<
- 	" Half Partition " << cmbData.halfP()<<
- 	" Data Truncated: "<<cmbData.eod()<<
- 	" Partition Number " <<  cmbData.partitionNumber()
- 	<<endl;
-	
-    vector<int> stripID/*=cmbData.getStrips()*/;
-    return stripID;
-    
-    rpcData.addRPCChamberData(cmbData);
-}
-
-
-
-void RPCUnpackingModule::unpackRMBCorruptedRecord(const unsigned char* recordIndex) {
-
-
-
-const unsigned int* recordIndexInt=reinterpret_cast<const unsigned int*>(recordIndex);
-
-     RMBErrorData  discarded(recordIndexInt);
-     rpcData.addRMBDiscarded(discarded);
-     rpcData.addRMBCorrupted(discarded);
-
- }
 
 
 
