@@ -1,3 +1,8 @@
+06-02-06 mfp. Add tests of generation of ParameterSetID.
+    Added tests to verify that modification of untracked parameters
+    does *not* cause a change in ParameterSetID, but addition
+    of a (tracked) parameter *does* change the ParameterSetID.
+
 03-02-06 mfp. More fixing of mis-handled untracked/tracked
    differentiation.
 
