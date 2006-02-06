@@ -1,3 +1,6 @@
+** V00-00-02  [Fri Feb  3 11:06:49 2006]
+xerces fixes
+
 ** V00-00-01  [Mon Nov 14 18:52:02 2005]
 Fixes related to removing parts of DDLParser interface.
 

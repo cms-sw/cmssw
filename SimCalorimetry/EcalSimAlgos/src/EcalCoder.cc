@@ -17,10 +17,9 @@ EcalCoder::EcalCoder(bool addNoise)
   theGains[0] = 1.;
   theGains[1] = 6.;
   theGains[2] = 12.;
-  // 0.2% gain variation
-  theGainErrors[0] = 0.002;
-  theGainErrors[1] = 0.002;
-  theGainErrors[2] = 0.002;
+  theGainErrors[0] = 0.;
+  theGainErrors[1] = 0.;
+  theGainErrors[2] = 0.;
 }
 
 
@@ -72,63 +71,34 @@ EcalCoder::encode(const CaloSamples& timeframe) const
 
   double LSB[NGAINS];
   double pedestals[NGAINS];
-  double widths[NGAINS];
-  double gains[NGAINS];
-  double threeSigmaADCNoise[NGAINS];
   for(int igain = 0; igain < NGAINS; ++igain) {
+    LSB[igain]= Emax/(MAXINT*theGains[igain]);
     // fill in the pedestal and width
-    findPedestal(detId, igain, pedestals[igain], widths[igain]);
-    // set nominal value first
-    gains[igain] = theGains[igain];
+    double width = 0.;
+    findPedestal(detId, igain, pedestals[igain], width);
     if(addNoise_) {
-      gains[igain] *= RandGauss::shoot(1., theGainErrors[igain]);
+      pedestals[igain] = RandGauss::shoot(pedestals[igain], width);
     }
-    LSB[igain]= Emax/(MAXINT*gains[igain]);
-    threeSigmaADCNoise[igain] = widths[igain]/LSB[igain] * 3.;
   }
 
 
-  int wait = 0 ;
-  int gainId = NGAINS - 1 ;
-  for (int i = 0 ; i < timeframe.size() ; ++i)
+  for (int i = 0 ; i < timeframe.size() ; i++)
   {    
      int adc = MAXINT;
-     if (wait == 0) gainId = NGAINS - 1;
+     int gainId = NGAINS;
 
      // see which gain bin it fits in
-     int igain = gainId + 1 ;
-     while (igain != 0) {
+     int igain = NGAINS;
+     bool found = false;
+     while(!found && igain != 0) {
        --igain;
-
-       double ped = + pedestals[igain];
-       int tmpadc = int((timeframe[i]+ped)/LSB[igain]);
-
-       // see if it's close enough to the boundary that we have to throw noise
-       if(addNoise_ && (tmpadc <= MAXINT+threeSigmaADCNoise[igain]) ) {
-          ped = RandGauss::shoot(ped, widths[igain]);
-          tmpadc = int((timeframe[i]+ped)/LSB[igain]);
-       }
-         
+       int tmpadc = int((timeframe[i]+pedestals[igain])/LSB[igain]);
        if(tmpadc <= MAXINT ) {
          adc = tmpadc;
-         break ;
+         gainId = igain;
+         found = true;
        }
      }
-     
-     if (igain == NGAINS - 1) 
-       {
-         wait = 0 ;
-         gainId = igain ;
-       }
-     else 
-       {
-         if (igain == gainId) --wait ;
-         else 
-           {
-             wait = 5 ;
-             gainId = igain ;
-           }
-       }
 
      results.push_back(EcalMGPASample(adc, gainId));
   }

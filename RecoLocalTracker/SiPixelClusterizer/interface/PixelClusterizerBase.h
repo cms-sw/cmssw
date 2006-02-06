@@ -5,8 +5,6 @@
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include <vector>
 
-class PixelGeomDetUnit;
-
 /**
  * Abstract interface for Pixel Clusterizers
  */
@@ -24,7 +22,6 @@ public:
     std::vector<SiPixelCluster>  
     clusterizeDetUnit( DigiIterator begin, DigiIterator end,
 		       unsigned int detid,
-		       const PixelGeomDetUnit * pixDet,
 		       const std::vector<float>& noiseVec,
 		       const std::vector<short>& badChannels) = 0;
   // TO DO: the way we pass noise and bad channels is most likely

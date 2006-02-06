@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorModule.h
  *
- * $Date: 2006/01/29 17:21:25 $
- * $Revision: 1.27 $
+ * $Date: 2006/01/02 10:55:36 $
+ * $Revision: 1.25 $
  * \author G. Della Ricca
  *
 */
@@ -19,12 +19,21 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
-#include <DataFormats/EcalRecHit/interface/EcalRecHitCollections.h>
+#include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include <DataFormats/EcalDetId/interface/EBDetId.h>
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+
+#include <DQM/EcalBarrelMonitorTasks/interface/EBIntegrityTask.h>
+
+#include <DQM/EcalBarrelMonitorTasks/interface/EBCosmicTask.h>
+#include <DQM/EcalBarrelMonitorTasks/interface/EBLaserTask.h>
+#include <DQM/EcalBarrelMonitorTasks/interface/EBPedestalTask.h>
+#include <DQM/EcalBarrelMonitorTasks/interface/EBPedestalOnlineTask.h>
+#include <DQM/EcalBarrelMonitorTasks/interface/EBTestPulseTask.h>
+#include <DQM/EcalBarrelMonitorTasks/interface/EBElectronTask.h>
 
 #include <memory>
 #include <iostream>
@@ -81,6 +90,15 @@ MonitorElement* meEBhits_;
 
 MonitorElement* meEvent_[36];
 MonitorElement* meOccupancy_[36];
+
+EBIntegrityTask* integrity_task_;
+
+EBCosmicTask* cosmic_task_;
+EBLaserTask* laser_task_;
+EBPedestalTask* pedestal_task_;
+EBPedestalOnlineTask* pedestalonline_task_;
+EBTestPulseTask* testpulse_task_;
+EBElectronTask* electron_task_;
 
 string outputFile_;
 

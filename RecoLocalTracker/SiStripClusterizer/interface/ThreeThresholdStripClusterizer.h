@@ -5,8 +5,6 @@
 class StripDigi;
 class SiStripCluster;
 
-#include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
-
 class ThreeThresholdStripClusterizer {
 public:
 
@@ -19,16 +17,10 @@ public:
     theClusterThreshold(clust_thr) {}  
 
   std::vector<SiStripCluster> 
-    clusterizeDetUnit( DigiIterator begin, DigiIterator end,
-		       unsigned int detid,
-		       const std::vector<float>& noiseVec,
-		       const std::vector<short>& badChannels);
-
-  std::vector<SiStripCluster> 
-    clusterizeDetUnit( DigiIterator begin, DigiIterator end,
-		       unsigned int detid,
-		       const SiStripPedestalsVector & sistrippedvec);
-  
+  clusterizeDetUnit( DigiIterator begin, DigiIterator end,
+		     unsigned int detid,
+		     const std::vector<float>& noiseVec,
+		     const std::vector<short>& badChannels);
 
   float channelThresholdInNoiseSigma() const { return theChannelThreshold;}
   float seedThresholdInNoiseSigma()    const { return theSeedThreshold;}

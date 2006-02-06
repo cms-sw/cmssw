@@ -8,7 +8,7 @@
 #include <iostream>
 
 #include "RecoLocalTracker/SiStripRecHitConverter/test/ReadRecHitAlgorithm.h"
-#include "DataFormats/Common/interface/own_vector.h"
+#include "DataFormats/Common/interface/OwnVector.h"
 
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 
@@ -45,7 +45,7 @@ void ReadRecHitAlgorithm::run(const SiStripRecHit2DLocalPosCollection* input)
     // loop over detunits
   for ( std::vector<unsigned int>::const_iterator detunit_iterator = detIDs.begin(); detunit_iterator != detIDs.end(); detunit_iterator++ ) {//loop over detectors
     unsigned int id = *detunit_iterator;
-    own_vector<SiStripRecHit2DLocalPos> collector; 
+    edm::OwnVector<SiStripRecHit2DLocalPos> collector; 
     if(id!=999999999){ //if is valid detector
       SiStripRecHit2DLocalPosCollection::Range rechitRange = input->get(id);
       SiStripRecHit2DLocalPosCollection::ContainerIterator rechitRangeIteratorBegin = rechitRange.first;
@@ -76,7 +76,7 @@ void ReadRecHitAlgorithm::run(const SiStripRecHit2DMatchedLocalPosCollection* in
     // loop over detunits
   for ( std::vector<unsigned int>::const_iterator detunit_iterator = detIDs.begin(); detunit_iterator != detIDs.end(); detunit_iterator++ ) {//loop over detectors
     unsigned int id = *detunit_iterator;
-    own_vector<SiStripRecHit2DLocalPos> collector; 
+    edm::OwnVector<SiStripRecHit2DLocalPos> collector; 
     if(id!=999999999){ //if is valid detector
       SiStripRecHit2DMatchedLocalPosCollection::Range rechitRange = input->get(id);
       SiStripRecHit2DMatchedLocalPosCollection::ContainerIterator rechitRangeIteratorBegin = rechitRange.first;

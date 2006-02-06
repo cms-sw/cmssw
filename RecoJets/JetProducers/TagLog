@@ -1,6 +1,3 @@
-** V00-00-05  [Tue Jan 31 17:56:01 2006]
-Removed the underscores from the configuration file that builds CaloTowers_HB_HO.root so that this file can be read in release CMSSW_0_4_0 and the jet reco example can work
-
 ** V00-00-04  [Fri Jan 13 00:24:53 2006]
 Added configuration file make_KtJets_HB_HO.txt for Kt algorithm and modified configuration file make_CaloTowers_HB_HO.txt to include thresholds on individual EE and EB rechits for inclusion in the CaloTower.
 

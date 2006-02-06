@@ -3,7 +3,7 @@
    \class HcalDbPOOL
    \brief IO for POOL instances of Hcal Calibrations
    \author Fedor Ratnikov Oct. 28, 2005
-   $Id: HcalDbPool.cc,v 1.1 2006/01/19 01:32:02 fedor Exp $
+   $Id: HcalDbPool.cc,v 1.3 2006/02/03 05:40:30 wmtan Exp $
 */
 
 // pool
@@ -22,9 +22,9 @@
 #include "DataSvc/IDataSvc.h"
 #include "DataSvc/ICacheSvc.h"
 #include "DataSvc/Ref.h"
-#include "RelationalAccess/RelationalException.h"
+#include "RelationalAccess/SchemaException.h"
 #include "Collection/Collection.h"
-#include "AttributeList/AttributeList.h"
+#include "CoralBase/AttributeList.h"
 #include "FileCatalog/FCSystemTools.h"
 #include "FileCatalog/FCException.h"
 #include "FileCatalog/IFCAction.h"
@@ -122,8 +122,11 @@ bool HcalDbPool::getObject (const std::string& fToken, pool::Ref<T>* fObject) {
     fObject->isNull ();
     service ()->transaction().commit();
   }
+  catch(const coral::TableNotExistingException& e) {
+    std::cerr << "getObject-> coral::TableNotExisting Exception" << std::endl;
+  }
   catch (const seal::Exception& e) {
-    std::cerr<<"getObject-> POOL error: " << e << std::endl;
+    std::cerr<<"getObject-> CORAL error: " << e << std::endl;
   }
   catch(...){
     std::cerr << "getObject-> Funny error" << std::endl;

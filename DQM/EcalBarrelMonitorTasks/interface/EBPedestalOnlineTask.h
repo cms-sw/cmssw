@@ -4,8 +4,8 @@
 /*
  * \file EBPedestalOnlineTask.h
  *
- * $Date: 2006/01/11 11:56:47 $
- * $Revision: 1.2 $
+ * $Date: 2006/01/02 08:49:58 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */
@@ -42,7 +42,7 @@ friend class EcalBarrelMonitorModule;
 public:
 
 /// Constructor
-EBPedestalOnlineTask(const edm::ParameterSet& ps);
+EBPedestalOnlineTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe);
 
 /// Destructor
 virtual ~EBPedestalOnlineTask();
@@ -52,14 +52,11 @@ protected:
 /// Analyze
 void analyze(const edm::Event& e, const edm::EventSetup& c);
 
-/// BeginJob
+// BeginJob
 void beginJob(const edm::EventSetup& c);
 
-/// EndJob
+// EndJob
 void endJob(void);
-
-/// Setup
-void setup(void);
 
 private:
 
@@ -68,8 +65,6 @@ int ievt_;
 MonitorElement* mePedMapG12_[36];
 
 ofstream logFile_;
-
-bool init_;
 
 };
 

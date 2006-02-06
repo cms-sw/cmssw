@@ -62,7 +62,7 @@ struct SMFU_data
 
   // for performance measurements
   xdata::UnsignedLong samples_; //number of samples (frames) per measurement
-  stor::SMPerformanceMeter *pmeter_;
+  sto::SMPerformanceMeter *pmeter_;
   // measurements for last set of samples
   xdata::Double databw_;      // bandwidth in MB/s
   xdata::Double datarate_;    // number of frames/s
@@ -93,7 +93,7 @@ SMFU_data::SMFU_data()
   meandatabw_ = 0.;
   meandatarate_ = 0.;
   meandatalatency_ = 0.;
-  pmeter_ = new stor::SMPerformanceMeter();
+  pmeter_ = new sto::SMPerformanceMeter();
   pmeter_->init(samples_);
   maxdatabw_ = 0.;
   mindatabw_ = 999999.;

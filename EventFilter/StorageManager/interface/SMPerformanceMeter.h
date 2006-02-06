@@ -22,7 +22,7 @@
 #include "toolbox/Chrono.h"
 #include "toolbox/string.h"
 
-namespace stor {
+namespace sto {
 
   class SMPerformanceMeter 
   {
@@ -69,6 +69,6 @@ namespace stor {
     toolbox::Chrono chrono_;	
   }; //end class
 
-} // end namespace stor
+} // end namespace sto
 
 #endif

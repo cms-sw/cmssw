@@ -1,4 +1,3 @@
-<flags SEAL_PLUGIN_NAME="DQMEcalBarrelMonitorTasks">
 <use name=FWCore/Framework>
 <use name=DQMServices/CoreROOT>
 <use name=DataFormats/FEDRawData>

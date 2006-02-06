@@ -11,7 +11,7 @@
 #include <map>
 #include <vector>
 
-namespace xercesc_2_3 {} using namespace xercesc_2_3;
+namespace xercesc_2_7 {} using namespace xercesc_2_7;
 
 class AttributeList;
 

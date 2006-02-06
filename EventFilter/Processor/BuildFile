@@ -1,11 +1,6 @@
 <use name=boost>
 <use name=Foundation/PluginManager>
 <use name=Framework/SealKernel>
-<use name=Dictionary/ReflectionBuilder>
-<use name=FWCore/EDProduct>
-<use name=FWCore/ParameterSet>
-<use name=FWCore/Utilities>
-<use name=FWCore/ServiceRegistry>
 <use name=FWCore/Framework>
 <use name=EventFilter/Utilities>
 <export>
@@ -14,11 +9,7 @@
  <use name=xdaq>
  <use name=Foundation/PluginManager>
  <use name=Framework/SealKernel>
- <use name=Dictionary/ReflectionBuilder>
- <use name=FWCore/EDProduct>
- <use name=FWCore/ParameterSet>
- <use name=FWCore/Utilities>
- <use name=FWCore/ServiceRegistry>
+ <use name=FWCore/Framework>
  <use name=EventFilter/Utilities>
 </export>
 

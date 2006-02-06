@@ -6,7 +6,7 @@
 // Implementation:
 //
 // Original Author:  Jim Kowalkowski
-// $Id: Memory.cc,v 1.2 2006/01/31 03:45:07 jbk Exp $
+// $Id$
 //
 
 #include "FWCore/Services/src/Memory.h"
@@ -204,7 +204,6 @@ namespace edm {
     void SimpleMemoryCheck::postEventProcessing(const Event& e,
 						const EventSetup&)
     {
-	  ++count_;
     }
 
     void SimpleMemoryCheck::preModule(const ModuleDescription& md)
@@ -213,12 +212,13 @@ namespace edm {
 
     void SimpleMemoryCheck::postModule(const ModuleDescription& md)
     {
+      if(++count_ < num_to_skip_) return;
+
       swap(current_,previous_);
       *current_ = fetch();
 
       if(*current_ > max_)
 	{
-	  if(count_ >= num_to_skip_)
 	  LogWarning("MemoryIncrease")
 	    << "Memory increased from "
 	    << "VSIZE=" << max_.vsize << "MB "
@@ -231,7 +231,6 @@ namespace edm {
 	  
 	  max_ = *current_;
 	}
-
     }
 
   }

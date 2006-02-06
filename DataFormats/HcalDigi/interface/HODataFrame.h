@@ -47,7 +47,7 @@ private:
   HcalElectronicsId electronicsId_; 
   int size_;
   int hcalPresamples_;
-  HcalQIESample data_[MAXSAMPLES];
+  std::vector<HcalQIESample> data_;
 };
 
 std::ostream& operator<<(std::ostream&, const HODataFrame&);

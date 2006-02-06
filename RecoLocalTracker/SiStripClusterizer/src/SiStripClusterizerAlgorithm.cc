@@ -13,8 +13,6 @@
 
 #include "RecoLocalTracker/SiStripClusterizer/interface/ThreeThresholdStripClusterizer.h"
 
-#include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
-
 using namespace std;
 
 SiStripClusterizerAlgorithm::SiStripClusterizerAlgorithm(const edm::ParameterSet& conf) : conf_(conf) { 
@@ -41,7 +39,7 @@ SiStripClusterizerAlgorithm::~SiStripClusterizerAlgorithm() {
 }
 
 
-void SiStripClusterizerAlgorithm::run(const StripDigiCollection* input, SiStripClusterCollection &output,const edm::ESHandle<SiStripPedestals>& ped)
+void SiStripClusterizerAlgorithm::run(const StripDigiCollection* input, SiStripClusterCollection &output)
 {
 
   if ( validClusterizer_ ) {
@@ -65,25 +63,11 @@ void SiStripClusterizerAlgorithm::run(const StripDigiCollection* input, SiStripC
 	vector<float> noiseVec(768,2);
 	vector<short> badChannels;
 	
-// 	vector<SiStripCluster> collector = threeThreshold_->clusterizeDetUnit(digiRangeIteratorBegin, 
-// 										digiRangeIteratorEnd,
-// 										id,
-// 										noiseVec,
-// 										badChannels);
-
-	const SiStripPedestalsVector & sistrippedvec = (*ped).getSiStripPedestalsVector(id);
-	
-	if (sistrippedvec.size() <= 0)
-	  {
-	    std::cout << "WARNING requested Pedestals for detid " << id << " that isn't in map " << std::endl; 
-	    continue;
-	  }
-
-	vector<SiStripCluster> collector = 
-	  threeThreshold_->clusterizeDetUnit(digiRangeIteratorBegin, 
-					     digiRangeIteratorEnd,
-					     id,
-					     sistrippedvec);
+	vector<SiStripCluster> collector = threeThreshold_->clusterizeDetUnit(digiRangeIteratorBegin, 
+										digiRangeIteratorEnd,
+										id,
+										noiseVec,
+										badChannels);
 
 	SiStripClusterCollection::Range inputRange;
 	inputRange.first = collector.begin();

@@ -11,10 +11,10 @@
 EcalSimParameterMap::EcalSimParameterMap() :
   theBarrelParameters(2250., 1./2250., 
                    1., 47., 
-                   10, 5, true),
+                   10, 6, true),
   theEndcapParameters( 1800., 1./1800., 
                    1., 47., 
-                   10, 5, true)
+                   10, 6, true)
 {
 }
   /*

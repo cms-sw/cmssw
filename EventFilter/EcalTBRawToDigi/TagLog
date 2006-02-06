@@ -1,6 +1,3 @@
-** V02-00-01  [Thu Jan 19 21:09:44 2006]
-Minor changes due to modification in IORawData/EcalTBInputService
-
 ** V02-00-00  [Wed Jan 11 14:36:27 2006]
 Removed dependency between EcalTBRawToDigi and DQM
 

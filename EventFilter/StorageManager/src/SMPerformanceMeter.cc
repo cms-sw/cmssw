@@ -17,7 +17,7 @@
 
 #include "EventFilter/StorageManager/interface/SMPerformanceMeter.h"
 
-void stor::SMPerformanceMeter::init(unsigned long samples) 
+void sto::SMPerformanceMeter::init(unsigned long samples) 
 {
   // samples is the number of samples that will be collected
   // before statistics for those samples are calculated.
@@ -30,7 +30,7 @@ void stor::SMPerformanceMeter::init(unsigned long samples)
   rate_ = 0.0;
 }
 	
-stor::SMPerformanceMeter::SMPerformanceMeter()
+sto::SMPerformanceMeter::SMPerformanceMeter()
 {
   latency_ = 0.0;
   throughput_= 0.0;
@@ -44,7 +44,7 @@ stor::SMPerformanceMeter::SMPerformanceMeter()
   allTime_= 0.0;
 }
 			
-bool stor::SMPerformanceMeter::addSample(unsigned long size) 
+bool sto::SMPerformanceMeter::addSample(unsigned long size) 
 {	
   if ( loopCounter_ == 0 )
   {	
@@ -78,42 +78,42 @@ bool stor::SMPerformanceMeter::addSample(unsigned long size)
   return false;
 }	
 
-double stor::SMPerformanceMeter::bandwidth() 
+double sto::SMPerformanceMeter::bandwidth() 
 {
   return throughput_;
 }
 
-double stor::SMPerformanceMeter::rate() 
+double sto::SMPerformanceMeter::rate() 
 {
   return rate_;
 }
 
-double stor::SMPerformanceMeter::latency() 
+double sto::SMPerformanceMeter::latency() 
 {
   return latency_;
 }
 
-double stor::SMPerformanceMeter::meanbandwidth() 
+double sto::SMPerformanceMeter::meanbandwidth() 
 {
   return meanThroughput_;
 }
 
-double stor::SMPerformanceMeter::meanrate() 
+double sto::SMPerformanceMeter::meanrate() 
 {
   return meanRate_;
 }
 
-double stor::SMPerformanceMeter::meanlatency() 
+double sto::SMPerformanceMeter::meanlatency() 
 {
   return meanLatency_;
 }
 
-unsigned long stor::SMPerformanceMeter::totalsamples() 
+unsigned long sto::SMPerformanceMeter::totalsamples() 
 {
   return sampleCounter_;
 }
 
-double stor::SMPerformanceMeter::duration() 
+double sto::SMPerformanceMeter::duration() 
 {
   return allTime_;
 }

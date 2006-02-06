@@ -1,19 +1,17 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2006/01/29 17:21:28 $
- * $Revision: 1.8 $
+ * $Date: 2005/12/30 10:24:29 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  *
 */
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBIntegrityTask.h>
 
-EBIntegrityTask::EBIntegrityTask(const edm::ParameterSet& ps){
+EBIntegrityTask::EBIntegrityTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe){
 
 //  logFile_.open("EBIntegrityTask.log");
-
-  init_ = false;
 
   meIntegrityDCCSize = 0;
   for (int i = 0; i < 36 ; i++) {
@@ -25,7 +23,59 @@ EBIntegrityTask::EBIntegrityTask(const edm::ParameterSet& ps){
     meIntegrityTTBlockSize[i] = 0;
   }
 
-  this->setup();
+  Char_t histo[20];
+
+  if ( dbe ) {
+    dbe->setCurrentFolder("EcalBarrel");
+
+    // checking when number of towers in data different than expected from header
+    dbe->setCurrentFolder("EcalBarrel/EcalIntegrity");
+    sprintf(histo, "EBIT DCC size error");
+    meIntegrityDCCSize = dbe->book1D(histo, histo, 36, 1, 37.);
+
+    // checking when the gain is 0
+    dbe->setCurrentFolder("EcalBarrel/EcalIntegrity/Gain");
+    for (int i = 0; i < 36 ; i++) {
+      sprintf(histo, "EBIT gain SM%02d", i+1);
+      meIntegrityGain[i] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    }
+
+    // checking when channel has unexpected or invalid ID
+    dbe->setCurrentFolder("EcalBarrel/EcalIntegrity/ChId");
+    for (int i = 0; i < 36 ; i++) {
+      sprintf(histo, "EBIT ChId SM%02d", i+1);
+      meIntegrityChId[i] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    }
+
+    // checking when channel has unexpected or invalid ID
+    dbe->setCurrentFolder("EcalBarrel/EcalIntegrity/GainSwitch");
+    for (int i = 0; i < 36 ; i++) {
+      sprintf(histo, "EBIT gain switch SM%02d", i+1);
+      meIntegrityGainSwitch[i] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    }
+
+    // checking when channel has unexpected or invalid ID
+    dbe->setCurrentFolder("EcalBarrel/EcalIntegrity/GainSwitchStay");
+    for (int i = 0; i < 36 ; i++) {
+      sprintf(histo, "EBIT gain switch stay SM%02d", i+1);
+      meIntegrityGainSwitchStay[i] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    }
+
+    // checking when trigger tower has unexpected or invalid ID
+    dbe->setCurrentFolder("EcalBarrel/EcalIntegrity/TTId");
+    for (int i = 0; i < 36 ; i++) {
+      sprintf(histo, "EBIT TTId SM%02d", i+1);
+      meIntegrityTTId[i] = dbe->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
+    }
+
+    // checking when trigger tower has unexpected or invalid size
+    dbe->setCurrentFolder("EcalBarrel/EcalIntegrity/TTBlockSize");
+    for (int i = 0; i < 36 ; i++) {
+      sprintf(histo, "EBIT TTBlockSize SM%02d", i+1);
+      meIntegrityTTBlockSize[i] = dbe->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
+    }
+
+  }
 
 }
 
@@ -41,71 +91,6 @@ void EBIntegrityTask::beginJob(const edm::EventSetup& c){
 
 }
 
-void EBIntegrityTask::setup(void){
-
-  init_ = true;
-
-  Char_t histo[20];
-
-  DaqMonitorBEInterface* dbe = 0;
-
-  // get hold of back-end interface
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
-
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalBarrel");
-
-    // checking when number of towers in data different than expected from header
-    dbe->setCurrentFolder("EcalBarrel/EBIntegrityTask");
-    sprintf(histo, "EBIT DCC size error");
-    meIntegrityDCCSize = dbe->book1D(histo, histo, 36, 1, 37.);
-
-    // checking when the gain is 0
-    dbe->setCurrentFolder("EcalBarrel/EBIntegrityTask/Gain");
-    for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBIT gain SM%02d", i+1);
-      meIntegrityGain[i] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
-    }
-
-    // checking when channel has unexpected or invalid ID
-    dbe->setCurrentFolder("EcalBarrel/EBIntegrityTask/ChId");
-    for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBIT ChId SM%02d", i+1);
-      meIntegrityChId[i] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
-    }
-
-    // checking when channel has unexpected or invalid ID
-    dbe->setCurrentFolder("EcalBarrel/EBIntegrityTask/GainSwitch");
-    for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBIT gain switch SM%02d", i+1);
-      meIntegrityGainSwitch[i] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
-    }
-
-    // checking when channel has unexpected or invalid ID
-    dbe->setCurrentFolder("EcalBarrel/EBIntegrityTask/GainSwitchStay");
-    for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBIT gain switch stay SM%02d", i+1);
-      meIntegrityGainSwitchStay[i] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
-    }
-
-    // checking when trigger tower has unexpected or invalid ID
-    dbe->setCurrentFolder("EcalBarrel/EBIntegrityTask/TTId");
-    for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBIT TTId SM%02d", i+1);
-      meIntegrityTTId[i] = dbe->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
-    }
-
-    // checking when trigger tower has unexpected or invalid size
-    dbe->setCurrentFolder("EcalBarrel/EBIntegrityTask/TTBlockSize");
-    for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBIT TTBlockSize SM%02d", i+1);
-      meIntegrityTTBlockSize[i] = dbe->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
-    }
-
-  }
-
-}
-
 void EBIntegrityTask::endJob(){
 
   cout << "EBIntegrityTask: analyzed " << ievt_ << " events" << endl;
@@ -113,8 +98,6 @@ void EBIntegrityTask::endJob(){
 }
 
 void EBIntegrityTask::analyze(const edm::Event& e, const edm::EventSetup& c){
-
-  if ( ! init_ ) this->setup();
 
   ievt_++;
 
