@@ -9,7 +9,7 @@ rm -f ${LOCAL_TMP_DIR}/PreSecondaryInputTest.cfg ${LOCAL_TMP_DIR}/SecondaryInput
 cat > ${LOCAL_TMP_DIR}/PreSecondaryInputTest.cfg << !
 # Configuration file for PreSecondaryInputTest 
 process TEST = {
-	path p = {Thing, OtherThing, output}
+	path p = {Thing, OtherThing}
 	module Thing = ThingProducer {untracked int32 debugLevel = 1}
 	module OtherThing = OtherThingProducer {untracked int32 debugLevel = 1}
 	module output = PoolOutputModule {
@@ -19,6 +19,7 @@ process TEST = {
 		untracked int32 maxSize = 100000
 	}
 	source = EmptySource {untracked int32 maxEvents = 5}
+	endpath ep = {output}
 }
 !
 cmsRun --parameter-set ${LOCAL_TMP_DIR}/PreSecondaryInputTest.cfg || die 'Failure using PreSecondaryInputTest.cfg' $?

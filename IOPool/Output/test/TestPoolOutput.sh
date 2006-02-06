@@ -7,7 +7,7 @@ rm -f ${LOCAL_TMP_DIR}/PoolOutputTest.root ${LOCAL_TMP_DIR}/PoolOutputTestCatalo
 cat > ${LOCAL_TMP_DIR}/PoolOutputTest.cfg << !
 # Configuration file for PoolOutputTest
 process TEST = {
-	path p = {Thing, OtherThing, output}
+	path p = {Thing, OtherThing}
 	module Thing = ThingProducer {untracked int32 debugLevel = 1}
 	module OtherThing = OtherThingProducer {untracked int32 debugLevel = 1}
 	module output = PoolOutputModule {
@@ -17,6 +17,7 @@ process TEST = {
 		untracked int32 maxSize = 100000
 	}
 	source = EmptySource {untracked int32 maxEvents = 20}
+	endpath ep = {output}
 }
 !
 cmsRun --parameter-set ${LOCAL_TMP_DIR}/PoolOutputTest.cfg || die 'Failure using PoolOutputTest.cfg' $?
