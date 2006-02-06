@@ -31,19 +31,19 @@ namespace edm
 {
   namespace
   {
+    // -----------------------------
+
     // Here we make the trigger results inserter directly.  This should
     // probably be a utility in the WorkerRegistry or elsewhere.
 
-    Schedule::WorkerPtr makeInserter(const ParameterSet& pset,
+    Schedule::WorkerPtr makeInserter(const ParameterSet& trig_pset,
+				     const string& proc_name,
 				     ProductRegistry& preg,
 				     ActionTable& actions,
 				     Schedule::BitMaskPtr bm)
     {
 #if 1
-      ParameterSet trig_pset(pset.getUntrackedParameter<ParameterSet>("@trigger_paths"));
-      string proc_name = pset.getParameter<string>("@process_name");
       WorkerParams work_args(trig_pset,preg,actions,proc_name);
-
       ModuleDescription md;
       md.pid = trig_pset.id();
       md.moduleName_ = "TriggerResultInserter";
@@ -60,6 +60,8 @@ namespace edm
 #endif
       return ptr;
     }
+
+  // -----------------------------
 
     class CallPrePost
     {
@@ -85,6 +87,69 @@ namespace edm
 
   }
 
+  // -----------------------------
+
+  typedef vector<string> vstring;
+
+  void checkIfSubset(const vstring& in_all, const vstring& in_sub)
+  {
+    vstring all(in_all), sub(in_sub), result;
+    sort(all.begin(),all.end());
+    sort(sub.begin(),sub.end());
+    set_intersection(all.begin(),all.end(),
+		     sub.begin(),sub.end(),
+		     back_inserter(result));
+
+    if(result.size() != sub.size())
+      throw cms::Exception("TriggerPaths")
+	<< "Specified listOfTriggers is not a subset of the available paths\n";
+  }
+
+  ParameterSet getTrigPSet(ParameterSet const& proc_pset)
+  {
+    ParameterSet rc = 
+      proc_pset.getUntrackedParameter<ParameterSet>("@trigger_paths");
+    bool want_results = false;
+    // default for trigger paths is all the paths
+    vstring allpaths = rc.getParameter<vstring>("@paths");
+
+    // the value depends on options and value of listOfTriggers
+    try
+      {
+        ParameterSet opts = proc_pset.getParameter<ParameterSet>("options");
+	want_results =
+	  opts.getUntrackedParameter<bool>("makeTriggerResults",false);
+
+	// if makeTriggerResults is true, then listOfTriggers must be given
+
+	if(want_results)
+	  {
+	    vstring tmppaths = opts.getParameter<vstring>("listOfTriggers");
+
+	    // verify that all then names in allpaths are a subset of
+	    // the names currently in allpaths (all the names)
+
+	    if(!tmppaths.empty() && tmppaths[0] == "*")
+	      {
+		// leave as full list
+	      }
+	    else
+	      {
+		checkIfSubset(allpaths, tmppaths);
+		allpaths.swap(tmppaths);
+	      }
+	  }
+      }
+    catch(edm::Exception& e)
+      {
+      }
+
+    rc.addParameter<vstring>("@trigger_paths",allpaths);
+    return rc;
+  }
+
+  // -----------------------------
+
   Schedule::~Schedule() { }
 
   Schedule::Schedule(ParameterSet const& proc_pset,
@@ -97,14 +162,18 @@ namespace edm
     prod_reg_(&preg),
     act_table_(&actions),
     proc_name_(proc_pset.getParameter<string>("@process_name")),
-    trig_pset_(proc_pset.getUntrackedParameter<ParameterSet>("@trigger_paths",ParameterSet())),
+    trig_pset_(getTrigPSet(proc_pset)),
     act_reg_(areg),
     state_(Ready),
+    trig_name_list_(trig_pset_.getParameter<vstring>("@trigger_paths")),
     path_name_list_(trig_pset_.getParameter<vstring>("@paths")),
     end_path_name_list_(trig_pset_.getParameter<vstring>("@end_paths")),
+    trig_name_set_(trig_name_list_.begin(),trig_name_list_.end()),
 
     results_(new BitMask),
-    results_bit_count_(path_name_list_.size()),
+    results_bit_count_(trig_name_list_.size()),
+    nontrig_results_(new BitMask),
+    nontrig_results_bit_count_(path_name_list_.size()),
     endpath_results_(new BitMask),
     // extra position in endpath_results is for wrongly-placed modules
     endpath_results_bit_count_(end_path_name_list_.size()+1),
@@ -125,20 +194,31 @@ namespace edm
       }
     catch(edm::Exception& e) { }
 
-    vstring& trigs = path_name_list_;
     vstring& ends = end_path_name_list_;
     bool hasFilter = false;
     
-    vstring::iterator ib(trigs.begin()),ie(trigs.end());
-    for(int bitpos=0;ib!=ie;++ib,++bitpos)
+    vstring::iterator ib(path_name_list_.begin()),ie(path_name_list_.end());
+    int trig_bitpos=0, non_bitpos=0;
+
+    for(;ib!=ie;++ib)
       {
-	hasFilter += fillTrigPath(bitpos,*ib);
+	if(trig_name_set_.find(*ib)!=trig_name_set_.end())
+	  {
+	    hasFilter += fillTrigPath(trig_bitpos,*ib, results_);
+	    ++trig_bitpos;
+	  }
+	else
+	  {
+	    fillTrigPath(non_bitpos,*ib, nontrig_results_);
+	    ++non_bitpos;
+	  }
       }
     
     // the results inserter stands alone
     if(hasFilter || makeTriggerResults_)
       {
-	results_inserter_=makeInserter(proc_pset,preg,actions,results_);
+	results_inserter_=makeInserter(trig_pset_,proc_name_,
+				       preg,actions,results_);
 	all_workers_.insert(results_inserter_.get());
       }
 
@@ -198,7 +278,7 @@ namespace edm
     Worker* operator()(WorkerInPath& w) const { return w.getWorker(); }
   };
 
-  bool Schedule::fillTrigPath(int bitpos,const string& name)
+  bool Schedule::fillTrigPath(int bitpos,const string& name, BitMaskPtr ptr)
   {
     PathWorkers tmpworkers;
     PathWorkers goodworkers;
@@ -234,7 +314,7 @@ namespace edm
     // an empty path will cause an extra bit that is not used
     if(!goodworkers.empty())
 	{
-        Path p(bitpos,name,goodworkers,results_,pset_,*act_table_,act_reg_);
+        Path p(bitpos,name,goodworkers,ptr,pset_,*act_table_,act_reg_);
         trig_paths_.push_back(p);
 	}
     all_workers_.insert(holder.begin(),holder.end());

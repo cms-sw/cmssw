@@ -37,6 +37,7 @@ namespace edmtest
     int failed_;
     bool dump_;
     string name_;
+    int numbits_;
   };
 
   // -------
@@ -79,7 +80,8 @@ namespace edmtest
     passed_(),
     failed_(),
     dump_(ps.getUntrackedParameter<bool>("dump",false)),
-    name_(ps.getUntrackedParameter<string>("name","DEFAULT"))
+    name_(ps.getUntrackedParameter<string>("name","DEFAULT")),
+    numbits_(ps.getUntrackedParameter<int>("numbits",-1))
   {
   }
     
@@ -102,6 +104,15 @@ namespace edmtest
 
     if(prod[0]->pass()) ++passed_;
     else if(prod[0]->fail()) ++failed_;
+
+    if(numbits_<0) return;
+
+    if(numbits_!=prod[0]->numBitsUsed())
+      {
+	cerr << "should have " << numbits_ 
+	     << ", got " << prod[0]->numBitsUsed() << " in TriggerResults\n";
+	abort();
+      }
   }
 
   void TestResultAnalyzer::endJob()
@@ -160,7 +171,12 @@ namespace edmtest
     cerr << "SEWERMODULE " << name_ << ": should pass " << num_pass_
 	 << ", did pass " << total_ << "\n";
 
-    if(total_!=num_pass_) abort();
+    if(total_!=num_pass_)
+      {
+	cerr << "number passed should be " << num_pass_
+	     << ", but got " << total_ << "\n";
+	abort();
+      }
   }
 }
 

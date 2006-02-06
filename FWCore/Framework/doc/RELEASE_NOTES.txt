@@ -257,5 +257,14 @@ Warning: the SelectEvents pset untracked option is not working properly
 because of problems in the parameterset library.  The test scripts
 will need to be upgraded when it is fixed.
 
+06-02-06
 
+Now the listOfTriggers feature is complete.  If the "options" 
+pset of the process pset contains "makeTriggerResults", then the user
+is required to include "listOfTriggers".  The list must be a subset
+of the list of paths.  The list can have "*" as its first member, in
+which case all the paths are included.  This feature is implemented 
+using entirely in Schedule.cc.  The test/testBitsCount.cfg script
+tests that a correctly specified listOfTriggers works properly; it 
+does not check the bad cases.
 
