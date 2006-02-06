@@ -1,3 +1,6 @@
+** V00-02-02  [Mon Feb  6 23:48:21 2006]
+remove references to seal::reflex and POOL
+
 ** V00-02-01  [Fri Dec 16 22:58:02 2005]
 removed a globally initialized DDCompactView which was interfering with geometry construction
 
