@@ -17,8 +17,8 @@
  * The Topology interface is extended with methods relevant for
  * the DT detectors, e.g. wirePosition(int), etc.
  *  
- *  $Date: 2005/12/05 09:09:44 $
- *  $Revision: 1.5 $
+ *  $Date: 2005/12/14 11:01:00 $
+ *  $Revision: 1.6 $
  *
  * \author R. Bellan - INFN Torino
  *
@@ -69,7 +69,9 @@ class DTTopology: public Topology {
   const float cellHeight() const {return theHeight;}
   /// Returns the cell lenght.
   const float cellLenght() const {return theLength;}
-  
+  /// Returns the number of wires in the layer
+  const int channels() const {return theNChannels;} 
+
   /// Returns the width of the actual sensible volume of the cell.
   const float sensibleWidth() const;
   /// Returns the height of the actual sensible volume of the cell.
