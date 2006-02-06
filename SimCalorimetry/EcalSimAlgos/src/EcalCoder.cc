@@ -23,14 +23,15 @@ EcalCoder::EcalCoder(bool addNoise)
 }
 
 
-double EcalCoder::fullScaleEnergy(const DetId & ) const 
+double EcalCoder::fullScaleEnergy(const DetId & detId) const 
 {
  //PG Emax = x MeV/ADC * 4095 ADC * 12(gain) / 1000 MeV/GeV
  //PG for the Barrel
+  if (detId.subdetId() == 1) //PG for the Barrel
   return 1719.9 ;  //PG assuming 35 MeV/ADC
 //  return 1818.18 ; //PG assuming 37 MeV/ADC
- //PG for the Endcap
-//  return 2948.40 ; //PG assuming 60 MeV/ADC
+  else //PG for the Endcap
+  return 2948.40 ; //PG assuming 60 MeV/ADC
 }
 
 
@@ -93,7 +94,7 @@ EcalCoder::encode(const CaloSamples& timeframe) const
     if(addNoise_) {
       gains[igain] *= RandGauss::shoot(1., theGainErrors[igain]);
     }
-    LSB[igain]= Emax/(MAXINT*gains[igain]);
+    LSB[igain]= Emax/(MAXADC*gains[igain]);
     threeSigmaADCNoise[igain] = widths[igain]/LSB[igain] * 3.;
   }
 
@@ -102,7 +103,7 @@ EcalCoder::encode(const CaloSamples& timeframe) const
   int gainId = NGAINS - 1 ;
   for (int i = 0 ; i < timeframe.size() ; ++i)
   {    
-     int adc = MAXINT;
+     int adc = MAXADC;
      if (wait == 0) gainId = NGAINS - 1;
 
      // see which gain bin it fits in
@@ -111,15 +112,15 @@ EcalCoder::encode(const CaloSamples& timeframe) const
        --igain;
 
        double ped = + pedestals[igain];
-       int tmpadc = int((timeframe[i]+ped)/LSB[igain]);
+       int tmpadc = int (ped + timeframe[i] / LSB[igain]) ;
 
        // see if it's close enough to the boundary that we have to throw noise
-       if(addNoise_ && (tmpadc <= MAXINT+threeSigmaADCNoise[igain]) ) {
+       if(addNoise_ && (tmpadc <= MAXADC+threeSigmaADCNoise[igain]) ) {
           ped = RandGauss::shoot(ped, widths[igain]);
-          tmpadc = int((timeframe[i]+ped)/LSB[igain]);
+          tmpadc = int (ped + timeframe[i] / LSB[igain]) ;
        }
          
-       if(tmpadc <= MAXINT ) {
+       if(tmpadc <= MAXADC ) {
          adc = tmpadc;
          break ;
        }
@@ -150,12 +151,12 @@ double EcalCoder::decode(const EcalMGPASample & sample, const DetId & id) const
   double Emax = fullScaleEnergy(id); 
   int gainNumber  = sample.gainId();
   assert( gainNumber >=0 && gainNumber <=2);
-  double LSB = Emax/(MAXINT*theGains[gainNumber]) ;
+  double LSB = Emax/(MAXADC*theGains[gainNumber]) ;
   double pedestal = 0.;
   double width = 0.;
   findPedestal(id, gainNumber, pedestal, width);
   // we shift by LSB/2 to be centered
-  return LSB*(sample.adc() + 0.5) - pedestal;
+  return LSB * (sample.adc() + 0.5 - pedestal) ;
 }
 
 

@@ -11,13 +11,14 @@ class DetId;
 #include<vector>
 
 //! Converts CaloDataFrame in CaloTimeSample and vice versa.
+//PG pedestals in ADC counts
 
 class EcalCoder
 {
  public:
   enum {NBITS = 12};
   /// 2^12 -1
-  enum {MAXINT = 4095}; 
+  enum {MAXADC = 4095}; 
   enum {NGAINS = 3};
 
   EcalCoder(bool addNoise) ;
