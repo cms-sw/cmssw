@@ -1,3 +1,6 @@
+** V00-00-06  [Mon Feb  6 22:47:31 2006]
+Changes to the configuration file that builds CaloTowers_HB_HO.root so that this file can be built in release CMSSW_0_4_0
+
 ** V00-00-05  [Tue Jan 31 17:56:01 2006]
 Removed the underscores from the configuration file that builds CaloTowers_HB_HO.root so that this file can be read in release CMSSW_0_4_0 and the jet reco example can work
 
