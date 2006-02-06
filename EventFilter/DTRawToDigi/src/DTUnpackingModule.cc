@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2005/11/23 11:17:15 $
- *  $Revision: 1.10 $
+ *  $Date: 2005/11/25 18:12:53 $
+ *  $Revision: 1.11 $
  *  \author S. Argiro - N. Amapane - M. Zanetti 
  */
 
@@ -63,7 +63,7 @@ void DTUnpackingModule::produce(Event & e, const EventSetup& context){
 
   // Get the data from the event 
   Handle<FEDRawDataCollection> rawdata;
-  e.getByLabel("DaqRawData", rawdata);
+  e.getByLabel("DaqSource", rawdata);
 
   // Get the mapping from the setup
   ESHandle<DTReadOutMapping> mapping;

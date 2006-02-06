@@ -1,8 +1,8 @@
 /** \file
  * 
  * 
- * $Date: 2005/11/29 18:55:55 $
- * $Revision: 1.2 $
+ * $Date: 2005/12/06 09:25:21 $
+ * $Revision: 1.3 $
  * \author N. Amapane - S. Argiro'
  *
 */
@@ -31,7 +31,7 @@ namespace test{
       cout << "--- Run: " << e.id().run()
 	   << " Event: " << e.id().event() << endl;
       Handle<FEDRawDataCollection> rawdata;
-      e.getByLabel("DaqRawData", rawdata);
+      e.getByLabel("DaqSource", rawdata);
       for (int i = 0; i<FEDNumbering::lastFEDId(); i++){
 	const FEDRawData& data = rawdata->FEDData(i);
 	if(size_t size=data.size()) {
