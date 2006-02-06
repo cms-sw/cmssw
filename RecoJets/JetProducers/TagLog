@@ -1,3 +1,6 @@
+** V00-00-07  [Mon Feb  6 22:56:41 2006]
+Changes to the configuration file from Jeremy and also new version of CaloTowers_HB_HO.root actually built using CMSSW_0_4_0
+
 ** V00-00-06  [Mon Feb  6 22:47:31 2006]
 Changes to the configuration file that builds CaloTowers_HB_HO.root so that this file can be built in release CMSSW_0_4_0
 
