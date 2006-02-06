@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCUnpackingModule
  *
- *  $Date: 2005/12/15 17:49:45 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/02/02 16:25:51 $
+ *  $Revision: 1.9 $
  *
  * \author Ilaria Segoni
  */
@@ -23,29 +23,24 @@
 #include <EventFilter/RPCRawToDigi/interface/RPCMonitorInterface.h>
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-using namespace edm;
-using namespace std;
 
+#include <DataFormats/MuonDetId/interface/RPCDetId.h>
 
 #include <iostream>
 
-RPCUnpackingModule::RPCUnpackingModule(const edm::ParameterSet& pset)  
-{
-  nEvents=0;
-  currentBX=0;
-  currentChn=0;
+using namespace edm;
+using namespace std;
+
+RPCUnpackingModule::RPCUnpackingModule(const edm::ParameterSet& pset) 
+:nEvents(0), currentBX(0), currentChn(0){
   
   printout = pset.getUntrackedParameter<bool>("PrintOut", false); 
   hexprintout = pset.getUntrackedParameter<bool>("PrintHexDump", false); 
   
   instatiateDQM = pset.getUntrackedParameter<bool>("runDQM", false);
-  if(instatiateDQM){
-   
-   monitor = edm::Service<RPCMonitorInterface>().operator->(); 
-  
+  if(instatiateDQM){   
+     monitor = edm::Service<RPCMonitorInterface>().operator->();   
   }
-  
-  
   
   produces<RPCDigiCollection>();
 
@@ -53,7 +48,7 @@ RPCUnpackingModule::RPCUnpackingModule(const edm::ParameterSet& pset)
 
 RPCUnpackingModule::~RPCUnpackingModule(){
   delete monitor;
-  monitor = NULL;
+  monitor = 0;
 }
 
 
@@ -89,28 +84,35 @@ void RPCUnpackingModule::produce(Event & e, const EventSetup& c){
       const unsigned char* index = fedData.data();
        
       /// Unpack FED Header(s)
-      int numberOfHeaders= this->HeaderUnpacker(index);
+      int numberOfHeaders= this->unpackHeader(index);
  
       /// Unpack FED Trailer(s)
-      const unsigned char* trailerIndex=index+fedData.size()- rpc::Unpacking::SLINK_WORD_SIZE;
-      int numberOfTrailers=this->TrailerUnpacker(trailerIndex);
+      const unsigned char* trailerIndex=index+fedData.size()- rpc::unpacking::SLINK_WORD_SIZE;
+      int numberOfTrailers=this->unpackTrailer(trailerIndex);
        
       if(printout) cout<<"Found "<<numberOfHeaders<<" Headers and "<<numberOfTrailers<<" Trailers"<<endl;		
   
       
       /// Beginning of RPC Records Unpacking
-      index += numberOfHeaders* rpc::Unpacking::SLINK_WORD_SIZE; 
+      index += numberOfHeaders* rpc::unpacking::SLINK_WORD_SIZE; 
        
       /// Loop on S-LINK words 
+       int bx=0;
+       vector<int> stripsOn;
+       RPCDetId detId;
+       
        while( index != trailerIndex ){
+       
        
          
 	 /// Loop on RPC Records
          int numOfRecords=0;
-         for(int nRecord=0; nRecord<4; nRecord++){
+	 RPCRecord::recordTypes expectedRecord=RPCRecord::UndefinedType;
+         
+	 for(int nRecord=0; nRecord<4; nRecord++){
           
 	  const unsigned char* recordIndex;
-	  recordIndex=index+ rpc::Unpacking::SLINK_WORD_SIZE -(nRecord+1)* rpc::Unpacking::RPC_RECORD_SIZE;
+	  recordIndex=index+ rpc::unpacking::SLINK_WORD_SIZE -(nRecord+1)* rpc::unpacking::RPC_RECORD_SIZE;
 	   
 	   if(hexprintout) {	  
 	     numOfRecords++;
@@ -128,16 +130,51 @@ void RPCUnpackingModule::produce(Event & e, const EventSetup& c){
           RPCRecord::recordTypes typeOfRecord = theRecord.type();
 	 
 	  /// Unpack the Record 
-	  this->recordUnpack(typeOfRecord,recordIndex);
+	  
+	  if(typeOfRecord==RPCRecord::StartOfBXData)      {
+	      bx= this->unpackBXRecord(recordIndex);
+	  }	 
+	  
+	  
+	  if(typeOfRecord==RPCRecord::StartOfChannelData) {
+	       detId=this->unpackChannelRecord(recordIndex);
+	  }
+	  
+	  
+	  /// Unpacking Strips With Hit
+	  if(typeOfRecord==RPCRecord::ChamberData)        {
+	       stripsOn=this->unpackChamberRecord(recordIndex);
+	  
+	  
+          for(std::vector<int>::iterator pStrip = stripsOn.begin(); pStrip !=
+	                    stripsOn.end(); ++pStrip){
+                int strip = *(pStrip);
+          	  
+                /// Creating RPC digi
+	        RPCDigi digi(bx, strip);
+
+	        /// Committing to the event
+	        producedRPCDigis->insertDigi(detId,digi);
+	  }
+	  
+	  
+	  
+	  }
+	  
+          if(typeOfRecord==RPCRecord::RMBDiscarded)       this->unpackRMBCorruptedRecord(recordIndex);
+	  
+          
+	  if(typeOfRecord==RPCRecord::DCCDiscarded) rpcData.addDCCDiscarded();
+
 	  
 	  }
           
 	  
           ///Go to beginning of next word
-          index+= rpc::Unpacking::SLINK_WORD_SIZE;
+          index+= rpc::unpacking::SLINK_WORD_SIZE;
 
 
-        }
+      }
 		
       ///Send information to DQM
       if(instatiateDQM) monitor->process(rpcData);
@@ -153,7 +190,7 @@ void RPCUnpackingModule::produce(Event & e, const EventSetup& c){
   
 }
 
-int RPCUnpackingModule::HeaderUnpacker(const unsigned char* headerIndex){
+int RPCUnpackingModule::unpackHeader(const unsigned char* headerIndex) const {
  
  int numberOfHeaders=0;
  bool moreHeaders=true;
@@ -182,7 +219,7 @@ int RPCUnpackingModule::HeaderUnpacker(const unsigned char* headerIndex){
 
 
 
-int RPCUnpackingModule::TrailerUnpacker(const unsigned char* trailerIndex){
+int RPCUnpackingModule::unpackTrailer(const unsigned char* trailerIndex) const {
  
  int numberOfTrailers=0;
  bool moreTrailers = true;
@@ -194,7 +231,7 @@ int RPCUnpackingModule::TrailerUnpacker(const unsigned char* trailerIndex){
   if(fedTrailer.check())  {
        
        numberOfTrailers++;	   
-       trailerIndex -= rpc::Unpacking::SLINK_WORD_SIZE;     
+       trailerIndex -= rpc::unpacking::SLINK_WORD_SIZE;     
 
        if(printout) cout<<"Trailer length: "<< fedTrailer.lenght()<<
           " CRC "<<fedTrailer.crc()<<
@@ -216,33 +253,38 @@ int RPCUnpackingModule::TrailerUnpacker(const unsigned char* trailerIndex){
 
 
 
-void RPCUnpackingModule::recordUnpack(RPCRecord::recordTypes  type, const unsigned char* recordIndex){
+
+int RPCUnpackingModule::unpackBXRecord(const unsigned char* recordIndex) {
 
 const unsigned int* recordIndexInt=reinterpret_cast<const unsigned int*>(recordIndex);
-/// BX Data type
- if(type==RPCRecord::StartOfBXData){
-   
+
     RPCBXData bxData(recordIndexInt);
     if(printout) cout<<"Found BX record, BX= "<<bxData.bx()<<endl;
-    currentBX=bxData.bx();
+    return bxData.bx();
     rpcData.addBXData(bxData);
 
- } 
+} 
 
-/// Start of Channel Data Type
- if(type==RPCRecord::StartOfChannelData){
-   
+
+RPCDetId RPCUnpackingModule::unpackChannelRecord(const unsigned char* recordIndex) {
+
+const unsigned int* recordIndexInt=reinterpret_cast<const unsigned int*>(recordIndex);
+
     RPCChannelData chnData(recordIndexInt);
     if(printout) cout<<"Found start of Channel Data Record, Channel: "<< chnData.channel()<<
  	 " Readout/Trigger Mother Board: "<<chnData.tbRmb()<<endl;
-    currentChn=chnData.channel();
+    
+    RPCDetId detId/*=chnData.detId()*/;
+    return detId;
+    
     rpcData.addChnData(chnData);
- 
- } 
 
-/// Chamber Data 
- if(type==RPCRecord::ChamberData){
-  
+} 
+
+vector<int> RPCUnpackingModule::unpackChamberRecord(const unsigned char* recordIndex) {
+
+const unsigned int* recordIndexInt=reinterpret_cast<const unsigned int*>(recordIndex);
+
    RPCChamberData cmbData(recordIndexInt);
     if(printout) cout<< "Found Chamber Data, Chamber Number: "<<cmbData.chamberNumber()<<
  	" Partition Data "<<cmbData.partitionData()<<
@@ -250,30 +292,28 @@ const unsigned int* recordIndexInt=reinterpret_cast<const unsigned int*>(recordI
  	" Data Truncated: "<<cmbData.eod()<<
  	" Partition Number " <<  cmbData.partitionNumber()
  	<<endl;
+	
+    vector<int> stripID/*=cmbData.getStrips()*/;
+    return stripID;
+    
     rpcData.addRPCChamberData(cmbData);
+}
 
- }
 
-/// RMB Discarded
- if(type==RPCRecord::RMBDiscarded){
- 
-  RMBErrorData  discarded(recordIndexInt);
+
+void RPCUnpackingModule::unpackRMBCorruptedRecord(const unsigned char* recordIndex) {
+
+
+
+const unsigned int* recordIndexInt=reinterpret_cast<const unsigned int*>(recordIndex);
+
+     RMBErrorData  discarded(recordIndexInt);
      rpcData.addRMBDiscarded(discarded);
      rpcData.addRMBCorrupted(discarded);
 
  }
 
-/// DCC Discraded
- if(type==RPCRecord::DCCDiscarded){
-     rpcData.addDCCDiscarded();
- }
 
- //delete recordIndexInt;
- //delete recordIndex;
- //recordIndexInt=0;
-// recordIndex=0;
-
-}
 
 
 DEFINE_FWK_MODULE(RPCUnpackingModule)

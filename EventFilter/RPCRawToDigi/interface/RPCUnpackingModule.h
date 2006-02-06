@@ -5,8 +5,8 @@
 /** \class RPCUnpackingModule
  *  Driver class for unpacking RPC raw data (DCC format)
  *
- *  $Date: 2005/12/14 13:36:29 $
- *  $Revision: 1.6 $
+ *  $Date: 2005/12/15 17:47:59 $
+ *  $Revision: 1.7 $
  *  \author Ilaria Segoni - CERN
  */
 
@@ -17,6 +17,12 @@
 #include <EventFilter/RPCRawToDigi/interface/RPCEventData.h>
 
 #include <iostream>
+#include <vector>
+
+class RPCDetId;
+
+using namespace std;
+
 
 class RPCMonitorInterface;
 
@@ -35,14 +41,25 @@ class RPCUnpackingModule: public edm::EDProducer {
     void produce(edm::Event & e, const edm::EventSetup& c); 
   
     /// Unpacks FED Header(s), returns number of Headers 
-    int HeaderUnpacker(const unsigned char* headerIndex);
+    int unpackHeader(const unsigned char* headerIndex) const;
 
     /// Unpacks FED Trailer(s), returns number of Trailers 
-    int TrailerUnpacker(const unsigned char* trailererIndex);
+    int unpackTrailer(const unsigned char* trailererIndex) const;
     
-    /// Record Unpacker 
-    void recordUnpack(RPCRecord::recordTypes  type , const unsigned char* recordIndex); 
+    ///Unpack record type Start of BX Data and return BXN
+    int unpackBXRecord(const unsigned char* recordIndex); 
+      
+    ///Unpack record type Channel Data and return DetId
+    RPCDetId unpackChannelRecord(const unsigned char* recordIndex); 
+      
+    ///Unpack record type Chamber Data and return vector of Strip ID
+    vector<int> unpackChamberRecord(const unsigned char* recordIndex); 
     
+    ///Unpack RMB corrupted/discarded data
+    void unpackRMBCorruptedRecord(const unsigned char* recordIndex);
+    
+    
+          
     ///Fills Container for DQM imformation
     RPCEventData eventData(){return rpcData;}
 
