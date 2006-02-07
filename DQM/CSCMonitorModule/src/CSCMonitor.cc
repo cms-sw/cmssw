@@ -2,8 +2,8 @@
  * 
  *  implementation of CSCMonitor class
  *
- *  $Date: 2005/12/12 09:53:15 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/01/18 11:21:35 $
+ *  $Revision: 1.9 $
  *
  * \author Ilaria Segoni
  */
@@ -67,7 +67,7 @@ void CSCMonitor::process(CSCDCCEventData & dccData )
 
    for (int ddu=0; ddu<(int)dduData.size(); ++ddu) { 
    
-         MonitorDDU(dduData[ddu], ddu );
+         this->MonitorDDU(dduData[ddu], ddu );
    
       }
   usleep(100000);
