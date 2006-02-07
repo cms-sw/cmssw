@@ -1,3 +1,6 @@
+** V00-00-02  [Tue Feb  7 17:13:28 2006]
+Changed to number fibers 1-8 instead of 0-7
+
 ** V00-00-01  [Sat Dec 10 17:25:21 2005]
 Added raw id accessor for HcalElectronicsId
 
