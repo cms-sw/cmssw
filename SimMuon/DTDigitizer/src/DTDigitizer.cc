@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/02/02 18:24:02 $
- *  $Revision: 1.11 $
+ *  $Date: 2006/02/02 19:13:12 $
+ *  $Revision: 1.12 $
  *  \authors: G. Bevilacqua, N. Amapane, G. Cerminara, R. Bellan
  */
 
@@ -32,6 +32,10 @@
 #include "Geometry/Vector/interface/LocalPoint.h"
 #include "Geometry/Vector/interface/LocalVector.h"
 
+// Magnetic Field
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
 // SimHits
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
@@ -40,7 +44,6 @@
 
 // Digis
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
-//#include "DataFormats/MuonDetId/interface/DTDetId.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
 
@@ -61,7 +64,7 @@ DTDigitizer::DTDigitizer(const ParameterSet& conf_) {
   if (debug) cout<<"Creating a DTDigitizer"<<endl;
   
   //register the Producer with a label
-  //  produces<DTDigiCollection>("MuonDTDigis"); // FIXME: Do I pass it by ParameterSet?
+  //produces<DTDigiCollection>("MuonDTDigis"); // FIXME: Do I pass it by ParameterSet?
   produces<DTDigiCollection>(); // FIXME: Do I pass it by ParameterSet?  
 
   //Parameters:
@@ -103,8 +106,7 @@ void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
        << " Event: " << iEvent.id().event() << endl;
   
   //************ 1 ***************
-  
-  // create the container for the SimHits
+   // create the container for the SimHits
   //  Handle<PSimHitContainer> simHits; 
   //  iEvent.getByLabel("r","MuonDTHits",simHits);
     
@@ -114,14 +116,19 @@ void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
   
   auto_ptr<MixCollection<PSimHit> > 
     simHits( new MixCollection<PSimHit>(xFrame.product(),"MuonDTHits"));
-    //    simHits( new MixCollection<PSimHit>(xFrame.product(),"MuonDTHits",pair<int,int>(-1,2)));
-  //
+  //simHits( new MixCollection<PSimHit>(xFrame.product(),"MuonDTHits",pair<int,int>(-1,2)));
   
-  // create the pointer to the Digi container
+
+   // create the pointer to the Digi container
   auto_ptr<DTDigiCollection> output(new DTDigiCollection());
   
+  // Muon Geometry
   ESHandle<DTGeometry> muonGeom;
   iSetup.get<MuonGeometryRecord>().get(muonGeom);
+
+  // Magnetic Field  
+  ESHandle<MagneticField> magnField;
+  iSetup.get<IdealMagneticFieldRecord>().get(magnField);
 
   //************ 2 ***************
 
@@ -133,7 +140,7 @@ void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
        simHit != simHits->end(); simHit++){
     
     // Create the id of the wire, the simHits in the DT known also the wireId
-    //    DTDetId wireId(simHit->detUnitId());
+ 
     DTWireId wireId(simHit->detUnitId());
     // Fill the map
     wireMap[wireId].push_back(&(*simHit));
@@ -142,7 +149,6 @@ void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
   pair<float,bool> time(0.,false);
 
   //************ 3 ***************
-
   // Loop over the wires
   for(DTWireIdMapConstIter wire = wireMap.begin(); wire!=wireMap.end(); wire++){
     // SimHit Container associated to the wire
@@ -153,16 +159,18 @@ void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
       //************ 4 ***************
       DTWireId wireId = (*wire).first;
 
-      //FIXME
-            const DTLayer* layer = dynamic_cast< const DTLayer* > (muonGeom->idToDet(wireId)); 
-      // const DTLayer *layer = new DTLayer(); 
+      //const DTLayer* layer = dynamic_cast< const DTLayer* > (muonGeom->idToDet(wireId.layerId()));
+      const DTLayer* layer = muonGeom->layer(wireId.layerId()); 
 
       // Loop on the hits of this wire    
       for (vector<const PSimHit*>::const_iterator hit=vhit.begin();
 	   hit != vhit.end(); hit++){
 	//************ 5 ***************
-	
-	time = computeTime(layer,wireId, *hit); 
+	LocalPoint locPos = (*hit)->localPosition();
+
+	const LocalVector BLoc=layer->surface().toLocal(magnField->inTesla(layer->surface().toGlobal(locPos)));
+
+	time = computeTime(layer, wireId, *hit, BLoc); 
 
 	//************ 6 ***************
 	if (time.second) {
@@ -184,11 +192,14 @@ void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
 
   //************ 8 ***************  
   // Load the Digi Container in the Event
+  //iEvent.put(output,"MuonDTDigis");
   iEvent.put(output);
+
 }
 
-pair<float,bool> DTDigitizer::computeTime(const DTLayer* layer,
-					  const DTWireId &wireId, const PSimHit *hit){
+pair<float,bool> DTDigitizer::computeTime(const DTLayer* layer, const DTWireId &wireId, 
+					  const PSimHit *hit, const LocalVector &BLoc){ 
+  
   LocalPoint entryP = hit->entryPoint();
   LocalPoint exitP = hit->exitPoint();
   int partType = hit->particleType();
@@ -196,24 +207,20 @@ pair<float,bool> DTDigitizer::computeTime(const DTLayer* layer,
   // Check if hits starts/ends on one of the cell's edges
 
   //FIXME
-  // const DTTopology &topo = dynamic_cast<DTTopology>( layer->topology() );
+  //  const DTTopology &topo = dynamic_cast<DTTopology&>( layer->specificTopology() );
+  const DTTopology &topo = layer->specificTopology();
+
+  // Pay attention: in CMSSW the rf of the SimHit is the DTCell one, whereas in ORCA was the in the layer's rf
   // float xwire = topo.wirePosition(wireId.wire()); 
-  
-  const DTTopology topo(0,0,0);
-  float xwire = 0;
-  
-  float xEntry = entryP.x()-xwire;
-  float xExit  = exitP.x()-xwire;
+ 
+  float xEntry = entryP.x();
+  float xExit  = exitP.x();
+
 
   DTTopology::Side entrySide = topo.onWhichBorder(xEntry,entryP.y(),entryP.z());
   DTTopology::Side exitSide  = topo.onWhichBorder(xExit,exitP.y(),exitP.z());
 
-  //very temp
-  //cout<<"###############"<<xEntry<<"\t\t"<<entryP.z()<<"\t\t"
-  //   <<xExit<<"\t\t"<<exitP.z()<<"\t\t"<<partType<<endl; //"\t\t"<<(int)entrySide<<"\t\t"<<(int)exitSide<<endl;
-  
-
-  if (debug) dumpHit(hit, xEntry, xExit,topo);
+   if (debug) dumpHit(hit, xEntry, xExit,topo);
 
   // The bolean is used to flag the drift time computation
   pair<float,bool> driftTime(0.,false);  
@@ -221,21 +228,11 @@ pair<float,bool> DTDigitizer::computeTime(const DTLayer* layer,
   // if delta in gas->ignore, since it is included in the parametrisation.
   // FIXME: should check that it is actually a delta ray produced by a nearby
   // muon hit. 
+
   if (partType == 11 && entrySide == DTTopology::none) {
-    if (debug) cout << "    e- hit in gas; discarding " << endl;
+     if (debug) cout << "    e- hit in gas; discarding " << endl;
     return driftTime;
   }
-  
-  //  LocalPoint locPt = hit->localPosition();
-
-  // Local magnetic field  FIXME
-  //  ESHandle<MagneticField> magnField;
-  //  iSetup.get<IdealMagneticFieldRecord>().get(magnField);
-  //  const LocalVector BLoc=layer->toLocal(magnField->inTesla(layer->toGlobal(locPt)));
-  
-  // FIXME
-  LocalVector BLoc;
-
 
   float By = BLoc.y();
   float Bz = BLoc.z();
@@ -297,8 +294,8 @@ pair<float,bool> DTDigitizer::computeTime(const DTLayer* layer,
   //************ 5A ***************
 
   if (!noParametrisation) {
-    
-    LocalVector dir = hit->momentumAtEntry(); // ex Measurement3DVector dir = hit->measurementDirection(); //FIXME
+   
+    LocalVector dir = hit->momentumAtEntry(); // ex Measurement3DVector dir = hit->measurementDirection(); //FIXME?
     float theta = atan(dir.x()/-dir.z())*180/M_PI;
 
     // FIXME: use dir if M.S. is included as GARFIELD option...
@@ -307,24 +304,16 @@ pair<float,bool> DTDigitizer::computeTime(const DTLayer* layer,
     //    float theta = atan(dir0.x()/-dir0.z())*180/M_PI;
     float x;
 
-    // FIXME they aren't the same thing. It is not a problem: I can subtract the xWirein the following...
-    Local3DPoint pt = hit->localPosition(); //ex Measurement3DPoint pt = hit->measurementPosition(); // FIXME
-    
+    Local3DPoint pt = hit->localPosition();  //ex Measurement3DPoint pt = hit->measurementPosition(); // FIXME?
+     
     if(fabs(pt.z()) < 0.002) { 
       // hit center within 20 um from z=0, no need to extrapolate.
-      x = pt.x() - xwire;
+      x = pt.x();
     } else {
       x = xEntry - (entryP.z()*(xExit-xEntry))/(exitP.z()-entryP.z());
     }
+ 
     driftTime = driftTimeFromParametrization(x, theta, By, Bz);
-
-    //very temp
-    //    cout<<"###############"<<xEntry<<"\t\t"<<entryP.z()<<"\t\t"
-    //<<xExit<<"\t\t"<<exitP.z()<<"\t\t"<<partType<<"\t"<<(int)entrySide<<"\t"<<(int)exitSide<<endl;
-
-
-    //    if(abs(partType)==13 && (int)entrySide==0 && (int)exitSide==1) cout<<"############### ";
-    //cout<<wireId<<endl;
   }
 
  
@@ -351,10 +340,10 @@ pair<float,bool> DTDigitizer::driftTimeFromParametrization(float x, float theta,
 
   // FIXME: Current parametrisation can extrapolate above 21 mm,
   // however a detailed study is needed before using this.
-  if (fabs(x) > 21.) { 
-    if (debug) cout << "*** WARNING: parametrisation: x out of range = "
-		    << x << ", skipping" << endl;
-    return pair<float,bool>(0.f,false);
+   if (fabs(x) > 21.) {
+     if (debug) cout << "*** WARNING: parametrisation: x out of range = "
+		     << x << ", skipping" << endl;
+     return pair<float,bool>(0.f,false);
   }
 
   // Different r.f. of the parametrization:

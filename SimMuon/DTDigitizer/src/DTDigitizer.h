@@ -6,16 +6,20 @@
  *  The parametrisation function in DTDriftTimeParametrization 
  *  from P.G.Abia, J.Puerta is used in all cases where it is applicable. 
  *
- *  $Date: 2006/01/20 15:49:00 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/01/25 11:07:39 $
+ *  $Revision: 1.4 $
  *  \authors: G. Bevilacqua, N. Amapane, G. Cerminara, R. Bellan
  */
 
 #include "FWCore/Framework/interface/EDProducer.h"
 
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
-//#include "DataFormats/MuonDetId/interface/DTDetId.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
+
+#include "Geometry/Vector/interface/LocalVector.h"
+//FIXME??
+//#include "MagneticField/Engine/interface/MagneticField.h"
+//#include "FWCore/Framework/interface/ESHandle.h"
 
 #include <vector>
 
@@ -25,6 +29,7 @@ class DTWireType;
 class DTBaseDigiSync;
 class DTTopology;
 class DTDigiSyncBase;
+//class LocalVector;
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
@@ -54,7 +59,9 @@ class DTDigitizer : public edm::EDProducer {
 
   // Calculate the drift time for one hit. 
   // if status flag == false, hit has to be discarded.
-  std::pair<float,bool> computeTime(const DTLayer* layer,const DTWireId &wireId, const PSimHit *hit) ;
+  std::pair<float,bool> computeTime(const DTLayer* layer,const DTWireId &wireId, 
+				    const PSimHit *hit, 
+				    const LocalVector &BLoc); //FIXME?? 
   
   // Calculate the drift time using the GARFIELD cell parametrization,
   // taking care of all conversions from CMSSW local coordinates
