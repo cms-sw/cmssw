@@ -2,8 +2,8 @@
 #define EcalTBDaqFormatter_H
 /** \class EcalTBDaqFormatter
  *
- *  $Date: 2005/12/12 07:25:30 $
- *  $Revision: 1.6 $
+ *  $Date: 2005/12/21 16:01:21 $
+ *  $Revision: 1.7 $
  *  \author N. Marinelli  IASA-Athens
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -12,12 +12,17 @@
  */
 #include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
 #include <DataFormats/EcalDetId/interface/EcalDetIdCollections.h>
+
 #include <vector> 
 #include <map>
-using namespace std;
 #include <iostream>
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+using namespace edm;
+using namespace std;
 
 class FEDRawData;
 class DCCDataParser;
@@ -25,24 +30,21 @@ class EcalTBDaqFormatter   {
 
  public:
 
-
   EcalTBDaqFormatter();
-  virtual ~EcalTBDaqFormatter(){cout << " Destroying EcalTBDaqFormatter " << endl; };
-  
-  
+  virtual ~EcalTBDaqFormatter(){LogDebug("EcalTBRawToDigi") << "@SUB=EcalTBDaqFormatter" << "\n"; };
+
   void  interpretRawData( const FEDRawData & data , EBDigiCollection& digicollection , EcalPnDiodeDigiCollection & pndigicollection , EBDetIdCollection & dccsizecollection , EcalTrigTowerDetIdCollection & ttidcollection , EcalTrigTowerDetIdCollection & blocksizecollection, EBDetIdCollection & chidcollection , EBDetIdCollection & gaincollection , EBDetIdCollection & gainswitchcollection , EBDetIdCollection & gainswitchstaycollection);
-  
+ 
  private:
-  
+ 
   void DecodeMEM(int tower_id);
   pair<int,int>  cellIndex(int tower_id, int strip, int xtal); 
   bool leftTower(int tower) const ;
   bool rightTower(int tower) const ;
-  
+
  private:
   DCCDataParser* theParser_;
-  
-   
+
   enum SMGeom_t {
      kModules = 4,           // Number of modules per supermodule
      kTriggerTowers = 68,    // Number of trigger towers per supermodule
@@ -56,11 +58,9 @@ class EcalTBDaqFormatter   {
      kChannelsPerCard = 5    // Number of channels per VFE card
    };
 
-
   // used for mem boxes unpacking
   int fem[5][5][11];            // store raw data for one mem
   int data_MEM[500];      // collects unpacked data for both mems 
 
-  
 };
 #endif

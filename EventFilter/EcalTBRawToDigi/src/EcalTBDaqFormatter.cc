@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2005/12/21 16:01:51 $
- *  $Revision: 1.15 $
+ *  $Date: 2006/01/19 12:49:14 $
+ *  $Revision: 1.16 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -22,14 +22,14 @@
 #include "DCCXtalBlock.h"
 #include "DCCDataMapper.h"
 
-
+using namespace edm;
 using namespace std;
-#include <iostream>
 
+#include <iostream>
 
 EcalTBDaqFormatter::EcalTBDaqFormatter () {
 
-  cout << " EcalTBDaqFormatter CTOR " << endl;
+  LogDebug("EcalTBRawToDigi") << "@SUB=EcalTBDaqFormatter";
   vector<ulong> parameters;
   parameters.push_back(10); // parameters[0] is the xtal samples 
   parameters.push_back(1);  // parameters[1] is the number of trigger time samples
@@ -46,10 +46,6 @@ EcalTBDaqFormatter::EcalTBDaqFormatter () {
 
 }
 
-
-
-
-
 void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData , EBDigiCollection& digicollection, EcalPnDiodeDigiCollection & pndigicollection , EBDetIdCollection & dccsizecollection , EcalTrigTowerDetIdCollection & ttidcollection , EcalTrigTowerDetIdCollection & blocksizecollection, EBDetIdCollection & chidcollection , EBDetIdCollection & gaincollection, EBDetIdCollection & gainswitchcollection, EBDetIdCollection & gainswitchstaycollection){
 
   const unsigned char * pData = fedData.data();
@@ -59,13 +55,13 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData , EBDigiCol
   int ch=0;
   int strip=0;
 
-  cout << " [EcalTBDaqFormatter][interpretRawData] size " << length << endl;
-  
+   LogDebug("EcalTBRawToDigi") << "@SUB=EcalTBDaqFormatter::interpretRawData"
+        << "size " << length;
+ 
   theParser_->parseBuffer( reinterpret_cast<ulong*>(const_cast<unsigned char*>(pData)), static_cast<ulong>(length), shit );
-  
 
   vector< DCCEventBlock * > &   dccEventBlocks = theParser_->dccEvents();
-    
+
   // Access each DCC block
   for( vector< DCCEventBlock * >::iterator itEventBlock = dccEventBlocks.begin(); 
        itEventBlock != dccEventBlocks.end(); 
@@ -74,15 +70,17 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData , EBDigiCol
     //cout << " DCC ID " <<  (*itEventBlock)->getDataField("FED/DCC ID") << endl; 
     //cout << " BX number " << (*itEventBlock)->getDataField("BX") << endl;
     //cout << " RUN NUMBER  " <<  (*itEventBlock)->getDataField("RUN NUMBER") << endl;
-      
-      
+
     bool _displayParserMessages = false;
-    if( (*itEventBlock)->eventHasErrors() && _displayParserMessages){
-      cout<<"\n[EcalTBDaqFormatter][interpretRawData]: errors found from parser... "<<endl;
-      cout<<"\n "<<(*itEventBlock)->eventErrorString()<<endl;
-      cout<<"\n[EcalTBDaqFormatter][interpretRawData]:... errors from parser  notified\n   "<<endl;
-    }
-      
+    if( (*itEventBlock)->eventHasErrors() && _displayParserMessages)
+      {
+        LogWarning("EcalTBRawToDigi") << "@SUB=EcalTBDaqFormatter::interpretRawData"
+             << "errors found from parser... ";
+        LogWarning("EcalTBRawToDigi") << (*itEventBlock)->eventErrorString();
+        LogWarning("EcalTBRawToDigi") << "@SUB=EcalTBDaqFormatter::interpretRawData"
+             << "... errors from parser notified";
+      }
+
     short TowerStatus[71];
     char buffer[20];
     for(int i=1;i<71;i++)
@@ -94,8 +92,8 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData , EBDigiCol
       }
       
     vector< DCCTowerBlock * > dccTowerBlocks = (*itEventBlock)->towerBlocks();
-    cout << "[EcalTBDaqFormatter][interpretRawData] dccTowerBlocks size " << dccTowerBlocks.size() << endl;
-
+    LogDebug("EcalTBRawToDigi") << "@SUBS=EcalTBDaqFormatter::interpretRawData"
+         << "dccTowerBlocks size " << dccTowerBlocks.size();
 
     // build list of expected towers
     unsigned expTowersIndex=0;
@@ -121,12 +119,10 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData , EBDigiCol
     if (!      (dccTowerBlocks.size() == numExpectedTowers)      )
       {
         // we probably always want to know if this happens
-        cout << "[EcalTBDaqFormatter][interpretRawData]"
-             << " number of TowerBlocks found ("
-             << dccTowerBlocks.size()
-             << ") differs from expected ("
-             << numExpectedTowers 
-             << ") skipping event"   << endl; 
+        LogWarning("EcalTBRawToDigi") << "@SUB=EcalTBDaqFormatter::interpretRawData"
+             << "number of TowerBlocks found (" << dccTowerBlocks.size()
+             << ") differs from expected (" << numExpectedTowers 
+             << ") skipping event"; 
 
         EBDetId idsm(1, 1 + 20 * dccID);
         dccsizecollection.push_back(idsm);
@@ -158,13 +154,10 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData , EBDigiCol
 
       if (  !(tower == ExpectedTowers[expTowersIndex])	  )
         {	
-          cout << "[EcalTBDaqFormatter][interpretRawData] TTower id found (=" 
-               << tower 
-               << ") different from expected (=" 
-               <<  ExpectedTowers[expTowersIndex] 
-               << ") " << (expTowersIndex+1) 
-               << "th tower checked" 
-               <<  endl; 
+          LogWarning("EcalTBRawToDigi") << "@SUBS=EcalTBDaqFormatter::interpretRawData"
+               << "TTower id found (=" << tower 
+               << ") different from expected (=" <<  ExpectedTowers[expTowersIndex] 
+               << ") " << (expTowersIndex+1) << "th tower checked"; 
 	    
           // report on failed tt_id - ASSUME that
 	    
@@ -187,11 +180,10 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData , EBDigiCol
         vector<DCCXtalBlock * > & xtalDataBlocks = (*itTowerBlock)->xtalBlocks();	
         if (xtalDataBlocks.size() != 25)
           {     
-            cout << "[EcalTBDaqFormatter][interpretRawData]  wrong dccBlock size is: "  
-                 << xtalDataBlocks.size() 
+            LogWarning("EcalTBRawToDigi") << "@SUB=EcalTBDaqFormatter::interpretRawData"
+                 << "wrong dccBlock size is: "  << xtalDataBlocks.size() 
                  << " in event " << (*itEventBlock)->getDataField("LV1")
-                 << " for TT " << ExpectedTowers[expTowersIndex] 
-                 << endl;
+                 << " for TT " << ExpectedTowers[expTowersIndex];
 
             blocksizecollection.push_back(idtt);
       
@@ -295,10 +287,11 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData , EBDigiCol
 
               if (firstGainWrong == -1) {
                 firstGainWrong=i;
-                cout << "[EcalTBDaqFormatter][channelHasGainSwitchProblem]  crystal eta = " << id.ieta() << " phi = " << id.iphi() << endl;
+                LogWarning("EcalTBRawToDigi") << "@SUB=EcalTBDaqFormatter::interpretRawData"
+                     << "channelHasGainSwitchProblem: crystal eta = " << id.ieta() << " phi = " << id.iphi();
               }
-              cout << "[EcalTBDaqFormatter][channelHasGainSwitchProblem]  sample: " << (i-1) << " gain: " << xtalGain[i-1] 
-                   <<"  sample: " << i << " gain: " << xtalGain[i] << endl;
+              LogWarning("EcalTBRawToDigi") << "@SUB=EcalTBDaqFormatter::interpretRawData"
+                     << "channelHasGainSwitchProblem: sample = " << (i-1) << " gain: " << xtalGain[i-1] << " sample: " << i << " gain: " << xtalGain[i];
             }
           }
 
@@ -323,60 +316,50 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData , EBDigiCol
 
             if (numGainWrong == 1 && (wrongGainStaysTheSame)) {
               
-              cout << "[EcalTBDaqFormatter][channelHasGainSwitchProblem] wrong transition stays till last sample"<< endl;
+              LogWarning("EcalTBRawToDigi") << "@SUB=EcalTBDaqFormatter:interpretRawData"
+                   << "channelHasGainSwitchProblem: wrong transition stays till last sample"<< "\n";
               
             }
             else if (numGainWrong>1) {
-              cout << "[EcalTBDaqFormatter][channelHasGainSwitchProblem] more than 1 wrong transition" << endl;
+              LogWarning("EcalTBRawToDigi") << "@SUB=EcalTBDaqFormatter:interpretRawData"
+                   << "channelHasGainSwitchProblem: more than 1 wrong transition";
               
               for (unsigned short i1=0; i1<xtalDataSamples.size(); ++i1 ) {
                 int countADC = 0x00000FFF;
                 countADC &= xtalDataSamples[i1];
-                cout << "Sample " << i1 << " ADC " << countADC << " Gain " << xtalGain[i1] << endl;
+                LogWarning("EcalTBRawToDigi") << "Sample " << i1 << " ADC " << countADC << " Gain " << xtalGain[i1];
               }
             }
           }
-          
+
           if (wrongGainStaysTheSame) gainswitchstaycollection.push_back(id);
-      
+
           expCryInTower++; 
         }// end loop on crystals
-    
+ 
         expTowersIndex++;
       }// end: tt1 ... tt68, crystal data
-	
-	
-	
-	
-	
-	
-	
-	
 
-	
       /**************************************************
        //    tt 69 and 70:  two mem boxes, holding PN0 ... PN9
        *********************************************************/	
       else if (       (*itTowerBlock)->towerID() == 69 
                       ||	   (*itTowerBlock)->towerID() == 70
                       )
-	
+
         {// if it is a mem box
-	  
-          cout << "[EcalTBDaqFormatter][interpretRawData]  processing mem box num"
-               << (*itTowerBlock)->towerID()
-               << endl;
-	  
-	  
+
+          LogDebug("EcalTBRawToDigi") << "@SUB=EcalTBDaqFormatter::interpretRawData"
+               << "processing mem box num" << (*itTowerBlock)->towerID();
+
           // checking mem data size, as a tt
           vector<DCCXtalBlock * > & xtalDataBlocks = (*itTowerBlock)->xtalBlocks();	
           if (xtalDataBlocks.size() != 25)
             {     
-              cout << "[EcalTBDaqFormatter][interpretRawData]  wrong dccBlock size is: "  
-                   << xtalDataBlocks.size() 
+              LogDebug("EcalTBRawToDigi") << "@SUB=EcalTBDaqFormatter::interpretRawData"
+                   << "wrong dccBlock size is: "  << xtalDataBlocks.size() 
                    << " in event " << (*itEventBlock)->getDataField("LV1")
-                   << " for mem " << ExpectedTowers[expTowersIndex] 
-                   << endl;
+                   << " for mem " << ExpectedTowers[expTowersIndex];
               // fixme giofr: need monitoring element for mem integrity
               ++ expTowersIndex;
               continue;	
@@ -390,7 +373,6 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData , EBDigiCol
               }
             }
           }
-
 
           vector<DCCXtalBlock *> & dccXtalBlocks = (*itTowerBlock)->xtalBlocks();
           vector<DCCXtalBlock*>::iterator itXtal; 	// itXtal = 0 - 24
@@ -406,11 +388,11 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData , EBDigiCol
 	    
             if( wished_strip_id != ((int)strip_id) || wished_ch_id != ((int)xtal_id) )
               {
-                cout << "[EcalTBDaqFormatter][interpretRawData] in mem " 
-                     <<  (*itTowerBlock)->towerID()
+                LogDebug("EcalTBRawToDigi") << "@SUB=EcalTBDaqFormatter::interpretRawData"
+                     << "in mem " << (*itTowerBlock)->towerID()
                      << " expected:\t strip"
-                     << wished_strip_id  << "  cry " << wished_ch_id << "\tfound: "
-                     << "  strip " <<  strip_id << "  cry " << xtal_id <<  endl;
+                     << wished_strip_id  << " cry " << wished_ch_id << "\tfound: "
+                     << "  strip " <<  strip_id << "  cry " << xtal_id;
                 // report on crystal with unexpected indices
                 // fixme giofr: need monitoring element for mem integrity
               }
@@ -459,35 +441,27 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData , EBDigiCol
               }
             pndigicollection.push_back(thePnDigi);
           }
-          cout << endl;
         }// end of < if it is a mem box>
-	
-
-
 
       // wrong tt id
       else  {
-        cout <<"[EcalTBDaqFormatter][interpretRawData]  wrong tt id ( "
-             <<  (*itTowerBlock)->towerID() << ")"  << endl;
+        LogWarning("EcalTBRawToDigi") <<"@SUB=EcalTBDaqFormatter::interpretRawData"
+             << "wrong tt id ( " <<  (*itTowerBlock)->towerID() << ")";
         ++ expTowersIndex;continue; 
       }// end: tt id error
-
-
 
     }// end loop on trigger towers
       
   }// end loop on events
 }
 
-
-
   // Code from P.Verrecchia to store sequentially the 10 PNs with 50 samples each into data_MEM[500]
   // DecodeMEM will soon be put in a separate class dedicated to PN unpacking
   void EcalTBDaqFormatter::DecodeMEM(int tower_id){
     // cout<<"enetering in DecodeMEM for TT "<<tower_id<<endl;
-    if(tower_id != 69 && tower_id != 70)
-      {cout << "[EcalTBDaqFormatter][DecodeMEM] this is not a mem box tower ("
-	    << tower_id << ")"<< endl;
+    if(tower_id != 69 && tower_id != 70) {
+      LogWarning("EcalTBRawToDigi") << "@SUB=EcalTBDaqFormatter::interpretRawData"
+           << "DecodeMEM: this is not a mem box tower (" << tower_id << ")"<< "\n";
 	return;
       }
 

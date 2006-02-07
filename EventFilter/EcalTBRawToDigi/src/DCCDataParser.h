@@ -4,6 +4,7 @@
 #ifndef DCCDATAPARSER_HH
 #define DCCDATAPARSER_HH
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <fstream>
 #include <iostream>
@@ -12,19 +13,15 @@
 #include <cstdio>
 #include <map>
 
+using namespace edm;
 using namespace std;
 
 class DCCDataMapper;
 class DCCEventBlock;
 
-
-
-
-
 class DCCDataParser{
 
 	public : 
-
 
 	  DCCDataParser( bool parseInternalData = true, bool debug = true);	
 		// parameters[0] is the xtal samples (default is 10)
@@ -38,14 +35,12 @@ class DCCDataParser{
 		// parameters[8] is the tcc3 id
 		// parameters[9] is the tcc4 id
 
-
 		DCCDataParser( vector<ulong> parserParameters , bool parseInternalData = true, bool debug = true);
 		~DCCDataParser();
 	
 		void parseBuffer( ulong * buffer, ulong bufferSize, bool singleEvent = false);
 		void parseFile( string fileName, bool singleEvent = false);
 
-	
 		DCCDataMapper * mapper(){ return mapper_;}
 		
 		// returns error mask and error counter /////////////////////////////////////
@@ -104,13 +99,8 @@ class DCCDataParser{
 		bool debug_;
 		map<string,ulong> errors_;
 		vector<ulong> parameters;
-		
-	
-		
-		
+
 		enum DCCDataParserFields{
-			
-			
 			EVENTLENGTHMASK = 0xFFFFFF,
 			BOEBEGIN = 28,
 			EOEBEGIN = 28,
@@ -118,12 +108,8 @@ class DCCDataParser{
 			BOEMASK = 0xF,
 			BOE =0x5, EOE =0xA 
 		};
-		
-		
+
 };
-
-
-
 
 #endif
 

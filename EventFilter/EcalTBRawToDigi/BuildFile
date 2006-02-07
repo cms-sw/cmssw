@@ -1,6 +1,7 @@
 
 <flags SEAL_PLUGIN_NAME="EventFilterEcalTBRawToDigi">
 <use name=FWCore/Framework>
+<use name=FWCore/MessageLogger>
 <use name=DataFormats/FEDRawData>
 <use name=DataFormats/EcalDetId>	
 <use name=DataFormats/EcalDigi>	
@@ -10,6 +11,7 @@
 <export>
  <lib name=EventFilterEcalTBRawToDigi>
  <use name=FWCore/Framework>
+ <use name=FWCore/MessageLogger>
  <use name=DataFormats/FEDRawData>	
  <use name=DataFormats/EcalDetId>	
  <use name=DataFormats/EcalDigi>		

@@ -4,24 +4,20 @@
 #include "DCCEventBlock.h"
 #include "DCCDataMapper.h"
 
-using namespace std;
-
 DCCDataParser::DCCDataParser(bool parseInternalData,bool debug):
 buffer_(0),parseInternalData_(parseInternalData),debug_(debug) {
-	
+
 	 mapper_ = new DCCDataMapper(this);
 	 resetErrorCounters();
 	 computeBlockSizes();
 
 }
 
-
 DCCDataParser::DCCDataParser(vector<ulong> parserParameters, bool parseInternalData,bool debug):
 buffer_(0),parseInternalData_(parseInternalData),debug_(debug), parameters(parserParameters){
 
+  LogDebug("EcalTBRawToDigi") << "@SUB=DCCDataParser";
 
-  cout << " DCCDataParser::DCCDataParser CTOR " << endl;
-	
 	 mapper_ = new DCCDataMapper(this);
 	 resetErrorCounters();
 	 computeBlockSizes();
@@ -113,27 +109,25 @@ void DCCDataParser::parseFile(string fileName, bool singleEvent ){
 
 void DCCDataParser::parseBuffer(ulong * buffer, ulong bufferSize, bool singleEvent){
 	
-  cout << " DCCDataParser::parseBuffer " << endl;
+  LogDebug("EcalTBRawToDigi") << "@SUB=DCCDataParser::parseBuffer";
 
 	resetErrorCounters();
 	
 	buffer_ = buffer;
-
         
 	// Clear stored data //////////////////////////////////////////////
-	
+
 	processedEvent_ = 0;
 	events_.clear();
 	vector<DCCEventBlock *>::iterator it;
 	for( it = dccEvents_.begin(); it!=dccEvents_.end(); it++ ){delete *it;}
 	dccEvents_.clear();
 	eventErrors_ = "";
-	
+
 	//////////////////////////////////////////////////////////////////
-	
-	cout<<"\n DEBUG >> DCCDataParser::parseBuffer:: Buffer Size :"<<dec<<bufferSize<<endl;
-	
-	
+
+	LogDebug("EcalTBRawToDigi") << "DCCDataParser:parseBuffer: Buffer Size :" << bufferSize;
+
 	// Check if we have a coherent buffer size ///////////////////////////////////////////////////////////////////////////////
 	if( bufferSize%8  ){
 		string fatalError ;
@@ -152,32 +146,28 @@ void DCCDataParser::parseBuffer(ulong * buffer, ulong bufferSize, bool singleEve
 		throw ECALParserException(fatalError);
 	}
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
-	
+
 	ulong * myPointer =  buffer_;
-	
+
 	//ulong processedBytes(0), wordIndex(0), lastEvIndex(0),eventSize(0), eventLength(0), errorMask(0) ;
 	ulong processedBytes(0), wordIndex(0), eventLength(0), errorMask(0) ;
-	
-	
+
 	while( processedBytes + EMPTYEVENTSIZE <= bufferSize ){
-		
-		
-		cout<<endl;
+
+		//cout<<endl;
 		//cout<<"-> EventSizeBytes   =   "<<dec<<bufferSize<<endl;
 		//cout<<"-> processedBytes.  =   "<<dec<<processedBytes<<endl;
 		//cout<<"-> Processed Event  =   "<<dec<<processedEvent_<<endl;
 		//cout<<"-> First ev. word   = 0x"<<hex<<(*myPointer)<<endl;
 		//cout<<"-> word index       =   "<<dec<<wordIndex<<endl;
-		
+
 		// Check if Event Length is Coherent /////////////////////////////////////////
 		ulong bytesToEnd         = bufferSize - processedBytes;
 		pair<ulong,ulong> eventD = checkEventLength(myPointer,bytesToEnd,singleEvent);
 		eventLength              = eventD.second; 
 		errorMask                = eventD.first;
 		//////////////////////////////////////////////////////////////////////////////
-		
-			
+
 		// Debug ////////////////////////////////////////////////////////////////////////
 		//cout<<endl;
 		//cout<<" out... Bytes To End.... =   "<<dec<<bytesToEnd<<endl;
@@ -185,8 +175,7 @@ void DCCDataParser::parseBuffer(ulong * buffer, ulong bufferSize, bool singleEve
 		//cout<<" out... Event Length     =   "<<dec<<eventLength<<endl;
 		//cout<<" out... LastWord         = 0x"<<hex<<*(myPointer+eventLength*2-1)<<endl;
 		//////////////////////////////////////////////////////////////////////////////////
-			
-			
+
 		// BuildEvent and display data ////////////////////////////////////////////////////////////////////////////
 		if (parseInternalData_){
 			

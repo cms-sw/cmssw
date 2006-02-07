@@ -4,6 +4,9 @@
 #include "IORawData/EcalTBInputService/src/EcalTBDaqFileReader.h"
 
 #include <FWCore/EDProduct/interface/EventID.h>
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include <iosfwd>
 #include <string>
 #include <fstream>
