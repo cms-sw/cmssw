@@ -10,7 +10,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Fri Sep 23 11:38:38 CEST 2005
-// $Id: TestSuite.cc,v 1.3 2005/12/12 10:48:57 uberthon Exp $
+// $Id: TestSuite.cc,v 1.4 2006/01/17 14:49:13 uberthon Exp $
 //
 //
 
@@ -74,61 +74,90 @@ TestSuite::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 // while operator-> points to the templated objects!!!!
 
 //track histo
-    char histotracks[10],histotracksindsig[22],histotracksind[15];
+    char histotracks[30],sighistotracks[30],histotracksindsig[30],histotracksind[30];
     sprintf(histotracks,"Tracks_bcr_%d",bunchcr_);
+    sprintf(sighistotracks,"SignalTracks_bcr_%d",bunchcr_);
     sprintf(histotracksind,"VtxPointers_%d",bunchcr_);
     sprintf(histotracksindsig,"VtxPointers_signal_%d",bunchcr_);
-    TH1I * trhist = new TH1I(histotracks,"Bunchcrossings",8,-5,3);
+    TH1I * trhist = new TH1I(histotracks,"Bunchcrossings",maxbunch_-minbunch_+1,minbunch_,maxbunch_+1);
+    TH1I * trhistsig = new TH1I(sighistotracks,"Bunchcrossings",maxbunch_-minbunch_+1,minbunch_,maxbunch_+1);
     TH1I * trindhist = new TH1I(histotracksind,"Track to Vertex indices",100,0,500);
     TH1I * trindhistsig = new TH1I(histotracksindsig,"Signal Track to Vertex indices",100,0,500);
     std::auto_ptr<MixCollection<EmbdSimTrack> > col1(new MixCollection<EmbdSimTrack>(cf.product()));
     MixCollection<EmbdSimTrack>::iterator cfi1;
     for (cfi1=col1->begin(); cfi1!=col1->end();cfi1++) {
-      trhist->Fill(cfi1.bunch());
-      trindhist->Fill(cfi1->vertIndex());
-      if (cfi1.getTrigger())  trindhistsig->Fill(cfi1->vertIndex());
+       if (cfi1.getTrigger()) {
+	 trhist->Fill(cfi1.bunch());
+	 trindhist->Fill(cfi1->vertIndex());
+       } else {
+	 trindhistsig->Fill(cfi1->vertIndex());
+	 trhistsig->Fill(cfi1.bunch());
+       }
      }
 
 //vertex histo
-    char histovertices[10],histovertexindices[17],histovertexindicessig[24];
+    char histovertices[30], sighistovertices[30],histovertexindices[30],histovertexindicessig[30];
     sprintf(histovertices,"Vertices_bcr_%d",bunchcr_);
+    sprintf(sighistovertices,"SignalVertices_bcr_%d",bunchcr_);
     sprintf(histovertexindices,"TrackPointers_%d",bunchcr_);
     sprintf(histovertexindicessig,"TrackPointers_signal_%d",bunchcr_);
-    TH1I * vtxhist = new TH1I(histovertices,"Bunchcrossings",8,-5,3);
+    TH1I * vtxhist = new TH1I(histovertices,"Bunchcrossings",maxbunch_-minbunch_+1,minbunch_,maxbunch_+1);
+    TH1I * vtxhistsig = new TH1I(sighistovertices,"Bunchcrossings",maxbunch_-minbunch_+1,minbunch_,maxbunch_+1);
     TH1I * vtxindhist = new TH1I(histovertexindices,"Vertex to Track Indices",100,0,300);
     TH1I * vtxindhistsig = new TH1I(histovertexindicessig,"Signal Vertex to Track Indices",100,0,300);
     std::auto_ptr<MixCollection<EmbdSimVertex> > col2(new MixCollection<EmbdSimVertex>(cf.product()));
     MixCollection<EmbdSimVertex>::iterator cfi2;
     for (cfi2=col2->begin(); cfi2!=col2->end();cfi2++) {
-      if (!cfi2->noParent()) {
-	vtxhist->Fill(cfi2.bunch());
-	vtxindhist->Fill(cfi2->parentIndex());
-	if (cfi2.getTrigger())  vtxindhistsig->Fill(cfi2->parentIndex());
-      }
+	if (cfi2.getTrigger()) {
+	  vtxhist->Fill(cfi2.bunch());
+	  if (!cfi2->noParent()) 	vtxindhist->Fill(cfi2->parentIndex());
+	} else {
+	  vtxhistsig->Fill(cfi2.bunch());
+	  if (!cfi2->noParent()) 	vtxindhist->Fill(cfi2->parentIndex());
+	}
     }
 
 	
     int bsp=cf->getBunchSpace();
-    char tof[10];
+    char tof[30];
 
-    //simhit histos
-    sprintf(tof,"SimHit_Tof_bcr_%d",bunchcr_);
-    TH1I * tofhist = new TH1I(tof,"SimHit_ToF",100,float(bsp*minbunch_),float(bsp*maxbunch_)+50.);//FIXME: decalage?
-    std::string subdet("MuonCSCHits");
+    //tracker
+    sprintf(tof,"TrackerHit_Tof_bcr_%d",bunchcr_);
+    TH1I * tofhist = new TH1I(tof,"TrackerHit_ToF",100,float(bsp*minbunch_),float(bsp*maxbunch_)+50.);
+    sprintf(tof,"SignalTrackerHit_Tof_bcr_%d",bunchcr_);
+    TH1I * tofhist_sig = new TH1I(tof,"TrackerHit_ToF",100,float(bsp*minbunch_),float(bsp*maxbunch_)+50.);
+    std::string subdet("TrackerHitsTECLowTof");
     std::auto_ptr<MixCollection<PSimHit> > colsh(new MixCollection<PSimHit>(cf.product(),std::string(subdet)));
     MixCollection<PSimHit>::iterator cfish;
     for (cfish=colsh->begin(); cfish!=colsh->end();cfish++) {
-      tofhist->Fill(cfish->timeOfFlight());
-   }
+      if (cfish.getTrigger())  tofhist->Fill(cfish->timeOfFlight());
+      else  tofhist_sig->Fill(cfish->timeOfFlight());
+    }
 
-    //calohit histos
-    sprintf(tof,"CaloHit_Tof_bcr_%d",bunchcr_);
-    TH1I * tofcalohist = new TH1I(tof,"CaloHitToF",100,float(bsp*minbunch_),float(bsp*maxbunch_)+50.);//FIXME: decalage?
-    std::string calosubdet("HcalHits");
-    std::auto_ptr<MixCollection<PCaloHit> > colch(new MixCollection<PCaloHit>(cf.product(),std::string(calosubdet)));
-    MixCollection<PCaloHit>::iterator cfich;
-    for (cfich=colch->begin(); cfish!=colsh->end();cfich++) {
-      tofcalohist->Fill(cfich->time());
-   }
+    //Ecal
+    sprintf(tof,"EcalEBHit_Tof_bcr_%d",bunchcr_);
+    TH1I * tofecalhist = new TH1I(tof,"EcalEBHit_ToF",100,float(bsp*minbunch_),float(bsp*maxbunch_)+50.);
+    sprintf(tof,"SignalEcalEBHit_Tof_bcr_%d",bunchcr_);
+    TH1I * tofecalhist_sig = new TH1I(tof,"EcalEBHit_ToF",100,float(bsp*minbunch_),float(bsp*maxbunch_)+50.);
+    std::string ecalsubdet("EcalHitsEB");
+    std::auto_ptr<MixCollection<PCaloHit> > colecal(new MixCollection<PCaloHit>(cf.product(),std::string(ecalsubdet)));
+    MixCollection<PCaloHit>::iterator cfiecal;
+    for (cfiecal=colecal->begin(); cfiecal!=colecal->end();cfiecal++) {
+      if (cfiecal.getTrigger())    tofecalhist->Fill(cfiecal->time());
+      else    tofecalhist_sig->Fill(cfiecal->time());
+    }
+
+    // Hcal
+    sprintf(tof,"HcalHit_Tof_bcr_%d",bunchcr_);
+    TH1I * tofhcalhist = new TH1I(tof,"HcalHit_ToF",100,float(bsp*minbunch_),float(bsp*maxbunch_)+50.);
+    sprintf(tof,"SignalHcalHit_Tof_bcr_%d",bunchcr_);
+    TH1I * tofhcalhist_sig = new TH1I(tof,"HcalHit_ToF",100,float(bsp*minbunch_),float(bsp*maxbunch_)+50.);
+    std::string hcalsubdet("HcalHits");
+    std::auto_ptr<MixCollection<PCaloHit> > colhcal(new MixCollection<PCaloHit>(cf.product(),std::string(hcalsubdet)));
+    MixCollection<PCaloHit>::iterator cfihcal;
+    for (cfihcal=colhcal->begin(); cfihcal!=colhcal->end();cfihcal++) {
+      if (cfihcal.getTrigger())  tofhcalhist->Fill(cfihcal->time());
+      else  tofhcalhist_sig->Fill(cfihcal->time());
+    }
 }
 

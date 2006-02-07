@@ -31,7 +31,7 @@ namespace edm
       }
       else if (!desc.productInstanceName_.compare(0,11,"TrackerHits") || !desc.productInstanceName_.compare(0,4,"Muon")) {
 	trackerSubdetectors_.push_back(desc.productInstanceName_);
-      }
+     }
     }
 
     produces<CrossingFrame> ();
@@ -69,45 +69,47 @@ namespace edm
     e.getByLabel("r",simtracks);
     if (simtracks.isValid()) simcf_->addSignalTracks(simtracks.product());
     else cout <<"Invalid simtracks"<<endl;
-    //cout <<" Got "<<(simtracks.product())->size()<<" simtracks"<<endl;
+    cout <<" Got "<<(simtracks.product())->size()<<" simtracks"<<endl;
     edm::Handle<std::vector<EmbdSimVertex> > simvertices;
     e.getByLabel("r",simvertices);
     if (simvertices.isValid())     simcf_->addSignalVertices(simvertices.product());
     else cout <<"Invalid simvertices"<<endl;
+    cout <<" Got "<<(simvertices.product())->size()<<" simvertices"<<endl;
   }
 
   void MixingModule::addPileups(const int bcr, Event *e) {
 
-   //      std::cout<<"\naddPileups from event  "<<e->id()<<endl;
-   // first all simhits
+    std::cout<<"\naddPileups from event  "<<e->id()<<endl;
+    // first all simhits
     for(std::vector<std::string >::iterator itstr = trackerSubdetectors_.begin(); itstr != trackerSubdetectors_.end(); ++itstr) {
       std::vector<PSimHit> *sig;
       simcf_->getSignal((*itstr),sig);
-      if (!sig->size()) continue;  // do not accumulate if there are no signals
 
       edm::Handle<std::vector<PSimHit> >  simHits;  //Event Pointer to minbias Hits
 
-      // do not read this branch if clearly outside of tof bounds
-      float tof = bcr*simcf_->getBunchSpace();
-      int slow=(*itstr).find("LowTof");
-      int shigh=(*itstr).find("HighTof");
-      if (slow>0 )
-	if ( (tof<CrossingFrame::lowTrackTof || tof>0)) {
-          continue;
-	}
-	else if (shigh>0 )
-	  if ( ((CrossingFrame::highTrackTof+tof)<CrossingFrame::lowTrackTof || tof>0)) {
-	  continue;
+      // do not read this branch if clearly outside of tof bounds (and verification is asked for, default)
+      bool testtof;
+      if (!checktof_) testtof=false;
+      else {
+	float tof = bcr*simcf_->getBunchSpace();
+	int slow=(*itstr).find("LowTof");
+	int shigh=(*itstr).find("HighTof");
+        if (slow>0 )
+	  if ( ((tof+CrossingFrame::limHighLowTof)<CrossingFrame::lowTrackTof || tof>CrossingFrame::highTrackTof)) {
+	    continue;
 	  }
+	  else if (shigh>0 )
+	    if ( ((CrossingFrame::limHighLowTof +tof ) > CrossingFrame::highTrackTof)) {
+	      continue;
+	    }
+	testtof= slow > 0 || shigh > 0;
+      }
       e->getByLabel("r",(*itstr),simHits);
-      simcf_->addPileupSimHits(bcr,(*itstr),simHits.product(),trackoffset,slow>0||shigh>0);
+      simcf_->addPileupSimHits(bcr,(*itstr),simHits.product(),trackoffset,testtof);
     }
 
     //     //then all calohits
     for(std::vector<std::string >::const_iterator itstr = caloSubdetectors_.begin(); itstr != caloSubdetectors_.end(); ++itstr) {
-      std::vector<PCaloHit> *sig;
-      simcf_->getSignal((*itstr),sig);
-      if (!sig->size()) continue;  // do not accumulate if there are no signals
 
       edm::Handle<std::vector<PCaloHit> >  caloHits;  //Event Pointer to minbias Hits
       e->getByLabel("r",(*itstr),caloHits);
@@ -115,23 +117,15 @@ namespace edm
     }
     //then simtracks
     edm::Handle<std::vector<EmbdSimTrack> > simtracks;
-    std::vector<EmbdSimTrack> *sigtrack;
-    simcf_->getSignal("",sigtrack);
-    if (sigtrack->size()) { // do not accumulate if there are no signals
-      e->getByLabel("r",simtracks);
-      if (simtracks.isValid()) simcf_->addPileupTracks(bcr, simtracks.product(),vertexoffset);
-      else cout <<"Invalid simtracks"<<endl;
-    }
+    e->getByLabel("r",simtracks);
+    if (simtracks.isValid()) simcf_->addPileupTracks(bcr, simtracks.product(),vertexoffset);
+    else cout <<"Invalid simtracks"<<endl;
 
     //then simvertices
     edm::Handle<std::vector<EmbdSimVertex> > simvertices;
-    std::vector<EmbdSimVertex> *sigvtx;
-    simcf_->getSignal("",sigvtx);
-    if (sigvtx->size()) { // do not accumulate if there are no signals
-      e->getByLabel("r",simvertices);
-      if (simvertices.isValid())  simcf_->addPileupVertices(bcr,simvertices.product(),trackoffset);
-      else cout <<"Invalid simvertices"<<endl;
-    }
+    e->getByLabel("r",simvertices);
+    if (simvertices.isValid())  simcf_->addPileupVertices(bcr,simvertices.product(),trackoffset);
+    else cout <<"Invalid simvertices"<<endl;
 
     // increment offsets
     vertexoffset+=simvertices.product()->size();
@@ -139,6 +133,7 @@ namespace edm
   }
  
   void MixingModule::put(edm::Event &e) {
+    simcf_->print(3);
     e.put(std::auto_ptr<CrossingFrame>(simcf_));
   }
 
