@@ -3,8 +3,8 @@
  * map<string, MonitorElement*> CSCMonitor::book_common(int dduNumber)
  * method
  * 
- *  $Date: 2005/11/11 16:22:45 $
- *  $Revision: 1.4 $
+ *  $Date: 2005/12/12 09:54:00 $
+ *  $Revision: 1.3 $
  *
  * \author Ilaria Segoni
  */
@@ -51,19 +51,17 @@ map<string, MonitorElement*> CSCMonitor::book_common(int dduNumber) {
  meName = Form("DDU_L1A_Increment_%d",dduNumber);
  meMap[meName] = dbe->book1D(meName.c_str(), "Incremental change in DDU L1A number since previous event", 20 ,  0 , 20);
 
-///KK
  meName = Form("DDU_DMB_Connected_Inputs_Rate_%d",dduNumber);
  meMap[meName] = dbe->book1D(meName.c_str(), "DDU_DMB_Connected_Inputs_Rate", 16 ,  0 , 16);
 
- //meName = Form("DDU_DMB_Connected_Inputs_%d",dduNumber);
- //meMap[meName] = dbe->book1D(meName.c_str(), "DDU Inputs connected to DMBs", 16 ,  0 , 16);
+ meName = Form("DDU_DMB_Connected_Inputs_%d",dduNumber);
+ meMap[meName] = dbe->book1D(meName.c_str(), "DDU Inputs connected to DMBs", 16 ,  0 , 16);
 
-///KK end
  meName = Form("DDU_DMB_DAV_Header_Occupancy_Rate_%d",dduNumber);
  meMap[meName] = dbe->book1D(meName.c_str(), "DMBs reporting DAV (data available) in Header", 16 ,  0 , 16);
 
- //meName = Form("DDU_DMB_DAV_Header_Occupancy_%d",dduNumber);
- //meMap[meName] = dbe->book1D(meName.c_str(), "DMBs reporting DAV (data available) in Header", 16 ,  0 , 16);
+ meName = Form("DDU_DMB_DAV_Header_Occupancy_%d",dduNumber);
+ meMap[meName] = dbe->book1D(meName.c_str(), "DMBs reporting DAV (data available) in Header", 16 ,  0 , 16);
 
  meName = Form("DDU_DMB_Active_Header_Count_%d",dduNumber);
  meMap[meName] = dbe->book1D(meName.c_str(), "Number of active DMBs reporting DAV in Header", 16 ,  0 , 16);
@@ -104,22 +102,20 @@ map<string, MonitorElement*> CSCMonitor::book_common(int dduNumber) {
  meName = Form("DDU_Word_Count_%d",dduNumber);
  meMap[meName] = dbe->book1D(meName.c_str(), "DDU Word (64 bits) Count", 128,  0 , 8192); //8192 = 2^13
 
-///KK
 
  meName = Form("DDU_CSC_Errors_Rate_%d",dduNumber);
  meMap[meName] = dbe->book1D(meName.c_str(), "", 15 ,  1 , 16);
 
 
-// meName = Form("DDU_CSC_Errors_%d",dduNumber);
-// meMap[meName] = dbe->book1D(meName.c_str(), "Errors", 15 ,1 ,16);
+ meName = Form("DDU_CSC_Errors_%d",dduNumber);
+ meMap[meName] = dbe->book1D(meName.c_str(), "Errors", 15 ,1 ,16);
 
  meName = Form("DDU_CSC_Warnings_Rate_%d",dduNumber);
  meMap[meName] = dbe->book1D(meName.c_str(), "", 15 ,  1 , 16);
 
 
-// meName = Form("DDU_CSC_Warnings_%d",dduNumber);
-// meMap[meName] = dbe->book1D(meName.c_str(), "Warnings", 15,  1 , 16);
-///KK end
+ meName = Form("DDU_CSC_Warnings_%d",dduNumber);
+ meMap[meName] = dbe->book1D(meName.c_str(), "Warnings", 15,  1 , 16);
 
 
 
