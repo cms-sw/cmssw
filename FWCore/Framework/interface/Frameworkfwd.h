@@ -5,11 +5,11 @@
   
 Forward declarations of types in the EDM.
 
-$Id: Frameworkfwd.h,v 1.15 2006/01/10 22:49:30 wmtan Exp $
+$Id: Frameworkfwd.h,v 1.16 2006/01/19 22:27:47 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
-#include "FWCore/EDProduct/interface/EDProductfwd.h"
+#include "DataFormats/Common/interface/EDProductfwd.h"
 
 namespace edm {
   class BasicHandle;

@@ -2,12 +2,12 @@
 #define Framework_ConfigurableInputSource_h
 
 /*----------------------------------------------------------------------
-$Id: ConfigurableInputSource.h,v 1.4 2006/01/07 00:38:14 wmtan Exp $
+$Id: ConfigurableInputSource.h,v 1.1 2006/01/18 00:38:44 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/GenericInputSource.h"
-#include "FWCore/EDProduct/interface/EventID.h"
-#include "FWCore/EDProduct/interface/Timestamp.h"
+#include "DataFormats/Common/interface/EventID.h"
+#include "DataFormats/Common/interface/Timestamp.h"
 
 namespace edm {
   class Event;

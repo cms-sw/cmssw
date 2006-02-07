@@ -10,7 +10,7 @@ Toy EDProducers and EDProducts for testing purposes only.
 #include <vector>
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/EDProduct/interface/EDProduct.h"
+#include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"

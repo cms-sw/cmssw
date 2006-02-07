@@ -16,15 +16,15 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Aug  3 18:35:24 EDT 2005
-// $Id: IOVSyncValue.h,v 1.3 2005/09/01 05:18:37 wmtan Exp $
+// $Id: IOVSyncValue.h,v 1.4 2005/09/01 23:30:49 wmtan Exp $
 //
 
 // system include files
 #include <functional>
 
 // user include files
-#include "FWCore/EDProduct/interface/EventID.h"
-#include "FWCore/EDProduct/interface/Timestamp.h"
+#include "DataFormats/Common/interface/EventID.h"
+#include "DataFormats/Common/interface/Timestamp.h"
 
 // forward declarations
 

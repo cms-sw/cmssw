@@ -8,7 +8,7 @@
 #include "FWCore/Framework/interface/BranchEntryDescription.h"
 #include "FWCore/Framework/interface/ProductRegistry.h"
 #include "FWCore/Framework/interface/BranchKey.h"
-#include "FWCore/EDProduct/interface/Wrapper.h"
+#include "DataFormats/Common/interface/Wrapper.h"
 #include "FWCore/Framework/src/ToyProducts.h"
 #include <map>
 

@@ -3,7 +3,7 @@
 
 /*
   Author: Jim Kowalkowski 13-01-06
-  $Id: TriggerResults.h,v 1.1 2006/01/29 23:33:57 jbk Exp $
+  $Id: TriggerResults.h,v 1.2 2006/02/03 06:00:15 jbk Exp $
 
   The trigger path results are maintained here as a sequence of bits,
   one per trigger path.  They are assigned in the order they appeared in
@@ -22,7 +22,7 @@
 
  */
 
-#include "FWCore/EDProduct/interface/ParameterSetID.h"
+#include "DataFormats/Common/interface/ParameterSetID.h"
 
 #include <algorithm>
 #include <numeric>

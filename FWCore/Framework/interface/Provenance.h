@@ -6,12 +6,12 @@
 Provenance: The full description of a product and how it came into
 existence.
 
-$Id: Provenance.h,v 1.15 2005/09/10 03:26:42 wmtan Exp $
+$Id: Provenance.h,v 1.16 2005/10/03 19:03:01 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <ostream>
 
 #include "FWCore/Framework/interface/BranchEntryDescription.h"
-#include "FWCore/EDProduct/interface/ProductID.h"
+#include "DataFormats/Common/interface/ProductID.h"
 #include "FWCore/Framework/interface/BranchDescription.h"
 
 /*

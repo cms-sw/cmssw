@@ -6,12 +6,12 @@
 BranchDescription: The full description of a product and how it came into
 existence.
 
-$Id: BranchDescription.h,v 1.3 2006/01/11 00:21:31 paterno Exp $
+$Id: BranchDescription.h,v 1.4 2006/01/11 22:54:05 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <ostream>
 #include <string>
 
-#include "FWCore/EDProduct/interface/ProductID.h"
+#include "DataFormats/Common/interface/ProductID.h"
 #include "FWCore/Framework/interface/ModuleDescription.h"
 
 /*

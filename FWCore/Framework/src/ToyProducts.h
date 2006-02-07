@@ -10,7 +10,7 @@ Toy EDProducts for testing purposes only.
 #include <stdexcept>
 #include <string>
 
-#include "FWCore/EDProduct/interface/SortedCollection.h"
+#include "DataFormats/Common/interface/SortedCollection.h"
 
 namespace edmtest
 {

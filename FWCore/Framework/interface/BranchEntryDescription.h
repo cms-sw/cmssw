@@ -6,13 +6,13 @@
 BranchEntryDescription: The event dependent portion of the description of a product
 and how it came into existence.
 
-$Id: BranchEntryDescription.h,v 1.3 2005/09/12 21:23:33 wmtan Exp $
+$Id: BranchEntryDescription.h,v 1.3 2005/10/03 18:14:50 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <ostream>
 #include <vector>
 
 #include "FWCore/Framework/interface/ConditionsID.h"
-#include "FWCore/EDProduct/interface/ProductID.h"
+#include "DataFormats/Common/interface/ProductID.h"
 
 /*
   BranchEntryDescription

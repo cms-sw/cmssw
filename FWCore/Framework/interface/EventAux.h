@@ -2,8 +2,8 @@
 #define Framework_EventAux_h
 
 #include "FWCore/Framework/interface/ProcessNameList.h"
-#include "FWCore/EDProduct/interface/EventID.h"
-#include "FWCore/EDProduct/interface/Timestamp.h"
+#include "DataFormats/Common/interface/EventID.h"
+#include "DataFormats/Common/interface/Timestamp.h"
 
 // Auxiliary event data that is persistent
 

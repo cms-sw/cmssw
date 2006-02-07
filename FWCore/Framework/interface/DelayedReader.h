@@ -6,13 +6,13 @@
 DelayedReader: The abstract interface through which the EventPrincipal
 uses input sources to retrieve EDProducts from external storage.
 
-$Id: DelayedReader.h,v 1.2 2005/12/01 22:14:54 wmtan Exp $
+$Id: DelayedReader.h,v 1.3 2006/01/06 00:29:32 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include <memory>
 
-#include "FWCore/EDProduct/interface/EDProduct.h"
+#include "DataFormats/Common/interface/EDProduct.h"
 
 
 namespace edm {

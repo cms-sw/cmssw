@@ -19,7 +19,7 @@ Handles can have:
 
 To check validity, one can use the isValid() function.
 
-$Id: Handle.h,v 1.13 2005/10/11 21:33:38 wmtan Exp $
+$Id: Handle.h,v 1.14 2005/12/28 00:14:52 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -30,7 +30,7 @@ $Id: Handle.h,v 1.13 2005/10/11 21:33:38 wmtan Exp $
 #include "boost/utility/enable_if.hpp"
 #include "boost/type_traits.hpp"
 
-#include "FWCore/EDProduct/interface/ProductID.h"
+#include "DataFormats/Common/interface/ProductID.h"
 #include "FWCore/Framework/interface/BasicHandle.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
