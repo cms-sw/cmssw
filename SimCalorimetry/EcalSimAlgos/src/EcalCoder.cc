@@ -31,7 +31,7 @@ double EcalCoder::fullScaleEnergy(const DetId & detId) const
 {
  //PG Emax = x MeV/ADC * 4095 ADC * 12(gain) / 1000 MeV/GeV
  //PG (see http://cmsdoc.cern.ch/swdev/lxr/CMSSW/source/CMSSW/src/DataFormats/EcalDetId/interface/EcalSubdetector.h?v=0.4.0)
-  if (detId.subdetId() == 1) //PG for the Barrel
+  if (detId.subdetId() == EcalBarrel) //PG for the Barrel
   return m_maxEneEB ;
   else //PG for the Endcap
   return m_maxEneEE ;
@@ -73,14 +73,13 @@ void EcalCoder::analogToDigital(const CaloSamples& clf, EEDataFrame& df) const {
 }
 
 
-
 std::vector<EcalMGPASample>  
-EcalCoder::encode(const CaloSamples& timeframe) const
+EcalCoder::encode(const CaloSamples& caloSamples) const
 {
   assert(thePedestals != 0);
   std::vector<EcalMGPASample> results;
 
-  DetId detId = timeframe.id();
+  DetId detId = caloSamples.id();
   double Emax = fullScaleEnergy(detId);
   //....initialisation
 
@@ -104,7 +103,7 @@ EcalCoder::encode(const CaloSamples& timeframe) const
 
   int wait = 0 ;
   int gainId = NGAINS - 1 ;
-  for (int i = 0 ; i < timeframe.size() ; ++i)
+  for (int i = 0 ; i < caloSamples.size() ; ++i)
   {    
      int adc = MAXADC;
      if (wait == 0) gainId = NGAINS - 1;
@@ -115,12 +114,12 @@ EcalCoder::encode(const CaloSamples& timeframe) const
        --igain;
 
        double ped = + pedestals[igain];
-       int tmpadc = int (ped + timeframe[i] / LSB[igain]) ;
+       int tmpadc = int (ped + caloSamples[i] / LSB[igain]) ;
 
        // see if it's close enough to the boundary that we have to throw noise
        if(addNoise_ && (tmpadc <= MAXADC+threeSigmaADCNoise[igain]) ) {
           ped = RandGauss::shoot(ped, widths[igain]);
-          tmpadc = int (ped + timeframe[i] / LSB[igain]) ;
+          tmpadc = int (ped + caloSamples[i] / LSB[igain]) ;
        }
          
        if(tmpadc <= MAXADC ) {

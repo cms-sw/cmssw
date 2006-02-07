@@ -9,19 +9,19 @@
  */
  
 EcalSimParameterMap::EcalSimParameterMap() :
-  theBarrelParameters(2250., 1./2250., 
+  theBarrelParameters(4500., 1./4500., 
                    1., 47., 
                    10, 5, true),
-  theEndcapParameters( 1800., 1./1800., 
+  theEndcapParameters( 4500., 1./4500., 
                    1., 47., 
                    10, 5, true)
 {
 }
   /*
-    CaloSimParameters(double photomultiplierGain, double amplifierGain,
-                   double samplingFactor, double peakTime,
-                   int readoutFrameSize, int binOfMaximum,
-                   bool doPhotostatistics)
+  CaloSimParameters(double simHitToPhotoelectrons, double photoelectronsToAnalog, 
+                 double samplingFactor, double timePhase,
+                 int readoutFrameSize, int binOfMaximum,
+                 bool doPhotostatistics)
   */
   
 

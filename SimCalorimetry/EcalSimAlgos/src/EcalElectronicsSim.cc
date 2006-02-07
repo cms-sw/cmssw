@@ -19,7 +19,7 @@ void EcalElectronicsSim::amplify(CaloSamples & clf) const
 
 void EcalElectronicsSim::analogToDigital(CaloSamples& clf, EBDataFrame& df) const 
 {
-  // input signal is in pe.  We want it in fC
+  //PG input signal is in pe.  Converted in GeV
   amplify(clf);
   theCoder->analogToDigital(clf, df);
 }
