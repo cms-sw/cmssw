@@ -12,18 +12,19 @@
 
 /** \class HcalSimplerecAlgo
     
-   $Date: 2005/10/07 03:52:06 $
-   $Revision: 1.2 $
+   $Date: 2005/11/28 19:56:27 $
+   $Revision: 1.3 $
    \author J. Mans - Minnesota
 */
 class HcalSimpleRecAlgo {
 public:
-  HcalSimpleRecAlgo(int firstSample, int samplesToAdd);
+  HcalSimpleRecAlgo(int firstSample, int samplesToAdd, bool correctForTimeslew);
   HBHERecHit reconstruct(const HBHEDataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calibs) const;
   HFRecHit reconstruct(const HFDataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calibs) const;
   HORecHit reconstruct(const HODataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calibs) const;
 private:
   int firstSample_, samplesToAdd_;
-
+  bool correctForTimeslew_;
 };
+
 #endif
