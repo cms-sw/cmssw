@@ -13,24 +13,24 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/01/14 22:00:00 $
+// $Date: 2006/01/15 00:52:09 $
 // $Revision: 1.1 $
 //
 
 #include <vector>
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPos.h"
+#include "DataFormats/TrackerRecHit2D/interface/BaseSiStripRecHit2DLocalPos.h"
 #include "FWCore/EDProduct/interface/Ref.h"
 
 class TrackingSeed {
 
 public:
 
-  typedef std::vector<SiStripRecHit2DLocalPos const*>::iterator iterator;
-  typedef std::vector<SiStripRecHit2DLocalPos const*>::const_iterator const_iterator;
+  typedef std::vector<BaseSiStripRecHit2DLocalPos const*>::iterator iterator;
+  typedef std::vector<BaseSiStripRecHit2DLocalPos const*>::const_iterator const_iterator;
 
   TrackingSeed() {}
 
-  inline void addHit(SiStripRecHit2DLocalPos const *input) { detHits_.push_back(input); }
+  inline void addHit(BaseSiStripRecHit2DLocalPos const *input) { detHits_.push_back(input); }
 
   inline iterator begin() { return detHits_.begin();}
   inline iterator end() { return detHits_.end();}
@@ -42,7 +42,7 @@ public:
 
 private:
 
-  std::vector<SiStripRecHit2DLocalPos const*> detHits_;
+  std::vector<BaseSiStripRecHit2DLocalPos const*> detHits_;
 
 };
 
