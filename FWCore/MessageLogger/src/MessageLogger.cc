@@ -8,7 +8,7 @@
 //
 // Original Author:  W. Brown, M. Fischler
 //         Created:  Fri Nov 11 16:42:39 CST 2005
-// $Id: MessageLogger.cc,v 1.11 2006/01/19 17:12:58 fischler Exp $
+// $Id: MessageLogger.cc,v 1.12 2006/02/07 07:22:10 wmtan Exp $
 //
 
 // system include files
@@ -124,7 +124,7 @@ void MessageLogger::fillErrorObj(edm::ErrorObj& obj) const
 void
 MessageLogger::postBeginJob()
 {
-  edm::LogInfo("postBeginJob") << "Job started";
+  // edm::LogInfo("postBeginJob") << "Job started";
 
   curr_module_ = "BetweenModules";
   curr_event_ = EventID();
@@ -132,7 +132,7 @@ MessageLogger::postBeginJob()
 void
 MessageLogger::postEndJob()
 {
-  edm::LogInfo("postEndJob") << "Job ended";
+ // edm::LogInfo("postEndJob") << "Job ended";
   MessageLoggerQ::SUM ( ); // trigger summary info.
 }
 
@@ -141,15 +141,15 @@ MessageLogger::preEventProcessing( const edm::EventID& iID
                                  , const edm::Timestamp& iTime
                                  )
 {
-  edm::LogInfo("preEventProcessing") << "Processing event: " << iID
-                                     << " time: " << iTime.value();
+  // edm::LogInfo("preEventProcessing") << "Processing event: " << iID
+  //                                   << " time: " << iTime.value();
 
   curr_event_ = iID;
 }
 void
 MessageLogger::postEventProcessing(const Event&, const EventSetup&)
 {
-  edm::LogInfo("postEventProcessing") << "Finished event";
+  // edm::LogInfo("postEventProcessing") << "Finished event";
 
   curr_event_ = EventID();
 }
@@ -157,7 +157,7 @@ MessageLogger::postEventProcessing(const Event&, const EventSetup&)
 void
 MessageLogger::preModule(const ModuleDescription& desc)
 {
-  LogInfo("preModule") << "Module:" << desc.moduleLabel_;
+  // LogInfo("preModule") << "Module:" << desc.moduleLabel_;
   curr_module_ = desc.moduleName_;
   curr_module_ += ":";
   curr_module_ += desc.moduleLabel_;
@@ -173,8 +173,8 @@ MessageLogger::preModule(const ModuleDescription& desc)
 void
 MessageLogger::postModule(const ModuleDescription& iDescription)
 {
-  LogInfo("postModule") << "Module:" << iDescription.moduleLabel_
-                        << " finished";
+  // LogInfo("postModule") << "Module:" << iDescription.moduleLabel_
+  //                      << " finished";
   curr_module_ = "BetweenModules";
 }
 
