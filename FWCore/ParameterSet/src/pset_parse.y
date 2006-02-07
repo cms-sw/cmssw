@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.14 2006/01/17 20:32:31 paterno Exp $
+ * $Id: pset_parse.y,v 1.15 2006/02/03 19:06:57 jbk Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -258,30 +258,33 @@ node:            untracked TYPE_tok LETTERSTART_tok EQUAL_tok any
                ;
 
 /* Return a PSetNode pointer */
-allpset:         PSET_tok LETTERSTART_tok EQUAL_tok scoped
+allpset:         untracked PSET_tok LETTERSTART_tok EQUAL_tok scoped
                  {
                    DBPRINT("node: PSET (scoped)");
-                   string name(toString($<str>2));
-                   NodePtrListPtr value($<_NodePtrList>4);
-                   PSetNode* en(new PSetNode("PSet",name,value,lines));
+		   bool tr = $<_bool>1;
+                   string name(toString($<str>3));
+                   NodePtrListPtr value($<_NodePtrList>5);
+                   PSetNode* en(new PSetNode("PSet",name,value,tr,lines));
                    $<_Node>$ = en;
                  }
                |
-                 PSET_tok LETTERSTART_tok EQUAL_tok any
+                 untracked PSET_tok LETTERSTART_tok EQUAL_tok any
                  {
 		   DBPRINT("node: PSET (any)");
-                   string name(toString($<str>2));
-                   string value(toString($<str>4));
-                   PSetRefNode* en(new PSetRefNode(name,value,lines));
+		   bool tr = $<_bool>1;
+                   string name(toString($<str>3));
+                   string value(toString($<str>5));
+                   PSetRefNode* en(new PSetRefNode(name,value,tr,lines));
                    $<_Node>$ = en;
                  }
                |
-                 VPSET_tok LETTERSTART_tok EQUAL_tok SCOPE_START_tok nodesarray SCOPE_END_tok
+                 untracked VPSET_tok LETTERSTART_tok EQUAL_tok SCOPE_START_tok nodesarray SCOPE_END_tok
                  {
                    DBPRINT("node: VPSET");
-                   string name(toString($<str>2));
-                   NodePtrListPtr value($<_NodePtrList>5);
-                   VPSetNode* en(new VPSetNode("VPSet",name,value,lines));
+		   bool tr = $<_bool>1;
+                   string name(toString($<str>3));
+                   NodePtrListPtr value($<_NodePtrList>6);
+                   VPSetNode* en(new VPSetNode("VPSet",name,value,tr,lines));
                    $<_Node>$ = en;
                  }
                |

@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 18 19:09:01 EDT 2005
-// $Id: MakersProcess.cc,v 1.16 2005/12/22 20:30:43 chrjones Exp $
+// $Id: MakersProcess.cc,v 1.17 2006/01/31 21:03:05 paterno Exp $
 //
 
 // system include files
@@ -87,53 +87,45 @@ namespace edm {
 	iNode.acceptForChildren(*this);
 	//visitChildren(iNode);
       }
-      virtual void visitPSet(const edm::pset::PSetNode& iNode) {
-	// print(cout, "PSet", iNode);
-	// endPrint(cout);
-	// cout << "in visitPSet: " << iNode.type() << " " << iNode.name() << endl;
-      
+ 
+      virtual void visitPSet(const edm::pset::PSetNode& iNode) 
+      {
 	static const std::string kPSet("PSet");
 	static const std::string kBlock("block");
-	if(iNode.type() == kPSet) {
-	  // The following test is inappropriate: empty parameter sets
-	  // are fine!
-	  // if(iNode.value_.value_->empty()==true)
-// 	    {
-// 	      throw edm::Exception(errors::Configuration,"EmptySet")
-// 		<< "ParameterSet: Empty ParameterSets are not allowed.\n"
-// 		<< "name = " << iNode.name();
-// 	    }
 
-	  boost::shared_ptr<edm::ParameterSet> tmp_pset = 
-            makePSet(*(iNode.value_.value_),usingBlocks_,pSets_)
-	    ;
-
-	  pSets_.insert(make_pair(iNode.name(), tmp_pset));
-
-	  pset_.insert(true, iNode.name() , Entry(*tmp_pset,true));
-
-	} else if (iNode.type() == kBlock) {
-	  if(iNode.value_.value_->empty()==true)
-	    {
-	      throw edm::Exception(errors::Configuration,"EmptySet")
-		<< "ParameterSet: Empty Blocks are not allowed.\n"
-		<< "name = " << iNode.name();
-	    }
-	  usingBlocks_.insert(make_pair(iNode.name(), makePSet(*(iNode.value_.value_),
-							       usingBlocks_,
-							       pSets_)));
-	} else {
-	  assert(false);
-	}
-      
-	//PrintNodes handleChildren;
-	//iNode.acceptForChildren(handleChildren);
+	if(iNode.type() == kPSet) 
+	  {
+	    boost::shared_ptr<edm::ParameterSet> tmp_pset = 
+	      makePSet(*(iNode.value_.value_),usingBlocks_,pSets_);
+	    
+	    pSets_.insert(make_pair(iNode.name(), tmp_pset));
+	    
+	    pset_.insert(true, iNode.name() , Entry(*tmp_pset, !iNode.tracked_));
+	    
+	  } 
+	else if (iNode.type() == kBlock) 
+	  {
+	    if(iNode.value_.value_->empty()==true)
+	      {
+		throw edm::Exception(errors::Configuration,"EmptySet")
+		  << "ParameterSet: Empty Blocks are not allowed.\n"
+		  << "name = " << iNode.name();
+	      }
+	    usingBlocks_.insert(make_pair(iNode.name(), makePSet(*(iNode.value_.value_),
+								 usingBlocks_,
+								 pSets_)));
+	  }
+	else
+	  {
+	    assert(false);
+	  }
       }
+
       virtual void visitVPSet(const edm::pset::VPSetNode& iNode) {
 	std::vector<ParameterSet> sets;
 	BuilderVPSet builder(sets, usingBlocks_, pSets_);
 	iNode.acceptForChildren(builder);
-	pset_.insert(false, iNode.name_, Entry(sets, true));
+	pset_.insert(false, iNode.name_, Entry(sets, !iNode.tracked_));
       }
       virtual void visitModule(const edm::pset::ModuleNode& iNode) {
 	using namespace edm;

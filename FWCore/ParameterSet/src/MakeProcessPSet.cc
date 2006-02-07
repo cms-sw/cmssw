@@ -106,7 +106,7 @@ namespace {
 }// namespace
 
   /**
-     Create the PSet that describes the process
+     Create the ParameterSet that describes the process
      
      \note sequence definitions must come before the path in which 
            they are used (obvious ?) in the configuration file

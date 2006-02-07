@@ -114,10 +114,6 @@ namespace edm {
 
       void BuilderPSet::visitEntry(const EntryNode& n)
       {
-       // main_->insert(false, n.name_, Entry(n.type_, n.value_, n.tracked_));
-       //cerr << "visitEntry: " << n.type_ << " " << n.value_ << " " << usethis
-       //     << endl;
-
        if(n.type_=="string")
          {
            string usethis(withoutQuotes(n.value_));
@@ -157,14 +153,6 @@ namespace edm {
 
       void BuilderPSet::visitVEntry(const VEntryNode& n)
       {
-        /*
-         main_->insert(false, n.name_, 
-                        Entry(n.type_, 
-                              std::vector<std::string>(n.value_->begin(),
-                                                       n.value_->end()),
-                              n.tracked_));
-        */
-
         vector<string>::const_iterator ib(n.value_->begin()),
           ie(n.value_->end()),k=ib;
 
@@ -204,7 +192,7 @@ namespace edm {
               << "could not find ParameterSet named '"
               << n.name_ << "' used on line " << n.line_;
          }
-         main_->insert(false, n.name_, Entry(*(itPSet->second), true));
+         main_->insert(false, n.name_, Entry(*(itPSet->second), !n.tracked_));
       }
 
       void BuilderPSet::visitContents(const ContentsNode& n)
@@ -217,18 +205,19 @@ namespace edm {
       void BuilderPSet::visitPSet(const PSetNode& n)
       {
         //cout << n.type_ << " " << n.name_ << " ";
-        if(n.value_.value_->empty()==true)
-          {
-            throw edm::Exception(errors::Configuration,"PSetError")
-              << "ParameterSets: problem processing parameter set.\n"
-              << "A parameter cannot be empty."
-              << " name = " << n.name();
-          }
+	// The following test is inappropriate. ParameterSets are allowed to be empty.
+//         if(n.value_.value_->empty()==true)
+//           {
+//             throw edm::Exception(errors::Configuration,"PSetError")
+//               << "ParameterSets: problem processing parameter set.\n"
+//               << "A parameter cannot be empty."
+//               << " name = " << n.name();
+//           }
          boost::shared_ptr<ParameterSet> newPSet = makePSet(*(n.value_.value_),
                                                         blocks_,
                                                         psets_);
          
-         main_->insert(false, n.name_, Entry(*newPSet, true)); 
+         main_->insert(false, n.name_, Entry(*newPSet, !n.tracked_)); 
          //n.acceptForChildren(*this);
       }
 
@@ -239,7 +228,7 @@ namespace edm {
          std::vector<ParameterSet> sets;
          BuilderVPSet builder(sets, blocks_, psets_);
          n.acceptForChildren(builder);
-         main_->insert(false, n.name_, Entry(sets, true));
+         main_->insert(false, n.name_, Entry(sets, !n.tracked_));
       }
 
         void BuilderPSet::visitModule(const ModuleNode& iNode) 

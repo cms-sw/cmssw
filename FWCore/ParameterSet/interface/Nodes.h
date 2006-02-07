@@ -151,7 +151,9 @@ namespace edm {
 
     struct PSetRefNode : public Node
     {
-      PSetRefNode(const std::string& name, const std::string& value,
+      PSetRefNode(const std::string& name, 
+		  const std::string& value,
+		  bool tracked,
 		  int line=-1);
       virtual std::string type() const;
       virtual std::string name() const;
@@ -161,6 +163,7 @@ namespace edm {
 
       std::string name_;
       std::string value_;
+      bool tracked_;
       int line_;
     };
 
@@ -192,8 +195,11 @@ namespace edm {
 
     struct PSetNode : public Node
     {
-      PSetNode(const std::string& typ, const std::string& name,
-	       NodePtrListPtr value, int line=-1);
+      PSetNode(const std::string& typ, 
+	       const std::string& name,
+	       NodePtrListPtr value,
+	       bool tracked,
+	       int line=-1);
       virtual std::string type() const;
       virtual std::string name() const;
       virtual void print(std::ostream& ost) const;
@@ -204,6 +210,7 @@ namespace edm {
       std::string type_;
       std::string name_;
       ContentsNode value_;
+      bool tracked_;
       int line_;
     };
 
@@ -223,8 +230,11 @@ namespace edm {
 
     struct VPSetNode : public Node
     {
-      VPSetNode(const std::string& typ, const std::string& name,
-		NodePtrListPtr value, int line=-1);
+      VPSetNode(const std::string& typ, 
+		const std::string& name,
+		NodePtrListPtr value,
+		bool tracked,
+		int line=-1);
       virtual std::string type() const;
       virtual std::string name() const;
       virtual void print(std::ostream& ost) const;
@@ -235,6 +245,7 @@ namespace edm {
       std::string type_;
       std::string name_;
       NodePtrListPtr value_;
+      bool tracked_;
       int line_;
     };
 

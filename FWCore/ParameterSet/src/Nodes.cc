@@ -112,11 +112,14 @@ void VEntryNode::accept(Visitor& v) const
 
 // -------------------
 
-PSetRefNode::PSetRefNode(const string& name, const string& value,
-			 int /* line */):
-  name_(name), value_(value)
-{
-}
+PSetRefNode::PSetRefNode(const string& name, 
+			 const string& value,
+			 bool tracked,
+			 int /* line */) :
+  name_(name), 
+  value_(value),
+  tracked_(tracked)
+{ }
 
 std::string PSetRefNode::type() const { return "PSetRef"; }
 
@@ -166,11 +169,17 @@ void ContentsNode::acceptForChildren(Visitor& v) const
 
 // -------------------
 
-PSetNode::PSetNode(const string& t, const string& n,
-		   NodePtrListPtr v, int line):
-  type_(t),name_(n),value_(v,line),line_(line)
-{
-}
+PSetNode::PSetNode(const string& t, 
+		   const string& n,
+		   NodePtrListPtr v,
+		   bool tracked,
+		   int line) :
+  type_(t),
+  name_(n),
+  value_(v,line),
+  tracked_(tracked),
+  line_(line)
+{ }
 
 std::string PSetNode::type() const { return type_; }
 
@@ -197,11 +206,17 @@ void PSetNode::acceptForChildren(Visitor& v) const
 }
 // ---------------------
 
-VPSetNode::VPSetNode(const string& typ, const string& name,
-		     NodePtrListPtr value, int line):
-  type_(typ),name_(name),value_(value),line_(line)
-{
-}
+VPSetNode::VPSetNode(const string& typ, 
+		     const string& name,
+		     NodePtrListPtr value,
+		     bool tracked,
+		     int line) :
+  type_(typ),
+  name_(name),
+  value_(value),
+  tracked_(tracked),
+  line_(line)
+{ }
 
 std::string VPSetNode::type() const { return type_; }
 

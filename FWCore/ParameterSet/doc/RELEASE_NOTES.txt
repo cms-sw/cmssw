@@ -1,3 +1,9 @@
+07-02-06 mfp. Added ability for parser and tree walker to deal with
+    creating untracked parameters of type ParameterSet. Added
+    tests to the test suite to verify correct behavior. Removed
+    another wrong test which had required failure when attempting
+    to make an empty ParameterSet.
+
 06-02-06 mfp. Add tests of generation of ParameterSetID.
     Added tests to verify that modification of untracked parameters
     does *not* cause a change in ParameterSetID, but addition
