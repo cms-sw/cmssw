@@ -52,6 +52,7 @@ namespace edm {
       int bunchSpace_;
       static int trackoffset;
       static int vertexoffset;
+      bool checktof_;
 
     private:
       PileUp input_;

@@ -18,15 +18,17 @@ namespace edm {
 
   // Constructor 
   BMixingModule::BMixingModule(const edm::ParameterSet& pset) :
-      bunchSpace_(pset.getParameter<int>("bunchspace")),
-      input_(pset.getParameter<ParameterSet>("input")),
-      md_() {
+    bunchSpace_(pset.getParameter<int>("bunchspace")),
+    input_(pset.getParameter<ParameterSet>("input")),
+    md_(), 
+    checktof_(pset.getUntrackedParameter<bool>("checktof",true))
+  {
     md_.pid = pset.id();
     md_.moduleName_ = pset.getUntrackedParameter<std::string>("@module_type");
     md_.moduleLabel_ = pset.getUntrackedParameter<std::string>("@module_label");
-//#warning process name is hard coded, for now.  Fix this.
+    //#warning process name is hard coded, for now.  Fix this.
     md_.processName_ = "PILEUP";
-//#warning version and pass are hardcoded
+    //#warning version and pass are hardcoded
     md_.versionNumber_ = 1;
     md_.pass = 1;
   }
@@ -69,7 +71,7 @@ namespace edm {
     vertexoffset=0;
     for (EventPrincipalVector::const_iterator it = vec.begin(); it != vec.end(); ++it) {
       Event e(**it, md_);
-      // cout <<" merging Event:  id " << e.id() << flush << endl;
+      cout <<" merging Event:  id " << e.id() << flush << endl;
       addPileups(bcr, &e);
     }// end main loop
   }

@@ -5,6 +5,7 @@
  <use name=SimDataFormats/CaloHit>
  <use name=SimDataFormats/Track>
  <use name=SimDataFormats/Vertex>
+<use name=DataFormats/HcalDetId>
  <use name=clhep>
 </export>
 
@@ -13,4 +14,5 @@
 <use name=SimDataFormats/CaloHit>
 <use name=SimDataFormats/Track>
 <use name=SimDataFormats/Vertex>
+<use name=DataFormats/HcalDetId>
 <use name=clhep>

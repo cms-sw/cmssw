@@ -77,6 +77,8 @@ using namespace edm;
       // limits for tof to be considered for trackers
       static const int lowTrackTof; //nsec
       static const int highTrackTof;
+      static const int minLowTof;
+      static const int limHighLowTof;
 					    
       private:
       void clear();

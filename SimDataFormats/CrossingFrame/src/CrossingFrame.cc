@@ -1,9 +1,14 @@
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+
 using namespace std;
 using namespace edm;
 
 const int  CrossingFrame::lowTrackTof = -36;
 const int  CrossingFrame::highTrackTof = 36;
+const int  CrossingFrame::minLowTof =0;
+const int  CrossingFrame::limHighLowTof =36;
+
 
 CrossingFrame::CrossingFrame(int minb, int maxb, int bunchsp, std::vector<std::string> trackersubdetectors,std::vector<std::string> calosubdetectors): bunchSpace_(bunchsp), firstCrossing_(minb), lastCrossing_(maxb) {
 
@@ -65,8 +70,9 @@ void CrossingFrame::addPileupSimHits(const int bcr, const std::string subdet, co
   int count=0;
   for (unsigned int i=0;i<simhits->size();++i) {
     bool accept=true;
+    float newtof;
     if (checkTof) {
-      float newtof=(*simhits)[i].timeOfFlight() + bcr*bunchSpace_;
+      newtof=(*simhits)[i].timeOfFlight() + bcr*bunchSpace_;
       accept=newtof>=lowTrackTof && newtof <=highTrackTof;
     }
     if (!checkTof || accept) {
@@ -77,14 +83,13 @@ void CrossingFrame::addPileupSimHits(const int bcr, const std::string subdet, co
 		  (*simhits)[i].thetaAtEntry(),  (*simhits)[i].phiAtEntry(),  (*simhits)[i].processType());
       (pileupSimHits_[subdet])[bcr-firstCrossing_].push_back(hit);
       count++;
-    }
+    }  
   }
 }
 
   void CrossingFrame::addPileupCaloHits(const int bcr, const std::string subdet, const PCaloHitContainer *calohits, int trackoffset) { 
     for (unsigned int i=0;i<calohits->size();++i) {
     PCaloHit hit((*calohits)[i].id(),(*calohits)[i].energy(),(*calohits)[i].time()+bcr*bunchSpace_,(*calohits)[i].geantTrackId()+trackoffset);
-    //      (pileupCaloHits_[subdet])[bcr-firstCrossing_].insertHit(hit);
     (pileupCaloHits_[subdet])[bcr-firstCrossing_].push_back(hit);
   }
 }
@@ -126,16 +131,20 @@ void CrossingFrame::print(int level) const {
   for(map<string,PSimHitContainer>::const_iterator it = signalSimHits_.begin(); it != signalSimHits_.end(); ++it) {
     cout<< " subdetector "<<(*it).first <<" signal size "<<(*it).second.size()<<endl;
     if (level>=2) {
-      for (unsigned int j=0;j<(*it).second.size();++j) 
-	cout<<" SimHit "<<j<<" has track pointer "<< (*it).second[j].trackId() <<" ,tof "<<(*it).second[j].tof()<<", energy loss "<< (*it).second[j].energyLoss()<<endl;
+      for (unsigned int j=0;j<(*it).second.size();++j) {
+        cout<<" SimHit "<<j<<" has track pointer "<< (*it).second[j].trackId() <<" ,tof "<<(*it).second[j].tof()<<", energy loss "<< (*it).second[j].energyLoss()<<endl;
+      }
     }
   }
 
   for(map<string,PCaloHitContainer>::const_iterator it = signalCaloHits_.begin(); it != signalCaloHits_.end(); ++it) {
     cout<< " subdetector "<<(*it).first <<" signal size "<<(*it).second.size()<<endl;
     if (level>=2) {
-      for (unsigned int j=0;j<(*it).second.size();++j) 
-	cout<<" CaloHit "<<j<<" has track pointer "<< (*it).second[j].geantTrackId() <<" ,tof "<<(*it).second[j].time()<<", energy loss "<< (*it).second[j].energy()<<endl;
+      for (unsigned int j=0;j<(*it).second.size();++j) {
+        HcalDetId detid = (HcalDetId)(*it).second[j].id();
+	cout << (*it).second[j]  << ", detid: "<< detid << endl;
+//	cout<<" CaloHit "<<j<<" has track pointer "<< (*it).second[j].geantTrackId() <<" ,tof "<<(*it).second[j].time()<<", energy loss "<< (*it).second[j].energy()<<endl;
+      }
     }
   }
 
@@ -176,8 +185,11 @@ void CrossingFrame::print(int level) const {
       int bcr=firstCrossing_+i;
       cout <<" Bunchcrossing  "<<bcr<<", Calohit pileup size "<<(*it).second[i].size()<<endl;
       if (level>=3) {
-	for (unsigned int j=0;j<(*it).second[i].size();++j) 
-	  cout<<" CaloHit "<<j<<" has track pointer "<< ((*it).second[i])[j].geantTrackId() <<" ,tof "<<((*it).second[i])[j].time()<<"energy "<< ((*it).second[i])[j].energy()<<endl;
+	for (unsigned int j=0;j<(*it).second[i].size();++j) {
+	  //          cout<<" CaloHit "<<j<<" has track pointer "<< ((*it).second[i])[j].geantTrackId() <<" ,tof "<<((*it).second[i])[j].time()<<"energy "<< ((*it).second[i])[j].energy()<<endl;
+	  HcalDetId detid = (HcalDetId)((*it).second[i])[j].id();
+	  cout << ((*it).second[i])[j]  << ", detid: "<< detid << endl;
+	}
       }
     }
   }

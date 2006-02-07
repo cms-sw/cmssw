@@ -137,7 +137,7 @@ typename MixCollection<T>::MixItr MixCollection<T>::MixItr::next() {
     trigger_=true;
     pMixItr_=(mixCol_->getSignal())->begin();
     pMixItrEnd_=(mixCol_->getSignal())->end();
-    if((mixCol_->getSignal())->size()) return *this;  //FIXME: if no signals, no pileups
+    if((mixCol_->getSignal())->size()) return *this; 
   } else {
     if (++pMixItr_!=pMixItrEnd_) return *this;
   }
