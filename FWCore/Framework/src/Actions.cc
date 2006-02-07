@@ -50,28 +50,24 @@ namespace edm {
       using namespace boost::lambda;
       typedef vector<string> vstring;
 
-      // we cannot have parameters in the main process section
-      // so look for an "optional" pset called "options" for now.
-      // Notice that all exceptions (most actally) throw edm::Exception
-      // with the configuration category.  This category should probably
-      // be more specific or a derived exception type should be used so
-      // the catch can be more specific.
+      // we cannot have parameters in the main process section so look
+      // for an untrakced (optional) ParameterSet called "options" for
+      // now.  Notice that all exceptions (most actally) throw
+      // edm::Exception with the configuration category.  This
+      // category should probably be more specific or a derived
+      // exception type should be used so the catch can be more
+      // specific.
 
 //	cerr << pset.toString() << endl;
 
-      try
-      {
-        ParameterSet opts = pset.getParameter<ParameterSet>("options");
-      
- //cerr << "looking for " << actionName(code) << endl;
-        vstring v = opts.getUntrackedParameter(actionName(code),vstring());
-        for_each(v.begin(),v.end(), var(out)[_1]=code);      
-      }
-      catch(edm::Exception& e)
-      {
- //cerr << "got exception " << e.what() << endl;
-        if(e.categoryCode() != errors::Configuration) throw;
-      }
+      ParameterSet defopts;
+      ParameterSet opts = 
+	pset.getUntrackedParameter<ParameterSet>("options", defopts);
+      //cerr << "looking for " << actionName(code) << endl;
+      vstring v = 
+	opts.getUntrackedParameter(actionName(code),vstring());
+      for_each(v.begin(),v.end(), var(out)[_1]=code);      
+
     }  
   }
 

@@ -82,37 +82,43 @@ namespace edm {
     // find single source
     bool sourceSpecified = false;
     try {
-      const std::string& processName = params.getUntrackedParameter<string>("@process_name");
-      ParameterSet main_input = 
+      const std::string& processName =
+	params.getParameter<string>("@process_name");
+      ParameterSet main_input =
 	params.getParameter<ParameterSet>("@main_input");
 
       // Fill in "ModuleDescription", in case the input source produces any EDproducts,
       // which would be registered in the ProductRegistry.
       ModuleDescription md;
       md.pid = main_input.id();
-      md.moduleName_ = main_input.template getUntrackedParameter<std::string>("@module_type");
+      md.moduleName_ = main_input.template getParameter<std::string>("@module_type");
       // There is no module label for the unnamed input source, so just use the module name.
       md.moduleLabel_ = md.moduleName_;
       md.processName_ = processName;
-//#warning version and pass are hardcoded
+      // warning version and pass are hardcoded
       md.versionNumber_ = 1;
       md.pass = 1; 
 
       sourceSpecified = true;
       InputSourceDescription isdesc(common.processName_,common.pass_,preg);
-      shared_ptr<InputSource> input
-	(InputSourceFactory::get()->makeInputSource(main_input, isdesc).release());
+      shared_ptr<InputSource> input(InputSourceFactory::get()->makeInputSource(main_input, isdesc).release());
       input->addToRegistry(md);
     
       return input;
-    } catch(const edm::Exception& iException) {
-      if(sourceSpecified == false && errors::Configuration == iException.categoryCode()) {
-        throw edm::Exception(errors::Configuration, "NoInputSource")
-	  <<"No main input source found in configuration.  Please add an input source via 'source = ...' in the configuration file.\n";
-      } else {
-        throw;
+    } 
+    catch(const edm::Exception& iException) 
+      {
+ 	if(sourceSpecified == false && errors::Configuration == iException.categoryCode()) 
+ 	  {
+ 	    throw edm::Exception(errors::Configuration, "FailedInputSource")
+	      << "Configuration of main input source has failed\n"
+	      << iException;
+ 	  } 
+ 	else
+ 	  {
+ 	    throw;
+ 	  }
       }
-    }
     return shared_ptr<InputSource>();
   }
   

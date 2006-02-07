@@ -116,7 +116,9 @@ namespace edm
     // the value depends on options and value of listOfTriggers
     try
       {
-        ParameterSet opts = proc_pset.getParameter<ParameterSet>("options");
+	ParameterSet defopts;
+        ParameterSet opts = 
+	  proc_pset.getUntrackedParameter<ParameterSet>("options", defopts);
 	want_results =
 	  opts.getUntrackedParameter<bool>("makeTriggerResults",false);
 
@@ -186,14 +188,14 @@ namespace edm
     total_events_(),
     total_passed_()
   {
-    try
-      {
-        ParameterSet opts = pset_.getParameter<ParameterSet>("options");
-	wantSummary_ = opts.getUntrackedParameter("wantSummary",false);
-	makeTriggerResults_ = opts.getUntrackedParameter("makeTriggerResults",false);
-      }
-    catch(edm::Exception& e) { }
-
+    ParameterSet defopts;
+    ParameterSet opts = 
+      pset_.getUntrackedParameter<ParameterSet>("options", defopts);
+    wantSummary_ = 
+      opts.getUntrackedParameter("wantSummary",false);
+    makeTriggerResults_ = 
+      opts.getUntrackedParameter("makeTriggerResults",false);
+    
     vstring& ends = end_path_name_list_;
     bool hasFilter = false;
     
