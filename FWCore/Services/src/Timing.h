@@ -7,12 +7,12 @@
 // 
 //
 // Original Author:  Jim Kowalkowski
-// $Id$
+// $Id: Timing.h,v 1.1 2005/12/20 19:37:33 jbk Exp $
 //
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
-#include "FWCore/EDProduct/interface/EventID.h"
+#include "DataFormats/Common/interface/EventID.h"
 
 namespace edm {
   namespace service {

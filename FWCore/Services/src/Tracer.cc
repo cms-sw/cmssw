@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Sep  8 14:17:58 EDT 2005
-// $Id: Tracer.cc,v 1.2 2005/09/08 20:37:18 chrjones Exp $
+// $Id: Tracer.cc,v 1.3 2005/09/10 02:08:49 wmtan Exp $
 //
 
 // system include files
@@ -17,8 +17,8 @@
 #include "FWCore/Services/src/Tracer.h"
 
 #include "FWCore/Framework/interface/ModuleDescription.h"
-#include "FWCore/EDProduct/interface/EventID.h"
-#include "FWCore/EDProduct/interface/Timestamp.h"
+#include "DataFormats/Common/interface/EventID.h"
+#include "DataFormats/Common/interface/Timestamp.h"
 
 using namespace edm::service;
 //

@@ -6,13 +6,13 @@
 // Implementation:
 //
 // Original Author:  Jim Kowalkowski
-// $Id$
+// $Id: Timing.cc,v 1.1 2005/12/20 19:37:33 jbk Exp $
 //
 
 #include "FWCore/Services/src/Timing.h"
 #include "FWCore/Framework/interface/ModuleDescription.h"
-#include "FWCore/EDProduct/interface/EventID.h"
-#include "FWCore/EDProduct/interface/Timestamp.h"
+#include "DataFormats/Common/interface/EventID.h"
+#include "DataFormats/Common/interface/Timestamp.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
