@@ -1,3 +1,7 @@
+** V00-02-00  [Tue Feb  7 17:16:04 2006]
+Changed from vectors to fixed length arrays (long ago...)
+Fibers are 1-8 not 0-7
+
 ** V00-01-01  [Tue Nov 29 19:42:35 2005]
 Fix presamples bug and add presamples to streamer
 
