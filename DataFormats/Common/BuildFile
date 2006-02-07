@@ -1,6 +1,9 @@
-<use name=FWCore/EDProduct>
+<use name=FWCore/Utilities>
 <use name=boost>
+<use name=rootrflx>
 <export>
-  <use name=FWCore/EDProduct>
-  <use name=boost>
+ <lib name=DataFormatsCommon>
+ <use name=FWCore/Utilities>
+ <use name=boost>
+ <use name=rootrflx>
 </export>

@@ -1,5 +1,5 @@
-#ifndef EDProduct_SortedCollection_h
-#define EDProduct_SortedCollection_h
+#ifndef Common_SortedCollection_h
+#define Common_SortedCollection_h
 
 /*----------------------------------------------------------------------
   
@@ -23,14 +23,14 @@ unreliable if such duplicate entries are made.
 
 **************** Much more is needed here! ****************
 
-$Id: SortedCollection.h,v 1.5 2005/11/29 19:36:12 paterno Exp $
+$Id: SortedCollection.h,v 1.6 2006/01/27 21:20:04 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
 #include <algorithm>
 #include <vector>
 
-#include "FWCore/EDProduct/interface/traits.h"
+#include "DataFormats/Common/interface/traits.h"
 
 namespace edm {
 
@@ -43,7 +43,7 @@ namespace edm {
   
   //------------------------------------------------------------
   // The following template partial specialization can be removed
-  // when we move to a newer version of GCC.
+  // when we move to GCC 3.4.x
   //------------------------------------------------------------
   
   // Partial specialization of has_postinsert_trait template for any

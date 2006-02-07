@@ -1,6 +1,6 @@
 #include <map>
 
-#include "FWCore/EDProduct/interface/SortedCollection.h"
+#include "DataFormats/Common/interface/SortedCollection.h"
 
 
 // A very simple (but not built-in KEY type)

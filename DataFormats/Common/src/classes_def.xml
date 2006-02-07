@@ -1,0 +1,37 @@
+<lcgdict>
+ <class name="edm::EDProduct"/>
+ <class name="edm::ProductID"/>
+ <class name="edm::ParameterSetID"/>
+ <class name="edm::EventID"/>
+ <class name="edm::Timestamp"/>
+ <class name="edm::RefCore">
+   <field name="prodGetter_" transient="true"/>
+   <field name="prodPtr_" transient="true"/>
+ </class>
+ <class name="edm::RefItem">
+   <field name="ptr_" transient="true"/>
+ </class>
+ <class name="edm::RefBase"/>
+ <class name="edm::RefVectorBase"/>
+ <class name="std::vector<edm::RefItem>"/>
+ <class name="std::basic_string<char>"/>
+ <class name="std::vector<std::basic_string<char> >"/>
+ <class pattern="std::vector<*int>"/>
+ <class pattern="std::vector<*char>"/>
+ <class pattern="std::vector<*long*>"/>
+ <class pattern="std::vector<*double>"/>
+ <class name="edm::Wrapper<std::basic_string<char> >"/>
+ <class name="edm::Wrapper<double>"/>
+ <class name="edm::Wrapper<long double>"/>
+ <class name="edm::Wrapper<int>"/>
+ <class name="edm::Wrapper<unsigned int>"/>
+ <class name="edm::Wrapper<char>"/>
+ <class name="edm::Wrapper<unsigned char>"/>
+ <class name="edm::Wrapper<std::vector<std::basic_string<char> > >"/>
+ <class name="edm::Wrapper<std::vector<double> >"/>
+ <class name="edm::Wrapper<std::vector<long double> >"/>
+ <class name="edm::Wrapper<std::vector<int> >"/>
+ <class name="edm::Wrapper<std::vector<unsigned int> >"/>
+ <class name="edm::Wrapper<std::vector<char> >"/>
+ <class name="edm::Wrapper<std::vector<unsigned char> >"/>
+</lcgdict>

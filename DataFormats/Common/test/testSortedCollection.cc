@@ -14,7 +14,7 @@ typedef int DetId;
 #include <vector>
 
 #include "cppunit/extensions/HelperMacros.h"
-#include "FWCore/EDProduct/interface/SortedCollection.h"
+#include "DataFormats/Common/interface/SortedCollection.h"
 
 using namespace edm;
 

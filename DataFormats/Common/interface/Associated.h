@@ -1,8 +1,8 @@
 #ifndef Common_Associated_h
 #define Common_Associated_h
 #include "DataFormats/Common/interface/ExtCollection.h"
-#include "FWCore/EDProduct/interface/Ref.h"
-#include "FWCore/EDProduct/interface/RefProd.h"
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/RefProd.h"
 
 namespace edm {
   
