@@ -51,6 +51,8 @@ class EcalCoder
   const EcalPedestals * thePedestals;
   double theGains[NGAINS];
   double theGainErrors[NGAINS];
+  double m_maxEneEB ;
+  double m_maxEneEE ;
   bool addNoise_;
 };
 

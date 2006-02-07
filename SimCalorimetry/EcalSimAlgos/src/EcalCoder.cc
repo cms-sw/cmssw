@@ -20,18 +20,21 @@ EcalCoder::EcalCoder(bool addNoise)
   theGainErrors[0] = 0.002;
   theGainErrors[1] = 0.002;
   theGainErrors[2] = 0.002;
+  //PG to be replaced with a DB call FIXME    
+  m_maxEneEB = 1719.9 ; //PG assuming 35 MeV/ADC
+// m_maxEneEB = 1818.18 ; //PG assuming 37 MeV/ADC
+  m_maxEneEE = 2948.4 ; //PG assuming 60 MeV/ADC
 }
 
 
 double EcalCoder::fullScaleEnergy(const DetId & detId) const 
 {
  //PG Emax = x MeV/ADC * 4095 ADC * 12(gain) / 1000 MeV/GeV
- //PG for the Barrel
+ //PG (see http://cmsdoc.cern.ch/swdev/lxr/CMSSW/source/CMSSW/src/DataFormats/EcalDetId/interface/EcalSubdetector.h?v=0.4.0)
   if (detId.subdetId() == 1) //PG for the Barrel
-  return 1719.9 ;  //PG assuming 35 MeV/ADC
-//  return 1818.18 ; //PG assuming 37 MeV/ADC
+  return m_maxEneEB ;
   else //PG for the Endcap
-  return 2948.40 ; //PG assuming 60 MeV/ADC
+  return m_maxEneEE ;
 }
 
 
