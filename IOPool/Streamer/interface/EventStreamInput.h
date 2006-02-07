@@ -8,7 +8,7 @@
 
 Event streaming input source
 
-$Id: EventStreamInput.h,v 1.6 2005/11/01 17:32:24 jbk Exp $
+$Id: EventStreamInput.h,v 1.7 2005/11/08 20:36:54 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -24,7 +24,7 @@ $Id: EventStreamInput.h,v 1.6 2005/11/01 17:32:24 jbk Exp $
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/InputSource.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
-#include "FWCore/EDProduct/interface/EDProduct.h"
+#include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/BranchKey.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

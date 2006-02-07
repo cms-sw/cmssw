@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.18 2006/01/18 23:29:40 wmtan Exp $
+$Id: PoolSource.cc,v 1.19 2006/01/20 20:45:14 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/PoolSource.h"
@@ -9,7 +9,7 @@ $Id: PoolSource.cc,v 1.18 2006/01/18 23:29:40 wmtan Exp $
 #include "FWCore/Framework/interface/BranchDescription.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/ProductRegistry.h"
-#include "FWCore/EDProduct/interface/ProductID.h"
+#include "DataFormats/Common/interface/ProductID.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 namespace edm {

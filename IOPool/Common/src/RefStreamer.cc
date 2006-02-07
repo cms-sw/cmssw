@@ -1,5 +1,5 @@
 #include "IOPool/Common/interface/RefStreamer.h"
-#include "FWCore/EDProduct/interface/RefCore.h"
+#include "DataFormats/Common/interface/RefCore.h"
 
 namespace edm {
   void 

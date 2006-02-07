@@ -1,14 +1,14 @@
 <use name=boost>
 <use name=Foundation/SealZip>
 <use name=FWCore/Utilities>
-<use name=FWCore/EDProduct>
+<use name=DataFormats/Common>
 <lib name=boost_filesystem-gcc-mt> 
 <lib name=boost_regex-gcc-mt> 
 
 <export>
  <lib name=FWCoreParameterSet>
  <use name=FWCore/Utilities>
- <use name=FWCore/EDProduct>
+ <use name=DataFormats/Common>
  <use name=boost>
  <use name=Foundation/SealZip>
  <lib name=boost_filesystem-gcc-mt> 
