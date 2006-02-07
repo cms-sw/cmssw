@@ -1,7 +1,8 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSimpleRecAlgo.h"
-#include <FWCore/Utilities/interface/Exception.h>
+#include "FWCore/Utilities/interface/Exception.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
 
-HcalSimpleRecAlgo::HcalSimpleRecAlgo(int firstSample, int samplesToAdd) : firstSample_(firstSample), samplesToAdd_(samplesToAdd) {
+HcalSimpleRecAlgo::HcalSimpleRecAlgo(int firstSample, int samplesToAdd, bool correctForTimeslew) : firstSample_(firstSample), samplesToAdd_(samplesToAdd), correctForTimeslew_(correctForTimeslew) {
 }
 
 ///Timeshift correction for HPDs based on the position of the peak ADC measurement.
@@ -17,14 +18,18 @@ static float timeshift_ns_hf(float wpksamp);
 
 namespace HcalSimpleRecAlgoImpl {
   template<class Digi, class RecHit>
-  inline RecHit reco(const Digi& digi, const HcalCoder& coder, const HcalCalibrations& calibs, int ifirst, int n) {
+  inline RecHit reco(const Digi& digi, const HcalCoder& coder, const HcalCalibrations& calibs, 
+		     int ifirst, int n, bool slewCorrect, HcalTimeSlew::BiasSetting slewFlavor) {
     CaloSamples tool;
     coder.adc2fC(digi,tool);
 
     double ampl=0; int maxI = -1; double maxA = -1e10; float ta=0;
+    double fc_ampl=0;
     for (int i=ifirst; i<tool.size() && i<n+ifirst; i++) {
       int capid=digi[i].capid();
-      ta = (tool[i]-calibs.pedestal(capid))*calibs.gain(capid);
+      ta = (tool[i]-calibs.pedestal(capid)); // pedestal subtraction
+      fc_ampl+=ta; 
+      ta*=calibs.gain(capid); // fC --> GeV
       ampl+=ta;
       if(ta>maxA){
 	maxA=ta;
@@ -40,9 +45,9 @@ namespace HcalSimpleRecAlgoImpl {
 					       << " first: "<<ifirst
 					       << " last: "<<(tool.size()-1)
 					       << std::endl;
-  }
-
-
+    }
+    
+    
     maxA=fabs(maxA);
     int capid=digi[maxI-1].capid();
     float t0 = fabs((tool[maxI-1]-calibs.pedestal(capid))*calibs.gain(capid));
@@ -50,16 +55,22 @@ namespace HcalSimpleRecAlgoImpl {
     float t2 = fabs((tool[maxI+1]-calibs.pedestal(capid))*calibs.gain(capid));    
     float wpksamp = (maxA + 2.0*t2) / (t0 + maxA + t2);
     float time = (maxI - digi.presamples())*25.0 + timeshift_ns_hbheho(wpksamp);
+
+    if (slewCorrect) time-=HcalTimeSlew::delay(fc_ampl,slewFlavor);
     
     return RecHit(digi.id(),ampl,time);    
   }
 }
 
 HBHERecHit HcalSimpleRecAlgo::reconstruct(const HBHEDataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calibs) const {
-  return HcalSimpleRecAlgoImpl::reco<HBHEDataFrame,HBHERecHit>(digi,coder,calibs,firstSample_,samplesToAdd_);
+  return HcalSimpleRecAlgoImpl::reco<HBHEDataFrame,HBHERecHit>(digi,coder,calibs,
+							       firstSample_,samplesToAdd_,correctForTimeslew_,
+							       HcalTimeSlew::Medium);
 }
 HORecHit HcalSimpleRecAlgo::reconstruct(const HODataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calibs) const {
-  return HcalSimpleRecAlgoImpl::reco<HODataFrame,HORecHit>(digi,coder,calibs,firstSample_,samplesToAdd_);
+  return HcalSimpleRecAlgoImpl::reco<HODataFrame,HORecHit>(digi,coder,calibs,
+							   firstSample_,samplesToAdd_,correctForTimeslew_,
+							   HcalTimeSlew::Slow);
 }
 
 HFRecHit HcalSimpleRecAlgo::reconstruct(const HFDataFrame& digi, const HcalCoder& coder, const HcalCalibrations& calibs) const {
