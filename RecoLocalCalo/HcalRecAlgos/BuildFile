@@ -3,6 +3,7 @@
 <use name=DataFormats/HcalRecHit>
 <use name=CalibFormats/HcalObjects>
 <use name=CalibFormats/CaloObjects>
+<use name=CalibCalorimetry/HcalAlgos>
 <export>
  <lib name=RecoLocalCaloHcalRecAlgos>
  <use name=boost>
@@ -10,4 +11,5 @@
  <use name=DataFormats/HcalRecHit>
  <use name=CalibFormats/HcalObjects>
  <use name=CalibFormats/CaloObjects>
+ <use name=CalibCalorimetry/HcalAlgos>
 </export>
