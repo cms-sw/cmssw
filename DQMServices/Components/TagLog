@@ -1,3 +1,8 @@
+** V00-01-00  [Wed Feb  8 00:19:44 2006]
+New getter &amp; setter methods for class MonitorElement;
+Fixed compilation errors introduced with new CMSSW configuration in
+nightly builds.
+
 ** V00-00-95  [Mon Jan 30 17:13:39 2006]
 New package added: Components (components for client specialization)
 Various bugfixes: memory leaks, fixed Buildfiles, fixes for crashes, etc
