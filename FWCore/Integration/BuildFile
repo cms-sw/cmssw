@@ -1,8 +1,8 @@
 <use name=boost>
-<use name=FWCore/EDProduct>
+<use name=DataFormats/Common>
 <export>
  <lib name=FWCoreIntegration>
  <use name=boost>
- <use name=FWCore/EDProduct>
+ <use name=DataFormats/Common>
 </export>
 

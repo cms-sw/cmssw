@@ -17,7 +17,7 @@
 //
 // Original Author:  W. Brown and M. Fischler
 //         Created:  Fri Nov 11 16:38:19 CST 2005
-// $Id: MessageLogger.h,v 1.5 2006/01/09 18:09:06 fischler Exp $
+// $Id: MessageLogger.h,v 1.6 2006/01/19 17:12:58 fischler Exp $
 //
 
 // system include files
@@ -35,7 +35,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageSender.h"
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
-#include "FWCore/EDProduct/interface/EventID.h"
+#include "DataFormats/Common/interface/EventID.h"
 
 namespace edm  {
 namespace service  {

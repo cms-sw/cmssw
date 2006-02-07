@@ -8,7 +8,7 @@
 //
 // Original Author:  W. Brown, M. Fischler
 //         Created:  Fri Nov 11 16:42:39 CST 2005
-// $Id: MessageLogger.cc,v 1.10 2006/01/18 00:36:09 fischler Exp $
+// $Id: MessageLogger.cc,v 1.11 2006/01/19 17:12:58 fischler Exp $
 //
 
 // system include files
@@ -21,8 +21,8 @@
 
 #include "FWCore/Framework/interface/ModuleDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/EDProduct/interface/EventID.h"
-#include "FWCore/EDProduct/interface/Timestamp.h"
+#include "DataFormats/Common/interface/EventID.h"
+#include "DataFormats/Common/interface/Timestamp.h"
 
 #include <sstream>
 

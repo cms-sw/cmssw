@@ -1,6 +1,6 @@
 #include "FWCore/Integration/test/ThingCollection.h"
 #include "FWCore/Integration/test/OtherThingCollection.h"
-#include "FWCore/EDProduct/interface/Wrapper.h"
+#include "DataFormats/Common/interface/Wrapper.h"
 
 namespace {
 namespace {
