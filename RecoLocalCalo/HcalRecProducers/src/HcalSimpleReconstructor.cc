@@ -16,7 +16,7 @@ using namespace std;
 
     
     HcalSimpleReconstructor::HcalSimpleReconstructor(edm::ParameterSet const& conf):
-      reco_(conf.getParameter<int>("firstSample"),conf.getParameter<int>("samplesToAdd"))
+      reco_(conf.getParameter<int>("firstSample"),conf.getParameter<int>("samplesToAdd"),conf.getParameter<bool>("correctForTimeslew"))
 	
     {
       std::string subd=conf.getParameter<std::string>("Subdetector");
