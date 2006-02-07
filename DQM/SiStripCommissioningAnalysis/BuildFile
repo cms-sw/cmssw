@@ -1,0 +1,9 @@
+<use name=boost>
+<use name=root>
+<flags SEAL_PLUGIN_NAME="DQMSiStripCommissioningAnalysis">
+
+<export>
+   <lib name=DQMSiStripCommissioningAnalysis>
+   <use name=boost>
+   <use name=root>
+</export>
