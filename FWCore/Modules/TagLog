@@ -1,3 +1,6 @@
+** V01-00-01  [Wed Feb  8 02:55:53 2006]
+move persistent classes to DataFormats/Common
+
 ** V01-00-00  [Wed Feb  1 03:10:16 2006]
 Move from seal::reflex to ROOT::Reflex
 
