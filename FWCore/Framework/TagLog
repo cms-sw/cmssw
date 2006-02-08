@@ -1,3 +1,6 @@
+** V02-01-00  [Wed Feb  8 02:49:47 2006]
+scheduler changes, and also move persistent classes to DataProducts/Common
+
 ** V02-00-00  [Wed Feb  1 03:05:21 2006]
 Move from seal::reflex to ROOT::Reflex
 
