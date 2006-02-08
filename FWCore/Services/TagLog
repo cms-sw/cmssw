@@ -1,3 +1,6 @@
+** V00-02-01  [Wed Feb  8 03:17:23 2006]
+move persistent classes to DataFormats/Common
+
 ** V00-02-00  [Mon Jan 30 18:38:30 2006]
 Add simple Memory service
 
