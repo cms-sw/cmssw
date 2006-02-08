@@ -9,8 +9,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/01/15 01:04:14 $
-// $Revision: 1.1 $
+// $Date: 2006/01/30 22:23:11 $
+// $Revision: 1.2 $
 //
 
 #include <iostream>
@@ -19,6 +19,7 @@
 
 #include "RecoTracker/RoadSearchSeedFinder/interface/RoadSearchSeedFinder.h"
 
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DMatchedLocalPosCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
 #include "DataFormats/TrackingSeed/interface/TrackingSeedCollection.h"
 
@@ -48,15 +49,17 @@ void RoadSearchSeedFinder::produce(edm::Event& e, const edm::EventSetup& es)
   // retrieve producer name of input SiStripRecHit2DLocalPosCollection
   std::string recHitProducer = conf_.getParameter<std::string>("RecHitProducer");
   
-  // get Inputs 
-  edm::Handle<SiStripRecHit2DLocalPosCollection> recHits;
-  e.getByLabel(recHitProducer,"stereoRecHit" ,recHits);
+  // get Inputs
+  edm::Handle<SiStripRecHit2DMatchedLocalPosCollection> matchedrecHits;
+  e.getByLabel(recHitProducer,"matchedRecHit" ,matchedrecHits);
+  edm::Handle<SiStripRecHit2DLocalPosCollection> rphirecHits;
+  e.getByLabel(recHitProducer,"rphiRecHit" ,rphirecHits);
 
   // create empty output collection
   std::auto_ptr<TrackingSeedCollection> output(new TrackingSeedCollection);
   
   // invoke the seed finding algorithm
-  roadSearchSeedFinderAlgorithm_.run(recHits,es,*output);
+  roadSearchSeedFinderAlgorithm_.run(matchedrecHits,rphirecHits,es,*output);
   
   // write output to file
   e.put(output);

@@ -15,7 +15,7 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/01/14 22:00:00 $
+// $Date: 2006/01/15 01:04:14 $
 // $Revision: 1.1 $
 //
 
@@ -25,6 +25,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Handle.h"
 
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DMatchedLocalPosCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
 #include "DataFormats/TrackingSeed/interface/TrackingSeedCollection.h"
 
@@ -36,7 +37,8 @@ class RoadSearchSeedFinderAlgorithm
   ~RoadSearchSeedFinderAlgorithm();
 
   /// Runs the algorithm
-  void run(const edm::Handle<SiStripRecHit2DLocalPosCollection> &handle,
+  void run(const edm::Handle<SiStripRecHit2DMatchedLocalPosCollection> &handle,
+           const edm::Handle<SiStripRecHit2DLocalPosCollection> &handle2,
 	   const edm::EventSetup& es,
 	   TrackingSeedCollection &output);
 

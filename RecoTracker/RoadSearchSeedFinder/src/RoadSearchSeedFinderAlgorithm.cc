@@ -12,8 +12,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/01/15 01:04:14 $
-// $Revision: 1.1 $
+// $Date: 2006/01/30 22:23:30 $
+// $Revision: 1.2 $
 //
 
 #include <vector>
@@ -23,6 +23,7 @@
 
 #include "RecoTracker/RoadSearchSeedFinder/interface/RoadSearchSeedFinderAlgorithm.h"
 
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DMatchedLocalPos.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPos.h"
 #include "DataFormats/TrackingSeed/interface/TrackingSeed.h"
 
@@ -44,14 +45,17 @@ RoadSearchSeedFinderAlgorithm::~RoadSearchSeedFinderAlgorithm() {
 }
 
 
-void RoadSearchSeedFinderAlgorithm::run(const edm::Handle<SiStripRecHit2DLocalPosCollection> &handle,
+void RoadSearchSeedFinderAlgorithm::run(const edm::Handle<SiStripRecHit2DMatchedLocalPosCollection> &handle,
+                                        const edm::Handle<SiStripRecHit2DLocalPosCollection> &handle2,
 			      const edm::EventSetup& es,
 			      TrackingSeedCollection &output)
 {
 
-  const SiStripRecHit2DLocalPosCollection* input = handle.product();
+  const SiStripRecHit2DMatchedLocalPosCollection* input = handle.product();
+  const SiStripRecHit2DLocalPosCollection* input2 = handle2.product();
 
   const std::vector<unsigned int> availableIDs = input->detIDs();
+  const std::vector<unsigned int> availableIDs2 = input2->detIDs();
 
   // get roads
   edm::ESHandle<Roads> roads;
@@ -60,6 +64,16 @@ void RoadSearchSeedFinderAlgorithm::run(const edm::Handle<SiStripRecHit2DLocalPo
   // get tracker geometry
   edm::ESHandle<TrackingGeometry> tracker;
   es.get<TrackerDigiGeometryRecord>().get(tracker);
+
+  // calculate maximal possible delta phi for given delta r and parameter pTmin
+  double ptmin = conf_.getParameter<double>("MinimalReconstructedTransverseMomentum");
+
+  // correction for B given in T, delta r given in cm, ptmin given in GeV/c
+  double speedOfLight = 2.99792458e8;
+  double unitCorrection = speedOfLight * 1e-2 * 1e-9;
+
+  // B in T, right now hardcoded, has to come from magnetic field service
+  double B = 4.0;
 
   // loop over seed Ring pairs
   for ( Roads::const_iterator road = roads->begin(); road != roads->end(); ++road ) {
@@ -73,15 +87,15 @@ void RoadSearchSeedFinderAlgorithm::run(const edm::Handle<SiStripRecHit2DLocalPo
 
 	for ( Ring::const_iterator outerRingDetId = seed.second.begin(); outerRingDetId != seed.second.end(); ++outerRingDetId ) {
 
-	  if ( availableIDs.end() != std::find(availableIDs.begin(),availableIDs.end(),outerRingDetId->second.rawId()) ) {
+	  if ( availableIDs2.end() != std::find(availableIDs2.begin(),availableIDs2.end(),outerRingDetId->second.rawId()) ) {
 
-	    SiStripRecHit2DLocalPosCollection::Range innerSeedDetHits = input->get(innerRingDetId->second.rawId());
+	    SiStripRecHit2DMatchedLocalPosCollection::Range innerSeedDetHits = input->get(innerRingDetId->second.rawId());
       
 	    // loop over inner dethits
-	    for ( SiStripRecHit2DLocalPosCollection::ContainerIterator innerSeedDetHit = innerSeedDetHits.first;
+	    for ( SiStripRecHit2DMatchedLocalPosCollection::ContainerIterator innerSeedDetHit = innerSeedDetHits.first;
 		  innerSeedDetHit != innerSeedDetHits.second; ++innerSeedDetHit ) {
 
-	      SiStripRecHit2DLocalPosCollection::Range outerSeedDetHits = input->get(outerRingDetId->second.rawId());
+	      SiStripRecHit2DLocalPosCollection::Range outerSeedDetHits = input2->get(outerRingDetId->second.rawId());
 
 	      for ( SiStripRecHit2DLocalPosCollection::ContainerIterator outerSeedDetHit = outerSeedDetHits.first;
 		    outerSeedDetHit != outerSeedDetHits.second; ++outerSeedDetHit ) {
@@ -94,17 +108,9 @@ void RoadSearchSeedFinderAlgorithm::run(const edm::Handle<SiStripRecHit2DLocalPo
 		double pi = 3.14159265358979312;
 		if ( deltaPhi < 0 ) deltaPhi = 2*pi - deltaPhi;
 	    
-		// calculate maximal possible delta phi for given delta r and parameter pTmin
-		double ptmin = conf_.getParameter<double>("MinimalReconstructedTransverseMomentum");
 		double innerr = std::sqrt(inner.x()*inner.x()+inner.y()*inner.y());
 		double outerr = std::sqrt(outer.x()*outer.x()+outer.y()*outer.y());
-
-		// correction for B given in T, delta r given in cm, ptmin given in GeV/c
-		double speedOfLight = 2.99792458e8;
-		double unitCorrection = speedOfLight * 1e-2 * 1e-9;
-
-		// B in T, right now hardcoded, has to come from magnetic field service
-		double B = 4.0;
+//                std::cout << "innerr, outerr " << innerr << " " << outerr << std::endl;
 
 		// calculate maximal delta phi in [0,2pi]
 		double deltaPhiMax = std::abs( std::asin(unitCorrection * B * innerr / ptmin) - std::asin(unitCorrection * B * outerr / ptmin) );
