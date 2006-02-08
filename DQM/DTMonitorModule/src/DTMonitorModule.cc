@@ -1,8 +1,8 @@
 /*
  * \file DTMonitorModule.cc
  * 
- * $Date: 2005/11/10 09:08:27 $
- * $Revision: 1.37 $
+ * $Date: 2005/11/15 14:04:44 $
+ * $Revision: 1.1 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -20,11 +20,6 @@ DTMonitorModule::DTMonitorModule(const edm::ParameterSet& ps){
 
   logFile.open("DTMonitorModule.log");
 
-  doDigiTask = ps.getUntrackedParameter<bool>("PerformDigiTask", false);
-  doTPTask = ps.getUntrackedParameter<bool>("doTPTask",false);
-  doLocalRecoTask = ps.getUntrackedParameter<bool>("doLocalRecoTask",false);
-  doGlobalRecoTask = ps.getUntrackedParameter<bool>("doGlobalRecoTask",false); 
-  doLocalTriggerTask = ps.getUntrackedParameter<bool>("doLocalTriggerTask",false);
 
   outputFile = ps.getUntrackedParameter<string>("outputFile", "");
   
@@ -43,49 +38,28 @@ DTMonitorModule::DTMonitorModule(const edm::ParameterSet& ps){
     meRunType = dbe->bookInt("RUNTYPE");
   }
 
-  digiTask = new DTDigiTask(ps, dbe);
-  tpTask = new DTTestPulsesTask(ps, dbe);
-  localRecoTask = new DTLocalRecoTask(ps, dbe);
-  globalRecoTask = new DTGlobalRecoTask(ps, dbe);
-  localTriggerTask = new DTLocalTriggerTask(ps, dbe);
-
   if ( dbe ) dbe->showDirStructure();
 
 }
 
 DTMonitorModule::~DTMonitorModule(){
 
-  delete digiTask;
-  delete tpTask;
-  delete localRecoTask;
-  delete globalRecoTask;
-  delete localTriggerTask;
 
   logFile.close();
 
 }
 
-void DTMonitorModule::beginJob(const edm::EventSetup& c){
+void DTMonitorModule::beginJob(const edm::ParameterSet& ps, const edm::EventSetup& context){
 
   nevents = 0;
 
   if ( meStatus ) meStatus->Fill(0);
 
-  digiTask->beginJob(c);
-  tpTask->beginJob(c);
-  localRecoTask->beginJob(c);
-  globalRecoTask->beginJob(c);
-  localTriggerTask->beginJob(c);
   
 }
 
 void DTMonitorModule::endJob(void) {
 
-  digiTask->endJob();
-  tpTask->endJob();
-  localRecoTask->endJob();
-  globalRecoTask->endJob();
-  localTriggerTask->endJob();
 
   cout << "[DTMonitorModule]: " << nevents << " events analyzed " << endl;
 
@@ -106,11 +80,6 @@ void DTMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   if ( meEvt ) meEvt->Fill(nevents);
 
-  if ( doDigiTask ) digiTask->analyze(e, c);
-  if ( doTPTask ) tpTask->analyze(e, c);
-  if ( doLocalRecoTask ) localRecoTask->analyze(e, c);
-  if ( doGlobalRecoTask ) globalRecoTask->analyze(e, c);
-  if ( doLocalTriggerTask ) localTriggerTask->analyze(e, c);
 
 
 //  sleep(1);

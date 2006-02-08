@@ -4,12 +4,11 @@
 /*
  * \file DTMonitorModule.h
  *
- * $Date: 2005/11/10 09:08:27 $
- * $Revision: 1.13 $
+ * $Date: 2005/11/15 14:02:45 $
+ * $Revision: 1.1 $
  * \author M. Zanetti - INFN Padova
  *
 */
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 
@@ -44,6 +43,7 @@ public:
 
   /// Constructor
   DTMonitorModule(const edm::ParameterSet& ps);
+
   
   /// Destructor
   virtual ~DTMonitorModule();
@@ -54,7 +54,7 @@ protected:
   void analyze(const edm::Event& e, const edm::EventSetup& c);
   
   // BeginJob
-  void beginJob(const edm::EventSetup& c);
+  void beginJob(const edm::ParameterSet& ps, const edm::EventSetup& c);
   
   // EndJob
   void endJob(void);
@@ -73,18 +73,6 @@ private:
   MonitorElement* meEvt;
   MonitorElement* meRunType;
   
-  // Tasks: FED data integrity still to be implemented.
-  //        Global Muon Trigger not addressed
-  DTDigiTask * digiTask;
-  bool doDigiTask;
-  DTTestPulsesTask * tpTask;
-  bool doTPTask;
-  DTLocalRecoTask * localRecoTask;
-  bool doLocalRecoTask;
-  DTGlobalRecoTask * globalRecoTask;
-  bool doGlobalRecoTask;
-  DTLocalTriggerTask * localTriggerTask;
-  bool doLocalTriggerTask;
 
 };
 
