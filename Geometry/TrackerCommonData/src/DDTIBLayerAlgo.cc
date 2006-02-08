@@ -384,7 +384,7 @@ void DDTIBLayerAlgo::execute() {
 	}
       }
       // TIB+ DOHM Carrier - lower
-      DDTranslation tran(0, 0, +0.5*(layerL+supportW)-dz_dohm);
+      DDTranslation tran(0, 0, 0.5*layerL-dz_dohm);
       DDpos (dohmCarrier_lo_r, parent(), i+1, tran, rotation );
       DCOUT('r', "DDTIBLayer test " << dohmCarrier_lo_r.name() << " z+ number " << i+1
 	    << " positioned in " << parent().name() << " at " << tran
@@ -395,7 +395,7 @@ void DDTIBLayerAlgo::execute() {
 	    << " positioned in " << parent().name() << " at " << tran
 	    << " with " << rotation);
       // TIB- DOHM Carrier - lower
-      tran = DDTranslation(0, 0, -0.5*(layerL+supportW)+dz_dohm);
+      tran = DDTranslation(0, 0, -0.5*layerL+dz_dohm);
       DDpos (dohmCarrier_lo_l, parent(), i+1, tran, rotation);
       DCOUT('r', "DDTIBLayer test " << dohmCarrier_lo_l.name() << " z- number " << i+1
 	    << " positioned in " << parent().name() << " at " << tran
@@ -432,23 +432,23 @@ void DDTIBLayerAlgo::execute() {
 	<< " of dimensions " << dx_cable << ", " 
 	<< dy_cable << ", " << dz_cable);
   // TIB+ DOHM
-  DDTranslation tran(rout_dohm+0.5*dohmPrimT, 0. , -0.5*dz_dohm);
+  DDTranslation tran(rout_dohm+0.5*dohmPrimT, 0. , 0.);
   DDpos (dohmPrim, dohmCarrierPrim_lo_r, 1, tran, DDRotation() );
   DCOUT('r', "DDTIBLayer_MTCC test " << dohmPrim.name() << " z+ number " << 1
 	<< " positioned in " << dohmCarrierPrim_lo_r.name()
 	<< " at " << tran << " with no rotation");
-  tran = DDTranslation(rout_dohm+dx_cable, 0.5*dohmPrimW , -0.5*dz_dohm);
+  tran = DDTranslation(rout_dohm+dx_cable, 0.5*dohmPrimW , 0.);
   DDpos (dohmCablePrim, dohmCarrierPrim_lo_r, 1, tran, DDRotation() );
   DCOUT('r', "DDTIBLayer_MTCC test " << dohmCablePrim.name() << " copy number " << 1
 	<< " positioned in " << dohmCarrierPrim_lo_r.name()
 	<< " at " << tran << " with no rotation");
-  tran = DDTranslation(rout_dohm+dx_cable, -0.5*dohmPrimW , -0.5*dz_dohm);
+  tran = DDTranslation(rout_dohm+dx_cable, -0.5*dohmPrimW , 0.);
   DDpos (dohmCablePrim, dohmCarrierPrim_lo_r, 2, tran, DDRotation() );
   DCOUT('r', "DDTIBLayer_MTCC test " << dohmCablePrim.name() << " copy number " << 2
 	<< " positioned in " << dohmCarrierPrim_lo_r.name()
 	<< " at " << tran << " with no rotation");
   // TIB- DOHM
-  tran = DDTranslation(rout_dohm+0.5*dohmPrimT, 0. , +0.5*dz_dohm);
+  tran = DDTranslation(rout_dohm+0.5*dohmPrimT, 0. , 0.);
   DCOUT('r', "DDTIBLayer_MTCC test: Creating a new rotation: " 
 	<< "\t90., 0., 90., 270., 180., 0.");
   string rotstr = "D180";
@@ -458,12 +458,12 @@ void DDTIBLayerAlgo::execute() {
   DCOUT('r', "DDTIBLayer_MTCC test " << dohmPrim.name() << " z+ number " << 1
 	<< " positioned in " << dohmCarrierPrim_lo_l.name()
 	<< " at " << tran << " with rotation " << rotation_l);
-  tran = DDTranslation(rout_dohm+dx_cable, 0.5*dohmPrimW , +0.5*dz_dohm);
+  tran = DDTranslation(rout_dohm+dx_cable, 0.5*dohmPrimW , 0.);
   DDpos (dohmCablePrim, dohmCarrierPrim_lo_l, 1, tran, rotation_l );
   DCOUT('r', "DDTIBLayer_MTCC test " << dohmCablePrim.name() << " copy number " << 1
 	<< " positioned in " << dohmCarrierPrim_lo_l.name()
 	<< " at " << tran << " with rotation " << rotation_l);
-  tran = DDTranslation(rout_dohm+dx_cable, -0.5*dohmPrimW , +0.5*dz_dohm);
+  tran = DDTranslation(rout_dohm+dx_cable, -0.5*dohmPrimW , 0.);
   DDpos (dohmCablePrim, dohmCarrierPrim_lo_l, 2, tran, rotation_l );
   DCOUT('r', "DDTIBLayer_MTCC test " << dohmCablePrim.name() << " copy number " << 2
 	<< " positioned in " << dohmCarrierPrim_lo_l.name()
@@ -508,33 +508,33 @@ void DDTIBLayerAlgo::execute() {
 	<< " of dimensions " << dx_cable << ", " 
 	<< dy_cable << ", " << dz_cable);
   // TIB+ DOHM
-  tran = DDTranslation(rout_dohm+0.5*dohmPrimT, -0.75*dohmPrimW , -0.5*dz_dohm);
+  tran = DDTranslation(rout_dohm+0.5*dohmPrimT, -0.75*dohmPrimW , 0.);
   DDpos (dohmPrim, dohmCarrierPrimAux_lo_r, 1, tran, DDRotation() );
   DCOUT('r', "DDTIBLayer_MTCC test " << dohmAux.name() << " z+ number " << 1
 	<< " positioned in " << dohmCarrierPrimAux_lo_r.name()
 	<< " at " << tran << " with no rotation");
-  tran = DDTranslation(rout_dohm+dx_cable, -0.75*dohmPrimW+0.5*dohmPrimW , -0.5*dz_dohm);
+  tran = DDTranslation(rout_dohm+dx_cable, -0.75*dohmPrimW+0.5*dohmPrimW , 0.);
   DDpos (dohmCablePrim, dohmCarrierPrimAux_lo_r, 1, tran, DDRotation() );
   DCOUT('r', "DDTIBLayer_MTCC test " << dohmCablePrim.name() << " copy number " << 1
 	<< " positioned in " << dohmCarrierPrimAux_lo_r.name()
 	<< " at " << tran << " with no rotation");
-  tran = DDTranslation(rout_dohm+dx_cable, -0.75*dohmPrimW-0.5*dohmPrimW , -0.5*dz_dohm);
+  tran = DDTranslation(rout_dohm+dx_cable, -0.75*dohmPrimW-0.5*dohmPrimW , 0.);
   DDpos (dohmCablePrim, dohmCarrierPrimAux_lo_r, 2, tran, DDRotation() );
   DCOUT('r', "DDTIBLayer_MTCC test " << dohmCablePrim.name() << " copy number " << 2
 	<< " positioned in " << dohmCarrierPrimAux_lo_r.name()
 	<< " at " << tran << " with no rotation");
-  tran = DDTranslation(rout_dohm+0.5*dohmAuxT, 0.75*dohmAuxW , -0.5*dz_dohm);
+  tran = DDTranslation(rout_dohm+0.5*dohmAuxT, 0.75*dohmAuxW , 0.);
   DDpos (dohmAux, dohmCarrierPrimAux_lo_r, 1, tran, DDRotation() );
   DCOUT('r', "DDTIBLayer_MTCC test " << dohmAux.name() << " z+ number " << 1
 	<< " positioned in " << dohmCarrierPrimAux_lo_r.name()
 	<< " at (0,0,0) with no rotation");
-  tran = DDTranslation(rout_dohm+dx_cable, 0.75*dohmAuxW+0.5*dohmPrimW , -0.5*dz_dohm);
+  tran = DDTranslation(rout_dohm+dx_cable, 0.75*dohmAuxW+0.5*dohmPrimW , 0.);
   DDpos (dohmCableAux, dohmCarrierPrimAux_lo_r, 1, tran, DDRotation() );
   DCOUT('r', "DDTIBLayer_MTCC test " << dohmCableAux.name() << " copy number " << 1
 	<< " positioned in " << dohmCarrierPrimAux_lo_r.name()
 	<< " at " << tran << " with no rotation");
   // TIB- DOHM
-  tran = DDTranslation(rout_dohm+0.5*dohmPrimT, 0.75*dohmPrimW , +0.5*dz_dohm);
+  tran = DDTranslation(rout_dohm+0.5*dohmPrimT, 0.75*dohmPrimW , 0.);
   DCOUT('r', "DDTIBLayer_MTCC test: Creating a new rotation: " 
 	<< "\t90., 0., 90., 270., 180., 0.");
   rotstr = "D180";
@@ -544,17 +544,17 @@ void DDTIBLayerAlgo::execute() {
   DCOUT('r', "DDTIBLayer_MTCC test " << dohmPrim.name() << " z+ number " << 1
 	<< " positioned in " << dohmCarrierPrimAux_lo_l.name()
 	<< " at "<< tran << " with rotation " << rotation_l);
-  tran = DDTranslation(rout_dohm+dx_cable, 0.75*dohmPrimW+0.5*dohmPrimW , +0.5*dz_dohm);
+  tran = DDTranslation(rout_dohm+dx_cable, 0.75*dohmPrimW+0.5*dohmPrimW , 0.);
   DDpos (dohmCablePrim, dohmCarrierPrimAux_lo_l, 1, tran, rotation_l );
   DCOUT('r', "DDTIBLayer_MTCC test " << dohmCablePrim.name() << " copy number " << 1
 	<< " positioned in " << dohmCarrierPrimAux_lo_l.name()
 	<< " at " << tran << " with rotation " << rotation_l);
-  tran = DDTranslation(rout_dohm+dx_cable, -0.75*dohmPrim+0.5*dohmPrimW , +0.5*dz_dohm);
+  tran = DDTranslation(rout_dohm+dx_cable, -0.75*dohmPrim+0.5*dohmPrimW , 0.);
   DDpos (dohmCablePrim, dohmCarrierPrimAux_lo_l, 2, tran, rotation_l );
   DCOUT('r', "DDTIBLayer_MTCC test " << dohmCablePrim.name() << " copy number " << 2
 	<< " positioned in " << dohmCarrierPrimAux_lo_l.name()
 	<< " at " << tran << " with rotation " << rotation_l);
-  tran = DDTranslation(rout_dohm+0.5*dohmAuxT, -0.75*dohmAuxW , +0.5*dz_dohm);
+  tran = DDTranslation(rout_dohm+0.5*dohmAuxT, -0.75*dohmAuxW , 0.);
   DCOUT('r', "DDTIBLayer_MTCC test: Creating a new rotation: " 
 	<< "\t90., 0., 90., 270., 180., 0.");
   rotstr = "D180";
@@ -564,7 +564,7 @@ void DDTIBLayerAlgo::execute() {
   DCOUT('r', "DDTIBLayer_MTCC test " << dohmAux.name() << " z+ number " << 1
 	<< " positioned in " << dohmCarrierPrimAux_lo_l.name()
 	<< " at " << tran << " with rotation " << rotation_l);  
-  tran = DDTranslation(rout_dohm+dx_cable, -0.75*dohmAuxW-0.5*dohmPrimW , +0.5*dz_dohm);
+  tran = DDTranslation(rout_dohm+dx_cable, -0.75*dohmAuxW-0.5*dohmPrimW , 0.);
   DDpos (dohmCableAux, dohmCarrierPrimAux_lo_l, 1, tran, rotation_l );
   DCOUT('r', "DDTIBLayer_MTCC test " << dohmCableAux.name() << " copy number " << 1
 	<< " positioned in " << dohmCarrierPrimAux_lo_l.name()
