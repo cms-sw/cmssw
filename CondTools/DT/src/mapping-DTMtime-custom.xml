@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<!DOCTYPE Mapping SYSTEM "InMemory">
+<Mapping version="DTMtime-1.0" >
+  <Class table="DTMTIME" id_columns="IOV_VALUE_ID" name="DTMtime" >
+    <Primitive column="DATA_VERSION" name="dataVersion" />
+    <Container table="DT_MTIMESL" id_columns="IOV_VALUE_ID" name="slData" position_column="DATA_ID" >
+      <Object table="DT_MTIMESL" id_columns="DATA_ID IOV_VALUE_ID" name="DTSLMtimeData" >
+        <Primitive column="T_MTIME" name="mTime" />
+        <Primitive column="T_MTRMS" name="mTrms" />
+        <Primitive column="SECTOR" name="sectorId" />
+        <Primitive column="SUPERLAYER" name="slId" />
+        <Primitive column="STATION" name="stationId" />
+        <Primitive column="WHEEL" name="wheelId" />
+      </Object >
+    </Container >
+  </Class >
+</Mapping >
