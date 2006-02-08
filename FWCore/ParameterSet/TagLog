@@ -1,3 +1,6 @@
+** V01-02-00  [Wed Feb  8 02:58:15 2006]
+fail if tracked parameter declared untracked, or vice versa
+
 ** V01-01-00  [Wed Jan 25 03:54:11 2006]
 inject untracked pset and trigger paths
 
