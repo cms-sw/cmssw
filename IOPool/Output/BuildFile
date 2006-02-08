@@ -2,14 +2,12 @@
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=IOPool/Common>
-<use name=root>
 <use name=rootcore>
 <export>
  <lib name=IOPoolOutput>
  <use name=FWCore/Framework>
  <use name=FWCore/MessageLogger>
  <use name=IOPool/Common>
- <use name=root>
  <use name=rootcore>
 </export>
 

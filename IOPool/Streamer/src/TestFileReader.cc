@@ -109,6 +109,7 @@ namespace edmtestp
 	if(!ist_ || ist_.eof()) cerr << "got end!!!!" << endl;
 	stor::FragEntry* msg = 
 	  new (b.buffer()) stor::FragEntry(data.get(),data.get(),len);
+        assert(msg); // Suppresses compiler warning about unused variable
 	//new (b.buffer()) stor::FragEntry(0,0,len);
 	//cout << "make entry for frag " << (void*)msg << " " << msg->buffer_address_ << endl;
 	data.release();
