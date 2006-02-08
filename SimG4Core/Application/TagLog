@@ -1,3 +1,6 @@
+** V03-06-10  [Wed Feb  8 01:33:36 2006]
+pick xml files from Geometry/CMSCommonData; also use endpath
+
 ** V03-06-09  [Thu Feb  2 23:31:13 2006]
 updates: XML from Mike, correct Hcal num.scheme, digis
 
