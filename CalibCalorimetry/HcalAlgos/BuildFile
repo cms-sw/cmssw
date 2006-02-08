@@ -1,5 +1,6 @@
 <use name=boost>
 <use name=root>
+<use name=clhep>
 <use name=FWCore/Framework>
 <use name=DataFormats/HcalDetId>
 <use name=CondFormats/HcalObjects>
@@ -10,6 +11,7 @@
   <lib name=CalibCalorimetryHcalAlgos>
   <use name=root>
   <use name=boost>
+  <use name=clhep>
   <use name=FWCore/Framework>
   <use name=Foundation/PluginManager>
   <use name=DataFormats/HcalDetId>

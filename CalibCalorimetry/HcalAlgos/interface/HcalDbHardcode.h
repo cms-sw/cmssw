@@ -20,9 +20,9 @@
    
 */
 namespace HcalDbHardcode {
-  HcalPedestal makePedestal (HcalDetId fId);
+  HcalPedestal makePedestal (HcalDetId fId, bool fSmear = false);
   HcalPedestalWidth makePedestalWidth (HcalDetId fId);
-  HcalGain makeGain (HcalDetId fId);
+  HcalGain makeGain (HcalDetId fId, bool fSmear = false);
   HcalGainWidth makeGainWidth (HcalDetId fId);
   HcalQIECoder makeQIECoder (HcalDetId fId);
   HcalQIEShape makeQIEShape ();
