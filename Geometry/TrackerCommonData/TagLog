@@ -1,3 +1,6 @@
+** V00-04-02  [Wed Feb  8 16:17:21 2006]
+fix a bug on PXF topology definition
+
 ** V00-04-01  [Thu Feb  2 16:56:12 2006]
 fix tid discrepancies
 
