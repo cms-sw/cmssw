@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/02/05 22:21:54 $
- * $Revision: 1.87 $
+ * $Date: 2006/02/07 13:28:29 $
+ * $Revision: 1.88 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -302,13 +302,13 @@ void EcalBarrelMonitorClient::beginRun(void){
 
   if ( cosmic_client_ ) {
     cosmic_client_->cleanup();
-    if ( runtype_ == "COSMICS" ) {
+    if ( runtype_ == "COSMIC" ) {
       cosmic_client_->beginRun();
     }
   }
   if ( laser_client_ ) {
     laser_client_->cleanup();
-    if ( runtype_ == "COSMICS" || runtype_ == "LASER" || runtype_ == "ELECTRON" ) {
+    if ( runtype_ == "COSMIC" || runtype_ == "LASER" || runtype_ == "ELECTRON" ) {
       laser_client_->beginRun();
     }
   }
@@ -382,12 +382,12 @@ void EcalBarrelMonitorClient::endRun(void) {
   }
 
   if ( cosmic_client_ ) {
-    if ( runtype_ == "COSMICS" ) {
+    if ( runtype_ == "COSMIC" ) {
       cosmic_client_->endRun();
     }
   }
   if ( laser_client_ ) {
-    if ( runtype_ == "COSMICS" || runtype_ == "LASER" || runtype_ == "ELECTRON" ) {
+    if ( runtype_ == "COSMIC" || runtype_ == "LASER" || runtype_ == "ELECTRON" ) {
       laser_client_->endRun();
     }
   }
@@ -610,7 +610,7 @@ void EcalBarrelMonitorClient::writeDb(void) {
   int tasko = 0x0;
 
   if ( integrity_client_ ) {
-    if ( status_ == "end-of-run" || ( runtype_ == "COSMICS" || runtype_ == "ELECTRON" ) ) {
+    if ( status_ == "end-of-run" || ( runtype_ == "COSMIC" || runtype_ == "ELECTRON" ) ) {
       taskl |= 0x1;
       integrity_client_->writeDb(econn, &moniov_);
       tasko |= 0x0;
@@ -618,14 +618,14 @@ void EcalBarrelMonitorClient::writeDb(void) {
   }
 
   if ( cosmic_client_ ) {
-    if ( status_ == "end-of-run" || runtype_ == "COSMICS" ) {
+    if ( status_ == "end-of-run" || runtype_ == "COSMIC" ) {
       taskl |= 0x1 << 1;
       cosmic_client_->writeDb(econn, &moniov_);
       tasko |= 0x0 << 1;
     }
   }
   if ( laser_client_ ) {
-    if ( status_ == "end-of-run" && ( runtype_ == "COSMICS" || runtype_ == "LASER" || runtype_ == "ELECTRON" ) ) {
+    if ( status_ == "end-of-run" && ( runtype_ == "COSMIC" || runtype_ == "LASER" || runtype_ == "ELECTRON" ) ) {
       taskl |= 0x1 << 2;
       laser_client_->writeDb(econn, &moniov_);
       tasko |= 0x0 << 2;
@@ -639,7 +639,7 @@ void EcalBarrelMonitorClient::writeDb(void) {
     }
   }
   if ( pedestalonline_client_ ) {
-    if ( status_ == "end-of-run" || ( runtype_ == "COSMICS" || runtype_ == "ELECTRON" ) ) {
+    if ( status_ == "end-of-run" || ( runtype_ == "COSMIC" || runtype_ == "ELECTRON" ) ) {
       taskl |= 0x1 << 4;
       pedestalonline_client_->writeDb(econn, &moniov_);
       tasko |= 0x0 << 4;
@@ -852,12 +852,12 @@ void EcalBarrelMonitorClient::analyze(void){
   }
 
   if ( cosmic_client_ ) {
-    if ( runtype_ == "COSMICS" ) {
+    if ( runtype_ == "COSMIC" ) {
       cosmic_client_->subscribeNew();
     }
   }
   if ( laser_client_ ) {
-    if ( runtype_ == "COSMICS" || runtype_ == "LASER" || runtype_ == "ELECTRON" ) {
+    if ( runtype_ == "COSMIC" || runtype_ == "LASER" || runtype_ == "ELECTRON" ) {
       laser_client_->subscribeNew();
     }
   }
@@ -954,7 +954,7 @@ void EcalBarrelMonitorClient::analyze(void){
     if ( me ) {
       s = me->valueString();
       runtype_ = "UNKNOWN";
-      if ( s.substr(2,1) == "0" ) runtype_ = "COSMICS";
+      if ( s.substr(2,1) == "0" ) runtype_ = "COSMIC";
       if ( s.substr(2,1) == "1" ) runtype_ = "LASER";
       if ( s.substr(2,1) == "2" ) runtype_ = "PEDESTAL";
       if ( s.substr(2,1) == "3" ) runtype_ = "TEST_PULSE";
@@ -1081,14 +1081,14 @@ void EcalBarrelMonitorClient::analyze(void){
 
         if ( cosmic_client_ ) {
           if ( h_ && h_->GetBinContent(1) != 0 ) {
-            if ( runtype_ == "COSMICS" ) {
+            if ( runtype_ == "COSMIC" ) {
               cosmic_client_->analyze();
             }
           }
         }
         if ( laser_client_ ) {
           if ( h_ && h_->GetBinContent(2) != 0 ) {
-            if ( runtype_ == "COSMICS" || runtype_ == "LASER" || runtype_ == "ELECTRON" ) {
+            if ( runtype_ == "COSMIC" || runtype_ == "LASER" || runtype_ == "ELECTRON" ) {
               laser_client_->analyze();
             }
           }
@@ -1120,7 +1120,7 @@ void EcalBarrelMonitorClient::analyze(void){
 
         if ( enableSubRun_ ) {
           if ( update && updates % 10 == 0 ) {
-            if ( runtype_ == "COSMICS" || runtype_ == "ELECTRON" ) this->writeDb();
+            if ( runtype_ == "COSMIC" || runtype_ == "ELECTRON" ) this->writeDb();
           }
         }
 
@@ -1140,14 +1140,14 @@ void EcalBarrelMonitorClient::analyze(void){
 
       if ( cosmic_client_ ) {
         if ( h_ && h_->GetBinContent(1) != 0 ) {
-          if ( runtype_ == "COSMICS" ) {
+          if ( runtype_ == "COSMIC" ) {
             cosmic_client_->analyze();
           }
         }
       }
       if ( laser_client_ ) {
         if ( h_ && h_->GetBinContent(2) != 0 ) {
-          if ( runtype_ == "COSMICS" || runtype_ == "LASER" || runtype_ == "ELECTRON" ) {
+          if ( runtype_ == "COSMIC" || runtype_ == "LASER" || runtype_ == "ELECTRON" ) {
             laser_client_->analyze();
           }
         }
