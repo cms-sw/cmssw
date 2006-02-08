@@ -1,13 +1,13 @@
 
 /*----------------------------------------------------------------------
-$Id: AnalyzerWorker.cc,v 1.9 2005/12/14 01:35:44 chrjones Exp $
+$Id: AnalyzerWorker.cc,v 1.10 2005/12/28 00:21:58 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/src/AnalyzerWorker.h"
 
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ModuleDescription.h"
+#include "DataFormats/Common/interface/ModuleDescription.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/src/WorkerParams.h"
 #include "FWCore/Utilities/interface/Exception.h"

@@ -1,14 +1,14 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.19 2006/01/20 20:45:14 wmtan Exp $
+$Id: PoolSource.cc,v 1.20 2006/02/07 07:35:34 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/PoolSource.h"
 #include "IOPool/Input/src/RootFile.h"
 #include "IOPool/Common/interface/ClassFiller.h"
 
-#include "FWCore/Framework/interface/BranchDescription.h"
+#include "DataFormats/Common/interface/BranchDescription.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
-#include "FWCore/Framework/interface/ProductRegistry.h"
+#include "DataFormats/Common/interface/ProductRegistry.h"
 #include "DataFormats/Common/interface/ProductID.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -22,7 +22,7 @@ namespace edm {
     rootFiles_(),
     maxEvents_(pset.getUntrackedParameter<int>("maxEvents", -1)),
     remainingEvents_(maxEvents_),
-    mainInput_(pset.getUntrackedParameter<std::string>("@module_label") == std::string("@main_input")) {
+    mainInput_(pset.getParameter<std::string>("@module_label") == std::string("@main_input")) {
     ClassFiller();
     init(*fileIter_);
     if (mainInput_) {

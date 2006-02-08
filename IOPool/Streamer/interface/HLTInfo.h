@@ -15,7 +15,7 @@
  */
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ProductRegistry.h"
+#include "DataFormats/Common/interface/ProductRegistry.h"
 #include "IOPool/Streamer/interface/EventBuffer.h"
 
 #include "boost/thread/mutex.hpp"

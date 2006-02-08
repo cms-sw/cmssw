@@ -10,7 +10,7 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/InputSourceDescription.h"
-#include "FWCore/Framework/interface/ProductRegistry.h"
+#include "DataFormats/Common/interface/ProductRegistry.h"
 #include "FWCore/Framework/src/VectorInputSourceFactory.h"
 #include "FWCore/Integration/test/OtherThingCollection.h"
 #include "FWCore/Integration/test/ThingCollection.h"

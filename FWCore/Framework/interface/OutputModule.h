@@ -6,15 +6,15 @@
 OutputModule: The base class of all "modules" that write Events to an
 output stream.
 
-$Id: OutputModule.h,v 1.17 2006/01/11 00:21:31 paterno Exp $
+$Id: OutputModule.h,v 1.18 2006/02/03 06:00:15 jbk Exp $
 
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/GroupSelector.h"
 #include "FWCore/Framework/interface/EventSelector.h"
-#include "FWCore/Framework/interface/BranchDescription.h"
-#include "FWCore/Framework/interface/ModuleDescription.h"
-#include "FWCore/Framework/interface/Provenance.h"
+#include "DataFormats/Common/interface/BranchDescription.h"
+#include "DataFormats/Common/interface/ModuleDescription.h"
+#include "DataFormats/Common/interface/Provenance.h"
 #include "FWCore/Framework/interface/Selector.h"
 
 #include <vector>

@@ -3,7 +3,7 @@
 
 #include "IOPool/Streamer/interface/EventBuffer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ProductRegistry.h"
+#include "DataFormats/Common/interface/ProductRegistry.h"
 #include "FWCore/Framework/interface/InputSource.h"
 
 #include <vector>

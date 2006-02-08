@@ -3,11 +3,11 @@
    Test Module for testScheduler
 
    \author Stefano ARGIRO
-   \version $Id: TestSchedulerModule2.cc,v 1.8 2005/07/14 22:50:53 wmtan Exp $
+   \version $Id: TestSchedulerModule2.cc,v 1.9 2005/07/25 10:07:51 argiro Exp $
    \date 19 May 2005
 */
 
-static const char CVSId[] = "$Id: TestSchedulerModule2.cc,v 1.8 2005/07/14 22:50:53 wmtan Exp $";
+static const char CVSId[] = "$Id: TestSchedulerModule2.cc,v 1.9 2005/07/25 10:07:51 argiro Exp $";
 
 
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -17,7 +17,7 @@ static const char CVSId[] = "$Id: TestSchedulerModule2.cc,v 1.8 2005/07/14 22:50
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/src/ToyProducts.h"
+#include "DataFormats/Common/interface/ToyProducts.h"
 #include <memory>
 #include <string>
 

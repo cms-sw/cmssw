@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: OutputModule.cc,v 1.9 2006/01/11 00:21:31 paterno Exp $
+$Id: OutputModule.cc,v 1.10 2006/02/03 06:00:15 jbk Exp $
 ----------------------------------------------------------------------*/
 
 #include <vector>
@@ -8,7 +8,7 @@ $Id: OutputModule.cc,v 1.9 2006/01/11 00:21:31 paterno Exp $
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
-#include "FWCore/Framework/interface/TriggerResults.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/Log.h"

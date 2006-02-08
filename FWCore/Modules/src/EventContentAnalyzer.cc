@@ -12,7 +12,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep 19 11:47:28 CEST 2005
-// $Id: EventContentAnalyzer.cc,v 1.12 2006/01/24 21:00:49 chrjones Exp $
+// $Id: EventContentAnalyzer.cc,v 1.13 2006/02/01 00:40:26 wmtan Exp $
 //
 //
 
@@ -28,8 +28,8 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/BranchDescription.h"
-#include "FWCore/Framework/interface/Provenance.h"
+#include "DataFormats/Common/interface/BranchDescription.h"
+#include "DataFormats/Common/interface/Provenance.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 

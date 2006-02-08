@@ -8,7 +8,7 @@
 
 Event streaming input source
 
-$Id: EventStreamInput.h,v 1.7 2005/11/08 20:36:54 paterno Exp $
+$Id: EventStreamInput.h,v 1.8 2006/02/07 07:35:35 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -26,11 +26,11 @@ $Id: EventStreamInput.h,v 1.7 2005/11/08 20:36:54 paterno Exp $
 #include "FWCore/Framework/interface/DelayedReader.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
-#include "FWCore/Framework/interface/BranchKey.h"
+#include "DataFormats/Common/interface/BranchKey.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "FWCore/Framework/interface/EventProvenance.h"
-#include "FWCore/Framework/interface/EventAux.h"
+#include "DataFormats/Common/interface/EventProvenance.h"
+#include "DataFormats/Common/interface/EventAux.h"
 
 class TClass;
 

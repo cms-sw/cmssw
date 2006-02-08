@@ -1,13 +1,13 @@
 
 /*----------------------------------------------------------------------
-$Id: OutputWorker.cc,v 1.13 2005/12/28 00:21:58 wmtan Exp $
+$Id: OutputWorker.cc,v 1.14 2006/02/03 06:00:15 jbk Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/OutputModule.h"
 #include "FWCore/Framework/interface/Actions.h"
-#include "FWCore/Framework/interface/ModuleDescription.h"
+#include "DataFormats/Common/interface/ModuleDescription.h"
 #include "FWCore/Framework/src/WorkerParams.h"
 #include "FWCore/Framework/src/OutputWorker.h"
 #include "FWCore/Utilities/interface/Exception.h"

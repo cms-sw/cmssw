@@ -6,7 +6,7 @@
 
  Original Author:  Jim Kowalkowski 26-01-06
 
- $Id: TriggerNamesService.h,v 1.1 2006/01/29 23:33:57 jbk Exp $
+ $Id: TriggerNamesService.h,v 1.2 2006/02/03 06:00:15 jbk Exp $
 
  This service makes the trigger bit assignments for the current process
  available to all modules.  This of particular use in the output modules.
@@ -23,7 +23,7 @@
 #include <map>
 #include <vector>
 
-#include "FWCore/Framework/interface/TriggerResults.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 namespace edm {

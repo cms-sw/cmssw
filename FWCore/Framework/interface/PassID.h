@@ -1,9 +1,1 @@
-#ifndef Framework_PassID_h
-#define Framework_PassID_h
-
-namespace edm
-{
-  typedef unsigned long PassID;
-}
-
-#endif
+#include "DataFormats/Common/interface/PassID.h"

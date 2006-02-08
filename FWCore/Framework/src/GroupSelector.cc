@@ -1,4 +1,4 @@
-// $Id: GroupSelector.cc,v 1.12 2005/10/03 19:05:41 wmtan Exp $
+// $Id: GroupSelector.cc,v 1.13 2006/01/11 00:21:31 paterno Exp $
 
 #include <algorithm>
 #include <iterator>
@@ -8,7 +8,7 @@
 
 #include "boost/algorithm/string.hpp"
 
-#include "FWCore/Framework/interface/BranchDescription.h"
+#include "DataFormats/Common/interface/BranchDescription.h"
 #include "FWCore/Framework/interface/GroupSelector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"

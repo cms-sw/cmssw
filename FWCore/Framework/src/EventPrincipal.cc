@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EventPrincipal.cc,v 1.30 2006/01/24 16:33:12 wmtan Exp $
+$Id: EventPrincipal.cc,v 1.31 2006/01/29 23:33:58 jbk Exp $
 ----------------------------------------------------------------------*/
 //#include <iostream>
 #include <memory>
@@ -8,7 +8,7 @@ $Id: EventPrincipal.cc,v 1.30 2006/01/24 16:33:12 wmtan Exp $
 #include <algorithm>
 
 #include "FWCore/Framework/interface/EventPrincipal.h"
-#include "FWCore/Framework/interface/ProductRegistry.h"
+#include "DataFormats/Common/interface/ProductRegistry.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 using namespace std;
 

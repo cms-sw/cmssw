@@ -1,18 +1,18 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.2 2006/01/11 22:34:01 wmtan Exp $
+$Id: RootFile.cc,v 1.3 2006/01/15 05:22:56 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/RootFile.h"
 #include "IOPool/Input/src/RootDelayedReader.h"
 #include "IOPool/Common/interface/PoolNames.h"
 
-#include "FWCore/Framework/interface/BranchDescription.h"
-#include "FWCore/Framework/interface/BranchEntryDescription.h"
-#include "FWCore/Framework/interface/EventAux.h"
+#include "DataFormats/Common/interface/BranchDescription.h"
+#include "DataFormats/Common/interface/BranchEntryDescription.h"
+#include "DataFormats/Common/interface/EventAux.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
-#include "FWCore/Framework/interface/EventProvenance.h"
-#include "FWCore/Framework/interface/ProductRegistry.h"
-#include "FWCore/Framework/interface/Provenance.h"
+#include "DataFormats/Common/interface/EventProvenance.h"
+#include "DataFormats/Common/interface/ProductRegistry.h"
+#include "DataFormats/Common/interface/Provenance.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "TFile.h"

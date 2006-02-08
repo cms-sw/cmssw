@@ -4,7 +4,7 @@
 /*
   Author: Jim Kowalkowski  28-01-06
 
-  $Id: Schedule.h,v 1.2 2006/02/04 04:31:01 jbk Exp $
+  $Id: Schedule.h,v 1.3 2006/02/06 19:06:48 jbk Exp $
 
   A class for creating a schedule based on paths in the configuration file.
   The schedule is maintained as a sequence of paths.
@@ -88,7 +88,7 @@
 */
 
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
-#include "FWCore/Framework/interface/TriggerResults.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/src/Worker.h"
 #include "FWCore/Framework/src/WorkerInPath.h"
@@ -96,7 +96,7 @@
 #include "FWCore/Framework/interface/Actions.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
-#include "FWCore/Framework/interface/ProductRegistry.h"
+#include "DataFormats/Common/interface/ProductRegistry.h"
 #include "FWCore/Framework/src/WorkerRegistry.h"
 
 #include "boost/shared_ptr.hpp"

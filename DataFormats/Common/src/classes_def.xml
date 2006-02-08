@@ -34,4 +34,38 @@
  <class name="edm::Wrapper<std::vector<unsigned int> >"/>
  <class name="edm::Wrapper<std::vector<char> >"/>
  <class name="edm::Wrapper<std::vector<unsigned char> >"/>
+ <class name="edm::EventAux"/>
+ <class name="edm::EventProvenance"/>
+ <class name="edm::ProductRegistry">
+   <field name="frozen_" transient="true"/>
+ </class>
+ <class name="std::vector<edm::BranchEntryDescription>"/>
+ <class name="std::map<edm::BranchKey, edm::BranchDescription>"/>
+ <class name="edm::BranchKey"/>
+ <class name="std::vector<edm::ProductID>"/>
+ <class name="edm::ModuleDescription"/>
+ <class name="edm::BranchEntryDescription"/>
+ <class name="edm::BranchDescription">
+   <field name="branchName_" transient="true"/>
+   <field name="productPtr_" transient="true"/>
+ </class>
+ <class name="edmtest::DummyProduct"/>
+ <class name="edmtest::IntProduct"/>
+ <class name="edmtest::DoubleProduct"/>
+ <class name="edmtest::StringProduct"/>
+ <class name="edmtest::Simple"/>
+ <class name="edm::SortedCollection<edmtest::Simple, edm::StrictWeakOrdering<edmtest::Simple> >"/>
+ <class name="edm::Wrapper<edmtest::DummyProduct>"/>
+ <class name="edm::Wrapper<edmtest::IntProduct>"/>
+ <class name="edm::Wrapper<edmtest::DoubleProduct>"/>
+ <class name="edm::Wrapper<edmtest::StringProduct>"/>
+ <class name="edm::Wrapper<edm::SortedCollection<edmtest::Simple, edm::StrictWeakOrdering<edmtest::Simple> > >"/>
+  <class name="std::vector<bool>"/>
+  <class name="edm::TriggerResults">
+   <field name="bits_" transient="true"/>
+   <field name="vetobits_" transient="true"/>
+   <field name="insync_" transient="true"/>
+  </class>
+  <class name="edm::Wrapper<edm::TriggerResults>"/>
+
 </lcgdict>

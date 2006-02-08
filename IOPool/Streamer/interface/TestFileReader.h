@@ -4,7 +4,7 @@
 #include "IOPool/Streamer/interface/EventBuffer.h"
 #include "IOPool/Streamer/interface/Utilities.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ProductRegistry.h"
+#include "DataFormats/Common/interface/ProductRegistry.h"
 
 #include "boost/shared_ptr.hpp"
 #include "boost/thread/thread.hpp"

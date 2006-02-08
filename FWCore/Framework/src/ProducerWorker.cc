@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: ProducerWorker.cc,v 1.17 2005/12/28 00:32:04 wmtan Exp $
+$Id: ProducerWorker.cc,v 1.18 2005/12/28 00:48:40 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/src/ProducerWorker.h"
@@ -10,9 +10,9 @@ $Id: ProducerWorker.cc,v 1.17 2005/12/28 00:32:04 wmtan Exp $
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Actions.h"
 #include "FWCore/Framework/src/WorkerParams.h"
-#include "FWCore/Framework/interface/BranchDescription.h"
-#include "FWCore/Framework/interface/ModuleDescription.h"
-#include "FWCore/Framework/interface/ProductRegistry.h"
+#include "DataFormats/Common/interface/BranchDescription.h"
+#include "DataFormats/Common/interface/ModuleDescription.h"
+#include "DataFormats/Common/interface/ProductRegistry.h"
 #include "FWCore/Framework/interface/ProductRegistryHelper.h"
 #include "FWCore/Utilities/interface/Exception.h"
 

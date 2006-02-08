@@ -3,7 +3,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/src/ProducerWorker.h"
 #include "FWCore/Framework/src/WorkerInPath.h"
-#include "FWCore/Framework/interface/ModuleDescription.h"
+#include "DataFormats/Common/interface/ModuleDescription.h"
 #include "FWCore/Framework/interface/Schedule.h"
 #include "FWCore/Framework/src/TriggerResultInserter.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"

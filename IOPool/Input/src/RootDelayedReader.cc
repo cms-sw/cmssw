@@ -1,10 +1,10 @@
 /*----------------------------------------------------------------------
-$Id: RootDelayedReader.cc,v 1.1 2006/01/06 02:35:46 wmtan Exp $
+$Id: RootDelayedReader.cc,v 1.1 2006/01/07 00:46:23 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/RootDelayedReader.h"
 #include "IOPool/Common/interface/RefStreamer.h"
-#include "FWCore/Framework/interface/BranchKey.h"
+#include "DataFormats/Common/interface/BranchKey.h"
 
 #include "TClass.h"
 

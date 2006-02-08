@@ -1,14 +1,14 @@
-// $Id: PoolOutputModule.cc,v 1.9 2006/01/15 05:22:57 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.10 2006/01/20 20:45:15 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
 #include "IOPool/Common/interface/ClassFiller.h"
 #include "IOPool/Common/interface/RefStreamer.h"
 
-#include "FWCore/Framework/interface/BranchKey.h"
+#include "DataFormats/Common/interface/BranchKey.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
-#include "FWCore/Framework/interface/EventProvenance.h"
-#include "FWCore/Framework/interface/ProductRegistry.h"
+#include "DataFormats/Common/interface/EventProvenance.h"
+#include "DataFormats/Common/interface/ProductRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

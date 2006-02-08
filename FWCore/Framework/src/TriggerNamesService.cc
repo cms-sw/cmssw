@@ -3,11 +3,11 @@
 // Implementation:
 //
 // Original Author:  Jim Kowalkowski
-// $Id: TriggerNamesService.cc,v 1.1 2006/01/29 23:33:58 jbk Exp $
+// $Id: TriggerNamesService.cc,v 1.2 2006/02/03 06:00:15 jbk Exp $
 //
 
-#include "FWCore/Framework/interface/ModuleDescription.h"
-#include "FWCore/Framework/interface/TriggerResults.h"
+#include "DataFormats/Common/interface/ModuleDescription.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"

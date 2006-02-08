@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Sep  8 14:17:58 EDT 2005
-// $Id: Tracer.cc,v 1.3 2005/09/10 02:08:49 wmtan Exp $
+// $Id: Tracer.cc,v 1.4 2006/02/07 07:16:46 wmtan Exp $
 //
 
 // system include files
@@ -16,7 +16,7 @@
 // user include files
 #include "FWCore/Services/src/Tracer.h"
 
-#include "FWCore/Framework/interface/ModuleDescription.h"
+#include "DataFormats/Common/interface/ModuleDescription.h"
 #include "DataFormats/Common/interface/EventID.h"
 #include "DataFormats/Common/interface/Timestamp.h"
 

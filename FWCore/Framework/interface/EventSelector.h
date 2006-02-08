@@ -3,12 +3,12 @@
 
 /*
   Author: Jim Kowalkowski 01-02-06
-  $Id$
+  $Id: EventSelector.h,v 1.1 2006/02/03 06:00:15 jbk Exp $
 
  */
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/TriggerResults.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
 
 #include <vector>
 #include <string>

@@ -6,14 +6,14 @@
 Group: A collection of information related to a single EDProduct. This
 is the storage unit of such information.
 
-$Id: Group.h,v 1.9 2005/10/03 19:05:41 wmtan Exp $
+$Id: Group.h,v 1.10 2006/02/07 07:51:41 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include <memory>
 
 #include "DataFormats/Common/interface/EDProduct.h"
-#include "FWCore/Framework/interface/Provenance.h"
+#include "DataFormats/Common/interface/Provenance.h"
 
 namespace edm {
   class Group {

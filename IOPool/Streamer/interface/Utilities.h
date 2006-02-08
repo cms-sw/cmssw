@@ -11,7 +11,7 @@
 #include "IOPool/StreamerData/interface/Messages.h"
 #include "IOPool/Streamer/interface/EventBuffer.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
-#include "FWCore/Framework/interface/ProductRegistry.h"
+#include "DataFormats/Common/interface/ProductRegistry.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 
 #include "TBuffer.h"

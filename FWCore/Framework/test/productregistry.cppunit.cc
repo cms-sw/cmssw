@@ -3,7 +3,7 @@
    test for ProductRegistry 
 
    \author Stefano ARGIRO
-   \version $Id: productregistry.cppunit.cc,v 1.5 2005/10/11 19:36:22 chrjones Exp $
+   \version $Id: productregistry.cppunit.cc,v 1.6 2005/12/28 00:51:28 wmtan Exp $
    \date 21 July 2005
 */
 
@@ -15,7 +15,7 @@
 
 #include "FWCore/Framework/src/SignallingProductRegistry.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
-#include "FWCore/Framework/interface/ModuleDescription.h"
+#include "DataFormats/Common/interface/ModuleDescription.h"
 #include "FWCore/Utilities/interface/ProblemTracker.h"
 
 

@@ -1,12 +1,12 @@
 /*----------------------------------------------------------------------
   
-$Id: ProductRegistryHelper.cc,v 1.6 2005/10/11 19:32:28 chrjones Exp $
+$Id: ProductRegistryHelper.cc,v 1.1 2005/12/28 00:49:48 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/ProductRegistryHelper.h"
-#include "FWCore/Framework/interface/ProductRegistry.h"
-#include "FWCore/Framework/interface/BranchDescription.h"
+#include "DataFormats/Common/interface/ProductRegistry.h"
+#include "DataFormats/Common/interface/BranchDescription.h"
 
 namespace edm {
   ProductRegistryHelper::~ProductRegistryHelper() { }

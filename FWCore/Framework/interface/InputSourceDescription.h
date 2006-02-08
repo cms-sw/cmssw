@@ -6,10 +6,10 @@
 InputSourceDescription : the stuff that is needed to configure an
 input source that does not come in through the ParameterSet  
 
-$Id: InputSourceDescription.h,v 1.6 2005/09/01 05:17:19 wmtan Exp $
+$Id: InputSourceDescription.h,v 1.1 2005/09/28 05:31:15 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <string>
-#include "FWCore/Framework/interface/PassID.h"
+#include "DataFormats/Common/interface/PassID.h"
 
 namespace edm {
   class ProductRegistry;

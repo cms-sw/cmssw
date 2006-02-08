@@ -1,5 +1,5 @@
-#ifndef FrameworkTriggerResultsInserter_h
-#define FrameworkTriggerResultsInserter_h
+#ifndef Framework_TriggerResultsInserter_h
+#define Framework_TriggerResultsInserter_h
 
 /*
   Author: Jim Kowalkowski 15-1-06
@@ -14,7 +14,7 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/TriggerResults.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "boost/shared_ptr.hpp"
@@ -47,5 +47,33 @@ namespace edm
     // pset_as_string needed until psets are stored in the output files
     Strings path_names_;
   };
+
+  // ---------------------
+#if 0
+  // if and when the run information becomes avaialble from the event,
+  // these function will need to be available and moved into an
+  // algorithm or utility library that depends on the framework
+  // The event is needed to get the run object
+  // The trigger results are needed to get the trigger bits
+  // These are free functions so they can exist in a separable library
+  // that isolates the dependency on the Event class.
+  // The initial implementation of these functions will just use the
+  // information in the triggerresults object directly to answer the
+  // questions.
+
+  int trigGetPosition(const Event& e,
+           const TriggerResult& t,
+                   const std::string& path_name);
+
+  std::string trigGetName(const Event& e,
+           const TriggerResult& t,
+                   int bit_position);
+
+  edm::TriggerResults::BitMask trigGetMask(const Event& e,
+           const TriggerResults& t,
+                   const std::vector<std::string>& path_names);
+#endif
+
+
 }
 #endif

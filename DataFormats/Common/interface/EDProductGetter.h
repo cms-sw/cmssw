@@ -10,13 +10,13 @@
  Description: Abstract base class used internally by the RefBase to obtain the EDProduct from the Event
 
  Usage:
-    This is used internally by the Framework
+    This is used internally by the edm::Ref classes.
 
 */
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov  1 15:06:31 EST 2005
-// $Id: EDProductGetter.h,v 1.3 2005/12/02 05:24:55 wmtan Exp $
+// $Id: EDProductGetter.h,v 1.1 2006/02/07 07:01:50 wmtan Exp $
 //
 
 // system include files

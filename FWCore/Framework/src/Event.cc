@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: Event.cc,v 1.21 2005/10/03 19:06:06 wmtan Exp $
+$Id: Event.cc,v 1.22 2006/02/07 07:51:41 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -9,7 +9,7 @@ $Id: Event.cc,v 1.21 2005/10/03 19:06:06 wmtan Exp $
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/ProductID.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
-#include "FWCore/Framework/interface/BranchDescription.h"
+#include "DataFormats/Common/interface/BranchDescription.h"
 #include "FWCore/Framework/src/Group.h"
 
 using namespace std;
