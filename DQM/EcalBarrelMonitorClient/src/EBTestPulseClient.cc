@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2006/02/03 09:39:06 $
- * $Revision: 1.61 $
+ * $Date: 2006/02/05 22:21:54 $
+ * $Revision: 1.62 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -470,7 +470,11 @@ void EBTestPulseClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
         pn.setPedMeanG16(mean04);
         pn.setPedRMSG16(rms04);
 
-        pn.setTaskStatus(true);
+        if ( mean01 > 200. ) {
+          pn.setTaskStatus(true);
+        } else {
+          pn.setTaskStatus(false);
+        }
 
         if ( econn ) {
           try {
