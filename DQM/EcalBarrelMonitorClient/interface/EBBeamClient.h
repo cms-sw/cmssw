@@ -1,11 +1,11 @@
-#ifndef EBElectronClient_H
-#define EBElectronClient_H
+#ifndef EBBEAMClient_H
+#define EBBEAMClient_H
 
 /*
- * \file EBElectronClient.h
+ * \file EBBeamClient.h
  *
- * $Date: 2006/02/03 09:39:06 $
- * $Revision: 1.10 $
+ * $Date: 2006/02/05 22:21:53 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -45,15 +45,15 @@ using namespace cms;
 using namespace edm;
 using namespace std;
 
-class EBElectronClient{
+class EBBeamClient{
 
 public:
 
 /// Constructor
-EBElectronClient(const ParameterSet& ps, MonitorUserInterface* mui);
+EBBeamClient(const ParameterSet& ps, MonitorUserInterface* mui);
 
 /// Destructor
-virtual ~EBElectronClient();
+virtual ~EBBeamClient();
 
 /// Subscribe/Unsubscribe to Monitoring Elements
 void subscribe(void);

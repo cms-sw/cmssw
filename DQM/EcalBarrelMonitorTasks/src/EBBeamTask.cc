@@ -1,15 +1,15 @@
 /*
- * \file EBElectronTask.cc
+ * \file EBBeamTask.cc
  *
- * $Date: 2006/01/29 17:21:28 $
- * $Revision: 1.3 $
+ * $Date: 2006/02/05 22:19:22 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  *
 */
 
-#include <DQM/EcalBarrelMonitorTasks/interface/EBElectronTask.h>
+#include <DQM/EcalBarrelMonitorTasks/interface/EBBeamTask.h>
 
-EBElectronTask::EBElectronTask(const ParameterSet& ps){
+EBBeamTask::EBBeamTask(const ParameterSet& ps){
 
   init_ = false;
 
@@ -21,17 +21,17 @@ EBElectronTask::EBElectronTask(const ParameterSet& ps){
 
 }
 
-EBElectronTask::~EBElectronTask(){
+EBBeamTask::~EBBeamTask(){
 
 }
 
-void EBElectronTask::beginJob(const EventSetup& c){
+void EBBeamTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
 
 }
 
-void EBElectronTask::setup(void){
+void EBBeamTask::setup(void){
 
   init_ = true;
 
@@ -41,19 +41,19 @@ void EBElectronTask::setup(void){
   dbe = Service<DaqMonitorBEInterface>().operator->();
 
   if ( dbe ) {
-    dbe->setCurrentFolder("EcalBarrel/EBElectronTask");
+    dbe->setCurrentFolder("EcalBarrel/EBBeamTask");
 
   }
 
 }
 
-void EBElectronTask::endJob(){
+void EBBeamTask::endJob(){
 
-  LogInfo("EBElectronTask") << "analyzed " << ievt_ << " events";
+  LogInfo("EBBeamTask") << "analyzed " << ievt_ << " events";
 
 }
 
-void EBElectronTask::analyze(const Event& e, const EventSetup& c){
+void EBBeamTask::analyze(const Event& e, const EventSetup& c){
 
   // this is a hack, used to fake the EcalBarrel event header
   TH1F* tmp = (TH1F*) gROOT->FindObjectAny("tmp");

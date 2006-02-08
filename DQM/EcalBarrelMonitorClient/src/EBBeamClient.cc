@@ -1,16 +1,16 @@
 /*
- * \file EBElectronClient.cc
+ * \file EBBeamClient.cc
  *
- * $Date: 2006/02/04 18:56:52 $
- * $Revision: 1.12 $
+ * $Date: 2006/02/05 22:21:54 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
 */
 
-#include <DQM/EcalBarrelMonitorClient/interface/EBElectronClient.h>
+#include <DQM/EcalBarrelMonitorClient/interface/EBBeamClient.h>
 
-EBElectronClient::EBElectronClient(const ParameterSet& ps, MonitorUserInterface* mui){
+EBBeamClient::EBBeamClient(const ParameterSet& ps, MonitorUserInterface* mui){
 
   mui_ = mui;
 
@@ -25,22 +25,22 @@ EBElectronClient::EBElectronClient(const ParameterSet& ps, MonitorUserInterface*
 
 }
 
-EBElectronClient::~EBElectronClient(){
+EBBeamClient::~EBBeamClient(){
 
 }
 
-void EBElectronClient::beginJob(void){
+void EBBeamClient::beginJob(void){
 
-  if ( verbose_ ) cout << "EBElectronClient: beginJob" << endl;
+  if ( verbose_ ) cout << "EBBeamClient: beginJob" << endl;
 
   ievt_ = 0;
   jevt_ = 0;
 
 }
 
-void EBElectronClient::beginRun(void){
+void EBBeamClient::beginRun(void){
 
-  if ( verbose_ ) cout << "EBElectronClient: beginRun" << endl;
+  if ( verbose_ ) cout << "EBBeamClient: beginRun" << endl;
 
   jevt_ = 0;
 
@@ -50,15 +50,15 @@ void EBElectronClient::beginRun(void){
 
 }
 
-void EBElectronClient::endJob(void) {
+void EBBeamClient::endJob(void) {
 
-  if ( verbose_ ) cout << "EBElectronClient: endJob, ievt = " << ievt_ << endl;
+  if ( verbose_ ) cout << "EBBeamClient: endJob, ievt = " << ievt_ << endl;
 
 }
 
-void EBElectronClient::endRun(void) {
+void EBBeamClient::endRun(void) {
 
-  if ( verbose_ ) cout << "EBElectronClient: endRun, jevt = " << jevt_ << endl;
+  if ( verbose_ ) cout << "EBBeamClient: endRun, jevt = " << jevt_ << endl;
 
   this->unsubscribe();
 
@@ -66,15 +66,15 @@ void EBElectronClient::endRun(void) {
 
 }
 
-void EBElectronClient::setup(void) {
+void EBBeamClient::setup(void) {
 
 }
 
-void EBElectronClient::cleanup(void) {
+void EBBeamClient::cleanup(void) {
 
 }
 
-void EBElectronClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
+void EBBeamClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
 
   EcalLogicID ecid;
   MonOccupancyDat o;
@@ -94,33 +94,33 @@ void EBElectronClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
 
 }
 
-void EBElectronClient::subscribe(void){
+void EBBeamClient::subscribe(void){
 
-  if ( verbose_ ) cout << "EBElectronClient: subscribe" << endl;
+  if ( verbose_ ) cout << "EBBeamClient: subscribe" << endl;
 
   // subscribe to all monitorable matching pattern
 
   if ( collateSources_ ) {
 
-    if ( verbose_ ) cout << "EBElectronClient: collate" << endl;
+    if ( verbose_ ) cout << "EBBeamClient: collate" << endl;
 
   }
 
 }
 
-void EBElectronClient::subscribeNew(void){
+void EBBeamClient::subscribeNew(void){
 
   // subscribe to new monitorable matching pattern
 
 }
 
-void EBElectronClient::unsubscribe(void){
+void EBBeamClient::unsubscribe(void){
 
-  if ( verbose_ ) cout << "EBElectronClient: unsubscribe" << endl;
+  if ( verbose_ ) cout << "EBBeamClient: unsubscribe" << endl;
 
   if ( collateSources_ ) {
 
-    if ( verbose_ ) cout << "EBElectronClient: uncollate" << endl;
+    if ( verbose_ ) cout << "EBBeamClient: uncollate" << endl;
 
   }
 
@@ -128,19 +128,19 @@ void EBElectronClient::unsubscribe(void){
 
 }
 
-void EBElectronClient::analyze(void){
+void EBBeamClient::analyze(void){
 
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 ) {
-    if ( verbose_ ) cout << "EBElectronClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+    if ( verbose_ ) cout << "EBBeamClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
 }
 
-void EBElectronClient::htmlOutput(int run, string htmlDir, string htmlName){
+void EBBeamClient::htmlOutput(int run, string htmlDir, string htmlName){
 
-  cout << "Preparing EBElectronClient html output ..." << endl;
+  cout << "Preparing EBBeamClient html output ..." << endl;
 
   ofstream htmlFile;
 
@@ -152,7 +152,7 @@ void EBElectronClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<head>  " << endl;
   htmlFile << "  <meta content=\"text/html; charset=ISO-8859-1\"  " << endl;
   htmlFile << " http-equiv=\"content-type\">  " << endl;
-  htmlFile << "  <title>Monitor:ElectronTask output</title> " << endl;
+  htmlFile << "  <title>Monitor:BeamTask output</title> " << endl;
   htmlFile << "</head>  " << endl;
   htmlFile << "<style type=\"text/css\"> td { font-weight: bold } </style>" << endl;
   htmlFile << "<body>  " << endl;
@@ -161,7 +161,7 @@ void EBElectronClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
   htmlFile << " style=\"color: rgb(0, 0, 153);\">" << run << "</span></h2>" << endl;
   htmlFile << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
-  htmlFile << " style=\"color: rgb(0, 0, 153);\">Electron</span></h2> " << endl;
+  htmlFile << " style=\"color: rgb(0, 0, 153);\">Beam</span></h2> " << endl;
   htmlFile << "<hr>" << endl;
 //  htmlFile << "<table border=1><tr><td bgcolor=red>channel has problems in this task</td>" << endl;
 //  htmlFile << "<td bgcolor=lime>channel has NO problems</td>" << endl;

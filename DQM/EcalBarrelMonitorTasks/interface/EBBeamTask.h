@@ -1,11 +1,11 @@
-#ifndef EBElectronTask_H
-#define EBElectronTask_H
+#ifndef EBBEAMTask_H
+#define EBBEAMTask_H
 
 /*
- * \file EBElectronTask.h
+ * \file EBBeamTask.h
  *
- * $Date: 2006/02/03 08:08:31 $
- * $Revision: 1.4 $
+ * $Date: 2006/02/05 22:19:22 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  *
 */
@@ -38,15 +38,15 @@ using namespace cms;
 using namespace edm;
 using namespace std;
 
-class EBElectronTask: public EDAnalyzer{
+class EBBeamTask: public EDAnalyzer{
 
 public:
 
 /// Constructor
-EBElectronTask(const ParameterSet& ps);
+EBBeamTask(const ParameterSet& ps);
 
 /// Destructor
-virtual ~EBElectronTask();
+virtual ~EBBeamTask();
 
 protected:
 
