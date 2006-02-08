@@ -1,7 +1,8 @@
-<use name=boost>
+<use name=FWCore/EDProduct>
 <use name=clhep>
+<flags LCGDICT_ARGS="--deep">
 <export>
  <lib name=DataFormatsTrackingRecHit>
- <use name=boost>
+ <use name=FWCore/EDProduct>
  <use name=clhep>
 </export>

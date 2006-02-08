@@ -1,0 +1,5 @@
+<lcgdict>
+  <class name="TrackingRecHit" />
+  <class name="RecHit1D" />
+  <class name="RecHit2DLocalPos" />
+</lcgdict>
