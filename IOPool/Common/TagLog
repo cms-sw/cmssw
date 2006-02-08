@@ -1,3 +1,6 @@
+** V01-00-07  [Wed Feb  8 03:33:07 2006]
+move persistent classes to DataFormats/Common
+
 ** V01-00-06  [Wed Jan 25 03:33:27 2006]
 fix problem with getting file size
 
