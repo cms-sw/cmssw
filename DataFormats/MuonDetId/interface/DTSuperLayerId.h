@@ -4,7 +4,7 @@
 /** \class DTSuperLayerId
  *  DetUnit identifier for DT SuperLayers (SL)
  *
- *  $Date: 2005/12/19 16:15:11 $
+ *  $Date: 2006/01/19 15:41:32 $
  *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
@@ -58,7 +58,7 @@ public:
 
 };
 
-std::ostream& operator<<( std::ostream& os, const DTChamberId& id );
+std::ostream& operator<<( std::ostream& os, const DTSuperLayerId& id );
 
 #endif
 
