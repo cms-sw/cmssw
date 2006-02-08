@@ -1,3 +1,6 @@
+** V01-06-00  [Wed Feb  8 03:43:20 2006]
+Removed superfluous inter-module and pre/post event and job Loginfo messages
+
 ** V01-05-00  [Wed Jan 25 03:57:19 2006]
 Explicit triggering of statistics summaries via edm::LogStatistics()
 
