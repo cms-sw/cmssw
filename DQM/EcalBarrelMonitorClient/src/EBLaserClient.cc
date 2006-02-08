@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2006/02/05 22:21:54 $
- * $Revision: 1.58 $
+ * $Date: 2006/02/08 17:57:42 $
+ * $Revision: 1.59 $
  * \author G. Della Ricca
  *
 */
@@ -764,7 +764,11 @@ void EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
         pn_bl.setPedMeanG16(mean13);
         pn_bl.setPedRMSG16(rms13);
 
-        pn_bl.setTaskStatus(true);
+        if ( mean01 > 200. && mean05 > 200. && mean09 > 200. && mean13 > 200. ) {
+          pn_bl.setTaskStatus(true);
+        } else {
+          pn_bl.setTaskStatus(false);
+        }
 
         if ( econn ) {
           try {
@@ -800,7 +804,11 @@ void EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
         pn_ir.setPedMeanG16(mean14);
         pn_ir.setPedRMSG16(rms14);
 
-        pn_ir.setTaskStatus(true);
+        if ( mean02 > 200. && mean06 > 200. && mean10 > 200. && mean14 > 200. ) {
+          pn_ir.setTaskStatus(true);
+        } else {
+          pn_ir.setTaskStatus(false);
+        }
 
         if ( econn ) {
           try {
@@ -836,7 +844,11 @@ void EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
         pn_gr.setPedMeanG16(mean15);
         pn_gr.setPedRMSG16(rms15);
 
-        pn_gr.setTaskStatus(true);
+        if ( mean03 > 200. && mean07 > 200. && mean11 > 200. && mean15 > 200. ) {
+          pn_gr.setTaskStatus(true);
+        } else {
+          pn_gr.setTaskStatus(false);
+        }
 
         if ( econn ) {
           try {
@@ -872,7 +884,11 @@ void EBLaserClient::writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov) {
         pn_rd.setPedMeanG16(mean16);
         pn_rd.setPedRMSG16(rms16);
 
-        pn_rd.setTaskStatus(true);
+        if ( mean03 > 200. && mean07 > 200. && mean11 > 200. && mean15 > 200. ) {
+          pn_rd.setTaskStatus(true);
+        } else {
+          pn_rd.setTaskStatus(false);
+        }
 
         if ( econn ) {
           try {
