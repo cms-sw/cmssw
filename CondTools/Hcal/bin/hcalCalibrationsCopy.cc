@@ -20,6 +20,7 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbXml.h"
 #include "CondTools/Hcal/interface/HcalDbOnline.h"
 #include "CondTools/Hcal/interface/HcalDbPool.h"
+#include "CondTools/Hcal/interface/HcalDbPoolOCCI.h"
 #include "CondFormats/HcalObjects/interface/HcalPedestals.h"
 #include "CondFormats/HcalObjects/interface/HcalPedestalWidths.h"
 #include "CondFormats/HcalObjects/interface/HcalGains.h"
@@ -56,12 +57,13 @@ std::vector<HcalDetId> undefinedCells (const T& fData) {
   static std::vector<HcalDetId> result;
   if (result.size () <= 0) {
     HcalTopology topology;
-    for (int eta = -50; eta < 50; eta++) {
-      for (int phi = 0; phi < 100; phi++) {
+    for (int eta = -63; eta < 64; eta++) {
+      for (int phi = 0; phi < 128; phi++) {
 	for (int depth = 1; depth < 5; depth++) {
 	  for (int det = 1; det < 5; det++) {
 	    HcalDetId cell ((HcalSubdetector) det, eta, phi, depth);
 	    if (topology.valid(cell) && !fData.getValues (cell.rawId())) result.push_back (cell);
+	    // result.push_back (cell);
 	  }
 	}
       }
@@ -77,7 +79,7 @@ void fillDefaults (HcalPedestals*& fPedestals) {
   }
   std::vector<HcalDetId> cells = undefinedCells (*fPedestals);
   for (std::vector <HcalDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
-    HcalPedestal item = HcalDbHardcode::makePedestal (*cell);
+    HcalPedestal item = HcalDbHardcode::makePedestal (*cell, true); // smear
     fPedestals->addValue (*cell, item.getValues ());
   }
   fPedestals->sort ();
@@ -90,7 +92,7 @@ void fillDefaults (HcalGains*& fGains) {
   }
   std::vector<HcalDetId> cells = undefinedCells (*fGains);
   for (std::vector <HcalDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
-    HcalGain item = HcalDbHardcode::makeGain (*cell);
+    HcalGain item = HcalDbHardcode::makeGain (*cell, true); // smear
     fGains->addValue (*cell, item.getValues ());
   }
   fGains->sort ();
@@ -127,55 +129,107 @@ bool dbFile (const std::string fParam) {
   return fParam.find (':') != std::string::npos;
 }
 
+bool occiFile (const std::string fParam) {
+  return fParam.find ("cms_val_lb.cern.ch") != std::string::npos &&
+    fParam.find (':') == std::string::npos;
+}
+
 bool onlineFile (const std::string fParam) {
-  return fParam.find ('@') != std::string::npos;
+  return fParam.find ('@') != std::string::npos &&
+    fParam.find ("cms_val_lb") == std::string::npos;
 }
 
 template <class T> bool copyObject (T* fObject, 
 				    const std::string& fInput, const std::string& fInputTag, int fInputRun,
-				    const std::string& fOutput, const std::string& fOutputTag, int fOutputRun
+				    const std::string& fOutput, const std::string& fOutputTag, int fOutputRun,
+				    unsigned fNread, unsigned fNwrite, unsigned fNtrace
 				    ) {
   bool result = false;
-  // get input
-  if (defaultsFile (fInput)) {
-    std::cout << "USE INPUT: defaults" << std::endl;
-    fillDefaults (fObject);
-    result = true;
+  time_t t0 = time (0);
+  time_t t1 = t0;
+  unsigned traceCounter = 0;
+  HcalDbPool* poolDb = 0;
+  HcalDbOnline* onlineDb = 0;
+  HcalDbPoolOCCI* occiDb = 0;
+  while (traceCounter < fNread) {
+    delete fObject;
+    // get input
+    if (defaultsFile (fInput)) {
+      if (!traceCounter) std::cout << "USE INPUT: defaults" << std::endl;
+      fillDefaults (fObject);
+      result = true;
+    }
+    else if (asciiFile (fInput)) {
+      if (!traceCounter) std::cout << "USE INPUT: ASCII" << std::endl;
+      std::ifstream inStream (fInput.c_str ());
+      fObject = new T;
+      HcalDbASCIIIO::getObject (inStream, fObject); 
+      result = true;
+    }
+    else if (dbFile (fInput)) {
+      if (!traceCounter) std::cout << "USE INPUT: Pool" << std::endl;
+      if (!poolDb) poolDb = new HcalDbPool (fInput);
+      fObject = new T;
+      result = poolDb->getObject (fObject, fInputTag, fInputRun);
+    }
+    else if (onlineFile (fInput)) {
+      if (!traceCounter) std::cout << "USE INPUT: Online" << std::endl;
+      if (!onlineDb) onlineDb = new HcalDbOnline (fInput);
+      fObject = new T;
+      result = onlineDb->getObject (fObject, fInputTag);
+    }
+    else if (occiFile (fInput)) {
+      if (!traceCounter) std::cout << "USE INPUT: OCCI" << std::endl;
+      if (!occiDb) occiDb = new HcalDbPoolOCCI (fInput);
+      fObject = new T;
+      result = occiDb->getObject (fObject, fInputTag, fInputRun);
+    }
+    traceCounter++;
+    fInputRun++;
+    if (fNtrace && !(traceCounter % fNtrace)) {
+      time_t t = time (0);
+      std::cout << "read transaction: " << traceCounter << " time: " << t - t0 << " dtime: " << t - t1 << std::endl;
+      t1 = t;
+    }
   }
-  else if (asciiFile (fInput)) {
-    std::cout << "USE INPUT: ASCII" << std::endl;
-    std::ifstream inStream (fInput.c_str ());
-    fObject = new T;
-    HcalDbASCIIIO::getObject (inStream, fObject); 
-    result = true;
-  }
-  else if (dbFile (fInput)) {
-    std::cout << "USE INPUT: Pool" << std::endl;
-    HcalDbPool poolDb (fInput);
-    result = poolDb.getObject (fObject, fInputTag, fInputRun);
-  }
-  else if (onlineFile (fInput)) {
-    std::cout << "USE INPUT: Online" << std::endl;
-    HcalDbOnline onlineDb (fInput);
-    fObject = new T;
-    result = onlineDb.getObject (fObject, fInputTag);
-  }
+  delete poolDb;
+  delete onlineDb;
+  poolDb = 0;
+  onlineDb = 0;
   if (result) {
-    if (asciiFile (fOutput)) {
-      std::cout << "USE OUTPUT: ASCII" << std::endl;
-      std::ofstream outStream (fOutput.c_str ());
-      HcalDbASCIIIO::dumpObject (outStream, *fObject); 
+    t0 = time (0);
+    t1 = t0;
+    traceCounter = 0;
+    T* object = 0;
+    while (traceCounter < fNwrite) {
+      delete object;
+      object = new T (*fObject); // copy original object
+      if (asciiFile (fOutput)) {
+	if (!traceCounter) std::cout << "USE OUTPUT: ASCII" << std::endl;
+	std::ofstream outStream (fOutput.c_str ());
+	HcalDbASCIIIO::dumpObject (outStream, *object);
+      }
+      else if (xmlFile (fOutput)) {
+	if (!traceCounter) std::cout << "USE OUTPUT: XML" << std::endl;
+	std::ofstream outStream (fOutput.c_str ());
+	HcalDbXml::dumpObject (outStream, fOutputRun, fOutputTag, *object);
+      }
+      else if (dbFile (fOutput)) { //POOL
+	if (!traceCounter) std::cout << "USE OUTPUT: Pool" << std::endl;
+	if (!poolDb) poolDb = new HcalDbPool (fOutput);
+	poolDb->putObject (object, fOutputTag, fOutputRun);
+	object = 0; // owned by POOL
+      }
+      traceCounter++;
+      fOutputRun++;
+      if (fNtrace && !(traceCounter % fNtrace)) {
+	time_t t = time (0);
+	std::cout << "write transaction: " << traceCounter << " time: " << t - t0 << " dtime: " << t - t1 << std::endl;
+	t1 = t;
+      }
     }
-    else if (xmlFile (fOutput)) {
-      std::cout << "USE OUTPUT: XML" << std::endl;
-      std::ofstream outStream (fOutput.c_str ());
-      HcalDbXml::dumpObject (outStream, fOutputRun, fOutputTag, *fObject);
-    }
-    else if (dbFile (fOutput)) { //POOL
-      std::cout << "USE OUTPUT: Pool" << std::endl;
-      HcalDbPool poolDb (fOutput);
-      poolDb.putObject (fObject, fOutputTag, fOutputRun);
-    }
+    delete poolDb;
+    poolDb = 0;
   }
   return result;
 }
@@ -189,6 +243,9 @@ int main (int argn, char* argv []) {
   args.defineParameter ("-inputtag", "tag for the input constants set");
   args.defineParameter ("-outputrun", "run # for which constands should be dumped");
   args.defineParameter ("-outputtag", "tag for the output constants set");
+  args.defineParameter ("-nread", "repeat input that many times with increasing run#");
+  args.defineParameter ("-nwrite", "repeat output that many times with increasing run#");
+  args.defineParameter ("-trace", "trace time every that many operations");
   args.defineOption ("-help", "this help");
   args.defineOption ("-online", "Interpret input DB as an online DB");
   
@@ -209,19 +266,24 @@ int main (int argn, char* argv []) {
   std::string inputTag = args.getParameter ("-inputtag");
   std::string outputTag = args.getParameter ("-outputtag");
 
+  unsigned nread = args.getParameter ("-nread").empty () ? 1 : atoi (args.getParameter ("-nread").c_str ());
+  unsigned nwrite = args.getParameter ("-nwrite").empty () ? 1 : atoi (args.getParameter ("-nwrite").c_str ());
+  unsigned trace = args.getParameter ("-trace").empty () ? 0 : atoi (args.getParameter ("-trace").c_str ());
+
+
   std::string what = arguments [0];
 
   if (what == "pedestals") {
     HcalPedestals* object = 0;
-    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun);
+    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, nread, nwrite, trace);
   }
   else if (what == "gains") {
     HcalGains* object = 0;
-    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun);
+    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, nread, nwrite, trace);
   }
   else if (what == "emap") {
     HcalElectronicsMap* object = 0;
-    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun);
+    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, nread, nwrite, trace);
   }
 }
 

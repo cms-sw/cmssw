@@ -3,7 +3,7 @@
    \class HcalDbPOOL
    \brief IO for POOL instances of Hcal Calibrations
    \author Fedor Ratnikov Oct. 28, 2005
-   $Id: HcalDbPool.cc,v 1.3 2006/02/03 05:40:30 wmtan Exp $
+   $Id: HcalDbPool.cc,v 1.4 2006/02/03 21:25:48 wmtan Exp $
 */
 
 // pool
@@ -36,6 +36,10 @@
 #include "CondFormats/HcalObjects/interface/AllObjects.h"
 
 #include "CondTools/Hcal/interface/HcalDbPool.h"
+
+namespace {
+  pool::Ref<cond::IOV> iovCache;
+}
 
 template <class T>
 bool HcalDbPool::storeObject (T* fObject, const std::string& fContainer, pool::Ref<T>* fRef) {
@@ -141,14 +145,15 @@ bool HcalDbPool::getObject_ (T* fObject, const std::string& fTag, int fRun) {
     std::cerr << "HcalDbPool::getObject ERROR-> Can not find metadata for tag " << fTag << std::endl;
     return false;
   }
-  pool::Ref<cond::IOV> iov;
-  getObject (metadataToken, &iov);
-  if (iov.isNull ()) {
+  if (iovCache.toString () != metadataToken) {
+    getObject (metadataToken, &iovCache);
+  }
+  if (iovCache.isNull ()) {
     std::cerr << "HcalDbPool::getObject ERROR: can not find IOV for token " << metadataToken << std::endl;;
     return false;
   }
   pool::Ref<T> ref;
-  if (getObject (iov, fRun, &ref)) {
+  if (getObject (iovCache, fRun, &ref)) {
     *fObject = *ref; // make copy
     return true;
   }
@@ -182,57 +187,76 @@ bool HcalDbPool::putObject_ (T* fObject, const std::string& fClassName, const st
 
 HcalDbPool::HcalDbPool (const std::string& fConnect)
   : mConnect (fConnect) {
+  std::cout << "HcalDbPool::HcalDbPool started..." << std::endl;
   seal::PluginManager::get()->initialise();
   pool::POOLContext::loadComponent( "SEAL/Services/MessageService" );
   pool::POOLContext::loadComponent( "POOL/Services/EnvironmentAuthenticationService" );
+  mMetaData.reset (new cond::MetaData (mConnect));
+  mTag.clear ();
+  std::cout << "HcalDbPool::HcalDbPool done..." << std::endl;
 }
 
 pool::IDataSvc* HcalDbPool::service ()
 {
   if (!mService.get ()) {
-    pool::URIParser parser;
-    parser.parse();
-    
-    mCatalog.reset (new pool::IFileCatalog ());
-    mCatalog->setWriteCatalog(parser.contactstring());
-    mCatalog->connect();
-    mCatalog->start();
-    
-    mService.reset (pool::DataSvcFactory::create (&*mCatalog));
-    
-    pool::DatabaseConnectionPolicy policy;  
-    policy.setWriteModeForNonExisting(pool::DatabaseConnectionPolicy::CREATE);
-    policy.setWriteModeForExisting(pool::DatabaseConnectionPolicy::UPDATE); 
-    mService->session().setDefaultConnectionPolicy(policy);
-    mPlacement.reset (new pool::Placement ());
-    mPlacement->setDatabase(mConnect, pool::DatabaseSpecification::PFN); 
-    mPlacement->setTechnology(pool::POOL_RDBMS_StorageType.type());
+    std::cout << "HcalDbPool::service () started..." << std::endl;
+    try {
+      pool::URIParser parser;
+      parser.parse();
+      
+      mCatalog.reset (new pool::IFileCatalog ());
+      mCatalog->setWriteCatalog(parser.contactstring());
+      mCatalog->connect();
+      mCatalog->start();
+      
+      mService.reset (pool::DataSvcFactory::create (&*mCatalog));
+      
+      pool::DatabaseConnectionPolicy policy;  
+      policy.setWriteModeForNonExisting(pool::DatabaseConnectionPolicy::CREATE);
+      policy.setWriteModeForExisting(pool::DatabaseConnectionPolicy::UPDATE); 
+      mService->session().setDefaultConnectionPolicy(policy);
+      mPlacement.reset (new pool::Placement ());
+      mPlacement->setDatabase(mConnect, pool::DatabaseSpecification::PFN); 
+      mPlacement->setTechnology(pool::POOL_RDBMS_StorageType.type());
+      
+    }
+    catch (const seal::Exception& e) {
+      std::cerr<<"HcalDbPool::service ()-> POOL error: " << e << std::endl;
+    }
+    catch (...) {
+      std::cerr << "HcalDbPool::service ()-> General error" << std::endl;
+    }
+    std::cout << "HcalDbPool::service () done..." << std::endl;
   }
   return mService.get ();
 }
 
-std::string HcalDbPool::metadataGetToken (const std::string& fTag) {
-  std::string result;
-  try {
-    cond::MetaData md (mConnect);
-    result = md.getToken (fTag);
+const std::string& HcalDbPool::metadataGetToken (const std::string& fTag) {
+  if (mTag != fTag) {
+    mTag = fTag;
+    try {
+      //    cond::MetaData md (mConnect);
+      mToken = mMetaData->getToken (mTag);
+    }
+    catch (const seal::Exception& e) {
+      std::cerr<<"HcalDbPool::metadataGetToken-> POOL error: " << e << std::endl;
+      mToken.clear ();
+    }
+    catch (...) {
+      std::cerr << "HcalDbPool::metadataGetToken-> General error" << std::endl;
+      mToken.clear ();
+    }
+    if (mToken.empty ()) mTag.clear ();
   }
-  catch (const seal::Exception& e) {
-    std::cerr<<"HcalDbPool::metadataGetToken-> POOL error: " << e << std::endl;
-    result.clear ();
-  }
-  catch (...) {
-    std::cerr << "HcalDbPool::metadataGetToken-> General error" << std::endl;
-    result.clear ();
-  }
-  return result;
+  // std::cout << "HcalDbPool::metadataGetToken-> " << fTag << '/' << mToken << std::endl;
+  return mToken;
 }
 
 bool HcalDbPool::metadataSetTag (const std::string& fTag, const std::string& fToken) {
   bool result = false;
   try {
-    cond::MetaData md (mConnect);
-    result = md.addMapping (fTag, fToken);
+    // cond::MetaData md (mConnect);
+    result = mMetaData->addMapping (fTag, fToken);
   }
   catch (const seal::Exception& e) {
     std::cerr<<"HcalDbPool::metadataSetTag-> POOL error: " << e << std::endl;
@@ -242,6 +266,7 @@ bool HcalDbPool::metadataSetTag (const std::string& fTag, const std::string& fTo
     std::cerr << "HcalDbPool::metadataSetTag-> General error" << std::endl;
     result = false;
   }
+  // std::cout << "HcalDbPool::metadataSetTag-> " << fTag << '/' << fToken << std::endl;
   return result;
 }
 

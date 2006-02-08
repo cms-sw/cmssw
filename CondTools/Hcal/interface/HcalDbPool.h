@@ -13,7 +13,7 @@
    \class HcalDbPOOL
    \brief IO for POOL instances of Hcal Calibrations
    \author Fedor Ratnikov Oct. 28, 2005
-   $Id: HcalDbPool.h,v 1.3 2005/12/15 23:37:56 fedor Exp $
+   $Id: HcalDbPool.h,v 1.1 2006/01/19 01:32:02 fedor Exp $
 */
 
 namespace cond {
@@ -33,7 +33,7 @@ class HcalDbPool {
   ~HcalDbPool ();
 
   pool::IDataSvc* service ();
-  std::string metadataGetToken (const std::string& fTag);
+  const std::string& metadataGetToken (const std::string& fTag);
   bool metadataSetTag (const std::string& fTag, const std::string& fToken);
 
   bool getObject (HcalPedestals* fObject, const std::string& fTag, int fRun);
@@ -53,6 +53,8 @@ class HcalDbPool {
  private:
   std::string mConnect;
   std::auto_ptr<cond::MetaData> mMetaData;
+  std::string mTag;
+  std::string mToken;
   std::auto_ptr<pool::IFileCatalog> mCatalog;
   std::auto_ptr<pool::IDataSvc> mService;
   std::auto_ptr<pool::Placement> mPlacement;

@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Dec 14, 2005
-// $Id: HcalDbOnline.cc,v 1.2 2006/01/20 01:29:43 fedor Exp $
+// $Id: HcalDbOnline.cc,v 1.3 2006/01/21 01:35:39 fedor Exp $
 //
 #include <string>
 #include <iostream>
@@ -71,9 +71,10 @@ HcalDbOnline::HcalDbOnline (const std::string& fDb)
     std::string user (fDb, 0, ipass);
     std::string pass (fDb, ipass+1, ihost-ipass-1);
     std::string host (fDb, ihost+1);
-    std::cout << "HcalDbOnline::HcalDbOnline-> Connecting " << user << '/' << pass << '@' << host << std::endl;
+    //    std::cout << "HcalDbOnline::HcalDbOnline-> Connecting " << user << '/' << pass << '@' << host << std::endl;
     try {
       mConnect = mEnvironment->createConnection(user, pass, host);
+      mStatement = mConnect->createStatement ();
     }
     catch (oracle::occi::SQLException& sqlExcp) {
       std::cerr << "HcalDbOnline::HcalDbOnline exception-> " << sqlExcp.getErrorCode () << ": " << sqlExcp.what () << std::endl;
@@ -82,6 +83,7 @@ HcalDbOnline::HcalDbOnline (const std::string& fDb)
 }
 
 HcalDbOnline::~HcalDbOnline () {
+  delete mStatement;
   mEnvironment->terminateConnection (mConnect);
   oracle::occi::Environment::terminateEnvironment (mEnvironment);
 }
@@ -104,11 +106,11 @@ bool HcalDbOnline::getObjectGeneric (T* fObject, const std::string& fTag) {
   if (!fObject) return false;
   std::string sql_query = query (fObject, fTag);
   try {
-    std::cout << "executing query: \n" << sql_query << std::endl;
-    oracle::occi::Statement* stmt = mConnect->createStatement ();
-    stmt->setPrefetchRowCount (10000);
-    stmt->setSQL (sql_query);
-    oracle::occi::ResultSet* rset = stmt->executeQuery ();
+    // std::cout << "executing query: \n" << sql_query << std::endl;
+    //    oracle::occi::Statement* stmt = mConnect->createStatement ();
+    mStatement->setPrefetchRowCount (100);
+    mStatement->setSQL (sql_query);
+    oracle::occi::ResultSet* rset = mStatement->executeQuery ();
     while (rset->next ()) {
       float value [4];
       value [0] = rset->getFloat (1);
@@ -130,6 +132,8 @@ bool HcalDbOnline::getObjectGeneric (T* fObject, const std::string& fTag) {
       HcalDetId id (sub, z * eta, phi, depth);
       fObject->addValue (id, value);
     }
+    delete rset;
+    //    delete stmt;
   }
   catch (oracle::occi::SQLException& sqlExcp) {
     std::cerr << "HcalDbOnline::getObject exception-> " << sqlExcp.getErrorCode () << ": " << sqlExcp.what () << std::endl;

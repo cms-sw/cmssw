@@ -1,8 +1,8 @@
 //
 // F.Ratnikov (UMd), Jan. 6, 2006
 //
-#ifndef HcalDbOnline_h
-#define HcalDbOnline_h
+#ifndef HcalDbPoolOCCI_h
+#define HcalDbPoolOCCI_h
 
 #include <memory>
 
@@ -16,7 +16,7 @@
 
 /**
 
-   \class HcalDbOnline
+   \class HcalDbPoolOCCI
    \brief Gather conditions data from online DB
    \author Fedor Ratnikov
    
@@ -30,19 +30,21 @@ namespace oracle {
   }
 }
 
-class HcalDbOnline {
+class HcalDbPoolOCCI {
  public:
-  HcalDbOnline (const std::string& fDb);
-  ~HcalDbOnline ();
+  HcalDbPoolOCCI (const std::string& fDb);
+  ~HcalDbPoolOCCI ();
 
-  bool getObject (HcalPedestals* fObject, const std::string& fTag);
-  bool getObject (HcalGains* fObject, const std::string& fTag);
-  bool getObject (HcalElectronicsMap* fObject, const std::string& fTag);
+  bool getObject (HcalPedestals* fObject, const std::string& fTag, unsigned long fRun);
+  bool getObject (HcalGains* fObject, const std::string& fTag, unsigned long fRun);
+  bool getObject (HcalElectronicsMap* fObject, const std::string& fTag, unsigned long fRun);
  private:
   oracle::occi::Environment* mEnvironment;
   oracle::occi::Connection* mConnect;
   oracle::occi::Statement* mStatement;
-  template <class T> bool getObjectGeneric (T* fObject, const std::string& fTag);
+  std::string getMetadataToken (const std::string& fTag);
+  std::string getDataToken (const std::string& fIov, unsigned long fRun);
+  template <class T> bool getObjectGeneric (T* fObject, const std::string& fTag, unsigned long fRun);
 
 };
 #endif
