@@ -10,7 +10,7 @@
   <rParent name="tiblayer1_mtcc:TIBLayer1"/>
   <String name="GeneralMaterial"      value="materials:Air"/>
   <Numeric name="DetectorTilt"        value="[tiblayerpar:DetTilt]"/>
-  <Numeric name="LayerL"              value="[tibstringpar:StringL]/2."/>
+  <Numeric name="LayerL"              value="[tibstringpar:StringL]"/>
   <Numeric name="LayerTolerance"      value="[tiblayerpar:Tolerance]"/>
   <Numeric name="DetectorWidth"       value="2*[tibmodpar:ModuleDx]"/>
   <Numeric name="DetectorThickness"   value="2*[tibmodpar:ModuleDy]"/>
@@ -59,7 +59,7 @@
   </Vector>
   <Numeric name="DOHMPhiNumber"           value="16"/>
   <Vector name="DOHMList" type="numeric" nEntries="16">
-    0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0
+    0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0
   </Vector>
   <Numeric name="DOHMCarrierWidth"        value="[tiblayerpar:DOHMCarrierW]"/>
   <Numeric name="DOHMCarrierThickness"    value="[tiblayerpar:DOHMCarrierT]"/>

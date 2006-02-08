@@ -59,7 +59,7 @@
   </Vector>
   <Numeric name="DOHMPhiNumber"           value="6"/>
   <Vector name="DOHMList" type="numeric" nEntries="6">
-    0 , 0 , 2 , 0 , 0 , 0
+    0 , 2 , 0 , 0 , 0 , 0
   </Vector>
   <Numeric name="DOHMCarrierWidth"        value="[tiblayerpar:DOHMCarrierW]"/>
   <Numeric name="DOHMCarrierThickness"    value="[tiblayerpar:DOHMCarrierT]"/>
