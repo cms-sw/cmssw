@@ -14,7 +14,8 @@ EcalSimParameterMap::EcalSimParameterMap() :
                    10, 5, true),
   theEndcapParameters( 4500., 1./4500., 
                    1., 47., 
-                   10, 5, true)
+	          10, 5, true),
+  theESParameters(1., 1., 1., 20., 3, 2, false)
 {
 }
   /*
@@ -26,6 +27,12 @@ EcalSimParameterMap::EcalSimParameterMap() :
   
 
 const CaloSimParameters & EcalSimParameterMap::simParameters(const DetId & detId) const {
-  return (EcalSubdetector(detId.subdetId()) == EcalBarrel) ? theBarrelParameters : theEndcapParameters;
+  if (EcalSubdetector(detId.subdetId()) == EcalBarrel) 
+    return theBarrelParameters;
+  else if (EcalSubdetector(detId.subdetId()) == EcalEndcap)
+    return theEndcapParameters;
+  else 
+    return theESParameters;
+  // return (EcalSubdetector(detId.subdetId()) == EcalBarrel) ? theBarrelParameters : theEndcapParameters;
 }
   

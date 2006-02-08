@@ -16,6 +16,7 @@ public:
 private:
   CaloSimParameters theBarrelParameters;
   CaloSimParameters theEndcapParameters;
+  CaloSimParameters theESParameters;
 };
 
 
