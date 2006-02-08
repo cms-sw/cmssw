@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2006/02/03 09:39:06 $
- * $Revision: 1.57 $
+ * $Date: 2006/02/05 22:21:54 $
+ * $Revision: 1.58 $
  * \author G. Della Ricca
  *
 */
@@ -139,29 +139,29 @@ void EBLaserClient::setup(void) {
     g04_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
 
     if ( a01_[ism-1] ) delete a01_[ism-1];
-    sprintf(histo, "EBLT laser amplitude L1 SM%02d", ism);
+    sprintf(histo, "EBLT amplitude L1 SM%02d", ism);
     a01_[ism-1] = new TH1F(histo, histo, 1700, 0., 1700.);
     if ( a02_[ism-1] ) delete a02_[ism-1];
-    sprintf(histo, "EBLT laser amplitude L2 SM%02d", ism);
+    sprintf(histo, "EBLT amplitude L2 SM%02d", ism);
     a02_[ism-1] = new TH1F(histo, histo, 1700, 0., 1700.);
     if ( a03_[ism-1] ) delete a03_[ism-1];
-    sprintf(histo, "EBLT laser amplitude L3 SM%02d", ism);
+    sprintf(histo, "EBLT amplitude L3 SM%02d", ism);
     a03_[ism-1] = new TH1F(histo, histo, 1700, 0., 1700.);
     if ( a04_[ism-1] ) delete a04_[ism-1];
-    sprintf(histo, "EBLT laser amplitude L4 SM%02d", ism);
+    sprintf(histo, "EBLT amplitude L4 SM%02d", ism);
     a04_[ism-1] = new TH1F(histo, histo, 1700, 0., 1700.);
 
     if ( aopn01_[ism-1] ) delete aopn01_[ism-1];
-    sprintf(histo, "EBLT laser amplitude over PN L1 SM%02d", ism);
+    sprintf(histo, "EBLT amplitude over PN L1 SM%02d", ism);
     aopn01_[ism-1] = new TH1F(histo, histo, 1700, 0., 1700.);
     if ( aopn02_[ism-1] ) delete aopn02_[ism-1];
-    sprintf(histo, "EBLT laser amplitude over PN L2 SM%02d", ism);
+    sprintf(histo, "EBLT amplitude over PN L2 SM%02d", ism);
     aopn02_[ism-1] = new TH1F(histo, histo, 1700, 0., 1700.);
     if ( aopn03_[ism-1] ) delete aopn03_[ism-1];
-    sprintf(histo, "EBLT laser amplitude over PN L3 SM%02d", ism);
+    sprintf(histo, "EBLT amplitude over PN L3 SM%02d", ism);
     aopn03_[ism-1] = new TH1F(histo, histo, 1700, 0., 1700.);
     if ( aopn04_[ism-1] ) delete aopn04_[ism-1];
-    sprintf(histo, "EBLT laser amplitude over PN L4 SM%02d", ism);
+    sprintf(histo, "EBLT amplitude over PN L4 SM%02d", ism);
     aopn04_[ism-1] = new TH1F(histo, histo, 1700, 0., 1700.);
 
   }
