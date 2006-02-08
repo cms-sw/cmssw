@@ -53,7 +53,7 @@
   <ZSection z="[Zv4]"      rMin="[Rin3]"  rMax="[Rout2]" />
  </Polycone> 
  <Tubs name="TIBOutSupport" rMin="[SupportRin]"     rMax="[SupportRout]"
-                            dz="[SupportZ]"
+                            dz="[SupportZ]/2"
                             startPhi="0*deg"        deltaPhi="360*deg"/>
  <Tubs name="TIBSideDisk"   rMin="[Rin1]"           rMax="[Rin2]"
                             dz="[SideDiskT]/2"
@@ -128,6 +128,7 @@
  <PosPart copyNumber="1">
    <rParent name="tib_mtcc:TIB"/>
    <rChild name="tib_mtcc:TIBOutSupport"/>
+  <Translation x="[zero]" y="[zero]" z="[SupportZ]/2" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="tib_mtcc:TIB"/>
