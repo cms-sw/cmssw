@@ -1,3 +1,6 @@
+** V01-02-03  [Wed Feb  8 03:33:11 2006]
+move persistent classes to DataFormats/Common
+
 ** V01-02-02  [Mon Feb  6 23:08:37 2006]
 output module must be in endpath, not path
 
