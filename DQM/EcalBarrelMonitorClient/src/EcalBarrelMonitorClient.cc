@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/02/08 09:46:25 $
- * $Revision: 1.90 $
+ * $Date: 2006/02/08 09:55:28 $
+ * $Revision: 1.91 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -484,8 +484,14 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
   if ( runtype_ == "TEST_PULSE" ) rundef.setConfigTag("TEST_PULSE-MGPA");
   if ( runtype_ == "BEAM" ) rundef.setConfigTag("BEAM-STD");
 
-//  rundef.setConfigVersion(locdef.fetchID());
-  rundef.setConfigVersion(4);
+  if ( location_ == "H4" ) rundef.setConfigVersion(1);
+  if ( location_ == "867-1" ) rundef.setConfigVersion(2);
+  if ( location_ == "867-2" ) rundef.setConfigVersion(3);
+  if ( location_ == "867-3" ) rundef.setConfigVersion(4);
+  if ( location_ == "H4B" ) rundef.setConfigVersion(21);
+  if ( location_ == "H2" ) rundef.setConfigVersion(22);
+  if ( location_ == "P5_MT" ) rundef.setConfigVersion(23);
+  if ( location_ == "904" ) rundef.setConfigVersion(24);
 
   RunTag runtag;
 
