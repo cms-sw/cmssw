@@ -9,9 +9,7 @@ class PedestalMonitorables;
 class TH1F;
 
 /** 
-   \class SiStripPedestalsAnalysis
-   \brief Concrete implementation of the histogram-based analysis for
-   pedestals and noise "monitorables". 
+   @class SiStripPedestalsAnalysis
 */
 class SiStripPedestalsAnalysis : public SiStripCommissioningAnalysis {
   
@@ -37,9 +35,14 @@ class PedestalHistograms : public Histograms {
   
   PedestalHistograms() {;}
   virtual ~PedestalHistograms() {;}
-
+  inline virtual std::string myName() { return "PedestalHistograms"; }
+  
+  // getters
   inline TH1F* raw() const { return raw_; }
   inline TH1F* entries() const { return entries_; }
+  // setters
+  inline void raw( TH1F* raw ) { raw_ = raw; }
+  inline void entries( TH1F* entries ) { entries_ = entries; }
   
  private:
 
@@ -61,10 +64,12 @@ class PedestalMonitorables : public Monitorables {
 
   PedestalMonitorables() : rawPedestals_(), rawNoise_() {;}
   virtual ~PedestalMonitorables() {;}
+  inline virtual std::string myName() { return "PedestalMonitorables"; }
 
+  // getters
   inline const std::vector<float>& rawPedestals() const { return rawPedestals_; }
   inline const std::vector<float>& rawNoise() const { return rawNoise_; }
-
+  // setters
   inline void rawPedestals( std::vector<float>& peds ) { rawPedestals_ = peds; }
   inline void rawNoise( std::vector<float>& noise ) { rawNoise_ = noise; }
   
