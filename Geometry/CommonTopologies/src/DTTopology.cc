@@ -13,9 +13,9 @@ const float DTTopology::IBeamWingLength    = 0.635; // cm
 const float DTTopology::plateThickness = 0.15;  // aluminium plate:  1.5 mm
 const float DTTopology::IBeamThickness = 0.13;  // I-beam thickness: 1.3 mm
   
-DTTopology::DTTopology(int firstWire, int nChannels,float lenght): theFirstChannel(firstWire),
+DTTopology::DTTopology(int firstWire, int nChannels,float semilenght): theFirstChannel(firstWire),
 								   theNChannels(nChannels),
-								   theLength(lenght){
+								   theLength(semilenght*2){
   theOffSet = Local2DPoint(-theNChannels/2. * theWidth, -theLength/2.);
   
 #ifdef VERBOSE

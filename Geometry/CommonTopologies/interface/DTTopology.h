@@ -17,8 +17,8 @@
  * The Topology interface is extended with methods relevant for
  * the DT detectors, e.g. wirePosition(int), etc.
  *  
- *  $Date: 2005/12/14 11:01:00 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/02/06 15:50:37 $
+ *  $Revision: 1.7 $
  *
  * \author R. Bellan - INFN Torino
  *
@@ -31,7 +31,7 @@ class DTTopology: public Topology {
  public:
   
   /// Constructor: number of first wire, total # of wires in the layer and their lenght
-  DTTopology(int firstWire, int nChannels, float lenght); 
+  DTTopology(int firstWire, int nChannels, float semilenght); 
 
   virtual ~DTTopology() {}
   
