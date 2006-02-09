@@ -1,0 +1,13 @@
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=DataFormats/SiStripDetId>
+<use name=DQMServices/Core>
+<export>
+   <lib name=DQMSiStripCommon>
+   <use name=FWCore/Framework>
+   <use name=Foundation/PluginManager>
+   <use name=FWCore/ParameterSet>
+   <use name=DataFormats/SiStripDetId>
+   <use name=DQMServices/Core>
+</export>
