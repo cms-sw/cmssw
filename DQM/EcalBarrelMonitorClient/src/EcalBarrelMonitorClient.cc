@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/02/08 10:01:17 $
- * $Revision: 1.92 $
+ * $Date: 2006/02/08 21:10:27 $
+ * $Revision: 1.93 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -912,8 +912,6 @@ void EcalBarrelMonitorClient::analyze(void){
       if ( s.substr(2,1) == "1" ) status_ = "running";
       if ( s.substr(2,1) == "2" ) status_ = "end-of-run";
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
-    } else {
-      mui_->subscribe("*/EcalBarrel/STATUS");
     }
 
     sprintf(histo, "Collector/FU0/EcalBarrel/RUN");
@@ -923,8 +921,6 @@ void EcalBarrelMonitorClient::analyze(void){
       run_ = -1;
       sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &run_);
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
-    } else {
-      mui_->subscribe("*/EcalBarrel/RUN");
     }
 
     sprintf(histo, "Collector/FU0/EcalBarrel/EVT");
@@ -934,8 +930,6 @@ void EcalBarrelMonitorClient::analyze(void){
       evt_ = -1;
       sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &evt_);
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
-    } else {
-      mui_->subscribe("*/EcalBarrel/EVT");
     }
 
     if ( collateSources_ ) {
@@ -956,8 +950,6 @@ void EcalBarrelMonitorClient::analyze(void){
           h_ = dynamic_cast<TH1F*> (ob->operator->());
         }
       }
-    } else {
-      mui_->subscribe("*/EcalBarrel/EVTTYPE");
     }
 
     sprintf(histo, "Collector/FU0/EcalBarrel/RUNTYPE");
@@ -970,8 +962,6 @@ void EcalBarrelMonitorClient::analyze(void){
       if ( s.substr(2,1) == "2" ) runtype_ = "PEDESTAL";
       if ( s.substr(2,1) == "3" ) runtype_ = "TEST_PULSE";
       if ( s.substr(2,1) == "4" ) runtype_ = "BEAM";
-    } else {
-      mui_->subscribe("*/EcalBarrel/RUNTYPE");
     }
 
     if ( verbose_ ) cout << " updates = "  << updates << endl;
