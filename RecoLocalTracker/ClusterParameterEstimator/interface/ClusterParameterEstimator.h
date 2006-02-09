@@ -8,12 +8,12 @@
 template <class T> class ClusterParameterEstimator {
   
  public:
-/*   typedef std::pair<LocalPoint,LocalError>  LocalValues; */
-/*   virtual LocalValues localParameters( const T&,const GeomDetUnit&) const = 0; */
-/*   virtual LocalValues localParameters( const T&,const GeomDetUnit&, float, float) const = 0; */
-  virtual std::pair<LocalPoint,LocalError>  localParameters( const T&,const GeomDetUnit&) const = 0;
-  virtual std::pair<LocalPoint,LocalError>  localParameters( const T&,const GeomDetUnit&, float, float) const = 0;
-  
+   typedef std::pair<LocalPoint,LocalError>  LocalValues; 
+   virtual LocalValues localParameters( const T&,const GeomDetUnit&) const = 0; 
+   virtual LocalValues localParameters( const T& cluster, const GeomDetUnit& gd, float alpha, float beta) {
+     return localParameters(cluster,gd);
+   } 
+
   virtual ~ClusterParameterEstimator(){}
   
 };
