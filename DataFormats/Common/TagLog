@@ -1,3 +1,6 @@
+** V01-01-01  [Thu Feb  9 15:10:11 2006]
+Add const to OwnVector::operator&lt;()
+
 ** V01-01-00  [Wed Feb  8 02:36:47 2006]
 move persistent classes from FWCore/Framework to DataProducts/Common
 
