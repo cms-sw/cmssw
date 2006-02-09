@@ -69,7 +69,7 @@ void CocoaToDDLMgr::writeMaterials()
   static std::vector< OpticalObject* > optolist = Model::OptOList();
   static std::vector< OpticalObject* >::const_iterator ite;
   for(ite = optolist.begin(); ite != optolist.end(); ite++ ){
-    if( (*ite)->name() == "s" ) continue;
+    if( (*ite)->type() == "system" ) continue;
     CocoaMaterialElementary* mat = (*ite)->getMaterial();
     //-    std::cout << " mat of opto " << (*ite)->name() << " = " << mat->getName() << std::endl;
     if( !materialIsRepeated( mat ) ) ma( mat );
@@ -86,7 +86,7 @@ void CocoaToDDLMgr::writeSolids()
   static std::vector< OpticalObject* > optolist = Model::OptOList();
   static std::vector< OpticalObject* >::const_iterator ite;
   for(ite = optolist.begin(); ite != optolist.end(); ite++ ){
-    if( (*ite)->name() == "s" ) continue;
+    if( (*ite)->type() == "system" ) continue;
     so( *ite );
   }
   
@@ -102,7 +102,7 @@ void CocoaToDDLMgr::writeLogicalVolumes()
   static std::vector< OpticalObject* > optolist = Model::OptOList();
   static std::vector< OpticalObject* >::const_iterator ite;
   for(ite = optolist.begin(); ite != optolist.end(); ite++ ){
-    if( (*ite)->name() == "s" ) continue;
+    if( (*ite)->type() == "system" ) continue;
     //each OpticalObject is a distinct logical volume. This is so because two OptO's of the same type may have different optical properties and this optical properties are SpecPart's. And to have different values of an SpecPart they have to be different logical volumes
     lv( *ite );
   }
@@ -119,7 +119,7 @@ void CocoaToDDLMgr::writePhysicalVolumes()
   static std::vector< OpticalObject* > optolist = Model::OptOList();
   static std::vector< OpticalObject* >::const_iterator ite;
   for(ite = optolist.begin(); ite != optolist.end(); ite++ ){
-    if( (*ite)->name() == "s" ) continue;
+    if( (*ite)->type() == "system" ) continue;
     pv( *ite );
   }
   
