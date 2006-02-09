@@ -43,6 +43,7 @@
     hcaltb::HcalTBSlowDataUnpacker    sdUnpacker_;
     hcaltb::HcalTBTDCUnpacker         tdcUnpacker_;
     hcaltb::HcalTBSourcePositionDataUnpacker         spdUnpacker_;
+    bool doRunData_, doTriggerData_, doEventPosition_, doTiming_, doSourcePos_;
   };
 
 

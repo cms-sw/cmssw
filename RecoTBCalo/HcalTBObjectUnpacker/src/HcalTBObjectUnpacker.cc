@@ -17,33 +17,40 @@ using namespace std;
     sdFed_(conf.getUntrackedParameter<int>("HcalSlowDataFED",-1)),
     spdFed_(conf.getUntrackedParameter<int>("HcalSourcePositionFED",-1)),
     tdcFed_(conf.getUntrackedParameter<int>("HcalTDCFED",-1)),
-    tdcUnpacker_(conf.getUntrackedParameter<bool>("IncludeUnmatchedHits",false))
+    tdcUnpacker_(conf.getUntrackedParameter<bool>("IncludeUnmatchedHits",false)),
+    doRunData_(false),doTriggerData_(false),doEventPosition_(false),doTiming_(false),doSourcePos_(false)
   {
     if (triggerFed_ >=0) {
       std::cout << "HcalTBObjectUnpacker will unpack FED ";
       std::cout << triggerFed_ << endl;
+      doTriggerData_=true;
     }
 
     if (sdFed_ >=0) {
       std::cout << "HcalTBObjectUnpacker will unpack SlowData FED ";
       std::cout << sdFed_ << endl;
+      doRunData_=true;
+      doEventPosition_=true; // at least the table
     }
 
     if (tdcFed_ >=0) {
       std::cout << "HcalTBObjectUnpacker will unpack TDC FED ";
       std::cout << tdcFed_ << endl;
+      doTiming_=true;
+      doEventPosition_=true; // at least the WC
     }
 
     if (spdFed_ >=0) {
       std::cout << "HcalTBObjectUnpacker will unpack Source Position Data FED ";
       std::cout << spdFed_ << endl;
+      doSourcePos_=true;
     }
 
-    produces<HcalTBTriggerData>();
-    produces<HcalTBRunData>();
-    produces<HcalTBEventPosition>();
-    produces<HcalTBTiming>();
-    produces<HcalSourcePositionData>();
+    if (doTriggerData_) produces<HcalTBTriggerData>();
+    if (doRunData_) produces<HcalTBRunData>();
+    if (doEventPosition_) produces<HcalTBEventPosition>();
+    if (doTiming_) produces<HcalTBTiming>();
+    if (doSourcePos_) produces<HcalSourcePositionData>();
   }
 
   // Virtual destructor needed.
@@ -57,7 +64,7 @@ using namespace std;
     //    edm::ProcessNameSelector s("PROD"); // HACK!
     e.getByType(rawraw);           
 
-    // Step B: Create empty output
+    // Step B: Create empty output    
     std::auto_ptr<HcalTBTriggerData>
       trigd(new HcalTBTriggerData);
 
@@ -98,9 +105,9 @@ using namespace std;
     }
 
     // Step D: Put outputs into event
-    e.put(trigd);
-    e.put(rund);
-    e.put(epd);
-    e.put(tmgd);
-    e.put(spd);
+    if (doTriggerData_) e.put(trigd);
+    if (doRunData_) e.put(rund);
+    if (doEventPosition_) e.put(epd);
+    if (doTiming_) e.put(tmgd);
+    if (doSourcePos_) e.put(spd);
   }
