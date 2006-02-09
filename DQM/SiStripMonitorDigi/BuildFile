@@ -1,0 +1,19 @@
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+
+<use name=DQMServices/Core>
+<use name=DataFormats/SiStripDigi>
+<use name=CalibFormats/SiStripObjects>
+<use name=CalibTracker/Records>
+<use name=CalibTracker/SiStripConnectivity>
+<use name=DQM/SiStripCommon>
+
+
+<flags SEAL_PLUGIN_NAME="DQMSiStripMonitorDigi">
+<export>
+   <lib name=DQMSiStripMonitorDigi>
+   <use name=FWCore/Framework>
+   <use name=Foundation/PluginManager>
+   <use name=FWCore/ParameterSet>
+</export>
