@@ -209,6 +209,6 @@ void EcalDigiProducer::checkGeometry(const edm::EventSetup & eventSetup)
 
 #include "PluginManager/ModuleDef.h"
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(EcalDigiProducer)
+DEFINE_SEAL_MODULE () ;
+DEFINE_ANOTHER_FWK_MODULE (EcalDigiProducer) ;
 
