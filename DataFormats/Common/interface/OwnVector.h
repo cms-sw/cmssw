@@ -1,6 +1,6 @@
 #ifndef Common_OwnVector_h
 #define Common_OwnVector_h
-// $Id: OwnVector.h,v 1.4 2006/01/30 21:07:41 llista Exp $
+// $Id: OwnVector.h,v 1.1 2006/02/01 18:15:00 llista Exp $
 #include <vector>
 #include <algorithm>
 #include "DataFormats/Common/interface/ClonePolicy.h"
@@ -64,7 +64,7 @@ namespace edm {
 	difference_type operator-( const iterator & o ) const { return i - o.i; }
 	iterator operator+( difference_type n ) const { return iterator( i + n ); }
 	iterator operator-( difference_type n ) const { return iterator( i - n ); }
-	bool operator<( const iterator & o ) { return i < o.i; }
+	bool operator<( const iterator & o ) const { return i < o.i; }
 	bool operator==( const iterator& ci ) const { return i == ci.i; }
 	bool operator!=( const iterator& ci ) const { return i != ci.i; }
 	T & operator * () const { return * * i; }
