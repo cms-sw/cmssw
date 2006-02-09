@@ -18,3 +18,8 @@ double GlobalTrajectoryParameters::transverseCurvature() const
   double bza = -2.99792458e-3 * theField->inTesla(theX).z();
   return bza*signedInverseTransverseMomentum();
 }
+
+GlobalVector GlobalTrajectoryParameters::megneticFieldInInverseGeV( const GlobalPoint& x) const
+{
+  return 2.99792458e-3 * theField->inTesla(x);
+}
