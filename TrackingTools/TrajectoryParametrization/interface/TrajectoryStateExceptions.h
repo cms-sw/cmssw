@@ -15,8 +15,8 @@ public:
   TrajectoryStateException( const std::string& message) throw() : theMessage(message) {}
   virtual ~TrajectoryStateException() throw() {}
   virtual const char* what() const throw() { return theMessage.c_str();}
-pprivate:
-  string theMessage;
+private:
+  std::string theMessage;
 };
 
 #endif
