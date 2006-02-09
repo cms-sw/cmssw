@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2006/02/05 22:19:22 $
- * $Revision: 1.39 $
+ * $Date: 2006/02/09 09:32:19 $
+ * $Revision: 1.40 $
  * \author G. Della Ricca
  *
 */
@@ -409,6 +409,7 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
     float yval = hit.jitter();
 
     LogDebug("EBLaserTask") << " hit amplitude " << xval;
+    LogDebug("EBLaserTask") << " hit jitter " << yval;
 
     if ( meAmplMap ) meAmplMap->Fill(xie, xip, xval);
 
