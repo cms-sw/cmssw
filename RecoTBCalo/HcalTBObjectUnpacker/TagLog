@@ -1,3 +1,6 @@
+** V00-01-02  [Thu Feb  9 04:22:27 2006]
+Changes so that objects are only put in if at least partially filled 
+
 ** V00-01-01  [Wed Feb  1 21:33:34 2006]
 remove unnecessary dependencies
 
