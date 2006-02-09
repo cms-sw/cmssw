@@ -94,6 +94,10 @@ public:
     v[5] = theP.z();
     return v;
   }
+
+  GlobalVector megneticFieldInInverseGeV( const GlobalPoint& x) const; 
+  const MagneticField& magneticField() const {return *theField;}
+
 private:
   GlobalPoint theX;
   GlobalVector theP;
