@@ -4,8 +4,8 @@
 /*
  * \file EBLaserTask.h
  *
- * $Date: 2006/02/03 08:08:31 $
- * $Revision: 1.16 $
+ * $Date: 2006/02/05 22:19:22 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  *
 */
@@ -68,6 +68,7 @@ int ievt_;
 
 MonitorElement* meShapeMapL1_[36];
 MonitorElement* meAmplMapL1_[36];
+MonitorElement* meTimeMapL1_[36];
 MonitorElement* meAmplPNMapL1_[36];
 MonitorElement* mePnAmplMapG01L1_[36];
 MonitorElement* mePnPedMapG01L1_[36];
@@ -76,6 +77,7 @@ MonitorElement* mePnPedMapG16L1_[36];
 
 MonitorElement* meShapeMapL2_[36];
 MonitorElement* meAmplMapL2_[36];
+MonitorElement* meTimeMapL2_[36];
 MonitorElement* meAmplPNMapL2_[36];
 MonitorElement* mePnAmplMapG01L2_[36];
 MonitorElement* mePnPedMapG01L2_[36];
@@ -84,6 +86,7 @@ MonitorElement* mePnPedMapG16L2_[36];
 
 MonitorElement* meShapeMapL3_[36];
 MonitorElement* meAmplMapL3_[36];
+MonitorElement* meTimeMapL3_[36];
 MonitorElement* meAmplPNMapL3_[36];
 MonitorElement* mePnAmplMapG01L3_[36];
 MonitorElement* mePnPedMapG01L3_[36];
@@ -92,6 +95,7 @@ MonitorElement* mePnPedMapG16L3_[36];
 
 MonitorElement* meShapeMapL4_[36];
 MonitorElement* meAmplMapL4_[36];
+MonitorElement* meTimeMapL4_[36];
 MonitorElement* meAmplPNMapL4_[36];
 MonitorElement* mePnAmplMapG01L4_[36];
 MonitorElement* mePnPedMapG01L4_[36];

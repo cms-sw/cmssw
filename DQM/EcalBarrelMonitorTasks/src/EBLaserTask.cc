@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2006/01/29 17:21:28 $
- * $Revision: 1.38 $
+ * $Date: 2006/02/05 22:19:22 $
+ * $Revision: 1.39 $
  * \author G. Della Ricca
  *
 */
@@ -16,6 +16,7 @@ EBLaserTask::EBLaserTask(const ParameterSet& ps){
   for (int i = 0; i < 36 ; i++) {
     meShapeMapL1_[i] = 0;
     meAmplMapL1_[i] = 0;
+    meTimeMapL1_[i] = 0;
     meAmplPNMapL1_[i] = 0;
     mePnAmplMapG01L1_[i] = 0;
     mePnPedMapG01L1_[i] = 0;
@@ -23,6 +24,7 @@ EBLaserTask::EBLaserTask(const ParameterSet& ps){
     mePnPedMapG16L1_[i] = 0;
     meShapeMapL2_[i] = 0;
     meAmplMapL2_[i] = 0;
+    meTimeMapL2_[i] = 0;
     meAmplPNMapL2_[i] = 0;
     mePnAmplMapG01L2_[i] = 0;
     mePnPedMapG01L2_[i] = 0;
@@ -30,6 +32,7 @@ EBLaserTask::EBLaserTask(const ParameterSet& ps){
     mePnPedMapG16L2_[i] = 0;
     meShapeMapL3_[i] = 0;
     meAmplMapL3_[i] = 0;
+    meTimeMapL3_[i] = 0;
     meAmplPNMapL3_[i] = 0;
     mePnAmplMapG01L3_[i] = 0;
     mePnPedMapG01L3_[i] = 0;
@@ -37,6 +40,7 @@ EBLaserTask::EBLaserTask(const ParameterSet& ps){
     mePnPedMapG16L3_[i] = 0;
     meShapeMapL4_[i] = 0;
     meAmplMapL4_[i] = 0;
+    meTimeMapL4_[i] = 0;
     meAmplPNMapL4_[i] = 0;
     mePnAmplMapG01L4_[i] = 0; 
     mePnPedMapG01L4_[i] = 0;
@@ -82,6 +86,8 @@ void EBLaserTask::setup(void){
       meShapeMapL1_[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096.);
       sprintf(histo, "EBLT amplitude SM%02d L1", i+1);
       meAmplMapL1_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
+      sprintf(histo, "EBLT timing SM%02d L1", i+1);
+      meTimeMapL1_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
       sprintf(histo, "EBLT amplitude over PN SM%02d L1", i+1);
       meAmplPNMapL1_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
     }
@@ -92,6 +98,8 @@ void EBLaserTask::setup(void){
       meShapeMapL2_[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096.);
       sprintf(histo, "EBLT amplitude SM%02d L2", i+1);
       meAmplMapL2_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
+      sprintf(histo, "EBLT timing SM%02d L2", i+1);
+      meTimeMapL2_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
       sprintf(histo, "EBLT amplitude over PN SM%02d L2", i+1);
       meAmplPNMapL2_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
     }
@@ -102,6 +110,8 @@ void EBLaserTask::setup(void){
       meShapeMapL3_[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096.);
       sprintf(histo, "EBLT amplitude SM%02d L3", i+1);
       meAmplMapL3_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
+      sprintf(histo, "EBLT timing SM%02d L3", i+1);
+      meTimeMapL3_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
       sprintf(histo, "EBLT amplitude over PN SM%02d L3", i+1);
       meAmplPNMapL3_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
     }
@@ -112,6 +122,8 @@ void EBLaserTask::setup(void){
       meShapeMapL4_[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096.);
       sprintf(histo, "EBLT amplitude SM%02d L4", i+1);
       meAmplMapL4_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
+      sprintf(histo, "EBLT timing SM%02d L4", i+1);
+      meTimeMapL4_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
       sprintf(histo, "EBLT amplitude over PN SM%02d L4", i+1);
       meAmplPNMapL4_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
     }
@@ -369,37 +381,45 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
     LogDebug("EBLaserTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
 
     MonitorElement* meAmplMap = 0;
+    MonitorElement* meTimeMap = 0;
     MonitorElement* meAmplPNMap = 0;
 
     if ( ievt_ >=    1 && ievt_ <=  600 ) {
       meAmplMap = meAmplMapL1_[ism-1];
+      meTimeMap = meTimeMapL1_[ism-1];
       meAmplPNMap = meAmplPNMapL1_[ism-1];
     }
     if ( ievt_ >=  601 && ievt_ <= 1200 ) {
       meAmplMap = meAmplMapL1_[ism-1];
+      meTimeMap = meTimeMapL1_[ism-1];
       meAmplPNMap = meAmplPNMapL1_[ism-1];
     }
     if ( ievt_ >= 1201 && ievt_ <= 1800 ) {
       meAmplMap = meAmplMapL2_[ism-1];
+      meTimeMap = meTimeMapL2_[ism-1];
       meAmplPNMap = meAmplPNMapL2_[ism-1];
     }
     if ( ievt_ >= 1801 && ievt_ <= 2400 ) {
       meAmplMap = meAmplMapL2_[ism-1];
+      meTimeMap = meTimeMapL2_[ism-1];
       meAmplPNMap = meAmplPNMapL2_[ism-1];
     }
 
     float xval = hit.amplitude();
+    float yval = hit.jitter();
 
     LogDebug("EBLaserTask") << " hit amplitude " << xval;
 
     if ( meAmplMap ) meAmplMap->Fill(xie, xip, xval);
 
-    float yval = 0.;
-    if ( adc[ism-1] != 0. ) yval = xval / adc[ism-1];
+    if ( meTimeMap ) meTimeMap->Fill(xie, xip, yval);
 
-    LogDebug("EBLaserTask") << " hit amplitude over PN " << yval;
+    float zval = 0.;
+    if ( adc[ism-1] != 0. ) zval = xval / adc[ism-1];
 
-    if ( meAmplPNMap ) meAmplPNMap->Fill(xie, xip, yval);
+    LogDebug("EBLaserTask") << " hit amplitude over PN " << zval;
+
+    if ( meAmplPNMap ) meAmplPNMap->Fill(xie, xip, zval);
 
   }
 
