@@ -3,6 +3,8 @@
 
 #include "CLHEP/Random/RandGaussQ.h"
 
+using namespace std;
+
 ESElectronicsSim::ESElectronicsSim (int sigma):
   m_sigma (sigma)
 {
@@ -35,8 +37,9 @@ ESElectronicsSim::encode(const CaloSamples& timeframe) const
   int adc; 
 
   for (int i=0; i<timeframe.size(); i++) {
-    // fake 1 ADC = 1 eV for the moment 
-    adc = int(timeframe[i]*1000000.) + int(RandGauss::shoot(0., m_sigma));
+    // fake 1 ADC = 1 eV for the moment, baseline is set to 100
+    adc = int(timeframe[i]*1000000.) + int(RandGauss::shoot(0., m_sigma)) + 100;
+    if (adc>4095) adc = 4095;
     results.push_back(ESSample(adc));
   }
 
