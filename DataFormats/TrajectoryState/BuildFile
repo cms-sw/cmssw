@@ -1,6 +1,6 @@
 
 <export>
- <lib name=DataFormats/TrajectoryState>
+ <lib name=DataFormatsTrajectoryState>
  <use name=Geometry/Vector>
  <use name=clhep>
 </export>
