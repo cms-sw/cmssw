@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  * 
- * $Date: 2006/02/03 09:39:06 $
- * $Revision: 1.37 $
+ * $Date: 2006/02/05 22:21:54 $
+ * $Revision: 1.38 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -491,7 +491,7 @@ void EBCosmicClient::htmlOutput(int run, string htmlDir, string htmlName){
       if ( imgNameME[iCanvas-1].size() != 0 ) 
         htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameME[iCanvas-1] << "\"></td>" << endl;
       else
-        htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+        htmlFile << "<td colspan=\"2\"><img src=\"" << " " << "\"></td>" << endl;
 
     }
 
@@ -506,7 +506,7 @@ void EBCosmicClient::htmlOutput(int run, string htmlDir, string htmlName){
     if ( imgNameME[2].size() != 0 )
       htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameME[2] << "\"></td>" << endl;
     else
-      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+      htmlFile << "<td colspan=\"2\"><img src=\"" << " " << "\"></td>" << endl;
 
     htmlFile << "</tr>" << endl;
     htmlFile << "</table>" << endl;

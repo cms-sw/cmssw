@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2006/02/03 09:39:06 $
- * $Revision: 1.6 $
+ * $Date: 2006/02/05 22:21:54 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -554,7 +554,7 @@ void EBPedestalOnlineClient::htmlOutput(int run, string htmlDir, string htmlName
     if ( imgNameQual.size() != 0 )
       htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameQual << "\"></td>" << endl;
     else
-      htmlFile << "<img src=\"" << " " << "\"></td>" << endl;
+      htmlFile << "<td colspan=\"2\"><img src=\"" << " " << "\"></td>" << endl;
 
     htmlFile << "</tr>" << endl;
     htmlFile << "<tr>" << endl;
@@ -562,12 +562,12 @@ void EBPedestalOnlineClient::htmlOutput(int run, string htmlDir, string htmlName
     if ( imgNameMean.size() != 0 )
       htmlFile << "<td><img src=\"" << imgNameMean << "\"></td>" << endl;
     else
-      htmlFile << "<img src=\"" << " " << "\"></td>" << endl;
+      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
 
     if ( imgNameRMS.size() != 0 )
       htmlFile << "<td><img src=\"" << imgNameRMS << "\"></td>" << endl;
     else
-      htmlFile << "<img src=\"" << " " << "\"></td>" << endl;
+      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
 
     htmlFile << "</tr>" << endl;
 

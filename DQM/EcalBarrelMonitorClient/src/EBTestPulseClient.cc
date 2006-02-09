@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2006/02/05 22:21:54 $
- * $Revision: 1.62 $
+ * $Date: 2006/02/08 18:31:55 $
+ * $Revision: 1.63 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1397,7 +1397,7 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
       if ( imgNameQual[iCanvas-1].size() != 0 )
         htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameQual[iCanvas-1] << "\"></td>" << endl;
       else
-        htmlFile << "<img src=\"" << " " << "\"></td>" << endl;
+        htmlFile << "<td colspan=\"2\"><img src=\"" << " " << "\"></td>" << endl;
 
     }
 
@@ -1409,12 +1409,12 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
       if ( imgNameAmp[iCanvas-1].size() != 0 )
         htmlFile << "<td><img src=\"" << imgNameAmp[iCanvas-1] << "\"></td>" << endl;
       else
-        htmlFile << "<img src=\"" << " " << "\"></td>" << endl;
+        htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
 
       if ( imgNameShape[iCanvas-1].size() != 0 )
         htmlFile << "<td><img src=\"" << imgNameShape[iCanvas-1] << "\"></td>" << endl;
       else
-        htmlFile << "<img src=\"" << " " << "\"></td>" << endl;
+        htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
 
     }
 
@@ -1433,12 +1433,12 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
       if ( imgNameMEPnPed[iCanvas-1].size() != 0 )
         htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameMEPnPed[iCanvas-1] << "\"></td>" << endl;
       else
-        htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+        htmlFile << "<td colspan=\"2\"><img src=\"" << " " << "\"></td>" << endl;
 
       if ( imgNameMEPn[iCanvas-1].size() != 0 )
         htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameMEPn[iCanvas-1] << "\"></td>" << endl;
       else
-        htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+        htmlFile << "<td colspan=\"2\"><img src=\"" << " " << "\"></td>" << endl;
 
     }
 
