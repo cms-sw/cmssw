@@ -56,8 +56,8 @@ class TECDetId : public DetId {
   
   /// petal id
   /**
-   * vector[0] = 0 -> fw petal
-   * vector[0] = 1 -> bw petal
+   * vector[0] = 0 -> bw petal
+   * vector[0] = 1 -> fw petal
    * vector[1] -> petal
    */
   std::vector<unsigned int> petal() const
@@ -72,8 +72,8 @@ class TECDetId : public DetId {
   
   /// det id
   /**
-   * vector[0] = 0 -> fw det
-   * vector[0] = 1 -> bw det
+   * vector[0] = 0 -> bw det
+   * vector[0] = 1 -> fw det
    * vector[1] -> det
    */
   std::vector<unsigned int> module() const
@@ -85,13 +85,13 @@ class TECDetId : public DetId {
     /// glued
   /**
    * glued() = 0 it's not a glued module
-   * glued() = 1 it's a glued module
+   * glued() != 0 it's a glued module
    */
   unsigned int glued() const
     {
       if(((id_>>sterStartBit_)& sterMask_) == 1 ||
 	 ((id_>>sterStartBit_)& sterMask_) == 2){
-	return 1;
+	return id_;
       }else{
 	return 0;
       }

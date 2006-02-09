@@ -44,8 +44,8 @@ class TIBDetId : public DetId {
   
   /// string  id
   /**
-   * vector[0] = 0 -> fw string
-   * vector[0] = 1 -> bw string
+   * vector[0] = 0 -> bw string
+   * vector[0] = 1 -> fw string
    * vector[1] = 0 -> int string
    * vector[1] = 1 -> ext string
    * vector[2] -> string
@@ -63,13 +63,13 @@ class TIBDetId : public DetId {
   /// glued
   /**
    * glued() = 0 it's not a glued module
-   * glued() = 1 it's a glued module
+   * glued() != 0 it's a glued module
    */
   unsigned int glued() const
     {
       if(((id_>>sterStartBit_)& sterMask_) == 1 ||
 	 ((id_>>sterStartBit_)& sterMask_) == 2){
-	return 1;
+	return id_;
       }else{
 	return 0;
       }

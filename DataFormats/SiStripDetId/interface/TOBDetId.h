@@ -60,13 +60,13 @@ class TOBDetId : public DetId {
   /// glued
   /**
    * glued() = 0 it's not a glued module
-   * glued() = 1 it's a glued module
+   * glued() != 0 it's a glued module
    */
   unsigned int glued() const
     {
       if(((id_>>sterStartBit_)& sterMask_) == 1 ||
 	 ((id_>>sterStartBit_)& sterMask_) == 2){
-	return 1;
+	return id_;
       }else{
 	return 0;
       }
