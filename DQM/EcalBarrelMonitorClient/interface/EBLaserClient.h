@@ -4,8 +4,8 @@
 /*
  * \file EBLaserClient.h
  *
- * $Date: 2006/02/03 09:39:06 $
- * $Revision: 1.21 $
+ * $Date: 2006/02/05 22:21:53 $
+ * $Revision: 1.22 $
  * \author G. Della Ricca
  *
 */
@@ -114,6 +114,11 @@ CollateMonitorElement* me_h06_[36];
 CollateMonitorElement* me_h07_[36];
 CollateMonitorElement* me_h08_[36];
 
+CollateMonitorElement* me_h09_[36];
+CollateMonitorElement* me_h10_[36];
+CollateMonitorElement* me_h11_[36];
+CollateMonitorElement* me_h12_[36];
+
 TProfile2D* h01_[36];
 TProfile2D* h02_[36];
 TProfile2D* h03_[36];
@@ -122,6 +127,11 @@ TProfile2D* h05_[36];
 TProfile2D* h06_[36];
 TProfile2D* h07_[36];
 TProfile2D* h08_[36];
+
+TProfile2D* h09_[36];
+TProfile2D* h10_[36];
+TProfile2D* h11_[36];
+TProfile2D* h12_[36];
 
 TH2F* g01_[36];
 TH2F* g02_[36];
@@ -132,6 +142,11 @@ TH1F* a01_[36];
 TH1F* a02_[36];
 TH1F* a03_[36];
 TH1F* a04_[36];
+
+TH1F* t01_[36];
+TH1F* t02_[36];
+TH1F* t03_[36];
+TH1F* t04_[36];
 
 TH1F* aopn01_[36];
 TH1F* aopn02_[36];

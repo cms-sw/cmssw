@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2006/02/08 17:57:42 $
- * $Revision: 1.59 $
+ * $Date: 2006/02/08 18:26:39 $
+ * $Revision: 1.60 $
  * \author G. Della Ricca
  *
 */
@@ -23,6 +23,11 @@ EBLaserClient::EBLaserClient(const ParameterSet& ps, MonitorUserInterface* mui){
     h06_[ism-1] = 0;
     h07_[ism-1] = 0;
     h08_[ism-1] = 0;
+
+    h09_[ism-1] = 0;
+    h10_[ism-1] = 0;
+    h11_[ism-1] = 0;
+    h12_[ism-1] = 0;
 
     i01_[ism-1] = 0;
     i02_[ism-1] = 0;
@@ -55,6 +60,11 @@ EBLaserClient::EBLaserClient(const ParameterSet& ps, MonitorUserInterface* mui){
     a02_[ism-1] = 0;
     a03_[ism-1] = 0;
     a04_[ism-1] = 0;
+
+    t01_[ism-1] = 0;
+    t02_[ism-1] = 0;
+    t03_[ism-1] = 0;
+    t04_[ism-1] = 0;
 
     aopn01_[ism-1] = 0;
     aopn02_[ism-1] = 0;
@@ -151,6 +161,19 @@ void EBLaserClient::setup(void) {
     sprintf(histo, "EBLT amplitude L4 SM%02d", ism);
     a04_[ism-1] = new TH1F(histo, histo, 1700, 0., 1700.);
 
+    if ( t01_[ism-1] ) delete t01_[ism-1];
+    sprintf(histo, "EBLT timing L1 SM%02d", ism);
+    t01_[ism-1] = new TH1F(histo, histo, 1700, 0., 1700.);
+    if ( t02_[ism-1] ) delete t02_[ism-1];
+    sprintf(histo, "EBLT timing L2 SM%02d", ism);
+    t02_[ism-1] = new TH1F(histo, histo, 1700, 0., 1700.);
+    if ( t03_[ism-1] ) delete t03_[ism-1];
+    sprintf(histo, "EBLT timing L3 SM%02d", ism);
+    t03_[ism-1] = new TH1F(histo, histo, 1700, 0., 1700.);
+    if ( t04_[ism-1] ) delete t04_[ism-1];
+    sprintf(histo, "EBLT timing L4 SM%02d", ism);
+    t04_[ism-1] = new TH1F(histo, histo, 1700, 0., 1700.);
+
     if ( aopn01_[ism-1] ) delete aopn01_[ism-1];
     sprintf(histo, "EBLT amplitude over PN L1 SM%02d", ism);
     aopn01_[ism-1] = new TH1F(histo, histo, 1700, 0., 1700.);
@@ -189,6 +212,11 @@ void EBLaserClient::setup(void) {
     a03_[ism-1]->Reset();
     a04_[ism-1]->Reset();
 
+    t01_[ism-1]->Reset();
+    t02_[ism-1]->Reset();
+    t03_[ism-1]->Reset();
+    t04_[ism-1]->Reset();
+
     aopn01_[ism-1]->Reset();
     aopn02_[ism-1]->Reset();
     aopn03_[ism-1]->Reset();
@@ -211,6 +239,11 @@ void EBLaserClient::cleanup(void) {
       if ( h06_[ism-1] ) delete h06_[ism-1];
       if ( h07_[ism-1] ) delete h07_[ism-1];
       if ( h08_[ism-1] ) delete h08_[ism-1];
+
+      if ( h09_[ism-1] ) delete h09_[ism-1];
+      if ( h10_[ism-1] ) delete h10_[ism-1];
+      if ( h11_[ism-1] ) delete h11_[ism-1];
+      if ( h12_[ism-1] ) delete h12_[ism-1];
 
       if ( i01_[ism-1] ) delete i01_[ism-1];
       if ( i02_[ism-1] ) delete i02_[ism-1];
@@ -239,6 +272,11 @@ void EBLaserClient::cleanup(void) {
     h06_[ism-1] = 0;
     h07_[ism-1] = 0;
     h08_[ism-1] = 0;
+
+    h09_[ism-1] = 0;
+    h10_[ism-1] = 0;
+    h11_[ism-1] = 0;
+    h12_[ism-1] = 0;
 
     i01_[ism-1] = 0;
     i02_[ism-1] = 0;
@@ -279,6 +317,15 @@ void EBLaserClient::cleanup(void) {
     a03_[ism-1] = 0;
     if ( a04_[ism-1] ) delete a04_[ism-1];
     a04_[ism-1] = 0;
+
+    if ( t01_[ism-1] ) delete t01_[ism-1];
+    t01_[ism-1] = 0;
+    if ( t02_[ism-1] ) delete t02_[ism-1];
+    t02_[ism-1] = 0;
+    if ( t03_[ism-1] ) delete t03_[ism-1];
+    t03_[ism-1] = 0;
+    if ( t04_[ism-1] ) delete t04_[ism-1];
+    t04_[ism-1] = 0;
 
     if ( aopn01_[ism-1] ) delete aopn01_[ism-1];
     aopn01_[ism-1] = 0;
@@ -926,12 +973,16 @@ void EBLaserClient::subscribe(void){
 
   // subscribe to all monitorable matching pattern
   mui_->subscribe("*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude SM*");
+  mui_->subscribe("*/EcalBarrel/EBLaserTask/Laser1/EBLT timing SM*");
   mui_->subscribe("*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude over PN SM*");
   mui_->subscribe("*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude SM*");
+  mui_->subscribe("*/EcalBarrel/EBLaserTask/Laser2/EBLT timing SM*");
   mui_->subscribe("*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude over PN SM*");
   mui_->subscribe("*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude SM*");
+  mui_->subscribe("*/EcalBarrel/EBLaserTask/Laser3/EBLT timing SM*");
   mui_->subscribe("*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude over PN SM*");
   mui_->subscribe("*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude SM*");
+  mui_->subscribe("*/EcalBarrel/EBLaserTask/Laser4/EBLT timing SM*");
   mui_->subscribe("*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN SM*");
 
   mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs amplitude SM*");
@@ -999,6 +1050,26 @@ void EBLaserClient::subscribe(void){
       me_h08_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser4");
       sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN SM%02d L4", ism);
       mui_->add(me_h08_[ism-1], histo);
+
+      sprintf(histo, "EBLT timing SM%02d L1", ism);
+      me_h09_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser1");
+      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT timing SM%02d L1", ism);
+      mui_->add(me_h09_[ism-1], histo);
+
+      sprintf(histo, "EBLT timing SM%02d L2", ism);
+      me_h10_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser2");
+      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT timing SM%02d L2", ism);
+      mui_->add(me_h10_[ism-1], histo);
+
+      sprintf(histo, "EBLT timing SM%02d L3", ism);
+      me_h11_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser3");
+      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT timing SM%02d L3", ism);
+      mui_->add(me_h11_[ism-1], histo);
+
+      sprintf(histo, "EBLT timing SM%02d L4", ism);
+      me_h12_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser4");
+      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT timing SM%02d L4", ism);
+      mui_->add(me_h12_[ism-1], histo);
 
       sprintf(histo, "EBPDT PNs amplitude SM%02d G01 L1", ism);
       me_i01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain01");
@@ -1090,12 +1161,16 @@ void EBLaserClient::subscribeNew(void){
 
   // subscribe to new monitorable matching pattern
   mui_->subscribeNew("*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBLaserTask/Laser1/EBLT timing SM*");
   mui_->subscribeNew("*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude over PN SM*");
   mui_->subscribeNew("*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBLaserTask/Laser2/EBLT timing SM*");
   mui_->subscribeNew("*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude over PN SM*");
   mui_->subscribeNew("*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBLaserTask/Laser3/EBLT timing SM*");
   mui_->subscribeNew("*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude over PN SM*");
   mui_->subscribeNew("*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBLaserTask/Laser4/EBLT timing SM*");
   mui_->subscribeNew("*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN SM*");
 
   mui_->subscribeNew("*/EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs amplitude SM*");
@@ -1139,6 +1214,11 @@ void EBLaserClient::unsubscribe(void){
         mui_->removeCollate(me_h07_[ism-1]);
         mui_->removeCollate(me_h08_[ism-1]);
 
+        mui_->removeCollate(me_h09_[ism-1]);
+        mui_->removeCollate(me_h10_[ism-1]);
+        mui_->removeCollate(me_h11_[ism-1]);
+        mui_->removeCollate(me_h12_[ism-1]);
+
         mui_->removeCollate(me_i01_[ism-1]);
         mui_->removeCollate(me_i02_[ism-1]);
         mui_->removeCollate(me_i03_[ism-1]);
@@ -1165,12 +1245,16 @@ void EBLaserClient::unsubscribe(void){
 
   // unsubscribe to all monitorable matching pattern
   mui_->unsubscribe("*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBLaserTask/Laser1/EBLT timing SM*");
   mui_->unsubscribe("*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude over PN SM*");
   mui_->unsubscribe("*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBLaserTask/Laser2/EBLT timing SM*");
   mui_->unsubscribe("*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude over PN SM*");
   mui_->unsubscribe("*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBLaserTask/Laser3/EBLT timing SM*");
   mui_->unsubscribe("*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude over PN SM*");
   mui_->unsubscribe("*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBLaserTask/Laser4/EBLT timing SM*");
   mui_->unsubscribe("*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN SM*");
 
   mui_->unsubscribe("*/EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs amplitude SM*");
@@ -1364,6 +1448,86 @@ void EBLaserClient::analyze(void){
           h08_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
         } else {
           h08_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        }
+      }
+    }
+
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser1/EBLT timing SM%02d L1", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser1/EBLT timing SM%02d L1", ism);
+    }
+    me = mui_->get(histo);
+    if ( me ) {
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
+      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
+      if ( ob ) {
+        if ( cloneME_ ) {
+          if ( h09_[ism-1] ) delete h09_[ism-1];
+          sprintf(histo, "ME EBLT timing SM%02d L1", ism);
+          h09_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+        } else {
+          h09_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        }
+      }
+    }
+
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser2/EBLT timing SM%02d L2", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser2/EBLT timing SM%02d L2", ism);
+    }
+    me = mui_->get(histo);
+    if ( me ) {
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
+      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
+      if ( ob ) {
+        if ( cloneME_ ) {
+          if ( h10_[ism-1] ) delete h10_[ism-1];
+          sprintf(histo, "ME EBLT timing SM%02d L2", ism);
+          h10_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+        } else {
+          h10_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        }
+      }
+    }
+
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser3/EBLT timing SM%02d L3", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser3/EBLT timing SM%02d L3", ism);
+    }
+    me = mui_->get(histo);
+    if ( me ) {
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
+      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
+      if ( ob ) {
+        if ( cloneME_ ) {
+          if ( h11_[ism-1] ) delete h11_[ism-1];
+          sprintf(histo, "ME EBLT timing SM%02d L3", ism);
+          h11_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+        } else {
+          h11_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
+        }
+      }
+    }
+
+    if ( collateSources_ ) {
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser4/EBLT timing SM%02d L4", ism);
+    } else {
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBLaserTask/Laser4/EBLT timing SM%02d L4", ism);
+    }
+    me = mui_->get(histo);
+    if ( me ) {
+      if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
+      ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
+      if ( ob ) {
+        if ( cloneME_ ) {
+          if ( h12_[ism-1] ) delete h12_[ism-1];
+          sprintf(histo, "ME EBLT timing SM%02d L4", ism);
+          h12_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
+        } else {
+          h12_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
         }
       }
     }
@@ -1692,18 +1856,26 @@ void EBLaserClient::analyze(void){
     const float n_min_bin = 50.;
 
     float num01, num02, num03, num04, num05, num06, num07, num08;
+    float num09, num10, num11, num12;
     float mean01, mean02, mean03, mean04, mean05, mean06, mean07, mean08;
+    float mean09, mean10, mean11, mean12;
     float rms01, rms02, rms03, rms04, rms05, rms06, rms07, rms08;
+    float rms09, rms10, rms11, rms12;
 
     if ( g01_[ism-1] ) g01_[ism-1]->Reset();
     if ( g02_[ism-1] ) g02_[ism-1]->Reset();
     if ( g03_[ism-1] ) g03_[ism-1]->Reset();
     if ( g04_[ism-1] ) g04_[ism-1]->Reset();
 
-    if ( g01_[ism-1] ) a01_[ism-1]->Reset();
+    if ( a01_[ism-1] ) a01_[ism-1]->Reset();
     if ( a02_[ism-1] ) a02_[ism-1]->Reset();
     if ( a03_[ism-1] ) a03_[ism-1]->Reset();
     if ( a04_[ism-1] ) a04_[ism-1]->Reset();
+
+    if ( t01_[ism-1] ) t01_[ism-1]->Reset();
+    if ( t02_[ism-1] ) t02_[ism-1]->Reset();
+    if ( t03_[ism-1] ) t03_[ism-1]->Reset();
+    if ( t04_[ism-1] ) t04_[ism-1]->Reset();
 
     if ( aopn01_[ism-1] ) aopn01_[ism-1]->Reset();
     if ( aopn01_[ism-1] ) aopn02_[ism-1]->Reset();
@@ -1764,8 +1936,11 @@ void EBLaserClient::analyze(void){
       for ( int ip = 1; ip <= 20; ip++ ) {
 
         num01  = num02  = num03  = num04  = num05  = num06  = num07  = num08  = -1.;
+        num09  = num10  = num11  = num12  = -1.;
         mean01 = mean02 = mean03 = mean04 = mean05 = mean06 = mean07 = mean08 = -1.;
+        mean09 = mean10 = mean11 = mean12 = -1.;
         rms01  = rms02  = rms03  = rms04  = rms05  = rms06  = rms07  = rms08  = -1.;
+        rms09  = rms10  = rms11  = rms12  = -1.;
 
         if ( g01_[ism-1] ) g01_[ism-1]->SetBinContent(g01_[ism-1]->GetBin(ie, ip), 2.);
         if ( g02_[ism-1] ) g02_[ism-1]->SetBinContent(g02_[ism-1]->GetBin(ie, ip), 2.);
@@ -1849,6 +2024,42 @@ void EBLaserClient::analyze(void){
           }
         }
 
+        if ( h09_[ism-1] && h09_[ism-1]->GetEntries() >= n_min_tot ) {
+          num09 = h09_[ism-1]->GetBinEntries(h09_[ism-1]->GetBin(ie, ip));
+          if ( num09 >= n_min_bin ) {
+            mean09 = h09_[ism-1]->GetBinContent(h09_[ism-1]->GetBin(ie, ip));
+            rms09  = h09_[ism-1]->GetBinError(h09_[ism-1]->GetBin(ie, ip));
+            update_channel1 = true;
+          }
+        }
+
+        if ( h10_[ism-1] && h10_[ism-1]->GetEntries() >= n_min_tot ) {
+          num10 = h10_[ism-1]->GetBinEntries(h10_[ism-1]->GetBin(ie, ip));
+          if ( num10 >= n_min_bin ) {
+            mean10 = h10_[ism-1]->GetBinContent(h10_[ism-1]->GetBin(ie, ip));
+            rms10  = h10_[ism-1]->GetBinError(h10_[ism-1]->GetBin(ie, ip));
+            update_channel2 = true;
+          }
+        }
+
+        if ( h11_[ism-1] && h11_[ism-1]->GetEntries() >= n_min_tot ) {
+          num11 = h11_[ism-1]->GetBinEntries(h11_[ism-1]->GetBin(ie, ip));
+          if ( num11 >= n_min_bin ) {
+            mean11 = h11_[ism-1]->GetBinContent(h11_[ism-1]->GetBin(ie, ip));
+            rms11  = h11_[ism-1]->GetBinError(h11_[ism-1]->GetBin(ie, ip));
+            update_channel3 = true;
+          }
+        }
+
+        if ( h12_[ism-1] && h12_[ism-1]->GetEntries() >= n_min_tot ) {
+          num12 = h12_[ism-1]->GetBinEntries(h12_[ism-1]->GetBin(ie, ip));
+          if ( num12 >= n_min_bin ) {
+            mean12 = h12_[ism-1]->GetBinContent(h12_[ism-1]->GetBin(ie, ip));
+            rms12  = h12_[ism-1]->GetBinError(h12_[ism-1]->GetBin(ie, ip));
+            update_channel4 = true;
+          }
+        }
+
         if ( update_channel1 ) {
 
           float val;
@@ -1860,6 +2071,9 @@ void EBLaserClient::analyze(void){
 
           if ( a01_[ism-1] ) a01_[ism-1]->SetBinContent(ip+20*(ie-1), mean01);
           if ( a01_[ism-1] ) a01_[ism-1]->SetBinError(ip+20*(ie-1), rms01);
+
+          if ( t01_[ism-1] ) t01_[ism-1]->SetBinContent(ip+20*(ie-1), mean09);
+          if ( t01_[ism-1] ) t01_[ism-1]->SetBinError(ip+20*(ie-1), rms09);
 
           if ( aopn01_[ism-1] ) aopn01_[ism-1]->SetBinContent(ip+20*(ie-1), mean02);
           if ( aopn01_[ism-1] ) aopn01_[ism-1]->SetBinError(ip+20*(ie-1), rms02);
@@ -1878,6 +2092,9 @@ void EBLaserClient::analyze(void){
           if ( a02_[ism-1] ) a02_[ism-1]->SetBinContent(ip+20*(ie-1), mean03);
           if ( a02_[ism-1] ) a02_[ism-1]->SetBinError(ip+20*(ie-1), rms03);
 
+          if ( t02_[ism-1] ) t02_[ism-1]->SetBinContent(ip+20*(ie-1), mean10);
+          if ( t02_[ism-1] ) t02_[ism-1]->SetBinError(ip+20*(ie-1), rms10);
+
           if ( aopn02_[ism-1] ) aopn02_[ism-1]->SetBinContent(ip+20*(ie-1), mean04);
           if ( aopn02_[ism-1] ) aopn02_[ism-1]->SetBinError(ip+20*(ie-1), rms04);
 
@@ -1895,6 +2112,9 @@ void EBLaserClient::analyze(void){
           if ( a03_[ism-1] ) a03_[ism-1]->SetBinContent(ip+20*(ie-1), mean05);
           if ( a03_[ism-1] ) a03_[ism-1]->SetBinError(ip+20*(ie-1), rms05);
 
+          if ( t03_[ism-1] ) t03_[ism-1]->SetBinContent(ip+20*(ie-1), mean11);
+          if ( t03_[ism-1] ) t03_[ism-1]->SetBinError(ip+20*(ie-1), rms11);
+
           if ( aopn03_[ism-1] ) aopn03_[ism-1]->SetBinContent(ip+20*(ie-1), mean06);
           if ( aopn03_[ism-1] ) aopn03_[ism-1]->SetBinError(ip+20*(ie-1), rms06);
 
@@ -1911,6 +2131,9 @@ void EBLaserClient::analyze(void){
 
           if ( a04_[ism-1] ) a04_[ism-1]->SetBinContent(ip+20*(ie-1), mean07);
           if ( a04_[ism-1] ) a04_[ism-1]->SetBinError(ip+20*(ie-1), rms07);
+
+          if ( t04_[ism-1] ) t04_[ism-1]->SetBinContent(ip+20*(ie-1), mean12);
+          if ( t04_[ism-1] ) t04_[ism-1]->SetBinError(ip+20*(ie-1), rms12);
 
           if ( aopn04_[ism-1] ) aopn04_[ism-1]->SetBinContent(ip+20*(ie-1), mean08);
           if ( aopn04_[ism-1] ) aopn04_[ism-1]->SetBinError(ip+20*(ie-1), rms08);
@@ -1970,10 +2193,11 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
   }
   dummy.SetMarkerSize(2);
 
-  string imgNameQual[4], imgNameAmp[4], imgNameAmpoPN[4], imgNameMEPnG01[4], imgNameMEPnPedG01[4], imgNameMEPnG16[4], imgNameMEPnPedG16[4], imgName, meName;
+  string imgNameQual[4], imgNameAmp[4], imgNameTim[4], imgNameAmpoPN[4], imgNameMEPnG01[4], imgNameMEPnPedG01[4], imgNameMEPnG16[4], imgNameMEPnPedG16[4], imgName, meName;
 
   TCanvas* cQual = new TCanvas("cQual", "Temp", 2*csize, csize);
   TCanvas* cAmp = new TCanvas("cAmp", "Temp", csize, csize);
+  TCanvas* cTim = new TCanvas("cTim", "Temp", csize, csize);
   TCanvas* cAmpoPN = new TCanvas("cAmpoPN", "Temp", csize, csize);
   TCanvas* cPed = new TCanvas("cPed", "Temp", csize, csize);
 
@@ -2073,6 +2297,50 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         cAmp->Update();
         gPad->SetLogy(0);
         cAmp->SaveAs(imgName.c_str());
+        gPad->SetLogy(0);
+
+      }
+
+      // Timing distributions
+
+      imgNameTim[iCanvas-1] = "";
+
+      obj1f = 0;
+      switch ( iCanvas ) {
+        case 1:
+          obj1f = t01_[ism-1];
+          break;
+        case 2:
+          obj1f = t02_[ism-1];
+          break;
+        default:
+          break;
+      }
+
+      if ( obj1f ) {
+
+        meName = obj1f->GetName();
+
+        for ( unsigned int i = 0; i < meName.size(); i++ ) {
+          if ( meName.substr(i, 1) == " " )  {
+            meName.replace(i, 1 ,"_" );
+          }
+        }
+        imgNameTim[iCanvas-1] = meName + ".png";
+        imgName = htmlDir + imgNameTim[iCanvas-1];
+
+        cTim->cd();
+        gStyle->SetOptStat("euomr");
+        obj1f->SetStats(kTRUE);
+        if ( obj1f->GetMaximum(histMax) > 0. ) {
+          gPad->SetLogy(1);
+        } else {
+          gPad->SetLogy(0);
+        }
+        obj1f->Draw();
+        cTim->Update();
+        gPad->SetLogy(0);
+        cTim->SaveAs(imgName.c_str());
         gPad->SetLogy(0);
 
       }
@@ -2336,7 +2604,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
       if ( imgNameQual[iCanvas-1].size() != 0 )
         htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameQual[iCanvas-1] << "\"></td>" << endl;
       else
-        htmlFile << "<img src=\"" << " " << "\"></td>" << endl;
+        htmlFile << "<td colspan=\"2\"><img src=\"" << " " << "\"></td>" << endl;
 
     }
 
@@ -2348,12 +2616,25 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
       if ( imgNameAmp[iCanvas-1].size() != 0 )
         htmlFile << "<td><img src=\"" << imgNameAmp[iCanvas-1] << "\"></td>" << endl;
       else
-        htmlFile << "<img src=\"" << " " << "\"></td>" << endl;
+        htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
 
       if ( imgNameAmpoPN[iCanvas-1].size() != 0 )
         htmlFile << "<td><img src=\"" << imgNameAmpoPN[iCanvas-1] << "\"></td>" << endl;
       else
-        htmlFile << "<img src=\"" << " " << "\"></td>" << endl;
+        htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+
+    }
+
+    htmlFile << "</tr>" << endl;
+
+    htmlFile << "<tr align=\"center\">" << endl;
+
+    for ( int iCanvas = 1 ; iCanvas <= 2 ; iCanvas++ ) {
+
+      if ( imgNameTim[iCanvas-1].size() != 0 )
+        htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameTim[iCanvas-1] << "\"></td>" << endl;
+      else
+        htmlFile << "<td colspan=\"2\"><img src=\"" << " " << "\"></td>" << endl;
 
     }
 
@@ -2372,22 +2653,22 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
       if ( imgNameMEPnPedG01[iCanvas-1].size() != 0 )
         htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameMEPnPedG01[iCanvas-1] << "\"></td>" << endl;
       else
-        htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+        htmlFile << "<td colspan=\"2\"><img src=\"" << " " << "\"></td>" << endl;
 
       if ( imgNameMEPnG01[iCanvas-1].size() != 0 )
         htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameMEPnG01[iCanvas-1] << "\"></td>" << endl;
       else
-        htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+        htmlFile << "<td colspan=\"2\"><img src=\"" << " " << "\"></td>" << endl;
 
       if ( imgNameMEPnPedG16[iCanvas-1].size() != 0 )
         htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameMEPnPedG16[iCanvas-1] << "\"></td>" << endl;
       else
-        htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+        htmlFile << "<td colspan=\"2\"><img src=\"" << " " << "\"></td>" << endl;
 
       if ( imgNameMEPnG16[iCanvas-1].size() != 0 )
         htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameMEPnG16[iCanvas-1] << "\"></td>" << endl;
       else
-        htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+        htmlFile << "<td colspan=\"2\"><img src=\"" << " " << "\"></td>" << endl;
 
       htmlFile << "</tr>" << endl;
 
@@ -2402,6 +2683,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   delete cQual;
   delete cAmp;
+  delete cTim;
   delete cAmpoPN;
   delete cPed;
 
