@@ -61,20 +61,18 @@ int DTTopology::channel( const LocalPoint& lp) const{
   return static_cast<int>( (lp.x()-theOffSet.x())/theWidth + 0.5);
 }
 
-/*
 // return the x wire position in the layer, starting from its wire number.
 float DTTopology::wirePosition(int wireNumber) const{
   return  (wireNumber - 0.5)*theWidth + theOffSet.x();
 }
-*/
 
-
+/*
 // return the x wire position in the layer r.f., starting from its wire number.
 float DTTopology::wirePosition(int wireNumber) const{
   int layerCoord = theNChannels - wireNumber + theFirstChannel;
   return  (layerCoord - 0.5)*theWidth + theOffSet.x();
 }
-
+*/
 
 
 //New cell geometry
