@@ -1,0 +1,11 @@
+
+<export>
+ <lib name=TrackingToolsTrajectoryState>
+ <use name=TrackingTools/TrajectoryParametrization>
+ <use name=TrackingTools/AnalyticalJacobians>
+ <use name=FWCore/Utilities>
+</export>
+
+<use name=TrackingTools/TrajectoryParametrization>
+<use name=TrackingTools/AnalyticalJacobians>
+<use name=FWCore/Utilities>
