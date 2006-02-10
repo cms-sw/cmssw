@@ -16,24 +16,28 @@ namespace {
     edm::SortedCollection<HBHEDataFrame> vHBHE_;
     edm::SortedCollection<HODataFrame> vHO_;
     edm::SortedCollection<HFDataFrame> vHF_;
+    edm::SortedCollection<HcalCalibDataFrame> vHC_;
     edm::SortedCollection<HcalTriggerPrimitiveDigi> vHTP_;
     edm::SortedCollection<HcalHistogramDigi> vHH_;
 
     HBHEDigiCollection theHBHE_;
     HODigiCollection theHO_;
     HFDigiCollection theHF_;
+    HcalCalibDigiCollection theHC_;
     HcalTrigPrimDigiCollection theHTP_;
     HcalHistogramDigiCollection theHH_;
 
     edm::Wrapper<edm::SortedCollection<HBHEDataFrame> > anotherHBHE_;
     edm::Wrapper<edm::SortedCollection<HODataFrame> > anotherHO_;
     edm::Wrapper<edm::SortedCollection<HFDataFrame> > anotherHF_;
+    edm::Wrapper<edm::SortedCollection<HcalCalibDataFrame> > anotherHC_;
     edm::Wrapper<edm::SortedCollection<HcalTriggerPrimitiveDigi> > anotherHTP_;
     edm::Wrapper<edm::SortedCollection<HcalHistogramDigi> > anotherHH_;
 
     edm::Wrapper<HBHEDigiCollection> theHBHEw_;
     edm::Wrapper<HODigiCollection> theHOw_;
     edm::Wrapper<HFDigiCollection> theHFw_;
+    edm::Wrapper<HcalCalibDigiCollection> theHCw_;
     edm::Wrapper<HcalTrigPrimDigiCollection> theHTPw_; 
     edm::Wrapper<HcalHistogramDigiCollection> theHHw_; 
  }

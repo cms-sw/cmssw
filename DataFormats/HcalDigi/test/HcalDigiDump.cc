@@ -12,8 +12,8 @@ using namespace std;
 
 /** \class HcalDigiDump
       
-$Date: 2005/11/14 18:11:20 $
-$Revision: 1.5 $
+$Date: 2005/11/14 22:46:50 $
+$Revision: 1.6 $
 \author J. Mans - Minnesota
 */
 class HcalDigiDump : public edm::EDAnalyzer {
@@ -30,12 +30,12 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
   std::vector<edm::Handle<HBHEDigiCollection> > hbhe;
   std::vector<edm::Handle<HODigiCollection> > ho;
   std::vector<edm::Handle<HFDigiCollection> > hf;
+  std::vector<edm::Handle<HcalCalibDigiCollection> > hc;
   std::vector<edm::Handle<HcalTrigPrimDigiCollection> > htp;
   std::vector<edm::Handle<HcalHistogramDigiCollection> > hh;  
 
   try {
     e.getManyByType(hbhe);
-    //      cout << "Selected " << hbhe.size() << endl;
     std::vector<edm::Handle<HBHEDigiCollection> >::iterator i;
     for (i=hbhe.begin(); i!=hbhe.end(); i++) {
       const HBHEDigiCollection& c=*(*i);
@@ -49,7 +49,6 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
   
   try {
     e.getManyByType(hf);
-    //      cout << "Selected " << hf.size() << endl;
     std::vector<edm::Handle<HFDigiCollection> >::iterator i;
     for (i=hf.begin(); i!=hf.end(); i++) {
       const HFDigiCollection& c=*(*i);
@@ -63,7 +62,6 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
   
   try {
     e.getManyByType(ho);
-    //      cout << "Selected " << ho.size() << endl;
     std::vector<edm::Handle<HODigiCollection> >::iterator i;
     for (i=ho.begin(); i!=ho.end(); i++) {
       const HODigiCollection& c=*(*i);
@@ -78,7 +76,6 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
 
   try {
     e.getManyByType(htp);
-    //      cout << "Selected " << ho.size() << endl;
     std::vector<edm::Handle<HcalTrigPrimDigiCollection> >::iterator i;
     for (i=htp.begin(); i!=htp.end(); i++) {
       const HcalTrigPrimDigiCollection& c=*(*i);
@@ -92,8 +89,20 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
   }
 
   try {
+    e.getManyByType(hc);
+    std::vector<edm::Handle<HcalCalibDigiCollection> >::iterator i;
+    for (i=hc.begin(); i!=hc.end(); i++) {
+      const HcalCalibDigiCollection& c=*(*i);
+      
+      for (HcalCalibDigiCollection::const_iterator j=c.begin(); j!=c.end(); j++)
+	cout << *j << std::endl;
+    }
+  } catch (...) {
+  }
+
+
+  try {
     e.getManyByType(hh);
-    //      cout << "Selected " << ho.size() << endl;
     std::vector<edm::Handle<HcalHistogramDigiCollection> >::iterator i;
     for (i=hh.begin(); i!=hh.end(); i++) {
       const HcalHistogramDigiCollection& c=*(*i);
@@ -103,7 +112,6 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
 
     }
   } catch (...) {
-    //    cout << "No HCAL Trigger Primitive Digis." << endl;
   }
   
   cout << endl;    
