@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.10 2006/01/20 20:45:15 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.11 2006/02/08 00:44:29 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
@@ -24,16 +24,14 @@
 #include <string>
 #include <iomanip>
 
-using namespace std;
-
 namespace edm {
   PoolOutputModule::PoolOutputModule(ParameterSet const& pset) :
     OutputModule(pset),
-    catalog_(PoolCatalog::WRITE, pset.getUntrackedParameter("catalog", std::string())),
+    catalog_(PoolCatalog::WRITE, pset.getUntrackedParameter<std::string>("catalog", std::string())),
     context_(catalog_, true, false),
-    fileName_(PoolCatalog::toPhysical(pset.getUntrackedParameter<string>("fileName"))),
-    logicalFileName_(pset.getUntrackedParameter("logicalFileName", std::string())),
-    commitInterval_(pset.getUntrackedParameter("commitInterval", 1000U)),
+    fileName_(PoolCatalog::toPhysical(pset.getUntrackedParameter<std::string>("fileName"))),
+    logicalFileName_(pset.getUntrackedParameter<std::string>("logicalFileName", std::string())),
+    commitInterval_(pset.getUntrackedParameter<unsigned int>("commitInterval", 100U)),
     maxFileSize_(pset.getUntrackedParameter<int>("maxSize", 0x7f000000)),
     fileCount_(0) {
     // We need to set a custom streamer for edm::RefCore so that it will not be split.
@@ -70,11 +68,11 @@ namespace edm {
     std::string fileBase(ext ? om->fileName_.substr(0, offset): om->fileName_);
     if (om->fileCount_) {
       std::ostringstream ofilename;
-      ofilename << fileBase << setw(3) << setfill('0') << om->fileCount_ - 1 << suffix;
+      ofilename << fileBase << std::setw(3) << std::setfill('0') << om->fileCount_ - 1 << suffix;
       file_ = ofilename.str();
       if (!om->logicalFileName_.empty()) {
         std::ostringstream lfilename;
-        lfilename << om->logicalFileName_ << setw(3) << setfill('0') << om->fileCount_ - 1;
+        lfilename << om->logicalFileName_ << std::setw(3) << std::setfill('0') << om->fileCount_ - 1;
         lfn_ = lfilename.str();
       }
     } else {
