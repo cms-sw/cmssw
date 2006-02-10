@@ -1,3 +1,6 @@
+** V02-00-02  [Fri Feb 10 01:26:49 2006]
+depends on 'rootcore', not on 'root'
+
 ** V02-00-01  [Wed Feb  8 03:33:27 2006]
 move persistent classes to DataFormats/Common
 
