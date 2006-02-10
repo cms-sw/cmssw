@@ -35,18 +35,6 @@ HcalDetId& HcalDetId::operator=(const DetId& gen) {
   return (*this);
 }
 
-int HcalDetId::hashedIndex() const { 
-  static const int NETA = 42;
-  static const int NPHI = 72;
-  static const int NDEPTH = 4;
-  if (zside()>0) {
-    return NETA*NPHI*NDEPTH+(depth()-1)+ietaAbs()*NDEPTH+iphi()*NDEPTH*NETA;
-  } else {
-    return (depth()-1)+ietaAbs()*NDEPTH+iphi()*NDEPTH*NETA;
-  }
-}
-
-
 std::ostream& operator<<(std::ostream& s,const HcalDetId& id) {
   switch (id.subdet()) {
   case(HcalBarrel) : return s << "(HB " << id.ieta() << ',' << id.iphi() << ',' << id.depth() << ')';

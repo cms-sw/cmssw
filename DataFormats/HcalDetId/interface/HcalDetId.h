@@ -10,8 +10,8 @@
 /** \class HcalDetId
  *  Cell identifier class for the HCAL subdetectors, precision readout cells only
  *
- *  $Date: 2005/09/08 15:54:59 $
- *  $Revision: 1.4 $
+ *  $Date: 2005/10/03 14:27:12 $
+ *  $Revision: 1.5 $
  *  \author J. Mans - Minnesota
  */
 class HcalDetId : public DetId {
@@ -47,8 +47,7 @@ public:
   int crystal_iphi_low() const { return ((iphi()-1)*5)+1; }
   /// get the largest crystal_iphi of the crystal in front of this tower (HB and HE tower 17 only)
   int crystal_iphi_high() const { return ((iphi()-1)*5)+5; }
-  /// compact index for arrays, etc [assumes ieta/iphi/depth sufficient to fully id tower]
-  int hashedIndex() const;
+
 };
 
 std::ostream& operator<<(std::ostream&,const HcalDetId& id);
