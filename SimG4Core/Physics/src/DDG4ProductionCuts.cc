@@ -10,10 +10,9 @@
 using std::cout;
 using std::endl;
 
-#define DEBUG
-
 DDG4ProductionCuts::DDG4ProductionCuts(){
-    keywordRegion =  "CMSCutsRegion";
+    m_KeywordRegion =  "CMSCutsRegion";
+    m_Verbosity = 0 ;
 }
 
 DDG4ProductionCuts::~DDG4ProductionCuts(){
@@ -52,23 +51,24 @@ void DDG4ProductionCuts::update()
 
     ConcreteG4LogicalVolumeToDDLogicalPartMapper::Vector vec = 
 	G4LogicalVolumeToDDLogicalPartMapper::instance()->
-	all(keywordRegion);
+	all(m_KeywordRegion);
   
     // sort all root volumes - to get the same sequence at every run of the application.
     // (otherwise, the sequence will depend on the pointer (memory address) of the 
     // involved objects, because 'new' does no guarantee that you allways get a
     // higher (or lower) address when allocating an object of the same type ...
     sort(vec.begin(),vec.end(),&dd_is_greater);
-#ifdef DEBUG	
-    cout <<" DDG4ProductionCuts : starting "<<endl;
-    cout <<" DDG4ProductionCuts : Got "<<vec.size()<<" region roots."<<endl;
-    cout <<" DDG4ProductionCuts : List of all roots:" << endl;
-    for ( size_t jj=0; jj<vec.size(); ++jj) {
-	cout << "   DDG4ProductionCuts : root=" <<   vec[jj].second.name() << endl;
+    if ( m_Verbosity > 0 )
+    {
+       cout <<" DDG4ProductionCuts : starting "<<endl;
+       cout <<" DDG4ProductionCuts : Got "<<vec.size()<<" region roots."<<endl;
+       cout <<" DDG4ProductionCuts : List of all roots:" << endl;
+       for ( size_t jj=0; jj<vec.size(); ++jj) {
+          cout << "   DDG4ProductionCuts : root=" <<   vec[jj].second.name() << endl;
+       }
     }
     //cout <<" DDG4ProductionCuts : returning, doing nothing! " << endl;
     //return;
-#endif
 
     //
     // In this way I have all the DDLP which have a Region info attached
@@ -82,32 +82,35 @@ void DDG4ProductionCuts::update()
 void DDG4ProductionCuts::SetProdCuts( const DDLogicalPart lpart, G4LogicalVolume* lvol )
 {  
   
-#ifdef DEBUG	
-    cout <<" DDG4ProductionCuts: inside SetProdCuts"<<endl;
-#endif
+    if ( m_Verbosity > 0 )
+    {
+       cout <<" DDG4ProductionCuts: inside SetProdCuts"<<endl;
+    }
   
     G4Region * region = 0;
   
     std::string  regionName;
     unsigned int num = 
 	G4LogicalVolumeToDDLogicalPartMapper::instance()->
-	toString(keywordRegion,lpart,regionName);
+	toString(m_KeywordRegion,lpart,regionName);
   
     if (num != 1){
 	throw SimG4Exception("DDG4ProductionCuts: Problem with Region tags.");
     }
   
-#ifdef DEBUG
-    cout <<" Using region "<<regionName<<endl;
-#endif
+    if ( m_Verbosity > 0 )
+    {
+       cout <<" Using region "<<regionName<<endl;
+    }
 
     region = GetRegion(regionName);
     region->AddRootLogicalVolume(lvol);
   
-#ifdef DEBUG
-    cout << " MakeRegions: added " << lvol->GetName()
-	 << " to region " << region->GetName() << endl;
-#endif
+    if ( m_Verbosity > 0 )
+    {
+       cout << " MakeRegions: added " << lvol->GetName()
+	    << " to region " << region->GetName() << endl;
+    }
     //
     // search for production cuts
     // you must have three of them: e+ e- gamma
@@ -137,12 +140,13 @@ void DDG4ProductionCuts::SetProdCuts( const DDLogicalPart lpart, G4LogicalVolume
     prodCuts->SetProductionCut( gammacut, idxG4GammaCut );
     prodCuts->SetProductionCut( electroncut, idxG4ElectronCut );
     prodCuts->SetProductionCut( positroncut, idxG4PositronCut );
-#ifdef DEBUG
-    cout <<" DDG4ProductionCuts : Setting cuts for "<<regionName<<endl;
-    cout <<"    Electrons: "<<electroncut<<endl;
-    cout <<"    Positrons: "<<positroncut<<endl;
-    cout <<"    Gamma    : "<<gammacut<<endl;
-#endif
+    if ( m_Verbosity > 0 )
+    {
+       cout <<" DDG4ProductionCuts : Setting cuts for "<<regionName<<endl;
+       cout <<"    Electrons: "<<electroncut<<endl;
+       cout <<"    Positrons: "<<positroncut<<endl;
+       cout <<"    Gamma    : "<<gammacut<<endl;
+    }
 
 }
 

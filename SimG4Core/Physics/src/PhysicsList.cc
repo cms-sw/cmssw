@@ -21,11 +21,13 @@ void PhysicsList::SetCuts()
     
     if ( m_pPhysics.getParameter<bool>("CutsPerRegion") )
     {
+       std::cout << " Setting Production Cuts per Region" << std::endl ;
        DDG4ProductionCuts prodCuts;
+       prodCuts.SetVerbosity( m_pPhysics.getUntrackedParameter<int>("Verbosity",0)) ;
        prodCuts.update();
     }
 
-    if (m_pPhysics.getParameter<int>("Verbosity") > 1) 
+    if ( m_pPhysics.getUntrackedParameter<int>("Verbosity") > 1 ) 
 	G4VUserPhysicsList::DumpCutValuesTable();
 
     return ;
