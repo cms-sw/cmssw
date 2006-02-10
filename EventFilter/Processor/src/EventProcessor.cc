@@ -21,10 +21,25 @@ namespace evf
   {
     // find single source
     try {
+      const std::string& processName = params_.getUntrackedParameter<string>("@process_name");
+
       edm::ParameterSet main_input = params_.getParameter<edm::ParameterSet>("@main_input");
+
+      // Fill in "ModuleDescription", in case the input source produces any EDproducts,
+      // which would be registered in the ProductRegistry.
+      edm::ModuleDescription md;
+      md.pid = main_input.id();
+      md.moduleName_ = main_input.template getUntrackedParameter<std::string>("@module_type");
+      // There is no module label for the unnamed input source, so just use the module name.
+      md.moduleLabel_ = md.moduleName_;
+      md.processName_ = processName;
+//#warning version and pass are hardcoded
+      md.versionNumber_ = 1;
+      md.pass = 1; 
       edm::InputSourceDescription isdesc(pname,pass,preg);
       boost::shared_ptr<edm::InputSource> input_
 	(edm::InputSourceFactory::get()->makeInputSource(main_input, isdesc).release());
+      input_->addToRegistry(md);
       return input_;
     } catch(const edm::Exception& iException) {
       if(edm::errors::Configuration == iException.categoryCode()) {
