@@ -1,3 +1,6 @@
+** V01-01-10  [Sat Feb 11 00:56:15 2006]
+change default commit interval to 100 instead of 1000
+
 ** V01-01-09  [Wed Feb  8 03:33:15 2006]
 move persistent classes to DataFormats/Common
 
