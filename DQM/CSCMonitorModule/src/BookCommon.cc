@@ -3,8 +3,8 @@
  * map<string, MonitorElement*> CSCMonitor::book_common(int dduNumber)
  * method
  * 
- *  $Date: 2005/12/12 09:54:00 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/02/07 14:28:43 $
+ *  $Revision: 1.4 $
  *
  * \author Ilaria Segoni
  */
@@ -14,6 +14,7 @@
 
 #include "DQM/CSCMonitorModule/interface/CSCMonitor.h"
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 
@@ -23,13 +24,14 @@ using namespace std;
 ///	MonitorElements COMMON TO ALL CHAMBERS
 
 map<string, MonitorElement*> CSCMonitor::book_common(int dduNumber) {
+ edm::LogInfo ("CSC DQM: ") << "CSCMonitor::book_common, Booking ME's for DDU: "<<dduNumber;
 
  string meName;
  map<string, MonitorElement*> meMap;
 
 
 ///DDU
- //if(debug_printout) cout << "D**EmuBookCommon> New DDU Canvases are booking ..." << endl;
+ //edm::LogInfo ("CSC DQM: ") <<"D**EmuBookCommon> New DDU Canvases are booking ..." ;
  string dir = Form("DDU_%d",dduNumber);
  dbe->setCurrentFolder(dir);
 

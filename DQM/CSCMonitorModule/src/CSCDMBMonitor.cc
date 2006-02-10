@@ -1,8 +1,8 @@
 /** \file
  * 
  * implementation of CSCMonitor::MonitorDMB(...) method
- *  $Date: 2006/01/18 11:22:06 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/02/07 14:31:02 $
+ *  $Revision: 1.4 $
  *
  * \author Ilaria Segoni
  */
@@ -12,19 +12,21 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCDMBTrailer.h"
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
 void CSCMonitor::MonitorDMB(std::vector<CSCEventData>::iterator data, int dduNumber){
 
- if(printout) cout << "Entering CSCMonitor::MonitorDMB>, for Event Number: "<< nEvents<<
-         " and DDU number: "<< dduNumber <<endl;
+ edm::LogInfo ("CSC DQM: ") <<"Entering CSCMonitor::MonitorDMB>, for Event Number: "<< nEvents<<
+         " and DDU number: "<< dduNumber;
+ 
 
  if (&data==0) {
-        if(printout) cout << " NULL CSCEventData pointer: DMB data are not available for Monitoring" << endl; 
+       edm::LogInfo ("CSC DQM: ") <<" NULL CSCEventData pointer: DMB data are not available for Monitoring"; 
 	return;
  }
  else {
-        if(printout) cout << "DMB data are available for Monitoring" << endl;
+       edm::LogInfo ("CSC DQM: ") <<  "DMB data are available for Monitoring" ;
  }
  
  string meName ;
@@ -32,7 +34,7 @@ void CSCMonitor::MonitorDMB(std::vector<CSCEventData>::iterator data, int dduNum
 
 /// DMB HEADER INFORMATION
  
- if(printout) cout << "Monitoring DMB Header";
+ edm::LogInfo ("CSC DQM: ") <<"Monitoring DMB Header";
  	 
   CSCDMBHeader dmbHeader  = data->dmbHeader();
   CSCDMBTrailer dmbTrailer = data->dmbTrailer();
@@ -40,7 +42,7 @@ void CSCMonitor::MonitorDMB(std::vector<CSCEventData>::iterator data, int dduNum
   int crateID	  = dmbHeader.crateID();
   int dmbID 	  = dmbHeader.dmbID();
   int ChamberID	  = (((crateID) << 4) + dmbID) & 0xFFF;
-  if(printout) cout << "Chamber ID = "<< ChamberID << " Crate ID = "<< crateID << " DMB ID = " << dmbID << endl;
+  edm::LogInfo ("CSC DQM: ") <<"Chamber ID = "<< ChamberID << " Crate ID = "<< crateID << " DMB ID = " << dmbID ;
 
 
   meName = Form("CSC_Unpacked_%d",dduNumber);
@@ -75,8 +77,8 @@ void CSCMonitor::MonitorDMB(std::vector<CSCEventData>::iterator data, int dduNum
   me[meName]->Fill((int)(L1ANumber[dduNumber]&0xFF), (int)dmbHeaderL1A);
 
   int dmb_ddu_L1a_diff=(int)(dmbHeaderL1A-(int)(L1ANumber[dduNumber]&0xFF));
-  if(printout)  cout << "DMB(ID=" << ChamberID  << ") L1A = " 
-   << dmbHeaderL1A << " : DMB L1A - DDU L1A = " << dmb_ddu_l1a_diff << endl;
+  edm::LogInfo ("CSC DQM: ") <<"DMB(ID=" << ChamberID  << ") L1A = " 
+   << dmbHeaderL1A << " : DMB L1A - DDU L1A = " << dmb_ddu_l1a_diff;
 
   if(dmb_ddu_L1a_diff<-128){dmb_ddu_L1a_diff=dmb_ddu_L1a_diff+256;}
   if(dmb_ddu_L1a_diff>128){dmb_ddu_L1a_diff=dmb_ddu_L1a_diff-256;}
@@ -93,8 +95,8 @@ void CSCMonitor::MonitorDMB(std::vector<CSCEventData>::iterator data, int dduNum
   me[meName]->Fill((int)(dduBX[dduNumber]), (int)(dmbHeaderBXN));
 
   int dmb_ddu_bxn_diff=(int)(dmbHeaderBXN)-(int)(dduBX[dduNumber]);
-  if(printout)  cout << "DMB(ID=" << ChamberID  << ") BXN = " 
-   << dmbHeaderBXN << " : DMB BXN - DDU BXN = " << dmb_ddu_bxn_diff << endl;
+  edm::LogInfo ("CSC DQM: ") <<"DMB(ID=" << ChamberID  << ") BXN = " 
+   << dmbHeaderBXN << " : DMB BXN - DDU BXN = " << dmb_ddu_bxn_diff;
  
   if(dmb_ddu_bxn_diff<-64){dmb_ddu_bxn_diff=dmb_ddu_bxn_diff+128;}
   if(dmb_ddu_bxn_diff>64){dmb_ddu_bxn_diff=dmb_ddu_bxn_diff-128;}
@@ -109,7 +111,7 @@ void CSCMonitor::MonitorDMB(std::vector<CSCEventData>::iterator data, int dduNum
 
  /// DMB TRAILER INFORMATION
 
- if(printout) cout << "Monitoring DMB Trailer";
+ edm::LogInfo ("CSC DQM: ") <<"Monitoring DMB Trailer";
 
  meName = Form("%dDMB_L1_Pipe", ChamberID);
  me[meName]->Fill(dmbTrailer.dmb_l1pipe);
@@ -149,7 +151,7 @@ void CSCMonitor::MonitorDMB(std::vector<CSCEventData>::iterator data, int dduNum
 
   /// CFEB information from DMB Header
 
-  if(printout)  cout << "Monitoring CFEB information from DMB Header "<< endl;
+  edm::LogInfo ("CSC DQM: ") <<"Monitoring CFEB information from DMB Header ";
    
   int cfeb_dav = (int)dmbHeader.cfebAvailable();
   meName = Form("%dDMB_CFEB_DAV", ChamberID);
@@ -158,7 +160,7 @@ void CSCMonitor::MonitorDMB(std::vector<CSCEventData>::iterator data, int dduNum
   int cfeb_dav_num =0;
   for (int i=0; i<5; i++) cfeb_dav_num = cfeb_dav_num + (int)((cfeb_dav>>i) & 0x1);
   
-  if(printout)  cout << "Number of CFEB with Data Available: "<< cfeb_dav_num<<endl;
+  edm::LogInfo ("CSC DQM: ") <<"Number of CFEB with Data Available: "<< cfeb_dav_num;
   meName = Form("%dDMB_CFEB_DAV_multiplicity", ChamberID);
   me[meName]->Fill(cfeb_dav_num);
   

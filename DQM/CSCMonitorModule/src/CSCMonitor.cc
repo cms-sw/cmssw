@@ -2,8 +2,8 @@
  * 
  *  implementation of CSCMonitor class
  *
- *  $Date: 2006/01/18 11:21:35 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/02/07 14:31:15 $
+ *  $Revision: 1.10 $
  *
  * \author Ilaria Segoni
  */
@@ -19,8 +19,7 @@
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-
-using namespace std;
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 CSCMonitor::CSCMonitor(const edm::ParameterSet& iConfig ){
  
@@ -59,10 +58,10 @@ void CSCMonitor::process(CSCDCCEventData & dccData )
    
   nEvents = nEvents +1;
         
-   const vector<CSCDDUEventData> & dduData = dccData.dduData(); 
+   const std::vector<CSCDDUEventData> & dduData = dccData.dduData(); 
 
-  if(printout) cout << "CSCMonitor::process #" << dec << nEvents 
-             << "> Number of DDU = " <<dduData.size()<<endl;
+  //edm::LogInfo ("CSC DQM ") << "CSCMonitor::process #" << dec << nEvents 
+      //       << "> Number of DDU = " <<dduData.size()<<endl;
         
 
    for (int ddu=0; ddu<(int)dduData.size(); ++ddu) { 

@@ -1,8 +1,8 @@
 /** \file
  * 
  * implementation of CSCMonitor::MonitorCFEB(...) method
- *  $Date: 2006/01/18 11:20:43 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/02/07 14:30:27 $
+ *  $Revision: 1.2 $
  *
  * \author Ilaria Segoni
  */
@@ -16,6 +16,7 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCCFEBData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCCFEBTimeSlice.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
 
@@ -92,7 +93,7 @@ void CSCMonitor::MonitorCFEB(std::vector<CSCEventData>::iterator data, int Chamb
      
      
     		NmbTimeSamples= (cfebData[nCFEB])->nTimeSamples();
-     		if(printout)cout<< "Monitoring nEvents = " << nEvents << " Chamber ID = "<< ChamberID << " nCFEB =" << nCFEB << endl;
+     		edm::LogInfo ("CSC DQM") <<"Monitoring nEvents = " << nEvents << " Chamber ID = "<< ChamberID << " nCFEB =" << nCFEB;
      		for(int nSample = 0; nSample < NmbTimeSamples ; ++nSample) {  
         		 timeSlice[nCFEB][nSample] = (CSCCFEBTimeSlice * )((cfebData[nCFEB])->timeSlice(nSample));  
 	 
@@ -136,9 +137,9 @@ void CSCMonitor::MonitorCFEB(std::vector<CSCEventData>::iterator data, int Chamb
 						meName = Form("%dCFEB%d_LCT_PHASE_vs_L1A_PHASE", ChamberID, nCFEB);
  						me[meName]->Fill(LCTPhase, L1APhase);
 
-						//if(debug_printout)
-						 //  cout << "+++debug> L1APhase " << L1APhase
-						//	<< " UnpackedTrigTime " << UnpackedTrigTime << endl;
+						//edm::LogInfo ("CSC DQM") <<
+						 //   "+++debug> L1APhase " << L1APhase
+						//	<< " UnpackedTrigTime " << UnpackedTrigTime ;
 
 						meName = Form("%dCFEB%d_L1A_Sync_Time_vs_DMB", ChamberID, nCFEB);
  						me[meName]->Fill((int)(dmbHeader.dmbCfebSync()), (int)UnpackedTrigTime);
@@ -156,16 +157,18 @@ void CSCMonitor::MonitorCFEB(std::vector<CSCEventData>::iterator data, int Chamb
 					         
 						 
 					
-					        if(DebugCFEB) cout << " nLayer = " << nLayer << endl;
+					        if(DebugCFEB) {
+							edm::LogInfo ("CSC DQM: ") <<" nLayer = " << nLayer ;
+						}	
  					        for(int nStrip = 1; nStrip <= N_Strips; ++nStrip) {
 						timeSample[nCFEB][nSample][nLayer][nStrip]=
 						  (data->cfebData(nCFEB)->timeSlice(nSample))->timeSample(nLayer,nStrip);
  						ADC = (int) ((timeSample[nCFEB][nSample][nLayer][nStrip]->adcCounts)&0xFFF);
-						if(DebugCFEB) cout << " nStrip="<< dec << nStrip << " ADC=" << hex << ADC << endl;
+						//if(DebugCFEB) cout << " nStrip="<< dec << nStrip << " ADC=" << hex << ADC << endl;
  						OutOffRange = (int) ((timeSample[nCFEB][nSample][nLayer][nStrip]->adcOverflow)&0x1);
  						if(nSample == 0) { // nSample == 0
 							Pedestal[nCFEB][nLayer][nStrip] = ADC;
-							if(DebugCFEB) cout << " nStrip="<< dec << nStrip << " Pedestal=" << hex << Pedestal[nCFEB][nLayer][nStrip] << endl;
+							//if(DebugCFEB) cout << " nStrip="<< dec << nStrip << " Pedestal=" << hex << Pedestal[nCFEB][nLayer][nStrip] << endl;
  							//meName = Form("%dCFEB_Pedestal(withEMV)_Sample_01_Ly%d", ChamberID, nLayer);
 							//me[meName]->Fill((int)(nCFEB*16+nStrip), Pedestal[nCFEB][nLayer][nStrip]);
 							//meName = Form("%dCFEB_Pedestal(withRMS)_Sample_01_Ly%d", ChamberID, nLayer);
@@ -194,8 +197,8 @@ void CSCMonitor::MonitorCFEB(std::vector<CSCEventData>::iterator data, int Chamb
 
 						if(ADC - Pedestal[nCFEB][nLayer][nStrip] > Threshold) {
 							if(DebugCFEB) {
-								cout<<"Layer="<<nLayer<<" Strip="<<nCFEB*16+nStrip<<" Time="<<nSample;
-								cout << " ADC-PEDEST = "<<ADC - Pedestal[nCFEB][nLayer][nStrip]<<endl;
+								edm::LogInfo ("CSC DQM: ") <<"Layer="<<nLayer<<" Strip="<<nCFEB*16+nStrip<<" Time="<<nSample;
+								edm::LogInfo ("CSC DQM: ") <<" ADC-PEDEST = "<<ADC - Pedestal[nCFEB][nLayer][nStrip];
 							}
 							cscdata[nCFEB*16+nStrip-1][nSample][nLayer-1] = ADC - Pedestal[nCFEB][nLayer][nStrip];
 						}
@@ -244,16 +247,16 @@ void CSCMonitor::MonitorCFEB(std::vector<CSCEventData>::iterator data, int Chamb
 		}
 
 		if(DebugCFEB)
-		  cout<<"***  CATHODE PART  DEBUG: Layer="<<nLayer
-		      <<"  Number of Clusters="<<Clus.size()<<"      ***"<<endl;
+		  edm::LogInfo ("CSC DQM: ") <<"***  CATHODE PART  DEBUG: Layer="<<nLayer
+		      <<"  Number of Clusters="<<Clus.size()<<"      ***";
 //		Number of Clusters Histograms
 		meName = Form("%dCFEB_Number_of_Clusters_Ly_%d", ChamberID, nLayer);
 		if(Clus.size() != 0) me[meName]->Fill(Clus.size());
 
 		for(unsigned int u=0;u<Clus.size();u++){
 			if(DebugCFEB)
-			  cout << "Chamber: "<< ChamberID  << " Cluster: "
-			       << u+1<< " Number of local Maximums " <<  Clus[u].localMax.size() << endl;
+			  edm::LogInfo ("CSC DQM: ") <<"Chamber: "<< ChamberID  << " Cluster: "
+			       << u+1<< " Number of local Maximums " <<  Clus[u].localMax.size();
 			for(unsigned int t=0;t<Clus[u].localMax.size();t++){
 				int iS=Clus[u].localMax[t].Strip;
 				int jT=Clus[u].localMax[t].Time;
@@ -271,25 +274,27 @@ void CSCMonitor::MonitorCFEB(std::vector<CSCEventData>::iterator data, int Chamb
 				if(DebugCFEB) {
 					for(unsigned int k=0;k<Clus[u].ClusterPulseMapHeight.size();k++){
 						if(Clus[u].ClusterPulseMapHeight[k].channel_==iS) {
-							cout << "Local Max: " << t+1 << " Strip: " << iS+1 << " Time: " << jT+1;
-							cout << " Height: "
-							     << Clus[u].ClusterPulseMapHeight[k].height_[jT] << endl;
+							edm::LogInfo ("CSC DQM: ") << "Local Max: " << t+1 << " Strip: " << iS+1 << " Time: " << jT+1;
+							edm::LogInfo ("CSC DQM: ") <<" Height: "
+							     << Clus[u].ClusterPulseMapHeight[k].height_[jT];
 						}
 					}
 				}
 			}
 			Clus_Sum_Charge = 0.0;
 			for(unsigned int k=0;k<Clus[u].ClusterPulseMapHeight.size();k++) {
-				if(DebugCFEB) cout << "Strip: " << Clus[u].ClusterPulseMapHeight[k].channel_+1;
+				if(DebugCFEB) {
+					edm::LogInfo ("CSC DQM: ") <<"Strip: " << Clus[u].ClusterPulseMapHeight[k].channel_+1;
+				}
 //				Strip Occupancy Histograms
 //				meName = Form("Chamber_%d_Strip_Occupancy_Ly_%d", ChamberID, nLayer);
 //				me[meName]->Fill(Clus[u].ClusterPulseMapHeight[k].channel_+1);
 
 				if(DebugCFEB) {
 					for(unsigned int n=0;n<16;n++){
-						cout << " " << Clus[u].ClusterPulseMapHeight[k].height_[n];
+						edm::LogInfo ("CSC DQM: ") <<" " << Clus[u].ClusterPulseMapHeight[k].height_[n];
 					}
-					cout << endl;
+					
 				}
 
 				for(unsigned int n=Clus[u].LFTBNDTime; n < Clus[u].IRTBNDTime; n++){

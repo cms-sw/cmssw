@@ -2,8 +2,8 @@
  *
  * implementation of CSCMonitor::MonitorDDU(...) method
  * 
- *  $Date: 2006/01/18 11:22:47 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/02/07 14:30:39 $
+ *  $Revision: 1.5 $
  *
  * \author Ilaria Segoni
  */
@@ -13,10 +13,12 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCDDUHeader.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDDUTrailer.h"
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 void CSCMonitor::MonitorDDU(const CSCDDUEventData& dduEvent, int dduNumber){
 
-  if(printout) cout << "Beginning of CSCMonitor::MonitorDDU"<<endl;
+  edm::LogInfo ("CSC DQM:") <<"Beginning of CSCMonitor::MonitorDDU";
 
   if(!dduBooked[dduNumber]){
 	meDDU[dduNumber] = book_common(dduNumber);
@@ -38,12 +40,15 @@ void CSCMonitor::MonitorDDU(const CSCDDUEventData& dduEvent, int dduNumber){
   meName = Form("DDU_Buffer_Size_%d",dduNumber);
   me[meName]->Fill(dataLength);
 
-  if(printout) cout << "CSCMonitor::MonitorDDU #" << dec << nEvents 
-	<< "> BEGINNING OF EVENT, Buffer size = " << dec 
-	<< dataLength << endl;
+  //edm::LogInfo ("CSC DQM: ") << "CSCMonitor::MonitorDDU #" << dec << nEvents 
+	//<< "> BEGINNING OF EVENT, Buffer size = " << dec << dataLength;
 
-   if(printout) cout << "CSCMonitor::MonitorDDU event #" << dec << nEvents 
-	<< "> Start DDU MonitorElements Filling." << endl;
+  edm::LogInfo ("CSC DQM: ") << "CSCMonitor::MonitorDDU #"  << nEvents 
+	<< "> BEGINNING OF EVENT, Buffer size = " << dataLength;
+  
+  
+  //edm::LogInfo ("CSC DQM: ") <<"CSCMonitor::MonitorDDU event #" << dec << nEvents 
+	//<< "> Start DDU MonitorElements Filling.";
 
 
 /// BINARY ERROR STATUS AT DDU TRAILER
@@ -51,10 +56,10 @@ void CSCMonitor::MonitorDDU(const CSCDDUEventData& dduEvent, int dduNumber){
     trl_errorstat     = dduTrailer.errorstat();
 
 
-    if(printout) {
-	cout << "CSCMonitor::MonitorDDU event #" << dec << nEvents 
-	<< "> DDU Trailer Error Status = 0x" << hex << trl_errorstat << endl;
-     }
+    
+   // edm::LogInfo ("CSC DQM: ") <<"CSCMonitor::MonitorDDU event #" << dec << nEvents 
+	//<< "> DDU Trailer Error Status = 0x" << hex << trl_errorstat;
+     
      for (int i=0; i<32; i++) {
 	if ((trl_errorstat>>i) & 0x1) {
     
@@ -91,15 +96,15 @@ void CSCMonitor::MonitorDDU(const CSCDDUEventData& dduEvent, int dduNumber){
 
    meName = Form("DDU_Word_Count_%d",dduNumber);
    me[meName]->Fill(trl_word_count);
-   if(printout) cout << "CSCMonitor::MonitorDDU event #" << dec << nEvents 
-	<< "> DDU Trailer Word (64 bits) Count = " << dec << trl_word_count << endl;
+  // edm::LogInfo ("CSC DQM: ") <<"CSCMonitor::MonitorDDU event #" << dec << nEvents 
+	//<< "> DDU Trailer Word (64 bits) Count = " << dec << trl_word_count;
 
 ///	BXN from DDU Header 
 
     dduBX[dduNumber]=dduHeader.bxnum();
 
-    if(printout)  cout << "CSCMonitor::MonitorDDU event #" << dec << nEvents 
-	<< "> DDU Header BX Number = " << dec << dduBX[dduNumber] << endl;
+    //edm::LogInfo ("CSC DQM: ") <<"CSCMonitor::MonitorDDU event #" << dec << nEvents 
+	//<< "> DDU Header BX Number = " << dec << dduBX[dduNumber];
   
     meName = Form("DDU_BXN_%d",dduNumber);
     me[meName]->Fill(dduBX[dduNumber]);
@@ -108,8 +113,8 @@ void CSCMonitor::MonitorDDU(const CSCDDUEventData& dduEvent, int dduNumber){
     int L1ANumber_previous_event = L1ANumber[dduNumber];
     L1ANumber[dduNumber] = (int)(dduHeader.lvl1num());
   
-    if(printout) cout << "CSCMonitor::MonitorDDU event #" << dec << nEvents 
-	<< "> DDU Header L1A Number = " << dec << L1ANumber[dduNumber] <<" L1A Number Previous="<< L1ANumber_previous_event<<"difference"<<L1ANumber[dduNumber] - L1ANumber_previous_event<<endl;
+    //edm::LogInfo ("CSC DQM: ") <<"CSCMonitor::MonitorDDU event #" << dec << nEvents 
+	//<< "> DDU Header L1A Number = " << dec << L1ANumber[dduNumber] <<" L1A Number Previous="<< L1ANumber_previous_event<<"difference"<<L1ANumber[dduNumber] - L1ANumber_previous_event;
  
     meName = Form("DDU_L1A_Increment_%d",dduNumber);
     me[meName]->Fill(L1ANumber[dduNumber] - L1ANumber_previous_event);
@@ -146,12 +151,12 @@ void CSCMonitor::MonitorDDU(const CSCDDUEventData& dduEvent, int dduNumber){
       csc_warning_state  = dduTrailer.dmb_warn();
       //ddu_connected_inputs=dduHeader.live_cscs();
 
-    if(printout) {
-	cout << "CSCMonitor::MonitorDDU event #" << dec << nEvents 
-		<< "> DDU Header DMB DAV = 0x" << hex << dmb_dav_header << endl;  
-	cout << "CSCMonitor::MonitorDDU event #" << dec << nEvents 
-		<< "> DDU Header Number of Active DMB = " << dec << dmb_active_header << endl;
-    }
+	//edm::LogInfo ("CSC DQM: ") <<"CSCMonitor::MonitorDDU event #" << dec << nEvents 
+	//	<< "> DDU Header DMB DAV = 0x" << hex << dmb_dav_header ;  
+	//edm::LogInfo ("CSC DQM: ") <<"CSCMonitor::MonitorDDU event #" << dec << nEvents 
+	//	<< "> DDU Header Number of Active DMB = " << dec << dmb_active_header;
+   
+    
 
    for (int i=0; i<16; ++i) {
 	if ((dmb_dav_header>>i) & 0x1) {
@@ -223,21 +228,19 @@ void CSCMonitor::MonitorDDU(const CSCDDUEventData& dduEvent, int dduNumber){
     for(vector<CSCEventData>::iterator chamberDataItr = chamberDatas.begin(); 
 	chamberDataItr != chamberDatas.end(); ++chamberDataItr) {
 		unpacked_dmb_cnt=unpacked_dmb_cnt+1;
-		if(printout) {
-			cout << "CSCMonitor::MonitorDDU event #" << dec << nEvents 
-			<< "> Found DMB " << dec << unpacked_dmb_cnt<< endl;
-		}
+		//edm::LogInfo ("CSC DQM: ") <<"CSCMonitor::MonitorDDU event #" << dec << nEvents 
+			//<< "> Found DMB " << dec << unpacked_dmb_cnt;
+		
          
 	this->MonitorDMB(chamberDataItr, dduNumber);
        
-	if(printout) {
-			cout << "CSCMonitor::MonitorDDU event #" << dec << nEvents 
-			<< "> Unpacking procedure for DMB " << dec << unpacked_dmb_cnt << " finished" << endl;
-        }
+			//edm::LogInfo ("CSC DQM: ") <<"CSCMonitor::MonitorDDU event #" << dec << nEvents 
+			//<< "> Unpacking procedure for DMB " << dec << unpacked_dmb_cnt << " finished";
+        
      }
     
-    if(printout) cout << "CSCMonitor::MonitorDDU event #" << dec << nEvents 
-  	 << "> Total number of unpacked DMB = " << dec << unpacked_dmb_cnt << endl;
+    //edm::LogInfo ("CSC DQM: ") << "CSCMonitor::MonitorDDU event #" << dec << nEvents 
+  	//<< "> Total number of unpacked DMB = " << dec << unpacked_dmb_cnt;
   
     
      meName = Form("DDU_DMB_unpacked_vs_DAV_%d",dduNumber);
@@ -253,8 +256,9 @@ void CSCMonitor::MonitorDDU(const CSCDDUEventData& dduEvent, int dduNumber){
       //meName = Form("DDU_Unpacking_Match_vs_nEvents_%d",dduNumber);
       //me[meName]->SetAxisRange(0, nEvents, "X");
     
-      if(printout) cout << "CSCMonitor::MonitorDDU event #" << dec << nEvents 
-	<< "> END OF EVENT" << endl;
+        //edm::LogInfo ("CSC DQM: ") <<"CSCMonitor::MonitorDDU event #" << dec << nEvents 
+	//<< "> END OF EVENT" ;
+      
 
 
 }

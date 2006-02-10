@@ -4,8 +4,8 @@
  *  map<string, MonitorElement*> CSCMonitor::book_chamber(int ChamberID) 
  * method
  *
- *  $Date: 2005/12/12 09:53:55 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/01/18 11:20:07 $
+ *  $Revision: 1.6 $
  *
  * \author Ilaria Segoni
  */
@@ -15,6 +15,7 @@
 
 #include "DQM/CSCMonitorModule/interface/CSCMonitor.h"
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 
@@ -34,8 +35,8 @@ map<string, MonitorElement*> CSCMonitor::book_chamber(int ChamberID) {
 	map<string, MonitorElement*> me;
 
 //CSC
-	if(printout) 	cout << "CSCMonitor::book_chamber, Booking ME's for Chamber: "<< ChamberID <<
-	"DMB: "<<dmbID<<"CRATE: "<< crateID<<endl;
+	edm::LogInfo ("CSC DQM: ") << "CSCMonitor::book_chamber, Booking ME's for Chamber: "<< ChamberID <<
+	"DMB: "<<dmbID<<"CRATE: "<< crateID;
 
 	dir= Form("DMB_%d/crate_%d",dmbID,crateID);
         dbe->setCurrentFolder(dir);
@@ -65,7 +66,7 @@ map<string, MonitorElement*> CSCMonitor::book_chamber(int ChamberID) {
 
 
 //DMBs
-//	if(debug_printout) 	cout << "D**EmuBookChamber> New DMB Canvases are booking ..." << endl;
+//	edm::LogInfo ("CSC DQM: ")<< "D**EmuBookChamber> New DMB Canvases are booking ...";
 
 	dir= Form("DMB_%d/crate_%d/DMB",dmbID,crateID);
         dbe->setCurrentFolder(dir);
@@ -107,7 +108,7 @@ map<string, MonitorElement*> CSCMonitor::book_chamber(int ChamberID) {
 		me[meName] = dbe->book2D(meName.c_str(), "FEDs FIFO Status", 7,  0 , 7, 3, 0, 3);
 
 //ALCTs
-	//if(debug_printout) 	cout << "D**EmuBookChamber> New ALCT Canvases are booking ..." << endl;
+	//edm::LogInfo ("CSC DQM: ") << "D**EmuBookChamber> New ALCT Canvases are booking ...";
 	dir= Form("DMB_%d/crate_%d/ALCT",dmbID,crateID);
         dbe->setCurrentFolder(dir);
 
@@ -151,7 +152,7 @@ map<string, MonitorElement*> CSCMonitor::book_chamber(int ChamberID) {
 
 
 //TMB
-	//if(debug_printout) 	cout << "D**EmuBookChamber> New TMB Canvases are booking ..." << endl;
+	//edm::LogInfo ("CSC DQM: ") << "D**EmuBookChamber> New TMB Canvases are booking ..." ;
 	dir= Form("DMB_%d/crate_%d/TMB",dmbID,crateID);
         dbe->setCurrentFolder(dir);
 
@@ -172,7 +173,7 @@ map<string, MonitorElement*> CSCMonitor::book_chamber(int ChamberID) {
                 me[meName] = dbe->book1D(meName.c_str(), "ALCT-CLCT BXN Difference for Matched LCT1", 4, 0, 4);
 
 //TMB - CLCTs
-	//if(debug_printout) 	cout << "D**EmuBookChamber> New TMB-CLCT Canvases are booking ..." << endl;
+	//edm::LogInfo ("CSC DQM: ") << "D**EmuBookChamber> New TMB-CLCT Canvases are booking ..." ;
         //dbe->setCurrentFolder("TMB");
  
 		meName = Form("%dCLCT_Number_Of_Layers_With_Hits", ChamberID);
@@ -258,7 +259,7 @@ map<string, MonitorElement*> CSCMonitor::book_chamber(int ChamberID) {
 	}
 
 // CFEBs
-	//if(debug_printout) 	cout << "D**EmuBookChamber> New CFEB Canvases are booking ..." << endl;
+	//edm::LogInfo ("CSC DQM: ") << "D**EmuBookChamber> New CFEB Canvases are booking ...";
 	dir= Form("DMB_%d/crate_%d/CFEB",dmbID,crateID);
         dbe->setCurrentFolder(dir);
 
@@ -334,7 +335,7 @@ map<string, MonitorElement*> CSCMonitor::book_chamber(int ChamberID) {
         }
 
 //SYNC
-	//if(debug_printout) 	cout << "D**EmuBookChamber> New SYNC Canvases are booking ..." << endl;
+	//edm::LogInfo ("CSC DQM: ")<< "D**EmuBookChamber> New SYNC Canvases are booking ..." ;
 	dir= Form("DMB_%d/crate_%d/SYNC",dmbID,crateID);
         dbe->setCurrentFolder(dir);
 
