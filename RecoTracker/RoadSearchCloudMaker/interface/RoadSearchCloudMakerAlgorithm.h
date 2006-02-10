@@ -51,7 +51,7 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/01/14 22:00:00 $
+// $Date: 2006/01/15 01:06:52 $
 // $Revision: 1.1 $
 //
 
@@ -81,7 +81,8 @@ class RoadSearchCloudMakerAlgorithm
 
   /// Runs the algorithm
   void run(const TrackingSeedCollection* input,
-	   const SiStripRecHit2DLocalPosCollection* inputRecHits,
+	   const SiStripRecHit2DLocalPosCollection* rphiRecHits,
+	   const SiStripRecHit2DLocalPosCollection* stereoRecHits,
 	   const edm::EventSetup& es,
 	   RoadSearchCloudCollection &output);
 

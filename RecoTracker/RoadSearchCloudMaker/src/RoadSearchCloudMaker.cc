@@ -9,8 +9,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/01/15 01:06:52 $
-// $Revision: 1.1 $
+// $Date: 2006/01/30 22:23:55 $
+// $Revision: 1.2 $
 //
 
 #include <memory>
@@ -53,14 +53,17 @@ namespace cms
     std::string recHitProducer = conf_.getParameter<std::string>("RecHitProducer");
   
     // get Inputs 
-    edm::Handle<SiStripRecHit2DLocalPosCollection> recHits;
-    e.getByLabel(recHitProducer, "stereoRecHit", recHits);
+    edm::Handle<SiStripRecHit2DLocalPosCollection> rphirecHits;
+    e.getByLabel(recHitProducer, "rphiRecHit", rphirecHits);
+    edm::Handle<SiStripRecHit2DLocalPosCollection> stereorecHits;
+    e.getByLabel(recHitProducer, "stereoRecHit", stereorecHits);
 
     // Step B: create empty output collection
     std::auto_ptr<RoadSearchCloudCollection> output(new RoadSearchCloudCollection);
 
     // Step C: Invoke the seed finding algorithm
-    roadSearchCloudMakerAlgorithm_.run(seeds.product(),recHits.product(),es,*output);
+    roadSearchCloudMakerAlgorithm_.run(seeds.product(),rphirecHits.product(),
+                                                       stereorecHits.product(),es,*output);
 
     // Step D: write output to file
     e.put(output);
