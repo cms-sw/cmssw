@@ -17,8 +17,8 @@ HcalTBWriter::HcalTBWriter(const edm::ParameterSet & pset) :
   std::vector<edm::ParameterSet> names=pset.getUntrackedParameter<std::vector<edm::ParameterSet> >("ChunkNames");
   std::vector<edm::ParameterSet>::iterator j;
   for (j=names.begin(); j!=names.end(); j++) {
-    std::string name=j->getParameter<std::string>("Name");
-    int num=j->getParameter<int>("Number");
+    std::string name=j->getUntrackedParameter<std::string>("Name");
+    int num=j->getUntrackedParameter<int>("Number");
     blockToName_[num]=name;
   }
 

@@ -23,7 +23,7 @@ HcalTBSource::HcalTBSource(const edm::ParameterSet & pset, edm::InputSourceDescr
   m_itotal=0;
   m_i=0;
 
-  unpackSetup(pset.getParameter<std::vector<std::string> >("streams"));
+  unpackSetup(pset.getUntrackedParameter<std::vector<std::string> >("streams"));
   produces<FEDRawDataCollection>();
 }
 
