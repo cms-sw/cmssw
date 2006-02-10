@@ -10,8 +10,8 @@
     
 Cell id for an Calo Trigger tower
 
-   $Date: 2005/09/08 15:54:59 $
-   $Revision: 1.4 $
+   $Date: 2005/10/03 14:27:12 $
+   $Revision: 1.5 $
    \author J. Mans - Minnesota
 */
 class HcalTrigTowerDetId : public DetId {
@@ -29,7 +29,8 @@ public:
   /** Assignment from a generic cell id */
   HcalTrigTowerDetId& operator=(const DetId& id);
 
-
+  /// get the subdetector
+  HcalSubdetector subdet() const { return (HcalSubdetector)(subdetId()); }
   /// get the z-side of the tower (1/-1)
   int zside() const { return (id_&0x2000)?(1):(-1); }
   /// get the absolute value of the tower ieta
@@ -38,8 +39,6 @@ public:
   int ieta() const { return zside()*ietaAbs(); }
   /// get the tower iphi
   int iphi() const { return id_&0x7F; }
-  /// get a compact index for arrays [TODO: NEEDS WORK]
-  int hashedIndex() const;
 
 };
 
