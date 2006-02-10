@@ -1,0 +1,28 @@
+pool_build_object_relational_mapping -f mapping-template-SiStripPedestals-default.xml -o SiStripPedestals-mapping-default.xml -d CondFormatsSiStripObjects -c sqlite_file:pippo.db -b -u whoever -p whatever 
+ 
+cp SiStripPedestals-mapping-default.xml SiStripPedestals-mapping-custom.xml
+edit SiStripPedestals-mapping-custom.xml change to meaningful names
+
+start DBA procedure:
+build real table in oracle db
+
+pool_build_object_relational_mapping -f SiStripPedestals-mapping-custom.xml -d CondFormatsSiStripObjects -c oracle://devdb10/cms_xiezhen_dev -u cms_xiezhen_dev -p xiezhen123 -debug>SiStripPedestals.debug
+
+pool_build_object_relational_mapping -f mapping-template-CondIOV-default.xml -d CondCoreIOVService -c oracle://devdb10/cms_xiezhen_dev -u cms_xiezhen_dev -p xiezhen123 -o CondIOV-mapping-default.xml -debug > SiStripCondIOV.debug
+
+to get create statements for DBA record:
+grep CREATE *.debug > SiStripschema.debug
+clean up SiStripschema.debug and replace CMS_XIEZHEN_DEV by SiStrip schema name
+also change the GRANT SELECT according to setup
+
+add extra TIME column to the payload tables
+sqlplus cms_xiezhen_dev@devdb10/xiezhen123 < addSiStripPayloadTime.sql
+
+create METADATA table
+sqlplus cms_xiezhen_dev@devdb10/xiezhen123 < createMetaDataTable.sql
+
+create catalog tables
+setenv POOL_OUTMSG_LEVEL D
+FCregisterPFN -p pippo -u relationalcatalog_oracle://devdb10/cms_xiezhen_dev -t POOL_RDBMS > &catalog.debug
+
+grep CREATE catalog.debug
