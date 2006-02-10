@@ -13,7 +13,8 @@ class SiStripRecHit2DMatchedLocalPosCollection {
  public:
   typedef edm::OwnVector<SiStripRecHit2DMatchedLocalPos, edm::ClonePolicy<SiStripRecHit2DMatchedLocalPos> > Container;
   typedef Container::iterator ContainerIterator;
-  typedef std::pair<ContainerIterator, ContainerIterator> Range;
+  typedef Container::const_iterator ContainerConstIterator;
+  typedef std::pair<ContainerConstIterator, ContainerConstIterator> Range;
   typedef std::pair<unsigned int, unsigned int> IndexRange;
   typedef std::map<unsigned int, IndexRange> Registry;
   typedef std::map<unsigned int, IndexRange>::const_iterator RegistryIterator;
@@ -25,8 +26,8 @@ class SiStripRecHit2DMatchedLocalPosCollection {
   const std::vector<unsigned int> detIDs() const;
   
  private:
-  mutable Container container_;
-  mutable Registry map_;
+  Container container_;
+  Registry map_;
 
 };
 

@@ -6,23 +6,23 @@ void SiStripRecHit2DLocalPosCollection::put(SiStripRecHit2DLocalPosCollection::R
   // put in DetHits of detID
 
   // store size of vector before put
-  SiStripRecHit2DLocalPosCollection::IndexRange inputRange;
+  IndexRange inputRange;
   inputRange.first = container_.size();
   
   // put in SiStripRecHit2DLocalPoss from input
   
   // fill input in temporary vector for sorting
   Container temporary;
-  SiStripRecHit2DLocalPosCollection::ContainerIterator sort_begin(input.first);
-  SiStripRecHit2DLocalPosCollection::ContainerIterator sort_end(input.second);
+  ContainerConstIterator sort_begin(input.first);
+  ContainerConstIterator sort_end(input.second);
   for ( ;sort_begin != sort_end; ++sort_begin ) {
     temporary.push_back(new SiStripRecHit2DLocalPos(*sort_begin));
   }
   //  std::sort(temporary.begin(),temporary.end());
 
   // iterators over input
-  SiStripRecHit2DLocalPosCollection::ContainerIterator begin = temporary.begin();
-  SiStripRecHit2DLocalPosCollection::ContainerIterator end = temporary.end();
+  ContainerConstIterator begin = temporary.begin();
+  ContainerConstIterator end = temporary.end();
   for ( ;begin != end; ++begin ) {
     container_.push_back(new SiStripRecHit2DLocalPos(*begin));
   }
@@ -36,16 +36,16 @@ void SiStripRecHit2DLocalPosCollection::put(SiStripRecHit2DLocalPosCollection::R
 SiStripRecHit2DLocalPosCollection::Range SiStripRecHit2DLocalPosCollection::get(unsigned int detID) const{
   // get DetHits of detID
 
-  SiStripRecHit2DLocalPosCollection::RegistryIterator returnIndex = map_.find(detID);
-  SiStripRecHit2DLocalPosCollection::IndexRange returnIndexRange = returnIndex->second;
+  RegistryIterator returnIndex = map_.find(detID);
+  IndexRange returnIndexRange = returnIndex->second;
 
-  SiStripRecHit2DLocalPosCollection::ContainerIterator ibegin = container_.begin();
-  SiStripRecHit2DLocalPosCollection::ContainerIterator iend = ibegin;
+  ContainerConstIterator ibegin = container_.begin();
+  ContainerConstIterator iend = ibegin;
   ibegin += returnIndexRange.first;
   iend +=returnIndexRange.second+1;
   //StripRecHit2DLocalPosCollection::ContainerIterator begin = container_.begin();
   //SiStripRecHit2DLocalPosCollection::ContainerIterator end = container_.begin();
-  SiStripRecHit2DLocalPosCollection::Range returnRange(ibegin,iend);
+  Range returnRange(ibegin,iend);
 
   //  returnRange.first  = ibegin;
   //  returnRange.second = iend;
@@ -58,8 +58,8 @@ SiStripRecHit2DLocalPosCollection::Range SiStripRecHit2DLocalPosCollection::get(
 const std::vector<unsigned int> SiStripRecHit2DLocalPosCollection::detIDs() const {
   // returns vector of detIDs in map
 
-  SiStripRecHit2DLocalPosCollection::RegistryIterator begin = map_.begin();
-  SiStripRecHit2DLocalPosCollection::RegistryIterator end   = map_.end();
+  RegistryIterator begin = map_.begin();
+  RegistryIterator end   = map_.end();
 
   std::vector<unsigned int> output;
   
