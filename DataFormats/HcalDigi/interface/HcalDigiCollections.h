@@ -1,7 +1,7 @@
 #ifndef DIGIHCAL_HCALDIGICOLLECTION_H
 #define DIGIHCAL_HCALDIGICOLLECTION_H
 
-#include "FWCore/EDProduct/interface/SortedCollection.h"
+#include "DataFormats/Common/interface/SortedCollection.h"
 #include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
 #include "DataFormats/HcalDigi/interface/HODataFrame.h"
 #include "DataFormats/HcalDigi/interface/HFDataFrame.h"

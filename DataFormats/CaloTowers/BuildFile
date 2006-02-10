@@ -1,11 +1,11 @@
-<use name=FWCore/EDProduct>
+<use name=DataFormats/Common>
 <use name=DataFormats/HcalDetId>
 <use name=boost>
 
 <export>
    <lib name=DataFormatsCaloTowers>
    <use name=DataFormats/HcalDetId>
-   <use name=FWCore/EDProduct>
+   <use name=DataFormats/Common>
    <use name=boost>
 </export>
 
