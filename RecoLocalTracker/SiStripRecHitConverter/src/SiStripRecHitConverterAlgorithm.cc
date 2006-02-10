@@ -37,9 +37,13 @@ SiStripRecHitConverterAlgorithm::~SiStripRecHitConverterAlgorithm() {
     delete clustermatch_;
   }
 }
-
-
 void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,SiStripRecHit2DMatchedLocalPosCollection & outmatched,SiStripRecHit2DLocalPosCollection & outrphi, SiStripRecHit2DLocalPosCollection & outstereo,const TrackingGeometry& tracker)
+{
+  run(input, outmatched,outrphi,outstereo,tracker,LocalVector(0.,0.,0.));
+}
+
+
+void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,SiStripRecHit2DMatchedLocalPosCollection & outmatched,SiStripRecHit2DLocalPosCollection & outrphi, SiStripRecHit2DLocalPosCollection & outstereo,const TrackingGeometry& tracker,LocalVector trackdirection)
 {
   int nmono=0;
   int nstereo=0;
@@ -142,10 +146,10 @@ void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,
 
 	if(partnerdetId.subdetId()==StripSubdetector::TIB||partnerdetId.subdetId()==StripSubdetector::TOB){// if TIB of TOB use the rectangualr strip topology 
 	  const RectangularStripTopology& Rtopol=(RectangularStripTopology&)stereostripdet->topology();
-	  collectorMatchedSingleHit=clustermatch_->match<RectangularStripTopology>(&(*iter),rhpartnerRangeIteratorBegin,rhpartnerRangeIteratorEnd,theId,Rtopol,monostripdet,stereostripdet);
+	  collectorMatchedSingleHit=clustermatch_->match<RectangularStripTopology>(&(*iter),rhpartnerRangeIteratorBegin,rhpartnerRangeIteratorEnd,theId,Rtopol,monostripdet,stereostripdet,trackdirection);
 	}else{
 	  const TrapezoidalStripTopology& Ttopol=(TrapezoidalStripTopology&)stereostripdet->topology();
-	  collectorMatchedSingleHit=clustermatch_->match<TrapezoidalStripTopology>(&(*iter),rhpartnerRangeIteratorBegin,rhpartnerRangeIteratorEnd,theId,Ttopol,monostripdet,stereostripdet);
+	  collectorMatchedSingleHit=clustermatch_->match<TrapezoidalStripTopology>(&(*iter),rhpartnerRangeIteratorBegin,rhpartnerRangeIteratorEnd,theId,Ttopol,monostripdet,stereostripdet,trackdirection);
 	}
 	if (collectorMatchedSingleHit.size()>0) {
 	  nmatch++;

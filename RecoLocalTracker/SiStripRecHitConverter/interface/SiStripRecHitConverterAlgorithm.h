@@ -31,7 +31,8 @@ class SiStripRecHitConverterAlgorithm
   
 
   /// Runs the algorithm
-    void run(const SiStripClusterCollection* input, SiStripRecHit2DMatchedLocalPosCollection&  output, SiStripRecHit2DLocalPosCollection&  outrphi,SiStripRecHit2DLocalPosCollection&  outstereo,const TrackingGeometry & tracker);
+    void run(const SiStripClusterCollection* input,SiStripRecHit2DMatchedLocalPosCollection & outmatched,SiStripRecHit2DLocalPosCollection & outrphi, SiStripRecHit2DLocalPosCollection & outstereo,const TrackingGeometry& tracker);
+    void run(const SiStripClusterCollection* input, SiStripRecHit2DMatchedLocalPosCollection&  output, SiStripRecHit2DLocalPosCollection&  outrphi,SiStripRecHit2DLocalPosCollection&  outstereo,const TrackingGeometry & tracker,LocalVector trackdirection);
 
  private:
 
