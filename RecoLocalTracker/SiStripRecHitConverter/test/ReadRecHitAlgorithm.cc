@@ -48,9 +48,9 @@ void ReadRecHitAlgorithm::run(const SiStripRecHit2DLocalPosCollection* input)
     edm::OwnVector<SiStripRecHit2DLocalPos> collector; 
     if(id!=999999999){ //if is valid detector
       SiStripRecHit2DLocalPosCollection::Range rechitRange = input->get(id);
-      SiStripRecHit2DLocalPosCollection::ContainerIterator rechitRangeIteratorBegin = rechitRange.first;
-      SiStripRecHit2DLocalPosCollection::ContainerIterator rechitRangeIteratorEnd   = rechitRange.second;
-      SiStripRecHit2DLocalPosCollection::ContainerIterator iter=rechitRangeIteratorBegin;
+      SiStripRecHit2DLocalPosCollection::ContainerConstIterator rechitRangeIteratorBegin = rechitRange.first;
+      SiStripRecHit2DLocalPosCollection::ContainerConstIterator rechitRangeIteratorEnd   = rechitRange.second;
+      SiStripRecHit2DLocalPosCollection::ContainerConstIterator iter=rechitRangeIteratorBegin;
       for(iter=rechitRangeIteratorBegin;iter!=rechitRangeIteratorEnd;++iter){//loop on the rechit
 	  SiStripRecHit2DLocalPos const rechit=*iter;
 	  LocalPoint position=rechit.localPosition();
@@ -79,9 +79,9 @@ void ReadRecHitAlgorithm::run(const SiStripRecHit2DMatchedLocalPosCollection* in
     edm::OwnVector<SiStripRecHit2DLocalPos> collector; 
     if(id!=999999999){ //if is valid detector
       SiStripRecHit2DMatchedLocalPosCollection::Range rechitRange = input->get(id);
-      SiStripRecHit2DMatchedLocalPosCollection::ContainerIterator rechitRangeIteratorBegin = rechitRange.first;
-      SiStripRecHit2DMatchedLocalPosCollection::ContainerIterator rechitRangeIteratorEnd   = rechitRange.second;
-      SiStripRecHit2DMatchedLocalPosCollection::ContainerIterator iter=rechitRangeIteratorBegin;
+      SiStripRecHit2DMatchedLocalPosCollection::ContainerConstIterator rechitRangeIteratorBegin = rechitRange.first;
+      SiStripRecHit2DMatchedLocalPosCollection::ContainerConstIterator rechitRangeIteratorEnd   = rechitRange.second;
+      SiStripRecHit2DMatchedLocalPosCollection::ContainerConstIterator iter=rechitRangeIteratorBegin;
       for(iter=rechitRangeIteratorBegin;iter!=rechitRangeIteratorEnd;++iter){//loop on the rechit
 	  SiStripRecHit2DMatchedLocalPos const rechit=*iter;
 	  LocalPoint position=rechit.localPosition();

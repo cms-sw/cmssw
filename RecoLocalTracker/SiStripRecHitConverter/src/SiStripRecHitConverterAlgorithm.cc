@@ -48,7 +48,7 @@ void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,
   // get vector of detunit ids
   const std::vector<unsigned int> detIDs = input->detIDs();
   for ( std::vector<unsigned int>::const_iterator detunit_iterator = detIDs.begin(); detunit_iterator != detIDs.end(); detunit_iterator++ ) {//loop over detectors
-    bool isstereo=0;
+    //    bool isstereo=0;
     unsigned int id = *detunit_iterator;
     edm::OwnVector<SiStripRecHit2DLocalPos> collectorrphi; 
     edm::OwnVector<SiStripRecHit2DLocalPos> collectorstereo; 
@@ -117,9 +117,9 @@ void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,
   for ( std::vector<unsigned int>::const_iterator detunit_iterator = detIDs2.begin(); detunit_iterator != detIDs2.end(); detunit_iterator++ ) {//loop over detectors
     edm::OwnVector<SiStripRecHit2DMatchedLocalPos> collectorMatched; 
     SiStripRecHit2DLocalPosCollection::Range monoRecHitRange = outrphi.get(*detunit_iterator);
-    SiStripRecHit2DLocalPosCollection::ContainerIterator rhRangeIteratorBegin = monoRecHitRange.first;
-    SiStripRecHit2DLocalPosCollection::ContainerIterator rhRangeIteratorEnd   = monoRecHitRange.second;
-    SiStripRecHit2DLocalPosCollection::ContainerIterator iter;
+    SiStripRecHit2DLocalPosCollection::ContainerConstIterator rhRangeIteratorBegin = monoRecHitRange.first;
+    SiStripRecHit2DLocalPosCollection::ContainerConstIterator rhRangeIteratorEnd   = monoRecHitRange.second;
+    SiStripRecHit2DLocalPosCollection::ContainerConstIterator iter;
     unsigned int id = 0;
     for(iter=rhRangeIteratorBegin;iter!=rhRangeIteratorEnd;++iter){//loop on the mono RH
       edm::OwnVector<SiStripRecHit2DMatchedLocalPos> collectorMatchedSingleHit; 
@@ -133,8 +133,8 @@ void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,
 	const GeomDetUnit * stereostripdet=tracker.idToDet(DetId(id));
 	
 	const SiStripRecHit2DLocalPosCollection::Range rhpartnerRange = outstereo.get(id);
-	SiStripRecHit2DLocalPosCollection::ContainerIterator rhpartnerRangeIteratorBegin = rhpartnerRange.first;
-	SiStripRecHit2DLocalPosCollection::ContainerIterator rhpartnerRangeIteratorEnd   = rhpartnerRange.second;
+	SiStripRecHit2DLocalPosCollection::ContainerConstIterator rhpartnerRangeIteratorBegin = rhpartnerRange.first;
+	SiStripRecHit2DLocalPosCollection::ContainerConstIterator rhpartnerRangeIteratorEnd   = rhpartnerRange.second;
 	
 	//	edm::OwnVector<SiStripRecHit2DMatchedLocalPos> tempCollector; 
 	

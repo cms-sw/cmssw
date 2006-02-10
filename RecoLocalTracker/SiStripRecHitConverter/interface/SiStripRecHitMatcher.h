@@ -21,7 +21,7 @@ class SiStripCluster;
 class SiStripRecHitMatcher {
 public:
   
-  typedef  SiStripRecHit2DLocalPosCollection::ContainerIterator RecHitIterator;
+  typedef  SiStripRecHit2DLocalPosCollection::ContainerConstIterator RecHitIterator;
   SiStripRecHitMatcher(){};
   template<class T>  
     edm::OwnVector<SiStripRecHit2DMatchedLocalPos> match(const  SiStripRecHit2DLocalPos *monoRH,RecHitIterator &begin, RecHitIterator &end, const DetId &detId, const T &topol,const GeomDetUnit* stripdet,const GeomDetUnit * partnerstripdet){
@@ -43,7 +43,7 @@ public:
     const T& partnertopol=(T&)partnerstripdet->topology();
     LocalPoint RPHIpositiononStereoini=(partnerstripdet->surface()).toLocal(rphiglobalpointini);
     LocalPoint RPHIpositiononStereoend=(partnerstripdet->surface()).toLocal(rphiglobalpointend);
-    SiStripRecHit2DLocalPosCollection::ContainerIterator seconditer;    
+    RecHitIterator seconditer;    
     for(seconditer=begin;seconditer!=end;++seconditer){
       // position of the initial and final point of the strip (STEREO cluster)
       MeasurementPoint STEREOpointini=MeasurementPoint(seconditer->cluster().front()->barycenter(),-0.5);
