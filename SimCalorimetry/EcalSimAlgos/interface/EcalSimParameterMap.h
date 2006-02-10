@@ -19,6 +19,5 @@ private:
   CaloSimParameters theESParameters;
 };
 
-
 #endif
 

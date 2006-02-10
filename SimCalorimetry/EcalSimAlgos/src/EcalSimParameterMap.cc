@@ -1,7 +1,7 @@
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalSimParameterMap.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-
+#include <iostream>
   
 /** Relevant constants are:
   4.5 photoelectrons per MeV (J. Nash's slides)
@@ -16,8 +16,8 @@ EcalSimParameterMap::EcalSimParameterMap() :
                    1., 47., 
 	          10, 5, true),
   theESParameters(1., 1., 1., 20., 3, 2, false)
-{
-}
+{}
+
   /*
   CaloSimParameters(double simHitToPhotoelectrons, double photoelectronsToAnalog, 
                  double samplingFactor, double timePhase,
@@ -25,8 +25,8 @@ EcalSimParameterMap::EcalSimParameterMap() :
                  bool doPhotostatistics)
   */
   
-
-const CaloSimParameters & EcalSimParameterMap::simParameters(const DetId & detId) const {
+const CaloSimParameters & EcalSimParameterMap::simParameters(const DetId & detId) const 
+{
   if (EcalSubdetector(detId.subdetId()) == EcalBarrel) 
     return theBarrelParameters;
   else if (EcalSubdetector(detId.subdetId()) == EcalEndcap)

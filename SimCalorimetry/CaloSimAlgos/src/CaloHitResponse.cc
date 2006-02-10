@@ -66,13 +66,13 @@ CaloSamples CaloHitResponse::makeAnalogSignal(const PCaloHit & inputHit) const {
 
   // see if we need to correct the hit 
   PCaloHit hit = inputHit;
+
   if(theHitCorrection != 0) {
     theHitCorrection->correct(hit);
   }
 
   DetId detId(hit.id());
   const CaloSimParameters & parameters = theParameterMap->simParameters(detId);
-
 
   double signal = analogSignalAmplitude(hit, parameters);
 
@@ -84,12 +84,14 @@ CaloSamples CaloHitResponse::makeAnalogSignal(const PCaloHit & inputHit) const {
   double binTime = tzero;
 
   CaloSamples result(detId, parameters.readoutFrameSize());
+
   for(int bin = 0; bin < result.size(); bin++) {
     result[bin] += (*theShape)(binTime)* signal;
     binTime += BUNCHSPACE;
   }
 
   result.setPresamples(parameters.binOfMaximum()-1);
+
   return result;
 } 
 

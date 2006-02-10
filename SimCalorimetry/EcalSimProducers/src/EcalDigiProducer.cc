@@ -109,7 +109,7 @@ void EcalDigiProducer::setupFakePedestals()
   vector<DetId> detIds(theBarrelDets.begin(), theBarrelDets.end());
   detIds.insert(detIds.end(), theEndcapDets.begin(), theEndcapDets.end());
 
-  // make a pedesatl entry for each one 
+  // make a pedestal entry for each one 
   for(std::vector<DetId>::const_iterator detItr = detIds.begin();
        detItr != detIds.end(); ++detItr)
   {
@@ -156,15 +156,14 @@ void EcalDigiProducer::produce(edm::Event& event, const edm::EventSetup& eventSe
 
   // Step B: Create empty output
   auto_ptr<EBDigiCollection> barrelResult(new EBDigiCollection());
-  auto_ptr<EEDigiCollection> endcapResult(new EEDigiCollection());
+//  auto_ptr<EEDigiCollection> endcapResult(new EEDigiCollection());
 
   // run the algorithm
   theBarrelDigitizer->run(*barrelHits, *barrelResult);
 
   edm::LogInfo("EcalDigiProducer") << "EB Digis: " << barrelResult->size();
 
-// no endcap geometry yet
-//  theEndcapDigitizer->run(theEndcapHits, *endcapResult);
+//  theEndcapDigitizer->run(*endcapHits, *endcapResult);
 
   CaloDigiCollectionSorter sorter(5);
   std::vector<EBDataFrame> sortedDigis = sorter.sortedVector(*barrelResult);
@@ -175,7 +174,7 @@ void EcalDigiProducer::produce(edm::Event& event, const edm::EventSetup& eventSe
    }
   // Step D: Put outputs into event
   event.put(barrelResult);
-  event.put(endcapResult);
+//  event.put(endcapResult);
 
 }
 
@@ -198,6 +197,12 @@ void EcalDigiProducer::checkGeometry(const edm::EventSetup & eventSetup)
 
   theBarrelDets =  geometry->getValidDetIds(DetId::Ecal, EcalBarrel);
   theEndcapDets =  geometry->getValidDetIds(DetId::Ecal, EcalEndcap);
+
+  //PG FIXME
+  std::cout << "deb geometry: "
+            << "\t barrel: " << theBarrelDets.size () 
+            << "\t endcap: " << theEndcapDets.size () 
+            << std::endl ;
 
   theBarrelDigitizer->setDetIds(theBarrelDets);
   theEndcapDigitizer->setDetIds(theEndcapDets);
