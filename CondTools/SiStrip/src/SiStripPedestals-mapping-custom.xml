@@ -5,7 +5,7 @@
     <Container table="SISTRIPPEDESTALS_MAP" id_columns="IOV_VALUE_ID" name="m_pedestals" position_column="MAP_POS" >
       <Container table="SISTRIPPEDESTALS_VEC" id_columns="MAP_POS IOV_VALUE_ID" name="std::vector&lt;SiStripPedestals::SiStripData&gt;" position_column="VEC_POS" >
         <Object table="SISTRIPPEDESTALS_VALUE" id_columns="VEC_POS MAP_POS IOV_VALUE_ID" name="SiStripPedestals::SiStripData" >
-          <Primitive column="SISTRIPDATA" name="SiStripData" />
+          <Primitive column="SISTRIPDATA" name="Data" />
         </Object >
       </Container >
       <Primitive column="DETID" name="unsigned int" />
