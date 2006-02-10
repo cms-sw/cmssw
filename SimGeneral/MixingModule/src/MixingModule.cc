@@ -18,7 +18,7 @@ namespace edm
   MixingModule::MixingModule(const edm::ParameterSet& ps) : BMixingModule(ps)
   {
 
-    // get tracker + muon subdetector names
+    // get subdetector names
     edm::Service<edm::ConstProductRegistry> reg;
     // Loop over provenance of products in registry.
     for (edm::ProductRegistry::ProductList::const_iterator it = reg->productList().begin();
@@ -29,8 +29,15 @@ namespace edm
       if (!desc.productInstanceName_.compare(0,8,"EcalHits") || !desc.productInstanceName_.compare(0,8,"HcalHits" )) {
 	caloSubdetectors_.push_back(desc.productInstanceName_);
       }
-      else if (!desc.productInstanceName_.compare(0,11,"TrackerHits") || !desc.productInstanceName_.compare(0,4,"Muon")) {
-	trackerSubdetectors_.push_back(desc.productInstanceName_);
+      else if (!desc.productInstanceName_.compare(0,4,"Muon")) {
+	muonSubdetectors_.push_back(desc.productInstanceName_);
+     }
+      // add only the subdetector name, one for high and low together
+      else if (!desc.productInstanceName_.compare(0,11,"TrackerHits")) {
+       int slow=(desc.productInstanceName_).find("LowTof");
+       int iend=(desc.productInstanceName_).size();
+       if (slow>0)  
+	 trackerSubdetectors_.push_back(desc.productInstanceName_.substr(0,iend-6));
      }
     }
 
@@ -39,7 +46,7 @@ namespace edm
   }
 
   void MixingModule::createnewEDProduct() {
-    simcf_=new CrossingFrame(minBunch(),maxBunch(),bunchSpace_,trackerSubdetectors_,caloSubdetectors_);
+    simcf_=new CrossingFrame(minBunch(),maxBunch(),bunchSpace_,muonSubdetectors_,trackerSubdetectors_,caloSubdetectors_);
   }
 
   // Virtual destructor needed.
@@ -51,12 +58,24 @@ namespace edm
     simcf_->setEventID(e.id());
     //    std::cout<<"\naddsignals for  "<<e.id()<<endl;
 
-    // tracker hits for all subdetectors
-    for(std::vector<std::string >::const_iterator it = trackerSubdetectors_.begin(); it != trackerSubdetectors_.end(); ++it) {  
+    // muon hits for all subdetectors
+    for(std::vector<std::string >::const_iterator it = muonSubdetectors_.begin(); it != muonSubdetectors_.end(); ++it) {  
       edm::Handle<std::vector<PSimHit> > simHits;
       e.getByLabel("r",(*it),simHits);
       simcf_->addSignalSimHits((*it),simHits.product());
       cout <<" Subdet "<<(*it)<<" got "<<(simHits.product())->size()<<" simhits "<<endl;
+    }
+     // tracker hits for all subdetectors
+    for(std::vector<std::string >::const_iterator it = trackerSubdetectors_.begin(); it != trackerSubdetectors_.end(); ++it) {  
+      edm::Handle<std::vector<PSimHit> > simHits;
+      std::string subdet=(*it)+"HighTof";
+      e.getByLabel("r",subdet,simHits);
+      simcf_->addSignalSimHits(subdet,simHits.product());
+      cout <<" Subdet "<<subdet<<" got "<<(simHits.product())->size()<<" simhits "<<endl;
+      subdet=(*it)+"LowTof";
+      e.getByLabel("r",subdet,simHits);
+      simcf_->addSignalSimHits(subdet,simHits.product());
+      cout <<" Subdet "<<subdet<<" got "<<(simHits.product())->size()<<" simhits "<<endl;
     }
     // calo hits for all subdetectors
     for(std::vector<std::string >::const_iterator it = caloSubdetectors_.begin(); it != caloSubdetectors_.end(); ++it) {  
@@ -80,41 +99,46 @@ namespace edm
   void MixingModule::addPileups(const int bcr, Event *e) {
 
     std::cout<<"\naddPileups from event  "<<e->id()<<endl;
-    // first all simhits
-    for(std::vector<std::string >::iterator itstr = trackerSubdetectors_.begin(); itstr != trackerSubdetectors_.end(); ++itstr) {
-      std::vector<PSimHit> *sig;
-      simcf_->getSignal((*itstr),sig);
 
+    // Muons
+    for(std::vector<std::string >::iterator itstr = muonSubdetectors_.begin(); itstr != muonSubdetectors_.end(); ++itstr) {
       edm::Handle<std::vector<PSimHit> >  simHits;  //Event Pointer to minbias Hits
 
-      // do not read this branch if clearly outside of tof bounds (and verification is asked for, default)
-      bool testtof;
-      if (!checktof_) testtof=false;
-      else {
-	float tof = bcr*simcf_->getBunchSpace();
-	int slow=(*itstr).find("LowTof");
-	int shigh=(*itstr).find("HighTof");
-        if (slow>0 )
-	  if ( ((tof+CrossingFrame::limHighLowTof)<CrossingFrame::lowTrackTof || tof>CrossingFrame::highTrackTof)) {
-	    continue;
-	  }
-	  else if (shigh>0 )
-	    if ( ((CrossingFrame::limHighLowTof +tof ) > CrossingFrame::highTrackTof)) {
-	      continue;
-	    }
-	testtof= slow > 0 || shigh > 0;
-      }
       e->getByLabel("r",(*itstr),simHits);
-      simcf_->addPileupSimHits(bcr,(*itstr),simHits.product(),trackoffset,testtof);
+      simcf_->addPileupSimHits(bcr,(*itstr),simHits.product(),trackoffset,false);
     }
 
-    //     //then all calohits
+    // Tracker
+    float tof = bcr*simcf_->getBunchSpace();
+    for(std::vector<std::string >::iterator itstr = trackerSubdetectors_.begin(); itstr != trackerSubdetectors_.end(); ++itstr) {
+      edm::Handle<std::vector<PSimHit> >  simHits;  //Event Pointer to minbias Hits
+
+      // do not read branches if clearly outside of tof bounds (and verification is asked for, default)
+      std::string subdethigh=(*itstr)+"HighTof";
+      std::string subdetlow=(*itstr)+"LowTof";
+      // add HighTof pileup to high and low signals
+      if ( !checktof_ || ((CrossingFrame::limHighLowTof +tof ) <= CrossingFrame::highTrackTof)) { 
+	e->getByLabel("r",subdethigh,simHits);
+	simcf_->addPileupSimHits(bcr,subdethigh,simHits.product(),trackoffset,checktof_);
+	simcf_->addPileupSimHits(bcr,subdetlow,simHits.product(),trackoffset,checktof_);
+      }
+
+      // add LowTof pileup to high and low signals
+      if (  !checktof_ || ((tof+CrossingFrame::limHighLowTof) >= CrossingFrame::lowTrackTof && tof <= CrossingFrame::highTrackTof)) {     
+	e->getByLabel("r",subdetlow,simHits);
+	simcf_->addPileupSimHits(bcr,subdethigh,simHits.product(),trackoffset,checktof_);
+	simcf_->addPileupSimHits(bcr,subdetlow,simHits.product(),trackoffset,checktof_);
+      }
+    }
+
+    // Calohits
     for(std::vector<std::string >::const_iterator itstr = caloSubdetectors_.begin(); itstr != caloSubdetectors_.end(); ++itstr) {
 
       edm::Handle<std::vector<PCaloHit> >  caloHits;  //Event Pointer to minbias Hits
       e->getByLabel("r",(*itstr),caloHits);
       simcf_->addPileupCaloHits(bcr,(*itstr),caloHits.product(),trackoffset);
     }
+
     //then simtracks
     edm::Handle<std::vector<EmbdSimTrack> > simtracks;
     e->getByLabel("r",simtracks);

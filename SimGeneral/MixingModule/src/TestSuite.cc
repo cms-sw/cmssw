@@ -10,7 +10,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Fri Sep 23 11:38:38 CEST 2005
-// $Id: TestSuite.cc,v 1.4 2006/01/17 14:49:13 uberthon Exp $
+// $Id: TestSuite.cc,v 1.5 2006/02/07 12:05:36 uberthon Exp $
 //
 //
 
@@ -113,7 +113,7 @@ TestSuite::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  if (!cfi2->noParent()) 	vtxindhist->Fill(cfi2->parentIndex());
 	} else {
 	  vtxhistsig->Fill(cfi2.bunch());
-	  if (!cfi2->noParent()) 	vtxindhist->Fill(cfi2->parentIndex());
+	  if (!cfi2->noParent()) 	vtxindhistsig->Fill(cfi2->parentIndex());
 	}
     }
 

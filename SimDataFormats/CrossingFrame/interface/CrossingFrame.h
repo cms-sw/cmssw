@@ -34,7 +34,7 @@ using namespace edm;
       // con- and destructors
 
       CrossingFrame():  bunchSpace_(75), firstCrossing_(0), lastCrossing_(0) {;}
-      CrossingFrame(int minb, int maxb, int bunchsp, std::vector<std::string> trackersubdetectors,std::vector<std::string> calosubdetectors);
+      CrossingFrame(int minb, int maxb, int bunchsp, std::vector<std::string> muonsubdetectors, std::vector<std::string> trackersubdetectors,std::vector<std::string> calosubdetectors);
 
       ~CrossingFrame();
 

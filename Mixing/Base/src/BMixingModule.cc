@@ -19,9 +19,9 @@ namespace edm {
   // Constructor 
   BMixingModule::BMixingModule(const edm::ParameterSet& pset) :
     bunchSpace_(pset.getParameter<int>("bunchspace")),
+    checktof_(pset.getUntrackedParameter<bool>("checktof",true)),
     input_(pset.getParameter<ParameterSet>("input")),
-    md_(), 
-    checktof_(pset.getUntrackedParameter<bool>("checktof",true))
+    md_()
   {
     md_.pid = pset.id();
     md_.moduleName_ = pset.getUntrackedParameter<std::string>("@module_type");
@@ -39,7 +39,7 @@ namespace edm {
   // Functions that get called by framework every event
   void BMixingModule::produce(edm::Event& e, const edm::EventSetup&) { 
 
-    cout <<"\n==============================>  Start produce for event " << e.id() << endl;
+    //    cout <<"\n==============================>  Start produce for event " << e.id() << endl;
     // Create EDProduct
     createnewEDProduct();
 
@@ -71,7 +71,7 @@ namespace edm {
     vertexoffset=0;
     for (EventPrincipalVector::const_iterator it = vec.begin(); it != vec.end(); ++it) {
       Event e(**it, md_);
-      cout <<" merging Event:  id " << e.id() << flush << endl;
+      //      cout <<" merging Event:  id " << e.id() << flush << endl;
       addPileups(bcr, &e);
     }// end main loop
   }

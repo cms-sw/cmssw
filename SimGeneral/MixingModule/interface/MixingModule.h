@@ -44,6 +44,7 @@ namespace edm
       virtual void addPileups(const int bcr, edm::Event*);
 
       // internally used information
+      std::vector<std::string> muonSubdetectors_;
       std::vector<std::string> trackerSubdetectors_;
       std::vector<std::string> caloSubdetectors_;
       CrossingFrame *simcf_;

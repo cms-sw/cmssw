@@ -10,13 +10,22 @@ const int  CrossingFrame::minLowTof =0;
 const int  CrossingFrame::limHighLowTof =36;
 
 
-CrossingFrame::CrossingFrame(int minb, int maxb, int bunchsp, std::vector<std::string> trackersubdetectors,std::vector<std::string> calosubdetectors): bunchSpace_(bunchsp), firstCrossing_(minb), lastCrossing_(maxb) {
+CrossingFrame::CrossingFrame(int minb, int maxb, int bunchsp, std::vector<std::string> muonsubdetectors,std::vector<std::string> trackersubdetectors, std::vector<std::string> calosubdetectors): bunchSpace_(bunchsp), firstCrossing_(minb), lastCrossing_(maxb) {
 
     // create and insert vectors into the map
-    // for tracker
-    for(std::vector<std::string >::const_iterator it = trackersubdetectors.begin(); it != trackersubdetectors.end(); ++it) {  
+
+//     // for muons
+    for(std::vector<std::string >::const_iterator it = muonsubdetectors.begin(); it != muonsubdetectors.end(); ++it) {  
       vector<PSimHitContainer> myvec(-minb+maxb+1);
       pileupSimHits_.insert(map <string, vector<PSimHitContainer> >::value_type((*it),myvec));
+     }
+
+    // for tracker (create High and Low)
+    for(std::vector<std::string >::const_iterator it = trackersubdetectors.begin(); it != trackersubdetectors.end(); ++it) {  
+      vector<PSimHitContainer> myvec(-minb+maxb+1);
+      pileupSimHits_.insert(map <string, vector<PSimHitContainer> >::value_type((*it)+"HighTof",myvec));    
+
+      pileupSimHits_.insert(map <string, vector<PSimHitContainer> >::value_type((*it)+"LowTof",myvec));
      }
 
     // for calos
