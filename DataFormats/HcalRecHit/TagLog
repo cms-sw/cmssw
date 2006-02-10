@@ -1,3 +1,6 @@
+** V00-01-01  [Fri Feb 10 22:28:14 2006]
+Move from EDProduct to DataFormats/Common
+
 ** V00-01-00  [Wed Jan 25 03:19:39 2006]
 Add source position object
 
