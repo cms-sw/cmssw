@@ -8,8 +8,11 @@
 <use name=Geometry/CommonTopologies>
 <use name=Geometry/Records>
 <use name=Geometry/DTSimAlgo>
+<use name=MagneticField/Engine>
+<use name=MagneticField/Records>
 
 <use name=CLHEP>
+<use name=root>
 
 <flags SEAL_PLUGIN_NAME="SimMuonDTDigitizer">
 
@@ -25,6 +28,9 @@
    <use name=Geometry/CommonTopologies>
    <use name=Geometry/Records>
    <use name=Geometry/DTSimAlgo>
+   <use name=MagneticField/Engine>
+   <use name=MagneticField/Records>
    <use name=CLHEP>
-	
+   <use name=root>	
+
 </export>
