@@ -1,3 +1,6 @@
+** V00-02-01  [Fri Feb 10 22:46:17 2006]
+Added calibration unit digi
+
 ** V00-02-00  [Tue Feb  7 17:16:04 2006]
 Changed from vectors to fixed length arrays (long ago...)
 Fibers are 1-8 not 0-7
