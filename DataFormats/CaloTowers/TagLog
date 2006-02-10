@@ -1,3 +1,6 @@
+** V00-00-02  [Fri Feb 10 22:29:06 2006]
+Move from EDProduct to DataFormats/Common
+
 ** V00-00-01  [Sat Dec 10 17:55:34 2005]
 removed id from classes_def.xml
 
