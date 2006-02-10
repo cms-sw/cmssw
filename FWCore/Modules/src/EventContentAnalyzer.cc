@@ -12,7 +12,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep 19 11:47:28 CEST 2005
-// $Id: EventContentAnalyzer.cc,v 1.13 2006/02/01 00:40:26 wmtan Exp $
+// $Id: EventContentAnalyzer.cc,v 1.14 2006/02/08 00:44:27 wmtan Exp $
 //
 //
 
@@ -137,15 +137,13 @@ static void printObject(const std::string& iName,
          return;
       }
       return;
-      /*
-       This code causes seg-faults.  Needs further work before deployment.
        
       //have the code that follows print the contents of the data to which the pointer points
-      objectToPrint = ROOT::Reflex::Object(pointedType, *reinterpret_cast<void**>(iObject.Address()));
-      objectToPrint = Object(objectToPrint.castObject(objectToPrint.dynamicType()));
+      objectToPrint = ROOT::Reflex::Object(pointedType, iObject.Address());
+      //try to convert it to its actual type (assuming the original type was a base class)
+      objectToPrint = ROOT::Reflex::Object(objectToPrint.CastObject(objectToPrint.DynamicType()));
       printName = std::string("*")+iName;
       indent +=iIndentDelta;
-       */
    }
    std::string typeName(objectToPrint.TypeOf().Name());
    if(typeName.empty()){
