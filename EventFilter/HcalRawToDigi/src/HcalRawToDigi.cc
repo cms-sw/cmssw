@@ -1,25 +1,29 @@
 using namespace std;
 #include "EventFilter/HcalRawToDigi/interface/HcalRawToDigi.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
-#include "FWCore/EDProduct/interface/EDCollection.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/Selector.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
 HcalRawToDigi::HcalRawToDigi(edm::ParameterSet const& conf):
-  unpacker_(conf.getParameter<int>("HcalFirstFED"),conf.getParameter<int>("firstSample"),conf.getParameter<int>("lastSample")),
+  unpacker_(conf.getUntrackedParameter<int>("HcalFirstFED",FEDNumbering::getHcalFEDIds().first),conf.getParameter<int>("firstSample"),conf.getParameter<int>("lastSample")),
   filter_(conf.getParameter<bool>("FilterDataQuality"),conf.getParameter<bool>("FilterDataQuality"),
 	  conf.getParameter<bool>("FilterAmplitude"),
 	  conf.getParameter<int>("FilterAmpBegin"),conf.getParameter<int>("FilterAmpEnd"),
 	  conf.getParameter<double>("FilterAmpLevel")),
-  fedUnpackList_(conf.getParameter<std::vector<int> >("FEDs")),
-  firstFED_(conf.getParameter<int>("HcalFirstFED"))
+  fedUnpackList_(conf.getUntrackedParameter<std::vector<int> >("FEDs", std::vector<int>())),
+  firstFED_(conf.getUntrackedParameter<int>("HcalFirstFED",FEDNumbering::getHcalFEDIds().first)),
+  unpackCalib_(conf.getUntrackedParameter<bool>("UnpackCalib",false))
 {
+  if (fedUnpackList_.empty()) 
+    for (int i=FEDNumbering::getHcalFEDIds().first; i<=FEDNumbering::getHcalFEDIds().second; i++)
+      fedUnpackList_.push_back(i);
+  
   std::ostringstream ss;
   for (unsigned int i=0; i<fedUnpackList_.size(); i++) 
     ss << fedUnpackList_[i] << " ";
@@ -30,6 +34,8 @@ HcalRawToDigi::HcalRawToDigi(edm::ParameterSet const& conf):
   produces<HFDigiCollection>();
   produces<HODigiCollection>();
   produces<HcalTrigPrimDigiCollection>();
+  if (unpackCalib_)
+    produces<HcalCalibDigiCollection>();
 }
 
 // Virtual destructor needed.
@@ -52,6 +58,7 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   std::vector<HODataFrame> ho;
   std::vector<HFDataFrame> hf;
   std::vector<HcalTriggerPrimitiveDigi> htp;
+  std::vector<HcalCalibDataFrame> hc;
  
   // Step C: unpack all requested FEDs
   for (std::vector<int>::const_iterator i=fedUnpackList_.begin(); i!=fedUnpackList_.end(); i++) {
@@ -94,6 +101,15 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   e.put(ho_prod);
   e.put(hf_prod);
   e.put(htp_prod);
+
+  /// calib
+  if (unpackCalib_) {
+    std::auto_ptr<HcalCalibDigiCollection> hc_prod(new HcalCalibDigiCollection());
+    hc_prod->swap_contents(hc);
+    hc_prod->sort();
+    e.put(hc_prod);
+  }
+
 }
 
 
