@@ -1,20 +1,19 @@
 using namespace std;
 #include "EventFilter/HcalRawToDigi/interface/HcalHistogramRawToDigi.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
-#include "FWCore/EDProduct/interface/EDCollection.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/Selector.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include <iostream>
 
 
 HcalHistogramRawToDigi::HcalHistogramRawToDigi(edm::ParameterSet const& conf):
-  unpacker_(conf.getParameter<int>("HcalFirstFED")),
-  fedUnpackList_(conf.getParameter<std::vector<int> >("FEDs")),
-  firstFED_(conf.getParameter<int>("HcalFirstFED"))
+  unpacker_(conf.getUntrackedParameter<int>("HcalFirstFED",FEDNumbering::getHcalFEDIds().first)),
+  fedUnpackList_(conf.getUntrackedParameter<std::vector<int> >("FEDs")),
+  firstFED_(conf.getUntrackedParameter<int>("HcalFirstFED",FEDNumbering::getHcalFEDIds().first))
 {
   std::cout << "HcalHistogramRawToDigi will unpack FEDs ";
   for (unsigned int i=0; i<fedUnpackList_.size(); i++) 

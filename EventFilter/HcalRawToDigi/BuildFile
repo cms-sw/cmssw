@@ -6,7 +6,6 @@
 <use name=CalibFormats/HcalObjects>
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
-<use name=FWCore/EDProduct>
 <use name=boost>
 
 <export>
@@ -17,7 +16,6 @@
   <use name=CondFormats/HcalObjects>
   <use name=CalibFormats/HcalObjects>
   <use name=FWCore/Framework>
-  <use name=FWCore/EDProduct>
   <use name=FWCore/MessageLogger>
   <use name=boost>
 </export>
