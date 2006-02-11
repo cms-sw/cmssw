@@ -2,8 +2,9 @@
 
 TOBDetId::TOBDetId() : DetId() {
 }
-
 TOBDetId::TOBDetId(uint32_t rawid) : DetId(rawid) {
+}
+TOBDetId::TOBDetId(const DetId& id) : DetId(id.rawId()) {
 }
 
 std::ostream& operator<<(std::ostream& os,const TOBDetId& id) {

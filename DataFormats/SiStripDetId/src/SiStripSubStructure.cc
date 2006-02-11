@@ -8,7 +8,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Wed Jan 25 07:19:38 CET 2006
-// $Id$
+// $Id: SiStripSubStructure.cc,v 1.1 2006/02/09 18:53:21 gbruno Exp $
 //
 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
@@ -20,12 +20,10 @@
 
 using namespace std;
 
-SiStripSubStructure::SiStripSubStructure()
-{
+SiStripSubStructure::SiStripSubStructure(){
 }
 
-SiStripSubStructure::~SiStripSubStructure()
-{
+SiStripSubStructure::~SiStripSubStructure(){
 }
 
 

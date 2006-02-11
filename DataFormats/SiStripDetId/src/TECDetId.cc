@@ -5,6 +5,8 @@ TECDetId::TECDetId() : DetId() {
 
 TECDetId::TECDetId(uint32_t rawid) : DetId(rawid) {
 }
+TECDetId::TECDetId(const DetId& id) : DetId(id.rawId()){
+}
 
 std::ostream& operator<<(std::ostream& os,const TECDetId& id) {
   return os << "(TEC " 
