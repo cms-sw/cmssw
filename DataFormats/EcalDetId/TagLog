@@ -1,3 +1,6 @@
+** V02-01-00  [Sat Feb 11 14:24:52 2006]
+Added exceptions for methods not yet implemented
+
 ** V02-00-00  [Sun Feb  5 13:38:26 2006]
 Conversion for EE from SC,ic -&gt; ix,iy
 
