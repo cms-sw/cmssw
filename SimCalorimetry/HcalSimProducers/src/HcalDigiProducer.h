@@ -18,6 +18,7 @@
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloHitResponse.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalAmplifier.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalCoderFactory.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalHitCorrection.h"
 
 
 
@@ -68,6 +69,8 @@ private:
   HBHEHitFilter theHBHEHitFilter;
   HFHitFilter   theHFHitFilter;
   HOHitFilter   theHOHitFilter;
+
+  HcalHitCorrection * theHitCorrection;
 
   std::vector<PCaloHit> theHBHEHits, theHOHits, theHFHits;
 

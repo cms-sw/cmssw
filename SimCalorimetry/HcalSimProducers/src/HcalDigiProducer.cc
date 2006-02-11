@@ -29,7 +29,6 @@ HcalDigiProducer::HcalDigiProducer(const edm::ParameterSet& ps) {
   theHFIntegratedShape = new CaloShapeIntegrator(theHFShape);
 
 
-
   theHBHEResponse = new CaloHitResponse(theParameterMap, theHcalIntegratedShape);
   theHOResponse = new CaloHitResponse(theParameterMap, theHcalIntegratedShape);
   theHFResponse = new CaloHitResponse(theParameterMap, theHFIntegratedShape);
@@ -38,7 +37,15 @@ HcalDigiProducer::HcalDigiProducer(const edm::ParameterSet& ps) {
   theHOResponse->setHitFilter(&theHOHitFilter);
   theHFResponse->setHitFilter(&theHFHitFilter);
 
-  bool doNoise = ps.getUntrackedParameter<bool>("doNoise", true);
+  bool doTimeSlew = ps.getParameter<bool>("doTimeSlew");
+  if(doTimeSlew) {
+    // no time slewing for HF
+    theHitCorrection = new HcalHitCorrection(theParameterMap);
+    theHBHEResponse->setHitCorrection(theHitCorrection);
+    theHOResponse->setHitCorrection(theHitCorrection);
+  }
+
+  bool doNoise = ps.getParameter<bool>("doNoise");
   theAmplifier = new HcalAmplifier(theParameterMap, doNoise);
   theCoderFactory = new HcalCoderFactory(HcalCoderFactory::DB);
   theElectronicsSim = new HcalElectronicsSim(theAmplifier, theCoderFactory);
@@ -62,6 +69,7 @@ HcalDigiProducer::~HcalDigiProducer() {
   delete theElectronicsSim;
   delete theAmplifier;
   delete theCoderFactory;
+  delete theHitCorrection;
 }
 
 
@@ -72,9 +80,6 @@ void HcalDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   theAmplifier->setDbService(conditions.product());
   theCoderFactory->setDbService(conditions.product());
 
-//  const HcalQIECoder* coder = conditions->getHcalCoder(cell);
-//  const HcalQIEShape* shape = conditions->getHcalShape ();
-
   // get the correct geometry
   checkGeometry(eventSetup);
 
@@ -82,20 +87,12 @@ void HcalDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   theHOHits.clear();
   theHFHits.clear();
   // Step A: Get Inputs
-  edm::Handle<edm::PCaloHitContainer> hcalHits;
-  e.getByLabel("r", "HcalHits", hcalHits);
-  sortHits(*hcalHits);
-
-  // Get input
   edm::Handle<CrossingFrame> cf;
   e.getByType(cf);
 
   // test access to SimHits
   const std::string subdet("HcalHits");
-  std::cout<<"\n=================== Starting SimHit access, subdet "<<subdet<<"  ==================="<<std::endl;
   std::auto_ptr<MixCollection<PCaloHit> > col(new MixCollection<PCaloHit>(cf.product(), subdet));
-  std::cout<<*(col.get())<<std::endl;
-
   //fillFakeHits();
 
 
@@ -104,10 +101,6 @@ void HcalDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   std::auto_ptr<HBHEDigiCollection> hbheResult(new HBHEDigiCollection());
   std::auto_ptr<HODigiCollection> hoResult(new HODigiCollection());
   std::auto_ptr<HFDigiCollection> hfResult(new HFDigiCollection());
-
-//  edm::LogInfo("HcalDigiProducer") << "HCAL HBHE hits : " << theHBHEHits.size();
-//  edm::LogInfo("HcalDigiProducer") << "HCAL HO hits   : " << theHOHits.size();
-//  edm::LogInfo("HcalDigiProducer") << "HCAL HF hits   : " << theHFHits.size();
 
 
   // Step C: Invoke the algorithm, passing in inputs and getting back outputs.
