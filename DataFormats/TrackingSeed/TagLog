@@ -1,3 +1,6 @@
+** V00-00-01  [Sat Feb 11 23:37:39 2006]
+move from SiStripRecHit2DLocalPos to BaseSiStripRecHit2DLocalPos in TrackingSeed.h
+
 ** V00-00-00  [Sun Jan 15 01:55:20 2006]
 Initial release of DataFormats/TrackingSeed. Currently only contains vector of RecHit pointers
 
