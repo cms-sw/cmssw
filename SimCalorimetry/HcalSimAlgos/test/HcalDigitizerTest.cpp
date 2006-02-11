@@ -24,6 +24,7 @@
 #include "CondFormats/HcalObjects/interface/HcalGainWidths.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalDigitizerTraits.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalHitCorrection.h"
 
 #include <vector>
 #include<iostream>
@@ -104,6 +105,11 @@ i*/
   CaloHitResponse hbheResponse(&parameterMap, &hcalShapeIntegrator);
   CaloHitResponse hoResponse(&parameterMap, &hcalShapeIntegrator);
   CaloHitResponse hfResponse(&parameterMap, &hfShapeIntegrator);
+
+  HcalHitCorrection hitCorrection(&parameterMap);
+  hbheResponse.setHitCorrection(&hitCorrection);
+  hoResponse.setHitCorrection(&hitCorrection);
+  // none for HF
 
   HBHEHitFilter hbheHitFilter;
   HOHitFilter hoHitFilter;
