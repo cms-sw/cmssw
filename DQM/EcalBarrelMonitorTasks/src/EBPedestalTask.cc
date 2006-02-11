@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalTask.cc
  *
- * $Date: 2006/01/29 17:21:28 $
- * $Revision: 1.28 $
+ * $Date: 2006/02/05 22:19:22 $
+ * $Revision: 1.29 $
  * \author G. Della Ricca
  *
 */
@@ -17,6 +17,12 @@ EBPedestalTask::EBPedestalTask(const ParameterSet& ps){
     mePedMapG01_[i] = 0;
     mePedMapG06_[i] = 0;
     mePedMapG12_[i] = 0;
+    mePed3SumMapG01_[i] = 0;
+    mePed3SumMapG06_[i] = 0;
+    mePed3SumMapG12_[i] = 0;
+    mePed5SumMapG01_[i] = 0;
+    mePed5SumMapG06_[i] = 0;
+    mePed5SumMapG12_[i] = 0;
     mePnPedMapG01_[i] = 0;
     mePnPedMapG16_[i] = 0;
   }
@@ -57,18 +63,30 @@ void EBPedestalTask::setup(void){
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBPT pedestal SM%02d G01", i+1);
       mePedMapG01_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
+      sprintf(histo, "EBPT 3sum SM%02d G01", i+1);
+      mePed3SumMapG01_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
+      sprintf(histo, "EBPT 5sum SM%02d G01", i+1);
+      mePed5SumMapG01_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
     }
 
     dbe->setCurrentFolder("EcalBarrel/EBPedestalTask/Gain06");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBPT pedestal SM%02d G06", i+1);
       mePedMapG06_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
+      sprintf(histo, "EBPT 3sum SM%02d G06", i+1);
+      mePed3SumMapG06_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
+      sprintf(histo, "EBPT 5sum SM%02d G06", i+1);
+      mePed5SumMapG06_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
     }
 
     dbe->setCurrentFolder("EcalBarrel/EBPedestalTask/Gain12");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBPT pedestal SM%02d G12", i+1);
       mePedMapG12_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
+      sprintf(histo, "EBPT 3sum SM%02d G12", i+1);
+      mePed3SumMapG12_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
+      sprintf(histo, "EBPT 5sum SM%02d G12", i+1);
+      mePed5SumMapG12_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
     }
 
     dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask");
@@ -110,6 +128,22 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
   int nebd = digis->size();
   LogDebug("EBPedestalTask") << "event " << ievt_ << " digi collection size " << nebd;
 
+  float xmap01[36][85][20];
+  float xmap06[36][85][20];
+  float xmap12[36][85][20];
+
+  for ( int ism = 1; ism <= 36; ism++ ) {
+    for ( int ie = 1; ie <= 85; ie++ ) {
+      for ( int ip = 1; ip <= 20; ip++ ) {
+
+	 xmap01[ism-1][ie-1][ip-1] = 0.;
+         xmap06[ism-1][ie-1][ip-1] = 0.;
+         xmap12[ism-1][ie-1][ip-1] = 0.;
+
+      }
+    }
+  }
+
   for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
     EBDataFrame dataframe = (*digiItr);
@@ -141,8 +175,93 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
 
       if ( mePedMap ) mePedMap->Fill(xie, xip, xval);
 
+      if ( sample.gainId() == 1 ) xmap12[ism-1][ie-1][ip-1] = xval;
+      if ( sample.gainId() == 2 ) xmap06[ism-1][ie-1][ip-1] = xval;
+      if ( sample.gainId() == 3 ) xmap01[ism-1][ie-1][ip-1] = xval;
+
     }
 
+  }
+
+  for ( int ism = 1; ism <= 36; ism++ ) {
+    for ( int ie = 1; ie <= 85; ie++ ) {
+      for ( int ip = 1; ip <= 20; ip++ ) {
+
+        float xval;
+
+        float xie = ie - 0.5;
+        float xip = ip - 0.5;
+
+        if ( ie >= 2 && ie <= 84 && ip >= 2 && ip <= 19 ) {
+
+          xval = 0.;
+          for ( int i = -1; i <= +1; i++ ) {
+            for ( int j = -1; j <= +1; j++ ) {
+
+              xval = xval + xmap01[ism-1][ie-1+i][ip-1+j];
+
+            }
+          }
+          if ( mePed3SumMapG01_[ism-1] ) mePed3SumMapG01_[ism-1]->Fill(xie, xip, xval);
+
+          xval = 0.;
+          for ( int i = -1; i <= +1; i++ ) {
+            for ( int j = -1; j <= +1; j++ ) {
+
+              xval = xval + xmap06[ism-1][ie-1+i][ip-1+j];
+
+            }
+          }
+          if ( mePed3SumMapG06_[ism-1] ) mePed3SumMapG06_[ism-1]->Fill(xie, xip, xval);
+
+          xval = 0.;
+          for ( int i = -1; i <= +1; i++ ) {
+            for ( int j = -1; j <= +1; j++ ) {
+
+              xval = xval + xmap12[ism-1][ie-1+i][ip-1+j];
+
+            }
+          }
+          if ( mePed3SumMapG12_[ism-1] ) mePed3SumMapG12_[ism-1]->Fill(xie, xip, xval);
+
+        }
+
+        if ( ie >= 3 && ie <= 83 && ip >= 3 && ip <= 18 ) {
+
+          xval = 0.;
+          for ( int i = -1; i <= +1; i++ ) {
+            for ( int j = -1; j <= +1; j++ ) {
+
+              xval = xval + xmap01[ism-1][ie-1+i][ip-1+j];
+
+            }
+          }
+          if ( mePed5SumMapG01_[ism-1] ) mePed5SumMapG01_[ism-1]->Fill(xie, xip, xval);
+
+          xval = 0.;
+          for ( int i = -1; i <= +1; i++ ) {
+            for ( int j = -1; j <= +1; j++ ) {
+
+              xval = xval + xmap06[ism-1][ie-1+i][ip-1+j];
+
+            }
+          }
+          if ( mePed5SumMapG06_[ism-1] ) mePed5SumMapG06_[ism-1]->Fill(xie, xip, xval);
+
+          xval = 0.;
+          for ( int i = -1; i <= +1; i++ ) {
+            for ( int j = -1; j <= +1; j++ ) {
+
+              xval = xval + xmap12[ism-1][ie-1+i][ip-1+j];
+
+            }
+          }
+          if ( mePed5SumMapG12_[ism-1] ) mePed5SumMapG12_[ism-1]->Fill(xie, xip, xval);
+
+        }
+
+      }
+    }
   }
 
   Handle<EcalPnDiodeDigiCollection> pns;

@@ -4,8 +4,8 @@
 /*
  * \file EBPedestalTask.h
  *
- * $Date: 2006/02/03 08:08:31 $
- * $Revision: 1.15 $
+ * $Date: 2006/02/05 22:19:22 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  *
 */
@@ -69,6 +69,14 @@ int ievt_;
 MonitorElement* mePedMapG01_[36];
 MonitorElement* mePedMapG06_[36];
 MonitorElement* mePedMapG12_[36];
+
+MonitorElement* mePed3SumMapG01_[36];
+MonitorElement* mePed3SumMapG06_[36];
+MonitorElement* mePed3SumMapG12_[36];
+
+MonitorElement* mePed5SumMapG01_[36];
+MonitorElement* mePed5SumMapG06_[36];
+MonitorElement* mePed5SumMapG12_[36];
 
 MonitorElement* mePnPedMapG01_[36];
 MonitorElement* mePnPedMapG16_[36];
