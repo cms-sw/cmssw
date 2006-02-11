@@ -177,7 +177,15 @@ int EEDetId::iy(int iSC, int iCrys) const
   return iyCrys;
 }
 
-  
+
+int EEDetId::isc() const {
+  throw(std::runtime_error("EEDetId: Method not yet implemented"));
+}  
+
+int EEDetId::ic() const {
+  throw(std::runtime_error("EEDetId: Method not yet implemented"));
+}  
+
 std::ostream& operator<<(std::ostream& s,const EEDetId& id) {
   return s << "(EE iz " << ((id.zside()>0)?("+ "):("- ")) << " ix " << id.ix() << " , iy " << id.iy() << ')';
 }

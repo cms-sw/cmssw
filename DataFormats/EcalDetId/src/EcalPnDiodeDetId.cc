@@ -1,6 +1,6 @@
 #include "DataFormats/EcalDetId/interface/EcalPnDiodeDetId.h"
 
-
+#include <stdexcept>
 
 EcalPnDiodeDetId::EcalPnDiodeDetId() {
 }
@@ -29,7 +29,12 @@ EcalPnDiodeDetId& EcalPnDiodeDetId::operator=(const DetId& gen) {
   id_=gen.rawId();
   return *this;
 }
-  
+
+int EcalPnDiodeDetId::hashedIndex() const
+{
+  throw(std::runtime_error("EcalPnDiodeDetId: Method not yet implemented"));
+}    
+
 std::ostream& operator<<(std::ostream& s,const EcalPnDiodeDetId& id) {
   return s << "(EcalPnDiode " << id.iEcalSubDetectorId() << ',' << id.iDCCId() << ',' << id.iPnId() << ')';
 }
