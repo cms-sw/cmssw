@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2006/02/12 12:49:47 $
- * $Revision: 1.63 $
+ * $Date: 2006/02/12 13:02:33 $
+ * $Revision: 1.64 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -127,26 +127,6 @@ void EBPedestalClient::setup(void) {
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
-    if ( s01_[ism-1] ) delete s01_[ism-1];
-    sprintf(histo, "EBPT pedestal 3sum G01 SM%02d", ism);
-    s01_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
-    if ( s02_[ism-1] ) delete s02_[ism-1];
-    sprintf(histo, "EBPT pedestal 3sum G06 SM%02d", ism);
-    s02_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
-    if ( s03_[ism-1] ) delete s03_[ism-1];
-    sprintf(histo, "EBPT pedestal 3sum G12 SM%02d", ism);
-    s03_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
-
-    if ( t01_[ism-1] ) delete t01_[ism-1];
-    sprintf(histo, "EBPT pedestal 5sum G01 SM%02d", ism);
-    t01_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
-    if ( t02_[ism-1] ) delete t02_[ism-1];
-    sprintf(histo, "EBPT pedestal 5sum G06 SM%02d", ism);
-    t02_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
-    if ( t03_[ism-1] ) delete t03_[ism-1];
-    sprintf(histo, "EBPT pedestal 5sum G12 SM%02d", ism);
-    t03_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
-
     if ( g01_[ism-1] ) delete g01_[ism-1];
     sprintf(histo, "EBPT pedestal quality G01 SM%02d", ism);
     g01_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
@@ -176,6 +156,26 @@ void EBPedestalClient::setup(void) {
     if ( r03_[ism-1] ) delete r03_[ism-1];
     sprintf(histo, "EBPT pedestal rms G12 SM%02d", ism);
     r03_[ism-1] = new TH1F(histo, histo, 100, 0., 10.);
+
+    if ( s01_[ism-1] ) delete s01_[ism-1];
+    sprintf(histo, "EBPT pedestal 3sum G01 SM%02d", ism);
+    s01_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
+    if ( s02_[ism-1] ) delete s02_[ism-1];
+    sprintf(histo, "EBPT pedestal 3sum G06 SM%02d", ism);
+    s02_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
+    if ( s03_[ism-1] ) delete s03_[ism-1];
+    sprintf(histo, "EBPT pedestal 3sum G12 SM%02d", ism);
+    s03_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
+
+    if ( t01_[ism-1] ) delete t01_[ism-1];
+    sprintf(histo, "EBPT pedestal 5sum G01 SM%02d", ism);
+    t01_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
+    if ( t02_[ism-1] ) delete t02_[ism-1];
+    sprintf(histo, "EBPT pedestal 5sum G06 SM%02d", ism);
+    t02_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
+    if ( t03_[ism-1] ) delete t03_[ism-1];
+    sprintf(histo, "EBPT pedestal 5sum G12 SM%02d", ism);
+    t03_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
 
   }
 
@@ -210,6 +210,20 @@ void EBPedestalClient::setup(void) {
     t01_[ism-1]->Reset();
     t02_[ism-1]->Reset();
     t03_[ism-1]->Reset();
+
+    for ( int ie = 1; ie <= 85; ie++ ) {
+      for ( int ip = 1; ip <= 20; ip++ ) {
+
+        s01_[ism-1]->SetBinContent(s01_[ism-1]->GetBin(ie, ip), -999.);
+        s02_[ism-1]->SetBinContent(s02_[ism-1]->GetBin(ie, ip), -999.);
+        s03_[ism-1]->SetBinContent(s03_[ism-1]->GetBin(ie, ip), -999.);
+
+        t01_[ism-1]->SetBinContent(t01_[ism-1]->GetBin(ie, ip), -999.);
+        t02_[ism-1]->SetBinContent(t02_[ism-1]->GetBin(ie, ip), -999.);
+        t03_[ism-1]->SetBinContent(t03_[ism-1]->GetBin(ie, ip), -999.);
+
+      }
+    }
 
   }
 
@@ -995,6 +1009,14 @@ void EBPedestalClient::analyze(void){
         float xval;
         float yval;
         float zval;
+
+        if ( s01_[ism-1] ) s01_[ism-1]->SetBinContent(s01_[ism-1]->GetBin(ie, ip), -999.);
+        if ( s02_[ism-1] ) s02_[ism-1]->SetBinContent(s02_[ism-1]->GetBin(ie, ip), -999.);
+        if ( s03_[ism-1] ) s03_[ism-1]->SetBinContent(s03_[ism-1]->GetBin(ie, ip), -999.);
+
+        if ( t01_[ism-1] ) t01_[ism-1]->SetBinContent(t01_[ism-1]->GetBin(ie, ip), -999.);
+        if ( t02_[ism-1] ) t02_[ism-1]->SetBinContent(t02_[ism-1]->GetBin(ie, ip), -999.);
+        if ( t03_[ism-1] ) t03_[ism-1]->SetBinContent(t03_[ism-1]->GetBin(ie, ip), -999.);
 
         if ( ie >= 2 && ie <= 84 && ip >= 2 && ip <= 19 ) {
 
