@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2006/02/09 13:37:56 $
- * $Revision: 1.61 $
+ * $Date: 2006/02/11 10:04:34 $
+ * $Revision: 1.62 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -127,6 +127,26 @@ void EBPedestalClient::setup(void) {
 
   for ( int ism = 1; ism <= 36; ism++ ) {
 
+    if ( s01_[ism-1] ) delete s01_[ism-1];
+    sprintf(histo, "EBPT pedestal 3sum G01 SM%02d", ism);
+    s01_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
+    if ( s02_[ism-1] ) delete s02_[ism-1];
+    sprintf(histo, "EBPT pedestal 3sum G06 SM%02d", ism);
+    s02_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
+    if ( s03_[ism-1] ) delete s03_[ism-1];
+    sprintf(histo, "EBPT pedestal 3sum G12 SM%02d", ism);
+    s03_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
+
+    if ( t01_[ism-1] ) delete t01_[ism-1];
+    sprintf(histo, "EBPT pedestal 5sum G01 SM%02d", ism);
+    t01_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
+    if ( t02_[ism-1] ) delete t02_[ism-1];
+    sprintf(histo, "EBPT pedestal 5sum G06 SM%02d", ism);
+    t02_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
+    if ( t03_[ism-1] ) delete t03_[ism-1];
+    sprintf(histo, "EBPT pedestal 5sum G12 SM%02d", ism);
+    t03_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
+
     if ( g01_[ism-1] ) delete g01_[ism-1];
     sprintf(histo, "EBPT pedestal quality G01 SM%02d", ism);
     g01_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
@@ -156,26 +176,6 @@ void EBPedestalClient::setup(void) {
     if ( r03_[ism-1] ) delete r03_[ism-1];
     sprintf(histo, "EBPT pedestal rms G12 SM%02d", ism);
     r03_[ism-1] = new TH1F(histo, histo, 100, 0., 10.);
-
-    if ( s01_[ism-1] ) delete s01_[ism-1];
-    sprintf(histo, "EBPT 3sum G01 SM%02d", ism);
-    s01_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
-    if ( s02_[ism-1] ) delete s02_[ism-1];
-    sprintf(histo, "EBPT 3sum G06 SM%02d", ism);
-    s02_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
-    if ( s03_[ism-1] ) delete s03_[ism-1];
-    sprintf(histo, "EBPT 3sum G12 SM%02d", ism);
-    s03_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
-
-    if ( t01_[ism-1] ) delete t01_[ism-1];
-    sprintf(histo, "EBPT 5sum G01 SM%02d", ism);
-    t01_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
-    if ( t02_[ism-1] ) delete t02_[ism-1];
-    sprintf(histo, "EBPT 5sum G06 SM%02d", ism);
-    t02_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
-    if ( t03_[ism-1] ) delete t03_[ism-1];
-    sprintf(histo, "EBPT 5sum G12 SM%02d", ism);
-    t03_[ism-1] = new TH2F(histo, histo, 85, 0., 85., 20, 0., 20.);
 
   }
 
@@ -503,13 +503,13 @@ void EBPedestalClient::subscribe(void){
   mui_->subscribe("*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM*");
   mui_->subscribe("*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM*");
 
-  mui_->subscribe("*/EcalBarrel/EBPedestalTask/Gain01/EBPT 3sum SM*");
-  mui_->subscribe("*/EcalBarrel/EBPedestalTask/Gain06/EBPT 3sum SM*");
-  mui_->subscribe("*/EcalBarrel/EBPedestalTask/Gain12/EBPT 3sum SM*");
+  mui_->subscribe("*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 3sum SM*");
+  mui_->subscribe("*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 3sum SM*");
+  mui_->subscribe("*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 3sum SM*");
 
-  mui_->subscribe("*/EcalBarrel/EBPedestalTask/Gain01/EBPT 5sum SM*");
-  mui_->subscribe("*/EcalBarrel/EBPedestalTask/Gain06/EBPT 5sum SM*");
-  mui_->subscribe("*/EcalBarrel/EBPedestalTask/Gain12/EBPT 5sum SM*");
+  mui_->subscribe("*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 5sum SM*");
+  mui_->subscribe("*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 5sum SM*");
+  mui_->subscribe("*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 5sum SM*");
 
   mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs pedestal SM*");
   mui_->subscribe("*/EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs pedestal SM*");
@@ -537,34 +537,34 @@ void EBPedestalClient::subscribe(void){
       sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM%02d G12", ism);
       mui_->add(me_h03_[ism-1], histo);
 
-      sprintf(histo, "EBPT 3sum SM%02d G01", ism);
+      sprintf(histo, "EBPT pedestal 3sum SM%02d G01", ism);
       me_j01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPedestalTask/Gain01");
-      sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT 3sum SM%02d G01", ism);
+      sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 3sum SM%02d G01", ism);
       mui_->add(me_j01_[ism-1], histo);
 
-      sprintf(histo, "EBPT 3sum SM%02d G06", ism);
+      sprintf(histo, "EBPT pedestal 3sum SM%02d G06", ism);
       me_j02_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPedestalTask/Gain06");
-      sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT 3sum SM%02d G06", ism);
+      sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 3sum SM%02d G06", ism);
       mui_->add(me_j02_[ism-1], histo);
 
-      sprintf(histo, "EBPT 3sum SM%02d G12", ism);
+      sprintf(histo, "EBPT pedestal 3sum SM%02d G12", ism);
       me_j03_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPedestalTask/Gain12");
-      sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT 3sum SM%02d G12", ism);
+      sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 3sum SM%02d G12", ism);
       mui_->add(me_j03_[ism-1], histo);
 
-      sprintf(histo, "EBPT 5sum SM%02d G01", ism);
+      sprintf(histo, "EBPT pedestal 5sum SM%02d G01", ism);
       me_k01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPedestalTask/Gain01");
-      sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT 5sum SM%02d G01", ism);
+      sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 5sum SM%02d G01", ism);
       mui_->add(me_k01_[ism-1], histo);
 
-      sprintf(histo, "EBPT 5sum SM%02d G06", ism);
+      sprintf(histo, "EBPT pedestal 5sum SM%02d G06", ism);
       me_k02_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPedestalTask/Gain06");
-      sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT 5sum SM%02d G06", ism);
+      sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 5sum SM%02d G06", ism);
       mui_->add(me_k02_[ism-1], histo);
 
-      sprintf(histo, "EBPT 5sum SM%02d G12", ism);
+      sprintf(histo, "EBPT pedestal 5sum SM%02d G12", ism);
       me_k03_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPedestalTask/Gain12");
-      sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT 5sum SM%02d G12", ism);
+      sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 5sum SM%02d G12", ism);
       mui_->add(me_k03_[ism-1], histo);
 
       sprintf(histo, "EBPDT PNs pedestal SM%02d G01", ism);
@@ -590,13 +590,13 @@ void EBPedestalClient::subscribeNew(void){
   mui_->subscribeNew("*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM*");
   mui_->subscribeNew("*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM*");
 
-  mui_->subscribeNew("*/EcalBarrel/EBPedestalTask/Gain01/EBPT 3sum SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBPedestalTask/Gain06/EBPT 3sum SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBPedestalTask/Gain12/EBPT 3sum SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 3sum SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 3sum SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 3sum SM*");
 
-  mui_->subscribeNew("*/EcalBarrel/EBPedestalTask/Gain01/EBPT 5sum SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBPedestalTask/Gain06/EBPT 5sum SM*");
-  mui_->subscribeNew("*/EcalBarrel/EBPedestalTask/Gain12/EBPT 5sum SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 5sum SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 5sum SM*");
+  mui_->subscribeNew("*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 5sum SM*");
 
   mui_->subscribeNew("*/EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs pedestal SM*");
   mui_->subscribeNew("*/EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs pedestal SM*");
@@ -641,13 +641,13 @@ void EBPedestalClient::unsubscribe(void){
   mui_->unsubscribe("*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM*");
   mui_->unsubscribe("*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM*");
 
-  mui_->unsubscribe("*/EcalBarrel/EBPedestalTask/Gain01/EBPT 3sum SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBPedestalTask/Gain06/EBPT 3sum SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBPedestalTask/Gain12/EBPT 3sum SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 3sum SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 3sum SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 3sum SM*");
 
-  mui_->unsubscribe("*/EcalBarrel/EBPedestalTask/Gain01/EBPT 5sum SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBPedestalTask/Gain06/EBPT 5sum SM*");
-  mui_->unsubscribe("*/EcalBarrel/EBPedestalTask/Gain12/EBPT 5sum SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 5sum SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 5sum SM*");
+  mui_->unsubscribe("*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 5sum SM*");
 
   mui_->unsubscribe("*/EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs pedestal SM*");
   mui_->unsubscribe("*/EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs pedestal SM*");
@@ -730,9 +730,9 @@ void EBPedestalClient::analyze(void){
     }
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain01/EBPT 3sum SM%02d G01", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain01/EBPT pedestal 3sum SM%02d G01", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain01/EBPT 3sum SM%02d G01", ism);
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 3sum SM%02d G01", ism);
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -741,7 +741,7 @@ void EBPedestalClient::analyze(void){
       if ( ob ) {
         if ( cloneME_ ) {
           if ( j01_[ism-1] ) delete j01_[ism-1];
-          sprintf(histo, "ME EBPT 3sum SM%02d G01", ism);
+          sprintf(histo, "ME EBPT pedestal 3sum SM%02d G01", ism);
           j01_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
         } else {
           j01_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
@@ -750,9 +750,9 @@ void EBPedestalClient::analyze(void){
     }
 
     if ( collateSources_ ) { 
-      sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain06/EBPT 3sum SM%02d G06", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain06/EBPT pedestal 3sum SM%02d G06", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain06/EBPT 3sum SM%02d G06", ism);
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 3sum SM%02d G06", ism);
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -761,7 +761,7 @@ void EBPedestalClient::analyze(void){
       if ( ob ) {
         if ( cloneME_ ) {
           if ( j02_[ism-1] ) delete j02_[ism-1];
-          sprintf(histo, "ME EBPT 3sum SM%02d G06", ism);
+          sprintf(histo, "ME EBPT pedestal 3sum SM%02d G06", ism);
           j02_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
         } else {
           j02_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
@@ -770,9 +770,9 @@ void EBPedestalClient::analyze(void){
     }
 
     if ( collateSources_ ) { 
-      sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain12/EBPT 3sum SM%02d G12", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain12/EBPT pedestal 3sum SM%02d G12", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain12/EBPT 3sum SM%02d G12", ism);
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 3sum SM%02d G12", ism);
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -781,7 +781,7 @@ void EBPedestalClient::analyze(void){
       if ( ob ) {
         if ( cloneME_ ) {
           if ( j03_[ism-1] ) delete j03_[ism-1];
-          sprintf(histo, "ME EBPT 3sum SM%02d G12", ism);
+          sprintf(histo, "ME EBPT pedestal 3sum SM%02d G12", ism);
           j03_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
         } else {
           j03_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
@@ -790,9 +790,9 @@ void EBPedestalClient::analyze(void){
     }
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain01/EBPT 5sum SM%02d G01", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain01/EBPT pedestal 5sum SM%02d G01", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain01/EBPT 5sum SM%02d G01", ism);
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 5sum SM%02d G01", ism);
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -801,7 +801,7 @@ void EBPedestalClient::analyze(void){
       if ( ob ) {
         if ( cloneME_ ) {
           if ( k01_[ism-1] ) delete k01_[ism-1];
-          sprintf(histo, "ME EBPT 5sum SM%02d G01", ism);
+          sprintf(histo, "ME EBPT pedestal 5sum SM%02d G01", ism);
           k01_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
         } else {
           k01_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
@@ -810,9 +810,9 @@ void EBPedestalClient::analyze(void){
     }
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain06/EBPT 5sum SM%02d G06", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain06/EBPT pedestal 5sum SM%02d G06", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain06/EBPT 5sum SM%02d G06", ism);
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 5sum SM%02d G06", ism);
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -821,7 +821,7 @@ void EBPedestalClient::analyze(void){
       if ( ob ) {
         if ( cloneME_ ) {
           if ( k02_[ism-1] ) delete k02_[ism-1];
-          sprintf(histo, "ME EBPT 5sum SM%02d G06", ism);
+          sprintf(histo, "ME EBPT pedestal 5sum SM%02d G06", ism);
           k02_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
         } else {
           k02_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
@@ -830,9 +830,9 @@ void EBPedestalClient::analyze(void){
     }
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain12/EBPT 5sum SM%02d G12", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain12/EBPT pedestal 5sum SM%02d G12", ism);
     } else {
-      sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain12/EBPT 5sum SM%02d G12", ism);
+      sprintf(histo, "Collector/FU0/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 5sum SM%02d G12", ism);
     }
     me = mui_->get(histo);
     if ( me ) {
@@ -841,7 +841,7 @@ void EBPedestalClient::analyze(void){
       if ( ob ) {
         if ( cloneME_ ) {
           if ( k03_[ism-1] ) delete k03_[ism-1];
-          sprintf(histo, "ME EBPT 5sum SM%02d G12", ism);
+          sprintf(histo, "ME EBPT pedestal 5sum SM%02d G12", ism);
           k03_[ism-1] = dynamic_cast<TProfile2D*> ((ob->operator->())->Clone(histo));
         } else {
           k03_[ism-1] = dynamic_cast<TProfile2D*> (ob->operator->());
@@ -999,59 +999,65 @@ void EBPedestalClient::analyze(void){
         if ( ie >= 2 && ie <= 84 && ip >= 2 && ip <= 19 ) {
 
           xval = 0.;
-          if ( j01_[ism-1] ) xval = j01_[ism-1]->GetBinError(j01_[ism-1]->GetBin(ie, ip)) *
-                                    j01_[ism-1]->GetBinError(j01_[ism-1]->GetBin(ie, ip));
-
-          yval = 0.;
           for ( int i = -1; i <= +1; i++ ) {
             for ( int j = -1; j <= +1; j++ ) {
 
-              if ( h01_[ism-1] ) yval = yval + h01_[ism-1]->GetBinError(h01_[ism-1]->GetBin(ie+i, ip+j)) *
+              if ( h01_[ism-1] ) xval = xval + h01_[ism-1]->GetBinError(h01_[ism-1]->GetBin(ie+i, ip+j)) *
                                                h01_[ism-1]->GetBinError(h01_[ism-1]->GetBin(ie+i, ip+j));
 
             }
           }
+          xval = xval / (9.*9.);
+
+          yval = 0.;
+          if ( j01_[ism-1] ) yval = j01_[ism-1]->GetBinError(j01_[ism-1]->GetBin(ie, ip)) *
+                                    j01_[ism-1]->GetBinError(j01_[ism-1]->GetBin(ie, ip));
 
           zval = 0.;
-          if ( xval != 0 && yval != 0 ) zval = (xval - yval) / yval;
+          if ( xval != 0 && yval != 0 ) zval = sqrt(abs(xval - yval));
+          if ( (xval - yval) < 0 ) zval = -zval;
 
           if ( s01_[ism-1] ) s01_[ism-1]->SetBinContent(s01_[ism-1]->GetBin(ie, ip), zval);
 
-          xval = 0.;
-          if ( j02_[ism-1] ) xval = j02_[ism-1]->GetBinError(j02_[ism-1]->GetBin(ie, ip)) *
-                                    j02_[ism-1]->GetBinError(j02_[ism-1]->GetBin(ie, ip));
-
-          yval = 0.; 
+          xval = 0.; 
           for ( int i = -1; i <= +1; i++ ) {
             for ( int j = -1; j <= +1; j++ ) {
  
-              if ( h02_[ism-1] ) yval = yval + h02_[ism-1]->GetBinError(h02_[ism-1]->GetBin(ie+i, ip+j)) *
+              if ( h02_[ism-1] ) xval = xval + h02_[ism-1]->GetBinError(h02_[ism-1]->GetBin(ie+i, ip+j)) *
                                                h02_[ism-1]->GetBinError(h02_[ism-1]->GetBin(ie+i, ip+j));
  
             } 
           } 
+          xval = xval / (9.*9.);
+
+          yval = 0.;
+          if ( j02_[ism-1] ) yval = j02_[ism-1]->GetBinError(j02_[ism-1]->GetBin(ie, ip)) *
+                                    j02_[ism-1]->GetBinError(j02_[ism-1]->GetBin(ie, ip));
 
           zval = 0.;
-          if ( xval != 0 && yval != 0 ) zval = (xval - yval) / yval;
+          if ( xval != 0 && yval != 0 ) zval = sqrt(abs(xval - yval));
+          if ( (xval - yval) < 0 ) zval = -zval;
           
           if ( s02_[ism-1] ) s02_[ism-1]->SetBinContent(s02_[ism-1]->GetBin(ie, ip), zval);
 
-          xval = 0.;
-          if ( j03_[ism-1] ) xval = j03_[ism-1]->GetBinError(j03_[ism-1]->GetBin(ie, ip)) *
-                                    j03_[ism-1]->GetBinError(j03_[ism-1]->GetBin(ie, ip));
-
-          yval = 0.; 
+          xval = 0.; 
           for ( int i = -1; i <= +1; i++ ) {
             for ( int j = -1; j <= +1; j++ ) {
  
-              if ( h03_[ism-1] ) yval = yval + h03_[ism-1]->GetBinError(h03_[ism-1]->GetBin(ie+i, ip+j)) *
+              if ( h03_[ism-1] ) xval = xval + h03_[ism-1]->GetBinError(h03_[ism-1]->GetBin(ie+i, ip+j)) *
                                                h03_[ism-1]->GetBinError(h03_[ism-1]->GetBin(ie+i, ip+j));
  
             } 
           } 
+          xval = xval / (9.*9.);
+
+          yval = 0.;
+          if ( j03_[ism-1] ) yval = j03_[ism-1]->GetBinError(j03_[ism-1]->GetBin(ie, ip)) *
+                                    j03_[ism-1]->GetBinError(j03_[ism-1]->GetBin(ie, ip));
 
           zval = 0.;
-          if ( xval != 0 && yval != 0 ) zval = (xval - yval) / yval;
+          if ( xval != 0 && yval != 0 ) zval = sqrt(abs(xval - yval));
+          if ( (xval - yval) < 0 ) zval = -zval;
           
           if ( s03_[ism-1] ) s03_[ism-1]->SetBinContent(s03_[ism-1]->GetBin(ie, ip), zval);
 
@@ -1060,59 +1066,65 @@ void EBPedestalClient::analyze(void){
         if ( ie >= 3 && ie <= 83 && ip >= 3 && ip <= 18 ) {
 
           xval = 0.;
-          if ( k01_[ism-1] ) xval = k01_[ism-1]->GetBinError(k01_[ism-1]->GetBin(ie, ip)) *
-                                    k01_[ism-1]->GetBinError(k01_[ism-1]->GetBin(ie, ip));
+          for ( int i = -2; i <= +2; i++ ) {
+            for ( int j = -2; j <= +2; j++ ) {
 
-          yval = 0.;
-          for ( int i = -1; i <= +1; i++ ) {
-            for ( int j = -1; j <= +1; j++ ) {
-
-              if ( h01_[ism-1] ) yval = yval + h01_[ism-1]->GetBinError(h01_[ism-1]->GetBin(ie+i, ip+j)) *
+              if ( h01_[ism-1] ) xval = xval + h01_[ism-1]->GetBinError(h01_[ism-1]->GetBin(ie+i, ip+j)) *
                                                h01_[ism-1]->GetBinError(h01_[ism-1]->GetBin(ie+i, ip+j));
 
             }
           }
+          xval = xval / (25.*25.);
+
+          yval = 0.;
+          if ( k01_[ism-1] ) yval = k01_[ism-1]->GetBinError(k01_[ism-1]->GetBin(ie, ip)) *
+                                    k01_[ism-1]->GetBinError(k01_[ism-1]->GetBin(ie, ip));
 
           zval = 0.;
-          if ( xval != 0 && yval != 0 ) zval = (xval - yval) / yval;
+          if ( xval != 0 && yval != 0 ) zval = sqrt(abs(xval - yval));
+          if ( (xval - yval) < 0 ) zval = -zval;
 
           if ( t01_[ism-1] ) t01_[ism-1]->SetBinContent(t01_[ism-1]->GetBin(ie, ip), zval);
 
-          xval = 0.;
-          if ( k02_[ism-1] ) xval = k02_[ism-1]->GetBinError(k02_[ism-1]->GetBin(ie, ip)) *
-                                    k02_[ism-1]->GetBinError(k02_[ism-1]->GetBin(ie, ip));
-
-          yval = 0.; 
-          for ( int i = -1; i <= +1; i++ ) {
-            for ( int j = -1; j <= +1; j++ ) {
+          xval = 0.; 
+          for ( int i = -2; i <= +2; i++ ) {
+            for ( int j = -2; j <= +2; j++ ) {
  
-              if ( h02_[ism-1] ) yval = yval + h02_[ism-1]->GetBinError(h02_[ism-1]->GetBin(ie+i, ip+j)) *
+              if ( h02_[ism-1] ) xval = xval + h02_[ism-1]->GetBinError(h02_[ism-1]->GetBin(ie+i, ip+j)) *
                                                h02_[ism-1]->GetBinError(h02_[ism-1]->GetBin(ie+i, ip+j));
  
             } 
           } 
+          xval = xval / (25.*25.);
+
+          yval = 0.;
+          if ( k02_[ism-1] ) yval = k02_[ism-1]->GetBinError(k02_[ism-1]->GetBin(ie, ip)) *
+                                    k02_[ism-1]->GetBinError(k02_[ism-1]->GetBin(ie, ip));
 
           zval = 0.;
-          if ( xval != 0 && yval != 0 ) zval = (xval - yval) / yval;
+          if ( xval != 0 && yval != 0 ) zval = sqrt(abs(xval - yval));
+          if ( (xval - yval) < 0 ) zval = -zval;
           
           if ( t02_[ism-1] ) t02_[ism-1]->SetBinContent(t02_[ism-1]->GetBin(ie, ip), zval);
 
-          xval = 0.;
-          if ( k03_[ism-1] ) xval = k03_[ism-1]->GetBinError(k03_[ism-1]->GetBin(ie, ip)) *
-                                    k03_[ism-1]->GetBinError(k03_[ism-1]->GetBin(ie, ip));
-
-          yval = 0.; 
-          for ( int i = -1; i <= +1; i++ ) {
-            for ( int j = -1; j <= +1; j++ ) {
+          xval = 0.; 
+          for ( int i = -2; i <= +2; i++ ) {
+            for ( int j = -2; j <= +2; j++ ) {
  
-              if ( h03_[ism-1] ) yval = yval + h03_[ism-1]->GetBinError(h03_[ism-1]->GetBin(ie+i, ip+j)) *
+              if ( h03_[ism-1] ) xval = xval + h03_[ism-1]->GetBinError(h03_[ism-1]->GetBin(ie+i, ip+j)) *
                                                h03_[ism-1]->GetBinError(h03_[ism-1]->GetBin(ie+i, ip+j));
  
             } 
           } 
+          xval = xval / (25.*25.);
+
+          yval = 0.;
+          if ( k03_[ism-1] ) yval = k03_[ism-1]->GetBinError(k03_[ism-1]->GetBin(ie, ip)) *
+                                    k03_[ism-1]->GetBinError(k03_[ism-1]->GetBin(ie, ip));
 
           zval = 0.;
-          if ( xval != 0 && yval != 0 ) zval = (xval - yval) / yval;
+          if ( xval != 0 && yval != 0 ) zval = sqrt(abs(xval - yval));
+          if ( (xval - yval) < 0 ) zval = -zval;
           
           if ( t03_[ism-1] ) t03_[ism-1]->SetBinContent(t03_[ism-1]->GetBin(ie, ip), zval);
 
@@ -1373,6 +1385,8 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
         obj2f->GetYaxis()->SetNdivisions(4);
         c3Sum->SetGridx();
         c3Sum->SetGridy();
+        obj2f->SetMinimum(-0.5);
+        obj2f->SetMaximum(+0.5);
         obj2f->Draw("colz");
         dummy.Draw("text,same");
         c3Sum->Update();
@@ -1418,6 +1432,8 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
         obj2f->GetYaxis()->SetNdivisions(4);
         c5Sum->SetGridx();
         c5Sum->SetGridy();
+        obj2f->SetMinimum(-0.5);
+        obj2f->SetMaximum(+0.5);
         obj2f->Draw("colz");
         dummy.Draw("text,same");
         c5Sum->Update();

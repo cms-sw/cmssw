@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalTask.cc
  *
- * $Date: 2006/02/05 22:19:22 $
- * $Revision: 1.29 $
+ * $Date: 2006/02/11 10:04:35 $
+ * $Revision: 1.30 $
  * \author G. Della Ricca
  *
 */
@@ -63,9 +63,9 @@ void EBPedestalTask::setup(void){
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBPT pedestal SM%02d G01", i+1);
       mePedMapG01_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
-      sprintf(histo, "EBPT 3sum SM%02d G01", i+1);
+      sprintf(histo, "EBPT pedestal 3sum SM%02d G01", i+1);
       mePed3SumMapG01_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
-      sprintf(histo, "EBPT 5sum SM%02d G01", i+1);
+      sprintf(histo, "EBPT pedestal 5sum SM%02d G01", i+1);
       mePed5SumMapG01_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
     }
 
@@ -73,9 +73,9 @@ void EBPedestalTask::setup(void){
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBPT pedestal SM%02d G06", i+1);
       mePedMapG06_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
-      sprintf(histo, "EBPT 3sum SM%02d G06", i+1);
+      sprintf(histo, "EBPT pedestal 3sum SM%02d G06", i+1);
       mePed3SumMapG06_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
-      sprintf(histo, "EBPT 5sum SM%02d G06", i+1);
+      sprintf(histo, "EBPT pedestal 5sum SM%02d G06", i+1);
       mePed5SumMapG06_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
     }
 
@@ -83,9 +83,9 @@ void EBPedestalTask::setup(void){
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBPT pedestal SM%02d G12", i+1);
       mePedMapG12_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
-      sprintf(histo, "EBPT 3sum SM%02d G12", i+1);
+      sprintf(histo, "EBPT pedestal 3sum SM%02d G12", i+1);
       mePed3SumMapG12_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
-      sprintf(histo, "EBPT 5sum SM%02d G12", i+1);
+      sprintf(histo, "EBPT pedestal 5sum SM%02d G12", i+1);
       mePed5SumMapG12_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.);
     }
 
@@ -202,6 +202,7 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
 
             }
           }
+          xval = xval / 9.;
           if ( mePed3SumMapG01_[ism-1] ) mePed3SumMapG01_[ism-1]->Fill(xie, xip, xval);
 
           xval = 0.;
@@ -212,6 +213,7 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
 
             }
           }
+          xval = xval / 9.;
           if ( mePed3SumMapG06_[ism-1] ) mePed3SumMapG06_[ism-1]->Fill(xie, xip, xval);
 
           xval = 0.;
@@ -222,6 +224,7 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
 
             }
           }
+          xval = xval / 9.;
           if ( mePed3SumMapG12_[ism-1] ) mePed3SumMapG12_[ism-1]->Fill(xie, xip, xval);
 
         }
@@ -229,33 +232,36 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
         if ( ie >= 3 && ie <= 83 && ip >= 3 && ip <= 18 ) {
 
           xval = 0.;
-          for ( int i = -1; i <= +1; i++ ) {
-            for ( int j = -1; j <= +1; j++ ) {
+          for ( int i = -2; i <= +2; i++ ) {
+            for ( int j = -2; j <= +2; j++ ) {
 
               xval = xval + xmap01[ism-1][ie-1+i][ip-1+j];
 
             }
           }
+          xval = xval / 25.;
           if ( mePed5SumMapG01_[ism-1] ) mePed5SumMapG01_[ism-1]->Fill(xie, xip, xval);
 
           xval = 0.;
-          for ( int i = -1; i <= +1; i++ ) {
-            for ( int j = -1; j <= +1; j++ ) {
+          for ( int i = -2; i <= +2; i++ ) {
+            for ( int j = -2; j <= +2; j++ ) {
 
               xval = xval + xmap06[ism-1][ie-1+i][ip-1+j];
 
             }
           }
+          xval = xval / 25.;
           if ( mePed5SumMapG06_[ism-1] ) mePed5SumMapG06_[ism-1]->Fill(xie, xip, xval);
 
           xval = 0.;
-          for ( int i = -1; i <= +1; i++ ) {
-            for ( int j = -1; j <= +1; j++ ) {
+          for ( int i = -2; i <= +2; i++ ) {
+            for ( int j = -2; j <= +2; j++ ) {
 
               xval = xval + xmap12[ism-1][ie-1+i][ip-1+j];
 
             }
           }
+          xval = xval / 25.;
           if ( mePed5SumMapG12_[ism-1] ) mePed5SumMapG12_[ism-1]->Fill(xie, xip, xval);
 
         }
