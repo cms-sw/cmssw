@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalTask.cc
  *
- * $Date: 2006/02/11 10:04:35 $
- * $Revision: 1.30 $
+ * $Date: 2006/02/12 12:49:47 $
+ * $Revision: 1.31 $
  * \author G. Della Ricca
  *
 */
@@ -183,86 +183,66 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
 
   }
 
+  // to be re-done using the 3x3 & 5x5 Selectors
+
   for ( int ism = 1; ism <= 36; ism++ ) {
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
 
-        float xval;
-
         float xie = ie - 0.5;
         float xip = ip - 0.5;
 
+        float xval01;
+        float xval06;
+        float xval12;
+
         if ( ie >= 2 && ie <= 84 && ip >= 2 && ip <= 19 ) {
 
-          xval = 0.;
+          xval01 = 0.;
+          xval06 = 0.;
+          xval12 = 0.;
           for ( int i = -1; i <= +1; i++ ) {
             for ( int j = -1; j <= +1; j++ ) {
 
-              xval = xval + xmap01[ism-1][ie-1+i][ip-1+j];
+              xval01 = xval01 + xmap01[ism-1][ie-1+i][ip-1+j];
+              xval06 = xval06 + xmap06[ism-1][ie-1+i][ip-1+j];
+              xval12 = xval12 + xmap12[ism-1][ie-1+i][ip-1+j];
 
             }
           }
-          xval = xval / 9.;
-          if ( mePed3SumMapG01_[ism-1] ) mePed3SumMapG01_[ism-1]->Fill(xie, xip, xval);
-
-          xval = 0.;
-          for ( int i = -1; i <= +1; i++ ) {
-            for ( int j = -1; j <= +1; j++ ) {
-
-              xval = xval + xmap06[ism-1][ie-1+i][ip-1+j];
-
-            }
-          }
-          xval = xval / 9.;
-          if ( mePed3SumMapG06_[ism-1] ) mePed3SumMapG06_[ism-1]->Fill(xie, xip, xval);
-
-          xval = 0.;
-          for ( int i = -1; i <= +1; i++ ) {
-            for ( int j = -1; j <= +1; j++ ) {
-
-              xval = xval + xmap12[ism-1][ie-1+i][ip-1+j];
-
-            }
-          }
-          xval = xval / 9.;
-          if ( mePed3SumMapG12_[ism-1] ) mePed3SumMapG12_[ism-1]->Fill(xie, xip, xval);
+          xval01 = xval01 / 9.;
+          xval06 = xval06 / 9.;
+          xval12 = xval12 / 9.;
+          if ( mePed3SumMapG01_[ism-1] && xval01 != 0. ) mePed3SumMapG01_[ism-1]->Fill(xie, xip, xval01);
+          if ( mePed3SumMapG06_[ism-1] && xval06 != 0. ) mePed3SumMapG06_[ism-1]->Fill(xie, xip, xval06);
+          if ( mePed3SumMapG12_[ism-1] && xval12 != 0. ) mePed3SumMapG12_[ism-1]->Fill(xie, xip, xval12);
 
         }
 
+        float yval01;
+        float yval06;
+        float yval12;
+
         if ( ie >= 3 && ie <= 83 && ip >= 3 && ip <= 18 ) {
 
-          xval = 0.;
+          yval01 = 0.;
+          yval06 = 0.;
+          yval12 = 0.;
           for ( int i = -2; i <= +2; i++ ) {
             for ( int j = -2; j <= +2; j++ ) {
 
-              xval = xval + xmap01[ism-1][ie-1+i][ip-1+j];
+              yval01 = yval01 + xmap01[ism-1][ie-1+i][ip-1+j];
+              yval06 = yval06 + xmap06[ism-1][ie-1+i][ip-1+j];
+              yval12 = yval12 + xmap12[ism-1][ie-1+i][ip-1+j];
 
             }
           }
-          xval = xval / 25.;
-          if ( mePed5SumMapG01_[ism-1] ) mePed5SumMapG01_[ism-1]->Fill(xie, xip, xval);
-
-          xval = 0.;
-          for ( int i = -2; i <= +2; i++ ) {
-            for ( int j = -2; j <= +2; j++ ) {
-
-              xval = xval + xmap06[ism-1][ie-1+i][ip-1+j];
-
-            }
-          }
-          xval = xval / 25.;
-          if ( mePed5SumMapG06_[ism-1] ) mePed5SumMapG06_[ism-1]->Fill(xie, xip, xval);
-
-          xval = 0.;
-          for ( int i = -2; i <= +2; i++ ) {
-            for ( int j = -2; j <= +2; j++ ) {
-
-              xval = xval + xmap12[ism-1][ie-1+i][ip-1+j];
-
-            }
-          }
-          xval = xval / 25.;
-          if ( mePed5SumMapG12_[ism-1] ) mePed5SumMapG12_[ism-1]->Fill(xie, xip, xval);
+          yval01 = yval01 / 25.;
+          yval06 = yval06 / 25.;
+          yval12 = yval12 / 25.;
+          if ( mePed5SumMapG01_[ism-1] && yval01 != 0. ) mePed5SumMapG01_[ism-1]->Fill(xie, xip, yval01);
+          if ( mePed5SumMapG06_[ism-1] && yval06 != 0. ) mePed5SumMapG06_[ism-1]->Fill(xie, xip, yval06);
+          if ( mePed5SumMapG12_[ism-1] && yval12 != 0. ) mePed5SumMapG12_[ism-1]->Fill(xie, xip, yval12);
 
         }
 
