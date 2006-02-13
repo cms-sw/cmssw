@@ -54,12 +54,12 @@ void ReadRecHitAlgorithm::run(const SiStripRecHit2DLocalPosCollection* input)
       for(iter=rechitRangeIteratorBegin;iter!=rechitRangeIteratorEnd;++iter){//loop on the rechit
 	  SiStripRecHit2DLocalPos const rechit=*iter;
 	  LocalPoint position=rechit.localPosition();
-	  //	  LocalError error=rechit.localPositionError();
+	  LocalError error=rechit.localPositionError();
 	  //GeomDet& det=rechit->det();
 	  //DetId id=rechit.geographicalId();
 	  std::vector<const SiStripCluster*> clust=rechit.cluster();
 	  std::cout<<"local position: "<<position.x()<<" "<<position.y()<<" "<<position.z()<<" "<<std::endl;
-	  //std::cout<<"local error: "<<error.x()<<" "<<error.y()<<" "<<error.z()<<" "<<std::endl;
+	  std::cout<<"local error: "<<error.xx()<<" "<<error.xy()<<" "<<error.yy()<<" "<<std::endl;
 	  //	  std::cout<<"det id: "<<id.rawid<<std::endl;
       }
     }
@@ -85,12 +85,12 @@ void ReadRecHitAlgorithm::run(const SiStripRecHit2DMatchedLocalPosCollection* in
       for(iter=rechitRangeIteratorBegin;iter!=rechitRangeIteratorEnd;++iter){//loop on the rechit
 	  SiStripRecHit2DMatchedLocalPos const rechit=*iter;
 	  LocalPoint position=rechit.localPosition();
-	  //	  LocalError error=rechit.localPositionError();
+	  LocalError error=rechit.localPositionError();
 	  //GeomDet& det=rechit->det();
 	  //DetId id=rechit.geographicalId();
 	  //	  std::vector<const SiStripCluster*> clust=rechit.cluster();
 	  std::cout<<"local position: "<<position.x()<<" "<<position.y()<<" "<<position.z()<<" "<<std::endl;
-	  //std::cout<<"local error: "<<error.x()<<" "<<error.y()<<" "<<error.z()<<" "<<std::endl;
+	  std::cout<<"local error: "<<error.xx()<<" "<<error.xy()<<" "<<error.yy()<<" "<<std::endl;
 	  //	  std::cout<<"det id: "<<id.rawid<<std::endl;
       }
     }

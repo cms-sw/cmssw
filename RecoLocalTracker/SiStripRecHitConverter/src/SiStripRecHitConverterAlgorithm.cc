@@ -71,15 +71,15 @@ void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,
 	for(iter=clusterRangeIteratorBegin;iter!=clusterRangeIteratorEnd;++iter){//loop on the cluster
 	  //SiStripCluster cluster=*iter;
 	  LocalPoint position=Rtopol.localPosition(iter->barycenter());
-	  const  LocalError dummy;
+	  const  LocalError error=Rtopol.localError(iter->barycenter(),12.);
 	  std::vector<const SiStripCluster*> clusters;
 	  clusters.push_back(&(*iter));
 	  if(!specDetId.stereo()){
-	    collectorrphi.push_back(new SiStripRecHit2DLocalPos(position, dummy,detId,clusters));
+	    collectorrphi.push_back(new SiStripRecHit2DLocalPos(position, error,detId,clusters));
 	    nmono++;
 	  }
 	  if(specDetId.stereo()){
-	    collectorstereo.push_back(new SiStripRecHit2DLocalPos(position, dummy,detId,clusters));
+	    collectorstereo.push_back(new SiStripRecHit2DLocalPos(position, error,detId,clusters));
 	    nstereo++;
 	  }
 	}
@@ -89,15 +89,15 @@ void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,
     	for(iter=clusterRangeIteratorBegin;iter!=clusterRangeIteratorEnd;++iter){//loop on the cluster
 	  //SiStripCluster cluster=*iter;
 	  LocalPoint position=Ttopol.localPosition(iter->barycenter());
-	  const  LocalError dummy;
+	  const  LocalError error=Ttopol.localError(iter->barycenter(),1/12.);
 	  std::vector<const SiStripCluster*> clusters;
 	  clusters.push_back(&(*iter));
 	  if(!specDetId.stereo()){
-	    collectorrphi.push_back(new SiStripRecHit2DLocalPos(position, dummy,detId,clusters));
+	    collectorrphi.push_back(new SiStripRecHit2DLocalPos(position, error,detId,clusters));
 	    nmono++;
 	  }
 	  if(specDetId.stereo()){
-	    collectorstereo.push_back(new SiStripRecHit2DLocalPos(position, dummy,detId,clusters));
+	    collectorstereo.push_back(new SiStripRecHit2DLocalPos(position, error,detId,clusters));
 	    nstereo++;
 	  }
 	}

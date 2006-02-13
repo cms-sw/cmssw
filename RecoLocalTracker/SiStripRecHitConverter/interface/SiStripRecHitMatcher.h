@@ -33,7 +33,6 @@ public:
     // partnerstripdet = stereo
     edm::OwnVector<SiStripRecHit2DMatchedLocalPos> collector;
     LocalPoint position;    
-    const  LocalError dummy;
     // position of the initial and final point of the strip (RPHI cluster)
     MeasurementPoint RPHIpointini=MeasurementPoint(monoRH->cluster().front()->barycenter(),-0.5);
     MeasurementPoint RPHIpointend=MeasurementPoint(monoRH->cluster().front()->barycenter(),0.5);
@@ -69,7 +68,12 @@ public:
     LocalPoint RPHIpositiononStereoend=(partnerstripdet->surface()).toLocal(rphiglobalpointend);
     //cout<<"LocalPosition of monohit on stereodet INI: "<<RPHIpositiononStereoini.x()<<" "<<RPHIpositiononStereoini.y()<<endl;
     //cout<<"LocalPosition of monohit on stereodet END: "<<RPHIpositiononStereoend.x()<<" "<<RPHIpositiononStereoend.y()<<endl;
-    RecHitIterator seconditer;    
+    //to calculate the error:
+    LocalVector  RPHIpositiononStereoendvector=RPHIpositiononStereoend-LocalPoint(0.,0.,0.);
+    double c1=abs(sin(RPHIpositiononStereoendvector.phi())); double s1=abs(cos(RPHIpositiononStereoendvector.phi()));
+    MeasurementError errormonoRH=topol.measurementError(monoRH->localPosition(),monoRH->localPositionError());
+    double sigmap12=errormonoRH.uu()*pow(topol.localPitch(monoRH->localPosition()),2);
+    RecHitIterator seconditer;  
     for(seconditer=begin;seconditer!=end;++seconditer){
       // position of the initial and final point of the strip (STEREO cluster)
       MeasurementPoint STEREOpointini=MeasurementPoint(seconditer->cluster().front()->barycenter(),-0.5);
@@ -86,11 +90,20 @@ public:
       c(2)=m(2,2)*STEREOpositionini.y()+m(2,1)*STEREOpositionini.x();
       solution=solve(m,c);
       //cout<<"LocalPosition of matched on stereodet: "<<solution(1)<<" "<<solution(2)<<endl;
-      if(solution(2)>-(partnertopol.stripLength()/2)&&solution(2)<partnertopol.stripLength()/2){//(to be modified)
-	//then we can add it to the Rechit collection 
+      if(solution(2)>-(partnertopol.localStripLength(seconditer->localPosition())/2)&&solution(2)<partnertopol.localStripLength(seconditer->localPosition())/2){//(to be modified)
 	position=LocalPoint(solution(1),solution(2));
+	// then calculate the error
+	double c2=cos(partnertopol.stripAngle(seconditer->cluster().front()->barycenter())); double s2=sin(partnertopol.stripAngle(seconditer->cluster().front()->barycenter()));
+	MeasurementError errorstereoRH=partnertopol.measurementError(seconditer->localPosition(),seconditer->localPositionError());
+	double sigmap22=errorstereoRH.uu()*pow(partnertopol.localPitch(seconditer->localPosition()),2);
+	double invdet2=1/pow((c1*s2-c2*s1),2);
+	float xx=invdet2*(sigmap12*s2*s2+sigmap22*s1*s1);
+	float xy=-invdet2*(sigmap12+c2*s2+invdet2*sigmap22*c1*s1);
+	float yy=invdet2*(sigmap12*c2*c2+sigmap22*c1*c1);
+	LocalError error=LocalError(xx,xy,yy);
+	//...and add it to the Rechit collection 
 	//	SiStripRecHit2DLocalPos secondcluster=*seconditer;
-	collector.push_back(new SiStripRecHit2DMatchedLocalPos(position, dummy,detId,monoRH,&(*seconditer)));
+	collector.push_back(new SiStripRecHit2DMatchedLocalPos(position, error,detId,monoRH,&(*seconditer)));
       }
     }
     return collector;
