@@ -1,5 +1,5 @@
 /*
- *  $Id: DetSetVector_t.cpp,v 1.1 2006/01/27 21:20:05 paterno Exp $
+ *  $Id: DetSetVector_t.cpp,v 1.1 2006/02/07 07:01:52 wmtan Exp $
  *  CMSSW
  *
  */
@@ -11,8 +11,8 @@
 #include <ostream>
 #include <vector>
 
-#include "FWCore/EDProduct/interface/traits.h"
-#include "FWCore/EDProduct/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/traits.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
 
 using namespace edm;
 
