@@ -1,50 +1,39 @@
-#ifndef DBWRITER_H
-#define DBWRITER_H
+#ifndef COND_DBWRITER_H
+#define COND_DBWRITER_H
 #include <string>
 #include "DataSvc/Ref.h"
 #include "SealKernel/Exception.h"
-namespace pool{
-  class IFileCatalog;
-  class IDataSvc;
-  class Placement;
-}
-
+#include "CondCore/DBCommon/interface/Exception.h"
 namespace cond{
+  class DBSession;
   class DBWriter{
   public:
-    DBWriter(  const std::string& con );
-    virtual ~DBWriter();
-    /** start transaction
-     */
-    void startTransaction();
-    /** commit transaction
-     */
-    void commitTransaction();
-    //bool containerExists(const std::string& containerName);
-    //void openContainer( const std::string& containerName );
-    //void createContainer( const std::string& containerName );    
+    DBWriter( cond::DBSession& session,
+	      const std::string& containerName );
+    ~DBWriter();
     /**pin the object into the object cache
      */
     template<typename ObjType>
-    std::string write( ObjType* obj, const std::string& containerName){
-      pool::Ref<ObjType> myref(m_svc, obj);
+    std::string markWrite( ObjType* obj ){
+      pool::Ref<ObjType> myref(&(m_session.DataSvc()), obj);
       try{
-	m_placement->setContainerName(containerName);
 	myref.markWrite(*m_placement);
+	++m_counter;
+	
       }catch( const seal::Exception& er){
-	std::cout << er.what() << std::endl;    
+	throw cond::Exception( "caught seal::Exception "+ er.what() );
       }catch ( const std::exception& er ) {
-	std::cout << er.what() << std::endl;
+	throw cond::Exception( "caught std::exception "+ er.what() );
       }catch ( ... ) {
-	std::cout << "Funny error" << std::endl;
+	throw cond::Exception( "caught unknown exception ");
       }
       return myref.toString();
     }
   private:
-    const std::string m_con;
-    pool::IFileCatalog* m_cat;
-    pool::IDataSvc* m_svc;
+    cond::DBSession& m_session;
+    const std::string m_containerName;
     pool::Placement* m_placement;
+    std::string m_mappingoutput;
   };
 }
 #endif

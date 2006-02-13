@@ -7,8 +7,8 @@
 #include "SealKernel/IMessageService.h"
 #include "RelationalAccess/IAuthenticationService.h"
 #include "RelationalAccess/IRelationalService.h"
-
-cond::ServiceLoader::ServiceLoader():m_context( new seal::Context() ){
+cond::ServiceLoader::ServiceLoader(){
+  m_context=new seal::Context();
   seal::PluginManager* pm = seal::PluginManager::get();
   pm->initialise();
   m_loader = new seal::ComponentLoader( m_context );
@@ -79,8 +79,8 @@ coral::IRelationalService& cond::ServiceLoader::loadRelationalService(){
 }
 void cond::ServiceLoader::loadConnectionService(){
 }
-void cond::ServiceLoader::loadStreamingService(){
+void cond::ServiceLoader::loadBlobStreamingService(){
 }
-void cond::ServiceLoader::loadStreamingService( const std::string& componentName ){
+void cond::ServiceLoader::loadBlobStreamingService( const std::string& componentName ){
 }
 

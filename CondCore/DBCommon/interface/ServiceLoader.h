@@ -23,6 +23,7 @@ namespace cond{
   //
   class ServiceLoader{
   public:
+    /// factory methold. hand over the ownership to user;
     ServiceLoader();
     ~ServiceLoader();
     seal::IMessageService& loadMessageService( cond::MessageLevel level=cond::Error );
@@ -30,9 +31,9 @@ namespace cond{
     coral::IRelationalService& loadRelationalService();
     void loadConnectionService();
     /// load the default streaming service
-    void loadStreamingService();
+    void loadBlobStreamingService();
     /// load external streaming service
-    void loadStreamingService( const std::string& componentName );
+    void loadBlobStreamingService( const std::string& componentName );
   private:
     seal::Context* m_context;
     seal::ComponentLoader* m_loader;
