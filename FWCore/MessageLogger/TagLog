@@ -1,3 +1,6 @@
+** V01-06-01  [Mon Feb 13 23:43:24 2006]
+for tests, use namespace edmtest, not edmreftest
+
 ** V01-06-00  [Wed Feb  8 03:43:20 2006]
 Removed superfluous inter-module and pre/post event and job Loginfo messages
 
