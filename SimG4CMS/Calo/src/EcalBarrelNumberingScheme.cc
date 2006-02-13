@@ -91,7 +91,11 @@ float EcalBarrelNumberingScheme::energyInMatrix(int nCellInEta, int nCellInPhi,
   for (int ieta=startEta; ieta<startEta+nCellInEta; ieta++) {
     for (int iphi=startPhi; iphi<startPhi+nCellInPhi; iphi++) {
       
-      uint32_t index = EBDetId(ieta,iphi).rawId();
+      uint32_t index ;
+      if (iphi< 1)      { index = EBDetId(ieta,iphi+360).rawId(); }
+      else if(iphi>360) { index = EBDetId(ieta,iphi-360).rawId(); }
+      else              { index = EBDetId(ieta,iphi).rawId();     }
+
       totalEnergy   += themap[index];
       ncristals     += 1;
       if (verbosity > 2)
