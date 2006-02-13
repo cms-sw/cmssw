@@ -49,17 +49,6 @@
    <field name="branchName_" transient="true"/>
    <field name="productPtr_" transient="true"/>
  </class>
- <class name="edmtest::DummyProduct"/>
- <class name="edmtest::IntProduct"/>
- <class name="edmtest::DoubleProduct"/>
- <class name="edmtest::StringProduct"/>
- <class name="edmtest::Simple"/>
- <class name="edm::SortedCollection<edmtest::Simple, edm::StrictWeakOrdering<edmtest::Simple> >"/>
- <class name="edm::Wrapper<edmtest::DummyProduct>"/>
- <class name="edm::Wrapper<edmtest::IntProduct>"/>
- <class name="edm::Wrapper<edmtest::DoubleProduct>"/>
- <class name="edm::Wrapper<edmtest::StringProduct>"/>
- <class name="edm::Wrapper<edm::SortedCollection<edmtest::Simple, edm::StrictWeakOrdering<edmtest::Simple> > >"/>
   <class name="std::vector<bool>"/>
   <class name="edm::TriggerResults">
    <field name="bits_" transient="true"/>
