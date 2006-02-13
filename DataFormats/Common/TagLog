@@ -1,3 +1,6 @@
+** V01-02-00  [Mon Feb 13 23:28:45 2006]
+Add erase() method to RefVector
+
 ** V01-01-01  [Thu Feb  9 15:10:11 2006]
 Add const to OwnVector::operator&lt;()
 
