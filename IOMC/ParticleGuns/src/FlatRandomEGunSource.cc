@@ -1,6 +1,6 @@
 /*
- *  $Date: 2006/01/17 01:33:44 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/01/17 23:17:25 $
+ *  $Revision: 1.3 $
  *  \author Julia Yarba
  */
 
@@ -14,7 +14,9 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "FWCore/Utilities/interface/Exception.h"
+#include "IOMC/EventVertexGenerators/interface/EventVertexGeneratorFactory.h"
+
+// #include "FWCore/Utilities/interface/Exception.h"
 
 using namespace edm;
 using namespace std;
@@ -47,6 +49,11 @@ FlatRandomEGunSource::~FlatRandomEGunSource()
 bool FlatRandomEGunSource::produce(Event & e) 
 {
 
+   if ( fVerbosity > 0 )
+   {
+      cout << " FlatRandomEGunSource : Begin New Event Generation" << endl ; 
+   }
+   
    // event loop (well, another step in it...)
           
    // clean up GenEvent memory : also deletes all vtx/part in it
@@ -58,7 +65,17 @@ bool FlatRandomEGunSource::produce(Event & e)
    
    // now actualy, cook up the event from PDGTable and gun parameters
    //
-   HepMC::GenVertex* Vtx = new HepMC::GenVertex(CLHEP::HepLorentzVector(0.,0.,0.));
+
+   // 1st, primary vertex
+   //
+   HepMC::GenVertex* Vtx = generateEvtVertex() ;
+      
+   if ( fVerbosity > 0 )
+   {
+      cout << " Vtx = " << Vtx->position().x() << " " 
+                        << Vtx->position().y() << " " 
+		        << Vtx->position().z() << endl ;
+   }
 
    // loop over particles
    //
@@ -67,7 +84,8 @@ bool FlatRandomEGunSource::produce(Event & e)
        double energy = RandFlat::shoot(fMinE, fMaxE) ;
        double eta    = RandFlat::shoot(fMinEta, fMaxEta) ;
        double phi    = RandFlat::shoot(fMinPhi, fMaxPhi) ;
-       DefaultConfig::ParticleData* PData = fPDGTable->particle(HepPDT::ParticleID(abs(fPartIDs[ip]))) ;
+       DefaultConfig::ParticleData* 
+          PData = fPDGTable->particle(HepPDT::ParticleID(abs(fPartIDs[ip]))) ;
        double mass   = PData->mass().value() ;
        double mom2   = energy*energy - mass*mass ;
        double mom    = 0. ;
@@ -97,9 +115,12 @@ bool FlatRandomEGunSource::produce(Event & e)
    BProduct->addHepMCData( fEvt );
    e.put(BProduct);
     
-   // for testing purpose only
-   // fEvt->print() ;
-   // cout << " FlatRandomEGunSource : Event Generation Done " << endl;
+   if ( fVerbosity > 0 )
+   {
+      // for testing purpose only
+      fEvt->print() ;
+      cout << " FlatRandomEGunSource : Event Generation Done " << endl;
+   }
       
    return true;
 }

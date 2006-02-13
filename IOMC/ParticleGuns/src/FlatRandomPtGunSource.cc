@@ -1,6 +1,6 @@
 /*
- *  $Date: 2006/01/17 01:33:44 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/01/17 23:17:25 $
+ *  $Revision: 1.3 $
  *  \author Julia Yarba
  */
 
@@ -48,6 +48,10 @@ FlatRandomPtGunSource::~FlatRandomPtGunSource()
 bool FlatRandomPtGunSource::produce(Event &e) 
 {
 
+   if ( fVerbosity > 0 )
+   {
+      cout << " FlatRandomPtGunSource : Begin New Event Generation" << endl ; 
+   }
    // event loop (well, another step in it...)
           
    // clean up GenEvent memory : also deletes all vtx/part in it
@@ -59,7 +63,17 @@ bool FlatRandomPtGunSource::produce(Event &e)
    
    // now actualy, cook up the event from PDGTable and gun parameters
    //
-   HepMC::GenVertex* Vtx = new HepMC::GenVertex(CLHEP::HepLorentzVector(0.,0.,0.));
+   // 1st, primary vertex
+   //
+   // HepMC::GenVertex* Vtx = new HepMC::GenVertex(CLHEP::HepLorentzVector(0.,0.,0.));
+   HepMC::GenVertex* Vtx = generateEvtVertex() ;
+      
+   if ( fVerbosity > 0 )
+   {
+      cout << " Vtx = " << Vtx->position().x() << " " 
+                        << Vtx->position().y() << " " 
+		        << Vtx->position().z() << endl ;
+   }
 
    // loop over particles
    //
@@ -92,9 +106,12 @@ bool FlatRandomPtGunSource::produce(Event &e)
    BProduct->addHepMCData( fEvt );
    e.put(BProduct);
     
-   // for testing purpose only
-   // fEvt->print() ;
-   // cout << " FlatRandomPtGunSource : Event Generation Done " << endl;
+   if ( fVerbosity > 0 )
+   {
+      // for testing purpose only
+      fEvt->print() ;
+      cout << " FlatRandomPtGunSource : Event Generation Done " << endl;
+   }
 
    return true;
 }

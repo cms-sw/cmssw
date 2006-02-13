@@ -3,7 +3,7 @@
 
 #include <memory>
 
-class SimActivityRegistry;
+// class SimActivityRegistry;
 namespace edm{
   class ParameterSet;
 }
@@ -13,8 +13,9 @@ class EventVertexGeneratorMakerBase
    public:
       EventVertexGeneratorMakerBase() {}
       virtual ~EventVertexGeneratorMakerBase() {}
-      virtual std::auto_ptr<BaseEventVertexGenerator> make(const edm::ParameterSet&,
-					      SimActivityRegistry&) const = 0;
+      //virtual std::auto_ptr<BaseEventVertexGenerator> make(const edm::ParameterSet&,
+      //					      SimActivityRegistry&) const = 0;
+      virtual std::auto_ptr<BaseEventVertexGenerator> make(const edm::ParameterSet& ) = 0 ;
 };
 
 #endif

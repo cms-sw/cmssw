@@ -1,6 +1,7 @@
 <use name=boost>
 <use name=FWCore/Framework>
 <use name=SimDataFormats/HepMCProduct>
+<use name=IOMC/EventVertexGenerators>
 <use name=clhep> 
 <flags SEAL_PLUGIN_NAME="IOMCParticleGuns">
 <export>
@@ -8,6 +9,7 @@
  <use name=boost>
  <use name=FWCore/Framework>
  <use name=SimDataFormats/HepMCProduct>
+ <use name=IOMC/EventVertexGenerators>
  <use name=clhep> 
 </export>
 

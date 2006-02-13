@@ -17,6 +17,12 @@
 
 #include "FWCore/Framework/interface/GeneratedInputSource.h"
 
+#include <memory>
+#include "boost/shared_ptr.hpp"
+
+// fwd declaration(s)
+class BaseEventVertexGenerator;
+
 namespace edm
 {
   
@@ -27,6 +33,8 @@ namespace edm
     BaseFlatGunSource(const ParameterSet &, const InputSourceDescription&  );
     // BaseFlatGunSource( const ParameterSet& ) ;
     virtual ~BaseFlatGunSource();
+    
+    HepMC::GenVertex* generateEvtVertex() const ;
 
   private:
    
@@ -52,6 +60,10 @@ namespace edm
     std::string      fPDGTableName ; 
     DefaultConfig::ParticleDataTable* fPDGTable;
         	    	
+    std::auto_ptr<BaseEventVertexGenerator> fEventVertexGenerator;
+    
+    int              fVerbosity ;
+    
   };
 } 
 
