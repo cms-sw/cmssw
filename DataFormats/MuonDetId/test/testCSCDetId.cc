@@ -3,11 +3,11 @@
    test file for CSCDetId
 
    \author Stefano ARGIRO
-   \version $Id: testCSCDetId.cc,v 1.2 2005/10/24 15:56:19 namapane Exp $
+   \version $Id: testCSCDetId.cc,v 1.3 2005/11/07 13:46:57 ptc Exp $
    \date 27 Jul 2005
 */
 
-static const char CVSId[] = "$Id: testCSCDetId.cc,v 1.2 2005/10/24 15:56:19 namapane Exp $";
+static const char CVSId[] = "$Id: testCSCDetId.cc,v 1.3 2005/11/07 13:46:57 ptc Exp $";
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
@@ -132,4 +132,6 @@ void testCSCDetId::testStatic(){
   CPPUNIT_ASSERT(CSCDetId::ring(id2)    == ir );
   CPPUNIT_ASSERT(CSCDetId::chamber(id2) == ic );
   CPPUNIT_ASSERT(CSCDetId::layer(id2)   == il );
+
+  CPPUNIT_ASSERT(CSCDetId::chamber(id3) == ic );
 }
