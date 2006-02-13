@@ -18,7 +18,7 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-#include "IOMC/EventVertexGenerators/interface/EventVertexGeneratorFactory.h"
+// #include "IOMC/EventVertexGenerators/interface/EventVertexGeneratorFactory.h"
 
 #include "SimG4Core/Notification/interface/SimG4Exception.h"
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
@@ -116,7 +116,7 @@ RunManager::RunManager(edm::ParameterSet const & p)
       m_RunNumber(p.getUntrackedParameter<int>("RunNumber",1)),
       m_pField(p.getParameter<edm::ParameterSet>("MagneticField")),
       m_pGenerator(p.getParameter<edm::ParameterSet>("Generator")),
-      m_pVertexGenerator(p.getParameter<edm::ParameterSet>("VertexGenerator")),
+      // m_pVertexGenerator(p.getParameter<edm::ParameterSet>("VertexGenerator")),
       m_pPhysics(p.getParameter<edm::ParameterSet>("Physics")),
       m_pRunAction(p.getParameter<edm::ParameterSet>("RunAction")),      
       m_pEventAction(p.getParameter<edm::ParameterSet>("EventAction")),
@@ -184,6 +184,7 @@ void RunManager::initG4(const edm::EventSetup & es)
 	      << " Tk type Producers, and " << m_sensCaloDets.size() 
 	      << " Calo type producers " << std::endl;
 
+/*
     std::auto_ptr<EventVertexGeneratorMakerBase> vertexGeneratorMaker(
       EventVertexGeneratorFactory::get()->create
       (m_pVertexGenerator.getParameter<std::string> ("type")) );
@@ -192,6 +193,7 @@ void RunManager::initG4(const edm::EventSetup & es)
     }
     m_eventVertexGenerator = vertexGeneratorMaker->make(m_pVertexGenerator,m_registry);
     if (m_eventVertexGenerator.get()==0) throw SimG4Exception("EventVertexGenerator construction failed!");
+*/
 
     m_generator = new Generator(m_pGenerator);
     m_primaryTransformer = new PrimaryTransformer();
