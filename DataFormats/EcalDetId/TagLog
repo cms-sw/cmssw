@@ -1,3 +1,6 @@
+** V02-02-00  [Mon Feb 13 14:31:35 2006]
+Small bug in EBDetId
+
 ** V02-01-00  [Sat Feb 11 14:24:52 2006]
 Added exceptions for methods not yet implemented
 
