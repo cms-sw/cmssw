@@ -12,8 +12,8 @@
 #include "FWCore/Framework/interface/InputSourceDescription.h"
 #include "DataFormats/Common/interface/ProductRegistry.h"
 #include "FWCore/Framework/src/VectorInputSourceFactory.h"
-#include "FWCore/Integration/test/OtherThingCollection.h"
-#include "FWCore/Integration/test/ThingCollection.h"
+#include "DataFormats/TestObjects/interface/OtherThingCollection.h"
+#include "DataFormats/TestObjects/interface/ThingCollection.h"
 
 using namespace std;
 
@@ -24,8 +24,8 @@ namespace edm {
     // make secondary input source
     secInput_ = makeSecInput(ps);
 
-    produces<edmreftest::ThingCollection>();
-    produces<edmreftest::OtherThingCollection>("testUserTag");
+    produces<edmtest::ThingCollection>();
+    produces<edmtest::OtherThingCollection>("testUserTag");
   }
 
   // Virtual destructor needed.
@@ -35,7 +35,7 @@ namespace edm {
   // Functions that get called by framework every event
   void SecondaryProducer::produce(edm::Event& e, const edm::EventSetup&) { 
 
-    typedef edmreftest::ThingCollection TC;
+    typedef edmtest::ThingCollection TC;
     typedef edm::Wrapper<TC> WTC;
 
     VectorInputSource::EventPrincipalVector result;
