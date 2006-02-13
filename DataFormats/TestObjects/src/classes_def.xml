@@ -1,0 +1,22 @@
+<lcgdict>
+ <class name="edmtest::DummyProduct"/>
+ <class name="edmtest::IntProduct"/>
+ <class name="edmtest::DoubleProduct"/>
+ <class name="edmtest::StringProduct"/>
+ <class name="edmtest::Simple"/>
+ <class name="edm::SortedCollection<edmtest::Simple, edm::StrictWeakOrdering<edmtest::Simple> >"/>
+ <class name="edm::Wrapper<edmtest::DummyProduct>"/>
+ <class name="edm::Wrapper<edmtest::IntProduct>"/>
+ <class name="edm::Wrapper<edmtest::DoubleProduct>"/>
+ <class name="edm::Wrapper<edmtest::StringProduct>"/>
+ <class name="edm::Wrapper<edm::SortedCollection<edmtest::Simple, edm::StrictWeakOrdering<edmtest::Simple> > >"/>
+ <class name="edmtest::Thing"/>
+ <class name="edmtest::OtherThing"/>
+ <class name="std::vector<edmtest::Thing>"/>
+ <class name="std::vector<edmtest::OtherThing>"/>
+ <class name="edm::RefProd<std::vector<edmtest::Thing> >"/>
+ <class name="edm::Ref<std::vector<edmtest::Thing>, edmtest::Thing >"/>
+ <class name="edm::RefVector<std::vector<edmtest::Thing>, edmtest::Thing >"/>
+ <class name="edm::Wrapper<std::vector<edmtest::Thing> >"/>
+ <class name="edm::Wrapper<std::vector<edmtest::OtherThing> >"/>
+</lcgdict>
