@@ -34,7 +34,7 @@ EBDetId::EBDetId(int index1, int index2, int mode)  throw(std::runtime_error)
   }
 
   if (crystal_ieta < -MAX_IETA || crystal_ieta == 0 || crystal_ieta > MAX_IETA ||
-      crystal_iphi < MIN_IPHI || crystal_ieta > MAX_IPHI) {
+      crystal_iphi < MIN_IPHI || crystal_iphi > MAX_IPHI) {
     std::cout << "crystal_eta " << crystal_ieta << "crystal_phi " << crystal_iphi << std::endl;
     throw(std::runtime_error("EBDetId:  Cannot create object.  Indexes out of bounds."));
   }
