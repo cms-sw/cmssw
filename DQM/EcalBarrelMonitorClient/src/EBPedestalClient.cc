@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2006/02/12 13:02:33 $
- * $Revision: 1.64 $
+ * $Date: 2006/02/12 17:35:07 $
+ * $Revision: 1.65 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1006,149 +1006,145 @@ void EBPedestalClient::analyze(void){
 
         }
 
-        float xval;
-        float yval;
-        float zval;
+        float x3val01;
+        float x3val02;
+        float x3val03;
+
+        float y3val01;
+        float y3val02;
+        float y3val03;
+
+        float z3val01;
+        float z3val02;
+        float z3val03;
 
         if ( s01_[ism-1] ) s01_[ism-1]->SetBinContent(s01_[ism-1]->GetBin(ie, ip), -999.);
         if ( s02_[ism-1] ) s02_[ism-1]->SetBinContent(s02_[ism-1]->GetBin(ie, ip), -999.);
         if ( s03_[ism-1] ) s03_[ism-1]->SetBinContent(s03_[ism-1]->GetBin(ie, ip), -999.);
 
+        if ( ie >= 2 && ie <= 84 && ip >= 2 && ip <= 19 ) {
+
+          x3val01 = 0.;
+          x3val02 = 0.; 
+          x3val03 = 0.; 
+          for ( int i = -1; i <= +1; i++ ) {
+            for ( int j = -1; j <= +1; j++ ) {
+
+              if ( h01_[ism-1] ) x3val01 = x3val01 + h01_[ism-1]->GetBinError(h01_[ism-1]->GetBin(ie+i, ip+j)) *
+                                                     h01_[ism-1]->GetBinError(h01_[ism-1]->GetBin(ie+i, ip+j));
+
+              if ( h02_[ism-1] ) x3val02 = x3val02 + h02_[ism-1]->GetBinError(h02_[ism-1]->GetBin(ie+i, ip+j)) *
+                                                     h02_[ism-1]->GetBinError(h02_[ism-1]->GetBin(ie+i, ip+j));
+ 
+              if ( h03_[ism-1] ) x3val03 = x3val03 + h03_[ism-1]->GetBinError(h03_[ism-1]->GetBin(ie+i, ip+j)) *
+                                                     h03_[ism-1]->GetBinError(h03_[ism-1]->GetBin(ie+i, ip+j));
+ 
+            }
+          }
+          x3val01 = x3val01 / (9.*9.);
+          x3val02 = x3val02 / (9.*9.);
+          x3val03 = x3val03 / (9.*9.);
+
+          y3val01 = 0.;
+          if ( j01_[ism-1] ) y3val01 = j01_[ism-1]->GetBinError(j01_[ism-1]->GetBin(ie, ip)) *
+                                       j01_[ism-1]->GetBinError(j01_[ism-1]->GetBin(ie, ip));
+
+          y3val02 = 0.;
+          if ( j02_[ism-1] ) y3val02 = j02_[ism-1]->GetBinError(j02_[ism-1]->GetBin(ie, ip)) *
+                                       j02_[ism-1]->GetBinError(j02_[ism-1]->GetBin(ie, ip));
+
+          y3val03 = 0.;
+          if ( j03_[ism-1] ) y3val03 = j03_[ism-1]->GetBinError(j03_[ism-1]->GetBin(ie, ip)) *
+                                       j03_[ism-1]->GetBinError(j03_[ism-1]->GetBin(ie, ip));
+
+          z3val01 = -999.;
+          if ( x3val01 != 0 && y3val01 != 0 ) z3val01 = sqrt(abs(x3val01 - y3val01));
+          if ( (x3val01 - y3val01) < 0 ) z3val01 = -z3val01;
+
+          if ( s01_[ism-1] ) s01_[ism-1]->SetBinContent(s01_[ism-1]->GetBin(ie, ip), z3val01);
+
+          z3val02 = -999.;
+          if ( x3val02 != 0 && y3val02 != 0 ) z3val02 = sqrt(abs(x3val02 - y3val02));
+          if ( (x3val02 - y3val02) < 0 ) z3val02 = -z3val02;
+          
+          if ( s02_[ism-1] ) s02_[ism-1]->SetBinContent(s02_[ism-1]->GetBin(ie, ip), z3val02);
+
+          z3val03 = -999.;
+          if ( x3val03 != 0 && y3val03 != 0 ) z3val03 = sqrt(abs(x3val03 - y3val03));
+          if ( (x3val03 - y3val03) < 0 ) z3val03 = -z3val03;
+          
+          if ( s03_[ism-1] ) s03_[ism-1]->SetBinContent(s03_[ism-1]->GetBin(ie, ip), z3val03);
+
+        }
+
+        float x5val01;
+        float x5val02;
+        float x5val03;
+
+        float y5val01;
+        float y5val02;
+        float y5val03;
+
+        float z5val01;
+        float z5val02;
+        float z5val03;
+
         if ( t01_[ism-1] ) t01_[ism-1]->SetBinContent(t01_[ism-1]->GetBin(ie, ip), -999.);
         if ( t02_[ism-1] ) t02_[ism-1]->SetBinContent(t02_[ism-1]->GetBin(ie, ip), -999.);
         if ( t03_[ism-1] ) t03_[ism-1]->SetBinContent(t03_[ism-1]->GetBin(ie, ip), -999.);
 
-        if ( ie >= 2 && ie <= 84 && ip >= 2 && ip <= 19 ) {
-
-          xval = 0.;
-          for ( int i = -1; i <= +1; i++ ) {
-            for ( int j = -1; j <= +1; j++ ) {
-
-              if ( h01_[ism-1] ) xval = xval + h01_[ism-1]->GetBinError(h01_[ism-1]->GetBin(ie+i, ip+j)) *
-                                               h01_[ism-1]->GetBinError(h01_[ism-1]->GetBin(ie+i, ip+j));
-
-            }
-          }
-          xval = xval / (9.*9.);
-
-          yval = 0.;
-          if ( j01_[ism-1] ) yval = j01_[ism-1]->GetBinError(j01_[ism-1]->GetBin(ie, ip)) *
-                                    j01_[ism-1]->GetBinError(j01_[ism-1]->GetBin(ie, ip));
-
-          zval = 0.;
-          if ( xval != 0 && yval != 0 ) zval = sqrt(abs(xval - yval));
-          if ( (xval - yval) < 0 ) zval = -zval;
-
-          if ( s01_[ism-1] ) s01_[ism-1]->SetBinContent(s01_[ism-1]->GetBin(ie, ip), zval);
-
-          xval = 0.; 
-          for ( int i = -1; i <= +1; i++ ) {
-            for ( int j = -1; j <= +1; j++ ) {
- 
-              if ( h02_[ism-1] ) xval = xval + h02_[ism-1]->GetBinError(h02_[ism-1]->GetBin(ie+i, ip+j)) *
-                                               h02_[ism-1]->GetBinError(h02_[ism-1]->GetBin(ie+i, ip+j));
- 
-            } 
-          } 
-          xval = xval / (9.*9.);
-
-          yval = 0.;
-          if ( j02_[ism-1] ) yval = j02_[ism-1]->GetBinError(j02_[ism-1]->GetBin(ie, ip)) *
-                                    j02_[ism-1]->GetBinError(j02_[ism-1]->GetBin(ie, ip));
-
-          zval = 0.;
-          if ( xval != 0 && yval != 0 ) zval = sqrt(abs(xval - yval));
-          if ( (xval - yval) < 0 ) zval = -zval;
-          
-          if ( s02_[ism-1] ) s02_[ism-1]->SetBinContent(s02_[ism-1]->GetBin(ie, ip), zval);
-
-          xval = 0.; 
-          for ( int i = -1; i <= +1; i++ ) {
-            for ( int j = -1; j <= +1; j++ ) {
- 
-              if ( h03_[ism-1] ) xval = xval + h03_[ism-1]->GetBinError(h03_[ism-1]->GetBin(ie+i, ip+j)) *
-                                               h03_[ism-1]->GetBinError(h03_[ism-1]->GetBin(ie+i, ip+j));
- 
-            } 
-          } 
-          xval = xval / (9.*9.);
-
-          yval = 0.;
-          if ( j03_[ism-1] ) yval = j03_[ism-1]->GetBinError(j03_[ism-1]->GetBin(ie, ip)) *
-                                    j03_[ism-1]->GetBinError(j03_[ism-1]->GetBin(ie, ip));
-
-          zval = 0.;
-          if ( xval != 0 && yval != 0 ) zval = sqrt(abs(xval - yval));
-          if ( (xval - yval) < 0 ) zval = -zval;
-          
-          if ( s03_[ism-1] ) s03_[ism-1]->SetBinContent(s03_[ism-1]->GetBin(ie, ip), zval);
-
-        }
-
         if ( ie >= 3 && ie <= 83 && ip >= 3 && ip <= 18 ) {
 
-          xval = 0.;
+          x5val01 = 0.;
+          x5val02 = 0.; 
+          x5val03 = 0.; 
           for ( int i = -2; i <= +2; i++ ) {
             for ( int j = -2; j <= +2; j++ ) {
 
-              if ( h01_[ism-1] ) xval = xval + h01_[ism-1]->GetBinError(h01_[ism-1]->GetBin(ie+i, ip+j)) *
-                                               h01_[ism-1]->GetBinError(h01_[ism-1]->GetBin(ie+i, ip+j));
+              if ( h01_[ism-1] ) x5val01 = x5val01 + h01_[ism-1]->GetBinError(h01_[ism-1]->GetBin(ie+i, ip+j)) *
+                                                     h01_[ism-1]->GetBinError(h01_[ism-1]->GetBin(ie+i, ip+j));
 
+              if ( h02_[ism-1] ) x5val02 = x5val02 + h02_[ism-1]->GetBinError(h02_[ism-1]->GetBin(ie+i, ip+j)) *
+                                                     h02_[ism-1]->GetBinError(h02_[ism-1]->GetBin(ie+i, ip+j));
+ 
+              if ( h03_[ism-1] ) x5val03 = x5val03 + h03_[ism-1]->GetBinError(h03_[ism-1]->GetBin(ie+i, ip+j)) *
+                                                     h03_[ism-1]->GetBinError(h03_[ism-1]->GetBin(ie+i, ip+j));
+ 
             }
           }
-          xval = xval / (25.*25.);
+          x5val01 = x5val01 / (25.*25.);
+          x5val02 = x5val02 / (25.*25.);
+          x5val03 = x5val03 / (25.*25.);
 
-          yval = 0.;
-          if ( k01_[ism-1] ) yval = k01_[ism-1]->GetBinError(k01_[ism-1]->GetBin(ie, ip)) *
-                                    k01_[ism-1]->GetBinError(k01_[ism-1]->GetBin(ie, ip));
+          y5val01 = 0.;
+          if ( k01_[ism-1] ) y5val01 = k01_[ism-1]->GetBinError(k01_[ism-1]->GetBin(ie, ip)) *
+                                       k01_[ism-1]->GetBinError(k01_[ism-1]->GetBin(ie, ip));
 
-          zval = 0.;
-          if ( xval != 0 && yval != 0 ) zval = sqrt(abs(xval - yval));
-          if ( (xval - yval) < 0 ) zval = -zval;
+          y5val02 = 0.;
+          if ( k02_[ism-1] ) y5val02 = k02_[ism-1]->GetBinError(k02_[ism-1]->GetBin(ie, ip)) *
+                                       k02_[ism-1]->GetBinError(k02_[ism-1]->GetBin(ie, ip));
 
-          if ( t01_[ism-1] ) t01_[ism-1]->SetBinContent(t01_[ism-1]->GetBin(ie, ip), zval);
+          y5val03 = 0.;
+          if ( k03_[ism-1] ) y5val03 = k03_[ism-1]->GetBinError(k03_[ism-1]->GetBin(ie, ip)) *
+                                       k03_[ism-1]->GetBinError(k03_[ism-1]->GetBin(ie, ip));
 
-          xval = 0.; 
-          for ( int i = -2; i <= +2; i++ ) {
-            for ( int j = -2; j <= +2; j++ ) {
- 
-              if ( h02_[ism-1] ) xval = xval + h02_[ism-1]->GetBinError(h02_[ism-1]->GetBin(ie+i, ip+j)) *
-                                               h02_[ism-1]->GetBinError(h02_[ism-1]->GetBin(ie+i, ip+j));
- 
-            } 
-          } 
-          xval = xval / (25.*25.);
+          z5val01 = -999.;
+          if ( x5val01 != 0 && y5val01 != 0 ) z5val01 = sqrt(abs(x5val01 - y5val01));
+          if ( (x5val01 - y5val01) < 0 ) z5val01 = -z5val01;
 
-          yval = 0.;
-          if ( k02_[ism-1] ) yval = k02_[ism-1]->GetBinError(k02_[ism-1]->GetBin(ie, ip)) *
-                                    k02_[ism-1]->GetBinError(k02_[ism-1]->GetBin(ie, ip));
+          if ( t01_[ism-1] ) t01_[ism-1]->SetBinContent(t01_[ism-1]->GetBin(ie, ip), z5val01);
 
-          zval = 0.;
-          if ( xval != 0 && yval != 0 ) zval = sqrt(abs(xval - yval));
-          if ( (xval - yval) < 0 ) zval = -zval;
+          z5val02 = -999.;
+          if ( x5val02 != 0 && y5val02 != 0 ) z5val02 = sqrt(abs(x5val02 - y5val02));
+          if ( (x5val02 - y5val02) < 0 ) z5val02 = -z5val02;
           
-          if ( t02_[ism-1] ) t02_[ism-1]->SetBinContent(t02_[ism-1]->GetBin(ie, ip), zval);
+          if ( t02_[ism-1] ) t02_[ism-1]->SetBinContent(t02_[ism-1]->GetBin(ie, ip), z5val02);
 
-          xval = 0.; 
-          for ( int i = -2; i <= +2; i++ ) {
-            for ( int j = -2; j <= +2; j++ ) {
- 
-              if ( h03_[ism-1] ) xval = xval + h03_[ism-1]->GetBinError(h03_[ism-1]->GetBin(ie+i, ip+j)) *
-                                               h03_[ism-1]->GetBinError(h03_[ism-1]->GetBin(ie+i, ip+j));
- 
-            } 
-          } 
-          xval = xval / (25.*25.);
-
-          yval = 0.;
-          if ( k03_[ism-1] ) yval = k03_[ism-1]->GetBinError(k03_[ism-1]->GetBin(ie, ip)) *
-                                    k03_[ism-1]->GetBinError(k03_[ism-1]->GetBin(ie, ip));
-
-          zval = 0.;
-          if ( xval != 0 && yval != 0 ) zval = sqrt(abs(xval - yval));
-          if ( (xval - yval) < 0 ) zval = -zval;
+          z5val03 = -999.;
+          if ( x5val03 != 0 && y5val03 != 0 ) z5val03 = sqrt(abs(x5val03 - y5val03));
+          if ( (x5val03 - y5val03) < 0 ) z5val03 = -z5val03;
           
-          if ( t03_[ism-1] ) t03_[ism-1]->SetBinContent(t03_[ism-1]->GetBin(ie, ip), zval);
+          if ( t03_[ism-1] ) t03_[ism-1]->SetBinContent(t03_[ism-1]->GetBin(ie, ip), z5val03);
 
         }
 
