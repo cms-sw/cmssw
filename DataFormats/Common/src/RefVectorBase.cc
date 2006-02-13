@@ -52,4 +52,9 @@ namespace edm {
   operator!=(RefVectorBase const& lhs, RefVectorBase const& rhs) {
     return !(lhs == rhs);
   }
+
+  /// erase() an element from the vector
+  RefVectorBase::RefItems::iterator  RefVectorBase::eraseAtIndex(RefItems::size_type index) {
+    return items_.erase(items_.begin() + index);
+  }
 }

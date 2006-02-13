@@ -5,7 +5,7 @@
   
 RefVectorBase: Base class for a vector of interproduct references.
 
-$Id: RefVectorBase.h,v 1.14 2005/12/16 00:37:43 wmtan Exp $
+$Id: RefVectorBase.h,v 1.1 2006/02/07 07:01:50 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -52,6 +52,9 @@ namespace edm {
 
     /// Reserve space for vector
     void reserve(size_type n) {items_.reserve(n);}
+
+    /// erase an element from the vector 
+    RefItems::iterator eraseAtIndex(RefItems::size_type index);
 
   private:
     RefCore product_;
