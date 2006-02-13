@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding="UTF-8"?>
 <!DOCTYPE Mapping SYSTEM "InMemory">
-<Mapping version="EcalPedestals-1.0" >
-<Class name="EcalPedestals" >
+<Mapping version="EcalWeight-1.0" >
+<Class name="EcalWeight" >
 </Class >
 </Mapping >
