@@ -11,9 +11,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2006/01/30 22:23:30 $
-// $Revision: 1.2 $
+// $Author: stevew $
+// $Date: 2006/02/08 02:06:48 $
+// $Revision: 1.3 $
 //
 
 #include <vector>
@@ -92,12 +92,12 @@ void RoadSearchSeedFinderAlgorithm::run(const edm::Handle<SiStripRecHit2DMatched
 	    SiStripRecHit2DMatchedLocalPosCollection::Range innerSeedDetHits = input->get(innerRingDetId->second.rawId());
       
 	    // loop over inner dethits
-	    for ( SiStripRecHit2DMatchedLocalPosCollection::ContainerIterator innerSeedDetHit = innerSeedDetHits.first;
+	    for ( SiStripRecHit2DMatchedLocalPosCollection::ContainerConstIterator innerSeedDetHit = innerSeedDetHits.first;
 		  innerSeedDetHit != innerSeedDetHits.second; ++innerSeedDetHit ) {
 
 	      SiStripRecHit2DLocalPosCollection::Range outerSeedDetHits = input2->get(outerRingDetId->second.rawId());
 
-	      for ( SiStripRecHit2DLocalPosCollection::ContainerIterator outerSeedDetHit = outerSeedDetHits.first;
+	      for ( SiStripRecHit2DLocalPosCollection::ContainerConstIterator outerSeedDetHit = outerSeedDetHits.first;
 		    outerSeedDetHit != outerSeedDetHits.second; ++outerSeedDetHit ) {
 
 		GlobalPoint inner = tracker->idToDet(innerSeedDetHit->geographicalId())->surface().toGlobal(innerSeedDetHit->localPosition());

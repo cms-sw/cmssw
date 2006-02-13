@@ -47,9 +47,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2006/01/30 22:33:28 $
-// $Revision: 1.2 $
+// $Author: stevew $
+// $Date: 2006/02/10 22:54:52 $
+// $Revision: 1.3 $
 //
 
 #include <vector>
@@ -283,7 +283,7 @@ void RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloud(DetId id, const SiStrip
 
   const SiStripRecHit2DLocalPosCollection::Range recHitRange = inputRecHits->get(id.rawId());
 
-  for ( SiStripRecHit2DLocalPosCollection::ContainerIterator recHitIterator = recHitRange.first; recHitIterator != recHitRange.second; ++recHitIterator) {
+  for ( SiStripRecHit2DLocalPosCollection::ContainerConstIterator recHitIterator = recHitRange.first; recHitIterator != recHitRange.second; ++recHitIterator) {
     SiStripRecHit2DLocalPos *recHit = &(*recHitIterator);
 
     unsigned int maxDetHitsInCloudPerDetId = conf_.getParameter<int>("MaxDetHitsInCloudPerDetId");
