@@ -5,7 +5,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Integration/test/OtherThingAlgorithm.h"
 
-namespace edmreftest {
+namespace edmtest {
   class OtherThingProducer : public edm::EDProducer {
   public:
 

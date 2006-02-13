@@ -12,7 +12,7 @@
 #include "FWCore/Framework/interface/GeneratedInputSource.h"
 #include "FWCore/Integration/test/ThingAlgorithm.h"
 
-namespace edmreftest {
+namespace edmtest {
   class ThingSource : public edm::GeneratedInputSource {
   public:
 

@@ -1,8 +1,0 @@
-<use name=boost>
-<use name=DataFormats/Common>
-<export>
- <lib name=FWCoreIntegration>
- <use name=boost>
- <use name=DataFormats/Common>
-</export>
-

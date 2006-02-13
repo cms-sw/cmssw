@@ -4,9 +4,9 @@
 /** \class ThingAlgorithm
  *
  ************************************************************/
-#include "FWCore/Integration/test/ThingCollectionfwd.h"
+#include "DataFormats/TestObjects/interface/ThingCollectionfwd.h"
 
-namespace edmreftest {
+namespace edmtest {
   class ThingAlgorithm {
   public:
     ThingAlgorithm() : theDebugLevel(0) {}

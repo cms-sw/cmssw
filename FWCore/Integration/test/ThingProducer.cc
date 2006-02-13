@@ -1,9 +1,9 @@
 #include "FWCore/Integration/test/ThingProducer.h"
-#include "FWCore/Integration/test/ThingCollection.h"
+#include "DataFormats/TestObjects/interface/ThingCollection.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-namespace edmreftest {
+namespace edmtest {
   ThingProducer::ThingProducer(edm::ParameterSet const&): alg_() {
     produces<ThingCollection>();
   }
@@ -25,5 +25,5 @@ namespace edmreftest {
     e.put(result);
   }
 }
-using edmreftest::ThingProducer;
+using edmtest::ThingProducer;
 DEFINE_FWK_MODULE(ThingProducer)

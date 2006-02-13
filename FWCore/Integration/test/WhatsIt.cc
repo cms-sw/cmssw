@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 13:53:00 EDT 2005
-// $Id: WhatsIt.cc,v 1.2 2005/07/14 21:57:26 wmtan Exp $
+// $Id: WhatsIt.cc,v 1.1 2005/10/15 01:46:18 wmtan Exp $
 //
 
 // system include files
@@ -18,4 +18,4 @@
 
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 
-EVENTSETUP_DATA_REG(edmreftest::WhatsIt);
+EVENTSETUP_DATA_REG(edmtest::WhatsIt);

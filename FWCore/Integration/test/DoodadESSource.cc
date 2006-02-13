@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 14:39:39 EDT 2005
-// $Id: DoodadESSource.cc,v 1.7 2005/10/03 23:23:58 chrjones Exp $
+// $Id: DoodadESSource.cc,v 1.8 2005/10/15 01:46:18 wmtan Exp $
 //
 
 // system include files
@@ -22,7 +22,7 @@
 #include "FWCore/Integration/test/GadgetRcd.h"
 #include "FWCore/Integration/test/Doodad.h"
 
-namespace edmreftest {
+namespace edmtest {
 class DoodadESSource :
    public edm::EventSetupRecordIntervalFinder, 
    public edm::ESProducer
@@ -101,7 +101,7 @@ DoodadESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
 // static member functions
 //
 }
-using namespace edmreftest;
+using namespace edmtest;
 
 DEFINE_FWK_EVENTSETUP_SOURCE(DoodadESSource)
 

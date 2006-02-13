@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 19:13:25 EDT 2005
-// $Id: WhatsItAnalyzer.cc,v 1.6 2005/10/15 01:46:18 wmtan Exp $
+// $Id: WhatsItAnalyzer.cc,v 1.7 2005/12/16 17:27:21 chrjones Exp $
 //
 //
 
@@ -40,7 +40,7 @@
 // class decleration
 //
 
-namespace edmreftest {
+namespace edmtest {
 
 class WhatsItAnalyzer : public edm::EDAnalyzer {
    public:
@@ -96,6 +96,6 @@ WhatsItAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iS
 }
 
 }
-using namespace edmreftest;
+using namespace edmtest;
 //define this as a plug-in
 DEFINE_FWK_MODULE(WhatsItAnalyzer)

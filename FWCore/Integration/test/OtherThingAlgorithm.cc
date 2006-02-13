@@ -1,11 +1,11 @@
 #include "FWCore/Integration/test/OtherThingAlgorithm.h"
-#include "FWCore/Integration/test/OtherThing.h"
-#include "FWCore/Integration/test/OtherThingCollection.h"
-#include "FWCore/Integration/test/ThingCollection.h"
+#include "DataFormats/TestObjects/interface/OtherThing.h"
+#include "DataFormats/TestObjects/interface/OtherThingCollection.h"
+#include "DataFormats/TestObjects/interface/ThingCollection.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Handle.h"
 
-namespace edmreftest {
+namespace edmtest {
   void OtherThingAlgorithm::run(const edm::Event &e, OtherThingCollection & otherThingCollection) {
     edm::Handle<ThingCollection> things;
     e.getByLabel("Thing", things);
@@ -15,7 +15,10 @@ namespace edmreftest {
       tc.refProd = edm::RefProd<ThingCollection>(things);
       tc.ref = edm::Ref<ThingCollection>(things, i);
       tc.refVec.push_back(tc.ref);
+      tc.refVec.push_back(tc.ref);
       tc.refVec.push_back(edm::Ref<ThingCollection>(things, 19-i));
+      edm::RefVector<ThingCollection>::iterator ri = tc.refVec.begin();
+      tc.refVec.erase(ri);
       otherThingCollection.push_back(tc);
     }
   }

@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 14:33:04 EDT 2005
-// $Id: DoodadESProducer.cc,v 1.7 2005/10/15 01:46:18 wmtan Exp $
+// $Id: DoodadESProducer.cc,v 1.1 2005/12/16 17:26:57 chrjones Exp $
 //
 //
 
@@ -35,7 +35,7 @@
 //
 // class decleration
 //
-namespace edmreftest {
+namespace edmtest {
 
 class DoodadESProducer : public edm::ESProducer {
    public:
@@ -87,7 +87,7 @@ DoodadESProducer::~DoodadESProducer()
 DoodadESProducer::ReturnType
 DoodadESProducer::produce(const GadgetRcd& iRecord)
 {
-   using namespace edmreftest;
+   using namespace edmtest;
 
    std::auto_ptr<Doodad> pDoodad(new Doodad) ;
 
@@ -97,6 +97,6 @@ DoodadESProducer::produce(const GadgetRcd& iRecord)
 }
 }
 
-using namespace edmreftest;
+using namespace edmtest;
 //define this as a plug-in
 DEFINE_FWK_EVENTSETUP_MODULE(DoodadESProducer)

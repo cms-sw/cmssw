@@ -12,7 +12,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Integration/test/ThingAlgorithm.h"
 
-namespace edmreftest {
+namespace edmtest {
   class ThingProducer : public edm::EDProducer {
   public:
 

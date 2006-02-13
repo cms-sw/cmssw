@@ -1,8 +1,8 @@
 #include "FWCore/Integration/test/ThingAlgorithm.h"
-#include "FWCore/Integration/test/Thing.h"
-#include "FWCore/Integration/test/ThingCollection.h"
+#include "DataFormats/TestObjects/interface/Thing.h"
+#include "DataFormats/TestObjects/interface/ThingCollection.h"
 
-namespace edmreftest {
+namespace edmtest {
   void ThingAlgorithm::run(ThingCollection & thingCollection) {
     for (int i = 0; i < 20; ++i) {
       Thing tc;

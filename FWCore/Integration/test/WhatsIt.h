@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 13:23:12 EDT 2005
-// $Id: WhatsIt.h,v 1.4 2005/09/01 23:30:49 wmtan Exp $
+// $Id: WhatsIt.h,v 1.1 2005/10/15 01:46:18 wmtan Exp $
 //
 
 // system include files
@@ -25,7 +25,7 @@
 
 // forward declarations
 
-namespace edmreftest {
+namespace edmtest {
 struct WhatsIt
 {
    WhatsIt() : a() {}

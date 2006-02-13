@@ -1,14 +1,14 @@
 #include <iostream>
 #include "FWCore/Integration/test/OtherThingAnalyzer.h"
-#include "FWCore/Integration/test/OtherThing.h"
-#include "FWCore/Integration/test/OtherThingCollection.h"
-#include "FWCore/Integration/test/ThingCollection.h"
+#include "DataFormats/TestObjects/interface/OtherThing.h"
+#include "DataFormats/TestObjects/interface/OtherThingCollection.h"
+#include "DataFormats/TestObjects/interface/ThingCollection.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-namespace edmreftest {
+namespace edmtest {
   void OtherThingAnalyzer::analyze(edm::Event const& e, edm::EventSetup const&) {
     edm::Handle<OtherThingCollection> otherThings;
     e.getByLabel("OtherThing", "testUserTag", otherThings);
@@ -133,5 +133,5 @@ namespace edmreftest {
     }
   }
 }
-using edmreftest::OtherThingAnalyzer;
+using edmtest::OtherThingAnalyzer;
 DEFINE_FWK_MODULE(OtherThingAnalyzer)

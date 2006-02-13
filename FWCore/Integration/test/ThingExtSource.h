@@ -12,7 +12,7 @@
 #include "FWCore/Framework/interface/ExternalInputSource.h"
 #include "FWCore/Integration/test/ThingAlgorithm.h"
 
-namespace edmreftest {
+namespace edmtest {
   class ThingExtSource : public edm::ExternalInputSource {
   public:
 

@@ -1,13 +1,13 @@
 #ifndef Integration_OtherThingAlgorithm_h
 #define Integration_OtherThingAlgorithm_h
 
-#include "FWCore/Integration/test/OtherThingCollectionfwd.h"
+#include "DataFormats/TestObjects/interface/OtherThingCollectionfwd.h"
 
 namespace edm {
   class Event;
 }
   
-namespace edmreftest {
+namespace edmtest {
 
   class OtherThingAlgorithm {
   public:

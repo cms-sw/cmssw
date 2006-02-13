@@ -1,10 +1,10 @@
 #include "FWCore/Integration/test/OtherThingProducer.h"
-#include "FWCore/Integration/test/OtherThingCollection.h"
+#include "DataFormats/TestObjects/interface/OtherThingCollection.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 
-namespace edmreftest {
+namespace edmtest {
   OtherThingProducer::OtherThingProducer(edm::ParameterSet const&): alg_() {
     produces<OtherThingCollection>("testUserTag");
   }
@@ -26,5 +26,5 @@ namespace edmreftest {
     e.put(result, std::string("testUserTag"));
   }
 }
-using edmreftest::OtherThingProducer;
+using edmtest::OtherThingProducer;
 DEFINE_FWK_MODULE(OtherThingProducer)

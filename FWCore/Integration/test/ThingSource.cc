@@ -1,9 +1,9 @@
 #include "FWCore/Integration/test/ThingSource.h"
-#include "FWCore/Integration/test/ThingCollection.h"
+#include "DataFormats/TestObjects/interface/ThingCollection.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/InputSourceMacros.h"
 
-namespace edmreftest {
+namespace edmtest {
   ThingSource::ThingSource(edm::ParameterSet const& pset, edm::InputSourceDescription const& desc) :
     GeneratedInputSource(pset, desc), alg_() {
     produces<ThingCollection>();
@@ -28,5 +28,5 @@ namespace edmreftest {
     return true;
   }
 }
-using edmreftest::ThingSource;
+using edmtest::ThingSource;
 DEFINE_FWK_INPUT_SOURCE(ThingSource)
