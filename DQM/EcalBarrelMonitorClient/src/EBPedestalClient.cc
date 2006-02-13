@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2006/02/12 17:35:07 $
- * $Revision: 1.65 $
+ * $Date: 2006/02/13 09:02:12 $
+ * $Revision: 1.66 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1403,8 +1403,8 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
         obj2f->GetYaxis()->SetNdivisions(4);
         c3Sum->SetGridx();
         c3Sum->SetGridy();
-        obj2f->SetMinimum(-0.2);
-        obj2f->SetMaximum(+0.2);
+        obj2f->SetMinimum(-0.5);
+        obj2f->SetMaximum(+0.5);
         obj2f->Draw("colz");
         dummy.Draw("text,same");
         c3Sum->Update();
@@ -1450,8 +1450,8 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
         obj2f->GetYaxis()->SetNdivisions(4);
         c5Sum->SetGridx();
         c5Sum->SetGridy();
-        obj2f->SetMinimum(-0.2);
-        obj2f->SetMaximum(+0.2);
+        obj2f->SetMinimum(-0.5);
+        obj2f->SetMaximum(+0.5);
         obj2f->Draw("colz");
         dummy.Draw("text,same");
         c5Sum->Update();
