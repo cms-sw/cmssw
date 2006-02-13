@@ -1,3 +1,6 @@
+** V00-00-03  [Mon Feb 13 20:40:22 2006]
+fixes for Luca's container migration
+
 ** V00-00-02  [Sat Feb 11 23:32:33 2006]
 change SeedFinder from using one collection to using 2 (matchedRecHit and rphiRecHit) - needs DataFormats/TrackingSeed V00-00-01 to work
 
