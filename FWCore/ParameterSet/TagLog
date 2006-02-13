@@ -1,3 +1,6 @@
+** V01-02-01  [Mon Feb 13 23:09:52 2006]
+ParameterSetID moved from FWCore/EDProduct to DataFormats/Common
+
 ** V01-02-00  [Wed Feb  8 02:58:15 2006]
 fail if tracked parameter declared untracked, or vice versa
 
