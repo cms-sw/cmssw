@@ -1,14 +1,8 @@
-/** \file
- *
- *  $Date: 2005/11/02 17:37:51 $
- *  $Revision: 1.5 $
- */
-
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include <FWCore/Utilities/interface/Exception.h>
 #include <iostream>
 
-using namespace std;
+//using namespace std;
 
 CSCDetId::CSCDetId():DetId(DetId::Muon, MuonSubdetId::CSC){}
 
@@ -27,11 +21,11 @@ CSCDetId::CSCDetId( int iendcap, int istation, int iring, int ichamber,
 		    int ilayer ) : 
   DetId(DetId::Muon, MuonSubdetId::CSC) 
 {    
-  if (iendcap  < MIN_ENDCAP  || iendcap  > MAX_ENDCAP ||
-      istation < MIN_STATION || istation > MAX_STATION ||
-      iring    < MIN_RING    || iring    > MAX_RING ||
-      ichamber < MIN_CHAMBER || ichamber > MAX_CHAMBER ||
-      ilayer   < MIN_LAYER   || ilayer   > MAX_LAYER ) {
+  if (iendcap  < 0 || iendcap  > MAX_ENDCAP ||
+      istation < 0 || istation > MAX_STATION ||
+      iring    < 0 || iring    > MAX_RING ||
+      ichamber < 0 || ichamber > MAX_CHAMBER ||
+      ilayer   < 0 || ilayer   > MAX_LAYER ) {
     throw cms::Exception("InvalidDetId") << "CSCDetId ctor:" 
 					 << " Invalid parameters: " 
 					 << " E:"<< iendcap
@@ -44,7 +38,7 @@ CSCDetId::CSCDetId( int iendcap, int istation, int iring, int ichamber,
   id_ |= init(iendcap, istation, iring, ichamber, ilayer);
 }
 
-ostream& operator<<( ostream& os, const CSCDetId& id )
+std::ostream& operator<<( std::ostream& os, const CSCDetId& id )
 {
   // Note that there is no endl to end the output
 
@@ -58,32 +52,35 @@ ostream& operator<<( ostream& os, const CSCDetId& id )
 
 int CSCDetId::triggerSector() const
 {
+  // UPDATED TO OCT 2005 - LGRAY Feb 2006
 
   int result;
   int ring    = this->ring();
   int station = this->station();
   int chamber = this->chamber();
 
-  // This version 16-Nov-99 ptc to match simplified chamber labelling for cms116
-  //@@ REQUIRES UPDATE TO 2005 REALITY, ONCE I UNDERSTAND WHAT THAT IS
-  if(station > 1 && ring > 1 ) {
-    result = (chamber+5) / 6; // ch 1-6->1, 7-12->2, ...
-  }
-  else {
-    result = (chamber+2) / 3; // ch 1-3-> 1, 4-6->2, ...
-  }
-  return result;
+    if(station > 1 && ring > 1 ) {
+      result = ((static_cast<unsigned>(chamber-3) & 0x7f) / 6) + 1; // ch 3-8->1, 9-14->2, ... 1,2 -> 6
+    }
+    else {
+      result =  (station != 1) ? ((static_cast<unsigned>(chamber-2) & 0x1f) / 3) + 1 : // ch 2-4-> 1, 5-7->2, ...
+	                         ((static_cast<unsigned>(chamber-3) & 0x7f) / 6) + 1;
+    }
+
+  return (result <= 6) ? result : 6; // max sector is 6, some calculations give a value greater than six but this is expected.
 }
 
-int CSCDetId::triggerCscId() const 
+int CSCDetId::triggerCscId() const
 {
+  // UPDATED TO OCT 2005 - LGRAY Feb 2006
+
   int result;
   int ring    = this->ring();
   int station = this->station();
   int chamber = this->chamber();
 
   if( station == 1 ) {
-    result = (chamber-1) % 3 + 1; // 1,2,3
+    result = (chamber) % 3 + 1; // 1,2,3
     switch (ring) {
     case 1:
       break;
@@ -97,12 +94,13 @@ int CSCDetId::triggerCscId() const
   }
   else {
     if( ring == 1 ) {
-      result = (chamber-1) % 3 + 1; // 1,2,3
+      result = (chamber+1) % 3 + 1; // 1,2,3
     }
     else {
-      result = (chamber-1) % 6 + 4; // 4,5,6,7,8,9
+      result = (chamber+3) % 6 + 4; // 4,5,6,7,8,9
     }
   }
   return result;
 }
+
 
