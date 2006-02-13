@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.4 2005/12/29 23:46:27 fedor Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.5 2006/01/19 01:37:13 fedor Exp $
 //
 #include <vector>
 #include <string>
@@ -37,8 +37,9 @@ HcalDetId getId (const std::vector <std::string> & items) {
   int eta = atoi (items [0].c_str());
   int phi = atoi (items [1].c_str());
   int depth = atoi (items [2].c_str());
-  HcalSubdetector subdet = HcalBarrel;
-  if (items [3] == "HE") subdet = HcalEndcap;
+  HcalSubdetector subdet = HcalEmpty;
+  if (items [3] == "HB") subdet = HcalBarrel;
+  else if (items [3] == "HE") subdet = HcalEndcap;
   else if (items [3] == "HF") subdet = HcalForward;
   return HcalDetId (subdet, eta, phi, depth);
 }
@@ -228,7 +229,8 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalElectronicsMap* fObject
     std::vector <std::string> items = splitString (std::string (buffer));
     if (items.size () < 12) {
       if (items.size () > 0) {
-	std::cerr << "Bad line: " << buffer << "\n line must contain 12 items: i  cr sl tb dcc spigot fiber fiberchan subdet ieta iphi depth" << std::endl;
+	std::cerr << "HcalElectronicsMap-> Bad line: " << buffer 
+		  << "\n line must contain 12 items: i  cr sl tb dcc spigot fiber fiberchan subdet ieta iphi depth" << std::endl;
       }
       continue;
     }
@@ -240,23 +242,34 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalElectronicsMap* fObject
     int spigot = atoi (items [5].c_str());
     int fiber = atoi (items [6].c_str());
     int fiberCh = atoi (items [7].c_str());
-    HcalSubdetector subdet = HcalBarrel;
-    if (items [8] == "HE") subdet = HcalEndcap;
+    HcalSubdetector subdet = HcalEmpty;
+    if (items [8] == "HB") subdet = HcalBarrel;
+    else if (items [8] == "HE") subdet = HcalEndcap;
     else if (items [8] == "HO") subdet = HcalOuter;
     else if (items [8] == "HF") subdet = HcalForward;
     else if (items [8] == "HT") subdet = HcalTriggerTower;
-    int eta = atoi (items [9].c_str());
-    int phi = atoi (items [10].c_str());
-    int depth = atoi (items [11].c_str());
+    else if (items [8] != "NA") {
+      std::cerr << "HcalElectronicsMap-> Unknown subdetector: " << items [8]
+		<< " in line: " << buffer 
+		<< "\n subdetector may be HB, HE, HF, HO, HT, or NA if it is known to be disconnected" << std::endl;
+      continue;
+    }
+    HcalDetId chId;
+    HcalTrigTowerDetId trigId;
+    HcalElectronicsId elId;
     
-    HcalElectronicsId elId (fiberCh, fiber, spigot, dcc);
-    elId.setHTR (crate, slot, top);
+    if (subdet != HcalEmpty && items [9] != "NA") { 
+      int eta = atoi (items [9].c_str());
+      int phi = atoi (items [10].c_str());
+      int depth = atoi (items [11].c_str());
+      elId = HcalElectronicsId (fiberCh, fiber, spigot, dcc);
+      chId = HcalDetId (subdet, eta, phi, depth);
+      trigId = HcalTrigTowerDetId (eta, phi);
+    }
     if (subdet == HcalTriggerTower) {
-      HcalTrigTowerDetId trigId (eta, phi);
       fObject->mapEId2tId (elId (), trigId.rawId());
     }
     else {
-      HcalDetId chId (subdet, eta, phi, depth);
       fObject->mapEId2chId (elId (), chId.rawId());
     }
   }

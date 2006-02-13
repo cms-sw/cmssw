@@ -13,7 +13,7 @@
    \class HcalDbASCIIIO
    \brief IO for ASCII instances of Hcal Calibrations
    \author Fedor Ratnikov Oct. 28, 2005
-   $Id: HcalDbASCIIIO.h,v 1.2 2005/12/06 23:20:34 fedor Exp $
+   $Id: HcalDbASCIIIO.h,v 1.3 2005/12/15 23:37:56 fedor Exp $
    
 Text file formats for different data types is as following:
 - # in first column comments the line
@@ -27,6 +27,7 @@ Text file formats for different data types is as following:
   eta phi depth det status(GOOD/BAD/HOT/DEAD)
 - HcalElectronicsMap:
   line#  crate HTR_slot top_bottom(t/b) dcc# dcc_spigot fiber fiberchan subdet(HB/HE/HF/HO/HT) eta phi depth
+  if electronics channel is known to be unconnected, either "subdet" or "eta" should be NA
 */
 namespace HcalDbASCIIIO {
   bool getObject (std::istream& fInput, HcalPedestals* fObject);
