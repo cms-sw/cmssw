@@ -1,3 +1,6 @@
+** V01-00-02  [Mon Feb 13 23:34:46 2006]
+implemented proper printing of objects held by pointers
+
 ** V01-00-01  [Wed Feb  8 02:55:53 2006]
 move persistent classes to DataFormats/Common
 
