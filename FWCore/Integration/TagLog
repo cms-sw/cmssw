@@ -1,3 +1,6 @@
+** V00-04-02  [Tue Feb 14 00:30:27 2006]
+move persistent data to DataFormats/TestObjects
+
 ** V00-04-01  [Wed Feb  8 02:53:10 2006]
 fix tracked vs. untracked paramters in tests
 
