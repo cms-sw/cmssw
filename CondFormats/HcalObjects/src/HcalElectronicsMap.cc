@@ -3,8 +3,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store mapping for Hcal channels
 $Author: ratnikov
-$Date: 2005/12/05 00:25:36 $
-$Revision: 1.3 $
+$Date: 2005/12/27 23:50:28 $
+$Revision: 1.4 $
 */
 
 #include <iostream>
@@ -87,6 +87,18 @@ const HcalTrigTowerDetId HcalElectronicsMap::lookupTrigger(HcalElectronicsId fId
 const HcalElectronicsId HcalElectronicsMap::lookupTrigger(HcalTrigTowerDetId fId, bool fWarning) const {
   const Item* item = findByTrigId (fId.rawId (), fWarning);
   return HcalElectronicsId (item ? item->mElId : 0);
+}
+
+bool HcalElectronicsMap::known (HcalElectronicsId fId, bool fWarning ) const {
+  return findByElId (fId.rawId (), fWarning);
+}
+
+bool HcalElectronicsMap::known (HcalDetId fId, bool fWarning ) const {
+  return findByChId (fId.rawId (), fWarning);
+}
+
+bool HcalElectronicsMap::known (HcalTrigTowerDetId fId, bool fWarning ) const {
+  return findByTrigId (fId.rawId (), fWarning);
 }
 
 bool HcalElectronicsMap::setMapping (HcalDetId fChId, HcalElectronicsId fElectronicsId, HcalTrigTowerDetId fTriggerId) {

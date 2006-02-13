@@ -6,8 +6,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store map between detector ID, electronics ID and trigger ID
 $Author: ratnikov
-$Date: 2005/12/27 23:50:28 $
-$Revision: 1.4 $
+$Date: 2006/02/01 21:34:52 $
+$Revision: 1.5 $
 */
 
 #include <vector>
@@ -38,6 +38,11 @@ class HcalElectronicsMap {
   /// brief lookup the electronics detid associated with the given trigger logical id
   //return Null item if no such mapping
   const HcalElectronicsId lookupTrigger(HcalTrigTowerDetId fId, bool fWarning = true) const;
+
+  /// Check if mapping for given Id is defined (also as NA)
+  bool known (HcalElectronicsId fId, bool fWarning = true) const;
+  bool known (HcalDetId fId, bool fWarning = true) const;
+  bool known (HcalTrigTowerDetId fId, bool fWarning = true) const;
   
 
 
