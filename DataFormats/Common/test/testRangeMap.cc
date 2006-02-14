@@ -1,4 +1,4 @@
-// $Id: testMapRange.cc,v 1.1 2006/02/01 18:15:01 llista Exp $
+// $Id: testRangeMap.cc,v 1.1 2006/02/13 11:42:21 llista Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include "DataFormats/Common/interface/RangeMap.h"
 #include "DataFormats/Common/interface/CopyPolicy.h"
@@ -27,6 +27,40 @@ void testMapRange::checkAll() {
   int s1 = sizeof( v1 ) / sizeof( int );
   int s2 = sizeof( v2 ) / sizeof( int );
   int s3 = sizeof( v3 ) / sizeof( int );
+  for( int i = 0; i < s1; ++i ) m.insert( 1, v1[ i ] );
+  //  for( int i = 0; i < s2; ++i ) m.insert( 2, v2[ i ] );
+  m.insert( 2, v2, v2 + s2 );
+  for( int i = 0; i < s3; ++i ) m.insert( 3, v3[ i ] );
+
+  map::const_iterator i = m.begin();
+  CPPUNIT_ASSERT( * i ++ == 1 );
+  CPPUNIT_ASSERT( * i ++ == 2 );
+  CPPUNIT_ASSERT( * i ++ == 3 );
+  CPPUNIT_ASSERT( * i ++ == 4 );
+  CPPUNIT_ASSERT( * i ++ == 5 );
+  CPPUNIT_ASSERT( * i ++ == 6 );
+  CPPUNIT_ASSERT( * i ++ == 7 );
+  CPPUNIT_ASSERT( * i ++ == 8 );
+  CPPUNIT_ASSERT( * i ++ == 9 );
+  CPPUNIT_ASSERT( i == m.end() );
+
+  map::id_iterator b = m.id_begin();
+  CPPUNIT_ASSERT( m.id_size() == 3 );
+  CPPUNIT_ASSERT( * b ++ == 1 );
+  CPPUNIT_ASSERT( * b ++ == 2 );
+  CPPUNIT_ASSERT( * b ++ == 3 );
+  CPPUNIT_ASSERT( b == m.id_end() );
+
+  map::range r = m.get( 1 );
+  CPPUNIT_ASSERT( r.end - r.begin == s1 );
+  map::container_iterator j = r.begin;
+  CPPUNIT_ASSERT( * j ++ ==  1 );
+  CPPUNIT_ASSERT( * j ++ ==  2 );
+  CPPUNIT_ASSERT( * j ++ ==  3 );
+  CPPUNIT_ASSERT( * j ++ ==  4 );
+  CPPUNIT_ASSERT( j == r.end );
+
+  /*
   m.put( 1, v1, v1 + s1 );
   m.put( 2, v2, v2 + s2 );
   m.put( 3, v3, v3 + s3 );
@@ -58,15 +92,7 @@ void testMapRange::checkAll() {
 
   CPPUNIT_ASSERT( m.size() == size_t( s1 + s2 + s3 ) );
 
-  map::id_iterator b = m.id_begin();
-  map::id_iterator e = m.id_end();
-  CPPUNIT_ASSERT( m.id_size() == 3 );
-  CPPUNIT_ASSERT( * b == 1 );
-  ++b;
-  CPPUNIT_ASSERT( *b == 2 );
-  ++b;
-  CPPUNIT_ASSERT( *b == 3 );
-  ++b;
-  CPPUNIT_ASSERT( b == e );
+
+  */
   
 }
