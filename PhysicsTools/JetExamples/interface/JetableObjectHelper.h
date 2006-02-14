@@ -18,28 +18,27 @@
  ************************************************************/
  //
  //
-
 #include "PhysicsTools/Candidate/interface/CandidateFwd.h"
-
+#include "FWCore/Framework/interface/Handle.h"
+#include "PhysicsTools/Candidate/interface/CandidateFwd.h"
 
 class JetableObjectHelper {
 public:
-
-      /// Constructor takes a const pointer to the CaloTowerCollection we will help with.
-      JetableObjectHelper(const aod::CandidateCollection* ctcp):  caloTowerCollPointer(ctcp) {}      
-
-      /// etOrderedCaloTowers returns an Et order list of pointers to CaloTowers with Et>etTreshold
-      std::vector<const aod::Candidate*> etOrderedCaloTowers(double etThreshold) const;
-
-      /// towersWithinCone returns a list of pointers to CaloTowers with Et>etThreshold within coneRadius
-      /// in eta-phi space of the coneEta and conePhi.
-      std::vector<const aod::Candidate*> towersWithinCone(double coneEta, double conePhi, double coneRadius, double etEthreshold);
-
-      /// phidif calculates the difference between phi1 and phi2 taking into account the 2pi issue.
-      double phidif(double phi1, double phi2);
-      
+  typedef edm::Handle<aod::CandidateCollection> Handle;
+  /// Constructor takes a const pointer to the CaloTowerCollection we will help with.
+  JetableObjectHelper( const Handle & ctcp ) : caloTowerCollPointer(ctcp) { }  
+  /// etOrderedCaloTowers returns an Et order list of pointers to CaloTowers with Et>etTreshold
+  aod::CandidateRefs etOrderedCaloTowers(double etThreshold) const;
+  
+  /// towersWithinCone returns a list of pointers to CaloTowers with Et>etThreshold within coneRadius
+  /// in eta-phi space of the coneEta and conePhi.
+  aod::CandidateRefs towersWithinCone(double coneEta, double conePhi, double coneRadius, double etEthreshold);
+  
+  /// phidif calculates the difference between phi1 and phi2 taking into account the 2pi issue.
+  double phidif(double phi1, double phi2);
+  
 private:
-   const aod::CandidateCollection *  caloTowerCollPointer;   
+   Handle caloTowerCollPointer;   
 
 };
 #endif

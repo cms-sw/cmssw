@@ -15,13 +15,7 @@ public:
   ProtoJet();
 
   //**Constructor. Runs off an array of CaloTower* */
-  ProtoJet(std::vector<const aod::Candidate *> theConstituents);
-
-  /** Constructor. Runs off an array of CaloTower */
-  ProtoJet(std::vector<const aod::Candidate> theConstituents);
-
-  /** Constructor. Runs off an array of a CaloTowerCollection */
-  ProtoJet(aod::CandidateCollection aTowerCollection);
+  ProtoJet(const aod::CandidateRefs & theConstituents);
 
   /**  Destructor*/
   ~ProtoJet();
@@ -94,16 +88,16 @@ public:
   //double energyFraction(const std::string detector = "HCAL", const std::string subdetector = "ALL", int layer= -1) const;
 
    /** Returns the list of tower in a particular protojet */
-   const std::vector<const aod::Candidate*> & getTowerList() const {return m_constituents;} 
+   const aod::CandidateRefs & getTowerList() const {return m_constituents;} 
    /** Sets the list of towers in a protojet */
-  void putTowers(const std::vector<const aod::Candidate*> & towers) {
+  void putTowers(const aod::CandidateRefs & towers) {
     m_constituents = towers;
     calculateLorentzVector(); 
-   }
+  }
 
 private:
   /** Jet constituents */
-  std::vector<const aod::Candidate*> m_constituents;
+  aod::CandidateRefs m_constituents;
 
   /** Jet energy */
   double m_e;

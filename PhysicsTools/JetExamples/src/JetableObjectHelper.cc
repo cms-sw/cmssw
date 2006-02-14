@@ -3,8 +3,10 @@
 #include "PhysicsTools/Candidate/interface/Candidate.h"
 #include <iostream>
 #include <algorithm>
+#include <utility>
 #include <cmath>
 using namespace std;
+using namespace aod;
 
 // JetableObjectHelper.cc: Methods used by JetableObjectHelper
 // Author:  Robert M Harris
@@ -15,12 +17,10 @@ using namespace std;
 //
 // towersWithinCone returns a list of pointers to CaloTowers with Et>etThreshold within coneRadius
 // in eta-phi space of the coneEta and conePhi.
-std::vector<const aod::Candidate*> JetableObjectHelper::towersWithinCone(double coneEta, double conePhi, double coneRadius, double etThreshold){
-  std::vector<const aod::Candidate *> result;
-  aod::CandidateCollection::const_iterator towerIter = caloTowerCollPointer->begin();
-  aod::CandidateCollection::const_iterator towerIterEnd = caloTowerCollPointer->end();
-  for (;towerIter != towerIterEnd; ++towerIter) {
-    const aod::Candidate *caloTowerPointer = &*towerIter;
+CandidateRefs JetableObjectHelper::towersWithinCone(double coneEta, double conePhi, double coneRadius, double etThreshold){
+  CandidateRefs result;
+  for ( size_t idx = 0; idx < caloTowerCollPointer->size(); ++ idx ) {
+    CandidateRef caloTowerPointer( caloTowerCollPointer, idx );
     if(caloTowerPointer->et() > etThreshold){
       double towerEta = caloTowerPointer->eta();
       double towerPhi = caloTowerPointer->phi();
@@ -36,28 +36,34 @@ std::vector<const aod::Candidate*> JetableObjectHelper::towersWithinCone(double 
 }
 
 // GreaterByET is used to sort by et
-class GreaterByET 
-{
+class GreaterByET {
 public:
-  bool operator()(const aod::Candidate * a, 
-                   const aod::Candidate * b) const {
-    return a->et() > b->et();
+  bool operator()( const pair<Candidate *, CandidateRef> & a, 
+		   const pair<Candidate *, CandidateRef> & b ) const {
+    return a.first->et() > b.first->et();
   }
 };
 
 
 // etOrderedCaloTowers returns an Et order list of pointers to CaloTowers with Et>etTreshold
-std::vector<const aod::Candidate*> JetableObjectHelper::etOrderedCaloTowers(double etThreshold) const {
-  std::vector<const aod::Candidate*> result;
-  aod::CandidateCollection::const_iterator towerIter = caloTowerCollPointer->begin();
-  aod::CandidateCollection::const_iterator towerIterEnd = caloTowerCollPointer->end();
-  for (;towerIter != towerIterEnd; ++towerIter) {
-    const aod::Candidate *caloTowerPointer = &*towerIter;
+CandidateRefs JetableObjectHelper::etOrderedCaloTowers(double etThreshold) const {
+  CandidateRefs result;
+  vector<pair<Candidate*, CandidateRef> > cands;
+  for ( size_t idx = 0; idx < caloTowerCollPointer->size(); ++ idx ) {
+    CandidateRef caloTowerPointer( caloTowerCollPointer, idx );
     if(caloTowerPointer->et() > etThreshold){
-      if(caloTowerPointer != 0) result.push_back(caloTowerPointer);
+      //      if(caloTowerPointer != 0) result.push_back(caloTowerPointer);
+      if(caloTowerPointer != 0) cands.push_back(make_pair( & (*caloTowerCollPointer)[idx], caloTowerPointer ) );
     }
-  }   
-  sort(result.begin(), result.end(), GreaterByET());
+  } 
+  // sort is not supported on such container at the moment :-(  
+  //  sort( result.begin(), result.end(), GreaterByET() );
+  sort( cands.begin(), cands.end(), GreaterByET() );
+  for( vector<pair<Candidate*, CandidateRef> >::const_iterator i = cands.begin();
+       i != cands.end(); ++i ) {
+    result.push_back( i->second );
+  }
+  
   return result;
 }
 

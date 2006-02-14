@@ -37,8 +37,8 @@ namespace cms
   void MidpointJetProducer::produce(edm::Event& e, const edm::EventSetup&) {
     edm::Handle<CandidateCollection> towers;
     e.getByLabel( src_, towers );                    
-    std::auto_ptr<CandidateCollection> result(new CandidateCollection);
-    alg_.run( towers.product(), *result );
+    std::auto_ptr<CandidateCollection> result( new CandidateCollection );
+    alg_.run( towers, *result );
     e.put( result );
   }
 

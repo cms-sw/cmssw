@@ -1,12 +1,14 @@
 #include "PhysicsTools/JetExamples/interface/CMSmidpointAlgorithm.h"
 #include "PhysicsTools/JetExamples/interface/ProtoJetComparisons.h"
 #include "PhysicsTools/JetExamples/interface/MakeCaloJet.h"
+#include "PhysicsTools/Candidate/interface/Candidate.h"
 
 using namespace std;
+using namespace aod;
 
 //  Run the algorithm
 //  ------------------
-void CMSmidpointAlgorithm::run(const aod::CandidateCollection* theCtcp,
+void CMSmidpointAlgorithm::run(const Handle & theCtcp,
 			       aod::CandidateCollection & caloJets)
 {
   //Create a JetableObjectHelper for this collection
@@ -37,7 +39,7 @@ void CMSmidpointAlgorithm::run(const aod::CandidateCollection* theCtcp,
 // Find the proto-jets from the seed towers.
 // ----------------------------------------
 void CMSmidpointAlgorithm::findStableConesFromSeeds(JetableObjectHelper& theHelper,
-						    const aod::CandidateCollection* theCtcp,
+						    const Handle & theCtcp,
 						    vector<ProtoJet> & stableCones) {
   // This dictates that the cone size will be reduced in the iterations procedure,
   // to prevent excessive cone movement, and then will be enlarged at the end of
@@ -45,10 +47,10 @@ void CMSmidpointAlgorithm::findStableConesFromSeeds(JetableObjectHelper& theHelp
   bool reduceConeSize = true;  
   
   // Get the Seed Towers sorted by Et.  
-  vector<const aod::Candidate*> seedTowers = theHelper.etOrderedCaloTowers(theSeedThreshold);  //This gets towers
+  CandidateRefs seedTowers = theHelper.etOrderedCaloTowers(theSeedThreshold);  //This gets towers
 
   // Loop over all Seeds
-  for(vector<const aod::Candidate *>::const_iterator i = seedTowers.begin(); i != seedTowers.end(); ++i) {
+  for(CandidateRefs::iterator i = seedTowers.begin(); i != seedTowers.end(); ++i) {
     double seedEta = (*i)->eta();
     double seedPhi = (*i)->phi(); 
 
@@ -64,7 +66,7 @@ void CMSmidpointAlgorithm::findStableConesFromSeeds(JetableObjectHelper& theHelp
 // Iterate the proto-jet center until it is stable
 // -----------------------------------------------
  void CMSmidpointAlgorithm::iterateCone(JetableObjectHelper& theHelper,
-					const aod::CandidateCollection* /* theCtcp */,
+					const Handle & /* theCtcp */,
 					double startRapidity, double startPhi, 
 					double startE, bool reduceConeSize, vector<ProtoJet> & stableCones){
 //  The workhorse of the algorithm.
@@ -83,7 +85,7 @@ void CMSmidpointAlgorithm::findStableConesFromSeeds(JetableObjectHelper& theHelp
       if(nIterations == theMaxIterations + 1)iterationtheConeRadius = theConeRadius;
 
       //Add all towers in cone and over threshold to the cluster
-      vector<const aod::Candidate*> towersInSeedCluster 
+      CandidateRefs towersInSeedCluster 
           = theHelper.towersWithinCone(startRapidity, startPhi, iterationtheConeRadius, theTowerThreshold);
       if(theDebugLevel>=2)cout << "[CMSmidpointAlgorithm] iter=" << nIterations << ", towers=" <<towersInSeedCluster.size();    
 
@@ -115,7 +117,7 @@ void CMSmidpointAlgorithm::findStableConesFromSeeds(JetableObjectHelper& theHelp
 	  }
         }	
         if(nIterations==theMaxIterations+1) {
-	  for(vector<const aod::Candidate *>::const_iterator i = towersInSeedCluster.begin(); i != towersInSeedCluster.end(); ++i) {
+	  for(CandidateRefs::iterator i = towersInSeedCluster.begin(); i != towersInSeedCluster.end(); ++i) {
 	    const aod::Candidate &t = **i;
 	    if(theDebugLevel>=2) cout << "[CMSmidpointAlgorithm] Tower " <<
               i-towersInSeedCluster.begin() << ": eta=" << t.eta() << 
@@ -147,7 +149,7 @@ void CMSmidpointAlgorithm::findStableConesFromSeeds(JetableObjectHelper& theHelp
 // Find proto-jets from the midpoints
 // ----------------------------------
 void CMSmidpointAlgorithm::findStableConesFromMidPoints(JetableObjectHelper& theHelper,
-							 const aod::CandidateCollection* theCtcp,
+							 const Handle & theCtcp,
 							 vector<ProtoJet>& stableCones){
 // We take the previous list of stable protojets from seeds as input and add to it
 // those from the midpoints between proto-jet pairs, triplets, etc.
@@ -196,7 +198,7 @@ void CMSmidpointAlgorithm::findStableConesFromMidPoints(JetableObjectHelper& the
 // Add proto-jets to pairs from which we will find the midpoint
 // ------------------------------------------------------------
 void CMSmidpointAlgorithm::addClustersToPairs(JetableObjectHelper& theHelper,
-					      const aod::CandidateCollection* theCtcp,
+					      const Handle & theCtcp,
 					      vector<int>& testPair, vector< vector<int> >& pairs,
 					      vector< vector<bool> >& distanceOK, int maxClustersInPair)
 {
@@ -230,7 +232,7 @@ void CMSmidpointAlgorithm::addClustersToPairs(JetableObjectHelper& theHelper,
 // Split and merge the proto-jets, assigning each tower in the protojets to one and only one final jet.
 // ----------------------------------------------------------------------------------------------------
 void CMSmidpointAlgorithm::splitAndMerge(JetableObjectHelper& /* theHelper */,
-					 const aod::CandidateCollection* /* theCtcp */,
+					 const Handle & /* theCtcp */,
 					 vector<ProtoJet>& stableCones, vector<ProtoJet>& finalJets)
 {
 //
@@ -247,7 +249,7 @@ void CMSmidpointAlgorithm::splitAndMerge(JetableObjectHelper& /* theHelper */,
                               << ", y="<< stableCones[i].getLorentzVector().rapidity()
                               << ", phi="<< stableCones[i].getLorentzVector().phi()  
 			      << ", ntow="<< numTowers << endl;     
-      vector<const aod::Candidate*> protojetTowers = stableCones[i].getTowerList(); 
+      CandidateRefs protojetTowers = stableCones[i].getTowerList(); 
       for(int j = 0; j < numTowers; ++j){
         cout << "[CMSmidpointAlgorithm] Tower " << j << ": ET=" << protojetTowers[j]->et()
 	     << ", eta="<< protojetTowers[j]->eta()
@@ -283,12 +285,12 @@ void CMSmidpointAlgorithm::splitAndMerge(JetableObjectHelper& /* theHelper */,
 
 	// Calculate overlap of the two cones.
         bool overlap = false;
-        vector<const aod::Candidate*> overlapTowers;  // Make a list to hold the overlap towers
+        CandidateRefs overlapTowers;  // Make a list to hold the overlap towers
         //cout << "1st cone num towers=" << stableConeIter1->getTowerList().size() << endl;
         //int numTowers1=0;
 
         //Loop over towers in higher Pt cone
- 	for(vector<const aod::Candidate*>::const_iterator towerIter1 = stableConeIter1->getTowerList().begin();
+ 	for(CandidateRefs::iterator towerIter1 = stableConeIter1->getTowerList().begin();
 	    towerIter1 != stableConeIter1->getTowerList().end();
 	    ++towerIter1){
 	  //cout << "1st cone tower " << numTowers1 << endl;
@@ -298,7 +300,7 @@ void CMSmidpointAlgorithm::splitAndMerge(JetableObjectHelper& /* theHelper */,
           //int numTowers2=0;
 
           // Loop over towers in lower Pt cone
-	  for(vector<const aod::Candidate*>::const_iterator towerIter2 = stableConeIter2->getTowerList().begin();
+	  for(CandidateRefs::iterator towerIter2 = stableConeIter2->getTowerList().begin();
 	      towerIter2 != stableConeIter2->getTowerList().end();
 	      ++towerIter2)
           {
@@ -333,16 +335,16 @@ void CMSmidpointAlgorithm::splitAndMerge(JetableObjectHelper& /* theHelper */,
 
 	    // Merge the two cones.
             // Get a copy of the list of towers in higher Pt proto-jet 
-            vector<const aod::Candidate*> stableCone1Towers = stableConeIter1->getTowerList(); 
+            CandidateRefs stableCone1Towers = stableConeIter1->getTowerList(); 
 
              //Loop over the list of towers lower Pt jet
-	    for(vector<const aod::Candidate*>::const_iterator towerIter2 = stableConeIter2->getTowerList().begin();
+	    for(CandidateRefs::iterator towerIter2 = stableConeIter2->getTowerList().begin();
 		towerIter2 != stableConeIter2->getTowerList().end();
 		++towerIter2){
 	      bool isInOverlap = false;
 
               //Check if that tower is in the overlap region
-	      for(vector<const aod::Candidate*>::iterator overlapTowerIter = overlapTowers.begin();
+	      for(CandidateRefs::iterator overlapTowerIter = overlapTowers.begin();
 		  overlapTowerIter != overlapTowers.end();
 		  ++overlapTowerIter){
                 // Check if towers are the same by checking for unique eta, phi and energy values.
@@ -380,11 +382,11 @@ void CMSmidpointAlgorithm::splitAndMerge(JetableObjectHelper& /* theHelper */,
 	    // Split the two proto-jets.
 
             // Create lists of towers to remove from each proto-jet
-	    vector<const aod::Candidate*> removeFromCone1,removeFromCone2;
+	    CandidateRefs removeFromCone1,removeFromCone2;
 
 	    // Which tower goes where?
             // Loop over the overlap towers
-	    for(vector<const aod::Candidate*>::iterator towerIter = overlapTowers.begin();
+	    for(CandidateRefs::iterator towerIter = overlapTowers.begin();
 		towerIter != overlapTowers.end();
 		++towerIter){
 	      double towerRapidity = (*towerIter)->eta();
@@ -415,16 +417,16 @@ void CMSmidpointAlgorithm::splitAndMerge(JetableObjectHelper& /* theHelper */,
 	    // Remove towers in the overlap region from the cones to which they have the larger distance.
 	    
 	    // Remove towers from proto-jet 1.
-            vector<const aod::Candidate*> towerList1 = stableConeIter1->getTowerList(); 
+            CandidateRefs towerList1 = stableConeIter1->getTowerList(); 
 
             // Loop over towers in remove list
-	    for(vector<const aod::Candidate*>::iterator towerIter = removeFromCone1.begin();
+	    for(CandidateRefs::iterator towerIter = removeFromCone1.begin();
 		towerIter != removeFromCone1.end();
 		++towerIter)
 	    {
 
                 // Loop over towers in protojet
-                for(vector<const aod::Candidate*>::iterator towerIter1 = towerList1.begin(); towerIter1 != towerList1.end(); ++towerIter1)
+                for(CandidateRefs::iterator towerIter1 = towerList1.begin(); towerIter1 != towerList1.end(); ++towerIter1)
 		{
 
                    // Check if they are equal
@@ -450,15 +452,15 @@ void CMSmidpointAlgorithm::splitAndMerge(JetableObjectHelper& /* theHelper */,
             stableConeIter1->putTowers(towerList1); 
 
 	    // Remove towers from cone 2.
-            vector<const aod::Candidate*> towerList2 = stableConeIter2->getTowerList(); 
+            CandidateRefs towerList2 = stableConeIter2->getTowerList(); 
 
             // Loop over towers in remove list
-	    for(vector<const aod::Candidate*>::iterator towerIter = removeFromCone2.begin();
+	    for(CandidateRefs::iterator towerIter = removeFromCone2.begin();
 		towerIter != removeFromCone2.end();
 		++towerIter)
 	    {
                // Loop over towers in protojet
-               for(vector<const aod::Candidate*>::iterator towerIter2 = towerList2.begin(); towerIter2 != towerList2.end(); ++towerIter2)
+               for(CandidateRefs::iterator towerIter2 = towerList2.begin(); towerIter2 != towerList2.end(); ++towerIter2)
 		{
                   // Check if they are equal
                    if((abs((*towerIter)->eta()-(*towerIter2)->eta())<.001) && 

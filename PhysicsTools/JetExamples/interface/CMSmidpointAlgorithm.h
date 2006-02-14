@@ -11,6 +11,7 @@
 #include "PhysicsTools/JetExamples/interface/JetableObjectHelper.h"
 #include "PhysicsTools/JetExamples/interface/ProtoJet.h"
 #include "PhysicsTools/Candidate/interface/CandidateFwd.h"
+#include "FWCore/Framework/interface/Handle.h"
 
 class CMSmidpointAlgorithm 
 {
@@ -42,7 +43,9 @@ class CMSmidpointAlgorithm
    // parameters must be passed in to the constructor so that they can
    // be traced in the new EDM.
   
-  CMSmidpointAlgorithm(const aod::CandidateCollection *ctcp) :
+  typedef edm::Handle<aod::CandidateCollection> Handle;
+
+  CMSmidpointAlgorithm(const Handle & ctcp) :
     theSeedThreshold(3.0),
     theTowerThreshold(1.0),
     theConeRadius(0.5),
@@ -68,39 +71,39 @@ class CMSmidpointAlgorithm
 
   /// Runs the algorithm and returns a list of caloJets. 
   /// The user declares the vector and calls this method.
-  void run(const aod::CandidateCollection* theCtcp, aod::CandidateCollection& caloJets);
+  void run(const Handle & theCtcp, aod::CandidateCollection& caloJets);
 
 
  private:
   /// Find the list of proto-jets from the seeds.  
   /// Called by run, but public method to allow testing and studies.
   void findStableConesFromSeeds(JetableObjectHelper& theHelper,
-				const aod::CandidateCollection* theCtcp,
+				const Handle & theCtcp,
 				std::vector<ProtoJet> & protoJets);
 
   /// Iterate the proto-jet center until it is stable.  
   /// Called by findStableConesFromSeeds and findStableConesFromMidPoints but public method to allow testing and studies.
   void iterateCone(JetableObjectHelper& theHelper,
-	   const aod::CandidateCollection* theCtcp,
+	   const Handle & theCtcp,
 		   double startRapidity, double startPhi, double startPt, bool reduceConeSize, std::vector<ProtoJet> & protoJets);
 
   /// Add to the list of proto-jets the list of midpoints.
   /// Called by run but public method to allow testing and studies.
   void findStableConesFromMidPoints(JetableObjectHelper& theHelper,
-				    const aod::CandidateCollection* theCtcp,
+				    const Handle & theCtcp,
 				    std::vector<ProtoJet>& protoJets);
 
   /// Add proto-jets to pairs, triplets, etc, prior to finding their midpoints.
   /// Called by findStableConesFromMidPoints but public method to allow testing and studies.
   void addClustersToPairs(JetableObjectHelper& theHelper,
-			  const aod::CandidateCollection* theCtcp,
+			  const Handle & theCtcp,
 			  std::vector<int>& testPair, std::vector<std::vector<int> >& pairs,
 			  std::vector<std::vector<bool> >& distanceOK, int maxClustersInPair);
 
   /// Split and merge the proto-jets, assigning each tower in the protojets to one and only one final jet.
   ///  Called by run but public method to allow testing and studies.
   void splitAndMerge(JetableObjectHelper& theHelper,
-		     const aod::CandidateCollection* theCtcp,
+		     const Handle & theCtcp,
 		     std::vector<ProtoJet>& protoJets, std::vector<ProtoJet>& finalJets);
 
 
