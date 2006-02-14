@@ -92,6 +92,7 @@ float EcalBarrelNumberingScheme::energyInMatrix(int nCellInEta, int nCellInPhi,
     for (int iphi=startPhi; iphi<startPhi+nCellInPhi; iphi++) {
       
       uint32_t index ;
+      if (abs(ieta) > 85 || abs(ieta)<1 ) { continue; }
       if (iphi< 1)      { index = EBDetId(ieta,iphi+360).rawId(); }
       else if(iphi>360) { index = EBDetId(ieta,iphi-360).rawId(); }
       else              { index = EBDetId(ieta,iphi).rawId();     }
