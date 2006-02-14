@@ -37,6 +37,7 @@ namespace edm {
       }
       const_iterator operator++( int ) { const_iterator ci = *this; operator++(); return ci; }
       const_iterator& operator--() { 
+	if ( im == em ) { -- im; ic = im->second.end(); }
 	while ( ic == im->second.begin() ) {
 	  --im; 
 	  ic = im->second.end();
