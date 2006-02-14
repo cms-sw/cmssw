@@ -1,3 +1,6 @@
+** V00-01-00  [Tue Feb 14 17:16:27 2006]
+Now uses the DT geometry
+
 ** V00-00-03  [Thu Feb  2 20:18:27 2006]
 builds against DT geom
 
