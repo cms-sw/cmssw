@@ -24,8 +24,8 @@ namespace edm {
     md_()
   {
     md_.pid = pset.id();
-    md_.moduleName_ = pset.getUntrackedParameter<std::string>("@module_type");
-    md_.moduleLabel_ = pset.getUntrackedParameter<std::string>("@module_label");
+    md_.moduleName_ = pset.getParameter<std::string>("@module_type");
+    md_.moduleLabel_ = pset.getParameter<std::string>("@module_label");
     //#warning process name is hard coded, for now.  Fix this.
     md_.processName_ = "PILEUP";
     //#warning version and pass are hardcoded
