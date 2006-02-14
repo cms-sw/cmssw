@@ -1,3 +1,6 @@
+** V01-02-02  [Tue Feb 14 20:21:50 2006]
+@module_type and @module_label parameters must be tracked, not untracked
+
 ** V01-02-01  [Tue Feb  7 13:37:47 2006]
 correct pileup verification for trackers
 
