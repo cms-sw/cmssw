@@ -83,14 +83,12 @@ CaloSamples CaloHitResponse::makeAnalogSignal(const PCaloHit & inputHit) const {
      BUNCHSPACE*(parameters.binOfMaximum()-1);
   double binTime = tzero;
 
-  CaloSamples result(detId, parameters.readoutFrameSize());
+  CaloSamples result(makeBlankSignal(detId));
 
   for(int bin = 0; bin < result.size(); bin++) {
     result[bin] += (*theShape)(binTime)* signal;
     binTime += BUNCHSPACE;
   }
-
-  result.setPresamples(parameters.binOfMaximum()-1);
 
   return result;
 } 
@@ -121,12 +119,11 @@ CaloSamples * CaloHitResponse::findSignal(const DetId & detId) {
 }
 
 
-CaloSamples * CaloHitResponse::makeNewSignal(const DetId & detId) {
+CaloSamples CaloHitResponse::makeBlankSignal(const DetId & detId) const {
   const CaloSimParameters & parameters = theParameterMap->simParameters(detId);
   CaloSamples result(detId, parameters.readoutFrameSize());
   result.setPresamples(parameters.binOfMaximum()-1);
-  theAnalogSignalMap[detId] = result;
-  return &(theAnalogSignalMap[detId]);
+  return result;
 }
 
 
@@ -139,8 +136,14 @@ double CaloHitResponse::timeOfFlight(const DetId & detId) const {
   } 
   else {
     const CaloCellGeometry* cellGeometry = theGeometry->getSubdetectorGeometry(detId)->getGeometry(detId);
-    double distance = cellGeometry->getPosition().mag();
-    result =  distance * cm / c_light; // Units of c_light: mm/ns
+    if(cellGeometry == 0) {
+       edm::LogWarning("CaloHitResponse") << "No Calo cell found for ID"
+         << detId.rawId() << " so no time-of-flight subtraction will be done";
+    }
+    else {
+      double distance = cellGeometry->getPosition().mag();
+      result =  distance * cm / c_light; // Units of c_light: mm/ns
+    }
   }
   return result;
 }

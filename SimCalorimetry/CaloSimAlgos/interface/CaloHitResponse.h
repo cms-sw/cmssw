@@ -71,8 +71,8 @@ public:
   /// users can look for the signal for a given cell
   CaloSamples * findSignal(const DetId & detId);
 
-  /// adds a blank signal to map & returns pointer
-  CaloSamples * makeNewSignal(const DetId & detId);
+  /// creates an empty signal for this DetId
+  CaloSamples makeBlankSignal(const DetId & detId) const;
 
 
   /// time-of-flight, in ns, to get to this cell
