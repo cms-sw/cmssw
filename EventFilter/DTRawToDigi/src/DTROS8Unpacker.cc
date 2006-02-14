@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2005/12/01 08:49:29 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/01/20 15:44:34 $
+ *  $Revision: 1.7 $
  *  \author  M. Zanetti - INFN Padova 
  */
 
@@ -15,6 +15,7 @@
 
 #include <iostream>
 #include <map>
+
 
 using namespace std;
 using namespace edm;
@@ -73,11 +74,21 @@ void DTROS8Unpacker::interpretRawData(const unsigned int* index, int datasize,
       try {
 
 	// temporary for the mapping
-	dduID = 31;
-	
+
+	// Commissioning
+	dduID = 5;
+	// Sector Test
+	//dduID = 734;
+
 	// Map the RO channel to the DetId and wire
 	DTWireId detId = mapping->readOutToGeometry(dduID, rosID, robID, tdcID, tdcChannel);
 	int wire = detId.wire();
+
+//  	cout<<"ROS: "<<rosID<<" ROB: "<<robID<<" TDC: "<<tdcID<<" TDCChannel: "<<tdcChannel<<endl;
+//  	cout<<"Wheel: "<<detId.wheel()
+//  	    <<" Station: "<<detId.station()
+//  	    <<" Sector: "<<detId.sector()<<endl;
+
 	
 	// Produce the digi
 	DTDigi digi(wire, tdcMeasurement, hitOrder[channelIndex]-1);
@@ -87,6 +98,7 @@ void DTROS8Unpacker::interpretRawData(const unsigned int* index, int datasize,
       }
 
       catch (cms::Exception & e1) {
+	cout<<"[DTUnpackingModule]: WARNING: Digi not build!"<<endl; 
 	return;
       }
     }
