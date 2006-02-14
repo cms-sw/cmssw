@@ -3,7 +3,7 @@
 
 /** Turns hits into digis.  Assumes that 
     there's an ElectroncsSim class with the
-    interface Digi convert(const CaloSamples &)
+    interface analogToDigital(const CaloSamples &, Digi &);
 
 */
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloHitResponse.h"
@@ -35,11 +35,10 @@ public:
   /// doesn't delete the pointers passed in
   ~CaloTDigitizer() {}
 
-  /// will get done every event by the producers
+  /// tell the digitizer which cells exist
   void setDetIds(const std::vector<DetId> & detIds) {theDetIds = detIds;}
 
   /// turns hits into digis
-  /// user must delete the pointer returned
   void run(MixCollection<PCaloHit> & input, DigiCollection & output) {
     assert(theDetIds.size() != 0);
 
@@ -53,13 +52,18 @@ public:
     {
        Digi digi(*idItr);
        CaloSamples * analogSignal = theHitResponse->findSignal(*idItr);
+       bool needToDeleteSignal = false;
        // don't bother digitizing if no signal and no noise
        if(analogSignal == 0 && addNoise_) {
-         analogSignal = theHitResponse->makeNewSignal(*idItr);
+         // I guess we need to make a blank signal for this cell.
+         // Don't bother storing it anywhere.
+         analogSignal = new CaloSamples(theHitResponse->makeBlankSignal(*idItr));
+         needToDeleteSignal = true;
        }
        if(analogSignal != 0) { 
          theElectronicsSim->analogToDigital(*analogSignal , digi);
          output.push_back(digi);
+         if(needToDeleteSignal) delete analogSignal;
       }
     }
 
