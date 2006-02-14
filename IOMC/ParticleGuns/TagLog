@@ -1,3 +1,6 @@
+** V00-01-08  [Tue Feb 14 05:31:20 2006]
+re-tag 1st impl. of evt.vtx.smearing
+
 ** V00-01-06  [Tue Jan 24 01:06:28 2006]
 remove unnecessary includes
 
