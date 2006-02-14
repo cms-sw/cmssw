@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2005/11/23 11:17:15 $
- *  $Revision: 1.3 $
+ *  $Date: 2005/11/25 18:12:53 $
+ *  $Revision: 1.4 $
  *  \author  M. Zanetti - INFN Padova 
  */
 
@@ -32,19 +32,19 @@ void DTDDUUnpacker::interpretRawData(const unsigned int* index, int datasize,
   FEDHeader dduHeader(reinterpret_cast<const unsigned char*>(index));
 
   // Check DDU trailer
-  FEDTrailer dduTrailer(reinterpret_cast<const unsigned char*>(index) + datasize - SLINK_WORD_SIZE);
+  FEDTrailer dduTrailer(reinterpret_cast<const unsigned char*>(index) + datasize - 1*2);
 
-  // Check Status Words
-  DTDDUFirstStatusWord dduStatusWord1(index + datasize - 3*SLINK_WORD_SIZE);
+  // Check Status Words (CHECK THIS)
+  DTDDUFirstStatusWord dduStatusWord1(index[datasize - 3*2]);
   
-  DTDDUSecondStatusWord dduStatusWord2(index + datasize - 2*SLINK_WORD_SIZE);
+  DTDDUSecondStatusWord dduStatusWord2(index[datasize - 2*2]);
 
   
   //---- ROS data
 
   // Set the index to start looping on ROS data
-  index += SLINK_WORD_SIZE;
-  datasize -= 4*SLINK_WORD_SIZE; // header, trailer, 2 status words
+  index += 1*2;
+  datasize -= 4*2; // header, trailer, 2 status words
 
   ros25Unpacker->interpretRawData(index, datasize, dduID, mapping, product);
   
