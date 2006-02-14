@@ -1,6 +1,7 @@
 #include "SimCalorimetry/EcalSimProducers/interface/EcalDigiProducer.h"
 
 EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet& params) 
+:  theGeometry(0)
 {
   produces<EBDigiCollection>();
   produces<EEDigiCollection>();
@@ -17,8 +18,6 @@ EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet& params)
   theBarrelDigitizer = new EBDigitizer(theEcalResponse, theElectronicsSim, addNoise);
   theEndcapDigitizer = new EEDigitizer(theEcalResponse, theElectronicsSim, addNoise);
 
-  // temporary hacks for missing pieces
-  setupFakePedestals();
 }
 
 
@@ -43,8 +42,7 @@ void EcalDigiProducer::setupFakePedestals()
   for(std::vector<DetId>::const_iterator detItr = detIds.begin();
        detItr != detIds.end(); ++detItr)
   {
-    pair<int, EcalPedestals::Item> entry(detItr->rawId(), item);
-    thePedestals.m_pedestals.insert(entry);
+    thePedestals.m_pedestals[detItr->rawId()] = item;
   }
 
   theCoder->setPedestals(&thePedestals);
@@ -117,26 +115,36 @@ void  EcalDigiProducer::checkCalibrations(const edm::EventSetup & eventSetup)
 void EcalDigiProducer::checkGeometry(const edm::EventSetup & eventSetup) 
 {
   // TODO find a way to avoid doing this every event
-  edm::ESHandle<CaloGeometry> geometry;
-  eventSetup.get<IdealGeometryRecord>().get(geometry);
+  edm::ESHandle<CaloGeometry> hGeometry;
+  eventSetup.get<IdealGeometryRecord>().get(hGeometry);
 
-  theEcalResponse->setGeometry(&*geometry);
+  const CaloGeometry * pGeometry = &*hGeometry;
+  
+  // see if we need to update
+  if(pGeometry != theGeometry) {
+    theGeometry = pGeometry;
+    updateGeometry();
+    setupFakePedestals();
+  }
+}
+
+
+void EcalDigiProducer::updateGeometry() {
+  theEcalResponse->setGeometry(theGeometry);
 
   theBarrelDets.clear();
   theEndcapDets.clear();
 
-  theBarrelDets =  geometry->getValidDetIds(DetId::Ecal, EcalBarrel);
-  theEndcapDets =  geometry->getValidDetIds(DetId::Ecal, EcalEndcap);
+  theBarrelDets =  theGeometry->getValidDetIds(DetId::Ecal, EcalBarrel);
+  theEndcapDets =  theGeometry->getValidDetIds(DetId::Ecal, EcalEndcap);
 
   //PG FIXME
   std::cout << "deb geometry: "
-            << "\t barrel: " << theBarrelDets.size () 
-            << "\t endcap: " << theEndcapDets.size () 
+            << "\t barrel: " << theBarrelDets.size ()
+            << "\t endcap: " << theEndcapDets.size ()
             << std::endl ;
 
   theBarrelDigitizer->setDetIds(theBarrelDets);
   theEndcapDigitizer->setDetIds(theEndcapDets);
-
-  setupFakePedestals();
 }
 

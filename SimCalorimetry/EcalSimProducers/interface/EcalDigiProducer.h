@@ -48,6 +48,8 @@ private:
   void fillFakeHits();
 
   void checkGeometry(const edm::EventSetup & eventSetup);
+  void updateGeometry();
+
   void checkCalibrations(const edm::EventSetup & eventSetup);
 
   /** Reconstruction algorithm*/
@@ -65,6 +67,7 @@ private:
   EcalElectronicsSim * theElectronicsSim;
   EcalCoder * theCoder;
 
+  const CaloGeometry * theGeometry;
   std::vector<DetId> theBarrelDets;
   std::vector<DetId> theEndcapDets;
   EcalPedestals thePedestals;
