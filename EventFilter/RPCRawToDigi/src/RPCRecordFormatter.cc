@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCRecordFormatter
  *
- *  $Date: 2006/02/06 11:36:58 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/02/06 14:27:32 $
+ *  $Revision: 1.2 $
  *
  * \author Ilaria Segoni
  */
@@ -23,8 +23,7 @@
 
 #include <vector>
 
-RPCRecordFormatter::RPCRecordFormatter(bool printout)
-:currentBX(0){
+RPCRecordFormatter::RPCRecordFormatter(bool printout){
 	verbosity=printout;
 }
 
@@ -33,16 +32,16 @@ RPCRecordFormatter::~RPCRecordFormatter(){
 
 void RPCRecordFormatter::recordUnpack(RPCRecord::recordTypes typeOfRecord, const unsigned char* recordIndex, 
 std::auto_ptr<RPCDigiCollection> prod){
-
+    
    int bx=0;
-   RPCDetId detId;
-
+   RPCDetId DetId ;
+       
    if(typeOfRecord==RPCRecord::StartOfBXData)      {
-	currentBX = this->unpackBXRecord(recordIndex);
+	bx = this->unpackBXRecord(recordIndex);
    }	   
     
     if(typeOfRecord==RPCRecord::StartOfChannelData) {
-	currentDetId =this->unpackChannelRecord(recordIndex);
+	DetId =this->unpackChannelRecord(recordIndex);
     }
    
     /// Unpacking Strips With Hit
@@ -53,10 +52,10 @@ std::auto_ptr<RPCDigiCollection> prod){
 
 		int strip = *(pStrip);
 		/// Creating RPC digi
-		RPCDigi digi(strip,currentBX);
+		RPCDigi digi(strip,bx);
 
 		/// Committing to the product
-		prod->insertDigi(currentDetId,digi);
+		//prod->insertDigi(DetId,digi);
           }
     }
     
@@ -72,7 +71,7 @@ int RPCRecordFormatter::unpackBXRecord(const unsigned char* recordIndex) {
 const unsigned int* recordIndexInt=reinterpret_cast<const unsigned int*>(recordIndex);
 
     RPCBXData bxData(recordIndexInt);
-    edm::LogInfo ("UnpackingFlow")<<"Found BX record, BX= "<<bxData.bx();
+    edm::LogInfo ("RPCUnpacker")<<"Found BX record, BX= "<<bxData.bx();
     return bxData.bx();
     rpcData.addBXData(bxData);
 
@@ -84,13 +83,18 @@ RPCDetId RPCRecordFormatter::unpackChannelRecord(const unsigned char* recordInde
 const unsigned int* recordIndexInt=reinterpret_cast<const unsigned int*>(recordIndex);
 
     RPCChannelData chnData(recordIndexInt);
-    edm::LogInfo ("UnpackingFlow")<<"Found start of Channel Data Record, Channel: "<< chnData.channel()<<
+    edm::LogInfo ("RPCUnpacker")<<"Found start of Channel Data Record, Channel: "<< chnData.channel()<<
  	 " Readout/Trigger Mother Board: "<<chnData.tbRmb();
     
-    RPCDetId detId/*=chnData.detId()*/;
-    return detId;
-    
     rpcData.addChnData(chnData);
+
+    ///Temporary Phony RPCDetId
+    int region=0, ring=-1, station=1, sector=1, layer =1, subsector =1, roll=2;
+    RPCDetId detId(region, ring, station, sector, layer, subsector, roll);
+    //RPCDetId detId/*=chnData.detId()*/;
+    return detId;
+
+
 
 } 
 
@@ -99,16 +103,18 @@ std::vector<int> RPCRecordFormatter::unpackChamberRecord(const unsigned char* re
 const unsigned int* recordIndexInt=reinterpret_cast<const unsigned int*>(recordIndex);
 
    RPCChamberData cmbData(recordIndexInt);
-    edm::LogInfo ("UnpackingFlow")<< "Found Chamber Data, Chamber Number: "<<cmbData.chamberNumber()<<
+    edm::LogInfo ("RPCUnpacker")<< "Found Chamber Data, Chamber Number: "<<cmbData.chamberNumber()<<
  	" Partition Data "<<cmbData.partitionData()<<
  	" Half Partition " << cmbData.halfP()<<
  	" Data Truncated: "<<cmbData.eod()<<
  	" Partition Number " <<  cmbData.partitionNumber();
-	
-    vector<int> stripID/*=cmbData.getStrips()*/;
-    return stripID;
     
     rpcData.addRPCChamberData(cmbData);
+
+    vector<int> stripID/*=cmbData.getStrips()*/;
+    ///Temporary Phony Digis
+    for(int ii=0; ii<10; ++ii) stripID.push_back(40+ii);
+    return stripID;
 }
 
 
