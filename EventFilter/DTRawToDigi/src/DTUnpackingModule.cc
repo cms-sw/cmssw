@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2005/11/25 18:12:53 $
- *  $Revision: 1.11 $
+ *  $Date: 2006/02/06 15:14:51 $
+ *  $Revision: 1.12 $
  *  \author S. Argiro - N. Amapane - M. Zanetti 
  */
 
@@ -24,7 +24,7 @@
 
 #include <EventFilter/DTRawToDigi/src/DTDDUWords.h>
 #include <EventFilter/DTRawToDigi/src/DTDDUUnpacker.h>
-//#include <EventFilter/DTRawToDigi/src/DTROS25Unpacker.h>
+#include <EventFilter/DTRawToDigi/src/DTROS25Unpacker.h>
 #include <EventFilter/DTRawToDigi/src/DTROS8Unpacker.h>
 
 
@@ -46,7 +46,10 @@ DTUnpackingModule::DTUnpackingModule(const edm::ParameterSet& pset) :
     unpacker = new DTDDUUnpacker();
   } else if (dataType == "ROS8") {
     unpacker = new DTROS8Unpacker();
-  } else {
+  } else if (dataType == "ROS25") {
+    unpacker = new DTROS25Unpacker();
+  } 
+  else {
     throw cms::Exception("InvalidParameter") << "DTUnpackingModule: dataType "
 					     << dataType << " is unknown";
   }
@@ -82,12 +85,12 @@ void DTUnpackingModule::produce(Event & e, const EventSetup& context){
       
       // Unpack the DDU data
       unpacker->interpretRawData(reinterpret_cast<const unsigned int*>(feddata.data()), 
-				 feddata.size(), id, mapping, product);
-
+ 				 feddata.size(), id, mapping, product);
+      
       numOfEvents++;      
-      if (numOfEvents%100 == 0) 
+      if (numOfEvents%1000 == 0) 
 	cout<<"[DTUnpackingModule]: "<<numOfEvents<<" events analyzed"<<endl;
-
+      
     }
   }
 
