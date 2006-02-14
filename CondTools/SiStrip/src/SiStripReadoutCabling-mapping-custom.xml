@@ -1,16 +1,16 @@
 <?xml version='1.0' encoding="UTF-8"?>
 <!DOCTYPE Mapping SYSTEM "InMemory">
-<Mapping version="SiStrip-1.0" >
-  <Class table="SISTRIPREADOUTCABLING" id_columns="IOV_VALUE_ID" name="SiStripReadoutCabling" >
-    <Container table="SISTRIPREADOUTCABLING_FEDS" id_columns="IOV_VALUE_ID" name="theFEDConnections" position_column="FED_POS" >
-      <Container table="SISTRIPREADOUTCABLING_FEDCHAN" id_columns="FED_POS IOV_VALUE_ID" name="std::vector&lt;std::pair&lt;unsigned int,unsigned short&gt; &gt;" position_column="FEDCHAN_POS" >
-        <Object table="SISTRIPREADOUTCABLING_APVPAIRS" id_columns="FEDCHAN_POS FED_POS IOV_VALUE_ID" name="std::pair&lt;unsigned int,unsigned short&gt;" >
+<Mapping version="SiStripReadoutCabling-1.0" >
+  <Class table="READOUTCABLING" id_columns="IOV_VALUE_ID" name="SiStripReadoutCabling" >
+    <Container table="FEDS" id_columns="IOV_VALUE_ID" name="theFEDConnections" position_column="FED_POS" >
+      <Container table="FEDCHAN" id_columns="FED_POS IOV_VALUE_ID" name="std::vector&lt;std::pair&lt;unsigned int,unsigned short&gt; &gt;" position_column="FEDCHAN_POS" >
+        <Object table="APVPAIRS" id_columns="FEDCHAN_POS FED_POS IOV_VALUE_ID" name="std::pair&lt;unsigned int,unsigned short&gt;" >
           <Primitive column="DETID" name="first" />
           <Primitive column="APV_PAIR" name="second" />
         </Object >
       </Container >
     </Container >
-    <Container table="SISTRIPREADOUTCABLING_ACTIVE_FEDS" id_columns="IOV_VALUE_ID" name="theFEDs" position_column="FED_POS" >
+    <Container table="ACTIVE_FEDS" id_columns="IOV_VALUE_ID" name="theFEDs" position_column="FED_POS" >
       <Primitive column="FED_ID" name="unsigned short" />
     </Container >
   </Class >
