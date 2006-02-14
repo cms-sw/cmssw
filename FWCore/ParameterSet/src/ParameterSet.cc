@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.cc,v 1.14 2006/02/02 15:46:27 paterno Exp $
+// $Id: ParameterSet.cc,v 1.15 2006/02/03 21:22:14 paterno Exp $
 //
 // definition of ParameterSet's function members
 // ----------------------------------------------------------------------
@@ -106,44 +106,52 @@ namespace edm {
   { return p.second; }
   
   Entry const&
-  ParameterSet::retrieve(std::string const& name) const 
-  {
+  ParameterSet::retrieve(std::string const& name) const {
     table::const_iterator  it = tbl_.find(name);
-    if ( it == tbl_.end() )
-      {
+    if (it == tbl_.end()) {
 	throw edm::Exception(errors::Configuration,"MissingParameter:")
 	  << "Parameter '" << name
 	  << "' not found.";
-      }
-    if ( it->second.isTracked() == false )
-      {
+    }
+    if (it->second.isTracked() == false) {
+      if (name[0] == '@') {
+	throw edm::Exception(errors::Configuration,"StatusMismatch:")
+	  << "Framework Error:  Parameter '" << name
+	  << "' is incorrectly designated as tracked in the framework.";
+      } else {
 	throw edm::Exception(errors::Configuration,"StatusMismatch:")
 	  << "Parameter '" << name
-	  << "' is untracked, not tracked.";
+	  << "' is designated as tracked in the code,\n"
+          << "but is designated as untracked in the configuration file.";
       }
+    }
     return it->second;
   }  // retrieve()
 
   Entry const* const
-  ParameterSet::retrieveUntracked(std::string const& name) const 
-  {
+  ParameterSet::retrieveUntracked(std::string const& name) const {
     table::const_iterator  it = tbl_.find(name);
     
-    if ( it == tbl_.end() ) return 0; 
-    if (it->second.isTracked() )
-      {
+    if (it == tbl_.end()) return 0; 
+    if (it->second.isTracked()) {
+      if (name[0] == '@') {
+	throw edm::Exception(errors::Configuration,"StatusMismatch:")
+	  << "Framework Error:  Parameter '" << name
+	  << "' is incorrectly designated as untracked in the framework.";
+      } else {
 	throw edm::Exception(errors::Configuration,"StatusMismatch:")
 	  << "Parameter '" << name
-	  << "' is tracked, not untracked."; 
+	  << "' is designated as untracked in the code,\n"
+          << "but is not designated as untracked in the configuration file.";
       }
+    }
     return &it->second;
   }  // retrieve()
   
   // ----------------------------------------------------------------------
   
   void
-  ParameterSet::insert(bool okay_to_replace, std::string const& name, Entry const& value) 
-  {
+  ParameterSet::insert(bool okay_to_replace, std::string const& name, Entry const& value) {
     // This preemptive invalidation may be more agressive than necessary.
     invalidate();
 
@@ -247,21 +255,18 @@ namespace edm {
   }  // from_string()
 
   std::vector<edm::FileInPath>::size_type
-  ParameterSet::getAllFileInPaths(std::vector<edm::FileInPath>& output) const
-  {
+  ParameterSet::getAllFileInPaths(std::vector<edm::FileInPath>& output) const {
     std::vector<edm::FileInPath>::size_type count = 0;
     table::const_iterator it = tbl_.begin();
     table::const_iterator end = tbl_.end();
-    while ( it != end )
-      {
-	const Entry& e = it->second;
-	if ( e.typeCode() == 'F' ) 
-	  {
+    while (it != end) {
+	Entry const& e = it->second;
+	if (e.typeCode() == 'F') {
 	    ++count;
 	    output.push_back(e.getFileInPath());
-	  }
+	}
 	++it;
-      }
+    }
     return count;
   }
 
@@ -269,7 +274,7 @@ namespace edm {
   ParameterSet::getParameterNames() const {
     std::vector<std::string> returnValue(tbl_.size());
     std::transform(tbl_.begin(), tbl_.end(),returnValue.begin(),
-		   boost::bind(&std::pair<const std::string, Entry>::first,_1));
+		   boost::bind(&std::pair<std::string const, Entry>::first,_1));
     return returnValue;
   }
   
