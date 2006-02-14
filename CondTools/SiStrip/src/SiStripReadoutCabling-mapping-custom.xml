@@ -4,9 +4,9 @@
   <Class table="SISTRIPREADOUTCABLING" id_columns="IOV_VALUE_ID" name="SiStripReadoutCabling" >
     <Container table="SISTRIPREADOUTCABLING_FEDS" id_columns="IOV_VALUE_ID" name="theFEDConnections" position_column="FED_POS" >
       <Container table="SISTRIPREADOUTCABLING_FEDCHAN" id_columns="FED_POS IOV_VALUE_ID" name="std::vector&lt;std::pair&lt;unsigned int,unsigned short&gt; &gt;" position_column="FEDCHAN_POS" >
-        <Object table="SISTRIPREADOUTCABL_3" id_columns="FEDCHAN_POS FED_POS IOV_VALUE_ID" name="std::pair&lt;unsigned int,unsigned short&gt;" >
+        <Object table="SISTRIPREADOUTCABLING_APVPAIRS" id_columns="FEDCHAN_POS FED_POS IOV_VALUE_ID" name="std::pair&lt;unsigned int,unsigned short&gt;" >
           <Primitive column="DETID" name="first" />
-          <Primitive column="APV_PAIRS" name="second" />
+          <Primitive column="APV_PAIR" name="second" />
         </Object >
       </Container >
     </Container >
