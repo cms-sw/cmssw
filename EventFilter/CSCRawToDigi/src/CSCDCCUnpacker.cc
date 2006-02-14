@@ -61,9 +61,9 @@ CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset) :
   }
   
 
-  produces<CSCWireDigiCollection>();
-  produces<CSCStripDigiCollection>();
-  produces<CSCComparatorDigiCollection>();  
+  produces<CSCWireDigiCollection>("MuonCSCWireDigi");
+  produces<CSCStripDigiCollection>("MuonCSCStripDigi");
+  produces<CSCComparatorDigiCollection>("MuonCSCComparatorDigi");  
  
   CSCAnodeData::setDebug(debug);
   CSCALCTHeader::setDebug(debug);
@@ -195,11 +195,11 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
   std::cout<<"**************[DCCUnpackingModule]:"<< std::dec << numOfEvents<<" events analyzed "<<std::endl;
   //}
   // commit to the event
-  e.put(wireProduct);
-  e.put(stripProduct);
+  e.put(wireProduct,"MuonCSCWireDigi");
+  e.put(stripProduct,"MuonCSCStripDigi");
   //e.put(ALCTProduct);
   //e.put(CLCTProduct);
-  e.put(comparatorProduct);
+  e.put(comparatorProduct,"MuonCSCComparatorDigi");
   //e.put(RPCProduct);
 
 }
