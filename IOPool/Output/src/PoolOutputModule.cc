@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.11 2006/02/08 00:44:29 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.12 2006/02/10 23:54:14 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
@@ -165,9 +165,6 @@ namespace edm {
     rp.markWrite(provenancePlacement_);
 	
     commitTransaction();
-    if (eventCount_ % om_->commitInterval_ == 0) {
-      commitAndFlushTransaction();
-    }
 
     if (eventCount_ >= fileSizeCheckEvent_) {
 	size_t size = om_->context_.getFileSize(file_);
@@ -180,6 +177,10 @@ namespace edm {
 	  increment -= increment/8;	// Prevents overshoot
 	  fileSizeCheckEvent_ = eventCount_ + increment;
         }
+    }
+    if (eventCount_ % om_->commitInterval_ == 0) {
+      commitAndFlushTransaction();
+      startTransaction();
     }
     return false;
   }
