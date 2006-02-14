@@ -4,8 +4,8 @@
 
 /** \class Interprets the RPC record (16 bit)
  *
- *  $Date: 2006/02/06 09:24:52 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/02/06 11:36:26 $
+ *  $Revision: 1.1 $
  *  \author Ilaria Segoni - CERN
  */
 
@@ -47,9 +47,6 @@ class RPCRecordFormatter{
       private:    
     
          bool verbosity;  
-	 int currentBX;
-         RPCDetId currentDetId;
-
          RPCEventData rpcData; 
 };
 
