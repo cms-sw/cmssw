@@ -1,3 +1,6 @@
+** V01-01-11  [Tue Feb 14 23:24:36 2006]
+Fix crash when commit and file size check occur on same event.
+
 ** V01-01-10  [Sat Feb 11 00:56:15 2006]
 change default commit interval to 100 instead of 1000
 
