@@ -1,3 +1,6 @@
+** V01-00-01  [Tue Feb 14 05:26:43 2006]
+decouple from OscarProducer
+
 ** V01-00-00  [Wed Dec  7 20:54:29 2005]
 New Package IOMC/EventVertexGenerators
 
