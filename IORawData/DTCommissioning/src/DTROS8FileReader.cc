@@ -1,11 +1,12 @@
 /** \file
  *
- *  $Date: 2005/11/23 11:35:34 $
- *  $Revision: 1.3 $
+ *  $Date: 2005/11/25 18:14:12 $
+ *  $Revision: 1.4 $
  *  \author M. Zanetti
  */
 
 #include <IORawData/DTCommissioning/src/DTROS8FileReader.h>
+#include <IORawData/DTCommissioning/src/DTFileReaderHelpers.h>
 
 #include <DataFormats/FEDRawData/interface/FEDHeader.h>
 #include <DataFormats/FEDRawData/interface/FEDTrailer.h>
@@ -49,20 +50,24 @@ bool DTROS8FileReader::fillRawData(EventID& eID,
 				   Timestamp& tstamp, 
 				   FEDRawDataCollection& data){
 
+
   try {
     
 
     if( checkEndOfFile() ) throw 1; 
     
+
     // Get the total number of words from the 1st word in the payload
     int numberOfWords;
     inputFile.read(dataPointer<int>( &numberOfWords ), ros8WordLenght);
-    if ( !inputFile ) throw 1;
+    if ( !inputFile )  throw 1;
+
 
     // Get the event data (all words but the 1st)
     int* eventData = new int[numberOfWords];
     inputFile.read(dataPointer<int>( eventData + 1 ), (numberOfWords-1) * ros8WordLenght );
     if ( !inputFile ) throw 1;
+    
 
     // Check that the event data size corresponds to the 1st word datum 
     if ( eventData[numberOfWords-1] != numberOfWords ) {
@@ -94,11 +99,11 @@ bool DTROS8FileReader::fillRawData(EventID& eID,
     // The ROS payload size
     int eventDataSize = *rosData * ros8WordLenght;
 
+
     // The FED ID is always the first in the DT range
     FEDRawData& fedRawData = data.FEDData( FEDNumbering::getDTFEDIds().first );
     fedRawData.resize(eventDataSize);
     
-
     // I pass only the ROS data to the Event
     copy(reinterpret_cast<unsigned char*>(rosData), 
 	 reinterpret_cast<unsigned char*>(rosData) + eventDataSize, fedRawData.data());

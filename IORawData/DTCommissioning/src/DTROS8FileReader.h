@@ -4,8 +4,8 @@
 /** \class DTROS8FileReader
  *  Read DT ROS8 raw data files
  *
- *  $Date: 2005/11/21 18:35:41 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/11/22 16:47:46 $
+ *  $Revision: 1.2 $
  *  \author M. Zanetti - INFN Padova
  */
 
@@ -41,24 +41,3 @@ class DTROS8FileReader : public DaqBaseReader {
 };
 #endif
 
-
-template<class T> char* dataPointer( const T* ptr ) {
-  union bPtr {
-    const T* dataP;
-    char*    fileP;
-  };
-  union bPtr buf;
-  buf.dataP = ptr;
-  return buf.fileP;
-}
-
-
-template<class T> T* typePointer( const char* ptr ) {
-  union bPtr {
-    T*          dataP;
-    const char* fileP;
-  };
-  union bPtr buf;
-  buf.fileP = ptr;
-  return buf.dataP;
-}
