@@ -1,3 +1,6 @@
+** V01-02-02  [Tue Feb 14 21:19:47 2006]
+Improve tracked/untracked mismatch exception messages
+
 ** V01-02-01  [Mon Feb 13 23:09:52 2006]
 ParameterSetID moved from FWCore/EDProduct to DataFormats/Common
 
