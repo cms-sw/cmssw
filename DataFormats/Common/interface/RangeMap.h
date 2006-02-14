@@ -90,6 +90,54 @@ namespace edm {
       return range( begin, end );
     }
 
+    template<typename M>
+    struct match_iterator {
+      typedef RangeMap::value_type value_type;
+      typedef value_type * pointer;
+      typedef value_type & reference;
+      typedef typename map_iterator::iterator_category iterator_category;
+      match_iterator() { }
+      match_iterator( const M & ma, const map_iterator & e, const map_iterator & m, const container_iterator & c ) : 
+	match( ma ), im( m ), em( e ), ic( c ) {
+      }
+      match_iterator( const M & ma, const map_iterator & e ) : 
+	match( ma ), im( e ), em( e ) {
+      }
+      match_iterator & operator=( const match_iterator & it ) { 
+	match = it.match; im = it.im; em = it.em; ic = it.ic;
+	return *this; 
+      }
+      match_iterator& operator++() { 
+	++ ic;
+	while ( ic == im->second.end() ) {
+	  do { ++im; } while ( ! match( im->first ) && im != em );
+	  if ( im == em ) return * this;
+	  ic = im->second.begin();
+	}
+	return *this; 
+      }
+      match_iterator operator++( int ) { match_iterator ci = *this; operator++(); return ci; }
+      bool operator==( const match_iterator& ci ) const { 
+	if ( im == em && ci.im == im && ci.em == em ) return true;
+	return im == ci.im && ic == ci.ic; 
+      }
+      bool operator!=( const match_iterator& ci ) const { return ! operator==( ci ); }
+      const value_type & operator * () const { return * ic; }
+    private:
+      M match;
+      map_iterator im, em;
+      container_iterator ic;
+    };
+
+    template<typename M>
+    match_iterator<M> begin( const M & m ) const {
+      return match_iterator<M>( m, map_.end(), map_.begin(), map_.begin()->second.begin() );
+    }
+    template<typename M>
+    match_iterator<M> end( const M & m ) const {
+      return match_iterator<M>( m, map_.end() );
+    }
+
     struct id_iterator {
       typedef ID value_type;
       typedef ID * pointer;

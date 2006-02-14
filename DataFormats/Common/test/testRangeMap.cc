@@ -18,6 +18,10 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testMapRange);
 #include <iostream>
 using namespace std;
 
+struct MatchOddId {
+  bool operator()( int i ) const { return i % 2 == 1; }
+};
+
 void testMapRange::checkAll() {
   typedef edm::RangeMap<int, std::vector<int>, edm::CopyPolicy<int> > map;
   map m;
@@ -59,6 +63,16 @@ void testMapRange::checkAll() {
   CPPUNIT_ASSERT( * j ++ ==  3 );
   CPPUNIT_ASSERT( * j ++ ==  4 );
   CPPUNIT_ASSERT( j == r.end );
+
+  MatchOddId o;
+  map::match_iterator<MatchOddId> t = m.begin( o );
+  CPPUNIT_ASSERT( * t ++ == 1 );
+  CPPUNIT_ASSERT( * t ++ == 2 );
+  CPPUNIT_ASSERT( * t ++ == 3 );
+  CPPUNIT_ASSERT( * t ++ == 4 );
+  CPPUNIT_ASSERT( * t ++ == 8 );
+  CPPUNIT_ASSERT( * t ++ == 9 );
+  CPPUNIT_ASSERT( t == m.end( o ) );
 
   /*
   m.put( 1, v1, v1 + s1 );
