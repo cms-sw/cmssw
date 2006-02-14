@@ -1,3 +1,6 @@
+** V03-06-11  [Tue Feb 14 08:05:36 2006]
+Evt.Vtx.Smearing moves to Sources
+
 ** V03-06-10  [Wed Feb  8 01:33:36 2006]
 pick xml files from Geometry/CMSCommonData; also use endpath
 
