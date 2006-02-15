@@ -24,8 +24,10 @@ MessageSender::~MessageSender()
   // and will then (b) dispose of the ErrorObj
 
   MessageDrop * drop = MessageDrop::instance();
-  errorobj_p->setModule(drop->moduleName);
-  errorobj_p->setContext(drop->runEvent);
+  if (drop) {
+    errorobj_p->setModule(drop->moduleName);
+    errorobj_p->setContext(drop->runEvent);
+  }
 
   MessageLoggerQ::LOG(errorobj_p);
 }
