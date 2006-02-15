@@ -21,5 +21,7 @@
   <class name="edm::Wrapper<SiStripRecHit2DMatchedLocalPosCollection>"/>
   <class name="SiStripRecHit2DLocalPosCollection"/>
   <class name="edm::Wrapper<SiStripRecHit2DLocalPosCollection>"/>
+  <class name="SiPixelRecHit"/>
+  <class name="edm::Wrapper<SiPixelRecHitCollection>"/>
 
 </lcgdict>
