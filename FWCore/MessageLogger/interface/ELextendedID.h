@@ -1,5 +1,5 @@
-#ifndef ELEXTENDEDID_H
-#define ELEXTENDEDID_H
+#ifndef MessageLogger_ELextendedID_h
+#define MessageLogger_ELextendedID_h
 
 
 // ----------------------------------------------------------------------
@@ -14,13 +14,8 @@
 // ----------------------------------------------------------------------
 
 
-#ifndef ELSTRING_H
-  #include "FWCore/MessageLogger/interface/ELstring.h"
-#endif
-
-#ifndef ELSEVERITYLEVEL_H
-  #include "FWCore/MessageLogger/interface/ELseverityLevel.h"
-#endif
+#include "FWCore/MessageLogger/interface/ELstring.h"
+#include "FWCore/MessageLogger/interface/ELseverityLevel.h"
 
 
 namespace edm {       
@@ -59,4 +54,4 @@ public:
 }        // end of namespace edm
 
 
-#endif  // ELEXTENDEDID_H
+#endif  // MessageLogger_ELextendedID_h

@@ -1,9 +1,7 @@
 #include "FWCore/MessageLogger/interface/MessageSender.h"
 #include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/MessageLogger/interface/MessageDrop.h"
 
-#include <iostream>
 
 
 using namespace edm;
@@ -25,20 +23,9 @@ MessageSender::~MessageSender()
   // that will (a) route the message text to its destination(s)
   // and will then (b) dispose of the ErrorObj
 
-  try
-    {
-      edm::Service<edm::service::MessageLogger> h;
-      h->fillErrorObj(*errorobj_p);
-    }
-  catch(cms::Exception&)
-    {
-      // we get here because no services are available yet - ignore the error
-      errorobj_p->setModule("pre-services");
-    }
-  catch(...)
-    {
-      errorobj_p->setModule("Service:unknown exception occurred");
-    }
-  
+  MessageDrop * drop = MessageDrop::instance();
+  errorobj_p->setModule(drop->moduleName);
+  errorobj_p->setContext(drop->runEvent);
+
   MessageLoggerQ::LOG(errorobj_p);
 }

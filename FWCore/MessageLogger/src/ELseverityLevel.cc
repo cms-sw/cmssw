@@ -36,6 +36,7 @@
 // ----------------------------------------------------------------------
 
 #include <ostream>
+
 #include "FWCore/MessageLogger/interface/ELseverityLevel.h"
 #include "FWCore/MessageLogger/interface/ELmap.h"
 

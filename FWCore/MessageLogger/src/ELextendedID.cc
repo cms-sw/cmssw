@@ -10,17 +10,9 @@
 // ----------------------------------------------------------------------
 
 
-#ifndef ELEXTENDEDID_H
-  #include "FWCore/MessageLogger/interface/ELextendedID.h"
-#endif
-
-#ifndef ELSTRING_H
-  #include "FWCore/MessageLogger/interface/ELstring.h"
-#endif
-
-#ifndef ELSEVERITYLEVEL_H
-  #include "FWCore/MessageLogger/interface/ELseverityLevel.h"
-#endif
+#include "FWCore/MessageLogger/interface/ELextendedID.h"
+#include "FWCore/MessageLogger/interface/ELstring.h"
+#include "FWCore/MessageLogger/interface/ELseverityLevel.h"
 
 
 namespace edm

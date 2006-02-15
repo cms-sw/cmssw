@@ -1,5 +1,5 @@
-#ifndef ELLIST_H
-#define ELLIST_H
+#ifndef MessageLogger_ELlist_h
+#define MessageLogger_ELlist_h
 
 
 // ----------------------------------------------------------------------
@@ -47,4 +47,4 @@ typedef std::list<ELstring       > ELlist_string;
 }        // end of namespace edm
 
 
-#endif // ELLIST_H
+#endif // MessageLogger_ELlist_h

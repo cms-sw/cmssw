@@ -15,6 +15,9 @@
 // 6/5/01   mf          setReactedTo
 // 11/01/01 web         maxIDlength now unsigned
 //
+// 2/14/06  mf		Removed oerator<<(endmsg) which is not needed for
+//			MessageLogger for CMS
+//
 // ErrorObj( const ELseverityLevel & sev, const ELstring & id )
 // ~ErrorObj()
 // set( const ELseverityLevel & sev, const ELstring & id )
@@ -234,8 +237,6 @@ void ErrorObj::clear()  {
 
 }  // clear()
 
-
-ErrorObj & ErrorObj::operator<< ( void (*f)(ErrorLog &) )  { return *this; }
 
 ErrorObj & operator<<( ErrorObj & e, const char s[] ) {
   // Exactly equivalent to the general template.

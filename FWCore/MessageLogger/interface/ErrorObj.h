@@ -1,5 +1,5 @@
-#ifndef ERROROBJ_H
-#define ERROROBJ_H
+#ifndef MessageLogger_ErrorObj_h
+#define MessageLogger_ErrorObj_h
 
 
 // ----------------------------------------------------------------------
@@ -22,22 +22,10 @@
 // ----------------------------------------------------------------------
 
 
-#ifndef ELSTRING_H
-  #include "FWCore/MessageLogger/interface/ELstring.h"
-#endif
-
-#ifndef ELLIST_H
-  #include "FWCore/MessageLogger/interface/ELlist.h"
-#endif
-
-#ifndef ELEXTENDEDID_H
-  #include "FWCore/MessageLogger/interface/ELextendedID.h"
-#endif
-
-#ifndef SEVERITYLEVEL_H
-  #include "FWCore/MessageLogger/interface/ELseverityLevel.h"
-#endif
-
+#include "FWCore/MessageLogger/interface/ELstring.h"
+#include "FWCore/MessageLogger/interface/ELlist.h"
+#include "FWCore/MessageLogger/interface/ELextendedID.h"
+#include "FWCore/MessageLogger/interface/ELseverityLevel.h"
 
 namespace edm {       
 
@@ -48,7 +36,6 @@ namespace edm {
 
 class ELcontextSupplier;
 class ErrorLog;
-class ELtsErrorLog;
 class ELadministrator;
 class ELcout;
 
@@ -58,9 +45,6 @@ class ELcout;
 // ----------------------------------------------------------------------
 
 class ErrorObj  {
-
-  friend class ELadministrator;
-  friend class ELcout;
 
 public:
   // --- birth/death:
@@ -92,8 +76,6 @@ public:
 		//-| an ELdestControl, both of which talk to ELadministrator.
 
   virtual ErrorObj &  emit( const ELstring & txt );
-
-  ErrorObj & operator<<( void (* f)(ErrorLog &) ); // nil obj << zmel::endmsg
 
   // ---  mutators for use by ELadministrator and ELtsErrorLog
   //
@@ -156,4 +138,4 @@ void endmsg( ErrorLog & );
 // ----------------------------------------------------------------------
 
 
-#endif // ERROROBJ_H
+#endif // MessageLogger_ErrorObj_h

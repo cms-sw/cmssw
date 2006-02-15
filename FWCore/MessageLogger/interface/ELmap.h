@@ -1,5 +1,5 @@
-#ifndef ELMAP_H
-#define ELMAP_H
+#ifndef MessageLogger_ELmap_h
+#define MessageLogger_ELmap_h
 
 
 // ----------------------------------------------------------------------
@@ -35,13 +35,8 @@
 
 #include <map>
 
-#ifndef ELSTRING_H
-  #include "FWCore/MessageLogger/interface/ELstring.h"
-#endif
-
-#ifndef ELEXTENDEDID_H
-  #include "FWCore/MessageLogger/interface/ELextendedID.h"
-#endif
+#include "FWCore/MessageLogger/interface/ELstring.h"
+#include "FWCore/MessageLogger/interface/ELextendedID.h"
 
 
 namespace edm {       
@@ -112,4 +107,4 @@ typedef std::map< ELextendedID , StatsCount       > ELmap_stats;
 }        // end of namespace edm
 
 
-#endif // ELMAP_H
+#endif // MessageLogger_ELmap_h

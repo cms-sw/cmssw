@@ -1,10 +1,9 @@
 #ifndef FWCore_MessageLogger_MessageLoggerQ_h
 #define FWCore_MessageLogger_MessageLoggerQ_h
 
-
-#include "FWCore/MessageLogger/interface/NamedDestination.h"
-#include "FWCore/Utilities/interface/SingleConsumerQ.h"
 #include <memory>
+
+#include "FWCore/Utilities/interface/SingleConsumerQ.h"
 
 
 namespace edm
@@ -14,6 +13,7 @@ namespace edm
 class ErrorObj;
 class ParameterSet;
 class ELdestination;
+class NamedDestination;
 
 
 class MessageLoggerQ

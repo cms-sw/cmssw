@@ -1,5 +1,5 @@
-#ifndef ELSEVERITYLEVEL_H
-#define ELSEVERITYLEVEL_H
+#ifndef MessageLogger_ELseverityLevel_h
+#define MessageLogger_ELseverityLevel_h
 
 
 // ----------------------------------------------------------------------
@@ -245,5 +245,5 @@ extern bool  operator>= ( ELseverityLevel const & e1
 
 // ----------------------------------------------------------------------
 
-#endif  // ELSEVERITYLEVEL_H
+#endif  // MessageLogger_ELseverityLevel_h
 

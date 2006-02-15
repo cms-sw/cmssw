@@ -1,5 +1,5 @@
-#ifndef ELSTRING_H
-#define ELSTRING_H
+#ifndef MessageLogger_ELstring_h
+#define MessageLogger_ELstring_h
 
 
 // ----------------------------------------------------------------------
@@ -36,4 +36,4 @@ bool eq( const ELstring & s1, const ELstring s2 );
 }        // end of namespace edm
 
 
-#endif  // ELSTRING_H
+#endif  // MessageLogger_ELstring_h

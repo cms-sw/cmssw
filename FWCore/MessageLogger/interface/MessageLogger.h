@@ -1,87 +1,41 @@
-#ifndef Services_MessageLogger_h
-#define Services_MessageLogger_h
+#ifndef MessageLogger_MessageLogger_h
+#define MessageLogger_MessageLogger_h
 
 // -*- C++ -*-
 //
-// Package:     Services
-// Class  :     MessageLogger
+// Package:     MessageLogger
+// Class  :     <none>
+// Functions:   LogError, LogWarning, LogInfo, LogDebug
 //
-/**\class MessageLogger MessageLogger.h FWCore/Services/interface/MessageLogger.h
 
- Description: <one line class summary>
-
- Usage:
-    <usage>
-
-*/
 //
 // Original Author:  W. Brown and M. Fischler
 //         Created:  Fri Nov 11 16:38:19 CST 2005
-// $Id: MessageLogger.h,v 1.6 2006/01/19 17:12:58 fischler Exp $
+//     Major Split:  Tue Feb 14 11:00:00 CST 2006
+//		     See MessageService/interface/MessageLogger.h
+// $Id: MessageLogger.h,v 1.7 2006/02/07 07:22:10 wmtan Exp $
 //
 
 // system include files
 
 #include <memory>
 #include <string>
-#include <set>
 
 // user include files
 
 // forward declarations
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageSender.h"
+#include "FWCore/MessageLogger/interface/MessageDrop.h"
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
-#include "DataFormats/Common/interface/EventID.h"
+#include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
 
 namespace edm  {
-namespace service  {
-
-
-class MessageLogger
-{
-public:
-  MessageLogger( ParameterSet const &, ActivityRegistry & );
-
-  void  postBeginJob();
-  void  postEndJob();
-
-  void  preEventProcessing ( edm::EventID const &, edm::Timestamp const & );
-  void  postEventProcessing( Event const &, EventSetup const & );
-
-  void  preModule ( ModuleDescription const & );
-  void  postModule( ModuleDescription const & );
-
-  void  fillErrorObj(edm::ErrorObj& obj) const;
-  bool  debugEnabled() const { return debugEnabled_; }
-
-  static 
-  bool  anyDebugEnabled() { return anyDebugEnabled_; }
-  
-private:
-  // put an ErrorLog object here, and maybe more
-
-  edm::EventID curr_event_;
-  std::string curr_module_;
-
-  std::set<std::string> debugEnabledModules_;
-  bool debugEnabled_;
-  static bool   anyDebugEnabled_;
-  static bool everyDebugEnabled_;
-
-};  // MessageLogger
-
-
-}  // namespace service
-
 
 class LogWarning
 {
 public:
-  explicit LogWarning( ELstring const & id ) 
+  explicit LogWarning( std::string const & id ) 
     : ap( new MessageSender(ELwarning,id) )
   { }
 
@@ -98,7 +52,7 @@ private:
 class LogError
 {
 public:
-  explicit LogError( ELstring const & id ) 
+  explicit LogError( std::string const & id ) 
     : ap( new MessageSender(ELerror,id) )
   { }
 
@@ -115,7 +69,7 @@ private:
 class LogInfo
 {
 public:
-  explicit LogInfo( ELstring const & id ) 
+  explicit LogInfo( std::string const & id ) 
     : ap( new MessageSender(ELinfo,id) )
   { }
 
@@ -137,12 +91,14 @@ onlyLowestDirectory(const std::string & file) {
   return file.substr(lastSlash+1, file.size()-lastSlash-1);
 }
 
-void LogStatistics(); 
+void LogStatistics() { 
+  edm::MessageLoggerQ::SUM ( ); // trigger summary info
+}
 
 class LogDebug_
 {
 public:
-  explicit LogDebug_( ELstring const & id, std::string const & file, int line ) 
+  explicit LogDebug_( std::string const & id, std::string const & file, int line ) 
     : ap( new MessageSender(ELsuccess,id) )
   { *this << onlyLowestDirectory(file) << ':' << line << ' '; }
 
@@ -185,12 +141,11 @@ public:
 #ifdef EDM_MESSAGELOGGER_SUPPRESS_LOGDEBUG 
 #define LogDebug(id) edm::Suppress_LogDebug_();
 #else
-#define LogDebug(id)                                                   \
-  if ( edm::service::MessageLogger::anyDebugEnabled () &&               \
-       edm::Service<edm::service::MessageLogger>()->debugEnabled () )    \
+#define LogDebug(id)                                            \
+  if (edm::MessageDrop::instance()->debugEnabled )               \
           edm::LogDebug_(id, __FILE__, __LINE__)                               
 #endif
 #undef EDM_MESSAGELOGGER_SUPPRESS_LOGDEBUG
 
-#endif  // Services_MessageLogger_h
+#endif  // MessageLogger_MessageLogger_h
 
