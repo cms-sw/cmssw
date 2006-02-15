@@ -1,153 +1,70 @@
 #ifndef Common_RangeMap_h
 #define Common_RangeMap_h
-// $Id: RangeMap.h,v 1.5 2006/02/14 11:16:03 llista Exp $
 #include <map>
+#include <vector>
+#include "FWCore/Utilities/interface/Exception.h"
 
+// $Id: RangeMap.h,v 1.2 2006/02/13 11:54:41 llista Exp $
 namespace edm {
 
   template<typename ID, typename C, typename P>
-  class RangeMap {
-  public:
+    class RangeMap {
+    public:
     typedef typename C::value_type value_type;
-    typedef typename C::const_iterator container_iterator;
-    typedef std::map<ID, C> map;
-    typedef typename map::const_iterator map_iterator;
-    struct const_iterator {
-      typedef RangeMap::value_type value_type;
-      typedef value_type * pointer;
-      typedef value_type & reference;
-      typedef typename map_iterator::iterator_category iterator_category;
-      const_iterator() { }
-      const_iterator( const map_iterator & e, const map_iterator & m, const container_iterator & c ) : 
-	im( m ), em( e ), ic( c ) {
+    typedef typename C::const_iterator const_iterator;
+    typedef std::pair<typename C::size_type, typename C::size_type> pairType;
+    typedef std::map<ID, pairType> mapType;
+    typedef std::pair<const_iterator, const_iterator> range;
+    
+    std::vector<ID> ids(){
+      std::vector<ID> temp;
+      for (typename mapType::const_iterator i = map_begin();
+	   i != map_end();
+	   i++){
+	temp.push_back((*i)->first);
       }
-      const_iterator( const map_iterator & e ) : 
-	im( e ), em( e ) {
-      }
-      const_iterator & operator=( const const_iterator & it ) { 
-	im = it.im; em = it.em; ic = it.ic;
-	return *this; 
-      }
-      const_iterator& operator++() { 
-	++ ic;
-	while ( ic == im->second.end() ) {
-	  ++im; 
-	  if ( im == em ) return * this;
-	  ic = im->second.begin();
-	}
-	return *this; 
-      }
-      const_iterator operator++( int ) { const_iterator ci = *this; operator++(); return ci; }
-      const_iterator& operator--() { 
-	if ( im == em ) { -- im; ic = im->second.end(); }
-	while ( ic == im->second.begin() ) {
-	  --im; 
-	  ic = im->second.end();
-	}
-	-- ic;
-	return *this; 
-      }
-      const_iterator operator--( int ) { const_iterator ci = *this; operator--(); return ci; }
-      bool operator==( const const_iterator& ci ) const { 
-	if ( im == em && ci.im == im && ci.em == em ) return true;
-	return im == ci.im && ic == ci.ic; 
-      }
-      bool operator!=( const const_iterator& ci ) const { return ! operator==( ci ); }
-      const value_type & operator * () const { return * ic; }
-    private:
-      map_iterator im, em;
-      container_iterator ic;
-    };
-
+      return temp;
+    }
+        
     RangeMap() { }
-    const_iterator begin() const {
-      return const_iterator( map_.end(), map_.begin(), map_.begin()->second.begin() );
-    }
-    const_iterator end() const {
-      return const_iterator( map_.end() );
-    }
-    void insert( ID id, const value_type & t ) {
-      map_[ id ].push_back( P::clone( t ) );
-    }
-    template<typename CI>
-    void insert( ID id, CI begin, CI end ) {
-      C & c = map_[ id ];
-      for( CI i = begin; i != end; ++ i )
-	c.push_back( P::clone( * i ) );
-    }
-
-    struct range {
-      range ( const container_iterator & b, const container_iterator & e ) :
-	begin( b ), end( e ) { }
-      container_iterator begin, end;
-    };
     range get( ID id ) const {
-      container_iterator begin, end;
-      map_iterator i = map_.find( id );
+      const_iterator begin, end;
+      typename mapType::const_iterator i = map_.find( id );
       if ( i != map_.end() ) { 
-	begin = i->second.begin();
-	end = i->second.end();
+	begin = collection_.begin() + i->second.first;
+	end = collection_.begin() + i->second.second;
       } else {
-	begin = end;
+	begin = end = collection_.end();
       }
-      return range( begin, end );
+      return std::make_pair( begin, end );
     }
+    
+    
 
-    template<typename M>
-    struct match_iterator {
-      typedef RangeMap::value_type value_type;
-      typedef value_type * pointer;
-      typedef value_type & reference;
-      typedef typename map_iterator::iterator_category iterator_category;
-      match_iterator() { }
-      match_iterator( const M & ma, const map_iterator & e, const map_iterator & m, const container_iterator & c ) : 
-	match( ma ), im( m ), em( e ), ic( c ) {
-      }
-      match_iterator( const M & ma, const map_iterator & e ) : 
-	match( ma ), im( e ), em( e ) {
-      }
-      match_iterator & operator=( const match_iterator & it ) { 
-	match = it.match; im = it.im; em = it.em; ic = it.ic;
-	return *this; 
-      }
-      match_iterator& operator++() { 
-	++ ic;
-	while ( ic == im->second.end() ) {
-	  do { ++im; } while ( ! match( im->first ) && im != em );
-	  if ( im == em ) return * this;
-	  ic = im->second.begin();
-	}
-	return *this; 
-      }
-      match_iterator operator++( int ) { match_iterator ci = *this; operator++(); return ci; }
-      bool operator==( const match_iterator& ci ) const { 
-	if ( im == em && ci.im == im && ci.em == em ) return true;
-	return im == ci.im && ic == ci.ic; 
-      }
-      bool operator!=( const match_iterator& ci ) const { return ! operator==( ci ); }
-      const value_type & operator * () const { return * ic; }
-    private:
-      M match;
-      map_iterator im, em;
-      container_iterator ic;
-    };
-
-    template<typename M>
-    match_iterator<M> begin( const M & m ) const {
-      return match_iterator<M>( m, map_.end(), map_.begin(), map_.begin()->second.begin() );
+    template<typename CI>
+      void put( ID id, CI begin, CI end ) {
+      typename mapType::const_iterator i = map_.find( id );
+      if( i != map_.end() ) 
+      	throw cms::Exception( "Error" ) << "trying to insert duplicate entry";
+      assert( i == map_.end() );
+      pairType & p = map_[ id ];
+      p.first = collection_.size();
+      for( CI i = begin; i != end; ++ i )
+	collection_.push_back( P::clone( * i ) );
+      p.second = collection_.size();
     }
-    template<typename M>
-    match_iterator<M> end( const M & m ) const {
-      return match_iterator<M>( m, map_.end() );
-    }
-
+    size_t size() { return collection_.size(); }
+    typename C::const_iterator begin() const { return collection_.begin(); }
+    typename C::const_iterator end() const { return collection_.end(); }
+    
     struct id_iterator {
       typedef ID value_type;
       typedef ID * pointer;
       typedef ID & reference;
-      typedef typename map_iterator::iterator_category iterator_category;
+      typedef typename mapType::const_iterator::iterator_category iterator_category;
+      typedef typename mapType::const_iterator const_iterator;
       id_iterator() { }
-      id_iterator( map_iterator o ) : i( o ) { }
+      id_iterator( const_iterator o ) : i( o ) { }
       id_iterator & operator=( const id_iterator & it ) { i = it.i; return *this; }
       id_iterator& operator++() { ++i; return *this; }
       id_iterator operator++( int ) { id_iterator ci = *this; ++i; return ci; }
@@ -155,17 +72,42 @@ namespace edm {
       id_iterator operator--( int ) { id_iterator ci = *this; --i; return ci; }
       bool operator==( const id_iterator& ci ) const { return i == ci.i; }
       bool operator!=( const id_iterator& ci ) const { return i != ci.i; }
-      const ID operator * () const { return i->first; }
-    private:
-      map_iterator i;
+      const ID operator * () const { return i->first; }      
+      private:
+      const_iterator i;
     };
+    
+    
+    void post_insert(){
+      // sorts the container via ID
+      C tempCollection;
+      id_iterator it;
+      for (it = map_.begin(); it != map_.end(); it ++){ 
+	range range_ = get((*it).first);
+	const_iterator begIt = tempCollection.size();
+	for (const_iterator it2 = range_.first; it2 != range_.second; it2++){
+	  copy(range_.first, range_.second, back_inserter(tempCollection));
+	}
+	const_iterator endIt = tempCollection.size();
+	map_[*it] = std::make_pair( begIt, endIt );
+      }
+      swap (tempCollection,collection_);
+    }
+    
+
     id_iterator id_begin() const { return id_iterator( map_.begin() ); }
     id_iterator id_end() const { return id_iterator( map_.end() ); }
     size_t id_size() const { return map_.size(); }
-  private:
+    private:
     C collection_;
-    map map_;
+    mapType map_;
   };
+/*   template<typename ID, typename C, typename P> */
+/*     struct has_postinsert_trait<edm::RangeMap<ID,C,P> > */
+/*     { */
+/*       static bool const value = true; */
+/*     }; */
+
   
 }
 
