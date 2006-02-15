@@ -46,6 +46,10 @@ public:
 
     theElectronicsSim->newEvent();
 
+    // reserve space for how many digis we expect
+    int nDigisExpected = addNoise_ ? theDetIds.size() : theHitResponse->nSignals();
+    output.reserve(nDigisExpected);
+
     // make a raw digi for evey cell
     for(std::vector<DetId>::const_iterator idItr = theDetIds.begin();
         idItr != theDetIds.end(); ++idItr)
