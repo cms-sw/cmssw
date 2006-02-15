@@ -71,6 +71,9 @@ public:
   /// users can look for the signal for a given cell
   CaloSamples * findSignal(const DetId & detId);
 
+  /// number of signals in the current cache
+  int nSignals() const {return theAnalogSignalMap.size();}
+
   /// creates an empty signal for this DetId
   CaloSamples makeBlankSignal(const DetId & detId) const;
 
