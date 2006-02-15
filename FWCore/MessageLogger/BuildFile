@@ -1,4 +1,3 @@
-<flags SEAL_PLUGIN_NAME="FWCoreMessageLogger">
 <use name=boost>
 <use name=FWCore/Utilities>
 <export>

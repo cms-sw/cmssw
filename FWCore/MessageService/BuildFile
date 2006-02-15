@@ -1,4 +1,4 @@
-<flags SEAL_PLUGIN_NAME="FWCoreMessageLogger">
+<flags SEAL_PLUGIN_NAME="FWCoreMessageService">
 <use name=boost>
 <use name=FWCore/MessageLogger>
 <use name=Foundation/PluginManager>
@@ -7,7 +7,7 @@
 <use name=FWCore/Utilities>
 <use name=FWCore/ServiceRegistry>
 <export>
- <lib name=FWCoreMessageLogger>
+ <lib name=FWCoreMessageService>
  <use name=boost>
  <use name=FWCore/MessageLogger>
  <use name=Foundation/PluginManager>

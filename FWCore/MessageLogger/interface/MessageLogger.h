@@ -13,7 +13,7 @@
 //         Created:  Fri Nov 11 16:38:19 CST 2005
 //     Major Split:  Tue Feb 14 11:00:00 CST 2006
 //		     See MessageService/interface/MessageLogger.h
-// $Id: MessageLogger.h,v 1.7 2006/02/07 07:22:10 wmtan Exp $
+// $Id: MessageLogger.h,v 1.8 2006/02/15 00:28:27 fischler Exp $
 //
 
 // system include files
@@ -91,6 +91,7 @@ onlyLowestDirectory(const std::string & file) {
   return file.substr(lastSlash+1, file.size()-lastSlash-1);
 }
 
+inline
 void LogStatistics() { 
   edm::MessageLoggerQ::SUM ( ); // trigger summary info
 }
