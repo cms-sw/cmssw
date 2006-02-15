@@ -18,9 +18,9 @@
  <Constant name="SupportRin"   value="53.05*cm"/>
  <Constant name="SupportRout"  value="53.10*cm"/>
  <Constant name="SupportZ"     value="71.00*cm"/>
- <Constant name="AxCables"     value="14"/>
+ <Constant name="AxCables"     value="3"/>
  <Constant name="AxCabW"       value="18.0*deg"/>
- <Constant name="AxCabPhiOff"  value="7.5*deg"/>
+ <Constant name="AxCabPhiOff"  value="60.0*deg"/>
  <Constant name="AxCabDR0"     value="0.70*cm"/>
  <Constant name="AxCabZ2"      value="90.0*cm"/>
  <Constant name="AxCabZ3"      value="1.215*m"/>
@@ -68,11 +68,11 @@
  </Polycone> 
  <Tubs name="TIBCFDisk"     rMin="[Rout1]"          rMax="[Rout2]"
                             dz="[CFDiskT]/2"
-                            startPhi="0*deg"        deltaPhi="360*deg"/>
+                            startPhi="60*deg"        deltaPhi="60*deg"/>
  <Tubs name="TIBConnector"  rMin="([ConnectorR]-[ConnectorW]/2)"
                             rMax="([ConnectorR]+[ConnectorW]/2)"
                             dz="[ConnectorT]/2"
-                            startPhi="0*deg"        deltaPhi="360*deg"/>
+                            startPhi="60*deg"        deltaPhi="60*deg"/>
  <Tubs name="TIBAxCable0"   rMin="[Rin2]"           rMax="([Rin2]+[AxCabDR0])"
                             dz="([AxCabZ2]-[AxCabZ1])/2"
                             startPhi="-[AxCabW]/2"  deltaPhi="[AxCabW]"/>
@@ -166,7 +166,7 @@
   <Numeric name="N"           value="[AxCables]" />
   <Numeric name="StartCopyNo" value="1" />
   <Numeric name="IncrCopyNo"  value="1" />
-  <Numeric name="RangeAngle"  value="360*deg"/>
+  <Numeric name="RangeAngle"  value="60*deg"/>
   <Numeric name="StartAngle"  value="[AxCabPhiOff]"/>
   <Numeric name="Radius"      value="0"/>
   <Vector name="Center" type="numeric" nEntries="3"> 
@@ -179,7 +179,7 @@
   <Numeric name="N"           value="[AxCables]" />
   <Numeric name="StartCopyNo" value="1" />
   <Numeric name="IncrCopyNo"  value="1" />
-  <Numeric name="RangeAngle"  value="360*deg"/>
+  <Numeric name="RangeAngle"  value="60*deg"/>
   <Numeric name="StartAngle"  value="[AxCabPhiOff]"/>
   <Numeric name="Radius"      value="0"/>
   <Vector name="Center" type="numeric" nEntries="3"> 
