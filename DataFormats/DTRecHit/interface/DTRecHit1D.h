@@ -9,8 +9,8 @@
  *  DTRecHit1DPair). The coordiante measured is always the x (in Det frame)
  *
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/01/24 14:23:24 $
+ *  $Revision: 1.1 $
  *  \author S. Lacaprara, G. Cerminara
  */
 
@@ -33,6 +33,8 @@ class DTRecHit1D : public RecHit1D {
 	     DTEnums::DTCellSide lr,
 	     float digiTime);
 
+  /// Default constructor
+  DTRecHit1D();
 
   /// Constructor from a local position, wireId and digi time.
   /// The 3-dimensional local error is defined as
@@ -66,13 +68,6 @@ class DTRecHit1D : public RecHit1D {
   virtual LocalError localPositionError() const {
     return theLocalError;
   }
-
-  // FIXME: Remove dependencies from Geometry
-//   /// Access to the GeomDet (essentially the Surface, with alignment interface) to which the RecHit belongs
-//   virtual const GeomDet& det() const {
-//     return *theDet;
-//   }
-
 
   /// Return the detId of the Det 
   virtual DetId geographicalId() const;
@@ -115,12 +110,8 @@ class DTRecHit1D : public RecHit1D {
   }
 
  private:
-  // FIXME: Remove dependencies from Geometry
-//   // Reference to the DTLayer
-//   const GeomDet*  theDet;
-
   // The wire id
-  const DTWireId theWireId;
+  DTWireId theWireId;
 
   // Left/Right side code
   DTEnums::DTCellSide theLRSide;

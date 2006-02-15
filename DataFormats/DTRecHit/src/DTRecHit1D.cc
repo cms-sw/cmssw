@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/01/24 14:23:25 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -13,7 +13,7 @@
 
 
 using namespace std;
-
+using namespace DTEnums;
 
 
 // Constructor from wireId and digi time only. 
@@ -26,6 +26,12 @@ DTRecHit1D::DTRecHit1D(const DTWireId& wireId,
 					 theLocalError() {}
 
 
+// Default constructor
+DTRecHit1D::DTRecHit1D() : theWireId(),
+			   theLRSide(undefLR),
+			   theDigiTime(-1),
+			   theLocalPosition(),
+			   theLocalError() {}
 
 // Constructor from a local position, wireId and digi time.
 // The 3-dimensional local error is defined as
