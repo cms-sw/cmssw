@@ -21,12 +21,13 @@
 #include "PluginManager/PluginManager.h"
 #include "SealKernel/Context.h"
 #include "SealKernel/ComponentLoader.h"
-
+#include "SealKernel/Exception.h"
 #include "FWCore/Utilities/interface/Exception.h"
 cond::MetaData::MetaData(const std::string& connectionString):m_con(connectionString),m_table(0),m_context(new seal::Context){
   seal::PluginManager* pm = seal::PluginManager::get();
   pm->initialise();
   seal::Handle<seal::ComponentLoader> loader = new seal::ComponentLoader( m_context );
+  loader->load( "CORAL/Services/EnvironmentAuthenticationService" );
   loader->load( "CORAL/Services/RelationalService" );
   std::vector< seal::IHandle<coral::IRelationalService> > v_svc;
   m_context->query( v_svc );
@@ -39,6 +40,8 @@ cond::MetaData::MetaData(const std::string& connectionString):m_con(connectionSt
   try{
     m_session->connect();
     m_session->startUserSession();
+  }catch(seal::Exception& er){
+    throw cms::Exception(er.what());
   }catch(...){
     throw cms::Exception( "cond::MetaData::MetaData Could not connect to the database server." );
   }
