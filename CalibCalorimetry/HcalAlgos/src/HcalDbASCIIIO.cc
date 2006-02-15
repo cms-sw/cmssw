@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.6 2006/02/13 22:12:49 fedor Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.7 2006/02/15 02:49:01 fedor Exp $
 //
 #include <vector>
 #include <string>
@@ -267,10 +267,10 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalElectronicsMap* fObject
       trigId = HcalTrigTowerDetId (eta, phi);
     }
     if (subdet == HcalTriggerTower) {
-      fObject->mapEId2tId (elId (), trigId.rawId());
+      fObject->mapEId2tId (elId, trigId);
     }
     else {
-      fObject->mapEId2chId (elId (), chId.rawId());
+      fObject->mapEId2chId (elId, DetId (chId));
     }
   }
   fObject->sort ();
