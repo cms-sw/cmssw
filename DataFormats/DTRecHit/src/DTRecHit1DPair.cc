@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/01/24 14:23:25 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -19,11 +19,15 @@ using namespace std;
 
 // Constructor without components: must use setPos and Err!
 DTRecHit1DPair::DTRecHit1DPair(const DTWireId& wireId,
-			       const DTDigi& digi) : theDigi(digi),
-						     theLRSide(undefLR),
-						     theLeftHit(wireId, Left, theDigi.time()),
-						     theRightHit(wireId, Right, theDigi.time()) {}
+                               const DTDigi& digi) : theDigi(digi),
+                                                     theLeftHit(wireId, Left, theDigi.time()),
+                                                     theRightHit(wireId, Right, theDigi.time()) {}
 
+
+// Default constructor
+DTRecHit1DPair::DTRecHit1DPair() : theDigi(),
+                                   theLeftHit(),
+                                   theRightHit() {}
 
 
 // Destructor
@@ -38,66 +42,40 @@ DTRecHit1DPair * DTRecHit1DPair::clone() const {
 
 
 // Return the 3-dimensional local position.
-// If the hit is not used by a
-// segment, the average theLeftHit/theRightHit hits position, namely the wire position
-// is returned. If it's used, then the used component's position is
-// returned.
+// The average theLeftHit/theRightHit hits position, namely the wire position
+// is returned.
 LocalPoint DTRecHit1DPair::localPosition() const {
-  LocalPoint result;
-  if(!isMatched()) {
-    result = theLeftHit.localPosition() + 
-      (theRightHit.localPosition()-theLeftHit.localPosition())/2.;
-  } else {
-    result = recHit(theLRSide)->localPosition();
-  }
-  return result;
+  return theLeftHit.localPosition() + 
+    (theRightHit.localPosition()-theLeftHit.localPosition())/2.;
 }
 
 
 
 // Return the 3-dimensional error on the local position. 
-// If the hit is not matched, the error is defiened as half
-// the distance between theLeftHit and theRightHit pos: is
-// matched, the correct hit error is returned.
+// The error is defiened as half
+// the distance between theLeftHit and theRightHit pos
 LocalError DTRecHit1DPair::localPositionError() const {
-  if(!isMatched())
-    return LocalError((theRightHit.localPosition().x()-
-                       theLeftHit.localPosition().x())/2.,0.,0.);
-  return recHit(theLRSide)->localPositionError();
+  return LocalError((theRightHit.localPosition().x()-
+                     theLeftHit.localPosition().x())/2.,0.,0.);
 }
 
 
 
 // Access to component RecHits.
-// Return the two recHits (L/R): if the L/R is set, return the appropraite
-// recHit
 vector<const TrackingRecHit*> DTRecHit1DPair::recHits() const {
   vector<const TrackingRecHit*> result;
-  if (theLRSide == undefLR) {
-//     result.push_back(const_cast<DTRecHit1D*>(recHit(Left)));
-//     result.push_back(const_cast<DTRecHit1D*>(recHit(Right)));
-    result.push_back(recHit(Left));
-    result.push_back(recHit(Right));
-  } else {
-    result.push_back(recHit(theLRSide));
-//     result.push_back(const_cast<DTRecHit1D*>(recHit(theLRSide)));
-  }
+  result.push_back(recHit(Left));
+  result.push_back(recHit(Right));
   return result;
 }
 
 
 
 // Non-const access to component RecHits.
-// Return the two recHits (L/R): if the L/R is set, return the appropraite
-// recHit
 vector<TrackingRecHit*> DTRecHit1DPair::recHits() {
   vector<TrackingRecHit*> result;
-  if (theLRSide == undefLR) {
-    result.push_back(const_cast<DTRecHit1D*>(recHit(Left)));
-    result.push_back(const_cast<DTRecHit1D*>(recHit(Right)));
-  } else {
-    result.push_back(const_cast<DTRecHit1D*>(recHit(theLRSide)));
-  }
+  result.push_back(const_cast<DTRecHit1D*>(recHit(Left)));
+  result.push_back(const_cast<DTRecHit1D*>(recHit(Right)));
   return result;
 }
 
@@ -110,13 +88,6 @@ DetId DTRecHit1DPair::geographicalId() const {
 
 
   
-// True if the code for L/R cell side is set, namely if used in a segment 
-bool DTRecHit1DPair::isMatched() const {
-  return theLRSide == undefLR ? false : true;
-}
-
-
-
 // Comparison operator, based on the wireId and the digi
 bool DTRecHit1DPair::operator==(const DTRecHit1DPair& hit) const {
   return wireId() == hit.wireId() && digi() == hit.digi();
@@ -129,7 +100,6 @@ bool DTRecHit1DPair::operator==(const DTRecHit1DPair& hit) const {
 LocalPoint DTRecHit1DPair::localPosition(DTCellSide lrside) const {
   return recHit(lrside)->localPosition();
 }
-
 
 
 
@@ -165,19 +135,20 @@ void DTRecHit1DPair::setPositionAndError(DTCellSide lrside,
 
 
 
-// Set the L/R side once the hit are matched in a segment
-void DTRecHit1DPair::setLRCode(DTCellSide lrside) {
-  theLRSide = lrside;
-}
-
-
-
 // Return the left/right DTRecHit1D
 const DTRecHit1D* DTRecHit1DPair::recHit(DTCellSide lrSide) const {
-  return const_cast<const DTRecHit1D*>(recHit(lrSide));
+  if(lrSide == Left) {
+    return const_cast<const DTRecHit1D*>(&theLeftHit);
+  } else if(lrSide == Right) {
+    return const_cast<const DTRecHit1D*>(&theRightHit);
+  } else {
+    throw cms::Exception("DTRecHit1DPair::recHit with undefined LR");
+  }
 }
+
+
   
-  // Non const access to left/right DTRecHit1D
+// Non const access to left/right DTRecHit1D
 DTRecHit1D* DTRecHit1DPair::recHit(DTCellSide lrSide) {
   if(lrSide == Left) {
     return &theLeftHit;
@@ -191,7 +162,6 @@ DTRecHit1D* DTRecHit1DPair::recHit(DTCellSide lrSide) {
 
 // Ostream operator
 ostream& operator<<(ostream& os, const DTRecHit1DPair& hit) {
-  os << "Pos: " << hit.localPosition() 
-    << " L/R: " << hit.lrSide();
+  os << "Pos: " << hit.localPosition() ;
   return os;
 }

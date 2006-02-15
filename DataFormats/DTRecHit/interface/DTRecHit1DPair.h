@@ -8,14 +8,12 @@
  *  For each signal theLeftHit in the DT wire, two hits can be constructed, due to the
  *  Left/Right ambiguity, which can be solved only associating several hits
  *  together. This class describes the pair of points associated to a single
- *  TDC signal. The two hits can be accessed via recHits() and getComponents()
- *  methods. The position is the average of the theLeftHit and theRightHit hits, namely the
- *  wire position. If the pair is used by a segment, then the ambiguity is
- *  solved, and so the position is that of the used hit and the recHit is
- *  declared "matched".
+ *  TDC signal. The two hits can be accessed via recHits()
+ *  method. The position is the average of the theLeftHit and theRightHit hits, namely the
+ *  wire position.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/01/24 14:23:24 $
+ *  $Revision: 1.1 $
  *  \author S. Lacaprara & G. Cerminara
  */
 
@@ -33,6 +31,9 @@ public:
   DTRecHit1DPair(const DTWireId& wireId,
 		 const DTDigi& digi);
 
+  /// Default constructor. Needed to write the RecHit into a STL container.
+  DTRecHit1DPair();
+
 
   /// Destructor
   virtual ~DTRecHit1DPair();
@@ -43,44 +44,29 @@ public:
 
 
   /// Return the 3-dimensional local position.
-  /// If the hit is not used by a
-  /// segment, the average theLeftHit/theRightHit hits position, namely the wire position
-  /// is returned. If it's used, then the used component's position is
-  /// returned.
+  /// The average theLeftHit/theRightHit hits position, namely the wire position
+  /// is returned. 
   virtual LocalPoint localPosition() const;
 
 
   /// Return the 3-dimensional error on the local position. 
-  /// If the hit is not matched, the error is defiened as half
-  /// the distance between theLeftHit and theRightHit pos: is
-  /// matched, the correct hit error is returned.
+  /// The error is defiened as half
+  /// the distance between theLeftHit and theRightHit pos
   virtual LocalError localPositionError() const;
 
 
   /// Access to component RecHits.
-  /// Return the two recHits (L/R): if the L/R is set, return the appropraite
-  /// recHit
+  /// Return the two recHits (L/R)
   virtual std::vector<const TrackingRecHit*> recHits() const;
 
 
   /// Non-const access to component RecHits.
-  /// Return the two recHits (L/R): if the L/R is set, return the appropraite
-  /// recHit
+  /// Return the two recHits (L/R)
   virtual std::vector<TrackingRecHit*> recHits();
-
- // FIXME: Remove dependencies from Geometry
-//   /// Access to the GeomDet (the layer) (essentially the Surface, with alignment interface)
-//   virtual const GeomDet& det() const {
-//     return (*theDet);
-//   }
 
 
   /// Return the detId of the Det (a DTLayer).
   virtual DetId geographicalId() const;
-
-
-  /// true if the code for L/R cell side is set, namely if used in a segment 
-  virtual bool isMatched() const ;
 
 
   /// Return the digi
@@ -122,16 +108,6 @@ public:
 			   const LocalError& err);
 
 
-  /// Set the L/R side once the hit are matched in a segment
-  void setLRCode(DTEnums::DTCellSide lrside);
-
-
-  /// Return the cell side (L/R/undefined)
-  DTEnums::DTCellSide lrSide() const {
-    return theLRSide;
-  }
-
-
   // Return the wireId
   DTWireId wireId() const {
     return theLeftHit.wireId();
@@ -148,17 +124,9 @@ public:
   // The digi
   DTDigi theDigi;  //FIXME: is it really needed      
   
- // FIXME: Remove dependencies from Geometry
-//   // The layer
-//   const GeomDet* theDet;
-
-  // The side of the cell. It can be left/right/unknomw
-  DTEnums::DTCellSide theLRSide;
-
-
   // The two rechits
-  DTRecHit1D theLeftHit; //FIXME: Should it be a pointer??
-  DTRecHit1D theRightHit; //FIXME: Should it be a pointer??
+  DTRecHit1D theLeftHit;
+  DTRecHit1D theRightHit;
 
 };
 
