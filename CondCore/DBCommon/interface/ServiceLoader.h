@@ -1,21 +1,22 @@
 #ifndef COND_SERVICELOADER_H
 #define COND_SERVICELOADER_H
-//#include "SealKernel/Context.h"
-//#include "SealKernel/ComponentLoader.h"
+#include "SealKernel/Context.h"
 #include "AuthenticationMethod.h"
 #include "MessageLevel.h"
 #include <string>
 #include <map>
-namespace coral{
-  class IRelationalService;
-  class IAuthenticationService;
-}
 namespace seal{
-  class Context;
   class IMessageService;
   class ComponentLoader;
   //class Handle;
   //class Component;
+}
+namespace coral{
+  class IRelationalService;
+  class IAuthenticationService;
+}
+namespace pool{
+  class IBlobStreamingService;
 }
 namespace cond{
   //
@@ -31,13 +32,12 @@ namespace cond{
     coral::IRelationalService& loadRelationalService();
     void loadConnectionService();
     /// load the default streaming service
-    void loadBlobStreamingService();
+    pool::IBlobStreamingService& loadBlobStreamingService();
     /// load external streaming service
-    void loadBlobStreamingService( const std::string& componentName );
+    pool::IBlobStreamingService& loadBlobStreamingService( const std::string& componentName );
   private:
     seal::Context* m_context;
-    seal::ComponentLoader* m_loader;
-    //Components		m_components;
+    seal::Handle<seal::ComponentLoader> m_loader;
   };
 }//ns cond
 #endif

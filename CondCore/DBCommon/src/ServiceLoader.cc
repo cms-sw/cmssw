@@ -7,6 +7,7 @@
 #include "SealKernel/IMessageService.h"
 #include "RelationalAccess/IAuthenticationService.h"
 #include "RelationalAccess/IRelationalService.h"
+#include "CondCore/BlobStreamingService/interface/BlobStreamingService.h"
 cond::ServiceLoader::ServiceLoader(){
   m_context=new seal::Context();
   seal::PluginManager* pm = seal::PluginManager::get();
@@ -14,7 +15,6 @@ cond::ServiceLoader::ServiceLoader(){
   m_loader = new seal::ComponentLoader( m_context );
 }
 cond::ServiceLoader::~ServiceLoader(){
-  delete m_loader;
   delete m_context;
 }
 seal::IMessageService& cond::ServiceLoader::loadMessageService( cond::MessageLevel level ){
@@ -79,8 +79,22 @@ coral::IRelationalService& cond::ServiceLoader::loadRelationalService(){
 }
 void cond::ServiceLoader::loadConnectionService(){
 }
-void cond::ServiceLoader::loadBlobStreamingService(){
+pool::IBlobStreamingService& cond::ServiceLoader::loadBlobStreamingService(){
+  m_loader->load( "COND/Services/DefaultBlobStreamingService" );
+  std::vector< seal::IHandle<pool::IBlobStreamingService> > v_svc;
+  m_context->query( v_svc );
+  if ( v_svc.empty() ) {
+    throw cond::Exception( "could not locate the BlobStreamingService" );
+  }
+  return *(v_svc.front());
 }
-void cond::ServiceLoader::loadBlobStreamingService( const std::string& componentName ){
+pool::IBlobStreamingService& cond::ServiceLoader::loadBlobStreamingService( const std::string& componentName ){
+  m_loader->load( componentName );
+  std::vector< seal::IHandle<pool::IBlobStreamingService> > v_svc;
+  m_context->query( v_svc );
+  if ( v_svc.empty() ) {
+    throw cond::Exception( std::string("could not locate the BlobStreamingService ")+componentName );
+  }
+  return *(v_svc.front());
 }
 
