@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.5 2006/01/19 01:37:13 fedor Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.6 2006/02/13 22:12:49 fedor Exp $
 //
 #include <vector>
 #include <string>
@@ -256,13 +256,13 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalElectronicsMap* fObject
     }
     HcalDetId chId;
     HcalTrigTowerDetId trigId;
-    HcalElectronicsId elId;
+    HcalElectronicsId elId (fiberCh, fiber, spigot, dcc);
+    elId.setHTR (crate, slot, top);
     
     if (subdet != HcalEmpty && items [9] != "NA") { 
       int eta = atoi (items [9].c_str());
       int phi = atoi (items [10].c_str());
       int depth = atoi (items [11].c_str());
-      elId = HcalElectronicsId (fiberCh, fiber, spigot, dcc);
       chId = HcalDetId (subdet, eta, phi, depth);
       trigId = HcalTrigTowerDetId (eta, phi);
     }
