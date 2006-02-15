@@ -35,7 +35,7 @@ void CSCBaseElectronicsSim::simulate(const CSCLayer * layer,
   TimeMe a("CSCBaseEl:simulate");
   {
     theSignalMap.clear();
-    theDetectorHitMap.clear();
+    //theDetectorHitMap.clear();
     // fill the specs member data
     theSpecs = layer->chamber()->specs();
     theLayer = layer;
@@ -89,7 +89,7 @@ CSCBaseElectronicsSim::amplifySignal(const CSCDetectorHit & detectorHit)  {
   thisSignal.setTimeOffset(readoutTime);
   thisSignal.setElement(element);
   // keep track of links between digis and hits
-  theDetectorHitMap.insert( DetectorHitMap::value_type(channelIndex(element), detectorHit) );
+  //theDetectorHitMap.insert( DetectorHitMap::value_type(channelIndex(element), detectorHit) );
   return thisSignal;
 } 
 

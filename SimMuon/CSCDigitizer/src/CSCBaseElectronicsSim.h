@@ -144,8 +144,8 @@ protected:
   bool doNoise_;
 
   // keeps track of which hits contribute to which channels
-  typedef std::multimap<int, CSCDetectorHit, std::less<int> >  DetectorHitMap;
-  DetectorHitMap theDetectorHitMap;
+  //typedef std::multimap<int, CSCDetectorHit, std::less<int> >  DetectorHitMap;
+  //DetectorHitMap theDetectorHitMap;
 
 };
 
