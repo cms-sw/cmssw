@@ -1,3 +1,6 @@
+** V00-02-01  [Wed Feb 15 01:45:39 2006]
+small changes
+
 ** V00-02-00  [Wed Jan 11 01:28:51 2006]
 fixed FSM failed state transition handling, added support for module web
 
