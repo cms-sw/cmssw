@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.7 2006/02/15 02:49:01 fedor Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.8 2006/02/15 19:48:01 fedor Exp $
 //
 #include <vector>
 #include <string>
@@ -251,10 +251,10 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalElectronicsMap* fObject
     else if (items [8] != "NA") {
       std::cerr << "HcalElectronicsMap-> Unknown subdetector: " << items [8]
 		<< " in line: " << buffer 
-		<< "\n subdetector may be HB, HE, HF, HO, HT, or NA if it is known to be disconnected" << std::endl;
+		<< "\n subdetector may be HB, HE, HF, HO, HT, or NA if it is known that channel is not connected" << std::endl;
       continue;
     }
-    HcalDetId chId;
+    HcalDetId chId = HcalDetId::Undefined;
     HcalTrigTowerDetId trigId;
     HcalElectronicsId elId (fiberCh, fiber, spigot, dcc);
     elId.setHTR (crate, slot, top);
