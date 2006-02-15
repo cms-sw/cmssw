@@ -4,8 +4,8 @@
 /*
  * \file DTDigiTask.h
  *
- * $Date: 2006/02/08 21:14:30 $
- * $Revision: 1.3 $
+ * $Date: 2006/02/15 08:24:55 $
+ * $Revision: 1.1 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -31,6 +31,8 @@
 
 class DTGeometry;
 class DTLayerId;
+class DTTtrig;
+class DTT0;
 
 using namespace edm;
 using namespace cms;
@@ -63,29 +65,27 @@ private:
 
   int nevents;
   
-  int tMaxRescaled, tTrigRescaling;
+  /// no needs to be precise. Value from PSets will always be used
+  int tMax;
+
+  /// tTrig from the DB
+  int tTrig;
 
   DaqMonitorBEInterface* dbe;
 
   edm::ParameterSet parameters;
+
   edm::ESHandle<DTGeometry> muonGeom;
+
+  edm::ESHandle<DTTtrig> tTrigMap;
+  edm::ESHandle<DTT0> t0Map;
 
   string outputFile;
   ofstream logFile;
 
   map<string, map<int, MonitorElement*> > digiHistos;
 
-  map<int, MonitorElement*> noiseOccupancyHistos;
-  map<int, MonitorElement*> inTimeHitsOccupancyHistos;
-  map<int, MonitorElement*> afterPulsesOccupancyHistos;
-  map<int, MonitorElement*> hitsOrderHistos;
-  map<int, MonitorElement*> timeboxHistos;
-  map<int, MonitorElement*> cathodPhotoPeakHistos;  
-
-
   
 };
-
-//DEFINE_FWK_MODULE(DTDigiTask)
 
 #endif

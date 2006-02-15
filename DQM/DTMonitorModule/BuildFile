@@ -1,9 +1,12 @@
 <flags SEAL_PLUGIN_NAME="DQMDTMonitorModule">
 <use name=FWCore/Framework>
 <use name=DQMServices/CoreROOT>
-<use name=DataFormats/FEDRawData>
 <use name=DataFormats/DTDigi>
-<use name=DQM/DTMonitorTasks>
+<use name=CondFormats/DTObjects>
+<use name=CondFormats/DataRecord>
+<use name=Geometry/CommonTopologies>
+<use name=Geometry/Records>
+<use name=Geometry/DTSimAlgo>
 <use name=boost>
 <use name=root>
 
@@ -11,9 +14,12 @@
  <lib name=DQMDTMonitorModule>
  <use name=FWCore/Framework>
  <use name=DQMServices/CoreROOT>
- <use name=DataFormats/FEDRawData>
  <use name=DataFormats/DTDigi>
- <use name=DQM/DTMonitorTasks>
+ <use name=CondFormats/DTObjects>
+ <use name=CondFormats/DataRecord>
+ <use name=Geometry/CommonTopologies>
+ <use name=Geometry/Records>
+ <use name=Geometry/DTSimAlgo> 
  <use name=boost>
  <use name=root>
 </export>
