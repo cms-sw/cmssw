@@ -171,5 +171,15 @@ void XdaqCollector::haltAction(toolbox::Event::Reference e)
   DummyConsumerServer::stopAndKill();
 }
 
+void XdaqCollector::nullAction(toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception)
+{
+  //this action has no effect. A warning is issued to this end
+  LOG4CPLUS_WARN(this->getApplicationLogger(),
+		    "Null action invoked");
+
+}
+
+
+
 XDAQ_INSTANTIATOR_IMPL(XdaqCollector);
 
