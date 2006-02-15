@@ -2,16 +2,24 @@
 #define RecoLocalMuon_DTRecHitProducer_h
 
 /** \class DTRecHitProducer
+ *  Module for 1D DTRecHitPairs production. The concrete reconstruction algorithm
+ *  is specified with the parameter "recAlgo" and must be configured with the
+ *  "recAlgoConfig" parameter set.
  *
- *
- *  $Date: $
- *  $Revision: $
- *  \author
+ *  $Date: 2005/12/06 15:30:56 $
+ *  $Revision: 1.1 $
+ *  \author G. Cerminara
  */
 
 #include "FWCore/Framework/interface/EDProducer.h"
 
-namespace edm {class ParameterSet; class Event; class EventSetup;}
+namespace edm {
+  class ParameterSet;
+  class Event;
+  class EventSetup;
+}
+
+class DTRecHitBaseAlgo;
 
 class DTRecHitProducer : public edm::EDProducer {
 public:
@@ -21,10 +29,15 @@ public:
   /// Destructor
   virtual ~DTRecHitProducer();
 
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  /// The method which produces the rechits
+  virtual void produce(edm::Event& event, const edm::EventSetup& setup);
 
 private:
-
+  // Switch on verbosity
+  static bool debug;
+  // The reconstruction algorithm
+  DTRecHitBaseAlgo *theAlgo;
+//   static string theAlgoName;
 };
 #endif
 
