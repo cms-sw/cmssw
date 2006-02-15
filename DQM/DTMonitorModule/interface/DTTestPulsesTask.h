@@ -4,18 +4,18 @@
 /*
  * \file DTTestPulsesTask.h
  *
- * $Date: 2006/02/02 18:27:31 $
- * $Revision: 1.2 $
+ * $Date: 2006/02/15 08:24:55 $
+ * $Revision: 1.1 $
  * \author M. Zanetti - INFN Padova
  *
 */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
-
+#include <FWCore/Framework/interface/Handle.h>
+#include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
@@ -27,6 +27,12 @@
 #include <string>
 #include <sstream>
 #include <fstream>
+#include <vector>
+#include <map>
+
+class DTGeometry;
+class DTLayerId;
+class DTTtrig;
 
 using namespace cms;
 using namespace std;
@@ -34,38 +40,49 @@ using namespace std;
 
 class DTTestPulsesTask: public edm::EDAnalyzer{
 
-friend class DTMonitorModule;
-
 public:
-
-/// Constructor
-  DTTestPulsesTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe,
-		   const edm::EventSetup& context);
-
-/// Destructor
-virtual ~DTTestPulsesTask();
-
-protected:
-
-/// Analyze
-void analyze(const edm::Event& e, const edm::EventSetup& c);
-
-// BeginJob
-void beginJob(const edm::EventSetup& c);
-
-// EndJob
-void endJob(void);
-
-private:
-
-  int nevents;
   
-  pair <int, int> t0sPeakRange;
+  /// Constructor
+  DTTestPulsesTask(const edm::ParameterSet& ps);
+  
+  /// Destructor
+  virtual ~DTTestPulsesTask();
+  
+protected:
+  
+  /// BeginJob
+  void beginJob(const edm::EventSetup& c);
 
+  /// Book the ME
+  void bookHistos(const DTLayerId& dtLayer, string folder, string histoTag);
+  
+  /// Analyze
+  void analyze(const edm::Event& e, const edm::EventSetup& c);
+
+  
+private:
+  
+  int nevents;
+
+  // TestPules tTrig from the DB
+  int tTrig_TP;
+  
+  DaqMonitorBEInterface* dbe;
+
+  edm::ParameterSet parameters;
+
+  edm::ESHandle<DTGeometry> muonGeom;
+
+  edm::ESHandle<DTTtrig> tTrig_TPMap;
+
+  string outputFile;
+
+  pair <int, int> t0sPeakRange;
+  
   // My monitor elements
   map<int, MonitorElement*> testPulsesHistos;
+  map<int, MonitorElement*> testPulsesTimeBoxes;
 
-  ofstream logFile;
   
 };
 

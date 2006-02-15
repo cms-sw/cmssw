@@ -1,123 +1,141 @@
 /*
  * \file DTTestPulsesTask.cc
  * 
- * $Date: 2006/02/02 18:27:32 $
- * $Revision: 1.2 $
+ * $Date: 2006/02/15 08:24:56 $
+ * $Revision: 1.1 $
  * \author M. Zanetti - INFN Padova
  *
 */
 
 #include <DQM/DTMonitorModule/interface/DTTestPulsesTask.h>
 
+// Framework
+#include <FWCore/Framework/interface/Event.h>
+#include <FWCore/Framework/interface/Handle.h>
+#include <FWCore/Framework/interface/ESHandle.h>
+#include <FWCore/Framework/interface/MakerMacros.h>
+#include <FWCore/Framework/interface/EventSetup.h>
+#include <FWCore/ParameterSet/interface/ParameterSet.h>
+
+// Digis
 #include <DataFormats/DTDigi/interface/DTDigi.h>
 #include <DataFormats/DTDigi/interface/DTDigiCollection.h>
 #include <DataFormats/MuonDetId/interface/DTLayerId.h>
 
-#include <CondFormats/DTObjects/interface/DTT0.h>
-#include <CondFormats/DataRecord/interface/DTT0Rcd.h>
+// Geometry
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "Geometry/DTSimAlgo/interface/DTGeometry.h"
+#include "Geometry/DTSimAlgo/interface/DTLayer.h"
+#include "Geometry/CommonTopologies/interface/DTTopology.h"
+
+// T0s
+#include <CondFormats/DTObjects/interface/DTTtrig.h>
+#include <CondFormats/DataRecord/interface/DTTtrigRcd.h>
+
+using namespace edm;
+using namespace std;
 
 
-DTTestPulsesTask::DTTestPulsesTask(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe,
-				   const edm::EventSetup& context){
-
-  logFile.open("DTTestPulsesTask.log");
-
-  string histoName;
-  stringstream superLayer; 
-  stringstream layer; 
-
-  int minWHEEL = ps.getUntrackedParameter<int>("WheelToStartWith",0);
-  int maxWHEEL = ps.getUntrackedParameter<int>("WheelToEndWith",0);
-  int minSTATION = ps.getUntrackedParameter<int>("StationToStartWith",0);
-  int maxSTATION = ps.getUntrackedParameter<int>("StationToEndWith",0);
-  int minSECTOR = ps.getUntrackedParameter<int>("SectorToStartWith",0);
-  int maxSECTOR = ps.getUntrackedParameter<int>("SectorToEndWith",0);
-
-  // I'm interested only in the region around t0s peak
-  /* Options:
-     1) Get the mean value from the DB for a given chamber (== same cables);
-     2) Set the mean by hand
-   */
-  if (!ps.getUntrackedParameter<bool>("t0sMeanFromDB",true))
-
-    t0sPeakRange = make_pair( ps.getUntrackedParameter<int>("t0sRangeLowerBound", 6000), 
-			      ps.getUntrackedParameter<int>("t0sRangeUpperBound", 6000) );
+DTTestPulsesTask::DTTestPulsesTask(const edm::ParameterSet& ps){
 
 
-  if ( dbe ) {
+  cout<<"[DTTestPulseTask]: Constructor"<<endl;
 
-    for (int w = minWHEEL; w <= maxWHEEL; ++w) {
-      stringstream wheel; wheel << w;
+  outputFile = ps.getUntrackedParameter<string>("outputFile", "DTTestPulesSources.root");
 
-      for (int st = minSTATION; st <= maxSTATION; ++st) {
-	stringstream station; station << st;
+  parameters = ps;
+  
+  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
 
-	for (int sec = minSECTOR; sec <= maxSECTOR; ++sec) {
-	  stringstream sector; sector << sec;
-
-
-	  // get the mean value for a given chamber from the DB 
-	  if (ps.getUntrackedParameter<bool>("t0sMeanFromDB",true)) {
-	    
-// 	    ESHandle<DTT0> t0Map;
-// 	    context.get<DTT0Rcd>().get(t0Map);
-//          t0Map.cellT0(w,st,sec,t0sMeanValueFromTP,t0RMSFromTP)
-
-	    int t0sMeanValueFromTP = 6000;
-	    int t0sRangeOfValidity = ps.getUntrackedParameter<int>("t0sRangeOfValidity",100);
-
-	    t0sPeakRange = make_pair( t0sMeanValueFromTP - t0sRangeOfValidity/2 , 
-				      t0sMeanValueFromTP + t0sRangeOfValidity/2 );
-	  }
-
-	  dbe->setCurrentFolder("DT/DTTestPulsesTask/Wheel" + wheel.str() +
-				"/Station" + station.str() +
-				"/Sector" + sector.str() + "TestPulses");
-
-	  for (int sl = 1; sl <= 3; ++sl) {
-	    superLayer << sl;
-	    for (int l = 1; l <= 4; ++l) {
-	      layer << l;
-	      
-	      // Here get the numbers of cells for layer from geometry
-	      int number_of_cells = 100; //now set to the maximum
-
-	      histoName = "TestPulse_SL" + superLayer.str() + "_L" + layer.str();
-	      testPulsesHistos[int(DTLayerId(w,st,sec,sl,l).rawId())] =
-                dbe->book2D(histoName,histoName,
-			    number_of_cells, 0, number_of_cells, 
-			    t0sPeakRange.first - t0sPeakRange.second, t0sPeakRange.first, t0sPeakRange.second);
-
-	    }
-	  }
-
-	}
-      }
-    }
-
-
-
-  }
+  dbe->setVerbose(1);
 
 }
 
 DTTestPulsesTask::~DTTestPulsesTask(){
 
-  logFile.close();
-
+  cout <<"[DTTestPulsesTask]: analyzed " << nevents << " events" << endl;
+  
+  if ( outputFile.size() != 0 ) dbe->save(outputFile);
 }
 
-void DTTestPulsesTask::beginJob(const edm::EventSetup& c){
+
+void DTTestPulsesTask::beginJob(const edm::EventSetup& context){
+
+  cout<<"[DTTestPulsesTask]: BeginJob"<<endl;
 
   nevents = 0;
 
+  // Get the geometry
+  context.get<MuonGeometryRecord>().get(muonGeom);
+
+  // Get the pedestals tTrig
+  context.get<DTTtrigRcd>().get(tTrig_TPMap);
+
 }
 
-void DTTestPulsesTask::endJob(){
 
-  cout << "DTTestPulsesTask: analyzed " << nevents << " events" << endl;
+void DTTestPulsesTask::bookHistos(const DTLayerId& dtLayer, string folder, string histoTag) {
 
+
+  stringstream wheel; wheel << dtLayer.wheel();	
+  stringstream station; station << dtLayer.station();	
+  stringstream sector; sector << dtLayer.sector();	
+  stringstream superLayer; superLayer << dtLayer.superlayer();	
+  stringstream layer; layer << dtLayer.layer();	
+
+  cout<<"[DTTestPulseTask]: booking"<<endl;
+
+  dbe->setCurrentFolder("DT/DTTestPulseTask/Wheel" + wheel.str() +
+			"/Station" + station.str() +
+			"/Sector" + sector.str() + "/" + folder);
+
+  string histoName = histoTag 
+    + "_W" + wheel.str() 
+    + "_St" + station.str() 
+    + "_Sec" + sector.str() 
+    + "_SL" + superLayer.str() 
+    + "_L" + layer.str();
+
+  // To be un-commented once the pedestal DB will work
+//   if ( ! tTrigMap->slTtrig( dtLayer.wheel(),
+// 			    dtLayer.station(),
+// 			    dtLayer.sector(),
+// 			    dtLayer.superlayer(), tTrig)) 
+  tTrig_TP = parameters.getParameter<int>("defaultTtrig_TP");
+  
+  if (!parameters.getUntrackedParameter<bool>("t0sMeanFromDB",true))
+    t0sPeakRange = make_pair( parameters.getUntrackedParameter<int>("t0sRangeLowerBound", -100) + tTrig_TP, 
+			      parameters.getUntrackedParameter<int>("t0sRangeUpperBound", 100) + tTrig_TP);
+  
+  
+  if ( folder == "TPOccupancies" ) {
+
+    const int nWires = muonGeom->layer(DTLayerId(dtLayer.wheel(),
+						 dtLayer.station(),
+						 dtLayer.sector(),
+						 dtLayer.superlayer(),
+						 dtLayer.layer()))->specificTopology().channels();
+    
+    
+    testPulsesHistos[int(DTLayerId(dtLayer.wheel(),
+				   dtLayer.station(),
+				   dtLayer.sector(),
+				   dtLayer.superlayer(),
+				   dtLayer.layer()).rawId())] =
+      dbe->book2D(histoName,histoName,
+		  nWires, 0, nWires, 
+		  t0sPeakRange.first - t0sPeakRange.second, t0sPeakRange.first, t0sPeakRange.second);
+  }
+  else if ( folder == "TPTimeBox" ) {
+    testPulsesTimeBoxes[int( DTLayerId(dtLayer.wheel(),
+				       dtLayer.station(),
+				       dtLayer.sector(),
+				       dtLayer.superlayer(),
+				       dtLayer.layer()).chamberId().rawId())] = 
+      dbe->book1D(histoName,histoName, 2*tTrig_TP, 0, 2*tTrig_TP);
+  }
 }
+
 
 void DTTestPulsesTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
@@ -126,19 +144,29 @@ void DTTestPulsesTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   edm::Handle<DTDigiCollection> dtdigis;
   e.getByLabel("dtunpacker", dtdigis);
   
-  DTDigiCollection::DigiRangeIterator detUnitIt;
-  for (detUnitIt=dtdigis->begin(); detUnitIt!=dtdigis->end(); ++detUnitIt){
+  DTDigiCollection::DigiRangeIterator dtLayerId_It;
+  for (dtLayerId_It=dtdigis->begin(); dtLayerId_It!=dtdigis->end(); ++dtLayerId_It){
     
-    for (DTDigiCollection::const_iterator digiIt = ((*detUnitIt).second).first;
-	 digiIt!=((*detUnitIt).second).second; ++digiIt){
+    for (DTDigiCollection::const_iterator digiIt = ((*dtLayerId_It).second).first;
+	 digiIt!=((*dtLayerId_It).second).second; ++digiIt){
       
       // for clearness..
-      int index = ((*detUnitIt).first).rawId();
+      int index = ((*dtLayerId_It).first).rawId();
+      int chIndex = ((*dtLayerId_It).first).chamberId().rawId();
 
-      testPulsesHistos.find(index)->second->Fill(index,(*digiIt).countsTDC());
- 
-
-      
+      if (testPulsesTimeBoxes.find(index) != testPulsesTimeBoxes.end())
+	testPulsesHistos.find(index)->second->Fill(index,(*digiIt).countsTDC());
+      else {
+	bookHistos( (*dtLayerId_It).first , string("TPOccupancies"), string("TestPulses2D") );
+	testPulsesHistos.find(index)->second->Fill(index,(*digiIt).countsTDC());
+      }
+	
+      if (testPulsesTimeBoxes.find(chIndex) != testPulsesTimeBoxes.end())
+	testPulsesTimeBoxes.find(chIndex)->second->Fill((*digiIt).countsTDC());
+      else {
+	bookHistos( (*dtLayerId_It).first , string("TPTimeBox"), string("TestPulsesTB") );
+	testPulsesTimeBoxes.find(chIndex)->second->Fill((*digiIt).countsTDC());
+      }
     }
   }
 
