@@ -551,17 +551,6 @@ void DDTIBLayerAlgo_MTCC::execute() {
       DCOUT('r', "DDTIBLayer_MTCC test " << dohmCarrier_up_r.name() << " z+ number " << i+1
 	    << " positioned in " << parent().name() << " at " << tran
 	    << " with " << rotation);
-      // TIB- DOHM Carrier - lower
-      tran = DDTranslation(0, 0, -0.5*layerL+dz_dohm);
-      DDpos (dohmCarrier_lo_l, parent(), i+1, tran, rotation);
-      DCOUT('r', "DDTIBLayer_MTCC test " << dohmCarrier_lo_l.name() << " z- number " << i+1
-	    << " positioned in " << parent().name() << " at " << tran
-	    << " with " << rotation);
-      // TIB- DOHM Carrier - upper
-      DDpos (dohmCarrier_up_l, parent(), i+1, tran, rotation);
-      DCOUT('r', "DDTIBLayer_MTCC test " << dohmCarrier_up_l.name() << " z- number " << i+1
-	    << " positioned in " << parent().name() << " at " << tran
-	    << " with " << rotation);
     }
     
     //    } // phi range
