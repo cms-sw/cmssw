@@ -2,6 +2,9 @@
 #include "EventFilter/Utilities/interface/ModuleWeb.h"
 
 using namespace evf;
+#include <iostream>
+
+using namespace std;
 
 ModuleWebRegistry::ModuleWebRegistry(const edm::ParameterSet &ps){
 }
@@ -14,8 +17,15 @@ void ModuleWebRegistry::invoke(xgi::Input *in, xgi::Output *out, const std::stri
 {
   idct i = clm_.find(name);
   if(i != clm_.end())
-    (*i).second->defaultWebPage(in,out);
-
+    {
+      try{
+	(*i).second->defaultWebPage(in,out);
+      }
+      catch(...)
+	{
+	  cout << "exception caught when calling moduleweb page for " << name << endl;
+	}
+    }
 }
 
 void ModuleWebRegistry::clear(){clm_.clear();}
