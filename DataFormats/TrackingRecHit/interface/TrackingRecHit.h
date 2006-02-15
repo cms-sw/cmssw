@@ -5,6 +5,8 @@
 #include "Geometry/Surface/interface/Plane.h"
 #include "Geometry/Surface/interface/LocalError.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include "Geometry/Vector/interface/LocalPoint.h"
+
 
 class TrackingRecHit {
 public:
@@ -28,6 +30,11 @@ public:
   virtual std::vector<TrackingRecHit*> recHits() = 0;
 
   virtual DetId geographicalId() const = 0;
+
+  virtual LocalPoint localPosition() const = 0;
+
+  virtual LocalError localPositionError() const = 0;
+
 
 };
 
