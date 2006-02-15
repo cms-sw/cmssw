@@ -26,7 +26,7 @@ class JetableObjectHelper {
 public:
   typedef edm::Handle<aod::CandidateCollection> Handle;
   /// Constructor takes a const pointer to the CaloTowerCollection we will help with.
-  JetableObjectHelper( const Handle & ctcp ) : caloTowerCollPointer(ctcp) { }  
+  JetableObjectHelper( const Handle & ctcp ) : constituents(ctcp) { }  
   /// etOrderedCaloTowers returns an Et order list of pointers to CaloTowers with Et>etTreshold
   aod::CandidateRefs etOrderedCaloTowers(double etThreshold) const;
   
@@ -38,7 +38,7 @@ public:
   double phidif(double phi1, double phi2);
   
 private:
-   Handle caloTowerCollPointer;   
+   Handle constituents;   
 
 };
 #endif

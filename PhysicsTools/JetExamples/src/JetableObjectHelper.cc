@@ -19,8 +19,8 @@ using namespace aod;
 // in eta-phi space of the coneEta and conePhi.
 CandidateRefs JetableObjectHelper::towersWithinCone(double coneEta, double conePhi, double coneRadius, double etThreshold){
   CandidateRefs result;
-  for ( size_t idx = 0; idx < caloTowerCollPointer->size(); ++ idx ) {
-    CandidateRef caloTowerPointer( caloTowerCollPointer, idx );
+  for ( size_t idx = 0; idx < constituents->size(); ++ idx ) {
+    CandidateRef caloTowerPointer( constituents, idx );
     if(caloTowerPointer->et() > etThreshold){
       double towerEta = caloTowerPointer->eta();
       double towerPhi = caloTowerPointer->phi();
@@ -38,8 +38,8 @@ CandidateRefs JetableObjectHelper::towersWithinCone(double coneEta, double coneP
 // GreaterByET is used to sort by et
 class GreaterByET {
 public:
-  bool operator()( const pair<Candidate *, CandidateRef> & a, 
-		   const pair<Candidate *, CandidateRef> & b ) const {
+  bool operator()( const pair<CandidateRef, CandidateRef> & a, 
+		   const pair<CandidateRef, CandidateRef> & b ) const {
     return a.first->et() > b.first->et();
   }
 };
@@ -48,18 +48,18 @@ public:
 // etOrderedCaloTowers returns an Et order list of pointers to CaloTowers with Et>etTreshold
 CandidateRefs JetableObjectHelper::etOrderedCaloTowers(double etThreshold) const {
   CandidateRefs result;
-  vector<pair<Candidate*, CandidateRef> > cands;
-  for ( size_t idx = 0; idx < caloTowerCollPointer->size(); ++ idx ) {
-    CandidateRef caloTowerPointer( caloTowerCollPointer, idx );
+  vector<pair<CandidateRef, CandidateRef> > cands;
+  for ( size_t idx = 0; idx < constituents->size(); ++ idx ) {
+    CandidateRef caloTowerPointer( constituents, idx );
     if(caloTowerPointer->et() > etThreshold){
       //      if(caloTowerPointer != 0) result.push_back(caloTowerPointer);
-      if(caloTowerPointer != 0) cands.push_back(make_pair( & (*caloTowerCollPointer)[idx], caloTowerPointer ) );
+      if(caloTowerPointer != 0) cands.push_back(make_pair( CandidateRef( constituents, idx ), caloTowerPointer ) );
     }
   } 
   // sort is not supported on such container at the moment :-(  
   //  sort( result.begin(), result.end(), GreaterByET() );
   sort( cands.begin(), cands.end(), GreaterByET() );
-  for( vector<pair<Candidate*, CandidateRef> >::const_iterator i = cands.begin();
+  for( vector<pair<CandidateRef, CandidateRef> >::const_iterator i = cands.begin();
        i != cands.end(); ++i ) {
     result.push_back( i->second );
   }
