@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCRecordFormatter
  *
- *  $Date: 2006/02/06 14:27:32 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/02/14 10:52:42 $
+ *  $Revision: 1.3 $
  *
  * \author Ilaria Segoni
  */
@@ -30,8 +30,10 @@ RPCRecordFormatter::RPCRecordFormatter(bool printout){
 RPCRecordFormatter::~RPCRecordFormatter(){
 }
 
+/// Note that it takes a reference to std::auto_ptr<RPCDigiCollection> because
+/// I don't want to transfer ownership of RPCDigiCollection (I.S.)
 void RPCRecordFormatter::recordUnpack(RPCRecord::recordTypes typeOfRecord, const unsigned char* recordIndex, 
-std::auto_ptr<RPCDigiCollection> prod){
+std::auto_ptr<RPCDigiCollection> & prod){
     
    int bx=0;
    RPCDetId DetId ;
@@ -54,8 +56,8 @@ std::auto_ptr<RPCDigiCollection> prod){
 		/// Creating RPC digi
 		RPCDigi digi(strip,bx);
 
-		/// Committing to the product
-		//prod->insertDigi(DetId,digi);
+		/// Committing digi to the product
+		prod->insertDigi(DetId,digi);
           }
     }
     

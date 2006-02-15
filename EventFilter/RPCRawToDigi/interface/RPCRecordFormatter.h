@@ -27,7 +27,7 @@ class RPCRecordFormatter{
 	   
 	   /// Record Unpacker driver
 	   /// Takes a reference to std::auto_ptr<RPCDigiCollection> because
-	   /// I don't want to transfer ownership of RPCDigiCollection
+	   /// I don't want to transfer ownership of RPCDigiCollection (I.S.)
 	   void recordUnpack(RPCRecord::recordTypes typeOfRecord, const unsigned
 	   			char* recordIndex, std::auto_ptr<RPCDigiCollection> & prod);
            
