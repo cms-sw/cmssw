@@ -55,7 +55,25 @@ void FUEventProcessor::configureAction(toolbox::Event::Reference e) throw (toolb
 
 void FUEventProcessor::enableAction(toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception)
 {
-  proc_->beginRun();
+  try{
+    proc_->beginRun();
+  }
+  catch(seal::Error& e)
+    {
+      XCEPT_RAISE (toolbox::fsm::exception::Exception, 
+		   e.explainSelf());
+    }
+  catch(std::exception &e)
+    {
+      XCEPT_RAISE (toolbox::fsm::exception::Exception, 
+		   e.what());
+    }
+  catch(...)
+    {
+      XCEPT_RAISE (toolbox::fsm::exception::Exception, 
+		   "Unknown Exception");
+    }
+
   proc_->activate();
 }
 
@@ -67,6 +85,14 @@ void FUEventProcessor::suspendAction(toolbox::Event::Reference e) throw (toolbox
 void FUEventProcessor::resumeAction(toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception)
 {
   proc_->resume();
+}
+
+void FUEventProcessor::nullAction(toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception)
+{
+  //this action has no effect. A warning is issued to this end
+  LOG4CPLUS_WARN(this->getApplicationLogger(),
+		    "Null action invoked");
+
 }
 
 void FUEventProcessor::haltAction(toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception)
