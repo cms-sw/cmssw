@@ -93,7 +93,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 
   // Get a handle to the FED data collection
   edm::Handle<FEDRawDataCollection> rawdata;
-  e.getByLabel("DaqRawData", rawdata);
+  e.getByLabel("DaqSource" , rawdata);
 
   // create the collection of CSC wire and strip Digis
   std::auto_ptr<CSCWireDigiCollection> wireProduct(new CSCWireDigiCollection);
