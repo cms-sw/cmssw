@@ -1,3 +1,6 @@
+** V01-01-00  [Wed Feb 15 03:05:28 2006]
+New EDMFastMerge tool
+
 ** V01-00-07  [Wed Feb  8 03:33:07 2006]
 move persistent classes to DataFormats/Common
 
