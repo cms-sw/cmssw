@@ -1,7 +1,6 @@
 #ifndef FWCore_MessageService_ELsender_h
 #define FWCore_MessageService_ELsender_h
 
-
 // ----------------------------------------------------------------------
 //
 // ELsender 	is a pure virtual (abstract) class to hold the object
