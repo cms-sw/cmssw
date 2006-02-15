@@ -52,34 +52,36 @@ uint32_t EcalEndcapNumberingScheme::getUnitID(const G4Step* aStep) const {
 
 }
 
-float EcalEndcapNumberingScheme::energyInMatrix(int nCellInEta, int nCellInPhi,
-						int centralEta, int centralPhi,
+float EcalEndcapNumberingScheme::energyInMatrix(int nCellInX, int nCellInY,
+						int centralX, int centralY,
 						int centralZ, MapType& themap){
 
   int   ncristals   = 0;
   float totalEnergy = 0.;
         
-  int goBackInEta = nCellInEta/2;
-  int goBackInPhi = nCellInPhi/2;
-  int startEta    = centralEta-goBackInEta;
-  int startPhi    = centralPhi-goBackInPhi;
+  int goBackInX = nCellInX/2;
+  int goBackInY = nCellInY/2;
+  int startX    = centralX-goBackInX;
+  int startY    = centralY-goBackInY;
   
-  for (int ieta=startEta; ieta<startEta+nCellInEta; ieta++) {
-    for (int iphi=startPhi; iphi<startPhi+nCellInPhi; iphi++) {
+  for (int ix=startX; ix<startX+nCellInX; ix++) {
+    for (int iy=startY; iy<startY+nCellInY; iy++) {
       
-      uint32_t index = EEDetId(ieta,iphi,centralZ).rawId();
+      if ( ix < 1 || ix > 100 ) { continue ; }
+      if ( iy < 1 || iy > 100 ) { continue ; }
+      uint32_t index = EEDetId(ix,iy,centralZ).rawId();
       totalEnergy   += themap[index];
       ncristals     += 1;
       if (verbosity > 2)
-	std::cout << "EcalEndcapNumberingScheme: ieta - iphi - E = " << ieta 
-		  << "  " << iphi << " "  << themap[index] << std::endl;
+	std::cout << "EcalEndcapNumberingScheme: ix - iy - E = " << ix
+		  << "  " << iy << " "  << themap[index] << std::endl;
     }
   }
         
   if (verbosity > 1)
-    std::cout << "EcalEndcapNumberingScheme: energy in " << nCellInEta 
-	      << " cells in eta times " << nCellInPhi 
-	      << " cells in phi matrix = " << totalEnergy
+    std::cout << "EcalEndcapNumberingScheme: energy in " << nCellInX
+	      << " cells in x times " << nCellInY 
+	      << " cells in y matrix = " << totalEnergy
 	      << " for " << ncristals << " crystals" << std::endl;
   return totalEnergy;
 
