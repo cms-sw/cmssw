@@ -1,0 +1,71 @@
+#ifndef FWCore_MessageService_MessageLoggerScribe_h
+#define FWCore_MessageService_MessageLoggerScribe_h
+
+#include "FWCore/MessageService/interface/ELadministrator.h"
+#include "FWCore/MessageService/interface/ELdestControl.h"
+#include "FWCore/MessageService/interface/ErrorLog.h"
+#include "FWCore/MessageService/interface/MsgContext.h"
+#include "FWCore/MessageService/interface/NamedDestination.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include <fstream>
+#include <vector>
+
+
+namespace edm {
+namespace service {       
+
+
+class MessageLoggerScribe
+{
+public:
+  // ---  birth/death:
+  MessageLoggerScribe();
+  ~MessageLoggerScribe();
+
+  // --- receive and act on messages:
+  void  run();
+
+private:
+  // --- convenience typedefs
+  typedef std::string          String;
+  typedef std::vector<String>  vString;
+  typedef ParameterSet         PSet;
+
+  // --- log one consumed message
+  void log(ErrorObj * errorobj_p);
+
+  // --- cause statistics destinations to output
+  void triggerStatisticsSummaries();
+
+  // --- handle details of configuring via a ParameterSet:
+  void  configure_errorlog( );
+  void  configure_dest( ELdestControl & dest_ctrl
+                      , String const &  filename
+		      );
+  void  configure_external_dests( );
+
+  // --- other helpers
+  void parseCategories (std::string const & s, std::vector<std::string> & cats);
+  
+  // --- data:
+  ELadministrator               * admin_p;
+  ELdestControl                   early_dest;
+  ErrorLog                      * errorlog_p;
+  std::vector<std::ofstream    *> file_ps;
+  MsgContext                      msg_context;
+  PSet *                          job_pset_p;
+  std::vector<NamedDestination *> extern_dests;
+  std::map<String,std::ostream *> stream_ps;
+  std::vector<ELdestControl>      statisticsDestControls;
+  std::vector<bool>               statisticsResets;
+  
+};  // MessageLoggerScribe
+
+
+}   // end of namespace service
+}  // namespace edm
+
+
+#endif  // FWCore_MessageService_MessageLoggerScribe_h
