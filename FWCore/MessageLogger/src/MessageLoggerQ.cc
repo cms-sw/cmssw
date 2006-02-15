@@ -1,5 +1,4 @@
 #include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
-#include "FWCore/MessageLogger/interface/ELdestination.h"
 #include <cstring>
 
 
