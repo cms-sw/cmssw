@@ -1,5 +1,6 @@
 #include "EventFilter/Processor/interface/EventProcessor.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Framework/src/InputSourceFactory.h"
 #include "FWCore/Framework/interface/InputSource.h"
@@ -21,7 +22,7 @@ namespace evf
   {
     // find single source
     try {
-      const std::string& processName = params_.getUntrackedParameter<string>("@process_name");
+      const std::string& processName = params_.getParameter<string>("@process_name");
 
       edm::ParameterSet main_input = params_.getParameter<edm::ParameterSet>("@main_input");
 
@@ -29,7 +30,7 @@ namespace evf
       // which would be registered in the ProductRegistry.
       edm::ModuleDescription md;
       md.pid = main_input.id();
-      md.moduleName_ = main_input.template getUntrackedParameter<std::string>("@module_type");
+      md.moduleName_ = main_input.template getParameter<std::string>("@module_type");
       // There is no module label for the unnamed input source, so just use the module name.
       md.moduleLabel_ = md.moduleName_;
       md.processName_ = processName;
@@ -43,8 +44,9 @@ namespace evf
       return input_;
     } catch(const edm::Exception& iException) {
       if(edm::errors::Configuration == iException.categoryCode()) {
-	throw edm::Exception(edm::errors::Configuration, "NoSource")
-          <<"No main input source found in configuration.  Please add an input source via 'source = ...' in the configuration file.\n";
+	throw edm::Exception(edm::errors::Configuration, "FailedInputSource")
+          <<"Error in configuration of main input source.\n"
+	  << iException;
       } else {
 	throw;
       }
@@ -58,7 +60,7 @@ namespace evf
 using namespace evf;
 
 EventProcessor::EventProcessor(unsigned long tid) : 
-  Task("FPTq"), /*input_(is),*/ tid_(tid),  serviceToken_(edm::ServiceToken()), 
+  Task("FPTq"), /*input_(is),*/ tid_(tid), activityRegistry_(new edm::ActivityRegistry), serviceToken_(edm::ServiceToken()), 
   emittedBeginJob_(false), running_(false), paused_(false), exited_(false),
   eventcount(0)
 {
@@ -71,21 +73,20 @@ EventProcessor::~EventProcessor()
 
 }
 
+#include "FWCore/ParameterSet/interface/MakeParameterSets.h"
+
 void EventProcessor::init(std::string &config) 
 {
+
   edm::ServiceToken iToken;
   edm::serviceregistry::ServiceLegacy iLegacy = edm::serviceregistry::kOverlapIsError;
-  edm::ProcessPSetBuilder builder(config);
+
+  boost::shared_ptr< std::vector<edm::ParameterSet> > pServiceSets;
+
+  //make the parameter set and the service sets from the config string 
+  makeParameterSets(config, params_, pServiceSets);
+
   //create the services
-  boost::shared_ptr< std::vector<edm::ParameterSet> > pServiceSets(builder.getServicesPSets());
-  //NOTE: FIX WHEN POOL BUG FIXED
-  // we force in the LoadAllDictionaries service in order to work around a bug in POOL
-  {
-    edm::ParameterSet ps;
-    std::string type("LoadAllDictionaries");
-    ps.addParameter("@service_type",type);
-    pServiceSets->push_back( ps );
-  }
   try{
     serviceToken_ = edm::ServiceRegistry::createSet(*pServiceSets,
 						  iToken,iLegacy);
@@ -96,33 +97,45 @@ void EventProcessor::init(std::string &config)
 	   << e.what() << endl;
       exit(-1);
     }
-  serviceToken_.connectTo(activityRegistry_);
+
+  serviceToken_.connectTo(*activityRegistry_);
 
   //add the ProductRegistry as a service ONLY for the construction phase
   boost::shared_ptr<edm::serviceregistry::ServiceWrapper<edm::ConstProductRegistry> > 
     reg(new edm::serviceregistry::ServiceWrapper<edm::ConstProductRegistry>( 
 								  std::auto_ptr<edm::ConstProductRegistry>(new edm::ConstProductRegistry(preg_))));
   edm::ServiceToken tempToken( edm::ServiceRegistry::createContaining(reg, serviceToken_, edm::serviceregistry::kOverlapIsError));
+  
+  //literally from FWCore/Framework/src/EventProcessor.cc
+  // the next thing is ugly: pull out the trigger path pset and 
+  // create a service and extra token for it
+  string proc_name = params_->getParameter<string>("@process_name");
+  
+  typedef edm::service::TriggerNamesService TNS;
+  typedef edm::serviceregistry::ServiceWrapper<TNS> w_TNS;
+  
+  edm::ParameterSet trigger_paths =
+    (*params_).getUntrackedParameter<edm::ParameterSet>("@trigger_paths");
+  boost::shared_ptr<w_TNS> tnsptr
+    (new w_TNS( std::auto_ptr<TNS>(new TNS(trigger_paths,proc_name))));
+  edm::ServiceToken tempToken2(edm::ServiceRegistry::createContaining(tnsptr, 
+							      tempToken, 
+							      edm::serviceregistry::kOverlapIsError));
 
   //make the services available
-  edm::ServiceRegistry::Operate operate(tempToken);
-
-  params_ = builder.getProcessPSet();
+  edm::ServiceRegistry::Operate operate(tempToken2);
 
   act_table_ = edm::ActionTable(*params_);
 
-  input_= makeInput(*params_, (*params_).getParameter<string>("@process_name"),
+  input_= makeInput(*params_, proc_name,
 		    getPass(), preg_);
 
-  edm::ScheduleBuilder sbuilder = 
-    edm::ScheduleBuilder(*params_, wreg_, preg_, act_table_);
 
-  workers_= (sbuilder.getPathList());
+  //replaces ScheduleBuilder/ScheduleExecutor in the main function of steering 
+  sched_ = std::auto_ptr<Schedule>(new Schedule(*params_,wreg_,
+							  preg_,act_table_,
+							  activityRegistry_));
 
-  runner_ = std::auto_ptr<edm::ScheduleExecutor>(new edm::ScheduleExecutor(workers_,act_table_));
-  runner_->preModuleSignal.connect(activityRegistry_.preModuleSignal_);
-  runner_->postModuleSignal.connect(activityRegistry_.postModuleSignal_);
-  //  fillEventSetupProvider(esp_, *params_, common_);  
 
   using namespace std;
   using namespace edm::eventsetup;
@@ -133,7 +146,7 @@ void EventProcessor::init(std::string &config)
     edm::ParameterSet providerPSet = (*params_).getParameter<edm::ParameterSet>(*itName);
     ModuleFactory::get()->addTo(esp_, 
 				providerPSet, 
-				(*params_).getParameter<string>("@process_name"), 
+				proc_name, 
 				getVersion(), 
 				getPass());
   }
@@ -150,6 +163,7 @@ void EventProcessor::init(std::string &config)
 						 getPass());
   }
 
+  //  fillEventSetupProvider(esp_, *params_, common_);  
 }
 
 
@@ -172,21 +186,14 @@ void EventProcessor::beginRun()
   running_=true;
   if(! emittedBeginJob_) {
     edm::EventSetup const& es = esp_.eventSetupForInstance(edm::IOVSyncValue::beginOfTime());
-    PathList::iterator itWorkerList = workers_.begin();
-    PathList::iterator itEnd = workers_.end();
-    ESRefWrapper wrapper(es);
-    
-    for(; itWorkerList != itEnd; ++itEnd) {
-      std::for_each(itWorkerList->begin(), itWorkerList->end(), 
-		    boost::bind(boost::mem_fn(&edm::Worker::beginJob), _1, wrapper));
-	for(WorkerList::const_iterator itWorker = itWorkerList->begin();
-	    itWorker != itWorkerList->end();
-	    ++itWorker) {
-	  descs_.push_back((*itWorker)->description());
-	}
+    Schedule::AllWorkers::iterator i(sched_->all_workers_.begin()),e(sched_->all_workers_.end());
+    for(; i!=e; ++i) {
+      descs_.push_back((*i)->description());
+      
     }
+    sched_->beginJob(es);
     emittedBeginJob_ = true;
-    activityRegistry_.postBeginJobSignal_();
+    activityRegistry_->postBeginJobSignal_();
   }
 }
 #include <sys/time.h>
@@ -207,6 +214,9 @@ void EventProcessor::stopEventLoop(unsigned int delay)
       kill();
     }
 }
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 bool EventProcessor::endRun() 
 {
   bool returnValue = true;
@@ -219,33 +229,29 @@ bool EventProcessor::endRun()
     {
       //make the services available
       edm::ServiceRegistry::Operate operate(serviceToken_);
-      
-      
-      PathList::const_iterator itWorkerList = workers_.begin();
-      PathList::const_iterator itEnd = workers_.end();
-      for(; itWorkerList != itEnd; ++itEnd) {
-	for(WorkerList::const_iterator itWorker = itWorkerList->begin();
-	    itWorker != itWorkerList->end();
-	    ++itWorker) {
-	  try {
-	    (*itWorker)->endJob();
-	  } catch(cms::Exception& iException) {
-	    cerr<<"Caught cms::Exception in endJob: "<< iException.what()<<endl;
-	    returnValue = false;
-	  } catch(std::exception& iException) {
-	    cerr<<"Caught std::exception in endJob: "<< iException.what()<<endl;
-	    cerr<<endl;
-	    returnValue = false;
-	  } catch(...) {
-	    cerr<<"Caught unknown exception in endJob."<<endl;
-	    returnValue = false;
-	  }
-	}
+          try
+      {
+	sched_->endJob();
+	returnValue=true;
       }
-
-    }     
+    catch(cms::Exception& iException)
+      {
+	edm::LogError(iException.category())
+	  << "Caught cms::Exception in endRun: "<< iException.what() << "\n";
+      }
+    catch(std::exception& iException)
+      {
+	edm::LogError("std::exception")
+	  << "Caught std::exception in endRun: "<< iException.what() << "\n";
+      }
+    catch(...)
+      {
+	edm::LogError("ignored_exception")
+	  << "Caught unknown exception in endRun. (ignoring it!!!!)\n";
+      }
+    }
   
-  activityRegistry_.postEndJobSignal_();
+  activityRegistry_->postEndJobSignal_();
   descs_.clear();
   return returnValue;
 }
@@ -280,15 +286,9 @@ void EventProcessor::run()
       
       try
 	{
-	  edm::ModuleDescription dummy;
-	  {
-	    activityRegistry_.preProcessEventSignal_(pep->id(),pep->time());
-	  }
+
 	  //	  edm::EventRegistry::Operate oper(pep->id(),pep.get());
-	  runner_->runOneEvent(*pep.get(),es);
-	  {
-	    activityRegistry_.postProcessEventSignal_(edm::Event(*pep.get(),dummy) , es);
-	  }
+	  sched_->runOneEvent(*pep.get(),es);
 	}
       catch(cms::Exception& e)
 	{

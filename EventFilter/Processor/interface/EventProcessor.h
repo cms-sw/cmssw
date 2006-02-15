@@ -9,6 +9,9 @@
 //
 //  MODIFICATION:
 //    $Log: EventProcessor.h,v $
+//    Revision 1.7  2006/01/11 00:19:33  meschi
+//    improved run end sequence
+//
 //    Revision 1.6  2006/01/06 11:31:58  meschi
 //    added missing InputSource include
 //
@@ -32,7 +35,8 @@
 #include "FWCore/Framework/src/Worker.h"
 #include "FWCore/Framework/src/WorkerRegistry.h"
 #include "FWCore/Framework/interface/ScheduleBuilder.h"
-#include "FWCore/Framework/interface/ScheduleExecutor.h"
+//#include "FWCore/Framework/interface/ScheduleExecutor.h"
+#include "EventFilter/Processor/src/Schedule.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/Framework/interface/Actions.h"
 
@@ -105,10 +109,10 @@ namespace evf
       edm::WorkerRegistry                    wreg_;
       edm::SignallingProductRegistry         preg_;
       PathList                workers_;
-      edm::ActivityRegistry activityRegistry_;
+      boost::shared_ptr<edm::ActivityRegistry> activityRegistry_;
       edm::ServiceToken serviceToken_;
       boost::shared_ptr<edm::InputSource> input_;
-      std::auto_ptr<edm::ScheduleExecutor> runner_;
+      std::auto_ptr<Schedule> sched_;
       edm::eventsetup::EventSetupProvider esp_;    
       
       bool emittedBeginJob_;
