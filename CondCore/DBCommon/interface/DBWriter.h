@@ -18,14 +18,12 @@ namespace cond{
       pool::Ref<ObjType> myref(&(m_session.DataSvc()), obj);
       try{
 	myref.markWrite(*m_placement);
-	++m_counter;
-	
       }catch( const seal::Exception& er){
-	throw cond::Exception( "caught seal::Exception "+ er.what() );
+	throw cond::Exception( std::string("caught seal::Exception ")+ er.what() );
       }catch ( const std::exception& er ) {
-	throw cond::Exception( "caught std::exception "+ er.what() );
+	throw cond::Exception( std::string("caught std::exception ")+ er.what() );
       }catch ( ... ) {
-	throw cond::Exception( "caught unknown exception ");
+	throw cond::Exception( std::string("caught unknown exception "));
       }
       return myref.toString();
     }

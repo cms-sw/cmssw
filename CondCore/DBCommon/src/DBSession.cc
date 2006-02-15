@@ -20,7 +20,7 @@ cond::DBSession::~DBSession(){
 void cond::DBSession::setCatalog( const std::string& catalogCon ){
   m_catalogcon=catalogCon;
 }
-void cond::DBSession::connect( cond::ConnectMode mode){
+void cond::DBSession::connect( cond::ConnectMode mode ){
   pool::DatabaseConnectionPolicy policy;  
   switch(mode){
   case cond::ReadWriteCreate:
