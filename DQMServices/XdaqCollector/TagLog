@@ -1,3 +1,6 @@
+** V00-01-01  [Wed Feb 15 10:18:29 2006]
+changes to reflect EPStateMachine changes
+
 ** V00-01-00  [Wed Feb  8 00:20:20 2006]
 New getter &amp; setter methods for class MonitorElement;
 Fixed compilation errors introduced with new CMSSW configuration in
