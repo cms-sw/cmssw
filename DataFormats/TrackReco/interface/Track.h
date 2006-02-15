@@ -1,7 +1,7 @@
 #ifndef TrackReco_Track_h
 #define TrackReco_Track_h
 //
-// $Id: Track.h,v 1.6 2005/12/15 20:42:49 llista Exp $
+// $Id: Track.h,v 1.7 2006/01/20 10:03:34 llista Exp $
 //
 // Definition of Track class for RECO
 //
@@ -12,6 +12,7 @@
 #include "DataFormats/Math/interface/Error.h"
 #include "DataFormats/Math/interface/Vector.h"
 #include "DataFormats/TrackReco/interface/HelixParameters.h"
+#include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 namespace reco {
@@ -61,6 +62,8 @@ namespace reco {
     double y() const { return vertex().Y(); }
     double z() const { return vertex().Z(); }
 
+    void setExtra( const TrackExtraRef & ref ) { extra_ = ref; }
+    const TrackExtraRef & extra() const { return extra_; }
   private:
     Double32_t chi2_;
     unsigned short ndof_;
@@ -69,6 +72,7 @@ namespace reco {
     unsigned short invalid_;
     Parameters par_;
     Covariance cov_;
+    TrackExtraRef extra_;
   };
 
 }
