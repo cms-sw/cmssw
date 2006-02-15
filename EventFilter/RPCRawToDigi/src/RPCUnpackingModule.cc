@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCUnpackingModule
  *
- *  $Date: 2006/02/06 14:27:32 $
- *  $Revision: 1.12 $
+ *  $Date: 2006/02/14 10:52:19 $
+ *  $Revision: 1.13 $
  *
  * \author Ilaria Segoni
  */
@@ -138,7 +138,7 @@ void RPCUnpackingModule::produce(Event & e, const EventSetup& c){
 		
 	}       
         // Insert the new product in the event  
-	//e.put(producedRPCDigis);  
+	e.put(producedRPCDigis);  
      
 }
 
