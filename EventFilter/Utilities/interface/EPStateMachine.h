@@ -47,7 +47,7 @@ namespace evf
 	  addStateTransition('S', 'E', "Resume", me,
 			     &T::resumeAction);
 	  addStateTransition('H', 'H', "Halt", me,
-			     &T::haltAction);
+			     &T::nullAction);
 	  addStateTransition('R', 'H', "Halt", me,
 			     &T::haltAction);
 	  addStateTransition('E', 'H', "Halt", me,
