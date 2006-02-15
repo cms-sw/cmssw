@@ -3,6 +3,7 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Utilities>
 <use name=FWCore/ServiceRegistry>
+<use name=FWCore/MessageLogger>
 <export>
  <lib name=FWCoreFramework>
  <use name=boost>
@@ -10,5 +11,6 @@
  <use name=FWCore/ParameterSet>
  <use name=FWCore/Utilities>
  <use name=FWCore/ServiceRegistry>
+ <use name=FWCore/MessageLogger>
 </export>
 

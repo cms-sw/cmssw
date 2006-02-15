@@ -4,7 +4,7 @@ This is a generic main that can be used with any plugin and a
 PSet script.   See notes in EventProcessor.cpp for details about
 it.
 
-$Id: cmsRun.cpp,v 1.6 2005/11/30 21:33:07 paterno Exp $
+$Id: cmsRun.cpp,v 1.7 2005/12/07 22:05:47 paterno Exp $
 
 ----------------------------------------------------------------------*/  
 
@@ -15,10 +15,10 @@ $Id: cmsRun.cpp,v 1.6 2005/11/30 21:33:07 paterno Exp $
 #include <vector>
 #include <boost/program_options.hpp>
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventProcessor.h"
 #include "FWCore/Utilities/interface/ProblemTracker.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/MessageLogger/interface/MessageLoggerSpigot.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
@@ -32,8 +32,6 @@ static const char* const kProgramName = "cmsRun";
 
 int main(int argc, char* argv[])
 {
-  edm::MessageLoggerSpigot theMessageLoggerSpigot;
-
   using namespace boost::program_options;
   std::string descString(argv[0]);
   descString += " [options] [--";
