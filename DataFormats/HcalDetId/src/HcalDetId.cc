@@ -1,5 +1,6 @@
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
+const HcalDetId HcalDetId::Undefined(HcalEmpty,0,0,0);
 
 HcalDetId::HcalDetId() : DetId() {
 }
