@@ -2,10 +2,10 @@
 #define RPCRecordFormatter_H
 
 
-/** \class Interprets the RPC record (16 bit)
+/** \class Interprets the RPC record (16 bit) and fills the RPCDigiCollection
  *
- *  $Date: 2006/02/06 11:36:26 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/02/14 10:51:21 $
+ *  $Revision: 1.2 $
  *  \author Ilaria Segoni - CERN
  */
 
@@ -25,8 +25,11 @@ class RPCRecordFormatter{
 	   ///Destructor 
 	   ~RPCRecordFormatter();
 	   
-	   ///Record Unpacker driver
-	   void recordUnpack(RPCRecord::recordTypes typeOfRecord, const unsigned char* recordIndex, std::auto_ptr<RPCDigiCollection> prod);
+	   /// Record Unpacker driver
+	   /// Takes a reference to std::auto_ptr<RPCDigiCollection> because
+	   /// I don't want to transfer ownership of RPCDigiCollection
+	   void recordUnpack(RPCRecord::recordTypes typeOfRecord, const unsigned
+	   			char* recordIndex, std::auto_ptr<RPCDigiCollection> & prod);
            
 	   ///Unpack record type Start of BX Data and return BXN
            int unpackBXRecord(const unsigned char* recordIndex); 
