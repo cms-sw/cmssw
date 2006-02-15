@@ -1,3 +1,6 @@
+** V02-01-04  [Wed Feb 15 14:49:14 2006]
+Test objects moved to DataFormats/TestObjects
+
 ** V02-01-03  [Tue Feb 14 00:35:38 2006]
 move persistent data to DataFormats/TestObjects
 
