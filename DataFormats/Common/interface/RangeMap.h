@@ -1,6 +1,8 @@
 #ifndef Common_RangeMap_h
 #define Common_RangeMap_h
-// $Id: RangeMap.h,v 1.2 2006/02/13 11:54:41 llista Exp $
+// $Id: RangeMap.h,v 1.5 2006/02/14 11:16:03 llista Exp $
+#include <map>
+
 namespace edm {
 
   template<typename ID, typename C, typename P>
