@@ -2,6 +2,34 @@
 
 EcalDCCHeaderBlock::EcalDCCHeaderBlock()
 {
+  dccId_= -1;
+  tccStatus_.reserve(MAX_TCC_SIZE);
+  triggerTowerStatus_.reserve(MAX_TT_SIZE);
+  dccErrors_=-1;
+  orbitNumber_=-1; // do we need it here?
+  runType_=-1;
+  LV1event_ =-1;
+  runNumber_ =-1;
+  BX_ =-1;
+ 
+  EcalDCCEventSettings dummySettings;
+  dummySettings.LaserPower =-1;
+  dummySettings.LaserFilter =-1;
+  dummySettings.wavelength =-1;
+  dummySettings.delay =-1;
+  dummySettings.MEMVinj =-1;
+  dummySettings.mgpa_content =-1;
+  dummySettings.ped_offset =-1;
+
+  EventSettings_ = dummySettings;
+
+  rtHalf_=-1;
+  mgpaGain_=-1;
+  memGain_=-1;
+  srpStatus_ =-1;
+  selectiveReadout_=false;
+  testZeroSuppression_=false;
+  zeroSuppression_=false; 
 }
 
 EcalDCCHeaderBlock::EcalDCCHeaderBlock(const int& dccId)
@@ -9,18 +37,31 @@ EcalDCCHeaderBlock::EcalDCCHeaderBlock(const int& dccId)
   dccId_=dccId;
   tccStatus_.reserve(MAX_TCC_SIZE);
   triggerTowerStatus_.reserve(MAX_TT_SIZE);
-  dccErrors_=0;
-  orbitNumber_=0; // do we need it here?
-  cycleSettings_=0;
-  runType_=0;
-  sequence_=0;
-  rtHalf_=0;
-  mgpaGain_=0;
-  memGain_=0;
+  dccErrors_=-1;
+  orbitNumber_=-1; // do we need it here?
+  runType_=-1;
+  LV1event_ =-1;
+  runNumber_ =-1;
+  BX_ =-1;
+ 
+  EcalDCCEventSettings dummySettings;
+  dummySettings.LaserPower =-1;
+  dummySettings.LaserFilter =-1;
+  dummySettings.wavelength =-1;
+  dummySettings.delay =-1;
+  dummySettings.MEMVinj =-1;
+  dummySettings.mgpa_content =-1;
+  dummySettings.ped_offset =-1;
 
+  EventSettings_ = dummySettings;
+
+  rtHalf_=-1;
+  mgpaGain_=-1;
+  memGain_=-1;
+  srpStatus_ =-1;
+  
   selectiveReadout_=false;
   testZeroSuppression_=false;
   zeroSuppression_=false;  
 }
-
 
