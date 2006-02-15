@@ -1,0 +1,20 @@
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=DQMServices/CoreROOT>
+<use name=Geometry/CommonDetUnit>
+<use name=Geometry/Records>
+<use name=Geometry/TrackerSimAlgo>
+<use name=boost>
+<flags SEAL_PLUGIN_NAME="DQMSiPixelMonitorDigi">
+<export>
+   <lib name=DQMSiPixelMonitorDigi>
+   <use name=FWCore/Framework>
+   <use name=Foundation/PluginManager>
+   <use name=FWCore/ParameterSet>
+   <use name=DQMServices/CoreROOT>
+   <use name=Geometry/CommonDetUnit>
+   <use name=Geometry/Records>
+   <use name=Geometry/TrackerSimAlgo>
+   <use name=boost>
+</export>
