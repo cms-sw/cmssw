@@ -1,0 +1,8 @@
+<lcgdict>
+<class name="DTRecHit1DPair"/>
+<class name="std::vector<DTRecHit1DPair>"/>
+<class name="std::map<DTLayerId,std::vector<DTRecHit1DPair> >"/>
+<class name="MuonDigiCollection<DTLayerId,DTRecHit1DPair>"/> 
+<class name="edm::Wrapper<MuonDigiCollection<DTLayerId,DTRecHit1DPair>>"/> 
+</lcgdict>
+
