@@ -197,9 +197,9 @@ class SiPixelDigitizerAlgorithm
   float PixelEfficiency;
   float PixelColEfficiency;
   float PixelChipEfficiency;
-  float thePixelEfficiency[3];     // Single pixel effciency
-  float thePixelColEfficiency[3];  // Column effciency
-  float thePixelChipEfficiency[3]; // ROC efficiency
+  float thePixelEfficiency[6];     // Single pixel effciency
+  float thePixelColEfficiency[6];  // Column effciency
+  float thePixelChipEfficiency[6]; // ROC efficiency
  
   //-- calibration smearing
   bool doMissCalibrate;         // Switch on the calibration smearing

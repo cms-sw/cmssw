@@ -17,7 +17,7 @@
 #include "CLHEP/Random/RandFlat.h"
 #include "SimTracker/SiPixelDigitizer/interface/PixelChipIndices.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 using namespace std;
 
 SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& conf):conf_(conf){
@@ -42,6 +42,9 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
 
   // Pixel threshold in units of noise.
   thePixelThreshold=conf_.getParameter<double>("ThresholdInNoiseUnits");
+
+  // Noise in electrons.
+  theNoiseInElectrons=conf_.getParameter<double>("NoiseInElectrons");
 
   //theTofCut 12.5, cut in particle TOD +/- 12.5ns
   theTofCut=conf_.getParameter<double>("TofCut");
@@ -68,10 +71,50 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   theGainSmearing=conf_.getParameter<double>("GainSmearing"); // sigma of the gain smearing
   theOffsetSmearing=conf_.getParameter<double>("OffsetSmearing"); //sigma of the offset smearing
 
-  //////pixel geometry
-  theRowsInChip=conf_.getParameter<int>("PixelROCRows");
-  theColsInChip=conf_.getParameter<int>("PixelROCCols");
+
+
+
+  //pixel inefficiency
   
+  if (thePixelLuminosity==0) {
+    pixelInefficiency=false;
+    for (int i=0; i<6;i++) {
+      thePixelEfficiency[i]     = 1.;  // pixels = 100%
+      // For columns make 1% default.
+      thePixelColEfficiency[i]  = 1.;  // columns = 100%
+      // A flat 0.25% inefficiency due to lost data packets from TBM
+      thePixelChipEfficiency[i] = 1.; // chips = 100%
+    }
+  }
+  
+  if (thePixelLuminosity>0) {
+    pixelInefficiency=true;
+    // Default efficiencies 
+    for (int i=0; i<6;i++) {
+      // Assume 1% inefficiency for single pixels, 
+      // this is given by faulty bump-bonding and seus.  
+      thePixelEfficiency[i]     = 1.-0.01;  // pixels = 99%
+      // For columns make 1% default.
+      thePixelColEfficiency[i]  = 1.-0.01;  // columns = 99%
+      // A flat 0.25% inefficiency due to lost data packets from TBM
+      thePixelChipEfficiency[i] = 1.-0.0025; // chips = 99.75%
+    }
+    
+    
+    
+    // Special cases 
+
+    //   unsigned int Subid=DetId(detID).subdetId();
+   
+    if(thePixelLuminosity==10) { // For high luminosity
+      thePixelColEfficiency[0] = 1.-0.034; // 3.4% for r=4 only
+      thePixelEfficiency[0]    = 1.-0.015; // 1.5% for r=4
+    }
+
+  }
+
+
+
   if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 0 ) {
     cout<<"SiPixelDigitizerAlgorithm constructed"<<endl;
     cout<<"Configuraion parameters:"<<endl;  
@@ -113,66 +156,9 @@ vector<PixelDigi>  SiPixelDigitizerAlgorithm::run(const std::vector<PSimHit> &in
   detID= _detp->geographicalId().rawId();
 
 
-  if (thePixelLuminosity==0) {
-    pixelInefficiency=false;
-    for (int i=0; i<3;i++) {
-      thePixelEfficiency[i]     = 1.;  // pixels = 99%
-      // For columns make 1% default.
-      thePixelColEfficiency[i]  = 1.;  // columns = 99%
-      // A flat 0.25% inefficiency due to lost data packets from TBM
-      thePixelChipEfficiency[i] = 1.; // chips = 99.75%
-    }
-  }
-
-  if (thePixelLuminosity>0) {
-    pixelInefficiency=true;
-    // Default efficiencies 
-    for (int i=0; i<3;i++) {
-      // Assume 1% inefficiency for single pixels, 
-      // this is given by faulty bump-bonding and seus.  
-      thePixelEfficiency[i]     = 1.-0.01;  // pixels = 99%
-      // For columns make 1% default.
-      thePixelColEfficiency[i]  = 1.-0.01;  // columns = 99%
-      // A flat 0.25% inefficiency due to lost data packets from TBM
-      thePixelChipEfficiency[i] = 1.-0.0025; // chips = 99.75%
-    }
-    
-    
-    
-    // Special cases 
-
-    unsigned int Subid=DetId(detID).subdetId();
-    if    (Subid==  PixelSubdetector::PixelBarrel){
-      if(thePixelLuminosity==10) { // For high luminosity
- 	thePixelColEfficiency[0] = 1.-0.034; // 3.4% for r=4 only
-	thePixelEfficiency[0]    = 1.-0.015; // 1.5% for r=4
-      }        
- 
-    }
 
 
 
-    // Set efficencies to a preset values (Testing only),-1=not used(def)
-    PixelEff=conf_.getParameter<double>("PixelEfficiency");
-    PixelColEff=conf_.getParameter<double>("PixelColEfficiency");
-    PixelChipEff=conf_.getParameter<double>("PixelChipEfficiency");
-
-    if(PixelEff>0.) {     // Set all layers to the preset value
-      for (int i=0; i<3;i++) {
-	thePixelEfficiency[i] = PixelEfficiency;
-      }
-    }
-    if(PixelColEff>0.) {
-      for (int i=0; i<3;i++) {
-	thePixelColEfficiency[i] = PixelColEfficiency;
-      }
-    }
-    if(PixelChipEff>0.) {
-      for (int i=0; i<3;i++) {
-	thePixelChipEfficiency[i] = PixelChipEfficiency;
-      }
-    }
-  }
 
     _signal.clear();
 
@@ -205,9 +191,9 @@ vector<PixelDigi> SiPixelDigitizerAlgorithm::digitize(PixelGeomDetUnit *det){
 
     //MP DA SISTEMARE
     //     float noiseInADCCounts = _detp->readout().noiseInAdcCounts();
-    float noiseInADCCounts=3.7;  
+    //  float noiseInADCCounts=3.7;  
     // For the noise generation I need noise in electrons
-    theNoiseInElectrons = noiseInADCCounts * theElectronPerADC;    
+    // theNoiseInElectrons = noiseInADCCounts * theElectronPerADC;    
     // Find the threshold in electrons
     thePixelThresholdInE = thePixelThreshold * theNoiseInElectrons; 
 
@@ -222,12 +208,9 @@ vector<PixelDigi> SiPixelDigitizerAlgorithm::digitize(PixelGeomDetUnit *det){
     // produce SignalPoint's for all SimHit's in detector
     // Loop over hits
  
-    vector<PSimHit>::const_iterator ssbegin = _PixelHits.begin();
-    vector<PSimHit>::const_iterator ssend = _PixelHits.end();
-    for (;ssbegin != ssend; ++ssbegin) {
- 
-
-      if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 1 ) {  
+    vector<PSimHit>::const_iterator ssbegin; 
+    for (ssbegin= _PixelHits.begin();ssbegin !=_PixelHits.end(); ++ssbegin) {
+         if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 1 ) {  
 	cout << (*ssbegin).particleType() << " " << (*ssbegin).pabs() << " " 
 	     << (*ssbegin).energyLoss() << " " << (*ssbegin).tof() << " " 
 	     << (*ssbegin).trackId() << " " << (*ssbegin).processType() << " " 
@@ -249,7 +232,7 @@ vector<PixelDigi> SiPixelDigitizerAlgorithm::digitize(PixelGeomDetUnit *det){
     if(addNoise) add_noise();  // generate noise
     // Do only if needed 
 
-    if(pixelInefficiency && _signal.size()>0 ) 
+    if((pixelInefficiency>0) && (_signal.size()>0)) 
       pixel_inefficiency(); // Kill some pixels
 
   }
@@ -842,39 +825,17 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency() {
   // At the moment I do not have a better way to find out the layer number? 
   unsigned int Subid=DetId(detID).subdetId();
   if    (Subid==  PixelSubdetector::PixelBarrel){// barrel layers
-    double radius = _detp->surface().position().perp();
-    int layerIndex = 0;
-    if( radius < 5.5 ) {
-      layerIndex=1;
-    } else if ( radius < 9. ) {
-      layerIndex=2;
-    } else  {
-      layerIndex=3;
-    }
-
-
-
-
+     int layerIndex=PXBDetId(detID).layer();
     pixelEfficiency  = thePixelEfficiency[layerIndex-1];
     columnEfficiency = thePixelColEfficiency[layerIndex-1];
     chipEfficiency   = thePixelChipEfficiency[layerIndex-1];
     
   } else {                // forward disks
-    
-    //double zabs = fabs( _detp->position().z() );
-    //int layerIndex = 0;
-    //if( zabs < 40. ) {
-    //  layerIndex=1;
-    //} else if ( zabs < 50. ) {
-    //  layerIndex=2;
-    //} else  {
-    //  layerIndex=3;
-    //}
-
+  
     // For endcaps take same for each endcap
-    pixelEfficiency  = thePixelEfficiency[0];
-    columnEfficiency = thePixelColEfficiency[0];
-    chipEfficiency   = thePixelChipEfficiency[0];
+    pixelEfficiency  = thePixelEfficiency[3];
+    columnEfficiency = thePixelColEfficiency[3];
+    chipEfficiency   = thePixelChipEfficiency[3];
 
   }
 
@@ -891,7 +852,7 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency() {
   
   // Initilize the index converter
  
-  PixelChipIndices indexConverter(theColsInChip,theRowsInChip,
+  PixelChipIndices indexConverter(52,80,
 				  numColumns,numRows);
 
   int chipX,chipY,row,col;
