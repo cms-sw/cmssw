@@ -1,3 +1,6 @@
+** V00-02-01  [Wed Feb 15 16:15:20 2006]
+remove FWCore/Integration from BuildFile
+
 ** V00-02-00  [Mon Dec 12 19:45:55 2005]
 Complete test
 
