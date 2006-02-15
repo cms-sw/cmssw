@@ -1,0 +1,21 @@
+** V00-02-05  [Thu Feb  2 15:53:37 2006]
+ change friends of DTNumberingScheme.h
+
+** V00-02-04  [Tue Jan 24 11:33:46 2006]
+introducing DTWireID
+
+** V00-02-03  [Tue Jan 10 23:33:44 2006]
+deleting MuBarIDPacking and MuEndDetectorId 
+
+** V00-02-02  [Fri Dec  9 09:18:48 2005]
+remove/fix some numbering hacks
+
+** V00-02-01  [Tue Dec  6 18:32:08 2005]
+using DTDetId
+
+** V00-02-00  [Tue Nov  8 18:00:23 2005]
+updated version to V00-02-00
+
+** V00-00-00  [Wed Oct 26 18:08:17 2005]
+Base tag on CMSSW_0_2_0_pre5
+

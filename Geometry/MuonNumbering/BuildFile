@@ -1,0 +1,8 @@
+<use name=DetectorDescription/Core>
+<use name=DataFormats/MuonDetId>
+
+<export>
+ <lib name=GeometryMuonNumbering>
+ <use name=DetectorDescription/Core>
+ <use name=DataFormats/MuonDetId>
+</export>
