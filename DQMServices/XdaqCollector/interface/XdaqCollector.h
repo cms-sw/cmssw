@@ -41,19 +41,22 @@ class XdaqCollector : public dqm::StateMachine
   
 protected:
 
-  virtual void configureAction(toolbox::Event::Reference e) 
+  void configureAction(toolbox::Event::Reference e) 
     throw (toolbox::fsm::exception::Exception);
   
-  virtual void enableAction(toolbox::Event::Reference e) 
+  void enableAction(toolbox::Event::Reference e) 
     throw (toolbox::fsm::exception::Exception);
     
-  virtual void suspendAction(toolbox::Event::Reference e) 
+  void suspendAction(toolbox::Event::Reference e) 
     throw (toolbox::fsm::exception::Exception);
 
-  virtual void resumeAction(toolbox::Event::Reference e) 
+  void resumeAction(toolbox::Event::Reference e) 
     throw (toolbox::fsm::exception::Exception);
 
-  virtual void haltAction(toolbox::Event::Reference e) 
+  void haltAction(toolbox::Event::Reference e) 
+    throw (toolbox::fsm::exception::Exception);
+
+  void nullAction(toolbox::Event::Reference e) 
     throw (toolbox::fsm::exception::Exception);
 
  private:
