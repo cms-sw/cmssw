@@ -1,3 +1,6 @@
+** V00-00-08  [Wed Feb 15 01:46:55 2006]
+adaptation to various changes in FW
+
 ** V00-00-07  [Mon Feb  6 01:12:06 2006]
 simplified buildfile removed reflection
 
