@@ -12,7 +12,6 @@
 <use name=gsl>
 <use name=boost>
 <use name=clhep>
-<use name=FWCore/Integration>
 <use name=MagneticField/Records>
 <use name=MagneticField/GeomBuilder>
 <use name=MagneticField/VolumeBasedEngine>
@@ -32,8 +31,7 @@
    <use name=gsl> 
    <use name=boost>
    <use name=clhep>
-   <use name=FWCore/Integration>
-   <use name=MagneticField/Records>
+    <use name=MagneticField/Records>
    <use name=MagneticField/GeomBuilder>
    <use name=MagneticField/VolumeBasedEngine>
    <use name=Geometry/Surface>
