@@ -52,6 +52,9 @@ private:
   void haltAction(toolbox::Event::Reference e) 
     throw (toolbox::fsm::exception::Exception);
 
+  void nullAction(toolbox::Event::Reference e) 
+    throw (toolbox::fsm::exception::Exception);
+
   
   std::string name_;
 

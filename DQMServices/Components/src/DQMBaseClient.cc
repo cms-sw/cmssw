@@ -98,3 +98,9 @@ void DQMBaseClient::haltAction(toolbox::Event::Reference e)
   endRun();
 }
 
+void DQMBaseClient::nullAction(toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception)
+{
+  //this action has no effect. A warning is issued to this end
+  LOG4CPLUS_WARN(this->getApplicationLogger(),
+		    "Null action invoked");
+}
