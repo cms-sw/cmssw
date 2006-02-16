@@ -1,4 +1,4 @@
-#include "FWCore/MessageService/interface/MessageLoggerSpigot.h"
+#include "FWCore/MessageService/interface/MessageServicePresence.h"
 #include "FWCore/MessageService/interface/MessageLoggerScribe.h"
 
 #include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
@@ -22,7 +22,7 @@ namespace edm {
 namespace service {
 
 
-MessageLoggerSpigot::MessageLoggerSpigot()
+MessageServicePresence::MessageServicePresence()
   : Presence()
             , scribe( ( (void) MessageLoggerQ::instance() // ensure Q's static data init'd
             , runMessageLoggerScribe  // start a new thread
@@ -32,7 +32,7 @@ MessageLoggerSpigot::MessageLoggerSpigot()
 }
 
 
-MessageLoggerSpigot::~MessageLoggerSpigot()
+MessageServicePresence::~MessageServicePresence()
 {
   MessageLoggerQ::END();
   scribe.join();
