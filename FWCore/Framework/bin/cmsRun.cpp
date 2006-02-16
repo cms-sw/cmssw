@@ -4,7 +4,7 @@ This is a generic main that can be used with any plugin and a
 PSet script.   See notes in EventProcessor.cpp for details about
 it.
 
-$Id: cmsRun.cpp,v 1.8 2006/02/15 04:37:32 wmtan Exp $
+$Id: cmsRun.cpp,v 1.9 2006/02/15 19:36:14 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 
@@ -13,14 +13,16 @@ $Id: cmsRun.cpp,v 1.8 2006/02/15 04:37:32 wmtan Exp $
 #include <fstream>
 #include <string>
 #include <vector>
+#include <boost/shared_ptr.hpp>
 #include <boost/program_options.hpp>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventProcessor.h"
 #include "FWCore/Utilities/interface/ProblemTracker.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/Presence.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/MessageService/interface/MessageLoggerSpigot.h"
+#include "FWCore/Utilities/interface/PresenceFactory.h"
 
 using namespace std;
 static const char* const kParameterSetOpt = "parameter-set";
@@ -33,9 +35,16 @@ static const char* const kProgramName = "cmsRun";
 
 int main(int argc, char* argv[])
 {
-  edm::service::MessageLoggerSpigot theMessageLoggerSpigot;
-
   using namespace boost::program_options;
+
+  // We must initialize the plug-in manager first
+  edm::AssertHandler ah;
+
+  // Load the message service plug-in
+  boost::shared_ptr<edm::Presence> theMessageLoggerSpigot
+      (edm::PresenceFactory::get()->
+	makePresence("MessageLoggerSpigot").release());
+
   std::string descString(argv[0]);
   descString += " [options] [--";
   descString += kParameterSetOpt;
@@ -92,7 +101,6 @@ int main(int argc, char* argv[])
   edm::ParameterSet main;
   std::vector<edm::ParameterSet> serviceparams;
 
-  edm::AssertHandler ah;
 
   int rc = -1; // we should never return this value!
   try
