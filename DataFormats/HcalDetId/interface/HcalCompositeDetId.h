@@ -21,8 +21,8 @@ Packing:
 [12:7]  Ieta (absolute)
 [6:0]   Iphi
 
-$Date: 2005/10/03 14:27:12 $
-$Revision: 1.2 $
+$Date: 2005/10/06 00:38:43 $
+$Revision: 1.3 $
 \author J. Mans - Minnesota
 */
 class HcalCompositeDetId : public DetId {
@@ -47,6 +47,9 @@ public:
   CompositeType getCompositeType() const { return CompositeType((id_>>21)&0xF); }
   /// get the composite data field (7 bits)
   int getCompositeData() const { return ((id_>>14)&0x7F); }
+
+  static const HcalCompositeDetId Undefined;
+
 protected:
   /** Constructor of a null id */
   HcalCompositeDetId();

@@ -1,5 +1,6 @@
 #include "DataFormats/HcalDetId/interface/HcalCalibDetId.h"
 
+const HcalCalibDetId HcalCalibDetId::Undefined(0x40000000u);
 
 HcalCalibDetId::HcalCalibDetId() {
 }

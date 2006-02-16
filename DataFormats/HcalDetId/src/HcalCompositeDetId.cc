@@ -1,5 +1,6 @@
 #include "DataFormats/HcalDetId/interface/HcalCompositeDetId.h"
 
+const HcalCompositeDetId HcalCompositeDetId::Undefined(0x40000000u);
 
 HcalCompositeDetId::HcalCompositeDetId() {
 }

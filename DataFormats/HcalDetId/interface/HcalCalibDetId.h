@@ -16,8 +16,8 @@
   *     [8:5] Detector sector (HB+,HB-,HE+,HE-,HF+,HF-,HO2-,HO1-,HOO,HO1+,HO2+)
   *     [4:0] RBX number
   *
-  * $Date: $
-  * $Revision: $
+  * $Date: 2006/02/10 21:15:28 $
+  * $Revision: 1.1 $
   * \author J. Mans - Minnesota
   */
 class HcalCalibDetId : public DetId {
@@ -60,6 +60,9 @@ public:
   static const int cbox_RadDam1       = 5; // in HE only!
   static const int cbox_RadDam2       = 6; // in HE only!
   static const int cbox_RadDam3       = 7; // in HE only!
+
+  static const HcalCalibDetId Undefined;
+
 };
 
 std::ostream& operator<<(std::ostream& s,const HcalCalibDetId& id);

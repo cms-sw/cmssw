@@ -10,8 +10,8 @@
     
 Cell id for an Calo Trigger tower
 
-   $Date: 2005/10/03 14:27:12 $
-   $Revision: 1.5 $
+   $Date: 2006/02/10 21:14:46 $
+   $Revision: 1.6 $
    \author J. Mans - Minnesota
 */
 class HcalTrigTowerDetId : public DetId {
@@ -39,6 +39,8 @@ public:
   int ieta() const { return zside()*ietaAbs(); }
   /// get the tower iphi
   int iphi() const { return id_&0x7F; }
+
+  static const HcalTrigTowerDetId Undefined;
 
 };
 

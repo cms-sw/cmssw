@@ -1,5 +1,6 @@
 #include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
 
+const HcalTrigTowerDetId HcalTrigTowerDetId::Undefined(0x40000000u);
 
 HcalTrigTowerDetId::HcalTrigTowerDetId() {
 }
