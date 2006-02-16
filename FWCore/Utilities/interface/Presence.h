@@ -1,12 +1,12 @@
-#ifndef FWCore_Utilities_AbstractSpigot_h
-#define FWCore_Utilities_AbstractSpigot_h
+#ifndef FWCore_Utilities_Presence_h
+#define FWCore_Utilities_Presence_h
 
 // -*- C++ -*-
 
 /*
-  An interface class defining a spigot.  A spigot is an object that an 
+  An interface class defining a presence.  A presence is an object that an 
   executable can instantiate at an early time in order to initialize 
-  various things and to set in motion a run() method.  The destructor
+  various things.  The destructor
   takes action to terminate the artifacts of the run() method.
   
   The prototypical use of this is to establish the MessageLoggerSpigot.
@@ -18,13 +18,10 @@
 
 namespace edm {
 
-class AbstractSpigot
-{
-public:
-  AbstractSpigot() { }
-  virtual ~AbstractSpigot() = 0;
-  virtual void run() = 0;
-};
-
+  class Presence {
+  public:
+    Presence() {}
+    virtual ~Presence() = 0;
+  };
 }
-#endif // FWCore_Utilities_AbstractSpigot_h
+#endif // FWCore_Utilities_Presence_h
