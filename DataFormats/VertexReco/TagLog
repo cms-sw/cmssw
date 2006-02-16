@@ -1,3 +1,6 @@
+** V00-03-00  [Thu Feb 16 14:55:04 2006]
+restored implementation with refs instead of indices
+
 ** V00-02-01  [Thu Feb  2 10:05:10 2006]
 using new names for Common container classes
 
