@@ -28,7 +28,9 @@ namespace cond{
     ServiceLoader();
     ~ServiceLoader();
     seal::IMessageService& loadMessageService( cond::MessageLevel level=cond::Error );
+    bool hasMessageService() const;
     coral::IAuthenticationService& loadAuthenticationService( cond::AuthenticationMethod method=cond::Env );
+    bool hasAuthenticationService() const;
     coral::IRelationalService& loadRelationalService();
     void loadConnectionService();
     /// load the default streaming service

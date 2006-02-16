@@ -49,6 +49,12 @@ seal::IMessageService& cond::ServiceLoader::loadMessageService( cond::MessageLev
   } 
   return *(v_msgSvc.front());
 }
+bool cond::ServiceLoader::hasMessageService() const{
+  std::vector< seal::IHandle<seal::IMessageService> > v_msgSvc;
+  m_context->query( v_msgSvc );
+  if( !v_msgSvc.empty() ) return true;
+  return false;
+}
 coral::IAuthenticationService& cond::ServiceLoader::loadAuthenticationService( cond::AuthenticationMethod method){
   std::vector< seal::IHandle<coral::IAuthenticationService> > v_svc;
   switch ( method ) {
@@ -74,6 +80,12 @@ coral::IAuthenticationService& cond::ServiceLoader::loadAuthenticationService( c
     }
   }
   return *(v_svc.front());
+}
+bool cond::ServiceLoader::hasAuthenticationService() const{
+  std::vector< seal::IHandle<coral::IAuthenticationService> > v_svc;
+  m_context->query( v_svc );
+  if( !v_svc.empty() ) return true;
+  return false;
 }
 coral::IRelationalService& cond::ServiceLoader::loadRelationalService(){
   m_loader->load( "CORAL/Services/RelationalService" );

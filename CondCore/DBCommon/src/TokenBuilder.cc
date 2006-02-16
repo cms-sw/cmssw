@@ -1,11 +1,12 @@
 #include "CondCore/DBCommon/interface/TokenBuilder.h"
+#include "CondCore/DBCommon/interface/Exception.h"
 #include "POOLCore/Token.h"
 #include "StorageSvc/DbType.h"
 #include "StorageSvc/DbReflex.h"
 #include "SealBase/SharedLibrary.h"
 #include "SealBase/SharedLibraryError.h"
 #include "SealKernel/Exception.h"
-#include <iostream>
+//#include <iostream>
 namespace cond{
   TokenBuilder::TokenBuilder(): m_token(new pool::Token){
     m_token->setTechnology(pool::POOL_RDBMS_StorageType.type());
@@ -21,9 +22,11 @@ namespace cond{
     try {  
       seal::SharedLibrary::load( "lib" + dictLib + ".so" );
     }catch ( seal::SharedLibraryError *error){
-      std::cerr << "caught seal::SharedLibraryError: "<< error->explainSelf() << std::endl;
+      throw cond::Exception(std::string("TokenBuilder::set failed loading dictionary ")+error->explainSelf());
     }catch (const seal::Exception &e){
-      std::cout << "caught seal::Exception: "<< e.what() << std::endl;
+      throw cond::Exception(std::string("TokenBuilder::set failed loading dictionary")+e.what());
+    }catch (...){
+      throw cond::Exception(std::string("TokenBuilder::set failed loading dictionary"));
     }
     ROOT::Reflex::Type myclass=ROOT::Reflex::Type::ByName(className);
     m_token->setDb(fid);
