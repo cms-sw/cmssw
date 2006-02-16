@@ -67,9 +67,12 @@ float EcalEndcapNumberingScheme::energyInMatrix(int nCellInX, int nCellInY,
   for (int ix=startX; ix<startX+nCellInX; ix++) {
     for (int iy=startY; iy<startY+nCellInY; iy++) {
       
-      if ( ix < 1 || ix > 100 ) { continue ; }
-      if ( iy < 1 || iy > 100 ) { continue ; }
-      uint32_t index = EEDetId(ix,iy,centralZ).rawId();
+      //if ( ix < 1 || ix > 100 ) { continue ; }
+      //if ( iy < 1 || iy > 100 ) { continue ; }
+      uint32_t index ;
+      try {
+        index = EEDetId(ix,iy,centralZ).rawId();
+      } catch ( std::runtime_error &e ) { continue ; }
       totalEnergy   += themap[index];
       ncristals     += 1;
       if (verbosity > 2)
