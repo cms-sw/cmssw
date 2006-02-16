@@ -79,19 +79,19 @@ void EcalDigiProducer::produce(edm::Event& event, const edm::EventSetup& eventSe
 
   std::auto_ptr<MixCollection<PCaloHit> > 
     barrelHits( new MixCollection<PCaloHit>(crossingFrame.product(), barrelHitsName) );
-//  std::auto_ptr<MixCollection<PCaloHit> > 
-//    endcapHits( new MixCollection<PCaloHit>(crossingFrame.product(),endcapHitsName) );
+  std::auto_ptr<MixCollection<PCaloHit> > 
+    endcapHits( new MixCollection<PCaloHit>(crossingFrame.product(),endcapHitsName) );
 
   // Step B: Create empty output
   auto_ptr<EBDigiCollection> barrelResult(new EBDigiCollection());
-//  auto_ptr<EEDigiCollection> endcapResult(new EEDigiCollection());
+  auto_ptr<EEDigiCollection> endcapResult(new EEDigiCollection());
 
   // run the algorithm
   theBarrelDigitizer->run(*barrelHits, *barrelResult);
 
   edm::LogInfo("EcalDigiProducer") << "EB Digis: " << barrelResult->size();
 
-//  theEndcapDigitizer->run(*endcapHits, *endcapResult);
+  theEndcapDigitizer->run(*endcapHits, *endcapResult);
 
   CaloDigiCollectionSorter sorter(5);
   std::vector<EBDataFrame> sortedDigis = sorter.sortedVector(*barrelResult);
@@ -102,7 +102,7 @@ void EcalDigiProducer::produce(edm::Event& event, const edm::EventSetup& eventSe
    }
   // Step D: Put outputs into event
   event.put(barrelResult);
-//  event.put(endcapResult);
+  event.put(endcapResult);
 
 }
 
