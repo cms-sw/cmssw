@@ -1,5 +1,7 @@
 #include "CondCore/MetaDataService/interface/MetaData.h"
 #include "CondCore/MetaDataService/interface/MetaDataNames.h"
+#include "CondCore/DBCommon/interface/ServiceLoader.h"
+#include "CondCore/DBCommon/interface/Exception.h"
 #include "RelationalAccess/IRelationalService.h"
 #include "RelationalAccess/RelationalServiceException.h"
 #include "RelationalAccess/IRelationalDomain.h"
@@ -18,47 +20,39 @@
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/AttributeSpecification.h"
 #include "CoralBase/Attribute.h"
-#include "PluginManager/PluginManager.h"
-#include "SealKernel/Context.h"
-#include "SealKernel/ComponentLoader.h"
 #include "SealKernel/Exception.h"
-#include "FWCore/Utilities/interface/Exception.h"
-cond::MetaData::MetaData(const std::string& connectionString):m_con(connectionString),m_table(0),m_context(new seal::Context){
-  seal::PluginManager* pm = seal::PluginManager::get();
-  pm->initialise();
-  seal::Handle<seal::ComponentLoader> loader = new seal::ComponentLoader( m_context );
-  loader->load( "CORAL/Services/EnvironmentAuthenticationService" );
-  loader->load( "CORAL/Services/RelationalService" );
-  std::vector< seal::IHandle<coral::IRelationalService> > v_svc;
-  m_context->query( v_svc );
-  if ( v_svc.empty() ) {
-    throw cms::Exception( "could not locate the coral relational service" );
+cond::MetaData::MetaData(const std::string& connectionString, cond::ServiceLoader& loader):
+  m_con(connectionString),m_table(0),m_loader(loader){
+  if(!m_loader.hasMessageService()){
+    m_loader.loadMessageService();
   }
-  seal::IHandle<coral::IRelationalService>& relationalService = v_svc.front();
-  coral::IRelationalDomain& domain = relationalService->domainForConnection(m_con);
+  if( !m_loader.hasAuthenticationService() ){
+    m_loader.loadAuthenticationService();
+  }
+  coral::IRelationalService& relationalService=m_loader.loadRelationalService();
+  coral::IRelationalDomain& domain = relationalService.domainForConnection(m_con);
   m_session.reset( domain.newSession( m_con ) );
   try{
     m_session->connect();
     m_session->startUserSession();
   }catch(seal::Exception& er){
-    throw cms::Exception(er.what());
+    throw cond::Exception(std::string("MetaData::MetaData caught seal exception ")+er.what());
   }catch(...){
-    throw cms::Exception( "cond::MetaData::MetaData Could not connect to the database server." );
+    throw cond::Exception( "MetaData::MetaData caught unknown exception" );
   }
 }
 
 cond::MetaData::~MetaData(){
-  //(*m_log)<<seal::Msg::Debug<< "Disconnecting..." << seal::flush;
   m_session->disconnect();
-  delete m_context;
 }
 
 bool cond::MetaData::addMapping(const std::string& name, const std::string& iovtoken){
-  //(*m_log)<<seal::Msg::Debug<<"cond::MetaData::addMapping"<<seal::flush;
   try{
     m_session->transaction().start();
+  }catch(seal::Exception& er){
+    throw cond::Exception( std::string("MetaData::addMapping Could not start transaction")+ er.what());
   }catch(...){
-    throw cms::Exception( "cond::MetaData::addMapping Could not start transaction");
+    throw cond::Exception( "MetaData::addMapping caught unknown exception" );
   }
   try{
     if(!m_session->nominalSchema().existsTable(cond::MetaDataNames::metadataTable())){
@@ -73,24 +67,26 @@ bool cond::MetaData::addMapping(const std::string& name, const std::string& iovt
     rowBuffer[cond::MetaDataNames::tokenColumn()].data<std::string>()=iovtoken;
     dataEditor.insertRow( rowBuffer );
     m_session->transaction().commit() ;
+  }catch(seal::Exception& er){
+    throw cond::Exception(std::string("MetaData::addMapping Could not commit the transaction ")+er.what() );
   }catch(...){
-    throw cms::Exception("cond::MetaData::addMapping Could not commit the transaction");
+    throw cond::Exception( "MetaData::addMapping Could not commit the transaction" );
   }
   return true;
 }
 
 const std::string cond::MetaData::getToken( const std::string& name ){
-  //(*m_log)<<seal::Msg::Debug<<"cond::MetaData::getToken "<<name<<seal::flush;
   try{
     m_session->transaction().start();
+  }catch(const seal::Exception& er){
+    throw cond::Exception( std::string("MetaData::getToken: Could not start a new transaction" )+er.what() );
   }catch(...){
-    throw cms::Exception( "cond::MetaData::getToken: Could not start a new transaction" );
+    throw cond::Exception( "MetaData::getToken Could not start a new transaction" );
   }
   if(!m_table){
     m_table=&(m_session->nominalSchema().tableHandle( cond::MetaDataNames::metadataTable() ));
   }
   std::string iovtoken;
-  // coral::IQuery* query4 = workingSchema.newQuery();
   std::auto_ptr< coral::IQuery > query( m_session->nominalSchema().newQuery() );
   query->setRowCacheSize( 100 );
   coral::AttributeList emptyBindVariableList;
@@ -104,8 +100,10 @@ const std::string cond::MetaData::getToken( const std::string& name ){
   }
   try{
     m_session->transaction().commit();
+  }catch(const seal::Exception& er){
+    throw cond::Exception( std::string("MetaData::getToken Could not commit a transaction")+er.what() );
   }catch(...){
-    throw cms::Exception( "cond::MetaData::getToken: Could not commit a transaction" );
+    throw cond::Exception( "MetaData::getToken: Could not commit a transaction" );
   }
   return iovtoken;
 }

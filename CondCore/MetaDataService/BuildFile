@@ -1,9 +1,9 @@
 <use name=Framework/SealKernel>
 <use name=CORALRelationalAccess>
-<use name=FWCore/Framework>
+<use name=CondCore/DBCommon>
 <export>
   <use name=Framework/SealKernel>
   <use name=CORALRelationalAccess>
-  <use name=FWCore/Framework>
+  <use name=CondCore/DBCommon>
   <lib name=CondCoreMetaDataService>
 </export>

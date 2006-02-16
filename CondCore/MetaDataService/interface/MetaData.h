@@ -3,17 +3,14 @@
 #include <string>
 #include <memory>
 #include "RelationalAccess/ISession.h"
-//#include "SealKernel/MessageStream.h"
-namespace seal{
-  class Context;
-}
 namespace coral{
   class ITable;
 }
 namespace cond{
+  class ServiceLoader;
   class MetaData {
   public:
-    MetaData(const std::string& contact);
+    MetaData(const std::string& contact, ServiceLoader& loader);
     ~MetaData();
     bool addMapping(const std::string& name, const std::string& token);
     const std::string getToken( const std::string& name );
@@ -23,7 +20,7 @@ namespace cond{
     std::auto_ptr< coral::ISession > m_session;
     //std::auto_ptr< seal::MessageStream > m_log;
     coral::ITable* m_table;
-    seal::Context* m_context;
+    ServiceLoader& m_loader;
   };
 }
 #endif
