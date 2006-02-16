@@ -2,7 +2,10 @@
 #include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 
-
+#define TRACE_DROP
+#ifdef TRACE_DROP
+#include <iostream>
+#endif
 
 using namespace edm;
 
@@ -27,7 +30,10 @@ MessageSender::~MessageSender()
   if (drop) {
     errorobj_p->setModule(drop->moduleName);
     errorobj_p->setContext(drop->runEvent);
-  }
+  } 
+#ifdef TRACE_DROP
+  if (!drop) std::cerr << "MessageSender::~MessageSender() - Null drop pointer \n";
+#endif
 
   MessageLoggerQ::LOG(errorobj_p);
 }

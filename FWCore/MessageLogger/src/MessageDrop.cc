@@ -8,7 +8,7 @@
 //
 // Original Author:  M. Fischler and Jim Kowalkowsi
 //         Created:  Tues Feb 14 16:38:19 CST 2006
-// $Id:  $
+// $Id: MessageDrop.cc,v 1.1 2006/02/15 00:40:33 fischler Exp $
 //
 
 // system include files
@@ -26,5 +26,10 @@ static boost::thread_specific_ptr<MessageDrop> drops;
 MessageDrop *
 MessageDrop::instance()
 {
-  return drops.get();
+  MessageDrop* drop = drops.get();
+  if(drop==0) { 
+    drops.reset(new MessageDrop);
+    drop=drops.get(); 
+  }
+  return drop;
 }
