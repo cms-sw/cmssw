@@ -1,0 +1,14 @@
+
+<export>
+ <lib name=TrackingToolsDetLayers>
+ <use name=Geometry/CommonDetAlgo>
+ <use name=Geometry/CommonDetUnit>
+ <use name=boost>
+ <use name=clhep>
+</export>
+
+<use name=Geometry/CommonDetAlgo>
+<use name=Geometry/CommonDetUnit>
+<use name=boost>
+<use name=clhep>
+
