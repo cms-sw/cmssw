@@ -21,7 +21,7 @@
 */
 
 #include "IOPool/Streamer/interface/EventBuffer.h"
-#include "FWCore/EDProduct/interface/EventID.h"
+#include "DataFormats/Common/interface/EventID.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 namespace edmtest

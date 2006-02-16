@@ -2,7 +2,7 @@
 #define __i2oStorageManagerMsg_h__
 
 #include "i2o/i2o.h"
-//#include "FWCore/EDProduct/interface/EventID.h"
+//#include "DataFormats/Common/interface/EventID.h"
 
 /*
    Author: Harry Cheung, FNAL
