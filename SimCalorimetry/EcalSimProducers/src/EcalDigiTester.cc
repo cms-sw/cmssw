@@ -4,6 +4,7 @@
 EcalDigiTester::EcalDigiTester (const edm::ParameterSet& params) 
 {
   theParameterMap = new EcalSimParameterMap () ;
+  std::cout << "[EcalDigiTester][ctor] etering\n" ;
 }
 
 
@@ -19,6 +20,8 @@ void EcalDigiTester::analyze (const edm::Event& event, const edm::EventSetup& ev
 //  eventSetup.get<EcalPedestalsRcd> ().get ( pedHandle ) ;
 //  theCoder->setPedestals (pedHandle.product ()) ;
 
+  std::cout << "[EcalDigiTester][analyze] ----------------------------\n" ;
+
   checkCalibrations (eventSetup) ;
   checkGeometry (eventSetup) ;
 
@@ -28,9 +31,14 @@ void EcalDigiTester::analyze (const edm::Event& event, const edm::EventSetup& ev
   edm::Handle<CrossingFrame> crossingFrame ;
   event.getByType (crossingFrame) ;
 
-  // test access to SimHits
+  // access to SimHits
   const std::string barrelHitsName ("EcalHitsEB") ;
   const std::string endcapHitsName ("EcalHitsEE") ;
+
+  std::auto_ptr<MixCollection<PCaloHit> > 
+    barrelHits (new MixCollection<PCaloHit>(crossingFrame.product (), barrelHitsName)) ;
+//  std::auto_ptr<MixCollection<PCaloHit> > 
+//    endcapHits (new MixCollection<PCaloHit> (crossingFrame.product (), endcapHitsName)) ;
 
   // Get the digis
   // -------------
@@ -50,7 +58,8 @@ void EcalDigiTester::analyze (const edm::Event& event, const edm::EventSetup& ev
   std::cout << "Top 10 EB digis" << std::endl ;
   for (int i = 0 ; i < std::min (10, (int) sortedDigis.size ()) ; ++i) 
    {
-    std::cout << sortedDigis[i] ;
+    std::cout << "[EcalDigiTester][analyze] digi " << i
+              << "\t" << sortedDigis[i] ;
    }
 
 }
