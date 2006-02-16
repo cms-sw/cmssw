@@ -4,7 +4,7 @@ This is a generic main that can be used with any plugin and a
 PSet script.   See notes in EventProcessor.cpp for details about
 it.
 
-$Id: cmsRun.cpp,v 1.9 2006/02/15 19:36:14 wmtan Exp $
+$Id: cmsRun.cpp,v 1.10 2006/02/16 02:40:08 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 
@@ -41,9 +41,9 @@ int main(int argc, char* argv[])
   edm::AssertHandler ah;
 
   // Load the message service plug-in
-  boost::shared_ptr<edm::Presence> theMessageLoggerSpigot
+  boost::shared_ptr<edm::Presence> theMessageServicePresence
       (edm::PresenceFactory::get()->
-	makePresence("MessageLoggerSpigot").release());
+        makePresence("MessageServicePresence").release());
 
   std::string descString(argv[0]);
   descString += " [options] [--";
