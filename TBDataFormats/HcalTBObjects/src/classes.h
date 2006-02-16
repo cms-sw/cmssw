@@ -2,7 +2,7 @@
 #include "TBDataFormats/HcalTBObjects/interface/HcalTBRunData.h"
 #include "TBDataFormats/HcalTBObjects/interface/HcalTBEventPosition.h"
 #include "TBDataFormats/HcalTBObjects/interface/HcalTBTiming.h"
-#include "FWCore/EDProduct/interface/Wrapper.h"
+#include "DataFormats/Common/interface/Wrapper.h"
 
 namespace {
   namespace {
