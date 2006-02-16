@@ -1,3 +1,6 @@
+** V02-01-02  [Thu Feb 16 03:48:48 2006]
+Break dependency of cmsRun on MessageService
+
 ** V02-01-01  [Mon Feb 13 23:38:52 2006]
 ToyProducts.h moved from DataFormats/Common to DataFormats/TestObjects
 
