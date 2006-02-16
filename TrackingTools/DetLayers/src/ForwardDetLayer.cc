@@ -37,8 +37,8 @@ void ForwardDetLayer::initialize()
 
 BoundDisk* ForwardDetLayer::computeSurface() {
 
-  vector<const GeometricSearchDet*>::const_iterator ifirst = directComponents().begin();
-  vector<const GeometricSearchDet*>::const_iterator ilast  = directComponents().end();
+  vector<const GeometricSearchDet*>::const_iterator ifirst = components().begin();
+  vector<const GeometricSearchDet*>::const_iterator ilast  = components().end();
 
   // Find extension in R
   // float tolerance = 1.; // cm

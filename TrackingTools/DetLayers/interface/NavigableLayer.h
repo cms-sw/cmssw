@@ -1,7 +1,7 @@
 #ifndef DetLayers_NavigableLayer_h
 #define DetLayers_NavigableLayer_h
 
-#include "TrackingTools/DetLayers/interface/Enumerators.h"
+#include "TrackingTools/GeomPropagators/interface/PropagationDirection.h"
 #include <vector>
 
 class DetLayer;

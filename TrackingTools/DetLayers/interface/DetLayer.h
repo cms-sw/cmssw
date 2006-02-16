@@ -2,10 +2,9 @@
 #define DetLayers_DetLayer_h
 
 #include "TrackingTools/DetLayers/interface/Enumerators.h"
-#include "TrackingTools/DetLayers/interface/CompositeGSD.h"
+#include "TrackingTools/DetLayers/interface/GeometricSearchDet.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/DetLayers/interface/NavigableLayer.h"
 #include <vector>
@@ -13,8 +12,9 @@
 
 
 /** The DetLayer is the detector abstraction used for track reconstruction.
- *  It inherits from CompositeGSD the interface and  
- *  extends it by providing navigation capability 
+ *  It inherits from GeometricSearchDet the interface for accessing 
+ *  components and compatible components. 
+ *  It extends the interface by providing navigation capability 
  *  from one layer to another. 
  *  The Navigation links must be created in a 
  *  NavigationSchool and activated with a NavigationSetter before they 
@@ -22,9 +22,10 @@
  * 
  */
 
-class DetLayer : public CompositeGSD {
+class DetLayer : public GeometricSearchDet {
   
  public:
+  typedef GeometricSearchDet          Det;
 
   DetLayer() : theNavigableLayer(0){};
 

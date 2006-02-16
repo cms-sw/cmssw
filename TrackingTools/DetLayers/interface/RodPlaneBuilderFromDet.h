@@ -13,18 +13,17 @@ class RectangularPlaneBounds;
 
 class RodPlaneBuilderFromDet {
 public:
-  typedef GeometricSearchDet Det;
-  typedef GSDUnit DetUnit;  
+  typedef GeomDet Det;
   
   /// Warning, remember to assign this pointer to a ReferenceCountingPointer!
   /// Should be changed to return a ReferenceCountingPointer<BoundPlane>
-  BoundPlane* operator()( const vector<Det*>& dets) const;
+  BoundPlane* operator()( const vector<const Det*>& dets) const;
 
   pair<RectangularPlaneBounds, GlobalVector>
-  computeBounds( const vector<Det*>& dets, const BoundPlane& plane) const;
+  computeBounds( const vector<const Det*>& dets, const BoundPlane& plane) const;
 
   Surface::RotationType 
-  computeRotation( const vector<Det*>& dets, 
+  computeRotation( const vector<const Det*>& dets, 
 		   const Surface::PositionType& meanPos) const; 
 
 };

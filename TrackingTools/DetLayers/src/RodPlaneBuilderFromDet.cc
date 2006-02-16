@@ -1,5 +1,4 @@
 #include "TrackingTools/DetLayers/interface/RodPlaneBuilderFromDet.h"
-#include "TrackingTools/DetLayers/interface/GSDUnit.h"
 #include "Geometry/Surface/interface/BoundPlane.h"
 #include "Geometry/Surface/interface/RectangularPlaneBounds.h"
 #include "Geometry/CommonDetAlgo/interface/BoundingBox.h"
@@ -8,15 +7,15 @@
 
 // Warning, remember to assign this pointer to a ReferenceCountingPointer!
 BoundPlane* 
-RodPlaneBuilderFromDet::operator()( const vector<Det*>& dets) const
+RodPlaneBuilderFromDet::operator()( const vector<const Det*>& dets) const
 {
   // find mean position
-  typedef Det::PositionType::BasicVectorType Vector;
+  typedef GeometricSearchDet::PositionType::BasicVectorType Vector;
   Vector posSum(0,0,0);
-  for (vector<Det*>::const_iterator i=dets.begin(); i!=dets.end(); i++) {
-    posSum += (**i).position().basicVector();
+  for (vector<const Det*>::const_iterator i=dets.begin(); i!=dets.end(); i++) {
+    posSum += (**i).surface().position().basicVector();
   }
-  Det::PositionType meanPos( posSum/float(dets.size()));
+  GeometricSearchDet::PositionType meanPos( posSum/float(dets.size()));
   
   // temporary plane - for the computation of bounds
   Surface::RotationType rotation = computeRotation( dets, meanPos);
@@ -34,13 +33,15 @@ RodPlaneBuilderFromDet::operator()( const vector<Det*>& dets) const
 }
 
 pair<RectangularPlaneBounds, GlobalVector>
-RodPlaneBuilderFromDet::computeBounds( const vector<Det*>& dets,
+RodPlaneBuilderFromDet::computeBounds( const vector<const Det*>& dets,
 				       const BoundPlane& plane) const
 {
   // go over all corners and compute maximum deviations from mean pos.
   vector<GlobalPoint> corners;
-  for (vector<Det*>::const_iterator idet=dets.begin();
+  for (vector<const Det*>::const_iterator idet=dets.begin();
        idet != dets.end(); idet++) {
+
+    /* ---- original implementation. Is it obsolete?
     vector<const DetUnit*> detUnits = (**idet).basicComponents();
     for (vector<const DetUnit*>::const_iterator detu=detUnits.begin();
 	 detu!=detUnits.end(); detu++) {
@@ -48,7 +49,14 @@ RodPlaneBuilderFromDet::computeBounds( const vector<Det*>& dets,
 	BoundingBox().corners((**detu).specificSurface());
       corners.insert( corners.end(), dc.begin(), dc.end());
     }
+    ---- */
+
+    // temporary implementation (May be the final one if the GluedDet surface
+    // really contains both the mono and the stereo surfaces
+    vector<GlobalPoint> dc = BoundingBox().corners((**idet).specificSurface());
+    corners.insert( corners.end(),dc.begin(), dc.end() );
   }
+  
   float xmin(0), xmax(0), ymin(0), ymax(0), zmin(0), zmax(0);
   for (vector<GlobalPoint>::const_iterator i=corners.begin();
        i!=corners.end(); i++) {
@@ -71,7 +79,7 @@ RodPlaneBuilderFromDet::computeBounds( const vector<Det*>& dets,
 
 Surface::RotationType 
 RodPlaneBuilderFromDet::
-computeRotation( const vector<Det*>& dets,
+computeRotation( const vector<const Det*>& dets,
 		 const Surface::PositionType& meanPos) const
 {
   // choose first mono out-pointing rotation

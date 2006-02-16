@@ -7,9 +7,6 @@ using namespace std;
 #include <iosfwd>
 #include <ostream>
 
-
-enum PropagationDirection {oppositeToMomentum, alongMomentum, anyDirection};
-
 /** Global enumerators for Det types.
  */
 enum Part { barrel, forward};

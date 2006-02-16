@@ -2,7 +2,18 @@
 
 DetRod::~DetRod(){}
 
+vector<GeometricSearchDet::DetWithState> 
+DetRod::compatibleDets( const TrajectoryStateOnSurface& fts,
+			const Propagator& prop, 
+			const MeasurementEstimator& est) const
+{
+  cout << "At the moment not a real implementation" << endl;
+  return vector<DetWithState>();
+}
 
+
+//obsolete?
+/*
 float DetRod::zError( const TrajectoryStateOnSurface& tsos,
 		      const MeasurementEstimator& est) const{  
   const float nSigmas = 3.f;
@@ -11,4 +22,4 @@ float DetRod::zError( const TrajectoryStateOnSurface& tsos,
   }
   else return nSigmas * 0.5;
 }
-
+*/

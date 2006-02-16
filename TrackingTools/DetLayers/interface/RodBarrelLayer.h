@@ -13,7 +13,6 @@ class MeasurementEstimator;
 class RodBarrelLayer : public BarrelDetLayer {
 
  public:
-  typedef GeometricSearchDet          Det;
 
   RodBarrelLayer() {};
 
@@ -25,15 +24,8 @@ class RodBarrelLayer : public BarrelDetLayer {
   virtual ~RodBarrelLayer();
 
   
-  /*
-  virtual vector<TrajectoryMeasurement> 
-  measurements( const TrajectoryStateOnSurface& inputState, const Propagator&, 
-  		const MeasurementEstimator&) const;
-  */
-
-  //--- CompositeGSD interface
-  //virtual const DetContainer& dets() const {return theDets;} /obsolete
-  virtual vector< const GeometricSearchDet*> directComponents() const {return theDets;}
+  //--- GeometricSearchDet interface
+  virtual vector<const GeometricSearchDet*> components() const {return theDets;}
   
 
   
@@ -45,16 +37,8 @@ class RodBarrelLayer : public BarrelDetLayer {
   virtual Det* operator()( double x, double phi) const {return 0;}
 
   virtual void addDets( detunit_p_iter ifirst, detunit_p_iter ilast);
-
-  
-  
-  vector<TrajectoryMeasurementGroup>
-  groupedMeasurements( const TrajectoryStateOnSurface& startingState,
-		       const Propagator& prop,
-		       const MeasurementEstimator& est) const;
   */
 
- protected:
   
  private:
   vector<const Det*> theDets;
