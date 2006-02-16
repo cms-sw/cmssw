@@ -10,7 +10,7 @@ void HcalShape::computeShape()
   const float ts2  = 10.;           
   const float ts3  = 29.3;         
   const float thpd = 4.;          // HPD current collection drift time
-  const float tpre = 5.;          // preamp time constant
+  const float tpre = 9.;          // preamp time constant (refit on TB04 data)
   
   const float wd1 = 2.;           // relative weights of decay exponents 
   const float wd2 = 0.7;
