@@ -1,3 +1,6 @@
+** V02-00-00  [Thu Feb 16 03:52:25 2006]
+Split off MessageService from MessageLogger
+
 ** V01-06-01  [Mon Feb 13 23:43:24 2006]
 for tests, use namespace edmtest, not edmreftest
 
