@@ -14,7 +14,6 @@ occur, good state information can be printed.
 **/
 
 #include "PluginManager/PluginManager.h"
-//#include "SealBase/Log.h"
 #include "SealBase/DebugAids.h"
 
 #include <string>
