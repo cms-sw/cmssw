@@ -8,6 +8,7 @@
 #include "RelationalAccess/IAuthenticationService.h"
 #include "RelationalAccess/IRelationalService.h"
 #include "CondCore/BlobStreamingService/interface/BlobStreamingService.h"
+#include "POOLCore/POOLContext.h"
 cond::ServiceLoader::ServiceLoader(){
   m_context=new seal::Context();
   seal::PluginManager* pm = seal::PluginManager::get();
@@ -18,6 +19,7 @@ cond::ServiceLoader::~ServiceLoader(){
   delete m_context;
 }
 seal::IMessageService& cond::ServiceLoader::loadMessageService( cond::MessageLevel level ){
+  pool::POOLContext::loadComponent( "SEAL/Services/MessageService" );
   m_loader->load("SEAL/Services/MessageService");
   std::vector< seal::IHandle<seal::IMessageService> > v_msgSvc;
   m_context->query( v_msgSvc );
@@ -27,18 +29,23 @@ seal::IMessageService& cond::ServiceLoader::loadMessageService( cond::MessageLev
   switch ( level ) {
   case cond::Error :
     v_msgSvc.front()->setOutputLevel( seal::Msg::Error );
+    pool::POOLContext::setMessageVerbosityLevel( seal::Msg::Error );
     break;
   case cond::Warning :
     v_msgSvc.front()->setOutputLevel( seal::Msg::Warning );
+    pool::POOLContext::setMessageVerbosityLevel( seal::Msg::Warning );
     break;
   case cond::Debug :
     v_msgSvc.front()->setOutputLevel( seal::Msg::Debug );
+    pool::POOLContext::setMessageVerbosityLevel( seal::Msg::Debug );
     break;
   case cond::Info :
     v_msgSvc.front()->setOutputLevel( seal::Msg::Info );
+    pool::POOLContext::setMessageVerbosityLevel( seal::Msg::Info );
     break;
   default:
     v_msgSvc.front()->setOutputLevel( seal::Msg::Error );
+    pool::POOLContext::setMessageVerbosityLevel( seal::Msg::Error );
   } 
   return *(v_msgSvc.front());
 }
