@@ -15,7 +15,7 @@ through shared pointers.
 The EventPrincipal returns BasicHandle, rather than a shared
 pointer to a Group, when queried.
 
-$Id: EventPrincipal.h,v 1.22 2006/02/07 07:51:41 wmtan Exp $
+$Id: EventPrincipal.h,v 1.23 2006/02/08 00:44:24 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <map>
@@ -33,9 +33,9 @@ $Id: EventPrincipal.h,v 1.22 2006/02/07 07:51:41 wmtan Exp $
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/EDProductGetter.h"
 #include "DataFormats/Common/interface/EventAux.h"
+#include "DataFormats/Common/interface/ProcessNameList.h"
 #include "FWCore/Framework/interface/BasicHandle.h"
 #include "FWCore/Framework/interface/NoDelayedReader.h"
-#include "FWCore/Framework/interface/ProcessNameList.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
 #include "FWCore/Framework/interface/Selector.h"
 
