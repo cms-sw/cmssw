@@ -3,8 +3,9 @@
 #include <map>
 #include <vector>
 #include "FWCore/Utilities/interface/Exception.h"
+#include "DataFormats/Common/interface/traits.h"
 
-// $Id: RangeMap.h,v 1.2 2006/02/13 11:54:41 llista Exp $
+// $Id: RangeMap.h,v 1.7 2006/02/15 11:57:17 llista Exp $
 namespace edm {
 
   template<typename ID, typename C, typename P>
@@ -16,12 +17,12 @@ namespace edm {
     typedef std::map<ID, pairType> mapType;
     typedef std::pair<const_iterator, const_iterator> range;
     
-    std::vector<ID> ids(){
+    std::vector<ID> ids() const {
       std::vector<ID> temp;
-      for (typename mapType::const_iterator i = map_begin();
-	   i != map_end();
+      for (typename mapType::const_iterator i = map_.begin();
+	   i != map_.end();
 	   i++){
-	temp.push_back((*i)->first);
+	temp.push_back((*i).first);
       }
       return temp;
     }
@@ -102,12 +103,13 @@ namespace edm {
     C collection_;
     mapType map_;
   };
-/*   template<typename ID, typename C, typename P> */
-/*     struct has_postinsert_trait<edm::RangeMap<ID,C,P> > */
-/*     { */
-/*       static bool const value = true; */
-/*     }; */
 
+
+  template<typename  ID, typename C, typename P > 
+    struct edm::has_postinsert_trait<edm::RangeMap<ID,C,P> > 
+    { 
+      static bool const value = true; 
+    }; 
   
 }
 
