@@ -28,7 +28,7 @@ MessageServicePresence::MessageServicePresence()
             , runMessageLoggerScribe  // start a new thread
           ) )
 {
-  //std::cout << "MessageLoggerSpigot ctor\n";
+  //std::cout << "MessageServicePresence ctor\n";
 }
 
 

@@ -9,10 +9,10 @@
   various things.  The destructor
   takes action to terminate the artifacts of the run() method.
   
-  The prototypical use of this is to establish the MessageLoggerSpigot.
-  That class appears in MessageService, which is a plugin.  Bu using this
+  The prototypical use of this is to establish the MessageServicePresence.
+  That class appears in MessageService, which is a plugin.  By using this
   abstract class, we can arrange that cmsRun, in Framework, has no link
-  dependency on MessageService.  Instead, the MessageLoggerSpigot is 
+  dependency on MessageService.  Instead, the MessageServicePresence is 
   dynamically (run-time) loaded.  
 */
 
