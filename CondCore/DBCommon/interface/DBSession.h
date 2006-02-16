@@ -17,8 +17,8 @@ namespace cond{
     void setCatalog( const std::string& catalogcon );
     void connect(  cond::ConnectMode mode=cond::ReadWriteCreate );
     void disconnect();
-    void startUpdate();
-    void startReadOnly();
+    void startUpdateTransaction();
+    void startReadOnlyTransaction();
     void commit();
     void rollback();
     const std::string connectionString() const;

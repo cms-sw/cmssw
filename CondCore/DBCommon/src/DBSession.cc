@@ -21,20 +21,23 @@ void cond::DBSession::setCatalog( const std::string& catalogCon ){
   m_catalogcon=catalogCon;
 }
 void cond::DBSession::connect( cond::ConnectMode mode ){
-  pool::DatabaseConnectionPolicy policy;  
+  pool::DatabaseConnectionPolicy policy;
   switch(mode){
   case cond::ReadWriteCreate:
     policy.setWriteModeForNonExisting(pool::DatabaseConnectionPolicy::CREATE);
     policy.setWriteModeForExisting(pool::DatabaseConnectionPolicy::UPDATE);
     policy.setReadMode(pool::DatabaseConnectionPolicy::UPDATE);
+    break;
   case cond::ReadWrite:
     policy.setWriteModeForNonExisting(pool::DatabaseConnectionPolicy::RAISE_ERROR);
     policy.setWriteModeForExisting(pool::DatabaseConnectionPolicy::UPDATE);
     policy.setReadMode(pool::DatabaseConnectionPolicy::UPDATE);
+    break;
   case cond::ReadOnly:
     policy.setWriteModeForNonExisting(pool::DatabaseConnectionPolicy::RAISE_ERROR);
     policy.setWriteModeForExisting(pool::DatabaseConnectionPolicy::RAISE_ERROR);
     policy.setReadMode(pool::DatabaseConnectionPolicy::READ);
+    break;
   default:
     throw cond::Exception(std::string("DBSession::connect unknown connect mode"));
   }
@@ -50,7 +53,7 @@ void cond::DBSession::disconnect(){
   m_cat->commit();
   m_cat->disconnect();
 }
-void cond::DBSession::startUpdate(){
+void cond::DBSession::startUpdateTransaction(){
   try{
     m_svc->session().transaction().start(pool::ITransaction::UPDATE);
   }catch(const seal::Exception& er){
@@ -59,7 +62,7 @@ void cond::DBSession::startUpdate(){
     throw cond::Exception(std::string("DBSession::startUpdate caught unknown exception in "));
   }
 }
-void cond::DBSession::startReadOnly(){
+void cond::DBSession::startReadOnlyTransaction(){
   try{
     m_svc->session().transaction().start(pool::ITransaction::READ);
   }catch(const seal::Exception& er){
