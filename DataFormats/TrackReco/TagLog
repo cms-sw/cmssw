@@ -1,3 +1,6 @@
+** V00-01-03  [Thu Feb 16 15:27:18 2006]
+migration: FWCore/EDProduct -&gt; DataFormats/Common
+
 ** V00-01-02  [Mon Jan 30 20:57:13 2006]
 improved dictionary
 
