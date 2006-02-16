@@ -23,7 +23,8 @@ namespace service {
 
 
 MessageLoggerSpigot::MessageLoggerSpigot()
-  : scribe( ( (void) MessageLoggerQ::instance() // ensure Q's static data init'd
+  : Presence()
+            , scribe( ( (void) MessageLoggerQ::instance() // ensure Q's static data init'd
             , runMessageLoggerScribe  // start a new thread
           ) )
 {

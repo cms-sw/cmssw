@@ -3,13 +3,14 @@
 
 
 #include "boost/thread/thread.hpp"
+#include "FWCore/Utilities/interface/Presence.h"
 
 
 namespace edm  {
 namespace service {       
 
 
-class MessageLoggerSpigot
+class MessageLoggerSpigot : public Presence
 {
 public:
   // ---  birth/death:
@@ -18,8 +19,8 @@ public:
 
 private:
   // --- no copying:
-  MessageLoggerSpigot( MessageLoggerSpigot const & );
-  void  operator = ( MessageLoggerSpigot const & );
+  MessageLoggerSpigot(MessageLoggerSpigot const &);
+  void  operator = (MessageLoggerSpigot const &);
 
   // --- data:
   boost::thread  scribe;
