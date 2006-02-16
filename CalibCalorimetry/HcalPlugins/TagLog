@@ -1,3 +1,6 @@
+** V02-00-04  [Fri Feb 17 00:26:37 2006]
+remove obsolete ES source
+
 ** V02-00-03  [Tue Jan 17 19:21:52 2006]
 remove references to QIEShape
 force the only instance of HcalDbProducer registration
