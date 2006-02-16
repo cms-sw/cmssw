@@ -1,3 +1,6 @@
+** V00-02-02  [Thu Feb 16 22:06:10 2006]
+Updated preamplifier time constant (5--&gt;9)
+
 ** V00-02-01  [Thu Feb  2 21:02:26 2006]
 Moved HF max to bin 4, added pileup to test
 
