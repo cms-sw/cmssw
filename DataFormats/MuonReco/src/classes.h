@@ -1,4 +1,4 @@
-#include "FWCore/EDProduct/interface/Wrapper.h"
+#include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include <vector>
 

@@ -1,7 +1,7 @@
 #ifndef TrackReco_TrackExtra_h
 #define TrackReco_TrackExtra_h
 //
-// $Id: TrackExtra.h,v 1.2 2005/12/11 17:58:16 llista Exp $
+// $Id: TrackExtra.h,v 1.3 2005/12/15 20:42:49 llista Exp $
 //
 // Definition of TrackExtra class for RECO
 //
@@ -11,8 +11,6 @@
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/TrackReco/interface/RecHitFwd.h"
-#include "FWCore/EDProduct/interface/Ref.h"
-#include "FWCore/EDProduct/interface/RefVector.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
 
 namespace reco {

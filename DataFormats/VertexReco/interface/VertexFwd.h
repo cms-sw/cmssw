@@ -1,8 +1,8 @@
 #ifndef VertexReco_VertexFwd_h
 #define VertexReco_VertexFwd_h
 #include <vector>
-#include "FWCore/EDProduct/interface/Ref.h"
-#include "FWCore/EDProduct/interface/RefVector.h"
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/RefVector.h"
 
 namespace reco {
   class Vertex;

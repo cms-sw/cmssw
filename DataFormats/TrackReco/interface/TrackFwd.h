@@ -1,9 +1,9 @@
 #ifndef TrackReco_TrackFwd_h
 #define TrackReco_TrackFwd_h
 #include <vector>
-#include "FWCore/EDProduct/interface/Ref.h"
-#include "FWCore/EDProduct/interface/RefProd.h"
-#include "FWCore/EDProduct/interface/RefVector.h"
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/RefProd.h"
+#include "DataFormats/Common/interface/RefVector.h"
 
 namespace reco {
   class Track;

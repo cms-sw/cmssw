@@ -1,7 +1,7 @@
 #ifndef VertexReco_Vertex_h
 #define VertexReco_Vertex_h
 //
-// $Id: Vertex.h,v 1.3 2005/12/15 20:42:51 llista Exp $
+// $Id: Vertex.h,v 1.5 2006/02/16 13:54:20 llista Exp $
 //
 // RECO Vertex class
 //
@@ -9,7 +9,6 @@
 #include "DataFormats/Math/interface/Error.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "FWCore/EDProduct/interface/RefVector.h"
 #include <vector>
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
