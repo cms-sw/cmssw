@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2006/01/19 12:49:14 $
- *  $Revision: 1.16 $
+ *  $Date: 2006/02/07 13:30:46 $
+ *  $Revision: 1.17 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -15,6 +15,8 @@
 #include <DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h>
 #include <DataFormats/EcalDigi/interface/EBDataFrame.h>
 #include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
+
+#include <EventFilter/EcalTBRawToDigi/interface/EcalDCCHeaderRuntypeDecoder.h>
 
 #include "DCCDataParser.h"
 #include "DCCEventBlock.h"
@@ -46,7 +48,7 @@ EcalTBDaqFormatter::EcalTBDaqFormatter () {
 
 }
 
-void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData , EBDigiCollection& digicollection, EcalPnDiodeDigiCollection & pndigicollection , EBDetIdCollection & dccsizecollection , EcalTrigTowerDetIdCollection & ttidcollection , EcalTrigTowerDetIdCollection & blocksizecollection, EBDetIdCollection & chidcollection , EBDetIdCollection & gaincollection, EBDetIdCollection & gainswitchcollection, EBDetIdCollection & gainswitchstaycollection){
+void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData , EBDigiCollection& digicollection, EcalPnDiodeDigiCollection & pndigicollection , EcalRawDataCollection& DCCheaderCollection, EBDetIdCollection & dccsizecollection , EcalTrigTowerDetIdCollection & ttidcollection , EcalTrigTowerDetIdCollection & blocksizecollection, EBDetIdCollection & chidcollection , EBDetIdCollection & gaincollection, EBDetIdCollection & gainswitchcollection, EBDetIdCollection & gainswitchstaycollection){
 
   const unsigned char * pData = fedData.data();
   int length = fedData.size();
@@ -80,16 +82,44 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData , EBDigiCol
         LogWarning("EcalTBRawToDigi") << "@SUB=EcalTBDaqFormatter::interpretRawData"
              << "... errors from parser notified";
       }
+    // getting the fields of the DCC header
+    EcalDCCHeaderBlock theDCCheader;
+    theDCCheader.setId((*itEventBlock)->getDataField("FED/DCC ID"));
+    theDCCheader.setRunNumber((*itEventBlock)->getDataField("RUN NUMBER"));
+    theDCCheader.setLV1((*itEventBlock)->getDataField("LV1"));
+    theDCCheader.setBX((*itEventBlock)->getDataField("BX"));
+    theDCCheader.setErrors((*itEventBlock)->getDataField("DCC ERRORS"));
+    theDCCheader.setSelectiveReadout((*itEventBlock)->getDataField("SR"));
+    theDCCheader.setZeroSuppression((*itEventBlock)->getDataField("ZS"));
+    theDCCheader.setTestZeroSuppression((*itEventBlock)->getDataField("TZS"));
+    theDCCheader.setSrpStatus((*itEventBlock)->getDataField("SR_CHSTATUS"));
 
-    short TowerStatus[71];
-    char buffer[20];
-    for(int i=1;i<71;i++)
-      { 
-        sprintf(buffer, "FE_CHSTATUS#%d", i);
-        string Tower(buffer);
-        TowerStatus[i]= (*itEventBlock)->getDataField(Tower);
-        //cout << "tower " << i << " has status " <<  TowerStatus[i] << endl;  
-      }
+    vector<short> theTCCs;
+    for(int i=0; i<MAX_TCC_SIZE; i++){
+      
+      char TCCnum[20]; sprintf(TCCnum,"TCC_CHSTATUS#%d",i+1); string TCCnumS(TCCnum);
+      theTCCs.push_back ((*itEventBlock)->getDataField(TCCnumS) );
+    }
+    theDCCheader.setTccStatus(theTCCs);
+
+     short TowerStatus[MAX_TT_SIZE+1];
+     char buffer[20];
+     vector<short> theTTstatus;
+     for(int i=1;i<MAX_TT_SIZE+1;i++)
+       { 
+ 	sprintf(buffer, "FE_CHSTATUS#%d", i);
+ 	string Tower(buffer);
+ 	TowerStatus[i]= (*itEventBlock)->getDataField(Tower);
+	theTTstatus.push_back(TowerStatus[i]);
+	//cout << "tower " << i << " has status " <<  TowerStatus[i] << endl;  
+       }
+    theDCCheader.setTriggerTowerStatus(theTTstatus);
+
+    EcalDCCHeaderRuntypeDecoder theRuntypeDecoder;
+    ulong DCCruntype = (*itEventBlock)->getDataField("RUN TYPE");
+    theRuntypeDecoder.Decode(DCCruntype, &theDCCheader);
+     //DCCHeader filled!
+     DCCheaderCollection.push_back(theDCCheader);
       
     vector< DCCTowerBlock * > dccTowerBlocks = (*itEventBlock)->towerBlocks();
     LogDebug("EcalTBRawToDigi") << "@SUBS=EcalTBDaqFormatter::interpretRawData"

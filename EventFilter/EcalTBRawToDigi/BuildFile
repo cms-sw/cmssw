@@ -3,6 +3,7 @@
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=DataFormats/FEDRawData>
+<use name=DataFormats/EcalRawData>
 <use name=DataFormats/EcalDetId>	
 <use name=DataFormats/EcalDigi>	
 <use name=boost>
@@ -11,8 +12,10 @@
 <export>
  <lib name=EventFilterEcalTBRawToDigi>
  <use name=FWCore/Framework>
+ <use name=DQM/EcalBarrelMonitorModule>
  <use name=FWCore/MessageLogger>
- <use name=DataFormats/FEDRawData>	
+ <use name=DataFormats/FEDRawData>
+ <use name=DataFormats/EcalRawData>	
  <use name=DataFormats/EcalDetId>	
  <use name=DataFormats/EcalDigi>		
  <use name=boost>	

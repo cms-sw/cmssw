@@ -2,8 +2,8 @@
 #define EcalTBDaqFormatter_H
 /** \class EcalTBDaqFormatter
  *
- *  $Date: 2005/12/21 16:01:21 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/02/07 13:30:46 $
+ *  $Revision: 1.8 $
  *  \author N. Marinelli  IASA-Athens
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -11,6 +11,7 @@
  *
  */
 #include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
+#include <DataFormats/EcalRawData/interface/EcalRawDataCollections.h>
 #include <DataFormats/EcalDetId/interface/EcalDetIdCollections.h>
 
 #include <vector> 
@@ -33,8 +34,9 @@ class EcalTBDaqFormatter   {
   EcalTBDaqFormatter();
   virtual ~EcalTBDaqFormatter(){LogDebug("EcalTBRawToDigi") << "@SUB=EcalTBDaqFormatter" << "\n"; };
 
-  void  interpretRawData( const FEDRawData & data , EBDigiCollection& digicollection , EcalPnDiodeDigiCollection & pndigicollection , EBDetIdCollection & dccsizecollection , EcalTrigTowerDetIdCollection & ttidcollection , EcalTrigTowerDetIdCollection & blocksizecollection, EBDetIdCollection & chidcollection , EBDetIdCollection & gaincollection , EBDetIdCollection & gainswitchcollection , EBDetIdCollection & gainswitchstaycollection);
+  void  interpretRawData( const FEDRawData & data , EBDigiCollection& digicollection , EcalPnDiodeDigiCollection & pndigicollection , EcalRawDataCollection& DCCheaderCollection, EBDetIdCollection & dccsizecollection , EcalTrigTowerDetIdCollection & ttidcollection , EcalTrigTowerDetIdCollection & blocksizecollection, EBDetIdCollection & chidcollection , EBDetIdCollection & gaincollection , EBDetIdCollection & gainswitchcollection , EBDetIdCollection & gainswitchstaycollection);
  
+
  private:
  
   void DecodeMEM(int tower_id);

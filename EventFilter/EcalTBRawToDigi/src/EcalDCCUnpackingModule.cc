@@ -1,10 +1,11 @@
 /* \file EcalDCCUnpackingModule.h
  *
- *  $Date: 2006/01/19 12:49:14 $
- *  $Revision: 1.21 $
+ *  $Date: 2006/01/19 20:01:43 $
+ *  $Revision: 1.22 $
  *  \author N. Marinelli
  *  \author G. Della Ricca
  *  \author G. Franzoni
+ *  \author A. Ghezzi
  */
 
 #include <EventFilter/EcalTBRawToDigi/interface/EcalDCCUnpackingModule.h>
@@ -15,7 +16,7 @@
 #include <DataFormats/FEDRawData/interface/FEDNumbering.h>
 #include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
 #include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
-
+#include <DataFormats/EcalRawData/interface/EcalRawDataCollections.h>
 #include <FWCore/Framework/interface/Handle.h>
 #include <FWCore/Framework/interface/Event.h>
 
@@ -32,6 +33,7 @@ EcalDCCUnpackingModule::EcalDCCUnpackingModule(const edm::ParameterSet& pset){
 
   produces<EBDigiCollection>();
   produces<EcalPnDiodeDigiCollection>();
+  produces<EcalRawDataCollection>();
 
   produces<EBDetIdCollection>("EcalIntegrityDCCSizeErrors");
   produces<EcalTrigTowerDetIdCollection>("EcalIntegrityTTIdErrors");
@@ -41,7 +43,9 @@ EcalDCCUnpackingModule::EcalDCCUnpackingModule(const edm::ParameterSet& pset){
   produces<EBDetIdCollection>("EcalIntegrityGainSwitchErrors");
   produces<EBDetIdCollection>("EcalIntegrityGainSwitchStayErrors");
 
+
 }
+
 
 
 EcalDCCUnpackingModule::~EcalDCCUnpackingModule(){
@@ -68,6 +72,9 @@ void EcalDCCUnpackingModule::produce(edm::Event & e, const edm::EventSetup& c){
 
   // create the collection of Ecal PN's
   auto_ptr<EcalPnDiodeDigiCollection> productPN(new EcalPnDiodeDigiCollection);
+  
+  //create the collection of Ecal DCC Header
+  auto_ptr<EcalRawDataCollection> productDCCHeader(new EcalRawDataCollection);
 
   // create the collection of Ecal Integrity DCC Size
   auto_ptr<EBDetIdCollection> productDCCSize(new EBDetIdCollection);
@@ -101,8 +108,8 @@ void EcalDCCUnpackingModule::produce(edm::Event & e, const edm::EventSetup& c){
     if (data.size()){
       
       // do the data unpacking and fill the collections
-      formatter->interpretRawData(data,  *productEb, *productPN, *productDCCSize, *productTTId, *productBlockSize, *productChId, *productGain, *productGainSwitch, *productGainSwitchStay);
- 
+      formatter->interpretRawData(data,  *productEb, *productPN, *productDCCHeader, *productDCCSize, *productTTId, *productBlockSize, *productChId, *productGain, *productGainSwitch, *productGainSwitchStay);
+      
     }// endif 
   }//endfor
   
@@ -110,6 +117,7 @@ void EcalDCCUnpackingModule::produce(edm::Event & e, const edm::EventSetup& c){
   // commit to the event  
   e.put(productPN);
   e.put(productEb);
+  e.put(productDCCHeader);
 
   e.put(productDCCSize,"EcalIntegrityDCCSizeErrors");
   e.put(productTTId,"EcalIntegrityTTIdErrors");
