@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/src/TypeID.h"
 #include <iostream>
 #include <cmath>
 
@@ -32,8 +33,13 @@ template<typename C>
 ObjectCounter<C>::~ObjectCounter() {
   double n = double( nSum_ ) / n_, n2 = double ( n2Sum_ ) / n_;
   double s = sqrt( n2 - n * n );
-  if ( verbose_ ) 
-    std::cout << ">>> Entries in collection " << src_ << ": " << n << " +/- " << s << std::endl;
+  if ( verbose_ ) {
+    typename C::value_type t;
+    edm::TypeID id( typeid( t ) );
+    std::cout << ">>> Collection " << src_ << " contains (" 
+	      << n << " +/- " << s << ") "  
+	      << id.friendlyClassName() << "'s" << std::endl;
+  }
 }
 
 template<typename C>

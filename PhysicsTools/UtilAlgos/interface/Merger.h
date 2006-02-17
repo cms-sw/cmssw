@@ -1,7 +1,7 @@
-#ifndef CandAlgos_Merger_h
-#define CandAlgos_Merger_h
+#ifndef UtilAlgos_Merger_h
+#define UtilAlgos_Merger_h
 // Merges multiple collections
-// $Id: Merger.h,v 1.1 2005/12/13 01:47:45 llista Exp $
+// $Id: Merger.h,v 1.1 2005/12/13 03:39:04 llista Exp $
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
