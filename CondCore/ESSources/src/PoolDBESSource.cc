@@ -132,6 +132,8 @@ bool PoolDBESSource::initIOV( const std::vector< std::pair < std::string, std::s
     //throw cms::Exception( e.what() );
   }catch(const cond::Exception&e ){
     throw e;
+  }catch(const cms::Exception&e ){
+    throw e;
   }catch(const seal::Exception&e ){
     throw cond::Exception( "PoolDBESSource::initIOV ")<<e.what();
   }catch(...){
@@ -203,6 +205,8 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
       }
     */
   }catch( const cond::Exception& e){
+    throw e;
+  }catch(const cms::Exception&e ){
     throw e;
   }catch( const seal::Exception& e){
     throw cond::Exception( "PoolDBESSource::PoolDBESSource ")<<e.what();
