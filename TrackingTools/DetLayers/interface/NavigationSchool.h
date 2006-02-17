@@ -12,6 +12,8 @@ class NavigationSchool;
  *  The result is a container of NavigableLayers.
  */
 
+using namespace std;
+
 class NavigationSchool {
 public:
 

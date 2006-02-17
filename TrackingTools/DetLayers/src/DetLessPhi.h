@@ -1,7 +1,7 @@
 #ifndef DetLayers_DetLessPhi_H
 #define DetLayers_DetLessPhi_H
 
-#include "TrackingTools/DetLayers/interface/Det.h"
+#include "TrackingTools/DetLayers/interface/GeometricSearchDet.h"
 
 /** Comparison operator for Dets based on the phi angle.
  */

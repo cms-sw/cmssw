@@ -1,7 +1,7 @@
 #ifndef DetLayers_DetLessZ_H
 #define DetLayers_DetLessZ_H
 
-#include "TrackingToolsDetLayers/interface/GeometricSearch.h"
+#include "TrackingTools/DetLayers/interface/GeometricSearchDet.h"
 
 /** Comparison operator for Dets based on the Z.
  */
