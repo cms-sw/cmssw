@@ -5,9 +5,9 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Common/interface/traits.h"
 
-// $Id: RangeMap.h,v 1.7 2006/02/15 11:57:17 llista Exp $
+// $Id: RangeMap.h,v 1.8 2006/02/16 08:29:26 tboccali Exp $
 namespace edm {
-
+  
   template<typename ID, typename C, typename P>
     class RangeMap {
     public:
@@ -27,6 +27,36 @@ namespace edm {
       return temp;
     }
         
+
+    private:
+    template<typename COMP>
+    struct Comparator{
+    public: 
+      Comparator( const COMP & c ) : comp ( c ) { }
+      bool operator()(const  pairType & d1,  const pairType & d2) const {
+	return comp( d1.first, d2.first );
+      }
+      COMP comp;
+    };
+
+    public:
+    template<typename COMP> range get(ID id, COMP comparator){
+      //
+      // use equal_range algo; expects the thing to be sorted!!!!!
+      //
+      pair<mapType::const_iterator, mapType::const_iterator> r = 
+	equal_range(map_.begin(), map_.end(),id, Comparator<COMP>( comparator ) ); 
+      const_iterator begin, end;
+
+      if ((r.first) == map_.end()){
+	begin = end = collection_.end();
+      }else{
+	begin = collection_.begin() + (r.first)->second.first;
+	end = collection_.begin() + (r.second)->second.second;
+      }
+      return  make_pair(begin,end);
+    }
+
     RangeMap() { }
     range get( ID id ) const {
       const_iterator begin, end;
@@ -79,21 +109,26 @@ namespace edm {
     };
     
     
+
     void post_insert(){
       // sorts the container via ID
       C tempCollection;
-      id_iterator it;
-      for (it = map_.begin(); it != map_.end(); it ++){ 
+      //     id_iterator it;
+      typename mapType::iterator  it;
+      for (it = map_.begin(); it != map_.end(); it ++){   
+	//	      for (it = id_begin(); it != id_end(); it ++){ 
 	range range_ = get((*it).first);
-	const_iterator begIt = tempCollection.size();
-	for (const_iterator it2 = range_.first; it2 != range_.second; it2++){
-	  copy(range_.first, range_.second, back_inserter(tempCollection));
-	}
-	const_iterator endIt = tempCollection.size();
-	map_[*it] = std::make_pair( begIt, endIt );
+	typename C::size_type  begIt = tempCollection.size();
+	
+	copy(range_.first, range_.second, back_inserter(tempCollection));
+	
+	typename C::size_type endIt = tempCollection.size();
+	it->second = std::make_pair( begIt, endIt );
       }
-      swap (tempCollection,collection_);
+      collection_ = tempCollection;
     }
+    
+
     
 
     id_iterator id_begin() const { return id_iterator( map_.begin() ); }
