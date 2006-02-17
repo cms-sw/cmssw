@@ -2,12 +2,11 @@
 #define Common_RangeMap_h
 #include <map>
 #include <vector>
-#include <functional>
 #include <ext/functional>
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Common/interface/traits.h"
 
-// $Id: RangeMap.h,v 1.10 2006/02/17 10:30:00 llista Exp $
+// $Id: RangeMap.h,v 1.12 2006/02/17 11:10:09 llista Exp $
 namespace edm {
   
   template<typename ID, typename C, typename P>
@@ -21,11 +20,12 @@ namespace edm {
           
     template<typename COMP> 
     range get(ID id, COMP comparator){
+      using __gnu_cxx::compose2;
       using __gnu_cxx::select1st;
       std::pair<typename mapType::const_iterator,
         typename mapType::const_iterator> r =
         std::equal_range( map_.begin(), map_.end(), id,
-                          std::compose2( comparator,
+                          compose2( comparator,
                                          select1st<pairType>(),
                                          select1st<pairType>() ) );
       const_iterator begin, end;
