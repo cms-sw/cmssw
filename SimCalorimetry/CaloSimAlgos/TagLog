@@ -1,3 +1,6 @@
+** V00-03-01  [Fri Feb 17 19:17:14 2006]
+Some optimizations, plus un-consted CaloVHitCorrection
+
 ** V00-03-00  [Wed Feb  1 15:28:37 2006]
 Bugs in timing, time-of-flight subtraction fixed, and ValidationStatistics added
 
