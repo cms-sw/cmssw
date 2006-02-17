@@ -293,6 +293,28 @@ namespace edm {
 
   // ---------------------------------------------------------------
 
+
+  // a bit of a hack to make sure that at least a minimal parameter set for the message logger
+  // is included in the services list
+  void adjustForDefaultMessageLogger(vector<ParameterSet>& adjust)
+  {
+    typedef std::vector<edm::ParameterSet>::const_iterator Iter;
+    bool found = false;
+    for(Iter it = adjust.begin(); it != adjust.end() && !found; ++it)
+      {
+	string name = it->getParameter<std::string>("@service_type");
+	if(name=="MessageLogger") found = true;
+      }
+
+    if(!found)
+      {
+	FDEBUG(1) << "Adding default MessageLogger Service\n";
+	ParameterSet newpset;
+	newpset.addParameter<string>("@service_type","MessageLogger");
+	adjust.push_back(newpset);
+      }
+  }
+
   FwkImpl::FwkImpl(const string& config,
                    const ServiceToken& iToken, 
 		   ServiceLegacy iLegacy) :
@@ -315,6 +337,7 @@ namespace edm {
     shared_ptr<vector<ParameterSet> > pServiceSets;
     shared_ptr<ParameterSet>          params_; // change this name!
     makeParameterSets(config, params_, pServiceSets);
+    adjustForDefaultMessageLogger(*(pServiceSets.get()));
 
     //create the services
     serviceToken_ = ServiceRegistry::createSet(*pServiceSets,iToken,iLegacy);
