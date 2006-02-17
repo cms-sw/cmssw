@@ -1,0 +1,16 @@
+<use name=boost>
+<use name=clhep>
+<use name=DataFormats/Math>
+<use name=TrackingTools/TransientTrackingRecHit>
+<use name=TrackingTools/TrajectoryState>
+<use name=TrackingTools/PatternTools>
+
+<export>
+ <lib name=TrackingToolsKalmanUpdators>
+ <use name=TrackingTools/PatternTools>
+ <use name=DataFormats/Math>
+ <use name=TrackingTools/TransientTrackingRecHit>
+ <use name=TrackingTools/TrajectoryState>
+</export>
+
+
