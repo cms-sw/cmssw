@@ -129,5 +129,8 @@ void testRangeMap::checkAll() {
   CPPUNIT_ASSERT( i == r.second );
 
 
+  r = m.get(1,IntComparator());
+  CPPUNIT_ASSERT( r.second-r.first == 2 );
 
 }
+
