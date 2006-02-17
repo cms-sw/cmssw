@@ -1,7 +1,7 @@
 #ifndef TrackReco_Track_h
 #define TrackReco_Track_h
 //
-// $Id: Track.h,v 1.7 2006/01/20 10:03:34 llista Exp $
+// $Id: Track.h,v 1.8 2006/02/15 13:16:52 llista Exp $
 //
 // Definition of Track class for RECO
 //
@@ -13,6 +13,7 @@
 #include "DataFormats/Math/interface/Vector.h"
 #include "DataFormats/TrackReco/interface/HelixParameters.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
+#include "DataFormats/TrackReco/interface/RecHitFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 namespace reco {
@@ -64,6 +65,26 @@ namespace reco {
 
     void setExtra( const TrackExtraRef & ref ) { extra_ = ref; }
     const TrackExtraRef & extra() const { return extra_; }
+
+    const Point & outerPosition() const;
+    const Vector & outerMomentum() const;
+    bool outerOk() const;
+    recHit_iterator recHitsBegin() const;
+    recHit_iterator recHitsEnd() const;
+    size_t recHitsSize() const;
+    double outerPx() const;
+    double outerPy() const;
+    double outerPz() const;
+    double outerX() const;
+    double outerY() const;
+    double outerZ() const;
+    double outerP() const;
+    double outerPt() const;
+    double outerPhi() const;
+    double outerEta() const;
+    double outerTheta() const;    
+    double outerRadius() const;
+
   private:
     Double32_t chi2_;
     unsigned short ndof_;
