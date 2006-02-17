@@ -1,3 +1,6 @@
+** V00-02-00  [Fri Feb 17 09:16:08 2006]
+Track now contains methods from TrackExtra that are delegated to its "associated" extra object
+
 ** V00-01-03  [Thu Feb 16 15:27:18 2006]
 migration: FWCore/EDProduct -&gt; DataFormats/Common
 
