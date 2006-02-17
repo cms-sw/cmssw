@@ -41,7 +41,7 @@ void cond::DBSession::connect( cond::ConnectMode mode ){
   default:
     throw cond::Exception(std::string("DBSession::connect unknown connect mode"));
   }
-  pool::URIParser p;
+  pool::URIParser p(m_catalogcon);
   p.parse();
   m_cat->setWriteCatalog(p.contactstring());
   m_cat->connect();
