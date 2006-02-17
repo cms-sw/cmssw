@@ -7,7 +7,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Common/interface/traits.h"
 
-// $Id: RangeMap.h,v 1.9 2006/02/17 10:20:58 tboccali Exp $
+// $Id: RangeMap.h,v 1.10 2006/02/17 10:30:00 llista Exp $
 namespace edm {
   
   template<typename ID, typename C, typename P>
@@ -101,15 +101,11 @@ namespace edm {
     void post_insert(){
       // sorts the container via ID
       C tempCollection;
-      //     id_iterator it;
       typename mapType::iterator  it;
       for (it = map_.begin(); it != map_.end(); it ++){   
-	//	      for (it = id_begin(); it != id_end(); it ++){ 
 	range range_ = get((*it).first);
 	typename C::size_type  begIt = tempCollection.size();
-	
-	copy(range_.first, range_.second, back_inserter(tempCollection));
-	
+	std::copy(range_.first, range_.second, std::back_inserter(tempCollection));
 	typename C::size_type endIt = tempCollection.size();
 	it->second = std::make_pair( begIt, endIt );
       }
