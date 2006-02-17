@@ -12,6 +12,8 @@ namespace cond{
   public:
     MetaData(const std::string& contact, ServiceLoader& loader);
     ~MetaData();
+    void connect();
+    void disconnect();
     bool addMapping(const std::string& name, const std::string& token);
     const std::string getToken( const std::string& name );
   private:

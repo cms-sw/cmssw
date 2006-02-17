@@ -32,25 +32,29 @@ cond::MetaData::MetaData(const std::string& connectionString, cond::ServiceLoade
   coral::IRelationalService& relationalService=m_loader.loadRelationalService();
   coral::IRelationalDomain& domain = relationalService.domainForConnection(m_con);
   m_session.reset( domain.newSession( m_con ) );
+}
+
+cond::MetaData::~MetaData(){
+}
+
+void cond::MetaData::connect(){
   try{
     m_session->connect();
     m_session->startUserSession();
   }catch(seal::Exception& er){
-    throw cond::Exception(std::string("MetaData::MetaData caught seal exception ")+er.what());
+    throw cond::Exception("MetaData::MetaData connect")<<er.what();
   }catch(...){
-    throw cond::Exception( "MetaData::MetaData caught unknown exception" );
+    throw cond::Exception( "MetaData::connect caught unknown exception" );
   }
 }
-
-cond::MetaData::~MetaData(){
+void cond::MetaData::disconnect(){
   m_session->disconnect();
 }
-
 bool cond::MetaData::addMapping(const std::string& name, const std::string& iovtoken){
   try{
     m_session->transaction().start();
   }catch(seal::Exception& er){
-    throw cond::Exception( std::string("MetaData::addMapping Could not start transaction")+ er.what());
+    throw cond::Exception( std::string("MetaData::addMapping ")+ er.what());
   }catch(...){
     throw cond::Exception( "MetaData::addMapping caught unknown exception" );
   }
@@ -68,7 +72,7 @@ bool cond::MetaData::addMapping(const std::string& name, const std::string& iovt
     dataEditor.insertRow( rowBuffer );
     m_session->transaction().commit() ;
   }catch(seal::Exception& er){
-    throw cond::Exception(std::string("MetaData::addMapping Could not commit the transaction ")+er.what() );
+    throw cond::Exception("MetaData::addMapping ")<<er.what();
   }catch(...){
     throw cond::Exception( "MetaData::addMapping Could not commit the transaction" );
   }

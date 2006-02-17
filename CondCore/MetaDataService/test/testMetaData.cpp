@@ -8,10 +8,12 @@ int main(){
   loader->loadAuthenticationService(cond::XML);
   try{
     cond::MetaData metadata_svc("sqlite_file:pippo.db", *loader);
+    metadata_svc.connect();
     std::string t1("token1");
     metadata_svc.addMapping("mytest1",t1);
     std::string t2("token2");
     metadata_svc.addMapping("mytest2",t2);
+    metadata_svc.disconnect();
   }catch(cond::Exception& er){
     std::cout<<er.what()<<std::endl;
   }catch(...){
