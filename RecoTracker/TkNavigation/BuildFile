@@ -1,0 +1,11 @@
+<export>
+ <lib name=RecoTrackerTkNavigation>
+ <use name=Utilities/General>
+ <use name=TrackingTools/GeomPropagators>
+ <use name=TrackingTools/DetLayers>
+</export>
+
+<use name=Utilities/General>
+<use name=TrackingTools/GeomPropagators>
+<use name=TrackingTools/DetLayers>
+
