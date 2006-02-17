@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbXml.cc,v 1.3 2006/01/19 01:37:13 fedor Exp $
+// $Id: HcalDbXml.cc,v 1.4 2006/02/17 03:06:58 fedor Exp $
 //
 #include <vector>
 #include <string>
@@ -71,6 +71,7 @@ namespace {
     fOutput << "<SIGMA_1_2>" << "0" << "</SIGMA_1_2> ";	
     fOutput << "<SIGMA_1_3>" << "0" << "</SIGMA_1_3> ";	
     fOutput << "<SIGMA_2_3>" << "0" << "</SIGMA_2_3> ";	
+    fOutput << "</DATA> " << std::endl;
   }
 
   void dumpDataset (std::ostream& fOutput, unsigned fVersion = 0, const std::string& fFileName = "", const std::string& fDescription = "") {
@@ -99,7 +100,7 @@ namespace {
       dumpRun (fOutput, fRun);
       fOutput << "<KIND_OF_CONDITION><NAME>" << fKind << "</NAME></KIND_OF_CONDITION>" << std::endl;
       dumpChannelId (fOutput, fChannels[i]);
-      fOutput << "<VERSION>" << fVersion << "/VERSION>" << std::endl;
+      fOutput << "<VERSION>" << fVersion << "</VERSION>" << std::endl;
       fOutput << "</DATASET>" << std::endl;
     }
     // set IOV
@@ -108,7 +109,7 @@ namespace {
     fOutput << "<INTERVAL_OF_VALIDITY_END>" << fGMTIOVEnd << "</INTERVAL_OF_VALIDITY_END>";
     fOutput << "</IOV>" << std::endl;
     // set TAG
-    fOutput << "TAG id=\"" << TAG_ID << "\" mode=\"create\">";
+    fOutput << "<TAG id=\"" << TAG_ID << "\" mode=\"create\">";
     fOutput << "<TAG_NAME>" << fTag << "</TAG_NAME>";
     fOutput << "<DETECTOR_NAME>HCAL</DETECTOR_NAME>";
     fOutput << "<COMMENT_DESCRIPTION>Automatically created by HcalDbXml</COMMENT_DESCRIPTION>" << std::endl;
