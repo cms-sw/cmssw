@@ -65,46 +65,56 @@ void EcalDigiTester::analyze (const edm::Event& event, const edm::EventSetup& ev
     EBcheckhits.push_back (simpleUnit (eta,phi,E)) ;
   } // loop over the EB hits
 
+  std::sort (EBcheckhits.begin (), EBcheckhits.end (), compare) ;
+
   // Get the digis
   // -------------
      
   edm::Handle<EBDigiCollection> barrelResultHandle ;
   event.getByType (barrelResultHandle) ;
  
-  // pring results
-  // -------------
-
   const EBDigiCollection * barrelResult = barrelResultHandle.product () ;
+  std::vector<simpleUnit> EBcheckdigis ;
+
+  // loop over the digis
+  for (std::vector<EBDataFrame>::const_iterator digis = barrelResult->begin () ;
+       digis != barrelResult->end () ;
+       ++digis)
+    {
+      
+      EBDetId detId = digis->id () ;
+ 
+      const CaloCellGeometry* cellGeometry =
+        theGeometry->getSubdetectorGeometry (detId)->getGeometry (detId) ;
+ 
+      double eta = cellGeometry->getPosition ().eta () ;
+      double phi = cellGeometry->getPosition ().phi () ;
+      double cosTheta = cos (cellGeometry->getPosition ().theta ()) ;
+ 
+      double Emax = -1 ;
+      for (int sample = 0 ; sample < digis->size () ; ++sample)
+        {
+          double value = digis->sample (sample).adc () ;
+          int gainId = digis->sample (sample).gainId () ;
+          if (Emax < value) Emax = value ;
+        }
+ 
+      EBcheckdigis.push_back (simpleUnit (eta,phi,Emax)) ;
+    
+    } // loop over the digis
+
+  std::sort (EBcheckdigis.begin (), EBcheckdigis.end (), compare) ;
+
+  // print results
+  // -------------
 
   edm::LogInfo ("EcalDigiTester") << "EB Digis: " << barrelResult->size () ;
 
   CaloDigiCollectionSorter sorter (5) ;
   std::vector<EBDataFrame> sortedDigis = sorter.sortedVector (*barrelResult) ;
-
-  std::vector<simpleUnit> EBcheckdigis ;
-
   std::cout << "Top 10 EB digis" << std::endl ;
   for (int i = 0 ; i < std::min (10, (int) sortedDigis.size ()) ; ++i) 
    {
-     EBDetId detId = sortedDigis[i].id () ;
-
-     const CaloCellGeometry* cellGeometry =
-       theGeometry->getSubdetectorGeometry (detId)->getGeometry (detId) ;
-
-     double eta = cellGeometry->getPosition ().eta () ;
-     double phi = cellGeometry->getPosition ().phi () ;
-     double cosTheta = cos (cellGeometry->getPosition ().theta ()) ;
-
-     double Emax = -1 ;
-     for (int sample = 0 ; sample < sortedDigis[i].size () ; ++sample)
-       {
-         double value = sortedDigis[i].sample (sample).adc () ;
-         int gainId = sortedDigis[i].sample (sample).gainId () ;
-         if (Emax < value) Emax = value ;
-       }
-
-     EBcheckdigis.push_back (simpleUnit (eta,phi,Emax)) ;
-     
 //    double ET = hitItr->energy () * cosTheta ;
 //     std::cout << "[EcalDigiTester][analyze] digi " << i
 //               << "\t" << sortedDigis[i] ;
@@ -151,6 +161,20 @@ simpleUnit::simpleUnit (double eta,double phi,double E) :
     m_phi (phi) ,
     m_E (E) {} ;
 simpleUnit::~simpleUnit () {} ;
-bool simpleUnit::operator < (simpleUnit compare) {return m_E<compare.m_E ; }
-bool simpleUnit::operator > (simpleUnit compare) {return m_E>compare.m_E ; }
+bool simpleUnit::operator< (const simpleUnit& altro) const 
+  {return m_E < altro.m_E ;}
+
+std::ostream & operator<< (std::ostream & os, const simpleUnit & su) 
+{
+  os << "[SU]\t" << su.m_eta << "\t" << su.m_phi << "\t" << su.m_E << std::endl ;
+  return os;
+}
+
+
+
+// ------------------------------------------------------------------
+
+
+bool compare (const simpleUnit& primo, const simpleUnit secondo) 
+ {return primo.m_E > secondo.m_E ; }
 

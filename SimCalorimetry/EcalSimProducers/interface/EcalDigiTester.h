@@ -76,8 +76,11 @@ class simpleUnit
       double m_eta ;
       double m_phi ;
       double m_E ;
-      bool operator< (simpleUnit compare) ;
-      bool operator> (simpleUnit compare) ;
+      bool operator< (const simpleUnit& altro) const ;
   } ;
+
+std::ostream & operator<< (std::ostream & os, const simpleUnit & su) ;
+
+bool compare (const simpleUnit& primo, const simpleUnit secondo) ; 
 
 #endif
