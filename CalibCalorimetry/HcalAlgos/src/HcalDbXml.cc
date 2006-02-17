@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbXml.cc,v 1.4 2006/02/17 03:06:58 fedor Exp $
+// $Id: HcalDbXml.cc,v 1.5 2006/02/17 03:30:48 fedor Exp $
 //
 #include <vector>
 #include <string>
@@ -49,7 +49,7 @@ namespace {
     fOutput << "<DEPTH>" << fChannel.depth() << "</DEPTH> ";
     fOutput << "<Z>" << (fChannel.zside() > 0 ? '+' : '-') << "</Z> ";
     fOutput << "<DETECTOR_NAME>" << (fChannel.subdet() == HcalBarrel ? "HB" : fChannel.subdet() == HcalEndcap ? "HE" : "HF") << "</DETECTOR_NAME> ";
-    fOutput << "<HCAL_CHANNEL_ID>" << fChannel << "</HCAL_CHANNEL_ID> ";
+    fOutput << "<HCAL_CHANNEL_ID>" << fChannel.rawId () << "</HCAL_CHANNEL_ID> ";
     fOutput << "</CHANNEL>";
     fOutput << std::endl;
   }
