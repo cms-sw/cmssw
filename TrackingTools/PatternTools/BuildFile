@@ -1,0 +1,13 @@
+<export>
+ <lib name=TrackingToolsPatternTools>
+# <use name=TrackingTools/GeomPropagators>
+</export>
+ 
+#<use name=TrackingTools/GeomPropagators>
+<use name=Utilities/General>
+<use name=CLHEP>
+<use name=boost>
+#no more necessary after committing GeomPropagators
+<use name=TrackingTools/TrajectoryState>
+<use name=TrackingTools/AnalyticalJacobians>
+<use name=FWCore/Utilities>
