@@ -21,6 +21,7 @@
 #include <string>
 #include <vector>
 
+using std::cerr;
 
 namespace edm {
 namespace service {
@@ -56,6 +57,9 @@ void
   MessageLoggerQ::OpCode  opcode;
   void *                  operand;
   bool  done = false;
+  bool  purge_mode = false;
+  int count = 0;
+
   do  {
     MessageLoggerQ::consume(opcode, operand);  // grab next work item from Q
     switch(opcode)  {  // interpret the work item
@@ -70,23 +74,93 @@ void
       }
       case MessageLoggerQ::LOG_A_MESSAGE:  {
         ErrorObj *  errorobj_p = static_cast<ErrorObj *>(operand);
-        log (errorobj_p);        
+	try {
+	  if(!purge_mode) log (errorobj_p);        
+	}
+	catch(cms::Exception& e)
+	  {
+	    ++count;
+	    cerr << "MessageLoggerScribe caught " << count
+		 << " cms::Exceptions, text = \n"
+		 << e.what() << "\n";
+	    
+	    if(count > 5)
+	      {
+		cerr << "MessageLogger will no longer be processing "
+		     << "messages due to errors. (entering purge mode)\n";
+		purge_mode = true;
+	      }
+	  }
+	catch(...)
+	  {
+	    cerr << "MessageLoggerScribe caught an unknown exception and "
+		 << "will no longer be processing "
+		 << "messages. (entering purge mode)\n";
+	    purge_mode = true;
+	  }
         delete errorobj_p;  // dispose of the message text
         break;
       }
       case MessageLoggerQ::CONFIGURE:  {
-        job_pset_p = static_cast<PSet *>(operand);
-        configure_errorlog();
+	try {
+	  job_pset_p = static_cast<PSet *>(operand);
+	  configure_errorlog();
+	}
+	catch(cms::Exception& e)
+	  {
+	    cerr << "MessageLoggerScribe caught exception "
+		 << "during configuration:\n"
+		 << e.what() << "\n"
+		 << "Aborting the job with return code -5.\n";
+	    exit(-5);
+	  }
+	catch(...)
+	  {
+	    cerr << "MessageLoggerScribe caught unkonwn exception type\n"
+		 << "during configuration. "
+		 << "Aborting the job with return code -5.\n";
+	    exit(-5);
+	  }
         break;
       }
       case MessageLoggerQ::EXTERN_DEST: {
-	extern_dests.push_back( static_cast<NamedDestination *>(operand) );
-	configure_external_dests();
+	try {
+	  extern_dests.push_back( static_cast<NamedDestination *>(operand) );
+	  configure_external_dests();
+	}
+	catch(cms::Exception& e)
+	  {
+	    cerr << "MessageLoggerScribe caught exception "
+		 << "during extern dest configuration:\n"
+		 << e.what() << "\n"
+		 << "Aborting the job with return code -5.\n";
+	    exit(-5);
+	  }
+	catch(...)
+	  {
+	    cerr << "MessageLoggerScribe caught unkonwn exception type\n"
+		 << "during extern dest configuration. "
+		 << "Aborting the job with return code -5.\n";
+	    exit(-5);
+	  }
         break;
       }
       case MessageLoggerQ::SUMMARIZE: {
         assert( operand == 0 );
-	triggerStatisticsSummaries();
+	try {
+	  triggerStatisticsSummaries();
+	}
+	catch(cms::Exception& e)
+	  {
+	    cerr << "MessageLoggerScribe caught exception "
+		 << "during summarize:\n"
+		 << e.what() << "\n";
+	  }
+	catch(...)
+	  {
+	    cerr << "MessageLoggerScribe caught unkonwn exception type "
+		 << "during summarize. (Ignored)\n";
+	  }
         break;
       }
     }  // switch
