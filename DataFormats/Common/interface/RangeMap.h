@@ -2,10 +2,12 @@
 #define Common_RangeMap_h
 #include <map>
 #include <vector>
+#include <functional>
+#include <ext/functional>
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Common/interface/traits.h"
 
-// $Id: RangeMap.h,v 1.8 2006/02/16 08:29:26 tboccali Exp $
+// $Id: RangeMap.h,v 1.9 2006/02/17 10:20:58 tboccali Exp $
 namespace edm {
   
   template<typename ID, typename C, typename P>
@@ -27,25 +29,15 @@ namespace edm {
       return temp;
     }
         
-
-    private:
-    template<typename COMP>
-    struct Comparator{
-    public: 
-      Comparator( const COMP & c ) : comp ( c ) { }
-      bool operator()(const  pairType & d1,  const pairType & d2) const {
-	return comp( d1.first, d2.first );
-      }
-      COMP comp;
-    };
-
-    public:
-    template<typename COMP> range get(ID id, COMP comparator){
-      //
-      // use equal_range algo; expects the thing to be sorted!!!!!
-      //
-      pair<mapType::const_iterator, mapType::const_iterator> r = 
-	equal_range(map_.begin(), map_.end(),id, Comparator<COMP>( comparator ) ); 
+    template<typename COMP> 
+    range get(ID id, COMP comparator){
+      using __gnu_cxx::select1st;
+      std::pair<typename mapType::const_iterator,
+        typename mapType::const_iterator> r =
+        std::equal_range( map_.begin(), map_.end(), id,
+                          std::compose2( comparator,
+                                         select1st<pairType>(),
+                                         select1st<pairType>() ) );
       const_iterator begin, end;
 
       if ((r.first) == map_.end()){
@@ -69,8 +61,6 @@ namespace edm {
       }
       return std::make_pair( begin, end );
     }
-    
-    
 
     template<typename CI>
       void put( ID id, CI begin, CI end ) {
@@ -107,8 +97,6 @@ namespace edm {
       private:
       const_iterator i;
     };
-    
-    
 
     void post_insert(){
       // sorts the container via ID
@@ -127,9 +115,6 @@ namespace edm {
       }
       collection_ = tempCollection;
     }
-    
-
-    
 
     id_iterator id_begin() const { return id_iterator( map_.begin() ); }
     id_iterator id_end() const { return id_iterator( map_.end() ); }
@@ -138,13 +123,11 @@ namespace edm {
     C collection_;
     mapType map_;
   };
-
-
+  
   template<typename  ID, typename C, typename P > 
-    struct edm::has_postinsert_trait<edm::RangeMap<ID,C,P> > 
-    { 
-      static bool const value = true; 
-    }; 
+  struct edm::has_postinsert_trait<edm::RangeMap<ID,C,P> >  { 
+    static bool const value = true; 
+  }; 
   
 }
 
