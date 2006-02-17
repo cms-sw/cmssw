@@ -6,7 +6,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Common/interface/traits.h"
 
-// $Id: RangeMap.h,v 1.12 2006/02/17 11:10:09 llista Exp $
+// $Id: RangeMap.h,v 1.13 2006/02/17 11:56:41 tboccali Exp $
 namespace edm {
   
   template<typename ID, typename C, typename P>
@@ -18,16 +18,28 @@ namespace edm {
     typedef std::map<ID, pairType> mapType;
     typedef std::pair<const_iterator, const_iterator> range;
           
-    template<typename COMP> 
-    range get(ID id, COMP comparator){
-      using __gnu_cxx::compose2;
-      using __gnu_cxx::select1st;
+
+    private:
+      template<typename CMP> 
+	struct comp {
+	  comp( const CMP & c ) : cmp( c ) { }
+	  bool operator()( ID id, const typename mapType::value_type & p ) {
+	    return cmp( id, p.first );
+	  }
+	  bool operator()( const typename mapType::value_type & p, ID id ) {
+	    return cmp( p.first, id );
+	  }
+        private:
+	  CMP cmp;
+	};
+    public:
+
+    template<typename CMP> 
+    range get(ID id, CMP comparator){
+      using namespace __gnu_cxx;
       std::pair<typename mapType::const_iterator,
-        typename mapType::const_iterator> r =
-        std::equal_range( map_.begin(), map_.end(), id,
-                          compose2( comparator,
-                                         select1st<pairType>(),
-                                         select1st<pairType>() ) );
+                typename mapType::const_iterator> r =
+        std::equal_range( map_.begin(), map_.end(), id, comp<CMP>( comparator ) );
       const_iterator begin, end;
 
       if ((r.first) == map_.end()){

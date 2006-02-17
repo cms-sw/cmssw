@@ -1,4 +1,4 @@
-// $Id: testRangeMap.cc,v 1.6 2006/02/17 10:21:14 tboccali Exp $
+// $Id: testRangeMap.cc,v 1.7 2006/02/17 11:53:08 tboccali Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include "DataFormats/Common/interface/RangeMap.h"
 #include "DataFormats/Common/interface/CopyPolicy.h"
@@ -24,15 +24,15 @@ struct MatchOddId {
 };
 
 
-class IntComparator{
+class IntComparator : public binary_function<int, int, bool> {
 public:
-  bool operator()(const int &d1,  const int &d2) const {
+  bool operator()( int d1, int d2 ) const {
     //
       // stupid, 3 and 2 are treated as the same thing
       //
     if ((d1 == 2 && d2 ==3) ||
 	(d1 == 3 && d2 ==2)) return false;
-    return d1<d2;
+    return d1 < d2;
   }
 };
 
