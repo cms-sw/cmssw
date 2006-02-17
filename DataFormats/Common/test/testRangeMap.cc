@@ -1,4 +1,4 @@
-// $Id: testRangeMap.cc,v 1.7 2006/02/17 11:53:08 tboccali Exp $
+// $Id: testRangeMap.cc,v 1.8 2006/02/17 12:30:23 llista Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include "DataFormats/Common/interface/RangeMap.h"
 #include "DataFormats/Common/interface/CopyPolicy.h"
@@ -116,6 +116,18 @@ void testRangeMap::checkAll() {
   // try the get with comparator
   //
   r = m.get(2,IntComparator());
-  cout <<" ECCO "<<r.second-r.first<<endl;
+  CPPUNIT_ASSERT( r.second-r.first == 7 );
+  i = r.first;
+  
+  CPPUNIT_ASSERT( * i ++ == 5 );
+  CPPUNIT_ASSERT( * i ++ == 6 );
+  CPPUNIT_ASSERT( * i ++ == 7 );
+  CPPUNIT_ASSERT( * i ++ == 1 );
+  CPPUNIT_ASSERT( * i ++ == 2 );
+  CPPUNIT_ASSERT( * i ++ == 3 );
+  CPPUNIT_ASSERT( * i ++ == 4 );
+  CPPUNIT_ASSERT( i == r.second );
+
+
 
 }
