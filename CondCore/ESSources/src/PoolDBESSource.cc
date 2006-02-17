@@ -1,29 +1,32 @@
 // system include files
 #include "boost/shared_ptr.hpp"
-#include <iostream>
-
 // user include files
 #include "CondCore/ESSources/interface/PoolDBESSource.h"
+#include "CondCore/DBCommon/interface/DBSession.h"
+#include "CondCore/DBCommon/interface/Exception.h"
+#include "CondCore/DBCommon/interface/ServiceLoader.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/Framework/interface/DataProxy.h"
 #include "CondCore/PluginSystem/interface/ProxyFactory.h"
 #include "CondCore/IOVService/interface/IOV.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
-#include "FileCatalog/URIParser.h"
-#include "FileCatalog/IFileCatalog.h"
-#include "PersistencySvc/DatabaseConnectionPolicy.h"
-#include "PersistencySvc/ISession.h"
-#include "PersistencySvc/ITransaction.h"
-#include "DataSvc/DataSvcFactory.h"
-#include "DataSvc/IDataSvc.h"
-#include "SealKernel/Context.h"
+//#include "DataSvc/Ref.h"
+//#include "FileCatalog/URIParser.h"
+//#include "FileCatalog/IFileCatalog.h"
+//#include "PersistencySvc/DatabaseConnectionPolicy.h"
+//#include "PersistencySvc/ISession.h"
+//#include "PersistencySvc/ITransaction.h"
+//#include "DataSvc/DataSvcFactory.h"
+//#include "DataSvc/IDataSvc.h"
+//#include "SealKernel/Context.h"
 #include "SealKernel/Exception.h"
 //#include "RelationalAccess/RelationalException.h"
-#include "RelationalAccess/IAuthenticationService.h"
-#include "RelationalAccess/IAuthenticationCredentials.h"
-#include "SealKernel/IMessageService.h"
-#include "PluginManager/PluginManager.h"
-#include "SealKernel/ComponentLoader.h"
+//#include "RelationalAccess/IAuthenticationService.h"
+//#include "RelationalAccess/IAuthenticationCredentials.h"
+//#include "SealKernel/IMessageService.h"
+//#include "PluginManager/PluginManager.h"
+//#include "SealKernel/ComponentLoader.h"
+#include <iostream>
 //
 // static data member definitions
 //
@@ -90,43 +93,28 @@ fillRecordToTypeMap(std::multimap<std::string, std::string>& oToFill){
 }
 
 void PoolDBESSource::initPool(const std::string& catcontact){
+  m_session->setCatalog(catcontact);
   try{
-    // the required lifetime of the file catalog is the same of the  srv_ or longer  
-    m_cat.reset(new pool::IFileCatalog);
-    m_cat->addReadCatalog(catcontact);
-    m_cat->connect();
-    m_cat->start();    
-    m_svc= pool::DataSvcFactory::instance(&(*m_cat));
-    // Define the policy for the implicit file handling
-    pool::DatabaseConnectionPolicy policy;
-    policy.setWriteModeForNonExisting(pool::DatabaseConnectionPolicy::CREATE);
-    m_svc->session().setDefaultConnectionPolicy(policy);
-    m_svc->transaction().start(pool::ITransaction::READ);
-  }catch( const seal::Exception& e){
-    std::cerr << e.what() << std::endl;
-    throw cms::Exception( e.what() );
-  } catch ( const std::exception& e ) {
-    std::cerr << e.what() << std::endl;
-    throw cms::Exception( e.what() );
-  } catch ( ... ) {
-    throw cms::Exception("Funny error");
+    m_session->connect( cond::ReadOnly );
+    m_session->startReadOnlyTransaction();
+  }catch( const cond::Exception& e){
+    throw e;
+  } catch(...) {
+    throw cond::Exception(std::string("PoolDBESSource::initPool unknown error"));
   }
 }
 
 void PoolDBESSource::closePool(){
-  //std::cout<<"PoolDBESSource::closePool"<<std::endl;
-  m_svc->transaction().commit();
-  m_svc->session().disconnectAll();
-  m_cat->commit();
-  m_cat->disconnect();
-  if(m_svc) delete m_svc;
+  m_session->commit();
+  m_session->disconnect();
 }
 
 bool PoolDBESSource::initIOV( const std::vector< std::pair < std::string, std::string> >& recordToTag ){
   //std::cout<<"PoolDBESSource::initIOV"<<std::endl;
-  cond::MetaData meta(m_con);
+  cond::MetaData meta(m_con, *m_loader);
   std::vector< std::pair<std::string, std::string> >::const_iterator it;
   try{
+    meta.connect();
     for(it=recordToTag.begin(); it!=recordToTag.end(); ++it){
       std::string iovToken=meta.getToken(it->second);
       if( iovToken.empty() ){
@@ -135,18 +123,19 @@ bool PoolDBESSource::initIOV( const std::vector< std::pair < std::string, std::s
       //std::cout<<"initIOV record: "<<it->first<<std::endl;
       //std::cout<<"initIOV tag: "<<it->second<<std::endl;
       //std::cout<<"initIOV iovToken: "<<iovToken<<std::endl;
-      pool::Ref<cond::IOV> iov(m_svc, iovToken);
+      pool::Ref<cond::IOV> iov(&(m_session->DataSvc()), iovToken);
       m_recordToIOV.insert(std::make_pair(it->first,iov));
     }
+    meta.disconnect();
     //}catch( const coral::RelationalTableNotFound& e ){
     //std::cerr<<"Caught pool::RelationalTableNotFound Exception"<<std::endl;
     //throw cms::Exception( e.what() );
+  }catch(const cond::Exception&e ){
+    throw e;
   }catch(const seal::Exception&e ){
-    std::cerr<<"Caught seal exception"<<std::endl;
-    std::cerr<<e.what()<<std::endl;
-    throw cms::Exception( e.what() );
+    throw cond::Exception( "PoolDBESSource::initIOV ")<<e.what();
   }catch(...){
-    throw cms::Exception( "Funny error" );
+    throw cond::Exception( "PoolDBESSource::initIOV " );
   }
   //pool::Ref<cond::IOV> iov(m_svc, iovToken);
   //std::pair<int,std::string> iovpair=*iov->iov.lower_bound(7);
@@ -160,67 +149,65 @@ bool PoolDBESSource::initIOV( const std::vector< std::pair < std::string, std::s
 PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   m_con(iConfig.getParameter<std::string>("connect") ),
   m_timetype(iConfig.getParameter<std::string>("timetype") ),
-  m_context(new seal::Context)
+  m_loader(new cond::ServiceLoader),
+  m_session(new cond::DBSession(m_con))
 {		
   /*parameter set parsing and pool environment setting
    */
   //std::cout<<"PoolDBESSource::PoolDBESSource"<<std::endl;
   unsigned int auth=iConfig.getUntrackedParameter<unsigned int>("authenticationMethod",0) ;
   std::string catconnect;
-  seal::PluginManager* pm = seal::PluginManager::get();
-  pm->initialise();
-  seal::Handle<seal::ComponentLoader> loader = new seal::ComponentLoader( m_context );
   try{
     if( auth==1 ){
-      loader->load( "CORAL/Services/XMLAuthenticationService" );
+      m_loader->loadAuthenticationService( cond::XML );
     }else{
-      loader->load( "CORAL/Services/EnvironmentAuthenticationService" );
+      m_loader->loadAuthenticationService( cond::Env );
     }
     catconnect=iConfig.getUntrackedParameter<std::string>("catalog","");
-    loader->load( "SEAL/Services/MessageService" );
     unsigned int message_level=iConfig.getUntrackedParameter<unsigned int>("messagelevel",0);
-    std::vector< seal::Handle<seal::IMessageService> > v_msgSvc;
-    m_context->query( v_msgSvc );
-    seal::Handle<seal::IMessageService> msgSvc;
-    if ( ! v_msgSvc.empty() ) {
+    /*
+      std::vector< seal::Handle<seal::IMessageService> > v_msgSvc;
+      m_context->query( v_msgSvc );
+      seal::Handle<seal::IMessageService> msgSvc;
+      if ( ! v_msgSvc.empty() ) {
       msgSvc = v_msgSvc.front();
-    }
+      }
+    */
     switch (message_level) {
     case 0 :
-      msgSvc->setOutputLevel( seal::Msg::Error);
+      m_loader->loadMessageService(cond::Error);
       break;    
     case 1:
-      msgSvc->setOutputLevel( seal::Msg::Warning );
+      m_loader->loadMessageService(cond::Warning);
       break;
     case 2:
-      msgSvc->setOutputLevel( seal::Msg::Info );
+      m_loader->loadMessageService( cond::Info );
       break;
     case 3:
-      msgSvc->setOutputLevel( seal::Msg::Debug );
+      m_loader->loadMessageService( cond::Debug );
       break;  
     default:
-      msgSvc->setOutputLevel( seal::Msg::Error );
+      m_loader->loadMessageService();
     }
-    if(message_level>=2){
+    /*if(message_level>=2){
       std::vector< seal::IHandle<coral::IAuthenticationService> > v_authSvc;
       m_context->query( v_authSvc );
       if ( ! v_authSvc.empty() ) {
-	seal::IHandle<coral::IAuthenticationService>& authSvc = v_authSvc.front();
-	std::cerr<<"[PoolDBESSource] connect "<<m_con << '\n';
-	std::cerr<<"[PoolDBESSource] user "<<authSvc->credentials( m_con ).valueForItem( "user" ) << '\n';
-	std::cerr<<"[PoolDBESSource] password "<<authSvc->credentials( m_con ).valueForItem( "password" ) << '\n';
-	std::cerr<<"[PoolDBESSource] catalog "<< catconnect << '\n';
-	std::cerr<<"[PoolDBESSource] timetype "<< m_timetype << std::endl;
+      seal::IHandle<coral::IAuthenticationService>& authSvc = v_authSvc.front();
+      std::cerr<<"[PoolDBESSource] connect "<<m_con << '\n';
+      std::cerr<<"[PoolDBESSource] user "<<authSvc->credentials( m_con ).valueForItem( "user" ) << '\n';
+      std::cerr<<"[PoolDBESSource] password "<<authSvc->credentials( m_con ).valueForItem( "password" ) << '\n';
+      std::cerr<<"[PoolDBESSource] catalog "<< catconnect << '\n';
+      std::cerr<<"[PoolDBESSource] timetype "<< m_timetype << std::endl;
       }
-    }
+      }
+    */
+  }catch( const cond::Exception& e){
+    throw e;
   }catch( const seal::Exception& e){
-    std::cerr << e.what() << std::endl;
-    throw cms::Exception( e.what() );
-  } catch ( const std::exception& e ) {
-    std::cerr << e.what() << std::endl;
-    throw cms::Exception( e.what() );
-  } catch ( ... ) {
-    throw cms::Exception("Funny error");
+    throw cond::Exception( "PoolDBESSource::PoolDBESSource ")<<e.what();
+  }catch ( ... ) {
+    throw cond::Exception("PoolDBESSource::PoolDBESSource unknown error");
   }
   //std::cout<<"PoolDBESSource::PoolDBESSource"<<std::endl;
   using namespace std;
@@ -233,7 +220,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   typedef std::vector< ParameterSet > Parameters;
   Parameters toGet = iConfig.getParameter<Parameters>("toGet");
   if(0==toGet.size()){
-    throw cms::Exception("Configuration") <<" The \"toGet\" parameter is empty, please specify what (Record, tag) pairs you wish to retrieve\n"
+    throw cond::Exception("Configuration") <<" The \"toGet\" parameter is empty, please specify what (Record, tag) pairs you wish to retrieve\n"
 					  <<" or use the record name \"all\" to have your tag be used to retrieve all known Records\n";
   }
   if(1==toGet.size() && (toGet[0].getParameter<std::string>("record") =="all") ) {
@@ -247,7 +234,8 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
       m_proxyToToken.insert( make_pair(buildName(itRec->first, itRec->second ),"") );
       //fill in dummy tokens now, change in setIntervalFor
       pProxyToToken pos=m_proxyToToken.find(buildName(itRec->first, itRec->second));
-      boost::shared_ptr<DataProxy> proxy(cond::ProxyFactory::get()->create( buildName(itRec->first, itRec->second),m_svc,pos));
+      //boost::shared_ptr<DataProxy> proxy(cond::ProxyFactory::get()->create( buildName(itRec->first, itRec->second),m_svc,pos));
+      boost::shared_ptr<DataProxy> proxy(cond::ProxyFactory::get()->create( buildName(itRec->first, itRec->second),&(m_session->DataSvc()),pos));
     }
   
   
@@ -278,7 +266,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
       //load proxy code now to force in the Record code
       std::multimap<std::string, std::string>::iterator itFound=m_recordToTypes.find(recordName);
       if(itFound == m_recordToTypes.end()){
-	throw cms::Exception("NoRecord")<<" The record \""<<recordName<<"\" is not known by the PoolDBESSource";
+	throw cond::Exception("NoRecord")<<" The record \""<<recordName<<"\" is not known by the PoolDBESSource";
       }
       std::string typeName = itFound->second;
       std::string proxyName = buildName(recordName,typeName);
@@ -286,11 +274,11 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
       m_proxyToToken.insert( make_pair(proxyName,"") );
       //fill in dummy tokens now, change in setIntervalFor
       pProxyToToken pos=m_proxyToToken.find(proxyName);
-      boost::shared_ptr<DataProxy> proxy(cond::ProxyFactory::get()->create(proxyName,m_svc,pos));
+      boost::shared_ptr<DataProxy> proxy(cond::ProxyFactory::get()->create(proxyName,&(m_session->DataSvc()),pos));
       eventsetup::EventSetupRecordKey recordKey(eventsetup::EventSetupRecordKey::TypeTag::findType( recordName ) );
       if( recordKey.type() == eventsetup::EventSetupRecordKey::TypeTag() ) {
 	//record not found
-	throw cms::Exception("NoRecord")<<"The record \""<< recordName <<"\" does not exist ";
+	throw cond::Exception("NoRecord")<<"The record \""<< recordName <<"\" does not exist ";
       }
       recordToTag.push_back(std::make_pair(recordName, tagName));
       if( lastRecordName != recordName ) {
@@ -306,7 +294,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   ///
   this->initPool(catconnect);
   if( !this->initIOV(recordToTag) ){
-    throw cms::Exception("NoIOVFound")<<"IOV not found for requested records";
+    throw cond::Exception("NoIOVFound")<<"IOV not found for requested records";
   }
 }
 
@@ -314,7 +302,8 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
 PoolDBESSource::~PoolDBESSource()
 {
   this->closePool();
-  delete m_context;
+  delete m_session;
+  delete m_loader;
 }
 
 
@@ -392,7 +381,7 @@ PoolDBESSource::registerProxies(const edm::eventsetup::EventSetupRecordKey& iRec
      if( type != defaultType ) {
        pProxyToToken pos=m_proxyToToken.find(buildName(iRecordKey.name(), type.name()));
        //m_svc->transaction().start(pool::ITransaction::READ);
-       boost::shared_ptr<DataProxy> proxy(cond::ProxyFactory::get()->create( buildName(iRecordKey.name(), type.name() ), m_svc, pos));
+       boost::shared_ptr<DataProxy> proxy(cond::ProxyFactory::get()->create( buildName(iRecordKey.name(), type.name() ), &(m_session->DataSvc()), pos));
        //m_svc->transaction().commit();
        if(0 != proxy.get()) {
 	 eventsetup::DataKey key( type, "");
