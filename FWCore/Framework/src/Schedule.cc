@@ -7,7 +7,7 @@
 #include "FWCore/Framework/interface/Schedule.h"
 #include "FWCore/Framework/src/TriggerResultInserter.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
-#include "FWCore/Framework/interface/Log.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // needed for type tests
 #include "FWCore/Framework/src/OutputWorker.h"

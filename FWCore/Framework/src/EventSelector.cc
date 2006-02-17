@@ -1,6 +1,6 @@
 
 #include "FWCore/Framework/interface/EventSelector.h"
-#include "FWCore/Framework/interface/Log.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "boost/bind.hpp"
 

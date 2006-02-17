@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: Worker.cc,v 1.5 2006/02/02 20:05:36 llista Exp $
+$Id: Worker.cc,v 1.6 2006/02/02 21:00:57 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <iostream>
@@ -9,7 +9,7 @@ $Id: Worker.cc,v 1.5 2006/02/02 20:05:36 llista Exp $
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Framework/interface/Actions.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
-#include "FWCore/Framework/interface/Log.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "boost/signal.hpp"
 

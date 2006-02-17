@@ -43,7 +43,7 @@
 
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
-#include "FWCore/Framework/interface/Log.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
 using namespace std;

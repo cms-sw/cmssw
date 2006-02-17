@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: OutputModule.cc,v 1.10 2006/02/03 06:00:15 jbk Exp $
+$Id: OutputModule.cc,v 1.11 2006/02/08 00:44:25 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <vector>
@@ -11,7 +11,7 @@ $Id: OutputModule.cc,v 1.10 2006/02/03 06:00:15 jbk Exp $
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
-#include "FWCore/Framework/interface/Log.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 
