@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 19:13:25 EDT 2005
-// $Id: HcalDbAnalyzer.cc,v 1.9 2006/01/10 19:29:40 fedor Exp $
+// $Id: HcalDbAnalyzer.cc,v 1.10 2006/01/19 01:37:13 fedor Exp $
 //
 //
 
@@ -42,6 +42,24 @@
 #include "CondFormats/HcalObjects/interface/HcalQIEShape.h"
 #include "CondFormats/HcalObjects/interface/HcalQIECoder.h"
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
+
+namespace {
+  std::ostream& operator<<(std::ostream& fOut, const DetId& id) {
+    if (id.null ()) fOut << "NULL";
+    else if (id.det () != DetId::Hcal)  fOut << "Not HCAL";
+    else {
+      HcalSubdetector sub = HcalSubdetector (id.subdetId());
+      if (sub == HcalBarrel || sub == HcalEndcap || sub == HcalOuter || sub == HcalForward)
+	fOut << HcalDetId (id);
+      else if (sub == HcalEmpty) fOut << "EMPTY";
+      else if (sub == HcalTriggerTower) fOut << HcalTrigTowerDetId (id);
+      else if (sub == HcalCalibration) fOut << HcalCalibDetId (id);
+      else if (sub == HcalComposite) fOut << "HcalComposite - what is this?";
+      else fOut << "Unknown type";
+    }
+    return fOut;
+  }
+}
 
 class HcalDbAnalyzer : public edm::EDAnalyzer {
    public:
@@ -149,7 +167,7 @@ HcalDbAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
     std::vector <HcalElectronicsId> elIds = emap->allElectronicsId ();
     std::vector <HcalElectronicsId>::iterator id = elIds.begin ();
     for (; id != elIds.end (); id++) {
-      std::cout << "ElectronicsID: " << *id << " , Detector ID: " << emap->lookup (*id) 
+      std::cout << "ElectronicsID: " << *id << " , Detector ID: " << emap->lookup (*id)
 		<< " , Trigger ID: " << emap->lookupTrigger (*id) << std::endl;
     }
   }
