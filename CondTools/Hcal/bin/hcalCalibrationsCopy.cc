@@ -142,6 +142,7 @@ bool onlineFile (const std::string fParam) {
 template <class T> bool copyObject (T* fObject, 
 				    const std::string& fInput, const std::string& fInputTag, int fInputRun,
 				    const std::string& fOutput, const std::string& fOutputTag, int fOutputRun,
+				    unsigned fVersion, unsigned long fIovgmtbegin, unsigned long fIovgmtend,
 				    unsigned fNread, unsigned fNwrite, unsigned fNtrace
 				    ) {
   bool result = false;
@@ -212,7 +213,9 @@ template <class T> bool copyObject (T* fObject,
       else if (xmlFile (fOutput)) {
 	if (!traceCounter) std::cout << "USE OUTPUT: XML" << std::endl;
 	std::ofstream outStream (fOutput.c_str ());
-	HcalDbXml::dumpObject (outStream, fOutputRun, fOutputTag, *object);
+	HcalDbXml::dumpObject (outStream, fOutputRun, fIovgmtbegin, fIovgmtend, fOutputTag, fVersion, *object);
+	outStream.close ();
+	std::cout << "close file\n";
       }
       else if (dbFile (fOutput)) { //POOL
 	if (!traceCounter) std::cout << "USE OUTPUT: Pool" << std::endl;
@@ -243,6 +246,9 @@ int main (int argn, char* argv []) {
   args.defineParameter ("-inputtag", "tag for the input constants set");
   args.defineParameter ("-outputrun", "run # for which constands should be dumped");
   args.defineParameter ("-outputtag", "tag for the output constants set");
+  args.defineParameter ("-iovgmtbegin", "start time for online IOV");
+  args.defineParameter ("-iovgmtend", "end time for online IOV");
+  args.defineParameter ("-version", "version in online DB");
   args.defineParameter ("-nread", "repeat input that many times with increasing run#");
   args.defineParameter ("-nwrite", "repeat output that many times with increasing run#");
   args.defineParameter ("-trace", "trace time every that many operations");
@@ -266,6 +272,10 @@ int main (int argn, char* argv []) {
   std::string inputTag = args.getParameter ("-inputtag");
   std::string outputTag = args.getParameter ("-outputtag");
 
+  unsigned long iovgmtbegin = args.getParameter ("-iovgmtbegin").empty () ? 0 : atol (args.getParameter ("-iovgmtbegin").c_str ());
+  unsigned long iovgmtend = args.getParameter ("-iovgmtend").empty () ? 0 : atol (args.getParameter ("-iovgmtend").c_str ());
+  unsigned  version = args.getParameter ("-version").empty () ? 0 : atoi (args.getParameter ("-version").c_str ());
+
   unsigned nread = args.getParameter ("-nread").empty () ? 1 : atoi (args.getParameter ("-nread").c_str ());
   unsigned nwrite = args.getParameter ("-nwrite").empty () ? 1 : atoi (args.getParameter ("-nwrite").c_str ());
   unsigned trace = args.getParameter ("-trace").empty () ? 0 : atoi (args.getParameter ("-trace").c_str ());
@@ -275,15 +285,15 @@ int main (int argn, char* argv []) {
 
   if (what == "pedestals") {
     HcalPedestals* object = 0;
-    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, nread, nwrite, trace);
+    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, version, iovgmtbegin, iovgmtend, nread, nwrite, trace);
   }
   else if (what == "gains") {
     HcalGains* object = 0;
-    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, nread, nwrite, trace);
+    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, version, iovgmtbegin, iovgmtend, nread, nwrite, trace);
   }
   else if (what == "emap") {
     HcalElectronicsMap* object = 0;
-    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, nread, nwrite, trace);
+    copyObject (object, input, inputTag, inputRun, output, outputTag, outputRun, version, iovgmtbegin, iovgmtend, nread, nwrite, trace);
   }
 }
 
