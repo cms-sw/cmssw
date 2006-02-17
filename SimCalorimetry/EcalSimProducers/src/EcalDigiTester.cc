@@ -40,6 +40,31 @@ void EcalDigiTester::analyze (const edm::Event& event, const edm::EventSetup& ev
 //  std::auto_ptr<MixCollection<PCaloHit> > 
 //    endcapHits (new MixCollection<PCaloHit> (crossingFrame.product (), endcapHitsName)) ;
 
+  std::vector<simpleUnit> EBcheckhits ;
+  
+  // loop over the EB hits
+  for (MixCollection<PCaloHit>::MixItr hitItr = barrelHits->begin () ;
+       hitItr != barrelHits->end () ;
+       ++hitItr)
+  {
+    EBDetId detId (hitItr->id ()) ;
+    std::cout << "[EcalDigiTester][analyze] hit"
+              << "\tE: " << hitItr->energy () 
+              << "\teta: " << detId.ieta () 
+              << "\tphi: " << detId.iphi () 
+              << "\n" ;
+    const CaloCellGeometry* cellGeometry =
+      theGeometry->getSubdetectorGeometry (detId)->getGeometry (detId) ;
+
+    double eta = cellGeometry->getPosition ().eta () ;
+    double phi = cellGeometry->getPosition ().phi () ;
+    double E = hitItr->energy () ;
+    double cosTheta = cos (cellGeometry->getPosition ().theta ()) ;
+    double ET = hitItr->energy () * cosTheta ;
+    
+    EBcheckhits.push_back (simpleUnit (eta,phi,E)) ;
+  } // loop over the EB hits
+
   // Get the digis
   // -------------
      
@@ -55,11 +80,34 @@ void EcalDigiTester::analyze (const edm::Event& event, const edm::EventSetup& ev
 
   CaloDigiCollectionSorter sorter (5) ;
   std::vector<EBDataFrame> sortedDigis = sorter.sortedVector (*barrelResult) ;
+
+  std::vector<simpleUnit> EBcheckdigis ;
+
   std::cout << "Top 10 EB digis" << std::endl ;
   for (int i = 0 ; i < std::min (10, (int) sortedDigis.size ()) ; ++i) 
    {
-    std::cout << "[EcalDigiTester][analyze] digi " << i
-              << "\t" << sortedDigis[i] ;
+     EBDetId detId = sortedDigis[i].id () ;
+
+     const CaloCellGeometry* cellGeometry =
+       theGeometry->getSubdetectorGeometry (detId)->getGeometry (detId) ;
+
+     double eta = cellGeometry->getPosition ().eta () ;
+     double phi = cellGeometry->getPosition ().phi () ;
+     double cosTheta = cos (cellGeometry->getPosition ().theta ()) ;
+
+     double Emax = -1 ;
+     for (int sample = 0 ; sample < sortedDigis[i].size () ; ++sample)
+       {
+         double value = sortedDigis[i].sample (sample).adc () ;
+         int gainId = sortedDigis[i].sample (sample).gainId () ;
+         if (Emax < value) Emax = value ;
+       }
+
+     EBcheckdigis.push_back (simpleUnit (eta,phi,Emax)) ;
+     
+//    double ET = hitItr->energy () * cosTheta ;
+//     std::cout << "[EcalDigiTester][analyze] digi " << i
+//               << "\t" << sortedDigis[i] ;
    }
 
 }
@@ -75,6 +123,11 @@ void EcalDigiTester::checkGeometry (const edm::EventSetup & eventSetup)
   edm::ESHandle<CaloGeometry> geometry ;
   eventSetup.get<IdealGeometryRecord> ().get (geometry) ;
 
+  theGeometry = &*geometry ;
+  
+///  const CaloGeometry * pGeometry = &*hGeometry;
+///  void setGeometry(const CaloGeometry * geometry) { theGeometry = geometry; }
+
   theBarrelDets.clear () ;
   theEndcapDets.clear () ;
 
@@ -86,7 +139,18 @@ void EcalDigiTester::checkGeometry (const edm::EventSetup & eventSetup)
             << "\t barrel: " << theBarrelDets.size () 
             << "\t endcap: " << theEndcapDets.size () 
             << std::endl ;
-
+            
 }
 
+
+// ------------------------------------------------------------------
+
+
+simpleUnit::simpleUnit (double eta,double phi,double E) : 
+    m_eta (eta) ,
+    m_phi (phi) ,
+    m_E (E) {} ;
+simpleUnit::~simpleUnit () {} ;
+bool simpleUnit::operator < (simpleUnit compare) {return m_E<compare.m_E ; }
+bool simpleUnit::operator > (simpleUnit compare) {return m_E>compare.m_E ; }
 

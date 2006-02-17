@@ -28,6 +28,8 @@ using namespace std ;
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Provenance.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloDigiCollectionSorter.h"
 
@@ -35,9 +37,6 @@ class EcalDigiTester : public edm::EDAnalyzer
 {
 public:
 
-  // The following is not yet used, but will be the primary
-  // constructor when the parameter set system is available.
-  //
   explicit EcalDigiTester (const edm::ParameterSet& params) ; 
   virtual ~EcalDigiTester () ;
 
@@ -60,7 +59,25 @@ private:
 
   std::vector<DetId> theBarrelDets ;
   std::vector<DetId> theEndcapDets ;
+  
+  const CaloGeometry * theGeometry ;
+  
 
 } ;
+
+
+class simpleUnit
+  {
+    public: 
+      simpleUnit (double eta,double phi,double E) ;
+      ~simpleUnit () ;
+      int m_ieta ;
+      int m_iphi ;
+      double m_eta ;
+      double m_phi ;
+      double m_E ;
+      bool operator< (simpleUnit compare) ;
+      bool operator> (simpleUnit compare) ;
+  } ;
 
 #endif
