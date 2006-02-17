@@ -13,8 +13,7 @@
 
 // Geometry
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerSimAlgo/interface/TrackerGeom.h"
-class GeometricDet;   // hack in 0.2.0pre5, should be OK for pre6
+class GeometricDet;   // hack in 0.2.0pre5, OK for pre6 -- still needed?
 #include "Geometry/TrackerSimAlgo/interface/PixelGeomDetUnit.h"
 
 // Data Formats
@@ -72,7 +71,7 @@ namespace cms
     e.getByLabel(digiProducer, stripDigis);
 
     // Step A.2: get event setup
-    edm::ESHandle<TrackerGeom> geom;
+    edm::ESHandle<TrackingGeometry> geom;
     es.get<TrackerDigiGeometryRecord>().get( geom );
 
 
@@ -118,7 +117,7 @@ namespace cms
   //---------------------------------------------------------------------------
   void SiPixelClusterProducer::run(const PixelDigiCollection* input, 
 				   SiPixelClusterCollection &output,
-				   edm::ESHandle<TrackerGeom> & geom)
+				   edm::ESHandle<TrackingGeometry> & geom)
   {
     if ( ! readyToCluster_ ) {
       std::cout << "[SiPixelClusterProducer]:"
