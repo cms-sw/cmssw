@@ -278,14 +278,18 @@ static ELstring  formSummary( ELmap_stats & stats )  {
 
     // -----  Emit new process and part I header, if needed:
     //
-    if ( n == 0  || ! eq(lastProcess, (*i).first.process) )
-      s << "\nProcess " << (lastProcess = (*i).first.process) << '\n'
-        << " type     category        sev    module        "
+    if ( n == 0  || ! eq(lastProcess, (*i).first.process) ) {
+      s << "\n";
+      lastProcess = (*i).first.process;
+      if ( lastProcess.size() > 0) {
+        s << "Process " << (*i).first.process << '\n';
+      }
+      s << " type     category        sev    module        "
              "subroutine        count    total\n"
         << " ---- -------------------- -- ---------------- "
              "----------------  -----    -----\n"
         ;
-
+    }
     // -----  Emit detailed message information:
     //
     s << right << setw( 5) << ++n                                     << ' '
@@ -314,13 +318,15 @@ static ELstring  formSummary( ELmap_stats & stats )  {
 
   // -----  Summary part II:
   //
-  s << '\n'
-    << " type    category    Examples: "
-       "run/evt        run/evt          run/evt\n"
-    << " ---- -------------------- ----"
-       "------------ ---------------- ----------------\n"
-    ;
   for ( i = stats.begin(), n = 0;  i != stats.end();  ++i )  {
+    if ( n ==  0 ) {
+      s << '\n'
+	<< " type    category    Examples: "
+	   "run/evt        run/evt          run/evt\n"
+	<< " ---- -------------------- ----"
+	   "------------ ---------------- ----------------\n"
+	;
+    }
     s << right << setw( 5) << ++n                             << ' '
       << left  << setw(20) << (*i).first.id.c_str()           << ' '
       << left  << setw(16) << (*i).second.context1.c_str()    << ' '

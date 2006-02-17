@@ -45,6 +45,20 @@ private:
                       , String const &  filename
 		      );
   void  configure_external_dests( );
+  template <class T>
+  T  getAparameter ( PSet * p, std::string const & id, T const & def ) 
+  {
+    T t;
+    try { 
+      t = p->template getUntrackedParameter<T>(id, def);
+    } catch (...) {
+      t = p->template getParameter<T>(id);
+    }
+    return t;
+  }
+
+
+
 
   // --- other helpers
   void parseCategories (std::string const & s, std::vector<std::string> & cats);

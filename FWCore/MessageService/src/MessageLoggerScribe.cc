@@ -13,6 +13,7 @@
 
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
 #include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <algorithm>
 #include <cassert>
@@ -191,9 +192,8 @@ void
   
   // The following is present to test pre-configuration message handling:
   String preconfiguration_message 
-       = job_pset_p->getUntrackedParameter<String>
-       	("generate_preconfiguration_message", empty_String);
-#ifdef CAN_NO_LONGER_DO_THIS
+       = getAparameter<String>
+       	(job_pset_p, "generate_preconfiguration_message", empty_String);
   if (preconfiguration_message != empty_String) {
     // To test a preconfiguration message without first going thru the 
     // configuration we are about to do, we issue the message (so it sits
@@ -209,12 +209,11 @@ void
     log (errorobj_p);        
     delete errorobj_p;  // dispose of the message text
   }
-#endif // CAN_NO_LONGER_DO_THIS
 
   // We will need a map of   
   // grab list of destinations:
   vString  destinations
-     = job_pset_p->getUntrackedParameter<vString>("destinations", empty_vString);
+     = getAparameter<vString>(job_pset_p, "destinations", empty_vString);
 
   // dial down the early destination if other dest's are supplied:
   if( ! destinations.empty() )
@@ -253,7 +252,7 @@ void
 
   // grab list of fwkJobReports:
   vString  fwkJobReports
-     = job_pset_p->getUntrackedParameter<vString>("fwkJobReports", empty_vString);
+     = getAparameter<vString>(job_pset_p, "fwkJobReports", empty_vString);
 
   // dial down the early destination if other dest's are supplied:
   if( ! fwkJobReports.empty() )
@@ -280,7 +279,7 @@ void
 
   // grab list of statistics destinations:
   vString  statistics 
-     = job_pset_p->getUntrackedParameter<vString>("statistics", empty_vString);
+     = getAparameter<vString>(job_pset_p,"statistics", empty_vString);
 
    // establish each statistics destination:
   for( vString::const_iterator it = statistics.begin()
@@ -293,9 +292,9 @@ void
     // file = somename, then that specified name.
     String statname = *it;
     PSet  stat_pset 
-    	= job_pset_p->getUntrackedParameter<PSet>(statname,empty_PSet);
+    	= getAparameter<PSet>(job_pset_p,statname,empty_PSet);
     String filename 
-        = stat_pset.getUntrackedParameter<String>("output",statname);
+        = getAparameter<String>(&stat_pset,"output",statname);
     
     // create (if statistics file does not match any destination file name)
     // or note (if statistics file matches a destination file name) the ostream
@@ -319,7 +318,7 @@ void
     ELdestControl dest_ctrl;
     dest_ctrl = admin_p->attach( ELstatistics(*os_p) );
     statisticsDestControls.push_back(dest_ctrl);
-    bool reset = stat_pset.getUntrackedParameter<bool>("reset",false);
+    bool reset = getAparameter<bool>(&stat_pset,"reset",false);
     statisticsResets.push_back(reset);
 
     // now configure this destination:
@@ -351,13 +350,13 @@ void
 
   // grab list of categories
   vString  categories
-     = job_pset_p->getUntrackedParameter<vString>("categories", empty_vString);
+     = getAparameter<vString>(job_pset_p,"categories", empty_vString);
 
   // grab list of messageIDs -- these are a synonym for categories
   // Note -- the use of messageIDs is deprecated in favor of categories
   {
     vString  messageIDs
-      = job_pset_p->getUntrackedParameter<vString>("messageIDs", empty_vString);
+      = getAparameter<vString>(job_pset_p,"messageIDs", empty_vString);
 
   // combine the lists, not caring about possible duplicates (for now)
     std::copy( messageIDs.begin(), messageIDs.end(),
@@ -367,30 +366,30 @@ void
 
   // grab default threshold common to all destinations
   String default_threshold
-     = job_pset_p->getUntrackedParameter<String>("threshold", "INFO");
+     = getAparameter<String>(job_pset_p,"threshold", "INFO");
 
   // grab default limit/timespan common to all destinations/categories:
   PSet  default_pset
-     = job_pset_p->getUntrackedParameter<PSet>("default", empty_PSet);
+     = getAparameter<PSet>(job_pset_p,"default", empty_PSet);
   int  default_limit
-    = default_pset.getUntrackedParameter<int>("limit", -1);
+    = getAparameter<int>(&default_pset,"limit", -1);
   int  default_timespan
-    = default_pset.getUntrackedParameter<int>("timespan", -1);
+    = getAparameter<int>(&default_pset,"timespan", -1);
 
   // grab all of this destination's parameters:
-  PSet  dest_pset = job_pset_p->getUntrackedParameter<PSet>(filename,empty_PSet);
+  PSet  dest_pset = getAparameter<PSet>(job_pset_p,filename,empty_PSet);
 
   // grab this destination's default limit/timespan:
   PSet  dest_default_pset
-     = dest_pset.getUntrackedParameter<PSet>("default", empty_PSet);
+     = getAparameter<PSet>(&dest_pset,"default", empty_PSet);
   int  dest_default_limit
-    = dest_default_pset.getUntrackedParameter<int>("limit", default_limit);
+    = getAparameter<int>(&dest_pset,"limit", default_limit);
   int  dest_default_timespan
-    = dest_default_pset.getUntrackedParameter<int>("timespan", default_timespan);
+    = getAparameter<int>(&dest_pset,"timespan", default_timespan);
 
   // establish this destination's threshold:
   String dest_threshold
-     = dest_pset.getUntrackedParameter<String>("threshold", default_threshold);
+     = getAparameter<String>(&dest_pset,"threshold", default_threshold);
   ELseverityLevel  threshold_sev(dest_threshold);
   dest_ctrl.setThreshold(threshold_sev);
 
@@ -402,11 +401,11 @@ void
   {
     String  msgID = *id_it;
     PSet  category_pset
-       = dest_pset.getUntrackedParameter<PSet>(msgID, empty_PSet);
+       = getAparameter<PSet>(&dest_pset,msgID, empty_PSet);
     int  limit
-      = category_pset.getUntrackedParameter<int>("limit", dest_default_limit);
+      = getAparameter<int>(&category_pset,"limit", dest_default_limit);
     int  timespan
-      = category_pset.getUntrackedParameter<int>("timespan", dest_default_timespan);
+      = getAparameter<int>(&category_pset,"timespan", dest_default_timespan);
     if( limit    >= 0 )  dest_ctrl.setLimit(msgID, limit   );
     if( timespan >= 0 )  dest_ctrl.setTimespan(msgID, timespan);
   }  // for
@@ -419,34 +418,28 @@ void
   {
     String  sevID = *sev_it;
     ELseverityLevel  severity(sevID);
-    PSet  sev_pset
-       = dest_pset.getUntrackedParameter<PSet>(sevID, empty_PSet);
-    int  limit
-      = sev_pset.getUntrackedParameter<int>("limit", -1);
-    int  timespan
-      = sev_pset.getUntrackedParameter<int>("timespan", -1);
+    PSet  sev_pset = getAparameter<PSet>(&dest_pset,sevID, empty_PSet);
+    int  limit     = getAparameter<int>(&sev_pset,"limit", -1);
+    int  timespan  = getAparameter<int>(&sev_pset,"timespan", -1);
     if( limit    >= 0 )  dest_ctrl.setLimit(severity, limit   );
     if( timespan >= 0 )  dest_ctrl.setLimit(severity, timespan);
   }  // for
 
   // establish this destination's linebreak policy:
-  bool noLineBreaks =
-          dest_pset.getUntrackedParameter<bool> ("noLineBreaks",false);
+  bool noLineBreaks = getAparameter<bool> (&dest_pset,"noLineBreaks",false);
   if (noLineBreaks) {
     dest_ctrl.setLineLength(32000);
   }
   else {
     int  lenDef = 80;
-    int  lineLen =
-          dest_pset.getUntrackedParameter<int> ("lineLength",lenDef);
+    int  lineLen = getAparameter<int> (&dest_pset,"lineLength",lenDef);
     if (lineLen != lenDef) {
       dest_ctrl.setLineLength(lineLen);
     }
   }
 
   // if indicated, suppress time stamps in this destination's output
-  bool suppressTime =
-          dest_pset.getUntrackedParameter<bool> ("noTimeStamps",false);
+  bool suppressTime = getAparameter<bool> (&dest_pset,"noTimeStamps",false);
   if (suppressTime) {
     dest_ctrl.suppressTime();
   }

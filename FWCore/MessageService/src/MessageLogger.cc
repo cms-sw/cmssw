@@ -8,7 +8,7 @@
 //
 // Original Author:  W. Brown, M. Fischler
 //         Created:  Fri Nov 11 16:42:39 CST 2005
-// $Id: MessageLogger.cc,v 1.1 2006/02/15 00:30:32 fischler Exp $
+// $Id: MessageLogger.cc,v 1.2 2006/02/17 16:05:27 jbk Exp $
 //
 
 // system include files
@@ -52,8 +52,14 @@ MessageLogger( ParameterSet const & iPS
    vString  empty_vString;
   
   // grab list of debug-enabled modules
-  vString  debugModules
-     = iPS.getUntrackedParameter<vString>("debugModules", empty_vString);
+  vString  debugModules;
+  try {
+    debugModules = 
+    	iPS.getUntrackedParameter<vString>("debugModules", empty_vString);
+  } catch (...) {
+    debugModules = 
+    	iPS.getParameter<vString>("debugModules");
+  }
   // set up for tracking whether current module is debug-enabled
   if (!debugModules.empty()) anyDebugEnabled_ = true;
   for( vString::const_iterator it  = debugModules.begin();
@@ -106,26 +112,16 @@ MessageLogger( ParameterSet const & iPS
 // member functions
 //
 
-void MessageLogger::fillErrorObj(edm::ErrorObj& obj) const
-{
-  obj.setModule(curr_module_);
-  std::ostringstream ost;
-  ost << curr_event_.run() << "/" << curr_event_.event();
-  edm::MessageDrop::instance()->runEvent = curr_module_;  
-}
-
 void
 MessageLogger::postBeginJob()
 {
-  // edm::LogInfo("postBeginJob") << "Job started";
-
-  curr_module_ = "BetweenModules";
-  curr_event_ = EventID();
+  MessageDrop::instance()->runEvent = "BeforeEvents";  
+  MessageDrop::instance()->moduleName = "";  
 }
+
 void
 MessageLogger::postEndJob()
 {
- // edm::LogInfo("postEndJob") << "Job ended";
   MessageLoggerQ::SUM ( ); // trigger summary info.
 }
 
@@ -134,8 +130,6 @@ MessageLogger::preEventProcessing( const edm::EventID& iID
                                  , const edm::Timestamp& iTime
                                  )
 {
-  // edm::LogInfo("preEventProcessing") << "Processing event: " << iID
-  //                                   << " time: " << iTime.value();
   std::ostringstream ost;
   curr_event_ = iID;
   ost << curr_event_.run() << "/" << curr_event_.event();
@@ -144,9 +138,7 @@ MessageLogger::preEventProcessing( const edm::EventID& iID
 void
 MessageLogger::postEventProcessing(const Event&, const EventSetup&)
 {
-  // edm::LogInfo("postEventProcessing") << "Finished event";
-  //curr_event_ = EventID();
-  //edm::MessageDrop::instance()->runEvent = "Between Events";  
+  MessageDrop::instance()->runEvent = "BetweenEvents";  
 }
 
 void
