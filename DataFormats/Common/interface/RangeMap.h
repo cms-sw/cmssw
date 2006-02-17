@@ -18,17 +18,7 @@ namespace edm {
     typedef std::pair<typename C::size_type, typename C::size_type> pairType;
     typedef std::map<ID, pairType> mapType;
     typedef std::pair<const_iterator, const_iterator> range;
-    
-    std::vector<ID> ids() const {
-      std::vector<ID> temp;
-      for (typename mapType::const_iterator i = map_.begin();
-	   i != map_.end();
-	   i++){
-	temp.push_back((*i).first);
-      }
-      return temp;
-    }
-        
+          
     template<typename COMP> 
     range get(ID id, COMP comparator){
       using __gnu_cxx::select1st;
@@ -82,6 +72,7 @@ namespace edm {
       typedef ID value_type;
       typedef ID * pointer;
       typedef ID & reference;
+      typedef ptrdiff_t difference_type;
       typedef typename mapType::const_iterator::iterator_category iterator_category;
       typedef typename mapType::const_iterator const_iterator;
       id_iterator() { }
@@ -100,22 +91,28 @@ namespace edm {
 
     void post_insert(){
       // sorts the container via ID
-      C tempCollection;
-      typename mapType::iterator  it;
-      for (it = map_.begin(); it != map_.end(); it ++){   
-	range range_ = get((*it).first);
-	typename C::size_type  begIt = tempCollection.size();
-	std::copy(range_.first, range_.second, std::back_inserter(tempCollection));
-	typename C::size_type endIt = tempCollection.size();
+      C tmp;
+      for (typename mapType::iterator it = map_.begin(); it != map_.end(); it ++) {   
+	range r = get( (*it).first );
+	typename C::size_type begIt = tmp.size();
+	for( const_iterator i = r.first; i != r.second; ++i )
+	  tmp.push_back( P::clone( *i ) );
+	typename C::size_type endIt = tmp.size();
 	it->second = std::make_pair( begIt, endIt );
       }
-      collection_ = tempCollection;
+      collection_ = tmp;
     }
 
     id_iterator id_begin() const { return id_iterator( map_.begin() ); }
     id_iterator id_end() const { return id_iterator( map_.end() ); }
     size_t id_size() const { return map_.size(); }
-    private:
+    std::vector<ID> ids() const {
+      std::vector<ID> temp( id_size() );
+      std::copy( id_begin(), id_end(), temp.begin() );
+      return temp;
+    }
+
+  private:
     C collection_;
     mapType map_;
   };
