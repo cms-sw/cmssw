@@ -1,7 +1,11 @@
+//#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <EventFilter/EcalTBRawToDigi/interface/EcalDCCHeaderRuntypeDecoder.h>
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <string>
 #include <iostream>
+using namespace edm;
 using namespace std;
 EcalDCCHeaderRuntypeDecoder::EcalDCCHeaderRuntypeDecoder(){;}
 EcalDCCHeaderRuntypeDecoder::~EcalDCCHeaderRuntypeDecoder(){;}
@@ -39,7 +43,7 @@ bool EcalDCCHeaderRuntypeDecoder::Decode(ulong headerWord, EcalDCCHeaderBlock* E
   else if (type ==3 && sequence == 2){EcalDCCHeaderInfos->setRunType(PEDESTAL_25NS_SCAN);}
   else if (type ==4 && sequence == 0){EcalDCCHeaderInfos->setRunType(LED_STD);}
   else {
-    cout<<" EcalDCCHeaderRuntypeDecoder::Decode  unrecognized runtype and sequence: "<<type<<" "<<sequence<<endl;
+    LogWarning("EcalTBRawToDigi") <<" @SUB=EcalDCCHeaderRuntypeDecoder::Decode  unrecognized runtype and sequence: "<<type<<" "<<sequence;
     EcalDCCHeaderInfos->setRunType(-1);
     WasDecodingOk_ = false;
   }
@@ -88,7 +92,7 @@ void  EcalDCCHeaderRuntypeDecoder::DecodeSetting ( int Setting,  EcalDCCHeaderBl
     theSettings.wavelength = Setting & 7;
   }
   else {
-    cout<<" EcalDCCHeaderRuntypeDecoder::DecodeSettings  unrecognized runtype and sequence: "<<theHeader->getRunType()<<endl;
+    LogWarning("EcalTBRawToDigi") <<" @SUB=EcalDCCHeaderRuntypeDecoder::DecodeSettings  unrecognized run type: "<<theHeader->getRunType();
     WasDecodingOk_ = false;
   }
   theHeader->setEventSettings(theSettings);
