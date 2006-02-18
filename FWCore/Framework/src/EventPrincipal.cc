@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: EventPrincipal.cc,v 1.31 2006/01/29 23:33:58 jbk Exp $
+$Id: EventPrincipal.cc,v 1.32 2006/02/08 00:44:25 wmtan Exp $
 ----------------------------------------------------------------------*/
 //#include <iostream>
 #include <memory>
@@ -115,10 +115,12 @@ namespace edm {
   EventPrincipal::put(auto_ptr<EDProduct> edp,
 		      auto_ptr<Provenance> prov) {
     prov->product.init();
-    ProductRegistry::ProductList const& pl = preg_->productList();
-    BranchKey const bk(prov->product);
-    ProductRegistry::ProductList::const_iterator it = pl.find(bk);
-    if (it == pl.end()) {
+
+    if (prov->product.productID_ == ProductID()) {
+      ProductRegistry::ProductList const& pl = preg_->productList();
+      BranchKey const bk(prov->product);
+      ProductRegistry::ProductList::const_iterator it = pl.find(bk);
+      if (it == pl.end()) {
 	throw edm::Exception(edm::errors::InsertFailure,"Not Registered")
 	  << "put: Problem found while adding product. "
 	  << "No product is registered for ("
@@ -127,9 +129,11 @@ namespace edm {
           << bk.productInstanceName_ << ","
           << bk.processName_
 	  << ")\n";
+      }
+      prov->product.productID_ = it->second.productID_;
     }
-    prov->product.productID_ = it->second.productID_;
-    ProductID id = it->second.productID_;
+    ProductID id = prov->product.productID_;
+
     // Group assumes ownership
     auto_ptr<Group> g(new Group(edp, prov));
     g->setID(id);

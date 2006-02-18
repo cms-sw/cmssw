@@ -6,7 +6,7 @@
 Event: This is the primary interface for accessing
 EDProducts from a single collision and inserting new derived products.
 
-$Id: Event.h,v 1.25 2006/01/18 00:38:44 wmtan Exp $
+$Id: Event.h,v 1.26 2006/02/07 07:51:41 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
@@ -16,12 +16,14 @@ $Id: Event.h,v 1.25 2006/01/18 00:38:44 wmtan Exp $
 
 #include "DataFormats/Common/interface/Wrapper.h"
 
+#include "DataFormats/Common/interface/BranchDescription.h"
 #include "DataFormats/Common/interface/EventID.h"
 #include "DataFormats/Common/interface/Timestamp.h"
 #include "DataFormats/Common/interface/traits.h"
 
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/BasicHandle.h"
+#include "FWCore/Framework/interface/OrphanHandle.h"
 
 
 #include "FWCore/Framework/src/Group.h"
@@ -49,39 +51,39 @@ namespace edm {
     const LuminositySection& getLuminositySection() const;
     const Run& getRun() const;
 
-    template <class PROD>
-    void 
+    template <typename PROD>
+    OrphanHandle<PROD>
     put(std::auto_ptr<PROD> product);
 
-    template <class PROD>
-    void 
+    template <typename PROD>
+    OrphanHandle<PROD>
     put(std::auto_ptr<PROD> product, const std::string& productInstanceName);
 
-    template <class PROD>
+    template <typename PROD>
     void 
     get(ProductID const& id, Handle<PROD>& result) const;
 
-    template <class PROD>
+    template <typename PROD>
     void 
     get(Selector const&, Handle<PROD>& result) const;
   
-    template <class PROD>
+    template <typename PROD>
     void 
     getByLabel(std::string const& label, Handle<PROD>& result) const;
 
-    template <class PROD>
+    template <typename PROD>
     void 
     getByLabel(std::string const& label, const std::string& productInstanceName, Handle<PROD>& result) const;
 
-    template <class PROD>
+    template <typename PROD>
     void 
     getMany(Selector const&, std::vector<Handle<PROD> >& results) const;
 
-    template <class PROD>
+    template <typename PROD>
     void
     getByType(Handle<PROD>& result) const;
 
-    template <class PROD>
+    template <typename PROD>
     void 
     getManyByType(std::vector<Handle<PROD> >& results) const;
 
@@ -91,10 +93,13 @@ namespace edm {
     void
     getAllProvenance(std::vector<Provenance const*> &provenances) const;
 
+    BranchDescription const&
+    getBranchDescription(std::string const& friendlyClassName, std::string const& productInstanceName) const;
+
   private:
     typedef std::vector<ProductID>       ProductIDVec;
     //typedef std::vector<const Group*> GroupPtrVec;
-    typedef std::vector<std::pair<EDProduct*, std::string> >   ProductPtrVec;
+    typedef std::vector<std::pair<EDProduct*, BranchDescription const *> >  ProductPtrVec;
     typedef std::vector<BasicHandle>  BasicHandleVec;    
 
     //------------------------------------------------------------
@@ -171,13 +176,13 @@ namespace edm {
   // Utilities for creation of handles.
   //
   
-  template <class PROD>
+  template <typename PROD>
   Handle<PROD> make_handle(const Group& g)
   {
     return Handle<PROD>(g.product(), g.provenance());
   }
  
-  template <class PROD>
+  template <typename PROD>
   struct makeHandle
   {
     Handle<PROD> operator()(const Group& g) { return make_handle<PROD>(g); }
@@ -218,7 +223,7 @@ namespace edm {
     template <typename T> no_tag  has_postinsert_helper(...);
     template <typename T> yes_tag has_postinsert_helper(ptmf_helper<T, &T::post_insert> * p);
 
-    template< typename T >
+    template<typename T>
     struct has_postinsert
     {
       static bool const value = 
@@ -238,7 +243,7 @@ namespace edm {
     //------------------------------------------------------------
 
 
-    template< typename T >
+    template<typename T>
     struct has_postinsert
     {
       static bool const value = has_postinsert_trait<T>::value;	
@@ -255,13 +260,13 @@ namespace edm {
   // control of a metafunction if, to either call the given object's
   // post_insert function (if it has one), or to do nothing (if it
   // does not have a post_insert function).
-  template <class T>
+  template <typename T>
   struct DoPostInsert
   {
     void operator()(T* p) const { p->post_insert(); }
   };
 
-  template <class T>
+  template <typename T>
   struct DoNothing
   {
     void operator()(T*) const { }
@@ -274,16 +279,16 @@ namespace edm {
   // implementation of non-template members.
   //
 
-  template <class PROD>
+  template <typename PROD>
   inline
-  void 
+  OrphanHandle<PROD> 
   Event::put(std::auto_ptr<PROD> product)
   {
-    put(product, std::string());
+    return put(product, std::string());
   }
 
-  template <class PROD>
-  void 
+  template <typename PROD>
+  OrphanHandle<PROD> 
   Event::put(std::auto_ptr<PROD> product, const std::string& productInstanceName)
   {
     PROD* p = product.get();
@@ -296,13 +301,20 @@ namespace edm {
                               DoNothing<PROD> >::type maybe_inserter;
     maybe_inserter(p);
 
-    edm::Wrapper<PROD> *wp(new Wrapper<PROD>(product));
-    put_products_.push_back(std::make_pair(wp, productInstanceName));
+    BranchDescription const& desc =
+       getBranchDescription(TypeID(*p).friendlyClassName(), productInstanceName);
+
+    Wrapper<PROD> *wp(new Wrapper<PROD>(product));
+
+    put_products_.push_back(std::make_pair(wp, &desc));
+
     // product.release(); // The object has been copied into the Wrapper.
     // The old copy must be deleted, so we cannot release ownership.
+
+    return(OrphanHandle<PROD>(wp->product(), desc.productID_));
   }
 
-  template <class PROD>
+  template <typename PROD>
   void
   Event::get(ProductID const& id, Handle<PROD>& result) const
   {
@@ -311,7 +323,7 @@ namespace edm {
     convert_handle(bh, result);  // throws on conversion error
   }
 
-  template <class PROD>
+  template <typename PROD>
   void 
   Event::get(Selector const& sel,
 	     Handle<PROD>& result) const
@@ -321,7 +333,7 @@ namespace edm {
     convert_handle(bh, result);  // throws on conversion error
   }
   
-  template <class PROD>
+  template <typename PROD>
   inline
   void
   Event::getByLabel(std::string const& label,
@@ -330,7 +342,7 @@ namespace edm {
     getByLabel(label, std::string(), result);
   }
 
-  template <class PROD>
+  template <typename PROD>
   void
   Event::getByLabel(std::string const& label,
                     const std::string& productInstanceName,
@@ -341,7 +353,7 @@ namespace edm {
     convert_handle(bh, result);  // throws on conversion error
   }
 
-  template <class PROD>
+  template <typename PROD>
   void 
   Event::getMany(Selector const& sel,
 		 std::vector<Handle<PROD> >& results) const
@@ -377,7 +389,7 @@ namespace edm {
     results.swap(products);
   }
 
-  template <class PROD>
+  template <typename PROD>
   void
   Event::getByType(Handle<PROD>& result) const
   {
@@ -386,7 +398,7 @@ namespace edm {
     convert_handle(bh, result);  // throws on conversion error
   }
 
-  template <class PROD>
+  template <typename PROD>
   void 
   Event::getManyByType(std::vector<Handle<PROD> >& results) const
   { 

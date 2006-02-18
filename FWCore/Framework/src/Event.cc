@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: Event.cc,v 1.22 2006/02/07 07:51:41 wmtan Exp $
+$Id: Event.cc,v 1.23 2006/02/08 00:44:25 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -8,6 +8,7 @@ $Id: Event.cc,v 1.22 2006/02/07 07:51:41 wmtan Exp $
 
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/ProductID.h"
+#include "DataFormats/Common/interface/ProductRegistry.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "DataFormats/Common/interface/BranchDescription.h"
 #include "FWCore/Framework/src/Group.h"
@@ -22,7 +23,7 @@ namespace edm {
   {  }
 
   struct deleter {
-    void operator()(const std::pair<EDProduct*, std::string> p) const { delete p.first; }
+    void operator()(const std::pair<EDProduct*, BranchDescription const*> p) const { delete p.first; }
   };
 
   Event::~Event() {
@@ -53,13 +54,8 @@ namespace edm {
 	auto_ptr<EDProduct> pr(pit->first);
 	// note: ownership has been passed - so clear the pointer!
 	pit->first = 0;
-	BranchDescription desc(md_,
-			TypeID(*pr).userClassName(),
-			TypeID(*pr).friendlyClassName(),
-			pit->second,
-			0);
 
-	auto_ptr<Provenance> pv(new Provenance(desc));
+	auto_ptr<Provenance> pv(new Provenance(*pit->second));
 
 	// set parts of provenance
 	pv->event.cid = 0; // TODO: what is this supposed to be?
@@ -125,5 +121,24 @@ namespace edm {
   Event::getAllProvenance(std::vector<Provenance const*> & provenances) const
   {
     ep_.getAllProvenance(provenances);
+  }
+
+  BranchDescription const&
+  Event::getBranchDescription(std::string const& friendlyClassName,
+                      std::string const& productInstanceName) const {
+    BranchKey const bk(friendlyClassName, md_.moduleLabel_, productInstanceName, md_.processName_);
+    ProductRegistry::ProductList const& pl = ep_.productRegistry().productList();
+    ProductRegistry::ProductList::const_iterator it = pl.find(bk);
+    if (it == pl.end()) {
+        throw edm::Exception(edm::errors::InsertFailure,"Not Registered")
+          << "put: Problem found while adding product. "
+          << "No product is registered for ("
+          << bk.friendlyClassName_ << ","
+          << bk.moduleLabel_ << ","
+          << bk.productInstanceName_ << ","
+          << bk.processName_
+          << ")\n";
+    }
+    return it->second;
   }
 }

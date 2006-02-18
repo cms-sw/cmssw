@@ -15,7 +15,7 @@ through shared pointers.
 The EventPrincipal returns BasicHandle, rather than a shared
 pointer to a Group, when queried.
 
-$Id: EventPrincipal.h,v 1.23 2006/02/08 00:44:24 wmtan Exp $
+$Id: EventPrincipal.h,v 1.24 2006/02/16 19:40:00 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <map>
@@ -139,6 +139,8 @@ namespace edm {
     void resolve_(Group const& g, bool unconditional = false) const;
 
     virtual EDProduct const* getIt(ProductID const& oid) const;
+
+    ProductRegistry const& productRegistry() const {return *preg_;}
 
   private:
     EventAux aux_;	// persistent
