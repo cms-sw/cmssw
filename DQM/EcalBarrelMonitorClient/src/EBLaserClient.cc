@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2006/02/08 18:26:39 $
- * $Revision: 1.60 $
+ * $Date: 2006/02/09 15:40:05 $
+ * $Revision: 1.61 $
  * \author G. Della Ricca
  *
 */
@@ -2211,7 +2211,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     // Loop on wavelength
 
-    for ( int iCanvas = 1 ; iCanvas <= 2 ; iCanvas++ ) {
+    for ( int iCanvas = 1 ; iCanvas <= 4 ; iCanvas++ ) {
 
       // Quality plots
 
@@ -2224,6 +2224,12 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
           break;
         case 2:
           obj2f = g02_[ism-1];
+          break;
+        case 3:
+          obj2f = g03_[ism-1];
+          break;
+        case 4:
+          obj2f = g04_[ism-1];
           break;
         default:
          break;
@@ -2269,6 +2275,12 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         case 2:
           obj1f = a02_[ism-1];
           break;
+        case 3:
+          obj1f = a03_[ism-1];
+          break;
+        case 4:
+          obj1f = a04_[ism-1];
+          break;
         default:
           break;
       }
@@ -2313,6 +2325,12 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         case 2:
           obj1f = t02_[ism-1];
           break;
+        case 3:
+          obj1f = t03_[ism-1];
+          break;
+        case 4:
+          obj1f = t04_[ism-1];
+          break;
         default:
           break;
       }
@@ -2356,6 +2374,12 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
           break;
         case 2:
           obj1f = aopn02_[ism-1];
+          break;
+        case 3:
+          obj1f = aopn03_[ism-1];
+          break;
+        case 4:
+          obj1f = aopn04_[ism-1];
           break;
         default:
           break;
@@ -2599,7 +2623,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr align=\"center\">" << endl;
 
-    for ( int iCanvas = 1 ; iCanvas <= 2 ; iCanvas++ ) {
+    for ( int iCanvas = 1 ; iCanvas <= 4 ; iCanvas++ ) {
 
       if ( imgNameQual[iCanvas-1].size() != 0 )
         htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameQual[iCanvas-1] << "\"></td>" << endl;
@@ -2611,7 +2635,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile << "</tr>" << endl;
     htmlFile << "<tr>" << endl;
 
-    for ( int iCanvas = 1 ; iCanvas <= 2 ; iCanvas++ ) {
+    for ( int iCanvas = 1 ; iCanvas <= 4 ; iCanvas++ ) {
 
       if ( imgNameAmp[iCanvas-1].size() != 0 )
         htmlFile << "<td><img src=\"" << imgNameAmp[iCanvas-1] << "\"></td>" << endl;
@@ -2629,7 +2653,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     htmlFile << "<tr align=\"center\">" << endl;
 
-    for ( int iCanvas = 1 ; iCanvas <= 2 ; iCanvas++ ) {
+    for ( int iCanvas = 1 ; iCanvas <= 4 ; iCanvas++ ) {
 
       if ( imgNameTim[iCanvas-1].size() != 0 )
         htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameTim[iCanvas-1] << "\"></td>" << endl;
@@ -2644,7 +2668,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile << "</table>" << endl;
     htmlFile << "<br>" << endl;
 
-    for ( int iCanvas = 1 ; iCanvas <= 2 ; iCanvas++ ) {
+    for ( int iCanvas = 1 ; iCanvas <= 4 ; iCanvas++ ) {
 
       htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
       htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
