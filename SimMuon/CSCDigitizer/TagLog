@@ -1,3 +1,6 @@
+** V00-00-08  [Sat Feb 18 01:02:03 2006]
+Don't fill association map, since it's not used
+
 ** V00-00-07  [Fri Feb  3 00:20:58 2006]
 Forgot to name the ComparatorDigi collection
 
