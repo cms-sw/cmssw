@@ -1,3 +1,6 @@
+** V00-00-02  [Sat Feb 18 01:33:24 2006]
+Fix tests
+
 ** V00-00-01  [Fri Feb 17 00:51:10 2006]
 Rename MessageLoggerSpigot to MessageLoggerPresence
 
