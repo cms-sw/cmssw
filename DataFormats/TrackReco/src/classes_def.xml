@@ -2,6 +2,7 @@
   <class name="reco::helix::Covariance" />
   <class name="reco::helix::Parameters" />
 
+  <class name="reco::TrackBase" />
   <class name="reco::Track" />
   <class name="std::vector<reco::Track>" />
   <class name="edm::Wrapper<std::vector<reco::Track> >" />

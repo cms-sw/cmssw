@@ -4,5 +4,10 @@
   <class name="edm::Wrapper<std::vector<reco::Muon> >" />
   <class name="edm::Ref<std::vector<reco::Muon>, reco::Muon>" />
   <class name="edm::RefVector<std::vector<reco::Muon>, reco::Muon>" />
+  <class name="reco::MuonExtra" />
+  <class name="std::vector<reco::MuonExtra>" />
+  <class name="edm::Wrapper<std::vector<reco::MuonExtra> >" />
+  <class name="edm::Ref<std::vector<reco::MuonExtra>, reco::MuonExtra>" />
+  <class name="edm::RefVector<std::vector<reco::MuonExtra>, reco::MuonExtra>" />
 </lcgdict>
  
