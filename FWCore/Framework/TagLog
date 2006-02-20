@@ -1,3 +1,6 @@
+** V02-02-02  [Mon Feb 20 02:53:41 2006]
+Move TypeID.h from src to interface
+
 ** V02-02-01  [Sat Feb 18 07:22:28 2006]
 Add needed header OrphanHandle.h
 
