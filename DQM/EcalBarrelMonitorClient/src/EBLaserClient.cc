@@ -2307,7 +2307,6 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         }
         obj1f->Draw();
         cAmp->Update();
-        gPad->SetLogy(0);
         cAmp->SaveAs(imgName.c_str());
         gPad->SetLogy(0);
 
@@ -2354,7 +2353,6 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         obj1f->SetMaximum(10.0);
         obj1f->Draw();
         cTim->Update();
-        gPad->SetLogy(0);
         cTim->SaveAs(imgName.c_str());
         gPad->SetLogy(0);
 
