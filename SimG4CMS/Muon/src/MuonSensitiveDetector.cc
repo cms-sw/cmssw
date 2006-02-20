@@ -2,7 +2,7 @@
 #include "SimG4CMS/Muon/interface/MuonSlaveSD.h"
 #include "SimG4CMS/Muon//interface/MuonEndcapFrameRotation.h"
 #include "SimG4CMS/Muon/interface/MuonRpcFrameRotation.h"
-#include "Geometry/MuonBaseAlgo/interface/MuonSubDetector.h"
+#include "Geometry/MuonNumbering/interface/MuonSubDetector.h"
 
 #include "Geometry/Vector/interface/LocalPoint.h"
 #include "Geometry/Vector/interface/LocalVector.h"
@@ -11,8 +11,8 @@
 #include "SimDataFormats/TrackingHit/interface/UpdatablePSimHit.h"
 
 #include "SimG4CMS/Muon/interface/MuonG4Numbering.h"
-#include "Geometry/MuonBaseAlgo/interface/MuonBaseNumber.h"
-#include "Geometry/MuonBaseAlgo/interface/MuonSimHitNumberingScheme.h"
+#include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
+#include "Geometry/MuonNumbering/interface/MuonSimHitNumberingScheme.h"
 
 #include "SimG4Core/Geometry/interface/SDCatalog.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"

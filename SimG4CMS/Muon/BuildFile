@@ -6,7 +6,7 @@
 <use name=geant4>
 <use name=SimDataFormats/SimHitMaker>
 <use name=SimG4Core/Application>
-<use name=Geometry/MuonBaseAlgo>
+<use name=Geometry/MuonNumbering>
 
 <export>
  <lib name=SimG4CMSMuon>

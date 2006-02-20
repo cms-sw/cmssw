@@ -1,7 +1,7 @@
 #include "SimG4CMS/Muon/interface/MuonRpcFrameRotation.h"
 #include "SimG4CMS/Muon/interface/MuonG4Numbering.h"
-#include "Geometry/MuonBaseAlgo/interface/MuonDDDConstants.h"
-#include "Geometry/MuonBaseAlgo/interface/MuonBaseNumber.h"
+#include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
+#include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 
 #include "G4StepPoint.hh"
 #include "G4TouchableHistory.hh"

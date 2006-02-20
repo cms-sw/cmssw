@@ -1,5 +1,5 @@
 #include "SimG4CMS/Muon/interface/MuonSlaveSD.h"
-#include "Geometry/MuonBaseAlgo/interface/MuonSubDetector.h"
+#include "Geometry/MuonNumbering/interface/MuonSubDetector.h"
 
 #include "SimG4Core/Application/interface/SimTrackManager.h"
 

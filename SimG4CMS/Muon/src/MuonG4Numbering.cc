@@ -1,6 +1,6 @@
 #include "SimG4CMS/Muon/interface/MuonG4Numbering.h"
-#include "Geometry/MuonBaseAlgo/interface/MuonBaseNumber.h"
-#include "Geometry/MuonBaseAlgo/interface/MuonDDDConstants.h"
+#include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
+#include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
 
 #include "G4VPhysicalVolume.hh"
 #include "G4VTouchable.hh"
