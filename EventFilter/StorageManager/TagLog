@@ -1,3 +1,6 @@
+** V00-00-04  [Tue Feb 21 00:20:03 2006]
+added nullAction needed by EPStateMachine used by SM, and removed periodic bandwidth performance statistics being printed out
+
 ** V00-00-03  [Fri Feb 17 00:10:28 2006]
 Fix build problems due to Message Logger changes
 
