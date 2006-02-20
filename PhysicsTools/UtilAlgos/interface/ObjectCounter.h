@@ -1,11 +1,11 @@
 #ifndef UtilAlgos_ObjectCounter_h
 #define UtilAlgos_ObjectCounter_h
 // Merges multiple collections
-// $Id: ObjectCounter.h,v 1.1 2005/12/13 03:39:04 llista Exp $
+// $Id: ObjectCounter.h,v 1.2 2006/02/17 13:33:23 llista Exp $
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/src/TypeID.h"
+#include "FWCore/Framework/interface/TypeID.h"
 #include <iostream>
 #include <cmath>
 
