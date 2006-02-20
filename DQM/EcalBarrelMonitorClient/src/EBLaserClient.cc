@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2006/02/09 15:40:05 $
- * $Revision: 1.61 $
+ * $Date: 2006/02/18 14:15:18 $
+ * $Revision: 1.62 $
  * \author G. Della Ricca
  *
 */
@@ -2350,11 +2350,8 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         cTim->cd();
         gStyle->SetOptStat("euomr");
         obj1f->SetStats(kTRUE);
-        if ( obj1f->GetMaximum(histMax) > 0. ) {
-          gPad->SetLogy(1);
-        } else {
-          gPad->SetLogy(0);
-        }
+        obj1f->SetMinimum(0.0);
+        obj1f->SetMaximum(10.0);
         obj1f->Draw();
         cTim->Update();
         gPad->SetLogy(0);
