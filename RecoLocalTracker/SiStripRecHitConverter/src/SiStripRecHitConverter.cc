@@ -62,8 +62,8 @@ namespace cms
     recHitConverterAlgorithm_.run(clusters.product(),*outputmatched,*outputrphi,*outputstereo,tracker);
 
     // Step D: write output to file
-    e.put(outputmatched,"matchedRecHit");
-    e.put(outputrphi,"rphiRecHit");
+    //    e.put(outputmatched,"matchedRecHit");
+    //    e.put(outputrphi,"rphiRecHit");
     e.put(outputstereo,"stereoRecHit");
   }
 

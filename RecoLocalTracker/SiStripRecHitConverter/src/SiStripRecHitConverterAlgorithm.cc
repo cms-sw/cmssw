@@ -102,14 +102,14 @@ void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,
 	  }
 	}
       } 
-      SiStripRecHit2DLocalPosCollection::Range inputRangerphi(collectorrphi.begin(),collectorrphi.end());
-      SiStripRecHit2DLocalPosCollection::Range inputRangestereo(collectorstereo.begin(),collectorstereo.end());
+      //      SiStripRecHit2DLocalPosCollection::range inputRangerphi(make_pair(collectorrphi.begin(),collectorrphi.end()));
+      //      SiStripRecHit2DLocalPosCollection::range inputRangestereo(make_pair(collectorstereo.begin(),collectorstereo.end()));
       
       if (collectorrphi.size() > 0) {
-	outrphi.put(inputRangerphi,id);
+	outrphi.put(DetId(id),collectorrphi.begin(),collectorrphi.end());
       }
       if (collectorstereo.size() > 0) {
-	outstereo.put(inputRangestereo,id);
+	outstereo.put(DetId(id), collectorstereo.begin(),collectorstereo.end());
       }
     }
   }
@@ -117,13 +117,13 @@ void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,
 // match the clusters
 //
   
-  const std::vector<unsigned int> detIDs2 = outrphi.detIDs();
-  for ( std::vector<unsigned int>::const_iterator detunit_iterator = detIDs2.begin(); detunit_iterator != detIDs2.end(); detunit_iterator++ ) {//loop over detectors
+  const std::vector<DetId> detIDs2 = outrphi.ids();
+  for ( std::vector<DetId>::const_iterator detunit_iterator = detIDs2.begin(); detunit_iterator != detIDs2.end(); detunit_iterator++ ) {//loop over detectors
     edm::OwnVector<SiStripRecHit2DMatchedLocalPos> collectorMatched; 
-    SiStripRecHit2DLocalPosCollection::Range monoRecHitRange = outrphi.get(*detunit_iterator);
-    SiStripRecHit2DLocalPosCollection::ContainerConstIterator rhRangeIteratorBegin = monoRecHitRange.first;
-    SiStripRecHit2DLocalPosCollection::ContainerConstIterator rhRangeIteratorEnd   = monoRecHitRange.second;
-    SiStripRecHit2DLocalPosCollection::ContainerConstIterator iter;
+    SiStripRecHit2DLocalPosCollection::range monoRecHitRange = outrphi.get((*detunit_iterator));
+    SiStripRecHit2DLocalPosCollection::const_iterator rhRangeIteratorBegin = monoRecHitRange.first;
+    SiStripRecHit2DLocalPosCollection::const_iterator rhRangeIteratorEnd   = monoRecHitRange.second;
+    SiStripRecHit2DLocalPosCollection::const_iterator iter;
     unsigned int id = 0;
     for(iter=rhRangeIteratorBegin;iter!=rhRangeIteratorEnd;++iter){//loop on the mono RH
       edm::OwnVector<SiStripRecHit2DMatchedLocalPos> collectorMatchedSingleHit; 
@@ -133,12 +133,12 @@ void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,
       if(partnerdetiter==detIDs.end()) id=0;	
       if (id>0){
 	DetId partnerdetId(id);
-	const GeomDetUnit * monostripdet=tracker.idToDet(DetId(*detunit_iterator));
+	const GeomDetUnit * monostripdet=tracker.idToDet(*detunit_iterator);
 	const GeomDetUnit * stereostripdet=tracker.idToDet(DetId(id));
 	
-	const SiStripRecHit2DLocalPosCollection::Range rhpartnerRange = outstereo.get(id);
-	SiStripRecHit2DLocalPosCollection::ContainerConstIterator rhpartnerRangeIteratorBegin = rhpartnerRange.first;
-	SiStripRecHit2DLocalPosCollection::ContainerConstIterator rhpartnerRangeIteratorEnd   = rhpartnerRange.second;
+	const SiStripRecHit2DLocalPosCollection::range rhpartnerRange = outstereo.get(DetId(id));
+	SiStripRecHit2DLocalPosCollection::const_iterator rhpartnerRangeIteratorBegin = rhpartnerRange.first;
+	SiStripRecHit2DLocalPosCollection::const_iterator rhpartnerRangeIteratorEnd   = rhpartnerRange.second;
 	
 	//	edm::OwnVector<SiStripRecHit2DMatchedLocalPos> tempCollector; 
 	
@@ -170,17 +170,10 @@ void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,
       
       }
     }
-    SiStripRecHit2DMatchedLocalPosCollection::Range inputRangematched(collectorMatched.begin(),collectorMatched.end());
-    
     if (collectorMatched.size()>0){
-      outmatched.put(inputRangematched, *detunit_iterator);
+      //      outmatched.put(inputRangematched, *detunit_iterator);
+      outmatched.put(DetId(*detunit_iterator),collectorMatched.begin(),collectorMatched.end());
     }
-    //    SiStripRecHit2DLocalPosCollection::Range inputRangematched(collectorMatched.begin(),collectorMatched.end());
-    
-    //    if (collectormatched.size() > 0) {
-    //      outmatched.put(inputRangematched,id);
-    //}
-
   }
 
   if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 0 ) {

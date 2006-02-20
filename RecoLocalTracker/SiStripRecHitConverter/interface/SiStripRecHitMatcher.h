@@ -21,7 +21,7 @@ class SiStripCluster;
 class SiStripRecHitMatcher {
 public:
   
-  typedef  SiStripRecHit2DLocalPosCollection::ContainerConstIterator RecHitIterator;
+  typedef  SiStripRecHit2DLocalPosCollection::const_iterator RecHitIterator;
   SiStripRecHitMatcher(){};
   template<class T>  
     edm::OwnVector<SiStripRecHit2DMatchedLocalPos> match(const  SiStripRecHit2DLocalPos *monoRH,RecHitIterator &begin, RecHitIterator &end, const DetId &detId, const T &topol,const GeomDetUnit* stripdet,const GeomDetUnit * partnerstripdet){

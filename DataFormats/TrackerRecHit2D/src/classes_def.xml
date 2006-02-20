@@ -1,27 +1,24 @@
 <lcgdict>
   <class name="TrackingRecHit"/>
+  <class name="DetId"/>
   <class name="RecHit2DLocalPos"/>
   <class name="SiStripCluster"/>
   <class name="LocalError"/>
   <class name="std::vector<const SiStripCluster*>"/>
-  <class name="SiStripRecHit2DLocalPos"/>
   <class name="BaseSiStripRecHit2DLocalPos"/>
+  <class name="SiStripRecHit2DLocalPos"/>
   <class name="SiStripRecHit2DMatchedLocalPos">
 	<field name="componentStereo_" transient="true"/>
 	<field name="componentMono_" transient="true"/>
   </class>
+  <class name="edm::RangeMap<DetId, edm::OwnVector<SiStripRecHit2DLocalPos, edm::ClonePolicy<SiStripRecHit2DLocalPos> >, edm::ClonePolicy<SiStripRecHit2DLocalPos>>"/>
+  <class name="edm::Wrapper<edm::RangeMap<DetId, edm::OwnVector<SiStripRecHit2DLocalPos, edm::ClonePolicy<SiStripRecHit2DLocalPos> >, edm::ClonePolicy<SiStripRecHit2DLocalPos> > >" />
+  <class name="edm::RangeMap<DetId, edm::OwnVector<SiStripRecHit2DMatchedLocalPos, edm::ClonePolicy<SiStripRecHit2DMatchedLocalPos> >, edm::ClonePolicy<SiStripRecHit2DMatchedLocalPos> >"/>
+
+  <class name="edm::Wrapper<edm::RangeMap<DetId, edm::OwnVector<SiStripRecHit2DMatchedLocalPos, edm::ClonePolicy<SiStripRecHit2DMatchedLocalPos> >, edm::ClonePolicy<SiStripRecHit2DMatchedLocalPos> > >" />
   <class name="std::vector<short>"/>
-  <class name="std::vector<SiStripRecHit2DLocalPos*>"/>
-  <class name="std::vector<SiStripRecHit2DMatchedLocalPos*>"/>
-  <class name="edm::OwnVector<SiStripRecHit2DLocalPos, edm::ClonePolicy<SiStripRecHit2DLocalPos> >"/>
-  <class name="edm::OwnVector<SiStripRecHit2DMatchedLocalPos, edm::ClonePolicy<SiStripRecHit2DMatchedLocalPos> >"/>
   <class name="std::pair<unsigned int, unsigned int>"/>
   <class name="std::map<unsigned int, std::pair<unsigned int, unsigned int> >"/>
-  <class name="SiStripRecHit2DMatchedLocalPosCollection"/>
-  <class name="edm::Wrapper<SiStripRecHit2DMatchedLocalPosCollection>"/>
-  <class name="SiStripRecHit2DLocalPosCollection"/>
-  <class name="edm::Wrapper<SiStripRecHit2DLocalPosCollection>"/>
   <class name="SiPixelRecHit"/>
   <class name="edm::Wrapper<SiPixelRecHitCollection>"/>
-
 </lcgdict>
