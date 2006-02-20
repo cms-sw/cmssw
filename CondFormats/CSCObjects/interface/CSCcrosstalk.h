@@ -9,8 +9,12 @@ class CSCcrosstalk{
   ~CSCcrosstalk();
   
   struct Item{
-    float slope;
-    float intercept;
+    float xtalk_slope_right;
+    float xtalk_intercept_right;
+    float xtalk_chi2_right;
+    float xtalk_slope_left;
+    float xtalk_intercept_left;
+    float xtalk_chi2_left;
   };
   std::vector<Item> crosstalk;
 };
