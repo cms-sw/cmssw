@@ -1,7 +1,7 @@
 #ifndef UtilAlgos_ObjectCounter_h
 #define UtilAlgos_ObjectCounter_h
 // Merges multiple collections
-// $Id: ObjectCounter.h,v 1.2 2006/02/17 13:33:23 llista Exp $
+// $Id: ObjectCounter.h,v 1.3 2006/02/20 07:45:16 llista Exp $
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -13,7 +13,7 @@ template<typename C>
 class ObjectCounter : public edm::EDAnalyzer {
 public:
   explicit ObjectCounter( const edm::ParameterSet& );
-  ~ObjectCounter();
+  void endJob();
 
 private:
   virtual void analyze( const edm::Event&, const edm::EventSetup& );
@@ -30,15 +30,15 @@ ObjectCounter<C>::ObjectCounter( const edm::ParameterSet& par ) :
 }
 
 template<typename C>
-ObjectCounter<C>::~ObjectCounter() {
+void ObjectCounter<C>::endJob() {
   double n = double( nSum_ ) / n_, n2 = double ( n2Sum_ ) / n_;
   double s = sqrt( n2 - n * n );
   if ( verbose_ ) {
     typename C::value_type t;
     edm::TypeID id( typeid( t ) );
-    std::cout << ">>> Collection " << src_ << " contains (" 
+    std::cout << ">>> collection \"" << src_ << "\" contains (" 
 	      << n << " +/- " << s << ") "  
-	      << id.friendlyClassName() << "'s" << std::endl;
+	      << id.friendlyClassName() << " objects" << std::endl;
   }
 }
 
