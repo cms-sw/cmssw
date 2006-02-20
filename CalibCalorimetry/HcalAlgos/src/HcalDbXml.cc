@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbXml.cc,v 1.5 2006/02/17 03:30:48 fedor Exp $
+// $Id: HcalDbXml.cc,v 1.6 2006/02/17 20:10:42 fedor Exp $
 //
 #include <vector>
 #include <string>
@@ -43,7 +43,7 @@ namespace {
   void dumpChannelId (std::ostream& fOutput, HcalDetId fChannel) {
     fOutput << "      ";
     fOutput << "<CHANNEL> ";
-    //    fOutput << "<EXTENSION_TABLE_NAME>HCAL_CHANNELS</EXTENSION_TABLE_NAME> ";
+    fOutput << "<EXTENSION_TABLE_NAME>HCAL_CHANNELS</EXTENSION_TABLE_NAME> ";
     fOutput << "<ETA>" << fChannel.ietaAbs() << "</ETA>";
     fOutput << "<PHI>" << fChannel.iphi() << "</PHI> ";
     fOutput << "<DEPTH>" << fChannel.depth() << "</DEPTH> ";

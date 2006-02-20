@@ -1,13 +1,14 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.8 2006/02/15 19:48:01 fedor Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.9 2006/02/15 21:55:15 fedor Exp $
 //
 #include <vector>
 #include <string>
 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalCalibDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
 
 #include "CondFormats/HcalObjects/interface/AllObjects.h"
@@ -248,29 +249,56 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalElectronicsMap* fObject
     else if (items [8] == "HO") subdet = HcalOuter;
     else if (items [8] == "HF") subdet = HcalForward;
     else if (items [8] == "HT") subdet = HcalTriggerTower;
+    else if (items [8] == "CBOX") subdet = HcalCalibration;
     else if (items [8] != "NA") {
       std::cerr << "HcalElectronicsMap-> Unknown subdetector: " << items [8]
 		<< " in line: " << buffer 
 		<< "\n subdetector may be HB, HE, HF, HO, HT, or NA if it is known that channel is not connected" << std::endl;
       continue;
     }
-    HcalDetId chId = HcalDetId::Undefined;
-    HcalTrigTowerDetId trigId;
     HcalElectronicsId elId (fiberCh, fiber, spigot, dcc);
     elId.setHTR (crate, slot, top);
-    
-    if (subdet != HcalEmpty && items [9] != "NA") { 
+    if (subdet > HcalEmpty && subdet <= HcalTriggerTower) { 
       int eta = atoi (items [9].c_str());
       int phi = atoi (items [10].c_str());
       int depth = atoi (items [11].c_str());
-      chId = HcalDetId (subdet, eta, phi, depth);
-      trigId = HcalTrigTowerDetId (eta, phi);
+      if (subdet == HcalTriggerTower) {
+	HcalTrigTowerDetId trigId = HcalTrigTowerDetId (eta, phi);
+	fObject->mapEId2tId (elId, trigId);
+      }
+      else {
+	HcalDetId chId = HcalDetId (subdet, eta, phi, depth);
+	fObject->mapEId2chId (elId, DetId (chId));
+      }
     }
-    if (subdet == HcalTriggerTower) {
-      fObject->mapEId2tId (elId, trigId);
+    else if (subdet == HcalCalibration) {
+      HcalCalibDetId calibId = HcalCalibDetId::Undefined;
+      HcalCalibDetId::SectorId sector (HcalCalibDetId::SectorId(0));
+      if (items [9] == "HBP") sector = HcalCalibDetId::HBplus;
+      else if (items [9] == "HBM") sector = HcalCalibDetId::HBminus;
+      else if (items [9] == "HEP") sector = HcalCalibDetId::HEplus;
+      else if (items [9] == "HEM") sector = HcalCalibDetId::HEminus;
+      else if (items [9] == "HFP") sector = HcalCalibDetId::HFplus;
+      else if (items [9] == "HFM") sector = HcalCalibDetId::HFminus;
+      else if (items [9] == "HO0") sector = HcalCalibDetId::HOzero;
+      else if (items [9] == "HO1P") sector = HcalCalibDetId::HO1plus;
+      else if (items [9] == "HO1M") sector = HcalCalibDetId::HO1minus;
+      else if (items [9] == "HO2P") sector = HcalCalibDetId::HO2plus;
+      else if (items [9] == "HO2M") sector = HcalCalibDetId::HO2minus;
+      if (sector) {
+	int rbx = atoi (items [10].c_str());
+	int channel = atoi (items [11].c_str());
+	calibId = HcalCalibDetId (sector, rbx, channel);
+	fObject->mapEId2chId (elId, calibId);
+      }
+      else {
+	std::cerr << "HcalElectronicsMap-> Unknown calibration sector: " << items [9]
+		  << " in line: " << buffer 
+		  << "\n sectors may be HBM/HBP/HEM/HEP/HO0/HO1P/HO1M/HO2P/HO2M/HFP/HFM" << std::endl;
+      }
     }
-    else {
-      fObject->mapEId2chId (elId, DetId (chId));
+    else { // undefined channel
+      fObject->mapEId2chId (elId, DetId (HcalDetId::Undefined));
     }
   }
   fObject->sort ();

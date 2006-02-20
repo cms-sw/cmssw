@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 19:13:25 EDT 2005
-// $Id: HcalDbAnalyzer.cc,v 1.10 2006/01/19 01:37:13 fedor Exp $
+// $Id: HcalDbAnalyzer.cc,v 1.11 2006/02/17 03:05:11 fedor Exp $
 //
 //
 
@@ -42,6 +42,10 @@
 #include "CondFormats/HcalObjects/interface/HcalQIEShape.h"
 #include "CondFormats/HcalObjects/interface/HcalQIECoder.h"
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
+
+#include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalCalibDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
 
 namespace {
   std::ostream& operator<<(std::ostream& fOut, const DetId& id) {
@@ -167,8 +171,24 @@ HcalDbAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
     std::vector <HcalElectronicsId> elIds = emap->allElectronicsId ();
     std::vector <HcalElectronicsId>::iterator id = elIds.begin ();
     for (; id != elIds.end (); id++) {
-      std::cout << "ElectronicsID: " << *id << " , Detector ID: " << emap->lookup (*id)
-		<< " , Trigger ID: " << emap->lookupTrigger (*id) << std::endl;
+      DetId detid = emap->lookup (*id);
+      DetId trigid = emap->lookupTrigger (*id);
+      if (detid.subdetId () <= int (HcalForward)) {
+	if ((!detid.rawId () || HcalDetId (detid.rawId ()) == HcalDetId::Undefined) 
+	    && (!trigid.rawId () || HcalTrigTowerDetId (trigid.rawId ()) == HcalDetId::Undefined)) {
+	  std::cout << "ElectronicsID: " << *id << " UNCONNECTED" << std::endl;
+	}
+	else {
+	  std::cout << "ElectronicsID: " << *id << " , Detector ID: " << HcalDetId (detid.rawId ())
+		    << " , Trigger ID: " << HcalTrigTowerDetId(emap->lookupTrigger (*id).rawId ()) << std::endl;
+	}
+      }
+      else if (detid.subdetId () <= int (HcalCalibration)) {
+	std::cout << "ElectronicsID: " << *id << " , Calibration ID: " << HcalCalibDetId (detid.rawId ()) << std::endl;
+      }
+      else {
+	std::cout << "ElectronicsID: " << *id << " , connected ID is unknown: " << detid.rawId () << std::endl;
+      }
     }
   }
   else {
