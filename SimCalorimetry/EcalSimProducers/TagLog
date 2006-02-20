@@ -1,3 +1,6 @@
+** V00-03-00  [Mon Feb 20 10:18:21 2006]
+Endcap Digi included, working with Geometry/EcalEndcapAlgo V01-00-00
+
 ** V00-02-00  [Sat Jan 21 08:23:20 2006]
 Redid how noise was passed along, got HCAL gains from DB, and got rid of namespaces and fixed include guards
 
