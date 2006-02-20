@@ -3,8 +3,8 @@
  * dummy module  for the test of  DaqFileInputService
  *   
  * 
- * $Date: 2006/02/11 17:49:51 $
- * $Revision: 1.4 $
+ * $Date: 2006/02/17 15:46:42 $
+ * $Revision: 1.1 $
  *
  * \author A. Ghezzi
  *
@@ -64,7 +64,7 @@ class EcalDCCHeaderDumperModule: public edm::EDAnalyzer{
       cout << "DCCid: "<< headerItr->id()<<"\n";
       
       cout << "DCCErrors: "<<headerItr->getDCCErrors()<<"\n";
-      cout<<"Run Number: "<<headerItr->gettRunNumber()<<"\n";
+      cout<<"Run Number: "<<headerItr->getRunNumber()<<"\n";
       cout<<"Event number (LV1): "<<headerItr->getLV1()<<"\n";
       cout<<"BX: "<<headerItr->getBX()<<"\n";
       
