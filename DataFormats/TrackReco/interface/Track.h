@@ -1,7 +1,7 @@
 #ifndef TrackReco_Track_h
 #define TrackReco_Track_h
 //
-// $Id: Track.h,v 1.9 2006/02/17 08:14:58 llista Exp $
+// $Id: Track.h,v 1.10 2006/02/20 14:42:00 llista Exp $
 //
 // Definition of Track class for RECO
 //
@@ -9,12 +9,12 @@
 //
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
-#include "DataFormats/TrackReco/interface/RecHitFwd.h"
+#include "DataFormats/TrackReco/interface/TrackExtension.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 namespace reco {
 
-  class Track : public TrackBase {
+  class Track : public TrackBase, TrackExtension<TrackExtraRef> {
   public:
     Track() { }
     Track( float chi2, unsigned short ndof, int found, int invalid, int lost,
@@ -22,28 +22,6 @@ namespace reco {
     Track( float chi2, unsigned short ndof, int found, int invalid, int lost,
 	   int q, const Point & v, const Vector & p, 
 	   const PosMomError & err );
-
-    void setExtra( const TrackExtraRef & ref ) { extra_ = ref; }
-    const TrackExtraRef & extra() const { return extra_; }
-
-    const Point & outerPosition() const;
-    const Vector & outerMomentum() const;
-    bool outerOk() const;
-    recHit_iterator recHitsBegin() const;
-    recHit_iterator recHitsEnd() const;
-    size_t recHitsSize() const;
-    double outerPx() const;
-    double outerPy() const;
-    double outerPz() const;
-    double outerX() const;
-    double outerY() const;
-    double outerZ() const;
-    double outerP() const;
-    double outerPt() const;
-    double outerPhi() const;
-    double outerEta() const;
-    double outerTheta() const;    
-    double outerRadius() const;
 
   private:
     Double32_t chi2_;
@@ -53,7 +31,6 @@ namespace reco {
     unsigned short invalid_;
     Parameters par_;
     Covariance cov_;
-    TrackExtraRef extra_;
   };
 
 }

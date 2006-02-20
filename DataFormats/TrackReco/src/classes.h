@@ -7,11 +7,8 @@
 
 namespace {
   namespace {
-    reco::TrackCollection v1;
-    edm::Wrapper<reco::TrackCollection> c1;
-    edm::Ref<reco::TrackCollection> r1;
-    edm::RefProd<reco::TrackCollection> rp1;
-    edm::RefVector<reco::TrackCollection> rv1;
+    
+    reco::TrackExtension<reco::TrackExtraRef> te1;
 
     reco::RecHitCollection v2;
     edm::Wrapper<reco::RecHitCollection> c2;
@@ -24,5 +21,11 @@ namespace {
     edm::Ref<reco::TrackExtraCollection> r3;
     edm::RefProd<reco::TrackExtraCollection> rp3;
     edm::RefVector<reco::TrackExtraCollection> rv3;
+
+    reco::TrackCollection v1;
+    edm::Wrapper<reco::TrackCollection> c1;
+    edm::Ref<reco::TrackCollection> r1;
+    edm::RefProd<reco::TrackCollection> rp1;
+    edm::RefVector<reco::TrackCollection> rv1;
   }
 }

@@ -1,4 +1,5 @@
 <lcgdict>
+  <class name="reco::TrackExtension<edm::Ref<std::vector<reco::MuonExtra>, reco::MuonExtra> >" />
   <class name="reco::Muon" />
   <class name="std::vector<reco::Muon>" />
   <class name="edm::Wrapper<std::vector<reco::Muon> >" />
