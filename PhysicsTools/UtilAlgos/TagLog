@@ -1,3 +1,6 @@
+** V00-01-01  [Mon Feb 20 08:45:52 2006]
+#including TypeID from the interface directory
+
 ** V00-01-00  [Fri Feb 17 14:16:12 2006]
 added object counter module
 
