@@ -1,3 +1,6 @@
+** V01-02-03  [Mon Feb 20 03:41:35 2006]
+ModuleDescription.h moved to DataFormats/Common
+
 ** V01-02-02  [Tue Feb 14 20:21:50 2006]
 @module_type and @module_label parameters must be tracked, not untracked
 
