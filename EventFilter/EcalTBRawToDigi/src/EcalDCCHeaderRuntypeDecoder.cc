@@ -43,7 +43,7 @@ bool EcalDCCHeaderRuntypeDecoder::Decode(ulong headerWord, EcalDCCHeaderBlock* E
   else if (type ==3 && sequence == 2){EcalDCCHeaderInfos->setRunType(PEDESTAL_25NS_SCAN);}
   else if (type ==4 && sequence == 0){EcalDCCHeaderInfos->setRunType(LED_STD);}
   else {
-    LogWarning("EcalTBRawToDigi") <<" @SUB=EcalDCCHeaderRuntypeDecoder::Decode  unrecognized runtype and sequence: "<<type<<" "<<sequence;
+    LogWarning("EcalTBRawToDigi") <<"@SUB=EcalDCCHeaderRuntypeDecoder::Decode  unrecognized runtype and sequence: "<<type<<" "<<sequence;
     EcalDCCHeaderInfos->setRunType(-1);
     WasDecodingOk_ = false;
   }
@@ -61,7 +61,7 @@ void  EcalDCCHeaderRuntypeDecoder::DecodeSetting ( int Setting,  EcalDCCHeaderBl
   CleanEcalDCCSettingsInfo(&theSettings);
 
   if(theHeader->getRunType() == PHYSICS){;}//no settings foreseen
-  if(theHeader->getRunType() == LASER_STD){
+  else if(theHeader->getRunType() == LASER_STD){
     theSettings.LaserPower = (Setting & 8128)/64;
     theSettings.LaserFilter = (Setting & 56)/8;
     theSettings.wavelength = Setting & 7;
@@ -92,7 +92,7 @@ void  EcalDCCHeaderRuntypeDecoder::DecodeSetting ( int Setting,  EcalDCCHeaderBl
     theSettings.wavelength = Setting & 7;
   }
   else {
-    LogWarning("EcalTBRawToDigi") <<" @SUB=EcalDCCHeaderRuntypeDecoder::DecodeSettings  unrecognized run type: "<<theHeader->getRunType();
+    LogWarning("EcalTBRawToDigi") <<"@SUB=EcalDCCHeaderRuntypeDecoder::DecodeSettings  unrecognized run type: "<<theHeader->getRunType();
     WasDecodingOk_ = false;
   }
   theHeader->setEventSettings(theSettings);
