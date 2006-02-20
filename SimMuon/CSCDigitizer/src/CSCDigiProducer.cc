@@ -3,6 +3,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "SimMuon/CSCDigitizer/src/CSCDigiProducer.h"
 #include "SimMuon/CSCDigitizer/src/CSCDigitizer.h"
+#include "Geometry/CSCSimAlgo/interface/CSCGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
@@ -42,9 +43,9 @@ void CSCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) 
   std::auto_ptr<CSCComparatorDigiCollection> pComparatorDigis(new CSCComparatorDigiCollection());
 
   // find the geometry & conditions for this event
-  edm::ESHandle<TrackingGeometry> hGeom;
+  edm::ESHandle<CSCGeometry> hGeom;
   eventSetup.get<MuonGeometryRecord>().get( hGeom );
-  const TrackingGeometry *pGeom = &*hGeom;
+  const CSCGeometry *pGeom = &*hGeom;
 
   theDigitizer->setGeometry( pGeom );
 

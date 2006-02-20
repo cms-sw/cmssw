@@ -4,20 +4,17 @@
 // This is CSCDigitizer.h
 
 /** \class CSCDigitizer
- *  Digitizer class for Muon Endcap.
+ *  Digitizer class for endcap muon CSCs.
  *
  *  \author Rick Wilkinson
  *
- * Last mod: <BR>
- * 30-Mar-00 ptc Delete superseded comments.<BR>
  */
-
 
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/CSCSimAlgo/interface/CSCGeometry.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 
@@ -44,7 +41,7 @@ public:
                 CSCComparatorDigiCollection & comparators);
 
   /// sets geometry
-  void setGeometry(const TrackingGeometry * geom) {theTrackingGeometry = geom;}
+  void setGeometry(const CSCGeometry * geom) {theCSCGeometry = geom;}
 
   /// sets the magnetic field
   void setMagneticField(const MagneticField * field);
@@ -59,7 +56,7 @@ private:
   CSCWireElectronicsSim  * theWireElectronicsSim;
   CSCStripElectronicsSim * theStripElectronicsSim;
   CSCNeutronFactory      * theNeutronFactory;
-  const TrackingGeometry * theTrackingGeometry;
+  const CSCGeometry      * theCSCGeometry;
   bool doNeutrons;
 };
 
