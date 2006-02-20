@@ -73,13 +73,13 @@ namespace edm {
 
   ActionTable::ActionTable(const ParameterSet& pset)
   {
+    addDefaults();
+
     install(actions::SkipEvent, map_, pset);
     install(actions::Rethrow, map_, pset);
     install(actions::IgnoreCompletely, map_, pset);
     install(actions::FailModule, map_, pset);
     install(actions::FailPath, map_, pset);
-
-    addDefaults();
   }
 
   void ActionTable::addDefaults()
