@@ -8,7 +8,6 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
 class CSCDigitizer;
-class TrackingGeometry;
 
 class CSCDigiProducer : public edm::EDProducer
 {

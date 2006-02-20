@@ -26,8 +26,6 @@ class CSCLayerGeometry;
 class CSCDetId;
 class DetId;
 class PSimHit;
-class TrackingGeometry;
-
 
 class CSCBaseElectronicsSim
 {
