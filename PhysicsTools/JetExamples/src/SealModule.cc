@@ -3,7 +3,8 @@
 #include "PhysicsTools/JetExamples/src/MidpointJetProducer.h"
 #include "PhysicsTools/JetExamples/src/JetAnalyzer.h"
 
-using cms::MidpointJetProducer;
+typedef cms::MidpointJetProducer MidPointJetProducer;
 DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(MidpointJetProducer)
-DEFINE_ANOTHER_FWK_MODULE(JetAnalyzer)
+DEFINE_ANOTHER_FWK_MODULE( MidPointJetProducer );
+DEFINE_ANOTHER_FWK_MODULE( JetAnalyzer );
+
