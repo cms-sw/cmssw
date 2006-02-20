@@ -3,7 +3,7 @@
    test for ProductRegistry 
 
    \author Stefano ARGIRO
-   \version $Id: edproducer_productregistry_callback.cc,v 1.2 2005/10/17 16:56:05 wmtan Exp $
+   \version $Id: edproducer_productregistry_callback.cc,v 1.3 2006/02/08 00:44:25 wmtan Exp $
    \date 21 July 2005
 */
 
@@ -31,7 +31,7 @@
 #include "FWCore/ParameterSet/interface/Makers.h"
 
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
-#include "FWCore/Framework/src/TypeID.h"
+#include "FWCore/Framework/interface/TypeID.h"
 
 
 class testEDProducerProductRegistryCallback: public CppUnit::TestFixture

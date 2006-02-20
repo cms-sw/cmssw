@@ -5,12 +5,12 @@
   
 ProductRegistryHelper: 
 
-$Id: ProductRegistryHelper.h,v 1.10 2005/10/11 19:32:32 chrjones Exp $
+$Id: ProductRegistryHelper.h,v 1.1 2005/12/28 00:30:09 wmtan Exp $
 
 
 ----------------------------------------------------------------------*/
 
-#include "FWCore/Framework/src/TypeID.h"
+#include "FWCore/Framework/interface/TypeID.h"
 #include <string>
 #include <list>
 namespace edm {

@@ -15,7 +15,7 @@ through shared pointers.
 The EventPrincipal returns BasicHandle, rather than a shared
 pointer to a Group, when queried.
 
-$Id: EventPrincipal.h,v 1.24 2006/02/16 19:40:00 wmtan Exp $
+$Id: EventPrincipal.h,v 1.25 2006/02/18 00:02:18 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <map>
@@ -40,7 +40,7 @@ $Id: EventPrincipal.h,v 1.24 2006/02/16 19:40:00 wmtan Exp $
 #include "FWCore/Framework/interface/Selector.h"
 
 #include "FWCore/Framework/src/Group.h"
-#include "FWCore/Framework/src/TypeID.h"
+#include "FWCore/Framework/interface/TypeID.h"
 
 namespace edm {
     

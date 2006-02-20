@@ -6,7 +6,7 @@
 Event: This is the primary interface for accessing
 EDProducts from a single collision and inserting new derived products.
 
-$Id: Event.h,v 1.26 2006/02/07 07:51:41 wmtan Exp $
+$Id: Event.h,v 1.27 2006/02/18 00:02:18 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
@@ -27,7 +27,7 @@ $Id: Event.h,v 1.26 2006/02/07 07:51:41 wmtan Exp $
 
 
 #include "FWCore/Framework/src/Group.h"
-#include "FWCore/Framework/src/TypeID.h"
+#include "FWCore/Framework/interface/TypeID.h"
 
 namespace edm {
   class EventPrincipal;

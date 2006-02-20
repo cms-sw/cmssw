@@ -6,13 +6,13 @@
 EDProducer: The base class of all "modules" that will insert new
 EDProducts into an Event.
 
-$Id: EDProducer.h,v 1.10 2005/10/11 19:32:32 chrjones Exp $
+$Id: EDProducer.h,v 1.11 2005/12/28 00:29:24 wmtan Exp $
 
 
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/ProductRegistryHelper.h"
-#include "FWCore/Framework/src/TypeID.h"
+#include "FWCore/Framework/interface/TypeID.h"
 #include "boost/bind.hpp"
 #include "boost/function.hpp"
 #include <string>

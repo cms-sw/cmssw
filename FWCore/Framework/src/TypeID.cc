@@ -1,10 +1,10 @@
 /*----------------------------------------------------------------------
   
-$Id: TypeID.cc,v 1.12 2006/01/12 22:07:42 wmtan Exp $
+$Id: TypeID.cc,v 1.13 2006/02/01 00:40:25 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <ostream>
-#include "FWCore/Framework/src/TypeID.h"
+#include "FWCore/Framework/interface/TypeID.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "Reflex/Type.h"
 #include <string>

@@ -8,7 +8,7 @@ TypeID: A unique identifier for a C++ type.
 The identifier is unique within an entire program, but can not be
 persisted across invocations of the program.
 
-$Id: TypeID.h,v 1.10 2005/10/06 20:59:40 wmtan Exp $
+$Id: TypeID.h,v 1.11 2005/11/11 20:55:49 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 #include <iosfwd>
@@ -19,8 +19,7 @@ $Id: TypeID.h,v 1.10 2005/10/06 20:59:40 wmtan Exp $
 
 namespace edm {
 
-   class TypeID : public TypeIDBase
-  {
+  class TypeID : public TypeIDBase {
   public:
 
     TypeID() : TypeIDBase() {}
@@ -58,6 +57,6 @@ namespace edm {
 
   };
 
-   std::ostream& operator<<(std::ostream& os, const TypeID& id);
+  std::ostream& operator<<(std::ostream& os, const TypeID& id);
 }
 #endif
