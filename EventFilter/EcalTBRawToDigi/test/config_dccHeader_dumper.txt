@@ -7,8 +7,8 @@ process TEST = {
      path p = {ecalEBunpacker, dccheader}
 
      source = DAQEcalTBInputService{
-              untracked string fileName = '/data/H4-000019118-SM16-PEDESTAL-STD'
-               untracked int32 maxEvents = -1
+          untracked vstring fileNames = { '/data/H4-000019118-SM16-PEDESTAL-STD' }       
+	  untracked int32 maxEvents = -1
                untracked bool isBinary = true
     }
 
