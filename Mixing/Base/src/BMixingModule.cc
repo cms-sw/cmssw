@@ -7,7 +7,7 @@
 #include "Mixing/Base/interface/BMixingModule.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ModuleDescription.h"
+#include "DataFormats/Common/interface/ModuleDescription.h"
 
 using namespace std;
 
