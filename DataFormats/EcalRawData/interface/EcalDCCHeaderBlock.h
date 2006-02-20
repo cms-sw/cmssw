@@ -7,7 +7,7 @@
  *  Container for ECAL specific DCC Header information
  *
  *
- *  $Id: EcalDCCHeaderBlock.h,v 1.1 2006/01/30 16:11:14 meridian Exp $
+ *  $Id: EcalDCCHeaderBlock.h,v 1.2 2006/02/15 17:15:51 ghezzi Exp $
  */
 
 #include <vector>
@@ -68,7 +68,7 @@ class EcalDCCHeaderBlock
   //TODO add all the get methods
   
   int getDCCErrors() const{ return dccErrors_;}
-  int gettRunNumber() const {return runNumber_ ;}
+  int getRunNumber() const {return runNumber_ ;}
   int getLV1() const {return LV1event_ ;}
   int getBX() const {return BX_ ;}
   EcalDCCEventSettings getEventSettings() const { return EventSettings_;}
