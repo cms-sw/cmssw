@@ -1,3 +1,6 @@
+** V02-01-05  [Mon Feb 20 02:55:46 2006]
+Move TypeID.h from src to interface
+
 ** V02-01-04  [Wed Feb 15 14:49:14 2006]
 Test objects moved to DataFormats/TestObjects
 
