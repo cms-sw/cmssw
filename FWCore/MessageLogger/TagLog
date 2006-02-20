@@ -1,3 +1,6 @@
+** V02-00-03  [Mon Feb 20 03:01:22 2006]
+ModuleDescription.h was moved to DataFormats/Common
+
 ** V02-00-02  [Sat Feb 18 01:16:25 2006]
 Fix tests
 
