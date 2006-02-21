@@ -3,12 +3,12 @@
 
 /** \class DTROSErrorNotifier
  *
- *  $Date: 2005/11/09 13:20:48 $
- *  $Revision: 1.1.2.1 $
+ *  $Date: 2005/11/21 17:38:48 $
+ *  $Revision: 1.2 $
  *  \author M. Zanetti - INFN Padova
  */
 
-#include <EventFilter/DTRawToDigi/src/DTDDUWords.h>
+#include <EventFilter/DTRawToDigi/interface/DTDDUWords.h>
 //class DTROSErrorWord;
 
 class DTROSErrorNotifier {

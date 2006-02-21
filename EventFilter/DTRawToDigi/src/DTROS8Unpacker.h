@@ -5,10 +5,12 @@
  *  The unpacker for DTs' ROS8: 
  *  final version of Read Out Sector board with 25 channels.
  *
- *  $Date: 2005/11/23 11:17:15 $
- *  $Revision: 1.4 $
+ *  $Date: 2005/11/25 18:12:53 $
+ *  $Revision: 1.5 $
  * \author M. Zanetti INFN Padova
  */
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <EventFilter/DTRawToDigi/src/DTUnpacker.h>
 
@@ -16,10 +18,10 @@ class DTReadOutMapping;
 
 class DTROS8Unpacker : public DTUnpacker {
 
- public:
+public:
   
   /// Constructor
-  DTROS8Unpacker() {}
+  DTROS8Unpacker(const edm::ParameterSet& ps): pset(ps) {}
 
   /// Destructor
   virtual ~DTROS8Unpacker() {}
@@ -30,8 +32,9 @@ class DTROS8Unpacker : public DTUnpacker {
 				edm::ESHandle<DTReadOutMapping>& mapping, 
 				std::auto_ptr<DTDigiCollection>& product);
 
- private:
+private:
 
+  const edm::ParameterSet pset;
 
 };
 

@@ -1,20 +1,38 @@
 /** \file
  *
- *  $Date: 2006/01/20 15:44:34 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/02/14 17:08:16 $
+ *  $Revision: 1.7 $
  *  \author  M. Zanetti - INFN Padova 
  */
 
 #include <EventFilter/DTRawToDigi/src/DTROS25Unpacker.h>
-#include <EventFilter/DTRawToDigi/src/DTDDUWords.h>
+
+#include <EventFilter/DTRawToDigi/interface/DTDDUWords.h>
+#include <EventFilter/DTRawToDigi/interface/DTROS25Data.h>
+
+#include <EventFilter/DTRawToDigi/interface/DTDataMonitorInterface.h>
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
 #include <EventFilter/DTRawToDigi/src/DTROSErrorNotifier.h>
 #include <EventFilter/DTRawToDigi/src/DTTDCErrorNotifier.h>
+
+// Mapping
 #include <CondFormats/DTObjects/interface/DTReadOutMapping.h>
 
 #include <iostream>
 
 using namespace std;
 using namespace edm;
+
+
+
+DTROS25Unpacker::DTROS25Unpacker(const edm::ParameterSet& ps): pset(ps) {
+
+  if(pset.getUntrackedParameter<bool>("performDataIntegrityMonitor",false)){
+    dataMonitor = edm::Service<DTDataMonitorInterface>().operator->(); 
+  }
+
+}
 
 
 void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
@@ -26,7 +44,8 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
   const int wordLength = 4;
   int numberOfWords = datasize / wordLength;
 
-  int rosID = 1; // To be taken from DDU control word
+  int rosID = 0; // To be taken from DDU control word
+  DTROS25Data controlData(rosID);
 
   int wordCounter = 0;
   uint32_t word = index[wordCounter];
@@ -47,11 +66,12 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
     // ROS Header; 
     if (DTROSWordType(word).type() == DTROSWordType::ROSHeader) {
       DTROSHeaderWord rosHeaderWord(word);
-      int eventCounter = rosHeaderWord.TTCEventCounter();
-      cout<<"eventCounter "<<eventCounter<<endl;
-      
+
       rosID++; // to be mapped;
-	  
+
+      // container for words to be sent to DQM
+      controlData.setROSId(rosID);
+
       // Loop on ROBs
       do {	  
 	wordCounter++; word = index[wordCounter];
@@ -59,15 +79,13 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
  	// Eventual ROS Error: occurs when some errors are found in a ROB
  	if (DTROSWordType(word).type() == DTROSWordType::ROSError) {
  	  DTROSErrorWord dtROSErrorWord(word);
- 	  DTROSErrorNotifier dtROSError(dtROSErrorWord);
- 	  dtROSError.print();
+	  controlData.addROSError(dtROSErrorWord);
  	} 
 
 	// Eventual ROS Debugging; 
 	else if (DTROSWordType(word).type() == DTROSWordType::ROSDebug) {
 	  DTROSDebugWord rosDebugWord(word);
-	  cout<<"ROS Debug type "<<rosDebugWord.debugType() <<endl;
-	  cout<<"ROS Debug message "<<rosDebugWord.debugMessage() <<endl;
+	  controlData.addROSDebug(rosDebugWord);
 	}
 
 	// Check ROB header	  
@@ -124,10 +142,6 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
  	  if (DTROSWordType(word).type() == DTROSWordType::GroupTrailer) {
 
 	    DTROBTrailerWord robTrailerWord(word);
-	    cout<<"ROB Event Id (trailer) "<<robTrailerWord.eventID()<<endl;
-	    cout<<"ROB WordCount (trailer) "<<robTrailerWord.wordCount()<<endl;
-	    cout<<"ROB ID (trailer) "<<robTrailerWord.robID()<<endl;
-	    
 	  }
  	}
 
@@ -136,12 +150,9 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
       // check ROS Trailer (condition already verified)
       if (DTROSWordType(word).type() == DTROSWordType::ROSTrailer){
 	DTROSTrailerWord rosTrailerWord(word);
-	cout<<"ROS Trailer TFF "<<rosTrailerWord.TFF()<<endl;
-	cout<<"ROS Trailer TXP "<<rosTrailerWord.TPX()<<endl;
-	cout<<"ROS Trailer ECHO "<<rosTrailerWord.ECHO()<<endl;
-	cout<<"ROS Trailer ECLO "<<rosTrailerWord.ECLO()<<endl;
-	cout<<"ROS Trailer BCO "<<rosTrailerWord.BCO()<<endl;
-	cout<<"ROS Trailer Event Counter "<<rosTrailerWord.EventWordCount()<<endl;
+	
+	controlData.addROSTrailer(rosTrailerWord);
+
       }
     }
 
@@ -149,4 +160,9 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
     wordCounter++; word = index[wordCounter];
   }  
   
+  // Perform dqm if requested
+  if (pset.getUntrackedParameter<bool>("performDataIntegrityMonitor",false)) {
+    dataMonitor->process(controlData);
+  } 
+
 }

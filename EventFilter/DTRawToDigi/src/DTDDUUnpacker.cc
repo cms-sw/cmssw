@@ -1,21 +1,23 @@
 /** \file
  *
- *  $Date: 2005/11/25 18:12:53 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/02/14 17:06:19 $
+ *  $Revision: 1.5 $
  *  \author  M. Zanetti - INFN Padova 
  */
 
 #include <DataFormats/FEDRawData/interface/FEDHeader.h>
 #include <DataFormats/FEDRawData/interface/FEDTrailer.h>
 #include <EventFilter/DTRawToDigi/src/DTDDUUnpacker.h>
-#include <EventFilter/DTRawToDigi/src/DTDDUWords.h>
+#include <EventFilter/DTRawToDigi/interface/DTDDUWords.h>
 #include <EventFilter/DTRawToDigi/src/DTROS25Unpacker.h>
 
 #include <iostream>
 
 using namespace std;
 
-DTDDUUnpacker::DTDDUUnpacker() : ros25Unpacker(new DTROS25Unpacker) {
+DTDDUUnpacker::DTDDUUnpacker(const edm::ParameterSet& ps) : pset(ps) { 
+  
+  ros25Unpacker = new DTROS25Unpacker(ps);
 }
 
 DTDDUUnpacker::~DTDDUUnpacker() {

@@ -1,12 +1,12 @@
 /** \file
  *
- *  $Date: 2006/01/20 15:44:34 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/02/14 17:09:18 $
+ *  $Revision: 1.8 $
  *  \author  M. Zanetti - INFN Padova 
  */
 
 #include <EventFilter/DTRawToDigi/src/DTROS8Unpacker.h>
-#include <EventFilter/DTRawToDigi/src/DTDDUWords.h>
+#include <EventFilter/DTRawToDigi/interface/DTDDUWords.h>
 #include <EventFilter/DTRawToDigi/src/DTROSErrorNotifier.h>
 #include <EventFilter/DTRawToDigi/src/DTTDCErrorNotifier.h>
 #include <CondFormats/DTObjects/interface/DTReadOutMapping.h>
@@ -76,18 +76,18 @@ void DTROS8Unpacker::interpretRawData(const unsigned int* index, int datasize,
 	// temporary for the mapping
 
 	// Commissioning
-	dduID = 5;
+	//dduID = 5;
 	// Sector Test
-	//dduID = 734;
+	dduID = 734;
 
 	// Map the RO channel to the DetId and wire
 	DTWireId detId = mapping->readOutToGeometry(dduID, rosID, robID, tdcID, tdcChannel);
 	int wire = detId.wire();
 
-//  	cout<<"ROS: "<<rosID<<" ROB: "<<robID<<" TDC: "<<tdcID<<" TDCChannel: "<<tdcChannel<<endl;
-//  	cout<<"Wheel: "<<detId.wheel()
-//  	    <<" Station: "<<detId.station()
-//  	    <<" Sector: "<<detId.sector()<<endl;
+//   	cout<<"ROS: "<<rosID<<" ROB: "<<robID<<" TDC: "<<tdcID<<" TDCChannel: "<<tdcChannel<<endl;
+//   	cout<<"Wheel: "<<detId.wheel()
+//   	    <<" Station: "<<detId.station()
+//   	    <<" Sector: "<<detId.sector()<<endl;
 
 	
 	// Produce the digi

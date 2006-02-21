@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/02/06 15:14:51 $
- *  $Revision: 1.12 $
+ *  $Date: 2006/02/14 17:10:18 $
+ *  $Revision: 1.13 $
  *  \author S. Argiro - N. Amapane - M. Zanetti 
  */
 
@@ -22,7 +22,7 @@
 #include <CondFormats/DTObjects/interface/DTReadOutMapping.h>
 #include <CondFormats/DataRecord/interface/DTReadOutMappingRcd.h>
 
-#include <EventFilter/DTRawToDigi/src/DTDDUWords.h>
+#include <EventFilter/DTRawToDigi/interface/DTDDUWords.h>
 #include <EventFilter/DTRawToDigi/src/DTDDUUnpacker.h>
 #include <EventFilter/DTRawToDigi/src/DTROS25Unpacker.h>
 #include <EventFilter/DTRawToDigi/src/DTROS8Unpacker.h>
@@ -37,17 +37,17 @@ using namespace std;
 #define SLINK_WORD_SIZE 8
 
 
-DTUnpackingModule::DTUnpackingModule(const edm::ParameterSet& pset) :
+DTUnpackingModule::DTUnpackingModule(const edm::ParameterSet& ps) :
   unpacker(0), numOfEvents(0)
 {
-  const string &  dataType = pset.getParameter<string>("dataType");
+  const string &  dataType = ps.getParameter<string>("dataType");
 
   if (dataType == "DDU") {
-    unpacker = new DTDDUUnpacker();
+    unpacker = new DTDDUUnpacker(ps);
   } else if (dataType == "ROS8") {
-    unpacker = new DTROS8Unpacker();
+    unpacker = new DTROS8Unpacker(ps);
   } else if (dataType == "ROS25") {
-    unpacker = new DTROS25Unpacker();
+    unpacker = new DTROS25Unpacker(ps);
   } 
   else {
     throw cms::Exception("InvalidParameter") << "DTUnpackingModule: dataType "

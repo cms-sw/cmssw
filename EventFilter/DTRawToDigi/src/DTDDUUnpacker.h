@@ -4,10 +4,11 @@
 /** \class DTDDUUnpacker
  *  The unpacker for DTs' FED.
  *
- *  $Date: 2005/11/23 11:17:15 $
- *  $Revision: 1.3 $
+ *  $Date: 2005/11/25 18:12:53 $
+ *  $Revision: 1.4 $
  * \author M. Zanetti INFN Padova
  */
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <EventFilter/DTRawToDigi/src/DTUnpacker.h>
 
@@ -18,7 +19,7 @@ class DTDDUUnpacker : public DTUnpacker {
  public:
   
   /// Constructor
-  DTDDUUnpacker();
+  DTDDUUnpacker(const edm::ParameterSet& ps);
 
   /// Destructor
   virtual ~DTDDUUnpacker();
@@ -30,7 +31,11 @@ class DTDDUUnpacker : public DTUnpacker {
 				std::auto_ptr<DTDigiCollection>& product);
 
  private:
+
+  const edm::ParameterSet pset;
+
   DTROS25Unpacker* ros25Unpacker;
+
 
 };
 
