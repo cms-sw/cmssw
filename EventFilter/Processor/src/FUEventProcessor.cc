@@ -5,7 +5,9 @@
 
 using namespace evf;
 
-FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s) : xdaq::Application(s), proc_(0), group_(0), fsm_(0), ah_(0)
+FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s) : xdaq::Application(s), 
+outPut_(true), inputPrescale_(1), outputPrescale_(1),  outprev_(true), 
+proc_(0), group_(0), fsm_(0), ah_(0)
 {
   ah_ = new edm::AssertHandler();
   fsm_ = new EPStateMachine(getApplicationLogger());
@@ -14,6 +16,15 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s) : xdaq::Application
   // default configuration
   ispace->fireItemAvailable("parameterSet",&offConfig_);
   ispace->fireItemAvailable("stateName",&fsm_->stateName_);
+  ispace->fireItemAvailable("outputEnabled",&outPut_);
+  ispace->fireItemAvailable("globalInputPrescale",&inputPrescale_);
+  ispace->fireItemAvailable("globalOutputPrescale",&outputPrescale_);
+
+  // Add infospace listeners for exporting data values
+  getApplicationInfoSpace()->addItemChangedListener ("outputEnabled", this);
+  getApplicationInfoSpace()->addItemChangedListener ("globalInputPrescale", this);
+  getApplicationInfoSpace()->addItemChangedListener ("globalOutputPrescale", this);
+
   // Bind web interface
   xgi::bind(this, &FUEventProcessor::css           , "styles.css");
   xgi::bind(this, &FUEventProcessor::defaultWebPage, "Default"   );
@@ -51,6 +62,10 @@ void FUEventProcessor::configureAction(toolbox::Event::Reference e) throw (toolb
       XCEPT_RAISE (toolbox::fsm::exception::Exception, 
 		   "Unknown Exception");
     }
+  if(!outPut_) proc_->toggleOutput();
+  proc_->prescaleInput(inputPrescale_);
+  proc_->prescaleInput(outputPrescale_);
+  outprev_=outPut_;
 }
 
 void FUEventProcessor::enableAction(toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception)
@@ -104,6 +119,38 @@ void FUEventProcessor::haltAction(toolbox::Event::Reference e) throw (toolbox::f
   proc_->endRun();
 
   delete proc_;
+}
+
+void FUEventProcessor::actionPerformed (xdata::Event& e)
+{
+  if (e.type() == "ItemChangedEvent" && !(fsm_->stateName_.toString()=="Halted"))
+    {
+      std::string item = dynamic_cast<xdata::ItemChangedEvent&>(e).itemName();
+      if ( item == "outputEnabled")
+	{
+	  if(outprev_ != outPut_)
+	    {
+	      LOG4CPLUS_WARN(this->getApplicationLogger(),
+			     (outprev_ ? "Disabling " : "Enabling ") << "global output");
+	      proc_->toggleOutput();
+	      outprev_ = outPut_;
+	    }
+	}
+      if ( item == "globalInputPrescale")
+	{
+	  proc_->prescaleInput(inputPrescale_);
+	  LOG4CPLUS_WARN(this->getApplicationLogger(),
+			 "Setting global input prescale factor to" << inputPrescale_);
+
+	}
+      if ( item == "globalOutputPrescale")
+	{
+	  proc_->prescaleOutput(outputPrescale_);
+	  LOG4CPLUS_WARN(this->getApplicationLogger(),
+			 "Setting global output prescale factor to" << outputPrescale_);
+
+	}
+    }
 }
 
 #include "xoap/include/xoap/SOAPEnvelope.h"

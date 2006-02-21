@@ -2,6 +2,7 @@
 #include "xdata/include/xdata/String.h"
 #include "xdata/include/xdata/Integer.h"
 #include "xdata/include/xdata/Boolean.h"
+#include "xdata/include/xdata/UnsignedLong.h"
 #include "xgi/include/xgi/Input.h"
 #include "xgi/include/xgi/Output.h"
 #include "xgi/include/xgi/exception/Exception.h"
@@ -9,13 +10,16 @@
 
 #include "EventFilter/Utilities/interface/EPStateMachine.h"
 #include "EventFilter/Utilities/interface/Css.h"
+#include "xdata/ActionListener.h"
+
+
 
 class TaskGroup;
 namespace evf
 {
   class EventProcessor;
 
-  class FUEventProcessor : public xdaq::Application
+  class FUEventProcessor : public xdaq::Application, public xdata::ActionListener
     {
     public:
       XDAQ_INSTANTIATOR();
@@ -32,6 +36,8 @@ namespace evf
       xoap::MessageReference fireEvent(xoap::MessageReference msg)
 	throw (xoap::exception::Exception);
 
+      void actionPerformed (xdata::Event& e);
+
       void defaultWebPage
 	(xgi::Input  *in, xgi::Output *out) throw (xgi::exception::Exception);
       void css(xgi::Input  *in,
@@ -41,6 +47,10 @@ namespace evf
 	(xgi::Input  *in, xgi::Output *out) throw (xgi::exception::Exception);
 	  
       xdata::String offConfig_;
+      xdata::Boolean outPut_;
+      xdata::UnsignedLong inputPrescale_;
+      xdata::UnsignedLong outputPrescale_;
+      bool outprev_;
       EventProcessor *proc_;
       TaskGroup *group_;
       EPStateMachine *fsm_;

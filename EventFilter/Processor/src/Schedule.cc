@@ -184,6 +184,9 @@ namespace evf
     results_inserter_(),
     trig_paths_(),
     end_paths_(),
+    inhibit_endpaths_(false),
+    global_input_prescale_(1),
+    global_output_prescale_(1),    
     wantSummary_(false),
     makeTriggerResults_(false),
     total_events_(),
@@ -347,71 +350,76 @@ namespace evf
     state_ = Running;
     ++total_events_;
 
-    try
+    if(total_events_%global_input_prescale_==0)
       {
-	CallPrePost cpp(act_reg_.get(),&ep,&es);
-
-	// go through triggering paths first
-	bool result = false;
-
-	TrigPaths::iterator ti(trig_paths_.begin()),te(trig_paths_.end());
-	for(int which_one=0;ti!=te;++ti,++which_one)
+	try
 	  {
-	    ti->runOneEvent(ep,es);
-	    result += (*results_)[which_one];
+	    CallPrePost cpp(act_reg_.get(),&ep,&es);
+	    
+	    // go through triggering paths first
+	    bool result = false;
+	    
+	    TrigPaths::iterator ti(trig_paths_.begin()),te(trig_paths_.end());
+	    for(int which_one=0;ti!=te;++ti,++which_one)
+	      {
+		ti->runOneEvent(ep,es);
+		result += (*results_)[which_one];
+	      }
+	    
+	    if(result) ++total_passed_;
+	    state_ = Latched;
+	    
+	    if(results_inserter_.get()) results_inserter_->doWork(ep,es);
+	    
+	    // go through end paths next
+	    if(!inhibit_endpaths_ && (total_passed_%global_output_prescale_==0))
+	      {
+		TrigPaths::iterator ei(end_paths_.begin()),ee(end_paths_.end());
+		for(;ei!=ee;++ei)
+		  {
+		    ei->runOneEvent(ep,es);
+		  }
+	      }
 	  }
-
-	if(result) ++total_passed_;
-	state_ = Latched;
-
-	if(results_inserter_.get()) results_inserter_->doWork(ep,es);
-	
-	// go through end paths next
-	TrigPaths::iterator ei(end_paths_.begin()),ee(end_paths_.end());
-	for(;ei!=ee;++ei)
+	catch(cms::Exception& e)
 	  {
-	    ei->runOneEvent(ep,es);
+	    actions::ActionCodes code = act_table_->find(e.rootCause());
+	    
+	    switch(code)
+	      {
+	      case actions::IgnoreCompletely:
+		{
+		  LogWarning(e.category())
+		    << "exception being ignored for current event:\n"
+		    << e.what();
+		  break;
+		}
+	      case actions::SkipEvent:
+		{
+		  LogWarning(e.category())
+		    << "an exception occurred and event is being skipped: \n"
+		    << e.what();
+		  break;
+		}
+	      default:
+		{
+		  LogError(e.category())
+		    << "an exception ocurred during current event processing\n";
+		  state_ = Ready;
+		  throw edm::Exception(errors::EventProcessorFailure,
+				       "EventProcessingStopped",e)
+					 << "an exception ocurred during current event processing\n";
+		}
+	      }
+	  }
+	catch(...)
+	  {
+	    LogError("PassingThrough")
+	      << "an exception ocurred during current event processing\n";
+	    state_ = Ready;
+	    throw;
 	  }
       }
-    catch(cms::Exception& e)
-      {
-	actions::ActionCodes code = act_table_->find(e.rootCause());
-
-	switch(code)
-	  {
-	  case actions::IgnoreCompletely:
-	    {
-	      LogWarning(e.category())
-		<< "exception being ignored for current event:\n"
-		<< e.what();
-	      break;
-	    }
-	  case actions::SkipEvent:
-	    {
-	      LogWarning(e.category())
-		<< "an exception occurred and event is being skipped: \n"
-		<< e.what();
-	      break;
-	    }
-	  default:
-	    {
-	      LogError(e.category())
-		<< "an exception ocurred during current event processing\n";
-	      state_ = Ready;
-	      throw edm::Exception(errors::EventProcessorFailure,
-				   "EventProcessingStopped",e)
-		<< "an exception ocurred during current event processing\n";
-	    }
-	  }
-      }
-    catch(...)
-      {
-	LogError("PassingThrough")
-	  << "an exception ocurred during current event processing\n";
-	state_ = Ready;
-	throw;
-      }
-
     // next thing probably is not needed, the product insertion code clears it
     state_ = Ready;
   }
@@ -495,5 +503,8 @@ namespace evf
     //		    boost::bind(&Worker::reset,_1));
   }
 
-  
+  void Schedule::toggleEndPaths()
+  {
+    inhibit_endpaths_ = !inhibit_endpaths_;
+  }  
 }

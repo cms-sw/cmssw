@@ -6,7 +6,7 @@
 /*
   Author: Jim Kowalkowski  28-01-06
 
-  $Id: Schedule.h,v 1.4 2006/02/08 00:44:24 wmtan Exp $
+  $Id: Schedule.h,v 1.1 2006/02/15 00:40:09 meschi Exp $
 
   A class for creating a schedule based on paths in the configuration file.
   The schedule is maintained as a sequence of paths.
@@ -138,6 +138,9 @@ namespace evf
 
     void beginJob(EventSetup const&);
     void endJob();
+    void toggleEndPaths();
+    void setGlobalInputPrescaleFactor(unsigned int f){global_input_prescale_ = f;}
+    void setGlobalOutputPrescaleFactor(unsigned int f){global_output_prescale_ = f;}
 
   private:
     void resetWorkers();
@@ -173,7 +176,10 @@ namespace evf
     TrigPaths end_paths_;
 
     PathWorkers tmp_wrongly_placed_;
-
+    
+    bool inhibit_endpaths_;
+    unsigned int global_input_prescale_;
+    unsigned int global_output_prescale_;
     bool wantSummary_;
     bool makeTriggerResults_;
     int total_events_;

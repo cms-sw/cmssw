@@ -215,6 +215,22 @@ void EventProcessor::stopEventLoop(unsigned int delay)
     }
 }
 
+void EventProcessor::toggleOutput()
+{
+  sched_->toggleEndPaths();
+}
+
+void EventProcessor::prescaleInput(unsigned int f)
+{
+  sched_->setGlobalInputPrescaleFactor(f);
+}
+
+void EventProcessor::prescaleOutput(unsigned int f)
+{
+  sched_->setGlobalOutputPrescaleFactor(f);
+}
+
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 bool EventProcessor::endRun() 
@@ -364,14 +380,41 @@ void EventProcessor::taskWebPage(xgi::Input *in, xgi::Output *out,
 	*out << "Value" << std::endl;
 	*out << "</th>" << std::endl;
 	*out << "</tr>" << std::endl;
-	*out << "<tr>" << std::endl;
+ 	*out << "<tr>" << std::endl;
 	*out << "<td >" << std::endl;
 	*out << "Processed Events" << std::endl;
 	*out << "</td>" << std::endl;
 	*out << "<td>" << std::endl;
 	*out << eventcount << std::endl;
 	*out << "</td>" << std::endl;
-    *out << "  </tr>"                                            << endl;
+	*out << "  </tr>"                                            << endl;
+	*out << "<tr>" << std::endl;
+	*out << "<td >" << std::endl;
+	*out << "Endpaths State" << std::endl;
+	*out << "</td>" << std::endl;
+	*out << "<td" << (sched_->inhibit_endpaths_ ? " bgcolor=\"red\">" : ">") << std::endl;
+	*out <<  (sched_->inhibit_endpaths_ ? "disabled" : "enabled") << std::endl;
+	*out << "</td>" << std::endl;
+	*out << "  </tr>"                                            << endl;
+	*out << "<tr>" << std::endl;
+	*out << "<td >" << std::endl;
+	*out << "Global Input Prescale" << std::endl;
+	*out << "</td>" << std::endl;
+	*out << "<td" << (sched_->global_input_prescale_!=1 ? " bgcolor=\"red\">" : ">") << std::endl;
+	*out <<  sched_->global_input_prescale_ << std::endl;
+	*out << "</td>" << std::endl;
+	*out << "  </tr>"                                            << endl;
+	*out << "<tr>" << std::endl;
+	*out << "<td >" << std::endl;
+	*out << "Global Output Prescale" << std::endl;
+	*out << "</td>" << std::endl;
+	*out << "<td" << (sched_->global_output_prescale_!=1 ? " bgcolor=\"red\">" : ">") << std::endl;
+	*out <<  sched_->global_output_prescale_ << std::endl;
+	*out << "</td>" << std::endl;
+	*out << "  </tr>"                                            << endl;
+
+
+    
   *out << "</table>" << std::endl;
 
   *out << "<table frame=\"void\" rules=\"rows\" class=\"modules\">" << std::endl;

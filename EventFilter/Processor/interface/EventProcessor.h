@@ -9,6 +9,9 @@
 //
 //  MODIFICATION:
 //    $Log: EventProcessor.h,v $
+//    Revision 1.8  2006/02/15 00:38:40  meschi
+//    reflect most recent changes in FW
+//
 //    Revision 1.7  2006/01/11 00:19:33  meschi
 //    improved run end sequence
 //
@@ -93,6 +96,9 @@ namespace evf
       void resume(){paused_=false; wakeup();}
       inline int svc(){run();return 0;} //final
       void stopEventLoop(unsigned int);
+      void toggleOutput();
+      void prescaleInput(unsigned int);
+      void prescaleOutput(unsigned int);
       void run();
 
       void beginRun(); 
