@@ -1,3 +1,6 @@
+** V00-02-00  [Tue Feb 21 11:41:38 2006]
+namespace migration: aod:: to reco::
+
 ** V00-01-02  [Thu Feb  2 10:55:55 2006]
 using new selector producer module as base class for candidate selectors
 
