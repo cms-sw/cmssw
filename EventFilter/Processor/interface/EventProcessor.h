@@ -9,6 +9,9 @@
 //
 //  MODIFICATION:
 //    $Log: EventProcessor.h,v $
+//    Revision 1.9  2006/02/21 15:27:18  meschi
+//    added toggle output and input/output prescale
+//
 //    Revision 1.8  2006/02/15 00:38:40  meschi
 //    reflect most recent changes in FW
 //
@@ -59,7 +62,7 @@
 //#include "FWCore/Framework/src/SignallingProductRegistry.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 

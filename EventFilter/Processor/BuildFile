@@ -2,6 +2,7 @@
 <use name=Foundation/PluginManager>
 <use name=Framework/SealKernel>
 <use name=FWCore/Framework>
+<use name=FWCore/MessageService>
 <use name=FWCore/MessageLogger>
 <use name=EventFilter/Utilities>
 <export>

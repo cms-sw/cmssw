@@ -231,8 +231,6 @@ void EventProcessor::prescaleOutput(unsigned int f)
 }
 
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 bool EventProcessor::endRun() 
 {
   bool returnValue = true;
