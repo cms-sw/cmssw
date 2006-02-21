@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.cc,v 1.15 2006/02/03 21:22:14 paterno Exp $
+// $Id: ParameterSet.cc,v 1.16 2006/02/14 20:18:09 wmtan Exp $
 //
 // definition of ParameterSet's function members
 // ----------------------------------------------------------------------
@@ -122,7 +122,8 @@ namespace edm {
 	throw edm::Exception(errors::Configuration,"StatusMismatch:")
 	  << "Parameter '" << name
 	  << "' is designated as tracked in the code,\n"
-          << "but is designated as untracked in the configuration file.";
+          << "but is designated as untracked in the configuration file.\n"
+          << "Please remove 'untracked' from the configuration file for parameter '"<< name << "'.";
       }
     }
     return it->second;
@@ -142,7 +143,8 @@ namespace edm {
 	throw edm::Exception(errors::Configuration,"StatusMismatch:")
 	  << "Parameter '" << name
 	  << "' is designated as untracked in the code,\n"
-          << "but is not designated as untracked in the configuration file.";
+          << "but is not designated as untracked in the configuration file.\n"
+          << "Please change the configuration file to 'untracked <type> " << name << "'.";
       }
     }
     return &it->second;
