@@ -5,6 +5,7 @@
 //_________________________________________________________
 //
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBScope.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
 bool CSCTMBScope::debug = false;
@@ -25,13 +26,13 @@ int CSCTMBScope::UnpackScope(unsigned short *buf,int b05Line,int e05Line) {
 
 
   if(debug) {
-    std::cout << " ................................................" << std::endl;
-    std::cout << " .....TMBHeader -- unpacking Logic Analyzer......" << std::endl;
+    edm::LogInfo("CSCTMBScope") << " .....TMBHeader -- unpacking Logic Analyzer......";
   }
 
   if((e05Line-b05Line) == 1537) {
 
-    if(debug) std::cout << "Scope data found" << std::endl;
+    if(debug) 
+     edm::LogInfo("CSCTMBScope") << "Scope data found";
 
     //load scope_ram from raw-hits format readout
     iline = b05Line + 1;
@@ -144,21 +145,19 @@ int CSCTMBScope::UnpackScope(unsigned short *buf,int b05Line,int e05Line) {
     }
     data[51]=lct_bxn;
 
-    if(debug) std::cout << "Scope bxn at LCT (seq_pretrig): " 
-			<< lct_bxn << std::endl;
+    if(debug) 
+      edm::LogInfo("CSCTMBScope") << "Scope bxn at LCT (seq_pretrig): " 
+				  << lct_bxn;
 
     //----- now read back decoded scope data ---------
     if(debug) {
-      std::cout << "\n" << std::endl;
       for(ich=0;ich<=50;ich++) {
 	for(itbin=0;itbin<32;itbin++) {
 	  ibit = (data[ich] >> itbin ) & 1;
-	  if(ibit == 0) std::cout << "_";            //display symbol for logic 0
-	  if(ibit == 1) std::cout << "-";            //display symbol for logic 1
+	  if(ibit == 0) edm::LogInfo("CSCTMBScope") << "_";    //display symbol for logic 0
+	  if(ibit == 1) edm::LogInfo("CSCTMBScope") << "-";    //display symbol for logic 1
 	}
-	std::cout << std::endl;
       }
-      std::cout << "\n" << std::endl;
     }
 
   } //end if(b05-e05)
@@ -170,14 +169,13 @@ int CSCTMBScope::UnpackScope(unsigned short *buf,int b05Line,int e05Line) {
     lct_bxn  = 0xff0000;    //value not possible for real data (short)
     data[51] = lct_bxn;
 
-    if(debug) std::cout << "No scope data found: wrdcnt: " 
-			<< (e05Line-b05Line) << std::endl;
+    if(debug) 
+      edm::LogInfo("CSCTMBScope")  << "No scope data found: wrdcnt: " 
+				   << (e05Line-b05Line);
   }
 
-
   if(debug) {
-    std::cout << " .....END -- unpacking Logic Analyzer..........." << std::endl;
-    std::cout << " ..............................................." << std::endl;
+     edm::LogInfo("CSCTMBScope") << " .....END -- unpacking Logic Analyzer...........";
   }
 
   return (e05Line - b05Line + 1);
@@ -199,7 +197,8 @@ int CSCTMBScope::GetPretrig(int ich) {
     itbin++;
   }
 
-  if(debug) std::cout << "TMB SCOPE: ------- Pretrig value: " << value << std::endl;
+  if(debug)
+    edm::LogInfo("CSCTMBScope") << "TMB SCOPE: ------- Pretrig value: " << value;
   return value;
 
 } //GetPretrig

@@ -51,8 +51,8 @@ public:
    if      (index == 0) return alct0Word();
    else if (index == 1) return alct1Word();
    else {
-     std::cout << "+++ CSCALCTHeader:ALCT(): called with illegal index = "
-	  << index << "! +++" << std::endl;
+     //std::cout << "+++ CSCALCTHeader:ALCT(): called with illegal index = "
+     //  << index << "! +++" << std::endl;
      return 0;
    }
  }

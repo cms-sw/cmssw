@@ -11,6 +11,8 @@
 
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBScope.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include <iostream>
 #include <bitset>
 #include <cstdio>
@@ -41,18 +43,15 @@ CSCTMBData::~CSCTMBData() {
 //
 //
 int findLine(unsigned short *buf, unsigned short marker,int first,  int maxToDo) {
-  //std::cout << "finding line " << std::hex << marker << "  from "<< std::dec 
-  //    << first << " to " <<maxToDo<< std::hex <<std::endl;
+ 
   for(int i = first; i < maxToDo; ++i) {
-    //std::cout << "buf[i]=" << buf[i] << " i=" << std::dec << i << std::hex << std::endl;
+ 
     if(buf[i] == marker)  {
-      //std::cout << "found!" << std::endl;
 	return i;
     }
     
   }
 
-  //std::cout << "Failed to find " << marker << " line " << std::endl;
   return -1;
 
 }
@@ -63,7 +62,6 @@ int CSCTMBData::TMBCRCcalc() {
 
   unsigned i = 0;
   for (unsigned int line=theB0CLine; line<theE0FLine+1;line++) {
-    //printf(" Putting in %x \n",buf[line]);
     theTotalTMBData[i] = std::bitset<16>(theOriginalBuffer[line]);
     ++i;
   }
@@ -71,10 +69,10 @@ int CSCTMBData::TMBCRCcalc() {
 
   if ( theTotalTMBData.size() > 0 ) {
     std::bitset<22> CRC=calCRC22(theTotalTMBData);
-    std::cout << " Test here " << CRC.to_ulong() << std::endl ;
+    edm::LogInfo("CSCTMBData") << " Test here " << CRC.to_ulong();
     return CRC.to_ulong();
   } else {
-    std::cout << "theTotalTMBData doesn't exist" << std::endl;
+    edm::LogInfo("CSCTMBData") << "theTotalTMBData doesn't exist";
     return 0;
   }
 }
@@ -83,7 +81,7 @@ int CSCTMBData::UnpackTMB(unsigned short *buf) {
 
   int b0cLine = findLine(buf, 0x6b0c, 0, 10);
   if(b0cLine == -1) {
-    std::cout << "+++ CSCTMBData warning: No b0c line!" << std::endl;
+    edm::LogError("CSCTMBData") << "+++ CSCTMBData warning: No b0c line!";
     return 0;  
   }
   //
@@ -96,20 +94,15 @@ int CSCTMBData::UnpackTMB(unsigned short *buf) {
   
 
   if(e0bLine == -1) {
-    std::cout << "+++ CSCTMBData warning: No e0b line!" << std::endl;
-    std::cout << "+++ Corrupt header!" << std::endl;
+    edm::LogError("CSCTMBData") << "+++ CSCTMBData warning: No e0b line!";
+    edm::LogError("CSCTMBData") << "+++ Corrupt header!";
     return 0;
   } 
 
   memcpy(&theTMBHeader, buf, NHeaderFrames*2);
-  if(debug) {
-    //  for (int loop=0; loop<NHeaderFrames+1; loop++) std::cout << "+++ CSCEventData " << hex << buf[loop] << std::endl; 
-    //std::cout << theTMBHeader << std::endl;
-    //for (int loop=0; loop<TotTMBReadout; loop++)   printf(" %3d %04x \n",loop,buf[loop]);
-  }
 
   if(!theTMBHeader.check()) {
-     std::cout << "+++ CSCTMBData warning: Bad TMB header e0bLine=" << std::hex << buf[e0bLine] << std::endl;
+     edm::LogError("CSCTMBData") << "+++ CSCTMBData warning: Bad TMB header e0bLine=" << std::ios::hex << buf[e0bLine];
      return 0;
   }
 
@@ -118,7 +111,7 @@ int CSCTMBData::UnpackTMB(unsigned short *buf) {
   theCLCTData = CSCCLCTData(theTMBHeader.NCFEBs(), theTMBHeader.NTBins(), buf+e0bLine+1);
 
   if(!theCLCTData.check()) {
-     std::cout << "+++ CSCTMBData warning: Bad CLCT data" << std::endl;
+     edm::LogError("CSCTMBData") << "+++ CSCTMBData warning: Bad CLCT data";
   }else{
      afterHeader+=theCLCTData.sizeInWords();
   }
@@ -130,7 +123,7 @@ int CSCTMBData::UnpackTMB(unsigned short *buf) {
     int e04Line = findLine(buf, 0x6e04, afterHeader, afterHeader+MaxSizeRPC);
     if(e04Line != -1) {
       if (e04Line < b04Line ) {
-	std::cout << "RPC data is corrupt! e04Line < b04Line " << std::endl;
+	edm::LogError("CSCTMBData") << "RPC data is corrupt! e04Line < b04Line ";
 	return 0;
       }
       else {
@@ -139,7 +132,7 @@ int CSCTMBData::UnpackTMB(unsigned short *buf) {
 	afterHeader+=theRPCData.sizeInWords();
       }
     } else {
-      std::cout << "CSCTMBData::corrupt RPC data! Failed to find end! " << std::endl;
+      edm::LogError("CSCTMBData") << "CSCTMBData::corrupt RPC data! Failed to find end! ";
       return 0;
     }
   }
@@ -159,7 +152,7 @@ int CSCTMBData::UnpackTMB(unsigned short *buf) {
 
   int maxLine = findLine(buf, 0xde0f, afterHeader, TotTMBReadout);
   if(maxLine == -1) {
-    std::cout << "+++ CSCTMBData warning: No e0f line!" << std::endl;
+    edm::LogError("CSCTMBData") << "+++ CSCTMBData warning: No e0f line!";
     return 0;
   }
 
@@ -171,18 +164,13 @@ int CSCTMBData::UnpackTMB(unsigned short *buf) {
   int CRClow  = buf[maxLine-2] & 0x7ff;
   int CRChigh = buf[maxLine-1] & 0x7ff;
 
-  //printf("CRClow %0x CRChigh %0x \n",CRClow,CRChigh);
 
   CRCCnt = (CRChigh<<11) | (CRClow);
 
-  //printf("Get  CRC %x \n",getCRC());
-  //printf("Calc CRC %x \n",TMBCRCcalc());
-
   // finally, the trailer
-  // afterHeader-4 MUST BE FIXED !!! WE CALCULATE WRONG RPC DATA SIZE (AT)
-  int e0cLine = findLine(buf, 0x6e0c, afterHeader, maxLine);
+    int e0cLine = findLine(buf, 0x6e0c, afterHeader, maxLine);
   if (e0cLine == -1) {
-    std::cout << "+++ CSCTMBData warning: No e0c line!" << std::endl;
+    edm::LogError("CSCTMBData") << "+++ CSCTMBData warning: No e0c line!";
   } else {
     theTMBTrailer = CSCTMBTrailer(buf+e0cLine);
   }
@@ -203,7 +191,6 @@ std::bitset<22> CSCTMBData::calCRC22(const std::vector< std::bitset<16> >& datai
   std::bitset<22> CRC;
   CRC.reset();
   for(unsigned int i=0;i<datain.size()-3;i++){
-    //printf("Taking %x \n",datain[i].to_ulong());
     CRC=nextCRC22_D16(datain[i],CRC);
   }
   return CRC;
@@ -245,22 +232,3 @@ std::bitset<22> CSCTMBData::nextCRC22_D16(const std::bitset<16>& D,
   return NewCRC;
 }
 
-/*
-#include "Utilities/GenUtil/interface/BitVector.h"
-
-BitVector CSCTMBData::pack() {
-  BitVector result((const unsigned int*) &theTMBHeader, 
-                    theTMBHeader.sizeInWords()*16);
-  BitVector clctData((const unsigned int*)theCLCTData.data(), 
-                    theCLCTData.sizeInWords()*16);
-  result.assign(result.nBits(), clctData.nBits(), clctData);
-  int finalSize = result.nBits()/16 + theTMBTrailer.sizeInWords();
-  theTMBTrailer.setWordCount(finalSize);
-  BitVector tmbTrailer((const unsigned int*) &theTMBTrailer, 
-                    theTMBTrailer.sizeInWords()*16);
-  result.assign(result.nBits(), tmbTrailer.nBits(), tmbTrailer);
-  theTMBTrailer.setWordCount(result.nBits()/16);
-  return result;
-}
-
-*/

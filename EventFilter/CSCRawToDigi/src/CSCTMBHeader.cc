@@ -41,8 +41,4 @@ std::ostream & operator<<(std::ostream & os, const CSCTMBHeader & hdr) {
 
   return os;
 
-//    os << hex << "MPC_Muon0_Frame0 = " << MPC_Muon0_Frame0
-//         << ", MPC_Muon0_Frame1 = " << MPC_Muon0_Frame1 << endl;
-//    os << "MPC_Muon1_Frame0 = " << MPC_Muon1_Frame0 <<", MPC_Muon1_Frame1 = "
-//         << MPC_Muon1_Frame1 << dec << endl;
 }

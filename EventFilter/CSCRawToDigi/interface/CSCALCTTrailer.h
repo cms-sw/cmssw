@@ -19,7 +19,7 @@ public:
   static int sizeInWords() {return 4;}
 
   int getCRC() { 
-    printf("crc1 %x crc0 %x \n",crc1,crc0);
+    //printf("crc1 %x crc0 %x \n",crc1,crc0);
     return ((crc1&0x7ff)<<11) | (crc0&0x7ff) ; 
   }
 

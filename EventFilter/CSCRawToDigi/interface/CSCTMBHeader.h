@@ -57,8 +57,8 @@ class CSCTMBHeader {
     if      (index == 0) return clct0Word();
     else if (index == 1) return clct1Word();
     else {
-      std::cout << "+++ CSCTMBHeader:CLCT(): called with illegal index = "
-	   << index << "! +++" << std::endl;
+      //std::cout << "+++ CSCTMBHeader:CLCT(): called with illegal index = "
+      //	   << index << "! +++" << std::endl;
       return 0;
     }
   }
