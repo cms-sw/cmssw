@@ -1,3 +1,6 @@
+** V00-03-06  [Tue Feb 21 17:37:32 2006]
+remove some verbosity
+
 ** V00-03-05  [Tue Feb  7 13:38:55 2006]
 correct pileup verification for trackers+ improve validation
 
