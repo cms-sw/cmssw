@@ -74,8 +74,8 @@ std::string HcalCalibDetId::cboxChannelString() const {
 std::ostream& operator<<(std::ostream& s,const HcalCalibDetId& id) {
   switch (id.calibFlavor()) {
   case(HcalCalibDetId::CalibrationBox):
-    return s << "(HcalCalibBox " << id.sectorString() << ' ' << id.rbx() 
-	     << ':' << id.cboxChannel() << ')';
+    return s << "(HcalCalibBox " << id.sectorString() << ':' << id.rbx() 
+	     << ' ' << id.cboxChannelString() << ')';
   default: return s;
   };
 }
