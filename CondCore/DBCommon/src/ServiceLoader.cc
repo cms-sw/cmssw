@@ -99,18 +99,20 @@ coral::IRelationalService& cond::ServiceLoader::loadRelationalService(){
 void cond::ServiceLoader::loadConnectionService(){
 }
 pool::IBlobStreamingService& cond::ServiceLoader::loadBlobStreamingService(){
-  m_loader->load( "COND/Services/DefaultBlobStreamingService" );
+  //m_loader->load( "COND/Services/DefaultBlobStreamingService" );
+  pool::POOLContext::loadComponent( "COND/Services/DefaultBlobStreamingService" );  
   std::vector< seal::IHandle<pool::IBlobStreamingService> > v_svc;
-  m_context->query( v_svc );
+  pool::POOLContext::context()->query( v_svc );
   if ( v_svc.empty() ) {
     throw cond::Exception( "could not locate the BlobStreamingService" );
   }
   return *(v_svc.front());
 }
 pool::IBlobStreamingService& cond::ServiceLoader::loadBlobStreamingService( const std::string& componentName ){
-  m_loader->load( componentName );
+  //m_loader->load( componentName );
+  pool::POOLContext::loadComponent( componentName );  
   std::vector< seal::IHandle<pool::IBlobStreamingService> > v_svc;
-  m_context->query( v_svc );
+  pool::POOLContext::context()->query( v_svc );
   if ( v_svc.empty() ) {
     throw cond::Exception( std::string("could not locate the BlobStreamingService ")+componentName );
   }
