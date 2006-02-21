@@ -1,5 +1,7 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCALCTHeader.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDMBHeader.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include <iomanip>
 #include <bitset>
 
@@ -18,7 +20,9 @@ CSCALCTHeader::CSCALCTHeader(int chamberType) {
   lctChipRead = activeFEBsForChamberType[chamberType];
   activeFEBs = lctChipRead;
   nTBins = nTBinsForChamberType[chamberType];
-  std::cout << "MAKING ALCTHEADER " << chamberType << " " << activeFEBs << " " << nTBins << std::endl;
+  if (debug)
+    edm::LogInfo ("CSCALCTHeader") << "MAKING ALCTHEADER " << chamberType 
+				   << " " << activeFEBs << " " << nTBins;
 }
 
 CSCALCTHeader::CSCALCTHeader(const unsigned short * buf) {
@@ -42,11 +46,9 @@ unsigned short CSCALCTHeader::nLCTChipRead() const {
 
 int CSCALCTHeader::ALCTCRCcalc() {
   std::vector< std::bitset<16> > theTotalALCTData;
-  //    printf(" size %d nChip %d ntbins %d \n",sizeInWords(),nLCTChipRead(),NTBins());
   int nTotalLines = sizeInWords()+nLCTChipRead()*NTBins()*6*2;
   theTotalALCTData.reserve(nTotalLines);
   for (int line=0; line<nTotalLines; line++) {
-    // printf(" +++ CSCALCTHeader Putting in %x \n",buf[line]);
     theTotalALCTData[line] = std::bitset<16>(theOriginalBuffer[line]);
   }
 
@@ -54,7 +56,7 @@ int CSCALCTHeader::ALCTCRCcalc() {
     std::bitset<22> CRC=calCRC22(theTotalALCTData);
     return CRC.to_ulong();
   } else {
-    std::cout << "theTotalALCTData doesn't exist" << std::endl;
+    edm::LogWarning ("CSCALCTHeader") << "theTotalALCTData doesn't exist";
     return 0;
   }
 }
@@ -63,8 +65,7 @@ std::bitset<22> CSCALCTHeader::calCRC22(const std::vector< std::bitset<16> >& da
   std::bitset<22> CRC;
   CRC.reset();
   for(int i=0;i<(int) datain.size();i++){
-    //    printf("Taking %lx \n",datain[i].to_ulong());
-    std::cout << std::hex << datain[i].to_ulong() << std::endl;
+    if (debug) edm::LogInfo ("CSCALCTHeader") << std::ios::hex << datain[i].to_ulong();
     CRC=nextCRC22_D16(datain[i],CRC);
   }
   return CRC;
