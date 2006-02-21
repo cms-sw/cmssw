@@ -4,8 +4,8 @@
 /*
  * \file DTDigiTask.h
  *
- * $Date: 2006/02/15 08:24:55 $
- * $Revision: 1.1 $
+ * $Date: 2006/02/15 19:00:04 $
+ * $Revision: 1.2 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -64,7 +64,7 @@ protected:
 private:
 
   int nevents;
-  
+
   /// no needs to be precise. Value from PSets will always be used
   int tMax;
 

@@ -1,6 +1,7 @@
 <flags SEAL_PLUGIN_NAME="DQMDTMonitorModule">
 <use name=FWCore/Framework>
 <use name=DQMServices/CoreROOT>
+<use name=EventFilter/DTRawToDigi>
 <use name=DataFormats/DTDigi>
 <use name=CondFormats/DTObjects>
 <use name=CondFormats/DataRecord>
@@ -14,6 +15,7 @@
  <lib name=DQMDTMonitorModule>
  <use name=FWCore/Framework>
  <use name=DQMServices/CoreROOT>
+ <use name=EventFilter/DTRawToDigi>
  <use name=DataFormats/DTDigi>
  <use name=CondFormats/DTObjects>
  <use name=CondFormats/DataRecord>

@@ -1,8 +1,8 @@
 /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2006/02/15 08:24:56 $
- * $Revision: 1.1 $
+ * $Date: 2006/02/15 19:00:05 $
+ * $Revision: 1.2 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -55,6 +55,9 @@ DTDigiTask::DTDigiTask(const edm::ParameterSet& ps){
   
   dbe = edm::Service<DaqMonitorBEInterface>().operator->();
 
+  edm::Service<MonitorDaemon> daemon; 	 
+  daemon.operator->();
+
   dbe->setVerbose(1);
 
 
@@ -80,7 +83,7 @@ void DTDigiTask::beginJob(const edm::EventSetup& context){
   context.get<MuonGeometryRecord>().get(muonGeom);
 
   // Get the pedestals tTrig
-  context.get<DTTtrigRcd>().get(tTrigMap);
+  //context.get<DTTtrigRcd>().get(tTrigMap);
   if (parameters.getParameter<bool>("performPerWireT0Calibration")) context.get<DTT0Rcd>().get(t0Map);
  
 }
@@ -170,10 +173,6 @@ void DTDigiTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   nevents++;
   if (nevents%100 == 0) 
     cout<<"[DTDigiTask]: "<<nevents<<" events analyzed"<<endl;
-
-  // Temporary and NASTY
-  int pippo;
-  if (nevents == 4000) cin>>pippo;
 
   edm::Handle<DTDigiCollection> dtdigis;
   e.getByLabel("dtunpacker", dtdigis);

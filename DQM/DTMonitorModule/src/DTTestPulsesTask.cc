@@ -1,8 +1,8 @@
 /*
  * \file DTTestPulsesTask.cc
  * 
- * $Date: 2006/02/15 08:24:56 $
- * $Revision: 1.1 $
+ * $Date: 2006/02/15 19:00:59 $
+ * $Revision: 1.2 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -46,6 +46,9 @@ DTTestPulsesTask::DTTestPulsesTask(const edm::ParameterSet& ps){
   parameters = ps;
   
   dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+
+  edm::Service<MonitorDaemon> daemon; 	 
+  daemon.operator->();
 
   dbe->setVerbose(1);
 
