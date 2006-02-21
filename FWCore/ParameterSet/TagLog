@@ -1,3 +1,6 @@
+** V01-02-04  [Wed Feb 22 00:36:20 2006]
+Enhance error messages on tracked/untracked mismatch
+
 ** V01-02-03  [Thu Feb 16 23:19:30 2006]
 Enhancing testing of untracked parameters
 
