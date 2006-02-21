@@ -98,7 +98,7 @@ namespace edm
 
   void MixingModule::addPileups(const int bcr, Event *e) {
 
-    std::cout<<"\naddPileups from event  "<<e->id()<<endl;
+    //    std::cout<<"\naddPileups from event  "<<e->id()<<endl;
 
     // Muons
     for(std::vector<std::string >::iterator itstr = muonSubdetectors_.begin(); itstr != muonSubdetectors_.end(); ++itstr) {
@@ -157,7 +157,6 @@ namespace edm
   }
  
   void MixingModule::put(edm::Event &e) {
-    simcf_->print(3);
     e.put(std::auto_ptr<CrossingFrame>(simcf_));
   }
 
