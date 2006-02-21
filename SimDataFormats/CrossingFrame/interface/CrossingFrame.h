@@ -17,7 +17,7 @@
 #include "SimDataFormats/Track/interface/EmbdSimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/EmbdSimVertexContainer.h"
 
-#include "FWCore/EDProduct/interface/EventID.h"
+#include "DataFormats/Common/interface/EventID.h"
 #include "FWCore/Framework/interface/Event.h"
 
 #include <vector>

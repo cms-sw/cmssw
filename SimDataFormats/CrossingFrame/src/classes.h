@@ -3,7 +3,7 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimDataFormats/Track/interface/EmbdSimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/EmbdSimVertexContainer.h"
-#include "FWCore/EDProduct/interface/Wrapper.h"
+#include "DataFormats/Common/interface/Wrapper.h"
 
 #include <map>
 #include <string>

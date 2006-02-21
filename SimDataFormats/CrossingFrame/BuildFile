@@ -1,6 +1,6 @@
 <export>
  <lib name=SimDataFormatsCrossingFrame>
- <use name=FWCore/EDProduct>
+ <use name=DataFormats/Common>
  <use name=SimDataFormats/TrackingHit>
  <use name=SimDataFormats/CaloHit>
  <use name=SimDataFormats/Track>
@@ -9,7 +9,7 @@
  <use name=clhep>
 </export>
 
-<use name=FWCore/EDProduct>
+<use name=DataFormats/Common>
 <use name=SimDataFormats/TrackingHit>
 <use name=SimDataFormats/CaloHit>
 <use name=SimDataFormats/Track>
