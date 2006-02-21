@@ -99,9 +99,6 @@ TouchableToHistory::Nav_Story TouchableToHistory::touchableToNavStory(const G4VT
 		     (v->GetVolume(k)->GetCopyNo(),
 		      v->GetVolume(k)->GetLogicalVolume()->GetName()));
   }
-#ifdef DEBUG
-  std::cout << " TouchableToHistory::touchableToNavStory returning "<<temp<<std::endl;
-#endif
   return temp;
 }
 
