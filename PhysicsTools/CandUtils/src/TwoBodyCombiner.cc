@@ -1,6 +1,6 @@
-// $Id: TwoBodyCombiner.cc,v 1.7 2005/12/11 19:02:17 llista Exp $
+// $Id: TwoBodyCombiner.cc,v 1.8 2005/12/13 01:47:12 llista Exp $
 #include "PhysicsTools/CandUtils/interface/TwoBodyCombiner.h"
-using namespace aod;
+using namespace reco;
 using namespace std;
 
 TwoBodyCombiner::TwoBodyCombiner( const boost::shared_ptr<CandSelector> & sel,

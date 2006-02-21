@@ -1,6 +1,6 @@
-// $Id: AddFourMomenta.cc,v 1.3 2005/12/05 14:44:53 llista Exp $
+// $Id: AddFourMomenta.cc,v 1.4 2005/12/13 01:47:12 llista Exp $
 #include "PhysicsTools/CandUtils/interface/AddFourMomenta.h"
-using namespace aod;
+using namespace reco;
 
 AddFourMomenta::~AddFourMomenta() { }
 

@@ -12,7 +12,7 @@
 #include "FWCore/Framework/interface/Handle.h"
 
 using namespace std;
-using namespace aod;
+using namespace reco;
 
 namespace cms
 {

@@ -16,20 +16,18 @@
 //
 // Original Author:  
 //         Created:  Thu Aug 11 18:56:27 EDT 2005
-// $Id: candidateMethods.h,v 1.2 2005/10/21 15:10:13 llista Exp $
+// $Id: candidateMethods.h,v 1.1 2005/10/24 12:59:52 llista Exp $
 //
 
 #include <map>
 
-namespace aod {
+namespace reco {
   class Candidate;
 }
 
-namespace aod {
-  
-  typedef double (aod::Candidate::* PCandMethod)() const;
+namespace reco {
+  typedef double (Candidate::* PCandMethod)() const;
   typedef std::map<std::string, PCandMethod> CandidateMethods;
-
   const CandidateMethods& candidateMethods() ;
 }
 

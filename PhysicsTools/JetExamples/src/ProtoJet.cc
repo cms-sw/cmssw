@@ -12,7 +12,7 @@
 const double PI=3.14159265;
 
 using std::vector;
-using namespace aod;
+using namespace reco;
 
 ProtoJet::ProtoJet(): 
   m_constituents(), m_e(0), m_px(0), m_py(0), m_pz(0) {

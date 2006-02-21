@@ -1,8 +1,8 @@
-// $Id: testThrust.cc,v 1.2 2006/01/31 09:11:27 llista Exp $
+// $Id: testThrust.cc,v 1.3 2006/01/31 11:23:56 llista Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include "PhysicsTools/Candidate/interface/LeafCandidate.h"
 #include "PhysicsTools/CandUtils/interface/Thrust.h"
-using namespace aod;
+using namespace reco;
 
 class testParticle : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testParticle);

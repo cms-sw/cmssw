@@ -1,11 +1,11 @@
-// $Id: JetAnalyzer.cc,v 1.7 2005/12/13 01:47:11 llista Exp $
+// $Id: JetAnalyzer.cc,v 1.1 2006/02/07 15:43:43 llista Exp $
 #include "PhysicsTools/JetExamples/src/JetAnalyzer.h"
 #include "PhysicsTools/Candidate/interface/Candidate.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <iostream>
-using namespace aod;
+using namespace reco;
 using namespace edm;
 using namespace std;
 

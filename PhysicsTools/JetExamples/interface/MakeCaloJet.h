@@ -9,7 +9,7 @@
 class ProtoJet;
 #include "PhysicsTools/Candidate/interface/CandidateFwd.h"
 
-void MakeCaloJet(const aod::CandidateCollection &ctc, const std::vector<ProtoJet>& protoJets, 
-		 aod::CandidateCollection &caloJets);
+void MakeCaloJet(const reco::CandidateCollection &ctc, const std::vector<ProtoJet>& protoJets, 
+		 reco::CandidateCollection &caloJets);
 
 #endif

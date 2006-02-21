@@ -1,4 +1,4 @@
-// $Id: CandReducer.cc,v 1.1 2005/12/12 21:31:24 llista Exp $
+// $Id: CandReducer.cc,v 1.2 2005/12/13 01:47:10 llista Exp $
 #include <memory>
 #include "PhysicsTools/CandAlgos/src/CandReducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -8,7 +8,7 @@
 #include "PhysicsTools/CandAlgos/src/candidateMethods.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
-using namespace aod;
+using namespace reco;
 using namespace edm;
 using namespace candmodules;
 

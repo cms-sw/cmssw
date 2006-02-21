@@ -10,11 +10,14 @@
 //
 // Author:      Chris D Jones
 // Created:     Sun Aug  7 20:45:55 EDT 2005
-// $Id: cutParser.cc,v 1.2 2005/10/25 08:47:05 llista Exp $
+// $Id: cutParser.cc,v 1.3 2005/10/25 09:08:31 llista Exp $
 //
 // Revision history
 //
 // $Log: cutParser.cc,v $
+// Revision 1.3  2005/10/25 09:08:31  llista
+// extracted selector in CandUtils/CandSelector class
+//
 // Revision 1.2  2005/10/25 08:47:05  llista
 // rationalized class location
 //
@@ -36,7 +39,7 @@
 
 typedef boost::shared_ptr<CandSelector> selector_ptr;
 
-namespace aod {
+namespace reco {
 
 typedef boost::spirit::scanner<const char*, boost::spirit::scanner_policies_t > ScannerUsed;
 typedef boost::spirit::rule<ScannerUsed> Rule_t;

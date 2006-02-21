@@ -4,12 +4,12 @@
 #include "PhysicsTools/Candidate/interface/Candidate.h"
 
 using namespace std;
-using namespace aod;
+using namespace reco;
 
 //  Run the algorithm
 //  ------------------
 void CMSmidpointAlgorithm::run(const Handle & theCtcp,
-			       aod::CandidateCollection & caloJets)
+			       CandidateCollection & caloJets)
 {
   //Create a JetableObjectHelper for this collection
     JetableObjectHelper theHelper(theCtcp); 
@@ -118,7 +118,7 @@ void CMSmidpointAlgorithm::findStableConesFromSeeds(JetableObjectHelper& theHelp
         }	
         if(nIterations==theMaxIterations+1) {
 	  for(CandidateRefs::iterator i = towersInSeedCluster.begin(); i != towersInSeedCluster.end(); ++i) {
-	    const aod::Candidate &t = **i;
+	    const Candidate &t = **i;
 	    if(theDebugLevel>=2) cout << "[CMSmidpointAlgorithm] Tower " <<
               i-towersInSeedCluster.begin() << ": eta=" << t.eta() << 
 	      ", phi=" << t.phi() << ", ET="  << t.et() << endl;

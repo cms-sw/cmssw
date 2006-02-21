@@ -1,10 +1,10 @@
-// $Id: TwoBodyCombiner.cc,v 1.6 2005/10/25 09:08:31 llista Exp $
+// $Id: TwoBodyCombiner.cc,v 1.7 2005/12/11 19:02:14 llista Exp $
 #include "PhysicsTools/CandAlgos/src/TwoBodyCombiner.h"
 #include "PhysicsTools/CandUtils/interface/MassWindowSelector.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-using namespace aod;
+using namespace reco;
 using namespace edm;
 using namespace std;
 

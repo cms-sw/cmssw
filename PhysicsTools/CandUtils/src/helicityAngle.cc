@@ -1,9 +1,9 @@
-// $Id: helicityAngle.cc,v 1.7 2005/12/13 01:47:12 llista Exp $
+// $Id: helicityAngle.cc,v 1.8 2005/12/13 23:27:22 llista Exp $
 #include "PhysicsTools/CandUtils/interface/helicityAngle.h"
 #include "PhysicsTools/Candidate/interface/Candidate.h"
 #include "PhysicsTools/CandUtils/interface/Booster.h"
 #include <Math/VectorUtil.h>
-using namespace aod;
+using namespace reco;
 using namespace std;
 
 double helicityAngle( const Candidate & cand ) {

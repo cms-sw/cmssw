@@ -10,7 +10,7 @@
 #include "DataFormats/Common/interface/ClonePolicy.h"
 
 namespace candmodules {
-typedef Merger<aod::CandidateCollection, edm::ClonePolicy<aod::Candidate> > CandMerger;
+typedef Merger<reco::CandidateCollection, edm::ClonePolicy<reco::Candidate> > CandMerger;
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE( CandSelector );
 DEFINE_ANOTHER_FWK_MODULE( CandCombiner );

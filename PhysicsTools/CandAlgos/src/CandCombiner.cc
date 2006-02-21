@@ -1,4 +1,4 @@
-// $Id: CandCombiner.cc,v 1.4 2005/10/25 09:08:31 llista Exp $
+// $Id: CandCombiner.cc,v 1.5 2005/12/11 19:02:14 llista Exp $
 #include "PhysicsTools/CandAlgos/src/CandCombiner.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -6,7 +6,7 @@
 #include "PhysicsTools/CandAlgos/src/cutParser.h"
 #include "PhysicsTools/CandAlgos/src/candidateMethods.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-using namespace aod;
+using namespace reco;
 using namespace edm;
 using namespace std;
 using namespace candcombiner;

@@ -16,11 +16,14 @@
 //
 // Author:      Chris D Jones
 // Created:     Sun Aug  7 20:45:51 EDT 2005
-// $Id: cutParser.h,v 1.2 2005/10/25 08:47:05 llista Exp $
+// $Id: cutParser.h,v 1.3 2005/10/25 09:08:31 llista Exp $
 //
 // Revision history
 //
 // $Log: cutParser.h,v $
+// Revision 1.3  2005/10/25 09:08:31  llista
+// extracted selector in CandUtils/CandSelector class
+//
 // Revision 1.2  2005/10/25 08:47:05  llista
 // rationalized class location
 //
@@ -35,8 +38,8 @@
 #include <boost/shared_ptr.hpp>
 #include <map>
 
-namespace aod {
-  typedef double ( aod::Candidate::* PCandMethod )() const;
+namespace reco {
+  typedef double ( reco::Candidate::* PCandMethod )() const;
   typedef std::map<std::string, PCandMethod> CandidateMethods;
   
   bool cutParser( const std::string & iString,

@@ -2,20 +2,20 @@
 #define PHYSICSTOOLS_BOOSTER_H
 #include "PhysicsTools/Candidate/interface/CompositeCandidate.h"
 
-struct Booster : public aod::Candidate::setup {
-  typedef aod::Candidate::Vector Vector;
+struct Booster : public reco::Candidate::setup {
+  typedef reco::Candidate::Vector Vector;
   Booster( const Vector & b ) : 
-    aod::Candidate::setup( setupCharge( false ), setupP4( true ) ), 
+    reco::Candidate::setup( setupCharge( false ), setupP4( true ) ), 
     boost( b ) { }
   virtual ~Booster();
-  virtual void set( aod::Candidate& c );
+  virtual void set( reco::Candidate& c );
   const Vector & boostVector() { return boost; }
 private:
   const Vector boost;
 };
 
 struct CenterOfMassBooster : public Booster {
-  CenterOfMassBooster( const aod::Candidate & c ) : Booster( c.boostToCM() ) {
+  CenterOfMassBooster( const reco::Candidate & c ) : Booster( c.boostToCM() ) {
   }
 };
 

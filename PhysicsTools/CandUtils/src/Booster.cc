@@ -1,8 +1,8 @@
-// $Id: Booster.cc,v 1.4 2005/12/13 01:47:12 llista Exp $
+// $Id: Booster.cc,v 1.5 2005/12/13 23:27:22 llista Exp $
 #include "PhysicsTools/CandUtils/interface/Booster.h"
 #include <Math/LorentzRotation.h>
 using namespace std;
-using namespace aod;
+using namespace reco;
 
 Booster::~Booster() { }
 

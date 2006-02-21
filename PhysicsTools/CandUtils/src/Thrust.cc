@@ -1,6 +1,6 @@
 #include "PhysicsTools/CandUtils/interface/Thrust.h"
 #include <cmath>
-using namespace aod;
+using namespace reco;
 const double pi = M_PI, pi2 = 2 * pi, pi_2 = pi / 2, pi_4 = pi / 4;
 
 Thrust::Thrust( const_iterator begin, const_iterator end ) : 

@@ -43,7 +43,7 @@ class CMSmidpointAlgorithm
    // parameters must be passed in to the constructor so that they can
    // be traced in the new EDM.
   
-  typedef edm::Handle<aod::CandidateCollection> Handle;
+  typedef edm::Handle<reco::CandidateCollection> Handle;
 
   CMSmidpointAlgorithm(const Handle & ctcp) :
     theSeedThreshold(3.0),
@@ -71,7 +71,7 @@ class CMSmidpointAlgorithm
 
   /// Runs the algorithm and returns a list of caloJets. 
   /// The user declares the vector and calls this method.
-  void run(const Handle & theCtcp, aod::CandidateCollection& caloJets);
+  void run(const Handle & theCtcp, reco::CandidateCollection& caloJets);
 
 
  private:

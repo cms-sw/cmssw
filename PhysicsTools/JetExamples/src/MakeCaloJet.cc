@@ -2,7 +2,7 @@
 #include "PhysicsTools/JetExamples/interface/ProtoJet.h"
 #include "PhysicsTools/Candidate/interface/CompositeRefCandidate.h"
 #include "PhysicsTools/CandUtils/interface/AddFourMomenta.h"
-using namespace aod;
+using namespace reco;
 
 void MakeCaloJet(const CandidateCollection &ctc, const std::vector<ProtoJet>& protoJets, CandidateCollection& caloJets){
   AddFourMomenta addp4;
