@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2006/02/04 18:27:24 $
- * $Revision: 1.78 $
+ * $Date: 2006/02/05 22:19:20 $
+ * $Revision: 1.79 $
  * \author G. Della Ricca
  *
 */
@@ -11,30 +11,22 @@
 
 EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
 
-  // this is a hack, used to fake the EcalBarrel run & event headers
-  TH1F* tmp = new TH1F("tmp", "tmp", 2, 0., 1.);
-  tmp->SetBinContent(1, -1.);
-  tmp->SetBinContent(2, -1.);
-
   runType_ = -1;
 
   // this should come from the EcalBarrel run header
   string s = ps.getUntrackedParameter<string>("runType", "unknown");
 
   if ( s == "cosmic" ) {
-    runType_ = 0;
+    runType_ = (PHYSICS+10);
   } else if ( s == "laser" ) {
-    runType_ = 1;
+    runType_ = LASER_STD;
   } else if ( s == "pedestal" ) {
-    runType_ = 2;
+    runType_ = PEDESTAL_STD;
   } else if ( s == "testpulse" ) {
-    runType_ = 3;
+    runType_ = TESTPULSE_MGPA;
   } else if ( s == "electron" ) {
-    runType_ = 4;
+    runType_ = (PHYSICS+11);
   }
-
-  // this is a hack, used to fake the EcalBarrel run header
-  tmp->SetBinContent(1, runType_);
 
   LogInfo("EcalBarrelMonitor") << " Processing run type: " << runType_ << " (" << s << ")";
 
@@ -84,6 +76,9 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
     LogInfo("EcalBarrelMonitor") << " enableMonitorDaemon switch is OFF";
   }
 
+  // EventDisplay switch
+  enableEventDisplay_ = ps.getUntrackedParameter<bool>("enableEventDisplay", false);
+
   meStatus_ = 0;
   meRun_ = 0;
   meEvt_ = 0;
@@ -97,7 +92,7 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
     meRun_ = dbe_->bookInt("RUN");
     meEvt_ = dbe_->bookInt("EVT");
 
-    meEvtType_ = dbe_->book1D("EVTTYPE", "EVTTYPE", 10, 0., 10.);
+    meEvtType_ = dbe_->book1D("EVTTYPE", "EVTTYPE", 30, 0., 30.);
     meRunType_ = dbe_->bookInt("RUNTYPE");
   }
 
@@ -109,8 +104,11 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
   if ( meRunType_ ) meRunType_->Fill(-1);
 
   // this should give enough time to the control MEs to reach the Collector,
-  // and then hopefully the clients
+  // and then hopefully the Client
+
   if ( enableMonitorDaemon_ ) sleep(10);
+
+  meEBDCC_ = 0;
 
   meEBdigi_ = 0;
   meEBhits_ = 0;
@@ -124,14 +122,19 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
 
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalBarrel");
+
+    meEBDCC_ = dbe_->book1D("EBMM SM", "EBMM SM", 36, 1, 37.);
+
     meEBdigi_ = dbe_->book1D("EBMM digi", "EBMM digi", 100, 0., 61201.);
     meEBhits_ = dbe_->book1D("EBMM hits", "EBMM hits", 100, 0., 61201.);
 
-    dbe_->setCurrentFolder("EcalBarrel/EcalEvent");
-    for (int i = 0; i < 36; i++) {
-      sprintf(histo, "EBMM event SM%02d", i+1);
-      meEvent_[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
-      if ( meEvent_[i] ) meEvent_[i]->setResetMe(true);
+    if ( enableEventDisplay_ ) {
+      dbe_->setCurrentFolder("EcalBarrel/EcalEvent");
+      for (int i = 0; i < 36; i++) {
+        sprintf(histo, "EBMM event SM%02d", i+1);
+        meEvent_[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+        if ( meEvent_[i] ) meEvent_[i]->setResetMe(true);
+      }
     }
 
     dbe_->setCurrentFolder("EcalBarrel/EcalOccupancy");
@@ -163,10 +166,6 @@ void EcalBarrelMonitorModule::beginJob(const EventSetup& c){
 
   if ( meRunType_ ) meRunType_->Fill(runType_);
 
-  // this should give enough time to all the MEs to reach the Collector,
-  // and then hopefully the clients, even for short runs
-  if ( enableMonitorDaemon_ ) sleep(120);
-
 }
 
 void EcalBarrelMonitorModule::endJob(void) {
@@ -184,12 +183,61 @@ void EcalBarrelMonitorModule::endJob(void) {
   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
 
   // this should give enough time to meStatus_ to reach the Collector,
-  // and then hopefully the clients ...
+  // and then hopefully the Client, and to allow the Client to complete
+
   if ( enableMonitorDaemon_ ) sleep(60);
 
 }
 
 void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
+
+  // this should give enough time to all the MEs to reach the Collector,
+  // and then hopefully the Client, especially when using CollateMEs,
+  // even for short runs
+
+  if ( enableMonitorDaemon_ && ievt_ == 0 ) sleep(120);
+
+  map<int, EcalDCCHeaderBlock> dccMap;
+
+  Handle<EcalRawDataCollection> dcchs;
+  e.getByLabel("ecalEBunpacker", dcchs);
+
+  int nebc = dcchs->size();
+  LogInfo("EcalBarrelMonitor") << "event " << ievt_ << " DCC headers collection size " << nebc;
+
+  for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
+
+    EcalDCCHeaderBlock dcch = (*dcchItr);
+
+    dccMap[dcch.id()] = dcch;
+
+    meEBDCC_->Fill((dcch.id()+1)+0.5);
+
+    if ( dccMap[dcch.id()].getRunNumber() != 0 ) irun_ = dccMap[dcch.id()].getRunNumber();
+
+    if ( dccMap[dcch.id()].getRunType() != -1 ) evtType_ = dccMap[dcch.id()].getRunType();
+
+    // uncomment the following line to mix fake 'laser' events w/ cosmic & beam events
+//    if ( ievt_ % 10 == 0 && ( runType_ == (PHYSICS+10) || runType_ == (PHYSICS+11) ) ) evtType_ = LASER_STD;
+
+    if ( evtType_ < 0 || evtType_ > 9 ) {
+      LogWarning("EcalBarrelMonitor") << "Unknown event type = " << evtType_;
+      evtType_ = -1;
+    }
+
+    if ( meEvtType_ ) {
+
+      meEvtType_->Fill(evtType_+0.5);
+
+      // cosmic = physics + 10
+      if ( evtType_ == PHYSICS && runType_ == (PHYSICS+10) ) meEvtType_->Fill((PHYSICS+10)+0.5);
+
+      // beam = physics + 11
+      if ( evtType_ == PHYSICS && runType_ == (PHYSICS+11) ) meEvtType_->Fill((PHYSICS+11)+0.5);
+
+    }
+
+  }
 
   ievt_++;
 
@@ -201,23 +249,10 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
   if ( meRunType_ ) meRunType_->Fill(runType_);
 
-  // this should come from the EcalBarrel event header
-  evtType_ = runType_;
-
-  // uncomment the following line to add fake 'laser' events
-//  if ( ievt_ % 10 == 0 && ( runType_ == 0 || runType_ == 4 ) ) evtType_ = 1;
-
-  // this is a hack, used to fake the EcalBarrel event header
-  TH1F* tmp = (TH1F*) gROOT->FindObjectAny("tmp");
-  tmp->SetBinContent(2, evtType_);
-
-  if ( meEvtType_ ) meEvtType_->Fill(evtType_+0.5);
-
-  Handle<EBDigiCollection>  digis;
+  Handle<EBDigiCollection> digis;
   e.getByLabel("ecalEBunpacker", digis);
 
   int nebd = digis->size();
-
   LogInfo("EcalBarrelMonitor") << "event " << ievt_ << " digi collection size " << nebd;
 
   if ( meEBdigi_ ) meEBdigi_->Fill(float(nebd));
@@ -244,7 +279,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
     if ( xie <= 0. || xie >= 85. || xip <= 0. || xip >= 20. ) {
       LogWarning("EcalBarrelMonitor") << " det id = " << id;
       LogWarning("EcalBarrelMonitor") << " sm, eta, phi " << ism << " " << ie << " " << ip;
-      LogWarning("EcalBarrelMonitor") << "ERROR:" << xie << " " << xip;
+      LogWarning("EcalBarrelMonitor") << " xie, xip " << xie << " " << xip;
       return;
     }
 
@@ -255,53 +290,56 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
   // resume the shipping of monitoring elements
   dbe_->unlock();
 
-  Handle<EcalUncalibratedRecHitCollection>  hits;
+  Handle<EcalUncalibratedRecHitCollection> hits;
   e.getByLabel("ecalUncalibHitMaker", "EcalEBUncalibRecHits", hits);
 
   int nebh = hits->size();
-
   LogInfo("EcalBarrelMonitor") << "event " << ievt_ << " hits collection size " << nebh;
 
   if ( meEBhits_ ) meEBhits_->Fill(float(nebh));
 
-  // pause the shipping of monitoring elements
-  dbe_->lock();
+  if ( enableEventDisplay_ ) {
 
-  for ( EcalUncalibratedRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
+    // pause the shipping of monitoring elements
+    dbe_->lock();
 
-    EcalUncalibratedRecHit hit = (*hitItr);
-    EBDetId id = hit.id();
+    for ( EcalUncalibratedRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
 
-    int ie = id.ieta();
-    int ip = id.iphi();
+      EcalUncalibratedRecHit hit = (*hitItr);
+      EBDetId id = hit.id();
 
-    float xie = ie - 0.5;
-    float xip = ip - 0.5;
+      int ie = id.ieta();
+      int ip = id.iphi();
 
-    int ism = id.ism();
+      float xie = ie - 0.5;
+      float xip = ip - 0.5;
 
-    LogDebug("EcalBarrelMonitor") << " det id = " << id;
-    LogDebug("EcalBarrelMonitor") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+      int ism = id.ism();
 
-    if ( xie <= 0. || xie >= 85. || xip <= 0. || xip >= 20. ) {
-      LogWarning("EcalBarrelMonitor") << " det id = " << id;
-      LogWarning("EcalBarrelMonitor") << " sm, eta, phi " << ism << " " << ie << " " << ip;
-      LogWarning("EcalBarrelMonitor") << "ERROR:" << xie << " " << xip;
-      return;
+      LogDebug("EcalBarrelMonitor") << " det id = " << id;
+      LogDebug("EcalBarrelMonitor") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+
+      if ( xie <= 0. || xie >= 85. || xip <= 0. || xip >= 20. ) {
+        LogWarning("EcalBarrelMonitor") << " det id = " << id;
+        LogWarning("EcalBarrelMonitor") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+        LogWarning("EcalBarrelMonitor") << " xie, xip " << xie << " " << xip;
+        return;
+      }
+
+      float xval = hit.amplitude();
+
+      LogDebug("EcalBarrelMonitor") << " hit amplitude " << xval;
+
+      if ( xval >= 10 ) {
+         if ( meEvent_[ism-1] ) meEvent_[ism-1]->Fill(xie, xip, xval);
+      }
+
     }
 
-    float xval = hit.amplitude();
-
-    LogDebug("EcalBarrelMonitor") << " hit amplitude " << xval;
-
-    if ( xval >= 10 ) {
-       if ( meEvent_[ism-1] ) meEvent_[ism-1]->Fill(xie, xip, xval);
-    }
+    // resume the shipping of monitoring elements
+    dbe_->unlock();
 
   }
-
-  // resume the shipping of monitoring elements
-  dbe_->unlock();
 
 //  if ( enableMonitorDaemon_ ) sleep(1);
 

@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  *
- * $Date: 2006/01/29 17:21:28 $
- * $Revision: 1.34 $
+ * $Date: 2006/02/05 22:19:22 $
+ * $Revision: 1.35 $
  * \author G. Della Ricca
  *
 */
@@ -18,12 +18,6 @@ EBCosmicTask::EBCosmicTask(const ParameterSet& ps){
     meSelMap_[i] = 0;
     meSpectrumMap_[i] = 0;
   }
-
-  // this is a hack, used to fake the EcalBarrel run header
-  TH1F* tmp = (TH1F*) gROOT->FindObjectAny("tmp");
-  if ( tmp && tmp->GetBinContent(1) != 0 ) return;
-
-  this->setup();
 
 }
 
@@ -81,9 +75,23 @@ void EBCosmicTask::endJob(){
 
 void EBCosmicTask::analyze(const Event& e, const EventSetup& c){
 
-  // this is a hack, used to fake the EcalBarrel event header
-  TH1F* tmp = (TH1F*) gROOT->FindObjectAny("tmp");
-  if ( tmp && tmp->GetBinContent(2) != 0 ) return;
+  bool enable = false;
+  map<int, EcalDCCHeaderBlock> dccMap;
+
+  Handle<EcalRawDataCollection> dcchs;
+  e.getByLabel("ecalEBunpacker", dcchs);
+
+  for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
+
+    EcalDCCHeaderBlock dcch = (*dcchItr);
+
+    dccMap[dcch.id()] = dcch;
+
+    if ( dccMap[dcch.id()].getRunType() == PHYSICS ) enable = true;
+
+  }
+
+  if ( ! enable ) return;
 
   if ( ! init_ ) this->setup();
 
@@ -107,6 +115,8 @@ void EBCosmicTask::analyze(const Event& e, const EventSetup& c){
     float xip = ip - 0.5;
 
     int ism = id.ism();
+
+    if ( dccMap[ism-1].getRunType() != PHYSICS ) continue;
 
     LogDebug("EBCosmicTask") << " det id = " << id;
     LogDebug("EBCosmicTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;

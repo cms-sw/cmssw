@@ -1,8 +1,8 @@
 /*
  * \file EBBeamTask.cc
  *
- * $Date: 2006/02/05 22:19:22 $
- * $Revision: 1.4 $
+ * $Date: 2006/02/08 21:10:28 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */
@@ -12,12 +12,6 @@
 EBBeamTask::EBBeamTask(const ParameterSet& ps){
 
   init_ = false;
-
-  // this is a hack, used to fake the EcalBarrel run header
-  TH1F* tmp = (TH1F*) gROOT->FindObjectAny("tmp");
-  if ( tmp && tmp->GetBinContent(1) != 4 ) return;
-
-  this->setup();
 
 }
 
@@ -55,9 +49,23 @@ void EBBeamTask::endJob(){
 
 void EBBeamTask::analyze(const Event& e, const EventSetup& c){
 
-  // this is a hack, used to fake the EcalBarrel event header
-  TH1F* tmp = (TH1F*) gROOT->FindObjectAny("tmp");
-  if ( tmp && tmp->GetBinContent(2) != 4 ) return;
+  bool enable = false;
+  map<int, EcalDCCHeaderBlock> dccMap;
+
+  Handle<EcalRawDataCollection> dcchs;
+  e.getByLabel("ecalEBunpacker", dcchs);
+
+  for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
+
+    EcalDCCHeaderBlock dcch = (*dcchItr);
+
+    dccMap[dcch.id()] = dcch;
+
+    if ( dccMap[dcch.id()].getRunType() == PHYSICS ) enable = true;
+
+  }
+
+  if ( ! enable ) return;
 
   if ( ! init_ ) this->setup();
 

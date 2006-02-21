@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/02/08 21:10:27 $
- * $Revision: 1.93 $
+ * $Date: 2006/02/09 08:18:11 $
+ * $Revision: 1.94 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -957,11 +957,12 @@ void EcalBarrelMonitorClient::analyze(void){
     if ( me ) {
       s = me->valueString();
       runtype_ = "UNKNOWN";
-      if ( s.substr(2,1) == "0" ) runtype_ = "COSMIC";
-      if ( s.substr(2,1) == "1" ) runtype_ = "LASER";
-      if ( s.substr(2,1) == "2" ) runtype_ = "PEDESTAL";
-      if ( s.substr(2,1) == "3" ) runtype_ = "TEST_PULSE";
-      if ( s.substr(2,1) == "4" ) runtype_ = "BEAM";
+      if ( atoi(s.substr(2,s.size()-2).c_str()) == PHYSICS ) runtype_ = "PHYSICS";
+      if ( atoi(s.substr(2,s.size()-2).c_str()) == (PHYSICS+10) ) runtype_ = "COSMIC";
+      if ( atoi(s.substr(2,s.size()-2).c_str()) == LASER_STD ) runtype_ = "LASER";
+      if ( atoi(s.substr(2,s.size()-2).c_str()) == PEDESTAL_STD ) runtype_ = "PEDESTAL";
+      if ( atoi(s.substr(2,s.size()-2).c_str()) == TESTPULSE_MGPA ) runtype_ = "TEST_PULSE";
+      if ( atoi(s.substr(2,s.size()-2).c_str()) == (PHYSICS+11) ) runtype_ = "BEAM";
     }
 
     if ( verbose_ ) cout << " updates = "  << updates << endl;
@@ -971,24 +972,29 @@ void EcalBarrelMonitorClient::analyze(void){
             " status = "   << status_   << endl;
 
     cout << " runtype = "  << runtype_  <<
-            " location = " << location_ << endl;
+            " location = " << location_ << flush;
 
     if ( h_ ) {
-      cout << " event type = " << flush;
-      for ( int i = 1; i <= 10; i++ ) {
-        cout << h_->GetBinContent(i) << " " << flush;
-      }
+//      cout << endl;
+//      for ( int i = 1; i <= 3; i++ ) {
+//        cout << " evttype " << i << " = " << flush;
+//        for ( int j = 1+10*(i-1); j <= 10*i; j++ ) {
+//          cout << setw(5) << h_->GetBinContent(j) << " " << flush;
+//        }
+//        cout << endl;
+//      }
       if ( h_->GetEntries() != 0 ) {
         cout << "  ( " << flush;
-        if ( h_->GetBinContent(1) != 0 ) cout << "cosmic " << flush;
-        if ( h_->GetBinContent(2) != 0 ) cout << "laser " << flush;
-        if ( h_->GetBinContent(3) != 0 ) cout << "pedestal " << flush;
-        if ( h_->GetBinContent(4) != 0 ) cout << "testpulse " << flush;
-        if ( h_->GetBinContent(5) != 0 ) cout << "beam " << flush;
+        if ( h_->GetBinContent(PHYSICS+1) != 0 ) cout << "physics " << flush;
+        if ( h_->GetBinContent((PHYSICS+10)+1) != 0 ) cout << "cosmic " << flush;
+        if ( h_->GetBinContent(LASER_STD+1) != 0 ) cout << "laser " << flush;
+        if ( h_->GetBinContent(PEDESTAL_STD+1) != 0 ) cout << "pedestal " << flush;
+        if ( h_->GetBinContent(TESTPULSE_MGPA+1) != 0 ) cout << "testpulse " << flush;
+        if ( h_->GetBinContent((PHYSICS+11)+1) != 0 ) cout << "beam " << flush;
         cout << ")" << flush;
       }
-      cout << endl;
     }
+    cout << endl;
 
     update = true;
 
@@ -1081,21 +1087,21 @@ void EcalBarrelMonitorClient::analyze(void){
         }
 
         if ( cosmic_client_ ) {
-          if ( h_ && h_->GetBinContent(1) != 0 ) {
+          if ( h_ && h_->GetBinContent((PHYSICS+10)+1) != 0 ) {
             if ( runtype_ == "COSMIC" ) {
               cosmic_client_->analyze();
             }
           }
         }
         if ( laser_client_ ) {
-          if ( h_ && h_->GetBinContent(2) != 0 ) {
+          if ( h_ && h_->GetBinContent(LASER_STD+1) != 0 ) {
             if ( runtype_ == "COSMIC" || runtype_ == "LASER" || runtype_ == "BEAM" ) {
               laser_client_->analyze();
             }
           }
         }
         if ( pedestal_client_ ) {
-          if ( h_ && h_->GetBinContent(3) != 0 ) {
+          if ( h_ && h_->GetBinContent(PEDESTAL_STD+1) != 0 ) {
             if ( runtype_ == "PEDESTAL" ) {
               pedestal_client_->analyze();
             }
@@ -1105,14 +1111,14 @@ void EcalBarrelMonitorClient::analyze(void){
           pedestalonline_client_->analyze();
         }
         if ( testpulse_client_ ) {
-          if ( h_ && h_->GetBinContent(4) != 0 ) {
+          if ( h_ && h_->GetBinContent(TESTPULSE_MGPA+1) != 0 ) {
             if ( runtype_ == "TEST_PULSE" ) {
               testpulse_client_->analyze();
             }
           }
         }
         if ( beam_client_ ) {
-          if ( h_ && h_->GetBinContent(5) != 0 ) {
+          if ( h_ && h_->GetBinContent((PHYSICS+11)+1) != 0 ) {
             if ( runtype_ == "BEAM" ) {
               beam_client_->analyze();
             }
@@ -1140,21 +1146,21 @@ void EcalBarrelMonitorClient::analyze(void){
       }
 
       if ( cosmic_client_ ) {
-        if ( h_ && h_->GetBinContent(1) != 0 ) {
+        if ( h_ && h_->GetBinContent((PHYSICS+10)+1) != 0 ) {
           if ( runtype_ == "COSMIC" ) {
             cosmic_client_->analyze();
           }
         }
       }
       if ( laser_client_ ) {
-        if ( h_ && h_->GetBinContent(2) != 0 ) {
+        if ( h_ && h_->GetBinContent(LASER_STD+1) != 0 ) {
           if ( runtype_ == "COSMIC" || runtype_ == "LASER" || runtype_ == "BEAM" ) {
             laser_client_->analyze();
           }
         }
       }
       if ( pedestal_client_ ) {
-        if ( h_ && h_->GetBinContent(3) != 0 ) {
+        if ( h_ && h_->GetBinContent(PEDESTAL_STD+1) != 0 ) {
           if ( runtype_ == "PEDESTAL" ) {
             pedestal_client_->analyze();
           }
@@ -1164,14 +1170,14 @@ void EcalBarrelMonitorClient::analyze(void){
         pedestalonline_client_->analyze();
       }
       if ( testpulse_client_ ) {
-        if ( h_ && h_->GetBinContent(4) != 0 ) {
+        if ( h_ && h_->GetBinContent(TESTPULSE_MGPA+1) != 0 ) {
           if ( runtype_ == "TEST_PULSE" ) {
             testpulse_client_->analyze();
           }
         }
       }
       if ( beam_client_ ) {
-        if ( h_ && h_->GetBinContent(5) != 0 ) {
+        if ( h_ && h_->GetBinContent((PHYSICS+11)+1) != 0 ) {
           if ( runtype_ == "BEAM" ) {
             beam_client_->analyze();
           }
@@ -1238,31 +1244,37 @@ void EcalBarrelMonitorClient::htmlOutput(void){
 
   // Cosmic check
 
-  if ( h_ && h_->GetBinContent(1) != 0 ) {
+  if ( h_ && h_->GetBinContent((PHYSICS+10)+1) != 0 ) {
     if ( cosmic_client_ ) {
-      htmlName = "EBCosmicClient.html";
-      cosmic_client_->htmlOutput(run_, htmlDir, htmlName);
-      htmlFile << "<li><a href=\"" << htmlName << "\">Cosmic</a></li>" << endl;
+      if ( runtype_ == "COSMIC" ) {
+        htmlName = "EBCosmicClient.html";
+        cosmic_client_->htmlOutput(run_, htmlDir, htmlName);
+        htmlFile << "<li><a href=\"" << htmlName << "\">Cosmic</a></li>" << endl;
+      }
     }
   }
 
   // Laser check
 
-  if ( h_ && h_->GetBinContent(2) != 0 ) {
+  if ( h_ && h_->GetBinContent(LASER_STD+1) != 0 ) {
     if ( laser_client_ ) {
-      htmlName = "EBLaserClient.html";
-      laser_client_->htmlOutput(run_, htmlDir, htmlName);
-      htmlFile << "<li><a href=\"" << htmlName << "\">Laser</a></li>" << endl;
+      if ( runtype_ == "COSMIC" || runtype_ == "LASER" || runtype_ == "BEAM" ) {
+        htmlName = "EBLaserClient.html";
+        laser_client_->htmlOutput(run_, htmlDir, htmlName);
+        htmlFile << "<li><a href=\"" << htmlName << "\">Laser</a></li>" << endl;
+      }
     }
   }
 
   // Pedestal check (normal)
 
-  if ( h_ && h_->GetBinContent(3) != 0 ) {
+  if ( h_ && h_->GetBinContent(PEDESTAL_STD+1) != 0 ) {
     if ( pedestal_client_ ) {
-      htmlName = "EBPedestalClient.html";
-      pedestal_client_->htmlOutput(run_, htmlDir, htmlName);
-      htmlFile << "<li><a href=\"" << htmlName << "\">Pedestal</a></li>" << endl;
+      if ( runtype_ == "PEDESTAL" ) {
+        htmlName = "EBPedestalClient.html";
+        pedestal_client_->htmlOutput(run_, htmlDir, htmlName);
+        htmlFile << "<li><a href=\"" << htmlName << "\">Pedestal</a></li>" << endl;
+      }
     }
   }
 
@@ -1278,21 +1290,25 @@ void EcalBarrelMonitorClient::htmlOutput(void){
 
   // Test pulse check
 
-  if ( h_ && h_->GetBinContent(4) != 0 ) {
+  if ( h_ && h_->GetBinContent(TESTPULSE_MGPA+1) != 0 ) {
     if ( testpulse_client_ ) {
-      htmlName = "EBTestPulseClient.html";
-      testpulse_client_->htmlOutput(run_, htmlDir, htmlName);
-      htmlFile << "<li><a href=\"" << htmlName << "\">Test pulse</a></li>" << endl;
+      if ( runtype_ == "TEST_PULSE" ) {
+        htmlName = "EBTestPulseClient.html";
+        testpulse_client_->htmlOutput(run_, htmlDir, htmlName);
+        htmlFile << "<li><a href=\"" << htmlName << "\">Test pulse</a></li>" << endl;
+      }
     }
   }
 
   // Beam check
 
-  if ( h_ && h_->GetBinContent(5) != 0 ) {
+  if ( h_ && h_->GetBinContent((PHYSICS+11)+1) != 0 ) {
     if ( beam_client_ ) {
-      htmlName = "EBBeamClient.html";
-      beam_client_->htmlOutput(run_, htmlDir, htmlName);
-      htmlFile << "<li><a href=\"" << htmlName << "\">Beam</a></li>" << endl;
+      if ( runtype_ == "BEAM" ) {
+        htmlName = "EBBeamClient.html";
+        beam_client_->htmlOutput(run_, htmlDir, htmlName);
+        htmlFile << "<li><a href=\"" << htmlName << "\">Beam</a></li>" << endl;
+      }
     }
   }
 

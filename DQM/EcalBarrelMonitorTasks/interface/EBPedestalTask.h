@@ -4,8 +4,8 @@
 /*
  * \file EBPedestalTask.h
  *
- * $Date: 2006/02/05 22:19:22 $
- * $Revision: 1.16 $
+ * $Date: 2006/02/11 10:04:34 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  *
 */
@@ -21,6 +21,8 @@
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+
+#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"

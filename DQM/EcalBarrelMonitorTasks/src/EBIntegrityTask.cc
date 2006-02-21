@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2006/02/02 08:32:43 $
- * $Revision: 1.9 $
+ * $Date: 2006/02/05 22:19:22 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  *
 */
@@ -22,8 +22,6 @@ EBIntegrityTask::EBIntegrityTask(const ParameterSet& ps){
     meIntegrityTTId[i] = 0;
     meIntegrityTTBlockSize[i] = 0;
   }
-
-  this->setup();
 
 }
 

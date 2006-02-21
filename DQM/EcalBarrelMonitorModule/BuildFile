@@ -3,6 +3,7 @@
 <use name=FWCore/MessageLogger>
 <use name=DQMServices/CoreROOT>
 <use name=DataFormats/FEDRawData>
+<use name=DataFormats/EcalRawData>
 <use name=DataFormats/EcalDetId>
 <use name=DataFormats/EcalDigi>
 <use name=DataFormats/EcalRecHit>
@@ -15,6 +16,7 @@
  <use name=FWCore/MessageLogger>
  <use name=DQMServices/CoreROOT>
  <use name=DataFormats/FEDRawData>
+ <use name=DataFormats/EcalRawData>
  <use name=DataFormats/EcalDetId>
  <use name=DataFormats/EcalDigi>
  <use name=DataFormats/EcalRecHit>

@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineTask.cc
  *
- * $Date: 2006/01/29 17:21:28 $
- * $Revision: 1.4 $
+ * $Date: 2006/02/05 22:19:22 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  *
 */
@@ -16,8 +16,6 @@ EBPedestalOnlineTask::EBPedestalOnlineTask(const ParameterSet& ps){
   for (int i = 0; i < 36 ; i++) {
     mePedMapG12_[i] = 0;
   }
-
-  this->setup();
 
 }
 

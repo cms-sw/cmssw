@@ -7,6 +7,7 @@
 <use name=DQMServices/NodeROOT>
 <use name=DQMServices/UI>
 <use name=CalibCalorimetry/EcalDBInterface>
+<use name=DataFormats/EcalRawData>
 <use name=oracle>
 
 <export>
@@ -19,6 +20,7 @@
  <use name=DQMServices/NodeROOT>
  <use name=DQMServices/UI>
  <use name=CalibCalorimetry/EcalDBInterface>
+ <use name=DataFormats/EcalRawData>
  <use name=oracle>
  <lib name=nnz10>
  <lib name=occi>

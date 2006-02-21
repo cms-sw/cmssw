@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorModule.h
  *
- * $Date: 2006/02/04 18:27:24 $
- * $Revision: 1.29 $
+ * $Date: 2006/02/05 22:19:19 $
+ * $Revision: 1.30 $
  * \author G. Della Ricca
  *
 */
@@ -17,6 +17,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
@@ -71,6 +73,8 @@ bool verbose_;
 
 bool enableMonitorDaemon_;
 
+bool enableEventDisplay_;
+
 DaqMonitorBEInterface* dbe_;
 
 MonitorElement* meStatus_;
@@ -80,6 +84,8 @@ MonitorElement* meEvt_;
 
 MonitorElement* meEvtType_;
 MonitorElement* meRunType_;
+
+MonitorElement* meEBDCC_;
 
 MonitorElement* meEBdigi_;
 MonitorElement* meEBhits_;

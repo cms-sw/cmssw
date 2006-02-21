@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalTask.cc
  *
- * $Date: 2006/02/12 17:34:39 $
- * $Revision: 1.32 $
+ * $Date: 2006/02/13 09:01:49 $
+ * $Revision: 1.33 $
  * \author G. Della Ricca
  *
 */
@@ -26,12 +26,6 @@ EBPedestalTask::EBPedestalTask(const ParameterSet& ps){
     mePnPedMapG01_[i] = 0;
     mePnPedMapG16_[i] = 0;
   }
-
-  // this is a hack, used to fake the EcalBarrel run header
-  TH1F* tmp = (TH1F*) gROOT->FindObjectAny("tmp");
-  if ( tmp && tmp->GetBinContent(1) != 2 ) return;
-
-  this->setup();
 
 }
 
@@ -114,9 +108,23 @@ void EBPedestalTask::endJob(){
 
 void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
 
-  // this is a hack, used to fake the EcalBarrel event header
-  TH1F* tmp = (TH1F*) gROOT->FindObjectAny("tmp");
-  if ( tmp && tmp->GetBinContent(2) != 2 ) return;
+  bool enable = false;
+  map<int, EcalDCCHeaderBlock> dccMap;
+
+  Handle<EcalRawDataCollection> dcchs;
+  e.getByLabel("ecalEBunpacker", dcchs);
+
+  for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
+
+    EcalDCCHeaderBlock dcch = (*dcchItr);
+
+    dccMap[dcch.id()] = dcch;
+
+    if ( dccMap[dcch.id()].getRunType() == PEDESTAL_STD ) enable = true;
+
+  }
+
+  if ( ! enable ) return;
 
   if ( ! init_ ) this->setup();
 
@@ -157,6 +165,8 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
 
     int ism = id.ism();
 
+    if ( dccMap[ism-1].getRunType() != PEDESTAL_STD ) continue;
+
     LogDebug("EBPedestalTask") << " det id = " << id;
     LogDebug("EBPedestalTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
 
@@ -183,7 +193,7 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
 
   }
 
-  // to be re-done using the 3x3 & 5x5 Selectors
+  // to be re-done using the 3x3 & 5x5 Selectors (if faster)
 
   for ( int ism = 1; ism <= 36; ism++ ) {
     for ( int ie = 1; ie <= 85; ie++ ) {
@@ -263,7 +273,10 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
 
 //    int ism = id.ism();
     int ism = id.iDCCId();
+
     int num = id.iPnId();
+
+    if ( dccMap[ism-1].getRunType() != PEDESTAL_STD ) continue;
 
     LogDebug("EBPedestalTask") << " det id = " << id;
     LogDebug("EBPedestalTask") << " sm, num " << ism << " " << num;

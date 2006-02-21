@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2006/02/05 22:21:53 $
- * $Revision: 1.35 $
+ * $Date: 2006/02/08 21:10:26 $
+ * $Revision: 1.36 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -26,6 +26,8 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/CollateMonitorElement.h"
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
+
+#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBIntegrityClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBLaserClient.h>
@@ -49,6 +51,7 @@
 
 #include <memory>
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <vector>
 #include <string>
