@@ -3,9 +3,9 @@
 #include <string>
 #include <memory>
 #include "RelationalAccess/ISession.h"
-namespace coral{
-  class ITable;
-}
+//namespace coral{
+  //class ITable;
+//}
 namespace cond{
   class ServiceLoader;
   class MetaData {
@@ -21,7 +21,7 @@ namespace cond{
     std::string m_con;
     std::auto_ptr< coral::ISession > m_session;
     //std::auto_ptr< seal::MessageStream > m_log;
-    coral::ITable* m_table;
+    //coral::ITable* m_table;
     ServiceLoader& m_loader;
   };
 }

@@ -1,5 +1,6 @@
 #include "CondCore/MetaDataService/interface/MetaData.h"
 #include "CondCore/MetaDataService/interface/MetaDataNames.h"
+#include "CondCore/MetaDataService/interface/MetaDataExceptions.h"
 #include "CondCore/DBCommon/interface/ServiceLoader.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "RelationalAccess/IRelationalService.h"
@@ -22,7 +23,7 @@
 #include "CoralBase/Attribute.h"
 #include "SealKernel/Exception.h"
 cond::MetaData::MetaData(const std::string& connectionString, cond::ServiceLoader& loader):
-  m_con(connectionString),m_table(0),m_loader(loader){
+  m_con(connectionString),m_loader(loader){
   if(!m_loader.hasMessageService()){
     m_loader.loadMessageService();
   }
@@ -56,23 +57,24 @@ bool cond::MetaData::addMapping(const std::string& name, const std::string& iovt
   }catch(seal::Exception& er){
     throw cond::Exception( std::string("MetaData::addMapping ")+ er.what());
   }catch(...){
-    throw cond::Exception( "MetaData::addMapping caught unknown exception" );
+    throw cond::Exception( "MetaData::addMapping cannot start transaction" );
   }
   try{
     if(!m_session->nominalSchema().existsTable(cond::MetaDataNames::metadataTable())){
       this->createTable(cond::MetaDataNames::metadataTable());
-    }else{
-      m_table=&(m_session->nominalSchema().tableHandle(cond::MetaDataNames::metadataTable()));
     }
+    coral::ITable& mytable=m_session->nominalSchema().tableHandle(cond::MetaDataNames::metadataTable());
     coral::AttributeList rowBuffer;
-    coral::ITableDataEditor& dataEditor = m_table->dataEditor();
+    coral::ITableDataEditor& dataEditor = mytable.dataEditor();
     dataEditor.rowBuffer( rowBuffer );
     rowBuffer[cond::MetaDataNames::tagColumn()].data<std::string>()=name;
     rowBuffer[cond::MetaDataNames::tokenColumn()].data<std::string>()=iovtoken;
     dataEditor.insertRow( rowBuffer );
     m_session->transaction().commit() ;
+  }catch( coral::DuplicateEntryInUniqueKeyException& er ){
+    throw cond::MetaDataDuplicateEntryException("addMapping",name);
   }catch(seal::Exception& er){
-    throw cond::Exception("MetaData::addMapping ")<<er.what();
+    throw cond::MetaDataDuplicateEntryException("addMapping",name);
   }catch(...){
     throw cond::Exception( "MetaData::addMapping Could not commit the transaction" );
   }
@@ -87,14 +89,12 @@ const std::string cond::MetaData::getToken( const std::string& name ){
   }catch(...){
     throw cond::Exception( "MetaData::getToken Could not start a new transaction" );
   }
-  if(!m_table){
-    m_table=&(m_session->nominalSchema().tableHandle( cond::MetaDataNames::metadataTable() ));
-  }
+  coral::ITable& mytable=m_session->nominalSchema().tableHandle( cond::MetaDataNames::metadataTable() );
   std::string iovtoken;
-  std::auto_ptr< coral::IQuery > query( m_session->nominalSchema().newQuery() );
+  std::auto_ptr< coral::IQuery > query(mytable.newQuery());
   query->setRowCacheSize( 100 );
   coral::AttributeList emptyBindVariableList;
-  std::string condition=cond::MetaDataNames::tagColumn()+"='"+name+"'";
+  std::string condition=cond::MetaDataNames::tagColumn()+" = '"+name+"'";
   query->setCondition( condition, emptyBindVariableList );
   query->addToOutputList( cond::MetaDataNames::tokenColumn() );
   coral::ICursor& cursor = query->execute();
@@ -123,5 +123,5 @@ void cond::MetaData::createTable(const std::string& tabname){
   description.setNotNullConstraint( cond::MetaDataNames::tokenColumn() );
   coral::ITable& table=schema.createTable(description);
   table.privilegeManager().grantToPublic( coral::ITablePrivilegeManager::Select);
-  m_table=&table;
+  //m_table=&table;
 }
