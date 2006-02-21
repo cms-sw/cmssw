@@ -42,8 +42,8 @@ class TOBDetId : public DetId {
   
   /// rod id
   /**
-   * vector[0] = 0 -> fw rod
-   * vector[0] = 1 -> bw rod
+   * vector[0] = 0 -> bw rod
+   * vector[0] = 1 -> fw rod
    * vector[1] -> rod
    */
   std::vector<unsigned int> rod() const
