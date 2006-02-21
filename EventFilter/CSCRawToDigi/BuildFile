@@ -3,7 +3,7 @@
 <use name=FWCore/Framework>
 <use name=DataFormats/FEDRawData>
 <use name=CondFormats/CSCObjects>
- 
+<use name=FWCore/MessageLogger> 
 <export>
 <lib name=EventFilterCSCRawToDigi>
 <use name=DataFormats/CSCDigi>
