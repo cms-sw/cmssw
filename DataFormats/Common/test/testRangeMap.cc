@@ -1,7 +1,9 @@
-// $Id: testRangeMap.cc,v 1.8 2006/02/17 12:30:23 llista Exp $
+// $Id: testRangeMap.cc,v 1.10 2006/02/17 13:52:45 tboccali Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include "DataFormats/Common/interface/RangeMap.h"
 #include "DataFormats/Common/interface/CopyPolicy.h"
+
+#include "DataFormats/DetId/interface/DetId.h"
 
 
 class testRangeMap : public CppUnit::TestFixture {
@@ -24,18 +26,17 @@ struct MatchOddId {
 };
 
 
-class IntComparator : public binary_function<int, int, bool> {
+class IntComparator {
 public:
   bool operator()( int d1, int d2 ) const {
     //
-      // stupid, 3 and 2 are treated as the same thing
-      //
+    // stupid, 3 and 2 are treated as the same thing
+    //
     if ((d1 == 2 && d2 ==3) ||
 	(d1 == 3 && d2 ==2)) return false;
     return d1 < d2;
   }
 };
-
 
 void testRangeMap::checkAll() {
   typedef edm::RangeMap<int, std::vector<int>, edm::CopyPolicy<int> > map;
@@ -49,8 +50,8 @@ void testRangeMap::checkAll() {
   int s2 = sizeof( v2 ) / sizeof( int );
   int s3 = sizeof( v3 ) / sizeof( int );
   int s4 = sizeof( v4 ) / sizeof( int );
-  m.put( 2, v2, v2 + s2 );
-  m.put( 3, v3,v3+s3 );
+  m.put( 3, v3, v3 + s3 );
+  m.put( 2, v2,v2+s2 );
   m.put( 1, v1, v1+s1 );
   m.put( 4, v4, v4+s4 );
 
@@ -127,10 +128,10 @@ void testRangeMap::checkAll() {
   CPPUNIT_ASSERT( * i ++ == 3 );
   CPPUNIT_ASSERT( * i ++ == 4 );
   CPPUNIT_ASSERT( i == r.second );
-
-
+  
+  
   r = m.get(1,IntComparator());
   CPPUNIT_ASSERT( r.second-r.first == 2 );
 
-}
+  }
 
