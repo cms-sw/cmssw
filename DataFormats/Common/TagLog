@@ -1,3 +1,6 @@
+** V01-02-01  [Tue Feb 21 19:50:34 2006]
+RangeMap fixes
+
 ** V01-02-00  [Mon Feb 13 23:28:45 2006]
 Add erase() method to RefVector
 
