@@ -24,9 +24,7 @@ definire plus e minus
     <SpecPar name="TIBSubDetStringPar">
       <PartSelector path="//tibstring1lr:TIBString1LoPls1" />
       <PartSelector path="//tibstring1ur:TIBString1UpPls1" />
-      <PartSelector path="//tibstring2ll:TIBString2LoMin1" />
       <PartSelector path="//tibstring2lr:TIBString2LoPls1" />
-      <PartSelector path="//tibstring2ul:TIBString2UpMin1" />
       <PartSelector path="//tibstring2ur:TIBString2UpPls1" />
       <Parameter name="TkDDDStructure" value="TIBString"/>
     </SpecPar>				
@@ -113,11 +111,7 @@ definire plus e minus
 
   <SpecPar name="TrackerStereoDetectorsPar">
       <PartSelector path="//TIBActiveSter0" />
-      <PartSelector path="//TIDModule0StereoActive" />
-      <PartSelector path="//TIDModule1StereoActive" />
       <PartSelector path="//TOBActiveSter0" />
-      <PartSelector path="//TECModule0StereoActive" />
-      <PartSelector path="//TECModule1StereoActive" />
       <PartSelector path="//TECModule4StereoActive" />
       <Parameter name="TrackerStereoDetectors" value="true"/>
   </SpecPar>
@@ -134,7 +128,6 @@ definire plus e minus
 
   <SpecPar name="TrackerAPVNumber4Par">
       <PartSelector path="//TIBActiveRphi2" />
-      <PartSelector path="//TIDModule2RphiActive" />
       <PartSelector path="//TOBActiveRphi2" />
       <PartSelector path="//TECModule3RphiActive" />
       <PartSelector path="//TECModule5RphiActive" />
