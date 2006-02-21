@@ -132,12 +132,12 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
       //get a reference to dduData
       const std::vector<CSCDDUEventData> & dduData = dccData.dduData(); 
 
-      for (int iDDU=0; iDDU<dduData.size(); ++iDDU) {  //loop over DDUs
+      for (unsigned int iDDU=0; iDDU<dduData.size(); ++iDDU) {  //loop over DDUs
 	
 	//get a reference to chamber data
 	const std::vector<CSCEventData> & cscData = dduData[iDDU].cscData();
 	
-	for (int iCSC=0; iCSC<cscData.size(); ++iCSC) { //loop over CSCs
+	for (unsigned int iCSC=0; iCSC<cscData.size(); ++iCSC) { //loop over CSCs
 
 	  //this loop stores strip and wire digis:
 	  for (int ilayer = 1; ilayer <= 6; ilayer++) { 
@@ -164,12 +164,12 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 	    }
 
 	    std::vector <CSCWireDigi> wireDigis =  cscData[iCSC].wireDigis(ilayer);
-	    for (int i=0; i<wireDigis.size() ; i++) {
+	    for (unsigned int i=0; i<wireDigis.size() ; i++) {
 	      wireProduct->insertDigi(layer, wireDigis[i]);
 	    }
 
 	    std::vector <CSCStripDigi> stripDigis =  cscData[iCSC].stripDigis(ilayer);
-            for (int i=0; i<stripDigis.size() ; i++) {
+            for (unsigned int i=0; i<stripDigis.size() ; i++) {
               stripProduct->insertDigi(layer, stripDigis[i]);
             }
 
@@ -179,7 +179,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 		if (cscData[iCSC].clctData().check()) {
 		  std::vector <CSCComparatorDigi> comparatorDigis =
 		    cscData[iCSC].clctData().comparatorDigis(3);
-		  for (int i=0; i<comparatorDigis.size() ; i++) {
+		  for (unsigned int i=0; i<comparatorDigis.size() ; i++) {
 		    comparatorProduct->insertDigi(layer, comparatorDigis[i]);
 		  }
 		}
