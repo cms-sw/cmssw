@@ -1,0 +1,9 @@
+   <use name=clhep>
+   <use name=boost>
+   <use name=FWCore/ParameterSet>
+<export>
+   <lib name=RecoTracker/TkTrackingRegions>
+   <use name=clhep>
+   <use name=boost>
+   <use name=FWCore/ParameterSet>
+ </export>
