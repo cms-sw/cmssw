@@ -5,6 +5,7 @@
 #include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
 #include "DataFormats/HcalDigi/interface/HODataFrame.h"
 #include "DataFormats/HcalDigi/interface/HFDataFrame.h"
+#include "DataFormats/HcalDigi/interface/HcalCalibDataFrame.h"
 #include "DataFormats/HcalDigi/interface/HcalTriggerPrimitiveDigi.h"
 #include "DataFormats/HcalDigi/interface/HcalHistogramDigi.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
@@ -19,8 +20,9 @@ public:
   HcalUnpacker(int sourceIdOffset) : sourceIdOffset_(sourceIdOffset), startSample_(-1), endSample_(-1) { }
   void unpack(const FEDRawData& raw, const HcalElectronicsMap& emap, std::vector<HcalHistogramDigi>& histoDigis);
   void unpack(const FEDRawData& raw, const HcalElectronicsMap& emap, 
-       std::vector<HBHEDataFrame>& hbheCont, std::vector<HODataFrame>& hoCont, 
-       std::vector<HFDataFrame>& hfCont, std::vector<HcalTriggerPrimitiveDigi>& tpCont);
+	      std::vector<HBHEDataFrame>& hbheCont, std::vector<HODataFrame>& hoCont, 
+	      std::vector<HFDataFrame>& hfCont, std::vector<HcalCalibDataFrame>& calibCont,
+	      std::vector<HcalTriggerPrimitiveDigi>& tpCont);
   // Old -- deprecated
   void unpack(const FEDRawData& raw, const HcalElectronicsMap& emap, std::vector<HBHEDataFrame>& precision, std::vector<HcalTriggerPrimitiveDigi>& tp);
   // Old -- deprecated

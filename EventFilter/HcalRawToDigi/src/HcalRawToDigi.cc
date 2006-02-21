@@ -64,7 +64,7 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   for (std::vector<int>::const_iterator i=fedUnpackList_.begin(); i!=fedUnpackList_.end(); i++) {
     const FEDRawData& fed = rawraw->FEDData(*i);
     
-    unpacker_.unpack(fed,*readoutMap,hbhe,ho,hf,htp);
+    unpacker_.unpack(fed,*readoutMap,hbhe,ho,hf,hc,htp);
   }
 
   // Step B: encapsulate vectors in actual collections
