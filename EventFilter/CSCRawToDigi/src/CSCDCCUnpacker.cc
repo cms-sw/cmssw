@@ -50,6 +50,7 @@
 CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset) :
   numOfEvents(0){
 
+  PrintEventNumber = pset.getUntrackedParameter<bool>("PrintEventNumber", true);
   debug = pset.getUntrackedParameter<bool>("Debug", false);
   std::string mappingFileName = pset.getUntrackedParameter<std::string>("theMappingFile",
 								  "csc_slice_test_map.txt");
@@ -190,7 +191,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
       }     
     }
   }
-  edm::LogInfo("CSCDCCUnpacker") <<"**************[DCCUnpackingModule]:"<< std::ios::dec << numOfEvents<<" events analyzed ";
+  if (PrintEventNumber) edm::LogInfo("CSCDCCUnpacker") <<"**************[DCCUnpackingModule]:"<< std::ios::dec << numOfEvents<<" events analyzed ";
   //}
   // commit to the event
   e.put(wireProduct,"MuonCSCWireDigi");
