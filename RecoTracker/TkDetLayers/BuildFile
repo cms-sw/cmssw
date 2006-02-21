@@ -1,0 +1,7 @@
+<export>
+ <lib name=RecoTrackerTkDetLayers>
+ <use name=TrackingTools/DetLayers>
+</export>
+
+<use name=TrackingTools/DetLayers>
+
