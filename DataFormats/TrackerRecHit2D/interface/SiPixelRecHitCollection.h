@@ -3,7 +3,7 @@
 
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/Common/interface/OwnVector.h"
-#include "FWCore/EDProduct/interface/Ref.h"
+//  #include "FWCore/EDProduct/interface/Ref.h"
 #include <vector>
 #include <map>
 #include <utility>

@@ -2,8 +2,8 @@
 
 
 SiPixelRecHit::SiPixelRecHit( const LocalPoint& pos, const LocalError& err,
-						  const DetId& id,
-						  const std::vector<const SiStripCluster*>& cluster): 
+			      const DetId& id,
+			      const SiPixelCluster * cluster): 
   BaseSiStripRecHit2DLocalPos(pos,err,id),
   cluster_(cluster) 
 {

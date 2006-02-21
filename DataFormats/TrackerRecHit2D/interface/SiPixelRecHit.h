@@ -2,7 +2,7 @@
 #define SiPixelRecHit_H
 
 #include "DataFormats/TrackerRecHit2D/interface/BaseSiStripRecHit2DLocalPos.h"
-#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
+#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 
 class SiPixelRecHit : public  BaseSiStripRecHit2DLocalPos {
 public:
@@ -12,15 +12,15 @@ public:
   ~SiPixelRecHit() {}
 
   SiPixelRecHit( const LocalPoint&, const LocalError&,
-			 const DetId&, 
-			   const std::vector<const SiStripCluster*>& cluster);  
+		 const DetId&, 
+		 const SiPixelCluster * cluster);  
 
   virtual SiPixelRecHit * clone() const {return new SiPixelRecHit( * this); }
 
-  const std::vector<const SiStripCluster*>& cluster() const { return cluster_;}
+  const SiPixelCluster * cluster() const { return cluster_;}
   
 private:
-  std::vector<const SiStripCluster*>   cluster_;
+  const SiPixelCluster * cluster_;
 
 };
 
