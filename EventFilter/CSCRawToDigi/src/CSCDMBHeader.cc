@@ -1,13 +1,6 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCDMBHeader.h"
 #include <iostream>
 
-//ostream & operator<<(ostream & os, const CSCDMBHeader & hdr) {
-  // os << "DMB Header: Crate " << hdr.crateID() << " DMB " << hdr.dmbID()
-  //   << " BXN " << hdr.bxn() << " L1A " << hdr.l1a()
-  //   << hex << " CFEB available " << hdr.cfebAvailable() << dec << endl;
-// return os;
-// }
-
 
 CSCDMBHeader::CSCDMBHeader() {
   bzero(this, 16);

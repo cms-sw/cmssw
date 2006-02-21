@@ -1,7 +1,5 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCRPCData.h"
-#ifndef UNPCK_ONLY
 #include "DataFormats/CSCDigi/interface/CSCRPCDigi.h"
-#endif
 #include <string>
 #include <cstdio>
 
@@ -92,8 +90,6 @@ std::vector<int> CSCRPCData::BXN() const {
   return result;
 }
 
-#ifndef UNPCK_ONLY
-
 std::vector<CSCRPCDigi> CSCRPCData::digis() const {
   std::vector<CSCRPCDigi> result;
   int bxnold =0 ;
@@ -131,4 +127,3 @@ std::vector<CSCRPCDigi> CSCRPCData::digis() const {
   return result;
 }
 
-#endif

@@ -1,4 +1,5 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCCLCTData.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <stdio.h>
 
@@ -24,21 +25,16 @@ CSCCLCTData::CSCCLCTData(int ncfebs, int ntbins)
 CSCCLCTData::CSCCLCTData(int ncfebs, int ntbins, const unsigned short * buf)
 : ncfebs_(ncfebs), ntbins_(ntbins) 
 {
-  //printf("CFEBs %d NTBINs %d \n",ncfebs,ntbins);
   // add two more for odd ntbins, plus one for the e0c
   // Oct 2004 Rick: e0c line belongs to CSCTMBTrailer
   size_ = (nlines()%2==1)? nlines()+2 : nlines();
-  if (debug) {
-    //for (int loop=0; loop < size_; loop++ ) cout << "+++ CSCCLCTData  " << hex << buf[loop] << endl;
-  }
+  
   memcpy(theData, buf, size_*2);
-  //
+  
 }
 
-#ifndef UNPCK_ONLY
-
 std::vector<CSCComparatorDigi>  CSCCLCTData::comparatorDigis(int layer) {
-  //cout << "looking for comp output on layer " << layer << endl;
+  //looking for comp output on layer
   std::vector<CSCComparatorDigi> result;
   assert(layer>0 && layer<= 6);
   // this is pretty sparse data, so I wish we could check the
@@ -62,12 +58,12 @@ std::vector<CSCComparatorDigi>  CSCCLCTData::comparatorDigis(int layer) {
           int HalfStrip = 4*chamberDistrip + bit2*2 + bit3;
           int output = 4 + bit2*2 + bit3;
           if (debug)
-	    std::cout << std::dec << "fillComparatorOutputs: layer = " 
-		      << layer << " timebin = " << tbin
-		      << " cfeb = " << cfeb
-		      << " distrip = " << chamberDistrip
-		      << " HalfStrip = " << HalfStrip 
-		      << " Output " << output << std::endl;
+	    edm::LogInfo ("CSCCLCTData") << std::ios::dec << "fillComparatorOutputs: layer = " 
+					 << layer << " timebin = " << tbin
+					 << " cfeb = " << cfeb
+					 << " distrip = " << chamberDistrip
+					 << " HalfStrip = " << HalfStrip 
+					 << " Output " << output;
           result.push_back(
 			   CSCComparatorDigi(chamberDistrip, output, tbin)
 			   );
@@ -78,20 +74,6 @@ std::vector<CSCComparatorDigi>  CSCCLCTData::comparatorDigis(int layer) {
   }
   return result;
 }
-
-/*
-void CSCCLCTData::add(const CSCComparatorOutput & comparator, int layer) {
-  int cfeb = comparator.element() / 8;
-  int distrip = comparator.element() % 8;
-  int tbin = (int) comparator.time() / 25;
-  int output = comparator.output();
-  // encode the comparator output in the next three bins for this distrip
-  for(int bit = 0; bit < 3; ++bit) {
-     dataWord(cfeb, tbin+2-bit, layer).set(distrip, (output>>bit)&1);
-  }
-}
-*/
-#endif
 
 
 bool CSCCLCTData::check() const {
@@ -104,15 +86,15 @@ bool CSCCLCTData::check() const {
         bool wordIsGood = (word.tbin_ == tbin) && (word.cfeb_ == cfeb);
         result = result && wordIsGood;
         if(!wordIsGood && debug) {
-          std::cout << "Bad CLCT data  in layer " << layer 
-		    << " expect CFEB " << cfeb << " tbin " << tbin;
-          std::cout << " See " << word.cfeb_ << " " 
-		    << word.tbin_ << std::endl;
+	  edm::LogError("CSCCLCTData") << "Bad CLCT data  in layer " << layer 
+				       << " expect CFEB " << cfeb << " tbin " << tbin;
+	  edm::LogError("CSCCLCTData") << " See " << word.cfeb_ << " " 
+				       << word.tbin_;
         }
       }
     }
   }
-  if(!result) std::cout << "++ Bad CLCT Data ++ " << std::endl;
+  if(!result) edm::LogError("CSCCLCTData") << "++ Bad CLCT Data ++ ";
   return result;
 }
 

@@ -3,6 +3,7 @@
 //Framework stuff
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //FEDRawData 
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
@@ -81,7 +82,6 @@ CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset) :
 CSCDCCUnpacker::~CSCDCCUnpacker(){
   
   //fill destructor here
-  //delete dccData;   
 
 }
 
@@ -103,9 +103,10 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
   std::auto_ptr<CSCComparatorDigiCollection> comparatorProduct(new CSCComparatorDigiCollection);
   //std::auto_ptr<CSCRPCDigiCollection> RPCProduct(new CSCRPCDigiCollection);
   
-  //std::cout <<"in the producer now " << std::endl;  
+ 
   numOfEvents++;
   
+  //this line is to skip unpacking until 1309th event
   //if (numOfEvents>1308) {
 
   for (int id=FEDNumbering::getCSCFEDIds().first;
@@ -115,20 +116,16 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
   //for (int id=1873;id<=1873; ++id){ //for each of our DCCs
 
 
-  //std::cout <<"in the loop of CSCFEDs now " << std::endl;
     
     // Take a reference to this FED's data
     const FEDRawData& fedData = rawdata->FEDData(id);
 
 
     if (fedData.size()){ //unpack data 
-      //std::cout <<"in the loop of CSCFEDs data now " << std::endl;
      
       //get a pointer to data and pass it to constructor for unpacking
       CSCDCCEventData dccData((short unsigned int *) fedData.data()); 
       
-      
-     
 
       if(instatiateDQM) monitor->process(dccData);
 
@@ -150,7 +147,8 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
  	    int vmecrate = cscData[iCSC].dmbHeader().crateID(); 
 	    int dmb = cscData[iCSC].dmbHeader().dmbID();
 
-	    if (debug) std::cout << "crate = " << vmecrate << "; dmb = " << dmb << std::endl;
+	    if (debug) 
+	      edm::LogInfo ("CSCDCCUnpacker") << "crate = " << vmecrate << "; dmb = " << dmb;
  
 	    CSCDetId layer(1, //endcap
 			   1, //station
@@ -161,8 +159,8 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
             if (((vmecrate==0)||(vmecrate==1)) && (dmb>=0)&&(dmb<=10)&&(dmb!=6)) {
 	      layer = theMapping.detId( endcap, station, vmecrate, dmb, tmb,ilayer );
 	    }else {
-	      std::cerr << " detID input out of range!!! " << std::endl;
-	      std::cerr << " using fake CSCDetId!!!! " << std::endl;
+	      edm::LogError ("CSCDCCUnpacker") << " detID input out of range!!! ";
+	      edm::LogError ("CSCDCCUnpacker") << " using fake CSCDetId!!!! ";
 	    }
 
 	    std::vector <CSCWireDigi> wireDigis =  cscData[iCSC].wireDigis(ilayer);
@@ -192,7 +190,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
       }     
     }
   }
-  std::cout<<"**************[DCCUnpackingModule]:"<< std::dec << numOfEvents<<" events analyzed "<<std::endl;
+  edm::LogInfo("CSCDCCUnpacker") <<"**************[DCCUnpackingModule]:"<< std::ios::dec << numOfEvents<<" events analyzed ";
   //}
   // commit to the event
   e.put(wireProduct,"MuonCSCWireDigi");
