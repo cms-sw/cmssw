@@ -16,8 +16,8 @@
   *     [8:5] Detector sector (HB+,HB-,HE+,HE-,HF+,HF-,HO2-,HO1-,HOO,HO1+,HO2+)
   *     [4:0] RBX number
   *
-  * $Date: 2006/02/10 21:15:28 $
-  * $Revision: 1.1 $
+  * $Date: 2006/02/16 17:01:57 $
+  * $Revision: 1.2 $
   * \author J. Mans - Minnesota
   */
 class HcalCalibDetId : public DetId {
@@ -51,6 +51,8 @@ public:
   std::string sectorString() const;
   /// get the calibration box channel (if relevant)
   int cboxChannel() const;
+  /// get the calibration box channel as a string (if relevant)
+  std::string cboxChannelString() const;
 
   /// constants
   static const int cbox_MixerHigh     = 1; // HB/HE/HO/HF

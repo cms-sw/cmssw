@@ -39,23 +39,36 @@ HcalCalibDetId::SectorId HcalCalibDetId::sector() const {
 
 std::string HcalCalibDetId::sectorString() const {
   switch (sector()) {
-  case(HBplus): return "HB+";
-  case(HBminus): return "HB-";
-  case(HEplus): return "HE+";
-  case(HEminus): return "HE-";
-  case(HFplus): return "HF+";
-  case(HFminus): return "HF-";
-  case(HO2plus): return "HO2+";
-  case(HO1plus): return "HO1+";
+  case(HBplus): return "HBP";
+  case(HBminus): return "HBM";
+  case(HEplus): return "HEP";
+  case(HEminus): return "HEM";
+  case(HFplus): return "HFP";
+  case(HFminus): return "HFM";
+  case(HO2plus): return "HO2P";
+  case(HO1plus): return "HO1P";
   case(HOzero): return "HO0";
-  case(HO1minus): return "HO1-";
-  case(HO2minus): return "HO2-";
+  case(HO1minus): return "HO1M";
+  case(HO2minus): return "HO2M";
   default : return "";
   }
 }
 
 int HcalCalibDetId::cboxChannel() const {
   return (calibFlavor()==CalibrationBox)?((id_>>9)&0xF):(0);
+}
+
+std::string HcalCalibDetId::cboxChannelString() const {
+  switch (cboxChannel()) {
+  case(cbox_MixerHigh): return "Mixer-High";
+  case(cbox_MixerLow): return "Mixer-Low";
+  case(cbox_LaserMegatile): return "Megatile";
+  case(cbox_MixerScint): return "Mixer-Scintillator";
+  case(cbox_RadDam1): return "RadDam1";
+  case(cbox_RadDam2): return "RadDam2";
+  case(cbox_RadDam3): return "RadDam3";
+  default : return "";
+  }
 }
 
 std::ostream& operator<<(std::ostream& s,const HcalCalibDetId& id) {
