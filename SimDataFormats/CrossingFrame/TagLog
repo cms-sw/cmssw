@@ -1,3 +1,6 @@
+** V00-03-07  [Tue Feb 21 17:36:54 2006]
+change FWCore/EDProduct to DataFormats/Common
+
 ** V00-03-06  [Tue Feb  7 13:38:21 2006]
 correct pileup verification for trackers
 
