@@ -20,3 +20,55 @@ namespace {
 }
 template  std::vector<EcalWeight>::iterator;
 template  std::vector< std::vector<EcalWeight> >::iterator;
+
+
+#include "CondFormats/EcalObjects/interface/EcalWeightXtalGroups.h"
+#include "CondFormats/EcalObjects/interface/EcalXtalGroupId.h"
+namespace {
+  namespace {
+    EcalWeightXtalGroups  gg;
+  }
+}
+template std::map<uint32_t, EcalXtalGroupId>::iterator;
+template std::map<uint32_t, EcalXtalGroupId>::const_iterator;
+
+#include "CondFormats/EcalObjects/interface/EcalTBWeights.h"
+#include "CondFormats/EcalObjects/interface/EcalWeightSet.h"
+namespace {
+  namespace {
+    EcalTBWeights tbwgt;
+    EcalWeightSet wset;
+    EcalTDCId id;
+  }
+}
+template std::map< std::pair< EcalXtalGroupId, EcalTDCId >, EcalWeightSet >::iterator;
+template std::map< std::pair< EcalXtalGroupId, EcalTDCId >, EcalWeightSet >::const_iterator;
+
+//#include "CondFormats/EcalObjects/interface/.h"
+#include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
+namespace {
+  namespace {
+    EcalADCToGeVConstant adcfactor;
+  }
+}
+
+
+#include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
+#include "CondFormats/EcalObjects/interface/EcalMGPAGainRatio.h"
+namespace {
+  namespace {
+    EcalGainRatios gainratios;
+  }
+}
+template std::map<uint32_t, EcalMGPAGainRatio>::iterator;
+template std::map<uint32_t, EcalMGPAGainRatio>::const_iterator;
+
+
+#include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
+namespace {
+  namespace {
+    EcalIntercalibConstants intercalib;
+  }
+}
+template std::map<uint32_t, EcalIntercalibConstant>::iterator;
+template std::map<uint32_t, EcalIntercalibConstant>::const_iterator;

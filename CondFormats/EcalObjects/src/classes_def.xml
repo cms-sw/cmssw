@@ -1,13 +1,26 @@
 <lcgdict>
  <class name="EcalPedestals"/>
  <class name="EcalPedestals::Item"/>
- <class name="std::pair<const unsigned int, EcalPedestals::Item>"/>
 
  <class name="EcalWeightRecAlgoWeights"/>
+ <class name="EcalWeightSet"/>
  <class name="EcalWeight"/>
- <class name="std::vector<EcalWeight>"/>
- <class name="std::vector< std::vector<EcalWeight> >"/>
+ <class name="std::vector< EcalWeight >"/>
+ <class name="std::vector< std::vector< EcalWeight > >"/>
 
+ <class name="EcalWeightXtalGroups"/>
+ <class name="EcalXtalGroupId"/>
+
+ <class name="EcalTBWeights"/>
+
+ <class name="EcalADCToGeVConstant"/>
+
+ <class name="EcalGainRatios"/>
+ <class name="EcalMGPAGainRatio"/>
+ <class name="EcalIntercalibConstants"/>
+
+
+ <class pattern="*pair*"/>
  <class pattern="*map*"/>
  <class pattern="*iterator*"/>
 </lcgdict>
