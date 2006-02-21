@@ -21,11 +21,19 @@ using namespace std;
 const float PI = 3.141593;
 const float degsPerRad = 57.29578;
 
+
+//-----------------------------------------------------------------------------
+//  A fairly boring constructor.  All quantities are DetUnit-dependent, and
+//  will be initialized in setTheDet().
+//-----------------------------------------------------------------------------
 CPEFromDetPosition::CPEFromDetPosition()
 {
 }
 
 
+//-----------------------------------------------------------------------------
+//  One function to cache the variables common for one DetUnit.
+//-----------------------------------------------------------------------------
 void
 CPEFromDetPosition::setTheDet( const GeomDetUnit & det )
 {
@@ -35,12 +43,11 @@ CPEFromDetPosition::setTheDet( const GeomDetUnit & det )
   //--- This is a new det unit, so cache it's values
   theDet = dynamic_cast<const PixelGeomDetUnit*>( &det );
   if (! theDet) {
-    // Fatal error!  TO DO: throw an exception!
+    // &&& Fatal error!  TO DO: throw an exception!
     assert(0);
   }
 
-  //&&& thePart = theDet->type().part();
-  // theDet->type() returns  GeomDetType, which implements subDetector()
+  //--- theDet->type() returns a GeomDetType, which implements subDetector()
   thePart = theDet->type().subDetector();
   switch (thePart) {
   case GeomDetType::PixelBarrel:
@@ -54,37 +61,48 @@ CPEFromDetPosition::setTheDet( const GeomDetUnit & det )
       << "CPEFromDetPosition:: a non-pixel detector type in here? Yuck!" 
       << std::endl;
     //  &&& Should throw an exception here!
+    assert(0);
   }
        
+  //--- The location in of this DetUnit in a cyllindrical coord system (R,Z)
+  //--- The call goes via BoundSurface, returned by theDet->surface(), but
+  //--- position() is implemented in GloballyPositioned<> template
+  //--- ( BoundSurface : Surface : GloballyPositioned<float> )
+  theDetR = theDet->surface().position().perp();
+  theDetZ = theDet->surface().position().z();
 
-  // &&& theDetZ = theDet->position().z();
-  // &&& theDetR = theDet->position().perp();
 
+  //--- Define parameters for chargewidth calculation
 
+  //--- bounds() is implemented in BoundSurface itself.
+  theThickness = theDet->surface().bounds().thickness();
 
-  // Define parameters for chargewidth calculation
-
-  // Cache the topology.
+  //--- Cache the topology.
   theTopol
     = dynamic_cast<const RectangularPixelTopology*>( & (theDet->specificTopology()) );
 
-  //&&& ? theThickness = pixType.bounds().thickness();
-
+  //---- The geometrical description of one module/plaquette
   theNumOfRow = theTopol->nrows();      // rows in x
   theNumOfCol = theTopol->ncolumns();   // cols in y
   std::pair<float,float> pitchxy = theTopol->pitch();
-  thePitchX = pitchxy.first;
-  thePitchY = pitchxy.second;
-  // Find offset
+  thePitchX = pitchxy.first;            // pitch along x
+  thePitchY = pitchxy.second;           // pitch along y
+
+  //--- Find the offset
   MeasurementPoint  offset = 
     theTopol->measurementPosition( LocalPoint(0., 0.) );  
   theOffsetX = offset.x();
   theOffsetY = offset.y();
-  // Find if the E field is flipped
-  theSign = 1;
-  if (isFlipped()) theSign = -1;
 
+  //--- Find if the E field is flipped: i.e. whether it points
+  //--- from the beam, or towards the beam.  (The voltages are
+  //--- applied backwards on every other module in barrel and
+  //--- blade in forward.)
+  theSign = isFlipped() ? -1 : 1;
+
+  //--- The Lorentz shift.
   theLShift = lorentzShift();
+
 #ifdef DEBUG
   cout << "***** PIXEL LAYOUT *****" << endl;
   cout << " theThickness = " << theThickness << endl;
@@ -129,6 +147,9 @@ CPEFromDetPosition::localPosition(const SiPixelCluster& cluster, const GeomDetUn
 }
 
 
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
 float 
 CPEFromDetPosition::err2X(bool& edgex, int& sizex) const
 {
@@ -166,6 +187,9 @@ CPEFromDetPosition::err2X(bool& edgex, int& sizex) const
 }
 
 
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
 float 
 CPEFromDetPosition::err2Y(bool& edgey, int& sizey) const
 {
@@ -193,6 +217,9 @@ CPEFromDetPosition::err2Y(bool& edgey, int& sizey) const
 }
 
 
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
 float 
 CPEFromDetPosition::xpos(const SiPixelCluster& cluster) const
 {
@@ -235,6 +262,9 @@ CPEFromDetPosition::xpos(const SiPixelCluster& cluster) const
 }
 
 
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
 float 
 CPEFromDetPosition::ypos(const SiPixelCluster& cluster) const
 {
@@ -287,6 +317,20 @@ CPEFromDetPosition::ypos(const SiPixelCluster& cluster) const
 }
 
 
+//-----------------------------------------------------------------------------
+// The isFlipped() is a silly way to determine which detectors are inverted.
+// In the barrel for every 2nd ladder the E field direction is in the
+// global r direction (points outside from the z axis), every other
+// ladder has the E field inside. Something similar is in the 
+// forward disks (2 sides of the blade). This has to be recognised
+// because the charge sharing effect is different.
+//
+// The isFliped does it by looking and the relation of the local (z always
+// in the E direction) to global coordinates. There is probably a much 
+// better way.
+//
+// Plan: ignore it for the moment
+//-----------------------------------------------------------------------------
 bool 
 CPEFromDetPosition::isFlipped() const
 {
@@ -295,10 +339,13 @@ CPEFromDetPosition::isFlipped() const
 //   float tmp2 = theDet->toGlobal( Local3DPoint(0.,0.,1.) ).perp();
 //   if ( tmp2<tmp1 ) return true;
 //   else return false;
-  return true;    // &&& TEMPORARY HACK
+  return false;    // &&& TEMPORARY HACK
 }
 
 
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
 float 
 CPEFromDetPosition::chargeWidthX() const
 { 
@@ -315,6 +362,9 @@ CPEFromDetPosition::chargeWidthX() const
 }
 
 
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
 float 
 CPEFromDetPosition::chargeWidthY() const
 {
@@ -330,6 +380,10 @@ CPEFromDetPosition::chargeWidthY() const
 }
 
 
+//-----------------------------------------------------------------------------
+// From Danek: "geomCorrection() is sort of second order effect, ignore it for 
+// the moment. I have to to derive it again and understand better what it means."
+//-----------------------------------------------------------------------------
 float 
 CPEFromDetPosition::geomCorrection() const
 { 
@@ -340,6 +394,9 @@ CPEFromDetPosition::geomCorrection() const
 }
 
 
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
 float 
 CPEFromDetPosition::lorentzShift() const
 {
@@ -361,6 +418,9 @@ CPEFromDetPosition::lorentzShift() const
 }
 
 
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
 float 
 CPEFromDetPosition::chaWidth2X(const float& centerx) const
 {
@@ -371,6 +431,9 @@ CPEFromDetPosition::chaWidth2X(const float& centerx) const
 
 
 
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
 float 
 CPEFromDetPosition::estimatedAlphaForBarrel(const float& centerx) const
 {
@@ -379,6 +442,9 @@ CPEFromDetPosition::estimatedAlphaForBarrel(const float& centerx) const
 }
 
 
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
 vector<float> 
 CPEFromDetPosition::xCharge(const vector<SiPixelCluster::Pixel>& pixelsVec, 
 				    const float& xmin, const float& xmax)const
@@ -402,6 +468,9 @@ CPEFromDetPosition::xCharge(const vector<SiPixelCluster::Pixel>& pixelsVec,
 } 
 
 
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
 vector<float> 
 CPEFromDetPosition::yCharge(const vector<SiPixelCluster::Pixel>& pixelsVec,
 				    const float& ymin, const float& ymax)const
