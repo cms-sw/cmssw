@@ -1,3 +1,6 @@
+** V00-00-10  [Tue Feb 21 18:22:00 2006]
+fixes for MessageLogger
+
 ** V00-00-09  [Tue Feb 21 16:29:49 2006]
 added toggle output and input/output prescale
 
