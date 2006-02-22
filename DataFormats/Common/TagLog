@@ -1,3 +1,6 @@
+** V01-02-02  [Wed Feb 22 23:42:18 2006]
+Add Ref constructor from RefProd and index
+
 ** V01-02-01  [Tue Feb 21 19:50:34 2006]
 RangeMap fixes
 
