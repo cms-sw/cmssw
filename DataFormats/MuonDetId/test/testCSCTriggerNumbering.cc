@@ -3,11 +3,11 @@
    test file for CSCTriggerNumbering
 
    \author Lindsey GRAY
-   \version $Id: testCSCTriggerNumbering.cc,v 1.3 2005/11/07 13:46:57 ptc Exp $
+   \version $Id: testCSCTriggerNumbering.cc,v 1.1 2006/02/22 23:22:49 lgray Exp $
    \date 27 Jul 2005
 */
 
-static const char CVSId[] = "$Id: testCSCTriggerNumbering.cc,v 1.3 2005/11/07 13:46:57 ptc Exp $";
+static const char CVSId[] = "$Id: testCSCTriggerNumbering.cc,v 1.1 2006/02/22 23:22:49 lgray Exp $";
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
@@ -23,8 +23,11 @@ class testCSCTriggerNumbering: public CppUnit::TestFixture
 
   CPPUNIT_TEST(testNumbering);
   CPPUNIT_TEST(testFail);
+  CPPUNIT_TEST_SUITE_END();
 
 public:
+  void setUp(){}
+  void tearDown(){}
   void testNumbering();
   void testFail();
 };
