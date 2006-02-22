@@ -8,5 +8,12 @@ namespace cond{
     explicit Exception( const std::string& message );    
     virtual ~Exception();
   };
+  class noDataForRequiredTimeException : public Exception{
+  public:
+    noDataForRequiredTimeException(const std::string& from,
+				   const std::string& rcd,
+				   const std::string& current);
+    virtual ~noDataForRequiredTimeException();
+  };
 }
 #endif
