@@ -1,0 +1,5 @@
+<lcgdict>
+  <class name="TrackCandidate"/>
+  <class name="edm::OwnVector<TrackCandidate>"/>
+  <class name="edm::Wrapper<edm::OwnVector<TrackCandidate> >"/>
+</lcgdict>                                                                                                                                                        
