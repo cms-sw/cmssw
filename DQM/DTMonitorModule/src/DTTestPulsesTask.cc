@@ -1,8 +1,8 @@
 /*
  * \file DTTestPulsesTask.cc
  * 
- * $Date: 2006/02/15 19:00:59 $
- * $Revision: 1.2 $
+ * $Date: 2006/02/21 19:04:14 $
+ * $Revision: 1.3 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -24,9 +24,9 @@
 
 // Geometry
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
-#include "Geometry/DTSimAlgo/interface/DTGeometry.h"
-#include "Geometry/DTSimAlgo/interface/DTLayer.h"
-#include "Geometry/CommonTopologies/interface/DTTopology.h"
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "Geometry/DTGeometry/interface/DTLayer.h"
+#include "Geometry/DTGeometry/interface/DTTopology.h"
 
 // T0s
 #include <CondFormats/DTObjects/interface/DTTtrig.h>

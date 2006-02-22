@@ -5,9 +5,8 @@
 <use name=DataFormats/DTDigi>
 <use name=CondFormats/DTObjects>
 <use name=CondFormats/DataRecord>
-<use name=Geometry/CommonTopologies>
 <use name=Geometry/Records>
-<use name=Geometry/DTSimAlgo>
+<use name=Geometry/DTGeometry>
 <use name=boost>
 <use name=root>
 
@@ -19,9 +18,8 @@
  <use name=DataFormats/DTDigi>
  <use name=CondFormats/DTObjects>
  <use name=CondFormats/DataRecord>
- <use name=Geometry/CommonTopologies>
  <use name=Geometry/Records>
- <use name=Geometry/DTSimAlgo> 
+ <use name=Geometry/DTGeometry> 
  <use name=boost>
  <use name=root>
 </export>
