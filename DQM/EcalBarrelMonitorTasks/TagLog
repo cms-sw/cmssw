@@ -1,3 +1,6 @@
+** V00-01-00  [Wed Feb 22 10:47:44 2006]
+- use EcalDCCHeaderBlock, when possible
+
 ** V00-00-03  [Wed Jan 11 13:09:11 2006]
 - several improvements and bug fixes
 
