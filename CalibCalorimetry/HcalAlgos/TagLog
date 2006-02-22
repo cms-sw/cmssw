@@ -1,3 +1,6 @@
+** V02-03-00  [Wed Feb 22 20:56:00 2006]
+Include all correlations into HcalPedestalWidth
+
 ** V02-02-01  [Tue Feb 21 00:27:01 2006]
 enable calibration Id for mapping
 
