@@ -1,3 +1,6 @@
+** V01-00-05  [Wed Feb 22 10:27:53 2006]
+fix a bug in the debug code
+
 ** V01-00-04  [Fri Dec  9 04:22:59 2005]
 made changes to accommodate TrackerMapDDDtoID no longer being a singleton
 
