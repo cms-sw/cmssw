@@ -24,7 +24,9 @@ namespace{
   CSCWireDigi::PersistentPacking ppWD_;
   CSCRPCDigi::PersistentPacking ppRD_;
   CSCCorrelatedLCTDigi::PersistentPacking ppCorLCTD_;
-
+  CSCStripDigi::theStripDigi ppSD_;
+  CSCComparatorDigi::theComparatorDigi ppCD_; 
+ 
   std::vector<CSCWireDigi>  vWD_;
   std::vector<CSCRPCDigi>   vRD_;
   std::vector<CSCStripDigi>  vSD_;

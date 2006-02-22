@@ -20,6 +20,9 @@
    <class name="CSCWireDigi::PersistentPacking"/>
    <class name="CSCRPCDigi::PersistentPacking"/>
    <class name="CSCCorrelatedLCTDigi::PersistentPacking"/>
+   <class name="CSCStripDigi::theStripDigi"/>   
+   <class name="CSCComparatorDigi::theComparatorDigi"/>   
+   
 
    <class name="MuonDigiCollection<CSCDetId,CSCWireDigi>"/>
    <class name="MuonDigiCollection<RPCDetId,CSCRPCDigi>"/>
