@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: HcalHardcodeCalibrations.cc,v 1.5 2005/12/15 23:37:58 fedor Exp $
+// $Id: HcalHardcodeCalibrations.cc,v 1.6 2006/01/11 17:07:52 fedor Exp $
 //
 //
 
@@ -66,7 +66,7 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
 {
   std::cout << "HcalHardcodeCalibrations::HcalHardcodeCalibrations->..." << std::endl;
   //parsing record parameters
-  std::vector <std::string> toGet = iConfig.getParameter <std::vector <std::string> > ("toGet");
+  std::vector <std::string> toGet = iConfig.getUntrackedParameter <std::vector <std::string> > ("toGet");
   for(std::vector <std::string>::iterator objectName = toGet.begin(); objectName != toGet.end(); ++objectName ) {
     bool all = *objectName == "all";
     if ((*objectName == "Pedestals") || all) {
@@ -135,7 +135,7 @@ std::auto_ptr<HcalPedestalWidths> HcalHardcodeCalibrations::producePedestalWidth
   std::vector <HcalDetId> cells = allCells ();
   for (std::vector <HcalDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
     HcalPedestalWidth item = HcalDbHardcode::makePedestalWidth (*cell);
-    result->addValue (*cell, item.getValues ());
+    result->setWidth (item);
   }
   result->sort ();
   return result;

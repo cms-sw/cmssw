@@ -3,7 +3,7 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store PedestalWidth values 4xCapId
 $Author: ratnikov
-$Date: 2005/10/06 21:25:32 $
+$Date: 2005/12/15 23:38:04 $
 $Revision: 1.5 $
 */
 
@@ -19,9 +19,9 @@ namespace {
     }
   };
 
-  HcalPedestalWidths::Container::const_iterator 
-  find (const HcalPedestalWidths::Container& container, unsigned long id) {
-    HcalPedestalWidths::Container::const_iterator result = container.begin ();
+  std::vector <HcalPedestalWidth>::const_iterator 
+  find (const std::vector <HcalPedestalWidth>& container, unsigned long id) {
+    std::vector <HcalPedestalWidth>::const_iterator result = container.begin ();
     for (; result != container.end (); result++) {
       if (result->rawId () == id) break; // found
     }
@@ -35,7 +35,7 @@ HcalPedestalWidths::HcalPedestalWidths()
 HcalPedestalWidths::~HcalPedestalWidths(){}
 
 const HcalPedestalWidth* HcalPedestalWidths::getValues (HcalDetId fId) const {
-  Item target (fId.rawId (), 0, 0, 0, 0);
+  HcalPedestalWidth target (fId.rawId ());
   std::vector<Item>::const_iterator cell;
   if (sorted ()) {
     cell = std::lower_bound (mItems.begin(), mItems.end(), target, compareItems ());
@@ -48,27 +48,40 @@ const HcalPedestalWidth* HcalPedestalWidths::getValues (HcalDetId fId) const {
   return &(*cell);
 }
 
-float HcalPedestalWidths::getValue (HcalDetId fId, int fCapId) const {
+float HcalPedestalWidths::getWidth (HcalDetId fId, int fCapId) const {
   const HcalPedestalWidth* values;
   if (fCapId > 0 && fCapId <= 4) {
     values = getValues (fId);
-    if (values) return values->getValue (fCapId);
+    if (values) return values->getWidth (fCapId);
   }
   else {
-    std::cerr << "HcalPedestalWidths::getValue-> capId " << fCapId << " is out of range [1..4]" << std::endl;
+    std::cerr << "HcalPedestalWidths::getWidth-> capId " << fCapId << " is out of range [1..4]" << std::endl;
   }
   return -1;
 }
 
-bool HcalPedestalWidths::addValue (HcalDetId fId, const float fValues [4]) {
-  return addValue (fId, fValues [0], fValues [1], fValues [2], fValues [3]);
+float HcalPedestalWidths::getSigma (HcalDetId fId, int fCapId1, int fCapId2) const {
+  const HcalPedestalWidth* values;
+  if (fCapId1 > 0 && fCapId1 <= 4 && fCapId2 > 0 && fCapId2 <= 4) {
+    values = getValues (fId);
+    if (values) return values->getSigma (fCapId1, fCapId2);
+  }
+  else {
+    std::cerr << "HcalPedestalWidths::getSigma-> capId " << fCapId1 << " or " << fCapId2 << " is out of range [1..4]" << std::endl;
+  }
+  return -1;
 }
 
-bool HcalPedestalWidths::addValue (HcalDetId fId, float fValue1, float fValue2, float fValue3, float fValue4) {
-  Item item (fId.rawId (), fValue1, fValue2, fValue3, fValue4);
+HcalPedestalWidth* HcalPedestalWidths::setWidth (HcalDetId fId) {
+  HcalPedestalWidth item (fId.rawId ());
   mItems.push_back (item);
   mSorted = false;
-  return true;
+  return &(mItems.back ());
+}
+
+void HcalPedestalWidths::setWidth (const HcalPedestalWidth& fItem) {
+  mItems.push_back (fItem);
+  mSorted = false;
 }
 
 std::vector<HcalDetId> HcalPedestalWidths::getAllChannels () const {

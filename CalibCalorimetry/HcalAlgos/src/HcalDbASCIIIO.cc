@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.9 2006/02/15 21:55:15 fedor Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.10 2006/02/20 23:24:53 fedor Exp $
 //
 #include <vector>
 #include <string>
@@ -97,12 +97,59 @@ bool dumpHcalObject (std::ostream& fOutput, const T& fObject) {
 
 bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalPedestals* fObject) {return getHcalObject (fInput, fObject);}
 bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalPedestals& fObject) {return dumpHcalObject (fOutput, fObject);}
-bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalPedestalWidths* fObject) {return getHcalObject (fInput, fObject);}
-bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalPedestalWidths& fObject) {return dumpHcalObject (fOutput, fObject);}
 bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalGains* fObject) {return getHcalObject (fInput, fObject);}
 bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalGains& fObject) {return dumpHcalObject (fOutput, fObject);}
 bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalGainWidths* fObject) {return getHcalObject (fInput, fObject);}
 bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalGainWidths& fObject) {return dumpHcalObject (fOutput, fObject);}
+
+bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalPedestalWidths* fObject) {
+  if (!fObject) fObject = new HcalPedestalWidths;
+  char buffer [1024];
+  while (fInput.getline(buffer, 1024)) {
+    if (buffer [0] == '#') continue; //ignore comment
+    std::vector <std::string> items = splitString (std::string (buffer));
+    if (items.size () < 14) {
+      std::cerr << "Bad line: " << buffer << "\n line must contain 14 items: eta, phi, depth, subdet, 10x correlations" << std::endl;
+      continue;
+    }
+    HcalPedestalWidth* values = fObject->setWidth (getId (items));
+    values->setSigma (1, 1, atof (items [4].c_str()));
+    values->setSigma (2, 1, atof (items [5].c_str()));
+    values->setSigma (2, 2, atof (items [6].c_str()));
+    values->setSigma (3, 1, atof (items [7].c_str()));
+    values->setSigma (3, 2, atof (items [8].c_str()));
+    values->setSigma (3, 3, atof (items [9].c_str()));
+    values->setSigma (4, 1, atof (items [10].c_str()));
+    values->setSigma (4, 2, atof (items [11].c_str()));
+    values->setSigma (4, 3, atof (items [12].c_str()));
+    values->setSigma (4, 4, atof (items [13].c_str()));
+  }
+  fObject->sort ();
+  return true;
+}
+
+bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalPedestalWidths& fObject) {
+  char buffer [1024];
+  sprintf (buffer, "# %4s %4s %4s %4s %8s %8s %8s %8s %8s %8s %8s %8s %8s %8s %10s\n", 
+	   "eta", "phi", "dep", "det", 
+	   "sig_1_1", "sig_2_1", "sig_2_2", "sig_3_1", "sig_3_2", "sig_3_3", "sig_4_1", "sig_4_2", "sig_4_3", "sig_4_4", 
+	   "HcalDetId");
+  fOutput << buffer;
+  std::vector<HcalDetId> channels = fObject.getAllChannels ();
+  for (std::vector<HcalDetId>::iterator channel = channels.begin ();
+       channel !=  channels.end ();
+       channel++) {
+    const HcalPedestalWidth* item = fObject.getValues (*channel);
+    if (item) {
+      dumpId (fOutput, *channel);
+      sprintf (buffer, " %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %10X\n",
+	       item->getSigma (1,1), item->getSigma (2,1), item->getSigma (2,2), item->getSigma (3,1), item->getSigma (3,2), item->getSigma (3,3), 
+	       item->getSigma (4,1), item->getSigma (4,2), item->getSigma (4,3), item->getSigma (4,4), channel->rawId ());
+      fOutput << buffer;
+    }
+  }
+  return true;
+}
 
 bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalQIEData* fObject) {
   char buffer [1024];

@@ -1,7 +1,7 @@
 //
 // F.Ratnikov (UMd), Aug. 9, 2005
 //
-// $Id: HcalDbService.cc,v 1.7 2005/12/15 23:38:00 fedor Exp $
+// $Id: HcalDbService.cc,v 1.8 2005/12/27 23:50:27 fedor Exp $
 
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 
@@ -36,27 +36,58 @@ HcalDbService::HcalDbService ()
  {}
 
 bool HcalDbService::makeHcalCalibration (const HcalDetId& fId, HcalCalibrations* fObject) const {
-  if (mPedestals && mGains && fObject) {
-    const float* pedestals =  mPedestals->getValues (fId)->getValues ();
-    const float* gains = mGains->getValues (fId)->getValues ();
-    if (gains && pedestals) {
-      *fObject = HcalCalibrations (gains, pedestals);
+  if (fObject) {
+    const HcalPedestal* pedestal = getPedestal (fId);
+    const HcalGain* gain = getGain (fId);
+    if (pedestal && gain) {
+      *fObject = HcalCalibrations (gain->getValues (), pedestal->getValues ());
       return true;
     }
   }
   return false;
 }
+
 bool HcalDbService::makeHcalCalibrationWidth (const HcalDetId& fId, HcalCalibrationWidths* fObject) const {
-  if (mPedestalWidths && mGainWidths && fObject) {
-    const float* pedestals =  mPedestalWidths->getValues (fId)->getValues ();
-    const float* gains = mGainWidths->getValues (fId)->getValues ();
-    if (gains && pedestals) {
-      *fObject = HcalCalibrationWidths (gains, pedestals);
+  if (fObject) {
+    const HcalPedestalWidth* pedestal = getPedestalWidth (fId);
+    const HcalGainWidth* gain = getGainWidth (fId);
+    if (pedestal && gain) {
+      float pedestalWidth [4];
+      for (int i = 0; i < 4; i++) pedestalWidth [i] = pedestal->getWidth (i+1);
+      *fObject = HcalCalibrationWidths (gain->getValues (), pedestalWidth);
       return true;
     }
   }
   return false;
 }  
+
+const HcalPedestal* HcalDbService::getPedestal (const HcalDetId& fId) const {
+  if (mPedestals) {
+    return mPedestals->getValues (fId);
+  }
+  return 0;
+}
+
+  const HcalPedestalWidth* HcalDbService::getPedestalWidth (const HcalDetId& fId) const {
+  if (mPedestalWidths) {
+    return mPedestalWidths->getValues (fId);
+  }
+  return 0;
+}
+
+const HcalGain* HcalDbService::getGain (const HcalDetId& fId) const {
+  if (mGains) {
+    return mGains->getValues (fId);
+  }
+  return 0;
+}
+
+  const HcalGainWidth* HcalDbService::getGainWidth (const HcalDetId& fId) const {
+  if (mGainWidths) {
+    return mGainWidths->getValues (fId);
+  }
+  return 0;
+}
 
 const HcalQIECoder* HcalDbService::getHcalCoder (const HcalDetId& fId) const {
   if (mQIEData) {

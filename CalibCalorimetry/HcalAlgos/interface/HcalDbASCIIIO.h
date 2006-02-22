@@ -13,12 +13,14 @@
    \class HcalDbASCIIIO
    \brief IO for ASCII instances of Hcal Calibrations
    \author Fedor Ratnikov Oct. 28, 2005
-   $Id: HcalDbASCIIIO.h,v 1.4 2006/02/13 22:13:25 fedor Exp $
+   $Id: HcalDbASCIIIO.h,v 1.5 2006/02/20 23:24:52 fedor Exp $
    
 Text file formats for different data types is as following:
 - # in first column comments the line
-- HcalPedestals, HcalPedestalWidths, HcalGains, HcalGainWidths have identical formats:
+- HcalPedestals, HcalGains, HcalGainWidths have identical formats:
   eta(int)  phi(int) depth(int) det(HB,HE,HF) cap1_value(float) cap2_value(float) cap3_value(float) cap4_value(float)  HcalDetId(int,optional)
+- HcalPedestalWidths:
+  eta(int)  phi(int) depth(int) det(HB,HE,HF) sigma_1_1(float) sigma_2_1 sigma_2_2 sigma_3_1 sigma_3_2 sigma_3_3 sigma_4_1 sigma_4_2 sigma_4_3 sigma_4_4
 - HcalQIEShape:
   33 x floats - low edges for first 33 channels of ideal QIE
 - HcalQIEData:

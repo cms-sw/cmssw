@@ -18,6 +18,10 @@
 class HcalCalibrations;
 class HcalCalibrationWidths;
 
+class HcalPedestal;
+class HcalPedestalWidth;
+class HcalGain;
+class HcalGainWidth;
 class HcalPedestals;
 class HcalPedestalWidths;
 class HcalGains;
@@ -34,6 +38,10 @@ class HcalDbService {
 
   bool makeHcalCalibration (const HcalDetId& fId, HcalCalibrations* fObject) const;
   bool makeHcalCalibrationWidth (const HcalDetId& fId, HcalCalibrationWidths* fObject) const;
+  const HcalPedestal* getPedestal (const HcalDetId& fId) const;
+  const HcalPedestalWidth* getPedestalWidth (const HcalDetId& fId) const;
+  const HcalGain* getGain (const HcalDetId& fId) const;
+  const HcalGainWidth* getGainWidth (const HcalDetId& fId) const;
   const HcalQIECoder* getHcalCoder (const HcalDetId& fId) const;
   const HcalQIEShape* getHcalShape () const;
   const HcalElectronicsMap* getHcalMapping () const;

@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbXml.cc,v 1.6 2006/02/17 20:10:42 fedor Exp $
+// $Id: HcalDbXml.cc,v 1.7 2006/02/20 23:24:53 fedor Exp $
 //
 #include <vector>
 #include <string>
@@ -54,23 +54,23 @@ namespace {
     fOutput << std::endl;
   }
 
-  void dumpData (std::ostream& fOutput, const float* fValues, const float* fErrors) {
+  void dumpData (std::ostream& fOutput, const float* fValues, const HcalPedestalWidth& fErrors) {
     fOutput << "      ";
     fOutput << "<DATA> ";
     fOutput << "<CAPACITOR_0_VALUE>" << fValues [0] << "</CAPACITOR_0_VALUE> ";
     fOutput << "<CAPACITOR_1_VALUE>" << fValues [1] << "</CAPACITOR_1_VALUE> ";
     fOutput << "<CAPACITOR_2_VALUE>" << fValues [2] << "</CAPACITOR_2_VALUE> ";	
     fOutput << "<CAPACITOR_3_VALUE>" << fValues [3] << "</CAPACITOR_3_VALUE> ";
-    fOutput << "<SIGMA_0_0>" << fErrors [0]*fErrors [0] << "</SIGMA_0_0> ";	
-    fOutput << "<SIGMA_1_1>" << fErrors [1]*fErrors [1] << "</SIGMA_1_1> ";	
-    fOutput << "<SIGMA_2_2>" << fErrors [2]*fErrors [2] << "</SIGMA_2_2> ";	
-    fOutput << "<SIGMA_3_3>" << fErrors [3]*fErrors [3] << "</SIGMA_3_3> ";	
-    fOutput << "<SIGMA_0_1>" << "0" << "</SIGMA_0_1> ";	
-    fOutput << "<SIGMA_0_2>" << "0" << "</SIGMA_0_2> ";	
-    fOutput << "<SIGMA_0_3>" << "0" << "</SIGMA_0_3> ";	
-    fOutput << "<SIGMA_1_2>" << "0" << "</SIGMA_1_2> ";	
-    fOutput << "<SIGMA_1_3>" << "0" << "</SIGMA_1_3> ";	
-    fOutput << "<SIGMA_2_3>" << "0" << "</SIGMA_2_3> ";	
+    fOutput << "<SIGMA_0_0>" << fErrors.getSigma (1,1) << "</SIGMA_0_0> ";	
+    fOutput << "<SIGMA_1_1>" << fErrors.getSigma (2,2) << "</SIGMA_1_1> ";	
+    fOutput << "<SIGMA_2_2>" << fErrors.getSigma (3,3) << "</SIGMA_2_2> ";	
+    fOutput << "<SIGMA_3_3>" << fErrors.getSigma (4,4) << "</SIGMA_3_3> ";	
+    fOutput << "<SIGMA_0_1>" << fErrors.getSigma (2,1) << "</SIGMA_0_1> ";	
+    fOutput << "<SIGMA_0_2>" << fErrors.getSigma (3,1) << "</SIGMA_0_2> ";	
+    fOutput << "<SIGMA_0_3>" << fErrors.getSigma (4,1) << "</SIGMA_0_3> ";	
+    fOutput << "<SIGMA_1_2>" << fErrors.getSigma (3,2) << "</SIGMA_1_2> ";	
+    fOutput << "<SIGMA_1_3>" << fErrors.getSigma (4,2) << "</SIGMA_1_3> ";	
+    fOutput << "<SIGMA_2_3>" << fErrors.getSigma (4,3) << "</SIGMA_2_3> ";	
     fOutput << "</DATA> " << std::endl;
   }
 
@@ -136,14 +136,17 @@ namespace {
 bool HcalDbXml::dumpObject (std::ostream& fOutput, 
 			    unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion, 
 			    const HcalPedestals& fObject) {
-  float dummyErrors [4] = {0.0001, 0.0001, 0.0001, 0.0001};
+  float dummyError = 0.0001;
   std::cout << "HcalDbXml::dumpObject-> set default errors: 0.0001, 0.0001, 0.0001, 0.0001" << std::endl;
   HcalPedestalWidths widths;
   std::vector<HcalDetId> channels = fObject.getAllChannels ();
   for (std::vector<HcalDetId>::iterator channel = channels.begin ();
        channel !=  channels.end ();
        channel++) {
-    widths.addValue (*channel, dummyErrors);
+    HcalPedestalWidth* item = widths.setWidth (*channel);
+    for (int iCapId = 1; iCapId <= 4; iCapId++) {
+      item->setSigma (iCapId, iCapId, dummyError*dummyError);
+    }
   }
   widths.sort ();
   return dumpObject (fOutput, fRun, fGMTIOVBegin, fGMTIOVEnd, fTag, fVersion, fObject, widths);
@@ -152,7 +155,6 @@ bool HcalDbXml::dumpObject (std::ostream& fOutput,
 bool HcalDbXml::dumpObject (std::ostream& fOutput, 
 			    unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion, 
 			    const HcalPedestals& fObject, const HcalPedestalWidths& fError) {
-  float dummyErrors [4] = {0.0001, 0.0001, 0.0001, 0.0001};
   const std::string KIND = "HCAL_PEDESTALS_V2";
 
   dumpProlog (fOutput);
@@ -164,18 +166,18 @@ bool HcalDbXml::dumpObject (std::ostream& fOutput,
        channel++) {
     HcalDetId chId = *channel;
     const float* values = fObject.getValues (chId)->getValues ();
-    const float* errors = fError.getValues (chId)->getValues ();
+    const HcalPedestalWidth* errors = fError.getValues (chId);
     if (!values) {
       std::cerr << "HcalDbXml::dumpObject-> Can not get data for channel " << chId << std::endl;
       continue;
     }
     if (!errors) {
       std::cerr << "HcalDbXml::dumpObject-> Can not get errors for channel " << chId <<  ". Use defaults" << std::endl;
-      errors = dummyErrors;
+      continue;
     }
     dumpDataset (fOutput, fVersion, "", "");
     dumpChannelId (fOutput,chId.rawId ()); 
-    dumpData (fOutput, values, errors);
+    dumpData (fOutput, values, *errors);
     endDataset (fOutput);
   }
   dumpMapping (fOutput, fRun, KIND, fGMTIOVBegin, fGMTIOVEnd, fTag, fVersion, channels);
@@ -203,30 +205,6 @@ bool HcalDbXml::dumpObject (std::ostream& fOutput,
 bool HcalDbXml::dumpObject (std::ostream& fOutput, 
 			    unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion,
 			    const HcalGains& fObject, const HcalGainWidths& fError) {
-  float dummyErrors [4] = {0.0001, 0.0001, 0.0001, 0.0001};
-
-  dumpHeader (fOutput, fRun, "WSLED_GAIN_CLBRTN", "HCAL Gains");
-
-  std::vector<HcalDetId> channels = fObject.getAllChannels ();
-  for (std::vector<HcalDetId>::iterator channel = channels.begin ();
-       channel !=  channels.end ();
-       channel++) {
-    HcalDetId chId = *channel;
-    const float* values = fObject.getValues (chId)->getValues ();
-    const float* errors = fError.getValues (chId)->getValues ();
-    if (!values) {
-      std::cerr << "HcalDbXml::dumpObject-> Can not get data for channel " << chId << std::endl;
-      continue;
-    }
-    if (!errors) {
-      std::cerr << "HcalDbXml::dumpObject-> Can not get errors for channel " << chId <<  ". Use defaults" << std::endl;
-      errors = dummyErrors;
-    }
-    dumpDataset (fOutput, fVersion);
-    dumpChannelId (fOutput,chId); 
-    dumpData (fOutput, values, errors);
-    endDataset (fOutput);
-  }
-  dumpFooter (fOutput);
-  return true;
+  std::cerr << "HcalDbXml::dumpObject (..., HcalGains, ...) is not implemented" << std::endl;
+  return false;
 }

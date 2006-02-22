@@ -6,36 +6,38 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store PedestalWidth values 4xCapId
 $Author: ratnikov
-$Date: 2005/10/06 21:25:32 $
-$Revision: 1.5 $
+$Date: 2005/12/15 23:38:04 $
+$Revision: 1.1 $
 */
 
 class HcalPedestalWidth {
  public:
-  /// get value for all capId = 1..4
-  const float* getValues () const {return &mValue1;}
-  /// get value for capId = 1..4
-  float getValue (int fCapId) const {return *(getValues () + (fCapId - 1));}
+  /// get value for all capId = 1..4, 10 values in total
+  const float* getValues () const {return &mSigma11;}
+
+  /// get width (sqrt(sigma_i_i)) for capId = 1..4
+  float getWidth (int fCapId) const;
+
+  /// get correlation element for capId1/2 = 1..4
+  float getSigma (int fCapId1, int fCapId2) const;
 
   // functions below are not supposed to be used by consumer applications
-
-  HcalPedestalWidth () : mId (0), mValue1 (0), mValue2 (0), mValue3 (0), mValue4 (0) {}
-  
-  HcalPedestalWidth (unsigned long fId, float fCap1, float fCap2, float fCap3, float fCap4) :
-    mId (fId),
-    mValue1 (fCap1),
-    mValue2 (fCap2),
-    mValue3 (fCap3),
-    mValue4 (fCap4) {}
-
+  HcalPedestalWidth (int fId = 0);
+  void setSigma (int fCapId1, int fCapId2, float fSigma);
   unsigned long rawId () const {return mId;}
 
  private:
   unsigned long mId;
-  float mValue1;
-  float mValue2;
-  float mValue3;
-  float mValue4;
+  float mSigma11;
+  float mSigma21;
+  float mSigma22;
+  float mSigma31;
+  float mSigma32;
+  float mSigma33;
+  float mSigma41;
+  float mSigma42;
+  float mSigma43;
+  float mSigma44;
 };
 
 #endif

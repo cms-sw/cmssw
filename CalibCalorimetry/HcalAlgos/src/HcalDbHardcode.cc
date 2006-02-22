@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Dec 14, 2005
-// $Id: HcalDbHardcode.cc,v 1.1 2005/12/15 23:39:36 fedor Exp $
+// $Id: HcalDbHardcode.cc,v 1.2 2006/02/08 21:18:47 fedor Exp $
 //
 #include <vector>
 #include <string>
@@ -16,7 +16,7 @@ HcalPedestal HcalDbHardcode::makePedestal (HcalDetId fId, bool fSmear) {
   HcalPedestalWidth width = makePedestalWidth (fId);
   float value0 = 0.75;
   float value [4] = {value0, value0, value0, value0};
-  if (fSmear) for (int i = 0; i < 4; i++) value [i] = RandGauss::shoot (value0, width.getValue (i+1)); 
+  if (fSmear) for (int i = 0; i < 4; i++) value [i] = RandGauss::shoot (value0, width.getWidth (i+1)); // ignore correlations 
   HcalPedestal result (fId.rawId (), 
 		       value[0] / gain.getValue (1),
 		       value[1] / gain.getValue (2),
@@ -28,7 +28,12 @@ HcalPedestal HcalDbHardcode::makePedestal (HcalDetId fId, bool fSmear) {
 
 HcalPedestalWidth HcalDbHardcode::makePedestalWidth (HcalDetId fId) {
   float value = 0.1;
-  HcalPedestalWidth result (fId.rawId (), value, value, value, value);
+  HcalPedestalWidth result (fId.rawId ());
+  for (int i = 1; i <= 4; i++) {
+    for (int j = 1; j <= i; j++) {
+      result.setSigma (i, j, i == j ? value * value : 0);
+    }
+  } 
   return result;
 }
 

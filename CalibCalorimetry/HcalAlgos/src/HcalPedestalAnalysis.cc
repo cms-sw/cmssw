@@ -7,7 +7,7 @@
 /*
  * \file HcalPedestalAnalysis.cc
  * 
- * $Date: 2006/01/05 19:55:32 $
+ * $Date: 2006/01/14 00:42:11 $
  * $Revision: 1.1 $
  * \author W Fisher
  *
@@ -90,10 +90,10 @@ void HcalPedestalAnalysis::done() {
 
   for(_meo=hbHists.PEDVALS.begin(); _meo!=hbHists.PEDVALS.end(); _meo++){
     pedCan.addValue(_meo->first, _meo->second[0]->GetMean(),_meo->second[1]->GetMean(),
-		    _meo->second[2]->GetMean(),_meo->second[3]->GetMean());      
-    widthCan.addValue(_meo->first, _meo->second[0]->GetRMS(),_meo->second[1]->GetRMS(),
-		      _meo->second[2]->GetRMS(),_meo->second[3]->GetRMS());    
+		    _meo->second[2]->GetMean(),_meo->second[3]->GetMean()); 
+    HcalPedestalWidth* width = widthCan.setWidth (_meo->first);
     for(int i=0; i<4; i++){
+      width->setSigma (i,i,_meo->second[i]->GetRMS());
       hbHists.PEDMEAN->Fill(_meo->second[i]->GetMean());
       hbHists.PEDRMS->Fill(_meo->second[i]->GetRMS());
     }
@@ -105,9 +105,9 @@ void HcalPedestalAnalysis::done() {
   for(_meo=hoHists.PEDVALS.begin(); _meo!=hoHists.PEDVALS.end(); _meo++){
     pedCan.addValue(_meo->first, _meo->second[0]->GetMean(),_meo->second[1]->GetMean(),
 		    _meo->second[2]->GetMean(),_meo->second[3]->GetMean()); 
-    widthCan.addValue(_meo->first, _meo->second[0]->GetRMS(),_meo->second[1]->GetRMS(),
-		      _meo->second[2]->GetRMS(),_meo->second[3]->GetRMS());
+    HcalPedestalWidth* width = widthCan.setWidth (_meo->first);
     for(int i=0; i<4; i++){
+      width->setSigma (i,i,_meo->second[i]->GetRMS());
       hoHists.PEDMEAN->Fill(_meo->second[i]->GetMean());
       hoHists.PEDRMS->Fill(_meo->second[i]->GetRMS());
     }
@@ -119,9 +119,9 @@ void HcalPedestalAnalysis::done() {
   for(_meo=hfHists.PEDVALS.begin(); _meo!=hfHists.PEDVALS.end(); _meo++){
     pedCan.addValue(_meo->first, _meo->second[0]->GetMean(),_meo->second[1]->GetMean(),
 		    _meo->second[2]->GetMean(),_meo->second[3]->GetMean());   
-    widthCan.addValue(_meo->first, _meo->second[0]->GetRMS(),_meo->second[1]->GetRMS(),
-		      _meo->second[2]->GetRMS(),_meo->second[3]->GetRMS());
+    HcalPedestalWidth* width = widthCan.setWidth (_meo->first);
     for(int i=0; i<4; i++){
+      width->setSigma (i,i,_meo->second[i]->GetRMS());
       hfHists.PEDMEAN->Fill(_meo->second[i]->GetMean());
       hfHists.PEDRMS->Fill(_meo->second[i]->GetRMS());
     }
