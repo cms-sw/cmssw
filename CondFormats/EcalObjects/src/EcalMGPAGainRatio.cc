@@ -14,3 +14,8 @@ EcalMGPAGainRatio::~EcalMGPAGainRatio() {
 
 }
 
+EcalMGPAGainRatio& EcalMGPAGainRatio::operator=(const EcalMGPAGainRatio& rhs) {
+  gain12Over6_ = rhs.gain12Over6_;
+  gain6Over1_ = rhs.gain6Over1_;
+  return *this;
+}

@@ -1,6 +1,8 @@
 #ifndef CondFormats_EcalObjects_EcalMGPAGainRatio_H
 #define CondFormats_EcalObjects_EcalMGPAGainRatio_H
 
+#include <iostream>
+
 class EcalMGPAGainRatio {
   public:
     EcalMGPAGainRatio();
@@ -12,6 +14,10 @@ class EcalMGPAGainRatio {
 
     void setGain12Over6(const float& g) { gain12Over6_ = g; }
     void setGain6Over1(const float& g)  { gain6Over1_ = g; }
+
+    void print(std::ostream& s) const { s << "gain 12/6: " << gain12Over6_ << " gain 6/1: " << gain6Over1_; }
+
+    EcalMGPAGainRatio& operator=(const EcalMGPAGainRatio& rhs);
 
   private:
     float gain12Over6_;

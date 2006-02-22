@@ -11,6 +11,7 @@
 
 #include <vector>
 #include "CondFormats/EcalObjects/interface/EcalWeight.h"
+#include <iostream>
 
 typedef std::vector< std::vector< EcalWeight > > EcalWeightMatrix;
 
@@ -18,6 +19,7 @@ class EcalWeightSet {
 
   public:
     EcalWeightSet();
+    EcalWeightSet(const EcalWeightSet& aset);
     ~EcalWeightSet();
 
     EcalWeightMatrix& getWeightsBeforeGainSwitch() { return wgtBeforeSwitch_; }
@@ -29,6 +31,18 @@ class EcalWeightSet {
     const EcalWeightMatrix& getWeightsAfterGainSwitch()  const { return wgtAfterSwitch_; }
     const EcalWeightMatrix& getChi2WeightsBeforeGainSwitch()             const { return wgtChi2BeforeSwitch_; }
     const EcalWeightMatrix& getChi2WeightsAfterGainSwitch()             const { return wgtChi2AfterSwitch_; }
+
+    EcalWeightSet& operator=(const EcalWeightSet& rhs);
+
+    void print(std::ostream& o) const {
+       using namespace std;
+       o << "wgtBeforeSwitch_.size: " << wgtBeforeSwitch_.size()
+            << " wgtAfterSwitch_.size: " << wgtAfterSwitch_.size()
+            << " wgtChi2BeforeSwitch_.size: " << wgtChi2BeforeSwitch_.size()
+            << " wgtChi2AfterSwitch_.size: " << wgtChi2AfterSwitch_.size()
+            << endl;
+    }
+
 
   private:
      std::vector< std::vector< EcalWeight > > wgtBeforeSwitch_;

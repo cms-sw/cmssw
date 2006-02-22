@@ -12,6 +12,8 @@ class EcalXtalGroupId {
     bool operator==(const EcalXtalGroupId& rhs) const { return ( id_==rhs.id() ); }
     bool operator<(const EcalXtalGroupId& rhs) const { return ( id_<rhs.id() ); }
     bool operator<=(const EcalXtalGroupId& rhs) const { return ( id_<=rhs.id() ); }
+    //EcalXtalGroupId& operator=(const EcalXtalGroupId& rhs) { return EcalXtalGroupId(rhs); }
+    void operator=(const EcalXtalGroupId& rhs) { id_ = rhs.id_; }
 
     const unsigned int id() const { return id_; }
   private:
