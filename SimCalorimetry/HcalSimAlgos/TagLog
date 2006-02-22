@@ -1,3 +1,6 @@
+** V00-02-03  [Wed Feb 22 22:44:04 2006]
+Fix for cosmetical change in CrossingFrame
+
 ** V00-02-02  [Thu Feb 16 22:06:10 2006]
 Updated preamplifier time constant (5--&gt;9)
 
