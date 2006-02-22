@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/02/02 19:13:12 $
- *  $Revision: 1.12 $
+ *  $Date: 2006/02/07 19:12:38 $
+ *  $Revision: 1.13 $
  *  \authors: G. Bevilacqua, N. Amapane, G. Cerminara, R. Bellan
  */
 
@@ -25,9 +25,9 @@
 
 // Geometry
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
-#include "Geometry/DTSimAlgo/interface/DTGeometry.h"
-#include "Geometry/DTSimAlgo/interface/DTLayer.h"
-#include "Geometry/CommonTopologies/interface/DTTopology.h"
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "Geometry/DTGeometry/interface/DTLayer.h"
+#include "Geometry/DTGeometry/interface/DTTopology.h"
 
 #include "Geometry/Vector/interface/LocalPoint.h"
 #include "Geometry/Vector/interface/LocalVector.h"

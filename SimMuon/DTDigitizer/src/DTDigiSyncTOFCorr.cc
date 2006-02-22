@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/02/02 18:24:02 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/02/07 22:54:37 $
+ *  $Revision: 1.5 $
  *  \author N. Amapane, R. Bellan - INFN Torino
  */
 
@@ -10,8 +10,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 
-#include "Geometry/DTSimAlgo/interface/DTLayer.h"
-#include "Geometry/DTSimAlgo/interface/DTChamber.h"
+#include "Geometry/DTGeometry/interface/DTLayer.h"
+#include "Geometry/DTGeometry/interface/DTChamber.h"
 
 using namespace std;
 

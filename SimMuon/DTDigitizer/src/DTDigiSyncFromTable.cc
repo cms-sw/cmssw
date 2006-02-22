@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/01/20 15:49:00 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/01/25 11:07:39 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane, R. Bellan - INFN Torino
  */
 
@@ -11,7 +11,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "Geometry/DTSimAlgo/interface/DTLayer.h"
+#include "Geometry/DTGeometry/interface/DTLayer.h"
 
 DTDigiSyncFromTable::DTDigiSyncFromTable(const edm::ParameterSet& pSet){}
 
