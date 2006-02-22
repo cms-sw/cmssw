@@ -10,23 +10,10 @@
 #include "CondCore/PluginSystem/interface/ProxyFactory.h"
 #include "CondCore/IOVService/interface/IOV.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
-//#include "DataSvc/Ref.h"
-//#include "FileCatalog/URIParser.h"
-//#include "FileCatalog/IFileCatalog.h"
-//#include "PersistencySvc/DatabaseConnectionPolicy.h"
-//#include "PersistencySvc/ISession.h"
-//#include "PersistencySvc/ITransaction.h"
-//#include "DataSvc/DataSvcFactory.h"
-//#include "DataSvc/IDataSvc.h"
-//#include "SealKernel/Context.h"
 #include "SealKernel/Exception.h"
-//#include "RelationalAccess/RelationalException.h"
-//#include "RelationalAccess/IAuthenticationService.h"
-//#include "RelationalAccess/IAuthenticationCredentials.h"
-//#include "SealKernel/IMessageService.h"
-//#include "PluginManager/PluginManager.h"
-//#include "SealKernel/ComponentLoader.h"
+#include <exception>
 #include <iostream>
+#include <sstream>
 //
 // static data member definitions
 //
@@ -136,6 +123,8 @@ bool PoolDBESSource::initIOV( const std::vector< std::pair < std::string, std::s
     throw e;
   }catch(const seal::Exception&e ){
     throw cond::Exception( "PoolDBESSource::initIOV ")<<e.what();
+  }catch(const std::exception& e){
+    throw cond::Exception( "PoolDBESSource::initIOV ")<<e.what();
   }catch(...){
     throw cond::Exception( "PoolDBESSource::initIOV " );
   }
@@ -167,14 +156,6 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
     }
     catconnect=iConfig.getUntrackedParameter<std::string>("catalog","");
     unsigned int message_level=iConfig.getUntrackedParameter<unsigned int>("messagelevel",0);
-    /*
-      std::vector< seal::Handle<seal::IMessageService> > v_msgSvc;
-      m_context->query( v_msgSvc );
-      seal::Handle<seal::IMessageService> msgSvc;
-      if ( ! v_msgSvc.empty() ) {
-      msgSvc = v_msgSvc.front();
-      }
-    */
     switch (message_level) {
     case 0 :
       m_loader->loadMessageService(cond::Error);
@@ -191,24 +172,13 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
     default:
       m_loader->loadMessageService();
     }
-    /*if(message_level>=2){
-      std::vector< seal::IHandle<coral::IAuthenticationService> > v_authSvc;
-      m_context->query( v_authSvc );
-      if ( ! v_authSvc.empty() ) {
-      seal::IHandle<coral::IAuthenticationService>& authSvc = v_authSvc.front();
-      std::cerr<<"[PoolDBESSource] connect "<<m_con << '\n';
-      std::cerr<<"[PoolDBESSource] user "<<authSvc->credentials( m_con ).valueForItem( "user" ) << '\n';
-      std::cerr<<"[PoolDBESSource] password "<<authSvc->credentials( m_con ).valueForItem( "password" ) << '\n';
-      std::cerr<<"[PoolDBESSource] catalog "<< catconnect << '\n';
-      std::cerr<<"[PoolDBESSource] timetype "<< m_timetype << std::endl;
-      }
-      }
-    */
   }catch( const cond::Exception& e){
     throw e;
   }catch(const cms::Exception&e ){
     throw e;
   }catch( const seal::Exception& e){
+    throw cond::Exception( "PoolDBESSource::PoolDBESSource ")<<e.what();
+  }catch( const std::exception& e){
     throw cond::Exception( "PoolDBESSource::PoolDBESSource ")<<e.what();
   }catch ( ... ) {
     throw cond::Exception("PoolDBESSource::PoolDBESSource unknown error");
@@ -330,16 +300,21 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
     oInterval = edm::ValidityInterval::invalidInterval();
     return;
   }
-  pool::Ref<cond::IOV> myiov = itIOV->second;
-  std::string payloadToken;
-  for( std::map<unsigned long, std::string>::iterator it=myiov->iov.begin();
-       it!=myiov->iov.end(); ++it){
-  }
-  //valid time check
   typedef std::map<unsigned long, std::string> IOVMap;
   typedef IOVMap::const_iterator iterator;
-  //unsigned long abtime=iTime.eventID().run()-edm::IOVSyncValue::beginOfTime().eventID().run()+1;
+  pool::Ref<cond::IOV> myiov = itIOV->second;
+  std::string payloadToken;
   unsigned long abtime=iTime.eventID().run();
+  //valid time check
+  //check if current run exceeds iov upperbound
+  unsigned long myendoftime=myiov->iov.rbegin()->first;
+  //std::cout<<"current time "<<abtime<<std::endl;
+  //std::cout<<"myendoftime "<<myendoftime<<std::endl;
+  if( myendoftime!=edm::IOVSyncValue::endOfTime().eventID().run() && abtime>myendoftime ){
+    std::ostringstream os;
+    os<<abtime;
+    throw cond::noDataForRequiredTimeException("PoolDBESSource::setIntervalFor",iKey.name(),os.str());
+  }
   iterator iEnd = myiov->iov.lower_bound( abtime );
   //std::cout<<"current time "<<abtime<<std::endl;
   if( iEnd == myiov->iov.end() ||  (*iEnd).second.empty() ) {
