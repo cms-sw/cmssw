@@ -1,3 +1,6 @@
+** V00-01-02  [Wed Feb 22 01:26:59 2006]
+Remove duplicate dictionary definitions (also defined in DataFormats/CaloTowers).
+
 ** V00-01-01  [Tue Jan 10 10:09:27 2006]
 dictionary updated to new Ref/RefVector template parms
 
