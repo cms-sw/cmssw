@@ -1,3 +1,6 @@
+** V00-04-03  [Wed Feb 22 23:45:37 2006]
+Test Ref constructor from RefProd and index
+
 ** V00-04-02  [Tue Feb 14 00:30:27 2006]
 move persistent data to DataFormats/TestObjects
 
