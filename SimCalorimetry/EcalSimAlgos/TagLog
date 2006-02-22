@@ -1,3 +1,6 @@
+** V00-02-01  [Wed Feb 22 22:42:27 2006]
+Fixed for muons in CrossingFrame
+
 ** V00-02-00  [Sat Jan 21 08:23:16 2006]
 Redid how noise was passed along, got HCAL gains from DB, and got rid of namespaces and fixed include guards
 
