@@ -5,7 +5,7 @@
   
 Ref: A template for a interproduct reference to a member of a product.
 
-$Id: Ref.h,v 1.33 2006/01/16 09:36:31 llista Exp $
+$Id: Ref.h,v 1.1 2006/02/07 07:01:50 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -46,6 +46,7 @@ $Id: Ref.h,v 1.33 2006/01/16 09:36:31 llista Exp $
 #include <typeinfo>
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "DataFormats/Common/interface/RefBase.h"
+#include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/ProductID.h"
 
 namespace edm {
@@ -87,6 +88,12 @@ namespace edm {
         ref_(productID, 0, itemIndex, 0, prodGetter) {
     }
 
+    // Constructor from RefProd<C> and index
+    Ref(RefProd<C> const& refProd, size_type itemIndex) :
+      ref_(refProd.id(), refProd.product().productPtr(), itemIndex, 0, refProd.product().productGetter()) {
+        assert(ref_.item().index() == itemIndex);
+        ref_.item().setPtr(getPtr_<C, T>(ref_.product(), ref_.item()));
+    }
 
     /// Destructor
     ~Ref() {}
