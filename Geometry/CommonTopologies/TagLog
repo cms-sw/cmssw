@@ -1,3 +1,6 @@
+** V00-02-07  [Wed Feb 22 12:11:29 2006]
+DTTopology moved to DTGeometry
+
 ** V00-02-06  [Thu Feb  9 13:09:28 2006]
 fix DTTopology
 
