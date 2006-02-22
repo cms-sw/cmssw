@@ -1,6 +1,7 @@
 <lcgdict>
  <class name="CSCPedestals" id="7C1F7D6C-BE30-DA11-95EF-0008743F7CC7"/>
  <class name="CSCPedestals::Item"/>
+ <class name="std::vector<CSCPedestals::Item>"/>
  
  <class name="CSCGains" id="24647172-BE30-DA11-888A-0008743F7CC7"/>
  <class name="CSCGains::Item"/>
@@ -19,6 +20,9 @@
 <class name="CSCReadoutMapping::CSCLabel"/>
 <class name="std::basic_string<char>"/>
 
+ <class pattern="*map*"/>
+ <class pattern="*pair*"/>
  <class pattern="*vector*"/>
  <class pattern="*iterator*"/>
+
 </lcgdict>   

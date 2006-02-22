@@ -1,6 +1,6 @@
 #include "CondFormats/CSCObjects/interface/CSCPedestals.h"
-template std::vector< CSCPedestals::Item >::iterator;
-template std::vector< CSCPedestals::Item >::const_iterator;
+template std::map< int, std::vector<CSCPedestals::Item> >::iterator;
+template std::map< int, std::vector<CSCPedestals::Item> >::const_iterator;
 
 #include "CondFormats/CSCObjects/interface/CSCGains.h"
 template std::vector< CSCGains::Item >::iterator;
