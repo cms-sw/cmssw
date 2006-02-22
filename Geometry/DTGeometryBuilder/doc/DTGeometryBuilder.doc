@@ -21,7 +21,7 @@ None; this class provides only an EventSetup module.
 
 \subsection modules Modules
 <!-- Describe modules implemented in this package and their parameter set -->
-DTGeometryESModule: specified in the configuration with:
+- DTGeometryESModule: specified in the configuration with:
 \verbatim
 es_module = DTGeometryESModule { }
 \endverbatim
@@ -38,7 +38,7 @@ DTGeometryAnalyzer
 
 \section status Status and planned development
 <!-- e.g. completed, stable, missing features -->
-To be migrated from DTSimAlgo (completed).
+Completed.
 
 <hr>
 Last updated:
