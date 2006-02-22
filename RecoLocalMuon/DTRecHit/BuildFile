@@ -1,14 +1,14 @@
 <use name=FWCore/Framework>
-<use name=FWCore/EDProduct>
 <use name=DataFormats/DTRecHit>
- <use name=Geometry/DTSimAlgo>
+<use name=Geometry/Records>
+<use name=Geometry/DTGeometry>
 
 <flags SEAL_PLUGIN_NAME="RecoLocalMuonDTRecHit">
 
 <export>
  <lib name=RecoLocalMuonDTRecHit>
- <use name=DataFormats/DTRecHit>
  <use name=FWCore/Framework>
-<!-- <use name=FWCore/EDProduct>-->
- <use name=Geometry/DTSimAlgo>
+ <use name=DataFormats/DTRecHit>
+ <use name=Geometry/Records>
+ <use name=Geometry/DTGeometry>
 </export>

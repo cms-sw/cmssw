@@ -1,13 +1,13 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/02/15 13:54:45 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
 #include "RecoLocalMuon/DTRecHit/src/DTLinearDriftAlgo.h"
-#include "Geometry/DTSimAlgo/interface/DTLayer.h"
+#include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoLocalMuon/DTRecHit/interface/DTTTrigBaseSync.h"

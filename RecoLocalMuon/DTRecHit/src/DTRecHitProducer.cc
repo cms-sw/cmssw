@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2005/12/06 15:30:56 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/02/15 13:57:52 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara
  */
 
@@ -14,8 +14,8 @@
 
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 
-#include "Geometry/DTSimAlgo/interface/DTLayer.h"
-#include "Geometry/DTSimAlgo/interface/DTGeometry.h"
+#include "Geometry/DTGeometry/interface/DTLayer.h"
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
 #include "DataFormats/DTRecHit/interface/DTRecHit1DPair.h"
