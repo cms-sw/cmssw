@@ -48,8 +48,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: stevew $
-// $Date: 2006/02/10 22:54:52 $
-// $Revision: 1.3 $
+// $Date: 2006/02/13 19:32:28 $
+// $Revision: 1.4 $
 //
 
 #include <vector>
@@ -317,6 +317,9 @@ void RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloud(DetId id, const SiStrip
 	  double lowerBoundaryPhi = phiFromExtrapolation(phi0,k0,lowerBoundaryRadius,roadType);
 
 	  if ( lowerBoundaryPhi <= upperBoundaryPhi ) {
+//
+//  This is where the disk (???) rphiRecHits end up for Roads::RPhi
+//
 	    if ( ((lowerBoundaryPhi - phiMax(seed,phi0,k0)) < ringPhi) &&
 		 ((upperBoundaryPhi + phiMax(seed,phi0,k0)) > ringPhi) ) {
 	      if ( cloud.size() < maxDetHitsInCloudPerDetId ) {
@@ -325,6 +328,9 @@ void RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloud(DetId id, const SiStrip
 	      }
 	    }
 	  } else {
+//
+//  some type of hit (see above) gets here
+//
 	    if ( ((upperBoundaryPhi - phiMax(seed,phi0,k0)) < ringPhi) &&
 		 ((lowerBoundaryPhi + phiMax(seed,phi0,k0)) > ringPhi) ) {
 	      if ( cloud.size() < maxDetHitsInCloudPerDetId ) {
@@ -349,6 +355,9 @@ void RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloud(DetId id, const SiStrip
 	}
       }
     } else {
+//
+// roadType == Roads::ZPhi
+//
       if ( isSingleLayer(id) ) {
 	if ( isBarrelSensor(id) ) {
 	  LocalPoint hit = recHit->localPosition();
@@ -362,6 +371,9 @@ void RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloud(DetId id, const SiStrip
 	  double lowerBoundaryPhi = phiFromExtrapolation(phi0,k0,lowerBoundaryRadius,roadType);
 	  
 	  if ( lowerBoundaryPhi <= upperBoundaryPhi ) {
+//
+//  This is where the barrel (???) rphiRecHits end up for Roads::ZPhi
+//
 	    if ( ((lowerBoundaryPhi - phiMax(seed,phi0,k0)) < ringPhi) &&
 		 ((upperBoundaryPhi + phiMax(seed,phi0,k0)) > ringPhi) ) {
 	      if ( cloud.size() < maxDetHitsInCloudPerDetId ) {
@@ -370,6 +382,9 @@ void RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloud(DetId id, const SiStrip
 	      }
 	    }
 	  } else {
+//
+//  This is where the barrel (???) rphiRecHits end up for Roads::ZPhi
+//
 	    if ( ((upperBoundaryPhi - phiMax(seed,phi0,k0)) < ringPhi) &&
 		 ((lowerBoundaryPhi + phiMax(seed,phi0,k0)) > ringPhi) ) {
 	      if ( cloud.size() < maxDetHitsInCloudPerDetId ) {
@@ -391,6 +406,9 @@ void RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloud(DetId id, const SiStrip
 	  double lowerBoundaryPhi = phiFromExtrapolation(phi0,k0,lowerBoundaryRadius,roadType);
 	  
 	  if ( lowerBoundaryPhi <= upperBoundaryPhi ) {
+//
+//  This is where the disk rphiRecHits end up for Roads::ZPhi
+//
 	    if ( ((lowerBoundaryPhi - phiMax(seed,phi0,k0)) < ringPhi) &&
 		 ((upperBoundaryPhi + phiMax(seed,phi0,k0)) > ringPhi) ) {
 	      if ( cloud.size() < maxDetHitsInCloudPerDetId ) {
@@ -399,6 +417,9 @@ void RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloud(DetId id, const SiStrip
 	      }
 	    }
 	  } else {
+//
+//  no hits (see above) seem to get here
+//
 	    if ( ((upperBoundaryPhi - phiMax(seed,phi0,k0)) < ringPhi) &&
 		 ((lowerBoundaryPhi + phiMax(seed,phi0,k0)) > ringPhi) ) {
 	      if ( cloud.size() < maxDetHitsInCloudPerDetId ) {
@@ -411,7 +432,11 @@ void RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloud(DetId id, const SiStrip
       } else {
 	double hitRadius = tracker->idToDet(id)->surface().toGlobal(recHit->localPosition()).mag();
 	double phi = phiFromExtrapolation(phi0,k0,hitRadius,roadType);
-	if ( std::abs(map_phi(phi-ringPhi)) < phiMax(seed,phi0,k0) ) {
+//
+//  This is where the disk stereoRecHits end up for Roads::ZPhi
+//
+//	if ( std::abs(map_phi(phi-ringPhi)) < phiMax(seed,phi0,k0) ) {
+	if ( std::abs(phi-ringPhi) < phiMax(seed,phi0,k0) ) {
 	  if ( cloud.size() < maxDetHitsInCloudPerDetId ) {
 	    cloud.addHit(recHit);
 	    setLayerNumberArray(id,usedLayersArray,numberOfLayersPerSubdetector);
@@ -588,7 +613,7 @@ bool RoadSearchCloudMakerAlgorithm::checkMaximalNumberOfMissedLayers(std::vector
 
   if (!result){
   result = true;
-  std::cout << "Failed check forced true in RoadSearchCloudMakerAlgorithm::checkMaximalNumberOfMissedLayers" << endl;
+//  std::cout << "Failed check forced true in RoadSearchCloudMakerAlgorithm::checkMaximalNumberOfMissedLayers" << endl;
   }
 
   return result;
@@ -627,7 +652,7 @@ bool RoadSearchCloudMakerAlgorithm::checkMaximalNumberOfConsecutiveMissedLayers(
 
   if (!result){
   result = true;
-  std::cout << "Failed check forced true in RoadSearchCloudMakerAlgorithm::checkMaximalNumberOfConsecutiveMissedLayers" << endl;
+//  std::cout << "Failed check forced true in RoadSearchCloudMakerAlgorithm::checkMaximalNumberOfConsecutiveMissedLayers" << endl;
   }
 
   return result;
