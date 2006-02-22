@@ -1,3 +1,6 @@
+** V00-01-00  [Wed Feb 22 12:08:12 2006]
+Moved in from DTSimAlgo
+
 ** V00-03-03  [Thu Feb  9 14:20:46 2006]
 remove include of DTDetId
 
