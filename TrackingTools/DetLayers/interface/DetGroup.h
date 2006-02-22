@@ -1,20 +1,20 @@
-#ifndef TkDetLayers_DetGroup_h
-#define TkDetLayers_DetGroup_h
+#ifndef DetLayers_DetGroup_h
+#define DetLayers_DetGroup_h 
 
-
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include <vector>
 #include <utility>
 
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-
-class GeometricSearchDet;
+using namespace std;
 
 class DetGroupElement {
  public:
-  
-  typedef GeometricSearchDet                                Det;
-  typedef std::pair< const Det*, TrajectoryStateOnSurface>  DetWithState;
+  typedef pair<const GeomDet*,TrajectoryStateOnSurface> DetWithState;
+  typedef GeomDet                                Det;
 
+
+ 
   DetGroupElement( const DetWithState& dws) :
     det_(dws.first), state_(dws.second) {}
 

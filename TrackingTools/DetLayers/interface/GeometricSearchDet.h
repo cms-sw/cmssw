@@ -11,12 +11,11 @@
 #include <vector>
 
 using namespace std;
-class MeasurementEstimator;
-
+class MeasurementEstimator; 
 
 class GeometricSearchDet {
  public:
-  typedef pair<const GeometricSearchDet*,TrajectoryStateOnSurface> DetWithState;
+  typedef pair<const GeomDet*,TrajectoryStateOnSurface> DetWithState;
   typedef BoundSurface::PositionType        PositionType;
   typedef BoundSurface::RotationType        RotationType;
   typedef TrajectoryStateOnSurface          TrajectoryState;
