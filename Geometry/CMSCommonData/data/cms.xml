@@ -80,6 +80,7 @@
  <Polycone name="Tracker" startPhi="0*deg" deltaPhi="360*deg" >
   <ZSection z="-[TrackBeamZ2]"  rMin="[TrackBeamR2]"  rMax="[TrackCalorR]" />
   <ZSection z="-[TrackBeamZ1]"  rMin="[TrackBeamR1]"  rMax="[TrackCalorR]" />
+
   <ZSection z="[TrackBeamZ1]"   rMin="[TrackBeamR1]"  rMax="[TrackCalorR]" />
   <ZSection z="[TrackBeamZ2]"   rMin="[TrackBeamR2]"  rMax="[TrackCalorR]" />
  </Polycone> 
