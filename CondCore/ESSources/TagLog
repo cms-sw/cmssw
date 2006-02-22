@@ -1,3 +1,6 @@
+** V01-00-00  [Wed Feb 22 10:59:38 2006]
+adopt to new metadata interface
+
 ** V00-02-03  [Fri Feb  3 21:55:38 2006]
 changed int to unsigned int to fix build problem in EcalPedestalsAnalyzer.cc
 
