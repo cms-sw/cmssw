@@ -21,6 +21,7 @@ Classes representing DT chambers, superlayers, layers, and entry point to the DT
 - DTLayer
 - DTLayerType
 - DTSuperLayer
+- DTTopology
 
 \subsection modules Modules
 <!-- Describe modules implemented in this package and their parameter set -->
@@ -32,7 +33,7 @@ None.
 
 \section status Status and planned development
 <!-- e.g. completed, stable, missing features -->
-To be migrated from DTSimAlgo (completed).
+Completed.
 
 <hr>
 Last updated:
