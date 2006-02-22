@@ -13,7 +13,8 @@ namespace edmtest {
       OtherThing tc;
       tc.a = i;
       tc.refProd = edm::RefProd<ThingCollection>(things);
-      tc.ref = edm::Ref<ThingCollection>(things, i);
+      // tc.ref = edm::Ref<ThingCollection>(things, i);
+      tc.ref = edm::Ref<ThingCollection>(tc.refProd, i);
       tc.refVec.push_back(tc.ref);
       tc.refVec.push_back(tc.ref);
       tc.refVec.push_back(edm::Ref<ThingCollection>(things, 19-i));
