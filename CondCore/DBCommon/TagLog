@@ -1,3 +1,6 @@
+** V01-00-00  [Wed Feb 22 10:57:20 2006]
+redefine DBWriter, Exception and Serviceloader interface
+
 ** V00-01-01  [Wed Feb  1 20:22:04 2006]
 move to ROOT::Reflex; move to CORAL
 
