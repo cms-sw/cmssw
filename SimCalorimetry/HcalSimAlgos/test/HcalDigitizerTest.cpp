@@ -80,10 +80,10 @@ i*/
   hits.push_back(forwardHit2);
 
   string hitsName = "HcalHits";
-  vector<string> caloDets, trackingDets;
+  vector<string> caloDets, muonDets, trackingDets;
   caloDets.push_back(hitsName);
 
-  CrossingFrame crossingFrame(-5, 5, 25, trackingDets, caloDets);
+  CrossingFrame crossingFrame(-5, 5, 25, muonDets, trackingDets, caloDets);
   crossingFrame.addSignalCaloHits(hitsName, &hits);
 
   // make 1 GeV pileup hit
