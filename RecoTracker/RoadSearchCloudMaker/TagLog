@@ -1,3 +1,6 @@
+** V00-00-05  [Wed Feb 22 02:23:58 2006]
+added RoadSearchCloudCleaner and algo; minor mods to Cloud Maker
+
 ** V00-00-03  [Mon Feb 13 20:39:24 2006]
 fixes for Luca's container migration
 
