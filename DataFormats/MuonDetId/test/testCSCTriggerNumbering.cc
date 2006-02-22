@@ -3,11 +3,11 @@
    test file for CSCTriggerNumbering
 
    \author Lindsey GRAY
-   \version $Id: testCSCTriggerNumbering.cc,v 1.1 2006/02/22 23:22:49 lgray Exp $
+   \version $Id: testCSCTriggerNumbering.cc,v 1.2 2006/02/22 23:28:18 lgray Exp $
    \date 27 Jul 2005
 */
 
-static const char CVSId[] = "$Id: testCSCTriggerNumbering.cc,v 1.1 2006/02/22 23:22:49 lgray Exp $";
+static const char CVSId[] = "$Id: testCSCTriggerNumbering.cc,v 1.2 2006/02/22 23:28:18 lgray Exp $";
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
@@ -23,6 +23,7 @@ class testCSCTriggerNumbering: public CppUnit::TestFixture
 
   CPPUNIT_TEST(testNumbering);
   CPPUNIT_TEST(testFail);
+
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -32,6 +33,8 @@ public:
   void testFail();
 };
 
+///registration of the test so that the runner can find it
+CPPUNIT_TEST_SUITE_REGISTRATION(testCSCTriggerNumbering);
 
 // run a self consistency check
 void testCSCTriggerNumbering::testNumbering()
@@ -146,6 +149,5 @@ void testCSCTriggerNumbering::testFail()
   catch(...)
     {
       CPPUNIT_ASSERT("Threw wrong kind of exception" == 0);
-    }
-  
+    } 
 }
