@@ -2,6 +2,7 @@
 #define CSCPedestals_h
 
 #include <vector>
+#include <map>
 
 class CSCPedestals{
  public:
@@ -12,7 +13,7 @@ class CSCPedestals{
     float ped;
     float rms;
   };
-  std::vector<Item> pedestals;
+  std::map< int,std::vector<Item> > pedestals;
 };
 
 #endif
