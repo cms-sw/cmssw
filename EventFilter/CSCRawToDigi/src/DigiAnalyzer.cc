@@ -14,6 +14,11 @@
 #include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
 #include "EventFilter/CSCRawToDigi/interface/DigiAnalyzer.h"
 #include "DataFormats/CSCDigi/interface/CSCWireDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCStripDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
+
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 DigiAnalyzer::DigiAnalyzer(edm::ParameterSet const& conf) {
 
@@ -30,16 +35,18 @@ void DigiAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
   // to retrieve from event "e".
   //
   edm::Handle<CSCWireDigiCollection> wires;
- 
+  edm::Handle<CSCStripDigiCollection> strips;
+   
   // Pass the handle to the method "getByType", which is used to retrieve
   // one and only one instance of the type in question out of event "e". If
   // zero or more than one instance exists in the event an exception is thrown.
   //
   e.getByLabel("cscunpacker","MuonCSCWireDigi",wires);
+  e.getByLabel("cscunpacker","MuonCSCStripDigi",strips);
  
   
    
-  // "do stuff"
+  // read digi collections and print digis
   //
   for (CSCWireDigiCollection::DigiRangeIterator j=wires->begin(); j!=wires->end(); j++) {
     std::vector<CSCWireDigi>::const_iterator digiItr = (*j).second.first;
@@ -49,10 +56,20 @@ void DigiAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
     }
   }
   
-  eventNumber++;
-  std::cout << "event number " << eventNumber << std::endl;
-  
+ 
+  for (CSCStripDigiCollection::DigiRangeIterator j=strips->begin(); j!=strips->end(); j++) {
+    std::vector<CSCStripDigi>::const_iterator digiItr = (*j).second.first;
+    std::vector<CSCStripDigi>::const_iterator last = (*j).second.second;
+    for( ; digiItr != last; ++digiItr) {
+      digiItr->print();
+    }
+  }
 
+
+  eventNumber++;
+  edm::LogInfo ("DigiAnalyzer")  << "end of event number " << eventNumber;
+  
+  
 
 }
 
