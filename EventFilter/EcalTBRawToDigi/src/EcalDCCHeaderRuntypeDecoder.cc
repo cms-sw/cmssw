@@ -32,7 +32,7 @@ bool EcalDCCHeaderRuntypeDecoder::Decode(ulong headerWord, EcalDCCHeaderBlock* E
   EcalDCCHeaderInfos->setMemGain( int ((headerWord / GainModeOffSet)  & ThirdBitMask)/ThirdBitMask );
   //  EcalDCCHeaderInfos.Setting       = int ( headerWord / SettingOffSet);
 
-  if (type ==0 && sequence == 0){EcalDCCHeaderInfos->setRunType(COSMICS);}
+  if (type ==0 && sequence == 0){EcalDCCHeaderInfos->setRunType(COSMIC);}
   else if (type ==1 && sequence == 0){EcalDCCHeaderInfos->setRunType(LASER_STD);}
   else if (type ==1 && sequence == 1){EcalDCCHeaderInfos->setRunType(LASER_POWER_SCAN);}
   else if (type ==1 && sequence == 2){EcalDCCHeaderInfos->setRunType(LASER_DELAY_SCAN);}
@@ -60,7 +60,7 @@ void  EcalDCCHeaderRuntypeDecoder::DecodeSetting ( int Setting,  EcalDCCHeaderBl
   EcalDCCEventSettings theSettings;// = new EcalDCCEventSettings;
   CleanEcalDCCSettingsInfo(&theSettings);
 
-  if(theHeader->getRunType() == COSMICS){;}//no settings foreseen
+  if(theHeader->getRunType() == COSMIC){;}//no settings foreseen
   else if(theHeader->getRunType() == LASER_STD){
     theSettings.LaserPower = (Setting & 8128)/64;
     theSettings.LaserFilter = (Setting & 56)/8;

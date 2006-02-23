@@ -7,7 +7,7 @@
  *  Container for ECAL specific DCC Header information
  *
  *
- *  $Id: EcalDCCHeaderBlock.h,v 1.3 2006/02/20 16:43:12 ghezzi Exp $
+ *  $Id: EcalDCCHeaderBlock.h,v 1.4 2006/02/23 16:06:30 ghezzi Exp $
  */
 
 #include <vector>
@@ -15,7 +15,7 @@
 #define MAX_TCC_SIZE 4
 #define MAX_TT_SIZE 70
 enum EcalDCCRuntype{
-  COSMICS = 0,
+  COSMIC = 0,
   BEAMH4 =1, 
   BEAMH2 = 2,  
   MTCC =3,
