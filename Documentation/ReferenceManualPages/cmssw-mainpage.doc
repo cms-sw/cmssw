@@ -1,0 +1,21 @@
+/** \mainpage
+
+This is the CMSSW mainpage
+
+<br><br><br><br>
+
+\section subdv SubDetector View
+
+	- Muon 
+	- Tracker
+	- Ecal
+	- Hcal
+
+\Section funcv Functional View
+
+	- Reconstruction
+	- Simulation
+	- Analisys
+	- EventFilter
+
+*/
