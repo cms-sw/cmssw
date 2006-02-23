@@ -7,7 +7,7 @@
  *  Container for ECAL specific DCC Header information
  *
  *
- *  $Id: EcalDCCHeaderBlock.h,v 1.2 2006/02/15 17:15:51 ghezzi Exp $
+ *  $Id: EcalDCCHeaderBlock.h,v 1.3 2006/02/20 16:43:12 ghezzi Exp $
  */
 
 #include <vector>
@@ -15,16 +15,26 @@
 #define MAX_TCC_SIZE 4
 #define MAX_TT_SIZE 70
 enum EcalDCCRuntype{
-  PHYSICS = 0,
-  LASER_STD = 1,
-  LASER_POWER_SCAN = 2,
-  LASER_DELAY_SCAN = 3,
-  TESTPULSE_SCAN_MEM = 4,
-  TESTPULSE_MGPA = 5,
-  PEDESTAL_STD = 6,
-  PEDESTAL_OFFSET_SCAN = 7,
-  PEDESTAL_25NS_SCAN = 8,
-  LED_STD= 9
+  COSMICS = 0,
+  BEAMH4 =1, 
+  BEAMH2 = 2,  
+  MTCC =3,
+  LASER_STD = 4,
+  LASER_POWER_SCAN = 5,
+  LASER_DELAY_SCAN = 6,
+  TESTPULSE_SCAN_MEM = 7,
+  TESTPULSE_MGPA = 8,
+  PEDESTAL_STD = 9,
+  PEDESTAL_OFFSET_SCAN = 10,
+  PEDESTAL_25NS_SCAN = 11,
+  LED_STD= 12
+};
+
+enum EcalBasicTriggerType{
+  PHYSICS_TRIGGER = 1,
+  CALIBRATION_TRIGGER = 2,
+  TEST_TRIGGER = 3,
+  TECHNICAL_EXTERNAL_TRIGGER = 4
 };
 
 struct EcalDCCEventSettings{
@@ -54,6 +64,7 @@ class EcalDCCHeaderBlock
   void setBX(const int& BX){BX_ = BX;}
   void setEventSettings(const  EcalDCCEventSettings& EventSettings) { EventSettings_=EventSettings; };
   void setRunType(const short& runType) { runType_=runType; };
+  void setBasicTriggerType(const short& triggerType) { basic_trigger_type_=triggerType; };
   //void setSequence(const short& sequence) { sequence_=sequence; } ;
   void setRtHalf(const short& rtHalf) { rtHalf_=rtHalf; } ;
   void setMgpaGain(const short& mgpaGain) { mgpaGain_=mgpaGain; };
@@ -73,6 +84,7 @@ class EcalDCCHeaderBlock
   int getBX() const {return BX_ ;}
   EcalDCCEventSettings getEventSettings() const { return EventSettings_;}
   short getRunType() const {return runType_ ;}
+  short getBasicTriggerType() const {return basic_trigger_type_ ;}
 
   short getRtHalf() const { return rtHalf_; } 
   short getMgpaGain() const { return mgpaGain_;}
@@ -90,6 +102,8 @@ class EcalDCCHeaderBlock
   long orbitNumber_; // do we need it here?
   short runType_;
 
+  short basic_trigger_type_;
+
   int LV1event_;
   int runNumber_;
   int BX_;
@@ -101,7 +115,7 @@ class EcalDCCHeaderBlock
   bool selectiveReadout_;
   bool testZeroSuppression_;
   bool zeroSuppression_;
-
+  
   short srpStatus_;
   std::vector<short> tccStatus_;
   std::vector<short> triggerTowerStatus_;

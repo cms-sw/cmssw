@@ -8,6 +8,7 @@ EcalDCCHeaderBlock::EcalDCCHeaderBlock()
   dccErrors_=-1;
   orbitNumber_=-1; // do we need it here?
   runType_=-1;
+  basic_trigger_type_=-1;
   LV1event_ =-1;
   runNumber_ =-1;
   BX_ =-1;
@@ -40,6 +41,7 @@ EcalDCCHeaderBlock::EcalDCCHeaderBlock(const int& dccId)
   dccErrors_=-1;
   orbitNumber_=-1; // do we need it here?
   runType_=-1;
+  basic_trigger_type_=-1;
   LV1event_ =-1;
   runNumber_ =-1;
   BX_ =-1;
