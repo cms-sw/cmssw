@@ -49,7 +49,7 @@
 <!-- </PosPart>-->
 
 
- <PosPart copyNumber="1">
+ <PosPart copyNumber="2">
    <rParent name="tobrod0_c_mtcc:TOBRod0"/>
    <rChild name="tobrod2l:TOBRod2L"/>
    <Translation x="0*cm" y="0*cm" z="[tob_mtcc:tobrod0_c_ZOffset]+[rod_FlushingZOffset]" />
