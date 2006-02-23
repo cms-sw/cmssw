@@ -2,8 +2,8 @@
 *  See header file for a description of this class.
 *
 *
-*  $Date: 2005/12/06 14:09:52 $
-*  $Revision: 1.3 $
+*  $Date: 2006/01/16 15:41:05 $
+*  $Revision: 1.5 $
 *  \author Jo. Weng  - CERN, Ph Division & Uni Karlsruhe
 *  \author F.Moortgat - CERN, Ph Division
 */
@@ -22,8 +22,9 @@ using namespace edm;
 using namespace std;
 
 MCFileSource::MCFileSource( const ParameterSet & pset, InputSourceDescription const& desc ) :
-ExternalInputSource(pset, desc),  
-reader_( HepMCFileReader::instance() ) {
+ExternalInputSource(pset, desc),
+reader_( HepMCFileReader::instance() ),
+evt(0) {
 	
 	cout << "MCFileSource:Reading HepMC file: " << fileNames()[0] << endl;
 	reader_->initialize(fileNames()[0]);  
@@ -43,12 +44,15 @@ void MCFileSource::clear() {
 bool MCFileSource::produce(Event & e) {
 	
 	// clean up GenEvent memory : also deletes all vtx/part in it
-	if ( evt != NULL ) delete evt ;
-	
+	if (evt != 0) {
+	  delete evt;
+	  evt = 0;
+	}
 	auto_ptr<HepMCProduct> bare_product(new HepMCProduct());  
 	cout << "MCFileSource: Start Reading  " << endl;
 	evt = reader_->fillCurrentEventData(); 
-	if(evt) bare_product->addHepMCData(evt);
+        if (evt == 0) return false;
+	bare_product->addHepMCData(evt);
 		
 	e.put(bare_product);
 
