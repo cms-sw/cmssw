@@ -1,44 +1,33 @@
-/******* \class RecHit4D *******
+/** \file
  *
- * Base class for 4-parameters recHits.
- *
- *  $Revision: 1.1 $
- *  $Date   17/02/2006 12:02:03 CET $
- *  \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
- *
- * Modification:
- *
- *********************************/
+ * $Date:  22/02/2006 13:03:23 CET $
+ * $Revision: 1.0 $
+ * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
+ */
 
 /* This Class Header */
-#include "DataFormats/TrackingRecHit/interface/RecHit4D.h"
+#include "DataFormats/TrackingRecHit/interface/RecSegment4D.h"
 
 /* Collaborating Class Header */
 
 /* C++ Headers */
 
 /* ====================================================================== */
-bool RecHit4D::isInitialized(false);
-AlgebraicMatrix RecHit4D::theProjectionMatrix;
 
-/* Constructor */ 
-RecHit4D::RecHit4D() {
-}
-
-/* Destructor */ 
-RecHit4D::~RecHit4D() {
-}
+/* static member initialization */
+bool RecSegment4D::isInitialized(false);
+AlgebraicMatrix RecSegment4D::theProjectionMatrix;
 
 /* Operations */ 
-AlgebraicVector RecHit4D::parameters() const {
+AlgebraicVector RecSegment4D::parameters() const {
   return param( localPosition(), localDirection() );
 }
 
-AlgebraicSymMatrix RecHit4D::parametersError() const {
+AlgebraicSymMatrix RecSegment4D::parametersError() const {
   return parError( localPositionError(), localDirectionError());
 }
 
-void RecHit4D::initialize() const {
+void RecSegment4D::initialize() const {
 
   theProjectionMatrix = AlgebraicMatrix( 4, 5, 0);
   theProjectionMatrix[0][1] = 1;
@@ -49,7 +38,7 @@ void RecHit4D::initialize() const {
   isInitialized = true;
 }
 
-AlgebraicVector RecHit4D::param( const LocalPoint& lp, const LocalVector& lv) const {
+AlgebraicVector RecSegment4D::param( const LocalPoint& lp, const LocalVector& lv) const {
   AlgebraicVector result(4);
   result[2] = lp.x();
   result[3] = lp.y();
@@ -59,7 +48,7 @@ AlgebraicVector RecHit4D::param( const LocalPoint& lp, const LocalVector& lv) co
 }
 
 /** local Error + AlignmentPositionError if this is set for the DetUnit */
-AlgebraicSymMatrix RecHit4D::parError( const LocalError& lp,
+AlgebraicSymMatrix RecSegment4D::parError( const LocalError& lp,
                                        const LocalError& lv) const {
   AlgebraicSymMatrix m(4);
   // if ( det().alignmentPositionError()) {

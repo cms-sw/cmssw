@@ -1,18 +1,12 @@
-/******* \class RecHit2DPosDirX *******
+/** \file
  *
- * Base class for 2-parameters recHits measuring position and direction in X
- * projection.
- *
- * $date   20/02/2006 18:15:05 CET $
+ * $Date:  22/02/2006 13:02:21 CET $
  * $Revision: 1.0 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
- *
- * Modification:
- *
- *********************************/
+ */
 
 /* This Class Header */
-#include "DataFormats/TrackingRecHit/interface/RecHit2DPosDirX.h"
+#include "DataFormats/TrackingRecHit/interface/RecSegment2D.h"
 
 /* Collaborating Class Header */
 
@@ -21,12 +15,12 @@
 /* ====================================================================== */
 
 /* static member definition */
-bool RecHit2DPosDirX::isInitialized( false);
-AlgebraicMatrix RecHit2DPosDirX::theProjectionMatrix;
+bool RecSegment2D::isInitialized( false);
+AlgebraicMatrix RecSegment2D::theProjectionMatrix;
 
 /* Operations */ 
-AlgebraicSymMatrix RecHit2DPosDirX::parError( const LocalError& lp, 
-                                              const LocalError& lv) const {
+AlgebraicSymMatrix RecSegment2D::parError( const LocalError& lp, 
+                                            const LocalError& lv) const {
   AlgebraicSymMatrix m(2);
   /// mat[0][0]=sigma (dx/dz)
   /// mat[1][1]=sigma (x)
@@ -46,5 +40,3 @@ AlgebraicSymMatrix RecHit2DPosDirX::parError( const LocalError& lp,
   return m;
 
 }
-
-

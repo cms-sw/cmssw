@@ -2,9 +2,8 @@
 #define TrackingRecHit_H
 
 #include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
-#include "Geometry/Surface/interface/Plane.h"
-#include "Geometry/Surface/interface/LocalError.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include "Geometry/Surface/interface/LocalError.h"
 #include "Geometry/Vector/interface/LocalPoint.h"
 
 

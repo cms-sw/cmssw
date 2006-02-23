@@ -2,6 +2,7 @@
 #define RecHit2DLocalPos_H
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "Geometry/Surface/interface/Plane.h"
 #include "Geometry/Surface/interface/LocalError.h"
 #include "Geometry/Vector/interface/LocalPoint.h"
 
