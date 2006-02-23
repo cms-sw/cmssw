@@ -17,14 +17,14 @@ class TrajectorySeed : public BasicTrajectorySeed {
     tsos_(ptsos), dir_(dir) {}
   
   range recHits() const {
-    return std::make_pair(rh_.begin(), rh_.end());
+    return std::pair(hits_.begin(), hits_.end());
   }
   PropagationDirection direction() const {return  dir_;}
   PTrajectoryStateOnDet& startingState() const {return tsos_;}
  
   
  private:
-  edm::Own_Vector<TrackingRecHit> hits_;
+  edm::OwnVector<TrackingRecHit> hits_;
   PTrajectoryStateOnDet tsos_;
   PropagationDirection dir_;
 };
