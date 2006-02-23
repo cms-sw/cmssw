@@ -8,6 +8,7 @@
 <use name=SimDataFormats/SimHitMaker>
 <use name=SimDataFormats/CaloHit>
 <use name=Geometry/HcalCommonData>
+<use name=Geometry/EcalCommonData>
 <use name=DetectorDescription/Core>
 <use name=FWCore/ParameterSet>
 <use name=boost>

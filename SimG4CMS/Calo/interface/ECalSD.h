@@ -9,10 +9,12 @@
 #define ECalSD_h
 
 #include "SimG4CMS/Calo/interface/CaloSD.h"
-#include "SimG4CMS/Calo/interface/EcalNumberingScheme.h"
+#include "Geometry/EcalCommonData/interface/EcalNumberingScheme.h"
 
 #include "G4String.hh"
 #include <map>
+
+class EcalBaseNumber;
 
 class ECalSD : public CaloSD {
 
@@ -30,7 +32,7 @@ private:
   void   initMap(G4String, const DDCompactView &);
   double curve_LY(G4String& , G4StepPoint* ); 
   double crystalLength(G4String);
-
+  EcalBaseNumber getBaseNumber(const G4Step* aStep) const; 
   EcalNumberingScheme *numberingScheme;
   int                  verbosity;
   bool                 useWeight;

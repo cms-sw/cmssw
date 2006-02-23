@@ -3,14 +3,17 @@
 // Description: Sensitive Detector class for electromagnetic calorimeters
 ///////////////////////////////////////////////////////////////////////////////
 #include "SimG4CMS/Calo/interface/ECalSD.h"
-#include "SimG4CMS/Calo/interface/EcalBarrelNumberingScheme.h"
-#include "SimG4CMS/Calo/interface/EcalEndcapNumberingScheme.h"
-#include "SimG4CMS/Calo/interface/ShowerForwardNumberingScheme.h"
+#include "Geometry/EcalCommonData/interface/EcalBarrelNumberingScheme.h"
+#include "Geometry/EcalCommonData/interface/EcalBaseNumber.h"
+#include "Geometry/EcalCommonData/interface/EcalEndcapNumberingScheme.h"
+#include "Geometry/EcalCommonData/interface/ShowerForwardNumberingScheme.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "DetectorDescription/Core/interface/DDValue.h"
+
+#include "Geometry/EcalCommonData/interface/EcalBaseNumber.h"
 
 #include "G4Step.hh"
 #include "G4Track.hh"
@@ -101,7 +104,7 @@ double ECalSD::getEnergyDeposit(G4Step * aStep) {
 }
 
 uint32_t ECalSD::setDetUnitId(G4Step * aStep) { 
-  return (numberingScheme == 0 ? 0 : numberingScheme->getUnitID(aStep));
+  return (numberingScheme == 0 ? 0 : numberingScheme->getUnitID(getBaseNumber(aStep)));
 }
 
 void ECalSD::setNumberingScheme(EcalNumberingScheme* scheme) {
@@ -188,4 +191,20 @@ double ECalSD::crystalLength(G4String name) {
   map<G4String,double>::const_iterator it = lengthMap.find(name);
   if (it != lengthMap.end()) length = it->second;
   return length;
+}
+
+EcalBaseNumber ECalSD::getBaseNumber(const G4Step* aStep) const 
+{
+  EcalBaseNumber aBaseNumber;
+  const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
+  //Get name and copy numbers
+  if (touch->GetHistoryDepth() > 0) 
+    {
+      for (int ii = 0; ii <= touch->GetHistoryDepth() ; ii++) {
+	aBaseNumber.addLevel(touch->GetVolume(ii)->GetName(),touch->GetReplicaNumber(ii));
+	if (verbosity>2)
+	  std::cout << "ECalSD::getBaseNumber(): Adding level " << ii << ": " << touch->GetVolume(ii)->GetName() << "[" << touch->GetReplicaNumber(ii) << "]" << std::endl;  
+      }
+  }
+  return aBaseNumber;
 }
