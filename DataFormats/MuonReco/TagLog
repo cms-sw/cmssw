@@ -1,3 +1,6 @@
+** V00-02-00  [Thu Feb 23 17:44:42 2006]
+reorganized references to track and stand-alone muon
+
 ** V00-01-02  [Thu Feb 16 15:27:14 2006]
 migration: FWCore/EDProduct -&gt; DataFormats/Common
 
