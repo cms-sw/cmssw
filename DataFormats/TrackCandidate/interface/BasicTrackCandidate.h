@@ -22,7 +22,7 @@ class BasicTrackCandidate{
   
   BasicTrackCandidate(){}
 
-  PTrajectoryStateOnDet& trajectoryStateOnDet(){} const = 0;
-  range recHits(){ } const = 0;
-  TrajectorySeed& seed() const = 0;
+  virtual PTrajectoryStateOnDet& trajectoryStateOnDet() const = 0;
+  virtual range recHits() const = 0;
+  virtual TrajectorySeed& seed() const = 0;
 };

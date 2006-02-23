@@ -5,6 +5,9 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/TrackCandidate/interface/BasicTrackcandidate.h"
 
+
+#include <utility>
+
 /** A track candidate is
     - a TSOS or equivalent (here a PTrajectoryStateOnDet)
     - a vector of rechits (here via the OwnVector interface)
@@ -27,9 +30,9 @@ class TrackCandidate{
   TrackCandidate(recHitContainer rh) :
     rh_(rh),  seed_(0), state_(0) {}
   
-  PTrajectoryStateOnDet& trajectoryStateOnDet(){} const { return *state_;}
+  PTrajectoryStateOnDet& trajectoryStateOnDet() const { return *state_;}
 
-  range recHits(){ } const {return std::make_pair(rh_.begin(), rh_.end());}
+  range recHits() const {return std::make_pair(rh_.begin(), rh_.end());}
 
   TrajectorySeed& seed() const {return *seed_;)
 
