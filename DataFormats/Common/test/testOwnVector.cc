@@ -1,7 +1,9 @@
-// $Id: testOwnVector.cc,v 1.1 2006/02/01 18:15:01 llista Exp $
+// $Id: testOwnVector.cc,v 1.2 2006/02/07 07:01:52 wmtan Exp $
 #include <cppunit/extensions/HelperMacros.h>
-#include "DataFormats/Common/interface/OwnVector.h"
 #include <algorithm>
+#include <iterator>
+#include <iostream>
+#include "DataFormats/Common/interface/OwnVector.h"
 
 class testOwnVector : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testOwnVector);
@@ -29,6 +31,29 @@ namespace test {
       return d1.value < d2.value;
     } 
   };
+
+  class a {
+  public:
+    virtual int f() const = 0;
+  };
+  class b : public a {
+  public:
+    b(int i) : ii(i) {;}
+    virtual int f() const { return ii;  }
+    int ii;
+    
+  };
+  class ss {
+  public:
+    bool operator() ( const a & a1, const a & a2 ) const { 
+      return (a1.f() > a2.f());
+    }
+  };
+  
+  std::ostream& operator<<( std::ostream& os, const a & aa ) {
+    os << aa.f();
+    return os;
+  }
 }
 
 void testOwnVector::checkAll() {
@@ -49,10 +74,21 @@ void testOwnVector::checkAll() {
   CPPUNIT_ASSERT( v[ 0 ].value == 0 );
   CPPUNIT_ASSERT( v[ 1 ].value == 1 );
   CPPUNIT_ASSERT( v[ 2 ].value == 2 );
-  v.clearAndDestroy();
+  v.clear();
   CPPUNIT_ASSERT( v.size() == 0 );
   CPPUNIT_ASSERT( v.empty() );
   CPPUNIT_ASSERT( deleted[ 0 ] );
   CPPUNIT_ASSERT( deleted[ 1 ] );
   CPPUNIT_ASSERT( deleted[ 2 ] );
+  {
+    edm::OwnVector<test::a> v;
+    test::a * aa = new test::b(2);
+    v.push_back(aa);
+    aa = new test::b(1);
+    v.push_back(aa);
+    aa = new test::b(3);
+    v.push_back(aa);
+    v.sort( test::ss() );
+    std::copy(v.begin(), v.end(), std::ostream_iterator<test::a>(std::cout, "\t"));
+  }
 }

@@ -1,9 +1,9 @@
 #ifndef Common_OwnVector_h
 #define Common_OwnVector_h
-// $Id: OwnVector.h,v 1.1 2006/02/01 18:15:00 llista Exp $
+// $Id: OwnVector.h,v 1.2 2006/02/09 09:21:52 llista Exp $
 #include <vector>
-#include <algorithm>
 #include "DataFormats/Common/interface/ClonePolicy.h"
+#include <algorithm>
 
 namespace edm {
 
@@ -17,8 +17,9 @@ namespace edm {
       typedef T & reference;
       typedef const T & const_reference;
       
-      struct iterator;
-      struct const_iterator {
+      class iterator;
+      class const_iterator {
+      public:
 	typedef T value_type;
 	typedef T * pointer;
 	typedef T & reference;
@@ -47,7 +48,8 @@ namespace edm {
       private:
 	typename base::const_iterator i;
       };
-      struct iterator {
+      class iterator {
+      public:
 	typedef T value_type;
 	typedef T * pointer;
 	typedef T & reference;
@@ -97,7 +99,10 @@ namespace edm {
       void reserve( size_t );
       void push_back( T * );
       
-      void clearAndDestroy();
+      void clear();
+      template<typename S>
+      void sort( S s );
+      void sort();
       
     private:
       void destroy();
@@ -197,9 +202,29 @@ namespace edm {
   }
   
   template<typename T, typename P>
-  inline void OwnVector<T, P>::clearAndDestroy() {
+  inline void OwnVector<T, P>::clear() {
     destroy();
     data_.clear();
+  }
+
+  template<typename T, typename O>
+  struct OwnVectorOrdering {
+    OwnVectorOrdering( O c ) : comp( c ) { }
+    bool operator()( const T * t1, const T * t2 ) const {
+      return comp( * t1, * t2 );
+    }
+    private:
+    O comp;
+  };
+  
+  template<typename T, typename P> template<typename S>
+  void OwnVector<T, P>::sort( S comp ) {
+    std::sort( data_.begin(), data_.end(), OwnVectorOrdering<value_type, S>( comp ) );
+  }
+
+  template<typename T, typename P>
+  void OwnVector<T, P>::sort() {
+    std::sort( data_.begin(), data_.end() );
   }
 
 }
