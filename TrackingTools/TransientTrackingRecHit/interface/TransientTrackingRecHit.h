@@ -8,6 +8,7 @@
 #include <Geometry/Vector/interface/GlobalPoint.h>
 #include <TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h>
 #include <Geometry/CommonDetAlgo/interface/AlgebraicObjects.h>
+#include "DataFormats/Common/interface/OwnVector.h"
 
 class TransientTrackingRecHit : public TrackingRecHit
 {
@@ -30,7 +31,6 @@ class TransientTrackingRecHit : public TrackingRecHit
   virtual AlgebraicVector parameters() const {return _trackingRecHit->parameters();}
   virtual AlgebraicSymMatrix parametersError() const {return _trackingRecHit->parametersError();}
   virtual DetId geographicalId() const {return _trackingRecHit->geographicalId();}
-  virtual TrackingRecHit * clone() const {return _trackingRecHit->clone();}
   virtual AlgebraicMatrix projectionMatrix() const {return _trackingRecHit->projectionMatrix();}
   virtual int dimension() const {return _trackingRecHit->dimension();}
   virtual std::vector<const TrackingRecHit*> recHits() const {return ((const TrackingRecHit *)(_trackingRecHit))->recHits();}
@@ -41,6 +41,13 @@ class TransientTrackingRecHit : public TrackingRecHit
   virtual AlgebraicVector parameters(const TrajectoryStateOnSurface& ts) const = 0;
   virtual AlgebraicSymMatrix parametersError(const TrajectoryStateOnSurface& ts) const = 0;
   TrackingRecHit * hit() {return _trackingRecHit;};
+  
+  bool isValid() {return true;}
+  bool isValid() const{return true;}
+
+  virtual TransientTrackingRecHit * clone() const = 0;
+  virtual edm::OwnVector<const TransientTrackingRecHit> transientHits() const = 0;
+  virtual edm::OwnVector<TransientTrackingRecHit> transientHits() = 0;
 
 /*   virtual LocalPoint localPosition() = 0; */
 
