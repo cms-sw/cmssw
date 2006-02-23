@@ -17,7 +17,7 @@ class TOBLayerBuilder {
  public:
   TOBLayerBuilder(){};
   TOBLayer* build(const GeometricDet* aTOBLayer,
-	      ESHandle<TrackingGeometry> pTrackingGeometry);
+		  const TrackingGeometry* theGeomDetGeometry);
 
   
 };

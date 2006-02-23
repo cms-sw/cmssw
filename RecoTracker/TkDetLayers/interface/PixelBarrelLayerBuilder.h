@@ -17,7 +17,7 @@ class PixelBarrelLayerBuilder {
  public:
   PixelBarrelLayerBuilder(){};
   PixelBarrelLayer* build(const GeometricDet* aPixelBarrelLayer,
-	      ESHandle<TrackingGeometry> pTrackingGeometry);
+	      const TrackingGeometry* theGeomDetGeometry);
 
   
 };

@@ -16,8 +16,9 @@ using namespace std;
 class TOBRodBuilder {  
  public:
   TOBRodBuilder(){};
-  TOBRod* build(const GeometricDet* aTOBRod,
-	      ESHandle<TrackingGeometry> pTrackingGeometry);
+  TOBRod* build(const GeometricDet* negTOBRod,
+		const GeometricDet* posTOBRod,
+		const TrackingGeometry* theGeomDetGeometry);
 
   
 };

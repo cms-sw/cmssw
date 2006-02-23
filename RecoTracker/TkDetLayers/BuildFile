@@ -1,7 +1,8 @@
 <export>
  <lib name=RecoTrackerTkDetLayers>
  <use name=TrackingTools/DetLayers>
+ <use name=TrackingTools/GeomPropagators>
 </export>
 
 <use name=TrackingTools/DetLayers>
-
+<use name=TrackingTools/GeomPropagators>

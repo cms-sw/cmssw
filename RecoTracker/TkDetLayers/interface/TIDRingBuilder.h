@@ -17,7 +17,7 @@ class TIDRingBuilder {
  public:
   TIDRingBuilder(){};
   TIDRing* build(const GeometricDet* aTIDRing,
-	      ESHandle<TrackingGeometry> pTrackingGeometry);
+	      const TrackingGeometry* theGeomDetGeometry);
 
   
 };

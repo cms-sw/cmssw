@@ -36,6 +36,10 @@ class TIDLayer : public RingedForwardLayer{
 
   virtual bool hasGroups() const {return true;}
 
+  // DetLayer interface
+  virtual Module   module()   const { return silicon;}
+
+
  private:
   vector<const TIDRing*> theRings;
   

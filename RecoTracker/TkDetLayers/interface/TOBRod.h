@@ -3,20 +3,25 @@
 
 
 #include "TrackingTools/DetLayers/interface/GeometricSearchDet.h"
+#include "TrackingTools/DetLayers/interface/DetRod.h"
 
 
-/** A concrete implementation for TEC layer 
- *  built out of TECPetals
+/** A concrete implementation for TOB Rod 
+ *  
  */
 
-class TOBRod : public GeometricSearchDet{
+class TOBRod : public DetRod{
  public:
-  TOBRod();
+  TOBRod(vector<const GeomDet*>& innerDets,
+	 vector<const GeomDet*>& outerDets);
   ~TOBRod();
   
   // GeometricSearchDet interface
   
   virtual vector<const GeomDet*> basicComponents() const;
+
+  virtual vector<const GeometricSearchDet*> components() const;
+
   
   virtual pair<bool, TrajectoryStateOnSurface>
   compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
@@ -33,10 +38,15 @@ class TOBRod : public GeometricSearchDet{
 			 const MeasurementEstimator& est) const;
 
 
-  virtual bool hasGroups() const {return true;;};  
+  virtual bool hasGroups() const {return true;}  
 
+ private:
+  vector<const GeomDet*> theDets;
+  vector<const GeomDet*> theInnerDets;
+  vector<const GeomDet*> theOuterDets;
 
-  
+  ReferenceCountingPointer<BoundPlane> theInnerPlane;
+  ReferenceCountingPointer<BoundPlane> theOuterPlane;
 };
 
 

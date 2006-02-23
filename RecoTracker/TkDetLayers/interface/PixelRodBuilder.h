@@ -17,7 +17,7 @@ class PixelRodBuilder {
  public:
   PixelRodBuilder(){};
   PixelRod* build(const GeometricDet* aPixelRod,
-	      ESHandle<TrackingGeometry> pTrackingGeometry);
+	      const TrackingGeometry* theGeomDetGeometry);
 
   
 };

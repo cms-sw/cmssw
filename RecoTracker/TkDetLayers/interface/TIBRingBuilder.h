@@ -17,7 +17,7 @@ class TIBRingBuilder {
  public:
   TIBRingBuilder(){};
   TIBRing* build(const GeometricDet* aTIBRing,
-	      ESHandle<TrackingGeometry> pTrackingGeometry);
+	      const TrackingGeometry* theGeomDetGeometry);
 
   
 };

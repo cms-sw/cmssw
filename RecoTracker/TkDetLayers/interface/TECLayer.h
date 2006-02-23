@@ -36,6 +36,9 @@ class TECLayer : public ForwardDetLayer{
 
   virtual bool hasGroups() const {return true;;};  
 
+  // DetLayer interface
+  virtual Module   module()   const { return silicon;}
+
  private:
   vector<const TECPetal*> thePetals;
   vector<const TECPetal*> theInnerPetals;

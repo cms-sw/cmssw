@@ -17,7 +17,7 @@ class TIBLayerBuilder {
  public:
   TIBLayerBuilder(){};
   TIBLayer* build(const GeometricDet* aTIBLayer,
-	      ESHandle<TrackingGeometry> pTrackingGeometry);
+		  const TrackingGeometry* theGeomDetGeometry);
 
   
 };

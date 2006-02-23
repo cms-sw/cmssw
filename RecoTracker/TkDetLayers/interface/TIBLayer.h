@@ -5,12 +5,14 @@
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "RecoTracker/TkDetLayers/interface/TIBRing.h"
 
+//#include "RecoTracker/TkDetLayers/interface/TkGeometricSearchDet.h"
 
 /** A concrete implementation for TIB layer 
  *  built out of TIBRings
  */
 
-class TIBLayer : public BarrelDetLayer{
+//class TIBLayer : public BarrelDetLayer, public TkGeometricSearchDet{
+class TIBLayer : public BarrelDetLayer {
  public:
 
   TIBLayer(vector<const TIBRing*>& innerRings,
@@ -26,10 +28,11 @@ class TIBLayer : public BarrelDetLayer{
   compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
 	      const MeasurementEstimator&) const;
 
-  virtual vector<DetWithState> 
-  compatibleDets( const TrajectoryStateOnSurface& startingState,
+  virtual vector<GeometricSearchDet::DetWithState> 
+  compatibleDets( const TrajectoryStateOnSurface& tsos,
 		  const Propagator& prop, 
-		  const MeasurementEstimator& est) const;
+		  const MeasurementEstimator& est) const; 
+    //{return TkGeometricSearchDet::compatibleDets(tsos,prop,est);}
 
   virtual vector<DetGroup> 
   groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
@@ -37,7 +40,10 @@ class TIBLayer : public BarrelDetLayer{
 			 const MeasurementEstimator& est) const;
 
 
-  virtual bool hasGroups() const {return true;;};  
+  virtual bool hasGroups() const {return true;};  
+
+  // DetLayer interface
+  virtual Module   module()   const { return silicon;}
 
  private:
   vector<const TIBRing*> theRings;

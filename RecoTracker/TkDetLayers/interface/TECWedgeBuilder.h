@@ -17,7 +17,7 @@ class TECWedgeBuilder {
  public:
   TECWedgeBuilder(){};
   TECWedge* build(const GeometricDet* aTECWedge,
-	      ESHandle<TrackingGeometry> pTrackingGeometry);
+	      const TrackingGeometry* theGeomDetGeometry);
 
   
 };

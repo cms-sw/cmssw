@@ -1,21 +1,36 @@
 #include "RecoTracker/TkDetLayers/interface/TOBRod.h"
+#include "TrackingTools/DetLayers/interface/RodPlaneBuilderFromDet.h"
 
 typedef GeometricSearchDet::DetWithState DetWithState;
 
-TOBRod::TOBRod(){
+TOBRod::TOBRod(vector<const GeomDet*>& innerDets,
+	       vector<const GeomDet*>& outerDets):
+  theInnerDets(innerDets),theOuterDets(outerDets)
+{
+  theDets.assign(theInnerDets.begin(),theInnerDets.end());
+  theDets.insert(theDets.end(),theOuterDets.begin(),theOuterDets.end());
+
+
+  RodPlaneBuilderFromDet planeBuilder;
+  setPlane( planeBuilder( theDets));
+  theInnerPlane = planeBuilder( theInnerDets);
+  theOuterPlane = planeBuilder( theOuterDets);
 
 }
-  
-
 
 TOBRod::~TOBRod(){
-
+  
 } 
 
 vector<const GeomDet*> 
 TOBRod::basicComponents() const{
-  cout << "temporary dummy implementation of TOBRod::basicComponents()!!" << endl;
-  return vector<const GeomDet*>();
+  return theDets;
+}
+
+vector<const GeometricSearchDet*> 
+TOBRod::components() const{
+  cout << "temporary dummy implementation of TOBRod::components()!!" << endl;
+  return vector<const GeometricSearchDet*>();
 }
   
 pair<bool, TrajectoryStateOnSurface>

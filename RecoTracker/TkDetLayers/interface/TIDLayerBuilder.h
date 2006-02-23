@@ -17,7 +17,7 @@ class TIDLayerBuilder {
  public:
   TIDLayerBuilder(){};
   TIDLayer* build(const GeometricDet* aTIDLayer,
-	      ESHandle<TrackingGeometry> pTrackingGeometry);
+	      const TrackingGeometry* theGeomDetGeometry);
 
   
 };
