@@ -1,3 +1,6 @@
+** V00-01-01  [Thu Feb 23 11:07:48 2006]
+- update to use new CondCore
+
 ** V00-01-00  [Wed Feb 22 10:47:25 2006]
 use EcalDCCHeaderBlock, when possible
 
