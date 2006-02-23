@@ -1,5 +1,6 @@
 #include "CondFormats/OptAlignObjects/interface/OpticalAlignments.h"
 #include "CondFormats/OptAlignObjects/interface/OpticalAlignInfo.h"
+#include "CondFormats/OptAlignObjects/interface/CSCZSensors.h"
 
 #include "FWCore/EDProduct/interface/Wrapper.h"
 
@@ -7,6 +8,7 @@
 #include <vector>
 
 template std::vector<OpticalAlignInfo>::iterator;
+template std::vector<CSCZSensorData>::iterator;
 template std::vector<OpticalAlignParam>::iterator;
 template std::vector< int >::iterator;
 template std::vector< int >::const_iterator;

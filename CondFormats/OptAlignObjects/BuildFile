@@ -2,9 +2,11 @@
 <use name=clhep>
 <use name=FWCore/Framework>
 <use name=rootrflx>
+<use name=boost>
 <export>
   <use name=clhep>
   <use name=FWCore/Framework>
   <use name=rootrflx>
+  <use name=boost>
   <lib name=CondFormatsOptAlignObjects>
 </export>
