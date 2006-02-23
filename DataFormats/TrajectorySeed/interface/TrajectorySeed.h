@@ -16,11 +16,11 @@ class TrajectorySeed : public BasicTrajectorySeed {
   TrajectorySeed(PTrajectoryStateOnDet ptsos, recHitContainer rh, PropagationDirection dir) : hits_(rh), 
     tsos_(ptsos), dir_(dir) {}
   
-  range recHits(){ } const {
+  range recHits() const {
     return std::make_pair(rh_.begin(), rh_.end());
   }
-  PropagationDirection direction(){} const {return  dir_;}
-  PTrajectoryStateOnDet& startingState(){} const {return tsos_;}
+  PropagationDirection direction() const {return  dir_;}
+  PTrajectoryStateOnDet& startingState() const {return tsos_;}
  
   
  private:

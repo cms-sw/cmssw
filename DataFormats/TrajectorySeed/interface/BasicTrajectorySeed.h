@@ -1,10 +1,10 @@
 #ifndef DATAFORMATS_TRAJECTORYSEED_BASICTRAJECTORYSEED_h
 #define DATAFORMATS_TRAJECTORYSEED_BASICTRAJECTORYSEED_h
 
-#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
+#include "DataFormats/TrajectoryState/interface/PropagationDirection.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-#include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h.h"
+#include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
 
 /**
    BasicTrajectorySeed contains
@@ -23,9 +23,9 @@ class BasicTrajectorySeed {
 
   // returns the recHits
 
-  range recHits(){ } const = 0;
-  PropagationDirection direction(){} const = 0;
-  PTrajectoryStateOnDet& startingState(){} const = 0;
+  range recHits() const = 0;
+  PropagationDirection direction() const = 0;
+  PTrajectoryStateOnDet& startingState() const = 0;
   
 };
 
