@@ -45,9 +45,12 @@ bool H2RootNtplSource::produce(Event & e) {
 		auto_ptr<HepMCProduct> bare_product(new HepMCProduct());  
 		cout << "H2RootNtplSource: Start Reading  " << endl;
 		evt = reader_->fillCurrentEventData(); 
-		if(evt)  bare_product->addHepMCData(evt );
-		e.put(bare_product);
-		return true;
+		if(evt)  {
+		  bare_product->addHepMCData(evt );
+		  e.put(bare_product);
+		  return true;
+		}
+		else return false;
 	
 	
 }

@@ -67,19 +67,22 @@ bool  Ntuple2HepMCFiller::readCurrentEvent() {
 	// 1. create an empty event container
 	HepMC::GenEvent* event = new HepMC::GenEvent();
 	input_ ->setEvent(evtid);
+	cout <<"| --<<  "<<evtid<< endl;
 	// 2. fill the evt container - if the read is successful, set the pointer
 	if ( this->toGenEvent( event ) ) evt=event;
 	evtid++;
+	//	if (evtid> evt->event_number())	filter=false;
 	if (evt){ 
 		cout <<"| --- Ntuple2HepMCFiller: Event Nr. "  <<evt->event_number() <<" with " <<evt->particles_size()<<" particles --- !" <<endl;		
-		printHepMcEvent();	
+		//	printHepMcEvent();	
 		filter=true;
 	}
 	if (!evt) {
 		cout <<  "Ntuple2HepMCFiller: Got no event :-(" <<endl;
 		filter=false;
 		delete  evt;  // @@@
-	}
+	}	
+	if (evtid> input_->getNevhep()) filter = false; 	  	  
 	return filter;
 }
 
@@ -96,8 +99,9 @@ bool Ntuple2HepMCFiller::printHepMcEvent() const{
 
 //-------------------------------------------------------------------------
 HepMC::GenEvent * Ntuple2HepMCFiller::fillCurrentEventData(){
-	readCurrentEvent();
-	return evt;
+  if (readCurrentEvent())return evt;
+  else return NULL;
+  
 }
 
 
