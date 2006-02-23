@@ -1,3 +1,6 @@
+** V00-02-01  [Thu Feb 23 21:52:32 2006]
+evt was uninitialized.  Also, produce() must return false when there are no more events
+
 ** V00-02-00  [Fri Jan 20 12:35:35 2006]
 new API
 
