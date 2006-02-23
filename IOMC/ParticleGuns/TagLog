@@ -1,3 +1,6 @@
+** V00-01-09  [Thu Feb 23 21:55:21 2006]
+fEvt was uninitialized
+
 ** V00-01-08  [Tue Feb 14 05:31:20 2006]
 re-tag 1st impl. of evt.vtx.smearing
 
