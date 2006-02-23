@@ -1,6 +1,6 @@
 /*
- *  $Date: 2006/01/24 00:05:25 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/02/13 21:57:56 $
+ *  $Revision: 1.5 $
  *  \author Julia Yarba
  */
 
@@ -26,6 +26,7 @@ using namespace std;
 BaseFlatGunSource::BaseFlatGunSource( const ParameterSet& pset,
                                       const InputSourceDescription& desc ) : 
   GeneratedInputSource (pset, desc),
+  fEvt(0),
   fPDGTable( new DefaultConfig::ParticleDataTable("PDG Table") )
 {
 
