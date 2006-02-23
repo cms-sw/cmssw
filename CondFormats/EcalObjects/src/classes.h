@@ -38,11 +38,11 @@ namespace {
   namespace {
     EcalTBWeights tbwgt;
     EcalWeightSet wset;
-    EcalTDCId id;
+    EcalTBWeights::EcalTDCId id;
   }
 }
-template std::map< std::pair< EcalXtalGroupId, EcalTDCId >, EcalWeightSet >::iterator;
-template std::map< std::pair< EcalXtalGroupId, EcalTDCId >, EcalWeightSet >::const_iterator;
+template std::map< std::pair< EcalXtalGroupId, EcalTBWeights::EcalTDCId >, EcalWeightSet >::iterator;
+template std::map< std::pair< EcalXtalGroupId, EcalTBWeights::EcalTDCId >, EcalWeightSet >::const_iterator;
 
 //#include "CondFormats/EcalObjects/interface/.h"
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
@@ -70,5 +70,5 @@ namespace {
     EcalIntercalibConstants intercalib;
   }
 }
-template std::map<uint32_t, EcalIntercalibConstant>::iterator;
-template std::map<uint32_t, EcalIntercalibConstant>::const_iterator;
+template std::map<uint32_t, EcalIntercalibConstants::EcalIntercalibConstant>::iterator;
+template std::map<uint32_t, EcalIntercalibConstants::EcalIntercalibConstant>::const_iterator;

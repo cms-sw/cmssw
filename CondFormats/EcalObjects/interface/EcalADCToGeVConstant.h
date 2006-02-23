@@ -1,5 +1,10 @@
 #ifndef CondFormats_EcalObjects_EcalADCToGeVConstant_H
 #define CondFormats_EcalObjects_EcalADCToGeVConstant_H
+/**
+ * Author: Shahram Rahatlou, University of Rome & INFN
+ * Created: 22 Feb 2006
+ * $Id: $
+ **/
 
 #include <iostream>
 

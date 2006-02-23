@@ -13,11 +13,11 @@
 #include "CondFormats/EcalObjects/interface/EcalWeight.h"
 #include <iostream>
 
-typedef std::vector< std::vector< EcalWeight > > EcalWeightMatrix;
-
 class EcalWeightSet {
 
   public:
+    typedef std::vector< std::vector< EcalWeight > > EcalWeightMatrix;
+
     EcalWeightSet();
     EcalWeightSet(const EcalWeightSet& aset);
     ~EcalWeightSet();
