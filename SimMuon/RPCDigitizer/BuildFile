@@ -1,0 +1,34 @@
+
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=Geometry/Records>
+<use name=Geometry/CommonDetUnit>
+<use name=Geometry/RPCSimAlgo>
+<use name=SimGeneral/HepPDT>
+<use name=Utilities/Timing>
+<use name=FWCore/MessageLogger>
+<use name=DataFormats/RPCDigi>
+<use name=DataFormats/DetId>
+<use name=boost>
+<flags SEAL_PLUGIN_NAME="SimMuonRPCDigitizer">
+
+<export>
+  <lib name=SimMuonRPCDigitizer>
+  <use name=FWCore/Framework>
+  <use name=Foundation/PluginManager>
+  <use name=FWCore/ParameterSet>
+  <use name=Geometry/Records>
+  <use name=Geometry/CommonDetUnit>
+  <use name=Geometry/RPCSimAlgo>
+  <use name=SimGeneral/HepPDT>
+  <use name=Utilities/Timing>
+  <use name=FWCore/MessageLogger>
+  <use name=MagneticField/Records>
+  <use name=MagneticField/Engine>
+  <use name=DataFormats/RPCDigi>
+  <use name=DataFormats/DetId>
+  <use name=boost>
+
+</export>
+
