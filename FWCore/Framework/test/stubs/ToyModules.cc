@@ -10,6 +10,7 @@ Toy EDProducers and EDProducts for testing purposes only.
 #include <vector>
 
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Handle.h"
@@ -82,6 +83,32 @@ namespace edmtest {
     e.put(p);
   }
 
+  class AddIntsProducer : public edm::EDProducer {
+public:
+     explicit AddIntsProducer(edm::ParameterSet const& p) : 
+     labels_(p.getParameter<std::vector<std::string> >("labels")) {
+        produces<IntProduct>();
+     }
+     virtual ~AddIntsProducer() { }
+     virtual void produce(edm::Event& e, const edm::EventSetup& c);
+private:
+     std::vector<std::string> labels_;
+  };
+  
+  void
+     AddIntsProducer::produce(edm::Event& e, const edm::EventSetup&) {
+        // EventSetup is not used.
+        int value =0;
+        for(std::vector<std::string>::iterator itLabel=labels_.begin();
+            itLabel!=labels_.end(); ++itLabel) {
+           edm::Handle<IntProduct> anInt;
+           e.getByLabel(*itLabel, anInt);
+           value +=anInt->value;
+        }
+        std::auto_ptr<IntProduct> p(new IntProduct(value));
+        e.put(p);
+     }
+
   class SCSimpleProducer : public edm::EDProducer {
   public:
     explicit SCSimpleProducer(edm::ParameterSet const& p) : size_(p.getParameter<int>("size")) {
@@ -142,12 +169,36 @@ namespace edmtest {
 	assert( after[i-1].id() < after[i].id());
       }    
   }
+  
+  class IntTestAnalyzer : public edm::EDAnalyzer {
+public:
+     IntTestAnalyzer(const edm::ParameterSet& iPSet) :
+     value_(iPSet.getUntrackedParameter<int>("valueMustMatch")),
+     moduleLabel_(iPSet.getUntrackedParameter<std::string>("moduleLabel")) {
+     }
+     
+     void analyze(const edm::Event& iEvent, const edm::EventSetup&) {
+        edm::Handle<IntProduct> handle;
+        iEvent.getByLabel(moduleLabel_,handle);
+        if(handle->value != value_) {
+           throw cms::Exception("ValueMissMatch")<<"The value for \""<<moduleLabel_<<"\" is "
+           <<handle->value <<" but it was supposed to be "<<value_;
+        }
+     }
+private:
+     int value_;
+     std::string moduleLabel_;
+  };
 }
 
 using edmtest::IntProducer;
 using edmtest::DoubleProducer;
 using edmtest::SCSimpleProducer;
+using edmtest::IntTestAnalyzer;
+using edmtest::AddIntsProducer;
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(IntProducer)
 DEFINE_ANOTHER_FWK_MODULE(DoubleProducer)
 DEFINE_ANOTHER_FWK_MODULE(SCSimpleProducer)
+DEFINE_ANOTHER_FWK_MODULE(IntTestAnalyzer)
+DEFINE_ANOTHER_FWK_MODULE(AddIntsProducer)
