@@ -1,8 +1,7 @@
 #ifndef JetExamples_JetAnalyzer_h
 #define JetExamples_JetAnalyzer_h
-// $Id: JetAnalyzer.h,v 1.4 2005/12/12 03:52:23 llista Exp $
+// $Id: JetAnalyzer.h,v 1.1 2006/02/07 15:43:43 llista Exp $
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include <string>
 #include "TH1.h"
 #include "TFile.h"
 

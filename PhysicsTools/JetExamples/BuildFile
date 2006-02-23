@@ -1,5 +1,6 @@
 <flags SEAL_PLUGIN_NAME="PhysicsToolsJetExamples">
 <use name=PhysicsTools/CandUtils>
+<use name=PhysicsTools/RecoCandidate>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=clhep>
@@ -7,6 +8,7 @@
 <export>
   <lib name=PhysicsToolsJetExamples>
   <use name=PhysicsTools/CandUtils>
+  <use name=PhysicsTools/RecoCandidate>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
   <use name=clhep>
