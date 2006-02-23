@@ -3,8 +3,8 @@
  * dummy module  for the test of  DaqFileInputService
  *   
  * 
- * $Date: 2006/02/17 15:46:42 $
- * $Revision: 1.1 $
+ * $Date: 2006/02/20 16:44:44 $
+ * $Revision: 1.2 $
  *
  * \author A. Ghezzi
  *
@@ -34,13 +34,15 @@ class EcalDCCHeaderDumperModule: public edm::EDAnalyzer{
     edm::Handle<EcalRawDataCollection> DCCHeaders;
     e.getByLabel("ecalEBunpacker", DCCHeaders);
     
+
     cout << "\n\n ^^^^^^^^^^^^^^^^^^ [EcalDCCHeaderDumperModule]  DCCHeaders collection size " << DCCHeaders->size() << endl;
-    cout << "                                  [EcalDCCHeaderDumperModule]  the Header(s)\n"  << endl;
+    cout << "          [EcalDCCHeaderDumperModule]  the Header(s)\n"  << endl;
     //short dumpConter =0;      
 
     for ( EcalRawDataCollection::const_iterator headerItr= DCCHeaders->begin();headerItr != DCCHeaders->end(); 
 	  ++headerItr ) {
       int nevt =headerItr->getLV1(); 
+      bool skip = false;
       //LASER
 //       bool skip = nevt > 3 && nevt < 620;
 //       skip = skip || (nevt > 623 && nevt <1230);
@@ -53,12 +55,12 @@ class EcalDCCHeaderDumperModule: public edm::EDAnalyzer{
 //       skip = skip || (nevt > 105);
 
  //    PEDESTAL
-      bool skip = nevt > 3 && nevt <153;
-      skip = skip || (nevt > 156 && nevt <302);
-      skip = skip || (nevt > 305);
+ //    bool skip = nevt > 3 && nevt <153;
+//     skip = skip || (nevt > 156 && nevt <302);
+//     skip = skip || (nevt > 305);
 
 
-      if(skip){continue;}
+    if(skip){continue;}
       // if(nevt > 60 ){break;}
       cout<<"###################################################################### \n";
       cout << "DCCid: "<< headerItr->id()<<"\n";
@@ -67,6 +69,7 @@ class EcalDCCHeaderDumperModule: public edm::EDAnalyzer{
       cout<<"Run Number: "<<headerItr->getRunNumber()<<"\n";
       cout<<"Event number (LV1): "<<headerItr->getLV1()<<"\n";
       cout<<"BX: "<<headerItr->getBX()<<"\n";
+      cout<<"TRIGGER TYPE: "<< headerItr->getBasicTriggerType()<<"\n";
       
       cout<<"RUNTYPE: "<< headerItr->getRunType()<<"\n";
       cout<<"Half: "<<headerItr->getRtHalf()<<"\n";

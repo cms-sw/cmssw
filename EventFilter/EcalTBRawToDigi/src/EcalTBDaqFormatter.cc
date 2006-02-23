@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2006/02/07 13:30:46 $
- *  $Revision: 1.17 $
+ *  $Date: 2006/02/17 15:44:11 $
+ *  $Revision: 1.18 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -86,6 +86,10 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData , EBDigiCol
     EcalDCCHeaderBlock theDCCheader;
     theDCCheader.setId((*itEventBlock)->getDataField("FED/DCC ID"));
     theDCCheader.setRunNumber((*itEventBlock)->getDataField("RUN NUMBER"));
+    short trigger_type = (*itEventBlock)->getDataField("TRIGGER TYPE");
+    if(trigger_type >0 && trigger_type <5){theDCCheader.setBasicTriggerType(trigger_type);}
+    else{ LogWarning("EcalTBRawToDigi") << "@SUB=EcalTBDaqFormatter::interpretRawData"
+					<< "unrecognized TRIGGER TYPE: "<<trigger_type;}
     theDCCheader.setLV1((*itEventBlock)->getDataField("LV1"));
     theDCCheader.setBX((*itEventBlock)->getDataField("BX"));
     theDCCheader.setErrors((*itEventBlock)->getDataField("DCC ERRORS"));
