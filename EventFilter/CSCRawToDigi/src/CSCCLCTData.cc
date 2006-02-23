@@ -40,11 +40,12 @@ std::vector<CSCComparatorDigi>  CSCCLCTData::comparatorDigis(int layer) {
   // this is pretty sparse data, so I wish we could check the
   // data word by word, not bit by bit, but I don't see how to
   // do the time sequencing that way.
+
+
   for(int cfeb = 0; cfeb < ncfebs_; ++cfeb) {
     for(int distrip = 0; distrip < 8; ++distrip) {
-      //Rick: why is this -2?
       for(int tbin = 0; tbin < ntbins_-2; ++tbin) {
-        if(bitValue(cfeb, tbin, layer, distrip)) {
+	if(bitValue(cfeb, tbin, layer, distrip)) {
           /// first do some checks
           CSCCLCTDataWord word = dataWord(cfeb, tbin, layer);
           assert(word.tbin_ == tbin);
@@ -57,21 +58,50 @@ std::vector<CSCComparatorDigi>  CSCCLCTData::comparatorDigis(int layer) {
           int chamberDistrip = distrip + cfeb*8;
           int HalfStrip = 4*chamberDistrip + bit2*2 + bit3;
           int output = 4 + bit2*2 + bit3;
-          if (debug)
-	    edm::LogInfo ("CSCCLCTData") << std::ios::dec << "fillComparatorOutputs: layer = " 
+
+	  //for every distrip there are two strips
+	  int strip1 = distrip*2;
+	  int strip2 = distrip*2+1;
+          //we are recording the same comparator output for both of those strips
+	  //if this is not right - let me know A.T.
+
+	  /*
+	   * Handles distrip logic; comparator output is for pairs of strips: 
+	   * hit  bin  dec 
+	   * x--- 100   4 
+	   * -x-- 101   5 
+	   * --x- 110   6 
+	   * ---x 111   7 
+	   *
+	   */
+
+
+	  if (debug)
+	    edm::LogInfo ("CSCCLCTData") << "fillComparatorOutputs: layer = " 
 					 << layer << " timebin = " << tbin
-					 << " cfeb = " << cfeb
-					 << " distrip = " << chamberDistrip
+					 << " cfeb = " << cfeb << " distrip = " << chamberDistrip
+					 << "  Strips = " << strip1 <<", " << strip2 
 					 << " HalfStrip = " << HalfStrip 
 					 << " Output " << output;
+	  
           result.push_back(
-			   CSCComparatorDigi(chamberDistrip, output, tbin)
+			   CSCComparatorDigi(strip1, output, tbin)
+			   );
+	  result.push_back(
+			   CSCComparatorDigi(strip2, output, tbin)
 			   );
           tbin += 2;
+
         }
-      }
-    }
-  }
+
+      }//end of loop over time bins
+       //we do not have to check over the last couple of time bins if there are no hits since 
+       //comparators take 3 time bins
+
+    }//end of loop over distrips
+
+  }//end of loop over cfebs
+
   return result;
 }
 

@@ -174,18 +174,17 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
               stripProduct->insertDigi(layer, stripDigis[i]);
             }
 
-            if (ilayer == 3) { 
-	      int nclct = cscData[iCSC].dmbHeader().nclct();
-	      if (nclct) {
-		if (cscData[iCSC].clctData().check()) {
-		  std::vector <CSCComparatorDigi> comparatorDigis =
-		    cscData[iCSC].clctData().comparatorDigis(3);
-		  for (unsigned int i=0; i<comparatorDigis.size() ; i++) {
-		    comparatorProduct->insertDigi(layer, comparatorDigis[i]);
-		  }
+	    int nclct = cscData[iCSC].dmbHeader().nclct();
+	    if (nclct) {
+	      if (cscData[iCSC].clctData().check()) {
+		std::vector <CSCComparatorDigi> comparatorDigis =
+		  cscData[iCSC].clctData().comparatorDigis(ilayer);
+		for (unsigned int i=0; i<comparatorDigis.size() ; i++) {
+		  comparatorProduct->insertDigi(layer, comparatorDigis[i]);
 		}
 	      }
 	    }
+
 	  }
 	}  
       }     
