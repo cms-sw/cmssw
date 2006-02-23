@@ -35,6 +35,7 @@
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include <fstream>
 
 //
@@ -103,6 +104,8 @@ void CaloGeometryAnalyzer::build(const CaloGeometry& cg, DetId::Detector det, in
 	  f << "  // " << EBDetId(*i) << std::endl;
 	if (subdetn == EcalEndcap)
 	  f << "  // " << EEDetId(*i) << std::endl;
+    if (subdetn == EcalPreshower) 
+      f << "  // " << ESDetId(*i) << std::endl;
       }
     else if (det == DetId::Hcal)
       {
@@ -143,6 +146,7 @@ CaloGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& 
    if (pass_==0) {
      build(*pG,DetId::Ecal,EcalBarrel,"eb.C");
      build(*pG,DetId::Ecal,EcalEndcap,"ee.C");
+     build(*pG,DetId::Ecal,EcalPreshower,"es.C");
      build(*pG,DetId::Hcal,HcalBarrel,"hb.C");
      build(*pG,DetId::Hcal,HcalEndcap,"he.C");
      build(*pG,DetId::Hcal,HcalOuter,"ho.C");
