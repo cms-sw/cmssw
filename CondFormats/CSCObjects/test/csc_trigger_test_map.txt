@@ -29,3 +29,26 @@
       1       3       5       0       8       1       3       5       0       8
       1       3       5       0       9       1       3       5       0       9
 # ================================================================================
+
+#Example of a more elaborate trigger schemes
+# This mapping takes the output of one chamber and splits it across two stations
+# so that you can form tracks and trigger using only one chamber. This setup has 
+# actually been used in the slice test.
+# ================================================================================
+#   endcap station sector subsector  cscid | endcap station sector subsector cscid
+# ================================================================================
+# ME+2/1
+#      1       2       5       0       1       1       2       5       0       1
+#      1       1       5       1       1       1       2       5       0       1
+# ================================================================================
+#
+# This mapping represents a dmb/tmb that is in the wrong slot for its appropriate 
+# cscid. You would often find this situation in a test beam. 
+#
+# ================================================================================
+#   endcap station sector subsector  cscid | endcap station sector subsector cscid
+# ================================================================================
+# ME+2/1
+#      1       2       5       0       4       1       2       5       0       1
+# ================================================================================
+
