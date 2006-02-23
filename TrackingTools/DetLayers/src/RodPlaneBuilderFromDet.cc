@@ -10,12 +10,12 @@ BoundPlane*
 RodPlaneBuilderFromDet::operator()( const vector<const Det*>& dets) const
 {
   // find mean position
-  typedef GeometricSearchDet::PositionType::BasicVectorType Vector;
+  typedef Surface::PositionType::BasicVectorType Vector;
   Vector posSum(0,0,0);
   for (vector<const Det*>::const_iterator i=dets.begin(); i!=dets.end(); i++) {
     posSum += (**i).surface().position().basicVector();
   }
-  GeometricSearchDet::PositionType meanPos( posSum/float(dets.size()));
+  Surface::PositionType meanPos( posSum/float(dets.size()));
   
   // temporary plane - for the computation of bounds
   Surface::RotationType rotation = computeRotation( dets, meanPos);

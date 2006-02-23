@@ -1,7 +1,7 @@
 #ifndef DetLayers_RodPlaneBuilderFromDet_H
 #define DetLayers_RodPlaneBuilderFromDet_H
 
-#include "TrackingTools/DetLayers/interface/GeometricSearchDet.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/Surface/interface/BoundPlane.h"
 #include <utility>
 #include <vector>
@@ -10,6 +10,8 @@ class RectangularPlaneBounds;
 
 /** Builds the minimal rectangular box that contains all input Dets fully.
  */
+
+using namespace std;
 
 class RodPlaneBuilderFromDet {
 public:

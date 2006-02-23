@@ -2,7 +2,6 @@
 #include "Geometry/Surface/interface/SimpleCylinderBounds.h"
 #include "Geometry/CommonDetAlgo/interface/BoundingBox.h"
 #include "Geometry/CommonDetUnit/interface/ModifiedSurfaceGenerator.h"
-//#include "CommonDet/PatternPrimitives/interface/Propagator.h"
 
 
 BarrelDetLayer::~BarrelDetLayer() {}
@@ -34,17 +33,15 @@ void BarrelDetLayer::initialize()
 
 //--- protected methods
 BoundCylinder* BarrelDetLayer::computeSurface() {
-  
-  vector< const GeometricSearchDet*>::const_iterator ifirst = components().begin();
-  vector< const GeometricSearchDet*>::const_iterator ilast  = components().end();
+  vector< const GeometricSearchDet*> comps = components();
 
   // Find extension in Z
-  theRmin = (**ifirst).position().perp(); theRmax = theRmin;
-  theZmin = (**ifirst).position().z(); theZmax = theZmin;
-  for ( vector< const GeometricSearchDet*>::const_iterator deti = ifirst; 
-	deti != ilast; deti++) {
+  theRmin = comps.front()->position().perp();   theRmax = theRmin;
+  theZmin = comps.front()->position().z(); theZmax = theZmin;
+  for ( vector< const GeometricSearchDet*>::const_iterator deti = comps.begin(); 
+	deti != comps.end(); deti++) {
     vector<GlobalPoint> corners = 
-      BoundingBox().corners( dynamic_cast<const BoundPlane&>((**deti).surface()));
+      BoundingBox().corners( dynamic_cast<const BoundPlane&>((*deti)->surface()));
     for (vector<GlobalPoint>::const_iterator ic = corners.begin();
 	 ic != corners.end(); ic++) {
       float r = ic->perp();
