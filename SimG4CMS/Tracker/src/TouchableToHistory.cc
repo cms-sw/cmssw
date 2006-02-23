@@ -35,7 +35,7 @@ void TouchableToHistory::buildAll(){
     TouchableToHistory::Nav_Story st =  touchableToNavStory(hist);
     
 #ifdef DEBUG
-    int oldsize = myDirectMap.size();
+    u_int32_t oldsize = myDirectMap.size();
 #endif
     myMap[st] = *it;
     myDirectMap[st] = dddToID.id(*it);
@@ -90,15 +90,25 @@ TouchableToHistory::Nav_Story TouchableToHistory::getNavStory(DDFilteredView& i)
 
 TouchableToHistory::Nav_Story TouchableToHistory::touchableToNavStory(const G4VTouchable *v) {
   Nav_Story temp;
+  std::vector<int> debugint;
+  std::vector<std::string> debugstring;
   int levels = v->GetHistoryDepth();
   
   for (int k=0; k<=levels; k++){
-    if (v->GetVolume(k)->GetLogicalVolume()->GetName() != "TOBInactive") 
+    if (v->GetVolume(k)->GetLogicalVolume()->GetName() != "TOBInactive") {
       temp.push_back(
 		     std::pair<int,std::string>
 		     (v->GetVolume(k)->GetCopyNo(),
 		      v->GetVolume(k)->GetLogicalVolume()->GetName()));
+      debugint.push_back(v->GetVolume(k)->GetCopyNo());
+      debugstring.push_back(v->GetVolume(k)->GetLogicalVolume()->GetName());
+    }
   }
+#ifdef DEBUG
+  std::cout<<" G4 TouchableToHistory "<< debugint;
+  for(u_int32_t jj=0;jj<debugstring.size();jj++)std::cout<<" "<<debugstring[jj];
+  std::cout<<" "<<std::endl;
+#endif  
   return temp;
 }
 
