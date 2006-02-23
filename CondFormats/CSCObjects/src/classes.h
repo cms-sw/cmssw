@@ -18,3 +18,6 @@ template std::vector< CSCIdentifier::Item >::const_iterator;
 template std::vector< CSCReadoutMapping::CSCLabel >::iterator;
 template std::vector< CSCReadoutMapping::CSCLabel >::const_iterator;
 
+#include "CondFormats/CSCObjects/interface/CSCTriggerMapping.h"
+template std::vector< CSCTriggerMapping::CSCTriggerConnection >::iterator;
+template std::vector< CSCTriggerMapping::CSCTriggerConnection >::const_iterator;
