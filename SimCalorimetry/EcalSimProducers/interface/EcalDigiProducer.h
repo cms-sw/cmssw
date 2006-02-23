@@ -13,8 +13,10 @@ using namespace std;
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloTDigitizer.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalSimParameterMap.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalShape.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/ESShape.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalElectronicsSim.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/ESElectronicsSim.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalCoder.h"
 #include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -55,21 +57,27 @@ private:
   /** Reconstruction algorithm*/
   typedef CaloTDigitizer<EBDigitizerTraits> EBDigitizer;
   typedef CaloTDigitizer<EEDigitizerTraits> EEDigitizer;
+  typedef CaloTDigitizer<ESDigitizerTraits> ESDigitizer;
 
   EBDigitizer * theBarrelDigitizer;
   EEDigitizer * theEndcapDigitizer;
+  ESDigitizer * theESDigitizer;
 
   const EcalSimParameterMap * theParameterMap;
   const CaloVShape * theEcalShape;
+  const ESShape * theESShape;
 
   CaloHitResponse * theEcalResponse;
+  CaloHitResponse * theESResponse;
 
   EcalElectronicsSim * theElectronicsSim;
+  ESElectronicsSim * theESElectronicsSim;
   EcalCoder * theCoder;
 
   const CaloGeometry * theGeometry;
   std::vector<DetId> theBarrelDets;
   std::vector<DetId> theEndcapDets;
+  std::vector<DetId> theESDets;
   EcalPedestals thePedestals;
   void setupFakePedestals();
 

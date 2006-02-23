@@ -5,18 +5,24 @@ EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet& params)
 {
   produces<EBDigiCollection>();
   produces<EEDigiCollection>();
+  produces<ESDigiCollection>();
 
   theParameterMap = new EcalSimParameterMap();
   theEcalShape = new EcalShape();
 
+  theESShape = new ESShape();
+
   theEcalResponse = new CaloHitResponse(theParameterMap, theEcalShape);
+  theESResponse = new CaloHitResponse(theParameterMap, theESShape);
   
   bool addNoise = params.getUntrackedParameter<bool>("doNoise" , false);
   theCoder = new EcalCoder(addNoise);
   theElectronicsSim = new EcalElectronicsSim(theParameterMap, theCoder);
+  theESElectronicsSim = new ESElectronicsSim(15);
 
   theBarrelDigitizer = new EBDigitizer(theEcalResponse, theElectronicsSim, addNoise);
   theEndcapDigitizer = new EEDigitizer(theEcalResponse, theElectronicsSim, addNoise);
+  theESDigitizer = new ESDigitizer(theESResponse, theESElectronicsSim, false);
 
 }
 
@@ -53,7 +59,9 @@ EcalDigiProducer::~EcalDigiProducer()
 {
   delete theParameterMap;
   delete theEcalShape;
+  delete theESShape;
   delete theEcalResponse;
+  delete theESResponse;
   delete theCoder;
 }
 
@@ -76,15 +84,19 @@ void EcalDigiProducer::produce(edm::Event& event, const edm::EventSetup& eventSe
   // test access to SimHits
   const std::string barrelHitsName("EcalHitsEB");
   const std::string endcapHitsName("EcalHitsEE");
+  const std::string ESHitsName("EcalHitsES");
 
   std::auto_ptr<MixCollection<PCaloHit> > 
     barrelHits( new MixCollection<PCaloHit>(crossingFrame.product(), barrelHitsName) );
   std::auto_ptr<MixCollection<PCaloHit> > 
     endcapHits( new MixCollection<PCaloHit>(crossingFrame.product(),endcapHitsName) );
+  std::auto_ptr<MixCollection<PCaloHit> >
+    ESHits( new MixCollection<PCaloHit>(crossingFrame.product(), ESHitsName) ); 
 
   // Step B: Create empty output
   auto_ptr<EBDigiCollection> barrelResult(new EBDigiCollection());
   auto_ptr<EEDigiCollection> endcapResult(new EEDigiCollection());
+  auto_ptr<ESDigiCollection> ESResult(new ESDigiCollection());
 
   // run the algorithm
   theBarrelDigitizer->run(*barrelHits, *barrelResult);
@@ -93,6 +105,9 @@ void EcalDigiProducer::produce(edm::Event& event, const edm::EventSetup& eventSe
 
   theEndcapDigitizer->run(*endcapHits, *endcapResult);
 
+  theESDigitizer->run(*ESHits, *ESResult);
+  edm::LogInfo("EcalDigiProducer") << "ES Digis: " << ESResult->size();
+
   CaloDigiCollectionSorter sorter(5);
   std::vector<EBDataFrame> sortedDigis = sorter.sortedVector(*barrelResult);
   std::cout << "Top 10 EB digis" << std::endl;
@@ -100,9 +115,11 @@ void EcalDigiProducer::produce(edm::Event& event, const edm::EventSetup& eventSe
    {
     std::cout << sortedDigis[i];
    }
+
   // Step D: Put outputs into event
   event.put(barrelResult);
   event.put(endcapResult);
+  event.put(ESResult);
 
 }
 
@@ -134,17 +151,21 @@ void EcalDigiProducer::updateGeometry() {
 
   theBarrelDets.clear();
   theEndcapDets.clear();
+  theESDets.clear();
 
   theBarrelDets =  theGeometry->getValidDetIds(DetId::Ecal, EcalBarrel);
   theEndcapDets =  theGeometry->getValidDetIds(DetId::Ecal, EcalEndcap);
+  theESDets     =  theGeometry->getValidDetIds(DetId::Ecal, EcalPreshower);
 
   //PG FIXME
   std::cout << "deb geometry: "
             << "\t barrel: " << theBarrelDets.size ()
             << "\t endcap: " << theEndcapDets.size ()
+	    << "\t preshower: " << theESDets.size()
             << std::endl ;
 
   theBarrelDigitizer->setDetIds(theBarrelDets);
   theEndcapDigitizer->setDetIds(theEndcapDets);
+  theESDigitizer->setDetIds(theESDets);
 }
 
