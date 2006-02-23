@@ -15,12 +15,8 @@ Muon::Muon( float chi2, unsigned short ndof, int found, int invalid, int lost,
   TrackBase( chi2, ndof, found, invalid, lost, q, v, p, err ) {
 }
  
-const TrackRef & Muon::trackerSegment() const {
-  return extra_->trackerSegment();
-}
-
-const TrackRef & Muon::muonSegment() const {
-  return extra_->muonSegment();
+const TrackRef & Muon::standAloneMuon() const {
+  return extra_->standAloneMuon();
 }
 
 

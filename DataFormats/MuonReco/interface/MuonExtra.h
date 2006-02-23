@@ -1,7 +1,7 @@
 #ifndef MuonReco_MuonExtra_h
 #define MuonReco_MuonExtra_h
 //
-// $Id: TrackExtra.h,v 1.4 2006/02/16 14:24:40 llista Exp $
+// $Id: MuonExtra.h,v 1.1 2006/02/20 14:41:58 llista Exp $
 //
 // Definition of TrackExtra class for RECO
 //
@@ -18,13 +18,11 @@ namespace reco {
     MuonExtra() { }
     MuonExtra( const Point & outerPosition, const Vector & outerMomentum, bool ok );
 
-    const TrackRef & trackerSegment() const { return trackerSegment_; }
-    void setTrackerSegment( const TrackRef & ref ) { trackerSegment_ = ref; }
-    const TrackRef & muonSegment() const { return muonSegment_; }
-    void setMuonSegment( const TrackRef & ref ) { muonSegment_ = ref; }
+    void setStandAloneMuon( const TrackRef & ref ) { standAloneMuon_ = ref; }
+    const TrackRef & standAloneMuon() const { return standAloneMuon_; }
 
   private:
-    TrackRef trackerSegment_, muonSegment_;
+    TrackRef standAloneMuon_;
   };
 
 }
