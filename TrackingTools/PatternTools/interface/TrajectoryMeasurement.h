@@ -2,7 +2,8 @@
 #define _TRACKER_TRAJECTORYMEASUREMENT_H_
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+//#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 
 /** The TrajectoryMeasurement contains the full information about the
  *  measurement of a trajectory by a Det, namely <BR>
@@ -25,7 +26,7 @@ public:
 
   /// Constructor with forward predicted state, const TrackingRecHit*
   TrajectoryMeasurement(TrajectoryStateOnSurface fwdTrajectoryStateOnSurface,
-                        const TrackingRecHit* aRecHit) :
+                        const TransientTrackingRecHit* aRecHit) :
     theFwdPredictedState(fwdTrajectoryStateOnSurface),
     theUpdatedState(fwdTrajectoryStateOnSurface),
     theRecHit(aRecHit),
@@ -33,7 +34,7 @@ public:
 
   /// Constructor with forward predicted state, RecHit, estimate
   TrajectoryMeasurement(TrajectoryStateOnSurface fwdTrajectoryStateOnSurface,
-                        const TrackingRecHit* aRecHit, float aEstimate) :
+                        const TransientTrackingRecHit* aRecHit, float aEstimate) :
     theFwdPredictedState(fwdTrajectoryStateOnSurface),
     theUpdatedState(fwdTrajectoryStateOnSurface),
     theRecHit(aRecHit),
@@ -42,7 +43,7 @@ public:
   /// Constructor with forward predicted & updated state, RecHit
   TrajectoryMeasurement(TrajectoryStateOnSurface fwdPredTrajectoryStateOnSurface,
                         TrajectoryStateOnSurface uTrajectoryStateOnSurface,
-                        const TrackingRecHit* aRecHit) :
+                        const TransientTrackingRecHit* aRecHit) :
     theFwdPredictedState(fwdPredTrajectoryStateOnSurface),
     theUpdatedState(uTrajectoryStateOnSurface),
     theRecHit(aRecHit),
@@ -51,7 +52,7 @@ public:
   /// Constructor with forward predicted & updated state, RecHit, estimate 
   TrajectoryMeasurement(TrajectoryStateOnSurface fwdPredTrajectoryStateOnSurface,
                         TrajectoryStateOnSurface uTrajectoryStateOnSurface,
-                        const TrackingRecHit* aRecHit, float aEstimate) :
+                        const TransientTrackingRecHit* aRecHit, float aEstimate) :
     theFwdPredictedState(fwdPredTrajectoryStateOnSurface),
     theUpdatedState(uTrajectoryStateOnSurface),
     theRecHit(aRecHit),
@@ -63,7 +64,7 @@ public:
   TrajectoryMeasurement(TrajectoryStateOnSurface fwdPredTrajectoryStateOnSurface,
 			TrajectoryStateOnSurface bwdPredTrajectoryStateOnSurface,
                         TrajectoryStateOnSurface uTrajectoryStateOnSurface,
-                        const TrackingRecHit* aRecHit) :
+                        const TransientTrackingRecHit* aRecHit) :
     theFwdPredictedState(fwdPredTrajectoryStateOnSurface),
     theBwdPredictedState(bwdPredTrajectoryStateOnSurface),
     theUpdatedState(uTrajectoryStateOnSurface),
@@ -76,7 +77,7 @@ public:
   TrajectoryMeasurement(TrajectoryStateOnSurface fwdPredTrajectoryStateOnSurface,
 			TrajectoryStateOnSurface bwdPredTrajectoryStateOnSurface,
                         TrajectoryStateOnSurface uTrajectoryStateOnSurface,
-                        const TrackingRecHit* aRecHit, float aEstimate) :
+                        const TransientTrackingRecHit* aRecHit, float aEstimate) :
     theFwdPredictedState(fwdPredTrajectoryStateOnSurface),
     theBwdPredictedState(bwdPredTrajectoryStateOnSurface),
     theUpdatedState(uTrajectoryStateOnSurface),
@@ -106,7 +107,7 @@ public:
     return theUpdatedState;
   }
 
-  const TrackingRecHit* recHit() const {
+  const TransientTrackingRecHit* recHit() const {
     return theRecHit;
   }
 
@@ -116,7 +117,7 @@ private:
   TrajectoryStateOnSurface theFwdPredictedState;
   TrajectoryStateOnSurface theBwdPredictedState;
   TrajectoryStateOnSurface theUpdatedState;
-  const TrackingRecHit* theRecHit;
+  const TransientTrackingRecHit* theRecHit;
   float theEstimate;
 };
 
