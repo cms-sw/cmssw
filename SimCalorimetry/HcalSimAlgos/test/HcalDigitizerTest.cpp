@@ -126,7 +126,7 @@ i*/
   // make a calibration service by hand
   for(vector<DetId>::const_iterator detItr = allDetIds.begin(); detItr != allDetIds.end(); ++detItr) {
     pedestals.addValue(detItr->rawId(), HcalDbHardcode::makePedestal(HcalDetId(*detItr)).getValues ());
-    pedestalWidths.addValue(detItr->rawId(), HcalDbHardcode::makePedestalWidth(HcalDetId(*detItr)).getValues ());
+    pedestalWidths.setWidth(HcalDbHardcode::makePedestalWidth(HcalDetId(*detItr)));
     gains.addValue(detItr->rawId(), HcalDbHardcode::makeGain(HcalDetId(*detItr)).getValues ());
     gainWidths.addValue(detItr->rawId(), HcalDbHardcode::makeGainWidth(HcalDetId(*detItr)).getValues ());
   }
