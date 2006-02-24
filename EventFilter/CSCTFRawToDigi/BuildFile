@@ -1,0 +1,18 @@
+<flags SEAL_PLUGIN_NAME="EventFilterCSCTFRawToDigi">
+<use name=DataFormats/CSCDigi>
+<use name=TBDataFormats/CSCTFTBRawData>	
+<use name=FWCore/Framework>
+<use name=DataFormats/FEDRawData>
+<use name=CondFormats/CSCObjects>
+<use name=FWCore/MessageLogger> 
+
+<export>
+<lib name=EventFilterCSCTFRawToDigi>
+<use name=DataFormats/CSCDigi>
+<use name=TBDataFormats/CSCTFTBRawData>
+<use name=FWCore/Framework>
+<use name=DataFormats/FEDRawData>
+<use name=CondFormats/CSCObjects>
+
+</export>
+ 
