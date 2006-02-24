@@ -1,5 +1,5 @@
 #ifndef SimMuon_RPCDigitizer_h
-#delete SimMuon_RPCDigitizer_h
+#define SimMuon_RPCDigitizer_h
 // 
 
 /** \class RPCDigitizer
@@ -11,7 +11,7 @@
 
 
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "DataFormats/RPCDigi/interface/CSCDigiCollection.h"
+#include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"

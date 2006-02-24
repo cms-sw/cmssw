@@ -1,7 +1,6 @@
 #include "Utilities/Timing/interface/TimingReport.h" 
 #include "SimMuon/RPCDigitizer/src/RPCDigitizer.h"
-//#include "SimMuon/RPCDigitizer/src/RPCSimFactory.h"
-#include "SimMuon/RPCDigitizer/src/RPCHitSim.h"
+#include "SimMuon/RPCDigitizer/src/RPCSimFactory.h"
 #include "SimMuon/RPCDigitizer/src/RPCSim.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "Geometry/RPCSimAlgo/interface/RPCRoll.h"
@@ -43,7 +42,7 @@ void RPCDigitizer::doAction(MixCollection<PSimHit> & simHits,
     const edm::PSimHitContainer & rollSimHits = hitMapItr->second;
 
     LogDebug("RPCDigitizer") << "RPCDigitizer: found " << rollSimHits.size() <<" hit(s) in the rpc roll";
-    Timet2("RPCSim");
+    TimeMe t2("RPCSim");
 
     theRPCSim->simulate(roll, rollSimHits);
     theRPCSim->fillDigis(rollDetId,rpcDigis);

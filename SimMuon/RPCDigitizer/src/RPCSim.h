@@ -7,10 +7,11 @@
  *  \author Marcello Maggi -- INFN Bari
  */
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 #include <set>
 
 class RPCRoll;
-class RPCDigiCollection;
+//class RPCDigiCollection;
 class RPCSim
 {
  public:
