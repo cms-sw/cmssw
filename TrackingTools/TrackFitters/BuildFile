@@ -1,0 +1,15 @@
+<use name=boost>
+<use name=CLHEP>
+
+<export>
+ <lib name=TrackFitters>
+ <use name=TrackingTools/KalmanUpdators>
+ <use name=TrackingTools/GeomPropagators>
+ <use name=TrackingTools/MaterialEffects>
+ <use name=FWCore/MessageLogger>
+</export>
+
+<use name=TrackingTools/KalmanUpdators>
+<use name=TrackingTools/GeomPropagators>
+<use name=TrackingTools/MaterialEffects>
+<use name=FWCore/MessageLogger>
