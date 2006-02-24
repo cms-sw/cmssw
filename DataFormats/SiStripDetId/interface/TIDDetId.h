@@ -74,9 +74,10 @@ class TIDDetId : public DetId {
    */
   unsigned int glued() const
     {
-      if(((id_>>sterStartBit_)& sterMask_) == 1 ||
-	 ((id_>>sterStartBit_)& sterMask_) == 2){
-	return id_;
+      if(((id_>>sterStartBit_)& sterMask_) == 1){ 
+	return (id_ -1);
+      }else if(((id_>>sterStartBit_)& sterMask_) == 2){
+	return (id_ -2);
       }else{
 	return 0;
       }
