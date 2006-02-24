@@ -1,0 +1,10 @@
+<export>
+ <lib name=RecoVertexVertexTools>
+ <use name=RecoVertex/VertexPrimitives>
+ <use name=TrackingTools/TrajectoryState>
+ <use name=TrackingTools/PatternTools>
+</export>
+
+<use name=RecoVertex/VertexPrimitives>
+<use name=TrackingTools/TrajectoryState>
+<use name=TrackingTools/PatternTools>
