@@ -1,10 +1,17 @@
 #include "DetectorDescription/OfflineDBLoader/interface/ReadWriteORA.h"
 
+
+#include "CondCore/DBCommon/interface/DBSession.h"
+#include "CondCore/DBCommon/interface/Exception.h"
+#include "CondCore/DBCommon/interface/ServiceLoader.h"
+#include "CondCore/DBCommon/interface/ConnectMode.h"
+#include "CondCore/DBCommon/interface/MessageLevel.h"
+#include "CondCore/MetaDataService/interface/MetaData.h"
+
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "DetectorDescription/Parser/interface/FIPConfiguration.h"
 //#include "DetectorDescription/Base/interface/DDException.h"
 #include "DetectorDescription/PersistentDDDObjects/interface/PersistentDDDObjects.h"
-#include "CondCore/MetaDataService/interface/MetaData.h"
 #include "DetectorDescription/DBReader/interface/DDORAReader.h"
 #include "DetectorDescription/PersistentDDDObjects/interface/DDDToPersFactory.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
@@ -235,9 +242,16 @@ bool ReadWriteORA::writeDB ( ) {
   }
 
     // using MetaData to translate name to token.
-    MetaData meta (dbConnectString_);
+	      cond::ServiceLoader* loader=new cond::ServiceLoader;
+	      ::putenv("CORAL_AUTH_USER=me");
+	      ::putenv("CORAL_AUTH_PASSWORD=mypass");
+	      loader->loadAuthenticationService( cond::Env );
+	      loader->loadMessageService( cond::Error );
+
+    MetaData meta (dbConnectString_, *loader);
     std::cout << "Pool token = \"" << token << "\"" << std::endl;
     try {
+      meta.connect();
       if ( meta.getToken(name_) != "" ) {
 	std::cout<<"Mapping exists!  WARNING: Nothing done, map remains as it was." << std::endl;
 	std::cout<<"TABLE IOVMETA contains an un-named token.  You can copy the token down and fix the DB."<<std::endl;
@@ -246,9 +260,20 @@ bool ReadWriteORA::writeDB ( ) {
       std::cout << "ReadWriteORA::writeDB caught seal::Exception -> " << e.what() << std::endl;
       std::cout << "ASSUMPTION: the error allows me to proceed... about to add a mapping..." << std::endl;
       meta.addMapping(name_, token);
+    } catch ( cond::Exception& e ) {
+      std::cout << "ReadWriteORA::writeDB caught cond::Exception -> " << e.what() << std::endl;
+      std::cout << "WILL ABORT!!!" << std::endl;
     }
-    std::cout << meta.getToken(name_) << std::endl;
-
+    try {
+      std::cout << meta.getToken(name_) << std::endl;
+      meta.disconnect();
+    } catch ( seal::Exception& e ) {
+      std::cout << "ReadWriteORA::writeDB caught seal::Exception -> " << e.what() << std::endl;
+    } catch ( cond::Exception& e ) {
+      std::cout << "ReadWriteORA::writeDB caught cond::Exception -> " << e.what() << std::endl;
+      std::cout << "WILL ABORT!!!" << std::endl;
+    }
+    delete loader;
   return true;
 }
 
@@ -271,18 +296,31 @@ bool ReadWriteORA::readFromXML ( ) {
 
 /// Read back from the persistent objects
 bool ReadWriteORA::readFromDB ( ) {
-
-  MetaData* meta = new MetaData(dbConnectString_);
-
-  std::cout << "Looking for ..." << name_ << std::endl;
-  std::string aToken= meta->getToken(name_);
-  delete meta;
-  seal::SealTimer timer("ReadWriteORA::readFromDB", false);
-  DDORAReader ddorar( "cms:OCMS", 
-		      aToken,
-		      userName_, 
-		      password_,
-		      dbConnectString_ );
-  ddorar.readDB();
-  return true;
+  cond::ServiceLoader* loader=new cond::ServiceLoader;
+  ::putenv("CORAL_AUTH_USER=me");
+  ::putenv("CORAL_AUTH_PASSWORD=mypass");
+  loader->loadAuthenticationService( cond::Env );
+  loader->loadMessageService( cond::Error );
+  try {
+    MetaData meta(dbConnectString_, *loader);
+    meta.connect();
+    std::cout << "Looking for ..." << name_ << std::endl;
+    std::string aToken= meta.getToken(name_);
+    meta.disconnect();
+    delete loader;
+    seal::SealTimer timer("ReadWriteORA::readFromDB", false);
+    DDORAReader ddorar( "cms:OCMS", 
+			aToken,
+			userName_, 
+			password_,
+			dbConnectString_ );
+    ddorar.readDB();
+    return true;
+  } catch ( seal::Exception& e ) {
+      std::cout << "ReadWriteORA::writeDB caught seal::Exception -> " << e.what() << std::endl;
+  } catch ( cond::Exception& e ) {
+    std::cout << "ReadWriteORA::writeDB caught cond::Exception -> " << e.what() << std::endl;
+  }
+  return false;
 }
+  
