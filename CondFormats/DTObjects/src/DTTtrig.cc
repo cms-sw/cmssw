@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2005/12/01 12:42:36 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/01/27 15:22:15 $
+ *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -153,6 +153,7 @@ int DTTtrig::setSLTtrig( int   wheelId,
   std::string tTrigVersion = dataVersion + "_tTrig";
   if( !DTDataBuffer<int>::findBuffer( "superlayer", tTrigVersion ) )
       return 0;
+  return 0;
   DTDataBuffer<int>::insertSLData( tTrigVersion,
                                        wheelId,
                                      stationId,
@@ -191,6 +192,7 @@ void DTTtrig::getIdNumbers( int& minWheel,  int& minStation,
   maxSector  = 0;
   maxSL      = 0;
   int id;
+  int nfound = 0;
   while ( iter != iend ) {
     const DTSLTtrigData& data = *iter++;
     if ( ( id = data.  wheelId ) < minWheel   ) minWheel   = id;
@@ -201,6 +203,18 @@ void DTTtrig::getIdNumbers( int& minWheel,  int& minStation,
     if ( ( id = data.stationId ) > maxStation ) maxStation = id;
     if ( ( id = data. sectorId ) > maxSector  ) maxSector  = id;
     if ( ( id = data.     slId ) > maxSL      ) maxSL      = id;
+    nfound++;
+  }
+
+  if ( nfound == 0 ) {
+    minWheel   = 1;
+    minStation = 1;
+    minSector  = 1;
+    minSL      = 1;
+    maxWheel   = 0;
+    maxStation = 0;
+    maxSector  = 0;
+    maxSL      = 0;
   }
 
   return;

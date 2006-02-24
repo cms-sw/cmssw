@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2005/12/01 12:42:36 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/01/27 15:22:15 $
+ *  $Revision: 1.5 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -330,6 +330,7 @@ int DTReadOutMapping::insertReadOutGeometryLink( int     dduId,
 
   std::string mappingVersion = cellMapVersion + "_" + robMapVersion + "_map";
   if( !DTDataBuffer<int>::findBuffer( "cell", mappingVersion ) ) return 0;
+  return 0;
   DTDataBuffer<int>::insertTDCChannelData( mappingVersion,
                                                dduId,
                                                rosId,
@@ -410,6 +411,7 @@ void DTReadOutMapping::getIdNumbers( int& minWheel,   int& minStation,
   maxTDC     = 0;
   maxChannel = 0;
   int id;
+  int nfound = 0;
   while ( iter != iend ) {
     const DTReadOutGeometryLink& link = *iter++;
     if ( ( id = link.  wheelId ) < minWheel   ) minWheel   = id;
@@ -434,6 +436,32 @@ void DTReadOutMapping::getIdNumbers( int& minWheel,   int& minStation,
     if ( ( id = link.    robId ) > maxROB     ) maxROB     = id;
     if ( ( id = link.    tdcId ) > maxTDC     ) maxTDC     = id;
     if ( ( id = link.channelId ) > maxChannel ) maxChannel = id;
+    nfound++;
+  }
+
+  if ( nfound == 0 ) {
+    minWheel   = 1;
+    minStation = 1;
+    minSector  = 1;
+    minSL      = 1;
+    minLayer   = 1;
+    minCell    = 1;
+    minDDU     = 1;
+    minROS     = 1;
+    minROB     = 1;
+    minTDC     = 1;
+    minChannel = 1;
+    maxWheel   = 0;
+    maxStation = 0;
+    maxSector  = 0;
+    maxSL      = 0;
+    maxLayer   = 0;
+    maxCell    = 0;
+    maxDDU     = 0;
+    maxROS     = 0;
+    maxROB     = 0;
+    maxTDC     = 0;
+    maxChannel = 0;
   }
 
   return;

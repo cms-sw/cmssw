@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2005/12/01 12:42:36 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/01/27 15:22:15 $
+ *  $Revision: 1.3 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -190,6 +190,7 @@ int DTT0::setCellT0( int   wheelId,
 
   std::string t0Version = dataVersion + "_t0";
   if( !DTDataBuffer<int>::findBuffer( "cell", t0Version ) ) return 0;
+  return 0;
   DTDataBuffer<int>::insertCellData( t0Version,
                                        wheelId,
                                      stationId,
@@ -244,6 +245,7 @@ void DTT0::getIdNumbers( int& minWheel,   int& minStation,
   maxLayer   = 0;
   maxCell    = 0;
   int id;
+  int nfound = 0;
   while ( iter != iend ) {
     const DTCellT0Data& data = *iter++;
     if ( ( id = data.  wheelId ) < minWheel   ) minWheel   = id;
@@ -258,6 +260,22 @@ void DTT0::getIdNumbers( int& minWheel,   int& minStation,
     if ( ( id = data.     slId ) > maxSL      ) maxSL      = id;
     if ( ( id = data.  layerId ) > maxLayer   ) maxLayer   = id;
     if ( ( id = data.   cellId ) > maxCell    ) maxCell    = id;
+    nfound++;
+  }
+
+  if ( nfound == 0 ) {
+    minWheel   = 1;
+    minStation = 1;
+    minSector  = 1;
+    minSL      = 1;
+    minLayer   = 1;
+    minCell    = 1;
+    maxWheel   = 0;
+    maxStation = 0;
+    maxSector  = 0;
+    maxSL      = 0;
+    maxLayer   = 0;
+    maxCell    = 0;
   }
 
   return;
