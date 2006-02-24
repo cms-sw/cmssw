@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/02/22 06:50:04 $
- * $Revision: 1.96 $
+ * $Date: 2006/02/24 08:03:49 $
+ * $Revision: 1.97 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -859,7 +859,13 @@ void EcalBarrelMonitorClient::analyze(void){
     if ( verbose_ ) cout << "EcalBarrelMonitorClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
-  bool stay_in_loop = mui_->update();
+  bool stay_in_loop;
+
+  if ( enableStateMachine_ ) {
+    stay_in_loop = true;
+  } else {
+    stay_in_loop = mui_->update();
+  }
 
   this->subscribeNew();
 
