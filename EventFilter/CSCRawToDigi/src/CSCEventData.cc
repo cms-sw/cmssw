@@ -75,6 +75,10 @@ CSCEventData::CSCEventData(unsigned short * buf)
       if(!theALCTHeader->check()) {  
          edm::LogError ("CSCEventData") <<"+++WARNING: Corrupt ALCT data - won't attempt to decode";
       } else {
+	//fill ALCT Digis
+        theALCTHeader->ALCTDigis();
+
+
         theAnodeData = new CSCAnodeData(*theALCTHeader, pos);  
         pos += theAnodeData->sizeInWords(); // size of the data is determined during unpacking
         theALCTTrailer = new CSCALCTTrailer( pos );

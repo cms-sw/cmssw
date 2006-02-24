@@ -1,5 +1,6 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCALCTHeader.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDMBHeader.h"
+#include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iomanip>
@@ -27,6 +28,7 @@ CSCALCTHeader::CSCALCTHeader(int chamberType) {
 
 CSCALCTHeader::CSCALCTHeader(const unsigned short * buf) {
   memcpy(this, buf, sizeInWords()*2);
+  //printf("%04x %04x %04x %04x\n",buf[4],buf[5],buf[6],buf[7]);
 }
 
 void CSCALCTHeader::setEventInformation(const CSCDMBHeader & dmb) {
@@ -60,6 +62,53 @@ int CSCALCTHeader::ALCTCRCcalc() {
     return 0;
   }
 }
+
+std::vector<CSCALCTDigi> CSCALCTHeader::ALCTDigis() const { 
+  int keyWireGroup;
+  int BXCounter;
+  int quality;
+  int pattern;
+  int valid;
+  std::vector<CSCALCTDigi> result;
+  
+  //for the zeroth ALCT word:  
+  unsigned int alct0 = alct0Word();
+  valid =        alct0 & 0x1;          //(bin:                1)
+  quality =      (alct0 & 0x6)>>1;     //(bin:              110) 
+  pattern =      (alct0 & 0x18)>>3;    //(bin:            11000) 
+  keyWireGroup = (alct0 & 0xfe0)>>5;   //(bin:     111111100000)
+  BXCounter =    (alct0 & 0x1f000)>>12;//(bin:11111000000000000)
+  
+  if (debug) edm::LogInfo("CSCALCTHeader") << "ALCT DIGI 0 valid = " << valid 
+					   << "  quality = "  << quality 
+					   << "  pattern = " << pattern 
+					   << "  Key Wire Group = " << keyWireGroup 
+					   << "  BX = " << BXCounter;  
+
+  CSCALCTDigi digi(0, keyWireGroup, BXCounter, quality, pattern, valid);
+  result.push_back(digi);
+
+  //for the first ALCT word:  
+  unsigned int alct1 = alct1Word();
+  valid =        alct1 & 0x1;          //(bin:                1)
+  quality =      (alct1 & 0x6)>>1;     //(bin:              110) 
+  pattern =      (alct1 & 0x18)>>3;    //(bin:            11000) 
+  keyWireGroup = (alct1 & 0xfe0)>>5;   //(bin:     111111100000)
+  BXCounter =    (alct1 & 0x1f000)>>12;//(bin:11111000000000000)
+ 
+  
+  if (debug) edm::LogInfo("CSCALCTHeader") << "ALCT DIGI 1 valid = " << valid 
+					   << "  quality = " << quality 
+					   << "  pattern = " << pattern 
+					   << "  Key Wire Group = " << keyWireGroup 
+					   << "  BX = " << BXCounter;
+  
+  digi = CSCALCTDigi(1, keyWireGroup, BXCounter, quality, pattern, valid);
+  result.push_back(digi);
+  return result;
+
+}
+
 
 std::bitset<22> CSCALCTHeader::calCRC22(const std::vector< std::bitset<16> >& datain){
   std::bitset<22> CRC;

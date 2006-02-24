@@ -10,6 +10,7 @@
 #include <bitset>
 #include <cstdio>
 #include <vector>
+#include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"
 
 class CSCDMBHeader;
 
@@ -27,7 +28,9 @@ public:
   int ALCTCRCcalc() ;
   std::bitset<22> calCRC22(const std::vector< std::bitset<16> >& datain) ;
   std::bitset<22> nextCRC22_D16(const std::bitset<16>& D, const std::bitset<22>& C);
- 
+
+  std::vector<CSCALCTDigi> ALCTDigis() const; 
+
  void setEventInformation(const CSCDMBHeader &);
  enum FIFO_MODE {NO_DUMP, FULL_DUMP, LOCAL_DUMP};
  unsigned short int FIFOMode()       const {return fifoMode;}

@@ -18,6 +18,9 @@
 #include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h"
+
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -38,6 +41,8 @@ void DigiAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
   edm::Handle<CSCWireDigiCollection> wires;
   edm::Handle<CSCStripDigiCollection> strips;
   edm::Handle<CSCComparatorDigiCollection> comparators;
+  edm::Handle<CSCALCTDigiCollection> alcts;
+
    
   // Pass the handle to the method "getByType", which is used to retrieve
   // one and only one instance of the type in question out of event "e". If
@@ -46,6 +51,7 @@ void DigiAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
   e.getByLabel("cscunpacker","MuonCSCWireDigi",wires);
   e.getByLabel("cscunpacker","MuonCSCStripDigi",strips);
   e.getByLabel("cscunpacker","MuonCSCComparatorDigi",comparators);
+  e.getByLabel("cscunpacker","MuonCSCALCTDigi",alcts);
  
   
    
@@ -78,6 +84,16 @@ void DigiAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
     }
   }
 
+
+
+  for (CSCALCTDigiCollection::DigiRangeIterator j=alcts->begin(); j!=alcts->end(); j++) {
+ 
+    std::vector<CSCALCTDigi>::const_iterator digiItr = (*j).second.first;
+    std::vector<CSCALCTDigi>::const_iterator last = (*j).second.second;
+    for( ; digiItr != last; ++digiItr) {
+      digiItr->print();
+    }
+  }
 
 
   eventNumber++;
