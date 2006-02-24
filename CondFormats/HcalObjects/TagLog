@@ -1,3 +1,6 @@
+** V02-03-00  [Fri Feb 24 02:15:27 2006]
+Use full correlation matrix for pedestal noises
+
 ** V02-02-00  [Wed Feb 15 22:57:15 2006]
 Generalize detId for mapping
 
