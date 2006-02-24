@@ -5,7 +5,7 @@
  *
  * Digi for Correlated LCT trigger primitives. 
  *
- * $Date: 2005/12/09 21:07:10 $
+ * $Date: 2006/02/14 23:10:14 $
  * $Revision: 1.1 $
  *
  * \author L. Gray, UF
@@ -29,14 +29,14 @@ class CSCCorrelatedLCTDigi
 
   /// The packed digi content
   struct PackedDigiType {
-    unsigned int trknmb     : trknmb_s;
-    unsigned int quality    : quality_s;
-    unsigned int keywire    : wire_s;
-    unsigned int strip      : strip_s;
-    unsigned int pattern    : clct_pattern_s;
-    unsigned int bend       : bend_s;
-    unsigned int bx         : bx_s;
-    unsigned int valid      : valid_s;
+    unsigned int trknmb    : trknmb_s ;
+    unsigned int quality   : quality_s ;
+    unsigned int keywire   : wire_s ;
+    unsigned int strip     : strip_s ;
+    unsigned int pattern   : clct_pattern_s ;
+    unsigned int bend      : bend_s ;
+    unsigned int bx        : bx_s ;
+    unsigned int valid     : valid_s ;
   };
 
   /// The packed data as seen by the persistency - should never be used

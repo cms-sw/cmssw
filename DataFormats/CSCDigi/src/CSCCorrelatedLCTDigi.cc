@@ -2,7 +2,7 @@
  *
  * Digi for Correlated LCT trigger primitives.
  *
- * $Date: 2005/12/08 23:37:59 $
+ * $Date: 2006/02/14 23:11:36 $
  * $Revision: 1.1 $
  *
  * \author L.Gray, UF
@@ -24,6 +24,12 @@ CSCCorrelatedLCTDigi::CSCCorrelatedLCTDigi(ChannelType channel)
   ChannelPacking* ch = reinterpret_cast<ChannelPacking*>(&channel);
   set(ch->trknmb, ch->valid, ch->quality, ch->keywire, 
       ch->strip, ch->pattern, ch->bend, ch->bx);  
+}
+
+CSCCorrelatedLCTDigi::CSCCorrelatedLCTDigi(PackedDigiType pd)
+{
+  set(pd.trknmb, pd.valid, pd.quality, pd.keywire,
+      pd.strip, pd.pattern, pd.bend, pd.bx);
 }
 
 /// Copy
