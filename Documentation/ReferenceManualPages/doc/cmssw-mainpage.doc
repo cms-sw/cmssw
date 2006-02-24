@@ -1,0 +1,92 @@
+/** \mainpage
+
+This is the CMSSW mainpage
+
+<br><br><br><br>
+
+
+\section subdv SubDetector View
+
+\htmlonly
+
+<TABLE BORDER CELLSPACING=3 CELLPADDING=4 WIDTH="100%" NOSAVE >
+<CAPTION>
+</CAPTION>
+
+<TR VALIGN=TOP>
+
+<TH WIDTH="200">Domain</TH>
+<TH WIDTH="493">Purpose</TH>
+<TH WIDTH="200">Contact</TH>
+
+</TR>
+
+<TR>
+<TD>
+\endhtmlonly \ref MuonPackages "Muon"   \htmlonly
+</TD>
+<TD>Muon related simulation and reconstruction</TD>
+<TD> <A HREF="mailto:">Nicola Amapane</A>,
+     <A HREF="mailto:">Tim Cox</A>,   
+
+</TR>
+
+<TR VALIGN=TOP NOSAVE>
+<TD WIDTH="237">
+\endhtmlonly \ref Calorimetry \htmlonly
+</TD>
+<TD WIDTH="493" NOSAVE>Software for the calorimeters: ECAL, HCAL, VCAL</TD>
+<TD> <A HREF="mailto:">Spider Man</A>,
+ <A HREF="mailto:">Super Man</A>
+</TD>
+</TR>
+
+</TABLE>
+
+\endhtmlonly
+
+<br><br><br>
+
+\section funcv Functional View
+
+\htmlonly
+
+<TABLE BORDER CELLSPACING=3 CELLPADDING=4 WIDTH="100%" NOSAVE >
+<CAPTION>
+</CAPTION>
+
+<TR VALIGN=TOP>
+
+<TH WIDTH="200">Domain</TH>
+<TH WIDTH="493">Purpose</TH>
+<TH WIDTH="200">Contact</TH>
+
+</TR>
+
+<TR>
+<TD>
+\endhtmlonly \ref Reconstruction "Reconstruction"   \htmlonly
+</TD>
+<TD>CMS reconstruction sofware</TD>
+<TD> <A HREF="mailto:">Tommaso Boccali</A> 
+
+</TR>
+
+<TR VALIGN=TOP NOSAVE>
+<TD WIDTH="237">
+\endhtmlonly \ref Simulation "Simulation Software" \htmlonly
+</TD>
+<TD WIDTH="493" NOSAVE>CMS Simulation Software</TD>
+<TD> <A HREF="mailto:">Daniel Elvira</A>,
+ <A HREF="mailto:">Maya Stavrianakou</A>
+</TD>
+</TR>
+
+</TABLE>
+
+\endhtmlonly
+
+
+
+
+*/
