@@ -1,3 +1,6 @@
+** V00-02-02  [Fri Feb 24 18:05:36 2006]
+added new ECAL cond DB objects: ADC-&gt;GeV conversaion factor, interfcalibration constants, weights for test beam keyed with xtal group Id and TDC info, XtalGroupId to group xtals with similar properties, map to keep info about grouping of xtals. See the test program test/testEcalObjects.cpp which creates an sql db, and the config file in test/data/print_obj.cfg to run cmsRun off this db
+
 ** V00-02-00  [Thu Feb  2 18:45:45 2006]
 .admin/version
 
