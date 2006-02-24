@@ -1,0 +1,8 @@
+<export>
+ <lib name=RecoVertexKalmanVertexFit>
+ <use name=RecoVertex/VertexPrimitives>
+ <use name=RecoVertex/VertexTools>
+</export>
+
+<use name=RecoVertex/VertexPrimitives>
+ <use name=RecoVertex/VertexTools>
