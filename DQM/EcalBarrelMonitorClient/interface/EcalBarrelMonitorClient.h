@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2006/02/08 21:10:26 $
- * $Revision: 1.36 $
+ * $Date: 2006/02/21 20:32:43 $
+ * $Revision: 1.37 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -143,6 +143,8 @@ int subrun_;
 string baseHtmlDir_;
 
 MonitorUserInterface* mui_;
+
+bool enableStateMachine_;
 
 string location_;
 string runtype_;

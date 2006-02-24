@@ -1,16 +1,13 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2006/02/21 20:32:45 $
- * $Revision: 1.80 $
+ * $Date: 2006/02/22 06:50:05 $
+ * $Revision: 1.81 $
  * \author G. Della Ricca
  *
 */
 
 #include <DQM/EcalBarrelMonitorModule/interface/EcalBarrelMonitorModule.h>
-
-#define COSMIC (PHYSICS+20)
-#define BEAM   (PHYSICS+21)
 
 EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
 
@@ -28,7 +25,9 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
   } else if ( s == "testpulse" ) {
     runType_ = TESTPULSE_MGPA;
   } else if ( s == "electron" ) {
-    runType_ = BEAM;
+    runType_ = BEAMH4;
+  } else if ( s == "electron2" ) {
+    runType_ = BEAMH2;
   }
 
   LogInfo("EcalBarrelMonitor") << " Processing run type: " << runType_ << " (" << s << ")";
@@ -221,7 +220,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
     if ( dccMap[dcch.id()].getRunType() != -1 ) evtType_ = dccMap[dcch.id()].getRunType();
 
     // uncomment the following line to mix fake 'laser' events w/ cosmic & beam events
-//    if ( ievt_ % 10 == 0 && ( runType_ == COSMIC || runType_ == BEAM ) ) evtType_ = LASER_STD;
+//    if ( ievt_ % 10 == 0 && ( runType_ == COSMIC || runType_ == BEAMH4 ) ) evtType_ = LASER_STD;
 
     if ( evtType_ < 0 || evtType_ > 9 ) {
       LogWarning("EcalBarrelMonitor") << "Unknown event type = " << evtType_;
@@ -231,12 +230,6 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
     if ( meEvtType_ ) {
 
       meEvtType_->Fill(evtType_+0.5);
-
-      // cosmic = physics + 10
-      if ( evtType_ == PHYSICS && runType_ == COSMIC ) meEvtType_->Fill(COSMIC+0.5);
-
-      // beam = physics + 11
-      if ( evtType_ == PHYSICS && runType_ == BEAM ) meEvtType_->Fill(BEAM+0.5);
 
     }
 
