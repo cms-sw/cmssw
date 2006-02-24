@@ -1,3 +1,6 @@
+** V00-02-04  [Fri Feb 24 16:15:57 2006]
+the interface for HcalPedestalWidths changed a little.  I'm still not using the correlations
+
 ** V00-02-03  [Wed Feb 22 22:44:04 2006]
 Fix for cosmetical change in CrossingFrame
 
