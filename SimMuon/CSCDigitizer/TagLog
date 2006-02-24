@@ -1,3 +1,6 @@
+** V00-00-11  [Sat Feb 25 00:00:39 2006]
+Added digi dumper, Tim made a few changes for geometry, and tweaked .cfg file
+
 ** V00-00-08  [Sat Feb 18 01:02:03 2006]
 Don't fill association map, since it's not used
 
