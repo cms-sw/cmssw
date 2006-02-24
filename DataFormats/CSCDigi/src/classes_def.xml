@@ -4,31 +4,41 @@
    <class name="CSCStripDigi"/>
    <class name="CSCComparatorDigi"/>
    <class name="CSCCorrelatedLCTDigi"/>  
+   <class name="CSCCLCTDigi"/>
+   <class name="CSCALCTDigi"/>
 
    <class name="std::vector<CSCWireDigi>"/>
    <class name="std::vector<CSCRPCDigi>"/>
    <class name="std::vector<CSCStripDigi>"/>
    <class name="std::vector<CSCComparatorDigi>"/>
    <class name="std::vector<CSCCorrelatedLCTDigi>"/>
+   <class name="std::vector<CSCCLCTDigi>"/>
+   <class name="std::vector<CSCALCTDigi>"/>
 
    <class name="std::map<CSCDetId,std::vector<CSCWireDigi> >"/>
    <class name="std::map<RPCDetId,std::vector<CSCRPCDigi> >"/>
    <class name="std::map<CSCDetId,std::vector<CSCStripDigi> >"/>
    <class name="std::map<CSCDetId,std::vector<CSCComparatorDigi> >"/> 
    <class name="std::map<CSCDetId,std::vector<CSCCorrelatedLCTDigi> >"/>
+   <class name="std::map<CSCDetId,std::vector<CSCCLCTDigi> >"/>
+   <class name="std::map<CSCDetId,std::vector<CSCALCTDigi> >"/>
 
    <class name="CSCWireDigi::PersistentPacking"/>
    <class name="CSCRPCDigi::PersistentPacking"/>
    <class name="CSCCorrelatedLCTDigi::PersistentPacking"/>
+   <class name="CSCCLCTDigi::PersistentPacking"/>
+   <class name="CSCALCTDigi::PersistentPacking"/>
    <class name="CSCStripDigi::theStripDigi"/>   
    <class name="CSCComparatorDigi::theComparatorDigi"/>   
-   
+
 
    <class name="MuonDigiCollection<CSCDetId,CSCWireDigi>"/>
    <class name="MuonDigiCollection<RPCDetId,CSCRPCDigi>"/>
    <class name="MuonDigiCollection<CSCDetId,CSCStripDigi>"/>
    <class name="MuonDigiCollection<CSCDetId,CSCComparatorDigi>"/>
    <class name="MuonDigiCollection<CSCDetId,CSCCorrelatedLCTDigi>"/>
+   <class name="MuonDigiCollection<CSCDetId,CSCCLCTDigi>"/>
+   <class name="MuonDigiCollection<CSCDetId,CSCALCTDigi>"/>
 
    <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCWireDigi>>"  
             id="44B8B226-38C3-41D1-B899-51FF287E7B12"/>
@@ -39,5 +49,9 @@
    <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCComparatorDigi>>"  
             id="C7788770-A736-05CF-A345-B776F93DCBBC"/>
    <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCCorrelatedLCTDigi> >"
-            id="9773C98F-5524-F4B4-BE38-BEF2EECDA6BE"/>
+            id="9773C98F-5524-F4B4-BE38-BEF2EECDA6BE"/> 
+   <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCCLCTDigi> >"
+            id="D2FEBCC4-B972-52EC-19D6-2EBE098521ED"/>
+   <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCALCTDigi> >"
+            id="3823A40F-F8EA-962E-3C92-601CEA154041"/>
 </lcgdict>
