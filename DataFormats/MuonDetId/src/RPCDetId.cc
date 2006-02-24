@@ -2,7 +2,7 @@
  * Impl of RPCDetId
  *
  * \author Ilaria Segoni
- * \version $Id: RPCDetId.cc,v 1.5 2005/11/01 15:19:03 segoni Exp $
+ * \version $Id: RPCDetId.cc,v 1.6 2006/02/04 06:26:12 mmaggi Exp $
  * \date 02 Aug 2005
  */
 
@@ -33,13 +33,49 @@ RPCDetId::RPCDetId(int region, int ring, int station, int sector, int layer,int 
 void
 RPCDetId::buildfromTrIndex(int trIndex)
 {
+  int eta_id = trIndex/100000;
   int region=0;
-  int ring=0;
+  int ring =0; 
+  if (eta_id <=3 ){
+    region = -1;
+    ring = eta_id;
+  }
+  else if (eta_id >=9 ) {
+    region = 1;
+    ring = eta_id -8;
+  }
+  else{
+    region = 0;
+    ring = eta_id - 6;
+  }
+  
+  int plane_id = trIndex/10000;
   int station=0;
-  int sector=0;
   int layer=0;
+  if (plane_id<=2) {
+    station = 1;
+    layer = plane_id;
+  }
+  else if (plane_id <=4){
+    station = 2;
+    layer = plane_id -2;
+  }
+  else{
+    station = plane_id -2;
+    layer = 1;
+  }
+  int sector_id = trIndex/100;
+  int copy_id = trIndex/10;
+  int sector=sector_id/3;
   int subsector=0;
-  int roll=0;
+  if ( sector_id%3 == 0 ) {
+    subsector = copy_id+1;
+  }
+  else {
+    subsector = sector_id%3;
+  }
+
+  int roll=trIndex/10;
   this->init(region,ring,station,sector,layer,subsector,roll);
 }
 
