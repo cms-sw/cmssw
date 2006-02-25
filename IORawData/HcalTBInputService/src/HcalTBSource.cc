@@ -18,9 +18,8 @@ HcalTBSource::HcalTBSource(const edm::ParameterSet & pset, edm::InputSourceDescr
   m_quiet( pset.getUntrackedParameter<bool>("quiet",true))
 {
   m_tree=0;
+  m_fileCounter=-1;
   m_file=0;
-  fileCounter_=-1;
-  m_itotal=0;
   m_i=0;
 
   unpackSetup(pset.getUntrackedParameter<std::vector<std::string> >("streams"));
@@ -96,14 +95,14 @@ void HcalTBSource::setRunAndEventInfo() {
   bool is_new=false;
 
   while (m_tree==0 || m_i==m_tree->GetEntries()) {
-    fileCounter_++;
+    m_fileCounter++;
     if (m_file!=0) {
        m_file->Close();
        m_file=0; 
        m_tree=0;
     }
-    if (fileCounter_>=int(fileNames().size())) return; // nothing good
-    openFile(fileNames()[fileCounter_]);
+    if (m_fileCounter>=int(fileNames().size())) return; // nothing good
+    openFile(fileNames()[m_fileCounter]);
     is_new=true;
   }
 
@@ -111,7 +110,6 @@ void HcalTBSource::setRunAndEventInfo() {
 
   m_tree->GetEntry(m_i);
   m_i++;
-  m_itotal++;
 
   if (m_eventInfo!=0) {
     if (is_new) {
@@ -121,7 +119,7 @@ void HcalTBSource::setRunAndEventInfo() {
     setRunNumber(m_eventInfo->getRunNumber());
     setEventNumber(m_eventInfo->getEventNumber()+m_eventNumberOffset);
   } else {
-    setRunNumber(fileCounter_+10);
+    setRunNumber(m_fileCounter+10);
     setEventNumber(m_i+1);
   }  
   // time is a hack
@@ -155,23 +153,6 @@ bool HcalTBSource::produce(edm::Event& e) {
     }
     if (!m_quiet) 
       std::cout << "Reading " << len << " bytes for FED " << id << std::endl;
-
-    // chunk duplication ( for HO testing, mostly )
-    /*
-    if (m_duplicateChunkAs>0) {
-      id=m_duplicateChunkAs;
-      FEDRawData& fed2=bare_product->FEDData(id);
-      fed2.data_.clear();
-      fed2.data_.reserve(len);
-      for (int j=0; j<len; j++)
-	fed2.data_.push_back(data[j]);
-      // patch the SourceId...
-      unsigned int* header=(unsigned int*)fed2.data();
-      header[0]=(header[0]&0xFFF000FFu)|(id<<8);
-      // TODO: patch CRC after this change!
-      std::cout << "Duplicating chunk to produce FED " << id << std::endl;
-    }
-    */
   }
 
   e.put(bare_product);

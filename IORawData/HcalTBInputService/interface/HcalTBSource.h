@@ -20,8 +20,8 @@ class CDFEventInfo;
 
    \note Notice that there is a hack to renumber events from runs where the first event number was zero.
     
-   $Date: 2006/01/17 15:47:30 $
-   $Revision: 1.2 $
+   $Date: 2006/01/23 21:31:58 $
+   $Revision: 1.3 $
    \author J. Mans - Minnesota
 */
 class HcalTBSource : public edm::ExternalInputSource {
@@ -33,12 +33,9 @@ protected:
 private:
   void unpackSetup(const std::vector<std::string>& params);
   void openFile(const std::string& filename);
-  std::vector<std::string> files_;
   TTree* m_tree;
   TFile* m_file;
-  int fileCounter_;
-  int m_i, m_itotal;
-  //  int m_duplicateChunkAs;
+  int m_i, m_fileCounter;
   bool m_quiet;
   int n_chunks;
   static const int CHUNK_COUNT=64; // MAX Chunks
