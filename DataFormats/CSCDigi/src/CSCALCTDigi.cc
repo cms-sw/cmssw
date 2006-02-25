@@ -2,8 +2,8 @@
  *
  * Digi for ALCT trigger primitives.
  *
- * $Date$
- * $Revision$
+ * $Date:$
+ * $Revision:$
  *
  * \author N. Terentiev, CMU
  */
@@ -17,18 +17,25 @@ using namespace std;
 
   /// Constructors
 
-CSCALCTDigi::CSCALCTDigi (int trknmb, int keywire,int bx, int quality, int pattern, int valid){
+/*CSCALCTDigi::CSCALCTDigi (int trknmb, int keywire,int bx, int quality, 
+int pattern, int valid)
+{
   set(trknmb, keywire, bx, quality, pattern, valid);
-}
+} */
 
+CSCALCTDigi::CSCALCTDigi (int valid, int quality, int accel, int pattern, int keywire, int bx, int trknmb) {
+  set(valid, quality, accel, pattern, keywire, bx, trknmb);
+}
 CSCALCTDigi::CSCALCTDigi (ChannelType channel){
   ChannelPacking* ch = reinterpret_cast<ChannelPacking*>(&channel);
-  set(ch->trknmb,
+  set(
+      ch->valid,
+      ch->quality,
+      ch->accel,
+      ch->pattern,
       ch->keywire,
       ch->bx,
-      ch->quality,
-      ch->pattern,
-      ch->valid);
+      ch->trknmb);
 }
 
 CSCALCTDigi::CSCALCTDigi (PackedDigiType packed_value){
@@ -40,7 +47,7 @@ CSCALCTDigi::CSCALCTDigi(const CSCALCTDigi& digi) {
 }
       /// Default
 CSCALCTDigi::CSCALCTDigi (){
-  set(0,0,0,0,0,0);
+  set(0,0,0,0,0,0,0);
 }
 
 
@@ -57,31 +64,34 @@ CSCALCTDigi::ChannelType
 CSCALCTDigi::channel() const {
   const PackedDigiType* d = data();
   ChannelPacking result;
-  result.trknmb   = d->trknmb;
+  result.valid    = d->valid;
+  result.quality  = d->quality;
+  result.accel    = d->accel;
+  result.pattern  = d->pattern;
   result.keywire  = d->keywire;
   result.bx       = d->bx;
-  result.quality  = d->quality;
-  result.pattern  = d->pattern;
-  result.valid    = d->valid;
+  result.trknmb   = d->trknmb;
   return *(reinterpret_cast<CSCALCTDigi::ChannelType*>(&result));
 }
 
-int CSCALCTDigi::getTrknmb()  const { return data()->trknmb; }
+int CSCALCTDigi::getValid()   const { return data()->valid;  }
+int CSCALCTDigi::getQuality() const { return data()->quality;}
+int CSCALCTDigi::getAccel()   const { return data()->accel;}
+int CSCALCTDigi::getPattern() const { return data()->pattern;}
 int CSCALCTDigi::getKwire()   const { return data()->keywire;}
 int CSCALCTDigi::getBx()      const { return data()->bx;     }
-int CSCALCTDigi::getQuality() const { return data()->quality;}
-int CSCALCTDigi::getPattern() const { return data()->pattern;}
-int CSCALCTDigi::getValid()   const { return data()->valid;  }
+int CSCALCTDigi::getTrknmb()  const { return data()->trknmb; }
 
   /// Debug
 
-void CSCALCTDigi::print() const {
-  cout << "Track number" << getTrknmb()
+void CSCALCTDigi::print() const { 
+  cout << "Validity    " << getValid() 
+       << "Quality     " << getQuality()
+       << "Accel       " << getAccel()
+       << "Pattern     " << getPattern()
        << "Key wire    " << getKwire()
        << "Bx          " << getBx()
-       << "Quality     " << getQuality()
-       << "Pattern     " << getPattern() 
-       << "Validity    " << getValid() <<endl;
+       << "Track number" << getTrknmb() << endl;
 }
 
 void CSCALCTDigi::dump() const {
@@ -91,15 +101,16 @@ void CSCALCTDigi::dump() const {
 
   /// Private members
 
-void CSCALCTDigi::set(int trknmb, int keywire,int bx, int quality, int pattern, int valid) {
+void CSCALCTDigi::set(int valid, int quality, int accel, int pattern, int keywire, int bx, int trknmb) 
+{
   PackedDigiType* d = data();
-  d->trknmb   = trknmb;
+  d->valid   = valid;
+  d->quality = quality;
+  d->accel   = accel;
+  d->pattern = pattern;
   d->keywire = keywire;
   d->bx      = bx;
-  d->quality = quality;
-  d->pattern = pattern;
-  d->valid   = valid;
-
+  d->trknmb   = trknmb;
 }
 
 CSCALCTDigi::PackedDigiType* 
