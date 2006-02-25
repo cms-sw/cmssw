@@ -1,10 +1,9 @@
 #include "IOPool/Common/interface/ClassFiller.h"
-
-#include "StorageSvc/IOODatabaseFactory.h"
+#include "Cintex/Cintex.h"
 
 namespace edm {
   // ---------------------
   void ClassFiller() {
-    pool::IOODatabaseFactory::get()->create(pool::ROOT_StorageType.storageName());
+    ROOT::Cintex::Cintex::Enable();
   }
 }
