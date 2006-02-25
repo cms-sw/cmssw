@@ -35,9 +35,7 @@ GeometricSearchTrackerBuilder::build(const GeometricDet* theGeometricTracker,
 
     if( (*it)->type() == GeometricDet::TOB) {
       vector<const GeometricDet*> theTOBGeometricDetLayers = (*it)->components();
-      //Waiting for bug fix in code "GeometricDet to GeomDet". It skips doubleSided TOB layers.
-      //for(vector<const GeometricDet*>::const_iterator it2=theTOBGeometricDetLayers.begin();
-      for(vector<const GeometricDet*>::const_iterator it2=theTOBGeometricDetLayers.begin()+2;	  
+      for(vector<const GeometricDet*>::const_iterator it2=theTOBGeometricDetLayers.begin();	  
       it2!=theTOBGeometricDetLayers.end(); it2++){
 	theTOBLayers.push_back( aTOBLayerBuilder.build(*it2,theGeomDetGeometry) );
       }
