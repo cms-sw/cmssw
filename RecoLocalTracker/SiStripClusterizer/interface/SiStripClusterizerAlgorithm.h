@@ -20,8 +20,8 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
-class SiStripPedestals;
-
+class SiStripNoises;
+class TrackingGeometry;
 class ThreeThresholdStripClusterizer;
 
 class SiStripClusterizerAlgorithm 
@@ -34,15 +34,17 @@ class SiStripClusterizerAlgorithm
   /// Runs the algorithm
   void run(const StripDigiCollection* input,
 	   SiStripClusterCollection &output,
-	   const edm::ESHandle<SiStripPedestals> & ped
-	   );
+	   const edm::ESHandle<SiStripNoises>& noise, 
+	   const edm::ESHandle<TrackingGeometry>& pDD);
 
  private:
   edm::ParameterSet conf_;
   ThreeThresholdStripClusterizer *threeThreshold_;
   std::string clusterMode_;
   bool validClusterizer_;
-
+  bool UseNoiseBadStripFlagFromDB_;
+  double ENC_;
+  double ElectronsPerADC_;
 };
 
 #endif

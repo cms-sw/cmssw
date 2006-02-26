@@ -13,18 +13,29 @@
 
 #include "RecoLocalTracker/SiStripClusterizer/interface/ThreeThresholdStripClusterizer.h"
 
-#include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
+#include "CondFormats/SiStripObjects/interface/SiStripNoise.h"
+
+#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/CommonTopologies/interface/StripTopology.h"
+#include "Geometry/TrackerSimAlgo/interface/StripGeomDetType.h"
+#include "Geometry/TrackerSimAlgo/interface/StripGeomDetUnit.h"
+
 
 using namespace std;
 
-SiStripClusterizerAlgorithm::SiStripClusterizerAlgorithm(const edm::ParameterSet& conf) : conf_(conf) { 
+SiStripClusterizerAlgorithm::SiStripClusterizerAlgorithm(const edm::ParameterSet& conf) : 
+  conf_(conf),  
+  clusterMode_(conf.getParameter<string>("ClusterMode")),
+  ElectronsPerADC_(conf.getParameter<double>("ElectronPerAdc")),
+  ENC_(conf.getParameter<double>("EquivalentNoiseCharge300um")),
+  UseNoiseBadStripFlagFromDB_(conf.getParameter<bool>("UseNoiseBadStripFlagFromDB")){
   
-  clusterMode_ = conf_.getParameter<string>("ClusterMode");
-
   if ( clusterMode_ == "ThreeThresholdClusterizer" ) {
     threeThreshold_ = new ThreeThresholdStripClusterizer(conf_.getParameter<double>("ChannelThreshold"),
 							 conf_.getParameter<double>("SeedThreshold"),
-							 conf_.getParameter<double>("ClusterThreshold"));
+							 conf_.getParameter<double>("ClusterThreshold")
+							 conf_.getParameter<int>("MaxHolesInCluster"));
     validClusterizer_ = true;
   } else {
     std::cout << "[SiStripClusterizerAlgorithm] No valid strip clusterizer selected, possible clusterizer: ThreeThresholdClusterizer" << endl;
@@ -33,17 +44,14 @@ SiStripClusterizerAlgorithm::SiStripClusterizerAlgorithm(const edm::ParameterSet
 }
 
 SiStripClusterizerAlgorithm::~SiStripClusterizerAlgorithm() {
-
   if ( threeThreshold_ != 0 ) {
     delete threeThreshold_;
   }
-
 }
 
-
-void SiStripClusterizerAlgorithm::run(const StripDigiCollection* input, SiStripClusterCollection &output,const edm::ESHandle<SiStripPedestals>& ped)
+void SiStripClusterizerAlgorithm::run(const StripDigiCollection* input, SiStripClusterCollection &output,
+				      const edm::ESHandle<SiStripNoises>& noise, const edm::ESHandle<TrackingGeometry>& pDD)
 {
-
   if ( validClusterizer_ ) {
     int number_detunits          = 0;
     int number_localstriprechits = 0;
@@ -53,47 +61,76 @@ void SiStripClusterizerAlgorithm::run(const StripDigiCollection* input, SiStripC
     
     // loop over detunits
     for ( std::vector<unsigned int>::const_iterator detunit_iterator = detIDs.begin(); detunit_iterator != detIDs.end(); ++detunit_iterator ) {
-      unsigned int id = *detunit_iterator;
+      unsigned int detID = *detunit_iterator;
       ++number_detunits;
-      const StripDigiCollection::Range digiRange = input->get(id);
+      const StripDigiCollection::Range digiRange = input->get(detID);
       StripDigiCollection::ContainerIterator digiRangeIteratorBegin = digiRange.first;
       StripDigiCollection::ContainerIterator digiRangeIteratorEnd   = digiRange.second;
       
       if ( clusterMode_ == "ThreeThresholdClusterizer" ) {
-	
-	// dummies, right now, all empty
-	vector<float> noiseVec(768,2);
-	vector<short> badChannels;
-	
-// 	vector<SiStripCluster> collector = threeThreshold_->clusterizeDetUnit(digiRangeIteratorBegin, 
-// 										digiRangeIteratorEnd,
-// 										id,
-// 										noiseVec,
-// 										badChannels);
 
-	const SiStripPedestalsVector & sistrippedvec = (*ped).getSiStripPedestalsVector(id);
-	
-	if (sistrippedvec.size() <= 0)
-	  {
-	    std::cout << "WARNING requested Pedestals for detid " << id << " that isn't in map " << std::endl; 
-	    continue;
-	  }
+	if (UseNoiseBadStripFlagFromDB_==false){
 
-	vector<SiStripCluster> collector = 
-	  threeThreshold_->clusterizeDetUnit(digiRangeIteratorBegin, 
-					     digiRangeIteratorEnd,
-					     id,
-					     sistrippedvec);
+	  //Case of SingleValueNoiseValue for all strips of a Detector
+	  //Noise is proportional to sensor depth
+
+	  std::cout << "Using a SingleNoiseValue and good strip flags" << std::endl;
+
+	  //FIXME
+	  // Access info for DetID from the geometry
+	  
+	  pDD->idToDet(detID);
+	  for(TrackingGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++){
+
+	    if( dynamic_cast<StripGeomDetUnit*>((*it))!=0){
+
+	      uint32_t detid=((*it)->geographicalId()).rawId();
+
+	      const StripTopology& st = dynamic_cast<StripGeomDetUnit*>((*it))->specificTopology();
+	      int numStrips = st.nstrips();  // det module number of strips
+	      //thickness:
+	      const BoundSurface& bs = (dynamic_cast<StripGeomDetUnit*>((det)))->surface();
+	      moduleThickness = bs.bounds().thickness();	
+	 
+	  //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+	  float noise = ENC*moduleThickness/(0.03)/ElectronsPerADC_;
+	  vector<float> noiseVec(numStrips,noise);
+	  
+	  //FIXME 
+	  // for fixed noise value all strips are goods!!!
+	  vector<short> badChannels(numStrips,0);
+	  /////////////////////////////////////
+	
+	  //Construct a SiStripNoiseVector in order to be compliant with the DB access
+
+
+	} else {
+
+	  //Case of Noise and BadStrip flags access from DB
+	  std::cout << "Using Noise and BadStrip flags accessed from DB" << std::endl;
+
+	  const SiStripNoiseVector& vnoise = noise->getSiStripNoiseVector(detID);
+	  
+	  if (vnoise.size() <= 0)
+	    {
+	      std::cout << "WARNING requested Noise Vector for detID " << detID << " that isn't in map " << std::endl; 
+	      continue;
+	    }
+	}
+	
+	vector<SiStripCluster> collector = threeThreshold_->clusterizeDetUnit(digiRangeIteratorBegin, 
+									      digiRangeIteratorEnd,
+									      detID,
+									      vnoise);
 
 	SiStripClusterCollection::Range inputRange;
 	inputRange.first = collector.begin();
 	inputRange.second = collector.end();
-	output.put(inputRange,id);
+	output.put(inputRange,detID);
 	number_localstriprechits += collector.size();
       }
     }
     cout << "[SiStripClusterizerAlgorithm] execution in mode " << clusterMode_ << " generating " << number_localstriprechits << " SiStripClusters in " << number_detunits << " DetUnits." << endl; 
   }
-  
-
 };

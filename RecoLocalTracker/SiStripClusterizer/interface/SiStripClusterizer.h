@@ -24,8 +24,11 @@
 #include "RecoLocalTracker/SiStripClusterizer/interface/SiStripClusterizerAlgorithm.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
-#include "CondFormats/DataRecord/interface/SiStripPedestalsRcd.h"
+#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
+#include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
+
+#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 
 namespace cms
@@ -45,7 +48,9 @@ namespace cms
   private:
     SiStripClusterizerAlgorithm siStripClusterizerAlgorithm_;
     edm::ParameterSet conf_;
-    edm::ESHandle<SiStripPedestals> ped;
+    edm::ESHandle<SiStripNoises> noise;
+    edm::ESHandle<TrackingGeometry> pDD;
+    bool UseNoiseBadStripFlagFromDB_;
   };
 }
 

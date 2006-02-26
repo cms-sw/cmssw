@@ -15,7 +15,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#include "CondFormats/DataRecord/interface/SiStripPedestalsRcd.h"
+#include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
@@ -25,57 +25,59 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
-#include "CondFormats/DataRecord/interface/SiStripPedestalsRcd.h"
+#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
+#include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
 
 #include <iostream> 
 
 namespace cms
 {
-
   SiStripClusterizer::SiStripClusterizer(edm::ParameterSet const& conf) : 
     siStripClusterizerAlgorithm_(conf) ,
-    conf_(conf)
-  {
+    conf_(conf){
     produces<SiStripClusterCollection>();
   }
-
 
   // Virtual destructor needed.
   SiStripClusterizer::~SiStripClusterizer() { }  
 
-  //Get at the beginning Calibration data (pedestals)
+  //Get at the beginning
   void SiStripClusterizer::beginJob( const edm::EventSetup& iSetup ) {
-
     std::cout << "BeginJob method " << std::endl;
-    std::cout << "Here I am " << std::endl;
-  
-    //edm::ESHandle<SiStripPedestals> ped;
-    iSetup.get<SiStripPedestalsRcd>().get(ped);
-    
-    SiStripPedestalsMapIterator mapit = (*ped).m_pedestals.begin();
-    for (;mapit!=(*ped).m_pedestals.end();mapit++)
-      {
-	unsigned int detid = (*mapit).first;
-	std::cout << "detid " <<  detid << " # Strip " << (*mapit).second.size()<<std::endl;
-	//SiStripPedestalsVector theSiStripVector =  (*mapit).second;     
-	const SiStripPedestalsVector theSiStripVector =  (*ped).getSiStripPedestalsVector(detid);
-	
-	int strip=0;
-	SiStripPedestalsVectorIterator iter=theSiStripVector.begin();
-	//for(; iter!=theSiStripVector.end(); iter++)
+
+    //Getting Geometry
+    iSetup.get<TrackerDigiGeometryRecord>().get( pDD );
+    cout <<" There are "<<pDD->dets().size() <<" detectors"<<endl;
+
+    //Getting Calibration data (Noises and BadStrips Flag)
+    bool UseNoiseBadStripFlagFromDB_=conf_.getParameter<bool>("UseNoiseBadStripFlagFromDB_");  
+    if (UseNoiseBadStripFlagFromDB_==true){
+      iSetup.get<SiStripNoisesRcd>().get(noise);
+      //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+      // FIXME
+      // Debug: show noise for DetIDs
+      SiStripNoiseMapIterator mapit = noise->m_noises.begin();
+      for (;mapit!=noise->m_noises.end();mapit++)
+	{
+	  unsigned int detid = (*mapit).first;
+	  std::cout << "detid " <<  detid << " # Strip " << (*mapit).second.size()<<std::endl;
+	  //SiStripNoiseVector theSiStripVector =  (*mapit).second;     
+	  const SiStripNoiseVector theSiStripVector =  noise->getSiStripNoisesVector(detid);
+	  
+	  
+	  int strip=0;
+	  SiStripNoiseVectorIterator iter=theSiStripVector.begin();
+	  //for(; iter!=theSiStripVector.end(); iter++)
 	  {
 	    std::cout << " strip " << strip++ << " =\t"
-		      << iter->getPed()       << " \t" 
 		      << iter->getNoise()     << " \t" 
-		      << iter->getLowTh()     << " \t" 
-		      << iter->getHighTh()    << " \t" 
 		      << iter->getDisable()   << " \t" 
 		      << std::endl; 	    
 	  } 
-      }   
+	}
+      //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+    }
   }
-
 
   // Functions that gets called by framework every event
   void SiStripClusterizer::produce(edm::Event& e, const edm::EventSetup& es)
@@ -91,7 +93,7 @@ namespace cms
     std::auto_ptr<SiStripClusterCollection> output(new SiStripClusterCollection);
 
     // Step C: Invoke the strip clusterizer algorithm
-    siStripClusterizerAlgorithm_.run(stripDigis.product(),*output,ped);
+    siStripClusterizerAlgorithm_.run(stripDigis.product(),*output,noise,pDD);
 
     // Step D: write output to file
     e.put(output);
