@@ -119,8 +119,7 @@ void CSCTFUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 	std::cout<<"CSCTFUnpacker::produce "<< numOfEvents << " events unpacked.\n";
 
 	CSCTFTBFrontBlock aFB;
-	CSCTFTBSPBlock aSPB;
-	CSCTFTBFrontData aFD;
+	CSCTFTBSPBlock aSPB;	
 	CSCTFTBSPData aSPD;
 	for(int BX = 1; BX<=7 ; ++BX)
 	  {
@@ -138,14 +137,11 @@ void CSCTFUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 			if(FPGA == 2) subsector = 2;
 			station = (((FPGA - 1) == 0) ? 1 : FPGA-1);
 			
-			aFD = aFB.frontData(FPGA,MPClink);
-			if(aFD.CSCIDPacked())
-			  {
-			    int valid = aFB.frontHeader().getVPBit(FPGA,MPClink);
-			    CSCDetId id = TFmapping->detId(TBendcap,station,TBsector,subsector,aFD.CSCIDPacked());
-			    CSCCorrelatedLCTDigi CorrLCT(0,valid,aFD.qualityPacked(),aFD.wireGroupPacked(),
-							 aFD.stripPacked(),aFD.patternPacked(),aFD.lrPacked(),BX-1);
-			    LCTProduct->insertDigi(id,CorrLCT);
+			int cscid = aFB.frontData(FPGA,MPClink).CSCIDPacked();
+			if(cscid)
+			  {			    
+			    CSCDetId id = TFmapping->detId(TBendcap,station,TBsector,subsector,cscid);
+			    LCTProduct->insertDigi(id,aFB.frontDigiData(FPGA,MPClink));
 			  }
 			
 		      }
