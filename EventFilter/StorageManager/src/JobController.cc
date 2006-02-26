@@ -57,12 +57,18 @@ namespace stor
   void JobController::init(const std::string& my_config,
 			   FragmentCollector::Deleter deleter)
   {
+    // JBK - 2/26/06 reordered the EPRunner and FragmentCollector
+    // so that the fragment collector gets the registry from the 
+    // EventProcessor instead of from the filter unit config
+
     std::auto_ptr<HLTInfo> inf(new HLTInfo(prods_));
 
-    std::auto_ptr<FragmentCollector> 
-      coll(new FragmentCollector(*inf,deleter,prods_));
-
+    // ep takes ownership of inf!
     std::auto_ptr<EPRunner> ep(new EPRunner(my_config,inf));
+    std::auto_ptr<FragmentCollector> 
+      coll(new FragmentCollector(*(ep->getInfo()),deleter,
+				 ep->getRegistry()
+				 ));
 
     collector_.reset(coll.release());
     ep_runner_.reset(ep.release());
