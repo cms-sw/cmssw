@@ -25,6 +25,10 @@ CaloTowersCreator::CaloTowersCreator(const edm::ParameterSet& conf) :
 	conf.getParameter<double>("EBSumThreshold"),
 	conf.getParameter<double>("EESumThreshold"),
 	true), // always uses HO!
+  hbheLabel_(conf.getParameter<std::string>("hbheInput")),
+  hoLabel_(conf.getParameter<std::string>("hoInput")),
+  hfLabel_(conf.getParameter<std::string>("hfInput")),
+  ecalLabels_(conf.getParameter<std::vector<std::string> >("ecalInputs")),
   allowMissingInputs_(conf.getUntrackedParameter<bool>("AllowMissingInputs",true))
 {
   produces<CaloTowerCollection>();
@@ -33,16 +37,20 @@ CaloTowersCreator::CaloTowersCreator(const edm::ParameterSet& conf) :
 void CaloTowersCreator::produce(edm::Event& e, const edm::EventSetup& c) {
   // get the necessary event setup objects...
   edm::ESHandle<CaloGeometry> pG;
+  edm::ESHandle<HcalTopology> htopo;
+  edm::ESHandle<CaloTowerTopology> cttopo;
   c.get<IdealGeometryRecord>().get(pG);
+  c.get<IdealGeometryRecord>().get(htopo);
+  c.get<IdealGeometryRecord>().get(cttopo);
   
-  algo_.setGeometry(&topo_,pG.product());
+  algo_.setGeometry(cttopo.product(),htopo.product(),pG.product());
 
   algo_.begin(); // clear the internal buffer
   
   // Step A/C: Get Inputs and process (repeatedly)
   try {
     edm::Handle<HBHERecHitCollection> hbhe;
-    e.getByType(hbhe); // TODO : use selector
+    e.getByLabel(hbheLabel_,hbhe);
     algo_.process(*hbhe);
   } catch (std::exception& e) { // can't find it!
     if (!allowMissingInputs_) throw e;
@@ -50,7 +58,7 @@ void CaloTowersCreator::produce(edm::Event& e, const edm::EventSetup& c) {
 
   try {
     edm::Handle<HORecHitCollection> ho;
-    e.getByType(ho);   // TODO : use selector
+    e.getByLabel(hoLabel_,ho);
     algo_.process(*ho);
   } catch (std::exception& e) { // can't find it!
     if (!allowMissingInputs_) throw e;
@@ -58,18 +66,19 @@ void CaloTowersCreator::produce(edm::Event& e, const edm::EventSetup& c) {
 
   try {
     edm::Handle<HFRecHitCollection> hf;
-    e.getByType(hf);   // TODO : use selector
+    e.getByLabel(hfLabel_,hf);
     algo_.process(*hf);
   } catch (std::exception& e) { // can't find it!
     if (!allowMissingInputs_) throw e;
   }
 
   try {
-    std::vector<edm::Handle<EcalRecHitCollection> > ecs;
-    e.getManyByType(ecs);   // TODO : use selector
-    for (std::vector<edm::Handle<EcalRecHitCollection> >::const_iterator i=ecs.begin();
-	 i!=ecs.end(); i++)
-      algo_.process(*(*i));
+    std::vector<std::string>::const_iterator i;
+    for (i=ecalLabels_.begin(); i!=ecalLabels_.end(); i++) {
+      edm::Handle<EcalRecHitCollection> ec;
+      e.getByLabel(*i,ec);
+      algo_.process(*ec);
+    }
   } catch (std::exception& e) { // can't find it!
     if (!allowMissingInputs_) throw e;
   }
