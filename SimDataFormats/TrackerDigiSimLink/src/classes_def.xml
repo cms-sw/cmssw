@@ -1,0 +1,8 @@
+<lcgdict>
+  <class name="PixelDigiSimLink"/>
+  <class name="std::vector<PixelDigiSimLink>"/>
+  <class name="std::pair<unsigned int, unsigned int>"/>
+  <class name="std::map<unsigned int, std::pair<unsigned int, unsigned int> >"/>
+  <class name="PixelDigiSimLinkCollection"/>
+  <class name="edm::Wrapper<PixelDigiSimLinkCollection>"/>
+</lcgdict>

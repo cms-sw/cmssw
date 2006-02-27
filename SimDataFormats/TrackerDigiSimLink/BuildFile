@@ -1,0 +1,9 @@
+<use name=clhep>
+<use name=boost>
+<use name=FWCore/EDProduct>
+<export>
+ <lib name=SimDataFormatsTrackerDigiSimLink>
+ <use name=clhep>
+ <use name=boost>	
+ <use name=FWCore/EDProduct>
+</export>
