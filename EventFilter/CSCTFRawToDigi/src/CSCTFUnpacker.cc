@@ -39,7 +39,7 @@ CSCTFUnpacker::CSCTFUnpacker(const edm::ParameterSet & pset)
 
   instantiateDQM = pset.getUntrackedParameter<bool>("runDQM", false);
   testBeam = pset.getUntrackedParameter<bool>("TestBeamData",false);
-  std::string mapPath = pset.getUntrackedParameter<std::string>("MappingFile","");
+  std::string mapPath = "/" + pset.getUntrackedParameter<std::string>("MappingFile","");
   if(testBeam) 
     {
       TBFEDid = pset.getUntrackedParameter<int>("TBFedId");
@@ -62,6 +62,7 @@ CSCTFUnpacker::CSCTFUnpacker(const edm::ParameterSet & pset)
   }  
 
   if(debug) std::cout << "starting CSCTFConstructor";   
+  numOfEvents = 0;
 
   produces<CSCCorrelatedLCTDigiCollection>("MuonCSCTFCorrelatedLCTDigi");
   //produces<CSCTFL1TrackCollection>();
@@ -86,49 +87,45 @@ void CSCTFUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
   
   // Get a handle to the FED data collection
   edm::Handle<FEDRawDataCollection> rawdata;
-  e.getByLabel("DaqRawData", rawdata);
+  e.getByLabel("DaqSource", rawdata);
   
   // create the collection of CSC wire and strip Digis
   std::auto_ptr<CSCCorrelatedLCTDigiCollection> LCTProduct(new CSCCorrelatedLCTDigiCollection);
   //std::auto_ptr<CSCTFL1TrackCollection> trackProduct(new CSCRPCDigiCollection);
   
-  std::cout <<"in the producer now " << std::endl;  
-  
-  for(int fedid = ((testBeam) ? (TBFEDid) : FEDNumbering::getCSCFEDIds().first);
-      fedid <= ((testBeam) ? (TBFEDid) : FEDNumbering::getCSCFEDIds().second);
+  for(int fedid = FEDNumbering::getCSCFEDIds().first;
+      fedid <= ((testBeam) ? (FEDNumbering::getCSCFEDIds().first) : FEDNumbering::getCSCFEDIds().second);
       ++fedid)
-  {
-    std::cout<<"In TF FED Id (loop, maybe?)\n";
-    const FEDRawData& fedData = rawdata->FEDData(fedid);
-    if(fedData.size())
-      {
-	std::cout<<"Starting Data Unpack\n";
-	if(testBeam) 
-	  tbdata = new CSCTFTBEventData(reinterpret_cast<unsigned short*>(fedData.data()));
-	else
-	  std::cout << "not implemented yet, waiting on hardware\n";
-	
-	++numOfEvents;
-	
-	if(instantiateDQM)
-	  { 
-	    if(tbdata) monitor->process(*tbdata);
-	    else std::cout<<"not implemented yet\n";
-	  }
-
-	std::cout<<"CSCTFUnpacker::produce "<< numOfEvents << " events unpacked.\n";
-
-	CSCTFTBFrontBlock aFB;
-	CSCTFTBSPBlock aSPB;	
-	CSCTFTBSPData aSPD;
+    {
+     
+      const FEDRawData& fedData = rawdata->FEDData(fedid);
+      if(fedData.size())
+	{
+	  
+	  if(testBeam) 
+	    tbdata = new CSCTFTBEventData(reinterpret_cast<unsigned short*>(fedData.data()));
+	  else
+	    std::cout << "not implemented yet, waiting on hardware\n";
+	  
+	  ++numOfEvents;
+	  
+	  if(instantiateDQM)
+	    { 
+	      if(tbdata) monitor->process(*tbdata);
+	      else std::cout<<"not implemented yet\n";
+	    }
+	  
+	  CSCTFTBFrontBlock aFB;
+	  CSCTFTBSPBlock aSPB;	
+	  CSCTFTBSPData aSPD;
 	for(int BX = 1; BX<=7 ; ++BX)
 	  {
 	    if(testBeam) aFB = tbdata->frontDatum(BX);
 	    for(int FPGA = 1; FPGA <=5 ; ++FPGA)
 	      {		
-		  for(int MPClink = 1; MPClink <= 3 ; ++MPClink)
-		    {		      
-		      if(testBeam)
+		for(int MPClink = 1; MPClink <= 3 ; ++MPClink)
+		  {		      
+		    if(testBeam)
 		      {		    
 			int subsector = 0;
 			int station = 0;
@@ -142,25 +139,25 @@ void CSCTFUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 			  {			    
 			    CSCDetId id = TFmapping->detId(TBendcap,station,TBsector,subsector,cscid);
 			    LCTProduct->insertDigi(id,aFB.frontDigiData(FPGA,MPClink));
+			    //std::cout << aFB.frontDigiData(FPGA,MPClink) << std::endl;
 			  }
 			
 		      }
-		      else 
+		    else 
 		      {
 			std::cout<<"not implemented yet\n";
 		      }
-		    }
+		  }
 	      }
 	  }
-      }
-  }
-
-  e.put(LCTProduct); // put processed lcts into the event.
-
+	}
+    }
+  
+  e.put(LCTProduct,"MuonCSCTFCorrelatedLCTDigi"); // put processed lcts into the event.
+  
   if(tbdata) delete tbdata;
   tbdata = NULL;
 }
-
 
 
 
