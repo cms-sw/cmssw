@@ -1,0 +1,13 @@
+
+<export>
+<lib name=RecoTrackerGeometryESProducer>
+<use name=Geometry/TrackerSimAlgo>
+<use name=Geometry/TrackerBaseAlgo>
+</export>
+
+<use name=Geometry/TrackerSimAlgo>
+<use name=Geometry/TrackerBaseAlgo>
+<use name=RecoTracker/TkDetLayers>
+<use name=RecoTracker/Record>
+
+<flags SEAL_PLUGIN_NAME="RecoTrackerGeometryESProducer">
