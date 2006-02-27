@@ -5,7 +5,6 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "Geometry/CaloTopology/interface/CaloTowerTopology.h"
 #include<iostream>
 
 CaloTowersCreationAlgo::CaloTowersCreationAlgo()
@@ -31,9 +30,9 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo()
    theEESumThreshold(-1000.),
    theHcalTopology(0),
    theGeometry(0),
+   theTowerTopology(0),
    theHOIsUsed(true)
 {
-  theTowerTopology=new CaloTowerTopology(); // for now
 }
 
 
@@ -72,7 +71,8 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo(double EBthreshold, double EEthre
 }
 
 
-void CaloTowersCreationAlgo::setGeometry(const HcalTopology* topo, const CaloGeometry* geo) {
+void CaloTowersCreationAlgo::setGeometry(const CaloTowerTopology* ctt, const HcalTopology* topo, const CaloGeometry* geo) {
+  theTowerTopology=ctt;
   theHcalTopology = topo;
   theGeometry = geo;
   theTowerGeometry=geo->getSubdetectorGeometry(DetId::Calo,CaloTowerDetId::SubdetId);

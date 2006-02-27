@@ -16,8 +16,8 @@ class DetId;
 
 /** \class CaloTowersCreationAlgo
   *  
-  * $Date: 2005/10/06 18:05:46 $
-  * $Revision: 1.4 $
+  * $Date: 2006/01/17 17:42:37 $
+  * $Revision: 1.5 $
   * \author R. Wilkinson - Caltech
   */
 class CaloTowersCreationAlgo {
@@ -32,7 +32,7 @@ public:
     double HOweight, double HF1weight, double HF2weight,
     double EcutTower, double EBSumThreshold, double EESumThreshold, bool useHO);
   
-  void setGeometry(const HcalTopology* topo, const CaloGeometry* geo);
+  void setGeometry(const CaloTowerTopology* cttopo, const HcalTopology* htopo, const CaloGeometry* geo);
 
   void begin();
   void process(const HBHERecHitCollection& hbhe);

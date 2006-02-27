@@ -1,5 +1,6 @@
 #include "RecoLocalCalo/CaloTowersCreator/interface/CaloTowersCreationAlgo.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
+#include "Geometry/CaloTopology/interface/CaloTowerTopology.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalHardcodeGeometryLoader.h"
 #include "Geometry/HcalTowerAlgo/interface/CaloTowerHardcodeGeometryLoader.h"
@@ -10,6 +11,7 @@
 int main() {
 
   HcalTopology topology;
+  CaloTowerTopology ct_topo;
   HcalHardcodeGeometryLoader loader(topology);
   std::auto_ptr<CaloSubdetectorGeometry> hcalGeometry = loader.load();
 
@@ -25,7 +27,7 @@ int main() {
   geometry.setSubdetGeometry(DetId::Calo, 1, towerGeometry.get()); 
 
   CaloTowersCreationAlgo algo;
-  algo.setGeometry(&topology, &geometry);
+  algo.setGeometry(&ct_topo,&topology, &geometry);
 
   // make one RecHit, with energy 1 GeV, for
   // every cell with a given phi
@@ -90,7 +92,7 @@ std::cout << "NUMBER OF HITS " << hbheHits.size() << " " << hoHits.size() << " "
                                    1.,1.,1.,1.,1.,
                                    1., 1., 1.1,
                                     0.,0.,0., true); 
-  sillyAlgo.setGeometry(&topology, &geometry);
+  sillyAlgo.setGeometry(&ct_topo,&topology, &geometry);
   
   CaloTowerCollection collection2;
   sillyAlgo.begin();
