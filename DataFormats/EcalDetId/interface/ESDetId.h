@@ -9,7 +9,7 @@
 
    Det id for a preshower (endcap) strip
     
-   $Id: ESDetId.h,v 1.3 2005/07/27 19:41:12 mansj Exp $
+   $Id: ESDetId.h,v 1.4 2005/10/06 11:02:55 meridian Exp $
 */
 
 class ESDetId : public DetId {
@@ -28,15 +28,15 @@ class ESDetId : public DetId {
   /// get the subdetector
   EcalSubdetector subdet() const { return EcalSubdetector(subdetId()); }
   /** get the zside */
-  int zside() const { return (id_&0x40000)?(1):(-1); }
+  int zside() const { return (id_&0x80000)?(1):(-1); }
   /** get the plane */
-  int plane() const { return (id_>>17)&0x1; }
+  int plane() const { return ((id_>>18)&0x1)+1; }
   /** get the sensor ix */
-  int six() const { return (id_>>5)&0x3F; }
+  int six() const { return (id_>>6)&0x3F; }
   /** get the sensor iy */
-  int siy() const { return (id_>>11)&0x3F; }
+  int siy() const { return (id_>>12)&0x3F; }
   /** get the strip */
-  int strip() const { return id_&0x1F; }
+  int strip() const { return (id_&0x3F); }
   /// get a compact index for arrays [TODO: NEEDS WORK]
   int hashedIndex() const;
 
@@ -44,8 +44,8 @@ class ESDetId : public DetId {
   static const int IY_MIN=1;
   static const int IX_MAX=40;
   static const int IY_MAX=40;
-  static const int ISTRIP_MIN=0;
-  static const int ISTRIP_MAX=31;
+  static const int ISTRIP_MIN=1;
+  static const int ISTRIP_MAX=32;
 
 };
 
