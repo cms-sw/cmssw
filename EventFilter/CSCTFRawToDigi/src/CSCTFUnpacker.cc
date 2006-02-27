@@ -137,7 +137,8 @@ void CSCTFUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 			int cscid = aFB.frontData(FPGA,MPClink).CSCIDPacked();
 			if(cscid)
 			  {			    
-			    CSCDetId id = TFmapping->detId(TBendcap,station,TBsector,subsector,cscid);
+			    CSCDetId id = TFmapping->detId(TBendcap,station,TBsector,subsector,cscid,3);
+			    // corrlcts reside on the key layer which is layer 3.
 			    LCTProduct->insertDigi(id,aFB.frontDigiData(FPGA,MPClink));
 			    //std::cout << aFB.frontDigiData(FPGA,MPClink) << std::endl;
 			  }
