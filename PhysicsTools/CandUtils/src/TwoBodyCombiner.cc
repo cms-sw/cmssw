@@ -1,4 +1,4 @@
-// $Id: TwoBodyCombiner.cc,v 1.9 2006/02/21 10:37:31 llista Exp $
+// $Id: TwoBodyCombiner.cc,v 1.10 2006/02/27 11:54:25 fabozzi Exp $
 #include "PhysicsTools/CandUtils/interface/TwoBodyCombiner.h"
 using namespace reco;
 using namespace std;
@@ -6,13 +6,12 @@ using namespace std;
 TwoBodyCombiner::TwoBodyCombiner( const boost::shared_ptr<CandSelector> & sel,
 				  bool ck, int q ) :
   checkCharge( ck ), charge( 0 ), overlap(), select( sel ) {
-  if ( checkCharge ) charge = q;
+  if ( checkCharge ) charge = abs(q);
 }
 	 
 bool TwoBodyCombiner::preselect( const Candidate & c1, const Candidate & c2 ) const {
   if ( checkCharge ) {
-    int q = c1.charge() + c2.charge();
-    if ( abs(q) != abs(charge) ) return false;
+    if ( charge != abs(c1.charge() + c2.charge()) ) return false;
   }
   if ( overlap( c1, c2 ) ) return false;
   return true;
