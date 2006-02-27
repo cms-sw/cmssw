@@ -1,18 +1,19 @@
 #include "SimCalorimetry/EcalSimAlgos/interface/ESElectronicsSim.h"
 #include "DataFormats/EcalDigi/interface/ESSample.h"
+#include "DataFormats/EcalDetId/interface/ESDetId.h"
 
 #include "CLHEP/Random/RandGaussQ.h"
 
 using namespace std;
 
-ESElectronicsSim::ESElectronicsSim (int sigma):
-  m_sigma (sigma)
+ESElectronicsSim::ESElectronicsSim (bool addNoise, int sigma):
+  addNoise_(addNoise), sigma_ (sigma)
 {
 }
 
 void ESElectronicsSim::setNoiseSigma (const int sigma)
 {
-  m_sigma = sigma ;
+  sigma_ = sigma ;
   return ;
 }
 
@@ -37,9 +38,14 @@ ESElectronicsSim::encode(const CaloSamples& timeframe) const
   int adc; 
 
   for (int i=0; i<timeframe.size(); i++) {
-    // fake 1 ADC = 1 eV for the moment, baseline is set to 100
-    adc = int(timeframe[i]*1000000.) + int(RandGauss::shoot(0., m_sigma)) + 100;
+    // pedestal baseline is set to 1000
+    // fake 1 ADC = 1 eV for the moment
+    int pedestal = 1000;
+    int noi = 0;
+    if (addNoise_) noi = int(RandGauss::shoot(0., sigma_));
+    adc = int(timeframe[i]*1000000.) + noi + pedestal;
     if (adc>4095) adc = 4095;
+    if (adc<0) adc = 0;
     results.push_back(ESSample(adc));
   }
 
