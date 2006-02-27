@@ -9,11 +9,13 @@
  * It holds information common to all types of MET.
  * More to be added...
  *
- * \author Michael Schmitt, The University of Florida
+ * \author Michael Schmitt, Richard Cavanaugh The University of Florida
  *
  * \version   1st Version June 14, 2005.
  *
  ************************************************************/
+
+#include <vector>
 
 const int MET_LABEL_LEN = 24;
 
@@ -22,9 +24,9 @@ struct CommonMETData {
   char label[MET_LABEL_LEN];
 
   double met;
-  double metx;
-  double mety;
-  double metz;
+  double mex;
+  double mey;
+  double mez;
   double sumet;
   double phi;
 
