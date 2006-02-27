@@ -3,7 +3,9 @@
 
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/Surface/interface/BoundSurface.h"
+
 #include "TrackingTools/DetLayers/interface/DetGroup.h"
+#include "TrackingTools/DetLayers/interface/GeomDetCompatibilityChecker.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
@@ -20,6 +22,7 @@ class GeometricSearchDet {
   typedef BoundSurface::RotationType        RotationType;
   typedef TrajectoryStateOnSurface          TrajectoryState;
   
+  GeometricSearchDet() : theCompatibilityChecker(){};
   virtual ~GeometricSearchDet() {};
   
   /// The surface of the GeometricSearchDet
@@ -89,7 +92,11 @@ class GeometricSearchDet {
 			 const MeasurementEstimator& est) const = 0;
 
 
-  virtual bool hasGroups() const = 0;  
+  virtual bool hasGroups() const = 0; 
+
+ protected:
+  GeomDetCompatibilityChecker theCompatibilityChecker;
+ 
 };
 
 #endif

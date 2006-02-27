@@ -2,11 +2,14 @@
 #define DetLayers_PeriodicBinFinderInZ_H
 
 #include "TrackingTools/DetLayers/interface/BaseBinFinder.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include <cmath>
 
 /** Bin finder along the global Z for (almost) equidistant bins.
- *  The bins are computed from Det positions.
+ *  The bins are computed from GeomDet positions.
  */
+
+using namespace std;
 
 template <class T>
 class PeriodicBinFinderInZ : public BaseBinFinder<T> {
@@ -14,12 +17,12 @@ public:
 
   PeriodicBinFinderInZ() : theNbins(0), theZStep(0), theZOffset(0) {}
 
-  PeriodicBinFinderInZ(vector<Det*>::const_iterator first,
-		       vector<Det*>::const_iterator last) :
+  PeriodicBinFinderInZ(vector<const GeomDet*>::const_iterator first,
+		       vector<const GeomDet*>::const_iterator last) :
     theNbins( last-first) 
   {
-    float zFirst = (**first).position().z();
-    theZStep = ((**(last-1)).position().z() - zFirst) / (theNbins-1);
+    float zFirst = (**first).surface().position().z();
+    theZStep = ((**(last-1)).surface().position().z() - zFirst) / (theNbins-1);
     theZOffset = zFirst - 0.5*theZStep;
   }
 

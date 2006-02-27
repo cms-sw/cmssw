@@ -30,19 +30,19 @@ void DetRodOneR::initialize()
   
 }
 
-/* It needs that the basic component to have the compatible() method
+
+// It needs that the basic component to have the compatible() method
 bool DetRodOneR::add( int idet, vector<DetWithState>& result,
 		      const TrajectoryStateOnSurface& startingState,
 		      const Propagator& prop, 
 		      const MeasurementEstimator& est) const
 {
-  pair<bool,TrajectoryStateOnSurface> compat =
-    theDets[idet]->compatible( startingState, prop, est);
-
+  pair<bool,TrajectoryStateOnSurface> compat = 
+    theCompatibilityChecker.isCompatible(theDets[idet],startingState, prop, est);
+  
   if (compat.first) {
     result.push_back( DetWithState( theDets[idet], compat.second));
   }
 
   return compat.first;
 }
-*/
