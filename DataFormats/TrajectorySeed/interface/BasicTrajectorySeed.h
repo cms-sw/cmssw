@@ -23,9 +23,9 @@ class BasicTrajectorySeed {
 
   // returns the recHits
 
-  range recHits() const = 0;
-  PropagationDirection direction() const = 0;
-  PTrajectoryStateOnDet& startingState() const = 0;
+  virtual range recHits() const = 0;
+  virtual PropagationDirection direction() const = 0;
+  virtual PTrajectoryStateOnDet& startingState() const = 0;
   
 };
 

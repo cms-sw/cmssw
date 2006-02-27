@@ -2,7 +2,7 @@
 #define DATAFORMATS_TRAJECTORYSEED_TRAJECTORYSEED_h
 
 #include "DataFormats/TrajectorySeed/interface/BasicTrajectorySeed.h"
-
+#include <utility>
 /**
    TrajectorySeed contains
    - a TSOS
@@ -17,7 +17,7 @@ class TrajectorySeed : public BasicTrajectorySeed {
     tsos_(ptsos), dir_(dir) {}
   
   range recHits() const {
-    return std::pair(hits_.begin(), hits_.end());
+    return std::make_pair(hits_.begin(), hits_.end());
   }
   PropagationDirection direction() const {return  dir_;}
   PTrajectoryStateOnDet& startingState() const {return tsos_;}
