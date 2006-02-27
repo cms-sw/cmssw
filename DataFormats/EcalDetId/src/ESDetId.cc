@@ -9,11 +9,11 @@ ESDetId::ESDetId(uint32_t rawid) : DetId(rawid) {
   
 ESDetId::ESDetId(int strip, int ixs, int iys, int plane, int iz) : DetId(Ecal,EcalPreshower) {
   id_ |=
-    (strip&0x1F) |
-    ((ixs&0x3F)<<5) |
-    ((iys&0x3F)<<11) |
-    ((plane&0x1)<<17) |
-    ((iz>0)?(1<<18):(0));
+    (strip&0x3F) |
+    ((ixs&0x3F)<<6) |
+    ((iys&0x3F)<<12) |
+    (((plane-1)&0x1)<<18) |
+    ((iz>0)?(1<<19):(0));
 }
   
 ESDetId::ESDetId(const DetId& gen) {
@@ -37,6 +37,6 @@ int ESDetId::hashedIndex() const {
 }
   
 std::ostream& operator<<(std::ostream& s,const ESDetId& id) {
-  return s << "(ES z=" << id.zside() << "  plane " << id.plane() << 
-    id.six() << ',' << id.siy() << ':' << id.strip() << ')';
+  return s << "(ES z=" << id.zside() << "  plane " << id.plane() << " " <<
+    id.six() << ':' << id.siy() << " " << id.strip() << ')';
 }
