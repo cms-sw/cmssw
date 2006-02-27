@@ -1,6 +1,6 @@
 // File: Type1METAlgo.cc
 // Description:  see Type1METAlgo.h
-// Author: R. Cavanaugh, The University of Florida
+// Author: M. Schmitt, R. Cavanaugh, The University of Florida
 // Creation Date:  MHS May 31, 2005 Initial version.
 //
 //--------------------------------------------
@@ -18,58 +18,73 @@ Type1METAlgo::~Type1METAlgo() {}
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
-void Type1METAlgo::run(const METCollection *uncorrMET, METCollection &corrMET) 
+void Type1METAlgo::run(const TowerMETCollection *uncorrMET, TowerMETCollection &corrMET) 
 {
   //----------------- Create holders for MET delta and corrected MET objects
-  MET u, d, c; 
+  TowerMET u, delta, c; 
   //----------------- Initialise
-  corrMET.clear();      
-  u.clearMET(); // Uncorrected MET holder
-  d.clearMET(); // Delta MET holder
-  c.clearMET(); // Corrected MET holder
-  double delta_met     = 0.0; 
-  double delta_met_x   = 0.0;
-  double delta_met_y   = 0.0;
-  double delta_met_z   = 0.0;
-  double delta_met_phi = 0.0;
-  double delta_sum_et  = 0.0;
-  //----------------- Get uncorrected MET from MET collection
-  METCollection::const_iterator met_iter = uncorrMET->begin();  
-  u = *met_iter;        // Fill uncorrected MET from MET at zero position
+  corrMET.clear();
+  u.clearMET();
+  //corrMET.clearMET();      
+  delta.clearMET(); // Delta MET holder
+  c.clearMET();
+  //----------------- Set Corrected MET to uncorrected MET
+  TowerMETCollection::const_iterator met_iter = uncorrMET->begin();
+  u = *met_iter;
+  //corrMET = *uncorrMET;
   //----------------- Calculate and set deltas for new MET correction
-  delta_met     = 10.0; // dummy correction for now
-  delta_met_x   = 10.0; // dummy correction for now
-  delta_met_y   = 10.0; // dummy correction for now
-  delta_met_z   = 10.0; // dummy correction for now
-  delta_met_phi = atan2( u.getMETy() + delta_met_y, u.getMETx() + delta_met_x ) - u.getPhi();
-  delta_sum_et  = 10.0; // dummy correction for now
+  double delta_met_x   = 10.0; // dummy correction for now
+  double delta_met_y   = 10.0; // dummy correction for now
+  double delta_met_z   = 10.0; // dummy correction for now
+  double delta_sum_et  = 10.0; // dummy correction for now
+  double delta_met     = sqrt( delta_met_x*delta_met_x + delta_met_y*delta_met_y );
+  /*double delta_met_phi = atan2( uncorrMET->getMEy() + delta_met_y, 
+				uncorrMET->getMEx() + delta_met_x ) 
+				- uncorrMET->getPhi();*/
+  double delta_met_phi = atan2( u.getMEy() + delta_met_y, 
+				u.getMEx() + delta_met_x ) 
+                         - u.getPhi();
   //----------------- Fill holder with delta MET values
-  d.setLabel("Type1Corr");  //Sets *internal* MET label (not EDM label)
-  d.setMET(   delta_met     );
-  d.setMETx(  delta_met_x   );
-  d.setMETy(  delta_met_y   );
-  d.setMETz(  delta_met_z   );
-  d.setPhi(   delta_met_phi );
-  d.setSumEt( delta_sum_et  );
-  //----------------- Fill holder with corrected MET (= uncorrected + delta) values
-  c.setLabel("Type1");  //Sets *internal* MET label (not EDM label)
-  c.setMET(   u.getMET()   + d.getMET()   );
-  c.setMETx(  u.getMETx()  + d.getMETx()  );
-  c.setMETy(  u.getMETy()  + d.getMETy()  );
-  c.setMETz(  u.getMETz()  + d.getMETz()  );
-  c.setPhi(   u.getPhi()   + d.getPhi()   );
-  c.setSumEt( u.getSumEt() + d.getSumEt() );
-  //----------------- push old MET deltas (if any) to new Corrected MET collection (preserve ordering)
-  met_iter = uncorrMET->end(); 
-  //for( met_iter = uncorrMET->end(); met_iter != uncorrMET->begin(); met_iter-- )
-  for( int count = uncorrMET->size(); count > 1; count-- ) // above line does not work, for some reason
+  delta.setMET(   delta_met     );
+  delta.setMEx(   delta_met_x   );
+  delta.setMEy(   delta_met_y   );
+  delta.setMEz(   delta_met_z   );
+  delta.setPhi(   delta_met_phi );
+  delta.setSumET( delta_sum_et  );
+  //----------------- get previous corrections and push into new corrections (preserve ordering)
+  std::vector<CommonMETData> prevCorr = u.getAllCorr();
+  std::vector<CommonMETData>::const_iterator i = prevCorr.end();
+  cout << " CORRECTION SIZE = " << prevCorr.size() << endl;
+  for(int count = prevCorr.size(); count > 0; count-- ) 
     {
-      met_iter--;
-      if( met_iter != uncorrMET->begin() ) corrMET.push_back( *met_iter );
+      i--;
+      c.setLabel( i->label );
+      c.setMET(   i->met );
+      c.setMEx(   i->mex );
+      c.setMEy(   i->mey );
+      c.setMEz(   i->mez );
+      c.setSumET( i->sumet );
+      c.setPhi(   i->phi );
+      c.pushDelta();
     }
-  //----------------- Now add New MET deltas to Corrected MET collection 
-  corrMET.push_back(d);
-  //----------------- Finally, corrected MET is pushed into the zero position
+  //----------------- set and push new MET deltas to new Corrected MET 
+  c.setLabel("Type1");
+  c.setMET(   delta.getMET() );
+  c.setMEx(   delta.getMEx() );
+  c.setMEy(   delta.getMEy() );
+  c.setMEz(   delta.getMEz() );
+  c.setSumET( delta.getSumET() );
+  c.setPhi(   delta.getPhi() );
+  c.pushDelta();
+  //----------------- Fill holder with corrected MET (= uncorrected + delta) values
+  c.setLabel("");  //Sets *internal* MET label (not EDM label)
+  c.setMET(   u.getMET()   + delta.getMET()   );
+  c.setMEx(   u.getMEx()   + delta.getMEx()   );
+  c.setMEy(   u.getMEy()   + delta.getMEy()   );
+  c.setMEz(   u.getMEz()   + delta.getMEz()   );
+  c.setPhi(   u.getPhi()   + delta.getPhi()   );
+  c.setSumET( u.getSumET() + delta.getSumET() );
+  //----------------- Push onto MET Collection
   corrMET.push_back(c);
 }
 //----------------------------------------------------------------------------
