@@ -1,3 +1,6 @@
+** V00-01-00  [Mon Feb 27 23:03:53 2006]
+Changed to select input collection by label
+
 ** V00-00-04  [Wed Feb  8 00:26:21 2006]
 Add timeslew correction
 
