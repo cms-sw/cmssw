@@ -67,8 +67,9 @@ uint32_t ShowerForwardNumberingScheme::getUnitID(const EcalBaseNumber& baseNumbe
     int x,y;
     findXY(layer, wafer, x, y);
     // strip number inside wafer
-    int strip = baseNumber.getCopyNumber(0) - 1;
-
+    int strip = baseNumber.getCopyNumber(0);
+    if ( zside < 0 )
+      x=41-x;
     intIndex =  ESDetId(strip, x, y, layer, zside).rawId(); 
     
     if (verbosity>1) {
@@ -102,12 +103,14 @@ void ShowerForwardNumberingScheme::findXY(const int& layer, const int& waf, int&
   if (iq != 1 && x > (Ncols[y]+19-iquad_max[y])) {
     x = x + (iq-1)*2;
   }
-
+  
   if (layer==2) {
     ix = 39 - x;
     iy = 39 - y;
     x = iy;
     y = ix;
   }
-
+  
+  x++;
+  y=( 39 - y ) +1; //To be compliant with CMSSW numbering scheme 
 }
