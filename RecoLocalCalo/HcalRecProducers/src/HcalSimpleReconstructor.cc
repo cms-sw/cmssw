@@ -16,7 +16,8 @@ using namespace std;
 
     
     HcalSimpleReconstructor::HcalSimpleReconstructor(edm::ParameterSet const& conf):
-      reco_(conf.getParameter<int>("firstSample"),conf.getParameter<int>("samplesToAdd"),conf.getParameter<bool>("correctForTimeslew"))
+      reco_(conf.getParameter<int>("firstSample"),conf.getParameter<int>("samplesToAdd"),conf.getParameter<bool>("correctForTimeslew")),
+      inputLabel_(conf.getParameter<string>("digiLabel"))
 	
     {
       std::string subd=conf.getParameter<std::string>("Subdetector");
@@ -49,9 +50,9 @@ using namespace std;
       
       if (subdet_==HcalBarrel || subdet_==HcalEndcap) {
 	edm::Handle<HBHEDigiCollection> digi;
-	// selector?
-	e.getByType(digi);
-	
+		
+	e.getByLabel(inputLabel_,digi);
+		
 	// create empty output
 	std::auto_ptr<HBHERecHitCollection> rec(new HBHERecHitCollection);
 	// run the algorithm
@@ -67,8 +68,7 @@ using namespace std;
 	e.put(rec);
       } else if (subdet_==HcalOuter) {
 	edm::Handle<HODigiCollection> digi;
-	// selector?
-	e.getByType(digi);
+	e.getByLabel(inputLabel_,digi);
 	
 	// create empty output
 	std::auto_ptr<HORecHitCollection> rec(new HORecHitCollection);
@@ -85,8 +85,7 @@ using namespace std;
 	e.put(rec);    
       } else if (subdet_==HcalForward) {
 	edm::Handle<HFDigiCollection> digi;
-	// selector?
-	e.getByType(digi);
+	e.getByLabel(inputLabel_,digi);
 	
 	// create empty output
 	std::auto_ptr<HFRecHitCollection> rec(new HFRecHitCollection);

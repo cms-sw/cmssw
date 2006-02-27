@@ -14,8 +14,8 @@
 
     /** \class HcalSimpleReconstructor
 	
-    $Date: 2005/09/12 20:00:43 $
-    $Revision: 1.2 $
+    $Date: 2005/10/07 03:52:06 $
+    $Revision: 1.3 $
     \author J. Mans - Minnesota
     */
     class HcalSimpleReconstructor : public edm::EDProducer {
@@ -26,6 +26,7 @@
     private:
       HcalSimpleRecAlgo reco_;
       HcalSubdetector subdet_;
+      std::string inputLabel_;
     };
 
 #endif
