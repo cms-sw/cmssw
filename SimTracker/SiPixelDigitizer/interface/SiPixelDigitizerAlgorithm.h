@@ -20,6 +20,8 @@
 #include "SimGeneral/NoiseGenerators/interface/GaussianTailNoiseGenerator.h"
 #include "Geometry/Surface/interface/TkRotation.h"
 #include "Geometry/Surface/interface/GloballyPositioned.h"
+#include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
+#include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLinkCollection.h"
 
 class SiPixelDigitizerAlgorithm 
 {
@@ -111,18 +113,21 @@ class SiPixelDigitizerAlgorithm
   class Amplitude {
   public:
     Amplitude() : _amp(0.0) { _hits.reserve(1);}
-    Amplitude( float amp, const PSimHit* hitp) :
-      _amp(amp), _hits(1, hitp) {}
+    Amplitude( float amp, const PSimHit* hitp, float frac) :
+    _amp(amp), _hits(1, hitp), _frac(1,frac) {}
 
     // can be used as a float by convers.
     operator float() const { return _amp;}
-
+    float ampl() const {return _amp;}
+    std::vector<float> individualampl() const {return _frac;}
     const std::vector<const PSimHit*>& hits() { return _hits;}
 
     void operator+=( const Amplitude& other) {
       _amp += other._amp;
       _hits.insert( _hits.end(), other._hits.begin(), other._hits.end());
-    }
+      _frac.insert(_frac.end(), other._frac.begin(), other._frac.end());
+ 
+   }
 
     void operator+=( const float& amp) {
       _amp += amp;
@@ -131,11 +136,13 @@ class SiPixelDigitizerAlgorithm
     void set (const float amplitude) {  // Used to reset the amplitude
       _amp = amplitude;
     }
-
+/*     void setind (const float indamplitude) {  // Used to reset the amplitude */
+/*       _frac = idamplitude; */
+/*     } */
   private:
     float _amp;
     std::vector<const PSimHit*> _hits;
-
+    std::vector<float> _frac;
   };  // end class Amplitude
 
 
@@ -187,8 +194,7 @@ class SiPixelDigitizerAlgorithm
 
   std::vector<PixelDigi> internal_coll; //empty vector of PixelDigi used in digitize
 
-
-
+  std::vector<PixelDigiSimLink> link_coll;
   GlobalVector _bfield;
 
   float PixelEff;
@@ -222,6 +228,9 @@ class SiPixelDigitizerAlgorithm
 
   typedef std::map< int, Amplitude, std::less<int> >   signal_map_type;  // from
   typedef signal_map_type::iterator          signal_map_iterator; //Digi.Skel.
+
+  typedef std::map<unsigned int, std::vector<float>,std::less<unsigned int> > simlink_map;
+  simlink_map simi;
   signal_map_type     _signal;       // from Digi.Skel.
   typedef GloballyPositioned<double>      Frame;
  //-- additional member functions
@@ -239,7 +248,9 @@ class SiPixelDigitizerAlgorithm
   void pixel_inefficiency();
   float missCalibrate(float amp) const;  
   LocalVector DriftDirection();
-
+ public:
+  std::vector<PixelDigiSimLink>  make_link(){
+    return link_coll;}
 };
 
 #endif

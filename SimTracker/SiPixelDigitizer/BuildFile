@@ -4,6 +4,7 @@
 <use name=FWCore/EDProduct>
 <use name=SimDataFormats/TrackingHit>
 <use name=DataFormats/SiPixelDigi>
+<use name=SimDataFormats/TrackerDigiSimLink>
 <use name=Geometry/TrackerSimAlgo>
 <use name=Geometry/Surface>
 <use name=SimTracker/Common>
@@ -24,6 +25,7 @@
    <use name=FWCore/EDProduct>
    <use name=SimDataFormats/TrackingHit>
    <use name=DataFormats/SiPixelDigi>
+   <use name=SimDataFormats/TrackerDigiSimLink>
    <use name=Geometry/TrackerSimAlgo>
    <use name=SimTracker/Common>
    <use name=SimGeneral/NoiseGenerators>

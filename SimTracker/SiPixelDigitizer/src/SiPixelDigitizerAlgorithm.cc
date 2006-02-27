@@ -18,8 +18,9 @@
 #include "SimTracker/SiPixelDigitizer/interface/PixelChipIndices.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 using namespace std;
-
+using namespace edm;
 SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& conf):conf_(conf){
   // Common pixel parameters
   // This are parameters which are not likely to be changed
@@ -35,41 +36,41 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   // Be carefull, this parameter is also used in SiPixelDet.cc to 
   // calculate the noise in adc counts from noise in electrons.
   // Both defaults should be the same.
-  theElectronPerADC=conf_.getParameter<double>("ElectronPerAdc");
+  theElectronPerADC=conf_.getUntrackedParameter<double>("ElectronPerAdc",135.0);
 
   // ADC saturation value, 255=8bit adc.
-  theAdcFullScale=conf_.getParameter<int>("AdcFullScale");
+  theAdcFullScale=conf_.getUntrackedParameter<int>("AdcFullScale",255);
 
   // Pixel threshold in units of noise.
-  thePixelThreshold=conf_.getParameter<double>("ThresholdInNoiseUnits");
+  thePixelThreshold=conf_.getUntrackedParameter<double>("ThresholdInNoiseUnits",5.);
 
   // Noise in electrons.
-  theNoiseInElectrons=conf_.getParameter<double>("NoiseInElectrons");
+  theNoiseInElectrons=conf_.getUntrackedParameter<double>("NoiseInElectrons",500.0);
 
   //theTofCut 12.5, cut in particle TOD +/- 12.5ns
-  theTofCut=conf_.getParameter<double>("TofCut");
+  theTofCut=conf_.getUntrackedParameter<double>("TofCut",12.5);
 
   //Lorentz angle tangent per Tesla
-  tanLorentzAnglePerTesla=conf_.getParameter<double>("TanLorentzAnglePerTesla");
+  tanLorentzAnglePerTesla=conf_.getUntrackedParameter<double>("TanLorentzAnglePerTesla",0.106);
 
   // Add noise   
-  addNoise=conf_.getParameter<bool>("AddNoise");
+  addNoise=conf_.getUntrackedParameter<bool>("AddNoise",true);
 
   // Add noisy pixels 
-  addNoisyPixels=conf_.getParameter<bool>("AddNoisyPixels");
+  addNoisyPixels=conf_.getUntrackedParameter<bool>("AddNoisyPixels",true);
 
   // Fluctuate charge in track subsegments
-  fluctuateCharge=conf_.getParameter<bool>("FluctuateCharge");
+  fluctuateCharge=conf_.getUntrackedParameter<bool>("FluctuateCharge",true);
 
   // delta cutoff in MeV, has to be same as in OSCAR=0.030/cmsim=1.0 MeV
   //tMax = 0.030; // In MeV.  
-  tMax =conf_.getParameter<double>("DeltaProductionCut");  
+  tMax =conf_.getUntrackedParameter<double>("DeltaProductionCut",0.030);  
  
-  thePixelLuminosity=conf_.getParameter<int>("AddPixelInefficiency");
+  thePixelLuminosity=conf_.getUntrackedParameter<int>("AddPixelInefficiency",1);
   // Get the constants for the miss-calibration studies
-  doMissCalibrate=conf_.getParameter<bool>("MissCalibrate"); // Enable miss-calibration
-  theGainSmearing=conf_.getParameter<double>("GainSmearing"); // sigma of the gain smearing
-  theOffsetSmearing=conf_.getParameter<double>("OffsetSmearing"); //sigma of the offset smearing
+  doMissCalibrate=conf_.getUntrackedParameter<bool>("MissCalibrate",false); // Enable miss-calibration
+  theGainSmearing=conf_.getUntrackedParameter<double>("GainSmearing",0.0); // sigma of the gain smearing
+  theOffsetSmearing=conf_.getUntrackedParameter<double>("OffsetSmearing",0.0); //sigma of the offset smearing
 
 
 
@@ -116,15 +117,14 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
 
 
   if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 0 ) {
-    cout<<"SiPixelDigitizerAlgorithm constructed"<<endl;
-    cout<<"Configuraion parameters:"<<endl;  
-    cout << "Threshold/Gain = "  
-	 << thePixelThreshold << " " <<  theElectronPerADC 
-	 << " " << theAdcFullScale << endl; 
-    cout << " The delta cut-off is set to " << tMax << endl;
-    if(doMissCalibrate) cout << " miss-calibrate the pixel amplitude " 
-			     << theGainSmearing << " " << theOffsetSmearing 
-			     << endl;
+    LogDebug ("PixelDigitizer ") <<"SiPixelDigitizerAlgorithm constructed"
+				 <<"Configuraion parameters:" 
+				 << "Threshold/Gain = "  
+				 << thePixelThreshold << " " <<  theElectronPerADC 
+				 << " " << theAdcFullScale 
+				 << " The delta cut-off is set to " << tMax;
+    if(doMissCalibrate) LogDebug ("PixelDigitizer ") << " miss-calibrate the pixel amplitude " 
+						     << theGainSmearing << " " << theOffsetSmearing ;
   }
   //MP DA RISOLVERE
   //   particleTable =  &HepPDT::theTable();
@@ -132,7 +132,7 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
 }
 SiPixelDigitizerAlgorithm::~SiPixelDigitizerAlgorithm(){
  if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 0 ) {
-   cout<<"SiPixelDigitizerAlgorithm deleted"<<endl;
+   LogDebug ("PixelDigitizer")<<"SiPixelDigitizerAlgorithm deleted";
  }
 }
 
@@ -160,17 +160,16 @@ vector<PixelDigi>  SiPixelDigitizerAlgorithm::run(const std::vector<PSimHit> &in
 
 
 
-    _signal.clear();
+  _signal.clear();
 
+  // initalization  of pixeldigisimlinks
+  link_coll.clear();
 
-  //Digitization of the SimHits of a given pixdet
+ //Digitization of the SimHits of a given pixdet
   vector<PixelDigi> collector =digitize(pixdet);
 
-  //Fill the pixidigicollection
-
-
   if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 0 ) {
-    cout << "[SiPixelDigitizerAlgorithm] converted " << collector.size() << " PixelDigis in DetUnit" << detID << endl; 
+    LogDebug ("PixelDigitizer") << "[SiPixelDigitizerAlgorithm] converted " << collector.size() << " PixelDigis in DetUnit" << detID; 
    }
    return collector;
 }
@@ -199,11 +198,11 @@ vector<PixelDigi> SiPixelDigitizerAlgorithm::digitize(PixelGeomDetUnit *det){
 
 
     if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 0 ){
-       cout << " PixelDigitizer "  
-	    << numColumns << " " << numRows << " " << moduleThickness<<endl;
+       LogDebug ("PixelDigitizer") << " PixelDigitizer "  
+				   << numColumns << " " << numRows << " " << moduleThickness;
     //MP DA SCOMMENTARE
-//       cout << thePixelThreshold << " " << thePixelThresholdInE << " " 
-// 	   << noiseInADCCounts << " " << theNoiseInElectrons << endl;
+       //        << thePixelThreshold << " " << thePixelThresholdInE << " " 
+       // 	   << noiseInADCCounts << " " << theNoiseInElectrons << " ";
     }
     // produce SignalPoint's for all SimHit's in detector
     // Loop over hits
@@ -211,13 +210,12 @@ vector<PixelDigi> SiPixelDigitizerAlgorithm::digitize(PixelGeomDetUnit *det){
     vector<PSimHit>::const_iterator ssbegin; 
     for (ssbegin= _PixelHits.begin();ssbegin !=_PixelHits.end(); ++ssbegin) {
          if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 1 ) {  
-	cout << (*ssbegin).particleType() << " " << (*ssbegin).pabs() << " " 
-	     << (*ssbegin).energyLoss() << " " << (*ssbegin).tof() << " " 
-	     << (*ssbegin).trackId() << " " << (*ssbegin).processType() << " " 
-	     << (*ssbegin).detUnitId() << endl; 
-	cout << (*ssbegin).entryPoint() << " " << (*ssbegin).exitPoint() << endl; 
+	LogDebug ("Pixel Digitizer") << (*ssbegin).particleType() << " " << (*ssbegin).pabs() << " " 
+				     << (*ssbegin).energyLoss() << " " << (*ssbegin).tof() << " " 
+				     << (*ssbegin).trackId() << " " << (*ssbegin).processType() << " " 
+				     << (*ssbegin).detUnitId()  
+				     << (*ssbegin).entryPoint() << " " << (*ssbegin).exitPoint() ; 
       }
-
 
       _collection_points.clear();  // Clear the container
       // fill _collection_points for this SimHit, indpendent of topology
@@ -242,7 +240,7 @@ vector<PixelDigi> SiPixelDigitizerAlgorithm::digitize(PixelGeomDetUnit *det){
 }
 
 
-/***********************************************************************/
+//***********************************************************************/
 // Generate primary ionization along the track segment. 
 // Divide the track into small sub-segments  
 void SiPixelDigitizerAlgorithm::primary_ionization(const PSimHit& hit) {
@@ -263,13 +261,12 @@ void SiPixelDigitizerAlgorithm::primary_ionization(const PSimHit& hit) {
     NumberOfSegments = 1;
 
   if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 0 ) {
-    cout << " enter primary_ionzation " << NumberOfSegments << " " ;
-    cout << " shift = " 
-	 << (hit.exitPoint().x()-hit.entryPoint().x()) << " " 
-	 << (hit.exitPoint().y()-hit.entryPoint().y()) << " " 
-	 << (hit.exitPoint().z()-hit.entryPoint().z()) << " "
-	 << hit.particleType() <<" "<< hit.pabs() 
-	 << endl; 
+    LogDebug ("Pixel Digitizer") << " enter primary_ionzation " << NumberOfSegments 
+				 << " shift = " 
+				 << (hit.exitPoint().x()-hit.entryPoint().x()) << " " 
+				 << (hit.exitPoint().y()-hit.entryPoint().y()) << " " 
+				 << (hit.exitPoint().z()-hit.entryPoint().z()) << " "
+				 << hit.particleType() <<" "<< hit.pabs() ; 
   }
 
 
@@ -304,10 +301,10 @@ void SiPixelDigitizerAlgorithm::primary_ionization(const PSimHit& hit) {
     _ionization_points[i] = edu; // save
     
     if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 1 ) {  
-      cout << i << " " << _ionization_points[i].x() << " " 
-	   << _ionization_points[i].y() << " " 
-	   << _ionization_points[i].z() << " " 
-	   << _ionization_points[i].energy() <<endl;
+      LogDebug ("Pixel Digitizer") << i << " " << _ionization_points[i].x() << " " 
+				   << _ionization_points[i].y() << " " 
+				   << _ionization_points[i].z() << " " 
+				   << _ionization_points[i].energy();
      }
   }
 
@@ -368,9 +365,7 @@ void SiPixelDigitizerAlgorithm::fluctuateEloss(int pid, float particleMomentum,
   if(sum>0.) {  // If fluctuations give eloss>0.
     // Rescale to the same total eloss
     float ratio = eloss/sum;
-    //cout << " fluctuate charge, ratio = " << ratio <<" "<< eloss <<" "
-    // << sum <<" "<< length<<" " <<dedx<<" "<<NumberOfSegs<<" " 
-    // << tMax << " " << particleMass << endl;
+   
     for (int ii=0;ii<NumberOfSegs;ii++) elossVector[ii]= ratio*elossVector[ii];
   } else {  // If fluctuations gives 0 eloss
     float averageEloss = eloss/NumberOfSegs;
@@ -382,7 +377,7 @@ void SiPixelDigitizerAlgorithm::fluctuateEloss(int pid, float particleMomentum,
 void SiPixelDigitizerAlgorithm::drift(const PSimHit& hit){
 
   if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 1 ) {  
-    cout << " enter drift " << endl;
+    LogDebug ("Pixel Digitizer") << " enter drift " ;
     }
   
   _collection_points.resize( _ionization_points.size()); // set size
@@ -391,7 +386,7 @@ void SiPixelDigitizerAlgorithm::drift(const PSimHit& hit){
 
 
   if(driftDir.z() ==0.) {
-    cout << " pxlx: drift in z is zero " << endl;
+    LogWarning("Magnetic field") << " pxlx: drift in z is zero ";
     return;
   }
 
@@ -403,9 +398,9 @@ void SiPixelDigitizerAlgorithm::drift(const PSimHit& hit){
  
 
    if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 1 ) {  
-      cout << " Lorentz Tan " << TanLorenzAngleX << " " << TanLorenzAngleY <<" "
-	   << CosLorenzAngleX << " " << CosLorenzAngleY << " "
-	   << moduleThickness*TanLorenzAngleX << " " << driftDir << endl;
+      LogDebug ("Pixel Digitizer") << " Lorentz Tan " << TanLorenzAngleX << " " << TanLorenzAngleY <<" "
+				   << CosLorenzAngleX << " " << CosLorenzAngleY << " "
+				   << moduleThickness*TanLorenzAngleX << " " << driftDir;
     }
 
   float Sigma_x = 1.;  // Charge spread 
@@ -472,8 +467,8 @@ void SiPixelDigitizerAlgorithm::induce_signal( const PSimHit& hit) {
   // Y  - Columns, Down-Up, 416, (6.4cm)
   //DA MODIFICARE
   if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 0 ) {
-    cout << " enter induce_signal, " 
-	 << topol->pitch().first << " " << topol->pitch().second << endl; //OK
+    LogDebug ("Pixel Digitizer") << " enter induce_signal, " 
+				 << topol->pitch().first << " " << topol->pitch().second; //OK
   }
 
    // local map to store pixels hit by 1 Hit.      
@@ -497,11 +492,9 @@ void SiPixelDigitizerAlgorithm::induce_signal( const PSimHit& hit) {
      
  
      if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 1 ) {  
-       cout << " cloud " << i->position().x() << " " << i->position().y() << " " 
-	    << i->sigma_x() << " " << i->sigma_y() << " " << i->amplitude() <<
-	 endl;
-       //    cout << CloudCenterX << " " << CloudCenterY << " " <<
-       //      SigmaX << " " << SigmaY << " " << Charge << " ";
+       LogDebug ("Pixel Digitizer") << " cloud " << i->position().x() << " " << i->position().y() << " " 
+				    << i->sigma_x() << " " << i->sigma_y() << " " << i->amplitude();
+      
      }
      
      // Find the maximum cloud spread in 2D plane , assume 3*sigma
@@ -522,9 +515,9 @@ void SiPixelDigitizerAlgorithm::induce_signal( const PSimHit& hit) {
      int IPixRightUpY = int( floor( mp.y()));
 
      if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 1 ) { 
-       cout << " right-up " << PointRightUp << " " ;
-       cout << mp.x() << " " << mp.y() << " ";
-       cout << IPixRightUpX << " " << IPixRightUpY << endl;
+       LogDebug ("Pixel Digitizer") << " right-up " << PointRightUp << " " 
+				    << mp.x() << " " << mp.y() << " "
+				    << IPixRightUpX << " " << IPixRightUpY ;
      }
  
 
@@ -534,9 +527,9 @@ void SiPixelDigitizerAlgorithm::induce_signal( const PSimHit& hit) {
      int IPixLeftDownY = int( floor( mp.y()));
      
      if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 1 ) { 
-       cout << " left-down " << PointLeftDown << " " ;
-       cout << mp.x() << " " << mp.y() << " ";
-       cout << IPixLeftDownX << " " << IPixLeftDownY << endl;
+       LogDebug ("Pixel Digitizer") << " left-down " << PointLeftDown << " " 
+				    << mp.x() << " " << mp.y() << " "
+				    << IPixLeftDownX << " " << IPixLeftDownY ;
      }
 
      // Check detector limits
@@ -562,9 +555,9 @@ void SiPixelDigitizerAlgorithm::induce_signal( const PSimHit& hit) {
 	 gsl_sf_result result;
 	 int status = gsl_sf_erf_Q_e( (xLB-CloudCenterX)/SigmaX, &result);
 
-	 if (status != 0)  cerr<<"GaussianTailNoiseGenerator::could not compute gaussian tail probability for the threshold chosen"<<endl;
+	 if (status != 0)  edm::LogWarning ("Integration")<<"GaussianTailNoiseGenerator::could not compute gaussian tail probability for the threshold chosen";
 	 LowerBound = 1-result.val;
-	 //	cout <<" LOWERB PIXEL "<<oLowerBound<<" " <<LowerBound<<" " <<oLowerBound-LowerBound<<endl;
+
        }
      
        if (ix == numRows-1) UpperBound = 1.;
@@ -575,10 +568,9 @@ void SiPixelDigitizerAlgorithm::induce_signal( const PSimHit& hit) {
 	
 	 gsl_sf_result result;
 	 int status = gsl_sf_erf_Q_e( (xUB-CloudCenterX)/SigmaX, &result);
-	 if (status != 0)  cerr<<"GaussianTailNoiseGenerator::could not compute gaussian tail probability for the threshold chosen"<<endl;
+	 if (status != 0)  edm::LogWarning ("Integration")<<"GaussianTailNoiseGenerator::could not compute gaussian tail probability for the threshold chosen";
 
 	UpperBound = 1. - result.val;
-	//	cout <<" LOWERB PIXEL "<<oUpperBound<<" " <<UpperBound<<" " <<oUpperBound-UpperBound<<endl;
 
        }
        
@@ -598,10 +590,10 @@ void SiPixelDigitizerAlgorithm::induce_signal( const PSimHit& hit) {
 	//	float oLowerBound = freq_( (yLB-CloudCenterY)/SigmaY);
 	gsl_sf_result result;
 	int status = gsl_sf_erf_Q_e( (yLB-CloudCenterY)/SigmaY, &result);
-	 if (status != 0)  cerr<<"GaussianTailNoiseGenerator::could not compute gaussian tail probability for the threshold chosen"<<endl;
+	 if (status != 0)  edm::LogWarning ("Integration")<<"GaussianTailNoiseGenerator::could not compute gaussian tail probability for the threshold chosen";
 
 	LowerBound = 1. - result.val;
-	//	cout <<" LOWERB PIXEL "<<oLowerBound<<" " <<LowerBound<<" " <<oLowerBound-LowerBound<<endl;
+
 
 
       }
@@ -614,10 +606,10 @@ void SiPixelDigitizerAlgorithm::induce_signal( const PSimHit& hit) {
 	gsl_sf_result result;
 	int status = gsl_sf_erf_Q_e( (yUB-CloudCenterY)/SigmaY, &result);
 
-	 if (status != 0)  cerr<<"GaussianTailNoiseGenerator::could not compute gaussian tail probability for the threshold chosen"<<endl;
+	if (status != 0) edm::LogWarning ("Integration") <<"GaussianTailNoiseGenerator::could not compute gaussian tail probability for the threshold chosen";
 
 	UpperBound = 1. - result.val;
-	//	cout <<" LOWERB PIXEL "<<oUpperBound<<" " <<UpperBound<<" " <<oUpperBound-UpperBound<<endl;
+
 
       }
 
@@ -641,14 +633,14 @@ void SiPixelDigitizerAlgorithm::induce_signal( const PSimHit& hit) {
 
 
 	if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 1 ) { 
-	  cout << " pixel " << ix << " " << iy << " - ";
-	  cout << chan << " " << ChargeFraction << endl; //OK
 	  mp = MeasurementPoint( float(ix), float(iy) );
-	  cout << mp.x() << " " << mp.y() << " "; //OK
 	  LocalPoint lp = topol->localPosition(mp);
-	  cout << lp.x() << " " << lp.y() << " ";  // givex edge position
-	  chan = topol->channel(lp); // something wrong 1->0, 
-	  cout << chan << endl; // edge belongs to previous ?
+	  chan = topol->channel(lp);
+	  LogDebug ("Pixel Digitizer") << " pixel " << ix << " " << iy << " - "<<" "
+				       << chan << " " << ChargeFraction<<" "
+				       << mp.x() << " " << mp.y() <<" "
+				       << lp.x() << " " << lp.y() << " "  // givex edge position
+				       << chan; // edge belongs to previous ?
 	}
 	
       } // endfor iy
@@ -657,23 +649,23 @@ void SiPixelDigitizerAlgorithm::induce_signal( const PSimHit& hit) {
     if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 1 ) {
       
       // Test conversions
-      cout << " Test " << endl;
+
       mp = topol->measurementPosition( i->position() ); //OK
-      cout << mp.x() << " " << mp.y() << " ";
       LocalPoint lp = topol->localPosition(mp);     //OK
-      cout << lp.x() << " " << lp.y() << " ";
       pair<float,float> p = topol->pixel( i->position() );  //OK
-      cout << p.first << " " << p.second << " " ;
       chan = PixelDigi::pixelToChannel( int(p.first), int(p.second));
-      cout << chan << " "; //OK
       pair<int,int> ip = PixelDigi::channelToPixel(chan);
-      cout << ip.first << " " << ip.second << " "; //OK
       MeasurementPoint mp1 = MeasurementPoint( float(ip.first),
 					       float(ip.second) );
-      cout << mp1.x() << " " << mp1.y() << " "; //OK
-      cout << topol->localPosition(mp1).x() << " "  //OK
-	   << topol->localPosition(mp1).y() << " ";
-      cout << topol->channel( i->position() ) << endl; //OK
+
+      LogDebug ("Pixel Digitizer") << " Test "<< mp.x() << " " << mp.y() 
+				   << " "<< lp.x() << " " << lp.y() << " "<<" "
+				   <<p.first << " " << p.second << " "<< chan << " "
+				   <<" " << ip.first << " " << ip.second << " "
+				   << mp1.x() << " " << mp1.y() << " " //OK
+				   << topol->localPosition(mp1).x() << " "  //OK
+				   << topol->localPosition(mp1).y() << " "
+				   << topol->channel( i->position() ); //OK
     }
     
   } // loop over charge distributions
@@ -682,15 +674,13 @@ void SiPixelDigitizerAlgorithm::induce_signal( const PSimHit& hit) {
    
   for ( hit_map_type::const_iterator im = hit_signal.begin();
 	im != hit_signal.end(); im++) {
-    _signal[(*im).first] += Amplitude( (*im).second, &hit);
-
-
+    _signal[(*im).first] += Amplitude( (*im).second, &hit, (*im).second);
+    
     if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 0 ) {
       int chan =  (*im).first; 
       pair<int,int> ip = PixelDigi::channelToPixel(chan);
-      cout << " pixel " << ip.first << " " << ip.second << " ";
-      //    cout << (*im).first << " " << (*im).second << " ";    
-      cout << _signal[(*im).first] << endl;    
+      LogDebug ("Pixel Digitizer") << " pixel " << ip.first << " " << ip.second << " "
+				   << _signal[(*im).first];    
     }
 
   }
@@ -703,13 +693,13 @@ void SiPixelDigitizerAlgorithm::make_digis() {
   internal_coll.reserve(50); internal_coll.clear();
 
   if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 0 ) {
-    cout << " make digis ";
-    cout << " pixel threshold " << thePixelThresholdInE << endl; 
-    cout << " List pixels passing threshold " << endl;
+    LogDebug ("Pixel Digitizer") << " make digis "<<" "
+				 << " pixel threshold " << thePixelThresholdInE << " " 
+				 << " List pixels passing threshold ";
   }
 
   for ( signal_map_iterator i = _signal.begin(); i != _signal.end(); i++) {
-
+  
     float signalInElectrons = (*i).second ;   // signal in electrons
     // Do the miss calibration for calibration studies only.
     if(doMissCalibrate) signalInElectrons = missCalibrate(signalInElectrons);
@@ -724,28 +714,48 @@ void SiPixelDigitizerAlgorithm::make_digis() {
      int chan =  (*i).first;  // channel number
       pair<int,int> ip = PixelDigi::channelToPixel(chan);
       if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 0 ) {
-	cout << (*i).first << " " << (*i).second << " " << signalInElectrons 
-	     << " " << adc << ip.first << " " << ip.second << endl;
+	LogDebug ("Pixel Digitizer") << (*i).first << " " << (*i).second << " " << signalInElectrons 
+				     << " " << adc << ip.first << " " << ip.second ;
       }
       
       // Load digis
       internal_coll.push_back( PixelDigi( ip.first, ip.second, adc));
+  
 
-   
-      // Find the right Hit id
-      for( vector<const PSimHit*>::const_iterator ihit = (*i).second.hits().begin();
-	   ihit != (*i).second.hits().end(); ihit++) {
 
-	//MP DA COMPLETARE	
-	// 	if(*ihit) { // do only for valid hits
-// 	  //                                why is the fraction  always 1.?
-// 	  _detp->simDet()->addLink( (*i).first, (**ihit).packedTrackId(),1.);
-// 	}
+
+
+
+      //digilink     
+     
+
+      if((*i).second.hits().size()>0){
+	simi.clear();
+	unsigned int il=0;
+	for( vector<const PSimHit*>::const_iterator ihit = (*i).second.hits().begin();
+	     ihit != (*i).second.hits().end(); ihit++) {
+	  simi[(**ihit).trackId()].push_back((*i).second.individualampl()[il]);
+	  il++;
+	}
+	
+	//sum the contribution of the same trackid 
+	for( simlink_map::iterator simiiter=simi.begin();
+	     simiiter!=simi.end();
+	     simiiter++){
+	  
+	  float sum_samechannel=0;
+	  for (unsigned int iii=0;iii<(*simiiter).second.size();iii++){
+	    sum_samechannel+=(*simiiter).second[iii];
+	  }
+	  float fraction=sum_samechannel/(*i).second;
+	  if (fraction>1.) fraction=1.;
+	  link_coll.push_back(PixelDigiSimLink((*i).first,(*simiiter).first,fraction));
+	}
+	
       }
     }
-  }
-
    
+  }
 }
 
 /***********************************************************************/
@@ -754,15 +764,14 @@ void SiPixelDigitizerAlgorithm::add_noise() {
 
 
   if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 0 ) {
-    cout << " enter add_noise " << theNoiseInElectrons << endl;
+    LogDebug ("Pixel Digitizer") << " enter add_noise " << theNoiseInElectrons;
   }
 
   // First add noise to hit pixels
   for ( signal_map_iterator i = _signal.begin(); i != _signal.end(); i++) {
     float noise  = RandGauss::shoot(0.,theNoiseInElectrons) ;
-    (*i).second += Amplitude( noise,0);
-    //     cout << (*i).first << " " << (*i).second << " ";
-    //     cout << noise << " " << (*i).second << endl;
+    (*i).second += Amplitude( noise,0,noise);
+  
   }
   
   if(!addNoisyPixels)  // Option to skip noise in non-hit pixels
@@ -780,10 +789,10 @@ void SiPixelDigitizerAlgorithm::add_noise() {
                       otherPixels );
   
   if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 1 ) {
-    cout <<  " Add noisy pixels " << numRows << " " << numColumns << " "
-	 << theNoiseInElectrons << " " 
-	 << thePixelThreshold << " " << numberOfPixels << " " 
-	 << otherPixels.size() << endl;
+    LogDebug ("Pixel Digitizer") <<  " Add noisy pixels " << numRows << " " << numColumns << " "
+				 << theNoiseInElectrons << " " 
+				 << thePixelThreshold << " " << numberOfPixels << " " 
+				 << otherPixels.size() ;
   }
 
   for (mapI = otherPixels.begin(); mapI!= otherPixels.end(); mapI++) {
@@ -792,22 +801,22 @@ void SiPixelDigitizerAlgorithm::add_noise() {
 
     // Keep for a while for testing.
     if( iy < 0 || iy > (numColumns-1) ) 
-      cout << " error in iy " << iy << endl;
+      LogWarning ("Pixel Geometry") << " error in iy " << iy ;
     if( ix < 0 || ix > (numRows-1) )
-      cout << " error in ix " << ix << endl;
+      LogWarning ("Pixel Geometry")  << " error in ix " << ix ;
 
     int chan = PixelDigi::pixelToChannel(ix, iy);
 
     if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 1 ) {
-      cout<<" Storing noise = " << (*mapI).first << " " << (*mapI).second 
-	  << " " << ix << " " << iy << " " << chan <<endl;
+      LogDebug ("Pixel Digitizer")<<" Storing noise = " << (*mapI).first << " " << (*mapI).second 
+				  << " " << ix << " " << iy << " " << chan ;
     }
   
 
     if(_signal[chan] == 0){
       //      float noise = float( (*mapI).second );
       int noise=int( (*mapI).second );
-      _signal[chan] = Amplitude (noise, 0);
+      _signal[chan] = Amplitude (noise, 0,noise);
     }
   }
 
@@ -840,17 +849,10 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency() {
   }
 
   if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 1 ) {
-    cout << " enter pixel_inefficiency " << pixelEfficiency << " " 
-	 << columnEfficiency << " " << chipEfficiency << endl;
+    LogDebug ("Pixel Digitizer") << " enter pixel_inefficiency " << pixelEfficiency << " " 
+				 << columnEfficiency << " " << chipEfficiency ;
   }
-  // TESTING
-  //  cout << " enter pixel_inefficiency " << pixelEfficiency << " " 
-  //       << columnEfficiency << " " << chipEfficiency << endl;
-  //  cout << " det size = " << numColumns << " " << numRows 
-  //       << " det type = " << _detp->type().part() << " " << colsInChip
-  //       << " " << rowsInChip <<  endl;
-  
-  // Initilize the index converter
+
  
   PixelChipIndices indexConverter(52,80,
 				  numColumns,numRows);
@@ -875,39 +877,33 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency() {
     int dColInChip = dColId.second;
     int dColInDet = indexConverter.dColumnIdInDet(dColInChip,chipIndex);
   
-    //cout <<chan << " " << pixX << " " << pixY << " " << (*i).second  << endl;
-    //cout << chipX << " " << chipY << " " << row << " " << col << " " 
-    // << chipIndex << " " << pixInChip << " " << dColInChip << " " 
-    // << dColInDet << endl;
+ 
     
     chips[chipIndex]++;
     columns[dColInDet]++;
   }
   
-  //cout << " chips hit " << chips.size() << endl;
+ 
   for ( iter = chips.begin(); iter != chips.end() ; iter++ ) {
-    //cout << iter->first << " " << iter->second << endl;
+ 
     float rand  = RandFlat::shoot();
     if( rand > chipEfficiency ) chips[iter->first]=0;
-    //cout << rand << " "  << iter->first << " " << iter->second << endl;
-    //if( iter->second == 0 ) cout << " chip erased " << endl;
+ 
   }
-  //cout << " columns hit " << columns.size() << endl;
+ 
   for ( iter = columns.begin(); iter != columns.end() ; iter++ ) {
-    //cout << iter->first << " " << iter->second << endl;
+ 
     float rand  = RandFlat::shoot();
     if( rand > columnEfficiency ) columns[iter->first]=0;
-    //cout << rand << " "  << iter->first << " " << iter->second << endl;
-    //if( iter->second == 0 ) cout << " column erased " << endl;
+ 
   }
   
-  //cout << " pixel " << _signal.size() << endl;
+ 
   // Now loop again over pixel to kill some
   // Loop over hit pixels, amplitude in electrons, channel = coded row,col
   for(signal_map_iterator i = _signal.begin();i != _signal.end(); i++) {
     
-    //cout << " pix " << i->first << " " << float(i->second) << endl;    
-    //    int chan = i->first;
+
     pair<int,int> ip = PixelDigi::channelToPixel(i->first);//get pixel pos
     int pixX = ip.first + 1;  // my indices start from 1
     int pixY = ip.second + 1;
@@ -918,10 +914,7 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency() {
     pair<int,int> dColId = indexConverter.dColumn(row,col);  // get dcol index
     int dColInDet = indexConverter.dColumnIdInDet(dColId.second,chipIndex);
 
-    //cout <<chan << " " << pixX << " " << pixY << " " << (*i).second  << endl;
-    //cout << chipX << " " << chipY << " " << row << " " << col << " " 
-    // << chipIndex << " " << dColInDet << endl;
-    //cout <<  chips[chipIndex] << " " <<  columns[dColInDet] << endl; 
+
 
 
     float rand  = RandFlat::shoot();
@@ -930,9 +923,7 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency() {
 	|| rand>pixelEfficiency ) {
       // make pixel amplitude =0, pixel will be lost at clusterization    
       i->second.set(0.); // reset amplitude, 
-      //cout << " pixel will be killed " << float(i->second) << " " 
-      //   << rand << " " << chips[chipIndex] << " " 
-      //   << columns[dColInDet] << endl;
+   
     }
 
 
@@ -958,9 +949,10 @@ LocalVector SiPixelDigitizerAlgorithm::DriftDirection(){
     float dir_z = 1.; // E field always in z direction
     LocalVector theDriftDirection = LocalVector(dir_x,dir_y,dir_z);
     if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 0 ) {
-      cout << " The drift direction in local coordinate is " <<  
-	theDriftDirection    << endl;
+      LogDebug ("Pixel Digitizer") << " The drift direction in local coordinate is "   
+				   << theDriftDirection ;
     }
     return theDriftDirection;
-    //  }
+ 
 }
+
