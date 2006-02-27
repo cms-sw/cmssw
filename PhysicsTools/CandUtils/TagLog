@@ -1,3 +1,6 @@
+** V00-02-02  [Mon Feb 27 17:29:14 2006]
+fixed charge comparison
+
 ** V00-02-00  [Wed Feb 22 13:18:59 2006]
 namespace change from aod:: to reco::
 
