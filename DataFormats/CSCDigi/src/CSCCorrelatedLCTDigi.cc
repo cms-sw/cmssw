@@ -2,8 +2,8 @@
  *
  * Digi for Correlated LCT trigger primitives.
  *
- * $Date: 2006/02/24 05:29:30 $
- * $Revision: 1.2 $
+ * $Date: 2006/02/24 06:36:25 $
+ * $Revision: 1.3 $
  *
  * \author L.Gray, UF
  */
@@ -84,15 +84,15 @@ int CSCCorrelatedLCTDigi::getBx()          const { return data()->bx; }
 
 void CSCCorrelatedLCTDigi::print() const
 {
-  std::cout<< "Track number   : " << getTrknmb() 
-	   << "\nQuality      : " << getQuality()
-	   << "\nKey Wire     : " << getKwire()
-	   << "\nStrip        : " << getStrip()
-	   << "\nCLCT Pattern : " << getCLCTPattern()
-	   << "\nStrip Type   : " << ( (getStriptype() == 0) ? 'D' : 'H' )
-	   << "\nBend         : " << ( (getBend() == 0) ? 'L' : 'R' )
-	   << "\nBX           : " << getBx()
-	   << "\nValid        : " << getValid() << std::endl;
+  std::cout<< "Track number: " << getTrknmb() 
+	   << " Quality: " << getQuality()
+	   << " Key Wire: " << getKwire()
+	   << " Strip: " << getStrip()
+	   << " CLCT Pattern: " << getCLCTPattern()
+	   << " Strip Type: " << ( (getStriptype() == 0) ? 'D' : 'H' )
+	   << " Bend: " << ( (getBend() == 0) ? 'L' : 'R' )
+	   << " BX: " << getBx()
+	   << " Valid: " << getValid() << std::endl;
 }
 
 void CSCCorrelatedLCTDigi::dump() const
