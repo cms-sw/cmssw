@@ -1,3 +1,7 @@
+** V02-02-02  [Tue Feb 28 00:09:12 2006]
+Added ability to leave out subdetectors for single-subdetector jobs 
+Constructing all the ECAL geometries can take about 10 minutes
+
 ** V02-02-01  [Mon Feb 27 15:41:20 2006]
 Renaming of trivialLoad.txt to runGeomTest.cfg
 
