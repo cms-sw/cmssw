@@ -68,6 +68,7 @@ std::vector<CSCALCTDigi> CSCALCTHeader::ALCTDigis() const {
   int BXCounter;
   int quality;
   int pattern;
+  int accel;
   int valid;
   std::vector<CSCALCTDigi> result;
   
@@ -75,35 +76,39 @@ std::vector<CSCALCTDigi> CSCALCTHeader::ALCTDigis() const {
   unsigned int alct0 = alct0Word();
   valid =        alct0 & 0x1;          //(bin:                1)
   quality =      (alct0 & 0x6)>>1;     //(bin:              110) 
-  pattern =      (alct0 & 0x18)>>3;    //(bin:            11000) 
+  accel =        (alct0 & 0x8)>>3;     //(bin:             1000) 
+  pattern =      (alct0 & 0x10)>>4;    //(bin:            10000) 
   keyWireGroup = (alct0 & 0xfe0)>>5;   //(bin:     111111100000)
   BXCounter =    (alct0 & 0x1f000)>>12;//(bin:11111000000000000)
   
   if (debug) edm::LogInfo("CSCALCTHeader") << "ALCT DIGI 0 valid = " << valid 
-					   << "  quality = "  << quality 
+					   << "  quality = "  << quality
+					   << "  accel = " << accel
 					   << "  pattern = " << pattern 
 					   << "  Key Wire Group = " << keyWireGroup 
 					   << "  BX = " << BXCounter;  
 
-  CSCALCTDigi digi(0, keyWireGroup, BXCounter, quality, pattern, valid);
+  CSCALCTDigi digi(1, keyWireGroup, BXCounter, accel, quality, pattern, valid);
   result.push_back(digi);
 
   //for the first ALCT word:  
   unsigned int alct1 = alct1Word();
   valid =        alct1 & 0x1;          //(bin:                1)
   quality =      (alct1 & 0x6)>>1;     //(bin:              110) 
-  pattern =      (alct1 & 0x18)>>3;    //(bin:            11000) 
+  accel =        (alct1 & 0x8)>>3;     //(bin:             1000) 
+  pattern =      (alct1 & 0x10)>>4;    //(bin:            10000) 
   keyWireGroup = (alct1 & 0xfe0)>>5;   //(bin:     111111100000)
   BXCounter =    (alct1 & 0x1f000)>>12;//(bin:11111000000000000)
  
   
   if (debug) edm::LogInfo("CSCALCTHeader") << "ALCT DIGI 1 valid = " << valid 
 					   << "  quality = " << quality 
+					   << "  accel = " << accel
 					   << "  pattern = " << pattern 
 					   << "  Key Wire Group = " << keyWireGroup 
 					   << "  BX = " << BXCounter;
   
-  digi = CSCALCTDigi(1, keyWireGroup, BXCounter, quality, pattern, valid);
+  digi = CSCALCTDigi(2, keyWireGroup, BXCounter, accel, quality, pattern, valid);
   result.push_back(digi);
   return result;
 
