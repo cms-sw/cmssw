@@ -1,3 +1,6 @@
+** V00-03-00  [Mon Feb 27 11:33:44 2006]
+class hyerarchy restructuring to fit Muon needs
+
 ** V00-02-00  [Fri Feb 17 09:16:08 2006]
 Track now contains methods from TrackExtra that are delegated to its "associated" extra object
 
