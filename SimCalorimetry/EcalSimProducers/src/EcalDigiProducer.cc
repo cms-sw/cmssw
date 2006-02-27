@@ -15,14 +15,17 @@ EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet& params)
   theEcalResponse = new CaloHitResponse(theParameterMap, theEcalShape);
   theESResponse = new CaloHitResponse(theParameterMap, theESShape);
   
-  bool addNoise = params.getUntrackedParameter<bool>("doNoise" , false);
+  bool addNoise = params.getUntrackedParameter<bool>("doNoise" , false); 
   theCoder = new EcalCoder(addNoise);
   theElectronicsSim = new EcalElectronicsSim(theParameterMap, theCoder);
-  theESElectronicsSim = new ESElectronicsSim(15);
+
+  bool addESNoise = params.getUntrackedParameter<bool>("doESNoise" , true);
+  double ESNoiseSigma = params.getUntrackedParameter<double>("ESNoiseSigma" , 15.); 
+  theESElectronicsSim = new ESElectronicsSim(addESNoise, ESNoiseSigma);
 
   theBarrelDigitizer = new EBDigitizer(theEcalResponse, theElectronicsSim, addNoise);
   theEndcapDigitizer = new EEDigitizer(theEcalResponse, theElectronicsSim, addNoise);
-  theESDigitizer = new ESDigitizer(theESResponse, theESElectronicsSim, false);
+  theESDigitizer = new ESDigitizer(theESResponse, theESElectronicsSim, addESNoise);
 
 }
 
@@ -115,7 +118,15 @@ void EcalDigiProducer::produce(edm::Event& event, const edm::EventSetup& eventSe
    {
     std::cout << sortedDigis[i];
    }
-
+  /*
+  CaloDigiCollectionSorter sorter_es(7);
+  std::vector<ESDataFrame> sortedDigis_es = sorter_es.sortedVector(*ESResult);
+  std::cout << "List all ES digis" << std::endl;
+  for(int i = 0; i < sortedDigis_es.size(); ++i) 
+   {
+    std::cout << sortedDigis_es[i];
+   }
+  */
   // Step D: Put outputs into event
   event.put(barrelResult);
   event.put(endcapResult);
@@ -148,6 +159,7 @@ void EcalDigiProducer::checkGeometry(const edm::EventSetup & eventSetup)
 
 void EcalDigiProducer::updateGeometry() {
   theEcalResponse->setGeometry(theGeometry);
+  theESResponse->setGeometry(theGeometry);
 
   theBarrelDets.clear();
   theEndcapDets.clear();
