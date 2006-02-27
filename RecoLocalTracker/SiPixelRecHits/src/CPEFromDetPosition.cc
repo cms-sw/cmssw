@@ -26,8 +26,15 @@ const float degsPerRad = 57.29578;
 //  A fairly boring constructor.  All quantities are DetUnit-dependent, and
 //  will be initialized in setTheDet().
 //-----------------------------------------------------------------------------
-CPEFromDetPosition::CPEFromDetPosition()
+CPEFromDetPosition::CPEFromDetPosition(edm::ParameterSet const & conf)
 {
+  //--- Lorentz angle tangent per Tesla
+  theTanLorentzAnglePerTesla =
+    conf.getParameter<double>("TanLorentzAnglePerTesla");
+
+  //--- Algorithm's verbosity
+  theVerboseLevel = 
+    conf.getParameter<int>("VerboseLevel");
 }
 
 
@@ -497,6 +504,33 @@ CPEFromDetPosition::yCharge(const vector<SiPixelCluster::Pixel>& pixelsVec,
 
 
 
+
+//-----------------------------------------------------------------------------
+//  Drift direction.
+//  NB: it's correct only for the barrel!  &&& Need to fix it for the forward.
+//  Assumption: setTheDet() has been called already.
+//-----------------------------------------------------------------------------
+LocalVector 
+CPEFromDetPosition::driftDirection( GlobalVector bfield )
+{
+  Frame detFrame(theDet->surface().position(), theDet->surface().rotation());
+  LocalVector Bfield = detFrame.toLocal(bfield);
+
+
+  //  if    (DetId(detID).subdetId()==  PixelSubdetector::PixelBarrel){
+  float dir_x =  theTanLorentzAnglePerTesla * Bfield.y();
+  float dir_y = -theTanLorentzAnglePerTesla * Bfield.x();
+  float dir_z = 1.; // E field always in z direction
+  LocalVector theDriftDirection = LocalVector(dir_x,dir_y,dir_z);
+
+  if (theVerboseLevel > 0) {
+    cout << " The drift direction in local coordinate is " 
+  	 << theDriftDirection    << endl;
+  }
+
+  return theDriftDirection;
+  //  }
+}
 
 
 

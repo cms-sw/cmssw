@@ -8,6 +8,13 @@
 #include "Geometry/CommonDetAlgo/interface/MeasurementPoint.h"
 #include "Geometry/CommonDetAlgo/interface/MeasurementError.h"
 
+//--- For the various "Frames"
+#include "Geometry/Surface/interface/GloballyPositioned.h"
+
+//--- For the configuration:
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+
 // &&& Let's hope for the best... //#include "CommonDet/BasicDet/interface/Enumerators.h"
 
 #include <utility>
@@ -27,7 +34,7 @@ class CPEFromDetPosition : public PixelClusterParameterEstimator
 {
  public:
   // CPEFromDetPosition( const DetUnit& det );
-  CPEFromDetPosition();
+  CPEFromDetPosition(edm::ParameterSet const& conf);
     
   // LocalValues is typedef for pair<LocalPoint,LocalError> 
   LocalValues localParameters( const SiPixelCluster & cl, 
@@ -64,6 +71,10 @@ class CPEFromDetPosition : public PixelClusterParameterEstimator
   float theDetR;
   float theLShift;
   float theSign;
+
+  float theTanLorentzAnglePerTesla;   // Lorentz angle tangent per Tesla
+  int   theVerboseLevel;              // algorithm's verbosity
+
   
   //methods
   float err2X(bool&, int&) const;
@@ -87,6 +98,9 @@ class CPEFromDetPosition : public PixelClusterParameterEstimator
     xCharge(const std::vector<SiPixelCluster::Pixel>&, const float&, const float&)const; 
   std::vector<float> 
     yCharge(const std::vector<SiPixelCluster::Pixel>&, const float&, const float&)const; 
+
+  LocalVector driftDirection( GlobalVector bfield );
+  typedef GloballyPositioned<double> Frame;
 };
 
 #endif
