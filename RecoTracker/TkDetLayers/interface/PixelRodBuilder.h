@@ -16,9 +16,8 @@ using namespace std;
 class PixelRodBuilder {  
  public:
   PixelRodBuilder(){};
-  PixelRod* build(const GeometricDet* aPixelRod,
-	      const TrackingGeometry* theGeomDetGeometry);
-
+  PixelRod* build(const GeometricDet* aRod,
+		  const TrackingGeometry* theGeomDetGeometry);
   
 };
 

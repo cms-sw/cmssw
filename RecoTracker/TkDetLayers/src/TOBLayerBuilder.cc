@@ -27,7 +27,7 @@ TOBLayer* TOBLayerBuilder::build(const GeometricDet* aTOBLayer,
   double meanR = (positiveZrods[0]->positionBounds().perp()+positiveZrods[1]->positionBounds().perp())/2;
 
   for(unsigned int index=0; index!=positiveZrods.size(); index++){
-    if( positiveZrods[index]->positionBounds().phi() != positiveZrods[index]->positionBounds().phi()){
+    if( positiveZrods[index]->positionBounds().phi() != negativeZrods[index]->positionBounds().phi()){
       cout << "ERROR:rods don't have the same phi. exit!" << endl;
       break;      
     }

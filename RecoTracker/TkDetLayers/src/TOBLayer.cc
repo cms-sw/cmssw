@@ -1,10 +1,17 @@
 #include "RecoTracker/TkDetLayers/interface/TOBLayer.h"
 #include "RecoTracker/TkDetLayers/interface/LayerCrossingSide.h"
 #include "RecoTracker/TkDetLayers/interface/DetGroupMerger.h"
+#include "RecoTracker/TkDetLayers/interface/CompatibleDetToGroupAdder.h"
+#include "RecoTracker/TkDetLayers/interface/GlobalDetRodRangeZPhi.h"
 
+#include "Utilities/General/interface/CMSexception.h"
+#include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
 #include "TrackingTools/GeomPropagators/interface/HelixBarrelCylinderCrossing.h"
 #include "TrackingTools/DetLayers/interface/CylinderBuilderFromDet.h"
 #include "TrackingTools/DetLayers/interface/PhiLess.h"
+#include "TrackingTools/DetLayers/interface/rangesIntersect.h"
+
+
 
 typedef GeometricSearchDet::DetWithState DetWithState;
 
@@ -15,7 +22,7 @@ TOBLayer::TOBLayer(vector<const TOBRod*>& innerRods,
 {
   theRods.assign(theInnerRods.begin(),theInnerRods.end());
   theRods.insert(theRods.end(),theOuterRods.begin(),theOuterRods.end());
-
+  
   theInnerCylinder = cylinder( theInnerRods);
   theOuterCylinder = cylinder( theOuterRods);
 
@@ -54,7 +61,7 @@ TOBLayer::components() const{
   
 pair<bool, TrajectoryStateOnSurface>
 TOBLayer::compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
-		  const MeasurementEstimator&) const{
+		      const MeasurementEstimator&) const{
   cout << "temporary dummy implementation of TOBLayer::compatible()!!" << endl;
   return pair<bool,TrajectoryStateOnSurface>();
 }
@@ -121,16 +128,14 @@ TOBLayer::groupedCompatibleDets( const TrajectoryStateOnSurface& tsos,
 SubLayerCrossings TOBLayer::computeCrossings( const TrajectoryStateOnSurface& startingState,
 					      PropagationDirection propDir) const
 {
-  cout << "dummy implementation of TOBLayer::computeCrossings" << endl;
   GlobalPoint startPos( startingState.globalPosition());
   GlobalVector startDir( startingState.globalMomentum());
   double rho( startingState.transverseCurvature());
 
-  //  HelixBarrelCylinderCrossing crossing( startPos, startDir, rho, propDir);
   HelixBarrelCylinderCrossing innerCrossing( startPos, startDir, rho,
 					     propDir,*theInnerCylinder);
   if (!innerCrossing.hasSolution()) {
-    cout << "ERROR in TkRodBarrelLayer: inner cylinder not crossed by track" << endl;
+    cout << "ERROR in TOBLayer: inner cylinder not crossed by track" << endl;
     //throw DetLogicError("TkRodBarrelLayer: inner subRod not crossed by track");
   }
 
@@ -142,8 +147,7 @@ SubLayerCrossings TOBLayer::computeCrossings( const TrajectoryStateOnSurface& st
   HelixBarrelCylinderCrossing outerCrossing( startPos, startDir, rho,
 					     propDir,*theOuterCylinder);
   if (!outerCrossing.hasSolution()) {
-    cout << "ERROR in TkRodBarrelLayer: outer cylinder not crossed by track" << endl;
-    //throw DetLogicError("TkRodBarrelLayer: inner subRod not crossed by track");
+    throw Genexception("TOBLayer: inner subRod not crossed by track");
   }
 
   GlobalPoint gOuterPoint( outerCrossing.position());
@@ -171,17 +175,40 @@ bool TOBLayer::addClosest( const TrajectoryStateOnSurface& tsos,
 			   const SubLayerCrossing& crossing,
 			   vector<DetGroup>& result) const
 {
-  cout << "dummy implementation of TOBLayer::addClosest" << endl;
-  return false;
+  const vector<const TOBRod*>& sub( subLayer( crossing.subLayerIndex()));
+  const GeometricSearchDet* det(sub[crossing.closestDetIndex()]);
+  return CompatibleDetToGroupAdder().add( *det, tsos, prop, est, result);
 }
 
 float TOBLayer::computeWindowSize( const GeomDet* det, 
 				   const TrajectoryStateOnSurface& tsos, 
 				   const MeasurementEstimator& est) const
 {
-  cout << "dummy implementation of TOBLayer::computeWindowSize" << endl;
-  return 0;
+  double xmax = 
+    est.maximalLocalDisplacement(tsos, dynamic_cast<const BoundPlane&>(det->surface())).x();
+  return calculatePhiWindow( xmax, *det, tsos);
 }
+
+
+double TOBLayer::calculatePhiWindow( double Xmax, const GeomDet& det,
+				     const TrajectoryStateOnSurface& state) const
+{
+
+  LocalPoint startPoint = state.localPosition();
+  LocalVector shift( Xmax , 0. , 0.);
+  LocalPoint shift1 = startPoint + shift;
+  LocalPoint shift2 = startPoint + (-shift); 
+  //LocalPoint shift2( startPoint); //original code;
+  //shift2 -= shift;
+
+  double phi1 = det.surface().toGlobal(shift1).phi();
+  double phi2 = det.surface().toGlobal(shift2).phi();
+  double phiStart = state.globalPosition().phi();
+  double phiWin = min(fabs(phiStart-phi1),fabs(phiStart-phi2));
+
+  return phiWin;
+}
+
 
 void TOBLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 				const Propagator& prop,
@@ -191,51 +218,9 @@ void TOBLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 				vector<DetGroup>& result,
 				bool checkClosest) const
 {
-  cout << "dummy implementation of TOBLayer::searchNeighbors" << endl;
-}
-
-
-BoundCylinder* TOBLayer::cylinder( const vector<const TOBRod*>& rods) const 
-{
-  vector<const GeomDet*> tmp;
-  for (vector<const TOBRod*>::const_iterator it=rods.begin(); it!=rods.end(); it++) {    
-    vector<const GeomDet*> tmp2 = (*it)->basicComponents();
-    tmp.insert(tmp.end(),tmp2.begin(),tmp2.end());
-  }
-  return CylinderBuilderFromDet()( tmp.begin(), tmp.end());
-}
-
-
-
-
-
-
-/*
-
-bool TkRodBarrelLayer::addClosest( const TrajectoryStateOnSurface& tsos,
-				   const Propagator& prop,
-				   const MeasurementEstimator& est,
-				   const SubLayerCrossing& crossing,
-				   vector<DetGroup>& result) const
-{
-//   cout << "Entering TkRodBarrelLayer::addClosest" << endl;
-
-  const vector<DetRod*>& sub( subLayer( crossing.subLayerIndex()));
-  const Det* det(sub[crossing.closestDetIndex()]);
-  return CompatibleDetToGroupAdder().add( *det, tsos, prop, est, result);
-}
-
-void TkRodBarrelLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
-					const Propagator& prop,
-					const MeasurementEstimator& est,
-					const SubLayerCrossing& crossing,
-					float window, 
-					vector<DetGroup>& result,
-					bool checkClosest) const
-{
   GlobalPoint gCrossingPos = crossing.position();
 
-  const vector<DetRod*>& sLayer( subLayer( crossing.subLayerIndex()));
+  const vector<const TOBRod*>& sLayer( subLayer( crossing.subLayerIndex()));
  
   int closestIndex = crossing.closestDetIndex();
   int negStartIndex = closestIndex-1;
@@ -255,57 +240,60 @@ void TkRodBarrelLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
   CompatibleDetToGroupAdder adder;
   int quarter = sLayer.size()/4;
   for (int idet=negStartIndex; idet >= negStartIndex - quarter; idet--) {
-    const DetRod* neighborRod = sLayer[binFinder.binIndex(idet)];
+    const TOBRod* neighborRod = sLayer[binFinder.binIndex(idet)];
     if (!overlap( gCrossingPos, *neighborRod, window)) break;
     if (!adder.add( *neighborRod, tsos, prop, est, result)) break;
     // maybe also add shallow crossing angle test here???
   }
   for (int idet=posStartIndex; idet < posStartIndex + quarter; idet++) {
-    const DetRod* neighborRod = sLayer[binFinder.binIndex(idet)];
+    const TOBRod* neighborRod = sLayer[binFinder.binIndex(idet)];
     if (!overlap( gCrossingPos, *neighborRod, window)) break;
     if (!adder.add( *neighborRod, tsos, prop, est, result)) break;
     // maybe also add shallow crossing angle test here???
   }
 }
 
-float TkRodBarrelLayer::computeWindowSize( const Det* det, 
-					   const TrajectoryStateOnSurface& tsos, 
-					   const MeasurementEstimator& est) const
-{
-  double xmax = est.maximalLocalDisplacement(tsos, dynamic_cast<const BoundPlane&>(det->surface())).x();
-  return calculatePhiWindow( xmax, *det, tsos);
-}
-
-bool TkRodBarrelLayer::overlap( const GlobalPoint& gpos, const DetRod& rod, float phiWin) const
+bool TOBLayer::overlap( const GlobalPoint& gpos, const TOBRod& rod, float phiWin) const
 {
   GlobalPoint crossPoint(gpos);
 
   // introduce offset (extrapolated point and true propagated point differ by 0.0003 - 0.00033, 
-  // due to thickness of Rod of 1 cm)
-  const float phiOffset = 0.00034;
+  // due to thickness of Rod of 1 cm) 
+  const float phiOffset = 0.00034;  //...TOBE CHECKED LATER...
   phiWin += phiOffset;
 
   // detector phi range
   GlobalDetRodRangeZPhi rodRange( rod.specificSurface());
   pair<float,float> phiRange(crossPoint.phi()-phiWin, crossPoint.phi()+phiWin);
 
-//   // debug
-//   cout << endl;
-//   cout << " overlapInPhi: position, det phi range " 
-//        << "("<< rod.position().perp() << ", " << rod.position().phi() << ")  "
-//        << rodRange.phiRange().first << " " << rodRange.phiRange().second << endl;
-//   cout << " overlapInPhi: cross point phi, window " << crossPoint.phi() << " " << phiWin << endl;
-//   cout << " overlapInPhi: search window: " << crossPoint.phi()-phiWin << "  " << crossPoint.phi()+phiWin << endl;
+  //   // debug
+  //   cout << endl;
+  //   cout << " overlapInPhi: position, det phi range " 
+  //        << "("<< rod.position().perp() << ", " << rod.position().phi() << ")  "
+  //        << rodRange.phiRange().first << " " << rodRange.phiRange().second << endl;
+  //   cout << " overlapInPhi: cross point phi, window " << crossPoint.phi() << " " << phiWin << endl;
+  //   cout << " overlapInPhi: search window: " << crossPoint.phi()-phiWin << "  " << crossPoint.phi()+phiWin << endl;
 
   if ( rangesIntersect(phiRange, rodRange.phiRange(), PhiLess())) {
-//     cout << " overlapInPhi:  Ranges intersect " << endl;
     return true;
   } else {
-//     cout << "  overlapInPhi: Ranges DO NOT intersect " << endl;
     return false;
   }
 } 
-*/
+
+
+BoundCylinder* TOBLayer::cylinder( const vector<const TOBRod*>& rods) const 
+{
+  vector<const GeomDet*> tmp;
+  for (vector<const TOBRod*>::const_iterator it=rods.begin(); it!=rods.end(); it++) {    
+    vector<const GeomDet*> tmp2 = (*it)->basicComponents();
+    tmp.insert(tmp.end(),tmp2.begin(),tmp2.end());
+  }
+  return CylinderBuilderFromDet()( tmp.begin(), tmp.end());
+}
+
+
+
 
 
 

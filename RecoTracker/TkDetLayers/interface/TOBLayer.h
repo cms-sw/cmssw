@@ -50,15 +50,6 @@ class TOBLayer : public RodBarrelLayer{
  
 
  private:
-  vector<const TOBRod*> theRods;
-  vector<const TOBRod*> theInnerRods;
-  vector<const TOBRod*> theOuterRods;
-
-  BinFinderType    theInnerBinFinder;
-  BinFinderType    theOuterBinFinder;
-  ReferenceCountingPointer<BoundCylinder>  theInnerCylinder;
-  ReferenceCountingPointer<BoundCylinder>  theOuterCylinder;
-
   // private methods for the implementation of groupedCompatibleDets()
 
   SubLayerCrossings computeCrossings( const TrajectoryStateOnSurface& tsos,
@@ -73,6 +64,12 @@ class TOBLayer : public RodBarrelLayer{
   float computeWindowSize( const GeomDet* det, 
 			   const TrajectoryStateOnSurface& tsos, 
 			   const MeasurementEstimator& est) const;
+  
+  double calculatePhiWindow( double Xmax, const GeomDet& det,
+			     const TrajectoryStateOnSurface& state) const;
+
+  bool overlap( const GlobalPoint& gpos, const TOBRod& rod, float phiWin) const;
+
 
   void searchNeighbors( const TrajectoryStateOnSurface& tsos,
 			const Propagator& prop,
@@ -82,7 +79,23 @@ class TOBLayer : public RodBarrelLayer{
 			vector<DetGroup>& result,
 			bool checkClosest) const;
 
+  const vector<const TOBRod*>& subLayer( int ind) const {
+    return (ind==0 ? theInnerRods : theOuterRods);}
+  
   BoundCylinder* cylinder( const vector<const TOBRod*>& rods) const ;
+
+
+ private:
+  vector<const TOBRod*> theRods;
+  vector<const TOBRod*> theInnerRods;
+  vector<const TOBRod*> theOuterRods;
+  
+  BinFinderType    theInnerBinFinder;
+  BinFinderType    theOuterBinFinder;
+
+  ReferenceCountingPointer<BoundCylinder>  theInnerCylinder;
+  ReferenceCountingPointer<BoundCylinder>  theOuterCylinder;
+    
 };
 
 

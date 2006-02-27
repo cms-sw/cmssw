@@ -1,23 +1,22 @@
-#ifndef TkDetLayers_PixelRod_h
-#define TkDetLayers_PixelRod_h
+#ifndef TkDetLayers_PixelForwardLayer_h
+#define TkDetLayers_PixelForwardLayer_h
 
 
-#include "TrackingTools/DetLayers/interface/DetRodOneR.h"
-#include "TrackingTools/DetLayers/interface/PeriodicBinFinderInZ.h"
+#include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 
-/** A concrete implementation for PixelRod
+
+/** A concrete implementation for PixelForward layer 
+ *  built out of ForwardPixelBlade
  */
 
-class PixelRod : public DetRodOneR{
+class PixelForwardLayer : public ForwardDetLayer{
  public:
-    typedef PeriodicBinFinderInZ<float>   BinFinderType;
-
-  PixelRod(vector<const GeomDet*>& theDets);
-  ~PixelRod();
+  PixelForwardLayer();
+  ~PixelForwardLayer();
   
   // GeometricSearchDet interface
-
-  virtual vector<const GeometricSearchDet*> components() const;
+  
+  virtual vector<const GeomDet*> basicComponents() const;
   
   virtual pair<bool, TrajectoryStateOnSurface>
   compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
@@ -34,11 +33,9 @@ class PixelRod : public DetRodOneR{
 			 const MeasurementEstimator& est) const;
 
 
-  virtual bool hasGroups() const {return false;};  
+  virtual bool hasGroups() const {return true;;};  
 
- private:
-  BinFinderType theBinFinder;
-      
+
   
 };
 

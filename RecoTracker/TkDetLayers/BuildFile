@@ -2,7 +2,11 @@
  <lib name=RecoTrackerTkDetLayers>
  <use name=TrackingTools/DetLayers>
  <use name=TrackingTools/GeomPropagators>
+ <use name=clhep>
+ <use name=Utilities/General>
 </export>
 
 <use name=TrackingTools/DetLayers>
 <use name=TrackingTools/GeomPropagators>
+<use name=clhep>
+<use name=Utilities/General>
