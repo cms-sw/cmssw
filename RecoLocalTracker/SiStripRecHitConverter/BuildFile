@@ -10,6 +10,9 @@
 <use name=Geometry/TrackerSimAlgo>
 <use name=Geometry/Surface>
 <use name=Geometry/Records>
+<use name=MagneticField/Records>
+<use name=MagneticField/VolumeBasedEngine>
+<use name=MagneticField/GeomBuilder>
 <export>
 <lib name=RecoLocalTrackerSiStripRecHitConverter>
 <use name=FWCore/EDProduct>
@@ -23,4 +26,7 @@
 <use name=Geometry/TrackerSimAlgo>
 <use name=Geometry/Surface>
 <use name=Geometry/Records>
+<use name=MagneticField/Records>
+<use name=MagneticField/VolumeBasedEngine>
+<use name=MagneticField/GeomBuilder>
 </export>

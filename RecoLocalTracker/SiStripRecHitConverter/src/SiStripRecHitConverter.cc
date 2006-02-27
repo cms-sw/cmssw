@@ -19,6 +19,10 @@
 
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 
@@ -46,6 +50,10 @@ namespace cms
     edm::ESHandle<TrackingGeometry> pDD;
     es.get<TrackerDigiGeometryRecord>().get( pDD );
     const TrackingGeometry &tracker(*pDD);
+    
+    edm::ESHandle<MagneticField> pSetup;
+    es.get<IdealMagneticFieldRecord>().get(pSetup);
+    const MagneticField &BField(*pSetup);
 
     std::string clusterProducer = conf_.getParameter<std::string>("ClusterProducer");
 
@@ -59,11 +67,11 @@ namespace cms
     std::auto_ptr<SiStripRecHit2DLocalPosCollection> outputstereo(new SiStripRecHit2DLocalPosCollection);
 
     // Step C: Invoke the seed finding algorithm
-    recHitConverterAlgorithm_.run(clusters.product(),*outputmatched,*outputrphi,*outputstereo,tracker);
+    recHitConverterAlgorithm_.run(clusters.product(),*outputmatched,*outputrphi,*outputstereo,tracker,BField);
 
     // Step D: write output to file
-    //    e.put(outputmatched,"matchedRecHit");
-    //    e.put(outputrphi,"rphiRecHit");
+    e.put(outputmatched,"matchedRecHit");
+    e.put(outputrphi,"rphiRecHit");
     e.put(outputstereo,"stereoRecHit");
   }
 

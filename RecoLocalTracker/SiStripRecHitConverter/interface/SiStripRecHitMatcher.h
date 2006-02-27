@@ -54,12 +54,14 @@ public:
     GlobalVector gdist=gdetstereo-gdetmono;
     //    std::cout<<"gdist= "<<gdist.mag()<<std::endl;
     LocalVector ldist=(stripdet->surface()).toLocal(gdist);
-    //std::cout<<"ldist= "<<ldist.x()<<" "<<ldist.y()<<" "<<ldist.z()<<std::endl;
-    //std::cout<<"phi= "<<trackdirection.phi()<<" theta= "<<trackdirection.theta()<<std::endl;
-    LocalVector shift=LocalVector(ldist.z()/tan(trackdirection.theta())*cos(trackdirection.phi()),ldist.z()/tan(trackdirection.theta())*sin(trackdirection.phi()),0);
+    //    std::cout<<"ldist= "<<ldist.x()<<" "<<ldist.y()<<" "<<ldist.z()<<std::endl;
+    //std::cout<<"phi= "<<trackdirection.phi()*180/3.14<<" theta= "<<trackdirection.theta()*180/3.14<<std::endl;
+    LocalVector shift=LocalVector(ldist.z()*tan(trackdirection.theta())*cos(trackdirection.phi()),ldist.z()*tan(trackdirection.theta())*sin(trackdirection.phi()),0);
     //std::cout<<"xshift= "<<shift.x()<<std::endl;
     //std::cout<<"yshift= "<<shift.y()<<std::endl;
     RPHIpositionini+=shift; RPHIpositionend+=shift;
+    //cout<<"LocalPosition of monohit on monodet INI corrected: "<<RPHIpositionini.x()<<" "<<RPHIpositionini.y()<<endl;
+    //cout<<"LocalPosition of monohit on monodet END corrected: "<<RPHIpositionend.x()<<" "<<RPHIpositionend.y()<<endl;
     // position of the initial and final point of the strip in global coordinates (RPHI cluster)
     GlobalPoint rphiglobalpointini=(stripdet->surface()).toGlobal(RPHIpositionini);
     GlobalPoint rphiglobalpointend=(stripdet->surface()).toGlobal(RPHIpositionend);
