@@ -63,7 +63,7 @@ CSCTFUnpacker::CSCTFUnpacker(const edm::ParameterSet & pset)
 
   if(debug) std::cout << "starting CSCTFConstructor";   
 
-  produces<CSCCorrelatedLCTDigiCollection>();
+  produces<CSCCorrelatedLCTDigiCollection>("MuonCSCTFCorrelatedLCTDigi");
   //produces<CSCTFL1TrackCollection>();
 
   if(debug) std::cout <<"... and finished " << std::endl;  
