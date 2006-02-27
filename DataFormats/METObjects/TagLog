@@ -1,3 +1,7 @@
+** V01-00-00  [Mon Feb 27 05:08:02 2006]
+Significant changes in BaseMET.h :  Separated out MET data from MET corrections
+Not backward compatible with earlier MET formats.
+
 ** V00-00-00  [Wed Oct 26 18:08:17 2005]
 Base tag on CMSSW_0_2_0_pre5
 
