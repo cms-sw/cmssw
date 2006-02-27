@@ -53,7 +53,13 @@ bool CSCTFFileReader::fillRawData(edm::EventID& eID, edm::Timestamp& tstamp, FED
 
   // The FED ID
   FEDRawData& fedRawData = data.FEDData( FEDNumbering::getCSCFEDIds().first );
-  fedRawData.resize(length);
+  int newlength = 0;
+  if(length%8)
+    {
+      newlength = length + (8-(length%8));
+    }
+  else newlength = length;
+  fedRawData.resize(newlength);
 
   copy(reinterpret_cast<unsigned char*>(dccBuf),
        reinterpret_cast<unsigned char*>(dccBuf)+length, fedRawData.data());

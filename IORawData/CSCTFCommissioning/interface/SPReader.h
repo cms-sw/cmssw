@@ -9,7 +9,7 @@ using namespace std;
 class SPReader
 {
  public:
-  SPReader() : nbytes_schar(0), npack_schar(0), nbyte_schar(0) {}
+  SPReader() : nbytes_schar(0), npack_schar(0), nbyte_schar(0), theBuffer(NULL) {}
   virtual ~SPReader() {};
   virtual void Configure() {};
   virtual void Enable() {};

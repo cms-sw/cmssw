@@ -80,6 +80,8 @@ int FileReaderSP::readSP(unsigned short **buf, const bool debug) {
   memset(event,0,counter*sizeof(unsigned short));
   memcpy(event,a,counter*sizeof(unsigned short));
   *buf=reinterpret_cast<unsigned short*>(event);
+
+  
   
   //printf("\n\n\n  returning %d: \n\n\n",(count*8));
 

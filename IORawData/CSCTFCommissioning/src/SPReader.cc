@@ -25,6 +25,11 @@ int SPReader::openFile(string filename) {
 
 bool SPReader::readNextEvent() {
   bool debug = false;
+  if(theBuffer)
+    {
+      delete theBuffer;
+      theBuffer = NULL;
+    }
   unsigned short ** buf2 = new unsigned short*;
   theDataLength = readSP(buf2, debug);
   if (debug) cout << " theDataLength " << theDataLength << endl;
