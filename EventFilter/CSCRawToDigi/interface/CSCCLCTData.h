@@ -1,8 +1,6 @@
 #ifndef CSCCLCTData_h
 #define CSCCLCTData_h
-#ifndef UNPCK_ONLY
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigi.h"
-#endif
 #include <vector>
 #include <cassert>
 
@@ -28,12 +26,9 @@ public:
   /** turns on/off debug flag for this class */
   static void setDebug(const bool value) {debug = value;};
 
-#ifndef UNPCK_ONLY
-
   /// layers count from one
   std::vector<CSCComparatorDigi> comparatorDigis(int layer);
 
-#endif
 
   unsigned short * data() {return theData;}
   /// in 16-bit words
@@ -55,10 +50,6 @@ public:
   bool bitValue(int cfeb, int tbin, int layer, int distrip) {
     return dataWord(cfeb, tbin, layer).value(distrip);
   }
-
-#ifndef UNPCK_ONLY
-  //  void add(const CSCComparatorOutput &, int layer);
-#endif
 
   // checks that the CFEB number and time bins are correct
   bool check() const;

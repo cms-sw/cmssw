@@ -3,6 +3,8 @@
 
 #include <iostream>
 #include <iosfwd>
+#include <vector>
+#include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
 
 class CSCDMBHeader;
 
@@ -52,6 +54,9 @@ class CSCTMBHeader {
   unsigned int clct1Word() const {return (CLCT1_low)|(CLCT1_high<<15);}
   unsigned int clct0Word_low()  const {return (CLCT0_low) ;}
   unsigned int clct0Word_high() const {return (CLCT0_high);}
+
+  //returns CLCT digis
+  std::vector<CSCCLCTDigi> CLCTDigis() const;
 
   unsigned int CLCT(const unsigned int index) const {
     if      (index == 0) return clct0Word();

@@ -1,5 +1,6 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBHeader.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDMBHeader.h"
+#include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
 #include <math.h>
 #include <string.h> // memcpy
 
@@ -19,6 +20,17 @@ void CSCTMBHeader::setEventInformation(const CSCDMBHeader & dmbHeader) {
   l1aNumber = dmbHeader.l1a();
   bxnCount = dmbHeader.bxn();
 }
+
+
+std::vector<CSCCLCTDigi> CSCTMBHeader::CLCTDigis() const {
+  std::vector<CSCCLCTDigi> result;
+
+  //fill digis here
+
+
+  return result;
+}
+
 
 
 std::ostream & operator<<(std::ostream & os, const CSCTMBHeader & hdr) {
