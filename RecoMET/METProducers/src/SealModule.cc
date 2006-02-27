@@ -2,16 +2,10 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-//#include "RecoMET/METProducers/interface/UncorrTowersMETProducer.h"
-#include "RecoMET/METProducers/interface/TestMETProducer.h"
-#include "RecoMET/METProducers/interface/CorrMETProducer.h"
+#include "RecoMET/METProducers/interface/TowerMETProducer.h"
 
-//using cms::UncorrTowersMETProducer;
-using cms::TestMETProducer;
-using cms::CorrMETProducer;
+using cms::TowerMETProducer;
 
 DEFINE_SEAL_MODULE();
 
-//DEFINE_ANOTHER_FWK_MODULE(UncorrTowersMETProducer)
-DEFINE_ANOTHER_FWK_MODULE(TestMETProducer)
-DEFINE_ANOTHER_FWK_MODULE(CorrMETProducer)
+DEFINE_ANOTHER_FWK_MODULE(TowerMETProducer)
