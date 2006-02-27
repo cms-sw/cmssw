@@ -33,11 +33,11 @@ This is the CMSSW mainpage
 
 <TR VALIGN=TOP NOSAVE>
 <TD WIDTH="237">
-\endhtmlonly \ref Calorimetry \htmlonly
+\endhtmlonly \ref CaloPackages "Calorimetry" \htmlonly
 </TD>
-<TD WIDTH="493" NOSAVE>Software for the calorimeters: ECAL, HCAL, VCAL</TD>
-<TD> <A HREF="mailto:">Spider Man</A>,
- <A HREF="mailto:">Super Man</A>
+<TD WIDTH="493" NOSAVE>Software for the calorimeters: ECAL, HCAL</TD>
+<TD> <A HREF="mailto:Paolo.Meridiani@cern.ch">Paolo Meridiani</A>,
+ <A HREF="mailto:Jeremy.Mans@cern.ch">Jeremiah Mans</A>
 </TD>
 </TR>
 
