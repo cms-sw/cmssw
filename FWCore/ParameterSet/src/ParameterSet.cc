@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.cc,v 1.16 2006/02/14 20:18:09 wmtan Exp $
+// $Id: ParameterSet.cc,v 1.17 2006/02/21 23:35:04 wmtan Exp $
 //
 // definition of ParameterSet's function members
 // ----------------------------------------------------------------------
@@ -278,6 +278,12 @@ namespace edm {
     std::transform(tbl_.begin(), tbl_.end(),returnValue.begin(),
 		   boost::bind(&std::pair<std::string const, Entry>::first,_1));
     return returnValue;
+  }
+
+  ParameterSet
+  ParameterSet::trackedPart() const
+  {
+    return ParameterSet(this->toStringOfTracked());
   }
   
 } // namespace edm

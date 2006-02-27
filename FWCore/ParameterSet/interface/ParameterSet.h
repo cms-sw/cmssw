@@ -2,7 +2,7 @@
 #define ParameterSet_ParameterSet_h
 
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.h,v 1.15 2006/02/03 21:21:36 paterno Exp $
+// $Id: ParameterSet.h,v 1.16 2006/02/07 07:40:36 wmtan Exp $
 //
 // Declaration for ParameterSet(parameter set) and related types
 // ----------------------------------------------------------------------
@@ -77,7 +77,7 @@ namespace edm {
     std::vector<edm::FileInPath>::size_type
     getAllFileInPaths(std::vector<edm::FileInPath>& output) const;
 
-    std::vector<std::string> getParameterNames()const;
+    std::vector<std::string> getParameterNames() const;
     
     template <class T>
     void
@@ -92,6 +92,7 @@ namespace edm {
       return tbl_.empty();
     }
 
+    ParameterSet trackedPart() const;
 
 private:
     typedef std::map<std::string, Entry> table;

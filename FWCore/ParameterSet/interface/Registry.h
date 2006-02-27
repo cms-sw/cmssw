@@ -2,7 +2,7 @@
 #define ParameterSet_Registry_h
 
 // ----------------------------------------------------------------------
-// $Id: $
+// $Id: Registry.h,v 1.1 2006/02/24 19:15:51 paterno Exp $
 //
 // Declaration for pset::Registry. This is an implementation detail of 
 // the ParameterSet library.
@@ -12,7 +12,7 @@
 // ParameterSetID, and so they may be written to persistent storage.
 // ----------------------------------------------------------------------
 
-#include <set>
+#include <map>
 
 #include "DataFormats/Common/interface/ParameterSetID.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -23,7 +23,8 @@ namespace pset
   class Registry
   {
   public:
-    typedef std::set<edm::ParameterSet> collection_type;
+    //typedef std::set<edm::ParameterSet> collection_type;
+    typedef std::map<edm::ParameterSetID, edm::ParameterSet> collection_type;
     typedef collection_type::const_iterator const_iterator;
     typedef collection_type::size_type size_type;
     
@@ -40,10 +41,10 @@ namespace pset
 			 edm::ParameterSet & result) const;
 
 
-    /// Insert the given ParameterSet into the Registry. If there was
-    /// already a ParameterSet with the same ID, we clobber it. This
-    /// should be OK, since it will have the same contents if the ID
-    /// is the same.
+    /// Insert the *tracked parts* of the given ParameterSet into the
+    /// Registry. If there was already a ParameterSet with the same
+    /// ID, we clobber it. This should be OK, since it will have the
+    /// same contents if the ID is the same.
     void insertParameterSet(edm::ParameterSet const& p);
 
     /// Return the number of contained ParameterSets.
@@ -59,7 +60,7 @@ namespace pset
     Registry& operator=(Registry const&); // not implemented
     ~Registry();
 
-    std::set<edm::ParameterSet> psets_;
+    collection_type  psets_;
 
     static Registry* instance_;
   };

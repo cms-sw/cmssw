@@ -1,3 +1,8 @@
+27-02-06 mfp. Added thread-safe Registry class, to provide a
+    repository for the persistent part of ParameterSets used in a
+    whole program. This is a first step towards providing persistency
+    of ParameterSets in a framework program.
+
 07-02-06 mfp. Added ability for parser and tree walker to deal with
     creating untracked parameters of type ParameterSet. Added
     tests to the test suite to verify correct behavior. Removed
