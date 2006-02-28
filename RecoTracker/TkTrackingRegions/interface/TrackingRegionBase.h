@@ -59,7 +59,7 @@ public:
   /// utility to check eta/theta hit compatibility with region constraints
   /// and outer hit constraint
   virtual HitRZCompatibility * checkRZ(
-      const DetLayer* layer, SiStripRecHit2DLocalPos outerHit) const = 0;
+      const DetLayer* layer,  SiPixelRecHit  outerHit) const = 0;
 
   /// clone region with new vertex position
   virtual TrackingRegionBase* restrictedRegion( const GlobalPoint &  originPos,

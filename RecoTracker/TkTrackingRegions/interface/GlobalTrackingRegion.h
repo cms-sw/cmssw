@@ -28,7 +28,7 @@ public:
 
  
   virtual HitRZCompatibility* checkRZ(
-      const DetLayer* layer, SiStripRecHit2DLocalPos outerHit) const;
+				      const DetLayer* layer, SiPixelRecHit outerHit) const;
 
   virtual GlobalTrackingRegion* clone() const { 
     return new GlobalTrackingRegion(*this);

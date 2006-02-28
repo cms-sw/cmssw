@@ -13,8 +13,8 @@ using namespace std;
 //#include "CommonDet/DetLayout/interface/DetLayer.h"
 
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoRange.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPosCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DLocalPos.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "RecoTracker/TkTrackingRegions/interface/HitRZCompatibility.h"
 //#include "CARF/Reco/interface/RecObj.h"
@@ -57,7 +57,7 @@ public:
 /*   /// utility to check eta/theta hit compatibility with region constraints */
 /*   /// and outer hit constraint  */
  virtual HitRZCompatibility * checkRZ(
-      const DetLayer* layer, SiStripRecHit2DLocalPos  outerHit) const = 0;
+      const DetLayer* layer, SiPixelRecHit  outerHit) const = 0;
 
   /// new region with updated vertex position 
   virtual TrackingRegion* restrictedRegion( const GlobalPoint &  originPos, 
