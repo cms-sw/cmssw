@@ -2,14 +2,20 @@
 <export>
  <lib name=IOMCEventVertexGenerators>
  <use name=Framework/SealKernel>
+ <use name=FWCore/Framework>
+ <use name=FWCore/EDProduct>
  <use name=FWCore/ParameterSet>
+ <use name=SimDataFormats/HepMCProduct>
  <use name=Utilities/General>
  <use name=boost>
  <use name=clhep>
 </export>
 
 <use name=Framework/SealKernel>
+<use name=FWCore/Framework>
+<use name=FWCore/EDProduct>
 <use name=FWCore/ParameterSet>
+<use name=SimDataFormats/HepMCProduct>
 <use name=Utilities/General>
 <use name=boost>
 <use name=clhep>
