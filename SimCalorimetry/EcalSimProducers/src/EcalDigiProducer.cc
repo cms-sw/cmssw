@@ -1,3 +1,4 @@
+
 #include "SimCalorimetry/EcalSimProducers/interface/EcalDigiProducer.h"
 
 EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet& params) 
@@ -36,11 +37,11 @@ void EcalDigiProducer::setupFakePedestals()
   thePedestals.m_pedestals.clear();
   // make pedestals for each of these
   EcalPedestals::Item item;
-  item.mean_x1 = 0.;
+  item.mean_x1 = 200.;
   item.rms_x1 = 0.;
-  item.mean_x6 = 0.;
+  item.mean_x6 = 200.;
   item.rms_x6 = 0.;
-  item.mean_x12 = 0.;
+  item.mean_x12 = 200.;
   item.rms_x12 = 0.;
 
   // make one vector of all det ids
@@ -111,13 +112,21 @@ void EcalDigiProducer::produce(edm::Event& event, const edm::EventSetup& eventSe
   theESDigitizer->run(*ESHits, *ESResult);
   edm::LogInfo("EcalDigiProducer") << "ES Digis: " << ESResult->size();
 
+  /*
   CaloDigiCollectionSorter sorter(5);
-  std::vector<EBDataFrame> sortedDigis = sorter.sortedVector(*barrelResult);
+  std::vector<EBDataFrame> sortedDigisEB = sorter.sortedVector(*barrelResult);
   std::cout << "Top 10 EB digis" << std::endl;
-  for(int i = 0; i < std::min(10,(int) sortedDigis.size()); ++i) 
+  for(int i = 0; i < std::min(10,(int) sortedDigisEB.size()); ++i) 
    {
-    std::cout << sortedDigis[i];
+    std::cout << sortedDigisEB[i];
    }
+  std::vector<EEDataFrame> sortedDigisEE = sorter.sortedVector(*endcapResult);
+  std::cout << "Top 10 EE digis" << std::endl;
+  for(int i = 0; i < std::min(10,(int) sortedDigisEE.size()); ++i) 
+   {
+    std::cout << sortedDigisEE[i];
+   }
+  */
   /*
   CaloDigiCollectionSorter sorter_es(7);
   std::vector<ESDataFrame> sortedDigis_es = sorter_es.sortedVector(*ESResult);
