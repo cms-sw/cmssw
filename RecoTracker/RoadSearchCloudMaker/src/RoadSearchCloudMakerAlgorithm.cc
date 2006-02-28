@@ -48,8 +48,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: stevew $
-// $Date: 2006/02/13 19:32:28 $
-// $Revision: 1.4 $
+// $Date: 2006/02/22 01:16:15 $
+// $Revision: 1.5 $
 //
 
 #include <vector>
@@ -220,37 +220,37 @@ void RoadSearchCloudMakerAlgorithm::run(const TrackingSeedCollection* input,
 
 	    const double pi = 3.14159265358979312;
 
-	    const std::vector<unsigned int> availableIDs = rphiRecHits->detIDs();
-	    const std::vector<unsigned int> availableIDs2 = stereoRecHits->detIDs();
+	    const std::vector<DetId> availableIDs = rphiRecHits->ids();
+	    const std::vector<DetId> availableIDs2 = stereoRecHits->ids();
 
 	    if ( lowerPhiRangeBorder <= upperPhiRangeBorder ) {
 	      for ( Ring::const_iterator detid = ring->lower_bound(lowerPhiRangeBorder); detid != ring->upper_bound(upperPhiRangeBorder); ++detid) {
-		if ( availableIDs.end() != std::find(availableIDs.begin(),availableIDs.end(),detid->second.rawId()) ) {
+		if ( availableIDs.end() != std::find(availableIDs.begin(),availableIDs.end(),detid->second) ) {
 		  FillRecHitsIntoCloud(detid->second,rphiRecHits,phi0,k0,roadType,ringPhi,&(*seed),
                                        usedLayersArray,numberOfLayersPerSubdetector,tracker.product(),cloud);
 		}
-		if ( availableIDs2.end() != std::find(availableIDs2.begin(),availableIDs2.end(),detid->second.rawId()) ) {
+		if ( availableIDs2.end() != std::find(availableIDs2.begin(),availableIDs2.end(),detid->second) ) {
 		  FillRecHitsIntoCloud(detid->second,stereoRecHits,phi0,k0,roadType,ringPhi,&(*seed),
                                        usedLayersArray,numberOfLayersPerSubdetector,tracker.product(),cloud);
 		}
 	      }
 	    } else {
 	      for ( Ring::const_iterator detid = ring->lower_bound(lowerPhiRangeBorder); detid != ring->upper_bound(2*pi); ++detid) {
-		if ( availableIDs.end() != std::find(availableIDs.begin(),availableIDs.end(),detid->second.rawId()) ) {
+		if ( availableIDs.end() != std::find(availableIDs.begin(),availableIDs.end(),detid->second) ) {
 		  FillRecHitsIntoCloud(detid->second,rphiRecHits,phi0,k0,roadType,ringPhi,&(*seed),
                                        usedLayersArray,numberOfLayersPerSubdetector,tracker.product(),cloud);
 		}
-		if ( availableIDs2.end() != std::find(availableIDs2.begin(),availableIDs2.end(),detid->second.rawId()) ) {
+		if ( availableIDs2.end() != std::find(availableIDs2.begin(),availableIDs2.end(),detid->second) ) {
 		  FillRecHitsIntoCloud(detid->second,stereoRecHits,phi0,k0,roadType,ringPhi,&(*seed),
                                        usedLayersArray,numberOfLayersPerSubdetector,tracker.product(),cloud);
 		}
 	      }
 	      for ( Ring::const_iterator detid = ring->lower_bound(0); detid != ring->upper_bound(upperPhiRangeBorder); ++detid) {
-		if ( availableIDs.end() != std::find(availableIDs.begin(),availableIDs.end(),detid->second.rawId()) ) {
+		if ( availableIDs.end() != std::find(availableIDs.begin(),availableIDs.end(),detid->second) ) {
 		  FillRecHitsIntoCloud(detid->second,rphiRecHits,phi0,k0,roadType,ringPhi,&(*seed),
                                        usedLayersArray,numberOfLayersPerSubdetector,tracker.product(),cloud);
 		}
-		if ( availableIDs2.end() != std::find(availableIDs2.begin(),availableIDs2.end(),detid->second.rawId()) ) {
+		if ( availableIDs2.end() != std::find(availableIDs2.begin(),availableIDs2.end(),detid->second) ) {
 		  FillRecHitsIntoCloud(detid->second,stereoRecHits,phi0,k0,roadType,ringPhi,&(*seed),
                                        usedLayersArray,numberOfLayersPerSubdetector,tracker.product(),cloud);
 		}
@@ -281,10 +281,10 @@ void RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloud(DetId id, const SiStrip
 					       const TrackingGeometry *tracker, RoadSearchCloud &cloud) {
   // retrieve vector<SiStripRecHit2DLocalPos> for id, loop over SiStripRecHit2DLocalPos, check if compatible with cloud, fill into cloud
 
-  const SiStripRecHit2DLocalPosCollection::Range recHitRange = inputRecHits->get(id.rawId());
+  const SiStripRecHit2DLocalPosCollection::range recHitRange = inputRecHits->get(id);
 
-  for ( SiStripRecHit2DLocalPosCollection::ContainerConstIterator recHitIterator = recHitRange.first; recHitIterator != recHitRange.second; ++recHitIterator) {
-    SiStripRecHit2DLocalPos *recHit = &(*recHitIterator);
+  for ( SiStripRecHit2DLocalPosCollection::const_iterator recHitIterator = recHitRange.first; recHitIterator != recHitRange.second; ++recHitIterator) {
+    const SiStripRecHit2DLocalPos * recHit = &(*recHitIterator);
 
     unsigned int maxDetHitsInCloudPerDetId = conf_.getParameter<int>("MaxDetHitsInCloudPerDetId");
 

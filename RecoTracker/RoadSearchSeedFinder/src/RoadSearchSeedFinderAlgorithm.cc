@@ -12,8 +12,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: stevew $
-// $Date: 2006/02/08 02:06:48 $
-// $Revision: 1.3 $
+// $Date: 2006/02/13 19:33:34 $
+// $Revision: 1.4 $
 //
 
 #include <vector>
@@ -36,6 +36,8 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "RecoTracker/RoadMapRecord/interface/Roads.h"
 
+#include "DataFormats/DetId/interface/DetId.h"
+
 #include "Geometry/Vector/interface/GlobalPoint.h"
 
 RoadSearchSeedFinderAlgorithm::RoadSearchSeedFinderAlgorithm(const edm::ParameterSet& conf) : conf_(conf) { 
@@ -54,8 +56,8 @@ void RoadSearchSeedFinderAlgorithm::run(const edm::Handle<SiStripRecHit2DMatched
   const SiStripRecHit2DMatchedLocalPosCollection* input = handle.product();
   const SiStripRecHit2DLocalPosCollection* input2 = handle2.product();
 
-  const std::vector<unsigned int> availableIDs = input->detIDs();
-  const std::vector<unsigned int> availableIDs2 = input2->detIDs();
+  const std::vector<DetId> availableIDs = input->ids();
+  const std::vector<DetId> availableIDs2 = input2->ids();
 
   // get roads
   edm::ESHandle<Roads> roads;
@@ -83,21 +85,21 @@ void RoadSearchSeedFinderAlgorithm::run(const edm::Handle<SiStripRecHit2DMatched
     // loop over detid's in seed rings
     for ( Ring::const_iterator innerRingDetId = seed.first.begin(); innerRingDetId != seed.first.end(); ++innerRingDetId ) {
 
-      if ( availableIDs.end() != std::find(availableIDs.begin(),availableIDs.end(),innerRingDetId->second.rawId()) ) {
+      if ( availableIDs.end() != std::find(availableIDs.begin(),availableIDs.end(),innerRingDetId->second) ) {
 
 	for ( Ring::const_iterator outerRingDetId = seed.second.begin(); outerRingDetId != seed.second.end(); ++outerRingDetId ) {
 
-	  if ( availableIDs2.end() != std::find(availableIDs2.begin(),availableIDs2.end(),outerRingDetId->second.rawId()) ) {
+	  if ( availableIDs2.end() != std::find(availableIDs2.begin(),availableIDs2.end(),outerRingDetId->second) ) {
 
-	    SiStripRecHit2DMatchedLocalPosCollection::Range innerSeedDetHits = input->get(innerRingDetId->second.rawId());
+	    SiStripRecHit2DMatchedLocalPosCollection::range innerSeedDetHits = input->get(innerRingDetId->second);
       
 	    // loop over inner dethits
-	    for ( SiStripRecHit2DMatchedLocalPosCollection::ContainerConstIterator innerSeedDetHit = innerSeedDetHits.first;
+	    for ( SiStripRecHit2DMatchedLocalPosCollection::const_iterator innerSeedDetHit = innerSeedDetHits.first;
 		  innerSeedDetHit != innerSeedDetHits.second; ++innerSeedDetHit ) {
 
-	      SiStripRecHit2DLocalPosCollection::Range outerSeedDetHits = input2->get(outerRingDetId->second.rawId());
+	      SiStripRecHit2DLocalPosCollection::range outerSeedDetHits = input2->get(outerRingDetId->second);
 
-	      for ( SiStripRecHit2DLocalPosCollection::ContainerConstIterator outerSeedDetHit = outerSeedDetHits.first;
+	      for ( SiStripRecHit2DLocalPosCollection::const_iterator outerSeedDetHit = outerSeedDetHits.first;
 		    outerSeedDetHit != outerSeedDetHits.second; ++outerSeedDetHit ) {
 
 		GlobalPoint inner = tracker->idToDet(innerSeedDetHit->geographicalId())->surface().toGlobal(innerSeedDetHit->localPosition());
