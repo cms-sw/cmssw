@@ -1,3 +1,6 @@
+** V00-01-00  [Tue Feb 28 19:05:40 2006]
+change to new collection of TrackerRecHit2D
+
 ** V00-00-03  [Mon Feb 13 20:40:22 2006]
 fixes for Luca's container migration
 
