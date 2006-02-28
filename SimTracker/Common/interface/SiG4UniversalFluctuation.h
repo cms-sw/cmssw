@@ -20,6 +20,8 @@
 // * statement, and all its terms.                                    *
 // ********************************************************************
 //
+// $Id: G4UniversalFluctuation.hh,v 1.2 2005/02/07 14:37:50 maire Exp $
+// GEANT4 tag $Name: geant4-07-01 $
 //
 // -------------------------------------------------------------------
 //
@@ -29,7 +31,7 @@
 // File name:     G4UniversalFluctuation
 //
 // Author:        Vladimir Ivanchenko
-// 
+//
 // Creation date: 03.01.2002
 //
 // Modifications:
@@ -38,14 +40,21 @@
 // 28-12-02 add method Dispersion (V.Ivanchenko)
 // 07-02-03 change signature (V.Ivanchenko)
 // 13-02-03 Add name (V.Ivanchenko)
-// Modified for standalone use in ORCA. d.k. 6/04
+// 16-10-03 Changed interface to Initialisation (V.Ivanchenko)
+// 07-02-05 define problim = 5.e-3 (mma)
+//
+// Modified for standalone use in CMSSW. danek k. 2/06
+//
+// Class Description:
 //
 // Implementation of energy loss fluctuations
+
 // -------------------------------------------------------------------
 //
 
 #ifndef SiG4UniversalFluctuation_h
 #define SiG4UniversalFluctuation_h 
+
 
 //#include "G4VEmFluctuationModel.hh"
 
@@ -56,27 +65,33 @@ public:
 
   ~SiG4UniversalFluctuation();
 
-  // momentum in MeV/c, mass in MeV, tmax (delta cut) in MeV, 
+  // momentum in MeV/c, mass in MeV, tmax (delta cut) in MeV,
   // length in mm, meanLoss eloss in MeV.
   double SampleFluctuations(const double momentum,
-			    const double mass,
-			    double& tmax,
-			    const double length,
-			    const double meanLoss);
-  
+                            const double mass,
+                            double& tmax,
+                            const double length,
+                            const double meanLoss);
+   
+  //G4double SampleFluctuations(const G4Material*,
+  //                      const G4DynamicParticle*,
+  //			G4double&,
+  //                            G4double&,
+  //                            G4double&);
+
   //G4double Dispersion(    const G4Material*,
-  //                        const G4DynamicParticle*,
-  //			    G4double&,
-  //                        G4double&);
-  //void Initialise(const G4ParticleDefinition*);
+  //                      const G4DynamicParticle*,
+  //			G4double&,
+  //                           G4double&);
+  //void InitialiseMe(const G4ParticleDefinition*);
 
 protected:
 
 private:
 
   // hide assignment operator
-  //G4UniversalFluctuation & operator=(const  G4UniversalFluctuation &right);
-  //G4UniversalFluctuation(const  G4UniversalFluctuation&);
+  //SiG4UniversalFluctuation & operator=(const  SiG4UniversalFluctuation &right);
+  //SiG4UniversalFluctuation(const  SiG4UniversalFluctuation&);
 
   //const G4ParticleDefinition* particle;
   //const G4Material* lastMaterial;
@@ -87,7 +102,7 @@ private:
   // data members to speed up the fluctuation calculation
   double ipotFluct;
   double electronDensity;
-  //  G4double zeff;
+  //  double zeff;
   
   double f1Fluct;
   double f2Fluct;
@@ -105,12 +120,11 @@ private:
   double problim;
   double sumalim;
   double alim;
-  int    nmaxCont1;
-  int    nmaxCont2;
-
+  double nmaxCont1;
+  double nmaxCont2;
 };
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 #endif
 

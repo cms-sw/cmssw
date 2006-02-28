@@ -20,6 +20,9 @@
 // * statement, and all its terms.                                    *
 // ********************************************************************
 //
+// $Id: G4UniversalFluctuation.cc,v 1.4 2005/05/03 13:37:43 urban Exp $
+// GEANT4 tag $Name: geant4-07-01 $
+//
 // -------------------------------------------------------------------
 //
 // GEANT4 Class file
@@ -36,11 +39,18 @@
 // 28-12-02 add method Dispersion (V.Ivanchenko)
 // 07-02-03 change signature (V.Ivanchenko)
 // 13-02-03 Add name (V.Ivanchenko)
-// Modified for standalone use in ORCA. d.k. 6/04
-//
-// -------------------------------------------------------------------
- 
-//#include "Utilities/Configuration/interface/Architecture.h"
+// 16-10-03 Changed interface to Initialisation (V.Ivanchenko)
+// 07-11-03 Fix problem of rounding of double in G4UniversalFluctuations
+// 06-02-04 Add control on big sigma > 2*meanLoss (V.Ivanchenko)
+// 26-04-04 Comment out the case of very small step (V.Ivanchenko)
+// 07-02-05 define problim = 5.e-3 (mma)
+// 03-05-05 conditions of Gaussian fluctuation changed (bugfix)
+//          + smearing for very small loss (L.Urban)
+//  
+// Modified for standalone use in CMSSW. danek k. 2/06        
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 #include "SimTracker/Common/interface/SiG4UniversalFluctuation.h"
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -49,6 +59,7 @@
 #include "CLHEP/Random/RandPoisson.h"
 #include "CLHEP/Random/RandFlat.h"
 
+//#include "G4UniversalFluctuation.hh"
 //#include "Randomize.hh"
 //#include "G4Poisson.hh"
 //#include "G4Step.hh"
@@ -56,23 +67,26 @@
 //#include "G4DynamicParticle.hh"
 //#include "G4ParticleDefinition.hh"
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
-// The constructor setups various constants pluc eloss parameters
-// for silicon.   
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+using namespace std;
+
 SiG4UniversalFluctuation::SiG4UniversalFluctuation()
  :minNumberInteractionsBohr(10.0),
   theBohrBeta2(50.0*keV/proton_mass_c2),
-  minLoss(0.000001*eV),
-  problim(0.01),
+  minLoss(10.*eV),
+  problim(5.e-3),  
   alim(10.),
-  nmaxCont1(4),
-  nmaxCont2(16)
+  nmaxCont1(4.),
+  nmaxCont2(16.)
 {
   sumalim = -log(problim);
+  //lastMaterial = 0;
 
+  // Add these definitions d.k.
   chargeSquare   = 1.;  //Assume all particles have charge 1
   // Taken from Geant4 printout, HARDWIRED for Silicon.
-  ipotFluct = 0.0001736; //material->GetIonisation()->GetMeanExcitationEnergy();
+  ipotFluct = 0.0001736; //material->GetIonisation()->GetMeanExcitationEnergy();  
   electronDensity = 6.797E+20; // material->GetElectronDensity();
   f1Fluct      = 0.8571; // material->GetIonisation()->GetF1fluct();
   f2Fluct      = 0.1429; //material->GetIonisation()->GetF2fluct();
@@ -84,216 +98,252 @@ SiG4UniversalFluctuation::SiG4UniversalFluctuation()
   ipotLogFluct = -8.659;  //material->GetIonisation()->GetLogMeanExcEnergy();
   e0 = 1.E-5;             //material->GetIonisation()->GetEnergy0fluct();
 
+  //cout << " init new fluct +++++++++++++++++++++++++++++++++++++++++"<<endl;
 }
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
-SiG4UniversalFluctuation::~SiG4UniversalFluctuation()
-{}
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 // The main dedx fluctuation routine.
 // Arguments: momentum in MeV/c, mass in MeV, delta ray cut (tmax) in
-// MeV, silicon thickness in mm, mean eloss in MeV. 
+// MeV, silicon thickness in mm, mean eloss in MeV.
 double SiG4UniversalFluctuation::SampleFluctuations(const double momentum,
-							 const double mass,
-							 double& tmax,
-							 const double length,
-							 const double meanLoss)
+						    const double mass,
+						    double& tmax,
+						    const double length,
+						    const double meanLoss)
 {
-//  calculate actual loss from the mean loss
-//  The model used to get the fluctuation is essentially the same
-// as in Glandz in Geant3.
-  
-  // shortcut for very very small loss 
-  if(meanLoss < minLoss) return meanLoss;
+// Calculate actual loss from the mean loss.
+// The model used to get the fluctuations is essentially the same
+// as in Glandz in Geant3 (Cern program library W5013, phys332).
+// L. Urban et al. NIM A362, p.416 (1995) and Geant4 Physics Reference Manual
 
-  //if(dp->GetDefinition() != particle) {
+  // shortcut for very very small loss (out of validity of the model)
+  //
+  if (meanLoss < minLoss) return meanLoss;
+
+  //if(!particle) InitialiseMe(dp->GetDefinition());
+  //G4double tau   = dp->GetKineticEnergy()/particleMass;
+  //G4double gam   = tau + 1.0;
+  //G4double gam2  = gam*gam;
+  //G4double beta2 = tau*(tau + 2.0)/gam2;
+
   particleMass   = mass; // dp->GetMass();
-  //G4double q     = dp->GetCharge(); 
-  //chargeSquare   = q*q;
-  //}
-
-  //double gam   = (dp->GetKineticEnergy())/particleMass + 1.0;
-  //double gam2  = gam*gam; 
   double gam2   = (momentum*momentum)/(particleMass*particleMass) + 1.0;
   double beta2 = 1.0 - 1.0/gam2;
- 
-  // Validity range for delta electron cross section
-  double loss, siga;
-  // Gaussian fluctuation 
-  if(meanLoss >= minNumberInteractionsBohr*tmax || 
-     tmax <= ipotFluct*minNumberInteractionsBohr)
-  {
-    siga  = (1.0/beta2 - 0.5) * twopi_mc2_rcl2 * tmax * length 
-                              * electronDensity * chargeSquare ;
-    siga = sqrt(siga);
-    do {
-     //loss = G4RandGauss::shoot(meanLoss,siga);
-     loss = RandGaussQ::shoot(meanLoss,siga);
-    } while (loss < 0. || loss > 2.*meanLoss);
+  double gam = sqrt(gam2);
 
-    return loss;
+  double loss(0.), siga(0.);
+  
+  // Gaussian regime
+  // for heavy particles only and conditions
+  // for Gauusian fluct. has been changed 
+  //
+  if ((particleMass > electron_mass_c2) &&
+      (meanLoss >= minNumberInteractionsBohr*tmax))
+  {
+    double massrate = electron_mass_c2/particleMass ;
+    double tmaxkine = 2.*electron_mass_c2*beta2*gam2/
+      (1.+massrate*(2.*gam+massrate)) ;
+    if (tmaxkine <= 2.*tmax)   
+    {
+      //electronDensity = material->GetElectronDensity();
+      siga  = (1.0/beta2 - 0.5) * twopi_mc2_rcl2 * tmax * length
+                                * electronDensity * chargeSquare;
+      siga = sqrt(siga);
+      double twomeanLoss = meanLoss + meanLoss;
+      if (twomeanLoss < siga) {
+        double x;
+        do {
+          //loss = twomeanLoss*G4UniformRand();
+          loss = twomeanLoss*RandFlat::shoot();
+       	  x = (loss - meanLoss)/siga;
+	  //} while (1.0 - 0.5*x*x < G4UniformRand());
+        } while (1.0 - 0.5*x*x < RandFlat::shoot());
+      } else {
+        do {
+          //loss = G4RandGauss::shoot(meanLoss,siga);
+          loss = RandGaussQ::shoot(meanLoss,siga);
+        } while (loss < 0. || loss > twomeanLoss);
+      }
+      return loss;
+    }
   }
 
-  // Non Gaussian fluctuation 
-  double suma,w1,w2,C,lossc,w;
-  double a1,a2,a3;
-  int p1,p2,p3;
-  int nb;
-  double corrfac, na,alfa,rfac,namean,sa,alfa1,ea,sea;
-  double dp3;
+  // Glandz regime : initialisation
+  //
+//   if (material != lastMaterial) {
+//     f1Fluct      = material->GetIonisation()->GetF1fluct();
+//     f2Fluct      = material->GetIonisation()->GetF2fluct();
+//     e1Fluct      = material->GetIonisation()->GetEnergy1fluct();
+//     e2Fluct      = material->GetIonisation()->GetEnergy2fluct();
+//     e1LogFluct   = material->GetIonisation()->GetLogEnergy1fluct();
+//     e2LogFluct   = material->GetIonisation()->GetLogEnergy2fluct();
+//     rateFluct    = material->GetIonisation()->GetRateionexcfluct();
+//     ipotFluct    = material->GetIonisation()->GetMeanExcitationEnergy();
+//     ipotLogFluct = material->GetIonisation()->GetLogMeanExcEnergy();
+//     lastMaterial = material;
+//   }
 
-  w1 = tmax/ipotFluct;
-  w2 = log(2.*electron_mass_c2*(gam2 - 1.0));
+  double a1 = 0. , a2 = 0., a3 = 0. ;
+  double p1,p2,p3;
+  double rate = rateFluct ;
 
-  C = meanLoss*(1.-rateFluct)/(w2-ipotLogFluct-beta2);
+  double w1 = tmax/ipotFluct;
+  double w2 = log(2.*electron_mass_c2*beta2*gam2)-beta2;
 
-  a1 = C*f1Fluct*(w2-e1LogFluct-beta2)/e1Fluct;
-  a2 = C*f2Fluct*(w2-e2LogFluct-beta2)/e2Fluct;
-  a3 = rateFluct*meanLoss*(tmax-ipotFluct)/(ipotFluct*tmax*log(w1));
-  if(a1 < 0.) a1 = 0.;
-  if(a2 < 0.) a2 = 0.;
-  if(a3 < 0.) a3 = 0.;
-
-  suma = a1+a2+a3;
-
-  loss = 0. ;
-
-  if(suma < sumalim)             // very small Step
+  if(w2 > ipotLogFluct)
+  {
+    double C = meanLoss*(1.-rateFluct)/(w2-ipotLogFluct);
+    a1 = C*f1Fluct*(w2-e1LogFluct)/e1Fluct;
+    a2 = C*f2Fluct*(w2-e2LogFluct)/e2Fluct;
+    if(a2 < 0.)
     {
-      //e0 = material->GetIonisation()->GetEnergy0fluct();//Hardwired in const
-      if(tmax == ipotFluct)
-      {
-        a3 = meanLoss/e0;
-
-        if(a3>alim)
-        {
-          siga=sqrt(a3) ;
-          //p3 = G4std::max(0,int(G4RandGauss::shoot(a3,siga)+0.5));
-          p3 = std::max(0,int(RandGaussQ::shoot(a3,siga)+0.5));
-        }
-        else
-          p3 = RandPoisson::shoot(a3);
-	//p3 = G4Poisson(a3);
-
-        loss = p3*e0 ;
-
-        if(p3 > 0)
-          //loss += (1.-2.*G4UniformRand())*e0 ;
-          loss += (1.-2.*RandFlat::shoot())*e0 ;
-
-      }
-      else
-      {
-        tmax = tmax-ipotFluct+e0 ;
-        a3 = meanLoss*(tmax-e0)/(tmax*e0*log(tmax/e0));
-
-        if(a3>alim)
-        {
-          siga=sqrt(a3) ;
-          //p3 = G4std::max(0,int(G4RandGauss::shoot(a3,siga)+0.5));
-          p3 = std::max(0,int(RandGaussQ::shoot(a3,siga)+0.5));
-        }
-        else
-          p3 = RandPoisson::shoot(a3);
-	//p3 = G4Poisson(a3);
-
-        if(p3 > 0)
-        {
-          w = (tmax-e0)/tmax ;
-          if(p3 > nmaxCont2)
-          {
-            dp3 = float(p3) ;
-            corrfac = dp3/float(nmaxCont2) ;
-            p3 = nmaxCont2 ;
-          }
-          else
-            corrfac = 1. ;
-
-          //for(int i=0; i<p3; i++) loss += 1./(1.-w*G4UniformRand()) ;
-          for(int i=0; i<p3; i++) loss += 1./(1.-w*RandFlat::shoot()) ;
-          loss *= e0*corrfac ;  
-        }        
-      }
+      a1 = 0. ;
+      a2 = 0. ;
+      rate = 1. ;  
     }
-    
-  else                              // not so small Step
+  }
+  else
+  {
+    rate = 1. ;
+  }
+
+  a3 = rate*meanLoss*(tmax-ipotFluct)/(ipotFluct*tmax*log(w1));
+
+  double suma = a1+a2+a3;
+  
+  // Glandz regime
+  //
+  if (suma > sumalim)
+  {
+    p1 = 0., p2 = 0 ;
+    if((a1+a2) > 0.)
     {
       // excitation type 1
-      if(a1>alim)
-      {
+      if (a1>alim) {
         siga=sqrt(a1) ;
-        //p1 = std::max(0,int(G4RandGauss::shoot(a1,siga)+0.5));
-        p1 = std::max(0,int(RandGaussQ::shoot(a1,siga)+0.5));
+        //p1 = max(0.,G4RandGauss::shoot(a1,siga)+0.5);
+        p1 = max(0.,RandGaussQ::shoot(a1,siga)+0.5);
+      } else {
+        //p1 = double(G4Poisson(a1));
+        p1 = double(RandPoisson::shoot(a1));
       }
-      else
-       p1 = RandPoisson::shoot(a1);
-      //p1 = G4Poisson(a1);
-
+    
       // excitation type 2
-      if(a2>alim)
-      {
+      if (a2>alim) {
         siga=sqrt(a2) ;
-        //p2 = std::max(0,int(G4RandGauss::shoot(a2,siga)+0.5));
-        p2 = std::max(0,int(RandGaussQ::shoot(a2,siga)+0.5));
+        //p2 = max(0.,G4RandGauss::shoot(a2,siga)+0.5);
+        p2 = max(0.,RandGaussQ::shoot(a2,siga)+0.5);
+      } else {
+        p2 = double(RandPoisson::shoot(a2));
       }
-      else
-        p2 = RandPoisson::shoot(a2);
-      //p2 = G4Poisson(a2);
-
+    
       loss = p1*e1Fluct+p2*e2Fluct;
  
       // smearing to avoid unphysical peaks
-      if(p2 > 0)
-        //loss += (1.-2.*G4UniformRand())*e2Fluct;   
-        loss += (1.-2.*RandFlat::shoot())*e2Fluct;   
+      if (p2 > 0.)
+        //loss += (1.-2.*G4UniformRand())*e2Fluct;
+        loss += (1.-2.*RandFlat::shoot())*e2Fluct;
       else if (loss>0.)
+        //loss += (1.-2.*G4UniformRand())*e1Fluct;   
         loss += (1.-2.*RandFlat::shoot())*e1Fluct;   
+      if (loss < 0.) loss = 0.0;
+    }
 
-      // ionisation .......................................
-     if(a3 > 0.)
-     {
-      if(a3>alim)
-      {
+    // ionisation
+    if (a3 > 0.) {
+      if (a3>alim) {
         siga=sqrt(a3) ;
-        p3 = std::max(0,int(RandGaussQ::shoot(a3,siga)+0.5));
+        //p3 = max(0.,G4RandGauss::shoot(a3,siga)+0.5);
+        p3 = max(0.,RandGaussQ::shoot(a3,siga)+0.5);
+      } else {
+        //p3 = double(G4Poisson(a3));
+        p3 = double(RandPoisson::shoot(a3));
       }
-      else
-        p3 = RandPoisson::shoot(a3);
-
-      lossc = 0.;
-      if(p3 > 0)
-      {
-        na = 0.; 
-        alfa = 1.;
-        if (p3 > nmaxCont2)
-        {
-          dp3        = float(p3);
-          rfac       = dp3/(float(nmaxCont2)+dp3);
-          namean     = float(p3)*rfac;
-          sa         = float(nmaxCont1)*rfac;
-          na         = RandGaussQ::shoot(namean,sa);
-          if (na > 0.)
-          {
-            alfa   = w1*float(nmaxCont2+p3)/
-                    (w1*float(nmaxCont2)+float(p3));
-            alfa1  = alfa*log(alfa)/(alfa-1.);
-            ea     = na*ipotFluct*alfa1;
-            sea    = ipotFluct*sqrt(na*(alfa-alfa1*alfa1));
+      double lossc = 0.;
+      if (p3 > 0) {
+        double na = 0.; 
+        double alfa = 1.;
+        if (p3 > nmaxCont2) {
+          double rfac   = p3/(nmaxCont2+p3);
+          double namean = p3*rfac;
+          double sa     = nmaxCont1*rfac;
+          //na              = G4RandGauss::shoot(namean,sa);
+          na              = RandGaussQ::shoot(namean,sa);
+          if (na > 0.) {
+            alfa   = w1*(nmaxCont2+p3)/(w1*nmaxCont2+p3);
+            double alfa1  = alfa*log(alfa)/(alfa-1.);
+            double ea     = na*ipotFluct*alfa1;
+            double sea    = ipotFluct*sqrt(na*(alfa-alfa1*alfa1));
+            // lossc += G4RandGauss::shoot(ea,sea);
             lossc += RandGaussQ::shoot(ea,sea);
           }
         }
 
-        nb = int(float(p3)-na);
-        if (nb > 0)
-        {
+        if (p3 > na) {
           w2 = alfa*ipotFluct;
-          w  = (tmax-w2)/tmax;      
+          double w  = (tmax-w2)/tmax;
+          int    nb = int(p3-na);
+          //for (int k=0; k<nb; k++) lossc += w2/(1.-w*G4UniformRand());
           for (int k=0; k<nb; k++) lossc += w2/(1.-w*RandFlat::shoot());
         }
       }        
       loss += lossc;  
-     }
-    } 
+    }
+    return loss;
+  }
+  
+  // suma < sumalim;  very small energy loss;  
+  //
+  //double e0 = material->GetIonisation()->GetEnergy0fluct();
 
-  return loss;
+  a3 = meanLoss*(tmax-e0)/(tmax*e0*log(tmax/e0));
+  if (a3 > alim)
+  {
+    siga=sqrt(a3);
+    //p3 = max(0.,G4RandGauss::shoot(a3,siga)+0.5);
+    p3 = max(0.,RandGaussQ::shoot(a3,siga)+0.5);
+  } else {
+    //p3 = double(G4Poisson(a3));
+    p3 = double(RandPoisson::shoot(a3));
+  }
+  if (p3 > 0.) {
+    double w = (tmax-e0)/tmax;
+    double corrfac = 1.;
+    if (p3 > nmaxCont2) {
+      corrfac = p3/nmaxCont2;
+      p3 = nmaxCont2;
+    } 
+    int ip3 = (int)p3;
+    //for (int i=0; i<ip3; i++) loss += 1./(1.-w*G4UniformRand());
+    for (int i=0; i<ip3; i++) loss += 1./(1.-w*RandFlat::shoot());
+    loss *= e0*corrfac;
+    // smearing for losses near to e0
+    if(p3 <= 2.)
+      //loss += e0*(1.-2.*G4UniformRand()) ;
+      loss += e0*(1.-2.*RandFlat::shoot()) ;
+   }
+    
+   return loss;
 }
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+// G4double SiG4UniversalFluctuation::Dispersion(
+//                           const G4Material* material,
+//                           const G4DynamicParticle* dp,
+//  				G4double& tmax,
+// 			        G4double& length)
+// {
+//   if(!particle) InitialiseMe(dp->GetDefinition());
+
+//   electronDensity = material->GetElectronDensity();
+
+//   G4double gam   = (dp->GetKineticEnergy())/particleMass + 1.0;
+//   G4double beta2 = 1.0 - 1.0/(gam*gam);
+
+//   G4double siga  = (1.0/beta2 - 0.5) * twopi_mc2_rcl2 * tmax * length
+//                  * electronDensity * chargeSquare;
+
+//   return siga;
+// }
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
