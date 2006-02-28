@@ -3,16 +3,16 @@ template std::map< int, std::vector<CSCPedestals::Item> >::iterator;
 template std::map< int, std::vector<CSCPedestals::Item> >::const_iterator;
 
 #include "CondFormats/CSCObjects/interface/CSCGains.h"
-template std::vector< CSCGains::Item >::iterator;
-template std::vector< CSCGains::Item >::const_iterator;
+template std::map< int, std::vector< CSCGains::Item> >::iterator;
+template std::map< int, std::vector< CSCGains::Item> >::const_iterator;
 
 #include "CondFormats/CSCObjects/interface/CSCNoiseMatrix.h"
-template std::vector< CSCNoiseMatrix::Item >::iterator;
-template std::vector< CSCNoiseMatrix::Item >::const_iterator;
+template std::map< int, std::vector< CSCNoiseMatrix::Item> >::iterator;
+template std::map< int, std::vector< CSCNoiseMatrix::Item> >::const_iterator;
 
 #include "CondFormats/CSCObjects/interface/CSCcrosstalk.h"
-template std::vector< CSCcrosstalk::Item >::iterator;
-template std::vector< CSCcrosstalk::Item >::const_iterator;
+template std::map< int, std::vector< CSCcrosstalk::Item> >::iterator;
+template std::map< int, std::vector< CSCcrosstalk::Item> >::const_iterator;
 
 #include "CondFormats/CSCObjects/interface/CSCIdentifier.h"
 template std::vector< CSCIdentifier::Item >::iterator;
