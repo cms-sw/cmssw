@@ -12,7 +12,6 @@ class CSCPedestals{
   struct Item{
     float ped;
     float rms;
-    float chi2;
   };
   std::map< int,std::vector<Item> > pedestals;
 };
