@@ -25,6 +25,12 @@ TECLayer::basicComponents() const{
   cout << "temporary dummy implementation of TECLayer::basicComponents()!!" << endl;
   return vector<const GeomDet*>();
 }
+
+vector<const GeometricSearchDet*> 
+TECLayer::components() const{
+  cout << "temporary dummy implementation of TECLayer::components()!!" << endl;
+  return vector<const GeometricSearchDet*>();
+}
   
 pair<bool, TrajectoryStateOnSurface>
 TECLayer::compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 

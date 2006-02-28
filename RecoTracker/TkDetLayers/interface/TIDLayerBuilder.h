@@ -19,7 +19,7 @@ class TIDLayerBuilder {
   TIDLayer* build(const GeometricDet* aTIDLayer,
 	      const TrackingGeometry* theGeomDetGeometry);
 
-  
+   
 };
 
 

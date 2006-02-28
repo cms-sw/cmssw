@@ -18,6 +18,8 @@ class TECLayer : public ForwardDetLayer{
   // GeometricSearchDet interface
   
   virtual vector<const GeomDet*> basicComponents() const;
+
+  virtual vector<const GeometricSearchDet*> components() const;
   
   virtual pair<bool, TrajectoryStateOnSurface>
   compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
@@ -34,7 +36,7 @@ class TECLayer : public ForwardDetLayer{
 			 const MeasurementEstimator& est) const;
 
 
-  virtual bool hasGroups() const {return true;;};  
+  virtual bool hasGroups() const {return true;}  
 
   // DetLayer interface
   virtual Module   module()   const { return silicon;}

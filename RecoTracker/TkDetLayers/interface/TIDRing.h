@@ -10,13 +10,19 @@
 
 class TIDRing : public GeometricSearchDet{
  public:
-  TIDRing();
+  TIDRing(vector<const GeomDet*>& innerDets,
+	  vector<const GeomDet*>& outerDets);
   ~TIDRing();
   
   // GeometricSearchDet interface
+  virtual const BoundSurface& surface() const {return thePlane;}
   
   virtual vector<const GeomDet*> basicComponents() const;
   
+  virtual vector<const GeometricSearchDet*> components() const {
+    return vector<const GeometricSearchDet*>();}
+    
+
   virtual pair<bool, TrajectoryStateOnSurface>
   compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
 	      const MeasurementEstimator&) const;
@@ -34,9 +40,11 @@ class TIDRing : public GeometricSearchDet{
 
   virtual bool hasGroups() const {return true;;};  
 
+ private:
+  BoundPlane& thePlane; //temporary solution
 
   
-};
+  };
 
 
 #endif 

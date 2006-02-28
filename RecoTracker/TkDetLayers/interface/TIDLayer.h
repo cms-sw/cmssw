@@ -20,14 +20,14 @@ class TIDLayer : public RingedForwardLayer{
   virtual vector<const GeomDet*> basicComponents() const;
   
   virtual pair<bool, TrajectoryStateOnSurface>
-  compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
-	      const MeasurementEstimator&) const;
+    compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
+		const MeasurementEstimator&) const;
 
   virtual vector<DetWithState> 
-  compatibleDets( const TrajectoryStateOnSurface& startingState,
-		  const Propagator& prop, 
-		  const MeasurementEstimator& est) const;
-
+    compatibleDets( const TrajectoryStateOnSurface& startingState,
+		    const Propagator& prop, 
+		    const MeasurementEstimator& est) const;
+  
   virtual vector<DetGroup> 
   groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
 			 const Propagator& prop,
