@@ -13,7 +13,7 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/01/14 22:00:00 $
+// $Date: 2006/01/15 00:56:20 $
 // $Revision: 1.1 $
 //
 
@@ -26,14 +26,14 @@ public:
 
   RoadSearchCloud() {}
 
-  inline const std::vector<SiStripRecHit2DLocalPos const*> detHits() const { return detHits_;}
-  inline void addHit(SiStripRecHit2DLocalPos *const input) { detHits_.push_back(input); }
+  inline const std::vector<const SiStripRecHit2DLocalPos*> detHits() const { return detHits_;}
+  inline void addHit(const SiStripRecHit2DLocalPos *input) { detHits_.push_back(input); }
   const TrackingSeed* seed() const { return seed_;}
   inline unsigned int size() const { return detHits_.size(); }
 
 private:
 
-  std::vector<SiStripRecHit2DLocalPos const*> detHits_;
+  std::vector<const SiStripRecHit2DLocalPos*> detHits_;
   const TrackingSeed*                         seed_;
 
 };
