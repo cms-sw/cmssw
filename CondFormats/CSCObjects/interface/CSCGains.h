@@ -11,7 +11,7 @@ class CSCGains{
   struct Item{
     float gain_slope;
     float gain_intercept;
-    float gain_rms;
+    float gain_chi2;
   };
   std::vector<Item> gains;
 };
