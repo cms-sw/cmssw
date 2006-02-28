@@ -1,3 +1,6 @@
+** V00-02-03  [Tue Feb 28 12:46:06 2006]
+ported Candidate and RecoCandidate packages from PhysicsTools to DataFormats
+
 ** V00-02-02  [Mon Feb 27 17:29:14 2006]
 fixed charge comparison
 
