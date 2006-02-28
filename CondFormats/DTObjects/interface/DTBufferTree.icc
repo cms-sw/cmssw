@@ -1,0 +1,87 @@
+/*
+ *  See header file for a description of this class.
+ *
+ *  $Date: 2004/08/04 12:00:00 $
+ *  $Revision: 1.1 $
+ *  \author Paolo Ronchese INFN Padova
+ *
+ */
+
+//----------------------
+// This Class' Header --
+//----------------------
+#include "CondFormats/DTObjects/interface/DTBufferTree.h"
+
+//-------------------------------
+// Collaborating Class Headers --
+//-------------------------------
+
+
+//---------------
+// C++ Headers --
+//---------------
+
+//-------------------
+// Initializations --
+//-------------------
+template <class Key, class Content>
+Content DTBufferTree<Key,Content>::defaultContent;
+
+//----------------
+// Constructors --
+//----------------
+template <class Key, class Content>
+DTBufferTree<Key,Content>::DTBufferTree():
+ bufferContent( defaultContent ) {
+}
+
+//--------------
+// Destructor --
+//--------------
+template <class Key, class Content>
+DTBufferTree<Key,Content>::~DTBufferTree() {
+  map_iter iter = bufferMap.begin();
+  map_iter iend = bufferMap.end();
+  while ( iter != iend ) delete (iter++)->second;
+}
+
+//--------------
+// Operations --
+//--------------
+template <class Key, class Content>
+void DTBufferTree<Key,Content>::insert( ElementKey fKey,
+                                        ElementKey lKey,
+                                        const Content& cont ) {
+  if ( fKey == lKey ) {
+    bufferContent = cont;
+  }
+  else {
+    map_iter iter = bufferMap.find( *fKey );
+    if ( iter == bufferMap.end() ) {
+      map_node* bMap = new map_node;
+      bufferMap.insert( std::pair<Key,
+                     DTBufferTree<Key,Content>*>( *fKey, bMap ) );
+      bMap->insert( ++fKey, lKey, cont );
+    }
+    else {
+      iter->second->insert( ++fKey, lKey, cont );
+    }
+  }
+  return;
+}
+
+
+template <class Key, class Content>
+Content& DTBufferTree<Key,Content>::find( ElementKey fKey,
+                                          ElementKey lKey ) {
+  if ( fKey == lKey ) {
+    return bufferContent;
+  }
+  else {
+    map_iter iter = bufferMap.find( *fKey++ );
+    if ( iter != bufferMap.end() ) return iter->second->find( fKey, lKey );
+    else                           return defaultContent;
+  }
+}
+
+

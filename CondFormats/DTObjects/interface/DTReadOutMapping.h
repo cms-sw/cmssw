@@ -5,8 +5,8 @@
  *  Description:
  *       Class to map read-out channels to physical drift tubes
  *
- *  $Date: 2005/11/15 13:52:00 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/01/27 15:21:15 $
+ *  $Revision: 1.3 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -134,22 +134,11 @@ class DTReadOutMapping {
 
  private:
 
+ public:
   std::string cellMapVersion;
   std::string  robMapVersion;
 
   std::vector<DTReadOutGeometryLink> readOutChannelDriftTubeMap;
-  void getIdNumbers( int& minWheel,   int& minStation,
-                     int& minSector,  int& minSL,
-                     int& minLayer,   int& minCell,
-                     int& minDDU,     int& minROS,
-                     int& minROB,     int& minTDC,
-                     int& minChannel,
-                     int& maxWheel,   int& maxStation,
-                     int& maxSector,  int& maxSL,
-                     int& maxLayer,   int& maxCell,
-                     int& maxDDU,     int& maxROS,
-                     int& maxROB,     int& maxTDC,
-                     int& maxChannel ) const;
 
 };
 

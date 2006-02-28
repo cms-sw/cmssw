@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/01/27 15:22:15 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/02/24 18:28:06 $
+ *  $Revision: 1.3 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -63,40 +63,39 @@ DTSLMtimeData::~DTSLMtimeData() {
 void DTMtime::initSetup() const {
 
   std::string mTimeVersion = dataVersion + "_mTime";
-  int minWheel;
-  int minStation;
-  int minSector;
-  int minSL;
-  int maxWheel;
-  int maxStation;
-  int maxSector;
-  int maxSL;
-  getIdNumbers( minWheel, minStation, minSector, minSL,
-                maxWheel, maxStation, maxSector, maxSL );
-  DTDataBuffer<int>::openBuffer(   "superlayer", mTimeVersion,
-                minWheel, minStation, minSector, minSL, 0, 0,
-                maxWheel, maxStation, maxSector, maxSL, 1, 1,
-                -999 );
-  DTDataBuffer<float>::openBuffer( "superlayer", mTimeVersion,
-                minWheel, minStation, minSector, minSL, 0, 0,
-                maxWheel, maxStation, maxSector, maxSL, 1, 1,
-                -999 );
+
+  DTBufferTree<int,int  >* dataBuf =
+                           DTDataBuffer<int,int  >::openBuffer( mTimeVersion );
+  DTBufferTree<int,float>* drmsBuf =
+                           DTDataBuffer<int,float>::openBuffer( mTimeVersion );
+
   std::vector<DTSLMtimeData>::const_iterator iter = slData.begin();
   std::vector<DTSLMtimeData>::const_iterator iend = slData.end();
+  int   wheelId;
+  int stationId;
+  int  sectorId;
+  int      slId;
+  int   mTime;
+  float mTrms;
   while ( iter != iend ) {
+
     const DTSLMtimeData& data = *iter++;
-    DTDataBuffer<int>::insertSLData( mTimeVersion,
-                                     data.  wheelId,
-                                     data.stationId,
-                                     data. sectorId,
-                                     data.     slId,
-                                     data.    mTime );
-    DTDataBuffer<float>::insertSLData( mTimeVersion,
-                                     data.  wheelId,
-                                     data.stationId,
-                                     data. sectorId,
-                                     data.     slId,
-                                     data.    mTrms / rmsFactor );
+      wheelId = data.  wheelId;
+    stationId = data.stationId;
+     sectorId = data. sectorId;
+         slId = data.     slId;
+
+    std::vector<int> slKey;
+    slKey.push_back(   wheelId );
+    slKey.push_back( stationId );
+    slKey.push_back(  sectorId );
+    slKey.push_back(      slId );
+
+    mTime = data.mTime;
+    dataBuf->insert( slKey.begin(), slKey.end(), mTime );
+    mTrms = data.mTrms / rmsFactor;
+    drmsBuf->insert( slKey.begin(), slKey.end(), mTrms );
+
   }
 
   return;
@@ -111,27 +110,32 @@ int DTMtime::slMtime( int   wheelId,
                       int&    mTime,
                       float&  mTrms ) const {
 
-  int found = 0;
   mTime = 0;
   mTrms = 0.0;
 
   std::string mTimeVersion = dataVersion + "_mTime";
-  if( !DTDataBuffer<int>::findBuffer( "superlayer", mTimeVersion ) )
-      initSetup();
+  DTBufferTree<int,int  >* dataBuf =
+                           DTDataBuffer<int,int  >::findBuffer( mTimeVersion );
+  DTBufferTree<int,float>* drmsBuf =
+                           DTDataBuffer<int,float>::findBuffer( mTimeVersion );
+  if ( dataBuf == 0 ) {
+    initSetup();
+    dataBuf = DTDataBuffer<int,int  >::findBuffer( mTimeVersion );
+  }
+  if ( drmsBuf == 0 ) {
+    initSetup();
+    drmsBuf = DTDataBuffer<int,float>::findBuffer( mTimeVersion );
+  }
 
-  mTime = DTDataBuffer<int>::getSLData( mTimeVersion,
-                                             wheelId,
-                                           stationId,
-                                            sectorId,
-                                                slId );
-  mTrms = DTDataBuffer<float>::getSLData( mTimeVersion,
-                                               wheelId,
-                                             stationId,
-                                              sectorId,
-                                                  slId );
+  std::vector<int> slKey;
+  slKey.push_back(   wheelId );
+  slKey.push_back( stationId );
+  slKey.push_back(  sectorId );
+  slKey.push_back(      slId );
+  mTime = dataBuf->find( slKey.begin(), slKey.end() );
+  mTrms = drmsBuf->find( slKey.begin(), slKey.end() );
 
-  if ( mTrms >= 0.0 ) found = 1;
-  return found;
+  return 1;
 
 }
 
@@ -171,21 +175,20 @@ int DTMtime::setSLMtime( int   wheelId,
   slData.push_back( data );
 
   std::string mTimeVersion = dataVersion + "_mTime";
-  if( !DTDataBuffer<int>::findBuffer( "superlayer", mTimeVersion ) )
-      return 0;
-  return 0;
-  DTDataBuffer<int>::insertSLData( mTimeVersion,
-                                        wheelId,
-                                      stationId,
-                                       sectorId,
-                                           slId,
-                                          mTime );
-  DTDataBuffer<float>::insertSLData( mTimeVersion,
-                                       wheelId,
-                                     stationId,
-                                      sectorId,
-                                          slId,
-                                         mTrms );
+
+  DTBufferTree<int,int  >* dataBuf =
+                           DTDataBuffer<int,int  >::openBuffer( mTimeVersion );
+  DTBufferTree<int,float>* drmsBuf =
+                           DTDataBuffer<int,float>::openBuffer( mTimeVersion );
+
+  std::vector<int> slKey;
+  slKey.push_back(   wheelId );
+  slKey.push_back( stationId );
+  slKey.push_back(  sectorId );
+  slKey.push_back(      slId );
+
+  dataBuf->insert( slKey.begin(), slKey.end(), mTime );
+  drmsBuf->insert( slKey.begin(), slKey.end(), mTrms );
 
   return 0;
 
@@ -199,51 +202,5 @@ DTMtime::const_iterator DTMtime::begin() const {
 
 DTMtime::const_iterator DTMtime::end() const {
   return slData.end();
-}
-
-
-void DTMtime::getIdNumbers( int& minWheel,  int& minStation,
-                            int& minSector, int& minSL,
-                            int& maxWheel,  int& maxStation,
-                            int& maxSector, int& maxSL      ) const {
-
-  std::vector<DTSLMtimeData>::const_iterator iter = slData.begin();
-  std::vector<DTSLMtimeData>::const_iterator iend = slData.end();
-  minWheel   = 99999999;
-  minStation = 99999999;
-  minSector  = 99999999;
-  minSL      = 99999999;
-  maxWheel   = 0;
-  maxStation = 0;
-  maxSector  = 0;
-  maxSL      = 0;
-  int id;
-  int nfound = 0;
-  while ( iter != iend ) {
-    const DTSLMtimeData& data = *iter++;
-    if ( ( id = data.  wheelId ) < minWheel   ) minWheel   = id;
-    if ( ( id = data.stationId ) < minStation ) minStation = id;
-    if ( ( id = data. sectorId ) < minSector  ) minSector  = id;
-    if ( ( id = data.     slId ) < minSL      ) minSL      = id;
-    if ( ( id = data.  wheelId ) > maxWheel   ) maxWheel   = id;
-    if ( ( id = data.stationId ) > maxStation ) maxStation = id;
-    if ( ( id = data. sectorId ) > maxSector  ) maxSector  = id;
-    if ( ( id = data.     slId ) > maxSL      ) maxSL      = id;
-    nfound++;
-  }
-
-  if ( nfound == 0 ) {
-    minWheel   = 1;
-    minStation = 1;
-    minSector  = 1;
-    minSL      = 1;
-    maxWheel   = 0;
-    maxStation = 0;
-    maxSector  = 0;
-    maxSL      = 0;
-  }
-
-  return;
-
 }
 

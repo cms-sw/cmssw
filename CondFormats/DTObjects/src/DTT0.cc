@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/01/27 15:22:15 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/02/24 18:28:06 $
+ *  $Revision: 1.4 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -65,48 +65,45 @@ DTCellT0Data::~DTCellT0Data() {
 void DTT0::initSetup() const {
 
   std::string t0Version = dataVersion + "_t0";
-  int minWheel;
-  int minStation;
-  int minSector;
-  int minSL;
-  int minLayer;
-  int minCell;
-  int maxWheel;
-  int maxStation;
-  int maxSector;
-  int maxSL;
-  int maxLayer;
-  int maxCell;
-  getIdNumbers( minWheel, minStation, minSector, minSL,  minLayer,   minCell,
-                maxWheel, maxStation, maxSector, maxSL,  maxLayer,   maxCell );
-  DTDataBuffer<int>::openBuffer(   "cell", t0Version,
-                minWheel, minStation, minSector, minSL,  minLayer,   minCell,
-                maxWheel, maxStation, maxSector, maxSL,  maxLayer,   maxCell,
-                -999 );
-  DTDataBuffer<float>::openBuffer( "cell", t0Version,
-                minWheel, minStation, minSector, minSL,  minLayer,   minCell,
-                maxWheel, maxStation, maxSector, maxSL,  maxLayer,   maxCell,
-                -999.0 );
+
+  DTBufferTree<int,int  >* dataBuf =
+                           DTDataBuffer<int,int  >::openBuffer( t0Version );
+  DTBufferTree<int,float>* drmsBuf =
+                           DTDataBuffer<int,float>::openBuffer( t0Version );
+
   std::vector<DTCellT0Data>::const_iterator iter = cellData.begin();
   std::vector<DTCellT0Data>::const_iterator iend = cellData.end();
+  int   wheelId;
+  int stationId;
+  int  sectorId;
+  int      slId;
+  int   layerId;
+  int    cellId;
+  int   t0mean;
+  float t0rms;
   while ( iter != iend ) {
+
     const DTCellT0Data& data = *iter++;
-    DTDataBuffer<int>::insertCellData( t0Version,
-                                       data.  wheelId,
-                                       data.stationId,
-                                       data. sectorId,
-                                       data.     slId,
-                                       data.  layerId,
-                                       data.   cellId,
-                                       data.   t0mean );
-    DTDataBuffer<float>::insertCellData( t0Version,
-                                         data.  wheelId,
-                                         data.stationId,
-                                         data. sectorId,
-                                         data.     slId,
-                                         data.  layerId,
-                                         data.   cellId,
-                                         data.   t0rms / rmsFactor );
+      wheelId = data.  wheelId;
+    stationId = data.stationId;
+     sectorId = data. sectorId;
+         slId = data.     slId;
+      layerId = data.  layerId;
+       cellId = data.   cellId;
+
+    std::vector<int> cellKey;
+    cellKey.push_back(   wheelId );
+    cellKey.push_back( stationId );
+    cellKey.push_back(  sectorId );
+    cellKey.push_back(      slId );
+    cellKey.push_back(   layerId );
+    cellKey.push_back(    cellId );
+
+    t0mean = data.t0mean;
+    dataBuf->insert( cellKey.begin(), cellKey.end(), t0mean );
+    t0rms  = data.t0rms / rmsFactor;
+    drmsBuf->insert( cellKey.begin(), cellKey.end(), t0rms );
+
   }
 
   return;
@@ -123,29 +120,34 @@ int DTT0::cellT0( int   wheelId,
                   int&   t0mean,
                   float& t0rms ) const {
 
-  int found = 0;
   t0mean    = 0;
   t0rms     = 0.0;
 
   std::string t0Version = dataVersion + "_t0";
-  if( !DTDataBuffer<int>::findBuffer( "cell", t0Version ) ) initSetup();
-  t0mean = DTDataBuffer<int>::getCellData( t0Version,
-                                             wheelId,
-                                           stationId,
-                                            sectorId,
-                                                slId,
-                                             layerId,
-                                              cellId );
-  t0rms = DTDataBuffer<float>::getCellData( t0Version,
-                                              wheelId,
-                                            stationId,
-                                             sectorId,
-                                                 slId,
-                                              layerId,
-                                               cellId );
+  DTBufferTree<int,int  >* dataBuf =
+                           DTDataBuffer<int,int  >::findBuffer( t0Version );
+  DTBufferTree<int,float>* drmsBuf =
+                           DTDataBuffer<int,float>::findBuffer( t0Version );
+  if ( dataBuf == 0 ) {
+    initSetup();
+    dataBuf = DTDataBuffer<int,int  >::findBuffer( t0Version );
+  }
+  if ( drmsBuf == 0 ) {
+    initSetup();
+    drmsBuf = DTDataBuffer<int,float>::findBuffer( t0Version );
+  }
 
-  if ( t0rms >= 0.0 ) found = 1;
-  return found;
+  std::vector<int> cellKey;
+  cellKey.push_back(   wheelId );
+  cellKey.push_back( stationId );
+  cellKey.push_back(  sectorId );
+  cellKey.push_back(      slId );
+  cellKey.push_back(   layerId );
+  cellKey.push_back(    cellId );
+  t0mean = dataBuf->find( cellKey.begin(), cellKey.end() );
+  t0rms  = drmsBuf->find( cellKey.begin(), cellKey.end() );
+
+  return 1;
 
 }
 
@@ -189,24 +191,22 @@ int DTT0::setCellT0( int   wheelId,
   cellData.push_back( data );
 
   std::string t0Version = dataVersion + "_t0";
-  if( !DTDataBuffer<int>::findBuffer( "cell", t0Version ) ) return 0;
-  return 0;
-  DTDataBuffer<int>::insertCellData( t0Version,
-                                       wheelId,
-                                     stationId,
-                                      sectorId,
-                                          slId,
-                                       layerId,
-                                        cellId,
-                                        t0mean );
-  DTDataBuffer<float>::insertCellData( t0Version,
-                                         wheelId,
-                                       stationId,
-                                        sectorId,
-                                            slId,
-                                         layerId,
-                                          cellId,
-                                           t0rms );
+
+  DTBufferTree<int,int  >* dataBuf =
+                           DTDataBuffer<int,int  >::openBuffer( t0Version );
+  DTBufferTree<int,float>* drmsBuf =
+                           DTDataBuffer<int,float>::openBuffer( t0Version );
+
+  std::vector<int> cellKey;
+  cellKey.push_back(   wheelId );
+  cellKey.push_back( stationId );
+  cellKey.push_back(  sectorId );
+  cellKey.push_back(      slId );
+  cellKey.push_back(   layerId );
+  cellKey.push_back(    cellId );
+
+  dataBuf->insert( cellKey.begin(), cellKey.end(), t0mean );
+  drmsBuf->insert( cellKey.begin(), cellKey.end(), t0rms  );
 
   return 0;
 
@@ -220,65 +220,5 @@ DTT0::const_iterator DTT0::begin() const {
 
 DTT0::const_iterator DTT0::end() const {
   return cellData.end();
-}
-
-
-void DTT0::getIdNumbers( int& minWheel,   int& minStation,
-                         int& minSector,  int& minSL,
-                         int& minLayer,   int& minCell,
-                         int& maxWheel,   int& maxStation,
-                         int& maxSector,  int& maxSL,
-                         int& maxLayer,   int& maxCell    ) const {
-
-  std::vector<DTCellT0Data>::const_iterator iter = cellData.begin();
-  std::vector<DTCellT0Data>::const_iterator iend = cellData.end();
-  minWheel   = 99999999;
-  minStation = 99999999;
-  minSector  = 99999999;
-  minSL      = 99999999;
-  minLayer   = 99999999;
-  minCell    = 99999999;
-  maxWheel   = 0;
-  maxStation = 0;
-  maxSector  = 0;
-  maxSL      = 0;
-  maxLayer   = 0;
-  maxCell    = 0;
-  int id;
-  int nfound = 0;
-  while ( iter != iend ) {
-    const DTCellT0Data& data = *iter++;
-    if ( ( id = data.  wheelId ) < minWheel   ) minWheel   = id;
-    if ( ( id = data.stationId ) < minStation ) minStation = id;
-    if ( ( id = data. sectorId ) < minSector  ) minSector  = id;
-    if ( ( id = data.     slId ) < minSL      ) minSL      = id;
-    if ( ( id = data.  layerId ) < minLayer   ) minLayer   = id;
-    if ( ( id = data.   cellId ) < minCell    ) minCell    = id;
-    if ( ( id = data.  wheelId ) > maxWheel   ) maxWheel   = id;
-    if ( ( id = data.stationId ) > maxStation ) maxStation = id;
-    if ( ( id = data. sectorId ) > maxSector  ) maxSector  = id;
-    if ( ( id = data.     slId ) > maxSL      ) maxSL      = id;
-    if ( ( id = data.  layerId ) > maxLayer   ) maxLayer   = id;
-    if ( ( id = data.   cellId ) > maxCell    ) maxCell    = id;
-    nfound++;
-  }
-
-  if ( nfound == 0 ) {
-    minWheel   = 1;
-    minStation = 1;
-    minSector  = 1;
-    minSL      = 1;
-    minLayer   = 1;
-    minCell    = 1;
-    maxWheel   = 0;
-    maxStation = 0;
-    maxSector  = 0;
-    maxSL      = 0;
-    maxLayer   = 0;
-    maxCell    = 0;
-  }
-
-  return;
-
 }
 
