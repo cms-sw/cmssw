@@ -1,3 +1,7 @@
+** V00-05-00  [Tue Feb 28 18:41:23 2006]
+Ecal numbering scheme update
+Ecal sim Hits validation package added
+
 ** V00-04-13  [Tue Feb 28 15:39:57 2006]
 added download.url to retrieve data files at build time
 
