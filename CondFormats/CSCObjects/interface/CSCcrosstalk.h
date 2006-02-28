@@ -2,6 +2,7 @@
 #define CSCcrosstalk_h
 
 #include <vector>
+#include <map>
 
 class CSCcrosstalk{
  public:
@@ -16,7 +17,7 @@ class CSCcrosstalk{
     float xtalk_intercept_left;
     float xtalk_chi2_left;
   };
-  std::vector<Item> crosstalk;
+  std::map< int,std::vector<Item> > crosstalk;
 };
 
 #endif

@@ -2,6 +2,7 @@
 #define CSCGains_h
 
 #include <vector>
+#include <map>
 
 class CSCGains{
  public:
@@ -13,7 +14,7 @@ class CSCGains{
     float gain_intercept;
     float gain_chi2;
   };
-  std::vector<Item> gains;
+  std::map< int,std::vector<Item> > gains;
 };
 
 #endif

@@ -2,6 +2,7 @@
 #define CSCNoiseMatrix_h
 
 #include <vector>
+#include <map>
 
 class CSCNoiseMatrix{
  public:
@@ -13,7 +14,7 @@ class CSCNoiseMatrix{
     float tmp1_1,tmp1_2,tmp1_3,tmp1_4,tmp1_5,tmp1_6,tmp1_7,tmp1_8,tmp1_9,tmp1_10,tmp1_11,tmp1_12;
   };
   
-  std::vector<Item> matrix;
+  std::map< int,std::vector<Item> > matrix;
 };
 
 #endif
