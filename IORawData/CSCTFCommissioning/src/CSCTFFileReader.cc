@@ -12,7 +12,7 @@
 #include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
 
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
-#include <IORawData/CSCTFCommissioning/interface/FileReaderSP.h>
+#include <IORawData/CSCTFCommissioning/src/FileReaderSP.h>
 
 #include <string>
 #include <iosfwd>
