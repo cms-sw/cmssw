@@ -1,3 +1,6 @@
+** V01-01-00  [Tue Feb 28 20:53:08 2006]
+new generic prescaler module
+
 ** V01-00-02  [Mon Feb 13 23:34:46 2006]
 implemented proper printing of objects held by pointers
 
