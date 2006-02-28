@@ -47,7 +47,7 @@ CPEFromDetPosition::setTheDet( const GeomDetUnit & det )
   if ( theDet == &det )
     return;       // we have already seen this det unit
 
-  //--- This is a new det unit, so cache it's values
+  //--- This is a new det unit, so cache it
   theDet = dynamic_cast<const PixelGeomDetUnit*>( &det );
   if (! theDet) {
     // &&& Fatal error!  TO DO: throw an exception!
@@ -110,14 +110,14 @@ CPEFromDetPosition::setTheDet( const GeomDetUnit & det )
   //--- The Lorentz shift.
   theLShift = lorentzShift();
 
-#ifdef DEBUG
-  cout << "***** PIXEL LAYOUT *****" << endl;
-  cout << " theThickness = " << theThickness << endl;
-  cout << " thePitchX  = " << thePitchX << endl;
-  cout << " thePitchY  = " << thePitchY << endl;
-  cout << " theOffsetX  = " << theOffsetX << endl;
-  cout << " theOffsetY  = " << theOffsetY << endl;
-#endif
+  if (theVerboseLevel > 10) {
+    cout << "***** PIXEL LAYOUT *****" << endl;
+    cout << " theThickness = " << theThickness << endl;
+    cout << " thePitchX  = " << thePitchX << endl;
+    cout << " thePitchY  = " << thePitchY << endl;
+    cout << " theOffsetX  = " << theOffsetX << endl;
+    cout << " theOffsetY  = " << theOffsetY << endl;
+  }
 }
 
 MeasurementError  

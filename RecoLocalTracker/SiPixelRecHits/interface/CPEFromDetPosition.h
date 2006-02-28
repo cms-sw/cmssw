@@ -2,8 +2,11 @@
 #define CPEFromDetPosition_H
 
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/EtaCorrection.h"
+
+#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+#include "Geometry/TrackerSimAlgo/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/RectangularPixelTopology.h"
 
 #include "Geometry/CommonDetAlgo/interface/MeasurementPoint.h"
 #include "Geometry/CommonDetAlgo/interface/MeasurementError.h"
@@ -42,8 +45,8 @@ class CPEFromDetPosition : public PixelClusterParameterEstimator
     return std::make_pair( localPosition(cl,det), localError(cl,det) );
   }
 
-  LocalPoint localPosition(const SiPixelCluster&, const GeomDetUnit & det);
-  LocalError localError   (const SiPixelCluster&, const GeomDetUnit & det);
+  LocalPoint localPosition(const SiPixelCluster& cl, const GeomDetUnit & det);
+  LocalError localError   (const SiPixelCluster& cl, const GeomDetUnit & det);
   void       setTheDet( const GeomDetUnit & det );
 
   //
