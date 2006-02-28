@@ -2,9 +2,15 @@
   <class name="EcalUncalibratedRecHit"/>
   <class name="std::vector<EcalUncalibratedRecHit>"/>
   <class name="edm::SortedCollection<EcalUncalibratedRecHit,edm::StrictWeakOrdering<EcalUncalibratedRecHit> >"/>
-  <class name="edm::Wrapper<edm::SortedCollection<EcalUncalibratedRecHit,edm::StrictWeakOrdering<EcalUncalibratedRecHit> > >" id="883F00E4-8F8D-836A-0627-6151E3B9BF1D"/>
+  <class name="edm::Wrapper<edm::SortedCollection<EcalUncalibratedRecHit,edm::StrictWeakOrdering<EcalUncalibratedRecHit> > >" />
+  <class name="edm::Ref<edm::SortedCollection<EcalUncalibratedRecHit,edm::StrictWeakOrdering<EcalUncalibratedRecHit> >, EcalUncalibratedRecHit>" />
+  <class name="edm::RefVector<edm::SortedCollection<EcalUncalibratedRecHit,edm::StrictWeakOrdering<EcalUncalibratedRecHit> >, EcalUncalibratedRecHit>" />
+  <class name="edm::RefProd<edm::SortedCollection<EcalUncalibratedRecHit,edm::StrictWeakOrdering<EcalUncalibratedRecHit> > >" />
   <class name="EcalRecHit"/>
   <class name="std::vector<EcalRecHit>"/>
   <class name="edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> >"/>
-  <class name="edm::Wrapper<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > >" id="01609F4B-5EFA-D1FF-F620-4DC0EEF423AE"/>
+  <class name="edm::Wrapper<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > >" />
+  <class name="edm::Ref<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> >, EcalRecHit>" />
+  <class name="edm::RefVector<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> >, EcalRecHit>" />
+  <class name="edm::RefProd<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > >" />
 </lcgdict>
