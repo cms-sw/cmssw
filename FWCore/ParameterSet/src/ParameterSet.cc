@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.cc,v 1.17 2006/02/21 23:35:04 wmtan Exp $
+// $Id: ParameterSet.cc,v 1.18 2006/02/27 15:32:33 paterno Exp $
 //
 // definition of ParameterSet's function members
 // ----------------------------------------------------------------------
@@ -175,7 +175,6 @@ namespace edm {
   // ----------------------------------------------------------------------
   // copy without overwriting
   // ----------------------------------------------------------------------
-  
   void
   ParameterSet::augment(ParameterSet const& from) {
     // This preemptive invalidation may be more agressive than necessary.
@@ -188,7 +187,7 @@ namespace edm {
       this->insert(false, b->first, b->second);
     }
   }  // augment()
-  
+
   // ----------------------------------------------------------------------
   // coding
   // ----------------------------------------------------------------------
@@ -285,6 +284,85 @@ namespace edm {
   {
     return ParameterSet(this->toStringOfTracked());
   }
-  
+
+  size_t
+  ParameterSet::getParameterSetNames(std::vector<std::string>& output) const
+  {
+    return getNamesByCode_('P', output);
+  }
+
+  size_t
+  ParameterSet::getParameterSetVectorNames(std::vector<std::string>& output) const
+  {
+    return getNamesByCode_('p', output);
+  }
+
+  size_t
+  ParameterSet::getNamesByCode_(char code, 
+				std::vector<std::string>& output) const
+  {
+    size_t count = 0;
+    table::const_iterator it = tbl_.begin();
+    table::const_iterator end = tbl_.end();
+    while ( it != end )
+    {
+      Entry const& e = it->second;
+      if (e.typeCode() == code) // if it is a vector of ParameterSet
+	{
+	  ++count;
+	  output.push_back(it->first); // save the name
+	}
+      ++it;
+    }
+    return count;
+
+  }
 } // namespace edm
-// ----------------------------------------------------------------------
+
+
+namespace pset
+{
+  void explode(edm::ParameterSet const& top,
+	       std::vector<edm::ParameterSet>& results)
+  {
+    using namespace std;
+    using namespace edm;
+    results.push_back(top);
+
+    // Get names of all ParameterSets; iterate through them,
+    // recursively calling explode...
+    vector<string> names;
+    top.getParameterSetNames(names);
+    vector<string>::const_iterator it = names.begin();
+    vector<string>::const_iterator end = names.end();
+    for( ; it != end; ++it )
+      {
+	ParameterSet next_top = 
+	  top.getParameter<ParameterSet>(*it);
+	explode(next_top, results);
+      }
+    
+    // Get names of all ParameterSets vectors; iterate through them,
+    // recursively calling explode...
+    names.clear();
+    top.getParameterSetVectorNames(names);
+    it = names.begin();
+    end = names.end();
+    for( ; it != end; ++it )
+      {
+	vector<ParameterSet> next_bunch =
+	  top.getParameter<vector<ParameterSet> >(*it);
+
+	vector<ParameterSet>::const_iterator first = 
+	  next_bunch.begin();
+	vector<ParameterSet>::const_iterator last 
+	  = next_bunch.end();
+
+	for( ; first != last; ++first )
+	  {
+	    explode(*first, results);
+	  }	  
+      }    
+  }
+}
+

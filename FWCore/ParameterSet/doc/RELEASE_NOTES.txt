@@ -1,3 +1,8 @@
+28-02-06 mfp. Added ability to get names of all directly-included
+    ParameterSets and vectors of ParameterSets. This was added to
+    support the recursive "explosion" of a ParameterSet to produce
+    all the ParameterSets it contains.
+
 27-02-06 mfp. Added thread-safe Registry class, to provide a
     repository for the persistent part of ParameterSets used in a
     whole program. This is a first step towards providing persistency
