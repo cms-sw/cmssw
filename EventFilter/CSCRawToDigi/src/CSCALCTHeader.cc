@@ -68,28 +68,30 @@ std::vector<CSCALCTDigi> CSCALCTHeader::ALCTDigis() const {
   std::vector<CSCALCTDigi> result;
   
   //for the zeroth ALCT word:  
-  if (debug) edm::LogInfo("CSCALCTHeader") << "ALCT DIGI 0 valid = " << alct0Valid() 
-					   << "  quality = "  << alct0Quality()
-					   << "  accel = " << alct0Accel()
-					   << "  pattern = " << alct0Pattern() 
-					   << "  Key Wire Group = " << alct0KeyWire() 
-					   << "  BX = " << alct0BXN();  
+  if (debug) 
+    edm::LogInfo("CSCALCTHeader") << "ALCT DIGI 1 valid = " << alct0Valid() 
+				  << "  quality = "  << alct0Quality()
+				  << "  accel = " << alct0Accel()
+				  << "  pattern = " << alct0Pattern() 
+				  << "  Key Wire Group = " << alct0KeyWire() 
+				  << "  BX = " << alct0BXN();  
 
-  CSCALCTDigi digi(1, alct0KeyWire(), alct0BXN(), alct0Accel(), alct0Quality(), 
-		   alct0Pattern(), alct0Valid());
+  CSCALCTDigi digi(alct0Valid(), alct0Quality(), alct0Accel(), alct0Pattern(),
+		   alct0KeyWire(), alct0BXN(), 1);
   result.push_back(digi);
 
   //for the first ALCT word:  
-  if (debug) edm::LogInfo("CSCALCTHeader") << "ALCT DIGI 1 valid = " << alct1Valid() 
-					   << "  quality = "  << alct1Quality()
-					   << "  accel = " << alct1Accel()
-					   << "  pattern = " << alct1Pattern() 
-					   << "  Key Wire Group = " << alct1KeyWire() 
-					   << "  BX = " << alct1BXN();  
+  if (debug) 
+    edm::LogInfo("CSCALCTHeader") << "ALCT DIGI 2 valid = " << alct1Valid() 
+				  << "  quality = "  << alct1Quality()
+				  << "  accel = " << alct1Accel()
+				  << "  pattern = " << alct1Pattern() 
+				  << "  Key Wire Group = " << alct1KeyWire() 
+				  << "  BX = " << alct1BXN();  
 
-  digi = CSCALCTDigi(2, alct1KeyWire(), alct1BXN(), alct1Accel(), alct1Quality(), 
-		   alct1Pattern(), alct1Valid());
 
+  digi = CSCALCTDigi(alct1Valid(), alct1Quality(), alct1Accel(), alct1Pattern(),
+		     alct1KeyWire(), alct1BXN(), 2);
   result.push_back(digi);
   return result;
 }
