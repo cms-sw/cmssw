@@ -11,9 +11,9 @@ class ESElectronicsSim
 {
  public:
 
-  ESElectronicsSim (bool addNoise, int sigma);
+  ESElectronicsSim (bool addNoise, double sigma);
 
-  void setNoiseSigma (const int sigma) ;
+  void setNoiseSigma (const double sigma) ;
   void analogToDigital(CaloSamples& clf, ESDataFrame& df) const;
 
   ///  anything that needs to be done once per event
@@ -22,7 +22,7 @@ class ESElectronicsSim
   private :
 
     bool addNoise_;
-    int sigma_;
+    double sigma_;
 
     std::vector<ESSample> encode(const CaloSamples& timeframe) const;
 } ;

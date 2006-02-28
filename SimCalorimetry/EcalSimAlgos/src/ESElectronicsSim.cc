@@ -6,12 +6,12 @@
 
 using namespace std;
 
-ESElectronicsSim::ESElectronicsSim (bool addNoise, int sigma):
+ESElectronicsSim::ESElectronicsSim (bool addNoise, double sigma):
   addNoise_(addNoise), sigma_ (sigma)
 {
 }
 
-void ESElectronicsSim::setNoiseSigma (const int sigma)
+void ESElectronicsSim::setNoiseSigma (const double sigma)
 {
   sigma_ = sigma ;
   return ;
