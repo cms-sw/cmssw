@@ -24,9 +24,6 @@ public:
                   const CaloVSimParameterMap * parameterMap,
                   const CaloVHitFilter * filter = 0);
 
-  /// prints statistics on destruction
-  ~CaloHitAnalyzer();
-
   /// should be called each event
   void fillHits(const edm::PCaloHitContainer & hits);
   

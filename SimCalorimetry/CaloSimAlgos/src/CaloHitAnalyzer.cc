@@ -26,10 +26,6 @@ CaloHitAnalyzer::CaloHitAnalyzer(const string & name,
 }
 
 
-CaloHitAnalyzer::~CaloHitAnalyzer() {
-  std::cout << summary_ << std::endl;
-}
-
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 void CaloHitAnalyzer::fillHits(const PCaloHitContainer & hits) {
   hitEnergySumMap_.clear();
