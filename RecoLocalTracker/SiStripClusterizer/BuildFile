@@ -5,29 +5,32 @@
 <use name=DataFormats/SiStripDigi>
 <use name=DataFormats/SiStripCluster>
 
-  <use name=DataFormats/SiStripDetId>
-  <use name=DataFormats/FEDRawData> 
-  <use name=CondFormats/DataRecord>
-  <use name=CondFormats/SiStripObjects>
-  <use name=CondCore/DBCommon>
-  <use name=CondCore/ESSources>
-  <use name=CondCore/IOVService>
-  <use name=CondCore/MetaDataService>
+<use name=DataFormats/SiStripDetId>
+<use name=DataFormats/FEDRawData> 
+<use name=CondFormats/DataRecord>
+<use name=CondFormats/SiStripObjects>
+<use name=CondCore/DBCommon>
+<use name=CondCore/ESSources>
+<use name=CondCore/IOVService>
+<use name=CondCore/MetaDataService>
+
+<use name=Geometry/CommonDetUnit>
+<use name=Geometry/TrackerSimAlgo>	
 
 <export>
- <lib name=RecoLocalTrackerSiStripClusterizer>
- <use name=FWCore/EDProduct>
- <use name=FWCore/Framework>
- <use name=FWCore/ParameterSet>
- <use name=DataFormats/SiStripDigi>
- <use name=DataFormats/SiStripCluster>
+<lib name=RecoLocalTrackerSiStripClusterizer>
+<use name=FWCore/EDProduct>
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=DataFormats/SiStripDigi>
+<use name=DataFormats/SiStripCluster>
 
-  <use name=DataFormats/SiStripDetId>
-  <use name=DataFormats/FEDRawData> 
-  <use name=CondFormats/DataRecord>
-  <use name=CondFormats/SiStripObjects>
-  <use name=CondCore/DBCommon>
-  <use name=CondCore/ESSources>
-  <use name=CondCore/IOVService>
-  <use name=CondCore/MetaDataService>
+<use name=DataFormats/SiStripDetId>
+<use name=DataFormats/FEDRawData> 
+<use name=CondFormats/DataRecord>
+<use name=CondFormats/SiStripObjects>
+<use name=CondCore/DBCommon>
+<use name=CondCore/ESSources>
+<use name=CondCore/IOVService>
+<use name=CondCore/MetaDataService>
 </export>
