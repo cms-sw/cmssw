@@ -770,7 +770,7 @@ void SiPixelDigitizerAlgorithm::add_noise() {
   // First add noise to hit pixels
   for ( signal_map_iterator i = _signal.begin(); i != _signal.end(); i++) {
     float noise  = RandGauss::shoot(0.,theNoiseInElectrons) ;
-    (*i).second += Amplitude( noise,0,noise);
+    (*i).second += Amplitude( noise,0,-1.);
   
   }
   
@@ -816,7 +816,7 @@ void SiPixelDigitizerAlgorithm::add_noise() {
     if(_signal[chan] == 0){
       //      float noise = float( (*mapI).second );
       int noise=int( (*mapI).second );
-      _signal[chan] = Amplitude (noise, 0,noise);
+      _signal[chan] = Amplitude (noise, 0,-1.);
     }
   }
 

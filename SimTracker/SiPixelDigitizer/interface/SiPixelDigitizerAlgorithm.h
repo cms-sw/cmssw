@@ -124,9 +124,10 @@ class SiPixelDigitizerAlgorithm
 
     void operator+=( const Amplitude& other) {
       _amp += other._amp;
-      _hits.insert( _hits.end(), other._hits.begin(), other._hits.end());
-      _frac.insert(_frac.end(), other._frac.begin(), other._frac.end());
- 
+      if (other._frac[0]!=-1.){
+	_hits.insert( _hits.end(), other._hits.begin(), other._hits.end());
+	_frac.insert(_frac.end(), other._frac.begin(), other._frac.end());
+      }
    }
 
     void operator+=( const float& amp) {
