@@ -1,6 +1,6 @@
 /*
- *  $Date: 2006/01/17 23:17:25 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/02/13 21:57:56 $
+ *  $Revision: 1.4 $
  *  \author Julia Yarba
  */
 
@@ -65,15 +65,16 @@ bool FlatRandomPtGunSource::produce(Event &e)
    //
    // 1st, primary vertex
    //
-   // HepMC::GenVertex* Vtx = new HepMC::GenVertex(CLHEP::HepLorentzVector(0.,0.,0.));
-   HepMC::GenVertex* Vtx = generateEvtVertex() ;
+   HepMC::GenVertex* Vtx = new HepMC::GenVertex(CLHEP::HepLorentzVector(0.,0.,0.));
+
+//   HepMC::GenVertex* Vtx = generateEvtVertex() ;
       
-   if ( fVerbosity > 0 )
-   {
-      cout << " Vtx = " << Vtx->position().x() << " " 
-                        << Vtx->position().y() << " " 
-		        << Vtx->position().z() << endl ;
-   }
+//   if ( fVerbosity > 0 )
+//   {
+//      cout << " Vtx = " << Vtx->position().x() << " " 
+//                        << Vtx->position().y() << " " 
+//		        << Vtx->position().z() << endl ;
+//   }
 
    // loop over particles
    //

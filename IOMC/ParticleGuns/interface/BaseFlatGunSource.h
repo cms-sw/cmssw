@@ -21,7 +21,7 @@
 #include "boost/shared_ptr.hpp"
 
 // fwd declaration(s)
-class BaseEventVertexGenerator;
+//class BaseEventVertexGenerator;
 
 namespace edm
 {
@@ -34,7 +34,7 @@ namespace edm
     // BaseFlatGunSource( const ParameterSet& ) ;
     virtual ~BaseFlatGunSource();
     
-    HepMC::GenVertex* generateEvtVertex() const ;
+    //HepMC::GenVertex* generateEvtVertex() const ;
 
   private:
    
@@ -60,7 +60,7 @@ namespace edm
     std::string      fPDGTableName ; 
     DefaultConfig::ParticleDataTable* fPDGTable;
         	    	
-    std::auto_ptr<BaseEventVertexGenerator> fEventVertexGenerator;
+    //std::auto_ptr<BaseEventVertexGenerator> fEventVertexGenerator;
     
     int              fVerbosity ;
     

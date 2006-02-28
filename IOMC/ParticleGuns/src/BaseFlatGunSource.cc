@@ -1,6 +1,6 @@
 /*
- *  $Date: 2006/02/13 21:57:56 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/02/23 20:54:31 $
+ *  $Revision: 1.6 $
  *  \author Julia Yarba
  */
 
@@ -14,7 +14,7 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "IOMC/EventVertexGenerators/interface/EventVertexGeneratorFactory.h"
+// #include "IOMC/EventVertexGenerators/interface/EventVertexGeneratorFactory.h"
 
 #include <iostream>
 
@@ -56,6 +56,7 @@ BaseFlatGunSource::BaseFlatGunSource( const ParameterSet& pset,
   if ( !addPDGParticles( PDFile, tb ) ) { cout << " Error reading PDG !" << endl; }
   // the tb dtor fills fPDGTable
 
+/*
   // Vtx.Gen. (ideally, should be optional)
   //
   std::vector<std::string> names = pset.getParameterNames();       
@@ -77,7 +78,7 @@ BaseFlatGunSource::BaseFlatGunSource( const ParameterSet& pset,
         throw edm::Exception(errors::Configuration,"EventVertexGenerator construction failed!");
     
   }
-  
+*/  
   fVerbosity = pset.getUntrackedParameter<int>( "Verbosity",0 ) ;
   
   cout << "Internal BaseFlatGunSource is initialzed" << endl ;
@@ -90,20 +91,20 @@ BaseFlatGunSource::~BaseFlatGunSource()
   delete fPDGTable;
 }
 
-HepMC::GenVertex* BaseFlatGunSource::generateEvtVertex() const
-{
-
-   double xx=0.;
-   double yy=0.;
-   double zz=0.;
-   if ( fEventVertexGenerator.get()!=0)
-   {
-      CLHEP::Hep3Vector* VtxPos = fEventVertexGenerator.get()->newVertex() ;
-      xx = VtxPos->x() ;
-      yy = VtxPos->y() ;
-      zz = VtxPos->z() ;
-   }
-
-   return new HepMC::GenVertex(CLHEP::HepLorentzVector(xx,yy,zz));
-
-}
+//HepMC::GenVertex* BaseFlatGunSource::generateEvtVertex() const
+//{
+//
+//   double xx=0.;
+//   double yy=0.;
+//   double zz=0.;
+//   if ( fEventVertexGenerator.get()!=0)
+//   {
+//      CLHEP::Hep3Vector* VtxPos = fEventVertexGenerator.get()->newVertex() ;
+//      xx = VtxPos->x() ;
+//      yy = VtxPos->y() ;
+//      zz = VtxPos->z() ;
+//   }
+//
+//   return new HepMC::GenVertex(CLHEP::HepLorentzVector(xx,yy,zz));
+//
+//}
