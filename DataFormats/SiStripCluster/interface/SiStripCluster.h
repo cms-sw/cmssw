@@ -54,20 +54,9 @@ private:
 
 // Comparison operators
 inline bool operator<( const SiStripCluster& one, const SiStripCluster& other) {
-  if ( one.geographicalId() < other.geographicalId() ) {
-    return true;
-  } else if ( one.geographicalId() > other.geographicalId() ) {
-    return false;
-  } else {
-    if ( one.firstStrip() <= other.firstStrip() ) {
-    return true;
-  } else {
-    return false;
-    }
+  if(one.geographicalId() == other.geographicalId()) {
+    return one.firstStrip() < other.firstStrip();
   }
-}
-
-
-
-
+  return one.geographicalId() < other.geographicalId();
+} 
 #endif // DATAFORMATS_SISTRIPCLUSTER_H
