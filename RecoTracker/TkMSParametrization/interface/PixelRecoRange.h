@@ -7,8 +7,8 @@
 #include <utility>
 #include <algorithm>
 
-//#include "CommonDet/DetUtilities/interface/rangesIntersect.h"
-//#include "CommonDet/DetUtilities/interface/rangeIntersection.h"
+#include "RecoTracker/TkMSParametrization/interface/rangesIntersect.h"
+#include "RecoTracker/TkMSParametrization/interface/rangeIntersection.h"
 using namespace std;
 template<class T> class PixelRecoRange : public pair<T,T> {
 public:
@@ -31,14 +31,14 @@ public:
     if (value < this->first || this->second < value)  return false; else  return true;
   }
 
-/*   bool hasIntersection( const PixelRecoRange<T> & r) const { */
-/*     return rangesIntersect(*this,r);  */
-/*   } */
+  bool hasIntersection( const PixelRecoRange<T> & r) const {
+    return rangesIntersect(*this,r); 
+  }
 
-/*   PixelRecoRange<T> intersection(  */
-/*       const PixelRecoRange<T> & r) const { */
-/*     return rangeIntersection(*this,r);  */
-/*   } */
+  PixelRecoRange<T> intersection( 
+      const PixelRecoRange<T> & r) const {
+    return rangeIntersection(*this,r); 
+  }
 
   PixelRecoRange<T> sum(const PixelRecoRange<T> & r) const {
    if( this->empty()) return r;
