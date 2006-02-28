@@ -2,6 +2,7 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/src/VectorInputSourceFactory.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include <algorithm>
@@ -29,7 +30,7 @@ namespace edm {
     }
     if (maxEventsToSkip_ != 0) {
       int jump = static_cast<int>(flatDistribution_.fire());
-      // std::cout << "Initial SKIP: " << jump << std::endl;
+      LogInfo("PileUp") << "Initial SKIP: " << jump ;
       input_->skipEvents(jump);
     }
   }
@@ -44,12 +45,12 @@ namespace edm {
         EventPrincipalVector oneResult;
         oneResult.reserve(n);
         input_->readMany(n, oneResult);
-        // std::cout << "READ: " << oneResult.size() << std::endl;
+        LogDebug("readPileup") << "READ: " << oneResult.size();
         std::copy(oneResult.begin(), oneResult.end(), std::back_inserter(eventVector));
         n -= oneResult.size();
         if (n > 0 && maxEventsToSkip_ != 0) {
 	  int jump = static_cast<int>(flatDistribution_.fire());
-          // std::cout << "SKIP: " << jump << std::endl;
+          LogDebug("readPileup") << "SKIP: " << jump ;
           input_->skipEvents(jump);
         }
       }

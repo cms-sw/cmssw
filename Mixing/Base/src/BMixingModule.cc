@@ -7,6 +7,7 @@
 #include "Mixing/Base/interface/BMixingModule.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/ModuleDescription.h"
 
 using namespace std;
@@ -39,7 +40,6 @@ namespace edm {
   // Functions that get called by framework every event
   void BMixingModule::produce(edm::Event& e, const edm::EventSetup&) { 
 
-    //    cout <<"\n==============================>  Start produce for event " << e.id() << endl;
     // Create EDProduct
     createnewEDProduct();
 
@@ -51,6 +51,7 @@ namespace edm {
     input_.readPileUp(pileup);
 
     // Do the merging
+    if (input_.doPileup())   LogInfo("PileUp") <<"Adding pileup for event "<<e.id();
     int bunchCrossing = input_.minBunch();
     for (std::vector<EventPrincipalVector>::const_iterator it = pileup.begin();
         it != pileup.end(); ++it, ++bunchCrossing) {
@@ -66,12 +67,12 @@ namespace edm {
     //
     // main loop: loop over events and merge 
     //
-    //    cout <<endl<<" For bunchcrossing "<<bcr<<",  "<<vec.size()<< " events will be merged"<<flush<<endl;
+    LogDebug("merge") <<"For bunchcrossing "<<bcr<<", "<<vec.size()<< " events will be merged";
     trackoffset=0;
     vertexoffset=0;
     for (EventPrincipalVector::const_iterator it = vec.begin(); it != vec.end(); ++it) {
       Event e(**it, md_);
-      //      cout <<" merging Event:  id " << e.id() << flush << endl;
+      LogDebug("merge") <<" merging Event:  id " << e.id();
       addPileups(bcr, &e);
     }// end main loop
   }

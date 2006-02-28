@@ -23,6 +23,7 @@ namespace edm {
     double averageNumber() const {return averageNumber_;}
     bool poisson() const {return poisson_;}
     long seed() const {return seed_;}
+    bool doPileup() {return none_ ? false :  averageNumber_>0.;}
 
   private:
     std::string const type_;

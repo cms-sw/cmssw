@@ -4,6 +4,7 @@
 //
 //--------------------------------------------
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimGeneral/MixingModule/interface/MixingModule.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -56,14 +57,14 @@ namespace edm
     // fill in signal part of CrossingFrame
     // first add eventID
     simcf_->setEventID(e.id());
-    //    std::cout<<"\naddsignals for  "<<e.id()<<endl;
+    LogDebug("addSignals")<<"adding signals for event "<<e.id();
 
     // muon hits for all subdetectors
     for(std::vector<std::string >::const_iterator it = muonSubdetectors_.begin(); it != muonSubdetectors_.end(); ++it) {  
       edm::Handle<std::vector<PSimHit> > simHits;
       e.getByLabel("r",(*it),simHits);
       simcf_->addSignalSimHits((*it),simHits.product());
-      cout <<" Subdet "<<(*it)<<" got "<<(simHits.product())->size()<<" simhits "<<endl;
+      LogDebug("addSignals") <<"Subdet "<<(*it)<<" got "<<(simHits.product())->size()<<" simhits";
     }
      // tracker hits for all subdetectors
     for(std::vector<std::string >::const_iterator it = trackerSubdetectors_.begin(); it != trackerSubdetectors_.end(); ++it) {  
@@ -71,34 +72,34 @@ namespace edm
       std::string subdet=(*it)+"HighTof";
       e.getByLabel("r",subdet,simHits);
       simcf_->addSignalSimHits(subdet,simHits.product());
-      cout <<" Subdet "<<subdet<<" got "<<(simHits.product())->size()<<" simhits "<<endl;
+      LogDebug("addSignals") <<"Subdet "<<subdet<<" got "<<(simHits.product())->size()<<" simhits";
       subdet=(*it)+"LowTof";
       e.getByLabel("r",subdet,simHits);
       simcf_->addSignalSimHits(subdet,simHits.product());
-      cout <<" Subdet "<<subdet<<" got "<<(simHits.product())->size()<<" simhits "<<endl;
+      LogDebug("addSignals")  <<"Subdet "<<subdet<<" got "<<(simHits.product())->size()<<" simhits";
     }
     // calo hits for all subdetectors
     for(std::vector<std::string >::const_iterator it = caloSubdetectors_.begin(); it != caloSubdetectors_.end(); ++it) {  
       edm::Handle<std::vector<PCaloHit> > caloHits;
       e.getByLabel("r",(*it),caloHits);
       simcf_->addSignalCaloHits((*it),caloHits.product());
-      cout <<" Got "<<(caloHits.product())->size()<<" calohits for subdet "<<(*it)<<endl;
+      LogDebug("addSignals")  <<"Got "<<(caloHits.product())->size()<<" calohits for subdet "<<(*it);
     }
     edm::Handle<std::vector<EmbdSimTrack> > simtracks;
     e.getByLabel("r",simtracks);
     if (simtracks.isValid()) simcf_->addSignalTracks(simtracks.product());
-    else cout <<"Invalid simtracks"<<endl;
-    cout <<" Got "<<(simtracks.product())->size()<<" simtracks"<<endl;
+    else  LogWarning("InvalidData") <<"Invalid simtracks in signal";
+    LogDebug("addSignals") <<"Got "<<(simtracks.product())->size()<<" simtracks";
     edm::Handle<std::vector<EmbdSimVertex> > simvertices;
     e.getByLabel("r",simvertices);
     if (simvertices.isValid())     simcf_->addSignalVertices(simvertices.product());
-    else cout <<"Invalid simvertices"<<endl;
-    cout <<" Got "<<(simvertices.product())->size()<<" simvertices"<<endl;
+    else LogWarning("InvalidData") <<"Invalid simvertices in signal";
+    LogDebug("addSignals")  <<"Got "<<(simvertices.product())->size()<<" simvertices";
   }
 
   void MixingModule::addPileups(const int bcr, Event *e) {
 
-    //    std::cout<<"\naddPileups from event  "<<e->id()<<endl;
+    LogDebug("addPileups") <<"adding pileups from event  "<<e->id()<<" for bunchcrossing "<<bcr;
 
     // Muons
     for(std::vector<std::string >::iterator itstr = muonSubdetectors_.begin(); itstr != muonSubdetectors_.end(); ++itstr) {
@@ -143,13 +144,13 @@ namespace edm
     edm::Handle<std::vector<EmbdSimTrack> > simtracks;
     e->getByLabel("r",simtracks);
     if (simtracks.isValid()) simcf_->addPileupTracks(bcr, simtracks.product(),vertexoffset);
-    else cout <<"Invalid simtracks"<<endl;
+    else LogWarning("InvalidData") <<"Invalid simtracks in pileup";
 
     //then simvertices
     edm::Handle<std::vector<EmbdSimVertex> > simvertices;
     e->getByLabel("r",simvertices);
     if (simvertices.isValid())  simcf_->addPileupVertices(bcr,simvertices.product(),trackoffset);
-    else cout <<"Invalid simvertices"<<endl;
+    else  LogWarning("InvalidData") <<"Invalid simvertices in pileup";
 
     // increment offsets
     vertexoffset+=simvertices.product()->size();
