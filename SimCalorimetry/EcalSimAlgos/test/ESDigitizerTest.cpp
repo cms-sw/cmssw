@@ -9,16 +9,16 @@
 #include "SimCalorimetry/EcalSimAlgos/interface/ESElectronicsSim.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include <vector>
-#include<iostream>
-#include<iterator>
+#include <iostream>
+#include <iterator>
 using namespace std;
 using namespace cms;
 
 int main() {
   // make a silly little hit in each subdetector, which should
-  // correspond to a 100 GeV particle
+  // correspond to a 300 keV particle
   ESDetId ESDetId(1, 1, 1, 1, 1);
-  PCaloHit ESHit(ESDetId.rawId(), 1., 0.);
+  PCaloHit ESHit(ESDetId.rawId(), 0.0003, 0.);
 
   vector<DetId> ESDetIds;
   ESDetIds.push_back(ESDetId);
@@ -27,10 +27,10 @@ int main() {
   ESHits.push_back(ESHit);
 
   string ESName = "EcalHitsES";
-  vector<string> caloDets, muonDets,trackingDets;
+  vector<string> caloDets, muonDets, trackingDets;
   caloDets.push_back(ESName);
 
-  CrossingFrame crossingFrame(-5, 5, 25, muonDets,trackingDets, caloDets);
+  CrossingFrame crossingFrame(-5, 5, 25, muonDets, trackingDets, caloDets);
   crossingFrame.addSignalCaloHits(ESName, &ESHits);
 
   EcalSimParameterMap parameterMap;
@@ -38,7 +38,7 @@ int main() {
 
   CaloHitResponse ESResponse(&parameterMap, &shape);
 
-  ESElectronicsSim electronicsSim(15);
+  ESElectronicsSim electronicsSim(true, 15);
 
   bool addNoise = false;
   CaloTDigitizer<ESDigitizerTraits> ESDigitizer(&ESResponse, &electronicsSim, addNoise);
