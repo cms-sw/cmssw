@@ -68,8 +68,18 @@ uint32_t ShowerForwardNumberingScheme::getUnitID(const EcalBaseNumber& baseNumbe
     findXY(layer, wafer, x, y);
     // strip number inside wafer
     int strip = baseNumber.getCopyNumber(0);
-    if ( zside < 0 )
-      x=41-x;
+    if (wafer>538) 
+      {
+	strip = 33 - strip;
+      }
+
+    if ( zside < 0 ) 
+      {
+	x=41-x;
+	if (layer == 1)
+	  strip = 33 - strip;
+      }
+    
     intIndex =  ESDetId(strip, x, y, layer, zside).rawId(); 
     
     if (verbosity>1) {
