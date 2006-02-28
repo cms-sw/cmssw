@@ -11,9 +11,9 @@ HcalDigiAnalyzer::HcalDigiAnalyzer(edm::ParameterSet const& conf)
   hbheFilter_(),
   hoFilter_(),
   hfFilter_(),
-  hbheHitAnalyzer_("HBHERecHits", 1., &simParameterMap_, &hbheFilter_),
-  hoHitAnalyzer_("HORecHits", 1., &simParameterMap_, &hoFilter_),
-  hfHitAnalyzer_("HFRecHits", 1., &simParameterMap_, &hfFilter_),
+  hbheHitAnalyzer_("HBHEDigi", 1., &simParameterMap_, &hbheFilter_),
+  hoHitAnalyzer_("HODigi", 1., &simParameterMap_, &hoFilter_),
+  hfHitAnalyzer_("HFDigi", 1., &simParameterMap_, &hfFilter_),
   hbheDigiStatistics_("HBHEDigi", 4, 10., 6., 0.1, 0.5, hbheHitAnalyzer_),
   hoDigiStatistics_("HODigi", 4, 10., 6., 0.1, 0.5, hoHitAnalyzer_),
   hfDigiStatistics_("HFDigi", 3, 10., 6., 0.1, 0.5, hfHitAnalyzer_)
