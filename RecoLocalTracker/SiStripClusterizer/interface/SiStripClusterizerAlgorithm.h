@@ -42,9 +42,10 @@ class SiStripClusterizerAlgorithm
   ThreeThresholdStripClusterizer *threeThreshold_;
   std::string clusterMode_;
   bool validClusterizer_;
-  bool UseNoiseBadStripFlagFromDB_;
-  double ENC_;
   double ElectronsPerADC_;
+  double ENC_;
+  double BadStripProbability_;
+  bool UseNoiseBadStripFlagFromDB_;
 };
 
 #endif

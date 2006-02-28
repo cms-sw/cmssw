@@ -13,7 +13,7 @@
 
 #include "RecoLocalTracker/SiStripClusterizer/interface/ThreeThresholdStripClusterizer.h"
 
-#include "CondFormats/SiStripObjects/interface/SiStripNoise.h"
+#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -21,6 +21,7 @@
 #include "Geometry/TrackerSimAlgo/interface/StripGeomDetType.h"
 #include "Geometry/TrackerSimAlgo/interface/StripGeomDetUnit.h"
 
+#include "CLHEP/Random/RandFlat.h"
 
 using namespace std;
 
@@ -29,12 +30,13 @@ SiStripClusterizerAlgorithm::SiStripClusterizerAlgorithm(const edm::ParameterSet
   clusterMode_(conf.getParameter<string>("ClusterMode")),
   ElectronsPerADC_(conf.getParameter<double>("ElectronPerAdc")),
   ENC_(conf.getParameter<double>("EquivalentNoiseCharge300um")),
+  BadStripProbability_(conf.getParameter<double>("BadStripProbability")),
   UseNoiseBadStripFlagFromDB_(conf.getParameter<bool>("UseNoiseBadStripFlagFromDB")){
   
   if ( clusterMode_ == "ThreeThresholdClusterizer" ) {
     threeThreshold_ = new ThreeThresholdStripClusterizer(conf_.getParameter<double>("ChannelThreshold"),
 							 conf_.getParameter<double>("SeedThreshold"),
-							 conf_.getParameter<double>("ClusterThreshold")
+							 conf_.getParameter<double>("ClusterThreshold"),
 							 conf_.getParameter<int>("MaxHolesInCluster"));
     validClusterizer_ = true;
   } else {
@@ -50,7 +52,7 @@ SiStripClusterizerAlgorithm::~SiStripClusterizerAlgorithm() {
 }
 
 void SiStripClusterizerAlgorithm::run(const StripDigiCollection* input, SiStripClusterCollection &output,
-				      const edm::ESHandle<SiStripNoises>& noise, const edm::ESHandle<TrackingGeometry>& pDD)
+				      const edm::ESHandle<SiStripNoises>& sistripnoise, const edm::ESHandle<TrackingGeometry>& pDD)
 {
   if ( validClusterizer_ ) {
     int number_detunits          = 0;
@@ -68,62 +70,49 @@ void SiStripClusterizerAlgorithm::run(const StripDigiCollection* input, SiStripC
       StripDigiCollection::ContainerIterator digiRangeIteratorEnd   = digiRange.second;
       
       if ( clusterMode_ == "ThreeThresholdClusterizer" ) {
+	vector<SiStripCluster> collector;
 
-	if (UseNoiseBadStripFlagFromDB_==false){
-
+	if (UseNoiseBadStripFlagFromDB_==false){	  
 	  //Case of SingleValueNoiseValue for all strips of a Detector
 	  //Noise is proportional to sensor depth
-
 	  std::cout << "Using a SingleNoiseValue and good strip flags" << std::endl;
-
-	  //FIXME
-	  // Access info for DetID from the geometry
 	  
-	  pDD->idToDet(detID);
-	  for(TrackingGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++){
-
-	    if( dynamic_cast<StripGeomDetUnit*>((*it))!=0){
-
-	      uint32_t detid=((*it)->geographicalId()).rawId();
-
-	      const StripTopology& st = dynamic_cast<StripGeomDetUnit*>((*it))->specificTopology();
-	      int numStrips = st.nstrips();  // det module number of strips
-	      //thickness:
-	      const BoundSurface& bs = (dynamic_cast<StripGeomDetUnit*>((det)))->surface();
-	      moduleThickness = bs.bounds().thickness();	
-	 
-	  //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-
-	  float noise = ENC*moduleThickness/(0.03)/ElectronsPerADC_;
-	  vector<float> noiseVec(numStrips,noise);
-	  
-	  //FIXME 
-	  // for fixed noise value all strips are goods!!!
-	  vector<short> badChannels(numStrips,0);
-	  /////////////////////////////////////
+	  const GeomDetUnit* it = pDD->idToDet(DetId(detID));
 	
-	  //Construct a SiStripNoiseVector in order to be compliant with the DB access
+	  if (dynamic_cast<const StripGeomDetUnit*>(it)==0){
+	    std::cout<< "WARNING: the detID " << detID << "seems not to belong to Tracker" << std::endl; 
+ 	  }else{
 
+	    int numStrips = (dynamic_cast<const StripGeomDetUnit*>(it))->specificTopology().nstrips(); // det module number of strips
+	    double moduleThickness = it->surface().bounds().thickness(); //thickness
+	    float noise = ENC_*moduleThickness/(0.03)/ElectronsPerADC_;
+	    //vector<float> noiseVec(numStrips,noise);	    
 
+	    //shoot randomly badstrip with probability BadStripProbability_
+	    bool badFlag= RandFlat::shoot(1.) < BadStripProbability_ ? true : false;
+	
+	    //Construct a SiStripNoiseVector in order to be compliant with the DB access
+	    SiStripNoiseVector vnoise;
+	    SiStripNoises::SiStripData theSiStripData;       	   
+	    for(int strip=0; strip<numStrips; ++strip){
+	      theSiStripData.setData(noise,badFlag);
+	      vnoise.push_back(theSiStripData);
+	    }
+	    collector = threeThreshold_->clusterizeDetUnit(digiRangeIteratorBegin,digiRangeIteratorEnd,detID,vnoise);
+	  }
 	} else {
-
 	  //Case of Noise and BadStrip flags access from DB
 	  std::cout << "Using Noise and BadStrip flags accessed from DB" << std::endl;
-
-	  const SiStripNoiseVector& vnoise = noise->getSiStripNoiseVector(detID);
+	  const SiStripNoiseVector& vnoise = sistripnoise->getSiStripNoiseVector(detID);
 	  
 	  if (vnoise.size() <= 0)
 	    {
 	      std::cout << "WARNING requested Noise Vector for detID " << detID << " that isn't in map " << std::endl; 
 	      continue;
 	    }
+	  collector = threeThreshold_->clusterizeDetUnit(digiRangeIteratorBegin,digiRangeIteratorEnd,detID,vnoise);
 	}
 	
-	vector<SiStripCluster> collector = threeThreshold_->clusterizeDetUnit(digiRangeIteratorBegin, 
-									      digiRangeIteratorEnd,
-									      detID,
-									      vnoise);
-
 	SiStripClusterCollection::Range inputRange;
 	inputRange.first = collector.begin();
 	inputRange.second = collector.end();

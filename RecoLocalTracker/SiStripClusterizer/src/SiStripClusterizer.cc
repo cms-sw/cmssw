@@ -47,7 +47,7 @@ namespace cms
 
     //Getting Geometry
     iSetup.get<TrackerDigiGeometryRecord>().get( pDD );
-    cout <<" There are "<<pDD->dets().size() <<" detectors"<<endl;
+    std::cout <<" There are "<<pDD->dets().size() <<" detectors"<<std::endl;
 
     //Getting Calibration data (Noises and BadStrips Flag)
     bool UseNoiseBadStripFlagFromDB_=conf_.getParameter<bool>("UseNoiseBadStripFlagFromDB_");  
@@ -62,7 +62,7 @@ namespace cms
 	  unsigned int detid = (*mapit).first;
 	  std::cout << "detid " <<  detid << " # Strip " << (*mapit).second.size()<<std::endl;
 	  //SiStripNoiseVector theSiStripVector =  (*mapit).second;     
-	  const SiStripNoiseVector theSiStripVector =  noise->getSiStripNoisesVector(detid);
+	  const SiStripNoiseVector theSiStripVector =  noise->getSiStripNoiseVector(detid);
 	  
 	  
 	  int strip=0;

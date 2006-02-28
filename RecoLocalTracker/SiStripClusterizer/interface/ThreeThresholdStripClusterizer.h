@@ -1,11 +1,15 @@
 #ifndef RECOLOCALTRACKER_SISTRIPCLUSTERIZER_THREETHRESHOLDSTRIPCLUSTERIZER_H
 #define RECOLOCALTRACKER_SISTRIPCLUSTERIZER_THREETHRESHOLDSTRIPCLUSTERIZER_H
 
-#include <vector>
-class StripDigi;
-class SiStripCluster;
+#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 
-#include "CondFormats/SiStripObjects/interface/SiStriNoises.h"
+#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
+#include "DataFormats/SiStripDigi/interface/StripDigi.h"
+
+#include <vector>
+#include <algorithm>
+#include <cmath>
+
 
 class ThreeThresholdStripClusterizer {
 public:
@@ -62,7 +66,7 @@ private:
 
 class AboveSeed {
  public:
-  AboveSeed(float aseed,const SiStripNoiseVector& vnoise) : seed(aseed), vnoise_(vnoise) {}
+  AboveSeed(float aseed,const SiStripNoiseVector& vnoise) : seed(aseed), vnoise_(vnoise) {};
 
   // FIXME: uses boundary checking with at(), should be replaced with faster operator[]
   // when everything debugged

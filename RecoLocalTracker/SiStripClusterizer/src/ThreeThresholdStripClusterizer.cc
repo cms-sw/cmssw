@@ -1,12 +1,5 @@
 #include "RecoLocalTracker/SiStripClusterizer/interface/ThreeThresholdStripClusterizer.h"
 
-#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
-#include "DataFormats/SiStripDigi/interface/StripDigi.h"
-
-#include <vector>
-#include <algorithm>
-#include <cmath>
-
 
 bool ThreeThresholdStripClusterizer::badChannel( int channel, 
 						 const std::vector<short>& badChannels) const
@@ -55,50 +48,57 @@ std::vector<SiStripCluster> ThreeThresholdStripClusterizer::clusterizeDetUnit( D
     // to iend, and itest is the strip under study, not yet accepted.
     iend = ihigh;
     itest = iend + 1;
-    while ( itest != end && (itest->strip() - iend->strip() <= max_holes+1)) {
-      float channelNoise = vnoise[itest->channel()].getNoise();  
+    while ( itest != end && (itest->strip() - iend->strip() <= max_holes_ + 1 )) {
+      float channelNoise = vnoise[itest->channel()].getNoise();
+      bool IsBadChannel = vnoise[itest->channel()].getDisable();
       //FIXME
       //for debugging, remove it!!!
-      std::cout << "Strips on the right: channelNoise for detid " << detid << " digis " << itest->channel()  
-		<< " adc " << itest->adc() << " is " << channelNoise << std::endl;
+      std::cout << "Strips on the right: detid " << detid << " digis " << itest->channel()  
+		<< " adc " << itest->adc() << " is " << " channelNoise " << channelNoise <<  " IsBadChannel  " << IsBadChannel << std::endl;
       //////
-
-      ///Aggiungere controllo bad strip
-      if ( itest->adc() >= static_cast<int>( channelThresholdInNoiseSigma() * channelNoise)) { 
+      if (!IsBadChannel && itest->adc() >= static_cast<int>( channelThresholdInNoiseSigma() * channelNoise)) { 
 	iend = itest;
       }
       ++itest;
     }
-    ///INSERISCI CONTROLLO STRIP BAD alla fine del cluster
-
+    //if the next digi after iend is an adiacent bad digi then insert into candidate cluster
+    itest=iend+1;
+    if ( itest != end && (itest->strip() - iend->strip() == 1) && vnoise[itest->channel()].getDisable() ) {    
+      std::cout << "Inserted bad strip at the end edge iend->strip()= " << iend->strip() << " itest->strip() = " << itest->strip() << std::endl;
+      iend++;
+    }
 
     ibeg = ihigh;
     itest = ibeg - 1;
-    while ( itest >= begin && (ibeg->strip() - itest->strip() <= max_holes+1)) {
+    while ( itest >= begin && (ibeg->strip() - itest->strip() <= max_holes_ + 1 )) {
       float channelNoise = vnoise[itest->channel()].getNoise();  
+      bool IsBadChannel = vnoise[itest->channel()].getDisable();
       //FIXME
       //for debugging, remove it!!!
-      std::cout << "Strips on the left channelNoise for detid " << detid << " digis " << itest->channel()  
-		<< " adc " << itest->adc() << " is " << channelNoise << std::endl;
+      std::cout << "Strips on the left : detid " << detid << " digis " << itest->channel()  
+		<< " adc " << itest->adc() << " is " << " channelNoise " << channelNoise <<  " IsBadChannel  " << IsBadChannel << std::endl;
       ////////////
-
-      ///Aggiungere controllo bad strip
-      if ( itest->adc() >= static_cast<int>( channelThresholdInNoiseSigma() * channelNoise)) { 
+      if (!IsBadChannel && itest->adc() >= static_cast<int>( channelThresholdInNoiseSigma() * channelNoise)) { 
         ibeg = itest;
       }
       --itest;
     }
-    ///INSERISCI CONTROLLO STRIP BAD all'inizio del cluster
+    //if the next digi after ibeg is an adiacent bad digi then insert into candidate cluster
+    itest=ibeg-1;
+    if ( itest >= begin && (ibeg->strip() - itest->strip() == 1) && vnoise[itest->channel()].getDisable() ) {    
+      std::cout << "Inserted bad strip at the begin edge ibeg->strip()= " << ibeg->strip() << " itest->strip() = " << itest->strip() << std::endl;
+      ibeg--;
+    }
  
     int charge = 0;
     float sigmaNoise2=0;
     my_digis.clear();
     for (i=ibeg; i<=iend; i++) {
       float channelNoise = vnoise[i->channel()].getNoise();  
-      std::cout << "Looking at cluster digis: channelNoise for detid " << detid << " digis " << i->channel()  
-		<< " adc " << i->adc() << " is " << channelNoise << std::endl;
-      if ( i->adc() >= static_cast<int>( channelThresholdInNoiseSigma()*channelNoise)) {
-	// FIXME: should the digi be tested for badChannel before using the adc?
+      bool IsBadChannel = vnoise[itest->channel()].getDisable();
+      std::cout << "Looking at cluster digis: detid " << detid << " digis " << i->channel()  
+		<< " adc " << i->adc() << " channelNoise " << channelNoise << " IsBadChannel  " << IsBadChannel << std::endl;
+      if (!IsBadChannel && i->adc() >= static_cast<int>( channelThresholdInNoiseSigma()*channelNoise)) {
         charge += i->adc();
         sigmaNoise2 += channelNoise*channelNoise;
         my_digis.push_back(*i);
