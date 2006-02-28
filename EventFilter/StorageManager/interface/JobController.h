@@ -34,6 +34,8 @@ namespace stor
 
     const edm::ProductRegistry& products() const { return prods_; }
     edm::ProductRegistry& products() { return prods_; }
+
+    const edm::ProductRegistry& smproducts() const { return ep_runner_->getRegistry(); }
     
     edm::EventBuffer& getFragmentQueue()
     { return collector_->getFragmentQueue(); }
