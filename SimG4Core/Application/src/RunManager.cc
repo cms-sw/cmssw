@@ -18,8 +18,6 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-// #include "IOMC/EventVertexGenerators/interface/EventVertexGeneratorFactory.h"
-
 #include "SimG4Core/Notification/interface/SimG4Exception.h"
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
 
@@ -116,7 +114,6 @@ RunManager::RunManager(edm::ParameterSet const & p)
       m_RunNumber(p.getUntrackedParameter<int>("RunNumber",1)),
       m_pField(p.getParameter<edm::ParameterSet>("MagneticField")),
       m_pGenerator(p.getParameter<edm::ParameterSet>("Generator")),
-      // m_pVertexGenerator(p.getParameter<edm::ParameterSet>("VertexGenerator")),
       m_pPhysics(p.getParameter<edm::ParameterSet>("Physics")),
       m_pRunAction(p.getParameter<edm::ParameterSet>("RunAction")),      
       m_pEventAction(p.getParameter<edm::ParameterSet>("EventAction")),
@@ -183,17 +180,6 @@ void RunManager::initG4(const edm::EventSetup & es)
     std::cout << " Sensitive Detector building finished; found " << m_sensTkDets.size()
 	      << " Tk type Producers, and " << m_sensCaloDets.size() 
 	      << " Calo type producers " << std::endl;
-
-/*
-    std::auto_ptr<EventVertexGeneratorMakerBase> vertexGeneratorMaker(
-      EventVertexGeneratorFactory::get()->create
-      (m_pVertexGenerator.getParameter<std::string> ("type")) );
-    if(vertexGeneratorMaker.get()==0) {
-      throw SimG4Exception("Unable to find the event vertex generator requested");
-    }
-    m_eventVertexGenerator = vertexGeneratorMaker->make(m_pVertexGenerator,m_registry);
-    if (m_eventVertexGenerator.get()==0) throw SimG4Exception("EventVertexGenerator construction failed!");
-*/
 
     m_generator = new Generator(m_pGenerator);
     m_primaryTransformer = new PrimaryTransformer();
@@ -274,11 +260,43 @@ G4Event * RunManager::generateEvent(int i, edm::Event& inpevt)
    
     if ( m_generator->genInputType() == "Internal" )
     {
+       std::vector< edm::Handle<edm::HepMCProduct> > AllHepMCEvt ;
        edm::Handle<edm::HepMCProduct> HepMCEvt ;
-       inpevt.getByType( HepMCEvt ) ;
+
+       // inpevt.getByType( HepMCEvt ) ;       
+       inpevt.getManyByType( AllHepMCEvt ) ;
+       
+       unsigned int i=0; 
+       for ( ; i<AllHepMCEvt.size(); i++ )
+       {
+          if ( !AllHepMCEvt[i].isValid() )
+	  {
+             throw SimG4Exception("Invalid Handle to HepMCProduct(HepMC::GenEvent) in edm::Event  ") ;
+	  }
+	  if ( (AllHepMCEvt[i].provenance()->product).module.moduleLabel_ == "VtxSmeared" )
+	  {
+	     // std::cout << "I am picking up the VtxSmeared HepMCProduct !" << std::endl ;
+	     HepMCEvt = AllHepMCEvt[i] ;
+	     break ;
+	  }
+       }
+       
+       if ( i >= AllHepMCEvt.size() )
+       {
+          // no VtxSmeared HepMC::GenEvent; pick the first one (unsmeared)
+	  //std::cout << 
+	  //"There is no VtxSmeared HepMCProduct in edm::Event; I am picking up the 1st available"
+	  //<< std::endl ;
+	  HepMCEvt = AllHepMCEvt[0] ;
+       }
+       
+       
+       //std::cout << " HepMCProduct labeled : " << 
+       //(HepMCEvt.provenance()->product).module.moduleLabel_ << std::endl;
+              
        if ( !HepMCEvt.isValid() )
        {
-          std::cout << "Can NOT find HepMC Event " << std::endl;
+          // std::cout << "Can NOT find HepMC Event " << std::endl;
           throw SimG4Exception("Unable to find HepMCProduct(HepMC::GenEvent) in edm::Event  ") ;
        }
        else
