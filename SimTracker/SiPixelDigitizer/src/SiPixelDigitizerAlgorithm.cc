@@ -15,7 +15,7 @@
 #include <gsl/gsl_sf_erf.h>
 #include "CLHEP/Random/RandGauss.h"
 #include "CLHEP/Random/RandFlat.h"
-#include "SimTracker/SiPixelDigitizer/interface/PixelChipIndices.h"
+#include "SimTracker/SiPixelDigitizer/interface/PixelIndices.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -822,7 +822,8 @@ void SiPixelDigitizerAlgorithm::add_noise() {
 
 }
 /***********************************************************************/
-//
+// Simulate the readout inefficiencies. 
+// Delete a selected number of single pixels, dcols and rocs.
 void SiPixelDigitizerAlgorithm::pixel_inefficiency() {
 
   // Predefined efficiencies
@@ -831,105 +832,110 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency() {
   float chipEfficiency   = 1.0;
 
   // setup the chip indices conversion
-  // At the moment I do not have a better way to find out the layer number? 
   unsigned int Subid=DetId(detID).subdetId();
   if    (Subid==  PixelSubdetector::PixelBarrel){// barrel layers
-     int layerIndex=PXBDetId(detID).layer();
+    int layerIndex=PXBDetId(detID).layer();
     pixelEfficiency  = thePixelEfficiency[layerIndex-1];
     columnEfficiency = thePixelColEfficiency[layerIndex-1];
     chipEfficiency   = thePixelChipEfficiency[layerIndex-1];
+ 
+    // This should never happen
+    if(numColumns>416)  LogWarning ("Pixel Geometry") <<" wrong columns in barrel "<<numColumns;
+    if(numRows>160)  LogWarning ("Pixel Geometry") <<" wrong rows in barrel "<<numRows;
     
   } else {                // forward disks
-  
+   
     // For endcaps take same for each endcap
     pixelEfficiency  = thePixelEfficiency[3];
     columnEfficiency = thePixelColEfficiency[3];
     chipEfficiency   = thePixelChipEfficiency[3];
-
-  }
+ 
+    // Sometimes the forward pixels have wrong size, 
+    // this crashes the index conversion, so exit.
+    if(numColumns>260 || numRows>160) {
+      if(numColumns>260)  LogWarning ("Pixel Geometry") <<" wrong columns in endcaps "<<numColumns;
+      if(numRows>160)  LogWarning ("Pixel Geometry") <<" wrong rows in endcaps "<<numRows;
+      return;
+    }
+  } // if barrel/forward
 
   if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 1 ) {
-    LogDebug ("Pixel Digitizer") << " enter pixel_inefficiency " << pixelEfficiency << " " 
-				 << columnEfficiency << " " << chipEfficiency ;
-  }
+     LogDebug ("Pixel Digitizer") << " enter pixel_inefficiency " << pixelEfficiency << " " 
+				  << columnEfficiency << " " << chipEfficiency; }
 
- 
-  PixelChipIndices indexConverter(52,80,
-				  numColumns,numRows);
-
-  int chipX,chipY,row,col;
+  
+  // Initilize the index converter
+  PixelIndices indexConverter(numColumns,numRows);
+  int chipIndex,rowROC,colROC;
   map<int, int, less<int> >chips, columns;
   map<int, int, less<int> >::iterator iter;
   
-  // Find out the number of columns and chips hits
+  // Find out the number of columns and rocs hits
   // Loop over hit pixels, amplitude in electrons, channel = coded row,col
   for (signal_map_iterator i = _signal.begin();i != _signal.end();i++) {
     
     int chan = i->first;
     pair<int,int> ip = PixelDigi::channelToPixel(chan);
-    int pixX = ip.first + 1;  // my indices start from 1
-    int pixY = ip.second + 1;
-    indexConverter.chipIndices(pixX,pixY,chipX,chipY,row,col);
-   
-    int chipIndex = indexConverter.chipIndex(chipX,chipY);
-    pair<int,int> dColId = indexConverter.dColumn(row,col);
-    //    int pixInChip  = dColId.first;
-    int dColInChip = dColId.second;
-    int dColInDet = indexConverter.dColumnIdInDet(dColInChip,chipIndex);
+    int row = ip.first;  // X in row
+    int col = ip.second; // Y is in col
+    //transform to ROC index coordinates   
+    indexConverter.transformToROC(col,row,chipIndex,colROC,rowROC);
+    int dColInChip = indexConverter.DColumn(colROC); // get ROC dcol from ROC col 
+    //dcol in mod
+    int dColInDet = indexConverter.DColumnInModule(dColInChip,chipIndex); 
   
- 
+
     
     chips[chipIndex]++;
     columns[dColInDet]++;
   }
   
- 
+
+  // Delete some ROC hits.
   for ( iter = chips.begin(); iter != chips.end() ; iter++ ) {
- 
     float rand  = RandFlat::shoot();
     if( rand > chipEfficiency ) chips[iter->first]=0;
- 
+
   }
- 
+
+  // Delete some Dcol hits.
+
   for ( iter = columns.begin(); iter != columns.end() ; iter++ ) {
- 
+
     float rand  = RandFlat::shoot();
     if( rand > columnEfficiency ) columns[iter->first]=0;
- 
+
   }
   
- 
-  // Now loop again over pixel to kill some
+
+  // Now loop again over pixels to kill some of them.
   // Loop over hit pixels, amplitude in electrons, channel = coded row,col
-  for(signal_map_iterator i = _signal.begin();i != _signal.end(); i++) {
-    
+  for(signal_map_iterator i = _signal.begin();i != _signal.end(); i++) {    
 
+
+    //    int chan = i->first;
     pair<int,int> ip = PixelDigi::channelToPixel(i->first);//get pixel pos
-    int pixX = ip.first + 1;  // my indices start from 1
-    int pixY = ip.second + 1;
-    
-    indexConverter.chipIndices(pixX,pixY,chipX,chipY,row,col); //get chip index
-    int chipIndex = indexConverter.chipIndex(chipX,chipY);
-    
-    pair<int,int> dColId = indexConverter.dColumn(row,col);  // get dcol index
-    int dColInDet = indexConverter.dColumnIdInDet(dColId.second,chipIndex);
-
+    int row = ip.first;  // X in row
+    int col = ip.second; // Y is in col
+    //transform to ROC index coordinates   
+    indexConverter.transformToROC(col,row,chipIndex,colROC,rowROC);
+    int dColInChip = indexConverter.DColumn(colROC); //get ROC dcol from ROC col 
+    //dcol in mod
+    int dColInDet = indexConverter.DColumnInModule(dColInChip,chipIndex); 
 
 
 
     float rand  = RandFlat::shoot();
-
-   if( chips[chipIndex]==0 ||  columns[dColInDet]==0 
+    if( chips[chipIndex]==0 || columns[dColInDet]==0 
 	|| rand>pixelEfficiency ) {
       // make pixel amplitude =0, pixel will be lost at clusterization    
       i->second.set(0.); // reset amplitude, 
-   
-    }
+    } // end if
 
-
-  }
+  } // end pixel loop
   
-}
+} // end pixel_indefficiency
+
 //***********************************************************************
 // Fluctuate the gain and offset for the amplitude calibration
 // Use gaussian smearing.
