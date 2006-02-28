@@ -7,7 +7,7 @@
 
 #include <vector>
 class ProtoJet;
-#include "PhysicsTools/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
 
 void MakeCaloJet(const reco::CandidateCollection &ctc, const std::vector<ProtoJet>& protoJets, 
 		 reco::CandidateCollection &caloJets);

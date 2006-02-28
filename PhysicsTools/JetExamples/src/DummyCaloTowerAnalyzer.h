@@ -1,8 +1,8 @@
 #ifndef JetExamples_DummyCaloTowerAnalyzer_h
 #define JetExamples_DummyCaloTowerAnalyzer_h
-// $Id$
+// $Id: DummyCaloTowerAnalyzer.h,v 1.1 2006/02/23 10:35:35 llista Exp $
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "PhysicsTools/RecoCandidate/interface/RecoCaloTowerCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoCaloTowerCandidate.h"
 
 class DummyCaloTowerAnalyzer : public edm::EDAnalyzer {
  public:

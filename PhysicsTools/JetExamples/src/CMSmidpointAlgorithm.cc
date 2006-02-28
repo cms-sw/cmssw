@@ -1,7 +1,7 @@
 #include "PhysicsTools/JetExamples/interface/CMSmidpointAlgorithm.h"
 #include "PhysicsTools/JetExamples/interface/ProtoJetComparisons.h"
 #include "PhysicsTools/JetExamples/interface/MakeCaloJet.h"
-#include "PhysicsTools/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 
 using namespace std;
 using namespace reco;

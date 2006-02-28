@@ -18,9 +18,8 @@
  ************************************************************/
  //
  //
-#include "PhysicsTools/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "FWCore/Framework/interface/Handle.h"
-#include "PhysicsTools/Candidate/interface/CandidateFwd.h"
 
 class JetableObjectHelper {
 public:

@@ -1,6 +1,6 @@
 #include "PhysicsTools/JetExamples/interface/MakeCaloJet.h"
 #include "PhysicsTools/JetExamples/interface/ProtoJet.h"
-#include "PhysicsTools/Candidate/interface/CompositeRefCandidate.h"
+#include "DataFormats/Candidate/interface/CompositeRefCandidate.h"
 #include "PhysicsTools/CandUtils/interface/AddFourMomenta.h"
 using namespace reco;
 
@@ -11,7 +11,7 @@ void MakeCaloJet(const CandidateCollection &ctc, const std::vector<ProtoJet>& pr
      const ProtoJet & p = *i;
      CompositeRefCandidate * jet = new CompositeRefCandidate;
      CandidateRefs towers = p.getTowerList();
-     for( CandidateRefs::iterator i = towers.begin(); i != towers.end(); ++ i ) {
+     for( CandidateRefs::const_iterator i = towers.begin(); i != towers.end(); ++ i ) {
        jet->addDaughter( * i );
      }
      jet->set( addp4 );

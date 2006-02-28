@@ -1,6 +1,6 @@
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "PhysicsTools/JetExamples/interface/JetableObjectHelper.h"
-#include "PhysicsTools/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 #include <iostream>
 #include <algorithm>
 #include <utility>

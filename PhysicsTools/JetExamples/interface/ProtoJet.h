@@ -1,7 +1,7 @@
 #ifndef JetAlgorithms_ProtoJet_h
 #define JetAlgorithms_ProtoJet_h
 #include "CLHEP/Vector/LorentzVector.h"
-#include "PhysicsTools/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 
 #include <vector>
 #include <string>
