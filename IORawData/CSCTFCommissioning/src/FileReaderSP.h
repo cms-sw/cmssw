@@ -2,7 +2,7 @@
 #define FileReaderSP_h
 
 #include <queue>
-#include <IORawData/CSCTFCommissioning/interface/SPReader.h>
+#include <IORawData/CSCTFCommissioning/src/SPReader.h>
 using namespace std;
 
 class FileReaderSP : public SPReader
