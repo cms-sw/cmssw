@@ -1,8 +1,8 @@
 #ifndef CandUtils_TwoBodyCombiner_h
 #define CandUtils_TwoBodyCombiner_h
-// $Id: TwoBodyCombiner.h,v 1.7 2005/12/11 19:02:16 llista Exp $
+// $Id: TwoBodyCombiner.h,v 1.8 2006/02/21 10:37:30 llista Exp $
+#include "DataFormats/Candidate/interface/OverlapChecker.h"
 #include "PhysicsTools/CandUtils/interface/CandSelector.h"
-#include "PhysicsTools/Candidate/interface/OverlapChecker.h"
 #include "PhysicsTools/CandUtils/interface/AddFourMomenta.h"
 #include <boost/shared_ptr.hpp>
 

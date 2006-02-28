@@ -1,3 +1,4 @@
+// $Id$
 #include "PhysicsTools/CandUtils/interface/Thrust.h"
 #include <cmath>
 using namespace reco;

@@ -1,5 +1,5 @@
-#ifndef PHYSICSTOOLS_HELICITYANGLE_H
-#define PHYSICSTOOLS_HELICITYANGLE_H
+#ifndef CandUtils_helicityAngle_h
+#define CandUtils_helicityAngle_h
 
 namespace reco {
   class Candidate;

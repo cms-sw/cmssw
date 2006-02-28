@@ -1,5 +1,6 @@
+// $Id$
 #include "PhysicsTools/CandUtils/interface/MassWindowSelector.h"
-#include "PhysicsTools/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 
 bool MassWindowSelector::operator()( const reco::Candidate & c ) const {
   double m2 = c.massSqr();

@@ -1,6 +1,6 @@
-#ifndef PHYSICSTOOLS_BOOSTER_H
-#define PHYSICSTOOLS_BOOSTER_H
-#include "PhysicsTools/Candidate/interface/CompositeCandidate.h"
+#ifndef CandUtils_Booster_h
+#define CandUtils_Booster_h
+#include "DataFormats/Candidate/interface/Candidate.h"
 
 struct Booster : public reco::Candidate::setup {
   typedef reco::Candidate::Vector Vector;

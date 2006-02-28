@@ -1,6 +1,6 @@
-// $Id: helicityAngle.cc,v 1.8 2005/12/13 23:27:22 llista Exp $
+// $Id: helicityAngle.cc,v 1.9 2006/02/21 10:37:31 llista Exp $
 #include "PhysicsTools/CandUtils/interface/helicityAngle.h"
-#include "PhysicsTools/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 #include "PhysicsTools/CandUtils/interface/Booster.h"
 #include <Math/VectorUtil.h>
 using namespace reco;

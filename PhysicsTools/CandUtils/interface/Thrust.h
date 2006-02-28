@@ -1,13 +1,13 @@
 #ifndef CandUtils_Thrust_h
 #define CandUtils_Thrust_h
-// $Id: Thrust.h,v 1.7 2006/01/31 11:50:46 llista Exp $
+// $Id: Thrust.h,v 1.8 2006/02/21 10:37:30 llista Exp $
 //
 // Ported from original BaBar implementation
 //
 // Luca Lista
 //
 #include "DataFormats/Math/interface/Vector3D.h"
-#include "PhysicsTools/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 
 namespace reco {
   class Candidate;

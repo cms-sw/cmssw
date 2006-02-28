@@ -1,5 +1,5 @@
-<use name=PhysicsTools/Candidate>
+<use name=DataFormats/Candidate>
 <export>
   <lib name=PhysicsToolsCandUtils>
-  <use name=PhysicsTools/Candidate>
+  <use name=DataFormats/Candidate>
 </export>

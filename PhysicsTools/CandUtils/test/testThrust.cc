@@ -1,6 +1,6 @@
-// $Id: testThrust.cc,v 1.3 2006/01/31 11:23:56 llista Exp $
+// $Id: testThrust.cc,v 1.4 2006/02/21 10:37:31 llista Exp $
 #include <cppunit/extensions/HelperMacros.h>
-#include "PhysicsTools/Candidate/interface/LeafCandidate.h"
+#include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "PhysicsTools/CandUtils/interface/Thrust.h"
 using namespace reco;
 

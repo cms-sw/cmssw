@@ -1,5 +1,6 @@
-// $Id: TwoBodyCombiner.cc,v 1.10 2006/02/27 11:54:25 fabozzi Exp $
+// $Id: TwoBodyCombiner.cc,v 1.11 2006/02/27 16:24:28 fabozzi Exp $
 #include "PhysicsTools/CandUtils/interface/TwoBodyCombiner.h"
+#include "DataFormats/Candidate/interface/CompositeCandidate.h"
 using namespace reco;
 using namespace std;
 
