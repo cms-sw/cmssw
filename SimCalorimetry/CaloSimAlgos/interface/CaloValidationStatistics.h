@@ -13,6 +13,8 @@ class CaloValidationStatistics
 {
 public:
   CaloValidationStatistics(std::string name, float expectedMean, float expectedRMS);
+  /// prints to LogInfo upon destruction
+  ~CaloValidationStatistics();
 
   void addEntry(float value, float weight=1.);
 
