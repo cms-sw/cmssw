@@ -7,7 +7,7 @@
 #include <errno.h>
 #include <string>
 
-#include <IORawData/CSCTFCommissioning/interface/SPReader.h>
+#include <IORawData/CSCTFCommissioning/src/SPReader.h>
 
 using namespace std;
 

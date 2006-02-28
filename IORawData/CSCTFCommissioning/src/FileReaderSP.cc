@@ -1,4 +1,4 @@
-#include <IORawData/CSCTFCommissioning/interface/FileReaderSP.h>
+#include <IORawData/CSCTFCommissioning/src/FileReaderSP.h>
 
 #include <iostream>
 #include <fstream>

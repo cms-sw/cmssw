@@ -1,4 +1,4 @@
-#include <IORawData/CSCTFCommissioning/interface/CSCTFFileReader.h>
+#include <IORawData/CSCTFCommissioning/src/CSCTFFileReader.h>
 #include <errno.h>
 #include <string>
 
