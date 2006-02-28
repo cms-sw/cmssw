@@ -159,8 +159,8 @@ namespace cms
       // convert detid (unsigned int) to DetId
       DetId detIdObject( detid );      
 
-      GeomDetUnit * geoUnit = geom->idToDet( detIdObject );
-      PixelGeomDetUnit * pixDet = dynamic_cast<PixelGeomDetUnit*>(geoUnit);
+      const GeomDetUnit * geoUnit = geom->idToDet( detIdObject );
+      const PixelGeomDetUnit * pixDet = dynamic_cast<const PixelGeomDetUnit*>(geoUnit);
       if (! pixDet) {
 	// Fatal error!  TO DO: throw an exception!
 	assert(0);
