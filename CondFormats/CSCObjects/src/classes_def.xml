@@ -6,8 +6,8 @@
  <class name="CSCGains" id="24647172-BE30-DA11-888A-0008743F7CC7"/>
  <class name="CSCGains::Item"/>
  
- <class name="CSCMatrix" id="E885ACBB-5EA8-DA11-A44A-001320A4DDB1"/>
- <class name="CSCMatrix::Item"/>
+ <class name="CSCNoiseMatrix" id="E885ACBB-5EA8-DA11-A44A-001320A4DDB1"/>
+ <class name="CSNoiseCMatrix::Item"/>
 
  <class name="CSCcrosstalk" id="DA52D078-BE30-DA11-9387-0008743F7CC7"/>
  <class name="CSCcrosstalk::Item"/>
