@@ -15,16 +15,14 @@
 #include "DataFormats/CSCDigi/interface/CSCWireDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"
-//#include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
-//Include LCT digis later
-
+#include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCRPCDigi.h"
 
 #include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h"
-//#include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCRPCDigiCollection.h"
 
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
@@ -67,6 +65,7 @@ CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset) :
   produces<CSCStripDigiCollection>("MuonCSCStripDigi");
   produces<CSCComparatorDigiCollection>("MuonCSCComparatorDigi");  
   produces<CSCALCTDigiCollection>("MuonCSCALCTDigi");
+  produces<CSCCLCTDigiCollection>("MuonCSCCLCTDigi");
  
   CSCAnodeData::setDebug(debug);
   CSCALCTHeader::setDebug(debug);
@@ -101,7 +100,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
   std::auto_ptr<CSCWireDigiCollection> wireProduct(new CSCWireDigiCollection);
   std::auto_ptr<CSCStripDigiCollection> stripProduct(new CSCStripDigiCollection);
   std::auto_ptr<CSCALCTDigiCollection> alctProduct(new CSCALCTDigiCollection);
-  //std::auto_ptr<CSCCLCTpDigiCollection> clctProduct(new CSCCLCTDigiCollection);
+  std::auto_ptr<CSCCLCTDigiCollection> clctProduct(new CSCCLCTDigiCollection);
   std::auto_ptr<CSCComparatorDigiCollection> comparatorProduct(new CSCComparatorDigiCollection);
   //std::auto_ptr<CSCRPCDigiCollection> RPCProduct(new CSCRPCDigiCollection);
   
@@ -113,10 +112,6 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 
   for (int id=FEDNumbering::getCSCFEDIds().first;
        id<=FEDNumbering::getCSCFEDIds().second; ++id){ //for each of our DCCs
-
-    
-  //for (int id=1873;id<=1873; ++id){ //for each of our DCCs
-
 
     
     // Take a reference to this FED's data
@@ -187,6 +182,8 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 	    }
 
 	    if (ilayer ==3) {
+
+	      /// fill alct product
 	      int nalct = cscData[iCSC].dmbHeader().nalct();
 	      if (nalct) {
 		if (cscData[iCSC].alctHeader().check()) {
@@ -197,6 +194,20 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 		  }
 		}
 	      }
+
+	      /// fill clct product
+	      int nclct = cscData[iCSC].dmbHeader().nclct();
+	      if (nclct) {
+		if (cscData[iCSC].tmbHeader().check()) {
+		  std::vector <CSCCLCTDigi> clctDigis =
+		    cscData[iCSC].tmbHeader().CLCTDigis();
+		  for (unsigned int i=0; i<clctDigis.size() ; i++) {
+		    clctProduct->insertDigi(layer, clctDigis[i]);
+		  }
+		}
+	      }
+
+
 	    }
 
 
@@ -211,7 +222,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
   e.put(wireProduct,"MuonCSCWireDigi");
   e.put(stripProduct,"MuonCSCStripDigi");
   e.put(alctProduct, "MuonCSCALCTDigi");
-  //e.put(CLCTProduct);
+  e.put(clctProduct, "MuonCSCCLCTDigi");
   e.put(comparatorProduct,"MuonCSCComparatorDigi");
   //e.put(RPCProduct);
 

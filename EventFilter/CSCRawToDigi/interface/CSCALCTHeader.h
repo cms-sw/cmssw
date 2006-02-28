@@ -47,10 +47,26 @@ public:
  unsigned short int LCTChipRead()    const {return lctChipRead;}
  unsigned short int nLCTChipRead()   const;
  
- unsigned int alct0Word() const {return LCT0_low|(LCT0_high<<15);}
- unsigned int alct1Word() const {return LCT1_low|(LCT1_high<<15);}
- 
- unsigned int ALCT(const unsigned int index) const {
+ /// these are decomposed into smaller words
+ /// unsigned int alct0Word() const {return LCT0_low|(LCT0_high<<15);}
+ /// unsigned int alct1Word() const {return LCT1_low|(LCT1_high<<15);}
+ unsigned short int alct0Valid()     const {return alct0_valid;}
+ unsigned short int alct0Quality()   const {return alct0_quality;}
+ unsigned short int alct0Accel()     const {return alct0_accel;}
+ unsigned short int alct0Pattern()   const {return alct0_pattern;}
+ unsigned short int alct0KeyWire()   const {return alct0_key_wire;}
+ unsigned short int alct0BXN()       const {return alct0_bxn_low|(alct0_bxn_high)<<3;}
+
+ unsigned short int alct1Valid()     const {return alct1_valid;}
+ unsigned short int alct1Quality()   const {return alct1_quality;}
+ unsigned short int alct1Accel()     const {return alct1_accel;}
+ unsigned short int alct1Pattern()   const {return alct1_pattern;}
+ unsigned short int alct1KeyWire()   const {return alct1_key_wire;}
+ unsigned short int alct1BXN()       const {return alct1_bxn_low|(alct1_bxn_high)<<3;}
+
+
+ /// this is no longer supported - please use each of the words above
+ /*unsigned int ALCT(const unsigned int index) const {
    if      (index == 0) return alct0Word();
    else if (index == 1) return alct1Word();
    else {
@@ -59,6 +75,7 @@ public:
      return 0;
    }
  }
+ */
 
  unsigned short * data() {return (unsigned short *) this;}
  /// in 16-bit words
@@ -108,22 +125,46 @@ public:
   unsigned flag_3 : 2;
 
   /// 1st LCT lower 15 bits
-  unsigned LCT0_low : 15;
+  /// unsigned LCT0_low : 15;
+  /// LCT0_low is decomposed into bits according to 
+  /// http://www.phys.ufl.edu/cms/emu/dqm/data_formats/ALCT_data_format_notes.pdf
+  unsigned alct0_valid   : 1;
+  unsigned alct0_quality : 2;  
+  unsigned alct0_accel   : 1;
+  unsigned alct0_pattern : 1;
+  unsigned alct0_key_wire: 7;
+  unsigned alct0_bxn_low : 3;
   ///  DDU+LCT special word flags
   unsigned flag_4 : 1;
  
   /// 1st LCT higher 15 bits
-  unsigned LCT0_high : 15;
+  ///unsigned LCT0_high : 15;
+  /// LCT0_high is decomposed into bits according to 
+  /// http://www.phys.ufl.edu/cms/emu/dqm/data_formats/ALCT_data_format_notes.pdf
+  unsigned alct0_bxn_high :2;
+  unsigned alct0_reserved :13;
   ///  DDU+LCT special word flags
   unsigned flag_5 : 1;
 
   /// 2nd LCT lower 15 bits
-  unsigned LCT1_low : 15;
+  /// unsigned LCT1_low : 15;
+  /// LCT1_low is decomposed into bits according to 
+  /// http://www.phys.ufl.edu/cms/emu/dqm/data_formats/ALCT_data_format_notes.pdf
+  unsigned alct1_valid   : 1;
+  unsigned alct1_quality : 2;  
+  unsigned alct1_accel   : 1;
+  unsigned alct1_pattern : 1;
+  unsigned alct1_key_wire: 7;
+  unsigned alct1_bxn_low : 3;
   ///  DDU+LCT special word flags
   unsigned flag_6 : 1;
 
   /// 2nd LCT higher 15 bits
-  unsigned LCT1_high : 15;
+  /// unsigned LCT1_high : 15;
+  /// LCT1_high is decomposed into bits according to 
+  /// http://www.phys.ufl.edu/cms/emu/dqm/data_formats/ALCT_data_format_notes.pdf
+  unsigned alct1_bxn_high :2;
+  unsigned alct1_reserved :13;
   ///  DDU+LCT special word flags
   unsigned flag_7 : 1;
 

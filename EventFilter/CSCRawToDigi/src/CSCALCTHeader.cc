@@ -64,54 +64,34 @@ int CSCALCTHeader::ALCTCRCcalc() {
 }
 
 std::vector<CSCALCTDigi> CSCALCTHeader::ALCTDigis() const { 
-  int keyWireGroup;
-  int BXCounter;
-  int quality;
-  int pattern;
-  int accel;
-  int valid;
+
   std::vector<CSCALCTDigi> result;
   
   //for the zeroth ALCT word:  
-  unsigned int alct0 = alct0Word();
-  valid =        alct0 & 0x1;          //(bin:                1)
-  quality =      (alct0 & 0x6)>>1;     //(bin:              110) 
-  accel =        (alct0 & 0x8)>>3;     //(bin:             1000) 
-  pattern =      (alct0 & 0x10)>>4;    //(bin:            10000) 
-  keyWireGroup = (alct0 & 0xfe0)>>5;   //(bin:     111111100000)
-  BXCounter =    (alct0 & 0x1f000)>>12;//(bin:11111000000000000)
-  
-  if (debug) edm::LogInfo("CSCALCTHeader") << "ALCT DIGI 0 valid = " << valid 
-					   << "  quality = "  << quality
-					   << "  accel = " << accel
-					   << "  pattern = " << pattern 
-					   << "  Key Wire Group = " << keyWireGroup 
-					   << "  BX = " << BXCounter;  
+  if (debug) edm::LogInfo("CSCALCTHeader") << "ALCT DIGI 0 valid = " << alct0Valid() 
+					   << "  quality = "  << alct0Quality()
+					   << "  accel = " << alct0Accel()
+					   << "  pattern = " << alct0Pattern() 
+					   << "  Key Wire Group = " << alct0KeyWire() 
+					   << "  BX = " << alct0BXN();  
 
-  CSCALCTDigi digi(1, keyWireGroup, BXCounter, accel, quality, pattern, valid);
+  CSCALCTDigi digi(1, alct0KeyWire(), alct0BXN(), alct0Accel(), alct0Quality(), 
+		   alct0Pattern(), alct0Valid());
   result.push_back(digi);
 
   //for the first ALCT word:  
-  unsigned int alct1 = alct1Word();
-  valid =        alct1 & 0x1;          //(bin:                1)
-  quality =      (alct1 & 0x6)>>1;     //(bin:              110) 
-  accel =        (alct1 & 0x8)>>3;     //(bin:             1000) 
-  pattern =      (alct1 & 0x10)>>4;    //(bin:            10000) 
-  keyWireGroup = (alct1 & 0xfe0)>>5;   //(bin:     111111100000)
-  BXCounter =    (alct1 & 0x1f000)>>12;//(bin:11111000000000000)
- 
-  
-  if (debug) edm::LogInfo("CSCALCTHeader") << "ALCT DIGI 1 valid = " << valid 
-					   << "  quality = " << quality 
-					   << "  accel = " << accel
-					   << "  pattern = " << pattern 
-					   << "  Key Wire Group = " << keyWireGroup 
-					   << "  BX = " << BXCounter;
-  
-  digi = CSCALCTDigi(2, keyWireGroup, BXCounter, accel, quality, pattern, valid);
+  if (debug) edm::LogInfo("CSCALCTHeader") << "ALCT DIGI 1 valid = " << alct1Valid() 
+					   << "  quality = "  << alct1Quality()
+					   << "  accel = " << alct1Accel()
+					   << "  pattern = " << alct1Pattern() 
+					   << "  Key Wire Group = " << alct1KeyWire() 
+					   << "  BX = " << alct1BXN();  
+
+  digi = CSCALCTDigi(2, alct1KeyWire(), alct1BXN(), alct1Accel(), alct1Quality(), 
+		   alct1Pattern(), alct1Valid());
+
   result.push_back(digi);
   return result;
-
 }
 
 

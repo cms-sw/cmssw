@@ -20,7 +20,8 @@
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h"
-
+#include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -42,6 +43,7 @@ void DigiAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
   edm::Handle<CSCStripDigiCollection> strips;
   edm::Handle<CSCComparatorDigiCollection> comparators;
   edm::Handle<CSCALCTDigiCollection> alcts;
+  edm::Handle<CSCCLCTDigiCollection> clcts;
 
    
   // Pass the handle to the method "getByType", which is used to retrieve
@@ -52,7 +54,8 @@ void DigiAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
   e.getByLabel("cscunpacker","MuonCSCStripDigi",strips);
   e.getByLabel("cscunpacker","MuonCSCComparatorDigi",comparators);
   e.getByLabel("cscunpacker","MuonCSCALCTDigi",alcts);
- 
+  e.getByLabel("cscunpacker","MuonCSCCLCTDigi",clcts);
+  
   
    
   // read digi collections and print digis
@@ -94,6 +97,18 @@ void DigiAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
       digiItr->print();
     }
   }
+
+
+
+  for (CSCCLCTDigiCollection::DigiRangeIterator j=clcts->begin(); j!=clcts->end(); j++) {
+ 
+    std::vector<CSCCLCTDigi>::const_iterator digiItr = (*j).second.first;
+    std::vector<CSCCLCTDigi>::const_iterator last = (*j).second.second;
+    for( ; digiItr != last; ++digiItr) {
+      digiItr->print();
+    }
+  }
+
 
 
   eventNumber++;

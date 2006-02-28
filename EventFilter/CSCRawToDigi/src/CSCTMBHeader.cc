@@ -25,9 +25,17 @@ void CSCTMBHeader::setEventInformation(const CSCDMBHeader & dmbHeader) {
 std::vector<CSCCLCTDigi> CSCTMBHeader::CLCTDigis() const {
   std::vector<CSCCLCTDigi> result;
 
-  //fill digis here
+  ///fill digis here
+  /// for the zeroth clct:
+  CSCCLCTDigi digi(clct0Valid(),clct0Quality(),clct0Shape(),clct0StripType(),clct0Bend(), 
+		   clct0Key(),clct0CFEB(), clct0BXN(), 1);
+  result.push_back(digi);
 
-
+  /// for the first clct:
+  digi = CSCCLCTDigi(clct1Valid(),clct1Quality(),clct1Shape(),clct1StripType(),clct1Bend(), 
+		   clct1Key(),clct1CFEB(), clct1BXN(), 2);
+  result.push_back(digi);
+  
   return result;
 }
 
