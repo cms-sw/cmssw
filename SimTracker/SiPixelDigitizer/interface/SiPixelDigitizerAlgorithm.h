@@ -114,7 +114,14 @@ class SiPixelDigitizerAlgorithm
   public:
     Amplitude() : _amp(0.0) { _hits.reserve(1);}
     Amplitude( float amp, const PSimHit* hitp, float frac) :
-    _amp(amp), _hits(1, hitp), _frac(1,frac) {}
+    _amp(amp), _hits(1, hitp), _frac(1,frac) {
+     //in case of digi from noisypixels
+      //the MC information are removed 
+      if (_frac[0]<-0.5) {
+	_frac.pop_back();
+	_hits.pop_back();
+     }
+    }
 
     // can be used as a float by convers.
     operator float() const { return _amp;}
@@ -124,7 +131,9 @@ class SiPixelDigitizerAlgorithm
 
     void operator+=( const Amplitude& other) {
       _amp += other._amp;
-      if (other._frac[0]!=-1.){
+      //in case of contribution of noise to the digi
+      //the MC information are removed 
+      if (other._frac[0]>-0.5){
 	_hits.insert( _hits.end(), other._hits.begin(), other._hits.end());
 	_frac.insert(_frac.end(), other._frac.begin(), other._frac.end());
       }
