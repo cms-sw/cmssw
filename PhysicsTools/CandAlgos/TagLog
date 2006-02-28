@@ -1,3 +1,6 @@
+** V00-02-01  [Tue Feb 28 12:45:58 2006]
+ported Candidate and RecoCandidate packages from PhysicsTools to DataFormats
+
 ** V00-02-00  [Tue Feb 21 11:41:38 2006]
 namespace migration: aod:: to reco::
 
