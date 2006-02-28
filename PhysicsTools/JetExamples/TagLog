@@ -1,3 +1,6 @@
+** V00-01-02  [Tue Feb 28 12:46:10 2006]
+ported Candidate and RecoCandidate packages from PhysicsTools to DataFormats
+
 ** V00-01-01  [Thu Feb 23 16:25:24 2006]
 config. files renamed with extension .cfg
 
