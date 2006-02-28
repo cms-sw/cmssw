@@ -21,8 +21,8 @@
 // ********************************************************************
 //
 //
-// $Id: CocoaUnitsTable.cc,v 1.21 2004/01/21 13:17:50 gcosmo Exp $
-// GEANT4 tag $Name: geant4-06-01 $
+// $Id: CocoaUnitsTable.cc,v 1.1 2005/12/12 11:54:54 arce Exp $
+// GEANT4 tag $Name:  $
 // 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo.... 
 //
@@ -175,8 +175,6 @@ void CocoaUnitDefinition::PrintDefinition()
 void CocoaUnitDefinition::BuildUnitsTable()
 {
  //Length
- new CocoaUnitDefinition(    "parsec","pc"      ,"Length",parsec); 
- new CocoaUnitDefinition( "kilometer","km"      ,"Length",kilometer);
  new CocoaUnitDefinition(     "meter","m"       ,"Length",meter);
  new CocoaUnitDefinition("centimeter","cm"      ,"Length",centimeter); 
  new CocoaUnitDefinition("millimeter","mm"      ,"Length",millimeter);
@@ -376,6 +374,13 @@ CocoaBestUnit::CocoaBestUnit(ALIdouble value, const ALIstring& category)
     IndexOfCategory = i;
     nbOfVals = 1;
     Value[0] = value; Value[1] = 0.; Value[2] = 0.;
+
+    //COCOA internal units are in meters, not mm as in CLHEP
+    if(category == "Length" ) {
+      Value[0] *= 1000.;
+      Value[1] *= 1000.;
+      Value[2] *= 1000.;
+    }
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....

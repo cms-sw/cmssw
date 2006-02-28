@@ -15,6 +15,7 @@
 
 #include "OpticalAlignment/CocoaModel/interface/Model.h"
 #include "OpticalAlignment/CocoaModel/interface/OpticalObject.h"
+#include "OpticalAlignment/CocoaModel/interface/Entry.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
 
@@ -51,6 +52,9 @@ void CocoaToDDLMgr::writeDDDFile( ALIstring filename)
   //---- Write rotations
   writeRotations();
 
+  //---- Write SpecPar's
+  writeSpecPars();
+
   newPartPost( filename, "" ); 
 
 
@@ -86,7 +90,6 @@ void CocoaToDDLMgr::writeSolids()
   static std::vector< OpticalObject* > optolist = Model::OptOList();
   static std::vector< OpticalObject* >::const_iterator ite;
   for(ite = optolist.begin(); ite != optolist.end(); ite++ ){
-    if( (*ite)->type() == "system" ) continue;
     so( *ite );
   }
   
@@ -102,7 +105,6 @@ void CocoaToDDLMgr::writeLogicalVolumes()
   static std::vector< OpticalObject* > optolist = Model::OptOList();
   static std::vector< OpticalObject* >::const_iterator ite;
   for(ite = optolist.begin(); ite != optolist.end(); ite++ ){
-    if( (*ite)->type() == "system" ) continue;
     //each OpticalObject is a distinct logical volume. This is so because two OptO's of the same type may have different optical properties and this optical properties are SpecPart's. And to have different values of an SpecPart they have to be different logical volumes
     lv( *ite );
   }
@@ -142,6 +144,27 @@ void CocoaToDDLMgr::writeRotations()
   newSectPost_ro("");
 
 }
+
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+void CocoaToDDLMgr::writeSpecPars()
+{
+  newSectPre_specPar("");
+  
+  static std::vector< OpticalObject* > optolist = Model::OptOList();
+  static std::vector< OpticalObject* >::const_iterator ite;
+  for(ite = optolist.begin(); ite != optolist.end(); ite++ ){
+    if( (*ite)->type() == "system" ) continue;
+    specPar( *ite );
+  }
+  
+  writeSpecParsCocoa();
+
+  newSectPost_specPar("");
+
+
+}
+
+
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -235,11 +258,21 @@ void CocoaToDDLMgr::newSectPre_so(std::string name)
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void CocoaToDDLMgr::so(OpticalObject * opto) 
 {
+  std::string name = scrubString(opto->name());
+
+  if( opto->type() == "system" ){
+    //    file_ << " <Box name=\"" << name << "\"";
+    file_ << " <Box name=\"OCMS\"";
+    file_ << " dx=\"0.*m" 
+	  << "\" dy=\"0.*m" 
+	  << "\" dz=\"0.*m" 
+	  << "\"/>" << std::endl;
+    return;
+  }
+
   CocoaSolidShape* so = opto->getSolidShape();
 
   std::string solidType = so->getType();
-
-  std::string name = scrubString(opto->name());
 
   if (solidType == "Box")
     {
@@ -414,21 +447,32 @@ void CocoaToDDLMgr::newSectPre_lv(std::string name)
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void CocoaToDDLMgr::lv(OpticalObject * opto)
-{
-   #ifdef gdebug_v
-    cout << "xml:lv " << opto->name() << std::endl;
-   #endif 
-    std::string name = opto->name();
-    name = scrubString(name);
-    std::string rSolid = opto->name();
-    std::string sensitive = "unspecified";
-    rSolid = scrubString(rSolid);
+{ 
+  std::string name = opto->name();
+  name = scrubString(name);
+  std::string rSolid = opto->name();
+  rSolid = scrubString(rSolid);
+  std::string sensitive = "unspecified";
+
+  if( opto->type() == "system" ){
     file_ << " <LogicalPart name=\"" 
 	  <<  name << "\" category=\"" << sensitive << "\">" << std::endl
 	  << "  <rSolid name=\"" << rSolid << "\"/>" << std::endl
-	  << "  <rMaterial name=\"materials:" << opto->getMaterial()->getName() << "\"" 
+	  << "  <rMaterial name=\"materials: NONE\"" 
 	  << "/>" << std::endl
 	  << " </LogicalPart>" << std::endl;			
+    return;
+  }
+
+#ifdef gdebug_v
+  cout << "xml:lv " << opto->name() << std::endl;
+#endif 
+  file_ << " <LogicalPart name=\"" 
+	<<  name << "\" category=\"" << sensitive << "\">" << std::endl
+	<< "  <rSolid name=\"" << rSolid << "\"/>" << std::endl
+	<< "  <rMaterial name=\"materials:" << opto->getMaterial()->getName() << "\"" 
+	<< "/>" << std::endl
+	<< " </LogicalPart>" << std::endl;			
 }
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -475,7 +519,7 @@ void CocoaToDDLMgr::pv(OpticalObject * opto)
    int rotNumber = buildRotationNumber( opto );
    //CocoaDDLRotation* rot = buildRotationNotRepeated( opto );
    
-   file_ << "  <rRotation name=\"rotations:R" << rotNumber << "\"/>" << std::endl;
+   file_ << "  <rRotation name=\"R" << rotNumber << "\"/>" << std::endl;
 
    Hep3Vector t =  opto->centreGlob();
    if(t != Hep3Vector()) { //if (0,0,0) write nothing
@@ -540,14 +584,93 @@ void CocoaToDDLMgr::newSectPost_ro(std::string name)
 }
 
 
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+void CocoaToDDLMgr::newSectPre_specPar(std::string name)
+{
+   #ifdef gdebug
+    cout << " sect-lv-pre:" << name << '-'  << std::endl;
+   #endif
+   newSectPre(filename_,std::string("SpecParSection"));
+}    
+
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+void CocoaToDDLMgr::specPar(OpticalObject * opto)
+{
+  
+  file_ << " <SpecPar name=\"" << opto->name() << "\" />" << std::endl;
+  const std::vector< Entry* > coord = opto->CoordinateEntryList();
+  for( int ii=0; ii<6; ii++ ){
+    Entry* ent = coord[ii];
+    file_ << "   <Parameter name=\"" << ent->name()+std::string("_sigma") << "\" value=\"";
+    if( ii < 3 ){
+      file_ << UC(ent->sigma(),"Length");
+    }else {
+      file_ << UC(ent->sigma(),"Angle");
+    }
+    file_ << "\" /> " << std::endl;
+    file_ << "   <Parameter name=\"" << ent->name()+std::string("_quality") << "\" value=\"" << ent->quality() << "\" /> " << std::endl;
+  }
+  
+  const std::vector< Entry* > extraEnt = opto->ExtraEntryList();
+  for( int ii=0; ii<extraEnt.size(); ii++ ){
+    Entry* ent = extraEnt[ii];    file_ << "   <Parameter name=\"OptiProp_name=" << ent->name() << "\" value=\"0.\" /> " << std::endl;
+    file_ << "   <Parameter name=\"OptiProp_" << ent->name() + std::string("_dimType=") + ent->type() << "\" value=\"0.\" /> " << std::endl;
+    file_ << "   <Parameter name=\"OptiProp_" << ent->name() + std::string("_value") << "\" value=\"";
+    if( ent->type() == "nodim" ) {
+      file_ << ent->value();
+    }else if( ent->type() == "length" ) {
+      file_ << UC(ent->value(),"Length");
+    }else if( ent->type() == "angle" ) {
+      file_ << UC(ent->value(),"Angle");
+    }
+    file_ << "\" /> " << std::endl;
+
+    file_ << "   <Parameter name=\"OptiProp_" << ent->name() + std::string("_sigma") << "\" value=\"";
+    if( ent->type() == "nodim" ) {
+      file_ << ent->sigma();
+    }else if( ent->type() == "length" ) {
+      file_ << UC(ent->sigma(),"Length");
+    }else if( ent->type() == "angle" ) {
+      file_ << UC(ent->sigma(),"Angle");
+    }
+    file_ << "\" /> " << std::endl;
+
+    file_ << "   <Parameter name=\"OptiProp_" << ent->name() + std::string("_quality") << "\" value=\"" << ent->quality() << "\" /> " << std::endl;
+  }
+
+  file_ << " </SpecPar>" << std::endl;
+  
+}
+
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+void CocoaToDDLMgr::writeSpecParsCocoa()
+{
+  file_ << "<!--    Define volumes as COCOA objects --> " << std::endl
+	<< "  <SpecPar name=\"COCOA\"> " << std::endl;
+
+  static std::vector< OpticalObject* > optolist = Model::OptOList();
+  static std::vector< OpticalObject* >::const_iterator ite;
+  for(ite = optolist.begin(); ite != optolist.end(); ite++ ){
+    if( (*ite)->type() == "system" ) continue;
+    file_ << "    <PartSelector path=\"//" << (*ite)->name() << "\"/> " << std::endl;
+  }
+   
+  file_ << "   <Parameter name=\"COCOA\" value=\"COCOA\"/> " << std::endl
+	<< "  </SpecPar> " << std::endl;
+
+}
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+void CocoaToDDLMgr::newSectPost_specPar(std::string name)
+{
+   newSectPost("SpecParSection");
+}
 
 
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void CocoaToDDLMgr::newSectPre(std::string name, std::string type)
@@ -635,3 +758,4 @@ ALIint CocoaToDDLMgr::buildRotationNumber( OpticalObject* opto )
   return rotnum;
 
 }
+

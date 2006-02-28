@@ -39,6 +39,8 @@ public:
   void writeLogicalVolumes();
   void writePhysicalVolumes();
   void writeRotations();
+  void writeSpecPars();
+
   void newPartPre(std::string name);
   void newPartPost(std::string name, std::string extension);
   void newSectPre_ma(std::string name);
@@ -56,6 +58,10 @@ public:
   void newSectPre_ro(std::string name);
   void ro(const HepRotation& ro, int n);
   void newSectPost_ro(std::string name);
+  void newSectPre_specPar(std::string name);
+  void specPar(OpticalObject * opto);
+  void writeSpecParsCocoa();
+  void newSectPost_specPar(std::string name);
   void newSectPre(std::string name, std::string type);
   void newSectPost(std::string name);
   ALIbool materialIsRepeated( CocoaMaterialElementary* ma );
