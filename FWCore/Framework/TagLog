@@ -1,3 +1,6 @@
+** V02-02-04  [Wed Mar  1 00:45:48 2006]
+Add more modules for testing purposes
+
 ** V02-02-03  [Tue Feb 21 00:15:33 2006]
 Actions.cc bug fix: first set the defaults then override them with user's choices, rather than vice-versa
 
