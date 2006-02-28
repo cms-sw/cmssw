@@ -1,3 +1,6 @@
+** V00-04-13  [Tue Feb 28 15:39:57 2006]
+added download.url to retrieve data files at build time
+
 ** V00-04-12  [Thu Feb 16 15:37:30 2006]
 update of Ecal barrel numbering schemes (in phase with EEDEtId) and
 restoration of root files in data
