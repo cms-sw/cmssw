@@ -29,11 +29,11 @@ class SiStripNoises {
     void setData(float noise_,bool disable_){
       short noise =  static_cast<short>  (noise_*10.0 + 0.5) & 0x01FF;
       Data = ( disable_ ? -1 : 1 ) * noise;
-      std::cout 
-	<< std::fixed << noise_ << " \t" 
-	<< disable_  << " \t" 
-	<< Data << " \t" 
-	<< std::endl;
+/*       std::cout  */
+/* 	<< std::fixed << noise_ << " \t"  */
+/* 	<< disable_  << " \t"  */
+/* 	<< Data << " \t"  */
+/* 	<< std::endl; */
     };
     
   private:
