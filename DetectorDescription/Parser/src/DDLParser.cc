@@ -130,7 +130,7 @@ DDLSAX2FileHandler* DDLParser::getDDLSAX2FileHandler() {
 size_t DDLParser::isFound(const std::string& filename)
 {
   FileNameHolder::const_iterator it = fileNames_.begin();
-  size_t i = 0;
+  size_t i = 1;
   bool foundFile = false;
   while (it != fileNames_.end() && !foundFile) //  for (; it != fileNames_.end(); it++) 
     {
