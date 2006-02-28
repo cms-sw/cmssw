@@ -1,3 +1,6 @@
+** V00-00-05  [Tue Feb 28 20:34:21 2006]
+fix - change order of EPrunner/FragCollector creation so FragCollector gets the product registry from the storage manager instead of from the other job.
+
 ** V00-00-04  [Tue Feb 21 00:20:03 2006]
 added nullAction needed by EPStateMachine used by SM, and removed periodic bandwidth performance statistics being printed out
 
