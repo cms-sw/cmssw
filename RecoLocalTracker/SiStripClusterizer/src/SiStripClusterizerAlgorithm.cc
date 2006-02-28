@@ -32,6 +32,12 @@ SiStripClusterizerAlgorithm::SiStripClusterizerAlgorithm(const edm::ParameterSet
   ENC_(conf.getParameter<double>("EquivalentNoiseCharge300um")),
   BadStripProbability_(conf.getParameter<double>("BadStripProbability")),
   UseNoiseBadStripFlagFromDB_(conf.getParameter<bool>("UseNoiseBadStripFlagFromDB")){
+
+  if (UseNoiseBadStripFlagFromDB_==false){	  
+    std::cout << "Using a SingleNoiseValue and good strip flags" << std::endl;
+  } else {
+    std::cout << "Using Noise and BadStrip flags accessed from DB" << std::endl;
+  }
   
   if ( clusterMode_ == "ThreeThresholdClusterizer" ) {
     threeThreshold_ = new ThreeThresholdStripClusterizer(conf_.getParameter<double>("ChannelThreshold"),
@@ -75,12 +81,11 @@ void SiStripClusterizerAlgorithm::run(const StripDigiCollection* input, SiStripC
 	if (UseNoiseBadStripFlagFromDB_==false){	  
 	  //Case of SingleValueNoiseValue for all strips of a Detector
 	  //Noise is proportional to sensor depth
-	  std::cout << "Using a SingleNoiseValue and good strip flags" << std::endl;
-	  
+	 	  
 	  const GeomDetUnit* it = pDD->idToDet(DetId(detID));
 	
 	  if (dynamic_cast<const StripGeomDetUnit*>(it)==0){
-	    std::cout<< "WARNING: the detID " << detID << "seems not to belong to Tracker" << std::endl; 
+	    std::cout<< "WARNING: the detID " << detID << " doesn't seem to belong to Tracker" << std::endl; 
  	  }else{
 
 	    int numStrips = (dynamic_cast<const StripGeomDetUnit*>(it))->specificTopology().nstrips(); // det module number of strips
@@ -88,13 +93,12 @@ void SiStripClusterizerAlgorithm::run(const StripDigiCollection* input, SiStripC
 	    float noise = ENC_*moduleThickness/(0.03)/ElectronsPerADC_;
 	    //vector<float> noiseVec(numStrips,noise);	    
 
-	    //shoot randomly badstrip with probability BadStripProbability_
-	    bool badFlag= RandFlat::shoot(1.) < BadStripProbability_ ? true : false;
-	
 	    //Construct a SiStripNoiseVector in order to be compliant with the DB access
 	    SiStripNoiseVector vnoise;
 	    SiStripNoises::SiStripData theSiStripData;       	   
 	    for(int strip=0; strip<numStrips; ++strip){
+	      //shoot randomly badstrip with probability BadStripProbability_
+	      bool badFlag= RandFlat::shoot(1.) < BadStripProbability_ ? true : false;
 	      theSiStripData.setData(noise,badFlag);
 	      vnoise.push_back(theSiStripData);
 	    }
@@ -102,7 +106,6 @@ void SiStripClusterizerAlgorithm::run(const StripDigiCollection* input, SiStripC
 	  }
 	} else {
 	  //Case of Noise and BadStrip flags access from DB
-	  std::cout << "Using Noise and BadStrip flags accessed from DB" << std::endl;
 	  const SiStripNoiseVector& vnoise = sistripnoise->getSiStripNoiseVector(detID);
 	  
 	  if (vnoise.size() <= 0)

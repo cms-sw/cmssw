@@ -15,7 +15,7 @@ bool ThreeThresholdStripClusterizer::badChannel( int channel,
 
 std::vector<SiStripCluster> ThreeThresholdStripClusterizer::clusterizeDetUnit( DigiIterator begin, DigiIterator end,
 									       unsigned int detid, const SiStripNoiseVector& vnoise){
-  std::cout << "I'm in new clusterizeDetUnit for detid " << detid << std::endl;
+  //  std::cout << "I'm in clusterizeDetUnit for detid " << detid << std::endl;
   // const int maxBadChannels_ = 1;
 
   DigiContainer::const_iterator ibeg, iend, ihigh, itest, i;  
@@ -41,8 +41,9 @@ std::vector<SiStripCluster> ThreeThresholdStripClusterizer::clusterizeDetUnit( D
   while ( ibeg != end &&
           (ihigh = find_if( ibeg, end, predicate)) != end) {
 
-    //std::cout << ihigh->channel() << std::endl;
-
+    std::cout << "Seed Channel: detid "<< detid << " digis " << ihigh->channel() 
+	      << " adc " << ihigh->adc() << " is " << " channelNoise " << vnoise[ihigh->channel()].getNoise() <<  " IsBadChannel  " << vnoise[ihigh->channel()].getDisable() << std::endl;
+   
     // The seed strip is ihigh. Scan up and down from it, finding nearby strips above
     // threshold, allowing for some holes. The accepted cluster runs from strip ibeg
     // to iend, and itest is the strip under study, not yet accepted.
@@ -95,7 +96,7 @@ std::vector<SiStripCluster> ThreeThresholdStripClusterizer::clusterizeDetUnit( D
     my_digis.clear();
     for (i=ibeg; i<=iend; i++) {
       float channelNoise = vnoise[i->channel()].getNoise();  
-      bool IsBadChannel = vnoise[itest->channel()].getDisable();
+      bool IsBadChannel = vnoise[i->channel()].getDisable();
       std::cout << "Looking at cluster digis: detid " << detid << " digis " << i->channel()  
 		<< " adc " << i->adc() << " channelNoise " << channelNoise << " IsBadChannel  " << IsBadChannel << std::endl;
       if (!IsBadChannel && i->adc() >= static_cast<int>( channelThresholdInNoiseSigma()*channelNoise)) {

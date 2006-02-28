@@ -35,6 +35,19 @@ namespace cms
   SiStripClusterizer::SiStripClusterizer(edm::ParameterSet const& conf) : 
     siStripClusterizerAlgorithm_(conf) ,
     conf_(conf){
+
+    //FIXME
+    //Try to insert Env Variables for CORAL user and passwd 
+    // by means of putenv 
+    //   const std::string userEnv = iConfig.getUntrackedParameter<string>("CORAL_AUTH_PASSWORD_ENV","CORAL_AUTH_USER=me");
+    //   cout << "userNameEnv " << userEnv << " " << const_cast<char*>( userEnv.c_str() ) << endl;
+    //   ::putenv( const_cast<char*>( userEnv.c_str() ) );
+    //   const std::string passwdEnv = iConfig.getUntrackedParameter<string>("CORAL_AUTH_PASSWORD_ENV","CORAL_AUTH_PASSWORD=mypass");
+    //   cout << "passwdEnv " << passwdEnv << " " << const_cast<char*>( passwdEnv.c_str() ) << endl;
+    //   ::putenv( const_cast<char*>( passwdEnv.c_str() ) );
+  ::putenv("CORAL_AUTH_USER=me");
+  ::putenv("CORAL_AUTH_PASSWORD=mypass"); 
+
     produces<SiStripClusterCollection>();
   }
 
@@ -50,31 +63,31 @@ namespace cms
     std::cout <<" There are "<<pDD->dets().size() <<" detectors"<<std::endl;
 
     //Getting Calibration data (Noises and BadStrips Flag)
-    bool UseNoiseBadStripFlagFromDB_=conf_.getParameter<bool>("UseNoiseBadStripFlagFromDB_");  
+    bool UseNoiseBadStripFlagFromDB_=conf_.getParameter<bool>("UseNoiseBadStripFlagFromDB");  
     if (UseNoiseBadStripFlagFromDB_==true){
       iSetup.get<SiStripNoisesRcd>().get(noise);
       //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
       // FIXME
       // Debug: show noise for DetIDs
-      SiStripNoiseMapIterator mapit = noise->m_noises.begin();
-      for (;mapit!=noise->m_noises.end();mapit++)
-	{
-	  unsigned int detid = (*mapit).first;
-	  std::cout << "detid " <<  detid << " # Strip " << (*mapit).second.size()<<std::endl;
-	  //SiStripNoiseVector theSiStripVector =  (*mapit).second;     
-	  const SiStripNoiseVector theSiStripVector =  noise->getSiStripNoiseVector(detid);
+//       SiStripNoiseMapIterator mapit = noise->m_noises.begin();
+//       for (;mapit!=noise->m_noises.end();mapit++)
+// 	{
+// 	  unsigned int detid = (*mapit).first;
+// 	  std::cout << "detid " <<  detid << " # Strip " << (*mapit).second.size()<<std::endl;
+// 	  //SiStripNoiseVector theSiStripVector =  (*mapit).second;     
+// 	  const SiStripNoiseVector theSiStripVector =  noise->getSiStripNoiseVector(detid);
 	  
 	  
-	  int strip=0;
-	  SiStripNoiseVectorIterator iter=theSiStripVector.begin();
-	  //for(; iter!=theSiStripVector.end(); iter++)
-	  {
-	    std::cout << " strip " << strip++ << " =\t"
-		      << iter->getNoise()     << " \t" 
-		      << iter->getDisable()   << " \t" 
-		      << std::endl; 	    
-	  } 
-	}
+// 	  int strip=0;
+// 	  SiStripNoiseVectorIterator iter=theSiStripVector.begin();
+// 	  //for(; iter!=theSiStripVector.end(); iter++)
+// 	  {
+// 	    std::cout << " strip " << strip++ << " =\t"
+// 		      << iter->getNoise()     << " \t" 
+// 		      << iter->getDisable()   << " \t" 
+// 		      << std::endl; 	    
+// 	  } 
+//       }
       //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
     }
   }

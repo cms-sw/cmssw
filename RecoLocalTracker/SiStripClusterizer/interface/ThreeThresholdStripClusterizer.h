@@ -70,7 +70,7 @@ class AboveSeed {
 
   // FIXME: uses boundary checking with at(), should be replaced with faster operator[]
   // when everything debugged
-  bool operator()(const StripDigi& digi) { return digi.adc() >= seed * vnoise_[digi.channel()].getNoise() ;}
+  bool operator()(const StripDigi& digi) { return ( !vnoise_[digi.channel()].getDisable() && digi.adc() >= seed * vnoise_[digi.channel()].getNoise()) ;}
 private:
   float seed;
   const SiStripNoiseVector& vnoise_;
