@@ -5,7 +5,7 @@
 #include "PhysicsTools/CandAlgos/src/CandSelector.h"
 #include "PhysicsTools/CandAlgos/src/CandCombiner.h"
 #include "PhysicsTools/CandAlgos/src/CandReducer.h"
-#include "PhysicsTools/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 #include "PhysicsTools/UtilAlgos/interface/Merger.h"
 #include "DataFormats/Common/interface/ClonePolicy.h"
 

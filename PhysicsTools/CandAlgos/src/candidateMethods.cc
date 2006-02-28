@@ -8,14 +8,14 @@
 //
 // Original Author:  
 //         Created:  Thu Aug 11 18:56:23 EDT 2005
-// $Id: candidateMethods.cc,v 1.1 2005/10/24 12:59:00 llista Exp $
+// $Id: candidateMethods.cc,v 1.2 2006/02/21 10:37:28 llista Exp $
 //
 
 // system include files
 
 // user include files
 #include "PhysicsTools/CandAlgos/src/candidateMethods.h"
-#include "PhysicsTools/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 
 using namespace reco;
 

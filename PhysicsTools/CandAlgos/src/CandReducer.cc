@@ -1,9 +1,9 @@
-// $Id: CandReducer.cc,v 1.2 2005/12/13 01:47:10 llista Exp $
+// $Id: CandReducer.cc,v 1.3 2006/02/21 10:37:28 llista Exp $
 #include <memory>
 #include "PhysicsTools/CandAlgos/src/CandReducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "PhysicsTools/Candidate/interface/LeafCandidate.h"
+#include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "PhysicsTools/CandAlgos/src/cutParser.h"
 #include "PhysicsTools/CandAlgos/src/candidateMethods.h"
 #include "FWCore/Utilities/interface/EDMException.h"
