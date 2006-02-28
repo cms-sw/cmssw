@@ -6,8 +6,8 @@
  *       Class to hold drift tubes mean-times
  *             ( SL by SL mean-time calculation )
  *
- *  $Date: 2005/12/01 12:48:05 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/01/27 15:21:15 $
+ *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -100,10 +100,6 @@ class DTMtime {
   std::string dataVersion;
 
   std::vector<DTSLMtimeData> slData;
-  void getIdNumbers( int& minWheel,  int& minStation,
-                     int& minSector, int& minSL,
-                     int& maxWheel,  int& maxStation,
-                     int& maxSector, int& maxSL      ) const;
 
   static int rmsFactor;
 
