@@ -1,3 +1,6 @@
+** V01-02-04  [Tue Feb 28 15:12:59 2006]
+add usage of Message Logger
+
 ** V01-02-03  [Mon Feb 20 03:41:35 2006]
 ModuleDescription.h moved to DataFormats/Common
 
