@@ -1,3 +1,6 @@
+** V00-01-00  [Tue Feb 28 19:07:46 2006]
+change to new collection of TrackerRecHit2D
+
 ** V00-00-05  [Wed Feb 22 02:23:58 2006]
 added RoadSearchCloudCleaner and algo; minor mods to Cloud Maker
 
