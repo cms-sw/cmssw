@@ -3,6 +3,7 @@
 <use name=StorageSvc>
 <use name=rootcore>
 <use name=FWCore/MessageLogger>
+<lib name=Cintex>
 <export>
  <lib name=IOPoolCommon>
  <use name=boost>
