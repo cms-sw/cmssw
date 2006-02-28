@@ -262,7 +262,7 @@ void CocoaToDDLMgr::so(OpticalObject * opto)
 
   if( opto->type() == "system" ){
     //    file_ << " <Box name=\"" << name << "\"";
-    file_ << " <Box name=\"OCMS\"";
+    file_ << " <Box name=\"" << opto->name() << "\"";
     file_ << " dx=\"0.*m" 
 	  << "\" dy=\"0.*m" 
 	  << "\" dz=\"0.*m" 
@@ -458,7 +458,7 @@ void CocoaToDDLMgr::lv(OpticalObject * opto)
     file_ << " <LogicalPart name=\"" 
 	  <<  name << "\" category=\"" << sensitive << "\">" << std::endl
 	  << "  <rSolid name=\"" << rSolid << "\"/>" << std::endl
-	  << "  <rMaterial name=\"materials: NONE\"" 
+	  << "  <rMaterial name=\"NONE\"" 
 	  << "/>" << std::endl
 	  << " </LogicalPart>" << std::endl;			
     return;
@@ -492,7 +492,7 @@ void CocoaToDDLMgr::newSectPre_pv(std::string name)
    #ifdef gdebug
      cout << " sect-pv-pre:" << name << '-' << std::endl;
    #endif
-   newSectPre(filename_,std::string("PostsPartSection"));
+   newSectPre(filename_,std::string("PosPartSection"));
 }    
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -599,7 +599,7 @@ void CocoaToDDLMgr::newSectPre_specPar(std::string name)
 void CocoaToDDLMgr::specPar(OpticalObject * opto)
 {
   
-  file_ << " <SpecPar name=\"" << opto->name() << "\" />" << std::endl;
+  file_ << " <SpecPar name=\"" << opto->name() << "\">" << std::endl;
   const std::vector< Entry* > coord = opto->CoordinateEntryList();
   for( int ii=0; ii<6; ii++ ){
     Entry* ent = coord[ii];
