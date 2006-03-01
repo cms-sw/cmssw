@@ -1,0 +1,39 @@
+/*!
+\page DataFormats_TrackReco Package DataFormats/TrackReco
+<center>
+<small>
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/DataFormats/TrackReco/?cvsroot=CMSSW>CVS head for this package</a> - 
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/DataFormats/TrackReco/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+\section desc Description
+Persistent classes for Track Reco data format.
+
+\subsection interface Public interface
+- reco::TrackBase: common base class to reco::Track and reco::Muon
+- reco::TrackExtension <b>&lt;ExtraRef&gt;</b>: extension of a reco::TrackBase 
+  containing a persistent reference to an Extra object.
+- reco::Track: reconstructed Track, ment to be stored in the AOD
+- reco::TrackExtra: Track extension ment to be stored in the RECO
+
+\subsection typedefs 
+- reco::TrackCollection: collection of reco::Track objects
+- reco::TrackRef: persistent reference to a reco::Track object
+- reco::TracksRef: reference to a reco::Track collection
+- reco::TrackRefs: vector of references to reco::Track objects in the same collection
+- reco::track_iterator: iterator over a vector of references to reco::Track objects in the same collection
+
+\subsection modules Modules
+None.
+
+\subsection tests Unit tests and examples
+None.
+
+\section status Status and planned development
+Completed, stable.
+
+<hr>
+Last updated:
+07-FEB-2006 L. Lista
+*/

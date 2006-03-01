@@ -2,13 +2,13 @@
 #define TrackReco_TrackExtra_h
 /** \class reco::TrackExtra
  *
- * Extension of a reconstructed reco::Track. It is ment to be stored
+ * Extension of a reconstructed Track. It is ment to be stored
  * in the RECO, and to be referenced by its corresponding
  * object stored in the AOD
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: TrackBase.h,v 1.2 2006/03/01 09:28:47 llista Exp $
+ * \version $Id: TrackExtra.h,v 1.5 2006/03/01 12:23:40 llista Exp $
  *
  */
 #include <Rtypes.h>
