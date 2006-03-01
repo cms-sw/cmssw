@@ -1,0 +1,36 @@
+<?xml version="1.0" ?>
+<connectionlist>
+
+
+<connection name="sqlite_file:mb1.db">
+  <parameter name="user" value="" />
+  <parameter name="password" value="" />
+</connection>
+
+<connection name="sqlite_file:mb2.db">
+  <parameter name="user" value="" />
+  <parameter name="password" value="" />
+</connection>
+
+<connection name="sqlite_file:mb3.db">
+  <parameter name="user" value="" />
+  <parameter name="password" value="" />
+</connection>
+
+<connection name="sqlite_file:mb4.db">
+  <parameter name="user" value="" />
+  <parameter name="password" value="" />
+</connection>
+
+<connection name="sqlite_file:sectortest.db">
+  <parameter name="user" value="" />
+  <parameter name="password" value="" />
+</connection>
+
+<connection name="sqlite_file:cms.db">
+  <parameter name="user" value="" />
+  <parameter name="password" value="" />
+</connection>
+
+
+</connectionlist>
