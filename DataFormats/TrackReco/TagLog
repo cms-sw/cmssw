@@ -1,3 +1,6 @@
+** V00-03-03  [Wed Mar  1 16:29:37 2006]
+fixed dictionary and documentation
+
 ** V00-03-02  [Wed Mar  1 13:24:48 2006]
 added doxygen documentation; removed duplicate variable entries in Track.h
 
