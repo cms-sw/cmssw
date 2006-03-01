@@ -109,7 +109,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
   std::auto_ptr<CSCCLCTDigiCollection> clctProduct(new CSCCLCTDigiCollection);
   std::auto_ptr<CSCComparatorDigiCollection> comparatorProduct(new CSCComparatorDigiCollection);
   std::auto_ptr<CSCRPCDigiCollection> rpcProduct(new CSCRPCDigiCollection);
-  std::auto_ptr<CSCCorrelatedLCTDigiCollection> correlatedlctProduct(new CSCCorrelatedLCTDigiCollection);
+  std::auto_ptr<CSCCorrelatedLCTDigiCollection> corrlctProduct(new CSCCorrelatedLCTDigiCollection);
   
  
  
@@ -231,7 +231,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 		  std::vector <CSCCorrelatedLCTDigi> correlatedlctDigis =
 		    cscData[iCSC].tmbHeader().CorrelatedLCTDigis();
 		  for (unsigned int i=0; i<correlatedlctDigis.size() ; i++) {
-		    correlatedlctProduct->insertDigi(layer, correlatedlctDigis[i]);
+		    corrlctProduct->insertDigi(layer, correlatedlctDigis[i]);
 		  }
 		}
 
@@ -245,7 +245,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
       }     
     }
   }
-  if (PrintEventNumber) edm::LogInfo("CSCDCCUnpacker") <<"**************[DCCUnpackingModule]:"<< std::ios::dec << numOfEvents<<" events analyzed ";
+  if (PrintEventNumber) edm::LogInfo("CSCDCCUnpacker") <<"**************[DCCUnpackingModule]:" << numOfEvents<<" events analyzed ";
   //}
   // commit to the event
   e.put(wireProduct,          "MuonCSCWireDigi");
@@ -254,7 +254,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
   e.put(clctProduct,          "MuonCSCCLCTDigi");
   e.put(comparatorProduct,    "MuonCSCComparatorDigi");
   e.put(rpcProduct,           "MuonCSCRPCDigi");
-  e.put(correlatedlctProduct, "MuonCSCCorrelatedLCTDigi");
+  e.put(corrlctProduct,       "MuonCSCCorrelatedLCTDigi");
 
 }
 
