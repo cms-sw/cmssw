@@ -1,0 +1,41 @@
+<lcgdict>
+
+ <class name="reco::TrackTagInfo" />
+  <class name="std::vector<reco::TrackTagInfo>" />
+  <class name="edm::Wrapper<std::vector<reco::TrackTagInfo> >" />
+  <class name="edm::Ref<std::vector<reco::TrackTagInfo>, reco::TrackTagInfo>" />
+  <class name="edm::RefVector<std::vector<reco::TrackTagInfo>, reco::TrackTagInfo>" />
+
+
+
+
+  <class name="reco::BJetTagCombined" />
+  <class name="std::vector<reco::BJetTagCombined>" />
+  <class name="edm::Wrapper<std::vector<reco::BJetTagCombined> >" />
+  <class name="edm::Ref<std::vector<reco::BJetTagCombined>, reco::BJetTagCombined>" />
+  <class name="edm::RefVector<std::vector<reco::BJetTagCombined>, reco::BJetTagCombined >" />
+
+  <class name="reco::BJetTagProbability" />
+  <class name="std::vector<reco::BJetTagProbability>" />
+  <class name="edm::Wrapper<std::vector<reco::BJetTagProbability> >" />
+  <class name="edm::Ref<std::vector<reco::BJetTagProbability>, reco::BJetTagProbability>" />
+  <class name="edm::RefVector<std::vector<reco::BJetTagProbability>, reco::BJetTagProbability >" />
+
+  <class name="reco::BJetTagTrackCounting" />
+  <class name="std::vector<reco::BJetTagTrackCounting>" />
+  <class name="edm::Wrapper<std::vector<reco::BJetTagTrackCounting> >" />
+  <class name="edm::Ref<std::vector<reco::BJetTagTrackCounting>, reco::BJetTagTrackCounting>" />
+  <class name="edm::RefVector<std::vector<reco::BJetTagTrackCounting>, reco::BJetTagTrackCounting >" />
+
+
+  <class name="reco::TauJetTag" />
+  <class name="std::vector<reco::TauJetTag>" />
+  <class name="edm::Wrapper<std::vector<reco::TauJetTag> >" />
+  <class name="edm::Ref<std::vector<reco::TauJetTag>, reco::TauJetTag>" />
+  <class name="edm::RefVector<std::vector<reco::TauJetTag>, reco::TauJetTag >" />
+
+
+
+
+
+</lcgdict>
