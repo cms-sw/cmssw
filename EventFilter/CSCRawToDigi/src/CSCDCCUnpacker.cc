@@ -66,7 +66,8 @@ CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset) :
   produces<CSCComparatorDigiCollection>("MuonCSCComparatorDigi");  
   produces<CSCALCTDigiCollection>("MuonCSCALCTDigi");
   produces<CSCCLCTDigiCollection>("MuonCSCCLCTDigi");
- 
+  produces<CSCRPCDigiCollection>("MuonCSCRPCDigi");
+
   CSCAnodeData::setDebug(debug);
   CSCALCTHeader::setDebug(debug);
   CSCCLCTData::setDebug(debug);
@@ -75,7 +76,8 @@ CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset) :
   CSCDCCEventData::setDebug(debug);
   CSCDDUEventData::setDebug(debug);
   CSCTMBHeader::setDebug(debug);
-  
+  CSCRPCData::setDebug(debug);  
+
   theMapping  = CSCReadoutMappingFromFile( mappingFileName );
   
 }
@@ -102,7 +104,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
   std::auto_ptr<CSCALCTDigiCollection> alctProduct(new CSCALCTDigiCollection);
   std::auto_ptr<CSCCLCTDigiCollection> clctProduct(new CSCCLCTDigiCollection);
   std::auto_ptr<CSCComparatorDigiCollection> comparatorProduct(new CSCComparatorDigiCollection);
-  //std::auto_ptr<CSCRPCDigiCollection> RPCProduct(new CSCRPCDigiCollection);
+  std::auto_ptr<CSCRPCDigiCollection> rpcProduct(new CSCRPCDigiCollection);
   
  
   numOfEvents++;
@@ -207,9 +209,20 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 		}
 	      }
 
+	      /// fill rpc product
+	      if (cscData[iCSC].tmbData().checkSize()) {
+		if (cscData[iCSC].tmbData().hasRPC()) {
+		  std::vector <CSCRPCDigi> rpcDigis =
+		    cscData[iCSC].tmbData().rpcData().digis();
+		  for (unsigned int i=0; i<rpcDigis.size() ; i++) {
+		    rpcProduct->insertDigi(layer, rpcDigis[i]);
+		  }
+		}
+	      } else edm::LogError("CSCDCCUnpacker") <<" TMBData check size failed!";
+	     
+
 
 	    }
-
 
 	  }
 	}  
@@ -219,12 +232,12 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
   if (PrintEventNumber) edm::LogInfo("CSCDCCUnpacker") <<"**************[DCCUnpackingModule]:"<< std::ios::dec << numOfEvents<<" events analyzed ";
   //}
   // commit to the event
-  e.put(wireProduct,"MuonCSCWireDigi");
-  e.put(stripProduct,"MuonCSCStripDigi");
-  e.put(alctProduct, "MuonCSCALCTDigi");
-  e.put(clctProduct, "MuonCSCCLCTDigi");
-  e.put(comparatorProduct,"MuonCSCComparatorDigi");
-  //e.put(RPCProduct);
+  e.put(wireProduct,       "MuonCSCWireDigi");
+  e.put(stripProduct,      "MuonCSCStripDigi");
+  e.put(alctProduct,       "MuonCSCALCTDigi");
+  e.put(clctProduct,       "MuonCSCCLCTDigi");
+  e.put(comparatorProduct, "MuonCSCComparatorDigi");
+  e.put(rpcProduct,        "MuonCSCRPCDigi");
 
 }
 

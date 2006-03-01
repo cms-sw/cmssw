@@ -1,7 +1,7 @@
 /** \file
  * 
- *  $Date: 2005/11/18 19:22:45 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/11/19 13:58:09 $
+ *  $Revision: 1.3 $
  *
  * \author M.Schmitt, Northwestern
  */
@@ -71,7 +71,7 @@ void CSCStripDigi::setADCCounts(vector<int>ADCCounts) {
 // Debug
 void
 CSCStripDigi::print() const {
-  cout << "CSC Strip: " << getStrip() << " ADC Counts: ";
+  cout << "CSC Strip: " << getStrip() << "  ADC Counts: ";
   for (int i=0; i<(int)getADCCounts().size(); i++) {cout << getADCCounts()[i] << " ";}
   cout << "\n";
 }
@@ -89,14 +89,12 @@ CSCStripDigi::set(int strip, vector<int> ADCCounts) {
   data()->ADCCounts = ADCCounts;
 }
 
-CSCStripDigi::theStripDigi*
-CSCStripDigi::data() {
-  return reinterpret_cast<theStripDigi*>(&aStripDigi);
+CSCStripDigi::theStripDigi* CSCStripDigi::data() {
+  return &aStripDigi;
 }
 
-const CSCStripDigi::theStripDigi*
-CSCStripDigi::data() const {
-  return reinterpret_cast<const theStripDigi*>(&aStripDigi);
+CSCStripDigi::theStripDigi * CSCStripDigi::data() const {
+  return &aStripDigi;
 }
 
 void CSCStripDigi::setData(theStripDigi p){

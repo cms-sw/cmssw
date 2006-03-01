@@ -21,6 +21,8 @@ public:
   void Print() const;
   bool check() const {return theData[0]==0x6b04 && theData[size_-1] == 0x6e04;}
 
+  static void setDebug(bool debugValue) {debug = debugValue;}
+  
 private:
   static bool debug;
   int ntbins_;

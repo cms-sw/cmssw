@@ -16,7 +16,7 @@
    <class name="std::vector<CSCALCTDigi>"/>
 
    <class name="std::map<CSCDetId,std::vector<CSCWireDigi> >"/>
-   <class name="std::map<RPCDetId,std::vector<CSCRPCDigi> >"/>
+   <class name="std::map<CSCDetId,std::vector<CSCRPCDigi> >"/>
    <class name="std::map<CSCDetId,std::vector<CSCStripDigi> >"/>
    <class name="std::map<CSCDetId,std::vector<CSCComparatorDigi> >"/> 
    <class name="std::map<CSCDetId,std::vector<CSCCorrelatedLCTDigi> >"/>
@@ -33,7 +33,7 @@
 
 
    <class name="MuonDigiCollection<CSCDetId,CSCWireDigi>"/>
-   <class name="MuonDigiCollection<RPCDetId,CSCRPCDigi>"/>
+   <class name="MuonDigiCollection<CSCDetId,CSCRPCDigi>"/>
    <class name="MuonDigiCollection<CSCDetId,CSCStripDigi>"/>
    <class name="MuonDigiCollection<CSCDetId,CSCComparatorDigi>"/>
    <class name="MuonDigiCollection<CSCDetId,CSCCorrelatedLCTDigi>"/>
@@ -42,7 +42,7 @@
 
    <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCWireDigi>>"  
             id="44B8B226-38C3-41D1-B899-51FF287E7B12"/>
-   <class name="edm::Wrapper<MuonDigiCollection<RPCDetId,CSCRPCDigi>>"
+   <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCRPCDigi>>"
             id="CC8EAE31-9392-E820-80EE-553429E85E76"/>
    <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCStripDigi>>"  
             id="E2E2098B-3BCD-EAD6-0650-D7F1D9743B74"/>

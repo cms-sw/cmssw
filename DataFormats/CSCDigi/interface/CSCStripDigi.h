@@ -5,8 +5,8 @@
  *
  * Digi for CSC Cathode Strips.
  *  
- *  $Date: 2005/11/18 19:22:16 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/11/19 13:57:41 $
+ *  $Revision: 1.3 $
  *
  * \author M. Schmitt, Northwestern
  *
@@ -22,7 +22,10 @@ public:
   // The definition of the CSC strip Digi.
   // This should never be used directly, only by calling data().
   // Made public to be able to generate lcgdict, SA, 27/4/05
-  //
+  // 
+
+  //Although data is contained withing this struct it's not packed now
+  //for now we do not need reinterpret casts to access data memebers.
   struct theStripDigi {
     unsigned int strip;
     std::vector<int> ADCCounts;
@@ -72,8 +75,8 @@ private:
   void setData(theStripDigi p);
 
   // access
-  theStripDigi* data(); 
-  const theStripDigi* data() const;
+  theStripDigi* data();
+  theStripDigi* data() const;
   theStripDigi aStripDigi;
 };
 

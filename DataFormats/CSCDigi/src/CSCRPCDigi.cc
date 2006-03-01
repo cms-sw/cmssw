@@ -2,8 +2,8 @@
  *
  * Digi for RPC data coming thru RAT-ALCT-DDU.
  *
- * $Date$
- * $Revision$
+ * $Date: 2005/11/02 23:28:59 $
+ * $Revision: 1.1 $
  *
  * \author N. Terentiev, CMU
  */
@@ -13,81 +13,69 @@
 #include <iostream>
 #include <bitset>
 
-using namespace std;
 
-  /// Constructors
+/// Constructors
 
-CSCRPCDigi::CSCRPCDigi (int strip, int tbin){
-  set(strip, tbin);
-}
-
-CSCRPCDigi::CSCRPCDigi (ChannelType channel){
-  ChannelPacking* ch = reinterpret_cast<ChannelPacking*>(&channel);
-  set(ch->strip,
-      ch->tbin);
+CSCRPCDigi::CSCRPCDigi (int rpc, int pad, int bxn, int tbin){
+  set(rpc, pad, bxn, tbin);
 }
 
 CSCRPCDigi::CSCRPCDigi (PackedDigiType packed_value){
   setData(packed_value);
 }
-      /// Copy
+/// Copy
 CSCRPCDigi::CSCRPCDigi(const CSCRPCDigi& digi) {
   persistentData = digi.persistentData;
 }
-      /// Default
+/// Default
 CSCRPCDigi::CSCRPCDigi (){
-  set(0,0);
+  set(0,0,0,0);
 }
 
 
-  /// Assignment
+/// Assignment
 CSCRPCDigi& 
 CSCRPCDigi::operator=(const CSCRPCDigi& digi){
   persistentData = digi.persistentData;
   return *this;
 }
 
-  /// Getters
+/// Getters
 
-CSCRPCDigi::ChannelType
-CSCRPCDigi::channel() const {
-  const PackedDigiType* d = data();
-  ChannelPacking result;
-  result.strip = d->strip;
-  result.tbin  = d->tbin;
-  return *(reinterpret_cast<CSCRPCDigi::ChannelType*>(&result));
-}
+int CSCRPCDigi::getRpc()  const { return data()->rpc; }
+int CSCRPCDigi::getPad()  const { return data()->pad; }
+int CSCRPCDigi::getTbin() const { return data()->tbin; }
+int CSCRPCDigi::getBXN()  const { return data()->bxn; }
 
-int CSCRPCDigi::getStrip() const { return data()->strip; }
-int CSCRPCDigi::getBx() const { return data()->tbin; }
-
-  /// Debug
-
+ 
+/// Debug
 void CSCRPCDigi::print() const {
-  cout << "RPC strip" << getStrip() 
-       << "Tbin " << getBx() <<endl;
+  std::cout << "RPC = " << getRpc()
+	    << "  Pad = " << getPad()
+	    << "  Tbin = " << getTbin() 
+	    << "  BXN = " << getBXN() << std::endl;
 }
 
 void CSCRPCDigi::dump() const {
-  typedef bitset<8*sizeof(PackedDigiType)> bits;
-  cout << *reinterpret_cast<const bits*>(data());  
+  typedef std::bitset<8*sizeof(PackedDigiType)> bits;
+  std::cout << *reinterpret_cast<const bits*>(data());  
 }
 
-  /// Private members
+/// Private members
 
-void CSCRPCDigi::set(int strip, int tbin) {
+void CSCRPCDigi::set(int rpc, int pad, int bxn, int tbin) {
   PackedDigiType* d = data();
-  d->strip   = strip;
-  d->tbin   = tbin;
+  d->rpc   = rpc;
+  d->pad   = pad;
+  d->bxn   = bxn;
+  d->tbin  = tbin;
 }
 
-CSCRPCDigi::PackedDigiType* 
-CSCRPCDigi::data() {
+CSCRPCDigi::PackedDigiType* CSCRPCDigi::data() {
   return reinterpret_cast<PackedDigiType*>(&persistentData);
 }
 
-const CSCRPCDigi::PackedDigiType* 
-CSCRPCDigi::data() const {
+const CSCRPCDigi::PackedDigiType* CSCRPCDigi::data() const {
   return reinterpret_cast<const PackedDigiType*>(&persistentData);
 }
 

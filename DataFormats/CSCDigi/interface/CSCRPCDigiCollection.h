@@ -8,10 +8,10 @@
  *
 */
 
-#include <DataFormats/MuonDetId/interface/RPCDetId.h>
+#include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include <DataFormats/CSCDigi/interface/CSCRPCDigi.h>
 #include <DataFormats/MuonData/interface/MuonDigiCollection.h>
 
-typedef MuonDigiCollection<RPCDetId, CSCRPCDigi> CSCRPCDigiCollection;
+typedef MuonDigiCollection<CSCDetId, CSCRPCDigi> CSCRPCDigiCollection;
 
 #endif
