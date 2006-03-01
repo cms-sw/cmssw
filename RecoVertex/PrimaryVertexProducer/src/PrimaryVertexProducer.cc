@@ -51,16 +51,16 @@ void
 PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
-#ifdef THIS_IS_AN_EVENT_EXAMPLE
-   //Read 'ExampleData' from the Event
-   Handle<ExampleData> pIn;
-   iEvent.getByLabel("example",pIn);
 
-   //Use the ExampleData to create an ExampleData2 which 
-   // is put into the Event
-   std::auto_ptr<ExampleData2> pOut(new ExampleData2(*pIn));
+   //Read 'ExampleData' from the Event
+   //   Handle<ExampleData> pIn;
+   //   iEvent.getByLabel("example",pIn);
+
+   reco::Vertex::Point pos(-1, -1, -1);
+   double e[6]; reco::Vertex::Error err(e);
+   double chi2 = -1; double ndof = 1; double ntks = 0;
+   std::auto_ptr<reco::Vertex> pOut(new reco::Vertex(pos, err, chi2, ndof, ntks));
    iEvent.put(pOut);
-#endif
 
 #ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
    //Read SetupData from the SetupRecord in the EventSetup
