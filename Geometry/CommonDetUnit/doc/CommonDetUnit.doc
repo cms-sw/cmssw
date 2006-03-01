@@ -1,0 +1,43 @@
+/*!
+
+\page Geometry_CommonDetUnit Package Geometry/CommonDetUnit
+
+<center>
+<small>
+
+
+<!-- @PROJ_VERS@ will be substituted at build time, no need to touch -->
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/Geometry/CommonDetUnit/?cvsroot=CMSSW&only_with_tag=@PROJ_VERS@>CVS</a> - 
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/Geometry/CommonDetUnit/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+
+\section desc Description
+<!-- Short description of what this package is supposed to provide -->
+Base classes modelling tracking detectors and the entry point to the geometry.
+
+\subsection interface Public interface
+<!-- List the classes that are provided for use in other packages (if any) -->
+
+- GeomDet
+- GeomDetUnit
+- GeomDetType
+- TrackingGeometry
+
+\subsection modules Modules
+<!-- Describe modules implemented in this package and their parameter set -->
+None
+
+\subsection tests Unit tests and examples
+<!-- Describe cppunit tests and example configuration files -->
+None.
+
+\section status Status and planned development
+<!-- e.g. completed, stable, missing features -->
+Completed.
+
+<hr>
+Last updated:
+00-JAN-2006 X. XXXX
+*/
