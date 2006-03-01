@@ -72,9 +72,22 @@ TrackerRecoGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::Event
    //
    // get the GeometricSearchDet
    //
-   edm::ESHandle<GeometricSearchTracker> trak;
-   iSetup.get<TrackerRecoGeometryRecord>().get( trak );     
-   std::cout <<" AFTER  " <<std::endl;
+   edm::ESHandle<GeometricSearchTracker> track;
+   iSetup.get<TrackerRecoGeometryRecord>().get( track );     
+   
+   //---- testing access to barrelLayers ----
+   vector<BarrelDetLayer*> theBarrelLayers = track->barrelLayers();
+   cout << "number of BarrelLayers: " << theBarrelLayers.size() << endl;
+
+   for(unsigned int i=0; i<3; i++){
+     BarrelDetLayer* theLayer = theBarrelLayers[i];   
+     cout << "theLayer[" << i << "]->position().perp(): " 
+	  << theLayer->components().front()->surface().position().perp() << endl;     
+     //cout << "theLayer[" << i << "]->module(): " 
+     //<< theLayer->module() << endl;     
+   }   
+   //--------------------------------------
+
 }
 
 //define this as a plug-in
