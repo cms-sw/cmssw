@@ -16,8 +16,6 @@ namespace  TrackingTools{
      private:
       static MagneticField* theField;
     };
-    MagneticField* Field::theField = 0;
-
   }
 }
 #endif

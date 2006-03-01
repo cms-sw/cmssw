@@ -4,7 +4,8 @@
 #include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/TrajectoryParametrization/interface/PerigeeTrajectoryParameters.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
+#include "TrackingTools/TrajectoryParametrization/interface/PerigeeTrajectoryError.h"
+#include "DataFormats/TrackReco/interface/HelixParameters.h"
 
 class TrajectoryStateClosestToPoint;
 
@@ -27,6 +28,16 @@ public:
   PerigeeTrajectoryParameters ftsToPerigeeParameters(const FTS& originalFTS,
     const GlobalPoint& referencePoint) const;
 
+  PerigeeTrajectoryError ftsToPerigeeError(const FTS& originalFTS) const;
+
+  PerigeeTrajectoryParameters helixToPerigeeParameters
+    (const reco::helix::Parameters & helixPar, const GlobalPoint& referencePoint) const;
+
+  PerigeeTrajectoryError helixToPerigeeError(const reco::helix::Parameters & helixPar, 
+	const reco::helix::Covariance & helixCov) const;
+
+
+
   /**
    * This method returns the position (on the helix) at which the
    * parameters are defined
@@ -42,15 +53,14 @@ public:
    */
 
   GlobalVector momentumFromPerigee(const AlgebraicVector& momentum, 
-    const TrackCharge& charge, const GlobalPoint& referencePoint,
-    const MagneticField& magField)  const;
+    const TrackCharge& charge, const GlobalPoint& referencePoint)  const;
 
   /**
    * This method returns the (Cartesian) momentum from the PerigeeTrajectoryParameters
    */
 
   GlobalVector momentumFromPerigee (const PerigeeTrajectoryParameters& parameters,
-    const GlobalPoint& referencePoint, const MagneticField& magField) const;
+    const GlobalPoint& referencePoint) const;
 
   /**
    * This method returns the charge.
@@ -58,6 +68,10 @@ public:
 
   TrackCharge chargeFromPerigee(const PerigeeTrajectoryParameters& perigee,
     const GlobalPoint& referencePoint) const;
+
+  CurvilinearTrajectoryError curvilinearError(const PerigeeTrajectoryError& perigeeError,
+    const GlobalTrajectoryParameters& gtp) const;
+
 
   /**
    * Public constructor.
@@ -69,8 +83,7 @@ public:
    */
   TrajectoryStateClosestToPoint trajectoryStateClosestToPoint
 	(const AlgebraicVector& momentum, const GlobalPoint& referencePoint,
-	 const TrackCharge& charge, const AlgebraicMatrix& theCovarianceMatrix,
-	 const MagneticField& magField) const;
+	 const TrackCharge& charge, const AlgebraicMatrix& theCovarianceMatrix) const;
 
 
 private:
@@ -82,7 +95,22 @@ private:
 
   AlgebraicMatrix  jacobianParameters2Cartesian
 	(const AlgebraicVector& momentum, const GlobalPoint& position,
-	 const TrackCharge& charge, const MagneticField& magField) const;
+	 const TrackCharge& charge) const;
+
+
+  /**
+   * Jacobians of tranformations between curvilinear frame at point of closest
+   * approach in transverse plane and perigee frame. The fts must therefore be
+   * given at exactly this point in order to yield the correct Jacobians.
+   */
+
+  AlgebraicMatrix jacobianCurvilinear2Perigee(const FreeTrajectoryState& fts) const;
+
+  AlgebraicMatrix jacobianPerigee2Curvilinear(const GlobalTrajectoryParameters& gtp) const;
+
+  AlgebraicMatrix jacobianHelix2Perigee(const reco::helix::Parameters & helixPar, 
+	const reco::helix::Covariance & helixCov) const;
+
 
 };
 #endif

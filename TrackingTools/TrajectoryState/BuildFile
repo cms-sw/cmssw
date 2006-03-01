@@ -4,8 +4,12 @@
  <use name=TrackingTools/TrajectoryParametrization>
  <use name=TrackingTools/AnalyticalJacobians>
  <use name=FWCore/Utilities>
+ <use name=DataFormats/TrackReco>
+ <use name=DataFormats/Math>
 </export>
 
 <use name=TrackingTools/TrajectoryParametrization>
 <use name=TrackingTools/AnalyticalJacobians>
 <use name=FWCore/Utilities>
+<use name=DataFormats/TrackReco>
+<use name=DataFormats/Math>
