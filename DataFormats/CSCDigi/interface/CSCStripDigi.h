@@ -5,8 +5,8 @@
  *
  * Digi for CSC Cathode Strips.
  *  
- *  $Date: 2005/11/19 13:57:41 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/03/01 09:40:30 $
+ *  $Revision: 1.4 $
  *
  * \author M. Schmitt, Northwestern
  *
@@ -76,7 +76,7 @@ private:
 
   // access
   theStripDigi* data();
-  theStripDigi* data() const;
+  const theStripDigi* data() const;
   theStripDigi aStripDigi;
 };
 
