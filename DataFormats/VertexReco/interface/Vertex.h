@@ -2,11 +2,12 @@
 #define VertexReco_Vertex_h
 /** \class reco::Vertex
  *  
- * A reconstructed Vertex containing position and error
+ * A reconstructed Vertex providing position, error, chi2, ndof 
+ * and reconstrudted tracks
  *
  * \author Luca Lista, INFN
  *
- * \version $Id$
+ * \version $Id: Vertex.h,v 1.7 2006/03/01 12:36:30 llista Exp $
  *
  */
 #include <Rtypes.h>
@@ -41,8 +42,13 @@ namespace reco {
     size_t tracksSize() const { return tracks_.size(); }
     /// chi-squares
     double chi2() const { return chi2_; }
-    /// number of degrees of freedom
-    unsigned short ndof() const { return ndof_; }
+    /** Number of degrees of freedom
+     *  Meant to be float for soft-assignment fitters: 
+     *  tracks may contribute to the vertex with fractional weights.
+     *  The ndof is then = to the sum of the track weights.
+     *  see e.g. CMS NOTE-2006/032, CMS NOTE-2004/002
+     */
+    float ndof() const { return ndof_; }
     /// chi-squared divided by n.d.o.f.
     double normalizedChi2() const { return chi2_ / ndof_; }
     /// position 
@@ -62,7 +68,7 @@ namespace reco {
     /// chi-sqared
     Double32_t chi2_;
     /// number of degrees of freedom
-    unsigned short ndof_;
+    float ndof_;
     /// position
     Point position_;
     /// covariance matrix (3x3)
