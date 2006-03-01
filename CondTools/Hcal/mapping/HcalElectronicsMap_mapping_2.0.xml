@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<!DOCTYPE Mapping SYSTEM "InMemory">
+<Mapping version="HcalElectronicsMap-2.0" >
+  <Class table="HCALELECTRONICSMAP" id_columns="ID" name="HcalElectronicsMap" >
+    <Container table="HCALELECTRONICSMAP_1" id_columns="ID_ID" name="mItems" position_column="POS" >
+      <Object table="HCALELECTRONICSMAP_1" id_columns="POS ID_ID" name="HcalElectronicsMap::Item" >
+        <Primitive column="MITEMS_HCALELECTRONICSMAP_IT_1" name="mElId" />
+        <Primitive column="MITEMS_HCALELECTRONICSMAP_IT_2" name="mId" />
+        <Primitive column="MITEMS_HCALELECTRONICSMAP_IT_3" name="mTrigId" />
+      </Object >
+    </Container >
+    <Primitive column="MSORTEDBYELID" name="mSortedByElId" />
+    <Primitive column="MSORTEDBYID" name="mSortedById" />
+    <Primitive column="MSORTEDBYTRIGID" name="mSortedByTrigId" />
+  </Class >
+</Mapping >
