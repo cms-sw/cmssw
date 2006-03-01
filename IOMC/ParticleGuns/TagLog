@@ -1,3 +1,6 @@
+** V00-01-10  [Wed Mar  1 03:46:46 2006]
+decouple vtx.smearing and make ir a separate utility
+
 ** V00-01-09  [Thu Feb 23 21:55:21 2006]
 fEvt was uninitialized
 
