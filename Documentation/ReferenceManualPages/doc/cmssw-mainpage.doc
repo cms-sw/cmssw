@@ -19,6 +19,17 @@ This is the CMSSW mainpage
 <TH WIDTH="493">Purpose</TH>
 <TH WIDTH="200">Contact</TH>
 
+<TR>
+<TD>
+\endhtmlonly \ref RecoPackages "Reco data format"   \htmlonly
+</TD>
+<TD>Reco Dataformat packages</TD>
+<TD> <A HREF="mailto:">Luca Lista</A>,
+     <A HREF="mailto:">Tommaso Boccali</A>,   
+
+</TR>
+
+
 </TR>
 
 <TR>
