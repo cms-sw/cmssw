@@ -9,6 +9,7 @@
   <class name="std::vector<reco::MuonExtra>" />
   <class name="edm::Wrapper<std::vector<reco::MuonExtra> >" />
   <class name="edm::Ref<std::vector<reco::MuonExtra>, reco::MuonExtra>" />
+  <class name="edm::RefProd<std::vector<reco::MuonExtra>, reco::MuonExtra>" />
   <class name="edm::RefVector<std::vector<reco::MuonExtra>, reco::MuonExtra>" />
 </lcgdict>
  

@@ -1,0 +1,36 @@
+/*!
+\page DataFormats_MuonReco Package DataFormats/MuonReco
+<center>
+<small>
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/DataFormats/MuonReco/?cvsroot=CMSSW>CVS head for this package</a> - 
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/DataFormats/MuonReco/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+\section desc Description
+Persistent classes for Muon Reco data format.
+
+\subsection interface Public interface
+- reco::Muon: reconstructed Muon, ment to be stored in the AOD
+- reco::MuonExtra: Muon extension ment to be stored in the RECO
+
+\subsection typedefs 
+- reco::MuonCollection: collection of reco::Muon objects
+- reco::MuonRef: persistent reference to a reco::Muon object
+- reco::MuonsRef: reference to a reco::Muon collection
+- reco::MuonRefs: vector of references to reco::Muon objects in the same collection
+- reco::muon_iterator: iterator over a vector of references to reco::Muon objects in the same collection
+
+\subsection modules Modules
+None.
+
+\subsection tests Unit tests and examples
+None.
+
+\section status Status and planned development
+Completed, stable.
+
+<hr>
+Last updated:
+07-FEB-2006 L. Lista
+*/
