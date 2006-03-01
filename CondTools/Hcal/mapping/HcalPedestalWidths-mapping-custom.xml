@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<!DOCTYPE Mapping SYSTEM "InMemory">
+<Mapping version="HcalPedestalWidths-1.0" >
+  <Class table="HCALPEDESTALWIDTHS" id_columns="ID" name="HcalPedestalWidths" >
+    <Container table="HCALPEDESTALWIDTHS_1" id_columns="ID_ID" name="mItems" position_column="POS" >
+      <Object table="HCALPEDESTALWIDTHS_1" id_columns="POS ID_ID" name="HcalPedestalWidth" >
+        <Primitive column="MITEMS_HCALPEDESTALWIDTH_MID" name="mId" />
+        <Primitive column="MITEMS_HCALPEDESTALWIDTH_MVA_1" name="mValue1" />
+        <Primitive column="MITEMS_HCALPEDESTALWIDTH_MVA_2" name="mValue2" />
+        <Primitive column="MITEMS_HCALPEDESTALWIDTH_MVA_3" name="mValue3" />
+        <Primitive column="MITEMS_HCALPEDESTALWIDTH_MVA_4" name="mValue4" />
+      </Object >
+    </Container >
+    <Primitive column="MSORTED" name="mSorted" />
+  </Class >
+</Mapping >
