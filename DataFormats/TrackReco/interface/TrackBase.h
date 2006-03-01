@@ -1,7 +1,7 @@
 #ifndef TrackReco_TrackBase_h
-#define TrackBaseReco_TrackBase_h
+#define TrackReco_TrackBase_h
 //
-// $Id: Track.h,v 1.9 2006/02/17 08:14:58 llista Exp $
+// $Id: TrackBase.h,v 1.1 2006/02/20 14:42:00 llista Exp $
 //
 // Definition of TrackBase class for RECO
 //
