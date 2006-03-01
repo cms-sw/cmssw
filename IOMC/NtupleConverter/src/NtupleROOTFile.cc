@@ -29,22 +29,26 @@ NtupleROOTFile::NtupleROOTFile(string filename,int id) {
 	file = new TFile(filename.c_str(),"READ");
 
 	// Check: Is is a cmkin root file ?
-	tree = (TTree*)file->Get("h101");
-	if (tree==NULL){
-	  //	cout << file->GetListOfKeys()<< endl;
-	throw cms::Exception("NtplNotValid", "NtupleROOTFile: Ntpl seems not to be valid")
-	<< "File " << filename << " could not be opened.\n"; 		  
-	}
 	switch(id){
 		
 	        case 101:
 		tree = (TTree*)file->Get("h101");
+                if (tree==NULL){
+                   throw cms::Exception("NtplNotValid", 
+                       "NtupleROOTFile: Ntpl seems not to be valid")
+                   << "File " << filename << " could not be opened.\n";
+                 }
 		tree->SetBranchAddress("Jsmhep",Jsmhep);
 		tree->SetBranchAddress("Jsdhep",Jsdhep);
 		break;
 		case 100:
 		tree = (TTree*)file->Get("h100");
-		tree->SetBranchAddress("Jmohep",Jmohep);
+		 if (tree==NULL){
+                   throw cms::Exception("NtplNotValid",
+                       "NtupleROOTFile: Ntpl seems not to be valid")
+                   << "File " << filename << " could not be opened.\n";
+                 }
+                tree->SetBranchAddress("Jmohep",Jmohep);
 		tree->SetBranchAddress("Jdahep",Jdahep);
 		tree->SetBranchAddress("Isthep",Isthep);
 		break;
