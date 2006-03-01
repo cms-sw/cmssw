@@ -20,8 +20,8 @@
 // * statement, and all its terms.                                    *
 // ********************************************************************
 //
-// $Id: G4UniversalFluctuation.cc,v 1.4 2005/05/03 13:37:43 urban Exp $
-// GEANT4 tag $Name: geant4-07-01 $
+// $Id: SiG4UniversalFluctuation.cc,v 1.2 2006/02/28 18:17:15 pioppi Exp $
+// GEANT4 tag $Name: V00-01-00 $
 //
 // -------------------------------------------------------------------
 //
@@ -105,6 +105,11 @@ SiG4UniversalFluctuation::SiG4UniversalFluctuation()
 // The main dedx fluctuation routine.
 // Arguments: momentum in MeV/c, mass in MeV, delta ray cut (tmax) in
 // MeV, silicon thickness in mm, mean eloss in MeV.
+
+SiG4UniversalFluctuation::~SiG4UniversalFluctuation()
+{}
+
+
 double SiG4UniversalFluctuation::SampleFluctuations(const double momentum,
 						    const double mass,
 						    double& tmax,
