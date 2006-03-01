@@ -1,3 +1,6 @@
+** V00-01-00  [Wed Mar  1 09:12:36 2006]
+Commit the new SiG4UniversalFluctuation based on G4.7.1
+
 ** V00-00-02  [Mon Oct 31 14:49:32 2005]
 Removed flags SEAL_PLUGIN_NAME. THere's no SEAL_MODULE entry point defined for  this lib so can't be a plugin.
 
