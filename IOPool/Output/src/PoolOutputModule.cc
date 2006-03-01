@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.12 2006/02/10 23:54:14 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.13 2006/02/14 22:23:25 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
@@ -200,6 +200,7 @@ namespace edm {
     TFile f(file_.c_str(), "update");
     TTree *t = dynamic_cast<TTree *>(f.Get(poolNames::eventTreeName().c_str()));
     if (t) {
+      t->BuildIndex("id_.run_", "id_.event_");
       for (Selections::const_iterator it = om_->descVec_.begin();
         it != om_->descVec_.end(); ++it) {
         BranchDescription const& pd = **it;
