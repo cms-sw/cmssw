@@ -1,3 +1,6 @@
+** V00-01-02  [Wed Mar  1 09:28:03 2006]
+- fix following changes in DataFormats/EcalRawData
+
 ** V00-01-00  [Wed Feb 22 10:47:44 2006]
 - use EcalDCCHeaderBlock, when possible
 
