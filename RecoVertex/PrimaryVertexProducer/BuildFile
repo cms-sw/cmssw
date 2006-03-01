@@ -1,0 +1,10 @@
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<flags SEAL_PLUGIN_NAME="RecoVertexPrimaryVertexProducer">
+<export>
+   <lib name=RecoVertexPrimaryVertexProducer>
+   <use name=FWCore/Framework>
+   <use name=Foundation/PluginManager>
+   <use name=FWCore/ParameterSet>
+</export>
