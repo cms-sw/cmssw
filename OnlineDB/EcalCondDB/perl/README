@@ -1,0 +1,11 @@
+	      Online Conditions Database Perl Utilities
+
+
+These perl programs are used to create and administer the ECAL online
+conditions database.  In order to use the programs, you must first
+define which machine/database you are connecting to with a
+ConnectionFile.pm file somewhere in your library path.  See
+lib/ConnectionFile* for example.  To use these examples simply make a
+soft link:
+
+prompt> ln -s lib/ConnectionFileOracle-local.pm ConnectionFile.pm

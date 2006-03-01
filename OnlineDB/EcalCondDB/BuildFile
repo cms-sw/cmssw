@@ -1,0 +1,10 @@
+<use name=oracle>
+<lib name=nnz10>
+<lib name=occi>
+
+<export>
+  <lib name=OnlineDBEcalCondDB>
+  <use name=oracle>
+  <lib name=nnz10>
+  <lib name=occi>
+</export>
