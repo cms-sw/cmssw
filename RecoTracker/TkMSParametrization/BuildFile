@@ -1,5 +1,5 @@
 <export>
-   <lib name=RecoTracker/TkMSParametrization>
+   <lib name=RecoTrackerTkMSParametrization>
    <use name=clhep>
    <use name=boost>
    <use name=TrackingTools/DetLayers>
