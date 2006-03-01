@@ -38,18 +38,16 @@ class PedestalsHistograms : public CommissioningHistograms {
  public:
 
   /** */
-  PedestalsHistograms( HistoSet histos ) : CommissioningHistograms("PedestalsHistograms"), pedsHistos_(histos) {;}
+  PedestalsHistograms( HistoSet histos ) : CommissioningHistograms("PedestalsHistograms"), peds_(histos) {;}
   /** */
   virtual ~PedestalsHistograms() {;}
   
   // getters
-  inline TH1F* sumOfSquares()  const { return pedsHistos_.sumOfSquares_; }
-  inline TH1F* sumOfContents() const { return pedsHistos_.sumOfContents_; }
-  inline TH1F* numOfEntries()  const { return pedsHistos_.numOfEntries_; }
+  inline const HistoSet& peds() const { return peds_; }
 
  private:
   
-  HistoSet pedsHistos_;
+  HistoSet peds_;
   
 };
 

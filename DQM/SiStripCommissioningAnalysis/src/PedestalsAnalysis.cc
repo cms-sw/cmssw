@@ -14,10 +14,10 @@ void PedestalsAnalysis::analysis( const PedestalsHistograms& histos,
   vector<float> sum2; 
   vector<float> sum;
   vector<float> num;
-  for ( int ibin = 0; ibin < histos.numOfEntries()->GetNbinsX(); ibin++ ) {
-    sum2.push_back( histos.sumOfSquares()->GetBinContent(ibin+1) );
-    sum.push_back( histos.sumOfContents()->GetBinContent(ibin+1) );
-    num.push_back( histos.numOfEntries()->GetBinContent(ibin+1) );
+  for ( int ibin = 0; ibin < histos.peds().numOfEntries()->GetNbinsX(); ibin++ ) {
+    sum2.push_back( histos.peds().sumOfSquares()->GetBinContent(ibin+1) );
+    sum.push_back( histos.peds().sumOfContents()->GetBinContent(ibin+1) );
+    num.push_back( histos.peds().numOfEntries()->GetBinContent(ibin+1) );
   }
   
   // Calculate calibration constants
