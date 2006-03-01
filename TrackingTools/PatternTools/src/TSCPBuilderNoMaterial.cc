@@ -3,6 +3,7 @@
 #include "Geometry/Surface/interface/BoundPlane.h"
 #include "TrackingTools/GeomPropagators/interface/HelixBarrelPlaneCrossingByCircle.h"
 #include "TrackingTools/TrajectoryParametrization/interface/TrajectoryStateExceptions.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
 
 TrajectoryStateClosestToPoint 
 TSCPBuilderNoMaterial::operator() (const FTS& originalFTS, 
