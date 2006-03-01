@@ -71,13 +71,13 @@ std::vector<int> CSCRPCData::BXN() const {
     // skip header word
     int pos = linePair*2 + 1;
     /// make the two pad words into one and see if it's empty
-    int pad = theData[pos] & 0xff + ((theData[pos+1] & 0x3f) << 8);
+    //int pad = theData[pos] & 0xff + ((theData[pos+1] & 0x3f) << 8);
    
     int bxnnew = (((theData[pos+1] >> 8)  & 0x3 )<<2) | ((theData[pos+1]>>6)&0x3) ;
    
     int rpc  = (theData[pos]   >> 12) & 0x7;
-    int tbin = (theData[pos]   >> 8)  & 0xf;
-    int bxn  = bxnnew;
+    //int tbin = (theData[pos]   >> 8)  & 0xf;
+    //int bxn  = bxnnew;
     result.push_back(bxnnew);
     result.push_back(rpc);
 

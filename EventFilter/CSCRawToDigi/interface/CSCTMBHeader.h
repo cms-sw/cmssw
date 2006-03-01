@@ -4,10 +4,10 @@
 #include <iostream>
 #include <iosfwd>
 #include <vector>
-#include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
 
+class CSCCLCTDigi;
 class CSCDMBHeader;
-
+class CSCCorrelatedLCTDigi;
 class CSCTMBHeader {
 
  public:
@@ -40,16 +40,34 @@ class CSCTMBHeader {
   short unsigned int ALCTMatchTime()   const {return alctMatchTime;}
   short unsigned int MPCAcceptLCT0()   const {return mpcAcceptLCT0;}
   short unsigned int MPCAcceptLCT1()   const {return mpcAcceptLCT1;}
-  short unsigned int Muon0_Frame0()    const {
-    return MPC_Muon0_Frame0 | (MPC_Muon0_Frame0_bit15 <<15);}
-  short unsigned int Muon0_Frame1()    const {
-    return MPC_Muon0_Frame1 | (MPC_Muon0_Frame1_bit15 <<15);}
-  short unsigned int Muon1_Frame0()    const {
-    return MPC_Muon1_Frame0 | (MPC_Muon1_Frame0_bit15 <<15) ;}
-  short unsigned int Muon1_Frame1()    const {
-    return MPC_Muon1_Frame1 | (MPC_Muon1_Frame1_bit15 <<15) ;}
-  short unsigned int ALCT_delay()   const {return alct_delay;}
+  
+  short unsigned int MPC_Muon0_wire()          const {return MPC_Muon0_wire_;}
+  short unsigned int MPC_Muon0_clct_pattern()  const {return MPC_Muon0_clct_pattern_;}
+  short unsigned int MPC_Muon0_quality()       const {return MPC_Muon0_quality_;}
+  short unsigned int MPC_Muon0_halfstrip_pat() const {return MPC_Muon0_halfstrip_clct_pattern;}
+  short unsigned int MPC_Muon0_bend()          const {return MPC_Muon0_bend_;}
+  short unsigned int MPC_Muon0_sync()          const {return MPC_Muon0_SyncErr_;}
+  short unsigned int MPC_Muon0_bx()            const {return MPC_Muon0_bx_;}
+  short unsigned int MPC_Muon0_bc0()           const {return MPC_Muon0_bc0_;}
+  short unsigned int MPC_Muon0_cscid()         const {
+    return MPC_Muon0_cscid_low | (MPC_Muon0_cscid_bit4<<3);}
+  short unsigned int MPC_Muon0_valid()         const {return MPC_Muon0_vpf_;}
+  
+  short unsigned int MPC_Muon1_wire()          const {return MPC_Muon1_wire_;}
+  short unsigned int MPC_Muon1_clct_pattern()  const {return MPC_Muon1_clct_pattern_;}
+  short unsigned int MPC_Muon1_quality()       const {return MPC_Muon1_quality_;}
+  short unsigned int MPC_Muon1_halfstrip_pat() const {return MPC_Muon1_halfstrip_clct_pattern;}
+  short unsigned int MPC_Muon1_bend()          const {return MPC_Muon1_bend_;}
+  short unsigned int MPC_Muon1_sync()          const {return MPC_Muon1_SyncErr_;}
+  short unsigned int MPC_Muon1_bx()            const {return MPC_Muon1_bx_;}
+  short unsigned int MPC_Muon1_bc0()           const {return MPC_Muon1_bc0_;}
+  short unsigned int MPC_Muon1_cscid()         const {
+    return MPC_Muon1_cscid_low | (MPC_Muon1_cscid_bit4<<3);}
+  short unsigned int MPC_Muon1_valid()         const {return MPC_Muon1_vpf_;}
+ 
 
+
+  short unsigned int ALCT_delay()   const {return alct_delay;}
   ///unsigned int clct0Word() const {return (CLCT0_low)|(CLCT0_high<<15);}
   ///unsigned int clct1Word() const {return (CLCT1_low)|(CLCT1_high<<15);}
   ///unsigned int clct0Word_low()  const {return (CLCT0_low) ;}
@@ -81,6 +99,9 @@ class CSCTMBHeader {
 
   ///returns CLCT digis
   std::vector<CSCCLCTDigi> CLCTDigis() const;
+
+  ///returns CorrelatedLCT digis
+  std::vector<CSCCorrelatedLCTDigi> CorrelatedLCTDigis() const;
 
   ///these are broken into smaller words above
   /*unsigned int CLCT(const unsigned int index) const {
@@ -154,13 +175,48 @@ private:
 
   unsigned tmbMatch:1, alctOnly:1, clctOnly:1, bxn0Diff:2, bxn1Diff:2,
            alctMatchTime:4, reserved_11:5;
-  unsigned MPC_Muon0_Frame0:15, reserved_12:1;
-  unsigned MPC_Muon0_Frame1:15, reserved_13:1;
-  unsigned MPC_Muon1_Frame0:15, reserved_14:1;
-  unsigned MPC_Muon1_Frame1:15, reserved_15:1;
-  unsigned MPC_Muon0_Frame0_bit15:1, MPC_Muon0_Frame1_bit15:1,
-           MPC_Muon1_Frame0_bit15:1, MPC_Muon1_Frame1_bit15:1,
-           mpcAcceptLCT0:1, mpcAcceptLCT1:1, reserved_16:10;
+
+
+  unsigned MPC_Muon0_wire_         : 7;
+  unsigned MPC_Muon0_clct_pattern_ : 4;
+  unsigned MPC_Muon0_quality_      : 4;
+  unsigned reserved_12:1;
+
+  unsigned MPC_Muon0_halfstrip_clct_pattern : 8;
+  unsigned MPC_Muon0_bend_                  : 1;
+  unsigned MPC_Muon0_SyncErr_               : 1;
+  unsigned MPC_Muon0_bx_                    : 1;
+  unsigned MPC_Muon0_bc0_                   : 1;
+  unsigned MPC_Muon0_cscid_low              : 3;
+  unsigned reserved_13:1;
+
+  unsigned MPC_Muon1_wire_         : 7;
+  unsigned MPC_Muon1_clct_pattern_ : 4;
+  unsigned MPC_Muon1_quality_      : 4;
+  unsigned reserved_14:1;
+
+  unsigned MPC_Muon1_halfstrip_clct_pattern : 8;
+  unsigned MPC_Muon1_bend_                  : 1;
+  unsigned MPC_Muon1_SyncErr_               : 1;
+  unsigned MPC_Muon1_bx_                    : 1;
+  unsigned MPC_Muon1_bc0_                   : 1;
+  unsigned MPC_Muon1_cscid_low              : 3;
+  unsigned reserved_15:1;
+
+  unsigned MPC_Muon0_vpf_        :1;
+  unsigned MPC_Muon0_cscid_bit4  :1;
+  
+  unsigned MPC_Muon1_vpf_        :1;
+  unsigned MPC_Muon1_cscid_bit4  :1;
+
+ 
+
+  unsigned mpcAcceptLCT0:1, mpcAcceptLCT1:1, reserved_16:10;
+
+
+
+
+
   unsigned buffer_info_0:16;
   unsigned buffer_info_1:16;
   unsigned buffer_info_2:16;

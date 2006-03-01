@@ -1,7 +1,7 @@
 /** \file
  * 
- *  $Date: 2005/11/19 13:58:09 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/03/01 09:40:21 $
+ *  $Revision: 1.4 $
  *
  * \author M.Schmitt, Northwestern
  */
@@ -93,7 +93,7 @@ CSCStripDigi::theStripDigi* CSCStripDigi::data() {
   return &aStripDigi;
 }
 
-CSCStripDigi::theStripDigi * CSCStripDigi::data() const {
+const CSCStripDigi::theStripDigi * CSCStripDigi::data() const {
   return &aStripDigi;
 }
 

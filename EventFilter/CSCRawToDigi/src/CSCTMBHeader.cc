@@ -1,6 +1,7 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBHeader.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDMBHeader.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
 #include <math.h>
 #include <string.h> // memcpy
 
@@ -38,6 +39,29 @@ std::vector<CSCCLCTDigi> CSCTMBHeader::CLCTDigis() const {
   
   return result;
 }
+
+std::vector<CSCCorrelatedLCTDigi> CSCTMBHeader::CorrelatedLCTDigis() const {
+  std::vector<CSCCorrelatedLCTDigi> result;
+
+  ///fill digis here
+  /// for the zeroth MPC word:
+  CSCCorrelatedLCTDigi digi(1, MPC_Muon0_valid(), MPC_Muon0_quality(), MPC_Muon0_wire(),
+			    MPC_Muon0_halfstrip_pat(), MPC_Muon0_clct_pattern(), 
+			    MPC_Muon0_bend(), MPC_Muon0_bx());
+  result.push_back(digi);
+
+  /// for the first MPC word:
+  digi = CSCCorrelatedLCTDigi(2, MPC_Muon1_valid(), MPC_Muon1_quality(), MPC_Muon1_wire(),
+			      MPC_Muon1_halfstrip_pat(), MPC_Muon1_clct_pattern(), 
+			      MPC_Muon1_bend(), MPC_Muon1_bx());
+
+
+  result.push_back(digi);
+  return result;
+}
+
+
+
 
 
 

@@ -17,6 +17,7 @@
 #include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCRPCDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
 
 #include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
@@ -24,6 +25,7 @@
 #include "DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCRPCDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 
@@ -67,7 +69,9 @@ CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset) :
   produces<CSCALCTDigiCollection>("MuonCSCALCTDigi");
   produces<CSCCLCTDigiCollection>("MuonCSCCLCTDigi");
   produces<CSCRPCDigiCollection>("MuonCSCRPCDigi");
+  produces<CSCCorrelatedLCTDigiCollection>("MuonCorrelatedLCTDigi");
 
+ 
   CSCAnodeData::setDebug(debug);
   CSCALCTHeader::setDebug(debug);
   CSCCLCTData::setDebug(debug);
@@ -105,7 +109,9 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
   std::auto_ptr<CSCCLCTDigiCollection> clctProduct(new CSCCLCTDigiCollection);
   std::auto_ptr<CSCComparatorDigiCollection> comparatorProduct(new CSCComparatorDigiCollection);
   std::auto_ptr<CSCRPCDigiCollection> rpcProduct(new CSCRPCDigiCollection);
+  std::auto_ptr<CSCCorrelatedLCTDigiCollection> correlatedlctProduct(new CSCCorrelatedLCTDigiCollection);
   
+ 
  
   numOfEvents++;
   
@@ -197,9 +203,10 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 		}
 	      }
 
-	      /// fill clct product
+
 	      int nclct = cscData[iCSC].dmbHeader().nclct();
 	      if (nclct) {
+		/// fill clct product
 		if (cscData[iCSC].tmbHeader().check()) {
 		  std::vector <CSCCLCTDigi> clctDigis =
 		    cscData[iCSC].tmbHeader().CLCTDigis();
@@ -207,22 +214,31 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 		    clctProduct->insertDigi(layer, clctDigis[i]);
 		  }
 		}
-	      }
-
-	      /// fill rpc product
-	      if (cscData[iCSC].tmbData().checkSize()) {
-		if (cscData[iCSC].tmbData().hasRPC()) {
-		  std::vector <CSCRPCDigi> rpcDigis =
-		    cscData[iCSC].tmbData().rpcData().digis();
-		  for (unsigned int i=0; i<rpcDigis.size() ; i++) {
-		    rpcProduct->insertDigi(layer, rpcDigis[i]);
+	      
+		/// fill rpc product
+		if (cscData[iCSC].tmbData().checkSize()) {
+		  if (cscData[iCSC].tmbData().hasRPC()) {
+		    std::vector <CSCRPCDigi> rpcDigis =
+		      cscData[iCSC].tmbData().rpcData().digis();
+		    for (unsigned int i=0; i<rpcDigis.size() ; i++) {
+		      rpcProduct->insertDigi(layer, rpcDigis[i]);
+		    }
+		  }
+		} else edm::LogError("CSCDCCUnpacker") <<" TMBData check size failed!";
+	     
+		/// fill correlatedlct product
+		if (cscData[iCSC].tmbHeader().check()) {
+		  std::vector <CSCCorrelatedLCTDigi> correlatedlctDigis =
+		    cscData[iCSC].tmbHeader().CorrelatedLCTDigis();
+		  for (unsigned int i=0; i<correlatedlctDigis.size() ; i++) {
+		    correlatedlctProduct->insertDigi(layer, correlatedlctDigis[i]);
 		  }
 		}
-	      } else edm::LogError("CSCDCCUnpacker") <<" TMBData check size failed!";
-	     
 
+	      }
 
 	    }
+	    
 
 	  }
 	}  
@@ -232,12 +248,13 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
   if (PrintEventNumber) edm::LogInfo("CSCDCCUnpacker") <<"**************[DCCUnpackingModule]:"<< std::ios::dec << numOfEvents<<" events analyzed ";
   //}
   // commit to the event
-  e.put(wireProduct,       "MuonCSCWireDigi");
-  e.put(stripProduct,      "MuonCSCStripDigi");
-  e.put(alctProduct,       "MuonCSCALCTDigi");
-  e.put(clctProduct,       "MuonCSCCLCTDigi");
-  e.put(comparatorProduct, "MuonCSCComparatorDigi");
-  e.put(rpcProduct,        "MuonCSCRPCDigi");
+  e.put(wireProduct,          "MuonCSCWireDigi");
+  e.put(stripProduct,         "MuonCSCStripDigi");
+  e.put(alctProduct,          "MuonCSCALCTDigi");
+  e.put(clctProduct,          "MuonCSCCLCTDigi");
+  e.put(comparatorProduct,    "MuonCSCComparatorDigi");
+  e.put(rpcProduct,           "MuonCSCRPCDigi");
+  e.put(correlatedlctProduct, "MuonCSCCorrelatedLCTDigi");
 
 }
 
