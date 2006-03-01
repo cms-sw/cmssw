@@ -1,3 +1,6 @@
+** V00-03-01  [Wed Mar  1 10:31:07 2006]
+fixed #ifndef, #define macros
+
 ** V00-03-00  [Mon Feb 27 11:33:44 2006]
 class hyerarchy restructuring to fit Muon needs
 
