@@ -6,9 +6,13 @@
 
 namespace reco {
   class Muon;
+  /// collection of Muon objects
   typedef std::vector<Muon> MuonCollection;
+  /// presistent reference to a Muon
   typedef edm::Ref<MuonCollection> MuonRef;
+  /// vector of references to Muon objects all in the same collection
   typedef edm::RefVector<MuonCollection> MuonRefs;
+  /// iterator over a vector of references to Muon objects all in the same collection
   typedef MuonRefs::iterator muon_iterator;
 }
 
