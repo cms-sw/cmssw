@@ -1,3 +1,4 @@
+#include "DataFormats/DTRecHit/interface/DTRecHit1D.h"
 #include "DataFormats/DTRecHit/interface/DTRecHit1DPair.h"
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 #include "FWCore/EDProduct/interface/Wrapper.h"
@@ -6,6 +7,7 @@
 
 namespace{ 
   namespace {
+    DTRecHit1D rh1d;
     DTRecHit1DPair p;
     std::vector<DTRecHit1DPair>  vv;
     std::vector<std::vector<DTRecHit1DPair> >  v1; 
