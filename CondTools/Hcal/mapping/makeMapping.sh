@@ -8,7 +8,8 @@ fi
 
 version=$1
 
-for object in HcalPedestals HcalPedestalWidths HcalGains HcalGainWidths HcalQIEData HcalElectronicsMap HcalChannelQuality
+#for object in HcalPedestals HcalPedestalWidths HcalGains HcalGainWidths HcalQIEData HcalElectronicsMap HcalChannelQuality
+for object in HcalPedestals HcalPedestalWidths HcalGains HcalGainWidths HcalElectronicsMap HcalChannelQuality
 do
     echo processing $object...
     # making template
@@ -23,6 +24,7 @@ do
 
     #processing template
     echo Generating mapping file for $object...
-    pool_build_object_relational_mapping -f $template_name -o $object"_mapping_"$version.xml -d CondFormatsHcalObjects -c sqlite_file:trash.db -b -u whoever -p whatever
+    outname=$object"-mapping-custom.xml"
+    pool_build_object_relational_mapping -f $template_name -o $outname -d CondFormatsHcalObjects -c sqlite_file:trash.db -b -u whoever -p whatever
 
 done
