@@ -21,6 +21,12 @@ Persistent classes for Muon Reco data format.
 - reco::MuonRefs: vector of references to reco::Muon objects in the same collection
 - reco::muon_iterator: iterator over a vector of references to reco::Muon objects in the same collection
 
+- reco::MuonExtraCollection: collection of reco::MuonExtra objects
+- reco::MuonExtraRef: persistent reference to a reco::MuonExtra object
+- reco::MuonExtrasRef: reference to a reco::MuonExtra collection
+- reco::MuonExtraRefs: vector of references to reco::MuonExtra objects in the same collection
+- reco::muonExtra_iterator: iterator over a vector of references to reco::MuonExtra objects in the same collection
+
 \subsection modules Modules
 None.
 
