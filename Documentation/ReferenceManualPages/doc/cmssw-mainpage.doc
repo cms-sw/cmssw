@@ -23,7 +23,7 @@ This is the CMSSW mainpage
 <TD>
 \endhtmlonly \ref RecoPackages "Reco data format"   \htmlonly
 </TD>
-<TD>Reco Dataformat packages</TD>
+<TD>Reco data format packages for various systems</TD>
 <TD> <A HREF="mailto:">Luca Lista</A>,
      <A HREF="mailto:">Tommaso Boccali</A>,   
 
