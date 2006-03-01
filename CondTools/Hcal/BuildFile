@@ -4,7 +4,7 @@
 <use name=FWCore/Framework>
 <use name=DataFormats/HcalDetId>
 <use name=CondFormats/HcalObjects>
-<use name=CondCore/MetaDataService>
+<use name=CondCore/IOVService>
 <use name=CORALRelationalAccess>
 <use name=DataSvc> 
 <export>
@@ -16,7 +16,7 @@
   <use name=Foundation/PluginManager>
   <use name=DataFormats/HcalDetId>
   <use name=CondFormats/HcalObjects>
-  <use name=CondCore/MetaDataService>
+  <use name=CondCore/IOVService>
   <use name=CORALRelationalAccess>
   <use name=DataSvc> 
 </export>

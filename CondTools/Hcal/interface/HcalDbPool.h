@@ -13,13 +13,21 @@
    \class HcalDbPOOL
    \brief IO for POOL instances of Hcal Calibrations
    \author Fedor Ratnikov Oct. 28, 2005
-   $Id: HcalDbPool.h,v 1.1 2006/01/19 01:32:02 fedor Exp $
+   $Id: HcalDbPool.h,v 1.2 2006/02/08 20:25:54 fedor Exp $
 */
 
 namespace cond {
-  class MetaData;
   class IOV;
 }
+
+namespace seal {
+  class Context;
+}
+
+namespace coral {
+  class ISession;
+}
+
 namespace pool {
   class IFileCatalog;
   class IDataSvc;
@@ -33,6 +41,8 @@ class HcalDbPool {
   ~HcalDbPool ();
 
   pool::IDataSvc* service ();
+  coral::ISession* session ();
+  
   const std::string& metadataGetToken (const std::string& fTag);
   bool metadataSetTag (const std::string& fTag, const std::string& fToken);
 
@@ -52,13 +62,13 @@ class HcalDbPool {
   bool putObject (HcalElectronicsMap* fObject, const std::string& fTag, int fRun);
  private:
   std::string mConnect;
-  std::auto_ptr<cond::MetaData> mMetaData;
   std::string mTag;
   std::string mToken;
   std::auto_ptr<pool::IFileCatalog> mCatalog;
   std::auto_ptr<pool::IDataSvc> mService;
   std::auto_ptr<pool::Placement> mPlacement;
-
+  std::auto_ptr<coral::ISession> mSession;
+  std::auto_ptr<seal::Context> mContext;
   template <class T>
   bool storeObject (T* fObject, const std::string& fContainer, pool::Ref<T>* fObject);
 
