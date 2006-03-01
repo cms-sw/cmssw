@@ -28,6 +28,13 @@ NtupleROOTFile::NtupleROOTFile(string filename,int id) {
         }
 	file = new TFile(filename.c_str(),"READ");
 
+        tree = (TTree*)file->Get("h101");
+        if (tree != NULL) id = 101;
+        if (tree == NULL) {
+           tree = (TTree*)file->Get("h100");
+           if (tree != NULL) id = 100;
+        }
+
 	// Check: Is is a cmkin root file ?
 	switch(id){
 		
