@@ -9,9 +9,9 @@ namespace  TrackingTools{
       public:
 //       Field( MagneticField* aField): theField(aField) {};
       static  GlobalVector inTesla( const GlobalPoint& pos)
-      	 {return theField->inTesla(pos);}
+      	 {return GlobalVector(0, 0, 4);}
       static  GlobalVector inTesla( const math::XYZPoint& pos)
-       	 {return theField->inTesla(GlobalPoint(pos.x(),pos.y(),pos.z()));}
+       	 {return GlobalVector(0, 0, 4);}
       static  MagneticField* field() {return theField;}
      private:
       static MagneticField* theField;
