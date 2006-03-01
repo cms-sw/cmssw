@@ -5,10 +5,16 @@
     <Container table="HCALPEDESTALWIDTHS_1" id_columns="ID_ID" name="mItems" position_column="POS" >
       <Object table="HCALPEDESTALWIDTHS_1" id_columns="POS ID_ID" name="HcalPedestalWidth" >
         <Primitive column="MITEMS_HCALPEDESTALWIDTH_MID" name="mId" />
-        <Primitive column="MITEMS_HCALPEDESTALWIDTH_MVA_1" name="mValue1" />
-        <Primitive column="MITEMS_HCALPEDESTALWIDTH_MVA_2" name="mValue2" />
-        <Primitive column="MITEMS_HCALPEDESTALWIDTH_MVA_3" name="mValue3" />
-        <Primitive column="MITEMS_HCALPEDESTALWIDTH_MVA_4" name="mValue4" />
+        <Primitive column="MITEMS_HCALPEDESTALWIDTH_MSI_1" name="mSigma11" />
+        <Primitive column="MITEMS_HCALPEDESTALWIDTH_MSI_2" name="mSigma21" />
+        <Primitive column="MITEMS_HCALPEDESTALWIDTH_MSI_3" name="mSigma22" />
+        <Primitive column="MITEMS_HCALPEDESTALWIDTH_MSI_4" name="mSigma31" />
+        <Primitive column="MITEMS_HCALPEDESTALWIDTH_MSI_5" name="mSigma32" />
+        <Primitive column="MITEMS_HCALPEDESTALWIDTH_MSI_6" name="mSigma33" />
+        <Primitive column="MITEMS_HCALPEDESTALWIDTH_MSI_7" name="mSigma41" />
+        <Primitive column="MITEMS_HCALPEDESTALWIDTH_MSI_8" name="mSigma42" />
+        <Primitive column="MITEMS_HCALPEDESTALWIDTH_MSI_9" name="mSigma43" />
+        <Primitive column="MITEMS_HCALPEDESTALWIDTH_MS_10" name="mSigma44" />
       </Object >
     </Container >
     <Primitive column="MSORTED" name="mSorted" />
