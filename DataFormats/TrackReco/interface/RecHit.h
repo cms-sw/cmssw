@@ -1,12 +1,14 @@
 #ifndef TrackReco_RecHit_h
 #define TrackReco_RecHit_h
-/*
-
-Dummy class to be replaced by real RecHits
-
-$Id: RecHit.h,v 1.2 2005/12/11 17:58:16 llista Exp $
-
-*/
+/** \class reco::RecHit
+ *
+ * Dummy class to be replaced by real RecHits. Not documented.
+ *
+ * \author Luca Lista, INFN
+ *
+ * \version $Id$
+ *
+ */
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/TrackReco/interface/RecHitFwd.h"
 

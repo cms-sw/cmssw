@@ -6,9 +6,13 @@
 
 namespace reco {
   class TrackExtra;
+  /// a collection of TrackExtra objects
   typedef std::vector<TrackExtra> TrackExtraCollection;
+  /// a persistent reference to a TrackExtra
   typedef edm::Ref<TrackExtraCollection> TrackExtraRef;
+  /// a vector of references to TrackExtra in the same collection
   typedef edm::RefVector<TrackExtraCollection> TrackExtraRefs;
+  /// iterator over a vector of references to TrackExtra in the same collection
   typedef TrackExtraRefs::iterator trackExtra_iterator;
 }
 

@@ -1,12 +1,16 @@
 #ifndef TrackReco_Track_h
 #define TrackReco_Track_h
-//
-// $Id: Track.h,v 1.10 2006/02/20 14:42:00 llista Exp $
-//
-// Definition of Track class for RECO
-//
-// Author: Luca Lista
-//
+/** \class reco::Track
+ *
+ * Reconstructed Track. It is ment to be stored
+ * in the AOD, with a reference to an extension
+ * object stored in the RECO
+ *
+ * \author Luca Lista, INFN
+ *
+ * \version $Id: TrackBase.h,v 1.2 2006/03/01 09:28:47 llista Exp $
+ *
+ */
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
 #include "DataFormats/TrackReco/interface/TrackExtension.h"
@@ -16,21 +20,17 @@ namespace reco {
 
   class Track : public TrackBase, TrackExtension<TrackExtraRef> {
   public:
+    /// default constructor
     Track() { }
+    /// constructor from fit parameters and error matrix
     Track( float chi2, unsigned short ndof, int found, int invalid, int lost,
 	   const Parameters &, const Covariance & );
+    /// constructor from cartesian coordinates and covariance matrix.
+    /// notice that the vertex passed must be 
+    /// the point of closest approch to the beamline.    
     Track( float chi2, unsigned short ndof, int found, int invalid, int lost,
 	   int q, const Point & v, const Vector & p, 
 	   const PosMomError & err );
-
-  private:
-    Double32_t chi2_;
-    unsigned short ndof_;
-    unsigned short found_;
-    unsigned short lost_;
-    unsigned short invalid_;
-    Parameters par_;
-    Covariance cov_;
   };
 
 }
