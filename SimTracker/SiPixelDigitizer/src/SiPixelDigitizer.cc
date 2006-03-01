@@ -13,7 +13,7 @@
 //
 // Original Author:  Michele Pioppi-INFN perugia
 //         Created:  Mon Sep 26 11:08:32 CEST 2005
-// $Id: SiPixelDigitizer.cc,v 1.10 2006/01/29 14:44:55 pioppi Exp $
+// $Id: SiPixelDigitizer.cc,v 1.11 2006/02/27 19:03:43 pioppi Exp $
 //
 //
 
@@ -85,7 +85,7 @@ namespace cms
 
   
   SiPixelDigitizer::~SiPixelDigitizer()
-  {}
+  {  edm::LogInfo ("PixelDigitizer ") <<"Destruct the Pixel Digitizer";}
 
 
   //
@@ -143,10 +143,8 @@ namespace cms
   
       GlobalVector bfield=pSetup->inTesla((*iu)->surface().position());
 
-      if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 1 ) {
-	LogDebug ("PixelDigitizer ") << "B-field(T) at "<<(*iu)->surface().position()<<"(cm): " 
-		  << pSetup->inTesla((*iu)->surface().position());
-      }
+      LogDebug ("PixelDigitizer ") << "B-field(T) at "<<(*iu)->surface().position()<<"(cm): " 
+		                   << pSetup->inTesla((*iu)->surface().position());
  
       if (dynamic_cast<PixelGeomDetUnit*>((*iu))!=0){
 
