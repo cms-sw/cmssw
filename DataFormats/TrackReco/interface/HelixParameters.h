@@ -51,9 +51,9 @@ namespace reco {
       Parameters( const double * par ) : par_( par ) { }
       /// index type
       typedef ParameterVector::index index;
-      /// accessing i-th parameter, i = 0, ..., 5 (read-only mode)
+      /// accessing i-th parameter, i = 0, ..., 4 (read-only mode)
       double operator()( index i ) const { return par_( i ); }
-      /// accessing i-th parameter, i = 0, ..., 5
+      /// accessing i-th parameter, i = 0, ..., 4
       double & operator()( index i ) { return par_( i ); }
       /// track impact parameter (distance of closest approach to beamline) (read-only mode)
       double d0() const { return par_.get<i_d0>(); }
@@ -97,9 +97,9 @@ namespace reco {
       Covariance( const double * cov ) : cov_( cov ) { }
       /// index type
       typedef ParameterError::index index;
-      /// accessing (i, j)-th parameter, i, j = 0, ..., 5 (read only mode)
+      /// accessing (i, j)-th parameter, i, j = 0, ..., 4 (read only mode)
       double operator()( index i, index j ) const { return cov_( i, j ); }
-      /// accessing (i, j)-th parameter, i, j = 0, ..., 5
+      /// accessing (i, j)-th parameter, i, j = 0, ..., 4
       double & operator()( index i, index j ) { return cov_ ( i, j ); }
       /// error on d0
       double d0Error() const { return sqrt( cov_.get<i_d0, i_d0>() ); }
