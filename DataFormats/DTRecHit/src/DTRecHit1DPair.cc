@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/01/24 14:23:25 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/02/15 09:25:31 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -64,8 +64,8 @@ LocalError DTRecHit1DPair::localPositionError() const {
 // Access to component RecHits.
 vector<const TrackingRecHit*> DTRecHit1DPair::recHits() const {
   vector<const TrackingRecHit*> result;
-  result.push_back(recHit(Left));
-  result.push_back(recHit(Right));
+  result.push_back(componentRecHit(Left));
+  result.push_back(componentRecHit(Right));
   return result;
 }
 
@@ -74,8 +74,8 @@ vector<const TrackingRecHit*> DTRecHit1DPair::recHits() const {
 // Non-const access to component RecHits.
 vector<TrackingRecHit*> DTRecHit1DPair::recHits() {
   vector<TrackingRecHit*> result;
-  result.push_back(const_cast<DTRecHit1D*>(recHit(Left)));
-  result.push_back(const_cast<DTRecHit1D*>(recHit(Right)));
+  result.push_back(const_cast<DTRecHit1D*>(componentRecHit(Left)));
+  result.push_back(const_cast<DTRecHit1D*>(componentRecHit(Right)));
   return result;
 }
 
@@ -98,7 +98,7 @@ bool DTRecHit1DPair::operator==(const DTRecHit1DPair& hit) const {
 // Return position in the local (layer) coordinate system for a
 // certain hypothesis about the L/R cell side
 LocalPoint DTRecHit1DPair::localPosition(DTCellSide lrside) const {
-  return recHit(lrside)->localPosition();
+  return componentRecHit(lrside)->localPosition();
 }
 
 
@@ -106,7 +106,7 @@ LocalPoint DTRecHit1DPair::localPosition(DTCellSide lrside) const {
 // Return position error in the local (layer) coordinate system for a
  // certain hypothesis about the L/R cell side
  LocalError DTRecHit1DPair::localPositionError(DTCellSide lrside) const {
-   return recHit(lrside)->localPositionError();
+   return componentRecHit(lrside)->localPositionError();
 }
 
 
@@ -115,7 +115,7 @@ LocalPoint DTRecHit1DPair::localPosition(DTCellSide lrside) const {
 // corresponding to the given cell side. Default value is assumed for the error.
 void DTRecHit1DPair::setPosition(DTCellSide lrside, const LocalPoint& point) {
   if(lrside != undefLR) 
-    recHit(lrside)->setPosition(point);
+    componentRecHit(lrside)->setPosition(point);
   else throw cms::Exception("DTRecHit1DPair::setPosition with undefined LR");
 }
 
@@ -127,8 +127,8 @@ void DTRecHit1DPair::setPositionAndError(DTCellSide lrside,
 					 const LocalPoint& point, 
 					 const LocalError& err) {
   if(lrside != undefLR) {
-    recHit(lrside)->setPosition(point);
-    recHit(lrside)->setError(err);
+    componentRecHit(lrside)->setPosition(point);
+    componentRecHit(lrside)->setError(err);
      }
   else throw cms::Exception("DTRecHit1DPair::setPosition with undefined LR");
 }
@@ -136,7 +136,7 @@ void DTRecHit1DPair::setPositionAndError(DTCellSide lrside,
 
 
 // Return the left/right DTRecHit1D
-const DTRecHit1D* DTRecHit1DPair::recHit(DTCellSide lrSide) const {
+const DTRecHit1D* DTRecHit1DPair::componentRecHit(DTCellSide lrSide) const {
   if(lrSide == Left) {
     return const_cast<const DTRecHit1D*>(&theLeftHit);
   } else if(lrSide == Right) {
@@ -149,7 +149,7 @@ const DTRecHit1D* DTRecHit1DPair::recHit(DTCellSide lrSide) const {
 
   
 // Non const access to left/right DTRecHit1D
-DTRecHit1D* DTRecHit1DPair::recHit(DTCellSide lrSide) {
+DTRecHit1D* DTRecHit1DPair::componentRecHit(DTCellSide lrSide) {
   if(lrSide == Left) {
     return &theLeftHit;
   } else if(lrSide == Right) {
@@ -158,6 +158,14 @@ DTRecHit1D* DTRecHit1DPair::recHit(DTCellSide lrSide) {
     throw cms::Exception("DTRecHit1DPair::recHit with undefined LR");
   }
 }
+
+
+
+/// Get the left and right 1D rechits (first and second respectively).
+pair<const DTRecHit1D*, const DTRecHit1D*> DTRecHit1DPair::componentRecHits() const {
+  return make_pair(componentRecHit(Left), componentRecHit(Right));
+}
+
 
 
 // Ostream operator

@@ -12,8 +12,8 @@
  *  method. The position is the average of the theLeftHit and theRightHit hits, namely the
  *  wire position.
  *
- *  $Date: 2006/01/24 14:23:24 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/02/15 09:25:30 $
+ *  $Revision: 1.2 $
  *  \author S. Lacaprara & G. Cerminara
  */
 
@@ -21,7 +21,7 @@
 #include "DataFormats/DTDigi/interface/DTDigi.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 
-
+#include <utility>
 
 class DTLayer;
 
@@ -114,12 +114,18 @@ public:
   }
 
 
- private:
-  // Return the left/right DTRecHit1D
-  const DTRecHit1D* recHit(DTEnums::DTCellSide lrSide) const;
+  /// Return the left/right DTRecHit1D
+  const DTRecHit1D* componentRecHit(DTEnums::DTCellSide lrSide) const;
+
   
-  // Non const access to left/right DTRecHit1D
-  DTRecHit1D* recHit(DTEnums::DTCellSide lrSide);
+  /// Get the left and right 1D rechits (first and second respectively).
+  std::pair<const DTRecHit1D*, const DTRecHit1D*> componentRecHits() const;
+
+
+ private:
+
+  /// Non const access to left/right DTRecHit1D
+  DTRecHit1D* componentRecHit(DTEnums::DTCellSide lrSide);
 
   // The digi
   DTDigi theDigi;  //FIXME: is it really needed      
