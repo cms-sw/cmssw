@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2006/02/23 16:05:05 $
- *  $Revision: 1.19 $
+ *  $Date: 2006/02/28 14:39:14 $
+ *  $Revision: 1.20 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -462,7 +462,7 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData , EBDigiCol
             EcalPnDiodeDigi thePnDigi(PnId );
             thePnDigi.setSize(50);
             for (int sample =0; sample<50; sample++)
-              {thePnDigi.setSample(sample, data_MEM[(currentMemId-1)*250 + (pnId-1)*50 + sample ] );  
+              {thePnDigi.setSample(sample, data_MEM[(currentMemId)*250 + (pnId-1)*50 + sample ] );  
 		
 		
               //		  if (pnId==1){
