@@ -6,12 +6,13 @@
 #include <string>
 int main(){
   cond::ServiceLoader* loader=new cond::ServiceLoader;
-  ::putenv("CORAL_AUTH_USER=me");
-  ::putenv("CORAL_AUTH_PASSWORD=myword");
+  ::putenv("CORAL_AUTH_USER=cms_xiezhen_dev");
+  ::putenv("CORAL_AUTH_PASSWORD=xiezhen123");
   loader->loadAuthenticationService(cond::Env);
   loader->loadMessageService(cond::Error);
   try{
-    cond::MetaData metadata_svc("sqlite_file:pippo.db", *loader);
+    //cond::MetaData metadata_svc("sqlite_file:pippo.db", *loader);
+    cond::MetaData metadata_svc("oracle://devdb10/cms_xiezhen_dev", *loader);
     metadata_svc.connect();
     //metadata_svc.getToken("mytest2");
     std::string t1("token1");
