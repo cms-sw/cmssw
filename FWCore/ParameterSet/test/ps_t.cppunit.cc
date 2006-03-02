@@ -1,7 +1,8 @@
 /*
- * $Id: ps_t.cppunit.cc,v 1.3 2005/08/30 12:53:21 paterno Exp $
+ * $Id: ps_t.cppunit.cc,v 1.4 2005/09/01 03:39:32 wmtan Exp $
  */
 
+#include <algorithm>
 #include <iostream>
 #include <limits>
 #include <string>
@@ -25,6 +26,7 @@ class testps: public CppUnit::TestFixture
   CPPUNIT_TEST(negativeZeroTest);
   CPPUNIT_TEST(idTest);
   CPPUNIT_TEST(mapByIdTest);
+  CPPUNIT_TEST(nameAccessTest);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -41,6 +43,7 @@ public:
   void negativeZeroTest();
   void idTest();
   void mapByIdTest();
+  void nameAccessTest();
 
   // Still more to do...
 private:
@@ -264,3 +267,74 @@ void testps::mapByIdTest()
   CPPUNIT_ASSERT(psets[id_d] == d);
 }
 
+template <class T>
+void 
+test_for_name()
+{
+  edm::ParameterSet preal;
+  edm::ParameterSet const& ps = preal;
+  // Use 'ps' to make sure we're only getting 'const' access; 
+  // use 'preal' when we need to modify the underlying ParameterSet.
+
+  std::vector<std::string> names = ps.getParameterNames();
+  CPPUNIT_ASSERT( names.empty() );
+
+
+  // The following causes failure, because of an apparent GCC bug in comparing bools!
+  //T value;
+  // Instead, we use this more verbose initialization...
+  T value = T();
+  preal.template addParameter<T>("x", value);
+  names = ps.getParameterNames();
+  CPPUNIT_ASSERT( names.size() == 1 );
+  CPPUNIT_ASSERT( names[0] == "x" );
+  T stored_value = ps.template getParameter<T>(names[0]);
+  CPPUNIT_ASSERT( stored_value == value );
+
+  preal.template addUntrackedParameter<T>("y", value);
+  names = ps.getParameterNames();
+  CPPUNIT_ASSERT( names.size() == 2 );
+
+  std::sort(names.begin(), names.end());
+  CPPUNIT_ASSERT( std::binary_search(names.begin(), names.end(), "x") );
+  CPPUNIT_ASSERT( std::binary_search(names.begin(), names.end(), "y") );
+
+  names = ps.template getParameterNamesForType<T>();
+  CPPUNIT_ASSERT( names.size() == 2 );
+
+  std::sort(names.begin(), names.end());
+  CPPUNIT_ASSERT( std::binary_search(names.begin(), names.end(), "x") );
+  CPPUNIT_ASSERT( std::binary_search(names.begin(), names.end(), "y") );
+}
+
+void testps::nameAccessTest()
+{
+  test_for_name<bool>();
+
+  test_for_name<int>();
+  test_for_name<std::vector<int> >();
+
+  test_for_name<unsigned int>();
+  test_for_name<std::vector<unsigned int> >();
+
+  test_for_name<double>();
+  test_for_name<std::vector<double> >();
+
+  test_for_name<std::string>();
+  test_for_name<std::vector<std::string> >();
+
+  test_for_name<edm::ParameterSet>();
+  test_for_name<std::vector<edm::ParameterSet> >();  
+
+  // Can't make default FileInPath objects...
+
+  // Now make sure that if we put in a parameter of type A, we don't
+  // see it when we ask for names of type B != A.
+  {
+    edm::ParameterSet p;
+    p.addParameter<double>("a", 2.5);
+    std::vector<std::string> names = p.getParameterNamesForType<int>();
+    CPPUNIT_ASSERT( names.empty() ); 
+  }
+
+}

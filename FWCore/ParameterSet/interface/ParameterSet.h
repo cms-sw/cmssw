@@ -2,7 +2,7 @@
 #define ParameterSet_ParameterSet_h
 
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.h,v 1.17 2006/02/27 15:32:32 paterno Exp $
+// $Id: ParameterSet.h,v 1.18 2006/02/28 20:35:52 paterno Exp $
 //
 // Declaration for ParameterSet(parameter set) and related types
 // ----------------------------------------------------------------------
@@ -78,6 +78,20 @@ namespace edm {
     getAllFileInPaths(std::vector<edm::FileInPath>& output) const;
 
     std::vector<std::string> getParameterNames() const;
+
+    template <class T>
+    std::vector<std::string> getParameterNamesForType() const
+    {
+      std::vector<std::string> result;
+      // This is icky, but I don't know of another way in the current
+      // code to get at the character code that denotes type T.
+      T value = T();
+      edm::Entry type_translator(value, true);
+      char type_code = type_translator.typeCode();
+      
+      (void)getNamesByCode_(type_code, result);
+      return result;
+    }
     
     template <class T>
     void
@@ -103,6 +117,7 @@ namespace edm {
     // vector<ParameterSet>, pushing the names into the argument
     // 'output'. Return the number of names pushed into the vector.
     size_t getParameterSetVectorNames(std::vector<std::string>& output) const;
+
 
 private:
     typedef std::map<std::string, Entry> table;

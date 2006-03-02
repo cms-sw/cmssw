@@ -1,3 +1,6 @@
+02-03-06 mfp. Add ability to get names of all parameters of a given type
+    to ParameterSet, and tests for it.
+
 28-02-06 mfp. Added ability to get names of all directly-included
     ParameterSets and vectors of ParameterSets. This was added to
     support the recursive "explosion" of a ParameterSet to produce

@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.cc,v 1.18 2006/02/27 15:32:33 paterno Exp $
+// $Id: ParameterSet.cc,v 1.19 2006/02/28 20:35:52 paterno Exp $
 //
 // definition of ParameterSet's function members
 // ----------------------------------------------------------------------
@@ -285,17 +285,17 @@ namespace edm {
     return ParameterSet(this->toStringOfTracked());
   }
 
-  size_t
-  ParameterSet::getParameterSetNames(std::vector<std::string>& output) const
-  {
-    return getNamesByCode_('P', output);
-  }
+   size_t
+   ParameterSet::getParameterSetNames(std::vector<std::string>& output) const
+   {
+     return getParametergetNamesByCode_('P', output);
+   }
 
-  size_t
-  ParameterSet::getParameterSetVectorNames(std::vector<std::string>& output) const
-  {
-    return getNamesByCode_('p', output);
-  }
+   size_t
+   ParameterSet::getParameterSetVectorNames(std::vector<std::string>& output) const
+   {
+     return getNamesByCode_('p', output);
+   }
 
   size_t
   ParameterSet::getNamesByCode_(char code, 
