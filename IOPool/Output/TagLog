@@ -1,3 +1,6 @@
+** V01-01-12  [Thu Mar  2 07:38:05 2006]
+Read null product with delayed reader
+
 ** V01-01-11  [Tue Feb 14 23:24:36 2006]
 Fix crash when commit and file size check occur on same event.
 
