@@ -45,7 +45,6 @@ ForwardDiskSectorBuilderFromDet::computeBounds( const vector<const GeomDet*>& de
     // cout << "---------------------------------------------" << endl;
     // cout <<   " Builder: Position of det     :" << (**idet).position() << endl;     
     vector<const GeomDet*> detUnits = (**idet).components();
-    cout << "detUnits.size(): " << detUnits.size() << endl;
     for (vector<const GeomDet*>::const_iterator detu=detUnits.begin();
  	 detu!=detUnits.end(); detu++) {
       // cout << " Builder: Position of detUnit :"<< (**detu).position() << endl;      
@@ -124,8 +123,9 @@ ForwardDiskSectorBuilderFromDet::computeTrapezoidalCorners( const GeomDet* det) 
     cout << "ForwardDiskSectorBuilder: something weird going on !" << endl;
     cout << " Trapezoidal parameters of GeomDet (L2/L1/T/H): " ;
     for (int i = 0; i < 4; i++ )     cout << "  " << 2.*parameters[i];  
+    cout << endl;
   }
-  cout << endl;
+
 
   float hbotedge = parameters[0];
   float htopedge = parameters[1];

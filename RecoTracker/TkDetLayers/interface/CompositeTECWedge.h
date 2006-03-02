@@ -4,7 +4,6 @@
 
 #include "RecoTracker/TkDetLayers/interface/TECWedge.h"
 #include "RecoTracker/TkDetLayers/interface/SubLayerCrossings.h"
-#include "RecoTracker/TkDetLayers/interface/BoundDiskSector.h"
 
 
 /** A concrete implementation for TEC layer 
@@ -19,8 +18,6 @@ class CompositeTECWedge : public TECWedge{
   ~CompositeTECWedge();
   
   // GeometricSearchDet interface
-  virtual const BoundSurface& surface() const;
-
   virtual vector<const GeomDet*> basicComponents() const;
 
   virtual vector<const GeometricSearchDet*> components() const;
@@ -33,7 +30,6 @@ class CompositeTECWedge : public TECWedge{
   groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
 			 const Propagator& prop,
 			 const MeasurementEstimator& est) const;
-
 
  private:
   // private methods for the implementation of groupedCompatibleDets()
@@ -80,28 +76,6 @@ class CompositeTECWedge : public TECWedge{
   
   ReferenceCountingPointer<BoundDiskSector>  theFrontSector;
   ReferenceCountingPointer<BoundDiskSector>  theBackSector;
-  ReferenceCountingPointer<BoundDiskSector>  theDiskSector;
-
-  
-
-
-  /*
-  int findClosestDet( const GlobalPoint& startPos,int sectorId) const;
-
-
-  bool overlapInPhi( const TrajectoryStateOnSurface& startingState, float rho, const Det* det,
-		     float phiWindow ) const;
-
-
-  vector<GlobalPoint> 
-    calculateWindowCorners( const MeasurementEstimator::Local2DVector& maxDistance, 
-			    const TrajectoryStateOnSurface& ts, 
-			    const BoundPlane& plane) const;
-
-  pair<float, float> computeDetPhiRange( const BoundPlane& plane) const;
-
-  
-  */
   
 };
 

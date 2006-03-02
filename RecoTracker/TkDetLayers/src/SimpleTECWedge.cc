@@ -10,13 +10,13 @@ SimpleTECWedge::~SimpleTECWedge(){
 
 } 
 
-
+/*
 const BoundSurface&
 SimpleTECWedge::surface() const{
   cout << "temporary dummy implementation of SimpleTECWedge::surface()!!" << endl;
   return thePlane;
 }
-
+*/
 
 vector<const GeomDet*> 
 SimpleTECWedge::basicComponents() const{

@@ -30,12 +30,19 @@ TECWedge* TECWedgeBuilder::build(const GeometricDet* aTECWedge,
 
   for(vector<const GeometricDet*>::const_iterator it=theGeometricDets.begin();
       it!=theGeometricDets.end();it++){
-    //cout << "GeometricDet.z(): " << (*it)->positionBounds().z() << endl;
-    //cout << "GeometricDet.perp(): " << (*it)->positionBounds().perp() << endl;
+    double theGeometricDetRposition = (*it)->positionBounds().perp();
     const GeomDet* theGeomDet = theGeomDetGeometry->idToDet( (*it)->geographicalID() );
-    //cout << "GeomDet.z(): " << theGeomDet->surface().position().z() << endl;
-    //cout << "GeomDet.perp(): " << theGeomDet->surface().position().perp() << endl;
-
+    double theGeomDetRposition = theGeomDet->surface().position().perp();
+    
+    if( fabs(theGeomDetRposition -theGeometricDetRposition)> 10.0 ){
+      /*
+      cout << "warning: problem with GeomDet position in TEC Wedge" << endl;
+      cout << "theGeometricDetRposition: " << theGeometricDetRposition << endl;
+      cout << "theGeomDetRposition: " << theGeomDetRposition << endl;
+      cout << endl;
+      */
+    }
+    
 
     if( fabs( (*it)->positionBounds().z() ) < fabs(meanZ))
       innerGeomDets.push_back(theGeomDet);

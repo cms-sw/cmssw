@@ -41,7 +41,39 @@ class TIDLayer : public RingedForwardLayer{
 
 
  private:
-  vector<const TIDRing*> theRings;
+  // private methods for the implementation of groupedCompatibleDets()
+  virtual BoundDisk* computeDisk( const vector<const TIDRing*>& rings) const;
+
+  virtual vector<int> ringIndicesByCrossingProximity(const TrajectoryStateOnSurface& startingState,
+						     const Propagator& prop ) const;
+
+ protected:  
+  //  bool isCompatible( const TrajectoryStateOnSurface& ms,
+  //	     const MeasurementEstimator& est) const;
+
+  int findClosest( const vector<GlobalPoint>& ) const;
+  
+  int findNextIndex( const vector<GlobalPoint>& , int ) const;
+  
+  bool overlapInR( const TrajectoryStateOnSurface& tsos, int i, double ymax) const;
+  
+  
+  float computeWindowSize( const GeomDet* det, 
+  			   const TrajectoryStateOnSurface& tsos, 
+			   const MeasurementEstimator& est) const;
+  
+  vector<DetGroup> orderAndMergeLevels(const TrajectoryStateOnSurface& tsos,
+				       const Propagator& prop,
+				       const vector<vector<DetGroup> > groups,
+				       const vector<int> indices ) const;
+
+
+
+
+ protected:
+  vector<const TIDRing*> theRings;  
+  ReferenceCountingPointer<BoundDisk>  theLayerDisk;
+
   
 };
 

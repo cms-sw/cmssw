@@ -16,7 +16,7 @@ class SimpleTECWedge : public TECWedge{
   ~SimpleTECWedge();
   
   // GeometricSearchDet interface
-  virtual const BoundSurface& surface() const;
+  //virtual const BoundSurface& surface() const;
 
   virtual vector<const GeomDet*> basicComponents() const;
 
@@ -31,8 +31,8 @@ class SimpleTECWedge : public TECWedge{
 			 const Propagator& prop,
 			 const MeasurementEstimator& est) const;
 
- private:
-  BoundPlane& thePlane; //temporary solution
+  // private:
+  //BoundPlane& thePlane; //temporary solution
     
 };
 

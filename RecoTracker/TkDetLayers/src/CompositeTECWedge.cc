@@ -38,13 +38,6 @@ CompositeTECWedge::~CompositeTECWedge(){
 
 } 
 
-
-const BoundSurface&
-CompositeTECWedge::surface() const{
-  return *theDiskSector;
-}
-
-
 vector<const GeomDet*> 
 CompositeTECWedge::basicComponents() const{
   cout << "temporary dummy implementation of CompositeTECWedge::basicComponents()!!" << endl;

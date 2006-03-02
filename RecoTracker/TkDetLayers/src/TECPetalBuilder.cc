@@ -19,7 +19,6 @@ TECPetal* TECPetalBuilder::build(const GeometricDet* aTECPetal,
 
   for(vector<const GeometricDet*>::const_iterator it=theGeometricWedges.begin();
       it!=theGeometricWedges.end();it++){
-
     if( fabs((*it)->positionBounds().z()) < fabs(meanZ) ) 
       theInnerWedges.push_back(myWedgeBuilder.build(*it,theGeomDetGeometry));
     
