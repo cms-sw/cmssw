@@ -6,6 +6,10 @@
 //
 
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateClosestToPoint.h"
+#include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
 
 namespace reco {
 
@@ -20,7 +24,11 @@ namespace reco {
     TrajectoryStateOnSurface innermostMeasurementState();
 
     TrajectoryStateClosestToPoint 
-      trajectoryStateClosestToPoint( const GlobalPoint & xyz );
+      trajectoryStateClosestToPoint( const GlobalPoint & point )
+      {return builder(originalTSCP.theState(), point);}
+
+    TrajectoryStateClosestToPoint impactPointTSCP()
+      {return originalTSCP;}
 
     TrajectoryStateOnSurface impactPointState();
 
@@ -29,7 +37,15 @@ namespace reco {
 
   private:
 
+    void calculateStateAtVertex();
+
     const Track & tk_;
+
+    TrajectoryStateClosestToPoint originalTSCP;
+    bool stateAtVertexAvailable;
+    TrajectoryStateOnSurface theStateAtVertex;
+    TSCPBuilderNoMaterial builder;
+
 
   };
 
