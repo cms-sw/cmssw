@@ -15,7 +15,7 @@
 class BasicTrajectorySeed {
  public:
 
-  typedef OwnVector<TrackingRecHit> recHitContainer;
+  typedef edm::OwnVector<TrackingRecHit> recHitContainer;
   typedef recHitContainer::iterator iterator;
   typedef std::pair<iterator,iterator> range;
 
@@ -23,9 +23,9 @@ class BasicTrajectorySeed {
 
   // returns the recHits
 
-  virtual range recHits() const = 0;
+  virtual range recHits() = 0;
   virtual PropagationDirection direction() const = 0;
-  virtual PTrajectoryStateOnDet& startingState() const = 0;
+  virtual PTrajectoryStateOnDet startingState() const = 0;
   
 };
 

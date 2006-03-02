@@ -9,6 +9,7 @@
  <lib name=DataFormatsTrajectorySeed>
  <use name=DataFormats/TrajectoryState>
 <use name=DataFormats/TrackingRecHit>
+<use name=DataFormats/Common>                                                                                                                                       
 <use name=FWCore/EDProduct>
  <use name=clhep>
 </export>

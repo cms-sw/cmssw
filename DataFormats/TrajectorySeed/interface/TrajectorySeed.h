@@ -16,13 +16,14 @@ class TrajectorySeed : public BasicTrajectorySeed {
   TrajectorySeed(PTrajectoryStateOnDet ptsos, recHitContainer rh, PropagationDirection dir) : hits_(rh), 
     tsos_(ptsos), dir_(dir) {}
   
-  range recHits() const {
+  range recHits() {
     return std::make_pair(hits_.begin(), hits_.end());
   }
   PropagationDirection direction() const {return  dir_;}
-  PTrajectoryStateOnDet& startingState() const {return tsos_;}
+  PTrajectoryStateOnDet startingState() const {return tsos_;}
+
+  virtual ~TrajectorySeed(){}
  
-  
  private:
   edm::OwnVector<TrackingRecHit> hits_;
   PTrajectoryStateOnDet tsos_;
