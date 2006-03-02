@@ -1,9 +1,9 @@
 <export>
  <lib name=TrackingToolsPatternTools>
-# <use name=TrackingTools/GeomPropagators>
+ <use name=TrackingTools/GeomPropagators>
 </export>
  
-#<use name=TrackingTools/GeomPropagators>
+<use name=TrackingTools/GeomPropagators>
 <use name=Utilities/General>
 <use name=CLHEP>
 <use name=boost>
