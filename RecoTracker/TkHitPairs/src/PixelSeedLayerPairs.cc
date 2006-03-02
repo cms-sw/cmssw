@@ -59,7 +59,7 @@ void PixelSeedLayerPairs::addBarrelBarrelLayers( int mid, int outer,
 // }
 
 void PixelSeedLayerPairs::init(const edm::EventSetup& iSetup){
-  // edm::ESHandle<GeometricSearchTracker> track;
-  //  iSetup.get<TrackerRecoGeometryRecord>().get( track ); 
-  //  bl=track.barrelLayers();
+  edm::ESHandle<GeometricSearchTracker> track;
+  iSetup.get<TrackerRecoGeometryRecord>().get( track ); 
+  bl=track->barrelLayers();
   }

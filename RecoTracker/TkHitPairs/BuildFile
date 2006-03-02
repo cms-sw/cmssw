@@ -9,6 +9,8 @@
    <use name=DataFormats/TrackerRecHit2D>
    <use name=FWCore/Framework>
    <use name=RecoTracker/TkDetLayers>
+   <use name=DataFormats/SiStripDetId>
+   <use name=RecoTracker/GeometryESProducer>
  </export>
  <use name=clhep>
  <use name=boost>
@@ -18,5 +20,6 @@
  <use name=FWCore/ParameterSet>
  <use name=TrackingTools/DetLayers>
  <use name=DataFormats/TrackerRecHit2D>
- <use name=FWCore/Framework>
-
+ <use name=FWCore/Framework> 
+ <use name=DataFormats/SiStripDetId>
+ <use name=RecoTracker/GeometryESProducer>

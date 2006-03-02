@@ -21,7 +21,7 @@ public:
 
 
   //  virtual vector<LayerPair> operator()() const;
-  virtual vector<LayerPair> operator()();
+virtual  vector<LayerPair> operator()();
 /*   const LayerAccessor::BarrelLayerContainer& barrelPixel() const {return theBarrelPixel;} */
 /*   const LayerAccessor::ForwardLayerContainer& negativePixel() const {return theNegPixel;} */
 /*   const LayerAccessor::ForwardLayerContainer& positivePixel() const {return thePosPixel;} */
@@ -48,10 +48,10 @@ private:
 /*   LayerAccessor::ForwardLayerContainer thePosPixel; */
    vector<BarrelDetLayer*> bl;
 
- private:
+ public:
  
    void init(const edm::EventSetup& iSetup);
-
+ private:
   void addBarrelBarrelLayers( int mid, int outer, 
        vector<LayerPair>& result) const;
   void addBarrelForwardLayers( int mid, int outer, 
