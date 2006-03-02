@@ -230,8 +230,10 @@ void RunManager::produce(edm::Event& inpevt, const edm::EventSetup & es)
     m_simEvent = new G4SimEvent;
     m_simEvent->hepEvent(m_generator->genEvent());
     m_simEvent->weight(m_generator->eventWeight());
-    m_simEvent->collisionPoint(HepLorentzVector(m_generator->genVertex().vect()/centimeter,
-                                                m_generator->genVertex().t()/second));
+//    m_simEvent->collisionPoint(HepLorentzVector(m_generator->genVertex().vect()/centimeter,
+//                                                m_generator->genVertex().t()/second));
+    m_simEvent->collisionPoint(HepLorentzVector(m_generator->genVertex()->vect()/centimeter,
+                                                m_generator->genVertex()->t()/second));
  
     if (m_currentEvent->GetNumberOfPrimaryVertex()==0)
     {
