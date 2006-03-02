@@ -46,7 +46,9 @@ void HcalAmplifier::amplify(CaloSamples & frame) const {
     double pedestal = calibrations.pedestal(capId);
     double gain = calibrations.gain(capId);
     if(addNoise_) {
-      pedestal += RandGauss::shoot(0. , widths.pedestal(capId));
+      // pedestal width are returned in GeV, even though pedestals
+      // are in fC
+      pedestal += RandGauss::shoot(0. , widths.pedestal(capId)) / gain;
       gain += RandGauss::shoot(0., widths.gain(capId));
     }
     // since gain is (GeV/fC)
