@@ -2,6 +2,7 @@
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 #include "CondFormats/SiStripObjects/interface/SiStripReadoutCabling.h"
 #include "CondFormats/SiStripObjects/interface/SiStripControlCabling.h"
+#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 // Declaration of the iterator (necessary for the generation of the dictionary)
 
 template std::vector<SiStripPedestals::SiStripData>::iterator;
@@ -21,3 +22,9 @@ template std::vector< std::vector<std::pair<uint32_t, unsigned short> > >::itera
 template std::vector< std::vector<std::pair<uint32_t, unsigned short> > >::const_iterator;
 template std::vector<unsigned short>::iterator;
 template std::vector<unsigned short>::const_iterator;
+
+template std::vector< std::vector<FedChannelConnection> >::iterator;
+template std::vector< std::vector<FedChannelConnection> >::const_iterator;
+template std::vector<FedChannelConnection>::iterator;
+template std::vector<FedChannelConnection>::const_iterator;
+
