@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.cc,v 1.19 2006/02/28 20:35:52 paterno Exp $
+// $Id: ParameterSet.cc,v 1.20 2006/03/02 16:21:01 paterno Exp $
 //
 // definition of ParameterSet's function members
 // ----------------------------------------------------------------------
@@ -288,7 +288,7 @@ namespace edm {
    size_t
    ParameterSet::getParameterSetNames(std::vector<std::string>& output) const
    {
-     return getParametergetNamesByCode_('P', output);
+     return getNamesByCode_('P', output);
    }
 
    size_t
