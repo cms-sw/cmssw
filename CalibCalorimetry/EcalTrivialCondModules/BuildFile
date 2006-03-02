@@ -1,0 +1,14 @@
+<flags SEAL_PLUGIN_NAME="CalibCalorimetryEcalTrivialCondModules">
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=CondFormats/EcalObjects>
+<use name=CondFormats/DataRecord>
+<use name=DataFormats/EcalDetId>
+<export>
+  <lib name=CalibCalorimetryEcalTrivialCondModules>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
+  <use name=CondFormats/EcalObjects>
+  <use name=CondFormats/DataRecord>
+  <use name=DataFormats/EcalDetId>
+</export>
