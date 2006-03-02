@@ -216,6 +216,7 @@ CaloTower & CaloTowersCreationAlgo::find(const CaloTowerDetId & detId) {
   
 void CaloTowersCreationAlgo::getThresholdAndWeight(const DetId & detId, double & threshold, double & weight) const {
   DetId::Detector det = detId.det();
+  weight=0; // in case the hit is not identified
   if(det == DetId::Ecal) {
     // may or may not be EB.  We'll find out.
 
@@ -248,9 +249,10 @@ void CaloTowersCreationAlgo::getThresholdAndWeight(const DetId & detId, double &
         threshold = theHEDthreshold;
         weight = theHEDweight;
       }
-    }
-    
-    else if(subdet == HcalForward) {
+    } else if(subdet == HcalOuter) {
+      threshold = theHOthreshold;
+      weight = theHOweight;
+    } else if(subdet == HcalForward) {
       if(hcalDetId.depth() == 1) {
         threshold = theHF1threshold;
         weight = theHF1weight;
