@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.13 2006/02/14 22:23:25 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.14 2006/03/01 16:37:43 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
@@ -54,7 +54,7 @@ namespace edm {
   void PoolOutputModule::write(EventPrincipal const& e) {
       if (poolFile_->writeOne(e)) {
 	++fileCount_;
-        poolFile_ = boost::shared_ptr<PoolFile>(new PoolFile(this));
+	poolFile_ = boost::shared_ptr<PoolFile>(new PoolFile(this));
       }
   }
 
@@ -71,9 +71,9 @@ namespace edm {
       ofilename << fileBase << std::setw(3) << std::setfill('0') << om->fileCount_ - 1 << suffix;
       file_ = ofilename.str();
       if (!om->logicalFileName_.empty()) {
-        std::ostringstream lfilename;
-        lfilename << om->logicalFileName_ << std::setw(3) << std::setfill('0') << om->fileCount_ - 1;
-        lfn_ = lfilename.str();
+	std::ostringstream lfilename;
+	lfilename << om->logicalFileName_ << std::setw(3) << std::setfill('0') << om->fileCount_ - 1;
+	lfn_ = lfilename.str();
       }
     } else {
       file_ = fileBase + suffix;
@@ -133,50 +133,58 @@ namespace edm {
     EventProvenance eventProvenance;
     // Loop over EDProduct branches, fill the provenance, and write the branch.
     for (OutputItemList::const_iterator i = outputItemList_.begin();
-         i != outputItemList_.end(); ++i) {
+	 i != outputItemList_.end(); ++i) {
       ProductID const& id = i->first->productID_;
 
       if (id == ProductID()) {
-        throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
-  	  << "PoolOutputModule::write: invalid ProductID supplied in productRegistry\n";
+	throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
+	  << "PoolOutputModule::write: invalid ProductID supplied in productRegistry\n";
       }
       EventPrincipal::SharedGroupPtr const g = e.getGroup(id);
       if (g.get() == 0) {
-        // No product with this ID is in the event.  Add a null one.
-        BranchEntryDescription event;
-        event.status = BranchEntryDescription::CreatorNotRun;
-        event.productID_ = id;
-        eventProvenance.data_.push_back(event);
-        pool::Ref<EDProduct const> ref(context(), i->first->productPtr_);
-        ref.markWrite(i->second);
+	// No product with this ID is in the event.  Add a null one.
+	BranchEntryDescription event;
+	event.status = BranchEntryDescription::CreatorNotRun;
+	event.productID_ = id;
+	eventProvenance.data_.push_back(event);
+	if (i->first->productPtr_ == 0) {
+	   std::auto_ptr<EDProduct> edp(e.store()->get(BranchKey(*i->first), &e));
+	   i->first->productPtr_ = edp.release();
+	   if (i->first->productPtr_ == 0) {
+	    throw edm::Exception(edm::errors::ProductNotFound,"Invalid")
+	      << "PoolOutputModule::write: invalid BranchDescription supplied in productRegistry\n";
+	   }
+	}
+	pool::Ref<EDProduct const> ref(context(), i->first->productPtr_);
+	ref.markWrite(i->second);
       } else {
-        eventProvenance.data_.push_back(g->provenance().event);
-        if (g->product() == 0) {
-          // This is wasteful, as it de-serializes and re-serializes.
-          // Replace it with something better.
-          e.resolve_(*g, true);
-        }
-        pool::Ref<EDProduct const> ref(context(), g->product());
-        ref.markWrite(i->second);
+	eventProvenance.data_.push_back(g->provenance().event);
+	if (g->product() == 0) {
+	  // This is wasteful, as it de-serializes and re-serializes.
+	  // Replace it with something better.
+	  e.resolve_(*g);
+	}
+	pool::Ref<EDProduct const> ref(context(), g->product());
+	ref.markWrite(i->second);
       }
     }
     // Write the provenance branch
     pool::Ref<EventProvenance const> rp(context(), &eventProvenance);
     rp.markWrite(provenancePlacement_);
-	
+
     commitTransaction();
 
     if (eventCount_ >= fileSizeCheckEvent_) {
 	size_t size = om_->context_.getFileSize(file_);
 	unsigned long eventSize = size/eventCount_;
 	if (size + 2*eventSize >= om_->maxFileSize_) {
-          endFile();
-          return true;
-        } else {
+	  endFile();
+	  return true;
+	} else {
 	  unsigned long increment = (om_->maxFileSize_ - size)/eventSize;
 	  increment -= increment/8;	// Prevents overshoot
 	  fileSizeCheckEvent_ = eventCount_ + increment;
-        }
+	}
     }
     if (eventCount_ % om_->commitInterval_ == 0) {
       commitAndFlushTransaction();
@@ -200,13 +208,13 @@ namespace edm {
     TFile f(file_.c_str(), "update");
     TTree *t = dynamic_cast<TTree *>(f.Get(poolNames::eventTreeName().c_str()));
     if (t) {
-      t->BuildIndex("id_.run_", "id_.event_");
+      // t->BuildIndex("id_.run_", "id_.event_");
       for (Selections::const_iterator it = om_->descVec_.begin();
-        it != om_->descVec_.end(); ++it) {
-        BranchDescription const& pd = **it;
-        std::string const& full = pd.branchName_ + "obj";
-        std::string const& alias = (pd.productInstanceName_.empty() ? pd.module.moduleLabel_ : pd.productInstanceName_);
-        t->SetAlias(alias.c_str(), full.c_str());
+	it != om_->descVec_.end(); ++it) {
+	BranchDescription const& pd = **it;
+	std::string const& full = pd.branchName_ + "obj";
+	std::string const& alias = (pd.productInstanceName_.empty() ? pd.module.moduleLabel_ : pd.productInstanceName_);
+	t->SetAlias(alias.c_str(), full.c_str());
       }
       t->Write(t->GetName(), TObject::kWriteDelete);
     }
