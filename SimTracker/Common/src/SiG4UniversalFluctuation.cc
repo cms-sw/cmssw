@@ -20,8 +20,8 @@
 // * statement, and all its terms.                                    *
 // ********************************************************************
 //
-// $Id: SiG4UniversalFluctuation.cc,v 1.2 2006/02/28 18:17:15 pioppi Exp $
-// GEANT4 tag $Name: V00-01-00 $
+// $Id: SiG4UniversalFluctuation.cc,v 1.3 2006/03/01 09:53:52 pioppi Exp $
+// GEANT4 tag $Name:  $
 //
 // -------------------------------------------------------------------
 //
@@ -258,10 +258,8 @@ double SiG4UniversalFluctuation::SampleFluctuations(const double momentum,
     if (a3 > 0.) {
       if (a3>alim) {
         siga=sqrt(a3) ;
-        //p3 = max(0.,G4RandGauss::shoot(a3,siga)+0.5);
         p3 = max(0.,RandGaussQ::shoot(a3,siga)+0.5);
       } else {
-        //p3 = double(G4Poisson(a3));
         p3 = double(RandPoisson::shoot(a3));
       }
       double lossc = 0.;
