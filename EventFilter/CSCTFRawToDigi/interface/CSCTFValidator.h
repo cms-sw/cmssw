@@ -16,6 +16,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
+class CSCTriggerMappingFromFile;
 
 class CSCTFValidator : public edm::EDAnalyzer {
  public:
@@ -25,6 +26,10 @@ class CSCTFValidator : public edm::EDAnalyzer {
  private:
   // variables persistent across events should be declared here.
   //
+  bool testBeam;
+  int TBFEDid, TBendcap, TBsector;
+  std::string mapPath;
+  CSCTriggerMappingFromFile* TFMapping;
   int eventNumber;
 };
 

@@ -118,7 +118,7 @@ void CSCTFUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 	  CSCTFTBFrontBlock aFB;
 	  CSCTFTBSPBlock aSPB;	
 	  CSCTFTBSPData aSPD;
-	for(int BX = 1; BX<=7 ; ++BX)
+	for(int BX = 1; BX<= tbdata->eventHeader().numBX() ; ++BX)
 	  {
 	    if(testBeam) aFB = tbdata->frontDatum(BX);
 	    for(int FPGA = 1; FPGA <=5 ; ++FPGA)
