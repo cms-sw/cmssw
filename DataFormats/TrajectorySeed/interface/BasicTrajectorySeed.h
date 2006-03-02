@@ -1,7 +1,7 @@
 #ifndef DATAFORMATS_TRAJECTORYSEED_BASICTRAJECTORYSEED_h
 #define DATAFORMATS_TRAJECTORYSEED_BASICTRAJECTORYSEED_h
 
-#include "DataFormats/TrajectoryState/interface/PropagationDirection.h"
+#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
