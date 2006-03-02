@@ -19,6 +19,7 @@ class CSCDDUHeader {
   int event_type() const { return event_type_;}
   int ncsc() const { return ncsc_;}
   int dmb_dav() const { return dmb_dav_;}
+  int live_cscs() const {return live_cscs_;}
   static unsigned sizeInWords() {return 12;}
   void setSourceId(unsigned sourceId) {source_id_ = sourceId;}
 

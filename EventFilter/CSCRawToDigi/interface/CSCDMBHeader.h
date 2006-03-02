@@ -21,6 +21,7 @@ public:
   void setL1A(int l1a);
   void setCrateAddress(int crate, int dmbId);
 
+  unsigned cfebActive() const {return cfeb_active;} 
   unsigned crateID() const;
   unsigned dmbID() const;
   unsigned bxn() const;
