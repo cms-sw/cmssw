@@ -1,3 +1,6 @@
+** V02-00-04  [Fri Mar  3 00:53:43 2006]
+use up-to-date parameters for input source in config files
+
 ** V02-00-03  [Wed Feb 15 14:48:54 2006]
 Test objects moved to DataFormats/TestObjects
 
