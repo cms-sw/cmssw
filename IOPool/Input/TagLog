@@ -1,3 +1,6 @@
+** V01-02-05  [Thu Mar  2 06:43:50 2006]
+Don't put null product in EventPrincipal
+
 ** V01-02-04  [Tue Feb 14 00:41:35 2006]
 remove unnecessary dependency on root. rootcore suffices.
 
