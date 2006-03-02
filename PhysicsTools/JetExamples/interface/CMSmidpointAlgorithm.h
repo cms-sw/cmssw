@@ -10,7 +10,7 @@
 #include "CLHEP/Vector/LorentzVector.h"
 #include "PhysicsTools/JetExamples/interface/JetableObjectHelper.h"
 #include "PhysicsTools/JetExamples/interface/ProtoJet.h"
-#include "PhysicsTools/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "FWCore/Framework/interface/Handle.h"
 
 class CMSmidpointAlgorithm 
