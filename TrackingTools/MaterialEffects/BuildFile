@@ -1,0 +1,10 @@
+<use name=boost>
+<use name=CLHEP>
+<use name=TrackingTools/GeomPropagators>
+
+<export>
+ <lib name=TrackingToolsMaterialEffects>
+ <use name=TrackingTools/GeomPropagators>
+</export>
+
+
