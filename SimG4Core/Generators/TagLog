@@ -1,3 +1,6 @@
+** V00-02-05  [Thu Mar  2 02:40:20 2006]
+generate G4PrimVtx from evt's, not set it to 0
+
 ** V00-02-04  [Wed Dec 21 06:56:53 2005]
 introduced untracked config.params
 
