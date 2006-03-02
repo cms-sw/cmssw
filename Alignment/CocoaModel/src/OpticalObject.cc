@@ -1686,6 +1686,11 @@ const ALIstring OpticalObject::shortName() const
 {
   ALIint last_slash = name().rfind('/');
   ALIstring sname = name().substr(last_slash+1, name().size()-1);
+  if( last_slash == -1 ) { //object of type "system"
+    sname = name();
+  } else {
+    sname = name().substr(last_slash+1, name().size()-1);
+  }
   return sname; 
 }
 
