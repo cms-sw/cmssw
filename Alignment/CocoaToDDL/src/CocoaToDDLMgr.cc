@@ -18,6 +18,7 @@
 #include "OpticalAlignment/CocoaModel/interface/Entry.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
+#include "math.h"
 
 
 CocoaToDDLMgr* CocoaToDDLMgr::instance = 0;
@@ -87,15 +88,17 @@ void CocoaToDDLMgr::writeSolids()
 {
   newSectPre_so("");
   
-  static std::vector< OpticalObject* > optolist = Model::OptOList();
-  static std::vector< OpticalObject* >::const_iterator ite;
+  std::vector< OpticalObject* > optolist = Model::OptOList();
+  std::vector< OpticalObject* >::const_iterator ite;
   for(ite = optolist.begin(); ite != optolist.end(); ite++ ){
-    so( *ite );
+    //---- write only distinct OptO's = with different ShortName
+    if( !findInPreviousOptOs( ite ) ) so( *ite );
   }
   
   newSectPost_so("");
 
 }
+
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void CocoaToDDLMgr::writeLogicalVolumes()
@@ -105,8 +108,8 @@ void CocoaToDDLMgr::writeLogicalVolumes()
   static std::vector< OpticalObject* > optolist = Model::OptOList();
   static std::vector< OpticalObject* >::const_iterator ite;
   for(ite = optolist.begin(); ite != optolist.end(); ite++ ){
-    //each OpticalObject is a distinct logical volume. This is so because two OptO's of the same type may have different optical properties and this optical properties are SpecPart's. And to have different values of an SpecPart they have to be different logical volumes
-    lv( *ite );
+    //---- write only distinct OptO's = with different ShortName
+    if( !findInPreviousOptOs( ite ) ) lv( *ite );
   }
   
   newSectPost_lv("");
@@ -258,11 +261,11 @@ void CocoaToDDLMgr::newSectPre_so(std::string name)
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void CocoaToDDLMgr::so(OpticalObject * opto) 
 {
-  std::string name = scrubString(opto->name());
+  std::string name = (opto->shortName());
 
   if( opto->type() == "system" ){
     //    file_ << " <Box name=\"" << name << "\"";
-    file_ << " <Box name=\"" << opto->name() << "\"";
+    file_ << " <Box name=\"" << name << "\"";
     file_ << " dx=\"0.*m" 
 	  << "\" dy=\"0.*m" 
 	  << "\" dz=\"0.*m" 
@@ -448,17 +451,17 @@ void CocoaToDDLMgr::newSectPre_lv(std::string name)
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void CocoaToDDLMgr::lv(OpticalObject * opto)
 { 
-  std::string name = opto->name();
-  name = scrubString(name);
-  std::string rSolid = opto->name();
-  rSolid = scrubString(rSolid);
+  std::string name = opto->shortName();
+  //  name = scrubString(name);
+  std::string rSolid = opto->shortName();
+  //  rSolid = scrubString(rSolid);
   std::string sensitive = "unspecified";
 
   if( opto->type() == "system" ){
     file_ << " <LogicalPart name=\"" 
 	  <<  name << "\" category=\"" << sensitive << "\">" << std::endl
 	  << "  <rSolid name=\"" << rSolid << "\"/>" << std::endl
-	  << "  <rMaterial name=\"NONE\"" 
+	  << "  <rMaterial name=\"Hydrogen\"" 
 	  << "/>" << std::endl
 	  << " </LogicalPart>" << std::endl;			
     return;
@@ -498,22 +501,25 @@ void CocoaToDDLMgr::newSectPre_pv(std::string name)
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void CocoaToDDLMgr::pv(OpticalObject * opto)
 {
-   #ifdef gdebug_v
-    cout << "  pv:" << opto->name() 
-	 << ':' << opto->parent()->name() << std::endl;
-   #endif
+#ifdef gdebug_v
+  cout << "  pv:" << opto->name() 
+       << ':' << opto->parent()->name() << std::endl;
+#endif
 
+  //  int copyNo = findCopyNo( opto ); 
+  int copyNo = 1; 
+   
     //   file_ << " <PosPart copyNumber=\"" << pv->GetCopyNo() << "\">" << std::endl; 
-   file_ << " <PosPart copyNumber=\"" << "1" << "\">" << std::endl; 
+   file_ << " <PosPart copyNumber=\"" << copyNo << "\">" << std::endl; 
    file_ << "   <rParent name=\"";
 
    //t   if (file!=filename_) file_ << file << ":";
    
-   file_ << scrubString( opto->parent()->name()) << "\"/>" << std::endl;
+   file_ << ( opto->parent()->shortName()) << "\"/>" << std::endl;
 
    file_ << "   <rChild name=\""; 
    //t  if (file_d != filename_)  file_<<  file_d << ":"; 	
-   file_ << scrubString(opto->name()) ;	
+   file_ << (opto->shortName()) ;	
    file_ << "\"/>" << std::endl;
    
    int rotNumber = buildRotationNumber( opto );
@@ -599,7 +605,7 @@ void CocoaToDDLMgr::newSectPre_specPar(std::string name)
 void CocoaToDDLMgr::specPar(OpticalObject * opto)
 {
   
-  file_ << " <SpecPar name=\"" << opto->name() << "\">" << std::endl;
+  file_ << " <SpecPar name=\"//" << opto->name() << "\">" << std::endl;
   const std::vector< Entry* > coord = opto->CoordinateEntryList();
   for( int ii=0; ii<6; ii++ ){
     Entry* ent = coord[ii];
@@ -704,12 +710,31 @@ ALIbool CocoaToDDLMgr::materialIsRepeated( CocoaMaterialElementary* ma )
 }
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+bool CocoaToDDLMgr::findInPreviousOptOs( std::vector< OpticalObject* >::const_iterator itePrev )
+{
+  bool bFound = false;
+
+  std::vector< OpticalObject* >::const_iterator ite;
+  std::vector< OpticalObject* > optolist = Model::OptOList();
+  for(ite = optolist.begin(); *ite != *itePrev; ite++ ){
+    if( (*ite)->shortName() == (*itePrev)->shortName() ){
+      std::cout << " CocoaToDDLMgr::findInPreviousOptOs true " << (*ite)->name() << " " << (*itePrev)->name() << std::endl;
+      bFound = true;
+      break;
+    }
+  }
+  
+  return bFound;
+}
+
+
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 std::string CocoaToDDLMgr::scrubString(const std::string& s)
 {
   std::string::const_iterator ampat;
   static const std::string amp = "_"; //"&amp;";
   std::string ret = "";
-  for (ampat = s.begin(); ampat !=  s.end(); ampat++)
+  for (ampat = s.begin(); ampat != s.end(); ampat++)
     {
      if (*ampat == '&')
        ret = ret + amp;
@@ -719,6 +744,7 @@ std::string CocoaToDDLMgr::scrubString(const std::string& s)
        ret = ret + '_';
      else
        ret = ret + *ampat;
+     std::cout << s << "scrubString adding " << ret << " " << *ampat << std::endl;
     }
   // this works when used alone.  when in this file it fails.  i don't know why.
   //for (ampat = s.begin(); ampat != s.end(); ampat++)

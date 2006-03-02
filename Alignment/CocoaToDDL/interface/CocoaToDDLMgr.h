@@ -11,7 +11,6 @@
 #define _CocoaToDDLMgr_HH
 
 #include <map>
-//#include <fstream>
 #include "OpticalAlignment/CocoaUtilities/interface/ALIFileOut.h"
 
 #include "OpticalAlignment/CocoaUtilities/interface/CocoaGlobals.h"
@@ -67,6 +66,7 @@ public:
   ALIbool materialIsRepeated( CocoaMaterialElementary* ma );
   ALIint buildRotationNumber( OpticalObject* opto );
 
+  bool findInPreviousOptOs( std::vector< OpticalObject* >::const_iterator itePrev );
   std::string scrubString(const std::string& s);
 
 private:
@@ -78,6 +78,7 @@ private:
   std::vector<CocoaMaterialElementary*> theMaterialList;
   std::vector<HepRotation> theRotationList;
 
+  std::map< std::string, std::string > theSpecParNames;
 };
 #endif
 
