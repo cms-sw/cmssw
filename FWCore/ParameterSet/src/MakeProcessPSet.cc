@@ -47,7 +47,7 @@ namespace {
   {
     if(n->type()=="operand")
       {
-	out.push_back(n->name());
+	out.push_back(n->name);
       }
     else if(n->type()=="&")
       {
@@ -89,8 +89,8 @@ namespace {
       else names.push_back(*nameIt);		  
     }//
 
-    out->insert(true,n->name(),Entry(names,true));
-    paths.push_back(n->name()); // add to the list of paths
+    out->insert(true,n->name,Entry(names,true));
+    paths.push_back(n->name); // add to the list of paths
 
   } // fillPath(..) 
 
@@ -99,7 +99,7 @@ namespace {
     
     Strs names;
     getNames(n->wrapped_.get(), names);
-    sequences[n->name()] = names;
+    sequences[n->name] = names;
 
   }
 

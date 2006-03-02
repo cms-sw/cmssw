@@ -132,7 +132,7 @@ namespace edm
       ostringstream tuple;
 
       tuple << "'"
-	    << n.name() << "': ('"
+	    << n.name << "': ('"
 	    << n.type() << "', ";
       write_trackedness(tuple, n.tracked_);
       tuple << ", ";
@@ -159,7 +159,7 @@ namespace edm
       ostringstream tuple;
 
       tuple << "'"
-	    << n.name() << "': ('"
+	    << n.name << "': ('"
 	    << n.type() << "', ";
 
       write_trackedness(tuple, n.tracked_);
@@ -240,7 +240,7 @@ namespace edm
       MYDEBUG(5) << "Saw a PSetNode\n";
       if ( "process" == n.type() )
 	{
-	  procname_ = n.name();
+	  procname_ = n.name;
 	  n.acceptForChildren(*this);
 
 	  MYDEBUG(4) << "\nprocess name: " << procname_
@@ -255,7 +255,7 @@ namespace edm
 	  // be written a named parameter.
 	  ostringstream out;
 	  out << "'" 
-	      << n.name() 
+	      << n.name 
 	      << "': ('PSet', 'tracked', ";
 
 	  moduleStack_.top() += out.str();
@@ -270,7 +270,7 @@ namespace edm
       else
 	{
 	  MYDEBUG(5) << "weird thing: "
-		     << n.type() << " " << n.name() << '\n';
+		     << n.type() << " " << n.name << '\n';
 	}
 
     }
@@ -281,7 +281,7 @@ namespace edm
       MYDEBUG(5) << "Saw a VPSetNode\n";
       ostringstream out;
       out << "'"
-	  << n.name()
+	  << n.name
 	  << "': ('VPSet', 'tracked', [";
       moduleStack_.top() += out.str();
 
@@ -300,7 +300,7 @@ namespace edm
     PythonFormWriter::visitModule(const ModuleNode& n)
     { 
       MYDEBUG(5) << "Saw a ModuleNode, name: " 
-		 << n.name() << '\n';
+		 << n.name << '\n';
 
       ostringstream header;
 
@@ -316,19 +316,19 @@ namespace edm
           string prefix("");
           string label("");
           string name("@");
-          if((n.type() == "es_module" && n.name()!="nameless" ||
-              n.type() == "es_source" && n.name()!="main_es_input") ||
-              n.type() == "es_prefer" && n.name()!="nameless")
+          if((n.type() == "es_module" && n.name!="nameless" ||
+              n.type() == "es_source" && n.name!="main_es_input") ||
+              n.type() == "es_prefer" && n.name!="nameless")
           {
-             label = n.name();
-             name += n.name();
+             label = n.name;
+             name += n.name;
           }
           if(n.type() =="es_prefer") {
             prefix = "esprefer_";
           }
 	  header <<"'"<< prefix << n.class_ <<name<<"': { '@label': ('string','tracked', '" <<label<<"'), ";
 	}
-      else if (n.type() == "source" && n.name().empty())
+      else if (n.type() == "source" && n.name.empty())
 	{
 	  // no header to write...
 	}
@@ -338,7 +338,7 @@ namespace edm
         }
       else
 	{
-	  header << "'" << n.name() << "': {";
+	  header << "'" << n.name << "': {";
 	}
       header << "'@classname': ('string', 'tracked', '"
 	     << n.class_
@@ -357,7 +357,7 @@ namespace edm
       if ( n.type() == "module" && 
 	   looks_like_an_output_module(n.class_) )
 	{
-	  outputModuleNames_.push_back(n.name());
+	  outputModuleNames_.push_back(n.name);
 	}
 
       moduleStack_.push(header.str());
@@ -392,7 +392,7 @@ namespace edm
     PythonFormWriter::visitWrapper(const WrapperNode& n)
     {
       ostringstream header;
-      header<<"'"<<n.name()<<"' : '";
+      header<<"'"<<n.name<<"' : '";
       moduleStack_.push(header.str());
       
       //processes the node held by the wrapper
@@ -402,7 +402,7 @@ namespace edm
       modules_[n.type_].push_back(moduleStack_.top());
       moduleStack_.pop();
       MYDEBUG(5) << "Saw a WrapperNode, name: "
-		 << n.name() << '\n';
+		 << n.name << '\n';
     }
     
     void 
@@ -417,7 +417,7 @@ namespace edm
     void 
     PythonFormWriter::visitOperand(const OperandNode& n)
     {
-      moduleStack_.top()+=n.name();
+      moduleStack_.top()+=n.name;
     }
 
 

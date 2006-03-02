@@ -65,26 +65,28 @@ namespace edm {
       {
         // verify this is a local name - only way now is
         // to test if first char is not '/' and not "0x"
-        if(n.name_[0]=='/' || (n.name_[0]=='0'&&n.name_[1]=='x'))
+	string nodename = n.name;
+        if(nodename[0]=='/' || 
+	   (nodename[0]=='0'&&nodename[1]=='x'))
           {
             throw edm::Exception(errors::Configuration,"UsingError")
               << "ParameterSet: found problem while processing a using statement.\n"
-              << "at line: " << n.line_ << " with name " << n.name() << "\n"
+              << "at line: " << n.line << " with name " << n.name << "\n"
               << "'using' currently only supports local names"
               << endl;
           }
 
-        // look for name_ in stack of PSets, then add its nodes into
+        // look for name in stack of PSets, then add its nodes into
         // the current pset we are building (top of stack)
-        //cout << "using " << n.name_ << endl;
-         NamedPSets::const_iterator itToUse = blocks_.find(n.name_);
+        //cout << "using " << nodename << endl;
+         NamedPSets::const_iterator itToUse = blocks_.find(nodename);
          if(itToUse == blocks_.end()) {
-            itToUse = psets_.find(n.name_);
+            itToUse = psets_.find(nodename);
             if(itToUse == psets_.end()) {
                throw edm::Exception(errors::Configuration,"UsingError")
                  << "Parameter: found problem while processing a using statement.\n"
                  << "could not find a Block or ParameterSet named '"
-                 << n.name_ << "' used on line " << n.line_;
+                 << nodename << "' used on line " << n.line;
             }
          }
          main_->augment(*(itToUse->second));
@@ -117,27 +119,27 @@ namespace edm {
        if(n.type_=="string")
          {
            string usethis(withoutQuotes(n.value_));
-           main_->insert(false, n.name_, Entry(usethis, !n.tracked_));
+           main_->insert(false, n.name, Entry(usethis, !n.tracked_));
          }
        else if (n.type_=="FileInPath")
 	 {
 	   edm::FileInPath fip(withoutQuotes(n.value_));
-	   main_->insert(false, n.name_, Entry(fip, !n.tracked_));
+	   main_->insert(false, n.name, Entry(fip, !n.tracked_));
 	 }
        else if(n.type_=="double")
          {
            double d = strtod(n.value_.c_str(),0);
-           main_->insert(false, n.name_, Entry(d, !n.tracked_));
+           main_->insert(false, n.name, Entry(d, !n.tracked_));
          }
        else if(n.type_=="int32")
          {
            int d = atoi(n.value_.c_str());
-           main_->insert(false, n.name_, Entry(d, !n.tracked_));
+           main_->insert(false, n.name, Entry(d, !n.tracked_));
          }
        else if(n.type_=="uint32")
          {
            unsigned int d = strtoul(n.value_.c_str(),0,10);
-           main_->insert(false, n.name_, Entry(d, !n.tracked_));
+           main_->insert(false, n.name, Entry(d, !n.tracked_));
          }
        else if(n.type_=="bool")
          {
@@ -146,7 +148,7 @@ namespace edm {
               n.value_=="1" || n.value_=="on" || n.value_=="On")
              d = true;
 
-           main_->insert(false, n.name_, Entry(d, !n.tracked_));
+           main_->insert(false, n.name, Entry(d, !n.tracked_));
          }
       } 
 
@@ -160,39 +162,39 @@ namespace edm {
          {
            vector<string> usethis;
            for(;ib!=ie;++ib) usethis.push_back(withoutQuotes(*ib));
-           main_->insert(false, n.name_, Entry(usethis, !n.tracked_));
+           main_->insert(false, n.name, Entry(usethis, !n.tracked_));
          }
        else if(n.type_=="vdouble")
          {
            vector<double> d ;
            for(ib=k;ib!=ie;++ib) d.push_back(strtod(ib->c_str(),0));
-           main_->insert(false, n.name_, Entry(d, !n.tracked_));
+           main_->insert(false, n.name, Entry(d, !n.tracked_));
          }
        else if(n.type_=="vint32")
          {
            vector<int> d ;
            for(ib=k;ib!=ie;++ib) d.push_back(atoi(ib->c_str()));
-           main_->insert(false, n.name_, Entry(d, !n.tracked_));
+           main_->insert(false, n.name, Entry(d, !n.tracked_));
          }
        else if(n.type_=="vuint32")
          {
            vector<unsigned int> d ;
            for(ib=k;ib!=ie;++ib) d.push_back(strtoul(ib->c_str(),0,10));
-           main_->insert(false, n.name_, Entry(d, !n.tracked_));
+           main_->insert(false, n.name, Entry(d, !n.tracked_));
          }
       }
 
       void BuilderPSet::visitPSetRef(const PSetRefNode& n)
       {
-        //cout << n.name_ << " " << n.value_ << endl;
+        //cout << n.name << " " << n.value_ << endl;
          NamedPSets::const_iterator itPSet = psets_.find(n.value_);
          if(itPSet == psets_.end()) {
             throw edm::Exception(errors::Configuration,"PSetRefError")
               << "ParameterSet: problem processing reference.\n"
               << "could not find ParameterSet named '"
-              << n.name_ << "' used on line " << n.line_;
+              << n.name << "' used on line " << n.line;
          }
-         main_->insert(false, n.name_, Entry(*(itPSet->second), !n.tracked_));
+         main_->insert(false, n.name, Entry(*(itPSet->second), !n.tracked_));
       }
 
       void BuilderPSet::visitContents(const ContentsNode& n)
@@ -204,31 +206,31 @@ namespace edm {
 
       void BuilderPSet::visitPSet(const PSetNode& n)
       {
-        //cout << n.type_ << " " << n.name_ << " ";
+        //cout << n.type_ << " " << n.name << " ";
 	// The following test is inappropriate. ParameterSets are allowed to be empty.
 //         if(n.value_.value_->empty()==true)
 //           {
 //             throw edm::Exception(errors::Configuration,"PSetError")
 //               << "ParameterSets: problem processing parameter set.\n"
 //               << "A parameter cannot be empty."
-//               << " name = " << n.name();
+//               << " name = " << n.name;
 //           }
          boost::shared_ptr<ParameterSet> newPSet = makePSet(*(n.value_.value_),
                                                         blocks_,
                                                         psets_);
          
-         main_->insert(false, n.name_, Entry(*newPSet, !n.tracked_)); 
+         main_->insert(false, n.name, Entry(*newPSet, !n.tracked_)); 
          //n.acceptForChildren(*this);
       }
 
       void BuilderPSet::visitVPSet(const VPSetNode& n)
       {
-        //cout << n.type_ << " " << n.name_ << " ";
+        //cout << n.type_ << " " << n.name << " ";
         //n.acceptForChildren(*this);
          std::vector<ParameterSet> sets;
          BuilderVPSet builder(sets, blocks_, psets_);
          n.acceptForChildren(builder);
-         main_->insert(false, n.name_, Entry(sets, !n.tracked_));
+         main_->insert(false, n.name, Entry(sets, !n.tracked_));
       }
 
         void BuilderPSet::visitModule(const ModuleNode& iNode) 
@@ -243,7 +245,7 @@ namespace edm {
 //               throw edm::Exception(errors::Configuration,"PSetError")
 //                 << "An illegal entry has been found within a module declaration"
 //                 << "\ntype: " << iNode.type()
-//                 << "\nname: " << iNode.name();
+//                 << "\nname: " << iNode.name;
 //             }
 
           edm::pset::NamedPSets dummyBlocks;
@@ -254,12 +256,12 @@ namespace edm {
                                                                 dummyPSets);
 
       //     std::cerr << "..... module_type is: " << iNode.class_ << '\n';
-      //     std::cerr << "..... module_label is: " << iNode.name_ << '\n';
+      //     std::cerr << "..... module_label is: " << iNode.name << '\n';
 
           modulePSet->insert(false, "@module_type", Entry(iNode.class_, true));
-          modulePSet->insert(false, "@module_label", Entry(iNode.name_, true));
+          modulePSet->insert(false, "@module_label", Entry(iNode.name, true));
 
-          main_->insert(false, iNode.name(), Entry(*modulePSet, true));
+          main_->insert(false, iNode.name, Entry(*modulePSet, true));
          }
 
 

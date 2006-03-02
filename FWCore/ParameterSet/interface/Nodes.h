@@ -26,23 +26,26 @@ namespace edm {
 
     struct Visitor;
 
-
     // Base type for all nodes.  All nodes have a type associated
     // with them - this is basically the keyword that caused the
     // generation of this node.  All nodes have a name - this is the
     // name assigned to the entity
 
-    struct  Node
+    struct Node
     {
+      Node(std::string const& n, int li) : name(n), line(li) { }
       typedef boost::shared_ptr<Node> Ptr;
 
       virtual std::string type() const = 0;
-      virtual std::string name() const = 0;
+
       virtual void  setParent(Node* /* parent */) { } 
       virtual Node* getParent() { return 0; } 
       virtual void print(std::ostream& ost) const = 0;
       virtual ~Node();
       virtual void accept(Visitor& v) const = 0;
+
+      std::string name;
+      int         line;
     };
 
     typedef boost::shared_ptr<Node>        NodePtr;
@@ -73,13 +76,8 @@ namespace edm {
     {
       explicit UsingNode(const std::string& name,int line=-1);
       virtual std::string type() const;
-      virtual std::string name() const;
       virtual void print(std::ostream& ost) const;
-
       virtual void accept(Visitor& v) const;
-
-      std::string name_;
-      int line_;
     };
 
     /*
@@ -91,18 +89,17 @@ namespace edm {
     {
       explicit StringNode(const std::string& value, int line=-1);
       virtual std::string type() const;
-      virtual std::string name() const;
       virtual void print(std::ostream& ost) const;
-
       virtual void accept(Visitor& v) const;
 
       std::string value_;
-      int line_;
     };
 
     /*
       -----------------------------------------
       Entries hold: bool, int32, uint32, double, string, and using
+      This comment may be wrong. 'using' statements create UsingNodes,
+      according to the rules in pset_parse.y
     */
 
     struct EntryNode : public Node
@@ -110,16 +107,13 @@ namespace edm {
       EntryNode(const std::string& type, const std::string& name,
 		const std::string& values, bool tracked, int line=-1);
       virtual std::string type() const;
-      virtual std::string name() const;
       virtual void print(std::ostream& ost) const;
 
       virtual void accept(Visitor& v) const;
 
       std::string type_;
-      std::string name_;
       std::string value_;
       bool tracked_;
-      int line_;
     };
 
     /*
@@ -132,16 +126,13 @@ namespace edm {
       VEntryNode(const std::string& typ, const std::string& name,
 		 StringListPtr values,bool tracked, int line=-1);
       virtual std::string type() const;
-      virtual std::string name() const;
       virtual void print(std::ostream& ost) const;
 
       virtual void accept(Visitor& v) const;
 
       std::string type_;
-      std::string name_;
       StringListPtr value_;
       bool tracked_;
-      int line_;
     };
 
     /*
@@ -156,15 +147,12 @@ namespace edm {
 		  bool tracked,
 		  int line=-1);
       virtual std::string type() const;
-      virtual std::string name() const;
       virtual void print(std::ostream& ost) const;
 
       virtual void accept(Visitor& v) const;
 
-      std::string name_;
       std::string value_;
       bool tracked_;
-      int line_;
     };
 
     /*
@@ -176,14 +164,12 @@ namespace edm {
     {
       explicit ContentsNode(NodePtrListPtr value, int line=-1);
       virtual std::string type() const;
-      virtual std::string name() const;
       virtual void print(std::ostream& ost) const;
 
       virtual void accept(Visitor& v) const;
       void acceptForChildren(Visitor& v) const;
 
       NodePtrListPtr value_;
-      int line_;
     };
 
     typedef boost::shared_ptr<ContentsNode> ContentsNodePtr;
@@ -201,17 +187,14 @@ namespace edm {
 	       bool tracked,
 	       int line=-1);
       virtual std::string type() const;
-      virtual std::string name() const;
       virtual void print(std::ostream& ost) const;
 
       virtual void accept(Visitor& v) const;
       void acceptForChildren(Visitor& v) const;
 
       std::string type_;
-      std::string name_;
       ContentsNode value_;
       bool tracked_;
-      int line_;
     };
 
     /*
@@ -236,17 +219,14 @@ namespace edm {
 		bool tracked,
 		int line=-1);
       virtual std::string type() const;
-      virtual std::string name() const;
       virtual void print(std::ostream& ost) const;
 
       virtual void accept(Visitor& v) const;
       void acceptForChildren(Visitor& v) const;
 
       std::string type_;
-      std::string name_;
       NodePtrListPtr value_;
       bool tracked_;
-      int line_;
     };
 
     /*
@@ -267,7 +247,6 @@ namespace edm {
       OperatorNode(const std::string& t, NodePtr left, NodePtr right, int line=-1);
 
       virtual std::string type() const;
-      virtual std::string name() const;
       virtual void print(std::ostream& ost) const;
 
       virtual void accept(Visitor& v) const;
@@ -276,11 +255,9 @@ namespace edm {
       virtual Node* getParent(); 
 
       std::string type_;
-      std::string name_;
       NodePtr left_;
       NodePtr right_;
       Node*   parent_;
-      int line_;
     };
 
     /*
@@ -293,7 +270,6 @@ namespace edm {
       OperandNode(const std::string& type, const std::string& name, int line=-1);
 
       virtual std::string type() const;
-      virtual std::string name() const;
       virtual void print(std::ostream& ost) const;
   
       virtual void accept(Visitor& v) const;
@@ -303,8 +279,6 @@ namespace edm {
 
       Node* parent_;
       std::string type_;
-      std::string name_;
-      int line_;
     };
 
     /*
@@ -319,15 +293,12 @@ namespace edm {
 		  NodePtr w, int line=-1);
 
       virtual std::string type() const;
-      virtual std::string name() const;
       virtual void print(std::ostream& ost) const;
 
       virtual void accept(Visitor& v) const;
 
       std::string type_;
-      std::string name_;
       NodePtr wrapped_;
-      int line_;
     };
 
     /*
@@ -342,17 +313,14 @@ namespace edm {
 		 NodePtrListPtr nl,int line=-1);
 
       virtual std::string type() const;
-      virtual std::string name() const;
       virtual void print(std::ostream& ost) const;
 
       virtual void accept(Visitor& v) const;
       void acceptForChildren(Visitor& v) const;
 
       std::string type_;
-      std::string name_;
       std::string class_;
       NodePtrListPtr nodes_;
-      int line_;
     };
 
     // ------------------------------------------------

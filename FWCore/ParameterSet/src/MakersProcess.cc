@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 18 19:09:01 EDT 2005
-// $Id: MakersProcess.cc,v 1.17 2006/01/31 21:03:05 paterno Exp $
+// $Id: MakersProcess.cc,v 1.18 2006/02/07 22:20:57 paterno Exp $
 //
 
 // system include files
@@ -98,9 +98,9 @@ namespace edm {
 	    boost::shared_ptr<edm::ParameterSet> tmp_pset = 
 	      makePSet(*(iNode.value_.value_),usingBlocks_,pSets_);
 	    
-	    pSets_.insert(make_pair(iNode.name(), tmp_pset));
+	    pSets_.insert(make_pair(iNode.name, tmp_pset));
 	    
-	    pset_.insert(true, iNode.name() , Entry(*tmp_pset, !iNode.tracked_));
+	    pset_.insert(true, iNode.name , Entry(*tmp_pset, !iNode.tracked_));
 	    
 	  } 
 	else if (iNode.type() == kBlock) 
@@ -109,9 +109,9 @@ namespace edm {
 	      {
 		throw edm::Exception(errors::Configuration,"EmptySet")
 		  << "ParameterSet: Empty Blocks are not allowed.\n"
-		  << "name = " << iNode.name();
+		  << "name = " << iNode.name;
 	      }
-	    usingBlocks_.insert(make_pair(iNode.name(), makePSet(*(iNode.value_.value_),
+	    usingBlocks_.insert(make_pair(iNode.name, makePSet(*(iNode.value_.value_),
 								 usingBlocks_,
 								 pSets_)));
 	  }
@@ -125,7 +125,7 @@ namespace edm {
 	std::vector<ParameterSet> sets;
 	BuilderVPSet builder(sets, usingBlocks_, pSets_);
 	iNode.acceptForChildren(builder);
-	pset_.insert(false, iNode.name_, Entry(sets, !iNode.tracked_));
+	pset_.insert(false, iNode.name, Entry(sets, !iNode.tracked_));
       }
       virtual void visitModule(const edm::pset::ModuleNode& iNode) {
 	using namespace edm;
@@ -165,12 +165,12 @@ namespace edm {
       }
     private:
       std::string handleModule(const edm::pset::ModuleNode&iNode , edm::ParameterSet& oPSet) {
-	oPSet.insert(true, "@module_label", Entry(iNode.name_, true));
+	oPSet.insert(true, "@module_label", Entry(iNode.name, true));
 	oPSet.insert(true, "@module_type", Entry(iNode.class_,true));
-	return iNode.name_;
+	return iNode.name;
       }
       std::string handleSource(const edm::pset::ModuleNode&iNode , edm::ParameterSet& oPSet) {
-	std::string nodename = iNode.name_;
+	std::string nodename = iNode.name;
 	if (nodename.empty()) nodename = "@main_input";
 	oPSet.insert(true, "@module_label", Entry(nodename, true));
 	std::string type = iNode.class_;
@@ -180,8 +180,8 @@ namespace edm {
       }
       std::string handleESModule(const edm::pset::ModuleNode&iNode, edm::ParameterSet& oPSet) {
 	std::string label("");
-	if(iNode.name_ != "nameless") {
-	  label = iNode.name_;
+	if(iNode.name != "nameless") {
+	  label = iNode.name;
 	}
 	oPSet.insert(true, "@module_label", Entry(label, true));
 	oPSet.insert(true, "@module_type", Entry(iNode.class_,true));
@@ -193,8 +193,8 @@ namespace edm {
       }
       std::string handleESSource(const edm::pset::ModuleNode&iNode, edm::ParameterSet& oPSet) {
 	std::string label("");
-	if(iNode.name_ != "main_es_input") {
-	  label = iNode.name_;
+	if(iNode.name != "main_es_input") {
+	  label = iNode.name;
 	}
 	oPSet.insert(true, "@module_label", Entry(label, true));
 	oPSet.insert(true, "@module_type", Entry(iNode.class_,true));
@@ -203,8 +203,8 @@ namespace edm {
        std::string handleESPrefer(const edm::pset::ModuleNode&iNode, edm::ParameterSet& oPSet) {
           std::string label("");
           static const std::string kPrefix("esprefer_");
-          if(iNode.name_ != "nameless") {
-             label = iNode.name_;
+          if(iNode.name != "nameless") {
+             label = iNode.name;
           }
           oPSet.insert(true, "@module_label", Entry(label, true));
           oPSet.insert(true, "@module_type", Entry(iNode.class_,true));
@@ -249,9 +249,9 @@ namespace edm {
 	    << "ParameterSet: "
 	    << "The configuration does not start with a 'process' block.\n"
 	    << "found type " << iNode.type()
-	    << " with name " << iNode.name();
+	    << " with name " << iNode.name;
 	}
-	procDesc_->pset_.insert(true, "@process_name", edm::Entry(iNode.name(), true));
+	procDesc_->pset_.insert(true, "@process_name", edm::Entry(iNode.name, true));
       
 	FillProcess handleChildren(procDesc_->pset_, procDesc_->pathFragments_, procDesc_->services_);
       

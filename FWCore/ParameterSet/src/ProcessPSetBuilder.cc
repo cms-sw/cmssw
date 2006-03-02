@@ -3,11 +3,11 @@
    Implementation of calss ProcessPSetBuilder
 
    \author Stefano ARGIRO
-   \version $Id: ProcessPSetBuilder.cc,v 1.9 2005/12/07 22:05:50 paterno Exp $
+   \version $Id: ProcessPSetBuilder.cc,v 1.10 2006/01/24 21:15:12 jbk Exp $
    \date 17 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ProcessPSetBuilder.cc,v 1.9 2005/12/07 22:05:50 paterno Exp $";
+static const char CVSId[] = "$Id: ProcessPSetBuilder.cc,v 1.10 2006/01/24 21:15:12 jbk Exp $";
 
 
 #include <FWCore/ParameterSet/interface/ProcessPSetBuilder.h>
@@ -67,7 +67,7 @@ namespace edm
 	++pathIt){
      
       if ((*pathIt)->type()=="sequence") {
-	sequences[(*pathIt)->name()]= (*pathIt);
+	sequences[(*pathIt)->name]= (*pathIt);
       }
      
       if ((*pathIt)->type()=="path") {
@@ -77,8 +77,8 @@ namespace edm
       }
 
       if ((*pathIt)->type()=="endpath") {
-	//cout << "got endpath = " << (*pathIt)->name() << endl;
-	//cout << "pointer = " << typeid(*(*pathIt)->wrapped_.get()).name() << endl;
+	//cout << "got endpath = " << (*pathIt)->name << endl;
+	//cout << "pointer = " << typeid(*(*pathIt)->wrapped_.get()).name << endl;
 	sequenceSubstitution((*pathIt)->wrapped_, sequences);
 	//fillPath((*pathIt),pathnames,&processDesc_->pset_);
 	fillPath((*pathIt),endpaths,&processDesc_->pset_);
@@ -127,7 +127,7 @@ namespace edm
   void 
   ProcessPSetBuilder::getNames(const edm::pset::Node* n, Strs& out){
     if(n->type()=="operand"){ 
-      out.push_back(n->name());
+      out.push_back(n->name);
     } else {	
       const edm::pset::OperatorNode& op = dynamic_cast<const edm::pset::OperatorNode&>(*n);
       getNames(op.left_.get(),out);
@@ -141,8 +141,8 @@ namespace edm
   
     Strs names;
     getNames(n->wrapped_.get(),names);    
-    out->insert(true,n->name(),Entry(names,true));
-    paths.push_back(n->name()); // add to the list of paths
+    out->insert(true,n->name,Entry(names,true));
+    paths.push_back(n->name); // add to the list of paths
   
   } // fillPath(..) 
 
@@ -152,7 +152,7 @@ namespace edm
 						SeqMap&  sequences){
   
     if (node->type()=="operand"){
-      SeqMap::iterator seqIt = sequences.find(node->name()); 
+      SeqMap::iterator seqIt = sequences.find(node->name); 
       if (seqIt!= sequences.end()){
 	node = seqIt->second->wrapped_;
       }
@@ -161,12 +161,12 @@ namespace edm
       edm::pset::OperatorNode* onode = dynamic_cast<edm::pset::OperatorNode*>(node.get());
     
     
-      SeqMap::iterator seqIt = sequences.find(onode->left_->name()); 
+      SeqMap::iterator seqIt = sequences.find(onode->left_->name); 
       if (seqIt!= sequences.end()) {
 	onode->left_= seqIt->second->wrapped_;
 	onode->left_->setParent(onode);
       }
-      seqIt = sequences.find(onode->right_->name()); 
+      seqIt = sequences.find(onode->right_->name); 
       if (seqIt!= sequences.end()){
 	onode->right_= seqIt->second->wrapped_; 
 	onode->right_->setParent(onode);
@@ -181,13 +181,13 @@ namespace edm
 
   void ProcessPSetBuilder::dumpTree(NodePtr& node){
     if(node->type()=="operand"){ 
-      cout << " Operand " << node->name()<< " p:";
-      if (node->getParent()) cout <<  node->getParent()->name();cout<< endl;
+      cout << " Operand " << node->name<< " p:";
+      if (node->getParent()) cout <<  node->getParent()->name;cout<< endl;
     } else{	
       edm::pset::OperatorNode* op = dynamic_cast<edm::pset::OperatorNode*>(node.get());
-      cout << " Operator: " << op->name()<<"["<<op->type()<<"]" 
+      cout << " Operator: " << op->name<<"["<<op->type()<<"]" 
 	   << " l:" << op->left_ << " r:"<<op->right_<< " p:";
-      if (op->parent_)cout<<  op->parent_->name();cout<< endl;
+      if (op->parent_)cout<<  op->parent_->name;cout<< endl;
       dumpTree(op->left_);
       dumpTree(op->right_);
     }

@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 18 15:43:02 EDT 2005
-// $Id: BuilderVPSet.cc,v 1.2 2005/06/23 19:57:22 wmtan Exp $
+// $Id: BuilderVPSet.cc,v 1.3 2005/07/14 16:17:23 jbk Exp $
 //
 
 // system include files
@@ -71,7 +71,7 @@ void BuilderVPSet::visitString(const StringNode& n)
       throw edm::Exception(errors::Configuration,"StringError")
 	<< "ParameterSet: problem processing string names.\n"
 	<< "Could not find ParameterSet named '"
-	<< n.value_ << "' used on line " << n.line_;
+	<< n.value_ << "' used on line " << n.line;
    }
    main_.push_back(*(itPSet->second));
 }

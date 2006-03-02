@@ -3,11 +3,11 @@
    Implementation of class ScheduleValidator
 
    \author Stefano ARGIRO
-   \version $Id: ScheduleValidator.cc,v 1.7 2005/09/08 04:34:06 jbk Exp $
+   \version $Id: ScheduleValidator.cc,v 1.8 2005/09/19 08:18:00 chrjones Exp $
    \date 10 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ScheduleValidator.cc,v 1.7 2005/09/08 04:34:06 jbk Exp $";
+static const char CVSId[] = "$Id: ScheduleValidator.cc,v 1.8 2005/09/19 08:18:00 chrjones Exp $";
 
 #include "FWCore/ParameterSet/src/ScheduleValidator.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -41,10 +41,10 @@ NodePtr ScheduleValidator::findPathHead(string pathName){
   // cout << "in findPathHead" << endl;
   for (PathContainer::iterator pathIt= nodes_.begin();
        pathIt!=nodes_.end();++pathIt){
-//cout << "  looking at " << (*pathIt)->type() << " " << (*pathIt)->name() << endl;
+//cout << "  looking at " << (*pathIt)->type() << " " << (*pathIt)->name << endl;
     if ((*pathIt)->type()!="path" &&
         (*pathIt)->type()!="endpath") continue;
-    if ((*pathIt)->name()==pathName) return ((*pathIt)->wrapped_);
+    if ((*pathIt)->name==pathName) return ((*pathIt)->wrapped_);
 
   }// for
   //cout << "did not find " << pathName << endl;
@@ -99,7 +99,7 @@ void ScheduleValidator::validate(){
 
       OperatorNode* node = dynamic_cast<OperatorNode*>(p);
       // make sure we don't redescend where we came from
-      if (son->name() != node->left_->name()) findDeps(node->left_, dep);
+      if (son->name != node->left_->name) findDeps(node->left_, dep);
       
       son=p;
       p= p->getParent();
@@ -109,7 +109,7 @@ void ScheduleValidator::validate(){
     dep.unique(); // removes duplicates
 
     // insert the list of deps
-    Dependencies::iterator depIt= dependencies_.find((*leafIt)->name());
+    Dependencies::iterator depIt= dependencies_.find((*leafIt)->name);
     if (depIt!= dependencies_.end()){
       DependencyList& old_deplist = (*depIt).second;
     
@@ -125,7 +125,7 @@ void ScheduleValidator::validate(){
 
 	throw edm::Exception(errors::Configuration,"InconsistentSchedule")
 	  << "Inconsistent schedule for module "
-	  << (*leafIt)->name()
+	  << (*leafIt)->name
 	  << "\n"
 	  << "Depends on " << olddepstr.str() 
 	  << " but also on " << newdepstr.str()
@@ -133,7 +133,7 @@ void ScheduleValidator::validate(){
       }
     }
     else {
-      dependencies_[(*leafIt)->name()] = dep;
+      dependencies_[(*leafIt)->name] = dep;
     }
 
   }//for leaf
@@ -143,7 +143,7 @@ void ScheduleValidator::validate(){
 void ScheduleValidator::findDeps(NodePtr& node, DependencyList& dep){
 
   // if we have an operand, add it to the list of dependencies
-  if (node->type() =="operand") dep.push_back(node->name());
+  if (node->type() =="operand") dep.push_back(node->name);
   // else follow the tree, unless the leaf is contained in the node
   else{
 
