@@ -1,3 +1,8 @@
+/*
+ Author: Stan Durkin
+ 
+*/
+
 #include <stdio.h>
 #include <math.h>
 
@@ -27,14 +32,13 @@ class AutoCorrMat{
     for(int i=0;i<12;i++){
       N[i]=N[i]+1;
       Mat[i]=Mat[i]+(adc[pairs[i][0]]-ped)*(adc[pairs[i][1]]-ped);
+      
     }
   }
 
   float *mat(){
     float *tmp;
     for(int i=0;i<12;i++)tMat[i]=Mat[i]/N[i];
-    // printf(" Mat N %f %f \n",Mat[0],N[0]);
-    // for(int i=0;i<12;i++)printf(" %f",tMat[i]);printf("\n");
     tmp=tMat;
     return tmp; 
  }
@@ -62,7 +66,6 @@ class Chamber_AutoCorrMat{
   }
 
   void add(int lay,int strip,int *adc){
-    // printf(" lay strip %d %d %d %d \n",lay,strip,adc[0],adc[1]);
     CMat[lay][strip].add(adc);
   } 
 
@@ -70,8 +73,6 @@ class Chamber_AutoCorrMat{
     float *tmp;
     tmp=m;
     tmp=CMat[lay][strip].mat();
-    //printf("CMAT:");
-    //for(int i=0;i<12;i++)printf(" %f",tmp[i]);printf("\n");
     return tmp;
   }
 
