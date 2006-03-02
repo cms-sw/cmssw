@@ -13,8 +13,10 @@ for object in HcalPedestals HcalPedestalWidths HcalGains HcalGainWidths HcalElec
 do
     echo processing $object...
     # making template
-    template_name=mapping_template_$object.xml
-    rm -f $template_name
+    template_name=mapping-template-$object-default.xml
+    defaultname=$object-mapping-default.xml
+    outname=$object"-mapping-custom.xml"
+    rm -f $template_name $defaultname $outname
     echo "<?xml version='1.0' encoding='UTF-8'?>" > $template_name
     echo "<!DOCTYPE Mapping SYSTEM 'InMemory'>" >> $template_name
     echo "<Mapping version='"$object"-"$version"' >" >> $template_name
@@ -24,7 +26,6 @@ do
 
     #processing template
     echo Generating mapping file for $object...
-    outname=$object"-mapping-custom.xml"
-    pool_build_object_relational_mapping -f $template_name -o $outname -d CondFormatsHcalObjects -c sqlite_file:trash.db -b -u whoever -p whatever
-
+    pool_build_object_relational_mapping -f $template_name -o $defaultname -d CondFormatsHcalObjects -c sqlite_file:trash.db -b -u whoever -p whatever
+    cp $defaultname $outname
 done
