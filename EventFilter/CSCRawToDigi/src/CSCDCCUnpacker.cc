@@ -69,7 +69,7 @@ CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset) :
   produces<CSCALCTDigiCollection>("MuonCSCALCTDigi");
   produces<CSCCLCTDigiCollection>("MuonCSCCLCTDigi");
   produces<CSCRPCDigiCollection>("MuonCSCRPCDigi");
-  produces<CSCCorrelatedLCTDigiCollection>("MuonCorrelatedLCTDigi");
+  produces<CSCCorrelatedLCTDigiCollection>("MuonCSCCorrelatedLCTDigi");
 
  
   CSCAnodeData::setDebug(debug);
@@ -226,6 +226,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 		  }
 		} else edm::LogError("CSCDCCUnpacker") <<" TMBData check size failed!";
 	     
+		
 		/// fill correlatedlct product
 		if (cscData[iCSC].tmbHeader().check()) {
 		  std::vector <CSCCorrelatedLCTDigi> correlatedlctDigis =
@@ -235,6 +236,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 		  }
 		}
 
+		
 	      }
 
 	    }
