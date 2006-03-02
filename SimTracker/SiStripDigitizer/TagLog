@@ -1,3 +1,6 @@
+** V01-02-00  [Thu Mar  2 11:37:58 2006]
+Added StripDigiSimLink
+
 ** V01-01-07  [Tue Jan 31 22:55:37 2006]
 bug fix (memory leak)
 
