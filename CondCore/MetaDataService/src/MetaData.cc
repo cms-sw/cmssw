@@ -74,7 +74,7 @@ bool cond::MetaData::addMapping(const std::string& name, const std::string& iovt
   }catch( coral::DuplicateEntryInUniqueKeyException& er ){
     throw cond::MetaDataDuplicateEntryException("addMapping",name);
   }catch(seal::Exception& er){
-    throw cond::MetaDataDuplicateEntryException("addMapping",name);
+    throw cond::Exception(er.what());
   }catch(...){
     throw cond::Exception( "MetaData::addMapping Could not commit the transaction" );
   }
