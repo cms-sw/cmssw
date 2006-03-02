@@ -32,7 +32,9 @@ Generator::Generator(const ParameterSet & p) :
     theMaxPtCut(p.getParameter<double>("MaxPtCut")*MeV),   
     inputFileName(p.getUntrackedParameter<std::string>("InputFileName","Internal")),
     verbose(p.getUntrackedParameter<int>("Verbosity",0)),
-    evt_(0),vtx_(HepLorentzVector(0.,0.,0.,0.)),weight_(0),runNumber_(0)
+    evt_(0),
+    vtx_(0) ,
+    weight_(0),runNumber_(0)
 {
     if ( inputFileName == "Internal" )
     {
@@ -60,13 +62,25 @@ const HepMC::GenEvent * Generator::generateEvent()
     {
        evt_ = HepMC::readGenEvent(*inputFile);
     }
-    // vtx_ = HepLorentzVector(0.,0.,0.,0.);
     if (verbose>0) evt_->print();
     return evt_;
 }
 
 void Generator::HepMC2G4(const HepMC::GenEvent * evt, G4Event * g4evt)
 {	
+
+    if ( vtx_ != NULL ) delete vtx_ ;
+    vtx_ = new HepLorentzVector( (*(evt->vertices_begin()))->position() ) ;
+    
+    if ( verbose >  0 )
+    {
+       evt->print() ;
+       cout << " " << endl ;
+       cout << " Prim.Vtx : " << vtx_->x() << " " 
+                              << vtx_->y() << " "
+			      << vtx_->z() << endl ;
+    }
+
     int i = 0; 
     for(HepMC::GenEvent::particle_const_iterator it = evt->particles_begin(); 
 	it != evt->particles_end(); ++it )
@@ -150,7 +164,16 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt, G4Event * g4evt)
     } // end PMT it = pmap.begin();
 	
     // create G4PrimaryVertex and associated G4PrimaryParticles
-    G4PrimaryVertex * g4vtx = new G4PrimaryVertex(vtx_.x()*mm,vtx_.y()*mm,vtx_.z()*mm,vtx_.t()*mm/c_light);
+    // G4PrimaryVertex * g4vtx = new G4PrimaryVertex(vtx_.x()*mm,vtx_.y()*mm,vtx_.z()*mm,vtx_.t()*mm/c_light);
+    G4PrimaryVertex* g4vtx = new G4PrimaryVertex(vtx_->x()*mm,vtx_->y()*mm,vtx_->z()*mm,vtx_->t()*mm/c_light);
+    
+    if ( verbose > 0 )
+    {
+       cout << " G4PrimaryVertex : " << g4vtx->GetX0() << " "
+                                     << g4vtx->GetY0() << " "
+				     << g4vtx->GetZ0() << endl ;
+    }
+    
     // assign vertex particles
     for (PMT it = pmap.begin(); it != pmap.end(); ++it) 
     {
@@ -163,6 +186,7 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt, G4Event * g4evt)
     g4evt->AddPrimaryVertex(g4vtx);
 	
     pmap.clear();
+    
 }
 
 bool Generator::particlePassesPrimaryCuts(const G4PrimaryParticle * p) const

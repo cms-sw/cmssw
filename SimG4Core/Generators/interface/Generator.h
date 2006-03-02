@@ -32,8 +32,8 @@ public:
     void HepMC2G4(const HepMC::GenEvent * g,G4Event * e);
     // temp.method
     std::string genInputType() const { return inputFileName ; }
-    virtual const HepMC::GenEvent * genEvent() const { return evt_; }
-    virtual const HepLorentzVector genVertex() const { return vtx_; }
+    virtual const HepMC::GenEvent*  genEvent() const { return evt_; }
+    virtual const HepLorentzVector* genVertex() const { return vtx_; }
     virtual const double eventWeight() const { return weight_; }
     virtual void  runNumber(int r) { runNumber_ = r; }
     virtual const int runNumber() const { return runNumber_; }
@@ -53,8 +53,8 @@ private:
     double theMaxPtCut;
     std::string inputFileName;
     int verbose;
-    HepMC::GenEvent * evt_;
-    HepLorentzVector vtx_;
+    HepMC::GenEvent*  evt_;
+    HepLorentzVector* vtx_;
     double weight_;    
     int runNumber_;
     ParticleMapType pmap; 
