@@ -13,7 +13,8 @@ INCLUDES += -I../../ -I../../../ -I../../../../../
 SRCPATH   = ../src
 SRCS      = $(SRCPATH)/CSCALCTDigi.cc $(SRCPATH)/CSCCLCTDigi.cc\
             $(SRCPATH)/CSCWireDigi.cc $(SRCPATH)/CSCComparatorDigi.cc \
-	    $(SRCPATH)/CSCStripDigi.cc $(SRCPATH)/CSCRPCDigi.cc
+	    $(SRCPATH)/CSCStripDigi.cc $(SRCPATH)/CSCRPCDigi.cc \
+	    $(SRCPATH)/CSCCorrelatedLCTDigi.cc
 
 OBJS      = $(notdir $(SRCS:.cc=.o))
 
