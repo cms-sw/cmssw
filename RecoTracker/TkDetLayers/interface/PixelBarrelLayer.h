@@ -90,6 +90,7 @@ class PixelBarrelLayer : public RodBarrelLayer{
 
  private:
   vector<const PixelRod*> theRods;
+  vector<const GeometricSearchDet*> theComponents;
   vector<const PixelRod*> theInnerRods;
   vector<const PixelRod*> theOuterRods;
 

@@ -44,8 +44,7 @@ TIDRing::~TIDRing(){
 
 vector<const GeomDet*> 
 TIDRing::basicComponents() const{
-  cout << "temporary dummy implementation of TIDRing::basicComponents()!!" << endl;
-  return vector<const GeomDet*>();
+  return theDets;
 }
   
 pair<bool, TrajectoryStateOnSurface>

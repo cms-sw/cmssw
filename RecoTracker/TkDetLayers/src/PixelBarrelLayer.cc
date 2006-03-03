@@ -22,6 +22,11 @@ PixelBarrelLayer::PixelBarrelLayer(vector<const PixelRod*>& innerRods,
   theRods.assign(theInnerRods.begin(),theInnerRods.end());
   theRods.insert(theRods.end(),theOuterRods.begin(),theOuterRods.end());
 
+  for(vector<const PixelRod*>::const_iterator it=theRods.begin();it!=theRods.end();it++){
+    theComponents.push_back(*it);
+  }
+
+
   theInnerCylinder = cylinder( theInnerRods);
   theOuterCylinder = cylinder( theOuterRods);
 
@@ -50,11 +55,7 @@ PixelBarrelLayer::basicComponents() const{
 
 vector<const GeometricSearchDet*> 
 PixelBarrelLayer::components() const{
-  vector<const GeometricSearchDet*> tmp;
-  for(vector<const PixelRod*>::const_iterator it=theRods.begin();it!=theRods.end();it++){
-    tmp.push_back(*it);
-  }
-  return tmp;
+  return theComponents;
 }
 
 

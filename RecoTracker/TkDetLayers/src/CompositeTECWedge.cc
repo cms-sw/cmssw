@@ -40,8 +40,7 @@ CompositeTECWedge::~CompositeTECWedge(){
 
 vector<const GeomDet*> 
 CompositeTECWedge::basicComponents() const{
-  cout << "temporary dummy implementation of CompositeTECWedge::basicComponents()!!" << endl;
-  return vector<const GeomDet*>();
+  return theDets;
 }
 
 vector<const GeometricSearchDet*> 

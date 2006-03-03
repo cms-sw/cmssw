@@ -19,6 +19,10 @@ TECLayer::TECLayer(vector<const TECPetal*>& innerPetals,
   thePetals.assign(theFrontPetals.begin(),theFrontPetals.end());
   thePetals.insert(thePetals.end(),theBackPetals.begin(),theBackPetals.end());
 
+  for(vector<const TECPetal*>::const_iterator it=thePetals.begin();it!=thePetals.end();it++){
+    theComponents.push_back(*it);
+  }
+
 
   //This should be no necessary. TO BE CHECKED
   //sort(theFrontPetals.begin(), theFrontPetals.end(), PetalLessPhi());
@@ -55,8 +59,7 @@ TECLayer::basicComponents() const{
 
 vector<const GeometricSearchDet*> 
 TECLayer::components() const{
-  cout << "temporary dummy implementation of TECLayer::components()!!" << endl;
-  return vector<const GeometricSearchDet*>();
+  return theComponents;
 }
   
 pair<bool, TrajectoryStateOnSurface>
