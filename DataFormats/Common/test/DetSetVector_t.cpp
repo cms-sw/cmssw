@@ -1,5 +1,5 @@
 /*
- *  $Id: DetSetVector_t.cpp,v 1.1 2006/02/07 07:01:52 wmtan Exp $
+ *  $Id: DetSetVector_t.cpp,v 1.2 2006/02/13 22:23:18 wmtan Exp $
  *  CMSSW
  *
  */
@@ -154,11 +154,78 @@ void traitsTest()
   std::cerr << "\nEnd DetSetVector_t traitsTest()\n";  
 }
 
+#include "DataFormats/Common/interface/Ref.h"
+
+namespace {
+   template<class T>
+   struct DSVGetter : edm::EDProductGetter {
+      virtual EDProduct const* getIt(ProductID const&) const {
+         return prod_;
+      }
+      edm::Wrapper<T> const* prod_;
+
+   };
+   template<class T>
+      struct MyHandle {
+         typedef T element_type;
+         MyHandle(const T* iProd) : prod_(iProd) {}
+         ProductID id() const {return ProductID(1);}
+         const T* product() const {return prod_;}
+         const T* prod_;
+         const T* operator->() const {return prod_;}
+      };
+}
+
+void refTest()
+{
+   coll_type c;
+      detset    d3;
+      Value v1(1.1);
+      Value v2(2.2);
+      d3.id = edm::det_id_type(3);
+      d3.data.push_back(v1);
+      d3.data.push_back(v2);
+      c.insert(d3);
+      detset    d1;
+      Value v1a(4.1);
+      Value v2a(3.2);
+      d1.id = edm::det_id_type(1);
+      d1.data.push_back(v1a);
+      d1.data.push_back(v2a);
+      c.insert(d1);
+   c.post_insert();
+
+   std::auto_ptr<coll_type> pC( new coll_type(c) );
+   edm::Wrapper<coll_type> wrapper(pC);
+   DSVGetter<coll_type> theGetter;
+   theGetter.prod_ = &wrapper;
+   
+   typedef edm::Ref<coll_type,detset> RefDetSet;
+   typedef edm::Ref<coll_type,Value> RefDet;
+
+   {
+      RefDetSet refSet(edm::ProductID(1),0,&theGetter);
+      assert(!(d1 <*refSet) && !(*refSet < d1));
+   }
+   {
+      RefDetSet refSet(edm::ProductID(1),1,&theGetter);
+      assert(!(d3 <*refSet) && !(*refSet < d3));
+   }
+   {
+      RefDet refDet(edm::ProductID(1),2,&theGetter);
+      assert(!(v1<*refDet)&&!(*refDet < v1));
+   }
+   
+   MyHandle<coll_type> pc2(&c);
+   RefDet refDet = makeRefToDetSetVector(pc2,det_id_type(3),c[3].data.begin());
+   assert(!(v1<*refDet)&&!(*refDet < v1));
+}
 
 void work()
 {
   detsetTest();
   traitsTest();
+  refTest();
 
 
   coll_type c1;
