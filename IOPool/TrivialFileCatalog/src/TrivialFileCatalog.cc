@@ -5,6 +5,7 @@
 
 #include <set>
 #include <exception>
+#include <string>
 #ifndef POOL_TRIVIALFILECATALOG_H
 #include "IOPool/TrivialFileCatalog/interface/TrivialFileCatalog.h"
 #endif
@@ -20,70 +21,8 @@
 pool::TrivialFileCatalog::TrivialFileCatalog ()
     : m_connectionStatus (false),
       m_prefix ("/localscratch/data/"),
-      m_fileType ("ROOT_All"),
-      m_configFilename ("PoolCatalogConfig.txt")
+      m_fileType ("ROOT_All")
 {
-    if (getenv ("POOL_CATALOG"))
-    {
-	m_configFilename = getenv ("POOL_CATALOG");
-	if (m_configFilename.find ("trivialcatalog_file:") != std::string::npos)
-	{
-	    m_configFilename = m_configFilename.erase (0, 
-						       m_configFilename.find ("/") + 1);	
-	}
-	else
-	{
-	    throw FCTransactionException
-		("TrivialFileCatalog::TrivialFileCatalog",
-		 "Malformed url for file catalog configuration"); 
-	}
-	
-    }
-
-    std::cerr << m_configFilename << std::endl;    
-    
-    std::ifstream configFile;
-    configFile.open (m_configFilename.c_str ());
-
-    
-    PoolMessageStream trivialLog ("TrivialFileCatalog", seal::Msg::Nil );
-    trivialLog << seal::Msg::Info
-	       << "Using catalog configuration " 
-	       << m_configFilename << seal::endmsg;
-
-    char buffer[4096];
-    ASSERT (configFile.good ());
-    ASSERT (configFile.is_open ());
-    
-    while (! configFile.eof ())
-    {
-	configFile.getline (buffer, 4096);
-	std::string line = buffer;
-	
-	if (line != "")
-	{
-	    seal::StringList tokens = seal::StringOps::split (line, "=");
-
-	    if (tokens.size () != 2)
-	    {
-		throw FCTransactionException
-		    ("TrivialFileCatalog::TrivialFileCatalog",
-		     "Wrong configuration file"); 
-	    }	
-	   
-	    std::string parameter = tokens[0];
-	    std::string value = tokens[1];
-	
-	    if (parameter == "prefix")
-	    {
-		m_prefix = value;
-	    }
-	    else if (parameter == "type")
-	    {
-		m_fileType = value;
-	    }
-	}
-    }    
 }
 
 pool::TrivialFileCatalog::~TrivialFileCatalog ()
@@ -97,14 +36,76 @@ pool::TrivialFileCatalog::connect ()
     try
     {
 	PoolMessageStream trivialLog( "TrivialFileCatalog", seal::Msg::Nil );
-	trivialLog << seal::Msg::Info<< "Connecting to the catalog"<<seal::endmsg;
+	trivialLog << seal::Msg::Info << "Connecting to the catalog "
+		   << m_url << seal::endmsg;
+
+	if (m_url.find ("file:") != std::string::npos)
+	{
+	    m_url = m_url.erase (0, 
+				 m_url.find ("/") + 1);	
+	}	
+	else
+	{
+	    throw FCTransactionException
+		("TrivialFileCatalog::connect",
+		 ": Malformed url for file catalog configuration"); 
+	}
+	
+	std::ifstream configFile;
+	configFile.open (m_url.c_str ());
+
+    
+	trivialLog << seal::Msg::Info
+		   << "Using catalog configuration " 
+		   << m_url << seal::endmsg;
+
+	char buffer[4096];
+	if (!configFile.good () || !configFile.is_open ())
+	{
+	    throw FCTransactionException
+		("TrivialFileCatalog::connect",
+		 "Error while reading configuration file"); 
+	}
+    
+	while (! configFile.eof ())
+	{
+	    configFile.getline (buffer, 4096);
+	    std::string line = buffer;
+	
+	    if (line != "")
+	    {
+		seal::StringList tokens = seal::StringOps::split (line, "=");
+
+		if (tokens.size () != 2)
+		{
+		    throw FCTransactionException
+			("TrivialFileCatalog::connect",
+			 "Wrong configuration file"); 
+		}	
+	   
+		std::string parameter = tokens[0];
+		std::string value = tokens[1];
+	
+		if (parameter == "prefix")
+		{
+		    m_prefix = value;
+		}
+		else if (parameter == "type")
+		{
+		    m_fileType = value;
+		}
+	    }
+	}    
+	m_transactionsta = 1;
     }
     catch (seal::Exception& e)
     {
+	m_transactionsta = 0;	
 	throw FCconnectionException("TrivialFileCatalog::connect",e.message());
     }
     catch( std::exception& er)
     {
+	m_transactionsta = 0;	
 	throw FCconnectionException("TrivialFileCatalog::connect",er.what());
     }
 }
@@ -112,6 +113,7 @@ pool::TrivialFileCatalog::connect ()
 void
 pool::TrivialFileCatalog::disconnect () const
 {
+	m_transactionsta = 0;	    
 }
 
 void
@@ -194,6 +196,11 @@ void
 pool::TrivialFileCatalog::lookupFileByLFN (const std::string& lfn, 
 					   FileCatalog::FileID& fid) const
 {
+    if (m_transactionsta == 0)
+	throw FCconnectionException("TrivialFileCatalog::lookupFileByLFN",
+				    "Catalog not connected");
+	
+
     // GUID (FileID) and lfn are the same under TrivialFileCatalog
     fid = lfn;    
 }
@@ -205,6 +212,9 @@ pool::TrivialFileCatalog::lookupBestPFN (const FileCatalog::FileID& fid,
 					 std::string& pfn,
 					 std::string& filetype) const
 {
+    if (m_transactionsta == 0)
+	throw FCconnectionException("TrivialFileCatalog::lookupBestPFN",
+				    "Catalog not connected");
     filetype = m_fileType;    
     pfn = m_prefix + fid;    
 } 
@@ -260,10 +270,11 @@ pool::TrivialFileCatalog::retrievePFN (const std::string& query,
 				       FCBuf<PFNEntry>& buf, 
 				       const size_t& /*start*/ )
 {
+    if (m_transactionsta == 0)
+	throw FCconnectionException("TrivialFileCatalog::lookupBestPFN",
+				    "Catalog not connected");
     // The only query supported is lfn='something' or pfn='something'
     // No spaces allowed in something.
-    std::cerr << "Query: " << query << std::endl;
-    
     seal::StringList tokens = seal::StringOps::split (query, "=");
     
     if (tokens.size () != 2)
