@@ -48,13 +48,15 @@ float CaloValidationStatistics::weightedMean() const  {
 
 
 std::ostream& operator<<(std::ostream & os,const CaloValidationStatistics & stat) {
-   
-  os << "OVAL " << stat.name() 
-     << " Mean: " << stat.mean() 
-     << " (expect " << stat.expectedMean()
-		 << ")  RMS: " << stat.RMS()
-     << " (expect " << stat.expectedRMS() << ")"
-     << " for " << stat.nEntries() << " entries ";
+  os << "OVAL " << stat.name() << " entries:" << stat.nEntries();
+  if(stat.nEntries() > 0) {
+     os << " Mean: " << stat.mean() 
+        << " (expect " << stat.expectedMean() << ")";
+  }
+  if(stat.nEntries() > 1) {      
+		 os << "  RMS: " << stat.RMS()
+        << " (expect " << stat.expectedRMS() << ")";
+  }
   return os;
 }
 
