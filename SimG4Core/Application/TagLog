@@ -1,3 +1,6 @@
+** V03-06-15  [Fri Mar  3 16:07:21 2006]
+changed   EvtGen+DetSim+Digi.cfg to follow sistrip digitizer change
+
 ** V03-06-14  [Thu Mar  2 02:43:03 2006]
 adjust to changes in Generators; fix phi-range in p.gun's cfg
 
