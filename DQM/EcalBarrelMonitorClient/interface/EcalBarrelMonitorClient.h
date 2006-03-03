@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2006/02/21 20:32:43 $
- * $Revision: 1.37 $
+ * $Date: 2006/02/24 08:03:48 $
+ * $Revision: 1.38 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -38,13 +38,13 @@
 #include <DQM/EcalBarrelMonitorClient/interface/EBCosmicClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBBeamClient.h>
 
-#include "CalibCalorimetry/EcalDBInterface/interface/EcalCondDBInterface.h"
-#include "CalibCalorimetry/EcalDBInterface/interface/RunTag.h"
-#include "CalibCalorimetry/EcalDBInterface/interface/RunDat.h"
-#include "CalibCalorimetry/EcalDBInterface/interface/RunIOV.h"
+#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
+#include "OnlineDB/EcalCondDB/interface/RunTag.h"
+#include "OnlineDB/EcalCondDB/interface/RunDat.h"
+#include "OnlineDB/EcalCondDB/interface/RunIOV.h"
 
-#include "CalibCalorimetry/EcalDBInterface/interface/MonRunDat.h"
-#include "CalibCalorimetry/EcalDBInterface/interface/MonRunIOV.h"
+#include "OnlineDB/EcalCondDB/interface/MonRunDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonRunIOV.h"
 
 #include "TROOT.h"
 #include "TGaxis.h"

@@ -4,8 +4,8 @@
 /*
  * \file EBLaserClient.h
  *
- * $Date: 2006/02/05 22:21:53 $
- * $Revision: 1.22 $
+ * $Date: 2006/02/09 15:40:04 $
+ * $Revision: 1.23 $
  * \author G. Della Ricca
  *
 */
@@ -23,20 +23,20 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 
-#include "CalibCalorimetry/EcalDBInterface/interface/EcalCondDBInterface.h"
-#include "CalibCalorimetry/EcalDBInterface/interface/RunTag.h"
-#include "CalibCalorimetry/EcalDBInterface/interface/RunIOV.h"
-#include "CalibCalorimetry/EcalDBInterface/interface/MonRunIOV.h"
+#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
+#include "OnlineDB/EcalCondDB/interface/RunTag.h"
+#include "OnlineDB/EcalCondDB/interface/RunIOV.h"
+#include "OnlineDB/EcalCondDB/interface/MonRunIOV.h"
 
-#include "CalibCalorimetry/EcalDBInterface/interface/MonLaserBlueDat.h"
-#include "CalibCalorimetry/EcalDBInterface/interface/MonLaserGreenDat.h"
-#include "CalibCalorimetry/EcalDBInterface/interface/MonLaserIRedDat.h"
-#include "CalibCalorimetry/EcalDBInterface/interface/MonLaserRedDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonLaserBlueDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonLaserGreenDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonLaserIRedDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonLaserRedDat.h"
 
-#include "CalibCalorimetry/EcalDBInterface/interface/MonPNBlueDat.h"
-#include "CalibCalorimetry/EcalDBInterface/interface/MonPNGreenDat.h"
-#include "CalibCalorimetry/EcalDBInterface/interface/MonPNIRedDat.h"
-#include "CalibCalorimetry/EcalDBInterface/interface/MonPNRedDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonPNBlueDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonPNGreenDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonPNIRedDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonPNRedDat.h"
 
 #include "TROOT.h"
 #include "TStyle.h"

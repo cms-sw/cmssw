@@ -4,8 +4,8 @@
 /*
  * \file EBBeamClient.h
  *
- * $Date: 2006/02/05 22:21:53 $
- * $Revision: 1.11 $
+ * $Date: 2006/02/08 21:10:26 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -25,12 +25,12 @@
 #include "DQMServices/Core/interface/CollateMonitorElement.h"
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 
-#include "CalibCalorimetry/EcalDBInterface/interface/EcalCondDBInterface.h"
-#include "CalibCalorimetry/EcalDBInterface/interface/RunTag.h"
-#include "CalibCalorimetry/EcalDBInterface/interface/RunIOV.h"
-#include "CalibCalorimetry/EcalDBInterface/interface/MonRunIOV.h"
+#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
+#include "OnlineDB/EcalCondDB/interface/RunTag.h"
+#include "OnlineDB/EcalCondDB/interface/RunIOV.h"
+#include "OnlineDB/EcalCondDB/interface/MonRunIOV.h"
 
-#include "CalibCalorimetry/EcalDBInterface/interface/MonOccupancyDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonOccupancyDat.h"
 
 #include "TROOT.h"
 #include "TStyle.h"

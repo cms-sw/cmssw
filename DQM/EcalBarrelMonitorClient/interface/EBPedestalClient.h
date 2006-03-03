@@ -4,8 +4,8 @@
 /*
  * \file EBPedestalClient.h
  *
- * $Date: 2006/02/11 10:04:33 $
- * $Revision: 1.24 $
+ * $Date: 2006/02/12 17:38:50 $
+ * $Revision: 1.25 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -24,14 +24,14 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 
-#include "CalibCalorimetry/EcalDBInterface/interface/EcalCondDBInterface.h"
-#include "CalibCalorimetry/EcalDBInterface/interface/RunTag.h"
-#include "CalibCalorimetry/EcalDBInterface/interface/RunIOV.h"
-#include "CalibCalorimetry/EcalDBInterface/interface/MonRunIOV.h"
+#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
+#include "OnlineDB/EcalCondDB/interface/RunTag.h"
+#include "OnlineDB/EcalCondDB/interface/RunIOV.h"
+#include "OnlineDB/EcalCondDB/interface/MonRunIOV.h"
 
-#include "CalibCalorimetry/EcalDBInterface/interface/MonPedestalsDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonPedestalsDat.h"
 
-#include "CalibCalorimetry/EcalDBInterface/interface/MonPNPedDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonPNPedDat.h"
 
 #include "TROOT.h"
 #include "TStyle.h"

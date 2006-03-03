@@ -4,8 +4,8 @@
 /*
  * \file EBTestPulseClient.h
  *
- * $Date: 2006/02/03 09:39:06 $
- * $Revision: 1.20 $
+ * $Date: 2006/02/05 22:21:53 $
+ * $Revision: 1.21 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -24,15 +24,15 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 
-#include "CalibCalorimetry/EcalDBInterface/interface/EcalCondDBInterface.h"
-#include "CalibCalorimetry/EcalDBInterface/interface/RunTag.h"
-#include "CalibCalorimetry/EcalDBInterface/interface/RunIOV.h"
-#include "CalibCalorimetry/EcalDBInterface/interface/MonRunIOV.h"
+#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
+#include "OnlineDB/EcalCondDB/interface/RunTag.h"
+#include "OnlineDB/EcalCondDB/interface/RunIOV.h"
+#include "OnlineDB/EcalCondDB/interface/MonRunIOV.h"
 
-#include "CalibCalorimetry/EcalDBInterface/interface/MonTestPulseDat.h"
-#include "CalibCalorimetry/EcalDBInterface/interface/MonPulseShapeDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonTestPulseDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonPulseShapeDat.h"
 
-#include "CalibCalorimetry/EcalDBInterface/interface/MonPNMGPADat.h"
+#include "OnlineDB/EcalCondDB/interface/MonPNMGPADat.h"
 
 #include "TROOT.h"
 #include "TStyle.h"

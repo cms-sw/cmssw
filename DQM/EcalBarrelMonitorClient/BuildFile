@@ -6,7 +6,7 @@
 <use name=root>
 <use name=DQMServices/NodeROOT>
 <use name=DQMServices/UI>
-<use name=CalibCalorimetry/EcalDBInterface>
+<use name=OnlineDB/EcalCondDB>
 <use name=DataFormats/EcalRawData>
 <use name=oracle>
 
@@ -19,7 +19,7 @@
  <use name=root>
  <use name=DQMServices/NodeROOT>
  <use name=DQMServices/UI>
- <use name=CalibCalorimetry/EcalDBInterface>
+ <use name=OnlineDB/EcalCondDB>
  <use name=DataFormats/EcalRawData>
  <use name=oracle>
  <lib name=nnz10>
