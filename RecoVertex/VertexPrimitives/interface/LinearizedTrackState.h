@@ -9,6 +9,7 @@
 #include "Geometry/Vector/interface/GlobalPoint.h"
 #include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
 #include "DataFormats/TrajectoryState/interface/TrackCharge.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
 #include "RecoVertex/VertexPrimitives/interface/RefCountedRefittedTrackState.h"
 #include <vector>
@@ -121,6 +122,10 @@ public:
 
   virtual std::vector< ReferenceCountingPointer<LinearizedTrackState> > components() 
   								const = 0;
+
+  virtual reco::TransientTrack track() const = 0;
+
+
 
 };
 

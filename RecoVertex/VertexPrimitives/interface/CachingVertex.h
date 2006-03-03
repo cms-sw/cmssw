@@ -12,6 +12,7 @@
 #include "RecoVertex/VertexPrimitives/interface/TrackMap.h"
 #include "RecoVertex/VertexPrimitives/interface/TrackToTrackMap.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexState.h"
+#include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 
 #include <vector>
 #include <map>
@@ -102,6 +103,8 @@ public:
   AlgebraicMatrix tkToTkCovariance(const RefCountedVertexTrack t1, 
 				   const RefCountedVertexTrack t2) const;
   bool tkToTkCovarianceIsAvailable() const { return theCovMapAvailable; }
+
+  operator TransientVertex() const;
 
 private:
 

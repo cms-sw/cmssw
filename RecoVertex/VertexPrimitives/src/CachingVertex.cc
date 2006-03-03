@@ -2,6 +2,9 @@
 #include "RecoVertex/VertexPrimitives/interface/LinearizedTrackState.h"
 #include "RecoVertex/VertexPrimitives/interface/RefCountedLinearizedTrackState.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "RecoVertex/VertexPrimitives/interface/TTtoTTmap.h"
+#include <map>
 
 //to be removed
 CachingVertex::CachingVertex(const GlobalPoint & pos, 
@@ -10,7 +13,9 @@ CachingVertex::CachingVertex(const GlobalPoint & pos,
 			     float totalChiSq) 
   : theVertexState(pos, posErr),
     theChiSquared(totalChiSq), theNDF(0), theNDFAvailable(false), 
-    theTracks(tks), theCovMapAvailable(false), withPrior(false)
+    theTracks(tks), theCovMapAvailable(false), withPrior(false), 
+    theValid(true)
+
 {}
 
 
@@ -21,7 +26,8 @@ CachingVertex::CachingVertex(const GlobalPoint & pos,
 			     float totalChiSq) 
   : theVertexState(pos, posWeight),
     theChiSquared(totalChiSq), theNDF(0), theNDFAvailable(false), 
-    theTracks(tks), theCovMapAvailable(false), withPrior(false)
+    theTracks(tks), theCovMapAvailable(false), withPrior(false), 
+    theValid(true)
 {}
 
 
@@ -32,7 +38,8 @@ CachingVertex::CachingVertex(const AlgebraicVector & weightTimesPosition,
 			     float totalChiSq)
   : theVertexState(weightTimesPosition, posWeight),
     theChiSquared(totalChiSq), theNDF(0), theNDFAvailable(false), 
-    theTracks(tks), theCovMapAvailable(false), withPrior(false)
+    theTracks(tks), theCovMapAvailable(false), withPrior(false), 
+    theValid(true)
 {}
 
 CachingVertex::CachingVertex(const VertexState & aVertexState, 
@@ -40,7 +47,8 @@ CachingVertex::CachingVertex(const VertexState & aVertexState,
 			     float totalChiSq)
   : theVertexState(aVertexState),
     theChiSquared(totalChiSq), theNDF(0), theNDFAvailable(false), 
-    theTracks(tks), theCovMapAvailable(false), withPrior(false)
+    theTracks(tks), theCovMapAvailable(false), withPrior(false), 
+    theValid(true)
 {}
 
 
@@ -51,7 +59,7 @@ CachingVertex::CachingVertex(const VertexState & aVertexState,
   : theVertexState(aVertexState),
     theChiSquared(totalChiSq), theNDF(0), theNDFAvailable(false),
     theTracks(tks), theCovMap(covMap), theCovMapAvailable(true), 
-    withPrior(false)
+    withPrior(false), theValid(true)
 {
   if (theCovMap.empty()) theCovMapAvailable = false;
 }
@@ -63,7 +71,7 @@ CachingVertex::CachingVertex(const VertexState & priorVertexState,
   : theVertexState(aVertexState), theChiSquared(totalChiSq),
     theNDF(0), theNDFAvailable(false), theTracks(tks),
     theCovMapAvailable(false), thePriorVertexState(priorVertexState),
-    withPrior(true)
+    withPrior(true), theValid(true)
 {}
 
 //to be removed
@@ -76,7 +84,7 @@ CachingVertex::CachingVertex(const GlobalPoint & priorPos,
   : theVertexState(pos, posErr),
     theChiSquared(totalChiSq), theNDF(0), theNDFAvailable(false), 
     theTracks(tks), theCovMapAvailable(false), 
-    thePriorVertexState(priorPos, priorErr), withPrior(true)
+    thePriorVertexState(priorPos, priorErr), withPrior(true), theValid(true)
 {}
 
 
@@ -90,7 +98,7 @@ CachingVertex::CachingVertex(const GlobalPoint & priorPos,
   : theVertexState(pos, posWeight),
     theChiSquared(totalChiSq), theNDF(0), theNDFAvailable(false), 
     theTracks(tks), theCovMapAvailable(false), 
-    thePriorVertexState(priorPos, priorErr), withPrior(true)
+    thePriorVertexState(priorPos, priorErr), withPrior(true), theValid(true)
 {}
 
 
@@ -104,7 +112,7 @@ CachingVertex::CachingVertex(const GlobalPoint & priorPos,
   : theVertexState(weightTimesPosition, posWeight),
     theChiSquared(totalChiSq), theNDF(0), theNDFAvailable(false), 
     theTracks(tks), theCovMapAvailable(false), 
-    thePriorVertexState(priorPos, priorErr), withPrior(true)
+    thePriorVertexState(priorPos, priorErr), withPrior(true), theValid(true)
 {}
 
 
@@ -116,10 +124,16 @@ CachingVertex::CachingVertex(const VertexState & priorVertexState,
   : theVertexState(aVertexState), theChiSquared(totalChiSq),
     theNDF(0), theNDFAvailable(false), theTracks(tks),
     theCovMap(covMap), theCovMapAvailable(true), 
-    thePriorVertexState(priorVertexState), withPrior(true)
+    thePriorVertexState(priorVertexState), withPrior(true), theValid(true)
 {
   if (theCovMap.empty()) theCovMapAvailable = false;
 }
+
+CachingVertex::CachingVertex() 
+  : theChiSquared(-1), theNDF(0), theNDFAvailable(false), theTracks(),
+    theCovMapAvailable(false), withPrior(false), 
+    theValid(false)
+{}
 
 
 GlobalPoint CachingVertex::position() const 
@@ -205,4 +219,88 @@ CachingVertex::tkToTkCovariance(const RefCountedVertexTrack t1,
       throw VertexException("CachingRecVertex::requested TkTkCovariance does not exist");
     }     
   }
+}
+
+
+CachingVertex::operator TransientVertex() const
+{
+
+  typedef map<reco::TransientTrack, float> TransientTrackToFloatMap;
+
+// Construct Track vector
+  vector<reco::TransientTrack> ttVect;
+  TransientTrackToFloatMap theWeightMap;
+  TTtoTTmap ttCovMap;
+  float theMinWeight = 0.5;
+
+  for (vector<RefCountedVertexTrack>::const_iterator i = theTracks.begin();
+       i != theTracks.end(); ++i) {
+
+    // discard tracks with too low weight
+    if ((**i).weight() < theMinWeight) continue;
+
+    reco::TransientTrack t1((**i).linearizedTrack()->track());
+    ttVect.push_back(t1);
+    //Fill in the weight map
+    theWeightMap[t1] = (**i).weight();
+
+    //Fill in the tk-to-tk covariance map
+    if (theCovMapAvailable) {
+      for (vector<RefCountedVertexTrack>::const_iterator j = (i+1);
+	   j != theTracks.end(); ++j) {
+	reco::TransientTrack t2((**j).linearizedTrack()->track());
+	if (t1 < t2) {
+	  ttCovMap[t1][t2] = tkToTkCovariance(*i, *j);
+	} else {
+	  ttCovMap[t2][t1] = tkToTkCovariance(*i, *j);
+	}
+      }
+    }
+  }
+
+  TransientVertex tv;
+  if (withPrior) {
+    tv =  TransientVertex(priorVertexState(), vertexState(), ttVect, totalChiSquared(), degreesOfFreedom());
+  } else {
+    tv = TransientVertex(vertexState(), ttVect, totalChiSquared(), degreesOfFreedom());
+  }
+  tv.weightMap(theWeightMap);
+  if (theCovMapAvailable) tv.tkToTkCovariance(ttCovMap);
+  return tv;
+
+//   theVertexState = cv.vertexState();
+//   GlobalPoint vertexPos = theVertexState.position();
+
+//  ... all that done...
+
+// 
+//     //Get the refitted state and make a refitted RecTrack out of it.
+//     if ((**i).refittedStateAvailable()) {
+// 
+//       //First get the impact parameter surface with respect to the fitted vertex:
+//       TrajectoryStateOnSurface vtxIPS = t1.stateAtPoint(vertexPos);
+//       if (vtxIPS.isValid()) {
+// 	theRefittedTracks.push_back( RecTrack( new RefittedRecTrack(t1, 
+//            (**i).refittedState()->trajectoryStateOnSurface(vtxIPS.surface()),
+// 	   this) ) );
+// 	withRefittedTracks = true;
+//       } else {
+// 
+//         // If this tsos is not valid, then get the impact parameter surface 
+// 	// with respect to the vertex of the original RecTrack:
+//         TrajectoryStateOnSurface IPS = t1.impactPointState();
+// 	if (IPS.isValid()) {
+// 	  theRefittedTracks.push_back( RecTrack( new RefittedRecTrack(t1, 
+//              (**i).refittedState()->trajectoryStateOnSurface(IPS.surface()),
+// 	     this) ) );
+// 	  withRefittedTracks = true;
+// 	} else {
+// 
+// 	  // So none of these TSOSs are valid, and we don't know on which
+// 	  // surface to construct the refitted TSOS !!!
+// 	  cout <<"TransientVertex: Can not produce refitted TSOS, as no valid surface is found\n";
+// 	}
+//       }
+//       
+//     }
 }

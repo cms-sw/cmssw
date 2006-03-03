@@ -2,14 +2,14 @@
 #define _VertexFitter_H_
 
 #include "RecoVertex/VertexPrimitives/interface/CachingVertex.h"
-#include "RecoVertex/VertexPrimitives/interface/DummyRecTrack.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
 #include <vector>
 
 /** 
  * Pure abstract base class for VertexFitters. 
  * Fits a CachingVertex using either:
- *  - DummyRecTracks; 
+ *  - TransientTracks; 
  *  - VertexTracks. 
  * A linearization point can be specified, 
  * or a prior estimate of the vertex position and error. 
@@ -23,29 +23,29 @@ public:
 
   virtual ~VertexFitter() {}
 
-  /** Fit vertex out of a set of DummyRecTracks
+  /** Fit vertex out of a set of TransientTracks
    */
   virtual CachingVertex 
-  vertex(const vector<DummyRecTrack> & tracks) const = 0;
+  vertex(const vector<reco::TransientTrack> & tracks) const = 0;
 
   /** Fit vertex out of a set of VertexTracks
    */
   virtual CachingVertex 
   vertex(const vector<RefCountedVertexTrack> & tracks) const = 0;
 
-  /** Fit vertex out of a set of DummyRecTracks. 
+  /** Fit vertex out of a set of TransientTracks. 
    *  Uses the specified linearization point.
    */
   virtual CachingVertex 
-  vertex(const vector<DummyRecTrack> & tracks, const GlobalPoint& linPoint) const = 0;
+  vertex(const vector<reco::TransientTrack> & tracks, const GlobalPoint& linPoint) const = 0;
 
-  /** Fit vertex out of a set of DummyRecTracks. 
+  /** Fit vertex out of a set of TransientTracks. 
    *  Uses the specified point as both the linearization point AND as prior
    *  estimate of the vertex position. The error is used for the 
    *  weight of the prior estimate.
    */
   virtual CachingVertex 
-  vertex(const vector<DummyRecTrack> & tracks, const GlobalPoint& priorPos,
+  vertex(const vector<reco::TransientTrack> & tracks, const GlobalPoint& priorPos,
   	 const GlobalError& priorError) const = 0;
 
   /** Fit vertex out of a set of VertexTracks.
