@@ -19,19 +19,17 @@ using namespace std;
   /// Constructors
 
 /*CSCALCTDigi::CSCALCTDigi (int trknmb, int keywire,int bx, int quality, 
-int pattern, int valid)
+int patternb, int valid)
 {
-  set(trknmb, keywire, bx, quality, pattern, valid);
+  set(trknmb, keywire, bx, quality, patternb, valid);
 } */
 
-CSCALCTDigi::CSCALCTDigi (int valid, int quality, int accel, int pattern,
-int keywire, int bx) {
-  set(valid, quality, accel, pattern, keywire, bx, 0);
+CSCALCTDigi::CSCALCTDigi (int valid, int quality, int accel, int patternb,int keywire, int bx) {
+  set(valid, quality, accel, patternb, keywire, bx, 0);
 }      // for DQM
 
-CSCALCTDigi::CSCALCTDigi (int valid, int quality, int accel, int pattern, 
-int keywire, int bx, int trknmb) {
-  set(valid, quality, accel, pattern, keywire, bx, trknmb);
+CSCALCTDigi::CSCALCTDigi (int valid, int quality, int accel, int patternb, int keywire, int bx, int trknmb) {
+  set(valid, quality, accel, patternb, keywire, bx, trknmb);
 }
 CSCALCTDigi::CSCALCTDigi (ChannelType channel){
   ChannelPacking* ch = reinterpret_cast<ChannelPacking*>(&channel);
@@ -39,7 +37,7 @@ CSCALCTDigi::CSCALCTDigi (ChannelType channel){
       ch->valid,
       ch->quality,
       ch->accel,
-      ch->pattern,
+      ch->patternb,
       ch->keywire,
       ch->bx,
       ch->trknmb);
@@ -74,7 +72,7 @@ CSCALCTDigi::channel() const {
   result.valid    = d->valid;
   result.quality  = d->quality;
   result.accel    = d->accel;
-  result.pattern  = d->pattern;
+  result.patternb = d->patternb;
   result.keywire  = d->keywire;
   result.bx       = d->bx;
   result.trknmb   = d->trknmb;
@@ -89,8 +87,8 @@ int CSCALCTDigi::getQuality()     const { return data()->quality;}
 int CSCALCTDigi::getAccel()       const { return data()->accel;}
 int CSCALCTDigi::getAccelerator() const { return data()->accel;}
 
-int CSCALCTDigi::getPattern()     const { return data()->pattern;}
-int CSCALCTDigi::getCollisionB()  const { return data()->pattern;}
+int CSCALCTDigi::getPattern()     const { return data()->patternb;}
+int CSCALCTDigi::getCollisionB()  const { return data()->patternb;}
 
 int CSCALCTDigi::getKwire()       const { return data()->keywire;}
 int CSCALCTDigi::getKeyWG()       const { return data()->keywire;}
@@ -119,16 +117,16 @@ void CSCALCTDigi::dump() const {
 
   /// Private members
 
-void CSCALCTDigi::set(int valid, int quality, int accel, int pattern, int keywire, int bx, int trknmb) 
+void CSCALCTDigi::set(int valid, int quality, int accel, int patternb, int keywire, int bx, int trknmb) 
 {
   PackedDigiType* d = data();
-  d->valid   = valid;
-  d->quality = quality;
-  d->accel   = accel;
-  d->pattern = pattern;
-  d->keywire = keywire;
-  d->bx      = bx;
-  d->trknmb  = trknmb;
+  d->valid    = valid;
+  d->quality  = quality;
+  d->accel    = accel;
+  d->patternb = patternb;
+  d->keywire  = keywire;
+  d->bx       = bx;
+  d->trknmb   = trknmb;
 }
 
 CSCALCTDigi::PackedDigiType* 
