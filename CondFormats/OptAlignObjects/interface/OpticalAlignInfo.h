@@ -5,6 +5,8 @@
 #include <vector>
 #include <iostream>
 
+#include "CondFormats/OptAlignObjects/interface/OAQuality.h"
+
 /**
   easy output...
 **/
@@ -33,7 +35,14 @@ class OpticalAlignParam {
  public:
   double value_;
   double error_;
-  char iState_; // f = fixed, c = calibrated, u = unknown.
+  int qual_; // f = fixed, c = calibrated, u = unknown.
+  std::string name_;
+  void clear() {
+    value_ = 0.0;
+    error_ = 0.0;
+    qual_ = int( oa_unknown );
+    name_.clear();
+  }
 };
 
 // a Class holding data for an Optical Alignment transformation
@@ -51,6 +60,17 @@ class  OpticalAlignInfo {
   std::vector<OpticalAlignParam> extraEntries_;
   std::string objectType_;
   unsigned long objectID_;
+  void clear() {
+    x_.clear();
+    y_.clear();
+    z_.clear();
+    angx_.clear();
+    angy_.clear();
+    angz_.clear();
+    extraEntries_.clear();
+    objectType_.clear();
+    objectID_ = 0;
+  }
 };
 
 

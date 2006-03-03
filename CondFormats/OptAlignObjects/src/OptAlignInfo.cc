@@ -13,7 +13,7 @@ std::ostream & operator<<(std::ostream & os, const OpticalAlignInfo & r)
   os << std::setw( now ) << std::setprecision( nop ) << "member";
   os << std::setw( now ) << std::setprecision( nop ) << "value";
   os << std::setw( now ) << std::setprecision( nop ) << "error";
-  os << std::setw( now ) << std::setprecision( nop ) << "iState" << std::endl;
+  os << std::setw( now ) << std::setprecision( nop ) << "qual." << std::endl;
   os << std::setw( now ) << std::setprecision( nop ) << "x" << r.x_ << std::endl;
   os << std::setw( now ) << std::setprecision( nop ) << "y" << r.y_ << std::endl;
   os << std::setw( now ) << std::setprecision( nop ) << "z" << r.z_ << std::endl;
@@ -40,7 +40,7 @@ std::ostream & operator<<(std::ostream & os, const OpticalAlignParam & r)
   int nop = 5;
   os << std::setw( now ) << std::setprecision( nop ) << r.value_;
   os << std::setw( now ) << std::setprecision( nop ) << r.error_;
-  os << std::setw( now ) << std::setprecision( nop ) << r.iState_ << std::endl;
+  os << std::setw( now ) << std::setprecision( nop ) << r.qual_ << std::endl;
 
   // Reset the values we changed
   std::cout << std::setprecision( ip ) << std::setw( iw );
