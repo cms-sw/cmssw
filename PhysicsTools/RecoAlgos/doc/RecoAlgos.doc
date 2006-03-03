@@ -1,14 +1,14 @@
 /*!
-\page PhysicsTools_RecoAlgos Package PhysicsTools/RecoAlgos
+\page PhysicsTools_RecoCandAlgos Package PhysicsTools/RecoCandAlgos
 <center>
 <small>
-<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/PhysicsTools/RecoAlgos/?cvsroot=CMSSW>CVS head for this package</a> - 
-<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/PhysicsTools/RecoAlgos/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/PhysicsTools/RecoCandAlgos/?cvsroot=CMSSW>CVS head for this package</a> - 
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/PhysicsTools/RecoCandAlgos/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
 </small>
 </center>
 
 \section desc Description
-Common algorihtm for  \ref RecoPackages "Reco objects".
+Common algrithtm for  \ref RecoPackages "Reco objects".
 
 \subsection interface Public interface
 None.
@@ -35,6 +35,5 @@ None.
 To be reviewed.
 
 <hr>
-Last updated:
-$Date: 2006/03/03 13:11:13 $ L. Lista
+Last updated: @DATE@ L. Lista
 */
