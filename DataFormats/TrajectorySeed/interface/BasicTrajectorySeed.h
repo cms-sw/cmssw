@@ -13,20 +13,18 @@
    - a propagation direction
 **/
 class BasicTrajectorySeed {
- public:
-
+public:
   typedef edm::OwnVector<TrackingRecHit> recHitContainer;
   typedef recHitContainer::iterator iterator;
   typedef std::pair<iterator,iterator> range;
-
-  BasicTrajectorySeed(){}
-
+  
+  BasicTrajectorySeed() { }
+  
   // returns the recHits
-
+  
   virtual range recHits() = 0;
   virtual PropagationDirection direction() const = 0;
   virtual PTrajectoryStateOnDet startingState() const = 0;
-  
 };
 
 #endif

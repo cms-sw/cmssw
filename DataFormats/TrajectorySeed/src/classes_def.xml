@@ -1,6 +1,7 @@
 <lcgdict>
-  <class name="BasicTrajectorySeed"/>
-  <class name="TrajectorySeed"/>
-  <class name="edm::OwnVector<TrajectorySeed>"/>
-  <class name="edm::Wrapper<edm::OwnVector<TrajectorySeed> >"/>
+  <class name="BasicTrajectorySeed" />
+  <class name="TrajectorySeed" />
+  <class name="std::vector<TrajectorySeed>" />
+  <class name="edm::OwnVector<TrajectorySeed, edm::NewPolicy<TrajectorySeed> >" />
+  <class name="edm::Wrapper<edm::OwnVector<TrajectorySeed, edm::NewPolicy<TrajectorySeed> > >" />
 </lcgdict>                                                                                                                                                        
