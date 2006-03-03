@@ -20,6 +20,7 @@ public:
 	L1GctJetFinalStage();
 	virtual ~L1GctJetFinalStage();
 	
+	void setInputJet(int i, L1GctJet jet);
 	void process();
 	
 	inline vector<L1GctJet> getCentralJets() { return centralJets; }
@@ -28,6 +29,10 @@ public:
 
 private:
 
+	// input data
+	vector<L1GctJet> inputJets;
+
+	// output data
 	vector<L1GctJet> centralJets;
 	vector<L1GctJet> forwardJets;
 	vector<L1GctJet> tauJets;

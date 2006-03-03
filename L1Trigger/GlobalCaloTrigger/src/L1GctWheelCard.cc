@@ -12,9 +12,8 @@ L1GctWheelCard::L1GctWheelCard() {
 L1GctWheelCard::~L1GctWheelCard() {
 
 	for (int i=0; i<3; i++) {
-		L1GctJetLeafCard* lc = jetLeafCards.pop_front();
-		delete lc;
+//		L1GctJetLeafCard* lc = jetLeafCards.pop_front();
+//		delete lc;
 	}
 	
 }
-

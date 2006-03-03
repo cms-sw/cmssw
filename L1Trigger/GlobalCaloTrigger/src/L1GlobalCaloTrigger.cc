@@ -6,16 +6,8 @@ L1GlobalCaloTrigger* L1GlobalCaloTrigger::instance = 0;
 L1GlobalCaloTrigger::L1GlobalCaloTrigger() {
 	
 	caloConcCard = new L1GctCaloConcentratorCard();
-	
-	
 	muonConcCard = new L1GctMuonConcentratorCard();
-	
 	plusWheelCard = new L1GctWheelCard();
-	for (int i=0; i<3; i++) {
-		L1GctJetLeafCard* lc = new L1GctJetLeafCard();
-		plusWheelCard->addLeafCard(lc);
-	}
-		
 	minusWheelCard = new L1GctWheelCard();
 	
 	for (int i=0; i<18; i++) {

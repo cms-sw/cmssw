@@ -3,7 +3,6 @@
 
 #include "L1GctElectronLeafCard.h"
 #include "L1GctWheelCard.h"
-
 #include "L1GctJetFinalStage.h"
 #include "L1GctGlobalEnergyAlgos.h"
 
@@ -28,19 +27,22 @@ public:
 
 	L1GctCaloConcentratorCard();
 	virtual ~L1GctCaloConcentratorCard();
+	
+	inline L1GctElectronLeafCard* getIsoElectronleafCard() { return isoElectronLeafCard; }
+	inline L1GctElectronLeafCard* getNonIsoElectronleafCard() { return nonIsoElectronLeafCard; }
 
 	void process();
 	
-	vector<L1GctEmCand> getIsoElectrons();
-	vector<L1GctEmCand> getNonIsoElectrons();	
-	vector<L1GctJet> getCentralJets();
-	vector<L1GctJet> getForwardJets();
-	vector<L1GctJet> getTauJets();
+	inline vector<L1GctEmCand> getIsoElectrons() { return isoElectronLeafCard->getOutput(); }
+	inline vector<L1GctEmCand> getNonIsoElectrons() { return nonIsoElectronLeafCard->getOutput(); }
+	inline vector<L1GctJet> getCentralJets() { return jetFinalStage.getCentralJets(); }
+	inline vector<L1GctJet> getForwardJets() { return jetFinalStage.getForwardJets(); }
+	inline vector<L1GctJet> getTauJets() { return jetFinalStage.getTauJets(); }
 	
-	unsigned getEtMiss();
-	unsigned getEtMissPhi();
-	unsigned getEtSum();
-	unsigned getEtHad();
+	unsigned getEtMiss() { return globalEnergyAlgos.getEtMiss(); }
+	unsigned getEtMissPhi(){ return globalEnergyAlgos.getEtMissPhi(); }
+	unsigned getEtSum() { return globalEnergyAlgos.getEtSum(); }
+	unsigned getEtHad() { return globalEnergyAlgos.getEtHad(); }
 	
 private:
 

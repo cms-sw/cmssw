@@ -24,6 +24,8 @@ public:
 	L1GctWheelCard();
 	virtual ~L1GctWheelCard();
 		
+	inline vector<L1GctJetLeafCard*> getJetLeafCards() { return jetLeafCards; }
+		
 	void process();
 	
 	vector<L1GctJet> getOutput();

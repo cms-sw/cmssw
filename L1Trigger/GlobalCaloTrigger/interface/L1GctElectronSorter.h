@@ -20,12 +20,18 @@ public:
 	L1GctElectronSorter();
 	virtual ~L1GctElectronSorter();
 
+	void setInputEmCand(int i, L1GctEmCand cand);
 	void process();
 	
+	inline vector<L1GctEmCand> getInput() { return inputCands; }
 	inline vector<L1GctEmCand> getOutput() { return outputCands; }
 	
 private:
 	
+	// input data
+	vector<L1GctEmCand> inputCands;
+	
+	// output data
 	vector<L1GctEmCand> outputCands;
 	
 };

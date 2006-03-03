@@ -3,8 +3,10 @@
 
 #include "L1GctCaloConcentratorCard.h"
 #include "L1GctMuonConcentratorCard.h"
+#include "L1GctWheelCard.h"
+#include "L1GctElectronLeafCard.h"
+#include "L1GctMuonLeafCard.h"
 #include "L1GctSourceCard.h"
-
 #include "L1GctEmCand.h"
 #include "L1GctJet.h"
 #include "L1GctEvent.h"
@@ -22,8 +24,7 @@ using namespace std;
   * 
   **/ 
 
-class L1GlobalCaloTrigger
-{
+class L1GlobalCaloTrigger {
 public:
 
 	~L1GlobalCaloTrigger();
@@ -47,6 +48,17 @@ public:
 	// DAQ output - what owns the produced event?
 	L1GctEvent getEvent();
 
+	// access the hardware
+	inline L1GctCaloConcentratorCard* getCaloConcCard() { return caloConcCard; }
+	inline L1GctMuonConcentratorCard* getMuonConcCard() { return muonConcCard; }
+//	inline L1GctElectronLeafCard* getIsoElectronLeafCard() { return caloConcCard->getIsoElectronLeafCard; }
+//	inline L1GctElectronLeafCard* getNonIsoElectronLeafCard() { return caloConcCard->getNonIsoElectronLeafCard; }
+	inline L1GctWheelCard* getPlusWheelCard() { return plusWheelCard; }
+	inline L1GctWheelCard* getMinusWheelCard() { return minusWheelCard; }
+//	inline vector<L1GctJetLeafCard*> getPlusJetLeafCards { return plusWheelCard->getJetLeafCards; }
+//	inline vector<L1GctJetLeafCard*> getMinusJetLeafCards { return minusWheelCard->getJetLeafCards; }
+	inline vector<L1GctSourceCard*> getSourceCards() { return theSourceCards; }
+
 private:
 
 	// singleton private constructor
@@ -60,16 +72,10 @@ private:
 	// pointers to the modules
 	L1GctCaloConcentratorCard* caloConcCard;
 	L1GctMuonConcentratorCard* muonConcCard;
-
-	L1GctElectronLeafCard* isoElectronLeafCard;
-	L1GctElectronLeafCard* nonIsoElectronLeafCard;
 	
 	L1GctWheelCard* plusWheelCard;
 	L1GctWheelCard* minusWheelCard;	
 	
-	vector<L1GctJetLeafCard*> plusJetLeafCards;
-	vector<L1GctJetLeafCard*> minusJetLeafCards;	
-
 	vector<L1GctSourceCard*> theSourceCards;
 	
 };
