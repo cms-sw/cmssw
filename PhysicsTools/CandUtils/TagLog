@@ -1,3 +1,6 @@
+** V00-02-04  [Fri Mar  3 14:12:04 2006]
+added doxygen documentation
+
 ** V00-02-03  [Tue Feb 28 12:46:06 2006]
 ported Candidate and RecoCandidate packages from PhysicsTools to DataFormats
 
