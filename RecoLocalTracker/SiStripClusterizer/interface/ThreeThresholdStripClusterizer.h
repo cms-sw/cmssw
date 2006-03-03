@@ -14,8 +14,7 @@
 class ThreeThresholdStripClusterizer {
 public:
 
-  typedef std::vector<StripDigi>                  DigiContainer;
-  typedef DigiContainer::const_iterator           DigiIterator;
+  typedef std::vector<StripDigi>::const_iterator           StripDigiIter;
 
   ThreeThresholdStripClusterizer(float strip_thr, float seed_thr,float clust_thr, int max_holes) :
     theChannelThreshold(strip_thr), 
@@ -31,7 +30,7 @@ public:
 /* 		       const std::vector<float>& noiseVec, */
 /* 		       const std::vector<short>& badChannels); */
 
-  std::vector<SiStripCluster> clusterizeDetUnit(DigiIterator begin, DigiIterator end,
+  std::vector<SiStripCluster> clusterizeDetUnit(StripDigiIter begin, StripDigiIter end,
 						unsigned int detid, const SiStripNoiseVector& vnoise);
   
 
