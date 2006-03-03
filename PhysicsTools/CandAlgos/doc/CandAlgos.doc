@@ -15,6 +15,10 @@ Framework module for common particle candidate manupulation
 - candmodules::CandReducer: clones a collection of candidates removing all daughters and external
 components, leaving only kinematic information. This is ment to produce a "light" collection
 of candiadates just containing kimenatics information for very fast analysis purpose.
+- CandSelectorBase: base class for all candidate selectors. It is a specialization of the
+generic selector module SelectorProducer.
+- candmodules::CandSelector: selects candidates from a collection and saves their clones in 
+a new collection. The selection can be specified by the user as a string.
 
 \subsection modules Modules
 None.

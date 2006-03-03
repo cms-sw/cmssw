@@ -1,18 +1,30 @@
 #ifndef CandAlgos_CandSelector_h
 #define CandAlgos_CandSelector_h
-// Ported from original implementation by Chris Jones
-// $Id: CandSelector.h,v 1.3 2005/10/24 09:42:46 llista Exp $
-//
+/** \class candmodules::CandSelector
+ *
+ * Selects candidates from a collection and saves 
+ * their clones in a new collection. The selection can 
+ * be specified by the user as a string.
+ *
+ * \author Luca Lista, INFN
+ *
+ * \version $Revision: 1.2 $
+ *
+ * $Id: CandReducer.h,v 1.2 2006/03/03 10:20:44 llista Exp $
+ *
+ */
 #include "PhysicsTools/CandAlgos/interface/CandSelectorBase.h"
 
 namespace candmodules {
 
   class CandSelector : public CandSelectorBase {
   public:
+    /// constructor from parameter set
     explicit CandSelector( const edm::ParameterSet& );
+    /// destructor
     ~CandSelector();
   };
 
 }
 
-#endif /* CANDCOMBINER_CANDSELECTOR_H */
+#endif
