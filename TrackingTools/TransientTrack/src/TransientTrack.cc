@@ -9,13 +9,30 @@ TransientTrack::TransientTrack( const Track & tk ) : Track(tk), tk_(tk) {
     (parameters(), covariance(), GlobalPoint(0.,0.,0.));
 }
 
-TrajectoryStateOnSurface TransientTrack::impactPointState()
+TransientTrack::TransientTrack( const TransientTrack & tt ) :
+  Track(tt.persistentTrack()), tk_(tt.persistentTrack())
+{originalTSCP = TrajectoryStateClosestToPoint
+    (parameters(), covariance(), GlobalPoint(0.,0.,0.));}
+
+TransientTrack& TransientTrack::operator=(const TransientTrack & tt)
+{
+  if (this == &tt) return *this;
+  Track::operator=(tk_);
+//   tk_ = tt.persistentTrack();
+// 
+//   originalTSCP = TrajectoryStateClosestToPoint
+//     (parameters(), covariance(), GlobalPoint(0.,0.,0.));
+  return *this;
+}
+
+
+TrajectoryStateOnSurface TransientTrack::impactPointState() const
 {
   if (!stateAtVertexAvailable) calculateStateAtVertex();
   return theStateAtVertex;
 }
 
-void TransientTrack::calculateStateAtVertex()
+void TransientTrack::calculateStateAtVertex() const
 {
   theStateAtVertex = TransverseImpactPointExtrapolator().extrapolate(
      originalTSCP.theState(), originalTSCP.position());

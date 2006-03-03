@@ -19,6 +19,10 @@ namespace reco {
     // constructor from persistent track
     TransientTrack( const Track & tk ); 
 
+    TransientTrack( const TransientTrack & tt );
+    
+    TransientTrack& operator=(const TransientTrack & tt);
+
     TrajectoryStateOnSurface outermostMeasurementState();
 
     TrajectoryStateOnSurface innermostMeasurementState();
@@ -27,23 +31,29 @@ namespace reco {
       trajectoryStateClosestToPoint( const GlobalPoint & point )
       {return builder(originalTSCP.theState(), point);}
 
-    TrajectoryStateClosestToPoint impactPointTSCP()
+    TrajectoryStateClosestToPoint impactPointTSCP() const
       {return originalTSCP;}
 
-    TrajectoryStateOnSurface impactPointState();
+    TrajectoryStateOnSurface impactPointState() const;
 
     // access to original persistent track
-    const Track & persistentTrack() { return tk_; }
+    const Track & persistentTrack() const { return tk_; }
+
+    TrackCharge charge() const {return charge();}
+
+    bool operator== (const TransientTrack & a) const {return true;}
+    bool operator< (const TransientTrack & a) const 
+      {return (originalTSCP.momentum().z()<a.impactPointTSCP().momentum().z());}
 
   private:
 
-    void calculateStateAtVertex();
+    void calculateStateAtVertex() const;
 
     const Track & tk_;
 
     TrajectoryStateClosestToPoint originalTSCP;
-    bool stateAtVertexAvailable;
-    TrajectoryStateOnSurface theStateAtVertex;
+    mutable bool stateAtVertexAvailable;
+    mutable TrajectoryStateOnSurface theStateAtVertex;
     TSCPBuilderNoMaterial builder;
 
 
