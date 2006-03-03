@@ -36,13 +36,13 @@ pool::TrivialFileCatalog::connect ()
     try
     {
 	PoolMessageStream trivialLog( "TrivialFileCatalog", seal::Msg::Nil );
-	trivialLog << seal::Msg::Info << "Connecting to the catalog "
+  	trivialLog << seal::Msg::Info << "Connecting to the catalog "
 		   << m_url << seal::endmsg;
 
 	if (m_url.find ("file:") != std::string::npos)
 	{
 	    m_url = m_url.erase (0, 
-				 m_url.find ("/") + 1);	
+				 m_url.find (":") + 1);	
 	}	
 	else
 	{
@@ -62,9 +62,8 @@ pool::TrivialFileCatalog::connect ()
 	char buffer[4096];
 	if (!configFile.good () || !configFile.is_open ())
 	{
-	    throw FCTransactionException
-		("TrivialFileCatalog::connect",
-		 "Error while reading configuration file"); 
+	    m_transactionsta = 0;
+            return;
 	}
     
 	while (! configFile.eof ())
@@ -182,14 +181,12 @@ pool::TrivialFileCatalog::renamePFN (const std::string& /*pfn*/,
 }
 
 void
-pool::TrivialFileCatalog::lookupFileByPFN (const std::string& /*pfn*/, 
-					   FileCatalog::FileID& /*fid*/, 
-					   std::string& /*ftype*/) const
+pool::TrivialFileCatalog::lookupFileByPFN (const std::string & pfn, 
+					   FileCatalog::FileID & fid, 
+					   std::string& filetype) const
 {
-    throw FCTransactionException
-	("TrivialFileCatalog::lookupFileByPFN",
-	 "For the time being this is not implemented. If the mapping between"
-	 "GUID/LFN and PFN is invertible this ca be implemented as well.");    
+    filetype = m_fileType;    
+    fid = pfn.substr(m_prefix.size());
 }
 
 void

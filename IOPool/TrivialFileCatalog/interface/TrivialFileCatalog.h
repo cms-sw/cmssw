@@ -171,10 +171,9 @@ private:
     /** For the time being the only allowed configuration item is a
      *  prefix to be added to the GUID/LFN.
      */ 
-    mutable bool	m_connectionStatus;
-    std::string 	m_prefix;
-    std::string		m_fileType;
-    std::string		m_configFilename;    
+    mutable bool m_connectionStatus;
+    std::string m_prefix;
+    std::string m_fileType;
 };    
     
 
