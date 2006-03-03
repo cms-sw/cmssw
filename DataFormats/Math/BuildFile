@@ -1,10 +1,7 @@
 <use name=rootrflx>
-<use name=rootcore>
 <lib name=MathCore>
-<flags LCGDICT_ARGS="--deep">
 <export>
  <lib name=DataFormatsMath>
  <use name=rootrflx>
- <use name=rootcore>
  <lib name=MathCore>
 </export>
