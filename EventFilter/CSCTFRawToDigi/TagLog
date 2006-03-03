@@ -1,3 +1,6 @@
+** V01-00-03  [Fri Mar  3 05:41:11 2006]
+Fixed Validator. Changed logging in CSCTFUnpacker
+
 ** V01-00-02  [Thu Mar  2 21:03:07 2006]
 Added message logging, CSCTFValidator now works as wanted.
 
