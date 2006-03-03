@@ -81,7 +81,7 @@ void CSCTFValidator::analyze(edm::Event const& e, edm::EventSetup const& iSetup)
 	  if(testBeam)
 	    tbdata = new CSCTFTBEventData(reinterpret_cast<unsigned short*>(fedData.data()));
 	  else
-	    edm::LogInfo("CSCTFValidator::analyze") << "Not implemented yet\n";
+	    edm::LogInfo("CSCTFValidator|analyze") << "Not implemented yet\n";
 
 	  CSCTFTBFrontBlock aFB;
 	  CSCTFTBSPBlock aSPB;
@@ -90,7 +90,7 @@ void CSCTFValidator::analyze(edm::Event const& e, edm::EventSetup const& iSetup)
 	  for(int BX = 1; BX <= tbdata->eventHeader().numBX(); ++BX)
 	    {
 	      if(testBeam) aFB = tbdata->frontDatum(BX);
-	      else edm::LogInfo("CSCTFValidator::analyze") << "Not implemented yet\n";
+	      else edm::LogInfo("CSCTFValidator|analyze") << "Not implemented yet\n";
 	      for(int FPGA = 1; FPGA <= 5; ++FPGA)
 	      {
 		for(int MPClink = 1; MPClink <= 3; ++MPClink)
@@ -107,21 +107,27 @@ void CSCTFValidator::analyze(edm::Event const& e, edm::EventSetup const& iSetup)
 			int cscid = aFB.frontData(FPGA,MPClink).CSCIDPacked();
 			if(cscid)
 			  {
-			    CSCDetId id = TFMapping->detId(TBendcap,station,TBsector,subsector,cscid,3);
-			    int match = 0;
-			    
-			    CSCCorrelatedLCTDigiCollection::Range range = corrlcts->get(id);
-			    for(CSCCorrelatedLCTDigiCollection::const_iterator j = range.first;
-				j != range.second; j++)
-			      if(j->channel() == aFB.frontDigiData(FPGA,MPClink).channel()) ++match;  
-			    
-
-			    if(match != 1) 
+			    try
 			      {
-				edm::LogError("CSCTFBValidator::analyze") << "DIGI IS NOT UNIQUE OR ZERO IN DET\n";
-				assert(1==0);
+				CSCDetId id = TFMapping->detId(TBendcap,station,TBsector,subsector,cscid,3);
+				int match = 0;
+				
+				CSCCorrelatedLCTDigiCollection::Range range = corrlcts->get(id);
+				for(CSCCorrelatedLCTDigiCollection::const_iterator j = range.first;
+				    j != range.second; j++)
+				  if(j->channel() == aFB.frontDigiData(FPGA,MPClink).channel()) ++match;  
+				
+				
+				if(match < 1) 
+				  {
+				    edm::LogError("CSCTFBValidator|analyze") << "NO DIGI IN DET\n";
+				    assert(1==0);
+				  }
 			      }
-			    else edm::LogInfo("CSCTFValidator::analyze") << "DIGI MATCHES RAWDATA IN DET\n";
+			    catch (cms::Exception &e)
+			      {
+				edm::LogInfo("CSCTFValidator|analyze") << e.what() << "\ndigi not processed.";
+			      }
 			  }
 		      }
 		  }
@@ -130,12 +136,14 @@ void CSCTFValidator::analyze(edm::Event const& e, edm::EventSetup const& iSetup)
 	}
     }		   	   
 
+  eventNumber = tbdata->eventHeader().getLvl1num();
+
   if(tbdata)
     {
       delete tbdata;
       tbdata = NULL;
     }
 	  
-  eventNumber++;
-  edm::LogInfo ("CSCTFValidator::analyze")  << "end of event number " << eventNumber;
+  
+  LogDebug ("CSCTFValidator::analyze")  << "end of event number " << eventNumber;
 }
