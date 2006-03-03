@@ -2,8 +2,8 @@
  *
  * Digi for Correlated LCT trigger primitives.
  *
- * $Date: 2006/02/24 06:36:25 $
- * $Revision: 1.3 $
+ * $Date:$
+ * $Revision:$
  *
  * \author L.Gray, UF
  */
@@ -71,28 +71,33 @@ CSCCorrelatedLCTDigi::channel() const
 }
 
 int CSCCorrelatedLCTDigi::getTrknmb()      const { return data()->trknmb; }
-int CSCCorrelatedLCTDigi::getValid()       const { return data()->valid; }
-int CSCCorrelatedLCTDigi::getQuality()     const { return data()->quality; }
-int CSCCorrelatedLCTDigi::getKwire()       const { return data()->keywire; }
-int CSCCorrelatedLCTDigi::getStrip()       const { return data()->strip;}
+
+int CSCCorrelatedLCTDigi::getValid()       const { return data()->valid;  }
+bool CSCCorrelatedLCTDigi::isValid()       const { return data()->valid;  }
+int CSCCorrelatedLCTDigi::getQuality()     const { return data()->quality;}
+int CSCCorrelatedLCTDigi::getKwire()       const { return data()->keywire;}
+int CSCCorrelatedLCTDigi::getKeyWG()       const { return data()->keywire;}
+int CSCCorrelatedLCTDigi::getStrip()       const { return data()->strip;  }
 int CSCCorrelatedLCTDigi::getCLCTPattern() const { return ((data()->pattern) & 0x7); }
 int CSCCorrelatedLCTDigi::getStriptype()   const { return (((data()->pattern) & 0x8) >> 3); }
-int CSCCorrelatedLCTDigi::getBend()        const { return data()->bend; }
-int CSCCorrelatedLCTDigi::getBx()          const { return data()->bx; }
+int CSCCorrelatedLCTDigi::getStripType()   const { return (((data()->pattern) & 0x8) >> 3); }
+int CSCCorrelatedLCTDigi::getBend()        const { return data()->bend;   }
+int CSCCorrelatedLCTDigi::getBx()          const { return data()->bx;     }
+int CSCCorrelatedLCTDigi::getBX()          const { return data()->bx;     }
 
 /// Debug
 
 void CSCCorrelatedLCTDigi::print() const
 {
-  std::cout<< "Track number: " << getTrknmb() 
+  std::cout<< " Track number: " << getTrknmb() 
 	   << " Quality: " << getQuality()
-	   << " Key Wire: " << getKwire()
+	   << " Key Wire: " << getKeyWG()
 	   << " Strip: " << getStrip()
 	   << " CLCT Pattern: " << getCLCTPattern()
-	   << " Strip Type: " << ( (getStriptype() == 0) ? 'D' : 'H' )
+	   << " Strip Type: " << ( (getStripType() == 0) ? 'D' : 'H' )
 	   << " Bend: " << ( (getBend() == 0) ? 'L' : 'R' )
-	   << " BX: " << getBx()
-	   << " Valid: " << getValid() << std::endl;
+	   << " BX: " << getBX()
+	   << " Valid: " << isValid() << std::endl;
 }
 
 void CSCCorrelatedLCTDigi::dump() const

@@ -5,8 +5,8 @@
  *
  * Digi for Correlated LCT trigger primitives. 
  *
- * $Date: 2006/02/14 23:10:14 $
- * $Revision: 1.1 $
+ * $Date:$
+ * $Revision:$
  *
  * \author L. Gray, UF
  */
@@ -69,21 +69,25 @@ class CSCCorrelatedLCTDigi
   /// return track number number
   int getTrknmb() const;
   /// return valid pattern bit
-  int getValid() const;
+  int getValid() const;  // obsolete, use isValid()
+  bool isValid() const;
   /// return the 4 bit Correlated LCT Quality
   int getQuality() const;
   /// return the key wire group
-  int getKwire() const;
+  int getKwire() const;  // obsolete, use getKeyWG()
+  int getKeyWG() const;
   /// return the strip
   int getStrip() const;
   /// return CLCT pattern number
   int getCLCTPattern() const;
   /// return strip type
-  int getStriptype() const;
+  int getStriptype() const; // obsolete, use getStripType()
+  int getStripType() const; 
   /// return bend
   int getBend() const;
   /// return BX
-  int getBx() const;
+  int getBx() const;        // obsolete, use getBX()
+  int getBX() const;
   
   /// Prints
 
@@ -120,13 +124,13 @@ class CSCCorrelatedLCTDigi
 
 inline std::ostream & operator<<(std::ostream & o, const CSCCorrelatedLCTDigi& digi) {
   return o << " " << digi.getTrknmb()
-	   << " " << digi.getValid()
+	   << " " << digi.isValid()
 	   << " " << digi.getQuality()
-	   << " " << digi.getKwire()
+	   << " " << digi.getKeyWG()
 	   << " " << digi.getStrip()
            << " " << digi.getCLCTPattern()	 
-	   << " " << digi.getStriptype()
+	   << " " << digi.getStripType()
 	   << " " << digi.getBend()
-	   << " " << digi.getBx();
+	   << " " << digi.getBX();
 }
 #endif
