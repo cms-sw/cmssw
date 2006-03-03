@@ -1,0 +1,23 @@
+
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=TrackingTools/TrajectoryParametrization>
+<use name=TrackingTools/TrajectoryStates>
+<use name=TrackingTools/PatternTools>
+<use name=FWCore/Utilities>
+<use name=DataFormats/TrackReco>
+<use name=DataFormats/Math>
+<flags SEAL_PLUGIN_NAME="TrackingToolsTransientTrack">
+<export>
+  <lib name=TrackingToolsTransientTrack>
+  <use name=FWCore/Framework>
+  <use name=Foundation/PluginManager>
+  <use name=FWCore/ParameterSet>
+  <use name=TrackingTools/TrajectoryParametrization>
+  <use name=TrackingTools/TrajectoryStates>
+  <use name=FWCore/Utilities>
+  <use name=DataFormats/TrackReco>
+  <use name=DataFormats/Math>
+</export>
+
