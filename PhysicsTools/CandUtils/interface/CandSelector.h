@@ -1,6 +1,16 @@
 #ifndef CandUtils_CandSelector_h
 #define CandUtils_CandSelector_h
-// $Id: CandSelector.h,v 1.1 2005/10/25 09:08:31 llista Exp $
+/** \class CandSelector
+ *
+ * Base class for all candidate selector 
+ *
+ * \author Luca Lista, INFN
+ *
+ * \version $Revision$
+ *
+ * $Id: Track.h,v 1.12 2006/03/01 12:23:40 llista Exp $
+ *
+ */
 
 namespace reco {
   class Candidate;
@@ -8,7 +18,9 @@ namespace reco {
 
 class CandSelector {
 public:
+  /// destructor
   virtual ~CandSelector();
+  /// return true if the candidate is selected
   virtual bool operator()( const reco::Candidate & c ) const = 0;
 };
 

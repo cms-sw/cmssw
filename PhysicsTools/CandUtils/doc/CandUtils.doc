@@ -1,0 +1,35 @@
+/*!
+\page PhysicsTools_CandUtils Package PhysicsTools/CandUtils
+<center>
+<small>
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/PhysicsTools/CandUtils/?cvsroot=CMSSW>CVS head for this package</a> - 
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/PhysicsTools/CandUtils/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+\section desc Description
+Common utilities to manipulate and analyze particle candidates
+
+\subsection interface Public interface
+- AddFourMomenta: set up a composite reco::Candidate adding its daughters four-momenta and electric charge.
+- Booster: boost a reco::Candidate by a specified boost vector. 
+- TwoBodyCombiner: produces all possible candidate pairs specifying a configurable selection criteria, checking 
+for overlaps, and avoiding double-counting.
+- CenterOfMassBooster: boost a reco::Candidate to its center-of-mass reference frame.
+- CandSelector: base class for all reco::Candidate selectors.
+- MassWindowSelector: selects candidates with a mass within a specified window.
+- Thrust: utility to compute thrust value and axis of a collection of reco::Candidates.
+
+\subsection modules Modules
+None.
+
+\subsection tests Unit tests and examples
+- testThrust: test Thrust utility.
+
+\section status Status and planned development
+To be reviewed.
+
+<hr>
+Last updated:
+07-FEB-2006 L. Lista
+*/
