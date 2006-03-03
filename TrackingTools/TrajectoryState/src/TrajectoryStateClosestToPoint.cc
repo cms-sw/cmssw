@@ -69,7 +69,7 @@ void TrajectoryStateClosestToPoint::calculateFTS() const
   GlobalTrajectoryParameters gtp(
 	    perigeeConversions.positionFromPerigee(theParameters, theRefPoint),
 	    perigeeConversions.momentumFromPerigee(theParameters, theRefPoint),
-	    perigeeConversions.chargeFromPerigee(theParameters, theRefPoint),
+	    theParameters.charge(),
 	    TrackingTools::FakeField::Field::field());
   if (errorIsAvailable) {
     theFTS = FTS(gtp, perigeeConversions.curvilinearError(thePerigeeError, gtp));

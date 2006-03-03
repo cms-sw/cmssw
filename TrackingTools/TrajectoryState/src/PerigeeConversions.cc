@@ -138,7 +138,7 @@ GlobalVector PerigeeConversions::momentumFromPerigee
 }
 
 TrackCharge PerigeeConversions::chargeFromPerigee
-  (const PerigeeTrajectoryParameters& parameters, const GlobalPoint& referencePoint) const
+  (const PerigeeTrajectoryParameters& parameters) const
 {
   return parameters.charge();
 }
@@ -324,9 +324,9 @@ PerigeeConversions::jacobianHelix2Perigee(const reco::helix::Parameters & helixP
   jac(4,1) = 1.;
   jac(3,2) = 1.;
 //   jac(1,3) = - 1. / magField.inTesla(helixPar.vertex()).z() * 2.99792458e-3;
-  jac(1,3) = - 1. / TrackingTools::FakeField::Field::inTesla(helixPar.vertex()).z() * 2.99792458e-3;
+  jac(1,3) = - 1. / (TrackingTools::FakeField::Field::inTesla(helixPar.vertex()).z() * 2.99792458e-3);
   jac(5,4) = 1.;
   jac(2,5) = -(1. + helixPar.tanDip()*helixPar.tanDip());
-
+std::cout << jac;
   return jac;
 }

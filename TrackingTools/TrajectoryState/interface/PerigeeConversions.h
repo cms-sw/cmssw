@@ -66,8 +66,7 @@ public:
    * This method returns the charge.
    */
 
-  TrackCharge chargeFromPerigee(const PerigeeTrajectoryParameters& perigee,
-    const GlobalPoint& referencePoint) const;
+  TrackCharge chargeFromPerigee(const PerigeeTrajectoryParameters& perigee) const;
 
   CurvilinearTrajectoryError curvilinearError(const PerigeeTrajectoryError& perigeeError,
     const GlobalTrajectoryParameters& gtp) const;

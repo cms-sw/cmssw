@@ -90,6 +90,21 @@ public:
    * reference point.
    */
 
+  GlobalPoint position() const {
+    return perigeeConversions.positionFromPerigee(theParameters, theRefPoint);
+  }
+
+
+  GlobalVector momentum() const {
+    return perigeeConversions.momentumFromPerigee(theParameters, theRefPoint);
+  }
+
+
+  TrackCharge charge() const {
+    return theParameters.charge();
+  }
+
+
   const FreeTrajectoryState & theState() const {
     if (!theFTSavailable) calculateFTS();
     return theFTS;
