@@ -4,26 +4,6 @@ This is the CMSSW mainpage
 
 <br><br><br><br>
 
-\section subdv Data Formats
-
-\htmlonly
-
-<TABLE BORDER CELLSPACING=3 CELLPADDING=4 WIDTH="100%" NOSAVE >
-<CAPTION>
-</CAPTION>
-<TR VALIGN=TOP><TH WIDTH="200">Domain</TH><TH WIDTH="493">Purpose</TH><TH WIDTH="200">Contact</TH></TR>
-<TR>
-  <TD>
-  \endhtmlonly \ref RecoPackages "Reco data format"   \htmlonly
-  </TD>
-  <TD>Reco data format packages for various systems</TD>
-  <TD> <A HREF="mailto:">Luca Lista</A>,
-       <A HREF="mailto:">Tommaso Boccali</A>,   
-</TR>
-</TABLE>
-
-\endhtmlonly
-
 \section subdv SubDetector View
 
 \htmlonly
@@ -53,8 +33,6 @@ This is the CMSSW mainpage
 
 \endhtmlonly
 
-<br><br><br>
-
 \section funcv Functional View
 
 \htmlonly
@@ -63,6 +41,14 @@ This is the CMSSW mainpage
 <CAPTION>
 </CAPTION>
 <TR VALIGN=TOP><TH WIDTH="200">Domain</TH><TH WIDTH="493">Purpose</TH><TH WIDTH="200">Contact</TH></TR>
+<TR>
+  <TD>
+  \endhtmlonly \ref RecoPackages "Reco data format"   \htmlonly
+  </TD>
+  <TD>Definition of data types for reconstruction output for various systems</TD>
+  <TD> <A HREF="mailto:">Luca Lista</A>,
+       <A HREF="mailto:">Tommaso Boccali</A>,   
+</TR>
 <TR>
   <TD>
   \endhtmlonly \ref Reconstruction "Reconstruction"   \htmlonly
@@ -77,6 +63,14 @@ This is the CMSSW mainpage
   <TD WIDTH="493" NOSAVE>CMS Simulation Software</TD>
   <TD> <A HREF="mailto:">Daniel Elvira</A>,
        <A HREF="mailto:">Maya Stavrianakou</A>
+  </TD>
+</TR>
+<TR VALIGN=TOP NOSAVE>
+  <TD WIDTH="237">
+  \endhtmlonly \ref PhysicsTools "Physics Tools" \htmlonly
+  </TD>
+  <TD WIDTH="493" NOSAVE>Physics Analysis Softare Tools</TD>
+  <TD> <A HREF="mailto:">Luca Lista</A>
   </TD>
 </TR>
 </TABLE>
