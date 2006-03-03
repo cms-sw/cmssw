@@ -1,7 +1,7 @@
 /** \file
  * 
- *  $Date: 2006/03/01 09:40:21 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/03/01 13:26:45 $
+ *  $Revision: 1.5 $
  *
  * \author M.Schmitt, Northwestern
  */
@@ -76,11 +76,6 @@ CSCStripDigi::print() const {
   cout << "\n";
 }
 
-void
-CSCStripDigi::dump() const {
-  typedef bitset<8*sizeof(theStripDigi)> bits;
-  cout << *reinterpret_cast<const bits*>(data());  
-}
 
 // ----- Private members
 void

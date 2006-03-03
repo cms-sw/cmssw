@@ -5,8 +5,8 @@
  *
  * Digi for CSC Cathode Strips.
  *  
- *  $Date: 2006/03/01 09:40:30 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/03/01 14:00:36 $
+ *  $Revision: 1.5 $
  *
  * \author M. Schmitt, Northwestern
  *
@@ -64,8 +64,6 @@ public:
   // Print content of digi
   void print() const;
 
-  // Print the binary representation of the digi
-  void dump() const;
 
 private:
   friend class testCSCStripDigis;
