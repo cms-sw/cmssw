@@ -53,6 +53,7 @@ public:
 
   /// Constructors
 
+  explicit CSCCLCTDigi (int valid, int quality, int patshape, int striptype,int bend,  int strip, int cfeb, int bx); // for DQM
   explicit CSCCLCTDigi (int valid, int quality, int patshape, int striptype, int bend,  int strip, int cfeb, int bx, int trknmb);  
   explicit CSCCLCTDigi (ChannelType channel); /// from channel
   CSCCLCTDigi (PackedDigiType packed_value);  /// from a packed value
@@ -71,13 +72,26 @@ public:
   ChannelType channel() const ;
 
   int getValid()     const;     // return validity
+  bool isValid()     const;     // check CLCT validity (ORCA compatible) 
+
   int getQuality()   const;     // return quality
-  int getPattern()   const;     // return pattern shape
-  int getStriptype() const;     // return striptype
+  int getPattern()   const;     // return pattern number
+
+  int getStriptype() const;     // return striptype (obsolete, use 
+                                // getStripType() instead)
+  int getStripType() const;     // return striptype (compatible with ORCA)
+
   int getBend()      const;     // return bend
   int getStrip()     const;     // return strip
-  int getCfeb ()     const;     // return Key CFEB ID
-  int getBx()        const;     // return BX
+  int getKeyStrip()  const;     // return key strip
+
+  int getCfeb()      const;     // return Key CFEB ID (obsolete, use 
+                                // getCFEB()  instead)
+  int getCFEB()      const;      // return Key CFEB ID (compatible with ORCA)
+
+  int getBx()        const;     // return BX (obsolete, use  getBX())
+  int getBX()        const;     // return BX (compatible with ORCA)
+ 
   int getTrknmb()    const;     // return track number
 
   /// Prints
@@ -115,14 +129,15 @@ private:
 #include<iostream>
   /// needed by COBRA
 inline std::ostream & operator<<(std::ostream & o, const CSCCLCTDigi& digi) {
-  return o << " " << digi.getValid()
+  return o << " " << digi.isValid()
            << " " << digi.getQuality()
            << " " << digi.getPattern()
-           << " " << digi.getStriptype()
+           << " " << digi.getStripType()
            << " " << digi.getBend()
            << " " << digi.getStrip()
-           << " " << digi.getCfeb()
-	   << " " << digi.getBx()
+           << " " << digi.getKeyStrip()
+           << " " << digi.getCFEB()
+	   << " " << digi.getBX()
            << " " << digi.getTrknmb();
 }
 #endif

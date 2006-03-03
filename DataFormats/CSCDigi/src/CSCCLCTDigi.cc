@@ -11,13 +11,18 @@
 #include <DataFormats/CSCDigi/interface/CSCCLCTDigi.h>
 
 #include <iostream>
+#include <iomanip>
 #include <bitset>
 
 using namespace std;
 
   /// Constructors
 
-CSCCLCTDigi::CSCCLCTDigi (int valid, int quality, int patshape, int striptype, int bend,  int strip, int cfeb, int bx, int trknmb) {
+CSCCLCTDigi::CSCCLCTDigi (int valid, int quality, int patshape, int striptype, int bend,  int strip, int cfeb, int bx) {
+  set(valid, quality, patshape, striptype, bend, strip, cfeb, bx, 0);
+}                 // for DQM
+
+CSCCLCTDigi::CSCCLCTDigi (int valid, int quality, int patshape, int striptype,int bend,  int strip, int cfeb, int bx, int trknmb) {
   set(valid, quality, patshape, striptype, bend, strip, cfeb, bx, trknmb);
 }
 
@@ -72,27 +77,57 @@ CSCCLCTDigi::channel() const {
 }
 
 int CSCCLCTDigi::getValid()     const { return data()->valid;    }
+bool CSCCLCTDigi::isValid()     const { return data()->valid;    }
+
 int CSCCLCTDigi::getQuality()   const { return data()->quality;  }
 int CSCCLCTDigi::getPattern()   const { return data()->patshape; }
+
 int CSCCLCTDigi::getStriptype() const { return data()->striptype;}
+int CSCCLCTDigi::getStripType() const { return data()->striptype;}
+
 int CSCCLCTDigi::getBend()      const { return data()->bend;     }
 int CSCCLCTDigi::getStrip()     const { return data()->strip;    }
+
+int CSCCLCTDigi::getKeyStrip()     const {
+    // Convert strip and CFEB to keyStrip. Each CFEB has up to 16 strips
+    // (32 halfstrips). There are 5 cfebs.  The "strip" variable is one
+    // of 32 halfstrips on the keylayer of a single CFEB, so that
+    // Distrip   = (cfeb*32 + strip)/4.
+    // Halfstrip = (cfeb*32 + strip).
+ 
+                int keyStrip = 0;
+                if (data()->striptype == 1)
+                        keyStrip = data()->cfeb*32 +  data()->strip;
+                else
+                        keyStrip = data()->cfeb*8  + (data()->strip/4);
+                return keyStrip;
+}
+
 int CSCCLCTDigi::getCfeb()      const { return data()->cfeb;     }
+int CSCCLCTDigi::getCFEB()      const { return data()->cfeb;     }
+ 
 int CSCCLCTDigi::getBx()        const { return data()->bx;       }
+int CSCCLCTDigi::getBX()        const { return data()->bx;       }
+
 int CSCCLCTDigi::getTrknmb()    const { return data()->trknmb;   }
 
   /// Debug
 
 void CSCCLCTDigi::print() const {
-  cout << "Valid "          << getValid()
-       << "Quality "        << getQuality()
-       << "Pattern shape "  << getPattern()
-       << "Strip type "     << getStriptype()
-       << "Bend "           << getBend()
-       << "Strip "          << getStrip()
-       << "Key CFEB ID "    << getCfeb()
-       << "Bx "             << getBx()
-       << "Track number "   << getTrknmb()<<endl;
+
+  char stripType = (getStripType() == 0) ? 'D' : 'H';
+  char bend      = (getBend()      == 0) ? 'L' : 'R';
+
+  cout <<" Valid: "          <<setw(1)<<isValid()
+       <<" Quality: "        <<setw(1)<<getQuality()
+       <<" Pattern shape "   <<setw(1)<<getPattern()
+       <<" Strip type: "     <<setw(1)<<stripType
+       <<" Bend: "           <<setw(1)<<bend
+       <<" Strip: "          <<setw(2)<<getStrip()
+       <<" Key Strip: "      <<setw(3)<<getKeyStrip()
+       <<" Key CFEB ID: "    <<setw(1)<<getCFEB()
+       <<" BX: "             <<setw(1)<<getBX()
+       <<" Track number: "   <<setw(1)<<getTrknmb()<<endl;
 }
 
 void CSCCLCTDigi::dump() const {

@@ -26,12 +26,12 @@ public:
                 quality_s   = 2, // Quality of a pattern
                 accel_s     = 1, // 1-Accelerator pattern, 0-CollisionA or
                                  // Collision B pattern
-                pattern_s  = 1, // 1-CollisionB pattern if accel_s=0,
+                pattern_s   = 1, // 1-CollisionB pattern if accel_s=0,
                                  // 0-CollisionA pattern if accel_s=0 
                 keywire_s   = 7, // Key Wire group
                 bx_s        = 5, // BX - five low bits of BXN counter 
                                  // tagged by the ALCT
-                trknmb_s    = 2 // track number (1,2), not a part of ALCT
+                trknmb_s    = 2  // track number (1,2), not a part of ALCT
                                  // data format
   };
       /// The packed digi content  
@@ -55,6 +55,7 @@ public:
   /// Constructors
 
 //  explicit CSCALCTDigi (int trknmb, int keywire,int bx, int quality, int pattern, int valid);  // obsolete
+  explicit CSCALCTDigi (int valid, int quality, int accel, int pattern, int keywire, int bx ); // for consistency with DQM
   explicit CSCALCTDigi (int valid, int quality, int accel, int pattern, int keywire, int bx, int trknmb); 
   explicit CSCALCTDigi (ChannelType channel); /// from channel
   CSCALCTDigi (PackedDigiType packed_value);  /// from a packed value
@@ -72,20 +73,24 @@ public:
       /// the channel identifier and the digi number packed together
   ChannelType channel() const ;
 
-      /// return ALCT validity
-  int getValid() const;
-      /// return quality
-  int getQuality() const;
-      /// return accel
-  int getAccel() const;
-      /// return pattern
-  int getPattern() const;
-      /// return key wire group
-  int getKwire() const;
-      /// return BX
-  int getBx() const;
-      /// return track number number
-  int getTrknmb() const;
+  int getValid() const;       // return ALCT validity
+  bool isValid() const;       // check ALCT validity (for consistency with ORCA)
+
+  int getQuality() const;     // return quality
+
+  int getAccel() const;       // return accel (obsolete, use getAccelerator() instead)
+  int getAccelerator() const; // return Accelerator bit (for consistency with ORCA)
+
+  int getPattern() const;     // return pattern (obsolete??? use getCollisionB() instead???)
+  int getCollisionB() const;  // return Collision Pattern B bit (for consistency with ORCA)
+
+  int getKwire() const;       // return key wire group (obsolete, use getKeyWG() instead)
+  int getKeyWG() const;       // return key wire group (for consistency with ORCA)
+
+  int getBx() const;          // return BX (obsolete, use getBX() instead)
+  int getBX() const;          // return BX (for consistency with ORCA)
+
+  int getTrknmb() const;      // return track number
 
   /// Prints
 
@@ -100,6 +105,7 @@ private:
   /// Set, access, repack
 
 //  void set(int trknmb, int keywire,int bx, int quality, int pattern, int valid);      /// set data words
+//  void set(int valid, int quality, int accel, int pattern, int keywire,int bx); /// set data words, for DQM
   void set(int valid, int quality, int accel, int pattern, int keywire, int bx, int trknmb); /// set data words
   void setData(PackedDigiType p);     /// set from a PackedDigiType
   PackedDigiType* data();             /// access to the packed data
@@ -121,11 +127,11 @@ private:
 #include<iostream>
   /// needed by COBRA
 inline std::ostream & operator<<(std::ostream & o, const CSCALCTDigi& digi) {
-  return o << " " << digi.getValid()
+  return o << " " << digi.isValid()
            << " " << digi.getQuality()
-           << " " << digi.getAccel()
-           << " " << digi.getPattern()
-           << " " << digi.getKwire()
+           << " " << digi.getAccelerator()
+           << " " << digi.getCollisionB()
+           << " " << digi.getKeyWG()
            << " " << digi.getBx()
            << " " << digi.getTrknmb();
 }
