@@ -23,7 +23,7 @@ to be returned, *not* the ordinal number of the T to be returned.
    DetSet object in a DetSetVector.
 			  ------------------
 
-$Id: DetSetVector.h,v 1.1 2006/01/27 21:20:04 paterno Exp $
+$Id: DetSetVector.h,v 1.1 2006/02/07 07:01:50 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -84,8 +84,8 @@ namespace edm {
     BOOST_CLASS_REQUIRE(T, boost, LessThanComparableConcept);
   public:
 
-    typedef T                   value_type;
     typedef DetSet<T>           detset;
+    typedef detset              value_type;
     typedef std::vector<detset> collection_type;
 
     typedef detset&        reference;
@@ -324,7 +324,64 @@ namespace edm {
   {
     std::sort(_sets.begin(), _sets.end());
   }
-
 }
 
+
+//specialize behavior of edm::Ref to get access to the 'Det'
+#include "DataFormats/Common/interface/RefItem.h"
+#include "DataFormats/Common/interface/Ref.h"
+namespace edm {
+
+   namespace refitem {
+      template<typename T>
+      struct GetPtrImpl<DetSetVector<T>,T> {
+         static T const* getPtr_(RefCore const& product, RefItem const& item) {
+            typedef DetSetVector<T> C;
+            C const* prod = getProduct<C>(product);
+            typename C::const_iterator it = prod->begin();
+            RefItem::size_type index = item.index(); 
+            for(; it != prod->end(); ++it) {
+               if( index < it->data.size() ) {
+                  T const* p = (it->data.begin()+index).operator->();
+                  return p;
+               }
+               index -= it->data.size();
+            }
+            throw edm::Exception(errors::InvalidReference)
+               << "edm::Ref<DetSetVector<...> > can not find referenced item;\n"
+               << "index value: " << item.index();        
+            return 0;
+         }
+      };
+   }
+   
+   //helper function to make it easier to create a edm::Ref
+   
+   template<class HandleT>
+   Ref< typename HandleT::element_type, typename HandleT::element_type::value_type::value_type> 
+   makeRefTo(const HandleT& iHandle, 
+             det_id_type iDetID,
+             typename HandleT::element_type::value_type::const_iterator itIter) {
+      typedef typename HandleT::element_type Vec;
+      typename Vec::value_type::collection_type::size_type index=0;
+      typename Vec::const_iterator itFound = iHandle->find(iDetID);
+      for(typename Vec::const_iterator it = iHandle->begin();
+          it != itFound;
+          ++it) {
+         index += it->data.size();
+      }
+      index += (itIter- itFound->data.begin());
+      return    Ref< typename HandleT::element_type, typename HandleT::element_type::value_type::value_type> (iHandle,index);
+   }
+   
+   template<class HandleT>
+   Ref< typename HandleT::element_type, typename HandleT::element_type::value_type::value_type> 
+   makeRefToDetSetVector(const HandleT& iHandle, 
+             det_id_type iDetID,
+             typename HandleT::element_type::value_type::iterator itIter) {
+      typedef typename HandleT::element_type Vec;
+      typename Vec::detset::const_iterator itIter2 = itIter;
+      return makeRefTo(iHandle,iDetID,itIter2);
+   }
+}  
 #endif
