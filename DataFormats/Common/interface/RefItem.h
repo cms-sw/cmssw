@@ -5,7 +5,7 @@
   
 RefItem: Index and pointer to a referenced item.
 
-$Id: RefItem.h,v 1.8 2005/12/15 23:06:29 wmtan Exp $
+$Id: RefItem.h,v 1.1 2006/02/07 07:01:50 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <vector>
@@ -41,13 +41,21 @@ namespace edm {
     return !(lhs == rhs);
   }
 
+  namespace refitem {
+     template< typename C, typename T>
+     struct GetPtrImpl {
+        static T const* getPtr_(RefCore const& product, RefItem const& item) {
+           C const* prod = getProduct<C>(product);
+           typename C::const_iterator it = prod->begin();
+           std::advance(it, item.index());
+           T const* p = it.operator->();
+           return p;
+        }
+     };
+  }
   template <typename C, typename T>
   T const* getPtr_(RefCore const& product, RefItem const& item) {
-    C const* prod = getProduct<C>(product);
-    typename C::const_iterator it = prod->begin();
-    std::advance(it, item.index());
-    T const* p = it.operator->();
-    return p;
+     return refitem::GetPtrImpl<C,T>::getPtr_(product,item);
   }
 
   template <typename C, typename T>
