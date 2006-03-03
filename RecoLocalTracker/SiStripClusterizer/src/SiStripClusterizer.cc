@@ -34,19 +34,12 @@ namespace cms
 {
   SiStripClusterizer::SiStripClusterizer(edm::ParameterSet const& conf) : 
     siStripClusterizerAlgorithm_(conf) ,
-    conf_(conf){
+    conf_(conf),
+    userEnv_("CORAL_AUTH_USER=" + conf.getUntrackedParameter<std::string>("userEnv","me")),
+    passwdEnv_("CORAL_AUTH_PASSWORD="+ conf.getUntrackedParameter<std::string>("passwdEnv","mypass")){
 
-    //FIXME
-    //Try to insert Env Variables for CORAL user and passwd 
-    // by means of putenv 
-    //   const std::string userEnv = iConfig.getUntrackedParameter<string>("CORAL_AUTH_PASSWORD_ENV","CORAL_AUTH_USER=me");
-    //   cout << "userNameEnv " << userEnv << " " << const_cast<char*>( userEnv.c_str() ) << endl;
-    //   ::putenv( const_cast<char*>( userEnv.c_str() ) );
-    //   const std::string passwdEnv = iConfig.getUntrackedParameter<string>("CORAL_AUTH_PASSWORD_ENV","CORAL_AUTH_PASSWORD=mypass");
-    //   cout << "passwdEnv " << passwdEnv << " " << const_cast<char*>( passwdEnv.c_str() ) << endl;
-    //   ::putenv( const_cast<char*>( passwdEnv.c_str() ) );
-  ::putenv("CORAL_AUTH_USER=me");
-  ::putenv("CORAL_AUTH_PASSWORD=mypass"); 
+    ::putenv( const_cast<char*>( userEnv_.c_str() ) );
+    ::putenv( const_cast<char*>( passwdEnv_.c_str() ) );
 
     produces<SiStripClusterCollection>();
   }

@@ -51,8 +51,8 @@ namespace cms
     edm::ESHandle<SiStripNoises> noise;
     edm::ESHandle<TrackingGeometry> pDD;
     bool UseNoiseBadStripFlagFromDB_;
+    std::string userEnv_;  
+    std::string passwdEnv_;
   };
 }
-
-
 #endif
