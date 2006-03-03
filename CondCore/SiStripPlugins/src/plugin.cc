@@ -15,10 +15,13 @@
 #include "CondFormats/DataRecord/interface/SiStripPedestalsRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 #include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
-
+#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
+#include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 
 DEFINE_SEAL_MODULE();
 REGISTER_PLUGIN(SiStripReadoutCablingRcd, SiStripReadoutCabling);
 REGISTER_PLUGIN(SiStripControlCablingRcd, SiStripControlCabling);
 REGISTER_PLUGIN(SiStripPedestalsRcd,SiStripPedestals);
 REGISTER_PLUGIN(SiStripNoisesRcd,SiStripNoises);
+REGISTER_PLUGIN(SiStripFedCablingRcd,SiStripFedCabling);
+
