@@ -10,6 +10,7 @@
  */
 
 #include <DataFormats/TrackingRecHit/interface/RecHit2DLocalPos.h>
+#include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include <vector>
 
 class CSCRecHit2D : public RecHit2DLocalPos
@@ -20,7 +21,7 @@ public:
 
   CSCRecHit2D();
   //  CSCRecHit2D( const DetId& id, const GeomDet* det, 
-  CSCRecHit2D( const DetId& id, 
+  CSCRecHit2D( const CSCDetId& id, 
                const LocalPoint& pos, const LocalError& err, 
 	       const ChannelContainer& channels,
                float chi2, float prob );
@@ -55,7 +56,7 @@ public:
   //  bool nearby(float otherX, float maxDeltaRPhi);
 
 private:
-  DetId theDetId;
+  CSCDetId theDetId;
   //  const GeomDet* theDet;
   LocalPoint theLocalPosition;
   LocalError theLocalError;

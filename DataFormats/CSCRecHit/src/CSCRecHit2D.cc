@@ -7,7 +7,7 @@ CSCRecHit2D::CSCRecHit2D() :
   theChi2( -1. ), theProb( 0. )
 {}
 
-CSCRecHit2D::CSCRecHit2D( const DetId& id, 
+CSCRecHit2D::CSCRecHit2D( const CSCDetId& id, 
                const LocalPoint& pos, const LocalError& err, 
 	       const ChannelContainer& channels,
 	       float chi2, float prob ) :
