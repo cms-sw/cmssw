@@ -14,8 +14,8 @@
 // Created:         Thu Jan 12 21:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/01/14 22:00:00 $
-// $Revision: 1.1 $
+// $Date: 2006/01/15 01:00:30 $
+// $Revision: 1.2 $
 //
 
 #include <vector>
@@ -47,7 +47,7 @@ class RoadMaker {
   void collectOuterTOBSeedRings(std::vector<Ring*>& set);
   void collectOuterTECSeedRings(std::vector<Ring*>& set);
 
-  void printTrackerDetUnits(const TrackingGeometry &tracker);
+  std::string printTrackerDetUnits(const TrackingGeometry &tracker);
 
   inline Roads* getRoads() { return roads_; }
 

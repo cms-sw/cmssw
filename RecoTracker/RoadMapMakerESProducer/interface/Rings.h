@@ -12,8 +12,8 @@
 // Created:         Thu Jan 12 21:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/01/14 22:00:00 $
-// $Revision: 1.1 $
+// $Date: 2006/01/15 01:00:30 $
+// $Revision: 1.2 $
 //
 
 #include <vector>
@@ -90,8 +90,8 @@ class Rings {
 				 unsigned int petal_fw_bw,
 				 unsigned int petal,
 				 unsigned int ring,
-				 unsigned int detector_fw_bw,
-				 unsigned int detector,
+				 unsigned int module_fw_bw,
+				 unsigned int module,
 				 unsigned int stereo);
 
   Ring constructTrackerPXBRing(const TrackingGeometry &tracker,
@@ -160,11 +160,15 @@ class Rings {
   std::string dumpOldStylePXB(unsigned int &nLayer);
   std::string dumpOldStylePXF(unsigned int &nLayer);
 
+  void fillTECGeometryArray(const TrackingGeometry &tracker);
+
  private:
   
   int verbosity_;
 
   std::vector<Ring> rings_;
+
+  int tec_[2][9][2][8][7][2][3];
 
 };
 
