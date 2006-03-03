@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/02/15 13:54:45 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/02/22 13:52:56 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane & G. Cerminara - INFN Torino
  */
 
@@ -27,10 +27,10 @@ DTRecHitBaseAlgo::~DTRecHitBaseAlgo(){}
 
 
 // Build all hits in the range associated to the layerId, at the 1st step.
-vector<DTRecHit1DPair> DTRecHitBaseAlgo::reconstruct(const DTLayer* layer,
-						     const DTLayerId& layerId,
-						     const DTDigiCollection::Range& digiRange) {
-  vector<DTRecHit1DPair> result; 
+OwnVector<DTRecHit1DPair> DTRecHitBaseAlgo::reconstruct(const DTLayer* layer,
+							const DTLayerId& layerId,
+							const DTDigiCollection::Range& digiRange) {
+  OwnVector<DTRecHit1DPair> result; 
 
   // Loop over all digis in the given range
   for (DTDigiCollection::const_iterator digi = digiRange.first;
@@ -60,8 +60,8 @@ vector<DTRecHit1DPair> DTRecHitBaseAlgo::reconstruct(const DTLayer* layer,
     recHitPair->setPositionAndError(DTEnums::Left, lpoint, tmpErr);
     recHitPair->setPositionAndError(DTEnums::Right, rpoint, tmpErr);        
 
-    result.push_back(*recHitPair);
-    delete recHitPair;
+    result.push_back(recHitPair);
+//     delete recHitPair;
   }
   return result;
 }

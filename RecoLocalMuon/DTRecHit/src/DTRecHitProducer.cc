@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/02/15 13:57:52 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/02/22 13:52:56 $
+ *  $Revision: 1.3 $
  *  \author G. Cerminara
  */
 
@@ -24,7 +24,7 @@
 #include "RecoLocalMuon/DTRecHit/interface/DTRecHitAlgoFactory.h"
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 #include <string>
-#include <vector>
+
 
 using namespace edm;
 using namespace std;
@@ -82,15 +82,14 @@ void DTRecHitProducer::produce(Event& event, const EventSetup& setup) {
     // Get the iterators over the digis associated with this LayerId
     const DTDigiCollection::Range& range = (*dtLayerIt).second;
     
-    vector<DTRecHit1DPair> recHits =
+    OwnVector<DTRecHit1DPair> recHits =
       theAlgo->reconstruct(layer, layerId, range);
-      
-
-    cout << "Number of hits in this layer: " << recHits.size() << endl;
-
-    recHitCollection->put(make_pair(recHits.begin(), recHits.end()), layerId);
+    
+    if(debug)
+      cout << "Number of hits in this layer: " << recHits.size() << endl;
+    if(recHits.size() > 0) //FIXME: is it really needed?
+      recHitCollection->put(layerId, recHits.begin(), recHits.end());
   }
-
 
   event.put(recHitCollection);
 }

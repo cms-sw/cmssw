@@ -5,17 +5,17 @@
  *  Abstract algorithmic class to compute drift distance and error 
  *  form a DT digi
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/02/15 13:54:45 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane & G. Cerminara - INFN Torino
  */
 
-#include <vector>
 #include "Geometry/Vector/interface/LocalPoint.h"
 #include "Geometry/Surface/interface/LocalError.h"
 #include "Geometry/Vector/interface/GlobalPoint.h"
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecHit1DPair.h"
+#include "DataFormats/Common/interface/OwnVector.h"
 
 class DTDigi;
 class DTLayer;
@@ -42,9 +42,9 @@ class DTRecHitBaseAlgo {
   
 
   /// Build all hits in the range associated to the layerId, at the 1st step.
-  virtual std::vector<DTRecHit1DPair> reconstruct(const DTLayer* layer,
-				      const DTLayerId& layerId,
-				      const DTDigiCollection::Range& digiRange);
+  virtual edm::OwnVector<DTRecHit1DPair> reconstruct(const DTLayer* layer,
+						     const DTLayerId& layerId,
+						     const DTDigiCollection::Range& digiRange);
 
 
   /// Whether the algorithm can update hits once the 2D segment is

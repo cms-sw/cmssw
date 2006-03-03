@@ -1,9 +1,11 @@
 <lcgdict>
 <class name="DTRecHit1D"/>
 <class name="DTRecHit1DPair"/>
+<class name="std::pair<const DTRecHit1D*, const DTRecHit1D*>"/>
 <class name="std::vector<DTRecHit1DPair>"/>
+<class name="edm::OwnVector<DTRecHit1DPair,edm::ClonePolicy<DTRecHit1DPair> >"/>
 <class name="std::map<DTLayerId,std::vector<DTRecHit1DPair> >"/>
-<class name="MuonDigiCollection<DTLayerId,DTRecHit1DPair>"/> 
-<class name="edm::Wrapper<MuonDigiCollection<DTLayerId,DTRecHit1DPair>>"/> 
+<class name="edm::RangeMap <DTLayerId, edm::OwnVector<DTRecHit1DPair,edm::ClonePolicy<DTRecHit1DPair> >,edm::ClonePolicy<DTRecHit1DPair> >"/>
+<class name="edm::Wrapper<edm::RangeMap <DTLayerId, edm::OwnVector<DTRecHit1DPair,edm::ClonePolicy<DTRecHit1DPair> >,edm::ClonePolicy<DTRecHit1DPair> > >"/>
 </lcgdict>
 

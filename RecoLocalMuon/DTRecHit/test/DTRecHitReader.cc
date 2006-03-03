@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/02/15 13:56:48 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -90,19 +90,26 @@ void DTRecHitReader::analyze(const Event & event, const EventSetup& eventSetup){
     mapSimHitsPerWire(simHits);
 
   // Iterate over all detunits
-  DTRecHitCollection::DigiRangeIterator detUnitIt;
-  for (detUnitIt = dtTecHits->begin();
-       detUnitIt != dtTecHits->end();
+  DTRecHitCollection::id_iterator detUnitIt;
+  for (detUnitIt = dtTecHits->id_begin();
+       detUnitIt != dtTecHits->id_end();
        ++detUnitIt){
     //     const DTLayerId& layerId = (*detUnitIt).first;
-    const DTRecHitCollection::Range& range = (*detUnitIt).second;
-      
+//     const DTRecHitCollection::Range& range = (*detUnitIt).second;
+    
+    DTRecHitCollection::range  range = dtTecHits->get((*detUnitIt));
     // Loop over the rechits of this DetUnit
     for (DTRecHitCollection::const_iterator rechit = range.first;
 	 rechit!=range.second;
 	   ++rechit){
       // Get the wireId of the rechit
       DTWireId wireId = (*rechit).wireId();
+
+      // Access to Right and left rechits
+      pair<const DTRecHit1D*, const DTRecHit1D*> lrRecHits = (*rechit).componentRecHits();
+      
+      cout << "Left Hit x(cm): " << lrRecHits.first->localPosition().x() << endl;
+      cout << "Right Hit x(cm): " << lrRecHits.second->localPosition().x() << endl;
 
       // Compute the rechit distance from wire
       float distFromWire = fabs((*rechit).localPosition(DTEnums::Left).x() -
