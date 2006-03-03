@@ -3,7 +3,7 @@
 
 #include "RecoVertex/VertexPrimitives/interface/RefCountedLinearizedTrackState.h"
 #include "RecoVertex/VertexTools/interface/PerigeeLinearizedTrackState.h"
-#include "RecoVertex/VertexPrimitives/interface/DummyRecTrack.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
 
 /**
@@ -18,10 +18,10 @@ class LinearizedTrackStateFactory {
 public:
 
   RefCountedLinearizedTrackState
-    linearizedTrackState(const GlobalPoint & linP, const DummyRecTrack & track) const;
+    linearizedTrackState(const GlobalPoint & linP, const reco::TransientTrack & track) const;
 
   RefCountedLinearizedTrackState
-    linearizedTrackState(const GlobalPoint & linP, const DummyRecTrack & track,
+    linearizedTrackState(const GlobalPoint & linP, const reco::TransientTrack & track,
     	const TrajectoryStateOnSurface& tsos) const;
 
   RefCountedLinearizedTrackState

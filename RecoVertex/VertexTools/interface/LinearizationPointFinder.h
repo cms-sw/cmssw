@@ -1,9 +1,9 @@
 #ifndef _LinearizationPointFinder_H_
 #define _LinearizationPointFinder_H_
 
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "Geometry/Vector/interface/GlobalPoint.h"
 #include <vector>
-class DummyRecTrack;
 class FreeTrajectoryState;
 
 /**  Generic class to make an Initial Linearization point
@@ -18,7 +18,7 @@ public:
    *  as an object of type GlobalPoint
    */
 
-  virtual GlobalPoint getLinearizationPoint(const std::vector<DummyRecTrack> &)
+  virtual GlobalPoint getLinearizationPoint(const std::vector<reco::TransientTrack> &)
     const=0;
 
   virtual GlobalPoint getLinearizationPoint(const std::vector<FreeTrajectoryState> &) const;

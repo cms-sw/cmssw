@@ -3,6 +3,7 @@
 #include "TrackingTools/TrajectoryState/interface/PerigeeConversions.h"
 #include "RecoVertex/VertexPrimitives/interface/RefCountedLinearizedTrackState.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
 
 // #include "CommonReco/PatternTools/interface/TransverseImpactPointExtrapolator.h"
 // #include "CommonDet/DetUtilities/interface/FastTimeMe.h"
@@ -193,8 +194,7 @@ PerigeeLinearizedTrackState::createRefittedTrackState(
   PerigeeConversions perigeeConversions;
   TrajectoryStateClosestToPoint refittedTSCP = 
         perigeeConversions.trajectoryStateClosestToPoint(
-	  vectorParameters, vertexPosition, charge(), covarianceMatrix, 
-	  theTSOS.freeState()->parameters().magneticField());
+	  vectorParameters, vertexPosition, charge(), covarianceMatrix);
   return RefCountedRefittedTrackState(new PerigeeRefittedTrackState(refittedTSCP));
 }
 

@@ -3,7 +3,7 @@
 
 RefCountedLinearizedTrackState 
 LinearizedTrackStateFactory::linearizedTrackState(const GlobalPoint & linP, 
-	const DummyRecTrack & track, const TrajectoryStateOnSurface& tsos) const
+	const reco::TransientTrack & track, const TrajectoryStateOnSurface& tsos) const
 {
   return RefCountedLinearizedTrackState(
     new PerigeeLinearizedTrackState(linP, track, tsos ) );
@@ -11,7 +11,7 @@ LinearizedTrackStateFactory::linearizedTrackState(const GlobalPoint & linP,
  
 RefCountedLinearizedTrackState 
 LinearizedTrackStateFactory::linearizedTrackState(const GlobalPoint & linP, 
-  					const DummyRecTrack & track) const
+  					const reco::TransientTrack & track) const
 {
   return RefCountedLinearizedTrackState(
     new PerigeeLinearizedTrackState(linP, track, track.impactPointState() ) );

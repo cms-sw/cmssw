@@ -7,6 +7,7 @@
 #include "RecoVertex/VertexPrimitives/interface/VertexSmoother.h"
 #include "RecoVertex/VertexTools/interface/LinearizedTrackStateFactory.h"
 #include "RecoVertex/VertexTools/interface/VertexTrackFactory.h"
+// #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 // #include "Vertex/VertexPrimitives/interface/VertexSeedFactory.h"
 
 /**
@@ -67,13 +68,13 @@ public:
   	{theMaxStep = maxIterations;}
 
  /**
-  * Method returning the fitted vertex, from a container of DummyRecTracks.
+  * Method returning the fitted vertex, from a container of reco::TransientTracks.
   * The linearization point will be searched with the given LP finder.
   * No prior vertex position will be used in the vertex fit.
   * \param tracks The container of RecTracks to fit.
   * \return The fitted vertex
   */
-  virtual CachingVertex vertex(const std::vector<DummyRecTrack> & tracks) const;
+  virtual CachingVertex vertex(const std::vector<reco::TransientTrack> & tracks) const;
 
  /**
   * Method returning the fitted vertex, from a container of VertexTracks.
@@ -89,7 +90,7 @@ public:
 
   /** Fit vertex out of a set of RecTracks. Uses the specified linearization point.
    */
-  virtual CachingVertex  vertex(const std::vector<DummyRecTrack> & tracks, 
+  virtual CachingVertex  vertex(const std::vector<reco::TransientTrack> & tracks, 
   		const GlobalPoint& linPoint) const;
 
   /** Fit vertex out of a set of RecTracks. 
@@ -97,7 +98,7 @@ public:
    *   estimate of the vertex position. The error is used for the 
    *   weight of the prior estimate.
    */
-  virtual CachingVertex vertex(const std::vector<DummyRecTrack> & tracks, 
+  virtual CachingVertex vertex(const std::vector<reco::TransientTrack> & tracks, 
   		const GlobalPoint& priorPos,
   		const GlobalError& priorError) const;
 
@@ -174,7 +175,7 @@ private:
    *	also be used as the new linearization point.
    * \return The container of VertexTracks which are to be used in the next fit.
    */
-  std::vector<RefCountedVertexTrack> linearizeTracks(const std::vector<DummyRecTrack> & tracks,
+  std::vector<RefCountedVertexTrack> linearizeTracks(const std::vector<reco::TransientTrack> & tracks,
 				  const VertexState state) const;
 
   /**

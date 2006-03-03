@@ -54,7 +54,7 @@ public:
    */
   const GlobalPoint & linearizationPoint() const { return theLinPoint; }
 
-  DummyRecTrack track() const { return theTrack; }
+  virtual reco::TransientTrack track() const { return theTrack; }
 
   const TrajectoryStateOnSurface state() const { return theTSOS; }
 
@@ -140,7 +140,7 @@ private:
   /** Constructor with the linearization point and the track.
    *  Private, can only be used by LinearizedTrackFactory.
    */
-   PerigeeLinearizedTrackState(const GlobalPoint & linP, const DummyRecTrack & track, 
+   PerigeeLinearizedTrackState(const GlobalPoint & linP, const reco::TransientTrack & track, 
   	const TrajectoryStateOnSurface& tsos)
      : theLinPoint(linP), theTrack(track), jacobiansAvailable(false),
        // impactPointAvailable(false), 
@@ -160,7 +160,7 @@ private:
   void compute3DImpactPoint() const;
 
   GlobalPoint theLinPoint;
-  DummyRecTrack theTrack;
+  reco::TransientTrack theTrack;
 
   mutable bool jacobiansAvailable;
   mutable AlgebraicMatrix thePositionJacobian, theMomentumJacobian;

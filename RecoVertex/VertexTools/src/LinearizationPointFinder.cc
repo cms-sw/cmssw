@@ -1,12 +1,11 @@
 #include "RecoVertex/VertexTools/interface/LinearizationPointFinder.h"
 // #include "CommonReco/PatternTools/interface/ConcreteRecTrack.h"
-#include "RecoVertex/VertexPrimitives/interface/DummyRecTrack.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 
 GlobalPoint LinearizationPointFinder::getLinearizationPoint(
     const std::vector<FreeTrajectoryState> & ftses ) const
 {
-  std::vector < DummyRecTrack > rectracks;
+  std::vector < reco::TransientTrack > rectracks;
 //   vector < ConcreteRecTrack > concreteTks;
 // 
 //   TrajectorySeed ts;

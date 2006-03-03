@@ -53,7 +53,7 @@ void SequentialVertexFitter::readParameters()
 
 
 CachingVertex 
-SequentialVertexFitter::vertex(const vector<DummyRecTrack> & tracks) const
+SequentialVertexFitter::vertex(const vector<reco::TransientTrack> & tracks) const
 { 
   // Linearization Point
   GlobalPoint linP = theLinP->getLinearizationPoint(tracks);
@@ -83,7 +83,7 @@ SequentialVertexFitter::vertex(const vector<RefCountedVertexTrack> & tracks) con
 // Uses the specified linearization point.
 //
 CachingVertex  
-SequentialVertexFitter::vertex(const vector<DummyRecTrack> & tracks, 
+SequentialVertexFitter::vertex(const vector<reco::TransientTrack> & tracks, 
 			       const GlobalPoint& linPoint) const
 { 
   // Initial vertex state, with a very large error matrix
@@ -100,7 +100,7 @@ SequentialVertexFitter::vertex(const vector<DummyRecTrack> & tracks,
 // weight of the prior estimate.
 //
 CachingVertex SequentialVertexFitter::vertex(
-  const vector<DummyRecTrack> & tracks, 
+  const vector<reco::TransientTrack> & tracks, 
   const GlobalPoint& priorPos,
   const GlobalError& priorError) const
 { 
@@ -127,12 +127,12 @@ CachingVertex SequentialVertexFitter::vertex(
 //
 vector<RefCountedVertexTrack> 
 SequentialVertexFitter::linearizeTracks(
-  const vector<DummyRecTrack> & tracks, 
+  const vector<reco::TransientTrack> & tracks, 
   const VertexState state) const
 {
   GlobalPoint linP = state.position();
   vector<RefCountedVertexTrack> finalTracks;
-  for(vector<DummyRecTrack>::const_iterator i = tracks.begin(); 
+  for(vector<reco::TransientTrack>::const_iterator i = tracks.begin(); 
       i != tracks.end(); i++) {
     RefCountedLinearizedTrackState lTrData 
       = theLTrackFactory.linearizedTrackState(linP, *i);
