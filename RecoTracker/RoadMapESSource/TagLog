@@ -1,3 +1,6 @@
+** V00-01-01  [Sat Mar  4 00:26:34 2006]
+changes due to the fix in the TEC implementation are propagated to the used ascii file dump of the roads
+
 ** V00-01-00  [Tue Feb 28 19:25:39 2006]
 added official binary file treatment for roads.dat
 
