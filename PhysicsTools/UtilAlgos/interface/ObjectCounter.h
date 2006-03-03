@@ -1,7 +1,20 @@
 #ifndef UtilAlgos_ObjectCounter_h
 #define UtilAlgos_ObjectCounter_h
-// Merges multiple collections
-// $Id: ObjectCounter.h,v 1.3 2006/02/20 07:45:16 llista Exp $
+/** \class ObjectCounter
+ *
+ * Counts the number of objects in a collection and prints a
+ * summary report at the end of a job.
+ * 
+ * Template parameters:
+ * - C : collection type
+ *
+ * \author Luca Lista, INFN
+ *
+ * \version $Revision: 1.2 $
+ *
+ * $Id: CandReducer.h,v 1.2 2006/03/03 10:20:44 llista Exp $
+ *
+ */
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

@@ -1,0 +1,32 @@
+/*!
+\page PhysicsTools_UtilAlgos Package PhysicsTools/UtilAlgos
+<center>
+<small>
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/PhysicsTools/UtilAlgos/?cvsroot=CMSSW>CVS head for this package</a> - 
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/PhysicsTools/UtilAlgos/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+\section desc Description
+Framework generic utility modules
+
+\subsection interface Public interface
+- Merger: merges an arbitrary number of collections into a single collection.
+- SelectorProducer: selects objects from a collection according to a criterion 
+specified by a functor class and saves their clones in a new collection. 
+- ObjectCounter: counts the number of objects in a collection and prints a
+summary report at the end of a job.
+
+\subsection modules Modules
+None.
+
+\subsection tests Unit tests and examples
+None.
+
+\section status Status and planned development
+To be reviewed.
+
+<hr>
+Last updated:
+$Date$ L. Lista
+*/

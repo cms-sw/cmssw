@@ -1,7 +1,24 @@
 #ifndef UtilAlgos_SelectorProducer_h
 #define UtilAlgos_SelectorProducer_h
-// Candidate Selector base producer module
-// $Id: SelectorProducer.h,v 1.3 2005/10/25 09:08:31 llista Exp $
+/** \class SelectorProducer
+ *
+ * selects objects from a collection according to a criterion 
+ * specified by a functor class and saves their clones in a new 
+ * collection.
+ * 
+ * Template parameters:
+ * - C : collection type
+ * - S : selector function
+ * - P : policy class that specifies how objects 
+ *       in the collection are are cloned
+ *
+ * \author Luca Lista, INFN
+ *
+ * \version $Revision: 1.2 $
+ *
+ * $Id: CandReducer.h,v 1.2 2006/03/03 10:20:44 llista Exp $
+ *
+ */
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "boost/shared_ptr.hpp"

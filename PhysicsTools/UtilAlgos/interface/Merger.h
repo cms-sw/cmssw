@@ -1,7 +1,22 @@
 #ifndef UtilAlgos_Merger_h
 #define UtilAlgos_Merger_h
-// Merges multiple collections
-// $Id: Merger.h,v 1.1 2005/12/13 03:39:04 llista Exp $
+/** \class Merger
+ *
+ * Merges an arbitrary number of collections 
+ * into a single collection.
+ * 
+ * Template parameters:
+ * - C : collection type
+ * - P : policy class that specifies how objects 
+ *       in the collection are are cloned
+ *
+ * \author Luca Lista, INFN
+ *
+ * \version $Revision: 1.2 $
+ *
+ * $Id: CandReducer.h,v 1.2 2006/03/03 10:20:44 llista Exp $
+ *
+ */
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -11,12 +26,17 @@
 template<typename C, typename P>
 class Merger : public edm::EDProducer {
 public:
+  /// constructor from parameter set
   explicit Merger( const edm::ParameterSet& );
+  /// destructor
   ~Merger();
 
 private:
+  /// process an event
   virtual void produce( edm::Event&, const edm::EventSetup& );
+  /// vector of strings
   typedef std::vector<std::string> vstring;
+  /// labels of the collections to be merged
   vstring src_;
 };
 
