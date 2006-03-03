@@ -14,10 +14,13 @@ class FedChannelConnection {
   
   FedChannelConnection()
     : fecCrate_(0), fecSlot_(0), fecRing_(0), ccuAddr_(0), ccuChan_(0),
-    apv0_(0), apv1_(0), dcu0x00_(false), mux0x43_(false), pll0x44_(false), lld0x60_(false),
+    apv0_(0), apv1_(0), 
     dcuId_(0), detId_(0), nPairs_(0),
-    fedId_(0), fedCh_(0), length_(0) {;}
+    fedId_(0), fedCh_(0), length_(0),
+    dcu0x00_(false), mux0x43_(false), pll0x44_(false), lld0x60_(false) {;}
   
+  /** Minimum information allowed is that required to uniquely
+      identify a module (ie, crate + FEC + ring + CCU + module). */
   FedChannelConnection( unsigned short fec_crate, 
 			unsigned short fec_slot, 
 			unsigned short fec_ring, 
@@ -25,20 +28,21 @@ class FedChannelConnection {
 			unsigned short ccu_chan, 
 			unsigned short apv0 = 0,
 			unsigned short apv1 = 0,
-			bool dcu = false,
-			bool pll = false,
-			bool mux = false,
-			bool lld = false,
 			unsigned int   dcu_id = 0,
 			uint32_t       det_id = 0,
 			unsigned short pairs  = 0,
 			unsigned short fed_id = 0,
 			unsigned short fed_ch = 0,
-			unsigned short length = 0 )
+			unsigned short length = 0,
+			bool dcu = false,
+			bool pll = false,
+			bool mux = false,
+			bool lld = false )
     : fecCrate_(fec_crate), fecSlot_(fec_slot), fecRing_(fec_ring), ccuAddr_(ccu_addr), ccuChan_(ccu_chan),
-    apv0_(apv0), apv1_(apv1), dcu0x00_(dcu), mux0x43_(mux), pll0x44_(pll), lld0x60_(lld),
+    apv0_(apv0), apv1_(apv1),
     dcuId_(dcu_id), detId_(det_id), nPairs_(pairs), 
-    fedId_(fed_id), fedCh_(fed_ch), length_(length) {;}
+    fedId_(fed_id), fedCh_(fed_ch), length_(length),
+    dcu0x00_(dcu), mux0x43_(mux), pll0x44_(pll), lld0x60_(lld) { dcu_id ? dcu0x00_=true : dcu0x00_=false; }
   
   ~FedChannelConnection() {;}
 
@@ -82,12 +86,6 @@ class FedChannelConnection {
   unsigned short apv0_; 
   unsigned short apv1_; 
 
-  // Found devices
-  bool dcu0x00_; 
-  bool mux0x43_; 
-  bool pll0x44_; 
-  bool lld0x60_; 
-
   // Module / Detector
   unsigned int   dcuId_;
   uint32_t       detId_;
@@ -97,6 +95,12 @@ class FedChannelConnection {
   unsigned short fedId_;
   unsigned short fedCh_;
   unsigned short length_;
+
+  // Found devices
+  bool dcu0x00_; 
+  bool mux0x43_; 
+  bool pll0x44_; 
+  bool lld0x60_; 
   
 };
 
