@@ -1,0 +1,31 @@
+/*!
+\page PhysicsTools_CandAlgos Package PhysicsTools/CandAlgos
+<center>
+<small>
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/PhysicsTools/CandAlgos/?cvsroot=CMSSW>CVS head for this package</a> - 
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/PhysicsTools/CandAlgos/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+\section desc Description
+Framework module for common particle candidate manupulation
+
+\subsection interface Public interface
+- candmodules::CandCombiner: combine pairs of candidates
+- candmodules::CandReducer: clones a collection of candidates removing all daughters and external
+components, leaving only kinematic information. This is ment to produce a "light" collection
+of candiadates just containing kimenatics information for very fast analysis purpose.
+
+\subsection modules Modules
+None.
+
+\subsection tests Unit tests and examples
+None.
+
+\section status Status and planned development
+To be reviewed.
+
+<hr>
+Last updated:
+$Date$ L. Lista
+*/
