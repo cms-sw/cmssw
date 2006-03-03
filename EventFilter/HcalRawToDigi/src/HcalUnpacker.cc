@@ -218,6 +218,11 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
       std::cout << "Must be histogram data!" << std::endl;
       continue;
     }
+
+    unsigned int smid=htr.getSubmodule();
+    int htr_tb=smid&0x1;
+    int htr_slot=(smid>>1)&0x1F;
+    int htr_cr=(smid>>6)&0x1F;
     
     // find out the fibers
     int f[2],fc;
@@ -227,12 +232,17 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
       if (f[nf]<0 || nf==1 && f[0]==f[1]) continue; // skip if invalid or the same
       for (fc=0; fc<=2; fc++) {
 	HcalElectronicsId eid(fc,f[nf],spigot,dccid);	  
-	HcalDetId id=emap.lookup(eid);
+	eid.setHTR(htr_cr,htr_slot,htr_tb);
+	DetId did=emap.lookup(eid);
 
-	if (id.null()) {
+	if (did.null() || did.det()!=DetId::Hcal || did.subdetId()==0) {
+	  if (unknownIds_.find(eid)==unknownIds_.end()) {
+	    edm::LogWarning("HCAL") << "HcalUnpacker: No match found for electronics id :" << eid;
+	    unknownIds_.insert(eid);
+	  }	  
 	  continue;
 	}
-	histoDigis.push_back(HcalHistogramDigi(id)); // add it!
+	histoDigis.push_back(HcalHistogramDigi(HcalDetId(did))); // add it!
 	HcalHistogramDigi& digi=histoDigis.back();
 	
 	// unpack the four capids
