@@ -5,12 +5,9 @@
 #include "PhysicsTools/CandAlgos/src/CandSelector.h"
 #include "PhysicsTools/CandAlgos/src/CandCombiner.h"
 #include "PhysicsTools/CandAlgos/src/CandReducer.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
-#include "PhysicsTools/UtilAlgos/interface/Merger.h"
-#include "DataFormats/Common/interface/ClonePolicy.h"
+#include "PhysicsTools/CandAlgos/src/CandMerger.h"
 
 namespace candmodules {
-typedef Merger<reco::CandidateCollection, edm::ClonePolicy<reco::Candidate> > CandMerger;
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE( CandSelector );
 DEFINE_ANOTHER_FWK_MODULE( CandCombiner );

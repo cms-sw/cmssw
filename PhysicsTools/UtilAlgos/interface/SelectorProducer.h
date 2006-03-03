@@ -16,7 +16,7 @@
  *
  * \version $Revision: 1.2 $
  *
- * $Id: CandReducer.h,v 1.2 2006/03/03 10:20:44 llista Exp $
+ * $Id: SelectorProducer.h,v 1.2 2006/03/03 10:45:48 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -28,16 +28,21 @@
 template<typename C, typename S, typename P>
 class SelectorProducer : public edm::EDProducer {
 public:
+  /// constructor from values
   explicit SelectorProducer( const std::string &,
 			     const boost::shared_ptr<S> & =
 			     boost::shared_ptr<S>() );
+  /// destructor
   ~SelectorProducer();
   
 protected:
+  /// selector object
   boost::shared_ptr<S> select_;
 
 private:
+  /// process one event
   virtual void produce( edm::Event&, const edm::EventSetup& );
+  /// source collection label
   std::string src_;
 };
 

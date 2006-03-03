@@ -11,7 +11,9 @@
 Framework generic utility modules
 
 \subsection interface Public interface
-- Merger: merges an arbitrary number of collections into a single collection.
+- Merger: merges an arbitrary number of collections into a single collection. 
+No overlap is checked, so if the same object appears in more than one collection
+it is saved more than once in the output collection.
 - SelectorProducer: selects objects from a collection according to a criterion 
 specified by a functor class and saves their clones in a new collection. 
 - ObjectCounter: counts the number of objects in a collection and prints a
@@ -28,5 +30,5 @@ To be reviewed.
 
 <hr>
 Last updated:
-$Date$ L. Lista
+$Date: 2006/03/03 10:45:47 $ L. Lista
 */

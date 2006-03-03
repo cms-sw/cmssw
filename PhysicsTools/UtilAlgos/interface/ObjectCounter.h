@@ -10,9 +10,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.5 $
  *
- * $Id: CandReducer.h,v 1.2 2006/03/03 10:20:44 llista Exp $
+ * $Id: ObjectCounter.h,v 1.5 2006/03/03 10:45:48 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -25,13 +25,19 @@
 template<typename C>
 class ObjectCounter : public edm::EDAnalyzer {
 public:
+  /// constructor from parameter set
   explicit ObjectCounter( const edm::ParameterSet& );
+  /// end-of-job processing
   void endJob();
 
 private:
+  /// event processing
   virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  /// label of source collection
   std::string src_;
+  /// verbosity flag
   bool verbose_;
+  /// partial statistics
   unsigned long n_, nSum_, n2Sum_;
 };
 

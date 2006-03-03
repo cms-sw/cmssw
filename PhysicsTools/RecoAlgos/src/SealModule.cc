@@ -1,20 +1,11 @@
 #include "PluginManager/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "PhysicsTools/UtilAlgos/interface/Merger.h"
-#include "DataFormats/Common/interface/CopyPolicy.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/EGammaReco/interface/Electron.h"
-#include "DataFormats/EGammaReco/interface/Photon.h"
+#include "PhysicsTools/RecoAlgos/src/RecoModules.h"
 
-typedef Merger<reco::TrackCollection,    edm::CopyPolicy<reco::Track> >    TrackMerger;
-typedef Merger<reco::MuonCollection,     edm::CopyPolicy<reco::Muon> >     MuonMerger;
-typedef Merger<reco::ElectronCollection, edm::CopyPolicy<reco::Electron> > ElectronMerger;
-typedef Merger<reco::PhotonCollection,   edm::CopyPolicy<reco::Photon> >   PhotonMerger;
-
+namespace recomodules {
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE( TrackMerger );
 DEFINE_ANOTHER_FWK_MODULE( MuonMerger );
 DEFINE_ANOTHER_FWK_MODULE( ElectronMerger );
 DEFINE_ANOTHER_FWK_MODULE( PhotonMerger );
-
+}
