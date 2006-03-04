@@ -13,7 +13,7 @@
 //
 // Original Author:  Michele Pioppi-INFN perugia
 //         Created:  Mon Sep 26 11:08:32 CEST 2005
-// $Id: SiPixelDigitizer.cc,v 1.11 2006/02/27 19:03:43 pioppi Exp $
+// $Id: SiPixelDigitizer.cc,v 1.12 2006/03/01 17:32:00 pioppi Exp $
 //
 //
 
@@ -140,13 +140,18 @@ namespace cms
 
     // Step C: LOOP on PixelGeomDetUnit //
     for(TrackingGeometry::DetContainer::const_iterator iu = pDD->dets().begin(); iu != pDD->dets().end(); iu ++){
+       DetId idet=DetId((*iu)->geographicalId().rawId());
+       unsigned int isub=idet.subdetId();
+       
+       
+      if  ((isub==  PixelSubdetector::PixelBarrel) || (isub== PixelSubdetector::PixelEndcap)) {  
   
-      GlobalVector bfield=pSetup->inTesla((*iu)->surface().position());
-
-      LogDebug ("PixelDigitizer ") << "B-field(T) at "<<(*iu)->surface().position()<<"(cm): " 
-		                   << pSetup->inTesla((*iu)->surface().position());
  
-      if (dynamic_cast<PixelGeomDetUnit*>((*iu))!=0){
+	//access to magnetic field in global coordinates
+	GlobalVector bfield=pSetup->inTesla((*iu)->surface().position());
+	LogDebug ("PixelDigitizer ") << "B-field(T) at "<<(*iu)->surface().position()<<"(cm): " 
+				     << pSetup->inTesla((*iu)->surface().position());
+	//
 
 	collector.clear();
 	linkcollector.clear();
