@@ -29,6 +29,7 @@ namespace { namespace {
   edm::Wrapper<std::vector<unsigned short> > dummy9;
   edm::Wrapper<std::vector<double> > dummy10;
   edm::Wrapper<std::vector<long double> > dummy11;
+  edm::Wrapper<std::vector<float> > dummy12;
 
   edm::Wrapper<unsigned long> dummyw1;
   edm::Wrapper<unsigned int> dummyw2;
@@ -41,5 +42,6 @@ namespace { namespace {
   edm::Wrapper<unsigned short> dummyw9;
   edm::Wrapper<double> dummyw10;
   edm::Wrapper<long double> dummyw11;
+  edm::Wrapper<float> dummyw12;
   edm::Wrapper<edm::TriggerResults> dummyw17;
 }}
