@@ -3,11 +3,11 @@
    Implementation of class WorkerRegistry
 
    \author Stefano ARGIRO
-   \version $Id: WorkerRegistry.cc,v 1.7 2005/07/30 23:45:45 wmtan Exp $
+   \version $Id: WorkerRegistry.cc,v 1.8 2006/01/29 23:33:58 jbk Exp $
    \date 18 May 2005
 */
 
-static const char CVSId[] = "$Id: WorkerRegistry.cc,v 1.7 2005/07/30 23:45:45 wmtan Exp $";
+static const char CVSId[] = "$Id: WorkerRegistry.cc,v 1.8 2006/01/29 23:33:58 jbk Exp $";
 
 
 #include "FWCore/Framework/src/WorkerRegistry.h"
@@ -50,7 +50,8 @@ Worker* WorkerRegistry::getWorker(const WorkerParams& p) {
   if (workerIt == m_workerMap.end()){
     
     std::auto_ptr<Worker> workerPtr=
-      Factory::get()->makeWorker(p);
+      Factory::get()->makeWorker(p,act_reg_->preModuleConstructionSignal_,
+                                 act_reg_->preModuleConstructionSignal_);
     
     workerPtr->connect(act_reg_->preModuleSignal_,act_reg_->postModuleSignal_);
 
