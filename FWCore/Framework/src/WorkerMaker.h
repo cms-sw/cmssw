@@ -71,15 +71,15 @@ namespace edm {
 
     std::auto_ptr<Worker> worker;
     try {
-       pre.emit(md);
+       pre(md);
        std::auto_ptr<ModuleType> module(worker_type::template makeOne<UserType>(md,p));
        worker=std::auto_ptr<Worker>(new worker_type(module, md, p));
-       post.emit(md);
+       post(md);
     } catch( cms::Exception& iException){
        edm::Exception toThrow(edm::errors::Configuration,"Error occured while creating ");
        toThrow<<md.moduleName_<<" with label "<<md.moduleLabel_<<"\n";
        toThrow.append(iException);
-       post.emit(md);
+       post(md);
        throw toThrow;
     }
     return worker;
