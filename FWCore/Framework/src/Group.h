@@ -6,7 +6,7 @@
 Group: A collection of information related to a single EDProduct. This
 is the storage unit of such information.
 
-$Id: Group.h,v 1.10 2006/02/07 07:51:41 wmtan Exp $
+$Id: Group.h,v 1.11 2006/02/08 00:44:25 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -27,7 +27,9 @@ namespace edm {
     ~Group();
 
     void swap(Group& other);
-      
+    void swapProduct(Group& other);
+    Provenance& provenance() { return *provenance_; }
+    
     // drop (hide) on input: means hide, but provenance is available
     // drop (write) on output: choose not to write, output module
     //   still chooses on a per product to include or exclude
