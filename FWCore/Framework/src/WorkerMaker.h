@@ -21,6 +21,8 @@
 
 #include <memory>
 #include <string>
+#include "boost/signal.hpp"
+
 
 namespace edm {
   
@@ -28,7 +30,9 @@ namespace edm {
   {
   public:
     virtual ~Maker();
-    virtual std::auto_ptr<Worker> makeWorker(const WorkerParams&) const = 0;
+    virtual std::auto_ptr<Worker> makeWorker(const WorkerParams&,
+                                             boost::signal<void (const ModuleDescription&)>& iPre,
+                                             boost::signal<void (const ModuleDescription&)>& iPost) const = 0;
   };
 
   template <class T>
@@ -37,7 +41,9 @@ namespace edm {
   public:
     typedef T worker_type;
     explicit WorkerMaker();
-    std::auto_ptr<Worker> makeWorker(const WorkerParams&) const;
+    std::auto_ptr<Worker> makeWorker(const WorkerParams&,
+                                     boost::signal<void (const ModuleDescription&)>&,
+                                     boost::signal<void (const ModuleDescription&)>&) const;
   };
 
   template <class T>
@@ -46,7 +52,9 @@ namespace edm {
   }
 
   template <class T>
-  std::auto_ptr<Worker> WorkerMaker<T>::makeWorker(const WorkerParams& p) const
+  std::auto_ptr<Worker> WorkerMaker<T>::makeWorker(const WorkerParams& p,
+                                                   boost::signal<void (const ModuleDescription&)>& pre,
+                                                   boost::signal<void (const ModuleDescription&)>& post) const
   {
     typedef T UserType;
     typedef typename UserType::ModuleType ModuleType;
@@ -63,12 +71,15 @@ namespace edm {
 
     std::auto_ptr<Worker> worker;
     try {
+       pre.emit(md);
        std::auto_ptr<ModuleType> module(worker_type::template makeOne<UserType>(md,p));
        worker=std::auto_ptr<Worker>(new worker_type(module, md, p));
+       post.emit(md);
     } catch( cms::Exception& iException){
        edm::Exception toThrow(edm::errors::Configuration,"Error occured while creating ");
        toThrow<<md.moduleName_<<" with label "<<md.moduleLabel_<<"\n";
        toThrow.append(iException);
+       post.emit(md);
        throw toThrow;
     }
     return worker;
