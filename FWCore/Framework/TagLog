@@ -1,3 +1,6 @@
+** V02-02-06  [Sun Mar  5 01:49:57 2006]
+Fix memory leak by making BranchDescription::productPtr_ a boost::shared_ptr.
+
 ** V02-02-05  [Thu Mar  2 07:49:51 2006]
 Make Delayed Reader accessible
 
