@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2006/02/03 09:39:06 $
- * $Revision: 1.75 $
+ * $Date: 2006/02/05 22:21:54 $
+ * $Revision: 1.76 $
  * \author G. Della Ricca
  *
 */
@@ -755,7 +755,7 @@ void EBIntegrityClient::analyze(void){
 
 }
 
-void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
+void EBIntegrityClient::htmlOutput(int run, int jsm, string htmlDir, string htmlName){
 
   cout << "Preparing EBIntegrityClient html output ..." << endl;
 
@@ -863,6 +863,8 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
   // Loop on barrel supermodules
 
   for ( int ism = 1 ; ism <= 36 ; ism++ ) {
+
+    if ( jsm >= 1 && jsm <= 36 && ism != jsm ) continue;
 
     // Quality plots
 

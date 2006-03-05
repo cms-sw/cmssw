@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/02/24 08:03:49 $
- * $Revision: 1.97 $
+ * $Date: 2006/02/24 13:18:40 $
+ * $Revision: 1.98 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1225,6 +1225,8 @@ void EcalBarrelMonitorClient::htmlOutput(void){
 
   sprintf(tmp, "%09d", run_);
 
+  int jsm = 0;
+
   string htmlDir = baseHtmlDir_ + "/" + tmp + "/";
 
   system(("/bin/mkdir -p " + htmlDir).c_str());
@@ -1258,7 +1260,7 @@ void EcalBarrelMonitorClient::htmlOutput(void){
   if ( integrity_client_ ) {
     if ( h_ && h_->GetEntries() != 0 ) {
       htmlName = "EBIntegrityClient.html";
-      integrity_client_->htmlOutput(run_, htmlDir, htmlName);
+      integrity_client_->htmlOutput(run_, jsm, htmlDir, htmlName);
       htmlFile << "<li><a href=\"" << htmlName << "\">Data Integrity</a></li>" << endl;
     }
   }
@@ -1269,7 +1271,7 @@ void EcalBarrelMonitorClient::htmlOutput(void){
     if ( h_ && h_->GetBinContent(COSMIC+1) != 0 ) {
       if ( runtype_ == "COSMIC" ) {
         htmlName = "EBCosmicClient.html";
-        cosmic_client_->htmlOutput(run_, htmlDir, htmlName);
+        cosmic_client_->htmlOutput(run_, jsm, htmlDir, htmlName);
         htmlFile << "<li><a href=\"" << htmlName << "\">Cosmic</a></li>" << endl;
       }
     }
@@ -1281,7 +1283,7 @@ void EcalBarrelMonitorClient::htmlOutput(void){
     if ( h_ && h_->GetBinContent(LASER_STD+1) != 0 ) {
       if ( runtype_ == "COSMIC" || runtype_ == "LASER" || runtype_ == "BEAMH4" ) {
         htmlName = "EBLaserClient.html";
-        laser_client_->htmlOutput(run_, htmlDir, htmlName);
+        laser_client_->htmlOutput(run_, jsm, htmlDir, htmlName);
         htmlFile << "<li><a href=\"" << htmlName << "\">Laser</a></li>" << endl;
       }
     }
@@ -1293,7 +1295,7 @@ void EcalBarrelMonitorClient::htmlOutput(void){
     if ( h_ && h_->GetBinContent(PEDESTAL_STD+1) != 0 ) {
       if ( runtype_ == "PEDESTAL" ) {
         htmlName = "EBPedestalClient.html";
-        pedestal_client_->htmlOutput(run_, htmlDir, htmlName);
+        pedestal_client_->htmlOutput(run_, jsm, htmlDir, htmlName);
         htmlFile << "<li><a href=\"" << htmlName << "\">Pedestal</a></li>" << endl;
       }
     }
@@ -1304,7 +1306,7 @@ void EcalBarrelMonitorClient::htmlOutput(void){
   if ( pedestalonline_client_ ) {
     if ( h_ && h_->GetEntries() != 0 ) {
       htmlName = "EBPedestalOnlineClient.html";
-      pedestalonline_client_->htmlOutput(run_, htmlDir, htmlName);
+      pedestalonline_client_->htmlOutput(run_, jsm, htmlDir, htmlName);
       htmlFile << "<li><a href=\"" << htmlName << "\">Pedestal Online</a></li>" << endl;
     }
   }
@@ -1315,7 +1317,7 @@ void EcalBarrelMonitorClient::htmlOutput(void){
     if ( h_ && h_->GetBinContent(TESTPULSE_MGPA+1) != 0 ) {
       if ( runtype_ == "TEST_PULSE" ) {
         htmlName = "EBTestPulseClient.html";
-        testpulse_client_->htmlOutput(run_, htmlDir, htmlName);
+        testpulse_client_->htmlOutput(run_, jsm, htmlDir, htmlName);
         htmlFile << "<li><a href=\"" << htmlName << "\">Test pulse</a></li>" << endl;
       }
     }
@@ -1327,14 +1329,14 @@ void EcalBarrelMonitorClient::htmlOutput(void){
     if ( h_ && h_->GetBinContent(BEAMH4+1) != 0 ) {
       if ( runtype_ == "BEAMH4" ) {
         htmlName = "EBBeamClient.html";
-        beam_client_->htmlOutput(run_, htmlDir, htmlName);
+        beam_client_->htmlOutput(run_, jsm, htmlDir, htmlName);
         htmlFile << "<li><a href=\"" << htmlName << "\">Beam</a></li>" << endl;
       }
     }
     if ( h_ && h_->GetBinContent(BEAMH2+1) != 0 ) {
       if ( runtype_ == "BEAMH2" ) {
         htmlName = "EBBeamClient.html";
-        beam_client_->htmlOutput(run_, htmlDir, htmlName);
+        beam_client_->htmlOutput(run_, jsm, htmlDir, htmlName);
         htmlFile << "<li><a href=\"" << htmlName << "\">Beam</a></li>" << endl;
       }
     }

@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2006/02/08 18:31:55 $
- * $Revision: 1.63 $
+ * $Date: 2006/02/09 13:37:56 $
+ * $Revision: 1.64 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1080,7 +1080,7 @@ void EBTestPulseClient::analyze(void){
 
 }
 
-void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
+void EBTestPulseClient::htmlOutput(int run, int jsm, string htmlDir, string htmlName){
 
   cout << "Preparing EBTestPulseClient html output ..." << endl;
 
@@ -1140,6 +1140,8 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
   // Loop on barrel supermodules
 
   for ( int ism = 1 ; ism <= 36 ; ism++ ) {
+
+    if ( jsm >= 1 && jsm <= 36 && ism != jsm ) continue;
 
     // Loop on gains
 

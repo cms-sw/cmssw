@@ -4,8 +4,8 @@
 /*
  * \file EBPedestalClient.h
  *
- * $Date: 2006/02/12 17:38:50 $
- * $Revision: 1.25 $
+ * $Date: 2006/03/03 09:02:42 $
+ * $Revision: 1.26 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -83,7 +83,7 @@ void setup(void);
 void cleanup(void);
 
 // HtmlOutput
-void htmlOutput(int run, string htmlDir, string htmlName);
+void htmlOutput(int run, int jsm, string htmlDir, string htmlName);
 
 // WriteDB
 void writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov);

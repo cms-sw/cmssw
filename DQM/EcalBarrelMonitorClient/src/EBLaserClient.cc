@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2006/02/18 14:15:18 $
- * $Revision: 1.62 $
+ * $Date: 2006/02/20 09:18:01 $
+ * $Revision: 1.64 $
  * \author G. Della Ricca
  *
 */
@@ -2147,7 +2147,7 @@ void EBLaserClient::analyze(void){
 
 }
 
-void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
+void EBLaserClient::htmlOutput(int run, int jsm, string htmlDir, string htmlName){
 
   cout << "Preparing EBLaserClient html output ..." << endl;
 
@@ -2208,6 +2208,8 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
   // Loop on barrel supermodules
 
   for ( int ism = 1 ; ism <= 36 ; ism++ ) {
+
+    if ( jsm >= 1 && jsm <= 36 && ism != jsm ) continue;
 
     // Loop on wavelength
 

@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2006/02/05 22:21:54 $
- * $Revision: 1.7 $
+ * $Date: 2006/02/09 13:37:56 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -387,7 +387,7 @@ void EBPedestalOnlineClient::analyze(void){
 
 }
 
-void EBPedestalOnlineClient::htmlOutput(int run, string htmlDir, string htmlName){
+void EBPedestalOnlineClient::htmlOutput(int run, int jsm, string htmlDir, string htmlName){
 
   cout << "Preparing EBPedestalOnlineClient html output ..." << endl;
 
@@ -445,6 +445,8 @@ void EBPedestalOnlineClient::htmlOutput(int run, string htmlDir, string htmlName
   // Loop on barrel supermodules
 
   for ( int ism = 1 ; ism <= 36 ; ism++ ) {
+
+    if ( jsm >= 1 && jsm <= 36 && ism != jsm ) continue;
 
     // Quality plots
 

@@ -4,8 +4,8 @@
 /*
  * \file EBCosmicClient.h
  *
- * $Date: 2006/02/05 22:21:53 $
- * $Revision: 1.14 $
+ * $Date: 2006/03/03 09:02:42 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -81,7 +81,7 @@ void setup(void);
 void cleanup(void);
 
 /// HtmlOutput
-void htmlOutput(int run, string htmlDir, string htmlName);
+void htmlOutput(int run, int jsm, string htmlDir, string htmlName);
 
 /// WriteDB
 void writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov);

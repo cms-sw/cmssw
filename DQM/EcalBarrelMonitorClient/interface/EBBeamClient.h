@@ -4,8 +4,8 @@
 /*
  * \file EBBeamClient.h
  *
- * $Date: 2006/02/08 21:10:26 $
- * $Revision: 1.1 $
+ * $Date: 2006/03/03 09:02:42 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -82,7 +82,7 @@ void setup(void);
 void cleanup(void);
 
 /// HtmlOutput
-void htmlOutput(int run, string htmlDir, string htmlName);
+void htmlOutput(int run, int jsm, string htmlDir, string htmlName);
 
 /// WriteDB
 void writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov);

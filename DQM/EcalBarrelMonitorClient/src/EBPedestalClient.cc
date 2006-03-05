@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2006/02/13 09:02:12 $
- * $Revision: 1.66 $
+ * $Date: 2006/02/13 09:46:57 $
+ * $Revision: 1.67 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1155,7 +1155,7 @@ void EBPedestalClient::analyze(void){
 
 }
 
-void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
+void EBPedestalClient::htmlOutput(int run, int jsm, string htmlDir, string htmlName){
 
   cout << "Preparing EBPedestalClient html output ..." << endl;
 
@@ -1220,6 +1220,8 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
   // Loop on barrel supermodules
 
   for ( int ism = 1 ; ism <= 36 ; ism++ ) {
+
+    if ( jsm >= 1 && jsm <= 36 && ism != jsm ) continue;
 
     // Loop on gains
 

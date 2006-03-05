@@ -4,8 +4,8 @@
 /*
  * \file EBLaserClient.h
  *
- * $Date: 2006/02/09 15:40:04 $
- * $Revision: 1.23 $
+ * $Date: 2006/03/03 09:02:42 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  *
 */
@@ -88,7 +88,7 @@ void setup(void);
 void cleanup(void);
 
 /// HtmlOutput
-void htmlOutput(int run, string htmlDir, string htmlName);
+void htmlOutput(int run, int jsm, string htmlDir, string htmlName);
 
 /// WriteDB
 void writeDb(EcalCondDBInterface* econn, MonRunIOV* moniov);
