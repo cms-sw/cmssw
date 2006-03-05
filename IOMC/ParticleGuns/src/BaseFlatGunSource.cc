@@ -1,6 +1,6 @@
 /*
- *  $Date: 2006/02/23 20:54:31 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/02/28 06:54:30 $
+ *  $Revision: 1.7 $
  *  \author Julia Yarba
  */
 
@@ -39,10 +39,11 @@ BaseFlatGunSource::BaseFlatGunSource( const ParameterSet& pset,
   fMinPhi     = pgun_params.getParameter<double>("MinPhi");
   fMaxPhi     = pgun_params.getParameter<double>("MaxPhi");
 
-  // hardcoded for now
   //
-  fPDGTablePath = "/afs/cern.ch/sw/lcg/external/clhep/1.9.2.1/slc3_ia32_gcc323/data/HepPDT/" ;
-  fPDGTableName = "PDG_mass_width_2002.mc"; // should it be 2004 table ?
+  //fPDGTablePath = "/afs/cern.ch/sw/lcg/external/clhep/1.9.2.1/slc3_ia32_gcc323/data/HepPDT/" ;
+  string HepPDTBase( getenv("HEPPDT_PARAM_PATH") ) ; 
+  fPDGTablePath = HepPDTBase + "/data/" ;
+  fPDGTableName = "PDG_mass_width_2004.mc"; // should it be 2004 table ?
 
   string TableFullName = fPDGTablePath + fPDGTableName ;
   ifstream PDFile( TableFullName.c_str() ) ;
