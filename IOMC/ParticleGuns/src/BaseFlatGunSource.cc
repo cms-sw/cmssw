@@ -1,6 +1,6 @@
 /*
- *  $Date: 2006/02/28 06:54:30 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/03/05 22:56:33 $
+ *  $Revision: 1.8 $
  *  \author Julia Yarba
  */
 
@@ -13,8 +13,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
-
-// #include "IOMC/EventVertexGenerators/interface/EventVertexGeneratorFactory.h"
 
 #include <iostream>
 
@@ -57,29 +55,6 @@ BaseFlatGunSource::BaseFlatGunSource( const ParameterSet& pset,
   if ( !addPDGParticles( PDFile, tb ) ) { cout << " Error reading PDG !" << endl; }
   // the tb dtor fills fPDGTable
 
-/*
-  // Vtx.Gen. (ideally, should be optional)
-  //
-  std::vector<std::string> names = pset.getParameterNames();       
-  //see if 'VertexGenerator' is a parameter
-  if(names.end() != std::find(names.begin(),names.end(), "VertexGenerator") ) 
-  {
-     ParameterSet pgun_vtxgen = pset.getParameter<ParameterSet>("VertexGenerator") ;
-     std::auto_ptr<EventVertexGeneratorMakerBase> vertexGeneratorMaker(
-        EventVertexGeneratorFactory::get()->create
-          (pgun_vtxgen.getParameter<std::string> ("type")) );
-     if(vertexGeneratorMaker.get()==0) 
-     {
-        // throw SimG4Exception("Unable to find the event vertex generator requested");
-        throw edm::Exception(errors::Configuration,"Unable to find the event vertex generator requested") ;
-     }
-     fEventVertexGenerator = vertexGeneratorMaker->make(pgun_vtxgen) ;
-
-     if (fEventVertexGenerator.get()==0) 
-        throw edm::Exception(errors::Configuration,"EventVertexGenerator construction failed!");
-    
-  }
-*/  
   fVerbosity = pset.getUntrackedParameter<int>( "Verbosity",0 ) ;
   
   cout << "Internal BaseFlatGunSource is initialzed" << endl ;
@@ -91,21 +66,3 @@ BaseFlatGunSource::~BaseFlatGunSource()
   if (fEvt != NULL) delete fEvt ; // double check
   delete fPDGTable;
 }
-
-//HepMC::GenVertex* BaseFlatGunSource::generateEvtVertex() const
-//{
-//
-//   double xx=0.;
-//   double yy=0.;
-//   double zz=0.;
-//   if ( fEventVertexGenerator.get()!=0)
-//   {
-//      CLHEP::Hep3Vector* VtxPos = fEventVertexGenerator.get()->newVertex() ;
-//      xx = VtxPos->x() ;
-//      yy = VtxPos->y() ;
-//      zz = VtxPos->z() ;
-//   }
-//
-//   return new HepMC::GenVertex(CLHEP::HepLorentzVector(xx,yy,zz));
-//
-//}
