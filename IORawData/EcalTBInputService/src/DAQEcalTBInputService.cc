@@ -1,6 +1,6 @@
 /*
- *  $Date: 2006/01/24 09:41:17 $
- *  $Revision: 1.10 $
+ *  $Date: 2006/02/07 13:30:47 $
+ *  $Revision: 1.11 $
  *  \author N. Amapane - S. Argiro'
  *  \author G. Franzoni
  */
@@ -84,7 +84,8 @@ bool DAQEcalTBInputService::produce(edm::Event& e)
   eventfeddata.resize(reader_->getFedData().len);
   copy(reader_->getFedData().fedData, reader_->getFedData().fedData + reader_->getFedData().len , eventfeddata.data());
 
-  LogInfo("EcalTBInputService") << "@SUB=DAQEcalTBInputService::produce" << "read run " << reader_->getRunNumber() << " ev " << reader_->getEventNumber() << "\n";
+  LogInfo("EcalTBInputService") << "@SUB=DAQEcalTBInputService::produce" << "read run " << reader_->getRunNumber() << " ev " << reader_->getEventNumber();
+
   e.put(bare_product,"EcalDaqRawData");
 
   return true;
