@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.14 2006/03/01 16:37:43 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.15 2006/03/02 06:36:08 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
@@ -147,15 +147,15 @@ namespace edm {
 	event.status = BranchEntryDescription::CreatorNotRun;
 	event.productID_ = id;
 	eventProvenance.data_.push_back(event);
-	if (i->first->productPtr_ == 0) {
+	if (i->first->productPtr_.get() == 0) {
 	   std::auto_ptr<EDProduct> edp(e.store()->get(BranchKey(*i->first), &e));
-	   i->first->productPtr_ = edp.release();
-	   if (i->first->productPtr_ == 0) {
+	   i->first->productPtr_ = boost::shared_ptr<EDProduct>(edp.release());
+	   if (i->first->productPtr_.get() == 0) {
 	    throw edm::Exception(edm::errors::ProductNotFound,"Invalid")
 	      << "PoolOutputModule::write: invalid BranchDescription supplied in productRegistry\n";
 	   }
 	}
-	pool::Ref<EDProduct const> ref(context(), i->first->productPtr_);
+	pool::Ref<EDProduct const> ref(context(), i->first->productPtr_.get());
 	ref.markWrite(i->second);
       } else {
 	eventProvenance.data_.push_back(g->provenance().event);
