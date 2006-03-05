@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Feb 15 11:49:59 IST 2006
-// $Id$
+// $Id: ProvenanceAccess.cc,v 1.1 2006/03/05 21:40:22 chrjones Exp $
 //
 
 // system include files
