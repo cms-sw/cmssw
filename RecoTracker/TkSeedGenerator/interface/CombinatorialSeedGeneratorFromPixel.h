@@ -19,10 +19,11 @@ class CombinatorialSeedGeneratorFromPixel : public SeedGeneratorFromLayerPairs {
   CombinatorialSeedGeneratorFromPixel(const edm::ParameterSet& conf);
 
   void init(const edm::EventSetup& c);
-  void run();
+  vector<TrajectorySeed>  run(const edm::EventSetup& c);
  private:
   edm::ParameterSet conf_;
   GlobalTrackingRegion region;
+  // PixelSeedLayerPairs pixellayers;
 };
 #endif
 

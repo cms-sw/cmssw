@@ -6,20 +6,23 @@
 
 using namespace std;
 
-void SeedGeneratorFromLayerPairs::initPairGenerator(
-    const SeedLayerPairs * layerPairs) 
+void SeedGeneratorFromLayerPairs::initPairGenerator(SeedLayerPairs * layerPairs,
+						    const edm::EventSetup& iSetup) 
 {
   if (layerPairs) { 
-    thePairGenerator = new CombinedHitPairGenerator(*layerPairs);
+    thePairGenerator = new CombinedHitPairGenerator(*layerPairs,iSetup);
   } else thePairGenerator = 0;
 }
 
+//SeedGeneratorFromLayerPairs::SeedGeneratorFromLayerPairs(
+//    const SeedLayerPairs * layerPairs)
 SeedGeneratorFromLayerPairs::SeedGeneratorFromLayerPairs(
-    const SeedLayerPairs * layerPairs)
+    SeedLayerPairs * layerPairs)
   : 
   //theRegionFactory(0), 
 theRegion(0)
-{ initPairGenerator(layerPairs); }
+{ //initPairGenerator(layerPairs); 
+}
 
 
 // SeedGeneratorFromLayerPairs::SeedGeneratorFromLayerPairs(
@@ -52,7 +55,9 @@ const TrackingRegion * SeedGeneratorFromLayerPairs::trackingRegion() const
   if (theRegion) return &(*theRegion);
   //  else if (theRegionFactory) return theRegionFactory->region();
   //  else throw DetLogicError("** SeedGeneratorFromLayerPairs **: cannot work without knowlege of region or region factory");
-  else cerr<<"** SeedGeneratorFromLayerPairs **: cannot work without knowlege of region or region factory"<<endl;
+  else{ cerr<<"** SeedGeneratorFromLayerPairs **: cannot work without knowlege of region or region factory"<<endl;
+    return 0;
+  }
 }
 
 HitPairGenerator * SeedGeneratorFromLayerPairs::pairGenerator() const
@@ -60,6 +65,7 @@ HitPairGenerator * SeedGeneratorFromLayerPairs::pairGenerator() const
   if (!thePairGenerator) {
     //  throw DetLogicError("** SeedGeneratorFromLayerPairs **: pairGenerator() called but thePairGenerator is null!");
     cerr<< "** SeedGeneratorFromLayerPairs **: pairGenerator() called but thePairGenerator is null!"<<cerr;
+    return 0;
   }
   else return thePairGenerator;
 }

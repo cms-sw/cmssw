@@ -49,9 +49,10 @@ void GlobalPixelSeedGenerator::produce(edm::Event& e, const edm::EventSetup& es)
   std::auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection);
   
   //
-  //  globalseed.init(es); 
+  globalseed.init(es); 
    // invoke the seed finding algorithm
-  //   globalseed.run();  
+  vector <TrajectorySeed> trajseed=globalseed.run(es);
+//   globalseed.run();  
   // write output to file
    // e.put(output);
 

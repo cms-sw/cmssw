@@ -9,7 +9,7 @@
 #include "RecoTracker/TkSeedGenerator/interface/SeedGeneratorFromHitPairsConsecutiveHits.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 #include "Geometry/CommonDetAlgo/interface/DeepCopyPointerByClone.h"
-
+#include "FWCore/Framework/interface/EventSetup.h"
 //class TrackingRegionFactory;
 class SeedLayerPairs;
 
@@ -27,8 +27,8 @@ public:
    *  In order to obtain seed one must call
    *  seeds(const TrackingRegion &region) rather than seeds()
    */
-    SeedGeneratorFromLayerPairs( const SeedLayerPairs * layerPairs);
-
+	    //   SeedGeneratorFromLayerPairs( const SeedLayerPairs * layerPairs);
+    SeedGeneratorFromLayerPairs( SeedLayerPairs * layerPairs);
   /** Construct from a TrackingRegionFactory.
    *  The TrackingRegionFactory is expected to be valid throughout
    *  the lifetime of this object. If the factory
@@ -60,7 +60,8 @@ public:
   virtual const TrackingRegion * trackingRegion() const;
 
 protected:
-  virtual void initPairGenerator( const SeedLayerPairs * layerPairs);
+  //  virtual void initPairGenerator( const SeedLayerPairs * layerPairs);
+  virtual void initPairGenerator( SeedLayerPairs * layerPairs,const edm::EventSetup& iSetup);
   virtual HitPairGenerator * pairGenerator() const;
 
 private:

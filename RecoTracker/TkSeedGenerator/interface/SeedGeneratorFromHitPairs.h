@@ -3,10 +3,10 @@
 
 
 #include "RecoTracker/TkHitPairs/interface/HitPairGenerator.h"
-#include "DataFormats/TrackingSeed/interface/TrackingSeed.h"
-#include "DataFormats/TrackingSeed/interface/TrackingSeedCollection.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "RecoTracker/TkSeedGenerator/interface/SeedGeneratorFromTrackingRegion.h"
-
+#include "FWCore/Framework/interface/EventSetup.h"
+//#include "FWCore/Framework/interface/EventSetup.h"
 typedef OrderedHitPairs SeedHitPairs;
 
 /** \class SeedGeneratorFromHitPairs
@@ -22,12 +22,12 @@ public:
   using SeedGeneratorFromTrackingRegion::seeds;
 
   /// from base class 
-  virtual  TrackingSeedCollection seeds( const TrackingRegion& region) {
-     return seeds(pairGenerator()->hitPairs(region), region);
+  virtual  vector<TrajectorySeed> seeds(const edm::EventSetup& c, const TrackingRegion& region) {
+    return seeds(c,pairGenerator()->hitPairs(region), region);
   } 
 
   /// concrete seed generator should construct hits from hit pairs
-  virtual TrackingSeedCollection seeds(
+virtual    vector<TrajectorySeed> seeds(const edm::EventSetup& c,
       const SeedHitPairs & hitPairs, const TrackingRegion& region) = 0;
 
   virtual const TrackingRegion * trackingRegion() const = 0;
@@ -35,7 +35,7 @@ public:
 private:
 
   virtual HitPairGenerator * pairGenerator() const = 0;
-  
+
 };
 
 #endif

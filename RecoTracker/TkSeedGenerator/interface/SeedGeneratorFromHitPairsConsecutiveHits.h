@@ -3,8 +3,8 @@
 
 #include "RecoTracker/TkSeedGenerator/interface/SeedGeneratorFromHitPairs.h"
 //#include "Utilities/Notification/interface/TimingReport.h"
-#include "DataFormats/TrackingSeed/interface/TrackingSeed.h"
-#include "DataFormats/TrackingSeed/interface/TrackingSeedCollection.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 /** \class SeedGeneratorFromHitPairsConsecutiveHits
  * Specialises the SeedGeneratorFromHitPairs for the case of consecutive hits.
  */
@@ -12,11 +12,11 @@
 class SeedGeneratorFromHitPairsConsecutiveHits 
         : public SeedGeneratorFromHitPairs { 
 public:
-  SeedGeneratorFromHitPairsConsecutiveHits();
+
 
   using SeedGeneratorFromHitPairs::seeds;
 
-  virtual TrackingSeedCollection seeds(
+  vector<TrajectorySeed> seeds(const edm::EventSetup& c,
       const SeedHitPairs & hitPairs, const TrackingRegion& region);
 
 private:

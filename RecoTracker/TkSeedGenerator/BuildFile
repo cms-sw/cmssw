@@ -15,6 +15,10 @@
 <use name=DataFormats/SiStripDetId>
 <use name=RecoTracker/TkHitPairs>
 <use name=RecoTracker/TkTrackingRegions>
+<use name=TrackingTools/PatternTools>
+<use name=MagneticField/Records>
+<use name=MagneticField/Engine>
+<use name=TrackingTools/KalmanUpdators>
 <export>
  <lib name=RecoTrackerTkSeedGenerator>
  <use name=FWCore/EDProduct>
@@ -31,6 +35,10 @@
  <use name=DataFormats/DetId>
  <use name=RecoTracker/TkHitPairs>
  <use name=RecoTracker/TkTrackingRegions>
-<use name=DataFormats/SiStripDetId>
-<use name=root>
+ <use name=DataFormats/SiStripDetId>
+ <use name=root>
+ <use name=TrackingTools/PatternTools>
+ <use name=MagneticField/Records>
+ <use name=MagneticField/Engine>
+ <use name=TrackingTools/KalmanUpdators>
 </export>
