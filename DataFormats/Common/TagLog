@@ -1,3 +1,6 @@
+** V01-02-05  [Sun Mar  5 01:47:41 2006]
+Fix memory leak by making BranchDescription::productPtr_ a boost::shared_ptr.
+
 ** V01-02-04  [Thu Mar  2 06:52:29 2006]
 BranchDescription::productPtr_ must be mutable
 
