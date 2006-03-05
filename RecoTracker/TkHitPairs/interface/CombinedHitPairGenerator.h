@@ -6,7 +6,7 @@
 #include "RecoTracker/TkHitPairs/interface/LayerHitMapCache.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/Common/interface/RangeMap.h"
-
+#include "FWCore/Framework/interface/EventSetup.h"
 class SeedLayerPairs;
 class LayerWithHits;
 class DetLayer;
@@ -18,16 +18,18 @@ class HitPairGeneratorFromLayerPair;
  * Hides set of HitPairGeneratorFromLayerPair generators.
  */
 
-class CombinedHitPairGenerator : public HitPairGenerator {
+class CombinedHitPairGenerator : public HitPairGenerator{
 
   typedef vector<HitPairGeneratorFromLayerPair *>   Container;
 
 public:
-
+  CombinedHitPairGenerator(SeedLayerPairs& layers, const edm::EventSetup& iSetup);
+  CombinedHitPairGenerator(SeedLayerPairs& layers);
   typedef LayerHitMapCache LayerCacheType;
 
   
-  CombinedHitPairGenerator(const SeedLayerPairs & layers);
+  //  CombinedHitPairGenerator(const SeedLayerPairs & layers);
+  
 
   // copy configuration but empty cache
   // CombinedHitPairGenerator(const CombinedHitPairGenerator&);

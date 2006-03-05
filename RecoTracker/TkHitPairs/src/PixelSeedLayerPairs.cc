@@ -1,19 +1,19 @@
 #include "RecoTracker/TkHitPairs/interface/PixelSeedLayerPairs.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
-PixelSeedLayerPairs::PixelSeedLayerPairs()
-{
- //  TrackerLayerIdAccessor accessor;
-//   theBarrelPixel = accessor.pixelBarrelLayers();
-//   theNegPixel = accessor.pixelNegativeForwardLayers();
-//   thePosPixel = accessor.pixelPositiveForwardLayers();
-}
+// PixelSeedLayerPairs::PixelSeedLayerPairs()
+// {
+//  //  TrackerLayerIdAccessor accessor;
+// //   theBarrelPixel = accessor.pixelBarrelLayers();
+// //   theNegPixel = accessor.pixelNegativeForwardLayers();
+// //   thePosPixel = accessor.pixelPositiveForwardLayers();
+// }
 
 
 
 
 //vector<SeedLayerPairs::LayerPair> PixelSeedLayerPairs::operator()() const
-vector<SeedLayerPairs::LayerPair> PixelSeedLayerPairs::operator()()
+vector<SeedLayerPairs::LayerPair> PixelSeedLayerPairs::operator()() 
 {
   vector<LayerPair> result;
 

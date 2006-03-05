@@ -17,9 +17,10 @@ public:
 
   typedef pair< const LayerWithHits*, const LayerWithHits*>        LayerPair;
 
-  virtual ~SeedLayerPairs() {}
+  SeedLayerPairs() {};
+  virtual ~SeedLayerPairs() {};
 
-  virtual vector<LayerPair> operator()() const = 0;
+  virtual vector<LayerPair> operator()()  = 0;
 
 };
 

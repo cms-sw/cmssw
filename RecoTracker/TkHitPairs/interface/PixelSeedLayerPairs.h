@@ -15,13 +15,13 @@
 
 class PixelSeedLayerPairs : public SeedLayerPairs{
 public:
- PixelSeedLayerPairs();
+  PixelSeedLayerPairs():SeedLayerPairs(){};
   //  explicit PixelSeedLayerPairs(const edm::EventSetup& iSetup);
 
 
 
   //  virtual vector<LayerPair> operator()() const;
-virtual  vector<LayerPair> operator()();
+  vector<LayerPair> operator()() ;
 /*   const LayerAccessor::BarrelLayerContainer& barrelPixel() const {return theBarrelPixel;} */
 /*   const LayerAccessor::ForwardLayerContainer& negativePixel() const {return theNegPixel;} */
 /*   const LayerAccessor::ForwardLayerContainer& positivePixel() const {return thePosPixel;} */

@@ -3,8 +3,14 @@
 #include "RecoTracker/TkHitPairs/interface/SeedLayerPairs.h"
 #include "RecoTracker/TkHitPairs/interface/HitPairGeneratorFromLayerPair.h"
 
-CombinedHitPairGenerator::CombinedHitPairGenerator(const SeedLayerPairs& layers)
+
+
+
+//CombinedHitPairGenerator::CombinedHitPairGenerator(SeedLayerPairs& layers)
+CombinedHitPairGenerator::CombinedHitPairGenerator(SeedLayerPairs& layers,
+						   const edm::EventSetup& iSetup)
 {
+  
   vector<SeedLayerPairs::LayerPair> layerPairs = layers();
   vector<SeedLayerPairs::LayerPair>::const_iterator it;
   for (it = layerPairs.begin(); it != layerPairs.end(); it++) {
