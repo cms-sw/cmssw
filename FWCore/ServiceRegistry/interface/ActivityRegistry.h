@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 19:53:09 EDT 2005
-// $Id: ActivityRegistry.h,v 1.3 2005/09/08 20:18:18 chrjones Exp $
+// $Id: ActivityRegistry.h,v 1.4 2005/09/28 04:25:02 wmtan Exp $
 //
 
 // system include files
@@ -76,7 +76,23 @@ namespace edm {
       }
       AR_WATCH_USING_METHOD_2(watchPostProcessEvent)
 
-      /// signal is emitted before the module starts processing the Event
+      /// signal is emitted before the module is constructed
+      typedef boost::signal<void (const ModuleDescription&)> PreModuleConstruction;
+      PreModuleConstruction preModuleConstructionSignal_;
+      void watchPreModuleConstruction(const PreModuleConstruction::slot_type& iSlot) {
+         preModuleConstructionSignal_.connect(iSlot);
+      }
+      AR_WATCH_USING_METHOD_1(watchPreModuleConstruction)
+         
+      /// signal is emitted after the module was construction
+      typedef boost::signal<void (const ModuleDescription&)> PostModuleConstruction;
+      PostModuleConstruction postModuleConstructionSignal_;
+      void watchPostModuleConstruction(const PostModuleConstruction::slot_type& iSlot) {
+         postModuleConstructionSignal_.connect(iSlot);
+      }
+      AR_WATCH_USING_METHOD_1(watchPostModuleConstruction)
+         
+         /// signal is emitted before the module starts processing the Event
       typedef boost::signal<void (const ModuleDescription&)> PreModule;
       PreModule preModuleSignal_;
       void watchPreModule(const PreModule::slot_type& iSlot) {

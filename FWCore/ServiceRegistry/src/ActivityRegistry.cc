@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep  6 10:26:49 EDT 2005
-// $Id: ActivityRegistry.cc,v 1.1 2005/09/07 21:58:20 chrjones Exp $
+// $Id: ActivityRegistry.cc,v 1.2 2005/09/08 07:18:00 chrjones Exp $
 //
 
 // system include files
@@ -66,6 +66,10 @@ edm::ActivityRegistry::connect(ActivityRegistry& iOther)
 
    preModuleSignal_.connect(iOther.preModuleSignal_);
    postModuleSignal_.connect(iOther.postModuleSignal_);
+
+   preModuleConstructionSignal_.connect(iOther.preModuleConstructionSignal_);
+   postModuleConstructionSignal_.connect(iOther.postModuleConstructionSignal_);
+
 }
 
 //
