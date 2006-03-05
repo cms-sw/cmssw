@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2006/02/22 06:50:05 $
- * $Revision: 1.81 $
+ * $Date: 2006/02/24 08:03:49 $
+ * $Revision: 1.82 $
  * \author G. Della Ricca
  *
 */
@@ -193,6 +193,8 @@ void EcalBarrelMonitorModule::endJob(void) {
 
 void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
+  LogInfo("EcalBarrelMonitor") << "processing event " << ievt_;
+
   // this should give enough time to all the MEs to reach the Collector,
   // and then hopefully the Client, especially when using CollateMEs,
   // even for short runs
@@ -205,7 +207,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
   e.getByLabel("ecalEBunpacker", dcchs);
 
   int nebc = dcchs->size();
-  LogInfo("EcalBarrelMonitor") << "event " << ievt_ << " DCC headers collection size " << nebc;
+  LogDebug("EcalBarrelMonitor") << "event " << ievt_ << " DCC headers collection size " << nebc;
 
   for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
@@ -249,7 +251,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
   e.getByLabel("ecalEBunpacker", digis);
 
   int nebd = digis->size();
-  LogInfo("EcalBarrelMonitor") << "event " << ievt_ << " digi collection size " << nebd;
+  LogDebug("EcalBarrelMonitor") << "event " << ievt_ << " digi collection size " << nebd;
 
   if ( meEBdigi_ ) meEBdigi_->Fill(float(nebd));
 
@@ -290,7 +292,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
   e.getByLabel("ecalUncalibHitMaker", "EcalEBUncalibRecHits", hits);
 
   int nebh = hits->size();
-  LogInfo("EcalBarrelMonitor") << "event " << ievt_ << " hits collection size " << nebh;
+  LogDebug("EcalBarrelMonitor") << "event " << ievt_ << " hits collection size " << nebh;
 
   if ( meEBhits_ ) meEBhits_->Fill(float(nebh));
 
