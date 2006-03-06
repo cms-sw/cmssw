@@ -3,7 +3,7 @@
    test for ProductRegistry 
 
    \author Stefano ARGIRO
-   \version $Id: edproducer_productregistry_callback.cc,v 1.3 2006/02/08 00:44:25 wmtan Exp $
+   \version $Id: edproducer_productregistry_callback.cc,v 1.4 2006/02/20 01:51:59 wmtan Exp $
    \date 21 July 2005
 */
 
@@ -169,11 +169,12 @@ void  testEDProducerProductRegistryCallback::testCircularRef(){
    edm::WorkerParams paramsl1(l1, preg, table, "PROD", 0, 0);
    edm::WorkerParams paramsl2(l2, preg, table, "PROD", 0, 0);
 
-   
-   auto_ptr<Worker> w1 = f->makeWorker(params1);
-   auto_ptr<Worker> wl1 = lM->makeWorker(paramsl1);
-   auto_ptr<Worker> wl2 = lM->makeWorker(paramsl2);
-   auto_ptr<Worker> w2 = f->makeWorker(params2);
+   boost::signal<void (const ModuleDescription&)> aSignal;
+
+   auto_ptr<Worker> w1 = f->makeWorker(params1,aSignal,aSignal);
+   auto_ptr<Worker> wl1 = lM->makeWorker(paramsl1,aSignal,aSignal);
+   auto_ptr<Worker> wl2 = lM->makeWorker(paramsl2,aSignal,aSignal);
+   auto_ptr<Worker> w2 = f->makeWorker(params2,aSignal,aSignal);
 
    //Should be 5 products
    // 1 from the module 't1'
@@ -230,10 +231,11 @@ void  testEDProducerProductRegistryCallback::testCircularRef2(){
    edm::WorkerParams paramsl2(l2, preg, table, "PROD", 0, 0);
    
    
-   auto_ptr<Worker> wl1 = lM->makeWorker(paramsl1);
-   auto_ptr<Worker> wl2 = lM->makeWorker(paramsl2);
-   auto_ptr<Worker> w1 = f->makeWorker(params1);
-   auto_ptr<Worker> w2 = f->makeWorker(params2);
+   boost::signal<void (const ModuleDescription&)> aSignal;
+   auto_ptr<Worker> wl1 = lM->makeWorker(paramsl1,aSignal,aSignal);
+   auto_ptr<Worker> wl2 = lM->makeWorker(paramsl2,aSignal,aSignal);
+   auto_ptr<Worker> w1 = f->makeWorker(params1,aSignal,aSignal);
+   auto_ptr<Worker> w2 = f->makeWorker(params2,aSignal,aSignal);
    
    //Would be 10 products
    // 1 from the module 't1'
@@ -291,10 +293,11 @@ void  testEDProducerProductRegistryCallback::testTwoListeners(){
    edm::WorkerParams paramsl2(l2, preg, table, "PROD", 0, 0);
    
    
-   auto_ptr<Worker> w1 = f->makeWorker(params1);
-   auto_ptr<Worker> wl1 = lM->makeWorker(paramsl1);
-   auto_ptr<Worker> wl2 = lFM->makeWorker(paramsl2);
-   auto_ptr<Worker> w2 = f->makeWorker(params2);
+   boost::signal<void (const ModuleDescription&)> aSignal;
+   auto_ptr<Worker> w1 = f->makeWorker(params1,aSignal,aSignal);
+   auto_ptr<Worker> wl1 = lM->makeWorker(paramsl1,aSignal,aSignal);
+   auto_ptr<Worker> wl2 = lFM->makeWorker(paramsl2,aSignal,aSignal);
+   auto_ptr<Worker> w2 = f->makeWorker(params2,aSignal,aSignal);
    
    //Should be 8 products
    // 1 from the module 't1'
