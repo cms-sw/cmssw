@@ -40,7 +40,7 @@ namespace HcalDigiAnalyzerImpl {
 
 void HcalDigiAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& c) {
   edm::Handle<edm::PCaloHitContainer> hits;
-  e.getByLabel("r", hitReadoutName_, hits);
+  e.getByLabel("SimG4Object", hitReadoutName_, hits);
   hbheHitAnalyzer_.fillHits(*hits);
   hoHitAnalyzer_.fillHits(*hits);
   hfHitAnalyzer_.fillHits(*hits);
