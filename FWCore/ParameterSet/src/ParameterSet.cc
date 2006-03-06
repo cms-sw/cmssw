@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.cc,v 1.20 2006/03/02 16:21:01 paterno Exp $
+// $Id: ParameterSet.cc,v 1.21 2006/03/02 17:48:49 paterno Exp $
 //
 // definition of ParameterSet's function members
 // ----------------------------------------------------------------------
@@ -286,19 +286,22 @@ namespace edm {
   }
 
    size_t
-   ParameterSet::getParameterSetNames(std::vector<std::string>& output) const
+   ParameterSet::getParameterSetNames(std::vector<std::string>& output,
+				      bool trackiness) const
    {
-     return getNamesByCode_('P', output);
+     return getNamesByCode_('P', trackiness, output);
    }
 
    size_t
-   ParameterSet::getParameterSetVectorNames(std::vector<std::string>& output) const
+   ParameterSet::getParameterSetVectorNames(std::vector<std::string>& output,
+					    bool trackiness) const
    {
-     return getNamesByCode_('p', output);
+     return getNamesByCode_('p', trackiness, output);
    }
 
   size_t
-  ParameterSet::getNamesByCode_(char code, 
+  ParameterSet::getNamesByCode_(char code,
+				bool trackiness,
 				std::vector<std::string>& output) const
   {
     size_t count = 0;
@@ -307,7 +310,8 @@ namespace edm {
     while ( it != end )
     {
       Entry const& e = it->second;
-      if (e.typeCode() == code) // if it is a vector of ParameterSet
+      if (e.typeCode() == code && 
+	  e.isTracked() == trackiness) // if it is a vector of ParameterSet
 	{
 	  ++count;
 	  output.push_back(it->first); // save the name
@@ -332,7 +336,9 @@ namespace pset
     // Get names of all ParameterSets; iterate through them,
     // recursively calling explode...
     vector<string> names;
-    top.getParameterSetNames(names);
+    const bool tracked = true;
+    const bool untracked = false;    
+    top.getParameterSetNames(names, tracked);
     vector<string>::const_iterator it = names.begin();
     vector<string>::const_iterator end = names.end();
     for( ; it != end; ++it )
@@ -341,11 +347,22 @@ namespace pset
 	  top.getParameter<ParameterSet>(*it);
 	explode(next_top, results);
       }
+
+    names.clear();
+    top.getParameterSetNames(names, untracked);
+    it = names.begin();
+    end = names.end();
+    for( ; it != end; ++it )
+      {
+	ParameterSet next_top = 
+	  top.getUntrackedParameter<ParameterSet>(*it);
+	explode(next_top, results);
+      }    
     
     // Get names of all ParameterSets vectors; iterate through them,
     // recursively calling explode...
     names.clear();
-    top.getParameterSetVectorNames(names);
+    top.getParameterSetVectorNames(names, tracked);
     it = names.begin();
     end = names.end();
     for( ; it != end; ++it )
@@ -363,6 +380,28 @@ namespace pset
 	    explode(*first, results);
 	  }	  
       }    
+
+    names.clear();
+    top.getParameterSetVectorNames(names, untracked);
+    it = names.begin();
+    end = names.end();
+    for( ; it != end; ++it )
+      {
+	vector<ParameterSet> next_bunch =
+	  top.getUntrackedParameter<vector<ParameterSet> >(*it);
+
+	vector<ParameterSet>::const_iterator first = 
+	  next_bunch.begin();
+	vector<ParameterSet>::const_iterator last 
+	  = next_bunch.end();
+
+	for( ; first != last; ++first )
+	  {
+	    explode(*first, results);
+	  }	  
+      }    
+
+
   }
 }
 

@@ -12,6 +12,7 @@
 #include "FWCore/ParameterSet/interface/MakeParameterSets.h"
 #include "FWCore/ParameterSet/interface/ProcessPSetBuilder.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
 
 using boost::shared_ptr;
 using std::string;
@@ -185,5 +186,16 @@ namespace edm
     // For now, we have to always make use of the "LoadAllDictionaries" service.
     serviceparams->push_back(ParameterSet());
     serviceparams->back().addParameter<std::string>("@service_type", "LoadAllDictionaries");
+
+    // Load every ParameterSet into the Registry
+    ::pset::loadAllNestedParameterSets(*main);
+    {
+      // Should be able to use boost::lambda here. It did seem easy to
+      // get it to work...
+      ::pset::Registry* reg = ::pset::Registry::instance();
+       std::vector<ParameterSet>::const_iterator i = serviceparams->begin();
+       std::vector<ParameterSet>::const_iterator e = serviceparams->end();
+       for ( ; i != e; ++i ) reg->insertParameterSet(*i);
+    }
   }
 } // namespace edm

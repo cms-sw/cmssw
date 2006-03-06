@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: Registry.cc,v 1.1 2006/02/24 19:15:51 paterno Exp $
+// $Id: Registry.cc,v 1.2 2006/02/27 15:32:33 paterno Exp $
 //
 // ----------------------------------------------------------------------
 
@@ -84,6 +84,17 @@ namespace pset
   Registry::Registry() : psets_() { }
 
   Registry::~Registry() { }
+
+  // Associated functions
+    void loadAllNestedParameterSets(edm::ParameterSet const& main)
+    {
+      pset::Registry* reg = pset::Registry::instance();
+      std::vector<edm::ParameterSet> all_main_psets;
+      pset::explode(main, all_main_psets);
+      std::vector<edm::ParameterSet>::const_iterator i = all_main_psets.begin();
+      std::vector<edm::ParameterSet>::const_iterator e = all_main_psets.end();
+      for ( ; i != e; ++i ) reg->insertParameterSet(*i);
+    }
 
 
 } // namespace pset

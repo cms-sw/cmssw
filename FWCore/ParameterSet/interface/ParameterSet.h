@@ -2,7 +2,7 @@
 #define ParameterSet_ParameterSet_h
 
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.h,v 1.18 2006/02/28 20:35:52 paterno Exp $
+// $Id: ParameterSet.h,v 1.19 2006/03/02 16:21:01 paterno Exp $
 //
 // Declaration for ParameterSet(parameter set) and related types
 // ----------------------------------------------------------------------
@@ -80,16 +80,17 @@ namespace edm {
     std::vector<std::string> getParameterNames() const;
 
     template <class T>
-    std::vector<std::string> getParameterNamesForType() const
+    std::vector<std::string> getParameterNamesForType(bool trackiness = 
+						      true) const
     {
       std::vector<std::string> result;
       // This is icky, but I don't know of another way in the current
       // code to get at the character code that denotes type T.
       T value = T();
-      edm::Entry type_translator(value, true);
+      edm::Entry type_translator(value, trackiness);
       char type_code = type_translator.typeCode();
       
-      (void)getNamesByCode_(type_code, result);
+      (void)getNamesByCode_(type_code, trackiness, result);
       return result;
     }
     
@@ -110,14 +111,19 @@ namespace edm {
 
     // Return the names of all parameters of type ParameterSet,
     // pushing the names into the argument 'output'. Return the number
-    // of names pushed into the vector.
-    size_t getParameterSetNames(std::vector<std::string>& output) const;
+    // of names pushed into the vector. If 'trackiness' is true, we
+    // return tracked parameters; if 'trackiness' is false, w return
+    // untracked parameters.
+    size_t getParameterSetNames(std::vector<std::string>& output,
+				bool trackiness) const;
 
     // Return the names of all parameters of type
     // vector<ParameterSet>, pushing the names into the argument
-    // 'output'. Return the number of names pushed into the vector.
-    size_t getParameterSetVectorNames(std::vector<std::string>& output) const;
-
+    // 'output'. Return the number of names pushed into the vector. If
+    // 'trackiness' is true, we return tracked parameters; if
+    // 'trackiness' is false, w return untracked parameters.
+    size_t getParameterSetVectorNames(std::vector<std::string>& output,
+				      bool trackiness) const;
 
 private:
     typedef std::map<std::string, Entry> table;
@@ -144,8 +150,10 @@ private:
     // not found.
     Entry const* getEntryPointerOrThrow_(std::string const& name) const;
 
-    // Return the names of all the entries with the given typecode.
+    // Return the names of all the entries with the given typecode and
+    // given status (trackiness)
     size_t getNamesByCode_(char code,
+			   bool trackiness,
 			   std::vector<std::string>& output) const;
 
 

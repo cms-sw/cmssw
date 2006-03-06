@@ -2,7 +2,7 @@
 #define ParameterSet_Registry_h
 
 // ----------------------------------------------------------------------
-// $Id: Registry.h,v 1.1 2006/02/24 19:15:51 paterno Exp $
+// $Id: Registry.h,v 1.2 2006/02/27 15:32:32 paterno Exp $
 //
 // Declaration for pset::Registry. This is an implementation detail of 
 // the ParameterSet library.
@@ -64,6 +64,9 @@ namespace pset
 
     static Registry* instance_;
   };
+
+  // Free functions associated with Registry.
+  void loadAllNestedParameterSets(edm::ParameterSet const& main);
 
 }  // namespace pset
 
