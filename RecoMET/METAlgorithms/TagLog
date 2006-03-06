@@ -1,3 +1,7 @@
+** V01-00-01  [Mon Mar  6 03:11:24 2006]
+Changed BuildFile in RecoMET/METAlgorithms per Bill Tanenbaum's request:
+removed line referring to SEAL_PLUGIN_NAME
+
 ** V01-00-00  [Mon Feb 27 05:04:28 2006]
 Significant changes required due to changes in DataFormats and migration to
 official Calorimeter Towers
