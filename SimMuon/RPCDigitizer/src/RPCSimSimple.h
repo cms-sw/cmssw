@@ -18,6 +18,6 @@ class RPCSimSimple : public RPCSim
 			const edm::PSimHitContainer& rpcHits );
   void fillDigis(int rollDetId, RPCDigiCollection& digis);
  private:
-  void init();
+  void init(){};
 };
 #endif
