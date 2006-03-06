@@ -1,25 +1,26 @@
 /*!
 \page ReferenceManual The Reference Manual 
 
+
 This is the CMSSW Reference Manual, the reference documentation of all classes and packages in CMSSW. 
 
 This page explains how to write the documentation for your code.
 
-\subsection classdoc Class Documentation
+\section classdoc Class Documentation
 Classes are method are documented with properly formatted comments in the code.
 
 Here is a template of a documented 
 <a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/Documentation/CodingRules/Template.h?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>.h file</a>, 
 and of a <a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/Documentation/CodingRules/Template.cc?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>.cc file</a>. The resulting doxygen page is \ref Template "here".
 
-\subsection pakagedoc Package Documentation
+\section pakagedoc Package Documentation
 Each package should contain a very brief description of its content and purpose. Remember that this is a reference, and not a user's guide: tutorials, howtos, etc. are best documented on the Wiki pages. Cross link between Wiki pages and this manual are a good way to avoid duplication of content.
 
 This documentation should be written in a file [Package]/doc/[Package].doc. 
 It is recommended to stick to the template provided 
 <a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/Documentation/ReferenceManualPages/template/Package.doc.template?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>here</a>.
 
-\subsection domaindoc Domain Documentation
+\section domaindoc Domain Documentation
 "Domains", either for subdetectors (Muons, Tracker...) or from a functional point of view (Simulation, Reconstruction...) can be documented in a page directly linked to \ref mainpage. These domain pages should be put in Documentation/ReferenceManualPages.
 
 <hr>
