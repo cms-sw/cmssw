@@ -1,3 +1,6 @@
+** V00-01-03  [Mon Mar  6 13:46:40 2006]
+added doxygen documentation
+
 ** V00-01-02  [Fri Mar  3 09:32:56 2006]
 fixed dependencies in BuildFile
 
