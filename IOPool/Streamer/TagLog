@@ -1,3 +1,6 @@
+** V02-00-05  [Mon Mar  6 05:19:45 2006]
+Change in edm::Selector
+
 ** V02-00-04  [Fri Mar  3 00:53:43 2006]
 use up-to-date parameters for input source in config files
 
