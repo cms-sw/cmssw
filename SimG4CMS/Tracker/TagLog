@@ -1,3 +1,6 @@
+** V01-00-08  [Mon Mar  6 19:07:30 2006]
+Change module label 'r' to 'SimG4Object'
+
 ** V01-00-07  [Sun Mar  5 18:23:45 2006]
 update the cfg files
 
