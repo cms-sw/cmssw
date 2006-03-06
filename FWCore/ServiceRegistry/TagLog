@@ -1,3 +1,6 @@
+** V00-01-00  [Mon Mar  6 05:09:22 2006]
+added pre and post module construction signals
+
 ** V00-00-02  [Sat Nov 12 01:03:19 2005]
 Use new TypeIDBase class
 
