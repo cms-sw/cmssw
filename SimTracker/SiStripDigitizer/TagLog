@@ -1,3 +1,6 @@
+** V01-02-06  [Mon Mar  6 22:54:06 2006]
+bug fix for the adc full scale
+
 ** V01-02-05  [Mon Mar  6 19:13:46 2006]
 Change module label 'r' to 'SimG4Object'
 
