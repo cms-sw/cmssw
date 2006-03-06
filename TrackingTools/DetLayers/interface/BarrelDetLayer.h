@@ -30,7 +30,7 @@ class BarrelDetLayer : public DetLayer {
   virtual ~BarrelDetLayer();
 
   // GeometricSearchDet interface
-  virtual const BoundSurface&  surface() const;
+  virtual const BoundSurface&  surface() const { return *theCylinder;}
 
 
   // DetLayer interface

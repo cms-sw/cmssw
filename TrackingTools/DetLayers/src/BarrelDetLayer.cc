@@ -8,13 +8,6 @@ BarrelDetLayer::~BarrelDetLayer() {}
 
 
 
-//--- GeometricSearchDet interface
-const BoundSurface& BarrelDetLayer::surface() const { 
-  return *theCylinder;
-}
-
-
-
 //--- Extension of the interface
 void BarrelDetLayer::setSurface( BoundCylinder* cp) { 
   theCylinder = cp;
