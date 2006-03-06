@@ -17,7 +17,7 @@ RPCSimSimple::simulate(const RPCRoll* roll,
  
     // Here I hould check if the RPC are up side down;
     const LocalPoint& entr=_hit->entryPoint();
-    const LocalPoint& exit=_hit->exitPoint();
+    //    const LocalPoint& exit=_hit->exitPoint();
 
     strips.insert(topology.channel(entr));  
     
