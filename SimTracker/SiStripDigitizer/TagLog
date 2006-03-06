@@ -1,3 +1,6 @@
+** V01-02-05  [Mon Mar  6 19:13:46 2006]
+Change module label 'r' to 'SimG4Object'
+
 ** V01-02-04  [Mon Mar  6 15:43:04 2006]
 fix path of geometry file
 
