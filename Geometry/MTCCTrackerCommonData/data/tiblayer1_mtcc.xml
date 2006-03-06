@@ -45,7 +45,7 @@
   <String name="EmptyStringCabUpName" value="nothing"/>
   <Numeric name="ROffsetCabUp"        value="-[tiblayerpar:ROffCable]"/>
   <Numeric name="CylinderThickness"   value="[tiblayerpar:CylinderT]"/>
-  <String name="CylinderMaterial"     value="tibmaterial:TIB_cylinder"/>
+  <String name="CylinderMaterial"     value="materials:Polyvinylchloride"/>
   <Numeric name="SupportWidth"        value="[tiblayerpar:SupportW]"/>
   <Numeric name="SupportThickness"    value="[tiblayerpar:SupportT]"/>
   <String name="SupportMaterial"      value="tibmaterial:TIB_cent_supp"/>
