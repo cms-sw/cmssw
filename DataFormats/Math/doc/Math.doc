@@ -1,0 +1,42 @@
+/*!
+\page DataFormats_Math Package DataFormats/Math
+<center>
+<small>
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/DataFormats/Math/?cvsroot=CMSSW>CVS head for this package</a> - 
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/DataFormats/Math/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+\section desc Description
+Persistent classes for mathematical types.
+
+\subsection interface Public interface
+- math::Vector <b><N></b>: fixed size N-dimensional array. The elements are stored as <tt>Double32_t</tt>,
+  i.e.: are stored as <tt>float</tt> and represented in memory as <tt>double</tt>. This class has
+  to be replaced by ROOT MathCore class <tt>SVector<N,Double32_t></tt>.
+- math::Error <b><N></b>: NxN symmetric matrix.  The elements are stored as <tt>Double32_t</tt>,
+  i.e.: are stored as <tt>float</tt> and represented in memory as <tt>double</tt>. A functionally
+  equivalent class has been requested to the ROOT team. Will be replaced by this new class as
+  soon as available.
+
+\subsection typedefs 
+- math::XYZVector: spatial vector with cartesian internal representation.
+- math::RhoEtaPhiVector: spatial vector with cylindrical internal representation using pseudorapidity.
+- math::RThetaPhiVector: spatial vector with polar internal representation.
+- math::XYZPoint: point in space with cartesian internal representation.
+- math::XYZTLorentzVector: Lorentz vector with cartesian internal representation.
+- math::PtEtaPhiELorentzVector: Lorentz vector with cylindrical internal representation using pseudorapidity.
+
+\subsection modules Modules
+None.
+
+\subsection tests Unit tests and examples
+None.
+
+\section status Status and planned development
+Stable. Few classes to be migrated to Root MathCore types.
+
+<hr>
+Last updated:
+07-FEB-2006 L. Lista
+*/
