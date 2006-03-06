@@ -31,8 +31,8 @@ namespace
   public:
     AllSelector(const std::string& name):name_(name) {}
     
-    virtual bool doMatch(const edm::Provenance& p) const {
-      return p.product.module.moduleLabel_==name_;
+    virtual bool doMatch(const edm::ProvenanceAccess& p) const {
+      return p.product().module.moduleLabel_==name_;
     }
 
   private:
