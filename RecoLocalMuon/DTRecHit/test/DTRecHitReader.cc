@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/02/15 13:56:48 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/03/03 11:29:42 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -80,7 +80,7 @@ void DTRecHitReader::analyze(const Event & event, const EventSetup& eventSetup){
 
   // Get the SimHit collection from the event
   Handle<PSimHitContainer> simHits;
-  event.getByLabel("r","MuonDTHits", simHits);
+  event.getByLabel("SimG4Object","MuonDTHits", simHits);
   
   if(debug)
     cout << "   #SimHits: " << simHits->size() << endl;
