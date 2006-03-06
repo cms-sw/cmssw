@@ -9,6 +9,8 @@
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "FWCore/Framework/interface/UnscheduledHandler.h"
+
 // needed for type tests
 #include "FWCore/Framework/src/OutputWorker.h"
 #include "FWCore/Framework/src/FilterWorker.h"
@@ -85,7 +87,31 @@ namespace edm
 	const EventSetup* es_;
     };
 
+     
   }
+
+  class UnscheduledCallProducer : public UnscheduledHandler 
+  {
+  public:
+     UnscheduledCallProducer() {}
+     void addWorker( Worker* aWorker) {
+        assert(0 != aWorker);
+        labelToWorkers_[aWorker->description().moduleLabel_]=aWorker;
+     }
+ private: 
+     virtual bool tryToFillImpl(const Provenance& prov,
+                                EventPrincipal& event,
+                                const EventSetup& eventSetup) {
+        std::map<std::string, Worker*>::const_iterator itFound = 
+        labelToWorkers_.find(prov.product.module.moduleLabel_);
+        if(itFound != labelToWorkers_.end()) {
+           itFound->second->doWork(event,eventSetup);
+           return true;
+        }
+        return false;
+     }
+     std::map<std::string, Worker*> labelToWorkers_;
+  };
 
   // -----------------------------
 
@@ -186,7 +212,8 @@ namespace edm
     wantSummary_(false),
     makeTriggerResults_(false),
     total_events_(),
-    total_passed_()
+    total_passed_(),
+    unscheduled_(new UnscheduledCallProducer)
   {
     ParameterSet defopts;
     ParameterSet opts = 
@@ -232,7 +259,82 @@ namespace edm
 	fillEndPath(bitpos,*eib);
       }
 
+    //See if all modules were used
+    std::set<std::string> usedWorkerLabels;
+    for(AllWorkers::iterator itWorker=all_workers_.begin();
+        itWorker != all_workers_.end();
+        ++itWorker){
+       usedWorkerLabels.insert( (*itWorker)->description().moduleLabel_);
+    }
+    std::vector<std::string> modulesInConfig(proc_pset.getParameter<std::vector<std::string> >("@all_modules"));
+    std::set<std::string> modulesInConfigSet(modulesInConfig.begin(),modulesInConfig.end());
+    std::vector<std::string> unusedLabels;
+    std::set_difference(modulesInConfigSet.begin(),modulesInConfigSet.end(),
+                        usedWorkerLabels.begin(),usedWorkerLabels.end(),
+                        std::back_inserter(unusedLabels));
+    //does the configuration say we should allow on demand?
+    bool allowUnscheduled = opts.getUntrackedParameter<bool>("allowUnscheduled",true);
+    std::vector<Worker*> unscheduledWorkers;
+    std::set<std::string> unscheduledLabels;
+    if(!unusedLabels.empty()){
+       //Need to
+       // 1) create worker
+       // 2) if they are ProducerWorkers, add them to our list
+       // 3) hand list to our delayed reader
+       std::vector<std::string>  shouldBeUsedLabels;
+       
+       for( std::vector<std::string>::iterator itLabel = unusedLabels.begin();
+            itLabel != unusedLabels.end();
+            ++itLabel) {
+          if(allowUnscheduled) {
+             const unsigned long version=1, pass=1;
+             unscheduledLabels.insert(*itLabel);
+             //Need to hold onto the parameters long enough to make the call to getWorker
+             ParameterSet workersParams(proc_pset.getParameter<ParameterSet>(*itLabel));
+             WorkerParams params(workersParams, 
+                                 *prod_reg_, *act_table_,
+                                 proc_name_, version, pass);
+             Worker* newWorker( wreg.getWorker(params) );
+             if (dynamic_cast<ProducerWorker*>(newWorker)){
+                unscheduledWorkers.push_back(newWorker);
+                unscheduled_->addWorker(newWorker);
+                //add to list so it gets reset each new event
+                all_workers_.insert(newWorker);
+             } else {
+                //not a producer so should be marked as not used
+                shouldBeUsedLabels.push_back(*itLabel);
+             }
+          } else {
+             //everthing is marked are unused so no 'on demand' allowed
+             shouldBeUsedLabels.push_back(*itLabel);
+          }
+       }
+       if(!shouldBeUsedLabels.empty()) {
+          std::ostringstream unusedStream;
+          unusedStream << "'"<< shouldBeUsedLabels.front() <<"'";
+          for( std::vector<std::string>::iterator itLabel = shouldBeUsedLabels.begin()+1;
+               itLabel != shouldBeUsedLabels.end();
+               ++itLabel) {
+             unusedStream <<",'" << *itLabel<<"'";
+          }
+          LogWarning("path")
+             << "The following module labels are not assigned to any path:\n" 
+             <<unusedStream.str()
+             <<"\n";
+       }
+    }
     prod_reg_->setProductIDs();
+    //Now that these have been set, we can create the list of Groups we need for the 'on demand'
+    const ProductRegistry::ProductList& prodsList = prod_reg_->productList();
+    for(ProductRegistry::ProductList::const_iterator itProdInfo = prodsList.begin();
+        itProdInfo != prodsList.end();
+        ++itProdInfo) {
+       if(unscheduledLabels.end() != unscheduledLabels.find(itProdInfo->second.module.moduleLabel_)) {
+          std::auto_ptr<Provenance> prov(new Provenance(itProdInfo->second));
+          boost::shared_ptr<Group> theGroup(new Group(prov) );
+          demandGroups_.push_back(theGroup);
+       }
+    }
   }
 
   void Schedule::handleWronglyPlacedModules()
@@ -346,6 +448,17 @@ namespace edm
     state_ = Running;
     ++total_events_;
 
+    //now setup the on-demand system
+    // NOTE: who owns the productdescrption?  Just copied by value 
+    unscheduled_->setEventSetup(es);
+    ep.setUnscheduledHandler(unscheduled_);
+    for(std::vector<boost::shared_ptr<Group> >::iterator itGroup = demandGroups_.begin();
+        itGroup != demandGroups_.end();
+        ++itGroup) {
+       std::auto_ptr<Provenance> prov(new Provenance((*itGroup)->productDescription()));
+       std::auto_ptr<Group> theGroup(new Group(prov) );
+       ep.addGroup( theGroup );
+    }
     try
       {
 	CallPrePost cpp(act_reg_.get(),&ep,&es);
