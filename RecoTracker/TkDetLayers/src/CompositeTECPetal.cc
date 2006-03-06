@@ -31,10 +31,9 @@ CompositeTECPetal::CompositeTECPetal(vector<const TECWedge*>& innerWedges,
   //sort( theFrontWedges.begin(), theFrontWedges.end(), DetLessR() );
   //sort( theBackWedges.begin(), theBackWedges.end(), DetLessR() );
 
-  // TO BE CHANGED WHEN THE PROBLEM WITH GLUEDGEOMDET IS FIXED
-  //theDiskSector  = ForwardDiskSectorBuilderFromWedges()( theWedges );
-  //theFrontSector = ForwardDiskSectorBuilderFromWedges()( theFrontWedges);
-  //theBackSector  = ForwardDiskSectorBuilderFromWedges()( theBackWedges);
+  theDiskSector  = ForwardDiskSectorBuilderFromWedges()( theWedges );
+  theFrontSector = ForwardDiskSectorBuilderFromWedges()( theFrontWedges);
+  theBackSector  = ForwardDiskSectorBuilderFromWedges()( theBackWedges);
 
 
 }

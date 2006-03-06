@@ -35,12 +35,10 @@ TECWedge* TECWedgeBuilder::build(const GeometricDet* aTECWedge,
     double theGeomDetRposition = theGeomDet->surface().position().perp();
     
     if( fabs(theGeomDetRposition -theGeometricDetRposition)> 10.0 ){
-      /*
       cout << "warning: problem with GeomDet position in TEC Wedge" << endl;
       cout << "theGeometricDetRposition: " << theGeometricDetRposition << endl;
       cout << "theGeomDetRposition: " << theGeomDetRposition << endl;
       cout << endl;
-      */
     }
     
 

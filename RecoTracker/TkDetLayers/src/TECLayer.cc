@@ -29,17 +29,15 @@ TECLayer::TECLayer(vector<const TECPetal*>& innerPetals,
   //sort(theBackPetals.begin(), theBackPetals.end(), PetalLessPhi());
 
   // building disk for front and back petals
-  /* ---- TO BE CHANGED AS SOON AS  THE PROBLEM WITH GLUEDGEOMDET IS FIXED
   theLayerDisk = computeDisk( thePetals );
   theFrontDisk = computeDisk( theFrontPetals);
   theBackDisk  = computeDisk( theBackPetals);
 
   // set up the bin finders
   theFrontBinFinder = BinFinderPhi(theFrontPetals.front()->position().phi(),
-				   theFrontPetals.size());
+  				   theFrontPetals.size());
   theBackBinFinder  = BinFinderPhi(theBackPetals.front()->position().phi(),
-				   theBackPetals.size());  
-  ------ */
+  			   theBackPetals.size());  
 }
 
 

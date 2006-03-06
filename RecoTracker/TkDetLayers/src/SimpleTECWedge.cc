@@ -1,22 +1,18 @@
 #include "RecoTracker/TkDetLayers/interface/SimpleTECWedge.h"
+#include "RecoTracker/TkDetLayers/interface/ForwardDiskSectorBuilderFromDet.h"
 
 typedef GeometricSearchDet::DetWithState DetWithState;
 
-SimpleTECWedge::SimpleTECWedge(const GeomDet* theDet){
-
+SimpleTECWedge::SimpleTECWedge(const GeomDet* theInputDet){
+  theDet = theInputDet;
+  vector<const GeomDet*> tmpV;
+  tmpV.push_back(theDet);
+  theDiskSector = ForwardDiskSectorBuilderFromDet()( tmpV );
 }
 
 SimpleTECWedge::~SimpleTECWedge(){
 
 } 
-
-/*
-const BoundSurface&
-SimpleTECWedge::surface() const{
-  cout << "temporary dummy implementation of SimpleTECWedge::surface()!!" << endl;
-  return thePlane;
-}
-*/
 
 vector<const GeomDet*> 
 SimpleTECWedge::basicComponents() const{
@@ -33,7 +29,7 @@ SimpleTECWedge::components() const{
   
 pair<bool, TrajectoryStateOnSurface>
 SimpleTECWedge::compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
-			       const MeasurementEstimator&) const{
+			    const MeasurementEstimator&) const{
   cout << "temporary dummy implementation of SimpleTECWedge::compatible()!!" << endl;
   return pair<bool,TrajectoryStateOnSurface>();
 }
