@@ -1,3 +1,6 @@
+** V00-01-11  [Mon Mar  6 02:04:53 2006]
+eliminate dep. on AFS; now operates on HEPPDT_PARAM_PATH
+
 ** V00-01-10  [Wed Mar  1 03:46:46 2006]
 decouple vtx.smearing and make ir a separate utility
 
