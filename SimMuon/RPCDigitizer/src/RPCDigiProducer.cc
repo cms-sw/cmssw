@@ -4,7 +4,7 @@
 #include "SimMuon/RPCDigitizer/src/RPCDigiProducer.h"
 #include "SimMuon/RPCDigitizer/src/RPCDigitizer.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+//#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 
@@ -44,9 +44,9 @@ void RPCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) 
 
 
   // find the magnetic field
-  edm::ESHandle<MagneticField> magfield;
-  eventSetup.get<IdealMagneticFieldRecord>().get(magfield);
-  theDigitizer->setMagneticField(&*magfield);
+  //edm::ESHandle<MagneticField> magfield;
+  ///eventSetup.get<IdealMagneticFieldRecord>().get(magfield);
+  //theDigitizer->setMagneticField(&*magfield);
 
   // run the digitizer
   theDigitizer->doAction(*hits, *pDigis);
