@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea GIAMMANCO
 //         Created:  Thu Sep 22 14:23:22 CEST 2005
-// $Id: SiStripDigitizer.cc,v 1.8 2006/01/19 21:00:10 pioppi Exp $
+// $Id: SiStripDigitizer.cc,v 1.9 2006/03/02 10:21:08 azzi Exp $
 //
 //
 
@@ -89,14 +89,14 @@ namespace cms
     edm::Handle<edm::PSimHitContainer> TECHitsLowTof;
     edm::Handle<edm::PSimHitContainer> TECHitsHighTof;
 
-    iEvent.getByLabel("r","TrackerHitsTIBLowTof", TIBHitsLowTof);
-    iEvent.getByLabel("r","TrackerHitsTIBHighTof", TIBHitsHighTof);
-    iEvent.getByLabel("r","TrackerHitsTIDLowTof", TIDHitsLowTof);
-    iEvent.getByLabel("r","TrackerHitsTIDHighTof", TIDHitsHighTof);
-    iEvent.getByLabel("r","TrackerHitsTOBLowTof", TOBHitsLowTof);
-    iEvent.getByLabel("r","TrackerHitsTOBHighTof", TOBHitsHighTof);
-    iEvent.getByLabel("r","TrackerHitsTECLowTof", TECHitsLowTof);
-    iEvent.getByLabel("r","TrackerHitsTECHighTof", TECHitsHighTof);
+    iEvent.getByLabel("SimG4Object","TrackerHitsTIBLowTof", TIBHitsLowTof);
+    iEvent.getByLabel("SimG4Object","TrackerHitsTIBHighTof", TIBHitsHighTof);
+    iEvent.getByLabel("SimG4Object","TrackerHitsTIDLowTof", TIDHitsLowTof);
+    iEvent.getByLabel("SimG4Object","TrackerHitsTIDHighTof", TIDHitsHighTof);
+    iEvent.getByLabel("SimG4Object","TrackerHitsTOBLowTof", TOBHitsLowTof);
+    iEvent.getByLabel("SimG4Object","TrackerHitsTOBHighTof", TOBHitsHighTof);
+    iEvent.getByLabel("SimG4Object","TrackerHitsTECLowTof", TECHitsLowTof);
+    iEvent.getByLabel("SimG4Object","TrackerHitsTECHighTof", TECHitsHighTof);
     
     theStripHits.insert(theStripHits.end(), TIBHitsLowTof->begin(), TIBHitsLowTof->end()); 
     theStripHits.insert(theStripHits.end(), TIBHitsHighTof->begin(), TIBHitsHighTof->end());
