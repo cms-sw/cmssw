@@ -1,3 +1,6 @@
+** V00-02-07  [Tue Mar  7 00:49:19 2006]
+Change module label 'r' to 'SimG4Object'
+
 ** V00-02-05  [Sun Mar  5 19:13:14 2006]
 changed the geometry xml file
 
