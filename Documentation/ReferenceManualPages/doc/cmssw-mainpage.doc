@@ -43,6 +43,14 @@ This is the CMSSW mainpage
 <TR VALIGN=TOP><TH WIDTH="200">Domain</TH><TH WIDTH="493">Purpose</TH><TH WIDTH="200">Contact</TH></TR>
 <TR>
   <TD>
+  \endhtmlonly \ref CommonData "Common data formats"   \htmlonly
+  </TD>
+  <TD>Definition of commonly used persistent data types</TD>
+  <TD> <A HREF="mailto:">Luca Lista</A>,
+       <A HREF="mailto:">William Tanenbaum</A>,   
+</TR>
+<TR>
+  <TD>
   \endhtmlonly \ref RecoPackages "Reco data format"   \htmlonly
   </TD>
   <TD>Definition of data types for reconstruction output for various systems</TD>
