@@ -363,9 +363,9 @@ void DDTIBLayerAlgo_MTCC::execute() {
   rout = 0.5*(radiusLo+radiusUp+cylinderT);
   name = idName + "Cylinder";
   solid = DDSolidFactory::tubs(DDName(name, idNameSpace), 0.25*layerL,
-			       rin, rout, 0, phidiff);
+			       rin, rout, phiMin, phidiff);
   DCOUT('r', "DDTIBLayerAlgo_MTCC test: " << DDName(name, idNameSpace) 
-	<< " Tubs made of " << cylinderMat << " from 0 to " << phidiff/deg
+	<< " Tubs made of " << cylinderMat << " from " << phiMin/deg << " to " << (phiMin+phidiff)/deg
 	<< " with Rin " << rin << " Rout " << rout << " ZHalf " 
 	<< 0.25*layerL);
   matname = DDName(DDSplit(cylinderMat).first, DDSplit(cylinderMat).second);
@@ -379,9 +379,9 @@ void DDTIBLayerAlgo_MTCC::execute() {
   rout -= supportT;
   name  = idName + "CylinderIn";
   solid = DDSolidFactory::tubs(DDName(name, idNameSpace), 0.5*layerL,
-			       rin, rout, 0, phidiff);
+			       rin, rout, phiMin, phidiff);
   DCOUT('r', "DDTIBLayerAlgo_MTCC test: " << DDName(name, idNameSpace) 
-	<< " Tubs made of " << genMat << " from 0 to " << phidiff/deg
+	<< " Tubs made of " << genMat << " from " << phiMin/deg << " to " << (phiMin+phidiff)/deg << phidiff/deg
 	<< " with Rin " << rin << " Rout " << rout << " ZHalf " 
 	<< 0.5*layerL);
   DDLogicalPart cylinderIn(solid.ddname(), matter, solid);
@@ -391,9 +391,9 @@ void DDTIBLayerAlgo_MTCC::execute() {
 	<< " at (0,0," << -0.25*layerL << ") with no rotation");
   name  = idName + "CylinderInSup";
   solid = DDSolidFactory::tubs(DDName(name, idNameSpace), 0.5*supportW,
-			       rin, rout, 0, phidiff);
+			       rin, rout, phiMin, phidiff);
   DCOUT('r', "DDTIBLayerAlgo_MTCC test: " << DDName(name, idNameSpace) 
-	<< " Tubs made of " << genMat << " from 0 to " << phidiff/deg
+	<< " Tubs made of " << genMat << " from " << phiMin/deg << " to " << (phiMin+phidiff)/deg
 	<< " with Rin " << rin << " Rout " << rout << " ZHalf " 
 	<< 0.5*supportW);
   matname = DDName(DDSplit(supportMat).first, DDSplit(supportMat).second);
