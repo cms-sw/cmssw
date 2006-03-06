@@ -18,11 +18,11 @@
   <Numeric name="CoolTubeThickness"   value="[tibstringpar:CoolTubeD]"/>
   <Numeric name="RadiusLo"            value="[tiblayerpar:RadiusLo1]"/>
   <Numeric name="PhiOffsetLo"         value="5.390*deg"/>
-  <Numeric name="PhiMinimumLo"        value="5.390*deg"/>
-  <Numeric name="PhiMaximumLo"        value="5.390*deg+180.*deg"/>
+  <Numeric name="PhiMinimumLo"        value="5.390*deg+50.*deg"/>
+  <Numeric name="PhiMaximumLo"        value="5.390*deg+180.*deg-50.*deg"/>
   <Numeric name="StringsLo"           value="34"/>
   <Vector name="StringLoList" type="numeric" nEntries="2">
-    8 , 9
+    9 , 10
   </Vector>
   <String name="StringDetLoName"      value="tibstring1_mtcc:TIBString1Lo1"/>
   <String name="EmptyStringDetLoName" value="nothing"/>
@@ -32,8 +32,8 @@
   <Numeric name="ROffsetCabLo"        value="[tiblayerpar:ROffCable]"/>
   <Numeric name="RadiusUp"            value="[tiblayer1_mtcc:RadiusUp]"/>
   <Numeric name="PhiOffsetUp"         value="4.903*deg"/>
-  <Numeric name="PhiMinimumUp"        value="4.903*deg"/>
-  <Numeric name="PhiMaximumUp"        value="4.903*deg+180.*deg"/>
+  <Numeric name="PhiMinimumUp"        value="4.903*deg+50.*deg"/>
+  <Numeric name="PhiMaximumUp"        value="4.903*deg+180.*deg-50.*deg"/>
   <Numeric name="StringsUp"           value="38"/>
   <Vector name="StringUpList" type="numeric" nEntries="3">
     9 , 10 , 11
