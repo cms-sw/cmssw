@@ -1,3 +1,7 @@
+** V00-01-02  [Tue Mar  7 14:36:20 2006]
+Some work in State Machine design; added nullAction to XdaqCollector
+Bugfix in WebComponents
+
 ** V00-01-00  [Wed Feb  8 00:19:48 2006]
 New getter &amp; setter methods for class MonitorElement;
 Fixed compilation errors introduced with new CMSSW configuration in
