@@ -1,3 +1,6 @@
+** V03-06-16  [Tue Mar  7 18:33:35 2006]
+Change module label 'r' to 'SimG4Object'
+
 ** V03-06-15  [Fri Mar  3 16:07:21 2006]
 changed   EvtGen+DetSim+Digi.cfg to follow sistrip digitizer change
 
