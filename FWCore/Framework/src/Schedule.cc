@@ -154,7 +154,7 @@ namespace edm
 	  {
 	    vstring tmppaths = opts.getParameter<vstring>("listOfTriggers");
 
-	    // verify that all then names in allpaths are a subset of
+	    // verify that all the names in allpaths are a subset of
 	    // the names currently in allpaths (all the names)
 
 	    if(!tmppaths.empty() && tmppaths[0] == "*")
@@ -172,7 +172,7 @@ namespace edm
       {
       }
 
-    rc.addParameter<vstring>("@trigger_paths",allpaths);
+    rc.addUntrackedParameter<vstring>("@trigger_paths",allpaths);
     return rc;
   }
 
@@ -193,7 +193,7 @@ namespace edm
     trig_pset_(getTrigPSet(proc_pset)),
     act_reg_(areg),
     state_(Ready),
-    trig_name_list_(trig_pset_.getParameter<vstring>("@trigger_paths")),
+    trig_name_list_(trig_pset_.getUntrackedParameter<vstring>("@trigger_paths")),
     path_name_list_(trig_pset_.getParameter<vstring>("@paths")),
     end_path_name_list_(trig_pset_.getParameter<vstring>("@end_paths")),
     trig_name_set_(trig_name_list_.begin(),trig_name_list_.end()),
