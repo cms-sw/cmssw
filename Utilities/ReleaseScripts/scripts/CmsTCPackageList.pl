@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl
+#!/usr/bin/env perl
 #
 # 
 #
@@ -26,7 +26,7 @@ my $rel= $options{'rel'} ? $options{'rel'} : die "Need a release (--rel)";
 my $user="cmstcreader";
 my $pass="CmsTC";
 
-open(CMSTCQUERY,"/usr/bin/wget -nv -O- 'http://${user}:${pass}\@cmsdoc.cern.ch/swdev/CmsTC/cgi-bin/CreateTagList?release=${rel}' |");
+open(CMSTCQUERY,"/usr/bin/wget -nv -o /dev/null -O- 'http://${user}:${pass}\@cmsdoc.cern.ch/swdev/CmsTC/cgi-bin/CreateTagList?release=${rel}' |");
 
 my %tags;
 while ( <CMSTCQUERY> ) {
@@ -40,10 +40,23 @@ while ( <CMSTCQUERY> ) {
 
 close CMSTCQUERY;
 
+
+my $hasAPackage=0;
 my $key;
 foreach $key (keys %tags) {
+    if ( $key eq "-1" ) {
+# error condition.. missing release	
+# should be a better way to catch this
+	print "Release $rel does not exist in CmsTC\n";
+	exit;
+    }
+    $hasAPackage++;
     print "$key $tags{$key} \n";
 }
+
+
+print "No packages found in release ${rel}\n" if ( $hasAPackage==0);
+
 
 
 
