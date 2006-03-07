@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/02/07 19:08:56 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/02/22 11:06:57 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - CERN
  */
 
@@ -64,7 +64,7 @@ void DTGeometryAnalyzer::analyze( const edm::Event& iEvent,
 
 
   cout << " Geometry node for DTGeom is  " << &(*pDD) << endl;   
-  cout << " I have "<<pDD->dets().size() << " detectors" << endl;
+  cout << " I have "<<pDD->detUnits().size() << " detUnits" << endl;
   cout << " I have "<<pDD->detTypes().size() << " types" << endl;
   cout << " I have "<<pDD->layers().size() << " layers" << endl;
   cout << " I have "<<pDD->superLayers().size() << " superlayers" << endl;
@@ -74,12 +74,12 @@ void DTGeometryAnalyzer::analyze( const edm::Event& iEvent,
   cout << "iter " << dashedLine_ << endl;
 
   // check dets
-  for(DTGeometry::DetContainer::const_iterator det = pDD->dets().begin(); 
-      det != pDD->dets().end(); ++det){
+  for(DTGeometry::DetUnitContainer::const_iterator det = pDD->detUnits().begin(); 
+      det != pDD->detUnits().end(); ++det){
 
     DetId detId = (*det)->geographicalId();
     int id = detId(); // or detId.rawId()
-    const GeomDetUnit* gdet=pDD->idToDet(detId);
+    const GeomDetUnit* gdet=pDD->idToDetUnit(detId);
     const DTLayer* lay=dynamic_cast<const DTLayer*>(gdet);
     cout << "GeomDetUnit is of type " << detId.det() << " and raw id = " << id
       << " get back GDU from ID " << gdet << " " <<(*det==gdet) << " " << lay << endl;
