@@ -4,10 +4,10 @@ const std::string& cond::MetaDataNames::metadataTable(){
   return s_metadataTable;
 }
 const std::string& cond::MetaDataNames::tagColumn(){
-  static const std::string s_tagColumn("name");
+  static const std::string s_tagColumn("NAME");
   return s_tagColumn;
 }
 const std::string& cond::MetaDataNames::tokenColumn(){
-  static const std::string s_tokenColumn("token");
+  static const std::string s_tokenColumn("TOKEN");
   return s_tokenColumn;
 }
