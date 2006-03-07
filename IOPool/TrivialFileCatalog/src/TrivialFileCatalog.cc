@@ -193,9 +193,11 @@ void
 pool::TrivialFileCatalog::lookupFileByLFN (const std::string& lfn, 
 					   FileCatalog::FileID& fid) const
 {
-    if (m_transactionsta == 0)
-	throw FCconnectionException("TrivialFileCatalog::lookupFileByLFN",
-				    "Catalog not connected");
+    // return NULL id if the catalog is not connected.
+    if (m_transactionsta == 0) {
+	fid = FileCatalog::FileID();
+	return;
+    }
 	
 
     // GUID (FileID) and lfn are the same under TrivialFileCatalog
