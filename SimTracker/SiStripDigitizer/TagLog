@@ -1,3 +1,6 @@
+** V01-02-07  [Tue Mar  7 11:50:08 2006]
+fix a bug on adc full scale
+
 ** V01-02-06  [Mon Mar  6 22:54:06 2006]
 bug fix for the adc full scale
 
