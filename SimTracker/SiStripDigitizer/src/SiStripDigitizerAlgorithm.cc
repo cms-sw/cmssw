@@ -6,14 +6,9 @@
 #include <vector>
 #include <iostream>
 #include "SimTracker/SiStripDigitizer/interface/SiStripDigitizerAlgorithm.h"
-
-#include "DataFormats/SiStripDigi/interface/StripDigiCollection.h"
-#include "DataFormats/SiStripDigi/interface/StripDigi.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
-#include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLinkCollection.h"
-
+#include "DataFormats/SiStripDigi/interface/StripDigi.h"
 #include "SimTracker/SiStripDigitizer/interface/SiLinearChargeCollectionDrifter.h"
 #include "SimTracker/SiStripDigitizer/interface/SiLinearChargeDivider.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -58,6 +53,7 @@ vector <StripDigi> SiStripDigitizerAlgorithm::run(const std::vector<PSimHit> &in
   theElectronPerADC=conf_.getParameter<double>("ElectronPerAdc");
   theThreshold=conf_.getParameter<double>("AdcThreshold");
   ENC=conf_.getParameter<double>("EquivalentNoiseCharge300um");
+  theAdcFullScale=conf_.getParameter<int>("AdcFullScale");
   noNoise=conf_.getParameter<bool>("NoNoise");
   peakMode=conf_.getParameter<bool>("APVpeakmode");
   if (peakMode) {
@@ -86,7 +82,8 @@ vector <StripDigi> SiStripDigitizerAlgorithm::run(const std::vector<PSimHit> &in
   theSiZeroSuppress = new SiTrivialZeroSuppress(conf_,noiseRMS/theElectronPerADC); 
   theSiHitDigitizer = new SiHitDigitizer(conf_,det);
   theSiPileUpSignals = new SiPileUpSignals();
-  theSiDigitalConverter = new SiTrivialDigitalConverter(theElectronPerADC);
+  theSiDigitalConverter = new SiTrivialDigitalConverter(theElectronPerADC,theAdcFullScale);
+
 
 
   //vector<StripDigi> SiStripDigitizerAlgorithm::digitize(const std::vector<PSimHit*> &input,StripDigiCollection &output,StripGeomDetUnit *det){
@@ -145,20 +142,19 @@ vector <StripDigi> SiStripDigitizerAlgorithm::run(const std::vector<PSimHit> &in
 					    const HitToDigisMapType& htd,
 					    const SiPileUpSignals::signal_map_type& afterNoise,
 					    unsigned int detID){
-   
-   
-   
+
+
+
    digis.reserve(50); 
    digis.clear();
- 
-
-   for ( DigitalMapType::const_iterator i=dm.begin(); i!=dm.end(); i++) {
+   for ( DigitalMapType::const_iterator i=dm.begin(); 
+	 i!=dm.end(); i++) {
      digis.push_back( StripDigi( (*i).first, (*i).second));
-     ndigis++; 
-   }
-   
+ndigis++; 
+  }
+
    //det.specificReadout().addDigis( digis); // ???
-   
+
    //
    // reworked to access the fraction of amplitude per simhit
    //
@@ -179,31 +175,30 @@ vector <StripDigi> SiStripDigitizerAlgorithm::run(const std::vector<PSimHit> &in
        SiPileUpSignals::signal_map_type& temp1 = const_cast<SiPileUpSignals::signal_map_type&>(afterNoise);
        float totalAmplitude1 = temp1[(*mi).first];
        //
-       //digilink
+       // I push the links
        //
        for (map<const PSimHit *, Amplitude>::const_iterator iter = totalAmplitudePerSimHit.begin(); 
 	    iter != totalAmplitudePerSimHit.end(); iter++){
-	 
+	 //
+	 // Save only if the fraction if greater than something
+	 //
 	 float threshold = 0.;
 	 if (totalAmplitudePerSimHit[(*iter).first]/totalAmplitude1 >= threshold) {
-	   
-	   float fraction = totalAmplitudePerSimHit[(*iter).first]/totalAmplitude1;
-	   //to be fixed in a smarter way
-	   if(fraction >1.) fraction = 1.;
-	   link_coll.push_back(StripDigiSimLink( (*mi).first,   //channel
-						 ((*iter).first)->trackId(), //simhit
-						 fraction));    //fraction
-	   
+	   // add link...
+	   // in ORCA it was done this way:
+	   /* det.simDet()->addLink((*mi).first,
+	      (*iter).first->packedTrackId(),
+	      totalAmplitudePerSimHit[(*iter).first]/totalAmplitude1); */
 	 }
-	 
+
        }
-       
+
      }
-     
+
    }
-   
-   
-   
+
+
+
  }
 
 
