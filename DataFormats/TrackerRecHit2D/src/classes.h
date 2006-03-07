@@ -11,13 +11,19 @@ namespace {
   namespace {    
     SiStripRecHit2DLocalPos a1;
     SiStripRecHit2DMatchedLocalPos a2;
+    SiPixelRecHit b1;
     DetId a3;
+
     edm::ClonePolicy<SiStripRecHit2DLocalPos>  a4;
     edm::ClonePolicy<SiStripRecHit2DMatchedLocalPos > a5;
+    edm::ClonePolicy<SiPixelRecHit> b2;
+
     edm::OwnVector<SiStripRecHit2DLocalPos,
       edm::ClonePolicy<SiStripRecHit2DLocalPos> > a6;
     edm::OwnVector<SiStripRecHit2DMatchedLocalPos,
       edm::ClonePolicy<SiStripRecHit2DMatchedLocalPos> > a7;
+    edm::OwnVector<SiPixelRecHit,
+      edm::ClonePolicy<SiPixelRecHit> > b3;
     
     edm::Wrapper< edm::RangeMap<DetId,
       edm::OwnVector<SiStripRecHit2DLocalPos,
@@ -27,8 +33,12 @@ namespace {
     edm::Wrapper< edm::RangeMap<DetId,
       edm::OwnVector<SiStripRecHit2DMatchedLocalPos,
       edm::ClonePolicy<SiStripRecHit2DMatchedLocalPos> >, 
-      edm::ClonePolicy<SiStripRecHit2DMatchedLocalPos> >    > siStripRecHit2DMatchedLocalPosCollectionWrapper;
-    edm::Wrapper<SiPixelRecHitCollection> siPixelRecHitCollectionWrapper;
+      edm::ClonePolicy<SiStripRecHit2DMatchedLocalPos> > > siStripRecHit2DMatchedLocalPosCollectionWrapper;
+
+    edm::Wrapper< edm::RangeMap<DetId,
+      edm::OwnVector<SiPixelRecHit,
+      edm::ClonePolicy<SiPixelRecHit> >, 
+      edm::ClonePolicy<SiPixelRecHit> > >  siPixelRecHitCollectionWrapper;
   }
 }
 

@@ -7,22 +7,26 @@
   <class name="std::vector<const SiStripCluster*>"/>
   <class name="BaseSiStripRecHit2DLocalPos"/>
   <class name="SiStripRecHit2DLocalPos"/>
-<class name="std::pair<unsigned int,unsigned int>"/>
+  <class name="std::pair<unsigned int,unsigned int>"/>
   <class name="SiStripRecHit2DMatchedLocalPos">
 	<field name="componentStereo_" transient="true"/>
 	<field name="componentMono_" transient="true"/>
   </class>
   <class name="std::vector<SiStripRecHit2DLocalPos*>"/>
-<class name="std::vector<SiStripRecHit2DMatchedLocalPos*>"/>
+  <class name="std::vector<SiStripRecHit2DMatchedLocalPos*>"/>
   <class name="edm::OwnVector<SiStripRecHit2DMatchedLocalPos,edm::ClonePolicy<SiStripRecHit2DMatchedLocalPos> >"/>
   <class name="edm::OwnVector<SiStripRecHit2DLocalPos,edm::ClonePolicy<SiStripRecHit2DLocalPos> >"/>
-  <class name="edm::RangeMap<DetId, edm::OwnVector<SiStripRecHit2DLocalPos, edm::ClonePolicy<SiStripRecHit2DLocalPos> >, edm::ClonePolicy<SiStripRecHit2DLocalPos>>"/>
+  <class name="edm::RangeMap<DetId, edm::OwnVector<SiStripRecHit2DLocalPos, edm::ClonePolicy<SiStripRecHit2DLocalPos> >, edm::ClonePolicy<SiStripRecHit2DLocalPos> >"/>
   <class name="edm::Wrapper<edm::RangeMap<DetId, edm::OwnVector<SiStripRecHit2DLocalPos, edm::ClonePolicy<SiStripRecHit2DLocalPos> >, edm::ClonePolicy<SiStripRecHit2DLocalPos> > >" />
   <class name="edm::RangeMap<DetId, edm::OwnVector<SiStripRecHit2DMatchedLocalPos, edm::ClonePolicy<SiStripRecHit2DMatchedLocalPos> >, edm::ClonePolicy<SiStripRecHit2DMatchedLocalPos> >"/>
 
   <class name="edm::Wrapper<edm::RangeMap<DetId, edm::OwnVector<SiStripRecHit2DMatchedLocalPos, edm::ClonePolicy<SiStripRecHit2DMatchedLocalPos> >, edm::ClonePolicy<SiStripRecHit2DMatchedLocalPos> > >" />
-  <class name="std::vector<short>"/>
-  <class name="std::map<DetId, std::pair<unsigned int, unsigned int> >"/>
+
+
   <class name="SiPixelRecHit"/>
-  <class name="edm::Wrapper<SiPixelRecHitCollection>"/>
+  <class name="std::vector<SiPixelRecHit*>"/>
+  <class name="edm::OwnVector<SiStripRecHit2DMatchedLocalPos,edm::ClonePolicy<SiStripRecHit2DMatchedLocalPos> >"/>
+  <class name="edm::RangeMap<DetId, edm::OwnVector<SiPixelRecHit, edm::ClonePolicy<SiPixelRecHit> >, edm::ClonePolicy<SiPixelRecHit> >"/>
+  <class name="edm::Wrapper<edm::RangeMap<DetId, edm::OwnVector<SiPixelRecHit, edm::ClonePolicy<SiPixelRecHit> >, edm::ClonePolicy<SiPixelRecHit> > >" />
+
 </lcgdict>
