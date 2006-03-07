@@ -4,7 +4,7 @@
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
-#include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h.h"
+#include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
 
 /** A track candidate is
     - a TSOS or equivalent (here a PTrajectoryStateOnDet)
@@ -16,13 +16,15 @@ only the second is compulsory,the other two can be empty / not present
 
 class BasicTrackCandidate{
  public:
-  typedef OwnVector<TrackingRecHit> RecHitContainer;
-  typedef recHitContainer::iterator iterator;
+  typedef edm::OwnVector<TrackingRecHit> RecHitContainer;
+  typedef RecHitContainer::iterator iterator;
   typedef std::pair<iterator,iterator> range;
   
   BasicTrackCandidate(){}
+virtual ~BasicTrackCandidate(){}
 
   virtual PTrajectoryStateOnDet& trajectoryStateOnDet() const = 0;
-  virtual range recHits() const = 0;
+  virtual range recHits()  = 0;
   virtual TrajectorySeed& seed() const = 0;
 };
+#endif

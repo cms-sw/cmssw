@@ -3,7 +3,7 @@
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
-#include "DataFormats/TrackCandidate/interface/BasicTrackcandidate.h"
+#include "DataFormats/TrackCandidate/interface/BasicTrackCandidate.h"
 
 
 #include <utility>
@@ -23,21 +23,23 @@ class TrackCandidate{
   typedef BasicTrackCandidate::range range;
   
   TrackCandidate(){}
+ virtual ~TrackCandidate(){}
   
   
-  TrackCandidate(recHitContainer rh, TrajectorySeed* s, PTrajectoryStateOnDet* st) :
+  TrackCandidate(RecHitContainer rh, TrajectorySeed* s, PTrajectoryStateOnDet* st) :
     rh_(rh), seed_(s), state_(st) {}
-  TrackCandidate(recHitContainer rh) :
+  TrackCandidate(RecHitContainer rh) :
     rh_(rh),  seed_(0), state_(0) {}
   
   PTrajectoryStateOnDet& trajectoryStateOnDet() const { return *state_;}
 
-  range recHits() const {return std::make_pair(rh_.begin(), rh_.end());}
+  range recHits() {return std::make_pair(rh_.begin(), rh_.end());}
 
-  TrajectorySeed& seed() const {return *seed_;)
+  TrajectorySeed& seed() const {return *seed_;}
 
  private:
-  recHitContainer rh_;
+  RecHitContainer rh_;
   TrajectorySeed* seed_;
   PTrajectoryStateOnDet* state_;
 };
+#endif

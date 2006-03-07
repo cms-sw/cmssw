@@ -1,14 +1,12 @@
-#define TRACKCANDIDATE_CLASSES_H
-#ifndef TRACKCANDIDATE_CLASSES_H
-
-#include "DataFormats/Trackcandidate/interface/TrackCandidateCollection.h"
+#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
+#include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "FWCore/EDProduct/interface/Wrapper.h"
 
 namespace {
   namespace {
+    TrackCandidate tc;
     TrackCandidateCollection coll;
     edm::Wrapper<TrackCandidateCollection> TrackCandidateCollectionWrapper;
   }
 }
 
-#endif

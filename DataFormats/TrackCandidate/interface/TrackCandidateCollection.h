@@ -1,9 +1,9 @@
 #ifndef DATAFORMATS_TRACKCANDIDATE_TRACKCANDIDATECOLLECTION_h
 #define DATAFORMATS_TRACKCANDIDATE_TRACKCANDIDATECOLLECTION_h
 
-#include "DataFormats/TrackCandidate/interface/RoadSearchCloud.h"
-#include "DataFormats/TrackCandidate/interface/Trackcandidate.h"
+#include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
+#include <vector>
 
-typedef edm::OwnVector<TrackCandidate> TrackCandidateCollection;
+typedef std::vector<TrackCandidate> TrackCandidateCollection;
 
 #endif
