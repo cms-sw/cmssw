@@ -23,12 +23,8 @@
 
 #include <vector>
 
-#include "CLHEP/Vector/LorentzVector.h"
-
-#include "DataFormats/CaloTowers/interface/CaloTower.h"
-
 #include "RecoJets/JetAlgorithms/interface/ProtoJet2.h"
-#include "PhysicsTools/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
 
 class CMSMidpointAlgorithm 
 {

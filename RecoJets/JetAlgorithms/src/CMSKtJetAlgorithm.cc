@@ -1,18 +1,13 @@
-#include "RecoJets/JetAlgorithms/interface/CMSKtJetAlgorithm.h"
-#include "RecoJets/JetAlgorithms/interface/ProtoJet.h"
-#include "RecoJets/JetAlgorithms/interface/MakeCaloJet.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "RecoJets/JetAlgorithms/interface/ProtoJet2.h"
 
 #include "RecoJets/JetAlgorithms/interface/KtEvent.h"
 #include "RecoJets/JetAlgorithms/interface/KtLorentzVector.h"
-#include "DataFormats/CaloTowers/interface/CaloTower.h"
-#include "RecoJets/JetAlgorithms/interface/JetableObjectHelper.h"
 
-#include <stdio.h>
-#include <algorithm>
-#include <iostream>
+#include "RecoJets/JetAlgorithms/interface/CMSKtJetAlgorithm.h"
 
-using std::cout;
-using std::endl;
+using namespace std;
+using namespace reco;
 
 /** Implemented by Fernando Varela Rodriguez
 
@@ -73,98 +68,58 @@ void CMSKtJetAlgorithm::setKtJetECut(float aKtJetECut)
   theKtJetECut = aKtJetECut; 
 }
 
-CaloJetCollection* CMSKtJetAlgorithm::findJets(const CaloTowerCollection & aTowerCollection)
+void CMSKtJetAlgorithm::run (const InputCollection& fInput, OutputCollection* fOutput)
 {
-  CaloJetCollection* result = new CaloJetCollection;
-  
+  if (!fOutput) return;
+  fOutput->clear ();
   // fill the KtLorentzVector
-  std::vector<KtJet::KtLorentzVector> avec;
-  for (CaloTowerCollection::const_iterator i = aTowerCollection.begin(); 
-                                              i != aTowerCollection.end(); 
-					      i++){
-    if((i->e()) >= theKtJetECut){
-      float e = i->e();
-      float px = e * (1.0/cosh(i->eta)) * cos(i->phi);
-      float py = e * (1.0/cosh(i->eta)) * sin(i->phi);
-      float pz = e * tanh(i->eta); 
-    
-      HepLorentzVector theLorentzVector;
-    
-      theLorentzVector.setPx(px);
-      theLorentzVector.setPy(py);
-      theLorentzVector.setPz(pz);
-      theLorentzVector.setE(e);
-      
-      avec.push_back(theLorentzVector);
+  std::vector<int> indexMap;
+  std::vector<KtJet::KtLorentzVector> ktInput;
+  int index = 0;
+  for (; index < (int)fInput.size (); index++) {
+    const Candidate* constituent = fInput [index];
+    if (constituent->energy() >= theKtJetECut) {
+      ktInput.push_back (KtJet::KtLorentzVector (constituent->px (), constituent->py (), 
+						 constituent->pz (), constituent->energy ()));
+      indexMap.push_back (index);
     }
   }
   
   // R. Harris, 1/12/06, If there are no inputs, simply return empty CaloJetCollection.
   // Prevents call to KtEvent which crashes if called with empty vector of inputs.
-  if( avec.size() == 0 ) return result;
+  if( ktInput.size() == 0 ) return;
   
   // construct the KtEvent object
-  KtJet::KtEvent ev(avec,theKtJetType,theKtJetAngle,theKtJetRecom,theKtJetRParameter);
+  KtJet::KtEvent ev(ktInput,theKtJetType,theKtJetAngle,theKtJetRecom,theKtJetRParameter);
   
   // retrieve the final state jets as an array of KtLorentzVectors from KtEvent sorted by Et
   std::vector<KtJet::KtLorentzVector> jets = ev.getJetsEt();
   
   // fill jets into the result JetCollection
-  //Create ProtoJets from the KtLorentz Vectors 
-  std::vector<ProtoJet> ProtoJetCollection;
-  
   //For each jet, get the list the list of input constituents the jet consists of:
   for(std::vector<KtJet::KtLorentzVector>::const_iterator itr = jets.begin(); 
                                                           itr != jets.end(); 
 							  ++itr){	
     //For each of the jets get its final constituents:
-    std::vector<KtJet::KtLorentzVector> constituents = itr->copyConstituents();
-
+    std::vector<const Candidate*> protoJetConstituents;
+    const std::vector<const KtJet::KtLorentzVector*>* constituents = &(itr->getConstituents());
     //Loop over all input constituents and try to find them as jet final constituents
-    int nInputConstituent = 0; //# of input constituent in the STL vector (i.e. in the CaloTowerCollection)
-    int nConstituent = 0;      //# of final constituent of the Jet
-    std::vector<unsigned int> listAssignedInputs; // Array containing the list of indices of the array of inputs
-                                                  // (i.e. CaloTowerCollection) found in the final list of Jet
-						  // constituents
-   
-    for(unsigned int j = 0; j < avec.size(); j++){
-      if(itr->contains(avec[j])){
-	nConstituent++;
-
-        //Make sure that an input constituent is assigned to a single jet
-	std::vector<unsigned int>::iterator found_iter = find(listAssignedInputs.begin(), listAssignedInputs.end(), j); // Search the list.
-        if(found_iter != listAssignedInputs.end())
-          printf("[KtJetAlgorithm]->ERROR: input constituent %d assigned to multiple Jets. Continuing...", j);
-        else 
-	  listAssignedInputs.push_back(j);	
-      }    
-      nInputConstituent++;
+    int constit = constituents->size ();
+    while (--constit > 0) {
+      int ktInputIndex = ktInput.size ();
+      while (--ktInputIndex >= 0) {
+	// std::cout << "Comparing objects: " << (*constituents)[constit] << " and " << &(ktInput[ktInputIndex]) << std::endl;
+	if (*(*constituents)[constit] == ktInput[ktInputIndex]) { // found
+	  protoJetConstituents.push_back (fInput [indexMap [ktInputIndex]]);
+	  break;
+	}
+      }
+      if (ktInputIndex < 0) {
+	std::cerr << "[KtJetAltgorithm]->ERROR:Could not find jet constituent #" 
+		  << constit << " in the input list" << std::endl;
+      }
     }
 
-    if(listAssignedInputs.size() != constituents.size())      
-      printf("[KtJetAltgorithm]->ERROR:Could not find all jet constituents in the input list\n");
-    else{
-      //Everything went ok -> pick the subset of CaloTowers forming the Jet:
-      //Instancite the Sub Collection of CaloTowers
-      std::vector<const CaloTower*> jetSubCollection;
-
-      //Populate the subcollection with objects from the input collection
-      for(unsigned int k = 0; k < listAssignedInputs.size(); k++)
-      jetSubCollection.push_back(&aTowerCollection[listAssignedInputs[k]]);
-
-      ProtoJet pj;
-      
-      pj.putTowers(jetSubCollection);
-
-      ProtoJetCollection.push_back(pj);    
-      
-      listAssignedInputs.clear();  //Not needed anymore
-      
-    }
+    fOutput->push_back (ProtoJet2 (protoJetConstituents));
   }
- 
-  //Now we have a collection of ProtoJets-> instanciate the CaloJetCollection:
-  MakeCaloJet(aTowerCollection, ProtoJetCollection, *result);
-  
-  return result;
 }

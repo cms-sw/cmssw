@@ -1,5 +1,5 @@
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
-#include "PhysicsTools/RecoCandidate/interface/RecoCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 
 #include "RecoJets/JetAlgorithms/interface/CaloJetMaker.h"
 

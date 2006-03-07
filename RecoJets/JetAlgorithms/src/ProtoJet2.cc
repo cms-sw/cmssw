@@ -2,7 +2,7 @@
 //  Revision History:  R. Harris 10/19/05  Modified to work with real CaloTowers from Jeremy Mans
 //
 
-#include "PhysicsTools/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 #include "RecoJets/JetAlgorithms/interface/ProtoJet2.h"
 
 #include <vector>

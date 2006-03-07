@@ -8,6 +8,7 @@
  * More to be added...
  *
  * \author Fernando Varela Rodriguez, Boston University
+ * rewritten by F.Ratnikov (UMd) Mar. 6th, 2006
  *
  * \version   1st Version Apr. 22, 2005  
 
@@ -43,6 +44,7 @@ namespace cms
   private:
     /** Reconstruction algorithm*/
     CMSKtJetAlgorithm alg_;
+    std::string src_;
   };
 }
 

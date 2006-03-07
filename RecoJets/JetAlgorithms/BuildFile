@@ -1,10 +1,10 @@
 <use name=clhep>
 <use name=DataFormats/JetObjects>
-<use name=PhysicsTools/RecoCandidate>
+<use name=DataFormats/RecoCandidate>
 <export>
  <lib name=RecoJetsJetAlgorithms>
  <use name=DataFormats/JetObjects>
- <use name=PhysicsTools/RecoCandidate>
+ <use name=DataFormars/RecoCandidate>
  <use name=clhep>
 </export>
 

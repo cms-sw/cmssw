@@ -3,13 +3,18 @@
 // Author:  Fernando Varela Rodriguez, Boston University
 // Creation Date:  Apr. 22 2005 Initial version.
 // Revisions:  R. Harris, 19-Oct-2005, modified to use real CaloTowers from Jeremy Mans
+// Revisions:  F.Ratnikov, 8-Mar-2006, accommodate Candidate model
 //--------------------------------------------
 #include <memory>
 
 #include "RecoJets/JetProducers/interface/KtJetProducer.h"
 #include "DataFormats/JetObjects/interface/CaloJetCollection.h"
+#include "RecoJets/JetAlgorithms/interface/CaloJetMaker.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "FWCore/Framework/interface/Handle.h"
 
+using namespace std;
+using namespace reco;
 
 namespace cms
 {
@@ -19,7 +24,8 @@ namespace cms
   : alg_(conf.getParameter<int>("ktAngle"),
 	 conf.getParameter<int>("ktRecom"),
 	 conf.getParameter<double>("ktECut"),
-	 conf.getParameter<double>("ktRParam"))
+	 conf.getParameter<double>("ktRParam")),
+    src_(conf.getParameter<string>( "src" ))
   {
     produces<CaloJetCollection>();
   }
@@ -30,18 +36,27 @@ namespace cms
   // Functions that gets called by framework every event
   void KtJetProducer::produce(edm::Event& e, const edm::EventSetup&)
   {
-    // Step A: Get Inputs 
-    edm::Handle<CaloTowerCollection> towers;   //Smart pointer to CaloTowers
-    e.getByType(towers);                       //Set pointer to CaloTowers
- 
-    // Step B: Create empty output 
-    std::auto_ptr<CaloJetCollection> result(new CaloJetCollection);  //Empty Jet Coll
-
-    // Step C: Invoke the algorithm, passing in inputs and getting back outputs.
-    *result = (*(alg_.findJets(*(towers.product()))));  //Makes Full Jet Collection
-
-    // Step D: Put outputs into event
+    // get input
+    edm::Handle<CandidateCollection> towers;
+    e.getByLabel( src_, towers );                    
+    vector <const Candidate*> input;
+    vector <ProtoJet2> output;
+    // fill input
+    input.reserve (towers->size ());
+    CandidateCollection::const_iterator tower = towers->begin ();
+    for (; tower != towers->end (); tower++) {
+      input.push_back (&*tower); 
+    }
+    // run algorithm
+    alg_.run (input, &output);
+    // produce output collection
+    auto_ptr<CaloJetCollection> result(new CaloJetCollection);  //Empty Jet Coll
+    vector <ProtoJet2>::const_iterator protojet = output.begin ();
+    CaloJetMaker jetMaker;
+    for (; protojet != output.end (); protojet++) {
+      result->push_back (jetMaker.makeCaloJet (*protojet));
+    }
+    // store output
     e.put(result);  //Puts Jet Collection into event
   }
-
 }

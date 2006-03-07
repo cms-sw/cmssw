@@ -31,7 +31,7 @@
 //     Promote protojet to jet without any changes
 //
 
-#include "PhysicsTools/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 #include "RecoJets/JetAlgorithms/interface/CMSMidpointAlgorithm.h"
 
 

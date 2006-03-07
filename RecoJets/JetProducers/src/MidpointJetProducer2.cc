@@ -10,7 +10,7 @@
 #include "RecoJets/JetProducers/interface/MidpointJetProducer2.h"
 #include "DataFormats/JetObjects/interface/CaloJetCollection.h"
 #include "RecoJets/JetAlgorithms/interface/CaloJetMaker.h"
-#include "PhysicsTools/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "FWCore/Framework/interface/Handle.h"
 
 using namespace std;

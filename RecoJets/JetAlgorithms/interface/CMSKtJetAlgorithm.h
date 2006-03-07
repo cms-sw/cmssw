@@ -23,15 +23,16 @@
  *
  ************************************************************/
  
-#include "DataFormats/JetObjects/interface/CaloJetCollection.h"                    //CaloJetCollection
-#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"   //CaloTowerCollection
+#include "RecoJets/JetAlgorithms/interface/ProtoJet2.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
 
 #include <vector>
-#include <iostream>
  
 class CMSKtJetAlgorithm
 {
 public:
+  typedef std::vector <const reco::Candidate*> InputCollection;
+  typedef std::vector<ProtoJet2> OutputCollection;
 
   /** Default constructor    */
   CMSKtJetAlgorithm();
@@ -56,10 +57,11 @@ public:
   /** Default constructor    */
   ~CMSKtJetAlgorithm() {};
   
-  /** findJets: Find the CaloJets from the collection of input CaloTowers.
-  \param aTowerCollection Input collection of CaloTowers. Energy threshold cut will be applied.
-  \return Collection of CaloJets found */
-  CaloJetCollection* findJets(const CaloTowerCollection & aTowerCollection);
+  /** run: Find the ProtoJets from the collection of input Candidates.
+  \param fInput Input collection of Candidates. Energy threshold cut will be applied.
+  \param fOutput Output collection of ProtoJets. 
+  */
+  void run (const InputCollection& fInput, OutputCollection* fOutput);
   
   /** setKtJetAngle: Sets the Angular schema
   \param aKtJetAngle Controls the angular defintions of the variables d_kB and d_kl.

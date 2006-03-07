@@ -16,7 +16,7 @@
  ************************************************************/
 
 #include "CLHEP/Vector/LorentzVector.h"
-#include "PhysicsTools/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
 
 #include <vector>
 #include <string>
