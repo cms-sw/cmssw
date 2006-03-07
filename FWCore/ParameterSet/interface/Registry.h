@@ -2,7 +2,7 @@
 #define ParameterSet_Registry_h
 
 // ----------------------------------------------------------------------
-// $Id: Registry.h,v 1.2 2006/02/27 15:32:32 paterno Exp $
+// $Id: Registry.h,v 1.3 2006/03/06 20:21:55 paterno Exp $
 //
 // Declaration for pset::Registry. This is an implementation detail of 
 // the ParameterSet library.
@@ -43,9 +43,11 @@ namespace pset
 
     /// Insert the *tracked parts* of the given ParameterSet into the
     /// Registry. If there was already a ParameterSet with the same
-    /// ID, we clobber it. This should be OK, since it will have the
-    /// same contents if the ID is the same.
-    void insertParameterSet(edm::ParameterSet const& p);
+    /// ID, we don't change itw. This should be OK, since it should
+    /// have the same contents if the ID is the same.
+    /// Return 'true' if we really added the new ParameterSet, and
+    /// 'false' if the ParameterSet was already present.
+    bool insertParameterSet(edm::ParameterSet const& p);
 
     /// Return the number of contained ParameterSets.
     size_type size() const;

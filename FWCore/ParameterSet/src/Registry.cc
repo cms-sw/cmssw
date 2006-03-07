@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: Registry.cc,v 1.2 2006/02/27 15:32:33 paterno Exp $
+// $Id: Registry.cc,v 1.3 2006/03/06 20:21:56 paterno Exp $
 //
 // ----------------------------------------------------------------------
 
@@ -50,17 +50,30 @@ namespace pset
     return found;
   }
 
-  void
+
+
+  bool
   Registry::insertParameterSet(edm::ParameterSet const& p)
   {
+    bool newly_added;
     edm::ParameterSet tracked_part(p.trackedPart());
-    {
-      // This scope limits the lifetime of the lock to the shortest
-      // required interval.
-      boost::mutex::scoped_lock lock(registry_mutex);
-      psets_[p.id()] = tracked_part;
-    }
+    edm::ParameterSetID id = tracked_part.id();
+
+    boost::mutex::scoped_lock lock(registry_mutex);
+    const_iterator i = psets_.find(id);
+
+    if ( i != psets_.end() ) // we already have it!
+      {
+	newly_added = false;
+      }
+    else
+      {
+	psets_[p.id()] = tracked_part;
+	newly_added = true;
+      }
+    return newly_added;
   }
+
 
   Registry::size_type
   Registry::size() const
