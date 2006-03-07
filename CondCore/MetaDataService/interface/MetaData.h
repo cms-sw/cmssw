@@ -15,6 +15,7 @@ namespace cond{
     void connect();
     void disconnect();
     bool addMapping(const std::string& name, const std::string& token);
+    bool replaceToken(const std::string& name, const std::string& newtoken);
     const std::string getToken( const std::string& name );
   private:
     void createTable(const std::string& tabname);

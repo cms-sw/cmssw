@@ -80,7 +80,40 @@ bool cond::MetaData::addMapping(const std::string& name, const std::string& iovt
   }
   return true;
 }
-
+bool cond::MetaData::replaceToken(const std::string& name, const std::string& newtoken){
+  try{
+    m_session->transaction().start();
+  }catch(seal::Exception& er){
+    throw cond::Exception( std::string("MetaData::addMapping ")+ er.what());
+  }catch(...){
+    throw cond::Exception( "MetaData::addMapping cannot start transaction" );
+  }
+  try{
+    if(!m_session->nominalSchema().existsTable(cond::MetaDataNames::metadataTable())){
+      throw cond::Exception( "MetaData::replaceToken MetaData table doesnot exist" );
+    }
+    coral::ITable& mytable=m_session->nominalSchema().tableHandle(cond::MetaDataNames::metadataTable());
+    coral::AttributeList inputData;
+    coral::ITableDataEditor& dataEditor = mytable.dataEditor();
+    inputData.extend<std::string>("newToken");
+    inputData.extend<std::string>("oldTag");
+    inputData[0].data<std::string>() = newtoken;
+    inputData[1].data<std::string>() = name;
+    std::string setClause(cond::MetaDataNames::tokenColumn());
+    setClause+="= :newToken";
+    std::string condition( cond::MetaDataNames::tagColumn() );
+    condition+="= :oldTag";
+    long update=dataEditor.updateRows( setClause, condition, inputData );
+    m_session->transaction().commit() ;
+  }catch( coral::DuplicateEntryInUniqueKeyException& er ){
+    throw cond::MetaDataDuplicateEntryException("MetaData::replaceToken",name);
+  }catch(seal::Exception& er){
+    throw cond::Exception(er.what());
+  }catch(...){
+    throw cond::Exception( "MetaData::replaceToken Could not commit the transaction" );
+  }
+  return true;
+}
 const std::string cond::MetaData::getToken( const std::string& name ){
   try{
     m_session->transaction().start();

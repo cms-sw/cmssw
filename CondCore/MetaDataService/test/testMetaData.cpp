@@ -23,6 +23,10 @@ int main(){
     std::cout<<"got token1 "<<tok1<<std::endl;
     std::string tok2=metadata_svc.getToken("mytest2");
     std::cout<<"got token2 "<<tok2<<std::endl;
+    std::string newtok2="newtoken2";
+    metadata_svc.replaceToken("mytest2",newtok2);
+    std::string mytok2=metadata_svc.getToken("mytest2");
+    std::cout<<"get back new tok2 "<<newtok2<<" "<<mytok2<<std::endl;
     metadata_svc.disconnect();
   }catch(seal::Exception& er){
     std::cout<<er.what()<<std::endl;
