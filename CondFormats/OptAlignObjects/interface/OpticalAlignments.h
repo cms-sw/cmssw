@@ -25,7 +25,7 @@ public:
   std::vector<OpticalAlignInfo> opticalAlignments_;
 };
 
-typedef std::vector<int>  OptAlignIDs;
-typedef std::vector<int>::const_iterator OptAlignIDIterator;
+/* typedef std::vector<int>  OptAlignIDs; */
+/* typedef std::vector<int>::const_iterator OptAlignIDIterator; */
 
 #endif // OpticalAlignments_H
