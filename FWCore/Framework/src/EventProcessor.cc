@@ -40,6 +40,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ProcessPSetBuilder.h"
 #include "FWCore/ParameterSet/interface/MakeParameterSets.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
 
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
@@ -312,6 +313,8 @@ namespace edm {
 	ParameterSet newpset;
 	newpset.addParameter<string>("@service_type","MessageLogger");
 	adjust.push_back(newpset);
+	// Record this new ParameterSet in the Registry!
+	::pset::Registry::instance()->insertParameterSet(newpset);
       }
   }
 
