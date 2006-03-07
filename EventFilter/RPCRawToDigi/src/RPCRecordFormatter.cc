@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCRecordFormatter
  *
- *  $Date: 2006/02/14 10:52:42 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/02/15 09:41:14 $
+ *  $Revision: 1.4 $
  *
  * \author Ilaria Segoni
  */
@@ -25,6 +25,7 @@
 
 RPCRecordFormatter::RPCRecordFormatter(bool printout){
 	verbosity=printout;
+	currentBx=0;
 }
 
 RPCRecordFormatter::~RPCRecordFormatter(){
@@ -35,15 +36,13 @@ RPCRecordFormatter::~RPCRecordFormatter(){
 void RPCRecordFormatter::recordUnpack(RPCRecord::recordTypes typeOfRecord, const unsigned char* recordIndex, 
 std::auto_ptr<RPCDigiCollection> & prod){
     
-   int bx=0;
-   RPCDetId DetId ;
        
    if(typeOfRecord==RPCRecord::StartOfBXData)      {
-	bx = this->unpackBXRecord(recordIndex);
+	currentBx = this->unpackBXRecord(recordIndex);
    }	   
     
     if(typeOfRecord==RPCRecord::StartOfChannelData) {
-	DetId =this->unpackChannelRecord(recordIndex);
+	currentDetId =this->unpackChannelRecord(recordIndex);
     }
    
     /// Unpacking Strips With Hit
@@ -54,10 +53,10 @@ std::auto_ptr<RPCDigiCollection> & prod){
 
 		int strip = *(pStrip);
 		/// Creating RPC digi
-		RPCDigi digi(strip,bx);
+		RPCDigi digi(strip, currentBx);
 
 		/// Committing digi to the product
-		prod->insertDigi(DetId,digi);
+		prod->insertDigi(currentDetId,digi);
           }
     }
     
@@ -106,16 +105,22 @@ const unsigned int* recordIndexInt=reinterpret_cast<const unsigned int*>(recordI
 
    RPCChamberData cmbData(recordIndexInt);
     edm::LogInfo ("RPCUnpacker")<< "Found Chamber Data, Chamber Number: "<<cmbData.chamberNumber()<<
- 	" Partition Data "<<cmbData.partitionData()<<
- 	" Half Partition " << cmbData.halfP()<<
- 	" Data Truncated: "<<cmbData.eod()<<
+ 	" Partition Data "   <<cmbData.partitionData()<<
+ 	" Half Partition "   << cmbData.halfP()<<
+ 	" Data Truncated: "  << cmbData.eod()<<
  	" Partition Number " <<  cmbData.partitionNumber();
     
     rpcData.addRPCChamberData(cmbData);
 
     vector<int> stripID/*=cmbData.getStrips()*/;
-    ///Temporary Phony Digis
-    for(int ii=0; ii<10; ++ii) stripID.push_back(40+ii);
+    ///Strip Id
+    int partData= cmbData.partitionData();
+    int partNumb= cmbData.partitionNumber();
+    for (int ii=0; ii<8; ii++) {
+    	if ((partData>>ii) & 0x1) stripID.push_back(partNumb*8 + ii);
+    }
+    
+
     return stripID;
 }
 
