@@ -1,3 +1,6 @@
+** V00-01-03  [Tue Mar  7 17:28:07 2006]
+- migrated to OnlineDB/EcalCondDB
+
 ** V00-01-02  [Wed Mar  1 09:27:50 2006]
 - fix following changes in DataFormats/EcalRawData
 
