@@ -1,3 +1,7 @@
+** V00-01-02  [Tue Mar  7 14:36:52 2006]
+Some work in State Machine design; added nullAction to XdaqCollector
+Bugfix in WebComponents
+
 ** V00-01-01  [Wed Feb 15 10:18:29 2006]
 changes to reflect EPStateMachine changes
 
