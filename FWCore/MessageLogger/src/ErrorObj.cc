@@ -81,12 +81,14 @@ ErrorObj::ErrorObj( const ELseverityLevel & sev, const ELstring & id )  {
 
 
 ErrorObj::ErrorObj( const ErrorObj & orig )  :
-        mySerial        ( orig.mySerial ),
-        myXid           ( orig.myXid ),
-        myIdOverflow    ( orig.myIdOverflow ),
-        myTimestamp     ( orig.myTimestamp ),
-        myItems         ( orig.myItems ),
-        myReactedTo     ( orig.myReactedTo )
+          mySerial        ( orig.mySerial )
+        , myXid           ( orig.myXid )
+        , myIdOverflow    ( orig.myIdOverflow )
+        , myTimestamp     ( orig.myTimestamp )
+        , myItems         ( orig.myItems )
+        , myReactedTo     ( orig.myReactedTo )
+ 	, myOs            ( )
+	, emptyString     ( )
 {
 
   #ifdef ErrorObjCONSTRUCTOR_TRACE
@@ -237,15 +239,26 @@ void ErrorObj::clear()  {
 
 }  // clear()
 
-
-ErrorObj & operator<<( ErrorObj & e, const char s[] ) {
-  // Exactly equivalent to the general template.
+ErrorObj & 
+ErrorObj::opltlt ( const char s[] ) {
+  // Exactly equivalent to the general template. 
   // If this is not provided explicitly, then the template will
   // be instantiated once for each length of string ever used.
-  std::ostringstream  ost;
-  ost << s << ' ';
-  return  e.emit( ost.str() );
+  myOs.str(emptyString); // trying this to see about spacing issue 
+  myOs << s;
+  if ( ! myOs.str().empty() ) emit( myOs.str() + ' ' );
+  return *this;
+    #ifdef FWCore_MessageLogger_ErrorObj_faster_but_flawed
+    // We could skip the ostringstream part by forming the string directly.
+    // But then manipulators would have no effect on char strings, as in
+    // LogWarning ( "category" )  << std::setfill('#') << std::setw(4) << "ab";
+    // which would emit as the "ab" item the string ab instead of ##ab.
+    return emit ( std::string(s)+' ' );
+    #endif 
 }
 
+ErrorObj & operator<<( ErrorObj & e, const char s[] ) {
+  return e.opltlt(s);
+}
 
 } // end of namespace edm  */

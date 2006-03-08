@@ -27,6 +27,9 @@
 #include "FWCore/MessageLogger/interface/ELextendedID.h"
 #include "FWCore/MessageLogger/interface/ELseverityLevel.h"
 
+#include <sstream>
+#include <string>
+
 namespace edm {       
 
 
@@ -75,6 +78,14 @@ public:
 		//-| process is always determined through ErrorLog or
 		//-| an ELdestControl, both of which talk to ELadministrator.
 
+  // -----  Methods for ErrorLog or for physicists logging errors:
+  //
+  template< class T >
+  inline ErrorObj &  opltlt ( const T & t );
+         ErrorObj &  opltlt ( const char s[] );
+  inline ErrorObj &  operator<< ( std::ostream&(*f)(std::ostream&) ); 
+  inline ErrorObj &  operator<< ( std::ios_base&(*f)(std::ios_base&) ); 
+
   virtual ErrorObj &  emit( const ELstring & txt );
 
   // ---  mutators for use by ELadministrator and ELtsErrorLog
@@ -97,7 +108,9 @@ private:
   ELlist_string  myItems;
   bool           myReactedTo;
   ELstring       myContext;
-
+  std::ostringstream myOs; 
+  std::string    emptyString;
+  
 };  // ErrorObj
 
 

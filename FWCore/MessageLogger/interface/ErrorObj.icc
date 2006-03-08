@@ -13,6 +13,19 @@
 
 namespace edm {      
 
+// ----------------------------------------------------------------------
+// Methods for physicists adding to an ErrorObj:
+// ----------------------------------------------------------------------
+
+
+template <class T>
+ErrorObj & 
+ErrorObj::opltlt ( const T & t )  {
+  myOs.str(emptyString);
+  myOs << t;
+  if ( ! myOs.str().empty() ) emit( myOs.str() + ' ' );
+  return *this;
+}  // operator<< <T>()
 
 // ----------------------------------------------------------------------
 // Global method for physicists adding to an ErrorObj:
@@ -21,13 +34,23 @@ namespace edm {
 
 template <class T>
 ErrorObj & operator<<( ErrorObj & e, const T & t )  {
-
-  std::ostringstream  ost;
-  ost << t << ' ';
-
-  return  e.emit( ost.str() );
-
+  return e.opltlt(t);
 }  // operator<< <T>()
+
+inline 
+ErrorObj &  
+ErrorObj::operator<< (  std::ostream&(*f)(std::ostream&) ) {
+  f(myOs);
+  myOs.str(emptyString);
+  return *this;
+} 
+
+inline
+ErrorObj &  
+ErrorObj::operator<< ( std::ios_base&(*f)(std::ios_base&) ) {
+  f(myOs);
+  return *this;
+} 
 
 
 // ----------------------------------------------------------------------

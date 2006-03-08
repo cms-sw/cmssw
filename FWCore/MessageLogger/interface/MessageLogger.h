@@ -13,7 +13,7 @@
 //         Created:  Fri Nov 11 16:38:19 CST 2005
 //     Major Split:  Tue Feb 14 11:00:00 CST 2006
 //		     See MessageService/interface/MessageLogger.h
-// $Id: MessageLogger.h,v 1.8 2006/02/15 00:28:27 fischler Exp $
+// $Id: MessageLogger.h,v 1.9 2006/02/15 04:32:36 wmtan Exp $
 //
 
 // system include files
@@ -42,12 +42,16 @@ public:
   template< class T >
     LogWarning & 
     operator<< (T const & t)  { (*ap) << t; return *this; }
-
+  LogWarning & 
+  operator<< ( std::ostream&(*f)(std::ostream&))  
+    				      { (*ap) << f; return *this; }
+  LogWarning & 
+  operator<< ( std::ios_base&(*f)(std::ios_base&) )  
+    				      { (*ap) << f; return *this; }     
 private:
   std::auto_ptr<MessageSender> ap; 
   
 };  // LogWarning
-
 
 class LogError
 {
@@ -59,6 +63,12 @@ public:
   template< class T >
     LogError & 
     operator<< (T const & t)  { (*ap) << t; return *this; }
+  LogError & 
+  operator<< ( std::ostream&(*f)(std::ostream&))  
+    				      { (*ap) << f; return *this; }
+  LogError & 
+  operator<< ( std::ios_base&(*f)(std::ios_base&) )  
+    				      { (*ap) << f; return *this; }     
 
 private:
   std::auto_ptr<MessageSender> ap; 
@@ -76,6 +86,12 @@ public:
   template< class T >
     LogInfo & 
     operator<< (T const & t)  { (*ap) << t; return *this; }
+  LogInfo & 
+  operator<< ( std::ostream&(*f)(std::ostream&))  
+    				      { (*ap) << f; return *this; }
+  LogInfo & 
+  operator<< ( std::ios_base&(*f)(std::ios_base&) )  
+    				      { (*ap) << f; return *this; }     
 
 private:
   std::auto_ptr<MessageSender> ap; 
@@ -106,6 +122,12 @@ public:
   template< class T >
     LogDebug_ & 
     operator<< (T const & t)  { (*ap) << t; return *this; }
+  LogDebug_ & 
+  operator<< ( std::ostream&(*f)(std::ostream&))  
+    				      { (*ap) << f; return *this; }
+  LogDebug_ & 
+  operator<< ( std::ios_base&(*f)(std::ios_base&) )  
+    				      { (*ap) << f; return *this; }     
 
 private:
   std::auto_ptr<MessageSender> ap; 
