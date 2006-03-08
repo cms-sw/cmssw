@@ -168,6 +168,8 @@
  <SpecPar name="MuonRpcPlane4">
    <PartSelector path="//MB4RPC_P"/>
    <PartSelector path="//MB4RPC_N"/>
+   <PartSelector path="//MB4SmallRPC_P"/>
+   <PartSelector path="//MB4SmallRPC_N"/>
    <PartSelector path="//MB4TopRPC_P"/>
    <PartSelector path="//MB4TopRPC_N"/>
    <PartSelector path="//MB4FeetRPC_P"/>
@@ -180,10 +182,22 @@
    <Parameter name="CopyNoOffset" value="6*[super]"/>
  </SpecPar>  
 
- <SpecPar name="MuonRpcChamber">
-   <PartSelector path="//MB.*RPC.*Gas.*" />
+ <SpecPar name="MuonRpcChamberLeft">
+   <PartSelector path="//MB.*RPC.*GasLeft" />
    <Parameter name="CopyNoTag" value="[mr_bchamber]"/>
+   <Parameter name="CopyNoOffset" value="1*[super]"/>
  </SpecPar>  
+ <SpecPar name="MuonRpcChamberMiddle">
+   <PartSelector path="//MB.*RPC.*GasMiddle" />
+   <Parameter name="CopyNoTag" value="[mr_bchamber]"/>
+   <Parameter name="CopyNoOffset" value="2*[super]"/>
+ </SpecPar>  
+ <SpecPar name="MuonRpcChamberRight">
+   <PartSelector path="//MB.*RPC.*GasRight" />
+   <Parameter name="CopyNoTag" value="[mr_bchamber]"/>
+   <Parameter name="CopyNoOffset" value="3*[super]"/>
+ </SpecPar>  
+
 
  <SpecPar name="MuonRpcEndcap1">
    <PartSelector path="//RR11"/>
