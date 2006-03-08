@@ -66,7 +66,7 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
    reco::Vertex v(pos, err, chi2, ndof, ntks);
    tmpVColl.push_back(v);
    *result = tmpVColl;
-   iEvent.put(result);
+   iEvent.put(result, "PrimaryVertex");
 
 #ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
    //Read SetupData from the SetupRecord in the EventSetup
