@@ -314,7 +314,7 @@ namespace edm {
 	newpset.addParameter<string>("@service_type","MessageLogger");
 	adjust.push_back(newpset);
 	// Record this new ParameterSet in the Registry!
-	::pset::Registry::instance()->insertParameterSet(newpset);
+	pset::Registry::instance()->insertParameterSet(newpset);
       }
   }
 

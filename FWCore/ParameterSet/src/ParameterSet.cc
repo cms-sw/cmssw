@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.cc,v 1.21 2006/03/02 17:48:49 paterno Exp $
+// $Id: ParameterSet.cc,v 1.22 2006/03/06 20:21:56 paterno Exp $
 //
 // definition of ParameterSet's function members
 // ----------------------------------------------------------------------
@@ -29,7 +29,7 @@
 namespace edm {
 
   void
-  ParameterSet::validate() const 
+  ParameterSet::validate() const
   {
     std::string stringrep = this->toStringOfTracked();
     seal::MD5Digest md5alg;
@@ -42,8 +42,8 @@ namespace edm {
   {
     id_ = ParameterSetID();
   }
-  
-  
+
+
   // ----------------------------------------------------------------------
   // constructors
   // ----------------------------------------------------------------------
@@ -64,11 +64,11 @@ namespace edm {
     if (!id_.isValid()) validate();
     return id_;
   }
-  
+
   // ----------------------------------------------------------------------
   // coded string
-  
-  ParameterSet::ParameterSet(std::string const& code) : 
+
+  ParameterSet::ParameterSet(std::string const& code) :
     tbl_(),
     id_()
   {
@@ -82,7 +82,7 @@ namespace edm {
   }
 
 
-  
+
   // ----------------------------------------------------------------------
   // Entry-handling
   // ----------------------------------------------------------------------
@@ -90,7 +90,7 @@ namespace edm {
   Entry const*
   ParameterSet::getEntryPointerOrThrow_(std::string const& name) const {
     Entry const* result = retrieveUntracked(name);
-    if (result == 0) 
+    if (result == 0)
       throw edm::Exception(errors::Configuration, "MissingParameter:")
 	<< "The required parameter '" << name
 	<< "' was not specified.\n";
@@ -99,12 +99,12 @@ namespace edm {
 
 
 
-  template <class T, class U> T first(std::pair<T,U> const& p) 
+  template <class T, class U> T first(std::pair<T,U> const& p)
   { return p.first; }
 
-  template <class T, class U> U second(std::pair<T,U> const& p) 
+  template <class T, class U> U second(std::pair<T,U> const& p)
   { return p.second; }
-  
+
   Entry const&
   ParameterSet::retrieve(std::string const& name) const {
     table::const_iterator  it = tbl_.find(name);
@@ -132,8 +132,8 @@ namespace edm {
   Entry const* const
   ParameterSet::retrieveUntracked(std::string const& name) const {
     table::const_iterator  it = tbl_.find(name);
-    
-    if (it == tbl_.end()) return 0; 
+
+    if (it == tbl_.end()) return 0;
     if (it->second.isTracked()) {
       if (name[0] == '@') {
 	throw edm::Exception(errors::Configuration,"StatusMismatch:")
@@ -149,9 +149,9 @@ namespace edm {
     }
     return &it->second;
   }  // retrieve()
-  
+
   // ----------------------------------------------------------------------
-  
+
   void
   ParameterSet::insert(bool okay_to_replace, std::string const& name, Entry const& value) {
     // This preemptive invalidation may be more agressive than necessary.
@@ -171,7 +171,7 @@ namespace edm {
       it->second = value;
     }
   }  // insert()
-  
+
   // ----------------------------------------------------------------------
   // copy without overwriting
   // ----------------------------------------------------------------------
@@ -182,7 +182,7 @@ namespace edm {
 
     if(& from == this)
       return;
-  
+
     for(table::const_iterator b = from.tbl_.begin(), e = from.tbl_.end(); b != e; ++b) {
       this->insert(false, b->first, b->second);
     }
@@ -191,7 +191,7 @@ namespace edm {
   // ----------------------------------------------------------------------
   // coding
   // ----------------------------------------------------------------------
-  
+
   std::string
   ParameterSet::toString() const {
     std::string rep;
@@ -200,12 +200,12 @@ namespace edm {
         rep += ';';
       rep += (b->first + '=' + b->second.toString());
     }
-  
+
     return '<' + rep + '>';
   }  // to_string()
-  
+
   // ----------------------------------------------------------------------
-  
+
   std::string
   ParameterSet::toStringOfTracked() const {
     std::string  rep = "<";
@@ -218,12 +218,12 @@ namespace edm {
         need_sep = true;
       }
     }
-  
+
     return rep + '>';
   }  // to_string()
-  
+
   // ----------------------------------------------------------------------
-  
+
   bool
   ParameterSet::fromString(std::string const& from) {
     // This preemptive invalidation may be more agressive than necessary.
@@ -232,7 +232,7 @@ namespace edm {
     std::vector<std::string> temp;
     if(! split(std::back_inserter(temp), from, '<', ';', '>'))
       return false;
-  
+
     tbl_.clear();  // precaution
     for(std::vector<std::string>::const_iterator b = temp.begin(), e = temp.end(); b != e; ++b) {
       // locate required name/value separator
@@ -240,18 +240,18 @@ namespace edm {
         = std::find(b->begin(), b->end(), '=');
       if(q == b->end())
         return false;
-  
+
       // form name unique to this ParameterSet
       std::string  name = std::string(b->begin(), q);
       if(tbl_.find(name) != tbl_.end())
         return false;
-  
+
       // form value and insert name/value pair
       Entry  value(std::string(q+1, b->end()));
       if(! tbl_.insert(std::make_pair(name, value)).second)
         return false;
     }
-  
+
     return true;
   }  // from_string()
 
@@ -310,7 +310,7 @@ namespace edm {
     while ( it != end )
     {
       Entry const& e = it->second;
-      if (e.typeCode() == code && 
+      if (e.typeCode() == code &&
 	  e.isTracked() == trackiness) // if it is a vector of ParameterSet
 	{
 	  ++count;
@@ -321,87 +321,84 @@ namespace edm {
     return count;
 
   }
-} // namespace edm
 
-
-namespace pset
-{
-  void explode(edm::ParameterSet const& top,
-	       std::vector<edm::ParameterSet>& results)
+  namespace pset
   {
-    using namespace std;
-    using namespace edm;
-    results.push_back(top);
+    void explode(edm::ParameterSet const& top,
+	       std::vector<edm::ParameterSet>& results)
+    {
+      using namespace std;
+      using namespace edm;
+      results.push_back(top);
 
-    // Get names of all ParameterSets; iterate through them,
-    // recursively calling explode...
-    vector<string> names;
-    const bool tracked = true;
-    const bool untracked = false;    
-    top.getParameterSetNames(names, tracked);
-    vector<string>::const_iterator it = names.begin();
-    vector<string>::const_iterator end = names.end();
-    for( ; it != end; ++it )
+      // Get names of all ParameterSets; iterate through them,
+      // recursively calling explode...
+      vector<string> names;
+      const bool tracked = true;
+      const bool untracked = false;
+      top.getParameterSetNames(names, tracked);
+      vector<string>::const_iterator it = names.begin();
+      vector<string>::const_iterator end = names.end();
+      for( ; it != end; ++it )
       {
-	ParameterSet next_top = 
+	ParameterSet next_top =
 	  top.getParameter<ParameterSet>(*it);
 	explode(next_top, results);
       }
 
-    names.clear();
-    top.getParameterSetNames(names, untracked);
-    it = names.begin();
-    end = names.end();
-    for( ; it != end; ++it )
+      names.clear();
+      top.getParameterSetNames(names, untracked);
+      it = names.begin();
+      end = names.end();
+      for( ; it != end; ++it )
       {
-	ParameterSet next_top = 
+	ParameterSet next_top =
 	  top.getUntrackedParameter<ParameterSet>(*it);
 	explode(next_top, results);
-      }    
-    
-    // Get names of all ParameterSets vectors; iterate through them,
-    // recursively calling explode...
-    names.clear();
-    top.getParameterSetVectorNames(names, tracked);
-    it = names.begin();
-    end = names.end();
-    for( ; it != end; ++it )
+      }
+ 
+      // Get names of all ParameterSets vectors; iterate through them,
+      // recursively calling explode...
+      names.clear();
+      top.getParameterSetVectorNames(names, tracked);
+      it = names.begin();
+      end = names.end();
+      for( ; it != end; ++it )
       {
 	vector<ParameterSet> next_bunch =
 	  top.getParameter<vector<ParameterSet> >(*it);
 
-	vector<ParameterSet>::const_iterator first = 
+	vector<ParameterSet>::const_iterator first =
 	  next_bunch.begin();
-	vector<ParameterSet>::const_iterator last 
+	vector<ParameterSet>::const_iterator last
 	  = next_bunch.end();
 
 	for( ; first != last; ++first )
-	  {
+	{
 	    explode(*first, results);
-	  }	  
-      }    
+        }	
+      }
 
-    names.clear();
-    top.getParameterSetVectorNames(names, untracked);
-    it = names.begin();
-    end = names.end();
-    for( ; it != end; ++it )
+      names.clear();
+      top.getParameterSetVectorNames(names, untracked);
+      it = names.begin();
+      end = names.end();
+      for( ; it != end; ++it )
       {
 	vector<ParameterSet> next_bunch =
 	  top.getUntrackedParameter<vector<ParameterSet> >(*it);
 
-	vector<ParameterSet>::const_iterator first = 
+	vector<ParameterSet>::const_iterator first =
 	  next_bunch.begin();
-	vector<ParameterSet>::const_iterator last 
+	vector<ParameterSet>::const_iterator last
 	  = next_bunch.end();
 
 	for( ; first != last; ++first )
-	  {
+	{
 	    explode(*first, results);
-	  }	  
-      }    
-
-
+	}	
+      }
+    }
   }
-}
 
+} // namespace edm

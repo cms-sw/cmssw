@@ -31,7 +31,7 @@ namespace edm
       std::ifstream input(filename.c_str());
       if (!input) return false;
       std::string buffer;
-      while ( std::getline(input, buffer) )  
+      while (std::getline(input, buffer))
 	{
 	  // getline strips newlines; we have to put them back by hand.
 	  output += buffer;
@@ -60,11 +60,11 @@ namespace edm
 
       // Check patterns for a match.
       boost::smatch m;
-      bool foundMatch = 
+      bool foundMatch =
 	boost::regex_search(input, m, pattern_dq) ||
 	boost::regex_search(input, m, pattern_sq);
-    
-      if ( !foundMatch )
+
+      if (!foundMatch)
 	{
 	  return false;
 	}
@@ -73,20 +73,20 @@ namespace edm
       // Make sure the following 'anything' is either whitespace, or a
       // comment. Comments are:
       //   optional whitespace (space or tab)
-      //   
+      //
       const::boost::regex trailing_whitespace("[ \t]*");
       const::boost::regex comment_pattern_1("[ \t]*#");
       const::boost::regex comment_pattern_2("[ \t]*//");
 
       std::string maybe_filename = m[1];
-      std::string trailing_text  = m[2];  
+      std::string trailing_text  = m[2];
 
-      bool good =  trailing_text.empty() 
+      bool good =  trailing_text.empty()
 	||         boost::regex_search(trailing_text, m, trailing_whitespace)
 	||         boost::regex_search(trailing_text, m, comment_pattern_1)
 	||         boost::regex_search(trailing_text, m, comment_pattern_2);
 
-      if ( ! good ) // trailing text is illegal
+      if (! good) // trailing text is illegal
 	{
 	  throw edm::Exception(edm::errors::Configuration, "BadInclude")
 	    <<  "Found trailing non-comment text in line: "
@@ -114,11 +114,11 @@ namespace edm
       std::string line;
 
       // For each line in the input...
-      while ( std::getline(in, line) )
+      while (std::getline(in, line))
 	{
 	  std::string filename;
 	  // If we're told to include a file...
-	  if ( is_include_line(line, filename) )
+	  if (is_include_line(line, filename))
 	    {
 	      // Translate the file name. FileInPath makes sure the
 	      // file exists. But read_whole_file checks again
@@ -127,27 +127,27 @@ namespace edm
 	      FileInPath realfilename(filename);
 
 	      // Make sure we don't have a circular inclusion.
-	      if ( std::find(openFiles.begin(), 
-			     openFiles.end(), 
+	      if (std::find(openFiles.begin(),
+			     openFiles.end(),
 			     realfilename.fullPath())
-		   != openFiles.end() )
+		   != openFiles.end())
 		{
 		  throw edm::Exception(edm::errors::Configuration, "CircularInclude")
-		    << "The configuration file (or configuration fragment) file: " 
+		    << "The configuration file (or configuration fragment) file: "
 		    << realfilename.fullPath()
-		    << " circularly includes itself";		    
+		    << " circularly includes itself";
 		}
 	      openFiles.push_back(realfilename.fullPath());
 
 	      // ... process the file we're to include.
 	      std::string filecontents;
-	      
+
 	      if (!read_whole_file(realfilename.fullPath(),
 				   filecontents))
 		{
 		  throw edm::Exception(edm::errors::Configuration, "MissingFile")
 		    << "Could not find configuration include file:"
-		    << filename;				       
+		    << filename;
 		}
 	      preprocessConfigString(filecontents, output, openFiles);
 	      openFiles.pop_back();
@@ -159,7 +159,7 @@ namespace edm
 	      // re-insert it.
 	      output += line;
 	      output += '\n';
-	    }	  
+	    }
 	}
     } //preprocessConfigString
 
@@ -188,14 +188,14 @@ namespace edm
     serviceparams->back().addParameter<std::string>("@service_type", "LoadAllDictionaries");
 
     // Load every ParameterSet into the Registry
-    ::pset::loadAllNestedParameterSets(*main);
+    pset::loadAllNestedParameterSets(*main);
     {
       // Should be able to use boost::lambda here. It did seem easy to
       // get it to work...
-      ::pset::Registry* reg = ::pset::Registry::instance();
-       std::vector<ParameterSet>::const_iterator i = serviceparams->begin();
-       std::vector<ParameterSet>::const_iterator e = serviceparams->end();
-       for ( ; i != e; ++i ) reg->insertParameterSet(*i);
+      pset::Registry* reg = pset::Registry::instance();
+      std::vector<ParameterSet>::const_iterator i = serviceparams->begin();
+      std::vector<ParameterSet>::const_iterator e = serviceparams->end();
+      for (; i != e; ++i) reg->insertParameterSet(*i);
     }
   }
 } // namespace edm

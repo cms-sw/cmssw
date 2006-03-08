@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: Registry.cc,v 1.3 2006/03/06 20:21:56 paterno Exp $
+// $Id: Registry.cc,v 1.4 2006/03/07 18:03:40 paterno Exp $
 //
 // ----------------------------------------------------------------------
 
@@ -12,103 +12,105 @@ namespace
   boost::mutex registry_mutex;
 }
 
-namespace pset 
+namespace edm
 {
-  // Is this initialization itself thread-safe?
-  Registry* Registry::instance_ = 0; 
-  
-
-  Registry*
-  Registry::instance()
+  namespace pset
   {
-    if (instance_ == 0)
+    // Is this initialization itself thread-safe?
+    Registry* Registry::instance_ = 0;
+
+
+    Registry*
+    Registry::instance()
+    {
+      if (instance_ == 0)
       {
 	boost::mutex::scoped_lock lock(registry_mutex);
 	if (instance_ == 0)
-	  {
+	{
 	    static Registry me;
 	    instance_ = &me;
-	  }
+	}
       }
-    return instance_;
-  }
-
-  bool
-  Registry::getParameterSet(edm::ParameterSetID const& id,
-			    edm::ParameterSet & result) const
-  {
-    bool found;
-    const_iterator i;
-    {
-      // This scope limits the lifetime of the lock to the shortest
-      // required interval.
-      boost::mutex::scoped_lock lock(registry_mutex);
-      i = psets_.find(id);
-      found = ( i != psets_.end() );
+      return instance_;
     }
-    if (found) result = i->second;
-    return found;
-  }
+
+    bool
+    Registry::getParameterSet(ParameterSetID const& id,
+			    ParameterSet & result) const
+    {
+      bool found;
+      const_iterator i;
+      {
+        // This scope limits the lifetime of the lock to the shortest
+        // required interval.
+        boost::mutex::scoped_lock lock(registry_mutex);
+        i = psets_.find(id);
+        found = (i != psets_.end());
+      }
+      if (found) result = i->second;
+      return found;
+    }
 
 
 
-  bool
-  Registry::insertParameterSet(edm::ParameterSet const& p)
-  {
-    bool newly_added;
-    edm::ParameterSet tracked_part(p.trackedPart());
-    edm::ParameterSetID id = tracked_part.id();
+    bool
+    Registry::insertParameterSet(ParameterSet const& p)
+    {
+      bool newly_added;
+      ParameterSet tracked_part(p.trackedPart());
+      ParameterSetID id = tracked_part.id();
 
-    boost::mutex::scoped_lock lock(registry_mutex);
-    const_iterator i = psets_.find(id);
+      boost::mutex::scoped_lock lock(registry_mutex);
+      const_iterator i = psets_.find(id);
 
-    if ( i != psets_.end() ) // we already have it!
+      if (i != psets_.end()) // we already have it!
       {
 	newly_added = false;
       }
-    else
+      else
       {
 	psets_[p.id()] = tracked_part;
 	newly_added = true;
       }
-    return newly_added;
-  }
-
-
-  Registry::size_type
-  Registry::size() const
-  {
-    return psets_.size();
-  }
-
-  Registry::const_iterator
-  Registry::begin() const
-  {
-    return psets_.begin();
-  }
-
-  Registry::const_iterator
-  Registry::end() const
-  {
-    return psets_.end();
-  }
-
-  // Private member functions
-  Registry::Registry() : psets_() { }
-
-  Registry::~Registry() { }
-
-  // Associated functions
-    void loadAllNestedParameterSets(edm::ParameterSet const& main)
-    {
-      pset::Registry* reg = pset::Registry::instance();
-      std::vector<edm::ParameterSet> all_main_psets;
-      pset::explode(main, all_main_psets);
-      std::vector<edm::ParameterSet>::const_iterator i = all_main_psets.begin();
-      std::vector<edm::ParameterSet>::const_iterator e = all_main_psets.end();
-      for ( ; i != e; ++i ) reg->insertParameterSet(*i);
+      return newly_added;
     }
 
 
-} // namespace pset
+    Registry::size_type
+    Registry::size() const
+    {
+      return psets_.size();
+    }
+
+    Registry::const_iterator
+    Registry::begin() const
+    {
+      return psets_.begin();
+    }
+
+    Registry::const_iterator
+    Registry::end() const
+    {
+      return psets_.end();
+    }
+
+    // Private member functions
+    Registry::Registry() : psets_() { }
+
+    Registry::~Registry() { }
+
+    // Associated functions
+      void loadAllNestedParameterSets(ParameterSet const& main)
+      {
+        Registry* reg = Registry::instance();
+        std::vector<ParameterSet> all_main_psets;
+        explode(main, all_main_psets);
+        std::vector<ParameterSet>::const_iterator i = all_main_psets.begin();
+        std::vector<ParameterSet>::const_iterator e = all_main_psets.end();
+        for (; i != e; ++i) reg->insertParameterSet(*i);
+      }
+
+  } // namespace pset
+} // namespace edm
 

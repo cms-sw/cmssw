@@ -2,7 +2,7 @@
 #define ParameterSet_ParameterSet_h
 
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.h,v 1.19 2006/03/02 16:21:01 paterno Exp $
+// $Id: ParameterSet.h,v 1.20 2006/03/06 20:21:55 paterno Exp $
 //
 // Declaration for ParameterSet(parameter set) and related types
 // ----------------------------------------------------------------------
@@ -468,15 +468,14 @@ private:
     return getEntryPointerOrThrow_(name)->getVPSet();
   }
 
-}  // namespace edm
-
-// Associated functions used elsewhere in the ParameterSet system
-namespace pset
-{
-  // Put into 'results' each parameter set in 'top', including 'top'
-  // itself.
-  void explode(edm::ParameterSet const& top,
+  // Associated functions used elsewhere in the ParameterSet system
+  namespace pset
+  {
+    // Put into 'results' each parameter set in 'top', including 'top'
+    // itself.
+    void explode(edm::ParameterSet const& top,
 	       std::vector<edm::ParameterSet>& results);
-}
+  }
 
+}  // namespace edm
 #endif
