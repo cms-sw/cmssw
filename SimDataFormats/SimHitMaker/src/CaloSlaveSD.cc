@@ -9,7 +9,6 @@
 #include "SimDataFormats/SimHitMaker/interface/CaloSlaveSD.h"
 
 #include <iostream>
-#define debug
 
 CaloSlaveSD::CaloSlaveSD(std::string n) : name_(n) {
 
