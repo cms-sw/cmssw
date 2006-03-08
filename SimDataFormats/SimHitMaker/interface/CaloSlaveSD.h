@@ -8,6 +8,8 @@
 
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+ 
 
 
 #include <string>
