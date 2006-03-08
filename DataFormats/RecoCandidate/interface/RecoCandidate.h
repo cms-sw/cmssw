@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: RecoCandidate.h,v 1.2 2006/03/01 16:31:47 llista Exp $
+ * \version $Id: RecoCandidate.h,v 1.3 2006/03/08 11:08:08 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
@@ -51,7 +51,7 @@ namespace reco {
     bool overlap( const Candidate & ) const;
   };
 
-  /// get Track component 
+  /// Accessor to Track component 
   template<>
   struct component<reco::Track> {
     typedef reco::TrackRef Ref;
@@ -62,7 +62,7 @@ namespace reco {
     }
   };
     
-  /// get Muon component 
+  /// Accessor to Muon component 
   template<>
   struct  component<reco::Muon> {
     typedef reco::MuonRef Ref;
@@ -73,7 +73,7 @@ namespace reco {
     }
   };
   
-  /// get Electron component 
+  /// Accessor to Electron component 
   template<>
   struct  component<reco::Electron> {
     typedef reco::ElectronRef Ref;
@@ -84,7 +84,7 @@ namespace reco {
     }
   };
 
-  /// get SuperCluster component 
+  /// Accessor to SuperCluster component 
   template<>
   struct  component<reco::SuperCluster> {
     typedef reco::SuperClusterRef Ref;
@@ -95,7 +95,7 @@ namespace reco {
     }
   };
 
-  /// get Photon component 
+  /// Accessor to Photon component 
   template<>
   struct  component<reco::Photon> {
     typedef reco::PhotonRef Ref;

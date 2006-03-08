@@ -24,7 +24,7 @@ are owned by the composite candidate.
 - reco::CompositeRefCandidate: a reco::Candidate composed of daughters. The daughters
 has persistent references (edm::RefVector <b><...></b>) to reco::Candidate stored in 
 a separate collection.
-- reco::OverlapChecker: helper class to check overlap between two candidates. 
+- OverlapChecker: helper class to check overlap between two candidates. 
 Recursively scans a decay chain, if necessary.
 
 \subsection typedefs 
@@ -38,9 +38,9 @@ Recursively scans a decay chain, if necessary.
 None.
 
 \subsection tests Unit tests and examples
-- testParticle: test reco::Particle class
-- testCompositeCandidate: test reco::CompositeCandidate class
-- testSetup: test reco::Setup mechanism
+- <b>testParticle.cc</b>: test reco::Particle class
+- <b>testCompositeCandidate.cc</b>: test reco::CompositeCandidate class
+- <b>testSetup.cc</b>: test reco::Setup mechanism
 
 \section status Status and planned development
 Complete.

@@ -6,20 +6,15 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Track.h,v 1.12 2006/03/01 12:23:40 llista Exp $
+ * \version $Id: Candidate.h,v 1.2 2006/03/08 12:26:37 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Particle.h"
-#include <boost/static_assert.hpp>
+#include "DataFormats/Candidate/interface/component.h"
 #include <vector>
 
 namespace reco {
   
-  template<typename T>
-  struct component {
-    BOOST_STATIC_ASSERT(false);
-  };
-
   class Candidate : public Particle {
   private:
     typedef std::vector<Candidate> CandVector;

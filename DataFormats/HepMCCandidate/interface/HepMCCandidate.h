@@ -1,12 +1,12 @@
 #ifndef HepMCCandidate_HepMCCandidate_h
 #define HepMCCandidate_HepMCCandidate_h
-/** class reco::HepMCCandidate
+/** \class reco::HepMCCandidate
  *
  * particle candidate from HepMC::GenParticle
  *
  * \author: Luca Lista, INFN
  *
- * \version $Id: HepMCCandidate.h,v 1.1 2006/03/08 09:19:50 llista Exp $
+ * \version $Id: HepMCCandidate.h,v 1.2 2006/03/08 11:07:54 llista Exp $
  */
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 
@@ -34,7 +34,7 @@ namespace reco {
     const HepMC::GenParticle * genParticle_;
   };
 
-  /// get GenParticle component 
+  /// Accessor to GenParticle component 
   template<>
   struct component<HepMC::GenParticle> {
     static const HepMC::GenParticle * get( const Candidate & c ) {

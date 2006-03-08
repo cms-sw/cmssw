@@ -3,12 +3,12 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 /** \class reco::CompositeCandidate
  *
- * a reco::Candidate composed of daughters. 
+ * A Candidate composed of daughters. 
  * The daughters are owned by the composite candidate.
  *
  * \author Luca Lista, INFN
  *
- * \version $Id$
+ * \version $Id: CompositeCandidate.h,v 1.2 2006/03/08 12:26:37 llista Exp $
  *
  */
 namespace reco {
