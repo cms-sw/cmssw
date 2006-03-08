@@ -2,7 +2,7 @@
  * Impl of RPCDetId
  *
  * \author Ilaria Segoni
- * \version $Id: RPCDetId.cc,v 1.8 2006/03/08 07:34:28 mmaggi Exp $
+ * \version $Id: RPCDetId.cc,v 1.9 2006/03/08 20:21:17 mmaggi Exp $
  * \date 02 Aug 2005
  */
 
@@ -34,6 +34,7 @@ RPCDetId::RPCDetId(int region, int ring, int station, int sector, int layer,int 
 void
 RPCDetId::buildfromTrIndex(int trIndex)
 {
+  trind = trIndex;
   int eta_id = trIndex/100000;
   int region=0;
   int ring =0; 
@@ -145,6 +146,7 @@ std::ostream& operator<<( std::ostream& os, const RPCDetId& id ){
      << " La "<<id.layer()
      << " Su "<<id.subsector()
      << " Ro "<<id.roll()
+     << " Tr "<<id.TrIndex()
      <<" ";
 
   return os;

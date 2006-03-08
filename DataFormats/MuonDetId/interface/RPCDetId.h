@@ -5,9 +5,9 @@
  * 
  *  DetUnit identifier for RPCs
  *
- *  $Date: 2006/02/04 06:26:25 $
- *  \version $Id: RPCDetId.h,v 1.7 2006/02/04 06:26:25 mmaggi Exp $
- *  $Revision: 1.7 $
+ *  $Date: 2006/03/08 07:33:25 $
+ *  \version $Id: RPCDetId.h,v 1.8 2006/03/08 07:33:25 mmaggi Exp $
+ *  $Revision: 1.8 $
  *  \author Ilaria Segoni
  */
 
@@ -102,6 +102,9 @@ class RPCDetId :public DetId {
   }
 
 
+  int TrIndex() const{
+    return trind;
+  }
 
   static const int minRegionId=     -1;
   static const int maxRegionId=      1;
@@ -167,6 +170,7 @@ class RPCDetId :public DetId {
 	    int subsector,
 	    int roll);
   
+  int trind;
 }; // RPCDetId
 
 std::ostream& operator<<( std::ostream& os, const RPCDetId& id );
