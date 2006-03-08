@@ -1,6 +1,14 @@
 #ifndef Candidate_Candidate_h
 #define Candidate_Candidate_h
-// $Id: Candidate.h,v 1.17 2006/02/21 10:37:32 llista Exp $
+/** \class reco::Candidate
+ *
+ * generic reconstructed particle candidate
+ *
+ * \author Luca Lista, INFN
+ *
+ * \version $Id: Track.h,v 1.12 2006/03/01 12:23:40 llista Exp $
+ *
+ */
 #include "DataFormats/Candidate/interface/Particle.h"
 #include <boost/static_assert.hpp>
 #include <vector>
@@ -17,25 +25,41 @@ namespace reco {
     typedef std::vector<Candidate> CandVector;
 
   public:
+    /// size type
     typedef CandVector::size_type size_type;
     struct const_iterator;
     struct iterator;
 
+    /// default constructor
     Candidate() : Particle() { }
+    /// constructor from a Particle
     explicit Candidate( const Particle & p ) : Particle( p ) { }
+    /// constructor from values
     explicit Candidate( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ) ) : 
       Particle( q, p4, vtx ) { }
+    /// destructor
     virtual ~Candidate();
+    /// returns a clone of the Candidate object
     virtual Candidate * clone() const = 0;
+    /// first daughter const_iterator
     virtual const_iterator begin() const = 0;
+    /// last daughter const_iterator
     virtual const_iterator end() const = 0;
+    /// first daughter iterator
     virtual iterator begin() = 0;
+    /// last daughter iterator
     virtual iterator end() = 0;
+    /// number of daughters
     virtual int numberOfDaughters() const = 0;
+    /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1 (read only mode)
     virtual const Candidate & daughter( size_type i ) const = 0;
+    /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1
     virtual Candidate & daughter( size_type i ) = 0;
 
   public:
+    /// implementation of const_iterator. 
+    /// should be private; declared public only 
+    /// for ROOT reflex dictionay problems
     struct const_iterator_imp {
       typedef ptrdiff_t difference_type;
       const_iterator_imp() { } 
@@ -51,6 +75,9 @@ namespace reco {
       virtual const Candidate & deref() const = 0;
       virtual difference_type difference( const const_iterator_imp * ) const = 0;
     };
+    /// implementation of iterator. 
+    /// should be private; declared public only 
+    /// for ROOT reflex dictionay problems
     struct iterator_imp {
       typedef ptrdiff_t difference_type;
       iterator_imp() { }
@@ -70,6 +97,7 @@ namespace reco {
     
   public:
     struct iterator;
+    /// const_iterator over daughters
     struct const_iterator {
       typedef Candidate value_type;
       typedef Candidate * pointer;
@@ -106,6 +134,7 @@ namespace reco {
       const_iterator_imp * i;
     };
 
+    /// iterator over daughters
     struct iterator {
       typedef Candidate value_type;
       typedef Candidate * pointer;
@@ -142,6 +171,7 @@ namespace reco {
       friend const_iterator::const_iterator( const iterator & );
     };
 
+    /// helper class to setup Candidate kinematics
     class setup {
     private:
       struct setupFlag {
@@ -150,10 +180,12 @@ namespace reco {
       };
       
     public:
+      /// helper class to setup Candidate charge
       struct setupCharge : public setupFlag {
 	setupCharge( bool f = true ) : setupFlag( f ) { }
       };
       
+      /// helper class to setup Candidate four-momentum
       struct setupP4 : public setupFlag {
 	setupP4( bool f = true ) : setupFlag( f ) { }
       };
@@ -172,11 +204,13 @@ namespace reco {
       bool modifyP4, modifyCharge;
     };
 
+    /// set up Candidate from setup object
     void set( setup & s );
 
   private:
     template<typename T> friend struct component; 
     friend class OverlapChecker;
+    /// check overlap with another Candidate
     virtual bool overlap( const Candidate & ) const = 0;
   };
 

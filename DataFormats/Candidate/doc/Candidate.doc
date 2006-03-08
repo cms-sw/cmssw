@@ -1,0 +1,51 @@
+/*!
+\page DataFormats_Candidate Package DataFormats/Candidate
+<center>
+<small>
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/DataFormats/Candidate/?cvsroot=CMSSW>CVS head for this package</a> - 
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/DataFormats/Candidate/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+\section desc Description
+Classes defining particle candidate. The class reco::Candidate is 
+intended to be a common class for many Physics Analysis tools.
+
+\subsection interface Public interface
+- reco::Particle: a case class describing a reconstructed particle. It mainly 
+contains a 4-vector, a vertex and an electric charge. 
+- reco::Candidate: a model for a generic reconstructed candidates. Inherits
+from reco::Particle the kinematics information, and adds interface for navigation
+among constituents.
+- reco::LeadCandidate: a reco::Candidate with no component nor daughters. 
+Suitable to store just 4-vector, vertex and charge.
+- reco::CompositeCandidate: a reco::Candidate composed of daughters. The daughters
+are owned by the composite candidate.
+- reco::CompositeRefCandidate: a reco::Candidate composed of daughters. The daughters
+has persistent references (edm::RefVector <b><...></b>) to reco::Candidate stored in 
+a separate collection.
+- reco::OverlapChecker: helper class to check overlap between two candidates. 
+Recursively scans a decay chain, if necessary.
+
+\subsection typedefs 
+- reco::CandidateCollection: collection of reco::Candidate objects
+- reco::CandidateRef: persistent reference to a reco::Candidate object
+- reco::CandidatesRef: reference to a reco::Candidate collection
+- reco::CandidateRefs: vector of references to reco::Candidate objects in the same collection
+- reco::candidate_iterator: iterator over a vector of references to reco::Candidate objects in the same collection
+
+\subsection modules Modules
+None.
+
+\subsection tests Unit tests and examples
+- testParticle: test reco::Particle class
+- testCompositeCandidate: test reco::CompositeCandidate class
+- testSetup: test reco::Setup mechanism
+
+\section status Status and planned development
+Complete.
+
+<hr>
+Last updated:
+07-FEB-2006 L. Lista
+*/

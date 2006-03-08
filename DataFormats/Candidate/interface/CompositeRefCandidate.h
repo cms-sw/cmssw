@@ -1,12 +1,48 @@
 #ifndef Candidate_CompositeRefCandidate_h
 #define Candidate_CompositeRefCandidate_h
 #include "DataFormats/Candidate/interface/Candidate.h"
-
+/** \class reco::CompositeRefCandidate
+ *
+ * a reco::Candidate composed of daughters. 
+ * The daughters has persistent references (edm::Ref <...>) 
+ * to reco::Candidate stored in a separate collection.
+ *
+ * \author Luca Lista, INFN
+ *
+ * \version $Id$
+ *
+ */
 namespace reco {
 
   class CompositeRefCandidate : public Candidate {
   public:
+    /// collection of references to daughters
     typedef CandidateRefs daughters;
+    /// default constructor
+    CompositeRefCandidate() : Candidate() { }
+    /// destructor
+    virtual ~CompositeRefCandidate();
+    /// returns a clone of the candidate
+    virtual CompositeRefCandidate * clone() const;
+    /// first daughter const_iterator
+    virtual const_iterator begin() const;
+    /// last daughter const_iterator
+    virtual const_iterator end() const;
+    /// first daughter iterator
+    virtual iterator begin();
+    /// last daughter iterator
+    virtual iterator end();
+    /// number of daughters
+    virtual int numberOfDaughters() const;
+    /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1 (read only mode)
+    virtual const Candidate & daughter( size_type ) const;
+    /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1
+    virtual Candidate & daughter( size_type );
+    /// add a daughter via a reference
+    void addDaughter( const CandidateRef & );    
+    /// implementation of const_iterator. 
+    /// should be private; declared public only 
+    /// for ROOT reflex dictionay problems    
     struct const_iterator_comp : public const_iterator_imp {
       typedef ptrdiff_t difference_type;
       const_iterator_comp() { }
@@ -31,6 +67,9 @@ namespace reco {
       }
       daughters::const_iterator i;
     };
+    /// implementation of iterator. 
+    /// should be private; declared public only 
+    /// for ROOT reflex dictionay problems    
     struct iterator_comp : public iterator_imp {
       typedef ptrdiff_t difference_type;
       explicit iterator_comp( const daughters::iterator & it ) : i ( it ) { }
@@ -56,23 +95,11 @@ namespace reco {
       }
       daughters::iterator i;
     };
-
-    CompositeRefCandidate() : Candidate() { }
-    virtual ~CompositeRefCandidate();
-    virtual CompositeRefCandidate * clone() const;
-
-    virtual const_iterator begin() const;
-    virtual const_iterator end() const;
-    virtual iterator begin();
-    virtual iterator end();
-    virtual int numberOfDaughters() const;
-    virtual const Candidate & daughter( size_type ) const;
-    virtual Candidate & daughter( size_type );
-
-    void addDaughter( const CandidateRef & );
  
   private:
+    /// collection of references to daughters
     daughters dau;
+    /// check overlap with another candidate
     virtual bool overlap( const Candidate & ) const;
   };
 

@@ -1,12 +1,48 @@
 #ifndef Candidate_CompositeCandidate_H
 #define Candidate_CompositeCandidate_H
 #include "DataFormats/Candidate/interface/Candidate.h"
-
+/** \class reco::CompositeCandidate
+ *
+ * a reco::Candidate composed of daughters. 
+ * The daughters are owned by the composite candidate.
+ *
+ * \author Luca Lista, INFN
+ *
+ * \version $Id$
+ *
+ */
 namespace reco {
 
   class CompositeCandidate : public Candidate {
   public:
+    /// collection of daughters
     typedef CandidateCollection daughters;
+    /// default constructor
+    CompositeCandidate() : Candidate() { }
+    /// destructor
+    virtual ~CompositeCandidate();
+    /// returns a clone of the candidate
+    virtual CompositeCandidate * clone() const;
+    /// first daughter const_iterator
+    virtual const_iterator begin() const;
+    /// last daughter const_iterator
+    virtual const_iterator end() const;
+    /// first daughter iterator
+    virtual iterator begin();
+    /// last daughter const_iterator
+    virtual iterator end();
+    /// number of daughters
+    virtual int numberOfDaughters() const;
+    /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1 (read only mode)
+    virtual const Candidate & daughter( size_type ) const;
+    /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1
+    virtual Candidate & daughter( size_type );
+    /// add a clone of the passed candidate as daughter 
+    void addDaughter( const Candidate & );
+
+    /// implementation of const_iterator. 
+    /// should be private; declared public only 
+    /// for ROOT reflex dictionay problems    
     struct const_iterator_comp : public const_iterator_imp {
       typedef ptrdiff_t difference_type;
       explicit const_iterator_comp( const daughters::const_iterator & it ) : i ( it ) { }
@@ -30,6 +66,9 @@ namespace reco {
       }
       daughters::const_iterator i;
     };
+    /// implementation of iterator. 
+    /// should be private; declared public only 
+    /// for ROOT reflex dictionay problems
     struct iterator_comp : public iterator_imp  {
       typedef ptrdiff_t difference_type;
       explicit iterator_comp( const daughters::iterator & it ) : i ( it ) { }
@@ -55,22 +94,10 @@ namespace reco {
       daughters::iterator i;
     };
 
-    CompositeCandidate() : Candidate() { }
-    virtual ~CompositeCandidate();
-    virtual CompositeCandidate * clone() const;
-
-    virtual const_iterator begin() const;
-    virtual const_iterator end() const;
-    virtual iterator begin();
-    virtual iterator end();
-    virtual int numberOfDaughters() const;
-    virtual const Candidate & daughter( size_type ) const;
-    virtual Candidate & daughter( size_type );
-
-    void addDaughter( const Candidate & );
- 
   private:
+    /// collection of daughters
     daughters dau;
+    /// check overlap with another daughter
     virtual bool overlap( const Candidate & ) const;
   };
 
