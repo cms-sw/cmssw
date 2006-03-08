@@ -2,7 +2,7 @@
  * Impl of RPCDetId
  *
  * \author Ilaria Segoni
- * \version $Id: RPCDetId.cc,v 1.6 2006/02/04 06:26:12 mmaggi Exp $
+ * \version $Id: RPCDetId.cc,v 1.7 2006/02/24 16:38:14 mmaggi Exp $
  * \date 02 Aug 2005
  */
 
@@ -13,6 +13,7 @@ RPCDetId::RPCDetId():DetId(DetId::Muon, MuonSubdetId::RPC){}
 
 
 RPCDetId::RPCDetId(uint32_t id):DetId(id) {
+  std::cout<<" constructor of the RPCDetId" <<std::endl;
   if (det()!=DetId::Muon || subdetId()!=MuonSubdetId::RPC) {
     throw cms::Exception("InvalidDetId") << "RPCDetId ctor:"
 					 << " det: " << det()
@@ -48,34 +49,33 @@ RPCDetId::buildfromTrIndex(int trIndex)
     region = 0;
     ring = eta_id - 6;
   }
-  
+  trIndex = trIndex%100000;
   int plane_id = trIndex/10000;
   int station=0;
   int layer=0;
-  if (plane_id<=2) {
-    station = 1;
-    layer = plane_id;
-  }
-  else if (plane_id <=4){
-    station = 2;
-    layer = plane_id -2;
-  }
-  else{
-    station = plane_id -2;
+  if (plane_id <=4){
+    station = plane_id;
     layer = 1;
   }
+  else{
+    station = plane_id -4;
+    layer = 2;
+  }
+  trIndex = trIndex%10000;
   int sector_id = trIndex/100;
+  trIndex = trIndex%100;
   int copy_id = trIndex/10;
   int sector=sector_id/3;
+  if (region !=0) sector++;
   int subsector=0;
   if ( sector_id%3 == 0 ) {
-    subsector = copy_id+1;
+    subsector = copy_id;
   }
   else {
     subsector = sector_id%3;
   }
 
-  int roll=trIndex/10;
+  int roll=trIndex%10;
   this->init(region,ring,station,sector,layer,subsector,roll);
 }
 
