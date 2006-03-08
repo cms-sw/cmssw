@@ -13,7 +13,7 @@
 //
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id$
+// $Id: SiStripMonitorCluster.cc,v 1.1 2006/02/09 19:28:56 gbruno Exp $
 //
 //
 
@@ -28,7 +28,7 @@
 #include "CalibTracker/Records/interface/SiStripStructureRcd.h"     // these two will go away
 
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
-#include "DQM/SiStripCommon/interface/SiStripHistoIdManager.h"
+#include "DQM/SiStripCommon/interface/SiStripHistoId.h"
 #include "DQM/SiStripMonitorCluster/interface/SiStripMonitorCluster.h"
 
 #include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
@@ -64,25 +64,37 @@ void SiStripMonitorCluster::beginJob(const edm::EventSetup& es){
     // get list of active detectors from SiStripStructure - this will change and be taken from a SiStripDetControl object
     const vector<uint32_t> & activeDets = tkmechstruct->getActiveDetectorsRawIds();
 
-    // select (certain) TOB detectors from activeDets and put them in TOBDetIds
-    vector<uint32_t> TOBDetIds;
+    // use SiStripSubStructure for selecting certain regions
     SiStripSubStructure substructure;
-    // select TOBs of layer=1. 0 selects everything
-    substructure.getTOBDetectors(activeDets, TOBDetIds, 1, 3, 4, 0);
+    vector<uint32_t> SelectedDetIds;
+    // select TIBs of layer=2. 0 selects everything
+    substructure.getTIBDetectors(activeDets, SelectedDetIds, 2, 7, 2, 0); // this adds rawDetIds to SelectedDetIds
+    // select TOBs of layer=1, etc.
+    substructure.getTOBDetectors(activeDets, SelectedDetIds, 1, 3, 4, 0); // this adds rawDetIds to SelectedDetIds
 
+    // use SistripHistoId for producing histogram id (and title)
+    SiStripHistoId hidmanager;
     // create SiStripFolderOrganizer
     SiStripFolderOrganizer folder_organizer;
+
     // loop over TOB detectors and book MEs
-    cout<<"SiStripMonitorCluster::analyze nr. of TOBDetIds:  "<<TOBDetIds.size()<<endl;
-    for(vector<uint32_t>::const_iterator detid_iterator = TOBDetIds.begin(); detid_iterator!=TOBDetIds.end(); detid_iterator++){
-      // use SistripHistoIdManager for producing histogram id (and title)
-      SiStripHistoIdManager hidmanager;
-      string hid = hidmanager.createHistoId("clusters", *detid_iterator);
+    cout<<"SiStripMonitorCluster::analyze nr. of SelectedDetIds:  "<<SelectedDetIds.size()<<endl;
+    for(vector<uint32_t>::const_iterator detid_iterator = SelectedDetIds.begin(); detid_iterator!=SelectedDetIds.end(); detid_iterator++){
+      ModMEs local_modmes;
+      string hid;
       // set appropriate folder using SiStripFolderOrganizer
       folder_organizer.setDetectorFolder(*detid_iterator); // pass the detid to this method
-      // book ME
-      MonitorElement* local_me = dbe_->book1D(hid, hid, 31,-0.5,30.5);
-      NrClusters.insert( pair<uint32_t, MonitorElement*>(*detid_iterator,local_me) );
+      // create nr. of clusters per module
+      hid = hidmanager.createHistoId("ClusterDistribution","det",*detid_iterator);
+      local_modmes.NrClusters = dbe_->book1D(hid, hid, 31,-0.5,30.5);
+      //create ClusterPosition
+      hid = hidmanager.createHistoId("ClusterPosition","det",*detid_iterator);
+      local_modmes.ClusterPosition = dbe_->book1D(hid, hid, 31,-0.5,30.5);
+      //create ClusterWidth
+      hid = hidmanager.createHistoId("ClusterWidth","det",*detid_iterator);
+      local_modmes.ClusterWidth = dbe_->book1D(hid, hid, 31,-0.5,30.5);
+      // append to ClusterMEs
+      ClusterMEs.insert( std::make_pair(*detid_iterator, local_modmes));
     }
   }
 // below is just for testing
@@ -106,9 +118,9 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
    iSetup.get<SetupRecord>().get(pSetup);
 #endif
   // Mechanical structure view. No need for condition here. If map is empty, nothing should happen.
-  for (map<uint32_t, MonitorElement*>::const_iterator i = NrClusters.begin() ; i!=NrClusters.end() ; i++) {
-    uint32_t detid = i->first;
-    MonitorElement* local_me = i->second;
+  for (map<uint32_t, ModMEs>::const_iterator i = ClusterMEs.begin() ; i!=ClusterMEs.end() ; i++) {
+    uint32_t detid = i->first;  ModMEs local_modmes = i->second;
+
     // retrieve producer name of input StripClusterCollection
     std::string clusterProducer = conf_.getParameter<std::string>("ClusterProducer");
     // get ClusterCollection object from Event
@@ -116,12 +128,25 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
     iEvent.getByLabel(clusterProducer, cluster_collection);
     // get range of clusters belonging to detector detid
     const SiStripClusterCollection::Range cluster_range = cluster_collection->get(detid);
-    // following line works only if clusters consecutive but is much shorter than looping
-    int nr_clusters = cluster_range.second - cluster_range.first + 1;
-    local_me->Fill( float(nr_clusters), 1. );
+
+    if(local_modmes.NrClusters != NULL){ // nr. of clusters per module
+      // following line works only if clusters consecutive but is much shorter than looping
+      int nr_clusters = cluster_range.second - cluster_range.first + 1;
+      (local_modmes.NrClusters)->Fill(static_cast<float>(nr_clusters),1.);
+    }
+    if(local_modmes.ClusterPosition != NULL){ // position of cluster
+//      for(SiStripClusterCollection::iterator icluster = cluster_range.first; icluster<cluster_range.second; icluster++){
+//      (local_modmes.ClusterPosition)->Fill((*icluster).barycenter(),1.);
+//      }
+    }
+    if(local_modmes.ClusterWidth != NULL){ // width of cluster
+//--- ! no method for getting directly width - leave empty for the moment
+//      for(SiStripClusterCollection::const_iterator icluster = cluster_range.first; icluster<cluster_range.second; icluster++){
+//      (local_modmes.ClusterWidth)->Fill((*icluster).barycenter(),1.);
+//      }
+    }
   }
 }
-
 
 void SiStripMonitorCluster::endJob(void){
 //  dbe_->showDirStructure();

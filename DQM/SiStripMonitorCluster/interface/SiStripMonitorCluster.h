@@ -16,7 +16,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Wed Feb  1 16:47:14 CET 2006
-// $Id$
+// $Id: SiStripMonitorCluster.h,v 1.1 2006/02/09 19:28:56 gbruno Exp $
 //
 
 // system include files
@@ -43,9 +43,14 @@ class SiStripMonitorCluster : public edm::EDAnalyzer {
        virtual void endJob() ;
 
    private:
+       struct ModMEs{
+        MonitorElement* NrClusters;
+        MonitorElement* ClusterPosition;
+        MonitorElement* ClusterWidth;
+       };
        DaqMonitorBEInterface* dbe_;
        edm::ParameterSet conf_;
-       std::map<uint32_t, MonitorElement*> NrClusters; // clusters of a detector
+       std::map<uint32_t, ModMEs> ClusterMEs;
 };
 
 #endif
