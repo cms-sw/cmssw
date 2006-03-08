@@ -13,7 +13,7 @@
 //
 // Original Author:  Dorian Kcira
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id$
+// $Id: SiStripMonitorDigi.cc,v 1.1 2006/02/09 19:08:43 gbruno Exp $
 //
 //
 
@@ -28,7 +28,7 @@
 #include "CalibTracker/Records/interface/SiStripStructureRcd.h"     // these two will go away
 
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
-#include "DQM/SiStripCommon/interface/SiStripHistoIdManager.h"
+#include "DQM/SiStripCommon/interface/SiStripHistoId.h"
 #include "DQM/SiStripMonitorDigi/interface/SiStripMonitorDigi.h"
 
 #include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
@@ -64,33 +64,44 @@ void SiStripMonitorDigi::beginJob(const edm::EventSetup& es){
     // get list of active detectors from SiStripStructure - this will change and be taken from a SiStripDetControl object
     const vector<uint32_t> & activeDets = tkmechstruct->getActiveDetectorsRawIds();
 
-    // select (certain) TOB detectors from activeDets and put them in TOBDetIds
-    vector<uint32_t> TOBDetIds;
+    // use SiStripSubStructure for selecting certain regions
     SiStripSubStructure substructure;
+    vector<uint32_t> SelectedDetIds;
     // select TIBs of layer=2. 0 selects everything
-    // substructure.getTIBDetectors(activeDets, TIBDetIds, 2, 0, 0, 0);
+    substructure.getTIBDetectors(activeDets, SelectedDetIds, 2, 7, 2, 0); // this adds rawDetIds to SelectedDetIds
     // select TOBs of layer=1, etc.
-    substructure.getTOBDetectors(activeDets, TOBDetIds, 1, 3, 4, 0);
+    substructure.getTOBDetectors(activeDets, SelectedDetIds, 1, 3, 4, 0); // this adds rawDetIds to SelectedDetIds
 
-     // use SistripHistoIdManager for producing histogram id (and title)
-     SiStripHistoIdManager hidmanager;
-    // create SiStripFolderOrganizer
-    SiStripFolderOrganizer folder_organizer;
-    MonitorElement* local_me;
+     // use SistripHistoId for producing histogram id (and title)
+     SiStripHistoId hidmanager;
+     // create SiStripFolderOrganizer
+     SiStripFolderOrganizer folder_organizer;
 
     // loop over detectors and book MEs
-    cout<<"SiStripMonitorDigis::analyze nr. of TOBDetIds:  "<<TOBDetIds.size()<<endl;
-    for(vector<uint32_t>::const_iterator detid_iterator = TOBDetIds.begin(); detid_iterator!=TOBDetIds.end(); detid_iterator++){
+    cout<<"SiStripMonitorDigis::analyze nr. of SelectedDetIds:  "<<SelectedDetIds.size()<<endl;
+    for(vector<uint32_t>::const_iterator detid_iterator = SelectedDetIds.begin(); detid_iterator!=SelectedDetIds.end(); detid_iterator++){
+      ModMEs local_modmes;
+      string hid;
       // set appropriate folder using SiStripFolderOrganizer
       folder_organizer.setDetectorFolder(*detid_iterator); // pass the detid to this method
+//
 //      // create ADCs per strip
 //      string hid = hidmanager.createHistoId("ADCsPerStrip_detector", *detid_iterator);
 //      local_me = dbe_->book2D(hid, hid, 20,-0.5,767.5, 20,-0.5,255.5);
 //      ADCsPerStrip.insert( pair<uint32_t, MonitorElement*>(*detid_iterator,local_me) );
-      // create ADCs per detector
-      string hid = hidmanager.createHistoId("DigisPerDetector", *detid_iterator);
-      local_me = dbe_->book1D(hid, hid, 21, -0.5, 20.5);
-      DigisPerDetector.insert( pair<uint32_t, MonitorElement*>(*detid_iterator,local_me) );
+//
+      // create Digis per detector - not too useful - maybe can remove later
+      hid = hidmanager.createHistoId("DigisPerDetector","det",*detid_iterator);
+      local_modmes.DigisPerModule = dbe_->book1D(hid, hid, 21, -0.5, 20.5);
+      // create ADCs per "hottest" strip
+      hid = hidmanager.createHistoId("ADCs of hottest strip","det",*detid_iterator);
+      local_modmes.ADCsHottestStrip = dbe_->book1D(hid, hid, 21, -0.5, 50.);
+      // create ADCs per "coolest" strip
+      hid = hidmanager.createHistoId("ADCs of coolest strip","det",*detid_iterator);
+      local_modmes.ADCsCoolestStrip = dbe_->book1D(hid, hid, 21, -0.5, 50.);
+      // append to DigiMEs
+      DigiMEs.insert( std::make_pair(*detid_iterator, local_modmes));
+      //
     }
   }
 }
@@ -133,24 +144,38 @@ SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 //    }
 //  }
 
-  for (map<uint32_t, MonitorElement*>::const_iterator i = DigisPerDetector.begin() ; i!=DigisPerDetector.end() ; i++) {
-    uint32_t detid = i->first;
-    MonitorElement* local_me = i->second;
+  // loop over all MEs
+  for (map<uint32_t, ModMEs >::const_iterator i = DigiMEs.begin() ; i!=DigiMEs.end() ; i++) {
+    uint32_t detid = i->first; ModMEs local_modmes = i->second;
 
     // retrieve producer name of input StripDigiCollection
     std::string digiProducer = conf_.getParameter<std::string>("DigiProducer");
     // get DigiCollection object from Event
     edm::Handle<StripDigiCollection> digi_collection;
     iEvent.getByLabel(digiProducer, digi_collection);
-
     // get iterators for digis belonging to one DetId
     const StripDigiCollection::Range digiRange = digi_collection->get(detid);
     StripDigiCollection::ContainerIterator digiBegin = digiRange.first;
     StripDigiCollection::ContainerIterator digiEnd   = digiRange.second;
 
-    local_me->Fill(static_cast<float>(digiEnd-digiBegin),1.);
+    if(local_modmes.DigisPerModule != NULL){ // nr. of digis per detector
+      (local_modmes.DigisPerModule)->Fill(static_cast<float>(digiEnd-digiBegin),1.);
+    }
+    if(local_modmes.ADCsHottestStrip != NULL){ // nr. of adcs for hottest strip
+      int largest_adc=digiBegin->adc();
+      for(StripDigiCollection::ContainerIterator digiIter = digiBegin; digiIter<digiEnd; digiIter++){
+           if(digiIter->adc()>largest_adc) largest_adc = digiIter->adc(); 
+      }
+      (local_modmes.ADCsHottestStrip)->Fill(static_cast<float>(largest_adc),1.);
+    }
+    if(local_modmes.ADCsCoolestStrip){ // nr. of adcs for coolest strip
+      int smallest_adc=digiBegin->adc();
+      for(StripDigiCollection::ContainerIterator digiIter = digiBegin; digiIter<digiEnd; digiIter++){
+           if(digiIter->adc()<smallest_adc) smallest_adc = digiIter->adc(); 
+      }
+      (local_modmes.ADCsCoolestStrip)->Fill(static_cast<float>(smallest_adc),1.);
+    }
   }
-
 }
 
 

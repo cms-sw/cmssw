@@ -16,7 +16,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Sat Feb  4 20:49:51 CET 2006
-// $Id$
+// $Id: SiStripMonitorDigi.h,v 1.1 2006/02/09 19:08:42 gbruno Exp $
 //
 
 // system include files
@@ -44,10 +44,15 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
       virtual void endJob() ;
 
    private:
+       struct ModMEs{
+            MonitorElement* DigisPerModule;
+            MonitorElement* ADCsHottestStrip;
+            MonitorElement* ADCsCoolestStrip;
+       };
        DaqMonitorBEInterface* dbe_;
        edm::ParameterSet conf_;
-//       std::map<uint32_t, MonitorElement*> ADCsPerStrip; // ADCsPerStrip of a detector
-       std::map<uint32_t, MonitorElement*> DigisPerDetector;
+       // uint32_t me_type: 1=#digis/module; 2=adcs of hottest strip/module; 3= adcs of coolest strips/module.
+       std::map<uint32_t, ModMEs> DigiMEs;
 };
 
 #endif
