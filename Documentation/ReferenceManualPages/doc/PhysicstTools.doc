@@ -9,6 +9,7 @@ For additional information please visit the <a href="http://cmsdoc.cern.ch/cms/c
 Generic particle candidates. Those packages are also listed under the  \ref RecoPackages "Reco data format" section.
  - \ref DataFormats_Candidate "Candidate": generic particle candidates definitions.<br>
  - \ref DataFormats_RecoCandidate "RecoCandidate": candidates with compontents from \ref RecoPackages "Reco objects".<br>
+ - \ref DataFormats_HepMCCandidate "HepMCCandidate": candidates with compontents from HepMC Generator particle.<br>
 
 - <b>Utility packages</b><br>
 Common utilities to manipulate and analyze particle candidates
@@ -20,6 +21,7 @@ Framework module for common particle candidate manupulation
  - \ref PhysicsTools_CandAlgos "CandAlgos": common framework modules for \ref PhysicsTools_Candidate "particle candidates".<br>
  - \ref PhysicsTools_RecoAlgos "RecoAlgos": common framework modules for \ref RecoPackages "Reco objects".<br>
  - \ref PhysicsTools_RecoCandAlgos "RecoCandAlgos": framework modules that produce \ref PhysicsTools_Candidate "particle candidates" with \ref RecoPackages "Reco" components.<br>
+ - \ref PhysicsTools_HepMCCandAlgos "HepMCCandAlgos": framework modules that produce \ref PhysicsTools_Candidate "particle candidates" with HepMC Generator components.<br>
 
 \section contact Contact persons
 - Luca Lista

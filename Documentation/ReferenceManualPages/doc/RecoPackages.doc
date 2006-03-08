@@ -7,15 +7,16 @@ For additional information please visit the <a href="http://cmsdoc.cern.ch/cms/c
 
 - <b>DataFormats</b><br>
 Definition of classes modelling Reco.
- - \ref DataFormats_TrackReco "TrackReco"<br>
- - \ref DataFormats_MuonReco "MuonReco"<br>
- - \ref DataFormats_VertexReco "VertexReco"<br>
- - \ref DataFormats_EGammaReco "EGammaReco"<br>
+ - \ref DataFormats_TrackReco "TrackReco": Track Reco classes<br>
+ - \ref DataFormats_MuonReco "MuonReco": Muon Reco classes<br>
+ - \ref DataFormats_VertexReco "VertexReco": Vertex Reco classes<br>
+ - \ref DataFormats_EGammaReco "EGammaReco": Electron/photon Reco classes<br>
 
 - <b>Candidate model</b><br>
 Generic particle <a href="http://cmsdoc.cern.ch/cms/cpt/Software/html/PhysicsTools/candidates/">candidate model</a>.
- - \ref DataFormats_Candidate "Candidate"<br>
- - \ref DataFormats_RecoCandidate "RecoCandidate"<br>
+ - \ref DataFormats_Candidate "Candidate": generic particle candidates definitions.<br>
+ - \ref DataFormats_RecoCandidate "RecoCandidate": candidates with compontents from \ref RecoPackages "Reco objects".<br>
+ - \ref DataFormats_HepMCCandidate "HepMCCandidate": candidates with compontents from HepMC Generator particle.<br>
 
 \section contact Contact persons
 - Luca Lista
