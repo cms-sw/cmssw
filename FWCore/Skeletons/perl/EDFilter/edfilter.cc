@@ -31,7 +31,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 //
-// class decleration
+// class declaration
 //
 
 class fltrname : public edm::EDFilter {
@@ -40,7 +40,7 @@ class fltrname : public edm::EDFilter {
       ~fltrname();
 
 
-      virtual bool filter(const Event&, const EventSetup&);
+      virtual bool filter(const edm::Event&, const edm::EventSetup&);
    private:
       // ----------member data ---------------------------
 };
