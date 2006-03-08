@@ -24,4 +24,5 @@ step 5: build and tag IOV. NOTE: two infinite IOV tagged by different tags. The 
    cmscond_build_iov_byquery -i -q "CELL_MAP_VERSION='cmssw_ROB' AND ROB_MAP_VERSION='cmssw_ROS'" -u cms_xiezhen_dev -p xiezhen123 -d CondFormatsDTObjects -t DTREADOUTMAPPING -o DTReadOutMapping -c oracle://devdb10/cms_xiezhen_dev cmssw_version
 
 step 6: read data back from cmsRun. Note the tag value (this is a simulation of offline CMSSW job)
-   cmsRun -p load_test.cfg
+   cmsRun -p load_test_myversion.cfg
+   cmsRun -p load_test_cmsswversion.cfg
