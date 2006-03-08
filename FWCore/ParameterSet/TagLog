@@ -1,3 +1,6 @@
+** V01-02-07  [Thu Mar  9 00:08:42 2006]
+Put pset::Registry inside of edm namespace
+
 ** V01-02-06  [Wed Mar  8 01:19:31 2006]
 various fixes
 
