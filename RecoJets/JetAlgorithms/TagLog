@@ -1,3 +1,6 @@
+** V00-01-00  [Wed Mar  8 21:32:11 2006]
+"Candidate" version clean up for public release
+
 ** V00-00-02  [Fri Jan 13 00:18:48 2006]
 Fixed CMSKtJetAlgorithm.cc so it now works with the new CaloTower implementation. Discovered Kt algorithm only successfully clusters 2 or more towers: fails to cluster TB events with single pions putting energy in a single tower. Caveat Emptor!
 
