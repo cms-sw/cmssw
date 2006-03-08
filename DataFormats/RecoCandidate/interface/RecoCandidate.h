@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id$
+ * \version $Id: RecoCandidate.h,v 1.2 2006/03/01 16:31:47 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
@@ -50,7 +50,6 @@ namespace reco {
     /// check overlap with another candidate
     bool overlap( const Candidate & ) const;
   };
-
 
   /// get Track component 
   template<>
