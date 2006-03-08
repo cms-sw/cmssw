@@ -7,7 +7,8 @@ step 1: prepare offline db schema(this is a simulation of ORCON/ORCOFF DBA)
  sqlplus cms_xiezhen_dev@devdb10/xiezhen123<createMetaDataTable.sql
 
 step 2: fill dummy data in offline payload tables with two sets of data 
-        in real cms model, these tables are filled by O2O queries(this is a simulation of online to offline transformation)
+        in cms O2O, these tables are filled by O2O queries(this is a 
+simulation of online to offline transformation)
  sqlplus cms_xiezhen_dev@devdb10/xiezhen123<DT-fillmapping.sql
  
 step 3: setup and fill pool tables(this is a simulation of "poolification" steps after the transformation)
@@ -18,7 +19,9 @@ step 3: setup and fill pool tables(this is a simulation of "poolification" steps
 
 step 4: FCregisterPFN -p oracle://devdb10/cms_xiezhen_dev -t POOL_RDBMS(only if the first time)
 
-step 5: build and tag IOV. NOTE: two infinite IOV tagged by different tags. The selection of the data is throw the query on the extra columns in table DTREADOUTMAPPING (this is a simulation of tagging the data from online)
+step 5: build and tag IOV. NOTE: two infinite IOV tagged by different 
+tags. The selection of the data is by query on the extra columns in table 
+DTREADOUTMAPPING (this is a simulation of tagging the data from online)
 
    cmscond_build_iov_byquery -i -q "CELL_MAP_VERSION='my_ROB' AND ROB_MAP_VERSION='my_ROS'" -u cms_xiezhen_dev -p xiezhen123 -d CondFormatsDTObjects -t DTREADOUTMAPPING -o DTReadOutMapping -c oracle://devdb10/cms_xiezhen_dev myversion
    cmscond_build_iov_byquery -i -q "CELL_MAP_VERSION='cmssw_ROB' AND ROB_MAP_VERSION='cmssw_ROS'" -u cms_xiezhen_dev -p xiezhen123 -d CondFormatsDTObjects -t DTREADOUTMAPPING -o DTReadOutMapping -c oracle://devdb10/cms_xiezhen_dev cmssw_version
