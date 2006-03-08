@@ -59,8 +59,14 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
    reco::Vertex::Point pos(-1, -1, -1);
    double e[6]; reco::Vertex::Error err(e);
    double chi2 = -1; double ndof = 1; double ntks = 0;
-   std::auto_ptr<reco::Vertex> pOut(new reco::Vertex(pos, err, chi2, ndof, ntks));
-   iEvent.put(pOut);
+
+   
+   std::auto_ptr<reco::VertexCollection> result(new reco::VertexCollection); // empty vertex collection,on the heap ??
+   reco::VertexCollection tmpVColl;
+   reco::Vertex v(pos, err, chi2, ndof, ntks);
+   tmpVColl.push_back(v);
+   *result = tmpVColl;
+   iEvent.put(result);
 
 #ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
    //Read SetupData from the SetupRecord in the EventSetup
