@@ -4,13 +4,13 @@
  <class name="OpticalAlignParam"/>
 
  <class name="CSCZSensorData"/>
- <class name="CSCZSensors"/>
 
  <class name="std::vector<OpticalAlignInfo>"/>
  <class name="std::vector<OpticalAlignParam>"/>
 
  <class name="std::vector<CSCZSensorData>"/>
 
+ <class name="CSCZSensors"/>
  <class name="edm::Wrapper<OpticalAlignments>"/>
 
  <class pattern="*iterator*"/>

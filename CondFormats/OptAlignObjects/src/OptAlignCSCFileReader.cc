@@ -60,7 +60,7 @@ bool OptAlignCSCFileReader::next ( ) {
       toReturn = parse_strings(line_.c_str());
     }
   }
-  if ( toReturn ) std::cout << "about to return true from next() " << std::endl;
+  //  if ( toReturn ) std::cout << "about to return true from next() " << std::endl;
   return toReturn;
 }
 
