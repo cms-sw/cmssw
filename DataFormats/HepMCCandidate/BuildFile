@@ -1,7 +1,7 @@
 <use name=DataFormats/Candidate>
 <use name=clhep>
 <export>
- <lib name=DataFormatsRecoCandidate>
+ <lib name=DataFormatsHepMCCandidate>
  <use name=DataFormats/Candidate>
  <use name=clhep>
 </export>
