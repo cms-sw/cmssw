@@ -1,7 +1,6 @@
 #include "JetMETCorrections/MCJet/interface/JetCalibratorMCJet.h"
-
+#include "DataFormats/JetObjects/interface/CaloJet.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 
 #include <vector>
 #include <fstream>
@@ -140,19 +139,15 @@ void JetCalibratorMCJet::setParameters(std::string aCalibrationType)
     }
 }
 
-void JetCalibratorMCJet::run( const CaloJetCollection* theJetIn, std::vector<HepLorentzVector> & theJetOut) 
+CaloJet JetCalibratorMCJet::applyCorrection( const CaloJet& fJet) 
 {
-  if(parametrization.empty()) { return; }
-  cout<<" The size of the input jet collection "<<theJetIn->size()<<endl;
-  if( theJetIn->size() == 0 ) { return; }
+  if(parametrization.empty()) { return fJet; }
   
-  for(CaloJetCollection::const_iterator ijet = theJetIn->begin(); ijet != theJetIn->end(); ijet++)
-  {
-    double et=(*ijet).getEt();
-    double eta=abs((*ijet).getEta());
+    double et=fJet.getEt();
+    double eta=abs(fJet.getEta());
     
 
-    if(eta<10) { eta=abs((*ijet).getY()); }
+    if(eta<10) { eta=fabs(fJet.getY()); }
     
     cout<<" Et and eta of jet "<<et<<" "<<eta<<endl;
 
@@ -175,13 +170,15 @@ void JetCalibratorMCJet::run( const CaloJetCollection* theJetIn, std::vector<Hep
 	 
 	 cout<<" The new energy found "<<etnew<<" "<<et<<endl;
 
-	 HepLorentzVector thejet((*ijet).getPx()*etnew/et, (*ijet).getPy()*etnew/et, (*ijet).getPz()*etnew/et,
-	                                (*ijet).getE()*etnew/et);
-			
+         float mScale = etnew/et;
+         CommonJetData common (fJet.getPx()*mScale, fJet.getPy()*mScale, fJet.getPz()*mScale,
+                        fJet.getE()*mScale, fJet.getP()*mScale, fJet.getPt()*mScale, fJet.getEt()*mScale, fJet.getM()*mScale,
+                        fJet.getPhi(), fJet.getEta(), fJet.getY(),
+                        fJet.getNConstituents());
+	 
+         CaloJet theJet (common, fJet.getSpecific (), fJet.getTowerIndices());
 	 cout<<" The new jet is created "<<endl;
 	 		
-         theJetOut.push_back(thejet);
-  }
-  cout<<" The first jet is added "<<theJetOut.size()<<endl;
+     return theJet;
 }
 

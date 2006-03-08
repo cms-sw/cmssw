@@ -13,7 +13,7 @@
 //
 // Original Author:  Olga Kodolova
 //         Created:  Wed Feb  1 17:04:23 CET 2006
-// $Id$
+// $Id: MCJetProducer.cc,v 1.1 2006/02/06 10:33:11 kodolova Exp $
 //
 //
 
@@ -24,73 +24,31 @@
 #include <iomanip>
 #include <string>
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
-
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Handle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/JetObjects/interface/CaloJetCollection.h"
+#include "JetMETCorrections/MCJet/interface/MCJetProducer.h"
 #include "JetMETCorrections/MCJet/interface/JetCalibratorMCJet.h"
-#include "CLHEP/Vector/LorentzVector.h"
+using namespace std;
 
 namespace cms 
 {
 
 //
-// class decleration
-//
-
-class MCJet : public edm::EDProducer {
-   public:
-      explicit MCJet(const edm::ParameterSet&);
-      ~MCJet();
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-   private:
-      // ----------member data ---------------------------
-   JetCalibratorMCJet alg_; 
-   std::string inputLabel;  
-};
-
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
 // constructors and destructor
 //
 MCJet::MCJet(const edm::ParameterSet& iConfig): 
-                                           alg_()
-{
-   //register your products
-#ifdef THIS_IS_AN_EVENT_EXAMPLE
-   produces<ExampleData2>();
+                                           mAlgorithm(),
+					   mInput(iConfig.getParameter<string>("src")),
+					   mTag(iConfig.getParameter<string>("tagName"))
 
-   //if do put with a label
-   produces<ExampleData2>("label");
-#endif
+{
 
    //now do what ever other initialization is needed
     produces<CaloJetCollection>();
-    //inputLabel = iConfig.getParameter<std::string>("inputLabel");
-    
-    std::string newtag = iConfig.getParameter<std::string>("tagName");
-    //std::cout<<" Read the tag from txt file "<<newtag<<endl;
-    alg_.setParameters(newtag);
-}
-
-
-MCJet::~MCJet()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+    mAlgorithm.setParameters(mTag);
 }
 
 
@@ -102,32 +60,21 @@ MCJet::~MCJet()
 void
 MCJet::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   using namespace edm;
-   Handle<CaloJetCollection> pIn;                                                   //Define Inputs
-   //iEvent.getByLabel(inputLabel, pIn);                                            //Get Inputs
-   iEvent.getByType(pIn);                                                           //Get Inputs
-   std::auto_ptr<std::vector<HepLorentzVector> > pOut( new std::vector<HepLorentzVector>() );         //Create empty output
-   alg_.run( pIn.product(), *pOut );                                                //Invoke the algorithm
-   iEvent.put( pOut );                                                              //Put output into Event
+   edm::Handle<CaloJetCollection> jets;                               //Define Inputs
+   iEvent.getByLabel(mInput, jets);                              //Get Inputs
+   auto_ptr<CaloJetCollection> result (new CaloJetCollection);  //Corrected jets
+   CaloJetCollection::const_iterator jet = jets->begin ();
+      cout<<" Size of jets "<<jets->size()<<endl;
+   if(jets->size() > 0 )
+   { 
+   for (; jet != jets->end (); jet++) {
+      result->push_back (mAlgorithm.applyCorrection (*jet));
+      cout<<" Size of the result "<<result->size()<<endl;
+   }
+   }
+      cout<<" Put result "<<result->size()<<endl;
+   iEvent.put(result);  //Puts Corrected Jet Collection into event
    
-#ifdef THIS_IS_AN_EVENT_EXAMPLE
-   //Read 'ExampleData' from the Event
-   Handle<ExampleData> pIn;
-   iEvent.getByLabel("example",pIn);
-
-   //Use the ExampleData to create an ExampleData2 which 
-   // is put into the Event
-   std::auto_ptr<ExampleData2> pOut(new ExampleData2(*pIn));
-   iEvent.put(pOut);
-#endif
-
-#ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
-   //Read SetupData from the SetupRecord in the EventSetup
-   ESHandle<SetupData> pSetup;
-   iSetup.get<SetupRecord>().get(pSetup);
-#endif
 }
 
-//define this as a plug-in
-DEFINE_FWK_MODULE(MCJet)
-    }//end namespace cms
+}//end namespace cms
