@@ -329,8 +329,12 @@ pool::TrivialFileCatalog::lookupBestPFN (const FileCatalog::FileID& fid,
 	if (i->first->exactMatch (fid))
 	{
 	    pfn = i->second + fid; 
+	    return;
 	}
     }
+    throw FCTransactionException
+	("TrivialFileCatalog::lookupBestPFN",
+	 "No match found in the TrivialFileCatalog");    
 } 
 
 void
