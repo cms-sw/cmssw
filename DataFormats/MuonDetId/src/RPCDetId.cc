@@ -2,7 +2,7 @@
  * Impl of RPCDetId
  *
  * \author Ilaria Segoni
- * \version $Id: RPCDetId.cc,v 1.7 2006/02/24 16:38:14 mmaggi Exp $
+ * \version $Id: RPCDetId.cc,v 1.8 2006/03/08 07:34:28 mmaggi Exp $
  * \date 02 Aug 2005
  */
 
@@ -65,8 +65,7 @@ RPCDetId::buildfromTrIndex(int trIndex)
   int sector_id = trIndex/100;
   trIndex = trIndex%100;
   int copy_id = trIndex/10;
-  int sector=sector_id/3;
-  if (region !=0) sector++;
+  int sector=(sector_id-1)/3+1;
   int subsector=0;
   if ( sector_id%3 == 0 ) {
     subsector = copy_id;
