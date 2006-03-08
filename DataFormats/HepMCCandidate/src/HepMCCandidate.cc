@@ -21,4 +21,8 @@ bool HepMCCandidate::overlap( const Candidate & c ) const {
   if ( mcc == 0 ) return false;
   const HepMC::GenParticle * g1 = genParticle(), * g2 = mcc->genParticle();
   return g1 != 0 && g2 != 0 && g1 == g2;
+  /**
+   * WARNING: should also check here the full decay chain 
+   * for possible overlap of daughters
+   */
 }
