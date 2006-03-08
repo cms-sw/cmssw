@@ -42,7 +42,7 @@ NtupleROOTFile::NtupleROOTFile(string filename,int id) {
 		tree = (TTree*)file->Get("h101");
                 if (tree==NULL){
                    throw cms::Exception("NtplNotValid", 
-                       "NtupleROOTFile: Ntpl seems not to be valid")
+                       "NtupleROOTFile: Ntpl seems not to be a valid ")
                    << "File " << filename << " could not be opened.\n";
                  }
 		tree->SetBranchAddress("Jsmhep",Jsmhep);
@@ -52,8 +52,8 @@ NtupleROOTFile::NtupleROOTFile(string filename,int id) {
 		tree = (TTree*)file->Get("h100");
 		 if (tree==NULL){
                    throw cms::Exception("NtplNotValid",
-                       "NtupleROOTFile: Ntpl seems not to be valid")
-                   << "File " << filename << " could not be opened.\n";
+                       "NtupleROOTFile: Ntpl seems not to be a valid ")
+                   << "File; " << filename << " could not be opened.\n";
                  }
                 tree->SetBranchAddress("Jmohep",Jmohep);
 		tree->SetBranchAddress("Jdahep",Jdahep);
@@ -92,7 +92,12 @@ int NtupleROOTFile::getNhep()const{
 }
 //-------------------------------------------------------
 int NtupleROOTFile::getNevhep() const{
-	return Nevhep;
+  
+  return  tree->GetEntries();
+  	
+	// jw 8.3.2006:changed, since there seem to be ntpls 
+	// where this entry is not correctly filled
+	//return Nevhep;
 }
 
 //-------------------------------------------------------
