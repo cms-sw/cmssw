@@ -1,17 +1,22 @@
-// $Id: RecoCandidate.cc,v 1.1 2006/02/28 10:59:15 llista Exp $
+// $Id: HepMCCandidate.cc,v 1.2 2006/03/08 09:24:20 llista Exp $
 #include "DataFormats/HepMCCandidate/interface/HepMCCandidate.h"
 #include <CLHEP/HepMC/GenParticle.h>
 #include <CLHEP/HepMC/GenVertex.h>
-
+#include <iostream>
 using namespace reco;
 
 HepMCCandidate::HepMCCandidate( const HepMC::GenParticle * p ) : 
   LeafCandidate(), genParticle_( p ) {
-  q_ = Charge( p->particledata().charge() );
+  q_ = p->particleID().threeCharge() / 3;
   CLHEP::HepLorentzVector p4 =p->momentum();
   p4_ = LorentzVector( p4.x(), p4.y(), p4.z(), p4.t() );
-  HepGeom::Point3D<double> vtx = p->production_vertex()->point3d();
-  vtx_ = Point( vtx.x(), vtx.y(), vtx.z() );
+  const HepMC::GenVertex * v = p->production_vertex();
+  if ( v != 0 ) {
+    HepGeom::Point3D<double> vtx = v->point3d();
+    vtx_ = Point( vtx.x(), vtx.y(), vtx.z() );
+  } else {
+    vtx_.SetXYZ( 0, 0, 0 );
+  }
 }
 
 HepMCCandidate::~HepMCCandidate() { }
