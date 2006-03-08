@@ -1,5 +1,5 @@
-#ifndef CSCRecHit2D_H
-#define CSCRecHit2D_H
+#ifndef DataFormats_CSCRecHit2D_H
+#define DataFormats_CSCRecHit2D_H
 
 /**
  * \class CSCRecHit2D
@@ -28,9 +28,9 @@ public:
   ~CSCRecHit2D();
 
   /// RecHit2DLocalPos base class interface
-  CSCRecHit2D* clone() const { return new CSCRecHit2D( * this); }
-  LocalPoint localPosition() const { return theLocalPosition;}
-  LocalError localPositionError() const { return theLocalError;}
+  CSCRecHit2D* clone() const { return new CSCRecHit2D( *this ); }
+  LocalPoint localPosition() const { return theLocalPosition; }
+  LocalError localPositionError() const { return theLocalError; }
 
   /// TrackingRecHit base class interface
     //  const GeomDet& det() const { return *theDet; } // geom removed from TRH
