@@ -9,28 +9,29 @@
  * The algorithm is documented in the proceedings of the Physics at 
  * RUN II: QCD and Weak Boson Physics Workshop: hep-ex/0005012.
  *
- * The algorithm runs off of CaloTowers using
- * the navigation interface JetableObjectHelper.
+ * The algorithm runs off of generic Candidates 
  *
  * \author Robert M Harris, Fermilab
  *
  * \version   1st Version Feb. 4, 2005  Based on the CDF Midpoint Algorithm code by Matthias Toennesmann.
  * \version   2nd Version Apr. 6, 2005  Modifications toward integration in new EDM.
  * \version   3rd Version Oct. 19, 2005 Modified to work with real CaloTowers from Jeremy Mans
+ * \version   F.Ratnikov, Mar. 8, 2006. Work from Candidate
+ * $Id$
  *
  ************************************************************/
 
 
 #include <vector>
 
-#include "RecoJets/JetAlgorithms/interface/ProtoJet2.h"
+#include "RecoJets/JetAlgorithms/interface/ProtoJet.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 
 class CMSMidpointAlgorithm 
 {
  public:
   typedef std::vector <const reco::Candidate*> InputCollection;
-  typedef std::vector<ProtoJet2> OutputCollection;
+  typedef std::vector<ProtoJet> OutputCollection;
 
   /// Default constructor which defines the default values of the algorithm parameters
   ///

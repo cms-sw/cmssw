@@ -1,7 +1,7 @@
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 
-#include "RecoJets/JetAlgorithms/interface/CaloJetMaker.h"
+#include "RecoJets/JetAlgorithms/interface/JetMaker.h"
 
 using namespace std;
 using namespace reco;
@@ -64,13 +64,13 @@ namespace {
   }
 }
 
-CaloJet CaloJetMaker::makeCaloJet (const ProtoJet2& fProtojet) const {
+CaloJet JetMaker::makeCaloJet (const ProtoJet& fProtojet) const {
   // construct towerIds
   std::vector<CaloTowerDetId> towerIds;
   const CaloTowerCollection* towerCollection = 0;
-  const ProtoJet2::Candidates* towers = &fProtojet.getTowerList();
+  const ProtoJet::Candidates* towers = &fProtojet.getTowerList();
   towerIds.reserve (towers->size ());
-  ProtoJet2::Candidates::const_iterator tower = towers->begin ();
+  ProtoJet::Candidates::const_iterator tower = towers->begin ();
   for (; tower != towers->end (); tower++) {
     edm::Ref<CaloTowerCollection> towerRef = component<CaloTower>::get (**tower);
     if (towerRef.isNonnull ()) { // valid

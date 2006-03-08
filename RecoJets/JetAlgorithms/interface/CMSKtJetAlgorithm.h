@@ -20,10 +20,12 @@
  *
  * \version   1st Version April 22, 2005.
  * \version   R. Harris, October 19, 2005 modified to use real CaloTowers
+ * \version   F.Ratnikov, Mar. 8, 2006. Correct bug, work from Candidate
+ * $Id$
  *
  ************************************************************/
  
-#include "RecoJets/JetAlgorithms/interface/ProtoJet2.h"
+#include "RecoJets/JetAlgorithms/interface/ProtoJet.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 
 #include <vector>
@@ -32,7 +34,7 @@ class CMSKtJetAlgorithm
 {
 public:
   typedef std::vector <const reco::Candidate*> InputCollection;
-  typedef std::vector<ProtoJet2> OutputCollection;
+  typedef std::vector<ProtoJet> OutputCollection;
 
   /** Default constructor    */
   CMSKtJetAlgorithm();

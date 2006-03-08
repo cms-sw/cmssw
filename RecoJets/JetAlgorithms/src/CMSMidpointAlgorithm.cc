@@ -58,7 +58,7 @@ namespace {
 class ProtoJetPtGreater
 {
  public:
-  int operator()(const ProtoJet2& pj1, const ProtoJet2& pj2) const
+  int operator()(const ProtoJet& pj1, const ProtoJet& pj2) const
   {
     return pj1.getLorentzVector().perp() > pj2.getLorentzVector().perp();
   }
@@ -182,7 +182,7 @@ void CMSMidpointAlgorithm::iterateCone(const InputCollection& fInput,
   //
   int nIterations = 0;
   bool keepJet = true;
-  ProtoJet2 trialCone;
+  ProtoJet trialCone;
   double iterationtheConeRadius = theConeRadius;
   if(reduceConeSize)iterationtheConeRadius *= sqrt(theConeAreaFraction);
   while(++nIterations <= theMaxIterations + 1 && keepJet){
@@ -420,7 +420,7 @@ void CMSMidpointAlgorithm::splitAndMerge(const InputCollection& fInput,
 	  // non-empty overlap.  Decide on splitting or merging.
 	  
 	  // Make a proto-jet with the overlap towers so we can calculate things for the overlap
-	  ProtoJet2 overlap;
+	  ProtoJet overlap;
 	  overlap.putTowers(overlapTowers);
 	  coneNotModified = false;
 	  

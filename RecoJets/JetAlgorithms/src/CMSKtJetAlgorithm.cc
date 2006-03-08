@@ -1,5 +1,5 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
-#include "RecoJets/JetAlgorithms/interface/ProtoJet2.h"
+#include "RecoJets/JetAlgorithms/interface/ProtoJet.h"
 
 #include "RecoJets/JetAlgorithms/interface/KtEvent.h"
 #include "RecoJets/JetAlgorithms/interface/KtLorentzVector.h"
@@ -21,6 +21,9 @@ using namespace reco;
 		 TB events with single pions putting energy in a single tower. Caveat Emptor!
 */
 
+namespace {
+  int DEBUG = 0;
+}
 
 CMSKtJetAlgorithm::CMSKtJetAlgorithm()
 {
@@ -73,6 +76,9 @@ void CMSKtJetAlgorithm::run (const InputCollection& fInput, OutputCollection* fO
   if (!fOutput) return;
   fOutput->clear ();
   // fill the KtLorentzVector
+  if (DEBUG >= 1) {
+    std::cout << "CMSKtJetAlgorithm::run-> " << fInput.size () << "input towers" << std::endl;
+  }
   std::vector<int> indexMap;
   std::vector<KtJet::KtLorentzVector> ktInput;
   int index = 0;
@@ -82,7 +88,15 @@ void CMSKtJetAlgorithm::run (const InputCollection& fInput, OutputCollection* fO
       ktInput.push_back (KtJet::KtLorentzVector (constituent->px (), constituent->py (), 
 						 constituent->pz (), constituent->energy ()));
       indexMap.push_back (index);
+      if (DEBUG >= 2) {
+	printf ("tower: index:%4d eta:%5.2f phi:%5.2f e:%7.2f px:%7.2f py:%7.2f pz:%7.2f\n",
+		index, constituent->eta(), constituent->phi(), constituent->energy (),
+		constituent->px (), constituent->py (), constituent->pz ());
+      }
     }
+  }
+  if (DEBUG >= 1) {
+    std::cout << "CMSKtJetAlgorithm::run-> " << ktInput.size () << " towers above " << theKtJetECut << std::endl;
   }
   
   // R. Harris, 1/12/06, If there are no inputs, simply return empty CaloJetCollection.
@@ -120,6 +134,15 @@ void CMSKtJetAlgorithm::run (const InputCollection& fInput, OutputCollection* fO
       }
     }
 
-    fOutput->push_back (ProtoJet2 (protoJetConstituents));
+    fOutput->push_back (ProtoJet (protoJetConstituents));
+    if (DEBUG >= 2) {
+      ProtoJet pjet (protoJetConstituents);
+      printf ("jet: eta:%5.2f phi:%5.2f e:%7.2f px:%7.2f py:%7.2f pz:%7.2f\n",
+	      pjet.eta(), pjet.phi(), pjet.e (),
+	      pjet.px (), pjet.py (), pjet.pz ());
+    }
+  }
+  if (DEBUG >= 1) {
+    std::cout << "CMSKtJetAlgorithm::run-> " << fOutput->size () << " jets found" << std::endl;
   }
 }

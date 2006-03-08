@@ -1,9 +1,10 @@
 #ifndef JetProducers_ToyJetCorrector_h
 #define JetProducers_ToyJetCorrector_h
 
-/* Template producer to correct jet
+/** Template producer to correct jet
     F.Ratnikov (UMd)
     Mar 2, 2006
+    $Id$
 */
 
 #include "FWCore/Framework/interface/EDProducer.h"

@@ -9,7 +9,8 @@
  * \author Marc Paterno, Fermilab
  *
  * \version   1st Version Apr. 6, 2005  
-
+ * \version   F.Ratnikov, Mar. 8, 2006. Work from Candidate
+ * $Id$
  *
  ************************************************************/
 
@@ -21,7 +22,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "RecoJets/JetAlgorithms/interface/CMSmidpointAlgorithm.h"
+#include "RecoJets/JetAlgorithms/interface/CMSMidpointAlgorithm.h"
 
 namespace cms
 {
@@ -39,7 +40,8 @@ namespace cms
     virtual void produce(edm::Event& e, const edm::EventSetup& c);
 
   private:
-    CMSmidpointAlgorithm alg_;
+    CMSMidpointAlgorithm alg_;
+    std::string src_;
   };
 }
 

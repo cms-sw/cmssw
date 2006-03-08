@@ -4,12 +4,13 @@
 // Creation Date:  Apr. 22 2005 Initial version.
 // Revisions:  R. Harris, 19-Oct-2005, modified to use real CaloTowers from Jeremy Mans
 // Revisions:  F.Ratnikov, 8-Mar-2006, accommodate Candidate model
+// $Id$
 //--------------------------------------------
 #include <memory>
 
 #include "RecoJets/JetProducers/interface/KtJetProducer.h"
 #include "DataFormats/JetObjects/interface/CaloJetCollection.h"
-#include "RecoJets/JetAlgorithms/interface/CaloJetMaker.h"
+#include "RecoJets/JetAlgorithms/interface/JetMaker.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "FWCore/Framework/interface/Handle.h"
 
@@ -40,7 +41,7 @@ namespace cms
     edm::Handle<CandidateCollection> towers;
     e.getByLabel( src_, towers );                    
     vector <const Candidate*> input;
-    vector <ProtoJet2> output;
+    vector <ProtoJet> output;
     // fill input
     input.reserve (towers->size ());
     CandidateCollection::const_iterator tower = towers->begin ();
@@ -51,8 +52,8 @@ namespace cms
     alg_.run (input, &output);
     // produce output collection
     auto_ptr<CaloJetCollection> result(new CaloJetCollection);  //Empty Jet Coll
-    vector <ProtoJet2>::const_iterator protojet = output.begin ();
-    CaloJetMaker jetMaker;
+    vector <ProtoJet>::const_iterator protojet = output.begin ();
+    JetMaker jetMaker;
     for (; protojet != output.end (); protojet++) {
       result->push_back (jetMaker.makeCaloJet (*protojet));
     }

@@ -6,18 +6,17 @@
  * \short Transient Jet class used by the reconstruction algorithms.
  *
  * ProtoJet is a transitent class used by the reconstruction algorithms. 
- * More to be added...
  *
  * \author Fernando Varela Rodriguez, Boston University
  *
  * \version   1st Version April 22, 2005.
  * \version   2nd Version Oct 19, 2005, R. Harris, modified to work with real CaloTowers from Jeremy Mans.
+ * \version   3rd Version Mar 8, 2006, F.Ratnikov, use Candidate approach
 *
  ************************************************************/
 
 #include "CLHEP/Vector/LorentzVector.h"
-#include "DataFormats/CaloTowers/interface/CaloTower.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
 
 #include <vector>
 #include <string>
@@ -27,17 +26,12 @@ int signum(double x);
 
 class ProtoJet {
 public:
+  typedef std::vector <const reco::Candidate*> Candidates;
   /** Default Constructor */
   ProtoJet();
 
   //**Constructor. Runs off an array of CaloTower* */
-  ProtoJet(std::vector<const CaloTower *> theConstituents);
-
-  /** Constructor. Runs off an array of CaloTower */
-  ProtoJet(std::vector<const CaloTower> theConstituents);
-
-  /** Constructor. Runs off an array of a CaloTowerCollection */
-  ProtoJet(CaloTowerCollection aTowerCollection);
+  ProtoJet(const Candidates& theConstituents);
 
   /**  Destructor*/
   ~ProtoJet();
@@ -70,52 +64,17 @@ public:
   /** Returns the number of constituents of the Jet*/
   int numberOfConstituents() const {return m_constituents.size();};
 
-  /** Returns the array of CaloTower IDs the ProtoJet is made of*/
-  std::vector<CaloTowerDetId> towerIds() const;
-
-//All these methods must be moved to the the CaloJet class
-
-  // Diagnostic Jet properties
-  /** Returns the maximum energy in an EM tower*/
-  double maxEInEmTowers() const;
-  /** Returns the maximum energy in an HAD tower*/
-  double maxEInHadTowers() const;
-
-  /* To be implemented:
-     - Will return the number of tracks pointing at the Jet, in the case
-     the jet is made of tracks
-     double getNumberOfTracks();
-
-     - Will return the vector sum of PT of tracks that form the Jet
-     divided by the Pt of the Jet
-     double getChargedFraction();
-  */
-  /** Returns the energy fraction in the EM calorimeter normalized to the total
-  energy*/
-  double emFraction() const;
-
   /** Returns the number of constituents carring the 90% of the jet energy*/
   int n90() const;
 
   /** Returns a Lorentz vector from the four-momentum components*/
   HepLorentzVector getLorentzVector() const;
 
-  // Returns the energy fraction deposited in HO
-  //double energyFractionInHO() const;
-
-  // Returns the energy fraction deposited in a particular subdetector layer within a detector
-  // \param detector: name of the subdetector, i.e. HCAL or ECAL
-  // \param subdetector: name of the subdetector, i.e. for HCAL the possibilities are: HB, HF, HED,
-  // HES or ALL. Default value is ALL, i.e. calculate the energy fraction in a all subdetectors of a
-  // given subdetector
-  //   \param layer: Layer number. The default value is -1, i.e. look in all layers
-
-  //double energyFraction(const std::string detector = "HCAL", const std::string subdetector = "ALL", int layer= -1) const;
 
    /** Returns the list of tower in a particular protojet */
-   const std::vector<const CaloTower*> & getTowerList() const {return m_constituents;} 
+   const Candidates& getTowerList() const {return m_constituents;} 
    /** Sets the list of towers in a protojet */
-   void putTowers(const std::vector<const CaloTower*> & towers) {
+   void putTowers(const Candidates& towers) {
 	m_constituents = towers;
 	calculateLorentzVector(); 
    }
@@ -124,7 +83,7 @@ public:
 
 private:
   /** Jet constituents */
-  std::vector<const CaloTower*> m_constituents;
+  Candidates m_constituents;
 
   /** Jet energy */
   double m_e;
