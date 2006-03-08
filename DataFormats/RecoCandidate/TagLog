@@ -1,3 +1,6 @@
+** V00-00-02  [Wed Mar  8 13:58:59 2006]
+fixed documentation
+
 ** V00-00-01  [Wed Mar  1 17:33:32 2006]
 RecoMuonCandidate inherits from RecoCandidate instead of RecoChargedCandidate
 added doxygen documentation
