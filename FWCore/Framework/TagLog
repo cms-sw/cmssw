@@ -1,3 +1,6 @@
+** V03-00-02  [Thu Mar  9 00:09:52 2006]
+Put pset::Registry inside of edm namespace
+
 ** V03-00-01  [Wed Mar  8 01:22:01 2006]
 Implied @trigger_paths parameter must be untracked
 
