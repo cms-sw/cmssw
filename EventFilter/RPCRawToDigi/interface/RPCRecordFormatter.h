@@ -4,8 +4,8 @@
 
 /** \class Interprets the RPC record (16 bit) and fills the RPCDigiCollection
  *
- *  $Date: 2006/02/14 10:51:21 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/02/15 09:41:06 $
+ *  $Revision: 1.4 $
  *  \author Ilaria Segoni - CERN
  */
 
@@ -15,6 +15,8 @@
 #include <EventFilter/RPCRawToDigi/interface/RPCEventData.h>
 #include <iostream>
 #include <vector>
+
+class RPCDetId;
 
 
 class RPCRecordFormatter{
@@ -51,6 +53,8 @@ class RPCRecordFormatter{
     
          bool verbosity;  
          RPCEventData rpcData; 
+	 RPCDetId currentDetId;
+	 int currentBx;
 };
 
 #endif
