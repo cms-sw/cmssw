@@ -1,0 +1,38 @@
+/*!
+\page PhysicsTools_HepMCCandAlgos Package PhysicsTools/HepMCCandAlgos
+<center>
+<small>
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/PhysicsTools/HepMCCandAlgos/?cvsroot=CMSSW>CVS head for this package</a> - 
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/PhysicsTools/HepMCCandAlgos/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+\section desc Description
+Common algorihtm specific for \ref DataFormats_Candidate "Candidate" types
+with HepMC generator particle components.
+
+\subsection interface Public interface
+None.
+
+\subsection modules Modules
+- HepMCCandidateProducer: produces a collection of reco::Candidate with a reco::Track component.
+<br><br>
+Examples of configuration for the modules is the following:
+\htmlonly
+<pre>
+  module genCandidates = HepMCCandidateProducer {
+    string src = "MCFileSource"
+    bool stableOnly = true
+  }
+</pre>
+\endhtmlonly
+
+\subsection tests Unit tests and examples
+None.
+
+\section status Status and planned development
+To be reviewed.
+
+<hr>
+Last updated: @DATE@ L. Lista
+*/
