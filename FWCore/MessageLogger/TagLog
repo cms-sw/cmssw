@@ -1,3 +1,6 @@
+** V02-01-00  [Thu Mar  9 00:24:29 2006]
+Add support of manipulators
+
 ** V02-00-03  [Mon Feb 20 03:01:22 2006]
 ModuleDescription.h was moved to DataFormats/Common
 
