@@ -5,9 +5,9 @@
  * 
  *  DetUnit identifier for RPCs
  *
- *  $Date: 2005/11/21 18:56:03 $
- *  \version $Id: RPCDetId.h,v 1.6 2005/11/21 18:56:03 namapane Exp $
- *  $Revision: 1.6 $
+ *  $Date: 2006/02/04 06:26:25 $
+ *  \version $Id: RPCDetId.h,v 1.7 2006/02/04 06:26:25 mmaggi Exp $
+ *  $Revision: 1.7 $
  *  \author Ilaria Segoni
  */
 
@@ -125,7 +125,7 @@ class RPCDetId :public DetId {
   static const int maxSubSectorId=	 4;
 
   static const int minRollId=	  0;
-  static const int maxRollId=	  3;
+  static const int maxRollId=	  4;
 
 
  private:
