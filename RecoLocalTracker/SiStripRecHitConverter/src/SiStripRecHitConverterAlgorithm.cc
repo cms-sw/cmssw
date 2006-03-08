@@ -8,6 +8,7 @@
 #include <iostream>
 
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitConverterAlgorithm.h"
+#include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPE.h"
 
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 
@@ -45,6 +46,9 @@ void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,
 
 void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,SiStripRecHit2DMatchedLocalPosCollection & outmatched,SiStripRecHit2DLocalPosCollection & outrphi, SiStripRecHit2DLocalPosCollection & outstereo,const TrackingGeometry& tracker,const MagneticField &BField,LocalVector trackdirection)
 {
+  const MagneticField *b=&BField;
+  const TrackingGeometry *geom=&tracker;
+  StripCPE parameterestimator(conf_,b,geom); 
   int nmono=0;
   int nstereo=0;
   int nmatch=0;
@@ -67,54 +71,24 @@ void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,
 	SiStripClusterCollection::ContainerIterator clusterRangeIteratorEnd   = clusterRange.second;
 	SiStripClusterCollection::ContainerIterator iter;
 	StripSubdetector specDetId=(StripSubdetector)(*detunit_iterator);
-	float thickness=stripdet->specificSurface().bounds().thickness();
-	GlobalVector gbfield=BField.inTesla(stripdet->surface().position());
-	LocalVector drift=this->DriftDirection(stripdet,gbfield);
-	drift*=thickness;
-	//std::cout<<"drift= "<<drift.mag()<<std::endl;
-	if(detId.subdetId()==StripSubdetector::TIB||detId.subdetId()==StripSubdetector::TOB){// if TIB of TOB use the rectangualr strip topology 
-	  const RectangularStripTopology& Rtopol=(RectangularStripTopology&)stripdet->topology();
-	  // get the partner id only if the detector is r-phi
-	  for(iter=clusterRangeIteratorBegin;iter!=clusterRangeIteratorEnd;++iter){//loop on the cluster
-	    //SiStripCluster cluster=*iter;
-	    LocalPoint position=Rtopol.localPosition(iter->barycenter());
-	    //	    std::cout<<"cluster position:"<<position.x()<<" "<<position.y()<<std::endl;
-	    position+=drift;
-	    //std::cout<<"corrected cluster position:"<<position.x()<<" "<<position.y()<<std::endl;
-	    const  LocalError error=Rtopol.localError(iter->barycenter(),12.);
-	    std::vector<const SiStripCluster*> clusters;
-	    clusters.push_back(&(*iter));
-	    if(!specDetId.stereo()){
-	      collectorrphi.push_back(new SiStripRecHit2DLocalPos(position, error,detId,clusters));
-	      nmono++;
-	    }
-	    if(specDetId.stereo()){
-	      collectorstereo.push_back(new SiStripRecHit2DLocalPos(position, error,detId,clusters));
-	      nstereo++;
-	    }
+	for(iter=clusterRangeIteratorBegin;iter!=clusterRangeIteratorEnd;++iter){
+	  //	float thickness=stripdet->specificSurface().bounds().thickness();
+	  //GlobalVector gbfield=BField.inTesla(stripdet->surface().position());
+	  //LocalVector drift=this->DriftDirection(stripdet,gbfield);
+	  //drift*=thickness;
+	  //std::cout<<"drift= "<<drift.mag()<<std::endl;
+	  StripClusterParameterEstimator::LocalValues parameters=parameterestimator.localParameters(*iter);
+	  std::vector<const SiStripCluster*> clusters;
+	  clusters.push_back(&(*iter));
+	  if(!specDetId.stereo()){
+	    collectorrphi.push_back(new SiStripRecHit2DLocalPos(parameters.first, parameters.second,detId,clusters));
+	    nmono++;
 	  }
-	} else if (detId.subdetId()==(StripSubdetector::TID)||detId.subdetId()==(StripSubdetector::TEC)){    //if TID or TEC use trapoeziodalstrip topology
-	  const TrapezoidalStripTopology& Ttopol=(TrapezoidalStripTopology&)stripdet->topology();
-	  // get the partner id only if the detector is r-phi
-	  for(iter=clusterRangeIteratorBegin;iter!=clusterRangeIteratorEnd;++iter){//loop on the cluster
-	    //SiStripCluster cluster=*iter;
-	    LocalPoint position=Ttopol.localPosition(iter->barycenter());
-	    //  std::cout<<"cluster position:"<<position.x()<<" "<<position.y()<<std::endl;
-	    position+=drift;
-	    //std::cout<<"corrected cluster position:"<<position.x()<<" "<<position.y()<<std::endl;
-	    const  LocalError error=Ttopol.localError(iter->barycenter(),1/12.);
-	    std::vector<const SiStripCluster*> clusters;
-	    clusters.push_back(&(*iter));
-	    if(!specDetId.stereo()){
-	      collectorrphi.push_back(new SiStripRecHit2DLocalPos(position, error,detId,clusters));
-	      nmono++;
-	    }
-	    if(specDetId.stereo()){
-	      collectorstereo.push_back(new SiStripRecHit2DLocalPos(position, error,detId,clusters));
-	      nstereo++;
-	    }
+	  if(specDetId.stereo()){
+	    collectorstereo.push_back(new SiStripRecHit2DLocalPos(parameters.first, parameters.second,detId,clusters));
+	    nstereo++;
 	  }
-	} 
+	}
 	//      SiStripRecHit2DLocalPosCollection::range inputRangerphi(make_pair(collectorrphi.begin(),collectorrphi.end()));
 	//      SiStripRecHit2DLocalPosCollection::range inputRangestereo(make_pair(collectorstereo.begin(),collectorstereo.end()));
 	
@@ -127,9 +101,9 @@ void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,
       }
     }
   }
-//
-// match the clusters
-//
+  //
+  // match the clusters
+  //
   
   const std::vector<DetId> detIDs2 = outrphi.ids();
   for ( std::vector<DetId>::const_iterator detunit_iterator = detIDs2.begin(); detunit_iterator != detIDs2.end(); detunit_iterator++ ) {//loop over detectors
@@ -204,13 +178,3 @@ void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,
   }
 };
   
-LocalVector SiStripRecHitConverterAlgorithm::DriftDirection(const StripGeomDetUnit* det,GlobalVector gbfield){
-  LocalVector lbfield=(det->surface()).toLocal(gbfield);
-  double tanLorentzAnglePerTesla=conf_.getParameter<double>("TanLorentzAnglePerTesla");
-   float dir_x = -tanLorentzAnglePerTesla * lbfield.y();
-   float dir_y = tanLorentzAnglePerTesla * lbfield.x();
-   float dir_z = 1.; // E field always in z direction
-   LocalVector drift = LocalVector(dir_x,dir_y,dir_z);
-  return drift;
-
-}

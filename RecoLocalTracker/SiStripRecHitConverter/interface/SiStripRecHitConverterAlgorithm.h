@@ -31,7 +31,7 @@ class SiStripRecHitConverterAlgorithm
   
 
   /// Runs the algorithm
-    LocalVector DriftDirection(const StripGeomDetUnit* det,GlobalVector gbfield);
+
     void run(const SiStripClusterCollection* input,SiStripRecHit2DMatchedLocalPosCollection & outmatched,SiStripRecHit2DLocalPosCollection & outrphi, SiStripRecHit2DLocalPosCollection & outstereo,const TrackingGeometry& tracker,const MagneticField &BField);
     void run(const SiStripClusterCollection* input, SiStripRecHit2DMatchedLocalPosCollection&  output, SiStripRecHit2DLocalPosCollection&  outrphi,SiStripRecHit2DLocalPosCollection&  outstereo,const TrackingGeometry & tracker,const MagneticField &BField,LocalVector trackdirection);
  private:
