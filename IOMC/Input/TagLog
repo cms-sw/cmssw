@@ -1,3 +1,6 @@
+** V00-02-02  [Wed Mar  8 14:58:34 2006]
+added untracked in mcinput.cfg
+
 ** V00-02-01  [Thu Feb 23 21:52:32 2006]
 evt was uninitialized.  Also, produce() must return false when there are no more events
 
