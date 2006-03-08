@@ -27,6 +27,14 @@ namespace cond{
       }
       return myref.toString();
     }
+    template<typename ObjType>
+      void markDelete(const std::string& objToken ){
+      pool::Ref<ObjType> myref(&(m_session.DataSvc()),objToken);
+      if(!myref){
+	throw cond::Exception( std::string("object with token")+objToken+" not found " );
+      }
+      myref.markDelete();
+    }  
   private:
     cond::DBSession& m_session;
     const std::string m_containerName;
