@@ -34,6 +34,7 @@ public:
 
   virtual LocalError localPositionError() const = 0;
 
+  virtual float weight(){return 1.;}
 
 };
 
