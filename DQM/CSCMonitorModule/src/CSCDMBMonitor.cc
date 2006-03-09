@@ -1,8 +1,8 @@
 /** \file
  * 
  * implementation of CSCMonitor::MonitorDMB(...) method
- *  $Date: 2006/02/07 14:31:02 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/02/10 10:30:55 $
+ *  $Revision: 1.5 $
  *
  * \author Ilaria Segoni
  */
@@ -184,6 +184,7 @@ void CSCMonitor::MonitorDMB(std::vector<CSCEventData>::iterator data, int dduNum
 
   /// Fill ME's with Cathode Front End Boards Data
   this->MonitorCFEB(data,ChamberID);
+  this->MonitorALCT(data,ChamberID);
 
 
 }
