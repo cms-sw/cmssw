@@ -1,3 +1,6 @@
+** V00-00-03  [Thu Mar  9 10:10:09 2006]
+added test dirs to doxygen scans
+
 ** V00-00-02  [Fri Feb 24 13:22:18 2006]
 removed left bar from doxy configuration
 
