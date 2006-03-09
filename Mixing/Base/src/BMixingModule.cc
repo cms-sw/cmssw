@@ -15,13 +15,35 @@ using namespace std;
 int edm::BMixingModule::trackoffset = 0;
 int edm::BMixingModule::vertexoffset = 0;
 
+namespace
+{
+  boost::shared_ptr<edm::PileUp>
+  maybeMakePileUp(edm::ParameterSet const& ps)
+  {
+    boost::shared_ptr<edm::PileUp> pileup; // value to be returned
+    // Make sure we have a parameter named 'input'.
+    vector<string> names = ps.getParameterNames();
+    if (find(names.begin(), names.end(), std::string("input"))
+	!= names.end())
+      {
+	// We have the parameter... make the PileUp
+// 	edm::PileUp* pu = new edm::PileUp(ps.getParameter<edm::ParameterSet>("input"));
+// 	boost::shared_ptr<edm::PileUp> newguy(pu);
+// 	pileup = newguy;
+	pileup.reset(new edm::PileUp(ps.getParameter<edm::ParameterSet>("input")));
+      }
+
+    return pileup;
+  }
+}
+
 namespace edm {
 
   // Constructor 
   BMixingModule::BMixingModule(const edm::ParameterSet& pset) :
     bunchSpace_(pset.getParameter<int>("bunchspace")),
     checktof_(pset.getUntrackedParameter<bool>("checktof",true)),
-    input_(pset.getParameter<ParameterSet>("input")),
+    input_(maybeMakePileUp(pset)),
     md_()
   {
     md_.pid = pset.id();
@@ -48,15 +70,21 @@ namespace edm {
 
     // Read the PileUp
     std::vector<EventPrincipalVector> pileup;
-    input_.readPileUp(pileup);
+    if ( input_ )
+      {
+	input_->readPileUp(pileup);
+      }
 
     // Do the merging
-    if (input_.doPileup())   LogInfo("PileUp") <<"Adding pileup for event "<<e.id();
-    int bunchCrossing = input_.minBunch();
-    for (std::vector<EventPrincipalVector>::const_iterator it = pileup.begin();
-        it != pileup.end(); ++it, ++bunchCrossing) {
-      merge(bunchCrossing, *it);
-    }
+    if ( input_ )
+      {
+	if (input_->doPileup()) LogInfo("PileUp") <<"Adding pileup for event "<<e.id();
+	int bunchCrossing = input_->minBunch();
+	for (std::vector<EventPrincipalVector>::const_iterator it = pileup.begin();
+	     it != pileup.end(); ++it, ++bunchCrossing) {
+	  merge(bunchCrossing, *it);
+	}
+      }
 
     // Put output into event
     put(e);
