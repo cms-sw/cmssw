@@ -1,14 +1,17 @@
-#ifndef SISTRIPDIGI_CLASSES_H
-#define SISTRIPDIGI_CLASSES_H
+#ifndef DataFormats_SiStripDigi_Classes_H
+#define DataFormats_SiStripDigi_Classes_H
 
 #include "DataFormats/SiStripDigi/interface/StripDigiCollection.h"
-#include "FWCore/EDProduct/interface/Wrapper.h"
-#include <vector>
+//#include "DataFormats/SiStripDigi/interface/SiStripEventSummary.h"
+#include "DataFormats/Common/interface/Wrapper.h"
 
 namespace {
   namespace {
-    edm::Wrapper<StripDigiCollection> digiCollectionWrapper;
+    edm::Wrapper<StripDigiCollection> collection;
+    // edm::Wrapper<SiStripEventSummary> summary;
   }
 }
 
-#endif // SISTRIPDIGI_CLASSES_H
+#endif // DataFormats_SiStripDigi_Classes_H
+
+

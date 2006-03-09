@@ -1,7 +1,10 @@
 <use name=clhep>
-<use name=FWCore/EDProduct>
+<use name=boost>
+<use name=DataFormats/Common>
+
 <export>
- <lib name=DataFormatsSiStripDigi>
- <use name=FWCore/EDProduct>
- <use name=clhep>
+   <lib name=DataFormatsSiStripDigi>
+   <use name=DataFormats/Common>
+   <use name=clhep>
+   <use name=boost>
 </export>
