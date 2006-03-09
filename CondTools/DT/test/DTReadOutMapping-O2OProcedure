@@ -12,9 +12,9 @@ simulation of online to offline transformation)
  sqlplus cms_xiezhen_dev@devdb10/xiezhen123<DT-fillmapping.sql
  
 step 3: setup and fill pool tables(this is a simulation of "poolification" steps after the transformation)
-   setenv CORAL_AUTH_USER cms_xiezhen_dev
-   setenv CORAL_AUTH_PASSWORD xiezhen123
-   ../../Utilities/bin/setup_pool_database DTReadOutMapping CondFormatsDTObjects oracle://devdb10/cms_xiezhen_dev ../src/DTReadOutMapping-mapping-custom.xml -c file:conddbcatalog.xml
+   #setenv CORAL_AUTH_USER cms_xiezhen_dev not needed if using -u -p
+   #setenv CORAL_AUTH_PASSWORD xiezhen123
+   ../../Utilities/bin/setup_pool_database DTReadOutMapping CondFormatsDTObjects oracle://devdb10/cms_xiezhen_dev ../src/DTReadOutMapping-mapping-custom.xml -u cms_xiezhen_dev -p xiezhen123
    ../../Utilities/bin/setup_pool_database "cond::IOV" CondCoreIOVService oracle://devdb10/cms_xiezhen_dev CondIOV-mapping-custom.xml  (will be removed in the future)
 
 step 4: FCregisterPFN -p oracle://devdb10/cms_xiezhen_dev -t POOL_RDBMS(only if the first time)
