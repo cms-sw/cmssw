@@ -22,18 +22,17 @@ public:
 
   //  virtual vector<LayerPair> operator()() const;
   vector<LayerPair> operator()() ;
-/*   const LayerAccessor::BarrelLayerContainer& barrelPixel() const {return theBarrelPixel;} */
-/*   const LayerAccessor::ForwardLayerContainer& negativePixel() const {return theNegPixel;} */
-/*   const LayerAccessor::ForwardLayerContainer& positivePixel() const {return thePosPixel;} */
+
 
 private:
 
   //definition of the map 
-   edm::RangeMap<DetId, edm::OwnVector<SiPixelRecHitCollection,edm::ClonePolicy<SiPixelRecHitCollection> >, edm::ClonePolicy<SiPixelRecHitCollection> > map;
-   //definition of the range
-   edm::RangeMap<DetId, edm::OwnVector<SiPixelRecHitCollection,edm::ClonePolicy<SiPixelRecHitCollection> >, edm::ClonePolicy<SiPixelRecHitCollection> >::range  map_range1; 
-  edm::RangeMap<DetId, edm::OwnVector<SiPixelRecHitCollection,edm::ClonePolicy<SiPixelRecHitCollection> >, edm::ClonePolicy<SiPixelRecHitCollection> >::range  map_range2; 
-  
+ 
+  SiPixelRecHitCollection::range map_range1;
+  SiPixelRecHitCollection::range map_range2;
+  SiPixelRecHitCollection::range map_range3;
+
+
    TrackerLayerIdAccessor acc;
    TrackerLayerIdAccessor::returnType lay1;
    TrackerLayerIdAccessor::returnType lay2;
@@ -50,7 +49,7 @@ private:
 
  public:
  
-   void init(const edm::EventSetup& iSetup);
+   void init(SiPixelRecHitCollection coll,const edm::EventSetup& iSetup);
  private:
   void addBarrelBarrelLayers( int mid, int outer, 
        vector<LayerPair>& result) const;

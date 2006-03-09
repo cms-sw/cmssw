@@ -12,12 +12,15 @@
 #include "RecoTracker/TkHitPairs/interface/TkHitPairsCacheCell.h"
 
 
-LayerHitMap::LayerHitMap(SiPixelRecHitCollection::Range hits) : theCells(0)
+//LayerHitMap::LayerHitMap(SiPixelRecHitCollection::Range hits) : theCells(0)
+LayerHitMap::LayerHitMap(const LayerWithHits& layerhits) : theCells(0)
 {
   //  static int nRZ=SimpleConfigurable<int>( 5,"LayerHitMap:NbinsRZ").value(); 
   // static int nPhi=SimpleConfigurable<int>(10,"LayerHitMap:NbinsPhi").value(); 
   // static int nRZ=conf_.getParameter<int>("LayerHitMap:NbinsRZ");
   // static int nPhi=conf_.getParameter<int>("LayerHitMap:NbinsPhi");
+  // SiPixelRecHitCollection::range hits=layerhits.Range();
+
   static int nRZ=5;
   static int nPhi=10;
   theNbinsRZ = nRZ;
@@ -26,15 +29,19 @@ LayerHitMap::LayerHitMap(SiPixelRecHitCollection::Range hits) : theCells(0)
   // else {
     theLayerPhimin = -M_PI;
     theCellDeltaPhi = 2*M_PI/theNbinsPhi;
-    const DetLayer * layer;
+
+    const DetLayer *layer =layerhits.layer();
+
     //MP
       // = hits.front().layer();
     //    if (layer->part() == barrel) {
       float z0 = layer->position().z();
+
       float length = layer->surface().bounds().length();
       theLayerRZmin = z0 - length/2.;
       theCellDeltaRZ = length/theNbinsRZ;
-      //  }
+    cout<<"z3"<<endl;
+     //  }
       //     else {
       //       const ForwardDetLayer& lf = dynamic_cast<const ForwardDetLayer&>(*layer);
       //       theLayerRZmin = lf.specificSurface().innerRadius();
@@ -45,11 +52,16 @@ LayerHitMap::LayerHitMap(SiPixelRecHitCollection::Range hits) : theCells(0)
       //MP
       //  theHits.reserve(hits);
       //  vector<RecHit>::const_iterator ih;
-      SiPixelRecHitCollection::ContainerIterator ih;
-      SiPixelRecHitCollection::ContainerIterator 
-	hitRangeIteratorBegin = hits.first;
-      SiPixelRecHitCollection::ContainerIterator 
-	hitRangeIteratorEnd   = hits.second;
+
+   //         SiPixelRecHitCollection::ContainerIterator ih;
+ 
+   SiPixelRecHitCollection::const_iterator ih;
+  //    SiPixelRecHitCollection::ContainerIterator 
+   //	hitRangeIteratorBegin = hits.first;
+  SiPixelRecHitCollection::const_iterator
+    hitRangeIteratorBegin =layerhits.Range().first;
+  SiPixelRecHitCollection::const_iterator
+    hitRangeIteratorEnd   =layerhits.Range().second;
 
       for (ih = hitRangeIteratorBegin; ih != hitRangeIteratorEnd; ih++) {
 	//MP
@@ -66,7 +78,8 @@ LayerHitMap::LayerHitMap(const LayerHitMap & lhm)
       theLayerPhimin(lhm.theLayerPhimin),
       theCellDeltaPhi(lhm.theCellDeltaPhi),
       theNbinsRZ(lhm.theNbinsRZ), theNbinsPhi(lhm.theNbinsPhi) 
-  { if(lhm.theCells) initCells(); }
+{
+    if(lhm.theCells) initCells(); }
 
 LayerHitMapLoop LayerHitMap::loop() const
   { return LayerHitMapLoop(*this); }

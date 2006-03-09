@@ -10,9 +10,10 @@
 CombinedHitPairGenerator::CombinedHitPairGenerator(SeedLayerPairs& layers,
 						   const edm::EventSetup& iSetup)
 {
-  
+ 
   vector<SeedLayerPairs::LayerPair> layerPairs = layers();
   vector<SeedLayerPairs::LayerPair>::const_iterator it;
+ 
   for (it = layerPairs.begin(); it != layerPairs.end(); it++) {
     add( (*it).first, (*it).second);
   }
@@ -46,10 +47,15 @@ void CombinedHitPairGenerator::add(
 void CombinedHitPairGenerator::hitPairs(
     const TrackingRegion& region, OrderedHitPairs & pairs)
 {
+ 
   Container::const_iterator i;
-  for (i=theGenerators.begin(); i!=theGenerators.end(); i++) 
-    (**i).hitPairs( region, pairs); 
+  for (i=theGenerators.begin(); i!=theGenerators.end(); i++) {
+ 
+  (**i).hitPairs( region, pairs); 
+  }
+ 
   theLayerCache.clear();
+ 
 }
 
 

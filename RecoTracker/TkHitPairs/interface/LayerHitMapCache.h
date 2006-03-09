@@ -36,8 +36,8 @@ private:
     if (lhm==0) {
       //MP
       //     lhm = new LayerHitMap( region.hits(layer) );
-      SiPixelRecHitCollection::Range temporary;
-      lhm=new LayerHitMap(temporary);
+      //      SiPixelRecHitCollection::Range temporary;
+      lhm=new LayerHitMap(*layer);
       theCache->add( key, lhm); 
     }
     return *lhm;

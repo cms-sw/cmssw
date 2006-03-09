@@ -9,21 +9,21 @@ class LayerWithHits
 {
  public:
 
-   LayerWithHits( const PixelBarrelLayer *dl, edm::RangeMap<DetId, edm::OwnVector<SiPixelRecHitCollection,edm::ClonePolicy<SiPixelRecHitCollection> >, edm::ClonePolicy<SiPixelRecHitCollection> >::range ran):
-  ddl(dl),RANGE(ran)
-  {std::cout<<"za";};
+
+
+  LayerWithHits( const PixelBarrelLayer *dl,const SiPixelRecHitCollection::range ran): ddl(dl),RANGE(ran){};
 
 
 
-  ~LayerWithHits(){std::cout<<"ze";};
+  ~LayerWithHits(){};
 
-  const PixelBarrelLayer* layer() {return ddl;};
-
+const  PixelBarrelLayer* layer()  const {return ddl;};
+SiPixelRecHitCollection::range Range()const {return RANGE;};
 
  private:
-  const PixelBarrelLayer* ddl;
-  edm::RangeMap<DetId, edm::OwnVector<SiPixelRecHitCollection,edm::ClonePolicy<SiPixelRecHitCollection> >, edm::ClonePolicy<SiPixelRecHitCollection> >::range RANGE;
+ const  PixelBarrelLayer* ddl;
 
+  const    SiPixelRecHitCollection::range RANGE;
 };
 #endif
 
