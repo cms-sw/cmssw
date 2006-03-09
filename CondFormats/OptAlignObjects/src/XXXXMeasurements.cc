@@ -7,7 +7,7 @@ std::ostream & operator<<(std::ostream & os, const XXXXMeasurements & r)
   size_t max = r.xxxxMeasurements_.size();
   size_t xi = 0;
   while ( xi < max ) {
-    os << "\t" << r.xxxMeasurements_[xi];
+    os << "\t" << r.xxxxMeasurements_[xi];
     xi++;
   }
   return os;
