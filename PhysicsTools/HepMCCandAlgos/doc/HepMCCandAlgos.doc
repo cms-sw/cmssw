@@ -22,7 +22,9 @@ Examples of configuration for the modules is the following:
 <pre>
   module genCandidates = HepMCCandidateProducer {
     string src = "MCFileSource"
+    string pdtFileName = "/afs/cern.ch/cms/external/lcg/external/HepPDT/2.02.02/slc3_ia32_gcc323/data/PDG_mass_width_2004.mc"
     bool stableOnly = true
+    vstring excludeList = { "nu(e)0", "nu(mu)0", "nu(tau)0", "mu-", "K(L)0", "n0" }
   }
 </pre>
 \endhtmlonly
