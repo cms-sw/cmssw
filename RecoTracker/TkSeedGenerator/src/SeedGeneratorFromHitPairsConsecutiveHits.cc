@@ -2,6 +2,7 @@
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 #include "Geometry/CommonDetAlgo/interface/GlobalError.h"
 #include "RecoTracker/TkSeedGenerator/interface/SeedFromConsecutiveHits.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 //#include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
 
 //using namespace PixelRecoUtilities;
@@ -15,27 +16,30 @@ template <class T> T sqr( T t) {return t*t;}
 // }
 
 
-vector<TrajectorySeed> 
-SeedGeneratorFromHitPairsConsecutiveHits::seeds(const edm::EventSetup& iSetup,
+void
+SeedGeneratorFromHitPairsConsecutiveHits::seeds(TrajectorySeedCollection &output,
+						const edm::EventSetup& iSetup,
 						const SeedHitPairs & hitPairs, 
 						const TrackingRegion& region)
 {
+
   //  TimeMe tm( *theTimer, false);
   
   // SeedGenerator::SeedContainer result;
-  vector<TrajectorySeed>   result;
+  //  vector<TrajectorySeed>   result;
   GlobalError vtxerr( sqr(region.originRBound()),
 		      0, sqr(region.originRBound()),
 		      0, 0, sqr(region.originZBound()));
   SeedHitPairs::const_iterator ip;
+
   for (ip = hitPairs.begin(); ip != hitPairs.end(); ip++) {
 
-  //   TrajectorySeed seedp =  
-//       new SeedFromConsecutiveHits( ip->outer(), ip->inner(),
-// 				   region.origin(), vtxerr,iSetup);
+    TrajectorySeed *seedp =  
+       new SeedFromConsecutiveHits( ip->outer(), ip->inner(),
+				   region.origin(), vtxerr,iSetup);
     
-//     result.push_back( seedp);
+
+    output.push_back( *seedp);
   }
 
-  return result;
 }

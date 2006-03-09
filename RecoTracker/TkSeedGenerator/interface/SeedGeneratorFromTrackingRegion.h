@@ -2,6 +2,7 @@
 #define SeedGeneratorFromTrackingRegion_H
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 class TrackingRegion;
@@ -33,8 +34,10 @@ public:
  // if the region is not given as an argument a concrete generator must 
  // work as region provider
 
-   //  void  AccessSetup(const edm::EventSetup &_isetup){};
-  virtual vector<TrajectorySeed> seeds(const edm::EventSetup& c,const TrackingRegion& region)=0;
+   //  virtual vector<TrajectorySeed> seeds(const edm::EventSetup& c,const TrackingRegion& region)=0;
+   virtual  void  seeds(TrajectorySeedCollection &output,
+			const edm::EventSetup& c,
+			const TrackingRegion& region){};
   virtual const TrackingRegion * trackingRegion() const { return 0; }
 
 };

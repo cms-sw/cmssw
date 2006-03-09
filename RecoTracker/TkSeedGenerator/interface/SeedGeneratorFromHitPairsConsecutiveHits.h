@@ -1,6 +1,7 @@
 #ifndef SeedGeneratorFromHitPairsConsecutiveHits_H
 #define SeedGeneratorFromHitPairsConsecutiveHits_H
 
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "RecoTracker/TkSeedGenerator/interface/SeedGeneratorFromHitPairs.h"
 //#include "Utilities/Notification/interface/TimingReport.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
@@ -16,8 +17,8 @@ public:
 
   using SeedGeneratorFromHitPairs::seeds;
 
-  vector<TrajectorySeed> seeds(const edm::EventSetup& c,
-      const SeedHitPairs & hitPairs, const TrackingRegion& region);
+  void  seeds(TrajectorySeedCollection &output,const edm::EventSetup& c,
+	      const SeedHitPairs & hitPairs, const TrackingRegion& region);
 
 private:
   /// from base class

@@ -1,6 +1,6 @@
 //
 // Package:         RecoTracker/TkSeedGenerator
-// Class:           TkSeedGenerator
+// Class:           GlobalPixelSeedGenerator
 // 
 
 
@@ -25,7 +25,6 @@ GlobalPixelSeedGenerator::GlobalPixelSeedGenerator(edm::ParameterSet const& conf
  {
   edm::LogInfo ("GlobalPixelSeedGenerator")<<"Enter the GlobalPixelSeedGenerator";
   produces<TrajectorySeedCollection>();
-
 }
 
 
@@ -36,24 +35,24 @@ GlobalPixelSeedGenerator::~GlobalPixelSeedGenerator() { }
 void GlobalPixelSeedGenerator::produce(edm::Event& e, const edm::EventSetup& es)
 {
 
-  // retrieve producer name of input SiStripRecHit2DLocalPosCollection
-  //  std::string recHitProducer = conf_.getParameter<std::string>("RecHitProducer");
+
   
   // get Inputs
   edm::Handle<SiPixelRecHitCollection> pixelHits;
   e.getByLabel("LocalMeasurementConverter","SiPixelRecHit" ,pixelHits);
+ 
 
 
-
-   // create empty output collection
+  // create empty output collection
   std::auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection);
-  
   //
-  globalseed.init(es); 
-   // invoke the seed finding algorithm
-  vector <TrajectorySeed> trajseed=globalseed.run(es);
-//   globalseed.run();  
-  // write output to file
-   // e.put(output);
+ 
+  globalseed.init(*pixelHits,es);
+ 
+  // invoke the seed finding algorithm
+  globalseed.run(*output,es);
 
+  // write output to file
+
+  e.put(output);
 }

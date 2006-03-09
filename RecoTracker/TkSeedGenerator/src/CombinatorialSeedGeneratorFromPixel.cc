@@ -3,11 +3,13 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoTracker/TkHitPairs/interface/PixelSeedLayerPairs.h"
 
-void CombinatorialSeedGeneratorFromPixel::init(const edm::EventSetup& iSetup)
+void CombinatorialSeedGeneratorFromPixel::init(SiPixelRecHitCollection coll ,const edm::EventSetup& iSetup)
 {
+
   PixelSeedLayerPairs pixellayers;
-  pixellayers.init(iSetup);
+  pixellayers.init(coll,iSetup);
   initPairGenerator(&pixellayers,iSetup);
+
 }
 
 CombinatorialSeedGeneratorFromPixel::CombinatorialSeedGeneratorFromPixel(edm::ParameterSet const& conf): 
@@ -21,8 +23,8 @@ CombinatorialSeedGeneratorFromPixel::CombinatorialSeedGeneratorFromPixel(edm::Pa
  			      halflength,originz);
 }
 
- vector <TrajectorySeed>  CombinatorialSeedGeneratorFromPixel::run(const edm::EventSetup& iSetup){
-   return seeds(iSetup,region);
+void CombinatorialSeedGeneratorFromPixel::run(TrajectorySeedCollection &output,const edm::EventSetup& iSetup){
+  seeds(output,iSetup,region);
 }
 
 // CombinatorialSeedGeneratorFromPixel::CombinatorialSeedGeneratorFromPixel(

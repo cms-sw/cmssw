@@ -5,7 +5,7 @@
 <use name=FWCore/ParameterSet>
 <use name=Geometry/Records>
 <use name=Geometry/CommonDetUnit>
-<use name=DataFormats/TrackingSeed>
+<use name=DataFormats/TrajectorySeed>
 <use name=DataFormats/TrackerRecHit2D>
 <use name=Foundation/PluginManager>
 <use name=Geometry/CommonTopologies>
@@ -26,7 +26,7 @@
  <use name=FWCore/ParameterSet>
  <use name=Geometry/Records>
  <use name=Geometry/CommonDetUnit>
- <use name=DataFormats/TrackingSeed>
+ <use name=DataFormats/TrajectorySeed>
  <use name=DataFormats/TrackerRecHit2D>
  <use name=Foundation/PluginManager>
  <use name=Geometry/CommonTopologies>

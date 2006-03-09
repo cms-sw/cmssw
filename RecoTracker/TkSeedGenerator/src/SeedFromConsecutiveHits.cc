@@ -11,8 +11,8 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 SeedFromConsecutiveHits::
-SeedFromConsecutiveHits( const SiPixelRecHit& outerHit, 
-			 const SiPixelRecHit& innerHit, 
+SeedFromConsecutiveHits( const TrackingRecHit& outerHit, 
+			 const TrackingRecHit& innerHit, 
 			 const GlobalPoint& vertexPos,
 			 const GlobalError& vertexErr,
 			 const edm::EventSetup& iSetup) 
@@ -20,20 +20,10 @@ SeedFromConsecutiveHits( const SiPixelRecHit& outerHit,
   construct( outerHit,  innerHit, vertexPos, vertexErr,iSetup);
 }
 
-// SeedFromConsecutiveHits::
-// SeedFromConsecutiveHits( const SiPixelRecHit& outerHit,
-// 			 const SiPixelRecHit& innerHit,
-// 			 const GlobalPoint& vertexPos,
-// 			 const GlobalError& vertexErr)
-// {
-//   construct( outerHit, outerHit.layer(), 
-// 	     innerHit, innerHit.layer(), vertexPos, vertexErr);
-
-// }
 
 void SeedFromConsecutiveHits::
-construct( const SiPixelRecHit& outerHit, 
-	   const SiPixelRecHit& innerHit, 
+construct( const TrackingRecHit& outerHit, 
+	   const TrackingRecHit& innerHit, 
 	   const GlobalPoint& vertexPos,
 	   const GlobalError& vertexErr,
 	   const edm::EventSetup& iSetup) 
@@ -94,9 +84,8 @@ construct( const SiPixelRecHit& outerHit,
 
 
 
-    const TransientTrackingRecHit* intrhit=TTRHBuilder.build(&(*tracker),innerHit.clone());
+    intrhit=TTRHBuilder.build(&(*tracker),innerHit.clone());
     const TSOS innerUpdated= theUpdator.update( innerState,*intrhit);			      
- 
 
     TSOS outerState = 
       thePropagator.propagate( innerUpdated,
@@ -106,7 +95,7 @@ construct( const SiPixelRecHit& outerHit,
      edm::LogError("Propagation") << " SeedFromConsecutiveHits first propagation failed ";
   
 
-    const TransientTrackingRecHit* outrhit=TTRHBuilder.build(&(*tracker),outerHit.clone());
+    outrhit=TTRHBuilder.build(&(*tracker),outerHit.clone());
 
     TSOS outerUpdated = theUpdator.update( outerState, *outrhit);
 
@@ -118,6 +107,7 @@ construct( const SiPixelRecHit& outerHit,
     theOuterMeas = TM( outerState, outerUpdated, outrhit, 0);
 
 }
+
 
 // const FreeTrajectoryState& 
 // SeedFromConsecutiveHits::freeTrajectoryState() const {
@@ -153,8 +143,8 @@ construct( const SiPixelRecHit& outerHit,
 // }
 
 CurvilinearTrajectoryError SeedFromConsecutiveHits::
-initialError( const SiPixelRecHit& outerHit,
-	      const SiPixelRecHit& innerHit,
+initialError( const TrackingRecHit& outerHit,
+	      const TrackingRecHit& innerHit,
 	      const GlobalPoint& vertexPos,
 	      const GlobalError& vertexErr) 
 {
