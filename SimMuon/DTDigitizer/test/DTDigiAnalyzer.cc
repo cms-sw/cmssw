@@ -1,8 +1,8 @@
 /** \class DTDigiAnalyzer
  *  Analyse the the muon-drift-tubes digitizer. 
  *  
- *  $Date: 2006/02/07 19:12:38 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/03/09 16:56:34 $
+ *  $Revision: 1.1 $
  *  \authors: R. Bellan
  */
 
@@ -10,7 +10,7 @@
 #include <DataFormats/DTDigi/interface/DTDigiCollection.h>
 #include "SimMuon/DTDigitizer/test/DTDigiAnalyzer.h"
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
-#include "SimMuon/DTDigitizer/test/Histograms_new.h"
+#include "SimMuon/DTDigitizer/test/Histograms.h"
 
 // #include "SimMuon/DTDigitizer/test/analysis/DTMCStatistics.h"     
 // #include "SimMuon/DTDigitizer/test/analysis/DTMuonDigiStatistics.h" 
