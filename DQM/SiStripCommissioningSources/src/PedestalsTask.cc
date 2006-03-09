@@ -39,10 +39,11 @@ void PedestalsTask::book( const SiStripModule& module ) {
 
 // -----------------------------------------------------------------------------
 //
-void PedestalsTask::fill( const vector<StripDigi>& digis ) {
+void PedestalsTask::fill( const SiStripEventSummary& summary,
+			  const edm::DetSet<SiStripRawDigi>& digis ) {
   cout << "[PedestalsTask::fill]" << endl;
 
-  if ( digis.size() != peds_.vNumOfEntries_.size() ) {
+  if ( digis.data.size() != peds_.vNumOfEntries_.size() ) {
     cerr << "[PedestalsTask::fill]" 
 	 << " Unexpected number of digis! " 
 	 << peds_.vNumOfEntries_.size() << endl; 
@@ -50,12 +51,12 @@ void PedestalsTask::fill( const vector<StripDigi>& digis ) {
 
   // Check number of digis
   unsigned short nbins = peds_.vNumOfEntries_.size();
-  if ( digis.size() < nbins ) { nbins = digis.size(); }
+  if ( digis.data.size() < nbins ) { nbins = digis.data.size(); }
   
   // Fill vectors
   for ( unsigned short ibin = 0; ibin < nbins; ibin++ ) {
-    peds_.vSumOfSquares_[ibin] += digis[ibin].adc() * digis[ibin].adc();
-    peds_.vSumOfContents_[ibin] += digis[ibin].adc();
+    peds_.vSumOfSquares_[ibin] += digis.data[ibin].adc() * digis.data[ibin].adc();
+    peds_.vSumOfContents_[ibin] += digis.data[ibin].adc();
     peds_.vNumOfEntries_[ibin]++;
   }      
 

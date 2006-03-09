@@ -1,8 +1,9 @@
 #ifndef DQM_SiStripCommissioningSources_CommissioningTask_H
 #define DQM_SiStripCommissioningSources_CommissioningTask_H
 
-#include "DataFormats/SiStripDigi/interface/StripDigiCollection.h"
-#include <vector> 
+#include "DataFormats/Common/interface/DetSet.h"
+#include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
+#include "DataFormats/SiStripDigi/interface/SiStripEventSummary.h"
 
 class DaqMonitorBEInterface;
 class SiStripModule;
@@ -29,7 +30,8 @@ class CommissioningTask {
   CommissioningTask( DaqMonitorBEInterface*, const SiStripModule& );
   virtual ~CommissioningTask();
   
-  virtual void fillHistograms( const vector<StripDigi>& ); //@@ requires "SiStripEventInfo" info as well!
+  virtual void fillHistograms( const SiStripEventSummary&,
+			       const edm::DetSet<SiStripRawDigi>& );
   void updateFreq( int freq ) { updateFreq_ = freq; }
   
  protected:
@@ -43,7 +45,8 @@ class CommissioningTask {
   CommissioningTask() {;}
   
   virtual void book( const SiStripModule& );
-  virtual void fill( const vector<StripDigi>& ) = 0; //@@ requires "SiStripEventInfo" info as well!
+  virtual void fill( const SiStripEventSummary&,
+		     const edm::DetSet<SiStripRawDigi>& ) = 0;
   virtual void update() = 0;
   
 };

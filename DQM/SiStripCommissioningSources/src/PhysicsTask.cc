@@ -39,13 +39,14 @@ void PhysicsTask::book( const SiStripModule& module ) {
 
 // -----------------------------------------------------------------------------
 //
-void PhysicsTask::fill( const vector<StripDigi>& digis ) {
+void PhysicsTask::fill( const SiStripEventSummary& summary,
+			const edm::DetSet<SiStripRawDigi>& digis ) {
   cout << "[PhysicsTask::fill]" << endl;
 
   // Fill vectors
   for ( unsigned short ibin = 0; ibin < landau_.vNumOfEntries_.size(); ibin++ ) {
-    landau_.vSumOfSquares_[ibin] += digis[ibin].adc() * digis[ibin].adc();
-    landau_.vSumOfContents_[ibin] += digis[ibin].adc();
+    landau_.vSumOfSquares_[ibin] += digis.data[ibin].adc() * digis.data[ibin].adc();
+    landau_.vSumOfContents_[ibin] += digis.data[ibin].adc();
     landau_.vNumOfEntries_[ibin]++;
   }
 

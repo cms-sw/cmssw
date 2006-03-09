@@ -35,9 +35,10 @@ void CommissioningTask::book( const SiStripModule& ) {
 
 // -----------------------------------------------------------------------------
 //
-void CommissioningTask::fillHistograms( const vector<StripDigi>& digis ) {
+void CommissioningTask::fillHistograms( const SiStripEventSummary& summary,
+					const edm::DetSet<SiStripRawDigi>& digis ) {
   fillCntr_++;
-  fill( digis ); 
+  fill( summary, digis ); 
   if ( updateFreq_ ) { if ( !(fillCntr_%updateFreq_) ) update(); }
 }
 

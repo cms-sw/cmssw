@@ -48,23 +48,24 @@ void ApvTimingTask::book( const SiStripModule& module ) {
 
 // -----------------------------------------------------------------------------
 //
-void ApvTimingTask::fill( const vector<StripDigi>& digis ) {
+void ApvTimingTask::fill( const SiStripEventSummary& summary,
+			  const edm::DetSet<SiStripRawDigi>& digis ) {
   cout << "[ApvTimingTask::fill]" << endl;
 
   //@@ get bin number from SiStripEventInfo!
   unsigned short ibin = 0;
 
-  if ( digis.size() != 256*timing_.size() ) {
+  if ( digis.data.size() != 256*timing_.size() ) {
     cerr << "[ApvTimingTask::fill]" 
-	 << " Number of digis (" << digis.size() 
+	 << " Number of digis (" << digis.data.size() 
 	 << ") is not compatible with number of APV pairs ("
 	 << timing_.size() << ")!" << endl; 
   }
 
   // Fill vectors
-  for ( unsigned short idigi = 0; idigi < digis.size(); idigi++ ) {
-    timing_[idigi/256].vSumOfSquares_[ibin] += digis[idigi].adc() * digis[idigi].adc();
-    timing_[idigi/256].vSumOfContents_[ibin] += digis[idigi].adc();
+  for ( unsigned short idigi = 0; idigi < digis.data.size(); idigi++ ) {
+    timing_[idigi/256].vSumOfSquares_[ibin] += digis.data[idigi].adc() * digis.data[idigi].adc();
+    timing_[idigi/256].vSumOfContents_[ibin] += digis.data[idigi].adc();
     timing_[idigi/256].vNumOfEntries_[ibin]++;
   }      
   

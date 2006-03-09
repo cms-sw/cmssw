@@ -14,6 +14,10 @@
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 // calibrations
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
+// data formats
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
+#include "DataFormats/SiStripDigi/interface/SiStripEventSummary.h"
 // tasks
 #include "DQM/SiStripCommissioningSources/interface/PhysicsTask.h"
 #include "DQM/SiStripCommissioningSources/interface/PedestalsTask.h"
@@ -130,29 +134,26 @@ void CommissioningSource::analyze( const edm::Event& event,
   edm::ESHandle<SiStripFedCabling> fed_cabling;
   setup.get<SiStripFedCablingRcd>().get( fed_cabling );
   
-  edm::Handle<StripDigiCollection> collection;
-  event.getByType( collection );
+  edm::Handle<SiStripEventSummary> summary;
+  event.getByType( summary );
 
-//   edm::Handle<SiStripEventInfo> info;
-//   event.getByType( info );
+  edm::Handle< edm::DetSetVector<SiStripRawDigi> > collection;
+  event.getByType( collection );
   
+  // NEEDS IMPLEMENTATION HERE!!! 
+
   vector<unsigned int> ids;
-  (*collection).detIDs( ids ); //@@ method name incorrect! 
+  //@@ (*collection).detIDs( ids ); //@@ method name incorrect! 
   
   for ( vector<unsigned int>::iterator id = ids.begin(); id != ids.end(); id++ ) {
     unsigned short fed_id = ((*id)>>16) & 0xFFFFFFFF;
     unsigned short fed_ch = (*id) & 0xFFFFFFFF;
     unsigned int dcu_id = fed_cabling->connection( fed_id, fed_ch ).dcuId();
     if ( tasks_.find(dcu_id) != tasks_.end() ) {
-      vector<StripDigi> digis;
-      (*collection).digis( *id, digis );
-      tasks_[dcu_id]->fillHistograms( digis/*, info*/ );
+      vector< edm::DetSet<SiStripRawDigi> >::const_iterator digis = (*collection).find( *id );
+      tasks_[dcu_id]->fillHistograms( *summary, *digis );
     }
   }
   
 }
 
-// -----------------------------------------------------------------------------
-// Define plug-in
-#include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(CommissioningSource)

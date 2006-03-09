@@ -16,7 +16,8 @@ class PedestalsTask : public CommissioningTask {
  private:
 
   virtual void book( const SiStripModule& );
-  virtual void fill( const vector<StripDigi>& );
+  virtual void fill( const SiStripEventSummary&,
+		     const edm::DetSet<SiStripRawDigi>& );
   virtual void update();
   
   HistoSet peds_;
