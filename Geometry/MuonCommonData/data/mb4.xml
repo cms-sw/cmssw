@@ -2521,7 +2521,7 @@
    <rChild name="mb4:MB4RPC_GasRight"/>
   <Translation x="-[mb4:MB4RPC_Gas_x_pos]" y="-[mbCommon:MBRPC_GasRight_y_pos]" z="0*cm" />
  </PosPart>
- <PosPart copyNumber="1">
+ <PosPart copyNumber="2">
    <rParent name="mb4:MB4SmallRPC_N"/>
    <rChild name="mb4:MB4SmallRPC_SmallerGasLeft"/>
   <Translation x="-[mb4:MB4SmallRPC_SmallerGas_x_pos]" y="[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm" />
@@ -2536,7 +2536,7 @@
    <rChild name="mb4:MB4SmallRPC_SmallerGasRight"/>
   <Translation x="-[mb4:MB4SmallRPC_SmallerGas_x_pos]" y="-[mbCommon:MBRPC_GasRight_y_pos]" z="0*cm" />
  </PosPart>
- <PosPart copyNumber="2">
+ <PosPart copyNumber="1">
    <rParent name="mb4:MB4SmallRPC_N"/>
    <rChild name="mb4:MB4SmallRPC_BiggerGasRight"/>
   <Translation x="[mb4:MB4SmallRPC_BiggerGas_x_pos]" y="-[mbCommon:MBRPC_GasRight_y_pos]" z="0*cm" />
