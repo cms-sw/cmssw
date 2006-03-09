@@ -12,21 +12,34 @@ using namespace std;
  * 
  */
 
+//typedefs for ease of use
+typedef bitset<4> FourBit;
+typedef bitset<5> FiveBit;
+typedef bitset<6> SixBit;
+typedef unsigned long int ULong;
+
 class L1GctJet
 {
 public:
-	L1GctJet();
+    L1GctJet();
+	L1GctJet(ULong rank, ULong eta, ULong phi);
 	virtual ~L1GctJet();
 	
-	inline unsigned long getRank() { return rank.to_ulong(); }
-	inline unsigned long getEta() { return eta.to_ulong(); }
-	inline unsigned long getPhi() { return phi.to_ulong(); }
+    // Getters
+	ULong getRank() const { return m_rank.to_ulong(); }
+	ULong getEta() const  { return m_eta.to_ulong(); }
+	ULong getPhi() const { return m_phi.to_ulong(); }
+
+    // Setters
+    void setRank(ULong rank) { SixBit tempRank(rank); m_rank = tempRank; }
+    void setEta(ULong eta) { FiveBit tempEta(eta); m_eta = tempEta; }
+    void setPhi(ULong phi) { FourBit tempPhi(phi); m_phi = tempPhi; }
 
 private:
 
-	bitset<6> rank;
-	bitset<5> eta;
-	bitset<4> phi;	
+	SixBit m_rank;
+	FiveBit m_eta;
+	FourBit m_phi;	
 	
 };
 
