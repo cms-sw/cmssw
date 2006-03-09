@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Vertex.h,v 1.7 2006/03/01 12:36:30 llista Exp $
+ * \version $Id: Vertex.h,v 1.8 2006/03/01 18:46:30 vanlaer Exp $
  *
  */
 #include <Rtypes.h>
@@ -31,7 +31,7 @@ namespace reco {
     Vertex() { }
     /// constructor from values
     Vertex( const Point &, const Error &, 
-	    double chi2, unsigned short ndof, size_t size );
+	    double chi2, float ndof, size_t size );
     /// add a reference to a Track
     void add( const TrackRef & r ) { tracks_.push_back( r ); }
     /// first iterator over tracks
