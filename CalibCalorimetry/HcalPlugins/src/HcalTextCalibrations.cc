@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: HcalTextCalibrations.cc,v 1.2 2005/12/15 23:37:58 fedor Exp $
+// $Id: HcalTextCalibrations.cc,v 1.3 2006/01/10 19:29:40 fedor Exp $
 //
 //
 
@@ -10,6 +10,7 @@
 #include <fstream>
 
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "FWCore/Framework/interface/ValidityInterval.h"
 
@@ -43,14 +44,15 @@ using namespace cms;
 HcalTextCalibrations::HcalTextCalibrations ( const edm::ParameterSet& iConfig ) 
   
 {
-  std::cout << "HcalTextCalibrations::HcalTextCalibrations->..." << std::endl;
   //parsing parameters
   std::vector<edm::ParameterSet> data = iConfig.getParameter<std::vector<edm::ParameterSet> >("input");
   std::vector<edm::ParameterSet>::iterator request = data.begin ();
   for (; request != data.end (); request++) {
     std::string objectName = request->getParameter<std::string> ("object");
-    std::string file = request->getParameter<std::string> ("file");
-    mInputs [objectName] = file;
+    edm::FileInPath fp = request->getParameter<edm::FileInPath>("file");
+    mInputs [objectName] = fp.fullPath();
+    std::cout << "HcalTextCalibrations::HcalTextCalibrations-> will read constants for " 
+	      << objectName << " from " << fp.fullPath() << std::endl;
     if (objectName == "Pedestals") {
       setWhatProduced (this, &HcalTextCalibrations::producePedestals);
       findingRecord <HcalPedestalsRcd> ();
