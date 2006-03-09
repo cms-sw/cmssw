@@ -1,0 +1,16 @@
+<export>
+ <lib name=GeometryCSCGeometryBuilder>
+ <use name=DataFormats/MuonDetId>
+ <use name=DetectorDescription/Core>
+ <use name=Geometry/CSCGeometry>
+ <use name=Geometry/CommonDetUnit>
+ <use name=Geometry/MuonNumbering>
+</export>
+
+<use name=Geometry/MuonNumbering>
+<use name=Geometry/CSCGeometry>
+<use name=DetectorDescription/Core>
+<use name=Geometry/CommonDetUnit>
+<use name=DataFormats/MuonDetId>
+
+<flags SEAL_PLUGIN_NAME="GeometryCSCGeometryBuilder">
