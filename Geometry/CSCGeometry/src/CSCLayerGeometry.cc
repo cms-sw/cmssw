@@ -1,0 +1,422 @@
+// This is CSCLayerGeometry.cc 
+
+#include "Geometry/CSCGeometry/interface/CSCLayerGeometry.h"
+#include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
+#include "Geometry/CSCGeometry/src/OffsetRadialStripTopology.h"
+#include "Geometry/CSCGeometry/src/ORedOffsetRST.h"
+//#include "Geometry/CSCSimAlgo/src/OffsetTrapezoidalStripTopology.h"
+//#include "Geometry/CSCSimAlgo/src/ORedOffsetTST.h"
+#include "Geometry/CSCGeometry/src/CSCWireGroupPackage.h"
+#include "Geometry/Vector/interface/LocalPoint.h"
+
+#include "CLHEP/Units/SystemOfUnits.h"
+
+#include <iostream>
+#include <cmath>
+
+CSCLayerGeometry::CSCLayerGeometry( int iChamberType,
+         const TrapezoidalPlaneBounds& bounds,
+         int nstrips, float stripOffset, float stripPhiPitch,
+	 const CSCWireGroupPackage& wg, float wireAngleInDegrees )
+  :  TrapezoidalPlaneBounds( bounds ), theWireTopology( 0 ),
+     theStripTopology( 0 )
+{
+  std::cout << myName << ": being constructed, this=" << this << std::endl;
+
+  // The TPB doesn't provide direct access to the half-length values
+  // we've always been coding against (since that is what GEANT3 used!)
+  //@@ For now, retrieve the half-lengths, Later perhaps make use
+  //@@ of TPB's accessors directly?
+  apothem     = bounds.length() / 2.;  
+  hTopEdge    = bounds.width() / 2.;
+  hBottomEdge = bounds.widthAtHalfLength() - hTopEdge; // t+b=2w
+
+  // Ganged strips in ME1A?
+
+  bool gangedME1A = ( iChamberType == 1 &&
+		      CSCChamberSpecs::gangedStrips() );
+
+  // Calculate 'whereStripsMeet' = distance from centre of chamber to
+  // intersection point of projected strips.
+
+  // In the perfect geometry this is the z-axis (for most rings of chambers)
+  // since the trapezoids are truncated sectors of circles.
+
+
+  // Radial or Trapezoidal strips?
+
+  if ( CSCChamberSpecs::radialStrips() ) {
+
+  // RST more tricky than TST, since we need to enforce the constraint
+  // that the subtended angle is exactly the no. of strips * ang width
+  // and that wasn't considered when setting the gas volume dimensions in
+  // the input geometry. Best I can do, I think, is require half width
+  // of layer along local x axis is (T+B)/2. 
+  // Then tan(angle/2)=wid/w, and so w is:
+     whereStripsMeet =
+        0.5*(hTopEdge+hBottomEdge) / tan(0.5*nstrips*stripPhiPitch);
+
+     AbsOffsetRadialStripTopology* aStripTopology = 
+        new OffsetRadialStripTopology(nstrips, stripPhiPitch,
+	    2.*apothem, whereStripsMeet, stripOffset );
+
+     if ( gangedME1A )
+       theStripTopology = new ORedOffsetRST( *aStripTopology, 16 );
+     else
+       theStripTopology = aStripTopology;
+  }
+  else {
+
+    //@@ TST CODE UNPORTED FROM ORCA
+
+  // For TST, just project extreme edges of chamber
+     whereStripsMeet = apothem * (hTopEdge+hBottomEdge)/(hTopEdge-hBottomEdge);
+
+  // Strip pitch along x axis... 
+  // strictly makes sense only for TrapezoidalStripTopology model
+     //     float stripPitch =  (hTopEdge + hBottomEdge) / nstrips;
+
+     //     AbsOffsetTrapezoidalStripTopology* aStripTopology = 
+     //       new OffsetTrapezoidalStripTopology(nstrips, stripPitch,
+     //            2.*apothem, whereStripsMeet, stripOffset, stripPhiPitch );
+
+     //     if ( gangedME1A )
+     //       theStripTopology = new ORedOffsetTST( *aStripTopology, 16 );
+     //     else
+     //       theStripTopology = aStripTopology;
+
+  }
+
+    //@@ HOW TO SET yOfFirstWire ? It should be explicit in the DDD.
+    //@@ (To retrieve backward-compatibility I need a calculated value
+    //@@ but I should calculate those values and write them in the DDD.) 
+
+  double yOfFirstWire = 0;
+
+  if ( CSCChamberSpecs::realWireGeometry() ) {
+    //@@ For now just hack it in CSCWireTopology ctor.
+    //@@ Passing iChamberType as yOfFirstFire is a terrible hack: 
+    //@@ but need to know we have ME1A or ME11 inside the MEW constructor...
+    yOfFirstWire = static_cast<float>( iChamberType );
+  }
+  else {
+    // Approximate ORCA_8_8_0 and earlier calculated geometry...
+    float wangler = wireAngleInDegrees*degree; // convert angle to radians
+    float wireCos = cos(wangler);
+    float wireSin = sin(wangler);
+    float y2 = apothem * wireCos + hBottomEdge * fabs(wireSin);
+    float wireSpacing = wg.wireSpacing/10.; // in cm
+    float wireOffset = -y2 + wireSpacing/2.;
+    yOfFirstWire = wireOffset/wireCos;
+  }
+  theWireTopology = new CSCWireTopology( wg, yOfFirstWire, wireAngleInDegrees );
+} 
+
+CSCLayerGeometry::CSCLayerGeometry(const CSCLayerGeometry& melg) :
+  TrapezoidalPlaneBounds(melg.hBottomEdge, melg.hTopEdge, melg.apothem,
+			 0.5 * melg.thickness() ),
+  theWireTopology(0), theStripTopology(0), 
+  whereStripsMeet(melg.whereStripsMeet),
+  hBottomEdge(melg.hBottomEdge), hTopEdge(melg.hTopEdge),
+  apothem(melg.apothem)
+{
+  // CSCStripTopology is abstract, so need clone()
+  if (melg.theStripTopology) theStripTopology = melg.theStripTopology->clone();
+  // CSCWireTopology is concrete, so direct copy
+  if (melg.theWireTopology) theWireTopology = new CSCWireTopology(*(melg.theWireTopology));
+}
+
+CSCLayerGeometry& CSCLayerGeometry::operator=(const CSCLayerGeometry& melg)
+{
+  if ( &melg != this ) {
+    delete theStripTopology;
+    if ( melg.theStripTopology )
+      theStripTopology=melg.theStripTopology->clone();
+    else
+      theStripTopology=0;
+
+    delete theWireTopology;
+    if ( melg.theWireTopology )
+      theWireTopology=new CSCWireTopology(*(melg.theWireTopology));
+    else
+      theWireTopology=0;
+
+    whereStripsMeet = melg.whereStripsMeet;
+    hBottomEdge     = melg.hBottomEdge;
+    hTopEdge        = melg.hTopEdge;
+    apothem         = melg.apothem;
+  }
+  return *this;
+}
+
+CSCLayerGeometry::~CSCLayerGeometry()
+{
+  // std:cout << myName << ": being destroyed, this=" << this << 
+  //   "\nDeleting theStripTopology=" << theStripTopology << 
+  //   " and theWireTopology=" << theWireTopology << std::endl;
+  delete theStripTopology;
+  delete theWireTopology;
+}
+
+
+LocalPoint 
+CSCLayerGeometry::stripWireIntersection( int strip, float wire ) const
+{
+  // This allows _float_ wire no. so that we can calculate the
+  // intersection of a strip with the mid point of a wire group 
+  // containing an even no. of wires (which is not an actual wire),
+  // as well as for a group containing an odd no. of wires.
+
+  // Equation of wire and strip as straight lines in local xy
+  // y = mx + c where m = tan(angle w.r.t. x axis)
+  // At the intersection x = -(cs-cw)/(ms-mw)
+  // At y=0, 0 = ms * xOfStrip(strip) + cs => cs = -ms*xOfStrip
+  // At x=0, yOfWire(wire) = 0 + cw => cw = yOfWire
+
+  float ms = tan( stripAngle(strip) );
+  float mw = tan( wireAngle() );
+  float xs = xOfStrip(strip);
+  float xi = ( ms * xs + yOfWire(wire) ) / ( ms - mw );
+  float yi = ms * (xi - xs );
+  return LocalPoint(xi, yi);
+}
+
+LocalPoint CSCLayerGeometry::stripWireGroupIntersection( int strip, int wireGroup) const
+{
+  // middleWire is only an actual wire for a group with an odd no. of wires
+  float middleWire = middleWireOfGroup( wireGroup );
+  return stripWireIntersection(strip, middleWire);
+}
+
+float CSCLayerGeometry::stripAngle(int strip) const 
+{
+  // Cleverly subtly change meaning of stripAngle once more.
+  // In TrapezoidalStripTopology it is angle measured
+  // counter-clockwise from y axis. 
+  // In APTST and RST it is angle measured 
+  // clockwise from y axis.
+  // Output of this function is measured counter-clockwise 
+  // from x-axis, so it is a conventional 2-dim azimuthal angle
+  // in the (x,y) local coordinates
+
+  // We want angle at centre of strip (strip N covers
+  // *float* range N-1 to N-epsilon)
+
+  return M_PI_2 - theStripTopology->stripAngle(strip-0.5);
+}
+
+
+LocalPoint CSCLayerGeometry::localCenterOfWireGroup( int wireGroup ) const {
+
+  // It can use CSCWireTopology::yOfWireGroup for y,
+  // But x involves mixing wire geometry with TrapezoidalPlaneBounds.
+
+  // If the wires are NOT tilted, default to simple calculation...
+  if ( fabs(wireAngle() ) < 1.E-6 )  {
+    float y = yOfWireGroup( wireGroup );
+    return LocalPoint( 0., y );
+  }
+  else {
+    // w is "wire" at the center of the wire group
+    float w = middleWireOfGroup( wireGroup );
+    std::vector<float> store = wireValues( w );
+    return LocalPoint( store[0], store[1] );
+  }
+}
+
+float CSCLayerGeometry::lengthOfWireGroup( int wireGroup ) const {
+  // Return length of 'wire' in the middle of the wire group
+   float w = middleWireOfGroup( wireGroup );
+   std::vector<float> store = wireValues( w );
+   return store[2];
+}
+    
+void CSCLayerGeometry::setTopology( CSCStripTopology * newTopology ) {
+   delete theStripTopology;
+   theStripTopology = newTopology;
+}
+
+
+LocalPoint CSCLayerGeometry::intersection( float m1, float c1, 
+     float m2, float c2 ) const {
+
+  // Calculate the point of intersection of two straight lines (in 2-dim)
+  // BEWARE! Do not call with m1 = m2 ! No trapping !
+
+  float x = (c2-c1)/(m1-m2);
+  float y = (m1*c2-m2*c1)/(m1-m2);
+  return LocalPoint( x, y );
+}
+
+std::vector<float> CSCLayerGeometry::wireValues( float wire ) const {
+  // return x, y of mid-point of wire, and length as vector
+
+  const float fprec = 1.E-06;
+
+  // slope of wire
+  float wangle = wireAngle();
+
+  float mw = 0;
+  if ( fabs(wangle) > fprec ) mw = tan( wireAngle() );
+
+ // intercept of wire
+  float cw = yOfWire( wire );
+
+
+  //  if ( logger().debugOut ) {
+  //    std::cout << myName << ": wire=" << wire << 
+  //      ", wire angle = " << wangle << 
+  //      ", intercept on y axis=" << cw << std::endl;
+  //   }
+
+  // slope & intercept of line defining one non-parallel side of chamber 
+  float m1 = -2.*apothem/(hTopEdge-hBottomEdge);
+  float c1 = -apothem*(hTopEdge+hBottomEdge)/(hTopEdge-hBottomEdge);
+
+  // slope & intercept of other non-parallel side of chamber
+  float m2 = -m1;
+  float c2 =  c1;
+
+  // wire intersects side 1 at
+  LocalPoint pw1 = intersection(mw, cw, m1, c1);
+  // wire intersects side 2 at
+  LocalPoint pw2 = intersection(mw, cw, m2, c2);
+
+  float x1 = pw1.x();
+  float y1 = pw1.y();
+
+  float x2 = pw2.x();
+  float y2 = pw2.y();
+
+  //  if ( logger().debugOut ) {
+  //    std::cout << myName << ": wire intersects sides at " << 
+  //               "\n  x1=" << x1 << " y1=" << y1 << 
+  //                  " x2=" << x2 << " y2=" << y2 << std::endl;
+  //   }
+
+  // WIRES ARE NOT TILTED?
+
+  if ( fabs(wangle) < fprec ) {
+    std::vector<float> buf(3);
+    buf[0] = 0.;
+    buf[1] = cw;
+    buf[2] = sqrt( (x1-x2)*(x1-x2) + (y1-y2)*(y1-y2) );
+    //    if ( logger().debugOut ) {
+    //      std::cout << myName << ": wires are not tilted " << 
+    //       "\n  mid-point: x=0 y=" << cw << ", length=" << buf[2] << std::endl;
+    //    }
+    return buf;    
+  }
+
+  // WIRES ARE TILTED
+  
+  // slope & intercept of top side of chamber
+  float mt = 0;
+  float ct = +apothem;
+
+  // slope & intercept of bottom side of chamber
+  float mb = 0;
+  float cb = -apothem;
+
+  //  if ( logger().debugOut ) {
+  //    std::cout << myName << ": slopes & intercepts " <<
+  //    "\n  mt=" << mt << " ct=" << ct << " mb=" << mb << " cb=" << cb <<
+  //    "\n  m1=" << m1 << " c1=" << c1 << " m2=" << m2 << " c2=" << c2 << 
+  //    "\n  mw=" << mw << " cw=" << cw << std::endl; 
+  //   }
+  
+  // wire intersects top side at
+  LocalPoint pwt = intersection(mw, cw, mt, ct);
+  // wire intersects bottom side at
+  LocalPoint pwb = intersection(mw, cw, mb, cb);
+
+  // get the local coordinates
+  float xt = pwt.x();
+  float yt = pwt.y();
+
+  float xb = pwb.x();
+  float yb = pwb.y();
+
+  // if ( logger().debugOut ) {
+  //    std::cout << myName << ": wire intersects top & bottom at " << 
+  //               "\n  xt=" << xt << " yt=" << yt << 
+  //                  " xb=" << xb << " yb=" << yb << std::endl;
+  //   }
+
+  float xWireEnd[4], yWireEnd[4];
+  int i = 0;
+  if ( fabs(x1) >= hBottomEdge && fabs(x1) <= hTopEdge ) {
+    // wire does intersect side edge 1 of chamber
+    xWireEnd[i] = x1;
+    yWireEnd[i] = y1;
+    i++;
+  }
+  if ( fabs(xb) <= hBottomEdge ) {
+    // wire does intersect bottom edge of chamber
+    xWireEnd[i] = xb;
+    yWireEnd[i] = yb;
+    i++;
+  }
+  if ( fabs(x2) >= hBottomEdge && fabs(x2) <= hTopEdge ) {
+    // wire does intersect side edge 2 of chamber
+    xWireEnd[i] = x2;
+    yWireEnd[i] = y2;
+    i++;
+  }
+  if ( fabs(xt) <= hTopEdge ) {
+    // wire does intersect top edge of chamber
+    xWireEnd[i] = xt;
+    yWireEnd[i] = yt;
+    i++;
+  }
+
+  std::vector<float> buf(3);
+
+  if ( i != 2 ) {
+    std::cout << myName << ": ***ERROR*** the wire has " << i <<
+      " ends!" << std::endl;
+    //    severe(myName+"::wireValues error - wrong number of ends");
+    //@@ FIXME Now what? Just return?
+    return buf;
+  }
+  
+  //  if ( logger().debugOut ) {
+  //    std::cout << myName << ": wire ends " << std::endl;
+  //    for ( int j = 0; j<i; j++ ) {
+  //      std::cout << "  x = " << xWireEnd[j] << 
+  //                    " y = " << yWireEnd[j] << std::endl;
+  //    }
+  //  } 
+
+  float d2 = (xWireEnd[0]-xWireEnd[1]) * (xWireEnd[0]-xWireEnd[1]) +
+             (yWireEnd[0]-yWireEnd[1]) * (yWireEnd[0]-yWireEnd[1]);
+
+  buf[0] = (xWireEnd[0]+xWireEnd[1])/2. ;
+  buf[1] = (yWireEnd[0]+yWireEnd[1])/2. ;
+  buf[2] = sqrt(d2) ;
+  return buf;
+}
+
+std::ostream & operator<<(std::ostream & stream, const CSCLayerGeometry & lg) {
+  stream << "LayerGeometry " << std::endl
+         << "------------- " << std::endl
+         << "numberOfStrips        " << lg.numberOfStrips() << std::endl
+         << "numberOfWires         " << lg.numberOfWires() << std::endl
+         << "numberOfWireGroups    " << lg.numberOfWireGroups() << std::endl
+         << "wireAngle  (rad)      " << lg.wireAngle() << std::endl
+    //         << "wireAngle  (deg)      " << lg.theWireAngle << std::endl
+    //         << "sin(wireAngle)        " << lg.theWireSin << std::endl
+    //         << "cos(wireAngle)        " << lg.theWireCos << std::endl
+         << "wirePitch             " << lg.wirePitch() << std::endl
+         << "stripPitch            " << lg.stripPitch() << std::endl
+    //         << "numberOfWiresPerGroup " << lg.theNumberOfWiresPerGroup << std::endl
+    //         << "numberOfWiresInLastGroup " << lg.theNumberOfWiresInLastGroup << std::endl
+    //         << "wireOffset            " << lg.theWireOffset << std::endl
+         << "hBottomEdge           " << lg.hBottomEdge << std::endl
+         << "hTopEdge              " << lg.hTopEdge << std::endl
+         << "apothem               " << lg.apothem << std::endl
+         << "whereStripsMeet       " << lg.whereStripsMeet << std::endl;
+    return stream;
+}
+
+const std::string CSCLayerGeometry::myName = "CSCLayerGeometry";
