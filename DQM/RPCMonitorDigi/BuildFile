@@ -1,0 +1,32 @@
+<flags SEAL_PLUGIN_NAME="DQMRPCMonitorDigi">
+<use name=FWCore/Framework>
+<use name=FWCore/MessageLogger>
+<use name=root>
+<use name=boost>
+<use name=DQMServices/Daemon>
+<use name=FWCore/ParameterSet>
+<use name=Utilities/Threads>
+<use name=DQMServices/NodeROOT>
+<use name=DQMServices/CoreROOT>
+<use name=FWCore/Framework>
+<use name=EventFilter/RPCRawToDigi>
+<use name=FWCore/ServiceRegistry>
+<use name=DataFormats/RPCDigi>
+
+<export>
+<lib name=DQMRPCMonitorDigi>
+<use name=FWCore/Framework>
+<use name=FWCore/MessageLogger>
+<use name=root>
+<use name=boost>
+<use name=DQMServices/Daemon>
+<use name=FWCore/ParameterSet>
+<use name=Utilities/Threads>
+<use name=DQMServices/NodeROOT>
+<use name=DQMServices/CoreROOT>
+<use name=FWCore/Framework>
+<use name=EventFilter/RPCRawToDigi>
+<use name=FWCore/ServiceRegistry>
+<use name=DataFormats/RPCDigi>
+</export>
+
