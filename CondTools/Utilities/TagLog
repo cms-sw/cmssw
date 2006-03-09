@@ -1,3 +1,6 @@
+** V01-00-02  [Thu Mar  9 20:10:48 2006]
+fix -u -p for setupdb; remove -c
+
 ** V01-00-00  [Wed Feb 22 11:06:13 2006]
 adop to new interfaces in CondCore
 
