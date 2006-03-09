@@ -13,8 +13,8 @@ class SiStripEventSummary {
 
  public:
 
-  SiStripEventSummary();
-  ~SiStripEventSummary();
+  SiStripEventSummary() {;}
+  ~SiStripEventSummary() {;}
 
   // getters
   inline const string& task() const { return task_; }

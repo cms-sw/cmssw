@@ -11,7 +11,7 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
-#include "DataFormats/SiStripEventSummary/interface/SiStripEventSummary.h"
+#include "DataFormats/SiStripDigi/interface/SiStripEventSummary.h"
 // cabling
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
@@ -28,10 +28,10 @@ SiStripRawToDigiModule::SiStripRawToDigiModule( const edm::ParameterSet& pset ) 
 {
   cout << "[SiStripRawToDigiModule::SiStripRawToDigiModule]"
        << " Constructing object..." << endl;
-  int16_t bytes = pset.getUntrackedParameter<int>("nAppendedBytes",0);
-  int16_t freq  = pset.getUntrackedParameter<int>("fedBufferDumpFreq",0);
-  bool    useid = pset.getUntrackedParameter<bool>("useDetId",true);
-  int16_t fedid = pset.getUntrackedParameter<unsigned int>("triggerFedId",1023);
+  int16_t bytes = pset.getUntrackedParameter<int>("AppendedBytes",0);
+  int16_t freq  = pset.getUntrackedParameter<int>("FedBufferDumpFreq",0);
+  bool    useid = pset.getUntrackedParameter<bool>("UseDetId",true);
+  int16_t fedid = pset.getUntrackedParameter<int>("TriggerFedId",1023);
   rawToDigi_ = new SiStripRawToDigi( bytes, freq, useid, fedid );
 
   produces< edm::DetSetVector<SiStripRawDigi> >("ScopeMode");

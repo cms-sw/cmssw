@@ -7,7 +7,7 @@
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
-#include "DataFormats/SiStripEventSummary/interface/SiStripEventSummary.h"
+#include "DataFormats/SiStripDigi/interface/SiStripEventSummary.h"
 // cabling
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 // fed exception handling 

@@ -29,8 +29,8 @@ SiStripDigiToRawModule::SiStripDigiToRawModule( const edm::ParameterSet& pset ) 
        << " Constructing object..." << endl;
   
   // Create instance of DigiToRaw formatter
-  string mode    = pset.getUntrackedParameter<std::string>("fedReadoutMode","VIRGIN_RAW");
-  int16_t nbytes = pset.getUntrackedParameter<int>("nAppendedBytes",0);
+  string mode    = pset.getUntrackedParameter<std::string>("FedReadoutMode","VIRGIN_RAW");
+  int16_t nbytes = pset.getUntrackedParameter<int>("AppendedBytes",0);
   digiToRaw_ = new SiStripDigiToRaw( mode, nbytes );
   
   produces<FEDRawDataCollection>("FromSimulation");
