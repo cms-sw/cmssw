@@ -14,7 +14,7 @@
 #include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
-#include "Geometry/CSCSimAlgo/interface/CSCGeometry.h"
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 

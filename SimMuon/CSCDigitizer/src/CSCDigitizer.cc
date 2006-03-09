@@ -7,7 +7,7 @@
 #include "SimMuon/CSCDigitizer/src/CSCDriftSim.h"
 #include "SimMuon/CSCDigitizer/src/CSCWireElectronicsSim.h"
 #include "SimMuon/CSCDigitizer/src/CSCStripElectronicsSim.h"
-#include "Geometry/CSCSimAlgo/interface/CSCLayer.h"
+#include "Geometry/CSCGeometry/interface/CSCLayer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 

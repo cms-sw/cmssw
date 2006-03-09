@@ -1,8 +1,8 @@
 #include "SimMuon/CSCDigitizer/src/CSCStripHitSim.h"
 #include "SimMuon/CSCDigitizer/src/CSCDetectorHit.h"
-#include "Geometry/CSCSimAlgo/interface/CSCLayer.h"
-#include "Geometry/CSCSimAlgo/interface/CSCChamberSpecs.h"
-#include "Geometry/CSCSimAlgo/interface/CSCLayerGeometry.h"
+#include "Geometry/CSCGeometry/interface/CSCLayer.h"
+#include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
+#include "Geometry/CSCGeometry/interface/CSCLayerGeometry.h"
 #include "Geometry/Vector/interface/LocalPoint.h"
 
 // This is CSCStripHitSim.cc

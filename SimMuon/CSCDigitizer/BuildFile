@@ -4,7 +4,7 @@
 <use name=FWCore/ParameterSet>
 <use name=Geometry/Records>
 <use name=Geometry/CommonDetUnit>
-<use name=Geometry/CSCSimAlgo>
+<use name=Geometry/CSCGeometry>
 <use name=SimGeneral/HepPDT>
 <use name=Utilities/Timing>
 <use name=FWCore/MessageLogger>
@@ -22,7 +22,7 @@
   <use name=FWCore/ParameterSet>
   <use name=Geometry/Records>
   <use name=Geometry/CommonDetUnit>
-  <use name=Geometry/CSCSimAlgo>
+  <use name=Geometry/CSCGeometry>
   <use name=SimGeneral/HepPDT>
   <use name=Utilities/Timing>
   <use name=FWCore/MessageLogger>

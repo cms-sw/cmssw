@@ -1,9 +1,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimMuon/CSCDigitizer/src/CSCDriftSim.h"
 #include "SimMuon/CSCDigitizer/src/CSCDetectorHit.h"
-#include "Geometry/CSCSimAlgo/interface/CSCChamberSpecs.h"
-#include "Geometry/CSCSimAlgo/interface/CSCLayer.h"
-#include "Geometry/CSCSimAlgo/interface/CSCLayerGeometry.h"
+#include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
+#include "Geometry/CSCGeometry/interface/CSCLayer.h"
+#include "Geometry/CSCGeometry/interface/CSCLayerGeometry.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 

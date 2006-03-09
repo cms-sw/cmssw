@@ -4,9 +4,9 @@
 #include "SimMuon/CSCDigitizer/src/CSCDetectorHit.h"
 #include "SimMuon/CSCDigitizer/src/CSCGasCollisions.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Geometry/CSCSimAlgo/interface/CSCLayer.h"
-#include "Geometry/CSCSimAlgo/interface/CSCLayerGeometry.h"
-#include "Geometry/CSCSimAlgo/interface/CSCChamberSpecs.h"
+#include "Geometry/CSCGeometry/interface/CSCLayer.h"
+#include "Geometry/CSCGeometry/interface/CSCLayerGeometry.h"
+#include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 

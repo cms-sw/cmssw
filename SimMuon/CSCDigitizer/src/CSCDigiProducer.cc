@@ -3,7 +3,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "SimMuon/CSCDigitizer/src/CSCDigiProducer.h"
 #include "SimMuon/CSCDigitizer/src/CSCDigitizer.h"
-#include "Geometry/CSCSimAlgo/interface/CSCGeometry.h"
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
