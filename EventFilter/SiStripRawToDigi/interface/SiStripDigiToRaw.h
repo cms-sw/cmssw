@@ -1,61 +1,54 @@
-#ifndef EventFilter_SiStripDigiToRaw_H
-#define EventFilter_SiStripDigiToRaw_H
+#ifndef EventFilter_SiStripRawToDigi_SiStripDigiToRaw_H
+#define EventFilter_SiStripRawToDigi_SiStripDigiToRaw_H
 
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
 #include "Fed9UUtils.hh"
-class SiStripReadoutCabling;
-class StripDigiCollection;
+#include "boost/cstdint.hpp"
+#include <string>
+#include <vector>
+
+class SiStripFedCabling;
 class FEDRawDataCollection;
+class SiStripDigi;
+
+using namespace std;
 
 /**
-   \class SiStripDigiToRaw
-   \brief Takes a StripDigiCollection as input and creates a
-   FEDRawDataCollection.
-   \author M.Wingham, R.Bainbridge
+   @file EventFilter/SiStripRawToDigi/interface/SiStripDigiToRaw.h
+   @class SiStripDigiToRaw 
+   
+   @brief Input: edm::DetSetVector<SiStripDigi>. 
+   Output: FEDRawDataCollection.
 */
 class SiStripDigiToRaw {
   
  public: // ----- public interface -----
   
-  SiStripDigiToRaw( unsigned short verbosity );
+  SiStripDigiToRaw( string readout_mode, 
+		    int16_t appended_bytes );
   ~SiStripDigiToRaw();
   
-  /** Takes a StripDigiCollection as input and creates a
-      FEDRawDataCollection. */
-  void createFedBuffers( edm::ESHandle<SiStripReadoutCabling>& cabling,
-			 edm::Handle<StripDigiCollection>& digis,
-			 std::auto_ptr<FEDRawDataCollection>& buffers );
-
-  inline void fedReadoutPath( std::string readout_path );
-  inline void fedReadoutMode( std::string readout_mode );
-
+  void createFedBuffers( edm::ESHandle<SiStripFedCabling>& cabling,
+			 edm::Handle< edm::DetSetVector<SiStripDigi> >& digis,
+			 auto_ptr<FEDRawDataCollection>& buffers );
+  
+  inline void fedReadoutMode( string mode )     { readoutMode_ = mode; }
+  inline void nAppendedBytes( uint16_t nbytes ) { nAppendedBytes_ = nbytes; }
+  
  private: // ----- private data members -----
 
-  /** */
-  unsigned short verbosity_;
-
-  /** */
-  std::string readoutPath_;
-  /** */
-  std::string readoutMode_;
+  string readoutMode_;
+  uint16_t nAppendedBytes_;
 
   // some debug counters
-  std::vector<unsigned int> position_;
-  std::vector<unsigned int> landau_;
+  vector<unsigned int> position_;
+  vector<unsigned int> landau_;
   unsigned long nFeds_;
   unsigned long nDigis_;
 
 };
 
-#endif // EventFilter_SiStripDigiToRaw_H
+#endif // EventFilter_SiStripRawToDigi_SiStripDigiToRaw_H
 
-// inline methods 
-
-inline void SiStripDigiToRaw::fedReadoutPath( std::string rpath ) { 
-  readoutPath_ = rpath;
-}
-
-inline void SiStripDigiToRaw::fedReadoutMode( std::string rmode ) { 
-  readoutMode_ = rmode;
-}

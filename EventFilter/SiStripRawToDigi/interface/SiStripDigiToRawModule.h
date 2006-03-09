@@ -1,50 +1,39 @@
-#ifndef EventFilter_SiStripDigiToRawModule_H
-#define EventFilter_SiStripDigiToRawModule_H
+#ifndef EventFilter_SiStripRawToDigi_SiStripDigiToRawModule_H
+#define EventFilter_SiStripRawToDigi_SiStripDigiToRawModule_H
 
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "boost/cstdint.hpp"
 #include <string>
 
 class SiStripDigiToRaw;
-class SiStripUtility;
+
+using namespace std;
 
 /**
-   \class SiStripDigiToRawModule 
-   \brief A plug-in module that takes a StripDigiCollection as input
-   from the Event and creates an EDProduct in the form of a
-   FEDRawDataCollection.
-   \author R.Bainbridge
+   @file EventFilter/SiStripRawToDigi/interface/SiStripDigiToRawModule.h
+   @class SiStripDigiToRawModule 
+   
+   @brief A plug-in module that takes StripDigis as input from the
+   Event and creates an EDProduct comprising a FEDRawDataCollection.
 */
 class SiStripDigiToRawModule : public edm::EDProducer {
   
  public:
   
-  /** Constructor creates DigiToRaw formatting object. */
   SiStripDigiToRawModule( const edm::ParameterSet& );
   ~SiStripDigiToRawModule();
   
   virtual void beginJob( const edm::EventSetup& ) {;}
   virtual void endJob() {;}
   
-  /** Retrieves a StripDigiCollection from the Event, creates an
-      EDProduct in the form of a FEDRawDataCollection (using the
-      SiStripDigiToRaw class) and attaches the collection to the
-      Event. */
   virtual void produce( edm::Event&, const edm::EventSetup& );
   
  private:
   
-  /** RawToDigi class that creates FED buffers using digis. */
   SiStripDigiToRaw* digiToRaw_;
-  /** Utility class providing digis. */
-  SiStripUtility* utility_;
-  /** Event counter. */
-  unsigned long eventCounter_;
-  /** Label used to identify EDProduct within Event. */
-  std::string productLabel_;
-  /** Verbosity level for this class (0=silent, 3=debug). */
-  int verbosity_;
+  uint32_t eventCounter_;
 
 };
 
-#endif // EventFilter_SiStripDigiToRawModule_H
+#endif // EventFilter_SiStripRawToDigi_SiStripDigiToRawModule_H
 

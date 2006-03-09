@@ -1,78 +1,89 @@
 #include "EventFilter/SiStripRawToDigi/interface/SiStripRawToDigiModule.h"
+#include "EventFilter/SiStripRawToDigi/interface/SiStripRawToDigi.h"
+// edm
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/EventSetup.h>
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
+// data formats
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-#include "DataFormats/SiStripDigi/interface/StripDigiCollection.h"
-#include "CondFormats/DataRecord/interface/SiStripReadoutCablingRcd.h"
-#include "CondFormats/SiStripObjects/interface/SiStripReadoutCabling.h"
-#include "EventFilter/SiStripRawToDigi/interface/SiStripRawToDigi.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
+#include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
+#include "DataFormats/SiStripEventSummary/interface/SiStripEventSummary.h"
+// cabling
+#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
+#include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
+// std
 #include <cstdlib>
 
 // -----------------------------------------------------------------------------
-// Constructor
+/** 
+    Creates instance of RawToDigi converter, defines EDProduct type.
+*/
 SiStripRawToDigiModule::SiStripRawToDigiModule( const edm::ParameterSet& pset ) :
   rawToDigi_(0),
-  eventCounter_(0),
-  verbosity_(0)
+  eventCounter_(0)
 {
-  if ( verbosity_>0 ) {
-    std::cout << "[SiStripRawToDigiModule::SiStripRawToDigiModule]"
-	      << " Constructing object..." << std::endl;
-  }
-  // Set some private data members 
-  verbosity_ = pset.getParameter<int>("Verbosity");
-  // Create instance of RawToDigi converter
-  rawToDigi_ = new SiStripRawToDigi( verbosity_ );
-  rawToDigi_->fedReadoutMode( pset.getParameter<std::string>("FedReadoutMode") );
-  rawToDigi_->fedReadoutPath( pset.getParameter<std::string>("FedReadoutPath") );
-  // Define EDProduct type
-  produces<StripDigiCollection>();
+  cout << "[SiStripRawToDigiModule::SiStripRawToDigiModule]"
+       << " Constructing object..." << endl;
+  int16_t bytes = pset.getUntrackedParameter<int>("nAppendedBytes",0);
+  int16_t freq  = pset.getUntrackedParameter<int>("fedBufferDumpFreq",0);
+  bool    useid = pset.getUntrackedParameter<bool>("useDetId",true);
+  int16_t fedid = pset.getUntrackedParameter<unsigned int>("triggerFedId",1023);
+  rawToDigi_ = new SiStripRawToDigi( bytes, freq, useid, fedid );
+
+  produces< edm::DetSetVector<SiStripRawDigi> >("ScopeMode");
+  produces< edm::DetSetVector<SiStripRawDigi> >("VirginRaw");
+  produces< edm::DetSetVector<SiStripRawDigi> >("ProcessedRaw");
+  produces< edm::DetSetVector<SiStripDigi> >   ("ZeroSuppressed");
+  produces<SiStripEventSummary>();
+  
 }
 
 // -----------------------------------------------------------------------------
-// Destructor
+/** */
 SiStripRawToDigiModule::~SiStripRawToDigiModule() {
-  if ( verbosity_>0 ) {
-    std::cout << "[SiStripRawToDigiModule::~SiStripRawToDigiModule]"
-	      << " Destructing object..." << std::endl;
-  }
+  cout << "[SiStripRawToDigiModule::~SiStripRawToDigiModule]"
+       << " Destructing object..." << endl;
   if ( rawToDigi_ ) delete rawToDigi_;
 }
 
 // -----------------------------------------------------------------------------
-// Produces a StripDigiCollection
+/** 
+    Retrieves cabling map from EventSetup, retrieves
+    FEDRawDataCollection from Event, creates a DetSetVector of
+    SiStripDigis (EDProduct), uses RawToDigi converter to fill the
+    DetSetVector, attaches StripDigiCollection to Event.
+*/
 void SiStripRawToDigiModule::produce( edm::Event& iEvent, 
 				      const edm::EventSetup& iSetup ) {
   
-  // Some debug
   eventCounter_++; 
-  if (verbosity_>1) std::cout << "[SiStripRawToDigiModule::produce]"
- 			      << " processing event number: " 
-			      << eventCounter_ << std::endl;
+  cout << "[SiStripRawToDigiModule::produce]"
+       << " processing event number: " 
+       << eventCounter_ << endl;
   
-  // Retrieve readout cabling map from EventSetup
-  edm::ESHandle<SiStripReadoutCabling> cabling;
-  iSetup.get<SiStripReadoutCablingRcd>().get( cabling );
+  edm::ESHandle<SiStripFedCabling> cabling;
+  iSetup.get<SiStripFedCablingRcd>().get( cabling );
 
-  // Retrieve input data from Event, a FEDRawDataCollection
   edm::Handle<FEDRawDataCollection> buffers;
   iEvent.getByType( buffers );
 
-  // Create EDProduct, a StripDigiCollection
-  std::auto_ptr<StripDigiCollection> digis( new StripDigiCollection );
+  auto_ptr< edm::DetSetVector<SiStripRawDigi> > sm( new edm::DetSetVector<SiStripRawDigi> );
+  auto_ptr< edm::DetSetVector<SiStripRawDigi> > vr( new edm::DetSetVector<SiStripRawDigi> );
+  auto_ptr< edm::DetSetVector<SiStripRawDigi> > pr( new edm::DetSetVector<SiStripRawDigi> );
+  auto_ptr< edm::DetSetVector<SiStripDigi> >    zs( new edm::DetSetVector<SiStripDigi> );
+  auto_ptr<SiStripEventSummary> ev( new SiStripEventSummary );
 
-  // Use RawToDigi unpacker to fill FEDRawDataCollection
-  //rawToDigi_->createDigis( cabling, buffers, digis );
+  rawToDigi_->createDigis( cabling, buffers, sm, vr, pr, zs, ev );
   
-  std::cout << "before" << std::endl;
-  // Attach StripDigiCollection to Event
-  iEvent.put( digis );
-  std::cout << "after" << std::endl;
- 
-  if (verbosity_>2) std::cout << "[SiStripRawToDigiModule::produce]"
- 			      << " exiting method... " << std::endl;
+  iEvent.put( sm, "ScopeMode" );
+  iEvent.put( vr, "VirginRaw" );
+  iEvent.put( pr, "ProcessedRaw" );
+  iEvent.put( zs, "ZeroSuppressed" );
+  iEvent.put( ev );
   
 }
+

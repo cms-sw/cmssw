@@ -1,79 +1,74 @@
 #include "EventFilter/SiStripRawToDigi/interface/SiStripDigiToRawModule.h"
 #include "EventFilter/SiStripRawToDigi/interface/SiStripDigiToRaw.h"
+// edm
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/EventSetup.h>
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
+// data formats
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-#include "DataFormats/SiStripDigi/interface/StripDigiCollection.h"
-#include "CondFormats/DataRecord/interface/SiStripReadoutCablingRcd.h"
-#include "CondFormats/SiStripObjects/interface/SiStripReadoutCabling.h"
-#include "EventFilter/SiStripRawToDigi/interface/SiStripRawToDigi.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
+#include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
+// cabling
+#include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
+#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
+// std
 #include <cstdlib>
 
 // -----------------------------------------------------------------------------
-// Constructor
+/** 
+    Creates instance of DigiToRaw converter, defines EDProduct type.
+*/
 SiStripDigiToRawModule::SiStripDigiToRawModule( const edm::ParameterSet& pset ) :
   digiToRaw_(0),
-  eventCounter_(0),
-  productLabel_(""),
-  verbosity_(0)
+  eventCounter_(0)
 {
-  std::cout << "[SiStripDigiToRawModule::SiStripDigiToRawModule]"
-	    << " Constructing object..." << std::endl;
-  
-  // Set some private data members 
-  productLabel_ = pset.getParameter<std::string>("EDProductLabel");
-  verbosity_    = pset.getParameter<int>("Verbosity");
+  cout << "[SiStripDigiToRawModule::SiStripDigiToRawModule]"
+       << " Constructing object..." << endl;
   
   // Create instance of DigiToRaw formatter
-  digiToRaw_ = new SiStripDigiToRaw( verbosity_ );
-  digiToRaw_->fedReadoutMode( pset.getParameter<std::string>("FedReadoutMode") );
-  digiToRaw_->fedReadoutPath( pset.getParameter<std::string>("FedReadoutPath") );
-
-  // Define EDProduct type
-  produces<FEDRawDataCollection>();
+  string mode    = pset.getUntrackedParameter<std::string>("fedReadoutMode","VIRGIN_RAW");
+  int16_t nbytes = pset.getUntrackedParameter<int>("nAppendedBytes",0);
+  digiToRaw_ = new SiStripDigiToRaw( mode, nbytes );
+  
+  produces<FEDRawDataCollection>("FromSimulation");
 
 }
 
 // -----------------------------------------------------------------------------
-// Destructor
+/** */
 SiStripDigiToRawModule::~SiStripDigiToRawModule() {
-  std::cout << "[SiStripDigiToRawModule::~SiStripDigiToRawModule]"
-	    << " Destructing object..." << std::endl;
+  cout << "[SiStripDigiToRawModule::~SiStripDigiToRawModule]"
+       << " Destructing object..." << endl;
   if ( digiToRaw_ ) delete digiToRaw_;
 }
 
 // -----------------------------------------------------------------------------
-// Produces a FEDRawDataCollection
+/** 
+    Retrieves cabling map from EventSetup, retrieves a DetSetVector of
+    SiStirpDigis from Event, creates a FEDRawDataCollection
+    (EDProduct), uses DigiToRaw converter to fill
+    FEDRawDataCollection, attaches FEDRawDataCollection to Event.
+*/
 void SiStripDigiToRawModule::produce( edm::Event& iEvent, 
 				      const edm::EventSetup& iSetup ) {
 
-  // Some debug
   eventCounter_++; 
-  if (verbosity_>0) std::cout << "[SiStripDigiToRawModule::produce] "
- 			      << "event number: " 
-			      << eventCounter_ << std::endl;
+  cout << "[SiStripDigiToRawModule::produce] "
+       << "event number: " << eventCounter_ << endl;
   
-  // Retrieve readout cabling map from EventSetup
-  edm::ESHandle<SiStripReadoutCabling> cabling;
-  iSetup.get<SiStripReadoutCablingRcd>().get( cabling );
+  edm::ESHandle<SiStripFedCabling> cabling;
+  iSetup.get<SiStripFedCablingRcd>().get( cabling );
   
-  // Retrieve input data from Event, a StripDigiCollection
-  edm::Handle<StripDigiCollection> digis;
-  //iEvent.getByLabel( productLabel_, digis );
+  edm::Handle< edm::DetSetVector<SiStripDigi> > digis;
   iEvent.getByType( digis );
-
-  // Create EDProduct, a FEDRawDataCollection
+  
   std::auto_ptr<FEDRawDataCollection> buffers( new FEDRawDataCollection );
-
-  // Use DigiToRaw formatter to fill FEDRawDataCollection
+  
   digiToRaw_->createFedBuffers( cabling, digis, buffers );
 
-    // Attach FEDRawDataCollection to Event
-  //std::cout << "before" << std::endl;
   iEvent.put( buffers );
-  //std::cout << "after" << std::endl;
 
 }

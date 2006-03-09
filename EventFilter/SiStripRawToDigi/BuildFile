@@ -1,29 +1,30 @@
-<flags SEAL_PLUGIN_NAME="EventFilterSiStripRawToDigi">
-
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=Utilities/Timing>
-<use name=CondFormats/DataRecord>
-<use name=CondFormats/SiStripObjects>
+<use name=DataFormats/Common>
 <use name=DataFormats/FEDRawData>
 <use name=DataFormats/SiStripDigi>
+<use name=DataFormats/SiStripEventSummary>
+<use name=CondFormats/DataRecord>
+<use name=CondFormats/SiStripObjects>
 <use name=Fed9UUtils>
 <use name=ICUtils>
+<use name=clhep>
+<flags SEAL_PLUGIN_NAME="EventFilterSiStripRawToDigi">
 
 <export>
- <lib name=EventFilterSiStripRawToDigi>
- <use name=FWCore/Framework>
- <use name=FWCore/ParameterSet>
- <use name=Utilities/Timing>
- <use name=CondFormats/DataRecord>
- <use name=CondFormats/SiStripObjects>
- <use name=DataFormats/FEDRawData>
- <use name=DataFormats/SiStripDigi>
- <use name=Fed9UUtils>
- <use name=ICUtils>
+   <lib name=EventFilterSiStripRawToDigi>
+   <use name=FWCore/Framework>
+   <use name=FWCore/ParameterSet>
+   <use name=Utilities/Timing>
+   <use name=DataFormats/Common>
+   <use name=DataFormats/FEDRawData>
+   <use name=DataFormats/SiStripDigi>
+   <use name=DataFormats/SiStripEventSummary>
+   <use name=CondFormats/DataRecord>
+   <use name=CondFormats/SiStripObjects>
+   <use name=Fed9UUtils>
+   <use name=ICUtils>
+   <use name=clhep>
 </export>
 
-# Nota bene: EventFilter/SiStripRawToDigi has dependencies on (Fed9U) 
-# packages external to ORCA. Prior to hte first build, run the script 
-# below to install ToolFiles required by scramv1 for linking to these 
-# libs: ~bainbrid/public/OrcaCustomtoolFiles/CustomToolFiles.tcsh
