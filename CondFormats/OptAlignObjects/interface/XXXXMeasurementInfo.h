@@ -16,24 +16,13 @@ class XXXXMeasurementInfo;
 
 std::ostream & operator<<(std::ostream &, const XXXXMeasurementInfo &);
 
-/**
-  easy output...
-**/
-
-class OpticalAlignParam;
-
-std::ostream & operator<<(std::ostream &, const OpticalAlignParam &);
-
-
-// a Class holding data for an Optical Alignment transformation
+// a Class holding data for an Optical Alignment Measurement
 /**
     Author:  Michael Case
-    Date:    Dec. 15, 2005
+    Date:    March 7, 2006
 
-    It is my understanding that each optical geometrical object
-    has a position in space and possible other parameters such as
-    
  **/
+
 class  XXXXMeasurementInfo {
  public:  
   OpticalAlignParam x1_, x2_, x3_, x4_;
