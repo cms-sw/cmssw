@@ -1,0 +1,11 @@
+<export>
+ <lib name=GeometryCSCGeometry>
+ <use name=Geometry/CommonDetUnit>
+ <use name=clhep>
+</export>
+
+<use name=Geometry/CommonDetUnit>
+<use name=clhep>
+
+<flags SEAL_PLUGIN_NAME="GeometryCSCGeometry">
+
