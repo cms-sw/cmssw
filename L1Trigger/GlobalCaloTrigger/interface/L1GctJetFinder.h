@@ -2,6 +2,7 @@
 #define L1GCTJETFINDER_H_
 
 #include "L1GctJet.h"
+#include "L1GctRegion.h"
 
 #include <vector>
 using namespace std;
@@ -20,8 +21,8 @@ public:
 	L1GctJetFinder();
 	virtual ~L1GctJetFinder();
 
-	void setInputRegion(int i, L1GctRegion rgn);
-	void process();
+	void setInputRegion(int i, L1GctRegion rgn) {};
+	void process() {};
 	
 	inline vector<L1GctRegion> getInputRegions() { return inputRegions; }
 	inline vector<L1GctJet> getJets() { return outputJets; }
