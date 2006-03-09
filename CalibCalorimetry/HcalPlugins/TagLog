@@ -1,3 +1,6 @@
+** V02-01-00  [Thu Mar  9 21:44:08 2006]
+Use FileInPath and configuration fragments
+
 ** V02-00-06  [Wed Feb 22 20:57:37 2006]
 Include all correlations into HcalPedestalWidth
 
