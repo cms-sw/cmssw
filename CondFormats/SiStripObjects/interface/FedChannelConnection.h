@@ -21,19 +21,19 @@ class FedChannelConnection {
   
   /** Minimum information allowed is that required to uniquely
       identify a module (ie, crate + FEC + ring + CCU + module). */
-  FedChannelConnection( unsigned short fec_crate, 
-			unsigned short fec_slot, 
-			unsigned short fec_ring, 
-			unsigned short ccu_addr, 
-			unsigned short ccu_chan, 
-			unsigned short apv0 = 0,
-			unsigned short apv1 = 0,
-			unsigned int   dcu_id = 0,
-			uint32_t       det_id = 0,
-			unsigned short pairs  = 0,
-			unsigned short fed_id = 0,
-			unsigned short fed_ch = 0,
-			unsigned short length = 0,
+  FedChannelConnection( uint16_t fec_crate, 
+			uint16_t fec_slot, 
+			uint16_t fec_ring, 
+			uint16_t ccu_addr, 
+			uint16_t ccu_chan, 
+			uint16_t apv0 = 0,
+			uint16_t apv1 = 0,
+			uint32_t dcu_id = 0,
+			uint32_t det_id = 0,
+			uint16_t pairs  = 0,
+			uint16_t fed_id = 0,
+			uint16_t fed_ch = 0,
+			uint16_t length = 0,
 			bool dcu = false,
 			bool pll = false,
 			bool mux = false,
@@ -47,15 +47,15 @@ class FedChannelConnection {
   ~FedChannelConnection() {;}
 
   // Control   
-  const unsigned short& fecCrate() const { return fecCrate_; } 
-  const unsigned short& fecSlot()  const { return fecSlot_; } 
-  const unsigned short& fecRing()  const { return fecRing_; }
-  const unsigned short& ccuAddr()  const { return ccuAddr_; }
-  const unsigned short& ccuChan()  const { return ccuChan_; }
+  const uint16_t& fecCrate() const { return fecCrate_; } 
+  const uint16_t& fecSlot()  const { return fecSlot_; } 
+  const uint16_t& fecRing()  const { return fecRing_; }
+  const uint16_t& ccuAddr()  const { return ccuAddr_; }
+  const uint16_t& ccuChan()  const { return ccuChan_; }
 
   // I2C addresses
-  const unsigned short& i2cAddrApv0() const { return apv0_; }
-  const unsigned short& i2cAddrApv1() const { return apv1_; }
+  const uint16_t& i2cAddrApv0() const { return apv0_; }
+  const uint16_t& i2cAddrApv1() const { return apv1_; }
 
   const bool& dcu() const { return dcu0x00_; }
   const bool& mux() const { return mux0x43_; }
@@ -63,38 +63,38 @@ class FedChannelConnection {
   const bool& lld() const { return lld0x60_; }
   
   // Module / Detector
-  const unsigned int&   dcuId()  const { return dcuId_; }
-  const uint32_t&       detId()  const { return detId_; }
-  const unsigned short& nPairs() const { return nPairs_; }
-  unsigned short pairPos() const;
-  unsigned short pairId()  const;
+  const uint32_t& dcuId()  const { return dcuId_; }
+  const uint32_t& detId()  const { return detId_; }
+  const uint16_t& nPairs() const { return nPairs_; }
+  uint16_t pairPos() const; // APV pair position on a hybrid (0->2)
+  uint16_t pairId()  const; // APV number (0->1 or 0->2)
 
   // FED
-  const unsigned short& fedId() const { return fedId_; }
-  const unsigned short& fedCh() const { return fedCh_; }
+  const uint16_t& fedId() const { return fedId_; }
+  const uint16_t& fedCh() const { return fedCh_; }
 
  private: 
 
   // Control
-  unsigned short fecCrate_;
-  unsigned short fecSlot_;
-  unsigned short fecRing_;
-  unsigned short ccuAddr_;
-  unsigned short ccuChan_;
+  uint16_t fecCrate_;
+  uint16_t fecSlot_;
+  uint16_t fecRing_;
+  uint16_t ccuAddr_;
+  uint16_t ccuChan_;
 
   // I2C addresses
-  unsigned short apv0_; 
-  unsigned short apv1_; 
+  uint16_t apv0_; 
+  uint16_t apv1_; 
 
   // Module / Detector
-  unsigned int   dcuId_;
-  uint32_t       detId_;
-  unsigned short nPairs_;
+  uint32_t dcuId_;
+  uint32_t detId_;
+  uint16_t nPairs_;
 
   // FED
-  unsigned short fedId_;
-  unsigned short fedCh_;
-  unsigned short length_;
+  uint16_t fedId_;
+  uint16_t fedCh_;
+  uint16_t length_;
 
   // Found devices
   bool dcu0x00_; 

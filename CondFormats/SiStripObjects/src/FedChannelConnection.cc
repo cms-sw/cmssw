@@ -4,7 +4,7 @@
 
 // -----------------------------------------------------------------------------
 //
-unsigned short FedChannelConnection::pairPos() const {
+uint16_t FedChannelConnection::pairPos() const {
   if      ( apv0_ == 32 && apv1_ == 33 ) { return 0; }
   else if ( apv0_ == 34 && apv1_ == 35 ) { return 1; }
   else if ( apv0_ == 36 && apv1_ == 37 ) { return 2; }
@@ -20,7 +20,7 @@ unsigned short FedChannelConnection::pairPos() const {
 
 // -----------------------------------------------------------------------------
 //
-unsigned short FedChannelConnection::pairId() const {
+uint16_t FedChannelConnection::pairId() const {
   if ( nPairs_ == 2 ) {
     if ( apv0_ == 32 ) { return 0; }
     else if ( apv0_ == 36 ) { return 1; }

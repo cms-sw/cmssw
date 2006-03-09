@@ -7,8 +7,8 @@ SiStripFecCabling::SiStripFecCabling( const SiStripFedCabling& cabling ) : fecs_
   cout << "[SiStripFecCabling::SiStripFecCabling]" 
        << " Constructing object..." << endl;
   
-  const vector<unsigned short>& feds = cabling.feds();
-  vector<unsigned short>::const_iterator ifed;
+  const vector<uint16_t>& feds = cabling.feds();
+  vector<uint16_t>::const_iterator ifed;
   for ( ifed = feds.begin(); ifed != feds.end(); ifed++ ) {
     const vector<FedChannelConnection>& conns = cabling.connections( *ifed ); 
     vector<FedChannelConnection>::const_iterator iconn;
@@ -17,6 +17,52 @@ SiStripFecCabling::SiStripFecCabling( const SiStripFedCabling& cabling ) : fecs_
     }
   }
   
+}
+
+// -----------------------------------------------------------------------------
+//
+void SiStripFecCabling::connections( vector<FedChannelConnection>& conns ) {
+  cout << "[SiStripFecCabling::connections]" << endl;
+  conns.clear();
+  const vector<SiStripFec>& fecs = (*this).fecs();
+  for ( vector<SiStripFec>::const_iterator ifec = fecs.begin(); ifec != fecs.end(); ifec++ ) {
+    const vector<SiStripRing>& rings = (*ifec).rings();
+    for ( vector<SiStripRing>::const_iterator iring = rings.begin(); iring != rings.end(); iring++ ) {
+      const vector<SiStripCcu>& ccus = (*iring).ccus();
+      for ( vector<SiStripCcu>::const_iterator iccu = ccus.begin(); iccu != ccus.end(); iccu++ ) {
+	const vector<SiStripModule>& modules = (*iccu).modules();
+	for ( vector<SiStripModule>::const_iterator imod = modules.begin(); imod != modules.end(); imod++ ) {
+	  
+	  for ( uint16_t ipair = 0; ipair < (*imod).nPairs(); ipair++ ) {
+	    
+	    
+
+
+// 	    FedChannelConnection( (*imod).fec_crate, 
+// 				  fec_slot, 
+// 				  fec_ring, 
+// 				  ccu_addr, 
+// 				  ccu_chan, 
+// 				  apv0 = 0,
+// 				apv1 = 0,
+// 				uint32_t dcu_id = 0,
+// 				uint32_t det_id = 0,
+// 				pairs  = 0,
+// 				fed_id = 0,
+// 				fed_ch = 0,
+// 				length = 0,
+// 				dcu = false,
+// 				pll = false,
+// 				mux = false,
+// 				lld = false
+//  )
+
+// 	  conns.push_back( (*imod). );
+	  } 
+	}
+      }
+    }
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -66,19 +112,19 @@ SiStripModule& SiStripFecCabling::module( const FedChannelConnection& conn ) {
 
 // -----------------------------------------------------------------------------
 //
-void SiStripFecCabling::countDevices( unsigned int& nfecs,
-				      unsigned int& nrings,
-				      unsigned int& nccus,
-				      unsigned int& nmodules,
-				      unsigned int& napvs,
-				      unsigned int& ndcuids,
-				      unsigned int& ndetids,
-				      unsigned int& npairs,
-				      unsigned int& nfedchans,
-				      unsigned int& ndcus,
-				      unsigned int& nmuxes,
-				      unsigned int& nplls,
-				      unsigned int& nllds ) {
+void SiStripFecCabling::countDevices( uint32_t& nfecs,
+				      uint32_t& nrings,
+				      uint32_t& nccus,
+				      uint32_t& nmodules,
+				      uint32_t& napvs,
+				      uint32_t& ndcuids,
+				      uint32_t& ndetids,
+				      uint32_t& npairs,
+				      uint32_t& nfedchans,
+				      uint32_t& ndcus,
+				      uint32_t& nmuxes,
+				      uint32_t& nplls,
+				      uint32_t& nllds ) {
   cout << "[SiStripFecCabling::countDevices]" << endl;
   
   nfecs = nrings = nccus = nmodules = napvs = 0;
@@ -96,7 +142,12 @@ void SiStripFecCabling::countDevices( unsigned int& nfecs,
 	const vector<SiStripModule>& modules = (*iccu).modules();
 	for ( vector<SiStripModule>::const_iterator imod = modules.begin(); imod != modules.end(); imod++ ) {
 	  nmodules++;
-	  napvs+= (*imod).apvs().size();
+	  if ( (*imod).apv(32) ) { napvs++; }
+	  if ( (*imod).apv(33) ) { napvs++; }
+	  if ( (*imod).apv(34) ) { napvs++; }
+	  if ( (*imod).apv(35) ) { napvs++; }
+	  if ( (*imod).apv(36) ) { napvs++; }
+	  if ( (*imod).apv(37) ) { napvs++; }
 	  if ( (*imod).dcuId() ) { ndcuids++; }
 	  if ( (*imod).detId() ) { ndetids++; }
 	  npairs += (*imod).nPairs();
@@ -147,32 +198,38 @@ void SiStripCcu::addDevices( const FedChannelConnection& conn ) {
 void SiStripModule::addDevices( const FedChannelConnection& conn ) {
   cout << "[SiStripModule::addDevices]" << endl;
 
-  // APVs
-  vector<unsigned short>::iterator iapv;
-  if ( conn.i2cAddrApv0() ) {
-    iapv = find( apvs_.begin(), apvs_.end(), conn.i2cAddrApv0() );
-    if ( iapv == apvs_.end() ) { apvs_.push_back( conn.i2cAddrApv0() ); }
-  }
-  if ( conn.i2cAddrApv1() ) {
-    iapv = find( apvs_.begin(), apvs_.end(), conn.i2cAddrApv1() );
-    if ( iapv == apvs_.end() ) { apvs_.push_back( conn.i2cAddrApv1() ); }
-  }
-  sort( apvs_.begin(), apvs_.end() );
+  //@@ NEED CHECKS HERE!!!
 
+  // APV0
+  if ( conn.i2cAddrApv0() == 32 ) { apv0x32_ = true; }
+  if ( conn.i2cAddrApv0() == 33 ) { apv0x32_ = true; }
+  if ( conn.i2cAddrApv0() == 34 ) { apv0x32_ = true; }
+  if ( conn.i2cAddrApv0() == 35 ) { apv0x32_ = true; }
+  if ( conn.i2cAddrApv0() == 36 ) { apv0x32_ = true; }
+  if ( conn.i2cAddrApv0() == 37 ) { apv0x32_ = true; }
+
+  // APV1
+  if ( conn.i2cAddrApv1() == 32 ) { apv0x32_ = true; }
+  if ( conn.i2cAddrApv1() == 33 ) { apv0x32_ = true; }
+  if ( conn.i2cAddrApv1() == 34 ) { apv0x32_ = true; }
+  if ( conn.i2cAddrApv1() == 35 ) { apv0x32_ = true; }
+  if ( conn.i2cAddrApv1() == 36 ) { apv0x32_ = true; }
+  if ( conn.i2cAddrApv1() == 37 ) { apv0x32_ = true; }
+  
   // Detector
   if ( !dcuId_ && conn.dcuId() )   { dcuId_ = conn.dcuId(); dcu0x00_ = true; }
   if ( !detId_ && conn.detId() )   { detId_ = conn.detId(); }
   if ( !nPairs_ && conn.nPairs() ) { nPairs_ = conn.nPairs(); }
   
   // FED cabling
-  map< unsigned short, FedChannel>::iterator japv;
+  map< uint16_t, pair<uint16_t,uint16_t> >::iterator japv;
   japv = cabling_.find( conn.i2cAddrApv0() );
   if ( japv == cabling_.end() ) { 
-    cabling_[conn.i2cAddrApv0()] = FedChannel(conn.fedId(),conn.fedCh());
+    cabling_[conn.i2cAddrApv0()] = pair<uint16_t,uint16_t>( conn.fedId(), conn.fedCh() );
   }
   japv = cabling_.find( conn.i2cAddrApv1() );
   if ( japv == cabling_.end() ) { 
-    cabling_[conn.i2cAddrApv1()] = FedChannel(conn.fedId(),conn.fedCh());
+    cabling_[conn.i2cAddrApv1()] = pair<uint16_t,uint16_t>( conn.fedId(), conn.fedCh() );
   }
   
   // DCU, MUX, PLL, LLD
@@ -182,6 +239,68 @@ void SiStripModule::addDevices( const FedChannelConnection& conn ) {
   if ( !lld0x60_ && conn.lld() ) { lld0x60_ = true; }
   
 }
+
+// -----------------------------------------------------------------------------
+//
+vector<uint16_t> SiStripModule::apvs() {
+  cout << "[SiStripFecCabling::apvs]" << endl;
+  vector<uint16_t> apvs;
+  if ( apv0x32_ ) { apvs.push_back( apv0x32_ ); }
+  if ( apv0x33_ ) { apvs.push_back( apv0x33_ ); }
+  if ( apv0x34_ ) { apvs.push_back( apv0x34_ ); }
+  if ( apv0x35_ ) { apvs.push_back( apv0x35_ ); }
+  if ( apv0x36_ ) { apvs.push_back( apv0x36_ ); }
+  if ( apv0x37_ ) { apvs.push_back( apv0x37_ ); }
+  return apvs;
+}
+
+// -----------------------------------------------------------------------------
+//
+uint16_t SiStripModule::apv( uint16_t apv_id ) const {
+  cout << "[SiStripFecCabling::apv]" << endl;
+  if      ( apv_id == 0 || apv_id == 32 ) { return apv0x32_; }
+  else if ( apv_id == 1 || apv_id == 33 ) { return apv0x33_; }
+  else if ( apv_id == 2 || apv_id == 34 ) { return apv0x34_; }
+  else if ( apv_id == 3 || apv_id == 35 ) { return apv0x35_; }
+  else if ( apv_id == 4 || apv_id == 36 ) { return apv0x36_; }
+  else if ( apv_id == 5 || apv_id == 37 ) { return apv0x37_; }
+  else {
+    cerr << "[SiStripFecCabling::apv]" 
+	 << " Unexpected APV number!" << endl;
+  }
+  return uint16_t(0);
+}
+
+// // -----------------------------------------------------------------------------
+// //
+// pair<uint16_t,uint16_t>  SiStripModule::pair( uint16_t apv_pair ) const {
+//   cout << "[SiStripFecCabling::pair]" << endl;
+//   if ( nPairs_ == 2 ) {
+//     if      ( apv_pair == 0 ) { return pair<uint16_t,uint16_t>(apv0x32_,apv0x33_); }
+//     else if ( apv_pair == 1 ) { return pair<uint16_t,uint16_t>(apv0x36_,apv0x37_); }
+//     else                      { return pair<uint16_t,uint16_t>(0,0); }
+//   } else if ( nPairs_ == 3 ) {
+//     if      ( apv_pair == 0 ) { return pair<uint16_t,uint16_t>(apv0x32_,apv0x33_); }
+//     else if ( apv_pair == 1 ) { return pair<uint16_t,uint16_t>(apv0x34_,apv0x35_); }
+//     else if ( apv_pair == 2 ) { return pair<uint16_t,uint16_t>(apv0x36_,apv0x37_); }
+//     else                      { return pair<uint16_t,uint16_t>(0,0); }
+//   } else {
+//     cerr << "[SiStripFecCabling::pair]" << " Unexpected number of pairs!" << endl;
+//   }
+// }
+
+// // -----------------------------------------------------------------------------
+// //
+// pair<uint16_t,uint16_t>  SiStripModule::fedCh( uint16_t apv_pair ) const {
+//   cout << "[SiStripFecCabling::fedCh]" << endl;
+//   map< uint16_t, pair<uint16_t,uint16_t> >::iterator ipair;
+//   ipair = find( cabling_.begin(), cabling_.end(), apv_pair );
+//   if ( ipair != cabling_.end() ) { 
+//     return pair<uint16_t,uint16_t>(cabling_[ipair].first,cabling_[ipair].second);
+//   } else {
+//     return pair<uint16_t,uint16_t>(0,0);
+//   }
+// }
 
 // #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 // EVENTSETUP_DATA_REG( SiStripFecCabling );
