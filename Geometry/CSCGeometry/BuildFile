@@ -1,11 +1,19 @@
 <export>
  <lib name=GeometryCSCGeometry>
  <use name=Geometry/CommonDetUnit>
+ <use name=Geometry/CommonTopologies>
+ <use name=Geometry/Surface>
+ <use name=DataFormats/MuonDetId>
+ <use name=boost>
  <use name=clhep>
 </export>
 
-<use name=Geometry/CommonDetUnit>
-<use name=clhep>
+ <use name=Geometry/CommonDetUnit>
+ <use name=Geometry/CommonTopologies>
+ <use name=Geometry/Surface>
+ <use name=DataFormats/MuonDetId>
+ <use name=boost>
+ <use name=clhep>
 
 <flags SEAL_PLUGIN_NAME="GeometryCSCGeometry">
 
