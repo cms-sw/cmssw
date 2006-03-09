@@ -5,6 +5,15 @@
 #include <algorithm>
 using namespace std;
 
+namespace {
+  // FIXME
+  // hard-coded tracker bounds
+  // workaround while waiting for Geometry service
+  static const float TrackerBoundsRadius = 112;
+  static const float TrackerBoundsHalfLength = 273.5;
+}
+
+
 SequentialVertexFitter::SequentialVertexFitter(
   const LinearizationPointFinder & linP, 
   const VertexUpdator & updator, const VertexSmoother & smoother) : 
@@ -187,6 +196,7 @@ SequentialVertexFitter::fit(const vector<RefCountedVertexTrack> & tracks,
 
   // main loop through all the VTracks
   int step = 0;
+  bool inTrackerBounds = true;
   GlobalPoint newPosition = priorVertexPosition;
   GlobalPoint previousPosition;
   do {
@@ -200,6 +210,26 @@ SequentialVertexFitter::fit(const vector<RefCountedVertexTrack> & tracks,
 	   = globalVTracks.begin(); i != globalVTracks.end(); i++) {
       fVertex = theUpdator->add(fVertex,*i);
     }
+
+    // check tracker bounds
+    if (fVertex.position().transverse() > TrackerBoundsRadius
+        || abs(fVertex.position().z()) > TrackerBoundsHalfLength) {
+
+      // vertex got out of tracker bounds !
+      // reset initial vertex position to (0,0,0) and resume iteration
+      inTrackerBounds = false;
+      fVertex = CachingVertex(GlobalPoint(0,0,0), fVertex.error(),
+                              initialTracks, 0);
+      if (withPrior) {
+        returnVertex = CachingVertex(priorVertexPosition, priorVertexError,
+                                     GlobalPoint(0,0,0), fVertex.error(),
+                                     initialTracks,0);
+      }
+    }
+    else {
+      inTrackerBounds = true;
+    }
+
     previousPosition = newPosition;
     newPosition = fVertex.position();
 
@@ -208,6 +238,13 @@ SequentialVertexFitter::fit(const vector<RefCountedVertexTrack> & tracks,
     step++;
   } while ( (step != theMaxStep) &&
   	    ((previousPosition - newPosition).transverse() > theMaxShift) );
+
+  if (step >= theMaxStep) {
+    return CachingVertex(); // return invalid vertex
+  }
+  if (!inTrackerBounds) {
+    return CachingVertex(); // return invalid vertex
+  }
 
   // smoothing
   returnVertex = theSmoother->smooth(returnVertex);
