@@ -5,9 +5,9 @@
  * 
  *  DetUnit identifier for RPCs
  *
- *  $Date: 2006/03/08 07:33:25 $
- *  \version $Id: RPCDetId.h,v 1.8 2006/03/08 07:33:25 mmaggi Exp $
- *  $Revision: 1.8 $
+ *  $Date: 2006/03/08 23:36:16 $
+ *  \version $Id: RPCDetId.h,v 1.9 2006/03/08 23:36:16 mmaggi Exp $
+ *  $Revision: 1.9 $
  *  \author Ilaria Segoni
  */
 
@@ -157,9 +157,9 @@ class RPCDetId :public DetId {
   static const int SubSectorStartBit_ =  LayerStartBit_+LayerNumBits_;  
   static const unsigned int SubSectorMask_     =  0X3;
   
-  static const int RollNumBits_  =  2;
+  static const int RollNumBits_  =  3;
   static const int RollStartBit_ =  SubSectorStartBit_+SubSectorNumBits_;  
-  static const unsigned int RollMask_     =  0X3;
+  static const unsigned int RollMask_     =  0X7;
  
  private:
   void init(int region, 
