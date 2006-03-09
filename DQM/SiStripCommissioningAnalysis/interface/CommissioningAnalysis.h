@@ -1,7 +1,6 @@
 #ifndef DQM_SiStripCommissioningAnalysis_CommissioningAnalysis_H
 #define DQM_SiStripCommissioningAnalysis_CommissioningAnalysis_H
 
-#include "DQM/SiStripCommissioningAnalysis/interface/HistoSet.h"
 #include <string>
 
 class CommissioningHistograms;
