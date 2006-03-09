@@ -53,7 +53,7 @@ void RPCDigitizer::doAction(MixCollection<PSimHit> & simHits,
 
 const RPCRoll * RPCDigitizer::findDet(int detId) const {
   assert(theTrackingGeometry != 0);
-  const GeomDetUnit* detUnit = theTrackingGeometry->idToDet(RPCDetId(detId));
+  const GeomDetUnit* detUnit = theTrackingGeometry->idToDetUnit(RPCDetId(detId));
   return dynamic_cast<const RPCRoll *>(detUnit);
 }
 
