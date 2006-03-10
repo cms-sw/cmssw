@@ -1,26 +1,14 @@
 <export>
  <lib name=GeometryCSCGeometryBuilder>
- <use name=DataFormats/MuonDetId>
- <use name=DetectorDescription/Core>
- <use name=Geometry/CSCGeometry>
- <use name=Geometry/CommonDetUnit>
  <use name=Geometry/MuonNumbering>
- <use name=Geometry/Surface>
  <use name=Geometry/Records>
- <use name=FWCore/Framework>
- <use name=FWCore/ParameterSet>
- <use name=boost>
+ <use name=Geometry/CSCGeometry>
+ <use name=DetectorDescription/Core>
 </export>
 
- <use name=DataFormats/MuonDetId>
- <use name=DetectorDescription/Core>
- <use name=Geometry/CSCGeometry>
- <use name=Geometry/CommonDetUnit>
  <use name=Geometry/MuonNumbering>
- <use name=Geometry/Surface>
  <use name=Geometry/Records>
- <use name=FWCore/Framework>
- <use name=FWCore/ParameterSet>
- <use name=boost>
+ <use name=Geometry/CSCGeometry>
+ <use name=DetectorDescription/Core>
 
 <flags SEAL_PLUGIN_NAME="GeometryCSCGeometryBuilder">
