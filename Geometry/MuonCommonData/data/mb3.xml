@@ -31,12 +31,15 @@
   <Constant name="MB3nSLZ_HC_dist" value="3*mm"/>
 
 <!--- #### MB3: Constants for RPCs -->
+  <Constant name="MB3RPC_EngineerXPos" value="5994.*mm"/>
+  <Constant name="MB3RPC_EngineerYPos" value="184.*mm"/>
+
   <Constant name="MB3RPC_x" value="3000./2*mm"/>
   <Constant name="MB3RPC_Gas_x" value="1480./2*mm"/>
   <Constant name="MB3RPC_Gas_x_pos" value="75*cm"/>
 
-  <Constant name="MB3RPC_x_pos" value="3.6444*cm"/>
-  <Constant name="MB3RPC_z_pos" value="15.5*cm"/>
+  <Constant name="MB3RPC_x_pos" value="[mb3:MB3UnitRadius]*sin([mb3:MB3PosAngle])-[mb3:MB3RPC_EngineerYPos]"/>                                          <!---  36.80 mm -->
+  <Constant name="MB3RPC_z_pos" value="[mb3:MB3UnitRadius]*cos([mb3:MB3PosAngle])-([mb3:MB3RPC_EngineerXPos]+[mbCommon:MBRPC_EngineerChamberWidth])"/>  <!--- 157.25*mm -->
 
 <!--- #### MB3Chim: Constants for DT RPCs -->
   <Constant name="MB3ChimRPC_GasRight_y_pos" value="[mbCommon:MBRPC_GasRight_y_pos]-([mbCommon:MBRPC_z]-[mbCommon:MBChimRPC_z])"/>
@@ -710,7 +713,7 @@
    <rParent name="cms:MBWheel_1N"/>
    <rChild name="mb3:MB3ChimN"/>
   <rRotation name="rotations:MM300"/>
-  <Translation x="[MB3UnitRadius]*cos([MB3PosAngle]+60.*deg)" y="[MB3UnitRadius]*sin([MB3PosAngle]+60.*deg)" z="[mbCommon:MBChimPos_z]" />
+  <Translation x="[MB3UnitRadius]*cos([MB3PosAngle]+60.*deg)" y="[MB3UnitRadius]*sin([MB3PosAngle]+60.*deg)" z="-[mbCommon:MBChimPos_z]" />
  </PosPart>
  <AlgoPosPart algo="global:angular">
    <rParent name="cms:MBWheel_1N"/>
@@ -1272,7 +1275,7 @@
 <PosPart copyNumber="1">
    <rParent name="mb3:MB3P"/>
    <rChild name="mb3:MB3RPC_P"/>
-  <Translation x="[mb3:MB3RPC_x_pos]" y="0*fm" z="[mb3:MB3RPC_z_pos]-[mbCommon:MBSL_posDisp]" />
+  <Translation x="[mb3:MB3RPC_x_pos]" y="0*fm" z="[mb3:MB3RPC_z_pos]" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb3:MB3RPC_P"/>
@@ -1298,27 +1301,27 @@
  <PosPart copyNumber="1">
    <rParent name="mb3:MB3N"/>
    <rChild name="mb3:MB3RPC_N"/>
-  <Translation x="[mb3:MB3RPC_x_pos]" y="0*fm" z="[mb3:MB3RPC_z_pos]-[mbCommon:MBSL_posDisp]" />
+  <Translation x="-[mb3:MB3RPC_x_pos]" y="0*fm" z="[mb3:MB3RPC_z_pos]" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb3:MB3RPC_N"/>
    <rChild name="mb3:MB3RPC_GasLeft"/>
-  <Translation x="[mb3:MB3RPC_Gas_x_pos]" y="[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm" />
+  <Translation x="[mb3:MB3RPC_Gas_x_pos]" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm" />
  </PosPart>
  <PosPart copyNumber="2">
    <rParent name="mb3:MB3RPC_N"/>
    <rChild name="mb3:MB3RPC_GasLeft"/>
-  <Translation x="-[mb3:MB3RPC_Gas_x_pos]" y="[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm" />
+  <Translation x="-[mb3:MB3RPC_Gas_x_pos]" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb3:MB3RPC_N"/>
    <rChild name="mb3:MB3RPC_GasRight"/>
-  <Translation x="[mb3:MB3RPC_Gas_x_pos]" y="-[mbCommon:MBRPC_GasRight_y_pos]" z="0*cm" />
+  <Translation x="[mb3:MB3RPC_Gas_x_pos]" y="[mbCommon:MBRPC_GasRight_y_pos]" z="0*cm" />
  </PosPart>
  <PosPart copyNumber="2">
    <rParent name="mb3:MB3RPC_N"/>
    <rChild name="mb3:MB3RPC_GasRight"/>
-  <Translation x="-[mb3:MB3RPC_Gas_x_pos]" y="-[mbCommon:MBRPC_GasRight_y_pos]" z="0*cm" />
+  <Translation x="-[mb3:MB3RPC_Gas_x_pos]" y="[mbCommon:MBRPC_GasRight_y_pos]" z="0*cm" />
  </PosPart>
 
 <!-- ####  MB3Chimney Unit -->
@@ -1815,17 +1818,17 @@
  <PosPart copyNumber="1">
    <rParent name="mb3:MB3ChimP"/>
    <rChild name="mb3:MB3ChimRPC_P"/>
-  <Translation x="[mb3:MB3RPC_x_pos]" y="0*fm" z="[mb3:MB3RPC_z_pos]-[mbCommon:MBSL_posDisp]" />
+  <Translation x="[mb3:MB3RPC_x_pos]" y="0*fm" z="[mb3:MB3RPC_z_pos]" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb3:MB3ChimRPC_P"/>
    <rChild name="mb3:MB3ChimRPC_GasLeft"/>
-  <Translation x="[mb3:MB3RPC_Gas_x_pos]" y="-62.9*cm" z="0*cm" />
+  <Translation x="[mb3:MB3RPC_Gas_x_pos]" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm" />
  </PosPart>
  <PosPart copyNumber="2">
    <rParent name="mb3:MB3ChimRPC_P"/>
    <rChild name="mb3:MB3ChimRPC_GasLeft"/>
-  <Translation x="-[mb3:MB3RPC_Gas_x_pos]" y="-62.9*cm" z="0*cm" />
+  <Translation x="-[mb3:MB3RPC_Gas_x_pos]" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb3:MB3ChimRPC_P"/>
@@ -1841,27 +1844,27 @@
  <PosPart copyNumber="1">
    <rParent name="mb3:MB3ChimN"/>
    <rChild name="mb3:MB3ChimRPC_N"/>
-  <Translation x="[mb3:MB3RPC_x_pos]" y="0*fm" z="[mb3:MB3RPC_z_pos]-[mbCommon:MBSL_posDisp]" />
+  <Translation x="-[mb3:MB3RPC_x_pos]" y="0*fm" z="[mb3:MB3RPC_z_pos]" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb3:MB3ChimRPC_N"/>
    <rChild name="mb3:MB3ChimRPC_GasLeft"/>
-  <Translation x="[mb3:MB3RPC_Gas_x_pos]" y="62.9*cm" z="0*cm" />
+  <Translation x="[mb3:MB3RPC_Gas_x_pos]" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm" />
  </PosPart>
  <PosPart copyNumber="2">
    <rParent name="mb3:MB3ChimRPC_N"/>
    <rChild name="mb3:MB3ChimRPC_GasLeft"/>
-  <Translation x="-[mb3:MB3RPC_Gas_x_pos]" y="62.9*cm" z="0*cm" />
+  <Translation x="-[mb3:MB3RPC_Gas_x_pos]" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb3:MB3ChimRPC_N"/>
    <rChild name="mb3:MB3ChimRPC_GasRight"/>
-  <Translation x="[mb3:MB3RPC_Gas_x_pos]" y="-[mb3:MB3ChimRPC_GasRight_y_pos]" z="0*cm" />
+  <Translation x="[mb3:MB3RPC_Gas_x_pos]" y="[mb3:MB3ChimRPC_GasRight_y_pos]" z="0*cm" />
  </PosPart>
  <PosPart copyNumber="2">
    <rParent name="mb3:MB3ChimRPC_N"/>
    <rChild name="mb3:MB3ChimRPC_GasRight"/>
-  <Translation x="-[mb3:MB3RPC_Gas_x_pos]" y="-[mb3:MB3ChimRPC_GasRight_y_pos]" z="0*cm" />
+  <Translation x="-[mb3:MB3RPC_Gas_x_pos]" y="[mb3:MB3ChimRPC_GasRight_y_pos]" z="0*cm" />
  </PosPart>
 
 </PosPartSection>

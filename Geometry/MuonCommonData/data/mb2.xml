@@ -1451,7 +1451,7 @@ plus MB2ChimP (32P) , MB2ChimN (32N)
  <PosPart copyNumber="1">
    <rParent name="mb2:MB2N32P"/>
    <rChild name="mb2:MB2RPC_IP"/>
-  <Translation x="-[mb2:MB2RPC_I_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]" />
+  <Translation x="[mb2:MB2RPC_I_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]" />
  </PosPart>
 
  <PosPart copyNumber="1">
@@ -1483,7 +1483,7 @@ plus MB2ChimP (32P) , MB2ChimN (32N)
  <PosPart copyNumber="1">
    <rParent name="mb2:MB2N32P"/>
    <rChild name="mb2:MB2RPC_OP"/>
-  <Translation x="-[mb2:MB2RPC_O_x_pos]" y="0*fm" z="-[mbCommon:MBRPC_z_pos]" />
+  <Translation x="[mb2:MB2RPC_O_x_pos]" y="0*fm" z="-[mbCommon:MBRPC_z_pos]" />
  </PosPart>
 
  <PosPart copyNumber="1">
@@ -1500,51 +1500,51 @@ plus MB2ChimP (32P) , MB2ChimN (32N)
  <PosPart copyNumber="1">
    <rParent name="mb2:MB2N32N"/>
    <rChild name="mb2:MB2RPC_IN"/>
-  <Translation x="-[mb2:MB2RPC_I_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]" />
+  <Translation x="[mb2:MB2RPC_I_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]" />
  </PosPart>
  <PosPart copyNumber="2">
    <rParent name="mb2:MB2N23N"/>
    <rChild name="mb2:MB2RPC_IN"/>
-  <Translation x="-[mb2:MB2RPC_O_x_pos]" y="0*fm" z="-[mbCommon:MBRPC_z_pos]" />
+  <Translation x="[mb2:MB2RPC_O_x_pos]" y="0*fm" z="-[mbCommon:MBRPC_z_pos]" />
  </PosPart>
 
  <PosPart copyNumber="1">
    <rParent name="mb2:MB2RPC_IN"/>
    <rChild name="mb2:MB2RPC_IGasLeft"/>
-  <Translation x="0*cm" y="[mb2:MB2RPC_IGasLeft_y_pos]" z="0*cm" />
+  <Translation x="0*cm" y="-[mb2:MB2RPC_IGasLeft_y_pos]" z="0*cm" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb2:MB2RPC_IN"/>
    <rChild name="mb2:MB2RPC_IGasMiddle"/>
-  <Translation x="0*cm" y="[mb2:MB2RPC_IGasMiddle_y_pos]" z="0*cm" />
+  <Translation x="0*cm" y="-[mb2:MB2RPC_IGasMiddle_y_pos]" z="0*cm" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb2:MB2RPC_IN"/>
    <rChild name="mb2:MB2RPC_IGasRight"/>
-  <Translation x="0*cm" y="-[mb2:MB2RPC_IGasRight_y_pos]" z="0*cm" />
+  <Translation x="0*cm" y="[mb2:MB2RPC_IGasRight_y_pos]" z="0*cm" />
  </PosPart>
 
 <!-- ##### MB2: RPC_ON chamber -->
  <PosPart copyNumber="1">
    <rParent name="mb2:MB2N32N"/>
    <rChild name="mb2:MB2RPC_ON"/>
-  <Translation x="-[mb2:MB2RPC_O_x_pos]" y="0*fm" z="-[mbCommon:MBRPC_z_pos]" />
+  <Translation x="[mb2:MB2RPC_O_x_pos]" y="0*fm" z="-[mbCommon:MBRPC_z_pos]" />
  </PosPart>
  <PosPart copyNumber="2">
    <rParent name="mb2:MB2N23N"/>
    <rChild name="mb2:MB2RPC_ON"/>
-  <Translation x="-[mb2:MB2RPC_I_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]" />
+  <Translation x="[mb2:MB2RPC_I_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]" />
  </PosPart>
 
  <PosPart copyNumber="1">
    <rParent name="mb2:MB2RPC_ON"/>
    <rChild name="mb2:MB2RPC_OGasLeft"/>
-  <Translation x="0*cm" y="[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm" />
+  <Translation x="0*cm" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb2:MB2RPC_ON"/>
    <rChild name="mb2:MB2RPC_OGasRight"/>
-  <Translation x="0*cm" y="-[mbCommon:MBRPC_GasRight_y_pos]" z="0*cm" />
+  <Translation x="0*cm" y="[mbCommon:MBRPC_GasRight_y_pos]" z="0*cm" />
  </PosPart>
 
 
@@ -2080,38 +2080,38 @@ plus MB2ChimP (32P) , MB2ChimN (32N)
  <PosPart copyNumber="1">
    <rParent name="mb2:MB2ChimN"/>
    <rChild name="mb2:MB2ChimRPC_IN"/>
-  <Translation x="-[mb2:MB2RPC_I_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]" />
+  <Translation x="[mb2:MB2RPC_I_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb2:MB2ChimRPC_IN"/>
    <rChild name="mb2:MB2ChimRPC_IGasLeft"/>
-  <Translation x="0*cm" y="[mb2:MB2ChimRPC_IGasLeft_y_pos]" z="0*cm" />
+  <Translation x="0*cm" y="-[mb2:MB2ChimRPC_IGasLeft_y_pos]" z="0*cm" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb2:MB2ChimRPC_IN"/>
    <rChild name="mb2:MB2ChimRPC_IGasMiddle"/>
-  <Translation x="0*cm" y="[mb2:MB2ChimRPC_IGasMiddle_y_pos]" z="0*cm" />
+  <Translation x="0*cm" y="-[mb2:MB2ChimRPC_IGasMiddle_y_pos]" z="0*cm" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb2:MB2ChimRPC_IN"/>
    <rChild name="mb2:MB2ChimRPC_IGasRight"/>
-  <Translation x="0*cm" y="-[mb2:MB2ChimRPC_IGasRight_y_pos]" z="0*cm" />
+  <Translation x="0*cm" y="[mb2:MB2ChimRPC_IGasRight_y_pos]" z="0*cm" />
  </PosPart>
 <!-- ##### MB2Chim: RPC_ON chamber -->
  <PosPart copyNumber="1">
    <rParent name="mb2:MB2ChimN"/>
    <rChild name="mb2:MB2ChimRPC_ON"/>
-  <Translation x="-[mb2:MB2RPC_O_x_pos]" y="0*fm" z="-[mbCommon:MBRPC_z_pos]" />
+  <Translation x="[mb2:MB2RPC_O_x_pos]" y="0*fm" z="-[mbCommon:MBRPC_z_pos]" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb2:MB2ChimRPC_ON"/>
    <rChild name="mb2:MB2ChimRPC_OGasLeft"/>
-  <Translation x="0*cm" y="[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm" />
+  <Translation x="0*cm" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb2:MB2ChimRPC_ON"/>
    <rChild name="mb2:MB2ChimRPC_OGasRight"/>
-  <Translation x="0*cm" y="-[mb2:MB2ChimRPC_OGasRight_y_pos]" z="0*cm" />
+  <Translation x="0*cm" y="[mb2:MB2ChimRPC_OGasRight_y_pos]" z="0*cm" />
  </PosPart>
 
 </PosPartSection>
