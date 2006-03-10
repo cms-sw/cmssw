@@ -43,8 +43,8 @@ public:
   virtual float estimate(const CachingVertex & v, 
 			 const RefCountedLinearizedTrackState track) const;
 
-//   virtual float estimate(const RecVertex & v, 
-// 			 const RecTrack & track) const;
+  virtual float estimate(const reco::Vertex & vertex, 
+			 const reco::TransientTrack & track) const;
 
   virtual KalmanVertexTrackCompatibilityEstimator * clone() const
   {

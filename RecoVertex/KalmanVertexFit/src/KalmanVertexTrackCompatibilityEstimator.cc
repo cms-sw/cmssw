@@ -1,4 +1,5 @@
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexTrackCompatibilityEstimator.h"
+#include "RecoVertex/VertexPrimitives/interface/ConvertError.h"
 #include <algorithm>
 
 struct vT_find
@@ -38,27 +39,30 @@ KalmanVertexTrackCompatibilityEstimator::estimate(const CachingVertex & vertex,
 }
 
 
-// float
-// KalmanVertexTrackCompatibilityEstimator::estimate(const RecVertex & vertex,
-// 			const RecTrack & track) const
-// { 	
-//   GlobalPoint linP = vertex.position();
-//   
-//   RefCountedLinearizedTrackState linTrack = 
-//   			lTrackFactory.linearizedTrackState(linP, track);
-//   VertexState vState(linP, vertex.positionError());
-//   RefCountedVertexTrack vertexTrack = vTrackFactory.vertexTrack(linTrack, vState);
-// 
-//   vector<RefCountedVertexTrack> initialTracks(1, vertexTrack);
-//   CachingVertex cachingVertex(linP, vertex.positionError(), initialTracks,
-//   			    vertex.totalChiSquared());
-// 
-//   if (vertex.trackWeight(track)!=0) {
-//     return estimateFittedTrack(cachingVertex, vertexTrack);
-//   } else {
-//     return estimateNFittedTrack(cachingVertex, vertexTrack);
-//   }
-// }
+float
+KalmanVertexTrackCompatibilityEstimator::estimate(const reco::Vertex & vertex, 
+			 const reco::TransientTrack & track) const
+{ 	
+//   GlobalPoint linP(vertex.position().x(), vertex.position().z(),vertex.position().z());
+    GlobalPoint linP(Basic3DVector<float> (vertex.position()));
+
+  RefCountedLinearizedTrackState linTrack = 
+  			lTrackFactory.linearizedTrackState(linP, track);
+  GlobalError err(RecoVertex::convertError(vertex.error()));
+  VertexState vState(linP, err);
+  RefCountedVertexTrack vertexTrack = vTrackFactory.vertexTrack(linTrack, vState);
+
+  vector<RefCountedVertexTrack> initialTracks(1, vertexTrack);
+  CachingVertex cachingVertex(linP, err, initialTracks,
+  			    vertex.chi2());
+
+  if (find(vertex.tracks_begin(), vertex.tracks_end(), track.persistentTrackRef()) != vertex.tracks_end())
+  {
+    return estimateFittedTrack(cachingVertex, vertexTrack);
+  } else {
+    return estimateNFittedTrack(cachingVertex, vertexTrack);
+  }
+}
 
 
 
