@@ -9,8 +9,16 @@ TransientTrack::TransientTrack( const Track & tk ) : Track(tk), tk_(tk) {
     (parameters(), covariance(), GlobalPoint(0.,0.,0.));
 }
 
+TransientTrack::TransientTrack( const TrackRef & tk ) : Track((*tk)), 
+tk_((*tk)), 
+tkr_(tk)
+{
+  tk->chi2();
+}
+
 TransientTrack::TransientTrack( const TransientTrack & tt ) :
-  Track(tt.persistentTrack()), tk_(tt.persistentTrack())
+  Track(tt.persistentTrack()), tk_(tt.persistentTrack()),
+  tkr_(tt.persistentTrackRef())
 {originalTSCP = TrajectoryStateClosestToPoint
     (parameters(), covariance(), GlobalPoint(0.,0.,0.));}
 
