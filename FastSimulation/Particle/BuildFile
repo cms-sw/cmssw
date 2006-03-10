@@ -1,0 +1,8 @@
+
+# <use name=GeneratorInterface/HepPDT>
+<use name=clhep>
+
+<export>
+ <lib name=FastSimulationParticle>
+# <use name=GeneratorInterface/HepPDT>
+</export>
