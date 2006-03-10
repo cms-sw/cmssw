@@ -1,5 +1,5 @@
 //
-// $Id: $
+// $Id: EcalTrivialObjectAnalyzer.cc,v 1.1 2006/03/02 17:03:44 rahatlou Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -8,6 +8,7 @@
 #include <stdexcept>
 #include <string>
 #include <iostream>
+#include <iomanip>
 #include <map>
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -54,7 +55,7 @@ using namespace std;
     edm::ESHandle<EcalADCToGeVConstant> pAgc;
     context.get<EcalADCToGeVConstantRcd>().get(pAgc);
     const EcalADCToGeVConstant* agc = pAgc.product();
-    std::cout << "Global ADC->GeV scale: " << agc->getValue() << " GeV/ADC count" << std::endl;
+    std::cout << "Global ADC->GeV scale: " << std::setprecision(6) << agc->getValue() << " GeV/ADC count" << std::endl;
 
     // use a channel to fetch values from DB
     double r1 = (double)std::rand()/( double(RAND_MAX)+double(1) );
@@ -69,7 +70,7 @@ using namespace std;
     std::map<const unsigned int,EcalPedestals::Item>::const_iterator it=myped->m_pedestals.find(ebid.rawId());
     if( it!=myped->m_pedestals.end() ){
       std::cout << "EcalPedestal: "
-                << "  mean_x1:  " <<it->second.mean_x1 << " rms_x1: " << it->second.rms_x1
+                << "  mean_x1:  " << std::setprecision(8) << it->second.mean_x1 << " rms_x1: " << it->second.rms_x1
                 << "  mean_x6:  " <<it->second.mean_x6 << " rms_x6: " << it->second.rms_x6
                 << "  mean_x12: " <<it->second.mean_x12 << " rms_x12: " << it->second.rms_x12
                 << std::endl;
@@ -86,7 +87,7 @@ using namespace std;
     EcalWeightXtalGroups::EcalXtalGroupsMap::const_iterator git = grp->getMap().find( ebid.rawId() );
     EcalXtalGroupId gid;
     if( git != grp->getMap().end() ) {
-      std::cout << "XtalGroupId.id() = " << git->second.id() << std:: endl;
+      std::cout << "XtalGroupId.id() = " << std::setprecision(3) << git->second.id() << std:: endl;
       gid = git->second;
     } else {
       std::cout << "No group id found for this crystal. something wrong with EcalWeightXtalGroups in your DB?"
@@ -104,7 +105,7 @@ using namespace std;
       mgpa = grit->second;
 
       std::cout << "EcalMGPAGainRatio: "
-                << "gain 12/6 :  " << mgpa.gain12Over6() << " gain 6/1: " << mgpa.gain6Over1()
+                << "gain 12/6 :  " << std::setprecision(4) << mgpa.gain12Over6() << " gain 6/1: " << mgpa.gain6Over1()
                 << std::endl;
     } else {
      std::cout << "No MGPA Gain Ratio found for this xtal! something wrong with EcalGainRatios in your DB? "
@@ -122,6 +123,7 @@ using namespace std;
       icalconst = icalit->second;
 
       std::cout << "EcalIntercalibConstant: "
+                <<std::setprecision(6)
                 << icalconst
                 << std::endl;
     } else {
@@ -134,13 +136,14 @@ using namespace std;
    edm::ESHandle<EcalTBWeights> pWgts;
    context.get<EcalTBWeightsRcd>().get(pWgts);
    const EcalTBWeights* wgts = pWgts.product();
-   std::cout << "EcalTBWeightMap.size(): " << wgts->getMap().size() << std::endl;
+   std::cout << "EcalTBWeightMap.size(): " << std::setprecision(3) << wgts->getMap().size() << std::endl;
 
    // look up the correct weights for this  xtal
    //EcalXtalGroupId gid( git->second );
    EcalTBWeights::EcalTDCId tdcid(1);
 
-   std::cout << "Lookup EcalWeightSet for groupid: " << gid.id() << " and TDC id " << tdcid << std::endl;
+   std::cout << "Lookup EcalWeightSet for groupid: " << std::setprecision(3) 
+             << gid.id() << " and TDC id " << tdcid << std::endl;
    EcalTBWeights::EcalTBWeightMap::const_iterator wit = wgts->getMap().find( std::make_pair(gid,tdcid) );
    EcalWeightSet  wset;
    if( wit != wgts->getMap().end() ) {
