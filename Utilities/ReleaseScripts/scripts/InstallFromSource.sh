@@ -33,7 +33,7 @@ export SCRAM_NOSYMCHECK=true
 
 cd $cmssw_version;
 
-scramv1 b -v -k release-build > logs/slc3_ia32_gcc323/release-build.log 2> logs/slc3_ia32_gcc323/release-build-errors.log&
+scramv1 b -v -k release-build > logs/slc3_ia32_gcc323/release-build.log 2> logs/slc3_ia32_gcc323/release-build-errors.log
 
 #scramv1 b release-freeze;
 eval `scramv1 runtime -sh`
