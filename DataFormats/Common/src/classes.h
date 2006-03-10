@@ -5,6 +5,7 @@
 #include "DataFormats/Common/interface/EventAux.h"
 #include "DataFormats/Common/interface/EventID.h"
 #include "DataFormats/Common/interface/EventProvenance.h"
+#include "DataFormats/Common/interface/ParameterSetBlob.h"
 #include "DataFormats/Common/interface/ParameterSetID.h"
 #include "DataFormats/Common/interface/ProductID.h"
 #include "DataFormats/Common/interface/ProductRegistry.h"

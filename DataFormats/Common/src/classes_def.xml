@@ -2,6 +2,7 @@
  <class name="edm::EDProduct"/>
  <class name="edm::ProductID"/>
  <class name="edm::ParameterSetID"/>
+ <class name="edm::ParameterSetBlob"/>
  <class name="edm::EventID"/>
  <class name="edm::Timestamp"/>
  <class name="edm::RefCore">
