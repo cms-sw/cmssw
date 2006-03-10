@@ -169,7 +169,8 @@ namespace cms
 
       //--- Vector for temporary storage.  Need to do it this way
       //--- since put() method will map the range to DetId.
-      SiPixelRecHitCollection::Container recHitsOnDetUnit;  
+      //old SiPixelRecHitCollection::Container recHitsOnDetUnit;  
+       edm::OwnVector<SiPixelRecHit> recHitsOnDetUnit;  
 
       // &&& We really should preallocate the size of this container since
       // &&& we *know* how many PixelClusters there are on this det unit!
@@ -191,12 +192,18 @@ namespace cms
 
       //--- At the end of this det unit, move all hits to the
       //--- real PixelRecHitColl.
-      SiPixelRecHitCollection::Range inputRange;
-      inputRange.first = recHitsOnDetUnit.begin();
-      inputRange.second = recHitsOnDetUnit.end();
+      //old SiPixelRecHitCollection::Range inputRange;
+      //old inputRange.first = recHitsOnDetUnit.begin();
+      //old inputRange.second = recHitsOnDetUnit.end();
+      //old output.put(inputRange, detid);
 
-      output.put(inputRange, detid);
-
+      if (recHitsOnDetUnit.size() > 0) {
+	output.put(detIdObject, 
+		   recHitsOnDetUnit.begin(), recHitsOnDetUnit.end());
+	std::cout << "[SiPixelRecHitConverter]: found " 
+		  << recHitsOnDetUnit.size() << " RecHits on" << detid
+		  << std::endl;
+      }
       // numberOfRecHits += recHitsOnDetUnit.size();
     }
     // end of the loop over detunits
