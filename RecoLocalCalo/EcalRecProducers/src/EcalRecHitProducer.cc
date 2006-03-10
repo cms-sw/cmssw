@@ -1,9 +1,9 @@
 /** \class EcalRecHitProducer
  *   produce ECAL rechits from uncalibrated rechits
  *
- *  $Id: $
- *  $Date: $
- *  $Revision: $
+ *  $Id: EcalRecHitProducer.cc,v 1.1 2006/03/10 08:43:16 rahatlou Exp $
+ *  $Date: 2006/03/10 08:43:16 $
+ *  $Revision: 1.1 $
  *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
  *
  **/
@@ -61,10 +61,10 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
      std::cerr << "Error! can't get the product " << uncalibRecHitCollection_.c_str() << std::endl;
    }
    const EcalUncalibratedRecHitCollection*  uncalibRecHits = pUncalibRecHits.product(); // get a ptr to the product
-   if(!counterExceeded())
+   if(!counterExceeded()) {
       std::cout << "EcalRecHitProducer: total # uncalibrated rechits: " << uncalibRecHits->size()
                 << std::endl;
-
+   }
 
    // now fetch all conditions we need to make rechits
    // ADC -> GeV Scale
@@ -99,13 +99,12 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
                 << std::endl;
      }
 
+     // make the rechit and put in the output collection
      // must implement op= for EcalRecHit
      EcalRecHit aHit( algo_->makeRecHit(*it, icalconst ) );
-
-     // make the rechit and put in the output collection
-     //rechits->push_back( algo_->makeRecHit(*it, icalconst ) );
      rechits->push_back( aHit );
 
+  /**
      if(it->amplitude()>0. && !counterExceeded() ) {
         std::cout << "EcalRecHitProducer: processed UncalibRecHit with rawId: "
                   << it->id().rawId() << "\n"
@@ -113,9 +112,16 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
                   << " calib rechit energy: " << aHit.energy()
                   << std::endl;
      }
+  **/
    }
 
    // put the collection of recunstructed hits in the event
+
+   if(!counterExceeded()) {
+      std::cout << "EcalRecHitProducer: total # calibrated rechits: " << rechits->size()
+                << std::endl;
+   }
+
    evt.put( rechits, rechitCollection_ );
-}
+} //produce()
 
