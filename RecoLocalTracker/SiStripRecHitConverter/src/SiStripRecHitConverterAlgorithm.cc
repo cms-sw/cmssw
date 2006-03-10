@@ -19,8 +19,7 @@
 #include "DataFormats/SiStripDetId/interface/TECDetId.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-#include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
-#include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
+#include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/CommonDetAlgo/interface/MeasurementPoint.h"
 
 #include "Geometry/Surface/interface/LocalError.h"
@@ -131,18 +130,8 @@ void SiStripRecHitConverterAlgorithm::run(const SiStripClusterCollection* input,
 	//	edm::OwnVector<SiStripRecHit2DMatchedLocalPos> tempCollector; 
 	
 	const DetId theId(id);
-
-	if(partnerdetId.subdetId()==StripSubdetector::TIB||partnerdetId.subdetId()==StripSubdetector::TOB){// if TIB of TOB use the rectangualr strip topology 
-	  //	  if(partnerdetId.subdetId()==StripSubdetector::TIB)std::cout<<"It is TIB!"<<std::endl;
-	  //else std::cout<<"It is TOB!"<<std::endl;
-	  const RectangularStripTopology& Rtopol=(RectangularStripTopology&)stereostripdet->topology();
-	  collectorMatchedSingleHit=clustermatch_->match<RectangularStripTopology>(&(*iter),rhpartnerRangeIteratorBegin,rhpartnerRangeIteratorEnd,theId,Rtopol,monostripdet,stereostripdet,trackdirection);
-	}else{
-	  //if(partnerdetId.subdetId()==StripSubdetector::TID)std::cout<<"It is TID!"<<std::endl;
-	  //else std::cout<<"It is TEC!"<<std::endl;
-	  const TrapezoidalStripTopology& Ttopol=(TrapezoidalStripTopology&)stereostripdet->topology();
-	  collectorMatchedSingleHit=clustermatch_->match<TrapezoidalStripTopology>(&(*iter),rhpartnerRangeIteratorBegin,rhpartnerRangeIteratorEnd,theId,Ttopol,monostripdet,stereostripdet,trackdirection);
-	}
+	const StripTopology& topol=(StripTopology&)stereostripdet->topology();
+	collectorMatchedSingleHit=clustermatch_->match(&(*iter),rhpartnerRangeIteratorBegin,rhpartnerRangeIteratorEnd,theId,topol,monostripdet,stereostripdet,trackdirection);
 	if (collectorMatchedSingleHit.size()>0) {
 	  nmatch++;
 	}else{
