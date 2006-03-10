@@ -110,13 +110,14 @@ CPEFromDetPosition::setTheDet( const GeomDetUnit & det )
   //--- The Lorentz shift.
   theLShift = lorentzShift();
 
-  if (theVerboseLevel > 10) {
+  if (theVerboseLevel > 5) {
     cout << "***** PIXEL LAYOUT *****" << endl;
     cout << " theThickness = " << theThickness << endl;
     cout << " thePitchX  = " << thePitchX << endl;
     cout << " thePitchY  = " << thePitchY << endl;
-    cout << " theOffsetX  = " << theOffsetX << endl;
-    cout << " theOffsetY  = " << theOffsetY << endl;
+    cout << " theOffsetX = " << theOffsetX << endl;
+    cout << " theOffsetY = " << theOffsetY << endl;
+    cout << " theLShift  = " << theLShift  << endl;
   }
 }
 
@@ -131,18 +132,32 @@ CPEFromDetPosition::measurementError( const SiPixelCluster& cluster, const GeomD
 LocalError  
 CPEFromDetPosition::localError( const SiPixelCluster& cluster, const GeomDetUnit & det)
 {
+  std::cout << "In localError()" << std::endl;
   setTheDet( det );
   int sizex = cluster.sizeX();
   int sizey = cluster.sizeY();
   bool edgex = (cluster.edgeHitX()) || (cluster.maxPixelRow()> theNumOfRow); 
   bool edgey = (cluster.edgeHitY()) || (cluster.maxPixelCol() > theNumOfCol); 
+  //&&& testing...
+  if (theVerboseLevel > 5) {
+    cout << "sizex = " << sizex << endl;
+    cout << "sizey = " << sizey << endl;
+    cout << "edgex = " << edgex << endl;
+    cout << "edgey = " << edgey << endl;
+  }
+  if (sizex>0) return LocalError( sizex, 0, sizey );
+
   return LocalError( err2X(edgex, sizex), 0, err2Y(edgey, sizey) );
 }
 
 MeasurementPoint 
 CPEFromDetPosition::measurementPosition( const SiPixelCluster& cluster, const GeomDetUnit & det) 
 {
-  
+  if (theVerboseLevel > 15) {
+    cout << "xpos = " << xpos(cluster) << endl;
+    cout << "ypos = " << ypos(cluster) << endl;
+    cout << "lshf = " << theLShift     << endl;
+  }
   return MeasurementPoint( xpos(cluster)-theLShift, 
   			   ypos(cluster));
 }
@@ -150,7 +165,17 @@ CPEFromDetPosition::measurementPosition( const SiPixelCluster& cluster, const Ge
 LocalPoint
 CPEFromDetPosition::localPosition(const SiPixelCluster& cluster, const GeomDetUnit & det) 
 {
-  return theTopol->localPosition(measurementPosition(cluster, det)); 
+  std::cout << "In localPosition()" << std::endl;
+  //return theTopol->localPosition(measurementPosition(cluster, det)); 
+
+  std::cout <<" PIPPO "<<&det<<" " <<theTopol<<" "<< &cluster  <<std::endl;
+  MeasurementPoint ssss = measurementPosition(cluster, det);
+
+  std::cout <<" PIPPOwww "<<ssss.x() <<std::endl;
+
+  LocalPoint cdfsfs = theTopol->localPosition(ssss);
+  std::cout <<" PIPPOwww2 "<<std::endl;
+  return cdfsfs;
 }
 
 
@@ -234,6 +259,9 @@ CPEFromDetPosition::xpos(const SiPixelCluster& cluster) const
   int size = cluster.sizeX();
   const vector<SiPixelCluster::Pixel>& pixelsVec = cluster.pixels();
   float baryc = cluster.x();
+  // &&& Testing...
+  if (baryc > 0) return baryc;
+
   if (size == 1) {
     // the middle of only one pixel is equivalent to the baryc.
     xcluster = baryc;
@@ -279,6 +307,9 @@ CPEFromDetPosition::ypos(const SiPixelCluster& cluster) const
   const vector<SiPixelCluster::Pixel>& pixelsVec = cluster.pixels();
   int size = cluster.sizeY();
   float baryc = cluster.y();
+  // &&& Testing...
+  if (baryc > 0) return baryc;
+
   if (size == 1) {
     ycluster = baryc;
   } else if (size < 4) {
@@ -409,7 +440,8 @@ CPEFromDetPosition::lorentzShift() const
 {
   // Implement only the x direction shift for now (OK for barrel)
   // &&& TEMPORARY LocalVector dir = theDet->driftDirection( LocalPoint(0,0));
-  LocalVector dir(0,0,0);  // &&& TEMPORARY HACK
+  LocalVector dir(0,0,1);  // &&& TEMPORARY HACK
+  //LocalVector dir = driftDirection( GlobalVector bfield );
 
   // max shift in cm 
   float xdrift = dir.x()/dir.z() * theThickness;  
