@@ -1,3 +1,8 @@
+** V00-01-01  [Fri Mar 10 20:13:28 2006]
+added EcalRecHitProducer that uses EcalRecHitSimpleAlgo to make
+rechits from uncalib rechits using the global ADC-&gt;GeV scale
+and the intercalib constants
+
 ** V00-01-00  [Thu Feb  2 18:50:48 2006]
 adapted to the new EcalPedestals class that now uses DetId::rawid() to lookup pedestals for indivisual channels instead of the old channelId defined by eta and phi indices
 
