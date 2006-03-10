@@ -105,42 +105,15 @@ construct( const TrackingRecHit& outerHit,
     //what is the estimate value?
     theInnerMeas = TM( innerState, innerUpdated, intrhit, 0);
     theOuterMeas = TM( outerState, outerUpdated, outrhit, 0);
+ 
 
+
+    _hits.push_back(innerHit.clone());
+    _hits.push_back(outerHit.clone());
+     PTraj=  transformer.persistentState(outerUpdated, outerHit.geographicalId().rawId());
 }
 
 
-// const FreeTrajectoryState& 
-// SeedFromConsecutiveHits::freeTrajectoryState() const {
- 
-//   return *theOuterMeas.updatedState().freeState();
-// }
-
-// PropagationDirection SeedFromConsecutiveHits::direction() const {
-//   return alongMomentum;
-// }
-
-// vector<SiPixelRecHit> SeedFromConsecutiveHits::recHits() const {
-//   vector<SiPixelRecHit> result; result.reserve(2);
-//   result.push_back( theInnerMeas.recHit());
-//   result.push_back( theOuterMeas.recHit());
-//   return result;
-// }
-
-// vector<TrajectoryMeasurement> SeedFromConsecutiveHits::measurements() const
-// {
-//   vector<TrajectoryMeasurement> result; result.reserve(2);
-//   result.push_back( theInnerMeas);
-//   result.push_back( theOuterMeas);
-//   return result;
-// }
-
-// bool SeedFromConsecutiveHits::share( const BasicTrajectorySeed&) const {
-//   return false;
-// }
-
-// BasicTrajectorySeed* SeedFromConsecutiveHits::clone() const { 
-//   return new SeedFromConsecutiveHits(*this);
-// }
 
 CurvilinearTrajectoryError SeedFromConsecutiveHits::
 initialError( const TrackingRecHit& outerHit,

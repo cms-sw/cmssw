@@ -14,18 +14,18 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
-
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 class DetLayer;
-class SeedFromConsecutiveHits : 
-public TrajectorySeed{
-public:
-
+class SeedFromConsecutiveHits{
+ public:
+  
   // constructor in case the RecHits contain layer pointers.
-/*   SeedFromConsecutiveHits( const SiPixelRecHit& outerHit, */
-/* 			   const SiPixelRecHit& innerHit, */
-/* 			   const GlobalPoint& vertexPos, */
-/* 			   const GlobalError& vertexErr); */
-
+  /*   SeedFromConsecutiveHits( const SiPixelRecHit& outerHit, */
+  /* 			   const SiPixelRecHit& innerHit, */
+  /* 			   const GlobalPoint& vertexPos, */
+  /* 			   const GlobalError& vertexErr); */
+  
   // constructor in case the RecHits do not contain layer pointers.
   SeedFromConsecutiveHits( const TrackingRecHit& outerHit,
 			   const TrackingRecHit& innerHit,
@@ -34,19 +34,20 @@ public:
 			   const edm::EventSetup& iSetup);
 
   virtual  ~SeedFromConsecutiveHits(){};
-  //MP
-  //  virtual const FreeTrajectoryState& freeTrajectoryState() const;
-  //MP
-  //  virtual PropagationDirection direction() const;
-  // virtual LayerContainer layers() const;
 
-/*   virtual bool share( const BasicTrajectorySeed&) const; */
-/*  virtual BasicTrajectorySeed* clone() const; */
+  
+  PropagationDirection direction(){
+    //as in ORCA
+    return alongMomentum;};
+  
 
+  edm::OwnVector<TrackingRecHit> hits(){
+    return _hits;
+  };
 
-  //{return std::make_pair<outrhit,outrhit>;};
-/*   std::vector<TrajectoryMeasurement> measurements() const;  */
-private:
+  PTrajectoryStateOnDet trajectoryState(){return *PTraj;};
+  TrajectorySeed *TrajSeed(){return new TrajectorySeed(trajectoryState(),hits(),direction());};
+ private:
   TrajectoryMeasurement theInnerMeas;
   TrajectoryMeasurement theOuterMeas;
   TransientTrackingRecHitBuilder TTRHBuilder;
@@ -60,9 +61,14 @@ private:
 					   const TrackingRecHit& innerHit,
 					   const GlobalPoint& vertexPos,
 					   const GlobalError& vertexErr);
- 
+
+  TrajectoryStateTransform transformer;
   const TransientTrackingRecHit* outrhit;
   const TransientTrackingRecHit* intrhit;
+  PropagationDirection _dir;
+  PTrajectoryStateOnDet* PTraj;
+  edm::OwnVector<TrackingRecHit> _hits;
+
 };
 
 #endif 
