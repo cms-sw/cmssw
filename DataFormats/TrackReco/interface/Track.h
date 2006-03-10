@@ -8,7 +8,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: TrackBase.h,v 1.2 2006/03/01 09:28:47 llista Exp $
+ * \version $Id: Track.h,v 1.12 2006/03/01 12:23:40 llista Exp $
  *
  */
 #include "DataFormats/TrackReco/interface/TrackBase.h"
@@ -18,7 +18,7 @@
 
 namespace reco {
 
-  class Track : public TrackBase, TrackExtension<TrackExtraRef> {
+  class Track : public TrackBase, public TrackExtension<TrackExtraRef> {
   public:
     /// default constructor
     Track() { }
