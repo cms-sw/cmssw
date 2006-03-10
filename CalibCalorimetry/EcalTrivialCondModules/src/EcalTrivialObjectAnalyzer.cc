@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialObjectAnalyzer.cc,v 1.1 2006/03/02 17:03:44 rahatlou Exp $
+// $Id: EcalTrivialObjectAnalyzer.cc,v 1.2 2006/03/10 18:31:12 rahatlou Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -37,7 +37,7 @@
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
 #include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
 
-//#include "CLHEP/Matrix/Matrix.h"
+#include "CLHEP/Matrix/Matrix.h"
 
 using namespace std;
 
@@ -148,23 +148,17 @@ using namespace std;
    EcalWeightSet  wset;
    if( wit != wgts->getMap().end() ) {
       wset = wit->second;
-      //std::cout << "weight set it: " << wit << std::endl;
-
       std::cout << "check size of data members in EcalWeightSet" << std::endl;
-      wit->second.print(std::cout);
+      //wit->second.print(std::cout);
 
 
       //typedef std::vector< std::vector<EcalWeight> > EcalWeightMatrix;
-      EcalWeightSet::EcalWeightMatrix mat1 = wit->second.getWeightsBeforeGainSwitch();
-      EcalWeightSet::EcalWeightMatrix mat2 = wit->second.getWeightsAfterGainSwitch();
+      const EcalWeightSet::EcalWeightMatrix mat1 = wit->second.getWeightsBeforeGainSwitch();
+      const EcalWeightSet::EcalWeightMatrix mat2 = wit->second.getWeightsAfterGainSwitch();
 
-      //std::cout << "WeightsBeforeGainSwitch.size: " << mat1.size() << ", WeightsAfterGainSwitch.size: " << mat2.size() << std::endl;
+      std::cout << "WeightsBeforeGainSwitch.size: " << mat1.size()
+                << ", WeightsAfterGainSwitch.size: " << mat2.size() << std::endl;
 
-
-/**
-      //EcalWeight awgt = (mat1[0])[0];
-      std::cout << "before switch [0,0]: " << (mat1[0])[0]() << endl;
-      std::cout << "after  switch [0,0]: " << (mat2[0])[0]() << endl;
 
       HepMatrix clmat1(3,8,0);
       HepMatrix clmat2(3,8,0);
@@ -174,9 +168,8 @@ using namespace std;
          clmat2[irow][icol] = (mat2[irow])[icol]();
        }
      }
+     std::cout << "weight matrix before gain switch:" << std::endl;
      std::cout << clmat1 << std::endl;
-     std::cout << clmat2 << std::endl;
-**/
 
    } else {
      std::cout << "No weights found for EcalGroupId: " << gid.id() << " and  EcalTDCId: " << tdcid << std::endl;
