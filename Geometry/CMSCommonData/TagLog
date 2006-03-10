@@ -1,3 +1,6 @@
+** V00-03-17  [Fri Mar 10 18:23:31 2006]
+changed CSCSimAlgo to CSCGeometryBuilder
+
 ** V00-03-16  [Mon Mar  6 17:52:04 2006]
 fix for mag field
 
