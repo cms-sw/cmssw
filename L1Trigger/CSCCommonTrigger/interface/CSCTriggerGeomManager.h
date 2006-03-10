@@ -18,18 +18,19 @@ Updated to use CMSSW style pointers/interfaces.
 #include <Geometry/CSCGeometry/interface/CSCGeometry.h>
 #include <vector>
 
-class CSCGeometry;
 class CSCTriggerGeomManager
 {
  public:
 
   CSCTriggerGeomManager():geom(0) {}
-  CSCTriggerGeomManager(const edm::ESHandle<CSCGeometry>& thegeom):geom(thegeom.product()) {}
+  CSCTriggerGeomManager(const CSCTriggerGeomManager& parent):geom(parent.geom) {}
   ~CSCTriggerGeomManager() {}
 
+  void setGeometry(const edm::ESHandle<CSCGeometry>& thegeom) { geom = const_cast<CSCGeometry*>(thegeom.product()); }
+  
   /// Return a list of chambers in a given endcap/station/sector/subsector
   std::vector<Pointer2Chamber> sectorOfChambersInStation(unsigned endcap, unsigned station, 
-						    unsigned sector, unsigned subsector) const;
+							 unsigned sector, unsigned subsector) const;
 
   /// Return the CSCChamber for a corresponding endcap/station/sector/subsector/trigger cscid
   Pointer2Chamber chamber(unsigned endcap, unsigned station, unsigned sector,
@@ -37,7 +38,7 @@ class CSCTriggerGeomManager
 
  private:
 
-  edm::ESHandle<CSCGeometry> geom;
+  CSCGeometry* geom;
 
 };
 
