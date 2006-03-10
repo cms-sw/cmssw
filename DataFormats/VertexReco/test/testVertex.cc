@@ -16,7 +16,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testVertex);
 
 void testVertex::checkAll() {
   const double chi2 = 20.0;
-  const int ndof = 10;
+  const double ndof = 10;
   const size_t size = 0; // can't test refs at the moment
   const double x = 1.0, y = 2.0, z = 3.0;
   const double ee[ math::Error3D::size ] = { 1.1, 1.2, 1.3, 

@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Vertex.h,v 1.8 2006/03/01 18:46:30 vanlaer Exp $
+ * \version $Id: Vertex.h,v 1.9 2006/03/09 18:02:30 vanlaer Exp $
  *
  */
 #include <Rtypes.h>
@@ -31,7 +31,7 @@ namespace reco {
     Vertex() { }
     /// constructor from values
     Vertex( const Point &, const Error &, 
-	    double chi2, float ndof, size_t size );
+	    double chi2, double ndof, size_t size );
     /// add a reference to a Track
     void add( const TrackRef & r ) { tracks_.push_back( r ); }
     /// first iterator over tracks
@@ -43,12 +43,12 @@ namespace reco {
     /// chi-squares
     double chi2() const { return chi2_; }
     /** Number of degrees of freedom
-     *  Meant to be float for soft-assignment fitters: 
+     *  Meant to be Double32_t for soft-assignment fitters: 
      *  tracks may contribute to the vertex with fractional weights.
      *  The ndof is then = to the sum of the track weights.
      *  see e.g. CMS NOTE-2006/032, CMS NOTE-2004/002
      */
-    float ndof() const { return ndof_; }
+    double ndof() const { return ndof_; }
     /// chi-squared divided by n.d.o.f.
     double normalizedChi2() const { return chi2_ / ndof_; }
     /// position 
@@ -68,7 +68,7 @@ namespace reco {
     /// chi-sqared
     Double32_t chi2_;
     /// number of degrees of freedom
-    float ndof_;
+    Double32_t ndof_;
     /// position
     Point position_;
     /// covariance matrix (3x3)
