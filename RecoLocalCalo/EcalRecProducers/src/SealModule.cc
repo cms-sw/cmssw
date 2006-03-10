@@ -6,4 +6,5 @@
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE( EcalWeightUncalibRecHitProducer );
+DEFINE_ANOTHER_FWK_MODULE( EcalAnalFitUncalibRecHitProducer );
 DEFINE_ANOTHER_FWK_MODULE( EcalRecHitProducer );
