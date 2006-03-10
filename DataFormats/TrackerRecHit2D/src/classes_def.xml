@@ -25,7 +25,7 @@
 
   <class name="SiPixelRecHit"/>
   <class name="std::vector<SiPixelRecHit*>"/>
-  <class name="edm::OwnVector<SiStripRecHit2DMatchedLocalPos,edm::ClonePolicy<SiStripRecHit2DMatchedLocalPos> >"/>
+  <class name="edm::OwnVector<SiPixelRecHit,edm::ClonePolicy<SiPixelRecHit> >"/>
   <class name="edm::RangeMap<DetId, edm::OwnVector<SiPixelRecHit, edm::ClonePolicy<SiPixelRecHit> >, edm::ClonePolicy<SiPixelRecHit> >"/>
   <class name="edm::Wrapper<edm::RangeMap<DetId, edm::OwnVector<SiPixelRecHit, edm::ClonePolicy<SiPixelRecHit> >, edm::ClonePolicy<SiPixelRecHit> > >" />
 
