@@ -37,9 +37,9 @@ scramv1 b -v -k release-build > logs/slc3_ia32_gcc323/release-build.log 2> logs/
 
 #scramv1 b release-freeze;
 eval `scramv1 runtime -sh`
-SealPluginRefresh;
+SealPluginRefresh >& logs/slc3_ia32_gcc323/SealPluginRefresh.log;
 
-scramv1 b doc;
+scramv1 b doc >& logs/slc3_ia32_gcc323/docgen.log ;
 scramv1 install;
 
 # freeze
