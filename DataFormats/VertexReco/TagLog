@@ -1,3 +1,6 @@
+** V00-04-00  [Fri Mar 10 15:34:12 2006]
+number of degrees of freedom is now Double32_t
+
 ** V00-03-02  [Wed Mar  1 16:31:10 2006]
 fixed dictionary and added doxygen documentation
 
