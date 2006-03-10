@@ -1,3 +1,6 @@
+** V01-02-06  [Sat Mar 11 00:36:09 2006]
+Implement random access to events
+
 ** V01-02-05  [Thu Mar  2 06:43:50 2006]
 Don't put null product in EventPrincipal
 
