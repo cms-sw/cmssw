@@ -1,0 +1,20 @@
+<use name=clhep>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/Framework>
+<use name=FWCore/Utilities>
+<use name=DataFormats/Common>
+<use name=SimDataFormats/Track>
+<use name=SimDataFormats/Vertex>
+<use name=Foundation/PluginManager>
+<use name=FastSimulation/Particle>
+<export>
+ <use name=root>
+ <lib name=FastSimulationEvent>
+ <use name=FWCore/ParameterSet>
+ <use name=FWCore/Framework>
+ <use name=DataFormats/Common>
+ <use name=SimDataFormats/Track>
+ <use name=SimDataFormats/Vertex>
+ <use name=Foundation/PluginManager>
+ <use name=FastSimulation/Particle>
+</export>
