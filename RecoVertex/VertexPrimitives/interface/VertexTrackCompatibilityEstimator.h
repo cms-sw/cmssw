@@ -2,8 +2,9 @@
 #define _VertexTrackCompatibilityEstimator_H
 
 #include "RecoVertex/VertexPrimitives/interface/CachingVertex.h"
-// #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 #include "RecoVertex/VertexPrimitives/interface/DummyRecTrack.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
 /**
  * Pure abstract base class for compatibility estimators 
@@ -22,8 +23,9 @@ public:
    */
   virtual float estimate(const CachingVertex & v, 
 			 const RefCountedLinearizedTrackState track) const = 0;
-//   virtual float estimate(const RecVertex & v, 
-// 			 const DummyRecTrack & track) const = 0;
+
+  virtual float estimate(const reco::Vertex & v, 
+			 const reco::TransientTrack & track) const = 0;
 
   // obsolete ?
   virtual float estimate(const CachingVertex & v, 
