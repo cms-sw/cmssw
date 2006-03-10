@@ -27,6 +27,7 @@ namespace edm {
     entries_(0),
     productRegistry_(new ProductRegistry),
     branches_(),
+    eventTree_(0),
     auxBranch_(0),
     provBranch_(0),
     filePtr_(0) {
@@ -48,12 +49,12 @@ namespace edm {
     metaDataTree->SetBranchAddress(poolNames::productDescriptionBranchName().c_str(),(&ppReg));
     metaDataTree->GetEntry(0);
 
-    TTree *eventTree = dynamic_cast<TTree *>(filePtr_->Get(poolNames::eventTreeName().c_str()));
-    assert(eventTree != 0);
-    entries_ = eventTree->GetEntries();
+    eventTree_ = dynamic_cast<TTree *>(filePtr_->Get(poolNames::eventTreeName().c_str()));
+    assert(eventTree_ != 0);
+    entries_ = eventTree_->GetEntries();
 
-    auxBranch_ = eventTree->GetBranch(poolNames::auxiliaryBranchName().c_str());
-    provBranch_ = eventTree->GetBranch(poolNames::provenanceBranchName().c_str());
+    auxBranch_ = eventTree_->GetBranch(poolNames::auxiliaryBranchName().c_str());
+    provBranch_ = eventTree_->GetBranch(poolNames::provenanceBranchName().c_str());
 
     std::string const wrapperBegin("edm::Wrapper<");
     std::string const wrapperEnd1(">");
@@ -64,7 +65,7 @@ namespace edm {
         it != prodList.end(); ++it) {
       BranchDescription const& prod = it->second;
       prod.init();
-      TBranch * branch = eventTree->GetBranch(prod.branchName_.c_str());
+      TBranch * branch = eventTree_->GetBranch(prod.branchName_.c_str());
       std::string const& name = prod.fullClassName_;
       std::string const& wrapperEnd = (name[name.size()-1] == '>' ? wrapperEnd2 : wrapperEnd1);
       std::string const className = wrapperBegin + name + wrapperEnd;
@@ -75,6 +76,11 @@ namespace edm {
 
   RootFile::~RootFile() {
     filePtr_->Close();
+  }
+
+  RootFile::EntryNumber
+  RootFile::getEntryNumber(EventID const& eventID) const {
+    return eventTree_->GetEntryNumberWithIndex(eventID.run(), eventID.event());
   }
 
   // read() is responsible for creating, and setting up, the

@@ -5,7 +5,7 @@
 
 RootFile.h // used by ROOT input sources
 
-$Id: RootFile.h,v 1.1 2006/01/07 00:46:23 wmtan Exp $
+$Id: RootFile.h,v 1.2 2006/01/07 20:42:33 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -39,9 +39,10 @@ namespace edm {
     TBranch *auxBranch() {return auxBranch_;}
     TBranch *provBranch() {return provBranch_;}
     EventID & eventID() {return eventID_;}
-    EntryNumber const& entryNumber() {return entryNumber_;}
-    EntryNumber const& entries() {return entries_;}
+    EntryNumber const& entryNumber() const {return entryNumber_;}
+    EntryNumber const& entries() const {return entries_;}
     void setEntryNumber(EntryNumber entryNumber) {entryNumber_ = entryNumber;}
+    EntryNumber getEntryNumber(EventID const& eventID) const;
 
   private:
     RootFile(RootFile const&); // disable copy construction
@@ -56,6 +57,7 @@ namespace edm {
 // We use bare pointers for pointers to ROOT entities.
 // Root owns them and uses bare pointers internally.
 // Therefore,using shared pointers here will do no good.
+    TTree *eventTree_;
     TBranch *auxBranch_;
     TBranch *provBranch_;
     TFile *filePtr_;
