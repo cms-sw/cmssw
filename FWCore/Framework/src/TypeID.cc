@@ -1,10 +1,11 @@
 /*----------------------------------------------------------------------
   
-$Id: TypeID.cc,v 1.13 2006/02/01 00:40:25 wmtan Exp $
+$Id: TypeID.cc,v 1.14 2006/02/20 01:51:58 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <ostream>
 #include "FWCore/Framework/interface/TypeID.h"
+#include "FWCore/Framework/src/FriendlyName.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "Reflex/Type.h"
 #include <string>
@@ -36,10 +37,7 @@ namespace edm {
 
   std::string 
   TypeID::friendlyClassName() const {
-    std::string name = userClassName();
-    while (stripTemplate(name)) {}
-    stripNamespace(name);
-    return name;
+    return friendlyname::friendlyName(className());
   }
 
   bool
