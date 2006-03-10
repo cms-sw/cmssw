@@ -4,15 +4,11 @@
  <use name=Geometry/CommonTopologies>
  <use name=Geometry/Surface>
  <use name=DataFormats/MuonDetId>
- <use name=boost>
- <use name=clhep>
 </export>
 
  <use name=Geometry/CommonDetUnit>
  <use name=Geometry/CommonTopologies>
  <use name=Geometry/Surface>
  <use name=DataFormats/MuonDetId>
- <use name=boost>
- <use name=clhep>
 
 
