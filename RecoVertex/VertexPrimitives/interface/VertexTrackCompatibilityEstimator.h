@@ -3,7 +3,6 @@
 
 #include "RecoVertex/VertexPrimitives/interface/CachingVertex.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-#include "RecoVertex/VertexPrimitives/interface/DummyRecTrack.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
 /**

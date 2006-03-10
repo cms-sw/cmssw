@@ -2,7 +2,6 @@
 #define PerigeeLinearizedTrackState_H
 
 #include "RecoVertex/VertexPrimitives/interface/LinearizedTrackState.h"
-#include "RecoVertex/VertexPrimitives/interface/DummyRecTrack.h"
 //#include "CommonDet/PatternPrimitives/interface/FreeTrajectoryState.h"
 // #include "CommonReco/CommonVertex/interface/ImpactPointMeasurement.h"
 // #include "CommonReco/CommonVertex/interface/ImpactPointMeasurementExtractor.h"
