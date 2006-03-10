@@ -8,24 +8,21 @@ fi
 
 version=$1
 
+# redundant variables
+CORAL_AUTH_USER=blah
+CORAL_AUTH_PASSWORD=blah
+export CORAL_AUTH_USER
+export CORAL_AUTH_PASSWORD
+
 #for object in HcalPedestals HcalPedestalWidths HcalGains HcalGainWidths HcalQIEData HcalElectronicsMap HcalChannelQuality
 for object in HcalPedestals HcalPedestalWidths HcalGains HcalGainWidths HcalElectronicsMap HcalChannelQuality
 do
     echo processing $object...
-    # making template
-    template_name=mapping-template-$object-default.xml
-    defaultname=$object-mapping-default.xml
-    outname=$object"-mapping-custom.xml"
-    rm -f $template_name $defaultname $outname
-    echo "<?xml version='1.0' encoding='UTF-8'?>" > $template_name
-    echo "<!DOCTYPE Mapping SYSTEM 'InMemory'>" >> $template_name
-    echo "<Mapping version='"$object"-"$version"' >" >> $template_name
-    echo "<Class name='"$object"' >" >> $template_name
-    echo "</Class >" >> $template_name
-    echo "</Mapping >" >> $template_name
-
-    #processing template
-    echo Generating mapping file for $object...
-    pool_build_object_relational_mapping -f $template_name -o $defaultname -d CondFormatsHcalObjects -c sqlite_file:trash.db -b -u whoever -p whatever
-    cp $defaultname $outname
+    defaultname=$object-mapping-cmsdefault.xml
+    outname=$object"-mapping-custom_$version.xml"
+    rm -f $defaultname $outname
+    ../../Utilities/bin/create_default_mapping -v $object CondFormatsHcalObjects
+# now modify it according to https://uimon.cern.ch/twiki/bin/view/CMS/O2O-HOWTO
+    tablename=`echo $object | sed 's/[a-z]/\u&/g'`
+    cat $defaultname | sed 's/id_columns="ID"/id_columns="IOV_VALUE_ID"/g' | sed 's/ID_ID/IOV_VALUE_ID/g' | sed 's/MITEMS_//g' | sed 's/version="cmsdefault"/version="'$version'"/g' > $outname
 done
