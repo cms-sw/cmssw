@@ -35,7 +35,7 @@
 //--- Geometry + DataFormats
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelClusterCollectionfwd.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollectionfwd.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 
 //--- Framework paraphernalia:
 #include "FWCore/EDProduct/interface/EDProduct.h"
