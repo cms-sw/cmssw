@@ -1,5 +1,5 @@
 //
-// $Id: $
+// $Id: EcalTrivialConditionRetriever.h,v 1.1 2006/03/02 17:03:43 rahatlou Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -7,6 +7,7 @@
 #define CalibCalorimetry_EcalPlugins_EcalTrivialConditionRetriever_H
 // system include files
 #include <string>
+#include <vector>
 
 // user include files
 #include "FWCore/Framework/interface/ESProducer.h"
@@ -48,11 +49,11 @@ namespace edm{
 class EcalTrivialConditionRetriever : public edm::ESProducer, 
                                       public edm::EventSetupRecordIntervalFinder
 {
-    
+
 public:
   EcalTrivialConditionRetriever(const edm::ParameterSet&  pset);
   virtual ~EcalTrivialConditionRetriever();
-    
+
   // ---------- member functions ---------------------------
   virtual std::auto_ptr<EcalPedestals> produceEcalPedestals( const EcalPedestalsRcd& );
   virtual std::auto_ptr<EcalWeightXtalGroups> produceEcalWeightXtalGroups( const EcalWeightXtalGroupsRcd& );
@@ -65,13 +66,38 @@ public:
 protected:
   //overriding from ContextRecordIntervalFinder
   virtual void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
-			       const edm::IOVSyncValue& , 
-			       edm::ValidityInterval& ) ;
+                               const edm::IOVSyncValue& ,
+                               edm::ValidityInterval& ) ;
 private:
   EcalTrivialConditionRetriever( const EcalTrivialConditionRetriever& ); // stop default
   const  EcalTrivialConditionRetriever& operator=( const EcalTrivialConditionRetriever& ); // stop default
 
-  // ---------- member data --------------------------------
-  //cond::IOV*  currIOV_;
+  // data members
+  double adcToGeVEBConstant_;      // ADC -> GeV scale for barrel
+
+  double intercalibConstantMean_;  // mean of intercalib constant. default: 1.0
+  double intercalibConstantSigma_; // sigma of intercalib constant
+                                  // Gaussian used to generate intercalib constants for
+                                  // each channel. no smearing if sigma=0.0 (default)
+
+  double pedMeanX12_;              // pedestal mean pedestal at gain 12
+  double pedRMSX12_;               // pedestal rms at gain 12
+  double pedMeanX6_;               // pedestal mean pedestal at gain 6
+  double pedRMSX6_;                // pedestal rms at gain 6
+  double pedMeanX1_;               // pedestal mean pedestal at gain 1
+  double pedRMSX1_;                // pedestal rms at gain 1
+
+  double gainRatio12over6_;        // ratio of MGPA gain12 / gain6
+  double gainRatio6over1_;         // ratio of MGPA gain6 / gain1
+
+  std::vector<EcalWeight> amplWeights_;  // weights to compute amplitudes after ped subtraction
+  std::vector<EcalWeight> pedWeights_;  // weights to compute amplitudes w/o ped subtraction
+  std::vector<EcalWeight> jittWeights_;  // weights to compute jitter
+
+
+  int    verbose_; // verbosity
+
+
+
 };
-#endif 
+#endif
