@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.cc,v 1.22 2006/03/06 20:21:56 paterno Exp $
+// $Id: ParameterSet.cc,v 1.23 2006/03/08 22:14:52 wmtan Exp $
 //
 // definition of ParameterSet's function members
 // ----------------------------------------------------------------------
@@ -210,17 +210,18 @@ namespace edm {
   ParameterSet::toStringOfTracked() const {
     std::string  rep = "<";
     bool need_sep = false;
-    for(table::const_iterator b = tbl_.begin(), e = tbl_.end(); b != e; ++b) {
-      if(b->second.isTracked())  {
-        if(need_sep)
-          rep += ';';
-        rep += (b->first + '=' + b->second.toString());
-        need_sep = true;
+    for(table::const_iterator b = tbl_.begin(), e = tbl_.end(); b != e; ++b) 
+      {
+	if(b->second.isTracked())  
+	  {
+	    if(need_sep) rep += ';';
+	    rep += (b->first + '=' + b->second.toStringOfTracked());
+	    need_sep = true;
+	  }
       }
-    }
-
+    
     return rep + '>';
-  }  // to_string()
+  } 
 
   // ----------------------------------------------------------------------
 

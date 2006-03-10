@@ -2,7 +2,7 @@
 #define ParameterSet_Entry_h
 
 // ----------------------------------------------------------------------
-// $Id: Entry.h,v 1.7 2006/02/02 16:43:07 paterno Exp $
+// $Id: Entry.h,v 1.8 2006/02/03 21:20:34 paterno Exp $
 //
 // interface to edm::Entry and related types
 //
@@ -93,6 +93,7 @@ namespace edm {
     
     // encode
     std::string  toString() const;
+    std::string  toStringOfTracked() const;
   
     // access
     bool isTracked() const { return tracked == '+'; }
@@ -109,16 +110,22 @@ namespace edm {
     // decode
     bool fromString(std::string::const_iterator b, std::string::const_iterator e);
   };  // Entry
+
+  // It is not clear whether operator== should use toString() or
+  // toStringOfTracked(). It only makes a differences for Entries that
+  // carry ParameterSets (or vectors thereof).
+  //
+  // However, it seems that operator== for Entry is *nowhere used*!.
+  // Thus, the code is new removed.
+  //   inline bool
+  //   operator==(Entry const& a, Entry const& b) {
+  //     return a.toString() == b.toString();
+  //   }
   
-  inline bool
-  operator==(Entry const& a, Entry const& b) {
-    return a.toString() == b.toString();
-  }
-  
-  inline bool
-  operator!=(Entry const& a, Entry const& b) {
-    return !(a == b);
-  }
+  //   inline bool
+  //   operator!=(Entry const& a, Entry const& b) {
+  //     return !(a == b);
+  //   }
 } // namespace edm
 
   

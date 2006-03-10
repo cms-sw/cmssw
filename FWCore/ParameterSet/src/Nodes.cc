@@ -2,8 +2,10 @@
 #include "FWCore/ParameterSet/interface/Nodes.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
+#include <iomanip>
 #include <iostream>
 #include <stdexcept>
+
 
 using namespace std;
 
@@ -21,14 +23,14 @@ namespace edm {
       Node(name, line)
     { }
 
-    std::string UsingNode::type() const { return "using"; }
+    string UsingNode::type() const { return "using"; }
 
 
-    void UsingNode::print(std::ostream& ost) const
+    void UsingNode::print(ostream& ost) const
     {
       ost << "using " << name;
     }
-
+    
     void UsingNode::accept(Visitor& v) const
     {
       v.visitUsing(*this);
@@ -43,9 +45,9 @@ namespace edm {
       value_(value)      
     {  }
 
-    std::string StringNode::type() const { return "string"; }
+    string StringNode::type() const { return "string"; }
 
-    void StringNode::print(std::ostream& ost) const
+    void StringNode::print(ostream& ost) const
     {
       ost << value_;
     }
@@ -68,9 +70,9 @@ namespace edm {
       tracked_(track)
     {  }
 
-    std::string EntryNode::type() const { return type_; }
+    string EntryNode::type() const { return type_; }
 
-    void EntryNode::print(std::ostream& ost) const
+    void EntryNode::print(ostream& ost) const
     {
       const char* t = !tracked_? "" : "untracked ";
       ost << t << type_ << " " << name << " = " << value_;
@@ -93,10 +95,10 @@ namespace edm {
       tracked_(tr)
     { }
 
-    std::string VEntryNode::type() const { return type_; }
+    string VEntryNode::type() const { return type_; }
 
 
-    void VEntryNode::print(std::ostream& ost) const
+    void VEntryNode::print(ostream& ost) const
     {
       const char* t = !tracked_ ? "" : "untracked ";
       ost << t << type_ << " " << name << " = {\n";
@@ -106,7 +108,7 @@ namespace edm {
 	  StringList::const_iterator ie(value_->end()),ib(value_->begin());
 	  --ie;
 	  copy(ib,ie,
-	       ostream_iterator<std::string>(ost,", "));
+	       ostream_iterator<string>(ost,", "));
 	  ost << *ie;
 	}
       ost << "\n}\n";
@@ -130,10 +132,10 @@ namespace edm {
       tracked_(tracked)
     { }
 
-    std::string PSetRefNode::type() const { return "PSetRef"; }
+    string PSetRefNode::type() const { return "PSetRef"; }
 
 
-    void PSetRefNode::print(std::ostream& ost) const
+    void PSetRefNode::print(ostream& ost) const
     {
       ost << "PSet " << name << " = " << value_;
     }
@@ -152,9 +154,9 @@ namespace edm {
       value_(value)
     { }
 
-    std::string ContentsNode::type() const { return ""; }
+    string ContentsNode::type() const { return ""; }
 
-    void ContentsNode::print(std::ostream& ost) const
+    void ContentsNode::print(ostream& ost) const
     {
       ost << "{\n";
       copy(value_->begin(),value_->end(),
@@ -192,9 +194,9 @@ namespace edm {
       tracked_(tracked)
     { }
 
-    std::string PSetNode::type() const { return type_; }
+    string PSetNode::type() const { return type_; }
 
-    void PSetNode::print(std::ostream& ost) const
+    void PSetNode::print(ostream& ost) const
     {
       // if(!name.empty())
       ost << type_ << " " << name << " = ";
@@ -229,12 +231,12 @@ namespace edm {
       tracked_(tracked)
     { }
 
-    std::string VPSetNode::type() const { return type_; }
+    string VPSetNode::type() const { return type_; }
 
 
-    void VPSetNode::print(std::ostream& ost) const
+    void VPSetNode::print(ostream& ost) const
     {
-      if(value_==0) { std::cerr << "Badness" << endl; abort(); }
+      if(value_==0) { cerr << "Badness" << endl; abort(); }
 
       ost << type_ << " " << name << " = {\n";
       if(!value_->empty())
@@ -266,7 +268,7 @@ namespace edm {
 
     // -------------------------
 
-    std::string makeOpName()
+    string makeOpName()
     {
       static int opcount = 0;
       ostringstream ost;
@@ -275,25 +277,38 @@ namespace edm {
       return ost.str();
     }
 
+    bool operator_or_operand(NodePtr n)
+    {
+      Node* p = n.operator->();
+      return 
+	( dynamic_cast<OperatorNode*>(p) != 0 ||
+	  dynamic_cast<OperandNode*>(p) != 0 );
+    }
+
     //--------------------------------------------------
     // OperatorNode
     //--------------------------------------------------
 
-    OperatorNode::OperatorNode(const string& type,NodePtr left, NodePtr right,int line):
+    OperatorNode::OperatorNode(const string& type,
+			       NodePtr left, 
+			       NodePtr right,
+			       int line):
       Node(makeOpName(), line),
       type_(type),
       left_(left),
       right_(right),
       parent_(0)
     {   
+      assert( operator_or_operand(left) );
+      assert( operator_or_operand(right) );
       left_->setParent(this);
       right_->setParent(this);
     }
 
-    std::string OperatorNode::type() const { return type_; }
+    string OperatorNode::type() const { return type_; }
 
 
-    void OperatorNode::print(std::ostream& ost) const
+    void OperatorNode::print(ostream& ost) const
     {
       ost << "( " << left_ << " " << type_ << " " << right_ << " )";
     }
@@ -311,15 +326,17 @@ namespace edm {
     // OperandNode
     //--------------------------------------------------
 
-    OperandNode::OperandNode(const string& type, const string& name, int line):
+    OperandNode::OperandNode(const string& type, 
+			     const string& name, 
+			     int line):
       Node(name, line),
       parent_(0), 
       type_(type)
     {  }
 
-    std::string OperandNode::type() const { return type_; }
+    string OperandNode::type() const { return type_; }
 
-    void OperandNode::print(std::ostream& ost) const
+    void OperandNode::print(ostream& ost) const
     {
       ost << name;
     }
@@ -344,9 +361,9 @@ namespace edm {
       wrapped_(w)
     { }
 
-    std::string WrapperNode::type() const { return type_; }
+    string WrapperNode::type() const { return type_; }
 
-    void WrapperNode::print(std::ostream& ost) const
+    void WrapperNode::print(ostream& ost) const
     {
       ost << type_ << " " << name << " = {\n"
 	  << wrapped_
@@ -372,14 +389,14 @@ namespace edm {
       nodes_(nl)
     { }
 
-    std::string ModuleNode::type() const { return type_; }
+    string ModuleNode::type() const { return type_; }
 
-    void ModuleNode::print(std::ostream& ost) const
+    void ModuleNode::print(ostream& ost) const
     {
-      std::string output_name = ( name == "nameless" ? std::string() : name);
+      string output_name = ( name == "nameless" ? string() : name);
       ost << type_ << " " << output_name << " = " << class_ << "\n{\n";
-      std::copy(nodes_->begin(),nodes_->end(),
-		std::ostream_iterator<NodePtr>(ost,"\n"));
+      copy(nodes_->begin(),nodes_->end(),
+		ostream_iterator<NodePtr>(ost,"\n"));
       ost << "\n}\n";
     }
 
