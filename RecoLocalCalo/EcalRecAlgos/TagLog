@@ -1,3 +1,9 @@
+** V00-00-04  [Fri Mar 10 20:10:14 2006]
+added pure abstract base class for rechit reconstruction algorithms
+ 
+also implemented a first simple algorithm using the global ADC-&gt;GeV scale for the barrel
+and the intercalib constants to make EcalRecHit from EcalUncalibratedRecHit
+
 ** V00-00-03  [Tue Jan 10 15:21:09 2006]
 implemented the analytic fit by Alessandro Palma.
 This fit is used to make uncalib rechits in the analysis of the
