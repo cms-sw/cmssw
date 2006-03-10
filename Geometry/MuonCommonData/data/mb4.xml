@@ -20,7 +20,7 @@
 
 
   <Constant name="MB4FeetPos_x" value="3570.28*mm"/>
-  <Constant name="MB4FeetPos_y" value="-6303.92*mm-[mbCommon:MBSL_posDisp]"/>
+  <Constant name="MB4FeetPos_y" value="-6303.92*mm+[mbCommon:MBSL_posDisp]"/>
 
 
 <!-- ### Top (MB3) and Bottom (MB4) chamers --> 
@@ -29,7 +29,7 @@
   <Constant name="MB4TopPos_y" value="7220.*mm-[mbCommon:MBSL_posDisp]"/>
 
   <Constant name="MB4BottomPos_x" value="1367.7*mm"/>
-  <Constant name="MB4BottomPos_y" value="-7220.*mm-[mbCommon:MBSL_posDisp]"/>   
+  <Constant name="MB4BottomPos_y" value="-7220.*mm+[mbCommon:MBSL_posDisp]"/>   
 
 
 
