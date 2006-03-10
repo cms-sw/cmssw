@@ -1,12 +1,12 @@
 #ifndef _Vtx_TransientVertex_H_
 #define _Vtx_TransientVertex_H_
 
-// #include "CommonReco/CommonVertex/interface/RecoVertex.h"
 #include "Geometry/Vector/interface/GlobalPoint.h"
 #include "Geometry/CommonDetAlgo/interface/GlobalError.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexState.h"
 #include "RecoVertex/VertexPrimitives/interface/TTtoTTmap.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 
 #include <vector>
 #include <map>
@@ -14,10 +14,9 @@
 class CachingVertex;
 
 /** \class TransientVertex
- *  The concrete RecVertex implementation.
  */
 
-class TransientVertex {
+class TransientVertex : public reco::Vertex{
 
 public:
 
@@ -199,8 +198,11 @@ private:
   mutable VertexState thePriorVertexState;
   mutable VertexState theVertexState;
 
+  void addTracks(const std::vector<reco::TransientTrack> & tracks);
+
   std::vector<reco::TransientTrack> theOriginalTracks;
   std::vector<reco::TransientTrack> theRefittedTracks;
+
 
   float theChi2;
   float theNDF;
