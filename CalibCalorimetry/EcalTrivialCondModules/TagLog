@@ -1,3 +1,11 @@
+** V00-00-01  [Fri Mar 10 19:42:57 2006]
+now all parameters used by the trivial cond retriever can be configured
+by the user in the config file.
+the default values currently provided are those used and needed by Giuseppe.
+I wil soon promote all parameters to be tracked and require users to configure them explicitly
+in their configuration file.
+This will happen as soon as I provide a default config file for this module
+
 ** V00-00-00  [Fri Mar 10 09:53:08 2006]
 first version of this package to be included in the next nightly and open release
 
