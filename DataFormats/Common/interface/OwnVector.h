@@ -1,6 +1,6 @@
 #ifndef Common_OwnVector_h
 #define Common_OwnVector_h
-// $Id: OwnVector.h,v 1.2 2006/02/09 09:21:52 llista Exp $
+// $Id: OwnVector.h,v 1.3 2006/02/23 12:33:13 llista Exp $
 #include <vector>
 #include "DataFormats/Common/interface/ClonePolicy.h"
 #include <algorithm>
@@ -14,6 +14,7 @@ namespace edm {
     public:
       typedef typename base::size_type size_type;
       typedef T value_type;
+      typedef T * pointer;
       typedef T & reference;
       typedef const T & const_reference;
       
