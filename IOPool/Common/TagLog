@@ -1,3 +1,6 @@
+** V01-01-02  [Sat Mar 11 14:22:22 2006]
+Add support for ParameterSet persistency
+
 ** V01-01-01  [Tue Feb 28 20:31:03 2006]
 Fix problems with EDMFastMerge
 
