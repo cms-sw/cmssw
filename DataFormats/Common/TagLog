@@ -1,3 +1,6 @@
+** V01-02-07  [Sat Mar 11 20:33:46 2006]
+Add missing typedef of 'pointer' to OwnVector
+
 ** V01-02-06  [Sat Mar 11 00:44:28 2006]
 Add ParameterSetBlob class, and make additions to RangeMap class
 
