@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: PoolOutputModule.h,v 1.2 2005/11/21 19:57:42 wmtan Exp $
+// $Id: PoolOutputModule.h,v 1.3 2005/11/23 02:21:29 wmtan Exp $
 //
 // Class PoolOutputModule. Output module to POOL file
 //
@@ -36,7 +36,7 @@ namespace edm {
     friend class PoolOutputModule::PoolFile;
     explicit PoolOutputModule(ParameterSet const& ps);
     virtual ~PoolOutputModule();
-    virtual void beginJob(EventSetup const&); 
+    virtual void beginJob(EventSetup const&);
     virtual void endJob();
     virtual void write(EventPrincipal const& e);
 
@@ -81,8 +81,10 @@ namespace edm {
     pool::Placement provenancePlacement_;
     pool::Placement auxiliaryPlacement_;
     pool::Placement productDescriptionPlacement_;
+    pool::Placement parameterSetIDPlacement_;
+    pool::Placement parameterSetPlacement_;
     PoolOutputModule const* om_;
-  }; 
+  };
 }
 
 #endif

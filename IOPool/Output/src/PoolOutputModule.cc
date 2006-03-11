@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.15 2006/03/02 06:36:08 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.16 2006/03/05 00:44:34 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
@@ -9,7 +9,9 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "DataFormats/Common/interface/EventProvenance.h"
 #include "DataFormats/Common/interface/ProductRegistry.h"
+#include "DataFormats/Common/interface/ParameterSetBlob.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataSvc/Ref.h"
@@ -68,11 +70,11 @@ namespace edm {
     std::string fileBase(ext ? om->fileName_.substr(0, offset): om->fileName_);
     if (om->fileCount_) {
       std::ostringstream ofilename;
-      ofilename << fileBase << std::setw(3) << std::setfill('0') << om->fileCount_ - 1 << suffix;
+      ofilename << fileBase << std::setw(3) << std::setfill('0') << om->fileCount_ << suffix;
       file_ = ofilename.str();
       if (!om->logicalFileName_.empty()) {
 	std::ostringstream lfilename;
-	lfilename << om->logicalFileName_ << std::setw(3) << std::setfill('0') << om->fileCount_ - 1;
+	lfilename << om->logicalFileName_ << std::setw(3) << std::setfill('0') << om->fileCount_;
 	lfn_ = lfilename.str();
       }
     } else {
@@ -82,6 +84,8 @@ namespace edm {
     makePlacement(poolNames::eventTreeName(), poolNames::provenanceBranchName(), provenancePlacement_);
     makePlacement(poolNames::eventTreeName(), poolNames::auxiliaryBranchName(), auxiliaryPlacement_);
     makePlacement(poolNames::metaDataTreeName(), poolNames::productDescriptionBranchName(), productDescriptionPlacement_);
+    makePlacement(poolNames::parameterSetTreeName(), poolNames::parameterSetIDBranchName(), parameterSetIDPlacement_);
+    makePlacement(poolNames::parameterSetTreeName(), poolNames::parameterSetBranchName(), parameterSetPlacement_);
     ProductRegistry pReg;
     pReg.setNextID(om->nextID());
     for (Selections::const_iterator it = om->descVec_.begin();
@@ -93,9 +97,19 @@ namespace edm {
     }
     LogInfo("FwkJob") << "Output file is about to be opened.";
     LogInfo("FwkJob") << "PFN: " << file_;
+    std::vector<boost::shared_ptr<ParameterSetBlob> > psets;
     startTransaction();
     pool::Ref<ProductRegistry const> rp(om->context(), &pReg);
     rp.markWrite(productDescriptionPlacement_);
+    pset::Registry const* psetRegistry = pset::Registry::instance();    
+    for (pset::Registry::const_iterator it = psetRegistry->begin(); it != psetRegistry->end(); ++it) {
+      pool::Ref<ParameterSetID const> rpsetid(om->context(), &it->first);
+      boost::shared_ptr<ParameterSetBlob> pset(new ParameterSetBlob(it->second.toStringOfTracked()));
+      psets.push_back(pset); // Keeps ParameterSetBlob alive until after the commit.
+      pool::Ref<ParameterSetBlob const> rpset(om->context(), pset.get());
+      rpset.markWrite(parameterSetPlacement_);
+      rpsetid.markWrite(parameterSetIDPlacement_);
+    }
     commitAndFlushTransaction();
     LogInfo("FwkJob") << "Output file opened successfully.";
     om->catalog_.registerFile(file_, lfn_);
@@ -208,7 +222,7 @@ namespace edm {
     TFile f(file_.c_str(), "update");
     TTree *t = dynamic_cast<TTree *>(f.Get(poolNames::eventTreeName().c_str()));
     if (t) {
-      // t->BuildIndex("id_.run_", "id_.event_");
+      t->BuildIndex("id_.run_", "id_.event_");
       for (Selections::const_iterator it = om_->descVec_.begin();
 	it != om_->descVec_.end(); ++it) {
 	BranchDescription const& pd = **it;
