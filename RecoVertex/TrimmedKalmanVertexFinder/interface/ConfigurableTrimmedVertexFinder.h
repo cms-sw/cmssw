@@ -50,10 +50,10 @@ public:
 
   virtual ~ConfigurableTrimmedVertexFinder() {}
 
-  virtual vector<RecVertex> vertices(const vector<TransientTrack> & tracks)
+  virtual vector<TransientVertex> vertices(const vector<TransientTrack> & tracks)
     const;
 
-  vector<RecVertex> vertices( const vector<TransientTrack> & tracks,
+  vector<TransientVertex> vertices( const vector<TransientTrack> & tracks,
 			      vector<TransientTrack>& unused) const;
 
   /** Access to parameters
@@ -92,14 +92,14 @@ protected:
   virtual void analyseInputTracks(const vector<TransientTrack> & tracks) 
     const {}
 
-  virtual void analyseClusterFinder(const vector<RecVertex> & vts, 
+  virtual void analyseClusterFinder(const vector<TransientVertex> & vts, 
 				    const vector<TransientTrack> & remain) 
     const {}
 
-  virtual void analyseVertexCandidates(const vector<RecVertex> & vts) 
+  virtual void analyseVertexCandidates(const vector<TransientVertex> & vts) 
     const {}
 
-  virtual void analyseFoundVertices(const vector<RecVertex> & vts) 
+  virtual void analyseFoundVertices(const vector<TransientVertex> & vts) 
     const {}
 
 
@@ -110,11 +110,13 @@ private:
   //		      vector<TransientTrack>& unused) const;
 
   // find vertex candidates
-  vector<RecVertex> vertexCandidates(const vector<TransientTrack> & tracks, 
-				     vector<TransientTrack>& unused) const;
+  vector<TransientVertex> 
+    vertexCandidates(const vector<TransientTrack> & tracks, 
+		     vector<TransientTrack>& unused) const;
 
   // remove bad candidates
-  vector<RecVertex> clean(const vector<RecVertex> & candidates) const;
+  vector<TransientVertex> 
+    clean(const vector<TransientVertex> & candidates) const;
   
   // 
   mutable TrimmedVertexFinder theClusterFinder;

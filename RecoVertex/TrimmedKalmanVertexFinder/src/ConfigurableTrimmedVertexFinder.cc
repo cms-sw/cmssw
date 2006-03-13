@@ -17,7 +17,7 @@ ConfigurableTrimmedVertexFinder::ConfigurableTrimmedVertexFinder(
 }
 
 
-vector<RecVertex> ConfigurableTrimmedVertexFinder::vertices(
+vector<TransientVertex> ConfigurableTrimmedVertexFinder::vertices(
   const vector<RecTrack> & tracks) const
 {
   vector<RecTrack> remaining;
@@ -27,7 +27,7 @@ vector<RecVertex> ConfigurableTrimmedVertexFinder::vertices(
 }
 
 
-vector<RecVertex> ConfigurableTrimmedVertexFinder::vertices(
+vector<TransientVertex> ConfigurableTrimmedVertexFinder::vertices(
   const vector<RecTrack> & tracks, vector<RecTrack> & unused) 
   const
 {
@@ -45,11 +45,11 @@ vector<RecVertex> ConfigurableTrimmedVertexFinder::vertices(
     }
   }
 
-  vector<RecVertex> all = vertexCandidates(filtered, unused);
+  vector<TransientVertex> all = vertexCandidates(filtered, unused);
 
   analyseVertexCandidates(all);
 
-  vector<RecVertex> sel = clean(all);
+  vector<TransientVertex> sel = clean(all);
 
   analyseFoundVertices(sel);
 
@@ -58,11 +58,11 @@ vector<RecVertex> ConfigurableTrimmedVertexFinder::vertices(
 }
 
 
-vector<RecVertex> ConfigurableTrimmedVertexFinder::vertexCandidates(
+vector<TransientVertex> ConfigurableTrimmedVertexFinder::vertexCandidates(
   const vector<RecTrack> & tracks, vector<RecTrack> & unused) const 
 {
 
-  vector<RecVertex> cand;
+  vector<TransientVertex> cand;
 
   vector<RecTrack> remain = tracks;
 
@@ -77,12 +77,12 @@ vector<RecVertex> ConfigurableTrimmedVertexFinder::vertexCandidates(
     //    cout << "PVCF:compat cut after setting " 
     //	 << theClusterFinder.trackCompatibilityCut() << endl;
 
-    vector<RecVertex> newVertices = theClusterFinder.vertices(remain);
+    vector<TransientVertex> newVertices = theClusterFinder.vertices(remain);
     if (newVertices.empty()) break;
     
     analyseClusterFinder(newVertices, remain);
     
-    for (vector<RecVertex>::const_iterator iv = newVertices.begin();
+    for (vector<TransientVertex>::const_iterator iv = newVertices.begin();
          iv != newVertices.end(); iv++) {
       if ( iv->originalTracks().size() > 1 ) {
         cand.push_back(*iv);
@@ -112,11 +112,11 @@ vector<RecVertex> ConfigurableTrimmedVertexFinder::vertexCandidates(
 }
 
 
-vector<RecVertex> 
-ConfigurableTrimmedVertexFinder::clean(const vector<RecVertex> & candidates) const
+vector<TransientVertex> 
+ConfigurableTrimmedVertexFinder::clean(const vector<TransientVertex> & candidates) const
 {
-  vector<RecVertex> sel;
-  for (vector<RecVertex>::const_iterator i = candidates.begin(); 
+  vector<TransientVertex> sel;
+  for (vector<TransientVertex>::const_iterator i = candidates.begin(); 
        i != candidates.end(); i++) {
 
     if (ChiSquaredProbability((*i).totalChiSquared(), (*i).degreesOfFreedom())

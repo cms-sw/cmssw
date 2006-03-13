@@ -26,11 +26,14 @@ public:
     return new DefaultTrimmedVertexFinder(*this);
   }
 
-  virtual inline vector<RecVertex> vertices(const vector<RecTrack> & tracks)
-    const { return theFinder->vertices(tracks); }
+  virtual inline vector<TransientVertex> 
+    vertices(const vector<RecTrack> & tracks) const { 
+    return theFinder->vertices(tracks); 
+  }
 
-  inline vector<RecVertex> vertices( const vector<RecTrack> & tracks,
-				     vector<RecTrack>& unused) const {
+  inline vector<TransientVertex> 
+    vertices( const vector<RecTrack> & tracks, vector<RecTrack>& unused) 
+    const {
     return theFinder->vertices(tracks, unused);
   }
 

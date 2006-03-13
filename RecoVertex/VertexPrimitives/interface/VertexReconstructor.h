@@ -1,7 +1,8 @@
-#ifndef _Tracker_VertexReconstructor_H_
-#define _Tracker_VertexReconstructor_H_
+#ifndef _VertexReconstructor_H_
+#define _VertexReconstructor_H_
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientTrack.h"
 
 /** Abstract class for vertex reconstructors, 
@@ -17,7 +18,9 @@ public:
 
   /** Reconstruct vertices
    */
-  virtual vector<RecVertex> vertices(const vector<reco::TransientTrack> &) const = 0; 
+  virtual 
+  vector<TransientVertex> vertices(const vector<reco::TransientTrack> &) 
+    const = 0; 
 
   virtual VertexReconstructor * clone() const = 0;
 
