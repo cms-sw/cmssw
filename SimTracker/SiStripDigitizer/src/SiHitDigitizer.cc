@@ -18,12 +18,12 @@ SiHitDigitizer::SiHitDigitizer(const edm::ParameterSet& conf, const StripGeomDet
   
   theSiChargeDivider = new SiLinearChargeDivider(conf);
   
-  depletionVoltage=conf_.getParameter<double>("DepletionVoltage");
-  appliedVoltage=conf_.getParameter<double>("AppliedVoltage");
-  chargeMobility=conf_.getParameter<double>("ChargeMobility");
-  temperature=conf_.getParameter<double>("Temperature");
+  depletionVoltage = conf_.getParameter<double>("DepletionVoltage");
+  appliedVoltage   = conf_.getParameter<double>("AppliedVoltage");
+  chargeMobility   = conf_.getParameter<double>("ChargeMobility");
+  temperature      = conf_.getParameter<double>("Temperature");
   double diffusionConstant = CBOLTZ/e_SI * chargeMobility * temperature;
-  noDiffusion=conf_.getParameter<bool>("noDiffusion");
+  noDiffusion      = conf_.getParameter<bool>("noDiffusion");
   if (noDiffusion) diffusionConstant *= 1.0e-3;
   chargeDistributionRMS=conf_.getParameter<double>("ChargeDistributionRMS");
   double moduleThickness = det->specificSurface().bounds().thickness(); // full detector thicness
@@ -84,7 +84,6 @@ LocalVector SiHitDigitizer::DriftDirection(const StripGeomDetUnit* _detp,GlobalV
 
   //Lorentz angle tangent per Tesla
   tanLorentzAnglePerTesla=conf_.getParameter<double>("TanLorentzAnglePerTesla");
-
 
   float dir_x = tanLorentzAnglePerTesla * Bfield.y();
   float dir_y = -tanLorentzAnglePerTesla * Bfield.x();

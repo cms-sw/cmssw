@@ -31,6 +31,8 @@
 #include "SimGeneral/HepPDT/interface/HepPDTable.h"
 #include "SimTracker/Common/interface/SiG4UniversalFluctuation.h"
 #include "SimGeneral/NoiseGenerators/interface/GaussianTailNoiseGenerator.h"
+#include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
+#include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLinkCollection.h"
 using namespace std;
 
 class SiStripDigitizerAlgorithm 
@@ -42,8 +44,12 @@ class SiStripDigitizerAlgorithm
   typedef map< int, float, less<int> > hit_map_type;
   typedef float Amplitude;
 
+  //digisimlink
+  std::vector<StripDigiSimLink> link_coll;
+  std::vector<StripDigiSimLink>  make_link(){ return link_coll;}
+
   
-  SiStripDigitizerAlgorithm(const edm::ParameterSet& conf);
+  SiStripDigitizerAlgorithm(const edm::ParameterSet& conf, StripGeomDetUnit *det);
   ~SiStripDigitizerAlgorithm();
 
   // Runs the algorithm

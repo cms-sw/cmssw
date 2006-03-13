@@ -14,10 +14,6 @@ SiTrivialZeroSuppress::SiTrivialZeroSuppress(const edm::ParameterSet& conf, floa
 //(which is in SiTrivialZeroSuppress::trkFEDclusterizer)
 void SiTrivialZeroSuppress::initParams(edm::ParameterSet const& conf_)
 {
-  //Read parameters
-  //  static SimpleConfigurable<short> algoConf(4,"SiStripFedDigitizer:algorithm");
-  //  static SimpleConfigurable<float> lowthreshConf(2.,"SiStripFedDigitizer:lowThresh");
-  //  static SimpleConfigurable<float> highthreshConf(5.,"SiStripFedDigitizer:highThresh");
   algoConf=conf_.getParameter<int>("FedAlgorithm");
   lowthreshConf=conf_.getParameter<double>("FedLowThreshold");
   highthreshConf=conf_.getParameter<double>("FedHighThreshold");

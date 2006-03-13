@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea GIAMMANCO
 //         Created:  Thu Sep 22 14:23:22 CEST 2005
-// $Id: SiStripDigitizer.cc,v 1.8 2006/01/19 21:00:10 pioppi Exp $
+// $Id: SiStripDigitizer.cc,v 1.11 2006/03/07 10:47:36 fambrogl Exp $
 //
 //
 
@@ -34,14 +34,18 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/SiStripDigi/interface/StripDigiCollection.h"
+#include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
+#include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLinkCollection.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
+
 #include <cstdlib> // I need it for random numbers
 
 //needed for the geometry:
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerBaseAlgo/interface/GeometricDet.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
@@ -59,12 +63,12 @@ namespace cms
 {
 
   SiStripDigitizer::SiStripDigitizer(const edm::ParameterSet& conf) : 
-    stripDigitizer_(conf) ,
+    //   stripDigitizer_(conf) ,
     conf_(conf)
   {
-    //    numStrips=conf_.getParameter<int>("NumStrips"); // temporary!
 
     produces<StripDigiCollection>();
+    produces<StripDigiSimLinkCollection>();
   }
 
   // Virtual destructor needed.
@@ -104,27 +108,30 @@ namespace cms
 
     // Step B: create empty output collection
     std::auto_ptr<StripDigiCollection> output(new StripDigiCollection);
+    std::auto_ptr<StripDigiSimLinkCollection> outputlink(new StripDigiSimLinkCollection);
 
     //Loop on PSimHit
     SimHitMap.clear();
-
+    
     for (std::vector<PSimHit>::iterator isim = theStripHits.begin();
 	 isim != theStripHits.end(); ++isim){
-      DetId detid=DetId((*isim).detUnitId());
-      unsigned int subid=detid.subdetId();
-      if ((subid==  StripSubdetector::TIB) || 
-	  (subid== StripSubdetector::TOB)  ||
-	  (subid==  StripSubdetector::TEC) || 
-	  (subid== StripSubdetector::TID)) {
-	SimHitMap[(*isim).detUnitId()].push_back((*isim));
-      }
+      /*
+	DetId detid=DetId((*isim).detUnitId());
+	unsigned int subid=detid.subdetId();
+	if ((subid==  StripSubdetector::TIB) || 
+	(subid== StripSubdetector::TOB)  ||
+	(subid==  StripSubdetector::TEC) || 
+	(subid== StripSubdetector::TID)) {
+      */
+      SimHitMap[(*isim).detUnitId()].push_back((*isim));
+      //      }
     }
     
-
+    
     // Temporary: generate random collections of pseudo-hits:
     //PseudoHitContainer pseudoHitContainer;// for some reason this class isn't recognized!!!
-
- 
+    
+    
     edm::ESHandle<TrackingGeometry> pDD;
  
     iSetup.get<TrackerDigiGeometryRecord> ().get (pDD);
@@ -134,40 +141,52 @@ namespace cms
 
   
     // Step C: LOOP on StripGeomDetUnit //
+    
+    theAlgoMap.clear();
     for(TrackingGeometry::DetContainer::const_iterator iu = pDD->dets().begin(); iu != pDD->dets().end(); iu ++){
-
+      
       GlobalVector bfield=pSetup->inTesla((*iu)->surface().position());
-
-      //   const GeomDetUnit& iu(**iu);
-      if (dynamic_cast<StripGeomDetUnit*>((*iu))!=0){
-
+      
+      StripGeomDetUnit* sgd = dynamic_cast<StripGeomDetUnit*>((*iu));
+      if (sgd != 0){
+	
 	collector.clear();
-	collector= stripDigitizer_.run(SimHitMap[(*iu)->geographicalId().rawId()],
-				       dynamic_cast<StripGeomDetUnit*>((*iu)),
-				       bfield);
-
+	linkcollector.clear();
+	
+	if(theAlgoMap.find(&(sgd->type())) == theAlgoMap.end()) {
+	  theAlgoMap[&(sgd->type())] = new SiStripDigitizerAlgorithm(conf_, sgd);
+	}
+	
+	collector= ((theAlgoMap.find(&(sgd->type())))->second)->run(SimHitMap[(*iu)->geographicalId().rawId()], sgd, bfield);
+	
 	if (collector.size()>0){
 	  StripDigiCollection::Range outputRange;
-	
+	  
 	  outputRange.first = collector.begin();
 	  outputRange.second = collector.end();
 	  output->put(outputRange,(*iu)->geographicalId().rawId());
-	}
+	  
+	  //digisimlink
+	  if(SimHitMap[(*iu)->geographicalId().rawId()].size()>0){
+	    StripDigiSimLinkCollection::Range outputlinkRange;
+	    linkcollector= ((theAlgoMap.find(&(sgd->type())))->second)->make_link();
+	    outputlinkRange.first = linkcollector.begin();	  
+	    outputlinkRange.second = linkcollector.end();
+	    outputlink->put(outputlinkRange,(*iu)->geographicalId().rawId());
+	  }
+	}	
 	
-
-
-
       }
-
+      
     }
-
-
     
-
+    
+    
+    
     // Step D: write output to file
     iEvent.put(output);
-
-
+    iEvent.put(outputlink);
+    
   
   }
 
