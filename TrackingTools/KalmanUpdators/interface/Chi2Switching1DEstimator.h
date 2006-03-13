@@ -24,11 +24,7 @@ public:
   virtual std::pair<bool, double> estimate(const TrajectoryStateOnSurface& aTsos,
 				      const TransientTrackingRecHit& aHit) const;
 
-#ifndef CMS_NO_RELAXED_RETURN_TYPE
   virtual Chi2Switching1DEstimator* clone() const 
-#else
-  virtual MeasurementEstimator* clone() const 
-#endif
   {
     return new Chi2Switching1DEstimator(*this);
   }

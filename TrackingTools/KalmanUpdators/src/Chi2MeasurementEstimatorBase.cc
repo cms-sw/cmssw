@@ -1,9 +1,5 @@
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimatorBase.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-//#include "CommonReco/PatternTools/interface/MeasurementExtractor.h"
-//#include "CommonDet/BasicDet/interface/RecHit.h"
-//#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-//#include "CommonDet/DetGeometry/interface/BoundPlane.h"
 #include "Geometry/Surface/interface/BoundPlane.h"
 
 bool Chi2MeasurementEstimatorBase::estimate( const TrajectoryStateOnSurface& ts, 

@@ -22,11 +22,7 @@ public:
 
   virtual TSOS update(const TSOS& aTsos, const TransientTrackingRecHit& aHit) const;
 
-#ifndef CMS_NO_RELAXED_RETURN_TYPE
   virtual KFStrip1DUpdator * clone() const 
-#else
-  virtual TrajectoryStateUpdator * clone() const 
-#endif
   {
     return new KFStrip1DUpdator(*this);
   }

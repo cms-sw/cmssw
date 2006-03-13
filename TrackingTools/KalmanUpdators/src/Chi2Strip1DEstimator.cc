@@ -1,6 +1,4 @@
 #include "TrackingTools/KalmanUpdators/interface/Chi2Strip1DEstimator.h"
-// #include "CommonDet/BasicDet/interface/Det.h"
-// #include "CommonDet/BasicDet/interface/DetUnit.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 
@@ -10,10 +8,8 @@ pair<bool,double>
 Chi2Strip1DEstimator::estimate(const TrajectoryStateOnSurface& state,
 			       const TransientTrackingRecHit& hit) const {
 
-  if(hit.dimension()==2 || 
-     hit.detUnit()->type().isTrackerPixel() //) return HitReturnType(false,0.);
-     //(hit.geographicalId().det() == DetId::Tracker )
-      //&&.front()->type().module() == pixel)
+  if(//hit.isMatched() || 
+     hit.detUnit()->type().isTrackerPixel() 
      ) return HitReturnType(false,0.);
   
  
