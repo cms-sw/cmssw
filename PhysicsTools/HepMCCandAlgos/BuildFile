@@ -1,10 +1,12 @@
 <flags SEAL_PLUGIN_NAME="PhysicsToolsHepMCCandAlgos">
+<use name=PhysicsTools/HepPDTProducer>
 <use name=DataFormats/HepMCCandidate>
 <use name=SimDataFormats/HepMCProduct>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <export>
   <lib name=PhysicsToolsHepMCCandAlgos>
+  <use name=PhysicsTools/HepPDTProducer>
   <use name=DataFormats/HepMCCandidate>
   <use name=SimDataFormats/HepMCProduct>
   <use name=FWCore/Framework>
