@@ -1,3 +1,8 @@
+** V00-01-02  [Mon Mar 13 10:09:16 2006]
+fixed  config files for uncalib rechit producers.
+Now the weight method producer uses the latest cond DB objects 
+and all config files use the trivial cond retreiver.
+
 ** V00-01-01  [Fri Mar 10 20:13:28 2006]
 added EcalRecHitProducer that uses EcalRecHitSimpleAlgo to make
 rechits from uncalib rechits using the global ADC-&gt;GeV scale
