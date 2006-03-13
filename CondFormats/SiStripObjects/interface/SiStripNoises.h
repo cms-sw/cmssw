@@ -13,43 +13,50 @@ typedef bool  SiStripDisable;
 class SiStripNoises {
 
  public:
-  SiStripNoises();
-  ~SiStripNoises();
-  
-/*   struct Item { */
-/*     uint32_t StripData; */
-/*   }; */
-  
+
   class SiStripData {
   public:
-
+  
     SiStripNoise   getNoise()   const {return static_cast<SiStripNoise> (abs(Data)/10.0);}
     SiStripDisable getDisable() const {return ( (Data>0) ? false : true );}
-    void setData(short data){Data=data;}
+    void setData(int16_t data){Data=data;}
     void setData(float noise_,bool disable_){
-      short noise =  static_cast<short>  (noise_*10.0 + 0.5) & 0x01FF;
+      int16_t noise =  static_cast<int16_t>  (noise_*10.0 + 0.5) & 0x01FF;
       Data = ( disable_ ? -1 : 1 ) * noise;
-/*       std::cout  */
-/* 	<< std::fixed << noise_ << " \t"  */
-/* 	<< disable_  << " \t"  */
-/* 	<< Data << " \t"  */
-/* 	<< std::endl; */
     };
     
   private:
-    //FIXME 
-    //the short type is assured to be 16 bit in CMSSW???
-    short Data; // Data = sign(+/-1) * Noise(Adc count). if Data <=0 then strip is disable
+    int16_t Data; // Data = sign(+/-1) * Noise(Adc count). if Data <=0 then strip is disable
   };
-    
-  const std::vector<SiStripData> &  getSiStripNoiseVector(const uint32_t & DetId) const;
+  
+  struct DetRegistry{
+    uint32_t detid;
+    uint32_t ibegin;
+    uint32_t iend;
+  };
 
-  std::map<uint32_t, std::vector<SiStripData> > m_noises;
+  typedef std::vector<SiStripData>                         SiStripNoiseVector;
+  typedef SiStripNoiseVector::const_iterator               ContainerIterator;  
+  typedef std::pair<ContainerIterator, ContainerIterator>  Range;      
+  typedef std::vector<DetRegistry>                         Registry;
+  typedef Registry::const_iterator                         RegistryIterator;
+ 
+  SiStripNoises(){};
+  ~SiStripNoises(){};
+    
+  bool put(const uint32_t& detID,Range input);
+  const Range getRange(const uint32_t& detID) const;
+  void getDetIds(std::vector<uint32_t>& DetIds_) const;
+
+ private:
+  SiStripNoiseVector v_noises;
+  Registry indexes;
+
 };
 
-typedef std::vector<SiStripNoises::SiStripData>                 SiStripNoiseVector;
-typedef std::vector<SiStripNoises::SiStripData>::const_iterator SiStripNoiseVectorIterator;
-typedef std::map<uint32_t, SiStripNoiseVector>                 SiStripNoiseMap;
-typedef std::map<uint32_t, SiStripNoiseVector>::const_iterator SiStripNoiseMapIterator;
+class StrictWeakOrdering{
+  public:
+  bool operator() (const SiStripNoises::DetRegistry& p,const uint32_t& i) const {return p.detid < i;}
+};
 
 #endif
