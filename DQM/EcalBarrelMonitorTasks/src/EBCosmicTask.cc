@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  *
- * $Date: 2006/03/13 09:54:46 $
- * $Revision: 1.38 $
+ * $Date: 2006/03/13 10:11:21 $
+ * $Revision: 1.39 $
  * \author G. Della Ricca
  *
 */
@@ -97,15 +97,15 @@ void EBCosmicTask::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
-  Handle<EcalUncalibratedRecHitCollection> hits;
+  Handle<EcalRecHitCollection> hits;
   e.getByLabel("ecalRecHitMaker", "EcalRecHits", hits);
 
   int nebh = hits->size();
   LogDebug("EBCosmicTask") << "event " << ievt_ << " hits collection size " << nebh;
 
-  for ( EcalUncalibratedRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
+  for ( EcalRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
 
-    EcalUncalibratedRecHit hit = (*hitItr);
+    EcalRecHit hit = (*hitItr);
     EBDetId id = hit.id();
 
     int ie = id.ieta();
