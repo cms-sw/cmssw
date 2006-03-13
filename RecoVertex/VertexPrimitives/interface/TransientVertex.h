@@ -131,7 +131,6 @@ public:
 
   /** Returns true if vertex is valid.
    *  An invalid RecVertex is created e.g. when vertex fitting fails.
-   *  WARNING: obsolete. All RecVertex objects are valid.
    */
   bool isValid() const {
     return vertexValid;
