@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  *
- * $Date: 2006/02/05 22:19:22 $
- * $Revision: 1.39 $
+ * $Date: 2006/02/21 20:32:48 $
+ * $Revision: 1.40 $
  * \author G. Della Ricca
  *
 */
@@ -188,7 +188,7 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
   }
 
   Handle<EcalUncalibratedRecHitCollection> hits;
-  e.getByLabel("ecalUncalibHitMaker", "EcalEBUncalibRecHits", hits);
+  e.getByLabel("ecalUncalibHitMaker", "EcalUncalibRecHits", hits);
 
   int neh = hits->size();
   LogDebug("EBTestPulseTask") << "event " << ievt_ << " hits collection size " << neh;
